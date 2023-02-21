@@ -74,4 +74,17 @@ extension RotateLeftLogic on Logic {
   }
 }
 
-// TODO: offer on LogicValue as well
+extension RotateLeftLogicValue on LogicValue {
+  ///TODO
+  LogicValue rotateLeft(int amount) {
+    final split = width - amount % width;
+    if (split == width) {
+      return this;
+    }
+
+    return [
+      getRange(0, split),
+      getRange(split),
+    ].swizzle();
+  }
+}
