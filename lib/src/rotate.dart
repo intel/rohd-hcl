@@ -1,6 +1,6 @@
 //
-// rotate_left.dart
-// Implementation of left-rotate
+// rotate.dart
+// Implementation of rotation for Logic and LogicValue.
 //
 // Author: Max Korbel
 // 2023 February 17
@@ -10,16 +10,32 @@ import 'dart:math';
 
 import 'package:rohd/rohd.dart';
 
-enum _RotateDirection { left, right }
+/// A direction for something to rotate.
+enum _RotateDirection {
+  /// Rotate to the left.
+  left,
 
+  /// Rotate to the right.
+  right
+}
+
+/// Rotates a [Logic] to the specified direction.
 class _Rotate extends Module {
+  /// The maximum amount that this [_Rotate] should support in rotation.
   final int maxAmount;
 
+  /// The [_direction] that this [_Rotate] should rotate.
   final _RotateDirection _direction;
 
+  /// The [rotated] result.
   Logic get rotated => output('rotated');
 
-  /// TODO
+  /// Constructs a [Module] that rotates [original] to the specified
+  /// [_direction] by [rotateAmount], up to [maxAmount].
+  ///
+  /// If no [maxAmount] is provided, it will default to the `width` of
+  /// [original].  The [maxAmount] will be not be larger than what could be
+  /// represented by the maximum value of [rotateAmount].
   _Rotate(this._direction, Logic original, Logic rotateAmount, {int? maxAmount})
       : maxAmount = min(
           maxAmount ?? original.width,
@@ -44,12 +60,14 @@ class _Rotate extends Module {
     ]);
   }
 
+  /// Rotates [original] by [rotateAmount] in the specified [direction].
   static Logic _rotateBy(
-      int amount, Logic original, _RotateDirection direction) {
+      int rotateAmount, Logic original, _RotateDirection direction) {
     final split = direction == _RotateDirection.left
-        ? original.width - amount % original.width
-        : amount % original.width;
-    if (split == original.width) {
+        ? original.width - rotateAmount % original.width
+        : rotateAmount % original.width;
+
+    if (rotateAmount % original.width == 0) {
       return original;
     }
 
@@ -60,18 +78,52 @@ class _Rotate extends Module {
   }
 }
 
+/// Rotates a [Logic] to the left.
 class RotateLeft extends _Rotate {
+  /// Constructs a [Module] to perform rotation to the left.
+  ///
+  /// Conditionally rotates by different amounts based on the value of
+  /// [rotateAmount]. The [maxAmount] is the largest value for which this
+  /// rotation should support, which could be greater than the `width`
+  /// of [rotateAmount].
+  ///
+  /// If no [maxAmount] is provided, it will default to the `width` of
+  /// [original].  The [maxAmount] will be not be larger than what could be
+  /// represented by the maximum value of [rotateAmount].
   RotateLeft(Logic original, Logic rotateAmount, {super.maxAmount})
       : super(_RotateDirection.left, original, rotateAmount);
 }
 
+/// Rotates a [Logic] to the right.
 class RotateRight extends _Rotate {
+  /// Constructs a [Module] to perform rotation to the right.
+  ///
+  /// Conditionally rotates by different amounts based on the value of
+  /// [rotateAmount]. The [maxAmount] is the largest value for which this
+  /// rotation should support, which could be greater than the `width`
+  /// of [rotateAmount].
+  ///
+  /// If no [maxAmount] is provided, it will default to the `width` of
+  /// [original].  The [maxAmount] will be not be larger than what could be
+  /// represented by the maximum value of [rotateAmount].
   RotateRight(Logic original, Logic rotateAmount, {super.maxAmount})
       : super(_RotateDirection.right, original, rotateAmount);
 }
 
+/// Adds rotation functions to [Logic].
 extension RotateLogic on Logic {
-  ///TODO
+  /// Returns a [Logic] rotated [direction] by [amount].
+  ///
+  /// If [amount] is an [int], a fixed swizzle is generated.
+  ///
+  /// If [amount] is another [Logic], a [_Rotate] is created to conditionally
+  /// rotate by different amounts based on the value of [amount]. The
+  /// [maxAmount] is the largest value for which this rotation should support,
+  /// which could be greater than the `width` of [amount].
+  ///
+  /// If no [maxAmount] is provided, it will default to the `width` of
+  /// `this`.  The [maxAmount] will be not be larger than what could be
+  /// represented by the maximum value of [rotateAmount].
   Logic _rotate(dynamic amount,
       {required _RotateDirection direction, int? maxAmount}) {
     if (amount is int) {
@@ -91,20 +143,50 @@ extension RotateLogic on Logic {
     }
   }
 
-  Logic rotateLeft(dynamic amount, {int? maxAmount}) =>
-      _rotate(amount, maxAmount: maxAmount, direction: _RotateDirection.left);
+  /// Returns a [Logic] rotated left by [rotateAmount].
+  ///
+  /// If [rotateAmount] is an [int], a fixed swizzle is generated.
+  ///
+  /// If [rotateAmount] is another [Logic], a [RotateLeft] is created to
+  /// conditionally rotate by different amounts based on the value of
+  /// [rotateAmount]. The [maxAmount] is the largest value for which this
+  /// rotation should support, which could be greater than the `width` of
+  /// [rotateAmount].
+  ///
+  /// If no [maxAmount] is provided, it will default to the `width` of
+  /// `this`.  The [maxAmount] will be not be larger than what could be
+  /// represented by the maximum value of [rotateAmount].
+  Logic rotateLeft(dynamic rotateAmount, {int? maxAmount}) =>
+      _rotate(rotateAmount,
+          maxAmount: maxAmount, direction: _RotateDirection.left);
 
-  Logic rotateRight(dynamic amount, {int? maxAmount}) =>
-      _rotate(amount, maxAmount: maxAmount, direction: _RotateDirection.right);
+  /// Returns a [Logic] rotated right by [rotateAmount].
+  ///
+  /// If [rotateAmount] is an [int], a fixed swizzle is generated.
+  ///
+  /// If [rotateAmount] is another [Logic], a [RotateRight] is created to
+  /// conditionally rotate by different amounts based on the value of
+  /// [rotateAmount]. The [maxAmount] is the largest value for which this
+  /// rotation should support, which could be greater than the `width` of
+  /// [rotateAmount].
+  ///
+  /// If no [maxAmount] is provided, it will default to the `width` of
+  /// `this`.  The [maxAmount] will be not be larger than what could be
+  /// represented by the maximum value of [rotateAmount].
+  Logic rotateRight(dynamic rotateAmount, {int? maxAmount}) =>
+      _rotate(rotateAmount,
+          maxAmount: maxAmount, direction: _RotateDirection.right);
 }
 
-///TODO
+/// Adds rotation functions to [LogicValue].
 extension RotateLogicValue on LogicValue {
-  LogicValue _rotate(int amount, {required _RotateDirection direction}) {
+  /// Rotates this value by [rotateAmount] in the specified [direction].
+  LogicValue _rotate(int rotateAmount, {required _RotateDirection direction}) {
     final split = direction == _RotateDirection.left
-        ? width - amount % width
-        : amount % width;
-    if (split == width) {
+        ? width - rotateAmount % width
+        : rotateAmount % width;
+
+    if (rotateAmount % width == 0) {
       return this;
     }
 
@@ -114,11 +196,11 @@ extension RotateLogicValue on LogicValue {
     ].swizzle();
   }
 
-  ///TODO
-  LogicValue rotateLeft(int amount) =>
-      _rotate(amount, direction: _RotateDirection.left);
+  /// Rotates this value by [rotateAmount] to the left.
+  LogicValue rotateLeft(int rotateAmount) =>
+      _rotate(rotateAmount, direction: _RotateDirection.left);
 
-  ///TODO
-  LogicValue rotateRight(int amount) =>
-      _rotate(amount, direction: _RotateDirection.right);
+  /// Rotates this value by [rotateAmount] to the right.
+  LogicValue rotateRight(int rotateAmount) =>
+      _rotate(rotateAmount, direction: _RotateDirection.right);
 }
