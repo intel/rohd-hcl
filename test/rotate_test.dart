@@ -21,12 +21,21 @@ void main() {
       });
       test('by Logic', () {
         final orig = Logic(width: 8)..put(0xf0);
-        expect(orig.rotateLeft(Const(4, width: 8)).value.toInt(), equals(0x0f));
-        expect(orig.rotateLeft(Const(1, width: 8)).value.toInt(), equals(0xe1));
+        expect(orig.rotateLeft(Const(4, width: 4)).value.toInt(), equals(0x0f));
+        expect(orig.rotateLeft(Const(1, width: 5)).value.toInt(), equals(0xe1));
         expect(
-          orig.rotateLeft(Const(1 + 8, width: 8), maxAmount: 16).value.toInt(),
+          orig.rotateLeft(Const(1 + 8, width: 10), maxAmount: 16).value.toInt(),
           equals(0xe1),
         );
+      });
+      test('by Logic with Module and maxAmount', () {
+        expect(
+            RotateLeft(
+              Const(0xf000, width: 16),
+              Const(4, width: 8),
+              maxAmount: 4,
+            ).rotated.value,
+            equals(LogicValue.ofInt(0xf, 16)));
       });
     });
 
@@ -49,15 +58,18 @@ void main() {
       test('by Logic', () {
         final orig = Logic(width: 8)..put(0xf0);
         expect(
-          orig.rotateRight(Const(4, width: 8)).value.toInt(),
+          orig.rotateRight(Const(4, width: 4)).value.toInt(),
           equals(0x0f),
         );
         expect(
-          orig.rotateRight(Const(1, width: 8)).value.toInt(),
+          orig.rotateRight(Const(1, width: 5)).value.toInt(),
           equals(0x78),
         );
         expect(
-          orig.rotateRight(Const(1 + 8, width: 8), maxAmount: 16).value.toInt(),
+          orig
+              .rotateRight(Const(1 + 8, width: 10), maxAmount: 16)
+              .value
+              .toInt(),
           equals(0x78),
         );
       });
