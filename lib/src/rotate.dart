@@ -9,6 +9,7 @@
 import 'dart:math';
 
 import 'package:rohd/rohd.dart';
+import 'package:rohd_hcl/rohd_hcl.dart';
 
 /// A direction for something to rotate.
 enum _RotateDirection {
@@ -152,10 +153,11 @@ extension RotateLogic on Logic {
   ///
   /// If [rotateAmount] is an [int], a fixed swizzle is generated.
   ///
-  /// If [rotateAmount] is another [Logic], a [_Rotate] is created to conditionally
-  /// rotate by different amounts based on the value of [rotateAmount]. The
-  /// [maxAmount] is the largest value for which this rotation should support,
-  /// which could be greater than the `width` of [rotateAmount].
+  /// If [rotateAmount] is another [Logic], a [_Rotate] is created to
+  /// conditionally rotate by different amounts based on the value of
+  /// [rotateAmount]. The [maxAmount] is the largest value for which
+  /// this rotation should support, which could be greater than the `width`
+  /// of [rotateAmount].
   ///
   /// If no [maxAmount] is provided, it will default to the `width` of
   /// `this`.  The [maxAmount] will be not be larger than what could be
@@ -176,8 +178,8 @@ extension RotateLogic on Logic {
           ? RotateLeft(this, rotateAmount, maxAmount: maxAmount).rotated
           : RotateRight(this, rotateAmount, maxAmount: maxAmount).rotated;
     } else {
-      // TODO: make an HCL type of exception for this
-      throw Exception('Unknown type for amount: ${rotateAmount.runtimeType}');
+      throw RohdHclException(
+          'Unknown type for amount: ${rotateAmount.runtimeType}');
     }
   }
 
