@@ -61,6 +61,7 @@ Below is a list of planned components to implement.
 
 ## Guidelines
 
+- All components should be `Module`s so that they are convertible to SystemVerilog stand-alone
 - Components should be general and easily reusable
 - Components should be as configurable as may be useful
 - Components must be extensively tested

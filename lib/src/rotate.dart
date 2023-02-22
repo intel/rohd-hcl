@@ -36,7 +36,8 @@ class _Rotate extends Module {
   /// If no [maxAmount] is provided, it will default to the `width` of
   /// [original].  The [maxAmount] will be not be larger than what could be
   /// represented by the maximum value of [rotateAmount].
-  _Rotate(this._direction, Logic original, Logic rotateAmount, {int? maxAmount})
+  _Rotate(this._direction, Logic original, Logic rotateAmount,
+      {int? maxAmount, super.name = 'rotate'})
       : maxAmount = min(
           maxAmount ?? original.width,
           pow(2, rotateAmount.width).toInt() - 1,
@@ -52,12 +53,65 @@ class _Rotate extends Module {
         for (var i = 1; i < this.maxAmount; i++)
           CaseItem(
             Const(i, width: rotateAmount.width),
-            [rotated < _rotateBy(i, original, _direction)],
+            [rotated < _RotateFixed._rotateBy(i, original, _direction)],
           )
       ], defaultItem: [
         rotated < original,
       ])
     ]);
+  }
+}
+
+/// Rotates a [Logic] to the left.
+class RotateLeft extends _Rotate {
+  /// Constructs a [Module] to perform rotation to the left.
+  ///
+  /// Conditionally rotates by different amounts based on the value of
+  /// [rotateAmount]. The [maxAmount] is the largest value for which this
+  /// rotation should support, which could be greater than the `width`
+  /// of [rotateAmount].
+  ///
+  /// If no [maxAmount] is provided, it will default to the `width` of
+  /// [original].  The [maxAmount] will be not be larger than what could be
+  /// represented by the maximum value of [rotateAmount].
+  RotateLeft(Logic original, Logic rotateAmount, {super.maxAmount, super.name})
+      : super(_RotateDirection.left, original, rotateAmount);
+}
+
+/// Rotates a [Logic] to the right.
+class RotateRight extends _Rotate {
+  /// Constructs a [Module] to perform rotation to the right.
+  ///
+  /// Conditionally rotates by different amounts based on the value of
+  /// [rotateAmount]. The [maxAmount] is the largest value for which this
+  /// rotation should support, which could be greater than the `width`
+  /// of [rotateAmount].
+  ///
+  /// If no [maxAmount] is provided, it will default to the `width` of
+  /// [original].  The [maxAmount] will be not be larger than what could be
+  /// represented by the maximum value of [rotateAmount].
+  RotateRight(Logic original, Logic rotateAmount, {super.maxAmount, super.name})
+      : super(_RotateDirection.right, original, rotateAmount);
+}
+
+/// Rotates by a fixed amount.
+class _RotateFixed extends Module {
+  /// The [_direction] that this [_Rotate] should rotate.
+  final _RotateDirection _direction;
+
+  /// The [rotated] result.
+  Logic get rotated => output('rotated');
+
+  final int rotateAmount;
+
+  /// Rotates [original] by [rotateAmount] to the [_direction].
+  _RotateFixed(this._direction, Logic original, this.rotateAmount,
+      {super.name = 'rotate_fixed'})
+      : super(definitionName: 'rotate_${_direction.name}_by_$rotateAmount') {
+    original = addInput('original', original, width: original.width);
+    addOutput('rotated', width: original.width);
+
+    rotated <= _rotateBy(rotateAmount, original, _direction);
   }
 
   /// Rotates [original] by [rotateAmount] in the specified [direction].
@@ -78,68 +132,52 @@ class _Rotate extends Module {
   }
 }
 
-/// Rotates a [Logic] to the left.
-class RotateLeft extends _Rotate {
-  /// Constructs a [Module] to perform rotation to the left.
-  ///
-  /// Conditionally rotates by different amounts based on the value of
-  /// [rotateAmount]. The [maxAmount] is the largest value for which this
-  /// rotation should support, which could be greater than the `width`
-  /// of [rotateAmount].
-  ///
-  /// If no [maxAmount] is provided, it will default to the `width` of
-  /// [original].  The [maxAmount] will be not be larger than what could be
-  /// represented by the maximum value of [rotateAmount].
-  RotateLeft(Logic original, Logic rotateAmount, {super.maxAmount})
+/// Rotates left by a fixed amount.
+class RotateLeftFixed extends _RotateFixed {
+  /// Rotates [original] by [rotateAmount] to the left.
+  RotateLeftFixed(Logic original, int rotateAmount, {super.name})
       : super(_RotateDirection.left, original, rotateAmount);
 }
 
-/// Rotates a [Logic] to the right.
-class RotateRight extends _Rotate {
-  /// Constructs a [Module] to perform rotation to the right.
-  ///
-  /// Conditionally rotates by different amounts based on the value of
-  /// [rotateAmount]. The [maxAmount] is the largest value for which this
-  /// rotation should support, which could be greater than the `width`
-  /// of [rotateAmount].
-  ///
-  /// If no [maxAmount] is provided, it will default to the `width` of
-  /// [original].  The [maxAmount] will be not be larger than what could be
-  /// represented by the maximum value of [rotateAmount].
-  RotateRight(Logic original, Logic rotateAmount, {super.maxAmount})
+/// Rotates right by a fixed amount.
+class RotateRightFixed extends _RotateFixed {
+  /// Rotates [original] by [rotateAmount] to the right.
+  RotateRightFixed(Logic original, int rotateAmount, {super.name})
       : super(_RotateDirection.right, original, rotateAmount);
 }
 
 /// Adds rotation functions to [Logic].
 extension RotateLogic on Logic {
-  /// Returns a [Logic] rotated [direction] by [amount].
+  /// Returns a [Logic] rotated [direction] by [rotateAmount].
   ///
-  /// If [amount] is an [int], a fixed swizzle is generated.
+  /// If [rotateAmount] is an [int], a fixed swizzle is generated.
   ///
-  /// If [amount] is another [Logic], a [_Rotate] is created to conditionally
-  /// rotate by different amounts based on the value of [amount]. The
+  /// If [rotateAmount] is another [Logic], a [_Rotate] is created to conditionally
+  /// rotate by different amounts based on the value of [rotateAmount]. The
   /// [maxAmount] is the largest value for which this rotation should support,
-  /// which could be greater than the `width` of [amount].
+  /// which could be greater than the `width` of [rotateAmount].
   ///
   /// If no [maxAmount] is provided, it will default to the `width` of
   /// `this`.  The [maxAmount] will be not be larger than what could be
   /// represented by the maximum value of [rotateAmount].
-  Logic _rotate(dynamic amount,
+  Logic _rotate(dynamic rotateAmount,
       {required _RotateDirection direction, int? maxAmount}) {
-    if (amount is int) {
+    if (rotateAmount is int) {
       assert(
-          maxAmount == null || amount <= maxAmount,
+          maxAmount == null || rotateAmount <= maxAmount,
           'If `maxAmount` is provided with an integer `amount`,'
           ' it should meet the restriction.');
 
-      return _Rotate._rotateBy(amount, this, direction);
-    } else if (amount is Logic) {
       return direction == _RotateDirection.left
-          ? RotateLeft(this, amount, maxAmount: maxAmount).rotated
-          : RotateRight(this, amount, maxAmount: maxAmount).rotated;
+          ? RotateLeftFixed(this, rotateAmount).rotated
+          : RotateRightFixed(this, rotateAmount).rotated;
+    } else if (rotateAmount is Logic) {
+      return direction == _RotateDirection.left
+          ? RotateLeft(this, rotateAmount, maxAmount: maxAmount).rotated
+          : RotateRight(this, rotateAmount, maxAmount: maxAmount).rotated;
     } else {
       // TODO: make an HCL type of exception for this
-      throw Exception('Unknown type for amount: ${amount.runtimeType}');
+      throw Exception('Unknown type for amount: ${rotateAmount.runtimeType}');
     }
   }
 
