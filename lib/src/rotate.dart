@@ -51,7 +51,7 @@ class _Rotate extends Module {
 
     Combinational([
       Case(rotateAmount, conditionalType: ConditionalType.unique, [
-        for (var i = 1; i < this.maxAmount; i++)
+        for (var i = 1; i <= this.maxAmount; i++)
           CaseItem(
             Const(i, width: rotateAmount.width),
             [rotated < _RotateFixed._rotateBy(i, original, _direction)],
