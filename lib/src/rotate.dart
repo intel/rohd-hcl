@@ -21,7 +21,7 @@ enum _RotateDirection {
 }
 
 /// Rotates a [Logic] to the specified direction.
-class _Rotate extends Module {
+abstract class _Rotate extends Module {
   /// The maximum amount that this [_Rotate] should support in rotation.
   final int maxAmount;
 
