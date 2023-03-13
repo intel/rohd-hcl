@@ -1,6 +1,6 @@
 //
 // rotate_left_test.dart
-// Tests for left-rotate
+// Tests for rotating
 //
 // Author: Max Korbel
 // 2023 February 17
