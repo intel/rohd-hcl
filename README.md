@@ -16,6 +16,7 @@ Below is a list of planned components to implement.
 	- Binary to Gray
 	- Priority
 - Arbiters
+	- Priority
 	- Round-robin
 - FIFO
 	- Synchronous
