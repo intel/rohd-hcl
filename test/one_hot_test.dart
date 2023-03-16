@@ -9,6 +9,7 @@
 import 'dart:math';
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/src/one_hot.dart';
+import 'package:rohd_hcl/src/utils.dart';
 import 'package:test/test.dart';
 
 void main() {

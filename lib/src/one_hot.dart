@@ -8,9 +8,7 @@
 
 import 'dart:math';
 import 'package:rohd/rohd.dart';
-
-/// Compute the bit width needed to store w addresses
-int log2Ceil(int w) => (log(w) / log(2)).ceil();
+import 'package:rohd_hcl/src/utils.dart';
 
 /// Encodes a binary number into one-hot
 class BinaryToOneHot extends Module {

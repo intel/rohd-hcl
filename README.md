@@ -58,6 +58,8 @@ Below is a list of planned components to implement.
 		- Non-Coherent
 - Memory
 	- Register Files
+		- Flop-based
+		- Latch-based
 	- LRU
 
 ## Guidelines
