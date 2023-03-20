@@ -31,6 +31,8 @@ void main() {
       writeEnable: wrEn,
       readEnable: rdEn,
       writeData: wrData,
+      generateError: true,
+      generateOccupancy: true,
       depth: 3,
     );
 
@@ -38,10 +40,14 @@ void main() {
 
     await fifo.build();
 
-    Future<void> checkThat({required bool empty, required bool full}) async {
+    Future<void> checkThat(
+        {required bool empty,
+        required bool full,
+        required int occupancy}) async {
       await clk.nextPosedge;
       expect(fifo.empty.value.toBool(), empty);
       expect(fifo.full.value.toBool(), full);
+      expect(fifo.occupancy!.value.toInt(), occupancy);
     }
 
     unawaited(Simulator.run());
@@ -59,10 +65,10 @@ void main() {
     clk.negedge.listen((event) {
       // do it 1 timestamp after since this TB drives after edges
       Simulator.registerAction(
-          Simulator.time + 1, () => expect(fifo.error.value.toBool(), false));
+          Simulator.time + 1, () => expect(fifo.error!.value.toBool(), false));
     });
 
-    await checkThat(empty: true, full: false);
+    await checkThat(empty: true, full: false, occupancy: 0);
 
     await clk.nextNegedge;
 
@@ -70,7 +76,7 @@ void main() {
     wrEn.put(1);
     wrData.put(0xa);
 
-    await checkThat(empty: false, full: false);
+    await checkThat(empty: false, full: false, occupancy: 1);
 
     await clk.nextNegedge;
 
@@ -80,7 +86,7 @@ void main() {
 
     wrData.put(0xc);
 
-    await checkThat(empty: false, full: true);
+    await checkThat(empty: false, full: true, occupancy: 3);
 
     await clk.nextNegedge;
 
@@ -92,7 +98,7 @@ void main() {
     rdEn.put(1);
     expect(rdData.value.toInt(), 0xa);
 
-    await checkThat(empty: false, full: false);
+    await checkThat(empty: false, full: false, occupancy: 2);
 
     await clk.nextNegedge;
 
@@ -102,13 +108,13 @@ void main() {
 
     expect(rdData.value.toInt(), 0xc);
 
-    await checkThat(empty: true, full: false);
+    await checkThat(empty: true, full: false, occupancy: 0);
 
     await clk.nextNegedge;
 
     rdEn.put(0);
 
-    await checkThat(empty: true, full: false);
+    await checkThat(empty: true, full: false, occupancy: 0);
 
     await clk.nextNegedge;
 
@@ -130,6 +136,7 @@ void main() {
       writeEnable: wrEn,
       readEnable: rdEn,
       writeData: wrData,
+      generateError: true,
       depth: 3,
     );
 
@@ -149,14 +156,14 @@ void main() {
     wrEn.put(1);
     wrData.put(0xdead);
 
-    expect(fifo.error.value.toBool(), false);
+    expect(fifo.error!.value.toBool(), false);
 
     await clk.nextPosedge;
-    expect(fifo.error.value.toBool(), false);
+    expect(fifo.error!.value.toBool(), false);
     await clk.nextPosedge;
-    expect(fifo.error.value.toBool(), false);
+    expect(fifo.error!.value.toBool(), false);
     await clk.nextPosedge;
-    expect(fifo.error.value.toBool(), true);
+    expect(fifo.error!.value.toBool(), true);
     await clk.nextPosedge;
 
     Simulator.endSimulation();
