@@ -29,10 +29,23 @@ class Fifo extends Module {
   ///
   /// There is no guarantee that it will hold high once asserted.
   /// Behavior upon error is undefined.
-  Logic get error => output('error');
+  ///
+  /// If [generateError] is `false`, this output will not exist.
+  Logic? get error => generateError ? output('error') : null;
+
+  /// The number of items in the FIFO.
+  ///
+  /// If [generateOccupancy] is `false`, this output will not exist.
+  Logic? get occupancy => generateOccupancy ? output('occupancy') : null;
 
   /// The depth of this FIFO.
   final int depth;
+
+  /// If `true`, then the [occupancy] output will be generated.
+  final bool generateOccupancy;
+
+  /// If `true`, then the [error] output will be generated.
+  final bool generateError;
 
   /// Constructs a FIFO with RF-based storage.
   Fifo(Logic clk, Logic reset,
@@ -40,6 +53,8 @@ class Fifo extends Module {
       required Logic writeData,
       required Logic readEnable,
       required this.depth,
+      this.generateError = false,
+      this.generateOccupancy = false,
       super.name = 'fifo'})
       : assert(depth > 0, 'Depth must be at least 1.') {
     clk = addInput('clk', clk);
@@ -57,7 +72,6 @@ class Fifo extends Module {
     // set up info ports
     addOutput('full');
     addOutput('empty');
-    addOutput('error');
 
     // set up the RF storage
     final wrPort = DataPortInterface(dataWidth, addrWidth);
@@ -73,9 +87,37 @@ class Fifo extends Module {
     empty <= matchedPointers & ~full;
 
     // error calculation
-    error <=
-        ((full & writeEnable & ~readEnable) |
-            (empty & readEnable & ~writeEnable));
+    if (generateError) {
+      addOutput('error') <=
+          ((full & writeEnable & ~readEnable) |
+              (empty & readEnable & ~writeEnable));
+    }
+
+    // occupancy calculation
+    if (generateOccupancy) {
+      final occupancy = addOutput('occupancy', width: log2Ceil(depth));
+      Sequential(clk, [
+        If(reset, then: [
+          occupancy < 0,
+        ], orElse: [
+          Case(
+              conditionalType: ConditionalType.unique,
+              [writeEnable, readEnable].swizzle(),
+              [
+                // write, no read
+                CaseItem(Const(LogicValue.ofString('10')),
+                    [occupancy < occupancy + 1]),
+
+                // read, no write
+                CaseItem(Const(LogicValue.ofString('01')),
+                    [occupancy < occupancy - 1]),
+              ],
+              defaultItem: [
+                occupancy < occupancy
+              ])
+        ])
+      ]);
+    }
 
     final bypass = Logic(name: 'bypass')
       ..gets(empty & readEnable & writeEnable);
