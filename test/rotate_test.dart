@@ -82,4 +82,9 @@ void main() {
       expect(orig.rotateRight(1 + 8).toInt(), equals(0x78));
     });
   });
+
+  test('rotate type exception', () {
+    expect(() => Logic().rotateLeft('badType'),
+        throwsA(const TypeMatcher<RohdHclException>()));
+  });
 }

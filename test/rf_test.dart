@@ -72,4 +72,28 @@ void main() {
     Simulator.endSimulation();
     await Simulator.simulationEnded;
   });
+
+  group('rf exceptions', () {
+    test('mismatch addr width', () {
+      expect(
+          () => RegisterFile(
+                Logic(),
+                Logic(),
+                [DataPortInterface(32, 31)],
+                [DataPortInterface(32, 32)],
+              ),
+          throwsA(const TypeMatcher<RohdHclException>()));
+    });
+
+    test('mismatch data width', () {
+      expect(
+          () => RegisterFile(
+                Logic(),
+                Logic(),
+                [DataPortInterface(64, 32)],
+                [DataPortInterface(32, 32)],
+              ),
+          throwsA(const TypeMatcher<RohdHclException>()));
+    });
+  });
 }

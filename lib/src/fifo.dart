@@ -47,6 +47,9 @@ class Fifo extends Module {
   /// If `true`, then the [error] output will be generated.
   final bool generateError;
 
+  /// The [RegisterFile] used to store data in this [Fifo].
+  late final RegisterFile _rf;
+
   /// Constructs a FIFO with RF-based storage.
   Fifo(Logic clk, Logic reset,
       {required Logic writeEnable,
@@ -76,7 +79,7 @@ class Fifo extends Module {
     // set up the RF storage
     final wrPort = DataPortInterface(dataWidth, addrWidth);
     final rdPort = DataPortInterface(dataWidth, addrWidth);
-    RegisterFile(clk, reset, [wrPort], [rdPort], numEntries: depth);
+    _rf = RegisterFile(clk, reset, [wrPort], [rdPort], numEntries: depth);
 
     final wrPointer = Logic(name: 'wrPointer', width: addrWidth);
     final rdPointer = Logic(name: 'rdPointer', width: addrWidth);
@@ -119,6 +122,7 @@ class Fifo extends Module {
       ]);
     }
 
+    // bypass means don't write to the FIFO, feed straight through
     final bypass = Logic(name: 'bypass')
       ..gets(empty & readEnable & writeEnable);
 
@@ -126,9 +130,14 @@ class Fifo extends Module {
     wrPort.addr <= wrPointer;
     wrPort.data <= writeData;
 
-    rdPort.en <= readEnable & ~bypass;
+    // we can read from the fifo at all times to allow peeking,
+    // including a new write if it's empty
+    final peekWriteData = Logic(name: 'peekWriteData')
+      ..gets(empty & writeEnable);
+
+    rdPort.en <= Const(1);
     rdPort.addr <= rdPointer;
-    readData <= mux(bypass, writeData, rdPort.data);
+    readData <= mux(peekWriteData, writeData, rdPort.data);
 
     Sequential(clk, [
       If(reset, then: [
