@@ -6,6 +6,7 @@
 ///
 
 import 'package:rohd/rohd.dart';
+import 'package:rohd_hcl/src/exceptions.dart';
 
 /// A grouping for interface signals of [DataPortInterface]s.
 enum PortGroup {
@@ -112,10 +113,10 @@ abstract class Memory extends Module {
     // make sure widths of everything match expectations
     for (final port in [...writePorts, ...readPorts]) {
       if (port.addrWidth != addrWidth) {
-        throw Exception('All ports must have the same address width.');
+        throw RohdHclException('All ports must have the same address width.');
       }
       if (port.dataWidth != dataWidth) {
-        throw Exception('All ports must have the same data width.');
+        throw RohdHclException('All ports must have the same data width.');
       }
     }
 

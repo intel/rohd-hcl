@@ -217,4 +217,57 @@ void main() {
     Simulator.endSimulation();
     await Simulator.simulationEnded;
   });
+
+  test('fifo peek', () async {
+    final clk = SimpleClockGenerator(10).clk;
+    final reset = Logic()..put(0);
+
+    final wrEn = Logic()..put(0);
+    final rdEn = Logic()..put(0);
+    final wrData = Logic(width: 32);
+
+    final fifo = Fifo(
+      clk,
+      reset,
+      writeEnable: wrEn,
+      readEnable: rdEn,
+      writeData: wrData,
+      depth: 3,
+    );
+
+    final rdData = fifo.readData;
+
+    await fifo.build();
+
+    unawaited(Simulator.run());
+
+    // a little reset flow
+    await clk.nextNegedge;
+    reset.put(1);
+    await clk.nextNegedge;
+    await clk.nextNegedge;
+    reset.put(0);
+    await clk.nextNegedge;
+    await clk.nextNegedge;
+
+    wrEn.put(1);
+    wrData.put(0xfeedbeef);
+
+    // peek immediately
+    expect(rdData.value.toInt(), 0xfeedbeef);
+
+    await clk.nextNegedge;
+    wrEn.put(0);
+
+    // peek after wrEn drops
+    expect(rdData.value.toInt(), 0xfeedbeef);
+
+    await clk.nextNegedge;
+
+    // peek at stable
+    expect(rdData.value.toInt(), 0xfeedbeef);
+
+    Simulator.endSimulation();
+    await Simulator.simulationEnded;
+  });
 }
