@@ -31,6 +31,9 @@ class StrobeDataPortInterface extends DataPortInterface {
       PortGroup.control
     ]);
   }
+
+  @override
+  DataPortInterface clone() => StrobeDataPortInterface(dataWidth, addrWidth);
 }
 
 /// An interface to a simple memory that only needs enable, address, and data.
@@ -70,6 +73,9 @@ class DataPortInterface extends Interface<PortGroup> {
       PortGroup.data
     ]);
   }
+
+  /// Makes a copy of this [Interface] with matching configuration.
+  DataPortInterface clone() => DataPortInterface(dataWidth, addrWidth);
 }
 
 /// A generic memory with variable numbers of read and write ports.
@@ -124,14 +130,14 @@ abstract class Memory extends Module {
     addInput('reset', reset);
 
     for (var i = 0; i < numReads; i++) {
-      _rdPorts.add(DataPortInterface(dataWidth, addrWidth)
+      _rdPorts.add(readPorts[i].clone()
         ..connectIO(this, readPorts[i],
             inputTags: {PortGroup.control},
             outputTags: {PortGroup.data},
             uniquify: (original) => 'rd_${original}_$i'));
     }
     for (var i = 0; i < numWrites; i++) {
-      _wrPorts.add(DataPortInterface(dataWidth, addrWidth)
+      _wrPorts.add(writePorts[i].clone()
         ..connectIO(this, writePorts[i],
             inputTags: {PortGroup.control, PortGroup.data},
             outputTags: {},
