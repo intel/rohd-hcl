@@ -1,9 +1,11 @@
+// Copyright (C) 2023 Intel Corporation
+// SPDX-License-Identifier: BSD-3-Clause
 //
 // one_hot.dart
 // Implementation of one hot codec for Logic
 //
-// Author: Desmond Kirkpatrick
 // 2023 February 24
+// Author: Desmond Kirkpatrick
 //
 
 import 'dart:math';
