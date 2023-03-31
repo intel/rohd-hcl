@@ -1,9 +1,11 @@
+// Copyright (C) 2023 Intel Corporation
+// SPDX-License-Identifier: BSD-3-Clause
 //
 // arbiter.dart
 // Implementation of arbiters.
 //
-// Author: Max Korbel
 // 2023 March 13
+// Author: Max Korbel <max.korbel@intel.com>
 //
 
 import 'dart:collection';
@@ -28,8 +30,8 @@ abstract class Arbiter extends Module {
   Arbiter(List<Logic> requests) {
     for (var i = 0; i < requests.length; i++) {
       if (requests[i].width != 1) {
-        throw RohdHclException(
-            'Each request must be 1 bit, but found ${requests[i]} at index $i');
+        throw RohdHclException('Each request must be 1 bit,'
+            ' but found ${requests[i]} at index $i.');
       }
 
       _requests.add(addInput('request_$i', requests[i]));

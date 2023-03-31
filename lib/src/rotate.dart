@@ -1,9 +1,11 @@
+// Copyright (C) 2023 Intel Corporation
+// SPDX-License-Identifier: BSD-3-Clause
 //
 // rotate.dart
 // Implementation of rotation for Logic and LogicValue.
 //
-// Author: Max Korbel
 // 2023 February 17
+// Author: Max Korbel <max.korbel@intel.com>
 //
 
 import 'dart:math';

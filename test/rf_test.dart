@@ -1,9 +1,11 @@
+// Copyright (C) 2023 Intel Corporation
+// SPDX-License-Identifier: BSD-3-Clause
 //
 // rf_test.dart
 // Tests for register file
 //
-// Author: Max Korbel
 // 2023 March 13
+// Author: Max Korbel <max.korbel@intel.com>
 //
 
 import 'dart:async';

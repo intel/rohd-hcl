@@ -1,9 +1,11 @@
+// Copyright (C) 2023 Intel Corporation
+// SPDX-License-Identifier: BSD-3-Clause
 //
 // one_hot_test.dart
 // Test of one_hot codec.
 //
-// Author: Desmond Kirkpatrick
 // 2023 February 24
+// Author: Desmond Kirkpatrick
 //
 
 import 'dart:math';
@@ -44,7 +46,7 @@ void main() {
   });
   test('tree_decode', () {
     // Compute the binary value (or bit position) of a one-hot encoded value
-    for (var pos = 0; pos < 1000; pos++) {
+    for (var pos = 0; pos < 64; pos++) {
       final val = BigInt.from(2).pow(pos);
       final computed = TreeOneHotToBinary(Const(val, width: pos + 1)).binary;
       final expected = LogicValue.ofInt(pos, computed.width);

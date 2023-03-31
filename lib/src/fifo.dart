@@ -1,9 +1,11 @@
+// Copyright (C) 2023 Intel Corporation
+// SPDX-License-Identifier: BSD-3-Clause
 //
 // fifo.dart
 // Implementation of FIFOs.
 //
-// Author: Max Korbel
 // 2023 March 13
+// Author: Max Korbel <max.korbel@intel.com>
 //
 
 import 'package:rohd/rohd.dart';
@@ -47,9 +49,6 @@ class Fifo extends Module {
   /// If `true`, then the [error] output will be generated.
   final bool generateError;
 
-  /// The [RegisterFile] used to store data in this [Fifo].
-  late final RegisterFile _rf;
-
   /// Constructs a FIFO with RF-based storage.
   Fifo(Logic clk, Logic reset,
       {required Logic writeEnable,
@@ -79,7 +78,7 @@ class Fifo extends Module {
     // set up the RF storage
     final wrPort = DataPortInterface(dataWidth, addrWidth);
     final rdPort = DataPortInterface(dataWidth, addrWidth);
-    _rf = RegisterFile(clk, reset, [wrPort], [rdPort], numEntries: depth);
+    RegisterFile(clk, reset, [wrPort], [rdPort], numEntries: depth);
 
     final wrPointer = Logic(name: 'wrPointer', width: addrWidth);
     final rdPointer = Logic(name: 'rdPointer', width: addrWidth);

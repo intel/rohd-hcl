@@ -1,9 +1,11 @@
+// Copyright (C) 2023 Intel Corporation
+// SPDX-License-Identifier: BSD-3-Clause
 //
-// rotate_left_test.dart
+// rotate_test.dart
 // Tests for rotating
 //
-// Author: Max Korbel
 // 2023 February 17
+// Author: Max Korbel <max.korbel@intel.com>
 //
 
 import 'package:rohd/rohd.dart';

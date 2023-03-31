@@ -1,9 +1,11 @@
+// Copyright (C) 2023 Intel Corporation
+// SPDX-License-Identifier: BSD-3-Clause
 //
 // example.dart
 // Example of how to use the library
 //
-// Author: Max Korbel
 // 2023 February 17
+// Author: Max Korbel <max.korbel@intel.com>
 //
 
 // ignore_for_file: avoid_print

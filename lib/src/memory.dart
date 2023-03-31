@@ -1,9 +1,12 @@
-///
-/// rf.dart
-/// Register file
-///
-/// 2021 November 3
-///
+// Copyright (C) 2023 Intel Corporation
+// SPDX-License-Identifier: BSD-3-Clause
+//
+// memory.dart
+// Memory interfaces and modules, including RF.
+//
+// 2021 November 3
+// Author: Max Korbel <max.korbel@intel.com>
+//
 
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/src/exceptions.dart';
