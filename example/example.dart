@@ -19,12 +19,13 @@ Future<void> main() async {
   final original = Logic(width: 16);
   final rotateAmount = Logic(width: 8);
   final mod = RotateLeft(original, rotateAmount, maxAmount: 10);
+  final rotated = mod.rotated;
 
   // Do a quick little simulation with some inputs
   original.put(0x4321);
   rotateAmount.put(4);
   print('Shifting ${original.value} by ${rotateAmount.value} '
-      'yields ${mod.rotated.value}');
+      'yields ${rotated.value}');
 
   // Generate verilog for it and print it out
   await mod.build();
