@@ -42,8 +42,8 @@ Below is a list of components either already or planning to be implemented.
   - Gray to Binary
   - Binary to Gray
   - Priority
-- Arbiters
-  - Priority
+- [Arbiters](./doc/arbiter.md)
+  - [Priority](./doc/arbiter.md#priority-arbiter)
   - Round-robin
 - [FIFO](./doc/fifo.md)
   - Synchronous
