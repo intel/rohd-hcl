@@ -29,12 +29,12 @@ This project is *not* intended to be the *only* place for reusable hardware comp
 
 Below is a list of components either already or planning to be implemented.
 
-| Marking         | Status                                |
-|-----------------|---------------------------------------|
-| No link         | Idea phase                            |
-| Link **(OPEN)** | An issue is opened for discussion     |
-| Link **(WIP)**  | An issue is actively being developed  |
-| Link to API     | Implemented with API documentation    |
+| Marking         | Status                                 |
+|-----------------|----------------------------------------|
+| No link         | Idea phase / included in parent link   |
+| Link **(OPEN)** | An issue is opened for discussion      |
+| Link **(WIP)**  | An issue is actively being developed   |
+| Link to API     | Implemented with API documentation     |
 
 - Encoders
   - 1-hot to Binary
@@ -45,7 +45,7 @@ Below is a list of components either already or planning to be implemented.
 - Arbiters
   - Priority
   - Round-robin
-- FIFO
+- [FIFO](./doc/fifo.md)
   - Synchronous
   - Asynchronous
   - Bubble Generating
