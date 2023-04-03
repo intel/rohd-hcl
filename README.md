@@ -44,7 +44,7 @@ Below is a list of components either already or planning to be implemented.
   - Priority
 - Arbiters
   - Priority
-  - Round-robin
+  - [Round-robin **(WIP)**](https://github.com/intel/rohd-hcl/issues/11)
 - [FIFO](./doc/fifo.md)
   - Synchronous
   - Asynchronous
@@ -56,13 +56,13 @@ Below is a list of components either already or planning to be implemented.
   - Max
 - Count
   - Count bit=X
-- Sort
+- [Sort **(WIP)**](https://github.com/intel/rohd-hcl/issues/9)
 - Arithmetic
-  - Prefix Trees
+  - [Prefix Trees **(WIP)**](https://github.com/intel/rohd-hcl/issues/12)
   - Adders
   - Subtractors
   - Multipliers
-    - Pipelined Integer Multiplier
+    - [Pipelined Integer Multiplier **(WIP)**](https://github.com/intel/rohd-hcl/issues/10)
   - Dividers
   - Log
 - [Rotate](./doc/rotate.md)
@@ -70,7 +70,7 @@ Below is a list of components either already or planning to be implemented.
   - Left and right
   - Includes `extension`s on `Logic` and `LogicValue`
 - Counter
-- LFSR
+- [LFSR **(WIP)**](https://github.com/intel/rohd-hcl/issues/8)
 - Error checking
   - ECC
   - CRC
