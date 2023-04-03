@@ -12,7 +12,7 @@ import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/src/exceptions.dart';
 
 /// A grouping for interface signals of [DataPortInterface]s.
-enum PortGroup {
+enum DataPortGroup {
   /// For signals associated with controlling/requesting actions for memory.
   control,
 
@@ -31,7 +31,7 @@ class StrobeDataPortInterface extends DataPortInterface {
     setPorts([
       Port('strobe', dataWidth ~/ 8),
     ], [
-      PortGroup.control
+      DataPortGroup.control
     ]);
   }
 
@@ -42,8 +42,8 @@ class StrobeDataPortInterface extends DataPortInterface {
 /// An interface to a simple memory that only needs enable, address, and data.
 ///
 /// Can be used for either read or write direction by grouping signals using
-/// [PortGroup].
-class DataPortInterface extends Interface<PortGroup> {
+/// [DataPortGroup].
+class DataPortInterface extends Interface<DataPortGroup> {
   /// The width of data in the memory.
   final int dataWidth;
 
@@ -67,13 +67,13 @@ class DataPortInterface extends Interface<PortGroup> {
       Port('en'),
       Port('addr', addrWidth),
     ], [
-      PortGroup.control
+      DataPortGroup.control
     ]);
 
     setPorts([
       Port('data', dataWidth),
     ], [
-      PortGroup.data
+      DataPortGroup.data
     ]);
   }
 
@@ -135,14 +135,14 @@ abstract class Memory extends Module {
     for (var i = 0; i < numReads; i++) {
       _rdPorts.add(readPorts[i].clone()
         ..connectIO(this, readPorts[i],
-            inputTags: {PortGroup.control},
-            outputTags: {PortGroup.data},
+            inputTags: {DataPortGroup.control},
+            outputTags: {DataPortGroup.data},
             uniquify: (original) => 'rd_${original}_$i'));
     }
     for (var i = 0; i < numWrites; i++) {
       _wrPorts.add(writePorts[i].clone()
         ..connectIO(this, writePorts[i],
-            inputTags: {PortGroup.control, PortGroup.data},
+            inputTags: {DataPortGroup.control, DataPortGroup.data},
             outputTags: {},
             uniquify: (original) => 'wr_${original}_$i'));
     }
@@ -158,6 +158,9 @@ class RegisterFile extends Memory {
   final int numEntries;
 
   /// Constructs a new RF.
+  ///
+  /// [StrobeDataPortInterface]s are supported on `writePorts`, but not on
+  /// `readPorts`.
   RegisterFile(super.clk, super.reset, super.writePorts, super.readPorts,
       {this.numEntries = 8, super.name = 'rf'}) {
     _buildLogic();
