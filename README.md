@@ -65,9 +65,10 @@ Below is a list of components either already or planning to be implemented.
     - Pipelined Integer Multiplier
   - Dividers
   - Log
-- Rotate
-  - Left
-  - Right
+- [Rotate](./doc/rotate.md)
+  - Dynamic and fixed amounts
+  - Left and right
+  - Includes `extension`s on `Logic` and `LogicValue`
 - Counter
 - LFSR
 - Error checking
