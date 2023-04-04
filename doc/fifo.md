@@ -4,7 +4,7 @@ ROHD HCL comes with a simple FIFO (First In, First Out).  The detailed API docs 
 
 The underlying implementation uses a flop-based memory (see [`RegisterFile`](https://intel.github.io/rohd-hcl/rohd_hcl/RegisterFile-class.html)) to store data until it is ready to be popped, with independent read and write pointers.
 
-When `writeEnable` is high, `writeData` is added to the FIFO.  When `readEnable` is high, `readData` is popped off the FIFO. 
+When `writeEnable` is high, `writeData` is added to the FIFO.  When `readEnable` is high, `readData` is popped off the FIFO.
 
 The FIFO has a configurable `depth`.
 
