@@ -27,6 +27,9 @@ jobs:
         with:
           use-quiet-mode: yes # output is too noisy, see https://github.com/gaurav-nelson/github-action-markdown-link-check/issues/121
           config-file: .github/configs/mlc_config.json
+        
+        # could be new API links added, etc.
+        continue-on-error: true
 
       - name: Setup Dart
         uses: dart-lang/setup-dart@v1
