@@ -21,23 +21,23 @@ enum DataPortGroup {
 }
 
 /// A [DataPortInterface] that supports byte-enabled strobing.
-class StrobeDataPortInterface extends DataPortInterface {
-  /// A bus controlling the strobe, where each bit cooresponds to one
-  /// byte of data.
-  Logic get strobe => port('strobe');
+class MaskedDataPortInterface extends DataPortInterface {
+  /// A bus controlling the mask, where each bit cooresponds to one
+  /// byte of data.  A high bit is an enable for that chunk of data.
+  Logic get mask => port('mask');
 
-  /// Constructs a [DataPortInterface] with strobe.
-  StrobeDataPortInterface(super.dataWidth, super.addrWidth)
+  /// Constructs a [DataPortInterface] with mask.
+  MaskedDataPortInterface(super.dataWidth, super.addrWidth)
       : assert(dataWidth % 8 == 0, 'The data width must be byte-granularity') {
     setPorts([
-      Port('strobe', dataWidth ~/ 8),
+      Port('mask', dataWidth ~/ 8),
     ], [
       DataPortGroup.control
     ]);
   }
 
   @override
-  DataPortInterface clone() => StrobeDataPortInterface(dataWidth, addrWidth);
+  DataPortInterface clone() => MaskedDataPortInterface(dataWidth, addrWidth);
 }
 
 /// An interface to a simple memory that only needs enable, address, and data.
@@ -159,7 +159,7 @@ class RegisterFile extends Memory {
 
   /// Constructs a new RF.
   ///
-  /// [StrobeDataPortInterface]s are supported on `writePorts`, but not on
+  /// [MaskedDataPortInterface]s are supported on `writePorts`, but not on
   /// `readPorts`.
   RegisterFile(super.clk, super.reset, super.writePorts, super.readPorts,
       {this.numEntries = 8, super.name = 'rf'}) {
@@ -187,11 +187,11 @@ class RegisterFile extends Memory {
               // set storage bank if write enable and pointer matches
               If(wrPort.en & wrPort.addr.eq(entry), then: [
                 _storageBank[entry] <
-                    (wrPort is StrobeDataPortInterface
+                    (wrPort is MaskedDataPortInterface
                         ? [
                             for (var index = 0; index < dataWidth ~/ 8; index++)
                               mux(
-                                  wrPort.strobe[index],
+                                  wrPort.mask[index],
                                   wrPort.data
                                       .getRange(index * 8, (index + 1) * 8),
                                   _storageBank[entry]

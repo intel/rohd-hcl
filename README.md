@@ -85,7 +85,7 @@ Below is a list of components either already or planning to be implemented.
     - Coherent
     - Non-Coherent
 - [Memory](./doc/memory.md)
-  - [Strobes](./doc/memory.md#strobes)
+  - [Masks](./doc/memory.md#masks)
   - [Register Files](./doc/memory.md#register-files)
     - Flop-based
     - Latch-based
