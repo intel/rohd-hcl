@@ -27,7 +27,8 @@ class StrobeDataPortInterface extends DataPortInterface {
   Logic get strobe => port('strobe');
 
   /// Constructs a [DataPortInterface] with strobe.
-  StrobeDataPortInterface(super.dataWidth, super.addrWidth) {
+  StrobeDataPortInterface(super.dataWidth, super.addrWidth)
+      : assert(dataWidth % 8 == 0, 'The data width must be byte-granularity') {
     setPorts([
       Port('strobe', dataWidth ~/ 8),
     ], [
@@ -61,8 +62,7 @@ class DataPortInterface extends Interface<DataPortGroup> {
 
   /// Constructs a new interface of specified [dataWidth] and [addrWidth] for
   /// interacting with a memory in either the read or write direction.
-  DataPortInterface(this.dataWidth, this.addrWidth)
-      : assert(dataWidth % 8 == 0, 'The data width must be byte-granularity') {
+  DataPortInterface(this.dataWidth, this.addrWidth) {
     setPorts([
       Port('en'),
       Port('addr', addrWidth),

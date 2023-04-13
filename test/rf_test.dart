@@ -132,6 +132,10 @@ void main() {
     await Simulator.simulationEnded;
   });
 
+  test('non-byte-aligned data widths are legal without strobes', () {
+    DataPortInterface(1, 1);
+  });
+
   group('rf exceptions', () {
     test('mismatch addr width', () {
       expect(
