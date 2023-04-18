@@ -4,8 +4,8 @@
 // sort_bitonic.dart
 // Implementation of bitonic parallel sorting network.
 //
-// 2023 February 17
-// Author: Max Korbel <max.korbel@intel.com>
+// 2023 April 18
+// Author: Yao Jing Quek <yao.jing.quek@intel.com>
 //
 
 // ignore_for_file: avoid_unused_constructor_parameters, public_member_api_docs
@@ -54,12 +54,12 @@ class InputTwo extends Module {
               ]),
             ]),
             ElseIf(~ascending, [
-              If(x0 > x1, then: [
-                y0 < x0,
-                y1 < x1,
-              ], orElse: [
+              If(x0.lt(x1), then: [
                 y0 < x1,
                 y1 < x0,
+              ], orElse: [
+                y0 < x0,
+                y1 < x1,
               ])
             ])
           ])
@@ -73,9 +73,8 @@ class BitonicMerge extends Module {
   final dataWidth = 8;
 
   Logic get y => output('y');
-  Logic get yValid => output('yValid');
 
-  BitonicMerge(Logic clk, Logic rst, Logic x, int logInputNum)
+  BitonicMerge(Logic clk, Logic rst, Logic x, int logInputNum, int ascending)
       : super(name: 'bitonic_merge') {
     clk = addInput('clk', clk);
     rst = addInput('rst', rst);
@@ -84,6 +83,8 @@ class BitonicMerge extends Module {
     var y = addOutput('y', width: x.width);
 
     var stage0rslt = Logic(name: 'stage0_rslt', width: x.width);
+    var stage0rsltLeft = Logic(name: 'stage0_rslt_left', width: x.width ~/ 2);
+    var stage0rsltRight = Logic(name: 'stage0_rslt_right', width: x.width ~/ 2);
 
     if (logInputNum > 1) {
       for (var i = 0; i < pow(2, logInputNum - 1).toInt(); i++) {
@@ -94,7 +95,7 @@ class BitonicMerge extends Module {
 
           x.slice(dataWidth * (i + 1 + pow(2, logInputNum - 1).toInt()) - 1,
               dataWidth * (i + pow(2, logInputNum - 1).toInt())), // x1
-          1, // ascending
+          ascending, // ascending
         );
 
         stage0rslt = stage0rslt.withSet(dataWidth * i, inputTwoStage0.y0);
@@ -104,34 +105,44 @@ class BitonicMerge extends Module {
       }
 
       final instStage10 = BitonicMerge(
-        clk,
-        rst,
-        stage0rslt.slice(dataWidth * (pow(2, logInputNum - 1).toInt()) - 1, 0),
-        logInputNum - 1,
-      );
+          clk,
+          rst,
+          stage0rslt.slice(
+              dataWidth * (pow(2, logInputNum - 1).toInt()) - 1, 0),
+          logInputNum - 1,
+          ascending);
 
-      y = y.withSet(0, instStage10.y);
+      // left merge
+      // y = y.withSet(0, instStage10.y);
+      stage0rsltLeft <= instStage10.y;
 
       final instStage11 = BitonicMerge(
           clk,
           rst,
           stage0rslt.slice(dataWidth * pow(2, logInputNum).toInt() - 1,
               dataWidth * (pow(2, logInputNum - 1).toInt())),
-          logInputNum - 1);
+          logInputNum - 1,
+          ascending);
 
-      y = y.withSet(
-          dataWidth * (pow(2, logInputNum - 1).toInt()), instStage11.y);
+      // right merge
+      // y = y.withSet(
+      //     dataWidth * (pow(2, logInputNum - 1).toInt()), instStage11.y);
+      stage0rsltRight <= instStage11.y;
+
+      y <= [stage0rsltRight, stage0rsltLeft].swizzle();
     } else if (logInputNum == 1) {
       final input2Stage01 = InputTwo(
         clk,
         rst,
         x.slice(dataWidth - 1, 0),
         x.slice(dataWidth * 2 - 1, dataWidth),
-        1, // ascending
+        ascending, // ascending
       );
 
-      y = y.withSet(0, input2Stage01.y0);
-      y = y.withSet(dataWidth, input2Stage01.y1);
+      // y = y.withSet(0, input2Stage01.y0);
+      // y = y.withSet(dataWidth, input2Stage01.y1);
+
+      y <= [input2Stage01.y1, input2Stage01.y0].swizzle();
     }
   }
 }
@@ -142,12 +153,12 @@ class BitonicSort extends Module {
   Logic get y => output('y');
 
   BitonicSort(Logic clk, Logic rst, Logic x, int logInputNum,
-      {int ascending = 1})
-      : super(name: 'bitonic_sort') {
+      {String side = 'Module', int ascending = 1})
+      : super(name: 'bitonic_sort_$side') {
     clk = addInput('clk', clk);
     rst = addInput('rst', rst);
     x = addInput('x', x, width: x.width);
-    var y = addOutput('y', width: x.width);
+    final y = addOutput('y', width: x.width);
 
     // recursive case
     if (logInputNum > 1) {
@@ -159,44 +170,38 @@ class BitonicSort extends Module {
       final stage0rslt = Logic(name: 'stage0_rslt', width: x.width);
 
       // Stage 1 - Sort to Bitonic Sequence
-
-      // Sort on the left side
       final instStage00 = BitonicSort(
-        clk,
-        rst,
-        x.slice(dataWidth * (pow(2, logInputNum - 1).toInt()) - 1, 0),
-        logInputNum - 1,
-        ascending: 1,
-      );
-
+          clk,
+          rst,
+          x.slice(dataWidth * (pow(2, logInputNum - 1).toInt()) - 1, 0),
+          logInputNum - 1,
+          ascending: 1,
+          side: 'left_side');
       stage0rsltLeft <= instStage00.y;
 
-      // Sort on right side
       final instStage01 = BitonicSort(
           clk,
           rst,
           x.slice(dataWidth * pow(2, logInputNum).toInt() - 1,
               dataWidth * (pow(2, logInputNum - 1).toInt())),
           logInputNum - 1,
-          ascending: 0 // ascending = 0
-          );
-
+          ascending: 0, //decending
+          side: 'right_side');
       stage0rsltRight <= instStage01.y;
 
-      stage0rslt <= [stage0rsltLeft, stage0rsltRight].swizzle();
-      y <= stage0rslt;
+      stage0rslt <= [stage0rsltRight, stage0rsltLeft].swizzle();
 
       // stage 2 - Bitonic Merge
       // TODO: Temporary comment out the Merge as I want to try sort first
-      final instStage1 = BitonicMerge(clk, rst, stage0rslt, logInputNum);
-      // y <= instStage1.y;
+      final instStage1 =
+          BitonicMerge(clk, rst, stage0rslt, logInputNum, ascending);
+      y <= instStage1.y;
     } else if (logInputNum == 1) {
       // Recursive Base case
       // Perform Sorting
       final input2stage01 = InputTwo(
         clk,
         rst,
-
         x.slice(dataWidth - 1, 0),
         x.slice(dataWidth * 2 - 1, dataWidth),
         ascending, //ascending (need recheck again with params)
@@ -210,17 +215,15 @@ class BitonicSort extends Module {
       y0 <= input2stage01.y0;
       y1 <= input2stage01.y1;
 
-      y <= [y0, y1].swizzle();
+      y <= [y1, y0].swizzle();
     }
   }
 }
 
-// Top Level Module
 class Bitonic extends Module {
   final dataWidth = 8;
   Bitonic(Logic clk, Logic rst, Logic x, int logInputNum)
       : super(name: 'Bitonic') {
-    final labelWidth = logInputNum;
     clk = addInput('clk', clk);
     rst = addInput('rst', rst);
 
@@ -229,7 +232,6 @@ class Bitonic extends Module {
 
     // Bitonic Sorting Instance
     final bitonicSortingInst = BitonicSort(clk, rst, x, logInputNum);
-
     y <= bitonicSortingInst.y;
   }
 }
