@@ -84,8 +84,9 @@ Below is a list of components either already or planning to be implemented.
   - NoC's
     - Coherent
     - Non-Coherent
-- Memory
-  - Register Files
+- [Memory](./doc/memory.md)
+  - [Masks](./doc/memory.md#masks)
+  - [Register Files](./doc/memory.md#register-files)
     - Flop-based
     - Latch-based
   - Replacement Policies
