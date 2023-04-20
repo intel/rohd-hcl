@@ -4,8 +4,8 @@
   <meta charset="utf-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
-  <meta name="description" content="API docs for the Memory constructor from Class Memory from the rohd_hcl library, for the Dart programming language.">
-  <title>Memory constructor - Memory - rohd_hcl library - Dart API</title>
+  <meta name="description" content="API docs for the binary property from the TreeOneHotToBinary class, for the Dart programming language.">
+  <title>binary property - TreeOneHotToBinary class - rohd_hcl library - Dart API</title>
 
 
   
@@ -30,10 +30,10 @@
   <ol class="breadcrumbs gt-separated dark hidden-xs">
     <li><a href="../../index.html">rohd_hcl</a></li>
     <li><a href="../../rohd_hcl/rohd_hcl-library.html">rohd_hcl</a></li>
-    <li><a href="../../rohd_hcl/Memory-class.html">Memory</a></li>
-    <li class="self-crumb">Memory constructor</li>
+    <li><a href="../../rohd_hcl/TreeOneHotToBinary-class.html">TreeOneHotToBinary</a></li>
+    <li class="self-crumb">binary property</li>
   </ol>
-  <div class="self-name">Memory</div>
+  <div class="self-name">binary</div>
   <form class="search navbar-right" role="search">
     <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
   </form>
@@ -50,71 +50,33 @@
 
   <div id="dartdoc-main-content" class="main-content">
       <div>
-<h1><span class="kind-constructor">Memory</span> constructor 
+<h1><span class="kind-property">binary</span> property 
     <a href="https://dart.dev/null-safety" class="feature feature-null-safety" title="Supports the null safety language feature.">Null safety</a>
 </h1></div>
 
-    <section class="multi-line-signature">
-      
-      <span class="name ">Memory</span>(<wbr><ol class="parameter-list"><li><span class="parameter" id="-param-clk"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.4.2/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">clk</span>, </span></li>
-<li><span class="parameter" id="-param-reset"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.4.2/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">reset</span>, </span></li>
-<li><span class="parameter" id="-param-writePorts"><span class="type-annotation"><a href="https://api.dart.dev/stable/2.19.6/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../../rohd_hcl/DataPortInterface-class.html">DataPortInterface</a></span>&gt;</span></span> <span class="parameter-name">writePorts</span>, </span></li>
-<li><span class="parameter" id="-param-readPorts"><span class="type-annotation"><a href="https://api.dart.dev/stable/2.19.6/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../../rohd_hcl/DataPortInterface-class.html">DataPortInterface</a></span>&gt;</span></span> <span class="parameter-name">readPorts</span>, </span></li>
-<li><span class="parameter" id="-param-name">{<span class="type-annotation"><a href="https://api.dart.dev/stable/2.19.6/dart-core/String-class.html">String</a></span> <span class="parameter-name">name</span> = <span class="default-value">&#39;memory&#39;</span>}</span></li>
-</ol>)
-    </section>
 
-    
-<section class="desc markdown">
-  <p>Construct a new memory.</p>
+        
+<section id="getter">
+
+<section class="multi-line-signature">
+  
+  <span class="returntype"><a href="https://pub.dev/documentation/rohd/0.4.2/rohd/Logic-class.html">Logic</a></span>
+  <span class="name ">binary</span>
+  
+
 </section>
 
 
-    
+<section class="desc markdown">
+  <p>The <a href="../../rohd_hcl/TreeOneHotToBinary/binary.html">binary</a> decoded result.</p>
+</section>
+
+
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
-  <pre class="language-dart"><code class="language-dart">Memory(Logic clk, Logic reset, List&lt;DataPortInterface&gt; writePorts,
-    List&lt;DataPortInterface&gt; readPorts,
-    {super.name = &#39;memory&#39;})
-    : assert(writePorts.isNotEmpty &amp;&amp; readPorts.isNotEmpty,
-          &#39;Must specify at least one read port and one write port.&#39;),
-      numWrites = writePorts.length,
-      numReads = readPorts.length,
-      dataWidth = (writePorts.isNotEmpty)
-          ? writePorts[0].dataWidth
-          : readPorts[0].dataWidth, &#47;&#47; at least one of these must exist
-      addrWidth = (writePorts.isNotEmpty)
-          ? writePorts[0].addrWidth
-          : readPorts[0].addrWidth &#47;&#47; at least one of these must exist
-{
-  &#47;&#47; make sure widths of everything match expectations
-  for (final port in [...writePorts, ...readPorts]) {
-    if (port.addrWidth != addrWidth) {
-      throw RohdHclException(&#39;All ports must have the same address width.&#39;);
-    }
-    if (port.dataWidth != dataWidth) {
-      throw RohdHclException(&#39;All ports must have the same data width.&#39;);
-    }
-  }
+  <pre class="language-dart"><code class="language-dart">Logic get binary =&gt; output(&#39;binary&#39;);</code></pre>
+</section>
 
-  addInput(&#39;clk&#39;, clk);
-  addInput(&#39;reset&#39;, reset);
-
-  for (var i = 0; i &lt; numReads; i++) {
-    _rdPorts.add(readPorts[i].clone()
-      ..connectIO(this, readPorts[i],
-          inputTags: {DataPortGroup.control},
-          outputTags: {DataPortGroup.data},
-          uniquify: (original) =&gt; &#39;rd_${original}_$i&#39;));
-  }
-  for (var i = 0; i &lt; numWrites; i++) {
-    _wrPorts.add(writePorts[i].clone()
-      ..connectIO(this, writePorts[i],
-          inputTags: {DataPortGroup.control, DataPortGroup.data},
-          outputTags: {},
-          uniquify: (original) =&gt; &#39;wr_${original}_$i&#39;));
-  }
-}</code></pre>
 </section>
 
 
@@ -130,32 +92,29 @@
 <ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
   <li><a href="../../index.html">rohd_hcl</a></li>
   <li><a href="../../rohd_hcl/rohd_hcl-library.html">rohd_hcl</a></li>
-  <li><a href="../../rohd_hcl/Memory-class.html">Memory</a></li>
-  <li class="self-crumb">Memory constructor</li>
+  <li><a href="../../rohd_hcl/TreeOneHotToBinary-class.html">TreeOneHotToBinary</a></li>
+  <li class="self-crumb">binary property</li>
 </ol>
 
 
-    <h5>Memory class</h5>
+    <h5>TreeOneHotToBinary class</h5>
     <ol>
 
-        <li class="section-title"><a href="../../rohd_hcl/Memory-class.html#constructors">Constructors</a></li>
-          <li><a href="../../rohd_hcl/Memory/Memory.html">Memory</a></li>
+        <li class="section-title"><a href="../../rohd_hcl/TreeOneHotToBinary-class.html#constructors">Constructors</a></li>
+          <li><a href="../../rohd_hcl/TreeOneHotToBinary/TreeOneHotToBinary.html">TreeOneHotToBinary</a></li>
 
 
         <li class="section-title">
-          <a href="../../rohd_hcl/Memory-class.html#instance-properties">Properties</a>
+          <a href="../../rohd_hcl/TreeOneHotToBinary-class.html#instance-properties">Properties</a>
         </li>
-          <li><a href="../../rohd_hcl/Memory/addrWidth.html">addrWidth</a></li>
+          <li><a href="../../rohd_hcl/TreeOneHotToBinary/binary.html">binary</a></li>
           <li class="inherited"><a href="https://pub.dev/documentation/rohd/0.4.2/rohd/Module/combinationalPaths.html">combinationalPaths</a></li>
-          <li><a href="../../rohd_hcl/Memory/dataWidth.html">dataWidth</a></li>
           <li class="inherited"><a href="https://pub.dev/documentation/rohd/0.4.2/rohd/Module/definitionName.html">definitionName</a></li>
           <li class="inherited"><a href="https://pub.dev/documentation/rohd/0.4.2/rohd/Module/hasBuilt.html">hasBuilt</a></li>
           <li class="inherited"><a href="https://api.dart.dev/stable/2.19.6/dart-core/Object/hashCode.html">hashCode</a></li>
           <li class="inherited"><a href="https://pub.dev/documentation/rohd/0.4.2/rohd/Module/inputs.html">inputs</a></li>
           <li class="inherited"><a href="https://pub.dev/documentation/rohd/0.4.2/rohd/Module/internalSignals.html">internalSignals</a></li>
           <li class="inherited"><a href="https://pub.dev/documentation/rohd/0.4.2/rohd/Module/name.html">name</a></li>
-          <li><a href="../../rohd_hcl/Memory/numReads.html">numReads</a></li>
-          <li><a href="../../rohd_hcl/Memory/numWrites.html">numWrites</a></li>
           <li class="inherited"><a href="https://pub.dev/documentation/rohd/0.4.2/rohd/Module/outputs.html">outputs</a></li>
           <li class="inherited"><a href="https://pub.dev/documentation/rohd/0.4.2/rohd/Module/parent.html">parent</a></li>
           <li class="inherited"><a href="https://pub.dev/documentation/rohd/0.4.2/rohd/Module/reserveDefinitionName.html">reserveDefinitionName</a></li>
@@ -166,7 +125,7 @@
           <li class="inherited"><a href="https://pub.dev/documentation/rohd/0.4.2/rohd/Module/subModules.html">subModules</a></li>
           <li class="inherited"><a href="https://pub.dev/documentation/rohd/0.4.2/rohd/Module/uniqueInstanceName.html">uniqueInstanceName</a></li>
 
-        <li class="section-title inherited"><a href="../../rohd_hcl/Memory-class.html#instance-methods">Methods</a></li>
+        <li class="section-title inherited"><a href="../../rohd_hcl/TreeOneHotToBinary-class.html#instance-methods">Methods</a></li>
           <li class="inherited"><a href="https://pub.dev/documentation/rohd/0.4.2/rohd/Module/addInput.html">addInput</a></li>
           <li class="inherited"><a href="https://pub.dev/documentation/rohd/0.4.2/rohd/Module/addOutput.html">addOutput</a></li>
           <li class="inherited"><a href="https://pub.dev/documentation/rohd/0.4.2/rohd/Module/build.html">build</a></li>
@@ -182,7 +141,7 @@
           <li class="inherited"><a href="https://pub.dev/documentation/rohd/0.4.2/rohd/Module/output.html">output</a></li>
           <li class="inherited"><a href="https://pub.dev/documentation/rohd/0.4.2/rohd/Module/toString.html">toString</a></li>
 
-        <li class="section-title inherited"><a href="../../rohd_hcl/Memory-class.html#operators">Operators</a></li>
+        <li class="section-title inherited"><a href="../../rohd_hcl/TreeOneHotToBinary-class.html#operators">Operators</a></li>
           <li class="inherited"><a href="https://api.dart.dev/stable/2.19.6/dart-core/Object/operator_equals.html">operator ==</a></li>
 
 
@@ -190,7 +149,7 @@
 
 </ol>
 
-  </div><!--/.sidebar-offcanvas-left-->
+  </div><!--/.sidebar-offcanvas-->
 
   <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
   </div><!--/.sidebar-offcanvas-->

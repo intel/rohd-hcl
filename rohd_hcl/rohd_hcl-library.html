@@ -69,6 +69,14 @@
   An abstract description of an arbiter module.
 </dd>
 
+        <dt id="BinaryToOneHot">
+  <span class="name "><a href="../rohd_hcl/BinaryToOneHot-class.html">BinaryToOneHot</a></span> 
+
+</dt>
+<dd>
+  Encodes a binary number into one-hot
+</dd>
+
         <dt id="DataPortInterface">
   <span class="name "><a href="../rohd_hcl/DataPortInterface-class.html">DataPortInterface</a></span> 
 
@@ -85,12 +93,28 @@
   A simple FIFO (First In, First Out).
 </dd>
 
+        <dt id="MaskedDataPortInterface">
+  <span class="name "><a href="../rohd_hcl/MaskedDataPortInterface-class.html">MaskedDataPortInterface</a></span> 
+
+</dt>
+<dd>
+  A <a href="../rohd_hcl/DataPortInterface-class.html">DataPortInterface</a> that supports byte-enabled strobing.
+</dd>
+
         <dt id="Memory">
   <span class="name "><a href="../rohd_hcl/Memory-class.html">Memory</a></span> 
 
 </dt>
 <dd>
   A generic memory with variable numbers of read and write ports.
+</dd>
+
+        <dt id="OneHotToBinary">
+  <span class="name "><a href="../rohd_hcl/OneHotToBinary-class.html">OneHotToBinary</a></span> 
+
+</dt>
+<dd>
+  Decodes a one-hot number into binary using a for-loop
 </dd>
 
         <dt id="PriorityArbiter">
@@ -141,12 +165,12 @@
   Rotates right by a fixed amount.
 </dd>
 
-        <dt id="StrobeDataPortInterface">
-  <span class="name "><a href="../rohd_hcl/StrobeDataPortInterface-class.html">StrobeDataPortInterface</a></span> 
+        <dt id="TreeOneHotToBinary">
+  <span class="name "><a href="../rohd_hcl/TreeOneHotToBinary-class.html">TreeOneHotToBinary</a></span> 
 
 </dt>
 <dd>
-  A <a href="../rohd_hcl/DataPortInterface-class.html">DataPortInterface</a> that supports byte-enabled strobing.
+  Module for binary-tree recursion for decoding one-hot
 </dd>
 
       </dl>
@@ -185,8 +209,8 @@
       <h2>Enums</h2>
 
       <dl>
-        <dt id="PortGroup">
-  <span class="name "><a href="../rohd_hcl/PortGroup.html">PortGroup</a></span> 
+        <dt id="DataPortGroup">
+  <span class="name "><a href="../rohd_hcl/DataPortGroup.html">DataPortGroup</a></span> 
 
 </dt>
 <dd>
@@ -240,16 +264,19 @@
     <ol>
       <li class="section-title"><a href="../rohd_hcl/rohd_hcl-library.html#classes">Classes</a></li>
         <li><a href="../rohd_hcl/Arbiter-class.html">Arbiter</a></li>
+        <li><a href="../rohd_hcl/BinaryToOneHot-class.html">BinaryToOneHot</a></li>
         <li><a href="../rohd_hcl/DataPortInterface-class.html">DataPortInterface</a></li>
         <li><a href="../rohd_hcl/Fifo-class.html">Fifo</a></li>
+        <li><a href="../rohd_hcl/MaskedDataPortInterface-class.html">MaskedDataPortInterface</a></li>
         <li><a href="../rohd_hcl/Memory-class.html">Memory</a></li>
+        <li><a href="../rohd_hcl/OneHotToBinary-class.html">OneHotToBinary</a></li>
         <li><a href="../rohd_hcl/PriorityArbiter-class.html">PriorityArbiter</a></li>
         <li><a href="../rohd_hcl/RegisterFile-class.html">RegisterFile</a></li>
         <li><a href="../rohd_hcl/RotateLeft-class.html">RotateLeft</a></li>
         <li><a href="../rohd_hcl/RotateLeftFixed-class.html">RotateLeftFixed</a></li>
         <li><a href="../rohd_hcl/RotateRight-class.html">RotateRight</a></li>
         <li><a href="../rohd_hcl/RotateRightFixed-class.html">RotateRightFixed</a></li>
-        <li><a href="../rohd_hcl/StrobeDataPortInterface-class.html">StrobeDataPortInterface</a></li>
+        <li><a href="../rohd_hcl/TreeOneHotToBinary-class.html">TreeOneHotToBinary</a></li>
 
       <li class="section-title"><a href="../rohd_hcl/rohd_hcl-library.html#extensions">Extensions</a></li>
         <li><a href="../rohd_hcl/RotateLogic.html">RotateLogic</a></li>
@@ -260,7 +287,7 @@
 
 
       <li class="section-title"><a href="../rohd_hcl/rohd_hcl-library.html#enums">Enums</a></li>
-        <li><a href="../rohd_hcl/PortGroup.html">PortGroup</a></li>
+        <li><a href="../rohd_hcl/DataPortGroup.html">DataPortGroup</a></li>
 
 
       <li class="section-title"><a href="../rohd_hcl/rohd_hcl-library.html#exceptions">Exceptions</a></li>

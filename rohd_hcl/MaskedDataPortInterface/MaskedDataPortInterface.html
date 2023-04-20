@@ -4,8 +4,8 @@
   <meta charset="utf-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
-  <meta name="description" content="API docs for the clone method from the StrobeDataPortInterface class, for the Dart programming language.">
-  <title>clone method - StrobeDataPortInterface class - rohd_hcl library - Dart API</title>
+  <meta name="description" content="API docs for the MaskedDataPortInterface constructor from Class MaskedDataPortInterface from the rohd_hcl library, for the Dart programming language.">
+  <title>MaskedDataPortInterface constructor - MaskedDataPortInterface - rohd_hcl library - Dart API</title>
 
 
   
@@ -30,10 +30,10 @@
   <ol class="breadcrumbs gt-separated dark hidden-xs">
     <li><a href="../../index.html">rohd_hcl</a></li>
     <li><a href="../../rohd_hcl/rohd_hcl-library.html">rohd_hcl</a></li>
-    <li><a href="../../rohd_hcl/StrobeDataPortInterface-class.html">StrobeDataPortInterface</a></li>
-    <li class="self-crumb">clone method</li>
+    <li><a href="../../rohd_hcl/MaskedDataPortInterface-class.html">MaskedDataPortInterface</a></li>
+    <li class="self-crumb">MaskedDataPortInterface constructor</li>
   </ol>
-  <div class="self-name">clone</div>
+  <div class="self-name">MaskedDataPortInterface</div>
   <form class="search navbar-right" role="search">
     <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
   </form>
@@ -50,35 +50,34 @@
 
   <div id="dartdoc-main-content" class="main-content">
       <div>
-<h1><span class="kind-method">clone</span> method 
+<h1><span class="kind-constructor">MaskedDataPortInterface</span> constructor 
     <a href="https://dart.dev/null-safety" class="feature feature-null-safety" title="Supports the null safety language feature.">Null safety</a>
 </h1></div>
 
     <section class="multi-line-signature">
       
-  <div>
-    <ol class="annotation-list">
-        <li>@<a href="https://api.dart.dev/stable/2.19.6/dart-core/override-constant.html">override</a></li>
-    </ol>
-  </div>
-
-<span class="returntype"><a href="../../rohd_hcl/DataPortInterface-class.html">DataPortInterface</a></span>
-<span class="name ">clone</span>(<wbr>)
-
-      <div class="features"><span class="feature">override</span></div>
-
+      <span class="name ">MaskedDataPortInterface</span>(<wbr><ol class="parameter-list"><li><span class="parameter" id="-param-dataWidth"><span class="type-annotation"><a href="https://api.dart.dev/stable/2.19.6/dart-core/int-class.html">int</a></span> <span class="parameter-name">dataWidth</span>, </span></li>
+<li><span class="parameter" id="-param-addrWidth"><span class="type-annotation"><a href="https://api.dart.dev/stable/2.19.6/dart-core/int-class.html">int</a></span> <span class="parameter-name">addrWidth</span></span></li>
+</ol>)
     </section>
+
     
 <section class="desc markdown">
-  <p>Makes a copy of this <a href="https://pub.dev/documentation/rohd/0.4.2/rohd/Interface-class.html">Interface</a> with matching configuration.</p>
+  <p>Constructs a <a href="../../rohd_hcl/DataPortInterface-class.html">DataPortInterface</a> with mask.</p>
 </section>
 
 
     
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
-  <pre class="language-dart"><code class="language-dart">@override
-DataPortInterface clone() =&gt; StrobeDataPortInterface(dataWidth, addrWidth);</code></pre>
+  <pre class="language-dart"><code class="language-dart">MaskedDataPortInterface(super.dataWidth, super.addrWidth)
+    : assert(dataWidth % 8 == 0, &#39;The data width must be byte-granularity&#39;) {
+  setPorts([
+    Port(&#39;mask&#39;, dataWidth ~&#47; 8),
+  ], [
+    DataPortGroup.control
+  ]);
+}</code></pre>
 </section>
 
 
@@ -94,20 +93,20 @@ DataPortInterface clone() =&gt; StrobeDataPortInterface(dataWidth, addrWidth);</
 <ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
   <li><a href="../../index.html">rohd_hcl</a></li>
   <li><a href="../../rohd_hcl/rohd_hcl-library.html">rohd_hcl</a></li>
-  <li><a href="../../rohd_hcl/StrobeDataPortInterface-class.html">StrobeDataPortInterface</a></li>
-  <li class="self-crumb">clone method</li>
+  <li><a href="../../rohd_hcl/MaskedDataPortInterface-class.html">MaskedDataPortInterface</a></li>
+  <li class="self-crumb">MaskedDataPortInterface constructor</li>
 </ol>
 
 
-    <h5>StrobeDataPortInterface class</h5>
+    <h5>MaskedDataPortInterface class</h5>
     <ol>
 
-        <li class="section-title"><a href="../../rohd_hcl/StrobeDataPortInterface-class.html#constructors">Constructors</a></li>
-          <li><a href="../../rohd_hcl/StrobeDataPortInterface/StrobeDataPortInterface.html">StrobeDataPortInterface</a></li>
+        <li class="section-title"><a href="../../rohd_hcl/MaskedDataPortInterface-class.html#constructors">Constructors</a></li>
+          <li><a href="../../rohd_hcl/MaskedDataPortInterface/MaskedDataPortInterface.html">MaskedDataPortInterface</a></li>
 
 
         <li class="section-title">
-          <a href="../../rohd_hcl/StrobeDataPortInterface-class.html#instance-properties">Properties</a>
+          <a href="../../rohd_hcl/MaskedDataPortInterface-class.html#instance-properties">Properties</a>
         </li>
           <li class="inherited"><a href="../../rohd_hcl/DataPortInterface/addr.html">addr</a></li>
           <li class="inherited"><a href="../../rohd_hcl/DataPortInterface/addrWidth.html">addrWidth</a></li>
@@ -115,12 +114,12 @@ DataPortInterface clone() =&gt; StrobeDataPortInterface(dataWidth, addrWidth);</
           <li class="inherited"><a href="../../rohd_hcl/DataPortInterface/dataWidth.html">dataWidth</a></li>
           <li class="inherited"><a href="../../rohd_hcl/DataPortInterface/en.html">en</a></li>
           <li class="inherited"><a href="https://api.dart.dev/stable/2.19.6/dart-core/Object/hashCode.html">hashCode</a></li>
+          <li><a href="../../rohd_hcl/MaskedDataPortInterface/mask.html">mask</a></li>
           <li class="inherited"><a href="https://pub.dev/documentation/rohd/0.4.2/rohd/Interface/ports.html">ports</a></li>
           <li class="inherited"><a href="https://api.dart.dev/stable/2.19.6/dart-core/Object/runtimeType.html">runtimeType</a></li>
-          <li><a href="../../rohd_hcl/StrobeDataPortInterface/strobe.html">strobe</a></li>
 
-        <li class="section-title"><a href="../../rohd_hcl/StrobeDataPortInterface-class.html#instance-methods">Methods</a></li>
-          <li><a href="../../rohd_hcl/StrobeDataPortInterface/clone.html">clone</a></li>
+        <li class="section-title"><a href="../../rohd_hcl/MaskedDataPortInterface-class.html#instance-methods">Methods</a></li>
+          <li><a href="../../rohd_hcl/MaskedDataPortInterface/clone.html">clone</a></li>
           <li class="inherited"><a href="https://pub.dev/documentation/rohd/0.4.2/rohd/Interface/connectIO.html">connectIO</a></li>
           <li class="inherited"><a href="https://pub.dev/documentation/rohd/0.4.2/rohd/Interface/getPorts.html">getPorts</a></li>
           <li class="inherited"><a href="https://api.dart.dev/stable/2.19.6/dart-core/Object/noSuchMethod.html">noSuchMethod</a></li>
@@ -128,7 +127,7 @@ DataPortInterface clone() =&gt; StrobeDataPortInterface(dataWidth, addrWidth);</
           <li class="inherited"><a href="https://pub.dev/documentation/rohd/0.4.2/rohd/Interface/setPorts.html">setPorts</a></li>
           <li class="inherited"><a href="https://api.dart.dev/stable/2.19.6/dart-core/Object/toString.html">toString</a></li>
 
-        <li class="section-title inherited"><a href="../../rohd_hcl/StrobeDataPortInterface-class.html#operators">Operators</a></li>
+        <li class="section-title inherited"><a href="../../rohd_hcl/MaskedDataPortInterface-class.html#operators">Operators</a></li>
           <li class="inherited"><a href="https://api.dart.dev/stable/2.19.6/dart-core/Object/operator_equals.html">operator ==</a></li>
 
 
@@ -136,7 +135,7 @@ DataPortInterface clone() =&gt; StrobeDataPortInterface(dataWidth, addrWidth);</
 
 </ol>
 
-  </div><!--/.sidebar-offcanvas-->
+  </div><!--/.sidebar-offcanvas-left-->
 
   <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
   </div><!--/.sidebar-offcanvas-->

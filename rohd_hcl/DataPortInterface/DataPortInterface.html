@@ -71,19 +71,18 @@ interacting with a memory in either the read or write direction.</p>
     
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
-  <pre class="language-dart"><code class="language-dart">DataPortInterface(this.dataWidth, this.addrWidth)
-    : assert(dataWidth % 8 == 0, &#39;The data width must be byte-granularity&#39;) {
+  <pre class="language-dart"><code class="language-dart">DataPortInterface(this.dataWidth, this.addrWidth) {
   setPorts([
     Port(&#39;en&#39;),
     Port(&#39;addr&#39;, addrWidth),
   ], [
-    PortGroup.control
+    DataPortGroup.control
   ]);
 
   setPorts([
     Port(&#39;data&#39;, dataWidth),
   ], [
-    PortGroup.data
+    DataPortGroup.data
   ]);
 }</code></pre>
 </section>
