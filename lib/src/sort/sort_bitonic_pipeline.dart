@@ -67,7 +67,6 @@ class BitonicMerge extends Module {
   final List<Logic> _outputs = [];
   final List<Logic> _outputsFinal = [];
 
-  List<Logic> get yList => _outputs;
   List<Logic> get sortedList => _outputsFinal;
 
   BitonicMerge(Logic clk, Logic reset, List<Logic> inputs, int direction)
@@ -137,25 +136,25 @@ class BitonicSort extends Module {
       _inputs.add(addInput('x$i', a[i], width: a[i].width));
     }
 
-    // add output port
-    for (var i = 0; i < a.length; i++) {
-      _outputs.add(addOutput('y$i', width: a[i].width));
-    }
-
     if (_inputs.length > 1) {
       final k = _inputs.length ~/ 2;
       final sortLeft = BitonicSort(
           clk, reset, _inputs.getRange(0, _inputs.length ~/ 2).toList(), 1,
           name: 'sort_left_$k');
+
       final sortRight = BitonicSort(clk, reset,
           _inputs.getRange(_inputs.length ~/ 2, _inputs.length).toList(), 0,
           name: 'sort_right_$k');
 
       final res = sortLeft.yList + sortRight.yList;
+
       final y = BitonicMerge(clk, reset, res, direction);
-      for (var i = 0; i < y.yList.length; i++) {
-        _outputs[i] <= y.yList[i];
+      for (var i = 0; i < y.sortedList.length; i++) {
+        _outputs[i] <= y.sortedList[i];
       }
+    } else {
+      _outputs.add(addOutput('sorted_0', width: _inputs[0].width));
+      _outputs[0] <= _inputs[0];
     }
   }
 }
@@ -235,53 +234,51 @@ Future<void> main() async {
         Const(9, width: 8),
       ];
 
-      final bMerge = BitonicMerge(clk, reset, bitonicSeq, 1);
+      final bMerge = BitonicMerge(clk, reset, bitonicSeq, 7);
       await bMerge.build();
 
       WaveDumper(bMerge, outputPath: 'bitonic_merge.vcd');
+
+      Simulator.registerAction(40, () {
+        for (var i = 0; i < bMerge.sortedList.length; i++) {
+          expect(bMerge.sortedList[i].value.toInt(), i + 1);
+        }
+      });
 
       Simulator.setMaxSimTime(50);
       await Simulator.run();
     });
   });
 
-  // const dataWidth = 8;
-  // const direction = 1;
+  // group('Bitonic Sort', () {
+  //   test('should return the sorted results', () async {
+  //     const dataWidth = 8;
+  //     const direction = 1;
 
-  // final clk = SimpleClockGenerator(10).clk;
-  // final reset = Logic(name: 'reset');
+  //     final clk = SimpleClockGenerator(10).clk;
+  //     final reset = Logic(name: 'reset');
 
-  // const logInputNum = 2;
-  // final x = <Logic>[
-  //   Const(8, width: dataWidth),
-  //   Const(3, width: dataWidth),
-  //   Const(4, width: dataWidth),
-  //   Const(9, width: dataWidth),
-  //   // Const(6, width: dataWidth),
-  //   // Const(2, width: dataWidth),
-  //   // Const(1, width: dataWidth),
-  //   // Const(7, width: dataWidth)
-  // ];
+  //     const logInputNum = 2;
+  //     final x = <Logic>[
+  //       Const(8, width: dataWidth),
+  //       Const(3, width: dataWidth),
+  //       Const(4, width: dataWidth),
+  //       Const(9, width: dataWidth),
+  //       // Const(6, width: dataWidth),
+  //       // Const(2, width: dataWidth),
+  //       // Const(1, width: dataWidth),
+  //       // Const(7, width: dataWidth)
+  //     ];
 
-  // final topMod = BitonicSort(
-  //   clk,
-  //   reset,
-  //   x,
-  //   direction,
-  //   name: 'top_level',
-  // );
-  // await topMod.build();
+  //     final topMod = BitonicSort(clk, reset, x, direction, name: 'top_level');
+  //     await topMod.build();
 
-  // print(topMod.generateSynth());
+  //     reset.inject(0);
 
-  // reset.inject(1);
+  //     Simulator.setMaxSimTime(100);
+  //     WaveDumper(topMod, outputPath: 'lib/src/sort/recursive_list.vcd');
 
-  // Simulator.setMaxSimTime(100);
-  // WaveDumper(topMod, outputPath: 'lib/src/sort/recursive_list.vcd');
-
-  // Simulator.registerAction(25, () {
-  //   reset.put(0);
+  //     await Simulator.run();
+  //   });
   // });
-
-  // await Simulator.run();
 }
