@@ -2,8 +2,8 @@
 // SPDX-License-Identifier: BSD-3-Clause
 
 export 'src/arbiter.dart';
+export 'src/bitonic_sort.dart';
 export 'src/exceptions.dart';
 export 'src/fifo.dart';
 export 'src/memory.dart';
 export 'src/rotate.dart';
-export 'src/sort/sort_bitonic_logic_list.dart';
