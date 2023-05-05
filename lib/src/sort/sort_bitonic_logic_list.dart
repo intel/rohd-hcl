@@ -150,6 +150,7 @@ class BitonicSort extends Module {
 
       final y = BitonicMerge(clk, reset, res, direction);
       for (var i = 0; i < y.sortedList.length; i++) {
+        _outputs.add(addOutput('sorted_$i', width: _inputs[i].width));
         _outputs[i] <= y.sortedList[i];
       }
     } else {
@@ -250,35 +251,42 @@ Future<void> main() async {
     });
   });
 
-  // group('Bitonic Sort', () {
-  //   test('should return the sorted results', () async {
-  //     const dataWidth = 8;
-  //     const direction = 1;
+  group('Bitonic Sort', () {
+    test('should return the sorted results', () async {
+      const dataWidth = 8;
+      const direction = 1;
 
-  //     final clk = SimpleClockGenerator(10).clk;
-  //     final reset = Logic(name: 'reset');
+      final clk = SimpleClockGenerator(10).clk;
+      final reset = Logic(name: 'reset');
 
-  //     const logInputNum = 2;
-  //     final x = <Logic>[
-  //       Const(8, width: dataWidth),
-  //       Const(3, width: dataWidth),
-  //       Const(4, width: dataWidth),
-  //       Const(9, width: dataWidth),
-  //       // Const(6, width: dataWidth),
-  //       // Const(2, width: dataWidth),
-  //       // Const(1, width: dataWidth),
-  //       // Const(7, width: dataWidth)
-  //     ];
+      final x = <Logic>[
+        Const(16, width: dataWidth),
+        Const(15, width: dataWidth),
+        Const(14, width: dataWidth),
+        Const(13, width: dataWidth),
+        Const(12, width: dataWidth),
+        Const(11, width: dataWidth),
+        Const(10, width: dataWidth),
+        Const(9, width: dataWidth),
+        Const(8, width: dataWidth),
+        Const(7, width: dataWidth),
+        Const(6, width: dataWidth),
+        Const(5, width: dataWidth),
+        Const(4, width: dataWidth),
+        Const(3, width: dataWidth),
+        Const(2, width: dataWidth),
+        Const(1, width: dataWidth),
+      ];
 
-  //     final topMod = BitonicSort(clk, reset, x, direction, name: 'top_level');
-  //     await topMod.build();
+      final topMod = BitonicSort(clk, reset, x, direction, name: 'top_level');
+      await topMod.build();
 
-  //     reset.inject(0);
+      reset.inject(0);
 
-  //     Simulator.setMaxSimTime(100);
-  //     WaveDumper(topMod, outputPath: 'lib/src/sort/recursive_list.vcd');
+      Simulator.setMaxSimTime(100);
+      WaveDumper(topMod, outputPath: 'lib/src/sort/recursive_list.vcd');
 
-  //     await Simulator.run();
-  //   });
-  // });
+      await Simulator.run();
+    });
+  });
 }
