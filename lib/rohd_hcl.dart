@@ -6,3 +6,4 @@ export 'src/exceptions.dart';
 export 'src/fifo.dart';
 export 'src/memory.dart';
 export 'src/rotate.dart';
+export 'src/sort/sort_bitonic_logic_list.dart';
