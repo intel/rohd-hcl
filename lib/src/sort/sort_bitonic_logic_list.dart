@@ -10,8 +10,6 @@
 
 // ignore_for_file: avoid_unused_constructor_parameters, public_member_api_docs
 
-// https://github.com/john9636/SortingNetwork/blob/master/SortingNetwork/verilog/recursive/rtl/bitonic_sorting_recursion.v
-
 import 'dart:async';
 import 'package:rohd/rohd.dart';
 import 'package:test/test.dart';
@@ -282,6 +280,12 @@ Future<void> main() async {
       await topMod.build();
 
       reset.inject(0);
+
+      Simulator.registerAction(100, () {
+        for (var i = 0; i < topMod.yList.length; i++) {
+          expect(topMod.yList[i].value.toInt(), i + 1);
+        }
+      });
 
       Simulator.setMaxSimTime(100);
       WaveDumper(topMod, outputPath: 'lib/src/sort/recursive_list.vcd');
