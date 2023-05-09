@@ -18,7 +18,7 @@ The `empty` signal indicates when nothing is in the FIFO.  The `full` signal ind
 
 ## Bypass
 
-If the FIFO is empty and both `readEnable` and `writeEnable` are high at the same time, then the FIFO will do a bypass of the internal storage, allowing for a combinational path straight through.
+THe FIFO optionally supports a bypass if `generateBypass` is set.  When generated, if the FIFO is empty and both `readEnable` and `writeEnable` are high at the same time, then the FIFO will do a bypass of the internal storage, allowing for a combinational passthrough.
 
 ## Errors
 
