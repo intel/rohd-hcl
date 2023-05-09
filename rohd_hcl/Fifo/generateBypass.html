@@ -4,8 +4,8 @@
   <meta charset="utf-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
-  <meta name="description" content="API docs for the readData property from the Fifo class, for the Dart programming language.">
-  <title>readData property - Fifo class - rohd_hcl library - Dart API</title>
+  <meta name="description" content="API docs for the generateBypass property from the Fifo class, for the Dart programming language.">
+  <title>generateBypass property - Fifo class - rohd_hcl library - Dart API</title>
 
 
   
@@ -31,9 +31,9 @@
     <li><a href="../../index.html">rohd_hcl</a></li>
     <li><a href="../../rohd_hcl/rohd_hcl-library.html">rohd_hcl</a></li>
     <li><a href="../../rohd_hcl/Fifo-class.html">Fifo</a></li>
-    <li class="self-crumb">readData property</li>
+    <li class="self-crumb">generateBypass property</li>
   </ol>
-  <div class="self-name">readData</div>
+  <div class="self-name">generateBypass</div>
   <form class="search navbar-right" role="search">
     <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
   </form>
@@ -50,34 +50,27 @@
 
   <div id="dartdoc-main-content" class="main-content">
       <div>
-<h1><span class="kind-property">readData</span> property 
+<h1><span class="kind-property">generateBypass</span> property 
     <a href="https://dart.dev/null-safety" class="feature feature-null-safety" title="Supports the null safety language feature.">Null safety</a>
 </h1></div>
 
+        <section class="multi-line-signature">
+          
+          <a href="https://api.dart.dev/stable/2.19.6/dart-core/bool-class.html">bool</a>
+          <span class="name ">generateBypass</span>
+          <div class="features"><span class="feature">final</span></div>
+
+        </section>
+        
+<section class="desc markdown">
+  <p>If <code>true</code>, then it is possible to bypass through the FIFO by writing
+and reading at the same time while <a href="../../rohd_hcl/Fifo/empty.html">empty</a>.</p>
+</section>
 
         
-<section id="getter">
-
-<section class="multi-line-signature">
-  
-  <span class="returntype"><a href="https://pub.dev/documentation/rohd/0.4.2/rohd/Logic-class.html">Logic</a></span>
-  <span class="name ">readData</span>
-  
-
-</section>
-
-
-<section class="desc markdown">
-  <p>Read data for the next item in the FIFO.</p>
-<p>This data is visible even when not actively removing from the FIFO.</p>
-</section>
-
-
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
-  <pre class="language-dart"><code class="language-dart">Logic get readData =&gt; output(&#39;readData&#39;);</code></pre>
-</section>
-
+  <pre class="language-dart"><code class="language-dart">final bool generateBypass;</code></pre>
 </section>
 
 
@@ -94,7 +87,7 @@
   <li><a href="../../index.html">rohd_hcl</a></li>
   <li><a href="../../rohd_hcl/rohd_hcl-library.html">rohd_hcl</a></li>
   <li><a href="../../rohd_hcl/Fifo-class.html">Fifo</a></li>
-  <li class="self-crumb">readData property</li>
+  <li class="self-crumb">generateBypass property</li>
 </ol>
 
 

@@ -90,7 +90,7 @@
 
     <dl class="constructor-summary-list">
         <dt id="Fifo" class="callable">
-          <span class="name"><a href="../rohd_hcl/Fifo/Fifo.html">Fifo</a></span><span class="signature">(<span class="parameter" id="-param-clk"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.4.2/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">clk</span>, </span><span class="parameter" id="-param-reset"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.4.2/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">reset</span>, </span><span class="parameter" id="-param-writeEnable">{<span>required</span> <span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.4.2/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">writeEnable</span>, </span><span class="parameter" id="-param-writeData"><span>required</span> <span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.4.2/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">writeData</span>, </span><span class="parameter" id="-param-readEnable"><span>required</span> <span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.4.2/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">readEnable</span>, </span><span class="parameter" id="-param-depth"><span>required</span> <span class="type-annotation"><a href="https://api.dart.dev/stable/2.19.6/dart-core/int-class.html">int</a></span> <span class="parameter-name">depth</span>, </span><span class="parameter" id="-param-generateError"><span class="type-annotation"><a href="https://api.dart.dev/stable/2.19.6/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">generateError</span> = <span class="default-value">false</span>, </span><span class="parameter" id="-param-generateOccupancy"><span class="type-annotation"><a href="https://api.dart.dev/stable/2.19.6/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">generateOccupancy</span> = <span class="default-value">false</span>, </span><span class="parameter" id="-param-name"><span class="type-annotation"><a href="https://api.dart.dev/stable/2.19.6/dart-core/String-class.html">String</a></span> <span class="parameter-name">name</span> = <span class="default-value">&#39;fifo&#39;</span>}</span>)</span>
+          <span class="name"><a href="../rohd_hcl/Fifo/Fifo.html">Fifo</a></span><span class="signature">(<span class="parameter" id="-param-clk"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.4.2/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">clk</span>, </span><span class="parameter" id="-param-reset"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.4.2/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">reset</span>, </span><span class="parameter" id="-param-writeEnable">{<span>required</span> <span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.4.2/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">writeEnable</span>, </span><span class="parameter" id="-param-writeData"><span>required</span> <span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.4.2/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">writeData</span>, </span><span class="parameter" id="-param-readEnable"><span>required</span> <span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.4.2/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">readEnable</span>, </span><span class="parameter" id="-param-depth"><span>required</span> <span class="type-annotation"><a href="https://api.dart.dev/stable/2.19.6/dart-core/int-class.html">int</a></span> <span class="parameter-name">depth</span>, </span><span class="parameter" id="-param-generateError"><span class="type-annotation"><a href="https://api.dart.dev/stable/2.19.6/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">generateError</span> = <span class="default-value">false</span>, </span><span class="parameter" id="-param-generateOccupancy"><span class="type-annotation"><a href="https://api.dart.dev/stable/2.19.6/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">generateOccupancy</span> = <span class="default-value">false</span>, </span><span class="parameter" id="-param-generateBypass"><span class="type-annotation"><a href="https://api.dart.dev/stable/2.19.6/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">generateBypass</span> = <span class="default-value">false</span>, </span><span class="parameter" id="-param-name"><span class="type-annotation"><a href="https://api.dart.dev/stable/2.19.6/dart-core/String-class.html">String</a></span> <span class="parameter-name">name</span> = <span class="default-value">&#39;fifo&#39;</span>}</span>)</span>
         </dt>
         <dd>
           Constructs a FIFO with RF-based storage.
@@ -167,6 +167,18 @@ generated code.
 <dd>
   High if the entire FIFO is full and it cannot accept any more new items.
   <div class="features"><span class="feature">read-only</span></div>
+
+</dd>
+
+        <dt id="generateBypass" class="property">
+  <span class="name"><a href="../rohd_hcl/Fifo/generateBypass.html">generateBypass</a></span>
+  <span class="signature">&#8594; <a href="https://api.dart.dev/stable/2.19.6/dart-core/bool-class.html">bool</a></span> 
+
+</dt>
+<dd>
+  If <code>true</code>, then it is possible to bypass through the FIFO by writing
+and reading at the same time while <a href="../rohd_hcl/Fifo/empty.html">empty</a>.
+  <div class="features"><span class="feature">final</span></div>
 
 </dd>
 
@@ -674,6 +686,7 @@ named <code>name</code>.
           <li><a href="../rohd_hcl/Fifo/empty.html">empty</a></li>
           <li><a href="../rohd_hcl/Fifo/error.html">error</a></li>
           <li><a href="../rohd_hcl/Fifo/full.html">full</a></li>
+          <li><a href="../rohd_hcl/Fifo/generateBypass.html">generateBypass</a></li>
           <li><a href="../rohd_hcl/Fifo/generateError.html">generateError</a></li>
           <li><a href="../rohd_hcl/Fifo/generateOccupancy.html">generateOccupancy</a></li>
           <li class="inherited"><a href="https://pub.dev/documentation/rohd/0.4.2/rohd/Module/hasBuilt.html">hasBuilt</a></li>
