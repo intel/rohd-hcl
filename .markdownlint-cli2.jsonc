@@ -7,7 +7,9 @@
 
   "ignores": [
     "doc/api/",
-    "d3-hwschematic-assets/",
-    "d3-hwschematic-assets/elkjs"
+    "doc/d3-hwschematic-assets/",
+    "doc/d3-hwschematic-assets/elkjs",
+    "doc/api/d3-hwschematic-assets/",
+    "doc/api/d3-hwschematic-assets/elkjs"
     ]
 }
