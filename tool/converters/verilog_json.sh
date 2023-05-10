@@ -19,7 +19,7 @@ if !(test 1 -eq $#); then
     exit 1
 fi;
 
-yosys_area=/yosys
+yosys_area=../yosys
 lib=$yosys_area/tests/liberty/normal.lib
 module=`basename $1 .v`
 $yosys_area/yosys <<EOF
