@@ -12,8 +12,8 @@
 
 set -euo pipefail
 
-apt-get update
-DEBIAN_FRONTEND=noninteractive apt-get install -y \
+sudo apt-get update
+DEBIAN_FRONTEND=noninteractive sudo apt-get install -y \
 	       build-essential \
 	       clang \
 	       bison \
@@ -31,6 +31,6 @@ DEBIAN_FRONTEND=noninteractive apt-get install -y \
 	       python3-wheel \
 	       python3-tk
 
-git clone https://github.com/YosysHQ/yosys.git
+sudo git clone https://github.com/YosysHQ/yosys.git
 cd yosys
-make -j$(nproc)
+sudo make -j$(nproc)
