@@ -37,6 +37,9 @@ jobs:
       - name: Install project dependencies
         run: tool/gh_actions/install_dependencies.sh
 
+      - name: Install synthesis
+        run: tool/gh_actions/install_synthesis.sh
+
       - name: Verify project formatting
         run: tool/gh_actions/verify_formatting.sh
 
@@ -69,6 +72,9 @@ jobs:
 
       - name: Install project dependencies
         run: tool/gh_actions/install_dependencies.sh
+
+      - name: Install synthesis
+        run: tool/gh_actions/install_synthesis.sh
 
       - name: Run project tests
         run: tool/gh_actions/run_tests.sh
