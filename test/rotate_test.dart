@@ -8,6 +8,8 @@
 // Author: Max Korbel <max.korbel@intel.com>
 //
 
+import 'dart:io';
+
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
 import 'package:test/test.dart';
@@ -88,5 +90,16 @@ void main() {
   test('rotate type exception', () {
     expect(() => Logic().rotateLeft('badType'),
         throwsA(const TypeMatcher<RohdHclException>()));
+  });
+
+  test('generate RotateLeft', () async {
+    final rot = RotateLeft(
+      Const(0xf000, width: 16),
+      Const(4, width: 8),
+      maxAmount: 4,
+    );
+    await rot.build();
+    final res = rot.generateSynth();
+    File('build/${rot.definitionName}.v').openWrite().write(res);
   });
 }

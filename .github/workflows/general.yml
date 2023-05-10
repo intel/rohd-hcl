@@ -67,6 +67,12 @@ jobs:
       - name: Install project dependencies
         run: tool/gh_actions/install_dependencies.sh
 
+      - name: Run project tests
+        run: tool/gh_actions/run_tests.sh
+
+      - name: Generate HTML for examples
+        run: tool/gh_actions/create_htmls.sh
+
       - name: Generate project documentation
         run: tool/gh_actions/generate_documentation.sh
 

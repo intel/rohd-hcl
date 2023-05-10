@@ -8,7 +8,9 @@
 // Author: Desmond Kirkpatrick
 //
 
+import 'dart:io';
 import 'dart:math';
+
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/src/one_hot.dart';
 import 'package:rohd_hcl/src/utils.dart';
@@ -25,7 +27,7 @@ void main() {
           equals(LogicValue.ofBigInt(val, pow(2, w).toInt())));
     }
   });
-  test('simple_decode', () {
+  test('simple_decode', () async {
     // Compute the first 1 in a binary value
     // Limited to 64 by the Case matching inside
     for (var pos = 0; pos < 1000; pos++) {
@@ -34,6 +36,12 @@ void main() {
       final expected = LogicValue.ofInt(pos, computed.width);
       expect(computed.value, equals(expected));
     }
+    const pos = 32;
+    final val = BigInt.from(2).pow(pos);
+    final mod = OneHotToBinary(Const(val, width: pos + 1));
+    await mod.build();
+    final res = mod.generateSynth();
+    File('${mod.definitionName}.v').openWrite().write(res);
   });
   test('tree_decode', () {
     // Compute the binary value (or bit position) of a one-hot encoded value
@@ -43,5 +51,20 @@ void main() {
       final expected = LogicValue.ofInt(pos, computed.width);
       expect(computed.value, equals(expected));
     }
+  });
+
+  test('gen one-hot', () async {
+    // Generate one-hot codecs
+    const pos = 8;
+    final w = log2Ceil(pos + 1);
+    final mod = BinaryToOneHot(Const(pos, width: w));
+    await mod.build();
+    final res = mod.generateSynth();
+    File('build/${mod.definitionName}.v').openWrite().write(res);
+    final val = BigInt.from(2).pow(pos);
+    final mod2 = OneHotToBinary(Const(val, width: pos + 1));
+    await mod2.build();
+    final res2 = mod2.generateSynth();
+    File('build/${mod2.definitionName}.v').openWrite().write(res2);
   });
 }
