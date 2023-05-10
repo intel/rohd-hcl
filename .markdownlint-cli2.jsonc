@@ -6,6 +6,8 @@
   },
 
   "ignores": [
-    "doc/api/"
-  ]
+    "doc/api/",
+    "d3-hwschematic-assets/",
+    "d3-hwschematic-assets/elkjs"
+    ]
 }
