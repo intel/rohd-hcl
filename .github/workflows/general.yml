@@ -49,6 +49,9 @@ jobs:
       - name: Run project tests
         run: tool/gh_actions/run_tests.sh
 
+      - name: Trial generate HTML for examples
+        run: tool/gh_actions/create_htmls.sh
+
   deploy-documentation:
     name: Deploy Documentation
     needs: run-checks
