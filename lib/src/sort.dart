@@ -116,11 +116,9 @@ class _BitonicMerge extends Module {
     }
 
     if (_inputs.length > 1) {
-      final k = _inputs.length ~/ 2;
-
-      for (var i = 0; i < 0 + k; i++) {
+      for (var i = 0; i < 0 + _inputs.length ~/ 2; i++) {
         final indexA = i;
-        final indexB = i + k;
+        final indexB = i + _inputs.length ~/ 2;
         final swap =
             _CompareSwap(clk, reset, _inputs, indexA, indexB, _sortOrder);
         _inputs = swap.swapped;
@@ -179,16 +177,15 @@ class BitonicSort extends _Sort<BitonicSort> {
     }
 
     if (_inputs.length > 1) {
-      final k = _inputs.length ~/ 2;
       final sortLeft = BitonicSort(clk, reset,
           toSort: _inputs.getRange(0, _inputs.length ~/ 2).toList(),
-          name: 'sort_left_$k');
+          name: 'sort_left_${_inputs.length ~/ 2}');
 
       final sortRight = BitonicSort(clk, reset,
           toSort:
               _inputs.getRange(_inputs.length ~/ 2, _inputs.length).toList(),
           isAscending: false,
-          name: 'sort_right_$k');
+          name: 'sort_right_${_inputs.length ~/ 2}');
 
       final res = sortLeft.sorted + sortRight.sorted;
 
