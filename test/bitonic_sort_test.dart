@@ -8,6 +8,8 @@
 // Author: Yao Jing Quek <yao.jing.quek@intel.com>
 //
 
+// ignore_for_file: cascade_invocations
+
 import 'dart:async';
 
 import 'package:rohd/rohd.dart';
@@ -24,7 +26,6 @@ Future<void> main() async {
         'should return the sorted results in ascending order '
         'given descending order', () async {
       const dataWidth = 8;
-      const direction = 1;
 
       final clk = SimpleClockGenerator(10).clk;
       final reset = Logic(name: 'reset');
@@ -48,7 +49,7 @@ Future<void> main() async {
         Const(1, width: dataWidth),
       ];
 
-      final topMod = BitonicSort(clk, reset, x, direction, name: 'top_level');
+      final topMod = BitonicSort(clk, reset, toSort: x, name: 'top_level');
       await topMod.build();
 
       reset.inject(0);
@@ -93,7 +94,8 @@ Future<void> main() async {
         Const(16, width: dataWidth),
       ];
 
-      final topMod = BitonicSort(clk, reset, x, direction, name: 'top_level');
+      final topMod = BitonicSort(clk, reset,
+          isAscending: false, toSort: x, name: 'top_level');
       await topMod.build();
 
       reset.inject(0);
