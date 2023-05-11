@@ -33,7 +33,7 @@ class _CompareSwap extends Module {
   /// The sorting [_sortOrder] that this [_CompareSwap] should compare and swap.
   final bool _sortOrder;
 
-  /// Compare and Swap the order of [i] and [j] in [inputs] based on the
+  /// Compare and Swap the order of [i] and [j] in [toSort] based on the
   /// direction given.
   ///
   /// The position [i] and [j] will swapped if [_sortOrder] is 1 and [_inputs]
@@ -42,7 +42,7 @@ class _CompareSwap extends Module {
   _CompareSwap(
     Logic clk,
     Logic reset,
-    List<Logic> inputs,
+    List<Logic> toSort,
     int i,
     int j,
     this._sortOrder,
@@ -50,8 +50,8 @@ class _CompareSwap extends Module {
     clk = addInput('clk', clk);
     reset = addInput(reset.name, reset);
 
-    for (var i = 0; i < inputs.length; i++) {
-      _inputs.add(addInput('x$i', inputs[i], width: inputs[i].width));
+    for (var i = 0; i < toSort.length; i++) {
+      _inputs.add(addInput('toSort$i', toSort[i], width: toSort[i].width));
     }
 
     final ascending = _sortOrder == true ? Const(1) : Const(0);
@@ -111,8 +111,8 @@ class _BitonicMerge extends Module {
     reset = addInput('reset', reset);
 
     for (var i = 0; i < bitonicSequence.length; i++) {
-      _inputs.add(
-          addInput('x$i', bitonicSequence[i], width: bitonicSequence[i].width));
+      _inputs.add(addInput('bitonicSequence$i', bitonicSequence[i],
+          width: bitonicSequence[i].width));
     }
 
     if (_inputs.length > 1) {
@@ -175,7 +175,7 @@ class BitonicSort extends _Sort<BitonicSort> {
     reset = addInput('reset', reset);
 
     for (var i = 0; i < toSort.length; i++) {
-      _inputs.add(addInput('x$i', toSort[i], width: toSort[i].width));
+      _inputs.add(addInput('toSort$i', toSort[i], width: toSort[i].width));
     }
 
     if (_inputs.length > 1) {
