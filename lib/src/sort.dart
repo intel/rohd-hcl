@@ -97,8 +97,7 @@ class _BitonicMerge extends Module {
   /// The final stage will sort the bitonic sequence into sorted order
   /// of [isAscending].
   _BitonicMerge(Logic clk, Logic reset, List<Logic> bitonicSequence,
-      {required bool isAscending})
-      : super(name: 'bitonic_merge') {
+      {required bool isAscending, super.name = 'bitonic_merge'}) {
     clk = addInput('clk', clk);
     reset = addInput('reset', reset);
 
@@ -122,13 +121,18 @@ class _BitonicMerge extends Module {
       }
 
       final mergeLeft = _BitonicMerge(
-          clk, reset, _inputs.getRange(0, _inputs.length ~/ 2).toList(),
-          isAscending: isAscending);
+        clk,
+        reset,
+        _inputs.getRange(0, _inputs.length ~/ 2).toList(),
+        isAscending: isAscending,
+        name: 'merge_left',
+      );
       final mergeRight = _BitonicMerge(
         clk,
         reset,
         _inputs.getRange(_inputs.length ~/ 2, _inputs.length).toList(),
         isAscending: isAscending,
+        name: 'merge_right',
       );
 
       final mergeRes = mergeLeft.sorted + mergeRight.sorted;
