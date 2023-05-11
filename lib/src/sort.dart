@@ -30,23 +30,18 @@ class _CompareSwap extends Module {
   /// The [swapped] list of result.
   List<Logic> get swapped => _outputs;
 
-  /// The sorting [_sortOrder] that this [_CompareSwap] should compare and swap.
-  final bool _sortOrder;
+  /// The sorting [isAscending] that this [_CompareSwap] should compare and swap.
+  final bool isAscending;
 
   /// Compare and Swap the order of [i] and [j] in [toSort] based on the
   /// direction given.
   ///
-  /// The position [i] and [j] will swapped if [_sortOrder] is 1 and [_inputs]
-  /// of [i] greater than [_inputs] of [j] or [_sortOrder] is 0 and [_inputs]
+  /// The position [i] and [j] will swapped if [isAscending] is 1 and [_inputs]
+  /// of [i] greater than [_inputs] of [j] or [isAscending] is 0 and [_inputs]
   /// of [i] lower than [_inputs] of [j].
-  _CompareSwap(
-    Logic clk,
-    Logic reset,
-    List<Logic> toSort,
-    int i,
-    int j,
-    this._sortOrder,
-  ) : super(name: 'compare_swap_${i}_$j') {
+  _CompareSwap(Logic clk, Logic reset, List<Logic> toSort, int i, int j,
+      {required this.isAscending})
+      : super(name: 'compare_swap_${i}_$j') {
     clk = addInput('clk', clk);
     reset = addInput(reset.name, reset);
 
@@ -54,7 +49,7 @@ class _CompareSwap extends Module {
       _inputs.add(addInput('toSort$i', toSort[i], width: toSort[i].width));
     }
 
-    final ascending = _sortOrder == true ? Const(1) : Const(0);
+    final ascending = isAscending == true ? Const(1) : Const(0);
     final newValA = Logic(width: 8);
     final newValB = Logic(width: 8);
 
@@ -95,18 +90,15 @@ class _BitonicMerge extends Module {
   /// The [sorted] result.
   List<Logic> get sorted => _outputsFinal;
 
-  /// Merge and sort [bitonicSequence] into [_sortOrder] given.
+  /// Merge and sort [bitonicSequence] into [isAscending] given.
   ///
   /// List of [Logic] will compare and swap [Logic] position based on the
-  /// [_sortOrder] given by [BitonicSort] to first created a bitonic sequence.
+  /// [isAscending] given by [BitonicSort] to first created a bitonic sequence.
   /// The final stage will sort the bitonic sequence into sorted order
-  /// of [_sortOrder].
-  _BitonicMerge(
-    Logic clk,
-    Logic reset,
-    List<Logic> bitonicSequence,
-    bool _sortOrder,
-  ) : super(name: 'bitonic_merge') {
+  /// of [isAscending].
+  _BitonicMerge(Logic clk, Logic reset, List<Logic> bitonicSequence,
+      {required bool isAscending})
+      : super(name: 'bitonic_merge') {
     clk = addInput('clk', clk);
     reset = addInput('reset', reset);
 
@@ -119,8 +111,8 @@ class _BitonicMerge extends Module {
       for (var i = 0; i < 0 + _inputs.length ~/ 2; i++) {
         final indexA = i;
         final indexB = i + _inputs.length ~/ 2;
-        final swap =
-            _CompareSwap(clk, reset, _inputs, indexA, indexB, _sortOrder);
+        final swap = _CompareSwap(clk, reset, _inputs, indexA, indexB,
+            isAscending: isAscending);
         _inputs = swap.swapped;
       }
 
@@ -129,13 +121,14 @@ class _BitonicMerge extends Module {
         _outputs[i] <= _inputs[i];
       }
 
-      final mergeLeft = _BitonicMerge(clk, reset,
-          _inputs.getRange(0, _inputs.length ~/ 2).toList(), _sortOrder);
+      final mergeLeft = _BitonicMerge(
+          clk, reset, _inputs.getRange(0, _inputs.length ~/ 2).toList(),
+          isAscending: isAscending);
       final mergeRight = _BitonicMerge(
         clk,
         reset,
         _inputs.getRange(_inputs.length ~/ 2, _inputs.length).toList(),
-        _sortOrder,
+        isAscending: isAscending,
       );
 
       final mergeRes = mergeLeft.sorted + mergeRight.sorted;
@@ -189,7 +182,7 @@ class BitonicSort extends _Sort<BitonicSort> {
 
       final res = sortLeft.sorted + sortRight.sorted;
 
-      final y = _BitonicMerge(clk, reset, res, isAscending);
+      final y = _BitonicMerge(clk, reset, res, isAscending: isAscending);
       for (var i = 0; i < y.sorted.length; i++) {
         _outputs.add(addOutput('sorted_$i', width: _inputs[i].width));
         _outputs[i] <= y.sorted[i];
