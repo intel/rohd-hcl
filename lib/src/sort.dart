@@ -43,7 +43,7 @@ class _CompareSwap extends Module {
       {required this.isAscending})
       : super(name: 'compare_swap_${i}_$j') {
     clk = addInput('clk', clk);
-    reset = addInput(reset.name, reset);
+    reset = addInput('reset', reset);
 
     for (var i = 0; i < toSort.length; i++) {
       _inputs.add(addInput('toSort$i', toSort[i], width: toSort[i].width));
