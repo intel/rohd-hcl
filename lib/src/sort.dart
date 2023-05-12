@@ -165,7 +165,7 @@ class BitonicSort extends _Sort<BitonicSort> {
   /// and passed to [_BitonicMerge] to perform merging process and return
   /// the final [sorted] results.
   BitonicSort(Logic clk, Logic reset,
-      {required Iterable<Logic> super.toSort, super.isAscending, super.name}) {
+      {required super.toSort, super.isAscending, super.name}) {
     clk = addInput('clk', clk);
     reset = addInput('reset', reset);
 
