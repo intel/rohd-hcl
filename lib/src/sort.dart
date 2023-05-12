@@ -168,6 +168,19 @@ class BitonicSort extends _Sort<BitonicSort> {
     clk = addInput('clk', clk);
     reset = addInput('reset', reset);
 
+    // Make sure all element have same width
+    int? prevWidth;
+
+    for (final signal in toSort) {
+      prevWidth = prevWidth ?? signal.width;
+
+      if (signal.width != prevWidth) {
+        throw Exception('All inputs width must be the same.');
+      } else {
+        prevWidth = signal.width;
+      }
+    }
+
     for (var i = 0; i < toSort.length; i++) {
       _inputs.add(addInput('toSort$i', super.toSort.elementAt(i),
           width: super.toSort.elementAt(i).width));
@@ -185,11 +198,12 @@ class BitonicSort extends _Sort<BitonicSort> {
 
       final bitonicSequence = sortLeft.sorted + sortRight.sorted;
 
-      final y = _BitonicMerge(clk, reset,
-          bitonicSequence: bitonicSequence, isAscending: isAscending);
-      for (var i = 0; i < y.sorted.length; i++) {
+      final mergeResult = _BitonicMerge(clk, reset,
+              bitonicSequence: bitonicSequence, isAscending: isAscending)
+          .sorted;
+      for (var i = 0; i < mergeResult.length; i++) {
         _outputs.add(addOutput('sorted_$i', width: _inputs[i].width));
-        _outputs[i] <= y.sorted[i];
+        _outputs[i] <= mergeResult[i];
       }
     } else {
       _outputs.add(addOutput('sorted_0', width: _inputs[0].width));
