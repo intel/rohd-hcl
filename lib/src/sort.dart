@@ -71,7 +71,7 @@ class _CompareSwap extends Module {
     _inputs[j] = newValB;
 
     for (var k = 0; k < _inputs.length; k++) {
-      _outputs.add(addOutput('y$k', width: _inputs[k].width));
+      _outputs.add(addOutput('swapped$k', width: _inputs[k].width));
       _outputs[k] <= _inputs[k];
     }
   }
