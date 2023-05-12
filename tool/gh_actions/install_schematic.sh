@@ -18,7 +18,7 @@ npm install --only=dev
 npm run build
 
 cd ../..
-mkdir doc/api/d3-hwschematic-assets
+mkdir -p doc/api/d3-hwschematic-assets
 cp -r doc/d3-hwschematic/node_modules/d3 doc/api/d3-hwschematic-assets
 cp -r doc/d3-hwschematic/node_modules/elkjs doc/api/d3-hwschematic-assets
 cp doc/d3-hwschematic/dist/d3-hwschematic.{css,js} doc/api/d3-hwschematic-assets
