@@ -12,7 +12,7 @@ import 'package:rohd/rohd.dart';
 
 abstract class _Sort<T> extends Module {
   /// The List of logic to Sort
-  final List<Logic> toSort;
+  final Iterable<Logic> toSort;
 
   /// Whether the sort [isAscending] order.
   final bool isAscending;
@@ -96,14 +96,19 @@ class _BitonicMerge extends Module {
   /// [isAscending] given by [BitonicSort] to first created a bitonic sequence.
   /// The final stage will sort the bitonic sequence into sorted order
   /// of [isAscending].
-  _BitonicMerge(Logic clk, Logic reset, List<Logic> bitonicSequence,
-      {required bool isAscending, super.name = 'bitonic_merge'}) {
+  _BitonicMerge(
+    Logic clk,
+    Logic reset, {
+    required bool isAscending,
+    required Iterable<Logic> bitonicSequence,
+    super.name = 'bitonic_merge',
+  }) {
     clk = addInput('clk', clk);
     reset = addInput('reset', reset);
 
     for (var i = 0; i < bitonicSequence.length; i++) {
-      _inputs.add(addInput('bitonicSequence$i', bitonicSequence[i],
-          width: bitonicSequence[i].width));
+      _inputs.add(addInput('bitonicSequence$i', bitonicSequence.elementAt(i),
+          width: bitonicSequence.elementAt(i).width));
     }
 
     if (_inputs.length > 1) {
@@ -115,22 +120,17 @@ class _BitonicMerge extends Module {
         _inputs = swap.swapped;
       }
 
-      for (var i = 0; i < _inputs.length; i++) {
-        _outputs.add(addOutput('y$i', width: _inputs[i].width));
-        _outputs[i] <= _inputs[i];
-      }
-
       final mergeLeft = _BitonicMerge(
         clk,
         reset,
-        _inputs.getRange(0, _inputs.length ~/ 2).toList(),
+        bitonicSequence: _inputs.getRange(0, _inputs.length ~/ 2),
         isAscending: isAscending,
         name: 'merge_left',
       );
       final mergeRight = _BitonicMerge(
         clk,
         reset,
-        _inputs.getRange(_inputs.length ~/ 2, _inputs.length).toList(),
+        bitonicSequence: _inputs.getRange(_inputs.length ~/ 2, _inputs.length),
         isAscending: isAscending,
         name: 'merge_right',
       );
@@ -165,28 +165,29 @@ class BitonicSort extends _Sort<BitonicSort> {
   /// and passed to [_BitonicMerge] to perform merging process and return
   /// the final [sorted] results.
   BitonicSort(Logic clk, Logic reset,
-      {required super.toSort, super.isAscending, super.name}) {
+      {required Iterable<Logic> super.toSort, super.isAscending, super.name}) {
     clk = addInput('clk', clk);
     reset = addInput('reset', reset);
 
     for (var i = 0; i < toSort.length; i++) {
-      _inputs.add(addInput('toSort$i', toSort[i], width: toSort[i].width));
+      _inputs.add(addInput('toSort$i', super.toSort.elementAt(i),
+          width: super.toSort.elementAt(i).width));
     }
 
     if (_inputs.length > 1) {
       final sortLeft = BitonicSort(clk, reset,
-          toSort: _inputs.getRange(0, _inputs.length ~/ 2).toList(),
+          toSort: _inputs.getRange(0, _inputs.length ~/ 2),
           name: 'sort_left_${_inputs.length ~/ 2}');
 
       final sortRight = BitonicSort(clk, reset,
-          toSort:
-              _inputs.getRange(_inputs.length ~/ 2, _inputs.length).toList(),
+          toSort: _inputs.getRange(_inputs.length ~/ 2, _inputs.length),
           isAscending: false,
           name: 'sort_right_${_inputs.length ~/ 2}');
 
-      final res = sortLeft.sorted + sortRight.sorted;
+      final bitonicSequence = sortLeft.sorted + sortRight.sorted;
 
-      final y = _BitonicMerge(clk, reset, res, isAscending: isAscending);
+      final y = _BitonicMerge(clk, reset,
+          bitonicSequence: bitonicSequence, isAscending: isAscending);
       for (var i = 0; i < y.sorted.length; i++) {
         _outputs.add(addOutput('sorted_$i', width: _inputs[i].width));
         _outputs[i] <= y.sorted[i];
