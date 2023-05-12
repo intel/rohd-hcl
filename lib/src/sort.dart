@@ -156,7 +156,7 @@ class BitonicSort extends _Sort<BitonicSort> {
   final List<Logic> _outputs = [];
 
   /// The [sorted] result.
-  List<Logic> get sorted => _outputs;
+  List<Logic> get sorted => UnmodifiableListView(_outputs);
 
   /// Constructs a [Module] to sort list of [Logic].
   ///
