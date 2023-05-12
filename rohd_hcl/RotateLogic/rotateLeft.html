@@ -40,8 +40,11 @@
   <div class="toggle" id="theme-button">
     <label for="theme">
       <input type="checkbox" id="theme" value="light-theme">
-      <span class="material-symbols-outlined">
+      <span id="dark-theme-button" class="material-symbols-outlined">
         brightness_4
+      </span>
+      <span id="light-theme-button" class="material-symbols-outlined">
+        brightness_5
       </span>
     </label>
   </div>
@@ -51,7 +54,6 @@
   <div id="dartdoc-main-content" class="main-content">
       <div>
 <h1><span class="kind-method">rotateLeft</span> method 
-    <a href="https://dart.dev/null-safety" class="feature feature-null-safety" title="Supports the null safety language feature.">Null safety</a>
 </h1></div>
 
     <section class="multi-line-signature">
@@ -59,7 +61,7 @@
 
 <span class="returntype"><a href="https://pub.dev/documentation/rohd/0.4.2/rohd/Logic-class.html">Logic</a></span>
 <span class="name ">rotateLeft</span>(<wbr><ol class="parameter-list"><li><span class="parameter" id="rotateLeft-param-rotateAmount"><span class="type-annotation">dynamic</span> <span class="parameter-name">rotateAmount</span>, </span></li>
-<li><span class="parameter" id="rotateLeft-param-maxAmount">{<span class="type-annotation"><a href="https://api.dart.dev/stable/2.19.6/dart-core/int-class.html">int</a>?</span> <span class="parameter-name">maxAmount</span>}</span></li>
+<li><span class="parameter" id="rotateLeft-param-maxAmount">{<span class="type-annotation"><a href="https://api.dart.dev/stable/3.0.0/dart-core/int-class.html">int</a>?</span> <span class="parameter-name">maxAmount</span>}</span></li>
 </ol>)
 
       
@@ -68,7 +70,7 @@
     
 <section class="desc markdown">
   <p>Returns a <a href="https://pub.dev/documentation/rohd/0.4.2/rohd/Logic-class.html">Logic</a> rotated left by <code>rotateAmount</code>.</p>
-<p>If <code>rotateAmount</code> is an <a href="https://api.dart.dev/stable/2.19.6/dart-core/int-class.html">int</a>, a fixed swizzle is generated.</p>
+<p>If <code>rotateAmount</code> is an <a href="https://api.dart.dev/stable/3.0.0/dart-core/int-class.html">int</a>, a fixed swizzle is generated.</p>
 <p>If <code>rotateAmount</code> is another <a href="https://pub.dev/documentation/rohd/0.4.2/rohd/Logic-class.html">Logic</a>, a <a href="../../rohd_hcl/RotateLeft-class.html">RotateLeft</a> is created to
 conditionally rotate by different amounts based on the value of
 <code>rotateAmount</code>. The <code>maxAmount</code> is the largest value for which this
