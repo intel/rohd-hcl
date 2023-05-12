@@ -52,8 +52,7 @@ Below is a list of components either already or planning to be implemented.
   - Bubble Generating
   - Shift register
 - Find
-  - Find N'th bit=X /           LZD/LOD
-  - Find N'th bit=X from end    TZD/TOD
+  - [Find N'th bit (0 or 1) from the start/end **(WIP)**](https://github.com/intel/rohd-hcl/issues/20)
   - Min
   - Max
   - Find pattern
