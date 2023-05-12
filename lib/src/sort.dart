@@ -8,6 +8,8 @@
 // Author: Yao Jing Quek <yao.jing.quek@intel.com>
 //
 
+import 'dart:collection';
+
 import 'package:rohd/rohd.dart';
 
 abstract class _Sort<T> extends Module {
@@ -81,14 +83,11 @@ class _BitonicMerge extends Module {
   /// A list of [Logic] that hold inputs.
   List<Logic> _inputs = [];
 
-  /// A list of [Logic] that hold the results after [_CompareSwap].
+  /// A list of [Logic] that hold the final outputs of List of result.
   final List<Logic> _outputs = [];
 
-  /// A list of [Logic] that hold the final outputs of List of result.
-  final List<Logic> _outputsFinal = [];
-
   /// The [sorted] result.
-  List<Logic> get sorted => _outputsFinal;
+  List<Logic> get sorted => UnmodifiableListView(_outputs);
 
   /// Merge and sort [bitonicSequence] into [isAscending] given.
   ///
@@ -138,12 +137,12 @@ class _BitonicMerge extends Module {
       final mergeRes = mergeLeft.sorted + mergeRight.sorted;
 
       for (var i = 0; i < mergeRes.length; i++) {
-        _outputsFinal.add(addOutput('sorted_$i', width: mergeRes[i].width));
-        _outputsFinal[i] <= mergeRes[i];
+        _outputs.add(addOutput('sorted_$i', width: mergeRes[i].width));
+        _outputs[i] <= mergeRes[i];
       }
     } else if (_inputs.length == 1) {
-      _outputsFinal.add(addOutput('sorted_0', width: _inputs[0].width));
-      _outputsFinal[0] <= _inputs[0];
+      _outputs.add(addOutput('sorted_0', width: _inputs[0].width));
+      _outputs[0] <= _inputs[0];
     }
   }
 }
