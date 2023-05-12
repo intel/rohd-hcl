@@ -43,8 +43,8 @@ Below is a list of components either already or planning to be implemented.
   - Binary to Gray
   - Priority
   - PLAs
-- Arbiters
-  - Priority
+- [Arbiters](./doc/arbiter.md)
+  - [Priority](./doc/arbiter.md#priority-arbiter)
   - [Round-robin **(WIP)**](https://github.com/intel/rohd-hcl/issues/11)
 - [FIFO](./doc/fifo.md)
   - Synchronous
