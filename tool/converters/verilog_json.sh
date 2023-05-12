@@ -19,10 +19,9 @@ if !(test 1 -eq $#); then
     exit 1
 fi;
 
-yosys_area=../yosys
-lib=$yosys_area/tests/liberty/normal.lib
+yosys_bin=/oss-cad-suite/bin/yosys
 module=`basename $1 .v`
-$yosys_area/yosys <<EOF
+$yosys_bin <<EOF
 read_verilog -sv $module.v
 hierarchy -top $module
 proc; opt

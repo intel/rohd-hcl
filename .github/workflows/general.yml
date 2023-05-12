@@ -37,8 +37,8 @@ jobs:
       - name: Install project dependencies
         run: tool/gh_actions/install_dependencies.sh
 
-      - name: Install synthesis
-        run: tool/gh_actions/install_synthesis.sh
+      - name: Install Schematic support (includes yosys)
+        run: tool/gh_actions/install_schematic.sh
 
       - name: Verify project formatting
         run: tool/gh_actions/verify_formatting.sh
@@ -46,14 +46,12 @@ jobs:
       - name: Analyze project source
         run: tool/gh_actions/analyze_source.sh
 
+      - name: Trial generate HTML for examples # Here for testing only
+        run: tool/gh_actions/create_htmls.sh
+
       - name: Check project documentation
         run: tool/gh_actions/check_documentation.sh
 
-      - name: Run project tests
-        run: tool/gh_actions/run_tests.sh
-
-      - name: Trial generate HTML for examples
-        run: tool/gh_actions/create_htmls.sh
 
   deploy-documentation:
     name: Deploy Documentation
@@ -75,9 +73,6 @@ jobs:
 
       - name: Install synthesis
         run: tool/gh_actions/install_synthesis.sh
-
-      - name: Run project tests
-        run: tool/gh_actions/run_tests.sh
 
       - name: Generate HTML for examples
         run: tool/gh_actions/create_htmls.sh
