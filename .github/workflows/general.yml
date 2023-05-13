@@ -72,6 +72,9 @@ jobs:
       - name: Install Schematic support (includes yosys)
         run: tool/gh_actions/install_schematic.sh
 
+      - name: Install D3 Schematic viewer
+        run: tool/gh_actions/install_d3_schematic.sh
+
       - name: Generate project documentation
         run: tool/gh_actions/generate_documentation.sh
 

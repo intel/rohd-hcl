@@ -12,14 +12,14 @@
 
 set -euo pipefail
 
-apt-get update
-apt-get install -y \
-	git \
-	npm \
-	python3-pip
-
 cd doc/d3-hwschematic
 npm install
 npm install --only=dev
 nom run build
+
+cd ../..
+mkdir -p doc/api/d3-hwschematic-assets
+cp -r doc/d3-hwschematic/node_modules/d3 doc/api/d3-hwschematic-assets
+cp -r doc/d3-hwschematic/node_modules/elkjs doc/api/d3-hwschematic-assets
+cp doc/d3-hwschematic/dist/d3-hwschematic.{css,js} doc/api/d3-hwschematic-assets
 
