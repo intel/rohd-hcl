@@ -15,7 +15,7 @@ set -euo pipefail
 cd doc/d3-hwschematic
 npm install
 npm install --only=dev
-nom run build
+npm run build
 
 cd ../..
 mkdir -p doc/api/d3-hwschematic-assets
