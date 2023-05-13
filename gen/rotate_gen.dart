@@ -20,5 +20,5 @@ Future<void> rotateGen() async {
   );
   await rot.build();
   final res = rot.generateSynth();
-  File('build/${rot.definitionName}.v').openWrite().write(res);
+  File('build/${rot.definitionName}.v').writeAsStringSync(res);
 }

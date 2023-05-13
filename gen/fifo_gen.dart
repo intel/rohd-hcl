@@ -32,5 +32,5 @@ Future<void> fifoGen() async {
   );
   await fifo.build();
   final res = fifo.generateSynth();
-  File('build/${fifo.definitionName}.v').openWrite().write(res);
+  File('build/${fifo.definitionName}.v').writeAsStringSync(res);
 }

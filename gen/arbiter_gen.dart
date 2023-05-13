@@ -25,5 +25,5 @@ Future<void> arbiterGen() async {
 
   await arb.build();
   final res = arb.generateSynth();
-  File('build/${arb.definitionName}.v').openWrite().write(res);
+  File('build/${arb.definitionName}.v').writeAsStringSync(res);
 }

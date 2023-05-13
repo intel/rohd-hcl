@@ -36,5 +36,5 @@ Future<void> rfGen() async {
   await rf.build();
 
   final res = rf.generateSynth();
-  File('build/${rf.definitionName}.v').openWrite().write(res);
+  File('build/${rf.definitionName}.v').writeAsStringSync(res);
 }

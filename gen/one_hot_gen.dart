@@ -24,5 +24,5 @@ Future<void> oneHotGen() async {
   final mod2 = OneHotToBinary(Const(val, width: pos + 1));
   await mod2.build();
   final res2 = mod2.generateSynth();
-  File('build/${mod2.definitionName}.v').openWrite().write(res2);
+  File('build/${mod2.definitionName}.v').writeAsStringSync(res);
 }
