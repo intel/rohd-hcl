@@ -73,8 +73,8 @@ jobs:
       - name: Install project dependencies
         run: tool/gh_actions/install_dependencies.sh
 
-      - name: Install synthesis
-        run: tool/gh_actions/install_synthesis.sh
+      - name: Install Schematic support (includes yosys)
+        run: tool/gh_actions/install_schematic.sh
 
       - name: Generate HTML for examples
         run: tool/gh_actions/create_htmls.sh
