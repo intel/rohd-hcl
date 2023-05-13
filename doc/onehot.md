@@ -10,4 +10,4 @@ The decoders take a Logic input representing the bit position to be set to '1', 
 
 [OneHotToBinary Schematic](https://desmonddak.github.io/rohd-hcl/OneHotToBinary.html)
 
-[TreeOneHotToBinary Schematic](https://desmonddak.github.io/rohd-hcl/OneHotToBinary.html)
+[TreeOneHotToBinary Schematic](https://desmonddak.github.io/rohd-hcl/TreeOneHotToBinary.html)

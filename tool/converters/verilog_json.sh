@@ -21,7 +21,7 @@ fi;
 
 yosys_bin=/oss-cad-suite/bin/yosys
 module=`basename $1 .v`
-$yosys_bin <<EOF
+$yosys_bin -Q -T -q <<EOF
 read_verilog -sv $module.v
 hierarchy -top $module
 proc; opt
