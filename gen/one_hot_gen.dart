@@ -20,9 +20,16 @@ Future<void> oneHotGen() async {
   await mod.build();
   final res = mod.generateSynth();
   File('build/${mod.definitionName}.v').openWrite().write(res);
-  final val = BigInt.from(2).pow(pos);
-  final mod2 = OneHotToBinary(Const(val, width: pos + 1));
+
+  final val2 = BigInt.from(2).pow(pos);
+  final mod2 = OneHotToBinary(Const(val2, width: pos + 1));
   await mod2.build();
   final res2 = mod2.generateSynth();
-  File('build/${mod2.definitionName}.v').writeAsStringSync(res);
+  File('build/${mod2.definitionName}.v').writeAsStringSync(res2);
+
+  final val3 = BigInt.from(2).pow(pos);
+  final mod3 = TreeOneHotToBinary(Const(val3, width: pos + 1));
+  await mod3.build();
+  final res3 = mod3.generateSynth();
+  File('build/${mod3.definitionName}.v').writeAsStringSync(res3);
 }
