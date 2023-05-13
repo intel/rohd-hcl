@@ -15,3 +15,5 @@ The `RegisterFile` accepts masks on writes, but not on reads.
 Currently, `RegisterFile` only generates flop-based memory (no latches).
 
 The read path is combinational, so data is provided immediately according to the control signals.
+
+[RegisterFile Schematic](https://desmonddak.github.io/rohd-hcl/RegisterFile.html)

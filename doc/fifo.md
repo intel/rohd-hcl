@@ -29,3 +29,5 @@ There is no guarantee that the `error` signal will hold high once asserted once.
 ## Occupancy
 
 Occupancy information can optionally be generated and provided if `generateOccupancy` is set.  The `occupancy` signal will indicate the number of items currently stored in the FIFO.
+
+[FIFO Schematic](https://desmonddak.github.io/rohd-hcl/Fifo.html)
