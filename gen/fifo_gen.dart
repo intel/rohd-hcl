@@ -12,25 +12,25 @@ import 'dart:io';
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/src/fifo.dart';
 
-void fifo_gen () async {
-    final clk = SimpleClockGenerator(10).clk;
-    final reset = Logic()..put(0);
+void fifo_gen() async {
+  final clk = SimpleClockGenerator(10).clk;
+  final reset = Logic()..put(0);
 
-    final wrEn = Logic()..put(0);
-    final rdEn = Logic()..put(0);
-    final wrData = Logic(width: 32);
+  final wrEn = Logic()..put(0);
+  final rdEn = Logic()..put(0);
+  final wrData = Logic(width: 32);
 
-    final fifo = Fifo(
-      clk,
-      reset,
-      writeEnable: wrEn,
-      readEnable: rdEn,
-      writeData: wrData,
-      generateError: true,
-      generateOccupancy: true,
-      depth: 3,
-    );
-    await fifo.build();
-    final res = fifo.generateSynth();
-    File('build/${fifo.definitionName}.v').openWrite().write(res);
+  final fifo = Fifo(
+    clk,
+    reset,
+    writeEnable: wrEn,
+    readEnable: rdEn,
+    writeData: wrData,
+    generateError: true,
+    generateOccupancy: true,
+    depth: 3,
+  );
+  await fifo.build();
+  final res = fifo.generateSynth();
+  File('build/${fifo.definitionName}.v').openWrite().write(res);
 }

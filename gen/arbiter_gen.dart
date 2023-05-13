@@ -13,14 +13,14 @@ import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/src/arbiter.dart';
 
 void arbiter_gen() async {
-    const width = 8;
+  const width = 8;
 
-    final vector = Logic(width: width);
-    final reqs = List.generate(width, (i) => vector[i]);
+  final vector = Logic(width: width);
+  final reqs = List.generate(width, (i) => vector[i]);
 
-    final arb = PriorityArbiter(reqs);
+  final arb = PriorityArbiter(reqs);
 
-    await arb.build();
-    final res = arb.generateSynth();
-    File('build/${arb.definitionName}.v').openWrite().write(res);
+  await arb.build();
+  final res = arb.generateSynth();
+  File('build/${arb.definitionName}.v').openWrite().write(res);
 }
