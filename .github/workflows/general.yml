@@ -39,17 +39,11 @@ jobs:
       - name: Install project dependencies
         run: tool/gh_actions/install_dependencies.sh
 
-      - name: Install Schematic support (includes yosys)
-        run: tool/gh_actions/install_schematic.sh
-
       - name: Verify project formatting
         run: tool/gh_actions/verify_formatting.sh
 
       - name: Analyze project source
         run: tool/gh_actions/analyze_source.sh
-
-      - name: Trial generate HTML for examples # Here for testing only
-        run: tool/gh_actions/create_htmls.sh
 
       - name: Check project documentation
         run: tool/gh_actions/check_documentation.sh
@@ -66,6 +60,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v3
+        with:
+          submodules: recursive
 
       - name: Setup Dart
         uses: dart-lang/setup-dart@v1
