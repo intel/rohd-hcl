@@ -17,3 +17,6 @@ tool/gh_codespaces/install_dart.sh
 
 # Install Pub dependencies.
 tool/gh_actions/install_dependencies.sh
+
+# Install Synthesis tool (yosys).
+tool/gh_actions/install_synthesis.sh
