@@ -81,5 +81,5 @@ jobs:
       - name: Deploy generated documentation
         uses: JamesIves/github-pages-deploy-action@v4
         with:
-          folder: doc/home/
+          folder: doc/api
           branch: docs

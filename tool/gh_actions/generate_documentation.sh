@@ -19,7 +19,7 @@ set -euo pipefail
 # output=$(dart doc --validate-links 2>&1 | tee)
 
 # We want relative link paths to be OK in the README
-output=$(dart doc -o home/api 2>&1 | tee)
+output=$(dart doc 2>&1 | tee)
 
 echo "${output}"
 

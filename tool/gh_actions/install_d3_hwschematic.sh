@@ -18,8 +18,7 @@ apt-get install -y \
 	npm \
 	python3-pip
 
-git clone https://github.com/Nic30/d3-hwschematic.git
-cd d3-hwschematic
+cd doc/d3-hwschematic
 npm install
 npm install --only=dev
 nom run build
