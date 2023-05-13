@@ -12,7 +12,7 @@ import 'dart:io';
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/src/fifo.dart';
 
-void fifo_gen() async {
+Future<void> fifoGen() async {
   final clk = SimpleClockGenerator(10).clk;
   final reset = Logic()..put(0);
 

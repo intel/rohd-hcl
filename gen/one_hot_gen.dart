@@ -13,7 +13,7 @@ import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/src/one_hot.dart';
 import 'package:rohd_hcl/src/utils.dart';
 
-void one_hot_gen() async {
+Future<void> oneHotGen() async {
   const pos = 8;
   final w = log2Ceil(pos + 1);
   final mod = BinaryToOneHot(Const(pos, width: w));

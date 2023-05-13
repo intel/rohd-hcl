@@ -8,11 +8,14 @@
 // Author: Desmond Kirkpatrick <desmond.a.kirkpatrick@intel.com>
 //
 
+// ignore_for_file: unused_element
+
+import 'dart:async';
 import 'dart:io';
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/src/arbiter.dart';
 
-void arbiter_gen() async {
+Future<void> arbiterGen() async {
   const width = 8;
 
   final vector = Logic(width: width);

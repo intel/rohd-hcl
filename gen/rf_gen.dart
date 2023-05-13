@@ -11,9 +11,8 @@
 import 'dart:io';
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
-import 'package:test/test.dart';
 
-void rf_gen() async {
+Future<void> rfGen() async {
   const dataWidth = 16;
   const addrWidth = 4;
 

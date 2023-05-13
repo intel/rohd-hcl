@@ -8,7 +8,6 @@
 // Author: Max Korbel <max.korbel@intel.com>
 //
 
-import 'dart:io';
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
 import 'package:test/test.dart';

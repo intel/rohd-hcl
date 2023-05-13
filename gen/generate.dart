@@ -14,10 +14,10 @@ import 'one_hot_gen.dart';
 import 'rf_gen.dart';
 import 'rotate_gen.dart';
 
-void main() {
-  arbiter_gen();
-  fifo_gen();
-  one_hot_gen();
-  rf_gen();
-  rotate_gen();
+void main() async {
+  await arbiterGen();
+  await fifoGen();
+  await oneHotGen();
+  await rfGen();
+  await rotateGen();
 }

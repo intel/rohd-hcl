@@ -12,7 +12,7 @@ import 'dart:io';
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/src/rotate.dart';
 
-void rotate_gen() async {
+Future<void> rotateGen() async {
   final rot = RotateLeft(
     Const(0xf000, width: 16),
     Const(4, width: 8),
