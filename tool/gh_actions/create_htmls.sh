@@ -7,6 +7,8 @@
 
 dart gen/generate.dart
 
+mkdir -p doc/home
+
 # Convert Verilog into an HTML-based schematic for each
 for i in build/*.v
 do
