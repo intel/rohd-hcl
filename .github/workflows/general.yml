@@ -72,11 +72,11 @@ jobs:
       - name: Install Schematic support (includes yosys)
         run: tool/gh_actions/install_schematic.sh
 
-      - name: Generate HTML for examples
-        run: tool/gh_actions/create_htmls.sh
-
       - name: Generate project documentation
         run: tool/gh_actions/generate_documentation.sh
+
+      - name: Generate HTML for examples
+        run: tool/gh_actions/create_htmls.sh
 
       - name: Deploy generated documentation
         uses: JamesIves/github-pages-deploy-action@v4
