@@ -9,17 +9,18 @@
 //
 
 import 'dart:collection';
+import 'dart:math';
 
 import 'package:rohd/rohd.dart';
 
-abstract class _Sort<T> extends Module {
+abstract class Sort extends Module {
   /// The List of logic to Sort
   final Iterable<Logic> toSort;
 
   /// Whether the sort [isAscending] order.
   final bool isAscending;
 
-  _Sort({required this.toSort, this.isAscending = true, super.name});
+  Sort({required this.toSort, this.isAscending = true, super.name});
 }
 
 /// Compare and Swap [Logic] to the specified order.
@@ -148,7 +149,7 @@ class _BitonicMerge extends Module {
 }
 
 /// Sort [inputs] to specified order.
-class BitonicSort extends _Sort<BitonicSort> {
+class BitonicSort extends Sort {
   /// The list of inputs port.
   final List<Logic> _inputs = [];
 
@@ -168,7 +169,6 @@ class BitonicSort extends _Sort<BitonicSort> {
     clk = addInput('clk', clk);
     reset = addInput('reset', reset);
 
-    // Make sure all element have same width
     int? prevWidth;
 
     for (final signal in toSort) {
@@ -179,6 +179,12 @@ class BitonicSort extends _Sort<BitonicSort> {
       } else {
         prevWidth = signal.width;
       }
+    }
+
+    final inputLength = super.toSort.length;
+    if ((inputLength != 0 && ((inputLength & (inputLength - 1)) == 0)) ==
+        false) {
+      throw Exception('Bitonic sort requires inputs length of power of 2.');
     }
 
     for (var i = 0; i < toSort.length; i++) {
