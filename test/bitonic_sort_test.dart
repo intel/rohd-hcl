@@ -49,6 +49,58 @@ Future<void> main() async {
         BitonicSort(clk, reset, toSort: toSort, name: 'top_level');
       }, throwsA((dynamic e) => e is RohdHclException));
     });
+
+    test('should return RohdHclException if number of elements is 0.',
+        () async {
+      final clk = SimpleClockGenerator(10).clk;
+      final reset = Logic(name: 'reset');
+
+      final toSort = <Logic>[];
+
+      expect(() async {
+        BitonicSort(clk, reset, toSort: toSort, name: 'top_level');
+      }, throwsA((dynamic e) => e is RohdHclException));
+    });
+
+    test('should return itself if single element is given.', () async {
+      final clk = SimpleClockGenerator(10).clk;
+      final reset = Logic(name: 'reset');
+
+      final toSort = <Logic>[Const(20, width: 8)];
+
+      final topMod = BitonicSort(clk, reset, toSort: toSort, name: 'top_level');
+      await topMod.build();
+
+      reset.inject(0);
+
+      Simulator.registerAction(100, () {
+        expect(topMod.sorted[0].value.toInt(), 20);
+      });
+
+      Simulator.setMaxSimTime(100);
+      WaveDumper(topMod, outputPath: 'test/recursive_list.vcd');
+
+      await Simulator.run();
+    });
+
+    test(
+        'should return RohdHclException if width '
+        'is difference from each other in the list.', () async {
+      final clk = SimpleClockGenerator(10).clk;
+      final reset = Logic(name: 'reset');
+
+      final toSort = <Logic>[
+        Const(1),
+        Const(5, width: 7),
+        Const(4, width: 7),
+        Const(2, width: 5),
+      ];
+
+      expect(() async {
+        BitonicSort(clk, reset, toSort: toSort, name: 'top_level');
+      }, throwsA((dynamic e) => e is RohdHclException));
+    });
+
     group('Ascending Order: ', () {
       test(
           'should return the sorted results in ascending order '

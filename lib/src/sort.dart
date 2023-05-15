@@ -170,6 +170,7 @@ class BitonicSort extends Sort {
     reset = addInput('reset', reset);
 
     int? prevWidth;
+    final inputLength = super.toSort.length;
 
     for (final signal in toSort) {
       prevWidth = prevWidth ?? signal.width;
@@ -181,8 +182,7 @@ class BitonicSort extends Sort {
       }
     }
 
-    final inputLength = super.toSort.length;
-    if ((inputLength != 0 && ((inputLength & (inputLength - 1)) == 0)) ==
+    if (((inputLength != 0) && (inputLength & (inputLength - 1) == 0)) ==
         false) {
       throw RohdHclException('Bitonic sort requires inputs length of '
           'power of 2.');
@@ -204,7 +204,6 @@ class BitonicSort extends Sort {
           name: 'sort_right_${_inputs.length ~/ 2}');
 
       final bitonicSequence = sortLeft.sorted + sortRight.sorted;
-
       final mergeResult = _BitonicMerge(clk, reset,
               bitonicSequence: bitonicSequence, isAscending: isAscending)
           .sorted;
