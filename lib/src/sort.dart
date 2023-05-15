@@ -165,8 +165,22 @@ class BitonicSort extends Sort {
   /// Constructs a [Module] to sort list of [Logic].
   ///
   /// The sorting module will recursively split inputs into a bitonic sequence
-  /// and passed to [_BitonicMerge] to perform merging process and return
-  /// the final [sorted] results.
+  /// perform sorting based on [isAscending] flag given to the module.
+  ///
+  /// The below example shows a simple use case to sort four inputs
+  /// in ascending order:
+  /// ```dart
+  /// final toSort = <Logic>[
+  ///   Const(0, width: 8);
+  ///   Const(3, width: 8);
+  ///   Const(1, width: 8);
+  ///   Const(7, width: 8);
+  /// ];
+  ///
+  /// final sortMod =
+  ///            BitonicSort(clk, reset, toSort: toSort, name: 'top_level');
+  /// await sortMod.build();
+  /// ```
   BitonicSort(Logic clk, Logic reset,
       {required super.toSort, super.isAscending, super.name}) {
     clk = addInput('clk', clk);
