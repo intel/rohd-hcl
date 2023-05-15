@@ -24,15 +24,17 @@ Future<void> main() async {
 
   List<int> generateNonDuplicateRand(int seed, int maxLength, int listLength) {
     final rand = Random(seed);
-    return List<int>.generate(listLength, (index) {
+    final randList = <int>[];
+    List<int>.generate(listLength, (index) {
       int number;
-      final duplicateList = <int>[];
       do {
         number = rand.nextInt(maxLength);
-      } while (duplicateList.contains(number));
-      duplicateList.add(number);
+      } while (randList.contains(number));
+      randList.add(number);
       return number;
     });
+
+    return randList;
   }
 
   group('Bitonic Sort', () {
@@ -78,7 +80,6 @@ Future<void> main() async {
       });
 
       Simulator.setMaxSimTime(100);
-      WaveDumper(topMod, outputPath: 'test/recursive_list.vcd');
 
       await Simulator.run();
     });
@@ -126,7 +127,6 @@ Future<void> main() async {
         });
 
         Simulator.setMaxSimTime(100);
-        WaveDumper(topMod, outputPath: 'test/recursive_list.vcd');
 
         await Simulator.run();
       });
@@ -161,7 +161,6 @@ Future<void> main() async {
         });
 
         Simulator.setMaxSimTime(100);
-        WaveDumper(topMod, outputPath: 'test/recursive_list.vcd');
 
         await Simulator.run();
       });
@@ -196,6 +195,92 @@ Future<void> main() async {
         Simulator.registerAction(100, () {
           for (var i = 0; i < topMod.sorted.length; i++) {
             expect(topMod.sorted[i].value.toInt(), toSortInt[i]);
+          }
+        });
+
+        Simulator.setMaxSimTime(100);
+
+        await Simulator.run();
+      });
+
+      test(
+          'should return the sorted results in ascending order given '
+          'random seed number without duplicate, pipeline.', () async {
+        const dataWidth = 8;
+        const seed = 10;
+
+        final listLength = pow(2, 2).toInt();
+        final maxRandNum = listLength;
+
+        final clk = SimpleClockGenerator(10).clk;
+        final reset = Logic(name: 'reset');
+
+        final toSortInt =
+            generateNonDuplicateRand(seed, maxRandNum, listLength);
+
+        final a = Logic(name: 'a', width: dataWidth);
+        final b = Logic(name: 'b', width: dataWidth);
+        final c = Logic(name: 'c', width: dataWidth);
+        final d = Logic(name: 'd', width: dataWidth);
+        final toSort = <Logic>[a, b, c, d];
+
+        final topMod =
+            BitonicSort(clk, reset, toSort: toSort, name: 'top_level');
+        await topMod.build();
+
+        reset.inject(0);
+        a.inject(toSortInt[0]);
+        b.inject(toSortInt[1]);
+        c.inject(toSortInt[2]);
+        d.inject(toSortInt[3]);
+
+        toSortInt.sort();
+        Simulator.registerAction(100, () {
+          for (var i = 0; i < topMod.sorted.length; i++) {
+            expect(topMod.sorted[i].value.toInt(), toSortInt[i]);
+          }
+          b.put(10);
+          d.put(11);
+        });
+
+        Simulator.registerAction(130, () {
+          expect(topMod.sorted[0].value.toInt(), 0);
+          expect(topMod.sorted[1].value.toInt(), 3);
+          expect(topMod.sorted[2].value.toInt(), 10);
+          expect(topMod.sorted[3].value.toInt(), 11);
+        });
+
+        Simulator.setMaxSimTime(300);
+
+        await Simulator.run();
+      });
+
+      test(
+          'should return the sorted results in ascending order given '
+          'the inputs consists of duplicates.', () async {
+        const dataWidth = 8;
+
+        final clk = SimpleClockGenerator(10).clk;
+        final reset = Logic(name: 'reset');
+
+        final toSort = <Logic>[
+          Const(1, width: dataWidth),
+          Const(7, width: dataWidth),
+          Const(1, width: dataWidth),
+          Const(8, width: dataWidth),
+        ];
+
+        final topMod =
+            BitonicSort(clk, reset, toSort: toSort, name: 'top_level');
+        await topMod.build();
+
+        reset.inject(0);
+
+        final toSortRes = [1, 1, 7, 8];
+
+        Simulator.registerAction(100, () {
+          for (var i = 0; i < topMod.sorted.length; i++) {
+            expect(topMod.sorted[i].value.toInt(), toSortRes[i]);
           }
         });
 
@@ -265,7 +350,6 @@ Future<void> main() async {
         });
 
         Simulator.setMaxSimTime(100);
-        WaveDumper(topMod, outputPath: 'test/recursive_list.vcd');
 
         await Simulator.run();
       });
@@ -300,6 +384,40 @@ Future<void> main() async {
         Simulator.registerAction(100, () {
           for (var i = 0; i < topMod.sorted.length; i++) {
             expect(topMod.sorted[i].value.toInt(), toSortInt[i]);
+          }
+        });
+
+        Simulator.setMaxSimTime(100);
+
+        await Simulator.run();
+      });
+
+      test(
+          'should return the sorted results in descending order given '
+          'the inputs consists of duplicates.', () async {
+        const dataWidth = 8;
+
+        final clk = SimpleClockGenerator(10).clk;
+        final reset = Logic(name: 'reset');
+
+        final toSort = <Logic>[
+          Const(1, width: dataWidth),
+          Const(7, width: dataWidth),
+          Const(1, width: dataWidth),
+          Const(8, width: dataWidth),
+        ];
+
+        final topMod = BitonicSort(clk, reset,
+            toSort: toSort, isAscending: false, name: 'top_level');
+        await topMod.build();
+
+        reset.inject(0);
+
+        final toSortRes = [8, 7, 1, 1];
+
+        Simulator.registerAction(100, () {
+          for (var i = 0; i < topMod.sorted.length; i++) {
+            expect(topMod.sorted[i].value.toInt(), toSortRes[i]);
           }
         });
 
