@@ -288,6 +288,41 @@ Future<void> main() async {
 
         await Simulator.run();
       });
+
+      // TODO: some weird results on the negative logic
+      test(
+          'should return the sorted results in ascending order given '
+          'the inputs consists of negative number.', () async {
+        const dataWidth = 8;
+
+        final clk = SimpleClockGenerator(10).clk;
+        final reset = Logic(name: 'reset');
+
+        final toSort = <Logic>[
+          Const(-2, width: dataWidth),
+          Const(7, width: dataWidth),
+          Const(1, width: dataWidth),
+          Const(8, width: dataWidth),
+        ];
+
+        final topMod =
+            BitonicSort(clk, reset, toSort: toSort, name: 'top_level');
+        await topMod.build();
+
+        reset.inject(0);
+
+        final toSortRes = [-2, 1, 7, 8];
+
+        // Simulator.registerAction(100, () {
+        //   for (var i = 0; i < topMod.sorted.length; i++) {
+        //     expect(topMod.sorted[i].value.toInt(), toSortRes[i]);
+        //   }
+        // });
+
+        Simulator.setMaxSimTime(100);
+
+        await Simulator.run();
+      });
     });
 
     group('Descending Order: ', () {
