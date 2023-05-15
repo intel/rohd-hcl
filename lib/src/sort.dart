@@ -9,9 +9,9 @@
 //
 
 import 'dart:collection';
-import 'dart:math';
 
 import 'package:rohd/rohd.dart';
+import 'package:rohd_hcl/src/exceptions.dart';
 
 abstract class Sort extends Module {
   /// The List of logic to Sort
@@ -175,7 +175,7 @@ class BitonicSort extends Sort {
       prevWidth = prevWidth ?? signal.width;
 
       if (signal.width != prevWidth) {
-        throw Exception('All inputs width must be the same.');
+        throw RohdHclException('All inputs width must be the same.');
       } else {
         prevWidth = signal.width;
       }
@@ -184,7 +184,8 @@ class BitonicSort extends Sort {
     final inputLength = super.toSort.length;
     if ((inputLength != 0 && ((inputLength & (inputLength - 1)) == 0)) ==
         false) {
-      throw Exception('Bitonic sort requires inputs length of power of 2.');
+      throw RohdHclException('Bitonic sort requires inputs length of '
+          'power of 2.');
     }
 
     for (var i = 0; i < toSort.length; i++) {
