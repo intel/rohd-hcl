@@ -36,17 +36,30 @@ Future<void> main() async {
   }
 
   group('Bitonic Sort', () {
+    test('should return RohdHclException if inputs is not power of two.',
+        () async {
+      const dataWidth = 8;
+      final clk = SimpleClockGenerator(10).clk;
+      final reset = Logic(name: 'reset');
+
+      final toSort =
+          List.generate(3, (index) => Const(index + 1, width: dataWidth));
+
+      expect(() async {
+        BitonicSort(clk, reset, toSort: toSort, name: 'top_level');
+      }, throwsA((dynamic e) => e is RohdHclException));
+    });
     group('Ascending Order: ', () {
       test(
           'should return the sorted results in ascending order '
-          'given descending order', () async {
+          'given descending order.', () async {
         const dataWidth = 8;
 
         final clk = SimpleClockGenerator(10).clk;
         final reset = Logic(name: 'reset');
 
-        final toSort =
-            List.generate(16, (index) => Const(16 - index, width: dataWidth));
+        final toSort = List.generate(
+            16, (index) => Const(16 - index - 1, width: dataWidth));
 
         final topMod =
             BitonicSort(clk, reset, toSort: toSort, name: 'top_level');
@@ -56,7 +69,7 @@ Future<void> main() async {
 
         Simulator.registerAction(100, () {
           for (var i = 0; i < topMod.sorted.length; i++) {
-            expect(topMod.sorted[i].value.toInt(), i + 1);
+            expect(topMod.sorted[i].value.toInt(), i);
           }
         });
 
@@ -68,7 +81,7 @@ Future<void> main() async {
 
       test(
           'should return the sorted results in ascending order given '
-          'random seed number with duplicate', () async {
+          'random seed number with duplicate.', () async {
         const dataWidth = 8;
         final rand = Random(10);
 
@@ -103,7 +116,7 @@ Future<void> main() async {
 
       test(
           'should return the sorted results in ascending order given '
-          'random seed number without duplicate', () async {
+          'random seed number without duplicate.', () async {
         const dataWidth = 8;
         const seed = 10;
 
@@ -143,7 +156,7 @@ Future<void> main() async {
     group('Descending Order: ', () {
       test(
           'should return the sorted results in descending order '
-          'given ascending order', () async {
+          'given ascending order.', () async {
         const dataWidth = 8;
 
         final clk = SimpleClockGenerator(10).clk;
@@ -172,7 +185,7 @@ Future<void> main() async {
 
       test(
           'should return the sorted results in descending order given '
-          'random seed number with duplicate', () async {
+          'random seed number with duplicate.', () async {
         const dataWidth = 8;
         final rand = Random(10);
 
@@ -208,7 +221,7 @@ Future<void> main() async {
 
       test(
           'should return the sorted results in descending order given '
-          'random seed number without duplicate', () async {
+          'random seed number without duplicate.', () async {
         const dataWidth = 8;
         const seed = 10;
 
