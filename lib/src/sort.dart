@@ -41,7 +41,9 @@ class _CompareSwap extends Module {
   ///
   /// The position [i] and [j] will swapped if [isAscending] is 1 and [_inputs]
   /// of [i] greater than [_inputs] of [j] or [isAscending] is 0 and [_inputs]
-  /// of [i] lower than [_inputs] of [j].
+  /// of [i] lower than [_inputs] of [j]. The latency of the signals will only
+  /// be increased by 1 cycle if the signals for [i] and [j] are considered for
+  /// swapping.
   _CompareSwap(Logic clk, Logic reset, List<Logic> toSort, int i, int j,
       {required this.isAscending})
       : super(name: 'compare_swap_${i}_$j') {
@@ -90,7 +92,7 @@ class _BitonicMerge extends Module {
   /// The [sorted] result.
   List<Logic> get sorted => UnmodifiableListView(_outputs);
 
-  /// Merge and sort [bitonicSequence] into [isAscending] given.
+  /// Merge and sort [bitonicSequence] based on [isAscending] given.
   ///
   /// List of [Logic] will compare and swap [Logic] position based on the
   /// [isAscending] given by [BitonicSort] to first created a bitonic sequence.
@@ -148,7 +150,8 @@ class _BitonicMerge extends Module {
   }
 }
 
-/// Sort [inputs] to specified order.
+/// Bitonic Sort is a sort module that sort [toSort] to  specified order
+/// based on [isAscending].
 class BitonicSort extends Sort {
   /// The list of inputs port.
   final List<Logic> _inputs = [];
