@@ -178,7 +178,6 @@ Future<void> main() async {
         });
 
         Simulator.setMaxSimTime(100);
-        // WaveDumper(topMod, outputPath: 'lib/src/sort/recursive_list.vcd');
 
         await Simulator.run();
       });
