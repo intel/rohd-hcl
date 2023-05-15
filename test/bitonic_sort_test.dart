@@ -140,10 +140,10 @@ Future<void> main() async {
         final clk = SimpleClockGenerator(10).clk;
         final reset = Logic(name: 'reset');
 
-        final toSortInt = <int>[];
+        final toSortRes = <int>[];
         final toSort = List<Logic>.generate(pow(2, 3).toInt(), (index) {
           final number = rand.nextInt(pow(2, 3).toInt() + 1);
-          toSortInt.add(number);
+          toSortRes.add(number);
           return Const(number, width: dataWidth);
         });
 
@@ -153,10 +153,10 @@ Future<void> main() async {
 
         reset.inject(0);
 
-        toSortInt.sort();
+        toSortRes.sort();
         Simulator.registerAction(100, () {
           for (var i = 0; i < topMod.sorted.length; i++) {
-            expect(topMod.sorted[i].value.toInt(), toSortInt[i]);
+            expect(topMod.sorted[i].value.toInt(), toSortRes[i]);
           }
         });
 
@@ -177,11 +177,11 @@ Future<void> main() async {
         final clk = SimpleClockGenerator(10).clk;
         final reset = Logic(name: 'reset');
 
-        final toSortInt =
+        final toSortRes =
             generateNonDuplicateRand(seed, maxRandNum, listLength);
 
         final toSort = <Logic>[];
-        for (final num in toSortInt) {
+        for (final num in toSortRes) {
           toSort.add(Const(num, width: dataWidth));
         }
 
@@ -191,10 +191,10 @@ Future<void> main() async {
 
         reset.inject(0);
 
-        toSortInt.sort();
+        toSortRes.sort();
         Simulator.registerAction(100, () {
           for (var i = 0; i < topMod.sorted.length; i++) {
-            expect(topMod.sorted[i].value.toInt(), toSortInt[i]);
+            expect(topMod.sorted[i].value.toInt(), toSortRes[i]);
           }
         });
 
@@ -215,7 +215,7 @@ Future<void> main() async {
         final clk = SimpleClockGenerator(10).clk;
         final reset = Logic(name: 'reset');
 
-        final toSortInt =
+        final toSortRes =
             generateNonDuplicateRand(seed, maxRandNum, listLength);
 
         final a = Logic(name: 'a', width: dataWidth);
@@ -229,15 +229,15 @@ Future<void> main() async {
         await topMod.build();
 
         reset.inject(0);
-        a.inject(toSortInt[0]);
-        b.inject(toSortInt[1]);
-        c.inject(toSortInt[2]);
-        d.inject(toSortInt[3]);
+        a.inject(toSortRes[0]);
+        b.inject(toSortRes[1]);
+        c.inject(toSortRes[2]);
+        d.inject(toSortRes[3]);
 
-        toSortInt.sort();
+        toSortRes.sort();
         Simulator.registerAction(100, () {
           for (var i = 0; i < topMod.sorted.length; i++) {
-            expect(topMod.sorted[i].value.toInt(), toSortInt[i]);
+            expect(topMod.sorted[i].value.toInt(), toSortRes[i]);
           }
           b.put(10);
           d.put(11);
@@ -328,10 +328,10 @@ Future<void> main() async {
         final clk = SimpleClockGenerator(10).clk;
         final reset = Logic(name: 'reset');
 
-        var toSortInt = <int>[];
+        var toSortRes = <int>[];
         final toSort = List<Logic>.generate(pow(2, 3).toInt(), (index) {
           final number = rand.nextInt(pow(2, 3).toInt() + 1);
-          toSortInt.add(number);
+          toSortRes.add(number);
           return Const(number, width: dataWidth);
         });
 
@@ -341,11 +341,11 @@ Future<void> main() async {
 
         reset.inject(0);
 
-        toSortInt.sort();
-        toSortInt = toSortInt.reversed.toList();
+        toSortRes.sort();
+        toSortRes = toSortRes.reversed.toList();
         Simulator.registerAction(100, () {
           for (var i = 0; i < topMod.sorted.length; i++) {
-            expect(topMod.sorted[i].value.toInt(), toSortInt[i]);
+            expect(topMod.sorted[i].value.toInt(), toSortRes[i]);
           }
         });
 
@@ -366,10 +366,10 @@ Future<void> main() async {
         final clk = SimpleClockGenerator(10).clk;
         final reset = Logic(name: 'reset');
 
-        var toSortInt = generateNonDuplicateRand(seed, maxRandNum, listLength);
+        var toSortRes = generateNonDuplicateRand(seed, maxRandNum, listLength);
 
         final toSort = <Logic>[];
-        for (final num in toSortInt) {
+        for (final num in toSortRes) {
           toSort.add(Const(num, width: dataWidth));
         }
 
@@ -379,15 +379,68 @@ Future<void> main() async {
 
         reset.inject(0);
 
-        toSortInt.sort();
-        toSortInt = toSortInt.reversed.toList();
+        toSortRes.sort();
+        toSortRes = toSortRes.reversed.toList();
         Simulator.registerAction(100, () {
           for (var i = 0; i < topMod.sorted.length; i++) {
-            expect(topMod.sorted[i].value.toInt(), toSortInt[i]);
+            expect(topMod.sorted[i].value.toInt(), toSortRes[i]);
           }
         });
 
         Simulator.setMaxSimTime(100);
+
+        await Simulator.run();
+      });
+
+      test(
+          'should return the sorted results in descending order given '
+          'random seed number without duplicate, pipeline.', () async {
+        const dataWidth = 8;
+        const seed = 10;
+
+        final listLength = pow(2, 2).toInt();
+        final maxRandNum = listLength;
+
+        final clk = SimpleClockGenerator(10).clk;
+        final reset = Logic(name: 'reset');
+
+        var toSortRes = generateNonDuplicateRand(seed, maxRandNum, listLength);
+
+        final a = Logic(name: 'a', width: dataWidth);
+        final b = Logic(name: 'b', width: dataWidth);
+        final c = Logic(name: 'c', width: dataWidth);
+        final d = Logic(name: 'd', width: dataWidth);
+        final toSort = <Logic>[a, b, c, d];
+
+        final topMod = BitonicSort(clk, reset,
+            isAscending: false, toSort: toSort, name: 'top_level');
+        await topMod.build();
+
+        reset.inject(0);
+        a.inject(toSortRes[0]);
+        b.inject(toSortRes[1]);
+        c.inject(toSortRes[2]);
+        d.inject(toSortRes[3]);
+
+        toSortRes.sort();
+        toSortRes = toSortRes.reversed.toList();
+        Simulator.registerAction(100, () {
+          for (var i = 0; i < topMod.sorted.length; i++) {
+            expect(topMod.sorted[i].value.toInt(), toSortRes[i]);
+          }
+          b.put(10);
+          d.put(11);
+        });
+
+        Simulator.registerAction(200, () {
+          expect(topMod.sorted[0].value.toInt(), 11);
+          expect(topMod.sorted[1].value.toInt(), 10);
+          expect(topMod.sorted[2].value.toInt(), 3);
+          expect(topMod.sorted[3].value.toInt(), 0);
+        });
+
+        Simulator.setMaxSimTime(300);
+        WaveDumper(topMod, outputPath: 'pipeline_desc.vcd');
 
         await Simulator.run();
       });
