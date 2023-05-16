@@ -42,6 +42,7 @@ Below is a list of components either already or planning to be implemented.
   - Gray to Binary
   - Binary to Gray
   - Priority
+  - PLAs
 - [Arbiters](./doc/arbiter.md)
   - [Priority](./doc/arbiter.md#priority-arbiter)
   - [Round-robin **(WIP)**](https://github.com/intel/rohd-hcl/issues/11)
@@ -49,13 +50,15 @@ Below is a list of components either already or planning to be implemented.
   - Synchronous
   - Asynchronous
   - Bubble Generating
+  - Shift register
 - Find
-  - Find N'th bit=X
-  - Find N'th bit=X from end
+  - [Find N'th bit (0 or 1) from the start/end **(WIP)**](https://github.com/intel/rohd-hcl/issues/20)
   - Min
   - Max
+  - Find pattern
 - Count
   - Count bit=X
+  - Count pattern
 - [Sort **(WIP)**](https://github.com/intel/rohd-hcl/issues/9)
 - Arithmetic
   - [Prefix Trees **(WIP)**](https://github.com/intel/rohd-hcl/issues/12)
@@ -65,11 +68,22 @@ Below is a list of components either already or planning to be implemented.
     - [Pipelined Integer Multiplier **(WIP)**](https://github.com/intel/rohd-hcl/issues/10)
   - Dividers
   - Log
+  - Square root
+  - Inverse square root
+  - Floating point
+    - Double (64-bit)
+    - Float (32-bit)
+    - BFloat16 (16-bit)
+    - BFloat8 (8-bit)
+    - BFloat4 (4-bit)
+    - Dot product
 - [Rotate](./doc/rotate.md)
   - Dynamic and fixed amounts
   - Left and right
   - Includes `extension`s on `Logic` and `LogicValue`
-- Counter
+- Counters
+  - Binary counter
+  - Gray counter
 - [LFSR **(WIP)**](https://github.com/intel/rohd-hcl/issues/8)
 - Error checking
   - ECC
@@ -91,6 +105,18 @@ Below is a list of components either already or planning to be implemented.
     - Latch-based
   - Replacement Policies
     - LRU
+- Standard interfaces
+  - AXI
+  - APB
+  - AHB
+  - SFI
+  - PCIe
+  - UCIe
+  - JTAG
+  - SPI
+  - UART
+  - DDR
+  - HBM
 
 ----------------
 2023 March 30  
