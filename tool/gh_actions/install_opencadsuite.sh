@@ -3,7 +3,7 @@
 # Copyright (C) 2023 Intel Corporation
 # SPDX-License-Identifier: BSD-3-Clause
 #
-# install_synthesis.sh
+# install_opencadsuite.sh
 # GitHub Actions step: Install project dependencies.
 #
 # 2023 May 09

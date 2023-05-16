@@ -1,8 +1,8 @@
 // Copyright (C) 2023 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 //
-// one_hot_test.dart
-// Test of one_hot codec.
+// fifo_gen.dart
+// Genarate a FIFO.
 //
 // 2023 May 09
 // Author: Desmond Kirkpatrick <desmond.a.kirkpatrick@intel.com>

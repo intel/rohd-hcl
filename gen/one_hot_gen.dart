@@ -15,21 +15,17 @@ import 'package:rohd_hcl/src/utils.dart';
 
 Future<void> oneHotGen() async {
   const pos = 8;
-  final w = log2Ceil(pos + 1);
-  final mod = BinaryToOneHot(Const(pos, width: w));
-  await mod.build();
-  final res = mod.generateSynth();
-  File('build/${mod.definitionName}.v').openWrite().write(res);
+  final binaryInput = Logic(width: log2Ceil(pos + 1));
+  final m1 = BinaryToOneHot(binaryInput);
+  await m1.build();
+  File('build/${m1.definitionName}.v').writeAsStringSync(m1.generateSynth());
 
-  final val2 = BigInt.from(2).pow(pos);
-  final mod2 = OneHotToBinary(Const(val2, width: pos + 1));
-  await mod2.build();
-  final res2 = mod2.generateSynth();
-  File('build/${mod2.definitionName}.v').writeAsStringSync(res2);
+  final onehotInput = Logic(width: pos + 1);
+  final m2 = OneHotToBinary(onehotInput);
+  await m2.build();
+  File('build/${m2.definitionName}.v').writeAsStringSync(m2.generateSynth());
 
-  final val3 = BigInt.from(2).pow(pos);
-  final mod3 = TreeOneHotToBinary(Const(val3, width: pos + 1));
-  await mod3.build();
-  final res3 = mod3.generateSynth();
-  File('build/${mod3.definitionName}.v').writeAsStringSync(res3);
+  final m3 = TreeOneHotToBinary(onehotInput);
+  await m3.build();
+  File('build/${m3.definitionName}.v').writeAsStringSync(m3.generateSynth());
 }
