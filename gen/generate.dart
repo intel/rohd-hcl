@@ -2,8 +2,10 @@
 // SPDX-License-Identifier: BSD-3-Clause
 //
 // generate.dart
-// Generate a series of examples for documentation
-// Call a generator to create an instance of your component for schematic viewing.
+// Generate a series of examples for documentation.
+//
+// Call a generator to create an instance of your component for
+// schematic viewing.
 //
 // 2023 May 09
 // Author: Desmond Kirkpatrick <desmond.a.kirkpatrick@intel.com>
