@@ -17,8 +17,6 @@ void main() {
     await Simulator.reset();
   });
 
-  // TODO: make sure its work for any diff width
-  // TODO: multiplier as base class
   test('should return correct results when multiply.', () async {
     final a = Logic(name: 'a', width: 4);
     final b = Logic(name: 'b', width: 4);

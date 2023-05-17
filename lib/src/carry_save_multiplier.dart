@@ -1,3 +1,13 @@
+// Copyright (C) 2023 Intel Corporation
+// SPDX-License-Identifier: BSD-3-Clause
+//
+// carry_save_multiplier.dart
+// Implementation of pipeline multiplier module.
+//
+// 2023 February 21
+// Author: Max Korbel <max.korbel@intel.com>
+//
+
 import 'package:rohd/rohd.dart';
 
 /// A datatype class that hold result from [FullAdder].
