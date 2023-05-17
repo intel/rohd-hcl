@@ -24,11 +24,11 @@ Future<void> rfGen() async {
 
   final wrPorts = [
     for (var i = 0; i < numWr; i++)
-      DataPortInterface(dataWidth, addrWidth)..en.put(0)
+      DataPortInterface(dataWidth, addrWidth)
   ];
   final rdPorts = [
     for (var i = 0; i < numRd; i++)
-      DataPortInterface(dataWidth, addrWidth)..en.put(0)
+      DataPortInterface(dataWidth, addrWidth)
   ];
 
   final rf = RegisterFile(clk, reset, wrPorts, rdPorts, numEntries: 20);
