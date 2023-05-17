@@ -1,8 +1,9 @@
 // Copyright (C) 2023 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 //
-// rotate_gen.dart
-// Generate an example rotator
+// generate.dart
+// Generate a series of examples for documentation
+// Call a generator to create an instance of your component for schematic viewing.
 //
 // 2023 May 09
 // Author: Desmond Kirkpatrick <desmond.a.kirkpatrick@intel.com>

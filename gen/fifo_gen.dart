@@ -14,10 +14,10 @@ import 'package:rohd_hcl/src/fifo.dart';
 
 Future<void> fifoGen() async {
   final clk = SimpleClockGenerator(10).clk;
-  final reset = Logic()..put(0);
+  final reset = Logic();
 
-  final wrEn = Logic()..put(0);
-  final rdEn = Logic()..put(0);
+  final wrEn = Logic();
+  final rdEn = Logic();
   final wrData = Logic(width: 32);
 
   final fifo = Fifo(
