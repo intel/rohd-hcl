@@ -16,4 +16,4 @@ Currently, `RegisterFile` only generates flop-based memory (no latches).
 
 The read path is combinational, so data is provided immediately according to the control signals.
 
-[RegisterFile Schematic](https://desmonddak.github.io/rohd-hcl/RegisterFile.html)
+[RegisterFile Schematic](https://intel.github.io/rohd-hcl/RegisterFile.html)

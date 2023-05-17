@@ -6,4 +6,4 @@ ROHD HCL implements a generic `abstract` [`Arbiter`](https://intel.github.io/roh
 
 The [`PriorityArbiter`](https://intel.github.io/rohd-hcl/rohd_hcl/PriorityArbiter-class.html) is a combinational (stateless) arbiter that always grants to the lowest-indexed request.
 
-[PriorityArbiter Schematic](https://desmonddak.github.io/rohd-hcl/PriorityArbiter.html)
+[PriorityArbiter Schematic](https://intel.github.io/rohd-hcl/PriorityArbiter.html)
