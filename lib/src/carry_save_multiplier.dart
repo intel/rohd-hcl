@@ -43,10 +43,10 @@ class FullAdder extends Module {
 /// An [RippleCarryAdder] that perform addition.
 class RippleCarryAdder extends Module {
   /// The List of results returned from the [FullAdder].
-  final sum = <Logic>[];
+  final _sum = <Logic>[];
 
   /// The final result of the NBitAdder.
-  LogicValue get sumRes => sum.rswizzle().value;
+  LogicValue get sumRes => _sum.rswizzle().value;
 
   /// Constructs an n-bit adder based on inputs [a] and [b].
   RippleCarryAdder(Logic a, Logic b) : super(name: 'ripple_carry_adder') {
@@ -65,10 +65,10 @@ class RippleCarryAdder extends Module {
       res = FullAdder(a: a[i], b: b[i], carryIn: carry);
 
       carry = res.cOut;
-      sum.add(res.sum);
+      _sum.add(res.sum);
     }
 
-    sum.add(carry);
+    _sum.add(carry);
   }
 }
 
@@ -157,7 +157,7 @@ class CarrySaveMultiplier extends Module {
         <Logic>[
           ...List.generate(
             a.width + 1,
-            (index) => nBitAdder.sum[(a.width) - index],
+            (index) => nBitAdder._sum[(a.width) - index],
           ),
           ...List.generate(
             a.width,
