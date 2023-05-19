@@ -103,36 +103,36 @@ class CarrySaveMultiplier extends Module {
   /// The pipeline for [CarrySaveMultiplier].
   late final Pipeline pipeline;
 
-  /// Construct a [CarrySaveMultiplier] that multiply [valA] and
-  /// [valB].
-  CarrySaveMultiplier(Logic valA, Logic valB, Logic clk, Logic reset,
+  /// Construct a [CarrySaveMultiplier] that multiply [a] and
+  /// [b].
+  CarrySaveMultiplier(Logic a, Logic b, Logic clk, Logic reset,
       {super.name = 'carry_save_multiplier'}) {
     // Declare Input Node
-    valA = addInput('a', valA, width: valA.width);
-    valB = addInput('b', valB, width: valB.width);
+    a = addInput('a', a, width: a.width);
+    b = addInput('b', b, width: b.width);
     clk = addInput('clk', clk);
     reset = addInput('reset', reset);
 
-    final product = addOutput('product', width: valA.width + valB.width + 1);
+    final product = addOutput('product', width: a.width + b.width + 1);
 
-    final rCarryA = Logic(name: 'rcarry_a', width: valA.width);
-    final rCarryB = Logic(name: 'rcarry_b', width: valB.width);
+    final rCarryA = Logic(name: 'rcarry_a', width: a.width);
+    final rCarryB = Logic(name: 'rcarry_b', width: b.width);
 
     pipeline = Pipeline(
       clk,
       stages: [
         ...List.generate(
-          valB.width,
+          b.width,
           (row) => (p) {
             final columnAdder = <Conditional>[];
-            final maxIndexA = (valA.width - 1) + row;
+            final maxIndexA = (a.width - 1) + row;
 
             for (var column = maxIndexA; column >= row; column--) {
               final fullAdder = FullAdder(
                       a: column == maxIndexA || row == 0
                           ? Const(0)
                           : p.get(sum[column]),
-                      b: p.get(valA)[column - row] & p.get(valB)[row],
+                      b: p.get(a)[column - row] & p.get(b)[row],
                       carryIn: row == 0 ? Const(0) : p.get(carry[column - 1]))
                   .fullAdderRes;
 
@@ -148,17 +148,15 @@ class CarrySaveMultiplier extends Module {
               p.get(rCarryA) <
                   <Logic>[
                     Const(0),
-                    ...List.generate(
-                        valA.width - 1,
-                        (index) =>
-                            p.get(sum[(valA.width + valB.width - 2) - index]))
+                    ...List.generate(a.width - 1,
+                        (index) => p.get(sum[(a.width + b.width - 2) - index]))
                   ].swizzle(),
               p.get(rCarryB) <
                   <Logic>[
                     ...List.generate(
-                        valA.width,
+                        a.width,
                         (index) =>
-                            p.get(carry[(valA.width + valB.width - 2) - index]))
+                            p.get(carry[(a.width + b.width - 2) - index]))
                   ].swizzle()
             ],
       ],
@@ -174,12 +172,12 @@ class CarrySaveMultiplier extends Module {
     product <=
         <Logic>[
           ...List.generate(
-            valA.width + 1,
-            (index) => nBitAdder.sum[(valA.width) - index],
+            a.width + 1,
+            (index) => nBitAdder.sum[(a.width) - index],
           ),
           ...List.generate(
-            valA.width,
-            (index) => pipeline.get(sum[valA.width - index - 1]),
+            a.width,
+            (index) => pipeline.get(sum[a.width - index - 1]),
           )
         ].swizzle();
   }
