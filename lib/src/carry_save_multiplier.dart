@@ -10,22 +10,13 @@
 
 import 'package:rohd/rohd.dart';
 
-/// A datatype class that hold result from [FullAdder].
-class FullAdderResult {
-  /// The output sum from full adder.
-  final sum = Logic(name: 'sum');
-
-  /// The output carry-out from full adder.
-  final cOut = Logic(name: 'c_out');
-}
-
 /// A simple full-adder with inputs `a` and `b` to be added with a `carryIn`.
 class FullAdder extends Module {
-  /// The variable that hold [FullAdder] results.
-  final fullAdderResult = FullAdderResult();
+  /// The result [sum] from [FullAdder].
+  Logic get sum => output('sum');
 
-  /// The results returned from [FullAdder].
-  FullAdderResult get fullAdderRes => fullAdderResult;
+  /// The result [cOut] from [FullAdder].
+  Logic get cOut => output('carry_out');
 
   /// Constructs a [FullAdder] with value [a], [b] and [carryIn].
   FullAdder({
@@ -46,9 +37,6 @@ class FullAdder extends Module {
 
     sum <= (a ^ b) ^ carryIn;
     carryOut <= and1 | and2;
-
-    fullAdderResult.sum <= output('sum');
-    fullAdderResult.cOut <= output('carry_out');
   }
 }
 
@@ -76,8 +64,8 @@ class NBitAdder extends Module {
     for (var i = 0; i < n; i++) {
       res = FullAdder(a: a[i], b: b[i], carryIn: carry);
 
-      carry = res.fullAdderRes.cOut;
-      sum.add(res.fullAdderRes.sum);
+      carry = res.cOut;
+      sum.add(res.sum);
     }
 
     sum.add(carry);
@@ -126,12 +114,11 @@ class CarrySaveMultiplier extends Module {
 
             for (var column = maxIndexA; column >= row; column--) {
               final fullAdder = FullAdder(
-                      a: column == maxIndexA || row == 0
-                          ? Const(0)
-                          : p.get(sum[column]),
-                      b: p.get(a)[column - row] & p.get(b)[row],
-                      carryIn: row == 0 ? Const(0) : p.get(carry[column - 1]))
-                  .fullAdderRes;
+                  a: column == maxIndexA || row == 0
+                      ? Const(0)
+                      : p.get(sum[column]),
+                  b: p.get(a)[column - row] & p.get(b)[row],
+                  carryIn: row == 0 ? Const(0) : p.get(carry[column - 1]));
 
               columnAdder
                 ..add(p.get(carry[column]) < fullAdder.cOut)
