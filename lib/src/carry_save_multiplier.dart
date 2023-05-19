@@ -19,8 +19,7 @@ class FullAdderResult {
   final cOut = Logic(name: 'c_out');
 }
 
-/// A [FullAdder] module that can perform simple adder. The full adder output
-/// can be defined in the truth table.
+/// A simple full-adder with inputs `a` and `b` to be added with a `carryIn`.
 class FullAdder extends Module {
   /// The variable that hold [FullAdder] results.
   final fullAdderResult = FullAdderResult();
