@@ -105,9 +105,9 @@ Below is a list of components either already or planning to be implemented.
     - Latch-based
   - Replacement Policies
     - LRU
-- Standard interfaces
+- [Standard interfaces](./doc/standard_interfaces.md)
   - AXI
-  - APB
+  - [APB](./doc/standard_interfaces.md#apb)
   - AHB
   - SFI
   - PCIe
