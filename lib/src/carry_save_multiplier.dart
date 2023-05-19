@@ -45,10 +45,8 @@ class FullAdder extends Module {
     final and1 = carryIn & (a ^ b);
     final and2 = b & a;
 
-    Combinational([
-      sum < (a ^ b) ^ carryIn,
-      carryOut < and1 | and2,
-    ]);
+    sum <= (a ^ b) ^ carryIn;
+    carryOut <= and1 | and2;
 
     fullAdderResult.sum <= output('sum');
     fullAdderResult.cOut <= output('carry_out');
