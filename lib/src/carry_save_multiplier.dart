@@ -75,11 +75,11 @@ class RippleCarryAdder extends Module {
 /// A multiplier module that are able to get the product of two values.
 class CarrySaveMultiplier extends Module {
   /// The list of the sum from every pipeline stages.
-  final List<Logic> sum =
+  final List<Logic> _sum =
       List.generate(8, (index) => Logic(name: 'sum_$index'));
 
   /// The list pf carry from every pipeline stages.
-  final List<Logic> carry =
+  final List<Logic> _carry =
       List.generate(8, (index) => Logic(name: 'carry_$index'));
 
   /// The final product of the multiplier module.
@@ -116,13 +116,13 @@ class CarrySaveMultiplier extends Module {
               final fullAdder = FullAdder(
                   a: column == maxIndexA || row == 0
                       ? Const(0)
-                      : p.get(sum[column]),
+                      : p.get(_sum[column]),
                   b: p.get(a)[column - row] & p.get(b)[row],
-                  carryIn: row == 0 ? Const(0) : p.get(carry[column - 1]));
+                  carryIn: row == 0 ? Const(0) : p.get(_carry[column - 1]));
 
               columnAdder
-                ..add(p.get(carry[column]) < fullAdder.cOut)
-                ..add(p.get(sum[column]) < fullAdder.sum);
+                ..add(p.get(_carry[column]) < fullAdder.cOut)
+                ..add(p.get(_sum[column]) < fullAdder.sum);
             }
 
             return columnAdder;
@@ -133,14 +133,14 @@ class CarrySaveMultiplier extends Module {
                   <Logic>[
                     Const(0),
                     ...List.generate(a.width - 1,
-                        (index) => p.get(sum[(a.width + b.width - 2) - index]))
+                        (index) => p.get(_sum[(a.width + b.width - 2) - index]))
                   ].swizzle(),
               p.get(rCarryB) <
                   <Logic>[
                     ...List.generate(
                         a.width,
                         (index) =>
-                            p.get(carry[(a.width + b.width - 2) - index]))
+                            p.get(_carry[(a.width + b.width - 2) - index]))
                   ].swizzle()
             ],
       ],
@@ -161,7 +161,7 @@ class CarrySaveMultiplier extends Module {
           ),
           ...List.generate(
             a.width,
-            (index) => pipeline.get(sum[a.width - index - 1]),
+            (index) => pipeline.get(_sum[a.width - index - 1]),
           )
         ].swizzle();
   }
