@@ -4,8 +4,8 @@
 // carry_save_multiplier.dart
 // Implementation of pipeline multiplier module.
 //
-// 2023 February 21
-// Author: Max Korbel <max.korbel@intel.com>
+// 2023 May 19
+// Author: Yao Jing Quek <yao.jing.quek@intel.com>
 //
 
 import 'package:rohd/rohd.dart';
