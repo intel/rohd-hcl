@@ -12,7 +12,7 @@ import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/src/exceptions.dart';
 
 /// A grouping for interface signals of [DataPortInterface]s.
-enum PortGroup {
+enum DataPortGroup {
   /// For signals associated with controlling/requesting actions for memory.
   control,
 
@@ -21,29 +21,30 @@ enum PortGroup {
 }
 
 /// A [DataPortInterface] that supports byte-enabled strobing.
-class StrobeDataPortInterface extends DataPortInterface {
-  /// A bus controlling the strobe, where each bit cooresponds to one
-  /// byte of data.
-  Logic get strobe => port('strobe');
+class MaskedDataPortInterface extends DataPortInterface {
+  /// A bus controlling the mask, where each bit cooresponds to one
+  /// byte of data.  A high bit is an enable for that chunk of data.
+  Logic get mask => port('mask');
 
-  /// Constructs a [DataPortInterface] with strobe.
-  StrobeDataPortInterface(super.dataWidth, super.addrWidth) {
+  /// Constructs a [DataPortInterface] with mask.
+  MaskedDataPortInterface(super.dataWidth, super.addrWidth)
+      : assert(dataWidth % 8 == 0, 'The data width must be byte-granularity') {
     setPorts([
-      Port('strobe', dataWidth ~/ 8),
+      Port('mask', dataWidth ~/ 8),
     ], [
-      PortGroup.control
+      DataPortGroup.control
     ]);
   }
 
   @override
-  DataPortInterface clone() => StrobeDataPortInterface(dataWidth, addrWidth);
+  DataPortInterface clone() => MaskedDataPortInterface(dataWidth, addrWidth);
 }
 
 /// An interface to a simple memory that only needs enable, address, and data.
 ///
 /// Can be used for either read or write direction by grouping signals using
-/// [PortGroup].
-class DataPortInterface extends Interface<PortGroup> {
+/// [DataPortGroup].
+class DataPortInterface extends Interface<DataPortGroup> {
   /// The width of data in the memory.
   final int dataWidth;
 
@@ -61,19 +62,18 @@ class DataPortInterface extends Interface<PortGroup> {
 
   /// Constructs a new interface of specified [dataWidth] and [addrWidth] for
   /// interacting with a memory in either the read or write direction.
-  DataPortInterface(this.dataWidth, this.addrWidth)
-      : assert(dataWidth % 8 == 0, 'The data width must be byte-granularity') {
+  DataPortInterface(this.dataWidth, this.addrWidth) {
     setPorts([
       Port('en'),
       Port('addr', addrWidth),
     ], [
-      PortGroup.control
+      DataPortGroup.control
     ]);
 
     setPorts([
       Port('data', dataWidth),
     ], [
-      PortGroup.data
+      DataPortGroup.data
     ]);
   }
 
@@ -135,14 +135,14 @@ abstract class Memory extends Module {
     for (var i = 0; i < numReads; i++) {
       _rdPorts.add(readPorts[i].clone()
         ..connectIO(this, readPorts[i],
-            inputTags: {PortGroup.control},
-            outputTags: {PortGroup.data},
+            inputTags: {DataPortGroup.control},
+            outputTags: {DataPortGroup.data},
             uniquify: (original) => 'rd_${original}_$i'));
     }
     for (var i = 0; i < numWrites; i++) {
       _wrPorts.add(writePorts[i].clone()
         ..connectIO(this, writePorts[i],
-            inputTags: {PortGroup.control, PortGroup.data},
+            inputTags: {DataPortGroup.control, DataPortGroup.data},
             outputTags: {},
             uniquify: (original) => 'wr_${original}_$i'));
     }
@@ -158,6 +158,9 @@ class RegisterFile extends Memory {
   final int numEntries;
 
   /// Constructs a new RF.
+  ///
+  /// [MaskedDataPortInterface]s are supported on `writePorts`, but not on
+  /// `readPorts`.
   RegisterFile(super.clk, super.reset, super.writePorts, super.readPorts,
       {this.numEntries = 8, super.name = 'rf'}) {
     _buildLogic();
@@ -184,11 +187,11 @@ class RegisterFile extends Memory {
               // set storage bank if write enable and pointer matches
               If(wrPort.en & wrPort.addr.eq(entry), then: [
                 _storageBank[entry] <
-                    (wrPort is StrobeDataPortInterface
+                    (wrPort is MaskedDataPortInterface
                         ? [
                             for (var index = 0; index < dataWidth ~/ 8; index++)
                               mux(
-                                  wrPort.strobe[index],
+                                  wrPort.mask[index],
                                   wrPort.data
                                       .getRange(index * 8, (index + 1) * 8),
                                   _storageBank[entry]
