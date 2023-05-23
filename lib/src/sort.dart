@@ -36,7 +36,8 @@ class _CompareSwap extends Module {
   /// The [swapped] list of result.
   List<Logic> get swapped => _outputs;
 
-  /// The sorting [isAscending] that this [_CompareSwap] should compare and swap.
+  /// The sorting [isAscending] that this [_CompareSwap] should
+  /// compare and swap.
   final bool isAscending;
 
   /// Compare and Swap the order of [i] and [j] in [toSort] based on the
