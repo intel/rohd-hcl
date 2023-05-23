@@ -49,6 +49,10 @@ class Fifo extends Module {
   /// If `true`, then the [error] output will be generated.
   final bool generateError;
 
+  /// If `true`, then it is possible to bypass through the FIFO by writing
+  /// and reading at the same time while [empty].
+  final bool generateBypass;
+
   /// Constructs a FIFO with RF-based storage.
   Fifo(Logic clk, Logic reset,
       {required Logic writeEnable,
@@ -57,6 +61,7 @@ class Fifo extends Module {
       required this.depth,
       this.generateError = false,
       this.generateOccupancy = false,
+      this.generateBypass = false,
       super.name = 'fifo'})
       : assert(depth > 0, 'Depth must be at least 1.') {
     clk = addInput('clk', clk);
@@ -136,7 +141,15 @@ class Fifo extends Module {
 
     rdPort.en <= Const(1);
     rdPort.addr <= rdPointer;
-    readData <= mux(peekWriteData, writeData, rdPort.data);
+    readData <=
+        (generateBypass
+            ? mux(peekWriteData, writeData, rdPort.data)
+            : rdPort.data);
+
+    final pointerIncrements = [
+      wrPointer < _incrWithWrap(wrPointer, writeEnable),
+      rdPointer < _incrWithWrap(rdPointer, readEnable),
+    ];
 
     Sequential(clk, [
       If(reset, then: [
@@ -144,10 +157,10 @@ class Fifo extends Module {
         rdPointer < 0,
         full < 0,
       ], orElse: [
-        If(~bypass, then: [
-          wrPointer < _incrWithWrap(wrPointer, writeEnable),
-          rdPointer < _incrWithWrap(rdPointer, readEnable),
-        ]),
+        if (generateBypass)
+          If(~bypass, then: pointerIncrements)
+        else
+          ...pointerIncrements,
 
         // full condition is one of these options:
         //  - we were already full, and pointers are staying the same

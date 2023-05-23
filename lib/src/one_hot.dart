@@ -26,25 +26,6 @@ class BinaryToOneHot extends Module {
   }
 }
 
-/// Computes an Or-reduction of an input
-class OrReduction extends Module {
-  /// The [orvalue] decoded result.
-  Logic get orvalue => output('orvalue');
-
-  /// Constructs a [Module] which computes an Or-reduction on [in]
-  /// Really poor implementation to just have basic functionality
-  OrReduction(Logic input) {
-    addOutput('orvalue');
-    Combinational([
-      IfBlock([
-        // Do we have a != comparator?
-        Iff(input.eq(0), [orvalue < Const(0, width: 1)]),
-        Else([orvalue < Const(1, width: 1)]),
-      ])
-    ]);
-  }
-}
-
 /// Decodes a one-hot number into binary using a for-loop
 class OneHotToBinary extends Module {
   /// The [binary] decoded result.
@@ -96,7 +77,7 @@ class _NodeOneHotToBinary extends Module {
       final lo = onehot.getRange(0, mid).zeroExtend(mid);
       final recurse = lo | hi;
       final response = _NodeOneHotToBinary(recurse).binary;
-      binary <= [OrReduction(hi).orvalue, response].swizzle();
+      binary <= [hi.or(), response].swizzle();
     }
   }
 }

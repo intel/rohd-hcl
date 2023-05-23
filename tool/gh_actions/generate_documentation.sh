@@ -15,7 +15,11 @@ set -euo pipefail
 # See script "check_documentation.sh" for a note on processing "dart doc" output.
 
 # The documentation will be placed in the "doc/api" folder.
-output=$(dart doc --validate-links 2>&1 | tee)
+
+# output=$(dart doc --validate-links 2>&1 | tee)
+
+# We want relative link paths to be OK in the README
+output=$(dart doc 2>&1 | tee)
 
 echo "${output}"
 

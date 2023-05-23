@@ -35,18 +35,9 @@ void main() {
       expect(computed.value, equals(expected));
     }
   });
-  test('or_reduction', () {
-    // Compute the or-reduction of a binary value
-    expect(OrReduction(Const(0, width: 8)).orvalue.value,
-        equals(LogicValue.ofInt(0, 1)));
-    expect(OrReduction(Const(1, width: 8)).orvalue.value,
-        equals(LogicValue.ofInt(1, 1)));
-    expect(OrReduction(Const(2, width: 4)).orvalue.value,
-        equals(LogicValue.ofInt(1, 1)));
-  });
   test('tree_decode', () {
     // Compute the binary value (or bit position) of a one-hot encoded value
-    for (var pos = 0; pos < 64; pos++) {
+    for (var pos = 0; pos < 5120; pos++) {
       final val = BigInt.from(2).pow(pos);
       final computed = TreeOneHotToBinary(Const(val, width: pos + 1)).binary;
       final expected = LogicValue.ofInt(pos, computed.width);

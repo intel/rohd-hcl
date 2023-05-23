@@ -187,6 +187,7 @@ void main() {
       readEnable: rdEn,
       writeData: wrData,
       depth: 3,
+      generateBypass: true,
     );
 
     final rdData = fifo.readData;
@@ -212,7 +213,8 @@ void main() {
 
     await clk.nextNegedge;
 
-    expect(rdData.value.toInt(), 0xfeedbeef);
+    wrData.put(0xdeadbeef);
+    expect(rdData.value.toInt(), 0xdeadbeef);
 
     await clk.nextNegedge;
 
@@ -220,56 +222,64 @@ void main() {
     await Simulator.simulationEnded;
   });
 
-  test('fifo peek', () async {
-    final clk = SimpleClockGenerator(10).clk;
-    final reset = Logic()..put(0);
+  group('fifo peek', () {
+    Future<void> testPeek({required bool generateBypass}) async {
+      final clk = SimpleClockGenerator(10).clk;
+      final reset = Logic()..put(0);
 
-    final wrEn = Logic()..put(0);
-    final rdEn = Logic()..put(0);
-    final wrData = Logic(width: 32);
+      final wrEn = Logic()..put(0);
+      final rdEn = Logic()..put(0);
+      final wrData = Logic(width: 32);
 
-    final fifo = Fifo(
-      clk,
-      reset,
-      writeEnable: wrEn,
-      readEnable: rdEn,
-      writeData: wrData,
-      depth: 3,
-    );
+      final fifo = Fifo(clk, reset,
+          writeEnable: wrEn,
+          readEnable: rdEn,
+          writeData: wrData,
+          depth: 3,
+          generateBypass: generateBypass);
 
-    final rdData = fifo.readData;
+      final rdData = fifo.readData;
 
-    await fifo.build();
+      await fifo.build();
 
-    unawaited(Simulator.run());
+      unawaited(Simulator.run());
 
-    // a little reset flow
-    await clk.nextNegedge;
-    reset.put(1);
-    await clk.nextNegedge;
-    await clk.nextNegedge;
-    reset.put(0);
-    await clk.nextNegedge;
-    await clk.nextNegedge;
+      // a little reset flow
+      await clk.nextNegedge;
+      reset.put(1);
+      await clk.nextNegedge;
+      await clk.nextNegedge;
+      reset.put(0);
+      await clk.nextNegedge;
+      await clk.nextNegedge;
 
-    wrEn.put(1);
-    wrData.put(0xfeedbeef);
+      wrEn.put(1);
+      wrData.put(0xfeedbeef);
 
-    // peek immediately
-    expect(rdData.value.toInt(), 0xfeedbeef);
+      // peek immediately, no bypass so can't see
+      expect(rdData.value.toInt(), generateBypass ? 0xfeedbeef : 0);
 
-    await clk.nextNegedge;
-    wrEn.put(0);
+      await clk.nextNegedge;
+      wrEn.put(0);
 
-    // peek after wrEn drops
-    expect(rdData.value.toInt(), 0xfeedbeef);
+      // peek after wrEn drops
+      expect(rdData.value.toInt(), 0xfeedbeef);
 
-    await clk.nextNegedge;
+      await clk.nextNegedge;
 
-    // peek at stable
-    expect(rdData.value.toInt(), 0xfeedbeef);
+      // peek at stable
+      expect(rdData.value.toInt(), 0xfeedbeef);
 
-    Simulator.endSimulation();
-    await Simulator.simulationEnded;
+      Simulator.endSimulation();
+      await Simulator.simulationEnded;
+    }
+
+    test('no bypass', () async {
+      await testPeek(generateBypass: false);
+    });
+
+    test('with bypass', () async {
+      await testPeek(generateBypass: true);
+    });
   });
 }

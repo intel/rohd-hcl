@@ -75,7 +75,7 @@ void main() {
     await Simulator.simulationEnded;
   });
 
-  test('rf wr strobe', () async {
+  test('rf wr masked', () async {
     const dataWidth = 32;
     const addrWidth = 5;
 
@@ -87,7 +87,7 @@ void main() {
 
     final wrPorts = [
       for (var i = 0; i < numWr; i++)
-        StrobeDataPortInterface(dataWidth, addrWidth)..en.put(0)
+        MaskedDataPortInterface(dataWidth, addrWidth)..en.put(0)
     ];
     final rdPorts = [
       for (var i = 0; i < numRd; i++)
@@ -111,7 +111,7 @@ void main() {
 
     // write to addr 0x4 on port 0
     wrPorts[0].en.put(1);
-    wrPorts[0].strobe.put(bin('1010'));
+    wrPorts[0].mask.put(bin('1010'));
     wrPorts[0].addr.put(4);
     wrPorts[0].data.put(0xffffffff);
 
@@ -130,6 +130,10 @@ void main() {
 
     Simulator.endSimulation();
     await Simulator.simulationEnded;
+  });
+
+  test('non-byte-aligned data widths are legal without masks', () {
+    DataPortInterface(1, 1);
   });
 
   group('rf exceptions', () {
