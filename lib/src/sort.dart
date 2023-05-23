@@ -150,8 +150,18 @@ class _BitonicMerge extends Module {
   }
 }
 
-/// Bitonic Sort is a sort module that sort [toSort] to  specified order
-/// based on [isAscending].
+/// Bitonic Sort is a pipelined sort module that sort [toSort] to
+/// specified order based on [isAscending].
+///
+/// Bitonic Sort is a pipeline comparison based sorting module that recursively
+/// constructus a bitonic sequence and then utilizes a pipeline to merge and
+/// compare pairs of elements for sorting the sequence in either ascending or
+/// descending order.
+///
+/// The latency of this sorter is denoted by summation of x where the index of
+/// summation is i = 1, and upper limit of the summation is log base two of
+/// inputs. The details information on bitonic sort can be check on
+/// https://en.wikipedia.org/wiki/Bitonic_sorter.
 class BitonicSort extends Sort {
   /// The list of inputs port.
   final List<Logic> _inputs = [];
