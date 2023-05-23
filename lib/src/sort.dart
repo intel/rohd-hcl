@@ -13,6 +13,7 @@ import 'dart:collection';
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/src/exceptions.dart';
 
+/// An abstract class for all sort algorithm.
 abstract class Sort extends Module {
   /// The List of logic to Sort
   final Iterable<Logic> toSort;
@@ -20,6 +21,8 @@ abstract class Sort extends Module {
   /// Whether the sort [isAscending] order.
   final bool isAscending;
 
+  /// Sort algorithm MUST have List of [toSort], direction of
+  /// sort [isAscending] and a name for the sorting module.
   Sort({required this.toSort, this.isAscending = true, super.name});
 }
 
