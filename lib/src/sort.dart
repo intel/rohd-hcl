@@ -13,6 +13,8 @@ import 'dart:collection';
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/src/exceptions.dart';
 
+import 'package:rohd_hcl/src/utils.dart';
+
 /// An abstract class for all sort algorithm.
 abstract class Sort extends Module {
   /// The List of logic to Sort
@@ -59,8 +61,8 @@ class _CompareSwap extends Module {
     }
 
     final ascending = isAscending == true ? Const(1) : Const(0);
-    final newValA = Logic(width: 8);
-    final newValB = Logic(width: 8);
+    final newValA = Logic(width: toSort[0].width);
+    final newValB = Logic(width: toSort[0].width);
 
     Sequential(clk, [
       If(
@@ -88,7 +90,7 @@ class _CompareSwap extends Module {
 
 class _BitonicMerge extends Module {
   /// A list of [Logic] that hold inputs.
-  final List<Logic> _inputs = [];
+  List<Logic> _inputs = [];
 
   /// A list of [Logic] that hold the final outputs of List of result.
   final List<Logic> _outputs = [];
@@ -118,7 +120,7 @@ class _BitonicMerge extends Module {
     }
 
     if (_inputs.length > 1) {
-      for (var i = 0; i < 0 + _inputs.length ~/ 2; i++) {
+      for (var i = 0; i < _inputs.length ~/ 2; i++) {
         final indexA = i;
         final indexB = i + _inputs.length ~/ 2;
         final swap = _CompareSwap(clk, reset, _inputs, indexA, indexB,
@@ -162,10 +164,9 @@ class _BitonicMerge extends Module {
 /// compare pairs of elements for sorting the sequence in either ascending or
 /// descending order.
 ///
-/// The latency of this sorter is denoted by summation of x where the index of
-/// summation is i = 1, and upper limit of the summation is log base two of
-/// inputs. The details information on bitonic sort can be check on
-/// https://en.wikipedia.org/wiki/Bitonic_sorter.
+/// The latency of this sorter is denoted by the sum of integers
+/// from 1 to the log2 of the number of inputs. The details information on
+/// bitonic sort can be check on https://en.wikipedia.org/wiki/Bitonic_sorter.
 class BitonicSort extends Sort {
   /// The list of inputs port.
   final List<Logic> _inputs = [];
@@ -175,6 +176,9 @@ class BitonicSort extends Sort {
 
   /// The [sorted] result.
   List<Logic> get sorted => UnmodifiableListView(_outputs);
+
+  int get latency => List.generate(log2Ceil(_inputs.length) + 1, (i) => i)
+      .reduce((a, b) => a + b);
 
   /// Constructs a [Module] to sort list of [Logic].
   ///
