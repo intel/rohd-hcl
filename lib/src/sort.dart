@@ -88,7 +88,7 @@ class _CompareSwap extends Module {
 
 class _BitonicMerge extends Module {
   /// A list of [Logic] that hold inputs.
-  List<Logic> _inputs = [];
+  final List<Logic> _inputs = [];
 
   /// A list of [Logic] that hold the final outputs of List of result.
   final List<Logic> _outputs = [];
