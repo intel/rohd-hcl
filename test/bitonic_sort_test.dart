@@ -288,6 +288,58 @@ Future<void> main() async {
 
         await Simulator.run();
       });
+
+      test(
+          'should return sorted results after latency of '
+          'the sorting completed for all random numbers in ascending.',
+          () async {
+        const dataWidth = 10;
+
+        final clk = SimpleClockGenerator(10).clk;
+        final reset = Logic(name: 'reset');
+
+        final a = Logic(name: 'in_1', width: dataWidth);
+        final b = Logic(name: 'in_2', width: dataWidth);
+        final c = Logic(name: 'in_3', width: dataWidth);
+        final d = Logic(name: 'in_4', width: dataWidth);
+        final toSort = <Logic>[a, b, c, d];
+
+        final topMod =
+            BitonicSort(clk, reset, toSort: toSort, name: 'top_level');
+
+        await topMod.build();
+
+        Simulator.setMaxSimTime(1000);
+        unawaited(Simulator.run());
+
+        Future<void> waitCycles(int numCycles) async {
+          for (var i = 0; i < numCycles; i++) {
+            await clk.nextPosedge;
+          }
+        }
+
+        final inputs = List.generate(
+            10, (index) => List.generate(4, (index) => Random().nextInt(10)));
+
+        for (final input in inputs) {
+          a.put(input[0]);
+          b.put(input[1]);
+          c.put(input[2]);
+          d.put(input[3]);
+
+          input.sort();
+
+          await waitCycles(topMod.latency).then((value) {
+            for (var i = 0; i < topMod.sorted.length; i++) {
+              expect(topMod.sorted[i].value.toInt(), input[i]);
+            }
+          });
+
+          await clk.nextNegedge;
+        }
+
+        await Simulator.simulationEnded;
+      });
     });
 
     group('Descending Order: ', () {
@@ -477,6 +529,59 @@ Future<void> main() async {
         Simulator.setMaxSimTime(100);
 
         await Simulator.run();
+      });
+
+      test(
+          'should return sorted results after latency of '
+          'the sorting completed for all random numbers in descending.',
+          () async {
+        const dataWidth = 10;
+
+        final clk = SimpleClockGenerator(10).clk;
+        final reset = Logic(name: 'reset');
+
+        final a = Logic(name: 'in_1', width: dataWidth);
+        final b = Logic(name: 'in_2', width: dataWidth);
+        final c = Logic(name: 'in_3', width: dataWidth);
+        final d = Logic(name: 'in_4', width: dataWidth);
+        final toSort = <Logic>[a, b, c, d];
+
+        final topMod = BitonicSort(clk, reset,
+            toSort: toSort, name: 'top_level', isAscending: false);
+
+        await topMod.build();
+
+        Simulator.setMaxSimTime(1000);
+        unawaited(Simulator.run());
+
+        Future<void> waitCycles(int numCycles) async {
+          for (var i = 0; i < numCycles; i++) {
+            await clk.nextPosedge;
+          }
+        }
+
+        final inputs = List.generate(
+            10, (index) => List.generate(4, (index) => Random().nextInt(10)));
+
+        for (var input in inputs) {
+          a.put(input[0]);
+          b.put(input[1]);
+          c.put(input[2]);
+          d.put(input[3]);
+
+          input.sort();
+
+          input = input.reversed.toList();
+
+          await waitCycles(topMod.latency).then((value) {
+            for (var i = 0; i < topMod.sorted.length; i++) {
+              expect(topMod.sorted[i].value.toInt(), input[i]);
+            }
+          });
+          await clk.nextNegedge;
+        }
+
+        await Simulator.simulationEnded;
       });
     });
   });
