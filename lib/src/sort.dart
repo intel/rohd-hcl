@@ -177,6 +177,7 @@ class BitonicSort extends Sort {
   /// The [sorted] result.
   List<Logic> get sorted => UnmodifiableListView(_outputs);
 
+  /// The [latency] of the bitonic sort algorithm.
   int get latency => List.generate(log2Ceil(_inputs.length) + 1, (i) => i)
       .reduce((a, b) => a + b);
 
