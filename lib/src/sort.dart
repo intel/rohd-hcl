@@ -88,6 +88,12 @@ class _CompareSwap extends Module {
   }
 }
 
+/// Perfoms a bitonic merge on a bitonic sequence to produce a sorted
+/// sequence. The input sequence must be bitonic.The merging process compares
+/// the corresponding elements from both halves and swaps them if necessary
+/// to maintain the desired order.
+///
+/// Returns a single sorted sequence.
 class _BitonicMerge extends Module {
   /// A list of [Logic] that hold inputs.
   List<Logic> _inputs = [];
