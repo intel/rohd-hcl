@@ -97,10 +97,10 @@ class CarrySaveMultiplier extends Module {
       resetValues: {product: Const(0)},
     );
 
-    final nBitAdder = RippleCarryAdder(
+    final nBitAdder = RippleCarryAdder(toSum: [
       pipeline.get(rCarryA),
       pipeline.get(rCarryB),
-    );
+    ]);
 
     product <=
         <Logic>[

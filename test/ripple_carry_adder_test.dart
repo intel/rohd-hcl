@@ -20,11 +20,20 @@ void main() {
   });
 
   group('ripple carry adder', () {
-    test('should throw exception if a and b have diferent width.', () {
+    test('should throw exception if toSum Logics have diferent width.', () {
       final a = Logic(name: 'a', width: 8);
       final b = Logic(name: 'b', width: 16);
 
-      expect(() => RippleCarryAdder(a, b),
+      expect(() => RippleCarryAdder(toSum: [a, b]),
+          throwsA(const TypeMatcher<RohdHclException>()));
+    });
+
+    test('should throw exception if toSum length is not two.', () {
+      final a = Logic(name: 'a', width: 8);
+      final b = Logic(name: 'b', width: 8);
+      final c = Logic(name: 'c', width: 8);
+
+      expect(() => RippleCarryAdder(toSum: [a, b, c]),
           throwsA(const TypeMatcher<RohdHclException>()));
     });
 
@@ -38,7 +47,7 @@ void main() {
       a.put(lvA);
       b.put(lvB);
 
-      final rippleCarryAdder = RippleCarryAdder(a, b);
+      final rippleCarryAdder = RippleCarryAdder(toSum: [a, b]);
 
       expect(rippleCarryAdder.sum.rswizzle().value.toInt(), equals(lvA + lvB));
     });
