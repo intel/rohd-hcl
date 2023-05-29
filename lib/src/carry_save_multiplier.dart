@@ -11,7 +11,17 @@
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
 
-/// A multiplier module that are able to get the product of two values.
+/// A binary multiplier using carry-save technique with pipelineing.
+///
+/// Reduces calculation time and complexity by employing the carry save
+/// multiplier, which splits numbers into smaller components and performs
+/// partial multiplications on each component separately, storing the results
+/// in a compact form. The pipeline enhances performance by breaking down the
+/// multiplication process into sequential stages, allowing for concurrent
+/// execution of multiple operations.
+///
+/// The latency of the carry save multiplier is proportional to the length of
+/// the inputs bits where the latency is equal to the inputs length.
 class CarrySaveMultiplier extends Module {
   /// The list of the sum from every pipeline stages.
   final List<Logic> _sum =
