@@ -19,8 +19,6 @@ class RippleCarryAdder extends Module {
   /// The final result of the NBitAdder in a list of Logic.
   List<Logic> get sum => _sum;
 
-  /// The sum of the
-
   /// Constructs an n-bit adder based on inputs [a] and [b].
   RippleCarryAdder(Logic a, Logic b) : super(name: 'ripple_carry_adder') {
     Logic carry = Const(0);
