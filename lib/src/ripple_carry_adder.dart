@@ -27,7 +27,9 @@ class RippleCarryAdder extends Module {
     b = addInput('b', b, width: b.width);
     carry = addInput('carry_in', carry, width: carry.width);
 
-    assert(a.width == b.width, 'a and b should have same width.');
+    if (a.width != b.width) {
+      throw RohdHclException('a and b should have same width.');
+    }
 
     for (var i = 0; i < a.width; i++) {
       FullAdder? fullAdder;
