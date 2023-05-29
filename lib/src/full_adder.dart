@@ -15,8 +15,8 @@ class FullAdder extends Module {
   /// The result [sum] from [FullAdder].
   Logic get sum => output('sum');
 
-  /// The result [cOut] from [FullAdder].
-  Logic get cOut => output('carry_out');
+  /// The result [carryOut] from [FullAdder].
+  Logic get carryOut => output('carry_out');
 
   /// Constructs a [FullAdder] with value [a], [b] and [carryIn].
   FullAdder({

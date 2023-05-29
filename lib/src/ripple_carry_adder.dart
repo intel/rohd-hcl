@@ -39,7 +39,7 @@ class RippleCarryAdder extends Adder {
       FullAdder? fullAdder;
       fullAdder = FullAdder(a: a[i], b: b[i], carryIn: carry);
 
-      carry = fullAdder.cOut;
+      carry = fullAdder.carryOut;
       _sum.add(fullAdder.sum);
     }
 

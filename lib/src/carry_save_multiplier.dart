@@ -70,7 +70,7 @@ class CarrySaveMultiplier extends Module {
                   carryIn: row == 0 ? Const(0) : p.get(_carry[column - 1]));
 
               columnAdder
-                ..add(p.get(_carry[column]) < fullAdder.cOut)
+                ..add(p.get(_carry[column]) < fullAdder.carryOut)
                 ..add(p.get(_sum[column]) < fullAdder.sum);
             }
 
