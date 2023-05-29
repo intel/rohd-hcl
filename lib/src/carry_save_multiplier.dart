@@ -4,73 +4,12 @@
 // carry_save_multiplier.dart
 // Implementation of pipeline multiplier module.
 //
-// 2023 May 19
+// 2023 May 29
 // Author: Yao Jing Quek <yao.jing.quek@intel.com>
 //
 
 import 'package:rohd/rohd.dart';
-
-/// A simple full-adder with inputs `a` and `b` to be added with a `carryIn`.
-class FullAdder extends Module {
-  /// The result [sum] from [FullAdder].
-  Logic get sum => output('sum');
-
-  /// The result [cOut] from [FullAdder].
-  Logic get cOut => output('carry_out');
-
-  /// Constructs a [FullAdder] with value [a], [b] and [carryIn].
-  FullAdder({
-    required Logic a,
-    required Logic b,
-    required Logic carryIn,
-    super.name = 'full_adder',
-  }) {
-    a = addInput('a', a, width: a.width);
-    b = addInput('b', b, width: b.width);
-    carryIn = addInput('carry_in', carryIn, width: carryIn.width);
-
-    final carryOut = addOutput('carry_out');
-    final sum = addOutput('sum');
-
-    final and1 = carryIn & (a ^ b);
-    final and2 = b & a;
-
-    sum <= (a ^ b) ^ carryIn;
-    carryOut <= and1 | and2;
-  }
-}
-
-/// An [RippleCarryAdder] that perform addition.
-class RippleCarryAdder extends Module {
-  /// The List of results returned from the [FullAdder].
-  final _sum = <Logic>[];
-
-  /// The final result of the NBitAdder.
-  LogicValue get sumRes => _sum.rswizzle().value;
-
-  /// Constructs an n-bit adder based on inputs [a] and [b].
-  RippleCarryAdder(Logic a, Logic b) : super(name: 'ripple_carry_adder') {
-    Logic carry = Const(0);
-
-    a = addInput('a', a, width: a.width);
-    b = addInput('b', b, width: b.width);
-    carry = addInput('carry_in', carry, width: carry.width);
-
-    final n = a.width;
-    FullAdder? res;
-
-    assert(a.width == b.width, 'a and b should have same width.');
-
-    for (var i = 0; i < n; i++) {
-      res = FullAdder(a: a[i], b: b[i], carryIn: carry);
-
-      carry = res.cOut;
-      _sum.add(res.sum);
-    }
-
-    _sum.add(carry);
-  }
-}
+import 'package:rohd_hcl/rohd_hcl.dart';
 
 /// A multiplier module that are able to get the product of two values.
 class CarrySaveMultiplier extends Module {
@@ -157,7 +96,7 @@ class CarrySaveMultiplier extends Module {
         <Logic>[
           ...List.generate(
             a.width + 1,
-            (index) => nBitAdder._sum[(a.width) - index],
+            (index) => nBitAdder.sum[(a.width) - index],
           ),
           ...List.generate(
             a.width,
