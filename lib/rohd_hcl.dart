@@ -8,6 +8,6 @@ export 'src/fifo.dart';
 export 'src/full_adder.dart';
 export 'src/interfaces/interfaces.dart';
 export 'src/memory.dart';
-export 'src/ripple_carry_adder.dart';
 export 'src/one_hot.dart';
+export 'src/ripple_carry_adder.dart';
 export 'src/rotate.dart';

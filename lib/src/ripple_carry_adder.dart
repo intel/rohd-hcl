@@ -27,16 +27,14 @@ class RippleCarryAdder extends Module {
     b = addInput('b', b, width: b.width);
     carry = addInput('carry_in', carry, width: carry.width);
 
-    final n = a.width;
-    FullAdder? res;
-
     assert(a.width == b.width, 'a and b should have same width.');
 
-    for (var i = 0; i < n; i++) {
-      res = FullAdder(a: a[i], b: b[i], carryIn: carry);
+    for (var i = 0; i < a.width; i++) {
+      FullAdder? fullAdder;
+      fullAdder = FullAdder(a: a[i], b: b[i], carryIn: carry);
 
-      carry = res.cOut;
-      _sum.add(res.sum);
+      carry = fullAdder.cOut;
+      _sum.add(fullAdder.sum);
     }
 
     _sum.add(carry);
