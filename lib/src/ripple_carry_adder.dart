@@ -17,6 +17,7 @@ class RippleCarryAdder extends Adder {
   final _sum = <Logic>[];
 
   /// The final result of the NBitAdder in a list of Logic.
+  @override
   List<Logic> get sum => _sum;
 
   /// Constructs an n-bit adder based on inputs List of inputs.
