@@ -25,13 +25,14 @@ abstract class Adder extends Module {
 
 /// A simple full-adder with inputs `a` and `b` to be added with a `carryIn`.
 class FullAdder extends Module {
-  /// The result [sum] from [FullAdder].
+  /// The addition's result [sum].
   Logic get sum => output('sum');
 
-  /// The result [carryOut] from [FullAdder].
+  /// The carry bit's result [carryOut].
   Logic get carryOut => output('carry_out');
 
-  /// Constructs a [FullAdder] with value [a], [b] and [carryIn].
+  /// Constructs a [FullAdder] with value [a], [b] and [carryIn] based on
+  /// full adder truth table.
   FullAdder({
     required Logic a,
     required Logic b,
