@@ -50,6 +50,12 @@ jobs:
 
       - name: Run project tests
         run: tool/gh_actions/run_tests.sh
+      
+      # https://github.com/devcontainers/ci/blob/main/docs/github-action.md
+      - name: Build dev container and run tests in it
+        uses: devcontainers/ci@v0.3
+        with:
+          runCmd: tool/gh_actions/run_tests.sh
 
   deploy-documentation:
     name: Deploy Documentation
