@@ -52,7 +52,7 @@ class CarrySaveMultiplier extends Multiplier {
     final product = addOutput('product', width: a.width + b.width + 1);
 
     if (a.width != b.width) {
-      throw RohdHclException('inputs a and b should have same width.');
+      throw RohdHclException('inputs in toMultiply should have same width.');
     }
 
     _sum = List.generate(a.width * 2, (index) => Logic(name: 'sum_$index'));
