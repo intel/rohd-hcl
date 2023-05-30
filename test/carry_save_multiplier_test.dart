@@ -26,7 +26,18 @@ void main() {
     final clk = SimpleClockGenerator(10).clk;
     final reset = Logic(name: 'reset');
 
-    expect(() => CarrySaveMultiplier(clk, reset, a, b),
+    expect(() => CarrySaveMultiplier(clk, reset, toMultiply: [a, b]),
+        throwsA(const TypeMatcher<RohdHclException>()));
+  });
+
+  test('should throw exception if toMultiply length is not two.', () {
+    final a = Logic(name: 'a', width: 8);
+    final b = Logic(name: 'b', width: 8);
+    final c = Logic(name: 'c', width: 8);
+    final clk = SimpleClockGenerator(10).clk;
+    final reset = Logic(name: 'reset');
+
+    expect(() => CarrySaveMultiplier(clk, reset, toMultiply: [a, b, c]),
         throwsA(const TypeMatcher<RohdHclException>()));
   });
 
@@ -37,7 +48,7 @@ void main() {
     final reset = Logic(name: 'reset');
     final clk = SimpleClockGenerator(10).clk;
 
-    final csm = CarrySaveMultiplier(clk, reset, a, b);
+    final csm = CarrySaveMultiplier(clk, reset, toMultiply: [a, b]);
 
     await csm.build();
 

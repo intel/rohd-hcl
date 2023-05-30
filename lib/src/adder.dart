@@ -12,14 +12,14 @@ import 'package:rohd/rohd.dart';
 
 /// An abstract class for all adder module.
 abstract class Adder extends Module {
-  /// The List of inputs.
+  /// The List of inputs to sum. Length of inputs must be two.
   List<Logic> toSum;
 
   /// The addition results [sum].
   List<Logic> get sum;
 
   /// Takes in list of inputs Logic [toSum] and return the [sum] of the addition
-  /// results.
+  /// result [sum].
   Adder({required this.toSum, super.name});
 }
 
