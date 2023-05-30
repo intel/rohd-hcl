@@ -127,10 +127,14 @@ class Fifo extends Module {
     }
 
     // bypass means don't write to the FIFO, feed straight through
-    final bypass = Logic(name: 'bypass')
-      ..gets(empty & readEnable & writeEnable);
+    final bypass = Logic(name: 'bypass');
+    if (generateBypass) {
+      bypass <= empty & readEnable & writeEnable;
+      wrPort.en <= writeEnable & ~bypass;
+    } else {
+      wrPort.en <= writeEnable;
+    }
 
-    wrPort.en <= writeEnable & ~bypass;
     wrPort.addr <= wrPointer;
     wrPort.data <= writeData;
 
