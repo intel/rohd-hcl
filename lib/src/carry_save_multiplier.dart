@@ -20,16 +20,14 @@ import 'package:rohd_hcl/rohd_hcl.dart';
 /// multiplication process into sequential stages, allowing for concurrent
 /// execution of multiple operations.
 ///
-/// The latency of the carry save multiplier is proportional to the length of
-/// the inputs bits where the latency is equal to the inputs length.
+/// The latency of the carry save multiplier is the sum of the two inputs width
+/// `a` and `b`.
 class CarrySaveMultiplier extends Module {
   /// The list of the sum from every pipeline stages.
-  final List<Logic> _sum =
-      List.generate(8, (index) => Logic(name: 'sum_$index'));
+  late final List<Logic> _sum;
 
   /// The list pf carry from every pipeline stages.
-  final List<Logic> _carry =
-      List.generate(8, (index) => Logic(name: 'carry_$index'));
+  late final List<Logic> _carry;
 
   /// The final product of the multiplier module.
   Logic get product => output('product');
@@ -39,7 +37,7 @@ class CarrySaveMultiplier extends Module {
 
   /// Construct a [CarrySaveMultiplier] that multiply [a] and
   /// [b].
-  CarrySaveMultiplier(Logic a, Logic b, Logic clk, Logic reset,
+  CarrySaveMultiplier(Logic clk, Logic reset, Logic a, Logic b,
       {super.name = 'carry_save_multiplier'}) {
     // Declare Input Node
     a = addInput('a', a, width: a.width);
@@ -48,6 +46,13 @@ class CarrySaveMultiplier extends Module {
     reset = addInput('reset', reset);
 
     final product = addOutput('product', width: a.width + b.width + 1);
+
+    if (a.width != b.width) {
+      throw RohdHclException('inputs a and b should have same width.');
+    }
+
+    _sum = List.generate(a.width * 2, (index) => Logic(name: 'sum_$index'));
+    _carry = List.generate(a.width * 2, (index) => Logic(name: 'carry_$index'));
 
     final rCarryA = Logic(name: 'rcarry_a', width: a.width);
     final rCarryB = Logic(name: 'rcarry_b', width: b.width);

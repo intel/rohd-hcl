@@ -20,63 +20,30 @@ void main() {
     await Simulator.reset();
   });
 
-  test('should return correct results when multiply.', () async {
-    final a = Logic(name: 'a', width: 4);
-    final b = Logic(name: 'b', width: 4);
-    final reset = Logic(name: 'reset');
+  test('should throw exception if inputs Logics have diferent width.', () {
+    final a = Logic(name: 'a', width: 8);
+    final b = Logic(name: 'b', width: 16);
     final clk = SimpleClockGenerator(10).clk;
+    final reset = Logic(name: 'reset');
 
-    final csm = CarrySaveMultiplier(a, b, clk, reset);
-
-    await csm.build();
-
-    // after one cycle, change the value of a and b
-    a.inject(12);
-    b.inject(2);
-    reset.inject(1);
-
-    // Attach a waveform dumper so we can see what happens.
-    WaveDumper(csm, outputPath: 'csm.vcd');
-
-    Simulator.registerAction(10, () {
-      reset.inject(0);
-    });
-
-    Simulator.registerAction(30, () {
-      a.put(10);
-      b.put(11);
-    });
-
-    Simulator.registerAction(60, () {
-      a.put(10);
-      b.put(6);
-    });
-
-    csm.product.changed.listen((event) {
-      print('@t=${Simulator.time}, product is: ${event.newValue.toInt()}');
-    });
-
-    Simulator.setMaxSimTime(150);
-
-    await Simulator.run();
+    expect(() => CarrySaveMultiplier(clk, reset, a, b),
+        throwsA(const TypeMatcher<RohdHclException>()));
   });
 
   test('should return correct results when multiply in a pipeline.', () async {
-    // TODO(): do test on width other than 4
-    // TODO(): performs more test
-    // TODO(): Latency formula need to check again
-    final a = Logic(name: 'a', width: 4);
-    final b = Logic(name: 'b', width: 4);
+    const widthLength = 16;
+    final a = Logic(name: 'a', width: widthLength);
+    final b = Logic(name: 'b', width: widthLength);
     final reset = Logic(name: 'reset');
     final clk = SimpleClockGenerator(10).clk;
 
-    final csm = CarrySaveMultiplier(a, b, clk, reset);
+    final csm = CarrySaveMultiplier(clk, reset, a, b);
 
     await csm.build();
 
     reset.inject(0);
 
-    Simulator.setMaxSimTime(1000);
+    Simulator.setMaxSimTime(10000);
     unawaited(Simulator.run());
 
     Future<void> waitCycles(int numCycles) async {
@@ -86,16 +53,14 @@ void main() {
     }
 
     final inputs = List.generate(
-        10, (index) => List.generate(2, (index) => Random().nextInt(10) + 1));
+        10, (index) => List.generate(2, (index) => Random().nextInt(100) + 1));
 
     for (final input in inputs) {
       a.put(input[0]);
       b.put(input[1]);
 
-      await waitCycles(input[0].bitLength + input[1].bitLength).then((value) {
-        print(input[0]);
-        print(input[1]);
-        print(csm.product.value.toInt());
+      await waitCycles(widthLength * 2).then((value) {
+        expect(csm.product.value.toInt(), equals(input[0] * input[1]));
       });
 
       await clk.nextNegedge;
