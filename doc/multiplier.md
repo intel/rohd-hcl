@@ -6,9 +6,9 @@ ROHD HCL provides a multiplier module to get the product from a list of logic. A
 
 ## Carry Save Multiplier
 
-Carry save multiplier is a digital circuit used for performing multiplication operations. It is particularly useful in applications that require high speed multip0lication, such as digital signal processing.
+Carry save multiplier is a digital circuit used for performing multiplication operations. It is particularly useful in applications that require high speed multiplication, such as digital signal processing.
 
-The [`CarrySaveMultiplier`](https://intel.github.io/rohd-hcl/rohd_hcl/CarrySaveMultiplier-class.html) module in ROHD-HCL accept four inputs: the clock `clk` signal, reset `reset` signal, a List of Logic()'s `toMultiply` and the name of the module `name`. Note that `toMultiply` must have inputs of two and width of the inputs must be the same or `RohdHclException()` will be thrown.
+The [`CarrySaveMultiplier`](https://intel.github.io/rohd-hcl/rohd_hcl/CarrySaveMultiplier-class.html) module in ROHD-HCL accept input parameters the clock `clk` signal, reset `reset` signal, `Logic`s' a and b as the input pin and the name of the module `name`. Note that the width of the inputs must be the same or `RohdHclException` will be thrown.
 
 An example is shown below to multiply two inputs of signals that have 8-bits of width.
 
@@ -19,6 +19,6 @@ final reset = Logic(name: 'reset');
 final a = Logic(name: 'a', width: dataWidth);
 final b = Logic(name: 'b', width: dataWidth);
 
-final multiply = CarrySaveMultiplier(clk, reset, toMultiply: [a, b], name: 'csm_module');
+final multiply = CarrySaveMultiplier(clk, reset, a, b, name: 'csm_module');
 await multiply.build()
 ```
