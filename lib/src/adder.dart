@@ -12,15 +12,18 @@ import 'package:rohd/rohd.dart';
 
 /// An abstract class for all adder module.
 abstract class Adder extends Module {
-  /// The List of inputs to sum. Length of inputs must be two.
-  List<Logic> toSum;
+  /// The input to the adder pin [a].
+  Logic a;
+
+  /// The input to the adder pin [b].
+  Logic b;
 
   /// The addition results [sum].
   List<Logic> get sum;
 
-  /// Takes in list of inputs Logic [toSum] and return the [sum] of the addition
-  /// result [sum].
-  Adder({required this.toSum, super.name});
+  /// Takes in input [a] and input [b] and return the [sum] of the addition
+  /// result.
+  Adder(this.a, this.b, {super.name});
 }
 
 /// A simple full-adder with inputs `a` and `b` to be added with a `carryIn`.

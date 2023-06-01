@@ -25,15 +25,11 @@ class RippleCarryAdder extends Adder {
   List<Logic> get sum => _sum;
 
   /// Constructs an n-bit adder based on inputs List of inputs.
-  RippleCarryAdder({required super.toSum, super.name = 'ripple_carry_adder'}) {
+  RippleCarryAdder(super.a, super.b, {super.name = 'ripple_carry_adder'}) {
     Logic carry = Const(0);
 
-    if (toSum.length != 2) {
-      throw RohdHclException('Length of toSum must be two.');
-    }
-
-    final a = addInput('a', toSum[0], width: toSum[0].width);
-    final b = addInput('b', toSum[1], width: toSum[1].width);
+    a = addInput('a', a, width: a.width);
+    b = addInput('b', b, width: b.width);
     carry = addInput('carry_in', carry, width: carry.width);
 
     if (a.width != b.width) {
