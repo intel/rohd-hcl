@@ -60,9 +60,11 @@ void main() {
       a.put(input[0]);
       b.put(input[1]);
 
-      await waitCycles(csm.latency).then((value) {
-        expect(csm.product.value.toInt(), equals(input[0] * input[1]));
-      });
+      unawaited(
+        waitCycles(csm.latency).then((value) {
+          expect(csm.product.value.toInt(), equals(input[0] * input[1]));
+        }),
+      );
 
       await clk.nextNegedge;
     }
