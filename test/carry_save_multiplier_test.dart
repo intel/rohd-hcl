@@ -52,7 +52,9 @@ void main() {
     }
 
     final inputs = List.generate(
-        10, (index) => List.generate(2, (index) => Random().nextInt(100) + 1));
+        10,
+        (index) => List.generate(
+            2, (index) => Random().nextInt(1 << widthLength) + 1));
 
     for (final input in inputs) {
       a.put(input[0]);
