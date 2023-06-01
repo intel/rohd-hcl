@@ -36,23 +36,18 @@ class CarrySaveMultiplier extends Multiplier {
   /// The pipeline for [CarrySaveMultiplier].
   late final Pipeline pipeline;
 
-  /// Construct a [CarrySaveMultiplier] that multiply two list of logic in
-  /// [toMultiply].
-  CarrySaveMultiplier(Logic clk, Logic reset,
-      {required super.toMultiply, super.name = 'carry_save_multiplier'}) {
-    if (toMultiply.length != 2) {
-      throw RohdHclException('The length of List of toMultiply must be 2.');
-    }
-
-    final a = addInput('a', toMultiply[0], width: toMultiply[0].width);
-    final b = addInput('b', toMultiply[1], width: toMultiply[1].width);
+  /// Construct a [CarrySaveMultiplier] that multiply input [a] and input [b].
+  CarrySaveMultiplier(Logic clk, Logic reset, super.a, super.b,
+      {super.name = 'carry_save_multiplier'}) {
+    a = addInput('a', a, width: a.width);
+    b = addInput('b', b, width: b.width);
     clk = addInput('clk', clk);
     reset = addInput('reset', reset);
 
     final product = addOutput('product', width: a.width + b.width + 1);
 
     if (a.width != b.width) {
-      throw RohdHclException('inputs in toMultiply should have same width.');
+      throw RohdHclException('inputs of a and b should have same width.');
     }
 
     _sum = List.generate(a.width * 2, (index) => Logic(name: 'sum_$index'));

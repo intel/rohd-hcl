@@ -13,13 +13,16 @@ import 'package:rohd/rohd.dart';
 
 /// An abstract class for all multiplier implementation.
 abstract class Multiplier extends Module {
-  /// The list of inputs to multiply. Length of inputs must be two.
-  List<Logic> toMultiply;
+  /// The input to the multiplier pin [a].
+  Logic a;
+
+  /// The input to the multiplier pin [b].
+  Logic b;
 
   /// The multiplication results of the multiplier.
   Logic get product;
 
-  /// Take a list of inputs Logic [toMultiply] and return the
-  /// product result [product].
-  Multiplier({required this.toMultiply, super.name});
+  /// Take input [a] and input [b] and return the
+  /// [product] of the multiplication result.
+  Multiplier(this.a, this.b, {super.name});
 }

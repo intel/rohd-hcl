@@ -33,7 +33,7 @@ class RippleCarryAdder extends Adder {
     carry = addInput('carry_in', carry, width: carry.width);
 
     if (a.width != b.width) {
-      throw RohdHclException('inputs in toSum should have same width.');
+      throw RohdHclException('inputs of a and b should have same width.');
     }
 
     for (var i = 0; i < a.width; i++) {
