@@ -60,14 +60,13 @@ class _CompareSwap extends Module {
       _inputs.add(addInput('toSort$i', toSort[i], width: toSort[i].width));
     }
 
-    final ascending = isAscending == true ? Const(1) : Const(0);
     final newValA = Logic(width: toSort[0].width);
     final newValB = Logic(width: toSort[0].width);
 
     Sequential(clk, [
       If(
-          (ascending & (_inputs[i] > _inputs[j])) |
-              (~ascending & _inputs[i].lt(_inputs[j])),
+          (Const(isAscending) & (_inputs[i] > _inputs[j])) |
+              (~Const(isAscending) & _inputs[i].lt(_inputs[j])),
           then: [
             newValA < _inputs[j],
             newValB < _inputs[i],
