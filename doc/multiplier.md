@@ -19,6 +19,6 @@ final reset = Logic(name: 'reset');
 final a = Logic(name: 'a', width: dataWidth);
 final b = Logic(name: 'b', width: dataWidth);
 
-final multiply = CarrySaveMultiplier(clk, reset, a, b, name: 'csm_module');
+final multiply = CarrySaveMultiplier(clk: clk, reset: reset, a, b, name: 'csm_module');
 await multiply.build()
 ```

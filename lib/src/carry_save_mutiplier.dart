@@ -40,8 +40,10 @@ class CarrySaveMultiplier extends Multiplier {
   late final Pipeline _pipeline;
 
   /// Construct a [CarrySaveMultiplier] that multiply input [a] and input [b].
-  CarrySaveMultiplier(Logic clk, Logic reset, super.a, super.b,
-      {super.name = 'carry_save_multiplier'}) {
+  CarrySaveMultiplier(super.a, super.b,
+      {required Logic clk,
+      required Logic reset,
+      super.name = 'carry_save_multiplier'}) {
     a = addInput('a', a, width: a.width);
     b = addInput('b', b, width: b.width);
     clk = addInput('clk', clk);
