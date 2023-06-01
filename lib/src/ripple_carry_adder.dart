@@ -30,7 +30,6 @@ class RippleCarryAdder extends Adder {
 
     a = addInput('a', a, width: a.width);
     b = addInput('b', b, width: b.width);
-    carry = addInput('carry_in', carry, width: carry.width);
 
     if (a.width != b.width) {
       throw RohdHclException('inputs of a and b should have same width.');
