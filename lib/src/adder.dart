@@ -19,7 +19,7 @@ abstract class Adder extends Module {
   Logic b;
 
   /// The addition results [sum].
-  List<Logic> get sum;
+  Logic get sum;
 
   /// Takes in input [a] and input [b] and return the [sum] of the addition
   /// result.

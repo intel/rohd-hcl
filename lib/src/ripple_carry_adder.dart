@@ -22,7 +22,7 @@ class RippleCarryAdder extends Adder {
 
   /// The final result of the NBitAdder in a list of Logic.
   @override
-  List<Logic> get sum => _sum;
+  Logic get sum => _sum.rswizzle();
 
   /// Constructs an n-bit adder based on inputs List of inputs.
   RippleCarryAdder(super.a, super.b, {super.name = 'ripple_carry_adder'}) {
@@ -37,8 +37,7 @@ class RippleCarryAdder extends Adder {
     }
 
     for (var i = 0; i < a.width; i++) {
-      FullAdder? fullAdder;
-      fullAdder = FullAdder(a: a[i], b: b[i], carryIn: carry);
+      final fullAdder = FullAdder(a: a[i], b: b[i], carryIn: carry);
 
       carry = fullAdder.carryOut;
       _sum.add(fullAdder.sum);

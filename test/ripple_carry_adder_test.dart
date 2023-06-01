@@ -40,7 +40,7 @@ void main() {
 
       final rippleCarryAdder = RippleCarryAdder(a, b);
 
-      expect(rippleCarryAdder.sum.rswizzle().value.toInt(), equals(lvA + lvB));
+      expect(rippleCarryAdder.sum.value.toInt(), equals(lvA + lvB));
     });
   });
 }
