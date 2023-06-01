@@ -37,7 +37,7 @@ class CarrySaveMultiplier extends Multiplier {
   int get latency => super.a.width + super.b.width;
 
   /// The pipeline for [CarrySaveMultiplier].
-  late final Pipeline pipeline;
+  late final Pipeline _pipeline;
 
   /// Construct a [CarrySaveMultiplier] that multiply input [a] and input [b].
   CarrySaveMultiplier(Logic clk, Logic reset, super.a, super.b,
@@ -59,7 +59,7 @@ class CarrySaveMultiplier extends Multiplier {
     final rCarryA = Logic(name: 'rcarry_a', width: a.width);
     final rCarryB = Logic(name: 'rcarry_b', width: b.width);
 
-    pipeline = Pipeline(
+    _pipeline = Pipeline(
       clk,
       stages: [
         ...List.generate(
@@ -105,8 +105,8 @@ class CarrySaveMultiplier extends Multiplier {
     );
 
     final nBitAdder = RippleCarryAdder(
-      pipeline.get(rCarryA),
-      pipeline.get(rCarryB),
+      _pipeline.get(rCarryA),
+      _pipeline.get(rCarryB),
     );
 
     product <=
@@ -117,7 +117,7 @@ class CarrySaveMultiplier extends Multiplier {
           ),
           ...List.generate(
             a.width,
-            (index) => pipeline.get(_sum[a.width - index - 1]),
+            (index) => _pipeline.get(_sum[a.width - index - 1]),
           )
         ].swizzle();
   }
