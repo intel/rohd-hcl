@@ -61,6 +61,7 @@ Future<void> main() async {
         BitonicSort(clk, reset, toSort: toSort, name: 'top_level');
       }, throwsA((dynamic e) => e is RohdHclException));
     });
+
     test('should return itself if single element is given.', () async {
       final clk = SimpleClockGenerator(10).clk;
       final reset = Logic(name: 'reset');
@@ -388,6 +389,7 @@ Future<void> main() async {
 
         await Simulator.run();
       });
+
       test(
           'should return the sorted results in descending order given '
           'the inputs consists of duplicates.', () async {
