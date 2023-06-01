@@ -4,7 +4,7 @@
 // carry_save_mutiplier_test.dart
 // Tests for carry save multiplier.
 //
-// 2023 May 15
+// 2023 June 1
 // Author: Yao Jing Quek <yao.jing.quek@intel.com>
 //
 

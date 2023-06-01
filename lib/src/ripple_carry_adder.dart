@@ -1,8 +1,8 @@
 // Copyright (C) 2023 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 //
-// carry_save_multiplier.dart
-// Implementation of pipeline multiplier module.
+// ripple_carry_adder.dart
+// Implementation of ripple carry adder.
 //
 // 2023 May 29
 // Author: Yao Jing Quek <yao.jing.quek@intel.com>
