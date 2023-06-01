@@ -65,6 +65,7 @@ void main() {
 
       expect(rippleCarryAdder.sum.value.toInt(), equals(valA));
     });
+
     test('should return correct value when random numbers is given.', () async {
       final a = Logic(name: 'a', width: 10);
       final b = Logic(name: 'b', width: 10);
@@ -81,6 +82,7 @@ void main() {
         expect(rippleCarryAdder.sum.value.toInt(), equals(randA + randB));
       }
     });
+
     test('should return correct value when carry bit is non-zero.', () async {
       const widthLength = 4;
       final a = Logic(name: 'a', width: widthLength)..put(1 << widthLength - 1);
@@ -93,6 +95,7 @@ void main() {
       expect(rippleCarryAdder.sum.value.width, a.width + 1);
       expect(rippleCarryAdder.sum.value[a.width], equals(LogicValue.one));
     });
+
     test('should return correct value when overflow from int to Big Int.',
         () async {
       const widthLength = 64;

@@ -11,7 +11,7 @@
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
 
-/// A binary multiplier using carry-save technique with pipelineing.
+/// A binary multiplier using carry-save technique with pipelining.
 ///
 /// Reduces calculation time and complexity by employing the carry save
 /// multiplier, which splits numbers into smaller components and performs

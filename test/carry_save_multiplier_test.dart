@@ -29,6 +29,7 @@ void main() {
     expect(() => CarrySaveMultiplier(clk: clk, reset: reset, a, b),
         throwsA(const TypeMatcher<RohdHclException>()));
   });
+
   test('should return correct results when multiply in a pipeline.', () async {
     const widthLength = 16;
     final a = Logic(name: 'a', width: widthLength);
