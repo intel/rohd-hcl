@@ -33,6 +33,9 @@ class CarrySaveMultiplier extends Multiplier {
   @override
   Logic get product => output('product');
 
+  /// The [latency] of the carry save multiplier.
+  int get latency => super.a.width + super.b.width;
+
   /// The pipeline for [CarrySaveMultiplier].
   late final Pipeline pipeline;
 
