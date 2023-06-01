@@ -95,9 +95,6 @@ class _CompareSwap extends Module {
 ///
 /// Returns a single sorted sequence.
 class _BitonicMerge extends Module {
-  /// A list of [Logic] that hold inputs.
-  List<Logic> _inputs = [];
-
   /// A list of [Logic] that hold the final outputs of List of result.
   final List<Logic> _outputs = [];
 
@@ -120,31 +117,34 @@ class _BitonicMerge extends Module {
     clk = addInput('clk', clk);
     reset = addInput('reset', reset);
 
+    /// A list of [Logic] that hold inputs.
+    var inputs = <Logic>[];
+
     for (var i = 0; i < bitonicSequence.length; i++) {
-      _inputs.add(addInput('bitonicSequence$i', bitonicSequence.elementAt(i),
+      inputs.add(addInput('bitonicSequence$i', bitonicSequence.elementAt(i),
           width: bitonicSequence.elementAt(i).width));
     }
 
-    if (_inputs.length > 1) {
-      for (var i = 0; i < _inputs.length ~/ 2; i++) {
+    if (inputs.length > 1) {
+      for (var i = 0; i < inputs.length ~/ 2; i++) {
         final indexA = i;
-        final indexB = i + _inputs.length ~/ 2;
-        final swap = _CompareSwap(clk, reset, _inputs, indexA, indexB,
+        final indexB = i + inputs.length ~/ 2;
+        final swap = _CompareSwap(clk, reset, inputs, indexA, indexB,
             isAscending: isAscending);
-        _inputs = swap.swapped;
+        inputs = swap.swapped;
       }
 
       final mergeLeft = _BitonicMerge(
         clk,
         reset,
-        bitonicSequence: _inputs.getRange(0, _inputs.length ~/ 2),
+        bitonicSequence: inputs.getRange(0, inputs.length ~/ 2),
         isAscending: isAscending,
         name: 'merge_left',
       );
       final mergeRight = _BitonicMerge(
         clk,
         reset,
-        bitonicSequence: _inputs.getRange(_inputs.length ~/ 2, _inputs.length),
+        bitonicSequence: inputs.getRange(inputs.length ~/ 2, inputs.length),
         isAscending: isAscending,
         name: 'merge_right',
       );
@@ -155,9 +155,9 @@ class _BitonicMerge extends Module {
         _outputs.add(addOutput('sorted_$i', width: mergeRes[i].width));
         _outputs[i] <= mergeRes[i];
       }
-    } else if (_inputs.length == 1) {
-      _outputs.add(addOutput('sorted_0', width: _inputs[0].width));
-      _outputs[0] <= _inputs[0];
+    } else if (inputs.length == 1) {
+      _outputs.add(addOutput('sorted_0', width: inputs[0].width));
+      _outputs[0] <= inputs[0];
     }
   }
 }
