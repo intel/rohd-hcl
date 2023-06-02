@@ -10,15 +10,39 @@ Carry save multiplier is a digital circuit used for performing multiplication op
 
 The [`CarrySaveMultiplier`](https://intel.github.io/rohd-hcl/rohd_hcl/CarrySaveMultiplier-class.html) module in ROHD-HCL accept input parameters the clock `clk` signal, reset `reset` signal, `Logic`s' a and b as the input pin and the name of the module `name`. Note that the width of the inputs must be the same or `RohdHclException` will be thrown.
 
-An example is shown below to multiply two inputs of signals that have 8-bits of width.
+An example is shown below to multiply two inputs of signals that have 4-bits of width.
 
 ```dart
-const dataWidth = 8;
-final clk = SimpleClockGenerator(10).clk;
+const widthLength = 4;
+final a = Logic(name: 'a', width: widthLength);
+final b = Logic(name: 'b', width: widthLength);
 final reset = Logic(name: 'reset');
-final a = Logic(name: 'a', width: dataWidth);
-final b = Logic(name: 'b', width: dataWidth);
+final clk = SimpleClockGenerator(10).clk;
 
-final multiply = CarrySaveMultiplier(clk: clk, reset: reset, a, b, name: 'csm_module');
-await multiply.build()
+final csm = CarrySaveMultiplier(clk: clk, reset: reset, a, b);
+
+await csm.build();
+
+reset.inject(0);
+
+Simulator.setMaxSimTime(10000);
+
+unawaited(Simulator.run());
+
+Future<void> waitCycles(int numCycles) async {
+    for (var i = 0; i < numCycles; i++) {
+    await clk.nextPosedge;
+    }
+}
+
+a.put(10);
+b.put(3);
+
+await waitCycles(csm.latency).then(
+    (value) {
+        print(csm.product.value.toInt());
+    },
+);
+
+Simulator.endSimulation();
 ```

@@ -74,7 +74,7 @@ void main() {
       await clk.nextNegedge;
     }
 
-    await waitCycles(inputs.length * 10).then(
+    await waitCycles(inputs.length).then(
       (value) => {
         Simulator.endSimulation(),
         expect(tested, equals(inputs.length)),
