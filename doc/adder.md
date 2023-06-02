@@ -10,7 +10,7 @@ An ripple carry adder is a digital circuit used for binary addition. It consists
 
 The [`RippleCarryAdder`](https://intel.github.io/rohd-hcl/rohd_hcl/RippleCarryAdder-class.html) module in ROHD-HCL accept input parameters `Logic`s' a and b as the input pin and the name of the module `name`. Note that the width of the inputs must be the same or `RohdHclException` will be thrown.
 
-An example is shown below to multiply two inputs of signals that have 8-bits of width.
+An example is shown below to add two inputs of signals that have 8-bits of width.
 
 ```dart
 final a = Logic(name: 'a', width: 8);
