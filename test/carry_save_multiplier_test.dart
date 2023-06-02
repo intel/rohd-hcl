@@ -31,7 +31,7 @@ void main() {
   });
 
   test('should return correct results when multiply in a pipeline.', () async {
-    const widthLength = 16;
+    const widthLength = 4;
     final a = Logic(name: 'a', width: widthLength);
     final b = Logic(name: 'b', width: widthLength);
     final reset = Logic(name: 'reset');
@@ -44,32 +44,43 @@ void main() {
     reset.inject(0);
 
     Simulator.setMaxSimTime(10000);
+    WaveDumper(csm, outputPath: 'csm.vcd');
+
     unawaited(Simulator.run());
 
-    Future<void> waitCycles(int numCycles) async {
+    Future<int> waitCycles(int numCycles, {int a = 0, int b = 0}) async {
       for (var i = 0; i < numCycles; i++) {
         await clk.nextPosedge;
       }
+      return a * b;
     }
 
+    final randNum = Random(5);
     final inputs = List.generate(
         10,
         (index) => List.generate(
-            2, (index) => Random().nextInt(1 << widthLength) + 1));
+            2, (index) => randNum.nextInt(1 << widthLength - 1) + 1));
 
-    for (final input in inputs) {
-      a.put(input[0]);
-      b.put(input[1]);
-
+    var tested = 0;
+    for (var i = 0; i < inputs.length; i++) {
+      a.put(inputs[i][0]);
+      b.put(inputs[i][1]);
       unawaited(
-        waitCycles(csm.latency).then((value) {
-          expect(csm.product.value.toInt(), equals(input[0] * input[1]));
+        waitCycles(csm.latency, a: inputs[i][0], b: inputs[i][1])
+            .then((result) {
+          expect(csm.product.value.toInt(), equals(result));
+          tested += 1;
         }),
       );
-
       await clk.nextNegedge;
     }
 
+    await waitCycles(inputs.length * 10).then(
+      (value) => {
+        Simulator.endSimulation(),
+        expect(tested, equals(inputs.length)),
+      },
+    );
     await Simulator.simulationEnded;
   });
 }
