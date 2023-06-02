@@ -44,7 +44,6 @@ void main() {
     reset.inject(0);
 
     Simulator.setMaxSimTime(10000);
-    WaveDumper(csm, outputPath: 'csm.vcd');
 
     unawaited(Simulator.run());
 
