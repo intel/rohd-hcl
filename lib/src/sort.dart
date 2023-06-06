@@ -64,17 +64,15 @@ class _CompareSwap extends Module {
     final newValB = Logic(width: toSort[0].width);
 
     Sequential(clk, [
-      If(
-          (Const(isAscending) & (_inputs[i] > _inputs[j])) |
-              (~Const(isAscending) & _inputs[i].lt(_inputs[j])),
+      If(isAscending ? (_inputs[i] > _inputs[j]) : _inputs[i].lt(_inputs[j]),
           then: [
             newValA < _inputs[j],
             newValB < _inputs[i],
           ],
           orElse: [
             newValA < _inputs[i],
-            newValB < _inputs[j]
-          ]),
+            newValB < _inputs[j],
+          ])
     ]);
 
     _inputs[i] = newValA;
