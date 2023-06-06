@@ -51,10 +51,6 @@ class CarrySaveMultiplier extends Multiplier {
 
     final product = addOutput('product', width: portA.width + portB.width + 1);
 
-    if (portA.width != portB.width) {
-      throw RohdHclException('inputs of a and b should have same width.');
-    }
-
     _sum = List.generate(portA.width * 2, (index) => Logic(name: 'sum_$index'));
     _carry =
         List.generate(portA.width * 2, (index) => Logic(name: 'carry_$index'));

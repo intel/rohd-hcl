@@ -31,10 +31,6 @@ class RippleCarryAdder extends Adder {
     final portA = addInput('a', a, width: a.width);
     final portB = addInput('b', b, width: b.width);
 
-    if (portA.width != portB.width) {
-      throw RohdHclException('inputs of a and b should have same width.');
-    }
-
     for (var i = 0; i < portA.width; i++) {
       final fullAdder = FullAdder(a: portA[i], b: portB[i], carryIn: carry);
 

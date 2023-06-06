@@ -10,6 +10,7 @@
 
 import 'package:meta/meta.dart';
 import 'package:rohd/rohd.dart';
+import 'package:rohd_hcl/rohd_hcl.dart';
 
 /// An abstract class for all adder module.
 abstract class Adder extends Module {
@@ -25,8 +26,12 @@ abstract class Adder extends Module {
   Logic get sum;
 
   /// Takes in input [a] and input [b] and return the [sum] of the addition
-  /// result.
-  Adder(this.a, this.b, {super.name});
+  /// result. The width of input [a] and [b] must be the same.
+  Adder(this.a, this.b, {super.name}) {
+    if (a.width != b.width) {
+      throw RohdHclException('inputs of a and b should have same width.');
+    }
+  }
 }
 
 /// A simple full-adder with inputs `a` and `b` to be added with a `carryIn`.

@@ -11,6 +11,7 @@
 
 import 'package:meta/meta.dart';
 import 'package:rohd/rohd.dart';
+import 'package:rohd_hcl/rohd_hcl.dart';
 
 /// An abstract class for all multiplier implementation.
 abstract class Multiplier extends Module {
@@ -27,5 +28,9 @@ abstract class Multiplier extends Module {
 
   /// Take input [a] and input [b] and return the
   /// [product] of the multiplication result.
-  Multiplier(this.a, this.b, {super.name});
+  Multiplier(this.a, this.b, {super.name}) {
+    if (a.width != b.width) {
+      throw RohdHclException('inputs of a and b should have same width.');
+    }
+  }
 }
