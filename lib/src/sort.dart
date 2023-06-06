@@ -114,7 +114,6 @@ class _BitonicMerge extends Module {
     clk = addInput('clk', clk);
     reset = addInput('reset', reset);
 
-    /// A list of [Logic] that hold inputs.
     var inputs = <Logic>[];
 
     for (var i = 0; i < bitonicSequence.length; i++) {
