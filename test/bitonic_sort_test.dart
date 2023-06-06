@@ -258,32 +258,41 @@ Future<void> main() async {
         Simulator.setMaxSimTime(1000);
         unawaited(Simulator.run());
 
-        Future<void> waitCycles(int numCycles) async {
+        Future<List<int>> waitCycles(int numCycles, {List<int>? inputs}) async {
           for (var i = 0; i < numCycles; i++) {
             await clk.nextPosedge;
           }
+          inputs?.sort();
+          return inputs ?? [];
         }
 
         final inputs = List.generate(
             10, (index) => List.generate(4, (index) => Random().nextInt(10)));
 
+        var tested = 0;
         for (final input in inputs) {
           a.put(input[0]);
           b.put(input[1]);
           c.put(input[2]);
           d.put(input[3]);
 
-          input.sort();
-
-          await waitCycles(topMod.latency).then((value) {
-            for (var i = 0; i < topMod.sorted.length; i++) {
-              expect(topMod.sorted[i].value.toInt(), input[i]);
-            }
-          });
-
+          unawaited(
+            waitCycles(topMod.latency, inputs: input).then((results) {
+              for (var i = 0; i < topMod.sorted.length; i++) {
+                expect(topMod.sorted[i].value.toInt(), results[i]);
+              }
+              tested += 1;
+            }),
+          );
           await clk.nextNegedge;
         }
 
+        await waitCycles(inputs.length).then(
+          (value) => {
+            Simulator.endSimulation(),
+            expect(tested, equals(inputs.length)),
+          },
+        );
         await Simulator.simulationEnded;
       });
     });
@@ -447,32 +456,41 @@ Future<void> main() async {
         Simulator.setMaxSimTime(1000);
         unawaited(Simulator.run());
 
-        Future<void> waitCycles(int numCycles) async {
+        Future<List<int>> waitCycles(int numCycles, {List<int>? inputs}) async {
           for (var i = 0; i < numCycles; i++) {
             await clk.nextPosedge;
           }
+          inputs?.sort();
+          return inputs?.reversed.toList() ?? [];
         }
 
         final inputs = List.generate(
             10, (index) => List.generate(4, (index) => Random().nextInt(10)));
 
-        for (var input in inputs) {
+        var tested = 0;
+        for (final input in inputs) {
           a.put(input[0]);
           b.put(input[1]);
           c.put(input[2]);
           d.put(input[3]);
 
-          input.sort();
-
-          input = input.reversed.toList();
-
-          await waitCycles(topMod.latency).then((value) {
-            for (var i = 0; i < topMod.sorted.length; i++) {
-              expect(topMod.sorted[i].value.toInt(), input[i]);
-            }
-          });
+          unawaited(
+            waitCycles(topMod.latency, inputs: input).then((results) {
+              for (var i = 0; i < topMod.sorted.length; i++) {
+                expect(topMod.sorted[i].value.toInt(), results[i]);
+              }
+              tested += 1;
+            }),
+          );
           await clk.nextNegedge;
         }
+
+        await waitCycles(inputs.length).then(
+          (value) => {
+            Simulator.endSimulation(),
+            expect(tested, equals(inputs.length)),
+          },
+        );
 
         await Simulator.simulationEnded;
       });
