@@ -28,15 +28,15 @@ class RippleCarryAdder extends Adder {
   RippleCarryAdder(super.a, super.b, {super.name = 'ripple_carry_adder'}) {
     Logic carry = Const(0);
 
-    a = addInput('a', a, width: a.width);
-    b = addInput('b', b, width: b.width);
+    final portA = addInput('a', a, width: a.width);
+    final portB = addInput('b', b, width: b.width);
 
-    if (a.width != b.width) {
+    if (portA.width != portB.width) {
       throw RohdHclException('inputs of a and b should have same width.');
     }
 
-    for (var i = 0; i < a.width; i++) {
-      final fullAdder = FullAdder(a: a[i], b: b[i], carryIn: carry);
+    for (var i = 0; i < portA.width; i++) {
+      final fullAdder = FullAdder(a: portA[i], b: portB[i], carryIn: carry);
 
       carry = fullAdder.carryOut;
       _sum.add(fullAdder.sum);

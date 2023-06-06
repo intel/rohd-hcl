@@ -9,15 +9,18 @@
 // Author: Yao Jing Quek <yao.jing.quek@intel.com>
 //
 
+import 'package:meta/meta.dart';
 import 'package:rohd/rohd.dart';
 
 /// An abstract class for all multiplier implementation.
 abstract class Multiplier extends Module {
   /// The input to the multiplier pin [a].
-  Logic a;
+  @protected
+  final Logic a;
 
   /// The input to the multiplier pin [b].
-  Logic b;
+  @protected
+  final Logic b;
 
   /// The multiplication results of the multiplier.
   Logic get product;

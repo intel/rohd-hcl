@@ -8,15 +8,18 @@
 // Author: Yao Jing Quek <yao.jing.quek@intel.com>
 //
 
+import 'package:meta/meta.dart';
 import 'package:rohd/rohd.dart';
 
 /// An abstract class for all adder module.
 abstract class Adder extends Module {
   /// The input to the adder pin [a].
-  Logic a;
+  @protected
+  final Logic a;
 
   /// The input to the adder pin [b].
-  Logic b;
+  @protected
+  final Logic b;
 
   /// The addition results [sum].
   Logic get sum;
