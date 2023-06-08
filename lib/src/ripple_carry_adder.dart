@@ -28,11 +28,8 @@ class RippleCarryAdder extends Adder {
   RippleCarryAdder(super.a, super.b, {super.name = 'ripple_carry_adder'}) {
     Logic carry = Const(0);
 
-    final portA = addInput('a', a, width: a.width);
-    final portB = addInput('b', b, width: b.width);
-
-    for (var i = 0; i < portA.width; i++) {
-      final fullAdder = FullAdder(a: portA[i], b: portB[i], carryIn: carry);
+    for (var i = 0; i < a.width; i++) {
+      final fullAdder = FullAdder(a: a[i], b: b[i], carryIn: carry);
 
       carry = fullAdder.carryOut;
       _sum.add(fullAdder.sum);

@@ -17,20 +17,22 @@ import 'package:rohd_hcl/rohd_hcl.dart';
 abstract class Multiplier extends Module {
   /// The input to the multiplier pin [a].
   @protected
-  final Logic a;
+  late final Logic a;
 
   /// The input to the multiplier pin [b].
   @protected
-  final Logic b;
+  late final Logic b;
 
   /// The multiplication results of the multiplier.
   Logic get product;
 
   /// Take input [a] and input [b] and return the
   /// [product] of the multiplication result.
-  Multiplier(this.a, this.b, {super.name}) {
+  Multiplier(Logic a, Logic b, {super.name}) {
     if (a.width != b.width) {
       throw RohdHclException('inputs of a and b should have same width.');
     }
+    this.a = addInput('a', a, width: a.width);
+    this.b = addInput('b', b, width: b.width);
   }
 }

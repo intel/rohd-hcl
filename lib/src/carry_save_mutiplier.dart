@@ -44,35 +44,32 @@ class CarrySaveMultiplier extends Multiplier {
       {required Logic clk,
       required Logic reset,
       super.name = 'carry_save_multiplier'}) {
-    final portA = addInput('a', a, width: a.width);
-    final portB = addInput('b', b, width: b.width);
     clk = addInput('clk', clk);
     reset = addInput('reset', reset);
 
-    final product = addOutput('product', width: portA.width + portB.width + 1);
+    final product = addOutput('product', width: a.width + b.width + 1);
 
-    _sum = List.generate(portA.width * 2, (index) => Logic(name: 'sum_$index'));
-    _carry =
-        List.generate(portA.width * 2, (index) => Logic(name: 'carry_$index'));
+    _sum = List.generate(a.width * 2, (index) => Logic(name: 'sum_$index'));
+    _carry = List.generate(a.width * 2, (index) => Logic(name: 'carry_$index'));
 
-    final rCarryA = Logic(name: 'rcarry_a', width: portA.width);
-    final rCarryB = Logic(name: 'rcarry_b', width: portB.width);
+    final rCarryA = Logic(name: 'rcarry_a', width: a.width);
+    final rCarryB = Logic(name: 'rcarry_b', width: b.width);
 
     _pipeline = Pipeline(
       clk,
       stages: [
         ...List.generate(
-          portB.width,
+          b.width,
           (row) => (p) {
             final columnAdder = <Conditional>[];
-            final maxIndexA = (portA.width - 1) + row;
+            final maxIndexA = (a.width - 1) + row;
 
             for (var column = maxIndexA; column >= row; column--) {
               final fullAdder = FullAdder(
                   a: column == maxIndexA || row == 0
                       ? Const(0)
                       : p.get(_sum[column]),
-                  b: p.get(portA)[column - row] & p.get(portB)[row],
+                  b: p.get(a)[column - row] & p.get(b)[row],
                   carryIn: row == 0 ? Const(0) : p.get(_carry[column - 1]));
 
               columnAdder
@@ -87,17 +84,15 @@ class CarrySaveMultiplier extends Multiplier {
               p.get(rCarryA) <
                   <Logic>[
                     Const(0),
-                    ...List.generate(
-                        portA.width - 1,
-                        (index) => p
-                            .get(_sum[(portA.width + portB.width - 2) - index]))
+                    ...List.generate(a.width - 1,
+                        (index) => p.get(_sum[(a.width + b.width - 2) - index]))
                   ].swizzle(),
               p.get(rCarryB) <
                   <Logic>[
                     ...List.generate(
-                        portA.width,
-                        (index) => p.get(
-                            _carry[(portA.width + portB.width - 2) - index]))
+                        a.width,
+                        (index) =>
+                            p.get(_carry[(a.width + b.width - 2) - index]))
                   ].swizzle()
             ],
       ],
@@ -113,12 +108,12 @@ class CarrySaveMultiplier extends Multiplier {
     product <=
         <Logic>[
           ...List.generate(
-            portA.width + 1,
-            (index) => nBitAdder.sum[(portA.width) - index],
+            a.width + 1,
+            (index) => nBitAdder.sum[(a.width) - index],
           ),
           ...List.generate(
-            portA.width,
-            (index) => _pipeline.get(_sum[portA.width - index - 1]),
+            a.width,
+            (index) => _pipeline.get(_sum[a.width - index - 1]),
           )
         ].swizzle();
   }
