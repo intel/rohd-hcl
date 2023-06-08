@@ -11,6 +11,9 @@
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
 import 'package:rohd_hcl/src/utils.dart';
+import 'package:rohd_vf/rohd_vf.dart';
+
+//TODO: an auto-attach verification component, check empty at end of test, error situation, etc.
 
 /// A simple FIFO (First In, First Out).
 ///
@@ -53,6 +56,16 @@ class Fifo extends Module {
   /// and reading at the same time while [empty].
   final bool generateBypass;
 
+  //TODO: doc comment these
+  Logic get _writeEnable => input('writeEnable');
+  Logic get _readEnable => input('readEnable');
+  Logic get _clk => input('clk');
+  Logic get _reset => input('reset');
+  Logic get _writeData => input('writeData');
+
+  final int dataWidth;
+  final int _addrWidth;
+
   /// Constructs a FIFO with RF-based storage.
   Fifo(Logic clk, Logic reset,
       {required Logic writeEnable,
@@ -63,30 +76,42 @@ class Fifo extends Module {
       this.generateOccupancy = false,
       this.generateBypass = false,
       super.name = 'fifo'})
-      : assert(depth > 0, 'Depth must be at least 1.') {
-    clk = addInput('clk', clk);
-    reset = addInput('reset', reset);
-
-    final dataWidth = writeData.width;
-    final addrWidth = log2Ceil(depth);
+      : dataWidth = writeData.width,
+        _addrWidth = log2Ceil(depth),
+        assert(depth > 0, 'Depth must be at least 1.') {
+    addInput('clk', clk);
+    addInput('reset', reset);
 
     // set up read/write ports
-    writeEnable = addInput('writeEnable', writeEnable);
-    writeData = addInput('writeData', writeData, width: dataWidth);
-    readEnable = addInput('readEnable', readEnable);
+    addInput('writeEnable', writeEnable);
+    addInput('writeData', writeData, width: dataWidth);
+    addInput('readEnable', readEnable);
     addOutput('readData', width: dataWidth);
 
     // set up info ports
     addOutput('full');
     addOutput('empty');
 
-    // set up the RF storage
-    final wrPort = DataPortInterface(dataWidth, addrWidth);
-    final rdPort = DataPortInterface(dataWidth, addrWidth);
-    RegisterFile(clk, reset, [wrPort], [rdPort], numEntries: depth);
+    if (generateError) {
+      addOutput('error');
+    }
 
-    final wrPointer = Logic(name: 'wrPointer', width: addrWidth);
-    final rdPointer = Logic(name: 'rdPointer', width: addrWidth);
+    if (generateOccupancy) {
+      addOutput('occupancy', width: log2Ceil(depth));
+    }
+
+    _buildLogic();
+  }
+
+  /// Builds all the logic for the FIFO.
+  void _buildLogic() {
+    // set up the RF storage
+    final wrPort = DataPortInterface(dataWidth, _addrWidth);
+    final rdPort = DataPortInterface(dataWidth, _addrWidth);
+    RegisterFile(_clk, _reset, [wrPort], [rdPort], numEntries: depth);
+
+    final wrPointer = Logic(name: 'wrPointer', width: _addrWidth);
+    final rdPointer = Logic(name: 'rdPointer', width: _addrWidth);
 
     // empty calculation
     final matchedPointers = Logic(name: 'matchedPointers');
@@ -95,74 +120,79 @@ class Fifo extends Module {
 
     // error calculation
     if (generateError) {
-      addOutput('error') <=
-          ((full & writeEnable & ~readEnable) |
-              (empty & readEnable & ~writeEnable));
+      final overflow = full & _writeEnable & ~_readEnable;
+
+      var underflow = empty & _readEnable;
+      if (generateBypass) {
+        underflow &= ~_writeEnable;
+      }
+
+      error! <= underflow | overflow;
     }
 
     // occupancy calculation
     if (generateOccupancy) {
-      final occupancy = addOutput('occupancy', width: log2Ceil(depth));
-      Sequential(clk, [
-        If(reset, then: [
-          occupancy < 0,
+      Sequential(_clk, [
+        If(_reset, then: [
+          occupancy! < 0,
         ], orElse: [
           Case(
               conditionalType: ConditionalType.unique,
-              [writeEnable, readEnable].swizzle(),
+              [_writeEnable, _readEnable].swizzle(),
               [
                 // write, no read
                 CaseItem(Const(LogicValue.ofString('10')),
-                    [occupancy < occupancy + 1]),
+                    [occupancy! < occupancy! + 1]),
 
                 // read, no write
                 CaseItem(Const(LogicValue.ofString('01')),
-                    [occupancy < occupancy - 1]),
+                    [occupancy! < occupancy! - 1]),
               ],
               defaultItem: [
-                occupancy < occupancy
+                occupancy! < occupancy
               ])
         ])
       ]);
     }
 
     // bypass means don't write to the FIFO, feed straight through
-    final bypass = Logic(name: 'bypass');
+    Logic? bypass;
     if (generateBypass) {
-      bypass <= empty & readEnable & writeEnable;
-      wrPort.en <= writeEnable & ~bypass;
+      bypass = Logic(name: 'bypass');
+      bypass <= empty & _readEnable & _writeEnable;
+      wrPort.en <= _writeEnable & ~bypass;
     } else {
-      wrPort.en <= writeEnable;
+      wrPort.en <= _writeEnable;
     }
 
     wrPort.addr <= wrPointer;
-    wrPort.data <= writeData;
+    wrPort.data <= _writeData;
 
     // we can read from the fifo at all times to allow peeking,
     // including a new write if it's empty
     final peekWriteData = Logic(name: 'peekWriteData')
-      ..gets(empty & writeEnable);
+      ..gets(empty & _writeEnable);
 
     rdPort.en <= Const(1);
     rdPort.addr <= rdPointer;
     readData <=
         (generateBypass
-            ? mux(peekWriteData, writeData, rdPort.data)
+            ? mux(peekWriteData, _writeData, rdPort.data)
             : rdPort.data);
 
     final pointerIncrements = [
-      wrPointer < _incrWithWrap(wrPointer, writeEnable),
-      rdPointer < _incrWithWrap(rdPointer, readEnable),
+      wrPointer < _incrWithWrap(wrPointer, _writeEnable),
+      rdPointer < _incrWithWrap(rdPointer, _readEnable),
     ];
 
-    Sequential(clk, [
-      If(reset, then: [
+    Sequential(_clk, [
+      If(_reset, then: [
         wrPointer < 0,
         rdPointer < 0,
         full < 0,
       ], orElse: [
         if (generateBypass)
-          If(~bypass, then: pointerIncrements)
+          If(~bypass!, then: pointerIncrements)
         else
           ...pointerIncrements,
 
@@ -171,10 +201,10 @@ class Fifo extends Module {
         //  - wrptr is 1 behind read, and we're writing without reading
         // otherwise, rdEn has progressed or we're in undefined error territory
         full <
-            (full & (writeEnable.eq(readEnable))) |
+            (full & (_writeEnable.eq(_readEnable))) |
                 (rdPointer.eq(_incrWithWrap(wrPointer)) &
-                    writeEnable &
-                    ~readEnable)
+                    _writeEnable &
+                    ~_readEnable)
       ]),
     ]);
   }
@@ -189,3 +219,58 @@ class Fifo extends Module {
     return condition != null ? mux(condition, wrapped, original) : wrapped;
   }
 }
+
+/// A checker for [Fifo]s that they are being used properly and not reaching any
+/// dangerous conditions.
+///
+/// This is not intended to check that the [Fifo] is *functioning* properly, but
+/// rather that it hasn't been used in an innpropriate way.  For example:
+/// - No error condition hit (underflow/overflow)
+/// - Empty at the end of the test
+class FifoChecker extends Component {
+  /// The [Fifo] being checked.
+  final Fifo fifo;
+
+  /// Builds a checker for a [fifo].
+  ///
+  /// Attaches to the top level [Test.instance] if no parent is provided.
+  FifoChecker(this.fifo, {String name = '', Component? parent})
+      : super(name, parent ?? Test.instance) {
+    var hasReset = false;
+
+    fifo._clk.posedge.listen((event) {
+      if (!fifo._reset.value.isValid) {
+        // reset is invalid, bad state
+        hasReset = false;
+        return;
+      } else if (fifo._reset.value.toBool()) {
+        // reset is high, track that and move on
+        hasReset = true;
+        return;
+      } else if (hasReset) {
+        // reset is low, and we've previously reset, should be good to check
+
+        if (fifo.full.value.toBool() &&
+            fifo._writeEnable.value.toBool() &&
+            !fifo._readEnable.value.toBool()) {
+          logger.severe('Fifo $fifo received a write that caused an overflow.');
+        } else if (fifo.empty.value.toBool() &&
+            fifo._readEnable.value.toBool()) {
+          if (!(fifo.generateBypass && fifo._writeEnable.value.toBool())) {
+            logger
+                .severe('Fifo $fifo received a read that caused an underflow.');
+          }
+        }
+      }
+    });
+  }
+
+  @override
+  void check() {
+    if (!fifo.empty.value.toBool()) {
+      logger.severe('Fifo $fifo is not empty at the end of the test.');
+    }
+  }
+}
+
+//TODO: logger also?

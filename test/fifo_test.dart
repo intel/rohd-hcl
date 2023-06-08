@@ -124,7 +124,86 @@ void main() {
     await Simulator.simulationEnded;
   });
 
-  test('fifo err', () async {
+  test('fifo underflow error without bypass', () async {
+    final clk = SimpleClockGenerator(10).clk;
+    final reset = Logic()..put(0);
+
+    final wrEn = Logic()..put(0);
+    final rdEn = Logic()..put(0);
+    final wrData = Logic(width: 32);
+
+    final fifo = Fifo(
+      clk,
+      reset,
+      writeEnable: wrEn,
+      readEnable: rdEn,
+      writeData: wrData,
+      generateError: true,
+      depth: 3,
+    );
+
+    await fifo.build();
+
+    unawaited(Simulator.run());
+
+    // a little reset flow
+    await clk.nextNegedge;
+    reset.put(1);
+    await clk.nextNegedge;
+    await clk.nextNegedge;
+    reset.put(0);
+    await clk.nextNegedge;
+    await clk.nextNegedge;
+
+    rdEn.put(1);
+
+    expect(fifo.error!.value.toBool(), true);
+
+    Simulator.endSimulation();
+    await Simulator.simulationEnded;
+  });
+
+  test('fifo underflow error with bypass', () async {
+    final clk = SimpleClockGenerator(10).clk;
+    final reset = Logic()..put(0);
+
+    final wrEn = Logic()..put(0);
+    final rdEn = Logic()..put(0);
+    final wrData = Logic(width: 32);
+
+    final fifo = Fifo(
+      clk,
+      reset,
+      writeEnable: wrEn,
+      readEnable: rdEn,
+      writeData: wrData,
+      generateError: true,
+      generateBypass: true,
+      depth: 3,
+    );
+
+    await fifo.build();
+
+    unawaited(Simulator.run());
+
+    // a little reset flow
+    await clk.nextNegedge;
+    reset.put(1);
+    await clk.nextNegedge;
+    await clk.nextNegedge;
+    reset.put(0);
+    await clk.nextNegedge;
+    await clk.nextNegedge;
+
+    rdEn.put(1);
+
+    expect(fifo.error!.value.toBool(), true);
+
+    Simulator.endSimulation();
+    await Simulator.simulationEnded;
+  });
+
+  test('fifo overflow error', () async {
     final clk = SimpleClockGenerator(10).clk;
     final reset = Logic()..put(0);
 
@@ -172,7 +251,7 @@ void main() {
     await Simulator.simulationEnded;
   });
 
-  test('fifo bypass', () async {
+  test('fifo empty bypass', () async {
     final clk = SimpleClockGenerator(10).clk;
     final reset = Logic()..put(0);
 
@@ -188,6 +267,7 @@ void main() {
       writeData: wrData,
       depth: 3,
       generateBypass: true,
+      generateError: true,
     );
 
     final rdData = fifo.readData;
@@ -205,6 +285,10 @@ void main() {
     await clk.nextNegedge;
     await clk.nextNegedge;
 
+    fifo.error!.posedge.listen((event) {
+      fail('error signal detected!');
+    });
+
     wrEn.put(1);
     wrData.put(0xfeedbeef);
     rdEn.put(1);
@@ -217,6 +301,67 @@ void main() {
     expect(rdData.value.toInt(), 0xdeadbeef);
 
     await clk.nextNegedge;
+
+    Simulator.endSimulation();
+    await Simulator.simulationEnded;
+  });
+
+  test('fifo full write and read simultaneously', () async {
+    final clk = SimpleClockGenerator(10).clk;
+    final reset = Logic()..put(0);
+
+    final wrEn = Logic()..put(0);
+    final rdEn = Logic()..put(0);
+    final wrData = Logic(width: 32);
+
+    final fifo = Fifo(
+      clk,
+      reset,
+      writeEnable: wrEn,
+      readEnable: rdEn,
+      writeData: wrData,
+      depth: 3,
+      generateBypass: true,
+      generateError: true,
+    );
+
+    final rdData = fifo.readData;
+
+    await fifo.build();
+
+    unawaited(Simulator.run());
+
+    // a little reset flow
+    await clk.nextNegedge;
+    reset.put(1);
+    await clk.nextNegedge;
+    await clk.nextNegedge;
+    reset.put(0);
+    await clk.nextNegedge;
+    await clk.nextNegedge;
+
+    // let it fill for a while
+    wrEn.put(1);
+    wrData.put(0xfeedbeef);
+
+    while (!fifo.full.value.toBool()) {
+      await clk.nextNegedge;
+    }
+
+    rdEn.put(1);
+
+    expect(fifo.error!.value.toBool(), false);
+
+    await clk.nextNegedge;
+    expect(rdData.value.toInt(), 0xfeedbeef);
+    expect(fifo.error!.value.toBool(), false);
+
+    await clk.nextNegedge;
+    expect(rdData.value.toInt(), 0xfeedbeef);
+    expect(fifo.error!.value.toBool(), false);
+
+    await clk.nextNegedge;
+    expect(fifo.error!.value.toBool(), false);
 
     Simulator.endSimulation();
     await Simulator.simulationEnded;
