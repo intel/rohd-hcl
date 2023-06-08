@@ -84,7 +84,7 @@
         }
       },
       "cells": {
-        "$add$Fifo.v:112$41": {
+        "$add$Fifo.v:112$39": {
           "hide_name": 1,
           "type": "$add",
           "parameters": {
@@ -167,7 +167,7 @@
             "Y_WIDTH": 1
           },
           "attributes": {
-            "src": "Fifo.v:104.18-104.36"
+            "src": "Fifo.v:104.17-104.35"
           },
           "port_directions": {
             "A": "input",
@@ -175,12 +175,12 @@
             "Y": "output"
           },
           "connections": {
-            "A": [ 70 ],
-            "B": [ 4 ],
+            "A": [ 71 ],
+            "B": [ 37 ],
             "Y": [ 85 ]
           }
         },
-        "$and$Fifo.v:104$35": {
+        "$and$Fifo.v:104$34": {
           "hide_name": 1,
           "type": "$and",
           "parameters": {
@@ -191,7 +191,7 @@
             "Y_WIDTH": 1
           },
           "attributes": {
-            "src": "Fifo.v:104.17-104.53"
+            "src": "Fifo.v:104.41-104.59"
           },
           "port_directions": {
             "A": "input",
@@ -199,9 +199,9 @@
             "Y": "output"
           },
           "connections": {
-            "A": [ 85 ],
-            "B": [ 86 ],
-            "Y": [ 87 ]
+            "A": [ 70 ],
+            "B": [ 4 ],
+            "Y": [ 86 ]
           }
         },
         "$and$Fifo.v:104$36": {
@@ -215,7 +215,7 @@
             "Y_WIDTH": 1
           },
           "attributes": {
-            "src": "Fifo.v:104.59-104.77"
+            "src": "Fifo.v:104.40-104.76"
           },
           "port_directions": {
             "A": "input",
@@ -223,33 +223,9 @@
             "Y": "output"
           },
           "connections": {
-            "A": [ 71 ],
-            "B": [ 37 ],
+            "A": [ 86 ],
+            "B": [ 87 ],
             "Y": [ 88 ]
-          }
-        },
-        "$and$Fifo.v:104$38": {
-          "hide_name": 1,
-          "type": "$and",
-          "parameters": {
-            "A_SIGNED": 0,
-            "A_WIDTH": 1,
-            "B_SIGNED": 0,
-            "B_WIDTH": 1,
-            "Y_WIDTH": 1
-          },
-          "attributes": {
-            "src": "Fifo.v:104.58-104.95"
-          },
-          "port_directions": {
-            "A": "input",
-            "B": "input",
-            "Y": "output"
-          },
-          "connections": {
-            "A": [ 88 ],
-            "B": [ 89 ],
-            "Y": [ 90 ]
           }
         },
         "$and$Fifo.v:89$13": {
@@ -271,8 +247,8 @@
             "Y": "output"
           },
           "connections": {
-            "A": [ 91 ],
-            "B": [ 92 ],
+            "A": [ 89 ],
+            "B": [ 90 ],
             "Y": [ 71 ]
           }
         },
@@ -296,8 +272,8 @@
           },
           "connections": {
             "A": [ 70 ],
-            "B": [ 93 ],
-            "Y": [ 94 ]
+            "B": [ 91 ],
+            "Y": [ 92 ]
           }
         },
         "$and$Fifo.v:99$29": {
@@ -319,9 +295,9 @@
             "Y": "output"
           },
           "connections": {
-            "A": [ 95 ],
+            "A": [ 93 ],
             "B": [ 4 ],
-            "Y": [ 96 ]
+            "Y": [ 94 ]
           }
         },
         "$and$Fifo.v:99$31": {
@@ -343,19 +319,20 @@
             "Y": "output"
           },
           "connections": {
-            "A": [ 96 ],
-            "B": [ 86 ],
-            "Y": [ 97 ]
+            "A": [ 94 ],
+            "B": [ 87 ],
+            "Y": [ 95 ]
           }
         },
-        "$auto$ff.cc:266:slice$101": {
+        "$auto$ff.cc:266:slice$92": {
           "hide_name": 1,
-          "type": "$sdff",
+          "type": "$sdffe",
           "parameters": {
             "CLK_POLARITY": 1,
+            "EN_POLARITY": 1,
             "SRST_POLARITY": 1,
             "SRST_VALUE": 0,
-            "WIDTH": 1
+            "WIDTH": 2
           },
           "attributes": {
             "always_ff": 1,
@@ -364,13 +341,15 @@
           "port_directions": {
             "CLK": "input",
             "D": "input",
+            "EN": "input",
             "Q": "output",
             "SRST": "input"
           },
           "connections": {
             "CLK": [ 2 ],
-            "D": [ 98 ],
-            "Q": [ 70 ],
+            "D": [ 96, 97 ],
+            "EN": [ 37 ],
+            "Q": [ 77, 78 ],
             "SRST": [ 3 ]
           }
         },
@@ -397,42 +376,13 @@
           },
           "connections": {
             "CLK": [ 2 ],
-            "D": [ 99, 100 ],
-            "EN": [ 37 ],
-            "Q": [ 77, 78 ],
-            "SRST": [ 3 ]
-          }
-        },
-        "$auto$ff.cc:266:slice$96": {
-          "hide_name": 1,
-          "type": "$sdffe",
-          "parameters": {
-            "CLK_POLARITY": 1,
-            "EN_POLARITY": 1,
-            "SRST_POLARITY": 1,
-            "SRST_VALUE": 0,
-            "WIDTH": 2
-          },
-          "attributes": {
-            "always_ff": 1,
-            "src": "Fifo.v:91.1-102.4"
-          },
-          "port_directions": {
-            "CLK": "input",
-            "D": "input",
-            "EN": "input",
-            "Q": "output",
-            "SRST": "input"
-          },
-          "connections": {
-            "CLK": [ 2 ],
-            "D": [ 101, 102 ],
+            "D": [ 98, 99 ],
             "EN": [ 4 ],
             "Q": [ 81, 82 ],
             "SRST": [ 3 ]
           }
         },
-        "$auto$ff.cc:266:slice$98": {
+        "$auto$ff.cc:266:slice$96": {
           "hide_name": 1,
           "type": "$sdffe",
           "parameters": {
@@ -455,13 +405,39 @@
           },
           "connections": {
             "CLK": [ 2 ],
-            "D": [ 103, 104 ],
-            "EN": [ 105 ],
+            "D": [ 100, 101 ],
+            "EN": [ 102 ],
             "Q": [ 73, 74 ],
             "SRST": [ 3 ]
           }
         },
-        "$auto$opt_dff.cc:195:make_patterns_logic$100": {
+        "$auto$ff.cc:266:slice$99": {
+          "hide_name": 1,
+          "type": "$sdff",
+          "parameters": {
+            "CLK_POLARITY": 1,
+            "SRST_POLARITY": 1,
+            "SRST_VALUE": 0,
+            "WIDTH": 1
+          },
+          "attributes": {
+            "always_ff": 1,
+            "src": "Fifo.v:91.1-102.4"
+          },
+          "port_directions": {
+            "CLK": "input",
+            "D": "input",
+            "Q": "output",
+            "SRST": "input"
+          },
+          "connections": {
+            "CLK": [ 2 ],
+            "D": [ 103 ],
+            "Q": [ 70 ],
+            "SRST": [ 3 ]
+          }
+        },
+        "$auto$opt_dff.cc:195:make_patterns_logic$98": {
           "hide_name": 1,
           "type": "$reduce_bool",
           "parameters": {
@@ -476,8 +452,8 @@
             "Y": "output"
           },
           "connections": {
-            "A": [ 106, 107 ],
-            "Y": [ 105 ]
+            "A": [ 104, 105 ],
+            "Y": [ 102 ]
           }
         },
         "$eq$Fifo.v:88$11": {
@@ -501,7 +477,7 @@
           "connections": {
             "A": [ 81, 82 ],
             "B": [ 77, 78 ],
-            "Y": [ 91 ]
+            "Y": [ 89 ]
           }
         },
         "$eq$Fifo.v:98$19": {
@@ -525,7 +501,7 @@
           "connections": {
             "A": [ 77, 78 ],
             "B": [ "0", "1" ],
-            "Y": [ 108 ]
+            "Y": [ 106 ]
           }
         },
         "$eq$Fifo.v:99$23": {
@@ -549,7 +525,7 @@
           "connections": {
             "A": [ 4 ],
             "B": [ 37 ],
-            "Y": [ 93 ]
+            "Y": [ 91 ]
           }
         },
         "$eq$Fifo.v:99$25": {
@@ -573,7 +549,7 @@
           "connections": {
             "A": [ 81, 82 ],
             "B": [ "0", "1" ],
-            "Y": [ 109 ]
+            "Y": [ 107 ]
           }
         },
         "$eq$Fifo.v:99$28": {
@@ -596,11 +572,11 @@
           },
           "connections": {
             "A": [ 77, 78 ],
-            "B": [ 101, 102 ],
-            "Y": [ 95 ]
+            "B": [ 98, 99 ],
+            "Y": [ 93 ]
           }
         },
-        "$not$Fifo.v:104$34": {
+        "$not$Fifo.v:104$35": {
           "hide_name": 1,
           "type": "$not",
           "parameters": {
@@ -609,7 +585,7 @@
             "Y_WIDTH": 1
           },
           "attributes": {
-            "src": "Fifo.v:104.41-104.52"
+            "src": "Fifo.v:104.64-104.75"
           },
           "port_directions": {
             "A": "input",
@@ -617,27 +593,7 @@
           },
           "connections": {
             "A": [ 37 ],
-            "Y": [ 86 ]
-          }
-        },
-        "$not$Fifo.v:104$37": {
-          "hide_name": 1,
-          "type": "$not",
-          "parameters": {
-            "A_SIGNED": 0,
-            "A_WIDTH": 1,
-            "Y_WIDTH": 1
-          },
-          "attributes": {
-            "src": "Fifo.v:104.82-104.94"
-          },
-          "port_directions": {
-            "A": "input",
-            "Y": "output"
-          },
-          "connections": {
-            "A": [ 4 ],
-            "Y": [ 89 ]
+            "Y": [ 87 ]
           }
         },
         "$not$Fifo.v:89$12": {
@@ -657,10 +613,10 @@
           },
           "connections": {
             "A": [ 70 ],
-            "Y": [ 92 ]
+            "Y": [ 90 ]
           }
         },
-        "$or$Fifo.v:104$39": {
+        "$or$Fifo.v:104$37": {
           "hide_name": 1,
           "type": "$or",
           "parameters": {
@@ -671,7 +627,7 @@
             "Y_WIDTH": 1
           },
           "attributes": {
-            "src": "Fifo.v:104.16-104.96"
+            "src": "Fifo.v:104.16-104.77"
           },
           "port_directions": {
             "A": "input",
@@ -679,8 +635,8 @@
             "Y": "output"
           },
           "connections": {
-            "A": [ 87 ],
-            "B": [ 90 ],
+            "A": [ 85 ],
+            "B": [ 88 ],
             "Y": [ 72 ]
           }
         },
@@ -703,12 +659,12 @@
             "Y": "output"
           },
           "connections": {
-            "A": [ 94 ],
-            "B": [ 97 ],
-            "Y": [ 98 ]
+            "A": [ 92 ],
+            "B": [ 95 ],
+            "Y": [ 103 ]
           }
         },
-        "$procmux$45": {
+        "$procmux$43": {
           "hide_name": 1,
           "type": "$pmux",
           "parameters": {
@@ -728,12 +684,12 @@
           },
           "connections": {
             "A": [ "x", "x" ],
-            "B": [ 110, 111, 75, 76 ],
-            "S": [ 106, 107 ],
-            "Y": [ 103, 104 ]
+            "B": [ 108, 109, 75, 76 ],
+            "S": [ 104, 105 ],
+            "Y": [ 100, 101 ]
           }
         },
-        "$procmux$46_CMP0": {
+        "$procmux$44_CMP0": {
           "hide_name": 1,
           "type": "$eq",
           "parameters": {
@@ -756,10 +712,10 @@
           "connections": {
             "A": [ 37, 4 ],
             "B": [ "1", "0" ],
-            "Y": [ 106 ]
+            "Y": [ 104 ]
           }
         },
-        "$procmux$47_CMP0": {
+        "$procmux$45_CMP0": {
           "hide_name": 1,
           "type": "$eq",
           "parameters": {
@@ -782,10 +738,10 @@
           "connections": {
             "A": [ 37, 4 ],
             "B": [ "0", "1" ],
-            "Y": [ 107 ]
+            "Y": [ 105 ]
           }
         },
-        "$sub$Fifo.v:115$42": {
+        "$sub$Fifo.v:115$40": {
           "hide_name": 1,
           "type": "$sub",
           "parameters": {
@@ -806,7 +762,7 @@
           "connections": {
             "A": [ 73, 74 ],
             "B": [ "1", "0" ],
-            "Y": [ 110, 111 ]
+            "Y": [ 108, 109 ]
           }
         },
         "$ternary$Fifo.v:98$21": {
@@ -827,8 +783,8 @@
           "connections": {
             "A": [ 79, 80 ],
             "B": [ "0", "0" ],
-            "S": [ 108 ],
-            "Y": [ 99, 100 ]
+            "S": [ 106 ],
+            "Y": [ 96, 97 ]
           }
         },
         "$ternary$Fifo.v:99$27": {
@@ -849,8 +805,8 @@
           "connections": {
             "A": [ 83, 84 ],
             "B": [ "0", "0" ],
-            "S": [ 109 ],
-            "Y": [ 101, 102 ]
+            "S": [ 107 ],
+            "Y": [ 98, 99 ]
           }
         },
         "rf": {
@@ -885,7 +841,7 @@
         }
       },
       "netnames": {
-        "$add$Fifo.v:112$41_Y": {
+        "$add$Fifo.v:112$39_Y": {
           "hide_name": 1,
           "bits": [ 75, 76 ],
           "attributes": {
@@ -910,148 +866,134 @@
           "hide_name": 1,
           "bits": [ 85 ],
           "attributes": {
-            "src": "Fifo.v:104.18-104.36"
+            "src": "Fifo.v:104.17-104.35"
           }
         },
-        "$and$Fifo.v:104$35_Y": {
+        "$and$Fifo.v:104$34_Y": {
           "hide_name": 1,
-          "bits": [ 87 ],
+          "bits": [ 86 ],
           "attributes": {
-            "src": "Fifo.v:104.17-104.53"
+            "src": "Fifo.v:104.41-104.59"
           }
         },
         "$and$Fifo.v:104$36_Y": {
           "hide_name": 1,
           "bits": [ 88 ],
           "attributes": {
-            "src": "Fifo.v:104.59-104.77"
-          }
-        },
-        "$and$Fifo.v:104$38_Y": {
-          "hide_name": 1,
-          "bits": [ 90 ],
-          "attributes": {
-            "src": "Fifo.v:104.58-104.95"
+            "src": "Fifo.v:104.40-104.76"
           }
         },
         "$and$Fifo.v:99$24_Y": {
           "hide_name": 1,
-          "bits": [ 94 ],
+          "bits": [ 92 ],
           "attributes": {
             "src": "Fifo.v:99.17-99.51"
           }
         },
         "$and$Fifo.v:99$29_Y": {
           "hide_name": 1,
-          "bits": [ 96 ],
+          "bits": [ 94 ],
           "attributes": {
             "src": "Fifo.v:99.57-99.135"
           }
         },
         "$and$Fifo.v:99$31_Y": {
           "hide_name": 1,
-          "bits": [ 97 ],
+          "bits": [ 95 ],
           "attributes": {
             "src": "Fifo.v:99.56-99.152"
           }
         },
-        "$auto$opt_dff.cc:194:make_patterns_logic$99": {
+        "$auto$opt_dff.cc:194:make_patterns_logic$97": {
           "hide_name": 1,
-          "bits": [ 105 ],
+          "bits": [ 102 ],
           "attributes": {
           }
         },
         "$eq$Fifo.v:97$15_Y": {
           "hide_name": 1,
-          "bits": [ 109 ],
+          "bits": [ 107 ],
           "attributes": {
             "src": "Fifo.v:97.37-97.54"
           }
         },
         "$eq$Fifo.v:98$19_Y": {
           "hide_name": 1,
-          "bits": [ 108 ],
+          "bits": [ 106 ],
           "attributes": {
             "src": "Fifo.v:98.36-98.53"
           }
         },
         "$eq$Fifo.v:99$23_Y": {
           "hide_name": 1,
-          "bits": [ 93 ],
+          "bits": [ 91 ],
           "attributes": {
             "src": "Fifo.v:99.25-99.50"
           }
         },
         "$eq$Fifo.v:99$28_Y": {
           "hide_name": 1,
-          "bits": [ 95 ],
+          "bits": [ 93 ],
           "attributes": {
             "src": "Fifo.v:99.58-99.120"
           }
         },
-        "$not$Fifo.v:104$34_Y": {
+        "$not$Fifo.v:104$35_Y": {
           "hide_name": 1,
-          "bits": [ 86 ],
+          "bits": [ 87 ],
           "attributes": {
-            "src": "Fifo.v:104.41-104.52"
-          }
-        },
-        "$not$Fifo.v:104$37_Y": {
-          "hide_name": 1,
-          "bits": [ 89 ],
-          "attributes": {
-            "src": "Fifo.v:104.82-104.94"
+            "src": "Fifo.v:104.64-104.75"
           }
         },
         "$not$Fifo.v:89$12_Y": {
           "hide_name": 1,
-          "bits": [ 92 ],
+          "bits": [ 90 ],
           "attributes": {
             "src": "Fifo.v:89.35-89.40"
           }
         },
         "$or$Fifo.v:99$32_Y": {
           "hide_name": 1,
-          "bits": [ 98 ],
+          "bits": [ 103 ],
           "attributes": {
             "src": "Fifo.v:99.16-99.153"
           }
         },
-        "$procmux$45_Y": {
+        "$procmux$43_Y": {
           "hide_name": 1,
-          "bits": [ 103, 104 ],
+          "bits": [ 100, 101 ],
           "attributes": {
           }
         },
-        "$procmux$46_CMP": {
+        "$procmux$44_CMP": {
           "hide_name": 1,
-          "bits": [ 106 ],
+          "bits": [ 104 ],
           "attributes": {
           }
         },
-        "$procmux$47_CMP": {
+        "$procmux$45_CMP": {
           "hide_name": 1,
-          "bits": [ 107 ],
+          "bits": [ 105 ],
           "attributes": {
           }
         },
-        "$sub$Fifo.v:115$42_Y": {
+        "$sub$Fifo.v:115$40_Y": {
           "hide_name": 1,
-          "bits": [ 110, 111 ],
+          "bits": [ 108, 109 ],
           "attributes": {
             "src": "Fifo.v:115.29-115.45"
           }
         },
         "$ternary$Fifo.v:97$17_Y": {
           "hide_name": 1,
-          "bits": [ 101, 102 ],
+          "bits": [ 98, 99 ],
           "attributes": {
             "src": "Fifo.v:97.36-97.83"
           }
         },
         "$ternary$Fifo.v:98$21_Y": {
           "hide_name": 1,
-          "bits": [ 99, 100 ],
+          "bits": [ 96, 97 ],
           "attributes": {
             "src": "Fifo.v:98.35-98.82"
           }
@@ -1086,7 +1028,7 @@
         },
         "matchedPointers": {
           "hide_name": 0,
-          "bits": [ 91 ],
+          "bits": [ 89 ],
           "attributes": {
             "src": "Fifo.v:86.7-86.22"
           }
@@ -1260,7 +1202,7 @@
             "Y": [ 79 ]
           }
         },
-        "$auto$ff.cc:266:slice$103": {
+        "$auto$ff.cc:266:slice$101": {
           "hide_name": 1,
           "type": "$sdffe",
           "parameters": {
@@ -1289,7 +1231,7 @@
             "SRST": [ 3 ]
           }
         },
-        "$auto$ff.cc:266:slice$105": {
+        "$auto$ff.cc:266:slice$103": {
           "hide_name": 1,
           "type": "$sdffe",
           "parameters": {
@@ -1318,7 +1260,7 @@
             "SRST": [ 3 ]
           }
         },
-        "$auto$ff.cc:266:slice$107": {
+        "$auto$ff.cc:266:slice$105": {
           "hide_name": 1,
           "type": "$sdffe",
           "parameters": {
@@ -1459,7 +1401,7 @@
             "Y": [ 177 ]
           }
         },
-        "$procmux$76": {
+        "$procmux$74": {
           "hide_name": 1,
           "type": "$pmux",
           "parameters": {
@@ -1483,7 +1425,7 @@
             "Y": [ 181, 182, 183, 184, 185, 186, 187, 188, 189, 190, 191, 192, 193, 194, 195, 196, 197, 198, 199, 200, 201, 202, 203, 204, 205, 206, 207, 208, 209, 210, 211, 212 ]
           }
         },
-        "$procmux$77_CMP0": {
+        "$procmux$75_CMP0": {
           "hide_name": 1,
           "type": "$eq",
           "parameters": {
@@ -1508,7 +1450,7 @@
             "Y": [ 178 ]
           }
         },
-        "$procmux$78_CMP0": {
+        "$procmux$76_CMP0": {
           "hide_name": 1,
           "type": "$eq",
           "parameters": {
@@ -1533,7 +1475,7 @@
             "Y": [ 179 ]
           }
         },
-        "$procmux$79_CMP0": {
+        "$procmux$77_CMP0": {
           "hide_name": 1,
           "type": "$logic_not",
           "parameters": {
@@ -1554,7 +1496,7 @@
             "Y": [ 180 ]
           }
         },
-        "$procmux$84": {
+        "$procmux$82": {
           "hide_name": 1,
           "type": "$mux",
           "parameters": {
@@ -1642,19 +1584,19 @@
             "src": "Fifo.v:22.7-22.25"
           }
         },
-        "$procmux$77_CMP": {
+        "$procmux$75_CMP": {
           "hide_name": 1,
           "bits": [ 178 ],
           "attributes": {
           }
         },
-        "$procmux$78_CMP": {
+        "$procmux$76_CMP": {
           "hide_name": 1,
           "bits": [ 179 ],
           "attributes": {
           }
         },
-        "$procmux$79_CMP": {
+        "$procmux$77_CMP": {
           "hide_name": 1,
           "bits": [ 180 ],
           "attributes": {
