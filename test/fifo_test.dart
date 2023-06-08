@@ -12,6 +12,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:logging/logging.dart';
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
 import 'package:rohd_vf/rohd_vf.dart';
@@ -436,7 +437,28 @@ void main() {
 
     test('underflow without bypass', () async {});
 
-    test('overflow', () async {});
+    test('overflow', () async {
+      final fifoTest = FifoTest((clk, reset, wrEn, wrData, rdEn, rdData) async {
+        wrEn.put(1);
+        wrData.put(0x111);
+
+        await clk.nextNegedge;
+        await clk.nextNegedge;
+        await clk.nextNegedge;
+        await clk.nextNegedge;
+      });
+
+      FifoChecker(fifoTest.fifo, enableEndOfTestEmptyCheck: false);
+
+      fifoTest.printLevel = Level.OFF;
+
+      try {
+        await fifoTest.start();
+        fail('Did not fail.');
+      } on Exception catch (_) {
+        expect(fifoTest.failureDetected, true);
+      }
+    });
 
     test('non-empty at end of test', () async {});
   });
@@ -469,6 +491,7 @@ void main() {
     });
 
     Directory('tmp_test').createSync();
+
     final tracker =
         FifoTracker(fifoTest.fifo, outputFolder: 'tmp_test', dumpTable: false);
 

@@ -16,3 +16,4 @@ dependencies:
 
 dev_dependencies:
   test: ^1.21.0
+  logging: ^1.0.1

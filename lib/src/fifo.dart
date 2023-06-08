@@ -231,11 +231,26 @@ class FifoChecker extends Component {
   /// The [Fifo] being checked.
   final Fifo fifo;
 
+  /// If true, will check that [fifo] is empty at the end of the test.
+  final bool enableEndOfTestEmptyCheck;
+
+  /// If true, will flag an error if there is an underflow in the [fifo].
+  final bool enableUnderflowCheck;
+
+  /// If true, will flag an error if there is an overflow in the [fifo].
+  final bool enableOverflowCheck;
+
   /// Builds a checker for a [fifo].
   ///
   /// Attaches to the top level [Test.instance] if no parent is provided.
-  FifoChecker(this.fifo, {String name = '', Component? parent})
-      : super(name, parent ?? Test.instance) {
+  FifoChecker(
+    this.fifo, {
+    String name = 'fifoChecker',
+    Component? parent,
+    this.enableEndOfTestEmptyCheck = true,
+    this.enableUnderflowCheck = true,
+    this.enableOverflowCheck = true,
+  }) : super(name, parent ?? Test.instance) {
     var hasReset = false;
 
     fifo._clk.posedge.listen((event) {
@@ -253,12 +268,17 @@ class FifoChecker extends Component {
         if (fifo.full.value.toBool() &&
             fifo._writeEnable.value.toBool() &&
             !fifo._readEnable.value.toBool()) {
-          logger.severe('Fifo $fifo received a write that caused an overflow.');
+          if (enableOverflowCheck) {
+            logger
+                .severe('Fifo $fifo received a write that caused an overflow.');
+          }
         } else if (fifo.empty.value.toBool() &&
             fifo._readEnable.value.toBool()) {
           if (!(fifo.generateBypass && fifo._writeEnable.value.toBool())) {
-            logger
-                .severe('Fifo $fifo received a read that caused an underflow.');
+            if (enableUnderflowCheck) {
+              logger.severe(
+                  'Fifo $fifo received a read that caused an underflow.');
+            }
           }
         }
       }
@@ -268,7 +288,9 @@ class FifoChecker extends Component {
   @override
   void check() {
     if (!fifo.empty.value.toBool()) {
-      logger.severe('Fifo $fifo is not empty at the end of the test.');
+      if (enableEndOfTestEmptyCheck) {
+        logger.severe('Fifo $fifo is not empty at the end of the test.');
+      }
     }
   }
 }
