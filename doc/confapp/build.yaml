@@ -1,7 +1,0 @@
-targets:
-  $default:
-    builders:
-      rohd_hcl:
-        generate_for:
-          exclude:
-            - 'lib/src/wave_dumper.dart'

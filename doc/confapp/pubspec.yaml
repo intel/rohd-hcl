@@ -10,6 +10,7 @@ environment:
 # Add regular dependencies here.
 dependencies:
   meta: ^1.9.1
+  synchronized: ^3.1.0
   rohd:
     path: /home/yquek/home/workspace/rohd-hcl/doc/rohd
   rohd_hcl:

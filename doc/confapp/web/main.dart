@@ -1,85 +1,73 @@
 import 'dart:html';
 import 'package:rohd_hcl/rohd_hcl.dart';
-// import 'package:rohd/rohd.dart';
+import 'package:rohd/rohd.dart';
 
-Iterable<String> thingsTodo() sync* {
-  const actions = ['Walk', 'Wash', 'Feed'];
-  const pets = ['cats', 'dogs'];
+abstract class ConfigKnob {
+  final String name;
+  ConfigKnob(this.name);
+}
 
-  for (final action in actions) {
-    for (final pet in pets) {
-      if (pet != 'cats' || action == 'Feed') {
-        yield '$action the $pet';
-      }
-    }
+class IntConfigKnob extends ConfigKnob {
+  int? value;
+  IntConfigKnob(super.name);
+}
+
+class StringConfigKnob extends ConfigKnob {
+  String? value;
+  StringConfigKnob(super.name);
+}
+
+abstract class ConfigGenerator {
+  /// A list of config knobs to the specific components.
+  List<ConfigKnob> get knobs;
+
+  /// generate system verilog.
+  Future<String> generate();
+}
+
+/// Use to generate system verilog.
+class RotateGenerator extends ConfigGenerator {
+  final IntConfigKnob originalKnob = IntConfigKnob('original');
+  final IntConfigKnob rotateAmountKnob = IntConfigKnob('rotate_amount');
+  final IntConfigKnob maxAmountKnob = IntConfigKnob('max_amount');
+  final StringConfigKnob rotateNameKnob = StringConfigKnob('rotateNameKnob');
+  // radio button to choose which component to generate? Rotate Left or Right
+
+  @override
+  late final List<ConfigKnob> knobs = [
+    originalKnob,
+    rotateAmountKnob,
+    rotateNameKnob,
+  ];
+
+  @override
+  Future<String> generate() async {
+    final rotateLeft = RotateComponent(
+      Logic(width: 10), // originalWidthKnob
+      Logic(width: 10), // rotateAmountWidthKnob
+      maxAmountKnob.value,
+    ).rotateLeft;
+
+    await rotateLeft.build();
+
+    return rotateLeft.generateSynth();
   }
 }
 
-LIElement newLI(String itemText) => LIElement()..text = itemText;
-
-void main() {
-  querySelector('#output')?.children.addAll(thingsTodo().map(newLI));
+/// Rotate Component.
+class RotateComponent extends Module {
+  late final RotateLeft rotateLeft;
+  late final RotateRight rotateRight;
+  RotateComponent(Logic original, Logic rotateAmount, int? maxAmount) {
+    rotateLeft = RotateLeft(original, rotateAmount, maxAmount: maxAmount);
+    rotateRight = RotateRight(original, rotateAmount, maxAmount: maxAmount);
+  }
 }
 
+class WebPageGenerator {
+  final List<ConfigGenerator> generators = [RotateGenerator()];
+}
 
-// abstract class ConfigKnob {
-//   final String name;
-//   ConfigKnob(this.name);
-// }
-
-// class IntConfigKnob extends ConfigKnob {
-//   int? value;
-//   IntConfigKnob(super.name);
-// }
-
-// class StringConfigKnob extends ConfigKnob {
-//   String? value;
-//   StringConfigKnob(super.name);
-// }
-
-// class BoolConfigKnob extends ConfigKnob {
-//   bool? value;
-//   BoolConfigKnob(super.name);
-// }
-
-// class MultiSelectKnob<EnumType extends Enum> extends ConfigKnob {
-//   EnumType? type;
-//   MultiSelectKnob(super.name);
-// }
-
-// abstract class PrototypeGenerator {
-//   // things it needs to do:
-//   //  - supply knobs for configurability
-//   //  - default configuration
-//   //  - generate smoke test
-//   //  - collect waveforms of smoke test
-//   //  - convert waveforms to wavedrom
-//   //  - generate a schematic
-//   //  - generate verilog
-
-//   Map<String, ConfigKnob> get knobs;
-
-//   Map<String, dynamic> get defaultKnobValues;
-
-//   List<Vector> exampleStimulus(Map<String, dynamic> knobValues);
-
-//   Prototype generate(Map<String, dynamic> knobValues) {
-//     return Prototype(buildModule(knobValues));
-//   }
-
-//   @protected
-//   Module buildModule(Map<String, dynamic> knobValues);
-
-//   void generateWaves() {
-//     //TODO
-//   }
-
-//   void generateWaveDrom() {
-//     generateWaves();
-//   }
-// }
-
-// class Prototype {
-//   final Module module;
-//   Prototype(this.module);
-// }
+Future<void> main() async {
+  querySelector('#output')?.text = await RotateGenerator().generate();
+}
