@@ -63,6 +63,14 @@
       <h2>Classes</h2>
 
       <dl>
+        <dt id="Adder">
+  <span class="name "><a href="../rohd_hcl/Adder-class.html">Adder</a></span> 
+
+</dt>
+<dd>
+  An abstract class for all adder module.
+</dd>
+
         <dt id="Apb">
   <span class="name "><a href="../rohd_hcl/Apb-class.html">Apb</a></span> 
 
@@ -96,6 +104,14 @@
 specified order based on <a href="../rohd_hcl/Sort/isAscending.html">isAscending</a>.
 </dd>
 
+        <dt id="CarrySaveMultiplier">
+  <span class="name "><a href="../rohd_hcl/CarrySaveMultiplier-class.html">CarrySaveMultiplier</a></span> 
+
+</dt>
+<dd>
+  A binary multiplier using carry-save technique with pipelining.
+</dd>
+
         <dt id="DataPortInterface">
   <span class="name "><a href="../rohd_hcl/DataPortInterface-class.html">DataPortInterface</a></span> 
 
@@ -112,6 +128,14 @@ specified order based on <a href="../rohd_hcl/Sort/isAscending.html">isAscending
   A simple FIFO (First In, First Out).
 </dd>
 
+        <dt id="FullAdder">
+  <span class="name "><a href="../rohd_hcl/FullAdder-class.html">FullAdder</a></span> 
+
+</dt>
+<dd>
+  A simple full-adder with inputs <code>a</code> and <code>b</code> to be added with a <code>carryIn</code>.
+</dd>
+
         <dt id="MaskedDataPortInterface">
   <span class="name "><a href="../rohd_hcl/MaskedDataPortInterface-class.html">MaskedDataPortInterface</a></span> 
 
@@ -126,6 +150,14 @@ specified order based on <a href="../rohd_hcl/Sort/isAscending.html">isAscending
 </dt>
 <dd>
   A generic memory with variable numbers of read and write ports.
+</dd>
+
+        <dt id="Multiplier">
+  <span class="name "><a href="../rohd_hcl/Multiplier-class.html">Multiplier</a></span> 
+
+</dt>
+<dd>
+  An abstract class for all multiplier implementation.
 </dd>
 
         <dt id="OneHotToBinary">
@@ -150,6 +182,18 @@ specified order based on <a href="../rohd_hcl/Sort/isAscending.html">isAscending
 </dt>
 <dd>
   A flop-based memory.
+</dd>
+
+        <dt id="RippleCarryAdder">
+  <span class="name "><a href="../rohd_hcl/RippleCarryAdder-class.html">RippleCarryAdder</a></span> 
+
+</dt>
+<dd>
+  An <a href="../rohd_hcl/RippleCarryAdder-class.html">RippleCarryAdder</a> is a digital circuit used for binary addition. It
+consists of a series of full adders connected in a chain, with the carry
+output of each adder linked to the carry input of the next one. Starting
+from the least significant bit (LSB) to most significant bit (MSB), the
+adder sequentially adds corresponding bits of two binary numbers.
 </dd>
 
         <dt id="RotateLeft">
@@ -298,17 +342,22 @@ specified order based on <a href="../rohd_hcl/Sort/isAscending.html">isAscending
     <h5>rohd_hcl library</h5>
     <ol>
       <li class="section-title"><a href="../rohd_hcl/rohd_hcl-library.html#classes">Classes</a></li>
+        <li><a href="../rohd_hcl/Adder-class.html">Adder</a></li>
         <li><a href="../rohd_hcl/Apb-class.html">Apb</a></li>
         <li><a href="../rohd_hcl/Arbiter-class.html">Arbiter</a></li>
         <li><a href="../rohd_hcl/BinaryToOneHot-class.html">BinaryToOneHot</a></li>
         <li><a href="../rohd_hcl/BitonicSort-class.html">BitonicSort</a></li>
+        <li><a href="../rohd_hcl/CarrySaveMultiplier-class.html">CarrySaveMultiplier</a></li>
         <li><a href="../rohd_hcl/DataPortInterface-class.html">DataPortInterface</a></li>
         <li><a href="../rohd_hcl/Fifo-class.html">Fifo</a></li>
+        <li><a href="../rohd_hcl/FullAdder-class.html">FullAdder</a></li>
         <li><a href="../rohd_hcl/MaskedDataPortInterface-class.html">MaskedDataPortInterface</a></li>
         <li><a href="../rohd_hcl/Memory-class.html">Memory</a></li>
+        <li><a href="../rohd_hcl/Multiplier-class.html">Multiplier</a></li>
         <li><a href="../rohd_hcl/OneHotToBinary-class.html">OneHotToBinary</a></li>
         <li><a href="../rohd_hcl/PriorityArbiter-class.html">PriorityArbiter</a></li>
         <li><a href="../rohd_hcl/RegisterFile-class.html">RegisterFile</a></li>
+        <li><a href="../rohd_hcl/RippleCarryAdder-class.html">RippleCarryAdder</a></li>
         <li><a href="../rohd_hcl/RotateLeft-class.html">RotateLeft</a></li>
         <li><a href="../rohd_hcl/RotateLeftFixed-class.html">RotateLeftFixed</a></li>
         <li><a href="../rohd_hcl/RotateRight-class.html">RotateRight</a></li>
