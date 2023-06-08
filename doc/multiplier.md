@@ -31,7 +31,7 @@ unawaited(Simulator.run());
 
 Future<void> waitCycles(int numCycles) async {
     for (var i = 0; i < numCycles; i++) {
-    await clk.nextPosedge;
+        await clk.nextPosedge;
     }
 }
 
