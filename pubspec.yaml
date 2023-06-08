@@ -10,6 +10,7 @@ environment:
   sdk: '>=2.18.0 <3.0.0'
 
 dependencies:
+  meta: ^1.9.1
   rohd: ^0.4.2
 
 dev_dependencies:
