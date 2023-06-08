@@ -273,4 +273,77 @@ class FifoChecker extends Component {
   }
 }
 
-//TODO: logger also?
+/// A tracker for a [Fifo] which can generate logs.
+class FifoTracker extends Tracker {
+  /// Internal tracking of occupancy in case the Fifo didn't generate it.
+  int _occupancy = 0;
+
+  /// Constructs a new tracker for [fifo].
+  ///
+  /// If no [name] is provided, will be named based on the [fifo]'s name.
+  FifoTracker(
+    Fifo fifo, {
+    String? name,
+    super.dumpJson,
+    super.dumpTable,
+    super.outputFolder,
+    super.spacer,
+    super.separator,
+    super.overflow,
+  }) : super(name ?? fifo.name, [
+          const TrackerField('Time', columnWidth: 8),
+          const TrackerField('Command', columnWidth: 2),
+          TrackerField('Data',
+              columnWidth: fifo.dataWidth ~/ 4 + log2Ceil(fifo.dataWidth) + 1),
+          TrackerField('Occupancy', columnWidth: fifo.depth ~/ 10 + 1),
+        ]) {
+    var prevReadValue = LogicValue.x;
+    Simulator.preTick.listen((event) {
+      prevReadValue = fifo.readData.value;
+    });
+
+    fifo._clk.posedge.listen((event) {
+      if (fifo._writeEnable.value.toBool()) {
+        record(_FifoEvent(
+          _FifoCmd.wr,
+          fifo._writeData.value,
+          ++_occupancy,
+        ));
+      }
+
+      if (fifo._readEnable.value.toBool()) {
+        record(_FifoEvent(
+          _FifoCmd.rd,
+          prevReadValue,
+          --_occupancy,
+        ));
+      }
+    });
+  }
+}
+
+enum _FifoCmd { wr, rd }
+
+class _FifoEvent implements Trackable {
+  final int time;
+  final _FifoCmd cmd;
+  final LogicValue data;
+  final int? occupancy;
+
+  _FifoEvent(this.cmd, this.data, this.occupancy) : time = Simulator.time;
+
+  @override
+  String? trackerString(TrackerField field) {
+    switch (field.title) {
+      case 'Time':
+        return time.toString();
+      case 'Command':
+        return cmd.name.toUpperCase();
+      case 'Data':
+        return data.toString();
+      case 'Occupancy':
+        return occupancy?.toString();
+    }
+    return null;
+  }
+}

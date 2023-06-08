@@ -9,9 +9,12 @@
 //
 
 import 'dart:async';
+import 'dart:convert';
+import 'dart:io';
 
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
+import 'package:rohd_vf/rohd_vf.dart';
 import 'package:test/test.dart';
 
 void main() {
@@ -427,4 +430,107 @@ void main() {
       await testPeek(generateBypass: true);
     });
   });
+
+  group('fifo checker', () {
+    test('underflow with bypass', () async {});
+
+    test('underflow without bypass', () async {});
+
+    test('overflow', () async {});
+
+    test('non-empty at end of test', () async {});
+  });
+
+  test('fifo logger', () async {
+    final fifoTest = FifoLoggerTest();
+
+    await fifoTest.start();
+
+    final trackerResults =
+        json.decode(File(fifoTest.tracker.jsonFileName).readAsStringSync());
+    // ignore: avoid_dynamic_calls
+    final records = trackerResults['records'];
+    // ignore: avoid_dynamic_calls
+    expect(records[0]['Time'], '55');
+    // ignore: avoid_dynamic_calls
+    expect(records[1]['Occupancy'], '2');
+    // ignore: avoid_dynamic_calls
+    expect(records[2]['Data'], "32'h111");
+    // ignore: avoid_dynamic_calls
+    expect(records[3]['Command'], 'RD');
+
+    File(fifoTest.tracker.jsonFileName).deleteSync();
+  });
+}
+
+class FifoLoggerTest extends Test {
+  late final Fifo fifo;
+
+  final clk = SimpleClockGenerator(10).clk;
+  final reset = Logic()..put(0);
+
+  final wrEn = Logic()..put(0);
+  final rdEn = Logic()..put(0);
+  final wrData = Logic(width: 32);
+
+  late final FifoTracker tracker;
+
+  FifoLoggerTest({String name = 'fifoTest'}) : super(name) {
+    fifo = Fifo(
+      clk,
+      reset,
+      writeEnable: wrEn,
+      readEnable: rdEn,
+      writeData: wrData,
+      depth: 3,
+      generateOccupancy: true,
+    );
+
+    Directory('tmp_test').createSync();
+    tracker = FifoTracker(fifo, outputFolder: 'tmp_test', dumpTable: true);
+
+    Simulator.registerEndOfSimulationAction(() async => tracker.terminate());
+  }
+
+  @override
+  Future<void> run(Phase phase) async {
+    unawaited(super.run(phase));
+
+    final obj = phase.raiseObjection('counter_test');
+
+    // a little reset flow
+    await clk.nextNegedge;
+    reset.put(1);
+    await clk.nextNegedge;
+    await clk.nextNegedge;
+    reset.put(0);
+    await clk.nextNegedge;
+    await clk.nextNegedge;
+
+    wrEn.put(1);
+    wrData.put(0x111);
+
+    await clk.nextNegedge;
+
+    wrEn.put(0);
+
+    await clk.nextNegedge;
+
+    wrEn.put(1);
+    wrData.put(0x222);
+
+    rdEn.put(1);
+
+    await clk.nextNegedge;
+
+    wrEn.put(0);
+
+    await clk.nextNegedge;
+
+    rdEn.put(0);
+
+    await clk.nextNegedge;
+
+    obj.drop();
+  }
 }
