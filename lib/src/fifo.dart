@@ -297,7 +297,7 @@ class FifoTracker extends Tracker {
               columnWidth: fifo.dataWidth ~/ 4 + log2Ceil(fifo.dataWidth) + 1),
           TrackerField('Occupancy', columnWidth: fifo.depth ~/ 10 + 1),
         ]) {
-    var prevReadValue = LogicValue.x;
+    LogicValue? prevReadValue;
     Simulator.preTick.listen((event) {
       prevReadValue = fifo.readData.value;
     });
@@ -314,7 +314,7 @@ class FifoTracker extends Tracker {
       if (fifo._readEnable.value.toBool()) {
         record(_FifoEvent(
           _FifoCmd.rd,
-          prevReadValue,
+          prevReadValue!,
           --_occupancy,
         ));
       }

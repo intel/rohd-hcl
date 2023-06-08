@@ -442,12 +442,42 @@ void main() {
   });
 
   test('fifo logger', () async {
-    final fifoTest = FifoLoggerTest();
+    final fifoTest = FifoTest((clk, reset, wrEn, wrData, rdEn, rdData) async {
+      wrEn.put(1);
+      wrData.put(0x111);
+
+      await clk.nextNegedge;
+
+      wrEn.put(0);
+
+      await clk.nextNegedge;
+
+      wrEn.put(1);
+      wrData.put(0x222);
+
+      rdEn.put(1);
+
+      await clk.nextNegedge;
+
+      wrEn.put(0);
+
+      await clk.nextNegedge;
+
+      rdEn.put(0);
+
+      await clk.nextNegedge;
+    });
+
+    Directory('tmp_test').createSync();
+    final tracker =
+        FifoTracker(fifoTest.fifo, outputFolder: 'tmp_test', dumpTable: false);
+
+    Simulator.registerEndOfSimulationAction(() async => tracker.terminate());
 
     await fifoTest.start();
 
     final trackerResults =
-        json.decode(File(fifoTest.tracker.jsonFileName).readAsStringSync());
+        json.decode(File(tracker.jsonFileName).readAsStringSync());
     // ignore: avoid_dynamic_calls
     final records = trackerResults['records'];
     // ignore: avoid_dynamic_calls
@@ -459,11 +489,11 @@ void main() {
     // ignore: avoid_dynamic_calls
     expect(records[3]['Command'], 'RD');
 
-    File(fifoTest.tracker.jsonFileName).deleteSync();
+    File(tracker.jsonFileName).deleteSync();
   });
 }
 
-class FifoLoggerTest extends Test {
+class FifoTest extends Test {
   late final Fifo fifo;
 
   final clk = SimpleClockGenerator(10).clk;
@@ -473,9 +503,7 @@ class FifoLoggerTest extends Test {
   final rdEn = Logic()..put(0);
   final wrData = Logic(width: 32);
 
-  late final FifoTracker tracker;
-
-  FifoLoggerTest({String name = 'fifoTest'}) : super(name) {
+  FifoTest(this.content, {String name = 'fifoTest'}) : super(name) {
     fifo = Fifo(
       clk,
       reset,
@@ -485,12 +513,10 @@ class FifoLoggerTest extends Test {
       depth: 3,
       generateOccupancy: true,
     );
-
-    Directory('tmp_test').createSync();
-    tracker = FifoTracker(fifo, outputFolder: 'tmp_test', dumpTable: true);
-
-    Simulator.registerEndOfSimulationAction(() async => tracker.terminate());
   }
+
+  final Future<void> Function(Logic clk, Logic reset, Logic wrEn, Logic wrData,
+      Logic rdEn, Logic rdData) content;
 
   @override
   Future<void> run(Phase phase) async {
@@ -507,29 +533,7 @@ class FifoLoggerTest extends Test {
     await clk.nextNegedge;
     await clk.nextNegedge;
 
-    wrEn.put(1);
-    wrData.put(0x111);
-
-    await clk.nextNegedge;
-
-    wrEn.put(0);
-
-    await clk.nextNegedge;
-
-    wrEn.put(1);
-    wrData.put(0x222);
-
-    rdEn.put(1);
-
-    await clk.nextNegedge;
-
-    wrEn.put(0);
-
-    await clk.nextNegedge;
-
-    rdEn.put(0);
-
-    await clk.nextNegedge;
+    await content(clk, reset, wrEn, wrData, rdEn, fifo.readData);
 
     obj.drop();
   }
