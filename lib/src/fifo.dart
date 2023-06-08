@@ -13,8 +13,6 @@ import 'package:rohd_hcl/rohd_hcl.dart';
 import 'package:rohd_hcl/src/utils.dart';
 import 'package:rohd_vf/rohd_vf.dart';
 
-//TODO: an auto-attach verification component, check empty at end of test, error situation, etc.
-
 /// A simple FIFO (First In, First Out).
 ///
 /// Supports a bypass if the FIFO is empty and written & read at the same time.
@@ -56,14 +54,25 @@ class Fifo extends Module {
   /// and reading at the same time while [empty].
   final bool generateBypass;
 
-  //TODO: doc comment these
+  /// Push signal.
   Logic get _writeEnable => input('writeEnable');
+
+  /// Pop signal.
   Logic get _readEnable => input('readEnable');
+
+  /// Clock.
   Logic get _clk => input('clk');
+
+  /// Reset.
   Logic get _reset => input('reset');
+
+  /// Write data.
   Logic get _writeData => input('writeData');
 
+  /// The width of the data transmitted through this FIFO.
   final int dataWidth;
+
+  /// The address width for elements in the storage of this FIFO.
   final int _addrWidth;
 
   /// Constructs a FIFO with RF-based storage.
