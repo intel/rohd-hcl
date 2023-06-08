@@ -433,9 +433,43 @@ void main() {
   });
 
   group('fifo checker', () {
-    test('underflow with bypass', () async {});
+    group('underflow', () {
+      Future<void> underflowTest({required bool generateBypass}) async {
+        final fifoTest = FifoTest(generateBypass: generateBypass,
+            (clk, reset, wrEn, wrData, rdEn, rdData) async {
+          wrEn.put(1);
+          wrData.put(0x111);
 
-    test('underflow without bypass', () async {});
+          rdEn.put(1);
+
+          await clk.nextNegedge;
+
+          wrEn.put(0);
+
+          await clk.nextNegedge;
+          await clk.nextNegedge;
+        });
+
+        FifoChecker(fifoTest.fifo, enableEndOfTestEmptyCheck: false);
+
+        fifoTest.printLevel = Level.OFF;
+
+        try {
+          await fifoTest.start();
+          fail('Did not fail.');
+        } on Exception catch (_) {
+          expect(fifoTest.failureDetected, true);
+        }
+      }
+
+      test('without bypass', () async {
+        await underflowTest(generateBypass: false);
+      });
+
+      test('with bypass', () async {
+        await underflowTest(generateBypass: true);
+      });
+    });
 
     test('overflow', () async {
       final fifoTest = FifoTest((clk, reset, wrEn, wrData, rdEn, rdData) async {
@@ -460,7 +494,29 @@ void main() {
       }
     });
 
-    test('non-empty at end of test', () async {});
+    test('non-empty at end of test', () async {
+      final fifoTest = FifoTest((clk, reset, wrEn, wrData, rdEn, rdData) async {
+        wrEn.put(1);
+        wrData.put(0x111);
+
+        await clk.nextNegedge;
+
+        wrEn.put(0);
+
+        await clk.nextNegedge;
+      });
+
+      FifoChecker(fifoTest.fifo);
+
+      fifoTest.printLevel = Level.OFF;
+
+      try {
+        await fifoTest.start();
+        fail('Did not fail.');
+      } on Exception catch (_) {
+        expect(fifoTest.failureDetected, true);
+      }
+    });
   });
 
   test('fifo logger', () async {
@@ -526,7 +582,11 @@ class FifoTest extends Test {
   final rdEn = Logic()..put(0);
   final wrData = Logic(width: 32);
 
-  FifoTest(this.content, {String name = 'fifoTest'}) : super(name) {
+  FifoTest(
+    this.content, {
+    String name = 'fifoTest',
+    bool generateBypass = false,
+  }) : super(name) {
     fifo = Fifo(
       clk,
       reset,
@@ -534,7 +594,7 @@ class FifoTest extends Test {
       readEnable: rdEn,
       writeData: wrData,
       depth: 3,
-      generateOccupancy: true,
+      generateBypass: generateBypass,
     );
   }
 
