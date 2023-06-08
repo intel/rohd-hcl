@@ -287,7 +287,7 @@ Future<void> main() async {
           await clk.nextNegedge;
         }
 
-        await waitCycles(inputs.length).then(
+        await waitCycles(topMod.latency).then(
           (value) => {
             Simulator.endSimulation(),
             expect(tested, equals(inputs.length)),
