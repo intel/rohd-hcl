@@ -7,7 +7,7 @@ export 'src/carry_save_mutiplier.dart';
 export 'src/exceptions.dart';
 export 'src/fifo.dart';
 export 'src/interfaces/interfaces.dart';
-export 'src/memory.dart';
+export 'src/memory/memories.dart';
 export 'src/models/models.dart';
 export 'src/multiplier.dart';
 export 'src/one_hot.dart';
