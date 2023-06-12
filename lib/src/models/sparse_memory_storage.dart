@@ -40,9 +40,6 @@ abstract class MemoryStorage {
 
 /// A sparse storage for memory models.
 class SparseMemoryStorage extends MemoryStorage {
-  /// The number of bytes per cacheline.
-  static const int lineBytes = 4;
-
   final Map<LogicValue, LogicValue> _memory = {};
 
   /// The width of addresses.
@@ -54,6 +51,9 @@ class SparseMemoryStorage extends MemoryStorage {
 
   @override
   void loadMemHex(String hexMemContents) {
+    /// The number of bytes per cacheline.
+    const lineBytes = 4;
+
     var address = 0;
     var bytes = <String>[];
 
