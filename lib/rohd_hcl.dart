@@ -8,6 +8,7 @@ export 'src/exceptions.dart';
 export 'src/fifo.dart';
 export 'src/interfaces/interfaces.dart';
 export 'src/memory.dart';
+export 'src/models/models.dart';
 export 'src/multiplier.dart';
 export 'src/one_hot.dart';
 export 'src/ripple_carry_adder.dart';

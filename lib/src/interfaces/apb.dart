@@ -7,23 +7,31 @@
 // 2023 May 19
 // Author: Max Korbel <max.korbel@intel.com>
 
+import 'dart:collection';
+
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/src/exceptions.dart';
 
-/// A grouping of signals on the [Apb] interface based on direction.
+/// A grouping of signals on the [ApbInterface] interface based on direction.
 enum ApbDirection {
   /// Miscellaneous system-level signals, common inputs to both sides.
   misc,
 
-  /// Signals driven by the requester.
+  /// Signals driven by the requester (including select signals).
   fromRequester,
+
+  /// Signals driven by the requester except for select signals.
+  ///
+  /// This can be helpful if a completer needs to selectively listen to one
+  /// bit of the select signals.
+  fromRequesterExceptSelect,
 
   /// Signals driven by the completer.
   fromCompleter
 }
 
 /// A standard APB interface.
-class Apb extends Interface<ApbDirection> {
+class ApbInterface extends Interface<ApbDirection> {
   /// The width of address port [addr].
   ///
   /// Equvalent to the `ADDR_WIDTH` parameter in the APB specification.
@@ -95,7 +103,9 @@ class Apb extends Interface<ApbDirection> {
   /// The Requester generates a select signal for each Completer. Select
   /// indicates that the Completer is selected and that a data transfer is
   /// required.
-  Logic get selX => port('PSELx');
+  late final List<Logic> sel = UnmodifiableListView(List.generate(
+      numSelects, (index) => port('PSEL$index'),
+      growable: false));
 
   /// Enable.
   ///
@@ -171,14 +181,21 @@ class Apb extends Interface<ApbDirection> {
   /// Width equal to [userRespWidth].  Only exists if [userRespWidth] > 0.
   Logic? get bUser => userRespWidth != 0 ? port('PBUSER') : null;
 
+  /// The number of select signals on this interface.
+  ///
+  /// A completer should always set this to `1`, but a requester may have more
+  /// than `1`.
+  final int numSelects;
+
   /// Construct a new instance of an APB interface.
-  Apb({
+  ApbInterface({
     this.addrWidth = 32,
     this.dataWidth = 32,
     this.userReqWidth = 0,
     this.userDataWidth = 0,
     this.userRespWidth = 0,
     this.includeSlvErr = false,
+    this.numSelects = 1,
   }) {
     _validateParameters();
 
@@ -193,7 +210,6 @@ class Apb extends Interface<ApbDirection> {
       Port('PADDR', addrWidth),
       Port('PPROT', 3),
       Port('PNSE'),
-      Port('PSELx'),
       Port('PENABLE'),
       Port('PWRITE'),
       Port('PWDATA', dataWidth),
@@ -201,7 +217,14 @@ class Apb extends Interface<ApbDirection> {
       if (userReqWidth != 0) Port('PAUSER', userReqWidth),
       if (userDataWidth != 0) Port('PWUSER', userDataWidth),
     ], [
-      ApbDirection.fromRequester
+      ApbDirection.fromRequester,
+      ApbDirection.fromRequesterExceptSelect,
+    ]);
+
+    setPorts([
+      for (var i = 0; i < numSelects; i++) Port('PSEL$i'),
+    ], [
+      ApbDirection.fromRequester,
     ]);
 
     setPorts([
@@ -216,8 +239,8 @@ class Apb extends Interface<ApbDirection> {
     ]);
   }
 
-  /// Constructs a new [Apb] with identical parameters to [other].
-  Apb.clone(Apb other)
+  /// Constructs a new [ApbInterface] with identical parameters to [other].
+  ApbInterface.clone(ApbInterface other)
       : this(
           addrWidth: other.addrWidth,
           dataWidth: other.dataWidth,
