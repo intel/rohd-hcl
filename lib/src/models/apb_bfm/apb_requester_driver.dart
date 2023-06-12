@@ -15,33 +15,26 @@ import 'package:rohd_hcl/src/models/apb_bfm/apb_packet.dart';
 import 'package:rohd_vf/rohd_vf.dart';
 
 /// A driver for the [ApbInterface] from the requester side.
-class ApbRequesterDriver extends PendingDriver<ApbPacket> {
+class ApbRequesterDriver extends PendingClockedDriver<ApbPacket> {
   /// The interface to drive.
   final ApbInterface intf;
 
-  /// Number of cycles before triggering a timeout error.
-  final int timeoutCycles;
-
-  /// Number of cycles to hold an objection even when no packets are pending.
-  final int dropDelayCycles;
+  //TODO: wakeup
+  //TODO: protection
+  //TODO: user
 
   /// Creates a new [ApbRequesterDriver].
   ApbRequesterDriver({
     required Component parent,
     required this.intf,
     required super.sequencer,
-    this.timeoutCycles = 500,
-    this.dropDelayCycles = 30,
+    super.timeoutCycles = 500,
+    super.dropDelayCycles = 30,
     String name = 'apbRequesterDriver',
   }) : super(
           name,
           parent,
-          timeout: () async {
-            await _waitCycles(intf.clk, timeoutCycles);
-          },
-          dropDelay: () async {
-            await _waitCycles(intf.clk, dropDelayCycles);
-          },
+          clk: intf.clk,
         );
 
   static Future<void> _waitCycles(Logic clk, int numCycles) async {

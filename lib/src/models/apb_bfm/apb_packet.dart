@@ -28,8 +28,18 @@ class ApbWritePacket extends ApbPacket {
   /// The data for this packet.
   final LogicValue data;
 
+  /// The strobe associated with this write.
+  final LogicValue strobe;
+
   /// Creates a write packet.
-  ApbWritePacket({required super.addr, required this.data, super.selectIndex});
+  ///
+  /// If no [strobe] is provided, it will default to all high.
+  ApbWritePacket(
+      {required super.addr,
+      required this.data,
+      LogicValue? strobe,
+      super.selectIndex})
+      : strobe = strobe ?? LogicValue.filled(data.width ~/ 8, LogicValue.one);
 }
 
 /// A read packet on an [ApbInterface].
