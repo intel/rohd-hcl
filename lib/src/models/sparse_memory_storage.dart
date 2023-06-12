@@ -11,6 +11,12 @@ import 'package:rohd_hcl/src/exceptions.dart';
 
 /// A storage for memory models.
 abstract class MemoryStorage {
+  /// The width of addresses.
+  final int addrWidth;
+
+  /// Constrcuts a [MemoryStorage] with specified [addrWidth].
+  MemoryStorage({required this.addrWidth});
+
   /// Reads a verilog-compliant hex file and preloads memory with it.
   ///
   /// Example input format:
@@ -23,33 +29,6 @@ abstract class MemoryStorage {
   /// 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
   /// 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
   /// ```
-  void loadMemHex(String hexMemContents);
-
-  /// Resets all memory to initial state.
-  void reset();
-
-  /// Loads [data] into [addr].
-  void setData(LogicValue addr, LogicValue data);
-
-  /// Returns the data at [addr], or `null` if it is not present.
-  LogicValue? getData(LogicValue addr);
-
-  /// Returns true if there is no data stored in this memory.
-  bool get isEmpty;
-}
-
-/// A sparse storage for memory models.
-class SparseMemoryStorage extends MemoryStorage {
-  final Map<LogicValue, LogicValue> _memory = {};
-
-  /// The width of addresses.
-  final int addrWidth;
-
-  /// Constructs a new sparse memory storage with specified [addrWidth] for all
-  /// addresses.
-  SparseMemoryStorage({required this.addrWidth});
-
-  @override
   void loadMemHex(String hexMemContents) {
     /// The number of bytes per cacheline.
     const lineBytes = 4;
@@ -98,7 +77,7 @@ class SparseMemoryStorage extends MemoryStorage {
         final lineAddr = int.parse(line.substring(1), radix: 16);
         final lineAddrLv =
             LogicValue.ofInt(lineAddr - lineAddr % lineBytes, addrWidth);
-        if (_memory.containsKey(lineAddrLv)) {
+        if (getData(lineAddrLv) != null) {
           // must reconstruct the bytes array ending at the provided address
           final endOff = lineAddr % lineBytes;
           final origData = getData(lineAddrLv);
@@ -124,6 +103,27 @@ class SparseMemoryStorage extends MemoryStorage {
       }
     }
   }
+
+  /// Resets all memory to initial state.
+  void reset();
+
+  /// Loads [data] into [addr].
+  void setData(LogicValue addr, LogicValue data);
+
+  /// Returns the data at [addr], or `null` if it is not present.
+  LogicValue? getData(LogicValue addr);
+
+  /// Returns true if there is no data stored in this memory.
+  bool get isEmpty;
+}
+
+/// A sparse storage for memory models.
+class SparseMemoryStorage extends MemoryStorage {
+  final Map<LogicValue, LogicValue> _memory = {};
+
+  /// Constructs a new sparse memory storage with specified [addrWidth] for all
+  /// addresses.
+  SparseMemoryStorage({required super.addrWidth});
 
   @override
   void setData(LogicValue addr, LogicValue data) {
