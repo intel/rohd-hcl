@@ -1,7 +1,13 @@
-import 'dart:collection';
-import 'dart:io';
+// Copyright (C) 2023 Intel Corporation
+// SPDX-License-Identifier: BSD-3-Clause
+//
+// sparse_memory_storage.dart
+// Implementation of memory storage.
+//
+// 2023 June 12
 
 import 'package:rohd/rohd.dart';
+import 'package:rohd_hcl/src/exceptions.dart';
 
 /// A storage for memory models.
 abstract class MemoryStorage {
@@ -23,10 +29,13 @@ abstract class MemoryStorage {
   void reset();
 
   /// Loads [data] into [addr].
-  void preload(LogicValue addr, LogicValue data);
+  void setData(LogicValue addr, LogicValue data);
 
   /// Returns the data at [addr], or `null` if it is not present.
   LogicValue? getData(LogicValue addr);
+
+  /// Returns true if there is no data stored in this memory.
+  bool get isEmpty;
 }
 
 /// A sparse storage for memory models.
@@ -54,7 +63,7 @@ class SparseMemoryStorage extends MemoryStorage {
         final lvData = LogicValue.ofBigInt(
             BigInt.parse(bytes.reversed.join(), radix: 16), lineBytes * 8);
         final addr = LogicValue.ofInt(address - address % lineBytes, addrWidth);
-        preload(addr, lvData);
+        setData(addr, lvData);
         bytes = [];
       }
     }
@@ -116,11 +125,12 @@ class SparseMemoryStorage extends MemoryStorage {
     }
   }
 
-  /// Dumps a full view of the memory.
-  Map<LogicValue, LogicValue> dumpMemory() => UnmodifiableMapView(_memory);
-
   @override
-  void preload(LogicValue addr, LogicValue data) {
+  void setData(LogicValue addr, LogicValue data) {
+    if (!addr.isValid) {
+      throw RohdHclException('Can only write to valid addresses.');
+    }
+
     _memory[addr] = data;
   }
 
@@ -129,4 +139,7 @@ class SparseMemoryStorage extends MemoryStorage {
 
   @override
   void reset() => _memory.clear();
+
+  @override
+  bool get isEmpty => _memory.isEmpty;
 }

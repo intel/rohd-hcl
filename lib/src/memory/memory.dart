@@ -2,12 +2,13 @@
 // SPDX-License-Identifier: BSD-3-Clause
 //
 // memory.dart
-// Memory interfaces and modules, including RF.
+// Memory interfaces and modules.
 //
 // 2021 November 3
 // Author: Max Korbel <max.korbel@intel.com>
 //
 
+import 'package:meta/meta.dart';
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/src/exceptions.dart';
 
@@ -95,14 +96,24 @@ abstract class Memory extends Module {
   /// The data width.
   final int dataWidth;
 
-  final List<DataPortInterface> _wrPorts = [];
-  final List<DataPortInterface> _rdPorts = [];
+  /// The number of cycles before data is returned after a read.
+  int get readLatency;
+
+  /// Internal write ports.
+  @protected
+  final List<DataPortInterface> wrPorts = [];
+
+  /// Internal read ports.
+  @protected
+  final List<DataPortInterface> rdPorts = [];
 
   /// Internal clock.
-  Logic get _clk => input('clk');
+  @protected
+  Logic get clk => input('clk');
 
   /// Internal reset.
-  Logic get _reset => input('reset');
+  @protected
+  Logic get reset => input('reset');
 
   /// Construct a new memory.
   Memory(Logic clk, Logic reset, List<DataPortInterface> writePorts,
@@ -133,87 +144,18 @@ abstract class Memory extends Module {
     addInput('reset', reset);
 
     for (var i = 0; i < numReads; i++) {
-      _rdPorts.add(readPorts[i].clone()
+      rdPorts.add(readPorts[i].clone()
         ..connectIO(this, readPorts[i],
             inputTags: {DataPortGroup.control},
             outputTags: {DataPortGroup.data},
             uniquify: (original) => 'rd_${original}_$i'));
     }
     for (var i = 0; i < numWrites; i++) {
-      _wrPorts.add(writePorts[i].clone()
+      wrPorts.add(writePorts[i].clone()
         ..connectIO(this, writePorts[i],
             inputTags: {DataPortGroup.control, DataPortGroup.data},
             outputTags: {},
             uniquify: (original) => 'wr_${original}_$i'));
     }
-  }
-}
-
-/// A flop-based memory.
-class RegisterFile extends Memory {
-  /// Accesses the read data for the provided [index].
-  Logic rdData(int index) => _rdPorts[index].data;
-
-  /// The number of entries in the RF.
-  final int numEntries;
-
-  /// Constructs a new RF.
-  ///
-  /// [MaskedDataPortInterface]s are supported on `writePorts`, but not on
-  /// `readPorts`.
-  RegisterFile(super.clk, super.reset, super.writePorts, super.readPorts,
-      {this.numEntries = 8, super.name = 'rf'}) {
-    _buildLogic();
-  }
-
-  /// A testbench hook to access data at a given address.
-  LogicValue? getData(LogicValue addr) => _storageBank[addr.toInt()].value;
-
-  /// Flop-based storage of all memory.
-  late final List<Logic> _storageBank;
-
-  void _buildLogic() {
-    // create local storage bank
-    _storageBank = List<Logic>.generate(
-        numEntries, (i) => Logic(name: 'storageBank_$i', width: dataWidth));
-
-    Sequential(_clk, [
-      If(_reset, then: [
-        // zero out entire storage bank on reset
-        ..._storageBank.map((e) => e < 0)
-      ], orElse: [
-        for (var entry = 0; entry < numEntries; entry++)
-          ..._wrPorts.map((wrPort) =>
-              // set storage bank if write enable and pointer matches
-              If(wrPort.en & wrPort.addr.eq(entry), then: [
-                _storageBank[entry] <
-                    (wrPort is MaskedDataPortInterface
-                        ? [
-                            for (var index = 0; index < dataWidth ~/ 8; index++)
-                              mux(
-                                  wrPort.mask[index],
-                                  wrPort.data
-                                      .getRange(index * 8, (index + 1) * 8),
-                                  _storageBank[entry]
-                                      .getRange(index * 8, (index + 1) * 8))
-                          ].rswizzle()
-                        : wrPort.data),
-              ])),
-      ]),
-    ]);
-
-    Combinational([
-      ..._rdPorts.map((rdPort) => If(_reset | ~rdPort.en, then: [
-            rdPort.data < Const(0, width: dataWidth)
-          ], orElse: [
-            Case(rdPort.addr, [
-              for (var entry = 0; entry < numEntries; entry++)
-                CaseItem(Const(LogicValue.ofInt(entry, addrWidth)),
-                    [rdPort.data < _storageBank[entry]])
-            ], defaultItem: [
-              rdPort.data < Const(0, width: dataWidth)
-            ])
-          ]))
-    ]);
   }
 }
