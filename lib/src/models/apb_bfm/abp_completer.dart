@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: BSD-3-Clause
 //
 // apb_completer.dart
-// A completer model for APB.
+// An agent for completing APB requests.
 //
 // 2023 June 12
 // Author: Max Korbel <max.korbel@intel.com>
@@ -14,7 +14,7 @@ import 'package:rohd_hcl/rohd_hcl.dart';
 import 'package:rohd_vf/rohd_vf.dart';
 
 /// A model for the completer side of an [ApbInterface].
-class ApbCompleter extends Component {
+class ApbCompleter extends Agent {
   /// The interface to drive.
   final ApbInterface intf;
 
@@ -71,31 +71,31 @@ class ApbCompleter extends Component {
       return;
     }
 
-    ApbPacket pkt;
+    ApbPacket packet;
     if (intf.write.value.toBool()) {
-      pkt = ApbWritePacket(
+      packet = ApbWritePacket(
         addr: intf.addr.value,
         data: intf.wData.value,
         strobe: intf.strb.value,
       );
     } else {
-      pkt = ApbReadPacket(addr: intf.addr.value);
+      packet = ApbReadPacket(addr: intf.addr.value);
     }
 
     await waitCycles(
       intf.clk,
-      responseDelay != null ? responseDelay!(pkt) : 0,
+      responseDelay != null ? responseDelay!(packet) : 0,
       edge: Edge.neg,
     );
 
-    if (pkt is ApbWritePacket) {
+    if (packet is ApbWritePacket) {
       // store the data
-      storage.setData(pkt.addr, pkt.data);
+      storage.setData(packet.addr, packet.data);
       intf.ready.inject(1);
-    } else if (pkt is ApbReadPacket) {
+    } else if (packet is ApbReadPacket) {
       // capture the data
       Simulator.injectAction(() {
-        intf.rData.put(storage.getData(pkt.addr));
+        intf.rData.put(storage.getData(packet.addr));
         intf.ready.put(1);
       });
     }

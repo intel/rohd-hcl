@@ -15,6 +15,8 @@ import 'package:rohd_hcl/src/models/apb_bfm/apb_packet.dart';
 import 'package:rohd_vf/rohd_vf.dart';
 
 /// A driver for the [ApbInterface] from the requester side.
+///
+/// Driven read packets will update the returned data into the same packet.
 class ApbRequesterDriver extends PendingClockedDriver<ApbPacket> {
   /// The interface to drive.
   final ApbInterface intf;
@@ -36,12 +38,6 @@ class ApbRequesterDriver extends PendingClockedDriver<ApbPacket> {
           parent,
           clk: intf.clk,
         );
-
-  static Future<void> _waitCycles(Logic clk, int numCycles) async {
-    for (var i = 0; i < numCycles; i++) {
-      await clk.nextPosedge;
-    }
-  }
 
   @override
   Future<void> run(Phase phase) async {
@@ -76,7 +72,8 @@ class ApbRequesterDriver extends PendingClockedDriver<ApbPacket> {
 
       if (packet is ApbWritePacket) {
         intf.write.put(1);
-        intf.wData.put(1);
+        intf.wData.put(packet.data);
+        intf.strb.put(packet.strobe);
       } else if (packet is ApbReadPacket) {
         intf.write.put(0);
         intf.wData.put(0);
