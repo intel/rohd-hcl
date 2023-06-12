@@ -53,6 +53,7 @@ class ApbRequesterDriver extends PendingClockedDriver<ApbPacket> {
         await _drivePacket(pendingSeqItems.removeFirst());
       } else {
         Simulator.injectAction(_deselectAll);
+        await intf.clk.nextNegedge;
       }
     }
   }
@@ -91,7 +92,10 @@ class ApbRequesterDriver extends PendingClockedDriver<ApbPacket> {
     }
 
     if (packet is ApbReadPacket) {
-      packet.returnedData = intf.rData.value;
+      packet.complete(
+        data: intf.rData.value,
+        slvErr: intf.slvErr?.value,
+      );
     }
 
     // now we're done, since enable and ready are both high, move on

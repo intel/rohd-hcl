@@ -45,7 +45,7 @@ class ApbMonitor extends Monitor<ApbPacket> {
               ApbReadPacket(
                 addr: intf.addr.value,
                 selectIndex: i,
-              )..returnedData = intf.rData.value,
+              )..complete(data: intf.rData.value, slvErr: intf.slvErr?.value),
             );
           }
         }

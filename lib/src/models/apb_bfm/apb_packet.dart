@@ -7,7 +7,10 @@
 // 2023 June 12
 // Author: Max Korbel <max.korbel@intel.com>
 
+import 'dart:async';
+
 import 'package:rohd/rohd.dart';
+import 'package:rohd_hcl/rohd_hcl.dart';
 import 'package:rohd_hcl/src/interfaces/interfaces.dart';
 import 'package:rohd_hcl/src/models/apb_bfm/apb_tracker.dart';
 import 'package:rohd_vf/rohd_vf.dart';
@@ -74,10 +77,27 @@ class ApbWritePacket extends ApbPacket {
 /// A read packet on an [ApbInterface].
 class ApbReadPacket extends ApbPacket {
   /// Data returned by the read.
-  LogicValue? returnedData;
+  LogicValue? get returnedData => _returnedData;
+  LogicValue? _returnedData;
 
   /// Error indication returned by the read.
-  LogicValue? returnedSlvErr;
+  LogicValue? get returnedSlvErr => _returnedSlvErr;
+  LogicValue? _returnedSlvErr;
+
+  /// A [Future] that completes once the the read has been completed.
+  Future<void> get completed => _completer.future;
+  final Completer<void> _completer = Completer<void>();
+
+  /// Called by a completer when a transfer is completed.
+  void complete({required LogicValue data, LogicValue? slvErr}) {
+    if (_returnedData != null || _returnedSlvErr != null) {
+      throw RohdHclException('Packet is already completed.');
+    }
+
+    _returnedData = data;
+    _returnedSlvErr = slvErr;
+    _completer.complete();
+  }
 
   /// Creates a read packet.
   ApbReadPacket({required super.addr, super.selectIndex});
