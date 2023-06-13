@@ -14,9 +14,11 @@ import 'package:rohd_hcl/rohd_hcl.dart';
 import 'package:rohd_vf/rohd_vf.dart';
 import 'package:test/test.dart';
 
+import 'apb_test.dart';
+
 class ApbBfmTest extends Test {
   late final ApbInterface intf;
-  late final ApbRequester requester;
+  late final ApbRequesterAgent requester;
 
   final storage = SparseMemoryStorage(addrWidth: 32);
 
@@ -27,9 +29,9 @@ class ApbBfmTest extends Test {
 
     intf.clk <= SimpleClockGenerator(10).clk;
 
-    requester = ApbRequester(intf: intf, parent: this);
+    requester = ApbRequesterAgent(intf: intf, parent: this);
 
-    ApbCompleter(intf: intf, parent: this, storage: storage);
+    ApbCompleterAgent(intf: intf, parent: this, storage: storage);
 
     final monitor = ApbMonitor(intf: intf, parent: this);
     final tracker = ApbTracker(intf: intf);
@@ -90,6 +92,12 @@ class ApbBfmTest extends Test {
 void main() {
   test('simple writes and reads', () async {
     Simulator.setMaxSimTime(3000);
-    await ApbBfmTest().start();
+    final apbBfmTest = ApbBfmTest();
+
+    final mod = ApbCompleter(apbBfmTest.intf);
+    await mod.build();
+    WaveDumper(mod);
+
+    await apbBfmTest.start();
   });
 }

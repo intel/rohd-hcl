@@ -62,6 +62,8 @@ class ApbRequesterDriver extends PendingClockedDriver<ApbPacket> {
   Future<void> _drivePacket(ApbPacket packet) async {
     // first, SETUP
 
+    await intf.clk.nextNegedge;
+
     // if we're not selecting this interface, then we need to select it
     if (!intf.sel[packet.selectIndex].value.toBool()) {
       _select(packet.selectIndex);

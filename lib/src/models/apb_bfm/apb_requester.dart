@@ -13,7 +13,7 @@ import 'package:rohd_vf/rohd_vf.dart';
 /// An agent for sending requests on an [ApbInterface].
 ///
 /// Driven read packets will update the returned data into the same packet.
-class ApbRequester extends Agent {
+class ApbRequesterAgent extends Agent {
   /// The interface to drive.
   final ApbInterface intf;
 
@@ -30,8 +30,8 @@ class ApbRequester extends Agent {
   /// no pending packets to send.
   final int dropDelayCycles;
 
-  /// Constructs a new [ApbRequester].
-  ApbRequester({
+  /// Constructs a new [ApbRequesterAgent].
+  ApbRequesterAgent({
     required this.intf,
     required Component parent,
     String name = 'apbRequester',

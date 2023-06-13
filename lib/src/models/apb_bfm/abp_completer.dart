@@ -14,7 +14,7 @@ import 'package:rohd_hcl/rohd_hcl.dart';
 import 'package:rohd_vf/rohd_vf.dart';
 
 /// A model for the completer side of an [ApbInterface].
-class ApbCompleter extends Agent {
+class ApbCompleterAgent extends Agent {
   /// The interface to drive.
   final ApbInterface intf;
 
@@ -25,7 +25,7 @@ class ApbCompleter extends Agent {
 
   /// A place where the completer should save and retrieve data.
   ///
-  /// The [ApbCompleter] will reset [storage] whenever the `resetN` signal is
+  /// The [ApbCompleterAgent] will reset [storage] whenever the `resetN` signal is
   /// dropped.
   final MemoryStorage storage;
 
@@ -34,8 +34,8 @@ class ApbCompleter extends Agent {
   /// If none is provided, then the delay will always be `0`.
   final int Function(ApbPacket request)? responseDelay;
 
-  /// Creates a new model [ApbCompleter].
-  ApbCompleter(
+  /// Creates a new model [ApbCompleterAgent].
+  ApbCompleterAgent(
       {required this.intf,
       required this.storage,
       required Component parent,
@@ -52,7 +52,7 @@ class ApbCompleter extends Agent {
       storage.reset();
     });
 
-    intf.ready.put(0);
+    intf.ready.inject(0);
 
     // wait for reset to complete
     await intf.resetN.nextPosedge;
@@ -65,6 +65,7 @@ class ApbCompleter extends Agent {
   /// Receives one packet (or returns if not selected).
   Future<void> _receive() async {
     await intf.enable.nextPosedge;
+    logger.info('starting to receive!');
 
     if (!intf.sel[selectIndex].value.toBool()) {
       // we're not selected, wait for the next time
@@ -82,11 +83,13 @@ class ApbCompleter extends Agent {
       packet = ApbReadPacket(addr: intf.addr.value);
     }
 
-    await waitCycles(
-      intf.clk,
-      responseDelay != null ? responseDelay!(packet) : 0,
-      edge: Edge.neg,
-    );
+    if (responseDelay != null) {
+      await waitCycles(
+        intf.clk,
+        responseDelay!(packet),
+        edge: Edge.neg,
+      );
+    }
 
     if (packet is ApbWritePacket) {
       // store the data
@@ -101,7 +104,7 @@ class ApbCompleter extends Agent {
     }
 
     // wait a cycle then end the transfer
-    await intf.clk.nextNegedge;
+    await intf.enable.nextNegedge;
     intf.ready.inject(0);
   }
 }

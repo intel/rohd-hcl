@@ -11,8 +11,8 @@ import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
 import 'package:test/test.dart';
 
-class ApbController extends Module {
-  ApbController(ApbInterface intf) {
+class ApbCompleter extends Module {
+  ApbCompleter(ApbInterface intf) {
     intf = ApbInterface.clone(intf)
       ..connectIO(this, intf,
           inputTags: {ApbDirection.misc, ApbDirection.fromRequester},
@@ -43,7 +43,7 @@ class ApbPair extends Module {
     apb.clk <= clk;
     apb.resetN <= ~reset;
 
-    ApbController(apb);
+    ApbCompleter(apb);
     ApbRequester(apb);
   }
 }
