@@ -80,6 +80,7 @@ class ApbRequesterDriver extends PendingClockedDriver<ApbPacket> {
       } else if (packet is ApbReadPacket) {
         intf.write.put(0);
         intf.wData.put(0);
+        intf.strb.put(0);
       }
     });
 

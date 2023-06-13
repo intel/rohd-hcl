@@ -65,7 +65,6 @@ class ApbCompleterAgent extends Agent {
   /// Receives one packet (or returns if not selected).
   Future<void> _receive() async {
     await intf.enable.nextPosedge;
-    logger.info('starting to receive!');
 
     if (!intf.sel[selectIndex].value.toBool()) {
       // we're not selected, wait for the next time

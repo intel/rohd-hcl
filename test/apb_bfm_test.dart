@@ -65,7 +65,7 @@ class ApbBfmTest extends Test {
       requester.sequencer.add(rdPkt);
 
       unawaited(rdPkt.completed.then((value) {
-        // expect(rdPkt.returnedData!.toInt(), i);
+        expect(rdPkt.returnedData!.toInt(), i);
         _numReadsCompleted++;
       }));
     }
@@ -82,7 +82,7 @@ class ApbBfmTest extends Test {
 
   @override
   void check() {
-    // expect(_numReadsCompleted, numTransfers);
+    expect(_numReadsCompleted, numTransfers);
   }
 }
 
