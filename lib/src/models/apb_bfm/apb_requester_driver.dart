@@ -52,8 +52,8 @@ class ApbRequesterDriver extends PendingClockedDriver<ApbPacket> {
       if (pendingSeqItems.isNotEmpty) {
         await _drivePacket(pendingSeqItems.removeFirst());
       } else {
-        Simulator.injectAction(_deselectAll);
         await intf.clk.nextNegedge;
+        Simulator.injectAction(_deselectAll);
       }
     }
   }

@@ -62,6 +62,14 @@ class ApbCompleterAgent extends Agent {
     }
   }
 
+  /// Calculates a strobed version of data.
+  LogicValue _strobeData(LogicValue originalData, LogicValue strobe) => [
+        for (var i = 0; i < strobe.width; i++)
+          strobe[i].toBool()
+              ? originalData.getRange(i, i + 8)
+              : LogicValue.filled(8, LogicValue.zero)
+      ].rswizzle();
+
   /// Receives one packet (or returns if not selected).
   Future<void> _receive() async {
     await intf.enable.nextPosedge;
@@ -92,6 +100,7 @@ class ApbCompleterAgent extends Agent {
 
     if (packet is ApbWritePacket) {
       // store the data
+      // storage.setData(packet.addr, _strobeData(packet.data, packet.strobe));
       storage.setData(packet.addr, packet.data);
       intf.ready.inject(1);
     } else if (packet is ApbReadPacket) {

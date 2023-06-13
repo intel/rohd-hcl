@@ -8,6 +8,7 @@
 // Author: Max Korbel <max.korbel@intel.com>
 
 import 'dart:async';
+import 'dart:math';
 
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
@@ -24,7 +25,10 @@ class ApbBfmTest extends Test {
 
   final int numTransfers;
 
-  ApbBfmTest({this.numTransfers = 10}) : super('apbBfmTest') {
+  final bool withStrobes;
+
+  ApbBfmTest({this.numTransfers = 10, this.withStrobes = false})
+      : super('apbBfmTest') {
     intf = ApbInterface();
 
     intf.clk <= SimpleClockGenerator(10).clk;
@@ -43,7 +47,7 @@ class ApbBfmTest extends Test {
     monitor.stream.listen(tracker.record);
   }
 
-  int _numReadsCompleted = 0;
+  int numTransfersCompleted = 0;
 
   @override
   Future<void> run(Phase phase) async {
@@ -53,10 +57,27 @@ class ApbBfmTest extends Test {
 
     await _resetFlow();
 
+    final rand = Random(123);
+
+    final randomStrobes = List.generate(
+        numTransfers, (index) => LogicValue.ofInt(rand.nextInt(16), 4));
+
+    final randomData = List.generate(
+        numTransfers, (index) => LogicValue.ofInt(rand.nextInt(1 << 32), 32));
+
+    LogicValue strobedData(LogicValue originalData, LogicValue strobe) => [
+          for (var i = 0; i < 4; i++)
+            strobe[i].toBool()
+                ? originalData.getRange(i, i + 8)
+                : LogicValue.filled(8, LogicValue.zero)
+        ].rswizzle();
+
     // normal writes
     for (var i = 0; i < numTransfers; i++) {
       requester.sequencer.add(ApbWritePacket(
-          addr: LogicValue.ofInt(i, 32), data: LogicValue.ofInt(i, 32)));
+          addr: LogicValue.ofInt(i, 32),
+          data: randomData[i],
+          strobe: withStrobes ? randomStrobes[i] : null));
     }
 
     // normal reads that check data
@@ -65,8 +86,9 @@ class ApbBfmTest extends Test {
       requester.sequencer.add(rdPkt);
 
       unawaited(rdPkt.completed.then((value) {
-        expect(rdPkt.returnedData!.toInt(), i);
-        _numReadsCompleted++;
+        expect(rdPkt.returnedData, randomData[i]);
+        //  strobedData(randomData[i], randomStrobes[i]));
+        numTransfersCompleted++;
       }));
     }
 
@@ -82,17 +104,35 @@ class ApbBfmTest extends Test {
 
   @override
   void check() {
-    expect(_numReadsCompleted, numTransfers);
+    expect(numTransfersCompleted, numTransfers);
   }
 }
 
 //TODO: with strobe
 //TODO: check the tracker works
+//TODO: check the checker
+//TODO: make sure there's no extra transactions detected! (or too few!)
+//TODO: check delays
 
 void main() {
+  tearDown(() async {
+    await Simulator.reset();
+  });
+
   test('simple writes and reads', () async {
     Simulator.setMaxSimTime(3000);
     final apbBfmTest = ApbBfmTest();
+
+    final mod = ApbCompleter(apbBfmTest.intf);
+    await mod.build();
+    WaveDumper(mod);
+
+    await apbBfmTest.start();
+  });
+
+  test('writes with strobes', () async {
+    Simulator.setMaxSimTime(3000);
+    final apbBfmTest = ApbBfmTest(numTransfers: 20, withStrobes: true);
 
     final mod = ApbCompleter(apbBfmTest.intf);
     await mod.build();
