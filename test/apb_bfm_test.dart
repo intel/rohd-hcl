@@ -113,6 +113,7 @@ class ApbBfmTest extends Test {
 //TODO: check the checker
 //TODO: make sure there's no extra transactions detected! (or too few!)
 //TODO: check delays
+//TODO: strobes need to apply to the same addr multiple times
 
 void main() {
   tearDown(() async {
