@@ -59,13 +59,13 @@ Below is a list of components either already or planning to be implemented.
 - Count
   - Count bit=X
   - Count pattern
-- [Sort **(WIP)**](https://github.com/intel/rohd-hcl/issues/9)
+- [Sort](./doc/sort.md)
 - Arithmetic
   - [Prefix Trees **(WIP)**](https://github.com/intel/rohd-hcl/issues/12)
   - Adders
   - Subtractors
-  - Multipliers
-    - [Pipelined Integer Multiplier **(WIP)**](https://github.com/intel/rohd-hcl/issues/10)
+  - [Multipliers](./doc/multiplier.md)
+    - [Pipelined Integer Multiplier](./doc/multiplier.md#carry-save-multiplier)
   - Dividers
   - Log
   - Square root
@@ -105,6 +105,7 @@ Below is a list of components either already or planning to be implemented.
     - Latch-based
   - Replacement Policies
     - LRU
+  - [Memory Models](./doc/memory.md#memory-models)
 - [Standard interfaces](./doc/standard_interfaces.md)
   - AXI
   - [APB](./doc/standard_interfaces.md#apb)
