@@ -10,7 +10,6 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
-import 'dart:math';
 
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
@@ -38,6 +37,8 @@ class ApbBfmTest extends Test {
 
   final bool withRandomRspDelays;
 
+  final bool withErrors;
+
   String get outFolder => 'tmp_test/apbbfm/$name/';
 
   ApbBfmTest(
@@ -46,8 +47,9 @@ class ApbBfmTest extends Test {
     this.withStrobes = false,
     this.interTxnDelay = 0,
     this.withRandomRspDelays = false,
+    this.withErrors = false,
   }) : super(randomSeed: 123) {
-    intf = ApbInterface();
+    intf = ApbInterface(includeSlvErr: true);
 
     intf.clk <= SimpleClockGenerator(10).clk;
 
@@ -59,6 +61,7 @@ class ApbBfmTest extends Test {
       storage: storage,
       responseDelay:
           withRandomRspDelays ? (request) => Test.random.nextInt(5) : null,
+      respondWithError: withErrors ? (request) => true : null,
     );
 
     final monitor = ApbMonitor(intf: intf, parent: this);
@@ -111,10 +114,19 @@ class ApbBfmTest extends Test {
 
     // normal writes
     for (var i = 0; i < numTransfers; i++) {
-      requester.sequencer.add(ApbWritePacket(
+      final wrPkt = ApbWritePacket(
           addr: LogicValue.ofInt(i, 32),
           data: randomData[i],
-          strobe: withStrobes ? randomStrobes[i] : null));
+          strobe: withStrobes ? randomStrobes[i] : null);
+
+      requester.sequencer.add(wrPkt);
+
+      unawaited(wrPkt.completed.then((value) {
+        expect(wrPkt.returnedSlvErr!.toBool(), withErrors);
+
+        numTransfersCompleted++;
+      }));
+
       await waitCycles(intf.clk, interTxnDelay);
     }
 
@@ -126,10 +138,15 @@ class ApbBfmTest extends Test {
       unawaited(rdPkt.completed.then((value) {
         expect(
           rdPkt.returnedData,
-          withStrobes
-              ? strobedData(randomData[i], randomStrobes[i])
-              : randomData[i],
+          withErrors
+              ? LogicValue.filled(32, LogicValue.x)
+              : withStrobes
+                  ? strobedData(randomData[i], randomStrobes[i])
+                  : randomData[i],
         );
+
+        expect(rdPkt.returnedSlvErr!.toBool(), withErrors);
+
         numTransfersCompleted++;
       }));
 
@@ -148,7 +165,11 @@ class ApbBfmTest extends Test {
 
   @override
   void check() {
-    expect(numTransfersCompleted, numTransfers);
+    expect(numTransfersCompleted, numTransfers * 2);
+
+    if (withErrors) {
+      expect(storage.isEmpty, true);
+    }
   }
 }
 
@@ -211,5 +232,9 @@ void main() {
       withStrobes: true,
       interTxnDelay: 3,
     ));
+  });
+
+  test('with errors', () async {
+    await runTest(ApbBfmTest('werr', withErrors: true));
   });
 }

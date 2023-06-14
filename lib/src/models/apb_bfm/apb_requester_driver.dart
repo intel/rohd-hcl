@@ -98,7 +98,11 @@ class ApbRequesterDriver extends PendingClockedDriver<ApbPacket> {
       await intf.ready.nextPosedge;
     }
 
-    if (packet is ApbReadPacket) {
+    if (packet is ApbWritePacket) {
+      packet.complete(
+        slvErr: intf.slvErr?.value,
+      );
+    } else if (packet is ApbReadPacket) {
       packet.complete(
         data: intf.rData.value,
         slvErr: intf.slvErr?.value,

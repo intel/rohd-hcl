@@ -18,8 +18,6 @@ class ApbCompleterAgent extends Agent {
   /// The interface to drive.
   final ApbInterface intf;
 
-  //TODO: slverr
-
   /// The index that this is listening to on the [intf].
   final int selectIndex;
 
@@ -34,6 +32,19 @@ class ApbCompleterAgent extends Agent {
   /// If none is provided, then the delay will always be `0`.
   final int Function(ApbPacket request)? responseDelay;
 
+  /// A function that determines whether a response for a request should contain
+  /// an error (`slvErr`).
+  ///
+  /// If none is provided, it will always respond with no error.
+  final bool Function(ApbPacket request)? respondWithError;
+
+  /// If true, then returned data on an error will be `x`.
+  final bool invalidReadDataOnError;
+
+  /// If true, then writes that respond with an error will not store into the
+  /// [storage].
+  final bool dropWriteDataOnError;
+
   /// Creates a new model [ApbCompleterAgent].
   ApbCompleterAgent(
       {required this.intf,
@@ -41,6 +52,9 @@ class ApbCompleterAgent extends Agent {
       required Component parent,
       this.selectIndex = 0,
       this.responseDelay,
+      this.respondWithError,
+      this.invalidReadDataOnError = true,
+      this.dropWriteDataOnError = true,
       String name = 'apbCompleter'})
       : super(name, parent);
 
@@ -52,7 +66,7 @@ class ApbCompleterAgent extends Agent {
       storage.reset();
     });
 
-    intf.ready.inject(0);
+    _respond(ready: false);
 
     // wait for reset to complete
     await intf.resetN.nextPosedge;
@@ -103,26 +117,54 @@ class ApbCompleterAgent extends Agent {
     }
 
     if (packet is ApbWritePacket) {
+      final writeError = respondWithError != null && respondWithError!(packet);
+
       // store the data
-      storage.writeData(
-        packet.addr,
-        _strobeData(
-          storage.readData(packet.addr),
-          packet.data,
-          packet.strobe,
-        ),
+      if (!(writeError && dropWriteDataOnError)) {
+        storage.writeData(
+          packet.addr,
+          _strobeData(
+            storage.readData(packet.addr),
+            packet.data,
+            packet.strobe,
+          ),
+        );
+      }
+
+      _respond(
+        ready: true,
+        error: writeError,
       );
-      intf.ready.inject(1);
     } else if (packet is ApbReadPacket) {
       // capture the data
-      Simulator.injectAction(() {
-        intf.rData.put(storage.readData(packet.addr));
-        intf.ready.put(1);
-      });
+      _respond(
+        ready: true,
+        data: storage.readData(packet.addr),
+        error: respondWithError != null && respondWithError!(packet),
+      );
     }
 
     // wait a cycle then end the transfer
     await intf.enable.nextNegedge;
-    intf.ready.inject(0);
+    _respond(ready: false);
+  }
+
+  /// Sets up response signals for the completer (including using inject).
+  void _respond({required bool ready, bool? error, LogicValue? data}) {
+    Simulator.injectAction(() {
+      intf.ready.put(ready);
+
+      if (error == null) {
+        intf.slvErr?.put(LogicValue.x);
+      } else {
+        intf.slvErr?.put(error);
+      }
+
+      if (data == null || ((error ?? false) && invalidReadDataOnError)) {
+        intf.rData.put(LogicValue.x);
+      } else {
+        intf.rData.put(data);
+      }
+    });
   }
 }

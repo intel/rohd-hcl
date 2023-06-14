@@ -36,12 +36,14 @@ class ApbMonitor extends Monitor<ApbPacket> {
             intf.enable.value.toBool() &&
             intf.ready.value.toBool()) {
           if (intf.write.value.toBool()) {
-            add(ApbWritePacket(
-              addr: intf.addr.value,
-              data: intf.wData.value,
-              strobe: intf.strb.value,
-              selectIndex: i,
-            ));
+            add(
+              ApbWritePacket(
+                addr: intf.addr.value,
+                data: intf.wData.value,
+                strobe: intf.strb.value,
+                selectIndex: i,
+              )..complete(slvErr: intf.slvErr?.value),
+            );
           } else {
             add(
               ApbReadPacket(

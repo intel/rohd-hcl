@@ -24,6 +24,24 @@ abstract class ApbPacket extends SequenceItem implements Trackable {
   /// Creates a new packet.
   ApbPacket({required this.addr, this.selectIndex = 0});
 
+  /// A [Future] that completes once the the read has been completed.
+  Future<void> get completed => _completer.future;
+  final Completer<void> _completer = Completer<void>();
+
+  /// Error indication returned by the read.
+  LogicValue? get returnedSlvErr => _returnedSlvErr;
+  LogicValue? _returnedSlvErr;
+
+  /// Called by a completer when a transfer is completed.
+  void complete({LogicValue? slvErr}) {
+    if (_returnedSlvErr != null) {
+      throw RohdHclException('Packet is already completed.');
+    }
+
+    _returnedSlvErr = slvErr;
+    _completer.complete();
+  }
+
   @override
   String? trackerString(TrackerField field) {
     switch (field) {
@@ -78,27 +96,20 @@ class ApbReadPacket extends ApbPacket {
   LogicValue? get returnedData => _returnedData;
   LogicValue? _returnedData;
 
-  /// Error indication returned by the read.
-  LogicValue? get returnedSlvErr => _returnedSlvErr;
-  LogicValue? _returnedSlvErr;
-
-  /// A [Future] that completes once the the read has been completed.
-  Future<void> get completed => _completer.future;
-  final Completer<void> _completer = Completer<void>();
+  /// Creates a read packet.
+  ApbReadPacket({required super.addr, super.selectIndex});
 
   /// Called by a completer when a transfer is completed.
-  void complete({required LogicValue data, LogicValue? slvErr}) {
-    if (_returnedData != null || _returnedSlvErr != null) {
+  @override
+  void complete({LogicValue? slvErr, LogicValue? data}) {
+    if (_returnedData != null) {
       throw RohdHclException('Packet is already completed.');
     }
 
     _returnedData = data;
-    _returnedSlvErr = slvErr;
-    _completer.complete();
-  }
 
-  /// Creates a read packet.
-  ApbReadPacket({required super.addr, super.selectIndex});
+    super.complete(slvErr: slvErr);
+  }
 
   @override
   String? trackerString(TrackerField field) {

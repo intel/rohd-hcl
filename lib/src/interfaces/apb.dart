@@ -230,7 +230,7 @@ class ApbInterface extends Interface<ApbDirection> {
     setPorts([
       Port('PREADY'),
       Port('PRDATA', dataWidth),
-      Port('PSLVERR'),
+      if (includeSlvErr) Port('PSLVERR'),
       Port('PWAKEUP'),
       if (userDataWidth != 0) Port('PRUSER', userDataWidth),
       if (userRespWidth != 0) Port('PBUSER', userRespWidth),
