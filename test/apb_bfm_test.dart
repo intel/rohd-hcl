@@ -74,6 +74,8 @@ class ApbBfmTest extends Test {
       outputFolder: outFolder,
     );
 
+    ApbComplianceChecker(intf, parent: this);
+
     Simulator.registerEndOfSimulationAction(() async {
       await tracker.terminate();
 
@@ -172,8 +174,6 @@ class ApbBfmTest extends Test {
     }
   }
 }
-
-//TODO: check the checker
 
 void main() {
   tearDown(() async {
