@@ -14,8 +14,53 @@ abstract class MemoryStorage {
   /// The width of addresses.
   final int addrWidth;
 
-  /// Constrcuts a [MemoryStorage] with specified [addrWidth].
-  MemoryStorage({required this.addrWidth});
+  /// The width of data.
+  final int dataWidth;
+
+  /// A function called if an invalid write is made when not [isEmpty].
+  ///
+  /// An invalid write will reset the entire memory after calling this function.
+  ///
+  /// By default, this will print a warning message.
+  final void Function() onInvalidWrite;
+
+  /// Default behavior for [onInvalidWrite].
+  static void _defaultOnInvalidWrite() {
+    // ignore: avoid_print
+    print('WARNING: Memory was cleared by invalid write!');
+  }
+
+  /// A function called if a read is made to an address that has no data.
+  ///
+  /// By default, this will print a warning message and return `x`.
+  ///
+  /// This is *not* called when a read's valid or address has invalid bits; in
+  /// those cases the memory will return `x` always.
+  final LogicValue Function(LogicValue addr, int dataWidth) onInvalidRead;
+
+  /// Default behavior for [onInvalidRead].
+  static LogicValue _defaultOnInvalidRead(LogicValue addr, int dataWidth) {
+    // ignore: avoid_print
+    print('WARNING: reading from address $addr that has no data!');
+    return LogicValue.filled(dataWidth, LogicValue.x);
+  }
+
+  /// A function to align addresses when used for transactions.
+  ///
+  /// By default, this will align (mask) addresses to a multiple of 4.
+  final LogicValue Function(LogicValue addr) alignAddress;
+
+  /// Default behavior for [alignAddress].
+  static LogicValue _defaultAlignAddress(LogicValue addr) => addr - (addr % 4);
+
+  /// Constrcuts a [MemoryStorage] with specified [addrWidth] and [dataWidth].
+  MemoryStorage({
+    required this.addrWidth,
+    required this.dataWidth,
+    this.onInvalidWrite = _defaultOnInvalidWrite,
+    this.onInvalidRead = _defaultOnInvalidRead,
+    this.alignAddress = _defaultAlignAddress,
+  });
 
   /// Reads a verilog-compliant hex file and preloads memory with it.
   ///
@@ -107,8 +152,36 @@ abstract class MemoryStorage {
   /// Resets all memory to initial state.
   void reset();
 
-  /// Loads [data] into [addr].
+  /// Triggers behavior associated with an invalid write, including calling
+  /// [onInvalidWrite] and [reset]ting all of memory.
+  void invalidWrite() {
+    onInvalidWrite();
+    reset();
+  }
+
+  /// Performs some validation on a write, aligns the address with
+  /// [alignAddress], and then calls [setData].
+  void writeData(LogicValue addr, LogicValue data) {
+    if (!addr.isValid) {
+      if (!isEmpty) {
+        invalidWrite();
+      }
+
+      return;
+    }
+
+    setData(alignAddress(addr), data);
+  }
+
+  /// Loads [data] into [addr] directly into storage.
   void setData(LogicValue addr, LogicValue data);
+
+  /// Aligns the address with [alignAddress], then returns either the [getData]
+  /// result in storage or else [onInvalidRead]'s result.
+  LogicValue readData(LogicValue addr) {
+    final alignedAddr = alignAddress(addr);
+    return getData(alignedAddr) ?? onInvalidRead(alignedAddr, dataWidth);
+  }
 
   /// Returns the data at [addr], or `null` if it is not present.
   LogicValue? getData(LogicValue addr);
@@ -123,7 +196,13 @@ class SparseMemoryStorage extends MemoryStorage {
 
   /// Constructs a new sparse memory storage with specified [addrWidth] for all
   /// addresses.
-  SparseMemoryStorage({required super.addrWidth});
+  SparseMemoryStorage({
+    required super.addrWidth,
+    required super.dataWidth,
+    super.alignAddress,
+    super.onInvalidRead,
+    super.onInvalidWrite,
+  });
 
   @override
   void setData(LogicValue addr, LogicValue data) {

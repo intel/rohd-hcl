@@ -16,7 +16,8 @@ import 'package:test/test.dart';
 void main() {
   test('sparse memory storage can load a simple file', () {
     final hex = File('test/example1.hex').readAsStringSync();
-    final storage = SparseMemoryStorage(addrWidth: 32)..loadMemHex(hex);
+    final storage = SparseMemoryStorage(addrWidth: 32, dataWidth: 32)
+      ..loadMemHex(hex);
 
     expect(storage.getData(LogicValue.ofInt(0x8000000c, 32))!.toInt(),
         equals(0x1ff50513));
