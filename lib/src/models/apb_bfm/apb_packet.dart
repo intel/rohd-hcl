@@ -11,8 +11,6 @@ import 'dart:async';
 
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
-import 'package:rohd_hcl/src/interfaces/interfaces.dart';
-import 'package:rohd_hcl/src/models/apb_bfm/apb_tracker.dart';
 import 'package:rohd_vf/rohd_vf.dart';
 
 /// A packet on an [ApbInterface].

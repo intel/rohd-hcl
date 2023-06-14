@@ -36,6 +36,8 @@ class ApbBfmTest extends Test {
 
   final int interTxnDelay;
 
+  final bool withRandomRspDelays;
+
   String get outFolder => 'tmp_test/apbbfm/$name/';
 
   ApbBfmTest(
@@ -43,14 +45,21 @@ class ApbBfmTest extends Test {
     this.numTransfers = 10,
     this.withStrobes = false,
     this.interTxnDelay = 0,
-  }) {
+    this.withRandomRspDelays = false,
+  }) : super(randomSeed: 123) {
     intf = ApbInterface();
 
     intf.clk <= SimpleClockGenerator(10).clk;
 
     requester = ApbRequesterAgent(intf: intf, parent: this);
 
-    ApbCompleterAgent(intf: intf, parent: this, storage: storage);
+    ApbCompleterAgent(
+      intf: intf,
+      parent: this,
+      storage: storage,
+      responseDelay:
+          withRandomRspDelays ? (request) => Test.random.nextInt(5) : null,
+    );
 
     final monitor = ApbMonitor(intf: intf, parent: this);
 
@@ -87,13 +96,11 @@ class ApbBfmTest extends Test {
 
     await _resetFlow();
 
-    final rand = Random(123);
-
     final randomStrobes = List.generate(
-        numTransfers, (index) => LogicValue.ofInt(rand.nextInt(16), 4));
+        numTransfers, (index) => LogicValue.ofInt(Test.random.nextInt(16), 4));
 
-    final randomData = List.generate(
-        numTransfers, (index) => LogicValue.ofInt(rand.nextInt(1 << 32), 32));
+    final randomData = List.generate(numTransfers,
+        (index) => LogicValue.ofInt(Test.random.nextInt(1 << 32), 32));
 
     LogicValue strobedData(LogicValue originalData, LogicValue strobe) => [
           for (var i = 0; i < 4; i++)
@@ -146,7 +153,6 @@ class ApbBfmTest extends Test {
 }
 
 //TODO: check the checker
-//TODO: check response delays
 
 void main() {
   tearDown(() async {
@@ -187,5 +193,23 @@ void main() {
 
   test('writes and reads with big delays', () async {
     await runTest(ApbBfmTest('delay5', interTxnDelay: 5));
+  });
+
+  test('random response delays', () async {
+    await runTest(ApbBfmTest(
+      'randrsp',
+      numTransfers: 20,
+      withRandomRspDelays: true,
+    ));
+  });
+
+  test('random everything', () async {
+    await runTest(ApbBfmTest(
+      'randeverything',
+      numTransfers: 20,
+      withRandomRspDelays: true,
+      withStrobes: true,
+      interTxnDelay: 3,
+    ));
   });
 }

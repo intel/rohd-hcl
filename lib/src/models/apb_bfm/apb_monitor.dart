@@ -32,7 +32,9 @@ class ApbMonitor extends Monitor<ApbPacket> {
 
     intf.clk.posedge.listen((event) {
       for (var i = 0; i < intf.numSelects; i++) {
-        if (intf.sel[i].value.toBool() && intf.enable.value.toBool()) {
+        if (intf.sel[i].value.toBool() &&
+            intf.enable.value.toBool() &&
+            intf.ready.value.toBool()) {
           if (intf.write.value.toBool()) {
             add(ApbWritePacket(
               addr: intf.addr.value,

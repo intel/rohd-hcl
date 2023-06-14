@@ -92,11 +92,14 @@ class ApbCompleterAgent extends Agent {
     }
 
     if (responseDelay != null) {
-      await waitCycles(
-        intf.clk,
-        responseDelay!(packet),
-        edge: Edge.neg,
-      );
+      final delayCycles = responseDelay!(packet);
+      if (delayCycles > 0) {
+        await waitCycles(
+          intf.clk,
+          delayCycles,
+          edge: Edge.neg,
+        );
+      }
     }
 
     if (packet is ApbWritePacket) {
