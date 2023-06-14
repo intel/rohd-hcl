@@ -8,6 +8,8 @@
 // Author: Max Korbel <max.korbel@intel.com>
 
 import 'dart:async';
+import 'dart:convert';
+import 'dart:io';
 import 'dart:math';
 
 import 'package:rohd/rohd.dart';
@@ -34,11 +36,14 @@ class ApbBfmTest extends Test {
 
   final int interTxnDelay;
 
-  ApbBfmTest({
+  String get outFolder => 'tmp_test/apbbfm/$name/';
+
+  ApbBfmTest(
+    super.name, {
     this.numTransfers = 10,
     this.withStrobes = false,
     this.interTxnDelay = 0,
-  }) : super('apbBfmTest') {
+  }) {
     intf = ApbInterface();
 
     intf.clk <= SimpleClockGenerator(10).clk;
@@ -48,10 +53,25 @@ class ApbBfmTest extends Test {
     ApbCompleterAgent(intf: intf, parent: this, storage: storage);
 
     final monitor = ApbMonitor(intf: intf, parent: this);
-    final tracker = ApbTracker(intf: intf);
+
+    Directory(outFolder).createSync(recursive: true);
+
+    final tracker = ApbTracker(
+      intf: intf,
+      dumpTable: false,
+      outputFolder: outFolder,
+    );
 
     Simulator.registerEndOfSimulationAction(() async {
       await tracker.terminate();
+
+      final jsonStr =
+          File('$outFolder/apbTracker.tracker.json').readAsStringSync();
+      final jsonContents = json.decode(jsonStr);
+      // ignore: avoid_dynamic_calls
+      expect(jsonContents['records'].length, 2 * numTransfers);
+
+      Directory(outFolder).deleteSync(recursive: true);
     });
 
     monitor.stream.listen(tracker.record);
@@ -125,12 +145,8 @@ class ApbBfmTest extends Test {
   }
 }
 
-//TODO: with strobe
-//TODO: check the tracker works
 //TODO: check the checker
-//TODO: make sure there's no extra transactions detected! (or too few!)
-//TODO: check delays
-//TODO: strobes need to apply to the same addr multiple times
+//TODO: check response delays
 
 void main() {
   tearDown(() async {
@@ -150,26 +166,26 @@ void main() {
   }
 
   test('simple writes and reads', () async {
-    await runTest(ApbBfmTest());
+    await runTest(ApbBfmTest('simple'));
   });
 
   test('writes with strobes', () async {
-    await runTest(ApbBfmTest(numTransfers: 20, withStrobes: true));
+    await runTest(ApbBfmTest('strobes', numTransfers: 20, withStrobes: true));
   });
 
   test('writes and reads with 1 cycle delays', () async {
-    await runTest(ApbBfmTest(interTxnDelay: 1));
+    await runTest(ApbBfmTest('delay1', interTxnDelay: 1));
   });
 
   test('writes and reads with 2 cycle delays', () async {
-    await runTest(ApbBfmTest(interTxnDelay: 2));
+    await runTest(ApbBfmTest('delay2', interTxnDelay: 2));
   });
 
   test('writes and reads with 3 cycle delays', () async {
-    await runTest(ApbBfmTest(interTxnDelay: 3));
+    await runTest(ApbBfmTest('delay3', interTxnDelay: 3));
   });
 
   test('writes and reads with big delays', () async {
-    await runTest(ApbBfmTest(interTxnDelay: 5));
+    await runTest(ApbBfmTest('delay5', interTxnDelay: 5));
   });
 }

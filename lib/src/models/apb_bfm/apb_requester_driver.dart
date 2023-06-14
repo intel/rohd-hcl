@@ -24,6 +24,7 @@ class ApbRequesterDriver extends PendingClockedDriver<ApbPacket> {
   //TODO: wakeup
   //TODO: protection
   //TODO: user
+  //TODO: retry on error? no, not in spec
 
   /// Creates a new [ApbRequesterDriver].
   ApbRequesterDriver({
