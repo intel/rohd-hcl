@@ -120,7 +120,7 @@ abstract class Memory extends Module {
       List<DataPortInterface> readPorts,
       {super.name = 'memory'})
       : assert(writePorts.isNotEmpty && readPorts.isNotEmpty,
-            'Must specify at least one read port and one write port.'),
+            'Must specify at least one read port or one write port.'),
         numWrites = writePorts.length,
         numReads = readPorts.length,
         dataWidth = (writePorts.isNotEmpty)

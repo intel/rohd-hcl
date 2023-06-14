@@ -24,6 +24,8 @@ void main() {
 
   group('memory accesses', () {
     const numEntries = 20;
+    const dataWidth = 32;
+    const addrWidth = 5;
 
     final memoriesToTestGenerators = {
       'rf': (Logic clk, Logic reset, List<DataPortInterface> wrPorts,
@@ -36,9 +38,13 @@ void main() {
             reset,
             wrPorts,
             rdPorts,
-            alignAddress: (addr) => addr,
-            onInvalidRead: (addr, dataWidth) =>
-                LogicValue.filled(dataWidth, LogicValue.zero),
+            storage: SparseMemoryStorage(
+              addrWidth: addrWidth,
+              dataWidth: dataWidth,
+              alignAddress: (addr) => addr,
+              onInvalidRead: (addr, dataWidth) =>
+                  LogicValue.filled(dataWidth, LogicValue.zero),
+            ),
           )
     };
 
@@ -53,9 +59,6 @@ void main() {
       final memGenFunc = memGen.value;
 
       test('$memGenName simple', () async {
-        const dataWidth = 32;
-        const addrWidth = 5;
-
         const numWr = 3;
         const numRd = 3;
 
@@ -111,9 +114,6 @@ void main() {
       });
 
       test('$memGenName wr masked', () async {
-        const dataWidth = 32;
-        const addrWidth = 5;
-
         const numWr = 1;
         const numRd = 1;
 

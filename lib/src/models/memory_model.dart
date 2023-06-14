@@ -17,7 +17,7 @@ import 'package:rohd_hcl/rohd_hcl.dart';
 /// only a model.
 class MemoryModel extends Memory {
   /// The memory storage underlying this model.
-  late final MemoryStorage storage = SparseMemoryStorage(addrWidth: addrWidth);
+  late final MemoryStorage storage;
 
   /// A pre-signal before the output flops of this memory.
   late final List<Logic> _rdDataPre;
@@ -25,47 +25,12 @@ class MemoryModel extends Memory {
   /// If true, a positive edge on reset will reset the memory asynchronously.
   final bool asyncReset;
 
-  /// A function called if an invalid write is made when [storage] is not empty.
-  ///
-  /// An invalid write will reset the entire memory after calling this function.
-  ///
-  /// By default, this will print a warning message.
-  final void Function() onInvalidWrite;
-
-  /// Default behavior for [onInvalidWrite].
-  static void _defaultOnInvalidWrite() {
-    // ignore: avoid_print
-    print('WARNING: Memory was cleared by invalid write!');
-  }
-
-  /// A function called if a read is made to an address that has no data in
-  /// [storage].
-  ///
-  /// By default, this will print a warning message and return `x`.
-  ///
-  /// This is *not* called when a read's valid or address has invalid bits; in
-  /// those cases the memory will return `x` always.
-  final LogicValue Function(LogicValue addr, int dataWidth) onInvalidRead;
-
-  /// Default behavior for [onInvalidRead].
-  static LogicValue _defaultOnInvalidRead(LogicValue addr, int dataWidth) {
-    // ignore: avoid_print
-    print('WARNING: reading from address $addr that has no data!');
-    return LogicValue.filled(dataWidth, LogicValue.x);
-  }
-
-  /// A function to align addresses when used for transactions.
-  ///
-  /// By default, this will align (mask) addresses to a multiple of 4.
-  final LogicValue Function(LogicValue addr) alignAddress;
-
-  /// Default behavior for [alignAddress].
-  static LogicValue _defaultAlignAddress(LogicValue addr) => addr - (addr % 4);
-
   @override
   final int readLatency;
 
   /// Creates a new [MemoryModel].
+  ///
+  /// If no [storage] is provided, a default storage will be created.
   MemoryModel(
     super.clk,
     super.reset,
@@ -73,10 +38,11 @@ class MemoryModel extends Memory {
     super.readPorts, {
     this.readLatency = 1,
     this.asyncReset = true,
-    this.onInvalidWrite = _defaultOnInvalidWrite,
-    this.onInvalidRead = _defaultOnInvalidRead,
-    this.alignAddress = _defaultAlignAddress,
+    MemoryStorage? storage,
   }) {
+    this.storage = storage ??
+        SparseMemoryStorage(addrWidth: addrWidth, dataWidth: dataWidth);
+
     _buildLogic();
   }
 
@@ -97,34 +63,29 @@ class MemoryModel extends Memory {
         return;
       }
       for (final wrPort in wrPorts) {
-        if (!wrPort.en.value.isValid ||
-            (wrPort.en.value == LogicValue.one && !wrPort.addr.value.isValid)) {
-          if (!storage.isEmpty) {
-            onInvalidWrite();
-          }
-
-          storage.reset();
-
+        if (!wrPort.en.value.isValid && !storage.isEmpty) {
+          // storage doesnt have access to `en`, so check ourselves
+          storage.invalidWrite();
           return;
         }
-        if (wrPort.en.value == LogicValue.one) {
-          var addrValue = wrPort.addr.value;
 
-          addrValue = alignAddress(addrValue);
+        if (wrPort.en.value == LogicValue.one) {
+          final addrValue = wrPort.addr.value;
 
           if (wrPort is MaskedDataPortInterface) {
-            storage.setData(
-                addrValue,
-                List<LogicValue>.generate(
-                  dataWidth ~/ 8,
-                  (index) => wrPort.mask.value[index].toBool()
+            storage.writeData(
+              addrValue,
+              [
+                for (var index = 0; index < dataWidth ~/ 8; index++)
+                  wrPort.mask.value[index].toBool()
                       ? wrPort.data.value.getRange(index * 8, (index + 1) * 8)
-                      : (storage.getData(addrValue) ??
-                              onInvalidRead(addrValue, dataWidth))
-                          .getRange(index * 8, (index + 1) * 8),
-                ).rswizzle());
+                      : storage
+                          .readData(addrValue)
+                          .getRange(index * 8, (index + 1) * 8)
+              ].rswizzle(),
+            );
           } else {
-            storage.setData(addrValue, wrPort.data.value);
+            storage.writeData(addrValue, wrPort.data.value);
           }
         }
       }
@@ -155,15 +116,7 @@ class MemoryModel extends Memory {
     }
 
     if (rdPort.en.value == LogicValue.one) {
-      var addrValue = rdPort.addr.value;
-
-      addrValue = alignAddress(addrValue);
-
-      if (storage.getData(addrValue) == null) {
-        rdPortPre.put(onInvalidRead(addrValue, dataWidth));
-      } else {
-        rdPortPre.put(storage.getData(addrValue));
-      }
+      rdPortPre.put(storage.readData(rdPort.addr.value));
     }
   }
 }
