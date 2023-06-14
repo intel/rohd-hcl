@@ -32,8 +32,13 @@ class ApbBfmTest extends Test {
 
   final bool withStrobes;
 
-  ApbBfmTest({this.numTransfers = 10, this.withStrobes = false})
-      : super('apbBfmTest') {
+  final int interTxnDelay;
+
+  ApbBfmTest({
+    this.numTransfers = 10,
+    this.withStrobes = false,
+    this.interTxnDelay = 0,
+  }) : super('apbBfmTest') {
     intf = ApbInterface();
 
     intf.clk <= SimpleClockGenerator(10).clk;
@@ -83,6 +88,7 @@ class ApbBfmTest extends Test {
           addr: LogicValue.ofInt(i, 32),
           data: randomData[i],
           strobe: withStrobes ? randomStrobes[i] : null));
+      await waitCycles(intf.clk, interTxnDelay);
     }
 
     // normal reads that check data
@@ -93,10 +99,14 @@ class ApbBfmTest extends Test {
       unawaited(rdPkt.completed.then((value) {
         expect(
           rdPkt.returnedData,
-          strobedData(randomData[i], randomStrobes[i]),
+          withStrobes
+              ? strobedData(randomData[i], randomStrobes[i])
+              : randomData[i],
         );
         numTransfersCompleted++;
       }));
+
+      await waitCycles(intf.clk, interTxnDelay);
     }
 
     obj.drop();
@@ -127,25 +137,39 @@ void main() {
     await Simulator.reset();
   });
 
-  test('simple writes and reads', () async {
+  Future<void> runTest(ApbBfmTest apbBfmTest, {bool dumpWaves = false}) async {
     Simulator.setMaxSimTime(3000);
-    final apbBfmTest = ApbBfmTest();
 
-    final mod = ApbCompleter(apbBfmTest.intf);
-    await mod.build();
-    WaveDumper(mod);
+    if (dumpWaves) {
+      final mod = ApbCompleter(apbBfmTest.intf);
+      await mod.build();
+      WaveDumper(mod);
+    }
 
     await apbBfmTest.start();
+  }
+
+  test('simple writes and reads', () async {
+    await runTest(ApbBfmTest());
   });
 
   test('writes with strobes', () async {
-    Simulator.setMaxSimTime(3000);
-    final apbBfmTest = ApbBfmTest(numTransfers: 20, withStrobes: true);
+    await runTest(ApbBfmTest(numTransfers: 20, withStrobes: true));
+  });
 
-    final mod = ApbCompleter(apbBfmTest.intf);
-    await mod.build();
-    WaveDumper(mod);
+  test('writes and reads with 1 cycle delays', () async {
+    await runTest(ApbBfmTest(interTxnDelay: 1));
+  });
 
-    await apbBfmTest.start();
+  test('writes and reads with 2 cycle delays', () async {
+    await runTest(ApbBfmTest(interTxnDelay: 2));
+  });
+
+  test('writes and reads with 3 cycle delays', () async {
+    await runTest(ApbBfmTest(interTxnDelay: 3));
+  });
+
+  test('writes and reads with big delays', () async {
+    await runTest(ApbBfmTest(interTxnDelay: 5));
   });
 }
