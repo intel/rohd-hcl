@@ -21,11 +21,6 @@ class ApbRequesterDriver extends PendingClockedDriver<ApbPacket> {
   /// The interface to drive.
   final ApbInterface intf;
 
-  //TODO: wakeup
-  //TODO: protection
-  //TODO: user
-  //TODO: retry on error? no, not in spec
-
   /// Creates a new [ApbRequesterDriver].
   ApbRequesterDriver({
     required Component parent,

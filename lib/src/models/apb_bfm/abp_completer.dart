@@ -23,8 +23,8 @@ class ApbCompleterAgent extends Agent {
 
   /// A place where the completer should save and retrieve data.
   ///
-  /// The [ApbCompleterAgent] will reset [storage] whenever the `resetN` signal is
-  /// dropped.
+  /// The [ApbCompleterAgent] will reset [storage] whenever the `resetN` signal
+  /// is dropped.
   final MemoryStorage storage;
 
   /// A function which delays the response for the given `request`.

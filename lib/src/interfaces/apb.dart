@@ -159,7 +159,9 @@ class ApbInterface extends Interface<ApbDirection> {
   /// Wake-up.
   ///
   /// Indicates any activity associated with an APB interface.
-  Logic get wakeup => port('PWAKEUP');
+  ///
+  /// Only generated if [includeWakeup] is `true`.
+  Logic? get wakeup => includeWakeup ? port('PWAKEUP') : null;
 
   /// User request attribute.
   ///
@@ -187,6 +189,11 @@ class ApbInterface extends Interface<ApbDirection> {
   /// than `1`.
   final int numSelects;
 
+  /// If `true`, indicates that this interface supports wake-up.
+  ///
+  /// The interface will only include [wakeup] if this is `true`.
+  final bool includeWakeup;
+
   /// Construct a new instance of an APB interface.
   ApbInterface({
     this.addrWidth = 32,
@@ -195,6 +202,7 @@ class ApbInterface extends Interface<ApbDirection> {
     this.userDataWidth = 0,
     this.userRespWidth = 0,
     this.includeSlvErr = false,
+    this.includeWakeup = false,
     this.numSelects = 1,
   }) {
     _validateParameters();

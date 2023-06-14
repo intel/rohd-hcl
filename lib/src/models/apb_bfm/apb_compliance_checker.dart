@@ -128,7 +128,7 @@ class ApbComplianceChecker extends Component {
           intf.enable.value.toBool() &&
           intf.strb.value.isValid &&
           intf.strb.value.toInt() > 0) {
-        // strobe must not be "active" during read transfer (all low during read)
+        // strobe must not be "active" during read xfer (all low during read)
         logger.severe('Strobe must not be active during read transfer.');
       }
 

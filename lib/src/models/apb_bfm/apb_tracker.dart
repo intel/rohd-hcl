@@ -12,14 +12,25 @@ import 'package:rohd_vf/rohd_vf.dart';
 
 /// A tracker for the [ApbInterface].
 class ApbTracker extends Tracker<ApbPacket> {
-  //TODO: make these widths dynamic?
-
+  /// Tracker field for simulation time.
   static const timeField = TrackerField('time', columnWidth: 12);
+
+  /// Tracker field for select.
   static const selectField = TrackerField('select', columnWidth: 4);
+
+  /// Tracker field for type (R/W).
   static const typeField = TrackerField('type', columnWidth: 1);
+
+  /// Tracker field for address.
   static const addrField = TrackerField('addr', columnWidth: 12);
+
+  /// Tracker field for data.
   static const dataField = TrackerField('data', columnWidth: 12);
+
+  /// Tracker field for strobe.
   static const strobeField = TrackerField('strobe', columnWidth: 4);
+
+  /// Tracker field for errors.
   static const slverrField = TrackerField('slverr', columnWidth: 1);
 
   /// Creates a new tracker for [ApbInterface].
