@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="API docs for the SparseMemoryStorage class from the rohd_hcl library, for the Dart programming language.">
+  <title>SparseMemoryStorage class - rohd_hcl library - Dart API</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@48,400,0,0" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../static-assets/github.css?v1">
+  <link rel="stylesheet" href="../static-assets/styles.css?v1">
+  <link rel="icon" href="../static-assets/favicon.png?v1">
+
+  
+</head>
+
+
+<body data-base-href="../" data-using-base-href="false" class="light-theme">
+
+<div id="overlay-under-drawer"></div>
+
+<header id="title">
+  <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="../index.html">rohd_hcl</a></li>
+    <li><a href="../rohd_hcl/rohd_hcl-library.html">rohd_hcl</a></li>
+    <li class="self-crumb">SparseMemoryStorage class</li>
+  </ol>
+  <div class="self-name">SparseMemoryStorage</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+  <div class="toggle" id="theme-button">
+    <label for="theme">
+      <input type="checkbox" id="theme" value="light-theme">
+      <span id="dark-theme-button" class="material-symbols-outlined">
+        brightness_4
+      </span>
+      <span id="light-theme-button" class="material-symbols-outlined">
+        brightness_5
+      </span>
+    </label>
+  </div>
+</header>
+<main>
+
+  <div id="dartdoc-main-content" class="main-content">
+      <div>
+<h1><span class="kind-class">SparseMemoryStorage</span> class 
+ 
+</h1></div>
+
+    
+<section class="desc markdown">
+  <p>A sparse storage for memory models.</p>
+</section>
+
+
+    <section>
+      <dl class="dl-horizontal">
+        
+  <dt>Inheritance</dt>
+  <dd>
+    <ul class="gt-separated dark clazz-relationships">
+      <li><a href="https://api.dart.dev/stable/3.0.5/dart-core/Object-class.html">Object</a></li>
+        <li><a href="../rohd_hcl/MemoryStorage-class.html">MemoryStorage</a></li>
+      <li>SparseMemoryStorage</li>
+    </ul>
+  </dd>
+
+        
+        
+
+
+
+        
+
+
+      </dl>
+    </section>
+
+    
+  <section class="summary offset-anchor" id="constructors">
+    <h2>Constructors</h2>
+
+    <dl class="constructor-summary-list">
+        <dt id="SparseMemoryStorage" class="callable">
+          <span class="name"><a href="../rohd_hcl/SparseMemoryStorage/SparseMemoryStorage.html">SparseMemoryStorage</a></span><span class="signature">(<span class="parameter" id="-param-addrWidth">{<span>required</span> <span class="type-annotation"><a href="https://api.dart.dev/stable/3.0.5/dart-core/int-class.html">int</a></span> <span class="parameter-name">addrWidth</span>, </span><span class="parameter" id="-param-dataWidth"><span>required</span> <span class="type-annotation"><a href="https://api.dart.dev/stable/3.0.5/dart-core/int-class.html">int</a></span> <span class="parameter-name">dataWidth</span>, </span><span class="parameter" id="-param-alignAddress"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.4.2/rohd/LogicValue-class.html">LogicValue</a></span> <span class="parameter-name">alignAddress</span>(<span class="parameter" id="param-addr"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.4.2/rohd/LogicValue-class.html">LogicValue</a></span> <span class="parameter-name">addr</span></span>) = <span class="default-value">_defaultAlignAddress</span>, </span><span class="parameter" id="-param-onInvalidRead"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.4.2/rohd/LogicValue-class.html">LogicValue</a></span> <span class="parameter-name">onInvalidRead</span>(<span class="parameter" id="param-addr"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.4.2/rohd/LogicValue-class.html">LogicValue</a></span> <span class="parameter-name">addr</span>, </span><span class="parameter" id="param-dataWidth"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.0.5/dart-core/int-class.html">int</a></span> <span class="parameter-name">dataWidth</span></span>) = <span class="default-value">_defaultOnInvalidRead</span>, </span><span class="parameter" id="-param-onInvalidWrite"><span class="type-annotation">void</span> <span class="parameter-name">onInvalidWrite</span>() = <span class="default-value">_defaultOnInvalidWrite</span>}</span>)</span>
+        </dt>
+        <dd>
+          Constructs a new sparse memory storage with specified <a href="../rohd_hcl/MemoryStorage/addrWidth.html">addrWidth</a> for all
+addresses.
+        </dd>
+    </dl>
+  </section>
+
+    <section class="summary offset-anchor" id="instance-properties">
+      <h2>Properties</h2>
+
+      <dl class="properties">
+        <dt id="addrWidth" class="property inherited">
+  <span class="name"><a href="../rohd_hcl/MemoryStorage/addrWidth.html">addrWidth</a></span>
+  <span class="signature">&#8594; <a href="https://api.dart.dev/stable/3.0.5/dart-core/int-class.html">int</a></span> 
+
+</dt>
+<dd class="inherited">
+  The width of addresses.
+  <div class="features"><span class="feature">final</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="alignAddress" class="property inherited">
+  <span class="name"><a href="../rohd_hcl/MemoryStorage/alignAddress.html">alignAddress</a></span>
+  <span class="signature">&#8594; <a href="https://pub.dev/documentation/rohd/0.4.2/rohd/LogicValue-class.html">LogicValue</a> Function<span class="signature">(<span class="parameter" id="param-addr"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.4.2/rohd/LogicValue-class.html">LogicValue</a></span> <span class="parameter-name">addr</span></span>)</span></span> 
+
+</dt>
+<dd class="inherited">
+  A function to align addresses when used for transactions.
+  <div class="features"><span class="feature">final</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="dataWidth" class="property inherited">
+  <span class="name"><a href="../rohd_hcl/MemoryStorage/dataWidth.html">dataWidth</a></span>
+  <span class="signature">&#8594; <a href="https://api.dart.dev/stable/3.0.5/dart-core/int-class.html">int</a></span> 
+
+</dt>
+<dd class="inherited">
+  The width of data.
+  <div class="features"><span class="feature">final</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="hashCode" class="property inherited">
+  <span class="name"><a href="https://api.dart.dev/stable/3.0.5/dart-core/Object/hashCode.html">hashCode</a></span>
+  <span class="signature">&#8594; <a href="https://api.dart.dev/stable/3.0.5/dart-core/int-class.html">int</a></span> 
+
+</dt>
+<dd class="inherited">
+  The hash code for this object.
+  <div class="features"><span class="feature">read-only</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="isEmpty" class="property">
+  <span class="name"><a href="../rohd_hcl/SparseMemoryStorage/isEmpty.html">isEmpty</a></span>
+  <span class="signature">&#8594; <a href="https://api.dart.dev/stable/3.0.5/dart-core/bool-class.html">bool</a></span> 
+
+</dt>
+<dd>
+  Returns true if there is no data stored in this memory.
+  <div class="features"><span class="feature">read-only</span><span class="feature">override</span></div>
+
+</dd>
+
+        <dt id="onInvalidRead" class="property inherited">
+  <span class="name"><a href="../rohd_hcl/MemoryStorage/onInvalidRead.html">onInvalidRead</a></span>
+  <span class="signature">&#8594; <a href="https://pub.dev/documentation/rohd/0.4.2/rohd/LogicValue-class.html">LogicValue</a> Function<span class="signature">(<span class="parameter" id="param-addr"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.4.2/rohd/LogicValue-class.html">LogicValue</a></span> <span class="parameter-name">addr</span>, </span><span class="parameter" id="param-dataWidth"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.0.5/dart-core/int-class.html">int</a></span> <span class="parameter-name">dataWidth</span></span>)</span></span> 
+
+</dt>
+<dd class="inherited">
+  A function called if a read is made to an address that has no data.
+  <div class="features"><span class="feature">final</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="onInvalidWrite" class="property inherited">
+  <span class="name"><a href="../rohd_hcl/MemoryStorage/onInvalidWrite.html">onInvalidWrite</a></span>
+  <span class="signature">&#8594; void Function<span class="signature">()</span></span> 
+
+</dt>
+<dd class="inherited">
+  A function called if an invalid write is made when not <a href="../rohd_hcl/SparseMemoryStorage/isEmpty.html">isEmpty</a>.
+  <div class="features"><span class="feature">final</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="runtimeType" class="property inherited">
+  <span class="name"><a href="https://api.dart.dev/stable/3.0.5/dart-core/Object/runtimeType.html">runtimeType</a></span>
+  <span class="signature">&#8594; <a href="https://api.dart.dev/stable/3.0.5/dart-core/Type-class.html">Type</a></span> 
+
+</dt>
+<dd class="inherited">
+  A representation of the runtime type of the object.
+  <div class="features"><span class="feature">read-only</span><span class="feature">inherited</span></div>
+
+</dd>
+
+      </dl>
+    </section>
+
+    
+  <section
+      class="summary offset-anchor"
+      id="instance-methods">
+    <h2>Methods</h2>
+    <dl class="callables">
+        <dt id="getData" class="callable">
+  <span class="name"><a href="../rohd_hcl/SparseMemoryStorage/getData.html">getData</a></span><span class="signature">(<wbr><span class="parameter" id="getData-param-addr"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.4.2/rohd/LogicValue-class.html">LogicValue</a></span> <span class="parameter-name">addr</span></span>)
+    <span class="returntype parameter">&#8594; <a href="https://pub.dev/documentation/rohd/0.4.2/rohd/LogicValue-class.html">LogicValue</a>?</span>
+  </span>
+  
+
+</dt>
+<dd>
+  Returns the data at <code>addr</code>, or <code>null</code> if it is not present.
+  <div class="features"><span class="feature">override</span></div>
+
+</dd>
+
+        <dt id="invalidWrite" class="callable inherited">
+  <span class="name"><a href="../rohd_hcl/MemoryStorage/invalidWrite.html">invalidWrite</a></span><span class="signature">(<wbr>)
+    <span class="returntype parameter">&#8594; void</span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Triggers behavior associated with an invalid write, including calling
+<a href="../rohd_hcl/MemoryStorage/onInvalidWrite.html">onInvalidWrite</a> and <a href="../rohd_hcl/SparseMemoryStorage/reset.html">reset</a>ting all of memory.
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="loadMemHex" class="callable inherited">
+  <span class="name"><a href="../rohd_hcl/MemoryStorage/loadMemHex.html">loadMemHex</a></span><span class="signature">(<wbr><span class="parameter" id="loadMemHex-param-hexMemContents"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.0.5/dart-core/String-class.html">String</a></span> <span class="parameter-name">hexMemContents</span></span>)
+    <span class="returntype parameter">&#8594; void</span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Reads a verilog-compliant hex file and preloads memory with it.
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="noSuchMethod" class="callable inherited">
+  <span class="name"><a href="https://api.dart.dev/stable/3.0.5/dart-core/Object/noSuchMethod.html">noSuchMethod</a></span><span class="signature">(<wbr><span class="parameter" id="noSuchMethod-param-invocation"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.0.5/dart-core/Invocation-class.html">Invocation</a></span> <span class="parameter-name">invocation</span></span>)
+    <span class="returntype parameter">&#8594; dynamic</span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Invoked when a nonexistent method or property is accessed.
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="readData" class="callable inherited">
+  <span class="name"><a href="../rohd_hcl/MemoryStorage/readData.html">readData</a></span><span class="signature">(<wbr><span class="parameter" id="readData-param-addr"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.4.2/rohd/LogicValue-class.html">LogicValue</a></span> <span class="parameter-name">addr</span></span>)
+    <span class="returntype parameter">&#8594; <a href="https://pub.dev/documentation/rohd/0.4.2/rohd/LogicValue-class.html">LogicValue</a></span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Aligns the address with <a href="../rohd_hcl/MemoryStorage/alignAddress.html">alignAddress</a>, then returns either the <a href="../rohd_hcl/SparseMemoryStorage/getData.html">getData</a>
+result in storage or else <a href="../rohd_hcl/MemoryStorage/onInvalidRead.html">onInvalidRead</a>'s result.
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="reset" class="callable">
+  <span class="name"><a href="../rohd_hcl/SparseMemoryStorage/reset.html">reset</a></span><span class="signature">(<wbr>)
+    <span class="returntype parameter">&#8594; void</span>
+  </span>
+  
+
+</dt>
+<dd>
+  Resets all memory to initial state.
+  <div class="features"><span class="feature">override</span></div>
+
+</dd>
+
+        <dt id="setData" class="callable">
+  <span class="name"><a href="../rohd_hcl/SparseMemoryStorage/setData.html">setData</a></span><span class="signature">(<wbr><span class="parameter" id="setData-param-addr"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.4.2/rohd/LogicValue-class.html">LogicValue</a></span> <span class="parameter-name">addr</span>, </span><span class="parameter" id="setData-param-data"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.4.2/rohd/LogicValue-class.html">LogicValue</a></span> <span class="parameter-name">data</span></span>)
+    <span class="returntype parameter">&#8594; void</span>
+  </span>
+  
+
+</dt>
+<dd>
+  Loads <code>data</code> into <code>addr</code> directly into storage.
+  <div class="features"><span class="feature">override</span></div>
+
+</dd>
+
+        <dt id="toString" class="callable inherited">
+  <span class="name"><a href="https://api.dart.dev/stable/3.0.5/dart-core/Object/toString.html">toString</a></span><span class="signature">(<wbr>)
+    <span class="returntype parameter">&#8594; <a href="https://api.dart.dev/stable/3.0.5/dart-core/String-class.html">String</a></span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  A string representation of this object.
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="writeData" class="callable inherited">
+  <span class="name"><a href="../rohd_hcl/MemoryStorage/writeData.html">writeData</a></span><span class="signature">(<wbr><span class="parameter" id="writeData-param-addr"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.4.2/rohd/LogicValue-class.html">LogicValue</a></span> <span class="parameter-name">addr</span>, </span><span class="parameter" id="writeData-param-data"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.4.2/rohd/LogicValue-class.html">LogicValue</a></span> <span class="parameter-name">data</span></span>)
+    <span class="returntype parameter">&#8594; void</span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Performs some validation on a write, aligns the address with
+<a href="../rohd_hcl/MemoryStorage/alignAddress.html">alignAddress</a>, and then calls <a href="../rohd_hcl/SparseMemoryStorage/setData.html">setData</a>.
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+    </dl>
+  </section>
+    
+  <section
+      class="summary offset-anchor inherited"
+      id="operators">
+    <h2>Operators</h2>
+    <dl class="callables">
+        <dt id="operator ==" class="callable inherited">
+  <span class="name"><a href="https://api.dart.dev/stable/3.0.5/dart-core/Object/operator_equals.html">operator ==</a></span><span class="signature">(<wbr><span class="parameter" id="==-param-other"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.0.5/dart-core/Object-class.html">Object</a></span> <span class="parameter-name">other</span></span>)
+    <span class="returntype parameter">&#8594; <a href="https://api.dart.dev/stable/3.0.5/dart-core/bool-class.html">bool</a></span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  The equality operator.
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+    </dl>
+  </section>
+    
+    
+    
+
+
+  </div> <!-- /.main-content -->
+
+  <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+    <header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+  <li><a href="../index.html">rohd_hcl</a></li>
+  <li><a href="../rohd_hcl/rohd_hcl-library.html">rohd_hcl</a></li>
+  <li class="self-crumb">SparseMemoryStorage class</li>
+</ol>
+
+
+    <h5>rohd_hcl library</h5>
+    <ol>
+      <li class="section-title"><a href="../rohd_hcl/rohd_hcl-library.html#classes">Classes</a></li>
+        <li><a href="../rohd_hcl/Adder-class.html">Adder</a></li>
+        <li><a href="../rohd_hcl/Apb-class.html">Apb</a></li>
+        <li><a href="../rohd_hcl/Arbiter-class.html">Arbiter</a></li>
+        <li><a href="../rohd_hcl/BinaryToOneHot-class.html">BinaryToOneHot</a></li>
+        <li><a href="../rohd_hcl/BitonicSort-class.html">BitonicSort</a></li>
+        <li><a href="../rohd_hcl/CarrySaveMultiplier-class.html">CarrySaveMultiplier</a></li>
+        <li><a href="../rohd_hcl/DataPortInterface-class.html">DataPortInterface</a></li>
+        <li><a href="../rohd_hcl/Fifo-class.html">Fifo</a></li>
+        <li><a href="../rohd_hcl/FifoChecker-class.html">FifoChecker</a></li>
+        <li><a href="../rohd_hcl/FifoTracker-class.html">FifoTracker</a></li>
+        <li><a href="../rohd_hcl/FullAdder-class.html">FullAdder</a></li>
+        <li><a href="../rohd_hcl/MaskedDataPortInterface-class.html">MaskedDataPortInterface</a></li>
+        <li><a href="../rohd_hcl/Memory-class.html">Memory</a></li>
+        <li><a href="../rohd_hcl/MemoryStorage-class.html">MemoryStorage</a></li>
+        <li><a href="../rohd_hcl/Multiplier-class.html">Multiplier</a></li>
+        <li><a href="../rohd_hcl/OneHotToBinary-class.html">OneHotToBinary</a></li>
+        <li><a href="../rohd_hcl/PriorityArbiter-class.html">PriorityArbiter</a></li>
+        <li><a href="../rohd_hcl/RegisterFile-class.html">RegisterFile</a></li>
+        <li><a href="../rohd_hcl/RippleCarryAdder-class.html">RippleCarryAdder</a></li>
+        <li><a href="../rohd_hcl/RotateLeft-class.html">RotateLeft</a></li>
+        <li><a href="../rohd_hcl/RotateLeftFixed-class.html">RotateLeftFixed</a></li>
+        <li><a href="../rohd_hcl/RotateRight-class.html">RotateRight</a></li>
+        <li><a href="../rohd_hcl/RotateRightFixed-class.html">RotateRightFixed</a></li>
+        <li><a href="../rohd_hcl/Sort-class.html">Sort</a></li>
+        <li><a href="../rohd_hcl/SparseMemoryStorage-class.html">SparseMemoryStorage</a></li>
+        <li><a href="../rohd_hcl/TreeOneHotToBinary-class.html">TreeOneHotToBinary</a></li>
+
+      <li class="section-title"><a href="../rohd_hcl/rohd_hcl-library.html#extensions">Extensions</a></li>
+        <li><a href="../rohd_hcl/RotateLogic.html">RotateLogic</a></li>
+        <li><a href="../rohd_hcl/RotateLogicValue.html">RotateLogicValue</a></li>
+
+
+
+
+
+      <li class="section-title"><a href="../rohd_hcl/rohd_hcl-library.html#enums">Enums</a></li>
+        <li><a href="../rohd_hcl/ApbDirection.html">ApbDirection</a></li>
+        <li><a href="../rohd_hcl/DataPortGroup.html">DataPortGroup</a></li>
+
+
+      <li class="section-title"><a href="../rohd_hcl/rohd_hcl-library.html#exceptions">Exceptions</a></li>
+        <li><a href="../rohd_hcl/RohdHclException-class.html">RohdHclException</a></li>
+</ol>
+
+  </div>
+
+  <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+    <ol>
+
+        <li class="section-title"><a href="../rohd_hcl/SparseMemoryStorage-class.html#constructors">Constructors</a></li>
+          <li><a href="../rohd_hcl/SparseMemoryStorage/SparseMemoryStorage.html">SparseMemoryStorage</a></li>
+
+
+        <li class="section-title">
+          <a href="../rohd_hcl/SparseMemoryStorage-class.html#instance-properties">Properties</a>
+        </li>
+          <li class="inherited"><a href="../rohd_hcl/MemoryStorage/addrWidth.html">addrWidth</a></li>
+          <li class="inherited"><a href="../rohd_hcl/MemoryStorage/alignAddress.html">alignAddress</a></li>
+          <li class="inherited"><a href="../rohd_hcl/MemoryStorage/dataWidth.html">dataWidth</a></li>
+          <li class="inherited"><a href="https://api.dart.dev/stable/3.0.5/dart-core/Object/hashCode.html">hashCode</a></li>
+          <li><a href="../rohd_hcl/SparseMemoryStorage/isEmpty.html">isEmpty</a></li>
+          <li class="inherited"><a href="../rohd_hcl/MemoryStorage/onInvalidRead.html">onInvalidRead</a></li>
+          <li class="inherited"><a href="../rohd_hcl/MemoryStorage/onInvalidWrite.html">onInvalidWrite</a></li>
+          <li class="inherited"><a href="https://api.dart.dev/stable/3.0.5/dart-core/Object/runtimeType.html">runtimeType</a></li>
+
+        <li class="section-title"><a href="../rohd_hcl/SparseMemoryStorage-class.html#instance-methods">Methods</a></li>
+          <li><a href="../rohd_hcl/SparseMemoryStorage/getData.html">getData</a></li>
+          <li class="inherited"><a href="../rohd_hcl/MemoryStorage/invalidWrite.html">invalidWrite</a></li>
+          <li class="inherited"><a href="../rohd_hcl/MemoryStorage/loadMemHex.html">loadMemHex</a></li>
+          <li class="inherited"><a href="https://api.dart.dev/stable/3.0.5/dart-core/Object/noSuchMethod.html">noSuchMethod</a></li>
+          <li class="inherited"><a href="../rohd_hcl/MemoryStorage/readData.html">readData</a></li>
+          <li><a href="../rohd_hcl/SparseMemoryStorage/reset.html">reset</a></li>
+          <li><a href="../rohd_hcl/SparseMemoryStorage/setData.html">setData</a></li>
+          <li class="inherited"><a href="https://api.dart.dev/stable/3.0.5/dart-core/Object/toString.html">toString</a></li>
+          <li class="inherited"><a href="../rohd_hcl/MemoryStorage/writeData.html">writeData</a></li>
+
+        <li class="section-title inherited"><a href="../rohd_hcl/SparseMemoryStorage-class.html#operators">Operators</a></li>
+          <li class="inherited"><a href="https://api.dart.dev/stable/3.0.5/dart-core/Object/operator_equals.html">operator ==</a></li>
+
+
+
+
+</ol>
+
+  </div><!--/.sidebar-offcanvas-->
+
+</main>
+
+<footer>
+  <span class="no-break">
+    rohd_hcl
+      0.0.1
+  </span>
+
+  
+</footer>
+
+
+
+<script src="../static-assets/highlight.pack.js?v1"></script>
+<script src="../static-assets/docs.dart.js"></script>
+
+
+
+</body>
+
+</html>
+
