@@ -21,7 +21,12 @@ class ApbBfmTest extends Test {
   late final ApbInterface intf;
   late final ApbRequesterAgent requester;
 
-  final storage = SparseMemoryStorage(addrWidth: 32);
+  final storage = SparseMemoryStorage(
+    addrWidth: 32,
+    dataWidth: 32,
+    onInvalidRead: (addr, dataWidth) =>
+        LogicValue.filled(dataWidth, LogicValue.zero),
+  );
 
   final int numTransfers;
 
@@ -68,7 +73,7 @@ class ApbBfmTest extends Test {
     LogicValue strobedData(LogicValue originalData, LogicValue strobe) => [
           for (var i = 0; i < 4; i++)
             strobe[i].toBool()
-                ? originalData.getRange(i, i + 8)
+                ? originalData.getRange(i * 8, i * 8 + 8)
                 : LogicValue.filled(8, LogicValue.zero)
         ].rswizzle();
 
@@ -86,8 +91,10 @@ class ApbBfmTest extends Test {
       requester.sequencer.add(rdPkt);
 
       unawaited(rdPkt.completed.then((value) {
-        expect(rdPkt.returnedData, randomData[i]);
-        //  strobedData(randomData[i], randomStrobes[i]));
+        expect(
+          rdPkt.returnedData,
+          strobedData(randomData[i], randomStrobes[i]),
+        );
         numTransfersCompleted++;
       }));
     }

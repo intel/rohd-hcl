@@ -101,21 +101,19 @@ class ApbCompleterAgent extends Agent {
 
     if (packet is ApbWritePacket) {
       // store the data
-      storage.setData(
+      storage.writeData(
         packet.addr,
         _strobeData(
-          storage.getData(packet.addr) ??
-              LogicValue.filled(intf.dataWidth, LogicValue.x), //TODO
+          storage.readData(packet.addr),
           packet.data,
           packet.strobe,
         ),
       );
-      // storage.setData(packet.addr, packet.data);
       intf.ready.inject(1);
     } else if (packet is ApbReadPacket) {
       // capture the data
       Simulator.injectAction(() {
-        intf.rData.put(storage.getData(packet.addr));
+        intf.rData.put(storage.readData(packet.addr));
         intf.ready.put(1);
       });
     }
