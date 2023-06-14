@@ -47,11 +47,16 @@ abstract class MemoryStorage {
 
   /// A function to align addresses when used for transactions.
   ///
-  /// By default, this will align (mask) addresses to a multiple of 4.
+  /// By default, this will perform no modification to the address.
+  ///
+  /// As an example, to align (mask) addresses to multiples of 4:
+  /// ```dart
+  /// (addr) => addr - (addr % 4)
+  /// ```
   final LogicValue Function(LogicValue addr) alignAddress;
 
   /// Default behavior for [alignAddress].
-  static LogicValue _defaultAlignAddress(LogicValue addr) => addr - (addr % 4);
+  static LogicValue _defaultAlignAddress(LogicValue addr) => addr;
 
   /// Constrcuts a [MemoryStorage] with specified [addrWidth] and [dataWidth].
   MemoryStorage({
