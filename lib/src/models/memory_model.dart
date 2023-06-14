@@ -10,6 +10,8 @@
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
 
+//TODO: move the X, addr adjust, etc. over to storage
+
 /// A model of a [Memory] which uses a software-based [SparseMemoryStorage] to
 /// store data.
 ///

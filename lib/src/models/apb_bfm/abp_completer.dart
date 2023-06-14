@@ -63,11 +63,12 @@ class ApbCompleterAgent extends Agent {
   }
 
   /// Calculates a strobed version of data.
-  LogicValue _strobeData(LogicValue originalData, LogicValue strobe) => [
+  LogicValue _strobeData(
+          LogicValue originalData, LogicValue newData, LogicValue strobe) =>
+      [
         for (var i = 0; i < strobe.width; i++)
-          strobe[i].toBool()
-              ? originalData.getRange(i, i + 8)
-              : LogicValue.filled(8, LogicValue.zero)
+          (strobe[i].toBool() ? newData : originalData)
+              .getRange(i * 8, i * 8 + 8)
       ].rswizzle();
 
   /// Receives one packet (or returns if not selected).
@@ -100,8 +101,16 @@ class ApbCompleterAgent extends Agent {
 
     if (packet is ApbWritePacket) {
       // store the data
-      // storage.setData(packet.addr, _strobeData(packet.data, packet.strobe));
-      storage.setData(packet.addr, packet.data);
+      storage.setData(
+        packet.addr,
+        _strobeData(
+          storage.getData(packet.addr) ??
+              LogicValue.filled(intf.dataWidth, LogicValue.x), //TODO
+          packet.data,
+          packet.strobe,
+        ),
+      );
+      // storage.setData(packet.addr, packet.data);
       intf.ready.inject(1);
     } else if (packet is ApbReadPacket) {
       // capture the data
