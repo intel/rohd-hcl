@@ -327,12 +327,6 @@ class FifoTracker extends Tracker {
               columnWidth: fifo.dataWidth ~/ 4 + log2Ceil(fifo.dataWidth) + 1),
           TrackerField('Occupancy', columnWidth: fifo.depth ~/ 10 + 1),
         ]) {
-    // register previousValue listeners for important signals
-    fifo.readData.previousValue;
-    fifo._writeData.previousValue;
-    fifo._readEnable.previousValue;
-    fifo._writeEnable.previousValue;
-
     fifo._clk.posedge.listen((event) {
       if (fifo._writeEnable.previousValue!.toBool()) {
         record(_FifoEvent(
