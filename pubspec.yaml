@@ -23,4 +23,7 @@ dependency_overrides:
     git:
       url: https://github.com/mkorbel1/rohd-vf.git
       ref: pending_driver
-  
+  rohd:
+    git:
+      url: https://github.com/mkorbel1/rohd.git
+      ref: previousvalue

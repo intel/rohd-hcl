@@ -327,24 +327,25 @@ class FifoTracker extends Tracker {
               columnWidth: fifo.dataWidth ~/ 4 + log2Ceil(fifo.dataWidth) + 1),
           TrackerField('Occupancy', columnWidth: fifo.depth ~/ 10 + 1),
         ]) {
-    LogicValue? prevReadValue;
-    Simulator.preTick.listen((event) {
-      prevReadValue = fifo.readData.value;
-    });
+    // register previousValue listeners for important signals
+    fifo.readData.previousValue;
+    fifo._writeData.previousValue;
+    fifo._readEnable.previousValue;
+    fifo._writeEnable.previousValue;
 
     fifo._clk.posedge.listen((event) {
-      if (fifo._writeEnable.value.toBool()) {
+      if (fifo._writeEnable.previousValue!.toBool()) {
         record(_FifoEvent(
           _FifoCmd.wr,
-          fifo._writeData.value,
+          fifo._writeData.previousValue!,
           ++_occupancy,
         ));
       }
 
-      if (fifo._readEnable.value.toBool()) {
+      if (fifo._readEnable.previousValue!.toBool()) {
         record(_FifoEvent(
           _FifoCmd.rd,
-          prevReadValue!,
+          fifo.readData.previousValue!,
           --_occupancy,
         ));
       }
