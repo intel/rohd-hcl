@@ -123,11 +123,13 @@ class ApbCompleterAgent extends Agent {
       if (!(writeError && dropWriteDataOnError)) {
         storage.writeData(
           packet.addr,
-          _strobeData(
-            storage.readData(packet.addr),
-            packet.data,
-            packet.strobe,
-          ),
+          packet.strobe.and().toBool() // don't `readData` if all 1's
+              ? packet.data
+              : _strobeData(
+                  storage.readData(packet.addr),
+                  packet.data,
+                  packet.strobe,
+                ),
         );
       }
 

@@ -44,7 +44,7 @@ abstract class ApbPacket extends SequenceItem implements Trackable {
 
   @override
   String? trackerString(TrackerField field) {
-    switch (field) {
+    switch (field.title) {
       case ApbTracker.timeField:
         return Simulator.time.toString();
       case ApbTracker.addrField:
@@ -77,7 +77,7 @@ class ApbWritePacket extends ApbPacket {
 
   @override
   String? trackerString(TrackerField field) {
-    switch (field) {
+    switch (field.title) {
       case ApbTracker.typeField:
         return 'W';
       case ApbTracker.dataField:
@@ -113,7 +113,7 @@ class ApbReadPacket extends ApbPacket {
 
   @override
   String? trackerString(TrackerField field) {
-    switch (field) {
+    switch (field.title) {
       case ApbTracker.typeField:
         return 'R';
       case ApbTracker.dataField:

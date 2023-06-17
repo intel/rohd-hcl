@@ -32,24 +32,29 @@ class ApbMonitor extends Monitor<ApbPacket> {
 
     intf.clk.posedge.listen((event) {
       for (var i = 0; i < intf.numSelects; i++) {
-        if (intf.sel[i].value.toBool() &&
-            intf.enable.value.toBool() &&
-            intf.ready.value.toBool()) {
-          if (intf.write.value.toBool()) {
+        if (intf.sel[i].previousValue!.toBool() &&
+            intf.enable.previousValue!.toBool() &&
+            intf.ready.previousValue!.toBool()) {
+          if (intf.write.previousValue!.toBool()) {
             add(
               ApbWritePacket(
-                addr: intf.addr.value,
-                data: intf.wData.value,
-                strobe: intf.strb.value,
+                addr: intf.addr.previousValue!,
+                data: intf.wData.previousValue!,
+                strobe: intf.strb.previousValue,
                 selectIndex: i,
-              )..complete(slvErr: intf.slvErr?.value),
+              )..complete(
+                  slvErr: intf.slvErr?.previousValue,
+                ),
             );
           } else {
             add(
               ApbReadPacket(
-                addr: intf.addr.value,
+                addr: intf.addr.previousValue!,
                 selectIndex: i,
-              )..complete(data: intf.rData.value, slvErr: intf.slvErr?.value),
+              )..complete(
+                  data: intf.rData.previousValue,
+                  slvErr: intf.slvErr?.previousValue,
+                ),
             );
           }
         }
