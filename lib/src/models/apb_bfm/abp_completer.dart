@@ -108,10 +108,7 @@ class ApbCompleterAgent extends Agent {
     if (responseDelay != null) {
       final delayCycles = responseDelay!(packet);
       if (delayCycles > 0) {
-        await intf.clk.waitCycles(
-          delayCycles,
-          edge: Edge.neg,
-        );
+        await intf.clk.waitCycles(delayCycles);
       }
     }
 
@@ -145,7 +142,7 @@ class ApbCompleterAgent extends Agent {
       );
     }
 
-    // wait a cycle then end the transfer
+    // drop the ready when enable drops
     await intf.enable.nextNegedge;
     _respond(ready: false);
   }

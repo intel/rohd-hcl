@@ -39,7 +39,14 @@ class ApbRequesterDriver extends PendingClockedDriver<ApbPacket> {
   Future<void> run(Phase phase) async {
     unawaited(super.run(phase));
 
-    _deselectAll();
+    Simulator.injectAction(() {
+      _deselectAll();
+      intf.enable.put(0);
+      intf.write.put(0);
+      intf.addr.put(0);
+      intf.wData.put(0);
+      intf.strb.put(0);
+    });
 
     // wait for reset to complete before driving anything
     await intf.resetN.nextPosedge;
@@ -48,7 +55,7 @@ class ApbRequesterDriver extends PendingClockedDriver<ApbPacket> {
       if (pendingSeqItems.isNotEmpty) {
         await _drivePacket(pendingSeqItems.removeFirst());
       } else {
-        await intf.clk.nextNegedge;
+        await intf.clk.nextPosedge;
         Simulator.injectAction(() {
           _deselectAll();
           intf.enable.put(0);
@@ -61,7 +68,7 @@ class ApbRequesterDriver extends PendingClockedDriver<ApbPacket> {
   Future<void> _drivePacket(ApbPacket packet) async {
     // first, SETUP
 
-    await intf.clk.nextNegedge;
+    await intf.clk.nextPosedge;
 
     // if we're not selecting this interface, then we need to select it
     if (!intf.sel[packet.selectIndex].value.toBool()) {
@@ -83,7 +90,7 @@ class ApbRequesterDriver extends PendingClockedDriver<ApbPacket> {
       }
     });
 
-    await intf.clk.nextNegedge;
+    await intf.clk.nextPosedge;
 
     // now, ACCESS
     intf.enable.inject(1);
