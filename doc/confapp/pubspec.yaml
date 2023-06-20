@@ -12,9 +12,9 @@ dependencies:
   meta: ^1.9.1
   synchronized: ^3.1.0
   rohd:
-    path: /home/yquek/home/workspace/rohd-hcl/doc/rohd
+    path: rohd
   rohd_hcl:
-    path: /home/yquek/home/workspace/rohd-hcl
+    path: ../..
 
 dev_dependencies:
   build_runner: ^2.4.0
