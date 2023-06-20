@@ -51,7 +51,7 @@ class ApbTracker extends Tracker<ApbPacket> {
           const TrackerField(typeField, columnWidth: 1),
           const TrackerField(addrField, columnWidth: 12),
           const TrackerField(dataField, columnWidth: 12),
-          const TrackerField(slverrField, columnWidth: 4),
+          const TrackerField(strobeField, columnWidth: 4),
           if (intf.includeSlvErr)
             const TrackerField(slverrField, columnWidth: 1),
         ]);
