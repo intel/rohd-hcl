@@ -129,7 +129,7 @@ class ApbBfmTest extends Test {
         numTransfersCompleted++;
       }));
 
-      await waitCycles(intf.clk, interTxnDelay);
+      await intf.clk.waitCycles(interTxnDelay);
     }
 
     // normal reads that check data
@@ -152,16 +152,16 @@ class ApbBfmTest extends Test {
         numTransfersCompleted++;
       }));
 
-      await waitCycles(intf.clk, interTxnDelay);
+      await intf.clk.waitCycles(interTxnDelay);
     }
 
     obj.drop();
   }
 
   Future<void> _resetFlow() async {
-    await waitCycles(intf.clk, 2);
+    await intf.clk.waitCycles(2);
     intf.resetN.inject(0);
-    await waitCycles(intf.clk, 3);
+    await intf.clk.waitCycles(3);
     intf.resetN.inject(1);
   }
 

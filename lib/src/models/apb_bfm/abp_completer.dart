@@ -108,8 +108,7 @@ class ApbCompleterAgent extends Agent {
     if (responseDelay != null) {
       final delayCycles = responseDelay!(packet);
       if (delayCycles > 0) {
-        await waitCycles(
-          intf.clk,
+        await intf.clk.waitCycles(
           delayCycles,
           edge: Edge.neg,
         );
