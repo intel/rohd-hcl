@@ -11,8 +11,7 @@ environment:
   sdk: '>=2.18.0 <3.0.0'
 
 dependencies:
-  rohd:
-    path: doc/confapp/rohd
+  rohd: ^0.4.2
 
 dev_dependencies:
   test: ^1.21.0
