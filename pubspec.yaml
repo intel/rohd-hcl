@@ -21,9 +21,9 @@ dev_dependencies:
 dependency_overrides:
   rohd:
     git:
-      url: https://github.com/mkorbel1/rohd.git
+      url: https://github.com/intel/rohd.git
       ref: main
   rohd_vf:
     git:
-      url: https://github.com/mkorbel1/rohd-vf.git
+      url: https://github.com/intel/rohd-vf.git
       ref: main
