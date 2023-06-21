@@ -62,10 +62,12 @@ abstract class MemoryStorage {
   MemoryStorage({
     required this.addrWidth,
     required this.dataWidth,
-    this.onInvalidWrite = _defaultOnInvalidWrite,
-    this.onInvalidRead = _defaultOnInvalidRead,
-    this.alignAddress = _defaultAlignAddress,
-  });
+    void Function()? onInvalidWrite = _defaultOnInvalidWrite,
+    LogicValue Function(LogicValue addr, int dataWidth)? onInvalidRead,
+    LogicValue Function(LogicValue addr)? alignAddress,
+  })  : onInvalidWrite = onInvalidWrite ?? _defaultOnInvalidWrite,
+        onInvalidRead = onInvalidRead ?? _defaultOnInvalidRead,
+        alignAddress = alignAddress ?? _defaultAlignAddress;
 
   /// Reads a verilog-compliant hex file and preloads memory with it.
   ///
