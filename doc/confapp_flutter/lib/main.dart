@@ -45,10 +45,10 @@ class _SVGeneratorPageState extends State<SVGeneratorPage> {
     if (_formKey.currentState!.validate()) {
       _formKey.currentState!.save();
 
-      for (int i = 0; i < rotateGen.knobs.length; i++) {
-        print(rotateGen.knobs[i].name);
-        print(rotateGen.knobs[i].value);
-      }
+      // for (int i = 0; i < rotateGen.knobs.length; i++) {
+      //   print(rotateGen.knobs[i].name);
+      //   print(rotateGen.knobs[i].value);
+      // }
     }
     final res = await rotateGen.generate();
 
