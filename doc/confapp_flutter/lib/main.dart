@@ -1,6 +1,6 @@
 import 'package:confapp_flutter/testingPage.dart';
 import 'package:flutter/material.dart';
-import 'generateRTL.dart';
+import 'generate_RTL.dart';
 import 'package:flutter/services.dart';
 
 void main() {
@@ -16,9 +16,9 @@ class ROHDHclConfigApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       title: 'ROHD-HCL',
       theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: const Color(0x00082E8A)),
-        useMaterial3: true,
-      ),
+          colorScheme: ColorScheme.fromSeed(seedColor: const Color(0x00082E8A)),
+          useMaterial3: true,
+          scaffoldBackgroundColor: const Color(0x00BED9FF)),
       home: const SVGeneratorPage(title: 'ROHD-HCL'),
     );
   }
@@ -36,19 +36,68 @@ class SVGeneratorPage extends StatefulWidget {
 
 class _SVGeneratorPageState extends State<SVGeneratorPage> {
   String svTextGen = 'Generated System Verilog here!';
-  String _rotateAmount = '22';
+
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+  List<Widget> textFormField = [];
+  late RotateGenerator rotateGen;
 
   void _generateRTL() async {
     if (_formKey.currentState!.validate()) {
       _formKey.currentState!.save();
 
-      print(_rotateAmount);
+      for (int i = 0; i < rotateGen.knobs.length; i++) {
+        print(rotateGen.knobs[i].name);
+        print(rotateGen.knobs[i].value);
+      }
     }
-    final res = await RotateGenerator().generate();
+    final res = await rotateGen.generate();
+
     setState(() {
       svTextGen = res;
     });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+
+    // initialized how many knobs needed to construct field form
+    rotateGen = RotateGenerator();
+
+    for (int i = 0; i < rotateGen.knobs.length; i++) {
+      final knob = rotateGen.knobs[i];
+      final knobLabel = knob.name;
+
+      textFormField.add(
+        const SizedBox(
+          height: 16,
+        ),
+      );
+
+      textFormField.add(
+        SizedBox(
+          width: 250,
+          child: TextFormField(
+              decoration: InputDecoration(
+                border: OutlineInputBorder(),
+                labelText: knobLabel,
+              ),
+              validator: (value) {
+                if (value!.isEmpty) {
+                  return 'Please enter value';
+                }
+                return null;
+              },
+              onSaved: (value) {
+                if (knob.runtimeType == IntConfigKnob) {
+                  rotateGen.knobs[i].value = int.parse(value.toString());
+                } else {
+                  rotateGen.knobs[i].value = value ?? '10';
+                }
+              }),
+        ),
+      );
+    }
   }
 
   @override
@@ -99,45 +148,9 @@ class _SVGeneratorPageState extends State<SVGeneratorPage> {
                     key: _formKey,
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
-                      children: <Widget>[
-                        SizedBox(
-                          width: 250,
-                          child: TextFormField(
-                              decoration: InputDecoration(
-                                border: OutlineInputBorder(),
-                                labelText: 'rotate amount',
-                              ),
-                              validator: (value) {
-                                if (value!.isEmpty) {
-                                  return 'Please enter value';
-                                }
-                                return null;
-                              },
-                              onSaved: (value) {
-                                _rotateAmount = value ?? '10';
-                              }),
-                        ),
-                        SizedBox(
-                          height: 16,
-                        ),
-                        SizedBox(
-                          width: 250,
-                          child: TextFormField(
-                              decoration: InputDecoration(
-                                border: OutlineInputBorder(),
-                                labelText: 'rotate amount',
-                              ),
-                              validator: (value) {
-                                if (value!.isEmpty) {
-                                  return 'Please enter value';
-                                }
-                                return null;
-                              },
-                              onSaved: (value) {
-                                _rotateAmount = value ?? '10';
-                              }),
-                        ),
-                        SizedBox(
+                      children: [
+                        ...textFormField,
+                        const SizedBox(
                           height: 16,
                         ),
                         ElevatedButton(
@@ -170,11 +183,11 @@ class _SVGeneratorPageState extends State<SVGeneratorPage> {
                             onPressed: () {
                               Clipboard.setData(ClipboardData(text: svTextGen));
                               ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(
+                                const SnackBar(
                                     content: Text('Text copied to clipboard')),
                               );
                             },
-                            child: Text('Copy Text'),
+                            child: const Text('Copy SV'),
                           ),
                         ),
                         SelectableText(
