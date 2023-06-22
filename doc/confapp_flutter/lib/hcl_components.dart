@@ -7,5 +7,6 @@ class WebPageGenerator {
     RotateGenerator(),
     PriorityArbiterGenerator(),
     RippleCarryAdderGenerator(),
+    PipelinedIntegerMultiplierGenerator(),
   ];
 }
