@@ -1,4 +1,3 @@
-import 'package:flutter/material.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
 import 'package:rohd/rohd.dart';
 
@@ -20,6 +19,24 @@ class StringConfigKnob<String> extends ConfigKnob {
 abstract class ConfigGenerator {
   List<ConfigKnob> get knobs;
   Future<String> generate();
+}
+
+/// Rotate Component.
+class RotateComponent extends Module {
+  late final RotateLeft rotateLeft;
+  late final RotateRight rotateRight;
+  RotateComponent(
+    Logic original,
+    Logic rotateAmount,
+    int? maxAmount,
+  ) {
+    rotateLeft = RotateLeft(original, rotateAmount, maxAmount: maxAmount);
+    rotateRight = RotateRight(
+      original,
+      rotateAmount,
+      maxAmount: maxAmount,
+    );
+  }
 }
 
 class RotateGenerator extends ConfigGenerator {
@@ -58,21 +75,15 @@ class RotateGenerator extends ConfigGenerator {
   }
 }
 
-/// Rotate Component.
-class RotateComponent extends Module {
-  late final RotateLeft rotateLeft;
-  late final RotateRight rotateRight;
-  RotateComponent(
-    Logic original,
-    Logic rotateAmount,
-    int? maxAmount,
-  ) {
-    rotateLeft = RotateLeft(original, rotateAmount, maxAmount: maxAmount);
-    rotateRight = RotateRight(
-      original,
-      rotateAmount,
-      maxAmount: maxAmount,
-    );
+class SampleGenerator extends ConfigGenerator {
+  final StringConfigKnob sampleKnob = StringConfigKnob('sampleKnob');
+
+  @override
+  late final List<ConfigKnob> knobs = [sampleKnob];
+
+  @override
+  Future<String> generate() async {
+    return 'component 1 system verilog';
   }
 }
 

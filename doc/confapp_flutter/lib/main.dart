@@ -24,7 +24,6 @@ class ROHDHclConfigApp extends StatelessWidget {
   }
 }
 
-// My Widget
 class SVGeneratorPage extends StatefulWidget {
   const SVGeneratorPage({super.key, required this.title});
 
@@ -39,7 +38,17 @@ class _SVGeneratorPageState extends State<SVGeneratorPage> {
 
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   List<Widget> textFormField = [];
-  late RotateGenerator rotateGen;
+  late dynamic rotateGen;
+
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+
+  void _openDrawer() {
+    _scaffoldKey.currentState!.openDrawer();
+  }
+
+  void _closeDrawer() {
+    Navigator.of(context).pop();
+  }
 
   void _generateRTL() async {
     if (_formKey.currentState!.validate()) {
@@ -57,11 +66,57 @@ class _SVGeneratorPageState extends State<SVGeneratorPage> {
     });
   }
 
+  void _selectComponent(componentGenerator) {
+    textFormField = [];
+    rotateGen = componentGenerator;
+
+    setState(() {
+      for (int i = 0; i < rotateGen.knobs.length; i++) {
+        final knob = rotateGen.knobs[i];
+        final knobLabel = knob.name;
+
+        textFormField.add(
+          const SizedBox(
+            height: 16,
+          ),
+        );
+
+        textFormField.add(
+          SizedBox(
+            width: 250,
+            child: TextFormField(
+                decoration: InputDecoration(
+                  border: OutlineInputBorder(),
+                  labelText: knobLabel,
+                ),
+                validator: (value) {
+                  if (value!.isEmpty) {
+                    return 'Please enter value';
+                  }
+                  return null;
+                },
+                onSaved: (value) {
+                  if (knob.runtimeType == IntConfigKnob) {
+                    rotateGen.knobs[i].value = int.parse(value.toString());
+                  } else {
+                    rotateGen.knobs[i].value = value ?? '10';
+                  }
+                }),
+          ),
+        );
+      }
+    });
+  }
+
   @override
   void initState() {
     super.initState();
 
-    // initialized how many knobs needed to construct field form
+    /// Drawer will shows all components
+    final components = WebPageGenerator();
+    print(components.generators);
+    //////
+
     rotateGen = RotateGenerator();
 
     for (int i = 0; i < rotateGen.knobs.length; i++) {
@@ -107,6 +162,38 @@ class _SVGeneratorPageState extends State<SVGeneratorPage> {
     final screenWidth = MediaQuery.of(context).size.width;
 
     return Scaffold(
+      key: _scaffoldKey,
+      drawer: Drawer(
+        child: ListView(
+          scrollDirection: Axis.vertical,
+          children: ListTile.divideTiles(context: context, tiles: [
+            ListTile(
+              title: TextButton(
+                style: TextButton.styleFrom(
+                  textStyle: const TextStyle(fontSize: 20),
+                ),
+                onPressed: () => _selectComponent(RotateGenerator()),
+                child: Text('Rotate'),
+              ),
+            ),
+            ListTile(
+              title: TextButton(
+                style: TextButton.styleFrom(
+                  textStyle: const TextStyle(fontSize: 20),
+                ),
+                onPressed: () => _selectComponent(SampleGenerator()),
+                child: Text('Fake Component'),
+              ),
+            ),
+            ListTile(
+              title: ElevatedButton(
+                onPressed: _closeDrawer,
+                child: const Text('Close Drawer'),
+              ),
+            ),
+          ]).toList(),
+        ),
+      ),
       appBar: AppBar(
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
         title: Text(widget.title),
