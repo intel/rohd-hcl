@@ -1,2 +1,2 @@
 export './rotate_generator.dart';
-export './sample_generator.dart';
+export 'arbiter_generator.dart';
