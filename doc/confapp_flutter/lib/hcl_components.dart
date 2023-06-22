@@ -8,5 +8,6 @@ class WebPageGenerator {
     PriorityArbiterGenerator(),
     RippleCarryAdderGenerator(),
     PipelinedIntegerMultiplierGenerator(),
+    BitonicSortGenerator(),
   ];
 }
