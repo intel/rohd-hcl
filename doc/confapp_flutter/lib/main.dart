@@ -1,6 +1,7 @@
 import 'package:confapp_flutter/testingPage.dart';
 import 'package:flutter/material.dart';
-import 'generate_RTL.dart';
+import 'package:confapp_flutter/hcl_components.dart';
+import 'package:confapp_flutter/components/config.dart';
 import 'package:flutter/services.dart';
 
 void main() {
@@ -38,6 +39,7 @@ class _SVGeneratorPageState extends State<SVGeneratorPage> {
 
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   List<Widget> textFormField = [];
+  List<Widget> drawerList = [];
   late dynamic rotateGen;
 
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
@@ -114,10 +116,21 @@ class _SVGeneratorPageState extends State<SVGeneratorPage> {
 
     /// Drawer will shows all components
     final components = WebPageGenerator();
-    print(components.generators);
-    //////
+    for (int i = 0; i < components.generators.length; i++) {
+      drawerList.add(
+        ListTile(
+          title: TextButton(
+            style: TextButton.styleFrom(
+              textStyle: const TextStyle(fontSize: 20),
+            ),
+            onPressed: () => _selectComponent(components.generators[i]),
+            child: Text(components.generators[i].componentName),
+          ),
+        ),
+      );
+    }
 
-    rotateGen = RotateGenerator();
+    rotateGen = WebPageGenerator().generators[0];
 
     for (int i = 0; i < rotateGen.knobs.length; i++) {
       final knob = rotateGen.knobs[i];
@@ -166,32 +179,8 @@ class _SVGeneratorPageState extends State<SVGeneratorPage> {
       drawer: Drawer(
         child: ListView(
           scrollDirection: Axis.vertical,
-          children: ListTile.divideTiles(context: context, tiles: [
-            ListTile(
-              title: TextButton(
-                style: TextButton.styleFrom(
-                  textStyle: const TextStyle(fontSize: 20),
-                ),
-                onPressed: () => _selectComponent(RotateGenerator()),
-                child: Text('Rotate'),
-              ),
-            ),
-            ListTile(
-              title: TextButton(
-                style: TextButton.styleFrom(
-                  textStyle: const TextStyle(fontSize: 20),
-                ),
-                onPressed: () => _selectComponent(SampleGenerator()),
-                child: Text('Fake Component'),
-              ),
-            ),
-            ListTile(
-              title: ElevatedButton(
-                onPressed: _closeDrawer,
-                child: const Text('Close Drawer'),
-              ),
-            ),
-          ]).toList(),
+          children: ListTile.divideTiles(context: context, tiles: drawerList)
+              .toList(),
         ),
       ),
       appBar: AppBar(

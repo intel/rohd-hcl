@@ -1,27 +1,7 @@
 import 'package:rohd_hcl/rohd_hcl.dart';
 import 'package:rohd/rohd.dart';
+import 'package:confapp_flutter/components/config.dart';
 
-abstract class ConfigKnob<T> {
-  final String name;
-  T? value;
-
-  ConfigKnob(this.name);
-}
-
-class IntConfigKnob<int> extends ConfigKnob {
-  IntConfigKnob(super.name);
-}
-
-class StringConfigKnob<String> extends ConfigKnob {
-  StringConfigKnob(super.name);
-}
-
-abstract class ConfigGenerator {
-  List<ConfigKnob> get knobs;
-  Future<String> generate();
-}
-
-/// Rotate Component.
 class RotateComponent extends Module {
   late final RotateLeft rotateLeft;
   late final RotateRight rotateRight;
@@ -49,6 +29,9 @@ class RotateGenerator extends ConfigGenerator {
   // radio button to choose which component to generate? Rotate Left or Right
 
   @override
+  final componentName = 'Rotate';
+
+  @override
   late final List<ConfigKnob> knobs = [
     originalWidthKnob,
     rotateAmountWidthKnob,
@@ -73,20 +56,4 @@ class RotateGenerator extends ConfigGenerator {
     await rotateCom.build();
     return rotateCom.generateSynth();
   }
-}
-
-class SampleGenerator extends ConfigGenerator {
-  final StringConfigKnob sampleKnob = StringConfigKnob('sampleKnob');
-
-  @override
-  late final List<ConfigKnob> knobs = [sampleKnob];
-
-  @override
-  Future<String> generate() async {
-    return 'component 1 system verilog';
-  }
-}
-
-class WebPageGenerator {
-  final List<ConfigGenerator> generators = [RotateGenerator()];
 }
