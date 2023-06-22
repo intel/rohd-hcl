@@ -15,3 +15,9 @@ The `RegisterFile` accepts masks on writes, but not on reads.
 Currently, `RegisterFile` only generates flop-based memory (no latches).
 
 The read path is combinational, so data is provided immediately according to the control signals.
+
+[RegisterFile Schematic](https://intel.github.io/rohd-hcl/RegisterFile.html)
+
+## Memory Models
+
+The `MemoryModel` has the same interface as a `Memory`, but is non-synthesizable and uses a software-based `SparseMemoryStorage` as a backing for data storage. This is a useful tool for testing systems that have relatively large memories.

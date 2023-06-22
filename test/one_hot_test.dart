@@ -9,6 +9,7 @@
 //
 
 import 'dart:math';
+
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/src/one_hot.dart';
 import 'package:rohd_hcl/src/utils.dart';
@@ -25,7 +26,7 @@ void main() {
           equals(LogicValue.ofBigInt(val, pow(2, w).toInt())));
     }
   });
-  test('simple_decode', () {
+  test('simple_decode', () async {
     // Compute the first 1 in a binary value
     // Limited to 64 by the Case matching inside
     for (var pos = 0; pos < 1000; pos++) {

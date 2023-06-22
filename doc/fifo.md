@@ -29,3 +29,38 @@ There is no guarantee that the `error` signal will hold high once asserted once.
 ## Occupancy
 
 Occupancy information can optionally be generated and provided if `generateOccupancy` is set.  The `occupancy` signal will indicate the number of items currently stored in the FIFO.
+
+## Example Schematic
+
+An example schematic for one configuration is viewable here: [FIFO Schematic](https://intel.github.io/rohd-hcl/Fifo.html)
+
+## Testbench Utilities
+
+The FIFO comes with both a checker and a tracker that you can leverage in your testbench.
+
+### Checker
+
+The `FifoChecker` is a ROHD-VF component which will watch for proper usge of a FIFO in your simulation. It is intended to check usage, not  the internal workings of the FIFO, which are already pre-validated in the unit tests.  This means it covers things like underflow, overflow, and that the FIFO is empty at the end of the test.
+
+### Tracker
+
+The `FifoTracker` will generate log files using the `Tracker` from ROHD-VF in either table or JSON format.  It tracks reads and writes per timestamp, including data pushed/popped and the current occupancy.  An example table is shown below (from one of the unit tests):
+
+```text
+----------------------------------------
+ | T        | C  | D              | O | 
+ | I        | O  | A              | C | 
+ | M        | M  | T              | C | 
+ | E        | M  | A              | U | 
+ |          | A  |                | P | 
+ |          | N  |                | A | 
+ |          | D  |                | N | 
+ |          |    |                | C | 
+ |          |    |                | Y | 
+----------------------------------------
+ |       55 | WR |        32'h111 | 1 | {Time: 55, Command: WR, Data: 32'h111, Occupancy: 1}
+ |       75 | WR |        32'h222 | 2 | {Time: 75, Command: WR, Data: 32'h222, Occupancy: 2}
+ |       75 | RD |        32'h111 | 1 | {Time: 75, Command: RD, Data: 32'h111, Occupancy: 1}
+ |       85 | RD |        32'h222 | 0 | {Time: 85, Command: RD, Data: 32'h222, Occupancy: 0}
+
+```
