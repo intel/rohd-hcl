@@ -1,8 +1,11 @@
 import 'package:confapp_flutter/testingPage.dart';
+import 'package:confapp_flutter/widget/sidebar_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:confapp_flutter/hcl_components.dart';
 import 'package:confapp_flutter/components/config.dart';
 import 'package:flutter/services.dart';
+import 'package:sidebarx/sidebarx.dart';
+import './widget/content_widget.dart';
 
 void main() {
   runApp(const ROHDHclConfigApp());
@@ -20,61 +23,41 @@ class ROHDHclConfigApp extends StatelessWidget {
           colorScheme: ColorScheme.fromSeed(seedColor: const Color(0x00082E8A)),
           useMaterial3: true,
           scaffoldBackgroundColor: const Color(0x00BED9FF)),
-      home: const SVGeneratorPage(title: 'ROHD-HCL'),
+      home: const MainPage(title: 'ROHD-HCL'),
     );
   }
 }
 
-class SVGeneratorPage extends StatefulWidget {
-  const SVGeneratorPage({super.key, required this.title});
+class MainPage extends StatefulWidget {
+  const MainPage({super.key, required this.title});
 
   final String title;
 
   @override
-  State<SVGeneratorPage> createState() => _SVGeneratorPageState();
+  State<MainPage> createState() => _MainPageState();
 }
 
-class _SVGeneratorPageState extends State<SVGeneratorPage> {
-  String svTextGen = 'Generated System Verilog here!';
-
-  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
-  List<Widget> textFormField = [];
+class _MainPageState extends State<MainPage> {
+  final _controller = SidebarXController(selectedIndex: 0, extended: true);
   List<Widget> drawerList = [];
-  late dynamic rotateGen;
-
+  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
-  void _openDrawer() {
-    _scaffoldKey.currentState!.openDrawer();
-  }
+  late ConfigGenerator component;
+  List<Widget> textFormField = []; // shared variable
+  String svTextGen = 'Generated System Verilog here!';
 
-  void _closeDrawer() {
-    Navigator.of(context).pop();
-  }
+  final ButtonStyle btnStyle =
+      ElevatedButton.styleFrom(textStyle: const TextStyle(fontSize: 20));
 
-  void _generateRTL() async {
-    if (_formKey.currentState!.validate()) {
-      _formKey.currentState!.save();
-
-      // for (int i = 0; i < rotateGen.knobs.length; i++) {
-      //   print(rotateGen.knobs[i].name);
-      //   print(rotateGen.knobs[i].value);
-      // }
-    }
-    final res = await rotateGen.generate();
-
-    setState(() {
-      svTextGen = res;
-    });
-  }
-
-  void _selectComponent(componentGenerator) {
+  // Change the input form
+  void selectComponent(componentGenerator) {
     textFormField = [];
-    rotateGen = componentGenerator;
+    component = componentGenerator;
 
     setState(() {
-      for (int i = 0; i < rotateGen.knobs.length; i++) {
-        final knob = rotateGen.knobs[i];
+      for (int i = 0; i < component.knobs.length; i++) {
+        final knob = component.knobs[i];
         final knobLabel = knob.name;
 
         textFormField.add(
@@ -99,9 +82,9 @@ class _SVGeneratorPageState extends State<SVGeneratorPage> {
                 },
                 onSaved: (value) {
                   if (knob.runtimeType == IntConfigKnob) {
-                    rotateGen.knobs[i].value = int.parse(value.toString());
+                    component.knobs[i].value = int.parse(value.toString());
                   } else {
-                    rotateGen.knobs[i].value = value ?? '10';
+                    component.knobs[i].value = value ?? '10';
                   }
                 }),
           ),
@@ -111,171 +94,55 @@ class _SVGeneratorPageState extends State<SVGeneratorPage> {
   }
 
   @override
-  void initState() {
-    super.initState();
-
-    /// Drawer will shows all components
-    final components = WebPageGenerator();
-    for (int i = 0; i < components.generators.length; i++) {
-      drawerList.add(
-        ListTile(
-          title: TextButton(
-            style: TextButton.styleFrom(
-              textStyle: const TextStyle(fontSize: 20),
-            ),
-            onPressed: () => _selectComponent(components.generators[i]),
-            child: Text(components.generators[i].componentName),
-          ),
-        ),
-      );
-    }
-
-    rotateGen = WebPageGenerator().generators[0];
-
-    for (int i = 0; i < rotateGen.knobs.length; i++) {
-      final knob = rotateGen.knobs[i];
-      final knobLabel = knob.name;
-
-      textFormField.add(
-        const SizedBox(
-          height: 16,
-        ),
-      );
-
-      textFormField.add(
-        SizedBox(
-          width: 250,
-          child: TextFormField(
-              decoration: InputDecoration(
-                border: OutlineInputBorder(),
-                labelText: knobLabel,
-              ),
-              validator: (value) {
-                if (value!.isEmpty) {
-                  return 'Please enter value';
-                }
-                return null;
-              },
-              onSaved: (value) {
-                if (knob.runtimeType == IntConfigKnob) {
-                  rotateGen.knobs[i].value = int.parse(value.toString());
-                } else {
-                  rotateGen.knobs[i].value = value ?? '10';
-                }
-              }),
-        ),
-      );
-    }
-  }
-
-  @override
   Widget build(BuildContext context) {
-    final ButtonStyle btnStyle =
-        ElevatedButton.styleFrom(textStyle: const TextStyle(fontSize: 20));
     final screenWidth = MediaQuery.of(context).size.width;
+    final isSmallScreen = MediaQuery.of(context).size.width < 600;
+    final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
     return Scaffold(
       key: _scaffoldKey,
-      drawer: Drawer(
-        child: ListView(
-          scrollDirection: Axis.vertical,
-          children: ListTile.divideTiles(context: context, tiles: drawerList)
-              .toList(),
-        ),
-      ),
-      appBar: AppBar(
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        title: Text(widget.title),
-        actions: [
-          Row(
-            children: [
-              SizedBox(
-                width: AppBar().preferredSize.height,
-              ),
-              IconButton(
-                onPressed: () {
-                  Navigator.push(context,
-                      MaterialPageRoute(builder: ((context) => TestPage())));
-                },
-                icon: const Icon(Icons.home),
-              ),
-              IconButton(
-                onPressed: () {
-                  Navigator.push(context,
-                      MaterialPageRoute(builder: ((context) => TestPage())));
-                },
-                icon: const Icon(Icons.menu),
-              ),
-            ],
-          )
-        ],
-      ),
+      // drawer: ComponentsSidebar(controller: _controller),
+      // appBar: AppBar(
+      //   backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+      //   title: Text(widget.title),
+      //   actions: [
+      //     Row(
+      //       children: [
+      //         SizedBox(
+      //           width: AppBar().preferredSize.height,
+      //         ),
+      //         IconButton(
+      //           onPressed: () {
+      //             Navigator.push(
+      //                 context,
+      //                 MaterialPageRoute(
+      //                     builder: ((context) => SidebarXExampleApp())));
+      //           },
+      //           icon: const Icon(Icons.home),
+      //         ),
+      //         IconButton(
+      //           onPressed: () {
+      //             Navigator.push(
+      //                 context,
+      //                 MaterialPageRoute(
+      //                     builder: ((context) => SidebarXExampleApp())));
+      //           },
+      //           icon: const Icon(Icons.menu),
+      //         ),
+      //       ],
+      //     )
+      //   ],
+      // ),
       body: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: [
-          // Form
-          Center(
-            child: Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Card(
-                child: Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Form(
-                    key: _formKey,
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        ...textFormField,
-                        const SizedBox(
-                          height: 16,
-                        ),
-                        ElevatedButton(
-                          onPressed: _generateRTL,
-                          style: btnStyle,
-                          child: const Text('Generate RTL'),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
-            ),
-          ),
-
-          // SV output
-          Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Card(
-              child: Container(
-                constraints: BoxConstraints(maxWidth: 600),
-                child: SingleChildScrollView(
-                  child: Padding(
-                    padding: const EdgeInsets.all(16.0),
-                    child: Stack(
-                      children: [
-                        Align(
-                          alignment: Alignment.topRight,
-                          child: ElevatedButton(
-                            onPressed: () {
-                              Clipboard.setData(ClipboardData(text: svTextGen));
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
-                                    content: Text('Text copied to clipboard')),
-                              );
-                            },
-                            child: const Text('Copy SV'),
-                          ),
-                        ),
-                        SelectableText(
-                          svTextGen,
-                          style: const TextStyle(
-                            fontSize: 18,
-                          ),
-                        )
-                      ],
-                    ),
-                  ),
-                ),
+          // Sidebar
+          if (!isSmallScreen)
+            ComponentsSidebar(
+                controller: _controller, updateForm: selectComponent),
+          Expanded(
+            child: Center(
+              child: SVGenerator(
+                controller: _controller,
               ),
             ),
           ),
