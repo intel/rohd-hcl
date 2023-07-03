@@ -1,14 +1,20 @@
+import 'dart:js';
+
+import 'package:confapp_flutter/models/component.dart';
 import 'package:confapp_flutter/testingPage.dart';
-import 'package:confapp_flutter/widget/sidebar_widget.dart';
+import 'package:confapp_flutter/screen/sidebar_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:confapp_flutter/hcl_components.dart';
 import 'package:confapp_flutter/components/config.dart';
 import 'package:flutter/services.dart';
+import 'package:provider/provider.dart';
 import 'package:sidebarx/sidebarx.dart';
-import './widget/content_widget.dart';
+import 'screen/content_widget.dart';
 
 void main() {
-  runApp(const ROHDHclConfigApp());
+  runApp(
+    const ROHDHclConfigApp(),
+  );
 }
 
 class ROHDHclConfigApp extends StatelessWidget {
@@ -101,52 +107,23 @@ class _MainPageState extends State<MainPage> {
 
     return Scaffold(
       key: _scaffoldKey,
-      // drawer: ComponentsSidebar(controller: _controller),
-      // appBar: AppBar(
-      //   backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-      //   title: Text(widget.title),
-      //   actions: [
-      //     Row(
-      //       children: [
-      //         SizedBox(
-      //           width: AppBar().preferredSize.height,
-      //         ),
-      //         IconButton(
-      //           onPressed: () {
-      //             Navigator.push(
-      //                 context,
-      //                 MaterialPageRoute(
-      //                     builder: ((context) => SidebarXExampleApp())));
-      //           },
-      //           icon: const Icon(Icons.home),
-      //         ),
-      //         IconButton(
-      //           onPressed: () {
-      //             Navigator.push(
-      //                 context,
-      //                 MaterialPageRoute(
-      //                     builder: ((context) => SidebarXExampleApp())));
-      //           },
-      //           icon: const Icon(Icons.menu),
-      //         ),
-      //       ],
-      //     )
-      //   ],
-      // ),
-      body: Row(
-        children: [
-          // Sidebar
-          if (!isSmallScreen)
-            ComponentsSidebar(
-                controller: _controller, updateForm: selectComponent),
-          Expanded(
-            child: Center(
-              child: SVGenerator(
-                controller: _controller,
+      body: ChangeNotifierProvider(
+        create: (context) => ComponentModel(),
+        child: Row(
+          children: [
+            // Sidebar
+            if (!isSmallScreen)
+              ComponentsSidebar(
+                  controller: _controller, updateForm: selectComponent),
+            Expanded(
+              child: Center(
+                child: SVGenerator(
+                  controller: _controller,
+                ),
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
