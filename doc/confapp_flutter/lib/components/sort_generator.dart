@@ -21,10 +21,11 @@ class _BitonicSortComponent extends Module {
 
 class BitonicSortGenerator extends ConfigGenerator {
   final IntConfigKnob lengthOfListKnob =
-      IntConfigKnob('Length of List (power of 2)');
-  final IntConfigKnob logicWidthKnob = IntConfigKnob('Logic Width');
+      IntConfigKnob('Length of List (power of 2)', defaultVal: 4);
+  final IntConfigKnob logicWidthKnob =
+      IntConfigKnob('Logic Width', defaultVal: 16);
   final IntConfigKnob isAscendingKnob =
-      IntConfigKnob('Sort in Ascending (1: true, 0: false)');
+      IntConfigKnob('Sort in Ascending (1: true, 0: false)', defaultVal: 1);
 
   @override
   final componentName = 'Bitonic Sort';

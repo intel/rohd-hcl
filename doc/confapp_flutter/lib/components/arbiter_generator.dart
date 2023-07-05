@@ -12,7 +12,8 @@ class PriorityArbiterComponent extends Module {
 }
 
 class PriorityArbiterGenerator extends ConfigGenerator {
-  final IntConfigKnob numRequestKnob = IntConfigKnob('numRequest');
+  final IntConfigKnob numRequestKnob =
+      IntConfigKnob('numRequest', defaultVal: 5);
 
   @override
   final componentName = 'Priority Arbiter';

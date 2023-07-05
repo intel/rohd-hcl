@@ -20,12 +20,14 @@ class RotateComponent extends Module {
 }
 
 class RotateGenerator extends ConfigGenerator {
-  final IntConfigKnob originalWidthKnob = IntConfigKnob('originalWidthKnob');
+  final IntConfigKnob originalWidthKnob =
+      IntConfigKnob('originalWidthKnob', defaultVal: 16);
   final IntConfigKnob rotateAmountWidthKnob =
-      IntConfigKnob('rotateAmountWidthKnob');
-  final IntConfigKnob maxAmountKnob = IntConfigKnob('maxAmountKnob');
+      IntConfigKnob('rotateAmountWidthKnob', defaultVal: 8);
+  final IntConfigKnob maxAmountKnob =
+      IntConfigKnob('maxAmountKnob', defaultVal: 20);
   final StringConfigKnob rotateDirectionKnob =
-      StringConfigKnob('rotateDirectionKnob');
+      StringConfigKnob('rotateDirectionKnob', defaultVal: 'right');
   // radio button to choose which component to generate? Rotate Left or Right
 
   @override
@@ -41,8 +43,10 @@ class RotateGenerator extends ConfigGenerator {
   @override
   Future<String> generate() async {
     var rotate = RotateComponent(
-      Logic(width: originalWidthKnob.value ?? 10),
-      Logic(width: rotateAmountWidthKnob.value ?? 10),
+      Logic(width: originalWidthKnob.value ?? originalWidthKnob.defaultVal),
+      Logic(
+          width:
+              rotateAmountWidthKnob.value ?? rotateAmountWidthKnob.defaultVal),
       maxAmountKnob.value,
     );
 

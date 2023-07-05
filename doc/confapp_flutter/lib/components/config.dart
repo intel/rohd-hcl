@@ -1,16 +1,17 @@
 abstract class ConfigKnob<T> {
   final String name;
   T? value;
+  T defaultVal;
 
-  ConfigKnob(this.name);
+  ConfigKnob(this.name, {required this.defaultVal});
 }
 
 class IntConfigKnob<int> extends ConfigKnob {
-  IntConfigKnob(super.name);
+  IntConfigKnob(super.name, {required super.defaultVal});
 }
 
 class StringConfigKnob<String> extends ConfigKnob {
-  StringConfigKnob(super.name);
+  StringConfigKnob(super.name, {required super.defaultVal});
 }
 
 abstract class ConfigGenerator {

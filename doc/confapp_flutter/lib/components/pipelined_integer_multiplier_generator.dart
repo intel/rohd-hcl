@@ -15,8 +15,10 @@ class PipelinedIntegerMultiplierComponent extends Module {
 }
 
 class PipelinedIntegerMultiplierGenerator extends ConfigGenerator {
-  final IntConfigKnob logicWidthKnob = IntConfigKnob('Logic Width');
-  final IntConfigKnob clockPeriodKnob = IntConfigKnob('Clock Period');
+  final IntConfigKnob logicWidthKnob =
+      IntConfigKnob('Logic Width', defaultVal: 16);
+  final IntConfigKnob clockPeriodKnob =
+      IntConfigKnob('Clock Period', defaultVal: 10);
 
   @override
   final componentName = 'Carry Save Multiplier';

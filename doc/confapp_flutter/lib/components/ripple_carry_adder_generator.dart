@@ -13,7 +13,8 @@ class RippleCarryAdderComponent extends Module {
 }
 
 class RippleCarryAdderGenerator extends ConfigGenerator {
-  final IntConfigKnob logicWidthKnob = IntConfigKnob('Logic Width');
+  final IntConfigKnob logicWidthKnob =
+      IntConfigKnob('Logic Width', defaultVal: 16);
 
   @override
   final componentName = 'Ripple Carry Adder';

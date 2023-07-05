@@ -1,15 +1,10 @@
-import 'dart:ui';
-
 import 'package:confapp_flutter/hcl/cubit/component_cubit.dart';
 import 'package:confapp_flutter/hcl/cubit/system_verilog_cubit.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:confapp_flutter/components/config.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:sidebarx/sidebarx.dart';
-import 'package:confapp_flutter/hcl/models/hcl_components.dart';
-import 'package:provider/provider.dart';
 
 class SVGenerator extends StatefulWidget {
   final SidebarXController controller;
@@ -55,6 +50,7 @@ class _SVGeneratorState extends State<SVGenerator> {
             for (int i = 0; i < component.knobs.length; i++) {
               final knob = component.knobs[i];
               final knobLabel = knob.name;
+              final knobDefaultVal = knob.defaultVal;
 
               textFormField.add(
                 const SizedBox(
@@ -66,24 +62,25 @@ class _SVGeneratorState extends State<SVGenerator> {
                 SizedBox(
                   width: 250,
                   child: TextFormField(
-                      decoration: InputDecoration(
-                        border: const OutlineInputBorder(),
-                        labelText: knobLabel,
-                      ),
-                      validator: (value) {
-                        if (value!.isEmpty) {
-                          return 'Please enter value';
-                        }
-                        return null;
-                      },
-                      onSaved: (value) {
-                        if (knob.runtimeType == IntConfigKnob) {
-                          component.knobs[i].value =
-                              int.parse(value.toString());
-                        } else {
-                          component.knobs[i].value = value ?? '10';
-                        }
-                      }),
+                    initialValue: knobDefaultVal.toString(),
+                    decoration: InputDecoration(
+                      border: const OutlineInputBorder(),
+                      labelText: knobLabel,
+                    ),
+                    validator: (value) {
+                      if (value!.isEmpty) {
+                        return 'Please enter value';
+                      }
+                      return null;
+                    },
+                    onSaved: (value) {
+                      if (knob.runtimeType == IntConfigKnob) {
+                        component.knobs[i].value = int.parse(value.toString());
+                      } else {
+                        component.knobs[i].value = value ?? '10';
+                      }
+                    },
+                  ),
                 ),
               );
             }
