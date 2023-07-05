@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:sidebarx/sidebarx.dart';
-import 'package:confapp_flutter/hcl/models/hcl_components.dart';
 import 'package:confapp_flutter/components/config.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:confapp_flutter/hcl/cubit/component_cubit.dart';
@@ -109,8 +108,12 @@ class _ComponentsSidebarState extends State<ComponentsSidebar> {
                 padding: EdgeInsets.all(16.0),
                 child: Center(
                     child: Text(
-                  'ROHD-HCL Components',
-                  style: TextStyle(color: Colors.white),
+                  'ROHD-HCL',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                  ),
                 )),
               ),
             );

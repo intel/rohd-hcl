@@ -39,6 +39,7 @@ class _SVGeneratorState extends State<SVGenerator> {
   Widget build(BuildContext context) {
     final rtlCubit = context.read<SystemVerilogCubit>();
     final screenWidth = MediaQuery.of(context).size.width;
+    final screenHeight = MediaQuery.of(context).size.height;
 
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -47,6 +48,18 @@ class _SVGeneratorState extends State<SVGenerator> {
           builder: (context, state) {
             textFormField = [];
             component = state;
+
+            // Add a title
+            textFormField.add(
+              Text(
+                state.componentName,
+                style: const TextStyle(
+                  fontSize: 25,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            );
+
             for (int i = 0; i < component.knobs.length; i++) {
               final knob = component.knobs[i];
               final knobLabel = knob.name;
@@ -60,7 +73,7 @@ class _SVGeneratorState extends State<SVGenerator> {
 
               textFormField.add(
                 SizedBox(
-                  width: 250,
+                  width: 400,
                   child: TextFormField(
                     initialValue: knobDefaultVal.toString(),
                     decoration: InputDecoration(
@@ -87,6 +100,10 @@ class _SVGeneratorState extends State<SVGenerator> {
 
             return Container(
               margin: const EdgeInsets.all(10),
+              constraints: BoxConstraints(
+                maxHeight: screenHeight / 2,
+                maxWidth: screenWidth / 3,
+              ),
               child: Card(
                 child: Padding(
                   padding: const EdgeInsets.all(16.0),
@@ -117,7 +134,8 @@ class _SVGeneratorState extends State<SVGenerator> {
         ),
         Card(
           child: Container(
-            constraints: BoxConstraints(maxWidth: screenWidth / 1.7),
+            constraints: BoxConstraints(
+                maxHeight: screenHeight / 2, maxWidth: screenWidth / 3),
             child: SingleChildScrollView(
               child: Padding(
                 padding: const EdgeInsets.all(16.0),
@@ -143,7 +161,9 @@ class _SVGeneratorState extends State<SVGenerator> {
                           child: SelectableText(
                             state,
                             style: const TextStyle(
-                                fontSize: 12, fontFamily: 'RobotoMono'),
+                              fontSize: 12,
+                              fontFamily: 'RobotoMono',
+                            ),
                           ),
                         )
                       ],
