@@ -1,3 +1,4 @@
+import 'package:confapp_flutter/components/config.dart';
 import 'package:confapp_flutter/hcl/cubit/system_verilog_cubit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -18,7 +19,7 @@ class HCLPage extends StatelessWidget {
               ComponentCubit(ComponentCubit.generator.components[0]),
         ),
         BlocProvider(
-          create: (BuildContext context) => SystemVerilogCubit(''),
+          create: (BuildContext context) => SystemVerilogCubit(),
         ),
       ],
       child: const HCLView(),

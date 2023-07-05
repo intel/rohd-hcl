@@ -6,7 +6,7 @@ import 'package:confapp_flutter/components/config.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:confapp_flutter/hcl/cubit/component_cubit.dart';
 
-const primaryColor = Color(0xFF685BFF);
+const primaryColor = Color.fromARGB(255, 160, 153, 240);
 const canvasColor = Color(0xFF2E2E48);
 const scaffoldBackgroundColor = Color(0xFF464667);
 const accentCanvasColor = Color(0xFF3E3E61);
@@ -107,7 +107,11 @@ class _ComponentsSidebarState extends State<ComponentsSidebar> {
               height: 100,
               child: Padding(
                 padding: EdgeInsets.all(16.0),
-                child: Center(child: Text('ROHD-HCL Components')),
+                child: Center(
+                    child: Text(
+                  'ROHD-HCL Components',
+                  style: TextStyle(color: Colors.white),
+                )),
               ),
             );
           },

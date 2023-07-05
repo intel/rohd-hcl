@@ -24,8 +24,6 @@ class SVGenerator extends StatefulWidget {
 }
 
 class _SVGeneratorState extends State<SVGenerator> {
-  String svTextGen = 'Generated System Verilog here!';
-
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   List<Widget> textFormField = [];
   late ConfigGenerator component;
@@ -36,39 +34,20 @@ class _SVGeneratorState extends State<SVGenerator> {
     if (form && _formKey.currentState!.validate()) {
       _formKey.currentState!.save();
     }
+
     final res = await component.generate();
 
     return res;
-
-    // String string =
-    //     await compute(component.generate, null);
-
-    // final rtlCubit = context.read<SystemVerilogCubit>();
-
-    // setState(() {
-    //   svTextGen = res;
-    // });
-  }
-
-  @override
-  void initState() {
-    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
-      final cubit = ComponentCubit(ComponentCubit.generator.components[0]);
-
-      component = cubit.selectedComponent;
-      _generateRTL(form: false);
-    });
-
-    super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
     final rtlCubit = context.read<SystemVerilogCubit>();
+    final screenWidth = MediaQuery.of(context).size.width;
 
     return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       children: [
-        // Form
         BlocBuilder<ComponentCubit, ConfigGenerator>(
           builder: (context, state) {
             textFormField = [];
@@ -109,7 +88,8 @@ class _SVGeneratorState extends State<SVGenerator> {
               );
             }
 
-            return Center(
+            return Container(
+              margin: const EdgeInsets.all(10),
               child: Card(
                 child: Padding(
                   padding: const EdgeInsets.all(16.0),
@@ -138,18 +118,15 @@ class _SVGeneratorState extends State<SVGenerator> {
             );
           },
         ),
-        // SV output
-        Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Card(
-            child: Container(
-              constraints: BoxConstraints(maxWidth: 800),
-              child: SingleChildScrollView(
-                child: Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: BlocBuilder<SystemVerilogCubit, String>(
-                      builder: (context, state) {
-                    return Stack(
+        Card(
+          child: Container(
+            constraints: BoxConstraints(maxWidth: screenWidth / 1.7),
+            child: SingleChildScrollView(
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: BlocBuilder<SystemVerilogCubit, String>(
+                  builder: (context, state) {
+                    return Column(
                       children: [
                         Align(
                           alignment: Alignment.topRight,
@@ -164,14 +141,17 @@ class _SVGeneratorState extends State<SVGenerator> {
                             child: const Text('Copy SV'),
                           ),
                         ),
-                        SelectableText(
-                          state,
-                          style: const TextStyle(
-                              fontSize: 12, fontFamily: 'RobotoMono'),
+                        Align(
+                          alignment: Alignment.centerLeft,
+                          child: SelectableText(
+                            state,
+                            style: const TextStyle(
+                                fontSize: 12, fontFamily: 'RobotoMono'),
+                          ),
                         )
                       ],
                     );
-                  }),
+                  },
                 ),
               ),
             ),

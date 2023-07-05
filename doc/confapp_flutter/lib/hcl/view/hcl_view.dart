@@ -42,7 +42,6 @@ class _MainPageState extends State<MainPage> {
 
   late ConfigGenerator component;
   List<Widget> textFormField = []; // shared variable
-  String svTextGen = 'Generated System Verilog here!';
 
   final ButtonStyle btnStyle =
       ElevatedButton.styleFrom(textStyle: const TextStyle(fontSize: 20));
@@ -100,15 +99,13 @@ class _MainPageState extends State<MainPage> {
       key: _scaffoldKey,
       body: Row(
         children: [
-          // Sidebar
-          if (!isSmallScreen)
-            ComponentsSidebar(
-                controller: _controller, updateForm: selectComponent),
-          Expanded(
-            child: Center(
-              child: SVGenerator(
-                controller: _controller,
-              ),
+          ComponentsSidebar(
+            controller: _controller,
+            updateForm: selectComponent,
+          ),
+          Flexible(
+            child: SVGenerator(
+              controller: _controller,
             ),
           ),
         ],
