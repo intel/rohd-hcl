@@ -1,11 +1,14 @@
 import 'dart:ui';
 
-import 'package:confapp_flutter/models/component.dart';
+import 'package:confapp_flutter/hcl/cubit/component_cubit.dart';
+import 'package:confapp_flutter/hcl/cubit/system_verilog_cubit.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:confapp_flutter/components/config.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:sidebarx/sidebarx.dart';
-import 'package:confapp_flutter/hcl_components.dart';
+import 'package:confapp_flutter/hcl/models/hcl_components.dart';
 import 'package:provider/provider.dart';
 
 class SVGenerator extends StatefulWidget {
@@ -29,23 +32,30 @@ class _SVGeneratorState extends State<SVGenerator> {
   final ButtonStyle btnStyle =
       ElevatedButton.styleFrom(textStyle: const TextStyle(fontSize: 20));
 
-  void _generateRTL({bool form = true}) async {
+  Future<String> _generateRTL({bool form = true}) async {
     if (form && _formKey.currentState!.validate()) {
       _formKey.currentState!.save();
     }
     final res = await component.generate();
 
-    setState(() {
-      svTextGen = res;
-    });
+    return res;
+
+    // String string =
+    //     await compute(component.generate, null);
+
+    // final rtlCubit = context.read<SystemVerilogCubit>();
+
+    // setState(() {
+    //   svTextGen = res;
+    // });
   }
 
   @override
   void initState() {
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
-      final componentModel =
-          Provider.of<ComponentModel>(context, listen: false);
-      component = componentModel.currComponent;
+      final cubit = ComponentCubit(ComponentCubit.generator.components[0]);
+
+      component = cubit.selectedComponent;
       _generateRTL(form: false);
     });
 
@@ -54,13 +64,15 @@ class _SVGeneratorState extends State<SVGenerator> {
 
   @override
   Widget build(BuildContext context) {
+    final rtlCubit = context.read<SystemVerilogCubit>();
+
     return Row(
       children: [
         // Form
-        Consumer<ComponentModel>(
-          builder: (context, componentsModel, child) {
+        BlocBuilder<ComponentCubit, ConfigGenerator>(
+          builder: (context, state) {
             textFormField = [];
-            component = componentsModel.currComponent;
+            component = state;
             for (int i = 0; i < component.knobs.length; i++) {
               final knob = component.knobs[i];
               final knobLabel = knob.name;
@@ -111,7 +123,10 @@ class _SVGeneratorState extends State<SVGenerator> {
                           height: 16,
                         ),
                         ElevatedButton(
-                          onPressed: _generateRTL,
+                          onPressed: () async {
+                            final rtlRes = await _generateRTL();
+                            rtlCubit.setRTL(rtlRes);
+                          },
                           style: btnStyle,
                           child: const Text('Generate RTL'),
                         ),
@@ -128,32 +143,35 @@ class _SVGeneratorState extends State<SVGenerator> {
           padding: const EdgeInsets.all(16.0),
           child: Card(
             child: Container(
-              constraints: BoxConstraints(maxWidth: 600),
+              constraints: BoxConstraints(maxWidth: 800),
               child: SingleChildScrollView(
                 child: Padding(
                   padding: const EdgeInsets.all(16.0),
-                  child: Stack(
-                    children: [
-                      Align(
-                        alignment: Alignment.topRight,
-                        child: ElevatedButton(
-                          onPressed: () {
-                            Clipboard.setData(ClipboardData(text: svTextGen));
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                  content: Text('Text copied to clipboard')),
-                            );
-                          },
-                          child: const Text('Copy SV'),
+                  child: BlocBuilder<SystemVerilogCubit, String>(
+                      builder: (context, state) {
+                    return Stack(
+                      children: [
+                        Align(
+                          alignment: Alignment.topRight,
+                          child: ElevatedButton(
+                            onPressed: () {
+                              Clipboard.setData(ClipboardData(text: state));
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                    content: Text('Text copied to clipboard')),
+                              );
+                            },
+                            child: const Text('Copy SV'),
+                          ),
                         ),
-                      ),
-                      SelectableText(
-                        svTextGen,
-                        style: const TextStyle(
-                            fontSize: 12, fontFamily: 'RobotoMono'),
-                      )
-                    ],
-                  ),
+                        SelectableText(
+                          state,
+                          style: const TextStyle(
+                              fontSize: 12, fontFamily: 'RobotoMono'),
+                        )
+                      ],
+                    );
+                  }),
                 ),
               ),
             ),

@@ -1,10 +1,18 @@
-import 'package:confapp_flutter/models/component.dart';
-import 'package:confapp_flutter/testingPage.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:sidebarx/sidebarx.dart';
-import 'package:confapp_flutter/hcl_components.dart';
+import 'package:confapp_flutter/hcl/models/hcl_components.dart';
 import 'package:confapp_flutter/components/config.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:confapp_flutter/hcl/cubit/component_cubit.dart';
+
+const primaryColor = Color(0xFF685BFF);
+const canvasColor = Color(0xFF2E2E48);
+const scaffoldBackgroundColor = Color(0xFF464667);
+const accentCanvasColor = Color(0xFF3E3E61);
+const white = Colors.white;
+final actionColor = const Color(0xFF5F5FA7).withOpacity(0.6);
+final divider = Divider(color: white.withOpacity(0.3), height: 1);
 
 class ComponentsSidebar extends StatefulWidget {
   final Function(void) updateForm;
@@ -29,23 +37,23 @@ class _ComponentsSidebarState extends State<ComponentsSidebar> {
 
   @override
   Widget build(BuildContext context) {
-    final components = context.read<ComponentModel>();
-    for (int i = 0; i < components.generators.length; i++) {
+    final comCubit = context.read<ComponentCubit>();
+
+    for (int i = 0; i < ComponentCubit.generator.components.length; i++) {
       componentsList.add(
         SidebarXItem(
           iconWidget: const FlutterLogo(size: 20),
-          label: components.generators[i].componentName,
-
-          // OnTap will update the ComponentModel
+          label: ComponentCubit.generator.components[i].componentName,
           onTap: () {
-            components.setComponent(components.generators[i]);
+            comCubit
+                .setSelectedComponent(ComponentCubit.generator.components[i]);
           },
         ),
       );
     }
 
-    return Consumer<ComponentModel>(
-      builder: (context, componentsModel, child) {
+    return BlocBuilder<ComponentCubit, ConfigGenerator>(
+      builder: (context, state) {
         return SidebarX(
           controller: widget._controller,
           theme: SidebarXTheme(
@@ -95,11 +103,11 @@ class _ComponentsSidebarState extends State<ComponentsSidebar> {
           ),
           footerDivider: divider,
           headerBuilder: (context, extended) {
-            return SizedBox(
+            return const SizedBox(
               height: 100,
               child: Padding(
-                padding: const EdgeInsets.all(16.0),
-                // child: Image.asset('assets/images/avatar.png'),
+                padding: EdgeInsets.all(16.0),
+                child: Center(child: Text('ROHD-HCL Components')),
               ),
             );
           },
