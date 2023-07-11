@@ -60,3 +60,57 @@ class PriorityArbiter extends Arbiter {
     ]);
   }
 }
+
+/// Arbiter Roun Robin.
+class RoundRobinArbiterlogic extends Arbiter {
+  ///Mask to define pending requests to be attended
+  ///i.e. If bit 4 is granted in a 8 bit request, [requestMask] will be 11110000
+  ///turning off the bit granted along with all previous bits
+  List<Logic> requestMask = [];
+
+  ///Result of masking [_requests] with [requestMask]
+  ///Contains bits of [_requests] but as bits granted, will off
+  List<Logic> grantMask = [];
+
+  /// Initiliazing Round Robin
+  RoundRobinArbiterlogic(super.requests, Logic clk, Logic reset) {
+    clk = addInput('clk', clk);
+    reset = addInput('reset', reset);
+    requestMask = List.generate(count, (i) => Logic(name: 'requestMask$i'));
+    grantMask = List.generate(count, (i) => Logic(name: 'grantMask$i'));
+    Sequential(clk, [
+      If(reset, then: [
+        for (var g = 0; g < count; g++) requestMask[g] < 1,
+        for (var g = 0; g < count; g++) _grants[g] < 0,
+        for (var g = 0; g < count; g++) grantMask[g] < _requests[g],
+      ], orElse: [
+        /// Added [_grants] to turn off granted bit when a reset on
+        ///  [requestMask] happens to avoid grant same bit again
+        for (var g = 0; g < count; g++)
+          grantMask[g] < requestMask[g] & _requests[g] & ~_grants[g],
+        CaseZ(grantMask.rswizzle(), [
+          for (var i = 0; i < count; i++)
+            CaseItem(
+                Const(LogicValue.filled(count, LogicValue.z)
+                    .withSet(i, LogicValue.one)),
+                [
+                  for (var g = 0; g < count; g++) _grants[g] < (i == g ? 1 : 0),
+                  for (var g = 0; g < count; g++)
+                    requestMask[g] < (g <= i ? 0 : 1),
+                ])
+        ], defaultItem: [
+          /// In case [grantMask] turns all 0, logic will determine firs bit
+          /// high to grant it
+          for (var g = 0; g < count; g++)
+            _grants[g] <
+                ~_requests.rswizzle().getRange(0, g).or() &
+                    _requests.rswizzle().or() &
+                    _requests[g],
+
+          /// Proceed to restart [requestMask] as all requests have been granted
+          for (var g = 0; g < count; g++) requestMask[g] < _requests[g],
+        ]),
+      ])
+    ]);
+  }
+}
