@@ -8,10 +8,6 @@
 // Author: Rahul Gautham Putcha <rahul.gautham.putcha@intel.com>
 //
 
-// import 'dart:collection';
-
-// ignore_for_file: lines_longer_than_80_chars
-
 import 'dart:math';
 
 import 'package:rohd/rohd.dart';
@@ -156,23 +152,3 @@ class Count extends Module {
             : Const(bus.width, width: count.width) - count);
   }
 }
-
-/*
-  Find N'th bit (0 or 1) from the start/end (WIP)
-
-
-  Min Min in List of logic
-  Max: Max in List of logic
-
-
- // Try to optimize in one mod (leap:generater)
- - Finding 1st/Nth `1`: done/tested
- - Finding 1st/Nth `0`: 
- - Finding Last/NthFromLast `1`: done/tested
- - Finding Last/NthFromLast `0`
-
- - Count `1`: done
- - Count `0`: done
- - Count Pattern (leap)
-
-*/
