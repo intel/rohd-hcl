@@ -6,6 +6,7 @@ export 'src/arbiter.dart';
 export 'src/carry_save_mutiplier.dart';
 export 'src/exceptions.dart';
 export 'src/fifo.dart';
+export 'src/find.dart';
 export 'src/interfaces/interfaces.dart';
 export 'src/memory/memories.dart';
 export 'src/models/models.dart';
