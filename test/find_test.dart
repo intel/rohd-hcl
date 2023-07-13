@@ -14,39 +14,27 @@ import 'package:rohd_hcl/src/utils.dart';
 import 'package:test/test.dart';
 
 void main() {
-  test('count all 1s', () {
-    final bus = Const(bin('01101'), width: 5);
-    final mod = Count(bus);
-    expect(mod.index.value.toInt(), 3);
-  });
-
-  test('count all 0s', () {
-    final bus = Const(bin('001101'), width: 6);
-    final mod = Count(bus, countOne: false);
-    expect(mod.index.value.toInt(), 3);
-  });
-
   test('find first one', () {
     final bus = Const(bin('0111000100'), width: 10);
-    final mod = FindFirstOne(bus);
+    final mod = Find(bus);
     expect(mod.index.value.toInt(), 2);
   });
 
   test('find nth one', () {
     final bus = Const(bin('10110'), width: 5);
-    final mod = FindNthOne(bus, Const(3, width: log2Ceil(5)));
+    final mod = Find(bus, n: Const(3, width: log2Ceil(5)));
     expect(mod.index.value.toInt(), 4);
   });
 
   test('find first zero', () {
     final bus = Const(bin('0111011111'), width: 10);
-    final mod = FindFirstZero(bus);
+    final mod = Find(bus, one: false);
     expect(mod.index.value.toInt(), 5);
   });
 
   test('find nth zero', () {
     final bus = Const(bin('0111001010'), width: 10);
-    final mod = FindNthZero(bus, Const(3, width: log2Ceil(10)));
+    final mod = Find(bus, one: false, n: Const(3, width: log2Ceil(10)));
     expect(mod.index.value.toInt(), 5);
   });
 }
