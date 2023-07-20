@@ -12,27 +12,24 @@ import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
 import 'package:rohd_hcl/src/count.dart';
 
-/// Doc coming soon...
+/// Find functionality
+///
+/// Takes in a [Logic] to find location of `1`s or `0`s
 class Find extends Module {
-  /// Doc coming soon...
+  /// [_output] is output of Find (use index for accessing from outside Module)
   late Logic _output;
 
-  /// Doc coming soon...
+  /// [index] is an getter for output of Find
   Logic get index => _output;
 
-  /// Find `1` or `0` (redo)
+  /// Find `1`s or `0`s
   ///
-  /// `one`: filter search parameter, if one is true find `1` else find `0`
+  /// Takes in filter search parameter [one], default [Find] `1`.
+  /// If [one] is `true` [Find] `1` else [Find] `0`.
   ///
-  /// `n`: if n is given find nth else find first occurance
-  /// filter search parameter
-  ///
-  ///
-  /// TODO:
-  /// Defines a flag.
-  ///
-  /// Throws an [ArgumentError] if there is already an option named [name] or
-  /// there is already an option using abbreviation [abbr]. Returns the new flag.
+  /// By default [Find] will look for first search parameter `1` or `0`.
+  /// If [n] is given, [Find] an [n]th search from first
+  /// occurance
   Find(Logic bus, {bool one = true, Logic? n}) {
     if (n != null) {
       if (one) {
