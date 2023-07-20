@@ -1,8 +1,8 @@
 // Copyright (C) 2023 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 //
-// find.dart
-// Implementation of Find Functionality.
+// count.dart
+// Implementation of Count Functionality.
 //
 // 2023 July 11
 // Author: Rahul Gautham Putcha <rahul.gautham.putcha@intel.com>
