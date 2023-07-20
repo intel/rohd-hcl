@@ -35,6 +35,6 @@ void main() {
   test('find nth zero', () {
     final bus = Const(bin('0111001010'), width: 10);
     final mod = Find(bus, one: false, n: Const(3, width: log2Ceil(10)));
-    expect(mod.index.value.toInt(), 5);
+    expect(mod.index.value.toInt(), 4);
   });
 }
