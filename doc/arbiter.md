@@ -10,5 +10,4 @@ The [`PriorityArbiter`](https://intel.github.io/rohd-hcl/rohd_hcl/PriorityArbite
 
 ## Round Robin Arbiter
 
-The Roun Robin Arbiter is a sequential (stateless) arbiter which grants requests same ways as Priority Arbiter, but keeps track of last request granted.
-The arbiter uses two masks to determine the next request to be attended. 
+The Roun Robin Arbiter is a sequential (stateful) arbiter which grants requests same ways as Priority Arbiter, but keeps track of last request granted.
