@@ -24,7 +24,9 @@ class RippleCarryAdderGenerator extends ConfigGenerator {
 
   @override
   Future<String> generate() async {
-    var rca = RippleCarryAdderComponent(logicWidthKnob.value).rca;
+    var rca = RippleCarryAdderComponent(
+            logicWidthKnob.value ?? logicWidthKnob.defaultVal)
+        .rca;
 
     await rca.build();
     return rca.generateSynth();
