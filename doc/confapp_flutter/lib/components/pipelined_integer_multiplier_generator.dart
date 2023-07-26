@@ -29,8 +29,8 @@ class PipelinedIntegerMultiplierGenerator extends ConfigGenerator {
   @override
   Future<String> generate() async {
     var csm = PipelinedIntegerMultiplierComponent(
-      logicWidthKnob.value,
-      clockPeriodKnob.value,
+      logicWidthKnob.value ?? logicWidthKnob.defaultVal,
+      clockPeriodKnob.value ?? logicWidthKnob.defaultVal,
     ).csm;
 
     await csm.build();
