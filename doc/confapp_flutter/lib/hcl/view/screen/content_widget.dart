@@ -101,7 +101,7 @@ class _SVGeneratorState extends State<SVGenerator> {
             return Container(
               margin: const EdgeInsets.all(10),
               constraints: BoxConstraints(
-                maxHeight: screenHeight / 2,
+                maxHeight: screenHeight / 1.2,
                 maxWidth: screenWidth / 3,
               ),
               child: Card(
@@ -117,6 +117,7 @@ class _SVGeneratorState extends State<SVGenerator> {
                           height: 16,
                         ),
                         ElevatedButton(
+                          key: const Key('generateRTL'),
                           onPressed: () async {
                             final rtlRes = await _generateRTL();
                             rtlCubit.setRTL(rtlRes);
