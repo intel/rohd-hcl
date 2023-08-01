@@ -94,3 +94,42 @@ jobs:
         with:
           folder: doc/api
           branch: docs
+
+  deploy-site:
+    name: Deploy ROHD-HCL Generator site
+    if: github.event_name == 'push'
+    permissions:
+      contents: write # required for "JamesIves/github-pages-deploy-action"
+    timeout-minutes: 30
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          submodules: recursive
+
+      - name: Setup Dart
+        uses: dart-lang/setup-dart@v1
+
+      - name: Setup Flutter SDK
+        uses: flutter-actions/setup-flutter@v2
+        with:
+          channel: stable
+          version: 3.0.2
+
+      - name: Change directory to the flutter app
+        run: cd doc/confapp_flutter
+      
+      - name: Install dependencies for flutter
+        run: flutter pub get
+
+      - name: Build static site
+        run: tool/gh_actions/hcl_site_generation_build.sh
+
+      - name: Deploy the generated site
+        uses: JamesIves/github-pages-deploy-action@v4
+        with:
+          folder: doc/confapp_flutter/build/web
+          branch: docs
+
+      
