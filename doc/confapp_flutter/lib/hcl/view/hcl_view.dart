@@ -62,6 +62,7 @@ class _MainPageState extends State<MainPage> {
           SizedBox(
             width: 250,
             child: TextFormField(
+                key: Key(knobLabel),
                 decoration: InputDecoration(
                   border: OutlineInputBorder(),
                   labelText: knobLabel,

@@ -75,6 +75,7 @@ class _SVGeneratorState extends State<SVGenerator> {
                 SizedBox(
                   width: 400,
                   child: TextFormField(
+                    key: Key(knobLabel),
                     initialValue: knobDefaultVal.toString(),
                     decoration: InputDecoration(
                       border: const OutlineInputBorder(),
