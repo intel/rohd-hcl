@@ -110,6 +110,8 @@ jobs:
 
       - name: Setup Dart
         uses: dart-lang/setup-dart@v1
+        with:
+          sdk: 3.0.5
 
       - name: Setup Flutter SDK
         uses: flutter-actions/setup-flutter@v2
