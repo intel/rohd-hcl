@@ -14,7 +14,6 @@ dependencies:
   meta: ^1.9.1
   rohd: ^0.4.2
   rohd_vf: ^0.4.1
-  side_navigation: ^1.0.4
 
 dev_dependencies:
   logging: ^1.0.1
