@@ -14,6 +14,6 @@ set -euo pipefail
 
 cd doc/confapp_flutter
 
-flutter build web --release --web-renderer html --base-href /rohd-hcl/
+flutter build web --profile --web-renderer html --base-href /rohd-hcl/
 
 
