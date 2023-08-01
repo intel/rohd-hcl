@@ -113,13 +113,7 @@ jobs:
         with:
           channel: stable
           version: 3.10.6
-
-      - name: Change directory to the flutter app
-        run: cd doc/confapp_flutter
       
-      - name: Install dependencies for flutter
-        run: tool/gh_actions/install_dependencies_generator_site.sh
-
       - name: Build static site
         run: tool/gh_actions/hcl_site_generation_build.sh
 
