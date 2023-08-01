@@ -41,7 +41,8 @@ class _ComponentsSidebarState extends State<ComponentsSidebar> {
     for (int i = 0; i < ComponentCubit.generator.components.length; i++) {
       componentsList.add(
         SidebarXItem(
-          iconWidget: const FlutterLogo(size: 20),
+          // iconWidget: const FlutterLogo(size: 20),
+          icon: Icons.memory, // The package force to have icon...
           label: ComponentCubit.generator.components[i].componentName,
           onTap: () {
             comCubit
