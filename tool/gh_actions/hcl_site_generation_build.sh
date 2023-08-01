@@ -12,5 +12,7 @@
 
 set -euo pipefail
 
+cd doc/confapp_flutter
+
 flutter build web
 
