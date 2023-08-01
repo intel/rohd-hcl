@@ -121,12 +121,12 @@ jobs:
         run: cd doc/confapp_flutter
       
       - name: Install dependencies for flutter
-        run: flutter pub get
+        run: tool/gh_actions/install_dependencies_generator_site.sh
 
       - name: Build static site
         run: tool/gh_actions/hcl_site_generation_build.sh
 
-      - name: Deploy the generated site
+      - name: Deploy the generated site to doc branch
         uses: JamesIves/github-pages-deploy-action@v4
         with:
           folder: doc/confapp_flutter/build/web
