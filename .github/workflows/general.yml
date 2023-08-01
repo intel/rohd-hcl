@@ -97,6 +97,7 @@ jobs:
 
   deploy-site:
     name: Deploy ROHD-HCL Generator site
+    needs: run-checks
     if: github.event_name == 'push'
     permissions:
       contents: write # required for "JamesIves/github-pages-deploy-action"
