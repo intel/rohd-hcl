@@ -31,9 +31,10 @@ class Find extends Module {
   /// occurance
   Find(Logic bus, {bool countOne = true, Logic? n}) {
     bus = addInput('bus', bus, width: bus.width);
+    final oneHotList = <Logic>[];
     if (n != null) {
       n = addInput('n', n, width: n.width);
-      final oneHotList = <Logic>[];
+
       for (var i = 0; i < bus.width; i++) {
         if (countOne && i == 0) {
           oneHotList.add(~bus[i] & n.eq(0));
@@ -54,12 +55,7 @@ class Find extends Module {
               paddedCountValue.eq(paddedNValue));
         }
       }
-
-      final bin = OneHotToBinary(oneHotList.rswizzle()).binary;
-      _output = addOutput('findNthOne', width: bin.width);
-      _output <= bin;
     } else {
-      final oneHotList = <Logic>[];
       for (var i = 0; i < bus.width; i++) {
         final busCheck = countOne ? bus[i] : ~bus[i];
         if (i == 0) {
@@ -70,10 +66,9 @@ class Find extends Module {
           oneHotList.add(busCheck & rangeCheck);
         }
       }
-
-      final bin = OneHotToBinary(oneHotList.rswizzle()).binary;
-      _output = addOutput('findFirstOne', width: bin.width);
-      _output <= bin;
     }
+    final bin = OneHotToBinary(oneHotList.rswizzle()).binary;
+    _output = addOutput('find', width: bin.width);
+    _output <= bin;
   }
 }
