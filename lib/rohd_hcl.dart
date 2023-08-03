@@ -3,8 +3,8 @@
 
 export 'src/adder.dart';
 export 'src/arbiter.dart';
-export 'src/count.dart';
 export 'src/carry_save_mutiplier.dart';
+export 'src/count.dart';
 export 'src/exceptions.dart';
 export 'src/fifo.dart';
 export 'src/find.dart';
