@@ -10,7 +10,6 @@
 
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
-import 'package:rohd_hcl/src/count.dart';
 
 /// Find functionality
 ///
@@ -24,20 +23,22 @@ class Find extends Module {
 
   /// Find `1`s or `0`s
   ///
-  /// Takes in filter search parameter [one], default [Find] `1`.
-  /// If [one] is `true` [Find] `1` else [Find] `0`.
+  /// Takes in filter search parameter [countOne], default [Find] `1`.
+  /// If [countOne] is `true` [Find] `1` else [Find] `0`.
   ///
   /// By default [Find] will look for first search parameter `1` or `0`.
   /// If [n] is given, [Find] an [n]th search from first
   /// occurance
-  Find(Logic bus, {bool one = true, Logic? n}) {
+  Find(Logic bus, {bool countOne = true, Logic? n}) {
+    bus = addInput('bus', bus, width: bus.width);
     if (n != null) {
+      n = addInput('n', n, width: n.width);
       final oneHotList = <Logic>[];
       for (var i = 0; i < bus.width; i++) {
-        if (one && i == 0) {
+        if (countOne && i == 0) {
           oneHotList.add(~bus[i] & n.eq(0));
         } else {
-          final zeroCount = Count(bus.getRange(0, i + 1), countOne: one);
+          final zeroCount = Count(bus.getRange(0, i + 1), countOne: countOne);
 
           var paddedNValue = n;
           var paddedCountValue = zeroCount.index;
@@ -49,8 +50,8 @@ class Find extends Module {
 
           // If `bus[i]` is a `0` and the number of `0`'s from index 0 to `i`
           // is `n`
-          oneHotList.add(
-              (one ? bus[i] : ~bus[i]) & paddedCountValue.eq(paddedNValue));
+          oneHotList.add((countOne ? bus[i] : ~bus[i]) &
+              paddedCountValue.eq(paddedNValue));
         }
       }
 
@@ -60,12 +61,12 @@ class Find extends Module {
     } else {
       final oneHotList = <Logic>[];
       for (var i = 0; i < bus.width; i++) {
-        final busCheck = one ? bus[i] : ~bus[i];
+        final busCheck = countOne ? bus[i] : ~bus[i];
         if (i == 0) {
           oneHotList.add(busCheck);
         } else {
           final rangeCheck =
-              one ? ~bus.getRange(0, i).or() : bus.getRange(0, i).and();
+              countOne ? ~bus.getRange(0, i).or() : bus.getRange(0, i).and();
           oneHotList.add(busCheck & rangeCheck);
         }
       }
@@ -73,7 +74,6 @@ class Find extends Module {
       final bin = OneHotToBinary(oneHotList.rswizzle()).binary;
       _output = addOutput('findFirstOne', width: bin.width);
       _output <= bin;
-      return;
     }
   }
 }

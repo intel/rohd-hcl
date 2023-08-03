@@ -5,7 +5,7 @@
 // Tests for Find
 //
 // 2023 June 8
-// Author: Max Korbel <max.korbel@intel.com>
+// Author: Rahul Gautham Putcha <rahul.gautham.putcha@intel.com>
 //
 
 import 'package:rohd/rohd.dart';
@@ -28,13 +28,13 @@ void main() {
 
   test('find first zero', () {
     final bus = Const(bin('0111011111'), width: 10);
-    final mod = Find(bus, one: false);
+    final mod = Find(bus, countOne: false);
     expect(mod.index.value.toInt(), 5);
   });
 
   test('find nth zero', () {
     final bus = Const(bin('0111001010'), width: 10);
-    final mod = Find(bus, one: false, n: Const(3, width: log2Ceil(10)));
+    final mod = Find(bus, countOne: false, n: Const(3, width: log2Ceil(10)));
     expect(mod.index.value.toInt(), 4);
   });
 }
