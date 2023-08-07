@@ -63,7 +63,8 @@ class MemoryModel extends Memory {
         return;
       }
       for (final wrPort in wrPorts) {
-        if (!(wrPort.en.previousValue?.isValid ?? false) && !storage.isEmpty) {
+        if (!(wrPort.en.previousValue?.isValid ?? wrPort.en.value.isValid) &&
+            !storage.isEmpty) {
           // storage doesnt have access to `en`, so check ourselves
           storage.invalidWrite();
           return;
