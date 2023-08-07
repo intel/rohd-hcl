@@ -1,7 +1,6 @@
-# confapp_flutter
+# ROHD-HCL Flutter Configuration App
 
-- [https://github.com/burhanrashid52/WhatTodo/tree/master/lib](https://github.com/burhanrashid52/WhatTodo/tree/master/lib)
-- [https://github.com/felangel/bloc/tree/master/examples/flutter_shopping_cart/lib/cart/models](https://github.com/burhanrashid52/WhatTodo/tree/master/lib)
+This is a beta web app that allows RTL generation (system verilog) based on the specific configuration.
 
 ## Widget Tree
 
