@@ -57,9 +57,38 @@ jobs:
         with:
           runCmd: tool/gh_actions/run_tests.sh
 
+  deploy-site:
+    name: Deploy ROHD-HCL Generator site
+    needs: run-checks
+    if: github.event_name == 'push'
+    permissions:
+      contents: write # required for "JamesIves/github-pages-deploy-action"
+    timeout-minutes: 30
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          submodules: recursive
+
+      - name: Setup Flutter SDK
+        uses: flutter-actions/setup-flutter@v2
+        with:
+          channel: stable
+          version: 3.10.6
+      
+      - name: Build static site
+        run: tool/gh_actions/hcl_site_generation_build.sh
+
+      - name: Deploy the generated site to website branch
+        uses: JamesIves/github-pages-deploy-action@v4
+        with:
+          folder: confapp_flutter/build/web
+          branch: website
+
   deploy-documentation:
     name: Deploy Documentation
-    needs: run-checks
+    needs: deploy-site
     if: github.event_name == 'push'
     permissions:
       contents: write # required for "JamesIves/github-pages-deploy-action"
@@ -93,35 +122,7 @@ jobs:
         uses: JamesIves/github-pages-deploy-action@v4
         with:
           folder: doc/api
-          branch: docs
-
-  deploy-site:
-    name: Deploy ROHD-HCL Generator site
-    needs: run-checks
-    if: github.event_name == 'push'
-    permissions:
-      contents: write # required for "JamesIves/github-pages-deploy-action"
-    timeout-minutes: 30
-    runs-on: ubuntu-22.04
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v3
-        with:
-          submodules: recursive
-
-      - name: Setup Flutter SDK
-        uses: flutter-actions/setup-flutter@v2
-        with:
-          channel: stable
-          version: 3.10.6
-      
-      - name: Build static site
-        run: tool/gh_actions/hcl_site_generation_build.sh
-
-      - name: Deploy the generated site to website branch
-        uses: JamesIves/github-pages-deploy-action@v4
-        with:
-          folder: confapp_flutter/build/web
+          target-folder: api
           branch: website
 
       
