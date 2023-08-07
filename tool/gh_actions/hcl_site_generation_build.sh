@@ -16,5 +16,3 @@ cd confapp_flutter
 
 # Use --profile instead of --release to avoid certain name of the module get replaced
 flutter build web --profile --web-renderer html --base-href /rohd-hcl/
-
-

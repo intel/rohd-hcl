@@ -36,7 +36,6 @@ class _ComponentsSidebarState extends State<ComponentsSidebar> {
   @override
   Widget build(BuildContext context) {
     final comCubit = context.read<ComponentCubit>();
-
     for (int i = 0; i < ComponentCubit.generator.components.length; i++) {
       componentsList.add(
         SidebarXItem(
@@ -64,8 +63,8 @@ class _ComponentsSidebarState extends State<ComponentsSidebar> {
             hoverColor: scaffoldBackgroundColor,
             textStyle: TextStyle(color: Colors.white.withOpacity(0.7)),
             selectedTextStyle: const TextStyle(color: Colors.white),
-            itemTextPadding: const EdgeInsets.only(left: 30),
-            selectedItemTextPadding: const EdgeInsets.only(left: 30),
+            itemTextPadding: const EdgeInsets.only(left: 5),
+            selectedItemTextPadding: const EdgeInsets.only(left: 5),
             itemDecoration: BoxDecoration(
               borderRadius: BorderRadius.circular(10),
               border: Border.all(color: canvasColor),
