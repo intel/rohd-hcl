@@ -1,7 +1,8 @@
+import 'package:confapp_flutter/components/config.dart';
 import 'package:confapp_flutter/hcl/view/screen/sidebar_widget.dart';
 import 'package:flutter/material.dart';
-import 'package:confapp_flutter/components/config.dart';
 import 'package:sidebarx/sidebarx.dart';
+
 import 'screen/content_widget.dart';
 
 class HCLView extends StatelessWidget {
@@ -33,8 +34,6 @@ class MainPage extends StatefulWidget {
 class _MainPageState extends State<MainPage> {
   final _controller = SidebarXController(selectedIndex: 0, extended: true);
   List<Widget> drawerList = [];
-  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
-  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
   late ConfigGenerator component;
   List<Widget> textFormField = []; // shared variable
@@ -64,7 +63,7 @@ class _MainPageState extends State<MainPage> {
             child: TextFormField(
                 key: Key(knobLabel),
                 decoration: InputDecoration(
-                  border: OutlineInputBorder(),
+                  border: const OutlineInputBorder(),
                   labelText: knobLabel,
                 ),
                 validator: (value) {
@@ -88,12 +87,10 @@ class _MainPageState extends State<MainPage> {
 
   @override
   Widget build(BuildContext context) {
-    final screenWidth = MediaQuery.of(context).size.width;
-    final isSmallScreen = MediaQuery.of(context).size.width < 600;
-    final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+    final GlobalKey<ScaffoldState> scaffoldKey = GlobalKey<ScaffoldState>();
 
     return Scaffold(
-      key: _scaffoldKey,
+      key: scaffoldKey,
       body: Row(
         children: [
           ComponentsSidebar(
