@@ -58,34 +58,35 @@ class MemoryModel extends Memory {
 
     // on posedge of clock, sample write ports and save to memory
     clk.posedge.listen((event) {
-      if (reset.value == LogicValue.one) {
+      if (reset.previousValue == LogicValue.one) {
         storage.reset();
         return;
       }
       for (final wrPort in wrPorts) {
-        if (!wrPort.en.value.isValid && !storage.isEmpty) {
+        if (!(wrPort.en.previousValue?.isValid ?? false) && !storage.isEmpty) {
           // storage doesnt have access to `en`, so check ourselves
           storage.invalidWrite();
           return;
         }
 
-        if (wrPort.en.value == LogicValue.one) {
-          final addrValue = wrPort.addr.value;
+        if (wrPort.en.previousValue == LogicValue.one) {
+          final addrValue = wrPort.addr.previousValue!;
 
           if (wrPort is MaskedDataPortInterface) {
             storage.writeData(
               addrValue,
               [
                 for (var index = 0; index < dataWidth ~/ 8; index++)
-                  wrPort.mask.value[index].toBool()
-                      ? wrPort.data.value.getRange(index * 8, (index + 1) * 8)
+                  wrPort.mask.previousValue![index].toBool()
+                      ? wrPort.data.previousValue!
+                          .getRange(index * 8, (index + 1) * 8)
                       : storage
                           .readData(addrValue)
                           .getRange(index * 8, (index + 1) * 8)
               ].rswizzle(),
             );
           } else {
-            storage.writeData(addrValue, wrPort.data.value);
+            storage.writeData(addrValue, wrPort.data.previousValue!);
           }
         }
       }
