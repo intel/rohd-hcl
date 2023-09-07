@@ -23,7 +23,7 @@ abstract class Adder extends Module {
   late final Logic b;
 
   /// The addition results [sum].
-  Logic get sum;
+  Logic get sum => output('sum');
 
   /// Takes in input [a] and input [b] and return the [sum] of the addition
   /// result. The width of input [a] and [b] must be the same.
@@ -33,6 +33,7 @@ abstract class Adder extends Module {
     }
     this.a = addInput('a', a, width: a.width);
     this.b = addInput('b', b, width: b.width);
+    addOutput('sum', width: a.width + 1);
   }
 }
 
