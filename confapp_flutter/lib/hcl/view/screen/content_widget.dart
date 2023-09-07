@@ -24,6 +24,11 @@ class _SVGeneratorState extends State<SVGenerator> {
   final ButtonStyle btnStyle =
       ElevatedButton.styleFrom(textStyle: const TextStyle(fontSize: 20));
 
+  @override
+  void initState() {
+    super.initState();
+  }
+
   Future<String> _generateRTL(Configurator component,
       {bool form = true}) async {
     if (form && _formKey.currentState!.validate()) {
@@ -164,8 +169,16 @@ class _SVGeneratorState extends State<SVGenerator> {
                         ElevatedButton(
                           key: const Key('generateRTL'),
                           onPressed: () async {
-                            final rtlRes = await _generateRTL(component);
-                            rtlCubit.setRTL(rtlRes);
+                            try {
+                              final rtlRes = await _generateRTL(component);
+                              rtlCubit.setRTL(rtlRes);
+                            } on Exception catch (e) {
+                              var message = e.toString();
+                              if (e is RohdHclException) {
+                                message = e.message;
+                              }
+                              rtlCubit.setRTL('Error generating:\n\n$message');
+                            }
                           },
                           style: btnStyle,
                           child: const Text('Generate RTL'),

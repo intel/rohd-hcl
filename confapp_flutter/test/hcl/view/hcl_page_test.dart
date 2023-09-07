@@ -1,6 +1,7 @@
 import 'package:confapp_flutter/hcl/hcl.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:rohd_hcl/rohd_hcl.dart';
 
 String? observeOutput(WidgetTester tester) {
   final selectableTextFinder = find.byType(SelectableText);
@@ -8,11 +9,21 @@ String? observeOutput(WidgetTester tester) {
   return widget.data;
 }
 
+List<Configurator> components = [
+  RotateConfigurator(),
+  PriorityArbiterConfigurator(),
+  RippleCarryAdderConfigurator(),
+  PipelinedIntegerMultiplierConfigurator(),
+  BitonicSortConfigurator(),
+];
+
 void main() {
   testWidgets('should return initial RTL when page load', (tester) async {
     await tester.pumpWidget(
-      const MaterialApp(
-        home: HCLPage(),
+      MaterialApp(
+        home: HCLPage(
+          components: components,
+        ),
       ),
     );
 
@@ -30,8 +41,10 @@ void main() {
   testWidgets('should return changes when fields is manipulated',
       (tester) async {
     await tester.pumpWidget(
-      const MaterialApp(
-        home: HCLPage(),
+      MaterialApp(
+        home: HCLPage(
+          components: components,
+        ),
       ),
     );
 
@@ -58,8 +71,10 @@ void main() {
   testWidgets('should transit to another component when clicked on sidebar',
       (tester) async {
     await tester.pumpWidget(
-      const MaterialApp(
-        home: HCLPage(),
+      MaterialApp(
+        home: HCLPage(
+          components: components,
+        ),
       ),
     );
 

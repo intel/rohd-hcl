@@ -36,15 +36,14 @@ class _ComponentsSidebarState extends State<ComponentsSidebar> {
   @override
   Widget build(BuildContext context) {
     final comCubit = context.read<ComponentCubit>();
-    for (int i = 0; i < ComponentCubit.generator.components.length; i++) {
+    for (int i = 0; i < comCubit.components.length; i++) {
       componentsList.add(
         SidebarXItem(
           // iconWidget: const FlutterLogo(size: 20),
           icon: Icons.memory, // The package force to have icon...
-          label: ComponentCubit.generator.components[i].name,
+          label: comCubit.components[i].name,
           onTap: () {
-            comCubit
-                .setSelectedComponent(ComponentCubit.generator.components[i]);
+            comCubit.setSelectedComponent(comCubit.components[i]);
           },
         ),
       );
