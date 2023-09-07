@@ -4,6 +4,7 @@
 export 'src/adder.dart';
 export 'src/arbiter.dart';
 export 'src/carry_save_mutiplier.dart';
+export 'src/component_config/component_config.dart';
 export 'src/exceptions.dart';
 export 'src/fifo.dart';
 export 'src/interfaces/interfaces.dart';

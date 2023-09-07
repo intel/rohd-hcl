@@ -1,9 +1,9 @@
 import 'package:confapp_flutter/hcl/cubit/component_cubit.dart';
 import 'package:confapp_flutter/hcl/cubit/system_verilog_cubit.dart';
 import 'package:flutter/material.dart';
-import 'package:confapp_flutter/components/config.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:rohd_hcl/rohd_hcl.dart';
 import 'package:sidebarx/sidebarx.dart';
 
 class SVGenerator extends StatefulWidget {
@@ -21,18 +21,88 @@ class SVGenerator extends StatefulWidget {
 class _SVGeneratorState extends State<SVGenerator> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   List<Widget> textFormField = [];
-  late ConfigGenerator component;
   final ButtonStyle btnStyle =
       ElevatedButton.styleFrom(textStyle: const TextStyle(fontSize: 20));
 
-  Future<String> _generateRTL({bool form = true}) async {
+  Future<String> _generateRTL(Configurator component,
+      {bool form = true}) async {
     if (form && _formKey.currentState!.validate()) {
       _formKey.currentState!.save();
     }
 
-    final res = await component.generate();
+    final res = await component.generateSV();
 
     return res;
+  }
+
+  Widget _generateKnobControl(String label, ConfigKnob knob) {
+    final Widget selector;
+
+    final decoration = InputDecoration(
+      border: const OutlineInputBorder(),
+      labelText: label,
+    );
+    final key = Key(label);
+
+    if (knob is IntConfigKnob || knob is StringConfigKnob) {
+      selector = TextFormField(
+        key: key,
+        initialValue: knob.value.toString(),
+        decoration: decoration,
+        validator: (value) {
+          if (value!.isEmpty) {
+            return 'Please enter value';
+          }
+          return null;
+        },
+        inputFormatters: [
+          if (knob is IntConfigKnob) FilteringTextInputFormatter.digitsOnly,
+          FilteringTextInputFormatter.singleLineFormatter,
+        ],
+        onSaved: (value) {
+          setState(() {
+            if (knob is IntConfigKnob) {
+              knob.value = int.parse(value.toString());
+            } else {
+              knob.value = value;
+            }
+          });
+        },
+      );
+    } else if (knob is ToggleConfigKnob) {
+      selector = CheckboxListTile(
+        value: knob.value,
+        onChanged: (value) {
+          setState(() {
+            knob.value = value ?? knob.value;
+          });
+        },
+        secondary: Text(
+          label,
+          style: const TextStyle(fontSize: 14),
+        ),
+      );
+    } else if (knob is ChoiceConfigKnob) {
+      selector = DropdownButtonFormField(
+        decoration: decoration,
+        items: knob.choices
+            .map((choice) => DropdownMenuItem(
+                  value: choice,
+                  child: Text(choice.toString().split('.').last),
+                ))
+            .toList(),
+        onChanged: (value) {
+          setState(() {
+            knob.value = value ?? knob.value;
+          });
+        },
+        value: knob.value,
+      );
+    } else {
+      selector = Text('Unknown knob type for $label: ${knob.runtimeType}');
+    }
+
+    return SizedBox(width: 400, child: selector);
   }
 
   @override
@@ -44,26 +114,23 @@ class _SVGeneratorState extends State<SVGenerator> {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       children: [
-        BlocBuilder<ComponentCubit, ConfigGenerator>(
-          builder: (context, state) {
+        BlocBuilder<ComponentCubit, Configurator>(
+          builder: (context, component) {
             textFormField = [];
-            component = state;
 
             // Add a title
             textFormField.add(
               Text(
-                state.componentName,
+                component.name,
                 style: const TextStyle(
                   fontSize: 25,
                   fontWeight: FontWeight.bold,
                 ),
               ),
             );
-
-            for (int i = 0; i < component.knobs.length; i++) {
-              final knob = component.knobs[i];
-              final knobLabel = knob.name;
-              final knobDefaultVal = knob.defaultVal;
+            for (var knobEntry in component.knobs.entries) {
+              final knob = knobEntry.value;
+              final knobLabel = knobEntry.key;
 
               textFormField.add(
                 const SizedBox(
@@ -72,30 +139,7 @@ class _SVGeneratorState extends State<SVGenerator> {
               );
 
               textFormField.add(
-                SizedBox(
-                  width: 400,
-                  child: TextFormField(
-                    key: Key(knobLabel),
-                    initialValue: knobDefaultVal.toString(),
-                    decoration: InputDecoration(
-                      border: const OutlineInputBorder(),
-                      labelText: knobLabel,
-                    ),
-                    validator: (value) {
-                      if (value!.isEmpty) {
-                        return 'Please enter value';
-                      }
-                      return null;
-                    },
-                    onSaved: (value) {
-                      if (knob.runtimeType == IntConfigKnob) {
-                        component.knobs[i].value = int.parse(value.toString());
-                      } else {
-                        component.knobs[i].value = value ?? '10';
-                      }
-                    },
-                  ),
-                ),
+                _generateKnobControl(knobLabel, knob),
               );
             }
 
@@ -120,7 +164,7 @@ class _SVGeneratorState extends State<SVGenerator> {
                         ElevatedButton(
                           key: const Key('generateRTL'),
                           onPressed: () async {
-                            final rtlRes = await _generateRTL();
+                            final rtlRes = await _generateRTL(component);
                             rtlCubit.setRTL(rtlRes);
                           },
                           style: btnStyle,

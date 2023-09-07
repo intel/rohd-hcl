@@ -1,6 +1,6 @@
-import 'package:confapp_flutter/components/config.dart';
 import 'package:confapp_flutter/hcl/view/screen/sidebar_widget.dart';
 import 'package:flutter/material.dart';
+import 'package:rohd_hcl/rohd_hcl.dart';
 import 'package:sidebarx/sidebarx.dart';
 
 import 'screen/content_widget.dart';
@@ -35,7 +35,7 @@ class _MainPageState extends State<MainPage> {
   final _controller = SidebarXController(selectedIndex: 0, extended: true);
   List<Widget> drawerList = [];
 
-  late ConfigGenerator component;
+  late Configurator component;
   List<Widget> textFormField = []; // shared variable
 
   final ButtonStyle btnStyle =
@@ -46,43 +46,43 @@ class _MainPageState extends State<MainPage> {
     textFormField = [];
     component = componentGenerator;
 
-    setState(() {
-      for (int i = 0; i < component.knobs.length; i++) {
-        final knob = component.knobs[i];
-        final knobLabel = knob.name;
+    // setState(() {
+    //   for (final knobEntry in component.knobs.entries) {
+    //     final knob = knobEntry.value;
+    //     final knobLabel = knobEntry.key;
 
-        textFormField.add(
-          const SizedBox(
-            height: 16,
-          ),
-        );
+    //     textFormField.add(
+    //       const SizedBox(
+    //         height: 16,
+    //       ),
+    //     );
 
-        textFormField.add(
-          SizedBox(
-            width: 250,
-            child: TextFormField(
-                key: Key(knobLabel),
-                decoration: InputDecoration(
-                  border: const OutlineInputBorder(),
-                  labelText: knobLabel,
-                ),
-                validator: (value) {
-                  if (value!.isEmpty) {
-                    return 'Please enter value';
-                  }
-                  return null;
-                },
-                onSaved: (value) {
-                  if (knob.runtimeType == IntConfigKnob) {
-                    component.knobs[i].value = int.parse(value.toString());
-                  } else {
-                    component.knobs[i].value = value ?? '10';
-                  }
-                }),
-          ),
-        );
-      }
-    });
+    //     textFormField.add(
+    //       SizedBox(
+    //         width: 250,
+    //         child: TextFormField(
+    //             key: Key(knobLabel),
+    //             decoration: InputDecoration(
+    //               border: const OutlineInputBorder(),
+    //               labelText: knobLabel,
+    //             ),
+    //             validator: (value) {
+    //               if (value!.isEmpty) {
+    //                 return 'Please enter value';
+    //               }
+    //               return null;
+    //             },
+    //             onSaved: (value) {
+    //               if (knob is IntConfigKnob) {
+    //                 knob.value = int.parse(value.toString());
+    //               } else {
+    //                 knob.value = value ?? '10';
+    //               }
+    //             }),
+    //       ),
+    //     );
+    //   }
+    // });
   }
 
   @override

@@ -1,16 +1,16 @@
 import 'package:bloc/bloc.dart';
-import 'package:confapp_flutter/components/config.dart';
 import 'package:confapp_flutter/hcl/models/hcl_components.dart';
+import 'package:rohd_hcl/rohd_hcl.dart';
 
-/// The type of state the CounterCubit is managing is just an int
-/// and the initial state is 0.
-class ComponentCubit extends Cubit<ConfigGenerator> {
+/// Controls the selected component.
+class ComponentCubit extends Cubit<Configurator> {
   static final generator = WebPageGenerator();
-  final ConfigGenerator selectedComponent;
+  Configurator selectedComponent;
 
   ComponentCubit(this.selectedComponent) : super(generator.components[0]);
 
-  void setSelectedComponent(ConfigGenerator selectedComponent) {
+  void setSelectedComponent(Configurator selectedComponent) {
+    this.selectedComponent = selectedComponent;
     emit(selectedComponent);
   }
 }

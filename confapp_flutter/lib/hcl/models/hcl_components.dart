@@ -1,12 +1,12 @@
-import 'package:confapp_flutter/components/config.dart';
-import 'package:confapp_flutter/components/components.dart';
+import 'package:rohd_hcl/rohd_hcl.dart';
+import 'package:rohd_hcl/src/component_config/component_config.dart';
 
 class WebPageGenerator {
-  final List<ConfigGenerator> components = [
-    RotateGenerator(),
-    PriorityArbiterGenerator(),
-    RippleCarryAdderGenerator(),
-    PipelinedIntegerMultiplierGenerator(),
-    BitonicSortGenerator(),
+  final List<Configurator> components = [
+    RotateConfigurator(),
+    PriorityArbiterConfigurator(),
+    RippleCarryAdderConfigurator(),
+    PipelinedIntegerMultiplierConfigurator(),
+    BitonicSortConfigurator(),
   ];
 }

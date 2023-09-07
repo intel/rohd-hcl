@@ -8,7 +8,7 @@ documentation: https://intel.github.io/rohd-hcl/rohd_hcl/rohd_hcl-library.html
 publish_to: none
 
 environment:
-  sdk: '>=2.18.0 <3.0.0'
+  sdk: '>=3.0.0 <4.0.0'
 
 dependencies:
   meta: ^1.9.1

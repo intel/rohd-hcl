@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:rohd_hcl/rohd_hcl.dart';
 import 'package:sidebarx/sidebarx.dart';
-import 'package:confapp_flutter/components/config.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:confapp_flutter/hcl/cubit/component_cubit.dart';
 
@@ -31,7 +31,7 @@ class ComponentsSidebar extends StatefulWidget {
 class _ComponentsSidebarState extends State<ComponentsSidebar> {
   List<SidebarXItem> componentsList = [];
 
-  late ConfigGenerator component;
+  late Configurator component;
 
   @override
   Widget build(BuildContext context) {
@@ -41,7 +41,7 @@ class _ComponentsSidebarState extends State<ComponentsSidebar> {
         SidebarXItem(
           // iconWidget: const FlutterLogo(size: 20),
           icon: Icons.memory, // The package force to have icon...
-          label: ComponentCubit.generator.components[i].componentName,
+          label: ComponentCubit.generator.components[i].name,
           onTap: () {
             comCubit
                 .setSelectedComponent(ComponentCubit.generator.components[i]);
@@ -50,7 +50,7 @@ class _ComponentsSidebarState extends State<ComponentsSidebar> {
       );
     }
 
-    return BlocBuilder<ComponentCubit, ConfigGenerator>(
+    return BlocBuilder<ComponentCubit, Configurator>(
       builder: (context, state) {
         return SidebarX(
           controller: widget._controller,

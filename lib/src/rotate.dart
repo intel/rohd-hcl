@@ -14,7 +14,7 @@ import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
 
 /// A direction for something to rotate.
-enum _RotateDirection {
+enum RotateDirection {
   /// Rotate to the left.
   left,
 
@@ -28,7 +28,7 @@ abstract class _Rotate extends Module {
   final int maxAmount;
 
   /// The [_direction] that this [_Rotate] should rotate.
-  final _RotateDirection _direction;
+  final RotateDirection _direction;
 
   /// The [rotated] result.
   Logic get rotated => output('rotated');
@@ -78,7 +78,7 @@ class RotateLeft extends _Rotate {
   /// [original].  The [maxAmount] will be not be larger than what could be
   /// represented by the maximum value of [rotateAmount].
   RotateLeft(Logic original, Logic rotateAmount, {super.maxAmount, super.name})
-      : super(_RotateDirection.left, original, rotateAmount);
+      : super(RotateDirection.left, original, rotateAmount);
 }
 
 /// Rotates a [Logic] to the right.
@@ -94,13 +94,13 @@ class RotateRight extends _Rotate {
   /// [original].  The [maxAmount] will be not be larger than what could be
   /// represented by the maximum value of [rotateAmount].
   RotateRight(Logic original, Logic rotateAmount, {super.maxAmount, super.name})
-      : super(_RotateDirection.right, original, rotateAmount);
+      : super(RotateDirection.right, original, rotateAmount);
 }
 
 /// Rotates by a fixed amount.
 class _RotateFixed extends Module {
   /// The [_direction] that this [_Rotate] should rotate.
-  final _RotateDirection _direction;
+  final RotateDirection _direction;
 
   /// The [rotated] result.
   Logic get rotated => output('rotated');
@@ -119,8 +119,8 @@ class _RotateFixed extends Module {
 
   /// Rotates [original] by [rotateAmount] in the specified [direction].
   static Logic _rotateBy(
-      int rotateAmount, Logic original, _RotateDirection direction) {
-    final split = direction == _RotateDirection.left
+      int rotateAmount, Logic original, RotateDirection direction) {
+    final split = direction == RotateDirection.left
         ? original.width - rotateAmount % original.width
         : rotateAmount % original.width;
 
@@ -139,14 +139,14 @@ class _RotateFixed extends Module {
 class RotateLeftFixed extends _RotateFixed {
   /// Rotates [original] by [rotateAmount] to the left.
   RotateLeftFixed(Logic original, int rotateAmount, {super.name})
-      : super(_RotateDirection.left, original, rotateAmount);
+      : super(RotateDirection.left, original, rotateAmount);
 }
 
 /// Rotates right by a fixed amount.
 class RotateRightFixed extends _RotateFixed {
   /// Rotates [original] by [rotateAmount] to the right.
   RotateRightFixed(Logic original, int rotateAmount, {super.name})
-      : super(_RotateDirection.right, original, rotateAmount);
+      : super(RotateDirection.right, original, rotateAmount);
 }
 
 /// Adds rotation functions to [Logic].
@@ -165,18 +165,18 @@ extension RotateLogic on Logic {
   /// `this`.  The [maxAmount] will be not be larger than what could be
   /// represented by the maximum value of [rotateAmount].
   Logic _rotate(dynamic rotateAmount,
-      {required _RotateDirection direction, int? maxAmount}) {
+      {required RotateDirection direction, int? maxAmount}) {
     if (rotateAmount is int) {
       assert(
           maxAmount == null || rotateAmount <= maxAmount,
           'If `maxAmount` is provided with an integer `amount`,'
           ' it should meet the restriction.');
 
-      return direction == _RotateDirection.left
+      return direction == RotateDirection.left
           ? RotateLeftFixed(this, rotateAmount).rotated
           : RotateRightFixed(this, rotateAmount).rotated;
     } else if (rotateAmount is Logic) {
-      return direction == _RotateDirection.left
+      return direction == RotateDirection.left
           ? RotateLeft(this, rotateAmount, maxAmount: maxAmount).rotated
           : RotateRight(this, rotateAmount, maxAmount: maxAmount).rotated;
     } else {
@@ -200,7 +200,7 @@ extension RotateLogic on Logic {
   /// represented by the maximum value of [rotateAmount].
   Logic rotateLeft(dynamic rotateAmount, {int? maxAmount}) =>
       _rotate(rotateAmount,
-          maxAmount: maxAmount, direction: _RotateDirection.left);
+          maxAmount: maxAmount, direction: RotateDirection.left);
 
   /// Returns a [Logic] rotated right by [rotateAmount].
   ///
@@ -217,14 +217,14 @@ extension RotateLogic on Logic {
   /// represented by the maximum value of [rotateAmount].
   Logic rotateRight(dynamic rotateAmount, {int? maxAmount}) =>
       _rotate(rotateAmount,
-          maxAmount: maxAmount, direction: _RotateDirection.right);
+          maxAmount: maxAmount, direction: RotateDirection.right);
 }
 
 /// Adds rotation functions to [LogicValue].
 extension RotateLogicValue on LogicValue {
   /// Rotates this value by [rotateAmount] in the specified [direction].
-  LogicValue _rotate(int rotateAmount, {required _RotateDirection direction}) {
-    final split = direction == _RotateDirection.left
+  LogicValue _rotate(int rotateAmount, {required RotateDirection direction}) {
+    final split = direction == RotateDirection.left
         ? width - rotateAmount % width
         : rotateAmount % width;
 
@@ -240,9 +240,9 @@ extension RotateLogicValue on LogicValue {
 
   /// Rotates this value by [rotateAmount] to the left.
   LogicValue rotateLeft(int rotateAmount) =>
-      _rotate(rotateAmount, direction: _RotateDirection.left);
+      _rotate(rotateAmount, direction: RotateDirection.left);
 
   /// Rotates this value by [rotateAmount] to the right.
   LogicValue rotateRight(int rotateAmount) =>
-      _rotate(rotateAmount, direction: _RotateDirection.right);
+      _rotate(rotateAmount, direction: RotateDirection.right);
 }

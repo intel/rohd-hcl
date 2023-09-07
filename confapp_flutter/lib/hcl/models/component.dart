@@ -1,19 +1,19 @@
 import 'dart:collection';
 
-import 'package:confapp_flutter/components/config.dart';
 import 'package:flutter/foundation.dart';
 import 'package:confapp_flutter/hcl/models/hcl_components.dart';
+import 'package:rohd_hcl/rohd_hcl.dart';
 
 class ComponentModel extends ChangeNotifier {
   final components = WebPageGenerator();
-  late ConfigGenerator selectedComponent = components.components[0];
+  late Configurator selectedComponent = components.components[0];
 
-  UnmodifiableListView<ConfigGenerator> get generators =>
+  UnmodifiableListView<Configurator> get generators =>
       UnmodifiableListView(components.components);
 
-  ConfigGenerator get currComponent => selectedComponent;
+  Configurator get currComponent => selectedComponent;
 
-  void setComponent(ConfigGenerator component) {
+  void setComponent(Configurator component) {
     selectedComponent = component;
     notifyListeners();
   }
