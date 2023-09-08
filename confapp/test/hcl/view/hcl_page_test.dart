@@ -1,4 +1,4 @@
-import 'package:confapp_flutter/hcl/hcl.dart';
+import 'package:confapp/hcl/hcl.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';

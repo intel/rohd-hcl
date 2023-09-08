@@ -8,8 +8,11 @@ abstract class Configurator {
   Map<String, ConfigKnob<dynamic>> get knobs;
 
   Future<String> generateSV() async {
+    print('creating module');
     final mod = createModule();
+    print('building module');
     await mod.build();
+    print('generating sv');
     return mod.generateSynth();
   }
 

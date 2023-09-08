@@ -83,7 +83,7 @@ jobs:
       - name: Deploy the generated site to website branch
         uses: JamesIves/github-pages-deploy-action@v4
         with:
-          folder: confapp_flutter/build/web
+          folder: confapp/build/web
           branch: website
 
   deploy-documentation:

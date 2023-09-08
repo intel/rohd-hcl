@@ -1,6 +1,6 @@
 {
-    "name": "confapp_flutter",
-    "short_name": "confapp_flutter",
+    "name": "confapp",
+    "short_name": "confapp",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",

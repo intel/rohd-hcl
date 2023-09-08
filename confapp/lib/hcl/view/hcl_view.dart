@@ -1,4 +1,4 @@
-import 'package:confapp_flutter/hcl/view/screen/sidebar_widget.dart';
+import 'package:confapp/hcl/view/screen/sidebar_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
 import 'package:sidebarx/sidebarx.dart';

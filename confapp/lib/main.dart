@@ -1,7 +1,7 @@
 import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:confapp_flutter/app.dart';
-import 'package:confapp_flutter/hcl_bloc_observer.dart';
+import 'package:confapp/app.dart';
+import 'package:confapp/hcl_bloc_observer.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
 
 final List<Configurator> hclComponents = [

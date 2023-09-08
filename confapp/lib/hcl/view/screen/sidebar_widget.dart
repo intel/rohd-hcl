@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
 import 'package:sidebarx/sidebarx.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:confapp_flutter/hcl/cubit/component_cubit.dart';
+import 'package:confapp/hcl/cubit/component_cubit.dart';
 
 const primaryColor = Color.fromARGB(255, 160, 153, 240);
 const canvasColor = Color(0xFF2E2E48);

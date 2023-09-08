@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:confapp_flutter/hcl/hcl.dart';
+import 'package:confapp/hcl/hcl.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
 
 class HCLApp extends MaterialApp {
