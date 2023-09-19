@@ -45,6 +45,8 @@ class ApbCompleterAgent extends Agent {
   /// [storage].
   final bool dropWriteDataOnError;
 
+  //TODO: allow a default storage instead of requiring one
+
   /// Creates a new model [ApbCompleterAgent].
   ApbCompleterAgent(
       {required this.intf,
@@ -77,7 +79,7 @@ class ApbCompleterAgent extends Agent {
   }
 
   /// Calculates a strobed version of data.
-  LogicValue _strobeData(
+  static LogicValue _strobeData(
           LogicValue originalData, LogicValue newData, LogicValue strobe) =>
       [
         for (var i = 0; i < strobe.width; i++)
