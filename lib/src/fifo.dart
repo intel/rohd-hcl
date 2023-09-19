@@ -6,7 +6,6 @@
 //
 // 2023 March 13
 // Author: Max Korbel <max.korbel@intel.com>
-//
 
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
@@ -141,26 +140,22 @@ class Fifo extends Module {
 
     // occupancy calculation
     if (generateOccupancy) {
-      Sequential(_clk, [
-        If(_reset, then: [
-          occupancy! < 0,
-        ], orElse: [
-          Case(
-              conditionalType: ConditionalType.unique,
-              [_writeEnable, _readEnable].swizzle(),
-              [
-                // write, no read
-                CaseItem(Const(LogicValue.ofString('10')),
-                    [occupancy! < occupancy! + 1]),
+      Sequential(_clk, reset: _reset, [
+        Case(
+            conditionalType: ConditionalType.unique,
+            [_writeEnable, _readEnable].swizzle(),
+            [
+              // write, no read
+              CaseItem(Const(LogicValue.ofString('10')),
+                  [occupancy! < occupancy! + 1]),
 
-                // read, no write
-                CaseItem(Const(LogicValue.ofString('01')),
-                    [occupancy! < occupancy! - 1]),
-              ],
-              defaultItem: [
-                occupancy! < occupancy
-              ])
-        ])
+              // read, no write
+              CaseItem(Const(LogicValue.ofString('01')),
+                  [occupancy! < occupancy! - 1]),
+            ],
+            defaultItem: [
+              occupancy! < occupancy
+            ])
       ]);
     }
 
@@ -194,27 +189,21 @@ class Fifo extends Module {
       rdPointer < _incrWithWrap(rdPointer, _readEnable),
     ];
 
-    Sequential(_clk, [
-      If(_reset, then: [
-        wrPointer < 0,
-        rdPointer < 0,
-        full < 0,
-      ], orElse: [
-        if (generateBypass)
-          If(~bypass!, then: pointerIncrements)
-        else
-          ...pointerIncrements,
+    Sequential(_clk, reset: _reset, [
+      if (generateBypass)
+        If(~bypass!, then: pointerIncrements)
+      else
+        ...pointerIncrements,
 
-        // full condition is one of these options:
-        //  - we were already full, and pointers are staying the same
-        //  - wrptr is 1 behind read, and we're writing without reading
-        // otherwise, rdEn has progressed or we're in undefined error territory
-        full <
-            (full & (_writeEnable.eq(_readEnable))) |
-                (rdPointer.eq(_incrWithWrap(wrPointer)) &
-                    _writeEnable &
-                    ~_readEnable)
-      ]),
+      // full condition is one of these options:
+      //  - we were already full, and pointers are staying the same
+      //  - wrptr is 1 behind read, and we're writing without reading
+      // otherwise, rdEn has progressed or we're in undefined error territory
+      full <
+          (full & (_writeEnable.eq(_readEnable))) |
+              (rdPointer.eq(_incrWithWrap(wrPointer)) &
+                  _writeEnable &
+                  ~_readEnable)
     ]);
   }
 
@@ -262,6 +251,10 @@ class FifoChecker extends Component {
   }) : super(name, parent ?? Test.instance) {
     var hasReset = false;
 
+    final fifoPortSignals = [...fifo.inputs.values, ...fifo.outputs.values]
+        // data can be invalid since it's not control
+        .where((e) => !e.name.contains('Data'));
+
     fifo._clk.posedge.listen((event) {
       if (!fifo._reset.value.isValid) {
         // reset is invalid, bad state
@@ -273,6 +266,16 @@ class FifoChecker extends Component {
         return;
       } else if (hasReset) {
         // reset is low, and we've previously reset, should be good to check
+
+        if (!fifoPortSignals
+            .map((e) => e.value.isValid)
+            .reduce((a, b) => a && b)) {
+          final portValuesMap = Map.fromEntries(
+              fifoPortSignals.map((e) => MapEntry(e.name, e.value)));
+          logger.severe('Fifo control port has an invalid value after reset.'
+              ' Port values: $portValuesMap');
+          return;
+        }
 
         if (fifo.full.value.toBool() &&
             fifo._writeEnable.value.toBool() &&
