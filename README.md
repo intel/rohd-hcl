@@ -50,7 +50,7 @@ Below is a list of components either already or planning to be implemented.
   - Synchronous
   - Asynchronous
   - Bubble Generating
-  - Shift register
+  - [Shift register](./doc/shift_register.md)
 - Find
   - [Find N'th bit (0 or 1) from the start/end **(WIP)**](https://github.com/intel/rohd-hcl/issues/20)
   - Min

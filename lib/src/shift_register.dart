@@ -23,10 +23,10 @@ class ShiftRegister extends Module {
   /// The width of the data passing through this shfit register.
   final int width;
 
-  /// A [List] of [output]s where the `n`'th bit corresponds to a version of
-  /// the input data after passing through `n` flops.
+  /// A [List] of [output]s where the `n`'th entry corresponds to a version of
+  /// the input data after passing through `n + 1` flops.
   ///
-  /// The last entry is the same as [dataOut].
+  /// The length is equal to [depth]. The last entry is the same as [dataOut].
   late final List<Logic> stages = UnmodifiableListView(
       [for (var i = 0; i < depth; i++) output(_stageName(i))]);
 
@@ -54,17 +54,17 @@ class ShiftRegister extends Module {
 
     addOutput('${dataName}_out', width: width);
 
+    Map<Logic, dynamic>? resetValues;
     if (reset != null) {
       reset = addInput('reset', reset);
-    }
 
-    Map<Logic, dynamic>? resetValues;
-    if (resetValue != null) {
-      if (resetValue is Logic) {
-        resetValue =
-            addInput('resetValue', resetValue, width: resetValue.width);
+      if (resetValue != null) {
+        if (resetValue is Logic) {
+          resetValue =
+              addInput('resetValue', resetValue, width: resetValue.width);
+        }
+        resetValues = {};
       }
-      resetValues = {};
     }
 
     var dataStage = dataIn;

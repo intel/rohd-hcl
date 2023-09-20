@@ -23,7 +23,9 @@ void main() {
     final dataIn = Logic(width: 8);
     final clk = SimpleClockGenerator(10).clk;
     const latency = 5;
-    final dataOut = ShiftRegister(dataIn, clk: clk, depth: latency).dataOut;
+    final sr = ShiftRegister(dataIn, clk: clk, depth: latency);
+    final dataOut = sr.dataOut;
+    final data3 = sr.stages[2];
 
     final data = [for (var i = 0; i < 20; i++) i * 3];
 
@@ -34,6 +36,11 @@ void main() {
       unawaited(clk
           .waitCycles(latency)
           .then((value) => expect(dataOut.value.toInt(), dataI)));
+
+      unawaited(clk
+          .waitCycles(3)
+          .then((value) => expect(data3.value.toInt(), dataI)));
+
       await clk.nextPosedge;
     }
 
