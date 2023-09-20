@@ -8,7 +8,6 @@
 #
 # 2023 May 09
 # Author: Desmond Kirkpatrick <desmond.a.kirkpatrick@intel.com>
-#
 
 set -euo pipefail
 

@@ -6,7 +6,6 @@
 //
 // 2023 March 13
 // Author: Max Korbel <max.korbel@intel.com>
-//
 
 // ignore_for_file: avoid_types_on_closure_parameters
 
