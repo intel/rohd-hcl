@@ -13,4 +13,5 @@ export 'src/multiplier.dart';
 export 'src/one_hot.dart';
 export 'src/ripple_carry_adder.dart';
 export 'src/rotate.dart';
+export 'src/shift_register.dart';
 export 'src/sort.dart';
