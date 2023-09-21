@@ -14,4 +14,4 @@ set -euo pipefail
 cd confapp
 
 # Use --profile instead of --release to avoid certain name of the module get replaced
-flutter build web --profile --web-renderer html --base-href /rohd-hcl/
+flutter build web --profile --web-renderer html --base-href /rohd-hcl/confapp/
