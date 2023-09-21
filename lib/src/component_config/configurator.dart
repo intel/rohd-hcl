@@ -1,9 +1,12 @@
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
 import 'package:rohd/src/utilities/simcompare.dart';
+import 'package:rohd/src/utilities/sanitizer.dart';
 
 abstract class Configurator {
   String get name;
+
+  String get sanitaryName => Sanitizer.sanitizeSV(name);
 
   Map<String, ConfigKnob<dynamic>> get knobs;
 

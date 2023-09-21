@@ -18,7 +18,8 @@ List<Configurator> components = [
 ];
 
 void main() {
-  testWidgets('should return initial RTL when page load', (tester) async {
+  testWidgets('should return message to click generate when page load',
+      (tester) async {
     await tester.pumpWidget(
       MaterialApp(
         home: HCLPage(
@@ -35,7 +36,7 @@ void main() {
     final widget = tester.widget<SelectableText>(selectableTextFinder);
     final textOutput = widget.data;
 
-    expect(textOutput?.contains('RotateRight'), true);
+    expect(textOutput?.contains('Click'), true);
   });
 
   testWidgets('should return changes when fields is manipulated',
@@ -50,20 +51,23 @@ void main() {
 
     await tester.pumpAndSettle();
 
-    final directionKnob = find.byKey(const Key('rotateDirectionKnob'));
+    final directionKnob = find.byKey(const Key('Direction'));
     final btnGenerateRTL = find.byKey(const Key('generateRTL'));
 
     // tap on the rotate direction field
     await tester.tap(directionKnob);
+    await tester.pumpAndSettle();
 
     // change the text to left
-    await tester.enterText(directionKnob, 'left');
+    final rightButton = find.text('left').last;
+    await tester.tap(rightButton);
+    await tester.pumpAndSettle();
 
     // tap on the generate RTL button
     await tester.tap(btnGenerateRTL);
 
     // wait for widget to rebuild by pump
-    await tester.pump();
+    await tester.pumpAndSettle();
 
     expect(observeOutput(tester)?.contains('RotateLeft'), true);
   });
@@ -92,7 +96,7 @@ void main() {
     await tester.tap(btnGenerateRTL);
 
     // wait for changes
-    await tester.pump();
+    await tester.pumpAndSettle();
 
     expect(observeOutput(tester)?.contains('PriorityArbiter'), true);
   });

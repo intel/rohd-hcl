@@ -57,9 +57,32 @@ jobs:
         with:
           runCmd: tool/gh_actions/run_tests.sh
 
+  run-flutter-checks:
+    name: Run Flutter Checks
+    permissions: {}
+    timeout-minutes: 30
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          submodules: recursive
+
+      - name: Setup Flutter SDK
+        uses: flutter-actions/setup-flutter@v2
+        with:
+          channel: stable
+          version: 3.10.6
+      
+      - name: Run flutter tests
+        run: tool/gh_actions/run_flutter_tests.sh
+      
+      - name: Build static site
+        run: tool/gh_actions/hcl_site_generation_build.sh
+
   deploy-site:
     name: Deploy ROHD-HCL Generator site
-    needs: run-checks
+    needs: [run-checks, run-flutter-checks]
     if: github.event_name == 'push'
     permissions:
       contents: write # required for "JamesIves/github-pages-deploy-action"
@@ -84,11 +107,12 @@ jobs:
         uses: JamesIves/github-pages-deploy-action@v4
         with:
           folder: confapp/build/web
+          target-folder: confapp
           branch: website
 
   deploy-documentation:
     name: Deploy Documentation
-    needs: deploy-site
+    needs: run-checks
     if: github.event_name == 'push'
     permissions:
       contents: write # required for "JamesIves/github-pages-deploy-action"

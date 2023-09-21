@@ -8,7 +8,6 @@
 #
 # 2023 August 01
 # Author: Yao Jing Quek <yao.jing.quek@intel.com>
-#
 
 set -euo pipefail
 

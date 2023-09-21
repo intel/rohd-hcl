@@ -1,4 +1,7 @@
 import 'dart:convert';
+
+// need this for creating a download link
+// ignore: avoid_web_libraries_in_flutter
 import 'dart:html';
 
 import 'package:confapp/hcl/cubit/component_cubit.dart';
@@ -6,9 +9,9 @@ import 'package:confapp/hcl/cubit/system_verilog_cubit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
 import 'package:sidebarx/sidebarx.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 class SVGenerator extends StatefulWidget {
   final SidebarXController controller;
@@ -24,7 +27,6 @@ class SVGenerator extends StatefulWidget {
 
 class _SVGeneratorState extends State<SVGenerator> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
-  List<Widget> textFormField = [];
   final ButtonStyle btnStyle =
       ElevatedButton.styleFrom(textStyle: const TextStyle(fontSize: 20));
 
@@ -80,6 +82,7 @@ class _SVGeneratorState extends State<SVGenerator> {
       );
     } else if (knob is ToggleConfigKnob) {
       selector = CheckboxListTile(
+        key: key,
         value: knob.value,
         onChanged: (value) {
           setState(() {
@@ -93,6 +96,7 @@ class _SVGeneratorState extends State<SVGenerator> {
       );
     } else if (knob is ChoiceConfigKnob) {
       selector = DropdownButtonFormField(
+        key: key,
         decoration: decoration,
         items: knob.choices
             .map((choice) => DropdownMenuItem(
@@ -125,7 +129,7 @@ class _SVGeneratorState extends State<SVGenerator> {
       children: [
         BlocBuilder<ComponentCubit, Configurator>(
           builder: (context, component) {
-            textFormField = [];
+            final textFormField = [];
 
             // Add a title
             textFormField.add(
@@ -175,22 +179,21 @@ class _SVGeneratorState extends State<SVGenerator> {
                           onPressed: () async {
                             try {
                               rtlCubit.setLoading();
-                              print('button pressed');
+
                               // allow some time for loading spinner to appear
-                              await Future.delayed(Duration(milliseconds: 10));
+                              await Future.delayed(
+                                  const Duration(milliseconds: 10));
 
                               final rtlRes = await _generateRTL(component);
 
-                              print(
-                                  'RTL generated, ${rtlRes.length} characters');
-                              rtlCubit.setRTL(rtlRes);
-                              print('sent to cubit');
+                              rtlCubit.setRTL(rtlRes, component.sanitaryName);
                             } on Exception catch (e) {
                               var message = e.toString();
                               if (e is RohdHclException) {
                                 message = e.message;
                               }
-                              rtlCubit.setRTL('Error generating:\n\n$message');
+                              rtlCubit.setRTL(
+                                  'Error generating:\n\n$message', 'error');
                             }
                           },
                           style: btnStyle,
@@ -204,7 +207,8 @@ class _SVGeneratorState extends State<SVGenerator> {
             );
           },
         ),
-        Card(
+        Expanded(
+            child: Card(
           child: Container(
             constraints: BoxConstraints(
                 maxHeight: screenHeight / 2, maxWidth: screenWidth / 3),
@@ -213,7 +217,6 @@ class _SVGeneratorState extends State<SVGenerator> {
                 padding: const EdgeInsets.all(16.0),
                 child: BlocBuilder<SystemVerilogCubit, SystemVerilogCubitState>(
                   builder: (context, state) {
-                    print('building text');
                     final svCode = state.systemVerilog;
                     const maxChars = 10000;
                     final tooBig = svCode.length > maxChars;
@@ -225,54 +228,55 @@ class _SVGeneratorState extends State<SVGenerator> {
                               child: state.generationState ==
                                       GenerationState.loading
                                   ? const CircularProgressIndicator()
-                                  : Row(
-                                      mainAxisAlignment: MainAxisAlignment.end,
-                                      children: [
-                                          ElevatedButton(
-                                            onPressed: tooBig
-                                                ? null
-                                                : () {
-                                                    Clipboard.setData(
-                                                        ClipboardData(
-                                                            text: svCode));
-                                                    ScaffoldMessenger.of(
-                                                            context)
-                                                        .showSnackBar(
-                                                      const SnackBar(
-                                                          content: Text(
-                                                              'Text copied to clipboard')),
-                                                    );
-                                                  },
-                                            child: tooBig
-                                                ? const Text(
-                                                    'Copy SV (too large)')
-                                                : const Text('Copy SV'),
-                                          ),
-                                          ElevatedButton(
-                                            onPressed: () {
-                                              final bytes = base64Encode(
-                                                  svCode.codeUnits);
-                                              final uri =
-                                                  'data:application/octet-stream;base64,$bytes';
-                                              // launchUrl(Uri.parse(uri));
-                                              AnchorElement(href: uri)
-                                                ..setAttribute(
-                                                    'download', 'generated.sv')
-                                                ..click();
-                                            },
-                                            child: const Text('Download SV'),
-                                          ),
-                                        ])),
+                                  : SingleChildScrollView(
+                                      scrollDirection: Axis.horizontal,
+                                      child: Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.end,
+                                          children: [
+                                            ElevatedButton(
+                                              onPressed: tooBig
+                                                  ? null
+                                                  : () {
+                                                      Clipboard.setData(
+                                                          ClipboardData(
+                                                              text: svCode));
+                                                      ScaffoldMessenger.of(
+                                                              context)
+                                                          .showSnackBar(
+                                                        const SnackBar(
+                                                            content: Text(
+                                                                'Text copied to clipboard')),
+                                                      );
+                                                    },
+                                              child: tooBig
+                                                  ? const Text(
+                                                      'Copy SV (too large)')
+                                                  : const Text('Copy SV'),
+                                            ),
+                                            ElevatedButton(
+                                              onPressed: () {
+                                                final bytes = base64Encode(
+                                                    svCode.codeUnits);
+                                                final uri =
+                                                    'data:application/octet-stream;base64,$bytes';
+                                                AnchorElement(href: uri)
+                                                  ..setAttribute('download',
+                                                      '${state.name}.sv')
+                                                  ..click();
+                                              },
+                                              child: const Text('Download SV'),
+                                            ),
+                                          ]))),
                         Align(
                           alignment: Alignment.centerLeft,
                           child: SelectableText(
                             tooBig
-                                ? svCode.substring(0, maxChars) +
+                                ? '${svCode.substring(0, maxChars)}'
                                     '\n...too long to show'
                                 : svCode,
-                            style: const TextStyle(
+                            style: GoogleFonts.robotoMono(
                               fontSize: 12,
-                              fontFamily: 'RobotoMono',
                             ),
                           ),
                         )
@@ -283,7 +287,7 @@ class _SVGeneratorState extends State<SVGenerator> {
               ),
             ),
           ),
-        ),
+        )),
       ],
     );
   }
