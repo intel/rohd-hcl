@@ -1,5 +1,4 @@
 import 'package:bloc/bloc.dart';
-import 'package:confapp/main.dart';
 
 enum GenerationState { initial, loading, done }
 

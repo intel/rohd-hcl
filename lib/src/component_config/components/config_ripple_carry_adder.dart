@@ -1,6 +1,7 @@
+import 'package:rohd/rohd.dart';
+// ignore: implementation_imports
 import 'package:rohd/src/utilities/simcompare.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
-import 'package:rohd/rohd.dart';
 
 class RippleCarryAdderConfigurator extends Configurator {
   final IntConfigKnob logicWidthKnob = IntConfigKnob(value: 16);

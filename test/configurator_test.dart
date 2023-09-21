@@ -1,8 +1,4 @@
 import 'package:rohd_hcl/rohd_hcl.dart';
-import 'package:rohd_hcl/src/component_config/components/config_pipelined_integer_multiplier.dart';
-import 'package:rohd_hcl/src/component_config/components/config_ripple_carry_adder.dart';
-import 'package:rohd_hcl/src/component_config/components/config_rotate.dart';
-import 'package:rohd_hcl/src/component_config/components/config_sort.dart';
 import 'package:test/test.dart';
 
 void main() {
@@ -20,8 +16,7 @@ void main() {
       expect(rotate.knobs.values.toList()[2], isA<IntConfigKnob>());
     });
 
-    test(
-        'should return RotateRight module when invoke generate() with default value',
+    test('should return RotateRight module when generate() with default value',
         () async {
       final rotate = RotateConfigurator();
       expect(await rotate.generateSV(), contains('RotateRight'));
@@ -52,7 +47,7 @@ void main() {
 
     test('should return single Int knobs to be configured', () {
       final multiplier = RippleCarryAdderConfigurator();
-      for (var element in multiplier.knobs.values.toList()) {
+      for (final element in multiplier.knobs.values.toList()) {
         expect(element, isA<IntConfigKnob>());
       }
     });
@@ -86,7 +81,7 @@ void main() {
 
     test('should return both Int knobs to be configured', () {
       final multiplier = PipelinedIntegerMultiplierConfigurator();
-      for (var element in multiplier.knobs.values.toList()) {
+      for (final element in multiplier.knobs.values.toList()) {
         expect(element, isA<IntConfigKnob>());
       }
     });
