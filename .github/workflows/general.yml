@@ -74,6 +74,9 @@ jobs:
           channel: stable
           version: 3.10.6
       
+      - name: Analyze flutter source
+        run: tool/gh_actions/analyze_flutter_source.sh
+      
       - name: Run flutter tests
         run: tool/gh_actions/run_flutter_tests.sh
       
