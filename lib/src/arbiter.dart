@@ -70,7 +70,7 @@ class RoundRobinArbiter extends Arbiter {
   /// [clk] [_requests] [_requestMask]   [_grantMask]   [_grants]
   ///  0    00100010   &  11111111      =   00100010  ->  00000010
   ///  1    00100010   &  11111100      =   00100000  ->  00100000
-  ///  2    10000001   &  11000000      =   00100000  ->  10000000
+  ///  2    10000001   &  11000000      =   10000000  ->  10000000
   /// On clock 0 and 1 the grants are used to generate the
   /// requestMask, therefore grantMask changes to grant the next request
   /// Clock 3 shows when a request changes, the requestMask make sure to
@@ -81,7 +81,9 @@ class RoundRobinArbiter extends Arbiter {
   /// Contains bits of [_requests] but as bits are granted, will turn off
   List<Logic> _grantMask = [];
 
-  /// Round Robin arbiter handles requests keeping track of previous requests.
+  /// Round Robin arbiter handles requests by granting each requestor
+  /// and keeping record of requests already granted, in order to mask it until
+  /// granting the turn of each request to start again
   RoundRobinArbiter(super.requests,
       {required Logic clk, required Logic reset}) {
     clk = addInput('clk', clk);
@@ -98,10 +100,10 @@ class RoundRobinArbiter extends Arbiter {
         // Example:
         // [_grants] [requestMask]
         // 00001000   11110000
-        CaseZ(_grants.rswizzle(), [
+        CaseZ(_grants.rswizzle(), conditionalType: ConditionalType.unique, [
           for (var i = 0; i < count; i++)
             CaseItem(
-                Const(LogicValue.filled(count, LogicValue.z)
+                Const(LogicValue.filled(count, LogicValue.zero)
                     .withSet(i, LogicValue.one)),
                 [
                   for (var g = 0; g < count; g++)
@@ -119,7 +121,7 @@ class RoundRobinArbiter extends Arbiter {
       // CaseZ uses [_grantMask] to set the [_grants] based on the
       // least significant bit
       CaseZ(
-        _grantMask.rswizzle(),
+        _grantMask.rswizzle(), conditionalType: ConditionalType.priority,
         [
           for (var i = 0; i < count; i++)
             CaseItem(
@@ -127,7 +129,7 @@ class RoundRobinArbiter extends Arbiter {
                     .withSet(i, LogicValue.one)),
                 [
                   for (var g = 0; g < count; g++) _grants[g] < (i == g ? 1 : 0),
-                ])
+                ]),
         ],
         // When all bits have been granted, [_grantMask] turns all to 0s because
         // of the [_requestMask], therefore logic to define next [_grants]
