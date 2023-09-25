@@ -29,6 +29,23 @@ This project is *not* intended to be the *only* place for reusable hardware comp
 
 See the [component list](https://github.com/intel/rohd-hcl/blob/main/doc/README.md) for documentation on components and plans for future component development.
 
+Some examples of component categories include:
+
+- Encoders & Decoders
+- Arbiters
+- FIFOs & Queues
+- Find
+- Count
+- Sort
+- Arithmetic
+- Rotate
+- Counters
+- Pseudorandom
+- Error checking & correction
+- Data flow
+- Memory
+- Standard interfaces
+
 ----------------
 
 Copyright (C) 2023 Intel Corporation  
