@@ -3,7 +3,6 @@
 //
 // utils.dart
 // Various utilities helpful for working with the component library
-//
 
 import 'dart:math';
 
