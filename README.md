@@ -31,5 +31,5 @@ See the [component list](https://github.com/intel/rohd-hcl/blob/main/doc/README.
 
 ----------------
 
-Copyright (C) 2023 Intel Corporation 
+Copyright (C) 2023 Intel Corporation  
 SPDX-License-Identifier: BSD-3-Clause
