@@ -100,7 +100,7 @@ class RoundRobinArbiter extends Arbiter {
         // Example:
         // [_grants] [requestMask]
         // 00001000   11110000
-        CaseZ(_grants.rswizzle(), conditionalType: ConditionalType.unique, [
+        Case(_grants.rswizzle(), conditionalType: ConditionalType.unique, [
           for (var i = 0; i < count; i++)
             CaseItem(
                 Const(LogicValue.filled(count, LogicValue.zero)
