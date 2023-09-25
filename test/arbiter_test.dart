@@ -36,10 +36,9 @@ void main() {
     expect(grantVec.value, LogicValue.ofString('00000100'));
   });
   test('round robin logic', () async {
+    await Simulator.reset();
     final clk = SimpleClockGenerator(10).clk;
-
     const width = 8;
-
     final vector = Logic(width: width);
     final reset = Logic();
     final reqs = List.generate(width, (i) => vector[i]);
@@ -85,6 +84,7 @@ void main() {
   });
 
   test('Round Robin dynamic request test', () async {
+    await Simulator.reset();
     final clk = SimpleClockGenerator(10).clk;
     const width = 8;
     final vector = Logic(width: width);
@@ -136,6 +136,7 @@ void main() {
   });
 
   test('all reqs', () async {
+    await Simulator.reset();
     final clk = SimpleClockGenerator(10).clk;
     final reset = Logic();
     final requests = List.generate(8, (index) => Const(1));
