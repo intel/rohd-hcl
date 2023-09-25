@@ -13,6 +13,9 @@ import 'package:rohd_hcl/rohd_hcl.dart';
 import 'package:test/test.dart';
 
 void main() {
+  tearDown(() async {
+    await Simulator.reset();
+  });
   test('priority arbiter', () async {
     const width = 8;
 
@@ -36,7 +39,6 @@ void main() {
     expect(grantVec.value, LogicValue.ofString('00000100'));
   });
   test('round robin logic', () async {
-    await Simulator.reset();
     final clk = SimpleClockGenerator(10).clk;
     const width = 8;
     final vector = Logic(width: width);
@@ -47,6 +49,7 @@ void main() {
     await arb.build();
     WaveDumper(arb);
     unawaited(Simulator.run());
+
     vector.put(bin('01001001'));
     reset.put(1); //Reset arbiter
     await clk.nextNegedge;
@@ -79,12 +82,12 @@ void main() {
     expect(grants.value, LogicValue.ofString('10000000'));
     await clk.nextNegedge;
     expect(grants.value, LogicValue.ofString('00000010'));
+
     Simulator.endSimulation();
     await Simulator.simulationEnded;
   });
 
   test('Round Robin dynamic request test', () async {
-    await Simulator.reset();
     final clk = SimpleClockGenerator(10).clk;
     const width = 8;
     final vector = Logic(width: width);
@@ -95,6 +98,7 @@ void main() {
     await arb.build();
     unawaited(Simulator.run());
     WaveDumper(arb);
+
     reset.put(1); //Reset arbiter
     await clk.nextNegedge;
     await clk.nextNegedge;
@@ -118,7 +122,6 @@ void main() {
     vector.put(bin('10000000'));
     expect(grants.value, LogicValue.ofString('10000000'));
     await clk.nextNegedge;
-
     vector.put(bin('10010001'));
     expect(grants.value, LogicValue.ofString('00000001'));
     await clk.nextNegedge;
@@ -131,12 +134,12 @@ void main() {
     expect(grants.value, LogicValue.ofString('00010000'));
     await clk.nextNegedge;
     expect(grants.value, LogicValue.ofString('10000000'));
+
     Simulator.endSimulation();
     await Simulator.simulationEnded;
   });
 
   test('all reqs', () async {
-    await Simulator.reset();
     final clk = SimpleClockGenerator(10).clk;
     final reset = Logic();
     final requests = List.generate(8, (index) => Const(1));
@@ -145,6 +148,7 @@ void main() {
     Simulator.setMaxSimTime(5000);
     unawaited(Simulator.run());
     WaveDumper(arbiter);
+
     reset.inject(0);
     await clk.nextNegedge;
     reset.inject(1);
