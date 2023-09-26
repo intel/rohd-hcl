@@ -4,4 +4,4 @@ ROHD HCL provides a set of standard interfaces using ROHD `Interface`s.  This ma
 
 ## APB
 
-The [ABP Interface](https://developer.arm.com/documentation/ihi0024/latest/) is a standard AMBA interface.  ROHD HCL has a configurable version of the APB interface called [`Apb`](https://intel.github.io/rohd-hcl/rohd_hcl/Apb-class.html).
+The [ABP Interface](https://developer.arm.com/documentation/ihi0024/latest/) is a standard AMBA interface.  ROHD HCL has a configurable version of the APB interface called [`ApbInterface`](https://intel.github.io/rohd-hcl/rohd_hcl/ApbInterface-class.html).

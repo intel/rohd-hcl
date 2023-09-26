@@ -18,7 +18,7 @@ Some in-development items will have opened issues, as well. Feel free to create 
 - FIFOs & Queues
   - [Synchronous FIFO](./components/fifo.md)
   - Asynchronous / clock-crossing FIFO
-  - [Shift register](./shift_register.md)
+  - [Shift register](./components/shift_register.md)
 - Find
   - Find N'th bit (0 or 1) from the start/end
   - Find minimum
