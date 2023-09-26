@@ -50,15 +50,6 @@ jobs:
       - name: Run project tests
         run: tool/gh_actions/run_tests.sh
       
-      # https://github.com/devcontainers/ci/blob/main/docs/github-action.md
-      - name: Build dev container and run tests in it
-        uses: devcontainers/ci@v0.3
-        with:
-          runCmd: tool/gh_actions/run_tests.sh
-      
-      
-      # run some additional steps to make sure deploy works
-
       - name: Install CAD Suite (includes yosys)
         run: tool/gh_actions/install_opencadsuite.sh
 
@@ -67,6 +58,12 @@ jobs:
 
       - name: Generate HTML for examples
         run: tool/gh_actions/create_htmls.sh
+
+      # https://github.com/devcontainers/ci/blob/main/docs/github-action.md
+      - name: Build dev container and run tests in it
+        uses: devcontainers/ci@v0.3
+        with:
+          runCmd: tool/gh_actions/run_tests.sh
 
   deploy-documentation:
     name: Deploy Documentation
