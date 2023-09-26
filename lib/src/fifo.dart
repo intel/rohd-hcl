@@ -251,6 +251,7 @@ class FifoChecker extends Component {
   }) : super(name, parent ?? Test.instance) {
     var hasReset = false;
 
+    // ignore: invalid_use_of_protected_member
     final fifoPortSignals = [...fifo.inputs.values, ...fifo.outputs.values]
         // data can be invalid since it's not control
         .where((e) => !e.name.contains('Data'));
