@@ -59,12 +59,12 @@
 <a href="https://github.com/intel/rohd-hcl/blob/main/LICENSE"><img src="https://img.shields.io/badge/License-BSD--3-blue" alt="License"></a>
 <a href="https://github.com/intel/rohd-hcl/blob/main/CODE_OF_CONDUCT.md"><img src="https://img.shields.io/badge/Contributor%20Covenant-2.1-4baaaa.svg" alt="Contributor Covenant"></a></p>
 <h1 id="rohd-hardware-component-libary">ROHD Hardware Component Libary</h1>
-<p>A hardware component library developed with <a href="https://github.com/intel/rohd">ROHD</a>.  This library aims to collect a set of reusable, configurable components that can be leveraged in other designs.  These components are also intended as good examples of ROHD hardware implementations.</p>
-<p>This project is a work in progress!  Initial components are primarily focused on correctness, and there is room for optimization from there.  Please feel free to contribute or provide feedback.  Check out <a href="https://github.com/intel/rohd-hcl/blob/main/CONTRIBUTING.md"><code>CONTRIBUTING</code></a> for details on how to contribute.</p>
-<p>This project is <em>not</em> intended to be the <em>only</em> place for reusable hardware components developed in ROHD.  It's not even intended to be the only <em>library</em>.  Contributions are welcomed to this library, but developers are also welcome to build independent packages or libraries, even if they may overlap.</p>
+<p>A hardware component library developed with <a href="https://github.com/intel/rohd">ROHD</a>. This library aims to collect a set of reusable, configurable components that can be leveraged in other designs. These components are also intended as good examples of ROHD hardware implementations.</p>
+<p>This project is always improving and growing! In a given category, initial components are primarily focused on correctness with room for optimization from there. Please feel free to contribute or provide feedback. Check out <a href="https://github.com/intel/rohd-hcl/blob/main/CONTRIBUTING.md"><code>CONTRIBUTING</code></a> for details on how to contribute.</p>
+<p>This project is <em>not</em> intended to be the <em>only</em> place for reusable hardware components developed in ROHD. It's not even intended to be the only <em>library</em>. Contributions are welcomed to this library, but developers are also welcome to build independent packages or libraries, even if they may overlap.</p>
 <h2 id="guidelines-for-components">Guidelines for Components</h2>
 <ul>
-<li>All components should be <code>Module</code>s so that they are convertible to SystemVerilog</li>
+<li>All hardware components should be <code>Module</code>s so that they are convertible to SystemVerilog</li>
 <li>Components should be general and easily reusable</li>
 <li>Components should be as configurable as may be useful</li>
 <li>Components must be extensively tested</li>
@@ -74,167 +74,23 @@
 <li>Add <code>extension</code>s to other classes to make component usage easier, when appropriate</li>
 </ul>
 <h2 id="component-list">Component List</h2>
-<p>Below is a list of components either already or planning to be implemented.</p>
-<table>
-<thead>
-<tr>
-<th>Marking</th>
-<th>Status</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>No link</td>
-<td>Idea phase / included in parent link</td>
-</tr>
-<tr>
-<td>Link <strong>(OPEN)</strong></td>
-<td>An issue is opened for discussion</td>
-</tr>
-<tr>
-<td>Link <strong>(WIP)</strong></td>
-<td>An issue is actively being developed</td>
-</tr>
-<tr>
-<td>Link to API</td>
-<td>Implemented with API documentation</td>
-</tr>
-</tbody>
-</table>
+<p>See the <a href="https://github.com/intel/rohd-hcl/blob/main/doc/README.md">component list</a> for documentation on components and plans for future component development.</p>
+<p>Some examples of component categories include:</p>
 <ul>
-<li>Encoders
-<ul>
-<li>1-hot to Binary</li>
-<li>Binary to 1-hot</li>
-<li>Gray to Binary</li>
-<li>Binary to Gray</li>
-<li>Priority</li>
-<li>PLAs</li>
-</ul>
-</li>
-<li><a href="./doc/arbiter.md">Arbiters</a>
-<ul>
-<li><a href="./doc/arbiter.md#priority-arbiter">Priority</a></li>
-<li><a href="https://github.com/intel/rohd-hcl/issues/11">Round-robin <strong>(WIP)</strong></a></li>
-</ul>
-</li>
-<li><a href="./doc/fifo.md">FIFO</a>
-<ul>
-<li>Synchronous</li>
-<li>Asynchronous</li>
-<li>Bubble Generating</li>
-<li>Shift register</li>
-</ul>
-</li>
-<li>Find
-<ul>
-<li><a href="https://github.com/intel/rohd-hcl/issues/20">Find N'th bit (0 or 1) from the start/end <strong>(WIP)</strong></a></li>
-<li>Min</li>
-<li>Max</li>
-<li>Find pattern</li>
-</ul>
-</li>
-<li>Count
-<ul>
-<li>Count bit=X</li>
-<li>Count pattern</li>
-</ul>
-</li>
-<li><a href="./doc/sort.md">Sort</a></li>
-<li>Arithmetic
-<ul>
-<li><a href="https://github.com/intel/rohd-hcl/issues/12">Prefix Trees <strong>(WIP)</strong></a></li>
-<li>Adders</li>
-<li>Subtractors</li>
-<li><a href="./doc/multiplier.md">Multipliers</a>
-<ul>
-<li><a href="./doc/multiplier.md#carry-save-multiplier">Pipelined Integer Multiplier</a></li>
-</ul>
-</li>
-<li>Dividers</li>
-<li>Log</li>
-<li>Square root</li>
-<li>Inverse square root</li>
-<li>Floating point
-<ul>
-<li>Double (64-bit)</li>
-<li>Float (32-bit)</li>
-<li>BFloat16 (16-bit)</li>
-<li>BFloat8 (8-bit)</li>
-<li>BFloat4 (4-bit)</li>
-<li>Dot product</li>
-</ul>
-</li>
-</ul>
-</li>
-<li><a href="./doc/rotate.md">Rotate</a>
-<ul>
-<li>Dynamic and fixed amounts</li>
-<li>Left and right</li>
-<li>Includes <code>extension</code>s on <code>Logic</code> and <code>LogicValue</code></li>
-</ul>
-</li>
-<li>Counters
-<ul>
-<li>Binary counter</li>
-<li>Gray counter</li>
-</ul>
-</li>
-<li><a href="https://github.com/intel/rohd-hcl/issues/8">LFSR <strong>(WIP)</strong></a></li>
-<li>Error checking
-<ul>
-<li>ECC</li>
-<li>CRC</li>
-<li>Parity</li>
-</ul>
-</li>
-<li>Data flow
-<ul>
-<li>Ready/Valid</li>
-<li>Connect/Disconnect (e.g. SFI)</li>
-<li>Widening</li>
-<li>Narrowing</li>
-<li>Crediting</li>
-<li>NoC's
-<ul>
-<li>Coherent</li>
-<li>Non-Coherent</li>
-</ul>
-</li>
-</ul>
-</li>
-<li><a href="./doc/memory.md">Memory</a>
-<ul>
-<li><a href="./doc/memory.md#masks">Masks</a></li>
-<li><a href="./doc/memory.md#register-files">Register Files</a>
-<ul>
-<li>Flop-based</li>
-<li>Latch-based</li>
-</ul>
-</li>
-<li>Replacement Policies
-<ul>
-<li>LRU</li>
-</ul>
-</li>
-<li><a href="./doc/memory.md#memory-models">Memory Models</a></li>
-</ul>
-</li>
-<li><a href="./doc/standard_interfaces.md">Standard interfaces</a>
-<ul>
-<li>AXI</li>
-<li><a href="./doc/standard_interfaces.md#apb">APB</a></li>
-<li>AHB</li>
-<li>SFI</li>
-<li>PCIe</li>
-<li>UCIe</li>
-<li>JTAG</li>
-<li>SPI</li>
-<li>UART</li>
-<li>DDR</li>
-<li>HBM</li>
-</ul>
-</li>
+<li>Encoders &amp; Decoders</li>
+<li>Arbiters</li>
+<li>FIFOs &amp; Queues</li>
+<li>Find</li>
+<li>Count</li>
+<li>Sort</li>
+<li>Arithmetic</li>
+<li>Rotate</li>
+<li>Counters</li>
+<li>Pseudorandom</li>
+<li>Error checking &amp; correction</li>
+<li>Data flow</li>
+<li>Memory</li>
+<li>Standard interfaces</li>
 </ul>
 <hr>
 <p>Copyright (C) 2023 Intel Corporation<br>
