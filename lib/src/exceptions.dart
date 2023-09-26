@@ -6,7 +6,6 @@
 //
 // 2023 February 21
 // Author: Max Korbel <max.korbel@intel.com>
-//
 
 /// An [Exception] for the ROHD Hardware Component Library.
 class RohdHclException implements Exception {

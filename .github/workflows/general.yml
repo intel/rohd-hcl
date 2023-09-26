@@ -20,7 +20,7 @@ jobs:
           submodules: recursive
 
       - name: Lint Markdown files
-        uses: DavidAnson/markdownlint-cli2-action@v9
+        uses: DavidAnson/markdownlint-cli2-action@v11
         with:
           globs: '**/*.md'
 

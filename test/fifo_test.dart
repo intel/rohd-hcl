@@ -6,7 +6,6 @@
 //
 // 2023 March 13
 // Author: Max Korbel <max.korbel@intel.com>
-//
 
 import 'dart:async';
 import 'dart:convert';
