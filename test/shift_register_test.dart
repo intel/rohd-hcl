@@ -59,7 +59,9 @@ void main() {
     expect(sr.name, contains('fancy'));
     expect(sr.dataOut.name, contains('fancy'));
     expect(
-        sr.inputs.keys.where((element) => element.contains('fancy')).length, 1);
+        // ignore: invalid_use_of_protected_member
+        sr.inputs.keys.where((element) => element.contains('fancy')).length,
+        1);
   });
 
   test('depth 0 shift register is pass-through', () {
