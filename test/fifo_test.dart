@@ -19,7 +19,7 @@ import 'package:test/test.dart';
 
 void main() {
   tearDown(() async {
-    await Simulator.reset();
+    await Test.reset();
   });
 
   test('fifo simple', () async {
