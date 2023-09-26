@@ -6,7 +6,6 @@
 //
 // 2023 March 13
 // Author: Max Korbel <max.korbel@intel.com>
-//
 
 import 'dart:async';
 import 'dart:convert';
@@ -20,7 +19,7 @@ import 'package:test/test.dart';
 
 void main() {
   tearDown(() async {
-    await Simulator.reset();
+    await Test.reset();
   });
 
   test('fifo simple', () async {

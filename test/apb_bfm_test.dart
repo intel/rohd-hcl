@@ -60,7 +60,7 @@ class ApbBfmTest extends Test {
       parent: this,
       storage: storage,
       responseDelay:
-          withRandomRspDelays ? (request) => Test.random.nextInt(5) : null,
+          withRandomRspDelays ? (request) => Test.random!.nextInt(5) : null,
       respondWithError: withErrors ? (request) => true : null,
     );
 
@@ -102,10 +102,10 @@ class ApbBfmTest extends Test {
     await _resetFlow();
 
     final randomStrobes = List.generate(
-        numTransfers, (index) => LogicValue.ofInt(Test.random.nextInt(16), 4));
+        numTransfers, (index) => LogicValue.ofInt(Test.random!.nextInt(16), 4));
 
     final randomData = List.generate(numTransfers,
-        (index) => LogicValue.ofInt(Test.random.nextInt(1 << 32), 32));
+        (index) => LogicValue.ofInt(Test.random!.nextInt(1 << 32), 32));
 
     LogicValue strobedData(LogicValue originalData, LogicValue strobe) => [
           for (var i = 0; i < 4; i++)

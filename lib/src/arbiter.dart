@@ -6,7 +6,6 @@
 //
 // 2023 March 13
 // Author: Max Korbel <max.korbel@intel.com>
-//
 
 import 'dart:collection';
 import 'package:rohd/rohd.dart';
@@ -27,7 +26,7 @@ abstract class Arbiter extends Module {
 
   /// Constructs an arbiter where each element in [requests] is a one-bit signal
   /// requesting a corresponding bit from [grants].
-  Arbiter(List<Logic> requests) {
+  Arbiter(List<Logic> requests, {super.name = 'arbiter'}) {
     for (var i = 0; i < requests.length; i++) {
       if (requests[i].width != 1) {
         throw RohdHclException('Each request must be 1 bit,'
@@ -44,7 +43,7 @@ abstract class Arbiter extends Module {
 class PriorityArbiter extends Arbiter {
   /// Constructs an arbiter where the grant is given to the lowest-indexed
   /// request.
-  PriorityArbiter(super.requests) {
+  PriorityArbiter(super.requests, {super.name = 'priority_arbiter'}) {
     Combinational([
       CaseZ(_requests.rswizzle(), conditionalType: ConditionalType.priority, [
         for (var i = 0; i < count; i++)
