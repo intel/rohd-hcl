@@ -82,6 +82,8 @@ Some in-development items will have opened issues, as well. Feel free to create 
   - UART
   - DDR
   - HBM
+- Models
+  - [APB](./components/apb_bfm.md)
 
 ----------------
 
