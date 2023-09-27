@@ -73,7 +73,7 @@
   <dd>
     <ul class="gt-separated dark clazz-relationships">
       <li><a href="https://api.dart.dev/stable/3.1.2/dart-core/Object-class.html">Object</a></li>
-        <li><a href="https://pub.dev/documentation/rohd/0.4.2/rohd/Interface-class.html">Interface</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../rohd_hcl/DataPortGroup.html">DataPortGroup</a></span>&gt;</span></li>
+        <li><a href="https://pub.dev/documentation/rohd/0.5.0/rohd/Interface-class.html">Interface</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../rohd_hcl/DataPortGroup.html">DataPortGroup</a></span>&gt;</span></li>
         <li><a href="../rohd_hcl/DataPortInterface-class.html">DataPortInterface</a></li>
       <li>MaskedDataPortInterface</li>
     </ul>
@@ -110,7 +110,7 @@
       <dl class="properties">
         <dt id="addr" class="property inherited">
   <span class="name"><a href="../rohd_hcl/DataPortInterface/addr.html">addr</a></span>
-  <span class="signature">&#8594; <a href="https://pub.dev/documentation/rohd/0.4.2/rohd/Logic-class.html">Logic</a></span> 
+  <span class="signature">&#8594; <a href="https://pub.dev/documentation/rohd/0.5.0/rohd/Logic-class.html">Logic</a></span> 
 
 </dt>
 <dd class="inherited">
@@ -132,7 +132,7 @@
 
         <dt id="data" class="property inherited">
   <span class="name"><a href="../rohd_hcl/DataPortInterface/data.html">data</a></span>
-  <span class="signature">&#8594; <a href="https://pub.dev/documentation/rohd/0.4.2/rohd/Logic-class.html">Logic</a></span> 
+  <span class="signature">&#8594; <a href="https://pub.dev/documentation/rohd/0.5.0/rohd/Logic-class.html">Logic</a></span> 
 
 </dt>
 <dd class="inherited">
@@ -154,7 +154,7 @@
 
         <dt id="en" class="property inherited">
   <span class="name"><a href="../rohd_hcl/DataPortInterface/en.html">en</a></span>
-  <span class="signature">&#8594; <a href="https://pub.dev/documentation/rohd/0.4.2/rohd/Logic-class.html">Logic</a></span> 
+  <span class="signature">&#8594; <a href="https://pub.dev/documentation/rohd/0.5.0/rohd/Logic-class.html">Logic</a></span> 
 
 </dt>
 <dd class="inherited">
@@ -176,7 +176,7 @@
 
         <dt id="mask" class="property">
   <span class="name"><a href="../rohd_hcl/MaskedDataPortInterface/mask.html">mask</a></span>
-  <span class="signature">&#8594; <a href="https://pub.dev/documentation/rohd/0.4.2/rohd/Logic-class.html">Logic</a></span> 
+  <span class="signature">&#8594; <a href="https://pub.dev/documentation/rohd/0.5.0/rohd/Logic-class.html">Logic</a></span> 
 
 </dt>
 <dd>
@@ -187,12 +187,12 @@ byte of data.  A high bit is an enable for that chunk of data.
 </dd>
 
         <dt id="ports" class="property inherited">
-  <span class="name"><a href="https://pub.dev/documentation/rohd/0.4.2/rohd/Interface/ports.html">ports</a></span>
-  <span class="signature">&#8594; <a href="https://api.dart.dev/stable/3.1.2/dart-core/Map-class.html">Map</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.dart.dev/stable/3.1.2/dart-core/String-class.html">String</a></span>, <span class="type-parameter"><a href="https://pub.dev/documentation/rohd/0.4.2/rohd/Logic-class.html">Logic</a></span>&gt;</span></span> 
+  <span class="name"><a href="https://pub.dev/documentation/rohd/0.5.0/rohd/Interface/ports.html">ports</a></span>
+  <span class="signature">&#8594; <a href="https://api.dart.dev/stable/3.1.2/dart-core/Map-class.html">Map</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.dart.dev/stable/3.1.2/dart-core/String-class.html">String</a></span>, <span class="type-parameter"><a href="https://pub.dev/documentation/rohd/0.5.0/rohd/Logic-class.html">Logic</a></span>&gt;</span></span> 
 
 </dt>
 <dd class="inherited">
-  Maps from the <a href="https://pub.dev/documentation/rohd/0.4.2/rohd/Interface-class.html">Interface</a>'s defined port name to an instance of a <a href="https://pub.dev/documentation/rohd/0.4.2/rohd/Port-class.html">Port</a>.
+  Maps from the <a href="https://pub.dev/documentation/rohd/0.5.0/rohd/Interface-class.html">Interface</a>'s defined port name to an instance of a <a href="https://pub.dev/documentation/rohd/0.5.0/rohd/Port-class.html">Port</a>.
   <div class="features"><span class="feature">read-only</span><span class="feature">inherited</span></div>
 
 </dd>
@@ -225,13 +225,41 @@ byte of data.  A high bit is an enable for that chunk of data.
 
 </dt>
 <dd>
-  Makes a copy of this <a href="https://pub.dev/documentation/rohd/0.4.2/rohd/Interface-class.html">Interface</a> with matching configuration.
+  Makes a copy of this <a href="https://pub.dev/documentation/rohd/0.5.0/rohd/Interface-class.html">Interface</a> with matching configuration.
   <div class="features"><span class="feature">override</span></div>
 
 </dd>
 
+        <dt id="conditionalDriveOther" class="callable inherited">
+  <span class="name"><a href="https://pub.dev/documentation/rohd/0.5.0/rohd/Interface/conditionalDriveOther.html">conditionalDriveOther</a></span><span class="signature">(<wbr><span class="parameter" id="conditionalDriveOther-param-other"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.5.0/rohd/Interface-class.html">Interface</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../rohd_hcl/DataPortGroup.html">DataPortGroup</a></span>&gt;</span></span> <span class="parameter-name">other</span>, </span><span class="parameter" id="conditionalDriveOther-param-tags"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.1.2/dart-core/Iterable-class.html">Iterable</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../rohd_hcl/DataPortGroup.html">DataPortGroup</a></span>&gt;</span></span> <span class="parameter-name">tags</span></span>)
+    <span class="returntype parameter">&#8594; <a href="https://pub.dev/documentation/rohd/0.5.0/rohd/Conditional-class.html">Conditional</a></span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Makes <code>this</code> conditionally drive interface signals tagged with <code>tags</code> on
+<code>other</code>.
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="conditionalReceiveOther" class="callable inherited">
+  <span class="name"><a href="https://pub.dev/documentation/rohd/0.5.0/rohd/Interface/conditionalReceiveOther.html">conditionalReceiveOther</a></span><span class="signature">(<wbr><span class="parameter" id="conditionalReceiveOther-param-other"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.5.0/rohd/Interface-class.html">Interface</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../rohd_hcl/DataPortGroup.html">DataPortGroup</a></span>&gt;</span></span> <span class="parameter-name">other</span>, </span><span class="parameter" id="conditionalReceiveOther-param-tags"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.1.2/dart-core/Iterable-class.html">Iterable</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../rohd_hcl/DataPortGroup.html">DataPortGroup</a></span>&gt;</span></span> <span class="parameter-name">tags</span></span>)
+    <span class="returntype parameter">&#8594; <a href="https://pub.dev/documentation/rohd/0.5.0/rohd/Conditional-class.html">Conditional</a></span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Makes <code>this</code> signals tagged with <code>tags</code> be driven conditionally by
+<code>other</code>.
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
         <dt id="connectIO" class="callable inherited">
-  <span class="name"><a href="https://pub.dev/documentation/rohd/0.4.2/rohd/Interface/connectIO.html">connectIO</a></span><span class="signature">(<wbr><span class="parameter" id="connectIO-param-module"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.4.2/rohd/Module-class.html">Module</a></span> <span class="parameter-name">module</span>, </span><span class="parameter" id="connectIO-param-srcInterface"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.4.2/rohd/Interface-class.html">Interface</a></span> <span class="parameter-name">srcInterface</span>, </span><span class="parameter" id="connectIO-param-inputTags">{<span class="type-annotation"><a href="https://api.dart.dev/stable/3.1.2/dart-core/Set-class.html">Set</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../rohd_hcl/DataPortGroup.html">DataPortGroup</a></span>&gt;</span>?</span> <span class="parameter-name">inputTags</span>, </span><span class="parameter" id="connectIO-param-outputTags"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.1.2/dart-core/Set-class.html">Set</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../rohd_hcl/DataPortGroup.html">DataPortGroup</a></span>&gt;</span>?</span> <span class="parameter-name">outputTags</span>, </span><span class="parameter" id="connectIO-param-uniquify"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.1.2/dart-core/String-class.html">String</a></span> <span class="parameter-name">uniquify</span>(<span class="parameter" id="param-original"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.1.2/dart-core/String-class.html">String</a></span> <span class="parameter-name">original</span></span>)?}</span>)
+  <span class="name"><a href="https://pub.dev/documentation/rohd/0.5.0/rohd/Interface/connectIO.html">connectIO</a></span><span class="signature">(<wbr><span class="parameter" id="connectIO-param-module"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.5.0/rohd/Module-class.html">Module</a></span> <span class="parameter-name">module</span>, </span><span class="parameter" id="connectIO-param-srcInterface"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.5.0/rohd/Interface-class.html">Interface</a></span> <span class="parameter-name">srcInterface</span>, </span><span class="parameter" id="connectIO-param-inputTags">{<span class="type-annotation"><a href="https://api.dart.dev/stable/3.1.2/dart-core/Iterable-class.html">Iterable</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../rohd_hcl/DataPortGroup.html">DataPortGroup</a></span>&gt;</span>?</span> <span class="parameter-name">inputTags</span>, </span><span class="parameter" id="connectIO-param-outputTags"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.1.2/dart-core/Iterable-class.html">Iterable</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../rohd_hcl/DataPortGroup.html">DataPortGroup</a></span>&gt;</span>?</span> <span class="parameter-name">outputTags</span>, </span><span class="parameter" id="connectIO-param-uniquify"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.1.2/dart-core/String-class.html">String</a></span> <span class="parameter-name">uniquify</span>(<span class="parameter" id="param-original"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.1.2/dart-core/String-class.html">String</a></span> <span class="parameter-name">original</span></span>)?}</span>)
     <span class="returntype parameter">&#8594; void</span>
   </span>
   
@@ -239,14 +267,27 @@ byte of data.  A high bit is an enable for that chunk of data.
 </dt>
 <dd class="inherited">
   Connects <code>module</code>'s inputs and outputs up to <code>srcInterface</code> and this
-<a href="https://pub.dev/documentation/rohd/0.4.2/rohd/Interface-class.html">Interface</a>.
+<a href="https://pub.dev/documentation/rohd/0.5.0/rohd/Interface-class.html">Interface</a>.
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="driveOther" class="callable inherited">
+  <span class="name"><a href="https://pub.dev/documentation/rohd/0.5.0/rohd/Interface/driveOther.html">driveOther</a></span><span class="signature">(<wbr><span class="parameter" id="driveOther-param-other"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.5.0/rohd/Interface-class.html">Interface</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../rohd_hcl/DataPortGroup.html">DataPortGroup</a></span>&gt;</span></span> <span class="parameter-name">other</span>, </span><span class="parameter" id="driveOther-param-tags"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.1.2/dart-core/Iterable-class.html">Iterable</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../rohd_hcl/DataPortGroup.html">DataPortGroup</a></span>&gt;</span></span> <span class="parameter-name">tags</span></span>)
+    <span class="returntype parameter">&#8594; void</span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Makes <code>this</code> drive interface signals tagged with <code>tags</code> on <code>other</code>.
   <div class="features"><span class="feature">inherited</span></div>
 
 </dd>
 
         <dt id="getPorts" class="callable inherited">
-  <span class="name"><a href="https://pub.dev/documentation/rohd/0.4.2/rohd/Interface/getPorts.html">getPorts</a></span><span class="signature">(<wbr><span class="parameter" id="getPorts-param-tags">[<span class="type-annotation"><a href="https://api.dart.dev/stable/3.1.2/dart-core/Set-class.html">Set</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../rohd_hcl/DataPortGroup.html">DataPortGroup</a></span>&gt;</span>?</span> <span class="parameter-name">tags</span>]</span>)
-    <span class="returntype parameter">&#8594; <a href="https://api.dart.dev/stable/3.1.2/dart-core/Map-class.html">Map</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.dart.dev/stable/3.1.2/dart-core/String-class.html">String</a></span>, <span class="type-parameter"><a href="https://pub.dev/documentation/rohd/0.4.2/rohd/Logic-class.html">Logic</a></span>&gt;</span></span>
+  <span class="name"><a href="https://pub.dev/documentation/rohd/0.5.0/rohd/Interface/getPorts.html">getPorts</a></span><span class="signature">(<wbr><span class="parameter" id="getPorts-param-tags">[<span class="type-annotation"><a href="https://api.dart.dev/stable/3.1.2/dart-core/Iterable-class.html">Iterable</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../rohd_hcl/DataPortGroup.html">DataPortGroup</a></span>&gt;</span>?</span> <span class="parameter-name">tags</span>]</span>)
+    <span class="returntype parameter">&#8594; <a href="https://api.dart.dev/stable/3.1.2/dart-core/Map-class.html">Map</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.dart.dev/stable/3.1.2/dart-core/String-class.html">String</a></span>, <span class="type-parameter"><a href="https://pub.dev/documentation/rohd/0.5.0/rohd/Logic-class.html">Logic</a></span>&gt;</span></span>
   </span>
   
 
@@ -272,8 +313,8 @@ byte of data.  A high bit is an enable for that chunk of data.
 </dd>
 
         <dt id="port" class="callable inherited">
-  <span class="name"><a href="https://pub.dev/documentation/rohd/0.4.2/rohd/Interface/port.html">port</a></span><span class="signature">(<wbr><span class="parameter" id="port-param-name"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.1.2/dart-core/String-class.html">String</a></span> <span class="parameter-name">name</span></span>)
-    <span class="returntype parameter">&#8594; <a href="https://pub.dev/documentation/rohd/0.4.2/rohd/Logic-class.html">Logic</a></span>
+  <span class="name"><a href="https://pub.dev/documentation/rohd/0.5.0/rohd/Interface/port.html">port</a></span><span class="signature">(<wbr><span class="parameter" id="port-param-name"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.1.2/dart-core/String-class.html">String</a></span> <span class="parameter-name">name</span></span>)
+    <span class="returntype parameter">&#8594; <a href="https://pub.dev/documentation/rohd/0.5.0/rohd/Logic-class.html">Logic</a></span>
   </span>
   
 
@@ -284,15 +325,28 @@ byte of data.  A high bit is an enable for that chunk of data.
 
 </dd>
 
-        <dt id="setPorts" class="callable inherited">
-  <span class="name"><a href="https://pub.dev/documentation/rohd/0.4.2/rohd/Interface/setPorts.html">setPorts</a></span><span class="signature">(<wbr><span class="parameter" id="setPorts-param-ports"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.1.2/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://pub.dev/documentation/rohd/0.4.2/rohd/Logic-class.html">Logic</a></span>&gt;</span></span> <span class="parameter-name">ports</span>, </span><span class="parameter" id="setPorts-param-tags">[<span class="type-annotation"><a href="https://api.dart.dev/stable/3.1.2/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../rohd_hcl/DataPortGroup.html">DataPortGroup</a></span>&gt;</span>?</span> <span class="parameter-name">tags</span>]</span>)
+        <dt id="receiveOther" class="callable inherited">
+  <span class="name"><a href="https://pub.dev/documentation/rohd/0.5.0/rohd/Interface/receiveOther.html">receiveOther</a></span><span class="signature">(<wbr><span class="parameter" id="receiveOther-param-other"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.5.0/rohd/Interface-class.html">Interface</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../rohd_hcl/DataPortGroup.html">DataPortGroup</a></span>&gt;</span></span> <span class="parameter-name">other</span>, </span><span class="parameter" id="receiveOther-param-tags"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.1.2/dart-core/Iterable-class.html">Iterable</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../rohd_hcl/DataPortGroup.html">DataPortGroup</a></span>&gt;</span></span> <span class="parameter-name">tags</span></span>)
     <span class="returntype parameter">&#8594; void</span>
   </span>
   
 
 </dt>
 <dd class="inherited">
-  Adds a collection of ports to this <a href="https://pub.dev/documentation/rohd/0.4.2/rohd/Interface-class.html">Interface</a>, each associated with all
+  Makes <code>this</code> signals tagged with <code>tags</code> be driven by <code>other</code>.
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="setPorts" class="callable inherited">
+  <span class="name"><a href="https://pub.dev/documentation/rohd/0.5.0/rohd/Interface/setPorts.html">setPorts</a></span><span class="signature">(<wbr><span class="parameter" id="setPorts-param-ports"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.1.2/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://pub.dev/documentation/rohd/0.5.0/rohd/Logic-class.html">Logic</a></span>&gt;</span></span> <span class="parameter-name">ports</span>, </span><span class="parameter" id="setPorts-param-tags">[<span class="type-annotation"><a href="https://api.dart.dev/stable/3.1.2/dart-core/Iterable-class.html">Iterable</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../rohd_hcl/DataPortGroup.html">DataPortGroup</a></span>&gt;</span>?</span> <span class="parameter-name">tags</span>]</span>)
+    <span class="returntype parameter">&#8594; void</span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Adds a collection of ports to this <a href="https://pub.dev/documentation/rohd/0.5.0/rohd/Interface-class.html">Interface</a>, each associated with all
 of <code>tags</code>.
   <div class="features"><span class="feature">inherited</span></div>
 
@@ -307,6 +361,19 @@ of <code>tags</code>.
 </dt>
 <dd class="inherited">
   A string representation of this object.
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="tryPort" class="callable inherited">
+  <span class="name"><a href="https://pub.dev/documentation/rohd/0.5.0/rohd/Interface/tryPort.html">tryPort</a></span><span class="signature">(<wbr><span class="parameter" id="tryPort-param-name"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.1.2/dart-core/String-class.html">String</a></span> <span class="parameter-name">name</span></span>)
+    <span class="returntype parameter">&#8594; <a href="https://pub.dev/documentation/rohd/0.5.0/rohd/Logic-class.html">Logic</a>?</span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Provides the <a href="https://pub.dev/documentation/rohd/0.5.0/rohd/Interface/port.html">port</a> named <code>name</code> if it exists, otherwise <code>null</code>.
   <div class="features"><span class="feature">inherited</span></div>
 
 </dd>

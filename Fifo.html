@@ -39,26 +39,26 @@
     "Fifo": {
       "attributes": {
         "top": 1,
-        "src": "Fifo.v:71.1-127.17"
+        "src": "Fifo.v:71.1-129.17"
       },
       "ports": {
-        "clk": {
+        "readEnable": {
           "direction": "input",
           "bits": [ 2 ]
         },
-        "reset": {
-          "direction": "input",
-          "bits": [ 3 ]
-        },
-        "writeEnable": {
-          "direction": "input",
-          "bits": [ 4 ]
-        },
         "writeData": {
           "direction": "input",
-          "bits": [ 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36 ]
+          "bits": [ 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34 ]
         },
-        "readEnable": {
+        "reset": {
+          "direction": "input",
+          "bits": [ 35 ]
+        },
+        "clk": {
+          "direction": "input",
+          "bits": [ 36 ]
+        },
+        "writeEnable": {
           "direction": "input",
           "bits": [ 37 ]
         },
@@ -66,7 +66,7 @@
           "direction": "output",
           "bits": [ 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69 ]
         },
-        "full": {
+        "error": {
           "direction": "output",
           "bits": [ 70 ]
         },
@@ -74,17 +74,17 @@
           "direction": "output",
           "bits": [ 71 ]
         },
-        "error": {
-          "direction": "output",
-          "bits": [ 72 ]
-        },
         "occupancy": {
           "direction": "output",
-          "bits": [ 73, 74 ]
+          "bits": [ 72, 73 ]
+        },
+        "full": {
+          "direction": "output",
+          "bits": [ 74 ]
         }
       },
       "cells": {
-        "$add$Fifo.v:112$39": {
+        "$add$Fifo.v:100$20": {
           "hide_name": 1,
           "type": "$add",
           "parameters": {
@@ -95,7 +95,7 @@
             "Y_WIDTH": 2
           },
           "attributes": {
-            "src": "Fifo.v:112.29-112.45"
+            "src": "Fifo.v:100.65-100.81"
           },
           "port_directions": {
             "A": "input",
@@ -103,12 +103,12 @@
             "Y": "output"
           },
           "connections": {
-            "A": [ 73, 74 ],
+            "A": [ 75, 76 ],
             "B": [ "1", "0" ],
-            "Y": [ 75, 76 ]
+            "Y": [ 77, 78 ]
           }
         },
-        "$add$Fifo.v:98$20": {
+        "$add$Fifo.v:101$26": {
           "hide_name": 1,
           "type": "$add",
           "parameters": {
@@ -119,7 +119,7 @@
             "Y_WIDTH": 2
           },
           "attributes": {
-            "src": "Fifo.v:98.65-98.81"
+            "src": "Fifo.v:101.102-101.118"
           },
           "port_directions": {
             "A": "input",
@@ -127,12 +127,12 @@
             "Y": "output"
           },
           "connections": {
-            "A": [ 77, 78 ],
+            "A": [ 79, 80 ],
             "B": [ "1", "0" ],
-            "Y": [ 79, 80 ]
+            "Y": [ 81, 82 ]
           }
         },
-        "$add$Fifo.v:99$26": {
+        "$add$Fifo.v:114$39": {
           "hide_name": 1,
           "type": "$add",
           "parameters": {
@@ -143,7 +143,7 @@
             "Y_WIDTH": 2
           },
           "attributes": {
-            "src": "Fifo.v:99.102-99.118"
+            "src": "Fifo.v:114.29-114.45"
           },
           "port_directions": {
             "A": "input",
@@ -151,12 +151,12 @@
             "Y": "output"
           },
           "connections": {
-            "A": [ 81, 82 ],
+            "A": [ 72, 73 ],
             "B": [ "1", "0" ],
             "Y": [ 83, 84 ]
           }
         },
-        "$and$Fifo.v:104$33": {
+        "$and$Fifo.v:101$24": {
           "hide_name": 1,
           "type": "$and",
           "parameters": {
@@ -167,7 +167,79 @@
             "Y_WIDTH": 1
           },
           "attributes": {
-            "src": "Fifo.v:104.17-104.35"
+            "src": "Fifo.v:101.17-101.51"
+          },
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [ 74 ],
+            "B": [ 85 ],
+            "Y": [ 86 ]
+          }
+        },
+        "$and$Fifo.v:101$29": {
+          "hide_name": 1,
+          "type": "$and",
+          "parameters": {
+            "A_SIGNED": 0,
+            "A_WIDTH": 1,
+            "B_SIGNED": 0,
+            "B_WIDTH": 1,
+            "Y_WIDTH": 1
+          },
+          "attributes": {
+            "src": "Fifo.v:101.57-101.135"
+          },
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [ 87 ],
+            "B": [ 37 ],
+            "Y": [ 88 ]
+          }
+        },
+        "$and$Fifo.v:101$31": {
+          "hide_name": 1,
+          "type": "$and",
+          "parameters": {
+            "A_SIGNED": 0,
+            "A_WIDTH": 1,
+            "B_SIGNED": 0,
+            "B_WIDTH": 1,
+            "Y_WIDTH": 1
+          },
+          "attributes": {
+            "src": "Fifo.v:101.56-101.152"
+          },
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [ 88 ],
+            "B": [ 89 ],
+            "Y": [ 90 ]
+          }
+        },
+        "$and$Fifo.v:106$33": {
+          "hide_name": 1,
+          "type": "$and",
+          "parameters": {
+            "A_SIGNED": 0,
+            "A_WIDTH": 1,
+            "B_SIGNED": 0,
+            "B_WIDTH": 1,
+            "Y_WIDTH": 1
+          },
+          "attributes": {
+            "src": "Fifo.v:106.17-106.35"
           },
           "port_directions": {
             "A": "input",
@@ -176,107 +248,35 @@
           },
           "connections": {
             "A": [ 71 ],
+            "B": [ 2 ],
+            "Y": [ 91 ]
+          }
+        },
+        "$and$Fifo.v:106$34": {
+          "hide_name": 1,
+          "type": "$and",
+          "parameters": {
+            "A_SIGNED": 0,
+            "A_WIDTH": 1,
+            "B_SIGNED": 0,
+            "B_WIDTH": 1,
+            "Y_WIDTH": 1
+          },
+          "attributes": {
+            "src": "Fifo.v:106.41-106.59"
+          },
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [ 74 ],
             "B": [ 37 ],
-            "Y": [ 85 ]
-          }
-        },
-        "$and$Fifo.v:104$34": {
-          "hide_name": 1,
-          "type": "$and",
-          "parameters": {
-            "A_SIGNED": 0,
-            "A_WIDTH": 1,
-            "B_SIGNED": 0,
-            "B_WIDTH": 1,
-            "Y_WIDTH": 1
-          },
-          "attributes": {
-            "src": "Fifo.v:104.41-104.59"
-          },
-          "port_directions": {
-            "A": "input",
-            "B": "input",
-            "Y": "output"
-          },
-          "connections": {
-            "A": [ 70 ],
-            "B": [ 4 ],
-            "Y": [ 86 ]
-          }
-        },
-        "$and$Fifo.v:104$36": {
-          "hide_name": 1,
-          "type": "$and",
-          "parameters": {
-            "A_SIGNED": 0,
-            "A_WIDTH": 1,
-            "B_SIGNED": 0,
-            "B_WIDTH": 1,
-            "Y_WIDTH": 1
-          },
-          "attributes": {
-            "src": "Fifo.v:104.40-104.76"
-          },
-          "port_directions": {
-            "A": "input",
-            "B": "input",
-            "Y": "output"
-          },
-          "connections": {
-            "A": [ 86 ],
-            "B": [ 87 ],
-            "Y": [ 88 ]
-          }
-        },
-        "$and$Fifo.v:89$13": {
-          "hide_name": 1,
-          "type": "$and",
-          "parameters": {
-            "A_SIGNED": 0,
-            "A_WIDTH": 1,
-            "B_SIGNED": 0,
-            "B_WIDTH": 1,
-            "Y_WIDTH": 1
-          },
-          "attributes": {
-            "src": "Fifo.v:89.16-89.41"
-          },
-          "port_directions": {
-            "A": "input",
-            "B": "input",
-            "Y": "output"
-          },
-          "connections": {
-            "A": [ 89 ],
-            "B": [ 90 ],
-            "Y": [ 71 ]
-          }
-        },
-        "$and$Fifo.v:99$24": {
-          "hide_name": 1,
-          "type": "$and",
-          "parameters": {
-            "A_SIGNED": 0,
-            "A_WIDTH": 1,
-            "B_SIGNED": 0,
-            "B_WIDTH": 1,
-            "Y_WIDTH": 1
-          },
-          "attributes": {
-            "src": "Fifo.v:99.17-99.51"
-          },
-          "port_directions": {
-            "A": "input",
-            "B": "input",
-            "Y": "output"
-          },
-          "connections": {
-            "A": [ 70 ],
-            "B": [ 91 ],
             "Y": [ 92 ]
           }
         },
-        "$and$Fifo.v:99$29": {
+        "$and$Fifo.v:106$36": {
           "hide_name": 1,
           "type": "$and",
           "parameters": {
@@ -287,7 +287,7 @@
             "Y_WIDTH": 1
           },
           "attributes": {
-            "src": "Fifo.v:99.57-99.135"
+            "src": "Fifo.v:106.40-106.76"
           },
           "port_directions": {
             "A": "input",
@@ -295,12 +295,12 @@
             "Y": "output"
           },
           "connections": {
-            "A": [ 93 ],
-            "B": [ 4 ],
-            "Y": [ 94 ]
+            "A": [ 92 ],
+            "B": [ 89 ],
+            "Y": [ 93 ]
           }
         },
-        "$and$Fifo.v:99$31": {
+        "$and$Fifo.v:91$13": {
           "hide_name": 1,
           "type": "$and",
           "parameters": {
@@ -311,7 +311,7 @@
             "Y_WIDTH": 1
           },
           "attributes": {
-            "src": "Fifo.v:99.56-99.152"
+            "src": "Fifo.v:91.16-91.41"
           },
           "port_directions": {
             "A": "input",
@@ -320,8 +320,8 @@
           },
           "connections": {
             "A": [ 94 ],
-            "B": [ 87 ],
-            "Y": [ 95 ]
+            "B": [ 95 ],
+            "Y": [ 71 ]
           }
         },
         "$auto$ff.cc:266:slice$92": {
@@ -336,7 +336,7 @@
           },
           "attributes": {
             "always_ff": 1,
-            "src": "Fifo.v:91.1-102.4"
+            "src": "Fifo.v:93.1-104.4"
           },
           "port_directions": {
             "CLK": "input",
@@ -346,11 +346,11 @@
             "SRST": "input"
           },
           "connections": {
-            "CLK": [ 2 ],
+            "CLK": [ 36 ],
             "D": [ 96, 97 ],
-            "EN": [ 37 ],
-            "Q": [ 77, 78 ],
-            "SRST": [ 3 ]
+            "EN": [ 2 ],
+            "Q": [ 75, 76 ],
+            "SRST": [ 35 ]
           }
         },
         "$auto$ff.cc:266:slice$94": {
@@ -365,7 +365,7 @@
           },
           "attributes": {
             "always_ff": 1,
-            "src": "Fifo.v:91.1-102.4"
+            "src": "Fifo.v:93.1-104.4"
           },
           "port_directions": {
             "CLK": "input",
@@ -375,11 +375,11 @@
             "SRST": "input"
           },
           "connections": {
-            "CLK": [ 2 ],
+            "CLK": [ 36 ],
             "D": [ 98, 99 ],
-            "EN": [ 4 ],
-            "Q": [ 81, 82 ],
-            "SRST": [ 3 ]
+            "EN": [ 37 ],
+            "Q": [ 79, 80 ],
+            "SRST": [ 35 ]
           }
         },
         "$auto$ff.cc:266:slice$96": {
@@ -394,7 +394,7 @@
           },
           "attributes": {
             "always_ff": 1,
-            "src": "Fifo.v:106.1-124.4"
+            "src": "Fifo.v:108.1-126.4"
           },
           "port_directions": {
             "CLK": "input",
@@ -404,11 +404,11 @@
             "SRST": "input"
           },
           "connections": {
-            "CLK": [ 2 ],
+            "CLK": [ 36 ],
             "D": [ 100, 101 ],
             "EN": [ 102 ],
-            "Q": [ 73, 74 ],
-            "SRST": [ 3 ]
+            "Q": [ 72, 73 ],
+            "SRST": [ 35 ]
           }
         },
         "$auto$ff.cc:266:slice$99": {
@@ -422,7 +422,7 @@
           },
           "attributes": {
             "always_ff": 1,
-            "src": "Fifo.v:91.1-102.4"
+            "src": "Fifo.v:93.1-104.4"
           },
           "port_directions": {
             "CLK": "input",
@@ -431,10 +431,10 @@
             "SRST": "input"
           },
           "connections": {
-            "CLK": [ 2 ],
+            "CLK": [ 36 ],
             "D": [ 103 ],
-            "Q": [ 70 ],
-            "SRST": [ 3 ]
+            "Q": [ 74 ],
+            "SRST": [ 35 ]
           }
         },
         "$auto$opt_dff.cc:195:make_patterns_logic$98": {
@@ -456,7 +456,7 @@
             "Y": [ 102 ]
           }
         },
-        "$eq$Fifo.v:88$11": {
+        "$eq$Fifo.v:100$19": {
           "hide_name": 1,
           "type": "$eq",
           "parameters": {
@@ -467,7 +467,7 @@
             "Y_WIDTH": 1
           },
           "attributes": {
-            "src": "Fifo.v:88.26-88.48"
+            "src": "Fifo.v:100.36-100.53"
           },
           "port_directions": {
             "A": "input",
@@ -475,36 +475,12 @@
             "Y": "output"
           },
           "connections": {
-            "A": [ 81, 82 ],
-            "B": [ 77, 78 ],
-            "Y": [ 89 ]
-          }
-        },
-        "$eq$Fifo.v:98$19": {
-          "hide_name": 1,
-          "type": "$eq",
-          "parameters": {
-            "A_SIGNED": 0,
-            "A_WIDTH": 2,
-            "B_SIGNED": 0,
-            "B_WIDTH": 2,
-            "Y_WIDTH": 1
-          },
-          "attributes": {
-            "src": "Fifo.v:98.36-98.53"
-          },
-          "port_directions": {
-            "A": "input",
-            "B": "input",
-            "Y": "output"
-          },
-          "connections": {
-            "A": [ 77, 78 ],
+            "A": [ 75, 76 ],
             "B": [ "0", "1" ],
             "Y": [ 106 ]
           }
         },
-        "$eq$Fifo.v:99$23": {
+        "$eq$Fifo.v:101$23": {
           "hide_name": 1,
           "type": "$eq",
           "parameters": {
@@ -515,88 +491,92 @@
             "Y_WIDTH": 1
           },
           "attributes": {
-            "src": "Fifo.v:99.25-99.50"
+            "src": "Fifo.v:101.25-101.50"
           },
           "port_directions": {
             "A": "input",
             "B": "input",
-            "Y": "output"
-          },
-          "connections": {
-            "A": [ 4 ],
-            "B": [ 37 ],
-            "Y": [ 91 ]
-          }
-        },
-        "$eq$Fifo.v:99$25": {
-          "hide_name": 1,
-          "type": "$eq",
-          "parameters": {
-            "A_SIGNED": 0,
-            "A_WIDTH": 2,
-            "B_SIGNED": 0,
-            "B_WIDTH": 2,
-            "Y_WIDTH": 1
-          },
-          "attributes": {
-            "src": "Fifo.v:99.73-99.90"
-          },
-          "port_directions": {
-            "A": "input",
-            "B": "input",
-            "Y": "output"
-          },
-          "connections": {
-            "A": [ 81, 82 ],
-            "B": [ "0", "1" ],
-            "Y": [ 107 ]
-          }
-        },
-        "$eq$Fifo.v:99$28": {
-          "hide_name": 1,
-          "type": "$eq",
-          "parameters": {
-            "A_SIGNED": 0,
-            "A_WIDTH": 2,
-            "B_SIGNED": 0,
-            "B_WIDTH": 2,
-            "Y_WIDTH": 1
-          },
-          "attributes": {
-            "src": "Fifo.v:99.58-99.120"
-          },
-          "port_directions": {
-            "A": "input",
-            "B": "input",
-            "Y": "output"
-          },
-          "connections": {
-            "A": [ 77, 78 ],
-            "B": [ 98, 99 ],
-            "Y": [ 93 ]
-          }
-        },
-        "$not$Fifo.v:104$35": {
-          "hide_name": 1,
-          "type": "$not",
-          "parameters": {
-            "A_SIGNED": 0,
-            "A_WIDTH": 1,
-            "Y_WIDTH": 1
-          },
-          "attributes": {
-            "src": "Fifo.v:104.64-104.75"
-          },
-          "port_directions": {
-            "A": "input",
             "Y": "output"
           },
           "connections": {
             "A": [ 37 ],
+            "B": [ 2 ],
+            "Y": [ 85 ]
+          }
+        },
+        "$eq$Fifo.v:101$25": {
+          "hide_name": 1,
+          "type": "$eq",
+          "parameters": {
+            "A_SIGNED": 0,
+            "A_WIDTH": 2,
+            "B_SIGNED": 0,
+            "B_WIDTH": 2,
+            "Y_WIDTH": 1
+          },
+          "attributes": {
+            "src": "Fifo.v:101.73-101.90"
+          },
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [ 79, 80 ],
+            "B": [ "0", "1" ],
+            "Y": [ 107 ]
+          }
+        },
+        "$eq$Fifo.v:101$28": {
+          "hide_name": 1,
+          "type": "$eq",
+          "parameters": {
+            "A_SIGNED": 0,
+            "A_WIDTH": 2,
+            "B_SIGNED": 0,
+            "B_WIDTH": 2,
+            "Y_WIDTH": 1
+          },
+          "attributes": {
+            "src": "Fifo.v:101.58-101.120"
+          },
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [ 75, 76 ],
+            "B": [ 98, 99 ],
             "Y": [ 87 ]
           }
         },
-        "$not$Fifo.v:89$12": {
+        "$eq$Fifo.v:90$11": {
+          "hide_name": 1,
+          "type": "$eq",
+          "parameters": {
+            "A_SIGNED": 0,
+            "A_WIDTH": 2,
+            "B_SIGNED": 0,
+            "B_WIDTH": 2,
+            "Y_WIDTH": 1
+          },
+          "attributes": {
+            "src": "Fifo.v:90.26-90.48"
+          },
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [ 79, 80 ],
+            "B": [ 75, 76 ],
+            "Y": [ 94 ]
+          }
+        },
+        "$not$Fifo.v:106$35": {
           "hide_name": 1,
           "type": "$not",
           "parameters": {
@@ -605,18 +585,38 @@
             "Y_WIDTH": 1
           },
           "attributes": {
-            "src": "Fifo.v:89.35-89.40"
+            "src": "Fifo.v:106.64-106.75"
           },
           "port_directions": {
             "A": "input",
             "Y": "output"
           },
           "connections": {
-            "A": [ 70 ],
-            "Y": [ 90 ]
+            "A": [ 2 ],
+            "Y": [ 89 ]
           }
         },
-        "$or$Fifo.v:104$37": {
+        "$not$Fifo.v:91$12": {
+          "hide_name": 1,
+          "type": "$not",
+          "parameters": {
+            "A_SIGNED": 0,
+            "A_WIDTH": 1,
+            "Y_WIDTH": 1
+          },
+          "attributes": {
+            "src": "Fifo.v:91.35-91.40"
+          },
+          "port_directions": {
+            "A": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [ 74 ],
+            "Y": [ 95 ]
+          }
+        },
+        "$or$Fifo.v:101$32": {
           "hide_name": 1,
           "type": "$or",
           "parameters": {
@@ -627,7 +627,7 @@
             "Y_WIDTH": 1
           },
           "attributes": {
-            "src": "Fifo.v:104.16-104.77"
+            "src": "Fifo.v:101.16-101.153"
           },
           "port_directions": {
             "A": "input",
@@ -635,33 +635,33 @@
             "Y": "output"
           },
           "connections": {
-            "A": [ 85 ],
-            "B": [ 88 ],
-            "Y": [ 72 ]
-          }
-        },
-        "$or$Fifo.v:99$32": {
-          "hide_name": 1,
-          "type": "$or",
-          "parameters": {
-            "A_SIGNED": 0,
-            "A_WIDTH": 1,
-            "B_SIGNED": 0,
-            "B_WIDTH": 1,
-            "Y_WIDTH": 1
-          },
-          "attributes": {
-            "src": "Fifo.v:99.16-99.153"
-          },
-          "port_directions": {
-            "A": "input",
-            "B": "input",
-            "Y": "output"
-          },
-          "connections": {
-            "A": [ 92 ],
-            "B": [ 95 ],
+            "A": [ 86 ],
+            "B": [ 90 ],
             "Y": [ 103 ]
+          }
+        },
+        "$or$Fifo.v:106$37": {
+          "hide_name": 1,
+          "type": "$or",
+          "parameters": {
+            "A_SIGNED": 0,
+            "A_WIDTH": 1,
+            "B_SIGNED": 0,
+            "B_WIDTH": 1,
+            "Y_WIDTH": 1
+          },
+          "attributes": {
+            "src": "Fifo.v:106.16-106.77"
+          },
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [ 91 ],
+            "B": [ 93 ],
+            "Y": [ 70 ]
           }
         },
         "$procmux$43": {
@@ -674,7 +674,7 @@
           "attributes": {
             "full_case": 1,
             "parallel_case": 1,
-            "src": "Fifo.v:0.0-0.0|Fifo.v:110.14-120.14"
+            "src": "Fifo.v:0.0-0.0|Fifo.v:112.14-122.14"
           },
           "port_directions": {
             "A": "input",
@@ -684,7 +684,7 @@
           },
           "connections": {
             "A": [ "x", "x" ],
-            "B": [ 108, 109, 75, 76 ],
+            "B": [ 108, 109, 83, 84 ],
             "S": [ 104, 105 ],
             "Y": [ 100, 101 ]
           }
@@ -702,7 +702,7 @@
           "attributes": {
             "full_case": 1,
             "parallel_case": 1,
-            "src": "Fifo.v:0.0-0.0|Fifo.v:110.14-120.14"
+            "src": "Fifo.v:0.0-0.0|Fifo.v:112.14-122.14"
           },
           "port_directions": {
             "A": "input",
@@ -710,7 +710,7 @@
             "Y": "output"
           },
           "connections": {
-            "A": [ 37, 4 ],
+            "A": [ 2, 37 ],
             "B": [ "1", "0" ],
             "Y": [ 104 ]
           }
@@ -728,7 +728,7 @@
           "attributes": {
             "full_case": 1,
             "parallel_case": 1,
-            "src": "Fifo.v:0.0-0.0|Fifo.v:110.14-120.14"
+            "src": "Fifo.v:0.0-0.0|Fifo.v:112.14-122.14"
           },
           "port_directions": {
             "A": "input",
@@ -736,12 +736,12 @@
             "Y": "output"
           },
           "connections": {
-            "A": [ 37, 4 ],
+            "A": [ 2, 37 ],
             "B": [ "0", "1" ],
             "Y": [ 105 ]
           }
         },
-        "$sub$Fifo.v:115$40": {
+        "$sub$Fifo.v:117$40": {
           "hide_name": 1,
           "type": "$sub",
           "parameters": {
@@ -752,7 +752,7 @@
             "Y_WIDTH": 2
           },
           "attributes": {
-            "src": "Fifo.v:115.29-115.45"
+            "src": "Fifo.v:117.29-117.45"
           },
           "port_directions": {
             "A": "input",
@@ -760,19 +760,19 @@
             "Y": "output"
           },
           "connections": {
-            "A": [ 73, 74 ],
+            "A": [ 72, 73 ],
             "B": [ "1", "0" ],
             "Y": [ 108, 109 ]
           }
         },
-        "$ternary$Fifo.v:98$21": {
+        "$ternary$Fifo.v:100$21": {
           "hide_name": 1,
           "type": "$mux",
           "parameters": {
             "WIDTH": 2
           },
           "attributes": {
-            "src": "Fifo.v:98.35-98.82"
+            "src": "Fifo.v:100.35-100.82"
           },
           "port_directions": {
             "A": "input",
@@ -781,20 +781,20 @@
             "Y": "output"
           },
           "connections": {
-            "A": [ 79, 80 ],
+            "A": [ 77, 78 ],
             "B": [ "0", "0" ],
             "S": [ 106 ],
             "Y": [ 96, 97 ]
           }
         },
-        "$ternary$Fifo.v:99$27": {
+        "$ternary$Fifo.v:101$27": {
           "hide_name": 1,
           "type": "$mux",
           "parameters": {
             "WIDTH": 2
           },
           "attributes": {
-            "src": "Fifo.v:99.72-99.119"
+            "src": "Fifo.v:101.72-101.119"
           },
           "port_directions": {
             "A": "input",
@@ -803,7 +803,7 @@
             "Y": "output"
           },
           "connections": {
-            "A": [ 83, 84 ],
+            "A": [ 81, 82 ],
             "B": [ "0", "0" ],
             "S": [ 107 ],
             "Y": [ 98, 99 ]
@@ -816,7 +816,7 @@
           },
           "attributes": {
             "module_not_derived": 1,
-            "src": "Fifo.v:87.15-87.166"
+            "src": "Fifo.v:89.15-89.169"
           },
           "port_directions": {
             "clk": "input",
@@ -829,79 +829,79 @@
             "wr_en_0": "input"
           },
           "connections": {
-            "clk": [ 2 ],
-            "rd_addr_0": [ 77, 78 ],
+            "clk": [ 36 ],
+            "rd_addr_0": [ 75, 76 ],
             "rd_data_0": [ 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69 ],
             "rd_en_0": [ "1" ],
-            "reset": [ 3 ],
-            "wr_addr_0": [ 81, 82 ],
-            "wr_data_0": [ 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36 ],
-            "wr_en_0": [ 4 ]
+            "reset": [ 35 ],
+            "wr_addr_0": [ 79, 80 ],
+            "wr_data_0": [ 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34 ],
+            "wr_en_0": [ 37 ]
           }
         }
       },
       "netnames": {
-        "$add$Fifo.v:112$39_Y": {
+        "$add$Fifo.v:100$20_Y": {
           "hide_name": 1,
-          "bits": [ 75, 76 ],
+          "bits": [ 77, 78 ],
           "attributes": {
-            "src": "Fifo.v:112.29-112.45"
+            "src": "Fifo.v:100.65-100.81"
           }
         },
-        "$add$Fifo.v:97$16_Y": {
+        "$add$Fifo.v:101$26_Y": {
+          "hide_name": 1,
+          "bits": [ 81, 82 ],
+          "attributes": {
+            "src": "Fifo.v:101.102-101.118"
+          }
+        },
+        "$add$Fifo.v:114$39_Y": {
           "hide_name": 1,
           "bits": [ 83, 84 ],
           "attributes": {
-            "src": "Fifo.v:97.66-97.82"
+            "src": "Fifo.v:114.29-114.45"
           }
         },
-        "$add$Fifo.v:98$20_Y": {
-          "hide_name": 1,
-          "bits": [ 79, 80 ],
-          "attributes": {
-            "src": "Fifo.v:98.65-98.81"
-          }
-        },
-        "$and$Fifo.v:104$33_Y": {
-          "hide_name": 1,
-          "bits": [ 85 ],
-          "attributes": {
-            "src": "Fifo.v:104.17-104.35"
-          }
-        },
-        "$and$Fifo.v:104$34_Y": {
+        "$and$Fifo.v:101$24_Y": {
           "hide_name": 1,
           "bits": [ 86 ],
           "attributes": {
-            "src": "Fifo.v:104.41-104.59"
+            "src": "Fifo.v:101.17-101.51"
           }
         },
-        "$and$Fifo.v:104$36_Y": {
+        "$and$Fifo.v:101$29_Y": {
           "hide_name": 1,
           "bits": [ 88 ],
           "attributes": {
-            "src": "Fifo.v:104.40-104.76"
+            "src": "Fifo.v:101.57-101.135"
           }
         },
-        "$and$Fifo.v:99$24_Y": {
+        "$and$Fifo.v:101$31_Y": {
+          "hide_name": 1,
+          "bits": [ 90 ],
+          "attributes": {
+            "src": "Fifo.v:101.56-101.152"
+          }
+        },
+        "$and$Fifo.v:106$33_Y": {
+          "hide_name": 1,
+          "bits": [ 91 ],
+          "attributes": {
+            "src": "Fifo.v:106.17-106.35"
+          }
+        },
+        "$and$Fifo.v:106$34_Y": {
           "hide_name": 1,
           "bits": [ 92 ],
           "attributes": {
-            "src": "Fifo.v:99.17-99.51"
+            "src": "Fifo.v:106.41-106.59"
           }
         },
-        "$and$Fifo.v:99$29_Y": {
+        "$and$Fifo.v:106$36_Y": {
           "hide_name": 1,
-          "bits": [ 94 ],
+          "bits": [ 93 ],
           "attributes": {
-            "src": "Fifo.v:99.57-99.135"
-          }
-        },
-        "$and$Fifo.v:99$31_Y": {
-          "hide_name": 1,
-          "bits": [ 95 ],
-          "attributes": {
-            "src": "Fifo.v:99.56-99.152"
+            "src": "Fifo.v:106.40-106.76"
           }
         },
         "$auto$opt_dff.cc:194:make_patterns_logic$97": {
@@ -910,53 +910,53 @@
           "attributes": {
           }
         },
-        "$eq$Fifo.v:97$15_Y": {
-          "hide_name": 1,
-          "bits": [ 107 ],
-          "attributes": {
-            "src": "Fifo.v:97.37-97.54"
-          }
-        },
-        "$eq$Fifo.v:98$19_Y": {
+        "$eq$Fifo.v:100$19_Y": {
           "hide_name": 1,
           "bits": [ 106 ],
           "attributes": {
-            "src": "Fifo.v:98.36-98.53"
+            "src": "Fifo.v:100.36-100.53"
           }
         },
-        "$eq$Fifo.v:99$23_Y": {
+        "$eq$Fifo.v:101$23_Y": {
           "hide_name": 1,
-          "bits": [ 91 ],
+          "bits": [ 85 ],
           "attributes": {
-            "src": "Fifo.v:99.25-99.50"
+            "src": "Fifo.v:101.25-101.50"
           }
         },
-        "$eq$Fifo.v:99$28_Y": {
+        "$eq$Fifo.v:101$25_Y": {
           "hide_name": 1,
-          "bits": [ 93 ],
+          "bits": [ 107 ],
           "attributes": {
-            "src": "Fifo.v:99.58-99.120"
+            "src": "Fifo.v:101.73-101.90"
           }
         },
-        "$not$Fifo.v:104$35_Y": {
+        "$eq$Fifo.v:101$28_Y": {
           "hide_name": 1,
           "bits": [ 87 ],
           "attributes": {
-            "src": "Fifo.v:104.64-104.75"
+            "src": "Fifo.v:101.58-101.120"
           }
         },
-        "$not$Fifo.v:89$12_Y": {
+        "$not$Fifo.v:101$30_Y": {
           "hide_name": 1,
-          "bits": [ 90 ],
+          "bits": [ 89 ],
           "attributes": {
-            "src": "Fifo.v:89.35-89.40"
+            "src": "Fifo.v:101.140-101.151"
           }
         },
-        "$or$Fifo.v:99$32_Y": {
+        "$not$Fifo.v:91$12_Y": {
+          "hide_name": 1,
+          "bits": [ 95 ],
+          "attributes": {
+            "src": "Fifo.v:91.35-91.40"
+          }
+        },
+        "$or$Fifo.v:101$32_Y": {
           "hide_name": 1,
           "bits": [ 103 ],
           "attributes": {
-            "src": "Fifo.v:99.16-99.153"
+            "src": "Fifo.v:101.16-101.153"
           }
         },
         "$procmux$43_Y": {
@@ -977,32 +977,32 @@
           "attributes": {
           }
         },
-        "$sub$Fifo.v:115$40_Y": {
+        "$sub$Fifo.v:117$40_Y": {
           "hide_name": 1,
           "bits": [ 108, 109 ],
           "attributes": {
-            "src": "Fifo.v:115.29-115.45"
+            "src": "Fifo.v:117.29-117.45"
           }
         },
-        "$ternary$Fifo.v:97$17_Y": {
-          "hide_name": 1,
-          "bits": [ 98, 99 ],
-          "attributes": {
-            "src": "Fifo.v:97.36-97.83"
-          }
-        },
-        "$ternary$Fifo.v:98$21_Y": {
+        "$ternary$Fifo.v:100$21_Y": {
           "hide_name": 1,
           "bits": [ 96, 97 ],
           "attributes": {
-            "src": "Fifo.v:98.35-98.82"
+            "src": "Fifo.v:100.35-100.82"
+          }
+        },
+        "$ternary$Fifo.v:101$27_Y": {
+          "hide_name": 1,
+          "bits": [ 98, 99 ],
+          "attributes": {
+            "src": "Fifo.v:101.72-101.119"
           }
         },
         "clk": {
           "hide_name": 0,
-          "bits": [ 2 ],
+          "bits": [ 36 ],
           "attributes": {
-            "src": "Fifo.v:72.13-72.16"
+            "src": "Fifo.v:75.13-75.16"
           }
         },
         "empty": {
@@ -1014,37 +1014,44 @@
         },
         "error": {
           "hide_name": 0,
-          "bits": [ 72 ],
+          "bits": [ 70 ],
           "attributes": {
-            "src": "Fifo.v:80.14-80.19"
+            "src": "Fifo.v:78.14-78.19"
           }
         },
         "full": {
           "hide_name": 0,
-          "bits": [ 70 ],
+          "bits": [ 74 ],
           "attributes": {
-            "src": "Fifo.v:78.14-78.18"
+            "src": "Fifo.v:81.14-81.18"
           }
         },
         "matchedPointers": {
           "hide_name": 0,
-          "bits": [ 89 ],
+          "bits": [ 94 ],
           "attributes": {
-            "src": "Fifo.v:86.7-86.22"
+            "src": "Fifo.v:87.7-87.22"
           }
         },
         "occupancy": {
           "hide_name": 0,
-          "bits": [ 73, 74 ],
+          "bits": [ 72, 73 ],
           "attributes": {
-            "src": "Fifo.v:81.20-81.29"
+            "src": "Fifo.v:80.20-80.29"
           }
         },
         "rd_addr_0": {
           "hide_name": 0,
-          "bits": [ 77, 78 ],
+          "bits": [ 75, 76 ],
           "attributes": {
             "src": "Fifo.v:83.13-83.22"
+          }
+        },
+        "rd_en_0": {
+          "hide_name": 0,
+          "bits": [ "1" ],
+          "attributes": {
+            "src": "Fifo.v:85.7-85.14"
           }
         },
         "readData": {
@@ -1056,37 +1063,37 @@
         },
         "readEnable": {
           "hide_name": 0,
-          "bits": [ 37 ],
+          "bits": [ 2 ],
           "attributes": {
-            "src": "Fifo.v:76.13-76.23"
+            "src": "Fifo.v:72.13-72.23"
           }
         },
         "reset": {
           "hide_name": 0,
-          "bits": [ 3 ],
+          "bits": [ 35 ],
           "attributes": {
-            "src": "Fifo.v:73.13-73.18"
+            "src": "Fifo.v:74.13-74.18"
           }
         },
         "wr_addr_0": {
           "hide_name": 0,
-          "bits": [ 81, 82 ],
+          "bits": [ 79, 80 ],
           "attributes": {
             "src": "Fifo.v:84.13-84.22"
           }
         },
         "writeData": {
           "hide_name": 0,
-          "bits": [ 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36 ],
+          "bits": [ 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34 ],
           "attributes": {
-            "src": "Fifo.v:75.20-75.29"
+            "src": "Fifo.v:73.20-73.29"
           }
         },
         "writeEnable": {
           "hide_name": 0,
-          "bits": [ 4 ],
+          "bits": [ 37 ],
           "attributes": {
-            "src": "Fifo.v:74.13-74.24"
+            "src": "Fifo.v:76.13-76.24"
           }
         }
       }
@@ -1096,33 +1103,33 @@
         "src": "Fifo.v:7.1-67.25"
       },
       "ports": {
-        "clk": {
+        "wr_data_0": {
           "direction": "input",
-          "bits": [ 2 ]
-        },
-        "reset": {
-          "direction": "input",
-          "bits": [ 3 ]
-        },
-        "rd_en_0": {
-          "direction": "input",
-          "bits": [ 4 ]
+          "bits": [ 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33 ]
         },
         "rd_addr_0": {
           "direction": "input",
-          "bits": [ 5, 6 ]
-        },
-        "wr_en_0": {
-          "direction": "input",
-          "bits": [ 7 ]
+          "bits": [ 34, 35 ]
         },
         "wr_addr_0": {
           "direction": "input",
-          "bits": [ 8, 9 ]
+          "bits": [ 36, 37 ]
         },
-        "wr_data_0": {
+        "clk": {
           "direction": "input",
-          "bits": [ 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41 ]
+          "bits": [ 38 ]
+        },
+        "reset": {
+          "direction": "input",
+          "bits": [ 39 ]
+        },
+        "wr_en_0": {
+          "direction": "input",
+          "bits": [ 40 ]
+        },
+        "rd_en_0": {
+          "direction": "input",
+          "bits": [ 41 ]
         },
         "rd_data_0": {
           "direction": "output",
@@ -1149,7 +1156,7 @@
             "Y": "output"
           },
           "connections": {
-            "A": [ 7 ],
+            "A": [ 40 ],
             "B": [ 74 ],
             "Y": [ 75 ]
           }
@@ -1173,7 +1180,7 @@
             "Y": "output"
           },
           "connections": {
-            "A": [ 7 ],
+            "A": [ 40 ],
             "B": [ 76 ],
             "Y": [ 77 ]
           }
@@ -1197,7 +1204,7 @@
             "Y": "output"
           },
           "connections": {
-            "A": [ 7 ],
+            "A": [ 40 ],
             "B": [ 78 ],
             "Y": [ 79 ]
           }
@@ -1224,11 +1231,11 @@
             "SRST": "input"
           },
           "connections": {
-            "CLK": [ 2 ],
-            "D": [ 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41 ],
-            "EN": [ 79 ],
+            "CLK": [ 38 ],
+            "D": [ 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33 ],
+            "EN": [ 77 ],
             "Q": [ 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99, 100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111 ],
-            "SRST": [ 3 ]
+            "SRST": [ 39 ]
           }
         },
         "$auto$ff.cc:266:slice$103": {
@@ -1253,11 +1260,11 @@
             "SRST": "input"
           },
           "connections": {
-            "CLK": [ 2 ],
-            "D": [ 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41 ],
-            "EN": [ 75 ],
+            "CLK": [ 38 ],
+            "D": [ 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33 ],
+            "EN": [ 79 ],
             "Q": [ 112, 113, 114, 115, 116, 117, 118, 119, 120, 121, 122, 123, 124, 125, 126, 127, 128, 129, 130, 131, 132, 133, 134, 135, 136, 137, 138, 139, 140, 141, 142, 143 ],
-            "SRST": [ 3 ]
+            "SRST": [ 39 ]
           }
         },
         "$auto$ff.cc:266:slice$105": {
@@ -1282,11 +1289,11 @@
             "SRST": "input"
           },
           "connections": {
-            "CLK": [ 2 ],
-            "D": [ 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41 ],
-            "EN": [ 77 ],
+            "CLK": [ 38 ],
+            "D": [ 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33 ],
+            "EN": [ 75 ],
             "Q": [ 144, 145, 146, 147, 148, 149, 150, 151, 152, 153, 154, 155, 156, 157, 158, 159, 160, 161, 162, 163, 164, 165, 166, 167, 168, 169, 170, 171, 172, 173, 174, 175 ],
-            "SRST": [ 3 ]
+            "SRST": [ 39 ]
           }
         },
         "$eq$Fifo.v:51$5": {
@@ -1305,7 +1312,7 @@
             "Y": "output"
           },
           "connections": {
-            "A": [ 8, 9 ],
+            "A": [ 36, 37 ],
             "Y": [ 74 ]
           }
         },
@@ -1328,7 +1335,7 @@
             "Y": "output"
           },
           "connections": {
-            "A": [ 8, 9 ],
+            "A": [ 36, 37 ],
             "B": [ "1", "0" ],
             "Y": [ 76 ]
           }
@@ -1352,7 +1359,7 @@
             "Y": "output"
           },
           "connections": {
-            "A": [ 8, 9 ],
+            "A": [ 36, 37 ],
             "B": [ "0", "1" ],
             "Y": [ 78 ]
           }
@@ -1373,7 +1380,7 @@
             "Y": "output"
           },
           "connections": {
-            "A": [ 4 ],
+            "A": [ 41 ],
             "Y": [ 176 ]
           }
         },
@@ -1396,7 +1403,7 @@
             "Y": "output"
           },
           "connections": {
-            "A": [ 3 ],
+            "A": [ 39 ],
             "B": [ 176 ],
             "Y": [ 177 ]
           }
@@ -1420,7 +1427,7 @@
           },
           "connections": {
             "A": [ "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0" ],
-            "B": [ 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99, 100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 144, 145, 146, 147, 148, 149, 150, 151, 152, 153, 154, 155, 156, 157, 158, 159, 160, 161, 162, 163, 164, 165, 166, 167, 168, 169, 170, 171, 172, 173, 174, 175, 112, 113, 114, 115, 116, 117, 118, 119, 120, 121, 122, 123, 124, 125, 126, 127, 128, 129, 130, 131, 132, 133, 134, 135, 136, 137, 138, 139, 140, 141, 142, 143 ],
+            "B": [ 112, 113, 114, 115, 116, 117, 118, 119, 120, 121, 122, 123, 124, 125, 126, 127, 128, 129, 130, 131, 132, 133, 134, 135, 136, 137, 138, 139, 140, 141, 142, 143, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99, 100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 144, 145, 146, 147, 148, 149, 150, 151, 152, 153, 154, 155, 156, 157, 158, 159, 160, 161, 162, 163, 164, 165, 166, 167, 168, 169, 170, 171, 172, 173, 174, 175 ],
             "S": [ 178, 179, 180 ],
             "Y": [ 181, 182, 183, 184, 185, 186, 187, 188, 189, 190, 191, 192, 193, 194, 195, 196, 197, 198, 199, 200, 201, 202, 203, 204, 205, 206, 207, 208, 209, 210, 211, 212 ]
           }
@@ -1445,7 +1452,7 @@
             "Y": "output"
           },
           "connections": {
-            "A": [ 5, 6 ],
+            "A": [ 34, 35 ],
             "B": [ "0", "1" ],
             "Y": [ 178 ]
           }
@@ -1470,7 +1477,7 @@
             "Y": "output"
           },
           "connections": {
-            "A": [ 5, 6 ],
+            "A": [ 34, 35 ],
             "B": [ "1", "0" ],
             "Y": [ 179 ]
           }
@@ -1492,7 +1499,7 @@
             "Y": "output"
           },
           "connections": {
-            "A": [ 5, 6 ],
+            "A": [ 34, 35 ],
             "Y": [ 180 ]
           }
         },
@@ -1604,16 +1611,16 @@
         },
         "clk": {
           "hide_name": 0,
-          "bits": [ 2 ],
+          "bits": [ 38 ],
           "attributes": {
-            "src": "Fifo.v:8.13-8.16"
+            "src": "Fifo.v:11.13-11.16"
           }
         },
         "rd_addr_0": {
           "hide_name": 0,
-          "bits": [ 5, 6 ],
+          "bits": [ 34, 35 ],
           "attributes": {
-            "src": "Fifo.v:11.19-11.28"
+            "src": "Fifo.v:9.19-9.28"
           }
         },
         "rd_data_0": {
@@ -1625,58 +1632,58 @@
         },
         "rd_en_0": {
           "hide_name": 0,
-          "bits": [ 4 ],
+          "bits": [ 41 ],
           "attributes": {
-            "src": "Fifo.v:10.13-10.20"
+            "src": "Fifo.v:14.13-14.20"
           }
         },
         "reset": {
           "hide_name": 0,
-          "bits": [ 3 ],
+          "bits": [ 39 ],
           "attributes": {
-            "src": "Fifo.v:9.13-9.18"
+            "src": "Fifo.v:12.13-12.18"
           }
         },
         "storageBank_0": {
-          "hide_name": 0,
-          "bits": [ 112, 113, 114, 115, 116, 117, 118, 119, 120, 121, 122, 123, 124, 125, 126, 127, 128, 129, 130, 131, 132, 133, 134, 135, 136, 137, 138, 139, 140, 141, 142, 143 ],
-          "attributes": {
-            "src": "Fifo.v:17.14-17.27"
-          }
-        },
-        "storageBank_1": {
           "hide_name": 0,
           "bits": [ 144, 145, 146, 147, 148, 149, 150, 151, 152, 153, 154, 155, 156, 157, 158, 159, 160, 161, 162, 163, 164, 165, 166, 167, 168, 169, 170, 171, 172, 173, 174, 175 ],
           "attributes": {
             "src": "Fifo.v:18.14-18.27"
           }
         },
-        "storageBank_2": {
+        "storageBank_1": {
           "hide_name": 0,
           "bits": [ 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99, 100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111 ],
           "attributes": {
             "src": "Fifo.v:19.14-19.27"
           }
         },
+        "storageBank_2": {
+          "hide_name": 0,
+          "bits": [ 112, 113, 114, 115, 116, 117, 118, 119, 120, 121, 122, 123, 124, 125, 126, 127, 128, 129, 130, 131, 132, 133, 134, 135, 136, 137, 138, 139, 140, 141, 142, 143 ],
+          "attributes": {
+            "src": "Fifo.v:17.14-17.27"
+          }
+        },
         "wr_addr_0": {
           "hide_name": 0,
-          "bits": [ 8, 9 ],
+          "bits": [ 36, 37 ],
           "attributes": {
-            "src": "Fifo.v:13.19-13.28"
+            "src": "Fifo.v:10.19-10.28"
           }
         },
         "wr_data_0": {
           "hide_name": 0,
-          "bits": [ 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41 ],
+          "bits": [ 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33 ],
           "attributes": {
-            "src": "Fifo.v:14.20-14.29"
+            "src": "Fifo.v:8.20-8.29"
           }
         },
         "wr_en_0": {
           "hide_name": 0,
-          "bits": [ 7 ],
+          "bits": [ 40 ],
           "attributes": {
-            "src": "Fifo.v:12.13-12.20"
+            "src": "Fifo.v:13.13-13.20"
           }
         }
       }
