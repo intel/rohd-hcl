@@ -46,17 +46,24 @@ class ApbCompleterAgent extends Agent {
   final bool dropWriteDataOnError;
 
   /// Creates a new model [ApbCompleterAgent].
+  ///
+  /// If no [storage] is provided, it will use a default [SparseMemoryStorage].
   ApbCompleterAgent(
       {required this.intf,
-      required this.storage,
       required Component parent,
+      MemoryStorage? storage,
       this.selectIndex = 0,
       this.responseDelay,
       this.respondWithError,
       this.invalidReadDataOnError = true,
       this.dropWriteDataOnError = true,
       String name = 'apbCompleter'})
-      : super(name, parent);
+      : storage = storage ??
+            SparseMemoryStorage(
+              addrWidth: intf.addrWidth,
+              dataWidth: intf.dataWidth,
+            ),
+        super(name, parent);
 
   @override
   Future<void> run(Phase phase) async {
@@ -77,7 +84,7 @@ class ApbCompleterAgent extends Agent {
   }
 
   /// Calculates a strobed version of data.
-  LogicValue _strobeData(
+  static LogicValue _strobeData(
           LogicValue originalData, LogicValue newData, LogicValue strobe) =>
       [
         for (var i = 0; i < strobe.width; i++)
