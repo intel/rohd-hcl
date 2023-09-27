@@ -75,12 +75,84 @@
   An abstract class for all adder module.
 </dd>
 
-        <dt id="Apb">
-  <span class="name "><a href="../rohd_hcl/Apb-class.html">Apb</a></span> 
+        <dt id="ApbCompleterAgent">
+  <span class="name "><a href="../rohd_hcl/ApbCompleterAgent-class.html">ApbCompleterAgent</a></span> 
+
+</dt>
+<dd>
+  A model for the completer side of an <a href="../rohd_hcl/ApbInterface-class.html">ApbInterface</a>.
+</dd>
+
+        <dt id="ApbComplianceChecker">
+  <span class="name "><a href="../rohd_hcl/ApbComplianceChecker-class.html">ApbComplianceChecker</a></span> 
+
+</dt>
+<dd>
+  A checker for some of the rules defined in the APB interface specification.
+</dd>
+
+        <dt id="ApbInterface">
+  <span class="name "><a href="../rohd_hcl/ApbInterface-class.html">ApbInterface</a></span> 
 
 </dt>
 <dd>
   A standard APB interface.
+</dd>
+
+        <dt id="ApbMonitor">
+  <span class="name "><a href="../rohd_hcl/ApbMonitor-class.html">ApbMonitor</a></span> 
+
+</dt>
+<dd>
+  A monitor for <a href="../rohd_hcl/ApbInterface-class.html">ApbInterface</a>s.
+</dd>
+
+        <dt id="ApbPacket">
+  <span class="name "><a href="../rohd_hcl/ApbPacket-class.html">ApbPacket</a></span> 
+
+</dt>
+<dd>
+  A packet on an <a href="../rohd_hcl/ApbInterface-class.html">ApbInterface</a>.
+</dd>
+
+        <dt id="ApbReadPacket">
+  <span class="name "><a href="../rohd_hcl/ApbReadPacket-class.html">ApbReadPacket</a></span> 
+
+</dt>
+<dd>
+  A read packet on an <a href="../rohd_hcl/ApbInterface-class.html">ApbInterface</a>.
+</dd>
+
+        <dt id="ApbRequesterAgent">
+  <span class="name "><a href="../rohd_hcl/ApbRequesterAgent-class.html">ApbRequesterAgent</a></span> 
+
+</dt>
+<dd>
+  An agent for sending requests on an <a href="../rohd_hcl/ApbInterface-class.html">ApbInterface</a>.
+</dd>
+
+        <dt id="ApbRequesterDriver">
+  <span class="name "><a href="../rohd_hcl/ApbRequesterDriver-class.html">ApbRequesterDriver</a></span> 
+
+</dt>
+<dd>
+  A driver for the <a href="../rohd_hcl/ApbInterface-class.html">ApbInterface</a> from the requester side.
+</dd>
+
+        <dt id="ApbTracker">
+  <span class="name "><a href="../rohd_hcl/ApbTracker-class.html">ApbTracker</a></span> 
+
+</dt>
+<dd>
+  A tracker for the <a href="../rohd_hcl/ApbInterface-class.html">ApbInterface</a>.
+</dd>
+
+        <dt id="ApbWritePacket">
+  <span class="name "><a href="../rohd_hcl/ApbWritePacket-class.html">ApbWritePacket</a></span> 
+
+</dt>
+<dd>
+  A write packet on an <a href="../rohd_hcl/ApbInterface-class.html">ApbInterface</a>.
 </dd>
 
         <dt id="Arbiter">
@@ -171,6 +243,15 @@ dangerous conditions.
 </dt>
 <dd>
   A generic memory with variable numbers of read and write ports.
+</dd>
+
+        <dt id="MemoryModel">
+  <span class="name "><a href="../rohd_hcl/MemoryModel-class.html">MemoryModel</a></span> 
+
+</dt>
+<dd>
+  A model of a <a href="../rohd_hcl/Memory-class.html">Memory</a> which uses a software-based <a href="../rohd_hcl/SparseMemoryStorage-class.html">SparseMemoryStorage</a> to
+store data.
 </dd>
 
         <dt id="MemoryStorage">
@@ -321,6 +402,25 @@ reset.
 
 
 
+    <section class="summary offset-anchor" id="functions">
+      <h2>Functions</h2>
+
+      <dl class="callables">
+        <dt id="log2Ceil" class="callable">
+  <span class="name"><a href="../rohd_hcl/log2Ceil.html">log2Ceil</a></span><span class="signature">(<wbr><span class="parameter" id="log2Ceil-param-w"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.1.3/dart-core/int-class.html">int</a></span> <span class="parameter-name">w</span></span>)
+    <span class="returntype parameter">&#8594; <a href="https://api.dart.dev/stable/3.1.3/dart-core/int-class.html">int</a></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Compute the bit width needed to store w addresses
+  
+
+</dd>
+
+      </dl>
+    </section>
 
     <section class="summary offset-anchor" id="enums">
       <h2>Enums</h2>
@@ -331,7 +431,7 @@ reset.
 
 </dt>
 <dd>
-  A grouping of signals on the <a href="../rohd_hcl/Apb-class.html">Apb</a> interface based on direction.
+  A grouping of signals on the <a href="../rohd_hcl/ApbInterface-class.html">ApbInterface</a> interface based on direction.
 </dd>
 
         <dt id="DataPortGroup">
@@ -355,7 +455,7 @@ reset.
 
 </dt>
 <dd>
-  An <a href="https://api.dart.dev/stable/3.1.2/dart-core/Exception-class.html">Exception</a> for the ROHD Hardware Component Library.
+  An <a href="https://api.dart.dev/stable/3.1.3/dart-core/Exception-class.html">Exception</a> for the ROHD Hardware Component Library.
 </dd>
 
       </dl>
