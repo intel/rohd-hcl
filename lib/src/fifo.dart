@@ -9,7 +9,6 @@
 
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
-import 'package:rohd_hcl/src/utils.dart';
 import 'package:rohd_vf/rohd_vf.dart';
 
 /// A simple FIFO (First In, First Out).
@@ -327,24 +326,19 @@ class FifoTracker extends Tracker {
               columnWidth: fifo.dataWidth ~/ 4 + log2Ceil(fifo.dataWidth) + 1),
           TrackerField('Occupancy', columnWidth: fifo.depth ~/ 10 + 1),
         ]) {
-    LogicValue? prevReadValue;
-    Simulator.preTick.listen((event) {
-      prevReadValue = fifo.readData.value;
-    });
-
     fifo._clk.posedge.listen((event) {
-      if (fifo._writeEnable.value.toBool()) {
+      if (fifo._writeEnable.previousValue!.toBool()) {
         record(_FifoEvent(
           _FifoCmd.wr,
-          fifo._writeData.value,
+          fifo._writeData.previousValue!,
           ++_occupancy,
         ));
       }
 
-      if (fifo._readEnable.value.toBool()) {
+      if (fifo._readEnable.previousValue!.toBool()) {
         record(_FifoEvent(
           _FifoCmd.rd,
-          prevReadValue!,
+          fifo.readData.previousValue!,
           --_occupancy,
         ));
       }

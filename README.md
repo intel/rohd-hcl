@@ -45,6 +45,7 @@ Some examples of component categories include:
 - Data flow
 - Memory
 - Standard interfaces
+- Models
 
 ----------------
 
