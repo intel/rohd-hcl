@@ -4,8 +4,8 @@
   <meta charset="utf-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
-  <meta name="description" content="API docs for the Arbiter class from the rohd_hcl library, for the Dart programming language.">
-  <title>Arbiter class - rohd_hcl library - Dart API</title>
+  <meta name="description" content="API docs for the RoundRobinArbiter class from the rohd_hcl library, for the Dart programming language.">
+  <title>RoundRobinArbiter class - rohd_hcl library - Dart API</title>
 
 
   
@@ -30,9 +30,9 @@
   <ol class="breadcrumbs gt-separated dark hidden-xs">
     <li><a href="../index.html">rohd_hcl</a></li>
     <li><a href="../rohd_hcl/rohd_hcl-library.html">rohd_hcl</a></li>
-    <li class="self-crumb">Arbiter class</li>
+    <li class="self-crumb">RoundRobinArbiter class</li>
   </ol>
-  <div class="self-name">Arbiter</div>
+  <div class="self-name">RoundRobinArbiter</div>
   <form class="search navbar-right" role="search">
     <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
   </form>
@@ -54,16 +54,15 @@
       id="dartdoc-main-content"
       class="main-content"
       data-above-sidebar="rohd_hcl&#47;rohd_hcl-library-sidebar.html"
-      data-below-sidebar="rohd_hcl&#47;Arbiter-class-sidebar.html">
+      data-below-sidebar="rohd_hcl&#47;RoundRobinArbiter-class-sidebar.html">
       <div>
-<h1><span class="kind-class">Arbiter</span> class 
-    <a href="https://dart.dev/language/classes#abstract-classes" class="feature feature-abstract" title="This type can not be directly constructed.">abstract</a>
+<h1><span class="kind-class">RoundRobinArbiter</span> class 
  
 </h1></div>
 
     
 <section class="desc markdown">
-  <p>An abstract description of an arbiter module.</p>
+  <p>Round Robin Arbiter.</p>
 </section>
 
 
@@ -75,18 +74,14 @@
     <ul class="gt-separated dark clazz-relationships">
       <li><a href="https://api.dart.dev/stable/3.1.3/dart-core/Object-class.html">Object</a></li>
         <li><a href="https://pub.dev/documentation/rohd/0.5.0/rohd/Module-class.html">Module</a></li>
-      <li>Arbiter</li>
+        <li><a href="../rohd_hcl/Arbiter-class.html">Arbiter</a></li>
+      <li>RoundRobinArbiter</li>
     </ul>
   </dd>
 
         
         
 
-        <dt>Implementers</dt>
-        <dd><ul class="comma-separated clazz-relationships">
-          <li><a href="../rohd_hcl/PriorityArbiter-class.html">PriorityArbiter</a></li>
-          <li><a href="../rohd_hcl/RoundRobinArbiter-class.html">RoundRobinArbiter</a></li>
-        </ul></dd>
 
 
         
@@ -100,28 +95,29 @@
     <h2>Constructors</h2>
 
     <dl class="constructor-summary-list">
-        <dt id="Arbiter" class="callable">
-          <span class="name"><a href="../rohd_hcl/Arbiter/Arbiter.html">Arbiter</a></span><span class="signature">(<span class="parameter" id="-param-requests"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.1.3/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://pub.dev/documentation/rohd/0.5.0/rohd/Logic-class.html">Logic</a></span>&gt;</span></span> <span class="parameter-name">requests</span>, </span><span class="parameter" id="-param-name">{<span class="type-annotation"><a href="https://api.dart.dev/stable/3.1.3/dart-core/String-class.html">String</a></span> <span class="parameter-name">name</span> = <span class="default-value">&#39;arbiter&#39;</span>}</span>)</span>
+        <dt id="RoundRobinArbiter" class="callable">
+          <span class="name"><a href="../rohd_hcl/RoundRobinArbiter/RoundRobinArbiter.html">RoundRobinArbiter</a></span><span class="signature">(<span class="parameter" id="-param-requests"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.1.3/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://pub.dev/documentation/rohd/0.5.0/rohd/Logic-class.html">Logic</a></span>&gt;</span></span> <span class="parameter-name">requests</span>, </span><span class="parameter" id="-param-clk">{<span>required</span> <span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.5.0/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">clk</span>, </span><span class="parameter" id="-param-reset"><span>required</span> <span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.5.0/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">reset</span>}</span>)</span>
         </dt>
         <dd>
-          Constructs an arbiter where each element in <code>requests</code> is a one-bit signal
-requesting a corresponding bit from <a href="../rohd_hcl/Arbiter/grants.html">grants</a>.
+          Round Robin arbiter handles requests by granting each requestor
+and keeping record of requests already granted, in order to mask it until
+granting the turn of each request to start again
         </dd>
     </dl>
   </section>
 
-    <section class="summary offset-anchor" id="instance-properties">
+    <section class="summary offset-anchor inherited" id="instance-properties">
       <h2>Properties</h2>
 
       <dl class="properties">
-        <dt id="count" class="property">
+        <dt id="count" class="property inherited">
   <span class="name"><a href="../rohd_hcl/Arbiter/count.html">count</a></span>
   <span class="signature">&#8594; <a href="https://api.dart.dev/stable/3.1.3/dart-core/int-class.html">int</a></span> 
 
 </dt>
-<dd>
+<dd class="inherited">
   The total number of requests and grants for this <a href="../rohd_hcl/Arbiter-class.html">Arbiter</a>.
-  <div class="features"><span class="feature">read-only</span></div>
+  <div class="features"><span class="feature">read-only</span><span class="feature">inherited</span></div>
 
 </dd>
 
@@ -137,15 +133,15 @@ generated code.
 
 </dd>
 
-        <dt id="grants" class="property">
+        <dt id="grants" class="property inherited">
   <span class="name"><a href="../rohd_hcl/Arbiter/grants.html">grants</a></span>
   <span class="signature">&#8594; <a href="https://api.dart.dev/stable/3.1.3/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://pub.dev/documentation/rohd/0.5.0/rohd/Logic-class.html">Logic</a></span>&gt;</span></span> 
 
 </dt>
-<dd>
+<dd class="inherited">
   Each element corresponds to an arbitration grant of the correspondingly
 indexed request passed at construction time.
-  <div class="features"><span class="feature">read-only</span></div>
+  <div class="features"><span class="feature">read-only</span><span class="feature">inherited</span></div>
 
 </dd>
 
@@ -583,7 +579,7 @@ named <code>name</code>.
 <ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
     <li><a href="../index.html">rohd_hcl</a></li>
     <li><a href="../rohd_hcl/rohd_hcl-library.html">rohd_hcl</a></li>
-    <li class="self-crumb">Arbiter class</li>
+    <li class="self-crumb">RoundRobinArbiter class</li>
 </ol>
 
 
