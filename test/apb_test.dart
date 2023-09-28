@@ -11,9 +11,9 @@ import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
 import 'package:test/test.dart';
 
-class ApbController extends Module {
-  ApbController(Apb intf) {
-    intf = Apb.clone(intf)
+class ApbCompleter extends Module {
+  ApbCompleter(ApbInterface intf) {
+    intf = ApbInterface.clone(intf)
       ..connectIO(this, intf,
           inputTags: {ApbDirection.misc, ApbDirection.fromRequester},
           outputTags: {ApbDirection.fromCompleter});
@@ -21,8 +21,8 @@ class ApbController extends Module {
 }
 
 class ApbRequester extends Module {
-  ApbRequester(Apb intf) {
-    intf = Apb.clone(intf)
+  ApbRequester(ApbInterface intf) {
+    intf = ApbInterface.clone(intf)
       ..connectIO(this, intf,
           inputTags: {ApbDirection.misc, ApbDirection.fromCompleter},
           outputTags: {ApbDirection.fromRequester});
@@ -34,7 +34,7 @@ class ApbPair extends Module {
     clk = addInput('clk', clk);
     reset = addInput('reset', reset);
 
-    final apb = Apb(
+    final apb = ApbInterface(
       includeSlvErr: true,
       userDataWidth: 10,
       userReqWidth: 11,
@@ -43,7 +43,7 @@ class ApbPair extends Module {
     apb.clk <= clk;
     apb.resetN <= ~reset;
 
-    ApbController(apb);
+    ApbCompleter(apb);
     ApbRequester(apb);
   }
 }
@@ -55,7 +55,7 @@ void main() {
   });
 
   test('abp optional ports null', () async {
-    final apb = Apb();
+    final apb = ApbInterface();
     expect(apb.aUser, isNull);
     expect(apb.bUser, isNull);
     expect(apb.rUser, isNull);

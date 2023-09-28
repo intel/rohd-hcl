@@ -1,7 +1,7 @@
 name: rohd_hcl
 description: ROHD Hardware Component Library
 version: 0.0.1
-homepage: https://github.com/intel/rohd-hcl
+homepage: https://intel.github.io/rohd-website/
 repository: https://github.com/intel/rohd-hcl
 issue_tracker: https://github.com/intel/rohd-hcl/issues
 documentation: https://intel.github.io/rohd-hcl/rohd_hcl/rohd_hcl-library.html
@@ -11,15 +11,9 @@ environment:
 
 dependencies:
   meta: ^1.9.1
-  rohd: ^0.4.2
-  rohd_vf: ^0.4.1
+  rohd: ^0.5.0
+  rohd_vf: ^0.5.0
 
 dev_dependencies:
   logging: ^1.0.1
   test: ^1.21.0
-
-dependency_overrides:
-  rohd:
-    git:
-      url: https://github.com/intel/rohd.git
-      ref: main
