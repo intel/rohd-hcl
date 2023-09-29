@@ -6,7 +6,6 @@
 //
 // 2023 March 13
 // Author: Max Korbel <max.korbel@intel.com>
-//
 
 // ignore_for_file: avoid_types_on_closure_parameters
 
@@ -14,7 +13,6 @@ import 'dart:async';
 
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
-import 'package:rohd_hcl/src/models/memory_model.dart';
 import 'package:test/test.dart';
 
 void main() {
