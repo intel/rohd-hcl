@@ -13,13 +13,15 @@ import 'package:rohd_hcl/rohd_hcl.dart';
 
 /// Find functionality
 ///
-/// Takes in a [Logic] to find location of `1`s or `0`s
+/// Takes in a [Logic] to find location of `1`s or `0`s.
+/// Outputs pin `index` contains position.
 class Find extends Module {
-  /// [_output] is output of Find (use index for accessing from outside Module)
-  late Logic _output;
-
   /// [index] is an getter for output of Find
-  Logic get index => _output;
+  Logic get index => output('index');
+
+  /// [error] is an getter for error in Find
+  /// When your find is not found it will result in error `1`
+  Logic get error => output('error');
 
   /// Find `1`s or `0`s
   ///
@@ -27,48 +29,46 @@ class Find extends Module {
   /// If [countOne] is `true` [Find] `1` else [Find] `0`.
   ///
   /// By default [Find] will look for first search parameter `1` or `0`.
-  /// If [n] is given, [Find] an [n]th search from first
-  /// occurance
+  /// If [n] is given, [Find] an [n]th search from first occurance.
+  ///
+  /// Outputs pin `index` contains position.
   Find(Logic bus, {bool countOne = true, Logic? n}) {
     bus = addInput('bus', bus, width: bus.width);
     final oneHotList = <Logic>[];
+
     if (n != null) {
       n = addInput('n', n, width: n.width);
-
-      for (var i = 0; i < bus.width; i++) {
-        if (countOne && i == 0) {
-          oneHotList.add(~bus[i] & n.eq(0));
-        } else {
-          final zeroCount = Count(bus.getRange(0, i + 1), countOne: countOne);
-
-          var paddedNValue = n;
-          var paddedCountValue = zeroCount.index;
-          if (n.width < zeroCount.index.width) {
-            paddedNValue = n.zeroExtend(zeroCount.index.width);
-          } else {
-            paddedCountValue = zeroCount.index.zeroExtend(n.width);
-          }
-
-          // If `bus[i]` is a `0` and the number of `0`'s from index 0 to `i`
-          // is `n`
-          oneHotList.add((countOne ? bus[i] : ~bus[i]) &
-              paddedCountValue.eq(paddedNValue));
-        }
-      }
-    } else {
-      for (var i = 0; i < bus.width; i++) {
-        final busCheck = countOne ? bus[i] : ~bus[i];
-        if (i == 0) {
-          oneHotList.add(busCheck);
-        } else {
-          final rangeCheck =
-              countOne ? ~bus.getRange(0, i).or() : bus.getRange(0, i).and();
-          oneHotList.add(busCheck & rangeCheck);
-        }
-      }
     }
-    final bin = OneHotToBinary(oneHotList.rswizzle()).binary;
-    _output = addOutput('find', width: bin.width);
-    _output <= bin;
+
+    // 00000000 [0, 0]
+    for (var i = 0; i < bus.width; i++) {
+      // determines if it is what we are looking for?
+      final valCheck = countOne ? bus[i] : ~bus[i];
+
+      final count = Count(bus.getRange(0, i + 1), countOne: countOne);
+
+      // Below code will make `n` comparable to `count`
+      var paddedCountValue = count.index;
+      var paddedNValue = (n ?? Const(0)) + 1;
+
+      if (paddedNValue.width < paddedCountValue.width) {
+        paddedNValue = paddedNValue.zeroExtend(paddedCountValue.width);
+      } else {
+        paddedCountValue = paddedCountValue.zeroExtend(paddedNValue.width);
+      }
+
+      // If bus[i] contains search value (0/1) and it is nth position
+      // then append Logic `1` else append Logic `0`
+      oneHotList.add(valCheck & paddedNValue.eq(paddedCountValue));
+    }
+
+    final oneHotBinary = OneHotToBinary(oneHotList.rswizzle());
+    // Upon search complete, we get the position value in binary `bin` form
+    final bin = oneHotBinary.binary;
+    addOutput('index', width: bin.width);
+    index <= bin;
+
+    addOutput('error');
+    error <= oneHotBinary.error;
   }
 }

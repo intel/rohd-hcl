@@ -27,18 +27,13 @@ class Count extends Module {
   /// if [countOne] is `false` will count `0`
   Count(Logic bus, {bool countOne = true}) {
     bus = addInput('bus', bus, width: bus.width);
-    Logic count = Const(0, width: max(1, log2Ceil(bus.width)));
+    Logic count = Const(0, width: max(1, log2Ceil(bus.width) + 1));
     for (var i = 0; i < bus.width; i++) {
-      count += bus[i].zeroExtend(count.width);
+      count += (countOne ? bus[i] : ~bus[i]).zeroExtend(count.width);
     }
     _output =
         addOutput('count${countOne ? "One" : "Zero"}', width: count.width);
 
-    _output <=
-        (countOne
-            // count one
-            ? count
-            // Count zero by removing one's from bus width
-            : Const(bus.width, width: count.width) - count);
+    _output <= count;
   }
 }

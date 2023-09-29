@@ -30,6 +30,7 @@ class BinaryToOneHot extends Module {
 class OneHotToBinary extends Module {
   /// The [binary] decoded result.
   Logic get binary => output('binary');
+  Logic get error => output('error');
 
   /// Constructs a [Module] which decodes a one-hot or thermometer-encoded
   /// number [onehot] into a 2s complement number [binary] by encoding
@@ -37,15 +38,20 @@ class OneHotToBinary extends Module {
   OneHotToBinary(Logic onehot) {
     onehot = addInput('onehot', onehot, width: onehot.width);
     addOutput('binary', width: log2Ceil(onehot.width + 1));
+    addOutput('error');
     Combinational([
       Case(onehot, conditionalType: ConditionalType.unique, [
         for (var i = 0; i < onehot.width; i++)
           CaseItem(
             Const(BigInt.from(1) << i, width: onehot.width),
-            [binary < Const(i, width: binary.width)],
+            [
+              binary < Const(i, width: binary.width),
+              error < 0,
+            ],
           )
       ], defaultItem: [
-        binary < Const(binary.width, width: binary.width)
+        binary < Const(0, width: binary.width),
+        error < 1,
       ])
     ]);
   }
