@@ -6,7 +6,6 @@
 //
 // 2023 June 1
 // Author: Yao Jing Quek <yao.jing.quek@intel.com>
-//
 
 import 'dart:async';
 import 'dart:math';

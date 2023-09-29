@@ -16,11 +16,9 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v3
-        with:
-          submodules: recursive
 
       - name: Lint Markdown files
-        uses: DavidAnson/markdownlint-cli2-action@v9
+        uses: DavidAnson/markdownlint-cli2-action@v11
         with:
           globs: '**/*.md'
 
@@ -29,9 +27,10 @@ jobs:
         with:
           use-quiet-mode: yes # output is too noisy, see https://github.com/gaurav-nelson/github-action-markdown-link-check/issues/121
           config-file: .github/configs/mlc_config.json
-        
-        # could be new API links added, etc.
-        continue-on-error: true
+
+      # get submodules *after* checking markdown, we dont care about markdown errors in submodules
+      - name: Checkout submodules
+        run: git submodule update --init --recursive
 
       - name: Setup Dart
         uses: dart-lang/setup-dart@v1
@@ -51,6 +50,15 @@ jobs:
       - name: Run project tests
         run: tool/gh_actions/run_tests.sh
       
+      - name: Install CAD Suite (includes yosys)
+        run: tool/gh_actions/install_opencadsuite.sh
+
+      - name: Install D3 Schematic viewer
+        run: tool/gh_actions/install_d3_hwschematic.sh
+
+      - name: Generate HTML for examples
+        run: tool/gh_actions/create_htmls.sh
+
       # https://github.com/devcontainers/ci/blob/main/docs/github-action.md
       - name: Build dev container and run tests in it
         uses: devcontainers/ci@v0.3

@@ -6,7 +6,6 @@
 //
 // 2023 March 13
 // Author: Max Korbel <max.korbel@intel.com>
-//
 
 import 'dart:async';
 import 'dart:convert';
@@ -20,7 +19,7 @@ import 'package:test/test.dart';
 
 void main() {
   tearDown(() async {
-    await Simulator.reset();
+    await Test.reset();
   });
 
   test('fifo simple', () async {
@@ -507,6 +506,29 @@ void main() {
       });
 
       FifoChecker(fifoTest.fifo);
+
+      fifoTest.printLevel = Level.OFF;
+
+      try {
+        await fifoTest.start();
+        fail('Did not fail.');
+      } on Exception catch (_) {
+        expect(fifoTest.failureDetected, true);
+      }
+    });
+
+    test('invalid value on port', () async {
+      final fifoTest = FifoTest((clk, reset, wrEn, wrData, rdEn, rdData) async {
+        wrEn.put(1);
+        wrData.put(0x111);
+
+        await clk.nextNegedge;
+        wrEn.put(LogicValue.x);
+        await clk.nextNegedge;
+        await clk.nextNegedge;
+      });
+
+      FifoChecker(fifoTest.fifo, enableEndOfTestEmptyCheck: false);
 
       fifoTest.printLevel = Level.OFF;
 

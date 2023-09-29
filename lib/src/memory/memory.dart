@@ -6,7 +6,6 @@
 //
 // 2021 November 3
 // Author: Max Korbel <max.korbel@intel.com>
-//
 
 import 'package:meta/meta.dart';
 import 'package:rohd/rohd.dart';

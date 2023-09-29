@@ -64,7 +64,7 @@ class RegisterFile extends Memory {
     ]);
 
     Combinational([
-      ...rdPorts.map((rdPort) => If(reset | ~rdPort.en, then: [
+      ...rdPorts.map((rdPort) => If(~rdPort.en, then: [
             rdPort.data < Const(0, width: dataWidth)
           ], orElse: [
             Case(rdPort.addr, [
