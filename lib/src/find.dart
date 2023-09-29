@@ -23,6 +23,9 @@ class Find extends Module {
   /// When your find is not found it will result in error `1`
   Logic get error => output('error');
 
+  /// If `true`, then the [error] output will be generated.
+  final bool generateError;
+
   /// Find `1`s or `0`s
   ///
   /// Takes in filter search parameter [countOne], default [Find] `1`.
@@ -33,7 +36,8 @@ class Find extends Module {
   /// [n] starts from `0` as first find.
   ///
   /// Outputs pin `index` contains position. position starts from `1` based.
-  Find(Logic bus, {bool countOne = true, Logic? n}) {
+  Find(Logic bus,
+      {bool countOne = true, Logic? n, this.generateError = false}) {
     bus = addInput('bus', bus, width: bus.width);
     final oneHotList = <Logic>[];
 
@@ -41,7 +45,6 @@ class Find extends Module {
       n = addInput('n', n, width: n.width);
     }
 
-    // 00000000 [0, 0]
     for (var i = 0; i < bus.width; i++) {
       // determines if it is what we are looking for?
       final valCheck = countOne ? bus[i] : ~bus[i];
@@ -63,13 +66,16 @@ class Find extends Module {
       oneHotList.add(valCheck & paddedNValue.eq(paddedCountValue));
     }
 
-    final oneHotBinary = OneHotToBinary(oneHotList.rswizzle());
+    final oneHotBinary =
+        OneHotToBinary(oneHotList.rswizzle(), generateError: true);
     // Upon search complete, we get the position value in binary `bin` form
     final bin = oneHotBinary.binary;
     addOutput('index', width: bin.width);
     index <= bin;
 
-    addOutput('error');
-    error <= oneHotBinary.error;
+    if (generateError) {
+      addOutput('error');
+      error <= oneHotBinary.error;
+    }
   }
 }
