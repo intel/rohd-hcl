@@ -30,8 +30,9 @@ class Find extends Module {
   ///
   /// By default [Find] will look for first search parameter `1` or `0`.
   /// If [n] is given, [Find] an [n]th search from first occurance.
+  /// [n] starts from `0` as first find.
   ///
-  /// Outputs pin `index` contains position.
+  /// Outputs pin `index` contains position. position starts from `1` based.
   Find(Logic bus, {bool countOne = true, Logic? n}) {
     bus = addInput('bus', bus, width: bus.width);
     final oneHotList = <Logic>[];
