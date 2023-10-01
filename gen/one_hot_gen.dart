@@ -6,7 +6,6 @@
 //
 // 2023 May 09
 // Author: Desmond Kirkpatrick <desmond.a.kirkpatrick@intel.com>
-//
 
 import 'dart:io';
 import 'package:rohd/rohd.dart';
@@ -25,7 +24,12 @@ Future<void> oneHotGen() async {
   await m2.build();
   File('build/${m2.definitionName}.v').writeAsStringSync(m2.generateSynth());
 
+<<<<<<< HEAD
   final m3 = TreeOneHotToBinary(onehotInput);
+=======
+  final onehotInput2 = Logic(width: pos + 1);
+  final m3 = TreeOneHotToBinary(onehotInput2);
+>>>>>>> 861c4ad955af5ac6f2099eb3e1270fe83f40ac26
   await m3.build();
   File('build/${m3.definitionName}.v').writeAsStringSync(m3.generateSynth());
 }
