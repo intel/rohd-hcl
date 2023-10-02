@@ -1,3 +1,12 @@
+// Copyright (C) 2021-2023 Intel Corporation
+// SPDX-License-Identifier: BSD-3-Clause
+//
+// binary_to_gray.dart
+// A converter to convert binary value to gray value.
+//
+// 2023 October 2
+// Author: Yao Jing Quek <yao.jing.quek@intel.com>
+
 import 'package:rohd/rohd.dart';
 
 /// Add doc
