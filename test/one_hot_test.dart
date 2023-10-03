@@ -5,7 +5,7 @@
 // Test of one_hot codec.
 //
 // 2023 February 24
-// Author: Desmond Kirkpatrick
+// Author: Desmond Kirkpatrick <desmond.a.kirkpatrick@intel.com>
 
 import 'dart:math';
 
