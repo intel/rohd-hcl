@@ -20,7 +20,17 @@ class BinaryToGrayConverter extends Module {
     binaryInput = addInput('binaryInput', binaryInput, width: inputWidth);
     final grayVal = addOutput('gray_value', width: inputWidth);
 
-    grayVal <= Const(binaryToGrayMap(binaryInput).swizzle(), width: inputWidth);
+    Combinational([
+      //Assignment Here
+      Case(binaryInput, conditionalType: ConditionalType.unique, [
+        CaseItem(binaryInput, [
+          grayVal <
+              Const(binaryToGrayMap(binaryInput).swizzle(), width: inputWidth)
+        ])
+      ], defaultItem: [
+        grayVal < binaryInput
+      ])
+    ]);
   }
 
   /// Add doc
@@ -42,7 +52,7 @@ class BinaryToGrayConverter extends Module {
 
 void main() async {
   final binaryInput = Logic(name: 'binaryInput', width: 8);
-  binaryInput.put(bin('100'));
+  binaryInput.put(bin('10110011'));
   final binToGray = BinaryToGrayConverter(binaryInput);
   await binToGray.build();
 
