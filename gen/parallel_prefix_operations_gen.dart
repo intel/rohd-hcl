@@ -22,8 +22,9 @@ Future<void> parallelPrefixGen() async {
   for (final ppGen in generators) {
     final m1 = PPAdder(a, b, ppGen);
     await m1.build();
-    File('build/${m1.definitionName}_${names[i]}.v')
-        .writeAsStringSync(m1.generateSynth());
+    File('build/${m1.definitionName}_${names[i]}.v').writeAsStringSync(m1
+        .generateSynth()
+        .replaceAll('PPAdder', '${m1.definitionName}_${names[i]}'));
     i = i + 1;
   }
 }
