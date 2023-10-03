@@ -160,9 +160,9 @@ We recommend following these same guidelines for any of your own packages you ma
 
 1. Create a generator in gen
 
-  1. Add generator to gen/generate.dart
+   1. Add generator to gen/generate.dart
 
-  1. Run dart gen/generate.dart to make sure generation works.
+   1. Run dart gen/generate.dart to make sure generation works.
 
 1. Add documentation to doc/name.dart
 
