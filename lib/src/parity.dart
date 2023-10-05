@@ -19,7 +19,9 @@ class ParityTransmitter extends Module {
   /// [data] is an getter for transmit data having a parity check
   Logic get data => _output;
 
-  /// Construct a module
+  /// Construct a [Module] for generating transmit data [data].
+  /// Combine given [Logic] named [bus] with a parity bit for error check after
+  /// transmission
   ParityTransmitter(Logic bus) {
     bus = addInput('bus', bus, width: bus.width);
     final transmitData = [bus.xor(), bus].swizzle();
