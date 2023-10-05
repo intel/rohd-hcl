@@ -6,21 +6,20 @@ on:
   pull_request:
     branches:
       - main
+  workflow_dispatch:
 
 jobs:
   run-checks:
     name: Run Checks
     permissions: {}
     timeout-minutes: 30
-    runs-on: ubuntu-22.04
+    runs-on: intel-ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v3
-        with:
-          submodules: recursive
 
       - name: Lint Markdown files
-        uses: DavidAnson/markdownlint-cli2-action@v9
+        uses: DavidAnson/markdownlint-cli2-action@v11
         with:
           globs: '**/*.md'
 
@@ -29,9 +28,10 @@ jobs:
         with:
           use-quiet-mode: yes # output is too noisy, see https://github.com/gaurav-nelson/github-action-markdown-link-check/issues/121
           config-file: .github/configs/mlc_config.json
-        
-        # could be new API links added, etc.
-        continue-on-error: true
+
+      # get submodules *after* checking markdown, we dont care about markdown errors in submodules
+      - name: Checkout submodules
+        run: git submodule update --init --recursive
 
       - name: Setup Dart
         uses: dart-lang/setup-dart@v1
@@ -51,49 +51,29 @@ jobs:
       - name: Run project tests
         run: tool/gh_actions/run_tests.sh
       
+      - name: Install CAD Suite (includes yosys)
+        run: tool/gh_actions/install_opencadsuite.sh
+
+      - name: Install D3 Schematic viewer
+        run: tool/gh_actions/install_d3_hwschematic.sh
+
+      - name: Generate HTML for examples
+        run: tool/gh_actions/create_htmls.sh
+
       # https://github.com/devcontainers/ci/blob/main/docs/github-action.md
       - name: Build dev container and run tests in it
         uses: devcontainers/ci@v0.3
         with:
           runCmd: tool/gh_actions/run_tests.sh
 
-  deploy-site:
-    name: Deploy ROHD-HCL Generator site
+  deploy-documentation:
+    name: Deploy Documentation
     needs: run-checks
     if: github.event_name == 'push'
     permissions:
       contents: write # required for "JamesIves/github-pages-deploy-action"
     timeout-minutes: 30
-    runs-on: ubuntu-22.04
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v3
-        with:
-          submodules: recursive
-
-      - name: Setup Flutter SDK
-        uses: flutter-actions/setup-flutter@v2
-        with:
-          channel: stable
-          version: 3.10.6
-      
-      - name: Build static site
-        run: tool/gh_actions/hcl_site_generation_build.sh
-
-      - name: Deploy the generated site to website branch
-        uses: JamesIves/github-pages-deploy-action@v4
-        with:
-          folder: confapp_flutter/build/web
-          branch: website
-
-  deploy-documentation:
-    name: Deploy Documentation
-    needs: deploy-site
-    if: github.event_name == 'push'
-    permissions:
-      contents: write # required for "JamesIves/github-pages-deploy-action"
-    timeout-minutes: 30
-    runs-on: ubuntu-22.04
+    runs-on: intel-ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -122,7 +102,4 @@ jobs:
         uses: JamesIves/github-pages-deploy-action@v4
         with:
           folder: doc/api
-          target-folder: api
-          branch: website
-
-      
+          branch: docs
