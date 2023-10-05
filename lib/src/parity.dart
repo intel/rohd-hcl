@@ -22,7 +22,7 @@ class ParityTransmitter extends Module {
   /// Construct a module
   ParityTransmitter(Logic bus) {
     bus = addInput('bus', bus, width: bus.width);
-    final transmitData = [bus, bus.xor()].swizzle();
+    final transmitData = [bus.xor(), bus].swizzle();
     _output = addOutput('transmitData', width: transmitData.width);
     _output <= transmitData;
   }
@@ -57,8 +57,8 @@ class ParityReceiver extends Module {
     bus = addInput('bus', bus, width: bus.width);
 
     // Slice from 1 from least significant bit to the end
-    final transmittedData = bus.slice(-1, 1);
-    final parityBit = bus[0];
+    final transmittedData = bus.slice(-2, 0);
+    final parityBit = bus[-1];
     final parityError = ~transmittedData.xor().eq(parityBit);
 
     _data = addOutput('transmittedData', width: transmittedData.width);
