@@ -9,11 +9,11 @@
 //
 
 import 'package:rohd/rohd.dart';
-import 'package:rohd_hcl/rohd_hcl.dart';
 
 /// Encode data to transport with Parity bits
 class ParityTransmitter extends Module {
-  /// [_output] is output of parity (use index for accessing from outside Module)
+  /// [_output] is output of parity
+  /// (use index for accessing from outside Module)
   late Logic _output;
 
   /// [data] is an getter for transmit data having a parity check
