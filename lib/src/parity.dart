@@ -59,7 +59,7 @@ class ParityReceiver extends Module {
     // Slice from 1 from least significant bit to the end
     final transmittedData = bus.slice(-1, 1);
     final parityBit = bus[0];
-    final parityError = ~transmittedData.xor().eq(bus[0]);
+    final parityError = ~transmittedData.xor().eq(parityBit);
 
     _data = addOutput('transmittedData', width: transmittedData.width);
     _parityBit = addOutput('parityBit', width: transmittedData.width);
