@@ -9,7 +9,6 @@
 //
 // 2023 May 09
 // Author: Desmond Kirkpatrick <desmond.a.kirkpatrick@intel.com>
-//
 
 import 'arbiter_gen.dart';
 import 'fifo_gen.dart';
