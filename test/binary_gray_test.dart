@@ -57,6 +57,14 @@ Future<void> main() async {
       expect(grayToBin.binaryVal.value.toString(includeWidth: false), '101');
     });
 
+    test('should return 0 if gray code is 0 and width is 1.', () async {
+      final binaryInput = Logic(name: 'binaryInput')..put(bin('0'));
+      final grayToBin = GrayToBinaryConverter(binaryInput);
+      await grayToBin.build();
+
+      expect(grayToBin.binaryVal.value.toInt(), 0);
+    });
+
     test('should return 1 if gray code is 1 and width is 1.', () async {
       final binaryInput = Logic(name: 'binaryInput')..put(bin('1'));
       final grayToBin = GrayToBinaryConverter(binaryInput);
