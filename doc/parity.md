@@ -1,6 +1,6 @@
 # Parity
 
-ROHD HCL implements `Parity` functionality class that other modules can extend for error checking. For satisfying the functionality of Parity error checking in `Logic` data, ROHD HCL provides 2 `Module`, namely `ParityTransmitter` and `ParityReceiver`.
+ROHD HCL implements `Parity` functionality class that other modules can apply error checking. For satisfying the functionality of Parity error checking in `Logic` data, ROHD HCL provides 2 `Module`, namely `ParityTransmitter` and `ParityReceiver`.
 
 ## Parity Transmitter
 
