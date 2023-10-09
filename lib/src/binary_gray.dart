@@ -40,7 +40,8 @@ class BinaryToGrayConverter extends Module {
         for (var i = 0; i < (1 << inputWidth); i++)
           CaseItem(Const(i, width: inputWidth), [
             grayVal <
-                Const(binaryToGrayMap(Const(i, width: inputWidth)).swizzle(),
+                Const(
+                    binaryToGrayMap(LogicValue.ofInt(i, inputWidth)).swizzle(),
                     width: inputWidth)
           ])
       ])
@@ -60,8 +61,8 @@ class BinaryToGrayConverter extends Module {
   /// If [binary] has no bits, an empty list is returned.
   ///
   /// Returns a list of [LogicValue] representing the Gray code.
-  List<LogicValue> binaryToGrayMap(Logic binary) {
-    final reverseBit = binary.value.toList().swizzle();
+  List<LogicValue> binaryToGrayMap(LogicValue binary) {
+    final reverseBit = binary.toList().swizzle();
     final binList = reverseBit.toList().asMap().entries.map((entry) {
       final currentBit = entry.value;
       final idx = entry.key;
@@ -107,9 +108,10 @@ class GrayToBinaryConverter extends Module {
         [
           for (var i = 0; i < (1 << inputWidth); i++)
             CaseItem(Const(i, width: inputWidth), [
-              // Conditional assignment here
               binaryVal <
-                  Const(grayToBinaryMap(Const(i, width: inputWidth)).swizzle(),
+                  Const(
+                      grayToBinaryMap(LogicValue.ofInt(i, inputWidth))
+                          .swizzle(),
                       width: inputWidth),
             ]),
         ],
@@ -130,8 +132,8 @@ class GrayToBinaryConverter extends Module {
   /// If [gray] has no bits, an empty list is returned.
   ///
   /// Returns a list of [LogicValue] representing the binary representation.
-  List<LogicValue> grayToBinaryMap(Logic gray) {
-    final reverseGray = gray.value.toList().swizzle();
+  List<LogicValue> grayToBinaryMap(LogicValue gray) {
+    final reverseGray = gray.toList().swizzle();
     final grayList = reverseGray.toList();
     var previousBit = LogicValue.zero;
 
