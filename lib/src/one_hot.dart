@@ -62,7 +62,7 @@ class OneHotToBinary extends Module {
           )
       ], defaultItem: [
         binary < Const(0, width: binary.width),
-        ...generateError ? [error < 1] : [],
+        if (generateError) error < 1,
       ])
     ]);
   }
