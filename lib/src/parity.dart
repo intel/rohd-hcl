@@ -69,7 +69,7 @@ class ParityReceiver extends Module {
     final parityError = ~transmittedData.xor().eq(parityBit);
 
     _data = addOutput('transmittedData', width: transmittedData.width);
-    _parityBit = addOutput('parityBit', width: transmittedData.width);
+    _parityBit = addOutput('parityBit', width: parityBit.width);
     _checkError = addOutput('checkError', width: parityError.width);
 
     _data <= transmittedData;
