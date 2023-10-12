@@ -57,11 +57,7 @@ class OneHotToBinary extends Module {
             Const(BigInt.from(1) << i, width: onehot.width),
             [
               binary < Const(i, width: binary.width),
-              ...generateError
-                  ? [
-                      error < 0,
-                    ]
-                  : []
+              if (generateError) error < 0,
             ],
           )
       ], defaultItem: [
