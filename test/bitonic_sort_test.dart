@@ -6,7 +6,6 @@
 //
 // 2023 May 3
 // Author: Yao Jing Quek <yao.jing.quek@intel.com>
-//
 
 import 'dart:async';
 import 'dart:math';
@@ -27,7 +26,7 @@ Future<void> main() async {
     while (randList.length < listLength) {
       final randNum = rand.nextInt(10);
 
-      if (randList.contains(randNum) == false) {
+      if (!randList.contains(randNum)) {
         randList.add(randNum);
       }
     }

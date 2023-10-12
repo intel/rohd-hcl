@@ -40,7 +40,7 @@ void main() {
     final mod = Count(bus, countOne: false);
     expect(mod.index.value.toInt(), 0);
   });
-  test('count all 1s when input is all 0s', () {
+  test('count all 0s when input is all 0s', () {
     final bus = Const(bin('00000'), width: 5);
     final mod = Count(bus, countOne: false);
     expect(mod.index.value.toInt(), 5);

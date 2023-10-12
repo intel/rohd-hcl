@@ -6,7 +6,6 @@
 //
 // 2023 February 24
 // Author: Desmond Kirkpatrick
-//
 
 import 'dart:math';
 

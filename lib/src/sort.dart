@@ -6,7 +6,6 @@
 //
 // 2023 April 18
 // Author: Yao Jing Quek <yao.jing.quek@intel.com>
-//
 
 import 'dart:collection';
 
@@ -220,8 +219,7 @@ class BitonicSort extends Sort {
       }
     }
 
-    if (((inputLength != 0) && (inputLength & (inputLength - 1) == 0)) ==
-        false) {
+    if (!((inputLength != 0) && (inputLength & (inputLength - 1) == 0))) {
       throw RohdHclException('Bitonic sort requires inputs length of '
           'power of 2.');
     }

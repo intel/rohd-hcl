@@ -6,7 +6,6 @@
 //
 // 2023 February 24
 // Author: Desmond Kirkpatrick
-//
 
 import 'dart:math';
 import 'package:rohd/rohd.dart';
@@ -31,21 +30,39 @@ class OneHotToBinary extends Module {
   /// The [binary] decoded result.
   Logic get binary => output('binary');
 
+  /// The [error] in getting result.
+  Logic get error => output('error');
+
+  /// If `true`, then the [error] output will be generated.
+  final bool generateError;
+
   /// Constructs a [Module] which decodes a one-hot or thermometer-encoded
   /// number [onehot] into a 2s complement number [binary] by encoding
   /// the position of the '1'
-  OneHotToBinary(Logic onehot) {
+  OneHotToBinary(
+    Logic onehot, {
+    this.generateError = false,
+  }) {
     onehot = addInput('onehot', onehot, width: onehot.width);
     addOutput('binary', width: log2Ceil(onehot.width + 1));
+
+    if (generateError) {
+      addOutput('error');
+    }
+
     Combinational([
       Case(onehot, conditionalType: ConditionalType.unique, [
         for (var i = 0; i < onehot.width; i++)
           CaseItem(
             Const(BigInt.from(1) << i, width: onehot.width),
-            [binary < Const(i, width: binary.width)],
+            [
+              binary < Const(i, width: binary.width),
+              if (generateError) error < 0,
+            ],
           )
       ], defaultItem: [
-        binary < Const(binary.width, width: binary.width)
+        binary < Const(0, width: binary.width),
+        if (generateError) error < 1,
       ])
     ]);
   }
