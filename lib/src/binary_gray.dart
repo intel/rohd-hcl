@@ -1,4 +1,4 @@
-// Copyright (C) 2021-2023 Intel Corporation
+// Copyright (C) 2023 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 //
 // binary_gray.dart
@@ -36,15 +36,19 @@ class BinaryToGrayConverter extends Module {
     final grayVal = addOutput('gray_code', width: inputWidth);
 
     Combinational([
-      Case(binary, [
-        for (var i = 0; i < (1 << inputWidth); i++)
-          CaseItem(Const(i, width: inputWidth), [
-            grayVal <
-                Const(
-                    binaryToGrayMap(LogicValue.ofInt(i, inputWidth)).swizzle(),
-                    width: inputWidth)
-          ])
-      ])
+      Case(
+          binary,
+          [
+            for (var i = 0; i < (1 << inputWidth); i++)
+              CaseItem(Const(i, width: inputWidth), [
+                grayVal <
+                    Const(
+                        binaryToGrayMap(LogicValue.ofInt(i, inputWidth))
+                            .swizzle(),
+                        width: inputWidth)
+              ])
+          ],
+          conditionalType: ConditionalType.unique)
     ]);
   }
 
@@ -104,18 +108,18 @@ class GrayToBinaryConverter extends Module {
 
     Combinational([
       Case(
-        gray,
-        [
-          for (var i = 0; i < (1 << inputWidth); i++)
-            CaseItem(Const(i, width: inputWidth), [
-              binaryVal <
-                  Const(
-                      grayToBinaryMap(LogicValue.ofInt(i, inputWidth))
-                          .swizzle(),
-                      width: inputWidth),
-            ]),
-        ],
-      ),
+          gray,
+          [
+            for (var i = 0; i < (1 << inputWidth); i++)
+              CaseItem(Const(i, width: inputWidth), [
+                binaryVal <
+                    Const(
+                        grayToBinaryMap(LogicValue.ofInt(i, inputWidth))
+                            .swizzle(),
+                        width: inputWidth),
+              ]),
+          ],
+          conditionalType: ConditionalType.unique),
     ]);
   }
 
