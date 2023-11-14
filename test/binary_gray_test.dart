@@ -8,6 +8,8 @@
 // Author: Yao Jing Quek <yao.jing.quek@intel.com>
 //
 
+import 'dart:math';
+
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
 import 'package:test/test.dart';
@@ -80,6 +82,41 @@ Future<void> main() async {
       await grayToBin.build();
 
       expect(grayToBin.binaryVal.value.toString(includeWidth: false), '101011');
+    });
+
+    test(
+        'sequential values should differ in just one bit in integer and bigInt'
+        ' bit range.', () async {
+      Future<void> checkBitDiff({required int width}) async {
+        for (var i = 0; i < pow(2, width) - 1; i++) {
+          final binaryInput1 = Logic(name: 'binaryInputSeq1', width: width)
+            ..put(bin(i.toRadixString(2)));
+          final binaryInput2 = Logic(name: 'binaryInputSeq2', width: width)
+            ..put(bin((i + 1).toRadixString(2)));
+
+          final binToGray1 = BinaryToGrayConverter(binaryInput1);
+          final binToGray2 = BinaryToGrayConverter(binaryInput2);
+
+          await binToGray1.build();
+          await binToGray2.build();
+
+          final gray1 = binToGray1.grayCode.value;
+          final gray2 = binToGray2.grayCode.value;
+
+          var diff = gray1 ^ gray2;
+
+          var setBits = 0;
+          while (diff.toInt() != 0) {
+            setBits++;
+            diff &= diff - 1;
+          }
+
+          expect(setBits, 1);
+        }
+      }
+
+      await checkBitDiff(width: 64);
+      await checkBitDiff(width: 100);
     });
   });
 }
