@@ -66,7 +66,7 @@ class BinaryToGrayConverter extends Module {
   ///
   /// Returns a list of [LogicValue] representing the Gray code.
   List<LogicValue> binaryToGrayMap(LogicValue binary) {
-    final reverseBit = binary.toList().swizzle();
+    final reverseBit = binary.reversed;
     final binList = reverseBit.toList().asMap().entries.map((entry) {
       final currentBit = entry.value;
       final idx = entry.key;
@@ -137,7 +137,7 @@ class GrayToBinaryConverter extends Module {
   ///
   /// Returns a list of [LogicValue] representing the binary representation.
   List<LogicValue> grayToBinaryMap(LogicValue gray) {
-    final reverseGray = gray.toList().swizzle();
+    final reverseGray = gray.reversed;
     final grayList = reverseGray.toList();
     var previousBit = LogicValue.zero;
 
