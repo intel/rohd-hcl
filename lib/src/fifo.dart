@@ -89,7 +89,7 @@ class Fifo extends Module {
         _addrWidth = max(1, log2Ceil(depth)),
         assert(depth > 0, 'Depth must be at least 1.') {
     assert(_addrWidth > 0,
-        'Assumptions that address is non-zero in implementation');
+        'Assumption that address width is non-zero in implementation');
 
     addInput('clk', clk);
     addInput('reset', reset);
