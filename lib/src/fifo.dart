@@ -7,6 +7,8 @@
 // 2023 March 13
 // Author: Max Korbel <max.korbel@intel.com>
 
+import 'dart:math';
+
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
 import 'package:rohd_vf/rohd_vf.dart';
@@ -84,8 +86,11 @@ class Fifo extends Module {
       this.generateBypass = false,
       super.name = 'fifo'})
       : dataWidth = writeData.width,
-        _addrWidth = log2Ceil(depth),
+        _addrWidth = max(1, log2Ceil(depth)),
         assert(depth > 0, 'Depth must be at least 1.') {
+    assert(_addrWidth > 0,
+        'Assumptions that address is non-zero in implementation');
+
     addInput('clk', clk);
     addInput('reset', reset);
 
