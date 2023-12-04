@@ -4,6 +4,8 @@ Thank you for considering contributing to the ROHD Hardware Component Library (R
 
 Anyone interested in participating in ROHD-HCL is more than welcome to help!
 
+Check out the [component list](./doc/README.md) to see what's already implemented and where there's more work to do.
+
 ## Code of Conduct
 
 ROHD-HCL adopts the [Contributor Covenant](https://www.contributor-covenant.org/) v2.1 for the code of conduct. It can be accessed [here](CODE_OF_CONDUCT.md).
