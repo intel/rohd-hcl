@@ -1,5 +1,3 @@
-import 'dart:convert';
-
 import 'package:rohd/src/module.dart';
 import 'package:rohd/src/utilities/simcompare.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
@@ -23,6 +21,12 @@ class ExampleConfigurator extends Configurator {
     'c': ToggleConfigKnob(value: true),
     'd': ChoiceConfigKnob<ExampleEnum>(ExampleEnum.values,
         value: ExampleEnum.maybe),
+    'e':
+        ListOfKnobsKnob(value: 3, generateKnob: (i) => IntConfigKnob(value: i)),
+    'f': GroupOfKnobs({
+      '1': StringConfigKnob(value: '1'),
+      '2': StringConfigKnob(value: '2'),
+    }),
   };
 
   @override
@@ -37,13 +41,31 @@ void main() {
     cfg.knobs['c']!.value = false;
     cfg.knobs['d']!.value = ExampleEnum.yes;
 
+    cfg.knobs['e']!.value = 5;
+    for (final k in (cfg.knobs['e']! as ListOfKnobsKnob).knobs) {
+      // ignore: avoid_dynamic_calls
+      k.value += 10;
+    }
+
+    (cfg.knobs['f']! as GroupOfKnobs).subKnobs.forEach((key, value) {
+      // ignore: avoid_dynamic_calls
+      value.value += 'x';
+    });
+
     final json = cfg.toJson(pretty: true);
+
+    // print(json);
+
     final cfgLoaded = ExampleConfigurator()..loadJson(json);
 
     expect(cfgLoaded.knobs['a']!.value, 'banana');
     expect(cfgLoaded.knobs['b']!.value, 42);
     expect(cfgLoaded.knobs['c']!.value, false);
     expect(cfgLoaded.knobs['d']!.value, ExampleEnum.yes);
+
+    expect((cfgLoaded.knobs['e']! as ListOfKnobsKnob).knobs[3].value, 13);
+
+    expect((cfg.knobs['f']! as GroupOfKnobs).subKnobs['2']!.value, '2x');
   });
 
   group('rotate generator', () {
