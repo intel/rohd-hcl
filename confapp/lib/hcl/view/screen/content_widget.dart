@@ -67,7 +67,6 @@ class _SVGeneratorState extends State<SVGenerator> {
           return null;
         },
         inputFormatters: [
-          if (knob is IntConfigKnob) FilteringTextInputFormatter.digitsOnly,
           FilteringTextInputFormatter.singleLineFormatter,
         ],
         onChanged: (value) {
@@ -77,7 +76,8 @@ class _SVGeneratorState extends State<SVGenerator> {
             }
 
             if (knob is IntConfigKnob) {
-              knob.value = int.parse(value.toString());
+              final newValue = int.tryParse(value.toString());
+              knob.value = newValue ?? knob.value;
             } else {
               knob.value = value;
             }
@@ -115,11 +115,62 @@ class _SVGeneratorState extends State<SVGenerator> {
         },
         value: knob.value,
       );
+    } else if (knob is ListOfKnobsKnob) {
+      selector = _containerOfKnobs(title: knob.name, children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.end,
+          children: [
+            IconButton(
+                onPressed: () {
+                  setState(() {
+                    knob.value += 1;
+                  });
+                },
+                icon: Icon(Icons.add)),
+            IconButton(
+                onPressed: () {
+                  setState(() {
+                    if (knob.value == 0) return;
+                    knob.value -= 1;
+                  });
+                },
+                icon: Icon(Icons.remove)),
+          ],
+        ),
+        for (final (index, subKnob) in knob.knobs.indexed)
+          _generateKnobControl('$index', subKnob),
+      ]);
+    } else if (knob is GroupOfKnobs) {
+      selector = _containerOfKnobs(title: knob.value, children: [
+        for (final subKnobEntry in knob.subKnobs.entries)
+          _generateKnobControl(subKnobEntry.key, subKnobEntry.value),
+      ]);
     } else {
       selector = Text('Unknown knob type for $label: ${knob.runtimeType}');
     }
 
-    return SizedBox(width: 400, child: selector);
+    return Padding(
+        padding: const EdgeInsets.only(top: 16.0),
+        child: SizedBox(width: 400, child: selector));
+  }
+
+  Widget _containerOfKnobs(
+      {required List<Widget> children, required String title}) {
+    return Container(
+        // decoration: BoxDecoration(
+        //   border: Border.all(color: Colors.grey),
+        //   borderRadius: BorderRadius.all(Radius.circular(10)),
+        // ),
+        child: InputDecorator(
+      decoration: InputDecoration(
+          labelText: title,
+          border:
+              OutlineInputBorder(borderRadius: BorderRadius.circular(10.0))),
+      child: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Column(children: children),
+      ),
+    ));
   }
 
   Widget _generateJsonCard(
@@ -129,7 +180,7 @@ class _SVGeneratorState extends State<SVGenerator> {
     return Card(
       child: Container(
         constraints: BoxConstraints(
-            maxHeight: screenHeight / 3, maxWidth: screenWidth / 3),
+            maxHeight: screenHeight * 0.3, maxWidth: screenWidth / 3),
         child: SingleChildScrollView(
           child: Padding(
             padding: const EdgeInsets.all(16.0),
@@ -275,12 +326,6 @@ class _SVGeneratorState extends State<SVGenerator> {
                   final knobLabel = knobEntry.key;
 
                   textFormField.add(
-                    const SizedBox(
-                      height: 16,
-                    ),
-                  );
-
-                  textFormField.add(
                     _generateKnobControl(knobLabel, knob),
                   );
                 }
@@ -288,11 +333,12 @@ class _SVGeneratorState extends State<SVGenerator> {
                 return Container(
                   margin: const EdgeInsets.all(10),
                   constraints: BoxConstraints(
-                    maxHeight: screenHeight * 2 / 3,
+                    maxHeight: screenHeight * 0.6,
                     maxWidth: screenWidth / 3,
                   ),
                   child: Card(
-                    child: Padding(
+                    child: SingleChildScrollView(
+                        child: Padding(
                       padding: const EdgeInsets.all(16.0),
                       child: Form(
                         key: _formKey,
@@ -332,7 +378,7 @@ class _SVGeneratorState extends State<SVGenerator> {
                           ],
                         ),
                       ),
-                    ),
+                    )),
                   ),
                 );
               },

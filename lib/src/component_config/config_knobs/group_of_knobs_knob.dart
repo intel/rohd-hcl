@@ -3,7 +3,9 @@ import 'package:rohd_hcl/rohd_hcl.dart';
 class GroupOfKnobs extends ConfigKnob<String> {
   final Map<String, ConfigKnob<dynamic>> subKnobs;
 
-  GroupOfKnobs(this.subKnobs) : super(value: 'group');
+  String get name => value;
+
+  GroupOfKnobs(this.subKnobs, {String name = 'Group'}) : super(value: name);
 
   @override
   Map<String, dynamic> toJson() => {

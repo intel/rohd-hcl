@@ -1,3 +1,4 @@
+import 'package:rohd/rohd.dart';
 import 'package:rohd/src/module.dart';
 import 'package:rohd/src/utilities/simcompare.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
@@ -5,11 +6,15 @@ import 'package:test/test.dart';
 
 enum ExampleEnum { yes, no, maybe }
 
+class ExampleModule extends Module {
+  ExampleModule() {
+    addInput('inp', Logic());
+  }
+}
+
 class ExampleConfigurator extends Configurator {
   @override
-  Module createModule() {
-    throw UnimplementedError();
-  }
+  Module createModule() => ExampleModule();
 
   @override
   List<Vector> get exampleTestVectors => throw UnimplementedError();
@@ -22,7 +27,7 @@ class ExampleConfigurator extends Configurator {
     'd': ChoiceConfigKnob<ExampleEnum>(ExampleEnum.values,
         value: ExampleEnum.maybe),
     'e':
-        ListOfKnobsKnob(value: 3, generateKnob: (i) => IntConfigKnob(value: i)),
+        ListOfKnobsKnob(count: 3, generateKnob: (i) => IntConfigKnob(value: i)),
     'f': GroupOfKnobs({
       '1': StringConfigKnob(value: '1'),
       '2': StringConfigKnob(value: '2'),

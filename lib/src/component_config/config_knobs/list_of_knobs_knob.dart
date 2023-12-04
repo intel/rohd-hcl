@@ -7,6 +7,8 @@ class ListOfKnobsKnob extends ConfigKnob<int> {
 
   final Map<int, ConfigKnob<dynamic>> _subKnobs = {};
 
+  final String name;
+
   List<ConfigKnob<dynamic>> get knobs => UnmodifiableListView(List.generate(
         value,
         (i) => _subKnobs.update(
@@ -17,7 +19,9 @@ class ListOfKnobsKnob extends ConfigKnob<int> {
         growable: false,
       ));
 
-  ListOfKnobsKnob({required super.value, required this.generateKnob});
+  ListOfKnobsKnob(
+      {required int count, required this.generateKnob, this.name = 'List'})
+      : super(value: count);
 
   @override
   Map<String, dynamic> toJson() =>
