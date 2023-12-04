@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:rohd/rohd.dart';
 // ignore: implementation_imports
 import 'package:rohd/src/utilities/sanitizer.dart';
@@ -20,14 +22,29 @@ abstract class Configurator {
     return mod.generateSynth();
   }
 
+  /// Creates a [Module] instance as configured.
   Module createModule();
 
   List<Vector> get exampleTestVectors;
   void runExampleTest() {}
 
-  String saveYaml() => 'TODO';
+  String toJson({bool pretty = false}) =>
+      JsonEncoder.withIndent(pretty ? '  ' : null).convert({
+        'name': name,
+        'knobs': {
+          for (final knob in knobs.entries) knob.key: knob.value.toJson(),
+        },
+      });
 
-  void loadYaml() {}
+  void loadJson(String json) {
+    final decoded = jsonDecode(json) as Map<String, dynamic>;
+    assert(decoded['name'] == name, 'Expect name to be the same.');
+
+    for (final decodedKnob in (decoded['knobs'] as Map).entries) {
+      knobs[decodedKnob.key]!
+          .loadJson(decodedKnob.value as Map<String, dynamic>);
+    }
+  }
 }
 
 

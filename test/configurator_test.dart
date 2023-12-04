@@ -1,7 +1,51 @@
+import 'dart:convert';
+
+import 'package:rohd/src/module.dart';
+import 'package:rohd/src/utilities/simcompare.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
 import 'package:test/test.dart';
 
+enum ExampleEnum { yes, no, maybe }
+
+class ExampleConfigurator extends Configurator {
+  @override
+  Module createModule() {
+    throw UnimplementedError();
+  }
+
+  @override
+  List<Vector> get exampleTestVectors => throw UnimplementedError();
+
+  @override
+  late final Map<String, ConfigKnob<dynamic>> knobs = {
+    'a': StringConfigKnob(value: 'apple'),
+    'b': IntConfigKnob(value: 5),
+    'c': ToggleConfigKnob(value: true),
+    'd': ChoiceConfigKnob<ExampleEnum>(ExampleEnum.values,
+        value: ExampleEnum.maybe),
+  };
+
+  @override
+  String get name => 'exampleName';
+}
+
 void main() {
+  test('to and from json', () {
+    final cfg = ExampleConfigurator();
+    cfg.knobs['a']!.value = 'banana';
+    cfg.knobs['b']!.value = 42;
+    cfg.knobs['c']!.value = false;
+    cfg.knobs['d']!.value = ExampleEnum.yes;
+
+    final json = cfg.toJson(pretty: true);
+    final cfgLoaded = ExampleConfigurator()..loadJson(json);
+
+    expect(cfgLoaded.knobs['a']!.value, 'banana');
+    expect(cfgLoaded.knobs['b']!.value, 42);
+    expect(cfgLoaded.knobs['c']!.value, false);
+    expect(cfgLoaded.knobs['d']!.value, ExampleEnum.yes);
+  });
+
   group('rotate generator', () {
     test('should return Ripple Carry Adder for component name', () {
       final rotate = RotateConfigurator();
