@@ -146,12 +146,12 @@ void main() {
 
   group('pipelined_integer_multiplier', () {
     test('should return Carry Save Multiplier for component name', () {
-      final multiplier = PipelinedIntegerMultiplierConfigurator();
+      final multiplier = CarrySaveMultiplierConfigurator();
       expect(multiplier.name, 'Carry Save Multiplier');
     });
 
     test('should return both Int knobs to be configured', () {
-      final multiplier = PipelinedIntegerMultiplierConfigurator();
+      final multiplier = CarrySaveMultiplierConfigurator();
       for (final element in multiplier.knobs.values.toList()) {
         expect(element, isA<IntConfigKnob>());
       }
@@ -159,14 +159,14 @@ void main() {
 
     test('should return rtl code when invoke generate() with default value',
         () async {
-      final multiplier = PipelinedIntegerMultiplierConfigurator();
+      final multiplier = CarrySaveMultiplierConfigurator();
       expect(await multiplier.generateSV(), contains('CarrySaveMultiplier'));
     });
 
     test('should return rtl code when invoke generate() with custom value',
         () async {
-      final multiplierDefault = PipelinedIntegerMultiplierConfigurator();
-      final multiplierCustom = PipelinedIntegerMultiplierConfigurator();
+      final multiplierDefault = CarrySaveMultiplierConfigurator();
+      final multiplierCustom = CarrySaveMultiplierConfigurator();
       multiplierCustom.knobs.values.toList()[0].value = 2;
 
       final multiplierDefaultRTL = await multiplierDefault.generateSV();

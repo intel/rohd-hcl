@@ -13,8 +13,6 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
 import 'package:sidebarx/sidebarx.dart';
 
-//TODO: improve spacing, organize code windows better
-
 class SVGenerator extends StatefulWidget {
   final SidebarXController controller;
 
@@ -61,7 +59,9 @@ class _SVGeneratorState extends State<SVGenerator> {
     if (knob is IntConfigKnob || knob is StringConfigKnob) {
       selector = TextFormField(
         key: key,
-        initialValue: knob.value.toString(),
+        initialValue: (knob is IntConfigKnob && knob.value > 255)
+            ? '0x${knob.value.toRadixString(16)}'
+            : knob.value.toString(),
         decoration: decoration,
         validator: (value) {
           if (value!.isEmpty) {
