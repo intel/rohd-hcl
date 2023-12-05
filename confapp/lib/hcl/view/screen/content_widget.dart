@@ -54,6 +54,7 @@ class _SVGeneratorState extends State<SVGenerator> {
     final decoration = InputDecoration(
       border: const OutlineInputBorder(),
       labelText: label,
+      isDense: true,
     );
     final key = Key(label);
 
@@ -122,6 +123,7 @@ class _SVGeneratorState extends State<SVGenerator> {
         Row(
           mainAxisAlignment: MainAxisAlignment.end,
           children: [
+            const Text('Add or remove: '),
             IconButton(
                 onPressed: () {
                   setState(() {
@@ -152,8 +154,9 @@ class _SVGeneratorState extends State<SVGenerator> {
     }
 
     return Padding(
-        padding: const EdgeInsets.only(top: 16.0),
-        child: SizedBox(width: 400, child: selector));
+      padding: const EdgeInsets.only(top: 10.0),
+      child: selector, // SizedBox(width: 400, child: selector),
+    );
   }
 
   Widget _containerOfKnobs(
@@ -164,7 +167,7 @@ class _SVGeneratorState extends State<SVGenerator> {
         border: OutlineInputBorder(borderRadius: BorderRadius.circular(10.0)),
       ),
       child: Padding(
-        padding: const EdgeInsets.all(8.0),
+        padding: const EdgeInsets.all(1.0),
         child: Column(children: children),
       ),
     );
@@ -177,7 +180,7 @@ class _SVGeneratorState extends State<SVGenerator> {
     return Card(
       child: Container(
         constraints: BoxConstraints(
-            maxHeight: screenHeight * 0.3, maxWidth: screenWidth / 3),
+            maxHeight: screenHeight * 0.8, maxWidth: screenWidth / 3),
         child: SingleChildScrollView(
           child: Padding(
             padding: const EdgeInsets.all(16.0),
@@ -292,6 +295,32 @@ class _SVGeneratorState extends State<SVGenerator> {
     );
   }
 
+  Widget _genRtlButton(SystemVerilogCubit rtlCubit, Configurator component) {
+    return ElevatedButton(
+      key: const Key('generateRTL'),
+      onPressed: () async {
+        try {
+          rtlCubit.setLoading();
+
+          // allow some time for loading spinner to appear
+          await Future.delayed(const Duration(milliseconds: 10));
+
+          final rtlRes = await _generateRTL(component);
+
+          rtlCubit.setRTL(rtlRes, component.sanitaryName);
+        } on Exception catch (e) {
+          var message = e.toString();
+          if (e is RohdHclException) {
+            message = e.message;
+          }
+          rtlCubit.setRTL('Error generating:\n\n$message', 'error');
+        }
+      },
+      style: btnStyle,
+      child: const Text('Generate RTL'),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final rtlCubit = context.read<SystemVerilogCubit>();
@@ -301,92 +330,75 @@ class _SVGeneratorState extends State<SVGenerator> {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       children: [
+        BlocBuilder<ComponentCubit, Configurator>(
+            builder: (context, component) {
+          return Column(mainAxisAlignment: MainAxisAlignment.center, children: [
+            Container(
+              margin: const EdgeInsets.all(10),
+              constraints: BoxConstraints(
+                maxHeight: screenHeight * 0.8,
+                maxWidth: screenWidth / 3,
+              ),
+              child: Card(
+                child: SingleChildScrollView(
+                    child: Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Form(
+                    key: _formKey,
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        // Add a title
+                        Text(
+                          component.name,
+                          style: const TextStyle(
+                            fontSize: 25,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        for (var knobEntry in component.knobs.entries)
+                          _generateKnobControl(knobEntry.key, knobEntry.value),
+                        const SizedBox(
+                          height: 16,
+                        ),
+                      ],
+                    ),
+                  ),
+                )),
+              ),
+            ),
+            _genRtlButton(rtlCubit, component),
+          ]);
+        }),
         Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            BlocBuilder<ComponentCubit, Configurator>(
-              builder: (context, component) {
-                final textFormField = [];
-
-                // Add a title
-                textFormField.add(
-                  Text(
-                    component.name,
-                    style: const TextStyle(
-                      fontSize: 25,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                );
-                for (var knobEntry in component.knobs.entries) {
-                  final knob = knobEntry.value;
-                  final knobLabel = knobEntry.key;
-
-                  textFormField.add(
-                    _generateKnobControl(knobLabel, knob),
-                  );
-                }
-
-                return Container(
-                  margin: const EdgeInsets.all(10),
-                  constraints: BoxConstraints(
-                    maxHeight: screenHeight * 0.6,
-                    maxWidth: screenWidth / 3,
-                  ),
-                  child: Card(
-                    child: SingleChildScrollView(
-                        child: Padding(
-                      padding: const EdgeInsets.all(16.0),
-                      child: Form(
-                        key: _formKey,
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
+            Card(
+                child: Container(
+                    constraints: BoxConstraints(
+                        maxHeight: screenHeight * 0.85,
+                        maxWidth: screenWidth / 3),
+                    child: DefaultTabController(
+                      length: 2,
+                      child: Scaffold(
+                        appBar: AppBar(
+                          title: const Text('Generated Outputs'),
+                          bottom: const TabBar(
+                            isScrollable: true,
+                            tabs: [
+                              Tab(text: 'Generated RTL'),
+                              Tab(text: 'JSON Configuration'),
+                            ],
+                          ),
+                        ),
+                        body: TabBarView(
                           children: [
-                            ...textFormField,
-                            const SizedBox(
-                              height: 16,
-                            ),
-                            ElevatedButton(
-                              key: const Key('generateRTL'),
-                              onPressed: () async {
-                                try {
-                                  rtlCubit.setLoading();
-
-                                  // allow some time for loading spinner to appear
-                                  await Future.delayed(
-                                      const Duration(milliseconds: 10));
-
-                                  final rtlRes = await _generateRTL(component);
-
-                                  rtlCubit.setRTL(
-                                      rtlRes, component.sanitaryName);
-                                } on Exception catch (e) {
-                                  var message = e.toString();
-                                  if (e is RohdHclException) {
-                                    message = e.message;
-                                  }
-                                  rtlCubit.setRTL(
-                                      'Error generating:\n\n$message', 'error');
-                                }
-                              },
-                              style: btnStyle,
-                              child: const Text('Generate RTL'),
-                            ),
+                            _generatedRtlCard(screenHeight, screenWidth),
+                            _generateJsonCard(screenHeight, screenWidth),
                           ],
                         ),
                       ),
-                    )),
-                  ),
-                );
-              },
-            ),
-            _generateJsonCard(screenHeight, screenWidth),
-          ],
-        ),
-        Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            _generatedRtlCard(screenHeight, screenWidth),
+                    ))),
           ],
         ),
       ],
