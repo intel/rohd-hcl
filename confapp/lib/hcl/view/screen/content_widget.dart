@@ -13,6 +13,8 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
 import 'package:sidebarx/sidebarx.dart';
 
+//TODO: improve spacing, organize code windows better
+
 class SVGenerator extends StatefulWidget {
   final SidebarXController controller;
 
@@ -126,7 +128,7 @@ class _SVGeneratorState extends State<SVGenerator> {
                     knob.value += 1;
                   });
                 },
-                icon: Icon(Icons.add)),
+                icon: const Icon(Icons.add)),
             IconButton(
                 onPressed: () {
                   setState(() {
@@ -134,14 +136,14 @@ class _SVGeneratorState extends State<SVGenerator> {
                     knob.value -= 1;
                   });
                 },
-                icon: Icon(Icons.remove)),
+                icon: const Icon(Icons.remove)),
           ],
         ),
         for (final (index, subKnob) in knob.knobs.indexed)
           _generateKnobControl('$index', subKnob),
       ]);
     } else if (knob is GroupOfKnobs) {
-      selector = _containerOfKnobs(title: knob.value, children: [
+      selector = _containerOfKnobs(title: knob.name, children: [
         for (final subKnobEntry in knob.subKnobs.entries)
           _generateKnobControl(subKnobEntry.key, subKnobEntry.value),
       ]);
@@ -156,21 +158,16 @@ class _SVGeneratorState extends State<SVGenerator> {
 
   Widget _containerOfKnobs(
       {required List<Widget> children, required String title}) {
-    return Container(
-        // decoration: BoxDecoration(
-        //   border: Border.all(color: Colors.grey),
-        //   borderRadius: BorderRadius.all(Radius.circular(10)),
-        // ),
-        child: InputDecorator(
+    return InputDecorator(
       decoration: InputDecoration(
-          labelText: title,
-          border:
-              OutlineInputBorder(borderRadius: BorderRadius.circular(10.0))),
+        labelText: title,
+        border: OutlineInputBorder(borderRadius: BorderRadius.circular(10.0)),
+      ),
       child: Padding(
         padding: const EdgeInsets.all(8.0),
         child: Column(children: children),
       ),
-    ));
+    );
   }
 
   Widget _generateJsonCard(
