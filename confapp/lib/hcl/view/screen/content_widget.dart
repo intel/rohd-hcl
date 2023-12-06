@@ -163,7 +163,7 @@ class _SVGeneratorState extends State<SVGenerator> {
 
     return Padding(
       padding: const EdgeInsets.only(top: 10.0),
-      child: selector, // SizedBox(width: 400, child: selector),
+      child: selector,
     );
   }
 
