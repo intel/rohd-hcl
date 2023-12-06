@@ -6,6 +6,8 @@
 //
 // 2023 December 5
 
+import 'dart:collection';
+
 import 'package:rohd/rohd.dart';
 // ignore: implementation_imports
 import 'package:rohd/src/utilities/simcompare.dart';
@@ -20,21 +22,21 @@ class RotateConfigurator extends Configurator {
   );
 
   /// A knob controlling the width of the input to be rotated.
-  final originalWidthKnob = IntConfigKnob(value: 16);
+  final IntConfigKnob originalWidthKnob = IntConfigKnob(value: 16);
 
   /// A knob controlling the width of the control for rotation amount.
-  final rotateWidthKnob = IntConfigKnob(value: 8);
+  final IntConfigKnob rotateWidthKnob = IntConfigKnob(value: 8);
 
   /// A knob controlling the maximum amount to rotate by to support.
-  final maxAmountKnob = IntConfigKnob(value: 20);
+  final IntConfigKnob maxAmountKnob = IntConfigKnob(value: 8);
 
   @override
-  late final Map<String, ConfigKnob<dynamic>> knobs = {
+  late final Map<String, ConfigKnob<dynamic>> knobs = UnmodifiableMapView({
     'Direction': directionKnob,
     'Original Width': originalWidthKnob,
     'Rotate Amount Width': rotateWidthKnob,
     'Max Rotate Amount': maxAmountKnob,
-  };
+  });
 
   @override
   final String name = 'Rotate';

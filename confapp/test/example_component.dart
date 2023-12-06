@@ -32,7 +32,4 @@ class ExampleConfigurator extends Configurator {
 
   @override
   String get name => 'exampleName';
-
-  @override
-  List<Vector> get exampleTestVectors => throw UnimplementedError();
 }

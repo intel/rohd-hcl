@@ -1,42 +1,15 @@
-import 'package:rohd/rohd.dart';
-import 'package:rohd/src/module.dart';
-import 'package:rohd/src/utilities/simcompare.dart';
+// Copyright (C) 2023 Intel Corporation
+// SPDX-License-Identifier: BSD-3-Clause
+//
+// configurator_test.dart
+// Tests for configurators.
+//
+// 2023 December 6
+
 import 'package:rohd_hcl/rohd_hcl.dart';
 import 'package:test/test.dart';
 
-enum ExampleEnum { yes, no, maybe }
-
-class ExampleModule extends Module {
-  ExampleModule() {
-    addInput('inp', Logic());
-  }
-}
-
-class ExampleConfigurator extends Configurator {
-  @override
-  Module createModule() => ExampleModule();
-
-  @override
-  List<Vector> get exampleTestVectors => throw UnimplementedError();
-
-  @override
-  late final Map<String, ConfigKnob<dynamic>> knobs = {
-    'a': StringConfigKnob(value: 'apple'),
-    'b': IntConfigKnob(value: 5),
-    'c': ToggleConfigKnob(value: true),
-    'd': ChoiceConfigKnob<ExampleEnum>(ExampleEnum.values,
-        value: ExampleEnum.maybe),
-    'e':
-        ListOfKnobsKnob(count: 3, generateKnob: (i) => IntConfigKnob(value: i)),
-    'f': GroupOfKnobs({
-      '1': StringConfigKnob(value: '1'),
-      '2': StringConfigKnob(value: '2'),
-    }),
-  };
-
-  @override
-  String get name => 'exampleName';
-}
+import '../confapp/test/example_component.dart';
 
 void main() {
   test('to and from json', () {
@@ -174,6 +147,56 @@ void main() {
 
       expect(multiplierDefaultRTL.length > multiplierCustomRTL.length,
           equals(true));
+    });
+  });
+
+  group('fifo configurator', () {
+    test('should generate FIFO', () async {
+      final cfg = FifoConfigurator()
+        ..dataWidthKnob.value = 6
+        ..depthKnob.value = 7
+        ..generateBypassKnob.value = true
+        ..generateErrorKnob.value = true
+        ..generateOccupancyKnob.value = true;
+
+      final sv = await cfg.generateSV();
+
+      expect(sv, contains('bypass'));
+      expect(sv, contains('occupancy'));
+      expect(sv, contains('error'));
+      expect(sv, contains('input logic [5:0] writeData'));
+      expect(sv, contains("(wrPointer == 3'h6"));
+    });
+  });
+
+  group('one-hot configurator', () {
+    test('one-hot to binary', () async {
+      final cfg = OneHotConfigurator()
+        ..directionKnob.value = OneHotToBinary
+        ..generateErrorKnob.value = true;
+
+      final sv = await cfg.generateSV();
+
+      expect(sv, contains('OneHotToBinary'));
+      expect(sv, contains('error'));
+    });
+
+    test('binary to one-hot', () async {
+      final cfg = OneHotConfigurator()..directionKnob.value = BinaryToOneHot;
+
+      final sv = await cfg.generateSV();
+
+      expect(sv, contains('BinaryToOneHot'));
+    });
+  });
+
+  group('rf configurator', () {
+    test('should generate rf', () async {
+      final cfg = RegisterFileConfigurator()..maskedWritesKnob.value = true;
+
+      final sv = await cfg.generateSV();
+
+      expect(sv, contains('wr_mask_0'));
     });
   });
 

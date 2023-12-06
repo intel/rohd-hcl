@@ -43,10 +43,10 @@ abstract class Configurator {
 
   /// A collection of test vectors, one per cycle, that can be used to generate
   /// a simple test and waveform as an example for this component.
-  List<Vector> get exampleTestVectors;
+  List<Vector> get exampleTestVectors => throw UnimplementedError();
 
   /// Runs the [exampleTestVectors] in simulation.
-  void runExampleTest() => UnimplementedError(); //TODO implement
+  void runExampleTest() => UnimplementedError();
 
   /// Serializes the configuration information into a JSON structure.
   String toJson({bool pretty = false}) =>

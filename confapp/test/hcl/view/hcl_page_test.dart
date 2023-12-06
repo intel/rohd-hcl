@@ -2,6 +2,7 @@ import 'package:confapp/hcl/hcl.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
+import 'package:rohd_hcl/src/component_config/components/component_registry.dart';
 
 String? observeOutput(WidgetTester tester) {
   final selectableTextFinder = find.byType(SelectableText);
@@ -9,13 +10,7 @@ String? observeOutput(WidgetTester tester) {
   return widget.data;
 }
 
-List<Configurator> components = [
-  RotateConfigurator(),
-  PriorityArbiterConfigurator(),
-  RippleCarryAdderConfigurator(),
-  PipelinedIntegerMultiplierConfigurator(),
-  BitonicSortConfigurator(),
-];
+List<Configurator> components = componentRegistry;
 
 void main() {
   testWidgets('should return message to click generate when page load',
