@@ -81,7 +81,7 @@ class BinaryToGrayConverter extends Module {
 ///
 /// The [GrayToBinaryConverter] class represents a module that takes a Gray
 /// code value as input and produces the equivalent binary representation as
-/// output. It internally uses the [grayToBinaryMap] function for the
+/// output. It internally uses the [grayToBinary] function for the
 /// conversion
 class GrayToBinaryConverter extends Module {
   /// The binary representation output of the converter.
@@ -109,7 +109,7 @@ class GrayToBinaryConverter extends Module {
             for (var i = 0; i < (1 << inputWidth); i++)
               CaseItem(Const(i, width: inputWidth), [
                 binaryVal <
-                    Const(grayToBinaryMap(LogicValue.ofInt(i, inputWidth)),
+                    Const(grayToBinary(LogicValue.ofInt(i, inputWidth)),
                         width: inputWidth),
               ]),
           ],
@@ -127,7 +127,7 @@ class GrayToBinaryConverter extends Module {
   /// on XOR operation with the previous binary bit.
   ///
   /// Return [LogicValue] representing the binary representation.
-  static LogicValue grayToBinaryMap(LogicValue gray) {
+  static LogicValue grayToBinary(LogicValue gray) {
     final reverseGray = gray.reversed;
     final grayList = reverseGray.toList();
     var previousBit = LogicValue.zero;
