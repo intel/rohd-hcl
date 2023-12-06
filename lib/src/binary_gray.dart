@@ -14,15 +14,15 @@ import 'package:rohd/rohd.dart';
 ///
 /// The [BinaryToGrayConverter] class represents a module that takes a binary
 /// value as input and produces the equivalent Gray code representation as
-/// output. It internally uses the [binaryToGrayMap] function for the
+/// output. It internally uses the [binaryToGray] function for the
 /// conversion.
 class BinaryToGrayConverter extends Module {
   /// The Gray code representation output of the converter.
   ///
   /// This [Logic] value represents the Gray code representation of the binary
   /// input provided to the converter. It can be accessed using
-  /// the [grayCode] getter.
-  Logic get grayCode => output('gray_code');
+  /// the [gray] getter.
+  Logic get gray => output('gray_code');
 
   /// Creates a [BinaryToGrayConverter] instance with the specified binary
   /// input.
@@ -32,8 +32,8 @@ class BinaryToGrayConverter extends Module {
   /// of the Gray code output.
   BinaryToGrayConverter(Logic binary) {
     final inputWidth = binary.width;
-    binary = addInput('binary_input', binary, width: inputWidth);
-    final grayVal = addOutput('gray_code', width: inputWidth);
+    binary = addInput('binary', binary, width: inputWidth);
+    final grayVal = addOutput('gray', width: inputWidth);
 
     Combinational([
       Case(
@@ -42,9 +42,7 @@ class BinaryToGrayConverter extends Module {
             for (var i = 0; i < (1 << inputWidth); i++)
               CaseItem(Const(i, width: inputWidth), [
                 grayVal <
-                    Const(
-                        binaryToGrayMap(LogicValue.ofInt(i, inputWidth))
-                            .swizzle(),
+                    Const(binaryToGray(LogicValue.ofInt(i, inputWidth)),
                         width: inputWidth)
               ])
           ],
@@ -54,18 +52,16 @@ class BinaryToGrayConverter extends Module {
 
   /// Converts a binary value represented by [binary] to Gray code.
   ///
-  /// Given a [binary] value, this function returns a list of [LogicValue]
+  /// Given a [binary] value, this function return [LogicValue]
   /// representing the equivalent Gray code.
   ///
   /// For each bit in the [binary] input, starting from the least significant
   /// bit (index 0), the function calculates the corresponding Gray code bit
   /// based on XOR operation with the previous bit. The resulting Gray code
-  /// bits are returned in a list.
+  /// bits are returned.
   ///
-  /// If [binary] has no bits, an empty list is returned.
-  ///
-  /// Returns a list of [LogicValue] representing the Gray code.
-  List<LogicValue> binaryToGrayMap(LogicValue binary) {
+  /// Returns [LogicValue] representing the Gray code.
+  static LogicValue binaryToGray(LogicValue binary) {
     final reverseBit = binary.reversed;
     final binList = reverseBit.toList().asMap().entries.map((entry) {
       final currentBit = entry.value;
@@ -76,8 +72,8 @@ class BinaryToGrayConverter extends Module {
         final previousIndex = reverseBit[idx - 1];
         return currentBit ^ previousIndex;
       }
-    });
-    return binList.toList();
+    }).toList();
+    return binList.swizzle();
   }
 }
 
@@ -91,9 +87,9 @@ class GrayToBinaryConverter extends Module {
   /// The binary representation output of the converter.
   ///
   /// This [Logic] value represents the binary representation of the Gray code
-  /// input provided to the converter. It can be accessed using the [binaryVal]
+  /// input provided to the converter. It can be accessed using the [binary]
   /// getter.
-  Logic get binaryVal => output('binary');
+  Logic get binary => output('binary');
 
   /// Creates a [GrayToBinaryConverter] instance with the specified Gray code
   /// input.
@@ -113,9 +109,7 @@ class GrayToBinaryConverter extends Module {
             for (var i = 0; i < (1 << inputWidth); i++)
               CaseItem(Const(i, width: inputWidth), [
                 binaryVal <
-                    Const(
-                        grayToBinaryMap(LogicValue.ofInt(i, inputWidth))
-                            .swizzle(),
+                    Const(grayToBinaryMap(LogicValue.ofInt(i, inputWidth)),
                         width: inputWidth),
               ]),
           ],
@@ -125,18 +119,15 @@ class GrayToBinaryConverter extends Module {
 
   /// Converts a Gray code value represented by [gray] to binary.
   ///
-  /// Given a [gray] value, this function returns a list of [LogicValue]
+  /// Given a [gray] value, this function return [LogicValue]
   /// representing the equivalent binary representation.
   ///
   /// For each bit in the [gray] input, starting from the least significant bit
   /// (index 0), the function calculates the corresponding binary bit based
-  /// on XOR operation with the previous binary bit. The resulting binary bits
-  /// are returned in a list.
+  /// on XOR operation with the previous binary bit.
   ///
-  /// If [gray] has no bits, an empty list is returned.
-  ///
-  /// Returns a list of [LogicValue] representing the binary representation.
-  List<LogicValue> grayToBinaryMap(LogicValue gray) {
+  /// Return [LogicValue] representing the binary representation.
+  static LogicValue grayToBinaryMap(LogicValue gray) {
     final reverseGray = gray.reversed;
     final grayList = reverseGray.toList();
     var previousBit = LogicValue.zero;
@@ -147,6 +138,6 @@ class GrayToBinaryConverter extends Module {
       return binaryBit;
     }).toList();
 
-    return binaryList;
+    return binaryList.swizzle();
   }
 }

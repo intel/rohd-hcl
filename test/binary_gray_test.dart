@@ -21,7 +21,7 @@ Future<void> main() async {
       final binToGray = BinaryToGrayConverter(binaryInput);
       await binToGray.build();
 
-      expect(binToGray.grayCode.value.toString(includeWidth: false), '100');
+      expect(binToGray.gray.value.toString(includeWidth: false), '100');
     });
 
     test('should return 0 if binary is 0 and width is 1.', () async {
@@ -29,7 +29,7 @@ Future<void> main() async {
       final binToGray = BinaryToGrayConverter(binaryInput);
       await binToGray.build();
 
-      expect(binToGray.grayCode.value.toInt(), 0);
+      expect(binToGray.gray.value.toInt(), 0);
     });
 
     test('should return 1 if binary is 1 and width is 1.', () async {
@@ -37,7 +37,7 @@ Future<void> main() async {
       final binToGray = BinaryToGrayConverter(binaryInput);
       await binToGray.build();
 
-      expect(binToGray.grayCode.value.toInt(), 1);
+      expect(binToGray.gray.value.toInt(), 1);
     });
 
     test('should return 111110 if binary is 101011 and width is 6.', () async {
@@ -46,7 +46,7 @@ Future<void> main() async {
       final binToGray = BinaryToGrayConverter(binaryInput);
       await binToGray.build();
 
-      expect(binToGray.grayCode.value.toString(includeWidth: false), '111110');
+      expect(binToGray.gray.value.toString(includeWidth: false), '111110');
     });
   });
 
@@ -56,7 +56,7 @@ Future<void> main() async {
       final grayToBin = GrayToBinaryConverter(graycode);
       await grayToBin.build();
 
-      expect(grayToBin.binaryVal.value.toString(includeWidth: false), '101');
+      expect(grayToBin.binary.value.toString(includeWidth: false), '101');
     });
 
     test('should return 0 if gray code is 0 and width is 1.', () async {
@@ -64,7 +64,7 @@ Future<void> main() async {
       final grayToBin = GrayToBinaryConverter(grayCode);
       await grayToBin.build();
 
-      expect(grayToBin.binaryVal.value.toInt(), 0);
+      expect(grayToBin.binary.value.toInt(), 0);
     });
 
     test('should return 1 if gray code is 1 and width is 1.', () async {
@@ -72,7 +72,7 @@ Future<void> main() async {
       final grayToBin = GrayToBinaryConverter(grayCode);
       await grayToBin.build();
 
-      expect(grayToBin.binaryVal.value.toInt(), 1);
+      expect(grayToBin.binary.value.toInt(), 1);
     });
 
     test('should return 101011 if gray code is 111110 and width is 6.',
@@ -81,7 +81,7 @@ Future<void> main() async {
       final grayToBin = GrayToBinaryConverter(grayCode);
       await grayToBin.build();
 
-      expect(grayToBin.binaryVal.value.toString(includeWidth: false), '101011');
+      expect(grayToBin.binary.value.toString(includeWidth: false), '101011');
     });
 
     test(
@@ -100,8 +100,8 @@ Future<void> main() async {
           await binToGray1.build();
           await binToGray2.build();
 
-          final gray1 = binToGray1.grayCode.value;
-          final gray2 = binToGray2.grayCode.value;
+          final gray1 = binToGray1.gray.value;
+          final gray2 = binToGray2.gray.value;
 
           var diff = gray1 ^ gray2;
 
