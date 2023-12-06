@@ -11,8 +11,8 @@ import 'package:rohd_hcl/rohd_hcl.dart';
 
 /// A list of [Configurator]s for ROHD-HCL components.
 List<Configurator> get componentRegistry => [
-      FifoConfigurator(),
       RotateConfigurator(),
+      FifoConfigurator(),
       PriorityArbiterConfigurator(),
       RippleCarryAdderConfigurator(),
       CarrySaveMultiplierConfigurator(),
