@@ -1,3 +1,11 @@
+// Copyright (C) 2023 Intel Corporation
+// SPDX-License-Identifier: BSD-3-Clause
+//
+// content_widget.dart
+// Implementation of the widget for viewing the main content
+//
+// 2023 December
+
 import 'dart:convert';
 
 // need this for creating a download link

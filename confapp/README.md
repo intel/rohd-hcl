@@ -1,6 +1,6 @@
 # ROHD-HCL Flutter Configuration App
 
-This is a beta web app that allows RTL generation (system verilog) based on the specific configuration.
+This is a web app that allows RTL generation (SystemVerilog) based on the specific configuration.
 
 ## Widget Tree
 

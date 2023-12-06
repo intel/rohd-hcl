@@ -1,3 +1,11 @@
+// Copyright (C) 2023 Intel Corporation
+// SPDX-License-Identifier: BSD-3-Clause
+//
+// system_verilog_cubit.dart
+// Implementation of a cubit for generating verilog
+//
+// 2023 December
+
 import 'package:bloc/bloc.dart';
 
 enum GenerationState { initial, loading, done }

@@ -1,3 +1,11 @@
+// Copyright (C) 2023 Intel Corporation
+// SPDX-License-Identifier: BSD-3-Clause
+//
+// component_cubit.dart
+// Implementation of a cubit for Configurators
+//
+// 2023 December
+
 import 'package:bloc/bloc.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
 

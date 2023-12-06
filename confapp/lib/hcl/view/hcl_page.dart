@@ -1,3 +1,11 @@
+// Copyright (C) 2023 Intel Corporation
+// SPDX-License-Identifier: BSD-3-Clause
+//
+// hcl_page.dart
+// Main page for the app
+//
+// 2023 December
+
 import 'package:confapp/hcl/cubit/system_verilog_cubit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
