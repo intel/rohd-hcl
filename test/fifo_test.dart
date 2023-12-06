@@ -626,6 +626,9 @@ void main() {
 
     Directory('tmp_test').createSync();
 
+    // await fifoTest.fifo.build();
+    // WaveDumper(fifoTest.fifo);
+
     final tracker =
         FifoTracker(fifoTest.fifo, outputFolder: 'tmp_test', dumpTable: false);
 
