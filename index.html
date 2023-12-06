@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="generator" content="made with love by dartdoc 7.0.1-wip">
+  <meta name="description" content="rohd_hcl API docs, for the Dart programming language.">
+  <title>rohd_hcl - Dart API docs</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@48,400,0,0" rel="stylesheet">
+  
+  <link rel="stylesheet" href="static-assets/github.css?v1">
+  <link rel="stylesheet" href="static-assets/styles.css?v1">
+  <link rel="icon" href="static-assets/favicon.png?v1">
+
+  
+</head>
+
+
+<body data-base-href="" data-using-base-href="false" class="light-theme">
+
+<div id="overlay-under-drawer"></div>
+
+<header id="title">
+  <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="https://intel.github.io/rohd-website/">rohd_hcl package</a></li>
+  </ol>
+  <div class="self-name">rohd_hcl</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+  <div class="toggle" id="theme-button">
+    <label for="theme">
+      <input type="checkbox" id="theme" value="light-theme">
+      <span id="dark-theme-button" class="material-symbols-outlined">
+        brightness_4
+      </span>
+      <span id="light-theme-button" class="material-symbols-outlined">
+        brightness_5
+      </span>
+    </label>
+  </div>
+</header>
+<main>
+
+  <div id="dartdoc-main-content" class="main-content">
+      
+<section class="desc markdown">
+  <p><a href="https://github.com/codespaces/new?hide_repo_select=true&amp;ref=main&amp;repo=621521356"><img src="https://github.com/codespaces/badge.svg" alt="Open in GitHub Codespaces"></a></p>
+<p><a href="https://github.com/intel/rohd-hcl/actions/workflows/general.yml"><img src="https://github.com/intel/rohd-hcl/actions/workflows/general.yml/badge.svg?event=push" alt="Tests"></a>
+<a href="https://intel.github.io/rohd-hcl/rohd_hcl/rohd_hcl-library.html"><img src="https://img.shields.io/badge/API%20Docs-generated-success" alt="API Docs"></a>
+<a href="https://discord.gg/jubxF84yGw"><img src="https://img.shields.io/discord/1001179329411166267?label=Chat" alt="Chat"></a>
+<a href="https://github.com/intel/rohd-hcl/blob/main/LICENSE"><img src="https://img.shields.io/badge/License-BSD--3-blue" alt="License"></a>
+<a href="https://github.com/intel/rohd-hcl/blob/main/CODE_OF_CONDUCT.md"><img src="https://img.shields.io/badge/Contributor%20Covenant-2.1-4baaaa.svg" alt="Contributor Covenant"></a></p>
+<h1 id="rohd-hardware-component-libary">ROHD Hardware Component Libary</h1>
+<p>A hardware component library developed with <a href="https://github.com/intel/rohd">ROHD</a>. This library aims to collect a set of reusable, configurable components that can be leveraged in other designs. These components are also intended as good examples of ROHD hardware implementations.</p>
+<p>This project is always improving and growing! In a given category, initial components are primarily focused on correctness with room for optimization from there. Please feel free to contribute or provide feedback. Check out <a href="https://github.com/intel/rohd-hcl/blob/main/CONTRIBUTING.md"><code>CONTRIBUTING</code></a> for details on how to contribute.</p>
+<p>This project is <em>not</em> intended to be the <em>only</em> place for reusable hardware components developed in ROHD. It's not even intended to be the only <em>library</em>. Contributions are welcomed to this library, but developers are also welcome to build independent packages or libraries, even if they may overlap.</p>
+<h2 id="guidelines-for-components">Guidelines for Components</h2>
+<ul>
+<li>All hardware components should be <code>Module</code>s so that they are convertible to SystemVerilog</li>
+<li>Components should be general and easily reusable</li>
+<li>Components should be as configurable as may be useful</li>
+<li>Components must be extensively tested</li>
+<li>Components must have excellent documentation and examples</li>
+<li>The first component in a category should be the simplest</li>
+<li>Focus on breadth of component types before depth in one type</li>
+<li>Add <code>extension</code>s to other classes to make component usage easier, when appropriate</li>
+</ul>
+<h2 id="component-list">Component List</h2>
+<p>See the <a href="https://github.com/intel/rohd-hcl/blob/main/doc/README.md">component list</a> for documentation on components and plans for future component development.</p>
+<p>Some examples of component categories include:</p>
+<ul>
+<li>Encoders &amp; Decoders</li>
+<li>Arbiters</li>
+<li>FIFOs &amp; Queues</li>
+<li>Find</li>
+<li>Count</li>
+<li>Sort</li>
+<li>Arithmetic</li>
+<li>Rotate</li>
+<li>Counters</li>
+<li>Pseudorandom</li>
+<li>Error checking &amp; correction</li>
+<li>Data flow</li>
+<li>Memory</li>
+<li>Standard interfaces</li>
+<li>Models</li>
+</ul>
+<hr>
+<p>Copyright (C) 2023 Intel Corporation<br>
+SPDX-License-Identifier: BSD-3-Clause</p>
+</section>
+
+
+      <section class="summary">
+          <h2>Libraries</h2>
+        <dl>
+          <dt id="rohd_hcl">
+  <span class="name"><a href="rohd_hcl/rohd_hcl-library.html">rohd_hcl</a></span> 
+
+</dt>
+<dd>
+</dd>
+
+        </dl>
+      </section>
+
+  </div> <!-- /.main-content -->
+
+  <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+    <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
+<header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+    <li><a href="https://intel.github.io/rohd-website/">rohd_hcl package</a></li>
+</ol>
+
+
+    <h5 class="hidden-xs"><span class="package-name">rohd_hcl</span> <span class="package-kind">package</span></h5>
+    <ol>
+      <li class="section-title">Libraries</li>
+      <li><a href="rohd_hcl/rohd_hcl-library.html">rohd_hcl</a></li>
+</ol>
+
+  </div>
+
+  <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+  </div>
+
+</main>
+
+<footer>
+  <span class="no-break">
+    rohd_hcl
+      0.0.1
+  </span>
+
+  
+</footer>
+
+
+
+<script src="static-assets/highlight.pack.js?v1"></script>
+<script src="static-assets/docs.dart.js"></script>
+
+
+
+</body>
+
+</html>
+

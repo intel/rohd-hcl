@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="API docs for the run method from the ApbComplianceChecker class, for the Dart programming language.">
+  <title>run method - ApbComplianceChecker class - rohd_hcl library - Dart API</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@48,400,0,0" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../../static-assets/github.css?v1">
+  <link rel="stylesheet" href="../../static-assets/styles.css?v1">
+  <link rel="icon" href="../../static-assets/favicon.png?v1">
+
+  
+</head>
+
+
+<body data-base-href="../../" data-using-base-href="false" class="light-theme">
+
+<div id="overlay-under-drawer"></div>
+
+<header id="title">
+  <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="../../index.html">rohd_hcl</a></li>
+    <li><a href="../../rohd_hcl/rohd_hcl-library.html">rohd_hcl</a></li>
+    <li><a href="../../rohd_hcl/ApbComplianceChecker-class.html">ApbComplianceChecker</a></li>
+    <li class="self-crumb">run method</li>
+  </ol>
+  <div class="self-name">run</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+  <div class="toggle" id="theme-button">
+    <label for="theme">
+      <input type="checkbox" id="theme" value="light-theme">
+      <span id="dark-theme-button" class="material-symbols-outlined">
+        brightness_4
+      </span>
+      <span id="light-theme-button" class="material-symbols-outlined">
+        brightness_5
+      </span>
+    </label>
+  </div>
+</header>
+<main>
+
+  <div
+      id="dartdoc-main-content"
+      class="main-content"
+      data-above-sidebar="rohd_hcl&#47;ApbComplianceChecker-class-sidebar.html"
+      data-below-sidebar="">
+      <div>
+<h1><span class="kind-method">run</span> method 
+</h1></div>
+
+    <section class="multi-line-signature">
+      
+  <div>
+    <ol class="annotation-list">
+        <li>@<a href="https://api.dart.dev/stable/3.2.3/dart-core/override-constant.html">override</a></li>
+    </ol>
+  </div>
+
+<span class="returntype"><a href="https://api.dart.dev/stable/3.2.3/dart-async/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter">void</span>&gt;</span></span>
+<span class="name ">run</span>(<wbr><ol class="parameter-list"><li><span class="parameter" id="run-param-phase"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd_vf/0.5.0/rohd_vf/Phase-class.html">Phase</a></span> <span class="parameter-name">phase</span></span></li>
+</ol>)
+
+      <div class="features"><span class="feature">override</span></div>
+
+    </section>
+    
+<section class="desc markdown">
+  <p>Executes this <a href="https://pub.dev/documentation/rohd_vf/0.5.0/rohd_vf/Component-class.html">Component</a>'s activities related to running the test.</p>
+<p>Overrides of <a href="../../rohd_hcl/ApbComplianceChecker/run.html">run</a> must call <code>super.run</code> in an <code>unawaited</code> fashion.
+For example:</p>
+<pre class="language-dart"><code class="language-dart">@override
+Future&lt;void&gt; run(Phase phase) async {
+  unawaited(super.run(phase));
+  // New code goes here!
+}
+</code></pre>
+</section>
+
+
+    
+<section class="summary source-code" id="source">
+  <h2><span>Implementation</span></h2>
+  <pre class="language-dart"><code class="language-dart">@override
+Future&lt;void&gt; run(Phase phase) async {
+  unawaited(super.run(phase));
+
+  &#47;&#47; wait for reset to complete
+  await intf.resetN.nextPosedge;
+
+  var accessLastCycle = false;
+
+  LogicValue? lastWrite;
+  LogicValue? lastAddr;
+  List&lt;LogicValue&gt;? lastSel;
+  LogicValue? lastWriteData;
+  LogicValue? lastStrb;
+  LogicValue? lastProt;
+  LogicValue? lastAuser;
+  LogicValue? lastWuser;
+
+  intf.clk.posedge.listen((event) {
+    final currSels = intf.sel.map((e) =&gt; e.value).toList();
+
+    if (currSels.map((e) =&gt; e.isValid).reduce((a, b) =&gt; a | b)) {
+      &#47;&#47; if any select is high
+
+      &#47;&#47; valid checks
+      if (!intf.write.value.isValid) {
+        logger.severe(&#39;Write must be valid during select.&#39;);
+      }
+      if (!intf.addr.value.isValid) {
+        logger.severe(&#39;Addr must be valid during select.&#39;);
+      }
+      if (!intf.wData.value.isValid) {
+        logger.severe(&#39;WData must be valid during select.&#39;);
+      }
+      if (!intf.strb.value.isValid) {
+        logger.severe(&#39;Strobe must be valid during select.&#39;);
+      }
+      if (!intf.enable.value.isValid) {
+        logger.severe(&#39;Enable must be valid during select.&#39;);
+      }
+
+      &#47;&#47; stability checks
+      if (intf.enable.value.isValid &amp;&amp; intf.enable.value.toBool()) {
+        if (lastWrite != null &amp;&amp; lastWrite != intf.write.value) {
+          logger.severe(&#39;Write must be stable until ready.&#39;);
+        }
+        if (lastAddr != null &amp;&amp; lastAddr != intf.addr.value) {
+          logger.severe(&#39;Addr must be stable until ready.&#39;);
+        }
+        if (lastSel != null) {
+          for (var i = 0; i &lt; intf.numSelects; i++) {
+            if (intf.sel[i].value != lastSel![i]) {
+              logger.severe(&#39;Sel must be stable until ready.&#39;);
+            }
+          }
+        }
+        if (lastWriteData != null &amp;&amp; lastWriteData != intf.wData.value) {
+          logger.severe(&#39;Write data must be stable until ready.&#39;);
+        }
+        if (lastStrb != null &amp;&amp; lastStrb != intf.strb.value) {
+          logger.severe(&#39;Strobe must be stable until ready.&#39;);
+        }
+        if (lastProt != null &amp;&amp; lastProt != intf.prot.value) {
+          logger.severe(&#39;Prot must be stable until ready.&#39;);
+        }
+        if (lastAuser != null &amp;&amp; lastAuser != intf.aUser?.value) {
+          logger.severe(&#39;AUser must be stable until ready.&#39;);
+        }
+        if (lastWuser != null &amp;&amp; lastWuser != intf.wUser?.value) {
+          logger.severe(&#39;WUser must be stable until ready.&#39;);
+        }
+
+        &#47;&#47; collect &quot;last&quot; items for next check
+        lastWrite = intf.write.value;
+        lastAddr = intf.addr.value;
+        lastSel = currSels;
+        lastWriteData = intf.wData.value;
+        lastStrb = intf.strb.value;
+        lastProt = intf.prot.value;
+        lastAuser = intf.aUser?.value;
+        lastWuser = intf.wUser?.value;
+      }
+    }
+
+    if (intf.ready.value.toBool()) {
+      lastWrite = null;
+      lastAddr = null;
+      lastSel = null;
+      lastWriteData = null;
+      lastStrb = null;
+      lastProt = null;
+      lastAuser = null;
+      lastWuser = null;
+    }
+
+    if (intf.write.value.isValid &amp;&amp;
+        !intf.write.value.toBool() &amp;&amp;
+        intf.enable.value.isValid &amp;&amp;
+        intf.enable.value.toBool() &amp;&amp;
+        intf.strb.value.isValid &amp;&amp;
+        intf.strb.value.toInt() &gt; 0) {
+      &#47;&#47; strobe must not be &quot;active&quot; during read xfer (all low during read)
+      logger.severe(&#39;Strobe must not be active during read transfer.&#39;);
+    }
+
+    if (intf.enable.value.isValid &amp;&amp;
+        intf.enable.value.toBool() &amp;&amp;
+        intf.ready.value.isValid &amp;&amp;
+        intf.ready.value.toBool()) {
+      if (accessLastCycle) {
+        logger.severe(&#39;Cannot have back-to-back accesses.&#39;);
+      }
+
+      if (intf.includeSlvErr &amp;&amp; !intf.slvErr!.value.isValid) {
+        logger.severe(&#39;SlvErr must be valid during transfer.&#39;);
+      }
+
+      accessLastCycle = true;
+    } else {
+      accessLastCycle = false;
+    }
+  });
+}</code></pre>
+</section>
+
+
+  </div> <!-- /.main-content -->
+
+  <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+    <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
+<header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+    <li><a href="../../index.html">rohd_hcl</a></li>
+    <li><a href="../../rohd_hcl/rohd_hcl-library.html">rohd_hcl</a></li>
+    <li><a href="../../rohd_hcl/ApbComplianceChecker-class.html">ApbComplianceChecker</a></li>
+    <li class="self-crumb">run method</li>
+</ol>
+
+
+    <h5>ApbComplianceChecker class</h5>
+    <div id="dartdoc-sidebar-left-content"></div>
+  </div><!--/.sidebar-offcanvas-->
+
+  <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+  </div><!--/.sidebar-offcanvas-->
+
+</main>
+
+<footer>
+  <span class="no-break">
+    rohd_hcl
+      0.0.1
+  </span>
+
+  
+</footer>
+
+
+
+<script src="../../static-assets/highlight.pack.js?v1"></script>
+<script src="../../static-assets/docs.dart.js"></script>
+
+
+
+</body>
+
+</html>
+
