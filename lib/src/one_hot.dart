@@ -18,7 +18,7 @@ class BinaryToOneHot extends Module {
 
   /// Constructs a [Module] which encodes a 2's complement number [binary]
   /// into a one-hot, or thermometer code
-  BinaryToOneHot(Logic binary) {
+  BinaryToOneHot(Logic binary, {super.name = 'binary_to_one_hot'}) {
     binary = addInput('binary', binary, width: binary.width);
     addOutput('encoded', width: pow(2, binary.width).toInt());
     encoded <= Const(1, width: encoded.width) << binary;
@@ -39,10 +39,8 @@ class OneHotToBinary extends Module {
   /// Constructs a [Module] which decodes a one-hot or thermometer-encoded
   /// number [onehot] into a 2s complement number [binary] by encoding
   /// the position of the '1'
-  OneHotToBinary(
-    Logic onehot, {
-    this.generateError = false,
-  }) {
+  OneHotToBinary(Logic onehot,
+      {this.generateError = false, super.name = 'one_hot_to_binary'}) {
     onehot = addInput('onehot', onehot, width: onehot.width);
     addOutput('binary', width: log2Ceil(onehot.width + 1));
 
@@ -75,7 +73,7 @@ class _NodeOneHotToBinary extends Module {
 
   /// Build a shorter-input module for recursion
   /// (borrowed from Chisel OHToUInt)
-  _NodeOneHotToBinary(Logic onehot) {
+  _NodeOneHotToBinary(Logic onehot) : super(name: 'node_one_hot_to_binary') {
     final wid = onehot.width;
     onehot = addInput('onehot', onehot, width: wid);
 
@@ -105,7 +103,7 @@ class TreeOneHotToBinary extends Module {
   Logic get binary => output('binary');
 
   /// Top level module for computing binary to one-hot using recursion
-  TreeOneHotToBinary(Logic one) {
+  TreeOneHotToBinary(Logic one, {super.name = 'tree_one_hot_to_binary'}) {
     final ret = _NodeOneHotToBinary(one).binary;
     addOutput('binary', width: ret.width);
     binary <= ret;
