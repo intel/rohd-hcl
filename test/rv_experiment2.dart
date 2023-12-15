@@ -296,12 +296,58 @@ class ExampleTopModule extends Module {
   }
 }
 
+/// Assume no flops in [combStage]
+ReadyAndValidInterface doStage(Logic clk, Logic reset,
+    ReadyAndValidInterface upstream, Logic Function(Logic data) combStage) {
+  final downstream = ReadyAndValidInterface();
+
+  final fifo = Fifo(
+    clk,
+    reset,
+    writeEnable: upstream.valid & upstream.ready,
+    writeData: upstream.data,
+    readEnable: downstream.valid & downstream.ready,
+    depth: 1,
+  );
+
+  downstream.valid <= ~fifo.empty;
+  upstream.ready <= ~fifo.full | downstream.ready;
+
+  downstream.data <= combStage(fifo.readData);
+
+  return downstream;
+}
+
+class ExampleTopModule2 extends Module {
+  ExampleTopModule2(Logic clk, Logic reset, ReadyAndValidInterface upstream,
+      ReadyAndValidInterface downstream)
+      : super(name: 'top') {
+    clk = addInput('clk', clk);
+    reset = addInput('reset', reset);
+
+    upstream = ReadyAndValidInterface(modify: (original) => 'up_$original')
+      ..pairConnectIO(this, upstream, PairRole.consumer);
+    downstream = ReadyAndValidInterface(modify: (original) => 'dn_$original')
+      ..pairConnectIO(this, downstream, PairRole.provider);
+
+    var tmp = upstream;
+    tmp = doStage(clk, reset, tmp, (data) => data + 1);
+    tmp = doStage(clk, reset, tmp, (data) => data + 1);
+    tmp = doStage(clk, reset, tmp, (data) => data + 1);
+    tmp = doStage(clk, reset, tmp, (data) => data + 1);
+    tmp = doStage(clk, reset, tmp, (data) => data + 1);
+    tmp = doStage(clk, reset, tmp, (data) => data + 1);
+
+    downstream.data <= tmp.data;
+  }
+}
+
 void main() async {
   final clk = SimpleClockGenerator(10).clk;
   final reset = Logic();
   final up = ReadyAndValidInterface();
   final dn = ReadyAndValidInterface();
-  final mod = ExampleTopModule(clk, reset, up, dn);
+  final mod = ExampleTopModule2(clk, reset, up, dn);
   await mod.build();
 
   // print(mod.generateSynth());
