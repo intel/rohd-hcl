@@ -38,129 +38,182 @@ void main() {
     vector.put(bin('00010100'));
     expect(grantVec.value, LogicValue.ofString('00000100'));
   });
-  test('round robin logic', () async {
-    final clk = SimpleClockGenerator(10).clk;
-    const width = 8;
-    final vector = Logic(width: width);
-    final reset = Logic();
-    final reqs = List.generate(width, (i) => vector[i]);
-    final arb = RoundRobinArbiter(reqs, clk: clk, reset: reset);
-    final grants = arb.grants.rswizzle();
-    await arb.build();
-    WaveDumper(arb);
-    unawaited(Simulator.run());
 
-    vector.put(bin('01001001'));
-    reset.put(1); //Reset arbiter
-    await clk.nextNegedge;
-    await clk.nextNegedge;
-    reset.put(0);
-    expect(grants.value, LogicValue.ofString('00000001'));
-    await clk.nextNegedge;
-    expect(grants.value, LogicValue.ofString('00001000'));
-    await clk.nextNegedge;
-    expect(grants.value, LogicValue.ofString('01000000'));
-    await clk.nextNegedge;
-    expect(grants.value, LogicValue.ofString('00000001'));
-    await clk.nextNegedge;
-    expect(grants.value, LogicValue.ofString('00001000'));
-    await clk.nextNegedge;
-    expect(grants.value, LogicValue.ofString('01000000'));
-    await clk.nextNegedge;
-    expect(grants.value, LogicValue.ofString('00000001'));
-    await clk.nextNegedge;
-    vector.put(bin('00000000'));
-    expect(grants.value, LogicValue.ofString('00000000'));
-    await clk.nextNegedge;
-    vector.put(bin('11001010'));
-    expect(grants.value, LogicValue.ofString('00000010'));
-    await clk.nextNegedge;
-    expect(grants.value, LogicValue.ofString('00001000'));
-    await clk.nextNegedge;
-    expect(grants.value, LogicValue.ofString('01000000'));
-    await clk.nextNegedge;
-    expect(grants.value, LogicValue.ofString('10000000'));
-    await clk.nextNegedge;
-    expect(grants.value, LogicValue.ofString('00000010'));
+  group('round robin', () {
+    final rrArbTypes = [
+      (name: 'mask', constructor: MaskRoundRobinArbiter.new),
+      (name: 'rotate', constructor: RotateRoundRobinArbiter.new),
+    ];
 
-    Simulator.endSimulation();
-    await Simulator.simulationEnded;
-  });
+    for (final rrArbType in rrArbTypes) {
+      group(rrArbType.name, () {
+        test('simple directed', () async {
+          final clk = SimpleClockGenerator(10).clk;
+          const width = 8;
+          final vector = Logic(width: width);
+          final reset = Logic();
+          final reqs = List.generate(width, (i) => vector[i]);
+          final arb = rrArbType.constructor(reqs, clk: clk, reset: reset);
+          final grants = arb.grants.rswizzle();
+          await arb.build();
+          unawaited(Simulator.run());
 
-  test('Round Robin dynamic request test', () async {
-    final clk = SimpleClockGenerator(10).clk;
-    const width = 8;
-    final vector = Logic(width: width);
-    final reset = Logic();
-    final reqs = List.generate(width, (i) => vector[i]);
-    final arb = RoundRobinArbiter(reqs, clk: clk, reset: reset);
-    final grants = arb.grants.rswizzle();
-    await arb.build();
-    unawaited(Simulator.run());
-    WaveDumper(arb);
+          vector.put(bin('01001001'));
+          reset.put(1); //Reset arbiter
+          await clk.nextNegedge;
+          await clk.nextNegedge;
+          reset.put(0);
+          expect(grants.value, LogicValue.ofString('00000001'));
+          await clk.nextNegedge;
+          expect(grants.value, LogicValue.ofString('00001000'));
+          await clk.nextNegedge;
+          expect(grants.value, LogicValue.ofString('01000000'));
+          await clk.nextNegedge;
+          expect(grants.value, LogicValue.ofString('00000001'));
+          await clk.nextNegedge;
+          expect(grants.value, LogicValue.ofString('00001000'));
+          await clk.nextNegedge;
+          expect(grants.value, LogicValue.ofString('01000000'));
+          await clk.nextNegedge;
+          expect(grants.value, LogicValue.ofString('00000001'));
+          await clk.nextNegedge;
+          vector.put(bin('00000000'));
+          expect(grants.value, LogicValue.ofString('00000000'));
+          await clk.nextNegedge;
+          vector.put(bin('11001010'));
+          expect(grants.value, LogicValue.ofString('00000010'));
+          await clk.nextNegedge;
+          expect(grants.value, LogicValue.ofString('00001000'));
+          await clk.nextNegedge;
+          expect(grants.value, LogicValue.ofString('01000000'));
+          await clk.nextNegedge;
+          expect(grants.value, LogicValue.ofString('10000000'));
+          await clk.nextNegedge;
+          expect(grants.value, LogicValue.ofString('00000010'));
 
-    reset.put(1); //Reset arbiter
-    await clk.nextNegedge;
-    await clk.nextNegedge;
-    reset.put(0);
-    vector.put(bin('01000111'));
-    expect(grants.value, LogicValue.ofString('00000001'));
-    await clk.nextNegedge;
-    vector.put(bin('10000101'));
-    expect(grants.value, LogicValue.ofString('00000100'));
-    await clk.nextNegedge;
-    vector.put(bin('01001000'));
-    expect(grants.value, LogicValue.ofString('00001000'));
-    await clk.nextNegedge;
-    vector.put(bin('10010001'));
-    expect(grants.value, LogicValue.ofString('00010000'));
-    await clk.nextNegedge;
-    vector.put(bin('10000000'));
-    expect(grants.value, LogicValue.ofString('10000000'));
-    await clk.nextNegedge;
-    expect(grants.value, LogicValue.ofString('10000000'));
-    vector.put(bin('10000000'));
-    expect(grants.value, LogicValue.ofString('10000000'));
-    await clk.nextNegedge;
-    vector.put(bin('10010001'));
-    expect(grants.value, LogicValue.ofString('00000001'));
-    await clk.nextNegedge;
-    expect(grants.value, LogicValue.ofString('00010000'));
-    await clk.nextNegedge;
-    expect(grants.value, LogicValue.ofString('10000000'));
-    await clk.nextNegedge;
-    expect(grants.value, LogicValue.ofString('00000001'));
-    await clk.nextNegedge;
-    expect(grants.value, LogicValue.ofString('00010000'));
-    await clk.nextNegedge;
-    expect(grants.value, LogicValue.ofString('10000000'));
+          Simulator.endSimulation();
+          await Simulator.simulationEnded;
+        });
 
-    Simulator.endSimulation();
-    await Simulator.simulationEnded;
-  });
+        test('dynamic request', () async {
+          final clk = SimpleClockGenerator(10).clk;
+          const width = 8;
+          final vector = Logic(width: width);
+          final reset = Logic();
+          final reqs = List.generate(width, (i) => vector[i]);
+          final arb = rrArbType.constructor(reqs, clk: clk, reset: reset);
+          final grants = arb.grants.rswizzle();
+          await arb.build();
+          unawaited(Simulator.run());
 
-  test('all reqs', () async {
-    final clk = SimpleClockGenerator(10).clk;
-    final reset = Logic();
-    final requests = List.generate(8, (index) => Const(1));
-    final arbiter = RoundRobinArbiter(requests, clk: clk, reset: reset);
-    await arbiter.build();
-    Simulator.setMaxSimTime(5000);
-    unawaited(Simulator.run());
-    WaveDumper(arbiter);
+          reset.put(1); //Reset arbiter
+          await clk.nextNegedge;
+          await clk.nextNegedge;
+          reset.put(0);
+          vector.put(bin('01000111'));
+          expect(grants.value, LogicValue.ofString('00000001'));
+          await clk.nextNegedge;
+          vector.put(bin('10000101'));
+          expect(grants.value, LogicValue.ofString('00000100'));
+          await clk.nextNegedge;
+          vector.put(bin('01001000'));
+          expect(grants.value, LogicValue.ofString('00001000'));
+          await clk.nextNegedge;
+          vector.put(bin('10010001'));
+          expect(grants.value, LogicValue.ofString('00010000'));
+          await clk.nextNegedge;
+          vector.put(bin('10000000'));
+          expect(grants.value, LogicValue.ofString('10000000'));
+          await clk.nextNegedge;
+          expect(grants.value, LogicValue.ofString('10000000'));
+          vector.put(bin('10000000'));
+          expect(grants.value, LogicValue.ofString('10000000'));
+          await clk.nextNegedge;
+          vector.put(bin('10010001'));
+          expect(grants.value, LogicValue.ofString('00000001'));
+          await clk.nextNegedge;
+          expect(grants.value, LogicValue.ofString('00010000'));
+          await clk.nextNegedge;
+          expect(grants.value, LogicValue.ofString('10000000'));
+          await clk.nextNegedge;
+          expect(grants.value, LogicValue.ofString('00000001'));
+          await clk.nextNegedge;
+          expect(grants.value, LogicValue.ofString('00010000'));
+          await clk.nextNegedge;
+          expect(grants.value, LogicValue.ofString('10000000'));
 
-    reset.inject(0);
-    await clk.nextNegedge;
-    reset.inject(1);
-    await clk.nextNegedge;
-    await clk.nextNegedge;
-    reset.inject(0);
-    for (var i = 0; i < 30; i++) {
-      expect(arbiter.grants.rswizzle().value.toInt(), 1 << (i % 8));
-      await clk.nextNegedge;
+          Simulator.endSimulation();
+          await Simulator.simulationEnded;
+        });
+
+        test('all reqs', () async {
+          final clk = SimpleClockGenerator(10).clk;
+          final reset = Logic();
+          final requests = List.generate(8, (index) => Const(1));
+          final arbiter =
+              rrArbType.constructor(requests, clk: clk, reset: reset);
+          await arbiter.build();
+          Simulator.setMaxSimTime(5000);
+          unawaited(Simulator.run());
+
+          reset.inject(0);
+          await clk.nextNegedge;
+          reset.inject(1);
+          await clk.nextNegedge;
+          await clk.nextNegedge;
+          reset.inject(0);
+          for (var i = 0; i < 30; i++) {
+            expect(arbiter.grants.rswizzle().value.toInt(), 1 << (i % 8));
+            await clk.nextNegedge;
+          }
+
+          Simulator.endSimulation();
+          await Simulator.simulationEnded;
+        });
+
+        test('beat pattern 2 request maintain fairness', () async {
+          final clk = SimpleClockGenerator(10).clk;
+          final reset = Logic();
+          final req = Logic()..inject(0);
+          final requests = List.generate(2, (index) => req);
+          final arbiter =
+              rrArbType.constructor(requests, clk: clk, reset: reset);
+          await arbiter.build();
+
+          WaveDumper(arbiter);
+
+          final grantCounts = List.generate(arbiter.count, (_) => 0);
+
+          for (var i = 0; i < arbiter.count; i++) {
+            final grant = arbiter.grants[i];
+            clk.negedge.listen((event) {
+              if (grant.value.isValid && grant.value.toBool()) {
+                grantCounts[i]++;
+              }
+            });
+          }
+
+          Simulator.setMaxSimTime(5000);
+          unawaited(Simulator.run());
+
+          reset.inject(0);
+          await clk.nextNegedge;
+          reset.inject(1);
+          await clk.nextNegedge;
+          await clk.nextNegedge;
+          reset.inject(0);
+          for (var i = 0; i < 32; i++) {
+            req.inject(i % 2);
+            await clk.nextPosedge;
+          }
+
+          Simulator.endSimulation();
+          await Simulator.simulationEnded;
+
+          // expect an equal number of grants between the two
+          expect(grantCounts[0], grantCounts[1]);
+        });
+      });
     }
-
-    Simulator.endSimulation();
-    await Simulator.simulationEnded;
   });
 }

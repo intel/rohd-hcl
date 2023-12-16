@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: BSD-3-Clause
 
 export 'src/adder.dart';
-export 'src/arbiter.dart';
+export 'src/arbiters/arbiters.dart';
 export 'src/carry_save_mutiplier.dart';
 export 'src/component_config/component_config.dart';
 export 'src/count.dart';
