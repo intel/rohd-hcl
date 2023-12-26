@@ -14,6 +14,7 @@ List<Configurator> get componentRegistry => [
       RotateConfigurator(),
       FifoConfigurator(),
       PriorityArbiterConfigurator(),
+      RoundRobinArbiterConfigurator(),
       RippleCarryAdderConfigurator(),
       CarrySaveMultiplierConfigurator(),
       BitonicSortConfigurator(),
