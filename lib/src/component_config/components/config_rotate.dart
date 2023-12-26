@@ -17,7 +17,7 @@ import 'package:rohd_hcl/rohd_hcl.dart';
 class RotateConfigurator extends Configurator {
   /// A knob controlling the direction of rotation.
   final directionKnob = ChoiceConfigKnob<RotateDirection>(
-    [RotateDirection.left, RotateDirection.right],
+    RotateDirection.values,
     value: RotateDirection.right,
   );
 

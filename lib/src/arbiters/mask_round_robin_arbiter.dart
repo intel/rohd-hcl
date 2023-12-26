@@ -1,7 +1,15 @@
+// Copyright (C) 2023 Intel Corporation
+// SPDX-License-Identifier: BSD-3-Clause
+//
+// mask_round_robin_arbiter.dart
+// Implementation of a masked round-robin arbiter.
+//
+// 2023
+
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
 
-/// Round Robin Arbiter.
+/// A [RoundRobinArbiter] implemented using request and grant masks.
 class MaskRoundRobinArbiter extends StatefulArbiter
     implements RoundRobinArbiter {
   /// Mask to define pending requests to be attended
@@ -51,8 +59,6 @@ class MaskRoundRobinArbiter extends StatefulArbiter
           // In case [_grants] are all 0s, requestMask gets a reset
         ], defaultItem: [
           // leave request mask as-is if there was no grant
-          //TODO: bug, shouldn't reset masks if no grants!
-          // for (var g = 0; g < count; g++) _requestMask[g] < 1,
         ])
       ])
     ]);

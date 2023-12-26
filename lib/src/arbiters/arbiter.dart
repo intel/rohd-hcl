@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: BSD-3-Clause
 //
 // arbiter.dart
-// Implementation of arbiters.
+// Definition for an interface for a generic arbiter.
 //
 // 2023 March 13
 // Author: Max Korbel <max.korbel@intel.com>

@@ -1,3 +1,6 @@
+// Copyright (C) 2023 Intel Corporation
+// SPDX-License-Identifier: BSD-3-Clause
+
 export 'arbiter.dart';
 export 'mask_round_robin_arbiter.dart';
 export 'priority_arbiter.dart';

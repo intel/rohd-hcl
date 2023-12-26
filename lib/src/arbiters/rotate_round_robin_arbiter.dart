@@ -1,7 +1,16 @@
+// Copyright (C) 2023 Intel Corporation
+// SPDX-License-Identifier: BSD-3-Clause
+//
+// rotate_round_robin_arbiter.dart
+// Implementation of arbiters.
+//
+// 2023
+// Author: Max Korbel <max.korbel@intel.com>
+
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
 
-/// A round-robin arbiter.
+/// A [RoundRobinArbiter] implemented using rotations and a [PriorityArbiter].
 class RotateRoundRobinArbiter extends StatefulArbiter
     implements RoundRobinArbiter {
   /// Creates an [Arbiter] that fairly takes turns between [requests].
