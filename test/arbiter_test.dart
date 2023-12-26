@@ -171,6 +171,32 @@ void main() {
           await Simulator.simulationEnded;
         });
 
+        test('all reqs, non-power-of-2', () async {
+          final clk = SimpleClockGenerator(10).clk;
+          final reset = Logic();
+          final requests = List.generate(5, (index) => Const(1));
+          final arbiter =
+              rrArbType.constructor(requests, clk: clk, reset: reset);
+          await arbiter.build();
+          Simulator.setMaxSimTime(5000);
+          unawaited(Simulator.run());
+
+          reset.inject(0);
+          await clk.nextNegedge;
+          reset.inject(1);
+          await clk.nextNegedge;
+          await clk.nextNegedge;
+          reset.inject(0);
+          for (var i = 0; i < 30; i++) {
+            expect(arbiter.grants.rswizzle().value.toInt(),
+                1 << (i % arbiter.count));
+            await clk.nextNegedge;
+          }
+
+          Simulator.endSimulation();
+          await Simulator.simulationEnded;
+        });
+
         test('beat pattern 2 request maintain fairness', () async {
           final clk = SimpleClockGenerator(10).clk;
           final reset = Logic();
