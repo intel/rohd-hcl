@@ -8,7 +8,6 @@
 // Author: Max Korbel <max.korbel@intel.com>
 
 import 'package:rohd_hcl/rohd_hcl.dart';
-import 'package:rohd_hcl/src/component_config/components/config_round_robin_arbiter.dart';
 
 /// A list of [Configurator]s for ROHD-HCL components.
 List<Configurator> get componentRegistry => [
