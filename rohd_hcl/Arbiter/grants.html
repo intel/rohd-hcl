@@ -60,30 +60,23 @@
 <h1><span class="kind-property">grants</span> property 
 </h1></div>
 
+        <section class="multi-line-signature">
+          
+          <a href="https://api.dart.dev/stable/3.2.4/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://pub.dev/documentation/rohd/0.5.1/rohd/Logic-class.html">Logic</a></span>&gt;</span>
+          <span class="name ">grants</span>
+          <div class="features"><span class="feature">late</span><span class="feature">final</span></div>
 
+        </section>
         
-<section id="getter">
-
-<section class="multi-line-signature">
-  
-  <span class="returntype"><a href="https://api.dart.dev/stable/3.2.3/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://pub.dev/documentation/rohd/0.5.1/rohd/Logic-class.html">Logic</a></span>&gt;</span></span>
-  <span class="name ">grants</span>
-  
-
-</section>
-
-
 <section class="desc markdown">
   <p>Each element corresponds to an arbitration grant of the correspondingly
 indexed request passed at construction time.</p>
 </section>
 
-
+        
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
-  <pre class="language-dart"><code class="language-dart">List&lt;Logic&gt; get grants =&gt; UnmodifiableListView(_grants);</code></pre>
-</section>
-
+  <pre class="language-dart"><code class="language-dart">late final List&lt;Logic&gt; grants = UnmodifiableListView(_grants);</code></pre>
 </section>
 
 

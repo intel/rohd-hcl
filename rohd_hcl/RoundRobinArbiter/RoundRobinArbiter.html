@@ -31,7 +31,7 @@
     <li><a href="../../index.html">rohd_hcl</a></li>
     <li><a href="../../rohd_hcl/rohd_hcl-library.html">rohd_hcl</a></li>
     <li><a href="../../rohd_hcl/RoundRobinArbiter-class.html">RoundRobinArbiter</a></li>
-    <li class="self-crumb">RoundRobinArbiter constructor</li>
+    <li class="self-crumb">RoundRobinArbiter factory constructor</li>
   </ol>
   <div class="self-name">RoundRobinArbiter</div>
   <form class="search navbar-right" role="search">
@@ -62,7 +62,7 @@
 
     <section class="multi-line-signature">
       
-      <span class="name ">RoundRobinArbiter</span>(<wbr><ol class="parameter-list"><li><span class="parameter" id="-param-requests"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.2.3/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://pub.dev/documentation/rohd/0.5.1/rohd/Logic-class.html">Logic</a></span>&gt;</span></span> <span class="parameter-name">requests</span>, </span></li>
+      <span class="name ">RoundRobinArbiter</span>(<wbr><ol class="parameter-list"><li><span class="parameter" id="-param-requests"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.2.4/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://pub.dev/documentation/rohd/0.5.1/rohd/Logic-class.html">Logic</a></span>&gt;</span></span> <span class="parameter-name">requests</span>, </span></li>
 <li><span class="parameter" id="-param-clk">{<span>required</span> <span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.5.1/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">clk</span>, </span></li>
 <li><span class="parameter" id="-param-reset"><span>required</span> <span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.5.1/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">reset</span>}</span></li>
 </ol>)
@@ -70,16 +70,14 @@
 
     
 <section class="desc markdown">
-  <p>Round Robin arbiter handles requests by granting each requestor
-and keeping record of requests already granted, in order to mask it until
-granting the turn of each request to start again</p>
+  <p>By default, creates an instance of a <a href="../../rohd_hcl/MaskRoundRobinArbiter-class.html">MaskRoundRobinArbiter</a>.</p>
 </section>
 
 
     
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
-  <pre class="language-dart"><code class="language-dart">RoundRobinArbiter</code></pre>
+  <pre class="language-dart"><code class="language-dart">factory RoundRobinArbiter</code></pre>
 </section>
 
 
@@ -97,7 +95,7 @@ granting the turn of each request to start again</p>
     <li><a href="../../index.html">rohd_hcl</a></li>
     <li><a href="../../rohd_hcl/rohd_hcl-library.html">rohd_hcl</a></li>
     <li><a href="../../rohd_hcl/RoundRobinArbiter-class.html">RoundRobinArbiter</a></li>
-    <li class="self-crumb">RoundRobinArbiter constructor</li>
+    <li class="self-crumb">RoundRobinArbiter factory constructor</li>
 </ol>
 
 
