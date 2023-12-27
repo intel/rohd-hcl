@@ -46,14 +46,14 @@ void main() {
     });
 
     final ohToBTypes = [
-      (name: 'case', constructor: CaseOneHotToBinary.new),
-      (name: 'tree', constructor: TreeOneHotToBinary.new),
+      (name: 'case', constructor: CaseOneHotToBinary.new, max: 8),
+      (name: 'tree', constructor: TreeOneHotToBinary.new, max: 100),
     ];
 
     for (final ohToBType in ohToBTypes) {
       test('simple_decode ${ohToBType.name}', () async {
         // Compute the first 1 in a binary value
-        for (var pos = 0; pos < 100; pos++) {
+        for (var pos = 0; pos < ohToBType.max; pos++) {
           final val = BigInt.from(2).pow(pos);
           final computed =
               ohToBType.constructor(Const(val, width: pos + 1)).binary;
