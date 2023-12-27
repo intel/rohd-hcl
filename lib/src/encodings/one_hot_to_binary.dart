@@ -18,7 +18,9 @@ abstract class OneHotToBinary extends Module {
   /// The [binary] decoded result.
   Logic get binary => output('binary');
 
-  /// The [error] in getting result.
+  /// Whether there was an [error] in getting the result.
+  ///
+  /// Only exists if [generateError] is `true`.
   Logic? get error => tryOutput('error');
 
   /// If `true`, then the [error] output will be generated.
