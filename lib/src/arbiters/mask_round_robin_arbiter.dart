@@ -84,7 +84,6 @@ class MaskRoundRobinArbiter extends StatefulArbiter
         defaultItem: [
           for (var g = 0; g < count; g++)
             grants[g] <
-                //TODO: test
                 (g == 0
                     ? requests[g]
                     : ~requests.rswizzle().getRange(0, g).or() & requests[g]),
