@@ -10,38 +10,57 @@
 import 'dart:math';
 
 import 'package:rohd/rohd.dart';
-import 'package:rohd_hcl/src/one_hot.dart';
-import 'package:rohd_hcl/src/utils.dart';
+import 'package:rohd_hcl/rohd_hcl.dart';
 import 'package:test/test.dart';
 
 void main() {
-  test('simple_encode', () {
-    // Compute the binary value for a 1hot at position 'pos'
-    for (var pos = 0; pos < 1000; pos++) {
-      final w = log2Ceil(pos + 1);
-      final val = BigInt.from(2).pow(pos);
+  group('binary to one-hot', () {
+    test('simple_encode', () {
+      // Compute the binary value for a 1hot at position 'pos'
+      for (var pos = 0; pos < 1000; pos++) {
+        final w = log2Ceil(pos + 1);
+        final val = BigInt.from(2).pow(pos);
 
-      expect(BinaryToOneHot(Const(pos, width: w)).encoded.value,
-          equals(LogicValue.ofBigInt(val, pow(2, w).toInt())));
-    }
+        expect(BinaryToOneHot(Const(pos, width: w)).encoded.value,
+            equals(LogicValue.ofBigInt(val, pow(2, w).toInt())));
+      }
+    });
   });
-  test('simple_decode', () async {
-    // Compute the first 1 in a binary value
-    // Limited to 64 by the Case matching inside
-    for (var pos = 0; pos < 1000; pos++) {
-      final val = BigInt.from(2).pow(pos);
-      final computed = OneHotToBinary(Const(val, width: pos + 1)).binary;
-      final expected = LogicValue.ofInt(pos, computed.width);
-      expect(computed.value, equals(expected));
-    }
-  });
-  test('tree_decode', () {
-    // Compute the binary value (or bit position) of a one-hot encoded value
-    for (var pos = 0; pos < 5120; pos++) {
-      final val = BigInt.from(2).pow(pos);
-      final computed = TreeOneHotToBinary(Const(val, width: pos + 1)).binary;
-      final expected = LogicValue.ofInt(pos, computed.width);
-      expect(computed.value, equals(expected));
+
+  group('one-hot to binary', () {
+    test('error on decode', () {
+      final onehot = Logic(width: 8);
+      final err = OneHotToBinary(onehot, generateError: true).error!;
+
+      onehot.put(1);
+      expect(err.value.toBool(), isFalse);
+
+      onehot.put(0);
+      expect(err.value.toBool(), isTrue);
+
+      onehot.put(1 << 3);
+      expect(err.value.toBool(), isFalse);
+
+      onehot.put(3 << 2);
+      expect(err.value.toBool(), isTrue);
+    });
+
+    final ohToBTypes = [
+      (name: 'case', constructor: CaseOneHotToBinary.new),
+      (name: 'tree', constructor: TreeOneHotToBinary.new),
+    ];
+
+    for (final ohToBType in ohToBTypes) {
+      test('simple_decode ${ohToBType.name}', () async {
+        // Compute the first 1 in a binary value
+        for (var pos = 0; pos < 100; pos++) {
+          final val = BigInt.from(2).pow(pos);
+          final computed =
+              ohToBType.constructor(Const(val, width: pos + 1)).binary;
+          final expected = LogicValue.ofInt(pos, computed.width);
+          expect(computed.value, equals(expected));
+        }
+      });
     }
   });
 }

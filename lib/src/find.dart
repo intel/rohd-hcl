@@ -21,7 +21,7 @@ class Find extends Module {
 
   /// [error] is an getter for error in Find
   /// When your find is not found it will result in error `1`
-  Logic get error => output('error');
+  Logic? get error => tryOutput('error');
 
   /// If `true`, then the [error] output will be generated.
   final bool generateError;
@@ -67,7 +67,7 @@ class Find extends Module {
     }
 
     final oneHotBinary =
-        OneHotToBinary(oneHotList.rswizzle(), generateError: true);
+        OneHotToBinary(oneHotList.rswizzle(), generateError: generateError);
     // Upon search complete, we get the position value in binary `bin` form
     final bin = oneHotBinary.binary;
     addOutput('index', width: bin.width);
@@ -75,7 +75,7 @@ class Find extends Module {
 
     if (generateError) {
       addOutput('error');
-      error <= oneHotBinary.error;
+      error! <= oneHotBinary.error!;
     }
   }
 }
