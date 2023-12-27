@@ -83,7 +83,11 @@ class MaskRoundRobinArbiter extends StatefulArbiter
         // relies on [_request] least significant bit
         defaultItem: [
           for (var g = 0; g < count; g++)
-            grants[g] < ~requests.rswizzle().getRange(0, g).or() & requests[g],
+            grants[g] <
+                //TODO: test
+                (g == 0
+                    ? requests[g]
+                    : ~requests.rswizzle().getRange(0, g).or() & requests[g]),
         ],
       ),
     ]);

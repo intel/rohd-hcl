@@ -11,6 +11,9 @@
 
 set -euo pipefail
 
+# Initialize submodules
+git submodule update --init --recursive
+
 # Install Dart SDK.
 tool/gh_codespaces/install_dart.sh
 
