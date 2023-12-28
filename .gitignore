@@ -1,3 +1,5 @@
+# NOTE: Be sure to update .pubignore as well!
+
 # Files and directories created by pub
 .dart_tool/
 .packages
@@ -7,12 +9,15 @@ pubspec.lock
 build/
 
 # Directory created by dartdoc
-doc/api/
+doc/api
 
 # Other stuff
 tmp*
 *.vcd
-.vscode/
+.vscode/*
+confapp/.vscode/*
 
 # Exceptions
 !.vscode/extensions.json
+!confapp/.vscode/extensions.json
+!confapp/.vscode/launch.json
