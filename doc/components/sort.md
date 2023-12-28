@@ -1,6 +1,6 @@
 # Sort
 
-ROHD HCL provides a module to perform sort of a list of logic. As of now, we have
+ROHD HCL provides a component to perform sort of a list of Logic. As of now, we have
 
 - [Bitonic Sort](#bitonic-sort)
 
@@ -10,7 +10,7 @@ Bitonic sort is a pipelined sorting algorithm commonly used in hardware implemen
 
 The [`BitonicSort`](https://intel.github.io/rohd-hcl/rohd_hcl/BitonicSort-class.html) module in ROHD-HCL accept four inputs: the clock `clk` signal, reset `reset` signal, a List of Logic()'s `toSort`, sort order `isAscending` and the name of the module `name`.
 
-Note that bitonic sort **MUST** have List of inputs Logic of length power of two. To sort inputs that do not have length power of two, you must pre-process the inputs ahead by padding with `Const(0)` to have inputs length of power of two. Besides, all the width in the List of `toSort` must have same width.
+Note that bitonic sort **MUST** have List of inputs Logic of length power of two. To sort inputs that do not have length power of two, you must pre-process the inputs ahead by padding with `Const(0)` to have inputs length of power of two. Additionally, all the widths in the List of `toSort` must have same width.
 
 An example is shown below sorting 4 inputs of Logic signal that have width 8-bits to descending order.
 

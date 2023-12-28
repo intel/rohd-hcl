@@ -32,7 +32,7 @@ Occupancy information can optionally be generated and provided if `generateOccup
 
 ## Example Schematic
 
-An example schematic for one configuration is viewable here: [FIFO Schematic](https://intel.github.io/rohd-hcl/FIFO.html)
+An example schematic for one configuration is viewable here: [FIFO Schematic](https://intel.github.io/rohd-hcl/Fifo.html)
 
 ## Testbench Utilities
 

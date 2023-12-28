@@ -12,19 +12,16 @@ import 'package:rohd/rohd.dart';
 
 /// Encode data to transport with Parity bits
 class ParityTransmitter extends Module {
-  /// [_output] is output of parity
-  /// (use index for accessing from outside Module)
-  late Logic _output;
-
-  /// [data] is an getter for transmit data having a parity check
+  /// The [data] including the [parity] bit (as the most significant bit).
   Logic get data => _output;
+  late final Logic _output;
 
-  /// [parity] is a getter for parity bit
+  /// The [parity] bit computed for the provided data.
   Logic get parity => output('parity');
 
-  /// Construct a [Module] for generating transmit data [data].
-  /// Combine given [Logic] named [bus] with a parity bit for error check after
-  /// transmission
+  /// Construct a [Module] for generating transmit data [data]. Combines given
+  /// [Logic] named [bus] with a [parity] bit for error check after
+  /// transmission.
   ParityTransmitter(Logic bus) {
     bus = addInput('bus', bus, width: bus.width);
     addOutput('parity');
@@ -37,29 +34,23 @@ class ParityTransmitter extends Module {
 
 /// Check for error & Receive data on transmitted data via parity
 class ParityReceiver extends Module {
-  /// [_checkError] is parity with result `0` for success and `1` for fail
+  /// [checkError] is an getter for parity result with `0` for success and `1`
+  /// for fail
+  Logic get checkError => _checkError;
   late Logic _checkError;
 
-  /// [_parityBit] is parity bit appended to transmitted data for parity
-  late Logic _parityBit;
-
-  /// [_data] is transmitted data (not containing without [_parityBit])
+  /// The original [data] (without [parity]).
+  Logic get data => _data;
   late Logic _data;
 
-  /// [checkError] is an getter for parity result with
-  /// `0` for success and `1` for fail
-  Logic get checkError => _checkError;
+  /// [parity] is an getter for parity Bit received upon data transmission
+  Logic get parity => _parity;
+  late Logic _parity;
 
-  /// [data] is an getter for transmitted/original data (without [parityBit])
-  Logic get data => _data;
-
-  /// [parityBit] is an getter for parity Bit received upon data transmission
-  Logic get parityBit => _parityBit;
-
-  /// Constructs a [Module] which encodes data transmitted via parity.
-  /// This will split the transmitted data in [bus] into 2 parts: the [data]
-  /// having the original, and the error bit upon which [checkError] is
-  /// calculated for parity error checking.
+  /// Constructs a [Module] which checks data that has been transmitted with
+  /// parity. This will split the transmitted data in [bus] into 2 parts: the
+  /// original [data], and the error bit upon which [checkError] is calculated
+  /// for parity error checking.
   ParityReceiver(Logic bus) {
     bus = addInput('bus', bus, width: bus.width);
 
@@ -69,11 +60,11 @@ class ParityReceiver extends Module {
     final parityError = ~transmittedData.xor().eq(parityBit);
 
     _data = addOutput('transmittedData', width: transmittedData.width);
-    _parityBit = addOutput('parityBit', width: parityBit.width);
+    _parity = addOutput('parity', width: parityBit.width);
     _checkError = addOutput('checkError', width: parityError.width);
 
     _data <= transmittedData;
-    _parityBit <= parityBit;
+    _parity <= parityBit;
     _checkError <= parityError;
   }
 }
