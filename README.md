@@ -1,5 +1,6 @@
 [![Open in GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://github.com/codespaces/new?hide_repo_select=true&ref=main&repo=621521356)
 
+[![Generator Web App](https://img.shields.io/badge/Generator_Web_App-live-brightgreen)](https://intel.github.io/rohd-hcl/confapp/)
 [![Tests](https://github.com/intel/rohd-hcl/actions/workflows/general.yml/badge.svg?event=push)](https://github.com/intel/rohd-hcl/actions/workflows/general.yml)
 [![API Docs](https://img.shields.io/badge/API%20Docs-generated-success)](https://intel.github.io/rohd-hcl/rohd_hcl/rohd_hcl-library.html)
 [![Chat](https://img.shields.io/discord/1001179329411166267?label=Chat)](https://discord.gg/jubxF84yGw)
@@ -9,6 +10,8 @@
 # ROHD Hardware Component Libary
 
 A hardware component library developed with [ROHD](https://github.com/intel/rohd). This library aims to collect a set of reusable, configurable components that can be leveraged in other designs. These components are also intended as good examples of ROHD hardware implementations.
+
+Check out the [generator web app](https://intel.github.io/rohd-hcl/confapp/), which lets you explore some of the available components, configure them, and generate SystemVerilog.
 
 This project is always improving and growing! In a given category, initial components are primarily focused on correctness with room for optimization from there. Please feel free to contribute or provide feedback. Check out [`CONTRIBUTING`](https://github.com/intel/rohd-hcl/blob/main/CONTRIBUTING.md) for details on how to contribute.
 

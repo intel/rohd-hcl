@@ -10,7 +10,7 @@ A `StatefulArbiter` is an `Arbiter` which can hold state, and thus requires a `c
 
 The [`PriorityArbiter`](https://intel.github.io/rohd-hcl/rohd_hcl/PriorityArbiter-class.html) is a combinational (stateless) arbiter that always grants to the lowest-indexed request.
 
-[PriorityArbiter Schematic](https://intel.github.io/rohd-hcl/Priority_Arbiter.html)
+[PriorityArbiter Schematic](https://intel.github.io/rohd-hcl/PriorityArbiter.html)
 
 ## Round Robin Arbiter
 
