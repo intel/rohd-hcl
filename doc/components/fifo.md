@@ -18,13 +18,13 @@ The `empty` signal indicates when nothing is in the FIFO.  The `full` signal ind
 
 ## Bypass
 
-THe FIFO optionally supports a bypass if `generateBypass` is set.  When generated, if the FIFO is empty and both `readEnable` and `writeEnable` are high at the same time, then the FIFO will do a bypass of the internal storage, allowing for a combinational passthrough.
+The FIFO optionally supports a bypass if `generateBypass` is set.  When generated, if the FIFO is empty and both `readEnable` and `writeEnable` are high at the same time, then the FIFO will do a bypass of the internal storage, allowing for a combinational passthrough.
 
 ## Errors
 
 Error information can optionally be generated and provided if `generateError` is set.  If data is popped when the FIFO is empty, or pushed when the FIFO is full, then the `error` signal will assert.
 
-There is no guarantee that the `error` signal will hold high once asserted once.  Behavior after an error condition is undefined.
+There is no guarantee that the `error` signal will hold high once asserted.  Behavior after an error condition is undefined.
 
 ## Occupancy
 
