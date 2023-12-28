@@ -98,10 +98,10 @@
           <span class="name"><a href="../rohd_hcl/ParityReceiver/ParityReceiver.html">ParityReceiver</a></span><span class="signature">(<span class="parameter" id="-param-bus"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.5.1/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">bus</span></span>)</span>
         </dt>
         <dd>
-          Constructs a <a href="https://pub.dev/documentation/rohd/0.5.1/rohd/Module-class.html">Module</a> which encodes data transmitted via parity.
-This will split the transmitted data in <code>bus</code> into 2 parts: the <a href="../rohd_hcl/ParityReceiver/data.html">data</a>
-having the original, and the error bit upon which <a href="../rohd_hcl/ParityReceiver/checkError.html">checkError</a> is
-calculated for parity error checking.
+          Constructs a <a href="https://pub.dev/documentation/rohd/0.5.1/rohd/Module-class.html">Module</a> which checks data that has been transmitted with
+parity. This will split the transmitted data in <code>bus</code> into 2 parts: the
+original <a href="../rohd_hcl/ParityReceiver/data.html">data</a>, and the error bit upon which <a href="../rohd_hcl/ParityReceiver/checkError.html">checkError</a> is calculated
+for parity error checking.
         </dd>
     </dl>
   </section>
@@ -116,8 +116,8 @@ calculated for parity error checking.
 
 </dt>
 <dd>
-  <a href="../rohd_hcl/ParityReceiver/checkError.html">checkError</a> is an getter for parity result with
-<code>0</code> for success and <code>1</code> for fail
+  <a href="../rohd_hcl/ParityReceiver/checkError.html">checkError</a> is an getter for parity result with <code>0</code> for success and <code>1</code>
+for fail
   <div class="features"><span class="feature">no setter</span></div>
 
 </dd>
@@ -128,7 +128,7 @@ calculated for parity error checking.
 
 </dt>
 <dd>
-  <a href="../rohd_hcl/ParityReceiver/data.html">data</a> is an getter for transmitted/original data (without <a href="../rohd_hcl/ParityReceiver/parityBit.html">parityBit</a>)
+  The original <a href="../rohd_hcl/ParityReceiver/data.html">data</a> (without <a href="../rohd_hcl/ParityReceiver/parity.html">parity</a>).
   <div class="features"><span class="feature">no setter</span></div>
 
 </dd>
@@ -225,13 +225,13 @@ signals.
 
 </dd>
 
-        <dt id="parityBit" class="property">
-  <span class="name"><a href="../rohd_hcl/ParityReceiver/parityBit.html">parityBit</a></span>
+        <dt id="parity" class="property">
+  <span class="name"><a href="../rohd_hcl/ParityReceiver/parity.html">parity</a></span>
   <span class="signature">&#8594; <a href="https://pub.dev/documentation/rohd/0.5.1/rohd/Logic-class.html">Logic</a></span> 
 
 </dt>
 <dd>
-  <a href="../rohd_hcl/ParityReceiver/parityBit.html">parityBit</a> is an getter for parity Bit received upon data transmission
+  <a href="../rohd_hcl/ParityReceiver/parity.html">parity</a> is an getter for parity Bit received upon data transmission
   <div class="features"><span class="feature">no setter</span></div>
 
 </dd>

@@ -84,6 +84,9 @@
   assert(decoded[&#39;name&#39;] == name, &#39;Expect name to be the same.&#39;);
 
   for (final decodedKnob in (decoded[&#39;knobs&#39;] as Map).entries) {
+    assert(knobs.containsKey(decodedKnob.key),
+        &#39;Expect knobs in JSON to exist in configurator.&#39;);
+
     knobs[decodedKnob.key]!
         .loadJson(decodedKnob.value as Map&lt;String, dynamic&gt;);
   }

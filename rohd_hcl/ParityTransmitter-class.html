@@ -98,9 +98,9 @@
           <span class="name"><a href="../rohd_hcl/ParityTransmitter/ParityTransmitter.html">ParityTransmitter</a></span><span class="signature">(<span class="parameter" id="-param-bus"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.5.1/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">bus</span></span>)</span>
         </dt>
         <dd>
-          Construct a <a href="https://pub.dev/documentation/rohd/0.5.1/rohd/Module-class.html">Module</a> for generating transmit data <a href="../rohd_hcl/ParityTransmitter/data.html">data</a>.
-Combine given <a href="https://pub.dev/documentation/rohd/0.5.1/rohd/Logic-class.html">Logic</a> named <code>bus</code> with a parity bit for error check after
-transmission
+          Construct a <a href="https://pub.dev/documentation/rohd/0.5.1/rohd/Module-class.html">Module</a> for generating transmit data <a href="../rohd_hcl/ParityTransmitter/data.html">data</a>. Combines given
+<a href="https://pub.dev/documentation/rohd/0.5.1/rohd/Logic-class.html">Logic</a> named <code>bus</code> with a <a href="../rohd_hcl/ParityTransmitter/parity.html">parity</a> bit for error check after
+transmission.
         </dd>
     </dl>
   </section>
@@ -115,7 +115,7 @@ transmission
 
 </dt>
 <dd>
-  <a href="../rohd_hcl/ParityTransmitter/data.html">data</a> is an getter for transmit data having a parity check
+  The <a href="../rohd_hcl/ParityTransmitter/data.html">data</a> including the <a href="../rohd_hcl/ParityTransmitter/parity.html">parity</a> bit (as the most significant bit).
   <div class="features"><span class="feature">no setter</span></div>
 
 </dd>
@@ -218,7 +218,7 @@ signals.
 
 </dt>
 <dd>
-  <a href="../rohd_hcl/ParityTransmitter/parity.html">parity</a> is a getter for parity bit
+  The <a href="../rohd_hcl/ParityTransmitter/parity.html">parity</a> bit computed for the provided data.
   <div class="features"><span class="feature">no setter</span></div>
 
 </dd>

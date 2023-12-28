@@ -75,8 +75,10 @@
   <p>Constructs a <a href="https://pub.dev/documentation/rohd/0.5.1/rohd/Module-class.html">Module</a> to sort list of <a href="https://pub.dev/documentation/rohd/0.5.1/rohd/Logic-class.html">Logic</a>.</p>
 <p>The sorting module will recursively split inputs into a bitonic sequence
 perform sorting based on <a href="../../rohd_hcl/Sort/isAscending.html">isAscending</a> flag given to the module.</p>
-<p>The below example shows a simple use case to sort four inputs
-in ascending order:</p>
+<p>All elements of <a href="../../rohd_hcl/Sort/toSort.html">toSort</a> must be the same width, and the length must be a
+power of two.</p>
+<p>The below example shows a simple use case to sort four inputs in ascending
+order:</p>
 <pre class="language-dart"><code class="language-dart">final toSort = &lt;Logic&gt;[
   Const(0, width: 8);
   Const(3, width: 8);
