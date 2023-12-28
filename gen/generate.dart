@@ -15,9 +15,10 @@ import 'dart:io';
 import 'package:rohd_hcl/src/component_config/components/component_registry.dart';
 
 void main() async {
+  Directory('build').createSync(recursive: true);
   for (final configurator in componentRegistry) {
     final sv = await configurator.generateSV();
-    final name = configurator.sanitaryName;
+    final name = configurator.createModule().definitionName;
     File('build/$name.v').writeAsStringSync(sv);
   }
 }
