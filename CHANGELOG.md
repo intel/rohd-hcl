@@ -1,3 +1,3 @@
-## 0.0.1
+## 0.1.0
 
-- Not yet released
+- The first formally versioned release of ROHD-HCL.
