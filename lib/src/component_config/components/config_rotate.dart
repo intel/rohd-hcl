@@ -9,8 +9,6 @@
 import 'dart:collection';
 
 import 'package:rohd/rohd.dart';
-// ignore: implementation_imports
-import 'package:rohd/src/utilities/simcompare.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
 
 /// A [Configurator] for rotation.
@@ -52,10 +50,4 @@ class RotateConfigurator extends Configurator {
       maxAmount: maxAmountKnob.value,
     );
   }
-
-  @override
-  List<Vector> get exampleTestVectors => [
-        for (var i = 0; i <= 9; i++)
-          Vector({'original': bin('11000'), 'rotate_amount': i}, {}),
-      ];
 }
