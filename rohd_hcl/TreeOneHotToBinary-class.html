@@ -62,7 +62,7 @@
 
     
 <section class="desc markdown">
-  <p>Module for binary-tree recursion for decoding one-hot</p>
+  <p>Module for binary-tree recursion for decoding one-hot.</p>
 </section>
 
 
@@ -74,6 +74,7 @@
     <ul class="gt-separated dark clazz-relationships">
       <li><a href="https://api.dart.dev/stable/3.2.4/dart-core/Object-class.html">Object</a></li>
         <li><a href="https://pub.dev/documentation/rohd/0.5.1/rohd/Module-class.html">Module</a></li>
+        <li><a href="../rohd_hcl/OneHotToBinary-class.html">OneHotToBinary</a></li>
       <li>TreeOneHotToBinary</li>
     </ul>
   </dd>
@@ -95,7 +96,7 @@
 
     <dl class="constructor-summary-list">
         <dt id="TreeOneHotToBinary" class="callable">
-          <span class="name"><a href="../rohd_hcl/TreeOneHotToBinary/TreeOneHotToBinary.html">TreeOneHotToBinary</a></span><span class="signature">(<span class="parameter" id="-param-one"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.5.1/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">one</span>, </span><span class="parameter" id="-param-name">{<span class="type-annotation"><a href="https://api.dart.dev/stable/3.2.4/dart-core/String-class.html">String</a></span> <span class="parameter-name">name</span> = <span class="default-value">&#39;tree_one_hot_to_binary&#39;</span>}</span>)</span>
+          <span class="name"><a href="../rohd_hcl/TreeOneHotToBinary/TreeOneHotToBinary.html">TreeOneHotToBinary</a></span><span class="signature">(<span class="parameter" id="-param-onehot"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.5.1/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">onehot</span>, </span><span class="parameter" id="-param-name">{<span class="type-annotation"><a href="https://api.dart.dev/stable/3.2.4/dart-core/String-class.html">String</a></span> <span class="parameter-name">name</span> = <span class="default-value">&#39;tree_one_hot_to_binary&#39;</span>}</span>)</span>
         </dt>
         <dd>
           Top level module for computing binary to one-hot using recursion
@@ -103,18 +104,18 @@
     </dl>
   </section>
 
-    <section class="summary offset-anchor" id="instance-properties">
+    <section class="summary offset-anchor inherited" id="instance-properties">
       <h2>Properties</h2>
 
       <dl class="properties">
-        <dt id="binary" class="property">
-  <span class="name"><a href="../rohd_hcl/TreeOneHotToBinary/binary.html">binary</a></span>
+        <dt id="binary" class="property inherited">
+  <span class="name"><a href="../rohd_hcl/OneHotToBinary/binary.html">binary</a></span>
   <span class="signature">&#8594; <a href="https://pub.dev/documentation/rohd/0.5.1/rohd/Logic-class.html">Logic</a></span> 
 
 </dt>
-<dd>
-  The <a href="../rohd_hcl/TreeOneHotToBinary/binary.html">binary</a> decoded result.
-  <div class="features"><span class="feature">no setter</span></div>
+<dd class="inherited">
+  The <a href="../rohd_hcl/OneHotToBinary/binary.html">binary</a> decoded result.
+  <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
 
 </dd>
 
@@ -127,6 +128,28 @@
   The definition name of this <a href="https://pub.dev/documentation/rohd/0.5.1/rohd/Module-class.html">Module</a> used when instantiating instances in
 generated code.
   <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="error" class="property inherited">
+  <span class="name"><a href="../rohd_hcl/OneHotToBinary/error.html">error</a></span>
+  <span class="signature">&#8594; <a href="https://pub.dev/documentation/rohd/0.5.1/rohd/Logic-class.html">Logic</a>?</span> 
+
+</dt>
+<dd class="inherited">
+  Whether there was an <a href="../rohd_hcl/OneHotToBinary/error.html">error</a> in getting the result.
+  <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="generateError" class="property inherited">
+  <span class="name"><a href="../rohd_hcl/OneHotToBinary/generateError.html">generateError</a></span>
+  <span class="signature">&#8594; <a href="https://api.dart.dev/stable/3.2.4/dart-core/bool-class.html">bool</a></span> 
+
+</dt>
+<dd class="inherited">
+  If <code>true</code>, then the <a href="../rohd_hcl/OneHotToBinary/error.html">error</a> output will be generated.
+  <div class="features"><span class="feature">final</span><span class="feature">inherited</span></div>
 
 </dd>
 
@@ -184,6 +207,17 @@ signals.
 <dd class="inherited">
   The name of this <a href="https://pub.dev/documentation/rohd/0.5.1/rohd/Module-class.html">Module</a>.
   <div class="features"><span class="feature">final</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="onehot" class="property inherited">
+  <span class="name"><a href="../rohd_hcl/OneHotToBinary/onehot.html">onehot</a></span>
+  <span class="signature">&#8594; <a href="https://pub.dev/documentation/rohd/0.5.1/rohd/Logic-class.html">Logic</a></span> 
+
+</dt>
+<dd class="inherited">
+  The <a href="https://pub.dev/documentation/rohd/0.5.1/rohd/Module/input.html">input</a> of this instance.
+  <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
 
 </dd>
 

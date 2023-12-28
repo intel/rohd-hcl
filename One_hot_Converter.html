@@ -36,10 +36,10 @@
       var exmpl = `{
   "creator": "Yosys 0.29+11 (git sha1 d82bae32b, clang 10.0.0-4ubuntu1 -fPIC -Os)",
   "modules": {
-    "OneHotToBinary": {
+    "CaseOneHotToBinary": {
       "attributes": {
         "cells_not_processed": 1,
-        "src": "One_hot_Converter.v:7.1-33.27"
+        "src": "One_hot_Converter.v:7.1-33.31"
       },
       "ports": {
         "onehot": {
@@ -48,7 +48,7 @@
         },
         "binary": {
           "direction": "output",
-          "bits": [ 6, 7, 8 ]
+          "bits": [ 6, 7 ]
         }
       },
       "cells": {
@@ -57,7 +57,7 @@
           "type": "$pmux",
           "parameters": {
             "S_WIDTH": 3,
-            "WIDTH": 3
+            "WIDTH": 2
           },
           "attributes": {
             "full_case": 1,
@@ -71,10 +71,10 @@
             "Y": "output"
           },
           "connections": {
-            "A": [ "0", "0", "0" ],
-            "B": [ "1", "1", "0", "0", "1", "0", "1", "0", "0" ],
-            "S": [ 9, 10, 11 ],
-            "Y": [ 6, 7, 8 ]
+            "A": [ "0", "0" ],
+            "B": [ "1", "1", "0", "1", "1", "0" ],
+            "S": [ 8, 9, 10 ],
+            "Y": [ 6, 7 ]
           }
         },
         "$procmux$4_CMP0": {
@@ -100,7 +100,7 @@
           "connections": {
             "A": [ 2, 3, 4, 5 ],
             "B": [ "0", "0", "0", "1" ],
-            "Y": [ 9 ]
+            "Y": [ 8 ]
           }
         },
         "$procmux$5_CMP0": {
@@ -126,7 +126,7 @@
           "connections": {
             "A": [ 2, 3, 4, 5 ],
             "B": [ "0", "0", "1", "0" ],
-            "Y": [ 10 ]
+            "Y": [ 9 ]
           }
         },
         "$procmux$6_CMP0": {
@@ -152,32 +152,32 @@
           "connections": {
             "A": [ 2, 3, 4, 5 ],
             "B": [ "0", "1", "0", "0" ],
-            "Y": [ 11 ]
+            "Y": [ 10 ]
           }
         }
       },
       "netnames": {
         "$procmux$4_CMP": {
           "hide_name": 1,
-          "bits": [ 9 ],
+          "bits": [ 8 ],
           "attributes": {
           }
         },
         "$procmux$5_CMP": {
           "hide_name": 1,
-          "bits": [ 10 ],
+          "bits": [ 9 ],
           "attributes": {
           }
         },
         "$procmux$6_CMP": {
           "hide_name": 1,
-          "bits": [ 11 ],
+          "bits": [ 10 ],
           "attributes": {
           }
         },
         "binary": {
           "hide_name": 0,
-          "bits": [ 6, 7, 8 ],
+          "bits": [ 6, 7 ],
           "attributes": {
             "src": "One_hot_Converter.v:9.20-9.26"
           }

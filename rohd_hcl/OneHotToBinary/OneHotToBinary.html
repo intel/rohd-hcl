@@ -31,7 +31,7 @@
     <li><a href="../../index.html">rohd_hcl</a></li>
     <li><a href="../../rohd_hcl/rohd_hcl-library.html">rohd_hcl</a></li>
     <li><a href="../../rohd_hcl/OneHotToBinary-class.html">OneHotToBinary</a></li>
-    <li class="self-crumb">OneHotToBinary constructor</li>
+    <li class="self-crumb">OneHotToBinary factory constructor</li>
   </ol>
   <div class="self-name">OneHotToBinary</div>
   <form class="search navbar-right" role="search">
@@ -70,16 +70,15 @@
 
     
 <section class="desc markdown">
-  <p>Constructs a <a href="https://pub.dev/documentation/rohd/0.5.1/rohd/Module-class.html">Module</a> which decodes a one-hot or thermometer-encoded
-number <code>onehot</code> into a 2s complement number <a href="../../rohd_hcl/OneHotToBinary/binary.html">binary</a> by encoding
-the position of the '1'</p>
+  <p>By default, creates an instance of a <a href="../../rohd_hcl/CaseOneHotToBinary-class.html">CaseOneHotToBinary</a> for smaller
+widths and a <a href="../../rohd_hcl/TreeOneHotToBinary-class.html">TreeOneHotToBinary</a> for larger widths.</p>
 </section>
 
 
     
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
-  <pre class="language-dart"><code class="language-dart">OneHotToBinary</code></pre>
+  <pre class="language-dart"><code class="language-dart">factory OneHotToBinary</code></pre>
 </section>
 
 
@@ -97,7 +96,7 @@ the position of the '1'</p>
     <li><a href="../../index.html">rohd_hcl</a></li>
     <li><a href="../../rohd_hcl/rohd_hcl-library.html">rohd_hcl</a></li>
     <li><a href="../../rohd_hcl/OneHotToBinary-class.html">OneHotToBinary</a></li>
-    <li class="self-crumb">OneHotToBinary constructor</li>
+    <li class="self-crumb">OneHotToBinary factory constructor</li>
 </ol>
 
 
