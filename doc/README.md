@@ -55,6 +55,7 @@ Some in-development items will have opened issues, as well. Feel free to create 
   - ECC
   - CRC
   - [Parity](./components/parity.md)
+  - Interleaving
 - Data flow
   - Ready/Valid
   - Connect/Disconnect

@@ -10,7 +10,6 @@
 
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
-import 'package:rohd_hcl/src/parity.dart';
 import 'package:test/test.dart';
 
 void main() {
