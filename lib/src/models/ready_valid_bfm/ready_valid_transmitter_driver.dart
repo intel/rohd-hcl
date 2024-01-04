@@ -9,20 +9,26 @@ import 'package:rohd_vf/rohd_vf.dart';
 /// An [Agent] for transmitting over a ready/valid protocol.
 class ReadyValidTransmitterDriver
     extends PendingClockedDriver<ReadyValidPacket> {
-  final Logic clk;
+  /// Active-high reset.
   final Logic reset;
+
+  /// Ready signal.
   final Logic ready;
+
+  /// Valid signal.
   final Logic valid;
+
+  /// Data being transmitted.
   final Logic data;
 
   /// Probability (from 0 to 1) of blocking a valid from being driven.
   ///
-  /// 0 -> never block, send transactions as soon as possible
+  /// 0 -> never block, send transactions as soon as possible.
   final double blockRate;
 
   /// Creates an [Agent] for transmitting over a ready/valid protocol.
   ReadyValidTransmitterDriver({
-    required this.clk,
+    required super.clk,
     required this.reset,
     required this.ready,
     required this.valid,
@@ -32,7 +38,7 @@ class ReadyValidTransmitterDriver
     this.blockRate = 0,
     String name = 'readyValidTransmitterDriver',
     super.dropDelayCycles = 30,
-  }) : super(name, parent, clk: clk);
+  }) : super(name, parent);
 
   @override
   Future<void> run(Phase phase) async {

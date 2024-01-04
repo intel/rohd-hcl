@@ -1,3 +1,12 @@
+// Copyright (C) 2024 Intel Corporation
+// SPDX-License-Identifier: BSD-3-Clause
+//
+// ready_valid_monitor.dart
+// A monitor for ready/valid protocol.
+//
+// 2024 January 5
+// Author: Max Korbel <max.korbel@intel.com>
+
 import 'dart:async';
 
 import 'package:rohd/rohd.dart';
@@ -6,10 +15,19 @@ import 'package:rohd_vf/rohd_vf.dart';
 
 /// A [Monitor] for ready/valid protocol.
 class ReadyValidMonitor extends Monitor<ReadyValidPacket> {
+  /// The clock.
   final Logic clk;
+
+  /// Active-high reset.
   final Logic reset;
+
+  /// Ready signal.
   final Logic ready;
+
+  /// Valid signal.
   final Logic valid;
+
+  /// Data being transmitted.
   final Logic data;
 
   /// Creates a new [ReadyValidMonitor].
@@ -35,11 +53,7 @@ class ReadyValidMonitor extends Monitor<ReadyValidPacket> {
             ' but found ready=${ready.value} and valid=${valid.value}');
       } else if (ready.previousValue!.toBool() &&
           valid.previousValue!.toBool()) {
-        if (data.previousValue == null) {
-          logger.severe('WTF'); //TODO
-        } else {
-          add(ReadyValidPacket(data.previousValue!));
-        }
+        add(ReadyValidPacket(data.previousValue!));
       }
     });
   }

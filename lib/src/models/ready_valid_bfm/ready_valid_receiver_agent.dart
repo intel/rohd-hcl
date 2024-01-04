@@ -1,3 +1,12 @@
+// Copyright (C) 2024 Intel Corporation
+// SPDX-License-Identifier: BSD-3-Clause
+//
+// ready_valid_receiver_agent.dart
+// An agent for receiving over a ready/valid protocol.
+//
+// 2024 January 5
+// Author: Max Korbel <max.korbel@intel.com>
+
 import 'dart:async';
 import 'dart:math';
 
@@ -9,7 +18,7 @@ import 'package:rohd_vf/rohd_vf.dart';
 class ReadyValidReceiverAgent extends ReadyValidAgent {
   /// Probability (from 0 to 1) of blocking a ready from being driven.
   ///
-  /// 0 -> never block, accept transactions as soon as possible
+  /// 0 -> never block, accept transactions as soon as possible.
   final double blockRate;
 
   /// Creates an [Agent] for receiving over a ready/valid protocol.
