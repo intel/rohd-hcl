@@ -597,7 +597,7 @@ void main() {
     });
   });
 
-  test('empty sampling time', () async {
+  test('sampling time', () async {
     final fifoTest = FifoTest((clk, reset, wrEn, wrData, rdEn, rdData) async {
       wrEn.inject(1);
       wrData.inject(0x111);
@@ -613,7 +613,7 @@ void main() {
       await clk.nextPosedge;
     });
 
-    FifoChecker(fifoTest.fifo, enableEndOfTestEmptyCheck: false);
+    FifoChecker(fifoTest.fifo, parent: fifoTest);
 
     fifoTest.printLevel = Level.OFF;
 
