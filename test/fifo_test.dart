@@ -597,6 +597,30 @@ void main() {
     });
   });
 
+  test('sampling time', () async {
+    final fifoTest = FifoTest((clk, reset, wrEn, wrData, rdEn, rdData) async {
+      wrEn.inject(1);
+      wrData.inject(0x111);
+
+      await clk.nextPosedge;
+      await clk.nextPosedge;
+      wrEn.inject(0);
+      rdEn.inject(1);
+      await clk.nextPosedge;
+      await clk.nextPosedge;
+      rdEn.inject(0);
+      await clk.nextPosedge;
+      await clk.nextPosedge;
+    });
+
+    FifoChecker(fifoTest.fifo, parent: fifoTest);
+
+    fifoTest.printLevel = Level.OFF;
+
+    await fifoTest.start();
+    expect(fifoTest.failureDetected, false);
+  });
+
   test('fifo logger', () async {
     final fifoTest = FifoTest((clk, reset, wrEn, wrData, rdEn, rdData) async {
       wrEn.put(1);
