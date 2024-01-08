@@ -87,8 +87,10 @@ compare final states with expected states.</p>
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">@override
 void check() {
-  if (!fifo.empty.value.toBool()) {
-    if (enableEndOfTestEmptyCheck) {
+  if (enableEndOfTestEmptyCheck) {
+    if (!fifo.empty.value.isValid) {
+      logger.severe(&#39;Fifo empty signal has invalid value at end of test.&#39;);
+    } else if (!fifo.empty.value.toBool()) {
       logger.severe(&#39;Fifo $fifo is not empty at the end of the test.&#39;);
     }
   }
