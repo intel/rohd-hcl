@@ -4,11 +4,11 @@ The APB BFM is a collection of [ROHD-VF](https://github.com/intel/rohd-vf) compo
 
 The main two components are the `ApbRequesterAgent` and the `ApbCompleterAgent`, which behave like a "requester" and "completer" as described in the APB spec, respectively. The `ApbRequesterAgent` has a standard `Sequencer` that accepts `ApbPacket`s to be driven out to the completer.  The `ApbCompleterAgent` has default behavior and accepts a `MemoryStorage` instance as a memory model. See the API docs for more details on how to use each of these components, which both have substantial configurability to control behavior.
 
-A `ApbMonitor` is also included, which implements the standard `Monitor` and provides a stream of `ApbPacket`s monitored on positive edges of the clock.  The `ApbTracker` can be used to log all items detected by the monitor by implementing the standard `Tracker` API (log file or JSON both supported).
+An `ApbMonitor` is also included, which implements the standard `Monitor` and provides a stream of `ApbPacket`s monitored on positive edges of the clock.  The `ApbTracker` can be used to log all items detected by the monitor by implementing the standard `Tracker` API (log file or JSON both supported).
 
 Finally, a `ApbComplianceChecker` monitors an `ApbInterface` for a subset of the rules described in the APB specification. Errors are flagged using the `severe` log messages, as is standard for errors in ROHD-VF.
 
-The unit tests in `apb_test.dart`, which have a completer and requester communicating with each other, are a good example for setting up the APB BFM.
+The unit tests in `apb_bfm_test.dart`, which have a completer and requester communicating with each other, are a good example for setting up the APB BFM.
 
 ## Unsupported features
 

@@ -84,6 +84,7 @@ Some in-development items will have opened issues, as well. Feel free to create 
   - HBM
 - Models
   - [APB](./components/apb_bfm.md)
+  - [Ready/Valid](./components/ready_valid_bfm.md)
 
 ----------------
 
