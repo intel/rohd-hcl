@@ -22,7 +22,7 @@ class BinaryToGrayConverter extends Module {
   /// This [Logic] value represents the Gray code representation of the binary
   /// input provided to the converter. It can be accessed using
   /// the [gray] getter.
-  Logic get gray => output('gray_code');
+  Logic get gray => output('gray');
 
   /// Creates a [BinaryToGrayConverter] instance with the specified binary
   /// input.
