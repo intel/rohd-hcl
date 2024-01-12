@@ -134,6 +134,21 @@ Here is an example of a recommended file header template:
 // Author: Max Korbel <max.korbel@intel.com>
 ```
 
+#### Adding a New Component
+
+To add a new component to the library, you can follow the steps below, referencing other components as examples.
+
+1. Create the dart code for constructing the module in `lib/src`.
+1. Create unit tests in `test/`.
+1. Create a `Configurator` for the component (enabling things like schematic generation, web-app generation, etc.).
+   1. Create a new config in `lib/src/component_config/commponents`.
+   1. Update the component registry in `lib/src/component_config/components/component_registry.dart`.
+1. Add documentation to `doc/components/name.md`.
+
+If you would like to generate and view schematics locally, you'll need to have access to some tools.  You can either use the dev container (via Codespaces or VS Code) or install the software from `tool/gh_actions/install_opencadsuite.sh` and `tool/gh_actions/install_d3_hwschematic.sh`.  Then you can just run `tool/gh_actions/create_htmls.sh`, which will generate component schematic HTML documents in the `build/` directory.
+
+The `confapp/` directory contains the source code for the Flutter configuration app, if you would like to run that locally.
+
 ### Creating a New Package
 
 Not every new contribution has to go directly into the ROHD or ROHD-HCL frameworks! If you have an idea for a reusable piece of hardware, tooling, verification collateral, or anything else that helps the ROHD ecosystem but is somewhat standalone, you can make your own package that depends on ROHD. Building an ecosystem of reusable components is important to the success of ROHD. Reach out if you want some help or guidance deciding if or how you should create a new package.

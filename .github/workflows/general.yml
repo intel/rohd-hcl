@@ -8,12 +8,15 @@ on:
       - main
   workflow_dispatch:
 
+# Top-level default, no permissions
+permissions: {}
+
 jobs:
   run-checks:
     name: Run Checks
     permissions: {}
     timeout-minutes: 30
-    runs-on: intel-ubuntu-latest
+    runs-on: ${{ github.repository_owner == 'intel' && 'intel-ubuntu-latest' || 'ubuntu-latest' }}
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -66,6 +69,32 @@ jobs:
         with:
           runCmd: tool/gh_actions/run_tests.sh
 
+  run-flutter-checks:
+    name: Run Flutter Checks
+    permissions: {}
+    timeout-minutes: 30
+    runs-on: ${{ github.repository_owner == 'intel' && 'intel-ubuntu-latest' || 'ubuntu-latest' }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          submodules: recursive
+
+      - name: Setup Flutter SDK
+        uses: flutter-actions/setup-flutter@v2
+        with:
+          channel: stable
+          version: 3.16.3
+      
+      - name: Analyze flutter source
+        run: tool/gh_actions/analyze_flutter_source.sh
+      
+      - name: Run flutter tests
+        run: tool/gh_actions/run_flutter_tests.sh
+      
+      - name: Build static site
+        run: tool/gh_actions/hcl_site_generation_build.sh
+
   deploy-documentation:
     name: Deploy Documentation
     needs: run-checks
@@ -73,7 +102,7 @@ jobs:
     permissions:
       contents: write # required for "JamesIves/github-pages-deploy-action"
     timeout-minutes: 30
-    runs-on: intel-ubuntu-latest
+    runs-on: ${{ github.repository_owner == 'intel' && 'intel-ubuntu-latest' || 'ubuntu-latest' }}
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -102,4 +131,35 @@ jobs:
         uses: JamesIves/github-pages-deploy-action@v4
         with:
           folder: doc/api
-          branch: docs
+          branch: website
+
+  deploy-site:
+    name: Deploy ROHD-HCL Generator site
+    needs: [run-checks, run-flutter-checks, deploy-documentation]
+    if: github.event_name == 'push'
+    permissions:
+      contents: write # required for "JamesIves/github-pages-deploy-action"
+    timeout-minutes: 30
+    runs-on: ${{ github.repository_owner == 'intel' && 'intel-ubuntu-latest' || 'ubuntu-latest' }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          submodules: recursive
+
+      - name: Setup Flutter SDK
+        uses: flutter-actions/setup-flutter@v2
+        with:
+          channel: stable
+          version: 3.16.3
+      
+      - name: Build static site
+        run: tool/gh_actions/hcl_site_generation_build.sh
+
+      - name: Deploy the generated site to website branch
+        uses: JamesIves/github-pages-deploy-action@v4
+        with:
+          folder: confapp/build/web
+          target-folder: confapp
+          branch: website
+          clean: false  # goes in after the documentation, which does a clean

@@ -1,0 +1,29 @@
+# NOTE: Everything (probably) from .gitignore should be in here!
+
+# Files and directories created by pub
+.dart_tool/
+.packages
+pubspec.lock
+
+# Conventional directory for build outputs
+build/
+
+# Directory created by dartdoc
+doc/api
+
+# Other stuff
+tmp*
+*.vcd
+.vscode/*
+confapp/.vscode/*
+
+# Exceptions
+!.vscode/extensions.json
+!confapp/.vscode/extensions.json
+!confapp/.vscode/launch.json
+
+#########
+
+# Special things for .pubignore
+confapp
+doc/d3-hwschematic

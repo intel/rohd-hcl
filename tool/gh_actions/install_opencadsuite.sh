@@ -20,6 +20,6 @@ sudo apt-get install -y \
 cd /
 sudo  wget -O oss-cad-suite-build.tgz https://github.com/YosysHQ/oss-cad-suite-build/releases/download/2023-05-12/oss-cad-suite-linux-x64-20230512.tgz
 
-sudo tar -xvzf oss-cad-suite-build.tgz
+sudo tar -xzf oss-cad-suite-build.tgz
 
 # Trim if needed

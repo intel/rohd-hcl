@@ -14,24 +14,24 @@ Some in-development items will have opened issues, as well. Feel free to create 
   - PLAs
 - Arbiters
   - [Priority Arbiter](./components/arbiter.md#priority-arbiter)
-  - Round-robin Arbiter
+  - [Round-robin Arbiter](./components/arbiter.md#round-robin-arbiter)
 - FIFOs & Queues
   - [Synchronous FIFO](./components/fifo.md)
   - Asynchronous / clock-crossing FIFO
   - [Shift register](./components/shift_register.md)
 - Find
-  - Find N'th bit (0 or 1) from the start/end
+  - [Find N'th bit (0 or 1) from the start/end](./components/find.md#find-nth)
   - Find minimum
   - Find maximum
   - Find N'th pattern from the start/end
 - Count
-  - Count bit occurence
+  - [Count bit occurence](./components/count.md)
   - Count pattern occurence
 - Sort
   - [Bitonic sort](./components/sort.md#bitonic-sort)
 - Arithmetic
   - Prefix Trees
-  - Adders
+  - [Adders](./components/adder.md)
   - Subtractors
   - Multipliers
     - [Pipelined Integer Multiplier](./components/multiplier.md#carry-save-multiplier)
@@ -54,7 +54,7 @@ Some in-development items will have opened issues, as well. Feel free to create 
 - Error checking & correction
   - ECC
   - CRC
-  - Parity
+  - [Parity](./components/parity.md)
 - Data flow
   - Ready/Valid
   - Connect/Disconnect
@@ -84,6 +84,7 @@ Some in-development items will have opened issues, as well. Feel free to create 
   - HBM
 - Models
   - [APB](./components/apb_bfm.md)
+  - [Ready/Valid](./components/ready_valid_bfm.md)
 
 ----------------
 

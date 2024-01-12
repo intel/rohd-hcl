@@ -127,6 +127,62 @@ void main() {
     await Simulator.simulationEnded;
   });
 
+  test('fifo with depth 1', () async {
+    final clk = SimpleClockGenerator(10).clk;
+    final reset = Logic()..put(0);
+
+    final wrEn = Logic()..put(0);
+    final rdEn = Logic()..put(0);
+    final wrData = Logic(width: 32);
+
+    final fifo = Fifo(
+      clk,
+      reset,
+      writeEnable: wrEn,
+      readEnable: rdEn,
+      writeData: wrData,
+      generateError: true,
+      depth: 1,
+    );
+
+    await fifo.build();
+
+    unawaited(Simulator.run());
+
+    // a little reset flow
+    await clk.nextNegedge;
+    reset.put(1);
+    await clk.nextNegedge;
+    await clk.nextNegedge;
+    reset.put(0);
+    await clk.nextNegedge;
+    await clk.nextNegedge;
+
+    wrEn.put(1);
+    wrData.put(0xdeadbeef);
+
+    await clk.nextNegedge;
+
+    wrEn.put(0);
+    wrData.put(0);
+    expect(fifo.full.value.toBool(), true);
+    expect(fifo.error!.value.toBool(), false);
+
+    await clk.nextNegedge;
+
+    rdEn.put(1);
+    expect(fifo.readData.value.toInt(), 0xdeadbeef);
+
+    await clk.nextNegedge;
+    rdEn.put(0);
+
+    expect(fifo.empty.value.toBool(), true);
+    expect(fifo.error!.value.toBool(), false);
+
+    Simulator.endSimulation();
+    await Simulator.simulationEnded;
+  });
+
   test('fifo underflow error without bypass', () async {
     final clk = SimpleClockGenerator(10).clk;
     final reset = Logic()..put(0);
@@ -541,6 +597,30 @@ void main() {
     });
   });
 
+  test('sampling time', () async {
+    final fifoTest = FifoTest((clk, reset, wrEn, wrData, rdEn, rdData) async {
+      wrEn.inject(1);
+      wrData.inject(0x111);
+
+      await clk.nextPosedge;
+      await clk.nextPosedge;
+      wrEn.inject(0);
+      rdEn.inject(1);
+      await clk.nextPosedge;
+      await clk.nextPosedge;
+      rdEn.inject(0);
+      await clk.nextPosedge;
+      await clk.nextPosedge;
+    });
+
+    FifoChecker(fifoTest.fifo, parent: fifoTest);
+
+    fifoTest.printLevel = Level.OFF;
+
+    await fifoTest.start();
+    expect(fifoTest.failureDetected, false);
+  });
+
   test('fifo logger', () async {
     final fifoTest = FifoTest((clk, reset, wrEn, wrData, rdEn, rdData) async {
       wrEn.put(1);
@@ -569,6 +649,9 @@ void main() {
     });
 
     Directory('tmp_test').createSync();
+
+    // await fifoTest.fifo.build();
+    // WaveDumper(fifoTest.fifo);
 
     final tracker =
         FifoTracker(fifoTest.fifo, outputFolder: 'tmp_test', dumpTable: false);
