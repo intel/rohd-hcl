@@ -3,6 +3,7 @@
 
 export 'src/adder.dart';
 export 'src/arbiters/arbiters.dart';
+export 'src/binary_gray.dart';
 export 'src/carry_save_mutiplier.dart';
 export 'src/component_config/component_config.dart';
 export 'src/count.dart';
