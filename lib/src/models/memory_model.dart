@@ -1,4 +1,4 @@
-// Copyright (C) 2021-2023 Intel Corporation
+// Copyright (C) 2021-2024 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 //
 // memory_model.dart
@@ -7,8 +7,11 @@
 // 2023 June 12
 // Author: Max Korbel <max.korbel@intel.com>
 
+import 'dart:async';
+
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
+import 'package:rohd_vf/rohd_vf.dart';
 
 /// A model of a [Memory] which uses a software-based [SparseMemoryStorage] to
 /// store data.
@@ -18,9 +21,6 @@ import 'package:rohd_hcl/rohd_hcl.dart';
 class MemoryModel extends Memory {
   /// The memory storage underlying this model.
   late final MemoryStorage storage;
-
-  /// A pre-signal before the output flops of this memory.
-  late final List<Logic> _rdDataPre;
 
   /// If true, a positive edge on reset will reset the memory asynchronously.
   final bool asyncReset;
@@ -47,9 +47,6 @@ class MemoryModel extends Memory {
   }
 
   void _buildLogic() {
-    _rdDataPre = List.generate(
-        numReads, (index) => Logic(name: 'rdDataPre$index', width: dataWidth));
-
     if (asyncReset) {
       reset.posedge.listen((event) {
         storage.reset();
@@ -63,8 +60,7 @@ class MemoryModel extends Memory {
         return;
       }
       for (final wrPort in wrPorts) {
-        if (!(wrPort.en.previousValue?.isValid ?? wrPort.en.value.isValid) &&
-            !storage.isEmpty) {
+        if (!wrPort.en.previousValue!.isValid && !storage.isEmpty) {
           // storage doesnt have access to `en`, so check ourselves
           storage.invalidWrite();
           return;
@@ -91,34 +87,45 @@ class MemoryModel extends Memory {
           }
         }
       }
+
+      // if we have at least 1 cycle, then we wait to update the data
+      if (readLatency > 0) {
+        for (final rdPort in rdPorts) {
+          if (!rdPort.en.previousValue!.isValid ||
+              !rdPort.en.previousValue!.toBool() ||
+              !rdPort.addr.previousValue!.isValid) {
+            unawaited(_updateRead(
+                rdPort, LogicValue.filled(rdPort.dataWidth, LogicValue.x)));
+          } else {
+            unawaited(_updateRead(rdPort, storage.readData(rdPort.addr.value)));
+          }
+        }
+      }
     });
 
-    // on any glitch to read controls, change pre-flop version of read data
-    for (var i = 0; i < rdPorts.length; i++) {
-      clk.negedge.listen((event) => _updatePreRead(i));
-
-      // flop out the read data
-      var delayedData = _rdDataPre[i];
-      for (var delay = 0; delay < readLatency; delay++) {
-        delayedData = FlipFlop(clk, delayedData).q;
+    // if latency is 0, we need to update immediately
+    if (readLatency == 0) {
+      for (final rdPort in rdPorts) {
+        rdPort.en.glitch.listen((args) => _updateReadZeroLatency(rdPort));
+        rdPort.addr.glitch.listen((args) => _updateReadZeroLatency(rdPort));
       }
-
-      rdPorts[i].data <= delayedData;
     }
   }
 
-  void _updatePreRead(int rdIndex) {
-    final rdPort = rdPorts[rdIndex];
-    final rdPortPre = _rdDataPre[rdIndex];
-
+  /// Updates read data for [rdPort] immediately (as if combinationally).
+  void _updateReadZeroLatency(DataPortInterface rdPort) {
     if (!rdPort.en.value.isValid ||
-        (rdPort.en.value == LogicValue.one && !rdPort.addr.value.isValid)) {
-      rdPortPre.put(LogicValue.x, fill: true);
-      return;
+        !rdPort.en.value.toBool() ||
+        !rdPort.addr.value.isValid) {
+      rdPort.data.put(LogicValue.x, fill: true);
+    } else {
+      rdPort.data.put(storage.readData(rdPort.addr.value));
     }
+  }
 
-    if (rdPort.en.value == LogicValue.one) {
-      rdPortPre.put(storage.readData(rdPort.addr.value));
-    }
+  /// Updates read data for [rdPort] after [readLatency] time.
+  Future<void> _updateRead(DataPortInterface rdPort, LogicValue data) async {
+    await clk.waitCycles(readLatency - 1);
+    rdPort.data.inject(data);
   }
 }

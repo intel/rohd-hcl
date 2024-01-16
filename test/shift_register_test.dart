@@ -1,4 +1,4 @@
-// Copyright (C) 2023 Intel Corporation
+// Copyright (C) 2023-2024 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 //
 // shift_register_test.dart
@@ -48,9 +48,7 @@ void main() {
 
     expect(dataOut.value.toInt(), data.last);
 
-    Simulator.endSimulation();
-
-    await Simulator.simulationEnded;
+    await Simulator.endSimulation();
   });
 
   test('shift register naming', () {
@@ -113,9 +111,7 @@ void main() {
 
     expect(dataOut.value.toInt(), 0);
 
-    Simulator.endSimulation();
-
-    await Simulator.simulationEnded;
+    await Simulator.endSimulation();
   });
 
   group('reset shift register', () {
@@ -148,9 +144,7 @@ void main() {
 
       expect(dataOut.value.toInt(), 0x45);
 
-      Simulator.endSimulation();
-
-      await Simulator.simulationEnded;
+      await Simulator.endSimulation();
     }
 
     test('null reset value', () async {
@@ -213,8 +207,6 @@ void main() {
 
     expect(dataOut.value.toInt(), 0);
 
-    Simulator.endSimulation();
-
-    await Simulator.simulationEnded;
+    await Simulator.endSimulation();
   });
 }
