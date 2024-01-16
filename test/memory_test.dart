@@ -106,8 +106,7 @@ void main() {
         rdPorts[2].en.put(0);
         await clk.nextNegedge;
 
-        Simulator.endSimulation();
-        await Simulator.simulationEnded;
+        await Simulator.endSimulation();
       });
 
       test('$memGenName wr masked', () async {
@@ -162,8 +161,7 @@ void main() {
         rdPorts[0].en.put(0);
         await clk.nextNegedge;
 
-        Simulator.endSimulation();
-        await Simulator.simulationEnded;
+        await Simulator.endSimulation();
       });
     }
   });
