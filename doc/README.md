@@ -27,6 +27,8 @@ Some in-development items will have opened issues, as well. Feel free to create 
 - Count
   - [Count bit occurence](./components/count.md)
   - Count pattern occurence
+- Detection
+  - Edge detection
 - Sort
   - [Bitonic sort](./components/sort.md#bitonic-sort)
 - Arithmetic
@@ -45,6 +47,8 @@ Some in-development items will have opened issues, as well. Feel free to create 
     - BFloat16 (16-bit)
     - BFloat8 (8-bit)
     - BFloat4 (4-bit)
+  - Fixed point
+  - Binary-Coded Decimal (BCD)
 - [Rotate](./components/rotate.md)
 - Counters
   - Binary counter
@@ -85,8 +89,11 @@ Some in-development items will have opened issues, as well. Feel free to create 
   - HBM
 - Models
   - [APB](./components/apb_bfm.md)
+  - [Ready/Valid](./components/ready_valid_bfm.md)
+  - SPI
+  - CXL
 
 ----------------
 
-Copyright (C) 2023 Intel Corporation  
+Copyright (C) 2023-2024 Intel Corporation  
 SPDX-License-Identifier: BSD-3-Clause

@@ -1,4 +1,4 @@
-// Copyright (C) 2023 Intel Corporation
+// Copyright (C) 2023-2024 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 //
 // rf_test.dart
@@ -13,6 +13,7 @@ import 'dart:async';
 
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
+import 'package:rohd_vf/rohd_vf.dart';
 import 'package:test/test.dart';
 
 void main() {
@@ -29,28 +30,26 @@ void main() {
       'rf': (Logic clk, Logic reset, List<DataPortInterface> wrPorts,
               List<DataPortInterface> rdPorts) =>
           RegisterFile(clk, reset, wrPorts, rdPorts, numEntries: numEntries),
-      'memory model': (Logic clk, Logic reset, List<DataPortInterface> wrPorts,
-              List<DataPortInterface> rdPorts) =>
-          MemoryModel(
-            clk,
-            reset,
-            wrPorts,
-            rdPorts,
-            storage: SparseMemoryStorage(
-              addrWidth: addrWidth,
-              dataWidth: dataWidth,
-              alignAddress: (addr) => addr,
-              onInvalidRead: (addr, dataWidth) =>
-                  LogicValue.filled(dataWidth, LogicValue.zero),
-            ),
-          )
+      for (var latency = 0; latency <= 2; latency++)
+        'memory model (latency $latency)': (Logic clk,
+                Logic reset,
+                List<DataPortInterface> wrPorts,
+                List<DataPortInterface> rdPorts) =>
+            MemoryModel(
+              clk,
+              reset,
+              wrPorts,
+              rdPorts,
+              readLatency: latency,
+              storage: SparseMemoryStorage(
+                addrWidth: addrWidth,
+                dataWidth: dataWidth,
+                alignAddress: (addr) => addr,
+                onInvalidRead: (addr, dataWidth) =>
+                    LogicValue.filled(dataWidth, LogicValue.zero),
+              ),
+            )
     };
-
-    Future<void> waitCycles(Logic clk, int numCycles) async {
-      for (var i = 0; i < numCycles; i++) {
-        await clk.nextNegedge;
-      }
-    }
 
     for (final memGen in memoriesToTestGenerators.entries) {
       final memGenName = memGen.key;
@@ -99,7 +98,7 @@ void main() {
         // read it back out on a different port
         rdPorts[2].en.put(1);
         rdPorts[2].addr.put(3);
-        await waitCycles(clk, mem.readLatency);
+        await clk.waitCycles(mem.readLatency);
         await clk.nextPosedge;
         expect(rdPorts[2].data.value.toInt(), 0xdeadbeef);
 
@@ -107,8 +106,7 @@ void main() {
         rdPorts[2].en.put(0);
         await clk.nextNegedge;
 
-        Simulator.endSimulation();
-        await Simulator.simulationEnded;
+        await Simulator.endSimulation();
       });
 
       test('$memGenName wr masked', () async {
@@ -155,7 +153,7 @@ void main() {
         // read it back out on a different port
         rdPorts[0].en.put(1);
         rdPorts[0].addr.put(4);
-        await waitCycles(clk, mem.readLatency);
+        await clk.waitCycles(mem.readLatency);
         await clk.nextPosedge;
         expect(rdPorts[0].data.value.toInt(), 0xff00ff00);
 
@@ -163,8 +161,7 @@ void main() {
         rdPorts[0].en.put(0);
         await clk.nextNegedge;
 
-        Simulator.endSimulation();
-        await Simulator.simulationEnded;
+        await Simulator.endSimulation();
       });
     }
   });
@@ -194,6 +191,17 @@ void main() {
                 [DataPortInterface(32, 32)],
               ),
           throwsA(const TypeMatcher<RohdHclException>()));
+    });
+
+    test('required minimum ports', () {
+      RegisterFile(Logic(), Logic(), [], [DataPortInterface(32, 32)]);
+      RegisterFile(Logic(), Logic(), [DataPortInterface(32, 32)], []);
+
+      try {
+        RegisterFile(Logic(), Logic(), [], []);
+        fail('Should have failed');
+        // ignore: avoid_catching_errors
+      } on AssertionError catch (_) {}
     });
   });
 }

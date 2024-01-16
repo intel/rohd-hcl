@@ -266,11 +266,11 @@ class FifoChecker extends Component {
         .where((e) => !e.name.contains('Data'));
 
     fifo._clk.posedge.listen((event) {
-      if (!fifo._reset.value.isValid) {
+      if (!fifo._reset.previousValue!.isValid) {
         // reset is invalid, bad state
         hasReset = false;
         return;
-      } else if (fifo._reset.value.toBool()) {
+      } else if (fifo._reset.previousValue!.toBool()) {
         // reset is high, track that and move on
         hasReset = true;
         return;
@@ -278,25 +278,26 @@ class FifoChecker extends Component {
         // reset is low, and we've previously reset, should be good to check
 
         if (!fifoPortSignals
-            .map((e) => e.value.isValid)
+            .map((e) => e.previousValue!.isValid)
             .reduce((a, b) => a && b)) {
           final portValuesMap = Map.fromEntries(
-              fifoPortSignals.map((e) => MapEntry(e.name, e.value)));
+              fifoPortSignals.map((e) => MapEntry(e.name, e.previousValue!)));
           logger.severe('Fifo control port has an invalid value after reset.'
               ' Port values: $portValuesMap');
           return;
         }
 
-        if (fifo.full.value.toBool() &&
-            fifo._writeEnable.value.toBool() &&
-            !fifo._readEnable.value.toBool()) {
+        if (fifo.full.previousValue!.toBool() &&
+            fifo._writeEnable.previousValue!.toBool() &&
+            !fifo._readEnable.previousValue!.toBool()) {
           if (enableOverflowCheck) {
             logger
                 .severe('Fifo $fifo received a write that caused an overflow.');
           }
-        } else if (fifo.empty.value.toBool() &&
-            fifo._readEnable.value.toBool()) {
-          if (!(fifo.generateBypass && fifo._writeEnable.value.toBool())) {
+        } else if (fifo.empty.previousValue!.toBool() &&
+            fifo._readEnable.previousValue!.toBool()) {
+          if (!(fifo.generateBypass &&
+              fifo._writeEnable.previousValue!.toBool())) {
             if (enableUnderflowCheck) {
               logger.severe(
                   'Fifo $fifo received a read that caused an underflow.');
@@ -309,8 +310,10 @@ class FifoChecker extends Component {
 
   @override
   void check() {
-    if (!fifo.empty.value.toBool()) {
-      if (enableEndOfTestEmptyCheck) {
+    if (enableEndOfTestEmptyCheck) {
+      if (!fifo.empty.value.isValid) {
+        logger.severe('Fifo empty signal has invalid value at end of test.');
+      } else if (!fifo.empty.value.toBool()) {
         logger.severe('Fifo $fifo is not empty at the end of the test.');
       }
     }

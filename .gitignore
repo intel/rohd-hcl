@@ -16,6 +16,8 @@ tmp*
 *.vcd
 .vscode/*
 confapp/.vscode/*
+*tracker.json
+*tracker.log
 
 # Exceptions
 !.vscode/extensions.json

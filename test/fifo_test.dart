@@ -1,4 +1,4 @@
-// Copyright (C) 2023 Intel Corporation
+// Copyright (C) 2023-2024 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 //
 // fifo_test.dart
@@ -123,8 +123,7 @@ void main() {
 
     await clk.nextNegedge;
 
-    Simulator.endSimulation();
-    await Simulator.simulationEnded;
+    await Simulator.endSimulation();
   });
 
   test('fifo with depth 1', () async {
@@ -179,8 +178,7 @@ void main() {
     expect(fifo.empty.value.toBool(), true);
     expect(fifo.error!.value.toBool(), false);
 
-    Simulator.endSimulation();
-    await Simulator.simulationEnded;
+    await Simulator.endSimulation();
   });
 
   test('fifo underflow error without bypass', () async {
@@ -218,8 +216,7 @@ void main() {
 
     expect(fifo.error!.value.toBool(), true);
 
-    Simulator.endSimulation();
-    await Simulator.simulationEnded;
+    await Simulator.endSimulation();
   });
 
   test('fifo underflow error with bypass', () async {
@@ -258,8 +255,7 @@ void main() {
 
     expect(fifo.error!.value.toBool(), true);
 
-    Simulator.endSimulation();
-    await Simulator.simulationEnded;
+    await Simulator.endSimulation();
   });
 
   test('fifo overflow error', () async {
@@ -306,8 +302,7 @@ void main() {
     expect(fifo.error!.value.toBool(), true);
     await clk.nextPosedge;
 
-    Simulator.endSimulation();
-    await Simulator.simulationEnded;
+    await Simulator.endSimulation();
   });
 
   test('fifo empty bypass', () async {
@@ -361,8 +356,7 @@ void main() {
 
     await clk.nextNegedge;
 
-    Simulator.endSimulation();
-    await Simulator.simulationEnded;
+    await Simulator.endSimulation();
   });
 
   test('fifo full write and read simultaneously', () async {
@@ -422,8 +416,7 @@ void main() {
     await clk.nextNegedge;
     expect(fifo.error!.value.toBool(), false);
 
-    Simulator.endSimulation();
-    await Simulator.simulationEnded;
+    await Simulator.endSimulation();
   });
 
   group('fifo peek', () {
@@ -474,8 +467,7 @@ void main() {
       // peek at stable
       expect(rdData.value.toInt(), 0xfeedbeef);
 
-      Simulator.endSimulation();
-      await Simulator.simulationEnded;
+      await Simulator.endSimulation();
     }
 
     test('no bypass', () async {
@@ -595,6 +587,30 @@ void main() {
         expect(fifoTest.failureDetected, true);
       }
     });
+  });
+
+  test('sampling time', () async {
+    final fifoTest = FifoTest((clk, reset, wrEn, wrData, rdEn, rdData) async {
+      wrEn.inject(1);
+      wrData.inject(0x111);
+
+      await clk.nextPosedge;
+      await clk.nextPosedge;
+      wrEn.inject(0);
+      rdEn.inject(1);
+      await clk.nextPosedge;
+      await clk.nextPosedge;
+      rdEn.inject(0);
+      await clk.nextPosedge;
+      await clk.nextPosedge;
+    });
+
+    FifoChecker(fifoTest.fifo, parent: fifoTest);
+
+    fifoTest.printLevel = Level.OFF;
+
+    await fifoTest.start();
+    expect(fifoTest.failureDetected, false);
   });
 
   test('fifo logger', () async {
