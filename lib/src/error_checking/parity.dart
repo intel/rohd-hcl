@@ -9,62 +9,50 @@
 //
 
 import 'package:rohd/rohd.dart';
+import 'package:rohd_hcl/rohd_hcl.dart';
 
 /// Encode data to transport with Parity bits
-class ParityTransmitter extends Module {
-  /// The [data] including the [parity] bit (as the most significant bit).
-  Logic get data => _output;
-  late final Logic _output;
-
+class ParityTransmitter extends ErrorCheckingTransmitter {
   /// The [parity] bit computed for the provided data.
-  Logic get parity => output('parity');
+  @Deprecated('Use `code` instead.')
+  Logic get parity => code;
 
-  /// Construct a [Module] for generating transmit data [data]. Combines given
-  /// [Logic] named [bus] with a [parity] bit for error check after
-  /// transmission.
-  ParityTransmitter(Logic bus) {
-    bus = addInput('bus', bus, width: bus.width);
-    addOutput('parity');
-    parity <= bus.xor();
-    final transmitData = [parity, bus].swizzle();
-    _output = addOutput('transmitData', width: transmitData.width);
-    _output <= transmitData;
-  }
+  /// Creates a transmitter that sends data with a parity bit.
+  ParityTransmitter(super.data, {super.name = 'parity_tx'})
+      : super(codeWidth: 1);
+
+  @override
+  Logic calculateCode() => data.xor();
 }
 
 /// Check for error & Receive data on transmitted data via parity
-class ParityReceiver extends Module {
+class ParityReceiver extends ErrorCheckingReceiver {
+  /// Constructs a [Module] which checks data that has been transmitted with
+  /// correct parity. This will split the transmitted data in [bus] into 2
+  /// parts: the [originalData], and the error bit upon which [error] is
+  /// calculated for parity error checking.
+  ParityReceiver(super.bus, {super.name = 'parity_rx'})
+      : super(codeWidth: 1, supportsErrorCorrection: false);
+
+  @override
+  Logic calculateCorrectableError() => Const(0);
+
+  @override
+  Logic? calculateCorrectedData() => null;
+
+  @override
+  Logic calculateUncorrectableError() => ~originalData.xor().eq(code);
+
   /// [checkError] is an getter for parity result with `0` for success and `1`
   /// for fail
-  Logic get checkError => _checkError;
-  late Logic _checkError;
+  @Deprecated('Use `error` or `uncorrectableError` instead.')
+  Logic get checkError => error;
 
   /// The original [data] (without [parity]).
-  Logic get data => _data;
-  late Logic _data;
+  @Deprecated('Use `originalData` instead.')
+  Logic get data => originalData;
 
   /// [parity] is an getter for parity Bit received upon data transmission
-  Logic get parity => _parity;
-  late Logic _parity;
-
-  /// Constructs a [Module] which checks data that has been transmitted with
-  /// parity. This will split the transmitted data in [bus] into 2 parts: the
-  /// original [data], and the error bit upon which [checkError] is calculated
-  /// for parity error checking.
-  ParityReceiver(Logic bus) {
-    bus = addInput('bus', bus, width: bus.width);
-
-    // Slice from 1 from least significant bit to the end
-    final transmittedData = bus.slice(-2, 0);
-    final parityBit = bus[-1];
-    final parityError = ~transmittedData.xor().eq(parityBit);
-
-    _data = addOutput('transmittedData', width: transmittedData.width);
-    _parity = addOutput('parity', width: parityBit.width);
-    _checkError = addOutput('checkError', width: parityError.width);
-
-    _data <= transmittedData;
-    _parity <= parityBit;
-    _checkError <= parityError;
-  }
+  @Deprecated('Use `code` instead.')
+  Logic get parity => code;
 }
