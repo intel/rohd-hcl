@@ -5,8 +5,19 @@ import 'package:rohd_hcl/rohd_hcl.dart';
 
 bool _isPowerOfTwo(int n) => n != 0 && (n & (n - 1) == 0);
 
+enum HammingType {
+  /// Single error correct (SEC), but cannot detect double bit errors.
+  sec,
+
+  /// Single error correct, double error detect (SECDED).
+  secded
+}
+
 class HammingEccTransmitter extends ErrorCheckingTransmitter {
-  HammingEccTransmitter(super.data, {super.name = 'hamming_ecc_tx'})
+  final HammingType hammingType;
+
+  HammingEccTransmitter(super.data,
+      {super.name = 'hamming_ecc_tx', this.hammingType = HammingType.sec})
       : super(codeWidth: _parityBitsRequired(data.width));
 
   static int _parityBitsRequired(int dataWidth) {
@@ -53,6 +64,8 @@ class HammingEccTransmitter extends ErrorCheckingTransmitter {
 class HammingEccReceiver extends ErrorCheckingReceiver {
   static int _codeWidthFromBusWidth(int busWidth) => log2Ceil(busWidth + 1);
 
+  final HammingType hammingType;
+
   Map<int, int> _encodingToData() {
     final mapping = <int, int>{};
     var dataIdx = 0;
@@ -68,16 +81,19 @@ class HammingEccReceiver extends ErrorCheckingReceiver {
   Logic get correctedData => super.correctedData!;
 
   ///TODO
-  HammingEccReceiver(super.transmission, {super.name = 'hamming_ecc_rx'})
+  HammingEccReceiver(super.transmission,
+      {super.name = 'hamming_ecc_rx', this.hammingType = HammingType.sec})
       : super(
             codeWidth: _codeWidthFromBusWidth(transmission.width),
             supportsErrorCorrection: true) {
-    _syndrome <= code ^ HammingEccTransmitter(originalData).code;
+    _syndrome <=
+        code ^
+            HammingEccTransmitter(originalData, hammingType: hammingType).code;
 
     final correction = Logic(name: 'correction', width: transmission.width)
       ..gets(mux(
         error,
-        BinaryToOneHot(_syndrome - 1).encoded.getRange(0, transmission.width),
+        (Const(1, width: transmission.width + 1) << _syndrome).getRange(1),
         Const(0, width: transmission.width),
       ));
 
@@ -87,7 +103,7 @@ class HammingEccReceiver extends ErrorCheckingReceiver {
         [
           for (var i = 1; i <= transmission.width; i++)
             if (encodingToDataMap.containsKey(i))
-              Logic(name: 'd${encodingToDataMap[i]!}')
+              Logic(name: 'd${encodingToDataMap[i]! + 1}')
                 ..gets(originalData[encodingToDataMap[i]] ^ correction[i - 1])
         ].rswizzle();
   }
