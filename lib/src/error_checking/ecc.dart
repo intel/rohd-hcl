@@ -57,7 +57,7 @@ class HammingEccReceiver extends ErrorCheckingReceiver {
   Map<int, int> get _encodingToData {
     final mapping = <int, int>{};
     var dataIdx = 0;
-    for (var encodedIdx = 0; encodedIdx <= transmission.width; encodedIdx++) {
+    for (var encodedIdx = 1; encodedIdx <= transmission.width; encodedIdx++) {
       if (!_isPowerOfTwo(encodedIdx)) {
         mapping[encodedIdx] = dataIdx++;
       }
@@ -84,10 +84,10 @@ class HammingEccReceiver extends ErrorCheckingReceiver {
 
     _correctedData <=
         [
-          for (var i = 0; i < transmission.width; i++)
+          for (var i = 1; i <= transmission.width; i++)
             if (_encodingToData.containsKey(i))
-              Logic(name: 'd${_encodingToData[i]! + 1}')
-                ..gets(originalData[_encodingToData[i]] ^ correction[i])
+              Logic(name: 'd${_encodingToData[i]!}')
+                ..gets(originalData[_encodingToData[i]] ^ correction[i - 1])
         ].rswizzle();
   }
 

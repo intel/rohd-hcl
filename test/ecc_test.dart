@@ -32,11 +32,13 @@ void main() {
 
       // test every bit flip
       for (var i = 0; i < sentTransmission.width; i++) {
+        inputData.put(rand.nextLogicValue(width: dataWidth));
         errorInjectionVector.put(BigInt.one << i);
         expect(rx.uncorrectableError.value.toBool(), isFalse);
         expect(rx.correctableError.value.toBool(), isTrue);
         expect(rx.correctedData.value, inputData.value);
-        expect(rx.originalData.value, receivedTransmission.value);
+        expect(rx.originalData.value,
+            receivedTransmission.value.getRange(0, inputData.width));
       }
     }
   });
