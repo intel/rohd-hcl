@@ -88,17 +88,22 @@ class MemoryModel extends Memory {
         }
       }
 
-      // if we have at least 1 cycle, then we wait to update the data
-      if (readLatency > 0) {
-        for (final rdPort in rdPorts) {
+      for (final rdPort in rdPorts) {
+        if (readLatency > 0) {
+          // if we have at least 1 cycle, then we wait to update the data
           if (!rdPort.en.previousValue!.isValid ||
               !rdPort.en.previousValue!.toBool() ||
               !rdPort.addr.previousValue!.isValid) {
             unawaited(_updateRead(
                 rdPort, LogicValue.filled(rdPort.dataWidth, LogicValue.x)));
           } else {
-            unawaited(_updateRead(rdPort, storage.readData(rdPort.addr.value)));
+            unawaited(_updateRead(
+                rdPort, storage.readData(rdPort.addr.previousValue!)));
           }
+        } else {
+          // if we have instant read latency, we may need to update the read
+          // data in zero-latency after updating a write
+          _updateReadZeroLatency(rdPort);
         }
       }
     });
