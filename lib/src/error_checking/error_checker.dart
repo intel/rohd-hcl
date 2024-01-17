@@ -11,7 +11,7 @@ abstract class ErrorCheckingTransmitter extends Module {
   Logic calculateCode();
 
   /// The full bus to transmit including the original data and the [code].
-  Logic get bus => output('bus');
+  Logic get transmission => output('transmission');
 
   /// The input port data provied to this transmitter.
   ///
@@ -25,7 +25,7 @@ abstract class ErrorCheckingTransmitter extends Module {
     this.data = addInput('data', data, width: data.width);
 
     addOutput('code', width: codeWidth);
-    addOutput('bus', width: codeWidth + data.width) <=
+    addOutput('transmission', width: codeWidth + data.width) <=
         [code, this.data].swizzle();
 
     code <= calculateCode();
@@ -75,22 +75,24 @@ abstract class ErrorCheckingReceiver extends Module {
   ///
   /// Should only be used by implementations of receivers internally.
   @protected
-  late final Logic bus;
+  late final Logic transmission;
 
   /// Whether or not data correction is supported.
   final bool supportsErrorCorrection;
 
-  /// Creates a receiver for [bus].
-  ErrorCheckingReceiver(Logic bus,
+  /// Creates a receiver for [transmission].
+  ErrorCheckingReceiver(Logic transmission,
       {required int codeWidth,
       required this.supportsErrorCorrection,
       required super.name})
       : assert(codeWidth > 0, 'Must provide non-empty code.') {
-    this.bus = addInput('bus', bus, width: bus.width);
+    this.transmission =
+        addInput('transmission', transmission, width: transmission.width);
 
-    addOutput('code', width: codeWidth) <= this.bus.slice(-1, -codeWidth);
-    addOutput('original_data', width: bus.width - codeWidth) <=
-        this.bus.slice(-1 - codeWidth, 0);
+    addOutput('code', width: codeWidth) <=
+        this.transmission.slice(-1, -codeWidth);
+    addOutput('original_data', width: transmission.width - codeWidth) <=
+        this.transmission.slice(-1 - codeWidth, 0);
 
     if (supportsErrorCorrection) {
       addOutput('corrected_data', width: originalData.width);

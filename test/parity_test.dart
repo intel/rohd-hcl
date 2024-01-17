@@ -21,22 +21,28 @@ void main() {
     final parityTransmitter = ParityTransmitter(vector);
 
     vector.put(bin('00000000'));
-    expect(parityTransmitter.bus.value, LogicValue.ofString('000000000'));
+    expect(
+        parityTransmitter.transmission.value, LogicValue.ofString('000000000'));
 
     vector.put(bin('00000001'));
-    expect(parityTransmitter.bus.value, LogicValue.ofString('100000001'));
+    expect(
+        parityTransmitter.transmission.value, LogicValue.ofString('100000001'));
 
     vector.put(bin('10000001'));
-    expect(parityTransmitter.bus.value, LogicValue.ofString('010000001'));
+    expect(
+        parityTransmitter.transmission.value, LogicValue.ofString('010000001'));
 
     vector.put(bin('10001001'));
-    expect(parityTransmitter.bus.value, LogicValue.ofString('110001001'));
+    expect(
+        parityTransmitter.transmission.value, LogicValue.ofString('110001001'));
 
     vector.put(bin('11111101'));
-    expect(parityTransmitter.bus.value, LogicValue.ofString('111111101'));
+    expect(
+        parityTransmitter.transmission.value, LogicValue.ofString('111111101'));
 
     vector.put(bin('11111111'));
-    expect(parityTransmitter.bus.value, LogicValue.ofString('011111111'));
+    expect(
+        parityTransmitter.transmission.value, LogicValue.ofString('011111111'));
   });
 
   test('parity receiver checking', () async {

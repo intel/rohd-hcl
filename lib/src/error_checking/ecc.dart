@@ -24,10 +24,10 @@ class HammingEccTransmitter extends ErrorCheckingTransmitter {
   Logic calculateCode() {
     final parityBits = List<Logic?>.generate(code.width, (index) => null);
     final dataBits = List<Logic>.generate(
-        data.width, (index) => Logic(name: 'd${index + 1}'));
+        data.width, (index) => Logic(name: 'd${index + 1}')..gets(data[index]));
 
     var dataIdx = 0;
-    for (var i = 1; i <= bus.width; i++) {
+    for (var i = 1; i <= transmission.width; i++) {
       if (!_isPowerOfTwo(i)) {
         final ilv = LogicValue.ofInt(i, code.width);
 
@@ -57,13 +57,16 @@ class HammingEccReceiver extends ErrorCheckingReceiver {
   Map<int, int> get _encodingToData {
     final mapping = <int, int>{};
     var dataIdx = 0;
-    for (var encodedIdx = 0; encodedIdx <= bus.width; encodedIdx++) {
+    for (var encodedIdx = 0; encodedIdx <= transmission.width; encodedIdx++) {
       if (!_isPowerOfTwo(encodedIdx)) {
         mapping[encodedIdx] = dataIdx++;
       }
     }
     return mapping;
   }
+
+  @override
+  Logic get correctedData => super.correctedData!;
 
   ///TODO
   HammingEccReceiver(super.bus, {super.name = 'hamming_ecc_rx'})
@@ -72,16 +75,16 @@ class HammingEccReceiver extends ErrorCheckingReceiver {
             supportsErrorCorrection: true) {
     _syndrome <= code ^ HammingEccTransmitter(originalData).code;
 
-    final correction = Logic(name: 'correction', width: bus.width)
+    final correction = Logic(name: 'correction', width: transmission.width)
       ..gets(mux(
         error,
-        BinaryToOneHot(_syndrome - 1).encoded.getRange(0, bus.width),
-        Const(0, width: bus.width),
+        BinaryToOneHot(_syndrome - 1).encoded.getRange(0, transmission.width),
+        Const(0, width: transmission.width),
       ));
 
     _correctedData <=
         [
-          for (var i = 0; i < bus.width; i++)
+          for (var i = 0; i < transmission.width; i++)
             if (_encodingToData.containsKey(i))
               Logic(name: 'd${_encodingToData[i]! + 1}')
                 ..gets(originalData[_encodingToData[i]] ^ correction[i])

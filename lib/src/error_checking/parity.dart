@@ -28,10 +28,10 @@ class ParityTransmitter extends ErrorCheckingTransmitter {
 /// Check for error & Receive data on transmitted data via parity
 class ParityReceiver extends ErrorCheckingReceiver {
   /// Constructs a [Module] which checks data that has been transmitted with
-  /// correct parity. This will split the transmitted data in [bus] into 2
-  /// parts: the [originalData], and the error bit upon which [error] is
+  /// correct parity. This will split the transmitted data in [transmission]
+  /// into 2 parts: the [originalData], and the error bit upon which [error] is
   /// calculated for parity error checking.
-  ParityReceiver(super.bus, {super.name = 'parity_rx'})
+  ParityReceiver(super.transmission, {super.name = 'parity_rx'})
       : super(codeWidth: 1, supportsErrorCorrection: false);
 
   @override
