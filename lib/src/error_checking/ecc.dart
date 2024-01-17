@@ -1,7 +1,6 @@
 import 'dart:math';
 
 import 'package:rohd/rohd.dart';
-import 'package:rohd/src/signals/signals.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
 
 bool _isPowerOfTwo(int n) => n != 0 && (n & (n - 1) == 0);
@@ -54,7 +53,7 @@ class HammingEccTransmitter extends ErrorCheckingTransmitter {
 class HammingEccReceiver extends ErrorCheckingReceiver {
   static int _codeWidthFromBusWidth(int busWidth) => log2Ceil(busWidth + 1);
 
-  Map<int, int> get _encodingToData {
+  Map<int, int> _encodingToData() {
     final mapping = <int, int>{};
     var dataIdx = 0;
     for (var encodedIdx = 1; encodedIdx <= transmission.width; encodedIdx++) {
@@ -69,9 +68,9 @@ class HammingEccReceiver extends ErrorCheckingReceiver {
   Logic get correctedData => super.correctedData!;
 
   ///TODO
-  HammingEccReceiver(super.bus, {super.name = 'hamming_ecc_rx'})
+  HammingEccReceiver(super.transmission, {super.name = 'hamming_ecc_rx'})
       : super(
-            codeWidth: _codeWidthFromBusWidth(bus.width),
+            codeWidth: _codeWidthFromBusWidth(transmission.width),
             supportsErrorCorrection: true) {
     _syndrome <= code ^ HammingEccTransmitter(originalData).code;
 
@@ -82,12 +81,14 @@ class HammingEccReceiver extends ErrorCheckingReceiver {
         Const(0, width: transmission.width),
       ));
 
+    final encodingToDataMap = _encodingToData();
+
     _correctedData <=
         [
           for (var i = 1; i <= transmission.width; i++)
-            if (_encodingToData.containsKey(i))
-              Logic(name: 'd${_encodingToData[i]!}')
-                ..gets(originalData[_encodingToData[i]] ^ correction[i - 1])
+            if (encodingToDataMap.containsKey(i))
+              Logic(name: 'd${encodingToDataMap[i]!}')
+                ..gets(originalData[encodingToDataMap[i]] ^ correction[i - 1])
         ].rswizzle();
   }
 

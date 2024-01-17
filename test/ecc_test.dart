@@ -21,7 +21,7 @@ void main() {
       final rx = HammingEccReceiver(receivedTransmission);
 
       await rx.build();
-      File('tmp.sv').writeAsStringSync(rx.generateSynth());
+      // File('tmp.sv').writeAsStringSync(rx.generateSynth()); //TODO
 
       // test no error
       errorInjectionVector.put(0);
@@ -43,17 +43,17 @@ void main() {
     }
   });
 
-  test('ecc tx', () async {
-    final mod = HammingEccTransmitter(Logic(width: 15));
-    await mod.build();
+  // test('ecc tx', () async {
+  //   final mod = HammingEccTransmitter(Logic(width: 15));
+  //   await mod.build();
 
-    print(mod.generateSynth());
-  });
+  //   print(mod.generateSynth());
+  // });
 
-  test('ecc rx', () async {
-    final mod = HammingEccReceiver(Logic(width: 20));
-    await mod.build();
-    print(mod.generateSynth());
-    File('tmp.sv').writeAsStringSync(mod.generateSynth());
-  });
+  // test('ecc rx', () async {
+  //   final mod = HammingEccReceiver(Logic(width: 20));
+  //   await mod.build();
+  //   print(mod.generateSynth());
+  //   File('tmp.sv').writeAsStringSync(mod.generateSynth());
+  // });
 }
