@@ -9,6 +9,8 @@
 import 'package:meta/meta.dart';
 import 'package:rohd/rohd.dart';
 
+/// A transmitter for data which includes a [code] for checking and possibly
+/// correcting data at the receiving end.
 abstract class ErrorCheckingTransmitter extends Module {
   /// The code that in addition to original data that enables error detection.
   late final Logic code = output('code');
@@ -40,6 +42,8 @@ abstract class ErrorCheckingTransmitter extends Module {
   }
 }
 
+/// A receiver for data which includes a [code] for checking and possibly
+/// correcting.
 abstract class ErrorCheckingReceiver extends Module {
   /// Whether or not there was an error (correctable or uncorrectable).
   Logic get error => output('error');
