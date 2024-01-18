@@ -13,8 +13,9 @@ import 'package:rohd_hcl/rohd_hcl.dart';
 List<Configurator> get componentRegistry => [
       RotateConfigurator(),
       FifoConfigurator(),
-      PriorityArbiterConfigurator(),
+      EccConfigurator(),
       RoundRobinArbiterConfigurator(),
+      PriorityArbiterConfigurator(),
       RippleCarryAdderConfigurator(),
       CarrySaveMultiplierConfigurator(),
       BitonicSortConfigurator(),

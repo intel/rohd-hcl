@@ -1,4 +1,4 @@
-// Copyright (C) 2023 Intel Corporation
+// Copyright (C) 2023-2024 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 //
 // parity.dart
@@ -6,7 +6,6 @@
 //
 // 2023 August 20
 // Author: Rahul Gautham Putcha <rahul.gautham.putcha@intel.com>
-//
 
 import 'package:meta/meta.dart';
 import 'package:rohd/rohd.dart';

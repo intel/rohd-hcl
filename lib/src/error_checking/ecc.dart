@@ -1,41 +1,60 @@
+// Copyright (C) 2023-2024 Intel Corporation
+// SPDX-License-Identifier: BSD-3-Clause
+//
+// ecc.dart
+// Error correcting code hardware generators.
+//
+// 2024 January 18
+// Author: Max Korbel <max.korbel@intel.com>
+
 import 'dart:math';
 
 import 'package:meta/meta.dart';
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
 
+/// Type of Hamming code, with different characteristics for error correction,
+/// error detection, and number of check bits required.
 enum HammingType {
-  /// Single error correct (SEC), but cannot detect double bit errors.
-  sec(hasExtraParityBit: false, hasCorrection: true),
+  /// Single error correction (SEC), but cannot detect double bit errors.
+  sec._(hasExtraParityBit: false, hasCorrection: true),
 
-  /// Double error detect (DED), can detect double-bit errors, but performs no
-  /// correction.
-  ded(hasExtraParityBit: false, hasCorrection: false),
+  /// Double error detection (DED): can detect up to double-bit errors, but
+  /// performs no correction.
+  sedded._(hasExtraParityBit: false, hasCorrection: false),
 
-  /// Single error correct, double error detect (SECDED).
-  secded(hasExtraParityBit: true, hasCorrection: true),
+  /// Single error correction, double error detection (SECDED).
+  secded._(hasExtraParityBit: true, hasCorrection: true),
 
-  /// Triple error detect (TED), can detect triple-bit errors, but performs no
-  /// correction.
-  ted(hasExtraParityBit: true, hasCorrection: false);
+  /// Triple error detection (TED), can detect up to triple-bit errors, but
+  /// performs no correction.
+  seddedted._(hasExtraParityBit: true, hasCorrection: false);
 
+  /// Indicates whether this type requires an additional parity bit.
   final bool hasExtraParityBit;
 
+  /// Indicates whether this type supports correction of errors.
   final bool hasCorrection;
 
-  const HammingType(
+  /// Constrcut a [HammingType] with given characteristics.
+  const HammingType._(
       {required this.hasExtraParityBit, required this.hasCorrection});
 
-  int get _extraParityBits => this.hasExtraParityBit ? 1 : 0;
+  /// The number of extra parity bits required for this type.
+  int get _extraParityBits => hasExtraParityBit ? 1 : 0;
 }
 
 /// Returns whether [n] is a power of two.
 bool _isPowerOfTwo(int n) => n != 0 && (n & (n - 1) == 0);
 
+/// A transmitter for data which generates a Hamming code for error detection
+/// and possibly correction.
 class HammingEccTransmitter extends ErrorCheckingTransmitter {
+  /// The type of Hamming code to use.
   final HammingType hammingType;
 
-  ///TODO
+  /// Creates a [transmission] which includes a [code] that protects [data] with
+  /// the specified [hammingType].
   HammingEccTransmitter(super.data,
       {super.name = 'hamming_ecc_tx', this.hammingType = HammingType.sec})
       : super(
@@ -43,6 +62,8 @@ class HammingEccTransmitter extends ErrorCheckingTransmitter {
             codeWidth:
                 _parityBitsRequired(data.width) + hammingType._extraParityBits);
 
+  /// Calculates the number of parity bits required for a Hamming code to
+  /// protect [dataWidth] bits.
   static int _parityBitsRequired(int dataWidth) {
     var m = 0;
     double k;
@@ -99,27 +120,19 @@ class HammingEccTransmitter extends ErrorCheckingTransmitter {
   }
 }
 
+/// A receiver for transmissions sent with a Hamming code for error detection
+/// and possibly correction.
 class HammingEccReceiver extends ErrorCheckingReceiver {
-  static int _codeWidthFromBusWidth(int busWidth) => log2Ceil(busWidth + 1);
-
+  /// The type of Hamming code to use to understand the original [transmission].
   final HammingType hammingType;
 
-  Map<int, int> _encodingToData() {
-    final mapping = <int, int>{};
-    var dataIdx = 0;
-    for (var encodedIdx = 1; encodedIdx <= transmission.width; encodedIdx++) {
-      if (!_isPowerOfTwo(encodedIdx)) {
-        mapping[encodedIdx] = dataIdx++;
-      }
-    }
-    return mapping;
-  }
-
-  ///TODO
+  /// Consumes a [transmission] which includes a [code] that can check whether
+  /// the [originalData] contains errors and possibly correct it to
+  /// [correctedData], depending on the specified [hammingType].
   HammingEccReceiver(super.transmission,
       {super.name = 'hamming_ecc_rx', this.hammingType = HammingType.sec})
       : super(
-          codeWidth: _codeWidthFromBusWidth(
+          codeWidth: _codeWidthFromTransmissionWidth(
                   transmission.width - hammingType._extraParityBits) +
               hammingType._extraParityBits,
           definitionName: 'hamming_ecc_receiver_${hammingType.name}',
@@ -165,7 +178,7 @@ class HammingEccReceiver extends ErrorCheckingReceiver {
       case HammingType.sec:
         _correctableError <= hammingError;
         _uncorrectableError <= Const(0);
-      case HammingType.ded:
+      case HammingType.sedded:
         _correctableError <= Const(0);
         _uncorrectableError <= hammingError;
       case HammingType.secded:
@@ -180,29 +193,47 @@ class HammingEccReceiver extends ErrorCheckingReceiver {
         //                      double-bit error, uncorrectable
         _correctableError <= extraErr!;
         _uncorrectableError <= ~extraErr & hammingError;
-      case HammingType.ted:
+      case HammingType.seddedted:
         _correctableError <= Const(0);
         _uncorrectableError <= extraErr! | hammingError;
     }
   }
 
-  late final Logic _correctableError = Logic();
-  late final Logic _uncorrectableError = Logic();
-
-  late final Logic _correctedData = Logic(width: originalData.width);
+  /// The "syndrome" used to decode an error pattern in Hamming parity bits
+  /// into a correction pattern.
   late final Logic _syndrome =
       Logic(name: 'syndrome', width: code.width - hammingType._extraParityBits);
+
+  /// The number of Hamming code bits that must have been included in a
+  /// transmission of [transmissionWidth], not including any extra parity bit.
+  static int _codeWidthFromTransmissionWidth(int transmissionWidth) =>
+      log2Ceil(transmissionWidth + 1);
+
+  /// Builds a mapping from Hamming bits encoding to data position (1-indexed).
+  Map<int, int> _encodingToData() {
+    final mapping = <int, int>{};
+    var dataIdx = 0;
+    for (var encodedIdx = 1; encodedIdx <= transmission.width; encodedIdx++) {
+      if (!_isPowerOfTwo(encodedIdx)) {
+        mapping[encodedIdx] = dataIdx++;
+      }
+    }
+    return mapping;
+  }
 
   @override
   @protected
   Logic calculateCorrectableError() => _correctableError;
+  late final Logic _correctableError = Logic();
 
   @override
   @protected
   Logic? calculateCorrectedData() =>
       hammingType.hasCorrection ? _correctedData : null;
+  late final Logic _correctedData = Logic(width: originalData.width);
 
   @override
   @protected
   Logic calculateUncorrectableError() => _uncorrectableError;
+  late final Logic _uncorrectableError = Logic();
 }

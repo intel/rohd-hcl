@@ -1,4 +1,12 @@
-import 'dart:io';
+// Copyright (C) 2023-2024 Intel Corporation
+// SPDX-License-Identifier: BSD-3-Clause
+//
+// ecc_test.dart
+// Tests for error correcting code hardware generators.
+//
+// 2024 January 18
+// Author: Max Korbel <max.korbel@intel.com>
+
 import 'dart:math';
 
 import 'package:rohd/rohd.dart';
@@ -12,10 +20,9 @@ void main() {
 
       final canCorrectSingleBit = hammingType.hasCorrection;
       final canDetectDoubleBit = hammingType != HammingType.sec;
-      final canDetectTripleBit = hammingType == HammingType.ted;
+      final canDetectTripleBit = hammingType == HammingType.seddedted;
 
-      for (var dataWidth = 1; dataWidth < 20; dataWidth++) //TODO, change to 1
-      {
+      for (var dataWidth = 1; dataWidth < 20; dataWidth++) {
         final inputData = Logic(width: dataWidth)
           ..put(rand.nextLogicValue(width: dataWidth));
 
@@ -29,7 +36,6 @@ void main() {
             HammingEccReceiver(receivedTransmission, hammingType: hammingType);
 
         await rx.build();
-        // File('tmp.sv').writeAsStringSync(rx.generateSynth()); //TODO
 
         // test no error
         errorInjectionVector.put(0);
@@ -90,18 +96,10 @@ void main() {
     });
   }
 
-  test('ecc tx', () async {
-    final mod = HammingEccTransmitter(Logic(width: 15));
-    await mod.build();
-
-    print(mod.generateSynth());
-  });
-
-  test('ecc rx', () async {
-    final mod = HammingEccReceiver(Logic(width: 20));
-    await mod.build();
-
-    print(mod.generateSynth());
-    File('tmp.sv').writeAsStringSync(mod.generateSynth());
+  test('Hamming(7,4)', () async {
+    final tx = HammingEccTransmitter(Logic(width: 4));
+    final rx = HammingEccReceiver(tx.transmission);
+    expect(tx.transmission.width, 7);
+    expect(rx.code.width, 3);
   });
 }

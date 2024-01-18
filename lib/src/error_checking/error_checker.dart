@@ -1,3 +1,11 @@
+// Copyright (C) 2023-2024 Intel Corporation
+// SPDX-License-Identifier: BSD-3-Clause
+//
+// error_checker.dart
+// Abstract definitions for error checking transmitters and receivers.
+//
+// 2024 January 18
+
 import 'package:meta/meta.dart';
 import 'package:rohd/rohd.dart';
 
