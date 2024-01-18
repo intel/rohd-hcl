@@ -56,9 +56,10 @@ Some in-development items will have opened issues, as well. Feel free to create 
 - Pseudorandom
   - LFSR
 - Error checking & correction
-  - ECC
+  - [ECC](./components/ecc.md)
   - CRC
   - [Parity](./components/parity.md)
+  - Interleaving
 - Data flow
   - Ready/Valid
   - Connect/Disconnect

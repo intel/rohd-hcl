@@ -1,4 +1,4 @@
-// Copyright (C) 2023 Intel Corporation
+// Copyright (C) 2023-2024 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 //
 // configurator_test.dart
@@ -248,5 +248,13 @@ void main() {
       expect(sv, contains('BitonicSort_2'));
       expect(sv, contains('if((toSort1 < toSort3)) begin'));
     });
+  });
+
+  test('hamming ecc configurator', () async {
+    final cfg = EccConfigurator();
+    cfg.typeKnob.value = HammingType.secded;
+    cfg.dataWidthKnob.value = 11;
+    final sv = await cfg.generateSV();
+    expect(sv, contains('input logic [15:0] transmission'));
   });
 }
