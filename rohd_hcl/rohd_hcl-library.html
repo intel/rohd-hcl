@@ -253,6 +253,32 @@ performing common tasks with it.
   An interface to a simple memory that only needs enable, address, and data.
 </dd>
 
+        <dt id="EccConfigurator">
+  <span class="name "><a href="../rohd_hcl/EccConfigurator-class.html">EccConfigurator</a></span> 
+
+</dt>
+<dd>
+  A <a href="../rohd_hcl/Configurator-class.html">Configurator</a> for <a href="../rohd_hcl/HammingEccReceiver-class.html">HammingEccReceiver</a> and <a href="../rohd_hcl/HammingEccTransmitter-class.html">HammingEccTransmitter</a>.
+</dd>
+
+        <dt id="ErrorCheckingReceiver">
+  <span class="name "><a href="../rohd_hcl/ErrorCheckingReceiver-class.html">ErrorCheckingReceiver</a></span> 
+
+</dt>
+<dd>
+  A receiver for data which includes a <a href="../rohd_hcl/ErrorCheckingReceiver/code.html">code</a> for checking and possibly
+correcting.
+</dd>
+
+        <dt id="ErrorCheckingTransmitter">
+  <span class="name "><a href="../rohd_hcl/ErrorCheckingTransmitter-class.html">ErrorCheckingTransmitter</a></span> 
+
+</dt>
+<dd>
+  A transmitter for data which includes a <a href="../rohd_hcl/ErrorCheckingTransmitter/code.html">code</a> for checking and possibly
+correcting data at the receiving end.
+</dd>
+
         <dt id="Fifo">
   <span class="name "><a href="../rohd_hcl/Fifo-class.html">Fifo</a></span> 
 
@@ -308,6 +334,24 @@ dangerous conditions.
 </dt>
 <dd>
   A knob which groups together other <a href="../rohd_hcl/ConfigKnob-class.html">ConfigKnob</a>s.
+</dd>
+
+        <dt id="HammingEccReceiver">
+  <span class="name "><a href="../rohd_hcl/HammingEccReceiver-class.html">HammingEccReceiver</a></span> 
+
+</dt>
+<dd>
+  A receiver for transmissions sent with a Hamming code for error detection
+and possibly correction.
+</dd>
+
+        <dt id="HammingEccTransmitter">
+  <span class="name "><a href="../rohd_hcl/HammingEccTransmitter-class.html">HammingEccTransmitter</a></span> 
+
+</dt>
+<dd>
+  A transmitter for data which generates a Hamming code for error detection
+and possibly correction.
 </dd>
 
         <dt id="IntConfigKnob">
@@ -705,6 +749,15 @@ reset.
 </dt>
 <dd>
   A grouping for interface signals of <a href="../rohd_hcl/DataPortInterface-class.html">DataPortInterface</a>s.
+</dd>
+
+        <dt id="HammingType">
+  <span class="name "><a href="../rohd_hcl/HammingType.html">HammingType</a></span> 
+
+</dt>
+<dd>
+  Type of Hamming code, with different characteristics for error correction,
+error detection, and number of check bits required.
 </dd>
 
         <dt id="RotateDirection">

@@ -4,8 +4,8 @@
   <meta charset="utf-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
-  <meta name="description" content="API docs for the ParityTransmitter constructor from Class ParityTransmitter from the rohd_hcl library, for the Dart programming language.">
-  <title>ParityTransmitter constructor - ParityTransmitter - rohd_hcl library - Dart API</title>
+  <meta name="description" content="API docs for the calculateCode method from the ParityTransmitter class, for the Dart programming language.">
+  <title>calculateCode method - ParityTransmitter class - rohd_hcl library - Dart API</title>
 
 
   
@@ -31,9 +31,9 @@
     <li><a href="../../index.html">rohd_hcl</a></li>
     <li><a href="../../rohd_hcl/rohd_hcl-library.html">rohd_hcl</a></li>
     <li><a href="../../rohd_hcl/ParityTransmitter-class.html">ParityTransmitter</a></li>
-    <li class="self-crumb">ParityTransmitter constructor</li>
+    <li class="self-crumb">calculateCode method</li>
   </ol>
-  <div class="self-name">ParityTransmitter</div>
+  <div class="self-name">calculateCode</div>
   <form class="search navbar-right" role="search">
     <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
   </form>
@@ -57,26 +57,37 @@
       data-above-sidebar="rohd_hcl&#47;ParityTransmitter-class-sidebar.html"
       data-below-sidebar="">
       <div>
-<h1><span class="kind-constructor">ParityTransmitter</span> constructor 
+<h1><span class="kind-method">calculateCode</span> method 
 </h1></div>
 
     <section class="multi-line-signature">
       
-      <span class="name ">ParityTransmitter</span>(<wbr><ol class="parameter-list"><li><span class="parameter" id="-param-data"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.5.2/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">data</span>, </span></li>
-<li><span class="parameter" id="-param-name">{<span class="type-annotation"><a href="https://api.dart.dev/stable/3.2.5/dart-core/String-class.html">String</a></span> <span class="parameter-name">name</span> = <span class="default-value">&#39;parity_tx&#39;</span>}</span></li>
-</ol>)
-    </section>
+  <div>
+    <ol class="annotation-list">
+        <li>@<a href="https://api.dart.dev/stable/3.2.5/dart-core/override-constant.html">override</a></li>
+        <li>@<a href="https://pub.dev/documentation/meta/1.11.0/meta/protected-constant.html">protected</a></li>
+    </ol>
+  </div>
 
+<span class="returntype"><a href="https://pub.dev/documentation/rohd/0.5.2/rohd/Logic-class.html">Logic</a></span>
+<span class="name ">calculateCode</span>(<wbr>)
+
+      <div class="features"><span class="feature">override</span></div>
+
+    </section>
     
 <section class="desc markdown">
-  <p>Creates a transmitter that sends data with a parity bit.</p>
+  <p>Generates the code to be provided by the transmitter, to be implemented by
+implementations.</p>
 </section>
 
 
     
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
-  <pre class="language-dart"><code class="language-dart">ParityTransmitter</code></pre>
+  <pre class="language-dart"><code class="language-dart">@override
+@protected
+Logic calculateCode() =&gt; data.xor();</code></pre>
 </section>
 
 
@@ -94,13 +105,13 @@
     <li><a href="../../index.html">rohd_hcl</a></li>
     <li><a href="../../rohd_hcl/rohd_hcl-library.html">rohd_hcl</a></li>
     <li><a href="../../rohd_hcl/ParityTransmitter-class.html">ParityTransmitter</a></li>
-    <li class="self-crumb">ParityTransmitter constructor</li>
+    <li class="self-crumb">calculateCode method</li>
 </ol>
 
 
     <h5>ParityTransmitter class</h5>
     <div id="dartdoc-sidebar-left-content"></div>
-  </div><!--/.sidebar-offcanvas-left-->
+  </div><!--/.sidebar-offcanvas-->
 
   <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
   </div><!--/.sidebar-offcanvas-->

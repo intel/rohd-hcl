@@ -74,6 +74,7 @@
     <ul class="gt-separated dark clazz-relationships">
       <li><a href="https://api.dart.dev/stable/3.2.5/dart-core/Object-class.html">Object</a></li>
         <li><a href="https://pub.dev/documentation/rohd/0.5.2/rohd/Module-class.html">Module</a></li>
+        <li><a href="../rohd_hcl/ErrorCheckingReceiver-class.html">ErrorCheckingReceiver</a></li>
       <li>ParityReceiver</li>
     </ul>
   </dd>
@@ -95,13 +96,13 @@
 
     <dl class="constructor-summary-list">
         <dt id="ParityReceiver" class="callable">
-          <span class="name"><a href="../rohd_hcl/ParityReceiver/ParityReceiver.html">ParityReceiver</a></span><span class="signature">(<span class="parameter" id="-param-bus"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.5.2/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">bus</span></span>)</span>
+          <span class="name"><a href="../rohd_hcl/ParityReceiver/ParityReceiver.html">ParityReceiver</a></span><span class="signature">(<span class="parameter" id="-param-transmission"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.5.2/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">transmission</span>, </span><span class="parameter" id="-param-name">{<span class="type-annotation"><a href="https://api.dart.dev/stable/3.2.5/dart-core/String-class.html">String</a></span> <span class="parameter-name">name</span> = <span class="default-value">&#39;parity_rx&#39;</span>}</span>)</span>
         </dt>
         <dd>
           Constructs a <a href="https://pub.dev/documentation/rohd/0.5.2/rohd/Module-class.html">Module</a> which checks data that has been transmitted with
-parity. This will split the transmitted data in <code>bus</code> into 2 parts: the
-original <a href="../rohd_hcl/ParityReceiver/data.html">data</a>, and the error bit upon which <a href="../rohd_hcl/ParityReceiver/checkError.html">checkError</a> is calculated
-for parity error checking.
+correct parity. This will split the transmitted data in <code>transmission</code>
+into 2 parts: the <a href="../rohd_hcl/ErrorCheckingReceiver/originalData.html">originalData</a>, and the error bit upon which <a href="../rohd_hcl/ErrorCheckingReceiver/error.html">error</a> is
+calculated for parity error checking.
         </dd>
     </dl>
   </section>
@@ -111,24 +112,58 @@ for parity error checking.
 
       <dl class="properties">
         <dt id="checkError" class="property">
-  <span class="name"><a href="../rohd_hcl/ParityReceiver/checkError.html">checkError</a></span>
+  <span class="name"><a class="deprecated" href="../rohd_hcl/ParityReceiver/checkError.html">checkError</a></span>
   <span class="signature">&#8594; <a href="https://pub.dev/documentation/rohd/0.5.2/rohd/Logic-class.html">Logic</a></span> 
 
 </dt>
 <dd>
-  <a href="../rohd_hcl/ParityReceiver/checkError.html">checkError</a> is an getter for parity result with <code>0</code> for success and <code>1</code>
+  <a class="deprecated" href="../rohd_hcl/ParityReceiver/checkError.html">checkError</a> is an getter for parity result with <code>0</code> for success and <code>1</code>
 for fail
   <div class="features"><span class="feature">no setter</span></div>
 
 </dd>
 
+        <dt id="code" class="property inherited">
+  <span class="name"><a href="../rohd_hcl/ErrorCheckingReceiver/code.html">code</a></span>
+  <span class="signature">&#8594; <a href="https://pub.dev/documentation/rohd/0.5.2/rohd/Logic-class.html">Logic</a></span> 
+
+</dt>
+<dd class="inherited">
+  The code included in the transmitted bus which is used to check for and
+handle errors.
+  <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="correctableError" class="property inherited">
+  <span class="name"><a href="../rohd_hcl/ErrorCheckingReceiver/correctableError.html">correctableError</a></span>
+  <span class="signature">&#8594; <a href="https://pub.dev/documentation/rohd/0.5.2/rohd/Logic-class.html">Logic</a></span> 
+
+</dt>
+<dd class="inherited">
+  Whether there was a correctable error.
+  <div class="features"><span class="feature">late</span><span class="feature">final</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="correctedData" class="property inherited">
+  <span class="name"><a href="../rohd_hcl/ErrorCheckingReceiver/correctedData.html">correctedData</a></span>
+  <span class="signature">&#8594; <a href="https://pub.dev/documentation/rohd/0.5.2/rohd/Logic-class.html">Logic</a>?</span> 
+
+</dt>
+<dd class="inherited">
+  The <a href="../rohd_hcl/ErrorCheckingReceiver/originalData.html">originalData</a> with any possible corrections applied.
+  <div class="features"><span class="feature">late</span><span class="feature">final</span><span class="feature">inherited</span></div>
+
+</dd>
+
         <dt id="data" class="property">
-  <span class="name"><a href="../rohd_hcl/ParityReceiver/data.html">data</a></span>
+  <span class="name"><a class="deprecated" href="../rohd_hcl/ParityReceiver/data.html">data</a></span>
   <span class="signature">&#8594; <a href="https://pub.dev/documentation/rohd/0.5.2/rohd/Logic-class.html">Logic</a></span> 
 
 </dt>
 <dd>
-  The original <a href="../rohd_hcl/ParityReceiver/data.html">data</a> (without <a href="../rohd_hcl/ParityReceiver/parity.html">parity</a>).
+  The original <a class="deprecated" href="../rohd_hcl/ParityReceiver/data.html">data</a> (without <a class="deprecated" href="../rohd_hcl/ParityReceiver/parity.html">parity</a>).
   <div class="features"><span class="feature">no setter</span></div>
 
 </dd>
@@ -141,6 +176,17 @@ for fail
 <dd class="inherited">
   The definition name of this <a href="https://pub.dev/documentation/rohd/0.5.2/rohd/Module-class.html">Module</a> used when instantiating instances in
 generated code.
+  <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="error" class="property inherited">
+  <span class="name"><a href="../rohd_hcl/ErrorCheckingReceiver/error.html">error</a></span>
+  <span class="signature">&#8594; <a href="https://pub.dev/documentation/rohd/0.5.2/rohd/Logic-class.html">Logic</a></span> 
+
+</dt>
+<dd class="inherited">
+  Whether or not there was an error (correctable or uncorrectable).
   <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
 
 </dd>
@@ -202,6 +248,17 @@ signals.
 
 </dd>
 
+        <dt id="originalData" class="property inherited">
+  <span class="name"><a href="../rohd_hcl/ErrorCheckingReceiver/originalData.html">originalData</a></span>
+  <span class="signature">&#8594; <a href="https://pub.dev/documentation/rohd/0.5.2/rohd/Logic-class.html">Logic</a></span> 
+
+</dt>
+<dd class="inherited">
+  The original data before any correction.
+  <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
+
+</dd>
+
         <dt id="outputs" class="property inherited">
   <span class="name"><a href="https://pub.dev/documentation/rohd/0.5.2/rohd/Module/outputs.html">outputs</a></span>
   <span class="signature">&#8594; <a href="https://api.dart.dev/stable/3.2.5/dart-core/Map-class.html">Map</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.dart.dev/stable/3.2.5/dart-core/String-class.html">String</a></span>, <span class="type-parameter"><a href="https://pub.dev/documentation/rohd/0.5.2/rohd/Logic-class.html">Logic</a></span>&gt;</span></span> 
@@ -226,12 +283,12 @@ signals.
 </dd>
 
         <dt id="parity" class="property">
-  <span class="name"><a href="../rohd_hcl/ParityReceiver/parity.html">parity</a></span>
+  <span class="name"><a class="deprecated" href="../rohd_hcl/ParityReceiver/parity.html">parity</a></span>
   <span class="signature">&#8594; <a href="https://pub.dev/documentation/rohd/0.5.2/rohd/Logic-class.html">Logic</a></span> 
 
 </dt>
 <dd>
-  <a href="../rohd_hcl/ParityReceiver/parity.html">parity</a> is an getter for parity Bit received upon data transmission
+  <a class="deprecated" href="../rohd_hcl/ParityReceiver/parity.html">parity</a> is an getter for parity Bit received upon data transmission
   <div class="features"><span class="feature">no setter</span></div>
 
 </dd>
@@ -294,6 +351,39 @@ inputs, outputs, and internal signals of this <a href="https://pub.dev/documenta
 
 </dd>
 
+        <dt id="supportsErrorCorrection" class="property inherited">
+  <span class="name"><a href="../rohd_hcl/ErrorCheckingReceiver/supportsErrorCorrection.html">supportsErrorCorrection</a></span>
+  <span class="signature">&#8594; <a href="https://api.dart.dev/stable/3.2.5/dart-core/bool-class.html">bool</a></span> 
+
+</dt>
+<dd class="inherited">
+  Whether or not data correction is supported.
+  <div class="features"><span class="feature">final</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="transmission" class="property inherited">
+  <span class="name"><a href="../rohd_hcl/ErrorCheckingReceiver/transmission.html">transmission</a></span>
+  <span class="signature">&#8596; <a href="https://pub.dev/documentation/rohd/0.5.2/rohd/Logic-class.html">Logic</a></span> 
+
+</dt>
+<dd class="inherited">
+  The input port bus provied to this receiver.
+  <div class="features"><span class="feature">late</span><span class="feature">final</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="uncorrectableError" class="property inherited">
+  <span class="name"><a href="../rohd_hcl/ErrorCheckingReceiver/uncorrectableError.html">uncorrectableError</a></span>
+  <span class="signature">&#8594; <a href="https://pub.dev/documentation/rohd/0.5.2/rohd/Logic-class.html">Logic</a></span> 
+
+</dt>
+<dd class="inherited">
+  Whether there was an uncorrectable error.
+  <div class="features"><span class="feature">late</span><span class="feature">final</span><span class="feature">inherited</span></div>
+
+</dd>
+
         <dt id="uniqueInstanceName" class="property inherited">
   <span class="name"><a href="https://pub.dev/documentation/rohd/0.5.2/rohd/Module/uniqueInstanceName.html">uniqueInstanceName</a></span>
   <span class="signature">&#8594; <a href="https://api.dart.dev/stable/3.2.5/dart-core/String-class.html">String</a></span> 
@@ -311,7 +401,7 @@ unique name within its scope.
 
     
   <section
-      class="summary offset-anchor inherited"
+      class="summary offset-anchor"
       id="instance-methods">
     <h2>Methods</h2>
     <dl class="callables">
@@ -383,6 +473,45 @@ named <code>name</code>.
 <dd class="inherited">
   Builds the <a href="https://pub.dev/documentation/rohd/0.5.2/rohd/Module-class.html">Module</a> and all <a href="https://pub.dev/documentation/rohd/0.5.2/rohd/Module/subModules.html">subModules</a> within it.
   <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="calculateCorrectableError" class="callable">
+  <span class="name"><a href="../rohd_hcl/ParityReceiver/calculateCorrectableError.html">calculateCorrectableError</a></span><span class="signature">(<wbr>)
+    <span class="returntype parameter">&#8594; <a href="https://pub.dev/documentation/rohd/0.5.2/rohd/Logic-class.html">Logic</a></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Implementation to calculate whether something is a <a href="../rohd_hcl/ErrorCheckingReceiver/correctableError.html">correctableError</a>.
+  <div class="features"><span class="feature">override</span></div>
+
+</dd>
+
+        <dt id="calculateCorrectedData" class="callable">
+  <span class="name"><a href="../rohd_hcl/ParityReceiver/calculateCorrectedData.html">calculateCorrectedData</a></span><span class="signature">(<wbr>)
+    <span class="returntype parameter">&#8594; <a href="https://pub.dev/documentation/rohd/0.5.2/rohd/Logic-class.html">Logic</a>?</span>
+  </span>
+  
+
+</dt>
+<dd>
+  Implementation to calculate corrected data, if supported.
+  <div class="features"><span class="feature">override</span></div>
+
+</dd>
+
+        <dt id="calculateUncorrectableError" class="callable">
+  <span class="name"><a href="../rohd_hcl/ParityReceiver/calculateUncorrectableError.html">calculateUncorrectableError</a></span><span class="signature">(<wbr>)
+    <span class="returntype parameter">&#8594; <a href="https://pub.dev/documentation/rohd/0.5.2/rohd/Logic-class.html">Logic</a></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Implementation to calculate whether something is an <a href="../rohd_hcl/ErrorCheckingReceiver/uncorrectableError.html">uncorrectableError</a>.
+  <div class="features"><span class="feature">override</span></div>
 
 </dd>
 
