@@ -21,7 +21,7 @@ abstract class ErrorCheckingTransmitter extends Module {
 
   /// Creates a transmitter for [data].
   ErrorCheckingTransmitter(Logic data,
-      {required int codeWidth, required super.name}) {
+      {required int codeWidth, required super.name, super.definitionName}) {
     this.data = addInput('data', data, width: data.width);
 
     addOutput('code', width: codeWidth);
@@ -84,7 +84,8 @@ abstract class ErrorCheckingReceiver extends Module {
   ErrorCheckingReceiver(Logic transmission,
       {required int codeWidth,
       required this.supportsErrorCorrection,
-      required super.name})
+      required super.name,
+      super.definitionName})
       : assert(codeWidth > 0, 'Must provide non-empty code.') {
     this.transmission =
         addInput('transmission', transmission, width: transmission.width);

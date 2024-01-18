@@ -8,6 +8,7 @@
 // Author: Rahul Gautham Putcha <rahul.gautham.putcha@intel.com>
 //
 
+import 'package:meta/meta.dart';
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
 
@@ -22,6 +23,7 @@ class ParityTransmitter extends ErrorCheckingTransmitter {
       : super(codeWidth: 1);
 
   @override
+  @protected
   Logic calculateCode() => data.xor();
 }
 
@@ -35,12 +37,15 @@ class ParityReceiver extends ErrorCheckingReceiver {
       : super(codeWidth: 1, supportsErrorCorrection: false);
 
   @override
+  @protected
   Logic calculateCorrectableError() => Const(0);
 
   @override
+  @protected
   Logic? calculateCorrectedData() => null;
 
   @override
+  @protected
   Logic calculateUncorrectableError() => ~originalData.xor().eq(code);
 
   /// [checkError] is an getter for parity result with `0` for success and `1`
