@@ -39,7 +39,6 @@ class EdgeDetectorConfigurator extends Configurator {
       );
 
   @override
-  // TODO: implement knobs
   late final Map<String, ConfigKnob<dynamic>> knobs = UnmodifiableMapView({
     'Edge Type': edgeTypeKnob,
     'Has Reset': hasResetKnob,
