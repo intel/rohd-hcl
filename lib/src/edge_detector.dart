@@ -11,7 +11,8 @@ import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/src/exceptions.dart';
 import 'package:rohd_vf/rohd_vf.dart';
 
-///
+/// An edge detector for positive, negative, or any edge on a signal relative to
+/// the previous clock cycle.
 class EdgeDetector extends Module {
   /// The type of edge(s) to detect.
   final Edge edgeType;
