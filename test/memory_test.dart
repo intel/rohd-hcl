@@ -185,8 +185,6 @@ void main() {
 
         await mem.build();
 
-        WaveDumper(mem);
-
         wrPorts = wrPorts.map((oldWrPort) {
           final newWrPort = MaskedDataPortInterface(dataWidth, addrWidth)
             ..en.put(0);

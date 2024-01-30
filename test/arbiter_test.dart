@@ -202,8 +202,6 @@ void main() {
               rrArbType.constructor(requests, clk: clk, reset: reset);
           await arbiter.build();
 
-          WaveDumper(arbiter);
-
           final grantCounts = List.generate(arbiter.count, (_) => 0);
 
           for (var i = 0; i < arbiter.count; i++) {

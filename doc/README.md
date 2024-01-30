@@ -28,7 +28,7 @@ Some in-development items will have opened issues, as well. Feel free to create 
   - [Count bit occurence](./components/count.md)
   - Count pattern occurence
 - Detection
-  - Edge detection
+  - [Edge detection](./components/edge_detector.md)
 - Sort
   - [Bitonic sort](./components/sort.md#bitonic-sort)
 - Arithmetic
