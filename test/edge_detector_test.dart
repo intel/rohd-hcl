@@ -81,7 +81,6 @@ void main() {
       edgeType: Edge.neg,
     );
     await mod.build();
-    WaveDumper(mod);
     final edge = mod.edge;
 
     Simulator.setMaxSimTime(200);
