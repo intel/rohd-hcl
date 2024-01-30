@@ -21,4 +21,5 @@ List<Configurator> get componentRegistry => [
       BitonicSortConfigurator(),
       OneHotConfigurator(),
       RegisterFileConfigurator(),
+      EdgeDetectorConfigurator(),
     ];
