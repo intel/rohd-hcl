@@ -20,10 +20,16 @@ Future<void> parallelPrefixGen() async {
   final names = ['Ripple', 'Sklansky', 'KoggeStone', 'BrentKung'];
   var i = 0;
   for (final ppGen in generators) {
-    final m1 = PPAdder(a, b, ppGen);
+    final m1 = ParallelPrefixAdder(a, b, ppGen);
     await m1.build();
-    File('build/${m1.definitionName}_${names[i]}.v')
-        .writeAsStringSync(m1.generateSynth());
+    File('build/${m1.definitionName}_${names[i]}.v').writeAsStringSync(m1
+        .generateSynth()
+        .replaceAll(m1.definitionName, '${m1.definitionName}_${names[i]}'));
+    final m2 = ParallelPrefixPriorityEncoder(a, ppGen);
+    await m2.build();
+    File('build/${m2.definitionName}_${names[i]}.v').writeAsStringSync(m2
+        .generateSynth()
+        .replaceAll(m2.definitionName, '${m2.definitionName}_${names[i]}'));
     i = i + 1;
   }
 }
