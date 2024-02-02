@@ -5,7 +5,7 @@
 // Implementation of one hot codec for Logic
 //
 // 2023 February 24
-// Author: Desmond Kirkpatrick
+// Author: Desmond Kirkpatrick <desmond.a.kirkpatrick@intel.com>
 
 import 'dart:math';
 import 'package:rohd/rohd.dart';
