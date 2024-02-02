@@ -13,6 +13,7 @@
 import 'arbiter_gen.dart';
 import 'fifo_gen.dart';
 import 'one_hot_gen.dart';
+import 'parallel_prefix_operations_gen.dart';
 import 'rf_gen.dart';
 import 'rotate_gen.dart';
 
@@ -22,4 +23,5 @@ void main() async {
   await oneHotGen();
   await rfGen();
   await rotateGen();
+  await parallelPrefixGen();
 }

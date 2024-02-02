@@ -13,6 +13,7 @@ doc/api/
 tmp*
 *.vcd
 .vscode/
+*~
 
 # Exceptions
 !.vscode/extensions.json
