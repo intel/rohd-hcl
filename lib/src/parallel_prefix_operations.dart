@@ -1,7 +1,7 @@
 // Copyright (C) 2023 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 //
-// parallel-prefix_operations.dart
+// parallel_prefix_operations.dart
 // Implementation of operators using various parallel-prefix trees.
 //
 // 2023 Sep 29
@@ -17,8 +17,8 @@ import 'package:rohd_hcl/rohd_hcl.dart';
 /// This computes the power of 2 less than x
 int largestPow2LessThan(int x) => pow(2, log2Ceil(x) - 1).toInt();
 
-/// ParallePrefix is the core parallel prefix tree structure node
-/// The output is a List of multi-bit Logic vectors (typicall 2-bit) that
+/// [ParallelPrefix] is the core parallel prefix tree structure node
+/// The output is a List of multi-bit Logic vectors (typically 2-bit) that
 /// represent things like carry-save or generate-propagate signaling in adder
 /// networks.  Each node in a parallel prefix tree transforms a row of inputs
 /// to an equal length row of outputs of these multi-bit Logic values.
@@ -26,7 +26,7 @@ class ParallelPrefix extends Module {
   final List<Logic> _oseq = [];
 
   /// Output sequence value
-  List<Logic> get val => _oseq;
+  List<Logic> get val => UnmodifiableListView(_oseq);
 
   /// ParallePrefix recursion
   ParallelPrefix(List<Logic> inps, String name) : super(name: name) {
