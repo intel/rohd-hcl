@@ -151,3 +151,22 @@ Here are some links to help guide you on style as recommended by Dart:
 * Design: <https://dart.dev/guides/language/effective-dart/design>
 
 We recommend following these same guidelines for any of your own packages you may create for the ecosystem, as well.
+
+## Adding a New Component
+
+1. Create the dart code for constructing the module in lib/src
+
+1. Create testing code in test/
+
+1. Create a generator in gen
+
+    1. Add generator to gen/generate.dart
+
+    1. Run dart gen/generate.dart to make sure generation works.
+
+1. Add documentation to doc/name.dart
+
+1. How to test documentation in a dart container
+
+   1. gh_actions/install_oss_cad_suite.sh
+   1. install_d3_hwschematic.sh

@@ -6,10 +6,6 @@
 //
 // 2023 May 09
 // Author: Desmond Kirkpatrick <desmond.a.kirkpatrick@intel.com>
-<<<<<<< HEAD
-//
-=======
->>>>>>> 861c4ad955af5ac6f2099eb3e1270fe83f40ac26
 
 import 'dart:io';
 import 'package:rohd/rohd.dart';
