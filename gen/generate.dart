@@ -10,18 +10,15 @@
 // 2023 May 09
 // Author: Desmond Kirkpatrick <desmond.a.kirkpatrick@intel.com>
 
-import 'arbiter_gen.dart';
-import 'fifo_gen.dart';
-import 'one_hot_gen.dart';
-import 'parallel_prefix_operations_gen.dart';
-import 'rf_gen.dart';
-import 'rotate_gen.dart';
+import 'dart:io';
+
+import 'package:rohd_hcl/src/component_config/components/component_registry.dart';
 
 void main() async {
-  await arbiterGen();
-  await fifoGen();
-  await oneHotGen();
-  await rfGen();
-  await rotateGen();
-  await parallelPrefixGen();
+  Directory('build').createSync(recursive: true);
+  for (final configurator in componentRegistry) {
+    final sv = await configurator.generateSV();
+    final name = configurator.createModule().definitionName;
+    File('build/$name.v').writeAsStringSync(sv);
+  }
 }
