@@ -6,9 +6,7 @@ For example, we have unary operations like a word-level 'or' [`ParallelPrefixOrS
 
 Each of these operations can be implemented with different ['ParallelPrefix'] types:
 
-- ['Ripple'](https://intel.github.io/rohd-hcl/rohd_hcl/Ripple-class.html)
-- ['Sklansky](https://intel.github.io/rohd-hcl/rohd_hcl/Sklansky-class.html)
-- ['KoggeStone'](https://intel.github.io/rohd-hcl/rohd_hcl/KoggeStone-class.html)
-- ['BrentKung](https://intel.github.io/rohd-hcl/rohd_hcl/BrentKung-class.html)
-
-[PPAdder_BrentKung Schematic](https://intel.github.io/rohd-hcl/PPAdder_BrentKung.html)
+- ['Ripple']
+- ['Sklansky]
+- ['KoggeStone']
+- ['BrentKung]
