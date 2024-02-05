@@ -1,7 +1,7 @@
 // Copyright (C) 2023 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 //
-// parallel-prefix_operations.dart
+// parallel_prefix_operations.dart
 // Implementation of operators using various parallel-prefix trees.
 //
 // 2023 Sep 29
@@ -17,12 +17,16 @@ import 'package:rohd_hcl/rohd_hcl.dart';
 /// This computes the power of 2 less than x
 int largestPow2LessThan(int x) => pow(2, log2Ceil(x) - 1).toInt();
 
-/// ParallePrefix is the core parallel prefix tree structure
+/// [ParallelPrefix] is the core parallel prefix tree structure node
+/// The output is a List of multi-bit Logic vectors (typically 2-bit) that
+/// represent things like carry-save or generate-propagate signaling in adder
+/// networks.  Each node in a parallel prefix tree transforms a row of inputs
+/// to an equal length row of outputs of these multi-bit Logic values.
 class ParallelPrefix extends Module {
   final List<Logic> _oseq = [];
 
   /// Output sequence value
-  List<Logic> get val => _oseq;
+  List<Logic> get val => UnmodifiableListView(_oseq);
 
   /// ParallePrefix recursion
   ParallelPrefix(List<Logic> inps, String name) : super(name: name) {
@@ -32,7 +36,7 @@ class ParallelPrefix extends Module {
   }
 }
 
-/// Ripple shaped pp tree
+/// Ripple shaped ParallelPrefix tree
 class Ripple extends ParallelPrefix {
   /// Ripple constructor
   Ripple(List<Logic> inps, Logic Function(Logic, Logic) op)
@@ -54,7 +58,7 @@ class Ripple extends ParallelPrefix {
   }
 }
 
-/// Sklansky shaped pp tree
+/// Sklansky shaped ParallelPrefix tree
 class Sklansky extends ParallelPrefix {
   /// Sklansky constructor
   Sklansky(List<Logic> inps, Logic Function(Logic, Logic) op)
@@ -83,7 +87,7 @@ class Sklansky extends ParallelPrefix {
   }
 }
 
-/// KoggeStone shaped pp tree
+/// KoggeStone shaped ParallelPrefix tree
 class KoggeStone extends ParallelPrefix {
   /// KoggeStone constructor
   KoggeStone(List<Logic> inps, Logic Function(Logic, Logic) op)
@@ -110,7 +114,7 @@ class KoggeStone extends ParallelPrefix {
   }
 }
 
-/// BrentKung shaped pp tree
+/// BrentKung shaped ParallelPrefix tree
 class BrentKung extends ParallelPrefix {
   /// BrentKung constructor
   BrentKung(List<Logic> inps, Logic Function(Logic, Logic) op)
@@ -151,13 +155,13 @@ class BrentKung extends ParallelPrefix {
   }
 }
 
-/// Or scan based on pp tree
-class PPOrScan extends Module {
-  /// Output sequence value
+/// Or scan based on ParallelPrefix tree
+class ParallelPrefixOrScan extends Module {
+  /// Output [out] is the or of bits of the input
   Logic get out => output('out');
 
   /// OrScan constructor
-  PPOrScan(
+  ParallelPrefixOrScan(
       Logic inp,
       ParallelPrefix Function(List<Logic>, Logic Function(Logic, Logic))
           ppGen) {
@@ -168,29 +172,30 @@ class PPOrScan extends Module {
   }
 }
 
-/// Priority Encoder based on pp tree
-class PriorityEncoder extends Module {
-  /// Output sequence value
+/// Priority Encoder based on ParallelPrefix tree
+class ParallelPrefixPriorityEncoder extends Module {
+  /// Output [out] is the bit position of the first '1' in the Logic input
+  /// Search is counted from the LSB
   Logic get out => output('out');
 
   /// PriorityEncoder constructor
-  PriorityEncoder(
+  ParallelPrefixPriorityEncoder(
       Logic inp,
       ParallelPrefix Function(List<Logic>, Logic Function(Logic, Logic))
           ppGen) {
     inp = addInput('inp', inp, width: inp.width);
-    final u = PPOrScan(inp, ppGen);
+    final u = ParallelPrefixOrScan(inp, ppGen);
     addOutput('out', width: inp.width) <= (u.out & ~(u.out << Const(1)));
   }
 }
 
-/// Adder based on pp tree
-class PPAdder extends Module {
-  /// Output sequence value
+/// Adder based on ParallelPrefix tree
+class ParallelPrefixAdder extends Module {
+  /// Output [out] the arithmetic sum of the two Logic inputs
   Logic get out => output('out');
 
   /// Adder constructor
-  PPAdder(
+  ParallelPrefixAdder(
       Logic a,
       Logic b,
       ParallelPrefix Function(List<Logic>, Logic Function(Logic, Logic))
@@ -209,13 +214,13 @@ class PPAdder extends Module {
   }
 }
 
-/// Incrementer based on pp tree
-class PPIncr extends Module {
-  /// Output sequence value
+/// Incrementer based on ParallelPrefix tree
+class ParallelPrefixIncr extends Module {
+  /// Output is '1' added to the Logic input
   Logic get out => output('out');
 
   /// Increment constructor
-  PPIncr(
+  ParallelPrefixIncr(
       Logic inp,
       ParallelPrefix Function(List<Logic>, Logic Function(Logic, Logic))
           ppGen) {
@@ -229,13 +234,13 @@ class PPIncr extends Module {
   }
 }
 
-/// Decrementer based on pp tree
-class PPDecr extends Module {
-  /// Output sequence value
+/// Decrementer based on ParallelPrefix tree
+class ParallelPrefixDecr extends Module {
+  /// Output is '1' subtracted from the Logic input
   Logic get out => output('out');
 
   /// Decrement constructor
-  PPDecr(
+  ParallelPrefixDecr(
       Logic inp,
       ParallelPrefix Function(List<Logic>, Logic Function(Logic, Logic))
           ppGen) {

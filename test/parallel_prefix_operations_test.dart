@@ -12,7 +12,7 @@ import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/src/parallel_prefix_operations.dart';
 import 'package:test/test.dart';
 
-void testOrScan(int n, PPOrScan Function(Logic a) fn) {
+void testOrScan(int n, ParallelPrefixOrScan Function(Logic a) fn) {
   test('or_scan_$n', () async {
     final inp = Logic(name: 'inp', width: n);
     final mod = fn(inp);
@@ -42,7 +42,8 @@ void testOrScan(int n, PPOrScan Function(Logic a) fn) {
   });
 }
 
-void testPriorityEncoder(int n, PriorityEncoder Function(Logic a) fn) {
+void testPriorityEncoder(
+    int n, ParallelPrefixPriorityEncoder Function(Logic a) fn) {
   test('priority_encoder_$n', () async {
     final inp = Logic(name: 'inp', width: n);
     final mod = fn(inp);
@@ -69,7 +70,7 @@ void testPriorityEncoder(int n, PriorityEncoder Function(Logic a) fn) {
   });
 }
 
-void testAdder(int n, PPAdder Function(Logic a, Logic b) fn) {
+void testAdder(int n, ParallelPrefixAdder Function(Logic a, Logic b) fn) {
   test('adder_$n', () async {
     final a = Logic(name: 'a', width: n);
     final b = Logic(name: 'b', width: n);
@@ -94,20 +95,8 @@ void testAdder(int n, PPAdder Function(Logic a, Logic b) fn) {
   });
 }
 
-BigInt genRandomBigInt(int inBits) {
-  var nBits = inBits;
-  var result = BigInt.from(0);
-  while (nBits > 0) {
-    final shaveOff = min(16, nBits);
-    result =
-        (result << shaveOff) + BigInt.from(Random().nextInt(1 << shaveOff));
-    nBits -= shaveOff;
-  }
-  return result;
-}
-
 void testAdderRandom(
-    int n, int nSamples, PPAdder Function(Logic a, Logic b) fn) {
+    int n, int nSamples, ParallelPrefixAdder Function(Logic a, Logic b) fn) {
   test('adder_$n', () async {
     final a = Logic(name: 'a', width: n);
     final b = Logic(name: 'b', width: n);
@@ -115,23 +104,23 @@ void testAdderRandom(
     final mod = fn(a, b);
     await mod.build();
 
-    BigInt computeAdder(BigInt aa, BigInt bb) =>
-        (aa + bb) & ((BigInt.from(1) << n) - BigInt.from(1));
+    LogicValue computeAdder(LogicValue aa, LogicValue bb) =>
+        (aa + bb) & LogicValue.ofBigInt(BigInt.from((1 << n) - 1), n);
     // put/expect testing
 
     for (var i = 0; i < nSamples; ++i) {
-      final aa = genRandomBigInt(n);
-      final bb = genRandomBigInt(n);
+      final aa = Random().nextLogicValue(width: n);
+      final bb = Random().nextLogicValue(width: n);
       final golden = computeAdder(aa, bb);
       a.put(aa);
       b.put(bb);
-      final result = mod.out.value.toBigInt();
+      final result = mod.out.value;
       expect(result, equals(golden));
     }
   });
 }
 
-void testIncr(int n, PPIncr Function(Logic a) fn) {
+void testIncr(int n, ParallelPrefixIncr Function(Logic a) fn) {
   test('incr_$n', () async {
     final inp = Logic(name: 'inp', width: n);
     final mod = fn(inp);
@@ -151,7 +140,7 @@ void testIncr(int n, PPIncr Function(Logic a) fn) {
   });
 }
 
-void testDecr(int n, PPDecr Function(Logic a) fn) {
+void testDecr(int n, ParallelPrefixDecr Function(Logic a) fn) {
   test('decr_$n', () async {
     final inp = Logic(name: 'inp', width: n);
     final mod = fn(inp);
@@ -189,7 +178,7 @@ void main() {
   group('or_scan', () {
     for (final n in [7, 8, 9]) {
       for (final ppGen in generators) {
-        testOrScan(n, (inp) => PPOrScan(inp, ppGen));
+        testOrScan(n, (inp) => ParallelPrefixOrScan(inp, ppGen));
       }
     }
   });
@@ -197,7 +186,8 @@ void main() {
   group('priority_encoder', () {
     for (final n in [7, 8, 9]) {
       for (final ppGen in generators) {
-        testPriorityEncoder(n, (inp) => PriorityEncoder(inp, ppGen));
+        testPriorityEncoder(
+            n, (inp) => ParallelPrefixPriorityEncoder(inp, ppGen));
       }
     }
   });
@@ -205,7 +195,7 @@ void main() {
   group('adder', () {
     for (final n in [3, 4, 5]) {
       for (final ppGen in generators) {
-        testAdder(n, (a, b) => PPAdder(a, b, ppGen));
+        testAdder(n, (a, b) => ParallelPrefixAdder(a, b, ppGen));
       }
     }
   });
@@ -213,7 +203,7 @@ void main() {
   group('adderRandom', () {
     for (final n in [127, 128, 129]) {
       for (final ppGen in generators) {
-        testAdderRandom(n, 10, (a, b) => PPAdder(a, b, ppGen));
+        testAdderRandom(n, 10, (a, b) => ParallelPrefixAdder(a, b, ppGen));
       }
     }
   });
@@ -221,7 +211,7 @@ void main() {
   group('incr', () {
     for (final n in [7, 8, 9]) {
       for (final ppGen in generators) {
-        testIncr(n, (inp) => PPIncr(inp, ppGen));
+        testIncr(n, (inp) => ParallelPrefixIncr(inp, ppGen));
       }
     }
   });
@@ -229,7 +219,7 @@ void main() {
   group('decr', () {
     for (final n in [7, 8, 9]) {
       for (final ppGen in generators) {
-        testDecr(n, (inp) => PPDecr(inp, ppGen));
+        testDecr(n, (inp) => ParallelPrefixDecr(inp, ppGen));
       }
     }
   });
