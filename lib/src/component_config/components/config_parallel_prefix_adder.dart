@@ -19,6 +19,7 @@ class ParallelPrefixAdderConfigurator extends Configurator {
           ParallelPrefix Function(List<Logic>, Logic Function(Logic, Logic))>
       prefixTreeKnob = ChoiceConfigKnob(
           [Ripple.new, Sklansky.new, KoggeStone.new, BrentKung.new],
+          value: BrentKung.new);
 
   /// Controls the width of the data.
   final IntConfigKnob dataWidthKnob = IntConfigKnob(value: 8);
