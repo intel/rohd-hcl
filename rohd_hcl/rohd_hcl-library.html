@@ -188,6 +188,14 @@ specified order based on <a href="../rohd_hcl/Sort/isAscending.html">isAscending
   A <a href="../rohd_hcl/Configurator-class.html">Configurator</a> for <a href="../rohd_hcl/BitonicSort-class.html">BitonicSort</a>.
 </dd>
 
+        <dt id="BrentKung">
+  <span class="name "><a href="../rohd_hcl/BrentKung-class.html">BrentKung</a></span> 
+
+</dt>
+<dd>
+  BrentKung shaped ParallelPrefix tree
+</dd>
+
         <dt id="CarrySaveMultiplier">
   <span class="name "><a href="../rohd_hcl/CarrySaveMultiplier-class.html">CarrySaveMultiplier</a></span> 
 
@@ -379,6 +387,14 @@ and possibly correction.
   A knob to store an <a href="https://api.dart.dev/stable/3.2.6/dart-core/int-class.html">int</a>.
 </dd>
 
+        <dt id="KoggeStone">
+  <span class="name "><a href="../rohd_hcl/KoggeStone-class.html">KoggeStone</a></span> 
+
+</dt>
+<dd>
+  KoggeStone shaped ParallelPrefix tree
+</dd>
+
         <dt id="ListOfKnobsKnob">
   <span class="name "><a href="../rohd_hcl/ListOfKnobsKnob-class.html">ListOfKnobsKnob</a></span> 
 
@@ -450,6 +466,66 @@ store data.
 </dt>
 <dd>
   Decodes a one-hot number into binary using a case block.
+</dd>
+
+        <dt id="ParallelPrefix">
+  <span class="name "><a href="../rohd_hcl/ParallelPrefix-class.html">ParallelPrefix</a></span> 
+
+</dt>
+<dd>
+  <a href="../rohd_hcl/ParallelPrefix-class.html">ParallelPrefix</a> is the core parallel prefix tree structure node
+The output is a List of multi-bit Logic vectors (typically 2-bit) that
+represent things like carry-save or generate-propagate signaling in adder
+networks.  Each node in a parallel prefix tree transforms a row of inputs
+to an equal length row of outputs of these multi-bit Logic values.
+</dd>
+
+        <dt id="ParallelPrefixAdder">
+  <span class="name "><a href="../rohd_hcl/ParallelPrefixAdder-class.html">ParallelPrefixAdder</a></span> 
+
+</dt>
+<dd>
+  Adder based on ParallelPrefix tree
+</dd>
+
+        <dt id="ParallelPrefixAdderConfigurator">
+  <span class="name "><a href="../rohd_hcl/ParallelPrefixAdderConfigurator-class.html">ParallelPrefixAdderConfigurator</a></span> 
+
+</dt>
+<dd>
+  A <a href="../rohd_hcl/Configurator-class.html">Configurator</a> for <a href="../rohd_hcl/ParallelPrefixAdder-class.html">ParallelPrefixAdder</a>s.
+</dd>
+
+        <dt id="ParallelPrefixDecr">
+  <span class="name "><a href="../rohd_hcl/ParallelPrefixDecr-class.html">ParallelPrefixDecr</a></span> 
+
+</dt>
+<dd>
+  Decrementer based on ParallelPrefix tree
+</dd>
+
+        <dt id="ParallelPrefixIncr">
+  <span class="name "><a href="../rohd_hcl/ParallelPrefixIncr-class.html">ParallelPrefixIncr</a></span> 
+
+</dt>
+<dd>
+  Incrementer based on ParallelPrefix tree
+</dd>
+
+        <dt id="ParallelPrefixOrScan">
+  <span class="name "><a href="../rohd_hcl/ParallelPrefixOrScan-class.html">ParallelPrefixOrScan</a></span> 
+
+</dt>
+<dd>
+  Or scan based on ParallelPrefix tree
+</dd>
+
+        <dt id="ParallelPrefixPriorityEncoder">
+  <span class="name "><a href="../rohd_hcl/ParallelPrefixPriorityEncoder-class.html">ParallelPrefixPriorityEncoder</a></span> 
+
+</dt>
+<dd>
+  Priority Encoder based on ParallelPrefix tree
 </dd>
 
         <dt id="ParityReceiver">
@@ -556,6 +632,14 @@ store data.
   A <a href="../rohd_hcl/Configurator-class.html">Configurator</a> for <a href="../rohd_hcl/RegisterFile-class.html">RegisterFile</a>s.
 </dd>
 
+        <dt id="Ripple">
+  <span class="name "><a href="../rohd_hcl/Ripple-class.html">Ripple</a></span> 
+
+</dt>
+<dd>
+  Ripple shaped ParallelPrefix tree
+</dd>
+
         <dt id="RippleCarryAdder">
   <span class="name "><a href="../rohd_hcl/RippleCarryAdder-class.html">RippleCarryAdder</a></span> 
 
@@ -649,6 +733,14 @@ adder sequentially adds corresponding bits of two binary numbers.
 reset.
 </dd>
 
+        <dt id="Sklansky">
+  <span class="name "><a href="../rohd_hcl/Sklansky-class.html">Sklansky</a></span> 
+
+</dt>
+<dd>
+  Sklansky shaped ParallelPrefix tree
+</dd>
+
         <dt id="Sort">
   <span class="name "><a href="../rohd_hcl/Sort-class.html">Sort</a></span> 
 
@@ -732,6 +824,19 @@ reset.
       <h2>Functions</h2>
 
       <dl class="callables">
+        <dt id="largestPow2LessThan" class="callable">
+  <span class="name"><a href="../rohd_hcl/largestPow2LessThan.html">largestPow2LessThan</a></span><span class="signature">(<wbr><span class="parameter" id="largestPow2LessThan-param-x"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.2.6/dart-core/int-class.html">int</a></span> <span class="parameter-name">x</span></span>)
+    <span class="returntype parameter">&#8594; <a href="https://api.dart.dev/stable/3.2.6/dart-core/int-class.html">int</a></span>
+  </span>
+  
+
+</dt>
+<dd>
+  This computes the power of 2 less than x
+  
+
+</dd>
+
         <dt id="log2Ceil" class="callable">
   <span class="name"><a href="../rohd_hcl/log2Ceil.html">log2Ceil</a></span><span class="signature">(<wbr><span class="parameter" id="log2Ceil-param-w"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.2.6/dart-core/int-class.html">int</a></span> <span class="parameter-name">w</span></span>)
     <span class="returntype parameter">&#8594; <a href="https://api.dart.dev/stable/3.2.6/dart-core/int-class.html">int</a></span>
