@@ -1,4 +1,4 @@
-// Copyright (C) 2023 Intel Corporation
+// Copyright (C) 2023-24 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 //
 // config_parallel-prefix_adder.dart
@@ -14,21 +14,28 @@ import 'package:rohd_hcl/rohd_hcl.dart';
 
 /// A [Configurator] for [ParallelPrefixAdder]s.
 class ParallelPrefixAdderConfigurator extends Configurator {
-  /// Controls the type of [ParallelPrefix] tree used in the adder.
-  final ChoiceConfigKnob<
+  /// Map from Type to Function for Parallel Prefix generator
+  static Map<Type,
           ParallelPrefix Function(List<Logic>, Logic Function(Logic, Logic))>
-      prefixTreeKnob = ChoiceConfigKnob(
-          [Ripple.new, Sklansky.new, KoggeStone.new, BrentKung.new],
-          value: BrentKung.new);
+      generatorMap = {
+    Ripple: Ripple.new,
+    Sklansky: Sklansky.new,
+    KoggeStone: KoggeStone.new,
+    BrentKung: BrentKung.new
+  };
 
-  /// Controls the width of the data.
+  /// Controls the type of [ParallelPrefix] tree used in the adder.
+  final prefixTreeKnob =
+      ChoiceConfigKnob(generatorMap.keys.toList(), value: BrentKung);
+
+  /// Controls the width of the data.!
   final IntConfigKnob dataWidthKnob = IntConfigKnob(value: 8);
 
   @override
   Module createModule() => ParallelPrefixAdder(
       Logic(name: 'a', width: dataWidthKnob.value),
       Logic(name: 'b', width: dataWidthKnob.value),
-      prefixTreeKnob.value);
+      generatorMap[prefixTreeKnob.value]!);
 
   @override
   late final Map<String, ConfigKnob<dynamic>> knobs = UnmodifiableMapView({
