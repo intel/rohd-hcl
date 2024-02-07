@@ -23,4 +23,5 @@ List<Configurator> get componentRegistry => [
       RegisterFileConfigurator(),
       EdgeDetectorConfigurator(),
       FindConfigurator(),
+      ParallelPrefixAdderConfigurator(),
     ];

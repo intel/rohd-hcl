@@ -16,6 +16,7 @@ export 'src/interfaces/interfaces.dart';
 export 'src/memory/memories.dart';
 export 'src/models/models.dart';
 export 'src/multiplier.dart';
+export 'src/parallel_prefix_operations.dart';
 export 'src/ripple_carry_adder.dart';
 export 'src/rotate.dart';
 export 'src/shift_register.dart';

@@ -265,4 +265,13 @@ void main() {
     final sv = await cfg.generateSV();
     expect(sv, contains('module Find'));
   });
+
+  test('prefix tree adder configurator', () async {
+    final cfg = ParallelPrefixAdderConfigurator();
+    // final json = cfg.toJson(pretty: true);
+    // print(json);
+
+    final sv = await cfg.generateSV();
+    expect(sv, contains('swizzle'));
+  });
 }
