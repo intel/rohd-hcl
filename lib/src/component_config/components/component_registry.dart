@@ -22,4 +22,5 @@ List<Configurator> get componentRegistry => [
       OneHotConfigurator(),
       RegisterFileConfigurator(),
       EdgeDetectorConfigurator(),
+      FindConfigurator(),
     ];
