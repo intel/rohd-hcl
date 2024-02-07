@@ -258,6 +258,14 @@ void main() {
     expect(sv, contains('input logic [15:0] transmission'));
   });
 
+  test('find configurator', () async {
+    final cfg = FindConfigurator();
+    cfg.includeNKnob.value = true;
+    cfg.generateErrorKnob.value = true;
+    final sv = await cfg.generateSV();
+    expect(sv, contains('module Find'));
+  });
+
   test('prefix tree adder configurator', () async {
     final cfg = ParallelPrefixAdderConfigurator();
     // final json = cfg.toJson(pretty: true);

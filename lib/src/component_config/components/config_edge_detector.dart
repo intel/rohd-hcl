@@ -31,6 +31,7 @@ class EdgeDetectorConfigurator extends Configurator {
         Logic(),
         clk: Logic(),
         reset: hasResetKnob.value ? Logic() : null,
+        edgeType: edgeTypeKnob.value,
         resetValue: hasResetKnob.value
             ? resetValueKnob.value == 'Input'
                 ? Logic()
