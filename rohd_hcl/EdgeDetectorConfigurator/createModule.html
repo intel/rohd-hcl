@@ -88,6 +88,7 @@ Module createModule() =&gt; EdgeDetector(
       Logic(),
       clk: Logic(),
       reset: hasResetKnob.value ? Logic() : null,
+      edgeType: edgeTypeKnob.value,
       resetValue: hasResetKnob.value
           ? resetValueKnob.value == &#39;Input&#39;
               ? Logic()
