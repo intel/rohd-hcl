@@ -65,6 +65,7 @@ The below button will allow you to create a GitHub Codespace with ROHD-HCL alrea
 [![Open in GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://github.com/codespaces/new?hide_repo_select=true&ref=main&repo=621521356)
 
 To run the component Configurator, especially useful for visualizing the RTL output of your component using different parameters:
+
 ```shell
 cd confapp
 flutter run --profile -d web-server --web-hostname=0.0.0.0 --web-port=3000
