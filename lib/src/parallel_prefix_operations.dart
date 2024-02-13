@@ -195,11 +195,9 @@ class ParallelPrefixAdder extends Module {
   Logic get out => output('out');
 
   /// Adder constructor
-  ParallelPrefixAdder(
-      Logic a,
-      Logic b,
-      ParallelPrefix Function(List<Logic>, Logic Function(Logic, Logic))
-          ppGen) {
+  ParallelPrefixAdder(Logic a, Logic b,
+      ParallelPrefix Function(List<Logic>, Logic Function(Logic, Logic)) ppGen,
+      {super.definitionName}) {
     a = addInput('a', a, width: a.width);
     b = addInput('b', b, width: b.width);
     final u = ppGen(

@@ -25,3 +25,6 @@ tool/gh_actions/install_opencadsuite.sh
 
 # Install D3 Schematic viewer
 tool/gh_actions/install_d3_hwschematic.sh
+
+# Install Flutter
+tool/gh_codespaces/install_flutter.sh
