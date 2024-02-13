@@ -1,13 +1,16 @@
 #!/bin/bash
 
-# Copyright (C) 2023 Intel Corporation
+# Copyright (C) 2023-24 Intel Corporation
 # SPDX-License-Identifier: BSD-3-Clause
 #
-# install_dart.sh
-# GitHub Codespaces setup: Install Dart SDK according to the instructions from https://dart.dev/get-dart#install-using-apt-get.
+# install_flutter.sh
+# GitHub Codespaces setup: Install Flutter SDK following this Dockerfile recipe:
+#    https://github.com/appleboy/flutter-docker/blob/master/Dockerfile
+# or this git area
+#    https://github.com/yostane/flutter2-desktop
 #
-# 2023 February 5
-# Author: Chykon
+# 2024 February 12
+# Author: Desmond Kirkpatrick <desmond.a.kirkpatrick@intel.com>
 
 set -euo pipefail
 
