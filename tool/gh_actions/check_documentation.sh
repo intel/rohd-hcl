@@ -23,7 +23,7 @@ set -euo pipefail
 output=$(dart doc 2>&1 | tee)
 
 # In case of problems, the searched substring will not be found.
-if echo "${output}" | grep --silent 'no issues found'; then
+if echo "${output}" | grep --silent -e 'no issues found' -e 'Success!'; then
   echo 'Documentation check passed!'
 else
   echo "${output}"
