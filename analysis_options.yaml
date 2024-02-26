@@ -6,6 +6,8 @@ analyzer:
     strict-casts: true
     strict-inference: true
     strict-raw-types: true
+  exclude:
+    - confapp/**
 
 # keep up to date, matching https://dart.dev/tools/linter-rules/all
 # some lints are not yet available, so disabled and marked with [not currently recognized]
