@@ -29,7 +29,7 @@
   <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
   <ol class="breadcrumbs gt-separated dark hidden-xs">
     <li><a href="../../index.html">rohd_hcl</a></li>
-    <li><a href="../../rohd_hcl/rohd_hcl-library.html">rohd_hcl</a></li>
+    <li><a href="../../rohd_hcl/rohd_hcl-library.html">rohd_hcl.dart</a></li>
     <li><a href="../../rohd_hcl/Memory-class.html">Memory</a></li>
     <li class="self-crumb">Memory constructor</li>
   </ol>
@@ -64,9 +64,9 @@
       
       <span class="name ">Memory</span>(<wbr><ol class="parameter-list"><li><span class="parameter" id="-param-clk"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.5.2/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">clk</span>, </span></li>
 <li><span class="parameter" id="-param-reset"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.5.2/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">reset</span>, </span></li>
-<li><span class="parameter" id="-param-writePorts"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.2.6/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../../rohd_hcl/DataPortInterface-class.html">DataPortInterface</a></span>&gt;</span></span> <span class="parameter-name">writePorts</span>, </span></li>
-<li><span class="parameter" id="-param-readPorts"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.2.6/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../../rohd_hcl/DataPortInterface-class.html">DataPortInterface</a></span>&gt;</span></span> <span class="parameter-name">readPorts</span>, </span></li>
-<li><span class="parameter" id="-param-name">{<span class="type-annotation"><a href="https://api.dart.dev/stable/3.2.6/dart-core/String-class.html">String</a></span> <span class="parameter-name">name</span> = <span class="default-value">&#39;memory&#39;</span>}</span></li>
+<li><span class="parameter" id="-param-writePorts"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.3.0/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../../rohd_hcl/DataPortInterface-class.html">DataPortInterface</a></span>&gt;</span></span> <span class="parameter-name">writePorts</span>, </span></li>
+<li><span class="parameter" id="-param-readPorts"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.3.0/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../../rohd_hcl/DataPortInterface-class.html">DataPortInterface</a></span>&gt;</span></span> <span class="parameter-name">readPorts</span>, </span></li>
+<li><span class="parameter" id="-param-name">{<span class="type-annotation"><a href="https://api.dart.dev/stable/3.3.0/dart-core/String-class.html">String</a></span> <span class="parameter-name">name</span> = <span class="default-value">&#39;memory&#39;</span>}</span></li>
 </ol>)
     </section>
 
@@ -80,7 +80,52 @@
     
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
-  <pre class="language-dart"><code class="language-dart">Memory</code></pre>
+  <pre class="language-dart"><code class="language-dart">Memory(Logic clk, Logic reset, List&lt;DataPortInterface&gt; writePorts,
+    List&lt;DataPortInterface&gt; readPorts,
+    {super.name = &#39;memory&#39;})
+    : assert(!(writePorts.isEmpty &amp;&amp; readPorts.isEmpty),
+          &#39;Must specify at least one read port or one write port.&#39;),
+      numWrites = writePorts.length,
+      numReads = readPorts.length,
+      dataWidth = (writePorts.isNotEmpty)
+          ? writePorts[0].dataWidth
+          : readPorts[0].dataWidth, &#47;&#47; at least one of these must exist
+      addrWidth = (writePorts.isNotEmpty)
+          ? writePorts[0].addrWidth
+          : readPorts[0].addrWidth &#47;&#47; at least one of these must exist
+{
+  if (readLatency &lt; 0) {
+    throw RohdHclException(&#39;Read latency must be non-negative.&#39;);
+  }
+
+  &#47;&#47; make sure widths of everything match expectations
+  for (final port in [...writePorts, ...readPorts]) {
+    if (port.addrWidth != addrWidth) {
+      throw RohdHclException(&#39;All ports must have the same address width.&#39;);
+    }
+    if (port.dataWidth != dataWidth) {
+      throw RohdHclException(&#39;All ports must have the same data width.&#39;);
+    }
+  }
+
+  addInput(&#39;clk&#39;, clk);
+  addInput(&#39;reset&#39;, reset);
+
+  for (var i = 0; i &lt; numReads; i++) {
+    rdPorts.add(readPorts[i].clone()
+      ..connectIO(this, readPorts[i],
+          inputTags: {DataPortGroup.control},
+          outputTags: {DataPortGroup.data},
+          uniquify: (original) =&gt; &#39;rd_${original}_$i&#39;));
+  }
+  for (var i = 0; i &lt; numWrites; i++) {
+    wrPorts.add(writePorts[i].clone()
+      ..connectIO(this, writePorts[i],
+          inputTags: {DataPortGroup.control, DataPortGroup.data},
+          outputTags: {},
+          uniquify: (original) =&gt; &#39;wr_${original}_$i&#39;));
+  }
+}</code></pre>
 </section>
 
 

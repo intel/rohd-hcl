@@ -29,7 +29,7 @@
   <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
   <ol class="breadcrumbs gt-separated dark hidden-xs">
     <li><a href="../../index.html">rohd_hcl</a></li>
-    <li><a href="../../rohd_hcl/rohd_hcl-library.html">rohd_hcl</a></li>
+    <li><a href="../../rohd_hcl/rohd_hcl-library.html">rohd_hcl.dart</a></li>
     <li><a href="../../rohd_hcl/OneHotToBinary-class.html">OneHotToBinary</a></li>
     <li class="self-crumb">OneHotToBinary factory constructor</li>
   </ol>
@@ -63,8 +63,8 @@
     <section class="multi-line-signature">
       
       <span class="name ">OneHotToBinary</span>(<wbr><ol class="parameter-list"><li><span class="parameter" id="-param-onehot"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.5.2/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">onehot</span>, </span></li>
-<li><span class="parameter" id="-param-generateError">{<span class="type-annotation"><a href="https://api.dart.dev/stable/3.2.6/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">generateError</span> = <span class="default-value">false</span>, </span></li>
-<li><span class="parameter" id="-param-name"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.2.6/dart-core/String-class.html">String</a></span> <span class="parameter-name">name</span> = <span class="default-value">&#39;one_hot_to_binary&#39;</span>}</span></li>
+<li><span class="parameter" id="-param-generateError">{<span class="type-annotation"><a href="https://api.dart.dev/stable/3.3.0/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">generateError</span> = <span class="default-value">false</span>, </span></li>
+<li><span class="parameter" id="-param-name"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.3.0/dart-core/String-class.html">String</a></span> <span class="parameter-name">name</span> = <span class="default-value">&#39;one_hot_to_binary&#39;</span>}</span></li>
 </ol>)
     </section>
 
@@ -78,7 +78,17 @@ widths and a <a href="../../rohd_hcl/TreeOneHotToBinary-class.html">TreeOneHotTo
     
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
-  <pre class="language-dart"><code class="language-dart">factory OneHotToBinary</code></pre>
+  <pre class="language-dart"><code class="language-dart">factory OneHotToBinary(Logic onehot,
+    {bool generateError = false, String name = &#39;one_hot_to_binary&#39;}) {
+  final isSmall = onehot.width &lt;= 8;
+
+  assert(!(!isSmall &amp;&amp; generateError),
+      &#39;Tree implementation does not generate error signal.&#39;);
+
+  return isSmall
+      ? CaseOneHotToBinary(onehot, generateError: generateError, name: name)
+      : TreeOneHotToBinary(onehot, name: name);
+}</code></pre>
 </section>
 
 

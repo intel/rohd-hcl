@@ -29,7 +29,7 @@
   <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
   <ol class="breadcrumbs gt-separated dark hidden-xs">
     <li><a href="../../index.html">rohd_hcl</a></li>
-    <li><a href="../../rohd_hcl/rohd_hcl-library.html">rohd_hcl</a></li>
+    <li><a href="../../rohd_hcl/rohd_hcl-library.html">rohd_hcl.dart</a></li>
     <li><a href="../../rohd_hcl/Fifo-class.html">Fifo</a></li>
     <li class="self-crumb">Fifo constructor</li>
   </ol>
@@ -67,11 +67,11 @@
 <li><span class="parameter" id="-param-writeEnable">{<span>required</span> <span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.5.2/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">writeEnable</span>, </span></li>
 <li><span class="parameter" id="-param-writeData"><span>required</span> <span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.5.2/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">writeData</span>, </span></li>
 <li><span class="parameter" id="-param-readEnable"><span>required</span> <span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.5.2/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">readEnable</span>, </span></li>
-<li><span class="parameter" id="-param-depth"><span>required</span> <span class="type-annotation"><a href="https://api.dart.dev/stable/3.2.6/dart-core/int-class.html">int</a></span> <span class="parameter-name">depth</span>, </span></li>
-<li><span class="parameter" id="-param-generateError"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.2.6/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">generateError</span> = <span class="default-value">false</span>, </span></li>
-<li><span class="parameter" id="-param-generateOccupancy"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.2.6/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">generateOccupancy</span> = <span class="default-value">false</span>, </span></li>
-<li><span class="parameter" id="-param-generateBypass"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.2.6/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">generateBypass</span> = <span class="default-value">false</span>, </span></li>
-<li><span class="parameter" id="-param-name"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.2.6/dart-core/String-class.html">String</a></span> <span class="parameter-name">name</span> = <span class="default-value">&#39;fifo&#39;</span>}</span></li>
+<li><span class="parameter" id="-param-depth"><span>required</span> <span class="type-annotation"><a href="https://api.dart.dev/stable/3.3.0/dart-core/int-class.html">int</a></span> <span class="parameter-name">depth</span>, </span></li>
+<li><span class="parameter" id="-param-generateError"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.3.0/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">generateError</span> = <span class="default-value">false</span>, </span></li>
+<li><span class="parameter" id="-param-generateOccupancy"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.3.0/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">generateOccupancy</span> = <span class="default-value">false</span>, </span></li>
+<li><span class="parameter" id="-param-generateBypass"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.3.0/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">generateBypass</span> = <span class="default-value">false</span>, </span></li>
+<li><span class="parameter" id="-param-name"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.3.0/dart-core/String-class.html">String</a></span> <span class="parameter-name">name</span> = <span class="default-value">&#39;fifo&#39;</span>}</span></li>
 </ol>)
     </section>
 
@@ -84,7 +84,47 @@
     
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
-  <pre class="language-dart"><code class="language-dart">Fifo</code></pre>
+  <pre class="language-dart"><code class="language-dart">Fifo(Logic clk, Logic reset,
+    {required Logic writeEnable,
+    required Logic writeData,
+    required Logic readEnable,
+    required this.depth,
+    this.generateError = false,
+    this.generateOccupancy = false,
+    this.generateBypass = false,
+    super.name = &#39;fifo&#39;})
+    : dataWidth = writeData.width,
+      _addrWidth = max(1, log2Ceil(depth)) {
+  if (depth &lt;= 0) {
+    throw RohdHclException(&#39;Depth must be at least 1.&#39;);
+  }
+
+  assert(_addrWidth &gt; 0,
+      &#39;Assumption that address width is non-zero in implementation&#39;);
+
+  addInput(&#39;clk&#39;, clk);
+  addInput(&#39;reset&#39;, reset);
+
+  &#47;&#47; set up read&#47;write ports
+  addInput(&#39;writeEnable&#39;, writeEnable);
+  addInput(&#39;writeData&#39;, writeData, width: dataWidth);
+  addInput(&#39;readEnable&#39;, readEnable);
+  addOutput(&#39;readData&#39;, width: dataWidth);
+
+  &#47;&#47; set up info ports
+  addOutput(&#39;full&#39;);
+  addOutput(&#39;empty&#39;);
+
+  if (generateError) {
+    addOutput(&#39;error&#39;);
+  }
+
+  if (generateOccupancy) {
+    addOutput(&#39;occupancy&#39;, width: log2Ceil(depth));
+  }
+
+  _buildLogic();
+}</code></pre>
 </section>
 
 

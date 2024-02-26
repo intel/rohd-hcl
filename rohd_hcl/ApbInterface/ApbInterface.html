@@ -29,7 +29,7 @@
   <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
   <ol class="breadcrumbs gt-separated dark hidden-xs">
     <li><a href="../../index.html">rohd_hcl</a></li>
-    <li><a href="../../rohd_hcl/rohd_hcl-library.html">rohd_hcl</a></li>
+    <li><a href="../../rohd_hcl/rohd_hcl-library.html">rohd_hcl.dart</a></li>
     <li><a href="../../rohd_hcl/ApbInterface-class.html">ApbInterface</a></li>
     <li class="self-crumb">ApbInterface constructor</li>
   </ol>
@@ -62,14 +62,14 @@
 
     <section class="multi-line-signature">
       
-      <span class="name ">ApbInterface</span>(<wbr><ol class="parameter-list"><li><span class="parameter" id="-param-addrWidth">{<span class="type-annotation"><a href="https://api.dart.dev/stable/3.2.6/dart-core/int-class.html">int</a></span> <span class="parameter-name">addrWidth</span> = <span class="default-value">32</span>, </span></li>
-<li><span class="parameter" id="-param-dataWidth"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.2.6/dart-core/int-class.html">int</a></span> <span class="parameter-name">dataWidth</span> = <span class="default-value">32</span>, </span></li>
-<li><span class="parameter" id="-param-userReqWidth"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.2.6/dart-core/int-class.html">int</a></span> <span class="parameter-name">userReqWidth</span> = <span class="default-value">0</span>, </span></li>
-<li><span class="parameter" id="-param-userDataWidth"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.2.6/dart-core/int-class.html">int</a></span> <span class="parameter-name">userDataWidth</span> = <span class="default-value">0</span>, </span></li>
-<li><span class="parameter" id="-param-userRespWidth"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.2.6/dart-core/int-class.html">int</a></span> <span class="parameter-name">userRespWidth</span> = <span class="default-value">0</span>, </span></li>
-<li><span class="parameter" id="-param-includeSlvErr"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.2.6/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">includeSlvErr</span> = <span class="default-value">false</span>, </span></li>
-<li><span class="parameter" id="-param-includeWakeup"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.2.6/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">includeWakeup</span> = <span class="default-value">false</span>, </span></li>
-<li><span class="parameter" id="-param-numSelects"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.2.6/dart-core/int-class.html">int</a></span> <span class="parameter-name">numSelects</span> = <span class="default-value">1</span>}</span></li>
+      <span class="name ">ApbInterface</span>(<wbr><ol class="parameter-list"><li><span class="parameter" id="-param-addrWidth">{<span class="type-annotation"><a href="https://api.dart.dev/stable/3.3.0/dart-core/int-class.html">int</a></span> <span class="parameter-name">addrWidth</span> = <span class="default-value">32</span>, </span></li>
+<li><span class="parameter" id="-param-dataWidth"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.3.0/dart-core/int-class.html">int</a></span> <span class="parameter-name">dataWidth</span> = <span class="default-value">32</span>, </span></li>
+<li><span class="parameter" id="-param-userReqWidth"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.3.0/dart-core/int-class.html">int</a></span> <span class="parameter-name">userReqWidth</span> = <span class="default-value">0</span>, </span></li>
+<li><span class="parameter" id="-param-userDataWidth"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.3.0/dart-core/int-class.html">int</a></span> <span class="parameter-name">userDataWidth</span> = <span class="default-value">0</span>, </span></li>
+<li><span class="parameter" id="-param-userRespWidth"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.3.0/dart-core/int-class.html">int</a></span> <span class="parameter-name">userRespWidth</span> = <span class="default-value">0</span>, </span></li>
+<li><span class="parameter" id="-param-includeSlvErr"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.3.0/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">includeSlvErr</span> = <span class="default-value">false</span>, </span></li>
+<li><span class="parameter" id="-param-includeWakeup"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.3.0/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">includeWakeup</span> = <span class="default-value">false</span>, </span></li>
+<li><span class="parameter" id="-param-numSelects"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.3.0/dart-core/int-class.html">int</a></span> <span class="parameter-name">numSelects</span> = <span class="default-value">1</span>}</span></li>
 </ol>)
     </section>
 
@@ -82,7 +82,57 @@
     
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
-  <pre class="language-dart"><code class="language-dart">ApbInterface</code></pre>
+  <pre class="language-dart"><code class="language-dart">ApbInterface({
+  this.addrWidth = 32,
+  this.dataWidth = 32,
+  this.userReqWidth = 0,
+  this.userDataWidth = 0,
+  this.userRespWidth = 0,
+  this.includeSlvErr = false,
+  this.includeWakeup = false,
+  this.numSelects = 1,
+}) {
+  _validateParameters();
+
+  setPorts([
+    Port(&#39;PCLK&#39;),
+    Port(&#39;PRESETn&#39;),
+  ], [
+    ApbDirection.misc
+  ]);
+
+  setPorts([
+    Port(&#39;PADDR&#39;, addrWidth),
+    Port(&#39;PPROT&#39;, 3),
+    Port(&#39;PNSE&#39;),
+    Port(&#39;PENABLE&#39;),
+    Port(&#39;PWRITE&#39;),
+    Port(&#39;PWDATA&#39;, dataWidth),
+    Port(&#39;PSTRB&#39;, dataWidth ~&#47; 8),
+    if (userReqWidth != 0) Port(&#39;PAUSER&#39;, userReqWidth),
+    if (userDataWidth != 0) Port(&#39;PWUSER&#39;, userDataWidth),
+  ], [
+    ApbDirection.fromRequester,
+    ApbDirection.fromRequesterExceptSelect,
+  ]);
+
+  setPorts([
+    for (var i = 0; i &lt; numSelects; i++) Port(&#39;PSEL$i&#39;),
+  ], [
+    ApbDirection.fromRequester,
+  ]);
+
+  setPorts([
+    Port(&#39;PREADY&#39;),
+    Port(&#39;PRDATA&#39;, dataWidth),
+    if (includeSlvErr) Port(&#39;PSLVERR&#39;),
+    Port(&#39;PWAKEUP&#39;),
+    if (userDataWidth != 0) Port(&#39;PRUSER&#39;, userDataWidth),
+    if (userRespWidth != 0) Port(&#39;PBUSER&#39;, userRespWidth),
+  ], [
+    ApbDirection.fromCompleter
+  ]);
+}</code></pre>
 </section>
 
 

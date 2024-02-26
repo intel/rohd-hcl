@@ -29,7 +29,7 @@
   <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
   <ol class="breadcrumbs gt-separated dark hidden-xs">
     <li><a href="../../index.html">rohd_hcl</a></li>
-    <li><a href="../../rohd_hcl/rohd_hcl-library.html">rohd_hcl</a></li>
+    <li><a href="../../rohd_hcl/rohd_hcl-library.html">rohd_hcl.dart</a></li>
     <li><a href="../../rohd_hcl/BrentKung-class.html">BrentKung</a></li>
     <li class="self-crumb">BrentKung constructor</li>
   </ol>
@@ -62,7 +62,7 @@
 
     <section class="multi-line-signature">
       
-      <span class="name ">BrentKung</span>(<wbr><ol class="parameter-list"><li><span class="parameter" id="-param-inps"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.2.6/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://pub.dev/documentation/rohd/0.5.2/rohd/Logic-class.html">Logic</a></span>&gt;</span></span> <span class="parameter-name">inps</span>, </span></li>
+      <span class="name ">BrentKung</span>(<wbr><ol class="parameter-list"><li><span class="parameter" id="-param-inps"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.3.0/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://pub.dev/documentation/rohd/0.5.2/rohd/Logic-class.html">Logic</a></span>&gt;</span></span> <span class="parameter-name">inps</span>, </span></li>
 <li><span class="parameter" id="-param-op"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.5.2/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">op</span>(<ol class="parameter-list"><li><span class="parameter" id="param-"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.5.2/rohd/Logic-class.html">Logic</a></span>, </span></li>
 <li><span class="parameter" id="param-"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.5.2/rohd/Logic-class.html">Logic</a></span></span></li>
 </ol>
@@ -79,7 +79,42 @@
     
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
-  <pre class="language-dart"><code class="language-dart">BrentKung</code></pre>
+  <pre class="language-dart"><code class="language-dart">BrentKung(List&lt;Logic&gt; inps, Logic Function(Logic, Logic) op)
+    : super(inps, &#39;brent_kung&#39;) {
+  final iseq = &lt;Logic&gt;[];
+
+  inps.forEachIndexed((i, el) {
+    iseq.add(addInput(&#39;i$i&#39;, el, width: el.width));
+    _oseq.add(addOutput(&#39;o$i&#39;, width: el.width));
+  });
+
+  &#47;&#47; Reduce phase
+  var skip = 2;
+  while (skip &lt;= inps.length) {
+    for (var i = skip - 1; i &lt; inps.length; i += skip) {
+      iseq[i] = op(iseq[i - skip ~&#47; 2], iseq[i]);
+    }
+    skip *= 2;
+  }
+
+  &#47;&#47; Prefix Phase
+  skip = largestPow2LessThan(inps.length);
+  while (skip &gt; 2) {
+    for (var i = 3 * (skip ~&#47; 2) - 1; i &lt; inps.length; i += skip) {
+      iseq[i] = op(iseq[i - skip ~&#47; 2], iseq[i]);
+    }
+    skip ~&#47;= 2;
+  }
+
+  &#47;&#47; Final row
+  for (var i = 2; i &lt; inps.length; i += 2) {
+    iseq[i] = op(iseq[i - 1], iseq[i]);
+  }
+
+  iseq.forEachIndexed((i, el) {
+    _oseq[i] &lt;= el;
+  });
+}</code></pre>
 </section>
 
 

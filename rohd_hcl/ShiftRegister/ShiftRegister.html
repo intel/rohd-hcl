@@ -29,7 +29,7 @@
   <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
   <ol class="breadcrumbs gt-separated dark hidden-xs">
     <li><a href="../../index.html">rohd_hcl</a></li>
-    <li><a href="../../rohd_hcl/rohd_hcl-library.html">rohd_hcl</a></li>
+    <li><a href="../../rohd_hcl/rohd_hcl-library.html">rohd_hcl.dart</a></li>
     <li><a href="../../rohd_hcl/ShiftRegister-class.html">ShiftRegister</a></li>
     <li class="self-crumb">ShiftRegister constructor</li>
   </ol>
@@ -64,11 +64,11 @@
       
       <span class="name ">ShiftRegister</span>(<wbr><ol class="parameter-list"><li><span class="parameter" id="-param-dataIn"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.5.2/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">dataIn</span>, </span></li>
 <li><span class="parameter" id="-param-clk">{<span>required</span> <span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.5.2/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">clk</span>, </span></li>
-<li><span class="parameter" id="-param-depth"><span>required</span> <span class="type-annotation"><a href="https://api.dart.dev/stable/3.2.6/dart-core/int-class.html">int</a></span> <span class="parameter-name">depth</span>, </span></li>
+<li><span class="parameter" id="-param-depth"><span>required</span> <span class="type-annotation"><a href="https://api.dart.dev/stable/3.3.0/dart-core/int-class.html">int</a></span> <span class="parameter-name">depth</span>, </span></li>
 <li><span class="parameter" id="-param-enable"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.5.2/rohd/Logic-class.html">Logic</a>?</span> <span class="parameter-name">enable</span>, </span></li>
 <li><span class="parameter" id="-param-reset"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.5.2/rohd/Logic-class.html">Logic</a>?</span> <span class="parameter-name">reset</span>, </span></li>
 <li><span class="parameter" id="-param-resetValue"><span class="type-annotation">dynamic</span> <span class="parameter-name">resetValue</span>, </span></li>
-<li><span class="parameter" id="-param-dataName"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.2.6/dart-core/String-class.html">String</a></span> <span class="parameter-name">dataName</span> = <span class="default-value">&#39;data&#39;</span>}</span></li>
+<li><span class="parameter" id="-param-dataName"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.3.0/dart-core/String-class.html">String</a></span> <span class="parameter-name">dataName</span> = <span class="default-value">&#39;data&#39;</span>}</span></li>
 </ol>)
     </section>
 
@@ -83,7 +83,59 @@ at all stages synchronously with <code>clk</code> or to the provided <code>reset
     
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
-  <pre class="language-dart"><code class="language-dart">ShiftRegister</code></pre>
+  <pre class="language-dart"><code class="language-dart">ShiftRegister(
+  Logic dataIn, {
+  required Logic clk,
+  required this.depth,
+  Logic? enable,
+  Logic? reset,
+  dynamic resetValue,
+  this.dataName = &#39;data&#39;,
+})  : width = dataIn.width,
+      super(name: &#39;${dataName}_shift_register&#39;) {
+  dataIn = addInput(&#39;${dataName}_in&#39;, dataIn, width: width);
+  clk = addInput(&#39;clk&#39;, clk);
+
+  addOutput(&#39;${dataName}_out&#39;, width: width);
+
+  Map&lt;Logic, dynamic&gt;? resetValues;
+  if (reset != null) {
+    reset = addInput(&#39;reset&#39;, reset);
+
+    if (resetValue != null) {
+      if (resetValue is Logic) {
+        resetValue =
+            addInput(&#39;resetValue&#39;, resetValue, width: resetValue.width);
+      }
+      resetValues = {};
+    }
+  }
+
+  var dataStage = dataIn;
+  var conds = &lt;Conditional&gt;[];
+
+  for (var i = 0; i &lt; depth; i++) {
+    final stageI = addOutput(_stageName(i), width: width);
+    conds.add(stageI &lt; dataStage);
+    resetValues?[stageI] = resetValue;
+    dataStage = stageI;
+  }
+
+  if (enable != null) {
+    enable = addInput(&#39;enable&#39;, enable);
+
+    conds = [If(enable, then: conds)];
+  }
+
+  Sequential(
+    clk,
+    reset: reset,
+    resetValues: resetValues,
+    conds,
+  );
+
+  dataOut &lt;= dataStage;
+}</code></pre>
 </section>
 
 

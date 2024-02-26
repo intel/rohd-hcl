@@ -29,7 +29,7 @@
   <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
   <ol class="breadcrumbs gt-separated dark hidden-xs">
     <li><a href="../../index.html">rohd_hcl</a></li>
-    <li><a href="../../rohd_hcl/rohd_hcl-library.html">rohd_hcl</a></li>
+    <li><a href="../../rohd_hcl/rohd_hcl-library.html">rohd_hcl.dart</a></li>
     <li><a href="../../rohd_hcl/RotateRoundRobinArbiter-class.html">RotateRoundRobinArbiter</a></li>
     <li class="self-crumb">RotateRoundRobinArbiter constructor</li>
   </ol>
@@ -62,7 +62,7 @@
 
     <section class="multi-line-signature">
       
-      <span class="name ">RotateRoundRobinArbiter</span>(<wbr><ol class="parameter-list"><li><span class="parameter" id="-param-requests"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.2.6/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://pub.dev/documentation/rohd/0.5.2/rohd/Logic-class.html">Logic</a></span>&gt;</span></span> <span class="parameter-name">requests</span>, </span></li>
+      <span class="name ">RotateRoundRobinArbiter</span>(<wbr><ol class="parameter-list"><li><span class="parameter" id="-param-requests"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.3.0/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://pub.dev/documentation/rohd/0.5.2/rohd/Logic-class.html">Logic</a></span>&gt;</span></span> <span class="parameter-name">requests</span>, </span></li>
 <li><span class="parameter" id="-param-clk">{<span>required</span> <span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.5.2/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">clk</span>, </span></li>
 <li><span class="parameter" id="-param-reset"><span>required</span> <span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.5.2/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">reset</span>}</span></li>
 </ol>)
@@ -77,7 +77,29 @@
     
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
-  <pre class="language-dart"><code class="language-dart">RotateRoundRobinArbiter</code></pre>
+  <pre class="language-dart"><code class="language-dart">RotateRoundRobinArbiter(super.requests,
+    {required super.clk, required super.reset}) {
+  final preference = Logic(name: &#39;preference&#39;, width: log2Ceil(count));
+
+  final rotatedReqs = requests
+      .rswizzle()
+      .rotateRight(preference, maxAmount: count - 1)
+      .elements;
+  final priorityArb = PriorityArbiter(rotatedReqs);
+  final unRotatedGrants = priorityArb.grants
+      .rswizzle()
+      .rotateLeft(preference, maxAmount: count - 1);
+
+  Sequential(clk, reset: reset, [
+    If(unRotatedGrants.or(), then: [
+      preference &lt; TreeOneHotToBinary(unRotatedGrants).binary + 1,
+    ]),
+  ]);
+
+  for (var i = 0; i &lt; count; i++) {
+    grants[i] &lt;= unRotatedGrants[i];
+  }
+}</code></pre>
 </section>
 
 

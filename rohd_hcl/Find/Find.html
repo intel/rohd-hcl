@@ -29,7 +29,7 @@
   <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
   <ol class="breadcrumbs gt-separated dark hidden-xs">
     <li><a href="../../index.html">rohd_hcl</a></li>
-    <li><a href="../../rohd_hcl/rohd_hcl-library.html">rohd_hcl</a></li>
+    <li><a href="../../rohd_hcl/rohd_hcl-library.html">rohd_hcl.dart</a></li>
     <li><a href="../../rohd_hcl/Find-class.html">Find</a></li>
     <li class="self-crumb">Find constructor</li>
   </ol>
@@ -63,9 +63,9 @@
     <section class="multi-line-signature">
       
       <span class="name ">Find</span>(<wbr><ol class="parameter-list"><li><span class="parameter" id="-param-bus"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.5.2/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">bus</span>, </span></li>
-<li><span class="parameter" id="-param-countOne">{<span class="type-annotation"><a href="https://api.dart.dev/stable/3.2.6/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">countOne</span> = <span class="default-value">true</span>, </span></li>
+<li><span class="parameter" id="-param-countOne">{<span class="type-annotation"><a href="https://api.dart.dev/stable/3.3.0/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">countOne</span> = <span class="default-value">true</span>, </span></li>
 <li><span class="parameter" id="-param-n"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.5.2/rohd/Logic-class.html">Logic</a>?</span> <span class="parameter-name">n</span>, </span></li>
-<li><span class="parameter" id="-param-generateError"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.2.6/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">generateError</span> = <span class="default-value">false</span>}</span></li>
+<li><span class="parameter" id="-param-generateError"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.3.0/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">generateError</span> = <span class="default-value">false</span>}</span></li>
 </ol>)
     </section>
 
@@ -84,7 +84,48 @@ If <code>n</code> is given, <a href="../../rohd_hcl/Find-class.html">Find</a> an
     
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
-  <pre class="language-dart"><code class="language-dart">Find</code></pre>
+  <pre class="language-dart"><code class="language-dart">Find(Logic bus,
+    {bool countOne = true, Logic? n, this.generateError = false}) {
+  bus = addInput(&#39;bus&#39;, bus, width: bus.width);
+  final oneHotList = &lt;Logic&gt;[];
+
+  if (n != null) {
+    n = addInput(&#39;n&#39;, n, width: n.width);
+  }
+
+  for (var i = 0; i &lt; bus.width; i++) {
+    &#47;&#47; determines if it is what we are looking for?
+    final valCheck = countOne ? bus[i] : ~bus[i];
+
+    final count = Count(bus.getRange(0, i + 1), countOne: countOne);
+
+    &#47;&#47; Below code will make `n` comparable to `count`
+    var paddedCountValue = count.index;
+    var paddedNValue = (n ?? Const(0)) + 1;
+
+    if (paddedNValue.width &lt; paddedCountValue.width) {
+      paddedNValue = paddedNValue.zeroExtend(paddedCountValue.width);
+    } else {
+      paddedCountValue = paddedCountValue.zeroExtend(paddedNValue.width);
+    }
+
+    &#47;&#47; If bus[i] contains search value (0&#47;1) and it is nth position
+    &#47;&#47; then append Logic `1` else append Logic `0`
+    oneHotList.add(valCheck &amp; paddedNValue.eq(paddedCountValue));
+  }
+
+  final oneHotBinary =
+      OneHotToBinary(oneHotList.rswizzle(), generateError: generateError);
+  &#47;&#47; Upon search complete, we get the position value in binary `bin` form
+  final bin = oneHotBinary.binary;
+  addOutput(&#39;index&#39;, width: bin.width);
+  index &lt;= bin;
+
+  if (generateError) {
+    addOutput(&#39;error&#39;);
+    error! &lt;= oneHotBinary.error!;
+  }
+}</code></pre>
 </section>
 
 

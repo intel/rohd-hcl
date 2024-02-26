@@ -29,7 +29,7 @@
   <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
   <ol class="breadcrumbs gt-separated dark hidden-xs">
     <li><a href="../../index.html">rohd_hcl</a></li>
-    <li><a href="../../rohd_hcl/rohd_hcl-library.html">rohd_hcl</a></li>
+    <li><a href="../../rohd_hcl/rohd_hcl-library.html">rohd_hcl.dart</a></li>
     <li><a href="../../rohd_hcl/ReadyValidReceiverAgent-class.html">ReadyValidReceiverAgent</a></li>
     <li class="self-crumb">ReadyValidReceiverAgent constructor</li>
   </ol>
@@ -68,8 +68,8 @@
 <li><span class="parameter" id="-param-valid"><span>required</span> <span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.5.2/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">valid</span>, </span></li>
 <li><span class="parameter" id="-param-data"><span>required</span> <span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.5.2/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">data</span>, </span></li>
 <li><span class="parameter" id="-param-parent"><span>required</span> <span class="type-annotation"><a href="https://pub.dev/documentation/rohd_vf/0.5.0/rohd_vf/Component-class.html">Component</a>?</span> <span class="parameter-name">parent</span>, </span></li>
-<li><span class="parameter" id="-param-blockRate"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.2.6/dart-core/double-class.html">double</a></span> <span class="parameter-name">blockRate</span> = <span class="default-value">0</span>, </span></li>
-<li><span class="parameter" id="-param-name"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.2.6/dart-core/String-class.html">String</a></span> <span class="parameter-name">name</span> = <span class="default-value">&#39;readyValidReceiverAgent&#39;</span>}</span></li>
+<li><span class="parameter" id="-param-blockRate"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.3.0/dart-core/double-class.html">double</a></span> <span class="parameter-name">blockRate</span> = <span class="default-value">0</span>, </span></li>
+<li><span class="parameter" id="-param-name"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.3.0/dart-core/String-class.html">String</a></span> <span class="parameter-name">name</span> = <span class="default-value">&#39;readyValidReceiverAgent&#39;</span>}</span></li>
 </ol>)
     </section>
 
@@ -82,7 +82,16 @@
     
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
-  <pre class="language-dart"><code class="language-dart">ReadyValidReceiverAgent</code></pre>
+  <pre class="language-dart"><code class="language-dart">ReadyValidReceiverAgent({
+  required super.clk,
+  required super.reset,
+  required super.ready,
+  required super.valid,
+  required super.data,
+  required super.parent,
+  this.blockRate = 0,
+  super.name = &#39;readyValidReceiverAgent&#39;,
+});</code></pre>
 </section>
 
 

@@ -29,7 +29,7 @@
   <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
   <ol class="breadcrumbs gt-separated dark hidden-xs">
     <li><a href="../../index.html">rohd_hcl</a></li>
-    <li><a href="../../rohd_hcl/rohd_hcl-library.html">rohd_hcl</a></li>
+    <li><a href="../../rohd_hcl/rohd_hcl-library.html">rohd_hcl.dart</a></li>
     <li><a href="../../rohd_hcl/FullAdder-class.html">FullAdder</a></li>
     <li class="self-crumb">FullAdder constructor</li>
   </ol>
@@ -65,7 +65,7 @@
       <span class="name ">FullAdder</span>(<wbr><ol class="parameter-list"><li><span class="parameter" id="-param-a">{<span>required</span> <span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.5.2/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">a</span>, </span></li>
 <li><span class="parameter" id="-param-b"><span>required</span> <span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.5.2/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">b</span>, </span></li>
 <li><span class="parameter" id="-param-carryIn"><span>required</span> <span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.5.2/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">carryIn</span>, </span></li>
-<li><span class="parameter" id="-param-name"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.2.6/dart-core/String-class.html">String</a></span> <span class="parameter-name">name</span> = <span class="default-value">&#39;full_adder&#39;</span>}</span></li>
+<li><span class="parameter" id="-param-name"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.3.0/dart-core/String-class.html">String</a></span> <span class="parameter-name">name</span> = <span class="default-value">&#39;full_adder&#39;</span>}</span></li>
 </ol>)
     </section>
 
@@ -79,7 +79,25 @@ full adder truth table.</p>
     
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
-  <pre class="language-dart"><code class="language-dart">FullAdder</code></pre>
+  <pre class="language-dart"><code class="language-dart">FullAdder({
+  required Logic a,
+  required Logic b,
+  required Logic carryIn,
+  super.name = &#39;full_adder&#39;,
+}) {
+  a = addInput(&#39;a&#39;, a, width: a.width);
+  b = addInput(&#39;b&#39;, b, width: b.width);
+  carryIn = addInput(&#39;carry_in&#39;, carryIn, width: carryIn.width);
+
+  final carryOut = addOutput(&#39;carry_out&#39;);
+  final sum = addOutput(&#39;sum&#39;);
+
+  final and1 = carryIn &amp; (a ^ b);
+  final and2 = b &amp; a;
+
+  sum &lt;= (a ^ b) ^ carryIn;
+  carryOut &lt;= and1 | and2;
+}</code></pre>
 </section>
 
 

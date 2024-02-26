@@ -29,7 +29,7 @@
   <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
   <ol class="breadcrumbs gt-separated dark hidden-xs">
     <li><a href="../../index.html">rohd_hcl</a></li>
-    <li><a href="../../rohd_hcl/rohd_hcl-library.html">rohd_hcl</a></li>
+    <li><a href="../../rohd_hcl/rohd_hcl-library.html">rohd_hcl.dart</a></li>
     <li><a href="../../rohd_hcl/ErrorCheckingReceiver-class.html">ErrorCheckingReceiver</a></li>
     <li class="self-crumb">ErrorCheckingReceiver constructor</li>
   </ol>
@@ -63,10 +63,10 @@
     <section class="multi-line-signature">
       
       <span class="name ">ErrorCheckingReceiver</span>(<wbr><ol class="parameter-list"><li><span class="parameter" id="-param-transmission"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.5.2/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">transmission</span>, </span></li>
-<li><span class="parameter" id="-param-codeWidth">{<span>required</span> <span class="type-annotation"><a href="https://api.dart.dev/stable/3.2.6/dart-core/int-class.html">int</a></span> <span class="parameter-name">codeWidth</span>, </span></li>
-<li><span class="parameter" id="-param-supportsErrorCorrection"><span>required</span> <span class="type-annotation"><a href="https://api.dart.dev/stable/3.2.6/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">supportsErrorCorrection</span>, </span></li>
-<li><span class="parameter" id="-param-name"><span>required</span> <span class="type-annotation"><a href="https://api.dart.dev/stable/3.2.6/dart-core/String-class.html">String</a></span> <span class="parameter-name">name</span> = <span class="default-value">&#39;unnamed_module&#39;</span>, </span></li>
-<li><span class="parameter" id="-param-definitionName"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.2.6/dart-core/String-class.html">String</a>?</span> <span class="parameter-name">definitionName</span>}</span></li>
+<li><span class="parameter" id="-param-codeWidth">{<span>required</span> <span class="type-annotation"><a href="https://api.dart.dev/stable/3.3.0/dart-core/int-class.html">int</a></span> <span class="parameter-name">codeWidth</span>, </span></li>
+<li><span class="parameter" id="-param-supportsErrorCorrection"><span>required</span> <span class="type-annotation"><a href="https://api.dart.dev/stable/3.3.0/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">supportsErrorCorrection</span>, </span></li>
+<li><span class="parameter" id="-param-name"><span>required</span> <span class="type-annotation"><a href="https://api.dart.dev/stable/3.3.0/dart-core/String-class.html">String</a></span> <span class="parameter-name">name</span> = <span class="default-value">&#39;unnamed_module&#39;</span>, </span></li>
+<li><span class="parameter" id="-param-definitionName"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.3.0/dart-core/String-class.html">String</a>?</span> <span class="parameter-name">definitionName</span>}</span></li>
 </ol>)
     </section>
 
@@ -79,7 +79,36 @@
     
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
-  <pre class="language-dart"><code class="language-dart">ErrorCheckingReceiver</code></pre>
+  <pre class="language-dart"><code class="language-dart">ErrorCheckingReceiver(Logic transmission,
+    {required int codeWidth,
+    required this.supportsErrorCorrection,
+    required super.name,
+    super.definitionName})
+    : assert(codeWidth &gt; 0, &#39;Must provide non-empty code.&#39;) {
+  this.transmission =
+      addInput(&#39;transmission&#39;, transmission, width: transmission.width);
+
+  addOutput(&#39;code&#39;, width: codeWidth) &lt;=
+      this.transmission.slice(-1, -codeWidth);
+  addOutput(&#39;original_data&#39;, width: transmission.width - codeWidth) &lt;=
+      this.transmission.slice(-1 - codeWidth, 0);
+
+  if (supportsErrorCorrection) {
+    addOutput(&#39;corrected_data&#39;, width: originalData.width);
+  }
+
+  addOutput(&#39;correctable_error&#39;);
+  addOutput(&#39;uncorrectable_error&#39;);
+  addOutput(&#39;error&#39;);
+
+  correctableError &lt;= calculateCorrectableError();
+  uncorrectableError &lt;= calculateUncorrectableError();
+  error &lt;= correctableError | uncorrectableError;
+
+  if (supportsErrorCorrection) {
+    correctedData! &lt;= calculateCorrectedData()!;
+  }
+}</code></pre>
 </section>
 
 

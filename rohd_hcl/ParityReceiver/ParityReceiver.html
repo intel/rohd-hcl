@@ -29,7 +29,7 @@
   <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
   <ol class="breadcrumbs gt-separated dark hidden-xs">
     <li><a href="../../index.html">rohd_hcl</a></li>
-    <li><a href="../../rohd_hcl/rohd_hcl-library.html">rohd_hcl</a></li>
+    <li><a href="../../rohd_hcl/rohd_hcl-library.html">rohd_hcl.dart</a></li>
     <li><a href="../../rohd_hcl/ParityReceiver-class.html">ParityReceiver</a></li>
     <li class="self-crumb">ParityReceiver constructor</li>
   </ol>
@@ -63,7 +63,7 @@
     <section class="multi-line-signature">
       
       <span class="name ">ParityReceiver</span>(<wbr><ol class="parameter-list"><li><span class="parameter" id="-param-transmission"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.5.2/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">transmission</span>, </span></li>
-<li><span class="parameter" id="-param-name">{<span class="type-annotation"><a href="https://api.dart.dev/stable/3.2.6/dart-core/String-class.html">String</a></span> <span class="parameter-name">name</span> = <span class="default-value">&#39;parity_rx&#39;</span>}</span></li>
+<li><span class="parameter" id="-param-name">{<span class="type-annotation"><a href="https://api.dart.dev/stable/3.3.0/dart-core/String-class.html">String</a></span> <span class="parameter-name">name</span> = <span class="default-value">&#39;parity_rx&#39;</span>}</span></li>
 </ol>)
     </section>
 
@@ -79,7 +79,8 @@ calculated for parity error checking.</p>
     
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
-  <pre class="language-dart"><code class="language-dart">ParityReceiver</code></pre>
+  <pre class="language-dart"><code class="language-dart">ParityReceiver(super.transmission, {super.name = &#39;parity_rx&#39;})
+    : super(codeWidth: 1, supportsErrorCorrection: false);</code></pre>
 </section>
 
 

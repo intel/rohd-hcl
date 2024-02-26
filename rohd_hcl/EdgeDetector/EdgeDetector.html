@@ -29,7 +29,7 @@
   <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
   <ol class="breadcrumbs gt-separated dark hidden-xs">
     <li><a href="../../index.html">rohd_hcl</a></li>
-    <li><a href="../../rohd_hcl/rohd_hcl-library.html">rohd_hcl</a></li>
+    <li><a href="../../rohd_hcl/rohd_hcl-library.html">rohd_hcl.dart</a></li>
     <li><a href="../../rohd_hcl/EdgeDetector-class.html">EdgeDetector</a></li>
     <li class="self-crumb">EdgeDetector constructor</li>
   </ol>
@@ -67,7 +67,7 @@
 <li><span class="parameter" id="-param-reset"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.5.2/rohd/Logic-class.html">Logic</a>?</span> <span class="parameter-name">reset</span>, </span></li>
 <li><span class="parameter" id="-param-resetValue"><span class="type-annotation">dynamic</span> <span class="parameter-name">resetValue</span>, </span></li>
 <li><span class="parameter" id="-param-edgeType"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd_vf/0.5.0/rohd_vf/Edge.html">Edge</a></span> <span class="parameter-name">edgeType</span> = <span class="default-value">Edge.pos</span>, </span></li>
-<li><span class="parameter" id="-param-name"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.2.6/dart-core/String-class.html">String</a>?</span> <span class="parameter-name">name</span>}</span></li>
+<li><span class="parameter" id="-param-name"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.3.0/dart-core/String-class.html">String</a>?</span> <span class="parameter-name">name</span>}</span></li>
 </ol>)
     </section>
 
@@ -85,7 +85,49 @@ provided).</p>
     
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
-  <pre class="language-dart"><code class="language-dart">EdgeDetector</code></pre>
+  <pre class="language-dart"><code class="language-dart">EdgeDetector(
+  Logic signal, {
+  required Logic clk,
+  Logic? reset,
+  dynamic resetValue,
+  this.edgeType = Edge.pos,
+  String? name,
+}) : super(name: name ?? &#39;${edgeType.name}_edge_detector&#39;) {
+  if (signal.width != 1 ||
+      (resetValue is Logic &amp;&amp; resetValue.width != 1) ||
+      (resetValue is LogicValue &amp;&amp; resetValue.width != 1)) {
+    throw RohdHclException(&#39;Can only detect edges on 1-bit signals.&#39;);
+  }
+
+  if (reset == null &amp;&amp; resetValue != null) {
+    throw RohdHclException(
+        &#39;If no reset is provided, then a resetValue cannot be provided.&#39;);
+  }
+
+  clk = addInput(&#39;clk&#39;, clk);
+  signal = addInput(&#39;signal&#39;, signal);
+
+  if (reset != null) {
+    reset = addInput(&#39;reset&#39;, reset);
+  }
+
+  if (resetValue != null &amp;&amp; resetValue is Logic) {
+    resetValue = addInput(&#39;resetValue&#39;, resetValue);
+  }
+
+  addOutput(_edgeName);
+
+  final previousValue = Logic(name: &#39;previousValue&#39;)
+    ..gets(
+      flop(clk, reset: reset, resetValue: resetValue, signal),
+    );
+
+  edge &lt;=
+      [
+        if (edgeType case Edge.pos || Edge.any) ~previousValue &amp; signal,
+        if (edgeType case Edge.neg || Edge.any) previousValue &amp; ~signal,
+      ].swizzle().or();
+}</code></pre>
 </section>
 
 
