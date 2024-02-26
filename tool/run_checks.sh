@@ -44,7 +44,7 @@ tool/gh_actions/analyze_source.sh
 
 # Check project documentation
 print_step 'Check project documentation'
-tool/gh_actions/check_documentation.sh
+tool/gh_actions/generate_documentation.sh
 
 # Run project tests
 print_step 'Run project tests'
