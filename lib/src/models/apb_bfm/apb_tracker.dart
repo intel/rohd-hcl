@@ -1,4 +1,4 @@
-// Copyright (C) 2023 Intel Corporation
+// Copyright (C) 2023-2024 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 //
 // apb_tracker.dart
@@ -44,13 +44,15 @@ class ApbTracker extends Tracker<ApbPacket> {
     super.outputFolder,
     int timeColumnWidth = 12,
     int selectColumnWidth = 4,
+    int addrColumnWidth = 12,
+    int dataColumnWidth = 12,
   }) : super(name, [
           TrackerField(timeField, columnWidth: timeColumnWidth),
           if (selectColumnWidth > 0)
             TrackerField(selectField, columnWidth: selectColumnWidth),
           const TrackerField(typeField, columnWidth: 1),
-          const TrackerField(addrField, columnWidth: 12),
-          const TrackerField(dataField, columnWidth: 12),
+          TrackerField(addrField, columnWidth: addrColumnWidth),
+          TrackerField(dataField, columnWidth: dataColumnWidth),
           const TrackerField(strobeField, columnWidth: 4),
           if (intf.includeSlvErr)
             const TrackerField(slverrField, columnWidth: 1),

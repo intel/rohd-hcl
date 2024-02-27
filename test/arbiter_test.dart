@@ -1,4 +1,4 @@
-// Copyright (C) 2023 Intel Corporation
+// Copyright (C) 2023-2024 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 //
 // arbiter_test.dart
@@ -91,8 +91,7 @@ void main() {
           await clk.nextNegedge;
           expect(grants.value, LogicValue.ofString('00000010'));
 
-          Simulator.endSimulation();
-          await Simulator.simulationEnded;
+          await Simulator.endSimulation();
         });
 
         test('dynamic request', () async {
@@ -142,8 +141,7 @@ void main() {
           await clk.nextNegedge;
           expect(grants.value, LogicValue.ofString('10000000'));
 
-          Simulator.endSimulation();
-          await Simulator.simulationEnded;
+          await Simulator.endSimulation();
         });
 
         test('all reqs', () async {
@@ -167,8 +165,7 @@ void main() {
             await clk.nextNegedge;
           }
 
-          Simulator.endSimulation();
-          await Simulator.simulationEnded;
+          await Simulator.endSimulation();
         });
 
         test('all reqs, non-power-of-2', () async {
@@ -193,8 +190,7 @@ void main() {
             await clk.nextNegedge;
           }
 
-          Simulator.endSimulation();
-          await Simulator.simulationEnded;
+          await Simulator.endSimulation();
         });
 
         test('beat pattern 2 request maintain fairness', () async {
@@ -205,8 +201,6 @@ void main() {
           final arbiter =
               rrArbType.constructor(requests, clk: clk, reset: reset);
           await arbiter.build();
-
-          WaveDumper(arbiter);
 
           final grantCounts = List.generate(arbiter.count, (_) => 0);
 
@@ -233,8 +227,7 @@ void main() {
             await clk.nextPosedge;
           }
 
-          Simulator.endSimulation();
-          await Simulator.simulationEnded;
+          await Simulator.endSimulation();
 
           // expect an equal number of grants between the two
           expect(grantCounts[0], grantCounts[1]);

@@ -1,4 +1,4 @@
-// Copyright (C) 2023 Intel Corporation
+// Copyright (C) 2023-2024 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 //
 // memory.dart
@@ -96,6 +96,8 @@ abstract class Memory extends Module {
   final int dataWidth;
 
   /// The number of cycles before data is returned after a read.
+  ///
+  /// Must be non-negative.
   int get readLatency;
 
   /// Internal write ports.
@@ -115,10 +117,12 @@ abstract class Memory extends Module {
   Logic get reset => input('reset');
 
   /// Construct a new memory.
+  ///
+  /// Must provide at least one port (read or write).
   Memory(Logic clk, Logic reset, List<DataPortInterface> writePorts,
       List<DataPortInterface> readPorts,
       {super.name = 'memory'})
-      : assert(writePorts.isNotEmpty && readPorts.isNotEmpty,
+      : assert(!(writePorts.isEmpty && readPorts.isEmpty),
             'Must specify at least one read port or one write port.'),
         numWrites = writePorts.length,
         numReads = readPorts.length,
@@ -129,6 +133,10 @@ abstract class Memory extends Module {
             ? writePorts[0].addrWidth
             : readPorts[0].addrWidth // at least one of these must exist
   {
+    if (readLatency < 0) {
+      throw RohdHclException('Read latency must be non-negative.');
+    }
+
     // make sure widths of everything match expectations
     for (final port in [...writePorts, ...readPorts]) {
       if (port.addrWidth != addrWidth) {
