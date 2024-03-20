@@ -43,4 +43,3 @@ types:
 
 Here is an example adder schematic:
 [ParallelPrefixAdder Schematic](https://intel.github.io/rohd-hcl/ParallelPrefixAdder.html)
-
