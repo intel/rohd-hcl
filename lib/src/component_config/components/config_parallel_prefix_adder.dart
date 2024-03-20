@@ -26,10 +26,10 @@ class ParallelPrefixAdderConfigurator extends Configurator {
 
   /// Controls the type of [ParallelPrefix] tree used in the adder.
   final prefixTreeKnob =
-      ChoiceConfigKnob(generatorMap.keys.toList(), value: BrentKung);
+      ChoiceConfigKnob(generatorMap.keys.toList(), value: KoggeStone);
 
   /// Controls the width of the data.!
-  final IntConfigKnob dataWidthKnob = IntConfigKnob(value: 8);
+  final IntConfigKnob dataWidthKnob = IntConfigKnob(value: 4);
 
   @override
   Module createModule() => ParallelPrefixAdder(
