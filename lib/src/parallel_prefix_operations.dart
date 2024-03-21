@@ -251,4 +251,3 @@ class ParallelPrefixDecr extends Module {
             .rswizzle());
   }
 }
-
