@@ -252,8 +252,6 @@ class ParallelPrefixDecr extends Module {
   }
 }
 
-
-
 void testAdder(int n, ParallelPrefixAdder Function(Logic a, Logic b) fn) {
   test('adder_$n', () async {
     final a = Logic(name: 'a', width: n);
@@ -278,5 +276,3 @@ void testAdder(int n, ParallelPrefixAdder Function(Logic a, Logic b) fn) {
     }
   });
 }
-
-
