@@ -25,9 +25,9 @@ class SVGenerator extends StatefulWidget {
   final SidebarXController controller;
 
   const SVGenerator({
-    Key? key,
+    super.key,
     required this.controller,
-  }) : super(key: key);
+  });
 
   @override
   State createState() => _SVGeneratorState();
