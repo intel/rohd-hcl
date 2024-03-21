@@ -14,47 +14,6 @@ import 'package:rohd_hcl/rohd_hcl.dart';
 import 'package:rohd_vf/rohd_vf.dart';
 import 'package:test/test.dart';
 
-class ReadyAndValidStage extends Module {
-  final bool bubbleSquashing;
-
-  ReadyAndValidStage(Logic clk, Logic reset, ReadyValidInterface upstream,
-      ReadyValidInterface downstream,
-      {this.bubbleSquashing = true, super.name = 'readyAndValid'}) {
-    clk = addInput('clk', clk);
-    reset = addInput('reset', reset);
-
-    upstream = ReadyAndValidInterface(
-      modify: (original) => 'up_$original',
-    )..pairConnectIO(this, upstream, PairRole.consumer);
-    downstream = ReadyAndValidInterface(
-      modify: (original) => 'dn_$original',
-    )..pairConnectIO(this, downstream, PairRole.provider);
-
-    final transfer = Logic();
-
-    transfer <= upstream.valid & upstream.ready;
-    if (bubbleSquashing) {
-      final f = Fifo(clk, reset,
-          depth: 1,
-          writeEnable: transfer,
-          readEnable: downstream.valid & downstream.ready,
-          writeData: upstream.data);
-      downstream.valid <= ~f.empty;
-      upstream.ready <= ~f.full | downstream.ready;
-      downstream.data <= f.readData;
-    } else {
-      // (a, b) <= flop((ap, bp));  Records in dart  (a,b)[1] <=
-      downstream.data <=
-          flop(clk, upstream.data,
-              en: transfer, reset: reset, resetValue: LogicValue.x);
-      downstream.valid <=
-          flop(clk, upstream.valid,
-              en: transfer, reset: reset, resetValue: LogicValue.x);
-      upstream.ready <= downstream.ready;
-    }
-  }
-}
-
 class ConnectTwoRVStages extends Module {
   ConnectTwoRVStages(Logic clk, Logic reset, ReadyValidInterface upstream,
       ReadyAndValidInterface downstream,

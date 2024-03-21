@@ -7,8 +7,6 @@ import 'package:rohd_hcl/rohd_hcl.dart';
 import 'package:rohd_vf/rohd_vf.dart';
 import 'package:test/test.dart';
 
-import 'ready_valid_simple_test.dart';
-
 class ReadyValidBfmTest extends Test {
   final clk = SimpleClockGenerator(10).clk;
   final Logic reset = Logic();
