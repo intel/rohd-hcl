@@ -252,27 +252,3 @@ class ParallelPrefixDecr extends Module {
   }
 }
 
-void testAdder(int n, ParallelPrefixAdder Function(Logic a, Logic b) fn) {
-  test('adder_$n', () async {
-    final a = Logic(name: 'a', width: n);
-    final b = Logic(name: 'b', width: n);
-
-    final mod = fn(a, b);
-    await mod.build();
-
-    int computeAdder(int aa, int bb) => (aa + bb) & ((1 << n) - 1);
-
-    // put/expect testing
-
-    for (var aa = 0; aa < (1 << n); ++aa) {
-      for (var bb = 0; bb < (1 << n); ++bb) {
-        final golden = computeAdder(aa, bb);
-        a.put(aa);
-        b.put(bb);
-        final result = mod.out.value.toInt();
-        //print("adder: $aa $bb $result $golden");
-        expect(result, equals(golden));
-      }
-    }
-  });
-}
