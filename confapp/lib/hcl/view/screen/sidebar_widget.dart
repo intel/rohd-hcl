@@ -24,11 +24,10 @@ class ComponentsSidebar extends StatefulWidget {
   final Function(void) updateForm;
 
   const ComponentsSidebar({
-    Key? key,
+    super.key,
     required SidebarXController controller,
     required this.updateForm,
-  })  : _controller = controller,
-        super(key: key);
+  }) : _controller = controller;
 
   final SidebarXController _controller;
 

@@ -32,7 +32,7 @@ Some in-development items will have opened issues, as well. Feel free to create 
 - Sort
   - [Bitonic sort](./components/sort.md#bitonic-sort)
 - Arithmetic
-  - Prefix Trees
+  - [Prefix Trees](./components/parallel_prefix_operations.md)
   - [Adders](./components/adder.md)
   - Subtractors
   - Multipliers
