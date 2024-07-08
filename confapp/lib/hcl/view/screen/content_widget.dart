@@ -434,7 +434,7 @@ class _SVGeneratorState extends State<SVGenerator> {
                         maxHeight: screenHeight * 0.85,
                         maxWidth: screenWidth / 3),
                     child: DefaultTabController(
-                      length: 2,
+                      length: 3,
                       child: Scaffold(
                         appBar: AppBar(
                           title: const Text('Generated Outputs'),
