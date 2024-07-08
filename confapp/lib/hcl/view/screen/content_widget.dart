@@ -322,7 +322,7 @@ class _SVGeneratorState extends State<SVGenerator> {
                       viewType: 'schematic-html',
                     ));
                   } else {
-                    return const Padding(padding: const EdgeInsets.all(16.0));
+                    return const Padding(padding: EdgeInsets.all(16.0));
                   }
                 }))));
   }
