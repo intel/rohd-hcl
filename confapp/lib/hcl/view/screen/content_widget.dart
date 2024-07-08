@@ -318,11 +318,11 @@ class _SVGeneratorState extends State<SVGenerator> {
                     builder: (context, state) {
                   if (state.generationState == GenerationState.done) {
                     return const Card(
-                        child: const HtmlElementView(
+                        child: HtmlElementView(
                       viewType: 'schematic-html',
                     ));
                   } else {
-                    return const Padding(padding: const EdgeInsets.all(16.0));
+                    return Padding(padding: const EdgeInsets.all(16.0));
                   }
                 }))));
   }
@@ -338,8 +338,7 @@ class _SVGeneratorState extends State<SVGenerator> {
           await Future.delayed(const Duration(milliseconds: 10));
 
           final rtlRes = await _generateRTL(component);
-          final module = await component.createModule();
-          final moduleName = module.definitionName;
+          final moduleName = component.createModule().definitionName;
 
           yosysWorker.postMessage({'module': moduleName, 'verilog': rtlRes});
 
