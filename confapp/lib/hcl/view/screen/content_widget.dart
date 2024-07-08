@@ -15,7 +15,7 @@ import 'dart:ui_web' as ui_web;
 
 import 'package:confapp/hcl/cubit/component_cubit.dart';
 import 'package:confapp/hcl/cubit/system_verilog_cubit.dart';
-import 'package:confapp/hcl/view/screen/d3Schematic.dart';
+import 'package:confapp/hcl/view/screen/schematic.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -56,7 +56,7 @@ class _SVGeneratorState extends State<SVGenerator> {
     return res;
   }
 
-  final yosysWorker = new Worker('yosysWorker.js');
+  final yosysWorker = Worker('yosysWorker.js');
   var schematicHTML = "";
 
   Widget _generateKnobControl(String label, ConfigKnob knob) {
@@ -317,12 +317,12 @@ class _SVGeneratorState extends State<SVGenerator> {
                 child: BlocBuilder<SystemVerilogCubit, SystemVerilogCubitState>(
                     builder: (context, state) {
                   if (state.generationState == GenerationState.done) {
-                    return Card(
-                        child: HtmlElementView(
+                    return const Card(
+                        child: const HtmlElementView(
                       viewType: 'schematic-html',
                     ));
                   } else {
-                    return Padding(padding: const EdgeInsets.all(16.0));
+                    return const Padding(padding: const EdgeInsets.all(16.0));
                   }
                 }))));
   }
@@ -338,7 +338,8 @@ class _SVGeneratorState extends State<SVGenerator> {
           await Future.delayed(const Duration(milliseconds: 10));
 
           final rtlRes = await _generateRTL(component);
-          final moduleName = await component.createModule().definitionName;
+          final module = await component.createModule();
+          final moduleName = module.definitionName;
 
           yosysWorker.postMessage({'module': moduleName, 'verilog': rtlRes});
 

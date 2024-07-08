@@ -1,13 +1,13 @@
 // Copyright (C) 2023 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 //
-// d3Schematic.dart
+// schematic.dart
 // Construction of a d3 schematic HTML from d3 JSON.
 //
 // 2024 July 3
 // Author: Desmond Kirkpatrick <desmond.a.kirkpatrick@intel.com>
 
-final _prefix = r"""
+const _prefix = r"""
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -45,7 +45,7 @@ final _prefix = r"""
       var exmpl = `
 """;
 
-final _suffix = r"""
+const _suffix = r"""
 `;
         var width = viewport().width,
             height = viewport().height;
