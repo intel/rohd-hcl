@@ -14,26 +14,32 @@ class SystemVerilogCubitState {
   final String systemVerilog;
   final GenerationState generationState;
   final String name;
+  final String moduleName;
 
   const SystemVerilogCubitState(
       {required this.systemVerilog,
       required this.generationState,
-      required this.name});
+      required this.name,
+      required this.moduleName});
   const SystemVerilogCubitState.loading()
       : this(
             systemVerilog: 'Loading...',
             generationState: GenerationState.loading,
-            name: 'loading');
-  const SystemVerilogCubitState.done(String systemVerilog, String name)
+            name: 'loading',
+            moduleName: '');
+  const SystemVerilogCubitState.done(
+      String systemVerilog, String name, String moduleName)
       : this(
             systemVerilog: systemVerilog,
             generationState: GenerationState.done,
-            name: name);
+            name: name,
+            moduleName: moduleName);
   const SystemVerilogCubitState.initial()
       : this(
             systemVerilog: 'Click "Generate RTL"!',
             generationState: GenerationState.initial,
-            name: 'init');
+            name: 'init',
+            moduleName: '');
 }
 
 /// Controls the generated SystemVerilog to display
@@ -50,7 +56,7 @@ class SystemVerilogCubit extends Cubit<SystemVerilogCubitState> {
     emit(const SystemVerilogCubitState.loading());
   }
 
-  void setRTL(String rtl, String name) {
-    emit(SystemVerilogCubitState.done(rtl, name));
+  void setRTL(String rtl, String name, String moduleName) {
+    emit(SystemVerilogCubitState.done(rtl, name, moduleName));
   }
 }

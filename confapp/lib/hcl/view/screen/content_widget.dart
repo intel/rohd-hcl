@@ -11,9 +11,11 @@ import 'dart:convert';
 // need this for creating a download link
 // ignore: avoid_web_libraries_in_flutter
 import 'dart:html';
+import 'dart:ui_web' as ui_web;
 
 import 'package:confapp/hcl/cubit/component_cubit.dart';
 import 'package:confapp/hcl/cubit/system_verilog_cubit.dart';
+import 'package:confapp/hcl/view/screen/schematic.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -53,6 +55,9 @@ class _SVGeneratorState extends State<SVGenerator> {
 
     return res;
   }
+
+  final yosysWorker = Worker('yosysWorker.js');
+  var schematicHTML = "";
 
   Widget _generateKnobControl(String label, ConfigKnob knob) {
     final Widget selector;
@@ -303,6 +308,25 @@ class _SVGeneratorState extends State<SVGenerator> {
     );
   }
 
+  Widget _generatedSchCard(double screenHeight, double screenWidth) {
+    return Card(
+        child: Container(
+            alignment: Alignment.center,
+            child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: BlocBuilder<SystemVerilogCubit, SystemVerilogCubitState>(
+                    builder: (context, state) {
+                  if (state.generationState == GenerationState.done) {
+                    return const Card(
+                        child: HtmlElementView(
+                      viewType: 'schematic-html',
+                    ));
+                  } else {
+                    return const Padding(padding: EdgeInsets.all(16.0));
+                  }
+                }))));
+  }
+
   Widget _genRtlButton(SystemVerilogCubit rtlCubit, Configurator component) {
     return ElevatedButton(
       key: const Key('generateRTL'),
@@ -314,14 +338,32 @@ class _SVGeneratorState extends State<SVGenerator> {
           await Future.delayed(const Duration(milliseconds: 10));
 
           final rtlRes = await _generateRTL(component);
+          final moduleName = component.createModule().definitionName;
 
-          rtlCubit.setRTL(rtlRes, component.sanitaryName);
+          yosysWorker.postMessage({'module': moduleName, 'verilog': rtlRes});
+
+          yosysWorker.onMessage.first.then((msg) {
+            schematicHTML = d3Schematic(msg.data);
+            ui_web.platformViewRegistry.registerViewFactory(
+                'schematic-html',
+                (int viewID) => IFrameElement()
+                  ..height = '100%'
+                  ..width = '100%'
+                  ..srcdoc = schematicHTML
+                  ..style.border = 'none');
+          });
+
+          // allow some time for registration to happen
+          rtlCubit.setLoading();
+          await Future.delayed(const Duration(milliseconds: 200));
+
+          rtlCubit.setRTL(rtlRes, component.sanitaryName, moduleName);
         } on Exception catch (e) {
           var message = e.toString();
           if (e is RohdHclException) {
             message = e.message;
           }
-          rtlCubit.setRTL('Error generating:\n\n$message', 'error');
+          rtlCubit.setRTL('Error generating:\n\n$message', 'error', '');
         }
       },
       style: btnStyle,
@@ -387,14 +429,15 @@ class _SVGeneratorState extends State<SVGenerator> {
                         maxHeight: screenHeight * 0.85,
                         maxWidth: screenWidth / 3),
                     child: DefaultTabController(
-                      length: 2,
+                      length: 3,
                       child: Scaffold(
                         appBar: AppBar(
                           title: const Text('Generated Outputs'),
                           bottom: const TabBar(
-                            isScrollable: true,
+                            isScrollable: false,
                             tabs: [
                               Tab(text: 'Generated RTL'),
+                              Tab(text: 'Generated Schematic'),
                               Tab(text: 'JSON Configuration'),
                             ],
                           ),
@@ -402,6 +445,7 @@ class _SVGeneratorState extends State<SVGenerator> {
                         body: TabBarView(
                           children: [
                             _generatedRtlCard(screenHeight, screenWidth),
+                            _generatedSchCard(screenHeight, screenWidth),
                             _generateJsonCard(screenHeight, screenWidth),
                           ],
                         ),
