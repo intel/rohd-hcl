@@ -342,11 +342,18 @@ class _SVGeneratorState extends State<SVGenerator> {
 
           yosysWorker.postMessage({'module': moduleName, 'verilog': rtlRes});
 
-          await yosysWorker.onMessage.first.then((msg) {
-            //  await yosysWorker.onMessage.listen((msg) {
-            // TODO(desmonddak):  We see that the number of messages increases
-            // with each click
-            // print('got msg' + msg.data);
+          // This .first.then() call fixes a bug in having to reopen the
+          // schematic tab to display the correct circuit, but causes flutter
+          // test to fail.
+          // await yosysWorker.onMessage.first.then((msg) {
+          //
+          // This listen call passes flutter test but is flakey in that
+          // you get the last schematic and have to refresh the tab
+          // to get the new schematic.
+          // It also stacks the messages so they keep increasing over time
+          // slowing down the Configurator viewer
+          await yosysWorker.onMessage.listen((msg) {
+            print('got msg');
 
             schematicHTML = d3Schematic(msg.data);
             ui_web.platformViewRegistry.registerViewFactory(
