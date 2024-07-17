@@ -11,7 +11,7 @@
   
   <link rel="preconnect" href="https://fonts.gstatic.com">
   <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
-  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@48,400,0,0" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
   
   <link rel="stylesheet" href="../static-assets/github.css?v1">
   <link rel="stylesheet" href="../static-assets/styles.css?v1">
@@ -35,36 +35,36 @@
   <form class="search navbar-right" role="search">
     <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
   </form>
-  <div class="toggle" id="theme-button">
+  <div class="toggle" id="theme-button" title="Toggle brightness">
     <label for="theme">
       <input type="checkbox" id="theme" value="light-theme">
       <span id="dark-theme-button" class="material-symbols-outlined">
-        brightness_4
+        dark_mode
       </span>
       <span id="light-theme-button" class="material-symbols-outlined">
-        brightness_5
+        light_mode
       </span>
     </label>
   </div>
 </header>
 <main>
 
-  <div
-      id="dartdoc-main-content"
-      class="main-content"
-      data-above-sidebar=""
-      data-below-sidebar="rohd_hcl&#47;rohd_hcl-library-sidebar.html">
+<div
+    id="dartdoc-main-content"
+    class="main-content"
+    data-above-sidebar=""
+    data-below-sidebar="rohd_hcl&#47;rohd_hcl-library-sidebar.html">
+  
+    <div>
       
-      <div>
-        
 
-        <h1>
-          <span class="kind-library">rohd_hcl</span>
-          library 
+      <h1>
+        <span class="kind-library">rohd_hcl</span>
+        library 
  
 
-        </h1>
-      </div>
+      </h1>
+    </div>
 
     
 
@@ -73,7 +73,7 @@
       <h2>Classes</h2>
 
       <dl>
-        <dt id="Adder">
+          <dt id="Adder">
   <span class="name "><a href="../rohd_hcl/Adder-class.html">Adder</a></span> 
 
 </dt>
@@ -81,7 +81,7 @@
   An abstract class for all adder module.
 </dd>
 
-        <dt id="ApbCompleterAgent">
+          <dt id="ApbCompleterAgent">
   <span class="name "><a href="../rohd_hcl/ApbCompleterAgent-class.html">ApbCompleterAgent</a></span> 
 
 </dt>
@@ -89,7 +89,7 @@
   A model for the completer side of an <a href="../rohd_hcl/ApbInterface-class.html">ApbInterface</a>.
 </dd>
 
-        <dt id="ApbComplianceChecker">
+          <dt id="ApbComplianceChecker">
   <span class="name "><a href="../rohd_hcl/ApbComplianceChecker-class.html">ApbComplianceChecker</a></span> 
 
 </dt>
@@ -97,7 +97,7 @@
   A checker for some of the rules defined in the APB interface specification.
 </dd>
 
-        <dt id="ApbInterface">
+          <dt id="ApbInterface">
   <span class="name "><a href="../rohd_hcl/ApbInterface-class.html">ApbInterface</a></span> 
 
 </dt>
@@ -105,7 +105,7 @@
   A standard APB interface.
 </dd>
 
-        <dt id="ApbMonitor">
+          <dt id="ApbMonitor">
   <span class="name "><a href="../rohd_hcl/ApbMonitor-class.html">ApbMonitor</a></span> 
 
 </dt>
@@ -113,7 +113,7 @@
   A monitor for <a href="../rohd_hcl/ApbInterface-class.html">ApbInterface</a>s.
 </dd>
 
-        <dt id="ApbPacket">
+          <dt id="ApbPacket">
   <span class="name "><a href="../rohd_hcl/ApbPacket-class.html">ApbPacket</a></span> 
 
 </dt>
@@ -121,7 +121,7 @@
   A packet on an <a href="../rohd_hcl/ApbInterface-class.html">ApbInterface</a>.
 </dd>
 
-        <dt id="ApbReadPacket">
+          <dt id="ApbReadPacket">
   <span class="name "><a href="../rohd_hcl/ApbReadPacket-class.html">ApbReadPacket</a></span> 
 
 </dt>
@@ -129,7 +129,7 @@
   A read packet on an <a href="../rohd_hcl/ApbInterface-class.html">ApbInterface</a>.
 </dd>
 
-        <dt id="ApbRequesterAgent">
+          <dt id="ApbRequesterAgent">
   <span class="name "><a href="../rohd_hcl/ApbRequesterAgent-class.html">ApbRequesterAgent</a></span> 
 
 </dt>
@@ -137,7 +137,7 @@
   An agent for sending requests on an <a href="../rohd_hcl/ApbInterface-class.html">ApbInterface</a>.
 </dd>
 
-        <dt id="ApbRequesterDriver">
+          <dt id="ApbRequesterDriver">
   <span class="name "><a href="../rohd_hcl/ApbRequesterDriver-class.html">ApbRequesterDriver</a></span> 
 
 </dt>
@@ -145,7 +145,7 @@
   A driver for the <a href="../rohd_hcl/ApbInterface-class.html">ApbInterface</a> from the requester side.
 </dd>
 
-        <dt id="ApbTracker">
+          <dt id="ApbTracker">
   <span class="name "><a href="../rohd_hcl/ApbTracker-class.html">ApbTracker</a></span> 
 
 </dt>
@@ -153,7 +153,7 @@
   A tracker for the <a href="../rohd_hcl/ApbInterface-class.html">ApbInterface</a>.
 </dd>
 
-        <dt id="ApbWritePacket">
+          <dt id="ApbWritePacket">
   <span class="name "><a href="../rohd_hcl/ApbWritePacket-class.html">ApbWritePacket</a></span> 
 
 </dt>
@@ -161,7 +161,7 @@
   A write packet on an <a href="../rohd_hcl/ApbInterface-class.html">ApbInterface</a>.
 </dd>
 
-        <dt id="Arbiter">
+          <dt id="Arbiter">
   <span class="name "><a href="../rohd_hcl/Arbiter-class.html">Arbiter</a></span> 
 
 </dt>
@@ -169,7 +169,7 @@
   An abstract description of an arbiter module.
 </dd>
 
-        <dt id="BinaryToGrayConverter">
+          <dt id="BinaryToGrayConverter">
   <span class="name "><a href="../rohd_hcl/BinaryToGrayConverter-class.html">BinaryToGrayConverter</a></span> 
 
 </dt>
@@ -177,7 +177,7 @@
   A module for converting binary values to Gray code representation.
 </dd>
 
-        <dt id="BinaryToOneHot">
+          <dt id="BinaryToOneHot">
   <span class="name "><a href="../rohd_hcl/BinaryToOneHot-class.html">BinaryToOneHot</a></span> 
 
 </dt>
@@ -185,7 +185,7 @@
   Encodes a binary number into one-hot.
 </dd>
 
-        <dt id="BitonicSort">
+          <dt id="BitonicSort">
   <span class="name "><a href="../rohd_hcl/BitonicSort-class.html">BitonicSort</a></span> 
 
 </dt>
@@ -194,7 +194,7 @@
 specified order based on <a href="../rohd_hcl/Sort/isAscending.html">isAscending</a>.
 </dd>
 
-        <dt id="BitonicSortConfigurator">
+          <dt id="BitonicSortConfigurator">
   <span class="name "><a href="../rohd_hcl/BitonicSortConfigurator-class.html">BitonicSortConfigurator</a></span> 
 
 </dt>
@@ -202,7 +202,7 @@ specified order based on <a href="../rohd_hcl/Sort/isAscending.html">isAscending
   A <a href="../rohd_hcl/Configurator-class.html">Configurator</a> for <a href="../rohd_hcl/BitonicSort-class.html">BitonicSort</a>.
 </dd>
 
-        <dt id="BrentKung">
+          <dt id="BrentKung">
   <span class="name "><a href="../rohd_hcl/BrentKung-class.html">BrentKung</a></span> 
 
 </dt>
@@ -210,7 +210,7 @@ specified order based on <a href="../rohd_hcl/Sort/isAscending.html">isAscending
   BrentKung shaped ParallelPrefix tree
 </dd>
 
-        <dt id="CarrySaveMultiplier">
+          <dt id="CarrySaveMultiplier">
   <span class="name "><a href="../rohd_hcl/CarrySaveMultiplier-class.html">CarrySaveMultiplier</a></span> 
 
 </dt>
@@ -218,7 +218,7 @@ specified order based on <a href="../rohd_hcl/Sort/isAscending.html">isAscending
   A binary multiplier using carry-save technique with pipelining.
 </dd>
 
-        <dt id="CarrySaveMultiplierConfigurator">
+          <dt id="CarrySaveMultiplierConfigurator">
   <span class="name "><a href="../rohd_hcl/CarrySaveMultiplierConfigurator-class.html">CarrySaveMultiplierConfigurator</a></span> 
 
 </dt>
@@ -226,7 +226,7 @@ specified order based on <a href="../rohd_hcl/Sort/isAscending.html">isAscending
   A <a href="../rohd_hcl/Configurator-class.html">Configurator</a> for <a href="../rohd_hcl/CarrySaveMultiplier-class.html">CarrySaveMultiplier</a>.
 </dd>
 
-        <dt id="CaseOneHotToBinary">
+          <dt id="CaseOneHotToBinary">
   <span class="name "><a href="../rohd_hcl/CaseOneHotToBinary-class.html">CaseOneHotToBinary</a></span> 
 
 </dt>
@@ -234,7 +234,7 @@ specified order based on <a href="../rohd_hcl/Sort/isAscending.html">isAscending
   Decodes a one-hot number into binary using a case block.
 </dd>
 
-        <dt id="ChoiceConfigKnob">
+          <dt id="ChoiceConfigKnob">
   <span class="name "><a href="../rohd_hcl/ChoiceConfigKnob-class.html">ChoiceConfigKnob</a><span class="signature">&lt;<wbr><span class="type-parameter">T</span>&gt;</span></span> 
 
 </dt>
@@ -242,7 +242,7 @@ specified order based on <a href="../rohd_hcl/Sort/isAscending.html">isAscending
   A <a href="../rohd_hcl/ConfigKnob-class.html">ConfigKnob</a> for selecting one of multiple options.
 </dd>
 
-        <dt id="ConfigKnob">
+          <dt id="ConfigKnob">
   <span class="name "><a href="../rohd_hcl/ConfigKnob-class.html">ConfigKnob</a><span class="signature">&lt;<wbr><span class="type-parameter">T</span>&gt;</span></span> 
 
 </dt>
@@ -250,16 +250,16 @@ specified order based on <a href="../rohd_hcl/Sort/isAscending.html">isAscending
   A configuration knob for use in <a href="../rohd_hcl/Configurator-class.html">Configurator</a>s.
 </dd>
 
-        <dt id="Configurator">
+          <dt id="Configurator">
   <span class="name "><a href="../rohd_hcl/Configurator-class.html">Configurator</a></span> 
 
 </dt>
 <dd>
-  An object that enables a consisten API for configuring a <a href="https://pub.dev/documentation/rohd/0.5.2/rohd/Module-class.html">Module</a> and
+  An object that enables a consisten API for configuring a <a href="https://pub.dev/documentation/rohd/0.5.3/rohd/Module-class.html">Module</a> and
 performing common tasks with it.
 </dd>
 
-        <dt id="Count">
+          <dt id="Count">
   <span class="name "><a href="../rohd_hcl/Count-class.html">Count</a></span> 
 
 </dt>
@@ -267,7 +267,7 @@ performing common tasks with it.
   <a href="../rohd_hcl/Count-class.html">Count</a> <code>1</code> or <code>0</code>.
 </dd>
 
-        <dt id="DataPortInterface">
+          <dt id="DataPortInterface">
   <span class="name "><a href="../rohd_hcl/DataPortInterface-class.html">DataPortInterface</a></span> 
 
 </dt>
@@ -275,7 +275,7 @@ performing common tasks with it.
   An interface to a simple memory that only needs enable, address, and data.
 </dd>
 
-        <dt id="EccConfigurator">
+          <dt id="EccConfigurator">
   <span class="name "><a href="../rohd_hcl/EccConfigurator-class.html">EccConfigurator</a></span> 
 
 </dt>
@@ -283,7 +283,7 @@ performing common tasks with it.
   A <a href="../rohd_hcl/Configurator-class.html">Configurator</a> for <a href="../rohd_hcl/HammingEccReceiver-class.html">HammingEccReceiver</a> and <a href="../rohd_hcl/HammingEccTransmitter-class.html">HammingEccTransmitter</a>.
 </dd>
 
-        <dt id="EdgeDetector">
+          <dt id="EdgeDetector">
   <span class="name "><a href="../rohd_hcl/EdgeDetector-class.html">EdgeDetector</a></span> 
 
 </dt>
@@ -292,7 +292,7 @@ performing common tasks with it.
 the previous clock cycle.
 </dd>
 
-        <dt id="EdgeDetectorConfigurator">
+          <dt id="EdgeDetectorConfigurator">
   <span class="name "><a href="../rohd_hcl/EdgeDetectorConfigurator-class.html">EdgeDetectorConfigurator</a></span> 
 
 </dt>
@@ -300,7 +300,7 @@ the previous clock cycle.
   A <a href="../rohd_hcl/Configurator-class.html">Configurator</a> for <a href="../rohd_hcl/EdgeDetector-class.html">EdgeDetector</a>.
 </dd>
 
-        <dt id="ErrorCheckingReceiver">
+          <dt id="ErrorCheckingReceiver">
   <span class="name "><a href="../rohd_hcl/ErrorCheckingReceiver-class.html">ErrorCheckingReceiver</a></span> 
 
 </dt>
@@ -309,7 +309,7 @@ the previous clock cycle.
 correcting.
 </dd>
 
-        <dt id="ErrorCheckingTransmitter">
+          <dt id="ErrorCheckingTransmitter">
   <span class="name "><a href="../rohd_hcl/ErrorCheckingTransmitter-class.html">ErrorCheckingTransmitter</a></span> 
 
 </dt>
@@ -318,7 +318,7 @@ correcting.
 correcting data at the receiving end.
 </dd>
 
-        <dt id="Fifo">
+          <dt id="Fifo">
   <span class="name "><a href="../rohd_hcl/Fifo-class.html">Fifo</a></span> 
 
 </dt>
@@ -326,7 +326,7 @@ correcting data at the receiving end.
   A simple FIFO (First In, First Out).
 </dd>
 
-        <dt id="FifoChecker">
+          <dt id="FifoChecker">
   <span class="name "><a href="../rohd_hcl/FifoChecker-class.html">FifoChecker</a></span> 
 
 </dt>
@@ -335,7 +335,7 @@ correcting data at the receiving end.
 dangerous conditions.
 </dd>
 
-        <dt id="FifoConfigurator">
+          <dt id="FifoConfigurator">
   <span class="name "><a href="../rohd_hcl/FifoConfigurator-class.html">FifoConfigurator</a></span> 
 
 </dt>
@@ -343,7 +343,7 @@ dangerous conditions.
   A <a href="../rohd_hcl/Configurator-class.html">Configurator</a> for <a href="../rohd_hcl/Fifo-class.html">Fifo</a>.
 </dd>
 
-        <dt id="FifoTracker">
+          <dt id="FifoTracker">
   <span class="name "><a href="../rohd_hcl/FifoTracker-class.html">FifoTracker</a></span> 
 
 </dt>
@@ -351,7 +351,7 @@ dangerous conditions.
   A tracker for a <a href="../rohd_hcl/Fifo-class.html">Fifo</a> which can generate logs.
 </dd>
 
-        <dt id="Find">
+          <dt id="Find">
   <span class="name "><a href="../rohd_hcl/Find-class.html">Find</a></span> 
 
 </dt>
@@ -359,7 +359,7 @@ dangerous conditions.
   Find functionality
 </dd>
 
-        <dt id="FindConfigurator">
+          <dt id="FindConfigurator">
   <span class="name "><a href="../rohd_hcl/FindConfigurator-class.html">FindConfigurator</a></span> 
 
 </dt>
@@ -367,7 +367,7 @@ dangerous conditions.
   A <a href="../rohd_hcl/Configurator-class.html">Configurator</a> for <a href="../rohd_hcl/Find-class.html">Find</a>.
 </dd>
 
-        <dt id="FullAdder">
+          <dt id="FullAdder">
   <span class="name "><a href="../rohd_hcl/FullAdder-class.html">FullAdder</a></span> 
 
 </dt>
@@ -375,7 +375,7 @@ dangerous conditions.
   A simple full-adder with inputs <code>a</code> and <code>b</code> to be added with a <code>carryIn</code>.
 </dd>
 
-        <dt id="GrayToBinaryConverter">
+          <dt id="GrayToBinaryConverter">
   <span class="name "><a href="../rohd_hcl/GrayToBinaryConverter-class.html">GrayToBinaryConverter</a></span> 
 
 </dt>
@@ -383,7 +383,7 @@ dangerous conditions.
   A module for converting Gray code to binary representation.
 </dd>
 
-        <dt id="GroupOfKnobs">
+          <dt id="GroupOfKnobs">
   <span class="name "><a href="../rohd_hcl/GroupOfKnobs-class.html">GroupOfKnobs</a></span> 
 
 </dt>
@@ -391,7 +391,7 @@ dangerous conditions.
   A knob which groups together other <a href="../rohd_hcl/ConfigKnob-class.html">ConfigKnob</a>s.
 </dd>
 
-        <dt id="HammingEccReceiver">
+          <dt id="HammingEccReceiver">
   <span class="name "><a href="../rohd_hcl/HammingEccReceiver-class.html">HammingEccReceiver</a></span> 
 
 </dt>
@@ -400,7 +400,7 @@ dangerous conditions.
 and possibly correction.
 </dd>
 
-        <dt id="HammingEccTransmitter">
+          <dt id="HammingEccTransmitter">
   <span class="name "><a href="../rohd_hcl/HammingEccTransmitter-class.html">HammingEccTransmitter</a></span> 
 
 </dt>
@@ -409,15 +409,15 @@ and possibly correction.
 and possibly correction.
 </dd>
 
-        <dt id="IntConfigKnob">
+          <dt id="IntConfigKnob">
   <span class="name "><a href="../rohd_hcl/IntConfigKnob-class.html">IntConfigKnob</a></span> 
 
 </dt>
 <dd>
-  A knob to store an <a href="https://api.dart.dev/stable/3.3.2/dart-core/int-class.html">int</a>.
+  A knob to store an <a href="https://api.dart.dev/stable/3.4.4/dart-core/int-class.html">int</a>.
 </dd>
 
-        <dt id="KoggeStone">
+          <dt id="KoggeStone">
   <span class="name "><a href="../rohd_hcl/KoggeStone-class.html">KoggeStone</a></span> 
 
 </dt>
@@ -425,7 +425,7 @@ and possibly correction.
   KoggeStone shaped ParallelPrefix tree
 </dd>
 
-        <dt id="ListOfKnobsKnob">
+          <dt id="ListOfKnobsKnob">
   <span class="name "><a href="../rohd_hcl/ListOfKnobsKnob-class.html">ListOfKnobsKnob</a></span> 
 
 </dt>
@@ -433,7 +433,7 @@ and possibly correction.
   A knob wich holds a collection of other <a href="../rohd_hcl/ConfigKnob-class.html">ConfigKnob</a>s.
 </dd>
 
-        <dt id="MaskedDataPortInterface">
+          <dt id="MaskedDataPortInterface">
   <span class="name "><a href="../rohd_hcl/MaskedDataPortInterface-class.html">MaskedDataPortInterface</a></span> 
 
 </dt>
@@ -441,7 +441,7 @@ and possibly correction.
   A <a href="../rohd_hcl/DataPortInterface-class.html">DataPortInterface</a> that supports byte-enabled strobing.
 </dd>
 
-        <dt id="MaskRoundRobinArbiter">
+          <dt id="MaskRoundRobinArbiter">
   <span class="name "><a href="../rohd_hcl/MaskRoundRobinArbiter-class.html">MaskRoundRobinArbiter</a></span> 
 
 </dt>
@@ -449,7 +449,7 @@ and possibly correction.
   A <a href="../rohd_hcl/RoundRobinArbiter-class.html">RoundRobinArbiter</a> implemented using request and grant masks.
 </dd>
 
-        <dt id="Memory">
+          <dt id="Memory">
   <span class="name "><a href="../rohd_hcl/Memory-class.html">Memory</a></span> 
 
 </dt>
@@ -457,7 +457,7 @@ and possibly correction.
   A generic memory with variable numbers of read and write ports.
 </dd>
 
-        <dt id="MemoryModel">
+          <dt id="MemoryModel">
   <span class="name "><a href="../rohd_hcl/MemoryModel-class.html">MemoryModel</a></span> 
 
 </dt>
@@ -466,7 +466,7 @@ and possibly correction.
 store data.
 </dd>
 
-        <dt id="MemoryStorage">
+          <dt id="MemoryStorage">
   <span class="name "><a href="../rohd_hcl/MemoryStorage-class.html">MemoryStorage</a></span> 
 
 </dt>
@@ -474,7 +474,7 @@ store data.
   A storage for memory models.
 </dd>
 
-        <dt id="Multiplier">
+          <dt id="Multiplier">
   <span class="name "><a href="../rohd_hcl/Multiplier-class.html">Multiplier</a></span> 
 
 </dt>
@@ -482,7 +482,7 @@ store data.
   An abstract class for all multiplier implementation.
 </dd>
 
-        <dt id="OneHotConfigurator">
+          <dt id="OneHotConfigurator">
   <span class="name "><a href="../rohd_hcl/OneHotConfigurator-class.html">OneHotConfigurator</a></span> 
 
 </dt>
@@ -490,7 +490,7 @@ store data.
   A <a href="../rohd_hcl/Configurator-class.html">Configurator</a> for <a href="../rohd_hcl/BinaryToOneHot-class.html">BinaryToOneHot</a> and <a href="../rohd_hcl/OneHotToBinary-class.html">OneHotToBinary</a>.
 </dd>
 
-        <dt id="OneHotToBinary">
+          <dt id="OneHotToBinary">
   <span class="name "><a href="../rohd_hcl/OneHotToBinary-class.html">OneHotToBinary</a></span> 
 
 </dt>
@@ -498,7 +498,7 @@ store data.
   Decodes a one-hot number into binary using a case block.
 </dd>
 
-        <dt id="ParallelPrefix">
+          <dt id="ParallelPrefix">
   <span class="name "><a href="../rohd_hcl/ParallelPrefix-class.html">ParallelPrefix</a></span> 
 
 </dt>
@@ -510,7 +510,7 @@ networks.  Each node in a parallel prefix tree transforms a row of inputs
 to an equal length row of outputs of these multi-bit Logic values.
 </dd>
 
-        <dt id="ParallelPrefixAdder">
+          <dt id="ParallelPrefixAdder">
   <span class="name "><a href="../rohd_hcl/ParallelPrefixAdder-class.html">ParallelPrefixAdder</a></span> 
 
 </dt>
@@ -518,7 +518,7 @@ to an equal length row of outputs of these multi-bit Logic values.
   Adder based on ParallelPrefix tree
 </dd>
 
-        <dt id="ParallelPrefixAdderConfigurator">
+          <dt id="ParallelPrefixAdderConfigurator">
   <span class="name "><a href="../rohd_hcl/ParallelPrefixAdderConfigurator-class.html">ParallelPrefixAdderConfigurator</a></span> 
 
 </dt>
@@ -526,7 +526,7 @@ to an equal length row of outputs of these multi-bit Logic values.
   A <a href="../rohd_hcl/Configurator-class.html">Configurator</a> for <a href="../rohd_hcl/ParallelPrefixAdder-class.html">ParallelPrefixAdder</a>s.
 </dd>
 
-        <dt id="ParallelPrefixDecr">
+          <dt id="ParallelPrefixDecr">
   <span class="name "><a href="../rohd_hcl/ParallelPrefixDecr-class.html">ParallelPrefixDecr</a></span> 
 
 </dt>
@@ -534,7 +534,7 @@ to an equal length row of outputs of these multi-bit Logic values.
   Decrementer based on ParallelPrefix tree
 </dd>
 
-        <dt id="ParallelPrefixIncr">
+          <dt id="ParallelPrefixIncr">
   <span class="name "><a href="../rohd_hcl/ParallelPrefixIncr-class.html">ParallelPrefixIncr</a></span> 
 
 </dt>
@@ -542,7 +542,7 @@ to an equal length row of outputs of these multi-bit Logic values.
   Incrementer based on ParallelPrefix tree
 </dd>
 
-        <dt id="ParallelPrefixOrScan">
+          <dt id="ParallelPrefixOrScan">
   <span class="name "><a href="../rohd_hcl/ParallelPrefixOrScan-class.html">ParallelPrefixOrScan</a></span> 
 
 </dt>
@@ -550,7 +550,7 @@ to an equal length row of outputs of these multi-bit Logic values.
   Or scan based on ParallelPrefix tree
 </dd>
 
-        <dt id="ParallelPrefixPriorityEncoder">
+          <dt id="ParallelPrefixPriorityEncoder">
   <span class="name "><a href="../rohd_hcl/ParallelPrefixPriorityEncoder-class.html">ParallelPrefixPriorityEncoder</a></span> 
 
 </dt>
@@ -558,7 +558,7 @@ to an equal length row of outputs of these multi-bit Logic values.
   Priority Encoder based on ParallelPrefix tree
 </dd>
 
-        <dt id="ParityReceiver">
+          <dt id="ParityReceiver">
   <span class="name "><a href="../rohd_hcl/ParityReceiver-class.html">ParityReceiver</a></span> 
 
 </dt>
@@ -566,7 +566,7 @@ to an equal length row of outputs of these multi-bit Logic values.
   Check for error &amp; Receive data on transmitted data via parity
 </dd>
 
-        <dt id="ParityTransmitter">
+          <dt id="ParityTransmitter">
   <span class="name "><a href="../rohd_hcl/ParityTransmitter-class.html">ParityTransmitter</a></span> 
 
 </dt>
@@ -574,7 +574,7 @@ to an equal length row of outputs of these multi-bit Logic values.
   Encode data to transport with Parity bits
 </dd>
 
-        <dt id="PriorityArbiter">
+          <dt id="PriorityArbiter">
   <span class="name "><a href="../rohd_hcl/PriorityArbiter-class.html">PriorityArbiter</a></span> 
 
 </dt>
@@ -582,7 +582,7 @@ to an equal length row of outputs of these multi-bit Logic values.
   An <a href="../rohd_hcl/Arbiter-class.html">Arbiter</a> which always picks the lowest-indexed request.
 </dd>
 
-        <dt id="PriorityArbiterConfigurator">
+          <dt id="PriorityArbiterConfigurator">
   <span class="name "><a href="../rohd_hcl/PriorityArbiterConfigurator-class.html">PriorityArbiterConfigurator</a></span> 
 
 </dt>
@@ -590,7 +590,7 @@ to an equal length row of outputs of these multi-bit Logic values.
   A <a href="../rohd_hcl/Configurator-class.html">Configurator</a> for <a href="../rohd_hcl/PriorityArbiter-class.html">PriorityArbiter</a>.
 </dd>
 
-        <dt id="ReadyValidAgent">
+          <dt id="ReadyValidAgent">
   <span class="name "><a href="../rohd_hcl/ReadyValidAgent-class.html">ReadyValidAgent</a></span> 
 
 </dt>
@@ -598,7 +598,7 @@ to an equal length row of outputs of these multi-bit Logic values.
   A generic agent for ready/valid protocol.
 </dd>
 
-        <dt id="ReadyValidMonitor">
+          <dt id="ReadyValidMonitor">
   <span class="name "><a href="../rohd_hcl/ReadyValidMonitor-class.html">ReadyValidMonitor</a></span> 
 
 </dt>
@@ -606,7 +606,7 @@ to an equal length row of outputs of these multi-bit Logic values.
   A <a href="https://pub.dev/documentation/rohd_vf/0.5.0/rohd_vf/Monitor-class.html">Monitor</a> for ready/valid protocol.
 </dd>
 
-        <dt id="ReadyValidPacket">
+          <dt id="ReadyValidPacket">
   <span class="name "><a href="../rohd_hcl/ReadyValidPacket-class.html">ReadyValidPacket</a></span> 
 
 </dt>
@@ -614,7 +614,7 @@ to an equal length row of outputs of these multi-bit Logic values.
   A packet to be transmitted over a ready/valid interface.
 </dd>
 
-        <dt id="ReadyValidReceiverAgent">
+          <dt id="ReadyValidReceiverAgent">
   <span class="name "><a href="../rohd_hcl/ReadyValidReceiverAgent-class.html">ReadyValidReceiverAgent</a></span> 
 
 </dt>
@@ -622,7 +622,7 @@ to an equal length row of outputs of these multi-bit Logic values.
   An <a href="https://pub.dev/documentation/rohd_vf/0.5.0/rohd_vf/Agent-class.html">Agent</a> for receiving over a ready/valid protocol.
 </dd>
 
-        <dt id="ReadyValidTracker">
+          <dt id="ReadyValidTracker">
   <span class="name "><a href="../rohd_hcl/ReadyValidTracker-class.html">ReadyValidTracker</a></span> 
 
 </dt>
@@ -630,7 +630,7 @@ to an equal length row of outputs of these multi-bit Logic values.
   A tracker for a ready/valid protocol.
 </dd>
 
-        <dt id="ReadyValidTransmitterAgent">
+          <dt id="ReadyValidTransmitterAgent">
   <span class="name "><a href="../rohd_hcl/ReadyValidTransmitterAgent-class.html">ReadyValidTransmitterAgent</a></span> 
 
 </dt>
@@ -638,7 +638,7 @@ to an equal length row of outputs of these multi-bit Logic values.
   An <a href="https://pub.dev/documentation/rohd_vf/0.5.0/rohd_vf/Agent-class.html">Agent</a> for transmitting over a ready/valid protocol.
 </dd>
 
-        <dt id="ReadyValidTransmitterDriver">
+          <dt id="ReadyValidTransmitterDriver">
   <span class="name "><a href="../rohd_hcl/ReadyValidTransmitterDriver-class.html">ReadyValidTransmitterDriver</a></span> 
 
 </dt>
@@ -646,7 +646,7 @@ to an equal length row of outputs of these multi-bit Logic values.
   An <a href="https://pub.dev/documentation/rohd_vf/0.5.0/rohd_vf/Agent-class.html">Agent</a> for transmitting over a ready/valid protocol.
 </dd>
 
-        <dt id="RegisterFile">
+          <dt id="RegisterFile">
   <span class="name "><a href="../rohd_hcl/RegisterFile-class.html">RegisterFile</a></span> 
 
 </dt>
@@ -654,7 +654,7 @@ to an equal length row of outputs of these multi-bit Logic values.
   A flop-based memory.
 </dd>
 
-        <dt id="RegisterFileConfigurator">
+          <dt id="RegisterFileConfigurator">
   <span class="name "><a href="../rohd_hcl/RegisterFileConfigurator-class.html">RegisterFileConfigurator</a></span> 
 
 </dt>
@@ -662,7 +662,7 @@ to an equal length row of outputs of these multi-bit Logic values.
   A <a href="../rohd_hcl/Configurator-class.html">Configurator</a> for <a href="../rohd_hcl/RegisterFile-class.html">RegisterFile</a>s.
 </dd>
 
-        <dt id="Ripple">
+          <dt id="Ripple">
   <span class="name "><a href="../rohd_hcl/Ripple-class.html">Ripple</a></span> 
 
 </dt>
@@ -670,7 +670,7 @@ to an equal length row of outputs of these multi-bit Logic values.
   Ripple shaped ParallelPrefix tree
 </dd>
 
-        <dt id="RippleCarryAdder">
+          <dt id="RippleCarryAdder">
   <span class="name "><a href="../rohd_hcl/RippleCarryAdder-class.html">RippleCarryAdder</a></span> 
 
 </dt>
@@ -682,7 +682,7 @@ from the least significant bit (LSB) to most significant bit (MSB), the
 adder sequentially adds corresponding bits of two binary numbers.
 </dd>
 
-        <dt id="RippleCarryAdderConfigurator">
+          <dt id="RippleCarryAdderConfigurator">
   <span class="name "><a href="../rohd_hcl/RippleCarryAdderConfigurator-class.html">RippleCarryAdderConfigurator</a></span> 
 
 </dt>
@@ -690,7 +690,7 @@ adder sequentially adds corresponding bits of two binary numbers.
   A <a href="../rohd_hcl/Configurator-class.html">Configurator</a> for <a href="../rohd_hcl/RippleCarryAdder-class.html">RippleCarryAdder</a>.
 </dd>
 
-        <dt id="RotateConfigurator">
+          <dt id="RotateConfigurator">
   <span class="name "><a href="../rohd_hcl/RotateConfigurator-class.html">RotateConfigurator</a></span> 
 
 </dt>
@@ -698,15 +698,15 @@ adder sequentially adds corresponding bits of two binary numbers.
   A <a href="../rohd_hcl/Configurator-class.html">Configurator</a> for rotation.
 </dd>
 
-        <dt id="RotateLeft">
+          <dt id="RotateLeft">
   <span class="name "><a href="../rohd_hcl/RotateLeft-class.html">RotateLeft</a></span> 
 
 </dt>
 <dd>
-  Rotates a <a href="https://pub.dev/documentation/rohd/0.5.2/rohd/Logic-class.html">Logic</a> to the left.
+  Rotates a <a href="https://pub.dev/documentation/rohd/0.5.3/rohd/Logic-class.html">Logic</a> to the left.
 </dd>
 
-        <dt id="RotateLeftFixed">
+          <dt id="RotateLeftFixed">
   <span class="name "><a href="../rohd_hcl/RotateLeftFixed-class.html">RotateLeftFixed</a></span> 
 
 </dt>
@@ -714,15 +714,15 @@ adder sequentially adds corresponding bits of two binary numbers.
   Rotates left by a fixed amount.
 </dd>
 
-        <dt id="RotateRight">
+          <dt id="RotateRight">
   <span class="name "><a href="../rohd_hcl/RotateRight-class.html">RotateRight</a></span> 
 
 </dt>
 <dd>
-  Rotates a <a href="https://pub.dev/documentation/rohd/0.5.2/rohd/Logic-class.html">Logic</a> to the right.
+  Rotates a <a href="https://pub.dev/documentation/rohd/0.5.3/rohd/Logic-class.html">Logic</a> to the right.
 </dd>
 
-        <dt id="RotateRightFixed">
+          <dt id="RotateRightFixed">
   <span class="name "><a href="../rohd_hcl/RotateRightFixed-class.html">RotateRightFixed</a></span> 
 
 </dt>
@@ -730,7 +730,7 @@ adder sequentially adds corresponding bits of two binary numbers.
   Rotates right by a fixed amount.
 </dd>
 
-        <dt id="RotateRoundRobinArbiter">
+          <dt id="RotateRoundRobinArbiter">
   <span class="name "><a href="../rohd_hcl/RotateRoundRobinArbiter-class.html">RotateRoundRobinArbiter</a></span> 
 
 </dt>
@@ -738,7 +738,7 @@ adder sequentially adds corresponding bits of two binary numbers.
   A <a href="../rohd_hcl/RoundRobinArbiter-class.html">RoundRobinArbiter</a> implemented using rotations and a <a href="../rohd_hcl/PriorityArbiter-class.html">PriorityArbiter</a>.
 </dd>
 
-        <dt id="RoundRobinArbiter">
+          <dt id="RoundRobinArbiter">
   <span class="name "><a href="../rohd_hcl/RoundRobinArbiter-class.html">RoundRobinArbiter</a></span> 
 
 </dt>
@@ -746,7 +746,7 @@ adder sequentially adds corresponding bits of two binary numbers.
   A <a href="../rohd_hcl/StatefulArbiter-class.html">StatefulArbiter</a> which fairly arbitrates between requests.
 </dd>
 
-        <dt id="RoundRobinArbiterConfigurator">
+          <dt id="RoundRobinArbiterConfigurator">
   <span class="name "><a href="../rohd_hcl/RoundRobinArbiterConfigurator-class.html">RoundRobinArbiterConfigurator</a></span> 
 
 </dt>
@@ -754,7 +754,7 @@ adder sequentially adds corresponding bits of two binary numbers.
   A <a href="../rohd_hcl/Configurator-class.html">Configurator</a> for <a href="../rohd_hcl/PriorityArbiter-class.html">PriorityArbiter</a>.
 </dd>
 
-        <dt id="ShiftRegister">
+          <dt id="ShiftRegister">
   <span class="name "><a href="../rohd_hcl/ShiftRegister-class.html">ShiftRegister</a></span> 
 
 </dt>
@@ -763,7 +763,7 @@ adder sequentially adds corresponding bits of two binary numbers.
 reset.
 </dd>
 
-        <dt id="Sklansky">
+          <dt id="Sklansky">
   <span class="name "><a href="../rohd_hcl/Sklansky-class.html">Sklansky</a></span> 
 
 </dt>
@@ -771,7 +771,7 @@ reset.
   Sklansky shaped ParallelPrefix tree
 </dd>
 
-        <dt id="Sort">
+          <dt id="Sort">
   <span class="name "><a href="../rohd_hcl/Sort-class.html">Sort</a></span> 
 
 </dt>
@@ -779,7 +779,7 @@ reset.
   An abstract class for all sort algorithm.
 </dd>
 
-        <dt id="SparseMemoryStorage">
+          <dt id="SparseMemoryStorage">
   <span class="name "><a href="../rohd_hcl/SparseMemoryStorage-class.html">SparseMemoryStorage</a></span> 
 
 </dt>
@@ -787,7 +787,7 @@ reset.
   A sparse storage for memory models.
 </dd>
 
-        <dt id="StatefulArbiter">
+          <dt id="StatefulArbiter">
   <span class="name "><a href="../rohd_hcl/StatefulArbiter-class.html">StatefulArbiter</a></span> 
 
 </dt>
@@ -795,23 +795,23 @@ reset.
   An <a href="../rohd_hcl/Arbiter-class.html">Arbiter</a> which holds state in order to arbitrate.
 </dd>
 
-        <dt id="StringConfigKnob">
+          <dt id="StringConfigKnob">
   <span class="name "><a href="../rohd_hcl/StringConfigKnob-class.html">StringConfigKnob</a></span> 
 
 </dt>
 <dd>
-  A knob for holding a <a href="https://api.dart.dev/stable/3.3.2/dart-core/String-class.html">String</a>.
+  A knob for holding a <a href="https://api.dart.dev/stable/3.4.4/dart-core/String-class.html">String</a>.
 </dd>
 
-        <dt id="ToggleConfigKnob">
+          <dt id="ToggleConfigKnob">
   <span class="name "><a href="../rohd_hcl/ToggleConfigKnob-class.html">ToggleConfigKnob</a></span> 
 
 </dt>
 <dd>
-  A knob for holding a <a href="https://api.dart.dev/stable/3.3.2/dart-core/bool-class.html">bool</a>.
+  A knob for holding a <a href="https://api.dart.dev/stable/3.4.4/dart-core/bool-class.html">bool</a>.
 </dd>
 
-        <dt id="TreeOneHotToBinary">
+          <dt id="TreeOneHotToBinary">
   <span class="name "><a href="../rohd_hcl/TreeOneHotToBinary-class.html">TreeOneHotToBinary</a></span> 
 
 </dt>
@@ -822,26 +822,71 @@ reset.
       </dl>
     </section>
 
+    <section class="summary offset-anchor" id="enums">
+      <h2>Enums</h2>
+
+      <dl>
+          <dt id="ApbDirection">
+  <span class="name "><a href="../rohd_hcl/ApbDirection.html">ApbDirection</a></span> 
+
+</dt>
+<dd>
+  A grouping of signals on the <a href="../rohd_hcl/ApbInterface-class.html">ApbInterface</a> interface based on direction.
+</dd>
+
+          <dt id="DataPortGroup">
+  <span class="name "><a href="../rohd_hcl/DataPortGroup.html">DataPortGroup</a></span> 
+
+</dt>
+<dd>
+  A grouping for interface signals of <a href="../rohd_hcl/DataPortInterface-class.html">DataPortInterface</a>s.
+</dd>
+
+          <dt id="HammingType">
+  <span class="name "><a href="../rohd_hcl/HammingType.html">HammingType</a></span> 
+
+</dt>
+<dd>
+  Type of Hamming code, with different characteristics for error correction,
+error detection, and number of check bits required.
+</dd>
+
+          <dt id="RotateDirection">
+  <span class="name "><a href="../rohd_hcl/RotateDirection.html">RotateDirection</a></span> 
+
+</dt>
+<dd>
+  A direction for something to rotate.
+</dd>
+
+      </dl>
+    </section>
+
+
 
     <section class="summary offset-anchor" id="extensions">
       <h2>Extensions</h2>
 
       <dl>
-        <dt id="RotateLogic">
-    <span class="name "><a href="../rohd_hcl/RotateLogic.html">RotateLogic</a></span> 
+          <dt id="RotateLogic">
+  <span class="name "><a href="../rohd_hcl/RotateLogic.html">RotateLogic</a></span>
+  on <a href="https://pub.dev/documentation/rohd/0.5.3/rohd/Logic-class.html">Logic</a>
+  
 
 </dt>
 <dd>
-    Adds rotation functions to <a href="https://pub.dev/documentation/rohd/0.5.2/rohd/Logic-class.html">Logic</a>.
+  Adds rotation functions to <a href="https://pub.dev/documentation/rohd/0.5.3/rohd/Logic-class.html">Logic</a>.
 </dd>
 
 
-        <dt id="RotateLogicValue">
-    <span class="name "><a href="../rohd_hcl/RotateLogicValue.html">RotateLogicValue</a></span> 
+          <dt id="RotateLogicValue">
+  <span class="name "><a href="../rohd_hcl/RotateLogicValue.html">RotateLogicValue</a></span>
+  on <a href="https://pub.dev/documentation/rohd/0.5.3/rohd/LogicValue-class.html">LogicValue</a>
+  
 
 </dt>
 <dd>
-    Adds rotation functions to <a href="https://pub.dev/documentation/rohd/0.5.2/rohd/LogicValue-class.html">LogicValue</a>.
+  Adds rotation functions to <a href="https://pub.dev/documentation/rohd/0.5.3/rohd/LogicValue-class.html">LogicValue</a>.
 </dd>
 
 
@@ -850,14 +895,13 @@ reset.
 
 
 
-
     <section class="summary offset-anchor" id="functions">
       <h2>Functions</h2>
 
       <dl class="callables">
-        <dt id="largestPow2LessThan" class="callable">
-  <span class="name"><a href="../rohd_hcl/largestPow2LessThan.html">largestPow2LessThan</a></span><span class="signature">(<wbr><span class="parameter" id="largestPow2LessThan-param-x"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.3.2/dart-core/int-class.html">int</a></span> <span class="parameter-name">x</span></span>)
-    <span class="returntype parameter">&#8594; <a href="https://api.dart.dev/stable/3.3.2/dart-core/int-class.html">int</a></span>
+          <dt id="largestPow2LessThan" class="callable">
+  <span class="name"><a href="../rohd_hcl/largestPow2LessThan.html">largestPow2LessThan</a></span><span class="signature">(<wbr><span class="parameter" id="largestPow2LessThan-param-x"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.4.4/dart-core/int-class.html">int</a></span> <span class="parameter-name">x</span></span>)
+    <span class="returntype parameter">&#8594; <a href="https://api.dart.dev/stable/3.4.4/dart-core/int-class.html">int</a></span>
   </span>
   
 
@@ -868,9 +912,9 @@ reset.
 
 </dd>
 
-        <dt id="log2Ceil" class="callable">
-  <span class="name"><a href="../rohd_hcl/log2Ceil.html">log2Ceil</a></span><span class="signature">(<wbr><span class="parameter" id="log2Ceil-param-w"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.3.2/dart-core/int-class.html">int</a></span> <span class="parameter-name">w</span></span>)
-    <span class="returntype parameter">&#8594; <a href="https://api.dart.dev/stable/3.3.2/dart-core/int-class.html">int</a></span>
+          <dt id="log2Ceil" class="callable">
+  <span class="name"><a href="../rohd_hcl/log2Ceil.html">log2Ceil</a></span><span class="signature">(<wbr><span class="parameter" id="log2Ceil-param-w"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.4.4/dart-core/int-class.html">int</a></span> <span class="parameter-name">w</span></span>)
+    <span class="returntype parameter">&#8594; <a href="https://api.dart.dev/stable/3.4.4/dart-core/int-class.html">int</a></span>
   </span>
   
 
@@ -884,57 +928,17 @@ reset.
       </dl>
     </section>
 
-    <section class="summary offset-anchor" id="enums">
-      <h2>Enums</h2>
-
-      <dl>
-        <dt id="ApbDirection">
-  <span class="name "><a href="../rohd_hcl/ApbDirection.html">ApbDirection</a></span> 
-
-</dt>
-<dd>
-  A grouping of signals on the <a href="../rohd_hcl/ApbInterface-class.html">ApbInterface</a> interface based on direction.
-</dd>
-
-        <dt id="DataPortGroup">
-  <span class="name "><a href="../rohd_hcl/DataPortGroup.html">DataPortGroup</a></span> 
-
-</dt>
-<dd>
-  A grouping for interface signals of <a href="../rohd_hcl/DataPortInterface-class.html">DataPortInterface</a>s.
-</dd>
-
-        <dt id="HammingType">
-  <span class="name "><a href="../rohd_hcl/HammingType.html">HammingType</a></span> 
-
-</dt>
-<dd>
-  Type of Hamming code, with different characteristics for error correction,
-error detection, and number of check bits required.
-</dd>
-
-        <dt id="RotateDirection">
-  <span class="name "><a href="../rohd_hcl/RotateDirection.html">RotateDirection</a></span> 
-
-</dt>
-<dd>
-  A direction for something to rotate.
-</dd>
-
-      </dl>
-    </section>
-
 
     <section class="summary offset-anchor" id="exceptions">
       <h2>Exceptions / Errors</h2>
 
       <dl>
-        <dt id="RohdHclException">
+          <dt id="RohdHclException">
   <span class="name "><a href="../rohd_hcl/RohdHclException-class.html">RohdHclException</a></span> 
 
 </dt>
 <dd>
-  An <a href="https://api.dart.dev/stable/3.3.2/dart-core/Exception-class.html">Exception</a> for the ROHD Hardware Component Library.
+  An <a href="https://api.dart.dev/stable/3.4.4/dart-core/Exception-class.html">Exception</a> for the ROHD Hardware Component Library.
 </dd>
 
       </dl>
