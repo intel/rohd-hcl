@@ -1,8 +1,8 @@
 // Copyright (C) 2023-24 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 //
-// _adder.dart
-// Configurator for a Parallel Prefix Adder.
+// config_compression_tree_multiplier.dart
+// Configurator for a Compression Tree Multiplier.
 //
 // 2024 August 7
 // Author: Desmond Kirkpatrick <desmond.a.kirkpatrick@intel.com>
