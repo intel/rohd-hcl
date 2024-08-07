@@ -21,8 +21,27 @@ abstract class Adder extends Module {
   @protected
   late final Logic b;
 
-  /// The addition results [sum].
+  /// The addition results [out] including carry bit
+  Logic get out => output('out');
+
+  /// The carry results [carryOut].
+  Logic get carryOut => output('carryOut');
+
+  /// The addition results [sum] including carry bit
   Logic get sum => output('sum');
+
+  /// Implementation needs to provide a method for calculating the full sum
+  @protected
+  Logic calculateSum();
+
+  /// Implementation needs to provide a method for calculating the sum
+  /// without carry
+  @protected
+  Logic calculateOut();
+
+  /// Implementation needs to provide a method for calculating the carry out
+  @protected
+  Logic calculateCarry();
 
   /// Takes in input [a] and input [b] and return the [sum] of the addition
   /// result. The width of input [a] and [b] must be the same.
@@ -32,7 +51,13 @@ abstract class Adder extends Module {
     }
     this.a = addInput('a', a, width: a.width);
     this.b = addInput('b', b, width: b.width);
+    addOutput('out', width: a.width);
+    addOutput('carryOut');
     addOutput('sum', width: a.width + 1);
+
+    out <= calculateOut();
+    carryOut <= calculateCarry();
+    sum <= calculateSum();
   }
 }
 

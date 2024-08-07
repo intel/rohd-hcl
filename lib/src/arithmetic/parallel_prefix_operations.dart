@@ -11,6 +11,7 @@
 import 'dart:math';
 
 import 'package:collection/collection.dart';
+import 'package:meta/meta.dart';
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
 
@@ -166,9 +167,25 @@ class ParallelPrefixOrScan extends Module {
       ParallelPrefix Function(List<Logic>, Logic Function(Logic, Logic))
           ppGen) {
     inp = addInput('inp', inp, width: inp.width);
-    final u =
-        ppGen(List<Logic>.generate(inp.width, (i) => inp[i]), (a, b) => a | b);
+    final u = ppGen(inp.elements, (a, b) => a | b);
     addOutput('out', width: inp.width) <= u.val.rswizzle();
+  }
+}
+
+/// Priority Finder based on ParallelPrefix tree
+class ParallelPrefixPriorityFinder extends Module {
+  /// Output [out] is the one-hot reduction to the first '1' in the Logic input
+  /// Search is from the LSB
+  Logic get out => output('out');
+
+  /// Priority Finder constructor
+  ParallelPrefixPriorityFinder(
+      Logic inp,
+      ParallelPrefix Function(List<Logic>, Logic Function(Logic, Logic))
+          ppGen) {
+    inp = addInput('inp', inp, width: inp.width);
+    final u = ParallelPrefixOrScan(inp, ppGen);
+    addOutput('out', width: inp.width) <= (u.out & ~(u.out << Const(1)));
   }
 }
 
@@ -184,32 +201,46 @@ class ParallelPrefixPriorityEncoder extends Module {
       ParallelPrefix Function(List<Logic>, Logic Function(Logic, Logic))
           ppGen) {
     inp = addInput('inp', inp, width: inp.width);
-    final u = ParallelPrefixOrScan(inp, ppGen);
-    addOutput('out', width: inp.width) <= (u.out & ~(u.out << Const(1)));
+    addOutput('out', width: log2Ceil(inp.width));
+    final u = ParallelPrefixPriorityFinder(inp, ppGen);
+    out <= OneHotToBinary(u.out).binary;
   }
 }
 
 /// Adder based on ParallelPrefix tree
-class ParallelPrefixAdder extends Module {
-  /// Output [out] the arithmetic sum of the two Logic inputs
-  Logic get out => output('out');
+class ParallelPrefixAdder extends Adder {
+  late final Logic _out;
+  late final Logic _carry = Logic();
 
   /// Adder constructor
-  ParallelPrefixAdder(Logic a, Logic b,
-      ParallelPrefix Function(List<Logic>, Logic Function(Logic, Logic)) ppGen,
-      {super.definitionName}) {
-    a = addInput('a', a, width: a.width);
-    b = addInput('b', b, width: b.width);
+  ParallelPrefixAdder(super.a, super.b,
+      ParallelPrefix Function(List<Logic>, Logic Function(Logic, Logic)) ppGen)
+      : _out = Logic(width: a.width),
+        super(
+            name: 'ParallelPrefixAdder: ${ppGen.call([
+              Logic()
+            ], (a, b) => Logic()).name}') {
     final u = ppGen(
-        //                                    generate,    propagate or generate
         List<Logic>.generate(
             a.width, (i) => [a[i] & b[i], a[i] | b[i]].swizzle()),
         (lhs, rhs) => [rhs[1] | rhs[0] & lhs[1], rhs[0] & lhs[0]].swizzle());
-    addOutput('out', width: a.width) <=
+    _carry <= u.val[a.width - 1][1];
+    _out <=
         List<Logic>.generate(a.width,
                 (i) => (i == 0) ? a[i] ^ b[i] : a[i] ^ b[i] ^ u.val[i - 1][1])
             .rswizzle();
   }
+  @override
+  @protected
+  Logic calculateOut() => _out;
+
+  @override
+  @protected
+  Logic calculateCarry() => _carry;
+
+  @override
+  @protected
+  Logic calculateSum() => [_carry, _out].swizzle();
 }
 
 /// Incrementer based on ParallelPrefix tree
@@ -223,8 +254,7 @@ class ParallelPrefixIncr extends Module {
       ParallelPrefix Function(List<Logic>, Logic Function(Logic, Logic))
           ppGen) {
     inp = addInput('inp', inp, width: inp.width);
-    final u = ppGen(List<Logic>.generate(inp.width, (i) => inp[i]),
-        (lhs, rhs) => rhs & lhs);
+    final u = ppGen(inp.elements, (lhs, rhs) => rhs & lhs);
     addOutput('out', width: inp.width) <=
         (List<Logic>.generate(
                 inp.width, (i) => ((i == 0) ? ~inp[i] : inp[i] ^ u.val[i - 1]))
@@ -243,8 +273,7 @@ class ParallelPrefixDecr extends Module {
       ParallelPrefix Function(List<Logic>, Logic Function(Logic, Logic))
           ppGen) {
     inp = addInput('inp', inp, width: inp.width);
-    final u = ppGen(List<Logic>.generate(inp.width, (i) => ~inp[i]),
-        (lhs, rhs) => rhs & lhs);
+    final u = ppGen((~inp).elements, (lhs, rhs) => rhs & lhs);
     addOutput('out', width: inp.width) <=
         (List<Logic>.generate(
                 inp.width, (i) => ((i == 0) ? ~inp[i] : inp[i] ^ u.val[i - 1]))
