@@ -1,10 +1,10 @@
 // Copyright (C) 2024 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 //
-// compressor.dart
-// Column compression of partial prodcuts
+// multiplier_test.dart
+// Test Multiplier and MultiplerAccumulate:  CompressionTree implementations
 //
-// 2024 June 15
+// 2024 August 7
 // Author: Desmond Kirkpatrick <desmond.a.kirkpatrick@intel.com>
 
 import 'dart:math';

@@ -1,10 +1,10 @@
 // Copyright (C) 2024 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 //
-//sign_magnitude_adder
+// sign_magnitude_adder.dart
 // Implementation of a One's Complement Adder
 //
-// 2024 April 12
+// 2024 August 8
 // Author: Desmond Kirkpatrick <desmond.a.kirkpatrick@intel.com>
 
 import 'package:meta/meta.dart';
