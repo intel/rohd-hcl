@@ -11,6 +11,7 @@ import 'dart:collection';
 
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
+
 /// A [Configurator] for [CompressionTreeMultiplier]s.
 class CompressionTreeMultiplierConfigurator extends Configurator {
   /// Map from Type to Function for Parallel Prefix generator
@@ -29,12 +30,13 @@ class CompressionTreeMultiplierConfigurator extends Configurator {
 
   /// Controls the Booth encoding radix of the multiplier.!
   final radixKnob = ChoiceConfigKnob<int>(
-  [2, 4, 8, 16],
-  value: 4,
+    [2, 4, 8, 16],
+    value: 4,
   );
-  
+
   /// Controls the width of the multiplicand.!
   final IntConfigKnob multiplicandWidthKnob = IntConfigKnob(value: 5);
+
   /// Controls the width of the multiplier.!
   final IntConfigKnob multiplierWidthKnob = IntConfigKnob(value: 5);
 
