@@ -186,4 +186,36 @@ void main() {
       checkMultiplyAccumulate(mod, bA, bB, bC);
     }
   });
+
+  test('single rectangular mac', () async {
+    const widthA = 6;
+    const widthB = 9;
+    final a = Logic(name: 'a', width: widthA);
+    final b = Logic(name: 'b', width: widthB);
+    final c = Logic(name: 'c', width: widthA + widthB);
+
+    const av = 0;
+    const bv = 0;
+    const cv = -512;
+    for (final signed in [true, false]) {
+      final bA = signed
+          ? BigInt.from(av).toSigned(widthA)
+          : BigInt.from(av).toUnsigned(widthA);
+      final bB = signed
+          ? BigInt.from(bv).toSigned(widthB)
+          : BigInt.from(bv).toUnsigned(widthB);
+      final bC = signed
+          ? BigInt.from(cv).toSigned(widthA + widthB)
+          : BigInt.from(cv).toUnsigned(widthA + widthB);
+
+      // Set these so that printing inside module build will have Logic values
+      a.put(bA);
+      b.put(bB);
+      c.put(bC);
+
+      final mod = CompressionTreeMultiplyAccumulate(a, b, c, 4, KoggeStone.new,
+          signed: signed);
+      checkMultiplyAccumulate(mod, bA, bB, bC);
+    }
+  });
 }

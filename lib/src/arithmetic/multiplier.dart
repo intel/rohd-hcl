@@ -36,11 +36,8 @@ abstract class Multiplier extends Module {
   /// Take input [a] and input [b] and return the
   /// [product] of the multiplication result.
   Multiplier(Logic a, Logic b, {bool signed = false, super.name}) {
-    if (a.width != b.width) {
-      throw RohdHclException('inputs of a and b should have same width.');
-    }
     _signed = signed;
-    this.a = addInput('a', a, width: a.width);
+     this.a = addInput('a', a, width: a.width);
     this.b = addInput('b', b, width: b.width);
   }
 }
@@ -72,9 +69,6 @@ abstract class MultiplyAccumulate extends Module {
   /// product, add input [c] to produce the [accumulate] result.
   MultiplyAccumulate(Logic a, Logic b, Logic c,
       {bool signed = false, super.name}) {
-    if (a.width != b.width) {
-      throw RohdHclException('inputs of a and b should have same width.');
-    }
     _signed = signed;
     this.a = addInput('a', a, width: a.width);
     this.b = addInput('b', b, width: b.width);
