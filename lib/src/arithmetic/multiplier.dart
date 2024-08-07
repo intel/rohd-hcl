@@ -37,7 +37,7 @@ abstract class Multiplier extends Module {
   /// [product] of the multiplication result.
   Multiplier(Logic a, Logic b, {bool signed = false, super.name}) {
     _signed = signed;
-     this.a = addInput('a', a, width: a.width);
+    this.a = addInput('a', a, width: a.width);
     this.b = addInput('b', b, width: b.width);
   }
 }
