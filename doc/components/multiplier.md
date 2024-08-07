@@ -75,7 +75,7 @@ multiplication operations, using Booth encoding to produce addends, a
 compression tree for reducing addends to a final pair, and a final
 adder generated from a parallel prefix tree option. It is particularly
 useful in applications that require high speed multiplication, such as
-digital signal processing. 
+digital signal processing.
 
 The parameters of the
 [CompressionTreeMultiplier] are:
@@ -99,4 +99,3 @@ The parameters of the
 - The radix used for Booth encoding (2, 4, 8, and 16 are currently supported)
 - The type of [ParallelPrefix] tree used in the final [ParallelPrefixAdder]
 - Whether the operands should be treated as signed (2s complement) or unsigned
-
