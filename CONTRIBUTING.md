@@ -48,7 +48,7 @@ You must have [Dart](https://dart.dev/) installed on your system to use ROHD and
 
 #### On your own system
 
-[Visual Studio Code (VSCode)](https://code.visualstudio.com/) is a great IDE for development. You can find installation instructions for VSCode here: <https://code.visualstudio.com/Download>
+[Visual Studio Code (VSCode)](https://code.visualstudio.com/) is a great IDE for development. You can find installation instructions for VSCode here: <https://visualstudio.microsoft.com/#vscode-section>
 
 The Dart extension extends VSCode with support for the Dart programming language and provides tools for effectively editing, refactoring and running. Check out the detailed information: <https://dartcode.org/>
 
@@ -131,7 +131,7 @@ Please include the SPDX tag near the top of any new files you create:
 Here is an example of a recommended file header template:
 
 ```dart
-// Copyright (C) 2021-2023 Intel Corporation
+// Copyright (C) 2021-2024 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 //
 // example.dart

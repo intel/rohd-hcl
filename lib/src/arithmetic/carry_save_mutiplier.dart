@@ -1,4 +1,4 @@
-// Copyright (C) 2023 Intel Corporation
+// Copyright (C) 2023-2024 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 //
 // carry_save_multiplier.dart
@@ -43,6 +43,9 @@ class CarrySaveMultiplier extends Multiplier {
       {required Logic clk,
       required Logic reset,
       super.name = 'carry_save_multiplier'}) {
+    if (a.width != b.width) {
+      throw RohdHclException('inputs of a and b should have same width.');
+    }
     clk = addInput('clk', clk);
     reset = addInput('reset', reset);
 

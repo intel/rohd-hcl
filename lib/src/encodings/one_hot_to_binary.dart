@@ -1,4 +1,4 @@
-// Copyright (C) 2023 Intel Corporation
+// Copyright (C) 2023-2024 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 //
 // one_hot_to_binary.dart
@@ -32,8 +32,10 @@ abstract class OneHotToBinary extends Module {
       {bool generateError = false, String name = 'one_hot_to_binary'}) {
     final isSmall = onehot.width <= 8;
 
-    assert(!(!isSmall && generateError),
-        'Tree implementation does not generate error signal.');
+    if (!isSmall && generateError) {
+      throw RohdHclException(
+          'Tree implementation does not generate error signal.');
+    }
 
     return isSmall
         ? CaseOneHotToBinary(onehot, generateError: generateError, name: name)

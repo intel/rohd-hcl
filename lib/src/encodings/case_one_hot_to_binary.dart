@@ -1,4 +1,4 @@
-// Copyright (C) 2023 Intel Corporation
+// Copyright (C) 2023-2024 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 //
 // case_one_hot_to_binary.dart
@@ -22,8 +22,10 @@ class CaseOneHotToBinary extends OneHotToBinary {
   /// the maximum width of an `int`.
   CaseOneHotToBinary(super.onehot,
       {super.generateError = false, super.name = 'one_hot_to_binary'})
-      : assert(onehot.width < 32, 'Should not be used for large widths.'),
-        super.base() {
+      : super.base() {
+    if (onehot.width >= 32) {
+      throw RohdHclException('Should not be used for large widths.');
+    }
     Combinational([
       Case(onehot, conditionalType: ConditionalType.unique, [
         for (var i = 0; i < onehot.width; i++)

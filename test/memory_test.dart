@@ -379,7 +379,7 @@ void main() {
         RegisterFile(Logic(), Logic(), [], []);
         fail('Should have failed');
         // ignore: avoid_catching_errors
-      } on AssertionError catch (_) {}
+      } on RohdHclException catch (_) {}
     });
   });
 }
