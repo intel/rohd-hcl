@@ -166,10 +166,11 @@ extension RotateLogic on Logic {
   Logic _rotate(dynamic rotateAmount,
       {required RotateDirection direction, int? maxAmount}) {
     if (rotateAmount is int) {
-      assert(
-          maxAmount == null || rotateAmount <= maxAmount,
-          'If `maxAmount` is provided with an integer `amount`,'
-          ' it should meet the restriction.');
+      if (!(maxAmount == null || rotateAmount <= maxAmount)) {
+        throw RohdHclException(
+            'If `maxAmount` is provided with an integer `amount`,'
+            ' it should meet the restriction.');
+      }
 
       return direction == RotateDirection.left
           ? RotateLeftFixed(this, rotateAmount).rotated

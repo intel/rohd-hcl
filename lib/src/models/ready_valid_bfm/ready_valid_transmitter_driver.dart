@@ -79,7 +79,9 @@ class ReadyValidTransmitterDriver
     } else {
       valid.inject(1);
 
-      assert(pkt.data.width == data.width, 'Data widths should match.');
+      if (pkt.data.width != data.width) {
+        throw RohdHclException('Data widths should match.');
+      }
       data.inject(pkt.data);
 
       // wait for it to be accepted

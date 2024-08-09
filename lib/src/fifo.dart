@@ -92,9 +92,10 @@ class Fifo extends Module {
     if (depth <= 0) {
       throw RohdHclException('Depth must be at least 1.');
     }
-
-    assert(_addrWidth > 0,
-        'Assumption that address width is non-zero in implementation');
+    if (_addrWidth <= 0) {
+      throw RohdHclException(
+          'Assumption that address width is non-zero in implementation');
+    }
 
     addInput('clk', clk);
     addInput('reset', reset);

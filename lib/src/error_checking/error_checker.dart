@@ -8,6 +8,7 @@
 
 import 'package:meta/meta.dart';
 import 'package:rohd/rohd.dart';
+import 'package:rohd_hcl/rohd_hcl.dart';
 
 /// A transmitter for data which includes a [code] for checking and possibly
 /// correcting data at the receiving end.
@@ -97,8 +98,11 @@ abstract class ErrorCheckingReceiver extends Module {
       {required int codeWidth,
       required this.supportsErrorCorrection,
       required super.name,
-      super.definitionName})
-      : assert(codeWidth > 0, 'Must provide non-empty code.') {
+      super.definitionName}) {
+    if (codeWidth <= 0) {
+      throw RohdHclException('Must provide non-empty code.');
+    }
+
     this.transmission =
         addInput('transmission', transmission, width: transmission.width);
 

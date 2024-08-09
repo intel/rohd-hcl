@@ -51,12 +51,14 @@ abstract class Configurator {
   /// Loads the configuration from a serialized JSON representation.
   void loadJson(String json) {
     final decoded = jsonDecode(json) as Map<String, dynamic>;
-    assert(decoded['name'] == name, 'Expect name to be the same.');
+    if (decoded['name'] != name) {
+      throw RohdHclException('Expect name to be the same.');
+    }
 
     for (final decodedKnob in (decoded['knobs'] as Map).entries) {
-      assert(knobs.containsKey(decodedKnob.key),
-          'Expect knobs in JSON to exist in configurator.');
-
+      if (!knobs.containsKey(decodedKnob.key)) {
+        throw RohdHclException('Expect name to be the same.');
+      }
       knobs[decodedKnob.key]!
           .loadJson(decodedKnob.value as Map<String, dynamic>);
     }

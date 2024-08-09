@@ -11,10 +11,10 @@ import 'dart:io';
 import 'dart:math';
 
 import 'package:rohd/rohd.dart';
-import 'package:rohd_hcl/src/utils.dart';
+import 'package:rohd_hcl/rohd_hcl.dart';
 
 /// Simplest version of bit string representation
-String bitString(LogicValue value) => value.toString(includeWidth: false);
+// String bitString(LogicValue value) => value.toString(includeWidth: false);
 
 /// A bundle for the leaf radix compute nodes
 ///    This holds the multiples of the multiplicand that are needed for encoding
@@ -48,10 +48,10 @@ class RadixEncoder {
 
   /// Encode a multiplier slice into the Booth encoded value
   RadixEncode encode(Logic multiplierSlice) {
-    assert(
-        multiplierSlice.width == log2Ceil(radix) + 1,
-        'multiplier slice width ${multiplierSlice.width}'
-        'must be same length as log(radix)+1=${log2Ceil(radix) + 1}');
+    if (multiplierSlice.width != log2Ceil(radix) + 1) {
+      throw RohdHclException('multiplier slice width ${multiplierSlice.width}'
+          'must be same length as log(radix)+1=${log2Ceil(radix) + 1}');
+    }
     final width = log2Ceil(radix) + 1;
     final inputXor = Logic(width: width);
     inputXor <=
@@ -115,7 +115,9 @@ class MultiplierEncoder {
 
   /// Retrieve the Booth encoding for the row
   RadixEncode getEncoding(int row) {
-    assert(row < rows, 'row $row is not < number of encoding rows $rows');
+    if (row >= rows) {
+      throw RohdHclException('row $row is not < number of encoding rows $rows');
+    }
     final base = row * (_sliceWidth - 1);
     final multiplierSlice = [
       if (row > 0)
@@ -147,8 +149,10 @@ class MultiplicandSelector {
 
   /// Generate required multiples of multiplicand
   MultiplicandSelector(this.radix, this.multiplicand, {bool signed = true})
-      : shift = log2Ceil(radix),
-        assert(radix <= 16, 'beyond radix 16 is not yet supported') {
+      : shift = log2Ceil(radix) {
+    if (radix > 16) {
+      throw RohdHclException('Radices beyond 16 are not yet supported');
+    }
     final width = multiplicand.width + shift;
     final numMultiples = radix ~/ 2;
     multiples = LogicArray([numMultiples], width);
@@ -168,8 +172,7 @@ class MultiplicandSelector {
             6 => (extendedMultiplicand << 3) - (extendedMultiplicand << 1),
             7 => (extendedMultiplicand << 3) - extendedMultiplicand,
             8 => extendedMultiplicand << 3,
-            _ => extendedMultiplicand
-            // TODO(desmonddak): generalize to support higher radix than 16
+            _ => throw RohdHclException('Radix is beyond 16')
           };
     }
   }
@@ -247,7 +250,9 @@ class PartialProductGenerator {
 
   /// Fully sign extend the PP array: useful for reference only
   void bruteForceSignExtend() {
-    assert(!_signExtended, 'Partial Product array already sign-extended');
+    if (_signExtended) {
+      throw RohdHclException('Partial Product array already sign-extended');
+    }
     _signExtended = true;
     final signs = [for (var r = 0; r < rows; r++) encoder.getEncoding(r).sign];
     for (var row = 0; row < rows; row++) {
@@ -273,7 +278,9 @@ class PartialProductGenerator {
   /// This technique can then be combined with a first-row extension technique
   /// for folding in the final carry.
   void signExtendWithStopBitsRect() {
-    assert(!_signExtended, 'Partial Product array already sign-extended');
+    if (_signExtended) {
+      throw RohdHclException('Partial Product array already sign-extended');
+    }
     _signExtended = true;
 
     final finalCarryPos = shift * (rows - 1);
@@ -348,7 +355,9 @@ class PartialProductGenerator {
 
   /// Sign extend the PP array using stop bits without adding a row
   void signExtendCompact() {
-    assert(!_signExtended, 'Partial Product array already sign-extended');
+    if (_signExtended) {
+      throw RohdHclException('Partial Product array already sign-extended');
+    }
     _signExtended = true;
 
     final lastRow = rows - 1;
@@ -444,7 +453,9 @@ class PartialProductGenerator {
   /// Sign extend the PP array using stop bits without adding a row
   /// This routine works with different widths of multiplicand/multiplier
   void signExtendCompactRect() {
-    assert(!_signExtended, 'Partial Product array already sign-extended');
+    if (_signExtended) {
+      throw RohdHclException('Partial Product array already sign-extended');
+    }
     _signExtended = true;
 
     final lastRow = rows - 1;
@@ -628,7 +639,7 @@ class PartialProductGenerator {
       if (row < encoder.rows) {
         final encoding = encoder.getEncoding(row);
         if (encoding.multiples.value.isValid) {
-          str.write('$rowStr M=${bitString(encoding.multiples.reversed.value)} '
+          str.write('$rowStr M=${encoding.multiples.reversed.value.bitString} '
               'S=${encoding.sign.value.toInt()}: ');
         } else {
           str.write(' ' * shortPrefix);
@@ -641,14 +652,14 @@ class PartialProductGenerator {
           maxW - (entry.length + rowShift[row]) + nonSignExtendedPad;
       str.write('   ' * prefixCnt);
       for (var col = 0; col < entry.length; col++) {
-        str.write('${bitString(entry[col].value)}  ');
+        str.write('${entry[col].value.bitString}  ');
       }
       final suffixCnt = rowShift[row];
       final value = entry.swizzle().value.zeroExtend(maxW) << suffixCnt;
       final intValue = value.isValid ? value.toBigInt() : BigInt.from(-1);
       str
         ..write('   ' * suffixCnt)
-        ..write(': ${bitString(value)}')
+        ..write(': ${value.bitString}')
         ..write(' = ${value.isValid ? intValue : "<invalid>"}'
             ' (${value.isValid ? intValue.toSigned(maxW) : "<invalid>"})\n');
     }
@@ -665,7 +676,7 @@ class PartialProductGenerator {
       str.write('${elem.toInt()}  ');
     }
     final val = evaluate();
-    str.write(': ${bitString(sum)} = '
+    str.write(': ${sum.bitString} = '
         '${val.toUnsigned(maxW)}');
     if (_signExtended) {
       str.write(' ($val)\n\n');
@@ -702,11 +713,11 @@ void main() {
       ].swizzle().and();
       final multPos = (i >>> 1) + i % 2;
       stdout
-        ..write('\tM${(i >>> 1) + i % 2} x=${bitString(x)} '
-            'lx=${bitString(pastX)} '
-            // 'm=$m xor=${bitString(xor)}(${xor.toInt()}) '
-            'dontcare=${bitString(multiplesDisagree)}'
-            ' agree=${bitString(senseMultiples)}')
+        ..write('\tM${(i >>> 1) + i % 2} x=${x.bitString} '
+            'lx=${pastX.bitString} '
+            // 'm=$m xor=${xor.bitString}(${xor.toInt()}) '
+            'dontcare=${multiplesDisagree.bitString}'
+            ' agree=${senseMultiples.bitString}')
         ..write(':    ');
       for (var j = 0; j < width - 1; j++) {
         if (multiplesDisagree[j].isZero) {
@@ -727,17 +738,22 @@ void main() {
             RadixEncoder(radix).encode(inLogic).multiples[multPos - 1];
         inputXor.put(inValue ^ (inValue >>> 1));
         // stdout
-        //   ..write('in=${bitString(inValue)} ')
-        //   ..write('xor=${bitString(inputXor.value)} ')
-        //   ..write('out=${bitString(andOutput.value)} ')
-        //   ..write('code=${bitString(code.value)} ')
-        //   ..write('ncode=${bitString(newCode.value)}')
+        //   ..write('in=${inValue.bitString} ')
+        //   ..write('xor=${inputXor.value.bitString)} ')
+        //   ..write('out=${andOutput.value.bitString} ')
+        //   ..write('code=${code.value.bitString} ')
+        //   ..write('ncode=${newCode.value.bitString}')
         //   ..write('')
         //   ..write('\n');
-        assert(andOutput.value == code.value, 'andOutput mismatches code');
-        assert(newCode.value == code.value, 'newCode mismatches code');
-        assert(
-            newCode.value == andOutput.value, 'andOutput mismatches newCode');
+        if (andOutput.value != code.value) {
+          throw RohdHclException('andOutput mismatches code');
+        }
+        if (newCode.value != code.value) {
+          throw RohdHclException('andOutput mismatches code');
+        }
+        if (andOutput.value != andOutput.value) {
+          throw RohdHclException('andOutput mismatches code');
+        }
       }
     }
   }

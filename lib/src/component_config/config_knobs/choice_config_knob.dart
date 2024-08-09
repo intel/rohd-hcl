@@ -20,14 +20,18 @@ class ChoiceConfigKnob<T> extends ConfigKnob<T> {
 
   /// Creates a new knob to with the specified default [value] of the available
   /// [choices].
-  ChoiceConfigKnob(this.choices, {required super.value})
-      : assert(choices.contains(value),
-            'Default value should be one of the choices.');
+  ChoiceConfigKnob(this.choices, {required super.value}) {
+    if (!choices.contains(value)) {
+      throw RohdHclException('Default value should be one of the choices.');
+    }
+  }
 
   @override
   set value(T newValue) {
-    assert(choices.contains(newValue),
-        'New value should be one of the available choices.');
+    if (!choices.contains(newValue)) {
+      throw RohdHclException(
+          'New value should be one of the available choices.');
+    }
     super.value = newValue;
   }
 

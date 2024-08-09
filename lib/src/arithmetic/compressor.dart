@@ -11,6 +11,7 @@ import 'dart:io';
 import 'package:collection/collection.dart';
 import 'package:meta/meta.dart';
 import 'package:rohd/rohd.dart';
+import 'package:rohd_hcl/rohd_hcl.dart';
 import 'package:rohd_hcl/src/arithmetic/booth.dart';
 
 // TODO(desmonddak): Logic and LogicValue majority() functions
@@ -196,7 +197,9 @@ class ColumnCompressor {
         // x.put(termValues.swizzle());
         // final newCount = Count(x).index.value.toInt();
         // stdout.write('count=$count newCount=$newCount\n');
-        // assert(newCount == count, 'count=$count newCount=$newCount\n');
+        // if (newCount 1= count) {
+        //   throw RohdHclException('count=$count newCount=$newCount');
+        // }
         return majority;
     }
   }
@@ -240,7 +243,7 @@ class ColumnCompressor {
               logic ? colList[row].logic.value : evaluateTerm(colList[row]);
           rowBits.add(value);
           if (print) {
-            ts.write('\t${bitString(value)}');
+            ts.write('\t${value.bitString}');
           }
         } else if (print) {
           ts.write('\t');
@@ -250,7 +253,7 @@ class ColumnCompressor {
       final val = rowBits.swizzle().zeroExtend(width).toBigInt();
       accum += val;
       if (print) {
-        ts.write('\t${bitString(rowBits.swizzle().zeroExtend(width))} ($val)');
+        ts.write('\t${rowBits.swizzle().zeroExtend(width).bitString} ($val)');
         if (row == rows - 1) {
           ts.write(' Total=${accum.toSigned(width)}\n');
           stdout.write(ts);
@@ -300,8 +303,6 @@ class ColumnCompressor {
           }
           final t = CompressTerm.sumTerm(inputs, 0, col);
           t.logic <= compressor.sum;
-          // assert(t.logic.value == evaluateTerm(t),
-          //     'sum logic does not match evaluate');
           terms.add(t);
           columns[col].add(t);
           if (col < columns.length - 1) {
@@ -309,8 +310,6 @@ class ColumnCompressor {
             columns[col + 1].add(t);
             terms.add(t);
             t.logic <= compressor.carry;
-            // assert(t.logic.value == evaluateTerm(t),
-            //     'carry logic does not match evaluate.');
           }
         }
       }
