@@ -29,7 +29,9 @@ void checkEvaluateExhaustive(PartialProductGenerator pp) {
       final Y = pp.signed ? j.toSigned(widthY) : j.toUnsigned(widthY);
       pp.multiplicand.put(X);
       pp.multiplier.put(Y);
-      expect(pp.evaluate(), equals(X * Y));
+      final value = pp.evaluate();
+      expect(value, equals(X * Y),
+          reason: '$X * $Y = $value should be ${X * Y}');
     }
   }
 }
@@ -45,7 +47,8 @@ void checkEvaluateRandom(PartialProductGenerator pp, int nSamples) {
     final Y = pp.signed ? rY.toSigned(widthY) : rY;
     pp.multiplicand.put(X);
     pp.multiplier.put(Y);
-    expect(pp.evaluate(), equals(X * Y));
+    final value = pp.evaluate();
+    expect(value, equals(X * Y), reason: '$X * $Y = $value should be ${X * Y}');
   }
 }
 
@@ -73,15 +76,14 @@ void main() {
     logicX.put(X);
     logicY.put(Y);
     logicZ.put(Z);
-    final pp = PartialProductGenerator(logicX, logicY, encoder);
-    // ignore: cascade_invocations
-    pp.signExtendCompact();
+    final pp = PartialProductGenerator(logicX, logicY, encoder)
+      ..signExtendCompact();
     // Add a row for addend
-    final l = [for (var i = 0; i < logicZ.width; i++) logicZ[i]];
-    // ignore: cascade_invocations
-    l
-      ..add(Const(0)) // ~Sign in our sign extension form
-      ..add(Const(1));
+    final l = [
+      for (var i = 0; i < logicZ.width; i++) logicZ[i],
+      Const(0),
+      Const(1)
+    ];
     pp.partialProducts.add(l);
     pp.rowShift.add(0);
 
@@ -100,7 +102,6 @@ void main() {
     for (final signed in [false, true]) {
       for (var radix = 4; radix < 8; radix *= 2) {
         final encoder = RadixEncoder(radix);
-        // stdout.write('encoding with radix=$radix\n');
         final shift = log2Ceil(encoder.radix);
         for (var width = shift + 1; width < shift * 2 + 1; width++) {
           for (final signExtension in SignExtension.values) {
