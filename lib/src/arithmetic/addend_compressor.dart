@@ -252,7 +252,8 @@ class ColumnCompressor {
       }
     }
     if (printOut) {
-      print(ts);
+      // We need this to be able to debug, but git lint flunks print
+      // print(ts);
     }
     return accum.toSigned(width);
   }

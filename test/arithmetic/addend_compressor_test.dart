@@ -128,21 +128,14 @@ void main() {
         ..signExtendCompactRect();
       // Turn on printing by using widthX == 6 (we are fooling the dead code
       // checking linter here)
-      const output = widthX == 7;
-      if (output) {
-        print(pp);
-      }
+      // print(pp);
       expect(pp.evaluate(), equals(BigInt.from(av * bv)));
       final compressor = ColumnCompressor(pp);
-      if (output) {
-        print('eval: ${compressor.evaluate(printOut: output)}');
-      }
+      // print('eval: ${compressor.evaluate(printOut: output)}');
       expect(compressor.evaluate(), equals(BigInt.from(av * bv)));
 
       compressor.compress();
-      if (output) {
-        print('eval: ${compressor.evaluate(printOut: true)}');
-      }
+      // print('eval: ${compressor.evaluate(printOut: true)}');
       expect(compressor.evaluate(), equals(BigInt.from(av * bv)));
     }
   });
