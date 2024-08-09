@@ -1,7 +1,7 @@
 // Copyright (C) 2024 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 //
-// compressor.dart
+// addend_compressor.dart
 // Column compression of partial prodcuts
 //
 // 2024 June 04
@@ -11,12 +11,13 @@ import 'dart:io';
 import 'package:collection/collection.dart';
 import 'package:meta/meta.dart';
 import 'package:rohd/rohd.dart';
-import 'package:rohd_hcl/rohd_hcl.dart';
+import 'package:rohd_hcl/src/arithmetic/multiplier_lib.dart';
+import 'package:rohd_hcl/src/utils.dart';
 
 // TODO(desmonddak): Logic and LogicValue majority() functions
 
 /// Base class for column compressor function
-abstract class Compressor extends Module {
+abstract class AddendCompressor extends Module {
   /// Input bits to compress
   @protected
   late final Logic compressBits;
@@ -28,7 +29,7 @@ abstract class Compressor extends Module {
   Logic get carry => output('carry');
 
   /// Construct a column compressor
-  Compressor(Logic compressBits) {
+  AddendCompressor(Logic compressBits) {
     this.compressBits = addInput(
       'compressBits',
       compressBits,
@@ -40,7 +41,7 @@ abstract class Compressor extends Module {
 }
 
 /// 2-input column compressor (half-adder)
-class Compressor2 extends Compressor {
+class Compressor2 extends AddendCompressor {
   /// Construct a 2-input compressor (half-adder)
   Compressor2(super.compressBits) {
     sum <= compressBits.xor();
@@ -49,7 +50,7 @@ class Compressor2 extends Compressor {
 }
 
 /// 3-input column compressor (full-adder)
-class Compressor3 extends Compressor {
+class Compressor3 extends AddendCompressor {
   /// Construct a 3-input column compressor (full-adder)
   Compressor3(super.compressBits) {
     sum <= compressBits.xor();
@@ -298,7 +299,7 @@ class ColumnCompressor {
           final first = queue.removeFirst();
           final second = queue.removeFirst();
           final inputs = <CompressTerm>[first, second];
-          Compressor compressor;
+          AddendCompressor compressor;
           if (depth > 3) {
             inputs.add(queue.removeFirst());
             compressor =
