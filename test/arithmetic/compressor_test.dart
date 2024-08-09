@@ -12,6 +12,7 @@ import 'dart:math';
 
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
+import 'package:rohd_hcl/src/arithmetic/multiplier_lib.dart';
 import 'package:test/test.dart';
 
 enum SignExtension { brute, stop, compact }

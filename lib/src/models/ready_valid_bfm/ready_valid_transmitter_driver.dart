@@ -12,7 +12,6 @@ import 'dart:math';
 
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
-import 'package:rohd_hcl/src/models/ready_valid_bfm/ready_valid_packet.dart';
 import 'package:rohd_vf/rohd_vf.dart';
 
 /// An [Agent] for transmitting over a ready/valid protocol.
