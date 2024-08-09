@@ -84,14 +84,10 @@ class CompressionTreeMultiplier extends Multiplier {
               Logic()
             ], (a, b) => Logic()).runtimeType}') {
     final product = addOutput('product', width: a.width + b.width);
-
     final pp =
-        PartialProductGenerator(a, b, RadixEncoder(radix), signed: signed);
-    // ignore: cascade_invocations
-    pp.signExtendCompact();
-    final compressor = ColumnCompressor(pp);
-    // ignore: cascade_invocations
-    compressor.compress();
+        PartialProductGenerator(a, b, RadixEncoder(radix), signed: signed)
+          ..signExtendCompact();
+    final compressor = ColumnCompressor(pp)..compress();
     final adder = ParallelPrefixAdder(
         compressor.extractRow(0), compressor.extractRow(1), ppTree);
     product <= adder.out.slice(a.width + b.width - 1, 0);

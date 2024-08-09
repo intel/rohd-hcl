@@ -14,8 +14,6 @@ import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/src/arithmetic/multiplier_lib.dart';
 import 'package:rohd_hcl/src/utils.dart';
 
-// TODO(desmonddak): Logic and LogicValue majority() functions
-
 /// Base class for column compressor function
 abstract class AddendCompressor extends Module {
   /// Input bits to compress
@@ -78,7 +76,7 @@ class CompressTerm implements Comparable<CompressTerm> {
   late final CompressTermType type;
 
   /// The inputs that drove this Term
-  late List<CompressTerm> inputs = <CompressTerm>[];
+  late final List<CompressTerm> inputs;
 
   /// The row of the terminal
   final int row;
@@ -87,7 +85,7 @@ class CompressTerm implements Comparable<CompressTerm> {
   final int col;
 
   /// The Logic wire of the term
-  final logic = Logic();
+  final Logic logic;
 
   /// Estimated delay of the output of this CompessTerm
   late double delay;
@@ -99,32 +97,18 @@ class CompressTerm implements Comparable<CompressTerm> {
   static const carryDelay = 0.75;
 
   /// CompressTerm constructor
-  CompressTerm(this.type, this.row, this.col) : delay = 0.0;
-
-  /// Create a sum Term
-  factory CompressTerm.sumTerm(List<CompressTerm> args, int row, int col) {
-    final term = CompressTerm(CompressTermType.sum, row, col);
-    // ignore: cascade_invocations
-    term.inputs = args;
-    for (final i in term.inputs) {
-      if (i.delay + sumDelay > term.delay) {
-        term.delay = i.delay + sumDelay;
+  CompressTerm(this.type, this.logic, this.inputs, this.row, this.col) {
+    delay = 0.0;
+    final deltaDelay = switch (type) {
+      CompressTermType.carry => carryDelay,
+      CompressTermType.sum => sumDelay,
+      CompressTermType.pp => 0.0
+    };
+    for (final i in inputs) {
+      if (i.delay + deltaDelay > delay) {
+        delay = i.delay + deltaDelay;
       }
     }
-    return term;
-  }
-
-  /// Create a carry Term
-  factory CompressTerm.carryTerm(List<CompressTerm> args, int row, int col) {
-    final term = CompressTerm(CompressTermType.carry, row, col);
-    // ignore: cascade_invocations
-    term.inputs = args;
-    for (final i in term.inputs) {
-      if (i.delay + carryDelay > term.delay) {
-        term.delay = i.delay + carryDelay;
-      }
-    }
-    return term;
   }
   @override
   int compareTo(Object other) {
@@ -132,6 +116,41 @@ class CompressTerm implements Comparable<CompressTerm> {
       throw Exception('Input must be of type CompressTerm ');
     }
     return delay > other.delay ? 1 : (delay < other.delay ? -1 : 0);
+  }
+
+  /// Evaluate the logic value of a given CompressTerm.
+  LogicValue evaluate() {
+    late LogicValue value;
+    switch (type) {
+      case CompressTermType.pp:
+        value = logic.value;
+      case CompressTermType.sum:
+        // xor the eval of the terms
+        final termValues = [for (final term in inputs) term.evaluate()];
+        final sum = termValues.swizzle().xor();
+        value = sum;
+      case CompressTermType.carry:
+        final termValues = [for (final term in inputs) term.evaluate()];
+        final termValuesInt = [
+          for (var i = 0; i < termValues.length; i++) termValues[i].toInt()
+        ];
+
+        final count = (termValuesInt.isNotEmpty)
+            ? termValuesInt.reduce((c, term) => c + term)
+            : 0;
+        final majority =
+            (count > termValues.length ~/ 2 ? LogicValue.one : LogicValue.zero);
+        // Alternative method:
+        // final x = Logic(width: termValues.length);
+        // x.put(termValues.swizzle());
+        // final newCount = Count(x).index.value.toInt();
+        // stdout.write('count=$count newCount=$newCount\n');
+        // if (newCount != count) {
+        //   throw RohdHclException('count=$count newCount=$newCount');
+        // }
+        value = majority;
+    }
+    return value;
   }
 
   @override
@@ -167,47 +186,10 @@ class ColumnCompressor {
     for (var row = 0; row < pp.rows; row++) {
       for (var col = 0; col < pp.partialProducts[row].length; col++) {
         final trueColumn = pp.rowShift[row] + col;
-        final term = CompressTerm(CompressTermType.pp, row, trueColumn);
-        term.logic <= pp.partialProducts[row][col];
+        final term = CompressTerm(CompressTermType.pp,
+            pp.partialProducts[row][col], [], row, trueColumn);
         columns[trueColumn].add(term);
       }
-    }
-  }
-
-// TODO(desmonddak): This cannot run without real logic values due to toInt()
-//  which forces the user to assign values to the inputs first
-//  We need a way to build the CompressionTerm without actual values
-//    e.g., there needs to be a way to do the reductions with 'X' values
-  /// Evaluate the logic value of a given CompressTerm
-  LogicValue evaluateTerm(CompressTerm term) {
-    switch (term.type) {
-      case CompressTermType.pp:
-        return term.logic.value;
-      case CompressTermType.sum:
-        // xor the eval of the terms
-        final termValues = [for (term in term.inputs) evaluateTerm(term)];
-        final sum = termValues.swizzle().xor();
-        return sum;
-      case CompressTermType.carry:
-        final termValues = [for (term in term.inputs) evaluateTerm(term)];
-        final termValuesInt = [
-          for (var i = 0; i < termValues.length; i++) termValues[i].toInt()
-        ];
-
-        final count = (termValuesInt.isNotEmpty)
-            ? termValuesInt.reduce((c, term) => c + term)
-            : 0;
-        final majority =
-            (count > termValues.length ~/ 2 ? LogicValue.one : LogicValue.zero);
-        // Alternative method:
-        // final x = Logic(width: termValues.length);
-        // x.put(termValues.swizzle());
-        // final newCount = Count(x).index.value.toInt();
-        // stdout.write('count=$count newCount=$newCount\n');
-        // if (newCount 1= count) {
-        //   throw RohdHclException('count=$count newCount=$newCount');
-        // }
-        return majority;
     }
   }
 
@@ -234,8 +216,8 @@ class ColumnCompressor {
 
   /// Evaluate the (un)compressed partial product array
   ///    logic=true will read the logic gate outputs at each level
-  ///    print=true will print out the array
-  BigInt evaluate({bool print = false, bool logic = false}) {
+  ///    printOut=true will print out the array
+  BigInt evaluate({bool printOut = false, bool logic = false}) {
     final ts = StringBuffer();
     final rows = longestColumn();
     final width = pp.maxWidth();
@@ -247,19 +229,19 @@ class ColumnCompressor {
         final colList = columns[col].toList();
         if (row < colList.length) {
           final value =
-              logic ? colList[row].logic.value : evaluateTerm(colList[row]);
+              logic ? colList[row].logic.value : (colList[row].evaluate());
           rowBits.add(value);
-          if (print) {
+          if (printOut) {
             ts.write('\t${value.bitString}');
           }
-        } else if (print) {
+        } else if (printOut) {
           ts.write('\t');
         }
       }
       rowBits.addAll(List.filled(pp.rowShift[row], LogicValue.zero));
       final val = rowBits.swizzle().zeroExtend(width).toBigInt();
       accum += val;
-      if (print) {
+      if (printOut) {
         ts.write('\t${rowBits.swizzle().zeroExtend(width).bitString} ($val)');
         if (row == rows - 1) {
           ts.write(' Total=${accum.toSigned(width)}\n');
@@ -268,6 +250,9 @@ class ColumnCompressor {
           ts.write('\n');
         }
       }
+    }
+    if (printOut) {
+      print(ts);
     }
     return accum.toSigned(width);
   }
@@ -308,15 +293,15 @@ class ColumnCompressor {
             compressor =
                 Compressor2([for (final i in inputs) i.logic].swizzle());
           }
-          final t = CompressTerm.sumTerm(inputs, 0, col);
-          t.logic <= compressor.sum;
+          final t = CompressTerm(
+              CompressTermType.sum, compressor.sum, inputs, 0, col);
           terms.add(t);
           columns[col].add(t);
           if (col < columns.length - 1) {
-            final t = CompressTerm.carryTerm(inputs, 0, col);
+            final t = CompressTerm(
+                CompressTermType.carry, compressor.carry, inputs, 0, col);
             columns[col + 1].add(t);
             terms.add(t);
-            t.logic <= compressor.carry;
           }
         }
       }

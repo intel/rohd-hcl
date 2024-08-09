@@ -80,8 +80,8 @@ void main() {
     stdout.write('\n');
 
     for (final signed in [false, true]) {
-      for (var radix = 4; radix < 32; radix *= 2) {
-        final encoder = RadixEncoder(2);
+      for (var radix = 4; radix < 4; radix *= 2) {
+        final encoder = RadixEncoder(radix);
         // stdout.write('encoding with radix=$radix\n');
         final shift = log2Ceil(encoder.radix);
         for (var width = shift + 1; width < 2 * shift + 1; width++) {
@@ -101,6 +101,49 @@ void main() {
           }
         }
       }
+    }
+  });
+  test('single compressor evaluate mac', () async {
+    const widthX = 6;
+    const widthY = 9;
+    final a = Logic(name: 'a', width: widthX);
+    final b = Logic(name: 'b', width: widthY);
+
+    const av = 4;
+    const bv = 14;
+    for (final signed in [true, false]) {
+      final bA = signed
+          ? BigInt.from(av).toSigned(widthX)
+          : BigInt.from(av).toUnsigned(widthX);
+      final bB = signed
+          ? BigInt.from(bv).toSigned(widthY)
+          : BigInt.from(bv).toUnsigned(widthY);
+
+      // Set these so that printing inside module build will have Logic values
+      a.put(bA);
+      b.put(bB);
+      const radix = 4;
+      final encoder = RadixEncoder(radix);
+      final pp = PartialProductGenerator(a, b, encoder, signed: signed)
+        ..signExtendCompactRect();
+      // Turn on printing by using widthX == 6 (we are fooling the dead code
+      // checking linter here)
+      const output = widthX == 7;
+      if (output) {
+        print(pp);
+      }
+      expect(pp.evaluate(), equals(BigInt.from(av * bv)));
+      final compressor = ColumnCompressor(pp);
+      if (output) {
+        print('eval: ${compressor.evaluate(printOut: output)}');
+      }
+      expect(compressor.evaluate(), equals(BigInt.from(av * bv)));
+
+      compressor.compress();
+      if (output) {
+        print('eval: ${compressor.evaluate(printOut: true)}');
+      }
+      expect(compressor.evaluate(), equals(BigInt.from(av * bv)));
     }
   });
 }

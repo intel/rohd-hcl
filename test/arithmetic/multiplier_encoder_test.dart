@@ -54,8 +54,6 @@ void checkEvaluateRandom(PartialProductGenerator pp, int nSamples) {
 
 void main() {
   test('single MAC partial product test', () async {
-    // stdout.write('\n');
-
     final encoder = RadixEncoder(4);
     const widthX = 4;
     const widthY = 4;
@@ -93,17 +91,16 @@ void main() {
     expect(pp.evaluate(), equals(product));
   });
 
-  // TODO(dakdesmond): Figure out minimum widths!
-
   // This is a two-minute exhaustive but quick test
   test('exhaustive partial product evaluate: square radix-4, all extension',
       () async {
-    stdout.write('\n');
     for (final signed in [false, true]) {
       for (var radix = 4; radix < 8; radix *= 2) {
+        const radix = 4;
         final encoder = RadixEncoder(radix);
         final shift = log2Ceil(encoder.radix);
-        for (var width = shift + 1; width < shift * 2 + 1; width++) {
+        final minWidth = shift + (signed ? 1 : 0);
+        for (var width = minWidth; width < shift * 2 + 1; width++) {
           for (final signExtension in SignExtension.values) {
             final pp = PartialProductGenerator(Logic(name: 'X', width: width),
                 Logic(name: 'Y', width: width), encoder,
@@ -192,6 +189,73 @@ void main() {
         pp.signExtendCompactRect();
         expect(pp.evaluate(), equals(product));
         checkEvaluateRandom(pp, 100);
+      }
+    }
+  });
+
+  test('minimum width verification,', () async {
+    for (final signed in [false, true]) {
+      for (var radix = 2; radix < 32; radix *= 2) {
+        final encoder = RadixEncoder(radix);
+        final shift = log2Ceil(encoder.radix);
+        final width = shift + (signed ? 1 : 0);
+        const skew = 0;
+        // Only some sign extension routines have rectangular support
+        // Commented out rectangular extension routines for speedup
+        for (final signExtension in SignExtension.values) {
+          {
+            final pp = PartialProductGenerator(Logic(name: 'X', width: width),
+                Logic(name: 'Y', width: width + skew), encoder,
+                signed: signed);
+
+            switch (signExtension) {
+              case SignExtension.brute:
+                pp.bruteForceSignExtend();
+              case SignExtension.stop:
+                pp.signExtendWithStopBitsRect();
+              case SignExtension.compact:
+                pp.signExtendCompact();
+              case SignExtension.compactRect:
+                pp.signExtendCompactRect();
+            }
+            checkEvaluateRandom(pp, 100);
+          }
+        }
+      }
+    }
+  });
+  test('minimum rectangular width verification,', () async {
+    for (final signed in [false, true]) {
+      for (var radix = 2; radix < 32; radix *= 2) {
+        final encoder = RadixEncoder(radix);
+        final shift = log2Ceil(encoder.radix);
+        final width = shift;
+        final skew = (signed ? 1 : 0);
+        // Only some sign extension routines have rectangular support
+        // Commented out rectangular extension routines for speedup
+        for (final signExtension in [
+          SignExtension.brute,
+          SignExtension.stop,
+          SignExtension.compactRect
+        ]) {
+          {
+            final pp = PartialProductGenerator(Logic(name: 'X', width: width),
+                Logic(name: 'Y', width: width + skew), encoder,
+                signed: signed);
+
+            switch (signExtension) {
+              case SignExtension.brute:
+                pp.bruteForceSignExtend();
+              case SignExtension.stop:
+                pp.signExtendWithStopBitsRect();
+              case SignExtension.compact:
+                pp.signExtendCompact();
+              case SignExtension.compactRect:
+                pp.signExtendCompactRect();
+            }
+            checkEvaluateExhaustive(pp);
+          }
+        }
       }
     }
   });

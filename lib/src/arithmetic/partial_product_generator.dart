@@ -58,6 +58,15 @@ class PartialProductGenerator {
     encoder = MultiplierEncoder(multiplier, radixEncoder, signed: signed);
     selector =
         MultiplicandSelector(radixEncoder.radix, multiplicand, signed: signed);
+
+    if (multiplicand.width < selector.shift) {
+      throw RohdHclException('multiplicand width must be greater than '
+          '${selector.shift}');
+    }
+    if (multiplier.width < (selector.shift + (signed ? 1 : 0))) {
+      throw RohdHclException('multiplier width must be greater than '
+          '${selector.shift + (signed ? 1 : 0)}');
+    }
     _build();
   }
 

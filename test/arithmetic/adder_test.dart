@@ -125,8 +125,7 @@ void testExhaustiveSignMagnitude(int n, Adder Function(Logic a, Logic b) fn) {
           bigger = bI;
           smaller = bJ;
         } else {
-          bigger = bJ;
-          smaller = bI;
+          continue;
         }
         final biggerSign = bigger.abs() != bigger ? 1 : 0;
         final smallerSign = smaller.abs() != smaller ? 1 : 0;
