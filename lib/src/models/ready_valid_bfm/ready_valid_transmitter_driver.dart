@@ -1,3 +1,12 @@
+// Copyright (C) 2024 Intel Corporation
+// SPDX-License-Identifier: BSD-3-Clause
+//
+// ready_valid_transmitter_agent.dart
+// An agent for transmitting over a ready/valid protocol.
+//
+// 2024 January 5
+// Author: Max Korbel <max.korbel@intel.com>
+
 import 'dart:async';
 import 'dart:math';
 
