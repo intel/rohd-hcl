@@ -11,5 +11,5 @@
 //
 
 // Just exporting encoder exports all the symbols we use
-export './compressor.dart';
+export './addend_compressor.dart';
 export './multiplier_encoder.dart';
