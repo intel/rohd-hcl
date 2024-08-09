@@ -12,12 +12,11 @@ import 'package:collection/collection.dart';
 import 'package:meta/meta.dart';
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
-import 'package:rohd_hcl/src/arithmetic/booth.dart';
 
 // TODO(desmonddak): Logic and LogicValue majority() functions
 
 /// Base class for column compressor function
-class Compressor extends Module {
+abstract class Compressor extends Module {
   /// Input bits to compress
   @protected
   late final Logic compressBits;
@@ -60,8 +59,17 @@ class Compressor3 extends Compressor {
   }
 }
 
-// ignore: public_member_api_docs
-enum CompressTermType { carry, sum, pp }
+/// Compress terms
+enum CompressTermType {
+  /// A carry term
+  carry,
+
+  /// A sum term
+  sum,
+
+  /// A partial product term (from the original matrix)
+  pp
+}
 
 /// A compression term
 class CompressTerm implements Comparable<CompressTerm> {
@@ -90,9 +98,7 @@ class CompressTerm implements Comparable<CompressTerm> {
   static const carryDelay = 0.75;
 
   /// CompressTerm constructor
-  CompressTerm(this.type, this.row, this.col) {
-    delay = 0.0;
-  }
+  CompressTerm(this.type, this.row, this.col) : delay = 0.0;
 
   /// Create a sum Term
   factory CompressTerm.sumTerm(List<CompressTerm> args, int row, int col) {

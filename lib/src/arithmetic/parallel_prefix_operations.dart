@@ -209,8 +209,8 @@ class ParallelPrefixPriorityEncoder extends Module {
 
 /// Adder based on ParallelPrefix tree
 class ParallelPrefixAdder extends Adder {
-  late final Logic _out;
-  late final Logic _carry = Logic();
+  final Logic _out;
+  final Logic _carry = Logic();
 
   /// Adder constructor
   ParallelPrefixAdder(super.a, super.b,

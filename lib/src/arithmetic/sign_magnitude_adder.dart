@@ -12,11 +12,10 @@ import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
 
 /// An Adder which performs one's complement arithmetic using an unsigned
-/// adder that is passed in using a functor
-///    -- Requires that if the larger magnitude number is negative it
-///       must be the first 'a' argument
-///       We cannot enforce because this may be a smaller mantissa in
-///       a larger magnitude negative floating point number (no asserts please)
+/// adder that is passed in using a functor. This requires that a larger
+/// magnitude negative argumnet mus be the first 'a' argument. Enfording this
+/// is challenging in floating point as a smaller mantissa may be larger
+/// in magnitude due to the mantissa.
 class SignMagnitudeAdder extends Adder {
   /// The sign of the first input
   @protected

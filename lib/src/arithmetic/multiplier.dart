@@ -11,8 +11,6 @@
 import 'package:meta/meta.dart';
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
-import 'package:rohd_hcl/src/arithmetic/booth.dart';
-import 'package:rohd_hcl/src/arithmetic/compressor.dart';
 
 /// An abstract class for all multiplier implementations.
 abstract class Multiplier extends Module {
@@ -25,18 +23,14 @@ abstract class Multiplier extends Module {
   late final Logic b;
 
   /// The multiplier treats operands and output as signed
-  bool get signed => _signed;
-
-  @protected
-  bool _signed = false;
+  bool signed;
 
   /// The multiplication results of the multiplier.
   Logic get product;
 
   /// Take input [a] and input [b] and return the
   /// [product] of the multiplication result.
-  Multiplier(Logic a, Logic b, {bool signed = false, super.name}) {
-    _signed = signed;
+  Multiplier(Logic a, Logic b, {this.signed = false, super.name}) {
     this.a = addInput('a', a, width: a.width);
     this.b = addInput('b', b, width: b.width);
   }
@@ -57,10 +51,7 @@ abstract class MultiplyAccumulate extends Module {
   late final Logic c;
 
   /// The multiplier treats operands and output as signed
-  bool get signed => _signed;
-
-  @protected
-  bool _signed = false;
+  bool signed;
 
   /// The multiplication results of the multiply-accumulate.
   Logic get accumulate;
@@ -68,8 +59,7 @@ abstract class MultiplyAccumulate extends Module {
   /// Take input [a] and input [b], compute their
   /// product, add input [c] to produce the [accumulate] result.
   MultiplyAccumulate(Logic a, Logic b, Logic c,
-      {bool signed = false, super.name}) {
-    _signed = signed;
+      {this.signed = false, super.name}) {
     this.a = addInput('a', a, width: a.width);
     this.b = addInput('b', b, width: b.width);
     this.c = addInput('c', c, width: c.width);
@@ -117,22 +107,14 @@ class CompressionTreeMultiplyAccumulate extends MultiplyAccumulate {
   ///   a given radix and final adder functor
   CompressionTreeMultiplyAccumulate(super.a, super.b, super.c, int radix,
       ParallelPrefix Function(List<Logic>, Logic Function(Logic, Logic)) ppTree,
-      {bool signed = false})
+      {super.signed = false})
       : super(
             name: 'Compression Tree Multiplier: '
                 'R${radix}_${ppTree.call([Logic()], (a, b) => Logic()).name}') {
     final accumulate = addOutput('accumulate', width: a.width + b.width + 1);
-    _signed = signed;
-
     final pp =
-        PartialProductGenerator(a, b, RadixEncoder(radix), signed: signed);
-    // ignore: cascade_invocations
-    pp.signExtendCompact();
-
-    // Evaluate works only because the compressed rows have the same shape
-    // So the rowshift is valid.
-    // But this requires that we prefix the PP with the addend (not add) to
-    // keep the evaluate routine working.
+        PartialProductGenerator(a, b, RadixEncoder(radix), signed: signed)
+          ..signExtendCompact();
 
     // TODO(desmonddak): This sign extension method for the additional
     //  addend may only work with signExtendCompact.
@@ -149,6 +131,10 @@ class CompressionTreeMultiplyAccumulate extends MultiplyAccumulate {
       ..add(~sign)
       ..add(Const(1));
 
+    // Evaluate works only because the compressed rows have the same shape
+    // So the rowshift is valid.
+    // But this requires that we prefix the PP with the addend (not add) to
+    // keep the evaluate routine working.
     pp.partialProducts.insert(0, l);
     pp.rowShift.insert(0, 0);
 
@@ -156,9 +142,7 @@ class CompressionTreeMultiplyAccumulate extends MultiplyAccumulate {
     // compressor fails to properly handle, so we need to debug
     // pp.partialProducts.add(l);
     // pp.rowShift.add(0);
-    final compressor = ColumnCompressor(pp);
-    // ignore: cascade_invocations
-    compressor.compress();
+    final compressor = ColumnCompressor(pp)..compress();
 
     final adder = ParallelPrefixAdder(
         compressor.extractRow(0), compressor.extractRow(1), ppTree);
@@ -180,7 +164,7 @@ class MultiplyOnly extends MultiplyAccumulate {
     final accumulate = addOutput('accumulate', width: a.width + b.width + 1);
 
     final multiply = multiplyGenerator(a, b);
-    _signed = multiply.signed;
+    signed = multiply.signed;
 
     accumulate <=
         (signed

@@ -1,215 +1,41 @@
 // Copyright (C) 2024 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 //
-// booth.dart
-// Generation of Booth Encoded partial products for multiplication
+// partial_product_generator.dart
+// Partial Product matrix generation from Booth recoded multiplicand
 //
 // 2024 May 15
 // Author: Desmond Kirkpatrick <desmond.a.kirkpatrick@intel.com>
 
-import 'dart:io';
 import 'dart:math';
 
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
 
-/// Simplest version of bit string representation
-// String bitString(LogicValue value) => value.toString(includeWidth: false);
-
-/// A bundle for the leaf radix compute nodes
-///    This holds the multiples of the multiplicand that are needed for encoding
-class RadixEncode extends LogicStructure {
-  /// Which multiples need to be selected
-  final Logic multiples;
-
-  /// 'sign' of multiple
-  final Logic sign;
-
-  /// Structure for holding Radix Encoding
-  RadixEncode({required int numMultiples})
-      : this._(
-            Logic(width: numMultiples, name: 'multiples'), Logic(name: 'sign'));
-
-  RadixEncode._(this.multiples, this.sign, {String? name})
-      : super([multiples, sign], name: name ?? 'RadixLogic');
-
-  @override
-  RadixEncode clone({String? name}) =>
-      RadixEncode(numMultiples: multiples.width);
-}
-
-/// Base interface for radix radixEncoder
-class RadixEncoder {
-  /// The radix of the radixEncoder
-  int radix;
-
-  /// Baseline call for setting up an empty radixEncoder
-  RadixEncoder(this.radix);
-
-  /// Encode a multiplier slice into the Booth encoded value
-  RadixEncode encode(Logic multiplierSlice) {
-    if (multiplierSlice.width != log2Ceil(radix) + 1) {
-      throw RohdHclException('multiplier slice width ${multiplierSlice.width}'
-          'must be same length as log(radix)+1=${log2Ceil(radix) + 1}');
-    }
-    final width = log2Ceil(radix) + 1;
-    final inputXor = Logic(width: width);
-    inputXor <=
-        (multiplierSlice ^ (multiplierSlice >>> 1))
-            .slice(multiplierSlice.width - 1, 0);
-
-    final multiples = <Logic>[];
-    for (var i = 2; i < radix + 1; i += 2) {
-      final variantA = LogicValue.ofInt(i - 1, width);
-      final xorA = variantA ^ (variantA >>> 1);
-      final variantB = LogicValue.ofInt(i, width);
-      final xorB = variantB ^ (variantB >>> 1);
-      // Multiples don't agree on a bit position so we will skip that position
-      final multiplesDisagree = xorA ^ xorB;
-      // Where multiples agree, we need the sense or direction (1 or 0)
-      final senseMultiples = xorA & xorB;
-
-      multiples.add([
-        for (var j = 0; j < width - 1; j++)
-          if (multiplesDisagree[j].isZero)
-            if (senseMultiples[j].isZero) ~inputXor[j] else inputXor[j]
-      ].swizzle().and());
-    }
-
-    return RadixEncode._(
-        multiples.rswizzle(), multiplierSlice[multiplierSlice.width - 1]);
-  }
-}
-
-/// A class that generates the Booth encoding of the multipler
-class MultiplierEncoder {
-  /// Access the multiplier
-  Logic multiplier = Logic();
-
-  /// Number of row radixEncoders
-  late final int rows;
-
-  Logic _extendedMultiplier = Logic();
-  late final RadixEncoder _encoder;
-  late final int _sliceWidth;
-
-  /// Generate an encoding of the input multiplier
-  MultiplierEncoder(this.multiplier, RadixEncoder radixEncoder,
-      {bool signed = true})
-      : _encoder = radixEncoder,
-        _sliceWidth = log2Ceil(radixEncoder.radix) + 1 {
-    // Unsigned encoding wants to overlap past the multipler
-    if (signed) {
-      rows =
-          ((multiplier.width + (signed ? 0 : 1)) / log2Ceil(radixEncoder.radix))
-              .ceil();
-    } else {
-      rows = (((multiplier.width + 1) % (_sliceWidth - 1) == 0) ? 0 : 1) +
-          ((multiplier.width + 1) ~/ log2Ceil(radixEncoder.radix));
-    }
-    // slices overlap by 1 and start at -1
-    _extendedMultiplier = (signed
-        ? multiplier.signExtend(rows * (_sliceWidth - 1))
-        : multiplier.zeroExtend(rows * (_sliceWidth - 1)));
-  }
-
-  /// Retrieve the Booth encoding for the row
-  RadixEncode getEncoding(int row) {
-    if (row >= rows) {
-      throw RohdHclException('row $row is not < number of encoding rows $rows');
-    }
-    final base = row * (_sliceWidth - 1);
-    final multiplierSlice = [
-      if (row > 0)
-        _extendedMultiplier.slice(base + _sliceWidth - 2, base - 1)
-      else
-        [_extendedMultiplier.slice(base + _sliceWidth - 2, base), Const(0)]
-            .swizzle()
-    ];
-    return _encoder.encode(multiplierSlice.first);
-  }
-}
-
-/// A class accessing the multiples of the multiplicand at a position
-class MultiplicandSelector {
-  /// radix of the selector
-  int radix;
-
-  /// The bit shift of the selector (typically overlaps 1)
-  int shift;
-
-  /// New width of partial products generated from the multiplicand
-  int get width => multiplicand.width + shift - 1;
-
-  /// Access the multiplicand
-  Logic multiplicand = Logic();
-
-  /// Place to store multiples of the multiplicand
-  late LogicArray multiples;
-
-  /// Generate required multiples of multiplicand
-  MultiplicandSelector(this.radix, this.multiplicand, {bool signed = true})
-      : shift = log2Ceil(radix) {
-    if (radix > 16) {
-      throw RohdHclException('Radices beyond 16 are not yet supported');
-    }
-    final width = multiplicand.width + shift;
-    final numMultiples = radix ~/ 2;
-    multiples = LogicArray([numMultiples], width);
-    final extendedMultiplicand = signed
-        ? multiplicand.signExtend(width)
-        : multiplicand.zeroExtend(width);
-
-    for (var pos = 0; pos < numMultiples; pos++) {
-      final ratio = pos + 1;
-      multiples.elements[pos] <=
-          switch (ratio) {
-            1 => extendedMultiplicand,
-            2 => extendedMultiplicand << 1,
-            3 => (extendedMultiplicand << 2) - extendedMultiplicand,
-            4 => extendedMultiplicand << 2,
-            5 => (extendedMultiplicand << 2) + extendedMultiplicand,
-            6 => (extendedMultiplicand << 3) - (extendedMultiplicand << 1),
-            7 => (extendedMultiplicand << 3) - extendedMultiplicand,
-            8 => extendedMultiplicand << 3,
-            _ => throw RohdHclException('Radix is beyond 16')
-          };
-    }
-  }
-
-  /// Retrieve the multiples of the multiplicand at current bit position
-  Logic getMultiples(int col) => [
-        for (var i = 0; i < multiples.elements.length; i++)
-          multiples.elements[i][col]
-      ].swizzle().reversed;
-
-  Logic _select(Logic multiples, RadixEncode encode) =>
-      (encode.multiples & multiples).or() ^ encode.sign;
-
-  /// Select the partial product term from the multiples using a RadixEncode
-  Logic select(int col, RadixEncode encode) =>
-      _select(getMultiples(col), encode);
-}
-
-/// A class that generates a set of partial products
+/// A class that generates a set of partial products.  Essentially a set of
+/// shifted rows of [Logic] addends generated by Booth recoding and
+/// manipulated by sign extension, before being compressed
 class PartialProductGenerator {
   /// Get the shift increment between neighboring product rows
   int get shift => selector.shift;
 
-  /// The actual shift in each row
+  /// The actual shift in each row. This value will be modified by the
+  /// sign extension routine used when folding in a sign bit from another
+  /// row
   final rowShift = <int>[];
 
   /// rows of partial products
   int get rows => partialProducts.length;
 
-  /// The multiplicand term (X)
+  /// The multiplicand term
   Logic get multiplicand => selector.multiplicand;
 
-  /// The multiplier term (Y)
+  /// The multiplier term
   Logic get multiplier => encoder.multiplier;
 
-  /// Partial Products output
-  late List<List<Logic>> partialProducts = [];
+  /// Partial Products output. Generated by selector and extended by sign
+  /// extension routines
+  late final List<List<Logic>> partialProducts;
 
   /// Encoder for the full multiply operand
   late final MultiplierEncoder encoder;
@@ -236,9 +62,7 @@ class PartialProductGenerator {
 
   /// Setup the partial products array (partialProducts and rowShift)
   void _build() {
-    _signExtended = false;
-    partialProducts.clear();
-    rowShift.clear();
+    partialProducts = <List<Logic>>[];
     for (var row = 0; row < encoder.rows; row++) {
       partialProducts.add(List.generate(
           selector.width, (i) => selector.select(i, encoder.getEncoding(row))));
@@ -353,8 +177,12 @@ class PartialProductGenerator {
     }
   }
 
-  /// Sign extend the PP array using stop bits without adding a row
+  /// Sign extend the PP array using stop bits without adding a row.
   void signExtendCompact() {
+    // An implementation of
+    // Mohanty, B.K., Choubey, A. Efficient Design for Radix-8 Booth Multiplier and Its Application in Lifting 2-D DWT. Circuits Syst Signal Process 36, 1129–1149 (2017). https://doi.org/10.1007/s00034-016-0349-9, A. Efficient Design for Radix-8 Booth Multiplier
+    // and Its Application in Lifting 2-D DWT. Circuits Syst Signal Process 36,
+    // 1129–1149 (2017). https://doi.org/10.1007/s00034-016-0349-9
     if (_signExtended) {
       throw RohdHclException('Partial Product array already sign-extended');
     }
@@ -451,7 +279,9 @@ class PartialProductGenerator {
   }
 
   /// Sign extend the PP array using stop bits without adding a row
-  /// This routine works with different widths of multiplicand/multiplier
+  /// This routine works with different widths of multiplicand/multiplier,
+  /// an extension of Mohanty, B.K., Choubey designed by
+  /// Desmond A. Kirkpatrick
   void signExtendCompactRect() {
     if (_signExtended) {
       throw RohdHclException('Partial Product array already sign-extended');
@@ -682,79 +512,5 @@ class PartialProductGenerator {
       str.write(' ($val)\n\n');
     }
     return str.toString();
-  }
-}
-
-// This routine is to reverse-engineer how to create booth encoders from
-//  XOR computations on the multiplier bits
-// It is used to validate the RadixEncoder class
-void main() {
-  for (var radix = 2; radix < 32; radix *= 2) {
-    stdout.write('Radix-$radix:\n');
-    final encoder = RadixEncoder(radix);
-
-    final width = log2Ceil(radix) + 1;
-    final inputXor = Logic(width: width);
-    final multiples = <Logic>[];
-    for (var i = 2; i < radix + 1; i += 2) {
-      final pastX = LogicValue.ofInt(i - 1, width);
-      final x = LogicValue.ofInt(i, width);
-      final pastXor = pastX ^ (pastX >>> 1);
-      final xor = x ^ (x >>> 1);
-      // Multiples don't agree on a bit position so we will skip
-      final multiplesDisagree = xor ^ pastXor;
-      // Where multiples agree, we need the sense or direction (1 or 0)
-      final senseMultiples = xor & pastXor;
-
-      final andOutput = [
-        for (var j = 0; j < width - 1; j++)
-          if (multiplesDisagree[j].isZero)
-            if (senseMultiples[j].isZero) ~inputXor[j] else inputXor[j]
-      ].swizzle().and();
-      final multPos = (i >>> 1) + i % 2;
-      stdout
-        ..write('\tM${(i >>> 1) + i % 2} x=${x.bitString} '
-            'lx=${pastX.bitString} '
-            // 'm=$m xor=${xor.bitString}(${xor.toInt()}) '
-            'dontcare=${multiplesDisagree.bitString}'
-            ' agree=${senseMultiples.bitString}')
-        ..write(':    ');
-      for (var j = 0; j < width - 1; j++) {
-        if (multiplesDisagree[j].isZero) {
-          if (senseMultiples[j].isZero) {
-            stdout.write('~');
-          }
-          stdout.write('xor[$j] ');
-        }
-      }
-      multiples.add(andOutput);
-      stdout.write('\n');
-      final inLogic = Logic(width: width);
-      for (var k = 0; k < radix; k++) {
-        final inValue = LogicValue.ofInt(k, width);
-        inLogic.put(inValue);
-        final code = encoder.encode(inLogic).multiples[multPos - 1];
-        final newCode =
-            RadixEncoder(radix).encode(inLogic).multiples[multPos - 1];
-        inputXor.put(inValue ^ (inValue >>> 1));
-        // stdout
-        //   ..write('in=${inValue.bitString} ')
-        //   ..write('xor=${inputXor.value.bitString)} ')
-        //   ..write('out=${andOutput.value.bitString} ')
-        //   ..write('code=${code.value.bitString} ')
-        //   ..write('ncode=${newCode.value.bitString}')
-        //   ..write('')
-        //   ..write('\n');
-        if (andOutput.value != code.value) {
-          throw RohdHclException('andOutput mismatches code');
-        }
-        if (newCode.value != code.value) {
-          throw RohdHclException('andOutput mismatches code');
-        }
-        if (andOutput.value != andOutput.value) {
-          throw RohdHclException('andOutput mismatches code');
-        }
-      }
-    }
   }
 }

@@ -22,7 +22,6 @@ void checkMultiplyAccumulate(
   mod.b.put(bB);
   // ignore: invalid_use_of_protected_member
   mod.c.put(bC);
-  // print('$bA, $bB, $bC');
 
   final result = mod.signed
       ? mod.accumulate.value.toBigInt().toSigned(mod.accumulate.width)
@@ -41,21 +40,19 @@ void testMultiplyAccumulateRandom(int width, int iterations,
     final multiplyOnly = mod is MultiplyOnly;
     await mod.build();
     final signed = mod.signed;
+    final value = Random(47);
     for (var i = 0; i < iterations; i++) {
       final bA = signed
-          ? Random().nextLogicValue(width: width).toBigInt().toSigned(width)
-          : Random().nextLogicValue(width: width).toBigInt().toUnsigned(width);
+          ? value.nextLogicValue(width: width).toBigInt().toSigned(width)
+          : value.nextLogicValue(width: width).toBigInt().toUnsigned(width);
       final bB = signed
-          ? Random().nextLogicValue(width: width).toBigInt().toSigned(width)
-          : Random().nextLogicValue(width: width).toBigInt().toUnsigned(width);
+          ? value.nextLogicValue(width: width).toBigInt().toSigned(width)
+          : value.nextLogicValue(width: width).toBigInt().toUnsigned(width);
       final bC = multiplyOnly
           ? BigInt.zero
           : signed
-              ? Random().nextLogicValue(width: width).toBigInt().toSigned(width)
-              : Random()
-                  .nextLogicValue(width: width)
-                  .toBigInt()
-                  .toUnsigned(width);
+              ? value.nextLogicValue(width: width).toBigInt().toSigned(width)
+              : value.nextLogicValue(width: width).toBigInt().toUnsigned(width);
       checkMultiplyAccumulate(mod, bA, bB, bC);
     }
   });

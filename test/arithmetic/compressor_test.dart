@@ -11,10 +11,7 @@ import 'dart:io';
 import 'dart:math';
 
 import 'package:rohd/rohd.dart';
-import 'package:rohd_hcl/src/arithmetic/booth.dart';
-import 'package:rohd_hcl/src/arithmetic/compressor.dart';
-import 'package:rohd_hcl/src/arithmetic/parallel_prefix_operations.dart';
-import 'package:rohd_hcl/src/utils.dart';
+import 'package:rohd_hcl/rohd_hcl.dart';
 import 'package:test/test.dart';
 
 enum SignExtension { brute, stop, compact }

@@ -1,7 +1,7 @@
 // Copyright (C) 2023-2024 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 //
-// booth_test.dart
+// multiplier_encoder_test.dart
 // Tests for Booth encoding
 //
 // 2024 May 21
@@ -9,9 +9,9 @@
 
 import 'dart:io';
 import 'dart:math';
+
 import 'package:rohd/rohd.dart';
-import 'package:rohd_hcl/src/arithmetic/booth.dart';
-import 'package:rohd_hcl/src/utils.dart';
+import 'package:rohd_hcl/rohd_hcl.dart';
 import 'package:test/test.dart';
 
 enum SignExtension { brute, stop, compact, compactRect }
@@ -28,7 +28,6 @@ void checkEvaluateExhaustive(PartialProductGenerator pp) {
       final Y = pp.signed ? j.toSigned(widthY) : j.toUnsigned(widthY);
       pp.multiplicand.put(X);
       pp.multiplier.put(Y);
-      // print('$X * $Y');
       expect(pp.evaluate(), equals(X * Y));
     }
   }
@@ -45,7 +44,6 @@ void checkEvaluateRandom(PartialProductGenerator pp, int nSamples) {
     final Y = pp.signed ? rY.toSigned(widthY) : rY;
     pp.multiplicand.put(X);
     pp.multiplier.put(Y);
-    // print('$X * $Y');
     expect(pp.evaluate(), equals(X * Y));
   }
 }
@@ -77,7 +75,6 @@ void main() {
     final pp = PartialProductGenerator(logicX, logicY, encoder);
     // ignore: cascade_invocations
     pp.signExtendCompact();
-    // stdout.write(pp);
     // Add a row for addend
     final l = [for (var i = 0; i < logicZ.width; i++) logicZ[i]];
     // ignore: cascade_invocations
@@ -87,14 +84,10 @@ void main() {
     pp.partialProducts.add(l);
     pp.rowShift.add(0);
 
-    // stdout.write('Test: $i($X) * $j($Y) + $k($Z)= $product vs '
-    //     '${pp.evaluate(signed: true)}\n');
     if (pp.evaluate() != product) {
       stdout.write('Fail: $X * $Y: ${pp.evaluate()} vs expected $product\n');
-      // ignore: cascade_invocations
-      // stdout.write(pp);
     }
-    // expect(pp.evaluate(signed: true), equals(product));
+    expect(pp.evaluate(), equals(product));
   });
 
   // TODO(dakdesmond): Figure out minimum widths!
@@ -123,7 +116,6 @@ void main() {
               case SignExtension.compactRect:
                 pp.signExtendCompactRect();
             }
-            // testPartialProductExhaustive(pp);
             checkEvaluateExhaustive(pp);
           }
         }
@@ -139,6 +131,7 @@ void main() {
         for (var width = 3 + shift + 1; width < 3 + shift * 2 + 1; width++) {
           for (var skew = -3; skew < shift * 2; skew++) {
             // Only some sign extension routines have rectangular support
+            // Commented out rectangular extension routines for speedup
             for (final signExtension in [
               // SignExtension.brute,
               // SignExtension.stop,
@@ -167,20 +160,15 @@ void main() {
   });
 
   test('Rectangle Q collision tests,', () async {
-    final alignTest = <List<(int, int, int)>>[];
-
     // These collide with the normal q extension bits
     // These are unsigned tests
-    // ignore: cascade_invocations
-    alignTest
-          ..insert(0, [(2, 5, 0), (4, 7, 1), (8, 7, 2), (16, 9, 3)])
-          ..insert(1, [(2, 5, 1), (4, 6, 2), (8, 9, 3), (16, 8, 4)])
-          ..insert(2, [(2, 5, 2), (4, 7, 3), (8, 8, 4), (16, 11, 5)])
-          ..insert(3, [(4, 6, 4), (8, 7, 5), (16, 10, 6)])
-          ..insert(4, [(8, 9, 6), (16, 9, 7)])
-          ..insert(5, [(16, 8, 8)])
-        //
-        ;
+    final alignTest = <List<(int, int, int)>>[]
+      ..insert(0, [(2, 5, 0), (4, 7, 1), (8, 7, 2), (16, 9, 3)])
+      ..insert(1, [(2, 5, 1), (4, 6, 2), (8, 9, 3), (16, 8, 4)])
+      ..insert(2, [(2, 5, 2), (4, 7, 3), (8, 8, 4), (16, 11, 5)])
+      ..insert(3, [(4, 6, 4), (8, 7, 5), (16, 10, 6)])
+      ..insert(4, [(8, 9, 6), (16, 9, 7)])
+      ..insert(5, [(16, 8, 8)]);
 
     for (final alignList in alignTest) {
       for (final align in alignList) {

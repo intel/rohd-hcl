@@ -1,18 +1,18 @@
 # Multiplier
 
-ROHD HCL provides an abstract [Multiplier] module which multiplies two
-numbers represented as two [Logic]s, potentially of different widths,
+ROHD HCL provides an abstract `Multiplier` module which multiplies two
+numbers represented as two `Logic`s, potentially of different widths,
 treating them as either signed (2s complement) or unsigned. It
-produces the product as a [Logic] with width equal to the sum of the
+produces the product as a `Logic` with width equal to the sum of the
 widths of the inputs. As of now, we have the following implementations
-of this abstract [Module]:
+of this abstract `Module`:
 
 - [Carry Save Multiplier](#carry-save-multiplier)
 - [Compression Tree Multiplier](#compression-tree-multiplier)
 
 An additional kind of abstract module provided is a
-[MultiplyAccumulate] module which multiplies two numbers represented
-as two [Logic]s and adds the result to a third [Logic] with width
+`MultiplyAccumulate` module which multiplies two numbers represented
+as two `Logic`s and adds the result to a third `Logic` with width
 equal to the sum of the widths of the main inputs. We have a
 high-performance implementation:
 
@@ -78,11 +78,11 @@ useful in applications that require high speed multiplication, such as
 digital signal processing.
 
 The parameters of the
-[CompressionTreeMultiplier] are:
+`CompressionTreeMultiplier` are:
 
 - Two input terms a and b
 - The radix used for Booth encoding (2, 4, 8, and 16 are currently supported)
-- The type of [ParallelPrefix] tree used in the final [ParallelPrefixAdder]
+- The type of `ParallelPrefix` tree used in the final `ParallelPrefixAdder`
 - Whether the operands should be treated as signed (2s complement) or unsigned
 
 ## Compression Tree Multiply Accumulate
@@ -92,10 +92,10 @@ multiplier, but it inserts an additional addend into the compression
 tree to allow for accumulation into this third input.
 
 The parameters of the
-[CompressionTreeMultiplier] are:
+`CompressionTreeMultiplier` are:
 
 - Two input terms a and b
 - The accumulate input term c
 - The radix used for Booth encoding (2, 4, 8, and 16 are currently supported)
-- The type of [ParallelPrefix] tree used in the final [ParallelPrefixAdder]
+- The type of `ParallelPrefix` tree used in the final `ParallelPrefixAdder`
 - Whether the operands should be treated as signed (2s complement) or unsigned
