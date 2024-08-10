@@ -106,7 +106,7 @@ void main() {
       CompressionTreeMultiplier(a, b, 4, KoggeStone.new, signed: true);
 
   Multiplier curryUnsignedMultiplier(Logic a, Logic b) =>
-      CompressionTreeMultiplier(a, b, 4, KoggeStone.new, signed: true);
+      CompressionTreeMultiplier(a, b, 4, KoggeStone.new, signed: false);
 
   // Now treat the multiplier as a MAC with a zero input addend [c]
   MultiplyAccumulate currySignedMultiplierAsMAC(Logic a, Logic b, Logic c) =>

@@ -15,8 +15,6 @@ import 'package:rohd_hcl/rohd_hcl.dart';
 import 'package:rohd_hcl/src/arithmetic/multiplier_lib.dart';
 import 'package:test/test.dart';
 
-enum SignExtension { brute, stop, compact, compactRect }
-
 void checkEvaluateExhaustive(PartialProductGenerator pp) {
   final widthX = pp.selector.multiplicand.width;
   final widthY = pp.encoder.multiplier.width;
@@ -74,8 +72,7 @@ void main() {
     logicX.put(X);
     logicY.put(Y);
     logicZ.put(Z);
-    final pp = PartialProductGenerator(logicX, logicY, encoder)
-      ..signExtendCompact();
+    final pp = PartialProductGenerator(logicX, logicY, encoder);
     // Add a row for addend
     final l = [
       for (var i = 0; i < logicZ.width; i++) logicZ[i],
@@ -102,19 +99,13 @@ void main() {
         final minWidth = shift + (signed ? 1 : 0);
         for (var width = minWidth; width < shift * 2 + 1; width++) {
           for (final signExtension in SignExtension.values) {
+            if (signExtension == SignExtension.none) {
+              continue;
+            }
             final pp = PartialProductGenerator(Logic(name: 'X', width: width),
                 Logic(name: 'Y', width: width), encoder,
-                signed: signed);
-            switch (signExtension) {
-              case SignExtension.brute:
-                pp.bruteForceSignExtend();
-              case SignExtension.stop:
-                pp.signExtendWithStopBitsRect();
-              case SignExtension.compact:
-                pp.signExtendCompact();
-              case SignExtension.compactRect:
-                pp.signExtendCompactRect();
-            }
+                signed: signed, signExtension: signExtension);
+
             checkEvaluateExhaustive(pp);
           }
         }
@@ -132,25 +123,14 @@ void main() {
             // Only some sign extension routines have rectangular support
             // Commented out rectangular extension routines for speedup
             for (final signExtension in [
-              // SignExtension.brute,
-              // SignExtension.stop,
+              SignExtension.brute,
+              SignExtension.stop,
               SignExtension.compactRect
             ]) {
               final pp = PartialProductGenerator(Logic(name: 'X', width: width),
                   Logic(name: 'Y', width: width + skew), encoder,
-                  signed: signed);
-
-              switch (signExtension) {
-                case SignExtension.brute:
-                  pp.bruteForceSignExtend();
-                case SignExtension.stop:
-                  pp.signExtendWithStopBitsRect();
-                case SignExtension.compact:
-                  pp.signExtendCompact();
-                case SignExtension.compactRect:
-                  pp.signExtendCompactRect();
-              }
-              checkEvaluateRandom(pp, 100);
+                  signed: signed, signExtension: signExtension);
+              checkEvaluateRandom(pp, 20);
             }
           }
         }
@@ -186,7 +166,6 @@ void main() {
 
         pp.multiplicand.put(X);
         pp.multiplier.put(Y);
-        pp.signExtendCompactRect();
         expect(pp.evaluate(), equals(product));
         checkEvaluateRandom(pp, 100);
       }
@@ -203,23 +182,13 @@ void main() {
         // Only some sign extension routines have rectangular support
         // Commented out rectangular extension routines for speedup
         for (final signExtension in SignExtension.values) {
-          {
-            final pp = PartialProductGenerator(Logic(name: 'X', width: width),
-                Logic(name: 'Y', width: width + skew), encoder,
-                signed: signed);
-
-            switch (signExtension) {
-              case SignExtension.brute:
-                pp.bruteForceSignExtend();
-              case SignExtension.stop:
-                pp.signExtendWithStopBitsRect();
-              case SignExtension.compact:
-                pp.signExtendCompact();
-              case SignExtension.compactRect:
-                pp.signExtendCompactRect();
-            }
-            checkEvaluateRandom(pp, 100);
+          if (signExtension == SignExtension.none) {
+            continue;
           }
+          final pp = PartialProductGenerator(Logic(name: 'X', width: width),
+              Logic(name: 'Y', width: width + skew), encoder,
+              signed: signed, signExtension: signExtension);
+          checkEvaluateRandom(pp, 100);
         }
       }
     }
@@ -241,18 +210,7 @@ void main() {
           {
             final pp = PartialProductGenerator(Logic(name: 'X', width: width),
                 Logic(name: 'Y', width: width + skew), encoder,
-                signed: signed);
-
-            switch (signExtension) {
-              case SignExtension.brute:
-                pp.bruteForceSignExtend();
-              case SignExtension.stop:
-                pp.signExtendWithStopBitsRect();
-              case SignExtension.compact:
-                pp.signExtendCompact();
-              case SignExtension.compactRect:
-                pp.signExtendCompactRect();
-            }
+                signed: signed, signExtension: signExtension);
             checkEvaluateExhaustive(pp);
           }
         }

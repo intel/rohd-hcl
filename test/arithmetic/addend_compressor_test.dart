@@ -14,8 +14,6 @@ import 'package:rohd_hcl/rohd_hcl.dart';
 import 'package:rohd_hcl/src/arithmetic/multiplier_lib.dart';
 import 'package:test/test.dart';
 
-enum SignExtension { brute, stop, compact }
-
 void testCompressionExhaustive(PartialProductGenerator pp) {
   final widthX = pp.selector.multiplicand.width;
   final widthY = pp.encoder.multiplier.width;
@@ -86,17 +84,13 @@ void main() {
         final shift = log2Ceil(encoder.radix);
         for (var width = shift + 1; width < 2 * shift + 1; width++) {
           for (final signExtension in SignExtension.values) {
+            if (signExtension == SignExtension.none) {
+              continue;
+            }
             final pp = PartialProductGenerator(Logic(name: 'X', width: width),
                 Logic(name: 'Y', width: width), encoder,
-                signed: signed);
-            switch (signExtension) {
-              case SignExtension.brute:
-                pp.bruteForceSignExtend();
-              case SignExtension.stop:
-                pp.signExtendWithStopBitsRect();
-              case SignExtension.compact:
-                pp.signExtendCompact();
-            }
+                signed: signed, signExtension: signExtension);
+
             testCompressionExhaustive(pp);
           }
         }
@@ -124,8 +118,7 @@ void main() {
       b.put(bB);
       const radix = 4;
       final encoder = RadixEncoder(radix);
-      final pp = PartialProductGenerator(a, b, encoder, signed: signed)
-        ..signExtendCompactRect();
+      final pp = PartialProductGenerator(a, b, encoder, signed: signed);
       // Turn on printing by using widthX == 6 (we are fooling the dead code
       // checking linter here)
       // print(pp);

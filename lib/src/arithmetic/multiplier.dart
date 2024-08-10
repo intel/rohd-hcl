@@ -85,8 +85,7 @@ class CompressionTreeMultiplier extends Multiplier {
             ], (a, b) => Logic()).runtimeType}') {
     final product = addOutput('product', width: a.width + b.width);
     final pp =
-        PartialProductGenerator(a, b, RadixEncoder(radix), signed: signed)
-          ..signExtendCompact();
+        PartialProductGenerator(a, b, RadixEncoder(radix), signed: signed);
     final compressor = ColumnCompressor(pp)..compress();
     final adder = ParallelPrefixAdder(
         compressor.extractRow(0), compressor.extractRow(1), ppTree);
@@ -110,8 +109,7 @@ class CompressionTreeMultiplyAccumulate extends MultiplyAccumulate {
                 'R${radix}_${ppTree.call([Logic()], (a, b) => Logic()).name}') {
     final accumulate = addOutput('accumulate', width: a.width + b.width + 1);
     final pp =
-        PartialProductGenerator(a, b, RadixEncoder(radix), signed: signed)
-          ..signExtendCompact();
+        PartialProductGenerator(a, b, RadixEncoder(radix), signed: signed);
 
     // TODO(desmonddak): This sign extension method for the additional
     //  addend may only work with signExtendCompact.
