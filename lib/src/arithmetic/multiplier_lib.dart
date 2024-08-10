@@ -10,6 +10,6 @@
 //
 //
 
-// Just exporting encoder exports all the symbols we use
 export './addend_compressor.dart';
 export './multiplier_encoder.dart';
+export './partial_product_generator.dart';
