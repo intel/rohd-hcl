@@ -510,8 +510,9 @@ class PartialProductGenerator {
       if (row < encoder.rows) {
         final encoding = encoder.getEncoding(row);
         if (encoding.multiples.value.isValid) {
+          final multiple = encoding.multiples.value.firstOne() + 1;
           str.write('$rowStr M=${encoding.multiples.reversed.value.bitString}'
-              '(${(encoding.multiples.value.firstOne() + 1).toString().padLeft(2)}) '
+              '(${multiple.toString().padLeft(2)}) '
               'S=${encoding.sign.value.toInt()}: ');
         } else {
           str.write(' ' * shortPrefix);
