@@ -154,7 +154,7 @@ void main() {
   });
 
   test('single mac', () async {
-    const width = 6;
+    const width = 8;
     final a = Logic(name: 'a', width: width);
     final b = Logic(name: 'b', width: width);
     final c = Logic(name: 'c', width: 2 * width);

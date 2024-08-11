@@ -221,7 +221,7 @@ class PartialProductGenerator {
   /// Sign extend the PP array using stop bits without adding a row.
   void signExtendCompact() {
     // An implementation of
-    // Mohanty, B.K., Choubey, A. Efficient Design for Radix-8 Booth Multiplier and Its Application in Lifting 2-D DWT. Circuits Syst Signal Process 36, 1129–1149 (2017). https://doi.org/10.1007/s00034-016-0349-9, A. Efficient Design for Radix-8 Booth Multiplier
+    // Mohanty, B.K., Choubey, A. Efficient Design for Radix-8 Booth Multiplier
     // and Its Application in Lifting 2-D DWT. Circuits Syst Signal Process 36,
     // 1129–1149 (2017). https://doi.org/10.1007/s00034-016-0349-9
     if (_signExtended) {
@@ -491,7 +491,7 @@ class PartialProductGenerator {
             : 1;
     // We will print encoding(1-hot multiples and sign) before each row
     final shortPrefix =
-        '99 ${'M='.padRight(2 + selector.radix ~/ 2)} S= : '.length +
+        '99 ${'M='.padRight(2 + selector.radix ~/ 2)}(99) S= : '.length +
             3 * nonSignExtendedPad;
 
     // print bit position header
@@ -510,13 +510,15 @@ class PartialProductGenerator {
       if (row < encoder.rows) {
         final encoding = encoder.getEncoding(row);
         if (encoding.multiples.value.isValid) {
-          str.write('$rowStr M=${encoding.multiples.reversed.value.bitString} '
+          str.write('$rowStr M=${encoding.multiples.reversed.value.bitString}'
+              '(${(encoding.multiples.value.firstOne() + 1).toString().padLeft(2)}) '
               'S=${encoding.sign.value.toInt()}: ');
         } else {
           str.write(' ' * shortPrefix);
         }
       } else {
-        str.write('$rowStr ${'M='.padRight(2 + selector.radix ~/ 2)} S= : ');
+        str.write(
+            '$rowStr ${'M='.padRight(2 + selector.radix ~/ 2)}     S= : ');
       }
       final entry = partialProducts[row].reversed.toList();
       final prefixCnt =

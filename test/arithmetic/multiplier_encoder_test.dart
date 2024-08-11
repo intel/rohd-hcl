@@ -52,18 +52,24 @@ void checkEvaluateRandom(PartialProductGenerator pp, int nSamples) {
 
 void main() {
   test('single MAC partial product test', () async {
-    final encoder = RadixEncoder(4);
-    const widthX = 4;
-    const widthY = 4;
+    final encoder = RadixEncoder(16);
+    const widthX = 8;
+    const widthY = 18;
 
-    const i = 8;
-    var j = pow(2, widthY - 1).toInt();
-    j = 2;
-    const k = 128;
+    const signed = true;
+
+    // const i = 8;
+    // var j = pow(2, widthY - 1).toInt();
+    // j = 2;
+    // const k = 128;
+    const i = 1478;
+    const j = 9;
+    const k = 0;
 
     final X = BigInt.from(i).toSigned(widthX);
     final Y = BigInt.from(j).toSigned(widthY);
     final Z = BigInt.from(k).toSigned(widthX + widthY);
+    print('X=$X Y=$Y, Z=$Z');
     final product = X * Y + Z;
 
     final logicX = Logic(name: 'X', width: widthX);
@@ -73,14 +79,24 @@ void main() {
     logicY.put(Y);
     logicZ.put(Z);
     final pp = PartialProductGenerator(logicX, logicY, encoder);
+
+    final lastLength =
+        pp.partialProducts[pp.rows - 1].length + pp.rowShift[pp.rows - 1];
+
+    final sign = signed ? logicZ[logicZ.width - 1] : Const(0);
+    final l = [for (var i = 0; i < logicZ.width; i++) logicZ[i]];
+    while (l.length < lastLength) {
+      l.add(sign);
+    }
+    l
+      ..add(~sign)
+      ..add(Const(1));
+    print('lastL=$lastLength');
     // Add a row for addend
-    final l = [
-      for (var i = 0; i < logicZ.width; i++) logicZ[i],
-      Const(0),
-      Const(1)
-    ];
-    pp.partialProducts.add(l);
-    pp.rowShift.add(0);
+    print(pp);
+    pp.partialProducts.insert(0, l);
+    pp.rowShift.insert(0, 0);
+    print(pp);
 
     if (pp.evaluate() != product) {
       stdout.write('Fail: $X * $Y: ${pp.evaluate()} vs expected $product\n');
