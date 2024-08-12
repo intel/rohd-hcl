@@ -91,7 +91,7 @@ class MultiplierEncoder {
 
   /// Generate an encoding of the input multiplier
   MultiplierEncoder(this.multiplier, RadixEncoder radixEncoder,
-      {bool signed = true})
+      {required bool signed})
       : _encoder = radixEncoder,
         _sliceWidth = log2Ceil(radixEncoder.radix) + 1 {
     // Unsigned encoding wants to overlap past the multipler
@@ -144,7 +144,7 @@ class MultiplicandSelector {
   late LogicArray multiples;
 
   /// Generate required multiples of multiplicand
-  MultiplicandSelector(this.radix, this.multiplicand, {bool signed = true})
+  MultiplicandSelector(this.radix, this.multiplicand, {required bool signed})
       : shift = log2Ceil(radix) {
     if (radix > 16) {
       throw RohdHclException('Radices beyond 16 are not yet supported');

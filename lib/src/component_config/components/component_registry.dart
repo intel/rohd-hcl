@@ -24,5 +24,6 @@ List<Configurator> get componentRegistry => [
       EdgeDetectorConfigurator(),
       FindConfigurator(),
       ParallelPrefixAdderConfigurator(),
-      CompressionTreeMultiplierConfigurator(),
+      // TODO(desmonddak): fix conversion path to schematic
+      // CompressionTreeMultiplierConfigurator(),
     ];

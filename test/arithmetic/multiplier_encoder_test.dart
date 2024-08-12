@@ -76,7 +76,7 @@ void main() {
     logicX.put(X);
     logicY.put(Y);
     logicZ.put(Z);
-    final pp = PartialProductGenerator(logicX, logicY, encoder);
+    final pp = PartialProductGenerator(logicX, logicY, encoder, signed: true);
 
     final lastLength =
         pp.partialProducts[pp.rows - 1].length + pp.rowShift[pp.rows - 1];

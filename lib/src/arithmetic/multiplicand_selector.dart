@@ -29,7 +29,7 @@ class MultiplicandSelector {
   late LogicArray multiples;
 
   /// Generate required multiples of multiplicand
-  MultiplicandSelector(this.radix, this.multiplicand, {bool signed = true})
+  MultiplicandSelector(this.radix, this.multiplicand, {required bool signed})
       : shift = log2Ceil(radix) {
     if (radix > 16) {
       throw RohdHclException('Radices beyond 16 are not yet supported');

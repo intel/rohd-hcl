@@ -42,6 +42,7 @@ class CarrySaveMultiplier extends Multiplier {
   CarrySaveMultiplier(super.a, super.b,
       {required Logic clk,
       required Logic reset,
+      required super.signed,
       super.name = 'carry_save_multiplier'}) {
     if (a.width != b.width) {
       throw RohdHclException('inputs of a and b should have same width.');

@@ -37,7 +37,7 @@ void testMultiplyAccumulateRandom(int width, int iterations,
   final c = Logic(name: 'c', width: width * 2);
   final mod = fn(a, b, c);
   test('random_${mod.name}_S${mod.signed}_W${width}_I$iterations', () async {
-    final multiplyOnly = mod is MultiplyOnly;
+    final multiplyOnly = mod is MutiplyOnly;
     await mod.build();
     final signed = mod.signed;
     final value = Random(47);
@@ -68,7 +68,7 @@ void testMultiplyAccumulateExhaustive(
   test('exhaustive_${mod.name}_S${mod.signed}_W$width', () async {
     await mod.build();
     final signed = mod.signed;
-    final multiplyOnly = mod is MultiplyOnly;
+    final multiplyOnly = mod is MutiplyOnly;
 
     final cLimit = multiplyOnly ? 1 : (1 << (2 * width));
 
@@ -86,7 +86,6 @@ void testMultiplyAccumulateExhaustive(
               : signed
                   ? BigInt.from(cc).toSigned(2 * width)
                   : BigInt.from(cc).toUnsigned(2 * width);
-
           checkMultiplyAccumulate(mod, bA, bB, bC);
         }
       }
@@ -94,62 +93,65 @@ void testMultiplyAccumulateExhaustive(
   });
 }
 
+typedef MultiplyAccumulateCallback = MultiplyAccumulate Function(
+    Logic a, Logic b, Logic c);
+
+typedef MultiplierCallback = Multiplier Function(Logic a, Logic b);
+
 void main() {
   tearDown(() async {
     await Simulator.reset();
   });
 
-  // Use MAC tester for Multiply
+  MultiplierCallback curryCompressionTreeMultiplier(
+          int radix,
+          ParallelPrefix Function(List<Logic>, Logic Function(Logic, Logic))
+              ppTree,
+          {required bool signed}) =>
+      (a, b) => CompressionTreeMultiplier(a, b, radix, ppTree, signed: signed);
 
-  // First curry the Multiplier
-  Multiplier currySignedMultiplier(Logic a, Logic b) =>
-      CompressionTreeMultiplier(a, b, 4, KoggeStone.new, signed: true);
+  MultiplyAccumulateCallback curryMultiplierasMultiplyAccumulate(
+          int radix,
+          ParallelPrefix Function(List<Logic>, Logic Function(Logic, Logic))
+              ppTree,
+          {required bool signed}) =>
+      (a, b, c) => MutiplyOnly(a, b, c,
+          curryCompressionTreeMultiplier(radix, ppTree, signed: signed));
 
-  Multiplier curryUnsignedMultiplier(Logic a, Logic b) =>
-      CompressionTreeMultiplier(a, b, 4, KoggeStone.new);
+  MultiplyAccumulateCallback curryMultiplyAccumulate(
+          int radix,
+          ParallelPrefix Function(List<Logic>, Logic Function(Logic, Logic))
+              ppTree,
+          {required bool signed}) =>
+      (a, b, c) => CompressionTreeMultiplyAccumulate(a, b, c, radix, ppTree,
+          signed: signed);
 
-  // Now treat the multiplier as a MAC with a zero input addend [c]
-  MultiplyAccumulate currySignedMultiplierAsMAC(Logic a, Logic b, Logic c) =>
-      MultiplyOnly(a, b, c, currySignedMultiplier);
-
-  MultiplyAccumulate curryUnsignedMultiplierAsMAC(Logic a, Logic b, Logic c) =>
-      MultiplyOnly(a, b, c, curryUnsignedMultiplier);
-
-  group('test Compression Tree Multiplier Randomly', () {
-    for (final width in [4, 5, 6, 11]) {
-      testMultiplyAccumulateRandom(width, 30, currySignedMultiplierAsMAC);
-      testMultiplyAccumulateRandom(width, 30, curryUnsignedMultiplierAsMAC);
+  group('Curried Test of Compression Tree Multiplier', () {
+    for (final signed in [false, true]) {
+      for (final radix in [2, 16]) {
+        for (final width in [5, 6]) {
+          for (final ppTree in [KoggeStone.new, BrentKung.new]) {
+            testMultiplyAccumulateRandom(
+                width,
+                10,
+                curryMultiplierasMultiplyAccumulate(radix, ppTree,
+                    signed: signed));
+          }
+        }
+      }
     }
   });
-  group('test Compression Tree Multiplier Exhaustive', () {
-    for (final width in [4, 5]) {
-      testMultiplyAccumulateExhaustive(width, currySignedMultiplierAsMAC);
-      testMultiplyAccumulateExhaustive(width, curryUnsignedMultiplierAsMAC);
-    }
-  });
 
-  MultiplyAccumulate currySignedCompressionTreeMultiplyAccumulate(
-          Logic a, Logic b, Logic c) =>
-      CompressionTreeMultiplyAccumulate(a, b, c, 4, KoggeStone.new,
-          signed: true);
-  MultiplyAccumulate curryUnsignedCompressionTreeMultiplyAccumulate(
-          Logic a, Logic b, Logic c) =>
-      CompressionTreeMultiplyAccumulate(a, b, c, 4, KoggeStone.new);
-
-  group('test Multiply Accumulate Random', () {
-    for (final width in [4, 5, 6, 11]) {
-      testMultiplyAccumulateRandom(
-          width, 30, currySignedCompressionTreeMultiplyAccumulate);
-      testMultiplyAccumulateRandom(
-          width, 30, curryUnsignedCompressionTreeMultiplyAccumulate);
-    }
-  });
-  group('test Multiply Accumulate Exhaustive', () {
-    for (final width in [3, 4]) {
-      testMultiplyAccumulateExhaustive(
-          width, currySignedCompressionTreeMultiplyAccumulate);
-      testMultiplyAccumulateExhaustive(
-          width, curryUnsignedCompressionTreeMultiplyAccumulate);
+  group('Curried Test of Compression Tree Multiplier Accumulate', () {
+    for (final signed in [false, true]) {
+      for (final radix in [2, 16]) {
+        for (final width in [5, 6]) {
+          for (final ppTree in [KoggeStone.new, BrentKung.new]) {
+            testMultiplyAccumulateRandom(width, 10,
+                curryMultiplyAccumulate(radix, ppTree, signed: signed));
+          }
+        }
+      }
     }
   });
 

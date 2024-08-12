@@ -64,7 +64,7 @@ class PartialProductGenerator {
   late final MultiplicandSelector selector;
 
   /// Operands are signed
-  late bool signed = true;
+  final bool signed;
 
   // Used to avoid sign extending more than once
   var _signExtended = false;
@@ -72,7 +72,7 @@ class PartialProductGenerator {
   /// Construct the partial product matrix
   PartialProductGenerator(
       Logic multiplicand, Logic multiplier, RadixEncoder radixEncoder,
-      {this.signed = true,
+      {required this.signed,
       SignExtension signExtension = SignExtension.compactRect}) {
     encoder = MultiplierEncoder(multiplier, radixEncoder, signed: signed);
     selector =
