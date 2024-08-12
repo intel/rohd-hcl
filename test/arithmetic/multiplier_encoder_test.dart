@@ -104,6 +104,14 @@ void main() {
     expect(pp.evaluate(), equals(product));
   });
 
+  test('majority function', () async {
+    expect(LogicValue.ofBigInt(BigInt.from(7), 5).majority(), true);
+    expect(LogicValue.ofBigInt(BigInt.from(7) << 1, 5).majority(), true);
+    expect(LogicValue.ofBigInt(BigInt.from(11) << 1, 5).majority(), true);
+    expect(LogicValue.ofBigInt(BigInt.from(9) << 1, 5).majority(), false);
+    expect(LogicValue.ofBigInt(BigInt.from(7) << 3, 7).majority(), false);
+  });
+
   // This is a two-minute exhaustive but quick test
   test('exhaustive partial product evaluate: square radix-4, all extension',
       () async {

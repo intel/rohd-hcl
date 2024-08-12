@@ -510,7 +510,7 @@ class PartialProductGenerator {
       if (row < encoder.rows) {
         final encoding = encoder.getEncoding(row);
         if (encoding.multiples.value.isValid) {
-          final multiple = encoding.multiples.value.firstOne() + 1;
+          final multiple = encoding.multiples.value.firstOne()! + 1;
           str.write('$rowStr M=${encoding.multiples.reversed.value.bitString}'
               '(${multiple.toString().padLeft(2)}) '
               'S=${encoding.sign.value.toInt()}: ');

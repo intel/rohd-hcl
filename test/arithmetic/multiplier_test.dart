@@ -110,7 +110,7 @@ void main() {
           {required bool signed}) =>
       (a, b) => CompressionTreeMultiplier(a, b, radix, ppTree, signed: signed);
 
-  MultiplyAccumulateCallback curryMultiplierasMultiplyAccumulate(
+  MultiplyAccumulateCallback curryMultiplierAsMultiplyAccumulate(
           int radix,
           ParallelPrefix Function(List<Logic>, Logic Function(Logic, Logic))
               ppTree,
@@ -134,7 +134,7 @@ void main() {
             testMultiplyAccumulateRandom(
                 width,
                 10,
-                curryMultiplierasMultiplyAccumulate(radix, ppTree,
+                curryMultiplierAsMultiplyAccumulate(radix, ppTree,
                     signed: signed));
           }
         }

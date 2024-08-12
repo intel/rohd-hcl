@@ -27,24 +27,23 @@ extension LogicValueMajority on LogicValue {
     var shiftedValue = this;
     var result = 0;
     while (shiftedValue != zero) {
-      result++;
+      result += (shiftedValue[0] & LogicValue.one == LogicValue.one) ? 1 : 0;
       shiftedValue >>>= 1;
     }
     return result > (width ~/ 2);
   }
 
   /// Compute the first One find operation on LogicValue, returning its position
-  int firstOne() {
+  int? firstOne() {
     if (!isValid) {
-      return -1;
+      return null;
     }
     var shiftedValue = this;
     var result = 0;
     while (shiftedValue[0] != LogicValue.one) {
       result++;
       if (result == width) {
-        result = -1;
-        break;
+        return null;
       }
       shiftedValue >>>= 1;
     }
