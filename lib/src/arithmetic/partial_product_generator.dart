@@ -91,13 +91,13 @@ class PartialProductGenerator {
       case SignExtension.none:
         ;
       case SignExtension.brute:
-        bruteForceSignExtend();
+        _bruteForceSignExtend();
       case SignExtension.stop:
-        signExtendWithStopBitsRect();
+        _signExtendWithStopBitsRect();
       case SignExtension.compact:
-        signExtendCompact();
+        _signExtendCompact();
       case SignExtension.compactRect:
-        signExtendCompactRect();
+        _signExtendCompactRect();
     }
   }
 
@@ -114,7 +114,7 @@ class PartialProductGenerator {
   }
 
   /// Fully sign extend the PP array: useful for reference only
-  void bruteForceSignExtend() {
+  void _bruteForceSignExtend() {
     if (_signExtended) {
       throw RohdHclException('Partial Product array already sign-extended');
     }
@@ -142,7 +142,7 @@ class PartialProductGenerator {
   /// enough that carry bit lands outside another row).
   /// This technique can then be combined with a first-row extension technique
   /// for folding in the final carry.
-  void signExtendWithStopBitsRect() {
+  void _signExtendWithStopBitsRect() {
     if (_signExtended) {
       throw RohdHclException('Partial Product array already sign-extended');
     }
@@ -219,7 +219,7 @@ class PartialProductGenerator {
   }
 
   /// Sign extend the PP array using stop bits without adding a row.
-  void signExtendCompact() {
+  void _signExtendCompact() {
     // An implementation of
     // Mohanty, B.K., Choubey, A. Efficient Design for Radix-8 Booth Multiplier
     // and Its Application in Lifting 2-D DWT. Circuits Syst Signal Process 36,
@@ -323,7 +323,7 @@ class PartialProductGenerator {
   /// This routine works with different widths of multiplicand/multiplier,
   /// an extension of Mohanty, B.K., Choubey designed by
   /// Desmond A. Kirkpatrick
-  void signExtendCompactRect() {
+  void _signExtendCompactRect() {
     if (_signExtended) {
       throw RohdHclException('Partial Product array already sign-extended');
     }
@@ -462,7 +462,11 @@ class PartialProductGenerator {
     }
     return maxW;
   }
+}
 
+/// Debug routines for printing out partial product matrix during
+/// simulation with live logic values
+extension EvaluateLivePartialProduct on PartialProductGenerator {
   /// Accumulate the partial products and return as BigInt
   BigInt evaluate() {
     final maxW = maxWidth();
@@ -479,8 +483,7 @@ class PartialProductGenerator {
   }
 
   /// Print out the partial product matrix
-  @override
-  String toString() {
+  String representation() {
     final str = StringBuffer();
 
     final maxW = maxWidth();

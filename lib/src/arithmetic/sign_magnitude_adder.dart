@@ -28,12 +28,17 @@ class SignMagnitudeAdder extends Adder {
   /// The sign of the result
   Logic get sign => output('sign');
 
+  /// If largest magnitude negative is first argument, no compare and
+  /// swap is needed.
+  bool largestNegativeFirst;
+
   late final Logic _out;
   late final Logic _carry = Logic();
 
   /// [SignMagnitudeAdder] constructor with an unsigned adder functor
   SignMagnitudeAdder(Logic as, super.a, Logic bs, super.b,
-      Adder Function(Logic, Logic) adderGen)
+      Adder Function(Logic, Logic) adderGen,
+      {this.largestNegativeFirst = false})
       : _out = Logic(width: a.width),
         super(
             name: 'Ones Complement Adder: '
@@ -42,6 +47,9 @@ class SignMagnitudeAdder extends Adder {
     bSign = addInput('bSign', bs);
     final sign = addOutput('sign');
 
+    final computeSign = mux(largestNegativeFirst ? Const(1) : Const(0), aSign,
+        mux(a.lt(b) & aSign, bSign, aSign));
+
     final aOnesComplement = mux(aSign, ~a, a);
     final bOnesComplement = mux(bSign, ~b, b);
 
@@ -49,7 +57,7 @@ class SignMagnitudeAdder extends Adder {
     final endAround = adder.carryOut & (aSign | bSign);
     final localOut = mux(endAround, adder.sum + 1, adder.sum);
 
-    sign <= aSign;
+    sign <= computeSign;
     _out <= mux(sign, ~localOut, localOut).slice(_out.width - 1, 0);
     _carry <= localOut.slice(localOut.width - 1, localOut.width - 1);
   }
@@ -61,8 +69,4 @@ class SignMagnitudeAdder extends Adder {
   @override
   @protected
   Logic calculateCarry() => _carry;
-
-  @override
-  @protected
-  Logic calculateSum() => [_carry, _out].swizzle();
 }

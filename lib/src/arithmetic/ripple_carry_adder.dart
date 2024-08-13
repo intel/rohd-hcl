@@ -47,8 +47,4 @@ class RippleCarryAdder extends Adder {
   @override
   @protected
   Logic calculateCarry() => _carry;
-
-  @override
-  @protected
-  Logic calculateSum() => [_carry, _out].swizzle();
 }

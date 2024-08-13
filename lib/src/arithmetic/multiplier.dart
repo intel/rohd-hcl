@@ -60,7 +60,7 @@ abstract class MultiplyAccumulate extends Module {
   /// Take input [a] and input [b], compute their
   /// product, add input [c] to produce the [accumulate] result.
   MultiplyAccumulate(Logic a, Logic b, Logic c,
-      {this.signed = false, super.name}) {
+      {required this.signed, super.name}) {
     this.a = addInput('a', a, width: a.width);
     this.b = addInput('b', b, width: b.width);
     this.c = addInput('c', c, width: c.width);
@@ -103,7 +103,7 @@ class CompressionTreeMultiplyAccumulate extends MultiplyAccumulate {
   ///   a given radix and final adder functor
   CompressionTreeMultiplyAccumulate(super.a, super.b, super.c, int radix,
       ParallelPrefix Function(List<Logic>, Logic Function(Logic, Logic)) ppTree,
-      {super.signed = false})
+      {required super.signed})
       : super(
             name: 'Compression Tree Multiply Accumulate: '
                 'R${radix}_${ppTree.call([Logic()], (a, b) => Logic()).name}') {
@@ -154,7 +154,8 @@ class MutiplyOnly extends MultiplyAccumulate {
   /// Construct a MultiplyAccumulate that only multiplies to enable
   /// using the same tester with zero addend.
   MutiplyOnly(super.a, super.b, super.c,
-      Multiplier Function(Logic a, Logic b) multiplyGenerator)
+      Multiplier Function(Logic a, Logic b) multiplyGenerator,
+      {super.signed = false}) // Will be overrwridden by multiplyGenerator
       : super(name: 'Multiply Only: ${multiplyGenerator.call(a, b).name}') {
     final accumulate = addOutput('accumulate', width: a.width + b.width + 1);
 

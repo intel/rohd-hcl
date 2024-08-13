@@ -30,10 +30,6 @@ abstract class Adder extends Module {
   /// The addition results [sum] including carry bit
   Logic get sum => output('sum');
 
-  /// Implementation needs to provide a method for calculating the full sum
-  @protected
-  Logic calculateSum();
-
   /// Implementation needs to provide a method for calculating the sum
   /// without carry
   @protected
@@ -57,7 +53,7 @@ abstract class Adder extends Module {
 
     out <= calculateOut();
     carryOut <= calculateCarry();
-    sum <= calculateSum();
+    sum <= [carryOut, out].swizzle();
   }
 }
 

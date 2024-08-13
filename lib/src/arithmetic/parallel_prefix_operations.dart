@@ -237,10 +237,6 @@ class ParallelPrefixAdder extends Adder {
   @override
   @protected
   Logic calculateCarry() => _carry;
-
-  @override
-  @protected
-  Logic calculateSum() => [_carry, _out].swizzle();
 }
 
 /// Incrementer based on ParallelPrefix tree
