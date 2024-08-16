@@ -121,7 +121,7 @@ void main() {
       final pp = PartialProductGenerator(a, b, encoder, signed: signed);
       // Turn on printing by using widthX == 6 (we are fooling the dead code
       // checking linter here)
-      // print(pp);
+      // print(pp.representation());
       expect(pp.evaluate(), equals(BigInt.from(av * bv)));
       final compressor = ColumnCompressor(pp);
       // print('eval: ${compressor.evaluate(printOut: output)}');

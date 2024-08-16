@@ -93,10 +93,11 @@ void main() {
       ..add(Const(1));
     // print('lastL=$lastLength');
     // Add a row for addend
-    // print(pp);
+    // print(pp.representation());
+
     pp.partialProducts.insert(0, l);
     pp.rowShift.insert(0, 0);
-    // print(pp);
+    // print(pp.representation());
 
     if (pp.evaluate() != product) {
       stdout.write('Fail: $X * $Y: ${pp.evaluate()} vs expected $product\n');

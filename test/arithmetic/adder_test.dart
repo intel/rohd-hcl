@@ -110,10 +110,9 @@ void testExhaustiveSignMagnitude(int n, Adder Function(Logic a, Logic b) fn) {
   final bSign = Logic(name: 'bSign');
   final b = Logic(name: 'b', width: n);
 
-  final adder = SignMagnitudeAdder(aSign, a, bSign, b, fn);
-  test('exhaustive Sign Magnitude: ${adder.name}_W${a.width}', () async {
-    await adder.build();
-
+  final adder =
+      SignMagnitudeAdder(aSign, a, bSign, b, fn, largestNegativeFirst: true);
+  test('exhaustive Sign Magnitude: ${adder.name}_W${a.width}', () {
     for (var i = 0; i < pow(2, n); i += 1) {
       for (var j = 0; j < pow(2, n); j += 1) {
         final bI = BigInt.from(i).toSigned(n);
@@ -150,7 +149,8 @@ void testRandomSignMagnitude(
   final bSign = Logic(name: 'bSign');
   final b = Logic(name: 'b', width: width);
 
-  final adder = SignMagnitudeAdder(aSign, a, bSign, b, fn);
+  final adder =
+      SignMagnitudeAdder(aSign, a, bSign, b, fn, largestNegativeFirst: true);
   test('random Sign Magnitude: ${adder.name}_W${a.width}', () async {
     await adder.build();
 
