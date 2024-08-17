@@ -14,9 +14,9 @@ import 'package:rohd_hcl/src/arithmetic/parallel_prefix_operations.dart';
 import 'package:test/test.dart';
 
 void testOrScan(int n, ParallelPrefixOrScan Function(Logic a) fn) {
-  test('or_scan_$n', () async {
-    final inp = Logic(name: 'inp', width: n);
-    final mod = fn(inp);
+  final inp = Logic(name: 'inp', width: n);
+  final mod = fn(inp);
+  test('or_scan_${n}_${mod.name}', () async {
     await mod.build();
 
     int computeOrScan(int j) {
@@ -45,9 +45,9 @@ void testOrScan(int n, ParallelPrefixOrScan Function(Logic a) fn) {
 
 void testPriorityFinder(
     int n, ParallelPrefixPriorityFinder Function(Logic a) fn) {
-  test('priority_encoder_$n', () async {
-    final inp = Logic(name: 'inp', width: n);
-    final mod = fn(inp);
+  final inp = Logic(name: 'inp', width: n);
+  final mod = fn(inp);
+  test('priority_finder_${n}_${mod.name}', () async {
     await mod.build();
 
     int computePriorityLocation(int j) {
@@ -73,9 +73,9 @@ void testPriorityFinder(
 
 void testPriorityEncoder(
     int n, ParallelPrefixPriorityEncoder Function(Logic a) fn) {
-  test('priority_encoder_$n', () async {
-    final inp = Logic(name: 'inp', width: n);
-    final mod = fn(inp);
+  final inp = Logic(name: 'inp', width: n);
+  final mod = fn(inp);
+  test('priority_encoder_${n}_${mod.name}', () async {
     await mod.build();
 
     int computePriorityEncoding(int j) {
@@ -100,9 +100,9 @@ void testPriorityEncoder(
 }
 
 void testIncr(int n, ParallelPrefixIncr Function(Logic a) fn) {
-  test('incr_$n', () async {
-    final inp = Logic(name: 'inp', width: n);
-    final mod = fn(inp);
+  final inp = Logic(name: 'inp', width: n);
+  final mod = fn(inp);
+  test('incr_${n}_${mod.name}', () async {
     await mod.build();
 
     int computeIncr(int aa) => (aa + 1) & ((1 << n) - 1);
@@ -120,9 +120,9 @@ void testIncr(int n, ParallelPrefixIncr Function(Logic a) fn) {
 }
 
 void testDecr(int n, ParallelPrefixDecr Function(Logic a) fn) {
-  test('decr_$n', () async {
-    final inp = Logic(name: 'inp', width: n);
-    final mod = fn(inp);
+  final inp = Logic(name: 'inp', width: n);
+  final mod = fn(inp);
+  test('decr_${n}_${mod.name}', () async {
     await mod.build();
 
     int computeDecr(int aa) => (aa - 1) % (1 << n);

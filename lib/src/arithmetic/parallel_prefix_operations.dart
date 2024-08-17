@@ -11,7 +11,6 @@
 import 'dart:math';
 
 import 'package:collection/collection.dart';
-import 'package:meta/meta.dart';
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
 
@@ -162,10 +161,12 @@ class ParallelPrefixOrScan extends Module {
   Logic get out => output('out');
 
   /// OrScan constructor
-  ParallelPrefixOrScan(
-      Logic inp,
-      ParallelPrefix Function(List<Logic>, Logic Function(Logic, Logic))
-          ppGen) {
+  ParallelPrefixOrScan(Logic inp,
+      ParallelPrefix Function(List<Logic>, Logic Function(Logic, Logic)) ppGen)
+      : super(
+            name: 'ParallelPrefixOrScan: ${ppGen.call([
+              Logic()
+            ], (a, b) => Logic()).name}') {
     inp = addInput('inp', inp, width: inp.width);
     final u = ppGen(inp.elements, (a, b) => a | b);
     addOutput('out', width: inp.width) <= u.val.rswizzle();
@@ -179,10 +180,12 @@ class ParallelPrefixPriorityFinder extends Module {
   Logic get out => output('out');
 
   /// Priority Finder constructor
-  ParallelPrefixPriorityFinder(
-      Logic inp,
-      ParallelPrefix Function(List<Logic>, Logic Function(Logic, Logic))
-          ppGen) {
+  ParallelPrefixPriorityFinder(Logic inp,
+      ParallelPrefix Function(List<Logic>, Logic Function(Logic, Logic)) ppGen)
+      : super(
+            name: 'ParallelPrefixFinder: ${ppGen.call([
+              Logic()
+            ], (a, b) => Logic()).name}') {
     inp = addInput('inp', inp, width: inp.width);
     final u = ParallelPrefixOrScan(inp, ppGen);
     addOutput('out', width: inp.width) <= (u.out & ~(u.out << Const(1)));
@@ -196,10 +199,12 @@ class ParallelPrefixPriorityEncoder extends Module {
   Logic get out => output('out');
 
   /// PriorityEncoder constructor
-  ParallelPrefixPriorityEncoder(
-      Logic inp,
-      ParallelPrefix Function(List<Logic>, Logic Function(Logic, Logic))
-          ppGen) {
+  ParallelPrefixPriorityEncoder(Logic inp,
+      ParallelPrefix Function(List<Logic>, Logic Function(Logic, Logic)) ppGen)
+      : super(
+            name: 'ParallelPrefixEncoder: ${ppGen.call([
+              Logic()
+            ], (a, b) => Logic()).name}') {
     inp = addInput('inp', inp, width: inp.width);
     addOutput('out', width: log2Ceil(inp.width));
     final u = ParallelPrefixPriorityFinder(inp, ppGen);
@@ -209,14 +214,11 @@ class ParallelPrefixPriorityEncoder extends Module {
 
 /// Adder based on ParallelPrefix tree
 class ParallelPrefixAdder extends Adder {
-  final Logic _out;
-  final Logic _carry = Logic();
-
   /// Adder constructor
   ParallelPrefixAdder(super.a, super.b,
       ParallelPrefix Function(List<Logic>, Logic Function(Logic, Logic)) ppGen)
-      : _out = Logic(width: a.width),
-        super(
+      // : _out = Logic(width: a.width),
+      : super(
             name: 'ParallelPrefixAdder: ${ppGen.call([
               Logic()
             ], (a, b) => Logic()).name}') {
@@ -224,19 +226,15 @@ class ParallelPrefixAdder extends Adder {
         List<Logic>.generate(
             a.width, (i) => [a[i] & b[i], a[i] | b[i]].swizzle()),
         (lhs, rhs) => [rhs[1] | rhs[0] & lhs[1], rhs[0] & lhs[0]].swizzle());
-    _carry <= u.val[a.width - 1][1];
-    _out <=
-        List<Logic>.generate(a.width,
-                (i) => (i == 0) ? a[i] ^ b[i] : a[i] ^ b[i] ^ u.val[i - 1][1])
-            .rswizzle();
+    // carryOut <= u.val[a.width - 1][1];
+    sum <=
+        [
+          u.val[a.width - 1][1],
+          List<Logic>.generate(a.width,
+                  (i) => (i == 0) ? a[i] ^ b[i] : a[i] ^ b[i] ^ u.val[i - 1][1])
+              .rswizzle()
+        ].swizzle();
   }
-  @override
-  @protected
-  Logic calculateOut() => _out;
-
-  @override
-  @protected
-  Logic calculateCarry() => _carry;
 }
 
 /// Incrementer based on ParallelPrefix tree
@@ -245,10 +243,12 @@ class ParallelPrefixIncr extends Module {
   Logic get out => output('out');
 
   /// Increment constructor
-  ParallelPrefixIncr(
-      Logic inp,
-      ParallelPrefix Function(List<Logic>, Logic Function(Logic, Logic))
-          ppGen) {
+  ParallelPrefixIncr(Logic inp,
+      ParallelPrefix Function(List<Logic>, Logic Function(Logic, Logic)) ppGen)
+      : super(
+            name: 'ParallelPrefixIncr: ${ppGen.call([
+              Logic()
+            ], (a, b) => Logic()).name}') {
     inp = addInput('inp', inp, width: inp.width);
     final u = ppGen(inp.elements, (lhs, rhs) => rhs & lhs);
     addOutput('out', width: inp.width) <=
@@ -264,10 +264,12 @@ class ParallelPrefixDecr extends Module {
   Logic get out => output('out');
 
   /// Decrement constructor
-  ParallelPrefixDecr(
-      Logic inp,
-      ParallelPrefix Function(List<Logic>, Logic Function(Logic, Logic))
-          ppGen) {
+  ParallelPrefixDecr(Logic inp,
+      ParallelPrefix Function(List<Logic>, Logic Function(Logic, Logic)) ppGen)
+      : super(
+            name: 'ParallelPrefixDecr: ${ppGen.call([
+              Logic()
+            ], (a, b) => Logic()).name}') {
     inp = addInput('inp', inp, width: inp.width);
     final u = ppGen((~inp).elements, (lhs, rhs) => rhs & lhs);
     addOutput('out', width: inp.width) <=

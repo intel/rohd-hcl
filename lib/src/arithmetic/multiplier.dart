@@ -89,7 +89,7 @@ class CompressionTreeMultiplier extends Multiplier {
     final compressor = ColumnCompressor(pp)..compress();
     final adder = ParallelPrefixAdder(
         compressor.extractRow(0), compressor.extractRow(1), ppTree);
-    product <= adder.out.slice(a.width + b.width - 1, 0);
+    product <= adder.sum.slice(a.width + b.width - 1, 0);
   }
 }
 
@@ -141,7 +141,7 @@ class CompressionTreeMultiplyAccumulate extends MultiplyAccumulate {
 
     final adder = ParallelPrefixAdder(
         compressor.extractRow(0), compressor.extractRow(1), ppTree);
-    accumulate <= adder.out.slice(a.width + b.width, 0);
+    accumulate <= adder.sum.slice(a.width + b.width, 0);
   }
 }
 

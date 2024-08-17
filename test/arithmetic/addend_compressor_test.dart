@@ -63,7 +63,7 @@ void testCompressionExhaustive(PartialProductGenerator pp) {
       final b = compressor.extractRow(1);
       final adder = ParallelPrefixAdder(a, b, KoggeStone.new);
       final adderValue =
-          adder.out.value.toBigInt().toSigned(compressor.columns.length);
+          adder.sum.value.toBigInt().toSigned(compressor.columns.length);
       expect(adderValue, equals(product),
           reason: 'Fail:  $i($X)[$widthX] * $j($Y)[$widthY]: '
               '$adderValue vs expected $product'

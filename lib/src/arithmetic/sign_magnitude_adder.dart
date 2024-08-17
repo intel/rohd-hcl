@@ -11,11 +11,10 @@ import 'package:meta/meta.dart';
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
 
-/// An Adder which performs one's complement arithmetic using an unsigned
-/// adder that is passed in using a functor. This requires that a larger
-/// magnitude negative argumnet mus be the first 'a' argument. Enfording this
-/// is challenging in floating point as a smaller mantissa may be larger
-/// in magnitude due to the mantissa.
+/// An Adder which performs one's complement arithmetic using an
+/// adder that is passed in using a functor. If the caller can guarantee
+/// that the larger magnitude or negative value is provided first in 'a', then
+/// they can set 'largestMagnitudeFirst' to 'true' to avoid a comparator.
 class SignMagnitudeAdder extends Adder {
   /// The sign of the first input
   @protected
@@ -28,45 +27,36 @@ class SignMagnitudeAdder extends Adder {
   /// The sign of the result
   Logic get sign => output('sign');
 
-  /// If largest magnitude negative is first argument, no compare and
-  /// swap is needed.
-  bool largestNegativeFirst;
-
-  late final Logic _out;
-  late final Logic _carry = Logic();
+  /// Largest magnitude argument is provided in [a] or if equal
+  /// the argument with a negative sign.
+  bool largestMagnitudeFirst;
 
   /// [SignMagnitudeAdder] constructor with an unsigned adder functor
   SignMagnitudeAdder(Logic as, super.a, Logic bs, super.b,
       Adder Function(Logic, Logic) adderGen,
-      {this.largestNegativeFirst = false})
-      : _out = Logic(width: a.width),
-        super(
+      {this.largestMagnitudeFirst = false})
+      : super(
             name: 'Ones Complement Adder: '
                 '${adderGen.call(Logic(), Logic()).name}') {
     aSign = addInput('aSign', as);
     bSign = addInput('bSign', bs);
     final sign = addOutput('sign');
 
-    final computeSign = mux(largestNegativeFirst ? Const(1) : Const(0), aSign,
-        mux(a.lt(b) & aSign, bSign, aSign));
+    final bLarger = a.lt(b) | (a.eq(b) & bSign.gt(aSign));
 
-    final aOnesComplement = mux(aSign, ~a, a);
-    final bOnesComplement = mux(bSign, ~b, b);
+    final computeSign = mux(largestMagnitudeFirst ? Const(1) : Const(0), aSign,
+        mux(bLarger, bSign, aSign));
+
+    final ax = a.zeroExtend(a.width + 1);
+    final bx = b.zeroExtend(b.width + 1);
+
+    final aOnesComplement = mux(aSign, ~ax, ax);
+    final bOnesComplement = mux(bSign, ~bx, bx);
 
     final adder = adderGen(aOnesComplement, bOnesComplement);
-    final endAround = adder.carryOut & (aSign | bSign);
+    final endAround = adder.sum[-1] & (aSign | bSign);
     final localOut = mux(endAround, adder.sum + 1, adder.sum);
-
     sign <= computeSign;
-    _out <= mux(sign, ~localOut, localOut).slice(_out.width - 1, 0);
-    _carry <= localOut.slice(localOut.width - 1, localOut.width - 1);
+    sum <= mux(sign, ~localOut, localOut).slice(ax.width - 1, 0);
   }
-
-  @override
-  @protected
-  Logic calculateOut() => _out;
-
-  @override
-  @protected
-  Logic calculateCarry() => _carry;
 }
