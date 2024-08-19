@@ -1,6 +1,6 @@
 # Booth Encoding Multiplier Building Blocks
 
-The Compression Tree multipliers [`CompressionTreeMultiplier`](<https://intel.github.io/rohd-hcl/rohd_hcl/CompressionTreeMultiplier-class.html>) and [`CompressionTreeMultiplyAccumulate`](<https://intel.github.io/rohd-hcl/rohd_hcl/CompressionTreeMultiplyAccumulate-class.html>) use a set of building blocks that can also be used for building up other multipliers and arithmetic circuits.  These are from the family of Booth-encoding multipliers which are comprised of three major stages:
+The Compression Tree multipliers [`CompressionTreeMultiplier`] and [`CompressionTreeMultiplyAccumulate`] use a set of building blocks that can also be used for building up other multipliers and arithmetic circuits.  These are from the family of Booth-encoding multipliers which are comprised of three major stages:
 
 1) Booth radix encoding (typically radix-4) generating partial products
 2) Partial product array column compression to two addends
@@ -51,7 +51,7 @@ row  slice  mult
 
 A few things to note:  first, that we are negating by 1s complement (so we need a -0) and second, these rows do not add up to (18:  10010). For Booth encoded rows to add up properly, they need to be in 2s complement form and they need to be sign-extended.
 
- Here is the matrix with crude sign extension (this formatting is available from our [`PartialProductGenerator`](<https://intel.github.io/rohd-hcl/rohd_hcl/PartialProductGenerator-class.html>) component). With 2s complementation, and sign bits folded in (note the LSB of each row has a sign term from the previous row), these addends are correclty formed and add to (18: 10010).
+ Here is the matrix with crude sign extension (this formatting is available from our [`PartialProductGenerator`] component). With 2s complementation, and sign bits folded in (note the LSB of each row has a sign term from the previous row), these addends are correclty formed and add to (18: 10010).
 
 ```text
             7  6  5  4  3  2  1  0  
@@ -90,7 +90,7 @@ Note that radix-4 shifts by 2 positions each row, but with only two rows and wit
 
 ## Partial Product Generator
 
-This building block creates a set of rows of partial products from a multiplicand and a multiplier.  It maintains the partial products as a list of rows, which are themselves lists of Logic as well as a row shift value for each row to represent the starting column of the row's least-significant bit.  Its primary inputs are the multiplicand, multplier, [`RadixEncoder`](<https://intel.github.io/rohd-hcl/rohd_hcl/RadixEncoder-class.html>), whether the operands are signed, and the type of [`SignExtension`](<https://intel.github.io/rohd-hcl/rohd_hcl/SignExtension.html>) to use in generating the partial product rows.
+This building block creates a set of rows of partial products from a multiplicand and a multiplier.  It maintains the partial products as a list of rows, which are themselves lists of Logic as well as a row shift value for each row to represent the starting column of the row's least-significant bit.  Its primary inputs are the multiplicand, multplier, [`RadixEncoder`], whether the operands are signed, and the type of [`SignExtension`] to use in generating the partial product rows.
 
 The partial product generator produces a set of addends in shifted position to be added.  The main output of the component is
 
@@ -101,7 +101,7 @@ The partial product generator produces a set of addends in shifted position to b
 
 ### Radix Encoding
 
-An argument to the [`PartialProductGenerator`](<https://intel.github.io/rohd-hcl/rohd_hcl/PartialProductGenerator-class.html>) is the [`RadixEncoder`](<https://intel.github.io/rohd-hcl/rohd_hcl/RadixEncoder-class.html>) to be used.  The [`RadixEncoder`](<https://intel.github.io/rohd-hcl/rohd_hcl/RadixEncoder-class.html>) takes a single argument which is the radix (power of 2) to be used.
+An argument to the [`PartialProductGenerator`] is the [`RadixEncoder`] to be used.  The [`RadixEncoder`] takes a single argument which is the radix (power of 2) to be used.
 
 Instead of using the 1's in the multiplier to select shifted versions of the multiplicand to add in a partial product matrix, radix-encoding will encoding multiples of the multiplicand by examining adjacent bits of the multiplier.  For radix-4, for example, for a multiplier of size M, instead of M rows of partial products, M/2 rows are formed by selecting from multiples [-2, -1, 0, 1, 2] of the multiplicand.  These multiples are computed from an 3 bit  slices, overlapped by 1 bit, of the multiplier.  Higher radices use wider slices of the multiplier to encode fewer multiples and therefore fewer rows.
 
@@ -118,15 +118,15 @@ Instead of using the 1's in the multiplier to select shifted versions of the mul
 
 : Radix-4 Table
 
-Our [`RadixEncoder`](<https://intel.github.io/rohd-hcl/rohd_hcl/RadixEncoder-class.html>) module is general, creating selection tables for arbitrary Booth radices of powers of 2.  Currently we are limited to radix-16 because of challenges in creating the odd multiples efficiently, and there are more advanced techniques for efficiently generating higher radices than 16 than our current encoding/selection/partial-product generation scheme.
+Our [`RadixEncoder`] module is general, creating selection tables for arbitrary Booth radices of powers of 2.  Currently we are limited to radix-16 because of challenges in creating the odd multiples efficiently, and there are more advanced techniques for efficiently generating higher radices than 16 than our current encoding/selection/partial-product generation scheme.
 
 ### Sign Extension Option
 
-The [`PartialProductGenerator`](<https://intel.github.io/rohd-hcl/rohd_hcl/PartialProductGenerator-class.html>) class also provides for sign extension with multiple options including `SignExtension.none` which is no sign extension for help in debugging, as well as `SignExtension.compactRect` which is a compact form which works for rectangular products where the multiplicand and multiplier can be of different widths.
+The [`PartialProductGenerator`] class also provides for sign extension with multiple options including `SignExtension.none` which is no sign extension for help in debugging, as well as `SignExtension.compactRect` which is a compact form which works for rectangular products where the multiplicand and multiplier can be of different widths.
 
 ### Partial Proeduct Visualization
 
-Creating new arithmetic building blocks from these components is tricky and visualizing intermediate results really helps.  To that end, our [`PartialProductGenerator`](<https://intel.github.io/rohd-hcl/rohd_hcl/PartialProductGenerator-class.html>)  class has visualization extension [`EvaluatePartialProduct`](<https://intel.github.io/rohd-hcl/rohd_hcl/EvaluatePartialProduct-class.html>)  which help evaluate the current `Logic` values in array form during simulation to help with debug.  The evaluation routine with the extension also adds the addends for you to help sanity check the partial product generation.  The routine is `EvaluateLivePartialProduct.representation`.
+Creating new arithmetic building blocks from these components is tricky and visualizing intermediate results really helps.  To that end, our [`PartialProductGenerator`]  class has visualization extension [`EvaluatePartialProduct`]  which help evaluate the current `Logic` values in array form during simulation to help with debug.  The evaluation routine with the extension also adds the addends for you to help sanity check the partial product generation.  The routine is `EvaluateLivePartialProduct.representation`.
 
 ```text
              18 17 16 15 14 13 12 11 10 9  8  7  6  5  4  3  2  1  0  
@@ -142,7 +142,7 @@ Creating new arithmetic building blocks from these components is tricky and visu
 
 Once you have a partial product matrix, you would like to add up the addends.  Traditionally this is done using compression trees which instantate 2:1 and 3:2 column compressors (or carry-save adders) to reduce the matrix to two addends.  The final two addends are often added with an efficient final adder.
 
-Our [`ColumnCompressor`](<https://intel.github.io/rohd-hcl/rohd_hcl/ColumnCompressor-class.html>) class uses a delay-driven approach to efficiently compress the rows of the partial product matrix.  Its only arguement is a [`PartialProductGenerator`](<https://intel.github.io/rohd-hcl/rohd_hcl/PartialProductGenerator-class.html>) , and it creates a list of ColumnQueues containing the final two addends stored by column after compression. An extractRow() routine can be used to extract the columns.  [`ColumnCompressor`](<https://intel.github.io/rohd-hcl/rohd_hcl/ColumnCompressor-class.html>) currently has an extension [`EvaluateColumnCompressor`](<https://intel.github.io/rohd-hcl/rohd_hcl/EvaluateColumnCompressor-class.html>) which can be used to print out the compression progress. Here is the legend for these printouts.
+Our [`ColumnCompressor`] class uses a delay-driven approach to efficiently compress the rows of the partial product matrix.  Its only arguement is a [`PartialProductGenerator`] , and it creates a list of ColumnQueues containing the final two addends stored by column after compression. An extractRow() routine can be used to extract the columns.  [`ColumnCompressor`] currently has an extension [`EvaluateColumnCompressor`] which can be used to print out the compression progress. Here is the legend for these printouts.
 
 - ppR,C = partial product entry at row R, column C
 - sR,C = sum term coming last from row R, column C
@@ -184,11 +184,11 @@ Any adder can be used as the final adder of the final two addends produced from 
 
 Here is a code snippet that shows how these components can be used to create a multiplier.  
 
-First the partial product generator is used, which we pass in the [`RadixEncoder`](<https://intel.github.io/rohd-hcl/rohd_hcl/RadixEncoder-class.html>), whether the operands are signed, and the kind of sign extension to use on the partial products.
+First the partial product generator is used, which we pass in the [`RadixEncoder`], whether the operands are signed, and the kind of sign extension to use on the partial products.
 
-Next, we use the [`ColumnCompressor`](<https://intel.github.io/rohd-hcl/rohd_hcl/ColumnCompressor-class.html>)  to compress the partial products into two final addends.
+Next, we use the [`ColumnCompressor`]  to compress the partial products into two final addends.
 
-We then choose a[`ParallelPrefixAdder`](<https://intel.github.io/rohd-hcl/rohd_hcl/ParallelPrefixAdder-class.html>)  using the [`BrentKung`](<https://intel.github.io/rohd-hcl/rohd_hcl/BrentKung-class.html>)  tree style to do the addition.  We pass in the two extracted rows of the compressor.
+We then choose a[`ParallelPrefixAdder`]  using the [`BrentKung`]  tree style to do the addition.  We pass in the two extracted rows of the compressor.
 Finally, we produce the product.
 
 ```dart
