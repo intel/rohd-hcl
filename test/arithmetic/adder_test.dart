@@ -223,4 +223,35 @@ void main() {
           sortOperands: false);
     }
   });
+  test('trivial parallel prefix adder test', () async {
+    const width = 6;
+    final a = Logic(name: 'a', width: width);
+    final b = Logic(name: 'b', width: width);
+
+    a.put(18);
+    b.put(24);
+
+    final adder = ParallelPrefixAdder(a, b, BrentKung.new);
+
+    final sum = adder.sum;
+    expect(sum.value.toBigInt(), equals(BigInt.from(18 + 24)));
+  });
+  test('trivial sign magnitude adder test', () async {
+    const width = 6;
+    final aSign = Logic(name: 'aSign');
+    final a = Logic(name: 'a', width: width);
+    final bSign = Logic(name: 'bSign');
+    final b = Logic(name: 'b', width: width);
+
+    aSign.put(1);
+    a.put(24);
+    b.put(18);
+    bSign.put(0);
+
+    final adder = SignMagnitudeAdder(aSign, a, bSign, b, RippleCarryAdder.new,
+        largestMagnitudeFirst: true);
+
+    final sum = adder.sum;
+    expect(sum.value.toBigInt(), equals(BigInt.from(24 - 18)));
+  });
 }

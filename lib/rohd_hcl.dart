@@ -5,6 +5,7 @@ export 'src/arbiters/arbiters.dart';
 export 'src/arithmetic/adder.dart';
 export 'src/arithmetic/carry_save_mutiplier.dart';
 export 'src/arithmetic/multiplier.dart';
+export 'src/arithmetic/multiplier_lib.dart';
 export 'src/arithmetic/parallel_prefix_operations.dart';
 export 'src/arithmetic/ripple_carry_adder.dart';
 export 'src/arithmetic/sign_magnitude_adder.dart';

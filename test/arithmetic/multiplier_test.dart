@@ -217,4 +217,22 @@ void main() {
       checkMultiplyAccumulate(mod, bA, bB, bC);
     }
   });
+  test('trivial compression tree multiply-accumulate test', () async {
+    const widthA = 6;
+    const widthB = 6;
+    const radix = 8;
+    final a = Logic(name: 'a', width: widthA);
+    final b = Logic(name: 'b', width: widthB);
+    final c = Logic(name: 'c', width: widthA + widthB);
+
+    a.put(15);
+    b.put(3);
+    c.put(5);
+
+    final multiplier = CompressionTreeMultiplyAccumulate(
+        a, b, c, radix, KoggeStone.new,
+        signed: true);
+    final accumulate = multiplier.accumulate;
+    expect(accumulate.value.toBigInt(), equals(BigInt.from(15 * 3 + 5)));
+  });
 }

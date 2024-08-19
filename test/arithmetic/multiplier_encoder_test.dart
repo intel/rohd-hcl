@@ -12,7 +12,6 @@ import 'dart:math';
 
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
-import 'package:rohd_hcl/src/arithmetic/multiplier_lib.dart';
 import 'package:test/test.dart';
 
 void checkEvaluateExhaustive(PartialProductGenerator pp) {
@@ -56,10 +55,6 @@ void main() {
     const widthX = 8;
     const widthY = 18;
 
-    // const i = 8;
-    // var j = pow(2, widthY - 1).toInt();
-    // j = 2;
-    // const k = 128;
     const i = 1478;
     const j = 9;
     const k = 0;
@@ -91,8 +86,6 @@ void main() {
     l
       ..add(~sign)
       ..add(Const(1));
-    // print('lastL=$lastLength');
-    // Add a row for addend
     // print(pp.representation());
 
     pp.partialProducts.insert(0, l);

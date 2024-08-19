@@ -9,7 +9,6 @@
 
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
-import 'package:rohd_hcl/src/arithmetic/multiplier_lib.dart';
 
 /// A class accessing the multiples of the multiplicand at a position
 class MultiplicandSelector {

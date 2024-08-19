@@ -11,7 +11,6 @@ import 'dart:io';
 import 'dart:math';
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
-import 'package:rohd_hcl/src/arithmetic/multiplier_lib.dart';
 import 'package:test/test.dart';
 
 void testCompressionExhaustive(PartialProductGenerator pp) {
@@ -40,19 +39,19 @@ void testCompressionExhaustive(PartialProductGenerator pp) {
               'vs expected $product'
               '\n$pp');
       final evaluateValue = compressor.evaluate();
-      if (evaluateValue != product) {
+      if (evaluateValue.$1 != product) {
         stdout
           ..write('Fail:  $i($X)[$widthX] * $j($Y)[$widthY]: $evaluateValue '
               'vs expected $product\n')
           ..write(pp);
       }
       compressor.compress();
-      final compressedValue = compressor.evaluate();
+      final compressedValue = compressor.evaluate().$1;
       expect(compressedValue, equals(product),
           reason: 'Fail:  $i($X)[$widthX] * $j($Y)[$widthY]: $compressedValue '
               'vs expected $product'
               '\n$pp');
-      final compressedLogicValue = compressor.evaluate(logic: true);
+      final compressedLogicValue = compressor.evaluate(logic: true).$1;
       expect(compressedLogicValue, equals(product),
           reason:
               'Fail:  $i($X)[$widthX] * $j($Y)[$widthY]: $compressedLogicValue '
@@ -78,7 +77,7 @@ void main() {
     stdout.write('\n');
 
     for (final signed in [false, true]) {
-      for (var radix = 4; radix < 4; radix *= 2) {
+      for (var radix = 2; radix < 4; radix *= 2) {
         final encoder = RadixEncoder(radix);
         // stdout.write('encoding with radix=$radix\n');
         final shift = log2Ceil(encoder.radix);
@@ -97,7 +96,7 @@ void main() {
       }
     }
   });
-  test('single compressor evaluate mac', () async {
+  test('single compressor evaluate multiply', () async {
     const widthX = 6;
     const widthY = 9;
     final a = Logic(name: 'a', width: widthX);
@@ -116,20 +115,76 @@ void main() {
       // Set these so that printing inside module build will have Logic values
       a.put(bA);
       b.put(bB);
-      const radix = 4;
+      const radix = 2;
       final encoder = RadixEncoder(radix);
       final pp = PartialProductGenerator(a, b, encoder, signed: signed);
-      // Turn on printing by using widthX == 6 (we are fooling the dead code
-      // checking linter here)
-      // print(pp.representation());
       expect(pp.evaluate(), equals(BigInt.from(av * bv)));
       final compressor = ColumnCompressor(pp);
-      // print('eval: ${compressor.evaluate(printOut: output)}');
-      expect(compressor.evaluate(), equals(BigInt.from(av * bv)));
+      expect(compressor.evaluate().$1, equals(BigInt.from(av * bv)));
 
       compressor.compress();
-      // print('eval: ${compressor.evaluate(printOut: true)}');
-      expect(compressor.evaluate(), equals(BigInt.from(av * bv)));
+      expect(compressor.evaluate().$1, equals(BigInt.from(av * bv)));
+    }
+  });
+  test('single compressor evaluate', () async {
+    const widthX = 6;
+    const widthY = 6;
+    final a = Logic(name: 'a', width: widthX);
+    final b = Logic(name: 'b', width: widthY);
+
+    const av = 3;
+    const bv = 6;
+    for (final signed in [true]) {
+      final bA = signed
+          ? BigInt.from(av).toSigned(widthX)
+          : BigInt.from(av).toUnsigned(widthX);
+      final bB = signed
+          ? BigInt.from(bv).toSigned(widthY)
+          : BigInt.from(bv).toUnsigned(widthY);
+
+      // Set these so that printing inside module build will have Logic values
+      a.put(bA);
+      b.put(bB);
+      const radix = 2;
+      final encoder = RadixEncoder(radix);
+
+      final pp = PartialProductGenerator(a, b, encoder, signed: signed);
+      expect(pp.evaluate(), equals(BigInt.from(av * bv)));
+      final compressor = ColumnCompressor(pp);
+      expect(compressor.evaluate().$1, equals(BigInt.from(av * bv)));
+      compressor.compress();
+      expect(compressor.evaluate().$1, equals(BigInt.from(av * bv)));
+    }
+  });
+
+  test('example multiplier', () async {
+    const widthX = 10;
+    const widthY = 10;
+    final a = Logic(name: 'a', width: widthX);
+    final b = Logic(name: 'b', width: widthY);
+
+    const av = 37;
+    const bv = 6;
+    for (final signed in [true]) {
+      final bA = signed
+          ? BigInt.from(av).toSigned(widthX)
+          : BigInt.from(av).toUnsigned(widthX);
+      final bB = signed
+          ? BigInt.from(bv).toSigned(widthY)
+          : BigInt.from(bv).toUnsigned(widthY);
+
+      // Set these so that printing inside module build will have Logic values
+      a.put(bA);
+      b.put(bB);
+      const radix = 8;
+      final encoder = RadixEncoder(radix);
+
+      final pp = PartialProductGenerator(a, b, encoder, signed: signed);
+      expect(pp.evaluate(), equals(BigInt.from(av * bv)));
+      final compressor = ColumnCompressor(pp);
+      expect(compressor.evaluate().$1, equals(BigInt.from(av * bv)));
+      compressor.compress();
+      expect(compressor.evaluate().$1, equals(BigInt.from(av * bv)));
     }
   });
 }

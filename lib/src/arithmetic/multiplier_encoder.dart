@@ -7,6 +7,8 @@
 // 2024 May 15
 // Author: Desmond Kirkpatrick <desmond.a.kirkpatrick@intel.com>
 
+import 'dart:math';
+
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
 
@@ -37,8 +39,12 @@ class RadixEncoder {
   /// The radix of the radixEncoder
   int radix;
 
-  /// Baseline call for setting up an empty radixEncoder
-  RadixEncoder(this.radix);
+  /// Constructor for setting up a radix encoding block
+  RadixEncoder(this.radix) {
+    if (pow(2.0, log2Ceil(radix)) != radix) {
+      throw RohdHclException('radix must be a power of 2');
+    }
+  }
 
   /// Encode a multiplier slice into the Booth encoded value
   RadixEncode encode(Logic multiplierSlice) {

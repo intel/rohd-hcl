@@ -18,6 +18,8 @@ high-performance implementation:
 
 - [Compression Tree Multipy Accumulate](#compression-tree-multiply-accumulate)
 
+The compression tree based arithmetic units are built from a set of components for Booth-encoding, column compression, and parallel prefix adders described in the [`Booth Encoding Multiplier Building Blocks`](./multiplier_components.md#booth-encoding-multiplier-building-blocks) section.
+
 ## Carry Save Multiplier
 
 Carry save multiplier is a digital circuit used for performing multiplication operations. It
@@ -85,6 +87,26 @@ The parameters of the
 - The type of `ParallelPrefix` tree used in the final `ParallelPrefixAdder`
 - Whether the operands should be treated as signed (2s complement) or unsigned
 
+Here is an example of use of the `CompressionTreeMultiplier`:
+
+```dart
+    const widthA = 6;
+    const widthB = 9;
+    const radix = 8;
+    final a = Logic(name: 'a', width: widthA);
+    final b = Logic(name: 'b', width: widthB);
+
+    a.put(15);
+    b.put(3);
+
+    final multiplier =
+        CompressionTreeMultiplier(a, b, radix, KoggeStone.new, signed: true);
+
+    final product = multiplier.product;
+
+    print('${product.value.toBigInt()}');
+```
+
 ## Compression Tree Multiply Accumulate
 
 A compression tree multiply accumulate is similar to a compress tree
@@ -92,10 +114,33 @@ multiplier, but it inserts an additional addend into the compression
 tree to allow for accumulation into this third input.
 
 The parameters of the
-`CompressionTreeMultiplier` are:
+`CompressionTreeMultiplyAccumulate` are:
 
 - Two input terms a and b
 - The accumulate input term c
 - The radix used for Booth encoding (2, 4, 8, and 16 are currently supported)
 - The type of `ParallelPrefix` tree used in the final `ParallelPrefixAdder`
 - Whether the operands should be treated as signed (2s complement) or unsigned
+
+Here is an example of using the `CompressionTreeMultiplyAccumulate`:
+
+```dart
+    const widthA = 6;
+    const widthB = 9;
+    const radix = 8;
+    final a = Logic(name: 'a', width: widthA);
+    final b = Logic(name: 'b', width: widthB);
+    final c = Logic(name: 'c', width: widthA + widthB);
+
+    a.put(15);
+    b.put(3);
+    c.put(5);
+
+    final multiplier = CompressionTreeMultiplyAccumulate(
+        a, b, c, radix, KoggeStone.new,
+        signed: true);
+
+    final accumulate = multiplier.accumulate;
+    
+    print('${accumulate.value.toBigInt()}');
+```
