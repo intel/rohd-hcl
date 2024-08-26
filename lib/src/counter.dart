@@ -50,7 +50,7 @@ class CounterInterface extends PairInterface {
   CounterInterface(
       {this.fixedAmount,
       this.increments = true,
-      int? width = 1,
+      int? width,
       this.hasEnable = false})
       : width = width ?? LogicValue.ofInferWidth(fixedAmount).width {
     setPorts([
@@ -117,7 +117,8 @@ class Counter extends Module {
     dynamic maxValue,
     dynamic minValue = 0,
     int? width,
-    this.saturates = true,
+    this.saturates = false,
+    super.name = 'counter',
   }) : width =
             _inferWidth([resetValue, maxValue, minValue], width, interfaces) {
     //TODO: handle reset, max, min as Logic, not just static values
@@ -131,37 +132,53 @@ class Counter extends Module {
 
     addOutput('value', width: this.width);
 
-    final resetValueLogic = _dynamicInputToLogic('resetValue', resetValue);
-    final minValueLogic = _dynamicInputToLogic('minValue', minValue);
-    final maxValueLogic = _dynamicInputToLogic(
-      'maxValue',
-      maxValue ?? (1 << this.width),
-    );
-
     // assume minValue is 0, maxValue is 2^width, for width safety calcs
-    final biggestNum = (1 << this.width) +
-        interfaces.where((e) => e.increments).map((e) => 1 << e.width).sum;
-    final mostNegNum =
-        interfaces.where((e) => !e.increments).map((e) => 1 << e.width).sum;
+    final maxPosMagnitude = _biggestVal(this.width) +
+        interfaces
+            .where((e) => e.increments)
+            .map((e) => _biggestVal(e.width))
+            .sum;
+    final maxNegMagnitude = interfaces
+        .where((e) => !e.increments)
+        .map((e) => _biggestVal(e.width))
+        .sum;
 
     // calculate the largest number that we could have in intermediate
-    final internalWidth = log2Ceil(biggestNum + mostNegNum);
+    final internalWidth = log2Ceil(maxPosMagnitude + maxNegMagnitude + 1);
+
+    final resetValueLogic = _dynamicInputToLogic(
+      'resetValue',
+      resetValue,
+    ).zeroExtend(internalWidth);
+    final minValueLogic = _dynamicInputToLogic(
+      'minValue',
+      minValue,
+    ).zeroExtend(internalWidth);
+    final maxValueLogic = _dynamicInputToLogic(
+      'maxValue',
+      maxValue ?? _biggestVal(this.width),
+    ).zeroExtend(internalWidth);
+
+    final range = Logic(name: 'range', width: internalWidth)
+      ..gets(maxValueLogic - minValueLogic);
 
     final zeroPoint = Logic(name: 'zeroPoint', width: internalWidth)
-      ..gets(Const(mostNegNum, width: internalWidth));
+      ..gets(Const(maxNegMagnitude, width: internalWidth));
 
     final nextVal = Logic(name: 'nextVal', width: internalWidth);
     final currVal = Logic(name: 'currVal', width: internalWidth);
 
-    final upperSaturation = maxValueLogic.zeroExtend(internalWidth) + zeroPoint;
-    final lowerSaturation = minValueLogic.zeroExtend(internalWidth) + zeroPoint;
+    final upperSaturation = Logic(name: 'upperSaturation', width: internalWidth)
+      ..gets(maxValueLogic + zeroPoint);
+    final lowerSaturation = Logic(name: 'lowerSaturation', width: internalWidth)
+      ..gets(minValueLogic + zeroPoint);
 
     currVal <=
         flop(
           clk,
           nextVal,
           reset: reset,
-          resetValue: resetValueLogic.zeroExtend(internalWidth) + zeroPoint,
+          resetValue: resetValueLogic + zeroPoint,
         );
 
     value <= (currVal - zeroPoint).getRange(0, this.width);
@@ -191,11 +208,14 @@ class Counter extends Module {
             If.block([
               Iff.s(
                 s(nextVal).gt(upperSaturation),
-                s(nextVal) < s(nextVal) - upperSaturation + lowerSaturation,
+                // s(nextVal) < (s(nextVal) - upperSaturation + lowerSaturation),
+                s(nextVal) <
+                    ((s(nextVal) - zeroPoint) % range + lowerSaturation),
               ),
               ElseIf.s(
                 s(nextVal).lt(lowerSaturation),
-                s(nextVal) < upperSaturation - (lowerSaturation - s(nextVal)),
+                s(nextVal) <
+                    (upperSaturation - ((zeroPoint - s(nextVal)) % range)),
               )
             ]),
         ]);
@@ -209,6 +229,8 @@ class Counter extends Module {
       return Const(value, width: width);
     }
   }
+
+  static int _biggestVal(int width) => (1 << width) - 1;
 
   //TODO doc
   static int _inferWidth(
