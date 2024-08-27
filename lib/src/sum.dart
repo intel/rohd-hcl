@@ -17,7 +17,8 @@ class SumInterface extends PairInterface {
   final bool hasEnable;
 
   /// The [amount] to increment/decrement by, depending on [increments].
-  Logic get amount => port('amount');
+  late final Logic amount =
+      fixedAmount != null ? Const(fixedAmount, width: width) : port('amount');
 
   /// Controls whether it should increment or decrement (based on [increments])
   /// (active high).
@@ -53,15 +54,11 @@ class SumInterface extends PairInterface {
       this.hasEnable = false})
       : width = width ?? LogicValue.ofInferWidth(fixedAmount).width {
     setPorts([
-      Port('amount', this.width),
+      if (fixedAmount != null) Port('amount', this.width),
       if (hasEnable) Port('enable'),
     ], [
       PairDirection.fromProvider
     ]);
-
-    if (fixedAmount != null) {
-      amount <= Const(fixedAmount, width: this.width);
-    }
   }
 
   SumInterface.clone(SumInterface other)

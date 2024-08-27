@@ -7,6 +7,8 @@
 // 2024 August 27
 // Author: Max Korbel <max.korbel@intel.com>
 
+import 'dart:math';
+
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
 import 'package:test/test.dart';
@@ -74,5 +76,24 @@ void main() {
     expect(goldenSumOfLogics(logics, width: dut.width), 1);
   });
 
-  test('sweep', () {});
+  group('random', () {
+    final rand = Random(123);
+
+    SumInterface genRandomInterface() {
+      final isFixed = rand.nextBool();
+      return SumInterface(
+        fixedAmount: isFixed ? rand.nextInt(100) : null,
+        width: isFixed ? null : rand.nextInt(8),
+        increments: rand.nextBool(),
+        hasEnable: rand.nextBool(),
+      );
+    }
+
+    List<SumInterface> genRandomInterfaces() {
+      final numInterfaces = rand.nextInt(8);
+      return List.generate(numInterfaces, (_) => genRandomInterface());
+    }
+
+    void testSum({required int numIncr, required int numDecr}) {}
+  });
 }
