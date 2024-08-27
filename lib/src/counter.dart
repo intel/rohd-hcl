@@ -35,6 +35,10 @@ class Counter extends Module with DynamicInputToLogic {
   ///
   /// If no [maxValue] is provided, one will be inferred by the maximum that can
   /// fit inside of the [width].
+  ///
+  /// The [restart] input can be used to restart the counter to a new value, but
+  /// also continue to increment in that same cycle. This is distinct from
+  /// [reset] which will reset the counter, holding the [value] at [resetValue].
   Counter(
     List<AggregatorInterface> interfaces, {
     required Logic clk,
@@ -44,10 +48,15 @@ class Counter extends Module with DynamicInputToLogic {
     dynamic minValue = 0,
     int? width,
     this.saturates = false,
+    Logic? restart,
     super.name = 'counter',
   }) : width = inferWidth([resetValue, maxValue, minValue], width, interfaces) {
     clk = addInput('clk', clk);
     reset = addInput('reset', reset);
+
+    if (restart != null) {
+      restart = addInput('reInit', restart);
+    }
 
     addOutput('value', width: this.width);
 
@@ -55,18 +64,19 @@ class Counter extends Module with DynamicInputToLogic {
         .map((e) => AggregatorInterface.clone(e)..connectIO(this, e))
         .toList();
 
+    final resetValueLogic = dynamicInputToLogic(
+      'resetValue',
+      resetValue,
+    );
+
     final agg = Aggregator(
       interfaces,
-      initialValue: value,
+      initialValue:
+          restart != null ? mux(restart, resetValueLogic, value) : value,
       maxValue: maxValue,
       minValue: minValue,
       width: this.width,
       saturates: saturates,
-    );
-
-    final resetValueLogic = dynamicInputToLogic(
-      'resetValue',
-      resetValue,
     );
 
     value <=
