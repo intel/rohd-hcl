@@ -99,7 +99,19 @@ class Sum extends Module with DynamicInputToLogic {
 
   Logic get value => output('value');
 
-  // late final Logic isMax = addOutput('isMax')..gets(value.eq());
+  /// Indicates whether the sum has reached the maximum value.
+  ///
+  /// If it [saturates], then [value] will be equal to the maximum value.
+  /// Otherwise, the value may have overflowed to any value, but the net sum
+  /// before overflow will have been greater than the maximum value.
+  Logic get reachedMax => output('reachedMax');
+
+  /// Indicates whether the sum has reached the minimum value.
+  ///
+  /// If it [saturates], then [value] will be equal to the minimum value.
+  /// Otherwise, the value may have underflowed to any value, but the net sum
+  /// before underflow will have been less than the minimum value.
+  Logic get reachedMin => output('reachedMin');
 
   /// TODO
   ///
@@ -118,7 +130,7 @@ class Sum extends Module with DynamicInputToLogic {
     dynamic minValue = 0,
     int? width,
     this.saturates = false,
-    super.name = 'aggregator',
+    super.name = 'sum',
   }) : width =
             inferWidth([initialValue, maxValue, minValue], width, interfaces) {
     interfaces = interfaces
@@ -127,6 +139,8 @@ class Sum extends Module with DynamicInputToLogic {
         .toList();
 
     addOutput('value', width: this.width);
+    addOutput('reachedMax');
+    addOutput('reachedMin');
 
     // assume minValue is 0, maxValue is 2^width, for width safety calcs
     final maxPosMagnitude = _biggestVal(this.width) +
@@ -178,34 +192,29 @@ class Sum extends Module with DynamicInputToLogic {
               .map((e) => e._combAdjustments(s, internalValue))
               .flattened,
 
+          // identify if we're at a max/min case
+          reachedMax < s(internalValue).gte(upperSaturation),
+          reachedMin < s(internalValue).lte(lowerSaturation),
+
           // handle saturation or over/underflow
-          if (saturates)
-            // saturation
-            If.block([
-              Iff.s(
-                s(internalValue).gt(upperSaturation),
-                s(internalValue) < upperSaturation,
-              ),
-              ElseIf.s(
-                s(internalValue).lt(lowerSaturation),
-                s(internalValue) < lowerSaturation,
-              )
-            ])
-          else
-            // under/overflow
-            If.block([
-              Iff.s(
-                s(internalValue).gt(upperSaturation),
-                s(internalValue) <
-                    ((s(internalValue) - zeroPoint) % range + lowerSaturation),
-              ),
-              ElseIf.s(
-                s(internalValue).lt(lowerSaturation),
-                s(internalValue) <
-                    (upperSaturation -
-                        ((zeroPoint - s(internalValue)) % range)),
-              )
-            ]),
+          If.block([
+            Iff.s(
+              reachedMax,
+              s(internalValue) <
+                  (saturates
+                      ? upperSaturation
+                      : ((s(internalValue) - zeroPoint) % range +
+                          lowerSaturation)),
+            ),
+            ElseIf.s(
+              reachedMin,
+              s(internalValue) <
+                  (saturates
+                      ? lowerSaturation
+                      : (upperSaturation -
+                          ((zeroPoint - s(internalValue)) % range))),
+            )
+          ]),
         ]);
   }
 

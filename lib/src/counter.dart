@@ -25,6 +25,20 @@ class Counter extends Module with DynamicInputToLogic {
 
   Logic get value => output('value');
 
+  /// Indicates whether the sum has reached the maximum value.
+  ///
+  /// If it [saturates], then [value] will be equal to the maximum value.
+  /// Otherwise, the value may have overflowed to any value, but the net sum
+  /// before overflow will have been greater than the maximum value.
+  Logic get reachedMax => output('reachedMax');
+
+  /// Indicates whether the sum has reached the minimum value.
+  ///
+  /// If it [saturates], then [value] will be equal to the minimum value.
+  /// Otherwise, the value may have underflowed to any value, but the net sum
+  /// before underflow will have been less than the minimum value.
+  Logic get reachedMin => output('reachedMin');
+
   /// TODO
   ///
   /// The [width] can be either explicitly provided or inferred from other
@@ -87,6 +101,9 @@ class Counter extends Module with DynamicInputToLogic {
           reset: reset,
           resetValue: resetValueLogic,
         );
+
+    addOutput('reachedMax') <= sum.reachedMax;
+    addOutput('reachedMin') <= sum.reachedMin;
   }
 }
 
