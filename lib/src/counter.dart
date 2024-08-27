@@ -11,7 +11,7 @@ import 'package:collection/collection.dart';
 import 'package:meta/meta.dart';
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
-import 'package:rohd_hcl/src/aggregator.dart';
+import 'package:rohd_hcl/src/sum.dart';
 import 'package:rohd_hcl/src/exceptions.dart';
 import 'package:rohd_hcl/src/parallel_prefix_operations.dart';
 
