@@ -113,6 +113,26 @@ class Sum extends Module with DynamicInputToLogic {
   /// before underflow will have been less than the minimum value.
   Logic get reachedMin => output('reachedMin');
 
+  factory Sum.ofLogics(
+    List<Logic> logics, {
+    dynamic initialValue = 0,
+    dynamic maxValue,
+    dynamic minValue = 0,
+    int? width,
+    bool saturates = false,
+    String name = 'sum',
+  }) =>
+      Sum(
+          logics
+              .map((e) => SumInterface(width: e.width)..amount.gets(e))
+              .toList(),
+          initialValue: initialValue,
+          maxValue: maxValue,
+          minValue: minValue,
+          width: width,
+          saturates: saturates,
+          name: name);
+
   /// TODO
   ///
   /// The [width] can be either explicitly provided or inferred from other

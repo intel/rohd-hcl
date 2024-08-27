@@ -39,6 +39,33 @@ class Counter extends Module with DynamicInputToLogic {
   /// before underflow will have been less than the minimum value.
   Logic get reachedMin => output('reachedMin');
 
+  factory Counter.ofLogics(
+    List<Logic> logics, {
+    required Logic clk,
+    required Logic reset,
+    dynamic resetValue = 0,
+    dynamic maxValue,
+    dynamic minValue = 0,
+    int? width,
+    bool saturates = false,
+    Logic? restart,
+    String name = 'counter',
+  }) =>
+      Counter(
+        logics
+            .map((e) => SumInterface(width: e.width)..amount.gets(e))
+            .toList(),
+        clk: clk,
+        reset: reset,
+        resetValue: resetValue,
+        maxValue: maxValue,
+        minValue: minValue,
+        width: width,
+        saturates: saturates,
+        restart: restart,
+        name: name,
+      );
+
   /// TODO
   ///
   /// The [width] can be either explicitly provided or inferred from other
