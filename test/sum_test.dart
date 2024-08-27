@@ -34,8 +34,9 @@ int goldenSum(
   bool saturates = false,
   int? maxVal,
   int? minVal,
+  int initialValue = 0,
 }) {
-  var sum = 0;
+  var sum = initialValue;
   maxVal ??= (1 << width) - 1;
   minVal ??= 0;
   for (final intf in interfaces) {
@@ -77,44 +78,55 @@ void main() {
     expect(goldenSumOfLogics(logics, width: dut.width), 1);
   });
 
-  group('simple sum of two numbers', () {
-    // ignore: avoid_positional_boolean_parameters
-    Future<void> simpleSumOfTwo(bool saturates) async {
-      final a = Logic(width: 4);
-      final b = Logic(width: 4);
-      final dut = Sum.ofLogics([a, b], saturates: saturates);
-      await dut.build();
-      expect(dut.width, 4);
+  group('simple 2 numbers', () {
+    final pairs = [
+      // fits
+      (3, 5),
+      (7, 1),
 
-      for (final pair in [
-        // fits
-        (3, 5),
-        (7, 1),
-        // barely fits
-        (10, 5),
-        // barely overflows
-        (7, 9),
-        // overflows
-        (8, 10),
-      ]) {
-        a.put(pair.$1);
-        b.put(pair.$2);
-        final expected =
-            goldenSumOfLogics([a, b], width: dut.width, saturates: saturates);
-        expect(dut.value.value.toInt(), expected);
+      // barely fits
+      (10, 5),
+
+      // barely overflows
+      (7, 9),
+
+      // overflows
+      (8, 10),
+    ];
+
+    for (final increments in [true, false]) {
+      final initialValue = increments ? 0 : 15;
+      for (final saturates in [true, false]) {
+        test('increments=$increments, saturate=$saturates', () async {
+          final a = Logic(width: 4);
+          final b = Logic(width: 4);
+          final intfs = [a, b]
+              .map((e) => SumInterface(
+                    width: e.width,
+                    increments: increments,
+                  )..amount.gets(e))
+              .toList();
+          final dut =
+              Sum(intfs, saturates: saturates, initialValue: initialValue);
+
+          await dut.build();
+          expect(dut.width, 4);
+
+          for (final pair in pairs) {
+            a.put(pair.$1);
+            b.put(pair.$2);
+            final expected = goldenSum(
+              intfs,
+              width: dut.width,
+              saturates: saturates,
+              initialValue: initialValue,
+            );
+            expect(dut.value.value.toInt(), expected);
+          }
+        });
       }
     }
-
-    test('overflow', () async {
-      await simpleSumOfTwo(false);
-    });
-
-    test('saturate', () async {
-      await simpleSumOfTwo(true);
-    });
   });
-
-  test('simple decrement of 2 numbers underflow', () {});
 
   // TODO: testing with overridden width
 
@@ -170,6 +182,7 @@ void main() {
           saturates: saturates,
           maxVal: maxVal,
           minVal: minVal,
+          initialValue: initialValue,
         ),
       );
     }
