@@ -38,6 +38,7 @@ Some in-development items will have opened issues, as well. Feel free to create 
   - Multipliers
     - [Pipelined Integer Multiplier](./components/multiplier.md#carry-save-multiplier)
   - Dividers
+    - [Integer Divider](./components/divider.md)
   - Log
   - Square root
   - Inverse square root
