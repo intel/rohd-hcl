@@ -36,7 +36,7 @@ int goldenSum(
   int? minVal,
 }) {
   var sum = 0;
-  maxVal ??= 1 << width - 1;
+  maxVal ??= (1 << width) - 1;
   minVal ??= 0;
   for (final intf in interfaces) {
     if (!intf.hasEnable || intf.enable!.value.toBool()) {
@@ -56,7 +56,7 @@ int goldenSum(
       sum = minVal;
     }
   } else {
-    final range = maxVal - minVal;
+    final range = maxVal - minVal + 1;
     if (sum > maxVal) {
       sum = sum % range + minVal;
     } else if (sum < minVal) {
@@ -77,32 +77,44 @@ void main() {
     expect(goldenSumOfLogics(logics, width: dut.width), 1);
   });
 
-  test('simple sum of two numbers', () async {
-    final a = Logic(width: 4);
-    final b = Logic(width: 4);
-    final dut = Sum.ofLogics([a, b]);
-    await dut.build();
-    expect(dut.width, 4);
+  group('simple sum of two numbers', () {
+    // ignore: avoid_positional_boolean_parameters
+    Future<void> simpleSumOfTwo(bool saturates) async {
+      final a = Logic(width: 4);
+      final b = Logic(width: 4);
+      final dut = Sum.ofLogics([a, b], saturates: saturates);
+      await dut.build();
+      expect(dut.width, 4);
 
-    // fits
-    a.put(3);
-    b.put(5);
-    expect(dut.value.value.toInt(), 8);
+      for (final pair in [
+        // fits
+        (3, 5),
+        (7, 1),
+        // barely fits
+        (10, 5),
+        // barely overflows
+        (7, 9),
+        // overflows
+        (8, 10),
+      ]) {
+        a.put(pair.$1);
+        b.put(pair.$2);
+        final expected =
+            goldenSumOfLogics([a, b], width: dut.width, saturates: saturates);
+        expect(dut.value.value.toInt(), expected);
+      }
+    }
 
-    a.put(7);
-    b.put(1);
-    expect(dut.value.value.toInt(), 8);
+    test('overflow', () async {
+      await simpleSumOfTwo(false);
+    });
 
-    // barely overflow
-    a.put(7);
-    b.put(9);
-    expect(dut.value.value.toInt(), 0);
-
-    // overflow
-    a.put(8);
-    b.put(10);
-    expect(dut.value.value.toInt(), 2);
+    test('saturate', () async {
+      await simpleSumOfTwo(true);
+    });
   });
+
+  test('simple decrement of 2 numbers underflow', () {});
 
   // TODO: testing with overridden width
 
@@ -147,6 +159,7 @@ void main() {
           saturates: saturates,
           maxValue: maxVal,
           minValue: minVal,
+          width: rand.nextBool() ? null : rand.nextInt(8),
           initialValue: initialValue);
 
       expect(
