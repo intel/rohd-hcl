@@ -1,8 +1,8 @@
 // Copyright (C) 2024 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 //
-// aggregator.dart
-// A flexible aggregator implementation.
+// sum.dart
+// A flexible sum implementation.
 //
 // 2024 August 26
 // Author: Max Korbel <max.korbel@intel.com>
@@ -113,6 +113,9 @@ class Sum extends Module with DynamicInputToLogic {
   /// before underflow will have been less than the minimum value.
   Logic get reachedMin => output('reachedMin');
 
+  /// TODO
+  ///
+  /// All [logics]s are always enabled and incrementing.
   factory Sum.ofLogics(
     List<Logic> logics, {
     dynamic initialValue = 0,
@@ -143,6 +146,9 @@ class Sum extends Module with DynamicInputToLogic {
   ///
   /// If no [maxValue] is provided, one will be inferred by the maximum that can
   /// fit inside of the [width].
+  ///
+  /// It is expected that [maxValue] is at least [minValue], or else results may
+  /// be unpredictable.
   Sum(
     List<SumInterface> interfaces, {
     dynamic initialValue = 0,
@@ -189,7 +195,8 @@ class Sum extends Module with DynamicInputToLogic {
       maxValue ?? _biggestVal(this.width),
     ).zeroExtend(internalWidth);
 
-    final range = Logic(name: 'range', width: internalWidth)
+    // lazy range so that it's not generated if not necessary
+    late final range = Logic(name: 'range', width: internalWidth)
       ..gets(maxValueLogic - minValueLogic);
 
     final zeroPoint = Logic(name: 'zeroPoint', width: internalWidth)
@@ -203,6 +210,9 @@ class Sum extends Module with DynamicInputToLogic {
     final internalValue = Logic(name: 'internalValue', width: internalWidth);
     value <= internalValue.getRange(0, this.width);
 
+    final passedMax = Logic(name: 'passedMax');
+    final passedMin = Logic(name: 'passedMin');
+
     Combinational.ssa((s) => [
           // initialize
           s(internalValue) < initialValueLogic,
@@ -213,13 +223,15 @@ class Sum extends Module with DynamicInputToLogic {
               .flattened,
 
           // identify if we're at a max/min case
-          reachedMax < s(internalValue).gte(upperSaturation),
-          reachedMin < s(internalValue).lte(lowerSaturation),
+          passedMax < s(internalValue).gt(upperSaturation),
+          passedMin < s(internalValue).lt(lowerSaturation),
+          reachedMax < passedMax | s(internalValue).eq(upperSaturation),
+          reachedMin < passedMin | s(internalValue).eq(lowerSaturation),
 
           // handle saturation or over/underflow
           If.block([
             Iff.s(
-              reachedMax,
+              passedMax,
               s(internalValue) <
                   (saturates
                       ? upperSaturation
@@ -227,7 +239,7 @@ class Sum extends Module with DynamicInputToLogic {
                           lowerSaturation)),
             ),
             ElseIf.s(
-              reachedMin,
+              passedMin,
               s(internalValue) <
                   (saturates
                       ? lowerSaturation
