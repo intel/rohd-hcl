@@ -96,14 +96,15 @@ class Counter extends Module with DynamicInputToLogic {
     reset = addInput('reset', reset);
 
     if (restart != null) {
-      restart = addInput('reInit', restart);
+      restart = addInput('restart', restart);
     }
 
     addOutput('value', width: this.width);
 
     interfaces = interfaces
-        .map((e) =>
-            SumInterface.clone(e)..pairConnectIO(this, e, PairRole.consumer))
+        .mapIndexed((i, e) => SumInterface.clone(e)
+          ..pairConnectIO(this, e, PairRole.consumer,
+              uniquify: (original) => '${original}_$i'))
         .toList();
 
     final resetValueLogic = dynamicInputToLogic(
@@ -144,7 +145,7 @@ mixin DynamicInputToLogic on Module {
     if (value is Logic) {
       return addInput(name, value.zeroExtend(width), width: width);
     } else {
-      return Const(value, width: width);
+      return Logic(name: name, width: width)..gets(Const(value, width: width));
     }
   }
 }

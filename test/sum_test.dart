@@ -33,10 +33,11 @@ int goldenSum(
   required int width,
   bool saturates = false,
   int? maxVal,
-  int minVal = 0,
+  int? minVal,
 }) {
   var sum = 0;
   maxVal ??= 1 << width - 1;
+  minVal ??= 0;
   for (final intf in interfaces) {
     if (!intf.hasEnable || intf.enable!.value.toBool()) {
       final amount = intf.amount.value.toInt();
@@ -67,7 +68,7 @@ int goldenSum(
 }
 
 void main() {
-  test('simple sum of 1', () async {
+  test('simple sum of 1 ofLogics', () async {
     final logics = [Const(1)];
     final dut = Sum.ofLogics(logics);
     await dut.build();
@@ -76,7 +77,36 @@ void main() {
     expect(goldenSumOfLogics(logics, width: dut.width), 1);
   });
 
-  group('random', () {
+  test('simple sum of two numbers', () async {
+    final a = Logic(width: 4);
+    final b = Logic(width: 4);
+    final dut = Sum.ofLogics([a, b]);
+    await dut.build();
+    expect(dut.width, 4);
+
+    // fits
+    a.put(3);
+    b.put(5);
+    expect(dut.value.value.toInt(), 8);
+
+    a.put(7);
+    b.put(1);
+    expect(dut.value.value.toInt(), 8);
+
+    // barely overflow
+    a.put(7);
+    b.put(9);
+    expect(dut.value.value.toInt(), 0);
+
+    // overflow
+    a.put(8);
+    b.put(10);
+    expect(dut.value.value.toInt(), 2);
+  });
+
+  // TODO: testing with overridden width
+
+  test('random', () {
     final rand = Random(123);
 
     SumInterface genRandomInterface() {
@@ -94,6 +124,41 @@ void main() {
       return List.generate(numInterfaces, (_) => genRandomInterface());
     }
 
-    void testSum({required int numIncr, required int numDecr}) {}
+    //TODO: set max number of rand iterations
+    for (var i = 0; i < 1; i++) {
+      final interfaces = genRandomInterfaces();
+
+      final saturates = rand.nextBool();
+      final minVal = rand.nextBool() ? rand.nextInt(30) : null;
+      final maxVal = rand.nextBool() ? rand.nextInt(70) + (minVal ?? 0) : null;
+      final initialValue = rand.nextInt(maxVal ?? 100);
+
+      for (final intf in interfaces) {
+        if (intf.hasEnable) {
+          intf.enable!.put(rand.nextBool());
+        }
+
+        if (intf.fixedAmount != null) {
+          intf.amount.put(rand.nextInt(1 << intf.width));
+        }
+      }
+
+      final dut = Sum(interfaces,
+          saturates: saturates,
+          maxValue: maxVal,
+          minValue: minVal,
+          initialValue: initialValue);
+
+      expect(
+        dut.value.value.toInt(),
+        goldenSum(
+          interfaces,
+          width: dut.width,
+          saturates: saturates,
+          maxVal: maxVal,
+          minVal: minVal,
+        ),
+      );
+    }
   });
 }

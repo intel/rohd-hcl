@@ -54,7 +54,7 @@ class SumInterface extends PairInterface {
       this.hasEnable = false})
       : width = width ?? LogicValue.ofInferWidth(fixedAmount).width {
     setPorts([
-      if (fixedAmount != null) Port('amount', this.width),
+      if (fixedAmount == null) Port('amount', this.width),
       if (hasEnable) Port('enable'),
     ], [
       PairDirection.fromProvider
@@ -157,8 +157,9 @@ class Sum extends Module with DynamicInputToLogic {
   }) : width =
             inferWidth([initialValue, maxValue, minValue], width, interfaces) {
     interfaces = interfaces
-        .map((e) =>
-            SumInterface.clone(e)..pairConnectIO(this, e, PairRole.consumer))
+        .mapIndexed((i, e) => SumInterface.clone(e)
+          ..pairConnectIO(this, e, PairRole.consumer,
+              uniquify: (original) => '${original}_$i'))
         .toList();
 
     addOutput('value', width: this.width);
@@ -194,7 +195,7 @@ class Sum extends Module with DynamicInputToLogic {
 
     // lazy range so that it's not generated if not necessary
     late final range = Logic(name: 'range', width: internalWidth)
-      ..gets(maxValueLogic - minValueLogic);
+      ..gets(maxValueLogic - minValueLogic + 1);
 
     final zeroPoint = Logic(name: 'zeroPoint', width: internalWidth)
       ..gets(Const(maxNegMagnitude, width: internalWidth));
@@ -202,7 +203,7 @@ class Sum extends Module with DynamicInputToLogic {
     final upperSaturation = Logic(name: 'upperSaturation', width: internalWidth)
       ..gets(maxValueLogic + zeroPoint);
     final lowerSaturation = Logic(name: 'lowerSaturation', width: internalWidth)
-      ..gets(minValueLogic + zeroPoint); //TODO: is this right?
+      ..gets(minValueLogic + zeroPoint);
 
     final internalValue = Logic(name: 'internalValue', width: internalWidth);
     value <= internalValue.getRange(0, this.width);
