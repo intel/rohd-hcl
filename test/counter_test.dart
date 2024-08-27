@@ -14,15 +14,14 @@ import 'package:rohd_hcl/rohd_hcl.dart';
 import 'package:test/test.dart';
 
 void main() {
-  test('basic 1-bit counter', () async {
+  test('basic 1-bit rolling counter', () async {
     final clk = SimpleClockGenerator(10).clk;
     final reset = Logic();
-    final intf = CounterInterface(fixedAmount: 1);
+    final intf = AggregatorInterface(fixedAmount: 1);
     final counter = Counter([intf], clk: clk, reset: reset);
 
     await counter.build();
 
-    WaveDumper(counter);
     print(counter.generateSynth());
 
     Simulator.setMaxSimTime(1000);
@@ -58,6 +57,16 @@ void main() {
 
     await Simulator.endSimulation();
   });
+
+  // TODO: test plan:
+  //  - 4 bit counter overflow roll
+  //  - 4 bit down-counter underflow roll
+  //  - 4 bit counter with upper saturation
+  //  - 4 bit down-counter with lower saturation
+  // - for each of them
+  //    - with/out variable amount
+  //    - with/out enable
+  // - weird reset value
 
   //TODO: test modulo requirement -- if sum is >2x greater than saturation
 }
