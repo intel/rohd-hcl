@@ -17,7 +17,7 @@ void main() {
   test('basic 1-bit rolling counter', () async {
     final clk = SimpleClockGenerator(10).clk;
     final reset = Logic();
-    final intf = AggregatorInterface(fixedAmount: 1);
+    final intf = SumInterface(fixedAmount: 1);
     final counter = Counter([intf], clk: clk, reset: reset);
 
     await counter.build();

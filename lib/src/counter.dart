@@ -40,7 +40,7 @@ class Counter extends Module with DynamicInputToLogic {
   /// also continue to increment in that same cycle. This is distinct from
   /// [reset] which will reset the counter, holding the [value] at [resetValue].
   Counter(
-    List<AggregatorInterface> interfaces, {
+    List<SumInterface> interfaces, {
     required Logic clk,
     required Logic reset,
     dynamic resetValue = 0,
@@ -61,7 +61,8 @@ class Counter extends Module with DynamicInputToLogic {
     addOutput('value', width: this.width);
 
     interfaces = interfaces
-        .map((e) => AggregatorInterface.clone(e)..connectIO(this, e))
+        .map((e) =>
+            SumInterface.clone(e)..pairConnectIO(this, e, PairRole.consumer))
         .toList();
 
     final resetValueLogic = dynamicInputToLogic(
@@ -69,7 +70,7 @@ class Counter extends Module with DynamicInputToLogic {
       resetValue,
     );
 
-    final agg = Aggregator(
+    final sum = Sum(
       interfaces,
       initialValue:
           restart != null ? mux(restart, resetValueLogic, value) : value,
@@ -82,7 +83,7 @@ class Counter extends Module with DynamicInputToLogic {
     value <=
         flop(
           clk,
-          agg.value,
+          sum.value,
           reset: reset,
           resetValue: resetValueLogic,
         );

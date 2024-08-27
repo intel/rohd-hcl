@@ -13,7 +13,7 @@ import 'package:rohd_hcl/rohd_hcl.dart';
 import 'package:rohd_hcl/src/exceptions.dart';
 import 'package:rohd_hcl/src/parallel_prefix_operations.dart';
 
-class AggregatorInterface extends PairInterface {
+class SumInterface extends PairInterface {
   final bool hasEnable;
 
   /// The [amount] to increment/decrement by, depending on [increments].
@@ -46,7 +46,7 @@ class AggregatorInterface extends PairInterface {
   ///
   /// If [hasEnable] is `true`, then an [enable] port will be added to the
   /// interface.
-  AggregatorInterface(
+  SumInterface(
       {this.fixedAmount,
       this.increments = true,
       int? width,
@@ -64,7 +64,7 @@ class AggregatorInterface extends PairInterface {
     }
   }
 
-  AggregatorInterface.clone(AggregatorInterface other)
+  SumInterface.clone(SumInterface other)
       : this(
           fixedAmount: other.fixedAmount,
           increments: other.increments,
@@ -88,7 +88,7 @@ class AggregatorInterface extends PairInterface {
   }
 }
 
-class Aggregator extends Module with DynamicInputToLogic {
+class Sum extends Module with DynamicInputToLogic {
   final int width;
 
   /// If `true`,  will saturate at the `maxValue` and `minValue`. If `false`,
@@ -98,6 +98,8 @@ class Aggregator extends Module with DynamicInputToLogic {
   //TODO: add some sort if "saturated" or "minimum" outputs?
 
   Logic get value => output('value');
+
+  // late final Logic isMax = addOutput('isMax')..gets(value.eq());
 
   /// TODO
   ///
@@ -109,8 +111,8 @@ class Aggregator extends Module with DynamicInputToLogic {
   ///
   /// If no [maxValue] is provided, one will be inferred by the maximum that can
   /// fit inside of the [width].
-  Aggregator(
-    List<AggregatorInterface> interfaces, {
+  Sum(
+    List<SumInterface> interfaces, {
     dynamic initialValue = 0,
     dynamic maxValue,
     dynamic minValue = 0,
@@ -120,7 +122,8 @@ class Aggregator extends Module with DynamicInputToLogic {
   }) : width =
             inferWidth([initialValue, maxValue, minValue], width, interfaces) {
     interfaces = interfaces
-        .map((e) => AggregatorInterface.clone(e)..connectIO(this, e))
+        .map((e) =>
+            SumInterface.clone(e)..pairConnectIO(this, e, PairRole.consumer))
         .toList();
 
     addOutput('value', width: this.width);
@@ -161,7 +164,7 @@ class Aggregator extends Module with DynamicInputToLogic {
     final upperSaturation = Logic(name: 'upperSaturation', width: internalWidth)
       ..gets(maxValueLogic + zeroPoint);
     final lowerSaturation = Logic(name: 'lowerSaturation', width: internalWidth)
-      ..gets(minValueLogic + zeroPoint);
+      ..gets(minValueLogic + zeroPoint); //TODO: is this right?
 
     final internalValue = Logic(name: 'internalValue', width: internalWidth);
     value <= internalValue.getRange(0, this.width);
@@ -212,7 +215,7 @@ class Aggregator extends Module with DynamicInputToLogic {
 //TODO doc
 //TODO: hide this somehow
 int inferWidth(
-    List<dynamic> values, int? width, List<AggregatorInterface> interfaces) {
+    List<dynamic> values, int? width, List<SumInterface> interfaces) {
   if (width != null) {
     return width;
   }
