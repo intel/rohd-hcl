@@ -93,7 +93,7 @@ int goldenSum(
   } else {
     final range = maxVal - minVal + 1;
     if (sum > maxVal) {
-      sum = sum % range + minVal;
+      sum = (sum - maxVal) % range + minVal - 1;
     } else if (sum < minVal) {
       sum = maxVal - (minVal - sum) % range + 1;
     }
@@ -164,7 +164,7 @@ void main() {
     }
   });
 
-  test('small width, big increment', () {
+  test('small width, big increment', () async {
     final a = Logic(width: 4);
     final b = Logic(width: 4);
     final intfs = [a, b]
@@ -175,15 +175,15 @@ void main() {
     final dut = Sum(
       intfs,
       width: 2,
-      maxValue: 5,
     );
+    await dut.build();
 
     expect(dut.width, 2);
 
     a.put(3);
     b.put(2);
     expect(dut.value.value.toInt(), 1);
-    expect(goldenSum(intfs, width: dut.width, maxVal: 5), 1);
+    expect(goldenSum(intfs, width: dut.width, maxVal: 5, debug: true), 1);
   });
 
   test('one up, one down', () {
@@ -260,9 +260,14 @@ void main() {
 
       final saturates = rand.nextBool();
       var minVal = rand.nextBool() ? rand.nextInt(30) : 0;
-      final maxVal = rand.nextBool() ? rand.nextInt(70) + minVal : null;
+      var maxVal = rand.nextBool() ? rand.nextInt(70) + minVal : null;
       final initialValue = rand.nextBool() ? rand.nextInt(maxVal ?? 100) : 0;
       final width = rand.nextBool() ? null : rand.nextInt(10) + 1;
+
+      if (maxVal != null && width != null) {
+        // truncate to width
+        maxVal = LogicValue.ofInt(maxVal, width).toInt();
+      }
 
       if (maxVal == null || minVal >= maxVal) {
         if (maxVal == null && width == null) {

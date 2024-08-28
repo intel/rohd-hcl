@@ -223,6 +223,9 @@ class Sum extends Module with DynamicInputToLogic {
     final passedMax = Logic(name: 'passedMax');
     final passedMin = Logic(name: 'passedMin');
 
+    final preAdjustmentValue =
+        Logic(name: 'preAdjustmentValue', width: internalWidth);
+
     Combinational.ssa((s) => [
           // initialize
           s(internalValue) < initialValueLogic + zeroPoint,
@@ -238,6 +241,9 @@ class Sum extends Module with DynamicInputToLogic {
           reachedMax < passedMax | s(internalValue).eq(upperSaturation),
           reachedMin < passedMin | s(internalValue).eq(lowerSaturation),
 
+          // useful as an internal node for debug/visibility
+          preAdjustmentValue < s(internalValue),
+
           // handle saturation or over/underflow
           If.block([
             Iff.s(
@@ -245,17 +251,18 @@ class Sum extends Module with DynamicInputToLogic {
               s(internalValue) <
                   (saturates
                       ? upperSaturation
-                      : ((s(internalValue) - zeroPoint) % range +
-                          lowerSaturation)),
+                      : ((s(internalValue) - upperSaturation) % range +
+                          lowerSaturation -
+                          1)),
             ),
             ElseIf.s(
               passedMin,
               s(internalValue) <
                   (saturates
                       ? lowerSaturation
-                      : (upperSaturation +
-                          1 - // TODO: why +1?
-                          ((zeroPoint - s(internalValue)) % range))),
+                      : (upperSaturation -
+                          ((lowerSaturation - s(internalValue)) % range) +
+                          1)),
             )
           ]),
         ]);

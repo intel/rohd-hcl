@@ -145,6 +145,11 @@ mixin DynamicInputToLogic on Module {
     if (value is Logic) {
       return addInput(name, value.zeroExtend(width), width: width);
     } else {
+      if (LogicValue.ofInferWidth(value).width > width) {
+        throw RohdHclException(
+            'Value $value for $name is too large for width $width');
+      }
+
       return Logic(name: name, width: width)..gets(Const(value, width: width));
     }
   }
