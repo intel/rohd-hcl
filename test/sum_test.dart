@@ -110,6 +110,7 @@ void main() {
               Sum(intfs, saturates: saturates, initialValue: initialValue);
 
           await dut.build();
+
           expect(dut.width, 4);
 
           for (final pair in pairs) {

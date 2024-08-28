@@ -206,14 +206,14 @@ class Sum extends Module with DynamicInputToLogic {
       ..gets(minValueLogic + zeroPoint);
 
     final internalValue = Logic(name: 'internalValue', width: internalWidth);
-    value <= internalValue.getRange(0, this.width);
+    value <= (internalValue - zeroPoint).getRange(0, this.width);
 
     final passedMax = Logic(name: 'passedMax');
     final passedMin = Logic(name: 'passedMin');
 
     Combinational.ssa((s) => [
           // initialize
-          s(internalValue) < initialValueLogic,
+          s(internalValue) < initialValueLogic + zeroPoint,
 
           // perform increments and decrements
           ...interfaces
