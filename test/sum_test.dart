@@ -155,7 +155,7 @@ void main() {
       final interfaces = genRandomInterfaces();
 
       final saturates = rand.nextBool();
-      final minVal = rand.nextBool() ? rand.nextInt(30) : null;
+      final minVal = rand.nextBool() ? rand.nextInt(30) : 0;
       final maxVal = rand.nextBool() ? rand.nextInt(70) + (minVal ?? 0) : null;
       final initialValue = rand.nextInt(maxVal ?? 100);
 
@@ -164,7 +164,7 @@ void main() {
           intf.enable!.put(rand.nextBool());
         }
 
-        if (intf.fixedAmount != null) {
+        if (intf.fixedAmount == null) {
           intf.amount.put(rand.nextInt(1 << intf.width));
         }
       }
