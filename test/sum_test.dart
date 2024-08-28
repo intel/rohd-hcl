@@ -35,8 +35,21 @@ int goldenSum(
   int? maxVal,
   int? minVal,
   int initialValue = 0,
+  bool debug = false,
 }) {
+  void log(String message) {
+    if (debug) {
+      // ignore: avoid_print
+      print(message);
+    }
+  }
+
+  log('width: $width');
+
   var sum = initialValue;
+
+  log('min $minVal  ->  max $maxVal');
+
   maxVal ??= (1 << width) - 1;
   if (maxVal > (1 << width) - 1) {
     // ignore: parameter_assignments
@@ -44,9 +57,22 @@ int goldenSum(
   }
   minVal ??= 0;
 
+  log('min $minVal  ->  max $maxVal  [adjusted]');
+
+  if (minVal > maxVal) {
+    throw Exception('minVal must be less than or equal to maxVal');
+  }
+
+  log('init: $initialValue');
+
   for (final intf in interfaces) {
-    if (!intf.hasEnable || intf.enable!.value.toBool()) {
-      final amount = intf.amount.value.toInt();
+    final amount = intf.amount.value.toInt();
+    final enabled = !intf.hasEnable || intf.enable!.value.toBool();
+
+    log('${intf.increments ? '+' : '-'}'
+        '$amount${enabled ? '' : '  [disabled]'}');
+
+    if (enabled) {
       if (intf.increments) {
         sum += amount;
       } else {
@@ -55,20 +81,23 @@ int goldenSum(
     }
   }
 
+  log('=$sum');
+
   if (saturates) {
     if (sum > maxVal) {
       sum = maxVal;
     } else if (sum < minVal) {
       sum = minVal;
     }
+    log('saturates to $sum');
   } else {
     final range = maxVal - minVal + 1;
     if (sum > maxVal) {
       sum = sum % range + minVal;
     } else if (sum < minVal) {
-      // same thing for pos or neg since we can do negative modulo
-      sum = sum % range + minVal;
+      sum = maxVal - (minVal - sum) % range + 1;
     }
+    log('rolls-over to $sum');
   }
 
   return sum;
@@ -171,7 +200,41 @@ void main() {
         goldenSum(intfs, width: dut.width, saturates: true, initialValue: 5));
   });
 
-  // TODO: testing with overridden width
+  test('init less than min', () {
+    final intfs = [
+      SumInterface(fixedAmount: 2),
+    ];
+    final dut = Sum(intfs, initialValue: 13, minValue: 16, maxValue: 31);
+
+    final actual = dut.value.value.toInt();
+    final expected = goldenSum(
+      intfs,
+      width: dut.width,
+      minVal: 16,
+      maxVal: 31,
+      initialValue: 13,
+    );
+    expect(actual, 31);
+    expect(actual, expected);
+  });
+
+  test('init more than max', () {
+    final intfs = [
+      SumInterface(fixedAmount: 2, increments: false),
+    ];
+    final dut = Sum(intfs, initialValue: 34, minValue: 16, maxValue: 31);
+
+    final actual = dut.value.value.toInt();
+    final expected = goldenSum(
+      intfs,
+      width: dut.width,
+      minVal: 16,
+      maxVal: 31,
+      initialValue: 34,
+    );
+    expect(actual, 16);
+    expect(actual, expected);
+  });
 
   test('random', () {
     final rand = Random(123);
@@ -187,18 +250,28 @@ void main() {
     }
 
     List<SumInterface> genRandomInterfaces() {
-      final numInterfaces = rand.nextInt(8);
+      final numInterfaces = rand.nextInt(8) + 1;
       return List.generate(numInterfaces, (_) => genRandomInterface());
     }
 
     //TODO: set max number of rand iterations
-    for (var i = 0; i < 1; i++) {
+    for (var i = 0; i < 100; i++) {
       final interfaces = genRandomInterfaces();
 
       final saturates = rand.nextBool();
-      final minVal = rand.nextBool() ? rand.nextInt(30) : 0;
-      final maxVal = rand.nextBool() ? rand.nextInt(70) + (minVal ?? 0) : null;
-      final initialValue = rand.nextInt(maxVal ?? 100);
+      var minVal = rand.nextBool() ? rand.nextInt(30) : 0;
+      final maxVal = rand.nextBool() ? rand.nextInt(70) + minVal : null;
+      final initialValue = rand.nextBool() ? rand.nextInt(maxVal ?? 100) : 0;
+      final width = rand.nextBool() ? null : rand.nextInt(10) + 1;
+
+      if (maxVal == null || minVal >= maxVal) {
+        if (maxVal == null && width == null) {
+          minVal = 0;
+        } else {
+          minVal =
+              rand.nextInt(maxVal ?? (width == null ? 0 : (1 << width) - 1));
+        }
+      }
 
       for (final intf in interfaces) {
         if (intf.hasEnable) {
@@ -212,22 +285,28 @@ void main() {
 
       final dut = Sum(interfaces,
           saturates: saturates,
-          maxValue: maxVal,
-          minValue: minVal,
-          width: rand.nextBool() ? null : rand.nextInt(10),
-          initialValue: initialValue);
+          maxValue: maxVal != null && rand.nextBool()
+              ? Const(LogicValue.ofInferWidth(maxVal))
+              : maxVal,
+          minValue:
+              rand.nextBool() ? Const(LogicValue.ofInferWidth(minVal)) : minVal,
+          width: width,
+          initialValue: rand.nextBool()
+              ? Const(LogicValue.ofInferWidth(initialValue))
+              : initialValue);
 
-      expect(
-        dut.value.value.toInt(),
-        goldenSum(
-          interfaces,
-          width: dut.width,
-          saturates: saturates,
-          maxVal: maxVal,
-          minVal: minVal,
-          initialValue: initialValue,
-        ),
+      final actual = dut.value.value.toInt();
+      final expected = goldenSum(
+        interfaces,
+        width: dut.width,
+        saturates: saturates,
+        maxVal: maxVal,
+        minVal: minVal,
+        initialValue: initialValue,
+        debug: true,
       );
+
+      expect(actual, expected);
     }
   });
 }

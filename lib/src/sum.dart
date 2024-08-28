@@ -7,6 +7,8 @@
 // 2024 August 26
 // Author: Max Korbel <max.korbel@intel.com>
 
+import 'dart:math';
+
 import 'package:collection/collection.dart';
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
@@ -156,6 +158,10 @@ class Sum extends Module with DynamicInputToLogic {
     super.name = 'sum',
   }) : width =
             inferWidth([initialValue, maxValue, minValue], width, interfaces) {
+    if (interfaces.isEmpty) {
+      throw RohdHclException('At least one interface must be provided.');
+    }
+
     interfaces = interfaces
         .mapIndexed((i, e) => SumInterface.clone(e)
           ..pairConnectIO(this, e, PairRole.consumer,
@@ -173,9 +179,13 @@ class Sum extends Module with DynamicInputToLogic {
             .map((e) => _biggestVal(e.width))
             .sum;
     final maxNegMagnitude = interfaces
-        .where((e) => !e.increments)
-        .map((e) => _biggestVal(e.width))
-        .sum;
+            .where((e) => !e.increments)
+            .map((e) => _biggestVal(e.width))
+            .sum +
+        // also consider that initialValue may be less than min
+        (initialValue is Logic
+            ? _biggestVal(initialValue.width)
+            : LogicValue.ofInferWidth(initialValue).toInt());
 
     // calculate the largest number that we could have in intermediate
     final internalWidth = log2Ceil(maxPosMagnitude + maxNegMagnitude + 1);
@@ -259,6 +269,10 @@ class Sum extends Module with DynamicInputToLogic {
 int inferWidth(
     List<dynamic> values, int? width, List<SumInterface> interfaces) {
   if (width != null) {
+    if (width <= 0) {
+      throw RohdHclException('Width must be greater than 0.');
+    }
+
     return width;
   }
 
@@ -288,5 +302,5 @@ int inferWidth(
     throw RohdHclException('Unabled to infer width.');
   }
 
-  return maxWidthFound;
+  return max(1, maxWidthFound);
 }
