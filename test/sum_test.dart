@@ -38,7 +38,12 @@ int goldenSum(
 }) {
   var sum = initialValue;
   maxVal ??= (1 << width) - 1;
+  if (maxVal > (1 << width) - 1) {
+    // ignore: parameter_assignments
+    maxVal = (1 << width) - 1;
+  }
   minVal ??= 0;
+
   for (final intf in interfaces) {
     if (!intf.hasEnable || intf.enable!.value.toBool()) {
       final amount = intf.amount.value.toInt();
@@ -130,6 +135,42 @@ void main() {
     }
   });
 
+  test('small width, big increment', () {
+    final a = Logic(width: 4);
+    final b = Logic(width: 4);
+    final intfs = [a, b]
+        .map((e) => SumInterface(
+              width: e.width,
+            )..amount.gets(e))
+        .toList();
+    final dut = Sum(
+      intfs,
+      width: 2,
+      maxValue: 5,
+    );
+
+    expect(dut.width, 2);
+
+    a.put(3);
+    b.put(2);
+    expect(dut.value.value.toInt(), 1);
+    expect(goldenSum(intfs, width: dut.width, maxVal: 5), 1);
+  });
+
+  test('one up, one down', () {
+    final intfs = [
+      SumInterface(fixedAmount: 3),
+      SumInterface(fixedAmount: 2, increments: false),
+    ];
+    final dut = Sum(intfs, saturates: true, initialValue: 5, width: 7);
+
+    expect(dut.width, 7);
+
+    expect(dut.value.value.toInt(), 6);
+    expect(dut.value.value.toInt(),
+        goldenSum(intfs, width: dut.width, saturates: true, initialValue: 5));
+  });
+
   // TODO: testing with overridden width
 
   test('random', () {
@@ -173,7 +214,7 @@ void main() {
           saturates: saturates,
           maxValue: maxVal,
           minValue: minVal,
-          width: rand.nextBool() ? null : rand.nextInt(8),
+          width: rand.nextBool() ? null : rand.nextInt(10),
           initialValue: initialValue);
 
       expect(

@@ -184,10 +184,12 @@ class Sum extends Module with DynamicInputToLogic {
       'initialValue',
       initialValue,
     ).zeroExtend(internalWidth);
+
     final minValueLogic = dynamicInputToLogic(
       'minValue',
       minValue,
     ).zeroExtend(internalWidth);
+
     final maxValueLogic = dynamicInputToLogic(
       'maxValue',
       maxValue ?? _biggestVal(this.width),
