@@ -23,6 +23,7 @@ class Counter extends Module with DynamicInputToLogic {
   /// `maxValue` and `minValue`.
   final bool saturates;
 
+  /// The output value of the counter.
   Logic get value => output('value');
 
   /// Indicates whether the sum has reached the maximum value.
@@ -130,8 +131,9 @@ class Counter extends Module with DynamicInputToLogic {
           resetValue: resetValueLogic,
         );
 
-    addOutput('reachedMax') <= sum.reachedMax;
-    addOutput('reachedMin') <= sum.reachedMin;
+    // need to flop these since value is flopped
+    addOutput('reachedMax') <= flop(clk, sum.reachedMax, reset: reset);
+    addOutput('reachedMin') <= flop(clk, sum.reachedMin, reset: reset);
   }
 }
 

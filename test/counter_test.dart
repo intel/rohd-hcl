@@ -17,12 +17,10 @@ void main() {
   test('basic 1-bit rolling counter', () async {
     final clk = SimpleClockGenerator(10).clk;
     final reset = Logic();
-    final intf = SumInterface(fixedAmount: 1);
-    final counter = Counter([intf], clk: clk, reset: reset);
+
+    final counter = Counter.ofLogics([Const(1)], clk: clk, reset: reset);
 
     await counter.build();
-
-    print(counter.generateSynth());
 
     Simulator.setMaxSimTime(1000);
     unawaited(Simulator.run());
@@ -58,15 +56,88 @@ void main() {
     await Simulator.endSimulation();
   });
 
-  // TODO: test plan:
-  //  - 4 bit counter overflow roll
-  //  - 4 bit down-counter underflow roll
-  //  - 4 bit counter with upper saturation
-  //  - 4 bit down-counter with lower saturation
-  // - for each of them
-  //    - with/out variable amount
-  //    - with/out enable
-  // - weird reset value
+  test('reset and restart counter', () async {
+    final clk = SimpleClockGenerator(10).clk;
+    final reset = Logic();
+    final restart = Logic();
+
+    final counter = Counter(
+      [
+        SumInterface(fixedAmount: 4),
+        SumInterface(fixedAmount: 2, increments: false),
+      ],
+      clk: clk,
+      reset: reset,
+      restart: restart,
+      resetValue: 10,
+      maxValue: 15,
+      saturates: true,
+      width: 8,
+    );
+
+    await counter.build();
+    WaveDumper(counter);
+
+    Simulator.setMaxSimTime(1000);
+    unawaited(Simulator.run());
+
+    // little reset routine
+    reset.inject(0);
+    restart.inject(0);
+    await clk.nextNegedge;
+    reset.inject(1);
+    await clk.nextNegedge;
+    await clk.nextNegedge;
+    reset.inject(0);
+
+    // check initial value after reset drops
+    expect(counter.value.value.toInt(), 10);
+
+    // increment each cycle
+    await clk.nextNegedge;
+    expect(counter.value.value.toInt(), 12);
+    await clk.nextNegedge;
+    expect(counter.value.value.toInt(), 14);
+    expect(counter.reachedMax.value.toBool(), false);
+
+    // saturate
+    await clk.nextNegedge;
+    expect(counter.value.value.toInt(), 15);
+    expect(counter.reachedMax.value.toBool(), true);
+    await clk.nextNegedge;
+    expect(counter.value.value.toInt(), 15);
+    expect(counter.reachedMax.value.toBool(), true);
+
+    // restart (not reset!)
+    restart.inject(1);
+
+    // now we should catch the next +2 still, not miss it
+    await clk.nextNegedge;
+    expect(counter.value.value.toInt(), 12);
+
+    // and hold there
+    await clk.nextNegedge;
+    expect(counter.value.value.toInt(), 12);
+
+    // drop it and should continue
+    restart.inject(0);
+    await clk.nextNegedge;
+    expect(counter.value.value.toInt(), 14);
+
+    // now back to reset
+    reset.inject(1);
+    await clk.nextNegedge;
+    expect(counter.value.value.toInt(), 10);
+    await clk.nextNegedge;
+    expect(counter.value.value.toInt(), 10);
+
+    await clk.nextNegedge;
+    await clk.nextNegedge;
+    await clk.nextNegedge;
+    await clk.nextNegedge;
+
+    await Simulator.endSimulation();
+  });
 
   //TODO: test modulo requirement -- if sum is >2x greater than saturation
 }

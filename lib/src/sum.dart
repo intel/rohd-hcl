@@ -94,8 +94,6 @@ class Sum extends Module with DynamicInputToLogic {
   /// will wrap around (overflow/underflow) at the `maxValue` and `minValue`.
   final bool saturates;
 
-  //TODO: add some sort if "saturated" or "minimum" outputs?
-
   Logic get value => output('value');
 
   /// Indicates whether the sum has reached the maximum value.

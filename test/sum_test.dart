@@ -254,6 +254,40 @@ void main() {
     expect(actual, expected);
   });
 
+  group('reached', () {
+    test('has reachedMax', () {
+      final dut = Sum.ofLogics([Const(10, width: 8)],
+          width: 8, maxValue: 5, saturates: true);
+      expect(dut.reachedMax.value.toBool(), true);
+      expect(dut.value.value.toInt(), 5);
+    });
+
+    test('not reachedMax', () {
+      final dut = Sum.ofLogics([Const(3, width: 8)],
+          width: 8, maxValue: 5, saturates: true);
+      expect(dut.reachedMax.value.toBool(), false);
+      expect(dut.value.value.toInt(), 3);
+    });
+
+    test('has reachedMin', () {
+      final dut = Sum([
+        SumInterface(fixedAmount: 10, increments: false),
+      ], width: 8, minValue: 15, initialValue: 20, saturates: true);
+      expect(dut.reachedMin.value.toBool(), true);
+      expect(dut.value.value.toInt(), 15);
+    });
+
+    test('not reachedMin', () {
+      final dut = Sum([
+        SumInterface(fixedAmount: 3, increments: false),
+      ], width: 8, minValue: 15, initialValue: 20, saturates: true);
+      expect(dut.reachedMin.value.toBool(), false);
+      expect(dut.value.value.toInt(), 17);
+    });
+  });
+
+  // TODO: test enable
+
   test('random', () {
     final rand = Random(123);
 
