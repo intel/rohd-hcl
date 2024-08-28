@@ -251,9 +251,8 @@ class Sum extends Module with DynamicInputToLogic {
               s(internalValue) <
                   (saturates
                       ? upperSaturation
-                      : ((s(internalValue) - upperSaturation) % range +
-                          lowerSaturation -
-                          1)),
+                      : ((s(internalValue) - upperSaturation - 1) % range +
+                          lowerSaturation)),
             ),
             ElseIf.s(
               passedMin,
@@ -261,8 +260,7 @@ class Sum extends Module with DynamicInputToLogic {
                   (saturates
                       ? lowerSaturation
                       : (upperSaturation -
-                          ((lowerSaturation - s(internalValue)) % range) +
-                          1)),
+                          ((lowerSaturation - s(internalValue) - 1) % range))),
             )
           ]),
         ]);
@@ -278,6 +276,11 @@ int inferWidth(
   if (width != null) {
     if (width <= 0) {
       throw RohdHclException('Width must be greater than 0.');
+    }
+
+    if (values.any((v) => v is Logic && v.width > width)) {
+      throw RohdHclException(
+          'Width must be at least as large as the largest value.');
     }
 
     return width;

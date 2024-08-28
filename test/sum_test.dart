@@ -93,9 +93,9 @@ int goldenSum(
   } else {
     final range = maxVal - minVal + 1;
     if (sum > maxVal) {
-      sum = (sum - maxVal) % range + minVal - 1;
+      sum = (sum - maxVal - 1) % range + minVal;
     } else if (sum < minVal) {
-      sum = maxVal - (minVal - sum) % range + 1;
+      sum = maxVal - (minVal - sum - 1) % range;
     }
     log('rolls-over to $sum');
   }
@@ -236,6 +236,8 @@ void main() {
     expect(actual, expected);
   });
 
+  //TODO: test max == min
+
   test('random', () {
     final rand = Random(123);
 
@@ -258,15 +260,23 @@ void main() {
     for (var i = 0; i < 100; i++) {
       final interfaces = genRandomInterfaces();
 
+      final width = rand.nextBool() ? null : rand.nextInt(10) + 1;
+
       final saturates = rand.nextBool();
       var minVal = rand.nextBool() ? rand.nextInt(30) : 0;
-      var maxVal = rand.nextBool() ? rand.nextInt(70) + minVal : null;
-      final initialValue = rand.nextBool() ? rand.nextInt(maxVal ?? 100) : 0;
-      final width = rand.nextBool() ? null : rand.nextInt(10) + 1;
+      var maxVal = rand.nextBool()
+          ? rand.nextInt(width == null ? 70 : ((1 << width) - 1)) + minVal + 1
+          : null;
+      var initialValue = rand.nextBool() ? rand.nextInt(maxVal ?? 100) : 0;
 
       if (maxVal != null && width != null) {
         // truncate to width
-        maxVal = LogicValue.ofInt(maxVal, width).toInt();
+        maxVal = max(1, LogicValue.ofInt(maxVal, width).toInt());
+      }
+
+      if (width != null) {
+        // truncate to width
+        initialValue = LogicValue.ofInt(initialValue, width).toInt();
       }
 
       if (maxVal == null || minVal >= maxVal) {
@@ -288,16 +298,27 @@ void main() {
         }
       }
 
+      int safeWidthFor(int val) {
+        final lv = LogicValue.ofInferWidth(val);
+        final inferredWidth = lv.width;
+
+        return min(max(inferredWidth, 1), width ?? inferredWidth);
+      }
+
       final dut = Sum(interfaces,
           saturates: saturates,
           maxValue: maxVal != null && rand.nextBool()
-              ? Const(LogicValue.ofInferWidth(maxVal))
+              ? Const(LogicValue.ofInferWidth(maxVal),
+                  width: safeWidthFor(maxVal))
               : maxVal,
-          minValue:
-              rand.nextBool() ? Const(LogicValue.ofInferWidth(minVal)) : minVal,
+          minValue: rand.nextBool()
+              ? Const(LogicValue.ofInferWidth(minVal),
+                  width: safeWidthFor(minVal))
+              : minVal,
           width: width,
           initialValue: rand.nextBool()
-              ? Const(LogicValue.ofInferWidth(initialValue))
+              ? Const(LogicValue.ofInferWidth(initialValue),
+                  width: safeWidthFor(initialValue))
               : initialValue);
 
       final actual = dut.value.value.toInt();
@@ -308,7 +329,6 @@ void main() {
         maxVal: maxVal,
         minVal: minVal,
         initialValue: initialValue,
-        debug: true,
       );
 
       expect(actual, expected);
