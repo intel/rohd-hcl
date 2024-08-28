@@ -236,7 +236,23 @@ void main() {
     expect(actual, expected);
   });
 
-  //TODO: test max == min
+  test('min == max', () {
+    final intfs = [
+      SumInterface(fixedAmount: 2, increments: false),
+    ];
+    final dut = Sum(intfs, initialValue: 4, minValue: 12, maxValue: 12);
+
+    final actual = dut.value.value.toInt();
+    final expected = goldenSum(
+      intfs,
+      width: dut.width,
+      minVal: 12,
+      maxVal: 12,
+      initialValue: 4,
+    );
+    expect(actual, 12);
+    expect(actual, expected);
+  });
 
   test('random', () {
     final rand = Random(123);
@@ -256,8 +272,7 @@ void main() {
       return List.generate(numInterfaces, (_) => genRandomInterface());
     }
 
-    //TODO: set max number of rand iterations
-    for (var i = 0; i < 100; i++) {
+    for (var i = 0; i < 1000; i++) {
       final interfaces = genRandomInterfaces();
 
       final width = rand.nextBool() ? null : rand.nextInt(10) + 1;
