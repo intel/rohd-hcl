@@ -183,7 +183,7 @@ void main() {
     a.put(3);
     b.put(2);
     expect(dut.sum.value.toInt(), 1);
-    expect(goldenSum(intfs, width: dut.width, maxVal: 5, debug: true), 1);
+    expect(goldenSum(intfs, width: dut.width, maxVal: 5), 1);
   });
 
   //TODO: test modulo requirement -- if sum is >2x greater than saturation
@@ -257,33 +257,33 @@ void main() {
   });
 
   group('reached', () {
-    test('has reachedMax', () {
+    test('has overflowed', () {
       final dut = Sum.ofLogics([Const(10, width: 8)],
           width: 8, maxValue: 5, saturates: true);
-      expect(dut.reachedMax.value.toBool(), true);
+      expect(dut.overflowed.value.toBool(), true);
       expect(dut.sum.value.toInt(), 5);
     });
 
-    test('not reachedMax', () {
+    test('not overflowed', () {
       final dut = Sum.ofLogics([Const(3, width: 8)],
           width: 8, maxValue: 5, saturates: true);
-      expect(dut.reachedMax.value.toBool(), false);
+      expect(dut.overflowed.value.toBool(), false);
       expect(dut.sum.value.toInt(), 3);
     });
 
-    test('has reachedMin', () {
+    test('has underflowed', () {
       final dut = Sum([
         SumInterface(fixedAmount: 10, increments: false),
       ], width: 8, minValue: 15, initialValue: 20, saturates: true);
-      expect(dut.reachedMin.value.toBool(), true);
+      expect(dut.underflowed.value.toBool(), true);
       expect(dut.sum.value.toInt(), 15);
     });
 
-    test('not reachedMin', () {
+    test('not underflowed', () {
       final dut = Sum([
         SumInterface(fixedAmount: 3, increments: false),
       ], width: 8, minValue: 15, initialValue: 20, saturates: true);
-      expect(dut.reachedMin.value.toBool(), false);
+      expect(dut.underflowed.value.toBool(), false);
       expect(dut.sum.value.toInt(), 17);
     });
   });

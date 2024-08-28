@@ -117,9 +117,6 @@ class Sum extends SummationBase {
     final internalValue = Logic(name: 'internalValue', width: internalWidth);
     sum <= (internalValue - zeroPoint).getRange(0, this.width);
 
-    final passedMax = Logic(name: 'passedMax');
-    final passedMin = Logic(name: 'passedMin');
-
     final preAdjustmentValue =
         Logic(name: 'preAdjustmentValue', width: internalWidth);
 
@@ -133,10 +130,8 @@ class Sum extends SummationBase {
               .flattened,
 
           // identify if we're at a max/min case
-          passedMax < s(internalValue).gt(upperSaturation),
-          passedMin < s(internalValue).lt(lowerSaturation),
-          reachedMax < passedMax | s(internalValue).eq(upperSaturation),
-          reachedMin < passedMin | s(internalValue).eq(lowerSaturation),
+          overflowed < s(internalValue).gt(upperSaturation),
+          underflowed < s(internalValue).lt(lowerSaturation),
 
           // useful as an internal node for debug/visibility
           preAdjustmentValue < s(internalValue),
@@ -144,7 +139,7 @@ class Sum extends SummationBase {
           // handle saturation or over/underflow
           If.block([
             Iff.s(
-              passedMax,
+              overflowed,
               s(internalValue) <
                   (saturates
                       ? upperSaturation
@@ -152,7 +147,7 @@ class Sum extends SummationBase {
                           lowerSaturation)),
             ),
             ElseIf.s(
-              passedMin,
+              underflowed,
               s(internalValue) <
                   (saturates
                       ? lowerSaturation
@@ -161,5 +156,8 @@ class Sum extends SummationBase {
             )
           ]),
         ]);
+
+    equalsMax <= internalValue.eq(upperSaturation);
+    equalsMin <= internalValue.eq(lowerSaturation);
   }
 }

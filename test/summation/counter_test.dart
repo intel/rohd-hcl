@@ -78,22 +78,33 @@ void main() {
     await clk.nextNegedge;
     reset.inject(0);
 
-    expect(counter.reachedMin.value.toBool(), true);
+    expect(counter.overflowed.value.toBool(), false);
+    expect(counter.underflowed.value.toBool(), false);
+    expect(counter.equalsMax.value.toBool(), false);
+    expect(counter.equalsMin.value.toBool(), true);
 
     for (var i = 0; i < 20; i++) {
       expect(counter.count.value.toInt(), i % 6);
 
-      if (i > 0) {
-        expect(counter.reachedMin.value.toBool(), false);
+      if (i % 6 == 5) {
+        expect(counter.overflowed.value.toBool(), false);
+        expect(counter.equalsMax.value.toBool(), true);
+        expect(counter.equalsMin.value.toBool(), false);
+      } else if (i % 6 == 0 && i > 0) {
+        expect(counter.overflowed.value.toBool(), true);
+        expect(counter.equalsMax.value.toBool(), false);
+        expect(counter.equalsMin.value.toBool(), true);
+      } else {
+        expect(counter.overflowed.value.toBool(), false);
+        expect(counter.equalsMax.value.toBool(), false);
+        if (i % 6 != 0) {
+          expect(counter.equalsMin.value.toBool(), false);
+        } else {
+          expect(counter.equalsMin.value.toBool(), true);
+        }
       }
 
-      if (i % 6 == 5) {
-        expect(counter.reachedMax.value.toBool(), true);
-      } else if (i % 6 == 0 && i > 0) {
-        expect(counter.reachedMax.value.toBool(), true);
-      } else {
-        expect(counter.reachedMax.value.toBool(), false);
-      }
+      expect(counter.underflowed.value.toBool(), false);
 
       await clk.nextNegedge;
     }
@@ -105,6 +116,9 @@ void main() {
 
     await Simulator.endSimulation();
   });
+
+  //TODO: simple down counter
+  //TODO: test equalsMin/MAx with sum
 
   test('reset and restart counter', () async {
     final clk = SimpleClockGenerator(10).clk;
@@ -148,15 +162,15 @@ void main() {
     expect(counter.count.value.toInt(), 12);
     await clk.nextNegedge;
     expect(counter.count.value.toInt(), 14);
-    expect(counter.reachedMax.value.toBool(), false);
+    expect(counter.overflowed.value.toBool(), false);
 
     // saturate
     await clk.nextNegedge;
     expect(counter.count.value.toInt(), 15);
-    expect(counter.reachedMax.value.toBool(), true);
+    expect(counter.overflowed.value.toBool(), true);
     await clk.nextNegedge;
     expect(counter.count.value.toInt(), 15);
-    expect(counter.reachedMax.value.toBool(), true);
+    expect(counter.overflowed.value.toBool(), true);
 
     // restart (not reset!)
     restart.inject(1);

@@ -121,11 +121,10 @@ class Counter extends SummationBase {
         );
 
     // need to flop these since value is flopped
-    reachedMax <=
-        flop(clk, sum.reachedMax,
-            reset: reset, resetValue: initialValueLogic.gte(maxValueLogic));
-    reachedMin <=
-        flop(clk, sum.reachedMin,
-            reset: reset, resetValue: initialValueLogic.lte(minValueLogic));
+    overflowed <= flop(clk, sum.overflowed, reset: reset);
+    underflowed <= flop(clk, sum.underflowed, reset: reset);
+
+    equalsMax <= count.eq(maxValueLogic);
+    equalsMin <= count.eq(minValueLogic);
   }
 }

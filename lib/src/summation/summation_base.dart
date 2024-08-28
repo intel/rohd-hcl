@@ -23,19 +23,25 @@ class SummationBase extends Module with DynamicInputToLogicForSummation {
   /// will wrap around (overflow/underflow) at the `maxValue` and `minValue`.
   final bool saturates;
 
+  //TODO: review doc comments!
   /// Indicates whether the sum has reached the maximum value.
   ///
   /// If it [saturates], then the result will be equal to the maximum value.
   /// Otherwise, the value may have overflowed to any value, but the net sum
   /// before overflow will have been greater than the maximum value.
-  Logic get reachedMax => output('reachedMax');
+  // Logic get reachedMax => output('reachedMax');
 
   /// Indicates whether the sum has reached the minimum value.
   ///
   /// If it [saturates], then the result will be equal to the minimum value.
   /// Otherwise, the value may have underflowed to any value, but the net sum
   /// before underflow will have been less than the minimum value.
-  Logic get reachedMin => output('reachedMin');
+  // Logic get reachedMin => output('reachedMin');
+
+  Logic get overflowed => output('overflowed');
+  Logic get underflowed => output('underflowed');
+  Logic get equalsMax => output('equalsMax');
+  Logic get equalsMin => output('equalsMin');
 
   SummationBase(
     List<SumInterface> interfaces, {
@@ -62,7 +68,9 @@ class SummationBase extends Module with DynamicInputToLogicForSummation {
     maxValueLogic =
         dynamicInputToLogic('maxValue', maxValue ?? biggestVal(this.width));
 
-    addOutput('reachedMax');
-    addOutput('reachedMin');
+    addOutput('overflowed');
+    addOutput('underflowed');
+    addOutput('equalsMax');
+    addOutput('equalsMin');
   }
 }
