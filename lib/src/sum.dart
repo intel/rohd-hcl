@@ -241,7 +241,8 @@ class Sum extends Module with DynamicInputToLogic {
               s(internalValue) <
                   (saturates
                       ? lowerSaturation
-                      : (upperSaturation -
+                      : (upperSaturation +
+                          1 - // TODO: why +1?
                           ((zeroPoint - s(internalValue)) % range))),
             )
           ]),

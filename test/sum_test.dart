@@ -61,7 +61,8 @@ int goldenSum(
     if (sum > maxVal) {
       sum = sum % range + minVal;
     } else if (sum < minVal) {
-      sum = maxVal - sum % range;
+      // same thing for pos or neg since we can do negative modulo
+      sum = sum % range + minVal;
     }
   }
 
