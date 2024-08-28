@@ -108,7 +108,7 @@ void main() {
     final logics = [Const(1)];
     final dut = Sum.ofLogics(logics);
     await dut.build();
-    expect(dut.value.value.toInt(), 1);
+    expect(dut.sum.value.toInt(), 1);
     expect(dut.width, 1);
     expect(goldenSumOfLogics(logics, width: dut.width), 1);
   });
@@ -157,7 +157,7 @@ void main() {
               saturates: saturates,
               initialValue: initialValue,
             );
-            expect(dut.value.value.toInt(), expected);
+            expect(dut.sum.value.toInt(), expected);
           }
         });
       }
@@ -182,7 +182,7 @@ void main() {
 
     a.put(3);
     b.put(2);
-    expect(dut.value.value.toInt(), 1);
+    expect(dut.sum.value.toInt(), 1);
     expect(goldenSum(intfs, width: dut.width, maxVal: 5, debug: true), 1);
   });
 
@@ -195,8 +195,8 @@ void main() {
 
     expect(dut.width, 7);
 
-    expect(dut.value.value.toInt(), 6);
-    expect(dut.value.value.toInt(),
+    expect(dut.sum.value.toInt(), 6);
+    expect(dut.sum.value.toInt(),
         goldenSum(intfs, width: dut.width, saturates: true, initialValue: 5));
   });
 
@@ -206,7 +206,7 @@ void main() {
     ];
     final dut = Sum(intfs, initialValue: 13, minValue: 16, maxValue: 31);
 
-    final actual = dut.value.value.toInt();
+    final actual = dut.sum.value.toInt();
     final expected = goldenSum(
       intfs,
       width: dut.width,
@@ -224,7 +224,7 @@ void main() {
     ];
     final dut = Sum(intfs, initialValue: 34, minValue: 16, maxValue: 31);
 
-    final actual = dut.value.value.toInt();
+    final actual = dut.sum.value.toInt();
     final expected = goldenSum(
       intfs,
       width: dut.width,
@@ -242,7 +242,7 @@ void main() {
     ];
     final dut = Sum(intfs, initialValue: 4, minValue: 12, maxValue: 12);
 
-    final actual = dut.value.value.toInt();
+    final actual = dut.sum.value.toInt();
     final expected = goldenSum(
       intfs,
       width: dut.width,
@@ -259,14 +259,14 @@ void main() {
       final dut = Sum.ofLogics([Const(10, width: 8)],
           width: 8, maxValue: 5, saturates: true);
       expect(dut.reachedMax.value.toBool(), true);
-      expect(dut.value.value.toInt(), 5);
+      expect(dut.sum.value.toInt(), 5);
     });
 
     test('not reachedMax', () {
       final dut = Sum.ofLogics([Const(3, width: 8)],
           width: 8, maxValue: 5, saturates: true);
       expect(dut.reachedMax.value.toBool(), false);
-      expect(dut.value.value.toInt(), 3);
+      expect(dut.sum.value.toInt(), 3);
     });
 
     test('has reachedMin', () {
@@ -274,7 +274,7 @@ void main() {
         SumInterface(fixedAmount: 10, increments: false),
       ], width: 8, minValue: 15, initialValue: 20, saturates: true);
       expect(dut.reachedMin.value.toBool(), true);
-      expect(dut.value.value.toInt(), 15);
+      expect(dut.sum.value.toInt(), 15);
     });
 
     test('not reachedMin', () {
@@ -282,7 +282,7 @@ void main() {
         SumInterface(fixedAmount: 3, increments: false),
       ], width: 8, minValue: 15, initialValue: 20, saturates: true);
       expect(dut.reachedMin.value.toBool(), false);
-      expect(dut.value.value.toInt(), 17);
+      expect(dut.sum.value.toInt(), 17);
     });
   });
 
@@ -370,7 +370,7 @@ void main() {
                   width: safeWidthFor(initialValue))
               : initialValue);
 
-      final actual = dut.value.value.toInt();
+      final actual = dut.sum.value.toInt();
       final expected = goldenSum(
         interfaces,
         width: dut.width,

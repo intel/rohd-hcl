@@ -14,6 +14,10 @@ import 'package:rohd_hcl/rohd_hcl.dart';
 import 'package:test/test.dart';
 
 void main() {
+  tearDown(() async {
+    await Simulator.reset();
+  });
+
   test('basic 1-bit rolling counter', () async {
     final clk = SimpleClockGenerator(10).clk;
     final reset = Logic();
@@ -34,19 +38,19 @@ void main() {
     reset.inject(0);
 
     // check initial value
-    expect(counter.value.value.toInt(), 0);
+    expect(counter.count.value.toInt(), 0);
 
     // wait a cycle, see 1
     await clk.nextNegedge;
-    expect(counter.value.value.toInt(), 1);
+    expect(counter.count.value.toInt(), 1);
 
     // wait a cycle, should overflow (1-bit counter), back to 0
     await clk.nextNegedge;
-    expect(counter.value.value.toInt(), 0);
+    expect(counter.count.value.toInt(), 0);
 
     // wait a cycle, see 1
     await clk.nextNegedge;
-    expect(counter.value.value.toInt(), 1);
+    expect(counter.count.value.toInt(), 1);
 
     await clk.nextNegedge;
     await clk.nextNegedge;
@@ -91,21 +95,21 @@ void main() {
     reset.inject(0);
 
     // check initial value after reset drops
-    expect(counter.value.value.toInt(), 10);
+    expect(counter.count.value.toInt(), 10);
 
     // increment each cycle
     await clk.nextNegedge;
-    expect(counter.value.value.toInt(), 12);
+    expect(counter.count.value.toInt(), 12);
     await clk.nextNegedge;
-    expect(counter.value.value.toInt(), 14);
+    expect(counter.count.value.toInt(), 14);
     expect(counter.reachedMax.value.toBool(), false);
 
     // saturate
     await clk.nextNegedge;
-    expect(counter.value.value.toInt(), 15);
+    expect(counter.count.value.toInt(), 15);
     expect(counter.reachedMax.value.toBool(), true);
     await clk.nextNegedge;
-    expect(counter.value.value.toInt(), 15);
+    expect(counter.count.value.toInt(), 15);
     expect(counter.reachedMax.value.toBool(), true);
 
     // restart (not reset!)
@@ -113,23 +117,23 @@ void main() {
 
     // now we should catch the next +2 still, not miss it
     await clk.nextNegedge;
-    expect(counter.value.value.toInt(), 12);
+    expect(counter.count.value.toInt(), 12);
 
     // and hold there
     await clk.nextNegedge;
-    expect(counter.value.value.toInt(), 12);
+    expect(counter.count.value.toInt(), 12);
 
     // drop it and should continue
     restart.inject(0);
     await clk.nextNegedge;
-    expect(counter.value.value.toInt(), 14);
+    expect(counter.count.value.toInt(), 14);
 
     // now back to reset
     reset.inject(1);
     await clk.nextNegedge;
-    expect(counter.value.value.toInt(), 10);
+    expect(counter.count.value.toInt(), 10);
     await clk.nextNegedge;
-    expect(counter.value.value.toInt(), 10);
+    expect(counter.count.value.toInt(), 10);
 
     await clk.nextNegedge;
     await clk.nextNegedge;

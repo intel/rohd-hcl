@@ -8,14 +8,11 @@
 // Author: Max Korbel <max.korbel@intel.com>
 
 import 'package:collection/collection.dart';
-import 'package:meta/meta.dart';
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
-import 'package:rohd_hcl/src/sum.dart';
-import 'package:rohd_hcl/src/exceptions.dart';
-import 'package:rohd_hcl/src/parallel_prefix_operations.dart';
+import 'package:rohd_hcl/src/summation/summation_utils.dart';
 
-class Counter extends Module with DynamicInputToLogic {
+class Counter extends Module with DynamicInputToLogicForSummation {
   final int width;
 
   /// If `true`, the counter will saturate at the `maxValue` and `minValue`. If
@@ -24,32 +21,58 @@ class Counter extends Module with DynamicInputToLogic {
   final bool saturates;
 
   /// The output value of the counter.
-  Logic get value => output('value');
+  Logic get count => output('count');
 
   /// Indicates whether the sum has reached the maximum value.
   ///
-  /// If it [saturates], then [value] will be equal to the maximum value.
+  /// If it [saturates], then [count] will be equal to the maximum value.
   /// Otherwise, the value may have overflowed to any value, but the net sum
   /// before overflow will have been greater than the maximum value.
   Logic get reachedMax => output('reachedMax');
 
   /// Indicates whether the sum has reached the minimum value.
   ///
-  /// If it [saturates], then [value] will be equal to the minimum value.
+  /// If it [saturates], then [count] will be equal to the minimum value.
   /// Otherwise, the value may have underflowed to any value, but the net sum
   /// before underflow will have been less than the minimum value.
   Logic get reachedMin => output('reachedMin');
+
+  Counter.simple({
+    required Logic clk,
+    required Logic reset,
+    int by = 1,
+    Logic? enable,
+    int minValue = 0,
+    int? maxValue,
+    int? width,
+    Logic? restart,
+    bool saturates = false,
+    String name = 'counter',
+  }) : this([
+          SumInterface(width: width, hasEnable: enable != null)
+            ..amount.gets(Const(by, width: width))
+            ..enable?.gets(enable!),
+        ],
+            clk: clk,
+            reset: reset,
+            resetValue: 0,
+            restart: restart,
+            maxValue: maxValue,
+            minValue: minValue,
+            width: width,
+            saturates: saturates,
+            name: name);
 
   factory Counter.ofLogics(
     List<Logic> logics, {
     required Logic clk,
     required Logic reset,
+    Logic? restart,
     dynamic resetValue = 0,
     dynamic maxValue,
     dynamic minValue = 0,
     int? width,
     bool saturates = false,
-    Logic? restart,
     String name = 'counter',
   }) =>
       Counter(
@@ -80,7 +103,7 @@ class Counter extends Module with DynamicInputToLogic {
   ///
   /// The [restart] input can be used to restart the counter to a new value, but
   /// also continue to increment in that same cycle. This is distinct from
-  /// [reset] which will reset the counter, holding the [value] at [resetValue].
+  /// [reset] which will reset the counter, holding the [count] at [resetValue].
   Counter(
     List<SumInterface> interfaces, {
     required Logic clk,
@@ -100,7 +123,7 @@ class Counter extends Module with DynamicInputToLogic {
       restart = addInput('restart', restart);
     }
 
-    addOutput('value', width: this.width);
+    addOutput('count', width: this.width);
 
     interfaces = interfaces
         .mapIndexed((i, e) => SumInterface.clone(e)
@@ -116,17 +139,17 @@ class Counter extends Module with DynamicInputToLogic {
     final sum = Sum(
       interfaces,
       initialValue:
-          restart != null ? mux(restart, resetValueLogic, value) : value,
+          restart != null ? mux(restart, resetValueLogic, count) : count,
       maxValue: maxValue,
       minValue: minValue,
       width: this.width,
       saturates: saturates,
     );
 
-    value <=
+    count <=
         flop(
           clk,
-          sum.value,
+          sum.sum,
           reset: reset,
           resetValue: resetValueLogic,
         );
@@ -139,20 +162,3 @@ class Counter extends Module with DynamicInputToLogic {
 
 //TODO doc
 //TODO: is this ok? move it somewhere else?
-mixin DynamicInputToLogic on Module {
-  int get width;
-
-  @protected
-  Logic dynamicInputToLogic(String name, dynamic value) {
-    if (value is Logic) {
-      return addInput(name, value.zeroExtend(width), width: width);
-    } else {
-      if (LogicValue.ofInferWidth(value).width > width) {
-        throw RohdHclException(
-            'Value $value for $name is too large for width $width');
-      }
-
-      return Logic(name: name, width: width)..gets(Const(value, width: width));
-    }
-  }
-}
