@@ -76,3 +76,5 @@ int inferWidth(
 
   return max(1, maxWidthFound);
 }
+
+int biggestVal(int width) => (1 << width) - 1;

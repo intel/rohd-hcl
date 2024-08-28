@@ -60,6 +60,52 @@ void main() {
     await Simulator.endSimulation();
   });
 
+  test('simple counter', () async {
+    final clk = SimpleClockGenerator(10).clk;
+    final reset = Logic();
+    final counter = Counter.simple(clk: clk, reset: reset, maxValue: 5);
+
+    await counter.build();
+
+    Simulator.setMaxSimTime(1000);
+    unawaited(Simulator.run());
+
+    // little reset routine
+    reset.inject(0);
+    await clk.nextNegedge;
+    reset.inject(1);
+    await clk.nextNegedge;
+    await clk.nextNegedge;
+    reset.inject(0);
+
+    expect(counter.reachedMin.value.toBool(), true);
+
+    for (var i = 0; i < 20; i++) {
+      expect(counter.count.value.toInt(), i % 6);
+
+      if (i > 0) {
+        expect(counter.reachedMin.value.toBool(), false);
+      }
+
+      if (i % 6 == 5) {
+        expect(counter.reachedMax.value.toBool(), true);
+      } else if (i % 6 == 0 && i > 0) {
+        expect(counter.reachedMax.value.toBool(), true);
+      } else {
+        expect(counter.reachedMax.value.toBool(), false);
+      }
+
+      await clk.nextNegedge;
+    }
+
+    await clk.nextNegedge;
+    await clk.nextNegedge;
+    await clk.nextNegedge;
+    await clk.nextNegedge;
+
+    await Simulator.endSimulation();
+  });
+
   test('reset and restart counter', () async {
     final clk = SimpleClockGenerator(10).clk;
     final reset = Logic();
@@ -142,6 +188,4 @@ void main() {
 
     await Simulator.endSimulation();
   });
-
-  //TODO: test modulo requirement -- if sum is >2x greater than saturation
 }

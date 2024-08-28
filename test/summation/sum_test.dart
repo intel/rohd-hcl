@@ -186,6 +186,8 @@ void main() {
     expect(goldenSum(intfs, width: dut.width, maxVal: 5, debug: true), 1);
   });
 
+  //TODO: test modulo requirement -- if sum is >2x greater than saturation
+
   test('one up, one down', () {
     final intfs = [
       SumInterface(fixedAmount: 3),

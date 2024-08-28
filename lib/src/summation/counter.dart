@@ -7,35 +7,13 @@
 // 2024 August 26
 // Author: Max Korbel <max.korbel@intel.com>
 
-import 'package:collection/collection.dart';
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
-import 'package:rohd_hcl/src/summation/summation_utils.dart';
+import 'package:rohd_hcl/src/summation/summation_base.dart';
 
-class Counter extends Module with DynamicInputToLogicForSummation {
-  final int width;
-
-  /// If `true`, the counter will saturate at the `maxValue` and `minValue`. If
-  /// `false`, the counter will wrap around (overflow/underflow) at the
-  /// `maxValue` and `minValue`.
-  final bool saturates;
-
+class Counter extends SummationBase {
   /// The output value of the counter.
   Logic get count => output('count');
-
-  /// Indicates whether the sum has reached the maximum value.
-  ///
-  /// If it [saturates], then [count] will be equal to the maximum value.
-  /// Otherwise, the value may have overflowed to any value, but the net sum
-  /// before overflow will have been greater than the maximum value.
-  Logic get reachedMax => output('reachedMax');
-
-  /// Indicates whether the sum has reached the minimum value.
-  ///
-  /// If it [saturates], then [count] will be equal to the minimum value.
-  /// Otherwise, the value may have underflowed to any value, but the net sum
-  /// before underflow will have been less than the minimum value.
-  Logic get reachedMin => output('reachedMin');
 
   Counter.simple({
     required Logic clk,
@@ -49,8 +27,7 @@ class Counter extends Module with DynamicInputToLogicForSummation {
     bool saturates = false,
     String name = 'counter',
   }) : this([
-          SumInterface(width: width, hasEnable: enable != null)
-            ..amount.gets(Const(by, width: width))
+          SumInterface(width: width, fixedAmount: by, hasEnable: enable != null)
             ..enable?.gets(enable!),
         ],
             clk: clk,
@@ -105,17 +82,17 @@ class Counter extends Module with DynamicInputToLogicForSummation {
   /// also continue to increment in that same cycle. This is distinct from
   /// [reset] which will reset the counter, holding the [count] at [resetValue].
   Counter(
-    List<SumInterface> interfaces, {
+    super.interfaces, {
     required Logic clk,
     required Logic reset,
-    dynamic resetValue = 0,
-    dynamic maxValue,
-    dynamic minValue = 0,
-    int? width,
-    this.saturates = false,
     Logic? restart,
+    dynamic resetValue = 0,
+    super.maxValue,
+    super.minValue = 0,
+    super.width,
+    super.saturates,
     super.name = 'counter',
-  }) : width = inferWidth([resetValue, maxValue, minValue], width, interfaces) {
+  }) : super(initialValue: resetValue) {
     clk = addInput('clk', clk);
     reset = addInput('reset', reset);
 
@@ -123,26 +100,15 @@ class Counter extends Module with DynamicInputToLogicForSummation {
       restart = addInput('restart', restart);
     }
 
-    addOutput('count', width: this.width);
-
-    interfaces = interfaces
-        .mapIndexed((i, e) => SumInterface.clone(e)
-          ..pairConnectIO(this, e, PairRole.consumer,
-              uniquify: (original) => '${original}_$i'))
-        .toList();
-
-    final resetValueLogic = dynamicInputToLogic(
-      'resetValue',
-      resetValue,
-    );
+    addOutput('count', width: width);
 
     final sum = Sum(
       interfaces,
       initialValue:
-          restart != null ? mux(restart, resetValueLogic, count) : count,
-      maxValue: maxValue,
-      minValue: minValue,
-      width: this.width,
+          restart != null ? mux(restart, initialValueLogic, count) : count,
+      maxValue: maxValueLogic,
+      minValue: minValueLogic,
+      width: width,
       saturates: saturates,
     );
 
@@ -151,14 +117,15 @@ class Counter extends Module with DynamicInputToLogicForSummation {
           clk,
           sum.sum,
           reset: reset,
-          resetValue: resetValueLogic,
+          resetValue: initialValueLogic,
         );
 
     // need to flop these since value is flopped
-    addOutput('reachedMax') <= flop(clk, sum.reachedMax, reset: reset);
-    addOutput('reachedMin') <= flop(clk, sum.reachedMin, reset: reset);
+    reachedMax <=
+        flop(clk, sum.reachedMax,
+            reset: reset, resetValue: initialValueLogic.gte(maxValueLogic));
+    reachedMin <=
+        flop(clk, sum.reachedMin,
+            reset: reset, resetValue: initialValueLogic.lte(minValueLogic));
   }
 }
-
-//TODO doc
-//TODO: is this ok? move it somewhere else?

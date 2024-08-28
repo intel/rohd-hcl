@@ -10,6 +10,7 @@
 import 'package:collection/collection.dart';
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
+import 'package:rohd_hcl/src/summation/summation_base.dart';
 import 'package:rohd_hcl/src/summation/summation_utils.dart';
 
 extension on SumInterface {
@@ -29,28 +30,8 @@ extension on SumInterface {
   }
 }
 
-class Sum extends Module with DynamicInputToLogicForSummation {
-  final int width;
-
-  /// If `true`,  will saturate at the `maxValue` and `minValue`. If `false`,
-  /// will wrap around (overflow/underflow) at the `maxValue` and `minValue`.
-  final bool saturates;
-
+class Sum extends SummationBase {
   Logic get sum => output('sum');
-
-  /// Indicates whether the sum has reached the maximum value.
-  ///
-  /// If it [saturates], then [sum] will be equal to the maximum value.
-  /// Otherwise, the value may have overflowed to any value, but the net sum
-  /// before overflow will have been greater than the maximum value.
-  Logic get reachedMax => output('reachedMax');
-
-  /// Indicates whether the sum has reached the minimum value.
-  ///
-  /// If it [saturates], then [sum] will be equal to the minimum value.
-  /// Otherwise, the value may have underflowed to any value, but the net sum
-  /// before underflow will have been less than the minimum value.
-  Logic get reachedMin => output('reachedMin');
 
   /// TODO
   ///
@@ -89,73 +70,49 @@ class Sum extends Module with DynamicInputToLogicForSummation {
   /// It is expected that [maxValue] is at least [minValue], or else results may
   /// be unpredictable.
   Sum(
-    List<SumInterface> interfaces, {
+    super.interfaces, {
     dynamic initialValue = 0,
-    dynamic maxValue,
-    dynamic minValue = 0,
-    int? width,
-    this.saturates = false,
+    super.maxValue,
+    super.minValue,
+    super.width,
+    super.saturates,
     super.name = 'sum',
-  }) : width =
-            inferWidth([initialValue, maxValue, minValue], width, interfaces) {
-    if (interfaces.isEmpty) {
-      throw RohdHclException('At least one interface must be provided.');
-    }
-
-    interfaces = interfaces
-        .mapIndexed((i, e) => SumInterface.clone(e)
-          ..pairConnectIO(this, e, PairRole.consumer,
-              uniquify: (original) => '${original}_$i'))
-        .toList();
-
-    addOutput('sum', width: this.width);
-    addOutput('reachedMax');
-    addOutput('reachedMin');
+  }) : super(initialValue: initialValue) {
+    addOutput('sum', width: width);
 
     // assume minValue is 0, maxValue is 2^width, for width safety calcs
-    final maxPosMagnitude = _biggestVal(this.width) +
+    final maxPosMagnitude = biggestVal(this.width) +
         interfaces
             .where((e) => e.increments)
-            .map((e) => _biggestVal(e.width))
+            .map((e) => biggestVal(e.width))
             .sum;
     final maxNegMagnitude = interfaces
             .where((e) => !e.increments)
-            .map((e) => _biggestVal(e.width))
+            .map((e) => biggestVal(e.width))
             .sum +
         // also consider that initialValue may be less than min
         (initialValue is Logic
-            ? _biggestVal(initialValue.width)
+            ? biggestVal(initialValue.width)
             : LogicValue.ofInferWidth(initialValue).toInt());
 
     // calculate the largest number that we could have in intermediate
     final internalWidth = log2Ceil(maxPosMagnitude + maxNegMagnitude + 1);
 
-    final initialValueLogic = dynamicInputToLogic(
-      'initialValue',
-      initialValue,
-    ).zeroExtend(internalWidth);
-
-    final minValueLogic = dynamicInputToLogic(
-      'minValue',
-      minValue,
-    ).zeroExtend(internalWidth);
-
-    final maxValueLogic = dynamicInputToLogic(
-      'maxValue',
-      maxValue ?? _biggestVal(this.width),
-    ).zeroExtend(internalWidth);
+    final initialValueLogicExt = initialValueLogic.zeroExtend(internalWidth);
+    final minValueLogicExt = minValueLogic.zeroExtend(internalWidth);
+    final maxValueLogicExt = maxValueLogic.zeroExtend(internalWidth);
 
     // lazy range so that it's not generated if not necessary
     late final range = Logic(name: 'range', width: internalWidth)
-      ..gets(maxValueLogic - minValueLogic + 1);
+      ..gets(maxValueLogicExt - minValueLogicExt + 1);
 
     final zeroPoint = Logic(name: 'zeroPoint', width: internalWidth)
       ..gets(Const(maxNegMagnitude, width: internalWidth));
 
     final upperSaturation = Logic(name: 'upperSaturation', width: internalWidth)
-      ..gets(maxValueLogic + zeroPoint);
+      ..gets(maxValueLogicExt + zeroPoint);
     final lowerSaturation = Logic(name: 'lowerSaturation', width: internalWidth)
-      ..gets(minValueLogic + zeroPoint);
+      ..gets(minValueLogicExt + zeroPoint);
 
     final internalValue = Logic(name: 'internalValue', width: internalWidth);
     sum <= (internalValue - zeroPoint).getRange(0, this.width);
@@ -168,7 +125,7 @@ class Sum extends Module with DynamicInputToLogicForSummation {
 
     Combinational.ssa((s) => [
           // initialize
-          s(internalValue) < initialValueLogic + zeroPoint,
+          s(internalValue) < initialValueLogicExt + zeroPoint,
 
           // perform increments and decrements
           ...interfaces
@@ -205,6 +162,4 @@ class Sum extends Module with DynamicInputToLogicForSummation {
           ]),
         ]);
   }
-
-  static int _biggestVal(int width) => (1 << width) - 1;
 }
