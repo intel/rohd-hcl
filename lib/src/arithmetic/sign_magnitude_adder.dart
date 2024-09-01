@@ -48,72 +48,8 @@ class SignMagnitudeAdder extends Adder {
     final bLarger = a.lt(b) | (a.eq(b) & bSign.gt(aSign));
 
     _sign <= (largestMagnitudeFirst ? aSign : mux(bLarger, bSign, aSign));
-    final adder = OnesComplementAdder(a, b, aSign ^ bSign, null, adderGen);
+    final adder = OnesComplementAdder(a, b,
+        subtractIn: aSign ^ bSign, adderGen: adderGen);
     sum <= adder.sum;
-  }
-}
-
-/// An adder (and subtractor) [OnesComplementAdder] that operates on
-/// ones-complement values.
-class OnesComplementAdder extends Adder {
-  /// The sign of the result
-  Logic get sign => output('sign');
-
-  /// The end-around carry which should be added to the resulting [sum]
-  /// If the input [carry] is not null, this value is stored there. Otherwise,
-  /// the end-around carry is internally added to [sum]
-  Logic? get carry => tryOutput('carry');
-
-  @protected
-  Logic _sign = Logic();
-
-  /// [OnesComplementAdder] constructor with an adder functor [adderGen]
-  /// Either a Logic [subtractIn] or a boolean [subtract] can enable
-  /// subtraction, with [subtractIn] overriding [subtract].  If Logic [carry]
-  /// is provided as not null, then the end-around carry is not performed and is
-  /// left to the caller via the output [carry].
-  OnesComplementAdder(super.a, super.b, Logic? subtractIn, Logic? carry,
-      Adder Function(Logic, Logic) adderGen,
-      {bool subtract = false})
-      : super(
-            name: 'Ones Complement Adder: '
-                '${adderGen.call(Logic(), Logic()).name}') {
-    if (subtractIn != null) {
-      subtractIn = addInput('subtractIn', subtractIn);
-    }
-    _sign = addOutput('sign');
-    if (carry != null) {
-      addOutput('carry');
-      carry <= this.carry!;
-    }
-    if ((subtractIn != null) & subtract) {
-      throw RohdHclException(
-          'Subtraction is controlled by a non-null subtractIn: '
-          'subtract boolean is ignored');
-    }
-    final doSubtract = subtractIn ?? (subtract ? Const(1) : Const(0));
-
-    final ax = a.zeroExtend(a.width);
-    final bx = b.zeroExtend(b.width);
-
-    final adder = adderGen(ax, mux(doSubtract, ~bx, bx));
-
-    if (this.carry != null) {
-      this.carry! <= adder.sum[-1];
-    }
-    final endAround = mux(doSubtract, adder.sum[-1], Const(0));
-    final magnitude = adder.sum.slice(a.width - 1, 0);
-
-    sum <=
-        mux(
-            doSubtract,
-            mux(
-                    endAround,
-                    [if (this.carry != null) magnitude else magnitude + 1]
-                        .first,
-                    ~magnitude)
-                .zeroExtend(sum.width),
-            adder.sum);
-    _sign <= mux(doSubtract, ~endAround, Const(0));
   }
 }

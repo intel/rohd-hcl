@@ -3,7 +3,7 @@
 
 Below is a list of components grouped by category. Ones with links are documented and completed, while others are still in planning or development stages.
 
-Some in-development items will have opened issues, as well. Feel free to create a pull request or file issues to add more ideas to this list. If you plan to develop and contribute a component, please be sure to open an issue so that there's not multiple people working on the same thing. Make sure to check if someone else has an open issue for a certain component before starting.
+Some in-development items will have opened issues, as well. Feel free to create a pull request or file issues to add more ideas to this list. If you plan to develop and contribute a component, please be sure to open an issue so that there are not multiple people working on the same thing. Make sure to check if someone else has an open issue for a certain component before starting.
 
 - Encoders & Decoders
   - [1-hot to Binary](./components/onehot.md)

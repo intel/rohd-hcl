@@ -16,7 +16,7 @@ as two `Logic`s and adds the result to a third `Logic` with width
 equal to the sum of the widths of the main inputs. We have a
 high-performance implementation:
 
-- [Compression Tree Multipy Accumulate](#compression-tree-multiply-accumulate)
+- [Compression Tree Multiply Accumulate](#compression-tree-multiply-accumulate)
 
 The compression tree based arithmetic units are built from a set of components for Booth-encoding, column compression, and parallel prefix adders described in the [`Booth Encoding Multiplier Building Blocks`](./multiplier_components.md#booth-encoding-multiplier-building-blocks) section.
 

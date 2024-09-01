@@ -1,6 +1,6 @@
 # FIFO
 
-ROHD HCL comes with a simple FIFO (First In, First Out).  The detailed API docs are available [here](https://intel.github.io/rohd-hcl/rohd_hcl/Fifo-class.html).
+ROHD-HCL comes with a simple FIFO (First In, First Out).  The detailed API docs are available [here](https://intel.github.io/rohd-hcl/rohd_hcl/Fifo-class.html).
 
 The underlying implementation uses a flop-based memory (see [`RegisterFile`](https://intel.github.io/rohd-hcl/rohd_hcl/RegisterFile-class.html)) to store data until it is ready to be popped, with independent read and write pointers.
 
@@ -40,7 +40,7 @@ The FIFO comes with both a checker and a tracker that you can leverage in your t
 
 ### Checker
 
-The `FifoChecker` is a ROHD-VF component which will watch for proper usge of a FIFO in your simulation. It is intended to check usage, not  the internal workings of the FIFO, which are already pre-validated in the unit tests.  This means it covers things like underflow, overflow, and that the FIFO is empty at the end of the test.
+The `FifoChecker` is a ROHD-VF component which will watch for proper usage of a FIFO in your simulation. It is intended to check usage, not the internal workings of the FIFO, which are already pre-validated in the unit tests.  This means it covers things like underflow, overflow, and that the FIFO is empty at the end of the test.
 
 ### Tracker
 

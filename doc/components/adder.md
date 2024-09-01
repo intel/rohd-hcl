@@ -40,7 +40,7 @@ Here is an example of instantiating a `ParallelPrefixAdder`:
     a.put(18);
     b.put(24);
 
-    final adder = ParallelPrefixAdder(a, b, BrentKung.new);
+    final adder = ParallelPrefixAdder(a, b, ppGen: BrentKung.new);
 
     final sum = adder.sum;
 
@@ -67,7 +67,7 @@ Here is an example of instantiating a `OnesComplementAdder` as a subtractor, but
     b.put(bv);
     final carry = Logic();
     final adder = OnesComplementAdder(
-        a, b, null, carry, RippleCarryAdder.new,
+        a, b, carryOut: carry, adderGen: RippleCarryAdder.new,
         subtract: true);
     final mag = adder.sum.value.toInt() + (carry.value.isZero ? 0 : 1));
     final out = (adder.sign.value.toInt() == 1 ? -mag : mag);
@@ -95,7 +95,7 @@ Here is an example of instantiating a `SignMagnitudeAdder`:
     b.put(18);
     bSign.put(0);
 
-    final adder = SignMagnitudeAdder(aSign, a, bSign, b, RippleCarryAdder.new,
+    final adder = SignMagnitudeAdder(aSign, a, bSign, b, adderGen: RippleCarryAdder.new,
         largestMagnitudeFirst: true);
 
     final sum = adder.sum;

@@ -275,9 +275,8 @@ void main() {
           a.put(av);
           b.put(bv);
           final carry = Logic();
-          final adder = OnesComplementAdder(
-              a, b, null, carry, ParallelPrefixAdder.new,
-              subtract: subtract);
+          final adder =
+              OnesComplementAdder(a, b, carryOut: carry, subtract: subtract);
           final mag = adder.sum.value.toInt() +
               (subtract ? (carry.value.isZero ? 0 : 1) : 0);
           final out = (adder.sign.value.toInt() == 1 ? -mag : mag);
@@ -300,8 +299,10 @@ void main() {
           a.put(av);
           b.put(bv);
           final carry = Logic();
-          final adder = OnesComplementAdder(
-              a, b, subtractIn, carry, RippleCarryAdder.new);
+          final adder = OnesComplementAdder(a, b,
+              subtractIn: subtractIn,
+              carryOut: carry,
+              adderGen: RippleCarryAdder.new);
           final mag = adder.sum.value.toInt() +
               (subtractIn.value == LogicValue.one
                   ? (carry.value.isZero ? 0 : 1)
@@ -328,8 +329,8 @@ void main() {
     b.put(6);
     bSign.put(0);
 
-    final adder = OnesComplementAdder(a, b, null, null, RippleCarryAdder.new,
-        subtract: true);
+    final adder = OnesComplementAdder(a, b,
+        adderGen: RippleCarryAdder.new, subtract: true);
 
     final sum = adder.sum;
     // print('${adder.sign.value.toInt()} ${sum.value.toInt()}');
