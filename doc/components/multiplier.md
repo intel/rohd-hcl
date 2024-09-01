@@ -1,6 +1,6 @@
 # Multiplier
 
-ROHD HCL provides an abstract `Multiplier` module which multiplies two
+ROHD-HCL provides an abstract `Multiplier` module which multiplies two
 numbers represented as two `Logic`s, potentially of different widths,
 treating them as either signed (2s complement) or unsigned. It
 produces the product as a `Logic` with width equal to the sum of the
@@ -82,9 +82,9 @@ digital signal processing.
 The parameters of the
 `CompressionTreeMultiplier` are:
 
-- Two input terms a and b
+- Two input terms `a` and `b`
 - The radix used for Booth encoding (2, 4, 8, and 16 are currently supported)
-- The type of `ParallelPrefix` tree used in the final `ParallelPrefixAdder`
+- The type of `ParallelPrefix` tree used in the final `ParallelPrefixAdder` (optional)
 - Whether the operands should be treated as signed (2s complement) or unsigned
 
 Here is an example of use of the `CompressionTreeMultiplier`:
@@ -100,7 +100,7 @@ Here is an example of use of the `CompressionTreeMultiplier`:
     b.put(3);
 
     final multiplier =
-        CompressionTreeMultiplier(a, b, radix, KoggeStone.new, signed: true);
+        CompressionTreeMultiplier(a, b, radix, signed: true);
 
     final product = multiplier.product;
 
@@ -119,7 +119,7 @@ The parameters of the
 - Two input terms a and b
 - The accumulate input term c
 - The radix used for Booth encoding (2, 4, 8, and 16 are currently supported)
-- The type of `ParallelPrefix` tree used in the final `ParallelPrefixAdder`
+- The type of `ParallelPrefix` tree used in the final `ParallelPrefixAdder` (optional)
 - Whether the operands should be treated as signed (2s complement) or unsigned
 
 Here is an example of using the `CompressionTreeMultiplyAccumulate`:
@@ -137,8 +137,7 @@ Here is an example of using the `CompressionTreeMultiplyAccumulate`:
     c.put(5);
 
     final multiplier = CompressionTreeMultiplyAccumulate(
-        a, b, c, radix, KoggeStone.new,
-        signed: true);
+        a, b, c, radix, signed: true);
 
     final accumulate = multiplier.accumulate;
     
