@@ -25,8 +25,8 @@ Some in-development items will have opened issues, as well. Feel free to create 
   - Find maximum
   - Find N'th pattern from the start/end
 - Count
-  - [Count bit occurence](./components/count.md)
-  - Count pattern occurence
+  - [Count bit occurrence](./components/count.md)
+  - Count pattern occurrence
 - Detection
   - [Edge detection](./components/edge_detector.md)
 - Sort
@@ -34,9 +34,14 @@ Some in-development items will have opened issues, as well. Feel free to create 
 - Arithmetic
   - [Prefix Trees](./components/parallel_prefix_operations.md)
   - [Adders](./components/adder.md)
+    - [Sign Magnitude Adder](./components/adder.md#ripple-carry-adder)
   - Subtractors
+    - [One's Complement Adder Subtractor](./components/adder.md#ones-complement-adder-subtractor)
   - Multipliers
     - [Pipelined Integer Multiplier](./components/multiplier.md#carry-save-multiplier)
+    - [Compression Tree Multiplier](./components/multiplier.md#compression-tree-multiplier)
+    - [Compression Tree Multiply-Accumulate](./components/multiplier.md#compression-tree-multiply-accumulate)
+    - [Booth Encoding and Compression Components](./components/multiplier_components.md)
   - Dividers
   - Log
   - Square root

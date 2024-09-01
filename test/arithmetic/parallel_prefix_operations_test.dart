@@ -157,7 +157,7 @@ void main() {
   group('or_scan', () {
     for (final n in [7, 8, 9]) {
       for (final ppGen in generators) {
-        testOrScan(n, (inp) => ParallelPrefixOrScan(inp, ppGen));
+        testOrScan(n, (inp) => ParallelPrefixOrScan(inp, ppGen: ppGen));
       }
     }
   });
@@ -166,7 +166,7 @@ void main() {
     for (final n in [7, 8, 9]) {
       for (final ppGen in generators) {
         testPriorityFinder(
-            n, (inp) => ParallelPrefixPriorityFinder(inp, ppGen));
+            n, (inp) => ParallelPrefixPriorityFinder(inp, ppGen: ppGen));
       }
     }
   });
@@ -175,7 +175,7 @@ void main() {
     for (final n in [7, 8, 9]) {
       for (final ppGen in generators) {
         testPriorityEncoder(
-            n, (inp) => ParallelPrefixPriorityEncoder(inp, ppGen));
+            n, (inp) => ParallelPrefixPriorityEncoder(inp, ppGen: ppGen));
       }
     }
   });
@@ -183,7 +183,7 @@ void main() {
   group('incr', () {
     for (final n in [7, 8, 9]) {
       for (final ppGen in generators) {
-        testIncr(n, (inp) => ParallelPrefixIncr(inp, ppGen));
+        testIncr(n, (inp) => ParallelPrefixIncr(inp, ppGen: ppGen));
       }
     }
   });
@@ -191,7 +191,7 @@ void main() {
   group('decr', () {
     for (final n in [7, 8, 9]) {
       for (final ppGen in generators) {
-        testDecr(n, (inp) => ParallelPrefixDecr(inp, ppGen));
+        testDecr(n, (inp) => ParallelPrefixDecr(inp, ppGen: ppGen));
       }
     }
   });

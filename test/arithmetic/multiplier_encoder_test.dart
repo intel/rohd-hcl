@@ -12,6 +12,8 @@ import 'dart:math';
 
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
+import 'package:rohd_hcl/src/arithmetic/evaluate_partial_product.dart';
+import 'package:rohd_hcl/src/arithmetic/partial_product_test_sign_extend.dart';
 import 'package:test/test.dart';
 
 void checkEvaluateExhaustive(PartialProductGenerator pp) {
@@ -71,7 +73,9 @@ void main() {
     logicX.put(X);
     logicY.put(Y);
     logicZ.put(Z);
-    final pp = PartialProductGenerator(logicX, logicY, encoder, signed: true);
+    final pp = CompactRectSignExtendPartialProductGenerator(
+        logicX, logicY, encoder,
+        signed: true);
 
     final lastLength =
         pp.partialProducts[pp.rows - 1].length + pp.rowShift[pp.rows - 1];
@@ -120,9 +124,10 @@ void main() {
             if (signExtension == SignExtension.none) {
               continue;
             }
-            final pp = PartialProductGenerator(Logic(name: 'X', width: width),
+            final ppg = curryPartialProductGenerator(signExtension);
+            final pp = ppg(Logic(name: 'X', width: width),
                 Logic(name: 'Y', width: width), encoder,
-                signed: signed, signExtension: signExtension);
+                signed: signed);
 
             checkEvaluateExhaustive(pp);
           }
@@ -145,9 +150,10 @@ void main() {
               SignExtension.stop,
               SignExtension.compactRect
             ]) {
-              final pp = PartialProductGenerator(Logic(name: 'X', width: width),
+              final ppg = curryPartialProductGenerator(signExtension);
+              final pp = ppg(Logic(name: 'X', width: width),
                   Logic(name: 'Y', width: width + skew), encoder,
-                  signed: signed, signExtension: signExtension);
+                  signed: signed);
               checkEvaluateRandom(pp, 20);
             }
           }
@@ -159,14 +165,15 @@ void main() {
   test('Rectangle Q collision tests,', () async {
     // These collide with the normal q extension bits
     // These are unsigned tests
-    final alignTest = <List<(int, int, int)>>[]
-      ..insert(0, [(2, 5, 0), (4, 7, 1), (8, 7, 2), (16, 9, 3)])
-      ..insert(1, [(2, 5, 1), (4, 6, 2), (8, 9, 3), (16, 8, 4)])
-      ..insert(2, [(2, 5, 2), (4, 7, 3), (8, 8, 4), (16, 11, 5)])
-      ..insert(3, [(4, 6, 4), (8, 7, 5), (16, 10, 6)])
-      ..insert(4, [(8, 9, 6), (16, 9, 7)])
-      ..insert(5, [(16, 8, 8)]);
 
+    final alignTest = [
+      [(2, 5, 0), (4, 7, 1), (8, 7, 2), (16, 9, 3)],
+      [(2, 5, 1), (4, 6, 2), (8, 9, 3), (16, 8, 4)],
+      [(2, 5, 2), (4, 7, 3), (8, 8, 4), (16, 11, 5)],
+      [(4, 6, 4), (8, 7, 5), (16, 10, 6)],
+      [(8, 9, 6), (16, 9, 7)],
+      [(16, 8, 8)],
+    ];
     for (final alignList in alignTest) {
       for (final align in alignList) {
         final radix = align.$1;
@@ -178,8 +185,10 @@ void main() {
         final Y = BigInt.from(2060).toUnsigned(width + skew);
         final product = X * Y;
 
-        final pp = PartialProductGenerator(Logic(name: 'X', width: width),
-            Logic(name: 'Y', width: width + skew), encoder,
+        final pp = CompactRectSignExtendPartialProductGenerator(
+            Logic(name: 'X', width: width),
+            Logic(name: 'Y', width: width + skew),
+            encoder,
             signed: false);
 
         pp.multiplicand.put(X);
@@ -203,9 +212,10 @@ void main() {
           if (signExtension == SignExtension.none) {
             continue;
           }
-          final pp = PartialProductGenerator(Logic(name: 'X', width: width),
+          final ppg = curryPartialProductGenerator(signExtension);
+          final pp = ppg(Logic(name: 'X', width: width),
               Logic(name: 'Y', width: width + skew), encoder,
-              signed: signed, signExtension: signExtension);
+              signed: signed);
           checkEvaluateRandom(pp, 100);
         }
       }
@@ -226,9 +236,10 @@ void main() {
           SignExtension.compactRect
         ]) {
           {
-            final pp = PartialProductGenerator(Logic(name: 'X', width: width),
+            final ppg = curryPartialProductGenerator(signExtension);
+            final pp = ppg(Logic(name: 'X', width: width),
                 Logic(name: 'Y', width: width + skew), encoder,
-                signed: signed, signExtension: signExtension);
+                signed: signed);
             checkEvaluateExhaustive(pp);
           }
         }

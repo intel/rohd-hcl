@@ -75,19 +75,22 @@ class CompressionTreeMultiplier extends Multiplier {
   /// Construct a compression tree integer multipler with
   ///   a given radix and final adder functor
   CompressionTreeMultiplier(super.a, super.b, int radix,
-      ParallelPrefix Function(List<Logic>, Logic Function(Logic, Logic)) ppTree,
-      {super.signed = false})
+      {ParallelPrefix Function(List<Logic>, Logic Function(Logic, Logic))
+          ppTree = KoggeStone.new,
+      super.signed = false})
       : super(
             name: 'Compression Tree Multiplier: '
                 'R${radix}_${ppTree.call([
               Logic()
             ], (a, b) => Logic()).runtimeType}') {
     final product = addOutput('product', width: a.width + b.width);
-    final pp =
-        PartialProductGenerator(a, b, RadixEncoder(radix), signed: signed);
+    final pp = CompactRectSignExtendPartialProductGenerator(
+        a, b, RadixEncoder(radix),
+        signed: signed);
     final compressor = ColumnCompressor(pp)..compress();
     final adder = ParallelPrefixAdder(
-        compressor.extractRow(0), compressor.extractRow(1), ppTree);
+        compressor.extractRow(0), compressor.extractRow(1),
+        ppGen: ppTree);
     product <= adder.sum.slice(a.width + b.width - 1, 0);
   }
 }
@@ -101,14 +104,16 @@ class CompressionTreeMultiplyAccumulate extends MultiplyAccumulate {
   /// Construct a compression tree integer multipler with
   ///   a given radix and final adder functor
   CompressionTreeMultiplyAccumulate(super.a, super.b, super.c, int radix,
-      ParallelPrefix Function(List<Logic>, Logic Function(Logic, Logic)) ppTree,
-      {required super.signed})
+      {required super.signed,
+      ParallelPrefix Function(List<Logic>, Logic Function(Logic, Logic))
+          ppTree = KoggeStone.new})
       : super(
             name: 'Compression Tree Multiply Accumulate: '
                 'R${radix}_${ppTree.call([Logic()], (a, b) => Logic()).name}') {
     final accumulate = addOutput('accumulate', width: a.width + b.width + 1);
-    final pp =
-        PartialProductGenerator(a, b, RadixEncoder(radix), signed: signed);
+    final pp = CompactRectSignExtendPartialProductGenerator(
+        a, b, RadixEncoder(radix),
+        signed: signed);
 
     // TODO(desmonddak): This sign extension method for the additional
     //  addend may only work with signExtendCompact.
@@ -139,7 +144,8 @@ class CompressionTreeMultiplyAccumulate extends MultiplyAccumulate {
     final compressor = ColumnCompressor(pp)..compress();
 
     final adder = ParallelPrefixAdder(
-        compressor.extractRow(0), compressor.extractRow(1), ppTree);
+        compressor.extractRow(0), compressor.extractRow(1),
+        ppGen: ppTree);
     accumulate <= adder.sum.slice(a.width + b.width, 0);
   }
 }

@@ -45,7 +45,7 @@ class CompressionTreeMultiplierConfigurator extends Configurator {
       Logic(name: 'a', width: multiplicandWidthKnob.value),
       Logic(name: 'b', width: multiplierWidthKnob.value),
       radixKnob.value,
-      generatorMap[prefixTreeKnob.value]!);
+      ppTree: generatorMap[prefixTreeKnob.value]!);
 
   @override
   late final Map<String, ConfigKnob<dynamic>> knobs = UnmodifiableMapView({

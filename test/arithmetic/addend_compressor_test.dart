@@ -11,6 +11,9 @@ import 'dart:io';
 import 'dart:math';
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
+import 'package:rohd_hcl/src/arithmetic/evaluate_compressor.dart';
+import 'package:rohd_hcl/src/arithmetic/evaluate_partial_product.dart';
+import 'package:rohd_hcl/src/arithmetic/partial_product_test_sign_extend.dart';
 import 'package:test/test.dart';
 
 void testCompressionExhaustive(PartialProductGenerator pp) {
@@ -60,7 +63,7 @@ void testCompressionExhaustive(PartialProductGenerator pp) {
 
       final a = compressor.extractRow(0);
       final b = compressor.extractRow(1);
-      final adder = ParallelPrefixAdder(a, b, KoggeStone.new);
+      final adder = ParallelPrefixAdder(a, b);
       final adderValue =
           adder.sum.value.toBigInt().toSigned(compressor.columns.length);
       expect(adderValue, equals(product),
@@ -77,7 +80,7 @@ void main() {
     stdout.write('\n');
 
     for (final signed in [false, true]) {
-      for (var radix = 2; radix < 4; radix *= 2) {
+      for (var radix = 2; radix < 8; radix *= 2) {
         final encoder = RadixEncoder(radix);
         // stdout.write('encoding with radix=$radix\n');
         final shift = log2Ceil(encoder.radix);
@@ -86,9 +89,10 @@ void main() {
             if (signExtension == SignExtension.none) {
               continue;
             }
-            final pp = PartialProductGenerator(Logic(name: 'X', width: width),
+            final ppg = curryPartialProductGenerator(signExtension);
+            final pp = ppg(Logic(name: 'X', width: width),
                 Logic(name: 'Y', width: width), encoder,
-                signed: signed, signExtension: signExtension);
+                signed: signed);
 
             testCompressionExhaustive(pp);
           }
@@ -117,7 +121,8 @@ void main() {
       b.put(bB);
       const radix = 2;
       final encoder = RadixEncoder(radix);
-      final pp = PartialProductGenerator(a, b, encoder, signed: signed);
+      final pp = CompactRectSignExtendPartialProductGenerator(a, b, encoder,
+          signed: signed);
       expect(pp.evaluate(), equals(BigInt.from(av * bv)));
       final compressor = ColumnCompressor(pp);
       expect(compressor.evaluate().$1, equals(BigInt.from(av * bv)));
@@ -148,7 +153,8 @@ void main() {
       const radix = 2;
       final encoder = RadixEncoder(radix);
 
-      final pp = PartialProductGenerator(a, b, encoder, signed: signed);
+      final pp = CompactRectSignExtendPartialProductGenerator(a, b, encoder,
+          signed: signed);
       expect(pp.evaluate(), equals(BigInt.from(av * bv)));
       final compressor = ColumnCompressor(pp);
       expect(compressor.evaluate().$1, equals(BigInt.from(av * bv)));
@@ -179,7 +185,8 @@ void main() {
       const radix = 8;
       final encoder = RadixEncoder(radix);
 
-      final pp = PartialProductGenerator(a, b, encoder, signed: signed);
+      final pp = CompactRectSignExtendPartialProductGenerator(a, b, encoder,
+          signed: signed);
       expect(pp.evaluate(), equals(BigInt.from(av * bv)));
       final compressor = ColumnCompressor(pp);
       expect(compressor.evaluate().$1, equals(BigInt.from(av * bv)));

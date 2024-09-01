@@ -108,7 +108,8 @@ void main() {
           ParallelPrefix Function(List<Logic>, Logic Function(Logic, Logic))
               ppTree,
           {required bool signed}) =>
-      (a, b) => CompressionTreeMultiplier(a, b, radix, ppTree, signed: signed);
+      (a, b) => CompressionTreeMultiplier(a, b, radix,
+          ppTree: ppTree, signed: signed);
 
   MultiplyAccumulateCallback curryMultiplierAsMultiplyAccumulate(
           int radix,
@@ -123,8 +124,8 @@ void main() {
           ParallelPrefix Function(List<Logic>, Logic Function(Logic, Logic))
               ppTree,
           {required bool signed}) =>
-      (a, b, c) => CompressionTreeMultiplyAccumulate(a, b, c, radix, ppTree,
-          signed: signed);
+      (a, b, c) => CompressionTreeMultiplyAccumulate(a, b, c, radix,
+          ppTree: ppTree, signed: signed);
 
   group('Curried Test of Compression Tree Multiplier', () {
     for (final signed in [false, true]) {
@@ -180,8 +181,7 @@ void main() {
       b.put(bB);
       c.put(bC);
 
-      final mod = CompressionTreeMultiplyAccumulate(a, b, c, 4, KoggeStone.new,
-          signed: signed);
+      final mod = CompressionTreeMultiplyAccumulate(a, b, c, 4, signed: signed);
       checkMultiplyAccumulate(mod, bA, bB, bC);
     }
   });
@@ -212,8 +212,7 @@ void main() {
       b.put(bB);
       c.put(bC);
 
-      final mod = CompressionTreeMultiplyAccumulate(a, b, c, 4, KoggeStone.new,
-          signed: signed);
+      final mod = CompressionTreeMultiplyAccumulate(a, b, c, 4, signed: signed);
       checkMultiplyAccumulate(mod, bA, bB, bC);
     }
   });
@@ -229,9 +228,8 @@ void main() {
     b.put(3);
     c.put(5);
 
-    final multiplier = CompressionTreeMultiplyAccumulate(
-        a, b, c, radix, KoggeStone.new,
-        signed: true);
+    final multiplier =
+        CompressionTreeMultiplyAccumulate(a, b, c, radix, signed: true);
     final accumulate = multiplier.accumulate;
     expect(accumulate.value.toBigInt(), equals(BigInt.from(15 * 3 + 5)));
   });
