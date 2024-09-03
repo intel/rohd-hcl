@@ -105,7 +105,8 @@ class Divider extends Module {
   /// The width of the data operands and result.
   late final int dataWidth;
 
-  /// The log of the data width representing the number of bits required to store that number.
+  /// The log of the data width representing
+  /// the number of bits required to store that number.
   late final int logDataWidth;
 
   /// The Divider module's constructor
@@ -134,22 +135,16 @@ class Divider extends Module {
     final nextState = Logic(name: 'nextState', width: DivState.width);
 
     // internal buffers for computation
-    final outBuffer = Logic(
-        name: 'outBuffer',
-        width: dataWidth); // accumulator that contains dividend
-    final lastSuccess = Logic(
-        name: 'lastSuccess',
-        width: dataWidth); // capture last successful power of 2
-    final tmpDifference = Logic(
-        name: 'tmpDifference',
-        width:
-            dataWidth); // combinational logic signal to compute current (a-b*2^i)
-    final lastDifference =
-        Logic(name: 'lastDifference', width: dataWidth); // store last diff
-    final tmpShift = Logic(
-        name: 'tmpShift',
-        width:
-            dataWidth); // combinational logic signal to check for overflow when shifting
+    // accumulator that contains dividend
+    final outBuffer = Logic(name: 'outBuffer', width: dataWidth);
+    // capture last successful power of 2
+    final lastSuccess = Logic(name: 'lastSuccess', width: dataWidth);
+    // combinational logic signal to compute current (a-b*2^i)
+    final tmpDifference = Logic(name: 'tmpDifference', width: dataWidth);
+    // store last diff
+    final lastDifference = Logic(name: 'lastDifference', width: dataWidth);
+    // combinational logic signal to check for overflow when shifting
+    final tmpShift = Logic(name: 'tmpShift', width: dataWidth);
 
     // current value of i to try
     // need log(dataWidth) bits
@@ -182,21 +177,22 @@ class Divider extends Module {
           tmpDifference < lastDifference,
           If.block([
             Iff(~tmpDifference.or() | (bBuf > aBuf), [
-              // we're done (ready to convert) as difference == 0 or we've exceeded the numerator
+              // we're done (ready to convert) as difference == 0
+              // or we've exceeded the numerator
               nextState < DivState.convert
             ]),
-            Else([nextState < DivState.process]) // more processing to do
+            // more processing to do
+            Else([nextState < DivState.process])
           ])
         ]),
         CaseItem(DivState.process, [
           tmpShift < (bBuf << currIndex),
           If(
-              bBuf[dataWidth - 1] &
-                  ~bBuf
-                      .getRange(0, dataWidth - 2)
-                      .or(), // special case: b is most negative #
+              // special case: b is most negative #
+              bBuf[dataWidth - 1] & ~bBuf.getRange(0, dataWidth - 2).or(),
               then: [
-                tmpDifference < // special logic for when a is also most negative #
+                // special logic for when a is also most negative #
+                tmpDifference <
                     mux(
                         aBuf[dataWidth - 1] &
                             ~aBuf.getRange(0, dataWidth - 2).or(),

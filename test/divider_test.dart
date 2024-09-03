@@ -43,8 +43,11 @@ class DivInputSeqItem extends SequenceItem {
   int get validIn => mValidIn ? 1 : 0;
 
   @override
-  String toString() =>
-      'dividend=${_twosComp(mDividend, 32)}, divisor=${_twosComp(mDivisor, 32)}, validIn=$mValidIn';
+  String toString() => '''
+dividend=${_twosComp(mDividend, 32)}, 
+divisor=${_twosComp(mDivisor, 32)},
+validIn=$mValidIn
+''';
 }
 
 class DivOutputSeqItem extends SequenceItem {
@@ -64,8 +67,12 @@ class DivOutputSeqItem extends SequenceItem {
   int get isBusy => mIsBusy ? 1 : 0;
 
   @override
-  String toString() =>
-      'quotient=$mQuotient, divZero=$mDivZero, validOut=$mValidOut, isBusy=$mIsBusy';
+  String toString() => '''
+quotient=$mQuotient, 
+divZero=$mDivZero,
+validOut=$mValidOut,
+isBusy=$mIsBusy
+''';
 }
 
 class DivSequencer extends Sequencer<DivInputSeqItem> {
@@ -100,8 +107,7 @@ class DivDriver extends Driver<DivInputSeqItem> {
     // but only when the DUT isn't busy
     intf.clk.negedge.listen((args) {
       if (_pendingItems.isNotEmpty && intf.isBusy.value == LogicValue.zero) {
-        var nextItem = _pendingItems.removeFirst();
-        print(nextItem);
+        final nextItem = _pendingItems.removeFirst();
         drive(nextItem);
         if (_pendingItems.isEmpty) {
           _driverObjection?.drop();
@@ -224,14 +230,22 @@ class DivScoreboard extends Component {
         if (triggerCheck) {
           final check = (in2 == 0) ? divZero : ((in1 ~/ in2) == currResult);
           if (check) {
-            String msg = (in2 == 0)
-                ? 'Divide by 0 error correctly encountered for denominator of 0.'
-                : 'Correct result: a=$in1, b=$in2, result=$currResult';
+            final msg = (in2 == 0)
+                ? '''
+Divide by 0 error correctly encountered for denominator of 0.
+'''
+                : '''
+Correct result: dividend=$in1, divisor=$in2, quotient=$currResult
+                ''';
             logger.info(msg);
           } else {
-            String msg = (in2 == 0)
-                ? 'No Divide by zero error for denominator of 0.'
-                : 'Incorrect result: a=$in1, b=$in2, result=$currResult';
+            final msg = (in2 == 0)
+                ? '''
+No Divide by zero error for denominator of 0.
+'''
+                : '''
+Incorrect result: dividend=$in1, divisor=$in2, quotient=$currResult
+''';
             logger.severe(msg);
           }
           triggerCheck = false;
@@ -281,26 +295,25 @@ class DivBasicSequence extends Sequence {
 
   @override
   Future<void> body(Sequencer sequencer) async {
-    final divSequencer = sequencer as DivSequencer;
-
-    divSequencer.add(DivInputSeqItem(
-        mDividend: 4, mDivisor: 2, mValidIn: true)); // even divide by 2
-    divSequencer.add(DivInputSeqItem(
-        mDividend: 9, mDivisor: 3, mValidIn: true)); // even divide not by 2
-    divSequencer.add(DivInputSeqItem(
-        mDividend: 5, mDivisor: 2, mValidIn: true)); // not even divide
-    divSequencer.add(DivInputSeqItem(
-        mDividend: 4, mDivisor: 1, mValidIn: true)); // divide by 1
-    divSequencer.add(DivInputSeqItem(
-        mDividend: -10, mDivisor: 2, mValidIn: true)); // negative-positive
-    divSequencer.add(DivInputSeqItem(
-        mDividend: 13, mDivisor: -10, mValidIn: true)); // positive-negative
-    divSequencer.add(DivInputSeqItem(
-        mDividend: -10, mDivisor: -9, mValidIn: true)); // negative-negative
-    divSequencer.add(DivInputSeqItem(
-        mDividend: 1, mDivisor: 4, mValidIn: true)); // bigger divisor
-    divSequencer.add(DivInputSeqItem(
-        mDividend: 4, mDivisor: 0, mValidIn: true)); // divide by 0
+    sequencer as DivSequencer
+      ..add(DivInputSeqItem(
+          mDividend: 4, mDivisor: 2, mValidIn: true)) // even divide by 2
+      ..add(DivInputSeqItem(
+          mDividend: 9, mDivisor: 3, mValidIn: true)) // even divide not by 2
+      ..add(DivInputSeqItem(
+          mDividend: 5, mDivisor: 2, mValidIn: true)) // not even divide
+      ..add(DivInputSeqItem(
+          mDividend: 4, mDivisor: 1, mValidIn: true)) // divide by 1
+      ..add(DivInputSeqItem(
+          mDividend: -10, mDivisor: 2, mValidIn: true)) // negative-positive
+      ..add(DivInputSeqItem(
+          mDividend: 13, mDivisor: -10, mValidIn: true)) // positive-negative
+      ..add(DivInputSeqItem(
+          mDividend: -10, mDivisor: -9, mValidIn: true)) // negative-negative
+      ..add(DivInputSeqItem(
+          mDividend: 1, mDivisor: 4, mValidIn: true)) // bigger divisor
+      ..add(DivInputSeqItem(
+          mDividend: 4, mDivisor: 0, mValidIn: true)); // divide by 0
   }
 }
 
@@ -316,8 +329,8 @@ class DivVolumeSequence extends Sequence {
     final divSequencer = sequencer as DivSequencer;
 
     for (var i = 0; i < numReps; i++) {
-      final a = rng.nextInt(1 << 32); // TODO: parametrize
-      final b = rng.nextInt(1 << 32); // TODO: parametrize
+      final a = rng.nextInt(1 << 32);
+      final b = rng.nextInt(1 << 32);
       divSequencer
           .add(DivInputSeqItem(mDividend: a, mDivisor: b, mValidIn: true));
     }
@@ -392,7 +405,7 @@ class TopTB {
   static const int width = 32;
 
   TopTB() {
-    final intf = DivInterface(dataWidth: width);
+    final intf = DivInterface();
 
     // Connect a generated clock to the interface
     intf.clk <= SimpleClockGenerator(10).clk;
