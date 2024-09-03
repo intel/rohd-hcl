@@ -30,40 +30,42 @@ int _twosComp(int val, int bits) {
 }
 
 class DivInputSeqItem extends SequenceItem {
-  final int mA;
-  final int mB;
-  final bool mNewInputs;
+  final int mDividend;
+  final int mDivisor;
+  final bool mValidIn;
   DivInputSeqItem(
-      {required this.mA, required this.mB, required this.mNewInputs});
+      {required this.mDividend,
+      required this.mDivisor,
+      required this.mValidIn});
 
-  int get a => mA;
-  int get b => mB;
-  int get newInputs => mNewInputs ? 1 : 0;
+  int get dividend => mDividend;
+  int get divisor => mDivisor;
+  int get validIn => mValidIn ? 1 : 0;
 
   @override
   String toString() =>
-      'a=${_twosComp(mA, 32)}, b=${_twosComp(mB, 32)}, newInputs=$mNewInputs';
+      'dividend=${_twosComp(mDividend, 32)}, divisor=${_twosComp(mDivisor, 32)}, validIn=$mValidIn';
 }
 
 class DivOutputSeqItem extends SequenceItem {
-  final int mC;
+  final int mQuotient;
   final bool mDivZero;
-  final bool mIsReady;
+  final bool mValidOut;
   final bool mIsBusy;
   DivOutputSeqItem(
-      {required this.mC,
+      {required this.mQuotient,
       required this.mDivZero,
-      required this.mIsReady,
+      required this.mValidOut,
       required this.mIsBusy});
 
-  int get c => mC;
+  int get quotient => mQuotient;
   int get divZero => mDivZero ? 1 : 0;
-  int get isReady => mIsReady ? 1 : 0;
+  int get validOut => mValidOut ? 1 : 0;
   int get isBusy => mIsBusy ? 1 : 0;
 
   @override
   String toString() =>
-      'c=$mC, divZero=$mDivZero, isReady=$mIsReady, isBusy=$mIsBusy';
+      'quotient=$mQuotient, divZero=$mDivZero, validOut=$mValidOut, isBusy=$mIsBusy';
 }
 
 class DivSequencer extends Sequencer<DivInputSeqItem> {
@@ -112,13 +114,13 @@ class DivDriver extends Driver<DivInputSeqItem> {
   // Translate a SequenceItem into pin wiggles
   void drive(DivInputSeqItem? item) {
     if (item == null) {
-      intf.a.inject(0);
-      intf.b.inject(0);
-      intf.newInputs.inject(0);
+      intf.dividend.inject(0);
+      intf.divisor.inject(0);
+      intf.validIn.inject(0);
     } else {
-      intf.a.inject(item.a);
-      intf.b.inject(item.b);
-      intf.newInputs.inject(item.newInputs);
+      intf.dividend.inject(item.dividend);
+      intf.divisor.inject(item.divisor);
+      intf.validIn.inject(item.validIn);
     }
   }
 }
@@ -137,12 +139,13 @@ class DivInputMonitor extends Monitor<DivInputSeqItem> {
 
     // Every positive edge of the clock
     intf.clk.posedge.listen((event) {
-      if (intf.newInputs.value == LogicValue.one &&
+      if (intf.validIn.value == LogicValue.one &&
           intf.isBusy.value == LogicValue.zero) {
         add(DivInputSeqItem(
-            mA: _twosComp(intf.a.value.toInt(), intf.a.width),
-            mB: _twosComp(intf.b.value.toInt(), intf.b.width),
-            mNewInputs: true)); // must convert to two's complement rep.
+            mDividend:
+                _twosComp(intf.dividend.value.toInt(), intf.dividend.width),
+            mDivisor: _twosComp(intf.divisor.value.toInt(), intf.divisor.width),
+            mValidIn: true)); // must convert to two's complement rep.
       }
     });
   }
@@ -162,12 +165,12 @@ class DivOutputMonitor extends Monitor<DivOutputSeqItem> {
 
     // Every positive edge of the clock
     intf.clk.posedge.listen((event) {
-      if (intf.isReady.value == LogicValue.one) {
+      if (intf.validOut.value == LogicValue.one) {
         add(DivOutputSeqItem(
-            mC: _twosComp(intf.c.value.toInt(),
-                intf.c.width), // must convert to two's complement rep.
+            mQuotient: _twosComp(intf.quotient.value.toInt(),
+                intf.quotient.width), // must convert to two's complement rep.
             mDivZero: intf.divZero.value == LogicValue.one,
-            mIsReady: true,
+            mValidOut: true,
             mIsBusy: intf.isBusy.value == LogicValue.one));
       }
     });
@@ -199,13 +202,13 @@ class DivScoreboard extends Component {
     await intf.reset.nextNegedge;
 
     inStream.listen((event) {
-      lastA.add(event.mA);
-      lastB.add(event.mB);
+      lastA.add(event.mDividend);
+      lastB.add(event.mDivisor);
     });
 
     // record the value we saw this cycle
     outStream.listen((event) {
-      currResult = event.mC;
+      currResult = event.mQuotient;
       divZero = event.mDivZero;
 
       triggerCheck = true;
@@ -280,30 +283,30 @@ class DivBasicSequence extends Sequence {
   Future<void> body(Sequencer sequencer) async {
     final divSequencer = sequencer as DivSequencer;
 
-    divSequencer.add(
-        DivInputSeqItem(mA: 4, mB: 2, mNewInputs: true)); // even divide by 2
     divSequencer.add(DivInputSeqItem(
-        mA: 9, mB: 3, mNewInputs: true)); // even divide not by 2
-    divSequencer.add(
-        DivInputSeqItem(mA: 5, mB: 2, mNewInputs: true)); // not even divide
-    divSequencer
-        .add(DivInputSeqItem(mA: 4, mB: 1, mNewInputs: true)); // divide by 1
-    divSequencer.add(
-        DivInputSeqItem(mA: -10, mB: 2, mNewInputs: true)); // negative-positive
+        mDividend: 4, mDivisor: 2, mValidIn: true)); // even divide by 2
     divSequencer.add(DivInputSeqItem(
-        mA: 13, mB: -10, mNewInputs: true)); // positive-negative
+        mDividend: 9, mDivisor: 3, mValidIn: true)); // even divide not by 2
     divSequencer.add(DivInputSeqItem(
-        mA: -10, mB: -9, mNewInputs: true)); // negative-negative
-    divSequencer
-        .add(DivInputSeqItem(mA: 1, mB: 4, mNewInputs: true)); // bigger divisor
-    divSequencer
-        .add(DivInputSeqItem(mA: 4, mB: 0, mNewInputs: true)); // divide by 0
+        mDividend: 5, mDivisor: 2, mValidIn: true)); // not even divide
+    divSequencer.add(DivInputSeqItem(
+        mDividend: 4, mDivisor: 1, mValidIn: true)); // divide by 1
+    divSequencer.add(DivInputSeqItem(
+        mDividend: -10, mDivisor: 2, mValidIn: true)); // negative-positive
+    divSequencer.add(DivInputSeqItem(
+        mDividend: 13, mDivisor: -10, mValidIn: true)); // positive-negative
+    divSequencer.add(DivInputSeqItem(
+        mDividend: -10, mDivisor: -9, mValidIn: true)); // negative-negative
+    divSequencer.add(DivInputSeqItem(
+        mDividend: 1, mDivisor: 4, mValidIn: true)); // bigger divisor
+    divSequencer.add(DivInputSeqItem(
+        mDividend: 4, mDivisor: 0, mValidIn: true)); // divide by 0
   }
 }
 
 class DivVolumeSequence extends Sequence {
   final int numReps;
-  final rng = Random();
+  final rng = Random(0xdeadbeef); // fixed seed
 
   DivVolumeSequence(this.numReps, {String name = 'divVolumeSequence'})
       : super(name);
@@ -315,7 +318,8 @@ class DivVolumeSequence extends Sequence {
     for (var i = 0; i < numReps; i++) {
       final a = rng.nextInt(1 << 32); // TODO: parametrize
       final b = rng.nextInt(1 << 32); // TODO: parametrize
-      divSequencer.add(DivInputSeqItem(mA: a, mB: b, mNewInputs: true));
+      divSequencer
+          .add(DivInputSeqItem(mDividend: a, mDivisor: b, mValidIn: true));
     }
   }
 }
@@ -355,9 +359,9 @@ class DivTest extends Test {
     // Add some simple reset behavior at specified timestamps
     Simulator.registerAction(1, () {
       dut.intf.reset.put(0);
-      dut.intf.a.put(0);
-      dut.intf.b.put(0);
-      dut.intf.newInputs.put(0);
+      dut.intf.dividend.put(0);
+      dut.intf.divisor.put(0);
+      dut.intf.validIn.put(0);
     });
     Simulator.registerAction(10, () {
       dut.intf.reset.put(1);

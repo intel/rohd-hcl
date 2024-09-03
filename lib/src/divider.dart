@@ -10,28 +10,28 @@
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
 
-/// State object for Divider processing
+/// State object for Divider processing.
 class DivState {
-  /// width of state bits
+  /// Width of state in bits.
   static int width = 3;
 
-  /// ready for a new division
+  /// Ready for a new division.
   static Const ready = Const(0, width: width);
 
-  /// processing a current step in the algorithm
+  /// Processing a current step in the algorithm.
   static Const process = Const(1, width: width);
 
-  /// accumulating the result of a current step in the algorithm
+  /// Accumulating the result of a current step in the algorithm.
   static Const accumulate = Const(2, width: width);
 
-  /// converting the final result of the algorithm
+  /// Converting the final result of the algorithm.
   static Const convert = Const(3, width: width);
 
-  /// division complete
+  /// Division complete.
   static Const done = Const(4, width: width);
 }
 
-/// port group for divider's internal interface
+/// Port group for the divider's internal interface
 enum DivInterfaceDirection {
   /// input ports
   ins,
@@ -40,75 +40,75 @@ enum DivInterfaceDirection {
   outs
 }
 
-/// internal interface to the Divider
+/// Internal interface to the Divider.
 class DivInterface extends Interface<DivInterfaceDirection> {
-  /// clock
+  /// Clock for sequential logic.
   Logic get clk => port('clk');
 
-  /// reset
+  /// Reset for sequential logic (active high).
   Logic get reset => port('reset');
 
-  /// numerator
-  Logic get a => port('a');
+  /// Dividend (numerator) for the division operation.
+  Logic get dividend => port('dividend');
 
-  /// denominator
-  Logic get b => port('b');
+  /// Divisor (denominator) for the division operation.
+  Logic get divisor => port('divisor');
 
-  /// request for a new divison to be performed
-  Logic get newInputs => port('newInputs');
+  /// Request for a new divison operation to be performed.
+  Logic get validIn => port('validIn');
 
-  /// dividend
-  Logic get c => port('c');
+  /// Quotient (result) for the division operation.
+  Logic get quotient => port('quotient');
 
-  /// division by zero occurred
+  /// A Division by zero occurred.
   Logic get divZero => port('divZero');
 
-  /// result of the division is ready
-  Logic get isReady => port('isReady');
+  /// The result of the currnt division operation is ready.
+  Logic get validOut => port('validOut');
 
-  /// busy working on a division
+  /// The module is busy working on a division operation.
   Logic get isBusy => port('isBusy');
 
-  /// width of the data operands and result
+  /// The width of the data operands and result.
   final int dataWidth;
 
-  /// constructor for interface
+  /// A constructor for the divider interface.
   DivInterface({this.dataWidth = 32}) {
     setPorts([
       Port('clk'),
       Port('reset'),
-      Port('a', dataWidth),
-      Port('b', dataWidth),
-      Port('newInputs')
+      Port('dividend', dataWidth),
+      Port('divisor', dataWidth),
+      Port('validIn')
     ], [
       DivInterfaceDirection.ins
     ]);
     setPorts([
-      Port('c', dataWidth),
+      Port('quotient', dataWidth),
       Port('divZero'),
-      Port('isReady'),
+      Port('validOut'),
       Port('isBusy')
     ], [
       DivInterfaceDirection.outs
     ]);
   }
 
-  /// match constructor for interface
+  /// A match constructor for the divider interface.
   DivInterface.match(DivInterface other) : this(dataWidth: other.dataWidth);
 }
 
-/// Divider module definition
+/// The Divider module definition
 class Divider extends Module {
-  /// internal interface
+  /// The Divider's interface declaration.
   late final DivInterface intf;
 
-  /// bit width of the data operands and result
+  /// The width of the data operands and result.
   late final int dataWidth;
 
-  /// helper to capture the log of the data width
+  /// The log of the data width representing the number of bits required to store that number.
   late final int logDataWidth;
 
-  /// Divider constructor
+  /// The Divider module's constructor
   Divider({required DivInterface interface})
       : dataWidth = interface.dataWidth,
         logDataWidth = log2Ceil(interface.dataWidth),
@@ -120,9 +120,6 @@ class Divider extends Module {
 
     _build();
   }
-
-  // convenience overload of Const w/ a fixed width
-  Const dataConst(int v) => Const(v, width: dataWidth);
 
   void _build() {
     // to capture current inputs
@@ -158,11 +155,11 @@ class Divider extends Module {
     // need log(dataWidth) bits
     final currIndex = Logic(name: 'currIndex', width: logDataWidth);
 
-    intf.c <= outBuffer; // result is ultimately stored in out_buffer
-    intf.divZero <= ~intf.b.or(); // divide-by-0 if b==0 (NOR)
+    intf.quotient <= outBuffer; // result is ultimately stored in out_buffer
+    intf.divZero <= ~intf.divisor.or(); // divide-by-0 if b==0 (NOR)
 
     // ready/busy signals are based on internal state
-    intf.isReady <= currentState.eq(DivState.done);
+    intf.validOut <= currentState.eq(DivState.done);
     intf.isBusy <= ~currentState.eq(DivState.ready);
 
     // update current_state with next_state once per cycle
@@ -175,8 +172,8 @@ class Divider extends Module {
     // combinational logic to compute next_state
     // and intermediate variables that are necessary
     Combinational([
-      tmpShift < dataConst(0),
-      tmpDifference < dataConst(0),
+      tmpShift < 0,
+      tmpDifference < 0,
       nextState < DivState.ready,
       Case(currentState, [
         CaseItem(DivState.done, [nextState < DivState.ready]),
@@ -219,8 +216,8 @@ class Divider extends Module {
               ])
         ]),
         CaseItem(DivState.ready, [
-          If(intf.newInputs, then: [
-            nextState < mux(~intf.b.or(), DivState.done, DivState.process)
+          If(intf.validIn, then: [
+            nextState < mux(~intf.divisor.or(), DivState.done, DivState.process)
             // move straight to DONE if divide-by-0
           ], orElse: [
             nextState < DivState.ready
@@ -235,16 +232,19 @@ class Divider extends Module {
       If.block([
         // only when READY and new inputs are available
         Iff(intf.reset, [
-          aBuf < dataConst(0),
-          bBuf < dataConst(0),
-          signOut < Const(0),
+          aBuf < 0,
+          bBuf < 0,
+          signOut < 0,
         ]),
-        ElseIf(currentState.eq(DivState.ready) & intf.newInputs, [
+        ElseIf(currentState.eq(DivState.ready) & intf.validIn, [
           // conditionally convert negative inputs to positive
           // and compute the output sign
-          aBuf < mux(intf.a[dataWidth - 1], ~intf.a + dataConst(1), intf.a),
-          bBuf < mux(intf.b[dataWidth - 1], ~intf.b + dataConst(1), intf.b),
-          signOut < intf.a[dataWidth - 1] ^ intf.b[dataWidth - 1],
+          aBuf <
+              mux(intf.dividend[dataWidth - 1], ~intf.dividend + 1,
+                  intf.dividend),
+          bBuf <
+              mux(intf.divisor[dataWidth - 1], ~intf.divisor + 1, intf.divisor),
+          signOut < intf.dividend[dataWidth - 1] ^ intf.divisor[dataWidth - 1],
         ]),
         ElseIf(currentState.eq(DivState.accumulate), [
           // reduce a_buf by the portion we've covered, retain others
@@ -280,8 +280,8 @@ class Divider extends Module {
     Sequential(intf.clk, [
       If.block([
         Iff(intf.reset, [
-          lastSuccess < dataConst(0),
-          lastDifference < dataConst(0),
+          lastSuccess < 0,
+          lastDifference < 0,
         ]),
         ElseIf(
             currentState.eq(
@@ -300,8 +300,8 @@ class Divider extends Module {
         Else(
           [
             // not needed so reset
-            lastSuccess < dataConst(0),
-            lastDifference < dataConst(0)
+            lastSuccess < 0,
+            lastDifference < 0
           ],
         )
       ])
@@ -310,11 +310,10 @@ class Divider extends Module {
     // handle update of buffer
     Sequential(intf.clk, [
       If.block([
-        Iff(intf.reset, [outBuffer < dataConst(0)]), // reset buffer
-        ElseIf(currentState.eq(DivState.done),
-            [outBuffer < dataConst(0)]), // reset buffer
+        Iff(intf.reset, [outBuffer < 0]), // reset buffer
+        ElseIf(currentState.eq(DivState.done), [outBuffer < 0]), // reset buffer
         ElseIf(currentState.eq(DivState.convert), [
-          outBuffer < mux(signOut, ~outBuffer + dataConst(1), outBuffer),
+          outBuffer < mux(signOut, ~outBuffer + 1, outBuffer),
         ]), // conditionally convert the result to the correct sign
         ElseIf(currentState.eq(DivState.accumulate), [
           outBuffer < (outBuffer + lastSuccess)

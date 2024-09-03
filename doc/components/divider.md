@@ -6,26 +6,26 @@ ROHD HCL provides an integer divider module to get the dividend of numerator and
 
 The inputs to the divider module are:
 
-* ```clock``` => clock for synchronous logic
-* ```reset``` => reset for synchronous logic (active high)
-* ```a``` => the numerator operand
-* ```b``` => the denominator operand
-* ```newInputs``` => indication that a new division operation is being requested
+* `clock` => clock for synchronous logic
+* `reset` => reset for synchronous logic (active high)
+* `dividend` => the numerator operand
+* `divisor` => the denominator operand
+* `validIn` => indication that a new division operation is being requested
 
 The outputs of the divider module are:
 
-* ```c``` => the result of the division
-* ```divZero``` => divide by zero error indication
-* ```isReady``` => the result of the current division operation is ready
-* ```isBusy``` => the divider is currently busy working on a division operation
+* `quotient` => the result of the division
+* `divZero` => divide by zero error indication
+* `validOut` => the result of the current division operation is ready
+* `isBusy` => the divider is currently busy working on a division operation
 
-The numerical inputs (```a```, ```b```, ```c```) are parametrized by a constructor parameter called ```dataWidth```. All other signals have a width of 1.
+The numerical inputs (`dividend`, `divisor`, `quotient`) are parametrized by a constructor parameter called `dataWidth`. All other signals have a width of 1.
 
 ## Protocol Description
 
-To initiate a new request, it is expected that the requestor drive ```newInputs``` to high along with the numerical values for ```a``` and ```b```. The first cycle in which ```isBusy``` is low where the above occurs is the cycle in which the operation is accepted by the divider.
+To initiate a new request, it is expected that the requestor drive `validIn` to high along with the numerical values for `dividend` and `divisor`. The first cycle in which `isBusy` is low where the above occurs is the cycle in which the operation is accepted by the divider.
 
-When the division is complete, the module will assert the ```isReady``` signal for exactly 1 cycle along with the numerical value of ```c``` representing the division result and the signal ```divZero``` to indicate whether or not a division by zero occurred. The integrating environment must assume that ```c``` is meaningless if ```divZero``` is asserted.
+When the division is complete, the module will assert the `validOut` signal for exactly 1 cycle along with the numerical value of `quotient` representing the division result and the signal `divZero` to indicate whether or not a division by zero occurred. The integrating environment must assume that `quotient` is meaningless if `divZero` is asserted.
 
 ## Code Example
 
@@ -38,15 +38,15 @@ final Divider divider = Divider(interface: divIntf);
 // ... assume some clock generator and reset flow occur ... //
 
 if (~divIntf.isBusy.value.toBool()) {
-    divIntf.newInputs.put(1);
-    divIntf.a.put(2);
-    divIntf.a.put(1);
+    divIntf.validIn.put(1);
+    divIntf.dividend.put(2);
+    divIntf.divisor.put(1);
 }
 
 // ... wait some time for result ... //
 
-if (divIntf.isReady.value.toBool()) {
-    expect(divIntf.c.value.toInt(), 2);
+if (divIntf.validOut.value.toBool()) {
+    expect(divIntf.quotient.value.toInt(), 2);
     expect(divIntf.divZero.value.toBool(), false);
 }
 
