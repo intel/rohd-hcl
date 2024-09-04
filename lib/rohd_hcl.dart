@@ -2,7 +2,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 
 export 'src/arbiters/arbiters.dart';
-export 'src/arithmetic/adder.dart';
 export 'src/arithmetic/arithmetic.dart';
 export 'src/binary_gray.dart';
 export 'src/component_config/component_config.dart';

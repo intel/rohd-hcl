@@ -1,7 +1,7 @@
 // Copyright (C) 2023-2024 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 //
-// parallel-prefix_operations.dart
+// parallel_prefix_operations.dart
 // Implementation of operations using various parallel-prefix trees.
 //
 // 2023 Sep 29

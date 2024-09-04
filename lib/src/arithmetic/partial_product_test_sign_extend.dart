@@ -1,8 +1,8 @@
 // Copyright (C) 2024 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 //
-// partial_product_generator.dart
-// Partial Product matrix generation from Booth recoded multiplicand
+// partial_product_test_sign_extend.dart
+// Partial Product Genereator sign extension methods.
 //
 // 2024 May 15
 // Author: Desmond Kirkpatrick <desmond.a.kirkpatrick@intel.com>
@@ -33,32 +33,34 @@ typedef PPGFunction = PartialProductGenerator
     Function(Logic a, Logic b, RadixEncoder radixEncoder, {bool signed});
 
 /// Used to test different sign extension methods
-PPGFunction curryPartialProductGenerator(SignExtension signExtension) => (a, b,
-        encoder,
-        {signed = false}) =>
-    switch (signExtension) {
-      SignExtension.none =>
-        PartialProductGenerator(a, b, encoder, signed: signed),
-      SignExtension.brute =>
-        BruteSignExtendPartialProductGenerator(a, b, encoder, signed: signed),
-      SignExtension.stop => StopBitsSignExtendPartialProductGenerator(
-          a, b, encoder,
-          signed: signed),
-      SignExtension.compact =>
-        CompactSignExtendPartialProductGenerator(a, b, encoder, signed: signed),
-      SignExtension.compactRect => CompactRectSignExtendPartialProductGenerator(
-          a, b, encoder,
-          signed: signed),
-    };
+PPGFunction curryPartialProductGenerator(SignExtension signExtension) =>
+    (a, b, encoder, {signed = false}) => switch (signExtension) {
+          SignExtension.none => PartialProductGeneratorNoSignExtension(
+              a, b, encoder,
+              signed: signed),
+          SignExtension.brute => PartialProductGeneratorBruteSignExtension(
+              a, b, encoder,
+              signed: signed),
+          SignExtension.stop => PartialProductGeneratorStopBitsSignExtension(
+              a, b, encoder,
+              signed: signed),
+          SignExtension.compact => PartialProductGeneratorCompactSignExtension(
+              a, b, encoder,
+              signed: signed),
+          SignExtension.compactRect =>
+            PartialProductGeneratorCompactRectSignExtension(a, b, encoder,
+                signed: signed),
+        };
 
-//// These other sign extensions are for asssisting with testing and debugging
+/// These other sign extensions are for asssisting with testing and debugging.
 /// More robust and simpler sign extensions in case
 /// complex sign extension routines obscure other bugs.
 
 /// A Partial Product Generator using Brute Sign Extension
-class BruteSignExtendPartialProductGenerator extends PartialProductGenerator {
+class PartialProductGeneratorBruteSignExtension
+    extends PartialProductGenerator {
   /// Construct a brute-force sign extending Partial Product Generator
-  BruteSignExtendPartialProductGenerator(
+  PartialProductGeneratorBruteSignExtension(
       super.multiplicand, super.multiplier, super.radixEncoder,
       {required super.signed});
 
@@ -89,9 +91,10 @@ class BruteSignExtendPartialProductGenerator extends PartialProductGenerator {
 }
 
 /// A Partial Product Generator using Brute Sign Extension
-class CompactSignExtendPartialProductGenerator extends PartialProductGenerator {
+class PartialProductGeneratorCompactSignExtension
+    extends PartialProductGenerator {
   /// Construct a compact sign extending Partial Product Generator
-  CompactSignExtendPartialProductGenerator(
+  PartialProductGeneratorCompactSignExtension(
       super.multiplicand, super.multiplier, super.radixEncoder,
       {required super.signed});
 
@@ -199,10 +202,10 @@ class CompactSignExtendPartialProductGenerator extends PartialProductGenerator {
 }
 
 /// A Partial Product Generator using Brute Sign Extension
-class StopBitsSignExtendPartialProductGenerator
+class PartialProductGeneratorStopBitsSignExtension
     extends PartialProductGenerator {
   /// Construct a stop bits sign extending Partial Product Generator
-  StopBitsSignExtendPartialProductGenerator(
+  PartialProductGeneratorStopBitsSignExtension(
       super.multiplicand, super.multiplier, super.radixEncoder,
       {required super.signed});
 

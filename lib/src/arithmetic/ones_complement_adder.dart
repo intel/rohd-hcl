@@ -1,7 +1,7 @@
 // Copyright (C) 2024 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 //
-// sign_magnitude_adder.dart
+// ones_complement_adder.dart
 // Implementation of a One's Complement Adder
 //
 // 2024 August 31

@@ -221,7 +221,6 @@ class ParallelPrefixAdder extends Adder {
   ParallelPrefixAdder(super.a, super.b,
       {ParallelPrefix Function(List<Logic>, Logic Function(Logic, Logic))
           ppGen = KoggeStone.new})
-      // : _out = Logic(width: a.width),
       : super(
             name: 'ParallelPrefixAdder: ${ppGen.call([
               Logic()
@@ -230,7 +229,6 @@ class ParallelPrefixAdder extends Adder {
         List<Logic>.generate(
             a.width, (i) => [a[i] & b[i], a[i] | b[i]].swizzle()),
         (lhs, rhs) => [rhs[1] | rhs[0] & lhs[1], rhs[0] & lhs[0]].swizzle());
-    // carryOut <= u.val[a.width - 1][1];
     sum <=
         [
           u.val[a.width - 1][1],

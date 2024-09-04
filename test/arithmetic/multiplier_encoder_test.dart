@@ -73,7 +73,7 @@ void main() {
     logicX.put(X);
     logicY.put(Y);
     logicZ.put(Z);
-    final pp = CompactRectSignExtendPartialProductGenerator(
+    final pp = PartialProductGeneratorCompactRectSignExtension(
         logicX, logicY, encoder,
         signed: true);
 
@@ -185,7 +185,7 @@ void main() {
         final Y = BigInt.from(2060).toUnsigned(width + skew);
         final product = X * Y;
 
-        final pp = CompactRectSignExtendPartialProductGenerator(
+        final pp = PartialProductGeneratorCompactRectSignExtension(
             Logic(name: 'X', width: width),
             Logic(name: 'Y', width: width + skew),
             encoder,

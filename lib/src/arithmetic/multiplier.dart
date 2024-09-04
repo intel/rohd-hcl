@@ -84,12 +84,13 @@ class CompressionTreeMultiplier extends Multiplier {
               Logic()
             ], (a, b) => Logic()).runtimeType}') {
     final product = addOutput('product', width: a.width + b.width);
-    final pp = CompactRectSignExtendPartialProductGenerator(
+    final pp = PartialProductGeneratorCompactRectSignExtension(
         a, b, RadixEncoder(radix),
         signed: signed);
-    final compressor = ColumnCompressor(pp)..compress();
+
+    final compressor = AddendCompressor(pp);
     final adder = ParallelPrefixAdder(
-        compressor.extractRow(0), compressor.extractRow(1),
+        compressor.sum.elements.first, compressor.sum.elements.last,
         ppGen: ppTree);
     product <= adder.sum.slice(a.width + b.width - 1, 0);
   }
@@ -111,12 +112,12 @@ class CompressionTreeMultiplyAccumulate extends MultiplyAccumulate {
             name: 'Compression Tree Multiply Accumulate: '
                 'R${radix}_${ppTree.call([Logic()], (a, b) => Logic()).name}') {
     final accumulate = addOutput('accumulate', width: a.width + b.width + 1);
-    final pp = CompactRectSignExtendPartialProductGenerator(
+    final pp = PartialProductGeneratorCompactRectSignExtension(
         a, b, RadixEncoder(radix),
         signed: signed);
 
     // TODO(desmonddak): This sign extension method for the additional
-    //  addend may only work with signExtendCompact.
+    //  addend may only work with CompactRectSignExtension
 
     final lastLength =
         pp.partialProducts[pp.rows - 1].length + pp.rowShift[pp.rows - 1];
@@ -130,23 +131,16 @@ class CompressionTreeMultiplyAccumulate extends MultiplyAccumulate {
       ..add(~sign)
       ..add(Const(1));
 
-    // Evaluate works only because the compressed rows have the same shape
-    // So the rowshift is valid.
-    // But this requires that we prefix the PP with the addend (not add) to
-    // keep the evaluate routine working.
+    // For online evaluate in _ColumnCompressor to work, we need to
+    // insert the row rather than append it.
     pp.partialProducts.insert(0, l);
     pp.rowShift.insert(0, 0);
 
-    // TODO(desmonddak): probably cleaner to add row at end, but
-    // compressor fails to properly handle, so we need to debug
-    // pp.partialProducts.add(l);
-    // pp.rowShift.add(0);
-    final compressor = ColumnCompressor(pp)..compress();
-
+    final compressor = AddendCompressor(pp);
     final adder = ParallelPrefixAdder(
-        compressor.extractRow(0), compressor.extractRow(1),
+        compressor.sum.elements.first, compressor.sum.elements.last,
         ppGen: ppTree);
-    accumulate <= adder.sum.slice(a.width + b.width, 0);
+    accumulate <= adder.sum.slice(a.width + b.width - 1, 0);
   }
 }
 

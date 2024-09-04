@@ -184,19 +184,18 @@ Any adder can be used as the final adder of the final two addends produced from 
 
 Here is a code snippet that shows how these components can be used to create a multiplier.  
 
-First the partial product generator is used, which we pass in the `RadixEncoder`, whether the operands are signed, and the kind of sign extension to use on the partial products.
+First the partial product generator is used, which has compact sign extension for rectangular products (`PartialProductGeneratorCompactRectSignExtension`) which we pass in the `RadixEncoder`, whether the operands are signed, and the kind of sign extension to use on the partial products. Note that sign extension is needed regardless of whether operands are signed or not due to Booth encoding.
 
-Next, we use the `ColumnCompressor` to compress the partial products into two final addends.
+Next, we use the `AddendCompressor` to compress the partial products into two final addends.
 
 We then choose a `ParallelPrefixAdder` using the `BrentKung` tree style to do the addition.  We pass in the two extracted rows of the compressor.
 Finally, we produce the product.
 
 ```dart
     final pp =
-        PartialProductGenerator(a, b, RadixEncoder(radix), signed: true, 
-        signExtension: SignExtension.compactRect);
-    final compressor = ColumnCompressor(pp)..compress();
+        PartialProductGeneratorCompactRectSignExtension(a, b, RadixEncoder(radix), signed: true);
+    final compressor = AddendCompressor(pp);
     final adder = ParallelPrefixAdder(
-        compressor.extractRow(0), compressor.extractRow(1), BrentKung.new);
+        compressor.sum.elements.first, compressor.sum.elements.last, BrentKung.new);
     product <= adder.sum.slice(a.width + b.width - 1, 0);
 ```

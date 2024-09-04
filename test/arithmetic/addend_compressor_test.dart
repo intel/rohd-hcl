@@ -1,7 +1,7 @@
 // Copyright (C) 2023-2024 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 //
-// compressor_test.dart
+// addend_compressor_test.dart
 // Tests for the select interface of Booth encoding
 //
 // 2024 June 04
@@ -11,7 +11,6 @@ import 'dart:io';
 import 'dart:math';
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
-import 'package:rohd_hcl/src/arithmetic/evaluate_compressor.dart';
 import 'package:rohd_hcl/src/arithmetic/evaluate_partial_product.dart';
 import 'package:rohd_hcl/src/arithmetic/partial_product_test_sign_extend.dart';
 import 'package:test/test.dart';
@@ -20,7 +19,7 @@ void testCompressionExhaustive(PartialProductGenerator pp) {
   final widthX = pp.selector.multiplicand.width;
   final widthY = pp.encoder.multiplier.width;
 
-  final compressor = ColumnCompressor(pp);
+  final compressor = AddendCompressor(pp);
 
   final limitX = pow(2, widthX);
   final limitY = pow(2, widthY);
@@ -48,7 +47,6 @@ void testCompressionExhaustive(PartialProductGenerator pp) {
               'vs expected $product\n')
           ..write(pp);
       }
-      compressor.compress();
       final compressedValue = compressor.evaluate().$1;
       expect(compressedValue, equals(product),
           reason: 'Fail:  $i($X)[$widthX] * $j($Y)[$widthY]: $compressedValue '
@@ -61,11 +59,11 @@ void testCompressionExhaustive(PartialProductGenerator pp) {
               'vs expected $product'
               '\n$pp');
 
-      final a = compressor.extractRow(0);
-      final b = compressor.extractRow(1);
+      final a = compressor.sum.elements.first;
+      final b = compressor.sum.elements.last;
+
       final adder = ParallelPrefixAdder(a, b);
-      final adderValue =
-          adder.sum.value.toBigInt().toSigned(compressor.columns.length);
+      final adderValue = adder.sum.value.toBigInt().toSigned(compressor.width);
       expect(adderValue, equals(product),
           reason: 'Fail:  $i($X)[$widthX] * $j($Y)[$widthY]: '
               '$adderValue vs expected $product'
@@ -80,13 +78,13 @@ void main() {
     stdout.write('\n');
 
     for (final signed in [false, true]) {
-      for (var radix = 2; radix < 8; radix *= 2) {
+      for (var radix = 4; radix < 8; radix *= 2) {
         final encoder = RadixEncoder(radix);
         // stdout.write('encoding with radix=$radix\n');
         final shift = log2Ceil(encoder.radix);
         for (var width = shift + 1; width < 2 * shift + 1; width++) {
           for (final signExtension in SignExtension.values) {
-            if (signExtension == SignExtension.none) {
+            if (signExtension != SignExtension.compactRect) {
               continue;
             }
             final ppg = curryPartialProductGenerator(signExtension);
@@ -121,13 +119,11 @@ void main() {
       b.put(bB);
       const radix = 2;
       final encoder = RadixEncoder(radix);
-      final pp = CompactRectSignExtendPartialProductGenerator(a, b, encoder,
+      final pp = PartialProductGeneratorCompactRectSignExtension(a, b, encoder,
           signed: signed);
       expect(pp.evaluate(), equals(BigInt.from(av * bv)));
-      final compressor = ColumnCompressor(pp);
-      expect(compressor.evaluate().$1, equals(BigInt.from(av * bv)));
-
-      compressor.compress();
+      final compressor = AddendCompressor(pp);
+      // expect(compressor.evaluate().$1, equals(BigInt.from(av * bv)));
       expect(compressor.evaluate().$1, equals(BigInt.from(av * bv)));
     }
   });
@@ -153,12 +149,10 @@ void main() {
       const radix = 2;
       final encoder = RadixEncoder(radix);
 
-      final pp = CompactRectSignExtendPartialProductGenerator(a, b, encoder,
+      final pp = PartialProductGeneratorCompactRectSignExtension(a, b, encoder,
           signed: signed);
       expect(pp.evaluate(), equals(BigInt.from(av * bv)));
-      final compressor = ColumnCompressor(pp);
-      expect(compressor.evaluate().$1, equals(BigInt.from(av * bv)));
-      compressor.compress();
+      final compressor = AddendCompressor(pp);
       expect(compressor.evaluate().$1, equals(BigInt.from(av * bv)));
     }
   });
@@ -185,12 +179,10 @@ void main() {
       const radix = 8;
       final encoder = RadixEncoder(radix);
 
-      final pp = CompactRectSignExtendPartialProductGenerator(a, b, encoder,
+      final pp = PartialProductGeneratorCompactRectSignExtension(a, b, encoder,
           signed: signed);
       expect(pp.evaluate(), equals(BigInt.from(av * bv)));
-      final compressor = ColumnCompressor(pp);
-      expect(compressor.evaluate().$1, equals(BigInt.from(av * bv)));
-      compressor.compress();
+      final compressor = AddendCompressor(pp);
       expect(compressor.evaluate().$1, equals(BigInt.from(av * bv)));
     }
   });

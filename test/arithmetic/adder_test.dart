@@ -12,12 +12,6 @@ import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
 import 'package:test/test.dart';
 
-Logic msb(Logic a) => a[a.width - 1];
-Logic lsb(Logic a) => a[0];
-
-LogicValue msbV(LogicValue a) => a[a.width - 1];
-LogicValue lsbV(LogicValue a) => a[0];
-
 void checkAdder(Adder adder, LogicValue av, LogicValue bv) {
   final aB = av.toBigInt();
   final bB = bv.toBigInt();
@@ -100,16 +94,17 @@ void checkSignMagnitudeAdder(SignMagnitudeAdder adder, LogicValue aSign,
 }
 
 void testExhaustiveSignMagnitude(int n, Adder Function(Logic a, Logic b) fn,
-    {bool sortOperands = true}) {
+    {bool operandsArePresorted = true}) {
   final aSign = Logic(name: 'aSign');
   final a = Logic(name: 'a', width: n);
   final bSign = Logic(name: 'bSign');
   final b = Logic(name: 'b', width: n);
 
   final adder = SignMagnitudeAdder(aSign, a, bSign, b, fn,
-      largestMagnitudeFirst: sortOperands);
-  test('exhaustive Sign Magnitude: ${adder.name}_W${a.width}_N$sortOperands',
-      () {
+      largestMagnitudeFirst: operandsArePresorted);
+  test(
+      'exhaustive Sign Magnitude: '
+      '${adder.name}_W${a.width}_N$operandsArePresorted', () {
     for (var i = 0; i < pow(2, n); i += 1) {
       for (var j = 0; j < pow(2, n); j += 1) {
         final bI = BigInt.from(i).toSigned(n);
@@ -118,7 +113,7 @@ void testExhaustiveSignMagnitude(int n, Adder Function(Logic a, Logic b) fn,
         final bigger = bI;
         final smaller = bJ;
         // When equal, we want the negative one first to produce 1 1...1
-        if (sortOperands &
+        if (operandsArePresorted &
             ((bI.abs() < bJ.abs()) || (bI.abs() == bJ.abs() && (bI > bJ)))) {
           continue;
         } else {
@@ -218,12 +213,13 @@ void main() {
   group('SignMagnitude exhaustive', () {
     for (final ppGen in generators) {
       testExhaustiveSignMagnitude(4, RippleCarryAdder.new);
-      testExhaustiveSignMagnitude(4, RippleCarryAdder.new, sortOperands: false);
+      testExhaustiveSignMagnitude(4, RippleCarryAdder.new,
+          operandsArePresorted: false);
       testExhaustiveSignMagnitude(
           4, (a, b) => ParallelPrefixAdder(a, b, ppGen: ppGen));
       testExhaustiveSignMagnitude(
           4, (a, b) => ParallelPrefixAdder(a, b, ppGen: ppGen),
-          sortOperands: false);
+          operandsArePresorted: false);
     }
   });
   test('trivial parallel prefix adder test', () async {
