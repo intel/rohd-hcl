@@ -29,67 +29,75 @@ int _twosComp(int val, int bits) {
   return tmp;
 }
 
-class DivInputSeqItem extends SequenceItem {
+class MultiCycleDividerInputSeqItem extends SequenceItem {
   final int mDividend;
   final int mDivisor;
   final bool mValidIn;
-  DivInputSeqItem(
+  final bool mReadyOut;
+  MultiCycleDividerInputSeqItem(
       {required this.mDividend,
       required this.mDivisor,
-      required this.mValidIn});
+      required this.mValidIn,
+      required this.mReadyOut});
 
   int get dividend => mDividend;
   int get divisor => mDivisor;
   int get validIn => mValidIn ? 1 : 0;
+  int get readyOut => mReadyOut ? 1 : 0;
 
   @override
   String toString() => '''
-dividend=${_twosComp(mDividend, 32)}, 
-divisor=${_twosComp(mDivisor, 32)},
-validIn=$mValidIn
+dividend=$mDividend, 
+divisor=$mDivisor,
+validIn=$mValidIn,
+readyOut=$mReadyOut
 ''';
 }
 
-class DivOutputSeqItem extends SequenceItem {
+class MultiCycleDividerOutputSeqItem extends SequenceItem {
   final int mQuotient;
   final bool mDivZero;
   final bool mValidOut;
-  final bool mIsBusy;
-  DivOutputSeqItem(
+  final bool mReadyIn;
+  MultiCycleDividerOutputSeqItem(
       {required this.mQuotient,
       required this.mDivZero,
       required this.mValidOut,
-      required this.mIsBusy});
+      required this.mReadyIn});
 
   int get quotient => mQuotient;
   int get divZero => mDivZero ? 1 : 0;
   int get validOut => mValidOut ? 1 : 0;
-  int get isBusy => mIsBusy ? 1 : 0;
+  int get readyIn => mReadyIn ? 1 : 0;
 
   @override
   String toString() => '''
 quotient=$mQuotient, 
 divZero=$mDivZero,
 validOut=$mValidOut,
-isBusy=$mIsBusy
+readyIn=$mReadyIn
 ''';
 }
 
-class DivSequencer extends Sequencer<DivInputSeqItem> {
-  DivSequencer(Component parent, {String name = 'divSequencer'})
+class MultiCycleDividerSequencer
+    extends Sequencer<MultiCycleDividerInputSeqItem> {
+  MultiCycleDividerSequencer(Component parent,
+      {String name = 'MultiCycleDividerSequencer'})
       : super(name, parent);
 }
 
-class DivDriver extends Driver<DivInputSeqItem> {
-  final DivInterface intf;
+class MultiCycleDividerDriver extends Driver<MultiCycleDividerInputSeqItem> {
+  final MultiCycleDividerInterface intf;
 
   // Keep a queue of items from the sequencer to be driven when desired
-  final Queue<DivInputSeqItem> _pendingItems = Queue<DivInputSeqItem>();
+  final Queue<MultiCycleDividerInputSeqItem> _pendingItems =
+      Queue<MultiCycleDividerInputSeqItem>();
 
   Objection? _driverObjection;
 
-  DivDriver(this.intf, DivSequencer sequencer, Component parent,
-      {String name = 'divDriver'})
+  MultiCycleDividerDriver(
+      this.intf, MultiCycleDividerSequencer sequencer, Component parent,
+      {String name = 'MultiCycleDividerDriver'})
       : super(name, parent, sequencer: sequencer);
 
   @override
@@ -106,7 +114,7 @@ class DivDriver extends Driver<DivInputSeqItem> {
     // Every clock negative edge, drive the next pending item if it exists
     // but only when the DUT isn't busy
     intf.clk.negedge.listen((args) {
-      if (_pendingItems.isNotEmpty && intf.isBusy.value == LogicValue.zero) {
+      if (_pendingItems.isNotEmpty && intf.readyIn.value == LogicValue.zero) {
         final nextItem = _pendingItems.removeFirst();
         drive(nextItem);
         if (_pendingItems.isEmpty) {
@@ -118,25 +126,28 @@ class DivDriver extends Driver<DivInputSeqItem> {
   }
 
   // Translate a SequenceItem into pin wiggles
-  void drive(DivInputSeqItem? item) {
+  void drive(MultiCycleDividerInputSeqItem? item) {
     if (item == null) {
       intf.dividend.inject(0);
       intf.divisor.inject(0);
       intf.validIn.inject(0);
+      intf.readyOut.inject(1);
     } else {
       intf.dividend.inject(item.dividend);
       intf.divisor.inject(item.divisor);
       intf.validIn.inject(item.validIn);
+      intf.readyOut.inject(item.readyOut);
     }
   }
 }
 
-class DivInputMonitor extends Monitor<DivInputSeqItem> {
+class MultiCycleDividerInputMonitor
+    extends Monitor<MultiCycleDividerInputSeqItem> {
   /// Instance of the [Interface] to the DUT.
-  final DivInterface intf;
+  final MultiCycleDividerInterface intf;
 
-  DivInputMonitor(this.intf, Component parent,
-      {String name = 'divInputMonitor'})
+  MultiCycleDividerInputMonitor(this.intf, Component parent,
+      {String name = 'MultiCycleDividerInputMonitor'})
       : super(name, parent);
 
   @override
@@ -146,23 +157,25 @@ class DivInputMonitor extends Monitor<DivInputSeqItem> {
     // Every positive edge of the clock
     intf.clk.posedge.listen((event) {
       if (intf.validIn.value == LogicValue.one &&
-          intf.isBusy.value == LogicValue.zero) {
-        add(DivInputSeqItem(
+          intf.readyIn.value == LogicValue.zero) {
+        add(MultiCycleDividerInputSeqItem(
             mDividend:
                 _twosComp(intf.dividend.value.toInt(), intf.dividend.width),
             mDivisor: _twosComp(intf.divisor.value.toInt(), intf.divisor.width),
-            mValidIn: true)); // must convert to two's complement rep.
+            mValidIn: true,
+            mReadyOut: true)); // must convert to two's complement rep.
       }
     });
   }
 }
 
-class DivOutputMonitor extends Monitor<DivOutputSeqItem> {
+class MultiCycleDividerOutputMonitor
+    extends Monitor<MultiCycleDividerOutputSeqItem> {
   /// Instance of the [Interface] to the DUT.
-  final DivInterface intf;
+  final MultiCycleDividerInterface intf;
 
-  DivOutputMonitor(this.intf, Component parent,
-      {String name = 'divInputMonitor'})
+  MultiCycleDividerOutputMonitor(this.intf, Component parent,
+      {String name = 'MultiCycleDividerInputMonitor'})
       : super(name, parent);
 
   @override
@@ -172,25 +185,27 @@ class DivOutputMonitor extends Monitor<DivOutputSeqItem> {
     // Every positive edge of the clock
     intf.clk.posedge.listen((event) {
       if (intf.validOut.value == LogicValue.one) {
-        add(DivOutputSeqItem(
-            mQuotient: _twosComp(intf.quotient.value.toInt(),
-                intf.quotient.width), // must convert to two's complement rep.
+        add(MultiCycleDividerOutputSeqItem(
+            mQuotient:
+                _twosComp(intf.quotient.value.toInt(), intf.quotient.width),
+            // must convert to two's complement rep.
             mDivZero: intf.divZero.value == LogicValue.one,
             mValidOut: true,
-            mIsBusy: intf.isBusy.value == LogicValue.one));
+            mReadyIn: intf.readyIn.value == LogicValue.one));
       }
     });
   }
 }
 
-class DivScoreboard extends Component {
-  final Stream<DivInputSeqItem> inStream;
-  final Stream<DivOutputSeqItem> outStream;
+class MultiCycleDividerScoreboard extends Component {
+  final Stream<MultiCycleDividerInputSeqItem> inStream;
+  final Stream<MultiCycleDividerOutputSeqItem> outStream;
 
-  final DivInterface intf;
+  final MultiCycleDividerInterface intf;
 
-  DivScoreboard(this.inStream, this.outStream, this.intf, Component parent,
-      {String name = 'divScoreboard'})
+  MultiCycleDividerScoreboard(
+      this.inStream, this.outStream, this.intf, Component parent,
+      {String name = 'MultiCycleDividerScoreboard'})
       : super(name, parent);
 
   final List<int> lastA = [];
@@ -255,32 +270,34 @@ Incorrect result: dividend=$in1, divisor=$in2, quotient=$currResult
   }
 }
 
-class DivAgent extends Agent {
-  final DivInterface intf;
-  late final DivSequencer sequencer;
-  late final DivDriver driver;
-  late final DivInputMonitor inMonitor;
-  late final DivOutputMonitor outMonitor;
+class MultiCycleDividerAgent extends Agent {
+  final MultiCycleDividerInterface intf;
+  late final MultiCycleDividerSequencer sequencer;
+  late final MultiCycleDividerDriver driver;
+  late final MultiCycleDividerInputMonitor inMonitor;
+  late final MultiCycleDividerOutputMonitor outMonitor;
 
-  DivAgent(this.intf, Component parent, {String name = 'divAgent'})
+  MultiCycleDividerAgent(this.intf, Component parent,
+      {String name = 'MultiCycleDividerAgent'})
       : super(name, parent) {
-    sequencer = DivSequencer(this);
-    driver = DivDriver(intf, sequencer, this);
-    inMonitor = DivInputMonitor(intf, this);
-    outMonitor = DivOutputMonitor(intf, this);
+    sequencer = MultiCycleDividerSequencer(this);
+    driver = MultiCycleDividerDriver(intf, sequencer, this);
+    inMonitor = MultiCycleDividerInputMonitor(intf, this);
+    outMonitor = MultiCycleDividerOutputMonitor(intf, this);
   }
 }
 
-class DivEnv extends Env {
-  final DivInterface intf;
+class MultiCycleDividerEnv extends Env {
+  final MultiCycleDividerInterface intf;
 
-  late final DivAgent agent;
-  late final DivScoreboard scoreboard;
+  late final MultiCycleDividerAgent agent;
+  late final MultiCycleDividerScoreboard scoreboard;
 
-  DivEnv(this.intf, Component parent, {String name = 'divEnv'})
+  MultiCycleDividerEnv(this.intf, Component parent,
+      {String name = 'MultiCycleDividerEnv'})
       : super(name, parent) {
-    agent = DivAgent(intf, this);
-    scoreboard = DivScoreboard(
+    agent = MultiCycleDividerAgent(intf, this);
+    scoreboard = MultiCycleDividerScoreboard(
         agent.inMonitor.stream, agent.outMonitor.stream, intf, this);
   }
 
@@ -290,64 +307,94 @@ class DivEnv extends Env {
   }
 }
 
-class DivBasicSequence extends Sequence {
-  DivBasicSequence({String name = 'divBasicSequence'}) : super(name);
-
-  @override
-  Future<void> body(Sequencer sequencer) async {
-    sequencer as DivSequencer
-      ..add(DivInputSeqItem(
-          mDividend: 4, mDivisor: 2, mValidIn: true)) // even divide by 2
-      ..add(DivInputSeqItem(
-          mDividend: 9, mDivisor: 3, mValidIn: true)) // even divide not by 2
-      ..add(DivInputSeqItem(
-          mDividend: 5, mDivisor: 2, mValidIn: true)) // not even divide
-      ..add(DivInputSeqItem(
-          mDividend: 4, mDivisor: 1, mValidIn: true)) // divide by 1
-      ..add(DivInputSeqItem(
-          mDividend: -10, mDivisor: 2, mValidIn: true)) // negative-positive
-      ..add(DivInputSeqItem(
-          mDividend: 13, mDivisor: -10, mValidIn: true)) // positive-negative
-      ..add(DivInputSeqItem(
-          mDividend: -10, mDivisor: -9, mValidIn: true)) // negative-negative
-      ..add(DivInputSeqItem(
-          mDividend: 1, mDivisor: 4, mValidIn: true)) // bigger divisor
-      ..add(DivInputSeqItem(
-          mDividend: 4, mDivisor: 0, mValidIn: true)); // divide by 0
-  }
-}
-
-class DivVolumeSequence extends Sequence {
-  final int numReps;
-  final rng = Random(0xdeadbeef); // fixed seed
-
-  DivVolumeSequence(this.numReps, {String name = 'divVolumeSequence'})
+class MultiCycleDividerBasicSequence extends Sequence {
+  MultiCycleDividerBasicSequence(
+      {String name = 'MultiCycleDividerBasicSequence'})
       : super(name);
 
   @override
   Future<void> body(Sequencer sequencer) async {
-    final divSequencer = sequencer as DivSequencer;
+    sequencer as MultiCycleDividerSequencer
+      ..add(MultiCycleDividerInputSeqItem(
+          mDividend: 4,
+          mDivisor: 2,
+          mValidIn: true,
+          mReadyOut: true)) // even divide by 2
+      ..add(MultiCycleDividerInputSeqItem(
+          mDividend: 9,
+          mDivisor: 3,
+          mValidIn: true,
+          mReadyOut: true)) // even divide not by 2
+      ..add(MultiCycleDividerInputSeqItem(
+          mDividend: 5,
+          mDivisor: 2,
+          mValidIn: true,
+          mReadyOut: true)) // not even divide
+      ..add(MultiCycleDividerInputSeqItem(
+          mDividend: 4,
+          mDivisor: 1,
+          mValidIn: true,
+          mReadyOut: true)) // divide by 1
+      ..add(MultiCycleDividerInputSeqItem(
+          mDividend: -10,
+          mDivisor: 2,
+          mValidIn: true,
+          mReadyOut: true)) // negative-positive
+      ..add(MultiCycleDividerInputSeqItem(
+          mDividend: 13,
+          mDivisor: -10,
+          mValidIn: true,
+          mReadyOut: true)) // positive-negative
+      ..add(MultiCycleDividerInputSeqItem(
+          mDividend: -10,
+          mDivisor: -9,
+          mValidIn: true,
+          mReadyOut: true)) // negative-negative
+      ..add(MultiCycleDividerInputSeqItem(
+          mDividend: 1,
+          mDivisor: 4,
+          mValidIn: true,
+          mReadyOut: true)) // bigger divisor
+      ..add(MultiCycleDividerInputSeqItem(
+          mDividend: 4,
+          mDivisor: 0,
+          mValidIn: true,
+          mReadyOut: true)); // divide by 0
+  }
+}
+
+class MultiCycleDividerVolumeSequence extends Sequence {
+  final int numReps;
+  final rng = Random(0xdeadbeef); // fixed seed
+
+  MultiCycleDividerVolumeSequence(this.numReps,
+      {String name = 'MultiCycleDividerVolumeSequence'})
+      : super(name);
+
+  @override
+  Future<void> body(Sequencer sequencer) async {
+    final divSequencer = sequencer as MultiCycleDividerSequencer;
 
     for (var i = 0; i < numReps; i++) {
       final a = rng.nextInt(1 << 32);
       final b = rng.nextInt(1 << 32);
-      divSequencer
-          .add(DivInputSeqItem(mDividend: a, mDivisor: b, mValidIn: true));
+      divSequencer.add(MultiCycleDividerInputSeqItem(
+          mDividend: a, mDivisor: b, mValidIn: true, mReadyOut: true));
     }
   }
 }
 
 class DivTest extends Test {
-  final Divider dut;
+  final MultiCycleDivider dut;
 
   /// The test environment for [dut].
-  late final DivEnv env;
+  late final MultiCycleDividerEnv env;
 
   /// A private, local pointer to the test environment's [Sequencer].
-  late final DivSequencer _divSequencer;
+  late final MultiCycleDividerSequencer _divSequencer;
 
   DivTest(this.dut, {String name = 'divTest'}) : super(name) {
-    env = DivEnv(dut.intf, this);
+    env = MultiCycleDividerEnv(dut.intf, this);
     _divSequencer = env.agent.sequencer;
   }
 
@@ -387,8 +434,8 @@ class DivTest extends Test {
     await dut.intf.reset.nextNegedge;
 
     // Kick off a sequence on the sequencer
-    await _divSequencer.start(DivBasicSequence());
-    await _divSequencer.start(DivVolumeSequence(1000));
+    await _divSequencer.start(MultiCycleDividerBasicSequence());
+    await _divSequencer.start(MultiCycleDividerVolumeSequence(1000));
 
     logger.info('Done adding stimulus to the sequencer');
 
@@ -399,19 +446,19 @@ class DivTest extends Test {
 
 class TopTB {
   // Instance of the DUT
-  late final Divider divider;
+  late final MultiCycleDivider divider;
 
   // A constant value for the width to use in this testbench
   static const int width = 32;
 
   TopTB() {
-    final intf = DivInterface();
+    final intf = MultiCycleDividerInterface();
 
     // Connect a generated clock to the interface
     intf.clk <= SimpleClockGenerator(10).clk;
 
     // Create the DUT, passing it our interface
-    divider = Divider(interface: intf);
+    divider = MultiCycleDivider(intf);
   }
 }
 
@@ -432,7 +479,7 @@ void main() {
       await tb.divider.build();
 
       // Attach a waveform dumper to the DUT
-      //WaveDumper(tb.divider);
+      WaveDumper(tb.divider);
 
       // Set a maximum simulation time so it doesn't run forever
       Simulator.setMaxSimTime(100000);

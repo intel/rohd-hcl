@@ -11,7 +11,7 @@ import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
 
 /// State object for Divider processing.
-class DivState {
+class _MultiCycleDividerState {
   /// Width of state in bits.
   static int width = 3;
 
@@ -31,17 +31,8 @@ class DivState {
   static Const done = Const(4, width: width);
 }
 
-/// Port group for the divider's internal interface
-enum DivInterfaceDirection {
-  /// input ports
-  ins,
-
-  /// output ports
-  outs
-}
-
 /// Internal interface to the Divider.
-class DivInterface extends Interface<DivInterfaceDirection> {
+class MultiCycleDividerInterface extends PairInterface {
   /// Clock for sequential logic.
   Logic get clk => port('clk');
 
@@ -54,7 +45,10 @@ class DivInterface extends Interface<DivInterfaceDirection> {
   /// Divisor (denominator) for the division operation.
   Logic get divisor => port('divisor');
 
-  /// Request for a new divison operation to be performed.
+  /// The integrating environment is ready to accept the output of the module.
+  Logic get readyOut => port('readyOut');
+
+  /// Request for a new division operation to be performed.
   Logic get validIn => port('validIn');
 
   /// Quotient (result) for the division operation.
@@ -63,44 +57,40 @@ class DivInterface extends Interface<DivInterfaceDirection> {
   /// A Division by zero occurred.
   Logic get divZero => port('divZero');
 
-  /// The result of the currnt division operation is ready.
+  /// The result of the current division operation is ready.
   Logic get validOut => port('validOut');
 
-  /// The module is busy working on a division operation.
-  Logic get isBusy => port('isBusy');
+  /// The module is ready to accept new inputs.
+  Logic get readyIn => port('readyIn');
 
   /// The width of the data operands and result.
   final int dataWidth;
 
   /// A constructor for the divider interface.
-  DivInterface({this.dataWidth = 32}) {
-    setPorts([
-      Port('clk'),
-      Port('reset'),
-      Port('dividend', dataWidth),
-      Port('divisor', dataWidth),
-      Port('validIn')
-    ], [
-      DivInterfaceDirection.ins
-    ]);
-    setPorts([
-      Port('quotient', dataWidth),
-      Port('divZero'),
-      Port('validOut'),
-      Port('isBusy')
-    ], [
-      DivInterfaceDirection.outs
-    ]);
-  }
+  MultiCycleDividerInterface({this.dataWidth = 32})
+      : super(portsFromProvider: [
+          Port('clk'),
+          Port('reset'),
+          Port('dividend', dataWidth),
+          Port('divisor', dataWidth),
+          Port('validIn'),
+          Port('readyOut'),
+        ], portsFromConsumer: [
+          Port('quotient', dataWidth),
+          Port('divZero'),
+          Port('validOut'),
+          Port('readyIn'),
+        ]);
 
   /// A match constructor for the divider interface.
-  DivInterface.match(DivInterface other) : this(dataWidth: other.dataWidth);
+  MultiCycleDividerInterface.match(MultiCycleDividerInterface other)
+      : this(dataWidth: other.dataWidth);
 }
 
 /// The Divider module definition
-class Divider extends Module {
+class MultiCycleDivider extends Module {
   /// The Divider's interface declaration.
-  late final DivInterface intf;
+  late final MultiCycleDividerInterface intf;
 
   /// The width of the data operands and result.
   late final int dataWidth;
@@ -110,14 +100,51 @@ class Divider extends Module {
   late final int logDataWidth;
 
   /// The Divider module's constructor
-  Divider({required DivInterface interface})
+  MultiCycleDivider(MultiCycleDividerInterface interface)
       : dataWidth = interface.dataWidth,
         logDataWidth = log2Ceil(interface.dataWidth),
         super(name: 'divider') {
-    intf = DivInterface.match(interface)
-      ..connectIO(this, interface,
-          inputTags: {DivInterfaceDirection.ins},
-          outputTags: {DivInterfaceDirection.outs});
+    intf = MultiCycleDividerInterface.match(interface)
+      ..pairConnectIO(
+        this,
+        interface,
+        PairRole.consumer,
+        uniquify: (original) => '${super.name}_$original',
+      );
+
+    _build();
+  }
+
+  /// Named constructor that explicitly takes Logics instead of an Interface.
+  MultiCycleDivider.ofLogics({
+    required Logic clk,
+    required Logic reset,
+    required Logic validIn,
+    required Logic dividend,
+    required Logic divisor,
+    required Logic readyOut,
+    required Logic quotient,
+    required Logic divZero,
+    required Logic validOut,
+    required Logic readyIn,
+  })  : assert(
+            dividend.width == divisor.width && dividend.width == quotient.width,
+            'Widths of all data signals do not match!'),
+        dataWidth = dividend.width,
+        logDataWidth = log2Ceil(dividend.width),
+        super(name: 'divider') {
+    intf = MultiCycleDividerInterface(dataWidth: dataWidth);
+    intf.clk <= clk;
+    intf.reset <= reset;
+    intf.validIn <= validIn;
+    intf.dividend <= dividend;
+    intf.divisor <= divisor;
+    intf.readyOut <= readyOut;
+
+    quotient <= intf.quotient;
+    divZero <= intf.divZero;
+    validOut <= intf.validOut;
+    readyIn <= intf.readyIn;
 
     _build();
   }
@@ -131,8 +158,10 @@ class Divider extends Module {
 
     // to manage FSM
     // # of states is fixed
-    final currentState = Logic(name: 'currentState', width: DivState.width);
-    final nextState = Logic(name: 'nextState', width: DivState.width);
+    final currentState =
+        Logic(name: 'currentState', width: _MultiCycleDividerState.width);
+    final nextState =
+        Logic(name: 'nextState', width: _MultiCycleDividerState.width);
 
     // internal buffers for computation
     // accumulator that contains dividend
@@ -151,16 +180,16 @@ class Divider extends Module {
     final currIndex = Logic(name: 'currIndex', width: logDataWidth);
 
     intf.quotient <= outBuffer; // result is ultimately stored in out_buffer
-    intf.divZero <= ~intf.divisor.or(); // divide-by-0 if b==0 (NOR)
+    intf.divZero <= ~bBuf.or(); // divide-by-0 if b==0 (NOR)
 
     // ready/busy signals are based on internal state
-    intf.validOut <= currentState.eq(DivState.done);
-    intf.isBusy <= ~currentState.eq(DivState.ready);
+    intf.validOut <= currentState.eq(_MultiCycleDividerState.done);
+    intf.readyIn <= ~currentState.eq(_MultiCycleDividerState.ready);
 
     // update current_state with next_state once per cycle
     Sequential(intf.clk, [
       If(intf.reset,
-          then: [currentState < DivState.ready],
+          then: [currentState < _MultiCycleDividerState.ready],
           orElse: [currentState < nextState])
     ]);
 
@@ -169,23 +198,29 @@ class Divider extends Module {
     Combinational([
       tmpShift < 0,
       tmpDifference < 0,
-      nextState < DivState.ready,
+      nextState < _MultiCycleDividerState.ready,
       Case(currentState, [
-        CaseItem(DivState.done, [nextState < DivState.ready]),
-        CaseItem(DivState.convert, [nextState < DivState.done]),
-        CaseItem(DivState.accumulate, [
+        CaseItem(_MultiCycleDividerState.done, [
+          // can move to ready as long as outside indicates consumption
+          nextState <
+              mux(intf.readyOut, _MultiCycleDividerState.ready,
+                  _MultiCycleDividerState.done)
+        ]),
+        CaseItem(_MultiCycleDividerState.convert,
+            [nextState < _MultiCycleDividerState.done]),
+        CaseItem(_MultiCycleDividerState.accumulate, [
           tmpDifference < lastDifference,
           If.block([
             Iff(~tmpDifference.or() | (bBuf > aBuf), [
               // we're done (ready to convert) as difference == 0
               // or we've exceeded the numerator
-              nextState < DivState.convert
+              nextState < _MultiCycleDividerState.convert
             ]),
             // more processing to do
-            Else([nextState < DivState.process])
+            Else([nextState < _MultiCycleDividerState.process])
           ])
         ]),
-        CaseItem(DivState.process, [
+        CaseItem(_MultiCycleDividerState.process, [
           tmpShift < (bBuf << currIndex),
           If(
               // special case: b is most negative #
@@ -198,7 +233,7 @@ class Divider extends Module {
                             ~aBuf.getRange(0, dataWidth - 2).or(),
                         ~Const(0, width: dataWidth), // -1
                         Const(0, width: dataWidth)),
-                nextState < DivState.accumulate
+                nextState < _MultiCycleDividerState.accumulate
               ],
               orElse: [
                 tmpDifference < (aBuf - tmpShift),
@@ -207,16 +242,18 @@ class Divider extends Module {
                     ~tmpShift.or() |
                         tmpDifference[dataWidth - 1] |
                         ~tmpDifference.or(),
-                    then: [nextState < DivState.accumulate],
-                    orElse: [nextState < DivState.process])
+                    then: [nextState < _MultiCycleDividerState.accumulate],
+                    orElse: [nextState < _MultiCycleDividerState.process])
               ])
         ]),
-        CaseItem(DivState.ready, [
+        CaseItem(_MultiCycleDividerState.ready, [
           If(intf.validIn, then: [
-            nextState < mux(~intf.divisor.or(), DivState.done, DivState.process)
+            nextState <
+                mux(~intf.divisor.or(), _MultiCycleDividerState.done,
+                    _MultiCycleDividerState.process)
             // move straight to DONE if divide-by-0
           ], orElse: [
-            nextState < DivState.ready
+            nextState < _MultiCycleDividerState.ready
           ])
         ])
       ])
@@ -232,7 +269,7 @@ class Divider extends Module {
           bBuf < 0,
           signOut < 0,
         ]),
-        ElseIf(currentState.eq(DivState.ready) & intf.validIn, [
+        ElseIf(currentState.eq(_MultiCycleDividerState.ready) & intf.validIn, [
           // conditionally convert negative inputs to positive
           // and compute the output sign
           aBuf <
@@ -242,7 +279,7 @@ class Divider extends Module {
               mux(intf.divisor[dataWidth - 1], ~intf.divisor + 1, intf.divisor),
           signOut < intf.dividend[dataWidth - 1] ^ intf.divisor[dataWidth - 1],
         ]),
-        ElseIf(currentState.eq(DivState.accumulate), [
+        ElseIf(currentState.eq(_MultiCycleDividerState.accumulate), [
           // reduce a_buf by the portion we've covered, retain others
           aBuf < lastDifference,
           bBuf < bBuf,
@@ -262,8 +299,8 @@ class Divider extends Module {
       If.block([
         Iff(intf.reset, [currIndex < Const(0, width: logDataWidth)]),
         ElseIf(
-          currentState.eq(
-              DivState.process), // increment current index each PROCESS cycle
+          currentState.eq(_MultiCycleDividerState
+              .process), // increment current index each PROCESS cycle
           [currIndex < (currIndex + Const(1, width: logDataWidth))],
         ),
         Else(
@@ -280,8 +317,8 @@ class Divider extends Module {
           lastDifference < 0,
         ]),
         ElseIf(
-            currentState.eq(
-                DivState.process), // didn't exceed a_buf, so count as success
+            currentState.eq(_MultiCycleDividerState
+                .process), // didn't exceed a_buf, so count as success
             [
               If(~tmpDifference[dataWidth - 1], then: [
                 lastSuccess <
@@ -307,11 +344,13 @@ class Divider extends Module {
     Sequential(intf.clk, [
       If.block([
         Iff(intf.reset, [outBuffer < 0]), // reset buffer
-        ElseIf(currentState.eq(DivState.done), [outBuffer < 0]), // reset buffer
-        ElseIf(currentState.eq(DivState.convert), [
+        ElseIf(currentState.eq(_MultiCycleDividerState.done), [
+          outBuffer < mux(intf.readyOut, Const(0, width: dataWidth), outBuffer),
+        ]), // reset buffer if consumed result
+        ElseIf(currentState.eq(_MultiCycleDividerState.convert), [
           outBuffer < mux(signOut, ~outBuffer + 1, outBuffer),
         ]), // conditionally convert the result to the correct sign
-        ElseIf(currentState.eq(DivState.accumulate), [
+        ElseIf(currentState.eq(_MultiCycleDividerState.accumulate), [
           outBuffer < (outBuffer + lastSuccess)
         ]), // accumulate last_success into buffer
         Else([outBuffer < outBuffer]), // maintain buffer
