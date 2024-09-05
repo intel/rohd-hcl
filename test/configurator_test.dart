@@ -6,10 +6,20 @@
 //
 // 2023 December 6
 
+import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
+import 'package:rohd_hcl/src/component_config/components/component_registry.dart';
 import 'package:test/test.dart';
 
 import '../confapp/test/example_component.dart';
+
+/// A module that just wraps a hierarchy around a given module.
+class Wrapper extends Module {
+  Wrapper(Module m) {
+    final mOut = m.outputs.values.first;
+    addOutput('dummy', width: mOut.width) <= mOut;
+  }
+}
 
 void main() {
   test('to and from json', () {
@@ -273,5 +283,19 @@ void main() {
 
     final sv = await cfg.generateSV();
     expect(sv, contains('swizzle'));
+  });
+
+  group('configurator builds', () {
+    for (final componentConfigurator in componentRegistry) {
+      test(componentConfigurator.name, () async {
+        // generates verilog stand-alone
+        await componentConfigurator.generateSV();
+
+        // generates within a wrapping module (check for input/output rules)
+        final mod = Wrapper(componentConfigurator.createModule());
+        await mod.build();
+        mod.generateSynth();
+      });
+    }
   });
 }
