@@ -15,41 +15,6 @@ import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/src/arithmetic/multiplier_lib.dart';
 import 'package:rohd_hcl/src/utils.dart';
 
-/// A simple full-adder with inputs `a` and `b` to be added with a `carryIn`.
-class AddendCompressor extends Module {
-  /// The addition's result [sum].
-  LogicArray get sum => output('sums') as LogicArray;
-
-  /// Return the maximum [width] of the addends
-  int get width => _pp.maxWidth();
-
-  late final PartialProductGenerator _pp;
-  late final _ColumnCompressor _cc;
-
-  /// Construct an addend compressor module from a PartialProductGenerator
-  AddendCompressor(this._pp, {bool doCompress = true}) {
-    _cc = _ColumnCompressor(_pp);
-
-    addOutputArray('sums', dimensions: [2], elementWidth: width);
-    if (doCompress) {
-      _cc.compress();
-    }
-
-    sum <= [_cc.extractRow(0), _cc.extractRow(1)].swizzle();
-  }
-
-  /// Compress the columns down to two rows
-  void compress() => _cc.compress();
-
-  /// evaluate the value of the compressor, used for live debug
-  (BigInt, StringBuffer) evaluate(
-          {bool printOut = false, bool logic = false}) =>
-      _cc.evaluate(printOut: printOut, logic: logic);
-
-  /// Return the row shift of the PartialProductGenerator at a given [row]
-  int rowShift(int row) => _pp.rowShift[row];
-}
-
 /// Base class for bit-level column compressor function
 abstract class BitCompressor extends Module {
   /// Input bits to compress
@@ -95,7 +60,7 @@ class Compressor3 extends BitCompressor {
 }
 
 /// Compress terms
-enum _CompressTermType {
+enum CompressTermType {
   /// A carry term
   carry,
 
@@ -107,12 +72,12 @@ enum _CompressTermType {
 }
 
 /// A compression term
-class _CompressTerm implements Comparable<_CompressTerm> {
+class CompressTerm implements Comparable<CompressTerm> {
   /// The type of term we have
-  late final _CompressTermType type;
+  late final CompressTermType type;
 
   /// The inputs that drove this Term
-  late final List<_CompressTerm> inputs;
+  late final List<CompressTerm> inputs;
 
   /// The row of the terminal
   final int row;
@@ -133,12 +98,12 @@ class _CompressTerm implements Comparable<_CompressTerm> {
   static const carryDelay = 0.75;
 
   /// CompressTerm constructor
-  _CompressTerm(this.type, this.logic, this.inputs, this.row, this.col) {
+  CompressTerm(this.type, this.logic, this.inputs, this.row, this.col) {
     delay = 0.0;
     final deltaDelay = switch (type) {
-      _CompressTermType.carry => carryDelay,
-      _CompressTermType.sum => sumDelay,
-      _CompressTermType.pp => 0.0
+      CompressTermType.carry => carryDelay,
+      CompressTermType.sum => sumDelay,
+      CompressTermType.pp => 0.0
     };
     for (final i in inputs) {
       if (i.delay + deltaDelay > delay) {
@@ -148,7 +113,7 @@ class _CompressTerm implements Comparable<_CompressTerm> {
   }
   @override
   int compareTo(Object other) {
-    if (other is! _CompressTerm) {
+    if (other is! CompressTerm) {
       throw Exception('Input must be of type CompressTerm ');
     }
     return delay > other.delay ? 1 : (delay < other.delay ? -1 : 0);
@@ -158,14 +123,14 @@ class _CompressTerm implements Comparable<_CompressTerm> {
   LogicValue evaluate() {
     late LogicValue value;
     switch (type) {
-      case _CompressTermType.pp:
+      case CompressTermType.pp:
         value = logic.value;
-      case _CompressTermType.sum:
+      case CompressTermType.sum:
         // xor the eval of the terms
         final termValues = [for (final term in inputs) term.evaluate()];
         final sum = termValues.swizzle().xor();
         value = sum;
-      case _CompressTermType.carry:
+      case CompressTermType.carry:
         final termValues = [for (final term in inputs) term.evaluate()];
         final termValuesInt = [
           for (var i = 0; i < termValues.length; i++) termValues[i].toInt()
@@ -185,9 +150,9 @@ class _CompressTerm implements Comparable<_CompressTerm> {
   String toString() {
     final str = StringBuffer();
     final ts = switch (type) {
-      _CompressTermType.pp => 'pp',
-      _CompressTermType.carry => 'c',
-      _CompressTermType.sum => 's'
+      CompressTermType.pp => 'pp',
+      CompressTermType.carry => 'c',
+      CompressTermType.sum => 's'
     };
     str
       ..write(ts)
@@ -197,25 +162,25 @@ class _CompressTerm implements Comparable<_CompressTerm> {
 }
 
 /// A column of partial product terms
-typedef _ColumnQueue = PriorityQueue<_CompressTerm>;
+typedef ColumnQueue = PriorityQueue<CompressTerm>;
 
 /// A column compressor
-class _ColumnCompressor {
+class ColumnCompressor {
   /// Columns of partial product CompressTerms
 
-  late final List<_ColumnQueue> columns;
+  late final List<ColumnQueue> columns;
 
   /// The partial product generator to be compressed
   final PartialProductGenerator pp;
 
   /// Initialize a ColumnCompressor for a set of partial products
-  _ColumnCompressor(this.pp) {
-    columns = List.generate(pp.maxWidth(), (i) => _ColumnQueue());
+  ColumnCompressor(this.pp) {
+    columns = List.generate(pp.maxWidth(), (i) => ColumnQueue());
 
     for (var row = 0; row < pp.rows; row++) {
       for (var col = 0; col < pp.partialProducts[row].length; col++) {
         final trueColumn = pp.rowShift[row] + col;
-        final term = _CompressTerm(_CompressTermType.pp,
+        final term = CompressTerm(CompressTermType.pp,
             pp.partialProducts[row][col], [], row, trueColumn);
         columns[trueColumn].add(term);
       }
@@ -243,8 +208,8 @@ class _ColumnCompressor {
   }
 
   /// Core iterator for column compressor routine
-  List<_CompressTerm> _compressIter(int iteration) {
-    final terms = <_CompressTerm>[];
+  List<CompressTerm> _compressIter(int iteration) {
+    final terms = <CompressTerm>[];
     for (var col = 0; col < columns.length; col++) {
       final queue = columns[col];
       final depth = queue.length;
@@ -252,7 +217,7 @@ class _ColumnCompressor {
         if (depth > 2) {
           final first = queue.removeFirst();
           final second = queue.removeFirst();
-          final inputs = <_CompressTerm>[first, second];
+          final inputs = <CompressTerm>[first, second];
           BitCompressor compressor;
           if (depth > 3) {
             inputs.add(queue.removeFirst());
@@ -262,13 +227,13 @@ class _ColumnCompressor {
             compressor =
                 Compressor2([for (final i in inputs) i.logic].swizzle());
           }
-          final t = _CompressTerm(
-              _CompressTermType.sum, compressor.sum, inputs, 0, col);
+          final t = CompressTerm(
+              CompressTermType.sum, compressor.sum, inputs, 0, col);
           terms.add(t);
           columns[col].add(t);
           if (col < columns.length - 1) {
-            final t = _CompressTerm(
-                _CompressTermType.carry, compressor.carry, inputs, 0, col);
+            final t = CompressTerm(
+                CompressTermType.carry, compressor.carry, inputs, 0, col);
             columns[col + 1].add(t);
             terms.add(t);
           }
@@ -280,7 +245,7 @@ class _ColumnCompressor {
 
   /// Compress the partial products array to two addends
   void compress() {
-    final terms = <_CompressTerm>[];
+    final terms = <CompressTerm>[];
     var iterations = longestColumn();
     while (iterations > 0) {
       terms.addAll(_compressIter(iterations--));
@@ -288,63 +253,5 @@ class _ColumnCompressor {
         break;
       }
     }
-  }
-
-  (BigInt, StringBuffer) evaluate({bool printOut = false, bool logic = false}) {
-    final ts = StringBuffer();
-    final rows = longestColumn();
-    final width = pp.maxWidth();
-
-    var accum = BigInt.zero;
-    for (var row = 0; row < rows; row++) {
-      final rowBits = <LogicValue>[];
-      for (var col = columns.length - 1; col >= 0; col--) {
-        final colList = columns[col].toList();
-        if (row < colList.length) {
-          final value =
-              logic ? colList[row].logic.value : (colList[row].evaluate());
-          rowBits.add(value);
-          if (printOut) {
-            ts.write('\t${value.bitString}');
-          }
-        } else if (printOut) {
-          ts.write('\t');
-        }
-      }
-      rowBits.addAll(List.filled(pp.rowShift[row], LogicValue.zero));
-      final val = rowBits.swizzle().zeroExtend(width).toBigInt();
-      accum += val;
-      if (printOut) {
-        ts.write('\t${rowBits.swizzle().zeroExtend(width).bitString} ($val)');
-        if (row == rows - 1) {
-          ts.write(' Total=${accum.toSigned(width)}\n');
-          stdout.write(ts);
-        } else {
-          ts.write('\n');
-        }
-      }
-    }
-    if (printOut) {
-      // We need this to be able to debug, but git lint flunks print
-      // print(ts);
-    }
-    return (accum.toSigned(width), ts);
-  }
-
-  /// Return a string representing the compression tree in its current state
-  String representation() {
-    final ts = StringBuffer();
-    for (var row = 0; row < longestColumn(); row++) {
-      for (var col = columns.length - 1; col >= 0; col--) {
-        final colList = columns[col].toList();
-        if (row < colList.length) {
-          ts.write('\t${colList[row]}');
-        } else {
-          ts.write('\t');
-        }
-      }
-      ts.write('\n');
-    }
-    return ts.toString();
   }
 }

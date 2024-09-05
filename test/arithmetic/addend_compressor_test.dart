@@ -11,6 +11,7 @@ import 'dart:io';
 import 'dart:math';
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
+import 'package:rohd_hcl/src/arithmetic/evaluate_compressor.dart';
 import 'package:rohd_hcl/src/arithmetic/evaluate_partial_product.dart';
 import 'package:rohd_hcl/src/arithmetic/partial_product_test_sign_extend.dart';
 import 'package:test/test.dart';
@@ -19,7 +20,7 @@ void testCompressionExhaustive(PartialProductGenerator pp) {
   final widthX = pp.selector.multiplicand.width;
   final widthY = pp.encoder.multiplier.width;
 
-  final compressor = AddendCompressor(pp);
+  final compressor = ColumnCompressor(pp);
 
   final limitX = pow(2, widthX);
   final limitY = pow(2, widthY);
@@ -47,6 +48,7 @@ void testCompressionExhaustive(PartialProductGenerator pp) {
               'vs expected $product\n')
           ..write(pp);
       }
+      compressor.compress();
       final compressedValue = compressor.evaluate().$1;
       expect(compressedValue, equals(product),
           reason: 'Fail:  $i($X)[$widthX] * $j($Y)[$widthY]: $compressedValue '
@@ -59,11 +61,12 @@ void testCompressionExhaustive(PartialProductGenerator pp) {
               'vs expected $product'
               '\n$pp');
 
-      final a = compressor.sum.elements.first;
-      final b = compressor.sum.elements.last;
+      final a = compressor.extractRow(0);
+      final b = compressor.extractRow(1);
 
       final adder = ParallelPrefixAdder(a, b);
-      final adderValue = adder.sum.value.toBigInt().toSigned(compressor.width);
+      final adderValue =
+          adder.sum.value.toBigInt().toSigned(compressor.columns.length);
       expect(adderValue, equals(product),
           reason: 'Fail:  $i($X)[$widthX] * $j($Y)[$widthY]: '
               '$adderValue vs expected $product'
@@ -73,7 +76,7 @@ void testCompressionExhaustive(PartialProductGenerator pp) {
 }
 
 void main() {
-  test('exhaustive compression evaluate: square radix-4, all SignExtension',
+  test('exhaustive compression evaluate: square radix-4, just CompactRect',
       () async {
     stdout.write('\n');
 
@@ -122,8 +125,9 @@ void main() {
       final pp = PartialProductGeneratorCompactRectSignExtension(a, b, encoder,
           signed: signed);
       expect(pp.evaluate(), equals(BigInt.from(av * bv)));
-      final compressor = AddendCompressor(pp);
-      // expect(compressor.evaluate().$1, equals(BigInt.from(av * bv)));
+      final compressor = ColumnCompressor(pp);
+      expect(compressor.evaluate().$1, equals(BigInt.from(av * bv)));
+      compressor.compress();
       expect(compressor.evaluate().$1, equals(BigInt.from(av * bv)));
     }
   });
@@ -152,7 +156,9 @@ void main() {
       final pp = PartialProductGeneratorCompactRectSignExtension(a, b, encoder,
           signed: signed);
       expect(pp.evaluate(), equals(BigInt.from(av * bv)));
-      final compressor = AddendCompressor(pp);
+      final compressor = ColumnCompressor(pp);
+      expect(compressor.evaluate().$1, equals(BigInt.from(av * bv)));
+      compressor.compress();
       expect(compressor.evaluate().$1, equals(BigInt.from(av * bv)));
     }
   });
@@ -182,7 +188,7 @@ void main() {
       final pp = PartialProductGeneratorCompactRectSignExtension(a, b, encoder,
           signed: signed);
       expect(pp.evaluate(), equals(BigInt.from(av * bv)));
-      final compressor = AddendCompressor(pp);
+      final compressor = ColumnCompressor(pp)..compress();
       expect(compressor.evaluate().$1, equals(BigInt.from(av * bv)));
     }
   });

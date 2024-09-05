@@ -88,9 +88,9 @@ class CompressionTreeMultiplier extends Multiplier {
         a, b, RadixEncoder(radix),
         signed: signed);
 
-    final compressor = AddendCompressor(pp);
+    final compressor = ColumnCompressor(pp)..compress();
     final adder = ParallelPrefixAdder(
-        compressor.sum.elements.first, compressor.sum.elements.last,
+        compressor.extractRow(0), compressor.extractRow(1),
         ppGen: ppTree);
     product <= adder.sum.slice(a.width + b.width - 1, 0);
   }
@@ -136,11 +136,11 @@ class CompressionTreeMultiplyAccumulate extends MultiplyAccumulate {
     pp.partialProducts.insert(0, l);
     pp.rowShift.insert(0, 0);
 
-    final compressor = AddendCompressor(pp);
+    final compressor = ColumnCompressor(pp)..compress();
     final adder = ParallelPrefixAdder(
-        compressor.sum.elements.first, compressor.sum.elements.last,
+        compressor.extractRow(0), compressor.extractRow(1),
         ppGen: ppTree);
-    accumulate <= adder.sum.slice(a.width + b.width - 1, 0);
+    accumulate <= adder.sum.slice(a.width + b.width - 1 + 1, 0);
   }
 }
 
