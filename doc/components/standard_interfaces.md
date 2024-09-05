@@ -1,6 +1,6 @@
 # Standard Interfaces
 
-ROHD HCL provides a set of standard interfaces using ROHD `Interface`s.  This makes it easy to instantiate and connect common interfaces in a configurable way.
+ROHD-HCL provides a set of standard interfaces using ROHD `Interface`s.  This makes it easy to instantiate and connect common interfaces in a configurable way.
 
 ## APB
 

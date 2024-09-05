@@ -1,6 +1,6 @@
 # Sort
 
-ROHD HCL provides a component to perform sort of a list of Logic. As of now, we have
+ROHD-HCL provides a component to perform sort of a list of Logic. As of now, we have
 
 - [Bitonic Sort](#bitonic-sort)
 

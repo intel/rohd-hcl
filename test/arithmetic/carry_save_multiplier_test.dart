@@ -1,4 +1,4 @@
-// Copyright (C) 2023 Intel Corporation
+// Copyright (C) 2023-2024 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 //
 // carry_save_mutiplier_test.dart
@@ -25,7 +25,8 @@ void main() {
     final clk = SimpleClockGenerator(10).clk;
     final reset = Logic(name: 'reset');
 
-    expect(() => CarrySaveMultiplier(clk: clk, reset: reset, a, b),
+    expect(
+        () => CarrySaveMultiplier(clk: clk, reset: reset, signed: true, a, b),
         throwsA(const TypeMatcher<RohdHclException>()));
   });
 
@@ -36,7 +37,7 @@ void main() {
     final reset = Logic(name: 'reset');
     final clk = SimpleClockGenerator(10).clk;
 
-    final csm = CarrySaveMultiplier(clk: clk, reset: reset, a, b);
+    final csm = CarrySaveMultiplier(clk: clk, reset: reset, signed: true, a, b);
 
     await csm.build();
 

@@ -1,4 +1,4 @@
-// Copyright (C) 2023 Intel Corporation
+// Copyright (C) 2023-2024 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 //
 // adder.dart
@@ -15,13 +15,13 @@ import 'package:rohd_hcl/rohd_hcl.dart';
 abstract class Adder extends Module {
   /// The input to the adder pin [a].
   @protected
-  late final Logic a;
+  Logic get a => input('a');
 
   /// The input to the adder pin [b].
   @protected
-  late final Logic b;
+  Logic get b => input('b');
 
-  /// The addition results [sum].
+  /// The addition results in 2s complement form as [sum]
   Logic get sum => output('sum');
 
   /// Takes in input [a] and input [b] and return the [sum] of the addition
@@ -30,8 +30,8 @@ abstract class Adder extends Module {
     if (a.width != b.width) {
       throw RohdHclException('inputs of a and b should have same width.');
     }
-    this.a = addInput('a', a, width: a.width);
-    this.b = addInput('b', b, width: b.width);
+    addInput('a', a, width: a.width);
+    addInput('b', b, width: b.width);
     addOutput('sum', width: a.width + 1);
   }
 }

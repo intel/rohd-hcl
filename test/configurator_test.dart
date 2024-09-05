@@ -125,9 +125,9 @@ void main() {
 
     test('should return both Int knobs to be configured', () {
       final multiplier = CarrySaveMultiplierConfigurator();
-      for (final element in multiplier.knobs.values.toList()) {
-        expect(element, isA<IntConfigKnob>());
-      }
+      expect(multiplier.knobs.values.whereType<IntConfigKnob>().length, 1);
+      expect(multiplier.knobs.values.whereType<ChoiceConfigKnob<bool>>().length,
+          1);
     });
 
     test('should return rtl code when invoke generate() with default value',

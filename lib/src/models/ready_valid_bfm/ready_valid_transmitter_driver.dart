@@ -1,9 +1,17 @@
+// Copyright (C) 2024 Intel Corporation
+// SPDX-License-Identifier: BSD-3-Clause
+//
+// ready_valid_transmitter_agent.dart
+// An agent for transmitting over a ready/valid protocol.
+//
+// 2024 January 5
+// Author: Max Korbel <max.korbel@intel.com>
+
 import 'dart:async';
 import 'dart:math';
 
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
-import 'package:rohd_hcl/src/models/ready_valid_bfm/ready_valid_packet.dart';
 import 'package:rohd_vf/rohd_vf.dart';
 
 /// An [Agent] for transmitting over a ready/valid protocol.
@@ -70,7 +78,9 @@ class ReadyValidTransmitterDriver
     } else {
       valid.inject(1);
 
-      assert(pkt.data.width == data.width, 'Data widths should match.');
+      if (pkt.data.width != data.width) {
+        throw RohdHclException('Data widths should match.');
+      }
       data.inject(pkt.data);
 
       // wait for it to be accepted

@@ -1,4 +1,4 @@
-// Copyright (C) 2023 Intel Corporation
+// Copyright (C) 2023-2024 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 //
 // fifo.dart
@@ -92,9 +92,10 @@ class Fifo extends Module {
     if (depth <= 0) {
       throw RohdHclException('Depth must be at least 1.');
     }
-
-    assert(_addrWidth > 0,
-        'Assumption that address width is non-zero in implementation');
+    if (_addrWidth <= 0) {
+      throw RohdHclException(
+          'Assumption that address width is non-zero in implementation');
+    }
 
     addInput('clk', clk);
     addInput('reset', reset);
