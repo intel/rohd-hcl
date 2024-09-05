@@ -11,7 +11,6 @@ import 'package:collection/collection.dart';
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
 import 'package:rohd_hcl/src/summation/summation_base.dart';
-import 'package:rohd_hcl/src/summation/summation_utils.dart';
 
 extension on SumInterface {
   List<Conditional> _combAdjustments(Logic Function(Logic) s, Logic nextVal) {
@@ -81,18 +80,18 @@ class Sum extends SummationBase {
     addOutput('sum', width: width);
 
     // assume minValue is 0, maxValue is 2^width, for width safety calcs
-    final maxPosMagnitude = biggestVal(this.width) +
+    final maxPosMagnitude = SummationBase.biggestVal(width) +
         interfaces
             .where((e) => e.increments)
-            .map((e) => biggestVal(e.width))
+            .map((e) => SummationBase.biggestVal(e.width))
             .sum;
     final maxNegMagnitude = interfaces
             .where((e) => !e.increments)
-            .map((e) => biggestVal(e.width))
+            .map((e) => SummationBase.biggestVal(e.width))
             .sum +
         // also consider that initialValue may be less than min
         (initialValue is Logic
-            ? biggestVal(initialValue.width)
+            ? SummationBase.biggestVal(initialValue.width)
             : LogicValue.ofInferWidth(initialValue).toInt());
 
     // calculate the largest number that we could have in intermediate
