@@ -1,6 +1,6 @@
 # Find
 
-ROHD HCL comes with a Find.  The detailed API docs are available [here](https://intel.github.io/rohd-hcl/rohd_hcl/rohd_hcl-library.html).
+ROHD-HCL comes with a Find.  The detailed API docs are available [here](https://intel.github.io/rohd-hcl/rohd_hcl/rohd_hcl-library.html).
 
 A Find will search for first/nth occurrence of one(`1`)/zero(`0`) within a given Logic `bus`.
 The underlying implementation uses a `Count` to count 1's or 0's whenever a Logic `n` value
@@ -10,7 +10,7 @@ It takes a Binary Logic `bus` and finds the position of any one or zero within t
 That is to say, By default a Find will go for finding the first occurrence when no `n` is passed. In addition, with `countOne` which is set as `true` by default to
 search only one (`1`). Both boolean `countOne` and Logic `n` are optional. Only Logic `bus` is mandatory argument.
 
-This has an output pin named as `find`, for the index position on the occurrence searched (`1`s or `0`s) taken from the LSB (Least significant bit).
+This has an output pin named as `find`, for the index position on the occurrence searched (`1`s or `0`s) taken from the LSB (Least Significant Bit).
 
 ## Find First
 

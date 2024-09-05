@@ -24,4 +24,5 @@ List<Configurator> get componentRegistry => [
       EdgeDetectorConfigurator(),
       FindConfigurator(),
       ParallelPrefixAdderConfigurator(),
+      CompressionTreeMultiplierConfigurator(),
     ];
