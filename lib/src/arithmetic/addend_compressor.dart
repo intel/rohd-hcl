@@ -13,7 +13,6 @@ import 'package:collection/collection.dart';
 import 'package:meta/meta.dart';
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/src/arithmetic/multiplier_lib.dart';
-import 'package:rohd_hcl/src/utils.dart';
 
 /// Base class for bit-level column compressor function
 abstract class BitCompressor extends Module {
