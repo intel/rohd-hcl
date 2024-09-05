@@ -1,22 +1,38 @@
+// Copyright (C) 2024 Intel Corporation
+// SPDX-License-Identifier: BSD-3-Clause
+//
+// sum.dart
+// A flexible sum implementation.
+//
+// 2024 August 26
+// Author: Max Korbel <max.korbel@intel.com>
+
 import 'dart:math';
 
 import 'package:collection/collection.dart';
+import 'package:meta/meta.dart';
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
-import 'package:meta/meta.dart';
 
+/// A base class for modules doing summation operation such as [Counter] and
+/// [Sum].
 abstract class SummationBase extends Module {
+  /// The width of the resulting sum.
   final int width;
 
+  /// An internal [Logic] version of the provided initial value.
   @protected
   late final Logic initialValueLogic;
 
+  /// An internal [Logic] version of the provided minimum value.
   @protected
   late final Logic minValueLogic;
 
+  /// An internal [Logic] version of the provided maximum value.
   @protected
   late final Logic maxValueLogic;
 
+  /// The "internal" versions of the [SumInterface]s for this computation.
   @protected
   late final List<SumInterface> interfaces;
 
@@ -24,29 +40,27 @@ abstract class SummationBase extends Module {
   /// will wrap around (overflow/underflow) at the `maxValue` and `minValue`.
   final bool saturates;
 
-  //TODO: review doc comments!
-  /// Indicates whether the sum has reached the maximum value.
-  ///
-  /// If it [saturates], then the result will be equal to the maximum value.
-  /// Otherwise, the value may have overflowed to any value, but the net sum
-  /// before overflow will have been greater than the maximum value.
-  // Logic get reachedMax => output('reachedMax');
-
-  /// Indicates whether the sum has reached the minimum value.
-  ///
-  /// If it [saturates], then the result will be equal to the minimum value.
-  /// Otherwise, the value may have underflowed to any value, but the net sum
-  /// before underflow will have been less than the minimum value.
-  // Logic get reachedMin => output('reachedMin');
-/** 
- * 
-*/
-
+  /// Indicates whether the sum is greater than the maximum value. The actual
+  /// resulting value depends on the provided [saturates] behavior (staturation
+  /// or overflow).
   Logic get overflowed => output('overflowed');
+
+  /// Indicates whether the sum is less than the minimum value. The actual
+  /// resulting value depends on the provided [saturates] behavior (saturation
+  /// or underflow).
   Logic get underflowed => output('underflowed');
+
+  /// Indicates whether the sum (including potential saturation) is currently
+  /// equal to the maximum.
   Logic get equalsMax => output('equalsMax');
+
+  /// Indicates whether the sum (including potential saturation) is currently
+  /// equal to the minimum.
   Logic get equalsMin => output('equalsMin');
 
+  /// Sums the values across the provided [interfaces] within the bounds of the
+  /// [saturates] behavior, [initialValue], [maxValue], and [minValue], with the
+  /// specified [width], if provided.
   SummationBase(
     List<SumInterface> interfaces, {
     dynamic initialValue = 0,
@@ -78,11 +92,18 @@ abstract class SummationBase extends Module {
     addOutput('equalsMin');
   }
 
-  /// TODO doc
+  /// Takes a given `dynamic` [value] and converts it into a [Logic],
+  /// potentially as an input port, if necessary.
   Logic _dynamicInputToLogic(String name, dynamic value) {
     if (value is Logic) {
       return addInput(name, value.zeroExtend(width), width: width);
     } else {
+      // if it's a LogicValue, then don't assume the width is necessary
+      if (value is LogicValue) {
+        // ignore: parameter_assignments
+        value = value.toBigInt();
+      }
+
       if (LogicValue.ofInferWidth(value).width > width) {
         throw RohdHclException(
             'Value $value for $name is too large for width $width');
@@ -92,10 +113,12 @@ abstract class SummationBase extends Module {
     }
   }
 
+  /// Returns the largest value that can fit within [width].
   @protected
-  static int biggestVal(int width) => (1 << width) - 1;
+  static BigInt biggestVal(int width) => BigInt.two.pow(width) - BigInt.one;
 
-  //TODO doc
+  /// Infers the width of the sum based on the provided values, interfaces, and
+  /// optionally the provided [width].
   static int _inferWidth(
       List<dynamic> values, int? width, List<SumInterface> interfaces) {
     if (width != null) {

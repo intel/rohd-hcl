@@ -7,12 +7,18 @@
 // 2024 August 26
 // Author: Max Korbel <max.korbel@intel.com>
 
+import 'dart:math';
+
 import 'package:collection/collection.dart';
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
 import 'package:rohd_hcl/src/summation/summation_base.dart';
 
+/// An extension on [SumInterface] to provide additional functionality for
+/// computing in [Sum].
 extension on SumInterface {
+  /// Adjusts the [nextVal] by the amount specified in this interface, to be
+  /// used within a [Combinational.ssa] block.
   List<Conditional> _combAdjustments(Logic Function(Logic) s, Logic nextVal) {
     final conds = <Conditional>[
       if (increments)
@@ -79,23 +85,30 @@ class Sum extends SummationBase {
   }) : super(initialValue: initialValue) {
     addOutput('sum', width: width);
 
-    // assume minValue is 0, maxValue is 2^width, for width safety calcs
-    final maxPosMagnitude = SummationBase.biggestVal(width) +
-        interfaces
-            .where((e) => e.increments)
-            .map((e) => SummationBase.biggestVal(e.width))
-            .sum;
-    final maxNegMagnitude = interfaces
-            .where((e) => !e.increments)
-            .map((e) => SummationBase.biggestVal(e.width))
-            .sum +
-        // also consider that initialValue may be less than min
-        (initialValue is Logic
-            ? SummationBase.biggestVal(initialValue.width)
-            : LogicValue.ofInferWidth(initialValue).toInt());
+    var maxPosMagnitude = SummationBase.biggestVal(width);
+    var maxNegMagnitude = BigInt.zero;
+    for (final intf in interfaces) {
+      final maxMagnitude = intf.fixedAmount != null
+          ? intf.amount.value.toBigInt()
+          : SummationBase.biggestVal(intf.width);
+
+      if (intf.increments) {
+        maxPosMagnitude += maxMagnitude;
+      } else {
+        maxNegMagnitude += maxMagnitude;
+      }
+    }
+
+    // also consider that initialValue may be less than min or more than max
+    final maxInitialValueMagnitude = initialValue is Logic
+        ? SummationBase.biggestVal(initialValue.width)
+        : LogicValue.ofInferWidth(initialValue).toBigInt();
+    maxPosMagnitude += maxInitialValueMagnitude;
+    maxNegMagnitude += maxInitialValueMagnitude;
 
     // calculate the largest number that we could have in intermediate
-    final internalWidth = log2Ceil(maxPosMagnitude + maxNegMagnitude + 1);
+    final internalWidth = max(
+        (maxPosMagnitude + maxNegMagnitude + BigInt.one).bitLength, width + 1);
 
     final initialValueLogicExt = initialValueLogic.zeroExtend(internalWidth);
     final minValueLogicExt = minValueLogic.zeroExtend(internalWidth);
