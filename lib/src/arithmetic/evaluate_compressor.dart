@@ -59,7 +59,6 @@ extension EvaluateLiveColumnCompressor on ColumnCompressor {
     return (accum.toSigned(width), ts);
   }
 
-
   /// Return a string representing the compression tree in its current state
   String representation() {
     final ts = StringBuffer();
