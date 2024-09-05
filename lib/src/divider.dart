@@ -92,6 +92,18 @@ class MultiCycleDivider extends Module {
   /// The Divider's interface declaration.
   late final MultiCycleDividerInterface intf;
 
+  /// Get interface's validOut signal value.
+  Logic get validOut => intf.validOut;
+
+  /// Get interface's quotient signal value.
+  Logic get quotient => intf.quotient;
+
+  /// Get interface's divZero signal value.
+  Logic get divZero => intf.divZero;
+
+  /// Get interface's readyIn signal value.
+  Logic get readyIn => intf.readyIn;
+
   /// The width of the data operands and result.
   late final int dataWidth;
 
@@ -123,12 +135,7 @@ class MultiCycleDivider extends Module {
     required Logic dividend,
     required Logic divisor,
     required Logic readyOut,
-    required Logic quotient,
-    required Logic divZero,
-    required Logic validOut,
-    required Logic readyIn,
-  })  : assert(
-            dividend.width == divisor.width && dividend.width == quotient.width,
+  })  : assert(dividend.width == divisor.width,
             'Widths of all data signals do not match!'),
         dataWidth = dividend.width,
         logDataWidth = log2Ceil(dividend.width),
@@ -140,11 +147,6 @@ class MultiCycleDivider extends Module {
     intf.dividend <= dividend;
     intf.divisor <= divisor;
     intf.readyOut <= readyOut;
-
-    quotient <= intf.quotient;
-    divZero <= intf.divZero;
-    validOut <= intf.validOut;
-    readyIn <= intf.readyIn;
 
     _build();
   }
