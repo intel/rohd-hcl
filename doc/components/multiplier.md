@@ -136,8 +136,7 @@ Here is an example of using the `CompressionTreeMultiplyAccumulate`:
     b.put(3);
     c.put(5);
 
-    final multiplier = CompressionTreeMultiplyAccumulate(
-        a, b, c, radix, signed: true);
+    final multiplier = CompressionTreeMultiplyAccumulate(a, b, c, radix, signed: true);
 
     final accumulate = multiplier.accumulate;
     
