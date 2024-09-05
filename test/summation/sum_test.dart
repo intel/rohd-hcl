@@ -113,6 +113,34 @@ void main() {
     expect(goldenSumOfLogics(logics, width: dut.width), 1);
   });
 
+  group('sum indications', () {
+    test('equalsMax', () {
+      expect(
+          Sum.ofLogics([Const(5, width: 8)], maxValue: 5)
+              .equalsMax
+              .value
+              .toBool(),
+          isTrue);
+    });
+
+    test('equalsMin', () {
+      final dut =
+          Sum.ofLogics([Const(0, width: 8)], minValue: 3, saturates: true);
+      expect(dut.equalsMin.value.toBool(), isTrue);
+    });
+
+    test('underflowed', () {
+      final dut = Sum.ofLogics([Const(5, width: 8)], minValue: 6);
+      expect(dut.underflowed.value.toBool(), isTrue);
+    });
+
+    test('overflowed', () {
+      final dut =
+          Sum.ofLogics([Const(5, width: 8)], maxValue: 4, saturates: true);
+      expect(dut.overflowed.value.toBool(), isTrue);
+    });
+  });
+
   group('simple 2 numbers', () {
     final pairs = [
       // fits

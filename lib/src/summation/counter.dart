@@ -25,14 +25,20 @@ class Counter extends SummationBase {
     int? width,
     Logic? restart,
     bool saturates = false,
+    bool incremenents = true,
+    int resetValue = 0,
     String name = 'counter',
   }) : this([
-          SumInterface(width: width, fixedAmount: by, hasEnable: enable != null)
+          SumInterface(
+              width: width,
+              fixedAmount: by,
+              hasEnable: enable != null,
+              increments: incremenents)
             ..enable?.gets(enable!),
         ],
             clk: clk,
             reset: reset,
-            resetValue: 0,
+            resetValue: resetValue,
             restart: restart,
             maxValue: maxValue,
             minValue: minValue,
@@ -106,7 +112,7 @@ class Counter extends SummationBase {
       interfaces,
       initialValue:
           restart != null ? mux(restart, initialValueLogic, count) : count,
-      maxValue: maxValueLogic,
+      maxValue: maxValueLogic, //TODO: this is a problem, constant for %2
       minValue: minValueLogic,
       width: width,
       saturates: saturates,

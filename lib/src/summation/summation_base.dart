@@ -37,6 +37,9 @@ class SummationBase extends Module with DynamicInputToLogicForSummation {
   /// Otherwise, the value may have underflowed to any value, but the net sum
   /// before underflow will have been less than the minimum value.
   // Logic get reachedMin => output('reachedMin');
+/** 
+ * 
+*/
 
   Logic get overflowed => output('overflowed');
   Logic get underflowed => output('underflowed');
