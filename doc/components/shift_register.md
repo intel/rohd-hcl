@@ -1,6 +1,6 @@
 # Shift Register
 
-The `ShiftRegister` in ROHD HCL is a configurable shift register including:
+The `ShiftRegister` in ROHD-HCL is a configurable shift register including:
 
 - support for any width data
 - a configurable `depth` (which corresponds to the latency)

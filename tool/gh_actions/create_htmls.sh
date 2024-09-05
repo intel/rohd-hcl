@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# Copyright (C) 2022-2024 Intel Corporation
+# SPDX-License-Identifier: BSD-3-Clause
+
 # Scavenged from Nic30:d3-hwschematic
 #cp -r doc/d3-hwschematic-assets doc/api/
 

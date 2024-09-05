@@ -1,4 +1,4 @@
-// Copyright (C) 2023 Intel Corporation
+// Copyright (C) 2023-2024 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 //
 // parallel_prefix_operations.dart
@@ -161,14 +161,36 @@ class ParallelPrefixOrScan extends Module {
   Logic get out => output('out');
 
   /// OrScan constructor
-  ParallelPrefixOrScan(
-      Logic inp,
-      ParallelPrefix Function(List<Logic>, Logic Function(Logic, Logic))
-          ppGen) {
+  ParallelPrefixOrScan(Logic inp,
+      {ParallelPrefix Function(List<Logic>, Logic Function(Logic, Logic))
+          ppGen = KoggeStone.new})
+      : super(
+            name: 'ParallelPrefixOrScan: ${ppGen.call([
+              Logic()
+            ], (a, b) => Logic()).name}') {
     inp = addInput('inp', inp, width: inp.width);
-    final u =
-        ppGen(List<Logic>.generate(inp.width, (i) => inp[i]), (a, b) => a | b);
+    final u = ppGen(inp.elements, (a, b) => a | b);
     addOutput('out', width: inp.width) <= u.val.rswizzle();
+  }
+}
+
+/// Priority Finder based on ParallelPrefix tree
+class ParallelPrefixPriorityFinder extends Module {
+  /// Output [out] is the one-hot reduction to the first '1' in the Logic input
+  /// Search is from the LSB
+  Logic get out => output('out');
+
+  /// Priority Finder constructor
+  ParallelPrefixPriorityFinder(Logic inp,
+      {ParallelPrefix Function(List<Logic>, Logic Function(Logic, Logic))
+          ppGen = KoggeStone.new})
+      : super(
+            name: 'ParallelPrefixFinder: ${ppGen.call([
+              Logic()
+            ], (a, b) => Logic()).name}') {
+    inp = addInput('inp', inp, width: inp.width);
+    final u = ParallelPrefixOrScan(inp, ppGen: ppGen);
+    addOutput('out', width: inp.width) <= (u.out & ~(u.out << Const(1)));
   }
 }
 
@@ -179,36 +201,41 @@ class ParallelPrefixPriorityEncoder extends Module {
   Logic get out => output('out');
 
   /// PriorityEncoder constructor
-  ParallelPrefixPriorityEncoder(
-      Logic inp,
-      ParallelPrefix Function(List<Logic>, Logic Function(Logic, Logic))
-          ppGen) {
+  ParallelPrefixPriorityEncoder(Logic inp,
+      {ParallelPrefix Function(List<Logic>, Logic Function(Logic, Logic))
+          ppGen = KoggeStone.new})
+      : super(
+            name: 'ParallelPrefixEncoder: ${ppGen.call([
+              Logic()
+            ], (a, b) => Logic()).name}') {
     inp = addInput('inp', inp, width: inp.width);
-    final u = ParallelPrefixOrScan(inp, ppGen);
-    addOutput('out', width: inp.width) <= (u.out & ~(u.out << Const(1)));
+    addOutput('out', width: log2Ceil(inp.width));
+    final u = ParallelPrefixPriorityFinder(inp, ppGen: ppGen);
+    out <= OneHotToBinary(u.out).binary;
   }
 }
 
 /// Adder based on ParallelPrefix tree
-class ParallelPrefixAdder extends Module {
-  /// Output [out] the arithmetic sum of the two Logic inputs
-  Logic get out => output('out');
-
+class ParallelPrefixAdder extends Adder {
   /// Adder constructor
-  ParallelPrefixAdder(Logic a, Logic b,
-      ParallelPrefix Function(List<Logic>, Logic Function(Logic, Logic)) ppGen,
-      {super.definitionName}) {
-    a = addInput('a', a, width: a.width);
-    b = addInput('b', b, width: b.width);
+  ParallelPrefixAdder(super.a, super.b,
+      {ParallelPrefix Function(List<Logic>, Logic Function(Logic, Logic))
+          ppGen = KoggeStone.new})
+      : super(
+            name: 'ParallelPrefixAdder: ${ppGen.call([
+              Logic()
+            ], (a, b) => Logic()).name}') {
     final u = ppGen(
-        //                                    generate,    propagate or generate
         List<Logic>.generate(
             a.width, (i) => [a[i] & b[i], a[i] | b[i]].swizzle()),
         (lhs, rhs) => [rhs[1] | rhs[0] & lhs[1], rhs[0] & lhs[0]].swizzle());
-    addOutput('out', width: a.width) <=
-        List<Logic>.generate(a.width,
-                (i) => (i == 0) ? a[i] ^ b[i] : a[i] ^ b[i] ^ u.val[i - 1][1])
-            .rswizzle();
+    sum <=
+        [
+          u.val[a.width - 1][1],
+          List<Logic>.generate(a.width,
+                  (i) => (i == 0) ? a[i] ^ b[i] : a[i] ^ b[i] ^ u.val[i - 1][1])
+              .rswizzle()
+        ].swizzle();
   }
 }
 
@@ -218,13 +245,15 @@ class ParallelPrefixIncr extends Module {
   Logic get out => output('out');
 
   /// Increment constructor
-  ParallelPrefixIncr(
-      Logic inp,
-      ParallelPrefix Function(List<Logic>, Logic Function(Logic, Logic))
-          ppGen) {
+  ParallelPrefixIncr(Logic inp,
+      {ParallelPrefix Function(List<Logic>, Logic Function(Logic, Logic))
+          ppGen = KoggeStone.new})
+      : super(
+            name: 'ParallelPrefixIncr: ${ppGen.call([
+              Logic()
+            ], (a, b) => Logic()).name}') {
     inp = addInput('inp', inp, width: inp.width);
-    final u = ppGen(List<Logic>.generate(inp.width, (i) => inp[i]),
-        (lhs, rhs) => rhs & lhs);
+    final u = ppGen(inp.elements, (lhs, rhs) => rhs & lhs);
     addOutput('out', width: inp.width) <=
         (List<Logic>.generate(
                 inp.width, (i) => ((i == 0) ? ~inp[i] : inp[i] ^ u.val[i - 1]))
@@ -238,13 +267,15 @@ class ParallelPrefixDecr extends Module {
   Logic get out => output('out');
 
   /// Decrement constructor
-  ParallelPrefixDecr(
-      Logic inp,
-      ParallelPrefix Function(List<Logic>, Logic Function(Logic, Logic))
-          ppGen) {
+  ParallelPrefixDecr(Logic inp,
+      {ParallelPrefix Function(List<Logic>, Logic Function(Logic, Logic))
+          ppGen = KoggeStone.new})
+      : super(
+            name: 'ParallelPrefixDecr: ${ppGen.call([
+              Logic()
+            ], (a, b) => Logic()).name}') {
     inp = addInput('inp', inp, width: inp.width);
-    final u = ppGen(List<Logic>.generate(inp.width, (i) => ~inp[i]),
-        (lhs, rhs) => rhs & lhs);
+    final u = ppGen((~inp).elements, (lhs, rhs) => rhs & lhs);
     addOutput('out', width: inp.width) <=
         (List<Logic>.generate(
                 inp.width, (i) => ((i == 0) ? ~inp[i] : inp[i] ^ u.val[i - 1]))

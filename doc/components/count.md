@@ -1,6 +1,6 @@
 # Count
 
-ROHD HCL comes with a `Count` component.  The detailed API docs are available [here](https://intel.github.io/rohd-hcl/rohd_hcl/rohd_hcl-library.html).
+ROHD-HCL comes with a `Count` component.  The detailed API docs are available [here](https://intel.github.io/rohd-hcl/rohd_hcl/rohd_hcl-library.html).
 
 A `Count` will count all one(`1`)/zero(`0`) within a given Logic `bus`.
 
@@ -12,7 +12,7 @@ This will return a Logic value labeled as `countOne` for `1` and `countZero` for
 
 ## Count One
 
-To count all ones just pass in the `bus` with `countOne` as `true`. By default countOne is `true`.
+To count all ones just pass in the `bus` with `countOne` as `true`. By default, `countOne` is `true`.
 
 ## Count Zero
 

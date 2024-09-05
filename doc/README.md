@@ -3,7 +3,7 @@
 
 Below is a list of components grouped by category. Ones with links are documented and completed, while others are still in planning or development stages.
 
-Some in-development items will have opened issues, as well. Feel free to create a pull request or file issues to add more ideas to this list. If you plan to develop and contribute a component, please be sure to open an issue so that there's not multiple people working on the same thing. Make sure to check if someone else has an open issue for a certain component before starting.
+Some in-development items will have opened issues, as well. Feel free to create a pull request or file issues to add more ideas to this list. If you plan to develop and contribute a component, please be sure to open an issue so that there are not multiple people working on the same thing. Make sure to check if someone else has an open issue for a certain component before starting.
 
 - Encoders & Decoders
   - [1-hot to Binary](./components/onehot.md)
@@ -25,8 +25,8 @@ Some in-development items will have opened issues, as well. Feel free to create 
   - Find maximum
   - Find N'th pattern from the start/end
 - Count
-  - [Count bit occurence](./components/count.md)
-  - Count pattern occurence
+  - [Count bit occurrence](./components/count.md)
+  - Count pattern occurrence
 - Detection
   - [Edge detection](./components/edge_detector.md)
 - Sort
@@ -34,9 +34,14 @@ Some in-development items will have opened issues, as well. Feel free to create 
 - Arithmetic
   - [Prefix Trees](./components/parallel_prefix_operations.md)
   - [Adders](./components/adder.md)
+    - [Sign Magnitude Adder](./components/adder.md#ripple-carry-adder)
   - Subtractors
+    - [One's Complement Adder Subtractor](./components/adder.md#ones-complement-adder-subtractor)
   - Multipliers
     - [Pipelined Integer Multiplier](./components/multiplier.md#carry-save-multiplier)
+    - [Compression Tree Multiplier](./components/multiplier.md#compression-tree-multiplier)
+    - [Compression Tree Multiply-Accumulate](./components/multiplier.md#compression-tree-multiply-accumulate)
+    - [Booth Encoding and Compression Components](./components/multiplier_components.md)
   - Dividers
     - [Integer Divider](./components/divider.md)
   - Log

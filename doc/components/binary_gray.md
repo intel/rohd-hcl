@@ -1,6 +1,6 @@
 # Binary Gray
 
-ROHD HCL provides a module to perform conversion on binary to gray and gray to binary.
+ROHD-HCL provides a module to perform conversion on binary to gray and gray to binary.
 
 ## Binary-to-Gray
 
