@@ -64,7 +64,7 @@
       
 
 <span class="returntype">void</span>
-<span class="name ">loadJson</span>(<wbr><ol class="parameter-list"><li><span class="parameter" id="loadJson-param-json"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.4.4/dart-core/String-class.html">String</a></span> <span class="parameter-name">json</span></span></li>
+<span class="name ">loadJson</span>(<wbr><ol class="parameter-list single-line"> <li><span class="parameter" id="loadJson-param-json"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.5.2/dart-core/String-class.html">String</a></span> <span class="parameter-name">json</span></span></li>
 </ol>)
 
       
@@ -81,12 +81,14 @@
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">void loadJson(String json) {
   final decoded = jsonDecode(json) as Map&lt;String, dynamic&gt;;
-  assert(decoded[&#39;name&#39;] == name, &#39;Expect name to be the same.&#39;);
+  if (decoded[&#39;name&#39;] != name) {
+    throw RohdHclException(&#39;Expect name to be the same.&#39;);
+  }
 
   for (final decodedKnob in (decoded[&#39;knobs&#39;] as Map).entries) {
-    assert(knobs.containsKey(decodedKnob.key),
-        &#39;Expect knobs in JSON to exist in configurator.&#39;);
-
+    if (!knobs.containsKey(decodedKnob.key)) {
+      throw RohdHclException(&#39;Expect name to be the same.&#39;);
+    }
     knobs[decodedKnob.key]!
         .loadJson(decodedKnob.value as Map&lt;String, dynamic&gt;);
   }

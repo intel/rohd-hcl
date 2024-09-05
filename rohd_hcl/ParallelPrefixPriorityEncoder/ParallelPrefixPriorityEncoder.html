@@ -62,15 +62,13 @@
 
     <section class="multi-line-signature">
       
-      <span class="name ">ParallelPrefixPriorityEncoder</span>(<wbr><ol class="parameter-list"><li><span class="parameter" id="-param-inp"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.5.3/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">inp</span>, </span></li>
-<li><span class="parameter" id="-param-ppGen"><span class="type-annotation"><a href="../../rohd_hcl/ParallelPrefix-class.html">ParallelPrefix</a></span> <span class="parameter-name">ppGen</span>(<ol class="parameter-list"><li><span class="parameter" id="param-"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.4.4/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://pub.dev/documentation/rohd/0.5.3/rohd/Logic-class.html">Logic</a></span>&gt;</span></span>, </span></li>
-<li><span class="parameter" id="param-"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.5.3/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name"></span>(<ol class="parameter-list"><li><span class="parameter" id="param-"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.5.3/rohd/Logic-class.html">Logic</a></span>, </span></li>
+      <span class="name ">ParallelPrefixPriorityEncoder</span>(<wbr><ol class="parameter-list"> <li><span class="parameter" id="-param-inp"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.5.3/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">inp</span>, {</span></li>
+<li><span class="parameter" id="-param-ppGen"><span class="type-annotation"><a href="../../rohd_hcl/ParallelPrefix-class.html">ParallelPrefix</a></span> <span class="parameter-name">ppGen</span>(<ol class="parameter-list single-line"> <li><span class="parameter" id="param-"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.5.2/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://pub.dev/documentation/rohd/0.5.3/rohd/Logic-class.html">Logic</a></span>&gt;</span></span>, </span></li>
+<li><span class="parameter" id="param-"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.5.3/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name"></span>(<ol class="parameter-list single-line"> <li><span class="parameter" id="param-"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.5.3/rohd/Logic-class.html">Logic</a></span>, </span></li>
 <li><span class="parameter" id="param-"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.5.3/rohd/Logic-class.html">Logic</a></span></span></li>
-</ol>
-)</span></li>
-</ol>
-)</span></li>
-</ol>)
+</ol>)</span></li>
+</ol>) = <span class="default-value">KoggeStone.new</span>, </span></li>
+</ol>})
     </section>
 
     
@@ -82,13 +80,17 @@
     
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
-  <pre class="language-dart"><code class="language-dart">ParallelPrefixPriorityEncoder(
-    Logic inp,
-    ParallelPrefix Function(List&lt;Logic&gt;, Logic Function(Logic, Logic))
-        ppGen) {
+  <pre class="language-dart"><code class="language-dart">ParallelPrefixPriorityEncoder(Logic inp,
+    {ParallelPrefix Function(List&lt;Logic&gt;, Logic Function(Logic, Logic))
+        ppGen = KoggeStone.new})
+    : super(
+          name: &#39;ParallelPrefixEncoder: ${ppGen.call([
+            Logic()
+          ], (a, b) =&gt; Logic()).name}&#39;) {
   inp = addInput(&#39;inp&#39;, inp, width: inp.width);
-  final u = ParallelPrefixOrScan(inp, ppGen);
-  addOutput(&#39;out&#39;, width: inp.width) &lt;= (u.out &amp; ~(u.out &lt;&lt; Const(1)));
+  addOutput(&#39;out&#39;, width: log2Ceil(inp.width));
+  final u = ParallelPrefixPriorityFinder(inp, ppGen: ppGen);
+  out &lt;= OneHotToBinary(u.out).binary;
 }</code></pre>
 </section>
 

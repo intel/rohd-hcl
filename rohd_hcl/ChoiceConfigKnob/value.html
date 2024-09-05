@@ -93,7 +93,7 @@
       
   <div>
     <ol class="annotation-list">
-        <li>@<a href="https://api.dart.dev/stable/3.4.4/dart-core/override-constant.html">override</a></li>
+        <li>@<a href="https://api.dart.dev/stable/3.5.2/dart-core/override-constant.html">override</a></li>
     </ol>
   </div>
       <span class="returntype">void</span>
@@ -112,8 +112,10 @@
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">@override
 set value(T newValue) {
-  assert(choices.contains(newValue),
-      &#39;New value should be one of the available choices.&#39;);
+  if (!choices.contains(newValue)) {
+    throw RohdHclException(
+        &#39;New value should be one of the available choices.&#39;);
+  }
   super.value = newValue;
 }</code></pre>
 </section>

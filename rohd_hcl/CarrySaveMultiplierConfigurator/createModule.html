@@ -64,7 +64,7 @@
       
   <div>
     <ol class="annotation-list">
-        <li>@<a href="https://api.dart.dev/stable/3.4.4/dart-core/override-constant.html">override</a></li>
+        <li>@<a href="https://api.dart.dev/stable/3.5.2/dart-core/override-constant.html">override</a></li>
     </ol>
   </div>
 
@@ -85,11 +85,8 @@
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">@override
 CarrySaveMultiplier createModule() =&gt; CarrySaveMultiplier(
-      Logic(width: logicWidthKnob.value),
-      Logic(width: logicWidthKnob.value),
-      clk: Logic(),
-      reset: Logic(),
-    );</code></pre>
+    Logic(width: logicWidthKnob.value), Logic(width: logicWidthKnob.value),
+    clk: Logic(), reset: Logic(), signed: true);</code></pre>
 </section>
 
 

@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="API docs for the encode method from the RadixEncoder class, for the Dart programming language.">
+  <title>encode method - RadixEncoder class - rohd_hcl library - Dart API</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../../static-assets/github.css?v1">
+  <link rel="stylesheet" href="../../static-assets/styles.css?v1">
+  <link rel="icon" href="../../static-assets/favicon.png?v1">
+
+  
+</head>
+
+
+<body data-base-href="../../" data-using-base-href="false" class="light-theme">
+
+<div id="overlay-under-drawer"></div>
+
+<header id="title">
+  <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="../../index.html">rohd_hcl</a></li>
+    <li><a href="../../rohd_hcl/rohd_hcl-library.html">rohd_hcl.dart</a></li>
+    <li><a href="../../rohd_hcl/RadixEncoder-class.html">RadixEncoder</a></li>
+    <li class="self-crumb">encode method</li>
+  </ol>
+  <div class="self-name">encode</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+  <div class="toggle" id="theme-button" title="Toggle brightness">
+    <label for="theme">
+      <input type="checkbox" id="theme" value="light-theme">
+      <span id="dark-theme-button" class="material-symbols-outlined">
+        dark_mode
+      </span>
+      <span id="light-theme-button" class="material-symbols-outlined">
+        light_mode
+      </span>
+    </label>
+  </div>
+</header>
+<main>
+
+<div
+    id="dartdoc-main-content"
+    class="main-content"
+    data-above-sidebar="rohd_hcl&#47;RadixEncoder-class-sidebar.html"
+    data-below-sidebar="">
+    <div>
+<h1><span class="kind-method">encode</span> method 
+</h1></div>
+
+    <section class="multi-line-signature">
+      
+
+<span class="returntype"><a href="../../rohd_hcl/RadixEncode-class.html">RadixEncode</a></span>
+<span class="name ">encode</span>(<wbr><ol class="parameter-list single-line"> <li><span class="parameter" id="encode-param-multiplierSlice"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.5.3/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">multiplierSlice</span></span></li>
+</ol>)
+
+      
+
+    </section>
+    
+<section class="desc markdown">
+  <p>Encode a multiplier slice into the Booth encoded value</p>
+</section>
+
+
+    
+<section class="summary source-code" id="source">
+  <h2><span>Implementation</span></h2>
+  <pre class="language-dart"><code class="language-dart">RadixEncode encode(Logic multiplierSlice) {
+  if (multiplierSlice.width != log2Ceil(radix) + 1) {
+    throw RohdHclException(&#39;multiplier slice width ${multiplierSlice.width}&#39;
+        &#39;must be same length as log(radix)+1=${log2Ceil(radix) + 1}&#39;);
+  }
+  final width = log2Ceil(radix) + 1;
+  final inputXor = Logic(width: width);
+  inputXor &lt;=
+      (multiplierSlice ^ (multiplierSlice &gt;&gt;&gt; 1))
+          .slice(multiplierSlice.width - 1, 0);
+
+  final multiples = &lt;Logic&gt;[];
+  for (var i = 2; i &lt; radix + 1; i += 2) {
+    final variantA = LogicValue.ofInt(i - 1, width);
+    final xorA = variantA ^ (variantA &gt;&gt;&gt; 1);
+    final variantB = LogicValue.ofInt(i, width);
+    final xorB = variantB ^ (variantB &gt;&gt;&gt; 1);
+    &#47;&#47; Multiples don&#39;t agree on a bit position so we will skip that position
+    final multiplesDisagree = xorA ^ xorB;
+    &#47;&#47; Where multiples agree, we need the sense or direction (1 or 0)
+    final senseMultiples = xorA &amp; xorB;
+
+    multiples.add([
+      for (var j = 0; j &lt; width - 1; j++)
+        if (multiplesDisagree[j].isZero)
+          if (senseMultiples[j].isZero) ~inputXor[j] else inputXor[j]
+    ].swizzle().and());
+  }
+
+  return RadixEncode._(
+      multiples.rswizzle(), multiplierSlice[multiplierSlice.width - 1]);
+}</code></pre>
+</section>
+
+
+  </div> <!-- /.main-content -->
+
+  <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+    <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
+<header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+    <li><a href="../../index.html">rohd_hcl</a></li>
+    <li><a href="../../rohd_hcl/rohd_hcl-library.html">rohd_hcl</a></li>
+    <li><a href="../../rohd_hcl/RadixEncoder-class.html">RadixEncoder</a></li>
+    <li class="self-crumb">encode method</li>
+</ol>
+
+
+    <h5>RadixEncoder class</h5>
+    <div id="dartdoc-sidebar-left-content"></div>
+  </div><!--/.sidebar-offcanvas-->
+
+  <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+</div><!--/.sidebar-offcanvas-->
+
+</main>
+
+<footer>
+  <span class="no-break">
+    rohd_hcl
+      0.1.0
+  </span>
+
+  
+</footer>
+
+
+
+<script src="../../static-assets/highlight.pack.js?v1"></script>
+<script src="../../static-assets/docs.dart.js"></script>
+
+
+
+</body>
+
+</html>
+
