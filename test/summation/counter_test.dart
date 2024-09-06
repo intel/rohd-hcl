@@ -21,8 +21,10 @@ void main() {
   test('basic 1-bit rolling counter', () async {
     final clk = SimpleClockGenerator(10).clk;
     final reset = Logic();
+    final enable = Logic()..inject(1);
 
-    final counter = Counter.ofLogics([Const(1)], clk: clk, reset: reset);
+    final counter =
+        Counter.ofLogics([Const(1)], clk: clk, reset: reset, enable: enable);
 
     await counter.build();
 
@@ -52,6 +54,15 @@ void main() {
     await clk.nextNegedge;
     expect(counter.count.value.toInt(), 1);
 
+    enable.inject(0);
+    // wait a cycle, no change
+    await clk.nextNegedge;
+    expect(counter.count.value.toInt(), 1);
+    await clk.nextNegedge;
+    expect(counter.count.value.toInt(), 1);
+
+    enable.inject(1);
+
     await clk.nextNegedge;
     await clk.nextNegedge;
     await clk.nextNegedge;
@@ -59,8 +70,6 @@ void main() {
 
     await Simulator.endSimulation();
   });
-
-  //TODO: test counter ofLogics with enable
 
   test('simple up counter', () async {
     final clk = SimpleClockGenerator(10).clk;

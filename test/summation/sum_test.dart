@@ -214,7 +214,21 @@ void main() {
     expect(goldenSum(intfs, width: dut.width, maxVal: 5), 1);
   });
 
-  //TODO: test modulo requirement -- if sum is >2x greater than saturation
+  test('large increment on small width needs modulo', () async {
+    final a = Logic(width: 8);
+    final b = Logic(width: 8);
+    final dut = Sum.ofLogics(
+      [a, b],
+      width: 2,
+    );
+    await dut.build();
+
+    expect(dut.width, 2);
+
+    a.put(10);
+    b.put(11);
+    expect(dut.sum.value.toInt(), 1);
+  });
 
   test('one up, one down', () {
     final intfs = [
@@ -316,11 +330,44 @@ void main() {
     });
   });
 
-  //TODO: test sum ofLogics with enable
+  test('sum ofLogics enable', () async {
+    final a = Logic(width: 3);
+    final b = Logic(width: 3);
+    final en = Logic();
+    final dut = Sum.ofLogics(
+      [a, b],
+      width: 2,
+      enable: en,
+    );
+    await dut.build();
 
-  // TODO: test enable
+    expect(dut.width, 2);
 
-  //TODO: test very large possible numbers (>64 bit adds)
+    a.put(2);
+    b.put(3);
+    en.put(false);
+    expect(dut.sum.value.toInt(), 0);
+    en.put(true);
+    expect(dut.sum.value.toInt(), 1);
+  });
+
+  test('very large widths', () async {
+    final initVal = BigInt.two.pow(66) + BigInt.one;
+    final a = BigInt.two.pow(80) + BigInt.one;
+    final b = BigInt.from(1234);
+    final dut = Sum(
+      [
+        SumInterface(fixedAmount: a),
+        SumInterface(width: 75)..amount.gets(Const(b, width: 75)),
+      ],
+      initialValue: initVal,
+      maxValue: BigInt.two.pow(82),
+    );
+    await dut.build();
+
+    expect(dut.sum.value.toBigInt(), initVal + a + b);
+    expect(dut.width, greaterThan(80));
+  });
 
   test('random', () {
     final rand = Random(123);
