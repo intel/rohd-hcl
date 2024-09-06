@@ -7,6 +7,7 @@
 // 2024 August
 // Author: Josh Kimmel <joshua1.kimmel@intel.com>
 
+import 'package:meta/meta.dart';
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
 
@@ -90,19 +91,20 @@ class MultiCycleDividerInterface extends PairInterface {
 /// The Divider module definition
 class MultiCycleDivider extends Module {
   /// The Divider's interface declaration.
+  @protected
   late final MultiCycleDividerInterface intf;
 
   /// Get interface's validOut signal value.
-  Logic get validOut => intf.validOut;
+  Logic get validOut => output('${name}_validOut');
 
   /// Get interface's quotient signal value.
-  Logic get quotient => intf.quotient;
+  Logic get quotient => output('${name}_quotient');
 
   /// Get interface's divZero signal value.
-  Logic get divZero => intf.divZero;
+  Logic get divZero => output('${name}_divZero');
 
   /// Get interface's readyIn signal value.
-  Logic get readyIn => intf.readyIn;
+  Logic get readyIn => output('${name}_readyIn');
 
   /// The width of the data operands and result.
   late final int dataWidth;
@@ -127,28 +129,27 @@ class MultiCycleDivider extends Module {
     _build();
   }
 
-  /// Named constructor that explicitly takes Logics instead of an Interface.
-  MultiCycleDivider.ofLogics({
+  /// Factory method to create a MultiCycleDivider
+  /// from explicit Logic signals instead of an interface
+  factory MultiCycleDivider.ofLogics({
     required Logic clk,
     required Logic reset,
     required Logic validIn,
     required Logic dividend,
     required Logic divisor,
     required Logic readyOut,
-  })  : assert(dividend.width == divisor.width,
-            'Widths of all data signals do not match!'),
-        dataWidth = dividend.width,
-        logDataWidth = log2Ceil(dividend.width),
-        super(name: 'divider') {
-    intf = MultiCycleDividerInterface(dataWidth: dataWidth);
+  }) {
+    assert(dividend.width == divisor.width,
+        'Widths of all data signals do not match!');
+    final dataWidth = dividend.width;
+    final intf = MultiCycleDividerInterface(dataWidth: dataWidth);
     intf.clk <= clk;
     intf.reset <= reset;
     intf.validIn <= validIn;
     intf.dividend <= dividend;
     intf.divisor <= divisor;
     intf.readyOut <= readyOut;
-
-    _build();
+    return MultiCycleDivider(intf);
   }
 
   void _build() {

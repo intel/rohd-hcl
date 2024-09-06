@@ -488,5 +488,22 @@ void main() {
       final test = DivTest(tb.divider);
       await test.start();
     });
+
+    test('Factory method build', () async {
+      final clk = Logic(name: 'clk');
+      final reset = Logic(name: 'reset');
+      final validIn = Logic(name: 'validIn');
+      final dividend = Logic(name: 'dividend', width: 32);
+      final divisor = Logic(name: 'divisor', width: 32);
+      final readyOut = Logic(name: 'readyOut');
+      final div = MultiCycleDivider.ofLogics(
+          clk: clk,
+          reset: reset,
+          validIn: validIn,
+          dividend: dividend,
+          divisor: divisor,
+          readyOut: readyOut);
+      await div.build();
+    });
   });
 }
