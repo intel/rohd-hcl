@@ -107,7 +107,7 @@ class Sum extends SummationBase {
       ..gets(minValueLogicExt + zeroPoint);
 
     final internalValue = Logic(name: 'internalValue', width: internalWidth);
-    sum <= (internalValue - zeroPoint).getRange(0, this.width);
+    sum <= (internalValue - zeroPoint).getRange(0, width);
 
     final preAdjustmentValue =
         Logic(name: 'preAdjustmentValue', width: internalWidth);

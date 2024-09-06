@@ -9,7 +9,10 @@
 
 import 'package:rohd/rohd.dart';
 
+/// A [PairInterface] representing an amount and behavior for inclusion in a
+/// sum or count.
 class SumInterface extends PairInterface {
+  /// Whether an [enable] signal is present on this interface.
   final bool hasEnable;
 
   /// The [amount] to increment/decrement by, depending on [increments].
@@ -22,14 +25,18 @@ class SumInterface extends PairInterface {
   /// Present if [hasEnable] is `true`.
   Logic? get enable => tryPort('enable');
 
+  /// The [width] of the [amount].
   final int width;
 
   /// If `true`, will increment. If `false`,  will decrement.
   final bool increments;
 
+  /// If non-`null`, the constant value of [amount].
   final dynamic fixedAmount;
 
-  /// TODO
+  /// Creates a new [SumInterface] with a fixed or variable [amount], optionally
+  /// with an [enable], in either positive or negative direction based on
+  /// [increments].
   ///
   /// If [width] is `null`, it can be inferred from [fixedAmount] if provided
   /// with a type that contains width information (e.g. a [LogicValue]). There
@@ -57,6 +64,7 @@ class SumInterface extends PairInterface {
     ]);
   }
 
+  /// Creates a clone of this [SumInterface] for things like [pairConnectIO].
   SumInterface.clone(SumInterface other)
       : this(
           fixedAmount: other.fixedAmount,

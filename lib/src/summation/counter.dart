@@ -56,7 +56,7 @@ class Counter extends SummationBase {
       interfaces,
       initialValue:
           restart != null ? mux(restart, initialValueLogic, count) : count,
-      maxValue: maxValueLogic, //TODO: this is a problem, constant for %2
+      maxValue: maxValueLogic,
       minValue: minValueLogic,
       width: width,
       saturates: saturates,
@@ -112,8 +112,9 @@ class Counter extends SummationBase {
             saturates: saturates,
             name: name);
 
-  /// Creates a [Counter] that counts up by all of the provided [logics], including
-  /// much of the other available configuration in the default constructor.
+  /// Creates a [Counter] that counts up by all of the provided [logics],
+  /// including much of the other available configuration in the default
+  /// constructor.
   ///
   /// All [logics] are always incrementing and controled optionally by a single
   /// [enable].
