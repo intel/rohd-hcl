@@ -384,8 +384,9 @@ class MultiCycleDividerVolumeSequence extends Sequence {
   }
 }
 
-class DivTest extends Test {
+class MultiCycleDividerTest extends Test {
   final MultiCycleDivider dut;
+  late final MultiCycleDividerInterface intf;
 
   /// The test environment for [dut].
   late final MultiCycleDividerEnv env;
@@ -393,8 +394,10 @@ class DivTest extends Test {
   /// A private, local pointer to the test environment's [Sequencer].
   late final MultiCycleDividerSequencer _divSequencer;
 
-  DivTest(this.dut, {String name = 'divTest'}) : super(name) {
-    env = MultiCycleDividerEnv(dut.intf, this);
+  MultiCycleDividerTest(this.dut, this.intf,
+      {String name = 'MultiCycleDividerTest'})
+      : super(name) {
+    env = MultiCycleDividerEnv(intf, this);
     _divSequencer = env.agent.sequencer;
   }
 
@@ -402,7 +405,7 @@ class DivTest extends Test {
   // waits for a given number of cycles before completing.
   Future<void> waitCycles(int numCycles) async {
     for (var i = 0; i < numCycles; i++) {
-      await dut.intf.clk.nextNegedge;
+      await intf.clk.nextNegedge;
     }
   }
 
@@ -418,20 +421,20 @@ class DivTest extends Test {
 
     // Add some simple reset behavior at specified timestamps
     Simulator.registerAction(1, () {
-      dut.intf.reset.put(0);
-      dut.intf.dividend.put(0);
-      dut.intf.divisor.put(0);
-      dut.intf.validIn.put(0);
+      intf.reset.put(0);
+      intf.dividend.put(0);
+      intf.divisor.put(0);
+      intf.validIn.put(0);
     });
     Simulator.registerAction(10, () {
-      dut.intf.reset.put(1);
+      intf.reset.put(1);
     });
     Simulator.registerAction(20, () {
-      dut.intf.reset.put(0);
+      intf.reset.put(0);
     });
 
     // Wait for the next negative edge of reset
-    await dut.intf.reset.nextNegedge;
+    await intf.reset.nextNegedge;
 
     // Kick off a sequence on the sequencer
     await _divSequencer.start(MultiCycleDividerBasicSequence());
@@ -451,9 +454,7 @@ class TopTB {
   // A constant value for the width to use in this testbench
   static const int width = 32;
 
-  TopTB() {
-    final intf = MultiCycleDividerInterface();
-
+  TopTB(MultiCycleDividerInterface intf) {
     // Connect a generated clock to the interface
     intf.clk <= SimpleClockGenerator(10).clk;
 
@@ -473,7 +474,8 @@ void main() {
       Logger.root.level = Level.ALL;
 
       // Create the testbench
-      final tb = TopTB();
+      final intf = MultiCycleDividerInterface();
+      final tb = TopTB(intf);
 
       // Build the DUT
       await tb.divider.build();
@@ -485,7 +487,7 @@ void main() {
       Simulator.setMaxSimTime(100000);
 
       // Create and start the test!
-      final test = DivTest(tb.divider);
+      final test = MultiCycleDividerTest(tb.divider, intf);
       await test.start();
     });
 
@@ -504,6 +506,11 @@ void main() {
           divisor: divisor,
           readyOut: readyOut);
       await div.build();
+
+      Logic(name: 'tValidOut').gets(div.validOut);
+      Logic(name: 'tQuotient', width: 32).gets(div.quotient);
+      Logic(name: 'tDivZero').gets(div.divZero);
+      Logic(name: 'tReadyIn').gets(div.readyIn);
     });
   });
 }
