@@ -60,6 +60,8 @@ void main() {
     await Simulator.endSimulation();
   });
 
+  //TODO: test counter ofLogics with enable
+
   test('simple up counter', () async {
     final clk = SimpleClockGenerator(10).clk;
     final reset = Logic();
@@ -121,11 +123,7 @@ void main() {
     final clk = SimpleClockGenerator(10).clk;
     final reset = Logic();
     final counter = Counter.simple(
-        clk: clk,
-        reset: reset,
-        maxValue: 5,
-        resetValue: 5,
-        incremenents: false);
+        clk: clk, reset: reset, maxValue: 5, resetValue: 5, increments: false);
 
     await counter.build();
 

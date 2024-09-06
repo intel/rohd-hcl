@@ -11,69 +11,13 @@ import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
 import 'package:rohd_hcl/src/summation/summation_base.dart';
 
+/// Keeps a count of the running sum of any number of sources with optional
+/// configuration for widths, saturation behavior, and restarting.
 class Counter extends SummationBase {
   /// The output value of the counter.
   Logic get count => output('count');
 
-  Counter.simple({
-    required Logic clk,
-    required Logic reset,
-    int by = 1,
-    Logic? enable,
-    int minValue = 0,
-    int? maxValue,
-    int? width,
-    Logic? restart,
-    bool saturates = false,
-    bool incremenents = true,
-    int resetValue = 0,
-    String name = 'counter',
-  }) : this([
-          SumInterface(
-              width: width,
-              fixedAmount: by,
-              hasEnable: enable != null,
-              increments: incremenents)
-            ..enable?.gets(enable!),
-        ],
-            clk: clk,
-            reset: reset,
-            resetValue: resetValue,
-            restart: restart,
-            maxValue: maxValue,
-            minValue: minValue,
-            width: width,
-            saturates: saturates,
-            name: name);
-
-  factory Counter.ofLogics(
-    List<Logic> logics, {
-    required Logic clk,
-    required Logic reset,
-    Logic? restart,
-    dynamic resetValue = 0,
-    dynamic maxValue,
-    dynamic minValue = 0,
-    int? width,
-    bool saturates = false,
-    String name = 'counter',
-  }) =>
-      Counter(
-        logics
-            .map((e) => SumInterface(width: e.width)..amount.gets(e))
-            .toList(),
-        clk: clk,
-        reset: reset,
-        resetValue: resetValue,
-        maxValue: maxValue,
-        minValue: minValue,
-        width: width,
-        saturates: saturates,
-        restart: restart,
-        name: name,
-      );
-
-  /// TODO
+  /// Creates a counter that increments according to the provided [interfaces].
   ///
   /// The [width] can be either explicitly provided or inferred from other
   /// values such as a [maxValue], [minValue], or [resetValue] that contain
@@ -133,4 +77,73 @@ class Counter extends SummationBase {
     equalsMax <= count.eq(maxValueLogic);
     equalsMin <= count.eq(minValueLogic);
   }
+
+  /// A simplified constructor for [Counter] that accepts a single amount to
+  /// count [by] (up or down based on [increments]) along with much of the other
+  /// available configuration in the default constructor.
+  Counter.simple({
+    required Logic clk,
+    required Logic reset,
+    int by = 1,
+    Logic? enable,
+    int minValue = 0,
+    int? maxValue,
+    int? width,
+    Logic? restart,
+    bool saturates = false,
+    bool increments = true,
+    int resetValue = 0,
+    String name = 'counter',
+  }) : this([
+          SumInterface(
+              width: width,
+              fixedAmount: by,
+              hasEnable: enable != null,
+              increments: increments)
+            ..enable?.gets(enable!),
+        ],
+            clk: clk,
+            reset: reset,
+            resetValue: resetValue,
+            restart: restart,
+            maxValue: maxValue,
+            minValue: minValue,
+            width: width,
+            saturates: saturates,
+            name: name);
+
+  /// Creates a [Counter] that counts up by all of the provided [logics], including
+  /// much of the other available configuration in the default constructor.
+  ///
+  /// All [logics] are always incrementing and controled optionally by a single
+  /// [enable].
+  factory Counter.ofLogics(
+    List<Logic> logics, {
+    required Logic clk,
+    required Logic reset,
+    Logic? restart,
+    dynamic resetValue = 0,
+    dynamic maxValue,
+    dynamic minValue = 0,
+    Logic? enable,
+    int? width,
+    bool saturates = false,
+    String name = 'counter',
+  }) =>
+      Counter(
+        logics
+            .map((e) => SumInterface(width: e.width, hasEnable: enable != null)
+              ..amount.gets(e)
+              ..enable?.gets(enable!))
+            .toList(),
+        clk: clk,
+        reset: reset,
+        resetValue: resetValue,
+        maxValue: maxValue,
+        minValue: minValue,
+        width: width,
+        saturates: saturates,
+        restart: restart,
+        name: name,
+      );
 }

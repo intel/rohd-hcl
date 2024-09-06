@@ -35,33 +35,13 @@ extension on SumInterface {
   }
 }
 
+/// Computes a sum of any number of sources with optional configuration for
+/// widths and saturation behavior.
 class Sum extends SummationBase {
+  /// The resulting [sum].
   Logic get sum => output('sum');
 
-  /// TODO
-  ///
-  /// All [logics]s are always enabled and incrementing.
-  factory Sum.ofLogics(
-    List<Logic> logics, {
-    dynamic initialValue = 0,
-    dynamic maxValue,
-    dynamic minValue = 0,
-    int? width,
-    bool saturates = false,
-    String name = 'sum',
-  }) =>
-      Sum(
-          logics
-              .map((e) => SumInterface(width: e.width)..amount.gets(e))
-              .toList(),
-          initialValue: initialValue,
-          maxValue: maxValue,
-          minValue: minValue,
-          width: width,
-          saturates: saturates,
-          name: name);
-
-  /// TODO
+  /// Computes a [sum] across the provided [interfaces].
   ///
   /// The [width] can be either explicitly provided or inferred from other
   /// values such as a [maxValue], [minValue], or [initialValue] that contain
@@ -172,4 +152,32 @@ class Sum extends SummationBase {
     equalsMax <= internalValue.eq(upperSaturation);
     equalsMin <= internalValue.eq(lowerSaturation);
   }
+
+  /// Computes a [sum] across the provided [logics].
+  ///
+  /// All [logics] are always incrementing and controled optionally by a single
+  /// [enable].
+  factory Sum.ofLogics(
+    List<Logic> logics, {
+    dynamic initialValue = 0,
+    dynamic maxValue,
+    dynamic minValue = 0,
+    Logic? enable,
+    int? width,
+    bool saturates = false,
+    String name = 'sum',
+  }) =>
+      Sum(
+          logics
+              .map(
+                  (e) => SumInterface(width: e.width, hasEnable: enable != null)
+                    ..amount.gets(e)
+                    ..enable?.gets(enable!))
+              .toList(),
+          initialValue: initialValue,
+          maxValue: maxValue,
+          minValue: minValue,
+          width: width,
+          saturates: saturates,
+          name: name);
 }

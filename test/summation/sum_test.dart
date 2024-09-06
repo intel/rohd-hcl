@@ -316,6 +316,8 @@ void main() {
     });
   });
 
+  //TODO: test sum ofLogics with enable
+
   // TODO: test enable
 
   //TODO: test very large possible numbers (>64 bit adds)
