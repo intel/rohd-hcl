@@ -12,4 +12,7 @@ import 'package:rohd_hcl/rohd_hcl.dart';
 class StringConfigKnob extends TextConfigKnob<String> {
   /// Creates a new knob with the specified initial [value].
   StringConfigKnob({required super.value});
+
+  @override
+  void setValueFromString(String valueString) => value = valueString;
 }

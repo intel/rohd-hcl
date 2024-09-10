@@ -47,4 +47,13 @@ class IntOptionalConfigKnob extends TextConfigKnob<int?> {
       value = val as int;
     }
   }
+
+  @override
+  void setValueFromString(String valueString) {
+    if (valueString.isEmpty) {
+      value = null;
+    } else {
+      value = int.parse(valueString);
+    }
+  }
 }

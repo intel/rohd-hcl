@@ -17,6 +17,9 @@ abstract class TextConfigKnob<T> extends ConfigKnob<T> {
   /// A [String] representation of the [value].
   String get valueString => value.toString();
 
+  /// Sets the [value] from a [String].
+  void setValueFromString(String valueString);
+
   /// Whether the knob allows an empty string as input.
   bool get allowEmpty => false;
 }

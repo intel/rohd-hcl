@@ -8,6 +8,7 @@
 // Author: Max Korbel <max.korbel@intel.com>
 
 import 'package:rohd/rohd.dart';
+import 'package:rohd_hcl/rohd_hcl.dart';
 
 /// A [PairInterface] representing an amount and behavior for inclusion in a
 /// sum or count.
@@ -55,7 +56,10 @@ class SumInterface extends PairInterface {
       this.increments = true,
       int? width,
       this.hasEnable = false})
-      : width = width ?? LogicValue.ofInferWidth(fixedAmount).width {
+      : width = (width == null && fixedAmount == null)
+            ? throw RohdHclException(
+                'Must provide either a fixedAmount or width.')
+            : width ?? LogicValue.ofInferWidth(fixedAmount).width {
     setPorts([
       if (fixedAmount == null) Port('amount', this.width),
       if (hasEnable) Port('enable'),

@@ -69,13 +69,13 @@ class _SVGeneratorState extends State<SVGenerator> {
     );
     final key = Key(label);
 
-    if (knob is TextInputConfigKnob) {
+    if (knob is TextConfigKnob) {
       selector = TextFormField(
         key: key,
         initialValue: knob.valueString,
         decoration: decoration,
         validator: (value) {
-          if (value.isEmpty && !value.allowEmpty) {
+          if ((value == null || value.isEmpty) && !knob.allowEmpty) {
             return 'Please enter value';
           }
           return null;
@@ -89,12 +89,7 @@ class _SVGeneratorState extends State<SVGenerator> {
               return;
             }
 
-            if (knob is IntConfigKnob) {
-              final newValue = int.tryParse(value.toString());
-              knob.value = newValue ?? knob.value;
-            } else {
-              knob.value = value;
-            }
+            knob.setValueFromString(value);
           });
         },
       );

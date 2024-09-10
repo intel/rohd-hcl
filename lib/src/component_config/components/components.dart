@@ -15,3 +15,4 @@ export 'config_ripple_carry_adder.dart';
 export 'config_rotate.dart';
 export 'config_round_robin_arbiter.dart';
 export 'config_sort.dart';
+export 'config_summation.dart';

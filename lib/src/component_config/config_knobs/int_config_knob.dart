@@ -25,9 +25,13 @@ class IntConfigKnob extends TextConfigKnob<int> {
   void loadJson(Map<String, dynamic> decodedJson) {
     final val = decodedJson['value'];
     if (val is String) {
-      value = int.parse(val);
+      setValueFromString(val);
     } else {
       value = val as int;
     }
   }
+
+  @override
+  void setValueFromString(String valueString) =>
+      value = int.tryParse(valueString) ?? value;
 }
