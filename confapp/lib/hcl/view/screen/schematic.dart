@@ -75,7 +75,7 @@ const _suffix = r"""
         svg.call(zoom)
            .on("dblclick.zoom", null)
 
-      graph = JSON.parse(exmpl);
+      graph = JSON.parse(exmpl.replaceAll("\\", "__"));
       if ("creator" in graph) {
 	  graph = d3.HwSchematic.fromYosys(graph);
       }
