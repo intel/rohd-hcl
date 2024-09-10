@@ -9,7 +9,7 @@
 
 # ROHD Hardware Component Libary
 
-A hardware component library developed with [ROHD](https://github.com/intel/rohd). This library aims to collect a set of reusable, configurable components that can be leveraged in other designs. These components are also intended as good examples of ROHD hardware implementations.
+A hardware component library developed with [ROHD](https://intel.github.io/rohd-website/). This library aims to collect a set of reusable, configurable components that can be leveraged in other designs. These components are also intended as good examples of ROHD hardware implementations.
 
 Check out the [generator web app](https://intel.github.io/rohd-hcl/confapp/), which lets you explore some of the available components, configure them, and generate SystemVerilog.
 
