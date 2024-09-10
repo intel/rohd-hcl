@@ -8,8 +8,8 @@ Some in-development items will have opened issues, as well. Feel free to create 
 - Encoders & Decoders
   - [1-hot to Binary](./components/onehot.md)
   - [Binary to 1-hot](./components/onehot.md)
-  - Gray to Binary
-  - Binary to Gray
+  - [Binary to Gray](./components/binary_gray.md#binary-to-gray)
+  - [Gray to Binary](./components/binary_gray.md#gray-to-binary)
   - Priority
   - PLAs
 - Arbiters
