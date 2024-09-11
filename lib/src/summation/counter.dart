@@ -31,6 +31,13 @@ class Counter extends SummationBase {
   /// The [restart] input can be used to restart the counter to a new value, but
   /// also continue to increment in that same cycle. This is distinct from
   /// [reset] which will reset the counter, holding the [count] at [resetValue].
+  ///
+  /// If [saturates] is `true`, then it will saturate at the [maxValue] and
+  /// [minValue]. If `false`, will wrap around (overflow/underflow) at the
+  /// [maxValue] and [minValue].  The [equalsMax], [equalsMin], [overflowed],
+  /// and [underflowed] outputs can be used to determine if the sum is at the
+  /// maximum, minimum, (would have) overflowed, or  (would have) underflowed,
+  /// respectively.
   Counter(
     super.interfaces, {
     required Logic clk,

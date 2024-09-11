@@ -54,6 +54,13 @@ class Sum extends SummationBase {
   ///
   /// It is expected that [maxValue] is at least [minValue], or else results may
   /// be unpredictable.
+  ///
+  /// If [saturates] is `true`, then it will saturate at the [maxValue] and
+  /// [minValue]. If `false`, will wrap around (overflow/underflow) at the
+  /// [maxValue] and [minValue].  The [equalsMax], [equalsMin], [overflowed],
+  /// and [underflowed] outputs can be used to determine if the sum is at the
+  /// maximum, minimum, (would have) overflowed, or  (would have) underflowed,
+  /// respectively.
   Sum(
     super.interfaces, {
     dynamic initialValue = 0,
@@ -112,11 +119,17 @@ class Sum extends SummationBase {
     final preAdjustmentValue =
         Logic(name: 'preAdjustmentValue', width: internalWidth);
 
+    // here we use an `ssa` block to iteratively update the value of
+    // `internalValue` based on the adjustments from the interfaces and
+    // saturation/roll-over behavior
+    //
+    // For more details, see:
+    // https://intel.github.io/rohd-website/blog/combinational-ssa/
     Combinational.ssa((s) => [
           // initialize
           s(internalValue) < initialValueLogicExt + zeroPoint,
 
-          // perform increments and decrements
+          // perform increments and decrements per-interface
           ...interfaces
               .map((e) => e._combAdjustments(s, internalValue))
               .flattened,
@@ -158,7 +171,7 @@ class Sum extends SummationBase {
     equalsMin <= internalValue.eq(lowerSaturation);
   }
 
-  /// Computes a [sum] across the provided [logics].
+  /// Computes a [Sum] across the provided [logics].
   ///
   /// All [logics] are always incrementing and controlled optionally by a single
   /// [enable].
