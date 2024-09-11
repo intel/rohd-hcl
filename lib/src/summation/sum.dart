@@ -121,12 +121,16 @@ class Sum extends SummationBase {
               .map((e) => e._combAdjustments(s, internalValue))
               .flattened,
 
+          //TODO: control whether these are exported as outputs
+
           // identify if we're at a max/min case
           overflowed < s(internalValue).gt(upperSaturation),
           underflowed < s(internalValue).lt(lowerSaturation),
 
           // useful as an internal node for debug/visibility
           preAdjustmentValue < s(internalValue),
+
+          //TODO: only generated underflow/overflow stuff if it's possible
 
           // handle saturation or over/underflow
           If.block([
@@ -149,13 +153,14 @@ class Sum extends SummationBase {
           ]),
         ]);
 
+    //TODO: control whether these actually get generated
     equalsMax <= internalValue.eq(upperSaturation);
     equalsMin <= internalValue.eq(lowerSaturation);
   }
 
   /// Computes a [sum] across the provided [logics].
   ///
-  /// All [logics] are always incrementing and controled optionally by a single
+  /// All [logics] are always incrementing and controlled optionally by a single
   /// [enable].
   factory Sum.ofLogics(
     List<Logic> logics, {

@@ -1,8 +1,8 @@
 // Copyright (C) 2024 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 //
-// config_counter.dart
-// Configurator for a Counter.
+// config_summation.dart
+// Configurators for summation.
 //
 // 2024 September 6
 // Author: Max Korbel <max.korbel@intel.com>

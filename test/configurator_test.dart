@@ -6,6 +6,8 @@
 //
 // 2023 December 6
 
+import 'dart:io';
+
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
 import 'package:rohd_hcl/src/component_config/components/component_registry.dart';
@@ -285,7 +287,7 @@ void main() {
     expect(sv, contains('swizzle'));
   });
 
-  test('sum configurator', () {
+  test('sum configurator', () async {
     final cfg = SumConfigurator();
     cfg.initialValueKnob.value = 6;
     cfg.widthKnob.value = 10;

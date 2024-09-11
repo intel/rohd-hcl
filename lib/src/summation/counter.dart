@@ -116,7 +116,7 @@ class Counter extends SummationBase {
   /// including much of the other available configuration in the default
   /// constructor.
   ///
-  /// All [logics] are always incrementing and controled optionally by a single
+  /// All [logics] are always incrementing and controlled optionally by a single
   /// [enable].
   factory Counter.ofLogics(
     List<Logic> logics, {

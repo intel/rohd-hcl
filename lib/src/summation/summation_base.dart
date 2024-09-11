@@ -1,7 +1,7 @@
 // Copyright (C) 2024 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 //
-// sum.dart
+// summation_base.dart
 // A flexible sum implementation.
 //
 // 2024 August 26
