@@ -85,9 +85,9 @@ class Counter extends SummationBase {
     equalsMin <= count.eq(minValueLogic);
   }
 
-  /// A simplified constructor for [Counter] that accepts a single amount to
-  /// count [by] (up or down based on [increments]) along with much of the other
-  /// available configuration in the default constructor.
+  /// A simplified constructor for [Counter] that accepts a single fixed amount
+  /// to count [by] (up or down based on [increments]) along with much of the
+  /// other available configuration in the default [Counter] constructor.
   Counter.simple({
     required Logic clk,
     required Logic reset,

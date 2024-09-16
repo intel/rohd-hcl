@@ -5,6 +5,7 @@
 // Definition of a configuration knob which can be configured by parsing text.
 //
 // 2023 December 5
+// Author: Max Korbel <max.korbel@intel.com>
 
 import 'package:rohd_hcl/rohd_hcl.dart';
 
