@@ -43,6 +43,7 @@ Some in-development items will have opened issues, as well. Feel free to create 
     - [Compression Tree Multiply-Accumulate](./components/multiplier.md#compression-tree-multiply-accumulate)
     - [Booth Encoding and Compression Components](./components/multiplier_components.md)
   - Dividers
+    - [Multi Cycle Integer Divider](./components/divider.md)
   - Log
   - Square root
   - Inverse square root
