@@ -38,7 +38,8 @@ class ClockGateControlInterface extends PairInterface {
           ...?additionalPorts,
         ]);
 
-  ClockGateControlInterface.clone(ClockGateControlInterface otherInterface)
+  ClockGateControlInterface.clone(
+      ClockGateControlInterface otherInterface) // TODO: add ispresent
       : isPresent = otherInterface.isPresent,
         hasEnableOverride = otherInterface.hasEnableOverride,
         gatedClockGenerator = otherInterface.gatedClockGenerator,
@@ -142,6 +143,10 @@ class ClockGate extends Module {
 
   void _buildLogic() {
     final internalEnable = _enable |
+
+        // we want to enable the clock during reset so that synchronous resets
+        // work properly
+        _reset |
         ShiftRegister(
           _enable,
           clk: _clk,
@@ -152,11 +157,7 @@ class ClockGate extends Module {
           // always at least 1 cycle so we can caputure the last one, but also
           // an extra if there's a delay on the inputs relative to the enable
           depth: hasDelay ? 2 : 1,
-        ).stages.swizzle().or() |
-
-        // we want to enable the clock during reset so that synchronous resets
-        // work properly
-        _reset;
+        ).stages.swizzle().or();
 
     gatedClk <=
         _controlIntf!.gatedClockGenerator(_controlIntf!, _clk, internalEnable);

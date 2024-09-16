@@ -76,7 +76,7 @@ class CounterWithSimpleClockGate extends Module {
       {bool withDelay = true, ClockGateControlInterface? cgIntf})
       : super(name: 'clk_gated_counter') {
     if (cgIntf != null) {
-      cgIntf = ClockGateControlInterface.clone(cgIntf!)
+      cgIntf = ClockGateControlInterface.clone(cgIntf)
         ..pairConnectIO(this, cgIntf, PairRole.consumer);
     }
 
@@ -107,6 +107,8 @@ void main() {
   tearDown(() async {
     await Simulator.reset();
   });
+
+  test('asdf', () {});
 
   //TODO: explicit test for custom override, port gets punched, etc.
 
