@@ -1,8 +1,8 @@
 // Copyright (C) 2024 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 //
-// aggregator.dart
-// A flexible aggregator implementation.
+// serialization_test.dart
+// Tests for serializer and deserializer components
 //
 // 2024 August 27
 // Author: desmond Kirkpatrick <desmond.a.kirkpatrick@intel.com>
