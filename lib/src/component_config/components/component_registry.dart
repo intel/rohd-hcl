@@ -15,6 +15,8 @@ List<Configurator> get componentRegistry => [
       FifoConfigurator(),
       EccConfigurator(),
       RoundRobinArbiterConfigurator(),
+      CounterConfigurator(),
+      SumConfigurator(),
       PriorityArbiterConfigurator(),
       RippleCarryAdderConfigurator(),
       CarrySaveMultiplierConfigurator(),
