@@ -57,7 +57,8 @@ Some in-development items will have opened issues, as well. Feel free to create 
   - Binary-Coded Decimal (BCD)
 - [Rotate](./components/rotate.md)
 - Counters
-  - Binary counter
+  - [Summation](./components/summation.md#sum)
+  - [Binary counter](./components/summation.md#counter)
   - Gray counter
 - Pseudorandom
   - LFSR

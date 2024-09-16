@@ -18,4 +18,5 @@ export 'src/models/models.dart';
 export 'src/rotate.dart';
 export 'src/shift_register.dart';
 export 'src/sort.dart';
+export 'src/summation/summation.dart';
 export 'src/utils.dart';
