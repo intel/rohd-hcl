@@ -471,7 +471,7 @@ void main() {
   group('divider tests', () {
     test('VF tests', () async {
       // Set the logger level
-      Logger.root.level = Level.ALL;
+      Logger.root.level = Level.OFF;
 
       // Create the testbench
       final intf = MultiCycleDividerInterface();
