@@ -88,7 +88,7 @@
 void loadJson(Map&lt;String, dynamic&gt; decodedJson) {
   final val = decodedJson[&#39;value&#39;];
   if (val is String) {
-    value = int.parse(val);
+    setValueFromString(val);
   } else {
     value = val as int;
   }

@@ -74,6 +74,7 @@
     <ul class="gt-separated dark clazz-relationships">
       <li><a href="https://api.dart.dev/stable/3.5.3/dart-core/Object-class.html">Object</a></li>
         <li><a href="../rohd_hcl/ConfigKnob-class.html">ConfigKnob</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.dart.dev/stable/3.5.3/dart-core/int-class.html">int</a></span>&gt;</span></li>
+        <li><a href="../rohd_hcl/TextConfigKnob-class.html">TextConfigKnob</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.dart.dev/stable/3.5.3/dart-core/int-class.html">int</a></span>&gt;</span></li>
       <li>IntConfigKnob</li>
     </ul>
   </dd>
@@ -98,16 +99,28 @@
           <span class="name"><a href="../rohd_hcl/IntConfigKnob/IntConfigKnob.html">IntConfigKnob</a></span><span class="signature">({<span class="parameter" id="-param-value"><span>required</span> <span class="type-annotation"><a href="https://api.dart.dev/stable/3.5.3/dart-core/int-class.html">int</a></span> <span class="parameter-name">value</span></span>})</span>
         </dt>
         <dd>
-          Creates a new config knob with the specified initial <a href="../rohd_hcl/ConfigKnob/value.html">value</a>.
+          Creates a new config knob with the specified initial <code>value</code>.
         </dd>
     </dl>
   </section>
     
   <section
-      class="summary offset-anchor inherited"
+      class="summary offset-anchor"
       id="instance-properties">
     <h2>Properties</h2>
     <dl class="properties">
+        <dt id="allowEmpty" class="property inherited">
+  <span class="name"><a href="../rohd_hcl/TextConfigKnob/allowEmpty.html">allowEmpty</a></span>
+  <span class="signature">&#8594; <a href="https://api.dart.dev/stable/3.5.3/dart-core/bool-class.html">bool</a></span>
+  
+
+</dt>
+<dd class="inherited">
+  Whether the knob allows an empty string as input.
+  <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
+
+</dd>
+
         <dt id="hashCode" class="property inherited">
   <span class="name"><a href="https://api.dart.dev/stable/3.5.3/dart-core/Object/hashCode.html">hashCode</a></span>
   <span class="signature">&#8594; <a href="https://api.dart.dev/stable/3.5.3/dart-core/int-class.html">int</a></span>
@@ -144,6 +157,18 @@
 
 </dd>
 
+        <dt id="valueString" class="property">
+  <span class="name"><a href="../rohd_hcl/IntConfigKnob/valueString.html">valueString</a></span>
+  <span class="signature">&#8594; <a href="https://api.dart.dev/stable/3.5.3/dart-core/String-class.html">String</a></span>
+  
+
+</dt>
+<dd>
+  A <a href="https://api.dart.dev/stable/3.5.3/dart-core/String-class.html">String</a> representation of the <a href="../rohd_hcl/ConfigKnob/value.html">value</a>.
+  <div class="features"><span class="feature">no setter</span><span class="feature">override</span></div>
+
+</dd>
+
     </dl>
   </section>
     
@@ -175,6 +200,19 @@
 <dd class="inherited">
   Invoked when a nonexistent method or property is accessed.
   <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="setValueFromString" class="callable">
+  <span class="name"><a href="../rohd_hcl/IntConfigKnob/setValueFromString.html">setValueFromString</a></span><span class="signature">(<wbr><span class="parameter" id="setValueFromString-param-valueString"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.5.3/dart-core/String-class.html">String</a></span> <span class="parameter-name">valueString</span></span>)
+    <span class="returntype parameter">&#8594; void</span>
+  </span>
+  
+
+</dt>
+<dd>
+  Sets the <a href="../rohd_hcl/ConfigKnob/value.html">value</a> from a <a href="https://api.dart.dev/stable/3.5.3/dart-core/String-class.html">String</a>.
+  <div class="features"><span class="feature">override</span></div>
 
 </dd>
 
