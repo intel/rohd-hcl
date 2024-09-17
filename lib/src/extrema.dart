@@ -1,4 +1,4 @@
-// Copyright (C) 2023-2024 Intel Corporation
+// Copyright (C) 2024 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 //
 // extrema.dart
@@ -17,7 +17,6 @@ import 'package:rohd_hcl/rohd_hcl.dart';
 /// Outputs [index] contains position of first extrema signal and [val] contains
 /// corresponding signal value.
 
-/// Defines a class Extrema that extends ROHD's abstract Module class.
 class Extrema extends Module {
   /// [index] is a getter for output of Extrema.
   Logic get index => output('index');
@@ -25,12 +24,11 @@ class Extrema extends Module {
   /// [val] is a getter for output of Extrema.
   Logic get val => output('val');
 
-  /// Find an extrema of List<[Logic]> [toCompare]. Will output [index] and
-  /// [val] of first extrema in the list of [toCompare]. If [max] is `true`,
-  /// will find maximum value, else will find minimum value.
-  ///
-  /// If [toCompare] contains elements of different widths, it will be extended
-  /// and prepended with 0s to make all inputs same width.
+  /// Finds an extrema of List<[Logic]> [toCompare]. Inputs need not be the same
+  /// width, and will all be considered positive unsigned numbers.
+  /// If [max] is `true`, will find maximum value, else will find minimum value.
+  /// Outputs [index] and [val] of first extrema in the list of [toCompare].
+
   Extrema(List<Logic> toCompare, {bool max = true}) {
     // List to consume inputs internally.
     final toCompareInternal = <Logic>[];
@@ -41,7 +39,12 @@ class Extrema extends Module {
           addInput('toCompare$i', toCompare[i], width: toCompare[i].width));
     }
 
-    // Find the max width.
+    // Check if list is empty
+    if (toCompareInternal.isEmpty) {
+      throw RohdHclException('List cannot be empty.');
+    }
+
+    // Find the max width of all inputs.
     var maxWidth = 0;
     for (var i = 0; i < toCompareInternal.length; i++) {
       if (toCompareInternal[i].width > maxWidth) {
@@ -59,27 +62,20 @@ class Extrema extends Module {
     // Initializes extremaVal with value from index 0 of toCompareInternal.
     var extremaVal = toCompareInternal[0];
 
-    // Initializes extremaIndex with index to 0.
-    Logic extremaIndex = Const(0, width: log2Ceil(toCompareInternal.length));
+    // Find indexWidth and initialize extremaIndex with index to 0.
+    final indexWidth = log2Ceil(toCompareInternal.length);
+    Logic extremaIndex = Const(0, width: indexWidth);
 
     // If max is true, find max value. Else, find min value.
-    if (max) {
-      for (var i = 1; i < toCompareInternal.length; i++) {
-        final compareVal = toCompareInternal[i].gt(extremaVal);
-        extremaVal = Logic(name: 'myName$i', width: extremaVal.width)
-          ..gets(mux(compareVal, toCompareInternal[i], extremaVal));
-        extremaIndex = mux(compareVal,
-            Const(i, width: log2Ceil(toCompareInternal.length)), extremaIndex);
-      }
-    } else {
-      for (var i = 1; i < toCompareInternal.length; i++) {
-        final compareVal = toCompareInternal[i].lt(extremaVal);
-        extremaVal = Logic(name: 'myName$i', width: extremaVal.width)
-          ..gets(mux(compareVal, toCompareInternal[i], extremaVal));
-        extremaIndex = mux(compareVal,
-            Const(i, width: log2Ceil(toCompareInternal.length)), extremaIndex);
-      }
+    for (var i = 1; i < toCompareInternal.length; i++) {
+      final compareVal = max
+          ? toCompareInternal[i].gt(extremaVal)
+          : toCompareInternal[i].lt(extremaVal);
+      extremaVal = Logic(name: 'myName$i', width: maxWidth)
+        ..gets(mux(compareVal, toCompareInternal[i], extremaVal));
+      extremaIndex = mux(compareVal, Const(i, width: indexWidth), extremaIndex);
     }
+
     // Generate outputs here.
     addOutput('index', width: extremaIndex.width);
     index <= extremaIndex;

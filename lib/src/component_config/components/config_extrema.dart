@@ -1,4 +1,4 @@
-// Copyright (C) 2023-2024 Intel Corporation
+// Copyright (C) 2024 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 //
 // config_extrema.dart
@@ -26,7 +26,9 @@ class ExtremaConfigurator extends Configurator {
 
   @override
   late final Map<String, ConfigKnob<dynamic>> knobs = UnmodifiableMapView({
-    'max': maxKnob,
+    'Length of list (Number of elements)': toCompareKnob,
+    'Width of list (For all elements)': logicWidthKnob,
+    'Find max (uncheck for min)': maxKnob,
   });
 
   @override

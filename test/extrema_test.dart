@@ -1,4 +1,4 @@
-// Copyright (C) 2023-2024 Intel Corporation
+// Copyright (C) 2024 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 //
 // extrema_test.dart
@@ -70,6 +70,35 @@ void main() {
     expect(findMax.index.value.toInt(), equals(0));
   });
 
+  test('List containing same extrema multiple times.', () async {
+    // Create a list of Logic objects with different values.
+    final logics = [
+      Logic(width: 8)..put(LogicValue.ofString('00001101')), // 13 in decimal
+      Logic(width: 4)..put(LogicValue.ofString('1101')), // 13 in decimal
+      Logic(width: 8)..put(LogicValue.ofString('00000100')), // 4 in decimal
+      Logic(width: 2)..put(LogicValue.ofString('11')), // 3 in decimal
+      Logic(width: 8)..put(LogicValue.ofString('00001100')), // 12 in decimal
+      Logic(width: 6)..put(LogicValue.ofString('001101')), // 13 in decimal
+      Logic(width: 8)..put(LogicValue.ofString('00000011')), // 3 in decimal
+    ];
+
+    // Create an instance of FindMin.
+    final findMin = Extrema(logics, max: false);
+    await findMin.build();
+
+    // Create an instance of FindMax.
+    final findMax = Extrema(logics);
+    await findMax.build();
+
+    // Verify the min value and index
+    expect(findMin.val.value.toInt(), equals(3));
+    expect(findMin.index.value.toInt(), equals(3));
+
+    // Verify the max value and index.
+    expect(findMax.val.value.toInt(), equals(13));
+    expect(findMax.index.value.toInt(), equals(0));
+  });
+
   test('List containing one element.', () async {
     // Create a list of Logic objects with different values
     final logics = [
@@ -107,6 +136,6 @@ void main() {
     List<Logic> logics = [];
 
     // Try to create an instance of Extrema
-    expect(() => Extrema(logics), throwsA(isA<ArgumentError>()));
+    expect(() => Extrema(logics), throwsA(isA<RohdHclException>()));
   });
 }
