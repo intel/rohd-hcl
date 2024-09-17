@@ -29,8 +29,8 @@ void main() {
     final mod = Serializer(dataIn, clk: clk, reset: reset, enable: start);
 
     await mod.build();
-
     unawaited(Simulator.run());
+
     start.inject(0);
     reset.inject(0);
     var clkCount = 0;
@@ -120,20 +120,21 @@ void main() {
     enable.inject(1);
     await clk.nextPosedge;
     clkCount++;
-    var value = BigInt.from(15) << ((len - 1) * width);
+    var value = BigInt.from(15);
+    final mask = ~(value << (width * len));
     expect(mod.count.value.toInt(), equals(clkCount));
     expect(mod.deserialized.value.toBigInt(), equals(value));
+    var nxtValue = BigInt.zero;
     for (var i = 0; i < len * 2 - 2; i++) {
-      BigInt nxtValue;
       if (i < len - 1) {
         dataIn.inject(15);
-        nxtValue = (value >> width) | value;
+        nxtValue = (value << width) | value;
         if (i == len - 2) {
           clkCount = -1;
         }
       } else {
         dataIn.inject(0);
-        nxtValue = value >> width;
+        nxtValue = (nxtValue << width) & mask;
       }
       await clk.nextPosedge;
       clkCount++;
@@ -168,7 +169,9 @@ void main() {
     await clk.nextPosedge;
     await clk.nextPosedge;
     await clk.nextPosedge;
-    var value = BigInt.from(15) << ((len - 1) * width);
+    var value = BigInt.from(15);
+    final mask = ~(value << (width * len));
+    // expect(mod.deserialized.value.toBigInt(), equals(value));
     enable.inject(1);
     var clkCount = 0;
     var nxtValue = value;
@@ -177,72 +180,45 @@ void main() {
       final predictedClk = (clkCount + 1) % len;
       expect(mod.count.value.toInt(), equals(predictedClk));
       expect(mod.deserialized.value.toBigInt(), equals(nxtValue));
-      nxtValue = (value >> width) | value;
+      nxtValue = (value << width) | value;
+      // nxtValue = (value >> width) | value;
       value = nxtValue;
       clkCount = clkCount + 1;
     }
+    await clk.nextPosedge;
+
     clkCount = 0;
     dataIn.inject(0);
     while ((clkCount == 0) | (mod.done.value.toInt() == 0)) {
       await clk.nextPosedge;
       final predictedClk = (clkCount + 1) % len;
-      nxtValue = value >> width;
+      // nxtValue = value >> width;
+      nxtValue = (nxtValue << width) & mask;
+
       expect(mod.count.value.toInt(), equals(predictedClk));
       expect(mod.deserialized.value.toBigInt(), equals(nxtValue));
 
       clkCount = clkCount + 1;
       value = nxtValue;
     }
-    var counting = true;
-    nxtValue = BigInt.from(0);
+    await clk.nextPosedge;
+
+    enable.inject(0);
     for (var disablePos = 0; disablePos < len; disablePos++) {
       clkCount = 0;
       var activeClkCount = 0;
-      dataIn.inject(15);
-      while ((clkCount == 0) | (mod.done.value.toInt() == 0)) {
-        if (clkCount == disablePos) {
-          counting = false;
-          enable.inject(0);
-        }
-        await clk.nextPosedge;
-        final predictedClk =
-            counting ? (activeClkCount + 1) % len : activeClkCount;
-        if ((predictedClk == 1) & counting) {
-          nxtValue = BigInt.from(15) << ((len - 1) * width);
-        } else if (counting) {
-          nxtValue = (value >> width) | value;
-        }
-        expect(mod.count.value.toInt(), equals(predictedClk));
-        expect(mod.deserialized.value.toBigInt(), equals(nxtValue));
-        value = nxtValue;
-        clkCount = clkCount + 1;
-        activeClkCount = counting ? activeClkCount + 1 : activeClkCount;
-        enable.inject(1);
-        counting = true;
-      }
-      clkCount = 0;
-      activeClkCount = 0;
-      nxtValue = value;
       dataIn.inject(0);
       while ((clkCount == 0) | (mod.done.value.toInt() == 0)) {
         if (clkCount == disablePos) {
-          counting = false;
           enable.inject(0);
+          activeClkCount = (activeClkCount > 0) ? activeClkCount - 1 : 0;
         }
-        if (counting) {
-          nxtValue = value >> width;
-        }
-
-        final predictedClk =
-            counting ? (activeClkCount + 1) % len : activeClkCount;
         await clk.nextPosedge;
-        expect(mod.count.value.toInt(), equals(predictedClk));
-        expect(mod.deserialized.value.toBigInt(), equals(nxtValue));
+
+        expect(mod.count.value.toInt(), equals(activeClkCount));
         clkCount = clkCount + 1;
-        activeClkCount = counting ? activeClkCount + 1 : activeClkCount;
+        activeClkCount = activeClkCount + 1;
         enable.inject(1);
-        value = nxtValue;
-        counting = true;
       }
     }
     await Simulator.endSimulation();
@@ -305,6 +281,65 @@ void main() {
       expect(mod.serialized.value.toInt(), equals(predictedClk));
     }
 
+    await clk.nextPosedge;
+    await clk.nextPosedge;
+    await Simulator.endSimulation();
+  });
+
+  test('deserializer to serializer to deserializer', () async {
+    const len = 6;
+    const width = 4;
+    final dataIn = Logic(width: width);
+    final clk = SimpleClockGenerator(10).clk;
+    final reset = Logic();
+    final deserializer = Deserializer(dataIn, len, clk: clk, reset: reset);
+
+    await deserializer.build();
+    final firstDeserializerDone = deserializer.done |
+        flop(clk, Const(1), reset: reset, en: deserializer.done);
+    final serializer = Serializer(deserializer.deserialized,
+        clk: clk, enable: firstDeserializerDone, reset: reset);
+
+    await serializer.build();
+    final serializerStart = firstDeserializerDone;
+    final deserializer2 = Deserializer(serializer.serialized, len,
+        clk: clk, reset: reset, enable: serializerStart);
+
+    await deserializer2.build();
+    WaveDumper(serializer);
+    unawaited(Simulator.run());
+
+    reset.put(0);
+    await clk.nextPosedge;
+    reset.put(1);
+    await clk.nextPosedge;
+    await clk.nextPosedge;
+
+    var clkCount = 0;
+    await clk.nextPosedge;
+    reset.put(0);
+    while (deserializer.done.value != LogicValue.one) {
+      expect(deserializer.count.value.toInt(), equals(clkCount));
+      dataIn.put(clkCount++);
+      await clk.nextPosedge;
+    }
+    expect(deserializer.count.value.toInt(), equals(clkCount));
+
+    dataIn.put(clkCount);
+    while (deserializer2.done.value != LogicValue.one) {
+      if (serializerStart.value == LogicValue.one) {
+        expect(serializer.count.value.toInt(),
+            equals(serializer.serialized.value.toInt()));
+        expect(deserializer2.count.value.toInt(),
+            equals(deserializer2.serialized.value.toInt()));
+      }
+      await clk.nextPosedge;
+      clkCount++;
+    }
+    expect(serializer.count.value.toInt(),
+        equals(serializer.serialized.value.toInt()));
+    expect(deserializer2.count.value.toInt(),
+        equals(deserializer2.serialized.value.toInt()));
     await clk.nextPosedge;
     await clk.nextPosedge;
     await Simulator.endSimulation();

@@ -7,42 +7,47 @@
 // 2024 August 27
 // Author: desmond Kirkpatrick <desmond.a.kirkpatrick@intel.com>
 
-import 'package:meta/meta.dart';
+import 'package:collection/collection.dart';
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
 
-/// Aggregates data from a serialized stream
+/// [Deserializer] aggregates data from a serialized stream.
 class Deserializer extends Module {
-  /// Clk input
-  @protected
+  /// Clk input.
   Logic get clk => input('clk');
 
-  /// Reset input
-  @protected
+  /// Reset input.
   Logic get reset => input('reset');
 
-  /// Run deserialization whenever [enable] is true
-  @protected
-  Logic? get enable => input('enable');
+  /// Run deserialization whenever [enable] is true. Pause while it is not.
+  /// Count and transfers will not happen while [enable] is false.
+  Logic? get enable => tryInput('enable');
 
-  /// Serialized input, one data item per clock
+  /// Serialized input, one data item per clock.
   Logic get serialized => input('serialized');
 
-  /// Aggregated data output
+  /// Length of aggregate to deserialize.
+  int get length => _length;
+
+  /// Aggregated data output.
   LogicArray get deserialized => output('deserialized') as LogicArray;
 
-  /// Valid out when data is reached
+  /// [done] emitted when the last element is committed to [deserialized].
+  /// The timing is that you can latch [deserialized] when [done] is high.
   Logic get done => output('done');
 
-  /// Return the count as an output
-  @protected
+  /// Return the current count of elements that have been serialized out.
   Logic get count => output('count');
 
+  /// Internal storage of length of data to be serialized.
+  late final int _length;
+
   /// Build a Deserializer that takes serialized input [serialized]
-  /// and aggregates it into one wide output [deserialized], one element per
-  /// clock while [enable] (if connected) is high, emitting [done] when
-  /// completing the filling of wide output [deserialized].
-  Deserializer(Logic serialized, int length,
+  /// and aggregates it into one wide output [deserialized] of length [length].
+  ///
+  /// Updates one element per clock while [enable] (if connected) is high,
+  /// emitting [done] when completing the filling of wide output [deserialized].
+  Deserializer(Logic serialized, this._length,
       {required Logic clk,
       required Logic reset,
       Logic? enable,
@@ -51,19 +56,21 @@ class Deserializer extends Module {
     reset = addInput('reset', reset);
     if (enable != null) {
       enable = addInput('enable', enable);
-    } else {
-      enable = Const(1);
     }
     serialized = addInput('serialized', serialized, width: serialized.width);
     final cnt = Counter.simple(
         clk: clk, reset: reset, enable: enable, maxValue: length - 1);
     addOutput('count', width: cnt.width) <= cnt.count;
-    addOutput('done') <= cnt.overflowed;
+    addOutput('done') <= cnt.equalsMax;
     addOutputArray('deserialized',
-            dimensions: [length], elementWidth: serialized.width) <=
-        [
-          for (var i = 0; i < length; i++)
-            flop(clk, reset: reset, en: enable & count.eq(i), serialized)
-        ].swizzle();
+            dimensions: [length], elementWidth: serialized.width)
+        .elements
+        .forEachIndexed((i, d) =>
+            d <=
+            flop(
+                clk,
+                reset: reset,
+                en: (enable ?? Const(1)) & count.eq(i),
+                serialized));
   }
 }
