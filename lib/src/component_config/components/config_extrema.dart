@@ -15,6 +15,12 @@ import 'package:rohd_hcl/rohd_hcl.dart';
 
 /// A [Configurator] for [Extrema].
 class ExtremaConfigurator extends Configurator {
+  /// A knob controlling the number of logics to compare.
+  final IntConfigKnob toCompareKnob = IntConfigKnob(value: 4);
+
+  /// A knob controlling the width of each element to sort.
+  final IntConfigKnob logicWidthKnob = IntConfigKnob(value: 8);
+
   /// A knob controlling whether to find Max or Min.
   final ToggleConfigKnob maxKnob = ToggleConfigKnob(value: true);
 
@@ -24,10 +30,15 @@ class ExtremaConfigurator extends Configurator {
   });
 
   @override
-  Module createModule() => Extrema(
-        <Logic>[],
-        max: maxKnob.value,
-      );
+  Module createModule() {
+    final toCompare = List.generate(
+        toCompareKnob.value, (index) => Logic(width: logicWidthKnob.value));
+
+    return Extrema(
+      toCompare,
+      max: maxKnob.value,
+    );
+  }
 
   @override
   final String name = 'Extrema';
