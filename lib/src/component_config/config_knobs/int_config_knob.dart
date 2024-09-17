@@ -9,7 +9,7 @@
 import 'package:rohd_hcl/rohd_hcl.dart';
 
 /// A knob to store an [int].
-class IntConfigKnob extends ConfigKnob<int> {
+class IntConfigKnob extends TextConfigKnob<int> {
   /// Creates a new config knob with the specified initial [value].
   IntConfigKnob({required super.value});
 
@@ -18,12 +18,20 @@ class IntConfigKnob extends ConfigKnob<int> {
       {'value': value > 255 ? '0x${value.toRadixString(16)}' : value};
 
   @override
+  String get valueString =>
+      value > 255 ? '0x${value.toRadixString(16)}' : value.toString();
+
+  @override
   void loadJson(Map<String, dynamic> decodedJson) {
     final val = decodedJson['value'];
     if (val is String) {
-      value = int.parse(val);
+      setValueFromString(val);
     } else {
       value = val as int;
     }
   }
+
+  @override
+  void setValueFromString(String valueString) =>
+      value = int.tryParse(valueString) ?? value;
 }

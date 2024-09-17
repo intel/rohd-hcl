@@ -285,6 +285,26 @@ void main() {
     expect(sv, contains('swizzle'));
   });
 
+  test('sum configurator', () async {
+    final cfg = SumConfigurator();
+    cfg.initialValueKnob.value = 6;
+    cfg.widthKnob.value = 10;
+    cfg.minValueKnob.value = 5;
+    cfg.maxValueKnob.value = 25;
+    cfg.saturatesKnob.value = true;
+
+    final mod = cfg.createModule() as Sum;
+
+    // ignore: invalid_use_of_protected_member
+    expect(mod.initialValueLogic.value.toInt(), 6);
+    expect(mod.width, 10);
+    // ignore: invalid_use_of_protected_member
+    expect(mod.minValueLogic.value.toInt(), 5);
+    // ignore: invalid_use_of_protected_member
+    expect(mod.maxValueLogic.value.toInt(), 25);
+    expect(mod.saturates, true);
+  });
+
   group('configurator builds', () {
     for (final componentConfigurator in componentRegistry) {
       test(componentConfigurator.name, () async {

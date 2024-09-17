@@ -43,6 +43,7 @@ Some in-development items will have opened issues, as well. Feel free to create 
     - [Compression Tree Multiply-Accumulate](./components/multiplier.md#compression-tree-multiply-accumulate)
     - [Booth Encoding and Compression Components](./components/multiplier_components.md)
   - Dividers
+    - [Multi Cycle Integer Divider](./components/divider.md)
   - Log
   - Square root
   - Inverse square root
@@ -56,7 +57,8 @@ Some in-development items will have opened issues, as well. Feel free to create 
   - Binary-Coded Decimal (BCD)
 - [Rotate](./components/rotate.md)
 - Counters
-  - Binary counter
+  - [Summation](./components/summation.md#sum)
+  - [Binary counter](./components/summation.md#counter)
   - Gray counter
 - Pseudorandom
   - LFSR
