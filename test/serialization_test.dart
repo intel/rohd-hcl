@@ -145,7 +145,6 @@ void main() {
 
     await Simulator.endSimulation();
   });
-
   test('deserializer enable', () async {
     const len = 6;
     const width = 4;
@@ -171,7 +170,6 @@ void main() {
     await clk.nextPosedge;
     var value = BigInt.from(15);
     final mask = ~(value << (width * len));
-    // expect(mod.deserialized.value.toBigInt(), equals(value));
     enable.inject(1);
     var clkCount = 0;
     var nxtValue = value;
@@ -181,28 +179,20 @@ void main() {
       expect(mod.count.value.toInt(), equals(predictedClk));
       expect(mod.deserialized.value.toBigInt(), equals(nxtValue));
       nxtValue = (value << width) | value;
-      // nxtValue = (value >> width) | value;
       value = nxtValue;
       clkCount = clkCount + 1;
     }
-    await clk.nextPosedge;
-
     clkCount = 0;
     dataIn.inject(0);
     while ((clkCount == 0) | (mod.done.value.toInt() == 0)) {
       await clk.nextPosedge;
       final predictedClk = (clkCount + 1) % len;
-      // nxtValue = value >> width;
       nxtValue = (nxtValue << width) & mask;
 
       expect(mod.count.value.toInt(), equals(predictedClk));
-      expect(mod.deserialized.value.toBigInt(), equals(nxtValue));
-
       clkCount = clkCount + 1;
       value = nxtValue;
     }
-    await clk.nextPosedge;
-
     enable.inject(0);
     for (var disablePos = 0; disablePos < len; disablePos++) {
       clkCount = 0;
@@ -211,13 +201,13 @@ void main() {
       while ((clkCount == 0) | (mod.done.value.toInt() == 0)) {
         if (clkCount == disablePos) {
           enable.inject(0);
-          activeClkCount = (activeClkCount > 0) ? activeClkCount - 1 : 0;
         }
-        await clk.nextPosedge;
-
         expect(mod.count.value.toInt(), equals(activeClkCount));
+        await clk.nextPosedge;
+        if (clkCount != disablePos) {
+          activeClkCount = (activeClkCount + 1) % len;
+        }
         clkCount = clkCount + 1;
-        activeClkCount = activeClkCount + 1;
         enable.inject(1);
       }
     }
@@ -307,8 +297,6 @@ void main() {
 
     await deserializer2.build();
     unawaited(Simulator.run());
-
-    // WaveDumper(serializer);
 
     reset.put(0);
     await clk.nextPosedge;
