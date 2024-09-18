@@ -42,13 +42,22 @@ class Deserializer extends Module {
     if (enable != null) {
       enable = addInput('enable', enable);
     }
-    serialized = addInput('serialized', serialized, width: serialized.width);
+    serialized = (serialized is LogicArray)
+        ? addInputArray('serialized', serialized,
+            dimensions: serialized.dimensions,
+            elementWidth: serialized.elementWidth)
+        : addInput('serialized', serialized, width: serialized.width);
     final cnt = Counter.simple(
         clk: clk, reset: reset, enable: enable, maxValue: length - 1);
     addOutput('count', width: cnt.width) <= cnt.count;
     addOutput('done') <= cnt.overflowed;
     addOutputArray('deserialized',
-            dimensions: [length], elementWidth: serialized.width)
+            dimensions: (serialized is LogicArray)
+                ? ([length, ...serialized.dimensions])
+                : [length],
+            elementWidth: (serialized is LogicArray)
+                ? serialized.elementWidth
+                : serialized.width)
         .elements
         .forEachIndexed((i, d) =>
             d <=

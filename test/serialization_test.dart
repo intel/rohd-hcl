@@ -92,6 +92,97 @@ void main() {
     await Simulator.endSimulation();
   });
 
+  test('serializer for larger structures', () async {
+    const len = 10;
+    const width = 8;
+    final dataIn = LogicArray([len, 2], width);
+    final clk = SimpleClockGenerator(10).clk;
+    final start = Logic();
+    final reset = Logic();
+    final mod = Serializer(dataIn, clk: clk, reset: reset, enable: start);
+
+    await mod.build();
+    unawaited(Simulator.run());
+
+    start.inject(0);
+    reset.inject(0);
+    var clkCount = 0;
+    for (var i = 0; i < len; i++) {
+      for (var j = 0; j < 2; j++) {
+        dataIn.elements[i].elements[j].inject(i * 2 + j);
+      }
+    }
+    await clk.nextPosedge;
+
+    reset.inject(1);
+    await clk.nextPosedge;
+    reset.inject(0);
+    await clk.nextPosedge;
+    await clk.nextPosedge;
+    await clk.nextPosedge;
+    start.inject(1);
+    final val = mod.serialized as LogicArray;
+    var predictedClk = 0;
+    while (mod.done.value.toInt() != 1) {
+      expect(val.elements[0].value.toInt(), equals(predictedClk * 2));
+      expect(val.elements[1].value.toInt(), equals(predictedClk * 2 + 1));
+      await clk.nextPosedge;
+      predictedClk = (clkCount + 1) % len;
+      expect(mod.count.value.toInt(), equals(predictedClk));
+      clkCount++;
+    }
+    expect(val.elements[0].value.toInt(), equals(predictedClk * 2));
+    expect(val.elements[1].value.toInt(), equals(predictedClk * 2 + 1));
+    await Simulator.endSimulation();
+  });
+
+  test('serializer to deserializer for larger structures', () async {
+    const len = 10;
+    const width = 8;
+    final dataIn = LogicArray([len, 2], width);
+    final clk = SimpleClockGenerator(10).clk;
+    final start = Logic();
+    final reset = Logic();
+    final mod = Serializer(dataIn, clk: clk, reset: reset, enable: start);
+
+    final mod2 = Deserializer(mod.serialized, len,
+        clk: clk, reset: reset, enable: start);
+
+    await mod.build();
+    await mod2.build();
+    unawaited(Simulator.run());
+
+    WaveDumper(mod2);
+
+    start.inject(0);
+    reset.inject(0);
+    for (var i = 0; i < len; i++) {
+      for (var j = 0; j < 2; j++) {
+        dataIn.elements[i].elements[j].inject(i * 2 + j);
+      }
+    }
+    await clk.nextPosedge;
+
+    reset.inject(1);
+    await clk.nextPosedge;
+    reset.inject(0);
+    await clk.nextPosedge;
+    start.inject(1);
+    while (mod2.done.value.toInt() != 1) {
+      await clk.nextPosedge;
+    }
+    await clk.nextPosedge;
+    final dataOut = mod2.deserialized;
+
+    for (var i = 0; i < len; i++) {
+      for (var j = 0; j < 2; j++) {
+        expect(dataOut.elements[i].elements[j].value,
+            equals(dataIn.elements[i].elements[j].value));
+      }
+    }
+    await Simulator.endSimulation();
+  });
+
   test('deserializer rollover', () async {
     const len = 6;
     const width = 4;
@@ -211,6 +302,8 @@ void main() {
         enable.inject(1);
       }
     }
+    await clk.nextPosedge;
+    await clk.nextPosedge;
     await Simulator.endSimulation();
   });
 

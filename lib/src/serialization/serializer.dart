@@ -47,9 +47,19 @@ class Serializer extends Module {
     deserialized = addInputArray('deserialized', deserialized,
         dimensions: deserialized.dimensions,
         elementWidth: deserialized.elementWidth);
-    addOutput('serialized', width: deserialized.elementWidth);
+
     addOutput('count', width: log2Ceil(deserialized.dimensions[0]));
     addOutput('done');
+
+    final reducedDimensions = List<int>.from(deserialized.dimensions)
+      ..removeAt(0);
+    if (deserialized.dimensions.length > 1) {
+      addOutputArray('serialized',
+          dimensions: reducedDimensions,
+          elementWidth: deserialized.elementWidth);
+    } else {
+      addOutput('serialized', width: deserialized.elementWidth);
+    }
 
     final cnt = Counter.simple(
         clk: clk,
@@ -72,7 +82,11 @@ class Serializer extends Module {
                   clk, reset: reset, en: latchInput, deserialized.elements[i])
               : deserialized.elements[i]);
     }
-    serialized <= dataOutput.elements.selectIndex(count);
+    if (deserialized.dimensions.length > 1) {
+      serialized <= dataOutput.elements.selectIndex(count);
+    } else {
+      serialized <= dataOutput.elements.selectIndex(count);
+    }
     done <=
         (flopInput
             ? flop(clk, reset: reset, en: enable, cnt.equalsMax)
