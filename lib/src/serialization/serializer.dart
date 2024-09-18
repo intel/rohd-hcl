@@ -38,10 +38,7 @@ class Serializer extends Module {
       required Logic reset,
       Logic? enable,
       bool flopInput = false,
-      super.name = 'Serializer'}) {
-    if (deserialized.dimensions.length != 1) {
-      throw RohdHclException('deserialized dimension must be of length 1');
-    }
+      super.name = 'serializer'}) {
     clk = addInput('clk', clk);
     reset = addInput('reset', reset);
     if (enable != null) {
