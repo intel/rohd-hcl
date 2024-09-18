@@ -306,8 +306,9 @@ void main() {
         clk: clk, reset: reset, enable: serializerStart);
 
     await deserializer2.build();
-    WaveDumper(serializer);
     unawaited(Simulator.run());
+
+    // WaveDumper(serializer);
 
     reset.put(0);
     await clk.nextPosedge;
@@ -323,24 +324,23 @@ void main() {
       dataIn.put(clkCount++);
       await clk.nextPosedge;
     }
-    expect(deserializer.count.value.toInt(), equals(clkCount));
-
     dataIn.put(clkCount);
+    for (var i = 0; i < len; i++) {
+      expect(deserializer.deserialized.elements[i].value.toInt(), equals(i));
+    }
     while (deserializer2.done.value != LogicValue.one) {
       if (serializerStart.value == LogicValue.one) {
         expect(serializer.count.value.toInt(),
             equals(serializer.serialized.value.toInt()));
-        expect(deserializer2.count.value.toInt(),
-            equals(deserializer2.serialized.value.toInt()));
       }
       await clk.nextPosedge;
       clkCount++;
     }
-    expect(serializer.count.value.toInt(),
-        equals(serializer.serialized.value.toInt()));
-    expect(deserializer2.count.value.toInt(),
-        equals(deserializer2.serialized.value.toInt()));
+    for (var i = 0; i < len; i++) {
+      expect(deserializer2.deserialized.elements[i].value.toInt(), equals(i));
+    }
     await clk.nextPosedge;
+
     await clk.nextPosedge;
     await Simulator.endSimulation();
   });

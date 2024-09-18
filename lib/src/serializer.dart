@@ -12,30 +12,18 @@ import 'package:rohd_hcl/rohd_hcl.dart';
 
 /// Serializes wide aggregated data onto a narrower serialization stream.
 class Serializer extends Module {
-  /// Clk input.
-  Logic get clk => input('clk');
+  /// Serialized output, one data item per clock.
+  Logic get serialized => output('serialized');
 
-  /// Reset input.
-  Logic get reset => input('reset');
-
-  /// Allow serialization onto the output stream when [enable] is true.
-  Logic? get enable => input('enable');
-
-  /// Aggregated data to serialize out.
-  LogicArray get deserialized => input('deserialized') as LogicArray;
-
-  /// The number of current serialization steps completed in the
-  /// transfer is [count].
-  Logic get count => output('count');
-
-  /// Return [done] = true when we have processed [deserialized] completely.
+  /// Return [done] = true when we have processed `deserialized`completely.
   /// [done] is asserted with the final element being serialized so that
   /// at the next clock edge, you have [done] with the last element latched at
   /// the same time.
   Logic get done => output('done');
 
-  /// Serialized output, one data item per clock.
-  Logic get serialized => output('serialized');
+  /// The number of current serialization steps completed in the
+  /// transfer is [count].
+  Logic get count => output('count');
 
   /// Build a Serializer that takes the array [deserialized] and sequences it
   /// onto the [serialized] output.
@@ -43,8 +31,8 @@ class Serializer extends Module {
   /// Delivers one element per clock while [enable]
   /// is high (if connected). If [flopInput] is true, the
   /// [Serializer] is configured to latch the input data and hold it until
-  /// [done] is asserted after the full [deserialized] is transferred. This
-  /// will delay the serialized output by one cycle.
+  /// [done] is asserted after the full `LogicArray` [deserialized] is
+  /// transferred. This will delay the serialized output by one cycle.
   Serializer(LogicArray deserialized,
       {required Logic clk,
       required Logic reset,
@@ -69,13 +57,13 @@ class Serializer extends Module {
     final cnt = Counter.simple(
         clk: clk,
         reset: reset,
-        enable: enable ?? Const(1),
+        enable: enable,
         maxValue: deserialized.elements.length - 1);
 
     final latchInput = (enable ?? Const(1)) & ~cnt.count.or();
     count <=
         (flopInput
-            ? flop(clk, reset: reset, en: enable ?? Const(1), cnt.count)
+            ? flop(clk, reset: reset, en: enable, cnt.count)
             : cnt.count);
 
     final dataOutput =
@@ -90,7 +78,7 @@ class Serializer extends Module {
     serialized <= dataOutput.elements.selectIndex(count);
     done <=
         (flopInput
-            ? flop(clk, reset: reset, en: enable ?? Const(1), cnt.equalsMax)
+            ? flop(clk, reset: reset, en: enable, cnt.equalsMax)
             : cnt.equalsMax);
   }
 }

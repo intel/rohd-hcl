@@ -13,24 +13,11 @@ import 'package:rohd_hcl/rohd_hcl.dart';
 
 /// [Deserializer] aggregates data from a serialized stream.
 class Deserializer extends Module {
-  /// Clk input.
-  Logic get clk => input('clk');
-
-  /// Reset input.
-  Logic get reset => input('reset');
-
-  /// Run deserialization whenever [enable] is true. Pause while it is not.
-  /// Count and transfers will not happen while [enable] is false.
-  Logic? get enable => tryInput('enable');
-
-  /// Serialized input, one data item per clock.
-  Logic get serialized => input('serialized');
+  /// Aggregated data output.
+  LogicArray get deserialized => output('deserialized') as LogicArray;
 
   /// Length of aggregate to deserialize.
   int get length => _length;
-
-  /// Aggregated data output.
-  LogicArray get deserialized => output('deserialized') as LogicArray;
 
   /// [done] emitted when the last element is committed to [deserialized].
   /// The timing is that you can latch [deserialized] when [done] is high.
@@ -46,7 +33,8 @@ class Deserializer extends Module {
   /// and aggregates it into one wide output [deserialized] of length [length].
   ///
   /// Updates one element per clock while [enable] (if connected) is high,
-  /// emitting [done] when completing the filling of wide output [deserialized].
+  /// emitting [done] when completing the filling of wide output `LogicArray`
+  /// [deserialized].
   Deserializer(Logic serialized, this._length,
       {required Logic clk,
       required Logic reset,
@@ -61,7 +49,7 @@ class Deserializer extends Module {
     final cnt = Counter.simple(
         clk: clk, reset: reset, enable: enable, maxValue: length - 1);
     addOutput('count', width: cnt.width) <= cnt.count;
-    addOutput('done') <= cnt.equalsMax;
+    addOutput('done') <= cnt.overflowed;
     addOutputArray('deserialized',
             dimensions: [length], elementWidth: serialized.width)
         .elements
