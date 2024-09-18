@@ -20,27 +20,42 @@ void main() {
     // Create a list of Logic objects with different values.
     final logics = [
       Logic(width: 8)..put(LogicValue.ofString('01101101')), // 109 in decimal
-      Logic(width: 8)..put(LogicValue.ofString('00000101')), // 5 in decimal
       Logic(width: 8)..put(LogicValue.ofString('00010100')), // 20 in decimal
       Logic(width: 8)..put(LogicValue.ofString('00000011')), // 3 in decimal
       Logic(width: 8)..put(LogicValue.ofString('00001111')) // 15 in decimal
     ];
 
-    // Create an instance of FindMin.
-    final findMin = Extrema(logics, max: false);
-    await findMin.build();
+    // Create an instance of Extrema to use for finding first minimum.
+    final findFirstMin = Extrema(logics, max: false);
+    await findFirstMin.build();
 
     // Create an instance of FindMax.
-    final findMax = Extrema(logics);
-    await findMax.build();
+    final findFirstMax = Extrema(logics);
+    await findFirstMax.build();
+
+    // Create an instance of FindMin.
+    final findLastMin = Extrema(logics, max: false, first: false);
+    await findLastMin.build();
+
+    // Create an instance of FindMax.
+    final findLastMax = Extrema(logics, first: false);
+    await findLastMax.build();
 
     // Verify the min value and index
-    expect(findMin.val.value.toInt(), equals(3));
-    expect(findMin.index.value.toInt(), equals(3));
+    expect(findFirstMin.val.value.toInt(), equals(3));
+    expect(findFirstMin.index.value.toInt(), equals(2));
 
     // Verify the max value and index.
-    expect(findMax.val.value.toInt(), equals(109));
-    expect(findMax.index.value.toInt(), equals(0));
+    expect(findFirstMax.val.value.toInt(), equals(109));
+    expect(findFirstMax.index.value.toInt(), equals(0));
+
+    // Verify the min value and index
+    expect(findLastMin.val.value.toInt(), equals(3));
+    expect(findLastMin.index.value.toInt(), equals(2));
+
+    // Verify the max value and index.
+    expect(findLastMax.val.value.toInt(), equals(109));
+    expect(findLastMax.index.value.toInt(), equals(0));
   });
 
   test('Extrema of a list of Logics, different widths.', () async {
@@ -70,10 +85,10 @@ void main() {
     expect(findMax.index.value.toInt(), equals(0));
   });
 
-  test('List containing same extrema multiple times.', () async {
+  test('List with same extrema including min in first and last.', () async {
     // Create a list of Logic objects with different values.
     final logics = [
-      Logic(width: 8)..put(LogicValue.ofString('00001101')), // 13 in decimal
+      Logic(width: 8)..put(LogicValue.ofString('00000011')), // 3 in decimal
       Logic(width: 4)..put(LogicValue.ofString('1101')), // 13 in decimal
       Logic(width: 8)..put(LogicValue.ofString('00000100')), // 4 in decimal
       Logic(width: 2)..put(LogicValue.ofString('11')), // 3 in decimal
@@ -83,20 +98,81 @@ void main() {
     ];
 
     // Create an instance of FindMin.
-    final findMin = Extrema(logics, max: false);
-    await findMin.build();
+    final findFirstMin = Extrema(logics, max: false);
+    await findFirstMin.build();
 
     // Create an instance of FindMax.
-    final findMax = Extrema(logics);
-    await findMax.build();
+    final findFirstMax = Extrema(logics);
+    await findFirstMax.build();
+
+    // Create an instance of FindMin.
+    final findLastMin = Extrema(logics, max: false, first: false);
+    await findLastMin.build();
+
+    // Create an instance of FindMax.
+    final findLastMax = Extrema(logics, first: false);
+    await findLastMax.build();
 
     // Verify the min value and index
-    expect(findMin.val.value.toInt(), equals(3));
-    expect(findMin.index.value.toInt(), equals(3));
+    expect(findFirstMin.val.value.toInt(), equals(3));
+    expect(findFirstMin.index.value.toInt(), equals(0));
 
     // Verify the max value and index.
-    expect(findMax.val.value.toInt(), equals(13));
-    expect(findMax.index.value.toInt(), equals(0));
+    expect(findFirstMax.val.value.toInt(), equals(13));
+    expect(findFirstMax.index.value.toInt(), equals(1));
+
+    // Verify the min value and index
+    expect(findLastMin.val.value.toInt(), equals(3));
+    expect(findLastMin.index.value.toInt(), equals(6));
+
+    // Verify the max value and index.
+    expect(findLastMax.val.value.toInt(), equals(13));
+    expect(findLastMax.index.value.toInt(), equals(5));
+  });
+
+  test('List with same extrema including max in first and last.', () async {
+    // Create a list of Logic objects with different values.
+    final logics = [
+      Logic(width: 8)..put(LogicValue.ofString('000001101')), // 13 in decimal
+      Logic(width: 4)..put(LogicValue.ofString('1101')), // 13 in decimal
+      Logic(width: 8)..put(LogicValue.ofString('00000100')), // 4 in decimal
+      Logic(width: 2)..put(LogicValue.ofString('11')), // 3 in decimal
+      Logic(width: 8)..put(LogicValue.ofString('00001100')), // 12 in decimal
+      Logic(width: 6)..put(LogicValue.ofString('000011')), // 3 in decimal
+      Logic(width: 8)..put(LogicValue.ofString('000001101')), // 13 in decimal
+    ];
+
+    // Create an instance of FindMin.
+    final findFirstMin = Extrema(logics, max: false);
+    await findFirstMin.build();
+
+    // Create an instance of FindMax.
+    final findFirstMax = Extrema(logics);
+    await findFirstMax.build();
+
+    // Create an instance of FindMin.
+    final findLastMin = Extrema(logics, max: false, first: false);
+    await findLastMin.build();
+
+    // Create an instance of FindMax.
+    final findLastMax = Extrema(logics, first: false);
+    await findLastMax.build();
+
+    // Verify the min value and index
+    expect(findFirstMin.val.value.toInt(), equals(3));
+    expect(findFirstMin.index.value.toInt(), equals(3));
+
+    // Verify the max value and index.
+    expect(findFirstMax.val.value.toInt(), equals(13));
+    expect(findFirstMax.index.value.toInt(), equals(0));
+
+    // Verify the min value and index
+    expect(findLastMin.val.value.toInt(), equals(3));
+    expect(findLastMin.index.value.toInt(), equals(5));
+
+    // Verify the max value and index.
+    expect(findLastMax.val.value.toInt(), equals(13));
+    expect(findLastMax.index.value.toInt(), equals(6));
   });
 
   test('List containing one element.', () async {

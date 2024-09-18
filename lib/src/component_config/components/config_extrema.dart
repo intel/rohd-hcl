@@ -24,11 +24,15 @@ class ExtremaConfigurator extends Configurator {
   /// A knob controlling whether to find Max or Min.
   final ToggleConfigKnob maxKnob = ToggleConfigKnob(value: true);
 
+  /// A knob controlling whether to find first or last.
+  final ToggleConfigKnob firstKnob = ToggleConfigKnob(value: true);
+
   @override
   late final Map<String, ConfigKnob<dynamic>> knobs = UnmodifiableMapView({
     'Length of list (Number of elements)': toCompareKnob,
     'Width of list (For all elements)': logicWidthKnob,
     'Find max (uncheck for min)': maxKnob,
+    'Find first (uncheck for last)': firstKnob,
   });
 
   @override
@@ -39,6 +43,7 @@ class ExtremaConfigurator extends Configurator {
     return Extrema(
       toCompare,
       max: maxKnob.value,
+      first: firstKnob.value,
     );
   }
 
