@@ -82,11 +82,7 @@ class Serializer extends Module {
                   clk, reset: reset, en: latchInput, deserialized.elements[i])
               : deserialized.elements[i]);
     }
-    if (deserialized.dimensions.length > 1) {
-      serialized <= dataOutput.elements.selectIndex(count);
-    } else {
-      serialized <= dataOutput.elements.selectIndex(count);
-    }
+    serialized <= dataOutput.elements.selectIndex(count);
     done <=
         (flopInput
             ? flop(clk, reset: reset, en: enable, cnt.equalsMax)
