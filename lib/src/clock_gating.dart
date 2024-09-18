@@ -53,7 +53,9 @@ class ClockGate extends Module {
   Map<Logic, Logic> _controlledCache = {};
 
   Logic controlled(Logic original, {dynamic resetValue}) {
-    if (_controlIntf == null || !_controlIntf!.isPresent || !hasDelay) {
+    if (_controlIntf == null ||
+        !_controlIntf!.isPresent ||
+        !delayControlledSignals) {
       return original;
     }
 
@@ -105,14 +107,14 @@ class ClockGate extends Module {
 
   late final ClockGateControlInterface? _controlIntf;
 
-  final bool hasDelay;
+  final bool delayControlledSignals;
 
   ClockGate(
     Logic clk, {
     required Logic enable,
     required Logic reset,
     ClockGateControlInterface? controlIntf,
-    this.hasDelay = true,
+    this.delayControlledSignals = true,
     super.name = 'clock_gate',
   }) {
     // if this clock gating is not intended to be present, then just do nothing
@@ -141,6 +143,7 @@ class ClockGate extends Module {
     _buildLogic();
   }
 
+  /// Build the internal logic for handling enabling the gated clock.
   void _buildLogic() {
     final internalEnable = _enable |
 
@@ -156,7 +159,7 @@ class ClockGate extends Module {
 
           // always at least 1 cycle so we can caputure the last one, but also
           // an extra if there's a delay on the inputs relative to the enable
-          depth: hasDelay ? 2 : 1,
+          depth: delayControlledSignals ? 2 : 1,
         ).stages.swizzle().or();
 
     gatedClk <=

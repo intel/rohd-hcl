@@ -37,22 +37,6 @@ class CustomClockGateMacro extends Module with CustomSystemVerilog {
       ')';
 }
 
-// class CustomClockGate extends ClockGate {
-//   Logic get _override => input('override');
-
-//   CustomClockGate(super.clk, super.enable,
-//       {required Logic override, super.reset}) {
-//     addInput('override', override);
-//   }
-
-//   @override
-//   Logic generateGatedClk() => CustomClockGateMacro(
-//         clk: freeClk,
-//         en: enable,
-//         override: _override,
-//       ).gatedClk;
-// }
-
 class CustomClockGateControlInterface extends ClockGateControlInterface {
   Logic get anotherOverride => port('anotherOverride');
 
@@ -72,6 +56,10 @@ class CustomClockGateControlInterface extends ClockGateControlInterface {
 
 class CounterWithSimpleClockGate extends Module {
   Logic get count => output('count');
+
+  /// A probe for testing.
+  late final Logic _gatedClk;
+
   CounterWithSimpleClockGate(Logic clk, Logic incr, Logic reset,
       {bool withDelay = true, ClockGateControlInterface? cgIntf})
       : super(name: 'clk_gated_counter') {
@@ -90,8 +78,10 @@ class CounterWithSimpleClockGate extends Module {
       enable: clkEnable,
       reset: reset,
       controlIntf: cgIntf,
-      hasDelay: withDelay,
+      delayControlledSignals: withDelay,
     );
+
+    _gatedClk = clkGate.gatedClk;
 
     final count = addOutput('count', width: 8);
     count <=
@@ -107,10 +97,6 @@ void main() {
   tearDown(() async {
     await Simulator.reset();
   });
-
-  test('asdf', () {});
-
-  //TODO: explicit test for custom override, port gets punched, etc.
 
   test('custom clock gating port', () async {
     final cgIntf = CustomClockGateControlInterface();
@@ -131,11 +117,12 @@ void main() {
 
     await counter.build();
 
-    // print(counter.generateSynth());
+    final sv = counter.generateSynth();
+    expect(sv, contains('anotherOverride'));
+    expect(sv, contains('CUSTOM_CLOCK_GATE'));
 
+    // ignore: invalid_use_of_protected_member
     expect(counter.tryInput('anotherOverride'), isNotNull);
-
-    // WaveDumper(counter);
 
     Simulator.setMaxSimTime(500);
     unawaited(Simulator.run());
@@ -151,6 +138,21 @@ void main() {
     await clk.waitCycles(5);
 
     expect(counter.count.value.toInt(), 5);
+
+    cgIntf.anotherOverride.inject(1);
+
+    await counter._gatedClk.nextPosedge;
+    final t1 = Simulator.time;
+    await counter._gatedClk.nextPosedge;
+    expect(Simulator.time, t1 + 10);
+
+    cgIntf.anotherOverride.inject(0);
+
+    unawaited(counter._gatedClk.nextPosedge.then((_) {
+      fail('Expected a gated clock, no more toggles');
+    }));
+
+    await clk.waitCycles(5);
 
     await Simulator.endSimulation();
   });
@@ -203,8 +205,6 @@ void main() {
 
             await counter.build();
 
-            // WaveDumper(counter);
-
             Simulator.setMaxSimTime(500);
             unawaited(Simulator.run());
 
@@ -220,9 +220,28 @@ void main() {
 
             expect(counter.count.value.toInt(), 5);
 
-            await Simulator.endSimulation();
+            if (hasOverride) {
+              if (cgIntf is CustomClockGateControlInterface) {
+                cgIntf.anotherOverride.inject(0);
+              }
 
-            // print(counter.generateSynth());
+              cgIntf!.enableOverride!.inject(1);
+
+              await counter._gatedClk.nextPosedge;
+              final t1 = Simulator.time;
+              await counter._gatedClk.nextPosedge;
+              expect(Simulator.time, t1 + 10);
+
+              cgIntf.enableOverride!.inject(0);
+
+              unawaited(counter._gatedClk.nextPosedge.then((_) {
+                fail('Expected a gated clock, no more toggles');
+              }));
+
+              await clk.waitCycles(5);
+            }
+
+            await Simulator.endSimulation();
           });
         }
       }
