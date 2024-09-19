@@ -26,36 +26,20 @@ void main() {
     ];
 
     // Create an instance of Extrema to use for finding first minimum.
-    final findFirstMin = Extrema(logics, max: false);
-    await findFirstMin.build();
+    final findMin = Extrema(logics, max: false);
+    await findMin.build();
 
     // Create an instance of FindMax.
-    final findFirstMax = Extrema(logics);
-    await findFirstMax.build();
-
-    // Create an instance of FindMin.
-    final findLastMin = Extrema(logics, max: false, first: false);
-    await findLastMin.build();
-
-    // Create an instance of FindMax.
-    final findLastMax = Extrema(logics, first: false);
-    await findLastMax.build();
+    final findMax = Extrema(logics);
+    await findMax.build();
 
     // Verify the min value and index
-    expect(findFirstMin.val.value.toInt(), equals(3));
-    expect(findFirstMin.index.value.toInt(), equals(2));
+    expect(findMin.val.value.toInt(), equals(3));
+    expect(findMin.index.value.toInt(), equals(2));
 
     // Verify the max value and index.
-    expect(findFirstMax.val.value.toInt(), equals(109));
-    expect(findFirstMax.index.value.toInt(), equals(0));
-
-    // Verify the min value and index
-    expect(findLastMin.val.value.toInt(), equals(3));
-    expect(findLastMin.index.value.toInt(), equals(2));
-
-    // Verify the max value and index.
-    expect(findLastMax.val.value.toInt(), equals(109));
-    expect(findLastMax.index.value.toInt(), equals(0));
+    expect(findMax.val.value.toInt(), equals(109));
+    expect(findMax.index.value.toInt(), equals(0));
   });
 
   test('Extrema of a list of Logics, different widths.', () async {
@@ -98,36 +82,20 @@ void main() {
     ];
 
     // Create an instance of FindMin.
-    final findFirstMin = Extrema(logics, max: false);
-    await findFirstMin.build();
+    final findMin = Extrema(logics, max: false);
+    await findMin.build();
 
     // Create an instance of FindMax.
-    final findFirstMax = Extrema(logics);
-    await findFirstMax.build();
-
-    // Create an instance of FindMin.
-    final findLastMin = Extrema(logics, max: false, first: false);
-    await findLastMin.build();
-
-    // Create an instance of FindMax.
-    final findLastMax = Extrema(logics, first: false);
-    await findLastMax.build();
+    final findMax = Extrema(logics);
+    await findMax.build();
 
     // Verify the min value and index
-    expect(findFirstMin.val.value.toInt(), equals(3));
-    expect(findFirstMin.index.value.toInt(), equals(0));
+    expect(findMin.val.value.toInt(), equals(3));
+    expect(findMin.index.value.toInt(), equals(0));
 
     // Verify the max value and index.
-    expect(findFirstMax.val.value.toInt(), equals(13));
-    expect(findFirstMax.index.value.toInt(), equals(1));
-
-    // Verify the min value and index
-    expect(findLastMin.val.value.toInt(), equals(3));
-    expect(findLastMin.index.value.toInt(), equals(6));
-
-    // Verify the max value and index.
-    expect(findLastMax.val.value.toInt(), equals(13));
-    expect(findLastMax.index.value.toInt(), equals(5));
+    expect(findMax.val.value.toInt(), equals(13));
+    expect(findMax.index.value.toInt(), equals(1));
   });
 
   test('List with same extrema including max in first and last.', () async {
@@ -143,36 +111,20 @@ void main() {
     ];
 
     // Create an instance of FindMin.
-    final findFirstMin = Extrema(logics, max: false);
-    await findFirstMin.build();
+    final findMin = Extrema(logics, max: false);
+    await findMin.build();
 
     // Create an instance of FindMax.
-    final findFirstMax = Extrema(logics);
-    await findFirstMax.build();
-
-    // Create an instance of FindMin.
-    final findLastMin = Extrema(logics, max: false, first: false);
-    await findLastMin.build();
-
-    // Create an instance of FindMax.
-    final findLastMax = Extrema(logics, first: false);
-    await findLastMax.build();
+    final findMax = Extrema(logics);
+    await findMax.build();
 
     // Verify the min value and index
-    expect(findFirstMin.val.value.toInt(), equals(3));
-    expect(findFirstMin.index.value.toInt(), equals(3));
+    expect(findMin.val.value.toInt(), equals(3));
+    expect(findMin.index.value.toInt(), equals(3));
 
     // Verify the max value and index.
-    expect(findFirstMax.val.value.toInt(), equals(13));
-    expect(findFirstMax.index.value.toInt(), equals(0));
-
-    // Verify the min value and index
-    expect(findLastMin.val.value.toInt(), equals(3));
-    expect(findLastMin.index.value.toInt(), equals(5));
-
-    // Verify the max value and index.
-    expect(findLastMax.val.value.toInt(), equals(13));
-    expect(findLastMax.index.value.toInt(), equals(6));
+    expect(findMax.val.value.toInt(), equals(13));
+    expect(findMax.index.value.toInt(), equals(0));
   });
 
   test('List containing one element.', () async {
@@ -194,7 +146,7 @@ void main() {
     expect(findMax.index.value.toInt(), equals(0));
   });
 
-  test('List containing no elements.', () async {
+  test('Empty List.', () async {
     // Create a list of Logic objects with
     List<Logic> logics = [];
 

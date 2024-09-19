@@ -23,10 +23,9 @@ class Extrema extends Module {
   /// width, and will all be considered positive unsigned numbers.
   ///
   /// If [max] is `true`, will find maximum value, else will find minimum.
-  /// If [first] is `true`, will find first extrema, else will find last.
   ///
   /// Outputs the [index] and [val] of the extrema in the list of [toCompare].
-  Extrema(List<Logic> toCompare, {bool max = true, bool first = true}) {
+  Extrema(List<Logic> toCompare, {bool max = true}) {
     // List to consume inputs internally.
     final logics = <Logic>[];
 
@@ -61,27 +60,13 @@ class Extrema extends Module {
     Logic extremaIndex = Const(0, width: indexWidth);
     var extremaVal = logics[0];
 
-    // Function to handle for loop logic.
     // If max is true, find max value. Else, find min value.
-    void logicExtrema(int i) {
+    for (var i = 1; i < logics.length; i++) {
       final compareVal =
           max ? logics[i].gt(extremaVal) : logics[i].lt(extremaVal);
       extremaVal = Logic(name: 'myName$i', width: maxWidth)
         ..gets(mux(compareVal, logics[i], extremaVal));
       extremaIndex = mux(compareVal, Const(i, width: indexWidth), extremaIndex);
-    }
-
-    // If first is true, find first instance of extrema value. Else, find last.
-    if (first) {
-      for (var i = 1; i < logics.length; i++) {
-        logicExtrema(i);
-      }
-    } else {
-      extremaVal = logics[logics.length - 1];
-      extremaIndex = Const(logics.length - 1, width: indexWidth);
-      for (var i = logics.length - 2; i >= 0; i--) {
-        logicExtrema(i);
-      }
     }
 
     // Generate outputs here.
