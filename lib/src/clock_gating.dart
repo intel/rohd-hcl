@@ -4,8 +4,6 @@ import 'package:rohd/src/utilities/uniquifier.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
 
 class ClockGateControlInterface extends PairInterface {
-  // TODO: maybe not even have the clock here? just control logic?
-
   final bool hasEnableOverride;
   Logic? get enableOverride => tryPort('en_override');
 
@@ -38,24 +36,27 @@ class ClockGateControlInterface extends PairInterface {
           ...?additionalPorts,
         ]);
 
-  ClockGateControlInterface.clone(
-      ClockGateControlInterface otherInterface) // TODO: add ispresent
-      : isPresent = otherInterface.isPresent,
+  ClockGateControlInterface.clone(ClockGateControlInterface otherInterface,
+      {bool? isPresent})
+      : isPresent = isPresent ?? otherInterface.isPresent,
         hasEnableOverride = otherInterface.hasEnableOverride,
         gatedClockGenerator = otherInterface.gatedClockGenerator,
         super.clone(otherInterface);
-
-  // ClockGateControlInterface clone({bool? isPresent}) =>
-  //     ClockGateControlInterface.clone(this);
 }
 
 class ClockGate extends Module {
-  Map<Logic, Logic> _controlledCache = {};
+  /// An internal cache for controlled signals to avoid duplicating them.
+  final Map<Logic, Logic> _controlledCache = {};
 
+  /// Returns a (potentially) delayed (by one cycle) version of [original] if
+  /// [delayControlledSignals] is true and the clock gating [isPresent]. This is
+  /// the signal that should be used as inputs to logic depending on the
+  /// [gatedClk].
+  ///
+  /// If a [resetValue] is provided, then the signal will be reset to that value
+  /// when the clock gating is reset.
   Logic controlled(Logic original, {dynamic resetValue}) {
-    if (_controlIntf == null ||
-        !_controlIntf!.isPresent ||
-        !delayControlledSignals) {
+    if (!isPresent || !delayControlledSignals) {
       return original;
     }
 
@@ -69,7 +70,7 @@ class ClockGate extends Module {
 
       o <=
           flop(
-            _clk,
+            _freeClk,
             reset: _reset,
             resetValue: resetValue,
             super.addInput(
@@ -83,7 +84,11 @@ class ClockGate extends Module {
     }
   }
 
+  /// A uniquifier for ports to ensure that they are unique as they punch via
+  /// [controlled].
   final _uniquifier = Uniquifier();
+
+  // override the addInput and addOutput functions for uniquification purposes
 
   @override
   Logic addInput(String name, Logic x, {int width = 1}) {
@@ -97,20 +102,49 @@ class ClockGate extends Module {
     return super.addOutput(name, width: width);
   }
 
+  /// The gated clock output.
   late final Logic gatedClk;
 
+  /// Reset for all internal logic.
   late final Logic _reset;
 
+  /// The enable signal provided as an input.
   late final Logic _enable;
 
-  late final Logic _clk;
+  /// The free clock signal provided as an input.
+  late final Logic _freeClk;
 
+  /// The control interface for the clock gating, if provided.
   late final ClockGateControlInterface? _controlIntf;
 
+  /// Indicates whether the clock gating is present. If it is not present, then
+  /// the [gatedClk] is directly connected to the free clock and the
+  /// [controlled] signals are not delayed.
+  bool get isPresent => _controlIntf?.isPresent ?? true;
+
+  /// Indicates whether the controlled signals are delayed by 1 cycle. If this
+  /// is false, or clock gating is not [isPresent], then the [controlled]
+  /// signals are not delayed.
   final bool delayControlledSignals;
 
+  /// Constructs a clock gating block where [enable] controls whether the
+  /// [gatedClk] is connected directly to the [freeClk] or is gated off.
+  ///
+  /// If [controlIntf] is provided, then the clock gating can be controlled
+  /// externally (for example whether the clock gating [isPresent] or
+  /// using an override signal to force clocks enabled). If [controlIntf] is not
+  /// provided, then the clock gating is always present.
+  ///
+  /// If [delayControlledSignals] is true, then any signals that are
+  /// [controlled] by the clock gating will be delayed by 1 cycle. This can be
+  /// helpful for timing purposes to avoid ungating the clock on the same cycle
+  /// as the signal is used.
+  ///
+  /// The [gatedClk] is automatically enabled during [reset] so that synchronous
+  /// resets work properly, and the [enable] is extended for an appropriate
+  /// duration to ensure proper capture of data.
   ClockGate(
-    Logic clk, {
+    Logic freeClk, {
     required Logic enable,
     required Logic reset,
     ClockGateControlInterface? controlIntf,
@@ -120,12 +154,13 @@ class ClockGate extends Module {
     // if this clock gating is not intended to be present, then just do nothing
     if (!(controlIntf?.isPresent ?? true)) {
       _controlIntf = null;
-      gatedClk = clk;
+      gatedClk = freeClk;
       return;
     }
 
-    _clk = addInput('clk', clk);
+    _freeClk = addInput('freeClk', freeClk);
     _enable = addInput('enable', enable);
+    _reset = addInput('reset', reset);
 
     if (controlIntf == null) {
       // if we are not provided an interface, make our own to use with default
@@ -135,8 +170,6 @@ class ClockGate extends Module {
       _controlIntf = ClockGateControlInterface.clone(controlIntf)
         ..pairConnectIO(this, controlIntf, PairRole.consumer);
     }
-
-    _reset = addInput('reset', reset);
 
     gatedClk = addOutput('gatedClk');
 
@@ -152,7 +185,7 @@ class ClockGate extends Module {
         _reset |
         ShiftRegister(
           _enable,
-          clk: _clk,
+          clk: _freeClk,
           reset: _reset,
 
           resetValue: 1, // during reset, keep the clock enabled
@@ -163,6 +196,7 @@ class ClockGate extends Module {
         ).stages.swizzle().or();
 
     gatedClk <=
-        _controlIntf!.gatedClockGenerator(_controlIntf!, _clk, internalEnable);
+        _controlIntf!
+            .gatedClockGenerator(_controlIntf!, _freeClk, internalEnable);
   }
 }
