@@ -19,20 +19,19 @@ class Extrema extends Module {
   /// The [val] of the extrema.
   Logic get val => output('val');
 
-  /// Finds an extrema of List<[Logic]> [toCompare]. Inputs need not be the same
+  /// Finds an extrema of List<[Logic]> [signals]. Inputs need not be the same
   /// width, and will all be considered positive unsigned numbers.
   ///
   /// If [max] is `true`, will find maximum value, else will find minimum.
   ///
-  /// Outputs the [index] and [val] of the extrema in the list of [toCompare].
-  Extrema(List<Logic> toCompare, {bool max = true}) {
+  /// Outputs the [index] and [val] of the extrema in the list of [signals].
+  Extrema(List<Logic> signals, {bool max = true}) {
     // List to consume inputs internally.
     final logics = <Logic>[];
 
-    // Adds input for every element in the toCompare list, to logics.
-    for (var i = 0; i < toCompare.length; i++) {
-      logics.add(
-          addInput('toCompare$i', toCompare[i], width: toCompare[i].width));
+    // Adds input for every element in the signals list, to logics.
+    for (var i = 0; i < signals.length; i++) {
+      logics.add(addInput('signal$i', signals[i], width: signals[i].width));
     }
 
     // Check if list is empty
@@ -64,7 +63,7 @@ class Extrema extends Module {
     for (var i = 1; i < logics.length; i++) {
       final compareVal =
           max ? logics[i].gt(extremaVal) : logics[i].lt(extremaVal);
-      extremaVal = Logic(name: 'myName$i', width: maxWidth)
+      extremaVal = Logic(name: 'muxOut$i', width: maxWidth)
         ..gets(mux(compareVal, logics[i], extremaVal));
       extremaIndex = mux(compareVal, Const(i, width: indexWidth), extremaIndex);
     }

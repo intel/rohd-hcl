@@ -16,7 +16,7 @@ import 'package:rohd_hcl/rohd_hcl.dart';
 /// A [Configurator] for [Extrema].
 class ExtremaConfigurator extends Configurator {
   /// A knob controlling the number of logics to compare.
-  final IntConfigKnob toCompareKnob = IntConfigKnob(value: 4);
+  final IntConfigKnob signalsKnob = IntConfigKnob(value: 4);
 
   /// A knob controlling the width of each element to sort.
   final IntConfigKnob logicWidthKnob = IntConfigKnob(value: 8);
@@ -26,18 +26,18 @@ class ExtremaConfigurator extends Configurator {
 
   @override
   late final Map<String, ConfigKnob<dynamic>> knobs = UnmodifiableMapView({
-    'Length of list (Number of elements)': toCompareKnob,
-    'Width of list (For all elements)': logicWidthKnob,
-    'Find max (uncheck for min)': maxKnob,
+    'Length of list (number of elements)': signalsKnob,
+    'Element width (for all elements)': logicWidthKnob,
+    'Find maximum (uncheck for minimum)': maxKnob,
   });
 
   @override
   Module createModule() {
-    final toCompare = List.generate(
-        toCompareKnob.value, (index) => Logic(width: logicWidthKnob.value));
+    final signals = List.generate(
+        signalsKnob.value, (index) => Logic(width: logicWidthKnob.value));
 
     return Extrema(
-      toCompare,
+      signals,
       max: maxKnob.value,
     );
   }
