@@ -12,12 +12,24 @@ import 'package:rohd/rohd.dart';
 import 'package:rohd/src/utilities/uniquifier.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
 
+/// An [Interface] for controlling [ClockGate]s.
 class ClockGateControlInterface extends PairInterface {
+  /// Whether an [enableOverride] is present on this interface.
   final bool hasEnableOverride;
+
+  /// If asserted, then clocks will be enabled regardless of the `enable`
+  /// signal.
+  ///
+  /// Presence is controlled by [hasEnableOverride].
   Logic? get enableOverride => tryPort('en_override');
 
+  /// Indicates whether clock gating logic [isPresent] or not. If it is not,
+  /// then no clock gating will occur and no clock gating logic will be
+  /// generated.
   final bool isPresent;
 
+  /// A default implementation for clock gating, effectively just an AND of the
+  /// clock and the enable signal, with an optional [enableOverride].
   static Logic defaultGenerateGatedClock(
     ClockGateControlInterface intf,
     Logic clk,
@@ -29,12 +41,27 @@ class ClockGateControlInterface extends PairInterface {
         if (intf.hasEnableOverride) intf.enableOverride!,
       ].swizzle().or());
 
+  /// A function that generates the gated clock signal based on the provided
+  /// `intf`, `clk`, and `enable` signals.
   final Logic Function(
     ClockGateControlInterface intf,
     Logic clk,
     Logic enable,
   ) gatedClockGenerator;
 
+  /// Constructs a [ClockGateControlInterface] with the provided arguments.
+  ///
+  /// If [isPresent] is false, then no clock gating will occur and no clock
+  /// gating logic will be generated.
+  ///
+  /// If [hasEnableOverride] is true, then an additional [enableOverride] port
+  /// will be generated.
+  ///
+  /// [additionalPorts] can optionally be added to this interface, which can be
+  /// useful in conjunction with a custom [gatedClockGenerator]. As the
+  /// interface is punched through hierarchies, any modules using this interface
+  /// will automatically include the [additionalPorts] and use the custom
+  /// [gatedClockGenerator] for clock gating logic.
   ClockGateControlInterface({
     this.isPresent = true,
     this.hasEnableOverride = false,
@@ -45,12 +72,20 @@ class ClockGateControlInterface extends PairInterface {
           ...?additionalPorts,
         ]);
 
-  ClockGateControlInterface.clone(ClockGateControlInterface otherInterface,
+  /// Creates a clone of [otherInterface] with the same configuration, including
+  /// any `additionalPorts` and `gatedClockGenerator` function. This should be
+  /// used to replicate interface configuration through hierarchies to carry
+  /// configuration information.
+  ///
+  /// If [isPresent] is provided, then it will override the [isPresent] value
+  /// from [otherInterface].
+  ClockGateControlInterface.clone(
+      ClockGateControlInterface super.otherInterface,
       {bool? isPresent})
       : isPresent = isPresent ?? otherInterface.isPresent,
         hasEnableOverride = otherInterface.hasEnableOverride,
         gatedClockGenerator = otherInterface.gatedClockGenerator,
-        super.clone(otherInterface);
+        super.clone();
 }
 
 /// A generic and configurable clock gating block.
