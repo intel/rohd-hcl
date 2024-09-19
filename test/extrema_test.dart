@@ -194,19 +194,6 @@ void main() {
     expect(findMax.index.value.toInt(), equals(0));
   });
 
-  test('List containing an empty element.', () async {
-    // Create a list of Logic objects with different values
-    final logics = [Logic(width: 4)]; // Empty element
-
-    // Create an instance of FindMax
-    final findMax = Extrema(logics);
-    await findMax.build();
-
-    // Verify the minimum value and index
-    expect(() => findMax.val.value.toInt(), throwsA(isA<RohdException>()));
-    expect(findMax.index.value.toInt(), equals(0));
-  });
-
   test('List containing no elements.', () async {
     // Create a list of Logic objects with
     List<Logic> logics = [];

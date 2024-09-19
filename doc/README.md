@@ -21,8 +21,7 @@ Some in-development items will have opened issues, as well. Feel free to create 
   - [Shift register](./components/shift_register.md)
 - Find
   - [Find N'th bit (0 or 1) from the start/end](./components/find.md#find-nth)
-  - Find minimum
-  - Find maximum
+  - [Extrema](./components/extrema.md)
   - Find N'th pattern from the start/end
 - Count
   - [Count bit occurrence](./components/count.md)

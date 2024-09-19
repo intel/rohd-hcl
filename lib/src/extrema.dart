@@ -12,7 +12,6 @@ import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
 
 /// Determines the extremas (maximum or minimum) of a List<[Logic]>.
-
 class Extrema extends Module {
   /// The [index] of the extrema.
   Logic get index => output('index');
@@ -27,7 +26,6 @@ class Extrema extends Module {
   /// If [first] is `true`, will find first extrema, else will find last.
   ///
   /// Outputs the [index] and [val] of the extrema in the list of [toCompare].
-
   Extrema(List<Logic> toCompare, {bool max = true, bool first = true}) {
     // List to consume inputs internally.
     final logics = <Logic>[];

@@ -2,7 +2,7 @@
 
 ROHD-HCL provides a component to find the extrema of a list of Logic.
 
-The component `Extrema` will determine the extremas (maximum or minimum) and their position in a list of [`Logic`]s. 
+The component `Extrema` will determine the extremas (maximum or minimum) and their position in a list of `Logic`s.
 
 ## Description
 
@@ -13,18 +13,21 @@ The component `Extrema` will determine the extremas (maximum or minimum) and the
 * `first` is a boolean indicating whether to find the first instance of the extrema (`true`), or the last instance (`false`). Default is `true`.
 
 `Extrema` will then ouput two `Logic` signals:
+
 * `index` The index or position of the extrema in the list
   >`index` will be a `Logic` with the smallest width needed to represent the largest possible index in the list.
 
 * `val` The value of the extrema.
   >`val` will be a `Logic` with a width equal to the largest width of any element in the list.
 
-The `List<Logic>` may contain `Logic`s of any width. They will all be considered positive unsigned numbers. 
+The `List<Logic>` may contain `Logic`s of any width. They will all be considered positive unsigned numbers.
 
-`Extrema` will throw an exception if the `Logic` list is empty or has an empty element.
+`Extrema` will throw an exception if the `Logic` list is empty.
 
 ## Example Usage
+
 Dart code:
+
 ```dart
 void main() {
   // Example list of Logic signals.
@@ -47,10 +50,6 @@ void main() {
     final x = firstMax.index.value.toInt();
     print('x equals firstMax index: $x');
 
-    // print the index and value of the last minimum
-    print('lastMin index: ${lastMin.index}');
-    print('lastMin value: ${lastMin.val}');
-
     // print the index and value of the last minimum as values
     print('lastMin index as a value: ${lastMin.index.value}');
     print('lastMin value as a value: ${lastMin.val.value}');
@@ -60,12 +59,11 @@ void main() {
     print('firstMax val as a value: ${firstMax.val.value}');
 }
 ```
+
 Console output:
 
 ```console
 x equals firstMax index: 1
-lastMin index: Logic(3): index
-lastMin value: Logic(8): val
 lastMin index as a value: 3'h4
 lastMin value as a value: 8'h1
 firstMax index as a value: 3'h1
