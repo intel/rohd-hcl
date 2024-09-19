@@ -148,7 +148,7 @@ void main() {
 
   test('Empty List.', () async {
     // Create a list of Logic objects with
-    List<Logic> logics = [];
+    final logics = List<Logic>.empty();
 
     // Try to create an instance of Extrema
     expect(() => Extrema(logics), throwsA(isA<RohdHclException>()));
