@@ -20,8 +20,8 @@ void main() {
     await Simulator.reset();
   });
 
-  /// This test pauses the serializer during processing at each count level
-  /// to ensure that it completes correctly (monitoring the count and done)
+  // This test pauses the serializer during processing at each count level
+  // to ensure that it completes correctly (monitoring the count and done)
   test('serializer', () async {
     const len = 10;
     const width = 8;
@@ -186,9 +186,9 @@ void main() {
     await Simulator.endSimulation();
   });
 
-  /// This test does a careful check of the data transfer sequence to make sure
-  /// data transfer is in expected order by sequencing in first a set of 1s and
-  /// then a set of zeros and checking all transfers.
+  // This test does a careful check of the data transfer sequence to make sure
+  // data transfer is in expected order by sequencing in first a set of 1s and
+  // then a set of zeros and checking all transfers.
   test('deserializer rollover', () async {
     const len = 6;
     const width = 4;
@@ -243,8 +243,8 @@ void main() {
     await Simulator.endSimulation();
   });
 
-  /// This test uses enable to pause the deserialization once at each count level
-  /// to ensure it completes and fires done at the right time.
+  // This test uses enable to pause the deserialization once at each count level
+  // to ensure it completes and fires done at the right time.
   test('deserializer enable', () async {
     const len = 6;
     const width = 4;
@@ -316,8 +316,8 @@ void main() {
     await Simulator.endSimulation();
   });
 
-  /// This test ensures that the clock cycles and counts of the serializer
-  /// line up when doing back-to-back transfers.
+  // This test ensures that the clock cycles and counts of the serializer
+  // line up when doing back-to-back transfers.
   test('serializer timing', () async {
     const len = 10;
     const width = 8;
