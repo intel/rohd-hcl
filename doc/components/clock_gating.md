@@ -58,7 +58,7 @@ Some important pieces to note here are:
 
 - The clock gate component is instantiated like any other component
 - We pass it a `ClockGateControlInterface` which brings with it any potential custom control. When we punch ports for this design, we use the `clone` constructor, which carries said configuration information.
-- We enable the clock any time an `incr` is coming to increment the counter.
+- We enable the clock any time `incr` is asserted to increment the counter.
 - Use the gated clock on the downstream flop for the counter.
 - Use a "controlled" version of `incr`, which by default is delayed by one cycle.
 
