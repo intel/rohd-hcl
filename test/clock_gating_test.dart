@@ -1,3 +1,12 @@
+// Copyright (C) 2024 Intel Corporation
+// SPDX-License-Identifier: BSD-3-Clause
+//
+// clock_gating_test.dart
+// Tests for clock gating.
+//
+// 2024 September 18
+// Author: Max Korbel <max.korbel@intel.com>
+
 import 'dart:async';
 
 import 'package:rohd/rohd.dart';
@@ -57,8 +66,8 @@ class CustomClockGateControlInterface extends ClockGateControlInterface {
 class CounterWithSimpleClockGate extends Module {
   Logic get count => output('count');
 
-  /// A probe for testing.
-  late final Logic _gatedClk;
+  /// A probe for clock gating.
+  late final ClockGate _clkGate;
 
   CounterWithSimpleClockGate(Logic clk, Logic incr, Logic reset,
       {bool withDelay = true, ClockGateControlInterface? cgIntf})
@@ -73,7 +82,7 @@ class CounterWithSimpleClockGate extends Module {
     reset = addInput('reset', reset);
 
     final clkEnable = incr;
-    final clkGate = ClockGate(
+    _clkGate = ClockGate(
       clk,
       enable: clkEnable,
       reset: reset,
@@ -81,13 +90,11 @@ class CounterWithSimpleClockGate extends Module {
       delayControlledSignals: withDelay,
     );
 
-    _gatedClk = clkGate.gatedClk;
-
     final count = addOutput('count', width: 8);
     count <=
         flop(
-          clkGate.gatedClk,
-          count + clkGate.controlled(incr).zeroExtend(count.width),
+          _clkGate.gatedClk,
+          count + _clkGate.controlled(incr).zeroExtend(count.width),
           reset: reset,
         );
   }
@@ -141,14 +148,14 @@ void main() {
 
     cgIntf.anotherOverride.inject(1);
 
-    await counter._gatedClk.nextPosedge;
+    await counter._clkGate.gatedClk.nextPosedge;
     final t1 = Simulator.time;
-    await counter._gatedClk.nextPosedge;
+    await counter._clkGate.gatedClk.nextPosedge;
     expect(Simulator.time, t1 + 10);
 
     cgIntf.anotherOverride.inject(0);
 
-    unawaited(counter._gatedClk.nextPosedge.then((_) {
+    unawaited(counter._clkGate.gatedClk.nextPosedge.then((_) {
       fail('Expected a gated clock, no more toggles');
     }));
 
@@ -205,6 +212,13 @@ void main() {
 
             await counter.build();
 
+            WaveDumper(counter);
+
+            var clkToggleCount = 0;
+            counter._clkGate.gatedClk.posedge.listen((_) {
+              clkToggleCount++;
+            });
+
             Simulator.setMaxSimTime(500);
             unawaited(Simulator.run());
 
@@ -220,6 +234,17 @@ void main() {
 
             expect(counter.count.value.toInt(), 5);
 
+            //TODO: fix up this testing
+            if (counter._clkGate.isPresent && !enOverride) {
+              if (counter._clkGate.delayControlledSignals) {
+                expect(clkToggleCount, 7 + 4);
+              } else {
+                expect(clkToggleCount, 6 + 4);
+              }
+            } else {
+              expect(clkToggleCount, 15);
+            }
+
             if (hasOverride) {
               if (cgIntf is CustomClockGateControlInterface) {
                 cgIntf.anotherOverride.inject(0);
@@ -227,14 +252,14 @@ void main() {
 
               cgIntf!.enableOverride!.inject(1);
 
-              await counter._gatedClk.nextPosedge;
+              await counter._clkGate.gatedClk.nextPosedge;
               final t1 = Simulator.time;
-              await counter._gatedClk.nextPosedge;
+              await counter._clkGate.gatedClk.nextPosedge;
               expect(Simulator.time, t1 + 10);
 
               cgIntf.enableOverride!.inject(0);
 
-              unawaited(counter._gatedClk.nextPosedge.then((_) {
+              unawaited(counter._clkGate.gatedClk.nextPosedge.then((_) {
                 fail('Expected a gated clock, no more toggles');
               }));
 

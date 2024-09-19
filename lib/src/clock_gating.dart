@@ -1,5 +1,14 @@
-import 'package:meta/meta.dart';
+// Copyright (C) 2024 Intel Corporation
+// SPDX-License-Identifier: BSD-3-Clause
+//
+// clock_gating.dart
+// Clock gating.
+//
+// 2024 September 18
+// Author: Max Korbel <max.korbel@intel.com>
+
 import 'package:rohd/rohd.dart';
+// ignore: implementation_imports
 import 'package:rohd/src/utilities/uniquifier.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
 
@@ -44,6 +53,7 @@ class ClockGateControlInterface extends PairInterface {
         super.clone(otherInterface);
 }
 
+/// A generic and configurable clock gating block.
 class ClockGate extends Module {
   /// An internal cache for controlled signals to avoid duplicating them.
   final Map<Logic, Logic> _controlledCache = {};
@@ -120,7 +130,11 @@ class ClockGate extends Module {
   /// Indicates whether the clock gating is present. If it is not present, then
   /// the [gatedClk] is directly connected to the free clock and the
   /// [controlled] signals are not delayed.
-  bool get isPresent => _controlIntf?.isPresent ?? true;
+  bool get isPresent =>
+      _controlIntf?.isPresent ??
+      // if no interface is provided, then _controlInterface is initialized with
+      // `isPresent` as true, so if this is null then there is no clock gating
+      false;
 
   /// Indicates whether the controlled signals are delayed by 1 cycle. If this
   /// is false, or clock gating is not [isPresent], then the [controlled]
