@@ -201,11 +201,11 @@ class FloatingPointValue implements Comparable<FloatingPointValue> {
     if (sign.width != 1) {
       throw RohdHclException('FloatingPointValue: sign width must be 1');
     }
-    if (mantissa.width != mantissaWidth) {
+    if (mantissaWidth != null && mantissa.width != mantissaWidth) {
       throw RohdHclException(
           'FloatingPointValue: mantissa width must be $mantissaWidth');
     }
-    if (exponent.width != exponentWidth) {
+    if (exponentWidth != null && exponent.width != exponentWidth) {
       throw RohdHclException(
           'FloatingPointValue: exponent width must be $exponentWidth');
     }
