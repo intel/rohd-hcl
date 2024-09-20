@@ -116,7 +116,7 @@ class FloatingPointValue implements Comparable<FloatingPointValue> {
       return FloatingPoint64Value(
           sign: sign, mantissa: mantissa, exponent: exponent);
     } else {
-      return FloatingPointValue._(
+      return FloatingPointValue.withConstraints(
           sign: sign, mantissa: mantissa, exponent: exponent);
     }
   }
@@ -191,11 +191,23 @@ class FloatingPointValue implements Comparable<FloatingPointValue> {
         sign: signLv, exponent: exponentLv, mantissa: mantissaLv);
   }
 
-  FloatingPointValue._(
-      {required this.sign, required this.exponent, required this.mantissa})
+  FloatingPointValue.withConstraints(
+      {required this.sign,
+      required this.exponent,
+      required this.mantissa,
+      int? mantissaWidth,
+      int? exponentWidth})
       : value = [sign, exponent, mantissa].swizzle() {
     if (sign.width != 1) {
       throw RohdHclException('FloatingPointValue: sign width must be 1');
+    }
+    if (mantissa.width != mantissaWidth) {
+      throw RohdHclException(
+          'FloatingPointValue: mantissa width must be $mantissaWidth');
+    }
+    if (exponent.width != exponentWidth) {
+      throw RohdHclException(
+          'FloatingPointValue: exponent width must be $exponentWidth');
     }
   }
 
@@ -558,17 +570,8 @@ class FloatingPoint32Value extends FloatingPointValue {
   /// Constructor for a single precision floating point value
   FloatingPoint32Value(
       {required super.sign, required super.exponent, required super.mantissa})
-      : super._() {
-    // throw exceptions if widths don't match expectations
-    if (exponent.width != exponentWidth) {
-      throw RohdHclException(
-          'FloatingPoint32Value: exponent width must be $exponentWidth');
-    }
-    if (mantissa.width != mantissaWidth) {
-      throw RohdHclException(
-          'FloatingPoint32Value: mantissa width must be $mantissaWidth');
-    }
-  }
+      : super.withConstraints(
+            mantissaWidth: mantissaWidth, exponentWidth: exponentWidth);
 
   /// Return the [FloatingPoint32Value] representing the constant specified
   factory FloatingPoint32Value.getFloatingPointConstant(
@@ -671,17 +674,8 @@ class FloatingPoint64Value extends FloatingPointValue {
   /// Constructor for a double precision floating point value
   FloatingPoint64Value(
       {required super.sign, required super.mantissa, required super.exponent})
-      : super._() {
-    // throw exceptions if widths don't match expectations
-    if (exponent.width != _exponentWidth) {
-      throw RohdHclException(
-          'FloatingPoint64Value: exponent width must be $_exponentWidth');
-    }
-    if (mantissa.width != _mantissaWidth) {
-      throw RohdHclException(
-          'FloatingPoint64Value: mantissa width must be $_mantissaWidth');
-    }
-  }
+      : super.withConstraints(
+            exponentWidth: exponentWidth, mantissaWidth: mantissaWidth);
 
   /// Return the [FloatingPoint64Value] representing the constant specified
   factory FloatingPoint64Value.getFloatingPointConstant(
