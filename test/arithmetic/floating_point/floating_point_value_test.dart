@@ -148,6 +148,50 @@ void main() {
     }
   });
 
+  test('FPV: E4M3', () {
+    final corners = [
+      ['0 0000 000', 0.toDouble()],
+      ['0 1111 110', 448.toDouble()],
+      ['0 0001 000', pow(2, -6).toDouble()],
+      ['0 0000 111', 0.875 * pow(2, -6).toDouble()],
+      ['0 0000 001', pow(2, -9).toDouble()],
+    ];
+    for (var c = 0; c < corners.length; c++) {
+      final val = corners[c][1] as double;
+      final str = corners[c][0] as String;
+      final fp = FloatingPointValue.fromDouble(val,
+          exponentWidth: 4, mantissaWidth: 3);
+      expect(val, fp.toDouble());
+      expect(str, fp.toString());
+      final fp8 = FloatingPointValue.fromDouble(val,
+          exponentWidth: 4, mantissaWidth: 3);
+      expect(val, fp8.toDouble());
+      expect(str, fp8.toString());
+    }
+  });
+
+  test('FP8: E5M2', () {
+    final corners = [
+      ['0 00000 00', 0.toDouble()],
+      ['0 11110 11', 57344.toDouble()],
+      ['0 00001 00', pow(2, -14).toDouble()],
+      ['0 00000 11', 0.75 * pow(2, -14).toDouble()],
+      ['0 00000 01', pow(2, -16).toDouble()],
+    ];
+    for (var c = 0; c < corners.length; c++) {
+      final val = corners[c][1] as double;
+      final str = corners[c][0] as String;
+      final fp = FloatingPointValue.fromDouble(val,
+          exponentWidth: 5, mantissaWidth: 2);
+      expect(val, fp.toDouble());
+      expect(str, fp.toString());
+      final fp8 = FloatingPointValue.fromDouble(val,
+          exponentWidth: 5, mantissaWidth: 2);
+      expect(val, fp8.toDouble());
+      expect(str, fp8.toString());
+    }
+  });
+
   test('FPV: setting and getting from a signal', () {
     final fp = FloatingPoint32()
       ..put(FloatingPoint32Value.fromDouble(1.5).value);
@@ -155,6 +199,12 @@ void main() {
     final fp2 = FloatingPoint64()
       ..put(FloatingPoint64Value.fromDouble(1.5).value);
     expect(fp2.floatingPointValue.toDouble(), 1.5);
+    final fp8e4m3 = FloatingPoint8(exponentWidth: 4)
+      ..put(FloatingPoint8Value.fromDouble(1.5, exponentWidth: 4).value);
+    expect(fp8e4m3.floatingPointValue.toDouble(), 1.5);
+    final fp8e5m2 = FloatingPoint8(exponentWidth: 5)
+      ..put(FloatingPoint8Value.fromDouble(1.5, exponentWidth: 5).value);
+    expect(fp8e5m2.floatingPointValue.toDouble(), 1.5);
   });
 
   test('FPV: round nearest even Guard and Sticky', () {
