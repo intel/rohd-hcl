@@ -21,30 +21,27 @@ class SpiInterface extends PairInterface {
 
   ///
   Logic get clk => port('CLK');
+
+  ///
   Logic get mosi => port('MOSI');
+
+  ///
   Logic get miso => port('MISO');
+
+  ///
   Logic get cs => port('CSB'); //CS bar
 
+  ///
   SpiInterface()
       : super(
           portsFromConsumer: [Port('MISO')],
           portsFromProvider: [Port('MOSI'), Port('CSB'), Port('CLK')],
-          modify: (original) => 'spi_$original',
         );
 
+  ///
   SpiInterface.clone(SpiInterface super.otherInterface) : super.clone();
+
+  // multiple CS or 4 bits in parallel
 }
 
-class SpiMain extends Module {
-  late final SpiInterface _intf;
-  SpiMain(SpiInterface intf) {
-    _intf =
-        SpiInterface.clone(intf).pairConnectIO(this, intf, PairRole.provider);
-  }
-}
-
-class SpiSub extends Module {
-  SpiSub(SpiInterface intf) {
-    SpiInterface.clone(intf).pairConnectIO(this, intf, PairRole.consumer);
-  }
-}
+// place for spi mode = cpol and cpha 
