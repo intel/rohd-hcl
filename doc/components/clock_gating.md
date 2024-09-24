@@ -80,3 +80,5 @@ ClockGateControlInterface(
 ```
 
 Passing in an interface configured like this would mean that any consumers would automatically get the additional ports and new clock gating implementation. Our counter example could get this new method for clock gating and a new port without changing the design of the counter at all.
+
+An executable version of this example is available in `example/clock_gating_example.dart`.

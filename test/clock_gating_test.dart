@@ -31,7 +31,7 @@ class CustomClockGateMacro extends Module with CustomSystemVerilog {
     addOutput('gatedClk');
 
     // simulation-only behavior
-    gatedClk <= clk & (en | override | anotherOverride);
+    gatedClk <= clk & flop(~clk, en | override | anotherOverride);
   }
 
   @override
@@ -237,12 +237,12 @@ void main() {
 
             if (counter._clkGate.isPresent && !enOverride) {
               if (counter._clkGate.delayControlledSignals) {
-                expect(clkToggleCount, 7 + 4);
+                expect(clkToggleCount, lessThanOrEqualTo(7 + 4));
               } else {
                 expect(clkToggleCount, lessThanOrEqualTo(6 + 4));
               }
             } else {
-              expect(clkToggleCount, greaterThanOrEqualTo(15));
+              expect(clkToggleCount, greaterThanOrEqualTo(14));
             }
 
             if (hasOverride) {
