@@ -208,7 +208,7 @@ class ClockGate extends Module {
   ClockGate(
     Logic freeClk, {
     required Logic enable,
-    required Logic? reset,
+    Logic? reset,
     ClockGateControlInterface? controlIntf,
     this.delayControlledSignals = false,
     super.name = 'clock_gate',
