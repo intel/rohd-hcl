@@ -11,21 +11,21 @@ import 'sum_test.dart';
 Future<void> checkCounter(Counter counter) async {
   // ignore: invalid_use_of_protected_member
   counter.clk.posedge.listen((_) async {
-    final expected = counter.reset.value.toBool()
+    var expected = counter.reset.previousValue!.toBool()
         ? 0
         : goldenSum(
             // ignore: invalid_use_of_protected_member
             counter.interfaces,
             width: counter.width,
-            initialValue: counter.count.value.toInt(),
+            initialValue: counter.count.previousValue!.toInt(),
           );
 
-    // ignore: invalid_use_of_protected_member
-    await counter.clk.nextPosedge;
+    if (!counter.reset.previousValue!.toBool()) {
+      final actual = counter.count.value!.toInt();
 
-    final actual = counter.count.value.toInt();
-
-    // expect(actual, expected);
+      // print('$expected -- $actual');
+      expect(actual, expected);
+    }
   });
 }
 

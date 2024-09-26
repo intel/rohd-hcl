@@ -143,7 +143,7 @@ class GatedCounter extends Counter {
 
       anyIntfInDangerZone |= intfInDangerZone;
     }
-    upperEnable |= (anyIntfInDangerZone & currentCountInDangerZone);
+    upperEnable |= anyIntfInDangerZone & currentCountInDangerZone;
 
     // for decrements...
 
