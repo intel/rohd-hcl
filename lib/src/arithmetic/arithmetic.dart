@@ -3,6 +3,7 @@
 
 export 'adder.dart';
 export 'carry_save_mutiplier.dart';
+export 'compound_adder.dart';
 export 'divider.dart';
 export 'multiplier.dart';
 export 'multiplier_lib.dart';
