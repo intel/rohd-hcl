@@ -21,4 +21,5 @@ export 'src/serialization/serialization.dart';
 export 'src/shift_register.dart';
 export 'src/sort.dart';
 export 'src/summation/summation.dart';
+export 'src/toggle_gate.dart';
 export 'src/utils.dart';

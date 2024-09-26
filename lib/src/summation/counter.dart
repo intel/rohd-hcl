@@ -7,6 +7,7 @@
 // 2024 August 26
 // Author: Max Korbel <max.korbel@intel.com>
 
+import 'package:meta/meta.dart';
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
 import 'package:rohd_hcl/src/summation/summation_base.dart';
@@ -16,6 +17,16 @@ import 'package:rohd_hcl/src/summation/summation_base.dart';
 class Counter extends SummationBase {
   /// The output value of the counter.
   Logic get count => output('count');
+
+  //TODO docs
+  @protected
+  late final Logic clk;
+
+  @protected
+  late final Logic reset;
+
+  @protected
+  late final Logic? restart;
 
   /// Creates a counter that increments according to the provided [interfaces].
   ///
@@ -50,32 +61,32 @@ class Counter extends SummationBase {
     super.saturates,
     super.name = 'counter',
   }) : super(initialValue: resetValue) {
-    clk = addInput('clk', clk);
-    reset = addInput('reset', reset);
+    this.clk = addInput('clk', clk);
+    this.reset = addInput('reset', reset);
 
     if (restart != null) {
-      restart = addInput('restart', restart);
+      this.restart = addInput('restart', restart);
+    } else {
+      this.restart = null;
     }
 
     addOutput('count', width: width);
 
+    _buildLogic();
+  }
+
+  void _buildLogic() {
     final sum = Sum(
       interfaces,
       initialValue:
-          restart != null ? mux(restart, initialValueLogic, count) : count,
+          restart != null ? mux(restart!, initialValueLogic, count) : count,
       maxValue: maxValueLogic,
       minValue: minValueLogic,
       width: width,
       saturates: saturates,
     );
 
-    count <=
-        flop(
-          clk,
-          sum.sum,
-          reset: reset,
-          resetValue: initialValueLogic,
-        );
+    buildFlops(sum.sum);
 
     // need to flop these since value is flopped
     overflowed <= flop(clk, sum.overflowed, reset: reset);
@@ -83,6 +94,17 @@ class Counter extends SummationBase {
 
     equalsMax <= count.eq(maxValueLogic);
     equalsMin <= count.eq(minValueLogic);
+  }
+
+  @protected
+  void buildFlops(Logic sum) {
+    count <=
+        flop(
+          clk,
+          sum,
+          reset: reset,
+          resetValue: initialValueLogic,
+        );
   }
 
   /// A simplified constructor for [Counter] that accepts a single fixed amount
