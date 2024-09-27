@@ -69,19 +69,17 @@ class SpiBfmTest extends Test {
 
     final obj = phase.raiseObjection('spiBfmTestObj');
 
-    logger.info('spi');
     // final randomData = List.generate(numTransfers,
     //     (index) => LogicValue.ofInt(Test.random!.nextInt(1 << 32), 32));
 
     // for (var i = 0; i < numTransfers; i++) {
     //  final packets = SpiPacket(data: randomData[i]);
 
-    main.sequencer.add(SpiPacket(data: LogicValue.ofInt(0xB, 4))); //0b1011
-    sub.sequencer.add(SpiPacket(data: LogicValue.ofInt(0xA, 4))); //0b1010
+    main.sequencer.add(SpiPacket(data: LogicValue.ofInt(0xCB, 8))); //0b11001011
+    sub.sequencer.add(SpiPacket(data: LogicValue.ofInt(0x1A, 8))); //0b00011010
     // numTransfersCompleted++;
     // }
     obj.drop();
-    logger.info('Done run test');
   }
 }
 
@@ -107,3 +105,6 @@ void main() {
     await runTest(SpiBfmTest('simple'));
   });
 }
+
+  // test for real use case. 8 bit sent and 8 bit response
+  

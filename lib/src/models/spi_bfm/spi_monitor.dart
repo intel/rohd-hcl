@@ -22,3 +22,4 @@ class SpiMonitor extends Monitor<SpiPacket> {
       String name = 'spiMonitor'})
       : super(name, parent);
 }
+// add switch for mosi vs miso

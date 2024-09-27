@@ -31,3 +31,5 @@ class SpiPacket extends SequenceItem implements Trackable {
     return trackerString(field);
   }
 }
+
+// add switch for mosi vs miso

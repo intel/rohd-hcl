@@ -24,6 +24,9 @@ class SpiMainAgent extends Agent {
   /// The driver that sends packets.
   late final SpiMainDriver driver;
 
+  /// The monitor that watches the interface.
+  late final SpiMonitor monitor;
+
   /// The number of cycles before dropping an objection.
   final int dropDelayCycles;
 
@@ -43,6 +46,11 @@ class SpiMainAgent extends Agent {
       clk: clk,
       sequencer: sequencer,
       dropDelayCycles: dropDelayCycles,
+    );
+
+    monitor = SpiMonitor(
+      parent: this,
+      intf: intf,
     );
   }
 }
