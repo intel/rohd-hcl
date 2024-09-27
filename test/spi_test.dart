@@ -43,6 +43,6 @@ void main() {
   test('spi_test', () async {
     final mod = SpiTop();
     await mod.build();
-    print(mod.generateSynth());
+    //print(mod.generateSynth());
   });
 }

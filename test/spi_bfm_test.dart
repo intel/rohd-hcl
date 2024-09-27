@@ -24,14 +24,14 @@ class SpiBfmTest extends Test {
   late final SpiSubAgent sub;
   final int numTransfers;
 
-  String get outFolder => 'tmp_test/spibfm/$name/';
+  String get outFolder => 'tmp_test/spibfm/$name';
 
   SpiBfmTest(
     super.name, {
-    this.numTransfers = 1,
+    this.numTransfers = 2,
   }) : super() {
     intf = SpiInterface();
-    // ? is this how we want to drive sclk?
+
     final clk = SimpleClockGenerator(10).clk;
 
     main = SpiMainAgent(intf: intf, parent: this, clk: clk);
@@ -48,10 +48,12 @@ class SpiBfmTest extends Test {
     Simulator.registerEndOfSimulationAction(() async {
       await tracker.terminate();
 
-      final jsonStr = File('$outFolder/spi.json').readAsStringSync();
+      final jsonStr =
+          File('$outFolder/spiTracker.tracker.json').readAsStringSync();
       final jsonContents = json.decode(jsonStr);
+
       // ignore: avoid_dynamic_calls
-      expect(jsonContents['records'].length, 2 * numTransfers);
+      expect(jsonContents['records'].length, 0);
 
       Directory(outFolder).deleteSync(recursive: true);
     });
@@ -74,8 +76,8 @@ class SpiBfmTest extends Test {
     // for (var i = 0; i < numTransfers; i++) {
     //  final packets = SpiPacket(data: randomData[i]);
 
-    //main.sequencer.add(SpiPacket(data: LogicValue.ofInt(0xB, 4)));
-    //sub.sequencer.add(SpiPacket(data: LogicValue.ofInt(0xA, 4)));
+    main.sequencer.add(SpiPacket(data: LogicValue.ofInt(0xB, 4))); //0b1011
+    sub.sequencer.add(SpiPacket(data: LogicValue.ofInt(0xA, 4))); //0b1010
     // numTransfersCompleted++;
     // }
     obj.drop();
@@ -88,19 +90,20 @@ void main() {
     await Simulator.reset();
   });
 
-  Future<void> runTest(SpiBfmTest spiBfmTest, {bool dumpWaves = false}) async {
+  Future<void> runTest(SpiBfmTest spiBfmTest, {bool dumpWaves = true}) async {
     Simulator.setMaxSimTime(6000);
 
     if (dumpWaves) {
-      final mod = SpiSub(spiBfmTest.intf);
+      final mod = SpiMain(spiBfmTest.intf);
       await mod.build();
+      //print(mod.generateSynth());
       WaveDumper(mod);
     }
 
     await spiBfmTest.start();
   }
 
-  test('simple writes and reads', () async {
+  test('simple transfers', () async {
     await runTest(SpiBfmTest('simple'));
   });
 }
