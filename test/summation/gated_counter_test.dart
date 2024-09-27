@@ -5,7 +5,6 @@ import 'package:rohd_hcl/rohd_hcl.dart';
 import 'package:rohd_hcl/src/summation/gated_counter.dart';
 import 'package:rohd_vf/rohd_vf.dart';
 import 'package:test/test.dart';
-import '../edge_detector_test.dart';
 import 'sum_test.dart';
 
 Future<void> checkCounter(Counter counter) async {

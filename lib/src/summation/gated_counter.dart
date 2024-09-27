@@ -74,6 +74,12 @@ class GatedCounter extends Counter {
     }
   }
 
+  //TODO: doc
+  late final _incrementingInterfaces =
+      interfaces.where((intf) => intf.increments);
+  late final _decrementingInterfaces =
+      interfaces.where((intf) => !intf.increments);
+
   Logic _calculateLowerEnable() {
     Logic lowerEnable = Const(0); // default, not enabled
 
@@ -90,6 +96,16 @@ class GatedCounter extends Counter {
       lowerEnable |= intfHasLowerBits;
     }
 
+    // handle underflow case!
+    // // if we're too small (i.e. )
+    // final currentCountInDangerZone = ~count
+    //     .getRange(
+    //         log2Ceil(_decrementingInterfaces.length + 1), clkGatePartitionIndex)
+    //     .or();
+
+    // for (final intf in _decrementingInterfaces) {}
+
+    // always enable during restart
     if (restart != null) {
       lowerEnable |= restart!;
     }
@@ -113,39 +129,63 @@ class GatedCounter extends Counter {
       upperEnable |= intfHasUpperBits;
     }
 
-    final incrementingInterfaces = interfaces.where((intf) => intf.increments);
-
     // the first bit of the total count that's "dangerous" for enabling clock
-    final dangerZoneStart = max(
+    final incrDangerZoneStart = max(
       0,
-      clkGatePartitionIndex - log2Ceil(incrementingInterfaces.length + 1),
+      clkGatePartitionIndex - log2Ceil(_incrementingInterfaces.length + 1),
     );
 
-    final currentCountInDangerZone =
-        count.getRange(dangerZoneStart, clkGatePartitionIndex).or();
+    final currentCountInIncrDangerZone =
+        count.getRange(incrDangerZoneStart, clkGatePartitionIndex).or();
 
-    Logic anyIntfInDangerZone = Const(0);
+    Logic anyIntfInIncrDangerZone = Const(0);
     // for increments...
-    for (final intf in incrementingInterfaces) {
+    for (final intf in _incrementingInterfaces) {
       // if we're in the danger zone, and interface is enabled, and the amount
       // also reaches into the danger range, then enable the upper gate
 
       var intfInDangerZone = intf.amount
           .getRange(
-            min(dangerZoneStart, intf.width - 1),
+            min(incrDangerZoneStart, intf.width - 1),
             min(clkGatePartitionIndex, intf.amount.width),
           )
           .or();
 
+      // always enable during restart
       if (intf.hasEnable) {
         intfInDangerZone &= intf.enable!;
       }
 
-      anyIntfInDangerZone |= intfInDangerZone;
+      anyIntfInIncrDangerZone |= intfInDangerZone;
     }
-    upperEnable |= anyIntfInDangerZone & currentCountInDangerZone;
+    upperEnable |= anyIntfInIncrDangerZone & currentCountInIncrDangerZone;
 
     // for decrements...
+
+    // if any decrement is "big enough" while the lower bits are "small enough',
+    // then we have to enable the upper region since it can roll-over
+
+    // let's just draw the line half way for now?
+    final decrDangerZoneStart = clkGatePartitionIndex ~/ 2;
+    final currentCountInDecrDangerZone =
+        ~count.getRange(decrDangerZoneStart, clkGatePartitionIndex).or();
+
+    Logic anyIntfEndangersDecr = Const(0);
+    for (final intf in _decrementingInterfaces) {
+      var intfEndangersDecrZone = intf.amount
+          .getRange(
+            decrDangerZoneStart - log2Ceil(_decrementingInterfaces.length + 1),
+            clkGatePartitionIndex,
+          )
+          .or();
+
+      if (intf.hasEnable) {
+        intfEndangersDecrZone &= intf.enable!;
+      }
+
+      anyIntfEndangersDecr |= intfEndangersDecrZone;
+    }
+    upperEnable |= anyIntfEndangersDecr & currentCountInDecrDangerZone;
 
     if (restart != null) {
       upperEnable |= restart!;

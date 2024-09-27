@@ -51,15 +51,14 @@ Rules:
     - We round estimate numbers to powers of 2 so that we can check bits instead of using comparators
     - Lower enable
       - If any (enabled) interfaces have any 1's in any lower bits, enable
-      - For DECREMENTs
-        - If any decrement interfaces are enabled, enable (since you can always go down by 1)
     - Upper enable
       - If any (enabled) interfaces have any 1's in any upper bits, enable
       - For INCREMENTs
-        - If current count has 1's in a "range" of uppermost lower bits, enable
+        - If current count has 1's in a "range" of uppermost lower bits, AND
         - If any (enabled) interfaces have 1's in a "range" of uppermost lower bits, enable
       - For DECREMENTs
-        - If the lower bits are "close enough" to 0, enable
+        - If current count has no 1's in a "range" of uppermost lower bits, AND
+        - If the lower bits are "close enough" to 0 (to cause decrement on upper bits), enable
   - Special considerations:
     - Overflow: if the counter may overflow, enable lower bound bits
     - Underflow: if the counter may underflow, enable upper bits
