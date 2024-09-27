@@ -18,45 +18,59 @@ extension NumericVector on LogicValue {
   /// [name] is printed at the LHS of the line, trimmed by [prefix].
   /// [prefix] is the distance from the margin bebore the vector is printed.
   /// You can align with longer bitvectors by stating the length [align].
+  /// [lowLimit] will trim the vector below this bit position.
   /// You can insert a separator [sepChar] at position [sep].
   /// A header can be printed by setting [header] to true.
+  /// Markdown format can be produced by setting [markDown] to true.
   String vecString(String name,
       {int prefix = 10,
       int? align,
       int? sep,
       bool header = false,
-      String sepChar = '|',
-      int lowLimit = 0}) {
+      String sepChar = '*',
+      int lowLimit = 0,
+      bool markDown = false}) {
     final str = StringBuffer();
     // ignore: cascade_invocations
     if (header) {
-      str.write(' ' * prefix);
+      str.write(markDown ? '|Name' : ' ' * prefix);
 
       for (var col = ((align ?? width) - width) + width - 1;
           col >= lowLimit;
           col--) {
         final bits = col > 9 ? 2 : 1;
         if (sep != null && sep == col) {
-          str.write(' ' * (2 - bits));
+          str.write(markDown ? '' : ' ' * (2 - bits));
           if (col > 10 || col == lowLimit) {
-            str.write(' $col$sepChar');
+            str.write('${markDown ? '|' : ' '}$col$sepChar');
           } else {
-            str.write(' $col $sepChar');
+            str.write('${markDown ? '|' : ' '}$col $sepChar');
           }
+          str.write(markDown ? '|' : '');
         } else if (sep != null && sep == col + 1) {
           if (sep == width) {
             str
               ..write(sepChar)
-              ..write(' ' * (2 - bits));
+              ..write(markDown ? '|' : ' ' * (2 - bits));
           }
           str.write('$col');
         } else {
           str
-            ..write(' ' * (2 - bits))
+            ..write(markDown ? '|' : ' ' * (2 - bits))
             ..write(' $col');
         }
       }
-      str.write('\n');
+      str.write(markDown ? '|\n' : '\n');
+      if (markDown) {
+        str.write(markDown ? '|:--:' : ' ' * prefix);
+
+        for (var col = ((align ?? width) - width) + width - 1;
+            col >= lowLimit;
+            col--) {
+          str.write('|:--');
+        }
+        str.write('-|\n');
+      }
     }
     final String strPrefix;
     strPrefix = (name.length <= prefix)
@@ -69,16 +83,29 @@ extension NumericVector on LogicValue {
       final pos = width - 1 - col + lowLimit;
       final v = this[pos].bitString;
       if (sep != null && sep == pos) {
-        str.write(
-            ((pos > 10) | (pos == 0)) ? '  $v$sepChar ' : '  $v $sepChar');
+        if (markDown) {
+          str.write('|$v $sepChar');
+        } else {
+          str.write(
+              ((pos > 9) | (pos == 0)) ? '  $v$sepChar ' : '  $v $sepChar');
+        }
       } else if (sep != null && sep == pos + 1) {
+        if (markDown) {
+          str.write('|');
+        }
         if (sep == width) {
           str.write('$sepChar ');
         }
         str.write(v);
       } else {
+        if (markDown) {
+          str.write('|');
+        }
         str.write('  $v');
       }
+    }
+    if (markDown) {
+      str.write('|');
     }
     return str.toString();
   }
@@ -112,12 +139,14 @@ extension NumericVector on LogicValue {
 //   print(ref);
 //   print(
 //       ref.mantissa.vecString('reference', lowLimit: 31, header: true, sep: 52));
-//   print(
-//       ref.mantissa.vecString('reference', lowLimit: 31, header: true, sep: 48));
+//   print('');
 
-//   final lv2 = LogicValue.ofInt(42, 8);
-//   print(lv2.vecString('lv2', header: true));
+//   print(ref.mantissa.vecString('reference',
+//       lowLimit: 31, header: true, sep: 48, markDown: true));
+//   print('');
+//   final lv2 = LogicValue.ofInt(42, 12);
+//   print(lv2.vecString('lv2', header: true, markDown: true));
 //   for (var i = lv2.width; i >= 0; i--) {
-//     print(lv2.vecString('lv2', sep: i));
+//     print(lv2.vecString('lv2', sep: i, markDown: true));
 //   }
 // }
