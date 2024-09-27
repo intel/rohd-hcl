@@ -25,21 +25,30 @@ extension NumericVector on LogicValue {
       int? align,
       int? sep,
       bool header = false,
-      String sepChar = '|'}) {
+      String sepChar = '|',
+      int lowLimit = 0}) {
     final str = StringBuffer();
     // ignore: cascade_invocations
     if (header) {
       str.write(' ' * prefix);
-      for (var col = ((align ?? width) - width) + width - 1; col >= 0; col--) {
+
+      for (var col = ((align ?? width) - width) + width - 1;
+          col >= lowLimit;
+          col--) {
         final bits = col > 9 ? 2 : 1;
         if (sep != null && sep == col) {
           str.write(' ' * (2 - bits));
-          if (col > 10 || col == 0) {
+          if (col > 10 || col == lowLimit) {
             str.write(' $col$sepChar');
           } else {
             str.write(' $col $sepChar');
           }
         } else if (sep != null && sep == col + 1) {
+          if (sep == width) {
+            str
+              ..write(sepChar)
+              ..write(' ' * (2 - bits));
+          }
           str.write('$col');
         } else {
           str
@@ -56,13 +65,16 @@ extension NumericVector on LogicValue {
     str
       ..write(strPrefix)
       ..write('   ' * ((align ?? width) - width));
-    for (var col = 0; col < width; col++) {
-      final pos = width - 1 - col;
+    for (var col = lowLimit; col < width; col++) {
+      final pos = width - 1 - col + lowLimit;
       final v = this[pos].bitString;
       if (sep != null && sep == pos) {
         str.write(
             ((pos > 10) | (pos == 0)) ? '  $v$sepChar ' : '  $v $sepChar');
       } else if (sep != null && sep == pos + 1) {
+        if (sep == width) {
+          str.write('$sepChar ');
+        }
         str.write(v);
       } else {
         str.write('  $v');
@@ -75,12 +87,12 @@ extension NumericVector on LogicValue {
 // void main() {
 //   final lv0 = LogicValue.ofInt(42, 15);
 //   final lv1 = LogicValue.ofInt(117, 15);
-//   // ignore: cascade_invocations
 //   // No separator
 //   print(lv0.vecString('lv0', header: true));
 //   print(lv1.vecString('lv1_with_ridiculously_long_name'));
 //   // Separator
 //   print(lv0.vecString('lv0', sep: 8));
+//   print(lv1.vecString('lv1_with_ridiculously_long_name', sep: 8));
 //   print(lv1.vecString('lv1_with_ridiculously_long_name', sep: 8));
 //   // separator at double-digits
 //   print(lv0.vecString('lv0', sep: 12, align: 24, header: true));
@@ -96,4 +108,16 @@ extension NumericVector on LogicValue {
 //   // Separator at zero
 //   print(lv0.vecString('lv0', sep: 0, align: 24, header: true));
 //   print(lv1.vecString('lv1_with_ridiculously_long_name', align: 24, sep: 0));
+//   final ref = FloatingPoint64Value.fromDouble(3.14159);
+//   print(ref);
+//   print(
+//       ref.mantissa.vecString('reference', lowLimit: 31, header: true, sep: 52));
+//   print(
+//       ref.mantissa.vecString('reference', lowLimit: 31, header: true, sep: 48));
+
+//   final lv2 = LogicValue.ofInt(42, 8);
+//   print(lv2.vecString('lv2', header: true));
+//   for (var i = lv2.width; i >= 0; i--) {
+//     print(lv2.vecString('lv2', sep: i));
+//   }
 // }
