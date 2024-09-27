@@ -33,18 +33,30 @@ class SpiSubDriver extends PendingDriver<SpiPacket> {
     unawaited(super.run(phase));
 
     Simulator.injectAction(() {
-      intf.miso.inject('z'); //high impedance
+      intf.miso.inject(0); //high impedance
     });
 
-    while (!Simulator.simulationHasEnded) {
-      if (pendingSeqItems.isNotEmpty) {
-        await _drivePacket(pendingSeqItems.removeFirst());
-      } else {
-        Simulator.injectAction(() {
-          intf.miso.put('z');
-        });
+    SpiPacket? packet;
+
+    int? dataIndex;
+
+    intf.sclk.posedge.listen((_) {
+      if (packet == null && pendingSeqItems.isNotEmpty) {
+        packet = pendingSeqItems.removeFirst();
+        dataIndex = 0;
       }
-    }
+      if (packet != null) {
+        logger.info('driving data index $dataIndex of sub packet');
+        intf.miso.inject(packet!.data[dataIndex!]);
+        dataIndex = dataIndex! + 1;
+        if (dataIndex! >= packet!.data.width) {
+          packet = null;
+          dataIndex = null;
+        }
+      } else {
+        intf.miso.inject(0);
+      }
+    });
   }
   // maybe not necessary
   // Simulator.injectAction(() {
@@ -52,17 +64,8 @@ class SpiSubDriver extends PendingDriver<SpiPacket> {
   //});
 
   /// Drives a packet onto the interface.
-  Future<void> _drivePacket(SpiPacket packet) async {
-    // Loop through the bits of the packet
-    for (var i = 0; i < packet.data.width; i++) {
-      intf.sclk.posedge.listen((_) {
-        Simulator.injectAction(() {
-          intf.miso.put(packet.data[i]);
-        });
-      });
-    }
-    // Wait for the next clock cycle
-  }
+
+  // Wait for the next clock cycle
 
   // wait for miso to be ready?
 }

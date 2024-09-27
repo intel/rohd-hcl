@@ -70,6 +70,7 @@ class SpiMainDriver extends PendingClockedDriver<SpiPacket> {
     // Loop through the bits of the packet
     for (var i = 0; i < packet.data.width; i++) {
       Simulator.injectAction(() {
+        logger.info('Driving main packet $i');
         intf.mosi.put(packet.data[i]);
         intf.sclk.put(1);
       });

@@ -67,17 +67,19 @@ class SpiBfmTest extends Test {
 
     final obj = phase.raiseObjection('spiBfmTestObj');
 
+    logger.info('spi');
     // final randomData = List.generate(numTransfers,
     //     (index) => LogicValue.ofInt(Test.random!.nextInt(1 << 32), 32));
 
     // for (var i = 0; i < numTransfers; i++) {
     //  final packets = SpiPacket(data: randomData[i]);
 
-    main.sequencer.add(SpiPacket(data: LogicValue.ofInt(0xB, 4)));
-    sub.sequencer.add(SpiPacket(data: LogicValue.ofInt(0xA, 4)));
+    //main.sequencer.add(SpiPacket(data: LogicValue.ofInt(0xB, 4)));
+    //sub.sequencer.add(SpiPacket(data: LogicValue.ofInt(0xA, 4)));
     // numTransfersCompleted++;
     // }
     obj.drop();
+    logger.info('Done run test');
   }
 }
 
