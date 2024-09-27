@@ -31,7 +31,7 @@ class SpiTop extends Module {
     final intf = SpiInterface();
     SpiMain(intf);
     SpiSub(intf);
-    addOutput('dummy') <= intf.clk;
+    addOutput('dummy') <= intf.sclk;
   }
 }
 

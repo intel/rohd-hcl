@@ -20,7 +20,7 @@ class SpiInterface extends PairInterface {
   // final int csWidth;
 
   ///
-  Logic get clk => port('CLK');
+  Logic get sclk => port('SCLK');
 
   ///
   Logic get mosi => port('MOSI');
@@ -35,7 +35,7 @@ class SpiInterface extends PairInterface {
   SpiInterface()
       : super(
           portsFromConsumer: [Port('MISO')],
-          portsFromProvider: [Port('MOSI'), Port('CSB'), Port('CLK')],
+          portsFromProvider: [Port('MOSI'), Port('CSB'), Port('SCLK')],
         );
 
   ///
