@@ -80,6 +80,63 @@ class GatedCounter extends Counter {
   late final _decrementingInterfaces =
       interfaces.where((intf) => !intf.increments);
 
+  late final Logic _mayOverflow = _calculateMayOverflow();
+  Logic _calculateMayOverflow() {
+    if (saturates) {
+      // if this is a saturating counter, we will never wrap-around
+      return Const(0);
+    }
+
+    final overflowDangerZoneStart =
+        width - log2Ceil(_incrementingInterfaces.length + 1);
+
+    //TODO: need to check the maxVal as well!
+
+    final counterInOverflowDangerZone =
+        count.getRange(overflowDangerZoneStart).or();
+
+    Logic anyIntfInIncrDangerZone = Const(0);
+
+    for (final intf in _incrementingInterfaces) {
+      // if we're in the danger zone, and interface is enabled, and the amount
+      // also reaches into the danger range
+
+      if (intf.width < overflowDangerZoneStart) {
+        // if it's too short, don't worry about it
+        continue;
+      }
+
+      var intfInDangerZone = intf.amount
+          .getRange(
+            max(overflowDangerZoneStart, intf.width - 1),
+            width,
+          )
+          .or();
+
+      if (intf.hasEnable) {
+        intfInDangerZone &= intf.enable!;
+      }
+
+      anyIntfInIncrDangerZone |= intfInDangerZone;
+    }
+
+    // if *any* interface is incrementing at all and upper-most bit is 1, then
+    // we may overflow
+    Logic anyIntfIncrementing = Const(0);
+    for (final intf in _incrementingInterfaces) {
+      var intfIsIncrementing = intf.amount.or();
+      if (intf.hasEnable) {
+        intfIsIncrementing &= intf.enable!;
+      }
+
+      anyIntfIncrementing |= intfIsIncrementing;
+    }
+    final topMayOverflow = anyIntfIncrementing & count[-1]; //TODO: maxVal
+
+    return topMayOverflow |
+        (anyIntfInIncrDangerZone & counterInOverflowDangerZone);
+  }
+
   Logic _calculateLowerEnable() {
     Logic lowerEnable = Const(0); // default, not enabled
 
@@ -104,6 +161,8 @@ class GatedCounter extends Counter {
     //     .or();
 
     // for (final intf in _decrementingInterfaces) {}
+
+    lowerEnable |= _mayOverflow;
 
     // always enable during restart
     if (restart != null) {
@@ -151,7 +210,6 @@ class GatedCounter extends Counter {
           )
           .or();
 
-      // always enable during restart
       if (intf.hasEnable) {
         intfInDangerZone &= intf.enable!;
       }
@@ -187,6 +245,9 @@ class GatedCounter extends Counter {
     }
     upperEnable |= anyIntfEndangersDecr & currentCountInDecrDangerZone;
 
+    upperEnable |= _mayOverflow;
+
+    // always enable during restart
     if (restart != null) {
       upperEnable |= restart!;
     }
