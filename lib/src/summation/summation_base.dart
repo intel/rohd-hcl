@@ -58,6 +58,12 @@ abstract class SummationBase extends Module {
   /// equal to the minimum.
   Logic get equalsMin => output('equalsMin');
 
+  @protected
+  late final BigInt? constantMaxValue;
+
+  @protected
+  late final BigInt? constantMinValue;
+
   /// Sums the values across the provided [interfaces] within the bounds of the
   /// [saturates] behavior, [initialValue], [maxValue], and [minValue], with the
   /// specified [width], if provided.
@@ -81,10 +87,32 @@ abstract class SummationBase extends Module {
               uniquify: (original) => '${original}_$i'))
         .toList();
 
+    initialValue ??= 0;
+    maxValue ??= biggestVal(this.width);
+    minValue ??= 0;
+
+    if (maxValue is! Logic) {
+      constantMaxValue = LogicValue.ofInferWidth(maxValue).toBigInt();
+    } else {
+      constantMaxValue = null;
+    }
+
+    if (minValue is! Logic) {
+      constantMinValue = LogicValue.ofInferWidth(minValue).toBigInt();
+    } else {
+      constantMinValue = null;
+    }
+
+    if (constantMaxValue != null &&
+        constantMinValue != null &&
+        constantMaxValue! < constantMinValue!) {
+      throw RohdHclException(
+          'Max value must be greater or equal to min value.');
+    }
+
     initialValueLogic = _dynamicInputToLogic('initialValue', initialValue);
     minValueLogic = _dynamicInputToLogic('minValue', minValue);
-    maxValueLogic =
-        _dynamicInputToLogic('maxValue', maxValue ?? biggestVal(this.width));
+    maxValueLogic = _dynamicInputToLogic('maxValue', maxValue);
 
     addOutput('overflowed');
     addOutput('underflowed');

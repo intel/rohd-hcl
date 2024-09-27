@@ -87,8 +87,18 @@ class GatedCounter extends Counter {
       return Const(0);
     }
 
-    final overflowDangerZoneStart =
-        width - log2Ceil(_incrementingInterfaces.length + 1);
+    if (constantMaxValue == null) {
+      // for now, this is hard to handle, so just always maybe overflow
+      return Const(1);
+    }
+
+    final maxValueBit =
+        LogicValue.ofInferWidth(constantMaxValue).clog2().toInt();
+
+    final overflowDangerZoneStart = max(
+      maxValueBit - log2Ceil(_incrementingInterfaces.length + 1) - 1,
+      0,
+    );
 
     //TODO: need to check the maxVal as well!
 
@@ -101,14 +111,14 @@ class GatedCounter extends Counter {
       // if we're in the danger zone, and interface is enabled, and the amount
       // also reaches into the danger range
 
-      if (intf.width < overflowDangerZoneStart) {
+      if (intf.width <= overflowDangerZoneStart) {
         // if it's too short, don't worry about it
         continue;
       }
 
       var intfInDangerZone = intf.amount
           .getRange(
-            max(overflowDangerZoneStart, intf.width - 1),
+            overflowDangerZoneStart,
             width,
           )
           .or();
@@ -120,8 +130,8 @@ class GatedCounter extends Counter {
       anyIntfInIncrDangerZone |= intfInDangerZone;
     }
 
-    // if *any* interface is incrementing at all and upper-most bit is 1, then
-    // we may overflow
+    // if *any* interface is incrementing at all and upper-most bit(s) is 1,
+    // then we may overflow
     Logic anyIntfIncrementing = Const(0);
     for (final intf in _incrementingInterfaces) {
       var intfIsIncrementing = intf.amount.or();
@@ -131,10 +141,23 @@ class GatedCounter extends Counter {
 
       anyIntfIncrementing |= intfIsIncrementing;
     }
-    final topMayOverflow = anyIntfIncrementing & count[-1]; //TODO: maxVal
+    final topMayOverflow =
+        anyIntfIncrementing & count.getRange(maxValueBit, width + 1).or();
 
     return topMayOverflow |
         (anyIntfInIncrDangerZone & counterInOverflowDangerZone);
+  }
+
+  Logic _calculateMayUnderflow() {
+    if (saturates) {
+      // if this is a saturating counter, we will never wrap-around
+      return Const(0);
+    }
+
+    if (constantMinValue == null) {
+      // for now, this is hard to handle, so just always maybe underflow
+      return Const(1);
+    }
   }
 
   Logic _calculateLowerEnable() {
