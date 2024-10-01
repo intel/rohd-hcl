@@ -110,12 +110,6 @@ extension EvaluateLivePartialProduct on PartialProductGenerator {
     final str = StringBuffer();
 
     final maxW = maxWidth();
-    final nonSignExtendedPad = isSignExtended
-        ? 0
-        : shift > 2
-            ? shift - 1
-            : 1;
-
     // print bit position header
     str.write('| R | M | S');
     for (var i = maxW - 1; i >= 0; i--) {
