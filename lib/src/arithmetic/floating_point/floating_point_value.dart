@@ -536,7 +536,7 @@ class FloatingPointValue implements Comparable<FloatingPointValue> {
 
   /// Return a Logic true if this FloatingPointVa;ie contains a normal number,
   /// defined as having mantissa in the range [1,2)
-  bool isNormal() => exponent != LogicValue.zero;
+  bool isNormal() => exponent != LogicValue.ofInt(0, exponent.width);
 
   @override
   String toString() => '${sign.toString(includeWidth: false)}'
@@ -556,7 +556,7 @@ class FloatingPointValue implements Comparable<FloatingPointValue> {
           .nextLogicValue(width: exponentWidth, max: largestExponent)
           .toBigInt();
     } while ((e == BigInt.zero) & normal);
-    final m = rv.nextLogicValue(width: exponentWidth).toBigInt();
+    final m = rv.nextLogicValue(width: mantissaWidth).toBigInt();
     return FloatingPointValue(
         sign: LogicValue.ofInt(s, 1),
         exponent: LogicValue.ofBigInt(e, exponentWidth),

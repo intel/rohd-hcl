@@ -39,8 +39,9 @@ class FloatingPointAdder extends Module {
 
   /// Add two floating point numbers [a] and [b], returning result in [sum]
   FloatingPointAdder(FloatingPoint a, FloatingPoint b,
-      ParallelPrefix Function(List<Logic>, Logic Function(Logic, Logic)) ppGen,
-      {super.name})
+      {ParallelPrefix Function(List<Logic>, Logic Function(Logic, Logic))
+          ppGen = KoggeStone.new,
+      super.name})
       : exponentWidth = a.exponent.width,
         mantissaWidth = a.mantissa.width {
     if (b.exponent.width != exponentWidth ||
@@ -64,8 +65,6 @@ class FloatingPointAdder extends Module {
         b.exponent + mux(b.isNormal(), b.zeroExponent(), b.oneExponent());
 
     // Align and add mantissas
-// TODO(desmonddak): GRS system for FP rounding: https://i.sstatic.net/n1izR.png
-    //
     final expDiff = aExp - bExp;
     // print('${expDiff.value.toInt()} exponent diff');
     final adder = SignMagnitudeAdder(
@@ -76,18 +75,9 @@ class FloatingPointAdder extends Module {
         (a, b) => ParallelPrefixAdder(a, b, ppGen: ppGen));
 
     final sum = adder.sum.slice(adder.sum.width - 2, 0);
-    // TODO(desmonddak): what happens if sum is zero -- should return width
-    // TODO(desmonddak): should trim search to what can fit in exponentWidth!
     final leadOneE =
         ParallelPrefixPriorityEncoder(sum.reversed, ppGen: ppGen).out;
     final leadOne = leadOneE.zeroExtend(exponentWidth);
-
-    // print('leadOneE=${leadOneE.value.toInt()}');
-
-    // print('adding ${a.mantissa.value.bitString} and '
-    //     ' ${b.mantissa.value.bitString}'
-    //     ' = ${sum.value.bitString}  ${leadOne.value.bitString} '
-    //     '${a.exponent.value.bitString}');
 
     // Assemble the output FloatingPoint
     _sum.sign <= adder.sign;
