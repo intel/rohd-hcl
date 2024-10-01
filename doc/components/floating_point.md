@@ -21,3 +21,7 @@ The `FloatingPoint` type is a `LogicStructure` which comprises the `Logic` bits 
 Again, like `FloatingPointValue`, `FloatingPoint64` and `FloatingPoint32` subclasses are provided as these are the most common floating-point number types.
 
 ## FloatingPointAdder
+
+A very basic `FloatingPointAdder` component is available which does not perform any rounding. It takes two `FloatingPoint` `LogicStructure`s and adds them, returning a normalized `FloatingPointValue` on the output.  An option on input is the type of `ParallelPrefixTree` used in the internal addition of the mantissas.
+
+Currently, the `FloatingPointAdder` is close in accuracy (as it has no rounding) and is not optimized for circuit performance, but only provides the key functionalities of alignment, addition, and normalization.  Still, this component is a starting point for more realistic floating-point components that leverage the logical `FloatingPoint` and literal `FloatingPointValue` type abstractions.

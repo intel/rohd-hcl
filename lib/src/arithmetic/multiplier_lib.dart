@@ -11,5 +11,6 @@
 //
 
 export './addend_compressor.dart';
+export './multiplicand_selector.dart';
 export './multiplier_encoder.dart';
 export './partial_product_generator.dart';
