@@ -1,3 +1,5 @@
+// ignore_for_file: invalid_use_of_protected_member
+
 import 'dart:math';
 
 import 'package:rohd/rohd.dart';
@@ -111,20 +113,18 @@ List<SumInterface> genRandomInterfaces() {
   return List.generate(numInterfaces, (_) => genRandomInterface());
 }
 
-Future<void> checkCounter(Counter counter) async {
-  // ignore: invalid_use_of_protected_member
+void checkCounter(Counter counter) {
   counter.clk.posedge.listen((_) async {
-    // ignore: invalid_use_of_protected_member
     final expected = counter.reset.previousValue!.toBool()
         ? 0
         : goldenSum(
-            // ignore: invalid_use_of_protected_member
             counter.interfaces,
             width: counter.width,
-            initialValue: counter.count.previousValue!.toInt(),
+            initialValue: (counter.restart?.previousValue!.toBool() ?? false)
+                ? counter.initialValueLogic.value.toInt()
+                : counter.count.previousValue!.toInt(),
           );
 
-    // ignore: invalid_use_of_protected_member
     if (!counter.reset.previousValue!.toBool()) {
       final actual = counter.count.value!.toInt();
 

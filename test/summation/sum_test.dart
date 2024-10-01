@@ -281,7 +281,7 @@ void main() {
     expect(dut.width, greaterThan(80));
   });
 
-  test('random', () {
+  test('random sum', () {
     final rand = Random(123);
 
     for (var i = 0; i < 1000; i++) {

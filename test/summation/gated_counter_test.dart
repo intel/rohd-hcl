@@ -31,4 +31,6 @@ void main() {
 
     await Simulator.endSimulation();
   });
+
+  //TODO: checks that clock is actually gating in some interesting cases!
 }
