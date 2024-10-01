@@ -72,7 +72,12 @@ enum FloatingPointRoundingMode {
   roundTowardsNegativeInfinity
 }
 
-/// A flexible representation of floating point values
+/// A flexible representation of floating point values.
+/// A[FloatingPointValue] hasa mantissa in [0,2) with
+/// 0 <= exponent <= maxExponent();  A normal [isNormal] [FloatingPointValue]
+/// has minExponent() <= exponent <= maxExponent() and a mantissa in the
+/// range of [1,2).  Subnormal numbers are represented with a zero exponent
+/// and leading zeros in the mantissa capture the negative exponent value.
 @immutable
 class FloatingPointValue implements Comparable<FloatingPointValue> {
   /// The full floating point value bit storage
@@ -360,6 +365,11 @@ class FloatingPointValue implements Comparable<FloatingPointValue> {
   }
 
   /// Generate a random [FloatingPointValue], supplying random seed [rv].
+  /// This generates a valid [FloatingPointValue] anywhere in the range
+  /// it can represent:a general [FloatingPointValue] has
+  /// a mantissa in [0,2) with 0 <= exponent <= maxExponent();
+  /// If [normal] is true, This routine will only generate mantissas in the
+  /// range of [1,2) and minExponent() <= exponent <= maxExponent().
   factory FloatingPointValue.random(Random rv,
       {required int exponentWidth,
       required int mantissaWidth,

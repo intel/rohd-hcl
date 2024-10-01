@@ -66,7 +66,7 @@ extension EvaluateLivePartialProduct on PartialProductGenerator {
           str.write(' ' * shortPrefix);
         }
       } else {
-        str.write('$rowStr ${'M='}     S= : ');
+        str.write('$rowStr ${'M='}   S= : ');
       }
       final entry = partialProducts[row].reversed.toList();
       final prefixCnt =
