@@ -80,27 +80,32 @@ class GatedCounter extends Counter {
   late final _decrementingInterfaces =
       interfaces.where((intf) => !intf.increments);
 
-  late final Logic _mayOverflow = _calculateMayOverflow();
+  late final Logic _mayOverflow = Logic(name: 'mayOverflow')
+    ..gets(_calculateMayOverflow());
+
   Logic _calculateMayOverflow() {
     if (saturates) {
       // if this is a saturating counter, we will never wrap-around
       return Const(0);
     }
 
-    if (constantMaxValue == null) {
-      // for now, this is hard to handle, so just always maybe overflow
-      return Const(1);
+    if (_incrementingInterfaces.isEmpty) {
+      // if we never increment, no chance of overflow
+      return Const(0);
     }
 
-    final maxValueBit =
-        LogicValue.ofInferWidth(constantMaxValue).clog2().toInt();
+    if (constantMaxValue == null) {
+      // for now, this is hard to handle, so just always maybe overflow if
+      // anything is incrementing
+      return _anyIncrements;
+    }
+
+    final maxValueBit = LogicValue.ofInferWidth(constantMaxValue).width - 1;
 
     final overflowDangerZoneStart = max(
       maxValueBit - log2Ceil(_incrementingInterfaces.length + 1) - 1,
       0,
     );
-
-    //TODO: need to check the maxVal as well!
 
     final counterInOverflowDangerZone =
         count.getRange(overflowDangerZoneStart).or();
@@ -138,6 +143,7 @@ class GatedCounter extends Counter {
       if (intf.hasEnable) {
         intfIsIncrementing &= intf.enable!;
       }
+      //TODO: doc instantiation of ROHD modules
 
       anyIntfIncrementing |= intfIsIncrementing;
     }
@@ -148,17 +154,57 @@ class GatedCounter extends Counter {
         (anyIntfInIncrDangerZone & counterInOverflowDangerZone);
   }
 
+  late final Logic _mayUnderflow = Logic(name: 'mayUnderflow')
+    ..gets(_calculateMayUnderflow());
+
   Logic _calculateMayUnderflow() {
     if (saturates) {
       // if this is a saturating counter, we will never wrap-around
       return Const(0);
     }
 
-    if (constantMinValue == null) {
-      // for now, this is hard to handle, so just always maybe underflow
-      return Const(1);
+    if (_decrementingInterfaces.isEmpty) {
+      // if we never decrement, no chance of underflow
+      return Const(0);
     }
+
+    if (constantMinValue == null) {
+      // for now, this is hard to handle, so just always maybe underflow if
+      // anything is decrementing
+      return _anyDecrements;
+    }
+
+    final minValueBit = LogicValue.ofInferWidth(constantMinValue).width - 1;
+
+    // if we're close enough to the minimum value (as judged by upper bits being
+    // 0), and we are decrementing by a sufficiently large number (as judged by
+    // enough lower bits of decr interfaces), then we may underflow
+
+    final underflowDangerBit =
+        minValueBit + log2Ceil(_decrementingInterfaces.length + 1);
+    final inUnderflowDangerZone = underflowDangerBit >= count.width
+        ? Const(1)
+        : ~count
+            .getRange(
+                minValueBit + log2Ceil(_decrementingInterfaces.length + 1))
+            .or();
+
+    Logic anyIntfInDangerZone = Const(0);
+    for (final intf in _decrementingInterfaces) {
+      var intfInDangerZone = intf.amount.getRange(minValueBit).or();
+
+      if (intf.hasEnable) {
+        intfInDangerZone &= intf.enable!;
+      }
+
+      anyIntfInDangerZone |= intfInDangerZone;
+    }
+
+    return anyIntfInDangerZone & inUnderflowDangerZone;
   }
+
+  late final _mayWrap = Logic(name: 'mayWrap')
+    ..gets(_mayUnderflow | _mayOverflow);
 
   Logic _calculateLowerEnable() {
     Logic lowerEnable = Const(0); // default, not enabled
@@ -176,16 +222,11 @@ class GatedCounter extends Counter {
       lowerEnable |= intfHasLowerBits;
     }
 
-    // handle underflow case!
-    // // if we're too small (i.e. )
-    // final currentCountInDangerZone = ~count
-    //     .getRange(
-    //         log2Ceil(_decrementingInterfaces.length + 1), clkGatePartitionIndex)
-    //     .or();
+    lowerEnable |= _mayWrap;
 
-    // for (final intf in _decrementingInterfaces) {}
-
-    lowerEnable |= _mayOverflow;
+    if (saturates) {
+      lowerEnable &= ~(equalsMin & ~_anyIncrements);
+    }
 
     // always enable during restart
     if (restart != null) {
@@ -194,6 +235,20 @@ class GatedCounter extends Counter {
 
     return lowerEnable;
   }
+
+  late final _anyDecrements = Logic(name: 'anyDecrements')
+    ..gets(_decrementingInterfaces
+        .map((intf) => intf.amount.or() & (intf.enable ?? Const(1)))
+        .toList()
+        .swizzle()
+        .or());
+
+  late final _anyIncrements = Logic(name: 'anyIncrements')
+    ..gets(_incrementingInterfaces
+        .map((intf) => intf.amount.or() & (intf.enable ?? Const(1)))
+        .toList()
+        .swizzle()
+        .or());
 
   Logic _calculateUpperEnable() {
     Logic upperEnable = Const(0); // default, not enabled
@@ -268,7 +323,11 @@ class GatedCounter extends Counter {
     }
     upperEnable |= anyIntfEndangersDecr & currentCountInDecrDangerZone;
 
-    upperEnable |= _mayOverflow;
+    upperEnable |= _mayWrap;
+
+    if (saturates) {
+      upperEnable &= ~(equalsMax & ~_anyDecrements);
+    }
 
     // always enable during restart
     if (restart != null) {
