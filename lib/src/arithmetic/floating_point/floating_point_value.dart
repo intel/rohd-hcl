@@ -101,6 +101,19 @@ class FloatingPointValue implements Comparable<FloatingPointValue> {
   static int computeMaxExponent(int exponentWidth) =>
       computeBias(exponentWidth);
 
+  /// Return the bias of this [FloatingPointValue].
+  int get bias => _bias;
+
+  /// Return the maximum exponent of this [FloatingPointValue].
+  int get maxExponent => _maxExp;
+
+  /// Return the minimum exponent of this [FloatingPointValue].
+  int get minExponent => _minExp;
+
+  final int _bias;
+  final int _maxExp;
+  final int _minExp;
+
   /// Factory (static) constructor of a [FloatingPointValue] from
   /// sign, mantissa and exponent
   factory FloatingPointValue(
@@ -191,13 +204,17 @@ class FloatingPointValue implements Comparable<FloatingPointValue> {
         sign: signLv, exponent: exponentLv, mantissa: mantissaLv);
   }
 
+  /// Constructor enabling subclasses.
   FloatingPointValue.withConstraints(
       {required this.sign,
       required this.exponent,
       required this.mantissa,
       int? mantissaWidth,
       int? exponentWidth})
-      : value = [sign, exponent, mantissa].swizzle() {
+      : value = [sign, exponent, mantissa].swizzle(),
+        _bias = computeBias(exponent.width),
+        _minExp = computeMinExponent(exponent.width),
+        _maxExp = computeMaxExponent(exponent.width) {
     if (sign.width != 1) {
       throw RohdHclException('FloatingPointValue: sign width must be 1');
     }
@@ -305,7 +322,7 @@ class FloatingPointValue implements Comparable<FloatingPointValue> {
     final fp64 = FloatingPoint64Value.fromDouble(inDouble);
     final exponent64 = fp64.exponent;
 
-    var expVal = (exponent64.toInt() - fp64.bias()) +
+    var expVal = (exponent64.toInt() - fp64.bias) +
         FloatingPointValue.computeBias(exponentWidth);
     // Handle subnormal
     final mantissa64 = [
@@ -460,7 +477,7 @@ class FloatingPointValue implements Comparable<FloatingPointValue> {
   }
 
   /// Return the bias of this FP format
-  int bias() => FloatingPointValue.computeBias(exponent.width);
+  // int bias() => FloatingPointValue.computeBias(exponent.width);
 
   @override
   bool operator ==(Object other) {
@@ -525,6 +542,26 @@ class FloatingPointValue implements Comparable<FloatingPointValue> {
   String toString() => '${sign.toString(includeWidth: false)}'
       ' ${exponent.toString(includeWidth: false)}'
       ' ${mantissa.toString(includeWidth: false)}';
+
+  /// Generate a random [FloatingPointValue] of the same widths.
+  FloatingPointValue random(Random rv, {bool normal = false}) {
+    final exponentWidth = exponent.width;
+    final mantissaWidth = mantissa.width;
+    final largestExponent = FloatingPointValue.computeBias(exponentWidth) +
+        FloatingPointValue.computeMaxExponent(exponentWidth);
+    final s = rv.nextLogicValue(width: 1).toInt();
+    var e = BigInt.one;
+    do {
+      e = rv
+          .nextLogicValue(width: exponentWidth, max: largestExponent)
+          .toBigInt();
+    } while ((e == BigInt.zero) & normal);
+    final m = rv.nextLogicValue(width: exponentWidth).toBigInt();
+    return FloatingPointValue(
+        sign: LogicValue.ofInt(s, 1),
+        exponent: LogicValue.ofBigInt(e, exponentWidth),
+        mantissa: LogicValue.ofBigInt(m, mantissaWidth));
+  }
 
   // TODO(desmonddak): what about floating point representations >> 64 bits?
   FloatingPointValue _performOp(
