@@ -5,28 +5,8 @@ import 'package:rohd_hcl/rohd_hcl.dart';
 import 'package:rohd_hcl/src/summation/gated_counter.dart';
 import 'package:rohd_vf/rohd_vf.dart';
 import 'package:test/test.dart';
-import 'sum_test.dart';
 
-Future<void> checkCounter(Counter counter) async {
-  // ignore: invalid_use_of_protected_member
-  counter.clk.posedge.listen((_) async {
-    var expected = counter.reset.previousValue!.toBool()
-        ? 0
-        : goldenSum(
-            // ignore: invalid_use_of_protected_member
-            counter.interfaces,
-            width: counter.width,
-            initialValue: counter.count.previousValue!.toInt(),
-          );
-
-    if (!counter.reset.previousValue!.toBool()) {
-      final actual = counter.count.value!.toInt();
-
-      // print('$expected -- $actual');
-      expect(actual, expected);
-    }
-  });
-}
+import 'summation_test_utils.dart';
 
 void main() {
   test('simple 1-counter incrementing always', () async {
