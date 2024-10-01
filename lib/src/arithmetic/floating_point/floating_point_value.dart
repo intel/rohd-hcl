@@ -359,6 +359,27 @@ class FloatingPointValue implements Comparable<FloatingPointValue> {
         sign: fp64.sign, exponent: exponent, mantissa: mantissa);
   }
 
+  /// Generate a random [FloatingPointValue], supplying random seed [rv].
+  factory FloatingPointValue.random(Random rv,
+      {required int exponentWidth,
+      required int mantissaWidth,
+      bool normal = false}) {
+    final largestExponent = FloatingPointValue.computeBias(exponentWidth) +
+        FloatingPointValue.computeMaxExponent(exponentWidth);
+    final s = rv.nextLogicValue(width: 1).toInt();
+    var e = BigInt.one;
+    do {
+      e = rv
+          .nextLogicValue(width: exponentWidth, max: largestExponent)
+          .toBigInt();
+    } while ((e == BigInt.zero) & normal);
+    final m = rv.nextLogicValue(width: mantissaWidth).toBigInt();
+    return FloatingPointValue(
+        sign: LogicValue.ofInt(s, 1),
+        exponent: LogicValue.ofBigInt(e, exponentWidth),
+        mantissa: LogicValue.ofBigInt(m, mantissaWidth));
+  }
+
   /// Convert a floating point number into a [FloatingPointValue]
   /// representation. This form performs NO ROUNDING.
   factory FloatingPointValue.fromDoubleIter(double inDouble,
@@ -542,26 +563,6 @@ class FloatingPointValue implements Comparable<FloatingPointValue> {
   String toString() => '${sign.toString(includeWidth: false)}'
       ' ${exponent.toString(includeWidth: false)}'
       ' ${mantissa.toString(includeWidth: false)}';
-
-  /// Generate a random [FloatingPointValue] of the same widths.
-  FloatingPointValue random(Random rv, {bool normal = false}) {
-    final exponentWidth = exponent.width;
-    final mantissaWidth = mantissa.width;
-    final largestExponent = FloatingPointValue.computeBias(exponentWidth) +
-        FloatingPointValue.computeMaxExponent(exponentWidth);
-    final s = rv.nextLogicValue(width: 1).toInt();
-    var e = BigInt.one;
-    do {
-      e = rv
-          .nextLogicValue(width: exponentWidth, max: largestExponent)
-          .toBigInt();
-    } while ((e == BigInt.zero) & normal);
-    final m = rv.nextLogicValue(width: mantissaWidth).toBigInt();
-    return FloatingPointValue(
-        sign: LogicValue.ofInt(s, 1),
-        exponent: LogicValue.ofBigInt(e, exponentWidth),
-        mantissa: LogicValue.ofBigInt(m, mantissaWidth));
-  }
 
   // TODO(desmonddak): what about floating point representations >> 64 bits?
   FloatingPointValue _performOp(

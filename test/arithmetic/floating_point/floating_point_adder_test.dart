@@ -292,8 +292,10 @@ void main() {
     final adder = FloatingPointAdder(fa, fb);
     final value = Random(513);
     for (var i = 0; i < 50; i++) {
-      final fva = fpv.random(value, normal: true);
-      final fvb = fpv.random(value, normal: true);
+      final fva = FloatingPointValue.random(value,
+          exponentWidth: eWidth, mantissaWidth: mWidth, normal: true);
+      final fvb = FloatingPointValue.random(value,
+          exponentWidth: eWidth, mantissaWidth: mWidth, normal: true);
       fa.put(fva);
       fb.put(fvb);
       // fromDoubleIter does not round like '+' would
