@@ -3,5 +3,4 @@
 
 export 'floating_point_adder.dart';
 export 'floating_point_logic.dart';
-export 'floating_point_multiplier.dart';
 export 'floating_point_value.dart';
