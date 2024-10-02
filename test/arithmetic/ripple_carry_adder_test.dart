@@ -178,8 +178,8 @@ void main() {
         a.put(randA);
         b.put(randB);
         carryIn.put(randC);
-        expect(rippleCarryAdder.sum.value.toInt(),
-          equals(randA + randB + randC));
+        expect(
+            rippleCarryAdder.sum.value.toInt(), equals(randA + randB + randC));
       }
     });
 
@@ -208,7 +208,7 @@ void main() {
       await rippleCarryAdder.build();
 
       expect(rippleCarryAdder.sum.value.toBigInt(),
-        (BigInt.one << a.width) + BigInt.from(1));
+          (BigInt.one << a.width) + BigInt.from(1));
       expect(rippleCarryAdder.sum.value.width, a.width + 1);
       expect(rippleCarryAdder.sum.value[widthLength], equals(LogicValue.one));
     });

@@ -22,21 +22,19 @@ class RippleCarryAdder extends Adder {
     final adder = RippleCarryAdderC(a, b, Const(0));
     sum <= adder.sum;
   }
-  
 }
-/// An [RippleCarryAdderC] is a digital circuit used for binary addition with 
+
+/// An [RippleCarryAdderC] is a digital circuit used for binary addition with
 /// exposed carry signals.
 /// It consists of a series of full adders connected in a chain, with the carry
 /// output of each adder linked to the carry input of the next one. Starting
 /// from the least significant bit (LSB) to most significant bit (MSB), the
 /// adder sequentially adds corresponding bits of two binary numbers.
 class RippleCarryAdderC extends Adder {
-
-  
-   /// Constructs an n-bit adder based on inputs List of inputs.
-  RippleCarryAdderC(super.a, super.b, Logic carryIn, 
-    {super.name = 'ripple_carry_adder_carry_in'}) {
-        carryIn = addInput('carry_in', carryIn, width: carryIn.width);
+  /// Constructs an n-bit adder based on inputs List of inputs.
+  RippleCarryAdderC(super.a, super.b, Logic carryIn,
+      {super.name = 'ripple_carry_adder_carry_in'}) {
+    carryIn = addInput('carry_in', carryIn, width: carryIn.width);
     Logic? carry;
     final sumList = <Logic>[];
     for (var i = 0; i < a.width; i++) {
