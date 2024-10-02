@@ -276,12 +276,12 @@ void main() {
 
   group('random counter', () {
     final rand = Random(456);
-    const numRandCounters = 1;
+    const numRandCounters = 20;
     const restartProbability = 0.05;
 
     for (var counterIdx = 0; counterIdx < numRandCounters; counterIdx++) {
       test('$counterIdx', () async {
-        const numCycles = 20;
+        const numCycles = 100;
 
         final cfg = genRandomSummationConfiguration();
 
@@ -296,11 +296,16 @@ void main() {
           clk: clk,
           reset: reset,
           restart: restart,
+          minValue: cfg.minValue,
+          maxValue: cfg.maxValue,
+          saturates: cfg.saturates,
+          width: cfg.width,
+          resetValue: cfg.initialValue,
         );
 
         await dut.build();
 
-        WaveDumper(dut);
+        // WaveDumper(dut);
 
         unawaited(Simulator.run());
 

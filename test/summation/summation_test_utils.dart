@@ -114,23 +114,30 @@ List<SumInterface> genRandomInterfaces() {
 }
 
 void checkCounter(Counter counter) {
-  counter.clk.posedge.listen((_) async {
+  final sub = counter.clk.posedge.listen((_) async {
     final expected = counter.reset.previousValue!.toBool()
         ? 0
         : goldenSum(
             counter.interfaces,
             width: counter.width,
+            saturates: counter.saturates,
+            minVal: counter.minValueLogic.value.toInt(),
+            maxVal: counter.maxValueLogic.value.toInt(),
             initialValue: (counter.restart?.previousValue!.toBool() ?? false)
                 ? counter.initialValueLogic.value.toInt()
                 : counter.count.previousValue!.toInt(),
           );
 
     if (!counter.reset.previousValue!.toBool()) {
-      final actual = counter.count.value!.toInt();
+      final actual = counter.count.value.toInt();
 
       // print('$expected -- $actual');
       expect(actual, expected);
     }
+  });
+
+  Simulator.registerEndOfSimulationAction(() async {
+    await sub.cancel();
   });
 }
 
