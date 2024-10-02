@@ -24,6 +24,7 @@ extension NumericVector on LogicValue {
   /// You can insert a separator [sepChar] at position [sepPos].
   /// A header can be printed by setting [header] to true.
   /// Markdown format can be produced by setting [markDown] to true.
+  /// The output can have space by setting [extraSpace]
   String vecString(String name,
       {int prefix = 10,
       int? alignHigh,
@@ -31,10 +32,11 @@ extension NumericVector on LogicValue {
       bool header = false,
       String sepChar = '*',
       int alignLow = 0,
+      int extraSpace = 0,
       bool markDown = false}) {
     final str = StringBuffer();
     final minHigh = min(alignHigh ?? width, width);
-    final length = BigInt.from(minHigh).toString().length + 1;
+    final length = BigInt.from(minHigh).toString().length + extraSpace;
     // ignore: cascade_invocations
     const hdrSep = '| ';
     const hdrSepStart = '| ';
@@ -46,10 +48,11 @@ extension NumericVector on LogicValue {
       str.write(markDown ? '$hdrSepStart Name' : ' ' * prefix);
 
       for (var col = highLimit; col >= alignLow; col--) {
-        final chars = BigInt.from(col).toString().length + 1;
+        final chars = BigInt.from(col).toString().length + extraSpace;
         if (sepPos != null && sepPos == col) {
           str
-            ..write(markDown ? ' $hdrSep' : ' ' * (length - chars + 2))
+            ..write(
+                markDown ? ' $hdrSep' : ' ' * (length - chars + 1 + extraSpace))
             ..write('$col$sepChar')
             ..write(markDown ? ' $hdrSep' : '');
         } else if (sepPos != null && sepPos == col + 1) {
@@ -58,10 +61,11 @@ extension NumericVector on LogicValue {
               ..write(sepChar)
               ..write(markDown ? ' $hdrSep' : ' ' * (length - chars - 1));
           }
-          str.write('${' ' * (length - chars + 1)}$col');
+          str.write('${' ' * (length - chars + extraSpace + 0)}$col');
         } else {
           str
-            ..write(markDown ? ' $hdrSep' : ' ' * (length - chars + 2))
+            ..write(
+                markDown ? ' $hdrSep' : ' ' * (length - chars + 1 + extraSpace))
             ..write('$col');
         }
       }
@@ -110,50 +114,5 @@ extension NumericVector on LogicValue {
       str.write(' $dataSepEnd');
     }
     return str.toString();
-  }
-}
-
-void main() {
-  final lv0 = LogicValue.ofInt(42, 15);
-  final lv1 = LogicValue.ofInt(117, 15);
-  // No separator
-  print(lv0.vecString('lv0', header: true));
-  print(lv1.vecString('lv1_with_ridiculously_long_name'));
-  // Separator
-  print(lv0.vecString('lv0', sepPos: 8));
-  print(lv1.vecString('lv1_with_ridiculously_long_name', sepPos: 8));
-  print(lv1.vecString('lv1_with_ridiculously_long_name', sepPos: 8));
-  // separator at double-digits
-  print(lv0.vecString('lv0', sepPos: 12, alignHigh: 24, header: true));
-  print(lv1.vecString('lv1_with_ridiculously_long_name',
-      alignHigh: 24, sepPos: 12));
-  // transition to single-digit separator
-  print(lv0.vecString('lv0', sepPos: 10, alignHigh: 24, header: true));
-  print(lv1.vecString('lv1_with_ridiculously_long_name',
-      alignHigh: 24, sepPos: 10));
-  print(lv0.vecString('lv0', sepPos: 9, alignHigh: 24, header: true));
-  print(lv1.vecString('lv1_with_ridiculously_long_name',
-      alignHigh: 24, sepPos: 9));
-  // Single digit separator
-  print(lv0.vecString('lv0', sepPos: 8, alignHigh: 24, header: true));
-  print(lv1.vecString('lv1_with_ridiculously_long_name',
-      alignHigh: 24, sepPos: 8));
-  // Separator at zero
-  print(lv0.vecString('lv0', sepPos: 0, alignHigh: 24, header: true));
-  print(lv1.vecString('lv1_with_ridiculously_long_name',
-      alignHigh: 24, sepPos: 0));
-  final ref = FloatingPoint64Value.fromDouble(3.14159);
-  print(ref);
-  print(ref.mantissa
-      .vecString('reference', alignLow: 31, header: true, sepPos: 52));
-  print('');
-
-  print(ref.mantissa.vecString('reference',
-      alignLow: 31, header: true, sepPos: 48, markDown: true));
-  print('');
-  final lv2 = LogicValue.ofInt(42, 12);
-  print(lv2.vecString('lv2', header: true, markDown: true));
-  for (var i = lv2.width; i >= 0; i--) {
-    print(lv2.vecString('lv2', sepPos: i, markDown: true));
   }
 }
