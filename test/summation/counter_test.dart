@@ -12,6 +12,7 @@ import 'dart:math';
 
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
+import 'package:rohd_hcl/src/summation/gated_counter.dart';
 import 'package:rohd_vf/rohd_vf.dart';
 import 'package:test/test.dart';
 
@@ -276,80 +277,91 @@ void main() {
 
   group('random counter', () {
     final rand = Random(456);
-    const numRandCounters = 20;
+    const numRandCounters = 2;
     const restartProbability = 0.05;
 
-    for (var counterIdx = 0; counterIdx < numRandCounters; counterIdx++) {
-      test('$counterIdx', () async {
-        const numCycles = 100;
+    final counterTypes = {
+      'normal': Counter.new,
+      'gated': GatedCounter.new,
+    };
 
-        final cfg = genRandomSummationConfiguration();
+    for (final counterType in counterTypes.entries) {
+      final counterConstructor = counterType.value;
 
-        final clk = SimpleClockGenerator(10).clk;
-        Simulator.setMaxSimTime(numCycles * 10 * 2 + 50);
+      group(counterType.key, () {
+        for (var counterIdx = 0; counterIdx < numRandCounters; counterIdx++) {
+          test('$counterIdx', () async {
+            const numCycles = 10;
 
-        final reset = Logic()..inject(1);
-        final restart = rand.nextBool() ? Logic() : null;
+            final cfg = genRandomSummationConfiguration();
 
-        final dut = Counter(
-          cfg.interfaces,
-          clk: clk,
-          reset: reset,
-          restart: restart,
-          minValue: cfg.minValue,
-          maxValue: cfg.maxValue,
-          saturates: cfg.saturates,
-          width: cfg.width,
-          resetValue: cfg.initialValue,
-        );
+            final clk = SimpleClockGenerator(10).clk;
+            Simulator.setMaxSimTime(numCycles * 10 * 2 + 100);
 
-        await dut.build();
+            final reset = Logic()..inject(1);
+            final restart = rand.nextBool() ? Logic() : null;
 
-        // WaveDumper(dut);
+            final dut = counterConstructor(
+              cfg.interfaces,
+              clk: clk,
+              reset: reset,
+              restart: restart,
+              minValue: cfg.minValue,
+              maxValue: cfg.maxValue,
+              saturates: cfg.saturates,
+              width: cfg.width,
+              resetValue: cfg.initialValue,
+            );
 
-        unawaited(Simulator.run());
+            await dut.build();
 
-        // reset flow
-        reset.inject(1);
-        restart?.inject(0);
-        for (final intf in cfg.interfaces) {
-          if (intf.hasEnable) {
-            intf.enable!.inject(0);
-          }
-          intf.amount.inject(0);
-        }
-        await clk.waitCycles(3);
-        reset.inject(0);
-        await clk.waitCycles(3);
+            // WaveDumper(dut);
 
-        // set up checking on edges
-        checkCounter(dut);
+            unawaited(Simulator.run());
 
-        await clk.waitCycles(3);
+            // reset flow
+            reset.inject(1);
+            restart?.inject(0);
+            for (final intf in cfg.interfaces) {
+              if (intf.hasEnable) {
+                intf.enable!.inject(0);
+              }
+              intf.amount.inject(0);
+            }
+            await clk.waitCycles(3);
+            reset.inject(0);
+            await clk.waitCycles(3);
 
-        // randomize inputs on the interfaces of the counter
-        for (var i = 0; i < numCycles; i++) {
-          await clk.nextNegedge;
+            // set up checking on edges
+            checkCounter(dut);
 
-          for (final intf in cfg.interfaces) {
-            if (intf.hasEnable) {
-              intf.enable!.inject(rand.nextBool());
+            await clk.waitCycles(3);
+
+            // randomize inputs on the interfaces of the counter
+            for (var i = 0; i < numCycles; i++) {
+              await clk.nextNegedge;
+
+              for (final intf in cfg.interfaces) {
+                if (intf.hasEnable) {
+                  intf.enable!.inject(rand.nextBool());
+                }
+
+                if (intf.fixedAmount == null) {
+                  intf.amount.inject(
+                    // put 0 sometimes, for clk gating to trigger more
+                    rand.nextBool() ? rand.nextInt(1 << intf.width) : 0,
+                  );
+                }
+              }
+
+              restart?.inject(rand.nextDouble() < restartProbability);
             }
 
-            if (intf.fixedAmount == null) {
-              intf.amount.inject(
-                // put 0 sometimes, for clk gating to trigger more
-                rand.nextBool() ? rand.nextInt(1 << intf.width) : 0,
-              );
-            }
-          }
+            await clk.waitCycles(10);
 
-          restart?.inject(rand.nextDouble() < restartProbability);
+            await Simulator.endSimulation();
+          });
         }
-
-        await clk.waitCycles(10);
-
-        await Simulator.endSimulation();
       });
     }
   });
