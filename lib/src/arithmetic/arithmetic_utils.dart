@@ -76,7 +76,7 @@ extension NumericVector on LogicValue {
     }
     final String strPrefix;
     strPrefix = markDown
-        ? name
+        ? '| $name'
         : (name.length <= prefix)
             ? name.padRight(prefix)
             : name.substring(0, prefix);
