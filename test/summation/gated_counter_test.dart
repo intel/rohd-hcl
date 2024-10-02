@@ -43,8 +43,8 @@ void main() {
     checkCounter(dut);
     final toggleCounter = ClockToggleCounter(dut);
 
-    WaveDumper(dut);
-    print(dut.generateSynth());
+    // WaveDumper(dut);
+    // print(dut.generateSynth());
 
     Simulator.setMaxSimTime(10000);
     unawaited(Simulator.run());
@@ -59,6 +59,12 @@ void main() {
     expect(toggleCounter.lowerActivity, greaterThan(0.95));
     expect(toggleCounter.upperActivity, lessThan(0.75));
   });
+
+  //TODO: testplan:
+  // - if saturates, then no risk of over/underflow
+  // - if incrementing by large amount, then lower bits don't need to enable?
+  // - when nothing is enabled, whole counter is gated
+  // - toggle gate does a good job of gating toggles, enabling clock for it properly
 
   //TODO: checks that clock is actually gating in some interesting cases!
 }

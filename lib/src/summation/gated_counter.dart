@@ -22,22 +22,15 @@ class GatedCounter extends Counter {
 
           if (intf.hasEnable && intf.fixedAmount == null) {
             // only need to ungate if enable is high
-            final gateEnable = intf.enable!;
-
-            final intfGatedClk = sameCycleClockGate
-                ? ClockGate(clk,
-                        enable: gateEnable,
-                        reset: reset,
-                        controlIntf: _clockGateControlInterface)
-                    .gatedClk
-                : clk;
 
             intf.amount <=
                 ToggleGate(
-                        enable: gateEnable,
-                        data: intf.amount,
-                        clk: intfGatedClk)
-                    .gatedData;
+                  enable: e.enable!,
+                  data: e.amount,
+                  clk: clk,
+                  reset: reset,
+                  clockGateControlIntf: _clockGateControlInterface,
+                ).gatedData;
           } else if (intf.fixedAmount == null) {
             intf.amount <= e.amount;
           }
