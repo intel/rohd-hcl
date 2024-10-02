@@ -323,7 +323,7 @@ void main() {
 
             await dut.build();
 
-            WaveDumper(dut);
+            // WaveDumper(dut);
 
             unawaited(Simulator.run());
 
@@ -341,7 +341,7 @@ void main() {
             await clk.waitCycles(3);
 
             // set up checking on edges
-            // checkCounter(dut);
+            checkCounter(dut);
 
             await clk.waitCycles(3);
 

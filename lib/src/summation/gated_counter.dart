@@ -123,7 +123,7 @@ class GatedCounter extends Counter {
       var intfInDangerZone = intf.amount
           .getRange(
             overflowDangerZoneStart,
-            width,
+            min(intf.width, width),
           )
           .or();
 
