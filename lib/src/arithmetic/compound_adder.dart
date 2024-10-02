@@ -8,7 +8,6 @@
 // 2023 June 1
 // Author: Yao Jing Quek <yao.jing.quek@intel.com>
 
-import 'package:meta/meta.dart';
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
 
@@ -78,29 +77,38 @@ class CarrySelectCompoundAdder extends CompoundAdder {
     List<int> Function(int)
       widthGen = splitSelectAdderAlgorithmSingleBlock}
   ) {
-    final adderSplit = widthGen(a.width);
+    // output bits lists
     final sumList0 = <Logic>[];
     final sumList1 = <Logic>[];
+    // carryout of previous ripple-carry adder block
+    // for sum and sum+1
     Logic? carry0;
     Logic? carry1;
+    // Get size of each ripple-carry adder block
+    final adderSplit = widthGen(a.width); 
+    // 1st output bit index of each block
     var blockStartIdx = 0;
     for (var i = 0; i < adderSplit.length; ++i) {
+      // input width of current ripple-carry adder block
       final blockWidth = adderSplit[i];
       final blockA = Logic(name: 'block_${i}_a', width: blockWidth);
       final blockB = Logic(name: 'block_${i}_b', width: blockWidth);
       blockA <= a.slice(blockStartIdx + blockWidth - 1, blockStartIdx);
       blockB <= b.slice(blockStartIdx + blockWidth - 1, blockStartIdx);
+      // Build ripple-carry adders for 0 and 1 carryin values
       final fullAdder0 = RippleCarryAdderC(
           blockA, blockB, Const(0), name: 'block0');
       final fullAdder1 = RippleCarryAdderC(
           blockA, blockB, Const(1), name: 'block1');
       for (var bitIdx = 0; bitIdx < blockWidth; ++bitIdx) {
         if (i == 0) {
+          // connect directly to respective sum output bit
           sumList0.add(fullAdder0.sum[bitIdx]);
           sumList1.add(fullAdder1.sum[bitIdx]);
         } else {
           final bitOut0 = Logic(name: 'bit0_${blockStartIdx + bitIdx}');
           final bitOut1 = Logic(name: 'bit1_${blockStartIdx + bitIdx}');
+          // select adder output from adder matching carryin value
           bitOut0 <= mux(carry0!,
             fullAdder1.sum[bitIdx], fullAdder0.sum[bitIdx]);
           bitOut1 <= mux(carry1!,
@@ -110,9 +118,11 @@ class CarrySelectCompoundAdder extends CompoundAdder {
         }
       }
       if (i == 0) {
+        // select carryout as a last bit of adder
         carry0 = fullAdder0.sum[blockWidth];
         carry1 = fullAdder1.sum[blockWidth];
       } else {
+        // select carryout depending on carryin (carryout of the previous block)
         carry0 = mux(carry0!,
           fullAdder1.sum[blockWidth], fullAdder0.sum[blockWidth]);
         carry1 = mux(carry1!,
@@ -120,7 +130,8 @@ class CarrySelectCompoundAdder extends CompoundAdder {
       }
       blockStartIdx += blockWidth;
     }
-
+    
+    // append carryout bit
     sumList0.add(carry0!);
     sumList1.add(carry1!);
 
