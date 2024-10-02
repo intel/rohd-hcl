@@ -1,8 +1,8 @@
 // Copyright (C) 2024 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 //
-// floating_point.dart
-// Implementation of Floating Point stuff
+// floating_point_value.dart
+// Implementation of Floating-Point value representations.
 //
 // 2024 April 1
 // Authors:
@@ -68,12 +68,12 @@ enum FloatingPointRoundingMode {
   /// Round toward +infinity
   roundTowardsInfinity,
 
-  /// Round toward zero
+  /// Round toward -infinity
   roundTowardsNegativeInfinity
 }
 
 /// A flexible representation of floating point values.
-/// A[FloatingPointValue] hasa mantissa in [0,2) with
+/// A [FloatingPointValue] hasa mantissa in [0,2) with
 /// 0 <= exponent <= maxExponent();  A normal [isNormal] [FloatingPointValue]
 /// has minExponent() <= exponent <= maxExponent() and a mantissa in the
 /// range of [1,2).  Subnormal numbers are represented with a zero exponent

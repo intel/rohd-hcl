@@ -1,8 +1,8 @@
 // Copyright (C) 2024 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 //
-// floating_point_test.dart
-// Tests of Floating Point stuff
+// floating_point_adder.dart
+// A very basic Floating-point adder component.
 //
 // 2024 August 30
 // Author: Desmond A Kirkpatrick <desmond.a.kirkpatrick@intel.com

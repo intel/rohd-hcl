@@ -40,7 +40,9 @@ extension EvaluateLiveColumnCompressor on ColumnCompressor {
         }
       }
       rowBits.addAll(List.filled(pp.rowShift[row], LogicValue.zero));
-      final val = rowBits.swizzle().zeroExtend(width).toBigInt();
+      // final val = rowBits.swizzle().zeroExtend(width).toBigInt();
+      final val = rowBits.swizzle().toBigInt();
+
       accum += val;
       if (printOut) {
         ts.write('\t${rowBits.swizzle().zeroExtend(width).bitString} ($val)');

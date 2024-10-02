@@ -199,3 +199,40 @@ Finally, we produce the product.
         compressor.exractRow(0), compressor.extractRow(1), BrentKung.new);
     product <= adder.sum.slice(a.width + b.width - 1, 0);
 ```
+
+## Utility: Aligned Vector Formatting
+
+We provide an extension on `LogicValue` which permits formatting of binary vectors in an aligned way to help with debugging arithmetic components.
+
+The `vecString` extension provides a basic string printer with an optional `header` flag for bit numbering.  A `prefix` value can be used to specify the name lengths to be used to keep vectors aligned.
+
+`alignHigh` controls the highest (toward MSB) alignment column of the output whereas `alignLow` controls the lower limit (toward the LSB).
+
+`sepPos' is optional and allows you to set a marker for a separator in the number.
+`sepChar` is the separation character you wish to use (do not use '|' with markdown formatting.)
+
+```dart
+  final ref = FloatingPoint64Value.fromDouble(3.14159);
+  print(ref.mantissa
+      .vecString('pi', align: 55, lowLimit: 40, header: true, sep: 52));
+```
+
+Produces
+
+```text
+            54  53  52* 51  50  49  48  47  46  45  44  43  42  41  40
+pi                    *  1   0   0   1   0   0   1   0   0   0   0   1
+```
+
+The routine also allows for output in markdown format:
+
+```dart
+  print(ref.mantissa.vecString('pi',
+      align: 58, lowLimit: 40, header: true, sep: 52, markDown: true));
+```
+
+producing:
+
+| Name | 54 | 53 | 52* |  51 | 50 | 49 | 48 | 47 | 46 | 45 | 44 | 43 | 42 | 41 | 40 |
+|:--:|:--|:--|:--|:--|:--|:--|:--|:--|:--|:--|:--|:--|:--|:--|:---|
+pi|||* | 1 | 0 | 0 | 1 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 1 |

@@ -6,8 +6,15 @@ Floating-point operations require meticulous precision, and have standards like 
 
 The `FloatingPointValue` class comprises the sign, exponent, and mantissa `LogicValue`s that represent a floating-point number. `FloatingPointValue`s can be converted to and from Dart native `Double`s, as well as constructed from integer and string representations of their fields.  They can be operated on (+, -, *, /) and compared.
 
-A `FloatingPointValue` has a mantissa in $[0,2)$ with $$0 <= exponent <= `maxExponent`$$ A normal `isNormal` `FloatingPointValue`
-has $$`minExponent` <= exponent <= `maxExponent`$$ and a mantissa in the range of $[1,2)$.  Subnormal numbers are represented with a zero exponent and leading zeros in the mantissa capture the negative exponent value.
+A `FloatingPointValue` has a mantissa in $[0,2)$ with
+
+$$0 <= exponent <= maxExponent$$
+
+A normal `isNormal` `FloatingPointValue` has:
+
+$$minExponent <= exponent <= maxExponent$$
+
+ and a mantissa in the range of $[1,2)$.  Subnormal numbers are represented with a zero exponent and leading zeros in the mantissa capture the negative exponent value.
 
 The various IEEE constants representing corner cases of the field of floating-point values for a given size of `FloatingPointValue`: infinities, zeros, limits for normal (e.g. mantissa in the range of $[1,2])$ and sub-normal numbers (zero exponent, and mantissa <1).
 
@@ -25,6 +32,6 @@ Again, like `FloatingPointValue`, `FloatingPoint64` and `FloatingPoint32` subcla
 
 ## FloatingPointAdder
 
-A very basic `FloatingPointAdder` component is available which does not perform any rounding. It takes two `FloatingPoint` `LogicStructure`s and adds them, returning a normalized `FloatingPointValue` on the output.  An option on input is the type of `ParallelPrefixTree` used in the internal addition of the mantissas.
+A very basic `FloatingPointAdder` component is available which does not perform any rounding. It takes two `FloatingPoint` `LogicStructure`s and adds them, returning a normalized `FloatingPoint` on the output.  An option on input is the type of `ParallelPrefixTree` used in the internal addition of the mantissas.
 
 Currently, the `FloatingPointAdder` is close in accuracy (as it has no rounding) and is not optimized for circuit performance, but only provides the key functionalities of alignment, addition, and normalization.  Still, this component is a starting point for more realistic floating-point components that leverage the logical `FloatingPoint` and literal `FloatingPointValue` type abstractions.
