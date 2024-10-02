@@ -10,6 +10,7 @@ class ToggleGate extends Module {
       Logic? reset}) {
     enable = addInput('enable', enable);
     data = addInput('data', data, width: data.width);
+    clk = addInput('clk', clk);
     if (reset != null) {
       reset = addInput('reset', reset);
     }

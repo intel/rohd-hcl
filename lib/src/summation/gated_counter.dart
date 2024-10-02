@@ -46,8 +46,15 @@ class GatedCounter extends Counter {
         }).toList()
       : super.interfaces;
 
-  final int clkGatePartitionIndex;
+  late final int clkGatePartitionIndex;
+  int? _providedClkGateParitionIndex;
 
+  /// TODO
+  ///
+  /// If the [clkGatePartitionIndex] is less than 0 or greater than the [width],
+  /// then the entire counter will be gated together rather than partitioned. If
+  /// no [clkGatePartitionIndex] is provided, the counter will attempt to infer
+  /// a good partition index based on the interfaces provided.
   GatedCounter(
     super.interfaces, {
     required super.clk,
@@ -60,11 +67,10 @@ class GatedCounter extends Counter {
     super.saturates,
     this.gateToggles = true,
     ClockGateControlInterface? clockGateControlInterface,
-    this.sameCycleClockGate = true,
+    this.sameCycleClockGate = true, //TODO: ditch this?
     int? clkGatePartitionIndex,
     super.name,
-  }) : clkGatePartitionIndex =
-            clkGatePartitionIndex ?? _minPartitionIndex(interfaces) {
+  }) : _providedClkGateParitionIndex = clkGatePartitionIndex {
     if (clockGateControlInterface != null) {
       clockGateControlInterface =
           ClockGateControlInterface.clone(clockGateControlInterface)
@@ -148,7 +154,7 @@ class GatedCounter extends Counter {
       anyIntfIncrementing |= intfIsIncrementing;
     }
     final topMayOverflow =
-        anyIntfIncrementing & count.getRange(maxValueBit, width + 1).or();
+        anyIntfIncrementing & count.getRange(maxValueBit, width).or();
 
     return topMayOverflow |
         (anyIntfInIncrDangerZone & counterInOverflowDangerZone);
@@ -206,6 +212,10 @@ class GatedCounter extends Counter {
   late final _mayWrap = Logic(name: 'mayWrap')
     ..gets(_mayUnderflow | _mayOverflow);
 
+  @protected
+  late final lowerEnable = Logic(name: 'lowerEnable')
+    ..gets(_calculateLowerEnable());
+
   Logic _calculateLowerEnable() {
     Logic lowerEnable = Const(0); // default, not enabled
 
@@ -250,6 +260,10 @@ class GatedCounter extends Counter {
         .swizzle()
         .or());
 
+  @protected
+  late final upperEnable = Logic(name: 'upperEnable')
+    ..gets(_calculateUpperEnable());
+
   Logic _calculateUpperEnable() {
     Logic upperEnable = Const(0); // default, not enabled
 
@@ -272,8 +286,12 @@ class GatedCounter extends Counter {
       clkGatePartitionIndex - log2Ceil(_incrementingInterfaces.length + 1),
     );
 
-    final currentCountInIncrDangerZone =
-        count.getRange(incrDangerZoneStart, clkGatePartitionIndex).or();
+    final currentCountInIncrDangerZone = count
+        .getRange(
+          min(incrDangerZoneStart, width),
+          min(clkGatePartitionIndex, width),
+        )
+        .or();
 
     Logic anyIntfInIncrDangerZone = Const(0);
     // for increments...
@@ -303,15 +321,24 @@ class GatedCounter extends Counter {
 
     // let's just draw the line half way for now?
     final decrDangerZoneStart = clkGatePartitionIndex ~/ 2;
-    final currentCountInDecrDangerZone =
-        ~count.getRange(decrDangerZoneStart, clkGatePartitionIndex).or();
+    final currentCountInDecrDangerZone = ~count
+        .getRange(
+          min(width, decrDangerZoneStart),
+          min(width, clkGatePartitionIndex),
+        )
+        .or();
 
     Logic anyIntfEndangersDecr = Const(0);
     for (final intf in _decrementingInterfaces) {
       var intfEndangersDecrZone = intf.amount
           .getRange(
-            decrDangerZoneStart - log2Ceil(_decrementingInterfaces.length + 1),
-            clkGatePartitionIndex,
+            min(
+                intf.width,
+                max(
+                    0,
+                    decrDangerZoneStart -
+                        log2Ceil(_decrementingInterfaces.length + 1))),
+            min(intf.width, clkGatePartitionIndex),
           )
           .or();
 
@@ -357,39 +384,56 @@ class GatedCounter extends Counter {
     // - index provided and samecycle is ok -> use it
     // - index provided and no samecycle and index less than inferred min -> exception
 
-    final lowerClkGate = ClockGate(clk,
-        enable: _calculateLowerEnable(),
+    clkGatePartitionIndex =
+        _providedClkGateParitionIndex ?? _pickPartitionIndex();
+
+    if (clkGatePartitionIndex >= width || clkGatePartitionIndex < 0) {
+      // just gate the whole thing together
+      final clkGate = ClockGate(clk,
+          enable: lowerEnable | upperEnable,
+          reset: reset,
+          controlIntf: _clockGateControlInterface);
+
+      count <=
+          flop(
+            clkGate.gatedClk,
+            sum,
+            reset: reset,
+            resetValue: initialValueLogic,
+          );
+    } else {
+      final lowerClkGate = ClockGate(clk,
+          enable: lowerEnable,
+          reset: reset,
+          controlIntf: _clockGateControlInterface,
+          name: 'lower_clock_gate');
+
+      final upperClkGate = ClockGate(clk,
+          enable: upperEnable,
+          reset: reset,
+          controlIntf: _clockGateControlInterface,
+          name: 'upper_clock_gate');
+
+      final lowerCount = flop(
+        lowerClkGate.gatedClk,
+        sum.getRange(0, clkGatePartitionIndex),
         reset: reset,
-        controlIntf: _clockGateControlInterface);
+        resetValue: initialValueLogic.getRange(0, clkGatePartitionIndex),
+      );
 
-    final upperClkGate = ClockGate(clk,
-        enable: _calculateUpperEnable(),
+      final upperCount = flop(
+        upperClkGate.gatedClk,
+        sum.getRange(clkGatePartitionIndex),
         reset: reset,
-        controlIntf: _clockGateControlInterface);
+        resetValue: initialValueLogic.getRange(clkGatePartitionIndex),
+      );
 
-    final lowerCount = flop(
-      lowerClkGate.gatedClk,
-      sum.getRange(0, clkGatePartitionIndex),
-      reset: reset,
-      resetValue: initialValueLogic.getRange(0, clkGatePartitionIndex),
-    );
-
-    final upperCount = flop(
-      upperClkGate.gatedClk,
-      sum.getRange(clkGatePartitionIndex),
-      reset: reset,
-      resetValue: initialValueLogic.getRange(clkGatePartitionIndex),
-    );
-
-    count <= [upperCount, lowerCount].swizzle();
+      count <= [upperCount, lowerCount].swizzle();
+    }
   }
 
-  static int _minPartitionIndex(List<SumInterface> interfaces) {
-    final maxIncr = interfaces
-        .where((e) => e.increments)
-        .map((e) => e.maxIncrementMagnitude)
-        .reduce((a, b) => a + b);
-
-    return LogicValue.ofInferWidth(maxIncr + BigInt.one).clog2().toInt();
+  int _pickPartitionIndex() {
+    //TODO: make this a better estimate
+    return width ~/ 2;
   }
 }

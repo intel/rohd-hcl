@@ -9,6 +9,10 @@ import 'package:test/test.dart';
 import 'summation_test_utils.dart';
 
 void main() {
+  tearDown(() async {
+    await Simulator.reset();
+  });
+
   test('simple 1-counter incrementing always', () async {
     final clk = SimpleClockGenerator(10).clk;
     final reset = Logic()..inject(1);
@@ -17,7 +21,7 @@ void main() {
 
     await dut.build();
 
-    unawaited(checkCounter(dut));
+    checkCounter(dut);
 
     WaveDumper(dut);
 

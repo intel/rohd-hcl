@@ -280,15 +280,10 @@ void main() {
     const numRandCounters = 2;
     const restartProbability = 0.05;
 
-    final counterTypes = {
-      'normal': Counter.new,
-      'gated': GatedCounter.new,
-    };
+    final counterTypes = ['normal', 'gated'];
 
-    for (final counterType in counterTypes.entries) {
-      final counterConstructor = counterType.value;
-
-      group(counterType.key, () {
+    for (final counterType in counterTypes) {
+      group(counterType, () {
         for (var counterIdx = 0; counterIdx < numRandCounters; counterIdx++) {
           test('$counterIdx', () async {
             const numCycles = 10;
@@ -301,17 +296,30 @@ void main() {
             final reset = Logic()..inject(1);
             final restart = rand.nextBool() ? Logic() : null;
 
-            final dut = counterConstructor(
-              cfg.interfaces,
-              clk: clk,
-              reset: reset,
-              restart: restart,
-              minValue: cfg.minValue,
-              maxValue: cfg.maxValue,
-              saturates: cfg.saturates,
-              width: cfg.width,
-              resetValue: cfg.initialValue,
-            );
+            final dut = counterType == 'normal'
+                ? Counter(
+                    cfg.interfaces,
+                    clk: clk,
+                    reset: reset,
+                    restart: restart,
+                    minValue: cfg.minValue,
+                    maxValue: cfg.maxValue,
+                    saturates: cfg.saturates,
+                    width: cfg.width,
+                    resetValue: cfg.initialValue,
+                  )
+                : GatedCounter(cfg.interfaces,
+                    clk: clk,
+                    reset: reset,
+                    restart: restart,
+                    minValue: cfg.minValue,
+                    maxValue: cfg.maxValue,
+                    saturates: cfg.saturates,
+                    width: cfg.width,
+                    resetValue: cfg.initialValue,
+                    gateToggles: rand.nextBool(),
+                    clkGatePartitionIndex:
+                        rand.nextBool() ? null : rand.nextInt(11) - 1);
 
             await dut.build();
 
