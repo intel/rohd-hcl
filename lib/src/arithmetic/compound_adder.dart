@@ -11,7 +11,7 @@
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
 
-/// An abstract class for all compound adder module.
+/// An abstract class for all compound adder module implementations.
 abstract class CompoundAdder extends Adder {
 
   /// The addition results (+1) in 2s complement form as [sum1]
@@ -56,11 +56,11 @@ class CarrySelectCompoundAdder extends CompoundAdder {
   }
 
   /// Adder ripple-carry block size computation algorithm.
-  /// Generates 4 bit carry-select blocks with 1st entry width adjusted
+  /// Generates 4 bit carry-select blocks with 1st entry width adjusted down.
   /// Return list of carry-ripple block sizes starting from 
   /// the LSB connected one.
   /// [adderWidth] is a whole width of adder.
-  static List<int> splitSelectAdder4BitAlgorithm(int adderWidth) {
+  static List<int> splitSelectAdderAlgorithm4Bit(int adderWidth) {
     final blockNb = (adderWidth / 4.0).ceil();
     final firstBlockSize = adderWidth - (blockNb - 1) * 4;
     final splitData = <int>[firstBlockSize];
