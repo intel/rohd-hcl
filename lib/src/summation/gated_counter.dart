@@ -102,7 +102,7 @@ class GatedCounter extends Counter {
     final maxValueBit = LogicValue.ofInferWidth(constantMaxValue).width - 1;
 
     final overflowDangerZoneStart = max(
-      maxValueBit - log2Ceil(_incrementingInterfaces.length + 1) - 1,
+      maxValueBit - log2Ceil(_incrementingInterfaces.length),
       0,
     );
 

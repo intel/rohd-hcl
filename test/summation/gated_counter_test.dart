@@ -32,19 +32,25 @@ void main() {
     await Simulator.reset();
   });
 
-  test('simple 1-counter incrementing always', () async {
+  Future<ClockToggleCounter> testCounter(
+    GatedCounter Function(Logic clk, Logic reset) genCounter, {
+    int numCycles = 150,
+    bool dumpWaves = false,
+  }) async {
     final clk = SimpleClockGenerator(10).clk;
     final reset = Logic()..inject(1);
-    final dut = GatedCounter([SumInterface(fixedAmount: 1)],
-        clk: clk, reset: reset, width: 6, clkGatePartitionIndex: 3);
+
+    final dut = genCounter(clk, reset);
 
     await dut.build();
 
-    checkCounter(dut);
-    final toggleCounter = ClockToggleCounter(dut);
+    if (dumpWaves) {
+      WaveDumper(dut);
+    }
 
-    // WaveDumper(dut);
-    // print(dut.generateSynth());
+    checkCounter(dut);
+
+    final toggleCounter = ClockToggleCounter(dut);
 
     Simulator.setMaxSimTime(10000);
     unawaited(Simulator.run());
@@ -52,52 +58,56 @@ void main() {
     await clk.waitCycles(3);
     reset.inject(0);
 
-    await clk.waitCycles(150);
+    await clk.waitCycles(numCycles);
 
     await Simulator.endSimulation();
+
+    return toggleCounter;
+  }
+
+  test('simple 1-counter incrementing always', () async {
+    final toggleCounter = await testCounter((clk, reset) => GatedCounter(
+          [SumInterface(fixedAmount: 1)],
+          clk: clk,
+          reset: reset,
+          width: 6,
+        ));
 
     expect(toggleCounter.lowerActivity, greaterThan(0.95));
     expect(toggleCounter.upperActivity, lessThan(0.75));
   });
 
   test('simple 1-counter incrementing always with saturation', () async {
-    final clk = SimpleClockGenerator(10).clk;
-    final reset = Logic()..inject(1);
-    final dut = GatedCounter([SumInterface(fixedAmount: 1)],
+    final toggleCounter = await testCounter((clk, reset) => GatedCounter(
+          [SumInterface(fixedAmount: 1)],
+          clk: clk,
+          reset: reset,
+          width: 6,
+          clkGatePartitionIndex: 3,
+          saturates: true,
+        ));
+
+    expect(toggleCounter.lowerActivity, lessThan(0.45));
+    expect(toggleCounter.upperActivity, lessThan(0.25));
+  });
+
+  test('simple big-fixed counter incrementing only upper bits', () async {
+    final toggleCounter = await testCounter(
+      (clk, reset) => GatedCounter(
+        [SumInterface(fixedAmount: 8)],
         clk: clk,
         reset: reset,
         width: 6,
         clkGatePartitionIndex: 3,
-        saturates: true);
+      ),
+      dumpWaves: true,
+    );
 
-    await dut.build();
-
-    checkCounter(dut);
-    final toggleCounter = ClockToggleCounter(dut);
-
-    // WaveDumper(dut);
-    // print(dut.generateSynth());
-
-    Simulator.setMaxSimTime(10000);
-    unawaited(Simulator.run());
-
-    await clk.waitCycles(3);
-    reset.inject(0);
-
-    await clk.waitCycles(150);
-
-    await Simulator.endSimulation();
-
-    expect(toggleCounter.lowerActivity, lessThan(0.45));
-
-    // should be enabled only when it may roll-over, but also stop once it's
-    // saturated
-    expect(toggleCounter.upperActivity, lessThan(0.25));
+    expect(toggleCounter.lowerActivity, lessThan(0.5));
+    expect(toggleCounter.upperActivity, greaterThan(0.95));
   });
 
   //TODO: testplan:
-  // - if saturates, then no risk of over/underflow
-  // - if incrementing by large amount, then lower bits don't need to enable?
   // - when nothing is enabled, whole counter is gated
   // - toggle gate does a good job of gating toggles, enabling clock for it properly
 
