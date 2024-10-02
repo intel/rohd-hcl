@@ -228,7 +228,7 @@ class GatedCounter extends Counter {
     lowerEnable |= _mayWrap;
 
     if (saturates) {
-      lowerEnable &= ~(equalsMin & ~_anyIncrements);
+      lowerEnable &= ~_stableSaturated;
     }
 
     // always enable during restart
@@ -238,6 +238,12 @@ class GatedCounter extends Counter {
 
     return lowerEnable;
   }
+
+  /// High if we're in a stable saturation
+  late final _stableSaturated = Logic(name: 'stableSaturated')
+    ..gets(saturates
+        ? (equalsMin & ~_anyIncrements) | (equalsMax & ~_anyDecrements)
+        : Const(0));
 
   late final _anyDecrements = Logic(name: 'anyDecrements')
     ..gets(_decrementingInterfaces
@@ -346,7 +352,7 @@ class GatedCounter extends Counter {
     upperEnable |= _mayWrap;
 
     if (saturates) {
-      upperEnable &= ~(equalsMax & ~_anyDecrements);
+      upperEnable &= ~_stableSaturated;
     }
 
     // always enable during restart

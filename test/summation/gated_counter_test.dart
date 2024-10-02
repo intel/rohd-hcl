@@ -60,6 +60,41 @@ void main() {
     expect(toggleCounter.upperActivity, lessThan(0.75));
   });
 
+  test('simple 1-counter incrementing always with saturation', () async {
+    final clk = SimpleClockGenerator(10).clk;
+    final reset = Logic()..inject(1);
+    final dut = GatedCounter([SumInterface(fixedAmount: 1)],
+        clk: clk,
+        reset: reset,
+        width: 6,
+        clkGatePartitionIndex: 3,
+        saturates: true);
+
+    await dut.build();
+
+    checkCounter(dut);
+    final toggleCounter = ClockToggleCounter(dut);
+
+    // WaveDumper(dut);
+    // print(dut.generateSynth());
+
+    Simulator.setMaxSimTime(10000);
+    unawaited(Simulator.run());
+
+    await clk.waitCycles(3);
+    reset.inject(0);
+
+    await clk.waitCycles(150);
+
+    await Simulator.endSimulation();
+
+    expect(toggleCounter.lowerActivity, lessThan(0.45));
+
+    // should be enabled only when it may roll-over, but also stop once it's
+    // saturated
+    expect(toggleCounter.upperActivity, lessThan(0.25));
+  });
+
   //TODO: testplan:
   // - if saturates, then no risk of over/underflow
   // - if incrementing by large amount, then lower bits don't need to enable?
