@@ -52,7 +52,7 @@ void main() {
   group('exhaustive', () {
     testExhaustive(4, MockCompoundAdder.new);
     testExhaustive(4, CarrySelectCompoundAdder.new);
- });
+  });
   test('trivial compound adder test', () async {
     const width = 6;
     final a = Logic(name: 'a', width: width);
@@ -61,32 +61,30 @@ void main() {
     a.put(18);
     b.put(24);
 
-    final adder = CarrySelectCompoundAdder(
-      a, b, widthGen: CarrySelectCompoundAdder.splitSelectAdder4BitAlgorithm);
-    
+    final adder = CarrySelectCompoundAdder(a, b,
+        widthGen: CarrySelectCompoundAdder.splitSelectAdder4BitAlgorithm);
+
     final sum = adder.sum;
     final sum1 = adder.sum1;
     expect(sum.value.toBigInt(), equals(BigInt.from(18 + 24)));
     expect(sum1.value.toBigInt(), equals(BigInt.from(18 + 24 + 1)));
   });
   test('should return correct value when random numbers are given.', () async {
-      final a = Logic(name: 'a', width: 10);
-      final b = Logic(name: 'b', width: 10);
+    final a = Logic(name: 'a', width: 10);
+    final b = Logic(name: 'b', width: 10);
 
-      final adder = CarrySelectCompoundAdder(
-        a, b, widthGen: CarrySelectCompoundAdder.splitSelectAdder4BitAlgorithm);
-      await adder.build();
+    final adder = CarrySelectCompoundAdder(a, b,
+        widthGen: CarrySelectCompoundAdder.splitSelectAdder4BitAlgorithm);
+    await adder.build();
 
-      final rand = Random(5);
-      for (var i = 0; i < 100; i++) {
-        final randA = rand.nextInt(1 << a.width);
-        final randB = rand.nextInt(1 << a.width);
-        a.put(randA);
-        b.put(randB);
-        expect(adder.sum.value.toInt(),
-          equals(randA + randB));
-        expect(adder.sum1.value.toInt(),
-          equals(randA + randB + 1));
-      }
-    });
+    final rand = Random(5);
+    for (var i = 0; i < 100; i++) {
+      final randA = rand.nextInt(1 << a.width);
+      final randB = rand.nextInt(1 << a.width);
+      a.put(randA);
+      b.put(randB);
+      expect(adder.sum.value.toInt(), equals(randA + randB));
+      expect(adder.sum1.value.toInt(), equals(randA + randB + 1));
+    }
+  });
 }
