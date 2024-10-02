@@ -33,90 +33,127 @@ extension NumericVector on LogicValue {
       int alignLow = 0,
       bool markDown = false}) {
     final str = StringBuffer();
-    final length =
-        BigInt.from(min(alignHigh ?? width, width)).toString().length + 1;
+    final minHigh = min(alignHigh ?? width, width);
+    final length = BigInt.from(minHigh).toString().length + 1;
     // ignore: cascade_invocations
-    if (header) {
-      str.write(markDown ? '| Name' : ' ' * prefix);
+    const hdrSep = '| ';
+    const hdrSepStart = '| ';
+    const hdrSepEnd = '|';
 
-      for (var col = ((alignHigh ?? width) - width) + width - 1;
-          col >= alignLow;
-          col--) {
+    final highLimit = ((alignHigh ?? width) - width) + width - 1;
+
+    if (header) {
+      str.write(markDown ? '$hdrSepStart Name' : ' ' * prefix);
+
+      for (var col = highLimit; col >= alignLow; col--) {
         final chars = BigInt.from(col).toString().length + 1;
         if (sepPos != null && sepPos == col) {
           str
-            ..write(markDown ? ' | ' : ' ' * (length - chars + 2))
+            ..write(markDown ? ' $hdrSep' : ' ' * (length - chars + 2))
             ..write('$col$sepChar')
-            ..write(markDown ? ' | ' : '');
+            ..write(markDown ? ' $hdrSep' : '');
         } else if (sepPos != null && sepPos == col + 1) {
           if (sepPos == max(alignHigh ?? width, width)) {
             str
               ..write(sepChar)
-              ..write(markDown ? ' | ' : ' ' * (length - chars - 1));
+              ..write(markDown ? ' $hdrSep' : ' ' * (length - chars - 1));
           }
           str.write('${' ' * (length - chars + 1)}$col');
         } else {
-          // untested
           str
-            ..write(markDown ? ' | ' : ' ' * (length - chars + 2))
+            ..write(markDown ? ' $hdrSep' : ' ' * (length - chars + 2))
             ..write('$col');
         }
       }
-      str.write(markDown ? ' |\n' : '\n');
+      str.write(markDown ? ' $hdrSepEnd\n' : '\n');
       if (markDown) {
         str.write(markDown ? '|:--:' : ' ' * prefix);
-
-        for (var col = ((alignHigh ?? width) - width) + width - 1;
-            col >= alignLow;
-            col--) {
+        for (var col = highLimit; col >= alignLow; col--) {
           str.write('|:--');
         }
         str.write('-|\n');
       }
     }
+    const dataSepStart = '|';
+    const dataSep = '| ';
+    const dataSepEnd = '|';
     final String strPrefix;
     strPrefix = markDown
-        ? '| $name'
+        ? '$dataSepStart $name'
         : (name.length <= prefix)
             ? name.padRight(prefix)
             : name.substring(0, prefix);
-
     str
       ..write(strPrefix)
-      ..write((markDown ? '|' : ' ' * (length + 1)) *
+      ..write((markDown ? dataSep : ' ' * (length + 1)) *
           ((alignHigh ?? width) - width));
-    for (var col = alignLow; col < min(alignHigh ?? width, width); col++) {
-      final pos = min(alignHigh ?? width, width) - 1 - col + alignLow;
-      final chars = BigInt.from(pos).toString().length + 1;
+    for (var col = alignLow; col < minHigh; col++) {
+      final pos = minHigh - 1 - col + alignLow;
       final v = this[pos].bitString;
       if (sepPos != null && sepPos == pos) {
-        if (markDown) {
-          str.write(' | $v $sepChar');
-        } else {
-          str.write('${' ' * length}$v$sepChar');
-        }
+        str.write(
+            markDown ? ' $dataSep$v $sepChar' : '${' ' * length}$v$sepChar');
       } else if (sepPos != null && sepPos == pos + 1) {
-        if (sepPos == min(alignHigh ?? width, width)) {
+        if (sepPos == minHigh) {
           str.write(sepChar);
         }
-        if (markDown) {
-          str.write(' | ');
-        } else {
-          str.write(' ' * (length - 1));
-        }
-        str.write(v);
+        str
+          ..write(markDown ? ' $dataSep' : ' ' * (length - 1))
+          ..write(v);
       } else {
-        if (markDown) {
-          str.write(' | ');
-        } else {
-          str.write(' ' * length);
-        }
-        str.write(v);
+        str
+          ..write(markDown ? ' $dataSep' : ' ' * length)
+          ..write(v);
       }
     }
     if (markDown) {
-      str.write(' |');
+      str.write(' $dataSepEnd');
     }
     return str.toString();
+  }
+}
+
+void main() {
+  final lv0 = LogicValue.ofInt(42, 15);
+  final lv1 = LogicValue.ofInt(117, 15);
+  // No separator
+  print(lv0.vecString('lv0', header: true));
+  print(lv1.vecString('lv1_with_ridiculously_long_name'));
+  // Separator
+  print(lv0.vecString('lv0', sepPos: 8));
+  print(lv1.vecString('lv1_with_ridiculously_long_name', sepPos: 8));
+  print(lv1.vecString('lv1_with_ridiculously_long_name', sepPos: 8));
+  // separator at double-digits
+  print(lv0.vecString('lv0', sepPos: 12, alignHigh: 24, header: true));
+  print(lv1.vecString('lv1_with_ridiculously_long_name',
+      alignHigh: 24, sepPos: 12));
+  // transition to single-digit separator
+  print(lv0.vecString('lv0', sepPos: 10, alignHigh: 24, header: true));
+  print(lv1.vecString('lv1_with_ridiculously_long_name',
+      alignHigh: 24, sepPos: 10));
+  print(lv0.vecString('lv0', sepPos: 9, alignHigh: 24, header: true));
+  print(lv1.vecString('lv1_with_ridiculously_long_name',
+      alignHigh: 24, sepPos: 9));
+  // Single digit separator
+  print(lv0.vecString('lv0', sepPos: 8, alignHigh: 24, header: true));
+  print(lv1.vecString('lv1_with_ridiculously_long_name',
+      alignHigh: 24, sepPos: 8));
+  // Separator at zero
+  print(lv0.vecString('lv0', sepPos: 0, alignHigh: 24, header: true));
+  print(lv1.vecString('lv1_with_ridiculously_long_name',
+      alignHigh: 24, sepPos: 0));
+  final ref = FloatingPoint64Value.fromDouble(3.14159);
+  print(ref);
+  print(ref.mantissa
+      .vecString('reference', alignLow: 31, header: true, sepPos: 52));
+  print('');
+
+  print(ref.mantissa.vecString('reference',
+      alignLow: 31, header: true, sepPos: 48, markDown: true));
+  print('');
+  final lv2 = LogicValue.ofInt(42, 12);
+  print(lv2.vecString('lv2', header: true, markDown: true));
+  for (var i = lv2.width; i >= 0; i--) {
+    print(lv2.vecString('lv2', sepPos: i, markDown: true));
   }
 }

@@ -14,7 +14,7 @@ A normal `isNormal` `FloatingPointValue` has:
 
 $$minExponent <= exponent <= maxExponent$$
 
- and a mantissa in the range of $[1,2)$.  Subnormal numbers are represented with a zero exponent and leading zeros in the mantissa capture the negative exponent value.
+ And a mantissa in the range of $[1,2)$.  Subnormal numbers are represented with a zero exponent and leading zeros in the mantissa capture the negative exponent value.
 
 The various IEEE constants representing corner cases of the field of floating-point values for a given size of `FloatingPointValue`: infinities, zeros, limits for normal (e.g. mantissa in the range of $[1,2])$ and sub-normal numbers (zero exponent, and mantissa <1).
 
