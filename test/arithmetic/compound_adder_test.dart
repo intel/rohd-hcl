@@ -7,7 +7,6 @@
 // 2024 September 23
 // Author: Anton Sorokin <anton.a.sorokin@intel.com>
 
-import 'dart:io';
 import 'dart:math';
 
 import 'package:rohd/rohd.dart';
@@ -64,9 +63,6 @@ void main() {
 
     final adder = CarrySelectCompoundAdder(
       a, b, widthGen: CarrySelectCompoundAdder.splitSelectAdder4BitAlgorithm);
-    await adder.build();
-    final generatedSv = adder.generateSynth();
-      File('./${adder.name}.sv').writeAsStringSync(generatedSv);
     
     final sum = adder.sum;
     final sum1 = adder.sum1;
@@ -74,8 +70,8 @@ void main() {
     expect(sum1.value.toBigInt(), equals(BigInt.from(18 + 24 + 1)));
   });
   test('should return correct value when random numbers are given.', () async {
-      final a = Logic(name: 'a', width: 8);
-      final b = Logic(name: 'b', width: 8);
+      final a = Logic(name: 'a', width: 10);
+      final b = Logic(name: 'b', width: 10);
 
       final adder = CarrySelectCompoundAdder(
         a, b, widthGen: CarrySelectCompoundAdder.splitSelectAdder4BitAlgorithm);

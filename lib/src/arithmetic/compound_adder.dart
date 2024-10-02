@@ -5,8 +5,8 @@
 // Implementation of Compund Integer Adder Module 
 // (Output Sum and Sum1 which is Sum + 1). 
 //
-// 2023 June 1
-// Author: Yao Jing Quek <yao.jing.quek@intel.com>
+// 2024 September
+// Author: Anton Sorokin <anton.a.sorokin@intel.com>
 
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
@@ -41,6 +41,7 @@ class MockCompoundAdder extends CompoundAdder {
     sum1 <= sum + 1;
   }
 }
+
 /// Carry-select compound adder.
 class CarrySelectCompoundAdder extends CompoundAdder {
   
@@ -91,15 +92,21 @@ class CarrySelectCompoundAdder extends CompoundAdder {
     for (var i = 0; i < adderSplit.length; ++i) {
       // input width of current ripple-carry adder block
       final blockWidth = adderSplit[i];
+      if (blockWidth <= 0) {
+        throw RohdHclException('non-positive ripple-carry adder block size.');
+      }
+      if (blockWidth + blockStartIdx > a.width) {
+        throw RohdHclException('oversized ripple-carry adders sequence.');
+      }
       final blockA = Logic(name: 'block_${i}_a', width: blockWidth);
       final blockB = Logic(name: 'block_${i}_b', width: blockWidth);
       blockA <= a.slice(blockStartIdx + blockWidth - 1, blockStartIdx);
       blockB <= b.slice(blockStartIdx + blockWidth - 1, blockStartIdx);
       // Build ripple-carry adders for 0 and 1 carryin values
       final fullAdder0 = RippleCarryAdderC(
-          blockA, blockB, Const(0), name: 'block0');
+          blockA, blockB, Const(0), name: 'block0_${i}');
       final fullAdder1 = RippleCarryAdderC(
-          blockA, blockB, Const(1), name: 'block1');
+          blockA, blockB, Const(1), name: 'block1_${i}');
       for (var bitIdx = 0; bitIdx < blockWidth; ++bitIdx) {
         if (i == 0) {
           // connect directly to respective sum output bit
@@ -118,7 +125,7 @@ class CarrySelectCompoundAdder extends CompoundAdder {
         }
       }
       if (i == 0) {
-        // select carryout as a last bit of adder
+        // select carryout as a last bit of the adder
         carry0 = fullAdder0.sum[blockWidth];
         carry1 = fullAdder1.sum[blockWidth];
       } else {
