@@ -62,7 +62,7 @@ void main() {
     b.put(24);
 
     final adder = CarrySelectCompoundAdder(a, b,
-        widthGen: CarrySelectCompoundAdder.splitSelectAdder4BitAlgorithm);
+        widthGen: CarrySelectCompoundAdder.splitSelectAdderAlgorithm4Bit);
 
     final sum = adder.sum;
     final sum1 = adder.sum1;
@@ -74,7 +74,7 @@ void main() {
     final b = Logic(name: 'b', width: 10);
 
     final adder = CarrySelectCompoundAdder(a, b,
-        widthGen: CarrySelectCompoundAdder.splitSelectAdder4BitAlgorithm);
+        widthGen: CarrySelectCompoundAdder.splitSelectAdderAlgorithm4Bit);
     await adder.build();
 
     final rand = Random(5);
