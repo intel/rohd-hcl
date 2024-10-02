@@ -36,6 +36,7 @@ void main() {
     GatedCounter Function(Logic clk, Logic reset) genCounter, {
     int numCycles = 150,
     bool dumpWaves = false,
+    bool printActivity = false,
   }) async {
     final clk = SimpleClockGenerator(10).clk;
     final reset = Logic()..inject(1);
@@ -62,30 +63,41 @@ void main() {
 
     await Simulator.endSimulation();
 
+    if (printActivity) {
+      // ignore: avoid_print
+      print('Upper activity: ${toggleCounter.upperActivity}');
+      // ignore: avoid_print
+      print('Lower activity: ${toggleCounter.lowerActivity}');
+    }
+
     return toggleCounter;
   }
 
   test('simple 1-counter incrementing always', () async {
-    final toggleCounter = await testCounter((clk, reset) => GatedCounter(
-          [SumInterface(fixedAmount: 1)],
-          clk: clk,
-          reset: reset,
-          width: 6,
-        ));
+    final toggleCounter = await testCounter(
+      (clk, reset) => GatedCounter(
+        [SumInterface(fixedAmount: 1)],
+        clk: clk,
+        reset: reset,
+        width: 6,
+      ),
+    );
 
     expect(toggleCounter.lowerActivity, greaterThan(0.95));
     expect(toggleCounter.upperActivity, lessThan(0.75));
   });
 
   test('simple 1-counter incrementing always with saturation', () async {
-    final toggleCounter = await testCounter((clk, reset) => GatedCounter(
-          [SumInterface(fixedAmount: 1)],
-          clk: clk,
-          reset: reset,
-          width: 6,
-          clkGatePartitionIndex: 3,
-          saturates: true,
-        ));
+    final toggleCounter = await testCounter(
+      (clk, reset) => GatedCounter(
+        [SumInterface(fixedAmount: 1)],
+        clk: clk,
+        reset: reset,
+        width: 6,
+        clkGatePartitionIndex: 3,
+        saturates: true,
+      ),
+    );
 
     expect(toggleCounter.lowerActivity, lessThan(0.45));
     expect(toggleCounter.upperActivity, lessThan(0.25));
@@ -100,16 +112,46 @@ void main() {
         width: 6,
         clkGatePartitionIndex: 3,
       ),
-      dumpWaves: true,
     );
 
     expect(toggleCounter.lowerActivity, lessThan(0.5));
     expect(toggleCounter.upperActivity, greaterThan(0.95));
   });
 
-  //TODO: testplan:
-  // - when nothing is enabled, whole counter is gated
-  // - toggle gate does a good job of gating toggles, enabling clock for it properly
+  test('disabled increment turns off whole counter', () async {
+    final toggleCounter = await testCounter(
+      (clk, reset) {
+        final enable = Logic()..inject(0);
 
-  //TODO: checks that clock is actually gating in some interesting cases!
+        var clkCount = 0;
+        var mod = 2;
+        clk.posedge.listen((_) {
+          if (clkCount >= mod) {
+            enable.inject(~enable.value);
+            clkCount = 0;
+            mod++;
+          } else {
+            clkCount++;
+          }
+        });
+
+        return GatedCounter(
+          [SumInterface(fixedAmount: 1, hasEnable: true)..enable!.gets(enable)],
+          clk: clk,
+          reset: reset,
+          width: 6,
+          clkGatePartitionIndex: 3,
+        );
+      },
+    );
+
+    expect(toggleCounter.lowerActivity, lessThan(0.5));
+    expect(toggleCounter.upperActivity, lessThan(0.4));
+  });
+
+  //TODO: testplan:
+  // - toggle gate does a good job of gating toggles, enabling clock for it properly
+  // - decrementing counter stuff
+  // - variable numbers
+  // - multiple interfaces
 }
