@@ -1,3 +1,5 @@
+// ignore_for_file: invalid_use_of_protected_member
+
 import 'dart:async';
 
 import 'package:rohd/rohd.dart';
@@ -8,6 +10,23 @@ import 'package:test/test.dart';
 
 import 'summation_test_utils.dart';
 
+class ClockToggleCounter {
+  final GatedCounter dut;
+
+  int upperToggles = 0;
+  int lowerToggles = 0;
+  int totalToggles = 0;
+
+  ClockToggleCounter(this.dut) {
+    dut.upperGatedClock.posedge.listen((_) => upperToggles++);
+    dut.lowerGatedClock.posedge.listen((_) => lowerToggles++);
+    dut.clk.posedge.listen((_) => totalToggles++);
+  }
+
+  double get upperActivity => upperToggles / totalToggles;
+  double get lowerActivity => lowerToggles / totalToggles;
+}
+
 void main() {
   tearDown(() async {
     await Simulator.reset();
@@ -17,23 +36,28 @@ void main() {
     final clk = SimpleClockGenerator(10).clk;
     final reset = Logic()..inject(1);
     final dut = GatedCounter([SumInterface(fixedAmount: 1)],
-        clk: clk, reset: reset, width: 4, clkGatePartitionIndex: 2);
+        clk: clk, reset: reset, width: 6, clkGatePartitionIndex: 3);
 
     await dut.build();
 
     checkCounter(dut);
+    final toggleCounter = ClockToggleCounter(dut);
 
     WaveDumper(dut);
+    print(dut.generateSynth());
 
-    Simulator.setMaxSimTime(1000);
+    Simulator.setMaxSimTime(10000);
     unawaited(Simulator.run());
 
     await clk.waitCycles(3);
     reset.inject(0);
 
-    await clk.waitCycles(50);
+    await clk.waitCycles(150);
 
     await Simulator.endSimulation();
+
+    expect(toggleCounter.lowerActivity, greaterThan(0.95));
+    expect(toggleCounter.upperActivity, lessThan(0.75));
   });
 
   //TODO: checks that clock is actually gating in some interesting cases!

@@ -364,6 +364,12 @@ class GatedCounter extends Counter {
     return upperEnable;
   }
 
+  // hooks for testbenches and subclasses
+  @protected
+  late final Logic lowerGatedClock;
+  @protected
+  late final Logic upperGatedClock;
+
   @protected
   @override
   void buildFlops(Logic sum) {
@@ -393,6 +399,9 @@ class GatedCounter extends Counter {
           enable: lowerEnable | upperEnable,
           reset: reset,
           controlIntf: _clockGateControlInterface);
+
+      lowerGatedClock = clkGate.gatedClk;
+      upperGatedClock = clkGate.gatedClk;
 
       count <=
           flop(
@@ -427,6 +436,9 @@ class GatedCounter extends Counter {
         reset: reset,
         resetValue: initialValueLogic.getRange(clkGatePartitionIndex),
       );
+
+      lowerGatedClock = lowerClkGate.gatedClk;
+      upperGatedClock = upperClkGate.gatedClk;
 
       count <= [upperCount, lowerCount].swizzle();
     }
