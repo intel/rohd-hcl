@@ -190,7 +190,8 @@ class GatedCounter extends Counter {
 
     Logic anyIntfInDangerZone = Const(0);
     for (final intf in _decrementingInterfaces) {
-      var intfInDangerZone = intf.amount.getRange(minValueBit).or();
+      var intfInDangerZone =
+          intf.amount.getRange(min(intf.width, minValueBit)).or();
 
       if (intf.hasEnable) {
         intfInDangerZone &= intf.enable!;

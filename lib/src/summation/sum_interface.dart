@@ -65,6 +65,9 @@ class SumInterface extends PairInterface {
             ? throw RohdHclException(
                 'Must provide either a fixedAmount or width.')
             : width ?? LogicValue.ofInferWidth(fixedAmount).width {
+    if (this.width <= 0) {
+      throw RohdHclException('Width must be positive.');
+    }
     setPorts([
       if (fixedAmount == null) Port('amount', this.width),
       if (hasEnable) Port('enable'),

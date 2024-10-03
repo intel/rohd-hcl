@@ -100,7 +100,7 @@ SumInterface genRandomInterface(Random rand) {
   final isFixed = rand.nextBool();
   return SumInterface(
     fixedAmount: isFixed ? rand.nextInt(100) : null,
-    width: isFixed ? null : rand.nextInt(8),
+    width: isFixed ? null : rand.nextInt(8) + 1,
     increments: rand.nextBool(),
     hasEnable: rand.nextBool(),
   );
@@ -130,7 +130,13 @@ void checkCounter(Counter counter) {
       final actual = counter.count.value.toInt();
 
       // print('$expected -- $actual');
-      expect(actual, expected);
+      expect(
+        actual,
+        expected,
+        reason: '@${Simulator.time}:'
+            ' expected=0x${expected.toRadixString(16)}'
+            ' actual=0x${actual.toRadixString(16)}',
+      );
     }
   });
 
