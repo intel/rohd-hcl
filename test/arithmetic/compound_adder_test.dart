@@ -22,7 +22,7 @@ void checkCompoundAdder(CompoundAdder adder, LogicValue av, LogicValue bv) {
   adder.b.put(bv);
 
   expect(adder.sum.value.toBigInt(), equals(aB + bB));
-  expect(adder.sum1.value.toBigInt(), equals(aB + bB + BigInt.from(1)));
+  expect(adder.sum1.value.toBigInt(), equals(aB + bB + BigInt.one));
 }
 
 void testExhaustive(int n, CompoundAdder Function(Logic a, Logic b) fn) {
@@ -50,7 +50,7 @@ void main() {
     await Simulator.reset();
   });
   group('exhaustive', () {
-    testExhaustive(4, MockCompoundAdder.new);
+    testExhaustive(4, TrivialCompoundAdder.new);
     testExhaustive(4, CarrySelectCompoundAdder.new);
   });
   test('trivial compound adder test', () async {
