@@ -115,7 +115,7 @@ void main() {
       final b = Logic(name: 'b', width: 16);
       final ci = Logic(name: 'carry_in');
 
-      expect(() => RippleCarryAdderC(a, b, ci),
+      expect(() => RippleCarryAdder(a, b, carryIn: ci),
           throwsA(const TypeMatcher<RohdHclException>()));
     });
 
@@ -132,7 +132,7 @@ void main() {
       b.put(lvB);
       ci.put(lvC);
 
-      final rippleCarryAdder = RippleCarryAdderC(a, b, ci);
+      final rippleCarryAdder = RippleCarryAdder(a, b, carryIn: ci);
       await rippleCarryAdder.build();
 
       expect(rippleCarryAdder.sum.value.toInt(), equals(lvA + lvB + lvC));
@@ -143,7 +143,7 @@ void main() {
       final b = Logic(name: 'b', width: 10)..put(0);
       final carryIn = Logic(name: 'carry_in')..put(0);
 
-      final rippleCarryAdder = RippleCarryAdderC(a, b, carryIn);
+      final rippleCarryAdder = RippleCarryAdder(a, b, carryIn: carryIn);
       await rippleCarryAdder.build();
 
       expect(rippleCarryAdder.sum.value.toInt(), equals(0));
@@ -156,7 +156,7 @@ void main() {
       final b = Logic(name: 'b', width: 10)..put(0);
       final carryIn = Logic(name: 'carry_in')..put(0);
 
-      final rippleCarryAdder = RippleCarryAdderC(a, b, carryIn);
+      final rippleCarryAdder = RippleCarryAdder(a, b, carryIn: carryIn);
       await rippleCarryAdder.build();
 
       expect(rippleCarryAdder.sum.value.toInt(), equals(valA));
@@ -167,7 +167,7 @@ void main() {
       final b = Logic(name: 'b', width: 10);
       final carryIn = Logic(name: 'carry_in');
 
-      final rippleCarryAdder = RippleCarryAdderC(a, b, carryIn);
+      final rippleCarryAdder = RippleCarryAdder(a, b, carryIn: carryIn);
       await rippleCarryAdder.build();
 
       final rand = Random(5);
@@ -189,7 +189,7 @@ void main() {
       final b = Logic(name: 'b', width: widthLength)..put(1 << widthLength - 1);
       final carryIn = Logic(name: 'carry_in')..put(1);
 
-      final rippleCarryAdder = RippleCarryAdderC(a, b, carryIn);
+      final rippleCarryAdder = RippleCarryAdder(a, b, carryIn: carryIn);
       await rippleCarryAdder.build();
 
       expect(rippleCarryAdder.sum.value.toInt(), (1 << a.width) + 1);
@@ -204,11 +204,11 @@ void main() {
       final b = Logic(name: 'b', width: widthLength)..put(1 << widthLength - 1);
       final carryIn = Logic(name: 'carry_in')..put(1);
 
-      final rippleCarryAdder = RippleCarryAdderC(a, b, carryIn);
+      final rippleCarryAdder = RippleCarryAdder(a, b, carryIn: carryIn);
       await rippleCarryAdder.build();
 
       expect(rippleCarryAdder.sum.value.toBigInt(),
-          (BigInt.one << a.width) + BigInt.from(1));
+          (BigInt.one << a.width) + BigInt.one);
       expect(rippleCarryAdder.sum.value.width, a.width + 1);
       expect(rippleCarryAdder.sum.value[widthLength], equals(LogicValue.one));
     });

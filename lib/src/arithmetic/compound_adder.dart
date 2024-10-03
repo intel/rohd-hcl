@@ -13,7 +13,7 @@ import 'package:rohd_hcl/rohd_hcl.dart';
 
 /// An abstract class for all compound adder module implementations.
 abstract class CompoundAdder extends Adder {
-  /// The addition results (+1) in 2s complement form as [sum1]
+  /// The addition result [sum] + 1 in 2s complement form as [sum1]
   Logic get sum1 => output('sum1');
 
   /// Takes in input [a] and input [b] and return the [sum] of the addition
@@ -28,9 +28,10 @@ abstract class CompoundAdder extends Adder {
 }
 
 /// A trivial compound adder.
-class MockCompoundAdder extends CompoundAdder {
+class TrivialCompoundAdder extends CompoundAdder {
   /// Constructs a [CompoundAdder].
-  MockCompoundAdder(super.a, super.b, {super.name = 'mock_compound_adder'}) {
+  TrivialCompoundAdder(super.a, super.b,
+      {super.name = 'trivial_compound_adder'}) {
     sum <= a.zeroExtend(a.width + 1) + b.zeroExtend(b.width + 1);
     sum1 <= sum + 1;
   }
@@ -90,13 +91,13 @@ class CarrySelectCompoundAdder extends CompoundAdder {
       }
       final blockA = Logic(name: 'block_${i}_a', width: blockWidth);
       final blockB = Logic(name: 'block_${i}_b', width: blockWidth);
-      blockA <= a.slice(blockStartIdx + blockWidth - 1, blockStartIdx);
-      blockB <= b.slice(blockStartIdx + blockWidth - 1, blockStartIdx);
+      blockA <= a.getRange(blockStartIdx, blockStartIdx + blockWidth);
+      blockB <= b.getRange(blockStartIdx, blockStartIdx + blockWidth);
       // Build ripple-carry adders for 0 and 1 carryin values
-      final fullAdder0 =
-          RippleCarryAdderC(blockA, blockB, Const(0), name: 'block0_${i}');
-      final fullAdder1 =
-          RippleCarryAdderC(blockA, blockB, Const(1), name: 'block1_${i}');
+      final fullAdder0 = RippleCarryAdder(blockA, blockB,
+          carryIn: Const(0), name: 'block0_$i');
+      final fullAdder1 = RippleCarryAdder(blockA, blockB,
+          carryIn: Const(1), name: 'block1_$i');
       for (var bitIdx = 0; bitIdx < blockWidth; ++bitIdx) {
         if (i == 0) {
           // connect directly to respective sum output bit
