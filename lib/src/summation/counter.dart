@@ -75,33 +75,36 @@ class Counter extends SummationBase {
     _buildLogic();
   }
 
-  void _buildLogic() {
-    final sum = Sum(
-      interfaces,
-      initialValue:
-          restart != null ? mux(restart!, initialValueLogic, count) : count,
-      maxValue: maxValueLogic,
-      minValue: minValueLogic,
-      width: width,
-      saturates: saturates,
-    );
+  @protected
+  late final Sum summer = Sum(
+    interfaces,
+    initialValue:
+        restart != null ? mux(restart!, initialValueLogic, count) : count,
+    maxValue: maxValueLogic,
+    minValue: minValueLogic,
+    width: width,
+    saturates: saturates,
+  );
 
-    buildFlops(sum.sum);
+  void _buildLogic() {
+    buildFlops();
+
+    // TODO: gate these flops too?
 
     // need to flop these since value is flopped
-    overflowed <= flop(clk, sum.overflowed, reset: reset);
-    underflowed <= flop(clk, sum.underflowed, reset: reset);
+    overflowed <= flop(clk, summer.overflowed, reset: reset);
+    underflowed <= flop(clk, summer.underflowed, reset: reset);
 
     equalsMax <= count.eq(maxValueLogic);
     equalsMin <= count.eq(minValueLogic);
   }
 
   @protected
-  void buildFlops(Logic sum) {
+  void buildFlops() {
     count <=
         flop(
           clk,
-          sum,
+          summer.sum,
           reset: reset,
           resetValue: initialValueLogic,
         );

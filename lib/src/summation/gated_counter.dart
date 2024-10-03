@@ -232,6 +232,8 @@ class GatedCounter extends Counter {
       lowerEnable &= ~_stableSaturated;
     }
 
+    lowerEnable |= _unstableValue;
+
     // always enable during restart
     if (restart != null) {
       lowerEnable |= restart!;
@@ -356,6 +358,8 @@ class GatedCounter extends Counter {
       upperEnable &= ~_stableSaturated;
     }
 
+    upperEnable |= _unstableValue;
+
     // always enable during restart
     if (restart != null) {
       upperEnable |= restart!;
@@ -370,9 +374,19 @@ class GatedCounter extends Counter {
   @protected
   late final Logic upperGatedClock;
 
+  /// TODO
+  ///
+  /// Covers the scenario where reset value is less than the minimum value or
+  /// greater than the maximum value. The first cycle after reset, we need to
+  /// ungate the count.
+  late final Logic _unstableValue = Logic(name: 'unstableValue')
+    ..gets(
+      (summer.underflowed & ~underflowed) | (summer.overflowed & ~overflowed),
+    );
+
   @protected
   @override
-  void buildFlops(Logic sum) {
+  void buildFlops() {
     // TODO: if we can do same-cycle clock gating, then we have the chance to
     //  compare the size of the increment... otherwise, we need to assume it
     //  could be maximum
@@ -406,7 +420,7 @@ class GatedCounter extends Counter {
       count <=
           flop(
             clkGate.gatedClk,
-            sum,
+            summer.sum,
             reset: reset,
             resetValue: initialValueLogic,
           );
@@ -425,14 +439,14 @@ class GatedCounter extends Counter {
 
       final lowerCount = flop(
         lowerClkGate.gatedClk,
-        sum.getRange(0, clkGatePartitionIndex),
+        summer.sum.getRange(0, clkGatePartitionIndex),
         reset: reset,
         resetValue: initialValueLogic.getRange(0, clkGatePartitionIndex),
       );
 
       final upperCount = flop(
         upperClkGate.gatedClk,
-        sum.getRange(clkGatePartitionIndex),
+        summer.sum.getRange(clkGatePartitionIndex),
         reset: reset,
         resetValue: initialValueLogic.getRange(clkGatePartitionIndex),
       );
