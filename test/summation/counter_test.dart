@@ -276,8 +276,7 @@ void main() {
   });
 
   group('random counter', () {
-    final rand = Random(456);
-    const numRandCounters = 2;
+    const numRandCounters = 10;
     const restartProbability = 0.05;
 
     final counterTypes = ['normal', 'gated'];
@@ -288,7 +287,9 @@ void main() {
           test('$counterIdx', () async {
             const numCycles = 10;
 
-            final cfg = genRandomSummationConfiguration();
+            final rand = Random(456 + counterIdx ^ counterType.hashCode);
+
+            final cfg = genRandomSummationConfiguration(rand);
 
             final clk = SimpleClockGenerator(10).clk;
             Simulator.setMaxSimTime(numCycles * 10 * 2 + 100);

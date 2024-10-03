@@ -96,21 +96,19 @@ int goldenSum(
   return sum;
 }
 
-Random _rand = Random(123);
-
-SumInterface genRandomInterface() {
-  final isFixed = _rand.nextBool();
+SumInterface genRandomInterface(Random rand) {
+  final isFixed = rand.nextBool();
   return SumInterface(
-    fixedAmount: isFixed ? _rand.nextInt(100) : null,
-    width: isFixed ? null : _rand.nextInt(8),
-    increments: _rand.nextBool(),
-    hasEnable: _rand.nextBool(),
+    fixedAmount: isFixed ? rand.nextInt(100) : null,
+    width: isFixed ? null : rand.nextInt(8),
+    increments: rand.nextBool(),
+    hasEnable: rand.nextBool(),
   );
 }
 
-List<SumInterface> genRandomInterfaces() {
-  final numInterfaces = _rand.nextInt(8) + 1;
-  return List.generate(numInterfaces, (_) => genRandomInterface());
+List<SumInterface> genRandomInterfaces(Random rand) {
+  final numInterfaces = rand.nextInt(8) + 1;
+  return List.generate(numInterfaces, (_) => genRandomInterface(rand));
 }
 
 void checkCounter(Counter counter) {
@@ -151,17 +149,17 @@ void checkCounter(Counter counter) {
   dynamic minValue,
   dynamic maxValue,
   dynamic initialValue,
-}) genRandomSummationConfiguration() {
-  final interfaces = genRandomInterfaces();
+}) genRandomSummationConfiguration(Random rand) {
+  final interfaces = genRandomInterfaces(rand);
 
-  final width = _rand.nextBool() ? null : _rand.nextInt(10) + 1;
+  final width = rand.nextBool() ? null : rand.nextInt(10) + 1;
 
-  final saturates = _rand.nextBool();
-  var minVal = _rand.nextBool() ? _rand.nextInt(30) : 0;
-  var maxVal = _rand.nextBool()
-      ? _rand.nextInt(width == null ? 70 : ((1 << width) - 1)) + minVal + 1
+  final saturates = rand.nextBool();
+  var minVal = rand.nextBool() ? rand.nextInt(30) : 0;
+  var maxVal = rand.nextBool()
+      ? rand.nextInt(width == null ? 70 : ((1 << width) - 1)) + minVal + 1
       : null;
-  var initialVal = _rand.nextBool() ? _rand.nextInt(maxVal ?? 100) : 0;
+  var initialVal = rand.nextBool() ? rand.nextInt(maxVal ?? 100) : 0;
 
   if (maxVal != null && width != null) {
     // truncate to width
@@ -177,7 +175,7 @@ void checkCounter(Counter counter) {
     if (maxVal == null && width == null) {
       minVal = 0;
     } else {
-      minVal = _rand.nextInt(maxVal ?? (width == null ? 0 : (1 << width) - 1));
+      minVal = rand.nextInt(maxVal ?? (width == null ? 0 : (1 << width) - 1));
     }
   }
 
@@ -188,13 +186,13 @@ void checkCounter(Counter counter) {
     return min(max(inferredWidth, 1), width ?? inferredWidth);
   }
 
-  final maxValue = maxVal != null && _rand.nextBool()
+  final maxValue = maxVal != null && rand.nextBool()
       ? Const(LogicValue.ofInferWidth(maxVal), width: safeWidthFor(maxVal))
       : maxVal;
-  final minValue = _rand.nextBool()
+  final minValue = rand.nextBool()
       ? Const(LogicValue.ofInferWidth(minVal), width: safeWidthFor(minVal))
       : minVal;
-  final initialValue = _rand.nextBool()
+  final initialValue = rand.nextBool()
       ? Const(LogicValue.ofInferWidth(initialVal),
           width: safeWidthFor(initialVal))
       : initialVal;
