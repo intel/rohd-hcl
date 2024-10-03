@@ -66,7 +66,7 @@ extension EvaluateLivePartialProduct on PartialProductGenerator {
           str.write(' ' * shortPrefix);
         }
       } else {
-        str.write('$rowStr ${'M='}     S= : ');
+        str.write('$rowStr ${'M='}   S= : ');
       }
       final entry = partialProducts[row].reversed.toList();
       final prefixCnt =
@@ -102,6 +102,75 @@ extension EvaluateLivePartialProduct on PartialProductGenerator {
     if (isSignExtended) {
       str.write(' ($val)\n\n');
     }
+    return str.toString();
+  }
+
+  /// Print out the partial product matrix
+  String markdown() {
+    final str = StringBuffer();
+
+    final maxW = maxWidth();
+    // print bit position header
+    str.write('| R | M | S');
+    for (var i = maxW - 1; i >= 0; i--) {
+      str.write('|  $i  ');
+    }
+    str
+      ..write('| bitvector | value|\n')
+      ..write('|:--:' * 3);
+    for (var i = maxW - 1; i >= 0; i--) {
+      str.write('|:--:');
+    }
+    str.write('|:--: |:--:|\n');
+    // Partial product matrix:  rows of multiplicand multiples shift by
+    //    rowshift[row]
+    for (var row = 0; row < rows; row++) {
+      final rowStr = (row < 10) ? '0$row' : '$row';
+      if (row < encoder.rows) {
+        final encoding = encoder.getEncoding(row);
+        if (encoding.multiples.value.isValid) {
+          final first = encoding.multiples.value.firstOne() ?? -1;
+          final multiple = first + 1;
+          str.write('|$rowStr| '
+              '$multiple| '
+              '${encoding.sign.value.toInt()}');
+        } else {
+          str.write('|  |  |');
+        }
+      } else {
+        str.write('|$rowStr | |');
+      }
+      final entry = partialProducts[row].reversed.toList();
+      str.write('| ' * (maxW - (entry.length + rowShift[row])));
+      for (var col = 0; col < entry.length; col++) {
+        str.write('|${entry[col].value.bitString}');
+      }
+      final suffixCnt = rowShift[row];
+      final value = entry.swizzle().value.zeroExtend(maxW) << suffixCnt;
+      final intValue = value.isValid ? value.toBigInt() : BigInt.from(-1);
+      str
+        ..write('|   ' * suffixCnt)
+        ..write('| ${value.bitString}')
+        ..write('| ${value.isValid ? intValue : "<invalid>"}'
+            ' (${value.isValid ? intValue.toSigned(maxW) : "<invalid>"})|\n');
+    }
+    // Compute and print binary representation from accumulated value
+    // Later: we will compare with a compression tree result
+    str.write('||\n');
+
+    final sum = LogicValue.ofBigInt(evaluate(), maxW);
+    // print out the sum as a MSB-first bitvector
+    str.write('|||');
+    for (final elem in [for (var i = 0; i < maxW; i++) sum[i]].reversed) {
+      str.write('|${elem.toInt()} ');
+    }
+    final val = evaluate();
+    str.write('| ${sum.bitString}| '
+        '${val.toUnsigned(maxW)}');
+    if (isSignExtended) {
+      str.write(' ($val)');
+    }
+    str.write('|\n');
     return str.toString();
   }
 }

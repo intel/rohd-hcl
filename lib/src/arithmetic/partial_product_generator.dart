@@ -112,7 +112,7 @@ class PartialProductGeneratorNoSignExtension extends PartialProductGenerator {
   void signExtend() {}
 }
 
-/// A Partial Product Generator using Brute Sign Extension
+/// A Partial Product Generator using Compact Rectangular Extension
 class PartialProductGeneratorCompactRectSignExtension
     extends PartialProductGenerator {
   /// Construct a compact rect sign extending Partial Product Generator
