@@ -472,6 +472,84 @@ dangerous conditions.
   A <a href="../rohd_hcl/Configurator-class.html">Configurator</a> for <a href="../rohd_hcl/Find-class.html">Find</a>.
 </dd>
 
+          <dt id="FloatingPoint">
+  <span class="name "><a href="../rohd_hcl/FloatingPoint-class.html">FloatingPoint</a></span> 
+
+</dt>
+<dd>
+  Flexible floating point logic representation
+</dd>
+
+          <dt id="FloatingPoint32">
+  <span class="name "><a href="../rohd_hcl/FloatingPoint32-class.html">FloatingPoint32</a></span> 
+
+</dt>
+<dd>
+  Single floating point representation
+</dd>
+
+          <dt id="FloatingPoint32Value">
+  <span class="name "><a href="../rohd_hcl/FloatingPoint32Value-class.html">FloatingPoint32Value</a></span> 
+
+</dt>
+<dd>
+  A representation of a single precision floating point value
+</dd>
+
+          <dt id="FloatingPoint64">
+  <span class="name "><a href="../rohd_hcl/FloatingPoint64-class.html">FloatingPoint64</a></span> 
+
+</dt>
+<dd>
+  Double floating point representation
+</dd>
+
+          <dt id="FloatingPoint64Value">
+  <span class="name "><a href="../rohd_hcl/FloatingPoint64Value-class.html">FloatingPoint64Value</a></span> 
+
+</dt>
+<dd>
+  A representation of a double precision floating point value
+</dd>
+
+          <dt id="FloatingPoint8">
+  <span class="name "><a href="../rohd_hcl/FloatingPoint8-class.html">FloatingPoint8</a></span> 
+
+</dt>
+<dd>
+  Eight-bit floating point representation for deep learning
+</dd>
+
+          <dt id="FloatingPoint8Value">
+  <span class="name "><a href="../rohd_hcl/FloatingPoint8Value-class.html">FloatingPoint8Value</a></span> 
+
+</dt>
+<dd>
+  A representation of a 8-bit floating point value as defined in
+<a href="https://arxiv.org/abs/2209.05433">FP8 Formats for Deep Learning</a>.
+</dd>
+
+          <dt id="FloatingPointAdder">
+  <span class="name "><a href="../rohd_hcl/FloatingPointAdder-class.html">FloatingPointAdder</a></span> 
+
+</dt>
+<dd>
+  An adder module for FloatingPoint values
+</dd>
+
+          <dt id="FloatingPointValue">
+  <span class="name "><a href="../rohd_hcl/FloatingPointValue-class.html">FloatingPointValue</a></span> 
+
+</dt>
+<dd>
+  A flexible representation of floating point values.
+A <a href="../rohd_hcl/FloatingPointValue-class.html">FloatingPointValue</a> hasa mantissa in [0,2) with
+0 &lt;= exponent &lt;= maxExponent();  A normal <a href="../rohd_hcl/FloatingPointValue/isNormal.html">isNormal</a> <a href="../rohd_hcl/FloatingPointValue-class.html">FloatingPointValue</a>
+has minExponent() &lt;= exponent &lt;= maxExponent() and a mantissa in the
+range of [1,2).  Subnormal numbers are represented with a zero exponent
+and leading zeros in the mantissa capture the negative exponent value.
+</dd>
+
           <dt id="FullAdder">
   <span class="name "><a href="../rohd_hcl/FullAdder-class.html">FullAdder</a></span> 
 
@@ -769,7 +847,7 @@ manipulated by sign extension, before being compressed
 
 </dt>
 <dd>
-  A Partial Product Generator using Brute Sign Extension
+  A Partial Product Generator using Compact Rectangular Extension
 </dd>
 
           <dt id="PartialProductGeneratorNoSignExtension">
@@ -1138,6 +1216,22 @@ text.
 </dt>
 <dd>
   A grouping for interface signals of <a href="../rohd_hcl/DataPortInterface-class.html">DataPortInterface</a>s.
+</dd>
+
+          <dt id="FloatingPointConstants">
+  <span class="name "><a href="../rohd_hcl/FloatingPointConstants.html">FloatingPointConstants</a></span> 
+
+</dt>
+<dd>
+  Critical threshold constants
+</dd>
+
+          <dt id="FloatingPointRoundingMode">
+  <span class="name "><a href="../rohd_hcl/FloatingPointRoundingMode.html">FloatingPointRoundingMode</a></span> 
+
+</dt>
+<dd>
+  IEEE Floating Point Rounding Modes
 </dd>
 
           <dt id="HammingType">
