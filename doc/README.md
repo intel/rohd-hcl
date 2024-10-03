@@ -59,7 +59,7 @@ Some in-development items will have opened issues, as well. Feel free to create 
     - BFloat16 (16-bit)
     - BFloat8 (8-bit)
     - BFloat4 (4-bit)
-  <!-- - [Simple Floating-Point Adder](./componeents/floating_point.md#floatingpointadder) -->
+    - [Simple Floating-Point Adder](./components/floating_point.md#floatingpointadder)
   - Fixed point
   - Binary-Coded Decimal (BCD)
 - [Rotate](./components/rotate.md)
