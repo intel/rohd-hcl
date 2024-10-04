@@ -9,7 +9,6 @@
 
 import 'dart:async';
 
-import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
 import 'package:rohd_vf/rohd_vf.dart';
 
@@ -32,40 +31,33 @@ class SpiSubDriver extends PendingDriver<SpiPacket> {
   Future<void> run(Phase phase) async {
     unawaited(super.run(phase));
 
-    Simulator.injectAction(() {
-      intf.miso.inject(0); //high impedance
-    });
+    intf.miso.inject(0); //high impedance?
 
     SpiPacket? packet;
 
     int? dataIndex;
+    await intf.cs.nextNegedge;
 
-    intf.sclk.posedge.listen((_) {
+    while (intf.cs.value.isZero) {
       if (packet == null && pendingSeqItems.isNotEmpty) {
         packet = pendingSeqItems.removeFirst();
         dataIndex = 0;
       }
       if (packet != null) {
-        logger.info('driving data index $dataIndex of sub packet');
-        intf.miso.inject(packet!.data[dataIndex!]);
-        dataIndex = dataIndex! + 1;
-        if (dataIndex! >= packet!.data.width) {
+        logger.info('driving sub packet, index: $dataIndex');
+        intf.miso.inject(packet.data[dataIndex!]);
+        dataIndex = dataIndex + 1;
+
+        await intf.sclk.nextNegedge;
+
+        if (dataIndex >= packet.data.width) {
           packet = null;
           dataIndex = null;
         }
       } else {
-        intf.miso.inject(0);
+        intf.miso.inject(0); // high impedance?
+        break;
       }
-    });
+    }
   }
-  // maybe not necessary
-  // Simulator.injectAction(() {
-  //  intf.miso.put(0);
-  //});
-
-  /// Drives a packet onto the interface.
-
-  // Wait for the next clock cycle
-
-  // wait for miso to be ready?
 }

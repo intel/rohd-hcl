@@ -1,20 +1,17 @@
 // Copyright (C) 2024 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 //
-// spi_main.dart
-// An agent for the main side of the SPI interface.
+// spi_sub_agent.dart
+// An agent for the sub side of the SPI interface.
 //
 // 2024 September 23
 // Author: Roberto Torres <roberto.torres@intel.com>
 
-import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
 import 'package:rohd_vf/rohd_vf.dart';
 
-/// An agent for the main side of the [SpiInterface].
-///
-///
-class SpiMainAgent extends Agent {
+/// A model for the sub side of the SPI interface.
+class SpiSubAgent extends Agent {
   /// The interface to drive.
   final SpiInterface intf;
 
@@ -22,34 +19,29 @@ class SpiMainAgent extends Agent {
   late final Sequencer<SpiPacket> sequencer;
 
   /// The driver that sends packets.
-  late final SpiMainDriver driver;
+  late final SpiSubDriver driver;
 
   /// The monitor that watches the interface.
   late final SpiMonitor monitor;
 
-  /// The number of cycles before dropping an objection.
-  final int dropDelayCycles;
-
-  /// Creates a new [SpiMainAgent].
-  SpiMainAgent({
+  /// Creates a new [SpiSubAgent].
+  SpiSubAgent({
     required this.intf,
     required Component parent,
-    required Logic clk,
-    String name = 'spiMain',
-    this.dropDelayCycles = 30,
+    String name = 'spiSub',
   }) : super(name, parent) {
     sequencer = Sequencer<SpiPacket>('sequencer', this);
 
-    driver = SpiMainDriver(
+    driver = SpiSubDriver(
       parent: this,
       intf: intf,
-      clk: clk,
       sequencer: sequencer,
-      dropDelayCycles: dropDelayCycles,
     );
 
+    ///
     monitor = SpiMonitor(
       parent: this,
+      direction: SpiDirection.write,
       intf: intf,
     );
   }

@@ -57,7 +57,7 @@ class SpiMainDriver extends PendingClockedDriver<SpiPacket> {
   /// Drives a packet onto the interface.
   Future<void> _drivePacket(SpiPacket packet) async {
     // first, setup
-    await clk.nextPosedge;
+    await clk.nextNegedge;
     // If not selecting this intf, then select it? CS here?
     // if (!intf.cs.value.toBool()) {
     //   intf.cs.put(0);
@@ -69,18 +69,14 @@ class SpiMainDriver extends PendingClockedDriver<SpiPacket> {
 
     // Loop through the bits of the packet
     for (var i = 0; i < packet.data.width; i++) {
-      Simulator.injectAction(() {
-        logger.info('Driving main packet $i');
-        intf.mosi.put(packet.data[i]);
-        intf.sclk.put(1);
-      });
+      logger.info('Driving main packet, index: $i');
+      intf.mosi.inject(packet.data[i]);
+      await clk.nextPosedge;
+      intf.sclk.inject(1);
+
       // Wait for the next clock cycle
       await clk.nextNegedge;
-      Simulator.injectAction(() {
-        intf.sclk.put(0);
-      });
-      await clk.nextPosedge;
+      intf.sclk.inject(0);
     }
-    // wait for miso to be ready?
   }
 }

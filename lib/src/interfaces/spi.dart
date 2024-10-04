@@ -8,7 +8,6 @@
 // Author: Roberto Torres <roberto.torres@intel.com>
 
 import 'package:rohd/rohd.dart';
-//import 'package:rohd_hcl/src/exceptions.dart';
 
 /// A standard SPI interface.
 class SpiInterface extends PairInterface {
@@ -18,6 +17,9 @@ class SpiInterface extends PairInterface {
   /// The width of the chip select port [cs].
   // CS as individual lines or one
   // final int csWidth;
+
+  //
+  final int dataLength;
 
   ///
   Logic get sclk => port('SCLK');
@@ -32,14 +34,15 @@ class SpiInterface extends PairInterface {
   Logic get cs => port('CSB'); //CS bar
 
   ///
-  SpiInterface()
+  SpiInterface({this.dataLength = 1})
       : super(
-          portsFromConsumer: [Port('MISO')],
-          portsFromProvider: [Port('MOSI'), Port('CSB'), Port('SCLK')],
-        );
+            portsFromConsumer: [Port('MISO')],
+            portsFromProvider: [Port('MOSI'), Port('CSB'), Port('SCLK')]);
 
   ///
-  SpiInterface.clone(SpiInterface super.otherInterface) : super.clone();
+  SpiInterface.clone(SpiInterface super.otherInterface)
+      : dataLength = otherInterface.dataLength,
+        super.clone();
 
   // multiple CS or 4 bits in parallel
 }
