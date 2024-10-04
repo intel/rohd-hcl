@@ -1,6 +1,6 @@
 # Fixed-Point Arithmetic
 
-Fixed-point binary representation of numbers is useful several applications including digital signal processing and embedded systems. As a first step towards enabling fixed-point components, we created a new value system `FixedPointValue` similar to `LogicValue`. 
+Fixed-point binary representation of numbers is useful several applications including digital signal processing and embedded systems. As a first step towards enabling fixed-point components, we created a new value system `FixedPointValue` similar to `LogicValue`.
 
 ## FixedPointValue
 
