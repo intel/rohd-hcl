@@ -73,6 +73,8 @@ Some in-development items will have opened issues, as well. Feel free to create 
   - CRC
   - [Parity](./components/parity.md)
   - Interleaving
+- Clocking
+  - [Clock gating](./components/clock_gating.md)
 - Data flow
   - Ready/Valid
   - Connect/Disconnect
