@@ -10,3 +10,4 @@ export 'ones_complement_adder.dart';
 export 'parallel_prefix_operations.dart';
 export 'ripple_carry_adder.dart';
 export 'sign_magnitude_adder.dart';
+export 'values/fixed_point_value.dart';
