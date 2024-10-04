@@ -2,7 +2,8 @@
 // SPDX-License-Identifier: BSD-3-Clause
 //
 // fixed_point_value.dart
-//
+// Representation of fixed-point values.
+
 // 2024 September 24
 // Authors:
 //  Soner Yaldiz <soner.yaldiz@intel.com>

@@ -11,12 +11,12 @@ import 'package:rohd_hcl/rohd_hcl.dart';
 import 'package:test/test.dart';
 
 void main() {
-  test('FXP: construct from sign,int,frac', () {
+  test('Construct from sign,int,frac', () {
     const m = 4;
     const n = 3;
     final corners = [
       // result, sign, integer, fraction
-      ('00000000', 0, 0, 0),
+      ('00000000', 0, 0, 1),
       ('01111111', 0, pow(2, m).toInt() - 1, pow(2, n).toInt() - 1),
       ('10000001', 1, pow(2, m).toInt() - 1, pow(2, n).toInt() - 1),
       ('11101100', 1, 2, 4), // -2.5
@@ -32,7 +32,7 @@ void main() {
     }
   });
 
-  test('FXP: construct from int and frac only', () {
+  test('Construct from int and frac only', () {
     const m = 5;
     const n = 3;
     final corners = [
@@ -51,7 +51,7 @@ void main() {
     }
   });
 
-  test('FXP: construct from sign and int only', () {
+  test('Construct from sign and int only', () {
     const m = 7;
     final corners = [
       // result, sign, integer
@@ -70,7 +70,7 @@ void main() {
     }
   });
 
-  test('FXP: construct from sign and frac only', () {
+  test('Construct from sign and frac only', () {
     const n = 4;
     final corners = [
       // result, sign, fraction
@@ -89,7 +89,7 @@ void main() {
     }
   });
 
-  test('FXP: ofDouble toDouble', () {
+  test('ofDouble toDouble', () {
     final corners = [
       ('00000000', 4, 3, 0.0),
       ('11111111', 7, 0, -1.0),
@@ -123,7 +123,7 @@ void main() {
     }
   });
 
-  test('FXP: compareTo', () {
+  test('compareTo', () {
     expect(
         FixedPointValue.ofDouble(1, signed: false, m: 4, n: 2)
             .compareTo(FixedPointValue.ofDouble(1, signed: false, m: 4, n: 2)),
@@ -154,7 +154,7 @@ void main() {
         lessThan(0));
   });
 
-  test('FXP: comparison operators', () {
+  test('Comparison operators', () {
     expect(
         FixedPointValue.ofDouble(14.432, signed: false, m: 4, n: 2)
             .eq(FixedPointValue.ofDouble(14.432, signed: false, m: 4, n: 2)),
@@ -189,7 +189,7 @@ void main() {
         LogicValue.one);
   });
 
-  test('FXP: math operators', () {
+  test('Math operators', () {
     FixedPointValue fxp;
 
     fxp = FixedPointValue.ofDouble(4.125, signed: false, m: 4, n: 3) +
