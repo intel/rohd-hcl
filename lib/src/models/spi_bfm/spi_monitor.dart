@@ -29,6 +29,7 @@ class SpiMonitor extends Monitor<SpiPacket> {
       String name = 'spiMonitor'})
       : super(name, parent);
 
+  ///
   @override
   Future<void> run(Phase phase) async {
     unawaited(super.run(phase));
@@ -37,21 +38,21 @@ class SpiMonitor extends Monitor<SpiPacket> {
     final dataListWrite = <LogicValue>[];
 
     intf.sclk.posedge.listen((event) {
-      if (direction == null || direction == SpiDirection.write) {
+      if (direction == null || direction == SpiDirection.main) {
         dataListWrite.add(intf.mosi.previousValue!);
       }
-      if (direction == null || direction == SpiDirection.read) {
+      if (direction == null || direction == SpiDirection.sub) {
         dataListRead.add(intf.miso.previousValue!);
       }
 
       if (dataListWrite.length == intf.dataLength) {
         add(SpiPacket(
-            data: dataListWrite.rswizzle(), direction: SpiDirection.write));
+            data: dataListWrite.rswizzle(), direction: SpiDirection.main));
         dataListWrite.clear();
       }
       if (dataListRead.length == intf.dataLength) {
         add(SpiPacket(
-            data: dataListRead.rswizzle(), direction: SpiDirection.read));
+            data: dataListRead.rswizzle(), direction: SpiDirection.sub));
         dataListRead.clear();
       }
     });

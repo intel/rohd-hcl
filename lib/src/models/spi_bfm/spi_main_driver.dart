@@ -56,13 +56,6 @@ class SpiMainDriver extends PendingClockedDriver<SpiPacket> {
 
   /// Drives a packet onto the interface.
   Future<void> _drivePacket(SpiPacket packet) async {
-    // first, setup
-    await clk.nextNegedge;
-    // If not selecting this intf, then select it? CS here?
-    // if (!intf.cs.value.toBool()) {
-    //   intf.cs.put(0);
-    // }
-
     intf.cs.inject(0);
 
     // will be extended to multiple CS

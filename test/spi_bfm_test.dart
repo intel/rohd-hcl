@@ -22,14 +22,11 @@ class SpiBfmTest extends Test {
   late final SpiInterface intf;
   late final SpiMainAgent main;
   late final SpiSubAgent sub;
-  final int numTransfers;
+  late final SpiMonitor monitor;
 
   String get outFolder => 'tmp_test/spibfm/$name/';
 
-  SpiBfmTest(
-    super.name, {
-    this.numTransfers = 2,
-  }) : super() {
+  SpiBfmTest(super.name) : super() {
     intf = SpiInterface(dataLength: 8);
 
     final clk = SimpleClockGenerator(10).clk;
@@ -38,7 +35,7 @@ class SpiBfmTest extends Test {
 
     sub = SpiSubAgent(intf: intf, parent: this);
 
-    final monitor = SpiMonitor(intf: intf, parent: this);
+    monitor = SpiMonitor(intf: intf, parent: this);
 
     Directory(outFolder).createSync(recursive: true);
 
@@ -61,38 +58,29 @@ class SpiBfmTest extends Test {
     monitor.stream.listen(tracker.record);
   }
 
-  //int numTransfersCompleted = 0;
-
   @override
   Future<void> run(Phase phase) async {
     unawaited(super.run(phase));
 
     final obj = phase.raiseObjection('spiBfmTestObj');
 
-    // final monitor = SpiMonitor(intf: intf, parent: this);
+    main.sequencer
+        .add(SpiPacket(data: LogicValue.ofInt(0xCB, 8))); //0b1100 1011 = 203
 
-    // final randomData = List.generate(numTransfers,
-    //     (index) => LogicValue.ofInt(Test.random!.nextInt(1 << 32), 32));
+    main.sequencer.add(SpiPacket(data: LogicValue.ofInt(0x00, 8)));
 
-    // for (var i = 0; i < numTransfers; i++) {
-    //  final packets = SpiPacket(data: randomData[i]);
+    //main.sequencer.add(SpiPacket(data: LogicValue.ofInt(0x00, 8)));
 
-    main.sequencer.add(SpiPacket(
-        data: LogicValue.ofInt(0xCB, 8),
-        direction: SpiDirection.read)); //0b1100 1011 = 203
+    unawaited(monitor.stream
+        .where((event) =>
+            event.direction == SpiDirection.main && event.data.toInt() == 0xCB)
+        .first
+        .then((_) {
+      sub.sequencer
+          .add(SpiPacket(data: LogicValue.ofInt(0x1B, 8))); //0b0001 1011 = 27
+    }));
 
-    // monitor.stream.listen((data) {
-    //   if (data.direction == SpiDirection.read &&
-    //       data.data == LogicValue.ofInt(0xCB, 8)) {
-    //     sub.sequencer.add(SpiPacket(
-    //         data: LogicValue.ofInt(0x1B, 8),
-    //         direction: SpiDirection.read)); //0b0001 1011 = 27
-    //   }
-    //});
-
-    sub.sequencer.add(SpiPacket(
-        data: LogicValue.ofInt(0x1B, 8),
-        direction: SpiDirection.read)); //0b0001 1011 = 27
+    // might want a completion
 
     // main.sequencer.add(SpiPacket(
     //     data: LogicValue.ofInt(0x00, 8),

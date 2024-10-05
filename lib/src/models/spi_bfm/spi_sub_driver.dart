@@ -12,7 +12,7 @@ import 'dart:async';
 import 'package:rohd_hcl/rohd_hcl.dart';
 import 'package:rohd_vf/rohd_vf.dart';
 
-/// A driver for the main side of the [SpiInterface].
+/// A driver for the sub side of the [SpiInterface].
 ///
 /// Driven packets will update the returned data into the same packet.
 class SpiSubDriver extends PendingDriver<SpiPacket> {
@@ -36,28 +36,33 @@ class SpiSubDriver extends PendingDriver<SpiPacket> {
     SpiPacket? packet;
 
     int? dataIndex;
-    await intf.cs.nextNegedge;
 
-    while (intf.cs.value.isZero) {
+    // Function handles the packet.
+    void packetHandler() {
       if (packet == null && pendingSeqItems.isNotEmpty) {
         packet = pendingSeqItems.removeFirst();
         dataIndex = 0;
       }
       if (packet != null) {
         logger.info('driving sub packet, index: $dataIndex');
-        intf.miso.inject(packet.data[dataIndex!]);
-        dataIndex = dataIndex + 1;
+        intf.miso.inject(packet!.data[dataIndex!]);
+        dataIndex = dataIndex! + 1;
 
-        await intf.sclk.nextNegedge;
-
-        if (dataIndex >= packet.data.width) {
+        if (dataIndex! >= packet!.data.width) {
           packet = null;
           dataIndex = null;
         }
       } else {
         intf.miso.inject(0); // high impedance?
-        break;
       }
     }
+
+    intf.cs.negedge.listen((_) {
+      packetHandler();
+    });
+
+    intf.sclk.negedge.listen((_) {
+      packetHandler();
+    });
   }
 }

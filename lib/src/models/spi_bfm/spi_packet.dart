@@ -13,8 +13,9 @@ import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
 import 'package:rohd_vf/rohd_vf.dart';
 
-/// s [SpiDirection] [write] f [read] f
-enum SpiDirection { write, read }
+/// Doc [main] f
+/// Doc [sub] f
+enum SpiDirection { main, sub }
 
 /// A packet for the [SpiInterface].
 class SpiPacket extends SequenceItem implements Trackable {
@@ -36,13 +37,14 @@ class SpiPacket extends SequenceItem implements Trackable {
     _completer.complete();
   }
 
+  ///
   @override
   String? trackerString(TrackerField field) {
     switch (field.title) {
       case SpiTracker.timeField:
         return Simulator.time.toString();
       case SpiTracker.typeField:
-        return direction?.name.substring(0, 1);
+        return direction?.name;
       case SpiTracker.dataField:
         return data.toString();
     }

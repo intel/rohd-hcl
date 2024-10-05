@@ -41,7 +41,7 @@ class SpiSubAgent extends Agent {
     ///
     monitor = SpiMonitor(
       parent: this,
-      direction: SpiDirection.write,
+      direction: SpiDirection.main,
       intf: intf,
     );
   }

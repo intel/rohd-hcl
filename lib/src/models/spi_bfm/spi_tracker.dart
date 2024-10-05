@@ -18,8 +18,8 @@ class SpiTracker extends Tracker<SpiPacket> {
   /// Tracker field for simulation time.
   static const timeField = 'time';
 
-  /// Tracker field for type (R/W).
-  static const typeField = 'type';
+  /// Tracker field for type from: Main or Sub.
+  static const typeField = 'from';
 
   /// Tracker field for data.
   static const dataField = 'data';
@@ -33,9 +33,10 @@ class SpiTracker extends Tracker<SpiPacket> {
     super.outputFolder,
     int timeColumnWidth = 8,
     int dataColumnWidth = 8,
+    int typeColumnWidth = 8,
   }) : super(name, [
           TrackerField(timeField, columnWidth: timeColumnWidth),
-          const TrackerField(typeField, columnWidth: 1),
+          TrackerField(typeField, columnWidth: typeColumnWidth),
           TrackerField(dataField, columnWidth: dataColumnWidth),
         ]);
 }
