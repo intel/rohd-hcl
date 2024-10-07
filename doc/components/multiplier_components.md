@@ -153,15 +153,15 @@ You can also generate a Markdown form of the same matrix:
 
 | R | M | S|  18  |  17  |  16  |  15  |  14  |  13  |  12  |  11  |  10  |  9  |  8  |  7  |  6  |  5  |  4  |  3  |  2  |  1  |  0  | value|
 |:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--|
-|00| 2| 1||||||||<span style="text-decoration:overline">0</span>|<u>1</u>|<u>1</u>|1|1|1|1|1|1|0|0|0| 2040 (2040)|
-|01| 2| 0|||||||1|<span style="text-decoration:overline">1</span>|0|0|0|0|0|0|1|1|0|1|| 6170 (6170)|
-|02| 0| 0|||||1|<span style="text-decoration:overline">1</span>|0|0|0|0|0|0|0|0|0|0|||| 24576 (24576)|
-|03| 0| 0|||1|<span style="text-decoration:overline">1</span>|0|0|0|0|0|0|0|0|0|0|||||| 98304 (98304)|
-|04| 0| 0|1|<span style="text-decoration:overline">1</span>|0|0|0|0|0|0|0|0|0|0|||||||| 393216 (-131072)|
+|00| 2| 1||||||||$\overline0$|$\underline1$|$\underline1$|1|1|1|1|1|1|0|0|0| 2040 (2040)|
+|01| 2| 0|||||||1|$\overline1$|0|0|0|0|0|0|1|1|0|1|| 6170 (6170)|
+|02| 0| 0|||||1|$\overline1$|0|0|0|0|0|0|0|0|0|0|||| 24576 (24576)|
+|03| 0| 0|||1|$\overline1$|0|0|0|0|0|0|0|0|0|0|||||| 98304 (98304)|
+|04| 0| 0|1|$\overline1$|0|0|0|0|0|0|0|0|0|0|||||||| 393216 (-131072)|
 ||||0 |0 |0 |0 |0 |0 |0 |0 |0 |0 |0 |0 |0 |0 |1 |0 |0 |1 |0 |18 (18)|
 
- Here <u>1</u> or <u>0</u> represent a sign bit extension (positive polarity),
- whereas <span style="text-decoration:overline">1</span> or <span style="text-decoration:overline">0</span> represents a negative polarity sign bit.
+ Here $\underline 1$ or $\underline 0$ represent a sign bit extension (positive polarity),
+ whereas $\overline 1$ or $\overline 0$ represents a negative polarity sign bit.
 
 ## Compression Tree
 
@@ -233,7 +233,7 @@ The `vecString` extension provides a basic string printer with an optional `head
 
 `alignHigh` controls the highest (toward MSB) alignment column of the output whereas `alignLow` controls the lower limit (toward the LSB).
 
-`sepPos' is optional and allows you to set a marker for a separator in the number.
+`sepPos` is optional and allows you to set a marker for a separator in the number.
 `sepChar` is the separation character you wish to use (do not use '|' with Markdown formatting.)
 
 ```dart

@@ -189,11 +189,11 @@ extension EvaluateLivePartialProduct on PartialProductGenerator {
         final bit = entry[col];
         if (bit is SignBit) {
           if (bit.inverted) {
-            str.write('|<span style="text-decoration:overline">'
+            str.write(r'|$\overline'
                 '${entry[col].value.bitString}'
-                '</span>');
+                r'$');
           } else {
-            str.write('|<u>${entry[col].value.bitString}</u>');
+            str.write(r'|$\underline' '${entry[col].value.bitString}' r'$');
           }
         } else {
           str.write('|${entry[col].value.bitString}');
@@ -214,7 +214,6 @@ extension EvaluateLivePartialProduct on PartialProductGenerator {
     }
     // Compute and print binary representation from accumulated value
     // Later: we will compare with a compression tree result
-    str.write('||\n');
 
     final sum = LogicValue.ofBigInt(evaluate(), maxW);
     // print out the sum as a MSB-first bitvector
