@@ -107,7 +107,7 @@ Here is an example of instantiating a `SignMagnitudeAdder`:
 ## Compound Adder
 
 A compound carry adder is a digital circuit used for binary addition. It produces sum and sum+1 outputs.
-A trivial compound adder component [`TrivialCompoundAdder`]<https://intel.github.io/rohd-hcl/rohd_hcl/TrivialCompoundAdder-class.html> doesnt use any RTL code optimization.
+A trivial compound adder component [`TrivialCompoundAdder`] doesnt use any RTL code optimization.
 Carry-select adder-based compound adder [`CarrySelectCompoundAdder`] uses carry-select adder as a basis. Like a carry-select adder it consists of a multiple blocks of two ripple-carry adders <https://en.wikipedia.org/wiki/Carry-select_adder>. But the first block has two ripple-carry adders and two separate carry-propagate chains are used to select sum and sum+1 output bits. sum selecting chain starts from carry input 'zero' driven block and sum+1 selecting chain starts from carry input 'one' driven block.
 The delay of the adder is defined by combination ripple-carry adder and accumulated carry-select chain delay.
 
