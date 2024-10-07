@@ -35,8 +35,9 @@ extension NumericVector on LogicValue {
       int extraSpace = 0,
       bool markDown = false}) {
     final str = StringBuffer();
+    final maxHigh = max(alignHigh ?? width, width);
     final minHigh = min(alignHigh ?? width, width);
-    final length = BigInt.from(minHigh).toString().length + extraSpace;
+    final length = BigInt.from(maxHigh).toString().length + extraSpace;
     // ignore: cascade_invocations
     const hdrSep = '| ';
     const hdrSepStart = '| ';

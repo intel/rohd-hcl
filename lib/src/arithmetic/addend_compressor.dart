@@ -201,7 +201,10 @@ class ColumnCompressor {
       }
     }
     rowBits.addAll(List.filled(pp.rowShift[row], Const(0)));
-    return rowBits.swizzle().zeroExtend(width);
+    if (width > rowBits.length) {
+      return rowBits.swizzle().zeroExtend(width);
+    }
+    return rowBits.swizzle().getRange(0, width);
   }
 
   /// Core iterator for column compressor routine

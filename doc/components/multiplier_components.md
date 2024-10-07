@@ -124,19 +124,44 @@ Our `RadixEncoder` module is general, creating selection tables for arbitrary Bo
 
 The `PartialProductGenerator` class also provides for sign extension with multiple options including `SignExtension.none` which is no sign extension for help in debugging, as well as `SignExtension.compactRect` which is a compact form which works for rectangular products where the multiplicand and multiplier can be of different widths.
 
+If customization is needed beyond sign extension options, routines are provided that allow for fixed customization of bit positions, or conditional (muxed based on a Logic) form.
+
+```dart
+final ppg = PartialProductGenerator(a,b);
+ppg.setAbsolute(row, col, logic);
+ppg.setAbsoluteAll(row, col, List<Logic>);
+ppg.muxAbsolute(row, col, condition, logic);
+ppg.muxAbsoluteAll(row, col, condition, List<logic>);
+```
+
 ### Partial Product Visualization
 
-Creating new arithmetic building blocks from these components is tricky and visualizing intermediate results really helps.  To that end, our `PartialProductGenerator` class has visualization extension `EvaluatePartialProduct` which help evaluate the current `Logic` values in array form during simulation to help with debug.  The evaluation routine with the extension also adds the addends for you to help sanity check the partial product generation.  The routine is `EvaluateLivePartialProduct.representation`.
+Creating new arithmetic building blocks from these components is tricky and visualizing intermediate results really helps.  To that end, our `PartialProductGenerator` class has visualization extension `EvaluatePartialProduct` which help evaluate the current `Logic` values in array form during simulation to help with debug.  The evaluation routine with the extension also adds the addends for you to help sanity check the partial product generation.  The routine is `EvaluateLivePartialProduct.representation`.  Here 'S' or 's' represent a sign bit extension (positive polarity) with 'S' representing '1', 's' representing 0.  'I' and 'i' represent an inverted sign bit.
 
 ```text
-             18 17 16 15 14 13 12 11 10 9  8  7  6  5  4  3  2  1  0  
-00 M= 2 S=1:                         0  1  1  1  1  1  1  1  0  1  0  : 0000000001111111010 = 1018 (1018)
-01 M= 1 S=0:                   1  1  1  0  0  0  0  0  1  1  0        : 0000001110000011000 = 7192 (7192)
-02 M= 0 S=0:          1  1  1  0  0  0  0  0  0  0  0                 : 0001110000000000000 = 57344 (57344)
-03 M= 0 S=0: 1  1  1  0  0  0  0  0  0  0  0                          : 1110000000000000000 = 458752 (-65536)
-======================================================================
-             0  0  0  0  0  0  0  0  0  0  0  0  0  0  1  0  0  1  0  : 0000000000000010010 = 18 (18)
+            18 17 16 15 14 13 12 11 10 9  8  7  6  5  4  3  2  1  0  
+00 M= 2 S=1                      i  S  S  1  1  1  1  1  1  0  0  0   = 2040 (2040)
+01 M= 2 S=0                   1  I  0  0  0  0  0  0  1  1  0  1      = 6170 (6170)
+02 M= 0 S=0             1  I  0  0  0  0  0  0  0  0  0  0            = 24576 (24576)
+03 M= 0 S=0       1  I  0  0  0  0  0  0  0  0  0  0                  = 98304 (98304)
+04 M= 0 S=0 1  I  0  0  0  0  0  0  0  0  0  0                        = 393216 (-131072)
+=====================================================================
+            0  0  0  0  0  0  0  0  0  0  0  0  0  0  1  0  0  1  0   = 18 (18)
 ```
+
+You can also generate a Markdown form of the same matrix:
+| R | M | S|  18  |  17  |  16  |  15  |  14  |  13  |  12  |  11  |  10  |  9  |  8  |  7  |  6  |  5  |  4  |  3  |  2  |  1  |  0  | value|
+|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--|
+|00| 2| 1||||||||<span style="text-decoration:overline">0</span>|<u>1</u>|<u>1</u>|1|1|1|1|1|1|0|0|0| 2040 (2040)|
+|01| 2| 0|||||||1|<span style="text-decoration:overline">1</span>|0|0|0|0|0|0|1|1|0|1|| 6170 (6170)|
+|02| 0| 0|||||1|<span style="text-decoration:overline">1</span>|0|0|0|0|0|0|0|0|0|0|||| 24576 (24576)|
+|03| 0| 0|||1|<span style="text-decoration:overline">1</span>|0|0|0|0|0|0|0|0|0|0|||||| 98304 (98304)|
+|04| 0| 0|1|<span style="text-decoration:overline">1</span>|0|0|0|0|0|0|0|0|0|0|||||||| 393216 (-131072)|
+||
+||||0 |0 |0 |0 |0 |0 |0 |0 |0 |0 |0 |0 |0 |0 |1 |0 |0 |1 |0 |18 (18)|
+
+ Here <u>1</u> or <u>0</u> represent a sign bit extension (positive polarity),
+ whereas <span style="text-decoration:overline">1</span> or <span style="text-decoration:overline">0</span> represents a negative polarity sign bit.
 
 ## Compression Tree
 
