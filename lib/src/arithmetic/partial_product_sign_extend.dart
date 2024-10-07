@@ -235,10 +235,9 @@ class PartialProductGeneratorStopBitsSignExtension
       final sign = signed ? addend.last : signs[row];
       if (row == 0) {
         if (signed) {
-          addend.addAll(List.filled(
-              shift - 1, SignBit(sign, inverted: false))); // signed only?
+          addend.addAll(List.filled(shift - 1, SignBit(sign))); // signed only?
         } else {
-          addend.addAll(List.filled(shift, SignBit(sign, inverted: false)));
+          addend.addAll(List.filled(shift, SignBit(sign)));
         }
         addend.add(SignBit(~sign, inverted: true));
       } else {
@@ -250,7 +249,7 @@ class PartialProductGeneratorStopBitsSignExtension
         addend
           ..addAll(List.filled(shift - 1, Const(1)))
           ..insertAll(0, List.filled(shift - 1, Const(0)))
-          ..insert(0, SignBit(signs[row - 1], inverted: false));
+          ..insert(0, SignBit(signs[row - 1]));
         rowShift[row] -= shift;
       }
     }
@@ -266,7 +265,7 @@ class PartialProductGeneratorStopBitsSignExtension
       // Create an extra row to hold the final carry bit
       partialProducts
           .add(List.filled(selector.width, Const(0), growable: true));
-      partialProducts.last.insert(0, SignBit(signs[rows - 2], inverted: false));
+      partialProducts.last.insert(0, SignBit(signs[rows - 2]));
       rowShift.add((rows - 2) * shift);
 
       // Hack for radix-2

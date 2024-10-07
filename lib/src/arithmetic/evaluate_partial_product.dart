@@ -151,8 +151,9 @@ extension EvaluateLivePartialProduct on PartialProductGenerator {
     if (value) {
       str.write('| value');
     }
-    str.write('|\n');
-    str.write('|:--:' * 3);
+    str
+      ..write('|\n')
+      ..write('|:--:' * 3);
     for (var i = maxW - 1; i >= 0; i--) {
       str.write('|:--:');
     }
