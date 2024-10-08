@@ -31,6 +31,7 @@ class CompoundAdderConfigurator extends Configurator {
   @override
   late final Map<String, ConfigKnob<dynamic>> knobs = UnmodifiableMapView({
     'Width': logicWidthKnob,
+    'Adder Type': moduleTypeKnob
   });
 
   @override
