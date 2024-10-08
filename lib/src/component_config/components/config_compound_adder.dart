@@ -29,9 +29,8 @@ class CompoundAdderConfigurator extends Configurator {
   final String name = 'Compound Adder';
 
   @override
-  late final Map<String, ConfigKnob<dynamic>> knobs = UnmodifiableMapView({
-    'Width': logicWidthKnob,
-  });
+  late final Map<String, ConfigKnob<dynamic>> knobs = UnmodifiableMapView(
+      {'Width': logicWidthKnob, 'Adder Type': moduleTypeKnob});
 
   @override
   Module createModule() => generatorMap[moduleTypeKnob.value]!(
