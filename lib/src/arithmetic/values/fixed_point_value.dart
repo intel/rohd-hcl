@@ -3,7 +3,7 @@
 //
 // fixed_point_value.dart
 // Representation of fixed-point values.
-
+//
 // 2024 September 24
 // Authors:
 //  Soner Yaldiz <soner.yaldiz@intel.com>
@@ -18,59 +18,63 @@ import 'package:rohd_hcl/rohd_hcl.dart';
 /// (Texas Instruments)[https://www.ti.com/lit/ug/spru565b/spru565b.pdf].
 @immutable
 class FixedPointValue implements Comparable<FixedPointValue> {
-  /// The full fixed point value bit storage in two's complement.
+  /// The fixed point value bit storage in two's complement.
   late final LogicValue value;
 
-  /// The sign of the fixed point number.
-  final LogicValue sign;
+  /// [signed] indicates whether the representation is signed.
+  final bool signed;
 
-  /// The integer part of the fixed-point number.
-  final LogicValue integer;
+  /// [m] is the number of bits reserved for the integer part.
+  final int m;
 
-  /// The fractional part of the fixed-point number.
-  final LogicValue fraction;
+  /// [n] is the number of bits reserved for the fractional part.
+  final int n;
+
+  /// Returns true if the number is negative.
+  bool isNegative() => signed & (value.getRange(-1) == LogicValue.one);
+
+  /// Returns true if the number is positive.
+  bool isPositive() => !isNegative();
 
   /// Constructs [FixedPointValue] from sign, integer and fraction values.
   FixedPointValue(
-      {this.sign = LogicValue.empty,
-      this.integer = LogicValue.empty,
-      this.fraction = LogicValue.empty}) {
-    if ((integer == LogicValue.empty) & (fraction == LogicValue.empty)) {
-      throw RohdHclException('integer or fraction must be non-empty');
+      {required this.value,
+      required this.signed,
+      required this.m,
+      required this.n}) {
+    if (value == LogicValue.empty) {
+      throw RohdHclException('Zero width is not allowed.');
     }
-    if ((sign == LogicValue.empty) | (sign.isZero)) {
-      value = [sign, integer, fraction].swizzle();
-    } else {
-      value = ~[LogicValue.zero, integer, fraction].swizzle() + 1;
+    final w = signed ? m + n + 1 : m + n;
+    if (w != value.width) {
+      throw RohdHclException('Width must be (sign) + m + n.');
     }
   }
 
-  /// Constructs [FixedPointValue] of a Dart [double] rounding away from zero.
-  factory FixedPointValue.ofDouble(double value,
-      {required bool signed, required int m, required int n}) {
-    if (value.abs().floor() > pow(2, m) - 1) {
-      throw RohdHclException('value exceed integer part');
+  /// Expands the bit width of integer and fractional parts.
+  LogicValue expandWidth({required bool sign, int m = 0, int n = 0}) {
+    if ((m > 0) & (m < this.m)) {
+      throw RohdHclException('Illegal use.');
     }
-    if ((!signed) & (value < 0)) {
-      throw RohdHclException('Negative value must be signed.');
+    if ((n > 0) & (n < this.n)) {
+      throw RohdHclException('Illegal use.');
     }
-    final sign = value >= 0 ? LogicValue.zero : LogicValue.one;
-    final integerPart = value.abs().floor();
-    final fractionalPart = ((value.abs() - integerPart) * pow(2, n)).round();
-
-    return FixedPointValue(
-        sign: signed ? sign : LogicValue.empty,
-        integer: LogicValue.ofInt(integerPart, m),
-        fraction: LogicValue.ofInt(fractionalPart, n));
-  }
-
-  /// Returns the value of the fixed-point number in a Dart [double] type.
-  double toDouble() {
-    final value = integer.toInt().toDouble() +
-        (fraction.toInt().toDouble() / pow(2, fraction.width));
-    return (sign == LogicValue.empty) | (sign == LogicValue.zero)
-        ? value
-        : -value;
+    var newValue = value;
+    if (m > this.m) {
+      if (signed) {
+        newValue = newValue.signExtend(newValue.width + m - this.m);
+      } else {
+        newValue = newValue.zeroExtend(newValue.width + m - this.m);
+        if (sign) {
+          newValue = newValue.zeroExtend(newValue.width + 1);
+        }
+      }
+    }
+    if (n > this.n) {
+      newValue =
+          newValue.reversed.zeroExtend(newValue.width + n - this.n).reversed;
+    }
+    return newValue;
   }
 
   /// Returns a negative integer if `this` less than [other],
@@ -81,14 +85,22 @@ class FixedPointValue implements Comparable<FixedPointValue> {
     if (other is! FixedPointValue) {
       throw RohdHclException('Input must be of type FixedPointValue');
     }
-    final thisValue = toDouble();
-    final otherValue = other.toDouble();
-    if (thisValue == otherValue) {
-      return 0;
-    } else if (thisValue < otherValue) {
+    final s = signed | other.signed;
+    final m = max(this.m, other.m);
+    final n = max(this.n, other.n);
+    final val1 = expandWidth(sign: s, m: m, n: n);
+    final val2 = other.expandWidth(sign: s, m: m, n: n);
+    final comp = val1.compareTo(val2);
+    if (comp == 0) {
+      return comp;
+    } else if (isPositive() & other.isPositive()) {
+      return comp;
+    } else if (isPositive() & other.isNegative()) {
+      return 1;
+    } else if (isNegative() & other.isPositive()) {
       return -1;
     } else {
-      return 1;
+      return -comp;
     }
   }
 
@@ -116,17 +128,44 @@ class FixedPointValue implements Comparable<FixedPointValue> {
   LogicValue operator >=(FixedPointValue other) =>
       compareTo(other) >= 0 ? LogicValue.one : LogicValue.zero;
 
+  /// Constructs [FixedPointValue] of a Dart [double] rounding away from zero.
+  factory FixedPointValue.ofDouble(double val,
+      {required bool signed, required int m, required int n}) {
+    if (!signed & (val < 0)) {
+      throw RohdHclException('Negative input not allowed with unsigned');
+    }
+    final integerValue = (val * pow(2, n)).toInt();
+    final w = signed ? 1 + m + n : m + n;
+    final v = LogicValue.ofInt(integerValue, w);
+    return FixedPointValue(value: v, signed: signed, m: m, n: n);
+  }
+
+  /// Converts a fixed-point value to a Dart [double].
+  double toDouble() {
+    if (m + n > 52) {
+      throw RohdHclException('Fixed-point value is too wide to convert.');
+    }
+    BigInt number;
+    if (isNegative()) {
+      number = (~(this.value - 1)).toBigInt();
+    } else {
+      number = this.value.toBigInt();
+    }
+    final value = number.toDouble() / pow(2, n).toDouble();
+    return isNegative() ? -value : value;
+  }
+
   /// Addition operation that returns a FixedPointValue.
   /// The result is signed if one of the operands is signed.
   /// The result integer has the max integer width of the operands plus one.
   /// The result fraction has the max fractional width of the operands.
   FixedPointValue operator +(FixedPointValue other) {
-    final res = toDouble() + other.toDouble();
-    final signed =
-        (sign != LogicValue.empty) | (other.sign != LogicValue.empty);
-    final m = max(integer.width, other.integer.width) + 1;
-    final n = max(fraction.width, other.fraction.width);
-    return FixedPointValue.ofDouble(res, signed: signed, m: m, n: n);
+    final s = signed | other.signed;
+    final nr = max(n, other.n);
+    final mr = s ? max(m, other.m) + 2 : max(m, other.m) + 1;
+    final val1 = expandWidth(sign: s, m: mr, n: nr);
+    final val2 = other.expandWidth(sign: s, m: mr, n: nr);
+    return FixedPointValue(value: val1 + val2, signed: s, m: mr, n: nr);
   }
 
   /// Subtraction operation that returns a FixedPointValue.
@@ -134,35 +173,39 @@ class FixedPointValue implements Comparable<FixedPointValue> {
   /// The result integer has the max integer width of the operands plus one.
   /// The result fraction has the max fractional width of the operands.
   FixedPointValue operator -(FixedPointValue other) {
-    final res = toDouble() - other.toDouble();
-    final m = max(integer.width, other.integer.width) + 1;
-    final n = max(fraction.width, other.fraction.width);
-    return FixedPointValue.ofDouble(res, signed: true, m: m, n: n);
+    const s = true;
+    final nr = max(n, other.n);
+    final mr = max(m, other.m) + 2;
+    final val1 = expandWidth(sign: s, m: mr, n: nr);
+    final val2 = other.expandWidth(sign: s, m: mr, n: nr);
+    return FixedPointValue(value: val1 - val2, signed: s, m: mr, n: nr);
   }
 
   /// Multiplication operation that returns a FixedPointValue.
   /// The result is signed if one of the operands is signed.
-  /// The result integer width is the sum of integer widths of operands.
   /// The result fraction width is the sum of fraction widths of operands.
   FixedPointValue operator *(FixedPointValue other) {
-    final signed =
-        (sign != LogicValue.empty) | (other.sign != LogicValue.empty);
-    final res = toDouble() * other.toDouble();
-    final m = integer.width + other.integer.width;
-    final n = fraction.width + other.fraction.width;
-    return FixedPointValue.ofDouble(res, signed: signed, m: m, n: n);
+    final s = signed | other.signed;
+    final ms = s ? m + other.m + 1 : m + other.m;
+    final ns = n + other.n;
+    final val1 = expandWidth(sign: s, m: ms + ns - n);
+    final val2 = other.expandWidth(sign: s, m: ms + ns - other.n);
+    return FixedPointValue(value: val1 * val2, signed: s, m: ms, n: ns);
   }
 
   /// Division operation that returns a FixedPointValue.
   /// The result is signed if one of the operands is signed.
-  /// The result integer width is the sum of integer widths of operands.
-  /// The result fraction width is the sum of fraction widths of operands.
-  FixedPointValue operator /(FixedPointValue other) {
-    final signed =
-        (sign != LogicValue.empty) | (other.sign != LogicValue.empty);
-    final res = toDouble() / other.toDouble();
-    final m = integer.width + other.integer.width;
-    final n = fraction.width + other.fraction.width;
-    return FixedPointValue.ofDouble(res, signed: signed, m: m, n: n);
-  }
+  /// The result integer width is the sum of dividend integer width and divisor
+  /// fraction width. The result fraction width is the sum of dividend fraction
+  /// width and divisor integer width.
+  // FixedPointValue operator /(FixedPointValue other) {
+  //   final s = signed | other.signed;
+  //   final ms = s ? m + other.n + 1 : m + other.n;
+  //   final ns = n + other.m;
+  //   final val1 = expandWidth(sign: s, n: n + other.m + other.n);
+  //   final val2 = other.expandWidth(sign: s, m: other.m + m + n);
+  //   final v = val1 / val2;
+  //   print('${val1.bitString} / ${val2.bitString} = ${v.bitString}  m:$ms n:$ns');
+  //   return FixedPointValue(value: val1 / val2, signed: s, m: ms, n: ns);
+  // }
 }
