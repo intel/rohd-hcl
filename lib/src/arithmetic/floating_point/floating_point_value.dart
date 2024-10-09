@@ -478,12 +478,43 @@ class FloatingPointValue implements Comparable<FloatingPointValue> {
         (mantissa == other.mantissa);
   }
 
-  /// Return true if the represented floating point number is considered
-  ///  NaN or 'Not a Number' due to overflow
-  // TODO(desmonddak): figure out the difference with Infinity
-  bool isNaN() =>
+  bool isExponentAllOnes() => 
       exponent.toInt() ==
       computeMaxExponent(exponent.width) + computeBias(exponent.width) + 1;
+  
+  bool isNaN() =>
+    isExponentAllOnes() && mantissa.toInt() == 0;  
+
+  bool isInf() => 
+    isExponentAllOnes() && mantissa.toInt() != 0; 
+
+  bool isZero() =>
+    exponent.toInt() == 0 && mantissa.toInt() == 0;
+
+  bool isSubnormal() =>
+    exponent.toInt() == 0 && mantissa.toInt() != 0;
+
+  /// Count the number of leading zeroes in a LogicValue.
+  ///
+  /// This is a binary count of the number of leading zeroes in the
+  /// [LogicValue].
+  ///
+  /// The logic value is treated as a binary number, with the rightmost
+  /// bit being the least significant bit (bit 0). The leading zeroes
+  /// are counted from the most significant bit (bit width-1) towards
+  /// the least significant bit.
+  ///
+  /// For example, the binary number 0b00101010 would return 3, as
+  /// there are 3 leading zeroes.
+  int countLeadingZeroes(LogicValue value) {
+    var myVal = value.toInt();
+    var myCnt = 0;
+    while ((myVal & 1) == 0) {
+      myVal = myVal >> 1;
+      myCnt++;
+    }
+    return myCnt;
+  }
 
   /// Return the value of the floating point number in a Dart [double] type.
   double toDouble() {
@@ -752,4 +783,85 @@ class FloatingPoint64Value extends FloatingPointValue {
     return FloatingPoint64Value(
         sign: signLv, exponent: exponentLv, mantissa: mantissaLv);
   }
+}
+
+factory FloatingPointValue.fromFloatingPointValue(
+  required FloatingPointValue ingress_fpVal,
+  required int egressExponentWidth,
+  required int egressMantissaWidth,
+  required FloatingPointRoundingMode roundingMode
+) {
+
+  // Preserve the sign in all cases
+  final egressSign = ingress_fpVal.sign;
+
+  var egressExponent;
+  var egressMantissa;
+
+  if (ingress_fpVal.isNaN()){
+    // Return NaN with change in scale
+    egressExponent = computeMaxExponent(egressExponentWidth) + computeBias(egressExponentWidth) + 1;
+    
+    if (ingress_fpVal.mantissa.width <= egressMantissaWidth) {
+      // Zero pad the mantissa in the case of precision gain
+      egressMantissa = ingress_fpVal.mantissa <<< (egressMantissaWidth - ingress_fpVal.mantissa.width);
+    } else {
+      // Trim the mantissa in the case of precision loss from the right end, preserving the left end
+      egressMantissa = ingress_fpVal.mantissa.slice(ingress_fpVal.mantissa.width - 1, egressMantissaWidth - ingress_fpVal.mantissa.width);
+    }
+
+    return FloatingPointValue(sign: egressSign, exponent: egressExponent, mantissa: egressMantissa);
+  }
+
+  if (ingress_fpVal.isInf()){
+    // Return Infinity
+    egressExponent = computeMaxExponent(egressExponentWidth) + computeBias(egressExponentWidth) + 1;
+    egressMantissa <= LogicValue.zero(egressMantissaWidth);
+
+    return FloatingPointValue(sign: egressSign, exponent: egressExponent, mantissa: egressMantissa);
+  }
+
+  // Zero cases
+  if (ingress_fpVal.isZero()){
+    return FloatingPointValue(sign: egressSign, exponent: LogicValue.zero(egressExponentWidth), mantissa: LogicValue.zero(egressMantissaWidth));
+  }
+  
+  // Subnormal cases
+  // In subnormal cases, the ingress exponent is all zeroes
+  // So we are really only concerned about the mantissa
+  if (ingress_fpVal.isSubnormal()){
+    if (egressMantissa < ingress_fpVal.mantissa) {
+      var mantissaWidthDiff = egressMantissa.width - ingress_fpVal.mantissa.width;
+      var mask = ingress_fpVal.mantissa & LogicValue.filled(mantissaWidthDiff, LogicValue.one);
+
+      // The lower bits of the mantissa and extracted and rounded using the sticky bit from the mask
+      var lowMantissaBits = (ingress_fpVal.mantissa >>> mantissaWidthDiff) | (mask != 0);
+      exgressExponent = LogicValue.filled(egressExponentWidth, LogicValue.zero);
+      egressMantissa
+
+    } else if (egressMantissa > ingress_fpVal.mantissa) {
+      // Normalize the mantissa by counting the leading zeroes until it hit a non-zero bit
+      int leadingZeroes = countLeadingZeroes(ingress_fpVal.mantissa);
+      egressMantissa = ingress_fpVal.mantissa >>> leadingZeroes;
+      egressExponent = ingress_fpVal.exponent - leadingZeroes;
+    } else if (egressMantissa == ingress_fpVal.mantissa) {
+      
+    }
+
+    return 
+  }
+
+  // Normal cases
+
+
+  if (ingress_fpVal.mantissa.width <= egressMantissaWidth) {
+    // Zero pad the mantissa in the case of precision gain
+    egressMantissa = ingress_fpVal.mantissa <<< (egressMantissaWidth - ingress_fpVal.mantissa.width);
+  } else {
+    // Trim the mantissa in the case of precision loss from the right end, preserving the left end
+    egressMantissa = ingress_fpVal.mantissa.slice(ingress_fpVal.mantissa.width - 1, egressMantissaWidth - ingress_fpVal.mantissa.width);
+  }
+  
+  egressExponent = (ingress_fpVal.exponent.toInt() - ingress_fpVal.bias()) + FloatingPointValue.computeBias(egressExponentWidth);
+
 }
