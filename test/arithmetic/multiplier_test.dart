@@ -233,4 +233,51 @@ void main() {
     final accumulate = multiplier.accumulate;
     expect(accumulate.value.toBigInt(), equals(BigInt.from(15 * 3 + 5)));
   });
+
+  test('setting PPG', () async {
+    const width = 8;
+    final a = Logic(name: 'a', width: width);
+    final b = Logic(name: 'b', width: width);
+    final select = Logic(name: 'select');
+    // ignore: cascade_invocations
+    select.put(0);
+    a.put(6);
+    b.put(3);
+
+    final ppG0 = PartialProductGeneratorCompactRectSignExtension(
+        a, b, RadixEncoder(4),
+        signed: true);
+
+    final bit_0_5 = ppG0.getAbsolute(0, 5);
+    expect(bit_0_5.value, equals(LogicValue.one));
+    ppG0.setAbsolute(0, 5, Const(0));
+    expect(ppG0.getAbsolute(0, 5).value, equals(LogicValue.zero));
+
+    final bit_1_2 = ppG0.getAbsolute(1, 2);
+    expect(bit_1_2.value, equals(LogicValue.zero));
+    ppG0.setAbsolute(1, 2, Const(1));
+    expect(ppG0.getAbsolute(1, 2).value, equals(LogicValue.one));
+
+    final bits_3_678 = ppG0.getAbsoluteAll(3, [6, 7, 8]);
+
+    expect(bits_3_678.swizzle().value, equals(Const(0, width: 3).value));
+
+    ppG0.setAbsoluteAll(3, 6, [Const(1), Const(1), Const(0)]);
+
+    expect(ppG0.getAbsoluteAll(3, [6, 7, 8]).swizzle().value,
+        equals([Const(1), Const(1), Const(0)].swizzle().value));
+
+    ppG0
+      ..muxAbsolute(0, 4, select, Const(0))
+      ..muxAbsoluteAll(1, 9, select, [Const(1), Const(0)]);
+
+    expect(ppG0.getAbsolute(0, 4).value, equals(Const(1).value));
+    expect(ppG0.getAbsolute(1, 9).value, equals(Const(0).value));
+    expect(ppG0.getAbsolute(1, 10).value, equals(Const(1).value));
+
+    select.put(1);
+    expect(ppG0.getAbsolute(0, 4).value, equals(Const(0).value));
+    expect(ppG0.getAbsolute(1, 9).value, equals(Const(1).value));
+    expect(ppG0.getAbsolute(1, 10).value, equals(Const(0).value));
+  });
 }
