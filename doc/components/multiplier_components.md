@@ -103,7 +103,7 @@ The partial product generator produces a set of addends in shifted position to b
 
 An argument to the `PartialProductGenerator` is the `RadixEncoder` to be used.  The [`RadixEncoder`] takes a single argument which is the radix (power of 2) to be used.
 
-Instead of using the 1's in the multiplier to select shifted versions of the multiplicand to add in a partial product matrix, radix-encoding will encode multiples of the multiplicand by examining adjacent bits of the multiplier.  For radix-4, for example, for a multiplier of size M, instead of M rows of partial products, M/2 rows are formed by selecting from multiples [-2, -1, 0, 1, 2] of the multiplicand.  These multiples are computed from an 3 bit slices, overlapped by 1 bit, of the multiplier.  Higher radices use wider slices of the multiplier to encode fewer multiples and therefore fewer rows.
+Instead of using the 1's in the multiplier to select shifted versions of the multiplicand to add in a partial product matrix, radix-encoding will encode multiples of the multiplicand by examining adjacent bits of the multiplier.  For radix-4, for example, for a multiplier of size M, instead of M rows of partial products, M/2 rows are formed by selecting from multiples [-2, -1, 0, 1, 2] of the multiplicand.  These multiples are computed from an 3 bit slices, overlapped by 1 bit, of the multiplier.  Higher radixes use wider slices of the multiplier to encode fewer multiples and therefore fewer rows.
 
 | bit_i | bit_i-1 | bit_i-2 | multiple|
 |:-----:|:-------:|:-------:|:-------:|
@@ -199,3 +199,40 @@ Finally, we produce the product.
         compressor.exractRow(0), compressor.extractRow(1), BrentKung.new);
     product <= adder.sum.slice(a.width + b.width - 1, 0);
 ```
+
+## Utility: Aligned Vector Formatting
+
+We provide an extension on `LogicValue` which permits formatting of binary vectors in an aligned way to help with debugging arithmetic components.
+
+The `vecString` extension provides a basic string printer with an optional `header` flag for bit numbering.  A `prefix` value can be used to specify the name lengths to be used to keep vectors aligned.
+
+`alignHigh` controls the highest (toward MSB) alignment column of the output whereas `alignLow` controls the lower limit (toward the LSB).
+
+`sepPos' is optional and allows you to set a marker for a separator in the number.
+`sepChar` is the separation character you wish to use (do not use '|' with Markdown formatting.)
+
+```dart
+  final ref = FloatingPoint64Value.fromDouble(3.14159);
+  print(ref.mantissa
+      .vecString('pi', alignHigh: 55, alignLow: 40, header: true, sepPos: 52));
+```
+
+Produces
+
+```text
+            54  53  52* 51  50  49  48  47  46  45  44  43  42  41  40
+pi                    *  1   0   0   1   0   0   1   0   0   0   0   1
+```
+
+The routine also allows for output in Markdown format:
+
+```dart
+  print(ref.mantissa.vecString('pi',
+      alignHigh: 58, alignLow: 40, header: true, sepPos: 52, markDown: true));
+```
+
+producing:
+
+| Name | 54 | 53 | 52* |  51 | 50 | 49 | 48 | 47 | 46 | 45 | 44 | 43 | 42 | 41 | 40 |
+|:--:|:--|:--|:--|:--|:--|:--|:--|:--|:--|:--|:--|:--|:--|:--|:---|
+|pi|||* | 1 | 0 | 0 | 1 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 1 |

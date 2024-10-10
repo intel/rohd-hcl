@@ -41,6 +41,7 @@ extension EvaluateLiveColumnCompressor on ColumnCompressor {
       }
       rowBits.addAll(List.filled(pp.rowShift[row], LogicValue.zero));
       final val = rowBits.swizzle().zeroExtend(width).toBigInt();
+
       accum += val;
       if (printOut) {
         ts.write('\t${rowBits.swizzle().zeroExtend(width).bitString} ($val)');
@@ -51,10 +52,6 @@ extension EvaluateLiveColumnCompressor on ColumnCompressor {
           ts.write('\n');
         }
       }
-    }
-    if (printOut) {
-      // We need this to be able to debug, but git lint flunks print
-      // print(ts);
     }
     return (accum.toSigned(width), ts);
   }
