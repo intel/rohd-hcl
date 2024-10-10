@@ -270,7 +270,7 @@ void main() {
       const depth = 5;
       final reset = Logic();
       final dataOut = ShiftRegister(dataIn,
-              clk: clk,
+              clk: Const(0),
               depth: depth,
               reset: reset,
               resetValue: resetVal,
