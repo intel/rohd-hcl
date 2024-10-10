@@ -109,7 +109,7 @@ void signExtend() {
       List.generate(rows, (i) =&gt; List.filled(0, Logic(), growable: true));
 
   for (var row = 0; row &lt; rows; row++) {
-    propagate[row].add(signs[row]);
+    propagate[row].add(SignBit(signs[row]));
     for (var col = 0; col &lt; 2 * (shift - 1); col++) {
       propagate[row].add(partialProducts[row][col]);
     }
@@ -117,7 +117,7 @@ void signExtend() {
     if (row == lastRow) {
       var col = 2 * (shift - 1);
       while (propagate[lastRow].length &lt;= align) {
-        propagate[lastRow].add(partialProducts[row][col++]);
+        propagate[lastRow].add(SignBit(partialProducts[row][col++]));
       }
     }
     &#47;&#47; Now compute the propagation logic
@@ -158,7 +158,7 @@ void signExtend() {
         addend[i] = m[row][i];
       }
       &#47;&#47; Stop bits
-      _addStopSignFlip(addend, ~signs[row]);
+      _addStopSignFlip(addend, SignBit(~signs[row], inverted: true));
       addend
         ..insert(0, remainders[row - 1])
         ..addAll(List.filled(shift - 1, Const(1)));
@@ -174,27 +174,28 @@ void signExtend() {
   &#47;&#47; Insert the lastRow sign:  Either in firstRow&#39;s Q if there is a
   &#47;&#47; collision or in another row if it lands beyond the Q sign extension
 
-  final firstSign = signed ? firstAddend.last : signs[0];
-  final lastSign = remainders[lastRow];
+  final firstSign = signed ? SignBit(firstAddend.last) : SignBit(signs[0]);
+  final lastSign = SignBit(remainders[lastRow]);
   &#47;&#47; Compute Sign extension MSBs for firstRow
   final qLen = shift + 1;
   final insertSignPos = (align &gt; 0) ? 0 : -align;
   final q = List.filled(min(qLen, insertSignPos), firstSign, growable: true);
   if (insertSignPos &lt; qLen) {
     &#47;&#47; At sign insertion position
-    q.add(firstSign ^ lastSign);
+    q.add(SignBit(firstSign ^ lastSign));
     if (insertSignPos == qLen - 1) {
-      q[insertSignPos] = ~q[insertSignPos];
-      q.add(~(firstSign | q[insertSignPos]));
+      q[insertSignPos] = SignBit(~q[insertSignPos], inverted: true);
+      q.add(SignBit(~(firstSign | q[insertSignPos]), inverted: true));
     } else {
       q
-        ..addAll(List.filled(qLen - insertSignPos - 2, firstSign &amp; ~lastSign))
-        ..add(~(firstSign &amp; ~lastSign));
+        ..addAll(List.filled(
+            qLen - insertSignPos - 2, SignBit(firstSign &amp; ~lastSign)))
+        ..add(SignBit(~(firstSign &amp; ~lastSign), inverted: true));
     }
   }
 
   if (-align &gt;= q.length) {
-    q.last = ~firstSign;
+    q.last = SignBit(~firstSign, inverted: true);
   }
   _addStopSign(firstAddend, q[0]);
   firstAddend.addAll(q.getRange(1, q.length));

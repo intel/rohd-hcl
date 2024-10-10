@@ -264,6 +264,60 @@ multiples of the multiplicand and generate partial products
       id="instance-methods">
     <h2>Methods</h2>
     <dl class="callables">
+        <dt id="getAbsolute" class="callable inherited">
+  <span class="name"><a href="../rohd_hcl/PartialProductGenerator/getAbsolute.html">getAbsolute</a></span><span class="signature">(<wbr><span class="parameter" id="getAbsolute-param-row"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.5.3/dart-core/int-class.html">int</a></span> <span class="parameter-name">row</span>, </span><span class="parameter" id="getAbsolute-param-col"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.5.3/dart-core/int-class.html">int</a></span> <span class="parameter-name">col</span></span>)
+    <span class="returntype parameter">&#8594; <a href="https://pub.dev/documentation/rohd/0.5.3/rohd/Logic-class.html">Logic</a></span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Return the Logic at the absolute position (<code>row</code>, <code>col</code>).
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="getAbsoluteAll" class="callable inherited">
+  <span class="name"><a href="../rohd_hcl/PartialProductGenerator/getAbsoluteAll.html">getAbsoluteAll</a></span><span class="signature">(<wbr><span class="parameter" id="getAbsoluteAll-param-row"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.5.3/dart-core/int-class.html">int</a></span> <span class="parameter-name">row</span>, </span><span class="parameter" id="getAbsoluteAll-param-columns"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.5.3/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.dart.dev/stable/3.5.3/dart-core/int-class.html">int</a></span>&gt;</span></span> <span class="parameter-name">columns</span></span>)
+    <span class="returntype parameter">&#8594; <a href="https://api.dart.dev/stable/3.5.3/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://pub.dev/documentation/rohd/0.5.3/rohd/Logic-class.html">Logic</a></span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Return the List<logic> at the
+absolute position (<code>row</code>, List<int> <code>columns</code>.</int></logic>
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="insertAbsolute" class="callable inherited">
+  <span class="name"><a href="../rohd_hcl/PartialProductGenerator/insertAbsolute.html">insertAbsolute</a></span><span class="signature">(<wbr><span class="parameter" id="insertAbsolute-param-row"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.5.3/dart-core/int-class.html">int</a></span> <span class="parameter-name">row</span>, </span><span class="parameter" id="insertAbsolute-param-col"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.5.3/dart-core/int-class.html">int</a></span> <span class="parameter-name">col</span>, </span><span class="parameter" id="insertAbsolute-param-val"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.5.3/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">val</span></span>)
+    <span class="returntype parameter">&#8594; void</span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Set a Logic <code>val</code> at the absolute position (<code>row</code>, <code>col</code>)
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="insertAbsoluteAll" class="callable inherited">
+  <span class="name"><a href="../rohd_hcl/PartialProductGenerator/insertAbsoluteAll.html">insertAbsoluteAll</a></span><span class="signature">(<wbr><span class="parameter" id="insertAbsoluteAll-param-row"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.5.3/dart-core/int-class.html">int</a></span> <span class="parameter-name">row</span>, </span><span class="parameter" id="insertAbsoluteAll-param-col"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.5.3/dart-core/int-class.html">int</a></span> <span class="parameter-name">col</span>, </span><span class="parameter" id="insertAbsoluteAll-param-list"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.5.3/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://pub.dev/documentation/rohd/0.5.3/rohd/Logic-class.html">Logic</a></span>&gt;</span></span> <span class="parameter-name">list</span></span>)
+    <span class="returntype parameter">&#8594; void</span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Set the values of the row, starting at absolute position (<code>row</code>, <code>col</code>)
+to the <code>list</code> of values
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
         <dt id="maxWidth" class="callable inherited">
   <span class="name"><a href="../rohd_hcl/PartialProductGenerator/maxWidth.html">maxWidth</a></span><span class="signature">(<wbr>)
     <span class="returntype parameter">&#8594; <a href="https://api.dart.dev/stable/3.5.3/dart-core/int-class.html">int</a></span>
@@ -277,6 +331,34 @@ multiples of the multiplicand and generate partial products
 
 </dd>
 
+        <dt id="muxAbsolute" class="callable inherited">
+  <span class="name"><a href="../rohd_hcl/PartialProductGenerator/muxAbsolute.html">muxAbsolute</a></span><span class="signature">(<wbr><span class="parameter" id="muxAbsolute-param-row"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.5.3/dart-core/int-class.html">int</a></span> <span class="parameter-name">row</span>, </span><span class="parameter" id="muxAbsolute-param-col"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.5.3/dart-core/int-class.html">int</a></span> <span class="parameter-name">col</span>, </span><span class="parameter" id="muxAbsolute-param-condition"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.5.3/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">condition</span>, </span><span class="parameter" id="muxAbsolute-param-val"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.5.3/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">val</span></span>)
+    <span class="returntype parameter">&#8594; void</span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Mux the Logic at absolute position (<code>row</code>, <code>col</code>) conditionally by
+<code>condition</code> to <code>val</code>.
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="muxAbsoluteAll" class="callable inherited">
+  <span class="name"><a href="../rohd_hcl/PartialProductGenerator/muxAbsoluteAll.html">muxAbsoluteAll</a></span><span class="signature">(<wbr><span class="parameter" id="muxAbsoluteAll-param-row"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.5.3/dart-core/int-class.html">int</a></span> <span class="parameter-name">row</span>, </span><span class="parameter" id="muxAbsoluteAll-param-col"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.5.3/dart-core/int-class.html">int</a></span> <span class="parameter-name">col</span>, </span><span class="parameter" id="muxAbsoluteAll-param-condition"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.5.3/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">condition</span>, </span><span class="parameter" id="muxAbsoluteAll-param-list"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.5.3/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://pub.dev/documentation/rohd/0.5.3/rohd/Logic-class.html">Logic</a></span>&gt;</span></span> <span class="parameter-name">list</span></span>)
+    <span class="returntype parameter">&#8594; void</span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Mux the range of values into the row starting at absolute position
+(<code>row</code>, <code>col</code>) using <code>condition</code> to select the new value
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
         <dt id="noSuchMethod" class="callable inherited">
   <span class="name"><a href="https://api.dart.dev/stable/3.5.3/dart-core/Object/noSuchMethod.html">noSuchMethod</a></span><span class="signature">(<wbr><span class="parameter" id="noSuchMethod-param-invocation"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.5.3/dart-core/Invocation-class.html">Invocation</a></span> <span class="parameter-name">invocation</span></span>)
     <span class="returntype parameter">&#8594; dynamic</span>
@@ -286,6 +368,32 @@ multiples of the multiplicand and generate partial products
 </dt>
 <dd class="inherited">
   Invoked when a nonexistent method or property is accessed.
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="setAbsolute" class="callable inherited">
+  <span class="name"><a href="../rohd_hcl/PartialProductGenerator/setAbsolute.html">setAbsolute</a></span><span class="signature">(<wbr><span class="parameter" id="setAbsolute-param-row"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.5.3/dart-core/int-class.html">int</a></span> <span class="parameter-name">row</span>, </span><span class="parameter" id="setAbsolute-param-col"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.5.3/dart-core/int-class.html">int</a></span> <span class="parameter-name">col</span>, </span><span class="parameter" id="setAbsolute-param-val"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.5.3/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">val</span></span>)
+    <span class="returntype parameter">&#8594; void</span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Set the Logic at absolute position (<code>row</code>, <code>col</code>) to <code>val</code>.
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="setAbsoluteAll" class="callable inherited">
+  <span class="name"><a href="../rohd_hcl/PartialProductGenerator/setAbsoluteAll.html">setAbsoluteAll</a></span><span class="signature">(<wbr><span class="parameter" id="setAbsoluteAll-param-row"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.5.3/dart-core/int-class.html">int</a></span> <span class="parameter-name">row</span>, </span><span class="parameter" id="setAbsoluteAll-param-col"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.5.3/dart-core/int-class.html">int</a></span> <span class="parameter-name">col</span>, </span><span class="parameter" id="setAbsoluteAll-param-list"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.5.3/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://pub.dev/documentation/rohd/0.5.3/rohd/Logic-class.html">Logic</a></span>&gt;</span></span> <span class="parameter-name">list</span></span>)
+    <span class="returntype parameter">&#8594; void</span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Set the range at absolute position (<code>row</code>, <code>col</code>) to <code>list</code>.
   <div class="features"><span class="feature">inherited</span></div>
 
 </dd>
