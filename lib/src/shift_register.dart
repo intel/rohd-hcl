@@ -74,7 +74,7 @@ class ShiftRegister extends Module {
           // Check if list length is equal to depth
           if (resetValue.length != depth) {
             throw RohdHclException(
-                'ResetValue list length must be equal to shift register depth.');
+                'ResetValue list length must equal shift register depth.');
           }
 
           for (var i = 0; i < resetValue.length; i++) {
