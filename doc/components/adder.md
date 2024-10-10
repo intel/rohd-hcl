@@ -112,7 +112,7 @@ Carry-select adder-based compound adder `CarrySelectCompoundAdder` uses carry-se
 The delay of the adder is defined by combination ripple-carry adder and accumulated carry-select chain delay.
 
 The `CarrySelectCompoundAdder` module in ROHD-HCL accept input `Logic`s a and b as the input pin and the name of the module `name`. Note that the width of the inputs must be the same or a `RohdHclException` will be thrown.
-Compound adder generator provides two alogithms for splitting adder into ripple-carry blocks. `CarrySelectCompoundAdder.splitSelectAdderAlgorithm4Bit` algoritm splits adder into blocks of 4-bit ripple-carry adders with the first one width adjusted down. `CarrySelectCompoundAdder.splitSelectAdderAlgorithmSingleBlock` algorithm generates only one block of full bitwidth of the adder. Input List\<int\> Function(int adderFullWidth) `widthGen` should be used to specify custom adder splitting algorithm that return a list of sub-adders width. The default one is `CarrySelectCompoundAdder.splitSelectAdderAlgorithmSingleBlock`.
+Compound adder generator provides two alogithms for splitting adder into ripple-carry blocks. `CarrySelectCompoundAdder.splitSelectAdderAlgorithm4Bit` algoritm splits adder into blocks of 4-bit ripple-carry adders with the first one width adjusted down. `CarrySelectCompoundAdder.splitSelectAdderAlgorithmSingleBlock` algorithm generates only one block of full bitwidth of the adder. Input List\<int\> Function(int adderFullWidth) `widthGen` should be used to specify custom adder splitting algorithm that returns a list of sub-adders width. The default one is `CarrySelectCompoundAdder.splitSelectAdderAlgorithmSingleBlock`.
 
 An example is shown below to add two inputs of signals that have 8-bits of width.
 
