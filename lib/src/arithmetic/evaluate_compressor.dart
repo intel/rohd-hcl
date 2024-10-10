@@ -40,11 +40,14 @@ extension EvaluateLiveColumnCompressor on ColumnCompressor {
         }
       }
       rowBits.addAll(List.filled(pp.rowShift[row], LogicValue.zero));
-      final val = rowBits.swizzle().zeroExtend(width).toBigInt();
+      final rowBitsExtend = rowBits.length < width
+          ? rowBits.swizzle().zeroExtend(width)
+          : rowBits.swizzle();
+      final val = rowBitsExtend.toBigInt();
 
       accum += val;
       if (printOut) {
-        ts.write('\t${rowBits.swizzle().zeroExtend(width).bitString} ($val)');
+        ts.write('\t${rowBitsExtend.bitString} ($val)');
         if (row == rows - 1) {
           ts.write(' Total=${accum.toSigned(width)}\n');
           stdout.write(ts);
