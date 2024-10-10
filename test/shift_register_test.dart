@@ -209,4 +209,113 @@ void main() {
 
     await Simulator.endSimulation();
   });
+
+  group('list reset value shift register', () {
+    Future<void> listResetTest(
+        dynamic resetVal, void Function(Logic dataOut) check) async {
+      final dataIn = Logic(width: 8);
+      final clk = SimpleClockGenerator(10).clk;
+      const depth = 5;
+      final reset = Logic();
+      final dataOut = ShiftRegister(dataIn,
+              clk: clk, depth: depth, reset: reset, resetValue: resetVal)
+          .dataOut;
+
+      unawaited(Simulator.run());
+
+      dataIn.put(0x45);
+      reset.put(true);
+
+      await clk.nextPosedge;
+
+      reset.put(false);
+
+      await clk.waitCycles(3);
+
+      check(dataOut);
+
+      await Simulator.endSimulation();
+    }
+
+    test('list of logics reset value', () async {
+      await listResetTest([
+        Logic(width: 8)..put(0x2),
+        Logic(width: 8)..put(0x10),
+        Logic(width: 8)..put(0x22),
+        Logic(width: 8)..put(0x33),
+        Logic(width: 8)..put(0x42),
+      ], (dataOut) {
+        expect(dataOut.value.toInt(), 0x10);
+      });
+    });
+
+    test('list of mixed reset value', () async {
+      await listResetTest([
+        Logic(width: 8)..put(0x2),
+        26,
+        Logic(width: 8)..put(0x22),
+        true,
+        Logic(width: 8)..put(0x42),
+      ], (dataOut) {
+        expect(dataOut.value.toInt(), 0x1A);
+      });
+    });
+  });
+
+  group('async reset shift register', () {
+    Future<void> asyncResetTest(
+        dynamic resetVal, void Function(Logic dataOut) check) async {
+      final dataIn = Logic(width: 8);
+      final clk = SimpleClockGenerator(10).clk;
+      const depth = 5;
+      final reset = Logic();
+      final dataOut = ShiftRegister(dataIn,
+              clk: clk,
+              depth: depth,
+              reset: reset,
+              resetValue: resetVal,
+              asyncReset: true)
+          .dataOut;
+
+      unawaited(Simulator.run());
+
+      dataIn.put(0x42);
+
+      reset.inject(false);
+
+      await clk.waitCycles(1);
+
+      reset.inject(true);
+
+      await clk.waitCycles(1);
+
+      check(dataOut);
+
+      await Simulator.endSimulation();
+    }
+
+    test('async reset value', () async {
+      await asyncResetTest(Const(0x78, width: 8), (dataOut) {
+        expect(dataOut.value.toInt(), 0x78);
+      });
+    });
+
+    test('async null reset value', () async {
+      await asyncResetTest(null, (dataOut) {
+        expect(dataOut.value.toInt(), 0);
+      });
+    });
+
+    test('async reset with list mixed type', () async {
+      await asyncResetTest([
+        Logic(width: 8)..put(0x2),
+        59,
+        Const(0x78, width: 8),
+        Logic(width: 8)..put(0x33),
+        true,
+      ], (dataOut) {
+        expect(dataOut.value.toInt(), 0x1);
+      });
+    });
+  });
 }
