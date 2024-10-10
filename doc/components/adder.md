@@ -108,7 +108,7 @@ Here is an example of instantiating a `SignMagnitudeAdder`:
 
 A compound carry adder is a digital circuit used for binary addition. It produces sum and sum+1 outputs.
 A trivial compound adder component `TrivialCompoundAdder` doesnt use any RTL code optimization.
-Carry-select adder-based compound adder `CarrySelectCompoundAdder` uses carry-select adder as a basis. Like a carry-select adder it consists of a multiple blocks of two ripple-carry adders <https://en.wikipedia.org/wiki/Carry-select_adder>. But the first block has two ripple-carry adders and two separate carry-propagate chains are used to select sum and sum+1 output bits. sum selecting chain starts from carry input 'zero' driven block and sum+1 selecting chain starts from carry input 'one' driven block.
+Carry-select adder-based compound adder `CarrySelectCompoundAdder` uses carry-select adder as a basis. Like a carry-select adder it consists of a multiple blocks of two ripple-carry adders <https://en.wikipedia.org/wiki/Carry-select_adder>. But the first block has two ripple-carry adders and two separate carry-propagate chains are used to select sum and sum+1 output bits. Sum selecting chain starts from carry input 'zero' driven block and sum+1 selecting chain starts from carry input 'one' driven block.
 The delay of the adder is defined by combination ripple-carry adder and accumulated carry-select chain delay.
 
 The `CarrySelectCompoundAdder` module in ROHD-HCL accept input `Logic`s a and b as the input pin and the name of the module `name`. Note that the width of the inputs must be the same or a `RohdHclException` will be thrown.
