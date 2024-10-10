@@ -28,4 +28,5 @@ List<Configurator> get componentRegistry => [
       ParallelPrefixAdderConfigurator(),
       CompressionTreeMultiplierConfigurator(),
       ExtremaConfigurator(),
+      CompoundAdderConfigurator(),
     ];
