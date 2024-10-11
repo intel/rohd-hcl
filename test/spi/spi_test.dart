@@ -8,19 +8,18 @@
 // Author: Roberto Torres <roberto.torres@intel.com>
 
 import 'package:rohd/rohd.dart';
-//import 'package:rohd/src/utilities/simcompare.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
 import 'package:test/test.dart';
 
-class SpiMain extends Module {
-  SpiMain(SpiInterface intf) {
+class SpiMainIntf extends Module {
+  SpiMainIntf(SpiInterface intf) {
     intf = SpiInterface.clone(intf)
       ..pairConnectIO(this, intf, PairRole.provider);
   }
 }
 
-class SpiSub extends Module {
-  SpiSub(SpiInterface intf) {
+class SpiSubIntf extends Module {
+  SpiSubIntf(SpiInterface intf) {
     intf = SpiInterface.clone(intf)
       ..pairConnectIO(this, intf, PairRole.consumer);
   }
@@ -29,8 +28,8 @@ class SpiSub extends Module {
 class SpiTop extends Module {
   SpiTop() {
     final intf = SpiInterface();
-    SpiMain(intf);
-    SpiSub(intf);
+    SpiMainIntf(intf);
+    SpiSubIntf(intf);
     addOutput('dummy') <= intf.sclk;
   }
 }

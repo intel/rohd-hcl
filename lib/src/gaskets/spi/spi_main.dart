@@ -13,11 +13,14 @@ import 'package:rohd_hcl/rohd_hcl.dart';
 /// Main component for SPI Interface.
 class SpiMain extends Module {
   ///
-  SpiMain(Logic busIn, Logic busOut, SpiInterface intf,
+  Logic get busOut => output('busOut');
+
+  ///
+  SpiMain(Logic busIn, SpiInterface intf,
       {required Logic clk, required Logic reset, required Logic start}) {
     busIn = addInput('bus', busIn, width: busIn.width);
 
-    busOut = addOutput('busOut', width: busOut.width);
+    addOutput('busOut', width: busIn.width);
 
     intf = SpiInterface.clone(intf)
       ..pairConnectIO(this, intf, PairRole.provider);
@@ -35,19 +38,25 @@ class SpiMain extends Module {
     final serializer = Serializer(busInArray,
         clk: clk, reset: reset, enable: isRunning, flopInput: true);
 
+    // Will run when start is pulsed high, reset on reset or when serializer is done
     isRunning <= flop(clk, Const(1), en: start, reset: reset | serializer.done);
 
     // Shift register in from MISO
-    final srMiso =
+    final shiftReg =
         ShiftRegister(intf.miso, clk: intf.sclk, depth: intf.dataLength);
 
-    busOut <= srMiso.dataOut;
+    // Each busOut bit is connected to the corresponding shift Register stage
+    busOut <= shiftReg.stages.swizzle();
 
+    // Sclk runs of clk when isRunning is true
     intf.sclk <= clk & isRunning;
+
+    // CS is active low. It will go low when isRunning is high
     intf.cs <= ~isRunning;
+
+    // Mosi is connected to the serializer output.
     intf.mosi <= serializer.serialized;
   }
 }
-// shift register for miso
 
 // Knob for SPI data lenght, SPI mode, CS qty

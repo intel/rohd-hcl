@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: BSD-3-Clause
 //
 // spi_bfm_test.dart
-// Definitions for the SPI interface.
+// Tests for the SPI BFM.
 //
 // 2024 September 23
 // Author: Roberto Torres <roberto.torres@intel.com>
@@ -45,14 +45,15 @@ class SpiBfmTest extends Test {
     Simulator.registerEndOfSimulationAction(() async {
       await tracker.terminate();
 
-      // final jsonStr =
-      //      File('$outFolder/spiTracker.tracker.json').readAsStringSync();
-      // final jsonContents = json.decode(jsonStr);
+      // // Commented to avoid bug
+      //   final jsonStr =
+      //        File('$outFolder/spiTracker.tracker.json').readAsStringSync();
+      //   final jsonContents = json.decode(jsonStr);
 
-      // // ignore: avoid_dynamic_calls
-      // expect(jsonContents['records'].length, 2);
+      //   // ignore: avoid_dynamic_calls
+      //   expect(jsonContents['records'].length, 2);
 
-      //Directory(outFolder).deleteSync(recursive: true);
+      //   Directory(outFolder).deleteSync(recursive: true);
     });
 
     monitor.stream.listen(tracker.record);
@@ -99,7 +100,7 @@ void main() {
     Simulator.setMaxSimTime(6000);
 
     if (dumpWaves) {
-      final mod = SpiMain(spiBfmTest.intf);
+      final mod = SpiMainIntf(spiBfmTest.intf);
       await mod.build();
       WaveDumper(mod);
     }
