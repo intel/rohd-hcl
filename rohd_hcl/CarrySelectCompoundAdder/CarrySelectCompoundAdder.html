@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="API docs for the CarrySelectCompoundAdder constructor from Class CarrySelectCompoundAdder from the rohd_hcl library, for the Dart programming language.">
+  <title>CarrySelectCompoundAdder constructor - CarrySelectCompoundAdder - rohd_hcl library - Dart API</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../../static-assets/github.css?v1">
+  <link rel="stylesheet" href="../../static-assets/styles.css?v1">
+  <link rel="icon" href="../../static-assets/favicon.png?v1">
+
+  
+</head>
+
+
+<body data-base-href="../../" data-using-base-href="false" class="light-theme">
+
+<div id="overlay-under-drawer"></div>
+
+<header id="title">
+  <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="../../index.html">rohd_hcl</a></li>
+    <li><a href="../../rohd_hcl/rohd_hcl-library.html">rohd_hcl.dart</a></li>
+    <li><a href="../../rohd_hcl/CarrySelectCompoundAdder-class.html">CarrySelectCompoundAdder</a></li>
+    <li class="self-crumb">CarrySelectCompoundAdder constructor</li>
+  </ol>
+  <div class="self-name">CarrySelectCompoundAdder</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+  <div class="toggle" id="theme-button" title="Toggle brightness">
+    <label for="theme">
+      <input type="checkbox" id="theme" value="light-theme">
+      <span id="dark-theme-button" class="material-symbols-outlined">
+        dark_mode
+      </span>
+      <span id="light-theme-button" class="material-symbols-outlined">
+        light_mode
+      </span>
+    </label>
+  </div>
+</header>
+<main>
+
+  <div
+      id="dartdoc-main-content"
+      class="main-content"
+      data-above-sidebar="rohd_hcl&#47;CarrySelectCompoundAdder-class-sidebar.html"
+      data-below-sidebar="">
+      <div>
+<h1><span class="kind-constructor">CarrySelectCompoundAdder</span> constructor 
+</h1></div>
+
+    <section class="multi-line-signature">
+      
+      <span class="name ">CarrySelectCompoundAdder</span>(<wbr><ol class="parameter-list"> <li><span class="parameter" id="-param-a"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.5.3/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">a</span>, </span></li>
+<li><span class="parameter" id="-param-b"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.5.3/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">b</span>, {</span></li>
+<li><span class="parameter" id="-param-name"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.5.3/dart-core/String-class.html">String</a></span> <span class="parameter-name">name</span> = <span class="default-value">&#39;cs_compound_adder&#39;</span>, </span></li>
+<li><span class="parameter" id="-param-widthGen"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.5.3/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.dart.dev/stable/3.5.3/dart-core/int-class.html">int</a></span>&gt;</span></span> <span class="parameter-name">widthGen</span>(<ol class="parameter-list single-line"> <li><span class="parameter" id="param-"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.5.3/dart-core/int-class.html">int</a></span></span></li>
+</ol>) = <span class="default-value">splitSelectAdderAlgorithmSingleBlock</span>, </span></li>
+</ol>})
+    </section>
+
+    
+<section class="desc markdown">
+  <p>Constructs a <a href="../../rohd_hcl/CarrySelectCompoundAdder-class.html">CarrySelectCompoundAdder</a>.</p>
+</section>
+
+
+    
+<section class="summary source-code" id="source">
+  <h2><span>Implementation</span></h2>
+  <pre class="language-dart"><code class="language-dart">CarrySelectCompoundAdder(super.a, super.b,
+    {super.name = &#39;cs_compound_adder&#39;,
+    List&lt;int&gt; Function(int) widthGen =
+        splitSelectAdderAlgorithmSingleBlock}) {
+  &#47;&#47; output bits lists
+  final sumList0 = &lt;Logic&gt;[];
+  final sumList1 = &lt;Logic&gt;[];
+  &#47;&#47; carryout of previous ripple-carry adder block
+  &#47;&#47; for sum and sum+1
+  Logic? carry0;
+  Logic? carry1;
+  &#47;&#47; Get size of each ripple-carry adder block
+  final adderSplit = widthGen(a.width);
+  &#47;&#47; 1st output bit index of each block
+  var blockStartIdx = 0;
+  for (var i = 0; i &lt; adderSplit.length; ++i) {
+    &#47;&#47; input width of current ripple-carry adder block
+    final blockWidth = adderSplit[i];
+    if (blockWidth &lt;= 0) {
+      throw RohdHclException(&#39;non-positive ripple-carry adder block size.&#39;);
+    }
+    if (blockWidth + blockStartIdx &gt; a.width) {
+      throw RohdHclException(&#39;oversized ripple-carry adders sequence.&#39;);
+    }
+    final blockA = Logic(name: &#39;block_${i}_a&#39;, width: blockWidth);
+    final blockB = Logic(name: &#39;block_${i}_b&#39;, width: blockWidth);
+    blockA &lt;= a.getRange(blockStartIdx, blockStartIdx + blockWidth);
+    blockB &lt;= b.getRange(blockStartIdx, blockStartIdx + blockWidth);
+    &#47;&#47; Build ripple-carry adders for 0 and 1 carryin values
+    final fullAdder0 = RippleCarryAdder(blockA, blockB,
+        carryIn: Const(0), name: &#39;block0_$i&#39;);
+    final fullAdder1 = RippleCarryAdder(blockA, blockB,
+        carryIn: Const(1), name: &#39;block1_$i&#39;);
+    for (var bitIdx = 0; bitIdx &lt; blockWidth; ++bitIdx) {
+      if (i == 0) {
+        &#47;&#47; connect directly to respective sum output bit
+        sumList0.add(fullAdder0.sum[bitIdx]);
+        sumList1.add(fullAdder1.sum[bitIdx]);
+      } else {
+        final bitOut0 = Logic(name: &#39;bit0_${blockStartIdx + bitIdx}&#39;);
+        final bitOut1 = Logic(name: &#39;bit1_${blockStartIdx + bitIdx}&#39;);
+        &#47;&#47; select adder output from adder matching carryin value
+        bitOut0 &lt;=
+            mux(carry0!, fullAdder1.sum[bitIdx], fullAdder0.sum[bitIdx]);
+        bitOut1 &lt;=
+            mux(carry1!, fullAdder1.sum[bitIdx], fullAdder0.sum[bitIdx]);
+        sumList0.add(bitOut0);
+        sumList1.add(bitOut1);
+      }
+    }
+    if (i == 0) {
+      &#47;&#47; select carryout as a last bit of the adder
+      carry0 = fullAdder0.sum[blockWidth];
+      carry1 = fullAdder1.sum[blockWidth];
+    } else {
+      &#47;&#47; select carryout depending on carryin (carryout of the previous block)
+      carry0 = mux(
+          carry0!, fullAdder1.sum[blockWidth], fullAdder0.sum[blockWidth]);
+      carry1 = mux(
+          carry1!, fullAdder1.sum[blockWidth], fullAdder0.sum[blockWidth]);
+    }
+    blockStartIdx += blockWidth;
+  }
+
+  &#47;&#47; append carryout bit
+  sumList0.add(carry0!);
+  sumList1.add(carry1!);
+
+  sum &lt;= sumList0.rswizzle();
+  sum1 &lt;= sumList1.rswizzle();
+}</code></pre>
+</section>
+
+
+  </div> <!-- /.main-content -->
+
+  <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+    <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
+<header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+    <li><a href="../../index.html">rohd_hcl</a></li>
+    <li><a href="../../rohd_hcl/rohd_hcl-library.html">rohd_hcl</a></li>
+    <li><a href="../../rohd_hcl/CarrySelectCompoundAdder-class.html">CarrySelectCompoundAdder</a></li>
+    <li class="self-crumb">CarrySelectCompoundAdder constructor</li>
+</ol>
+
+
+    <h5>CarrySelectCompoundAdder class</h5>
+    <div id="dartdoc-sidebar-left-content"></div>
+  </div><!--/.sidebar-offcanvas-left-->
+
+  <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+  </div><!--/.sidebar-offcanvas-->
+
+</main>
+
+<footer>
+  <span class="no-break">
+    rohd_hcl
+      0.1.0
+  </span>
+
+  
+</footer>
+
+
+
+<script src="../../static-assets/highlight.pack.js?v1"></script>
+<script src="../../static-assets/docs.dart.js"></script>
+
+
+
+</body>
+
+</html>
+

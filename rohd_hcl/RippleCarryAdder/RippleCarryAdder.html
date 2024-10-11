@@ -64,7 +64,8 @@
       
       <span class="name ">RippleCarryAdder</span>(<wbr><ol class="parameter-list"> <li><span class="parameter" id="-param-a"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.5.3/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">a</span>, </span></li>
 <li><span class="parameter" id="-param-b"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.5.3/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">b</span>, {</span></li>
-<li><span class="parameter" id="-param-name"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.5.3/dart-core/String-class.html">String</a></span> <span class="parameter-name">name</span> = <span class="default-value">&#39;ripple_carry_adder&#39;</span>, </span></li>
+<li><span class="parameter" id="-param-carryIn"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.5.3/rohd/Logic-class.html">Logic</a>?</span> <span class="parameter-name">carryIn</span>, </span></li>
+<li><span class="parameter" id="-param-name"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.5.3/dart-core/String-class.html">String</a></span> <span class="parameter-name">name</span> = <span class="default-value">&#39;ripple_carry_adder_carry_in&#39;</span>, </span></li>
 </ol>})
     </section>
 
@@ -77,11 +78,16 @@
     
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
-  <pre class="language-dart"><code class="language-dart">RippleCarryAdder(super.a, super.b, {super.name = &#39;ripple_carry_adder&#39;}) {
+  <pre class="language-dart"><code class="language-dart">RippleCarryAdder(super.a, super.b,
+    {Logic? carryIn, super.name = &#39;ripple_carry_adder_carry_in&#39;}) {
+  if (carryIn != null) {
+    carryIn = addInput(&#39;carry_in&#39;, carryIn, width: carryIn.width);
+  }
   Logic? carry;
   final sumList = &lt;Logic&gt;[];
   for (var i = 0; i &lt; a.width; i++) {
-    final fullAdder = FullAdder(a: a[i], b: b[i], carryIn: carry ?? Const(0));
+    final fullAdder =
+        FullAdder(a: a[i], b: b[i], carryIn: carry ?? (carryIn ?? Const(0)));
 
     carry = fullAdder.carryOut;
     sumList.add(fullAdder.sum);
