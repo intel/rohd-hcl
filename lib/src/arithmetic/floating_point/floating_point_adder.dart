@@ -2,16 +2,19 @@
 // SPDX-License-Identifier: BSD-3-Clause
 //
 // floating_point_adder.dart
-// A very basic Floating-point adder component.
+// A variable-width floating point adder with rounding
 //
 // 2024 August 30
 // Author: Desmond A Kirkpatrick <desmond.a.kirkpatrick@intel.com
+
+import 'dart:math';
 
 import 'package:meta/meta.dart';
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
 
-/// An adder module for FloatingPoint values
+/// An adder module for variable FloatingPoint type with rounding.
+// This is the Seidel/Even adder, dual-path
 class FloatingPointAdder extends Module {
   /// Must be greater than 0.
   final int exponentWidth;
@@ -39,9 +42,7 @@ class FloatingPointAdder extends Module {
 
   /// Add two floating point numbers [a] and [b], returning result in [sum]
   FloatingPointAdder(FloatingPoint a, FloatingPoint b,
-      {ParallelPrefix Function(List<Logic>, Logic Function(Logic, Logic))
-          ppGen = KoggeStone.new,
-      super.name})
+      {Logic? subtract, super.name})
       : exponentWidth = a.exponent.width,
         mantissaWidth = a.mantissa.width {
     if (b.exponent.width != exponentWidth ||
@@ -52,56 +53,181 @@ class FloatingPointAdder extends Module {
     b = b.clone()..gets(addInput('b', b, width: b.width));
     addOutput('sum', width: _sum.width) <= _sum;
 
-    // Ensure that the larger number is wired as 'a'
-    final doSwap = a.exponent.lt(b.exponent) |
-        (a.exponent.eq(b.exponent) & a.mantissa.lt(b.mantissa)) |
-        ((a.exponent.eq(b.exponent) & a.mantissa.eq(b.mantissa)) & b.sign);
+    final exponentSubtractor =
+        OnesComplementAdder(a.exponent, b.exponent, subtract: true);
+    final signDelta = exponentSubtractor.sign;
 
-    (a, b) = _swap(doSwap, (a, b));
+    final delta = exponentSubtractor.sum;
 
-    final aExp =
-        a.exponent + mux(a.isNormal(), a.zeroExponent(), a.oneExponent());
-    final bExp =
-        b.exponent + mux(b.isNormal(), b.zeroExponent(), b.oneExponent());
+    // Seidel: (sl, el, fl) = larger; (ss, es, fs) = smaller
+    final (larger, smaller) = _swap(signDelta, (a, b));
 
-    // Align and add mantissas
-    final expDiff = aExp - bExp;
-    // print('${expDiff.value.toInt()} exponent diff');
-    final adder = SignMagnitudeAdder(
-        a.sign,
-        [a.isNormal(), a.mantissa].swizzle(),
-        b.sign,
-        [b.isNormal(), b.mantissa].swizzle() >>> expDiff,
-        (a, b) => ParallelPrefixAdder(a, b, ppGen: ppGen));
+    final fl = mux(
+        larger.isNormal(),
+        [larger.isNormal(), larger.mantissa].swizzle(),
+        [larger.mantissa, Const(0)].swizzle());
+    final fs = mux(
+        smaller.isNormal(),
+        [smaller.isNormal(), smaller.mantissa].swizzle(),
+        [smaller.mantissa, Const(0)].swizzle());
 
-    final sum = adder.sum.slice(adder.sum.width - 2, 0);
-    final leadOneE =
-        ParallelPrefixPriorityEncoder(sum.reversed, ppGen: ppGen).out;
-    final leadOne = leadOneE.zeroExtend(exponentWidth);
+    // Seidel: S.EFF = effectiveSubtraction
+    final effectiveSubtraction = a.sign ^ b.sign ^ (subtract ?? Const(0));
 
-    // Assemble the output FloatingPoint
-    _sum.sign <= adder.sign;
+    // Seidel: flp  larger preshift, normally in [2,4)
+    final sigWidth = fl.width + 1;
+    final largeShift = mux(effectiveSubtraction, fl.zeroExtend(sigWidth) << 1,
+        fl.zeroExtend(sigWidth));
+    final smallShift = mux(effectiveSubtraction, fs.zeroExtend(sigWidth) << 1,
+        fs.zeroExtend(sigWidth));
+
+    final oneExp = Const(1, width: exponentWidth);
+    final zeroExp = Const(0, width: exponentWidth);
+
+    final largeOperand = largeShift;
+    //
+    // R Datapath:  Far exponents or addition
+    //
+    final extendWidthRPath =
+        min(mantissaWidth + 3, pow(2, exponentWidth).toInt() - 3);
+
+    final smallerFullRPath =
+        [smallShift, Const(0, width: extendWidthRPath)].swizzle();
+    smallerFullRPath <= smallerFullRPath.withSet(extendWidthRPath, smallShift);
+
+    final smallerAlignRPath = smallerFullRPath >>> exponentSubtractor.sum;
+    final smallerOperandRPath = smallerAlignRPath.slice(
+        smallerAlignRPath.width - 1,
+        smallerAlignRPath.width - largeOperand.width);
+
+    final carryRPath = Logic();
+    final significandAdderRPath = OnesComplementAdder(
+        largeOperand, smallerOperandRPath,
+        subtractIn: effectiveSubtraction, carryOut: carryRPath);
+
+    final lowBitsRPath = smallerAlignRPath.slice(extendWidthRPath - 1, 0);
+    final lowAdderRPath = OnesComplementAdder(
+        carryRPath.zeroExtend(extendWidthRPath),
+        mux(effectiveSubtraction, ~lowBitsRPath, lowBitsRPath));
+
+    final preStickyRPath =
+        lowAdderRPath.sum.slice(lowAdderRPath.sum.width - 4, 0).or();
+    final stickyBitRPath = lowAdderRPath.sum[-3] | preStickyRPath;
+
+    final earlyGRSRPath = [
+      lowAdderRPath.sum
+          .slice(lowAdderRPath.sum.width - 2, lowAdderRPath.sum.width - 3),
+      preStickyRPath
+    ].swizzle();
+
+    final sumRPath = significandAdderRPath.sum.slice(mantissaWidth + 1, 0);
+    final sumP1RPath =
+        (significandAdderRPath.sum + 1).slice(mantissaWidth + 1, 0);
+
+    final sumLeadZeroRPath = ~sumRPath[-1] & (a.isNormal() | b.isNormal());
+    final sumP1LeadZeroRPath = ~sumP1RPath[-1] & (a.isNormal() | b.isNormal());
+
+    final selectRPath = lowAdderRPath.sum[-1];
+    final shiftGRSRPath = [earlyGRSRPath[2], stickyBitRPath].swizzle();
+    final mergedSumRPath = mux(
+        sumLeadZeroRPath,
+        [sumRPath, earlyGRSRPath].swizzle().slice(sumRPath.width + 1, 0),
+        [sumRPath, shiftGRSRPath].swizzle());
+
+    final mergedSumP1RPath = mux(
+        sumP1LeadZeroRPath,
+        [sumP1RPath, earlyGRSRPath].swizzle().slice(sumRPath.width + 1, 0),
+        [sumP1RPath, shiftGRSRPath].swizzle());
+
+    final finalSumLGRSRPath =
+        mux(selectRPath, mergedSumP1RPath, mergedSumRPath);
+    // RNE: guard & (lsb | round | sticky)
+    final rndRPath = finalSumLGRSRPath[2] &
+        (finalSumLGRSRPath[3] | finalSumLGRSRPath[1] | finalSumLGRSRPath[0]);
+
+    // Rounding from 1111 to 0000.
+    final incExpRPath =
+        rndRPath & sumLeadZeroRPath.eq(Const(1)) & sumP1LeadZeroRPath.eq(0);
+
+    final firstZeroRPath = mux(selectRPath, ~sumP1RPath[-1], ~sumRPath[-1]);
+
+    final exponentRPath = Logic(width: larger.exponent.width);
     Combinational([
       If.block([
-        Iff(adder.sum[-1] & a.sign.eq(b.sign), [
-          _sum.mantissa < (sum >> 1).slice(mantissaWidth - 1, 0),
-          _sum.exponent < a.exponent + 1
-        ]),
-        ElseIf(a.exponent.gt(leadOne) & sum.or(), [
-          _sum.mantissa < (sum << leadOne).slice(mantissaWidth - 1, 0),
-          _sum.exponent < a.exponent - leadOne
-        ]),
-        ElseIf(leadOne.eq(0) & sum.or(), [
-          _sum.mantissa < (sum << leadOne).slice(mantissaWidth - 1, 0),
-          _sum.exponent < a.exponent - leadOne + 1
-        ]),
-        Else([
-          // subnormal result
-          _sum.mantissa < sum.slice(mantissaWidth - 1, 0),
-          _sum.exponent < _sum.zeroExponent()
-        ])
+        // Subtract 1 from exponent
+        Iff(~incExpRPath & effectiveSubtraction & firstZeroRPath,
+            [exponentRPath < larger.exponent - oneExp]),
+        // Add 1 to exponent
+        ElseIf(
+            ~effectiveSubtraction &
+                (incExpRPath & firstZeroRPath | ~incExpRPath & ~firstZeroRPath),
+            [exponentRPath < larger.exponent + oneExp]),
+        // Add 2 to exponent
+        ElseIf(incExpRPath & effectiveSubtraction & ~firstZeroRPath,
+            [exponentRPath < larger.exponent << 1]),
+        Else([exponentRPath < larger.exponent])
       ])
     ]);
-    // print('final sum: ${_sum.value.bitString}');
+
+    final sumMantissaRPath = mux(selectRPath, sumP1RPath, sumRPath) +
+        rndRPath.zeroExtend(sumRPath.width);
+    final mantissaRPath = sumMantissaRPath <<
+        mux(selectRPath, sumP1LeadZeroRPath, sumLeadZeroRPath);
+
+    //
+    //  N Datapath here:  close exponents, subtraction
+    //
+    final smallOperandNPath = smallShift >>> (a.exponent[0] ^ b.exponent[0]);
+
+    final significandSubtractorNPath = OnesComplementAdder(
+        largeOperand, smallOperandNPath,
+        subtractIn: effectiveSubtraction);
+
+    final significandNPath =
+        significandSubtractorNPath.sum.slice(smallOperandNPath.width - 1, 0);
+
+    final leadOneNPath = mux(
+        significandNPath.or(),
+        ParallelPrefixPriorityEncoder(significandNPath.reversed)
+            .out
+            .zeroExtend(exponentWidth),
+        Const(15, width: exponentWidth));
+
+    final expCalcNPath = OnesComplementAdder(
+        larger.exponent, leadOneNPath.zeroExtend(larger.exponent.width),
+        subtractIn: effectiveSubtraction);
+    final preExpNPath = expCalcNPath.sum.slice(exponentWidth - 1, 0);
+
+    final posExpNPath = preExpNPath.or() & ~expCalcNPath.sign;
+
+    final exponentNPath = mux(posExpNPath, preExpNPath, zeroExp);
+
+    final preMinShiftNPath = ~leadOneNPath.or() | ~larger.exponent.or();
+
+    final minShiftNPath =
+        mux(posExpNPath | preMinShiftNPath, leadOneNPath, larger.exponent - 1);
+    final notSubnormalNPath = a.isNormal() | b.isNormal();
+
+    final shiftedSignificandNPath =
+        (significandNPath << minShiftNPath).slice(mantissaWidth, 1);
+
+    final finalSignificandNPath = mux(
+        notSubnormalNPath,
+        shiftedSignificandNPath,
+        significandNPath.slice(significandNPath.width - 1, 2));
+
+    final signNPath =
+        mux(significandSubtractorNPath.sign, smaller.sign, larger.sign);
+
+    final isR = delta.gte(Const(2, width: delta.width)) | ~effectiveSubtraction;
+    _sum <=
+        mux(
+            isR,
+            [
+              larger.sign,
+              exponentRPath,
+              mantissaRPath.slice(mantissaRPath.width - 2, 1)
+            ].swizzle(),
+            [signNPath, exponentNPath, finalSignificandNPath].swizzle());
   }
 }
