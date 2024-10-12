@@ -5,6 +5,6 @@ The `ShiftRegister` in ROHD-HCL is a configurable shift register including:
 - support for any width data
 - a configurable `depth` (which corresponds to the latency)
 - an optional `enable`
-- an optional `reset`
-- if `reset` is provided, an optional `resetValue`
+- an optional `reset` (synchronous or asynchronous)
+- if `reset` is provided, an optional `resetValue` for all stages or each stage indvidually
 - access to each of the `stages` output from each flop
