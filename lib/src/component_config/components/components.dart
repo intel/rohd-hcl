@@ -9,6 +9,7 @@ export 'config_edge_detector.dart';
 export 'config_extrema.dart';
 export 'config_fifo.dart';
 export 'config_find.dart';
+export 'config_floating_point_adder.dart';
 export 'config_one_hot.dart';
 export 'config_parallel_prefix_adder.dart';
 export 'config_priority_arbiter.dart';

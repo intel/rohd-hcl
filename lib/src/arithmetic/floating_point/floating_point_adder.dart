@@ -203,7 +203,7 @@ class FloatingPointAdder extends Module {
 
     final leadOneNPath = mux(
         significandNPath.or(),
-        ParallelPrefixPriorityEncoder(significandNPath.reversed)
+        ParallelPrefixPriorityEncoder(significandNPath.reversed, ppGen: ppTree)
             .out
             .zeroExtend(exponentWidth),
         Const(15, width: exponentWidth));
