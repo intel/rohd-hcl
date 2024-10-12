@@ -32,6 +32,8 @@ Again, like `FloatingPointValue`, `FloatingPoint64` and `FloatingPoint32` subcla
 
 ## FloatingPointAdder
 
-A very basic `FloatingPointAdder` component is available which does not perform any rounding. It takes two `FloatingPoint` `LogicStructure`s and adds them, returning a normalized `FloatingPoint` on the output.  An option on input is the type of `ParallelPrefixTree` used in the internal addition of the mantissas.
+A very basic `FloatingPointAdderSimple` component is available which does not perform any rounding. It takes two `FloatingPoint` `LogicStructure`s and adds them, returning a normalized `FloatingPoint` on the output.  An option on input is the type of `ParallelPrefixTree` used in the internal addition of the mantissas.
 
-Currently, the `FloatingPointAdder` is close in accuracy (as it has no rounding) and is not optimized for circuit performance, but only provides the key functionalities of alignment, addition, and normalization.  Still, this component is a starting point for more realistic floating-point components that leverage the logical `FloatingPoint` and literal `FloatingPointValue` type abstractions.
+Currently, the `FloatingPointAddersimple` is close in accuracy (as it has no rounding) and is not optimized for circuit performance, but only provides the key functionalities of alignment, addition, and normalization.  Still, this component is a starting point for more realistic floating-point components that leverage the logical `FloatingPoint` and literal `FloatingPointValue` type abstractions.
+
+A second `FloatingPointAdder` component is available which does perform rounding.  It is based on "Delay-Optimized Implementation of IEEE Floating-Point Addition", by Peter-Michael Seidel and Guy Even, using an R-path and an N-path to process far-apart exponents and use rounding and an N-path for exponents within 2 and subtraction, which is exact.

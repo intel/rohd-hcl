@@ -40,9 +40,18 @@ class FloatingPointAdder extends Module {
         toSwap.$2.clone()..gets(mux(swap, toSwap.$1, toSwap.$2))
       );
 
-  /// Add two floating point numbers [a] and [b], returning result in [sum]
+  /// Add two floating point numbers [a] and [b], returning result in [sum].
+  /// [subtract] is an optional Logic input to do subtraction
+  /// [adderGen] is an adder generator to be used in the primary adder
+  /// functions.
+  /// [ppTree] is an ParallelPrefix generator for use in increment /decrement
+  ///  functions.
   FloatingPointAdder(FloatingPoint a, FloatingPoint b,
-      {Logic? subtract, super.name})
+      {Logic? subtract,
+      Adder Function(Logic, Logic) adderGen = ParallelPrefixAdder.new,
+      ParallelPrefix Function(List<Logic>, Logic Function(Logic, Logic))
+          ppTree = KoggeStone.new,
+      super.name = 'floating_point_adder'})
       : exponentWidth = a.exponent.width,
         mantissaWidth = a.mantissa.width {
     if (b.exponent.width != exponentWidth ||
@@ -53,8 +62,8 @@ class FloatingPointAdder extends Module {
     b = b.clone()..gets(addInput('b', b, width: b.width));
     addOutput('sum', width: _sum.width) <= _sum;
 
-    final exponentSubtractor =
-        OnesComplementAdder(a.exponent, b.exponent, subtract: true);
+    final exponentSubtractor = OnesComplementAdder(a.exponent, b.exponent,
+        subtract: true, adderGen: adderGen);
     final signDelta = exponentSubtractor.sign;
 
     final delta = exponentSubtractor.sum;
@@ -81,7 +90,6 @@ class FloatingPointAdder extends Module {
     final smallShift = mux(effectiveSubtraction, fs.zeroExtend(sigWidth) << 1,
         fs.zeroExtend(sigWidth));
 
-    final oneExp = Const(1, width: exponentWidth);
     final zeroExp = Const(0, width: exponentWidth);
 
     final largeOperand = largeShift;
@@ -103,12 +111,15 @@ class FloatingPointAdder extends Module {
     final carryRPath = Logic();
     final significandAdderRPath = OnesComplementAdder(
         largeOperand, smallerOperandRPath,
-        subtractIn: effectiveSubtraction, carryOut: carryRPath);
+        subtractIn: effectiveSubtraction,
+        carryOut: carryRPath,
+        adderGen: adderGen);
 
     final lowBitsRPath = smallerAlignRPath.slice(extendWidthRPath - 1, 0);
     final lowAdderRPath = OnesComplementAdder(
         carryRPath.zeroExtend(extendWidthRPath),
-        mux(effectiveSubtraction, ~lowBitsRPath, lowBitsRPath));
+        mux(effectiveSubtraction, ~lowBitsRPath, lowBitsRPath),
+        adderGen: adderGen);
 
     final preStickyRPath =
         lowAdderRPath.sum.slice(lowAdderRPath.sum.width - 4, 0).or();
@@ -155,13 +166,17 @@ class FloatingPointAdder extends Module {
     Combinational([
       If.block([
         // Subtract 1 from exponent
-        Iff(~incExpRPath & effectiveSubtraction & firstZeroRPath,
-            [exponentRPath < larger.exponent - oneExp]),
+        Iff(~incExpRPath & effectiveSubtraction & firstZeroRPath, [
+          exponentRPath < ParallelPrefixDecr(larger.exponent, ppGen: ppTree).out
+        ]),
         // Add 1 to exponent
         ElseIf(
             ~effectiveSubtraction &
                 (incExpRPath & firstZeroRPath | ~incExpRPath & ~firstZeroRPath),
-            [exponentRPath < larger.exponent + oneExp]),
+            [
+              exponentRPath <
+                  ParallelPrefixIncr(larger.exponent, ppGen: ppTree).out
+            ]),
         // Add 2 to exponent
         ElseIf(incExpRPath & effectiveSubtraction & ~firstZeroRPath,
             [exponentRPath < larger.exponent << 1]),
@@ -181,7 +196,7 @@ class FloatingPointAdder extends Module {
 
     final significandSubtractorNPath = OnesComplementAdder(
         largeOperand, smallOperandNPath,
-        subtractIn: effectiveSubtraction);
+        subtractIn: effectiveSubtraction, adderGen: adderGen);
 
     final significandNPath =
         significandSubtractorNPath.sum.slice(smallOperandNPath.width - 1, 0);
@@ -195,7 +210,8 @@ class FloatingPointAdder extends Module {
 
     final expCalcNPath = OnesComplementAdder(
         larger.exponent, leadOneNPath.zeroExtend(larger.exponent.width),
-        subtractIn: effectiveSubtraction);
+        subtractIn: effectiveSubtraction, adderGen: adderGen);
+
     final preExpNPath = expCalcNPath.sum.slice(exponentWidth - 1, 0);
 
     final posExpNPath = preExpNPath.or() & ~expCalcNPath.sign;
