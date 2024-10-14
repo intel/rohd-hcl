@@ -33,9 +33,6 @@ class FixedPointValue implements Comparable<FixedPointValue> {
   /// Returns true if the number is negative.
   bool isNegative() => signed & (value[-1] == LogicValue.one);
 
-  /// Returns true if the number is positive.
-  bool isPositive() => !isNegative();
-
   /// Constructs [FixedPointValue] from sign, integer and fraction values.
   FixedPointValue(
       {required this.value,
@@ -93,11 +90,11 @@ class FixedPointValue implements Comparable<FixedPointValue> {
     final comp = val1.compareTo(val2);
     if (comp == 0) {
       return comp;
-    } else if (isPositive() & other.isPositive()) {
+    } else if (!isNegative() & !other.isNegative()) {
       return comp;
-    } else if (isPositive() & other.isNegative()) {
+    } else if (!isNegative() & other.isNegative()) {
       return 1;
-    } else if (isNegative() & other.isPositive()) {
+    } else if (isNegative() & !other.isNegative()) {
       return -1;
     } else {
       return -comp;
