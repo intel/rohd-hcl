@@ -82,6 +82,9 @@ class FixedPointValue implements Comparable<FixedPointValue> {
     if (other is! FixedPointValue) {
       throw RohdHclException('Input must be of type FixedPointValue');
     }
+    if (!value.isValid | !other.value.isValid) {
+      throw RohdHclException('Inputs must be valid.');
+    }
     final s = signed | other.signed;
     final m = max(this.m, other.m);
     final n = max(this.n, other.n);
@@ -142,6 +145,9 @@ class FixedPointValue implements Comparable<FixedPointValue> {
     if (m + n > 52) {
       throw RohdHclException('Fixed-point value is too wide to convert.');
     }
+    if (!this.value.isValid) {
+      throw RohdHclException('Inputs must be valid.');
+    }
     BigInt number;
     if (isNegative()) {
       number = (~(this.value - 1)).toBigInt();
@@ -157,6 +163,9 @@ class FixedPointValue implements Comparable<FixedPointValue> {
   /// The result integer has the max integer width of the operands plus one.
   /// The result fraction has the max fractional width of the operands.
   FixedPointValue operator +(FixedPointValue other) {
+    if (!value.isValid | !other.value.isValid) {
+      throw RohdHclException('Inputs must be valid.');
+    }
     final s = signed | other.signed;
     final nr = max(n, other.n);
     final mr = s ? max(m, other.m) + 2 : max(m, other.m) + 1;
@@ -170,6 +179,9 @@ class FixedPointValue implements Comparable<FixedPointValue> {
   /// The result integer has the max integer width of the operands plus one.
   /// The result fraction has the max fractional width of the operands.
   FixedPointValue operator -(FixedPointValue other) {
+    if (!value.isValid | !other.value.isValid) {
+      throw RohdHclException('Inputs must be valid.');
+    }
     const s = true;
     final nr = max(n, other.n);
     final mr = max(m, other.m) + 2;
@@ -182,6 +194,9 @@ class FixedPointValue implements Comparable<FixedPointValue> {
   /// The result is signed if one of the operands is signed.
   /// The result fraction width is the sum of fraction widths of operands.
   FixedPointValue operator *(FixedPointValue other) {
+    if (!value.isValid | !other.value.isValid) {
+      throw RohdHclException('Inputs must be valid.');
+    }
     final s = signed | other.signed;
     final ms = s ? m + other.m + 1 : m + other.m;
     final ns = n + other.n;
@@ -196,6 +211,9 @@ class FixedPointValue implements Comparable<FixedPointValue> {
   /// fraction width. The result fraction width is the sum of dividend fraction
   /// width and divisor integer width.
   FixedPointValue operator /(FixedPointValue other) {
+    if (!value.isValid | !other.value.isValid) {
+      throw RohdHclException('Inputs must be valid.');
+    }
     final s = signed | other.signed;
     // extend integer width for max negative number
     final m1 = s ? m + 1 : m;
