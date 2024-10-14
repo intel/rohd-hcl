@@ -9,7 +9,6 @@
 
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
-import 'package:rohd_hcl/src/arithmetic/arithmetic_utils.dart';
 
 /// Debug routines for printing out partial product matrix during
 /// simulation with live logic values

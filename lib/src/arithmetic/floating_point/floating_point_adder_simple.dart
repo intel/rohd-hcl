@@ -1,7 +1,7 @@
 // Copyright (C) 2024 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 //
-// floating_point_adder.dart
+// floating_point_adder_simple.dart
 // A very basic Floating-point adder component.
 //
 // 2024 August 30
@@ -12,7 +12,7 @@ import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
 
 /// An adder module for FloatingPoint values
-class FloatingPointAdder extends Module {
+class FloatingPointAdderSimple extends Module {
   /// Must be greater than 0.
   final int exponentWidth;
 
@@ -38,7 +38,7 @@ class FloatingPointAdder extends Module {
       );
 
   /// Add two floating point numbers [a] and [b], returning result in [sum]
-  FloatingPointAdder(FloatingPoint a, FloatingPoint b,
+  FloatingPointAdderSimple(FloatingPoint a, FloatingPoint b,
       {ParallelPrefix Function(List<Logic>, Logic Function(Logic, Logic))
           ppGen = KoggeStone.new,
       super.name})
@@ -66,7 +66,6 @@ class FloatingPointAdder extends Module {
 
     // Align and add mantissas
     final expDiff = aExp - bExp;
-    // print('${expDiff.value.toInt()} exponent diff');
     final adder = SignMagnitudeAdder(
         a.sign,
         [a.isNormal(), a.mantissa].swizzle(),
@@ -102,6 +101,5 @@ class FloatingPointAdder extends Module {
         ])
       ])
     ]);
-    // print('final sum: ${_sum.value.bitString}');
   }
 }

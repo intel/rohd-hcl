@@ -569,10 +569,21 @@ class FloatingPointValue implements Comparable<FloatingPointValue> {
   /// defined as having mantissa in the range [1,2)
   bool isNormal() => exponent != LogicValue.ofInt(0, exponent.width);
 
+  /// Return a string representation of FloatingPointValue.
+  /// if [integer] is true, return sign, exponent, mantissa as integers.
+  /// if [integer] is false, return sign, exponent, mantissa as ibinary strings.
   @override
-  String toString() => '${sign.toString(includeWidth: false)}'
-      ' ${exponent.toString(includeWidth: false)}'
-      ' ${mantissa.toString(includeWidth: false)}';
+  String toString({bool integer = false}) {
+    if (integer) {
+      return '(${sign.toInt()}'
+          ' ${exponent.toInt()}'
+          ' ${mantissa.toInt()})';
+    } else {
+      return '${sign.toString(includeWidth: false)}'
+          ' ${exponent.toString(includeWidth: false)}'
+          ' ${mantissa.toString(includeWidth: false)}';
+    }
+  }
 
   // TODO(desmonddak): what about floating point representations >> 64 bits?
   FloatingPointValue _performOp(
