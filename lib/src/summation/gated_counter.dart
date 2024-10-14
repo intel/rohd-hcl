@@ -24,13 +24,14 @@ class GatedCounter extends Counter {
             // only need to ungate if enable is high
 
             intf.amount <=
-                ToggleGate(
-                  enable: e.enable!,
-                  data: e.amount,
-                  clk: clk,
-                  reset: reset,
-                  clockGateControlIntf: _clockGateControlInterface,
-                ).gatedData;
+                (Logic(name: 'toggle_gated_amount', width: e.width)
+                  ..gets(ToggleGate(
+                    enable: e.enable!,
+                    data: e.amount,
+                    clk: clk,
+                    reset: reset,
+                    clockGateControlIntf: _clockGateControlInterface,
+                  ).gatedData));
           } else if (intf.fixedAmount == null) {
             intf.amount <= e.amount;
           }
@@ -79,7 +80,8 @@ class GatedCounter extends Counter {
   late final _decrementingInterfaces =
       interfaces.where((intf) => !intf.increments);
 
-  late final Logic _mayOverflow = Logic(name: 'mayOverflow')
+  @protected // exposed for testing
+  late final Logic mayOverflow = Logic(name: 'mayOverflow')
     ..gets(_calculateMayOverflow());
 
   Logic _calculateMayOverflow() {
@@ -106,8 +108,8 @@ class GatedCounter extends Counter {
       0,
     );
 
-    final counterInOverflowDangerZone =
-        count.getRange(overflowDangerZoneStart).or();
+    final inOverflowDangerZone = Logic(name: 'inOverflowDangerZone')
+      ..gets(count.getRange(overflowDangerZoneStart).or());
 
     Logic anyIntfInIncrDangerZone = Const(0);
 
@@ -149,11 +151,11 @@ class GatedCounter extends Counter {
     final topMayOverflow =
         anyIntfIncrementing & count.getRange(maxValueBit, width).or();
 
-    return topMayOverflow |
-        (anyIntfInIncrDangerZone & counterInOverflowDangerZone);
+    return topMayOverflow | (anyIntfInIncrDangerZone & inOverflowDangerZone);
   }
 
-  late final Logic _mayUnderflow = Logic(name: 'mayUnderflow')
+  @protected // exposed for testing
+  late final Logic mayUnderflow = Logic(name: 'mayUnderflow')
     ..gets(_calculateMayUnderflow());
 
   Logic _calculateMayUnderflow() {
@@ -181,12 +183,13 @@ class GatedCounter extends Counter {
 
     final underflowDangerBit =
         minValueBit + log2Ceil(_decrementingInterfaces.length + 1);
-    final inUnderflowDangerZone = underflowDangerBit >= count.width
-        ? Const(1)
-        : ~count
-            .getRange(
-                minValueBit + log2Ceil(_decrementingInterfaces.length + 1))
-            .or();
+    final inUnderflowDangerZone = Logic(name: 'inUnderflowDangerZone')
+      ..gets(underflowDangerBit >= count.width
+          ? Const(1)
+          : ~count
+              .getRange(
+                  minValueBit + log2Ceil(_decrementingInterfaces.length + 1))
+              .or());
 
     Logic anyIntfInDangerZone = Const(0);
     for (final intf in _decrementingInterfaces) {
@@ -204,7 +207,7 @@ class GatedCounter extends Counter {
   }
 
   late final _mayWrap = Logic(name: 'mayWrap')
-    ..gets(_mayUnderflow | _mayOverflow);
+    ..gets(mayUnderflow | mayOverflow);
 
   @protected
   late final lowerEnable = Logic(name: 'lowerEnable')

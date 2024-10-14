@@ -4,6 +4,7 @@ import 'dart:math';
 
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
+import 'package:rohd_hcl/src/summation/gated_counter.dart';
 import 'package:test/test.dart';
 
 int goldenSumOfLogics(
@@ -113,6 +114,20 @@ List<SumInterface> genRandomInterfaces(Random rand) {
 
 void checkCounter(Counter counter) {
   final sub = counter.clk.posedge.listen((_) async {
+    final errPrefix = '@${Simulator.time}: ';
+
+    if (counter is GatedCounter) {
+      if (counter.summer.underflowed.previousValue!.toBool() &&
+          !counter.mayUnderflow.previousValue!.toBool()) {
+        fail('$errPrefix Unexpectedly underflowed, bad clock gating.');
+      }
+
+      if (counter.summer.overflowed.previousValue!.toBool() &&
+          !counter.mayOverflow.previousValue!.toBool()) {
+        fail('$errPrefix Unexpectedly overflowed, bad clock gating.');
+      }
+    }
+
     final expected = counter.reset.previousValue!.toBool()
         ? 0
         : goldenSum(
@@ -133,9 +148,9 @@ void checkCounter(Counter counter) {
       expect(
         actual,
         expected,
-        reason: '@${Simulator.time}:'
-            ' expected=0x${expected.toRadixString(16)}'
-            ' actual=0x${actual.toRadixString(16)}',
+        reason: '$errPrefix'
+            ' expected = 0x${expected.toRadixString(16)},'
+            ' actual = 0x${actual.toRadixString(16)}',
       );
     }
   });

@@ -285,7 +285,7 @@ void main() {
     final rand = Random(123);
 
     for (var i = 0; i < 1000; i++) {
-      final cfg = genRandomSummationConfiguration();
+      final cfg = genRandomSummationConfiguration(rand);
 
       for (final intf in cfg.interfaces) {
         if (intf.hasEnable) {
