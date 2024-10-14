@@ -150,6 +150,7 @@ class GatedCounter extends Counter {
     }
     final topMayOverflow =
         anyIntfIncrementing & count.getRange(maxValueBit, width).or();
+    //TODO: is this really sufficient?
 
     return topMayOverflow | (anyIntfInIncrDangerZone & inOverflowDangerZone);
   }
@@ -175,7 +176,8 @@ class GatedCounter extends Counter {
       return _anyDecrements;
     }
 
-    final minValueBit = LogicValue.ofInferWidth(constantMinValue).width - 1;
+    final minValueBit =
+        max(0, LogicValue.ofInferWidth(constantMinValue).width - 1);
 
     // if we're close enough to the minimum value (as judged by upper bits being
     // 0), and we are decrementing by a sufficiently large number (as judged by
@@ -189,18 +191,26 @@ class GatedCounter extends Counter {
           : ~count.getRange(underflowDangerBit).or());
 
     Logic anyIntfInDangerZone = Const(0);
+    Logic anyIntfBigDecrement = Const(0);
     for (final intf in _decrementingInterfaces) {
-      var intfInDangerZone =
-          intf.amount.getRange(min(intf.width, minValueBit - dangerRange)).or();
+      var intfInDangerZone = intf.amount
+          .getRange(min(intf.width, max(0, minValueBit - dangerRange)))
+          .or();
+
+      var intfBigDecrement = minValueBit >= intf.amount.width
+          ? Const(0)
+          : intf.amount.getRange(minValueBit).or();
 
       if (intf.hasEnable) {
         intfInDangerZone &= intf.enable!;
+        intfBigDecrement &= intf.enable!;
       }
 
       anyIntfInDangerZone |= intfInDangerZone;
+      anyIntfBigDecrement |= intfBigDecrement;
     }
 
-    return anyIntfInDangerZone & inUnderflowDangerZone;
+    return (anyIntfInDangerZone & inUnderflowDangerZone) | anyIntfBigDecrement;
   }
 
   late final _mayWrap = Logic(name: 'mayWrap')
