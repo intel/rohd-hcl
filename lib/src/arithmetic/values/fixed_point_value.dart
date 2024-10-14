@@ -128,6 +128,20 @@ class FixedPointValue implements Comparable<FixedPointValue> {
   LogicValue operator >=(FixedPointValue other) =>
       compareTo(other) >= 0 ? LogicValue.one : LogicValue.zero;
 
+  @override
+  int get hashCode => _hashCode;
+
+  int get _hashCode =>
+      value.hashCode ^ signed.hashCode ^ m.hashCode ^ n.hashCode;
+
+  @override
+  bool operator ==(Object other) {
+    if (other is! FixedPointValue) {
+      return false;
+    }
+    return compareTo(other) == 0;
+  }
+
   /// Constructs [FixedPointValue] of a Dart [double] rounding away from zero.
   factory FixedPointValue.ofDouble(double val,
       {required bool signed, required int m, required int n}) {
