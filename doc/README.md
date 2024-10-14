@@ -21,8 +21,7 @@ Some in-development items will have opened issues, as well. Feel free to create 
   - [Shift register](./components/shift_register.md)
 - Find
   - [Find N'th bit (0 or 1) from the start/end](./components/find.md#find-nth)
-  - Find minimum
-  - Find maximum
+  - [Extrema](./components/extrema.md)
   - Find N'th pattern from the start/end
 - Count
   - [Count bit occurrence](./components/count.md)
@@ -32,9 +31,14 @@ Some in-development items will have opened issues, as well. Feel free to create 
 - Sort
   - [Bitonic sort](./components/sort.md#bitonic-sort)
 - Arithmetic
-  - [Prefix Trees](./components/parallel_prefix_operations.md)
+  - [Prefix Trees](./components/parallel_prefix_operations.md) Several efficient components that leverage a variety of parallel prefix trees such as Ripple, Kogge-Stone, Sklansky, and Brent-Kung tree types.
+    - [Priority Encoder](./components/parallel_prefix_operations.md)
+    - [Or-scan](./components/parallel_prefix_operations.md)
+    - [Incrementer](./components/parallel_prefix_operations.md)
+    - [Decrementer](./components/parallel_prefix_operations.md)
   - [Adders](./components/adder.md)
     - [Sign Magnitude Adder](./components/adder.md#ripple-carry-adder)
+    - [Parallel Prefix Adder](./components/parallel_prefix_operations.md)
   - Subtractors
     - [One's Complement Adder Subtractor](./components/adder.md#ones-complement-adder-subtractor)
   - Multipliers
@@ -48,11 +52,13 @@ Some in-development items will have opened issues, as well. Feel free to create 
   - Square root
   - Inverse square root
   - Floating point
+    - [Floating-Point Value Types](./components/floating_point.md)
     - Double (64-bit)
     - Float (32-bit)
     - BFloat16 (16-bit)
     - BFloat8 (8-bit)
     - BFloat4 (4-bit)
+    - [Simple Floating-Point Adder](./components/floating_point.md#floatingpointadder)
   - Fixed point
   - Binary-Coded Decimal (BCD)
 - [Rotate](./components/rotate.md)

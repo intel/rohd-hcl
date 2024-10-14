@@ -74,18 +74,18 @@ class PartialProductGeneratorBruteSignExtension
     final signs = [for (var r = 0; r < rows; r++) encoder.getEncoding(r).sign];
     for (var row = 0; row < rows; row++) {
       final addend = partialProducts[row];
-      final sign = signed ? addend.last : signs[row];
+      final sign = SignBit(signed ? addend.last : signs[row]);
       addend.addAll(List.filled((rows - row) * shift, sign));
       if (row > 0) {
         addend
           ..insertAll(0, List.filled(shift - 1, Const(0)))
-          ..insert(0, signs[row - 1]);
+          ..insert(0, SignBit(signs[row - 1]));
         rowShift[row] -= shift;
       }
     }
     // Insert carry bit in extra row
     partialProducts.add(List.generate(selector.width, (i) => Const(0)));
-    partialProducts.last.insert(0, signs[rows - 2]);
+    partialProducts.last.insert(0, SignBit(signs[rows - 2]));
     rowShift.add((rows - 2) * shift);
   }
 }
@@ -235,21 +235,21 @@ class PartialProductGeneratorStopBitsSignExtension
       final sign = signed ? addend.last : signs[row];
       if (row == 0) {
         if (signed) {
-          addend.addAll(List.filled(shift - 1, sign)); // signed only?
+          addend.addAll(List.filled(shift - 1, SignBit(sign))); // signed only?
         } else {
-          addend.addAll(List.filled(shift, sign));
+          addend.addAll(List.filled(shift, SignBit(sign)));
         }
-        addend.add(~sign);
+        addend.add(SignBit(~sign, inverted: true));
       } else {
         if (signed) {
-          addend.last = ~sign;
+          addend.last = SignBit(~sign, inverted: true);
         } else {
-          addend.add(~sign);
+          addend.add(SignBit(~sign, inverted: true));
         }
         addend
           ..addAll(List.filled(shift - 1, Const(1)))
           ..insertAll(0, List.filled(shift - 1, Const(0)))
-          ..insert(0, signs[row - 1]);
+          ..insert(0, SignBit(signs[row - 1]));
         rowShift[row] -= shift;
       }
     }
@@ -265,7 +265,7 @@ class PartialProductGeneratorStopBitsSignExtension
       // Create an extra row to hold the final carry bit
       partialProducts
           .add(List.filled(selector.width, Const(0), growable: true));
-      partialProducts.last.insert(0, signs[rows - 2]);
+      partialProducts.last.insert(0, SignBit(signs[rows - 2]));
       rowShift.add((rows - 2) * shift);
 
       // Hack for radix-2

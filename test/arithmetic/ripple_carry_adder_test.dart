@@ -109,4 +109,108 @@ void main() {
       expect(rippleCarryAdder.sum.value[widthLength], equals(LogicValue.one));
     });
   });
+  group('ripple carry adder with carryIn', () {
+    test('should throw exception if toSum Logics have diferent width.', () {
+      final a = Logic(name: 'a', width: 8);
+      final b = Logic(name: 'b', width: 16);
+      final ci = Logic(name: 'carry_in');
+
+      expect(() => RippleCarryAdder(a, b, carryIn: ci),
+          throwsA(const TypeMatcher<RohdHclException>()));
+    });
+
+    test('should return correct value for ripple carry adder.', () async {
+      final a = Logic(name: 'a', width: 8);
+      final b = Logic(name: 'b', width: 8);
+      final ci = Logic(name: 'carry_in');
+
+      final lvA = Random(5).nextInt(128);
+      final lvB = Random(10).nextInt(128);
+      final lvC = Random(1).nextInt(2);
+
+      a.put(lvA);
+      b.put(lvB);
+      ci.put(lvC);
+
+      final rippleCarryAdder = RippleCarryAdder(a, b, carryIn: ci);
+      await rippleCarryAdder.build();
+
+      expect(rippleCarryAdder.sum.value.toInt(), equals(lvA + lvB + lvC));
+    });
+
+    test('should return 0 when a , b and carryIn are all 0.', () async {
+      final a = Logic(name: 'a', width: 10)..put(0);
+      final b = Logic(name: 'b', width: 10)..put(0);
+      final carryIn = Logic(name: 'carry_in')..put(0);
+
+      final rippleCarryAdder = RippleCarryAdder(a, b, carryIn: carryIn);
+      await rippleCarryAdder.build();
+
+      expect(rippleCarryAdder.sum.value.toInt(), equals(0));
+    });
+
+    test('should return one of the value when one of the input is 0.',
+        () async {
+      const valA = 10;
+      final a = Logic(name: 'a', width: 10)..put(valA);
+      final b = Logic(name: 'b', width: 10)..put(0);
+      final carryIn = Logic(name: 'carry_in')..put(0);
+
+      final rippleCarryAdder = RippleCarryAdder(a, b, carryIn: carryIn);
+      await rippleCarryAdder.build();
+
+      expect(rippleCarryAdder.sum.value.toInt(), equals(valA));
+    });
+
+    test('should return correct value when random numbers is given.', () async {
+      final a = Logic(name: 'a', width: 10);
+      final b = Logic(name: 'b', width: 10);
+      final carryIn = Logic(name: 'carry_in');
+
+      final rippleCarryAdder = RippleCarryAdder(a, b, carryIn: carryIn);
+      await rippleCarryAdder.build();
+
+      final rand = Random(5);
+      for (var i = 0; i < 100; i++) {
+        final randA = rand.nextInt(1 << a.width);
+        final randB = rand.nextInt(1 << a.width);
+        final randC = rand.nextInt(2);
+        a.put(randA);
+        b.put(randB);
+        carryIn.put(randC);
+        expect(
+            rippleCarryAdder.sum.value.toInt(), equals(randA + randB + randC));
+      }
+    });
+
+    test('should return correct value when carry bit is non-zero.', () async {
+      const widthLength = 4;
+      final a = Logic(name: 'a', width: widthLength)..put(1 << widthLength - 1);
+      final b = Logic(name: 'b', width: widthLength)..put(1 << widthLength - 1);
+      final carryIn = Logic(name: 'carry_in')..put(1);
+
+      final rippleCarryAdder = RippleCarryAdder(a, b, carryIn: carryIn);
+      await rippleCarryAdder.build();
+
+      expect(rippleCarryAdder.sum.value.toInt(), (1 << a.width) + 1);
+      expect(rippleCarryAdder.sum.value.width, a.width + 1);
+      expect(rippleCarryAdder.sum.value[a.width], equals(LogicValue.one));
+    });
+
+    test('should return correct value when overflow from int to Big Int.',
+        () async {
+      const widthLength = 64;
+      final a = Logic(name: 'a', width: widthLength)..put(1 << widthLength - 1);
+      final b = Logic(name: 'b', width: widthLength)..put(1 << widthLength - 1);
+      final carryIn = Logic(name: 'carry_in')..put(1);
+
+      final rippleCarryAdder = RippleCarryAdder(a, b, carryIn: carryIn);
+      await rippleCarryAdder.build();
+
+      expect(rippleCarryAdder.sum.value.toBigInt(),
+          (BigInt.one << a.width) + BigInt.one);
+      expect(rippleCarryAdder.sum.value.width, a.width + 1);
+      expect(rippleCarryAdder.sum.value[widthLength], equals(LogicValue.one));
+    });
+  });
 }

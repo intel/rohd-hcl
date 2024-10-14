@@ -11,6 +11,7 @@ export 'src/edge_detector.dart';
 export 'src/encodings/encodings.dart';
 export 'src/error_checking/error_checking.dart';
 export 'src/exceptions.dart';
+export 'src/extrema.dart';
 export 'src/fifo.dart';
 export 'src/find.dart';
 export 'src/interfaces/interfaces.dart';

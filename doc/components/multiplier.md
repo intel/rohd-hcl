@@ -109,7 +109,7 @@ Here is an example of use of the `CompressionTreeMultiplier`:
 
 ## Compression Tree Multiply Accumulate
 
-A compression tree multiply accumulate is similar to a compress tree
+A compression tree multiply-accumulate is similar to a compress tree
 multiplier, but it inserts an additional addend into the compression
 tree to allow for accumulation into this third input.
 
