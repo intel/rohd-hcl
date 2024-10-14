@@ -198,14 +198,30 @@ class FixedPointValue implements Comparable<FixedPointValue> {
   /// The result integer width is the sum of dividend integer width and divisor
   /// fraction width. The result fraction width is the sum of dividend fraction
   /// width and divisor integer width.
-  // FixedPointValue operator /(FixedPointValue other) {
-  //   final s = signed | other.signed;
-  //   final ms = s ? m + other.n + 1 : m + other.n;
-  //   final ns = n + other.m;
-  //   final val1 = expandWidth(sign: s, n: n + other.m + other.n);
-  //   final val2 = other.expandWidth(sign: s, m: other.m + m + n);
-  //   final v = val1 / val2;
-  //   print('${val1.bitString} / ${val2.bitString} = ${v.bitString}  m:$ms n:$ns');
-  //   return FixedPointValue(value: val1 / val2, signed: s, m: ms, n: ns);
-  // }
+  FixedPointValue operator /(FixedPointValue other) {
+    final s = signed | other.signed;
+    // extend integer width for max negative number
+    final m1 = s ? m + 1 : m;
+    final m2 = s ? other.m + 1 : other.m;
+    final mr = m1 + other.n;
+    final nr = n + m2;
+    final tr = mr + nr;
+    var val1 = expandWidth(sign: s, m: m1, n: tr - m1);
+    var val2 = other.expandWidth(sign: s, m: tr - other.n);
+    // Convert to positive as needed
+    if (s) {
+      if (val1[-1] == LogicValue.one) {
+        val1 = ~(val1 - 1);
+      }
+      if (val2[-1] == LogicValue.one) {
+        val2 = ~(val2 - 1);
+      }
+    }
+    var val = val1 / val2;
+    // Convert to negative as needed
+    if (s & (value[-1] != other.value[-1])) {
+      val = (~val) + 1;
+    }
+    return FixedPointValue(value: val, signed: s, m: mr, n: nr);
+  }
 }

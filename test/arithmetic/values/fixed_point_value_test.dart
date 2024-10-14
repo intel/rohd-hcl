@@ -208,15 +208,24 @@ void main() {
                 reason: '${fxp1.toDouble()}*${fxp2.toDouble()}');
             expect(fxp.n, n1 + n2);
 
-            // // debug
-            // print('--------------');
-            // print('${fxp1.value.bitString} m=$m1 n=$n1');
-            // print('${fxp2.value.bitString} m=$m2 n=$n2');
-            // // divide
-            // fxp = fxp1 / fxp2;
-            // expect(fxp.toDouble(), fxp1.toDouble() / fxp2.toDouble(),
-            //     reason: '${fxp1.toDouble()}/${fxp2.toDouble()}');
-            // // expect(fxp.n, n1 + m2);
+            // divide
+            fxp = fxp1 / fxp2;
+            final q = n1 + m2 + 1;
+            double expectedValue;
+            if (i1 == 0) {
+              expectedValue = 0;
+            } else {
+              expectedValue =
+                  ((fxp1.toDouble() / fxp2.toDouble()).abs() * pow(2, q))
+                          .floor() /
+                      pow(2, q);
+              if (fxp1.toDouble() / fxp2.toDouble() < 0) {
+                expectedValue = -expectedValue;
+              }
+            }
+            expect(fxp.toDouble(), expectedValue,
+                reason:
+                    '${fxp1.toDouble()}/${fxp2.toDouble()} = $expectedValue');
           }
         }
       }
