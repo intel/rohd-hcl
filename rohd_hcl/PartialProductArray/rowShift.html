@@ -4,8 +4,8 @@
   <meta charset="utf-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
-  <meta name="description" content="API docs for the maxWidth method from the PartialProductGenerator class, for the Dart programming language.">
-  <title>maxWidth method - PartialProductGenerator class - rohd_hcl library - Dart API</title>
+  <meta name="description" content="API docs for the rowShift property from the PartialProductArray class, for the Dart programming language.">
+  <title>rowShift property - PartialProductArray class - rohd_hcl library - Dart API</title>
 
 
   
@@ -30,10 +30,10 @@
   <ol class="breadcrumbs gt-separated dark hidden-xs">
     <li><a href="../../index.html">rohd_hcl</a></li>
     <li><a href="../../rohd_hcl/rohd_hcl-library.html">rohd_hcl.dart</a></li>
-    <li><a href="../../rohd_hcl/PartialProductGenerator-class.html">PartialProductGenerator</a></li>
-    <li class="self-crumb">maxWidth method</li>
+    <li><a href="../../rohd_hcl/PartialProductArray-class.html">PartialProductArray</a></li>
+    <li class="self-crumb">rowShift property</li>
   </ol>
-  <div class="self-name">maxWidth</div>
+  <div class="self-name">rowShift</div>
   <form class="search navbar-right" role="search">
     <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
   </form>
@@ -54,47 +54,37 @@
 <div
     id="dartdoc-main-content"
     class="main-content"
-    data-above-sidebar="rohd_hcl&#47;PartialProductGenerator-class-sidebar.html"
+    data-above-sidebar="rohd_hcl&#47;PartialProductArray-class-sidebar.html"
     data-below-sidebar="">
     <div>
-<h1><span class="kind-method">maxWidth</span> method 
+<h1><span class="kind-property">rowShift</span> property 
 </h1></div>
 
-    <section class="multi-line-signature">
+      <section class="multi-line-signature">
+        
+        <a href="https://api.dart.dev/stable/3.5.3/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.dart.dev/stable/3.5.3/dart-core/int-class.html">int</a></span>&gt;</span>
+        <span class="name ">rowShift</span>
+        <div class="features"><span class="feature">final</span></div>
+
+      </section>
       
-
-<span class="returntype"><a href="https://api.dart.dev/stable/3.5.3/dart-core/int-class.html">int</a></span>
-<span class="name ">maxWidth</span>(<wbr>)
-
-      
-
-    </section>
-    
 <section class="desc markdown">
-  <p>Return the actual largest width of all rows</p>
+  <p>The actual shift in each row. This value will be modified by the
+sign extension routine used when folding in a sign bit from another
+row</p>
 </section>
 
-
-    
+      
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
-  <pre class="language-dart"><code class="language-dart">int maxWidth() {
-  var maxW = 0;
-  for (var row = 0; row &lt; rows; row++) {
-    final entry = partialProducts[row];
-    if (entry.length + rowShift[row] &gt; maxW) {
-      maxW = entry.length + rowShift[row];
-    }
-  }
-  return maxW;
-}</code></pre>
+  <pre class="language-dart"><code class="language-dart">final rowShift = &lt;int&gt;[];</code></pre>
 </section>
 
 
-  </div> <!-- /.main-content -->
+</div> <!-- /.main-content -->
 
-  <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
-    <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
+<div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+  <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
 <header id="header-search-sidebar" class="hidden-l">
   <form class="search-sidebar" role="search">
     <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
@@ -104,16 +94,16 @@
 <ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
     <li><a href="../../index.html">rohd_hcl</a></li>
     <li><a href="../../rohd_hcl/rohd_hcl-library.html">rohd_hcl</a></li>
-    <li><a href="../../rohd_hcl/PartialProductGenerator-class.html">PartialProductGenerator</a></li>
-    <li class="self-crumb">maxWidth method</li>
+    <li><a href="../../rohd_hcl/PartialProductArray-class.html">PartialProductArray</a></li>
+    <li class="self-crumb">rowShift property</li>
 </ol>
 
 
-    <h5>PartialProductGenerator class</h5>
-    <div id="dartdoc-sidebar-left-content"></div>
-  </div><!--/.sidebar-offcanvas-->
+  <h5>PartialProductArray class</h5>
+  <div id="dartdoc-sidebar-left-content"></div>
+</div><!--/.sidebar-offcanvas-->
 
-  <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+<div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
 </div><!--/.sidebar-offcanvas-->
 
 </main>

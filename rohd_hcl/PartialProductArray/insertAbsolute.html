@@ -4,8 +4,8 @@
   <meta charset="utf-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
-  <meta name="description" content="API docs for the getAbsolute method from the PartialProductGenerator class, for the Dart programming language.">
-  <title>getAbsolute method - PartialProductGenerator class - rohd_hcl library - Dart API</title>
+  <meta name="description" content="API docs for the insertAbsolute method from the PartialProductArray class, for the Dart programming language.">
+  <title>insertAbsolute method - PartialProductArray class - rohd_hcl library - Dart API</title>
 
 
   
@@ -30,10 +30,10 @@
   <ol class="breadcrumbs gt-separated dark hidden-xs">
     <li><a href="../../index.html">rohd_hcl</a></li>
     <li><a href="../../rohd_hcl/rohd_hcl-library.html">rohd_hcl.dart</a></li>
-    <li><a href="../../rohd_hcl/PartialProductGenerator-class.html">PartialProductGenerator</a></li>
-    <li class="self-crumb">getAbsolute method</li>
+    <li><a href="../../rohd_hcl/PartialProductArray-class.html">PartialProductArray</a></li>
+    <li class="self-crumb">insertAbsolute method</li>
   </ol>
-  <div class="self-name">getAbsolute</div>
+  <div class="self-name">insertAbsolute</div>
   <form class="search navbar-right" role="search">
     <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
   </form>
@@ -54,18 +54,19 @@
 <div
     id="dartdoc-main-content"
     class="main-content"
-    data-above-sidebar="rohd_hcl&#47;PartialProductGenerator-class-sidebar.html"
+    data-above-sidebar="rohd_hcl&#47;PartialProductArray-class-sidebar.html"
     data-below-sidebar="">
     <div>
-<h1><span class="kind-method">getAbsolute</span> method 
+<h1><span class="kind-method">insertAbsolute</span> method 
 </h1></div>
 
     <section class="multi-line-signature">
       
 
-<span class="returntype"><a href="https://pub.dev/documentation/rohd/0.5.3/rohd/Logic-class.html">Logic</a></span>
-<span class="name ">getAbsolute</span>(<wbr><ol class="parameter-list single-line"> <li><span class="parameter" id="getAbsolute-param-row"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.5.3/dart-core/int-class.html">int</a></span> <span class="parameter-name">row</span>, </span></li>
-<li><span class="parameter" id="getAbsolute-param-col"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.5.3/dart-core/int-class.html">int</a></span> <span class="parameter-name">col</span></span></li>
+<span class="returntype">void</span>
+<span class="name ">insertAbsolute</span>(<wbr><ol class="parameter-list single-line"> <li><span class="parameter" id="insertAbsolute-param-row"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.5.3/dart-core/int-class.html">int</a></span> <span class="parameter-name">row</span>, </span></li>
+<li><span class="parameter" id="insertAbsolute-param-col"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.5.3/dart-core/int-class.html">int</a></span> <span class="parameter-name">col</span>, </span></li>
+<li><span class="parameter" id="insertAbsolute-param-val"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.5.3/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">val</span></span></li>
 </ol>)
 
       
@@ -73,20 +74,15 @@
     </section>
     
 <section class="desc markdown">
-  <p>Return the Logic at the absolute position (<code>row</code>, <code>col</code>).</p>
+  <p>Set a Logic <code>val</code> at the absolute position (<code>row</code>, <code>col</code>)</p>
 </section>
 
 
     
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
-  <pre class="language-dart"><code class="language-dart">Logic getAbsolute(int row, int col) {
-  final product = partialProducts[row];
-  while (product.length &lt;= col) {
-    product.add(Const(0));
-  }
-  return partialProducts[row][col - rowShift[row]];
-}</code></pre>
+  <pre class="language-dart"><code class="language-dart">void insertAbsolute(int row, int col, Logic val) =&gt;
+    partialProducts[row].insert(col - rowShift[row], val);</code></pre>
 </section>
 
 
@@ -103,12 +99,12 @@
 <ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
     <li><a href="../../index.html">rohd_hcl</a></li>
     <li><a href="../../rohd_hcl/rohd_hcl-library.html">rohd_hcl</a></li>
-    <li><a href="../../rohd_hcl/PartialProductGenerator-class.html">PartialProductGenerator</a></li>
-    <li class="self-crumb">getAbsolute method</li>
+    <li><a href="../../rohd_hcl/PartialProductArray-class.html">PartialProductArray</a></li>
+    <li class="self-crumb">insertAbsolute method</li>
 </ol>
 
 
-    <h5>PartialProductGenerator class</h5>
+    <h5>PartialProductArray class</h5>
     <div id="dartdoc-sidebar-left-content"></div>
   </div><!--/.sidebar-offcanvas-->
 

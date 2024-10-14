@@ -4,8 +4,8 @@
   <meta charset="utf-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
-  <meta name="description" content="API docs for the getAbsoluteAll method from the PartialProductGenerator class, for the Dart programming language.">
-  <title>getAbsoluteAll method - PartialProductGenerator class - rohd_hcl library - Dart API</title>
+  <meta name="description" content="API docs for the rows property from the PartialProductArray class, for the Dart programming language.">
+  <title>rows property - PartialProductArray class - rohd_hcl library - Dart API</title>
 
 
   
@@ -30,10 +30,10 @@
   <ol class="breadcrumbs gt-separated dark hidden-xs">
     <li><a href="../../index.html">rohd_hcl</a></li>
     <li><a href="../../rohd_hcl/rohd_hcl-library.html">rohd_hcl.dart</a></li>
-    <li><a href="../../rohd_hcl/PartialProductGenerator-class.html">PartialProductGenerator</a></li>
-    <li class="self-crumb">getAbsoluteAll method</li>
+    <li><a href="../../rohd_hcl/PartialProductArray-class.html">PartialProductArray</a></li>
+    <li class="self-crumb">rows property</li>
   </ol>
-  <div class="self-name">getAbsoluteAll</div>
+  <div class="self-name">rows</div>
   <form class="search navbar-right" role="search">
     <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
   </form>
@@ -54,49 +54,42 @@
 <div
     id="dartdoc-main-content"
     class="main-content"
-    data-above-sidebar="rohd_hcl&#47;PartialProductGenerator-class-sidebar.html"
+    data-above-sidebar="rohd_hcl&#47;PartialProductArray-class-sidebar.html"
     data-below-sidebar="">
     <div>
-<h1><span class="kind-method">getAbsoluteAll</span> method 
+<h1><span class="kind-property">rows</span> property 
 </h1></div>
+
+
+        
+  <section id="getter">
 
     <section class="multi-line-signature">
       
-
-<span class="returntype"><a href="https://api.dart.dev/stable/3.5.3/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://pub.dev/documentation/rohd/0.5.3/rohd/Logic-class.html">Logic</a></span>&gt;</span></span>
-<span class="name ">getAbsoluteAll</span>(<wbr><ol class="parameter-list single-line"> <li><span class="parameter" id="getAbsoluteAll-param-row"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.5.3/dart-core/int-class.html">int</a></span> <span class="parameter-name">row</span>, </span></li>
-<li><span class="parameter" id="getAbsoluteAll-param-columns"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.5.3/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.dart.dev/stable/3.5.3/dart-core/int-class.html">int</a></span>&gt;</span></span> <span class="parameter-name">columns</span></span></li>
-</ol>)
-
+      <span class="returntype"><a href="https://api.dart.dev/stable/3.5.3/dart-core/int-class.html">int</a></span>
+      <span class="name ">rows</span>
       
 
     </section>
+
     
 <section class="desc markdown">
-  <p>Return the List<logic> at the
-absolute position (<code>row</code>, List<int> <code>columns</code>.</int></logic></p>
+  <p>rows of partial products</p>
 </section>
-
 
     
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
-  <pre class="language-dart"><code class="language-dart">List&lt;Logic&gt; getAbsoluteAll(int row, List&lt;int&gt; columns) {
-  final product = partialProducts[row];
-  final relMax = columns.reduce(max);
-  final absMax = relMax - rowShift[row];
-  while (product.length &lt;= absMax) {
-    product.add(Const(0));
-  }
-  return [for (final c in columns) partialProducts[row][c - rowShift[row]]];
-}</code></pre>
+  <pre class="language-dart"><code class="language-dart">int get rows =&gt; partialProducts.length;</code></pre>
 </section>
 
+  </section>
 
-  </div> <!-- /.main-content -->
 
-  <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
-    <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
+</div> <!-- /.main-content -->
+
+<div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+  <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
 <header id="header-search-sidebar" class="hidden-l">
   <form class="search-sidebar" role="search">
     <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
@@ -106,16 +99,16 @@ absolute position (<code>row</code>, List<int> <code>columns</code>.</int></logi
 <ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
     <li><a href="../../index.html">rohd_hcl</a></li>
     <li><a href="../../rohd_hcl/rohd_hcl-library.html">rohd_hcl</a></li>
-    <li><a href="../../rohd_hcl/PartialProductGenerator-class.html">PartialProductGenerator</a></li>
-    <li class="self-crumb">getAbsoluteAll method</li>
+    <li><a href="../../rohd_hcl/PartialProductArray-class.html">PartialProductArray</a></li>
+    <li class="self-crumb">rows property</li>
 </ol>
 
 
-    <h5>PartialProductGenerator class</h5>
-    <div id="dartdoc-sidebar-left-content"></div>
-  </div><!--/.sidebar-offcanvas-->
+  <h5>PartialProductArray class</h5>
+  <div id="dartdoc-sidebar-left-content"></div>
+</div><!--/.sidebar-offcanvas-->
 
-  <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+<div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
 </div><!--/.sidebar-offcanvas-->
 
 </main>

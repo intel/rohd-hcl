@@ -4,8 +4,8 @@
   <meta charset="utf-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
-  <meta name="description" content="API docs for the muxAbsoluteAll method from the PartialProductGenerator class, for the Dart programming language.">
-  <title>muxAbsoluteAll method - PartialProductGenerator class - rohd_hcl library - Dart API</title>
+  <meta name="description" content="API docs for the setAbsolute method from the PartialProductArray class, for the Dart programming language.">
+  <title>setAbsolute method - PartialProductArray class - rohd_hcl library - Dart API</title>
 
 
   
@@ -30,10 +30,10 @@
   <ol class="breadcrumbs gt-separated dark hidden-xs">
     <li><a href="../../index.html">rohd_hcl</a></li>
     <li><a href="../../rohd_hcl/rohd_hcl-library.html">rohd_hcl.dart</a></li>
-    <li><a href="../../rohd_hcl/PartialProductGenerator-class.html">PartialProductGenerator</a></li>
-    <li class="self-crumb">muxAbsoluteAll method</li>
+    <li><a href="../../rohd_hcl/PartialProductArray-class.html">PartialProductArray</a></li>
+    <li class="self-crumb">setAbsolute method</li>
   </ol>
-  <div class="self-name">muxAbsoluteAll</div>
+  <div class="self-name">setAbsolute</div>
   <form class="search navbar-right" role="search">
     <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
   </form>
@@ -54,20 +54,19 @@
 <div
     id="dartdoc-main-content"
     class="main-content"
-    data-above-sidebar="rohd_hcl&#47;PartialProductGenerator-class-sidebar.html"
+    data-above-sidebar="rohd_hcl&#47;PartialProductArray-class-sidebar.html"
     data-below-sidebar="">
     <div>
-<h1><span class="kind-method">muxAbsoluteAll</span> method 
+<h1><span class="kind-method">setAbsolute</span> method 
 </h1></div>
 
     <section class="multi-line-signature">
       
 
 <span class="returntype">void</span>
-<span class="name ">muxAbsoluteAll</span>(<wbr><ol class="parameter-list"> <li><span class="parameter" id="muxAbsoluteAll-param-row"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.5.3/dart-core/int-class.html">int</a></span> <span class="parameter-name">row</span>, </span></li>
-<li><span class="parameter" id="muxAbsoluteAll-param-col"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.5.3/dart-core/int-class.html">int</a></span> <span class="parameter-name">col</span>, </span></li>
-<li><span class="parameter" id="muxAbsoluteAll-param-condition"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.5.3/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">condition</span>, </span></li>
-<li><span class="parameter" id="muxAbsoluteAll-param-list"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.5.3/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://pub.dev/documentation/rohd/0.5.3/rohd/Logic-class.html">Logic</a></span>&gt;</span></span> <span class="parameter-name">list</span>, </span></li>
+<span class="name ">setAbsolute</span>(<wbr><ol class="parameter-list single-line"> <li><span class="parameter" id="setAbsolute-param-row"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.5.3/dart-core/int-class.html">int</a></span> <span class="parameter-name">row</span>, </span></li>
+<li><span class="parameter" id="setAbsolute-param-col"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.5.3/dart-core/int-class.html">int</a></span> <span class="parameter-name">col</span>, </span></li>
+<li><span class="parameter" id="setAbsolute-param-val"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.5.3/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">val</span></span></li>
 </ol>)
 
       
@@ -75,44 +74,23 @@
     </section>
     
 <section class="desc markdown">
-  <p>Mux the range of values into the row starting at absolute position
-(<code>row</code>, <code>col</code>) using <code>condition</code> to select the new value</p>
+  <p>Set the Logic at absolute position (<code>row</code>, <code>col</code>) to <code>val</code>.</p>
 </section>
 
 
     
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
-  <pre class="language-dart"><code class="language-dart">void muxAbsoluteAll(int row, int col, Logic condition, List&lt;Logic&gt; list) {
-  var i = col - rowShift[row];
+  <pre class="language-dart"><code class="language-dart">void setAbsolute(int row, int col, Logic val) {
   final product = partialProducts[row];
-  for (final val in list) {
-    if (product.length &gt; i) {
-      if (val is SignBit || product[i] is SignBit) {
-        var inv = false;
-        if (val is SignBit) {
-          inv = val.inverted;
-        }
-        if (product[i] is SignBit) {
-          inv = (product[i] as SignBit).inverted;
-        }
-        product[i] = SignBit(mux(condition, val, product[i]), inverted: inv);
-      } else {
-        product[i] = mux(condition, val, product[i]);
-      }
-      i++;
-    } else {
-      while (product.length &lt; i) {
-        product.add(Const(0));
-      }
-      if (val is SignBit) {
-        product.add(
-            SignBit(mux(condition, val, Const(0)), inverted: val.inverted));
-      } else {
-        product.add(mux(condition, val, Const(0)));
-      }
-      i++;
+  final i = col - rowShift[row];
+  if (product.length &gt; i) {
+    product[i] = val;
+  } else {
+    while (product.length &lt; i) {
+      product.add(Const(0));
     }
+    partialProducts[row].add(val);
   }
 }</code></pre>
 </section>
@@ -131,12 +109,12 @@
 <ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
     <li><a href="../../index.html">rohd_hcl</a></li>
     <li><a href="../../rohd_hcl/rohd_hcl-library.html">rohd_hcl</a></li>
-    <li><a href="../../rohd_hcl/PartialProductGenerator-class.html">PartialProductGenerator</a></li>
-    <li class="self-crumb">muxAbsoluteAll method</li>
+    <li><a href="../../rohd_hcl/PartialProductArray-class.html">PartialProductArray</a></li>
+    <li class="self-crumb">setAbsolute method</li>
 </ol>
 
 
-    <h5>PartialProductGenerator class</h5>
+    <h5>PartialProductArray class</h5>
     <div id="dartdoc-sidebar-left-content"></div>
   </div><!--/.sidebar-offcanvas-->
 
