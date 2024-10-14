@@ -116,13 +116,15 @@ void checkCounter(Counter counter) {
   final sub = counter.clk.posedge.listen((_) async {
     final errPrefix = '@${Simulator.time}: ';
 
-    if (counter is GatedCounter) {
-      if (counter.summer.underflowed.previousValue!.toBool() &&
+    if (counter is GatedCounter && !counter.saturates) {
+      if (counter.summer.underflowed.previousValue!.isValid &&
+          counter.summer.underflowed.previousValue!.toBool() &&
           !counter.mayUnderflow.previousValue!.toBool()) {
         fail('$errPrefix Unexpectedly underflowed, bad clock gating.');
       }
 
-      if (counter.summer.overflowed.previousValue!.toBool() &&
+      if (counter.summer.overflowed.previousValue!.isValid &&
+          counter.summer.overflowed.previousValue!.toBool() &&
           !counter.mayOverflow.previousValue!.toBool()) {
         fail('$errPrefix Unexpectedly overflowed, bad clock gating.');
       }

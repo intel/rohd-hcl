@@ -37,6 +37,7 @@ void main() {
     int numCycles = 150,
     bool dumpWaves = false,
     bool printActivity = false,
+    bool doChecks = true,
   }) async {
     final clk = SimpleClockGenerator(10).clk;
     final reset = Logic()..inject(1);
@@ -49,7 +50,9 @@ void main() {
       WaveDumper(dut);
     }
 
-    checkCounter(dut);
+    if (doChecks) {
+      checkCounter(dut);
+    }
 
     final toggleCounter = ClockToggleCounter(dut);
 
@@ -73,7 +76,7 @@ void main() {
     return toggleCounter;
   }
 
-  test('simple 1-counter incrementing always', () async {
+  test('simple 1-counter incrementing always, with rollover', () async {
     final toggleCounter = await testCounter(
       (clk, reset) => GatedCounter(
         [SumInterface(fixedAmount: 1)],
@@ -87,7 +90,7 @@ void main() {
     expect(toggleCounter.upperActivity, lessThan(0.75));
   });
 
-  test('simple 1-counter incrementing always with saturation', () async {
+  test('simple 1-counter incrementing always, with saturation', () async {
     final toggleCounter = await testCounter(
       (clk, reset) => GatedCounter(
         [SumInterface(fixedAmount: 1)],
@@ -101,6 +104,39 @@ void main() {
 
     expect(toggleCounter.lowerActivity, lessThan(0.45));
     expect(toggleCounter.upperActivity, lessThan(0.25));
+  });
+
+  test('simple 1-down-counter decrementing always, with rollover', () async {
+    final toggleCounter = await testCounter(
+      (clk, reset) => GatedCounter(
+        [SumInterface(fixedAmount: 1, increments: false)],
+        resetValue: 63,
+        clk: clk,
+        reset: reset,
+        width: 6,
+        clkGatePartitionIndex: 3,
+      ),
+    );
+
+    expect(toggleCounter.lowerActivity, greaterThan(0.95));
+    expect(toggleCounter.upperActivity, lessThan(0.25));
+  });
+
+  test('simple 1-down-counter decrementing always, with saturation', () async {
+    final toggleCounter = await testCounter(
+      (clk, reset) => GatedCounter(
+        [SumInterface(fixedAmount: 1, increments: false)],
+        saturates: true,
+        resetValue: 63,
+        clk: clk,
+        reset: reset,
+        width: 6,
+        clkGatePartitionIndex: 3,
+      ),
+    );
+
+    expect(toggleCounter.lowerActivity, lessThan(0.50));
+    expect(toggleCounter.upperActivity, lessThan(0.15));
   });
 
   test('simple big-fixed counter incrementing only upper bits', () async {

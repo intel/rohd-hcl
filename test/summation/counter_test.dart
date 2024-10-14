@@ -323,6 +323,7 @@ void main() {
                         rand.nextBool() ? null : rand.nextInt(11) - 1);
 
             await dut.build();
+            print(dut.generateSynth());
 
             // WaveDumper(dut);
 
