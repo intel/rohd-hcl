@@ -1,7 +1,7 @@
 // Copyright (C) 2024 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 //
-// floating_point_adder.dart
+// floating_point_adder_round.dart
 // A variable-width floating point adder with rounding
 //
 // 2024 August 30
@@ -15,7 +15,7 @@ import 'package:rohd_hcl/rohd_hcl.dart';
 
 /// An adder module for variable FloatingPoint type with rounding.
 // This is the Seidel/Even adder, dual-path
-class FloatingPointAdder extends Module {
+class FloatingPointAdderRound extends Module {
   /// Must be greater than 0.
   final int exponentWidth;
 
@@ -46,7 +46,7 @@ class FloatingPointAdder extends Module {
   /// functions.
   /// [ppTree] is an ParallelPrefix generator for use in increment /decrement
   ///  functions.
-  FloatingPointAdder(FloatingPoint a, FloatingPoint b,
+  FloatingPointAdderRound(FloatingPoint a, FloatingPoint b,
       {Logic? subtract,
       Adder Function(Logic, Logic) adderGen = ParallelPrefixAdder.new,
       ParallelPrefix Function(List<Logic>, Logic Function(Logic, Logic))

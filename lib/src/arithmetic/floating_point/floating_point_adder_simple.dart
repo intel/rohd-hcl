@@ -66,7 +66,6 @@ class FloatingPointAdderSimple extends Module {
 
     // Align and add mantissas
     final expDiff = aExp - bExp;
-    // print('${expDiff.value.toInt()} exponent diff');
     final adder = SignMagnitudeAdder(
         a.sign,
         [a.isNormal(), a.mantissa].swizzle(),
@@ -102,6 +101,5 @@ class FloatingPointAdderSimple extends Module {
         ])
       ])
     ]);
-    // print('final sum: ${_sum.value.bitString}');
   }
 }

@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: BSD-3-Clause
 //
 // floating_point_rnd_test.dart
-// Tests of Floating Point Addition with rounding
+// Tests of FloatingPointAdderRnd -- a rounding FP Adder.
 //
 // 2024 August 30
 // Author: Desmond A Kirkpatrick <desmond.a.kirkpatrick@intel.com
@@ -31,7 +31,7 @@ void main() {
         mantissaWidth: mWidth);
     final expected = expectedNoRound;
 
-    final adder = FloatingPointAdder(fa, fb);
+    final adder = FloatingPointAdderRound(fa, fb);
     final computed = adder.sum.floatingPointValue;
     expect(computed.isNaN(), equals(expected.isNaN()));
     expect(computed, equals(expected));
@@ -47,7 +47,7 @@ void main() {
     final fb = FloatingPoint(exponentWidth: eWidth, mantissaWidth: mWidth);
     fa.put(one);
     fb.put(one);
-    final adder = FloatingPointAdder(fa, fb);
+    final adder = FloatingPointAdderRound(fa, fb);
 
     final largestExponent = FloatingPointValue.computeBias(eWidth) +
         FloatingPointValue.computeMaxExponent(eWidth);
@@ -97,7 +97,7 @@ void main() {
     fb.put(fvb);
 
     final expected = fva + fvb;
-    final adder = FloatingPointAdder(fa, fb);
+    final adder = FloatingPointAdderRound(fa, fb);
 
     final computed = adder.sum.floatingPointValue;
     expect(computed.isNaN(), equals(expected.isNaN()));
@@ -112,7 +112,7 @@ void main() {
     final fb = FloatingPoint(exponentWidth: eWidth, mantissaWidth: mWidth);
     fa.put(0);
     fb.put(0);
-    final adder = FloatingPointAdder(fa, fb);
+    final adder = FloatingPointAdderRound(fa, fb);
 
     final largestMantissa = pow(2, mWidth).toInt() - 1;
     for (final sign in [false]) {
@@ -149,7 +149,7 @@ void main() {
     final fb = FloatingPoint(exponentWidth: eWidth, mantissaWidth: mWidth);
     fa.put(0);
     fb.put(0);
-    final adder = FloatingPointAdder(fa, fb);
+    final adder = FloatingPointAdderRound(fa, fb);
 
     final largestExponent = FloatingPointValue.computeBias(eWidth) +
         FloatingPointValue.computeMaxExponent(eWidth);
@@ -187,7 +187,7 @@ void main() {
     final fb = FloatingPoint(exponentWidth: eWidth, mantissaWidth: mWidth);
     fa.put(0);
     fb.put(0);
-    final adder = FloatingPointAdder(fa, fb);
+    final adder = FloatingPointAdderRound(fa, fb);
 
     final largestExponent = FloatingPointValue.computeBias(eWidth) +
         FloatingPointValue.computeMaxExponent(eWidth);
@@ -224,7 +224,7 @@ void main() {
     final fb = FloatingPoint(exponentWidth: eWidth, mantissaWidth: mWidth);
     fa.put(0);
     fb.put(0);
-    final adder = FloatingPointAdder(fa, fb);
+    final adder = FloatingPointAdderRound(fa, fb);
     final value = Random(47);
 
     var cnt = 200;
@@ -272,7 +272,7 @@ void main() {
     } else {
       expected = expectedRound;
     }
-    final adder = FloatingPointAdder(fa, fb);
+    final adder = FloatingPointAdderRound(fa, fb);
 
     final computed = adder.sum.floatingPointValue;
     expect(computed.isNaN(), equals(expected.isNaN()));
@@ -287,7 +287,7 @@ void main() {
     final fb = FloatingPoint(exponentWidth: eWidth, mantissaWidth: mWidth);
     fa.put(0);
     fb.put(0);
-    final adder = FloatingPointAdder(fa, fb);
+    final adder = FloatingPointAdderRound(fa, fb);
 
     final largestExponent = FloatingPointValue.computeBias(eWidth) +
         FloatingPointValue.computeMaxExponent(eWidth);
@@ -334,7 +334,7 @@ void main() {
     final fb = FloatingPoint(exponentWidth: eWidth, mantissaWidth: mWidth);
     fa.put(0);
     fb.put(0);
-    final adder = FloatingPointAdder(fa, fb);
+    final adder = FloatingPointAdderRound(fa, fb);
     final value = Random(47);
 
     var cnt = 500;
@@ -372,7 +372,7 @@ void main() {
     final fb = FloatingPoint(exponentWidth: eWidth, mantissaWidth: mWidth);
     fa.put(0);
     fb.put(0);
-    final adder = FloatingPointAdder(fa, fb);
+    final adder = FloatingPointAdderRound(fa, fb);
     final value = Random(51);
 
     var cnt = 100;

@@ -12,7 +12,7 @@ import 'dart:collection';
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
 
-/// A [Configurator] for [FloatingPointAdder]s.
+/// A [Configurator] for [FloatingPointAdderRound]s.
 class FloatingPointAdderConfigurator extends Configurator {
   /// Map from Type to Function for Adder generator
   static Map<Type, Adder Function(Logic, Logic)> adderGeneratorMap = {
@@ -47,7 +47,7 @@ class FloatingPointAdderConfigurator extends Configurator {
   final IntConfigKnob mantissaWidthKnob = IntConfigKnob(value: 5);
 
   @override
-  Module createModule() => FloatingPointAdder(
+  Module createModule() => FloatingPointAdderRound(
       FloatingPoint(
         exponentWidth: exponentWidthKnob.value,
         mantissaWidth: mantissaWidthKnob.value,
