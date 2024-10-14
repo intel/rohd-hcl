@@ -181,20 +181,17 @@ class GatedCounter extends Counter {
     // 0), and we are decrementing by a sufficiently large number (as judged by
     // enough lower bits of decr interfaces), then we may underflow
 
-    final underflowDangerBit =
-        minValueBit + log2Ceil(_decrementingInterfaces.length + 1);
+    final dangerRange = log2Ceil(_decrementingInterfaces.length + 1);
+    final underflowDangerBit = minValueBit + dangerRange;
     final inUnderflowDangerZone = Logic(name: 'inUnderflowDangerZone')
       ..gets(underflowDangerBit >= count.width
           ? Const(1)
-          : ~count
-              .getRange(
-                  minValueBit + log2Ceil(_decrementingInterfaces.length + 1))
-              .or());
+          : ~count.getRange(underflowDangerBit).or());
 
     Logic anyIntfInDangerZone = Const(0);
     for (final intf in _decrementingInterfaces) {
       var intfInDangerZone =
-          intf.amount.getRange(min(intf.width, minValueBit)).or();
+          intf.amount.getRange(min(intf.width, minValueBit - dangerRange)).or();
 
       if (intf.hasEnable) {
         intfInDangerZone &= intf.enable!;
