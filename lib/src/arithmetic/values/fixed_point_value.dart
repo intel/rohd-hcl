@@ -31,7 +31,7 @@ class FixedPointValue implements Comparable<FixedPointValue> {
   final int n;
 
   /// Returns true if the number is negative.
-  bool isNegative() => signed & (value.getRange(-1) == LogicValue.one);
+  bool isNegative() => signed & (value[-1] == LogicValue.one);
 
   /// Returns true if the number is positive.
   bool isPositive() => !isNegative();
@@ -54,10 +54,10 @@ class FixedPointValue implements Comparable<FixedPointValue> {
   /// Expands the bit width of integer and fractional parts.
   LogicValue expandWidth({required bool sign, int m = 0, int n = 0}) {
     if ((m > 0) & (m < this.m)) {
-      throw RohdHclException('Illegal use.');
+      throw RohdHclException('Integer width is larger than input.');
     }
     if ((n > 0) & (n < this.n)) {
-      throw RohdHclException('Illegal use.');
+      throw RohdHclException('Fraction width is larger than input.');
     }
     var newValue = value;
     if (m > this.m) {
