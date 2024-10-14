@@ -124,7 +124,7 @@ Our `RadixEncoder` module is general, creating selection tables for arbitrary Bo
 
 The `PartialProductGenerator` class also provides for sign extension with multiple options including `SignExtension.none` which is no sign extension for help in debugging, as well as `SignExtension.compactRect` which is a compact form which works for rectangular products where the multiplicand and multiplier can be of different widths.
 
-If customization is needed beyond sign extension options, routines are provided that allow for fixed customization of bit positions, or conditional (mux based on a Logic) form.
+The `PartialProductGenerator` creates a set of addends in its base class `PartialProductArray` which is simply a `List<List<Logic>>` to represent addends and a `rowShift[row]` to represent the shifts in the partial product matrix. If customization is needed beyond sign extension options, routines are provided that allow for fixed customization of bit positions or conditional (mux based on a Logic) form in the `PartialProductArray`.
 
 ```dart
 final ppg = PartialProductGenerator(a,b);
@@ -167,7 +167,7 @@ You can also generate a Markdown form of the same matrix:
 
 Once you have a partial product matrix, you would like to add up the addends.  Traditionally this is done using compression trees which instantiate 2:1 and 3:2 column compressors (or carry-save adders) to reduce the matrix to two addends.  The final two addends are often added with an efficient final adder.
 
-Our `ColumnCompressor` class uses a delay-driven approach to efficiently compress the rows of the partial product matrix.  Its only argument is a `PartialProductGenerator`, and it creates a list of `ColumnQueue`s containing the final two addends stored by column after compression. An `extractRow`routine can be used to extract the columns.  `ColumnCompressor` currently has an extension `EvaluateColumnCompressor` which can be used to print out the compression progress. Here is the legend for these printouts.
+Our `ColumnCompressor` class uses a delay-driven approach to efficiently compress the rows of the partial product matrix.  Its only argument is a `PartialProductArray` (base class of `PartialProductGenerator`), and it creates a list of `ColumnQueue`s containing the final two addends stored by column after compression. An `extractRow`routine can be used to extract the columns.  `ColumnCompressor` currently has an extension `EvaluateColumnCompressor` which can be used to print out the compression progress. Here is the legend for these printouts.
 
 - `ppR,C` = partial product entry at row R, column C
 - `sR,C` = sum term coming last from row R, column C
@@ -183,12 +183,14 @@ Compression Tree before:
                                                 pp2,6   pp2,5   pp2,4   pp2,3
                                                 pp1,6   pp1,5   pp1,4
 
-        1       1       0       0       0       0       0       0       0       1       1       0       110000000110 (3078)
-                        1       1       0       0       0       1       1       1       0       0       001100011100 (796)
-                                0       0       0       0       0       1       0       0               000000001000 (8)
-                                        0       1       0       0       0       0                       000001000000 (64)
-                                                1       1       1       1                               000001111000 (120)
-                                                0       1       1                                       000000110000 (48) Total=18
+       11      10       9       8       7       6       5       4       3       2       1       0
+        1       1       0       0       0       0       0       s       s       s       S       S        = 3075 (-1021)
+                        1       1       0       0       0       0       0       0       0       1        = 769 (769)
+                                0       0       0       0       0       1       1       1                = 14 (14)
+                                        1       i       S       1       1       0                        = 184 (184)
+                                                0       0       1       1                                = 24 (24)
+                                                0       1       1                                        = 48 (48)
+p       0       0       0       0       0       0       0       1       0       0       1       0        = 18 (18)
 ```
 
 Compression Tree after compression:
@@ -197,8 +199,10 @@ Compression Tree after compression:
         pp5,11  pp5,10  s0,9    s0,8    s0,7    c0,5    c0,4    c0,3    s0,3    s0,2    pp0,1   pp1,0
                 c0,9    c0,8    c0,7    c0,6    s0,6    s0,5    s0,4    s0,3    s0,2    s0,1    pp0,0
 
-        1       1       1       1       1       0       1       0       0       1       0       0       111110100100 (4004)
-                0       0       0       0       1       1       0       1       1       1       0       000001101110 (110) Total=18
+       11      10       9       8       7       6       5       4       3       2       1       0
+        1       1       1       1       1       1       0       0       1       1       0       S        = 4045 (-51)
+                0       0       0       0       1       0       0       0       1       0       1        = 69 (69)
+p       0       0       0       0       0       0       0       1       0       0       1       0        = 18 (18)
 ```
 
 ## Final Adder

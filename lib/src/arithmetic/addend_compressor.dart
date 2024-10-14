@@ -167,7 +167,7 @@ class ColumnCompressor {
 
   late final List<ColumnQueue> columns;
 
-  /// The partial product generator to be compressed
+  /// The partial product array to be compressed
   final PartialProductArray pp;
 
   /// Initialize a ColumnCompressor for a set of partial products
