@@ -112,6 +112,7 @@ class GatedCounter extends Counter {
       ..gets(count.getRange(overflowDangerZoneStart).or());
 
     Logic anyIntfInIncrDangerZone = Const(0);
+    Logic anyIntfBigIncrement = Const(0);
 
     for (final intf in _incrementingInterfaces) {
       // if we're in the danger zone, and interface is enabled, and the amount
@@ -129,11 +130,17 @@ class GatedCounter extends Counter {
           )
           .or();
 
+      var intfBigIncrement = maxValueBit >= intf.amount.width
+          ? Const(0)
+          : intf.amount.getRange(maxValueBit).or();
+
       if (intf.hasEnable) {
         intfInDangerZone &= intf.enable!;
+        intfBigIncrement &= intf.enable!;
       }
 
       anyIntfInIncrDangerZone |= intfInDangerZone;
+      anyIntfBigIncrement |= intfBigIncrement;
     }
 
     // if *any* interface is incrementing at all and upper-most bit(s) is 1,
@@ -149,10 +156,11 @@ class GatedCounter extends Counter {
       anyIntfIncrementing |= intfIsIncrementing;
     }
     final topMayOverflow =
-        anyIntfIncrementing & count.getRange(maxValueBit, width).or();
-    //TODO: is this really sufficient?
+        anyIntfIncrementing & count.getRange(maxValueBit).or();
 
-    return topMayOverflow | (anyIntfInIncrDangerZone & inOverflowDangerZone);
+    return topMayOverflow |
+        (anyIntfInIncrDangerZone & inOverflowDangerZone) |
+        anyIntfBigIncrement;
   }
 
   @protected // exposed for testing
