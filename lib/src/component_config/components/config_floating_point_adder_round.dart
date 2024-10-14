@@ -13,7 +13,7 @@ import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
 
 /// A [Configurator] for [FloatingPointAdderRound]s.
-class FloatingPointAdderConfigurator extends Configurator {
+class FloatingPointAdderRoundConfigurator extends Configurator {
   /// Map from Type to Function for Adder generator
   static Map<Type, Adder Function(Logic, Logic)> adderGeneratorMap = {
     Ripple: (a, b) => ParallelPrefixAdder(a, b, ppGen: Ripple.new),
@@ -67,5 +67,5 @@ class FloatingPointAdderConfigurator extends Configurator {
   });
 
   @override
-  final String name = 'Floating-Point Adder';
+  final String name = 'Floating-Point Rounding Adder';
 }

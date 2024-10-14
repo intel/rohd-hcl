@@ -1,7 +1,7 @@
 // Copyright (C) 2024 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 //
-// floating_point_adder.dart
+// floating_point_adder_simple.dart
 // A very basic Floating-point adder component.
 //
 // 2024 August 30

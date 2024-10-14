@@ -1,8 +1,8 @@
 // Copyright (C) 2024 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 //
-// floating_point_test.dart
-// Tests of Floating Point simple adder
+// floating_point_smple test.dart
+// Tests of FloatingPointAdderSimple -- non-rounding FP adder
 //
 // 2024 April 1
 // Authors:
