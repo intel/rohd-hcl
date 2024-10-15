@@ -48,13 +48,46 @@ class FloatingPoint extends LogicStructure {
 
   /// Return a Logic true if this FloatingPoint contains a normal number,
   /// defined as having mantissa in the range [1,2)
-  Logic isNormal() => exponent.neq(LogicValue.zero.zeroExtend(exponent.width));
+  ///
+  /// IF exponent != 0 AND exponent != ALL_ONES THEN
+  Logic isNormal() =>
+      exponent.neq(LogicValue.filled(exponent.width, LogicValue.zero)) &
+      exponent.neq(LogicValue.filled(exponent.width, LogicValue.one));
+
+  /// Return a Logic true if this FloatingPoint contains a subnormal number,
+  /// defined as having an exponent of zero and a mantissa that is non-zero.
+  ///
+  /// In the IEEE floating point representation, subnormal numbers are used to
+  /// represent very small numbers that are close to zero.
+  Logic isSubnormal() =>
+      exponent.eq(LogicValue.filled(exponent.width, LogicValue.zero)) &
+      mantissa.neq(LogicValue.filled(exponent.width, LogicValue.zero));
 
   /// Return the zero exponent representation for this type of FloatingPoint
   Logic zeroExponent() => Const(LogicValue.zero).zeroExtend(exponent.width);
 
   /// Return the one exponent representation for this type of FloatingPoint
   Logic oneExponent() => Const(LogicValue.one).zeroExtend(exponent.width);
+
+  /// Return a Logic true if the exponent is all ones and mantissa is zero, indicating an
+  /// infinite value.
+  Logic isInfinity() =>
+      exponent.eq(LogicValue.filled(exponent.width, LogicValue.one)) &
+      mantissa.eq(LogicValue.filled(exponent.width, LogicValue.zero));
+
+  /// Return a Logic true if the exponent is all ones and mantissa is non-zero,
+  /// indicating an infinite value.
+  Logic isNaN() =>
+      exponent.eq(LogicValue.filled(exponent.width, LogicValue.one)) &
+      mantissa.neq(LogicValue.filled(exponent.width, LogicValue.zero));
+
+  /// Return a Logic true if the FloatingPoint contains a zero value.
+  ///
+  /// Zero values for FloatingPoint are defined as having an exponent of zero
+  /// and a mantissa of zero.
+  Logic isZero() =>
+      exponent.eq(LogicValue.filled(exponent.width, LogicValue.zero)) &
+      mantissa.eq(LogicValue.filled(exponent.width, LogicValue.zero));
 
   @override
   void put(dynamic val, {bool fill = false}) {
