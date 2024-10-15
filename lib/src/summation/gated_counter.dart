@@ -184,6 +184,8 @@ class GatedCounter extends Counter {
       return _anyDecrements;
     }
 
+    Logic mayUnderflow = Const(0);
+
     final minValueBit =
         max(0, LogicValue.ofInferWidth(constantMinValue).width - 1);
 
@@ -197,6 +199,8 @@ class GatedCounter extends Counter {
       ..gets(underflowDangerBit >= count.width
           ? Const(1)
           : ~count.getRange(underflowDangerBit).or());
+
+    mayUnderflow |= inUnderflowDangerZone & _anyDecrements;
 
     Logic anyIntfInDangerZone = Const(0);
     Logic anyIntfBigDecrement = Const(0);
@@ -218,7 +222,10 @@ class GatedCounter extends Counter {
       anyIntfBigDecrement |= intfBigDecrement;
     }
 
-    return (anyIntfInDangerZone & inUnderflowDangerZone) | anyIntfBigDecrement;
+    mayUnderflow |= anyIntfInDangerZone;
+    mayUnderflow |= anyIntfBigDecrement;
+
+    return mayUnderflow;
   }
 
   late final _mayWrap = Logic(name: 'mayWrap')
