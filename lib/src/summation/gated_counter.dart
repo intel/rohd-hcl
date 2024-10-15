@@ -281,18 +281,22 @@ class GatedCounter extends Counter {
         : Const(0));
 
   late final _anyDecrements = Logic(name: 'anyDecrements')
-    ..gets(_decrementingInterfaces
-        .map((intf) => intf.amount.or() & (intf.enable ?? Const(1)))
-        .toList()
-        .swizzle()
-        .or());
+    ..gets(_decrementingInterfaces.isEmpty
+        ? Const(0)
+        : _decrementingInterfaces
+            .map((intf) => intf.amount.or() & (intf.enable ?? Const(1)))
+            .toList()
+            .swizzle()
+            .or());
 
   late final _anyIncrements = Logic(name: 'anyIncrements')
-    ..gets(_incrementingInterfaces
-        .map((intf) => intf.amount.or() & (intf.enable ?? Const(1)))
-        .toList()
-        .swizzle()
-        .or());
+    ..gets(_incrementingInterfaces.isEmpty
+        ? Const(0)
+        : _incrementingInterfaces
+            .map((intf) => intf.amount.or() & (intf.enable ?? Const(1)))
+            .toList()
+            .swizzle()
+            .or());
 
   @protected
   late final upperEnable = Logic(name: 'upperEnable')
@@ -323,12 +327,14 @@ class GatedCounter extends Counter {
       clkGatePartitionIndex - log2Ceil(_incrementingInterfaces.length + 1),
     );
 
-    final currentCountInIncrDangerZone = count
-        .getRange(
-          min(incrDangerZoneStart, width),
-          min(clkGatePartitionIndex, width),
-        )
-        .or();
+    final currentCountInIncrDangerZone =
+        Logic(name: 'currentCountInIncrDangerZone')
+          ..gets(count
+              .getRange(
+                min(incrDangerZoneStart, width),
+                min(clkGatePartitionIndex, width),
+              )
+              .or());
 
     upperEnable |= currentCountInIncrDangerZone & _anyIncrements;
 
@@ -338,9 +344,14 @@ class GatedCounter extends Counter {
       // if we're in the danger zone, and interface is enabled, and the amount
       // also reaches into the danger range, then enable the upper gate
 
+      if (intf.width <= incrDangerZoneStart) {
+        // if it's too short, don't worry about it
+        continue;
+      }
+
       var intfInDangerZone = intf.amount
           .getRange(
-            min(incrDangerZoneStart, intf.width - 1),
+            incrDangerZoneStart,
             min(clkGatePartitionIndex, intf.width),
           )
           .or();
@@ -360,12 +371,16 @@ class GatedCounter extends Counter {
 
     // let's just draw the line half way for now?
     final decrDangerZoneStart = clkGatePartitionIndex ~/ 2;
-    final currentCountInDecrDangerZone = ~count
-        .getRange(
-          min(width, decrDangerZoneStart),
-          min(width, clkGatePartitionIndex),
-        )
-        .or();
+    final currentCountInDecrDangerZone =
+        Logic(name: 'currentCountInDecrDangerZone')
+          ..gets(~count
+              .getRange(
+                min(width, decrDangerZoneStart),
+                min(width, clkGatePartitionIndex),
+              )
+              .or());
+
+    upperEnable |= currentCountInDecrDangerZone & _anyDecrements;
 
     Logic anyIntfEndangersDecr = Const(0);
     for (final intf in _decrementingInterfaces) {
@@ -387,7 +402,8 @@ class GatedCounter extends Counter {
 
       anyIntfEndangersDecr |= intfEndangersDecrZone;
     }
-    upperEnable |= anyIntfEndangersDecr & currentCountInDecrDangerZone;
+
+    upperEnable |= anyIntfEndangersDecr;
 
     upperEnable |= _mayWrap;
 

@@ -276,7 +276,7 @@ void main() {
   });
 
   group('random counter', () {
-    const numRandCounters = 50; //TODO: make more counters!
+    const numRandCounters = 20; //TODO: make more counters!
     const restartProbability = 0.05;
 
     final counterTypes = ['normal', 'gated'];

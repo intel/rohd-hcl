@@ -15,7 +15,7 @@ class ClockToggleCounter {
 
   int upperToggles = 0;
   int lowerToggles = 0;
-  int totalToggles = 0;
+  int totalToggles = -1;
 
   ClockToggleCounter(this.dut) {
     dut.upperGatedClock.posedge.listen((_) => upperToggles++);
@@ -38,6 +38,7 @@ void main() {
     bool dumpWaves = false,
     bool printActivity = false,
     bool doChecks = true,
+    bool printSv = false,
   }) async {
     final clk = SimpleClockGenerator(10).clk;
     final reset = Logic()..inject(1);
@@ -50,13 +51,18 @@ void main() {
       WaveDumper(dut);
     }
 
+    if (printSv) {
+      // ignore: avoid_print
+      print(dut.generateSynth());
+    }
+
     if (doChecks) {
       checkCounter(dut);
     }
 
     final toggleCounter = ClockToggleCounter(dut);
 
-    Simulator.setMaxSimTime(10000);
+    Simulator.setMaxSimTime(2 * numCycles * 10);
     unawaited(Simulator.run());
 
     await clk.waitCycles(3);
