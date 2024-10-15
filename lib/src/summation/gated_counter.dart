@@ -101,6 +101,8 @@ class GatedCounter extends Counter {
       return _anyIncrements;
     }
 
+    Logic mayOverflow = Const(0);
+
     final maxValueBit = LogicValue.ofInferWidth(constantMaxValue).width - 1;
 
     final overflowDangerZoneStart = max(
@@ -110,6 +112,8 @@ class GatedCounter extends Counter {
 
     final inOverflowDangerZone = Logic(name: 'inOverflowDangerZone')
       ..gets(count.getRange(overflowDangerZoneStart).or());
+
+    mayOverflow |= inOverflowDangerZone & _anyIncrements;
 
     Logic anyIntfInIncrDangerZone = Const(0);
     Logic anyIntfBigIncrement = Const(0);
@@ -158,9 +162,13 @@ class GatedCounter extends Counter {
     final topMayOverflow =
         anyIntfIncrementing & count.getRange(maxValueBit).or();
 
-    return topMayOverflow |
-        (anyIntfInIncrDangerZone & inOverflowDangerZone) |
-        anyIntfBigIncrement;
+    mayOverflow |= topMayOverflow;
+
+    mayOverflow |= anyIntfInIncrDangerZone;
+
+    mayOverflow |= anyIntfBigIncrement;
+
+    return mayOverflow;
   }
 
   @protected // exposed for testing
