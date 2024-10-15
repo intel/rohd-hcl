@@ -2,12 +2,14 @@
 // SPDX-License-Identifier: BSD-3-Clause
 
 export 'config_carry_save_multiplier.dart';
+export 'config_compound_adder.dart';
 export 'config_compression_tree_multiplier.dart';
 export 'config_ecc.dart';
 export 'config_edge_detector.dart';
 export 'config_extrema.dart';
 export 'config_fifo.dart';
 export 'config_find.dart';
+export 'config_floating_point_adder_round.dart';
 export 'config_one_hot.dart';
 export 'config_parallel_prefix_adder.dart';
 export 'config_priority_arbiter.dart';

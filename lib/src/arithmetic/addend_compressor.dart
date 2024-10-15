@@ -167,8 +167,8 @@ class ColumnCompressor {
 
   late final List<ColumnQueue> columns;
 
-  /// The partial product generator to be compressed
-  final PartialProductGenerator pp;
+  /// The partial product array to be compressed
+  final PartialProductArray pp;
 
   /// Initialize a ColumnCompressor for a set of partial products
   ColumnCompressor(this.pp) {
@@ -201,7 +201,10 @@ class ColumnCompressor {
       }
     }
     rowBits.addAll(List.filled(pp.rowShift[row], Const(0)));
-    return rowBits.swizzle().zeroExtend(width);
+    if (width > rowBits.length) {
+      return rowBits.swizzle().zeroExtend(width);
+    }
+    return rowBits.swizzle().getRange(0, width);
   }
 
   /// Core iterator for column compressor routine

@@ -2,7 +2,9 @@
 // SPDX-License-Identifier: BSD-3-Clause
 
 export 'adder.dart';
+export 'arithmetic_utils.dart';
 export 'carry_save_mutiplier.dart';
+export 'compound_adder.dart';
 export 'divider.dart';
 export 'floating_point/floating_point.dart';
 export 'multiplier.dart';

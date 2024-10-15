@@ -13,7 +13,7 @@ import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
 import 'package:rohd_hcl/src/arithmetic/evaluate_compressor.dart';
 import 'package:rohd_hcl/src/arithmetic/evaluate_partial_product.dart';
-import 'package:rohd_hcl/src/arithmetic/partial_product_test_sign_extend.dart';
+import 'package:rohd_hcl/src/arithmetic/partial_product_sign_extend.dart';
 import 'package:test/test.dart';
 
 void testCompressionExhaustive(PartialProductGenerator pp) {
