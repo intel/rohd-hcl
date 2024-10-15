@@ -285,7 +285,7 @@ void main() {
       group(counterType, () {
         for (var counterIdx = 0; counterIdx < numRandCounters; counterIdx++) {
           test('$counterIdx', () async {
-            const numCycles = 50; //TODO: make it more cycles!!
+            const numCycles = 100; //TODO: make it more cycles!!
 
             final rand = Random(456 + counterIdx ^ counterType.hashCode);
 

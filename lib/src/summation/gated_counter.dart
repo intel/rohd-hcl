@@ -130,7 +130,7 @@ class GatedCounter extends Counter {
           )
           .or();
 
-      var intfBigIncrement = maxValueBit >= intf.amount.width
+      var intfBigIncrement = maxValueBit >= intf.width
           ? Const(0)
           : intf.amount.getRange(maxValueBit).or();
 
@@ -205,7 +205,7 @@ class GatedCounter extends Counter {
           .getRange(min(intf.width, max(0, minValueBit - dangerRange)))
           .or();
 
-      var intfBigDecrement = minValueBit >= intf.amount.width
+      var intfBigDecrement = minValueBit >= intf.width
           ? Const(0)
           : intf.amount.getRange(minValueBit).or();
 
@@ -233,9 +233,8 @@ class GatedCounter extends Counter {
 
     // if any interface is enabled and has any 1's in the lower bits, enable
     for (final intf in interfaces) {
-      var intfHasLowerBits = intf.amount
-          .getRange(0, min(clkGatePartitionIndex, intf.amount.width))
-          .or();
+      var intfHasLowerBits =
+          intf.amount.getRange(0, min(clkGatePartitionIndex, intf.width)).or();
 
       if (intf.hasEnable) {
         intfHasLowerBits &= intf.enable!;
@@ -289,9 +288,12 @@ class GatedCounter extends Counter {
 
     // if any interface is enabled and has any 1's in the upper bits, enable
     for (final intf in interfaces) {
-      var intfHasUpperBits = intf.amount
-          .getRange(min(clkGatePartitionIndex, intf.amount.width))
-          .or();
+      if (clkGatePartitionIndex >= intf.width) {
+        // if the interface doesnt even reach the partition index, then skip
+        continue;
+      }
+
+      var intfHasUpperBits = intf.amount.getRange(clkGatePartitionIndex).or();
 
       if (intf.hasEnable) {
         intfHasUpperBits &= intf.enable!;
@@ -313,6 +315,8 @@ class GatedCounter extends Counter {
         )
         .or();
 
+    upperEnable |= currentCountInIncrDangerZone & _anyIncrements;
+
     Logic anyIntfInIncrDangerZone = Const(0);
     // for increments...
     for (final intf in _incrementingInterfaces) {
@@ -322,7 +326,7 @@ class GatedCounter extends Counter {
       var intfInDangerZone = intf.amount
           .getRange(
             min(incrDangerZoneStart, intf.width - 1),
-            min(clkGatePartitionIndex, intf.amount.width),
+            min(clkGatePartitionIndex, intf.width),
           )
           .or();
 
@@ -332,7 +336,7 @@ class GatedCounter extends Counter {
 
       anyIntfInIncrDangerZone |= intfInDangerZone;
     }
-    upperEnable |= anyIntfInIncrDangerZone & currentCountInIncrDangerZone;
+    upperEnable |= anyIntfInIncrDangerZone;
 
     // for decrements...
 
