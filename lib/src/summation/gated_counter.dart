@@ -395,8 +395,8 @@ class GatedCounter extends Counter {
 
     Logic anyIntfEndangersDecr = Const(0);
 
-    final decrDangerZoneStartIntf =
-        decrDangerZoneStart - log2Ceil(_decrementingInterfaces.length + 1);
+    final decrDangerZoneStartIntf = max(
+        0, decrDangerZoneStart - log2Ceil(_decrementingInterfaces.length + 1));
     for (final intf in _decrementingInterfaces) {
       if (intf.width <= decrDangerZoneStartIntf) {
         // if it's too short, don't worry about it
