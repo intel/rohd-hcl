@@ -211,27 +211,38 @@ class GatedCounter extends Counter {
     mayUnderflow |= inUnderflowDangerZone & _anyDecrements;
 
     Logic anyIntfInDangerZone = Const(0);
-    Logic anyIntfBigDecrement = Const(0);
     for (final intf in _decrementingInterfaces) {
-      var intfInDangerZone = intf.amount
-          .getRange(min(intf.width, max(0, minValueBit - dangerRange)))
-          .or();
+      if (intf.width <= underflowDangerBit) {
+        // if it's too short, don't worry about it
+        continue;
+      }
 
-      var intfBigDecrement = minValueBit >= intf.width
-          ? Const(0)
-          : intf.amount.getRange(minValueBit).or();
+      var intfInDangerZone = intf.amount.getRange(underflowDangerBit).or();
 
       if (intf.hasEnable) {
         intfInDangerZone &= intf.enable!;
-        intfBigDecrement &= intf.enable!;
       }
 
       anyIntfInDangerZone |= intfInDangerZone;
-      anyIntfBigDecrement |= intfBigDecrement;
     }
 
     mayUnderflow |= anyIntfInDangerZone;
-    mayUnderflow |= anyIntfBigDecrement;
+
+    // TODO: does this bigDecr make any sense?
+    // Logic anyIntfBigDecrement = Const(0);
+    // for (final intf in _decrementingInterfaces) {
+    //   var intfBigDecrement = minValueBit >= intf.width
+    //       ? Const(0)
+    //       : intf.amount.getRange(minValueBit).or();
+
+    //   if (intf.hasEnable) {
+    //     intfBigDecrement &= intf.enable!;
+    //   }
+
+    //   anyIntfBigDecrement |= intfBigDecrement;
+    // }
+
+    // mayUnderflow |= anyIntfBigDecrement;
 
     return mayUnderflow;
   }
@@ -375,7 +386,7 @@ class GatedCounter extends Counter {
         Logic(name: 'currentCountInDecrDangerZone')
           ..gets(~count
               .getRange(
-                min(width, decrDangerZoneStart),
+                min(width - 1, decrDangerZoneStart),
                 min(width, clkGatePartitionIndex),
               )
               .or());
@@ -383,15 +394,18 @@ class GatedCounter extends Counter {
     upperEnable |= currentCountInDecrDangerZone & _anyDecrements;
 
     Logic anyIntfEndangersDecr = Const(0);
+
+    final decrDangerZoneStartIntf =
+        decrDangerZoneStart - log2Ceil(_decrementingInterfaces.length + 1);
     for (final intf in _decrementingInterfaces) {
+      if (intf.width <= decrDangerZoneStartIntf) {
+        // if it's too short, don't worry about it
+        continue;
+      }
+
       var intfEndangersDecrZone = intf.amount
           .getRange(
-            min(
-                intf.width,
-                max(
-                    0,
-                    decrDangerZoneStart -
-                        log2Ceil(_decrementingInterfaces.length + 1))),
+            decrDangerZoneStartIntf,
             min(intf.width, clkGatePartitionIndex),
           )
           .or();

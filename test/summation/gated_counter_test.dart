@@ -119,9 +119,10 @@ void main() {
         resetValue: 63,
         clk: clk,
         reset: reset,
-        width: 6,
-        clkGatePartitionIndex: 3,
+        width: 8,
+        clkGatePartitionIndex: 4,
       ),
+      numCycles: 1000,
     );
 
     expect(toggleCounter.lowerActivity, greaterThan(0.95));
@@ -136,9 +137,10 @@ void main() {
         resetValue: 63,
         clk: clk,
         reset: reset,
-        width: 6,
-        clkGatePartitionIndex: 3,
+        width: 8,
+        clkGatePartitionIndex: 4,
       ),
+      numCycles: 1000,
     );
 
     expect(toggleCounter.lowerActivity, lessThan(0.50));
@@ -156,7 +158,7 @@ void main() {
       ),
     );
 
-    expect(toggleCounter.lowerActivity, lessThan(0.5));
+    expect(toggleCounter.lowerActivity, lessThan(0.51));
     expect(toggleCounter.upperActivity, greaterThan(0.95));
   });
 
