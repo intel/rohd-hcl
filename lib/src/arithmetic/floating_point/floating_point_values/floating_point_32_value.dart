@@ -27,15 +27,21 @@ class FloatingPoint32Value extends FloatingPointValue {
   /// Return the [FloatingPoint32Value] representing the constant specified
   factory FloatingPoint32Value.getFloatingPointConstant(
           FloatingPointConstants constantFloatingPoint) =>
-      FloatingPointValue.getFloatingPointConstant(
-              constantFloatingPoint, exponentWidth, mantissaWidth)
-          as FloatingPoint32Value;
+      FloatingPoint32Value.fromLogic(
+          FloatingPointValue.getFloatingPointConstant(
+                  constantFloatingPoint, exponentWidth, mantissaWidth)
+              .value);
 
   /// [FloatingPoint32Value] constructor from string representation of
   /// individual bitfields
   FloatingPoint32Value.ofBinaryStrings(
       super.sign, super.exponent, super.mantissa)
       : super.ofBinaryStrings();
+
+  /// [FloatingPoint32Value] constructor from spaced string representation of
+  /// individual bitfields
+  FloatingPoint32Value.ofSpacedBinaryString(super.fp)
+      : super.ofSpacedBinaryString();
 
   /// [FloatingPoint32Value] constructor from a single string representing
   /// space-separated bitfields
@@ -49,49 +55,30 @@ class FloatingPoint32Value extends FloatingPointValue {
 
   /// [FloatingPoint32Value] constructor from a set of [int]s of the binary
   /// representation
-  factory FloatingPoint32Value.ofInts(int exponent, int mantissa,
-      {bool sign = false}) {
-    final (signLv, exponentLv, mantissaLv) = (
-      LogicValue.ofBigInt(sign ? BigInt.one : BigInt.zero, 1),
-      LogicValue.ofBigInt(BigInt.from(exponent), exponentWidth),
-      LogicValue.ofBigInt(BigInt.from(mantissa), mantissaWidth)
-    );
-
-    return FloatingPoint32Value(
-        sign: signLv, exponent: exponentLv, mantissa: mantissaLv);
-  }
+  FloatingPoint32Value.ofInts(super.exponent, super.mantissa, {super.sign})
+      : super.ofInts();
 
   /// Numeric conversion of a [FloatingPoint32Value] from a host double
   factory FloatingPoint32Value.fromDouble(double inDouble) {
     final byteData = ByteData(4)
       ..setFloat32(0, inDouble)
       ..buffer.asUint8List();
-    final bytes = byteData.buffer.asUint8List();
-    final lv = bytes.map((b) => LogicValue.ofInt(b, 32));
-
-    final accum = lv.reduce((accum, v) => (accum << 8) | v);
-
-    final sign = accum[-1];
-    final exponent =
-        accum.slice(exponentWidth + mantissaWidth - 1, mantissaWidth);
-    final mantissa = accum.slice(mantissaWidth - 1, 0);
+    final accum = byteData.buffer
+        .asUint8List()
+        .map((b) => LogicValue.ofInt(b, 32))
+        .reduce((accum, v) => (accum << 8) | v);
 
     return FloatingPoint32Value(
-        sign: sign, exponent: exponent, mantissa: mantissa);
+        sign: accum[-1],
+        exponent: accum.slice(exponentWidth + mantissaWidth - 1, mantissaWidth),
+        mantissa: accum.slice(mantissaWidth - 1, 0));
   }
 
   /// Construct a [FloatingPoint32Value] from a Logic word
-  factory FloatingPoint32Value.fromLogic(LogicValue val) {
-    final sign = (val[-1] == LogicValue.one);
-    final exponent =
-        val.slice(exponentWidth + mantissaWidth - 1, mantissaWidth);
-    final mantissa = val.slice(mantissaWidth - 1, 0);
-    final (signLv, exponentLv, mantissaLv) = (
-      LogicValue.ofBigInt(sign ? BigInt.one : BigInt.zero, 1),
-      exponent,
-      mantissa
-    );
-    return FloatingPoint32Value(
-        sign: signLv, exponent: exponentLv, mantissa: mantissaLv);
-  }
+  factory FloatingPoint32Value.fromLogic(LogicValue val) =>
+      FloatingPoint32Value(
+          sign: LogicValue.ofBigInt(
+              (val[-1] == LogicValue.one) ? BigInt.one : BigInt.zero, 1),
+          exponent: val.slice(exponentWidth + mantissaWidth - 1, mantissaWidth),
+          mantissa: val.slice(mantissaWidth - 1, 0));
 }

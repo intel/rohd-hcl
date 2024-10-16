@@ -83,12 +83,12 @@ class FloatingPoint64 extends FloatingPoint {
             mantissaWidth: FloatingPoint64Value.mantissaWidth);
 }
 
-/// Eight-bit floating point representation for deep learning
-class FloatingPoint8 extends FloatingPoint {
+/// Eight-bit floating point representation for deep learning: E4M3
+class FloatingPoint8E4M3 extends FloatingPoint {
   /// Calculate mantissa width and sanitize
   static int _calculateMantissaWidth(int exponentWidth) {
     final mantissaWidth = 7 - exponentWidth;
-    if (!FloatingPoint8Value.isLegal(exponentWidth, mantissaWidth)) {
+    if (!FloatingPoint8E4M3Value.isLegal(exponentWidth, mantissaWidth)) {
       throw RohdHclException('FloatingPoint8 must follow E4M3 or E5M2');
     } else {
       return mantissaWidth;
@@ -96,6 +96,23 @@ class FloatingPoint8 extends FloatingPoint {
   }
 
   /// Construct an 8-bit floating point number
-  FloatingPoint8({required super.exponentWidth})
+  FloatingPoint8E4M3({required super.exponentWidth})
+      : super(mantissaWidth: _calculateMantissaWidth(exponentWidth));
+}
+
+/// Eight-bit floating point representation for deep learning: E5M2
+class FloatingPoint8E5M2 extends FloatingPoint {
+  /// Calculate mantissa width and sanitize
+  static int _calculateMantissaWidth(int exponentWidth) {
+    final mantissaWidth = 7 - exponentWidth;
+    if (!FloatingPoint8E5M2Value.isLegal(exponentWidth, mantissaWidth)) {
+      throw RohdHclException('FloatingPoint8 must follow E4M3 or E5M2');
+    } else {
+      return mantissaWidth;
+    }
+  }
+
+  /// Construct an 8-bit floating point number
+  FloatingPoint8E5M2({required super.exponentWidth})
       : super(mantissaWidth: _calculateMantissaWidth(exponentWidth));
 }

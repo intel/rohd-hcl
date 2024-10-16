@@ -118,6 +118,8 @@ class FloatingPointValue implements Comparable<FloatingPointValue> {
   final int _maxExp;
   final int _minExp;
 
+  /// A Map from the (exponentWidth, mantissaWidth) pair to the
+  /// FloatingPointValue subtype
   static Map<
       ({int exponentWidth, int mantissaWidth}),
       FloatingPointValue Function(
@@ -132,9 +134,33 @@ class FloatingPointValue implements Comparable<FloatingPointValue> {
       exponentWidth: FloatingPoint64Value.exponentWidth,
       mantissaWidth: FloatingPoint64Value.mantissaWidth
     ): FloatingPoint64Value.new,
-    (exponentWidth: 5, mantissaWidth: 2): FloatingPoint8Value.new,
-    (exponentWidth: 4, mantissaWidth: 3): FloatingPoint8Value.new,
+    (exponentWidth: 4, mantissaWidth: 3): FloatingPoint8E4M3Value.new,
+    (exponentWidth: 5, mantissaWidth: 2): FloatingPoint8E5M2Value.new,
   };
+
+  /// Constructor for a [FloatingPointValue] with a sign, exponent, and
+  /// mantissa.
+  @protected
+  FloatingPointValue(
+      {required this.sign, required this.exponent, required this.mantissa})
+      : value = [sign, exponent, mantissa].swizzle(),
+        _bias = computeBias(exponent.width),
+        _minExp = computeMinExponent(exponent.width),
+        _maxExp = computeMaxExponent(exponent.width) {
+    if (sign.width != 1) {
+      throw RohdHclException('FloatingPointValue: sign width must be 1');
+    }
+    if (constrainedMantissaWidth != null &&
+        mantissa.width != constrainedMantissaWidth) {
+      throw RohdHclException('FloatingPointValue: mantissa width must be '
+          '$constrainedMantissaWidth');
+    }
+    if (constrainedExponentWidth != null &&
+        exponent.width != constrainedExponentWidth) {
+      throw RohdHclException('FloatingPointValue: exponent width must be '
+          '$constrainedExponentWidth');
+    }
+  }
 
   /// Constructs a [FloatingPointValue] with a sign, exponent, and mantissa
   /// using one of the builders provided from [factoryConstructorMap] if
@@ -161,35 +187,15 @@ class FloatingPointValue implements Comparable<FloatingPointValue> {
   FloatingPointValue toMappedType() => FloatingPointValue.mapped(
       sign: sign, exponent: exponent, mantissa: mantissa);
 
+  /// [constrainedMantissaWidth] is the hard-coded mantissa width of the
+  /// sub-class of this floating-point value
   @protected
   int? get constrainedMantissaWidth => null;
 
+  /// [constrainedExponentWidth] is the hard-coded exponent width of the
+  /// sub-class of this floating-point value
   @protected
   int? get constrainedExponentWidth => null;
-
-  /// Constructor for a [FloatingPointValue] with a sign, exponent, and
-  /// mantissa.
-  @protected
-  FloatingPointValue(
-      {required this.sign, required this.exponent, required this.mantissa})
-      : value = [sign, exponent, mantissa].swizzle(),
-        _bias = computeBias(exponent.width),
-        _minExp = computeMinExponent(exponent.width),
-        _maxExp = computeMaxExponent(exponent.width) {
-    if (sign.width != 1) {
-      throw RohdHclException('FloatingPointValue: sign width must be 1');
-    }
-    if (constrainedMantissaWidth != null &&
-        mantissa.width != constrainedMantissaWidth) {
-      throw RohdHclException(
-          'FloatingPointValue: mantissa width must be $constrainedMantissaWidth');
-    }
-    if (constrainedExponentWidth != null &&
-        exponent.width != constrainedExponentWidth) {
-      throw RohdHclException(
-          'FloatingPointValue: exponent width must be $constrainedExponentWidth');
-    }
-  }
 
   /// [FloatingPointValue] constructor from a binary string representation of
   /// individual bitfields
@@ -202,14 +208,9 @@ class FloatingPointValue implements Comparable<FloatingPointValue> {
 
   /// [FloatingPointValue] constructor from a single binary string representing
   /// space-separated bitfields
-  factory FloatingPointValue.ofSeparatedBinaryStrings(String fp) {
-    final s = fp.split(' ');
-    if (s.length != 3) {
-      throw RohdHclException('FloatingPointValue requires three strings '
-          'to initialize');
-    }
-    return FloatingPointValue.ofBinaryStrings(s[0], s[1], s[2]);
-  }
+  FloatingPointValue.ofSpacedBinaryString(String fp)
+      : this.ofBinaryStrings(
+            fp.split(' ')[0], fp.split(' ')[1], fp.split(' ')[2]);
 
   /// [FloatingPointValue] constructor from a radix-encoded string
   /// representation and the size of the exponent and mantissa
@@ -222,7 +223,8 @@ class FloatingPointValue implements Comparable<FloatingPointValue> {
             _extractBinaryStrings(fp, exponentWidth, mantissaWidth, radix)
                 .mantissa);
 
-  // TODO doc
+  /// Helper function for extracting binary strings from a longer
+  /// binary string and the known exponent and mantissa widths.
   static ({String sign, String exponent, String mantissa})
       _extractBinaryStrings(
           String fp, int exponentWidth, int mantissaWidth, int radix) {
@@ -238,7 +240,7 @@ class FloatingPointValue implements Comparable<FloatingPointValue> {
     );
   }
 
-  //TODO: make a toString (with radix)
+  // TODO(desmonddak): make a toString (with radix)
 
   /// [FloatingPointValue] constructor from a set of [BigInt]s of the binary
   /// representation and the size of the exponent and mantissa
@@ -251,17 +253,13 @@ class FloatingPointValue implements Comparable<FloatingPointValue> {
 
   /// [FloatingPointValue] constructor from a set of [int]s of the binary
   /// representation and the size of the exponent and mantissa
-  factory FloatingPointValue.ofInts(int exponent, int mantissa,
-      {int exponentWidth = 0, int mantissaWidth = 0, bool sign = false}) {
-    final (signLv, exponentLv, mantissaLv) = (
-      LogicValue.ofBigInt(sign ? BigInt.one : BigInt.zero, 1),
-      LogicValue.ofBigInt(BigInt.from(exponent), exponentWidth),
-      LogicValue.ofBigInt(BigInt.from(mantissa), mantissaWidth)
-    );
-
-    return FloatingPointValue(
-        sign: signLv, exponent: exponentLv, mantissa: mantissaLv);
-  }
+  FloatingPointValue.ofInts(int exponent, int mantissa,
+      {int exponentWidth = 0, int mantissaWidth = 0, bool sign = false})
+      : this(
+            sign: LogicValue.ofBigInt(sign ? BigInt.one : BigInt.zero, 1),
+            exponent: LogicValue.ofBigInt(BigInt.from(exponent), exponentWidth),
+            mantissa:
+                LogicValue.ofBigInt(BigInt.from(mantissa), mantissaWidth));
 
   /// Construct a [FloatingPointValue] from a Logic word
   factory FloatingPointValue.fromLogic(
@@ -556,9 +554,9 @@ class FloatingPointValue implements Comparable<FloatingPointValue> {
         (mantissa == other.mantissa);
   }
 
+  // TODO(desmonddak): figure out the difference with Infinity
   /// Return true if the represented floating point number is considered
   ///  NaN or 'Not a Number' due to overflow
-  // TODO(desmonddak): figure out the difference with Infinity
   bool isNaN() {
     if ((exponent.width == 4) & (mantissa.width == 3)) {
       // FP8 E4M3 does not support infinities
