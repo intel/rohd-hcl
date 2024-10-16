@@ -1,3 +1,14 @@
+// Copyright (C) 2024 Intel Corporation
+// SPDX-License-Identifier: BSD-3-Clause
+//
+// floating_point_64_value.dart
+// Implementation of 64-bit Floating-Point value representations.
+//
+// 2024 October 15
+// Authors:
+//  Max Korbel <max.korbel@intel.com>
+//  Desmond A Kirkpatrick <desmond.a.kirkpatrick@intel.com>
+
 import 'dart:typed_data';
 
 import 'package:rohd/rohd.dart';
