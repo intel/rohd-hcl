@@ -61,7 +61,7 @@ class FloatingPoint extends LogicStructure {
   /// represent very small numbers that are close to zero.
   Logic isSubnormal() =>
       exponent.eq(LogicValue.filled(exponent.width, LogicValue.zero)) &
-      mantissa.neq(LogicValue.filled(exponent.width, LogicValue.zero));
+      mantissa.neq(LogicValue.filled(mantissa.width, LogicValue.zero));
 
   /// Return the zero exponent representation for this type of FloatingPoint
   Logic zeroExponent() => Const(LogicValue.zero).zeroExtend(exponent.width);
@@ -73,13 +73,13 @@ class FloatingPoint extends LogicStructure {
   /// infinite value.
   Logic isInfinity() =>
       exponent.eq(LogicValue.filled(exponent.width, LogicValue.one)) &
-      mantissa.eq(LogicValue.filled(exponent.width, LogicValue.zero));
+      mantissa.eq(LogicValue.filled(mantissa.width, LogicValue.zero));
 
   /// Return a Logic true if the exponent is all ones and mantissa is non-zero,
   /// indicating an infinite value.
   Logic isNaN() =>
       exponent.eq(LogicValue.filled(exponent.width, LogicValue.one)) &
-      mantissa.neq(LogicValue.filled(exponent.width, LogicValue.zero));
+      mantissa.neq(LogicValue.filled(mantissa.width, LogicValue.zero));
 
   /// Return a Logic true if the FloatingPoint contains a zero value.
   ///
@@ -87,7 +87,7 @@ class FloatingPoint extends LogicStructure {
   /// and a mantissa of zero.
   Logic isZero() =>
       exponent.eq(LogicValue.filled(exponent.width, LogicValue.zero)) &
-      mantissa.eq(LogicValue.filled(exponent.width, LogicValue.zero));
+      mantissa.eq(LogicValue.filled(mantissa.width, LogicValue.zero));
 
   @override
   void put(dynamic val, {bool fill = false}) {

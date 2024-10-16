@@ -52,19 +52,19 @@ class FloatingPointConverter extends Module {
     // Handle sign
     _result.sign <= source.sign;
 
-    Logic normalizedExponent = Logic(name: 'normalizedExponent');
-    Logic normalizedMantissa = Logic(name: 'normalizedMantissa');
+    Logic normalizedExponent =
+        Logic(name: 'normalizedExponent', width: destExponentWidth);
+    Logic normalizedMantissa =
+        Logic(name: 'normalizedMantissa', width: destMantissaWidth);
 
     normalizedExponent < _normalizeSubnormalExponent();
     normalizedMantissa < _normalizeSubnormalMantissa();
 
-    final normalizedFP = FloatingPoint(exponentWidth: 0, mantissaWidth: 0);
-    normalizedFP <
-        FloatingPointValue(
-          sign: source.sign.value,
-          exponent: normalizedExponent.value,
-          mantissa: normalizedMantissa.value,
-        );
+    final normalizedFP = FloatingPoint(exponentWidth: destExponentWidth, mantissaWidth: destMantissaWidth);
+    
+    normalizedFP.sign <= source.sign;
+    normalizedFP.exponent <= normalizedExponent;
+    normalizedFP.mantissa <= normalizedMantissa;
 
     If.block([
       Iff(source.isNaN(), [
@@ -97,7 +97,7 @@ class FloatingPointConverter extends Module {
   /// mantissa of the destination [FloatingPoint] respectively.
   FloatingPoint _handleNaN(FloatingPoint sourceFP, int destExponentWidth,
           int destMantissaWidth) =>
-      _packSpecial(
+      packSpecial(
           source: sourceFP,
           destExponentWidth: destExponentWidth,
           destMantissaWidth: destMantissaWidth,
@@ -105,7 +105,7 @@ class FloatingPointConverter extends Module {
 
   FloatingPoint _handleInfinity(FloatingPoint sourceFP, int destExponentWidth,
           int destMantissaWidth) =>
-      _packSpecial(
+      packSpecial(
           source: sourceFP,
           destExponentWidth: destExponentWidth,
           destMantissaWidth: destMantissaWidth,
@@ -163,8 +163,10 @@ class FloatingPointConverter extends Module {
     return packNormal;
   }
 
-  Logic _normalizeSubnormalExponent() => Const(0);
-  Logic _normalizeSubnormalMantissa() => Const(0);
+  Logic _normalizeSubnormalExponent() =>
+      Const(0, width: destExponentWidth, fill: true);
+  Logic _normalizeSubnormalMantissa() =>
+      Const(0, width: destMantissaWidth, fill: true);
 
   FloatingPoint _handleOverflow(
           {required FloatingPoint source,
@@ -189,7 +191,8 @@ class FloatingPointConverter extends Module {
   /// [sign] is the sign bit of the special number.
   ///
   /// [isNaN] is true if the special number is a NaN, false if it is an infinity.
-  FloatingPoint _packSpecial(
+  @visibleForTesting
+  FloatingPoint packSpecial(
       {required FloatingPoint source,
       required int destExponentWidth,
       required int destMantissaWidth,
@@ -198,10 +201,9 @@ class FloatingPointConverter extends Module {
         exponentWidth: destExponentWidth, mantissaWidth: destMantissaWidth);
 
     pack.exponent <= Const(1, width: destExponentWidth, fill: true);
-    pack.sign <= source.sign;
 
     if (isNaN) {
-      pack.mantissa <= Const(1) << (destMantissaWidth - 1);
+      pack.mantissa <= Const(1, width: destMantissaWidth, fill: true) << (destMantissaWidth - 1);
     } else {
       pack.mantissa <= Const(0, width: destMantissaWidth, fill: true);
     }
@@ -227,7 +229,7 @@ class FloatingPointConverter extends Module {
           required int destExponentWidth,
           required int destMantissaWidth,
           required bool isNaN}) =>
-      _packSpecial(
+      packSpecial(
           source: source,
           destExponentWidth: destExponentWidth,
           destMantissaWidth: destMantissaWidth,
@@ -269,7 +271,7 @@ class FloatingPointConverter extends Module {
   Logic _roundMantissa(Logic sourceMantissa, int destMantissaWidth,
       FloatingPointRoundingMode roundingMode) {
     final shift = sourceMantissa.width - destMantissaWidth;
-    final roundBit = Const(1) << (shift - 1);
+    final roundBit = Const(1, width: sourceMantissa.width) << (shift - 1);
     final mask = roundBit - 1;
     final roundCondition = (sourceMantissa & roundBit) &
         ((sourceMantissa & mask) | (roundBit << 1));
