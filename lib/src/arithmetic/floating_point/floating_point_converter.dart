@@ -49,9 +49,6 @@ class FloatingPointConverter extends Module {
       ..gets(addInput('source', source, width: source.width));
     addOutput('result', width: _result.width) <= _result;
 
-    // Handle sign
-    _result.sign <= source.sign;
-
     Logic normalizedExponent =
         Logic(name: 'normalizedExponent', width: destExponentWidth);
     Logic normalizedMantissa =
@@ -60,32 +57,37 @@ class FloatingPointConverter extends Module {
     normalizedExponent < _normalizeSubnormalExponent();
     normalizedMantissa < _normalizeSubnormalMantissa();
 
-    final normalizedFP = FloatingPoint(exponentWidth: destExponentWidth, mantissaWidth: destMantissaWidth);
-    
+    final normalizedFP = FloatingPoint(
+        exponentWidth: destExponentWidth, mantissaWidth: destMantissaWidth);
+
     normalizedFP.sign <= source.sign;
     normalizedFP.exponent <= normalizedExponent;
     normalizedFP.mantissa <= normalizedMantissa;
 
-    If.block([
-      Iff(source.isNaN(), [
-        _result < _handleNaN(source, destExponentWidth, destMantissaWidth),
+    Combinational([
+      If.block([
+        Iff(source.isNaN(), [
+          _result < _handleNaN(source, destExponentWidth, destMantissaWidth),
+        ]),
+        Iff(source.isInfinity(), [
+          _result <
+              _handleInfinity(source, destExponentWidth, destMantissaWidth),
+        ]),
+        Iff(source.isZero(), [
+          _result < _handleZero(source, destExponentWidth, destMantissaWidth),
+        ]),
+        Iff(source.isSubnormal() | source.isNormal(), [
+          _result <
+              mux(
+                  source.isNormal(),
+                  convertNormalNumber(
+                      source: source,
+                      destExponentWidth: destExponentWidth,
+                      destMantissaWidth: destMantissaWidth),
+                  normalizedFP),
+        ]),
       ]),
-      Iff(source.isInfinity(), [
-        _result < _handleInfinity(source, destExponentWidth, destMantissaWidth),
-      ]),
-      Iff(source.isZero(), [
-        _result < _handleZero(source, destExponentWidth, destMantissaWidth),
-      ]),
-      Iff(source.isSubnormal() | source.isNormal(), [
-        _result <
-            mux(
-                source.isNormal(),
-                _convertNormalNumber(
-                    source: source,
-                    destExponentWidth: destExponentWidth,
-                    destMantissaWidth: destMantissaWidth),
-                normalizedFP),
-      ]),
+      _result.sign < source.sign
     ]);
   }
 
@@ -118,18 +120,17 @@ class FloatingPointConverter extends Module {
           destExponentWidth: destExponentWidth,
           destMantissaWidth: destMantissaWidth);
 
-  FloatingPoint _convertNormalNumber(
+  static FloatingPoint convertNormalNumber(
       {required FloatingPoint source,
       required int destExponentWidth,
       required int destMantissaWidth}) {
-    final adjustedExponent =
-        _adjustExponent(source.exponent, destExponentWidth);
+    final adjustedExponent = adjustExponent(source.exponent, destExponentWidth);
 
     final adjustedMantissa =
         Logic(name: 'adjustedMantissa', width: destMantissaWidth);
 
     adjustedMantissa <
-        _adjustMantissaPrecision(source.mantissa, destMantissaWidth,
+        adjustMantissaPrecision(source.mantissa, destMantissaWidth,
             FloatingPointRoundingMode.roundNearestEven);
 
     final isOverflow = adjustedExponent
@@ -142,13 +143,13 @@ class FloatingPointConverter extends Module {
     If.block([
       Iff(isOverflow, [
         packNormal <
-            _handleOverflow(
+            handleOverflow(
                 source: source,
                 destExponentWidth: destExponentWidth,
                 destMantissaWidth: destMantissaWidth),
       ]),
       ElseIf(isUnderflow, [
-        packNormal < _handleUnderflow(),
+        packNormal < handleUnderflow(),
       ]),
       Else([
         packNormal <
@@ -168,17 +169,17 @@ class FloatingPointConverter extends Module {
   Logic _normalizeSubnormalMantissa() =>
       Const(0, width: destMantissaWidth, fill: true);
 
-  FloatingPoint _handleOverflow(
+  static FloatingPoint handleOverflow(
           {required FloatingPoint source,
           required int destExponentWidth,
           required int destMantissaWidth}) =>
-      _packInfinity(
+      packInfinity(
           source: source,
           destExponentWidth: destExponentWidth,
           destMantissaWidth: destMantissaWidth,
           isNaN: false);
 
-  FloatingPoint _handleUnderflow() =>
+  static FloatingPoint handleUnderflow() =>
       FloatingPoint(exponentWidth: 0, mantissaWidth: 0);
 
   /// Pack a special floating point number into a target.
@@ -191,8 +192,7 @@ class FloatingPointConverter extends Module {
   /// [sign] is the sign bit of the special number.
   ///
   /// [isNaN] is true if the special number is a NaN, false if it is an infinity.
-  @visibleForTesting
-  FloatingPoint packSpecial(
+  static FloatingPoint packSpecial(
       {required FloatingPoint source,
       required int destExponentWidth,
       required int destMantissaWidth,
@@ -203,7 +203,9 @@ class FloatingPointConverter extends Module {
     pack.exponent <= Const(1, width: destExponentWidth, fill: true);
 
     if (isNaN) {
-      pack.mantissa <= Const(1, width: destMantissaWidth, fill: true) << (destMantissaWidth - 1);
+      pack.mantissa <=
+          Const(1, width: destMantissaWidth, fill: true) <<
+              (destMantissaWidth - 1);
     } else {
       pack.mantissa <= Const(0, width: destMantissaWidth, fill: true);
     }
@@ -224,7 +226,7 @@ class FloatingPointConverter extends Module {
     return pack;
   }
 
-  FloatingPoint _packInfinity(
+  static FloatingPoint packInfinity(
           {required FloatingPoint source,
           required int destExponentWidth,
           required int destMantissaWidth,
@@ -235,7 +237,11 @@ class FloatingPointConverter extends Module {
           destMantissaWidth: destMantissaWidth,
           isNaN: false);
 
-  Logic _adjustExponent(Logic sourceExponent, int destExponentWidth) {
+  /// Adjust the exponent of a floating-point number to fit the new exponent width.
+  ///
+  /// The exponent is biased according to the source and destination exponent widths.
+  /// If the exponent widths are the same, the exponent is returned unchanged.
+  static Logic adjustExponent(Logic sourceExponent, int destExponentWidth) {
     if (sourceExponent.width == destExponentWidth) {
       return sourceExponent;
     } else {
@@ -249,18 +255,19 @@ class FloatingPointConverter extends Module {
     }
   }
 
-  Logic _adjustMantissaPrecision(Logic sourceMantissa, int destMantissaWidth,
-      FloatingPointRoundingMode roundingMode) {
+  static Logic adjustMantissaPrecision(Logic sourceMantissa,
+      int destMantissaWidth, FloatingPointRoundingMode roundingMode) {
     final adjustedMantissa =
         Logic(name: 'adjustedMantissa', width: destMantissaWidth);
 
     // In the case where precision is increased, we just need to zero pad or shift the source mantissa bits
     if (destMantissaWidth > sourceMantissa.width) {
       adjustedMantissa <=
-          sourceMantissa << (destMantissaWidth - sourceMantissa.width);
+          sourceMantissa.zeroExtend(destMantissaWidth) <<
+              (destMantissaWidth - sourceMantissa.width);
     } else if (destMantissaWidth < sourceMantissa.width) {
       adjustedMantissa <=
-          _roundMantissa(sourceMantissa, destMantissaWidth, roundingMode);
+          roundMantissa(sourceMantissa, destMantissaWidth, roundingMode);
     } else {
       adjustedMantissa <= sourceMantissa;
     }
@@ -268,16 +275,17 @@ class FloatingPointConverter extends Module {
     return adjustedMantissa;
   }
 
-  Logic _roundMantissa(Logic sourceMantissa, int destMantissaWidth,
+  static Logic roundMantissa(Logic sourceMantissa, int destMantissaWidth,
       FloatingPointRoundingMode roundingMode) {
     final shift = sourceMantissa.width - destMantissaWidth;
     final roundBit = Const(1, width: sourceMantissa.width) << (shift - 1);
     final mask = roundBit - 1;
-    final roundCondition = (sourceMantissa & roundBit) &
-        ((sourceMantissa & mask) | (roundBit << 1));
+    final roundCondition = (sourceMantissa & roundBit).neq(0) &
+        ((sourceMantissa & mask).neq(0) | (roundBit << 1).neq(0));
 
     final roundedMantissa = (sourceMantissa + roundBit) & ~(roundBit - 1);
-    final shiftedMantissa = roundedMantissa >> shift;
+    final shiftedMantissa =
+        (roundedMantissa >> shift).slice(destMantissaWidth - 1, 0);
 
     final result = Logic(name: 'roundedMantissa', width: destMantissaWidth);
     result <= mux(roundCondition, roundedMantissa, shiftedMantissa);
