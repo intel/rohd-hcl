@@ -19,7 +19,7 @@ class FloatingPointBF16Value extends FloatingPointValue {
   static const int exponentWidth = 8;
 
   /// The mantissa width
-  static const int mantissaWidth = 8;
+  static const int mantissaWidth = 7;
 
   @override
   @protected
