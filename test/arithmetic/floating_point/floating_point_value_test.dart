@@ -118,7 +118,7 @@ void main() {
   });
   test('FloatingPointValue string conversion', () {
     const str = '0 10000001 01000100000000000000000'; // 5.0625
-    final fp = FloatingPoint32Value.ofString(str);
+    final fp = FloatingPoint32Value.ofSpacedBinaryString(str);
     expect(fp.toString(), str);
     expect(fp.toDouble(), 5.0625);
   });
@@ -170,7 +170,7 @@ void main() {
     }
   });
 
-  test('FP8: E5M2', () {
+  test('FPV8: E5M2', () {
     final corners = [
       ['0 00000 00', 0.toDouble()],
       ['0 11110 11', 57344.toDouble()],
@@ -199,16 +199,16 @@ void main() {
     final fp2 = FloatingPoint64()
       ..put(FloatingPoint64Value.fromDouble(1.5).value);
     expect(fp2.floatingPointValue.toDouble(), 1.5);
-    final fp8e4m3 = FloatingPoint8(exponentWidth: 4)
-      ..put(FloatingPoint8Value.fromDouble(1.5, exponentWidth: 4).value);
+    final fp8e4m3 = FloatingPoint8E4M3(exponentWidth: 4)
+      ..put(FloatingPoint8E4M3Value.fromDouble(1.5).value);
     expect(fp8e4m3.floatingPointValue.toDouble(), 1.5);
-    final fp8e5m2 = FloatingPoint8(exponentWidth: 5)
-      ..put(FloatingPoint8Value.fromDouble(1.5, exponentWidth: 5).value);
+    final fp8e5m2 = FloatingPoint8E5M2(exponentWidth: 5)
+      ..put(FloatingPoint8E5M2Value.fromDouble(1.5).value);
     expect(fp8e5m2.floatingPointValue.toDouble(), 1.5);
   });
 
   test('FPV: round nearest even Guard and Sticky', () {
-    final fp64 = FloatingPoint64Value.ofStrings('0', '10000000000',
+    final fp64 = FloatingPoint64Value.ofBinaryStrings('0', '10000000000',
         '0000100000000000000000000000000000000000000000000001');
 
     final fpRound = FloatingPointValue.ofBinaryStrings('0', '1000', '0001');
@@ -218,7 +218,7 @@ void main() {
     expect(fpConvert, equals(fpRound));
   });
   test('FPV: round nearest even Guard and Round', () {
-    final fp64 = FloatingPoint64Value.ofStrings('0', '10000000000',
+    final fp64 = FloatingPoint64Value.ofBinaryStrings('0', '10000000000',
         '0000110000000000000000000000000000000000000000000000');
 
     final fpRound = FloatingPointValue.ofBinaryStrings('0', '1000', '0001');
@@ -229,7 +229,7 @@ void main() {
     expect(fpConvert, equals(fpRound));
   });
   test('FPV: rounding nearest even increment', () {
-    final fp64 = FloatingPoint64Value.ofStrings('0', '10000000000',
+    final fp64 = FloatingPoint64Value.ofBinaryStrings('0', '10000000000',
         '0001100000000000000000000000000000000000000000000000');
 
     final fpRound = FloatingPointValue.ofBinaryStrings('0', '1000', '0010');
@@ -239,7 +239,7 @@ void main() {
     expect(fpConvert, equals(fpRound));
   });
   test('FPV: rounding nearest even increment carry into exponent', () {
-    final fp64 = FloatingPoint64Value.ofStrings('0', '10000000000',
+    final fp64 = FloatingPoint64Value.ofBinaryStrings('0', '10000000000',
         '1111100000000000000000000000000000000000000000000000');
 
     final fpRound = FloatingPointValue.ofBinaryStrings('0', '1001', '0000');
@@ -249,7 +249,7 @@ void main() {
     expect(fpConvert, equals(fpRound));
   });
   test('FPV: rounding nearest even truncate', () {
-    final fp64 = FloatingPoint64Value.ofStrings('0', '10000000000',
+    final fp64 = FloatingPoint64Value.ofBinaryStrings('0', '10000000000',
         '0010100000000000000000000000000000000000000000000000');
 
     final fpTrunc = FloatingPointValue.ofBinaryStrings('0', '1000', '0010');
