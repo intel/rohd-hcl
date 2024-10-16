@@ -61,8 +61,8 @@ class FloatingPoint8E4M3Value extends FloatingPointValue {
   FloatingPoint8E4M3Value.ofString(String fp, {super.radix})
       : super.ofString(fp, exponentWidth, mantissaWidth);
 
-  /// [FloatingPoint8E4M3Value] constructor from a set of [BigInt]s of the binary
-  /// representation
+  /// [FloatingPoint8E4M3Value] constructor from a set of [BigInt]s of the
+  ///  binary representation
   FloatingPoint8E4M3Value.ofBigInts(super.exponent, super.mantissa,
       {super.sign})
       : super.ofBigInts();
@@ -142,8 +142,8 @@ class FloatingPoint8E5M2Value extends FloatingPointValue {
   FloatingPoint8E5M2Value.ofString(String fp, {super.radix})
       : super.ofString(fp, exponentWidth, mantissaWidth);
 
-  /// [FloatingPoint8E5M2Value] constructor from a set of [BigInt]s of the binary
-  /// representation
+  /// [FloatingPoint8E5M2Value] constructor from a set of [BigInt]s of the
+  /// binary representation
   FloatingPoint8E5M2Value.ofBigInts(super.exponent, super.mantissa,
       {super.sign})
       : super.ofBigInts();
