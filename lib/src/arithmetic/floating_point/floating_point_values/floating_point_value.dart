@@ -263,19 +263,11 @@ class FloatingPointValue implements Comparable<FloatingPointValue> {
 
   /// Construct a [FloatingPointValue] from a Logic word
   factory FloatingPointValue.fromLogic(
-      int exponentWidth, int mantissaWidth, LogicValue val) {
-    final sign = (val[-1] == LogicValue.one);
-    final exponent =
-        val.slice(exponentWidth + mantissaWidth - 1, mantissaWidth).toBigInt();
-    final mantissa = val.slice(mantissaWidth - 1, 0).toBigInt();
-    final (signLv, exponentLv, mantissaLv) = (
-      LogicValue.ofBigInt(sign ? BigInt.one : BigInt.zero, 1),
-      LogicValue.ofBigInt(exponent, exponentWidth),
-      LogicValue.ofBigInt(mantissa, mantissaWidth)
-    );
-    return FloatingPointValue(
-        sign: signLv, exponent: exponentLv, mantissa: mantissaLv);
-  }
+          int exponentWidth, int mantissaWidth, LogicValue val) =>
+      FloatingPointValue(
+          sign: val[-1],
+          exponent: val.slice(exponentWidth + mantissaWidth - 1, mantissaWidth),
+          mantissa: val.slice(mantissaWidth - 1, 0));
 
   /// Return the [FloatingPointValue] representing the constant specified
   factory FloatingPointValue.getFloatingPointConstant(

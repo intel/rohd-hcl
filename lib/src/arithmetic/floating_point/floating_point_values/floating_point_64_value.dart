@@ -76,8 +76,7 @@ class FloatingPoint64Value extends FloatingPointValue {
   /// Construct a [FloatingPoint32Value] from a Logic word
   factory FloatingPoint64Value.fromLogic(LogicValue val) =>
       FloatingPoint64Value(
-          sign: LogicValue.ofBigInt(
-              (val[-1] == LogicValue.one) ? BigInt.one : BigInt.zero, 1),
+          sign: val[-1],
           exponent: val.slice(exponentWidth + mantissaWidth - 1, mantissaWidth),
           mantissa: val.slice(mantissaWidth - 1, 0));
 }
