@@ -60,10 +60,7 @@ class FloatingPoint64Value extends FloatingPointValue {
 
   /// Numeric conversion of a [FloatingPoint64Value] from a host double
   factory FloatingPoint64Value.fromDouble(double inDouble) {
-    final byteData = ByteData(8)
-      ..setFloat64(0, inDouble)
-      ..buffer.asUint8List();
-
+    final byteData = ByteData(8)..setFloat64(0, inDouble);
     final accum = byteData.buffer
         .asUint8List()
         .map((b) => LogicValue.ofInt(b, 64))

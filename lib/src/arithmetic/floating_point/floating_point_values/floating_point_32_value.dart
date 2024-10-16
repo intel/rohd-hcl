@@ -60,9 +60,7 @@ class FloatingPoint32Value extends FloatingPointValue {
 
   /// Numeric conversion of a [FloatingPoint32Value] from a host double
   factory FloatingPoint32Value.fromDouble(double inDouble) {
-    final byteData = ByteData(4)
-      ..setFloat32(0, inDouble)
-      ..buffer.asUint8List();
+    final byteData = ByteData(4)..setFloat32(0, inDouble);
     final accum = byteData.buffer
         .asUint8List()
         .map((b) => LogicValue.ofInt(b, 32))
