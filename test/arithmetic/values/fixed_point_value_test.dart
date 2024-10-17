@@ -183,52 +183,76 @@ void main() {
       for (var i2 = 1; i2 < pow(2, w); i2++) {
         for (var m1 = 0; m1 < w; m1++) {
           for (var m2 = 0; m2 < w; m2++) {
-            final n1 = w - 1 - m1;
-            final n2 = w - 1 - m2;
-            fxp1 = FixedPointValue(
-                value: LogicValue.ofInt(i1, w), signed: true, m: m1, n: n1);
-            fxp2 = FixedPointValue(
-                value: LogicValue.ofInt(i2, w), signed: true, m: m2, n: n2);
+            for (var s1 = 0; s1 < 2; s1++) {
+              for (var s2 = 0; s2 < 2; s2++) {
+                final n1 = s1 == 0 ? w - m1 - 1 : w - m1;
+                final n2 = s2 == 0 ? w - m2 - 1 : w - m2;
+                fxp1 = FixedPointValue(
+                    value: LogicValue.ofInt(i1, w),
+                    signed: s1 == 0,
+                    m: m1,
+                    n: n1);
+                fxp2 = FixedPointValue(
+                    value: LogicValue.ofInt(i2, w),
+                    signed: s2 == 0,
+                    m: m2,
+                    n: n2);
 
-            // add
-            fxp = fxp1 + fxp2;
-            expect(fxp.toDouble(), fxp1.toDouble() + fxp2.toDouble(),
-                reason: '+');
-            expect(fxp.n, max(n1, n2));
+                // print('$i1 $i2 s1=$s1 m1=$m1 n1=$n1 s2=$s2 m2=$m2 n2=$n2');
+                // print('${fxp1.value.bitString} ${fxp1.toDouble()} ');
+                // print('${fxp2.value.bitString} ${fxp2.toDouble()} ');
 
-            // subtract
-            fxp = fxp1 - fxp2;
-            expect(fxp.toDouble(), fxp1.toDouble() - fxp2.toDouble(),
-                reason: '-');
-            expect(fxp.n, max(n1, n2));
+                // add
+                fxp = fxp1 + fxp2;
+                expect(fxp.toDouble(), fxp1.toDouble() + fxp2.toDouble(),
+                    reason: '+');
+                expect(fxp.n, max(n1, n2));
+                expect(fxp.m, max(m1, m2) + 1);
 
-            // multiply
-            fxp = fxp1 * fxp2;
-            expect(fxp.toDouble(), fxp1.toDouble() * fxp2.toDouble(),
-                reason: '${fxp1.toDouble()}*${fxp2.toDouble()}');
-            expect(fxp.n, n1 + n2);
+                // subtract
+                fxp = fxp1 - fxp2;
+                expect(fxp.toDouble(), fxp1.toDouble() - fxp2.toDouble(),
+                    reason: '-');
+                expect(fxp.n, max(n1, n2));
+                expect(fxp.m, max(m1, m2) + 1);
 
-            // divide
-            fxp = fxp1 / fxp2;
-            final q = n1 + m2 + 1;
-            double expectedValue;
-            if (i1 == 0) {
-              expectedValue = 0;
-            } else {
-              expectedValue =
-                  ((fxp1.toDouble() / fxp2.toDouble()).abs() * pow(2, q))
-                          .floor() /
-                      pow(2, q);
-              if (fxp1.toDouble() / fxp2.toDouble() < 0) {
-                expectedValue = -expectedValue;
+                // multiply
+                fxp = fxp1 * fxp2;
+                expect(fxp.toDouble(), fxp1.toDouble() * fxp2.toDouble(),
+                    reason: '${fxp1.toDouble()}*${fxp2.toDouble()}');
+                expect(fxp.n, n1 + n2);
+                // expect(fxp.m, m1 + m2 + 1);
+
+                // divide
+                fxp = fxp1 / fxp2;
+                final q = s1 + s2 == 2 ? n1 + m2 : n1 + m2 + 1;
+                double expectedValue;
+                if (i1 == 0) {
+                  expectedValue = 0;
+                } else {
+                  expectedValue =
+                      ((fxp1.toDouble() / fxp2.toDouble()).abs() * pow(2, q))
+                              .floor() /
+                          pow(2, q);
+                  if (fxp1.toDouble() / fxp2.toDouble() < 0) {
+                    expectedValue = -expectedValue;
+                  }
+                }
+                expect(fxp.toDouble(), expectedValue,
+                    reason:
+                        '${fxp1.toDouble()}/${fxp2.toDouble()} = $expectedValue');
               }
             }
-            expect(fxp.toDouble(), expectedValue,
-                reason:
-                    '${fxp1.toDouble()}/${fxp2.toDouble()} = $expectedValue');
           }
         }
       }
     }
+  });
+
+  test('xxx', () {
+    final a = LogicValue.ofString('00010000');
+    final b = LogicValue.ofString('00000110');
+    final c = a / b;
+    print(c.bitString);
   });
 }

@@ -57,7 +57,7 @@ class FixedPointValue implements Comparable<FixedPointValue> {
       throw RohdHclException('Fraction width is larger than input.');
     }
     var newValue = value;
-    if (m > this.m) {
+    if (m >= this.m) {
       if (signed) {
         newValue = newValue.signExtend(newValue.width + m - this.m);
       } else {
@@ -182,7 +182,7 @@ class FixedPointValue implements Comparable<FixedPointValue> {
     }
     final s = signed | other.signed;
     final nr = max(n, other.n);
-    final mr = s ? max(m, other.m) + 2 : max(m, other.m) + 1;
+    final mr = max(m, other.m) + 1;
     final val1 = expandWidth(sign: s, m: mr, n: nr);
     final val2 = other.expandWidth(sign: s, m: mr, n: nr);
     return FixedPointValue(value: val1 + val2, signed: s, m: mr, n: nr);
@@ -198,7 +198,7 @@ class FixedPointValue implements Comparable<FixedPointValue> {
     }
     const s = true;
     final nr = max(n, other.n);
-    final mr = max(m, other.m) + 2;
+    final mr = max(m, other.m) + 1;
     final val1 = expandWidth(sign: s, m: mr, n: nr);
     final val2 = other.expandWidth(sign: s, m: mr, n: nr);
     return FixedPointValue(value: val1 - val2, signed: s, m: mr, n: nr);
@@ -212,11 +212,12 @@ class FixedPointValue implements Comparable<FixedPointValue> {
       throw RohdHclException('Inputs must be valid.');
     }
     final s = signed | other.signed;
-    final ms = s ? m + other.m + 1 : m + other.m;
-    final ns = n + other.n;
-    final val1 = expandWidth(sign: s, m: ms + ns - n);
-    final val2 = other.expandWidth(sign: s, m: ms + ns - other.n);
-    return FixedPointValue(value: val1 * val2, signed: s, m: ms, n: ns);
+    final mr = s ? m + other.m + 1 : m + other.m;
+    final nr = n + other.n;
+    final tr = mr + nr;
+    final val1 = expandWidth(sign: s, m: tr - n);
+    final val2 = other.expandWidth(sign: s, m: tr - other.n);
+    return FixedPointValue(value: val1 * val2, signed: s, m: mr, n: nr);
   }
 
   /// Division operation that returns a FixedPointValue.
@@ -248,7 +249,7 @@ class FixedPointValue implements Comparable<FixedPointValue> {
     }
     var val = val1 / val2;
     // Convert to negative as needed
-    if (s & (value[-1] != other.value[-1])) {
+    if (isNegative() != other.isNegative()) {
       val = (~val) + 1;
     }
     return FixedPointValue(value: val, signed: s, m: mr, n: nr);
