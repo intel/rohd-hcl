@@ -248,11 +248,4 @@ void main() {
       }
     }
   });
-
-  test('xxx', () {
-    final a = LogicValue.ofString('00010000');
-    final b = LogicValue.ofString('00000110');
-    final c = a / b;
-    print(c.bitString);
-  });
 }
