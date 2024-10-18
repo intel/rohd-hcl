@@ -11,7 +11,6 @@ import 'dart:math';
 
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
-import 'package:rohd_hcl/src/summation/summation_base.dart';
 
 /// A [PairInterface] representing an amount and behavior for inclusion in a
 /// sum or count.
@@ -37,10 +36,6 @@ class SumInterface extends PairInterface {
 
   /// If non-`null`, the constant value of [amount].
   final dynamic fixedAmount;
-
-  BigInt get maxAmountMagnitude => fixedAmount != null
-      ? LogicValue.ofInferWidth(fixedAmount).toBigInt()
-      : SummationBase.biggestVal(width);
 
   /// Creates a new [SumInterface] with a fixed or variable [amount], optionally
   /// with an [enable], in either positive or negative direction based on
