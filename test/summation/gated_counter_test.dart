@@ -22,7 +22,7 @@ class ClockToggleCounter {
 
   int upperToggles = 0;
   int lowerToggles = 0;
-  int totalToggles = -1;
+  int totalToggles = 0;
 
   ClockToggleCounter(this.dut) {
     dut.upperGatedClock.posedge.listen((_) => upperToggles++);
@@ -102,6 +102,23 @@ void main() {
 
     expect(toggleCounter.lowerActivity, greaterThan(0.95));
     expect(toggleCounter.upperActivity, lessThan(0.75));
+  });
+
+  test(
+      'simple 1-counter incrementing always, with rollover,'
+      ' clock gating disabled', () async {
+    final toggleCounter = await testCounter(
+      (clk, reset) => GatedCounter(
+        [SumInterface(fixedAmount: 1)],
+        clk: clk,
+        reset: reset,
+        width: 6,
+        clockGateControlInterface: ClockGateControlInterface(isPresent: false),
+      ),
+    );
+
+    expect(toggleCounter.lowerActivity, greaterThan(0.95));
+    expect(toggleCounter.upperActivity, greaterThan(0.95));
   });
 
   test('simple 1-counter incrementing always, with saturation', () async {
@@ -265,6 +282,4 @@ void main() {
     expect(toggleCounter.lowerActivity, lessThan(0.65));
     expect(toggleCounter.upperActivity, lessThan(0.6));
   });
-
-  //TODO: test with clock gating disabled
 }

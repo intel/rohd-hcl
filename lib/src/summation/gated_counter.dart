@@ -59,6 +59,10 @@ class GatedCounter extends Counter {
   /// added ability to [gateToggles] of the interfaces when they are not enabled
   /// and gate the clocks of the counter in a partitioned way.
   ///
+  /// Clock gating is performed on the same cycle as the increment/decrement(s),
+  /// so the functionality when compared to the base [Counter] is identical with
+  /// no added latency to the [count].
+  ///
   /// If the [clkGatePartitionIndex] is less than 0 or greater than the [width],
   /// then the entire counter will be gated together rather than partitioned. If
   /// no [clkGatePartitionIndex] is provided, the counter will attempt to infer
@@ -452,23 +456,6 @@ class GatedCounter extends Counter {
   @protected
   @override
   void buildFlops() {
-    // TODO: if we can do same-cycle clock gating, then we have the chance to
-    //  compare the size of the increment... otherwise, we need to assume it
-    //  could be maximum
-
-    //TODO: what about UNDERFLOW???
-    // initial value?
-    // saturation? --> maybe it never can hit certain bits, always gate them?
-
-    //if nothing *above* the partition in the increment bus is high, then we dont need to enable the upper gate
-
-    // we could gate LOWER bits also, if we're only incrementing by a large amount!
-
-    //some cases:
-    // - no clkGateIndex provided -> infer a good one
-    // - index provided and samecycle is ok -> use it
-    // - index provided and no samecycle and index less than inferred min -> exception
-
     clkGatePartitionIndex =
         _providedClkGateParitionIndex ?? _pickPartitionIndex();
 
@@ -523,8 +510,8 @@ class GatedCounter extends Counter {
     }
   }
 
-  int _pickPartitionIndex() {
-    //TODO: make this a better estimate
-    return width ~/ 2;
-  }
+  /// Picks a partition index based on the interfaces provided.
+  int _pickPartitionIndex() =>
+      // simple implementation is just cut it in half
+      width ~/ 2;
 }
