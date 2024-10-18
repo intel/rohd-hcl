@@ -201,7 +201,7 @@ void main() {
     expect(toggleCounter.upperActivity, lessThan(0.4));
   });
 
-  test('incrrement by variable amount, properly gates', () async {
+  test('increment by variable amount, properly gates', () async {
     final toggleCounter = await testCounter(
       (clk, reset) {
         final intf = SumInterface(width: 9, hasEnable: true)..enable!.inject(1);
@@ -228,7 +228,41 @@ void main() {
     expect(toggleCounter.upperActivity, lessThan(0.5));
   });
 
-  //TODO: testplan:
-  // - toggle gate does a good job of gating toggles, enabling clock for it properly
-  // - multiple interfaces
+  test('multiple interfaces', () async {
+    final toggleCounter = await testCounter(
+      (clk, reset) {
+        final intf1 = SumInterface(width: 10, hasEnable: true)
+          ..enable!.inject(1);
+        final intf2 = SumInterface(width: 1, hasEnable: true)
+          ..enable!.inject(1);
+        final intf3 = SumInterface(fixedAmount: 3, hasEnable: true)
+          ..enable!.inject(1);
+
+        var clkCount = 0;
+        clk.posedge.listen((_) {
+          clkCount++;
+
+          intf1.amount.inject(clkCount % 3);
+          intf1.enable!.inject(clkCount % 5 > 2);
+
+          intf2.amount.inject(clkCount % 2);
+          intf2.enable!.inject(clkCount % 7 > 2);
+
+          intf3.enable!.inject(clkCount % 3 > 1);
+        });
+
+        return GatedCounter(
+          [intf1, intf2, intf3],
+          clk: clk,
+          reset: reset,
+          width: 10,
+          clkGatePartitionIndex: 6,
+        );
+      },
+      numCycles: 1000,
+    );
+
+    expect(toggleCounter.lowerActivity, lessThan(0.65));
+    expect(toggleCounter.upperActivity, lessThan(0.6));
+  });
 }

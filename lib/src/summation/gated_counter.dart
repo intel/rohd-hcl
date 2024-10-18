@@ -7,9 +7,7 @@ import 'package:rohd_hcl/rohd_hcl.dart';
 class GatedCounter extends Counter {
   final bool gateToggles;
 
-  final bool sameCycleClockGate;
-
-  ClockGateControlInterface? _clockGateControlInterface;
+  final ClockGateControlInterface? _clockGateControlInterface;
 
   @override
   @protected
@@ -61,17 +59,16 @@ class GatedCounter extends Counter {
     super.saturates,
     this.gateToggles = true,
     ClockGateControlInterface? clockGateControlInterface,
-    this.sameCycleClockGate = true, //TODO: ditch this?
     int? clkGatePartitionIndex,
     super.name,
-  }) : _providedClkGateParitionIndex = clkGatePartitionIndex {
-    if (clockGateControlInterface != null) {
-      clockGateControlInterface =
-          ClockGateControlInterface.clone(clockGateControlInterface)
-            ..pairConnectIO(this, clockGateControlInterface, PairRole.consumer);
-    } else {
-      clockGateControlInterface = ClockGateControlInterface(isPresent: false);
-    }
+  })  : _providedClkGateParitionIndex = clkGatePartitionIndex,
+        _clockGateControlInterface = clockGateControlInterface == null
+            ? null
+            : ClockGateControlInterface.clone(clockGateControlInterface) {
+    //TODO: test that clock gate control intf properly is passed?
+
+    _clockGateControlInterface?.pairConnectIO(
+        this, clockGateControlInterface!, PairRole.consumer);
   }
 
   //TODO: doc
