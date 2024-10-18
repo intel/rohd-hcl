@@ -16,7 +16,6 @@ import 'package:rohd_hcl/src/summation/gated_counter.dart';
 import 'package:rohd_vf/rohd_vf.dart';
 import 'package:test/test.dart';
 
-import '../edge_detector_test.dart';
 import 'summation_test_utils.dart';
 
 void main() {

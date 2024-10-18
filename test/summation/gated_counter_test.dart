@@ -39,6 +39,7 @@ void main() {
     bool printActivity = false,
     bool doChecks = true,
     bool printSv = false,
+    Future<void> Function()? stimulus,
   }) async {
     final clk = SimpleClockGenerator(10).clk;
     final reset = Logic()..inject(1);
@@ -68,7 +69,7 @@ void main() {
     await clk.waitCycles(3);
     reset.inject(0);
 
-    await clk.waitCycles(numCycles);
+    await (stimulus?.call() ?? clk.waitCycles(numCycles));
 
     await Simulator.endSimulation();
 
@@ -193,9 +194,34 @@ void main() {
     expect(toggleCounter.upperActivity, lessThan(0.4));
   });
 
+  test('incrrement by variable amount, properly gates', () async {
+    final toggleCounter = await testCounter(
+      (clk, reset) {
+        final intf = SumInterface(width: 9, hasEnable: true)..enable!.inject(1);
+
+        var clkCount = 0;
+        clk.posedge.listen((_) {
+          clkCount++;
+
+          intf.amount.inject(clkCount % 3);
+        });
+
+        return GatedCounter(
+          [intf],
+          clk: clk,
+          reset: reset,
+          width: 9,
+          clkGatePartitionIndex: 6,
+        );
+      },
+      numCycles: 1000,
+    );
+
+    expect(toggleCounter.lowerActivity, lessThan(0.7));
+    expect(toggleCounter.upperActivity, lessThan(0.5));
+  });
+
   //TODO: testplan:
   // - toggle gate does a good job of gating toggles, enabling clock for it properly
-  // - decrementing counter stuff
-  // - variable numbers
   // - multiple interfaces
 }

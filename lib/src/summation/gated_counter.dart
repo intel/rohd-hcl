@@ -80,7 +80,8 @@ class GatedCounter extends Counter {
   late final _decrementingInterfaces =
       interfaces.where((intf) => !intf.increments);
 
-  @protected // exposed for testing
+  @protected
+  @visibleForTesting
   late final Logic mayOverflow = Logic(name: 'mayOverflow')
     ..gets(_calculateMayOverflow());
 
@@ -171,7 +172,8 @@ class GatedCounter extends Counter {
     return mayOverflow;
   }
 
-  @protected // exposed for testing
+  @protected
+  @visibleForTesting
   late final Logic mayUnderflow = Logic(name: 'mayUnderflow')
     ..gets(_calculateMayUnderflow());
 

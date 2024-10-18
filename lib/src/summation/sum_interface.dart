@@ -38,7 +38,7 @@ class SumInterface extends PairInterface {
   /// If non-`null`, the constant value of [amount].
   final dynamic fixedAmount;
 
-  BigInt get maxIncrementMagnitude => fixedAmount != null
+  BigInt get maxAmountMagnitude => fixedAmount != null
       ? LogicValue.ofInferWidth(fixedAmount).toBigInt()
       : SummationBase.biggestVal(width);
 
