@@ -198,10 +198,6 @@ void main() {
                     m: m2,
                     n: n2);
 
-                // print('$i1 $i2 s1=$s1 m1=$m1 n1=$n1 s2=$s2 m2=$m2 n2=$n2');
-                // print('${fxp1.value.bitString} ${fxp1.toDouble()} ');
-                // print('${fxp2.value.bitString} ${fxp2.toDouble()} ');
-
                 // add
                 fxp = fxp1 + fxp2;
                 expect(fxp.toDouble(), fxp1.toDouble() + fxp2.toDouble(),
@@ -221,7 +217,7 @@ void main() {
                 expect(fxp.toDouble(), fxp1.toDouble() * fxp2.toDouble(),
                     reason: '${fxp1.toDouble()}*${fxp2.toDouble()}');
                 expect(fxp.n, n1 + n2);
-                // expect(fxp.m, m1 + m2 + 1);
+                expect(fxp.m, s1 + s2 == 2 ? m1 + m2 : m1 + m2 + 1);
 
                 // divide
                 fxp = fxp1 / fxp2;

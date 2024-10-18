@@ -50,6 +50,9 @@ class FixedPointValue implements Comparable<FixedPointValue> {
 
   /// Expands the bit width of integer and fractional parts.
   LogicValue expandWidth({required bool sign, int m = 0, int n = 0}) {
+    if ((m < 0) | (n < 0)) {
+      throw RohdHclException('Input width must be non-negative.');
+    }
     if ((m > 0) & (m < this.m)) {
       throw RohdHclException('Integer width is larger than input.');
     }
@@ -129,9 +132,7 @@ class FixedPointValue implements Comparable<FixedPointValue> {
       compareTo(other) >= 0 ? LogicValue.one : LogicValue.zero;
 
   @override
-  int get hashCode => _hashCode;
-
-  int get _hashCode =>
+  int get hashCode =>
       value.hashCode ^ signed.hashCode ^ m.hashCode ^ n.hashCode;
 
   @override
