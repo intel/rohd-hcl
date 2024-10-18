@@ -8,15 +8,18 @@ class ToggleGate extends Module {
     required Logic enable,
     required Logic data,
     required Logic clk,
-    Logic? reset,
+    required Logic reset,
+    dynamic resetValue,
     ClockGateControlInterface? clockGateControlIntf,
     super.name = 'toggle_gate',
   }) {
     enable = addInput('enable', enable);
     data = addInput('data', data, width: data.width);
     clk = addInput('clk', clk);
-    if (reset != null) {
-      reset = addInput('reset', reset);
+    reset = addInput('reset', reset);
+
+    if (resetValue != null && resetValue is Logic) {
+      resetValue = addInput('resetValue', resetValue, width: resetValue.width);
     }
 
     if (clockGateControlIntf != null) {
@@ -45,6 +48,7 @@ class ToggleGate extends Module {
             clkGate.gatedClk,
             en: clkGate.isPresent ? null : gateEnable,
             reset: reset,
+            resetValue: resetValue,
             data);
 
     gatedData <=

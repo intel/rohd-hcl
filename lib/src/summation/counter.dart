@@ -19,6 +19,7 @@ class Counter extends SummationBase {
   Logic get count => output('count');
 
   //TODO docs
+  @visibleForTesting
   @protected
   late final Logic clk;
 

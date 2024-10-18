@@ -438,8 +438,11 @@ class GatedCounter extends Counter {
   }
 
   // hooks for testbenches and subclasses
+  @visibleForTesting
   @protected
   late final Logic lowerGatedClock;
+
+  @visibleForTesting
   @protected
   late final Logic upperGatedClock;
 

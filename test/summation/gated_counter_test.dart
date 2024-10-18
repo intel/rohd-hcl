@@ -1,4 +1,11 @@
-// ignore_for_file: invalid_use_of_protected_member
+// Copyright (C) 2024 Intel Corporation
+// SPDX-License-Identifier: BSD-3-Clause
+//
+// gated_counter_test.dart
+// Tests for the gated counter.
+//
+// 2024 October
+// Author: Max Korbel <max.korbel@intel.com>
 
 import 'dart:async';
 
