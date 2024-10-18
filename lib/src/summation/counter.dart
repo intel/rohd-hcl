@@ -18,14 +18,16 @@ class Counter extends SummationBase {
   /// The output value of the counter.
   Logic get count => output('count');
 
-  //TODO docs
+  /// The main clock signal.
   @visibleForTesting
   @protected
   late final Logic clk;
 
+  /// The reset signal.
   @protected
   late final Logic reset;
 
+  /// The restart signal.
   @protected
   late final Logic? restart;
 
@@ -76,6 +78,7 @@ class Counter extends SummationBase {
     _buildLogic();
   }
 
+  /// The internal [Sum] that is used to keep track of the count.
   @protected
   late final Sum summer = Sum(
     interfaces,
@@ -87,10 +90,9 @@ class Counter extends SummationBase {
     saturates: saturates,
   );
 
+  /// Builds the internal logic for the counter.
   void _buildLogic() {
     buildFlops();
-
-    // TODO: gate these flops too?
 
     // need to flop these since value is flopped
     overflowed <= flop(clk, summer.overflowed, reset: reset);
@@ -100,6 +102,7 @@ class Counter extends SummationBase {
     equalsMin <= count.eq(minValueLogic);
   }
 
+  /// Builds the flops that store the [count].
   @protected
   void buildFlops() {
     count <=

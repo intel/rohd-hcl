@@ -265,4 +265,6 @@ void main() {
     expect(toggleCounter.lowerActivity, lessThan(0.65));
     expect(toggleCounter.upperActivity, lessThan(0.6));
   });
+
+  //TODO: test with clock gating disabled
 }

@@ -58,9 +58,13 @@ abstract class SummationBase extends Module {
   /// equal to the minimum.
   Logic get equalsMin => output('equalsMin');
 
+  /// If the provided `maxValue` was a constant, then this will be the constant
+  /// value. Otherwise, it will be `null`.
   @protected
   late final BigInt? constantMaxValue;
 
+  /// If the provided `minValue` was a constant, then this will be the constant
+  /// value. Otherwise, it will be `null`.
   @protected
   late final BigInt? constantMinValue;
 

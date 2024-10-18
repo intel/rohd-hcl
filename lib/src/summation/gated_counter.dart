@@ -1,12 +1,26 @@
+// Copyright (C) 2024 Intel Corporation
+// SPDX-License-Identifier: BSD-3-Clause
+//
+// counter.dart
+// A flexible counter implementation with clock and toggle gating.
+//
+// 2024 October
+// Author: Max Korbel <max.korbel@intel.com>
+
 import 'dart:math';
 
 import 'package:meta/meta.dart';
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
 
+/// A version of a [Counter] which includes [ClockGate]ing and [ToggleGate]ing
+/// for power savings.
 class GatedCounter extends Counter {
+  /// If `true`, then the counter will gate the toggles of the interfaces when
+  /// they are not enabled.
   final bool gateToggles;
 
+  /// The [ClockGateControlInterface] to use for clock gating internally.
   final ClockGateControlInterface? _clockGateControlInterface;
 
   @override
@@ -41,7 +55,9 @@ class GatedCounter extends Counter {
   late final int clkGatePartitionIndex;
   int? _providedClkGateParitionIndex;
 
-  /// TODO
+  /// Constructs a [GatedCounter] in the same way as a [Counter], but with the
+  /// added ability to [gateToggles] of the interfaces when they are not enabled
+  /// and gate the clocks of the counter in a partitioned way.
   ///
   /// If the [clkGatePartitionIndex] is less than 0 or greater than the [width],
   /// then the entire counter will be gated together rather than partitioned. If
@@ -65,8 +81,6 @@ class GatedCounter extends Counter {
         _clockGateControlInterface = clockGateControlInterface == null
             ? null
             : ClockGateControlInterface.clone(clockGateControlInterface) {
-    //TODO: test that clock gate control intf properly is passed?
-
     _clockGateControlInterface?.pairConnectIO(
         this, clockGateControlInterface!, PairRole.consumer);
   }
@@ -225,25 +239,7 @@ class GatedCounter extends Counter {
       anyIntfInDangerZone |= intfInDangerZone;
     }
 
-    mayUnderflow |= anyIntfInDangerZone;
-
-    // TODO: does this bigDecr make any sense?
-    // Logic anyIntfBigDecrement = Const(0);
-    // for (final intf in _decrementingInterfaces) {
-    //   var intfBigDecrement = minValueBit >= intf.width
-    //       ? Const(0)
-    //       : intf.amount.getRange(minValueBit).or();
-
-    //   if (intf.hasEnable) {
-    //     intfBigDecrement &= intf.enable!;
-    //   }
-
-    //   anyIntfBigDecrement |= intfBigDecrement;
-    // }
-
-    // mayUnderflow |= anyIntfBigDecrement;
-
-    return mayUnderflow;
+    return mayUnderflow | anyIntfInDangerZone;
   }
 
   late final _mayWrap = Logic(name: 'mayWrap')

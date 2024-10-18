@@ -211,7 +211,6 @@ void main() {
     );
 
     await counter.build();
-    WaveDumper(counter);
 
     Simulator.setMaxSimTime(1000);
     unawaited(Simulator.run());
@@ -275,7 +274,7 @@ void main() {
   });
 
   group('random counter', () {
-    const numRandCounters = 20; //TODO: make more counters!
+    const numRandCounters = 20;
     const restartProbability = 0.05;
 
     final counterTypes = ['normal', 'gated'];
@@ -284,7 +283,7 @@ void main() {
       group(counterType, () {
         for (var counterIdx = 0; counterIdx < numRandCounters; counterIdx++) {
           test('$counterIdx', () async {
-            const numCycles = 500; //TODO: make it more cycles!!
+            const numCycles = 500;
 
             final rand = Random(456 + counterIdx ^ counterType.hashCode);
 
@@ -322,9 +321,6 @@ void main() {
                         rand.nextBool() ? null : rand.nextInt(11) - 1);
 
             await dut.build();
-            // print(dut.generateSynth());
-
-            // WaveDumper(dut);
 
             unawaited(Simulator.run());
 
