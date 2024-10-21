@@ -11,7 +11,6 @@ import 'dart:async';
 
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
-import 'package:rohd_hcl/src/summation/gated_counter.dart';
 import 'package:rohd_vf/rohd_vf.dart';
 import 'package:test/test.dart';
 
@@ -33,6 +32,8 @@ class ClockToggleCounter {
   double get upperActivity => upperToggles / totalToggles;
   double get lowerActivity => lowerToggles / totalToggles;
 }
+
+//TODO: test gating the whole thing togethr (index <0, e.g.)
 
 void main() {
   tearDown(() async {

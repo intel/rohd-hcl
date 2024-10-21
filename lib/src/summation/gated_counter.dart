@@ -52,8 +52,14 @@ class GatedCounter extends Counter {
         }).toList()
       : super.interfaces;
 
+  /// The index at which to partition the counter for clock gating.
+  ///
+  /// If less than 0 or greater than the [width], then the entire counter will
+  /// be gated together rather than partitioned.
   late final int clkGatePartitionIndex;
-  int? _providedClkGateParitionIndex;
+
+  /// A provided [clkGatePartitionIndex], if one was provided.
+  final int? _providedClkGateParitionIndex;
 
   /// Constructs a [GatedCounter] in the same way as a [Counter], but with the
   /// added ability to [gateToggles] of the interfaces when they are not enabled
@@ -89,13 +95,15 @@ class GatedCounter extends Counter {
         this, clockGateControlInterface!, PairRole.consumer);
   }
 
-  //TODO: doc
+  /// All [interfaces] which are incrementing.
   late final _incrementingInterfaces =
       interfaces.where((intf) => intf.increments);
+
+  /// All [interfaces] which are decrementing.
   late final _decrementingInterfaces =
       interfaces.where((intf) => !intf.increments);
 
-  @protected
+  /// High if the counter may overflow.
   @visibleForTesting
   late final Logic mayOverflow = Logic(name: 'mayOverflow')
     ..gets(_calculateMayOverflow());
@@ -187,7 +195,7 @@ class GatedCounter extends Counter {
     return mayOverflow;
   }
 
-  @protected
+  /// High if the counter may underflow.
   @visibleForTesting
   late final Logic mayUnderflow = Logic(name: 'mayUnderflow')
     ..gets(_calculateMayUnderflow());
@@ -246,11 +254,12 @@ class GatedCounter extends Counter {
     return mayUnderflow | anyIntfInDangerZone;
   }
 
+  /// High if the counter [mayUnderflow] or [mayOverflow].
   late final _mayWrap = Logic(name: 'mayWrap')
     ..gets(mayUnderflow | mayOverflow);
 
-  @protected
-  late final lowerEnable = Logic(name: 'lowerEnable')
+  /// Enable for the clock gate for the upper portion of the counter.
+  late final _lowerEnable = Logic(name: 'lowerEnable')
     ..gets(_calculateLowerEnable());
 
   Logic _calculateLowerEnable() {
@@ -308,8 +317,8 @@ class GatedCounter extends Counter {
             .swizzle()
             .or());
 
-  @protected
-  late final upperEnable = Logic(name: 'upperEnable')
+  /// Enable for the clock gate for the upper portion of the counter.
+  late final _upperEnable = Logic(name: 'upperEnable')
     ..gets(_calculateUpperEnable());
 
   Logic _calculateUpperEnable() {
@@ -434,16 +443,18 @@ class GatedCounter extends Counter {
     return upperEnable;
   }
 
-  // hooks for testbenches and subclasses
+  /// The gated clock for the lower partition of the counter.
   @visibleForTesting
   @protected
   late final Logic lowerGatedClock;
 
+  /// The gated clock for the upper partition of the counter.
   @visibleForTesting
   @protected
   late final Logic upperGatedClock;
 
-  /// TODO
+  /// Whether the current value of the counter is not "stable" in that it's not
+  /// legal according to the minimum and maximum values.
   ///
   /// Covers the scenario where reset value is less than the minimum value or
   /// greater than the maximum value. The first cycle after reset, we need to
@@ -452,6 +463,11 @@ class GatedCounter extends Counter {
     ..gets(
       (summer.underflowed & ~underflowed) | (summer.overflowed & ~overflowed),
     );
+
+  /// Picks a partition index based on the interfaces provided.
+  int _pickPartitionIndex() =>
+      // simple implementation is just cut it in half
+      width ~/ 2;
 
   @protected
   @override
@@ -462,7 +478,7 @@ class GatedCounter extends Counter {
     if (clkGatePartitionIndex >= width || clkGatePartitionIndex < 0) {
       // just gate the whole thing together
       final clkGate = ClockGate(clk,
-          enable: lowerEnable | upperEnable,
+          enable: _lowerEnable | _upperEnable,
           reset: reset,
           controlIntf: _clockGateControlInterface);
 
@@ -478,13 +494,13 @@ class GatedCounter extends Counter {
           );
     } else {
       final lowerClkGate = ClockGate(clk,
-          enable: lowerEnable,
+          enable: _lowerEnable,
           reset: reset,
           controlIntf: _clockGateControlInterface,
           name: 'lower_clock_gate');
 
       final upperClkGate = ClockGate(clk,
-          enable: upperEnable,
+          enable: _upperEnable,
           reset: reset,
           controlIntf: _clockGateControlInterface,
           name: 'upper_clock_gate');
@@ -509,9 +525,4 @@ class GatedCounter extends Counter {
       count <= [upperCount, lowerCount].swizzle();
     }
   }
-
-  /// Picks a partition index based on the interfaces provided.
-  int _pickPartitionIndex() =>
-      // simple implementation is just cut it in half
-      width ~/ 2;
 }

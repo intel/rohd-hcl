@@ -4,7 +4,6 @@ import 'dart:math';
 
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
-import 'package:rohd_hcl/src/summation/gated_counter.dart';
 import 'package:test/test.dart';
 
 int goldenSumOfLogics(
