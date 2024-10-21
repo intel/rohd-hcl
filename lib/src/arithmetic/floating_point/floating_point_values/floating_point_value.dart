@@ -83,7 +83,7 @@ class FloatingPointValue implements Comparable<FloatingPointValue> {
   final LogicValue value;
 
   /// The sign of the value:  1 means a negative value
-  final LogicValue sign;
+  late final LogicValue sign;
 
   /// The exponent of the floating point: this is biased about a midpoint for
   /// positive and negative exponents
@@ -243,7 +243,7 @@ class FloatingPointValue implements Comparable<FloatingPointValue> {
     );
   }
 
-  // TODO(desmonddak): make a toString (with radix)
+  // TODO(desmonddak): toRadixString() would be useful, not limited to binary
 
   /// [FloatingPointValue] constructor from a set of [BigInt]s of the binary
   /// representation and the size of the exponent and mantissa
@@ -264,13 +264,14 @@ class FloatingPointValue implements Comparable<FloatingPointValue> {
             mantissa:
                 LogicValue.ofBigInt(BigInt.from(mantissa), mantissaWidth));
 
-  /// Construct a [FloatingPointValue] from a Logic word
-  factory FloatingPointValue.fromLogic(
-          int exponentWidth, int mantissaWidth, LogicValue val) =>
-      FloatingPointValue(
-          sign: val[-1],
-          exponent: val.slice(exponentWidth + mantissaWidth - 1, mantissaWidth),
-          mantissa: val.slice(mantissaWidth - 1, 0));
+  /// Construct a [FloatingPointValue] from a [LogicValue]
+  FloatingPointValue.fromLogicValue(
+      int exponentWidth, int mantissaWidth, LogicValue val)
+      : this(
+            sign: val[-1],
+            exponent:
+                val.slice(exponentWidth + mantissaWidth - 1, mantissaWidth),
+            mantissa: val.slice(mantissaWidth - 1, 0));
 
   /// Return the [FloatingPointValue] representing the constant specified
   factory FloatingPointValue.getFloatingPointConstant(

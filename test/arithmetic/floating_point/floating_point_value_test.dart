@@ -163,8 +163,7 @@ void main() {
           exponentWidth: 4, mantissaWidth: 3);
       expect(val, fp.toDouble());
       expect(str, fp.toString());
-      final fp8 = FloatingPointValue.fromDouble(val,
-          exponentWidth: 4, mantissaWidth: 3);
+      final fp8 = FloatingPoint8E4M3Value.fromDouble(val);
       expect(val, fp8.toDouble());
       expect(str, fp8.toString());
     }
@@ -185,8 +184,7 @@ void main() {
           exponentWidth: 5, mantissaWidth: 2);
       expect(val, fp.toDouble());
       expect(str, fp.toString());
-      final fp8 = FloatingPointValue.fromDouble(val,
-          exponentWidth: 5, mantissaWidth: 2);
+      final fp8 = FloatingPoint8E5M2Value.fromDouble(val);
       expect(val, fp8.toDouble());
       expect(str, fp8.toString());
     }

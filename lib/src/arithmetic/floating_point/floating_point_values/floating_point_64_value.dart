@@ -14,7 +14,7 @@ import 'dart:typed_data';
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
 
-/// A representation of a double precision floating point value
+/// A representation of a double-precision floating-point value.
 class FloatingPoint64Value extends FloatingPointValue {
   /// The exponent width
   static const int _exponentWidth = 11;

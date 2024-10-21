@@ -14,7 +14,7 @@ import 'package:meta/meta.dart';
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
 
-/// A representation of a single precision floating point value
+/// A representation of a single-precision floating-point value.
 class FloatingPoint32Value extends FloatingPointValue {
   /// The exponent width
   static const int exponentWidth = 8;

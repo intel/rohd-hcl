@@ -13,7 +13,7 @@ import 'package:meta/meta.dart';
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
 
-/// A representation of a single precision floating point value
+/// A representation of an FP16 floating-point value.
 class FloatingPointFP16Value extends FloatingPointValue {
   /// The exponent width
   static const int exponentWidth = 5;

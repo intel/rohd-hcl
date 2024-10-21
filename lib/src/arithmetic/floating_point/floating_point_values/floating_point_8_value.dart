@@ -74,7 +74,8 @@ class FloatingPoint8E4M3Value extends FloatingPointValue {
 
   /// Numeric conversion of a [FloatingPoint8E4M3Value] from a host double
   factory FloatingPoint8E4M3Value.fromDouble(double inDouble) {
-    if ((inDouble > maxValue) | (inDouble < minValue)) {
+    if ((inDouble.abs() > maxValue) |
+        ((inDouble != 0) & (inDouble.abs() < minValue))) {
       throw RohdHclException('Number exceeds E4M3 range');
     }
     final fpv = FloatingPointValue.fromDouble(inDouble,
@@ -155,7 +156,8 @@ class FloatingPoint8E5M2Value extends FloatingPointValue {
 
   /// Numeric conversion of a [FloatingPoint8E5M2Value] from a host double
   factory FloatingPoint8E5M2Value.fromDouble(double inDouble) {
-    if ((inDouble > maxValue) | (inDouble < minValue)) {
+    if ((inDouble.abs() > maxValue) |
+        ((inDouble != 0) & (inDouble.abs() < minValue))) {
       throw RohdHclException('Number exceeds E5M2 range');
     }
     final fpv = FloatingPointValue.fromDouble(inDouble,
