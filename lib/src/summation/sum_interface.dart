@@ -7,6 +7,8 @@
 // 2024 August 26
 // Author: Max Korbel <max.korbel@intel.com>
 
+import 'dart:math';
+
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
 
@@ -59,7 +61,10 @@ class SumInterface extends PairInterface {
       : width = (width == null && fixedAmount == null)
             ? throw RohdHclException(
                 'Must provide either a fixedAmount or width.')
-            : width ?? LogicValue.ofInferWidth(fixedAmount).width {
+            : width ?? max(LogicValue.ofInferWidth(fixedAmount).width, 1) {
+    if (this.width <= 0) {
+      throw RohdHclException('Width must be positive.');
+    }
     setPorts([
       if (fixedAmount == null) Port('amount', this.width),
       if (hasEnable) Port('enable'),
@@ -76,4 +81,12 @@ class SumInterface extends PairInterface {
           width: other.width,
           hasEnable: other.hasEnable,
         );
+
+  @override
+  String toString() => [
+        'SumInterface[$width]',
+        if (fixedAmount != null) ' = $fixedAmount',
+        if (increments) ' ++ ' else ' -- ',
+        if (hasEnable) ' (enable)',
+      ].join();
 }
