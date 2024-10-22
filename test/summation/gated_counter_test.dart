@@ -33,8 +33,6 @@ class ClockToggleCounter {
   double get lowerActivity => lowerToggles / totalToggles;
 }
 
-//TODO: test gating the whole thing togethr (index <0, e.g.)
-
 void main() {
   tearDown(() async {
     await Simulator.reset();
@@ -120,6 +118,35 @@ void main() {
 
     expect(toggleCounter.lowerActivity, greaterThan(0.95));
     expect(toggleCounter.upperActivity, greaterThan(0.95));
+  });
+
+  test(
+      'simple 1-counter incrementing sometimes, with rollover,'
+      ' clock gating all together', () async {
+    final toggleCounter = await testCounter(
+      (clk, reset) {
+        final enable = Logic()..inject(0);
+        var count = 0;
+        clk.posedge.listen((_) {
+          enable.inject(count++ % 20 > 5);
+        });
+        return GatedCounter(
+          [
+            SumInterface(width: 1, hasEnable: true)
+              ..enable!.gets(enable)
+              ..amount.inject(1)
+          ],
+          clk: clk,
+          reset: reset,
+          width: 6,
+          clkGatePartitionIndex: 6,
+        );
+      },
+    );
+
+    expect(toggleCounter.lowerActivity, greaterThan(0.65));
+    expect(toggleCounter.upperActivity, greaterThan(0.65));
+    expect(toggleCounter.lowerActivity, toggleCounter.upperActivity);
   });
 
   test('simple 1-counter incrementing always, with saturation', () async {

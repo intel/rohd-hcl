@@ -179,7 +179,6 @@ class GatedCounter extends Counter {
       if (intf.hasEnable) {
         intfIsIncrementing &= intf.enable!;
       }
-      //TODO: doc instantiation of ROHD modules
 
       anyIntfIncrementing |= intfIsIncrementing;
     }
