@@ -43,32 +43,6 @@ Counter.simple(clk: clk, reset: reset, maxValue: 5);
 
 The `GatedCounter` is a version of a `Counter` which contains a number of power-saving features including clock gating to save on flop power and enable gating to avoid unnecessary combinational toggles.
 
-Rules:
+The `GatedCounter` has a `clkGatePartitionIndex` which determines a dividing line for the counter to be clock gated such that flops at or above that index will be independently clock gated from the flops below that index. This is an effective method of saving extra power on many counters because the upper bits of the counter may change much less frequently than the lower bits (or vice versa).  If the index is negative or greater than or equal to the width of the counter, then the whole counter will be clock gated in unison.
 
-- For determining if a portion of the flops should be enabled:
-  - Summary rule is: if the counter *may* change to impact those flops, enable them. Else, disable them.
-  - Basic rules:
-    - We round estimate numbers to powers of 2 so that we can check bits instead of using comparators
-    - Lower enable
-      - If any (enabled) interfaces have any 1's in any lower bits, enable
-    - Upper enable
-      - If any (enabled) interfaces have any 1's in any upper bits, enable
-      - For INCREMENTs
-        - If current count has 1's in a "range" of uppermost lower bits, AND
-        - If any (enabled) interfaces have 1's in a "range" of uppermost lower bits, enable
-      - For DECREMENTs
-        - If current count has no 1's in a "range" of uppermost lower bits, AND
-        - If the lower bits are "close enough" to 0 (to cause decrement on upper bits), enable
-  - Special considerations:
-    - Overflow: if the counter may overflow, enable lower bound bits
-    - Underflow: if the counter may underflow, enable upper bits
-    - Saturation: if a counter saturates, then overflow/underflow cannot occur, so don't consider it
-    - Max value: if the max value prevents upper bits from ever toggling, then don't even generate the flop, tie to 0
-    - Min value: there are only clever things here in really weird cases, don't optimize for it (e.g. max == min)
-  - Blanket cases:
-    - If all interfaces are not enabled, GATE ALL
-    - If all interfaces have 0 on them, GATE ALL
-    - If restarting, UNGATE ALL
-- For selecting a boundary
-  - Optional: accept a provided number for where to draw the boundary
-  - Consider the maximum magnitude of interfaces (incr and decr separately), and draw the partition some number of bits away from that number, so that the percentage of time that clocks are enabled is relatively low if the increment amount was full every time (e.g. 4 bits would be 1/16th of the time enabled).
+The `gateToggles` flag will enable `ToggleGate` insertion on a per-interface basis to help reduce combinational toggles within the design when interfaces are not enabled.

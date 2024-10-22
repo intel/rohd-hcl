@@ -69,10 +69,12 @@ class GatedCounter extends Counter {
   /// so the functionality when compared to the base [Counter] is identical with
   /// no added latency to the [count].
   ///
-  /// If the [clkGatePartitionIndex] is less than 0 or greater than the [width],
-  /// then the entire counter will be gated together rather than partitioned. If
-  /// no [clkGatePartitionIndex] is provided, the counter will attempt to infer
-  /// a good partition index based on the interfaces provided.
+  /// The [clkGatePartitionIndex] is the index at which to partition the counter
+  /// for clock gating. If the [clkGatePartitionIndex] is less than 0 or greater
+  /// than the [width], then the entire counter will be gated together rather
+  /// than partitioned. If no [clkGatePartitionIndex] is provided, the counter
+  /// will attempt to infer a good partition index based on the interfaces
+  /// provided.
   GatedCounter(
     super.interfaces, {
     required super.clk,

@@ -1,3 +1,12 @@
+// Copyright (C) 2024 Intel Corporation
+// SPDX-License-Identifier: BSD-3-Clause
+//
+// summation_test_utils.dart
+// Utilities for summation testing.
+//
+// 2024 October
+// Author: Max Korbel <max.korbel@intel.com>
+
 // ignore_for_file: invalid_use_of_protected_member
 
 import 'dart:math';
@@ -6,6 +15,7 @@ import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
 import 'package:test/test.dart';
 
+/// Computes the proper sum of a list of [Logic]s.
 int goldenSumOfLogics(
   List<Logic> logics, {
   required int width,
@@ -21,6 +31,7 @@ int goldenSumOfLogics(
       maxVal: maxVal,
     );
 
+/// Computes the proper sum of a list of [SumInterface]s.
 int goldenSum(
   List<SumInterface> interfaces, {
   required int width,
@@ -96,6 +107,7 @@ int goldenSum(
   return sum;
 }
 
+/// Generates a random [SumInterface].
 SumInterface genRandomInterface(Random rand) {
   final isFixed = rand.nextBool();
   return SumInterface(
@@ -106,11 +118,14 @@ SumInterface genRandomInterface(Random rand) {
   );
 }
 
+/// Generates a list of random [SumInterface]s.
 List<SumInterface> genRandomInterfaces(Random rand) {
   final numInterfaces = rand.nextInt(8) + 1;
   return List.generate(numInterfaces, (_) => genRandomInterface(rand));
 }
 
+/// Sets up a listener on clock edges to check that counters are functioning
+/// properly.
 void checkCounter(Counter counter) {
   final sub = counter.clk.posedge.listen((_) async {
     final errPrefix = '@${Simulator.time}: ';
@@ -161,6 +176,7 @@ void checkCounter(Counter counter) {
   });
 }
 
+/// Generates a random summation configuration.
 ({
   List<SumInterface> interfaces,
   int? width,
