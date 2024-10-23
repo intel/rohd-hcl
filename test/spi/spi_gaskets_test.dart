@@ -1,8 +1,8 @@
 // Copyright (C) 2024 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 //
-// spi_main_test.dart
-// Tests for SPI main gasket.
+// spi_gaskets_test.dart
+// Tests for SPI gaskets, main and sub.
 //
 // 2024 October 10
 // Author: Roberto Torres <roberto.torres@intel.com>
@@ -85,11 +85,98 @@ class SpiMainTest extends Test {
   }
 }
 
+class SpiSubTest extends Test {
+  late final SpiInterface intf;
+  late final SpiMainAgent main;
+  late final SpiMonitor monitor;
+  late final SpiSub sub;
+  late final Logic reset;
+  late final Logic clk;
+  late final Logic busIn;
+
+  String get outFolder => 'tmp_test/spiSub/$name/';
+
+  final Future<void> Function(SpiSubTest test) stimulus;
+
+  SpiSubTest(this.stimulus, super.name) : super() {
+    intf = SpiInterface(dataLength: 8);
+
+    clk = SimpleClockGenerator(10).clk;
+
+    main = SpiMainAgent(intf: intf, parent: this, clk: clk);
+
+    monitor = SpiMonitor(intf: intf, parent: this);
+
+    busIn = Logic(width: 8);
+
+    reset = Logic();
+
+    sub = SpiSub(intf: intf, busIn: busIn, reset: reset);
+
+    Directory(outFolder).createSync(recursive: true);
+
+    final tracker =
+        SpiTracker(intf: intf, dumpTable: true, outputFolder: outFolder);
+
+    Simulator.registerEndOfSimulationAction(() async {
+      await tracker.terminate();
+
+      // final jsonStr =
+      //      File('$outFolder/spiTracker.tracker.json').readAsStringSync();
+      // final jsonContents = json.decode(jsonStr);
+
+      // // ignore: avoid_dynamic_calls
+      // expect(jsonContents['records'].length, 2);
+
+      //Directory(outFolder).deleteSync(recursive: true);
+    });
+
+    monitor.stream.listen(tracker.record);
+  }
+
+  @override
+  Future<void> run(Phase phase) async {
+    unawaited(super.run(phase));
+
+    final obj = phase.raiseObjection('SpiSubTestObj');
+
+    // reset flow
+    reset.inject(true);
+    await clk.waitCycles(2);
+    reset.inject(false);
+
+    await stimulus(this);
+
+    obj.drop();
+  }
+}
+
 void main() {
   tearDown(() async {
     await Simulator.reset();
   });
+  group('sub gasket tests', () {
+    Future<void> runSubTest(SpiSubTest spiSubTest,
+        {bool dumpWaves = true}) async {
+      Simulator.setMaxSimTime(6000);
 
+      if (dumpWaves) {
+        await spiSubTest.sub.build();
+        WaveDumper(spiSubTest.sub);
+      }
+
+      await spiSubTest.start();
+    }
+
+    test('simple sub transfers', () async {
+      await runSubTest(SpiSubTest((test) async {
+        test.main.sequencer.add(
+            SpiPacket(data: LogicValue.ofInt(0xCB, 8))); //0b1100 1011 = 203
+
+        test.main.sequencer.add(SpiPacket(data: LogicValue.ofInt(0x22, 8)));
+      }, 'testSubA'));
+    });
+  });
   group('main gasket tests', () {
     Future<void> runMainTest(SpiMainTest spiMainTest,
         {bool dumpWaves = true}) async {

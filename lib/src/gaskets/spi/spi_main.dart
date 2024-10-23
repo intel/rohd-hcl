@@ -20,6 +20,12 @@ class SpiMain extends Module {
       {required Logic clk, required Logic reset, required Logic start}) {
     busIn = addInput('bus', busIn, width: busIn.width);
 
+    clk = addInput('clk', clk);
+
+    reset = addInput('reset', reset);
+
+    start = addInput('start', start);
+
     addOutput('busOut', width: busIn.width);
 
     intf = SpiInterface.clone(intf)
@@ -33,26 +39,33 @@ class SpiMain extends Module {
 
     //
     final isRunning = Logic(name: 'isRunning');
-
-    // Serializes busInArray
+    final done = Logic(name: 'done');
+    // Serializes busInArray.
     final serializer = Serializer(busInArray,
-        clk: clk, reset: reset, enable: isRunning, flopInput: true);
+        clk: clk,
+        reset: reset,
+        enable: start | (isRunning & ~done),
+        flopInput: true);
+
+    done <= serializer.done;
 
     // Will run when start is pulsed high, reset on reset or when serializer is done
-    isRunning <= flop(clk, Const(1), en: start, reset: reset | serializer.done);
+    isRunning <=
+        flop(clk, Const(1),
+            en: start, reset: reset | (serializer.done & ~start));
 
-    // Shift register in from MISO
+    // Shift register in from MISO.
     final shiftReg =
         ShiftRegister(intf.miso, clk: intf.sclk, depth: intf.dataLength);
 
     // Each busOut bit is connected to the corresponding shift Register stage
     busOut <= shiftReg.stages.swizzle();
 
-    // Sclk runs of clk when isRunning is true
+    // Sclk runs off clk when isRunning is true
     intf.sclk <= clk & isRunning;
 
     // CS is active low. It will go low when isRunning is high
-    intf.cs <= ~isRunning;
+    intf.cs <= ~(isRunning | start);
 
     // Mosi is connected to the serializer output.
     intf.mosi <= serializer.serialized;

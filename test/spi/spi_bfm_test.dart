@@ -81,8 +81,6 @@ class SpiBfmTest extends Test {
           .add(SpiPacket(data: LogicValue.ofInt(0x1B, 8))); //0b0001 1011 = 27
     }));
 
-    // might want a completion
-
     // main.sequencer.add(SpiPacket(
     //     data: LogicValue.ofInt(0x00, 8),
     //     direction: SpiDirection.read)); //0b0111 0001 = 113

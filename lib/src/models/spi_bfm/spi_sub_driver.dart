@@ -13,8 +13,6 @@ import 'package:rohd_hcl/rohd_hcl.dart';
 import 'package:rohd_vf/rohd_vf.dart';
 
 /// A driver for the sub side of the [SpiInterface].
-///
-/// Driven packets will update the returned data into the same packet.
 class SpiSubDriver extends PendingDriver<SpiPacket> {
   /// The interface to drive.
   final SpiInterface intf;
@@ -31,38 +29,52 @@ class SpiSubDriver extends PendingDriver<SpiPacket> {
   Future<void> run(Phase phase) async {
     unawaited(super.run(phase));
 
-    intf.miso.inject(0); //high impedance?
-
+    intf.miso.inject(0);
     SpiPacket? packet;
 
     int? dataIndex;
 
     // Function handles the packet.
-    void packetHandler() {
+    void packetHandler({required bool loadOnly}) {
       if (packet == null && pendingSeqItems.isNotEmpty) {
         packet = pendingSeqItems.removeFirst();
-        dataIndex = 0;
+        if (loadOnly) {
+          dataIndex = 0;
+        } else {
+          dataIndex = -1;
+        }
       }
       if (packet != null) {
-        logger.info('driving sub packet, index: $dataIndex');
-        intf.miso.inject(packet!.data[dataIndex!]);
-        dataIndex = dataIndex! + 1;
+        if (loadOnly) {
+          intf.miso.inject(packet!.data[dataIndex!]);
+          logger.info('injected sub packet, index: $dataIndex');
+        } else {
+          dataIndex = dataIndex! + 1;
+          logger.info('incremented index to: $dataIndex');
+          if (dataIndex! < packet!.data.width) {
+            logger.info('injecting sub packet, index: $dataIndex');
+            intf.miso.inject(packet!.data[dataIndex!]);
+          }
+        }
 
         if (dataIndex! >= packet!.data.width) {
           packet = null;
           dataIndex = null;
+          packetHandler(loadOnly: loadOnly);
         }
       } else {
-        intf.miso.inject(0); // high impedance?
+        intf.miso.inject(0);
       }
     }
 
     intf.cs.negedge.listen((_) {
-      packetHandler();
+      logger.info('cs negedge');
+      packetHandler(loadOnly: true);
     });
 
     intf.sclk.negedge.listen((_) {
-      packetHandler();
+      logger.info('sclk negedge');
+      packetHandler(loadOnly: false);
     });
   }
 }
