@@ -36,7 +36,7 @@ class FloatingPointTF32Value extends FloatingPointValue {
   /// Return the [FloatingPointTF32Value] representing the constant specified
   factory FloatingPointTF32Value.getFloatingPointConstant(
           FloatingPointConstants constantFloatingPoint) =>
-      FloatingPointTF32Value.fromLogic(
+      FloatingPointTF32Value.fromLogicValue(
           FloatingPointValue.getFloatingPointConstant(
                   constantFloatingPoint, exponentWidth, mantissaWidth)
               .value);
@@ -71,13 +71,11 @@ class FloatingPointTF32Value extends FloatingPointValue {
   factory FloatingPointTF32Value.fromDouble(double inDouble) {
     final fpv = FloatingPointValue.fromDouble(inDouble,
         exponentWidth: exponentWidth, mantissaWidth: mantissaWidth);
-    return FloatingPointTF32Value.fromLogic(fpv.value);
+    return FloatingPointTF32Value.fromLogicValue(fpv.value);
   }
 
   /// Construct a [FloatingPointTF32Value] from a Logic word
-  factory FloatingPointTF32Value.fromLogic(LogicValue val) =>
-      FloatingPointTF32Value(
-          sign: val[-1],
-          exponent: val.slice(exponentWidth + mantissaWidth - 1, mantissaWidth),
-          mantissa: val.slice(mantissaWidth - 1, 0));
+  factory FloatingPointTF32Value.fromLogicValue(LogicValue val) =>
+      FloatingPointValue.buildFromLogicValue(
+          FloatingPointTF32Value.new, exponentWidth, mantissaWidth, val);
 }

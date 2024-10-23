@@ -37,7 +37,7 @@ class FloatingPoint32Value extends FloatingPointValue {
   /// Return the [FloatingPoint32Value] representing the constant specified
   factory FloatingPoint32Value.getFloatingPointConstant(
           FloatingPointConstants constantFloatingPoint) =>
-      FloatingPoint32Value.fromLogic(
+      FloatingPoint32Value.fromLogicValue(
           FloatingPointValue.getFloatingPointConstant(
                   constantFloatingPoint, exponentWidth, mantissaWidth)
               .value);
@@ -83,9 +83,7 @@ class FloatingPoint32Value extends FloatingPointValue {
   }
 
   /// Construct a [FloatingPoint32Value] from a Logic word
-  factory FloatingPoint32Value.fromLogic(LogicValue val) =>
-      FloatingPoint32Value(
-          sign: val[-1],
-          exponent: val.slice(exponentWidth + mantissaWidth - 1, mantissaWidth),
-          mantissa: val.slice(mantissaWidth - 1, 0));
+  factory FloatingPoint32Value.fromLogicValue(LogicValue val) =>
+      FloatingPointValue.buildFromLogicValue(
+          FloatingPoint32Value.new, exponentWidth, mantissaWidth, val);
 }

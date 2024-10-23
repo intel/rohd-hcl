@@ -85,15 +85,9 @@ class FloatingPoint8E4M3Value extends FloatingPointValue {
   }
 
   /// Construct a [FloatingPoint8E4M3Value] from a Logic word
-  factory FloatingPoint8E4M3Value.fromLogic(LogicValue val) {
-    if (val.width != 8) {
-      throw RohdHclException('Width must be 8');
-    }
-    return FloatingPoint8E4M3Value(
-        sign: val[-1] == LogicValue.one ? LogicValue.one : LogicValue.zero,
-        exponent: val.slice(exponentWidth + mantissaWidth - 1, mantissaWidth),
-        mantissa: val.slice(mantissaWidth - 1, 0));
-  }
+  factory FloatingPoint8E4M3Value.fromLogicValue(LogicValue val) =>
+      FloatingPointValue.buildFromLogicValue(
+          FloatingPoint8E4M3Value.new, exponentWidth, mantissaWidth, val);
 }
 
 /// The E5M2 representation of a 8-bit floating point value as defined in
@@ -167,13 +161,7 @@ class FloatingPoint8E5M2Value extends FloatingPointValue {
   }
 
   /// Construct a [FloatingPoint8E5M2Value] from a Logic word
-  factory FloatingPoint8E5M2Value.fromLogic(LogicValue val) {
-    if (val.width != 8) {
-      throw RohdHclException('Width must be 8');
-    }
-    return FloatingPoint8E5M2Value(
-        sign: val[-1],
-        exponent: val.slice(exponentWidth + mantissaWidth - 1, mantissaWidth),
-        mantissa: val.slice(mantissaWidth - 1, 0));
-  }
+  factory FloatingPoint8E5M2Value.fromLogicValue(LogicValue val) =>
+      FloatingPointValue.buildFromLogicValue(
+          FloatingPoint8E5M2Value.new, exponentWidth, mantissaWidth, val);
 }

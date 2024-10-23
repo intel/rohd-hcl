@@ -35,19 +35,16 @@ class FloatingPoint64Value extends FloatingPointValue {
   /// Return the [FloatingPoint64Value] representing the constant specified
   factory FloatingPoint64Value.getFloatingPointConstant(
           FloatingPointConstants constantFloatingPoint) =>
-      FloatingPoint64Value.fromLogic(
+      FloatingPoint64Value.fromLogicValue(
           FloatingPointValue.getFloatingPointConstant(
                   constantFloatingPoint, _exponentWidth, _mantissaWidth)
               .value);
 
   /// [FloatingPoint64Value] constructor from string representation of
   /// individual bitfields
-  factory FloatingPoint64Value.ofBinaryStrings(
-          String sign, String exponent, String mantissa) =>
-      FloatingPoint64Value(
-          sign: LogicValue.of(sign),
-          exponent: LogicValue.of(exponent),
-          mantissa: LogicValue.of(mantissa));
+  FloatingPoint64Value.ofBinaryStrings(
+      super.sign, super.exponent, super.mantissa)
+      : super.ofBinaryStrings();
 
   /// [FloatingPoint64Value] constructor from spaced string representation of
   /// individual bitfields
@@ -85,9 +82,7 @@ class FloatingPoint64Value extends FloatingPointValue {
   }
 
   /// Construct a [FloatingPoint32Value] from a Logic word
-  factory FloatingPoint64Value.fromLogic(LogicValue val) =>
-      FloatingPoint64Value(
-          sign: val[-1],
-          exponent: val.slice(exponentWidth + mantissaWidth - 1, mantissaWidth),
-          mantissa: val.slice(mantissaWidth - 1, 0));
+  factory FloatingPoint64Value.fromLogicValue(LogicValue val) =>
+      FloatingPointValue.buildFromLogicValue(
+          FloatingPoint64Value.new, exponentWidth, mantissaWidth, val);
 }

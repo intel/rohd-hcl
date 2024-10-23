@@ -36,7 +36,7 @@ class FloatingPointBF16Value extends FloatingPointValue {
   /// Return the [FloatingPointBF16Value] representing the constant specified
   factory FloatingPointBF16Value.getFloatingPointConstant(
           FloatingPointConstants constantFloatingPoint) =>
-      FloatingPointBF16Value.fromLogic(
+      FloatingPointBF16Value.fromLogicValue(
           FloatingPointValue.getFloatingPointConstant(
                   constantFloatingPoint, exponentWidth, mantissaWidth)
               .value);
@@ -72,13 +72,11 @@ class FloatingPointBF16Value extends FloatingPointValue {
     final fpv = FloatingPointValue.fromDouble(inDouble,
         exponentWidth: exponentWidth, mantissaWidth: mantissaWidth);
 
-    return FloatingPointBF16Value.fromLogic(fpv.value);
+    return FloatingPointBF16Value.fromLogicValue(fpv.value);
   }
 
   /// Construct a [FloatingPointBF16Value] from a Logic word
-  factory FloatingPointBF16Value.fromLogic(LogicValue val) =>
-      FloatingPointBF16Value(
-          sign: val[-1],
-          exponent: val.slice(exponentWidth + mantissaWidth - 1, mantissaWidth),
-          mantissa: val.slice(mantissaWidth - 1, 0));
+  factory FloatingPointBF16Value.fromLogicValue(LogicValue val) =>
+      FloatingPointValue.buildFromLogicValue(
+          FloatingPointBF16Value.new, exponentWidth, mantissaWidth, val);
 }

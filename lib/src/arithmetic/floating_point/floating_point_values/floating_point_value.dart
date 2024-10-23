@@ -83,7 +83,7 @@ class FloatingPointValue implements Comparable<FloatingPointValue> {
   final LogicValue value;
 
   /// The sign of the value:  1 means a negative value
-  late final LogicValue sign;
+  final LogicValue sign;
 
   /// The exponent of the floating point: this is biased about a midpoint for
   /// positive and negative exponents
@@ -265,13 +265,34 @@ class FloatingPointValue implements Comparable<FloatingPointValue> {
                 LogicValue.ofBigInt(BigInt.from(mantissa), mantissaWidth));
 
   /// Construct a [FloatingPointValue] from a [LogicValue]
-  FloatingPointValue.fromLogicValue(
-      int exponentWidth, int mantissaWidth, LogicValue val)
-      : this(
-            sign: val[-1],
-            exponent:
-                val.slice(exponentWidth + mantissaWidth - 1, mantissaWidth),
-            mantissa: val.slice(mantissaWidth - 1, 0));
+  factory FloatingPointValue.fromLogicValue(
+          int exponentWidth, int mantissaWidth, LogicValue val) =>
+      buildFromLogicValue(
+          FloatingPointValue.new, exponentWidth, mantissaWidth, val);
+
+  /// A helper function for [FloatingPointValue.fromLogicValue] and base classes
+  /// which performs some width checks and slicing.
+  @protected
+  static T buildFromLogicValue<T extends FloatingPointValue>(
+    T Function(
+            {required LogicValue sign,
+            required LogicValue exponent,
+            required LogicValue mantissa})
+        constructor,
+    int exponentWidth,
+    int mantissaWidth,
+    LogicValue val,
+  ) {
+    final expectedWidth = 1 + exponentWidth + mantissaWidth;
+    if (val.width != expectedWidth) {
+      throw RohdHclException('Width of $val must be $expectedWidth');
+    }
+
+    return constructor(
+        sign: val[-1],
+        exponent: val.slice(exponentWidth + mantissaWidth - 1, mantissaWidth),
+        mantissa: val.slice(mantissaWidth - 1, 0));
+  }
 
   /// Return the [FloatingPointValue] representing the constant specified
   factory FloatingPointValue.getFloatingPointConstant(
