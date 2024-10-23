@@ -369,9 +369,16 @@ class FloatingPointValue implements Comparable<FloatingPointValue> {
       FloatingPointRoundingMode roundingMode =
           FloatingPointRoundingMode.roundNearestEven}) {
     if ((exponentWidth == 8) && (mantissaWidth == 23)) {
+      // TODO(desmonddak): handle rounding mode for 32 bit?
       return FloatingPoint32Value.ofDouble(inDouble);
     } else if ((exponentWidth == 11) && (mantissaWidth == 52)) {
       return FloatingPoint64Value.ofDouble(inDouble);
+    }
+
+    if (roundingMode != FloatingPointRoundingMode.roundNearestEven &&
+        roundingMode != FloatingPointRoundingMode.truncate) {
+      throw UnimplementedError(
+          'Only roundNearestEven or truncate is supported for this width');
     }
 
     final fp64 = FloatingPoint64Value.ofDouble(inDouble);
@@ -442,6 +449,7 @@ class FloatingPointValue implements Comparable<FloatingPointValue> {
 
   /// Convert a floating point number into a [FloatingPointValue]
   /// representation. This form performs NO ROUNDING.
+  @internal
   factory FloatingPointValue.ofDoubleUnrounded(double inDouble,
       {required int exponentWidth, required int mantissaWidth}) {
     if ((exponentWidth == 8) && (mantissaWidth == 23)) {
