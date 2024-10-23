@@ -188,16 +188,11 @@ class FloatingPointValue implements Comparable<FloatingPointValue> {
         sign: sign, exponent: exponent, mantissa: mantissa);
   }
 
-  /// Converts this to a [FloatingPointValue] using a subtype constructor from
-  /// the [subtypeConstructorMap], if available.
-  FloatingPointValue toMappedSubtype() => FloatingPointValue.withMappedSubtype(
-      sign: sign, exponent: exponent, mantissa: mantissa);
-
   /// Converts this [FloatingPointValue] to a [FloatingPointValue] with the same
   /// sign, exponent, and mantissa using the constructor provided in
   /// [subtypeConstructorMap] if available, otherwise using the default
   /// constructor.
-  FloatingPointValue toMappedType() => FloatingPointValue.withMappedSubtype(
+  FloatingPointValue toMappedSubtype() => FloatingPointValue.withMappedSubtype(
       sign: sign, exponent: exponent, mantissa: mantissa);
 
   /// [constrainedMantissaWidth] is the hard-coded mantissa width of the

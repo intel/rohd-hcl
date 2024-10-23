@@ -56,6 +56,7 @@ void main() {
       }
     }
   });
+
   test('FPV: indirect subnormal conversion no rounding', () {
     const signStr = '0';
     for (var exponentWidth = 2; exponentWidth < 12; exponentWidth++) {
@@ -74,6 +75,7 @@ void main() {
       }
     }
   });
+
   test('FPV: round trip 32', () {
     final values = [
       FloatingPoint32Value.getFloatingPointConstant(
@@ -95,6 +97,7 @@ void main() {
       expect(fp2, equals(fp));
     }
   });
+
   test('FPV: round trip 64', () {
     final values = [
       FloatingPoint64Value.getFloatingPointConstant(
@@ -116,12 +119,14 @@ void main() {
       expect(fp2, equals(fp));
     }
   });
+
   test('FloatingPointValue string conversion', () {
     const str = '0 10000001 01000100000000000000000'; // 5.0625
     final fp = FloatingPoint32Value.ofSpacedBinaryString(str);
     expect(fp.toString(), str);
     expect(fp.toDouble(), 5.0625);
   });
+
   test('FPV: simple 32', () {
     final values = [0.15625, 12.375, -1.0, 0.25, 0.375];
     for (final val in values) {
@@ -215,6 +220,7 @@ void main() {
         FloatingPointValue.fromDouble(val, exponentWidth: 4, mantissaWidth: 4);
     expect(fpConvert, equals(fpRound));
   });
+
   test('FPV: round nearest even Guard and Round', () {
     final fp64 = FloatingPoint64Value.ofBinaryStrings('0', '10000000000',
         '0000110000000000000000000000000000000000000000000000');
@@ -226,6 +232,7 @@ void main() {
         FloatingPointValue.fromDouble(val, exponentWidth: 4, mantissaWidth: 4);
     expect(fpConvert, equals(fpRound));
   });
+
   test('FPV: rounding nearest even increment', () {
     final fp64 = FloatingPoint64Value.ofBinaryStrings('0', '10000000000',
         '0001100000000000000000000000000000000000000000000000');
@@ -236,6 +243,7 @@ void main() {
         FloatingPointValue.fromDouble(val, exponentWidth: 4, mantissaWidth: 4);
     expect(fpConvert, equals(fpRound));
   });
+
   test('FPV: rounding nearest even increment carry into exponent', () {
     final fp64 = FloatingPoint64Value.ofBinaryStrings('0', '10000000000',
         '1111100000000000000000000000000000000000000000000000');
@@ -246,6 +254,7 @@ void main() {
         FloatingPointValue.fromDouble(val, exponentWidth: 4, mantissaWidth: 4);
     expect(fpConvert, equals(fpRound));
   });
+
   test('FPV: rounding nearest even truncate', () {
     final fp64 = FloatingPoint64Value.ofBinaryStrings('0', '10000000000',
         '0010100000000000000000000000000000000000000000000000');
@@ -255,5 +264,26 @@ void main() {
     final fpConvert =
         FloatingPointValue.fromDouble(val, exponentWidth: 4, mantissaWidth: 4);
     expect(fpConvert, equals(fpTrunc));
+  });
+
+  test('mapped subtype constructor', () {
+    final fp = FloatingPointValue.withMappedSubtype(
+      sign: LogicValue.zero,
+      exponent: LogicValue.ofString('10101'),
+      mantissa: LogicValue.ofString('10'),
+    );
+
+    expect(fp, isA<FloatingPoint8E5M2Value>());
+  });
+
+  test('mapped subtype conversion', () {
+    final fp = FloatingPointValue(
+      sign: LogicValue.zero,
+      exponent: LogicValue.ofString('10101'),
+      mantissa: LogicValue.ofString('10'),
+    );
+
+    expect(fp, isNot(isA<FloatingPoint8E5M2Value>()));
+    expect(fp.toMappedSubtype(), isA<FloatingPoint8E5M2Value>());
   });
 }
