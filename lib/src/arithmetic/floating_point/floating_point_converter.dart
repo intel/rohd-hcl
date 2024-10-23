@@ -5,10 +5,7 @@
 // A Floating-point format converter component.
 //
 // 2024 August 30
-// Author: AI Assistant
-
-import 'dart:ffi';
-import 'dart:math';
+// Author: Xue Zheng Saw <xue.zheng.saw@intel.com> (Alan)
 
 import 'package:meta/meta.dart';
 import 'package:rohd/rohd.dart';
@@ -115,11 +112,29 @@ class FloatingPointConverter extends Module {
 
   FloatingPoint _handleZero(FloatingPoint sourceFP, int destExponentWidth,
           int destMantissaWidth) =>
-      _packZero(
+      packZero(
           source: sourceFP,
           destExponentWidth: destExponentWidth,
           destMantissaWidth: destMantissaWidth);
 
+  /// Convert a normal [FloatingPoint] number to a new format.
+  ///
+  /// The output [FloatingPoint] has the given [destExponentWidth] and
+  /// [destMantissaWidth].
+  ///
+  /// The [source] is a normal [FloatingPoint] number.
+  ///
+  /// The output [FloatingPoint] is computed as follows:
+  ///
+  /// 1. The exponent is adjusted according to the given [destExponentWidth].
+  /// 2. The mantissa is adjusted according to the given [destMantissaWidth] and
+  ///    the rounding mode [FloatingPointRoundingMode.roundNearestEven].
+  /// 3. If the exponent is all ones, the output [FloatingPoint] is an infinity
+  ///    with the same sign as the [source].
+  /// 4. If the exponent is all zeros, the output [FloatingPoint] is a zero with
+  ///    the same sign as the [source].
+  /// 5. Otherwise, the output [FloatingPoint] is the result of the adjusted
+  ///    exponent and the adjusted mantissa.
   static FloatingPoint convertNormalNumber(
       {required FloatingPoint source,
       required int destExponentWidth,
@@ -129,9 +144,9 @@ class FloatingPointConverter extends Module {
     final adjustedMantissa =
         Logic(name: 'adjustedMantissa', width: destMantissaWidth);
 
-    adjustedMantissa <
+    adjustedMantissa <=
         adjustMantissaPrecision(source.mantissa, destMantissaWidth,
-            FloatingPointRoundingMode.roundNearestEven);
+            Const(FloatingPointRoundingMode.roundNearestEven.index));
 
     final isOverflow = adjustedExponent
         .gte(FloatingPointValue.computeMaxExponent(destExponentWidth));
@@ -140,24 +155,27 @@ class FloatingPointConverter extends Module {
     final packNormal = FloatingPoint(
         exponentWidth: destExponentWidth, mantissaWidth: destMantissaWidth);
 
-    If.block([
-      Iff(isOverflow, [
-        packNormal <
-            handleOverflow(
-                source: source,
-                destExponentWidth: destExponentWidth,
-                destMantissaWidth: destMantissaWidth),
-      ]),
-      ElseIf(isUnderflow, [
-        packNormal < handleUnderflow(),
-      ]),
-      Else([
-        packNormal <
-            FloatingPointValue(
-              sign: source.sign.value,
-              exponent: adjustedExponent.value,
-              mantissa: adjustedMantissa.value,
-            )
+    Combinational([
+      If.block([
+        Iff(isOverflow, [
+          packNormal <
+              handleOverflow(
+                  source: source,
+                  destExponentWidth: destExponentWidth,
+                  destMantissaWidth: destMantissaWidth),
+        ]),
+        ElseIf(isUnderflow, [
+          packNormal <
+              handleUnderflow(
+                  source: source,
+                  destExponentWidth: destExponentWidth,
+                  destMantissaWidth: destMantissaWidth),
+        ]),
+        Else([
+          packNormal.sign < source.sign.value,
+          packNormal.exponent < adjustedExponent.value,
+          packNormal.mantissa < adjustedMantissa.value
+        ])
       ]),
     ]);
 
@@ -179,8 +197,14 @@ class FloatingPointConverter extends Module {
           destMantissaWidth: destMantissaWidth,
           isNaN: false);
 
-  static FloatingPoint handleUnderflow() =>
-      FloatingPoint(exponentWidth: 0, mantissaWidth: 0);
+  static FloatingPoint handleUnderflow(
+          {required FloatingPoint source,
+          required int destExponentWidth,
+          required int destMantissaWidth}) =>
+      packZero(
+          source: source,
+          destExponentWidth: destExponentWidth,
+          destMantissaWidth: destMantissaWidth);
 
   /// Pack a special floating point number into a target.
   ///
@@ -213,7 +237,7 @@ class FloatingPointConverter extends Module {
     return pack;
   }
 
-  FloatingPoint _packZero(
+  static FloatingPoint packZero(
       {required FloatingPoint source,
       required int destExponentWidth,
       required int destMantissaWidth}) {
@@ -255,8 +279,14 @@ class FloatingPointConverter extends Module {
     }
   }
 
-  static Logic adjustMantissaPrecision(Logic sourceMantissa,
-      int destMantissaWidth, FloatingPointRoundingMode roundingMode) {
+  /// Adjust the mantissa of a floating-point number to fit the new mantissa width.
+  ///
+  /// If the mantissa width is increased, the mantissa is zero-extended.
+  /// If the mantissa width is decreased, the mantissa is rounded according to the
+  /// given rounding mode.
+  /// If the mantissa widths are the same, the mantissa is returned unchanged.
+  static Logic adjustMantissaPrecision(
+      Logic sourceMantissa, int destMantissaWidth, Logic roundingMode) {
     final adjustedMantissa =
         Logic(name: 'adjustedMantissa', width: destMantissaWidth);
 
@@ -275,22 +305,101 @@ class FloatingPointConverter extends Module {
     return adjustedMantissa;
   }
 
-  static Logic roundMantissa(Logic sourceMantissa, int destMantissaWidth,
-      FloatingPointRoundingMode roundingMode) {
-    final shift = sourceMantissa.width - destMantissaWidth;
-    final roundBit = Const(1, width: sourceMantissa.width) << (shift - 1);
-    final mask = roundBit - 1;
-    final roundCondition = (sourceMantissa & roundBit).neq(0) &
-        ((sourceMantissa & mask).neq(0) | (roundBit << 1).neq(0));
+  /// Rounds a mantissa to a target width.
+  ///
+  /// The mantissa is rounded according to the given [roundingMode].
+  /// If the mantissa width is increased, the mantissa is zero-extended.
+  /// If the mantissa width is decreased, the mantissa is rounded according to the
+  /// given [roundingMode].
+  /// If the mantissa widths are the same, the mantissa is returned unchanged.
+  ///
+  /// [roundingMode] is a [Logic] value that represents the rounding mode to use.
+  /// The value should be one of the following:
+  ///   - [FloatingPointRoundingMode.truncate.index] to truncate the mantissa.
+  ///   - [FloatingPointRoundingMode.roundNearestEven.index] to round the mantissa
+  ///     to the nearest even value.
+  ///   - [FloatingPointRoundingMode.roundTowardsZero.index] to round the mantissa
+  ///     towards zero.
+  ///   - [FloatingPointRoundingMode.roundTowardsInfinity.index] to round the
+  ///     mantissa towards positive infinity.
+  ///   - [FloatingPointRoundingMode.roundTowardsNegativeInfinity.index] to round
+  ///     the mantissa towards negative infinity.
+  ///   - [FloatingPointRoundingMode.roundNearestTiesAway.index] to round the
+  ///     mantissa to the nearest value, rounding away from zero in case of a tie.
+  static Logic roundMantissa(
+      Logic sourceMantissa, int destMantissaWidth, Logic roundingMode) {
+    if (sourceMantissa.width <= destMantissaWidth) {
+      throw StateError(
+          'Cannot round a mantissa to a width that is not smaller.');
+    }
+    // First figure out what is the significant number to round to
+    // Note that we are assuming that sourceMantissa.width > destMantissaWidth here
 
-    final roundedMantissa = (sourceMantissa + roundBit) & ~(roundBit - 1);
-    final shiftedMantissa =
-        (roundedMantissa >> shift).slice(destMantissaWidth - 1, 0);
+    // Significant number = desMantissaWidth
+    // The number of bits to throw away or round = sourceMantissa.width - destMantissaWidth
+
+    final significantNumber = destMantissaWidth;
+    final numberOfBitsToThrowAway = sourceMantissa.width - destMantissaWidth;
+
+    final throwAwayBits = sourceMantissa.slice(numberOfBitsToThrowAway - 1, 0);
+    final significantBits =
+        sourceMantissa.slice(sourceMantissa.width - 1, numberOfBitsToThrowAway);
+
+    // Use the throw away bits to calculate whether to round up or down
+    // if the most significant bit of the guardbits is 0, just truncate
+    // if the most significant bit of the guardbits is 1, and there is at least one bit in the rest, then round up
+    // if the most significant bit of the guardbits is 1, and there is not at least one bit in the rest, check the least significant bit in the mantissa, if it is 1 round up, else truncate
+
+    // Truncate if MSB Guard bit is 0
+    // or when MSB Guard bit is 1 and LSB of mantissa is 0
+    final atLeastOneBitInGuardBits =
+        throwAwayBits.slice(throwAwayBits.width - 2, 0).or();
+    final truncateCondition = throwAwayBits[-1].eq(0) |
+        (throwAwayBits[-1].eq(1) &
+            ~atLeastOneBitInGuardBits &
+            significantBits[0].eq(0));
+    final roundCondition = throwAwayBits[-1].eq(1) &
+        (atLeastOneBitInGuardBits |
+            (~atLeastOneBitInGuardBits & significantBits[0].eq(1)));
 
     final result = Logic(name: 'roundedMantissa', width: destMantissaWidth);
-    result <= mux(roundCondition, roundedMantissa, shiftedMantissa);
 
-    // TODO : Add If block for rounding modes
+    final truncatedResult = significantBits;
+    final roundedResult = significantBits + 1;
+
+    Combinational([
+      If.block([
+        Iff(roundingMode.eq(FloatingPointRoundingMode.roundNearestEven.index), [
+          result < mux(roundCondition, roundedResult, truncatedResult),
+        ]),
+        ElseIf(roundingMode.eq(FloatingPointRoundingMode.truncate.index), [
+          result < truncatedResult,
+        ]),
+        ElseIf(
+            roundingMode.eq(FloatingPointRoundingMode.roundTowardsZero.index), [
+          result < truncatedResult, // TODO: Implement round towards zero
+        ]),
+        ElseIf(
+            roundingMode
+                .eq(FloatingPointRoundingMode.roundTowardsInfinity.index),
+            [
+              result < truncatedResult, // TODO: Implement
+            ]),
+        ElseIf(
+            roundingMode.eq(
+                FloatingPointRoundingMode.roundTowardsNegativeInfinity.index),
+            [
+              result < truncatedResult, // TODO: Implement
+            ]),
+        ElseIf(
+            roundingMode
+                .eq(FloatingPointRoundingMode.roundNearestTiesAway.index),
+            [
+              result < truncatedResult, // TODO: Implement
+            ]),
+        Else([result < truncatedResult])
+      ])
+    ]);
 
     return result;
   }

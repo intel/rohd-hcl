@@ -125,8 +125,10 @@ void main() {
         Const(int.parse('1010101010', radix: 2), width: fp16MantissaWidth);
 
     final fp16Tofp32AdjustedMantissa =
-        FloatingPointConverter.adjustMantissaPrecision(sourceMantissa,
-            fp32MantissaWidth, FloatingPointRoundingMode.roundNearestEven);
+        FloatingPointConverter.adjustMantissaPrecision(
+            sourceMantissa,
+            fp32MantissaWidth,
+            Const(FloatingPointRoundingMode.roundNearestEven.index));
 
     expect(fp16Tofp32AdjustedMantissa.value.toInt(),
         int.parse('10101010100000000000000', radix: 2));
@@ -141,11 +143,35 @@ void main() {
             width: fp32MantissaWidth);
 
     final fp32Tofp16AdjustedMantissa =
+        FloatingPointConverter.adjustMantissaPrecision(
+            sourceMantissa,
+            fp16MantissaWidth,
+            Const(FloatingPointRoundingMode.roundNearestEven.index));
+
+    final fp32Tofp16AdjustedMantissaTruncate =
         FloatingPointConverter.adjustMantissaPrecision(sourceMantissa,
-            fp16MantissaWidth, FloatingPointRoundingMode.roundNearestEven);
+            fp16MantissaWidth, Const(FloatingPointRoundingMode.truncate.index));
+
+    final fp32Tobf8AdjustedMantissa =
+        FloatingPointConverter.adjustMantissaPrecision(
+            sourceMantissa,
+            bf8MantissaWidth,
+            Const(FloatingPointRoundingMode.roundNearestEven.index));
+
+    final fp32Tobf8AdjustedMantissaTruncate =
+        FloatingPointConverter.adjustMantissaPrecision(sourceMantissa,
+            bf8MantissaWidth, Const(FloatingPointRoundingMode.truncate.index));
 
     expect(fp32Tofp16AdjustedMantissa.value.toInt(),
+        int.parse('1010101011', radix: 2));
+
+    expect(fp32Tofp16AdjustedMantissaTruncate.value.toInt(),
         int.parse('1010101010', radix: 2));
+
+    expect(fp32Tobf8AdjustedMantissa.value.toInt(), int.parse('11', radix: 2));
+
+    expect(fp32Tobf8AdjustedMantissaTruncate.value.toInt(),
+        int.parse('10', radix: 2));
   });
 
   test('FP: convert normal test', () {
