@@ -28,7 +28,7 @@ void main() {
         final mantStr = mantissa.bitString;
         final fp = FloatingPointValue.ofBinaryStrings(signStr, expStr, mantStr);
         final dbl = fp.toDouble();
-        final fp2 = FloatingPointValue.fromDouble(dbl,
+        final fp2 = FloatingPointValue.ofDouble(dbl,
             exponentWidth: exponentWidth, mantissaWidth: mantissaWidth);
         if (fp != fp2) {
           if (fp.isNaN() != fp2.isNaN()) {
@@ -50,7 +50,7 @@ void main() {
         final mantStr = (mantissa << i).bitString;
         final fp = FloatingPointValue.ofBinaryStrings(signStr, expStr, mantStr);
         expect(fp.toString(), '$signStr $expStr $mantStr');
-        final fp2 = FloatingPointValue.fromDouble(fp.toDouble(),
+        final fp2 = FloatingPointValue.ofDouble(fp.toDouble(),
             exponentWidth: exponentWidth, mantissaWidth: mantissaWidth);
         expect(fp2, equals(fp));
       }
@@ -68,7 +68,7 @@ void main() {
           final fp =
               FloatingPointValue.ofBinaryStrings(signStr, expStr, mantStr);
           expect(fp.toString(), '$signStr $expStr $mantStr');
-          final fp2 = FloatingPointValue.fromDoubleIter(fp.toDouble(),
+          final fp2 = FloatingPointValue.ofDoubleUnrounded(fp.toDouble(),
               exponentWidth: exponentWidth, mantissaWidth: mantissaWidth);
           expect(fp2, equals(fp));
         }
@@ -93,7 +93,7 @@ void main() {
           FloatingPointConstants.largestNormal)
     ];
     for (final fp in values) {
-      final fp2 = FloatingPoint32Value.fromDouble(fp.toDouble());
+      final fp2 = FloatingPoint32Value.ofDouble(fp.toDouble());
       expect(fp2, equals(fp));
     }
   });
@@ -115,7 +115,7 @@ void main() {
           FloatingPointConstants.largestNormal)
     ];
     for (final fp in values) {
-      final fp2 = FloatingPoint64Value.fromDouble(fp.toDouble());
+      final fp2 = FloatingPoint64Value.ofDouble(fp.toDouble());
       expect(fp2, equals(fp));
     }
   });
@@ -130,11 +130,11 @@ void main() {
   test('FPV: simple 32', () {
     final values = [0.15625, 12.375, -1.0, 0.25, 0.375];
     for (final val in values) {
-      final fp = FloatingPoint32Value.fromDouble(val);
+      final fp = FloatingPoint32Value.ofDouble(val);
       assert(val == fp.toDouble(), 'mismatch');
       expect(fp.toDouble(), val);
-      final fpSuper = FloatingPointValue.fromDouble(val,
-          exponentWidth: 8, mantissaWidth: 23);
+      final fpSuper =
+          FloatingPointValue.ofDouble(val, exponentWidth: 8, mantissaWidth: 23);
       assert(val == fpSuper.toDouble(), 'mismatch');
       expect(fpSuper.toDouble(), val);
     }
@@ -143,10 +143,10 @@ void main() {
   test('FPV: simple 64', () {
     final values = [0.15625, 12.375, -1.0, 0.25, 0.375];
     for (final val in values) {
-      final fp = FloatingPoint64Value.fromDouble(val);
+      final fp = FloatingPoint64Value.ofDouble(val);
       assert(val == fp.toDouble(), 'mismatch');
       expect(fp.toDouble(), val);
-      final fpSuper = FloatingPointValue.fromDouble(val,
+      final fpSuper = FloatingPointValue.ofDouble(val,
           exponentWidth: 11, mantissaWidth: 52);
       assert(val == fpSuper.toDouble(), 'mismatch');
       expect(fpSuper.toDouble(), val);
@@ -164,11 +164,11 @@ void main() {
     for (var c = 0; c < corners.length; c++) {
       final val = corners[c][1] as double;
       final str = corners[c][0] as String;
-      final fp = FloatingPointValue.fromDouble(val,
-          exponentWidth: 4, mantissaWidth: 3);
+      final fp =
+          FloatingPointValue.ofDouble(val, exponentWidth: 4, mantissaWidth: 3);
       expect(val, fp.toDouble());
       expect(str, fp.toString());
-      final fp8 = FloatingPoint8E4M3Value.fromDouble(val);
+      final fp8 = FloatingPoint8E4M3Value.ofDouble(val);
       expect(val, fp8.toDouble());
       expect(str, fp8.toString());
     }
@@ -185,28 +185,27 @@ void main() {
     for (var c = 0; c < corners.length; c++) {
       final val = corners[c][1] as double;
       final str = corners[c][0] as String;
-      final fp = FloatingPointValue.fromDouble(val,
-          exponentWidth: 5, mantissaWidth: 2);
+      final fp =
+          FloatingPointValue.ofDouble(val, exponentWidth: 5, mantissaWidth: 2);
       expect(val, fp.toDouble());
       expect(str, fp.toString());
-      final fp8 = FloatingPoint8E5M2Value.fromDouble(val);
+      final fp8 = FloatingPoint8E5M2Value.ofDouble(val);
       expect(val, fp8.toDouble());
       expect(str, fp8.toString());
     }
   });
 
   test('FPV: setting and getting from a signal', () {
-    final fp = FloatingPoint32()
-      ..put(FloatingPoint32Value.fromDouble(1.5).value);
+    final fp = FloatingPoint32()..put(FloatingPoint32Value.ofDouble(1.5).value);
     expect(fp.floatingPointValue.toDouble(), 1.5);
     final fp2 = FloatingPoint64()
-      ..put(FloatingPoint64Value.fromDouble(1.5).value);
+      ..put(FloatingPoint64Value.ofDouble(1.5).value);
     expect(fp2.floatingPointValue.toDouble(), 1.5);
     final fp8e4m3 = FloatingPoint8E4M3()
-      ..put(FloatingPoint8E4M3Value.fromDouble(1.5).value);
+      ..put(FloatingPoint8E4M3Value.ofDouble(1.5).value);
     expect(fp8e4m3.floatingPointValue.toDouble(), 1.5);
     final fp8e5m2 = FloatingPoint8E5M2()
-      ..put(FloatingPoint8E5M2Value.fromDouble(1.5).value);
+      ..put(FloatingPoint8E5M2Value.ofDouble(1.5).value);
     expect(fp8e5m2.floatingPointValue.toDouble(), 1.5);
   });
 
@@ -217,7 +216,7 @@ void main() {
     final fpRound = FloatingPointValue.ofBinaryStrings('0', '1000', '0001');
     final val = fp64.toDouble();
     final fpConvert =
-        FloatingPointValue.fromDouble(val, exponentWidth: 4, mantissaWidth: 4);
+        FloatingPointValue.ofDouble(val, exponentWidth: 4, mantissaWidth: 4);
     expect(fpConvert, equals(fpRound));
   });
 
@@ -229,7 +228,7 @@ void main() {
     final val = fp64.toDouble();
 
     final fpConvert =
-        FloatingPointValue.fromDouble(val, exponentWidth: 4, mantissaWidth: 4);
+        FloatingPointValue.ofDouble(val, exponentWidth: 4, mantissaWidth: 4);
     expect(fpConvert, equals(fpRound));
   });
 
@@ -240,7 +239,7 @@ void main() {
     final fpRound = FloatingPointValue.ofBinaryStrings('0', '1000', '0010');
     final val = fp64.toDouble();
     final fpConvert =
-        FloatingPointValue.fromDouble(val, exponentWidth: 4, mantissaWidth: 4);
+        FloatingPointValue.ofDouble(val, exponentWidth: 4, mantissaWidth: 4);
     expect(fpConvert, equals(fpRound));
   });
 
@@ -251,7 +250,7 @@ void main() {
     final fpRound = FloatingPointValue.ofBinaryStrings('0', '1001', '0000');
     final val = fp64.toDouble();
     final fpConvert =
-        FloatingPointValue.fromDouble(val, exponentWidth: 4, mantissaWidth: 4);
+        FloatingPointValue.ofDouble(val, exponentWidth: 4, mantissaWidth: 4);
     expect(fpConvert, equals(fpRound));
   });
 
@@ -262,7 +261,7 @@ void main() {
     final fpTrunc = FloatingPointValue.ofBinaryStrings('0', '1000', '0010');
     final val = fp64.toDouble();
     final fpConvert =
-        FloatingPointValue.fromDouble(val, exponentWidth: 4, mantissaWidth: 4);
+        FloatingPointValue.ofDouble(val, exponentWidth: 4, mantissaWidth: 4);
     expect(fpConvert, equals(fpTrunc));
   });
 

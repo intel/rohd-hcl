@@ -37,7 +37,7 @@ class FloatingPoint32Value extends FloatingPointValue {
   /// Return the [FloatingPoint32Value] representing the constant specified
   factory FloatingPoint32Value.getFloatingPointConstant(
           FloatingPointConstants constantFloatingPoint) =>
-      FloatingPoint32Value.fromLogicValue(
+      FloatingPoint32Value.ofLogicValue(
           FloatingPointValue.getFloatingPointConstant(
                   constantFloatingPoint, exponentWidth, mantissaWidth)
               .value);
@@ -69,7 +69,7 @@ class FloatingPoint32Value extends FloatingPointValue {
       : super.ofInts();
 
   /// Numeric conversion of a [FloatingPoint32Value] from a host double
-  factory FloatingPoint32Value.fromDouble(double inDouble) {
+  factory FloatingPoint32Value.ofDouble(double inDouble) {
     final byteData = ByteData(4)..setFloat32(0, inDouble);
     final accum = byteData.buffer
         .asUint8List()
@@ -83,7 +83,7 @@ class FloatingPoint32Value extends FloatingPointValue {
   }
 
   /// Construct a [FloatingPoint32Value] from a Logic word
-  factory FloatingPoint32Value.fromLogicValue(LogicValue val) =>
-      FloatingPointValue.buildFromLogicValue(
+  factory FloatingPoint32Value.ofLogicValue(LogicValue val) =>
+      FloatingPointValue.buildOfLogicValue(
           FloatingPoint32Value.new, exponentWidth, mantissaWidth, val);
 }

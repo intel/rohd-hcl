@@ -69,20 +69,20 @@ class FloatingPoint8E4M3Value extends FloatingPointValue {
       : super.ofInts();
 
   /// Numeric conversion of a [FloatingPoint8E4M3Value] from a host double
-  factory FloatingPoint8E4M3Value.fromDouble(double inDouble) {
+  factory FloatingPoint8E4M3Value.ofDouble(double inDouble) {
     if ((inDouble.abs() > maxValue) |
         ((inDouble != 0) & (inDouble.abs() < minValue))) {
       throw RohdHclException('Number exceeds E4M3 range');
     }
-    final fpv = FloatingPointValue.fromDouble(inDouble,
+    final fpv = FloatingPointValue.ofDouble(inDouble,
         exponentWidth: exponentWidth, mantissaWidth: mantissaWidth);
     return FloatingPoint8E4M3Value(
         sign: fpv.sign, exponent: fpv.exponent, mantissa: fpv.mantissa);
   }
 
   /// Construct a [FloatingPoint8E4M3Value] from a Logic word
-  factory FloatingPoint8E4M3Value.fromLogicValue(LogicValue val) =>
-      FloatingPointValue.buildFromLogicValue(
+  factory FloatingPoint8E4M3Value.ofLogicValue(LogicValue val) =>
+      FloatingPointValue.buildOfLogicValue(
           FloatingPoint8E4M3Value.new, exponentWidth, mantissaWidth, val);
 }
 
@@ -141,19 +141,19 @@ class FloatingPoint8E5M2Value extends FloatingPointValue {
       : super.ofInts();
 
   /// Numeric conversion of a [FloatingPoint8E5M2Value] from a host double
-  factory FloatingPoint8E5M2Value.fromDouble(double inDouble) {
+  factory FloatingPoint8E5M2Value.ofDouble(double inDouble) {
     if ((inDouble.abs() > maxValue) |
         ((inDouble != 0) & (inDouble.abs() < minValue))) {
       throw RohdHclException('Number exceeds E5M2 range');
     }
-    final fpv = FloatingPointValue.fromDouble(inDouble,
+    final fpv = FloatingPointValue.ofDouble(inDouble,
         exponentWidth: exponentWidth, mantissaWidth: mantissaWidth);
     return FloatingPoint8E5M2Value(
         sign: fpv.sign, exponent: fpv.exponent, mantissa: fpv.mantissa);
   }
 
   /// Construct a [FloatingPoint8E5M2Value] from a Logic word
-  factory FloatingPoint8E5M2Value.fromLogicValue(LogicValue val) =>
-      FloatingPointValue.buildFromLogicValue(
+  factory FloatingPoint8E5M2Value.ofLogicValue(LogicValue val) =>
+      FloatingPointValue.buildOfLogicValue(
           FloatingPoint8E5M2Value.new, exponentWidth, mantissaWidth, val);
 }

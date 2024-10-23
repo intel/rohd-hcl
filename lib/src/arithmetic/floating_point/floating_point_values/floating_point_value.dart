@@ -270,15 +270,15 @@ class FloatingPointValue implements Comparable<FloatingPointValue> {
                 LogicValue.ofBigInt(BigInt.from(mantissa), mantissaWidth));
 
   /// Construct a [FloatingPointValue] from a [LogicValue]
-  factory FloatingPointValue.fromLogicValue(
+  factory FloatingPointValue.ofLogicValue(
           int exponentWidth, int mantissaWidth, LogicValue val) =>
-      buildFromLogicValue(
+      buildOfLogicValue(
           FloatingPointValue.new, exponentWidth, mantissaWidth, val);
 
-  /// A helper function for [FloatingPointValue.fromLogicValue] and base classes
+  /// A helper function for [FloatingPointValue.ofLogicValue] and base classes
   /// which performs some width checks and slicing.
   @protected
-  static T buildFromLogicValue<T extends FloatingPointValue>(
+  static T buildOfLogicValue<T extends FloatingPointValue>(
     T Function(
             {required LogicValue sign,
             required LogicValue exponent,
@@ -363,18 +363,18 @@ class FloatingPointValue implements Comparable<FloatingPointValue> {
   }
 
   /// Convert from double using its native binary representation
-  factory FloatingPointValue.fromDouble(double inDouble,
+  factory FloatingPointValue.ofDouble(double inDouble,
       {required int exponentWidth,
       required int mantissaWidth,
       FloatingPointRoundingMode roundingMode =
           FloatingPointRoundingMode.roundNearestEven}) {
     if ((exponentWidth == 8) && (mantissaWidth == 23)) {
-      return FloatingPoint32Value.fromDouble(inDouble);
+      return FloatingPoint32Value.ofDouble(inDouble);
     } else if ((exponentWidth == 11) && (mantissaWidth == 52)) {
-      return FloatingPoint64Value.fromDouble(inDouble);
+      return FloatingPoint64Value.ofDouble(inDouble);
     }
 
-    final fp64 = FloatingPoint64Value.fromDouble(inDouble);
+    final fp64 = FloatingPoint64Value.ofDouble(inDouble);
     final exponent64 = fp64.exponent;
 
     var expVal = (exponent64.toInt() - fp64.bias) +
@@ -442,12 +442,12 @@ class FloatingPointValue implements Comparable<FloatingPointValue> {
 
   /// Convert a floating point number into a [FloatingPointValue]
   /// representation. This form performs NO ROUNDING.
-  factory FloatingPointValue.fromDoubleIter(double inDouble,
+  factory FloatingPointValue.ofDoubleUnrounded(double inDouble,
       {required int exponentWidth, required int mantissaWidth}) {
     if ((exponentWidth == 8) && (mantissaWidth == 23)) {
-      return FloatingPoint32Value.fromDouble(inDouble);
+      return FloatingPoint32Value.ofDouble(inDouble);
     } else if ((exponentWidth == 11) && (mantissaWidth == 52)) {
-      return FloatingPoint64Value.fromDouble(inDouble);
+      return FloatingPoint64Value.ofDouble(inDouble);
     }
 
     var doubleVal = inDouble;
@@ -645,7 +645,7 @@ class FloatingPointValue implements Comparable<FloatingPointValue> {
           'multiplicand must have the same mantissa and exponent widths');
     }
 
-    return FloatingPointValue.fromDouble(op(toDouble(), other.toDouble()),
+    return FloatingPointValue.ofDouble(op(toDouble(), other.toDouble()),
         mantissaWidth: mantissa.width, exponentWidth: exponent.width);
   }
 
