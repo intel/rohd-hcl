@@ -118,14 +118,19 @@ class FloatingPointValue implements Comparable<FloatingPointValue> {
   final int _maxExp;
   final int _minExp;
 
-  /// A Map from the (exponentWidth, mantissaWidth) pair to the
-  /// FloatingPointValue subtype
+  /// A mapping from a `({exponentWidth, mantissaWidth})` record to a
+  /// constructor for a specific FloatingPointValue subtype. This map is used by
+  /// the [FloatingPointValue.withMappedSubtype] constructor to select the
+  /// appropriate constructor for a given set of widths.
+  ///
+  /// By default, this is populated with available subtypes from ROHD-HCL, but
+  /// it can be overridden or extended based on the user's needs.
   static Map<
       ({int exponentWidth, int mantissaWidth}),
       FloatingPointValue Function(
           {required LogicValue sign,
           required LogicValue exponent,
-          required LogicValue mantissa})> factoryConstructorMap = {
+          required LogicValue mantissa})> subtypeConstructorMap = {
     (
       exponentWidth: FloatingPoint32Value.exponentWidth,
       mantissaWidth: FloatingPoint32Value.mantissaWidth
@@ -166,28 +171,33 @@ class FloatingPointValue implements Comparable<FloatingPointValue> {
   }
 
   /// Constructs a [FloatingPointValue] with a sign, exponent, and mantissa
-  /// using one of the builders provided from [factoryConstructorMap] if
+  /// using one of the builders provided from [subtypeConstructorMap] if
   /// available, otherwise using the default constructor.
-  factory FloatingPointValue.mapped(
+  factory FloatingPointValue.withMappedSubtype(
       {required LogicValue sign,
       required LogicValue exponent,
       required LogicValue mantissa}) {
     final key = (exponentWidth: exponent.width, mantissaWidth: mantissa.width);
 
-    if (!factoryConstructorMap.containsKey(key)) {
-      return FloatingPointValue(
+    if (subtypeConstructorMap.containsKey(key)) {
+      return subtypeConstructorMap[key]!(
           sign: sign, exponent: exponent, mantissa: mantissa);
     }
 
-    return factoryConstructorMap[key]!(
+    return FloatingPointValue(
         sign: sign, exponent: exponent, mantissa: mantissa);
   }
 
+  /// Converts this to a [FloatingPointValue] using a subtype constructor from
+  /// the [subtypeConstructorMap], if available.
+  FloatingPointValue toMappedSubtype() => FloatingPointValue.withMappedSubtype(
+      sign: sign, exponent: exponent, mantissa: mantissa);
+
   /// Converts this [FloatingPointValue] to a [FloatingPointValue] with the same
   /// sign, exponent, and mantissa using the constructor provided in
-  /// [factoryConstructorMap] if available, otherwise using the default
+  /// [subtypeConstructorMap] if available, otherwise using the default
   /// constructor.
-  FloatingPointValue toMappedType() => FloatingPointValue.mapped(
+  FloatingPointValue toMappedType() => FloatingPointValue.withMappedSubtype(
       sign: sign, exponent: exponent, mantissa: mantissa);
 
   /// [constrainedMantissaWidth] is the hard-coded mantissa width of the

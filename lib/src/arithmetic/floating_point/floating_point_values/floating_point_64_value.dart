@@ -17,16 +17,10 @@ import 'package:rohd_hcl/rohd_hcl.dart';
 /// A representation of a double-precision floating-point value.
 class FloatingPoint64Value extends FloatingPointValue {
   /// The exponent width
-  static const int _exponentWidth = 11;
+  static const int exponentWidth = 11;
 
   /// The mantissa width
-  static const int _mantissaWidth = 52;
-
-  /// return the exponent width
-  static int get exponentWidth => _exponentWidth;
-
-  /// return the mantissa width
-  static int get mantissaWidth => _mantissaWidth;
+  static const int mantissaWidth = 52;
 
   /// Constructor for a double precision floating point value
   FloatingPoint64Value(
@@ -37,7 +31,7 @@ class FloatingPoint64Value extends FloatingPointValue {
           FloatingPointConstants constantFloatingPoint) =>
       FloatingPoint64Value.fromLogicValue(
           FloatingPointValue.getFloatingPointConstant(
-                  constantFloatingPoint, _exponentWidth, _mantissaWidth)
+                  constantFloatingPoint, exponentWidth, mantissaWidth)
               .value);
 
   /// [FloatingPoint64Value] constructor from string representation of
@@ -76,9 +70,8 @@ class FloatingPoint64Value extends FloatingPointValue {
 
     return FloatingPoint64Value(
         sign: accum[-1],
-        exponent:
-            accum.slice(_exponentWidth + _mantissaWidth - 1, _mantissaWidth),
-        mantissa: accum.slice(_mantissaWidth - 1, 0));
+        exponent: accum.slice(exponentWidth + mantissaWidth - 1, mantissaWidth),
+        mantissa: accum.slice(mantissaWidth - 1, 0));
   }
 
   /// Construct a [FloatingPoint32Value] from a Logic word
