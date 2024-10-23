@@ -141,7 +141,7 @@ class FloatingPointValue implements Comparable<FloatingPointValue> {
     ): FloatingPoint64Value.new,
     (exponentWidth: 4, mantissaWidth: 3): FloatingPoint8E4M3Value.new,
     (exponentWidth: 5, mantissaWidth: 2): FloatingPoint8E5M2Value.new,
-    (exponentWidth: 5, mantissaWidth: 10): FloatingPointFP16Value.new,
+    (exponentWidth: 5, mantissaWidth: 10): FloatingPoint16Value.new,
     (exponentWidth: 8, mantissaWidth: 7): FloatingPointBF16Value.new,
     (exponentWidth: 8, mantissaWidth: 10): FloatingPointTF32Value.new,
   };

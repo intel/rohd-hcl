@@ -85,34 +85,36 @@ class FloatingPoint64 extends FloatingPoint {
 
 /// Eight-bit floating point representation for deep learning: E4M3
 class FloatingPoint8E4M3 extends FloatingPoint {
-  /// Calculate mantissa width and sanitize
-  static int _calculateMantissaWidth(int exponentWidth) {
-    final mantissaWidth = 7 - exponentWidth;
-    if (!FloatingPoint8E4M3Value.isLegal(exponentWidth, mantissaWidth)) {
-      throw RohdHclException('FloatingPoint8 must follow E4M3 or E5M2');
-    } else {
-      return mantissaWidth;
-    }
-  }
-
   /// Construct an 8-bit floating point number
-  FloatingPoint8E4M3({required super.exponentWidth})
-      : super(mantissaWidth: _calculateMantissaWidth(exponentWidth));
+  FloatingPoint8E4M3()
+      : super(
+            mantissaWidth: FloatingPoint8E4M3Value.mantissaWidth,
+            exponentWidth: FloatingPoint8E4M3Value.exponentWidth);
 }
 
 /// Eight-bit floating point representation for deep learning: E5M2
 class FloatingPoint8E5M2 extends FloatingPoint {
-  /// Calculate mantissa width and sanitize
-  static int _calculateMantissaWidth(int exponentWidth) {
-    final mantissaWidth = 7 - exponentWidth;
-    if (!FloatingPoint8E5M2Value.isLegal(exponentWidth, mantissaWidth)) {
-      throw RohdHclException('FloatingPoint8 must follow E4M3 or E5M2');
-    } else {
-      return mantissaWidth;
-    }
-  }
-
   /// Construct an 8-bit floating point number
-  FloatingPoint8E5M2({required super.exponentWidth})
-      : super(mantissaWidth: _calculateMantissaWidth(exponentWidth));
+  FloatingPoint8E5M2()
+      : super(
+            mantissaWidth: FloatingPoint8E5M2Value.mantissaWidth,
+            exponentWidth: FloatingPoint8E5M2Value.exponentWidth);
+}
+
+/// Sixteen-bit BF16 floating point representation
+class FloatingPointBF16 extends FloatingPoint {
+  /// Construct a BF16 16-bit floating point number
+  FloatingPointBF16()
+      : super(
+            mantissaWidth: FloatingPointBF16Value.mantissaWidth,
+            exponentWidth: FloatingPointBF16Value.exponentWidth);
+}
+
+/// Sixteen-bit floating point representation
+class FloatingPoint16 extends FloatingPoint {
+  /// Construct a 16-bit floating point number
+  FloatingPoint16()
+      : super(
+            mantissaWidth: FloatingPoint16Value.mantissaWidth,
+            exponentWidth: FloatingPoint16Value.exponentWidth);
 }

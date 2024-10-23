@@ -202,10 +202,10 @@ void main() {
     final fp2 = FloatingPoint64()
       ..put(FloatingPoint64Value.fromDouble(1.5).value);
     expect(fp2.floatingPointValue.toDouble(), 1.5);
-    final fp8e4m3 = FloatingPoint8E4M3(exponentWidth: 4)
+    final fp8e4m3 = FloatingPoint8E4M3()
       ..put(FloatingPoint8E4M3Value.fromDouble(1.5).value);
     expect(fp8e4m3.floatingPointValue.toDouble(), 1.5);
-    final fp8e5m2 = FloatingPoint8E5M2(exponentWidth: 5)
+    final fp8e5m2 = FloatingPoint8E5M2()
       ..put(FloatingPoint8E5M2Value.fromDouble(1.5).value);
     expect(fp8e5m2.floatingPointValue.toDouble(), 1.5);
   });

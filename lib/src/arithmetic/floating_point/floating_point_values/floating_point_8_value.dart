@@ -37,10 +37,6 @@ class FloatingPoint8E4M3Value extends FloatingPointValue {
   /// The minimum value representable by the E4M3 format
   static double get minValue => pow(2, -9).toDouble();
 
-  /// Return if the exponent and mantissa widths match E4M3
-  static bool isLegal(int exponentWidth, int mantissaWidth) =>
-      (exponentWidth == 4) & (mantissaWidth == 3);
-
   /// Constructor for a double precision floating point value
   FloatingPoint8E4M3Value(
       {required super.sign, required super.exponent, required super.mantissa});
@@ -112,10 +108,6 @@ class FloatingPoint8E5M2Value extends FloatingPointValue {
 
   /// The minimum value representable by the E5M2 format
   static double get minValue => pow(2, -16).toDouble();
-
-  /// Return if the exponent and mantissa widths match E5M2
-  static bool isLegal(int exponentWidth, int mantissaWidth) =>
-      (exponentWidth == 5) & (mantissaWidth == 2);
 
   /// Constructor for a double precision floating point value
   FloatingPoint8E5M2Value(
