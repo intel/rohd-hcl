@@ -31,7 +31,7 @@
     <li><a href="../../index.html">rohd_hcl</a></li>
     <li><a href="../../rohd_hcl/rohd_hcl-library.html">rohd_hcl.dart</a></li>
     <li><a href="../../rohd_hcl/FloatingPointValue-class.html">FloatingPointValue</a></li>
-    <li class="self-crumb">FloatingPointValue.ofInts factory constructor</li>
+    <li class="self-crumb">FloatingPointValue.ofInts constructor</li>
   </ol>
   <div class="self-name">FloatingPointValue.ofInts</div>
   <form class="search navbar-right" role="search">
@@ -80,17 +80,13 @@ representation and the size of the exponent and mantissa</p>
     
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
-  <pre class="language-dart"><code class="language-dart">factory FloatingPointValue.ofInts(int exponent, int mantissa,
-    {int exponentWidth = 0, int mantissaWidth = 0, bool sign = false}) {
-  final (signLv, exponentLv, mantissaLv) = (
-    LogicValue.ofBigInt(sign ? BigInt.one : BigInt.zero, 1),
-    LogicValue.ofBigInt(BigInt.from(exponent), exponentWidth),
-    LogicValue.ofBigInt(BigInt.from(mantissa), mantissaWidth)
-  );
-
-  return FloatingPointValue(
-      sign: signLv, exponent: exponentLv, mantissa: mantissaLv);
-}</code></pre>
+  <pre class="language-dart"><code class="language-dart">FloatingPointValue.ofInts(int exponent, int mantissa,
+    {int exponentWidth = 0, int mantissaWidth = 0, bool sign = false})
+    : this(
+          sign: LogicValue.ofBigInt(sign ? BigInt.one : BigInt.zero, 1),
+          exponent: LogicValue.ofBigInt(BigInt.from(exponent), exponentWidth),
+          mantissa:
+              LogicValue.ofBigInt(BigInt.from(mantissa), mantissaWidth));</code></pre>
 </section>
 
 
@@ -108,7 +104,7 @@ representation and the size of the exponent and mantissa</p>
     <li><a href="../../index.html">rohd_hcl</a></li>
     <li><a href="../../rohd_hcl/rohd_hcl-library.html">rohd_hcl</a></li>
     <li><a href="../../rohd_hcl/FloatingPointValue-class.html">FloatingPointValue</a></li>
-    <li class="self-crumb">FloatingPointValue.ofInts factory constructor</li>
+    <li class="self-crumb">FloatingPointValue.ofInts constructor</li>
 </ol>
 
 

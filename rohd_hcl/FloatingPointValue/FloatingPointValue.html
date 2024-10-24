@@ -31,7 +31,7 @@
     <li><a href="../../index.html">rohd_hcl</a></li>
     <li><a href="../../rohd_hcl/rohd_hcl-library.html">rohd_hcl.dart</a></li>
     <li><a href="../../rohd_hcl/FloatingPointValue-class.html">FloatingPointValue</a></li>
-    <li class="self-crumb">FloatingPointValue factory constructor</li>
+    <li class="self-crumb">FloatingPointValue constructor</li>
   </ol>
   <div class="self-name">FloatingPointValue</div>
   <form class="search navbar-right" role="search">
@@ -62,6 +62,11 @@
 
     <section class="multi-line-signature">
       
+  <div>
+    <ol class="annotation-list">
+        <li>@<a href="https://pub.dev/documentation/meta/1.16.0/meta/protected-constant.html">protected</a></li>
+    </ol>
+  </div>
       <span class="name ">FloatingPointValue</span>(<wbr>{<ol class="parameter-list"> <li><span class="parameter" id="-param-sign"><span>required</span> <span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.5.3/rohd/LogicValue-class.html">LogicValue</a></span> <span class="parameter-name">sign</span>, </span></li>
 <li><span class="parameter" id="-param-exponent"><span>required</span> <span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.5.3/rohd/LogicValue-class.html">LogicValue</a></span> <span class="parameter-name">exponent</span>, </span></li>
 <li><span class="parameter" id="-param-mantissa"><span>required</span> <span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.5.3/rohd/LogicValue-class.html">LogicValue</a></span> <span class="parameter-name">mantissa</span>, </span></li>
@@ -70,29 +75,33 @@
 
     
 <section class="desc markdown">
-  <p>Factory (static) constructor of a <a href="../../rohd_hcl/FloatingPointValue-class.html">FloatingPointValue</a> from
-sign, mantissa and exponent</p>
+  <p>Constructor for a <a href="../../rohd_hcl/FloatingPointValue-class.html">FloatingPointValue</a> with a sign, exponent, and
+mantissa.</p>
 </section>
 
 
     
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
-  <pre class="language-dart"><code class="language-dart">factory FloatingPointValue(
-    {required LogicValue sign,
-    required LogicValue exponent,
-    required LogicValue mantissa}) {
-  if (exponent.width == FloatingPoint32Value.exponentWidth &amp;&amp;
-      mantissa.width == FloatingPoint32Value.mantissaWidth) {
-    return FloatingPoint32Value(
-        sign: sign, mantissa: mantissa, exponent: exponent);
-  } else if (exponent.width == FloatingPoint64Value._exponentWidth &amp;&amp;
-      mantissa.width == FloatingPoint64Value._mantissaWidth) {
-    return FloatingPoint64Value(
-        sign: sign, mantissa: mantissa, exponent: exponent);
-  } else {
-    return FloatingPointValue.withConstraints(
-        sign: sign, mantissa: mantissa, exponent: exponent);
+  <pre class="language-dart"><code class="language-dart">@protected
+FloatingPointValue(
+    {required this.sign, required this.exponent, required this.mantissa})
+    : value = [sign, exponent, mantissa].swizzle(),
+      _bias = computeBias(exponent.width),
+      _minExp = computeMinExponent(exponent.width),
+      _maxExp = computeMaxExponent(exponent.width) {
+  if (sign.width != 1) {
+    throw RohdHclException(&#39;FloatingPointValue: sign width must be 1&#39;);
+  }
+  if (constrainedMantissaWidth != null &amp;&amp;
+      mantissa.width != constrainedMantissaWidth) {
+    throw RohdHclException(&#39;FloatingPointValue: mantissa width must be &#39;
+        &#39;$constrainedMantissaWidth&#39;);
+  }
+  if (constrainedExponentWidth != null &amp;&amp;
+      exponent.width != constrainedExponentWidth) {
+    throw RohdHclException(&#39;FloatingPointValue: exponent width must be &#39;
+        &#39;$constrainedExponentWidth&#39;);
   }
 }</code></pre>
 </section>
@@ -112,7 +121,7 @@ sign, mantissa and exponent</p>
     <li><a href="../../index.html">rohd_hcl</a></li>
     <li><a href="../../rohd_hcl/rohd_hcl-library.html">rohd_hcl</a></li>
     <li><a href="../../rohd_hcl/FloatingPointValue-class.html">FloatingPointValue</a></li>
-    <li class="self-crumb">FloatingPointValue factory constructor</li>
+    <li class="self-crumb">FloatingPointValue constructor</li>
 </ol>
 
 

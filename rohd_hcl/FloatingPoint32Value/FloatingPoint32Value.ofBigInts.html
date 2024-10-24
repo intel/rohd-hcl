@@ -31,7 +31,7 @@
     <li><a href="../../index.html">rohd_hcl</a></li>
     <li><a href="../../rohd_hcl/rohd_hcl-library.html">rohd_hcl.dart</a></li>
     <li><a href="../../rohd_hcl/FloatingPoint32Value-class.html">FloatingPoint32Value</a></li>
-    <li class="self-crumb">FloatingPoint32Value.ofBigInts factory constructor</li>
+    <li class="self-crumb">FloatingPoint32Value.ofBigInts constructor</li>
   </ol>
   <div class="self-name">FloatingPoint32Value.ofBigInts</div>
   <form class="search navbar-right" role="search">
@@ -78,17 +78,8 @@ representation</p>
     
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
-  <pre class="language-dart"><code class="language-dart">factory FloatingPoint32Value.ofBigInts(BigInt exponent, BigInt mantissa,
-    {bool sign = false}) {
-  final (signLv, exponentLv, mantissaLv) = (
-    LogicValue.ofBigInt(sign ? BigInt.one : BigInt.zero, 1),
-    LogicValue.ofBigInt(exponent, exponentWidth),
-    LogicValue.ofBigInt(mantissa, mantissaWidth)
-  );
-
-  return FloatingPoint32Value(
-      sign: signLv, exponent: exponentLv, mantissa: mantissaLv);
-}</code></pre>
+  <pre class="language-dart"><code class="language-dart">FloatingPoint32Value.ofBigInts(super.exponent, super.mantissa, {super.sign})
+    : super.ofBigInts();</code></pre>
 </section>
 
 
@@ -106,7 +97,7 @@ representation</p>
     <li><a href="../../index.html">rohd_hcl</a></li>
     <li><a href="../../rohd_hcl/rohd_hcl-library.html">rohd_hcl</a></li>
     <li><a href="../../rohd_hcl/FloatingPoint32Value-class.html">FloatingPoint32Value</a></li>
-    <li class="self-crumb">FloatingPoint32Value.ofBigInts factory constructor</li>
+    <li class="self-crumb">FloatingPoint32Value.ofBigInts constructor</li>
 </ol>
 
 

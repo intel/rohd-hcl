@@ -77,9 +77,10 @@
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">factory FloatingPoint32Value.getFloatingPointConstant(
         FloatingPointConstants constantFloatingPoint) =&gt;
-    FloatingPointValue.getFloatingPointConstant(
-            constantFloatingPoint, exponentWidth, mantissaWidth)
-        as FloatingPoint32Value;</code></pre>
+    FloatingPoint32Value.ofLogicValue(
+        FloatingPointValue.getFloatingPointConstant(
+                constantFloatingPoint, exponentWidth, mantissaWidth)
+            .value);</code></pre>
 </section>
 
 

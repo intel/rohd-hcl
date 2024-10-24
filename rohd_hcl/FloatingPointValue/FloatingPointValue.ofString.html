@@ -31,7 +31,7 @@
     <li><a href="../../index.html">rohd_hcl</a></li>
     <li><a href="../../rohd_hcl/rohd_hcl-library.html">rohd_hcl.dart</a></li>
     <li><a href="../../rohd_hcl/FloatingPointValue-class.html">FloatingPointValue</a></li>
-    <li class="self-crumb">FloatingPointValue.ofString factory constructor</li>
+    <li class="self-crumb">FloatingPointValue.ofString constructor</li>
   </ol>
   <div class="self-name">FloatingPointValue.ofString</div>
   <form class="search navbar-right" role="search">
@@ -79,20 +79,14 @@ representation and the size of the exponent and mantissa</p>
     
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
-  <pre class="language-dart"><code class="language-dart">factory FloatingPointValue.ofString(
-    String fp, int exponentWidth, int mantissaWidth,
-    {int radix = 2}) {
-  final binaryFp = LogicValue.ofBigInt(
-          BigInt.parse(fp, radix: radix), exponentWidth + mantissaWidth + 1)
-      .bitString;
-
-  final (sign, exponent, mantissa) = (
-    binaryFp.substring(0, 1),
-    binaryFp.substring(1, 1 + exponentWidth),
-    binaryFp.substring(1 + exponentWidth, 1 + exponentWidth + mantissaWidth)
-  );
-  return FloatingPointValue.ofBinaryStrings(sign, exponent, mantissa);
-}</code></pre>
+  <pre class="language-dart"><code class="language-dart">FloatingPointValue.ofString(String fp, int exponentWidth, int mantissaWidth,
+    {int radix = 2})
+    : this.ofBinaryStrings(
+          _extractBinaryStrings(fp, exponentWidth, mantissaWidth, radix).sign,
+          _extractBinaryStrings(fp, exponentWidth, mantissaWidth, radix)
+              .exponent,
+          _extractBinaryStrings(fp, exponentWidth, mantissaWidth, radix)
+              .mantissa);</code></pre>
 </section>
 
 
@@ -110,7 +104,7 @@ representation and the size of the exponent and mantissa</p>
     <li><a href="../../index.html">rohd_hcl</a></li>
     <li><a href="../../rohd_hcl/rohd_hcl-library.html">rohd_hcl</a></li>
     <li><a href="../../rohd_hcl/FloatingPointValue-class.html">FloatingPointValue</a></li>
-    <li class="self-crumb">FloatingPointValue.ofString factory constructor</li>
+    <li class="self-crumb">FloatingPointValue.ofString constructor</li>
 </ol>
 
 

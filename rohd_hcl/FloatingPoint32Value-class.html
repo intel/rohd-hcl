@@ -62,7 +62,7 @@
 
     
 <section class="desc markdown">
-  <p>A representation of a single precision floating point value</p>
+  <p>A representation of a single-precision floating-point value.</p>
 </section>
 
 
@@ -100,20 +100,6 @@
         <dd>
           Constructor for a single precision floating point value
         </dd>
-        <dt id="FloatingPoint32Value.fromDouble" class="callable">
-          <span class="name"><a href="../rohd_hcl/FloatingPoint32Value/FloatingPoint32Value.fromDouble.html">FloatingPoint32Value.fromDouble</a></span><span class="signature">(<span class="parameter" id="fromDouble-param-inDouble"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.5.4/dart-core/double-class.html">double</a></span> <span class="parameter-name">inDouble</span></span>)</span>
-        </dt>
-        <dd>
-          Numeric conversion of a <a href="../rohd_hcl/FloatingPoint32Value-class.html">FloatingPoint32Value</a> from a host double
-            <div class="constructor-modifier features">factory</div>
-        </dd>
-        <dt id="FloatingPoint32Value.fromLogic" class="callable">
-          <span class="name"><a href="../rohd_hcl/FloatingPoint32Value/FloatingPoint32Value.fromLogic.html">FloatingPoint32Value.fromLogic</a></span><span class="signature">(<span class="parameter" id="fromLogic-param-val"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.5.3/rohd/LogicValue-class.html">LogicValue</a></span> <span class="parameter-name">val</span></span>)</span>
-        </dt>
-        <dd>
-          Construct a <a href="../rohd_hcl/FloatingPoint32Value-class.html">FloatingPoint32Value</a> from a Logic word
-            <div class="constructor-modifier features">factory</div>
-        </dd>
         <dt id="FloatingPoint32Value.getFloatingPointConstant" class="callable">
           <span class="name"><a href="../rohd_hcl/FloatingPoint32Value/FloatingPoint32Value.getFloatingPointConstant.html">FloatingPoint32Value.getFloatingPointConstant</a></span><span class="signature">(<span class="parameter" id="getFloatingPointConstant-param-constantFloatingPoint"><span class="type-annotation"><a href="../rohd_hcl/FloatingPointConstants.html">FloatingPointConstants</a></span> <span class="parameter-name">constantFloatingPoint</span></span>)</span>
         </dt>
@@ -127,6 +113,19 @@
         <dd>
           <a href="../rohd_hcl/FloatingPoint32Value-class.html">FloatingPoint32Value</a> constructor from a set of <a href="https://api.dart.dev/stable/3.5.4/dart-core/BigInt-class.html">BigInt</a>s of the binary
 representation
+        </dd>
+        <dt id="FloatingPoint32Value.ofBinaryStrings" class="callable">
+          <span class="name"><a href="../rohd_hcl/FloatingPoint32Value/FloatingPoint32Value.ofBinaryStrings.html">FloatingPoint32Value.ofBinaryStrings</a></span><span class="signature">(<span class="parameter" id="ofBinaryStrings-param-sign"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.5.4/dart-core/String-class.html">String</a></span> <span class="parameter-name">sign</span>, </span><span class="parameter" id="ofBinaryStrings-param-exponent"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.5.4/dart-core/String-class.html">String</a></span> <span class="parameter-name">exponent</span>, </span><span class="parameter" id="ofBinaryStrings-param-mantissa"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.5.4/dart-core/String-class.html">String</a></span> <span class="parameter-name">mantissa</span></span>)</span>
+        </dt>
+        <dd>
+          <a href="../rohd_hcl/FloatingPoint32Value-class.html">FloatingPoint32Value</a> constructor from string representation of
+individual bitfields
+        </dd>
+        <dt id="FloatingPoint32Value.ofDouble" class="callable">
+          <span class="name"><a href="../rohd_hcl/FloatingPoint32Value/FloatingPoint32Value.ofDouble.html">FloatingPoint32Value.ofDouble</a></span><span class="signature">(<span class="parameter" id="ofDouble-param-inDouble"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.5.4/dart-core/double-class.html">double</a></span> <span class="parameter-name">inDouble</span></span>)</span>
+        </dt>
+        <dd>
+          Numeric conversion of a <a href="../rohd_hcl/FloatingPoint32Value-class.html">FloatingPoint32Value</a> from a host double
             <div class="constructor-modifier features">factory</div>
         </dd>
         <dt id="FloatingPoint32Value.ofInts" class="callable">
@@ -135,29 +134,33 @@ representation
         <dd>
           <a href="../rohd_hcl/FloatingPoint32Value-class.html">FloatingPoint32Value</a> constructor from a set of <a href="https://api.dart.dev/stable/3.5.4/dart-core/int-class.html">int</a>s of the binary
 representation
+        </dd>
+        <dt id="FloatingPoint32Value.ofLogicValue" class="callable">
+          <span class="name"><a href="../rohd_hcl/FloatingPoint32Value/FloatingPoint32Value.ofLogicValue.html">FloatingPoint32Value.ofLogicValue</a></span><span class="signature">(<span class="parameter" id="ofLogicValue-param-val"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.5.3/rohd/LogicValue-class.html">LogicValue</a></span> <span class="parameter-name">val</span></span>)</span>
+        </dt>
+        <dd>
+          Construct a <a href="../rohd_hcl/FloatingPoint32Value-class.html">FloatingPoint32Value</a> from a Logic word
             <div class="constructor-modifier features">factory</div>
         </dd>
+        <dt id="FloatingPoint32Value.ofSpacedBinaryString" class="callable">
+          <span class="name"><a href="../rohd_hcl/FloatingPoint32Value/FloatingPoint32Value.ofSpacedBinaryString.html">FloatingPoint32Value.ofSpacedBinaryString</a></span><span class="signature">(<span class="parameter" id="ofSpacedBinaryString-param-fp"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.5.4/dart-core/String-class.html">String</a></span> <span class="parameter-name">fp</span></span>)</span>
+        </dt>
+        <dd>
+          <a href="../rohd_hcl/FloatingPoint32Value-class.html">FloatingPoint32Value</a> constructor from spaced string representation of
+individual bitfields
+        </dd>
         <dt id="FloatingPoint32Value.ofString" class="callable">
-          <span class="name"><a href="../rohd_hcl/FloatingPoint32Value/FloatingPoint32Value.ofString.html">FloatingPoint32Value.ofString</a></span><span class="signature">(<span class="parameter" id="ofString-param-fp"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.5.4/dart-core/String-class.html">String</a></span> <span class="parameter-name">fp</span></span>)</span>
+          <span class="name"><a href="../rohd_hcl/FloatingPoint32Value/FloatingPoint32Value.ofString.html">FloatingPoint32Value.ofString</a></span><span class="signature">(<span class="parameter" id="ofString-param-fp"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.5.4/dart-core/String-class.html">String</a></span> <span class="parameter-name">fp</span>, {</span><span class="parameter" id="ofString-param-radix"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.5.4/dart-core/int-class.html">int</a></span> <span class="parameter-name">radix</span> = <span class="default-value">2</span></span>})</span>
         </dt>
         <dd>
           <a href="../rohd_hcl/FloatingPoint32Value-class.html">FloatingPoint32Value</a> constructor from a single string representing
 space-separated bitfields
-            <div class="constructor-modifier features">factory</div>
-        </dd>
-        <dt id="FloatingPoint32Value.ofStrings" class="callable">
-          <span class="name"><a href="../rohd_hcl/FloatingPoint32Value/FloatingPoint32Value.ofStrings.html">FloatingPoint32Value.ofStrings</a></span><span class="signature">(<span class="parameter" id="ofStrings-param-sign"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.5.4/dart-core/String-class.html">String</a></span> <span class="parameter-name">sign</span>, </span><span class="parameter" id="ofStrings-param-exponent"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.5.4/dart-core/String-class.html">String</a></span> <span class="parameter-name">exponent</span>, </span><span class="parameter" id="ofStrings-param-mantissa"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.5.4/dart-core/String-class.html">String</a></span> <span class="parameter-name">mantissa</span></span>)</span>
-        </dt>
-        <dd>
-          <a href="../rohd_hcl/FloatingPoint32Value-class.html">FloatingPoint32Value</a> constructor from string representation of
-individual bitfields
-            <div class="constructor-modifier features">factory</div>
         </dd>
     </dl>
   </section>
     
   <section
-      class="summary offset-anchor inherited"
+      class="summary offset-anchor"
       id="instance-properties">
     <h2>Properties</h2>
     <dl class="properties">
@@ -170,6 +173,32 @@ individual bitfields
 <dd class="inherited">
   Return the bias of this <a href="../rohd_hcl/FloatingPointValue-class.html">FloatingPointValue</a>.
   <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="constrainedExponentWidth" class="property">
+  <span class="name"><a href="../rohd_hcl/FloatingPoint32Value/constrainedExponentWidth.html">constrainedExponentWidth</a></span>
+  <span class="signature">&#8594; <a href="https://api.dart.dev/stable/3.5.4/dart-core/int-class.html">int</a></span>
+  
+
+</dt>
+<dd>
+  <a href="../rohd_hcl/FloatingPoint32Value/constrainedExponentWidth.html">constrainedExponentWidth</a> is the hard-coded exponent width of the
+sub-class of this floating-point value
+  <div class="features"><span class="feature">no setter</span><span class="feature">override</span></div>
+
+</dd>
+
+        <dt id="constrainedMantissaWidth" class="property">
+  <span class="name"><a href="../rohd_hcl/FloatingPoint32Value/constrainedMantissaWidth.html">constrainedMantissaWidth</a></span>
+  <span class="signature">&#8594; <a href="https://api.dart.dev/stable/3.5.4/dart-core/int-class.html">int</a></span>
+  
+
+</dt>
+<dd>
+  <a href="../rohd_hcl/FloatingPoint32Value/constrainedMantissaWidth.html">constrainedMantissaWidth</a> is the hard-coded mantissa width of the
+sub-class of this floating-point value
+  <div class="features"><span class="feature">no setter</span><span class="feature">override</span></div>
 
 </dd>
 
@@ -367,6 +396,22 @@ defined as having mantissa in the range [1,2)
 </dt>
 <dd class="inherited">
   Return the value of the floating point number in a Dart <a href="https://api.dart.dev/stable/3.5.4/dart-core/double-class.html">double</a> type.
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="toMappedSubtype" class="callable inherited">
+  <span class="name"><a href="../rohd_hcl/FloatingPointValue/toMappedSubtype.html">toMappedSubtype</a></span><span class="signature">(<wbr>)
+    <span class="returntype parameter">&#8594; <a href="../rohd_hcl/FloatingPointValue-class.html">FloatingPointValue</a></span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Converts this <a href="../rohd_hcl/FloatingPointValue-class.html">FloatingPointValue</a> to a <a href="../rohd_hcl/FloatingPointValue-class.html">FloatingPointValue</a> with the same
+sign, exponent, and mantissa using the constructor provided in
+<a href="../rohd_hcl/FloatingPointValue/subtypeConstructorMap.html">subtypeConstructorMap</a> if available, otherwise using the default
+constructor.
   <div class="features"><span class="feature">inherited</span></div>
 
 </dd>
