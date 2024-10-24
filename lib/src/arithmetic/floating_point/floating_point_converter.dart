@@ -51,8 +51,8 @@ class FloatingPointConverter extends Module {
     Logic normalizedMantissa =
         Logic(name: 'normalizedMantissa', width: destMantissaWidth);
 
-    normalizedExponent < _normalizeSubnormalExponent();
-    normalizedMantissa < _normalizeSubnormalMantissa();
+    normalizedExponent <= _normalizeSubnormalExponent();
+    normalizedMantissa <= _normalizeSubnormalMantissa();
 
     final normalizedFP = FloatingPoint(
         exponentWidth: destExponentWidth, mantissaWidth: destMantissaWidth);
@@ -66,14 +66,14 @@ class FloatingPointConverter extends Module {
         Iff(source.isNaN(), [
           _result < _handleNaN(source, destExponentWidth, destMantissaWidth),
         ]),
-        Iff(source.isInfinity(), [
+        ElseIf(source.isInfinity(), [
           _result <
               _handleInfinity(source, destExponentWidth, destMantissaWidth),
         ]),
-        Iff(source.isZero(), [
+        ElseIf(source.isZero(), [
           _result < _handleZero(source, destExponentWidth, destMantissaWidth),
         ]),
-        Iff(source.isSubnormal() | source.isNormal(), [
+        ElseIf(source.isSubnormal() | source.isNormal(), [
           _result <
               mux(
                   source.isNormal(),
@@ -149,11 +149,14 @@ class FloatingPointConverter extends Module {
             Const(FloatingPointRoundingMode.roundNearestEven.index));
 
     final isOverflow = adjustedExponent
-        .gte(FloatingPointValue.computeMaxExponent(destExponentWidth));
-    final isUnderflow = adjustedExponent.lte(0);
+        .gt(FloatingPointValue.computeMaxExponent(destExponentWidth));
+    final isUnderflow = adjustedExponent.lt(0);
 
     final packNormal = FloatingPoint(
         exponentWidth: destExponentWidth, mantissaWidth: destMantissaWidth);
+
+    print("isOverflow:");
+    print(isOverflow.value.toString());
 
     Combinational([
       If.block([
@@ -172,13 +175,14 @@ class FloatingPointConverter extends Module {
                   destMantissaWidth: destMantissaWidth),
         ]),
         Else([
-          packNormal.sign < source.sign.value,
-          packNormal.exponent < adjustedExponent.value,
-          packNormal.mantissa < adjustedMantissa.value
+          packNormal.sign < source.sign,
+          packNormal.exponent < adjustedExponent,
+          packNormal.mantissa < adjustedMantissa
         ])
       ]),
     ]);
 
+    print(packNormal.value.toString());
     return packNormal;
   }
 
@@ -187,6 +191,15 @@ class FloatingPointConverter extends Module {
   Logic _normalizeSubnormalMantissa() =>
       Const(0, width: destMantissaWidth, fill: true);
 
+  /// Handle the case where the [source] is too large to be represented by
+  /// a [FloatingPoint] with the given [destExponentWidth] and
+  /// [destMantissaWidth].
+  ///
+  /// The resulting [FloatingPoint] is a non-NaN infinity with the same sign as
+  /// the [source].
+  ///
+  /// [destExponentWidth] and [destMantissaWidth] are the widths of the exponent
+  /// and mantissa of the destination [FloatingPoint] respectively.
   static FloatingPoint handleOverflow(
           {required FloatingPoint source,
           required int destExponentWidth,
@@ -224,6 +237,7 @@ class FloatingPointConverter extends Module {
     final pack = FloatingPoint(
         exponentWidth: destExponentWidth, mantissaWidth: destMantissaWidth);
 
+    pack.sign <= source.sign;
     pack.exponent <= Const(1, width: destExponentWidth, fill: true);
 
     if (isNaN) {

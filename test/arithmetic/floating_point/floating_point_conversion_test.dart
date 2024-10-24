@@ -1,8 +1,7 @@
-import 'dart:convert';
-import 'dart:math';
+import 'dart:io';
+import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
 import 'package:test/test.dart';
-import 'package:rohd/rohd.dart';
 
 void main() {
   const fp32ExponentWidth = 8;
@@ -217,11 +216,63 @@ void main() {
 
   test('FP: converter builds', () {
     final fp32 = FloatingPoint32()
-      ..put(FloatingPoint32Value.fromDouble(1.5).value);
+      ..put(FloatingPoint32Value.fromDouble(1.512312312312312).value);
 
     final converter = FloatingPointConverter(fp32,
         destExponentWidth: bf19ExponentWidth,
         destMantissaWidth: bf19MantissaWidth,
         name: 'fp32_to_bf19');
+
+    expect(converter.result.floatingPointValue.toString().contains('x'), false);
+    expect(converter.result.floatingPointValue.toString().contains('z'), false);
+  });
+
+  test('FP: converter processes TestFloat vectors', () async {
+    // Run testfloat_gen and capture its output
+    // Get the current test file path
+    final currentFilePath = Platform.script.toFilePath();
+    print('Current test file: $currentFilePath');
+
+    // Get the directory containing the test file
+    final testDir = File(currentFilePath).parent.path;
+    print('Test directory: $testDir');
+
+    // Run testfloat_gen from a specific directory
+    final result = await Process.run(
+      'testfloat_gen',
+      ['f32_to_f16'],
+      workingDirectory: testDir,
+    );
+    if (result.exitCode != 0) {
+      throw Exception('TestFloat failed: ${result.stderr}');
+    }
+
+    final testVectors = (result.stdout as String).split('\n');
+
+    for (final line in testVectors) {
+      if (line.trim().isEmpty) continue;
+
+      final parts = line.trim().split(RegExp(r'\s+'));
+      final inputHex = parts[0];
+      final expectedHex = parts[1];
+      final flags = parts[2];
+
+      final inputBits = int.parse(inputHex, radix: 16);
+
+      final fp32 = FloatingPoint32()..put(inputBits);
+
+      final converter = FloatingPointConverter(fp32,
+          destExponentWidth: fp16ExponentWidth,
+          destMantissaWidth: fp16MantissaWidth,
+          name: 'fp32_to_bf19');
+
+      print('Test case:');
+      print('  Input (hex): $inputHex');
+      print('  Input (float): ${fp32.floatingPointValue}');
+      print('  Expected (hex): $expectedHex');
+      print('  Got: ${converter.result.floatingPointValue}');
+      print('  Flags: $flags');
+      print('---');
+    }
   });
 }
