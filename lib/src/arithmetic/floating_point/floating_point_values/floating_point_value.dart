@@ -10,7 +10,6 @@
 //  Desmond A Kirkpatrick <desmond.a.kirkpatrick@intel.com
 
 import 'dart:math';
-import 'dart:typed_data';
 import 'package:meta/meta.dart';
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
@@ -119,103 +118,39 @@ class FloatingPointValue implements Comparable<FloatingPointValue> {
   final int _maxExp;
   final int _minExp;
 
-  /// Factory (static) constructor of a [FloatingPointValue] from
-  /// sign, mantissa and exponent
-  factory FloatingPointValue(
-      {required LogicValue sign,
-      required LogicValue exponent,
-      required LogicValue mantissa}) {
-    if (exponent.width == FloatingPoint32Value.exponentWidth &&
-        mantissa.width == FloatingPoint32Value.mantissaWidth) {
-      return FloatingPoint32Value(
-          sign: sign, mantissa: mantissa, exponent: exponent);
-    } else if (exponent.width == FloatingPoint64Value._exponentWidth &&
-        mantissa.width == FloatingPoint64Value._mantissaWidth) {
-      return FloatingPoint64Value(
-          sign: sign, mantissa: mantissa, exponent: exponent);
-    } else {
-      return FloatingPointValue.withConstraints(
-          sign: sign, mantissa: mantissa, exponent: exponent);
-    }
-  }
+  /// A mapping from a `({exponentWidth, mantissaWidth})` record to a
+  /// constructor for a specific FloatingPointValue subtype. This map is used by
+  /// the [FloatingPointValue.withMappedSubtype] constructor to select the
+  /// appropriate constructor for a given set of widths.
+  ///
+  /// By default, this is populated with available subtypes from ROHD-HCL, but
+  /// it can be overridden or extended based on the user's needs.
+  static Map<
+      ({int exponentWidth, int mantissaWidth}),
+      FloatingPointValue Function(
+          {required LogicValue sign,
+          required LogicValue exponent,
+          required LogicValue mantissa})> subtypeConstructorMap = {
+    (
+      exponentWidth: FloatingPoint32Value.exponentWidth,
+      mantissaWidth: FloatingPoint32Value.mantissaWidth
+    ): FloatingPoint32Value.new,
+    (
+      exponentWidth: FloatingPoint64Value.exponentWidth,
+      mantissaWidth: FloatingPoint64Value.mantissaWidth
+    ): FloatingPoint64Value.new,
+    (exponentWidth: 4, mantissaWidth: 3): FloatingPoint8E4M3Value.new,
+    (exponentWidth: 5, mantissaWidth: 2): FloatingPoint8E5M2Value.new,
+    (exponentWidth: 5, mantissaWidth: 10): FloatingPoint16Value.new,
+    (exponentWidth: 8, mantissaWidth: 7): FloatingPointBF16Value.new,
+    (exponentWidth: 8, mantissaWidth: 10): FloatingPointTF32Value.new,
+  };
 
-  /// [FloatingPointValue] constructor from a binary string representation of
-  /// individual bitfields
-  factory FloatingPointValue.ofBinaryStrings(
-      String sign, String exponent, String mantissa) {
-    if (sign.length != 1) {
-      throw RohdHclException('Sign string must be of length 1');
-    }
-
-    return FloatingPointValue(
-        sign: LogicValue.of(sign),
-        exponent: LogicValue.of(exponent),
-        mantissa: LogicValue.of(mantissa));
-  }
-
-  /// [FloatingPointValue] constructor from a single binary string representing
-  /// space-separated bitfields
-  factory FloatingPointValue.ofSeparatedBinaryStrings(String fp) {
-    final s = fp.split(' ');
-    if (s.length != 3) {
-      throw RohdHclException('FloatingPointValue requires three strings '
-          'to initialize');
-    }
-    return FloatingPointValue.ofBinaryStrings(s[0], s[1], s[2]);
-  }
-
-  /// [FloatingPointValue] constructor from a radix-encoded string
-  /// representation and the size of the exponent and mantissa
-  factory FloatingPointValue.ofString(
-      String fp, int exponentWidth, int mantissaWidth,
-      {int radix = 2}) {
-    final binaryFp = LogicValue.ofBigInt(
-            BigInt.parse(fp, radix: radix), exponentWidth + mantissaWidth + 1)
-        .bitString;
-
-    final (sign, exponent, mantissa) = (
-      binaryFp.substring(0, 1),
-      binaryFp.substring(1, 1 + exponentWidth),
-      binaryFp.substring(1 + exponentWidth, 1 + exponentWidth + mantissaWidth)
-    );
-    return FloatingPointValue.ofBinaryStrings(sign, exponent, mantissa);
-  }
-
-  /// [FloatingPointValue] constructor from a set of [BigInt]s of the binary
-  /// representation and the size of the exponent and mantissa
-  factory FloatingPointValue.ofBigInts(BigInt exponent, BigInt mantissa,
-      {int exponentWidth = 0, int mantissaWidth = 0, bool sign = false}) {
-    final (signLv, exponentLv, mantissaLv) = (
-      LogicValue.ofBigInt(sign ? BigInt.one : BigInt.zero, 1),
-      LogicValue.ofBigInt(exponent, exponentWidth),
-      LogicValue.ofBigInt(mantissa, mantissaWidth)
-    );
-
-    return FloatingPointValue(
-        sign: signLv, exponent: exponentLv, mantissa: mantissaLv);
-  }
-
-  /// [FloatingPointValue] constructor from a set of [int]s of the binary
-  /// representation and the size of the exponent and mantissa
-  factory FloatingPointValue.ofInts(int exponent, int mantissa,
-      {int exponentWidth = 0, int mantissaWidth = 0, bool sign = false}) {
-    final (signLv, exponentLv, mantissaLv) = (
-      LogicValue.ofBigInt(sign ? BigInt.one : BigInt.zero, 1),
-      LogicValue.ofBigInt(BigInt.from(exponent), exponentWidth),
-      LogicValue.ofBigInt(BigInt.from(mantissa), mantissaWidth)
-    );
-
-    return FloatingPointValue(
-        sign: signLv, exponent: exponentLv, mantissa: mantissaLv);
-  }
-
-  /// Constructor enabling subclasses.
-  FloatingPointValue.withConstraints(
-      {required this.sign,
-      required this.exponent,
-      required this.mantissa,
-      int? mantissaWidth,
-      int? exponentWidth})
+  /// Constructor for a [FloatingPointValue] with a sign, exponent, and
+  /// mantissa.
+  @protected
+  FloatingPointValue(
+      {required this.sign, required this.exponent, required this.mantissa})
       : value = [sign, exponent, mantissa].swizzle(),
         _bias = computeBias(exponent.width),
         _minExp = computeMinExponent(exponent.width),
@@ -223,30 +158,145 @@ class FloatingPointValue implements Comparable<FloatingPointValue> {
     if (sign.width != 1) {
       throw RohdHclException('FloatingPointValue: sign width must be 1');
     }
-    if (mantissaWidth != null && mantissa.width != mantissaWidth) {
-      throw RohdHclException(
-          'FloatingPointValue: mantissa width must be $mantissaWidth');
+    if (constrainedMantissaWidth != null &&
+        mantissa.width != constrainedMantissaWidth) {
+      throw RohdHclException('FloatingPointValue: mantissa width must be '
+          '$constrainedMantissaWidth');
     }
-    if (exponentWidth != null && exponent.width != exponentWidth) {
-      throw RohdHclException(
-          'FloatingPointValue: exponent width must be $exponentWidth');
+    if (constrainedExponentWidth != null &&
+        exponent.width != constrainedExponentWidth) {
+      throw RohdHclException('FloatingPointValue: exponent width must be '
+          '$constrainedExponentWidth');
     }
   }
 
-  /// Construct a [FloatingPointValue] from a Logic word
-  factory FloatingPointValue.fromLogic(
-      int exponentWidth, int mantissaWidth, LogicValue val) {
-    final sign = (val[-1] == LogicValue.one);
-    final exponent =
-        val.slice(exponentWidth + mantissaWidth - 1, mantissaWidth).toBigInt();
-    final mantissa = val.slice(mantissaWidth - 1, 0).toBigInt();
-    final (signLv, exponentLv, mantissaLv) = (
-      LogicValue.ofBigInt(sign ? BigInt.one : BigInt.zero, 1),
-      LogicValue.ofBigInt(exponent, exponentWidth),
-      LogicValue.ofBigInt(mantissa, mantissaWidth)
-    );
+  /// Constructs a [FloatingPointValue] with a sign, exponent, and mantissa
+  /// using one of the builders provided from [subtypeConstructorMap] if
+  /// available, otherwise using the default constructor.
+  factory FloatingPointValue.withMappedSubtype(
+      {required LogicValue sign,
+      required LogicValue exponent,
+      required LogicValue mantissa}) {
+    final key = (exponentWidth: exponent.width, mantissaWidth: mantissa.width);
+
+    if (subtypeConstructorMap.containsKey(key)) {
+      return subtypeConstructorMap[key]!(
+          sign: sign, exponent: exponent, mantissa: mantissa);
+    }
+
     return FloatingPointValue(
-        sign: signLv, exponent: exponentLv, mantissa: mantissaLv);
+        sign: sign, exponent: exponent, mantissa: mantissa);
+  }
+
+  /// Converts this [FloatingPointValue] to a [FloatingPointValue] with the same
+  /// sign, exponent, and mantissa using the constructor provided in
+  /// [subtypeConstructorMap] if available, otherwise using the default
+  /// constructor.
+  FloatingPointValue toMappedSubtype() => FloatingPointValue.withMappedSubtype(
+      sign: sign, exponent: exponent, mantissa: mantissa);
+
+  /// [constrainedMantissaWidth] is the hard-coded mantissa width of the
+  /// sub-class of this floating-point value
+  @protected
+  int? get constrainedMantissaWidth => null;
+
+  /// [constrainedExponentWidth] is the hard-coded exponent width of the
+  /// sub-class of this floating-point value
+  @protected
+  int? get constrainedExponentWidth => null;
+
+  /// [FloatingPointValue] constructor from a binary string representation of
+  /// individual bitfields
+  FloatingPointValue.ofBinaryStrings(
+      String sign, String exponent, String mantissa)
+      : this(
+            sign: LogicValue.of(sign),
+            exponent: LogicValue.of(exponent),
+            mantissa: LogicValue.of(mantissa));
+
+  /// [FloatingPointValue] constructor from a single binary string representing
+  /// space-separated bitfields
+  FloatingPointValue.ofSpacedBinaryString(String fp)
+      : this.ofBinaryStrings(
+            fp.split(' ')[0], fp.split(' ')[1], fp.split(' ')[2]);
+
+  /// [FloatingPointValue] constructor from a radix-encoded string
+  /// representation and the size of the exponent and mantissa
+  FloatingPointValue.ofString(String fp, int exponentWidth, int mantissaWidth,
+      {int radix = 2})
+      : this.ofBinaryStrings(
+            _extractBinaryStrings(fp, exponentWidth, mantissaWidth, radix).sign,
+            _extractBinaryStrings(fp, exponentWidth, mantissaWidth, radix)
+                .exponent,
+            _extractBinaryStrings(fp, exponentWidth, mantissaWidth, radix)
+                .mantissa);
+
+  /// Helper function for extracting binary strings from a longer
+  /// binary string and the known exponent and mantissa widths.
+  static ({String sign, String exponent, String mantissa})
+      _extractBinaryStrings(
+          String fp, int exponentWidth, int mantissaWidth, int radix) {
+    final binaryFp = LogicValue.ofBigInt(
+            BigInt.parse(fp, radix: radix), exponentWidth + mantissaWidth + 1)
+        .bitString;
+
+    return (
+      sign: binaryFp.substring(0, 1),
+      exponent: binaryFp.substring(1, 1 + exponentWidth),
+      mantissa: binaryFp.substring(
+          1 + exponentWidth, 1 + exponentWidth + mantissaWidth)
+    );
+  }
+
+  // TODO(desmonddak): toRadixString() would be useful, not limited to binary
+
+  /// [FloatingPointValue] constructor from a set of [BigInt]s of the binary
+  /// representation and the size of the exponent and mantissa
+  FloatingPointValue.ofBigInts(BigInt exponent, BigInt mantissa,
+      {int exponentWidth = 0, int mantissaWidth = 0, bool sign = false})
+      : this(
+            sign: LogicValue.ofBigInt(sign ? BigInt.one : BigInt.zero, 1),
+            exponent: LogicValue.ofBigInt(exponent, exponentWidth),
+            mantissa: LogicValue.ofBigInt(mantissa, mantissaWidth));
+
+  /// [FloatingPointValue] constructor from a set of [int]s of the binary
+  /// representation and the size of the exponent and mantissa
+  FloatingPointValue.ofInts(int exponent, int mantissa,
+      {int exponentWidth = 0, int mantissaWidth = 0, bool sign = false})
+      : this(
+            sign: LogicValue.ofBigInt(sign ? BigInt.one : BigInt.zero, 1),
+            exponent: LogicValue.ofBigInt(BigInt.from(exponent), exponentWidth),
+            mantissa:
+                LogicValue.ofBigInt(BigInt.from(mantissa), mantissaWidth));
+
+  /// Construct a [FloatingPointValue] from a [LogicValue]
+  factory FloatingPointValue.ofLogicValue(
+          int exponentWidth, int mantissaWidth, LogicValue val) =>
+      buildOfLogicValue(
+          FloatingPointValue.new, exponentWidth, mantissaWidth, val);
+
+  /// A helper function for [FloatingPointValue.ofLogicValue] and base classes
+  /// which performs some width checks and slicing.
+  @protected
+  static T buildOfLogicValue<T extends FloatingPointValue>(
+    T Function(
+            {required LogicValue sign,
+            required LogicValue exponent,
+            required LogicValue mantissa})
+        constructor,
+    int exponentWidth,
+    int mantissaWidth,
+    LogicValue val,
+  ) {
+    final expectedWidth = 1 + exponentWidth + mantissaWidth;
+    if (val.width != expectedWidth) {
+      throw RohdHclException('Width of $val must be $expectedWidth');
+    }
+
+    return constructor(
+        sign: val[-1],
+        exponent: val.slice(exponentWidth + mantissaWidth - 1, mantissaWidth),
+        mantissa: val.slice(mantissaWidth - 1, 0));
   }
 
   /// Return the [FloatingPointValue] representing the constant specified
@@ -313,18 +363,25 @@ class FloatingPointValue implements Comparable<FloatingPointValue> {
   }
 
   /// Convert from double using its native binary representation
-  factory FloatingPointValue.fromDouble(double inDouble,
+  factory FloatingPointValue.ofDouble(double inDouble,
       {required int exponentWidth,
       required int mantissaWidth,
       FloatingPointRoundingMode roundingMode =
           FloatingPointRoundingMode.roundNearestEven}) {
     if ((exponentWidth == 8) && (mantissaWidth == 23)) {
-      return FloatingPoint32Value.fromDouble(inDouble);
+      // TODO(desmonddak): handle rounding mode for 32 bit?
+      return FloatingPoint32Value.ofDouble(inDouble);
     } else if ((exponentWidth == 11) && (mantissaWidth == 52)) {
-      return FloatingPoint64Value.fromDouble(inDouble);
+      return FloatingPoint64Value.ofDouble(inDouble);
     }
 
-    final fp64 = FloatingPoint64Value.fromDouble(inDouble);
+    if (roundingMode != FloatingPointRoundingMode.roundNearestEven &&
+        roundingMode != FloatingPointRoundingMode.truncate) {
+      throw UnimplementedError(
+          'Only roundNearestEven or truncate is supported for this width');
+    }
+
+    final fp64 = FloatingPoint64Value.ofDouble(inDouble);
     final exponent64 = fp64.exponent;
 
     var expVal = (exponent64.toInt() - fp64.bias) +
@@ -392,12 +449,13 @@ class FloatingPointValue implements Comparable<FloatingPointValue> {
 
   /// Convert a floating point number into a [FloatingPointValue]
   /// representation. This form performs NO ROUNDING.
-  factory FloatingPointValue.fromDoubleIter(double inDouble,
+  @internal
+  factory FloatingPointValue.ofDoubleUnrounded(double inDouble,
       {required int exponentWidth, required int mantissaWidth}) {
     if ((exponentWidth == 8) && (mantissaWidth == 23)) {
-      return FloatingPoint32Value.fromDouble(inDouble);
+      return FloatingPoint32Value.ofDouble(inDouble);
     } else if ((exponentWidth == 11) && (mantissaWidth == 52)) {
-      return FloatingPoint64Value.fromDouble(inDouble);
+      return FloatingPoint64Value.ofDouble(inDouble);
     }
 
     var doubleVal = inDouble;
@@ -526,9 +584,9 @@ class FloatingPointValue implements Comparable<FloatingPointValue> {
         (mantissa == other.mantissa);
   }
 
+  // TODO(desmonddak): figure out the difference with Infinity
   /// Return true if the represented floating point number is considered
   ///  NaN or 'Not a Number' due to overflow
-  // TODO(desmonddak): figure out the difference with Infinity
   bool isNaN() {
     if ((exponent.width == 4) & (mantissa.width == 3)) {
       // FP8 E4M3 does not support infinities
@@ -595,7 +653,7 @@ class FloatingPointValue implements Comparable<FloatingPointValue> {
           'multiplicand must have the same mantissa and exponent widths');
     }
 
-    return FloatingPointValue.fromDouble(op(toDouble(), other.toDouble()),
+    return FloatingPointValue.ofDouble(op(toDouble(), other.toDouble()),
         mantissaWidth: mantissa.width, exponentWidth: exponent.width);
   }
 
@@ -624,298 +682,4 @@ class FloatingPointValue implements Comparable<FloatingPointValue> {
   /// Absolute value operation for [FloatingPointValue]
   FloatingPointValue abs() => FloatingPointValue(
       sign: LogicValue.zero, exponent: exponent, mantissa: mantissa);
-}
-
-/// A representation of a single precision floating point value
-class FloatingPoint32Value extends FloatingPointValue {
-  /// The exponent width
-  static const int exponentWidth = 8;
-
-  /// The mantissa width
-  static const int mantissaWidth = 23;
-
-  /// Constructor for a single precision floating point value
-  FloatingPoint32Value(
-      {required super.sign, required super.exponent, required super.mantissa})
-      : super.withConstraints(
-            mantissaWidth: mantissaWidth, exponentWidth: exponentWidth);
-
-  /// Return the [FloatingPoint32Value] representing the constant specified
-  factory FloatingPoint32Value.getFloatingPointConstant(
-          FloatingPointConstants constantFloatingPoint) =>
-      FloatingPointValue.getFloatingPointConstant(
-              constantFloatingPoint, exponentWidth, mantissaWidth)
-          as FloatingPoint32Value;
-
-  /// [FloatingPoint32Value] constructor from string representation of
-  /// individual bitfields
-  factory FloatingPoint32Value.ofStrings(
-          String sign, String exponent, String mantissa) =>
-      FloatingPoint32Value(
-          sign: LogicValue.of(sign),
-          exponent: LogicValue.of(exponent),
-          mantissa: LogicValue.of(mantissa));
-
-  /// [FloatingPoint32Value] constructor from a single string representing
-  /// space-separated bitfields
-  factory FloatingPoint32Value.ofString(String fp) {
-    final s = fp.split(' ');
-    assert(s.length == 3, 'Wrong FloatingPointValue string length ${s.length}');
-    return FloatingPoint32Value.ofStrings(s[0], s[1], s[2]);
-  }
-
-  /// [FloatingPoint32Value] constructor from a set of [BigInt]s of the binary
-  /// representation
-  factory FloatingPoint32Value.ofBigInts(BigInt exponent, BigInt mantissa,
-      {bool sign = false}) {
-    final (signLv, exponentLv, mantissaLv) = (
-      LogicValue.ofBigInt(sign ? BigInt.one : BigInt.zero, 1),
-      LogicValue.ofBigInt(exponent, exponentWidth),
-      LogicValue.ofBigInt(mantissa, mantissaWidth)
-    );
-
-    return FloatingPoint32Value(
-        sign: signLv, exponent: exponentLv, mantissa: mantissaLv);
-  }
-
-  /// [FloatingPoint32Value] constructor from a set of [int]s of the binary
-  /// representation
-  factory FloatingPoint32Value.ofInts(int exponent, int mantissa,
-      {bool sign = false}) {
-    final (signLv, exponentLv, mantissaLv) = (
-      LogicValue.ofBigInt(sign ? BigInt.one : BigInt.zero, 1),
-      LogicValue.ofBigInt(BigInt.from(exponent), exponentWidth),
-      LogicValue.ofBigInt(BigInt.from(mantissa), mantissaWidth)
-    );
-
-    return FloatingPoint32Value(
-        sign: signLv, exponent: exponentLv, mantissa: mantissaLv);
-  }
-
-  /// Numeric conversion of a [FloatingPoint32Value] from a host double
-  factory FloatingPoint32Value.fromDouble(double inDouble) {
-    final byteData = ByteData(4)
-      ..setFloat32(0, inDouble)
-      ..buffer.asUint8List();
-    final bytes = byteData.buffer.asUint8List();
-    final lv = bytes.map((b) => LogicValue.ofInt(b, 32));
-
-    final accum = lv.reduce((accum, v) => (accum << 8) | v);
-
-    final sign = accum[-1];
-    final exponent =
-        accum.slice(exponentWidth + mantissaWidth - 1, mantissaWidth);
-    final mantissa = accum.slice(mantissaWidth - 1, 0);
-
-    return FloatingPoint32Value(
-        sign: sign, exponent: exponent, mantissa: mantissa);
-  }
-
-  /// Construct a [FloatingPoint32Value] from a Logic word
-  factory FloatingPoint32Value.fromLogic(LogicValue val) {
-    final sign = (val[-1] == LogicValue.one);
-    final exponent =
-        val.slice(exponentWidth + mantissaWidth - 1, mantissaWidth);
-    final mantissa = val.slice(mantissaWidth - 1, 0);
-    final (signLv, exponentLv, mantissaLv) = (
-      LogicValue.ofBigInt(sign ? BigInt.one : BigInt.zero, 1),
-      exponent,
-      mantissa
-    );
-    return FloatingPoint32Value(
-        sign: signLv, exponent: exponentLv, mantissa: mantissaLv);
-  }
-}
-
-/// A representation of a double precision floating point value
-class FloatingPoint64Value extends FloatingPointValue {
-  static const int _exponentWidth = 11;
-  static const int _mantissaWidth = 52;
-
-  /// return the exponent width
-  static int get exponentWidth => _exponentWidth;
-
-  /// return the mantissa width
-  static int get mantissaWidth => _mantissaWidth;
-
-  /// Constructor for a double precision floating point value
-  FloatingPoint64Value(
-      {required super.sign, required super.mantissa, required super.exponent})
-      : super.withConstraints(
-            exponentWidth: exponentWidth, mantissaWidth: mantissaWidth);
-
-  /// Return the [FloatingPoint64Value] representing the constant specified
-  factory FloatingPoint64Value.getFloatingPointConstant(
-          FloatingPointConstants constantFloatingPoint) =>
-      FloatingPointValue.getFloatingPointConstant(
-              constantFloatingPoint, _exponentWidth, _mantissaWidth)
-          as FloatingPoint64Value;
-
-  /// [FloatingPoint64Value] constructor from string representation of
-  /// individual bitfields
-  factory FloatingPoint64Value.ofStrings(
-          String sign, String exponent, String mantissa) =>
-      FloatingPoint64Value(
-          sign: LogicValue.of(sign),
-          exponent: LogicValue.of(exponent),
-          mantissa: LogicValue.of(mantissa));
-
-  /// [FloatingPoint64Value] constructor from a single string representing
-  /// space-separated bitfields
-  factory FloatingPoint64Value.ofString(String fp) {
-    final s = fp.split(' ');
-    assert(s.length == 3, 'Wrong FloatingPointValue string length ${s.length}');
-    return FloatingPoint64Value.ofStrings(s[0], s[1], s[2]);
-  }
-
-  /// [FloatingPoint64Value] constructor from a set of [BigInt]s of the binary
-  /// representation
-  factory FloatingPoint64Value.ofBigInts(BigInt exponent, BigInt mantissa,
-          {bool sign = false}) =>
-      FloatingPointValue.ofBigInts(exponent, mantissa,
-          sign: sign,
-          exponentWidth: exponentWidth,
-          mantissaWidth: mantissaWidth) as FloatingPoint64Value;
-
-  /// [FloatingPoint64Value] constructor from a set of [int]s of the binary
-  /// representation
-  factory FloatingPoint64Value.ofInts(int exponent, int mantissa,
-          {bool sign = false}) =>
-      FloatingPointValue.ofInts(exponent, mantissa,
-          sign: sign,
-          exponentWidth: exponentWidth,
-          mantissaWidth: mantissaWidth) as FloatingPoint64Value;
-
-  /// Numeric conversion of a [FloatingPoint64Value] from a host double
-  factory FloatingPoint64Value.fromDouble(double inDouble) {
-    final byteData = ByteData(8)
-      ..setFloat64(0, inDouble)
-      ..buffer.asUint8List();
-    final bytes = byteData.buffer.asUint8List();
-    final lv = bytes.map((b) => LogicValue.ofInt(b, 64));
-
-    final accum = lv.reduce((accum, v) => (accum << 8) | v);
-
-    final sign = accum[-1];
-    final exponent =
-        accum.slice(_exponentWidth + _mantissaWidth - 1, _mantissaWidth);
-    final mantissa = accum.slice(_mantissaWidth - 1, 0);
-
-    return FloatingPoint64Value(
-        sign: sign, mantissa: mantissa, exponent: exponent);
-  }
-
-  /// Construct a [FloatingPoint32Value] from a Logic word
-  factory FloatingPoint64Value.fromLogic(LogicValue val) {
-    final sign = (val[-1] == LogicValue.one);
-    final exponent =
-        val.slice(exponentWidth + mantissaWidth - 1, mantissaWidth).toBigInt();
-    final mantissa = val.slice(mantissaWidth - 1, 0).toBigInt();
-    final (signLv, exponentLv, mantissaLv) = (
-      LogicValue.ofBigInt(sign ? BigInt.one : BigInt.zero, 1),
-      LogicValue.ofBigInt(exponent, exponentWidth),
-      LogicValue.ofBigInt(mantissa, mantissaWidth)
-    );
-    return FloatingPoint64Value(
-        sign: signLv, exponent: exponentLv, mantissa: mantissaLv);
-  }
-}
-
-/// A representation of a 8-bit floating point value as defined in
-/// [FP8 Formats for Deep Learning](https://arxiv.org/abs/2209.05433).
-class FloatingPoint8Value extends FloatingPointValue {
-  /// The exponent width
-  late final int exponentWidth;
-
-  /// The mantissa width
-  late final int mantissaWidth;
-
-  static double get _e4m3max => 448.toDouble();
-  static double get _e5m2max => 57344.toDouble();
-  static double get _e4m3min => pow(2, -9).toDouble();
-  static double get _e5m2min => pow(2, -16).toDouble();
-
-  /// Return if the exponent and mantissa widths match E4M3 or E5M2
-  static bool isLegal(int exponentWidth, int mantissaWidth) {
-    if (((exponentWidth == 4) & (mantissaWidth == 3)) |
-        ((exponentWidth == 5) & (mantissaWidth == 2))) {
-      return true;
-    } else {
-      return false;
-    }
-  }
-
-  /// Constructor for a double precision floating point value
-  FloatingPoint8Value(
-      {required super.sign, required super.mantissa, required super.exponent})
-      : super.withConstraints() {
-    exponentWidth = exponent.width;
-    mantissaWidth = mantissa.width;
-    if (!isLegal(exponentWidth, mantissaWidth)) {
-      throw RohdHclException('FloatingPoint8 must follow E4M3 or E5M2');
-    }
-  }
-
-  /// [FloatingPoint8Value] constructor from string representation of
-  /// individual bitfields
-  factory FloatingPoint8Value.ofStrings(
-          String sign, String exponent, String mantissa) =>
-      FloatingPoint8Value(
-          sign: LogicValue.of(sign),
-          exponent: LogicValue.of(exponent),
-          mantissa: LogicValue.of(mantissa));
-
-  /// [FloatingPoint8Value] constructor from a single string representing
-  /// space-separated bitfields
-  factory FloatingPoint8Value.ofString(String fp) {
-    final s = fp.split(' ');
-    assert(s.length == 3, 'Wrong FloatingPointValue string length ${s.length}');
-    return FloatingPoint8Value.ofStrings(s[0], s[1], s[2]);
-  }
-
-  /// Construct a [FloatingPoint8Value] from a Logic word
-  factory FloatingPoint8Value.fromLogic(LogicValue val, int exponentWidth) {
-    if (val.width != 8) {
-      throw RohdHclException('Width must be 8');
-    }
-
-    final mantissaWidth = 7 - exponentWidth;
-    if (!isLegal(exponentWidth, mantissaWidth)) {
-      throw RohdHclException('FloatingPoint8 must follow E4M3 or E5M2');
-    }
-
-    final sign = (val[-1] == LogicValue.one);
-    final exponent =
-        val.slice(exponentWidth + mantissaWidth - 1, mantissaWidth).toBigInt();
-    final mantissa = val.slice(mantissaWidth - 1, 0).toBigInt();
-    final (signLv, exponentLv, mantissaLv) = (
-      LogicValue.ofBigInt(sign ? BigInt.one : BigInt.zero, 1),
-      LogicValue.ofBigInt(exponent, exponentWidth),
-      LogicValue.ofBigInt(mantissa, mantissaWidth)
-    );
-    return FloatingPoint8Value(
-        sign: signLv, exponent: exponentLv, mantissa: mantissaLv);
-  }
-
-  /// Numeric conversion of a [FloatingPoint8Value] from a host double
-  factory FloatingPoint8Value.fromDouble(double inDouble,
-      {required int exponentWidth}) {
-    final mantissaWidth = 7 - exponentWidth;
-    if (!isLegal(exponentWidth, mantissaWidth)) {
-      throw RohdHclException('FloatingPoint8 must follow E4M3 or E5M2');
-    }
-    if (exponentWidth == 4) {
-      if ((inDouble > _e4m3max) | (inDouble < _e4m3min)) {
-        throw RohdHclException('Number exceeds E4M3 range');
-      }
-    } else if (exponentWidth == 5) {
-      if ((inDouble > _e5m2max) | (inDouble < _e5m2min)) {
-        throw RohdHclException('Number exceeds E5M2 range');
-      }
-    }
-    final fpv = FloatingPointValue.fromDouble(inDouble,
-        exponentWidth: exponentWidth, mantissaWidth: mantissaWidth);
-    return FloatingPoint8Value(
-        sign: fpv.sign, exponent: fpv.exponent, mantissa: fpv.mantissa);
-  }
 }

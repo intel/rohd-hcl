@@ -28,7 +28,7 @@ void main() {
         final mantStr = mantissa.bitString;
         final fp = FloatingPointValue.ofBinaryStrings(signStr, expStr, mantStr);
         final dbl = fp.toDouble();
-        final fp2 = FloatingPointValue.fromDouble(dbl,
+        final fp2 = FloatingPointValue.ofDouble(dbl,
             exponentWidth: exponentWidth, mantissaWidth: mantissaWidth);
         if (fp != fp2) {
           if (fp.isNaN() != fp2.isNaN()) {
@@ -50,12 +50,13 @@ void main() {
         final mantStr = (mantissa << i).bitString;
         final fp = FloatingPointValue.ofBinaryStrings(signStr, expStr, mantStr);
         expect(fp.toString(), '$signStr $expStr $mantStr');
-        final fp2 = FloatingPointValue.fromDouble(fp.toDouble(),
+        final fp2 = FloatingPointValue.ofDouble(fp.toDouble(),
             exponentWidth: exponentWidth, mantissaWidth: mantissaWidth);
         expect(fp2, equals(fp));
       }
     }
   });
+
   test('FPV: indirect subnormal conversion no rounding', () {
     const signStr = '0';
     for (var exponentWidth = 2; exponentWidth < 12; exponentWidth++) {
@@ -67,13 +68,14 @@ void main() {
           final fp =
               FloatingPointValue.ofBinaryStrings(signStr, expStr, mantStr);
           expect(fp.toString(), '$signStr $expStr $mantStr');
-          final fp2 = FloatingPointValue.fromDoubleIter(fp.toDouble(),
+          final fp2 = FloatingPointValue.ofDoubleUnrounded(fp.toDouble(),
               exponentWidth: exponentWidth, mantissaWidth: mantissaWidth);
           expect(fp2, equals(fp));
         }
       }
     }
   });
+
   test('FPV: round trip 32', () {
     final values = [
       FloatingPoint32Value.getFloatingPointConstant(
@@ -91,10 +93,11 @@ void main() {
           FloatingPointConstants.largestNormal)
     ];
     for (final fp in values) {
-      final fp2 = FloatingPoint32Value.fromDouble(fp.toDouble());
+      final fp2 = FloatingPoint32Value.ofDouble(fp.toDouble());
       expect(fp2, equals(fp));
     }
   });
+
   test('FPV: round trip 64', () {
     final values = [
       FloatingPoint64Value.getFloatingPointConstant(
@@ -112,24 +115,26 @@ void main() {
           FloatingPointConstants.largestNormal)
     ];
     for (final fp in values) {
-      final fp2 = FloatingPoint64Value.fromDouble(fp.toDouble());
+      final fp2 = FloatingPoint64Value.ofDouble(fp.toDouble());
       expect(fp2, equals(fp));
     }
   });
+
   test('FloatingPointValue string conversion', () {
     const str = '0 10000001 01000100000000000000000'; // 5.0625
-    final fp = FloatingPoint32Value.ofString(str);
+    final fp = FloatingPoint32Value.ofSpacedBinaryString(str);
     expect(fp.toString(), str);
     expect(fp.toDouble(), 5.0625);
   });
+
   test('FPV: simple 32', () {
     final values = [0.15625, 12.375, -1.0, 0.25, 0.375];
     for (final val in values) {
-      final fp = FloatingPoint32Value.fromDouble(val);
+      final fp = FloatingPoint32Value.ofDouble(val);
       assert(val == fp.toDouble(), 'mismatch');
       expect(fp.toDouble(), val);
-      final fpSuper = FloatingPointValue.fromDouble(val,
-          exponentWidth: 8, mantissaWidth: 23);
+      final fpSuper =
+          FloatingPointValue.ofDouble(val, exponentWidth: 8, mantissaWidth: 23);
       assert(val == fpSuper.toDouble(), 'mismatch');
       expect(fpSuper.toDouble(), val);
     }
@@ -138,10 +143,10 @@ void main() {
   test('FPV: simple 64', () {
     final values = [0.15625, 12.375, -1.0, 0.25, 0.375];
     for (final val in values) {
-      final fp = FloatingPoint64Value.fromDouble(val);
+      final fp = FloatingPoint64Value.ofDouble(val);
       assert(val == fp.toDouble(), 'mismatch');
       expect(fp.toDouble(), val);
-      final fpSuper = FloatingPointValue.fromDouble(val,
+      final fpSuper = FloatingPointValue.ofDouble(val,
           exponentWidth: 11, mantissaWidth: 52);
       assert(val == fpSuper.toDouble(), 'mismatch');
       expect(fpSuper.toDouble(), val);
@@ -159,18 +164,17 @@ void main() {
     for (var c = 0; c < corners.length; c++) {
       final val = corners[c][1] as double;
       final str = corners[c][0] as String;
-      final fp = FloatingPointValue.fromDouble(val,
-          exponentWidth: 4, mantissaWidth: 3);
+      final fp =
+          FloatingPointValue.ofDouble(val, exponentWidth: 4, mantissaWidth: 3);
       expect(val, fp.toDouble());
       expect(str, fp.toString());
-      final fp8 = FloatingPointValue.fromDouble(val,
-          exponentWidth: 4, mantissaWidth: 3);
+      final fp8 = FloatingPoint8E4M3Value.ofDouble(val);
       expect(val, fp8.toDouble());
       expect(str, fp8.toString());
     }
   });
 
-  test('FP8: E5M2', () {
+  test('FPV8: E5M2', () {
     final corners = [
       ['0 00000 00', 0.toDouble()],
       ['0 11110 11', 57344.toDouble()],
@@ -181,81 +185,104 @@ void main() {
     for (var c = 0; c < corners.length; c++) {
       final val = corners[c][1] as double;
       final str = corners[c][0] as String;
-      final fp = FloatingPointValue.fromDouble(val,
-          exponentWidth: 5, mantissaWidth: 2);
+      final fp =
+          FloatingPointValue.ofDouble(val, exponentWidth: 5, mantissaWidth: 2);
       expect(val, fp.toDouble());
       expect(str, fp.toString());
-      final fp8 = FloatingPointValue.fromDouble(val,
-          exponentWidth: 5, mantissaWidth: 2);
+      final fp8 = FloatingPoint8E5M2Value.ofDouble(val);
       expect(val, fp8.toDouble());
       expect(str, fp8.toString());
     }
   });
 
   test('FPV: setting and getting from a signal', () {
-    final fp = FloatingPoint32()
-      ..put(FloatingPoint32Value.fromDouble(1.5).value);
+    final fp = FloatingPoint32()..put(FloatingPoint32Value.ofDouble(1.5).value);
     expect(fp.floatingPointValue.toDouble(), 1.5);
     final fp2 = FloatingPoint64()
-      ..put(FloatingPoint64Value.fromDouble(1.5).value);
+      ..put(FloatingPoint64Value.ofDouble(1.5).value);
     expect(fp2.floatingPointValue.toDouble(), 1.5);
-    final fp8e4m3 = FloatingPoint8(exponentWidth: 4)
-      ..put(FloatingPoint8Value.fromDouble(1.5, exponentWidth: 4).value);
+    final fp8e4m3 = FloatingPoint8E4M3()
+      ..put(FloatingPoint8E4M3Value.ofDouble(1.5).value);
     expect(fp8e4m3.floatingPointValue.toDouble(), 1.5);
-    final fp8e5m2 = FloatingPoint8(exponentWidth: 5)
-      ..put(FloatingPoint8Value.fromDouble(1.5, exponentWidth: 5).value);
+    final fp8e5m2 = FloatingPoint8E5M2()
+      ..put(FloatingPoint8E5M2Value.ofDouble(1.5).value);
     expect(fp8e5m2.floatingPointValue.toDouble(), 1.5);
   });
 
   test('FPV: round nearest even Guard and Sticky', () {
-    final fp64 = FloatingPoint64Value.ofStrings('0', '10000000000',
+    final fp64 = FloatingPoint64Value.ofBinaryStrings('0', '10000000000',
         '0000100000000000000000000000000000000000000000000001');
 
     final fpRound = FloatingPointValue.ofBinaryStrings('0', '1000', '0001');
     final val = fp64.toDouble();
     final fpConvert =
-        FloatingPointValue.fromDouble(val, exponentWidth: 4, mantissaWidth: 4);
+        FloatingPointValue.ofDouble(val, exponentWidth: 4, mantissaWidth: 4);
     expect(fpConvert, equals(fpRound));
   });
+
   test('FPV: round nearest even Guard and Round', () {
-    final fp64 = FloatingPoint64Value.ofStrings('0', '10000000000',
+    final fp64 = FloatingPoint64Value.ofBinaryStrings('0', '10000000000',
         '0000110000000000000000000000000000000000000000000000');
 
     final fpRound = FloatingPointValue.ofBinaryStrings('0', '1000', '0001');
     final val = fp64.toDouble();
 
     final fpConvert =
-        FloatingPointValue.fromDouble(val, exponentWidth: 4, mantissaWidth: 4);
+        FloatingPointValue.ofDouble(val, exponentWidth: 4, mantissaWidth: 4);
     expect(fpConvert, equals(fpRound));
   });
+
   test('FPV: rounding nearest even increment', () {
-    final fp64 = FloatingPoint64Value.ofStrings('0', '10000000000',
+    final fp64 = FloatingPoint64Value.ofBinaryStrings('0', '10000000000',
         '0001100000000000000000000000000000000000000000000000');
 
     final fpRound = FloatingPointValue.ofBinaryStrings('0', '1000', '0010');
     final val = fp64.toDouble();
     final fpConvert =
-        FloatingPointValue.fromDouble(val, exponentWidth: 4, mantissaWidth: 4);
+        FloatingPointValue.ofDouble(val, exponentWidth: 4, mantissaWidth: 4);
     expect(fpConvert, equals(fpRound));
   });
+
   test('FPV: rounding nearest even increment carry into exponent', () {
-    final fp64 = FloatingPoint64Value.ofStrings('0', '10000000000',
+    final fp64 = FloatingPoint64Value.ofBinaryStrings('0', '10000000000',
         '1111100000000000000000000000000000000000000000000000');
 
     final fpRound = FloatingPointValue.ofBinaryStrings('0', '1001', '0000');
     final val = fp64.toDouble();
     final fpConvert =
-        FloatingPointValue.fromDouble(val, exponentWidth: 4, mantissaWidth: 4);
+        FloatingPointValue.ofDouble(val, exponentWidth: 4, mantissaWidth: 4);
     expect(fpConvert, equals(fpRound));
   });
+
   test('FPV: rounding nearest even truncate', () {
-    final fp64 = FloatingPoint64Value.ofStrings('0', '10000000000',
+    final fp64 = FloatingPoint64Value.ofBinaryStrings('0', '10000000000',
         '0010100000000000000000000000000000000000000000000000');
 
     final fpTrunc = FloatingPointValue.ofBinaryStrings('0', '1000', '0010');
     final val = fp64.toDouble();
     final fpConvert =
-        FloatingPointValue.fromDouble(val, exponentWidth: 4, mantissaWidth: 4);
+        FloatingPointValue.ofDouble(val, exponentWidth: 4, mantissaWidth: 4);
     expect(fpConvert, equals(fpTrunc));
+  });
+
+  test('mapped subtype constructor', () {
+    final fp = FloatingPointValue.withMappedSubtype(
+      sign: LogicValue.zero,
+      exponent: LogicValue.ofString('10101'),
+      mantissa: LogicValue.ofString('10'),
+    );
+
+    expect(fp, isA<FloatingPoint8E5M2Value>());
+  });
+
+  test('mapped subtype conversion', () {
+    final fp = FloatingPointValue(
+      sign: LogicValue.zero,
+      exponent: LogicValue.ofString('10101'),
+      mantissa: LogicValue.ofString('10'),
+    );
+
+    expect(fp, isNot(isA<FloatingPoint8E5M2Value>()));
+    expect(fp.toMappedSubtype(), isA<FloatingPoint8E5M2Value>());
   });
 }

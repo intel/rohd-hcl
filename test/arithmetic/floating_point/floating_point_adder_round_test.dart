@@ -25,7 +25,7 @@ void main() {
     fa.put(fva);
     fb.put(fvb);
 
-    final expectedNoRound = FloatingPointValue.fromDoubleIter(
+    final expectedNoRound = FloatingPointValue.ofDoubleUnrounded(
         fva.toDouble() + fvb.toDouble(),
         exponentWidth: eWidth,
         mantissaWidth: mWidth);
@@ -65,7 +65,7 @@ void main() {
               fa.put(fva);
               fb.put(fvb);
               // No rounding
-              final expected = FloatingPointValue.fromDoubleIter(
+              final expected = FloatingPointValue.ofDoubleUnrounded(
                   fva.toDouble() + fvb.toDouble(),
                   exponentWidth: eWidth,
                   mantissaWidth: mWidth);
@@ -259,7 +259,7 @@ void main() {
     fa.put(fva);
     fb.put(fvb);
 
-    final expectedNoRound = FloatingPointValue.fromDoubleIter(
+    final expectedNoRound = FloatingPointValue.ofDoubleUnrounded(
         fva.toDouble() + fvb.toDouble(),
         exponentWidth: eWidth,
         mantissaWidth: mWidth);
@@ -304,7 +304,7 @@ void main() {
 
               fa.put(fva);
               fb.put(fvb);
-              final expectedNoRound = FloatingPointValue.fromDoubleIter(
+              final expectedNoRound = FloatingPointValue.ofDoubleUnrounded(
                   fva.toDouble() + fvb.toDouble(),
                   exponentWidth: eWidth,
                   mantissaWidth: mWidth);
@@ -345,7 +345,7 @@ void main() {
           exponentWidth: eWidth, mantissaWidth: mWidth);
       fa.put(fva);
       fb.put(fvb);
-      final expectedNoRound = FloatingPointValue.fromDoubleIter(
+      final expectedNoRound = FloatingPointValue.ofDoubleUnrounded(
           fva.toDouble() + fvb.toDouble(),
           exponentWidth: eWidth,
           mantissaWidth: mWidth);
