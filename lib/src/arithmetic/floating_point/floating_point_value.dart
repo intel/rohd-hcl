@@ -526,20 +526,17 @@ class FloatingPointValue implements Comparable<FloatingPointValue> {
         (mantissa == other.mantissa);
   }
 
-  /// Return true if the represented floating point number is considered
-  ///  NaN or 'Not a Number' due to overflow
-  // TODO(desmonddak): figure out the difference with Infinity
-  bool isNaN() {
-    if ((exponent.width == 4) & (mantissa.width == 3)) {
-      // FP8 E4M3 does not support infinities
-      final cond1 = (1 + exponent.toInt()) == pow(2, exponent.width).toInt();
-      final cond2 = (1 + mantissa.toInt()) == pow(2, mantissa.width).toInt();
-      return cond1 & cond2;
-    } else {
-      return exponent.toInt() ==
-          computeMaxExponent(exponent.width) + computeBias(exponent.width) + 1;
-    }
-  }
+  bool isExponentAllOnes() =>
+      exponent.toInt() ==
+      computeMaxExponent(exponent.width) + computeBias(exponent.width) + 1;
+
+  bool isNaN() => isExponentAllOnes() && mantissa.toInt() == 0;
+
+  bool isInf() => isExponentAllOnes() && mantissa.toInt() != 0;
+
+  bool isZero() => exponent.toInt() == 0 && mantissa.toInt() == 0;
+
+  bool isSubnormal() => exponent.toInt() == 0 && mantissa.toInt() != 0;
 
   /// Return the value of the floating point number in a Dart [double] type.
   double toDouble() {
