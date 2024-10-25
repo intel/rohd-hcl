@@ -48,7 +48,6 @@ class FixedToFloatConverter extends Module {
       required this.mantissaWidth,
       super.name = 'FixedToFloatConverter'}) {
     fixed = fixed.clone()..gets(addInput('fixed', fixed, width: fixed.width));
-
     addOutput('float', width: _float.width) <= _float;
 
     final bias = FloatingPointValue.computeBias(exponentWidth);
@@ -62,7 +61,6 @@ class FixedToFloatConverter extends Module {
       _float.sign <= Const(0);
     }
 
-    // TODO: Add abs method to signal
     final absValue = Logic(name: 'absValue', width: fixed.width)
       ..gets(mux(_float.sign, ~(fixed - 1), fixed));
 
@@ -79,11 +77,6 @@ class FixedToFloatConverter extends Module {
       ]),
     ]);
 
-    // Extract exponent
-    final exponent = Logic(name: 'exponent', width: exponentWidth)
-      ..gets((jBit + Const(bias - fixed.n, width: indexWidth))
-          .slice(exponentWidth - 1, 0));
-
     // Extract mantissa
     final mantissa = Logic(name: 'mantissa', width: mantissaWidth);
     final guard = Logic(name: 'guardBit');
@@ -94,7 +87,6 @@ class FixedToFloatConverter extends Module {
           mantissa < 0,
           guard < 0,
           sticky < 0,
-          // TO-DO: handle '0
         ]),
         for (var i = 1; i < mantissaWidth + 2; i++)
           CaseItem(Const(i, width: indexWidth), [
@@ -126,8 +118,19 @@ class FixedToFloatConverter extends Module {
     /// Round to nearest even: mantissa | guard sticky)
     final mantissaRounded =
         mux(guard & (sticky | mantissa[0]), mantissa + 1, mantissa);
+
+    // Extract exponent
+    final exponent = Logic(name: 'exponent', width: exponentWidth)
+      ..gets((jBit + Const(bias - fixed.n, width: indexWidth))
+          .slice(exponentWidth - 1, 0));
     final exponentRounded = mux(mantissaRounded.or(), exponent, exponent + 1);
+
     _float.exponent <= exponentRounded;
     _float.mantissa <= mantissaRounded;
+
+    // TODO: what if RNE causes overflow in exponent?
+    // TODO: handle subnormals
+    // TODO: handle all zeros
+    // TODO: handle infinities
   }
 }
