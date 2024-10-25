@@ -77,6 +77,8 @@ class ShiftRegister extends Module {
                 'ResetValue list length must equal shift register depth.');
           }
 
+          resetValue = List.of(resetValue);
+
           for (var i = 0; i < resetValue.length; i++) {
             final element = resetValue[i];
             if (element is Logic) {

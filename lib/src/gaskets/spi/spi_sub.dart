@@ -10,22 +10,27 @@
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
 
-/// Main component for SPI Interface.
+/// Sub component for SPI Interface.
 class SpiSub extends Module {
   ///
   Logic get busOut => output('busOut');
 
   ///
-  SpiSub({required SpiInterface intf, Logic? busIn, Logic? reset}) {
+  SpiSub(
+      {required SpiInterface intf,
+      Logic? busIn,
+      Logic? reset,
+      super.name = 'spiSub'}) {
     // SPI Interface
     intf = SpiInterface.clone(intf)
       ..pairConnectIO(this, intf, PairRole.consumer);
 
-    // Bus Input to Sub
+    // Bus Input to sub, if provided.
     if (busIn != null) {
       busIn = addInput('busIn', busIn, width: intf.dataLength);
     }
 
+    // Reset signal for sub, if provided.
     if (reset != null) {
       reset = addInput('reset', reset);
     }
@@ -47,6 +52,6 @@ class SpiSub extends Module {
     busOut <= shiftReg.stages.swizzle();
 
     // Connect miso to the output of the shift register
-    intf.miso <= shiftReg.dataOut;
+    intf.miso <= flop(~intf.sclk, shiftReg.dataOut);
   }
 }

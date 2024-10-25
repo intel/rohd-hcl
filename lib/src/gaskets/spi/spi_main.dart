@@ -16,9 +16,15 @@ class SpiMain extends Module {
   Logic get busOut => output('busOut');
 
   ///
+  Logic get done => output('done');
+
+  ///
   SpiMain(Logic busIn, SpiInterface intf,
-      {required Logic clk, required Logic reset, required Logic start}) {
-    busIn = addInput('bus', busIn, width: busIn.width);
+      {required Logic clk,
+      required Logic reset,
+      required Logic start,
+      super.name = 'spiMain'}) {
+    busIn = addInput('busIn', busIn, width: busIn.width);
 
     clk = addInput('clk', clk);
 
@@ -27,6 +33,8 @@ class SpiMain extends Module {
     start = addInput('start', start);
 
     addOutput('busOut', width: busIn.width);
+
+    addOutput('done');
 
     intf = SpiInterface.clone(intf)
       ..pairConnectIO(this, intf, PairRole.provider);
@@ -39,7 +47,7 @@ class SpiMain extends Module {
 
     //
     final isRunning = Logic(name: 'isRunning');
-    final done = Logic(name: 'done');
+
     // Serializes busInArray.
     final serializer = Serializer(busInArray,
         clk: clk,
@@ -47,12 +55,12 @@ class SpiMain extends Module {
         enable: start | (isRunning & ~done),
         flopInput: true);
 
-    done <= serializer.done;
-
     // Will run when start is pulsed high, reset on reset or when serializer is done
     isRunning <=
         flop(clk, Const(1),
             en: start, reset: reset | (serializer.done & ~start));
+
+    done <= serializer.done;
 
     // Shift register in from MISO.
     final shiftReg =
@@ -68,7 +76,7 @@ class SpiMain extends Module {
     intf.cs <= ~(isRunning | start);
 
     // Mosi is connected to the serializer output.
-    intf.mosi <= serializer.serialized;
+    intf.mosi <= flop(~intf.sclk, serializer.serialized);
   }
 }
 

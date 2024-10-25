@@ -25,8 +25,8 @@ class SpiSubIntf extends Module {
   }
 }
 
-class SpiTop extends Module {
-  SpiTop() {
+class SpiTopIntf extends Module {
+  SpiTopIntf() {
     final intf = SpiInterface();
     SpiMainIntf(intf);
     SpiSubIntf(intf);
@@ -40,7 +40,7 @@ void main() {
   });
 
   test('spi_test', () async {
-    final mod = SpiTop();
+    final mod = SpiTopIntf();
     await mod.build();
     //print(mod.generateSynth());
   });
