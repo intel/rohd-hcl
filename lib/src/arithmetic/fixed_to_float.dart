@@ -11,8 +11,8 @@ import 'dart:math';
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
 
-/// [FixedToFloatConverter] converts a fixed point input to
-/// a floating point by rounding to nearest even.
+/// [FixedToFloatConverter] converts a fixed point input to floating point.
+/// Normals are rounded to nearest even. Subnormals are truncated.
 class FixedToFloatConverter extends Module {
   /// Width of exponent, must be greater than 0.
   final int exponentWidth;
@@ -51,8 +51,10 @@ class FixedToFloatConverter extends Module {
     addOutput('float', width: _float.width) <= _float;
 
     final bias = FloatingPointValue.computeBias(exponentWidth);
+    final maxE = FloatingPointValue.computeMaxExponent(exponentWidth);
 
-    final indexWidth = max(fixed.n, max(log2Ceil(fixed.width), exponentWidth));
+    final iWidth =
+        (2 + max(fixed.n, max(log2Ceil(fixed.width), exponentWidth))).toInt();
 
     // Extract sign bit
     if (fixed.signed) {
@@ -64,13 +66,13 @@ class FixedToFloatConverter extends Module {
     final absValue = Logic(name: 'absValue', width: fixed.width)
       ..gets(mux(_float.sign, ~(fixed - 1), fixed));
 
-    // Find jBit position
-    final jBit = Logic(name: 'jBit', width: indexWidth);
+    // Find jBit position. TODO: Re-use ParallelPrefixPriorityEncoder()?
+    final jBit = Logic(name: 'jBit', width: iWidth);
     Combinational([
       CaseZ(absValue, conditionalType: ConditionalType.priority, [
         for (var i = 0; i < absValue.width; i++)
           CaseItem(_generateCaseItem(i, absValue.width), [
-            jBit < Const(absValue.width - 1 - i, width: indexWidth),
+            jBit < Const(absValue.width - 1 - i, width: iWidth),
           ])
       ], defaultItem: [
         jBit < 0,
@@ -83,23 +85,28 @@ class FixedToFloatConverter extends Module {
     final sticky = Logic(name: 'stickBit');
     Combinational([
       Case(jBit, conditionalType: ConditionalType.unique, [
-        CaseItem(Const(0, width: indexWidth), [
+        CaseItem(Const(0, width: iWidth), [
           mantissa < 0,
           guard < 0,
           sticky < 0,
         ]),
-        for (var i = 1; i < mantissaWidth + 2; i++)
-          CaseItem(Const(i, width: indexWidth), [
+        for (var i = 1; i <= mantissaWidth; i++)
+          CaseItem(Const(i, width: iWidth), [
             mantissa <
                 [
-                  absValue.slice(i - 1, max(0, i - mantissaWidth)),
+                  absValue.slice(i - 1, 0),
                   Const(0, width: max(0, mantissaWidth - i))
                 ].swizzle(),
             guard < 0,
             sticky < 0,
           ]),
+        CaseItem(Const(mantissaWidth + 1, width: iWidth), [
+          mantissa < absValue.slice(mantissaWidth, 1),
+          guard < absValue[0],
+          sticky < 0,
+        ]),
         for (var i = mantissaWidth + 2; i < absValue.width; i++)
-          CaseItem(Const(i, width: indexWidth), [
+          CaseItem(Const(i, width: iWidth), [
             mantissa <
                 [
                   absValue.slice(i - 1, max(0, i - mantissaWidth)),
@@ -115,22 +122,67 @@ class FixedToFloatConverter extends Module {
       ]),
     ]);
 
-    /// Round to nearest even: mantissa | guard sticky)
-    final mantissaRounded =
-        mux(guard & (sticky | mantissa[0]), mantissa + 1, mantissa);
+    /// Round to nearest even: mantissa | guard sticky
+    final roundUp = guard & (sticky | mantissa[0]);
+    final mantissaRounded = mux(roundUp, mantissa + 1, mantissa);
 
     // Extract exponent
-    final exponent = Logic(name: 'exponent', width: exponentWidth)
-      ..gets((jBit + Const(bias - fixed.n, width: indexWidth))
-          .slice(exponentWidth - 1, 0));
-    final exponentRounded = mux(mantissaRounded.or(), exponent, exponent + 1);
+    final expoRaw =
+        jBit + Const(bias, width: iWidth) - Const(fixed.n, width: iWidth);
+    final expoRawRne =
+        mux(roundUp & ~mantissaRounded.or(), expoRaw + 1, expoRaw);
 
-    _float.exponent <= exponentRounded;
-    _float.mantissa <= mantissaRounded;
+    // For subnormal, prefix mantissa 0.000 1 mantissa
+    final padAmount = Const(1, width: iWidth) - expoRawRne;
+    final mantissaSub = Logic(name: 'mantissaSub', width: mantissaWidth);
+    Combinational([
+      Case(padAmount, conditionalType: ConditionalType.unique, [
+        for (var i = 1; i < mantissaWidth; i++)
+          CaseItem(
+            Const(i, width: iWidth),
+            [
+              mantissaSub <
+                  [
+                    Const(0, width: i - 1),
+                    Const(1),
+                    mantissaRounded.slice(mantissaWidth - 1, i)
+                  ].swizzle()
+            ],
+          ),
+        CaseItem(Const(mantissaWidth, width: iWidth),
+            [mantissaSub < Const(1).zeroExtend(mantissaWidth)]),
+      ], defaultItem: [
+        mantissaSub < Const(0, width: mantissaWidth)
+      ])
+    ]);
 
-    // TODO: what if RNE causes overflow in exponent?
-    // TODO: handle subnormals
-    // TODO: handle all zeros
-    // TODO: handle infinities
+    // Select output with corner cases
+    final expoLessThanOne = expoRawRne[-1] | ~expoRawRne.or();
+    final expoMoreThanMax = ~expoRawRne[-1] & (expoRawRne.gt(maxE));
+    Combinational([
+      If.block([
+        Iff(~absValue.or(), [
+          // Zero
+          _float.exponent < Const(0, width: exponentWidth),
+          _float.mantissa < Const(0, width: mantissaWidth),
+        ]),
+        ElseIf(expoMoreThanMax, [
+          // Infinity
+          _float.exponent < Const(1, width: exponentWidth),
+          _float.mantissa < Const(0, width: mantissaWidth),
+        ]),
+        ElseIf(expoLessThanOne, [
+          // Subnormal
+          _float.exponent < Const(0, width: exponentWidth),
+          _float.mantissa < mantissaSub
+        ]),
+        Else([
+          // Normal
+          _float.exponent < expoRawRne.slice(exponentWidth - 1, 0),
+          _float.mantissa < mantissaRounded
+        ])
+      ])
+    ]);
+
   }
 }
