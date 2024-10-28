@@ -32,16 +32,19 @@ int _twosComp(int val, int bits) {
 class MultiCycleDividerInputSeqItem extends SequenceItem {
   final int mDividend;
   final int mDivisor;
+  final bool mIsSigned;
   final bool mValidIn;
   final bool mReadyOut;
   MultiCycleDividerInputSeqItem(
       {required this.mDividend,
       required this.mDivisor,
+      required this.mIsSigned,
       required this.mValidIn,
       required this.mReadyOut});
 
   int get dividend => mDividend;
   int get divisor => mDivisor;
+  int get isSigned => mIsSigned ? 1 : 0;
   int get validIn => mValidIn ? 1 : 0;
   int get readyOut => mReadyOut ? 1 : 0;
 
@@ -49,6 +52,7 @@ class MultiCycleDividerInputSeqItem extends SequenceItem {
   String toString() => '''
 dividend=$mDividend, 
 divisor=$mDivisor,
+isSigned=$mIsSigned,
 validIn=$mValidIn,
 readyOut=$mReadyOut
 ''';
@@ -134,11 +138,13 @@ class MultiCycleDividerDriver extends Driver<MultiCycleDividerInputSeqItem> {
     if (item == null) {
       intf.dividend.inject(0);
       intf.divisor.inject(0);
+      intf.isSigned.inject(0);
       intf.validIn.inject(0);
       intf.readyOut.inject(1);
     } else {
       intf.dividend.inject(item.dividend);
       intf.divisor.inject(item.divisor);
+      intf.isSigned.inject(item.isSigned);
       intf.validIn.inject(item.validIn);
       intf.readyOut.inject(item.readyOut);
     }
@@ -166,6 +172,7 @@ class MultiCycleDividerInputMonitor
             mDividend:
                 _twosComp(intf.dividend.value.toInt(), intf.dividend.width),
             mDivisor: _twosComp(intf.divisor.value.toInt(), intf.divisor.width),
+            mIsSigned: intf.isSigned.value.toBool(),
             mValidIn: true,
             mReadyOut: true)); // must convert to two's complement rep.
       }
@@ -329,46 +336,55 @@ class MultiCycleDividerBasicSequence extends Sequence {
           mDividend: 4,
           mDivisor: 2,
           mValidIn: true,
+          mIsSigned: true,
           mReadyOut: true)) // even divide by 2
       ..add(MultiCycleDividerInputSeqItem(
           mDividend: 9,
           mDivisor: 3,
           mValidIn: true,
+          mIsSigned: true,
           mReadyOut: true)) // even divide not by 2
       ..add(MultiCycleDividerInputSeqItem(
           mDividend: 5,
           mDivisor: 2,
           mValidIn: true,
+          mIsSigned: false,
           mReadyOut: true)) // not even divide
       ..add(MultiCycleDividerInputSeqItem(
           mDividend: 4,
           mDivisor: 1,
           mValidIn: true,
+          mIsSigned: false,
           mReadyOut: true)) // divide by 1
       ..add(MultiCycleDividerInputSeqItem(
           mDividend: -10,
           mDivisor: 2,
           mValidIn: true,
+          mIsSigned: true,
           mReadyOut: true)) // negative-positive
       ..add(MultiCycleDividerInputSeqItem(
           mDividend: 13,
           mDivisor: -10,
           mValidIn: true,
+          mIsSigned: true,
           mReadyOut: true)) // positive-negative
       ..add(MultiCycleDividerInputSeqItem(
           mDividend: -10,
           mDivisor: -9,
           mValidIn: true,
+          mIsSigned: true,
           mReadyOut: true)) // negative-negative
       ..add(MultiCycleDividerInputSeqItem(
           mDividend: 1,
           mDivisor: 4,
           mValidIn: true,
+          mIsSigned: true,
           mReadyOut: true)) // bigger divisor
       ..add(MultiCycleDividerInputSeqItem(
           mDividend: 4,
           mDivisor: 0,
           mValidIn: true,
+          mIsSigned: true,
           mReadyOut: true)); // divide by 0
   }
 }
@@ -388,8 +404,13 @@ class MultiCycleDividerVolumeSequence extends Sequence {
     for (var i = 0; i < numReps; i++) {
       final a = rng.nextInt(1 << 32);
       final b = rng.nextInt(1 << 32);
+      final isSigned = i % 2;
       divSequencer.add(MultiCycleDividerInputSeqItem(
-          mDividend: a, mDivisor: b, mValidIn: true, mReadyOut: true));
+          mDividend: a,
+          mDivisor: b,
+          mIsSigned: isSigned == 0,
+          mValidIn: true,
+          mReadyOut: true));
     }
   }
 }
@@ -507,6 +528,7 @@ void main() {
       final validIn = Logic(name: 'validIn');
       final dividend = Logic(name: 'dividend', width: 32);
       final divisor = Logic(name: 'divisor', width: 32);
+      final isSigned = Logic(name: 'isSigned');
       final readyOut = Logic(name: 'readyOut');
       final div = MultiCycleDivider.ofLogics(
           clk: clk,
@@ -514,6 +536,7 @@ void main() {
           validIn: validIn,
           dividend: dividend,
           divisor: divisor,
+          isSigned: isSigned,
           readyOut: readyOut);
       await div.build();
 

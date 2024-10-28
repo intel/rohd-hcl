@@ -10,6 +10,7 @@ The inputs to the divider module are:
 * `reset` => reset for synchronous logic (active high)
 * `dividend` => the numerator operand
 * `divisor` => the denominator operand
+* `isSigned` => should the operands of the division be treated as signed integers
 * `validIn` => indication that a new division operation is being requested
 * `readyOut` => indication that the result of the current division can be consumed
 
@@ -25,7 +26,7 @@ The numerical inputs (`dividend`, `divisor`, `quotient`, `remainder`) are parame
 
 ## Protocol Description
 
-To initiate a new request, it is expected that the requestor drive `validIn` to high along with the numerical values for `dividend` and `divisor`. The first cycle in which `readyIn` is high where the above occurs is the cycle in which the operation is accepted by the divider.
+To initiate a new request, it is expected that the requestor drive `validIn` to high along with the numerical values for `dividend`, `divisor` and the `isSigned` indicator. The first cycle in which `readyIn` is high where the above occurs is the cycle in which the operation is accepted by the divider.
 
 When the division is complete, the module will assert the `validOut` signal along with the numerical values of `quotient` and `remainder` representing the division result and the signal `divZero` to indicate whether or not a division by zero occurred. The module will hold these signal values until `readyOut` is driven high by the integrating environment. The integrating environment must assume that `quotient` and `remainder` are meaningless if `divZero` is asserted.
 
@@ -49,6 +50,7 @@ if (divIntf.readyIn.value.toBool()) {
     divIntf.validIn.put(1);
     divIntf.dividend.put(2);
     divIntf.divisor.put(1);
+    divIntf.isSigned.put(1);
 }
 
 // ... wait some time for result ... //

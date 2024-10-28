@@ -46,6 +46,9 @@ class MultiCycleDividerInterface extends PairInterface {
   /// Divisor (denominator) for the division operation.
   Logic get divisor => port('divisor');
 
+  /// Are the division operands signed.
+  Logic get isSigned => port('isSigned');
+
   /// The integrating environment is ready to accept the output of the module.
   Logic get readyOut => port('readyOut');
 
@@ -77,6 +80,7 @@ class MultiCycleDividerInterface extends PairInterface {
           Port('reset'),
           Port('dividend', dataWidth),
           Port('divisor', dataWidth),
+          Port('isSigned'),
           Port('validIn'),
           Port('readyOut'),
         ], portsFromConsumer: [
@@ -144,6 +148,7 @@ class MultiCycleDivider extends Module {
     required Logic validIn,
     required Logic dividend,
     required Logic divisor,
+    required Logic isSigned,
     required Logic readyOut,
   }) {
     assert(dividend.width == divisor.width,
@@ -155,19 +160,10 @@ class MultiCycleDivider extends Module {
     intf.validIn <= validIn;
     intf.dividend <= dividend;
     intf.divisor <= divisor;
+    intf.isSigned <= isSigned;
     intf.readyOut <= readyOut;
     return MultiCycleDivider(intf);
   }
-
-  // TODO: not handling 2 cases of remainder properly
-  //  (1) remainder of 0 => returns the divisor always... but should return 0
-  //      problem is that accumulate never happens that last time...
-  //  (2) initial divisor is bigger than dividend => returns the dividend always... but should return dividend
-  //      problem is that accumulate never happens at all...
-
-  // if original divisor is negative => remainder is always negative (twos complement)
-  // if original dividend is negative => remainder is always (divisor - positive remainder)
-  // if both are negative => reduces to case 1 (??)
 
   void _build() {
     // to capture current inputs
@@ -247,7 +243,11 @@ class MultiCycleDivider extends Module {
           tmpShift < (bBuf << currIndex),
           If(
               // special case: b is most negative #
-              bBuf[dataWidth - 1] & ~bBuf.getRange(0, dataWidth - 2).or(),
+              // XOR of signOut and signNum is high iff
+              // signed AND denominator is negative
+              bBuf[dataWidth - 1] &
+                  ~bBuf.getRange(0, dataWidth - 2).or() &
+                  (signOut ^ signNum),
               then: [
                 // special logic for when a is also most negative #
                 tmpDifference <
@@ -297,12 +297,15 @@ class MultiCycleDivider extends Module {
           // conditionally convert negative inputs to positive
           // and compute the output sign
           aBuf <
-              mux(intf.dividend[dataWidth - 1], ~intf.dividend + 1,
-                  intf.dividend),
+              mux(intf.dividend[dataWidth - 1] & intf.isSigned,
+                  ~intf.dividend + 1, intf.dividend),
           bBuf <
-              mux(intf.divisor[dataWidth - 1], ~intf.divisor + 1, intf.divisor),
-          signOut < intf.dividend[dataWidth - 1] ^ intf.divisor[dataWidth - 1],
-          signNum < intf.dividend[dataWidth - 1],
+              mux(intf.divisor[dataWidth - 1] & intf.isSigned,
+                  ~intf.divisor + 1, intf.divisor),
+          signOut <
+              (intf.dividend[dataWidth - 1] ^ intf.divisor[dataWidth - 1]) &
+                  intf.isSigned,
+          signNum < intf.dividend[dataWidth - 1] & intf.isSigned,
         ]),
         ElseIf(currentState.eq(_MultiCycleDividerState.accumulate), [
           // reduce a_buf by the portion we've covered, retain others
@@ -362,8 +365,8 @@ class MultiCycleDivider extends Module {
         ElseIf(currentState.eq(_MultiCycleDividerState.ready) & intf.validIn, [
           lastSuccess < 0,
           lastDifference <
-              mux(intf.dividend[dataWidth - 1], ~intf.dividend + 1,
-                  intf.dividend), // start by matching aBuf
+              mux(intf.dividend[dataWidth - 1] & intf.isSigned,
+                  ~intf.dividend + 1, intf.dividend), // start by matching aBuf
         ]),
         ElseIf(
             currentState.eq(_MultiCycleDividerState
