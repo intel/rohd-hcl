@@ -169,9 +169,12 @@ class MultiCycleDividerInputMonitor
       if (intf.validIn.value == LogicValue.one &&
           intf.readyIn.value == LogicValue.zero) {
         add(MultiCycleDividerInputSeqItem(
-            mDividend:
-                _twosComp(intf.dividend.value.toInt(), intf.dividend.width),
-            mDivisor: _twosComp(intf.divisor.value.toInt(), intf.divisor.width),
+            mDividend: intf.isSigned.value.toBool()
+                ? _twosComp(intf.dividend.value.toInt(), intf.dividend.width)
+                : intf.dividend.value.toInt(),
+            mDivisor: intf.isSigned.value.toBool()
+                ? _twosComp(intf.divisor.value.toInt(), intf.divisor.width)
+                : intf.divisor.value.toInt(),
             mIsSigned: intf.isSigned.value.toBool(),
             mValidIn: true,
             mReadyOut: true)); // must convert to two's complement rep.
@@ -198,10 +201,8 @@ class MultiCycleDividerOutputMonitor
       if (intf.validOut.value == LogicValue.one) {
         add(MultiCycleDividerOutputSeqItem(
             // must convert to two's complement rep.
-            mQuotient:
-                _twosComp(intf.quotient.value.toInt(), intf.quotient.width),
-            mRemainder:
-                _twosComp(intf.remainder.value.toInt(), intf.quotient.width),
+            mQuotient: intf.quotient.value.toInt(),
+            mRemainder: intf.remainder.value.toInt(),
             mDivZero: intf.divZero.value == LogicValue.one,
             mValidOut: true,
             mReadyIn: intf.readyIn.value == LogicValue.one));
@@ -223,6 +224,7 @@ class MultiCycleDividerScoreboard extends Component {
 
   final List<int> lastA = [];
   final List<int> lastB = [];
+  final List<bool> lastSign = [];
 
   int currResult = 0;
   int currRemain = 0;
@@ -239,6 +241,7 @@ class MultiCycleDividerScoreboard extends Component {
     inStream.listen((event) {
       lastA.add(event.mDividend);
       lastB.add(event.mDivisor);
+      lastSign.add(event.mIsSigned);
     });
 
     // record the value we saw this cycle
@@ -255,19 +258,26 @@ class MultiCycleDividerScoreboard extends Component {
       if (lastA.isNotEmpty) {
         final in1 = lastA[0];
         final in2 = lastB[0];
+        final inSign = lastSign[0];
         lastA.removeAt(0);
         lastB.removeAt(0);
+        lastSign.removeAt(0);
+        final tCurrResult =
+            inSign ? _twosComp(currResult, intf.quotient.width) : currResult;
+        final tCurrRemain =
+            inSign ? _twosComp(currRemain, intf.remainder.width) : currRemain;
         if (triggerCheck) {
-          final check1 = (in2 == 0) ? divZero : ((in1 ~/ in2) == currResult);
-          final check2 =
-              (in2 == 0) ? divZero : ((in1 - (in2 * currResult)) == currRemain);
+          final check1 = (in2 == 0) ? divZero : ((in1 ~/ in2) == tCurrResult);
+          final check2 = (in2 == 0)
+              ? divZero
+              : ((in1 - (in2 * tCurrResult)) == tCurrRemain);
           if (check1 && check2) {
             final msg = (in2 == 0)
                 ? '''
 Divide by 0 error correctly encountered for denominator of 0.
 '''
                 : '''
-Correct result: dividend=$in1, divisor=$in2, quotient=$currResult, remainder=$currRemain,
+Correct result: dividend=$in1, divisor=$in2, quotient=$tCurrResult, remainder=$tCurrRemain,
                 ''';
             logger.info(msg);
           } else {
@@ -276,7 +286,7 @@ Correct result: dividend=$in1, divisor=$in2, quotient=$currResult, remainder=$cu
 No Divide by zero error for denominator of 0.
 '''
                 : '''
-Incorrect result: dividend=$in1, divisor=$in2, quotient=$currResult, remainder=$currRemain,
+Incorrect result: dividend=$in1, divisor=$in2, quotient=$tCurrResult, remainder=$tCurrRemain,
 ''';
             logger.severe(msg);
           }
