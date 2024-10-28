@@ -16,17 +16,24 @@ The inputs to the divider module are:
 The outputs of the divider module are:
 
 * `quotient` => the result of the division
+* `remainder` => the remainder of the division
 * `divZero` => divide by zero error indication
 * `validOut` => the result of the current division operation is ready
 * `readyIn` => the divider is ready to accept a new operation
 
-The numerical inputs (`dividend`, `divisor`, `quotient`) are parametrized by a constructor parameter called `dataWidth`. All other signals have a width of 1.
+The numerical inputs (`dividend`, `divisor`, `quotient`, `remainder`) are parametrized by a constructor parameter called `dataWidth`. All other signals have a width of 1.
 
 ## Protocol Description
 
 To initiate a new request, it is expected that the requestor drive `validIn` to high along with the numerical values for `dividend` and `divisor`. The first cycle in which `readyIn` is high where the above occurs is the cycle in which the operation is accepted by the divider.
 
-When the division is complete, the module will assert the `validOut` signal along with the numerical value of `quotient` representing the division result and the signal `divZero` to indicate whether or not a division by zero occurred. The module will hold these signal values until `readyOut` is driven high by the integrating environment. The integrating environment must assume that `quotient` is meaningless if `divZero` is asserted.
+When the division is complete, the module will assert the `validOut` signal along with the numerical values of `quotient` and `remainder` representing the division result and the signal `divZero` to indicate whether or not a division by zero occurred. The module will hold these signal values until `readyOut` is driven high by the integrating environment. The integrating environment must assume that `quotient` and `remainder` are meaningless if `divZero` is asserted.
+
+### Mathematical Properties
+
+For the division, implicit rounding towards 0 is always performed. I.e., a negative quotient will always be rounded up if the dividend is not evenly divisible by the divisor. Note that this behavior is not uniform across all programming languages (for example, Python rounds towards negative infinity).
+
+For the remainder, the following equation will always precisely hold true: `dividend = divisor * quotient + remainder`. Note that this differs from the Euclidean modulo operator where the sign of the remainder is always positive. 
 
 ## Code Example
 
@@ -48,6 +55,7 @@ if (divIntf.readyIn.value.toBool()) {
 
 if (divIntf.validOut.value.toBool()) {
     expect(divIntf.quotient.value.toInt(), 2);
+    expect(divIntf.remainder.value.toInt(), 0);
     expect(divIntf.divZero.value.toBool(), false);
     divIntf.readyOut.put(1);
 }

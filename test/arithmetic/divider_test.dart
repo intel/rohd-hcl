@@ -56,23 +56,27 @@ readyOut=$mReadyOut
 
 class MultiCycleDividerOutputSeqItem extends SequenceItem {
   final int mQuotient;
+  final int mRemainder;
   final bool mDivZero;
   final bool mValidOut;
   final bool mReadyIn;
   MultiCycleDividerOutputSeqItem(
       {required this.mQuotient,
+      required this.mRemainder,
       required this.mDivZero,
       required this.mValidOut,
       required this.mReadyIn});
 
   int get quotient => mQuotient;
+  int get remainder => mRemainder;
   int get divZero => mDivZero ? 1 : 0;
   int get validOut => mValidOut ? 1 : 0;
   int get readyIn => mReadyIn ? 1 : 0;
 
   @override
   String toString() => '''
-quotient=$mQuotient, 
+quotient=$mQuotient,
+remainder=$mRemainder, 
 divZero=$mDivZero,
 validOut=$mValidOut,
 readyIn=$mReadyIn
@@ -186,9 +190,11 @@ class MultiCycleDividerOutputMonitor
     intf.clk.posedge.listen((event) {
       if (intf.validOut.value == LogicValue.one) {
         add(MultiCycleDividerOutputSeqItem(
+            // must convert to two's complement rep.
             mQuotient:
                 _twosComp(intf.quotient.value.toInt(), intf.quotient.width),
-            // must convert to two's complement rep.
+            mRemainder:
+                _twosComp(intf.remainder.value.toInt(), intf.quotient.width),
             mDivZero: intf.divZero.value == LogicValue.one,
             mValidOut: true,
             mReadyIn: intf.readyIn.value == LogicValue.one));
@@ -212,6 +218,7 @@ class MultiCycleDividerScoreboard extends Component {
   final List<int> lastB = [];
 
   int currResult = 0;
+  int currRemain = 0;
   bool divZero = false;
 
   bool triggerCheck = false;
@@ -230,6 +237,7 @@ class MultiCycleDividerScoreboard extends Component {
     // record the value we saw this cycle
     outStream.listen((event) {
       currResult = event.mQuotient;
+      currRemain = event.mRemainder;
       divZero = event.mDivZero;
 
       triggerCheck = true;
@@ -243,14 +251,16 @@ class MultiCycleDividerScoreboard extends Component {
         lastA.removeAt(0);
         lastB.removeAt(0);
         if (triggerCheck) {
-          final check = (in2 == 0) ? divZero : ((in1 ~/ in2) == currResult);
-          if (check) {
+          final check1 = (in2 == 0) ? divZero : ((in1 ~/ in2) == currResult);
+          final check2 =
+              (in2 == 0) ? divZero : ((in1 - (in2 * currResult)) == currRemain);
+          if (check1 && check2) {
             final msg = (in2 == 0)
                 ? '''
 Divide by 0 error correctly encountered for denominator of 0.
 '''
                 : '''
-Correct result: dividend=$in1, divisor=$in2, quotient=$currResult
+Correct result: dividend=$in1, divisor=$in2, quotient=$currResult, remainder=$currRemain,
                 ''';
             logger.info(msg);
           } else {
@@ -259,7 +269,7 @@ Correct result: dividend=$in1, divisor=$in2, quotient=$currResult
 No Divide by zero error for denominator of 0.
 '''
                 : '''
-Incorrect result: dividend=$in1, divisor=$in2, quotient=$currResult
+Incorrect result: dividend=$in1, divisor=$in2, quotient=$currResult, remainder=$currRemain,
 ''';
             logger.severe(msg);
           }
