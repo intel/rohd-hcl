@@ -1,8 +1,8 @@
 // Copyright (C) 2024 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 //
-// floating_point_test.dart
-// Tests of Floating Point stuff
+// floating_point_smple test.dart
+// Tests of FloatingPointAdderSimple -- non-rounding FP adder
 //
 // 2024 April 1
 // Authors:
@@ -17,11 +17,11 @@ import 'package:test/test.dart';
 void main() {
   test('FP: basic adder test', () {
     final fp1 = FloatingPoint32()
-      ..put(FloatingPoint32Value.fromDouble(3.25).value);
+      ..put(FloatingPoint32Value.ofDouble(3.25).value);
     final fp2 = FloatingPoint32()
-      ..put(FloatingPoint32Value.fromDouble(1.5).value);
-    final out = FloatingPoint32Value.fromDouble(3.25 + 1.5);
-    final adder = FloatingPointAdder(fp1, fp2);
+      ..put(FloatingPoint32Value.ofDouble(1.5).value);
+    final out = FloatingPoint32Value.ofDouble(3.25 + 1.5);
+    final adder = FloatingPointAdderSimple(fp1, fp2);
 
     final fpSuper = adder.sum.floatingPointValue;
     final fpStr = fpSuper.toDouble().toStringAsPrecision(7);
@@ -32,12 +32,12 @@ void main() {
   test('FP: small numbers adder test', () {
     final val = pow(2.0, -23).toDouble();
     final fp1 = FloatingPoint32()
-      ..put(FloatingPoint32Value.fromDouble(pow(2.0, -23).toDouble()).value);
+      ..put(FloatingPoint32Value.ofDouble(pow(2.0, -23).toDouble()).value);
     final fp2 = FloatingPoint32()
-      ..put(FloatingPoint32Value.fromDouble(pow(2.0, -23).toDouble()).value);
-    final out = FloatingPoint32Value.fromDouble(val + val);
+      ..put(FloatingPoint32Value.ofDouble(pow(2.0, -23).toDouble()).value);
+    final out = FloatingPoint32Value.ofDouble(val + val);
 
-    final adder = FloatingPointAdder(fp1, fp2);
+    final adder = FloatingPointAdderSimple(fp1, fp2);
 
     final fpSuper = adder.sum.floatingPointValue;
     final fpStr = fpSuper.toDouble().toStringAsPrecision(7);
@@ -50,12 +50,12 @@ void main() {
 
     for (final pair in input) {
       final fp1 = FloatingPoint32()
-        ..put(FloatingPoint32Value.fromDouble(pair.$1).value);
+        ..put(FloatingPoint32Value.ofDouble(pair.$1).value);
       final fp2 = FloatingPoint32()
-        ..put(FloatingPoint32Value.fromDouble(pair.$2).value);
-      final out = FloatingPoint32Value.fromDouble(pair.$1 + pair.$2);
+        ..put(FloatingPoint32Value.ofDouble(pair.$2).value);
+      final out = FloatingPoint32Value.ofDouble(pair.$1 + pair.$2);
 
-      final adder = FloatingPointAdder(fp1, fp2);
+      final adder = FloatingPointAdderSimple(fp1, fp2);
 
       final fpSuper = adder.sum.floatingPointValue;
       final fpStr = fpSuper.toDouble().toStringAsPrecision(7);
@@ -66,12 +66,12 @@ void main() {
 
   test('FP: basic adder test', () {
     final fp1 = FloatingPoint32()
-      ..put(FloatingPoint32Value.fromDouble(3.25).value);
+      ..put(FloatingPoint32Value.ofDouble(3.25).value);
     final fp2 = FloatingPoint32()
-      ..put(FloatingPoint32Value.fromDouble(1.5).value);
-    final out = FloatingPoint32Value.fromDouble(3.25 + 1.5);
+      ..put(FloatingPoint32Value.ofDouble(1.5).value);
+    final out = FloatingPoint32Value.ofDouble(3.25 + 1.5);
 
-    final adder = FloatingPointAdder(fp1, fp2);
+    final adder = FloatingPointAdderSimple(fp1, fp2);
 
     final fpSuper = adder.sum.floatingPointValue;
     final fpStr = fpSuper.toDouble().toStringAsPrecision(7);
@@ -92,9 +92,9 @@ void main() {
               FloatingPointConstants.smallestPositiveSubnormal)
           .negate()
           .value);
-    final out = FloatingPoint32Value.fromDouble(val - val);
+    final out = FloatingPoint32Value.ofDouble(val - val);
 
-    final adder = FloatingPointAdder(fp1, fp2);
+    final adder = FloatingPointAdderSimple(fp1, fp2);
 
     final fpSuper = adder.sum.floatingPointValue;
     final fpStr = fpSuper.toDouble().abs().toStringAsPrecision(7);
@@ -105,12 +105,12 @@ void main() {
   test('FP: adder carry numbers test', () {
     final val = pow(2.5, -12).toDouble();
     final fp1 = FloatingPoint32()
-      ..put(FloatingPoint32Value.fromDouble(pow(2.5, -12).toDouble()).value);
+      ..put(FloatingPoint32Value.ofDouble(pow(2.5, -12).toDouble()).value);
     final fp2 = FloatingPoint32()
-      ..put(FloatingPoint32Value.fromDouble(pow(2.5, -12).toDouble()).value);
-    final out = FloatingPoint32Value.fromDouble(val + val);
+      ..put(FloatingPoint32Value.ofDouble(pow(2.5, -12).toDouble()).value);
+    final out = FloatingPoint32Value.ofDouble(val + val);
 
-    final adder = FloatingPointAdder(fp1, fp2);
+    final adder = FloatingPointAdderSimple(fp1, fp2);
 
     final fpSuper = adder.sum.floatingPointValue;
     final fpStr = fpSuper.toDouble().toStringAsPrecision(7);
@@ -123,12 +123,12 @@ void main() {
 
     for (final pair in input) {
       final fp1 = FloatingPoint32()
-        ..put(FloatingPoint32Value.fromDouble(pair.$1).value);
+        ..put(FloatingPoint32Value.ofDouble(pair.$1).value);
       final fp2 = FloatingPoint32()
-        ..put(FloatingPoint32Value.fromDouble(pair.$2).value);
-      final out = FloatingPoint32Value.fromDouble(pair.$1 + pair.$2);
+        ..put(FloatingPoint32Value.ofDouble(pair.$2).value);
+      final out = FloatingPoint32Value.ofDouble(pair.$1 + pair.$2);
 
-      final adder = FloatingPointAdder(fp1, fp2);
+      final adder = FloatingPointAdderSimple(fp1, fp2);
 
       final fpSuper = adder.sum.floatingPointValue;
       final fpStr = fpSuper.toDouble().toStringAsPrecision(7);
@@ -144,12 +144,12 @@ void main() {
 
     for (final pair in input) {
       final fp1 = FloatingPoint32()
-        ..put(FloatingPoint32Value.fromDouble(pair.$1).value);
+        ..put(FloatingPoint32Value.ofDouble(pair.$1).value);
       final fp2 = FloatingPoint32()
-        ..put(FloatingPoint32Value.fromDouble(pair.$2).value);
-      final out = FloatingPoint32Value.fromDouble(pair.$1 + pair.$2);
+        ..put(FloatingPoint32Value.ofDouble(pair.$2).value);
+      final out = FloatingPoint32Value.ofDouble(pair.$1 + pair.$2);
 
-      final adder = FloatingPointAdder(fp1, fp2);
+      final adder = FloatingPointAdderSimple(fp1, fp2);
 
       final fpSuper = adder.sum.floatingPointValue;
       final fpStr = fpSuper.toDouble().toStringAsPrecision(7);
@@ -169,9 +169,9 @@ void main() {
           .negate()
           .value);
 
-    final out = FloatingPoint32Value.fromDouble(
+    final out = FloatingPoint32Value.ofDouble(
         fp1.floatingPointValue.toDouble() + fp2.floatingPointValue.toDouble());
-    final adder = FloatingPointAdder(fp1, fp2);
+    final adder = FloatingPointAdderSimple(fp1, fp2);
 
     final fpSuper = adder.sum.floatingPointValue;
     final fpStr = fpSuper.toDouble().toStringAsPrecision(7);
@@ -194,9 +194,9 @@ void main() {
 
     final outDouble =
         fp1.floatingPointValue.toDouble() + fp2.floatingPointValue.toDouble();
-    final out = FloatingPointValue.fromDoubleIter(outDouble,
+    final out = FloatingPointValue.ofDoubleUnrounded(outDouble,
         exponentWidth: ew, mantissaWidth: mw);
-    final adder = FloatingPointAdder(fp1, fp2);
+    final adder = FloatingPointAdderSimple(fp1, fp2);
 
     expect(adder.sum.floatingPointValue.compareTo(out), 0);
   });
@@ -207,17 +207,17 @@ void main() {
     const mw = 5;
 
     final fp1 = FloatingPoint(exponentWidth: ew, mantissaWidth: mw)
-      ..put(FloatingPointValue.fromDouble(pair.$1,
+      ..put(FloatingPointValue.ofDouble(pair.$1,
               exponentWidth: ew, mantissaWidth: mw)
           .value);
     final fp2 = FloatingPoint(exponentWidth: ew, mantissaWidth: mw)
-      ..put(FloatingPointValue.fromDouble(pair.$2,
+      ..put(FloatingPointValue.ofDouble(pair.$2,
               exponentWidth: ew, mantissaWidth: mw)
           .value);
 
-    final out = FloatingPointValue.fromDouble(pair.$1 + pair.$2,
+    final out = FloatingPointValue.ofDouble(pair.$1 + pair.$2,
         exponentWidth: ew, mantissaWidth: mw);
-    final adder = FloatingPointAdder(fp1, fp2);
+    final adder = FloatingPointAdderSimple(fp1, fp2);
 
     expect(adder.sum.floatingPointValue.compareTo(out), 0);
   });
@@ -237,7 +237,7 @@ void main() {
 
     final out = fp2.floatingPointValue + fp1.floatingPointValue;
 
-    final adder = FloatingPointAdder(fp1, fp2);
+    final adder = FloatingPointAdderSimple(fp1, fp2);
     // TODO(desmonddak):  figure out how to handle -0.0, as this would fail
     expect(adder.sum.floatingPointValue.abs().compareTo(out), 0);
   });
@@ -247,12 +247,12 @@ void main() {
 
     for (final pair in input) {
       final fp1 = FloatingPoint32()
-        ..put(FloatingPoint32Value.fromDouble(pair.$1).value);
+        ..put(FloatingPoint32Value.ofDouble(pair.$1).value);
       final fp2 = FloatingPoint32()
-        ..put(FloatingPoint32Value.fromDouble(pair.$2).value);
-      final out = FloatingPoint32Value.fromDouble(pair.$1 + pair.$2);
+        ..put(FloatingPoint32Value.ofDouble(pair.$2).value);
+      final out = FloatingPoint32Value.ofDouble(pair.$1 + pair.$2);
 
-      final adder = FloatingPointAdder(fp1, fp2);
+      final adder = FloatingPointAdderSimple(fp1, fp2);
 
       final fpSuper = adder.sum.floatingPointValue;
       final fpStr = fpSuper.toDouble().toStringAsPrecision(7);
@@ -264,12 +264,12 @@ void main() {
     const pair = (9.0, -3.75);
     {
       final fp1 = FloatingPoint32()
-        ..put(FloatingPoint32Value.fromDouble(pair.$1).value);
+        ..put(FloatingPoint32Value.ofDouble(pair.$1).value);
       final fp2 = FloatingPoint32()
-        ..put(FloatingPoint32Value.fromDouble(pair.$2).value);
-      final out = FloatingPoint32Value.fromDouble(pair.$1 + pair.$2);
+        ..put(FloatingPoint32Value.ofDouble(pair.$2).value);
+      final out = FloatingPoint32Value.ofDouble(pair.$1 + pair.$2);
 
-      final adder = FloatingPointAdder(fp1, fp2);
+      final adder = FloatingPointAdderSimple(fp1, fp2);
 
       final fpSuper = adder.sum.floatingPointValue;
       final fpStr = fpSuper.toDouble().toStringAsPrecision(7);
@@ -289,7 +289,7 @@ void main() {
         FloatingPointConstants.smallestPositiveNormal, eWidth, mWidth);
     fa.put(0);
     fb.put(0);
-    final adder = FloatingPointAdder(fa, fb);
+    final adder = FloatingPointAdderSimple(fa, fb);
     final value = Random(513);
     for (var i = 0; i < 50; i++) {
       final fva = FloatingPointValue.random(value,
@@ -299,7 +299,7 @@ void main() {
       fa.put(fva);
       fb.put(fvb);
       // fromDoubleIter does not round like '+' would
-      final expected = FloatingPointValue.fromDoubleIter(
+      final expected = FloatingPointValue.ofDoubleUnrounded(
           fva.toDouble() + fvb.toDouble(),
           exponentWidth: fpv.exponent.width,
           mantissaWidth: fpv.mantissa.width);
