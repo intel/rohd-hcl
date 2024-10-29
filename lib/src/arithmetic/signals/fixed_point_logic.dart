@@ -65,7 +65,7 @@ class FixedPoint extends Logic {
   }
 
   /// Check compatibility
-  void _compatible(dynamic other) {
+  void _verifyCompatible(dynamic other) {
     if (other is! FixedPoint) {
       throw RohdHclException('Input must be fixed point signal.');
     }
@@ -77,7 +77,7 @@ class FixedPoint extends Logic {
   /// Less-than.
   @override
   Logic lt(dynamic other) {
-    _compatible(other);
+    _verifyCompatible(other);
     if (signed) {
       return mux(this[-1], super.gt(other), super.lt(other));
     } else {
@@ -88,7 +88,7 @@ class FixedPoint extends Logic {
   /// Less-than-or-equal-to.
   @override
   Logic lte(dynamic other) {
-    _compatible(other);
+    _verifyCompatible(other);
     if (signed) {
       return mux(this[-1], super.gte(other), super.lte(other));
     } else {
@@ -99,7 +99,7 @@ class FixedPoint extends Logic {
   /// Greater-than.
   @override
   Logic gt(dynamic other) {
-    _compatible(other);
+    _verifyCompatible(other);
     if (signed) {
       return mux(this[-1], super.lt(other), super.gt(other));
     } else {
@@ -110,7 +110,7 @@ class FixedPoint extends Logic {
   /// Greater-than.
   @override
   Logic gte(dynamic other) {
-    _compatible(other);
+    _verifyCompatible(other);
     if (signed) {
       return mux(this[-1], super.lte(other), super.gte(other));
     } else {
