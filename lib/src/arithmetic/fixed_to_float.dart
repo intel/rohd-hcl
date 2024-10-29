@@ -51,10 +51,14 @@ class FixedToFloatConverter extends Module {
     addOutput('float', width: _float.width) <= _float;
 
     final bias = FloatingPointValue.computeBias(exponentWidth);
-    final maxE = FloatingPointValue.computeMaxExponent(exponentWidth);
-
+    final eMax = pow(2, exponentWidth) - 2;
     final iWidth =
         (2 + max(fixed.n, max(log2Ceil(fixed.width), exponentWidth))).toInt();
+
+    // Special handling needed for E4M3 as it does not support inf
+    if ((exponentWidth == 4) && (mantissaWidth == 3)) {
+      UnimplementedError('E4M3 is not supported.');
+    }
 
     // Extract sign bit
     if (fixed.signed) {
@@ -107,11 +111,7 @@ class FixedToFloatConverter extends Module {
         ]),
         for (var i = mantissaWidth + 2; i < absValue.width; i++)
           CaseItem(Const(i, width: iWidth), [
-            mantissa <
-                [
-                  absValue.slice(i - 1, max(0, i - mantissaWidth)),
-                  Const(0, width: max(0, mantissaWidth - i))
-                ].swizzle(),
+            mantissa < absValue.slice(i - 1, max(0, i - mantissaWidth)),
             guard < absValue[i - mantissaWidth - 1],
             sticky < absValue.slice(i - mantissaWidth - 2, 0).or(),
           ]),
@@ -158,7 +158,7 @@ class FixedToFloatConverter extends Module {
 
     // Select output with corner cases
     final expoLessThanOne = expoRawRne[-1] | ~expoRawRne.or();
-    final expoMoreThanMax = ~expoRawRne[-1] & (expoRawRne.gt(maxE));
+    final expoMoreThanMax = ~expoRawRne[-1] & (expoRawRne.gt(eMax));
     Combinational([
       If.block([
         Iff(~absValue.or(), [
@@ -168,7 +168,7 @@ class FixedToFloatConverter extends Module {
         ]),
         ElseIf(expoMoreThanMax, [
           // Infinity
-          _float.exponent < Const(1, width: exponentWidth),
+          _float.exponent < LogicValue.filled(exponentWidth, LogicValue.one),
           _float.mantissa < Const(0, width: mantissaWidth),
         ]),
         ElseIf(expoLessThanOne, [
@@ -183,6 +183,5 @@ class FixedToFloatConverter extends Module {
         ])
       ])
     ]);
-
   }
 }
