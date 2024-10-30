@@ -195,6 +195,14 @@ void main() {
       }
     }
   });
+  test('simple priority encoder test', () {
+    final val = Logic(width: 5);
+    // ignore: cascade_invocations
+    val.put(3);
+    expect(ParallelPrefixPriorityEncoder(val).out.value.toInt(), equals(0));
+    expect(ParallelPrefixPriorityEncoder(val.reversed).out.value.toInt(),
+        equals(3));
+  });
 
   // Note:  all ParallelPrefixAdders are tested in adder_test.dart
 }
