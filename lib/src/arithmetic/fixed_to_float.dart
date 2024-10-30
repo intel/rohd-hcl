@@ -70,7 +70,7 @@ class FixedToFloatConverter extends Module {
     final absValue = Logic(name: 'absValue', width: fixed.width)
       ..gets(mux(_float.sign, ~(fixed - 1), fixed));
 
-    // Find jBit position. TODO: Re-use ParallelPrefixPriorityEncoder()?
+    // Find jBit position. TODO: Replace with ParallelPrefixPriorityEncoder().
     final jBit = Logic(name: 'jBit', width: iWidth);
     Combinational([
       CaseZ(absValue, conditionalType: ConditionalType.priority, [
@@ -87,8 +87,17 @@ class FixedToFloatConverter extends Module {
     final mantissa = Logic(name: 'mantissa', width: mantissaWidth);
     final guard = Logic(name: 'guardBit');
     final sticky = Logic(name: 'stickBit');
+    final j = Logic(name: 'j', width: iWidth);
+    final minIndex = max(0, fixed.n - bias + 1);
+
+    if (minIndex > 0) {
+      j <= mux(jBit.lt(minIndex), Const(minIndex, width: iWidth), jBit);
+    } else {
+      j <= jBit;
+    }
+    
     Combinational([
-      Case(jBit, conditionalType: ConditionalType.unique, [
+      Case(j, conditionalType: ConditionalType.unique, [
         CaseItem(Const(0, width: iWidth), [
           mantissa < 0,
           guard < 0,
@@ -132,30 +141,6 @@ class FixedToFloatConverter extends Module {
     final expoRawRne =
         mux(roundUp & ~mantissaRounded.or(), expoRaw + 1, expoRaw);
 
-    // For subnormal, prefix mantissa 0.000 1 mantissa
-    final padAmount = Const(1, width: iWidth) - expoRawRne;
-    final mantissaSub = Logic(name: 'mantissaSub', width: mantissaWidth);
-    Combinational([
-      Case(padAmount, conditionalType: ConditionalType.unique, [
-        for (var i = 1; i < mantissaWidth; i++)
-          CaseItem(
-            Const(i, width: iWidth),
-            [
-              mantissaSub <
-                  [
-                    Const(0, width: i - 1),
-                    Const(1),
-                    mantissaRounded.slice(mantissaWidth - 1, i)
-                  ].swizzle()
-            ],
-          ),
-        CaseItem(Const(mantissaWidth, width: iWidth),
-            [mantissaSub < Const(1).zeroExtend(mantissaWidth)]),
-      ], defaultItem: [
-        mantissaSub < Const(0, width: mantissaWidth)
-      ])
-    ]);
-
     // Select output with corner cases
     final expoLessThanOne = expoRawRne[-1] | ~expoRawRne.or();
     final expoMoreThanMax = ~expoRawRne[-1] & (expoRawRne.gt(eMax));
@@ -174,7 +159,7 @@ class FixedToFloatConverter extends Module {
         ElseIf(expoLessThanOne, [
           // Subnormal
           _float.exponent < Const(0, width: exponentWidth),
-          _float.mantissa < mantissaSub
+          _float.mantissa < mantissaRounded
         ]),
         Else([
           // Normal
