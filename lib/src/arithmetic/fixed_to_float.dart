@@ -29,19 +29,6 @@ class FixedToFloatConverter extends Module {
   late final FloatingPoint _float =
       FloatingPoint(exponentWidth: exponentWidth, mantissaWidth: mantissaWidth);
 
-  /// Helper method for finding jBit
-  Logic _generateCaseItem(int i, int width) {
-    final items = <Logic>[];
-    if (i > 0) {
-      items.add(Const(LogicValue.filled(i, LogicValue.zero)));
-    }
-    items.add(Const(LogicValue.one));
-    if (i < width - 1) {
-      items.add(Const(LogicValue.filled(width - i - 1, LogicValue.z)));
-    }
-    return items.swizzle();
-  }
-
   /// Constructor
   FixedToFloatConverter(FixedPoint fixed,
       {required this.exponentWidth,
@@ -70,18 +57,8 @@ class FixedToFloatConverter extends Module {
     final absValue = Logic(name: 'absValue', width: fixed.width)
       ..gets(mux(_float.sign, ~(fixed - 1), fixed));
 
-    // Find jBit position. TODO: Replace with ParallelPrefixPriorityEncoder().
-    final jBit = Logic(name: 'jBit', width: iWidth);
-    Combinational([
-      CaseZ(absValue, conditionalType: ConditionalType.priority, [
-        for (var i = 0; i < absValue.width; i++)
-          CaseItem(_generateCaseItem(i, absValue.width), [
-            jBit < Const(absValue.width - 1 - i, width: iWidth),
-          ])
-      ], defaultItem: [
-        jBit < 0,
-      ]),
-    ]);
+    final jBit = Const(absValue.width-1, width: iWidth) -
+        ParallelPrefixPriorityEncoder(absValue.reversed).out.zeroExtend(iWidth);
 
     // Extract mantissa
     final mantissa = Logic(name: 'mantissa', width: mantissaWidth);
@@ -95,7 +72,7 @@ class FixedToFloatConverter extends Module {
     } else {
       j <= jBit;
     }
-    
+
     Combinational([
       Case(j, conditionalType: ConditionalType.unique, [
         CaseItem(Const(0, width: iWidth), [

@@ -125,7 +125,7 @@ void main() async {
     }
   }, skip: true);
 
-  test('Signed Q0.7 to E3M2', () async {
+  test('Signed Q0.8 to E3M2 shrink', () async {
     final fixed = FixedPoint(signed: true, m: 0, n: 7);
     final dut =
         FixedToFloatConverter(fixed, exponentWidth: 3, mantissaWidth: 2);
@@ -138,10 +138,8 @@ void main() async {
           n: fixed.n);
       fixed.put(fixedValue);
       final fpv = dut.float.floatingPointValue;
-
       final fpvExpected = FloatingPointValue.ofDouble(fixedValue.toDouble(),
           exponentWidth: dut.exponentWidth, mantissaWidth: dut.mantissaWidth);
-
       expect(fpv.sign, fpvExpected.sign);
       expect(fpv.exponent.bitString, fpvExpected.exponent.bitString,
           reason: 'exponent mismatch');
@@ -149,4 +147,28 @@ void main() async {
           reason: 'mantissa mismatch');
     }
   });
+
+  test('Signed Q0.3 to E5M6 expand', () async {
+    final fixed = FixedPoint(signed: true, m: 0, n: 3);
+    final dut =
+        FixedToFloatConverter(fixed, exponentWidth: 5, mantissaWidth: 6);
+    await dut.build();
+    for (var val = 0; val < pow(2, fixed.width); val++) {
+      final fixedValue = FixedPointValue(
+          value: LogicValue.ofInt(val, fixed.width),
+          signed: fixed.signed,
+          m: fixed.m,
+          n: fixed.n);
+      fixed.put(fixedValue);
+      final fpv = dut.float.floatingPointValue;
+      final fpvExpected = FloatingPointValue.ofDouble(fixedValue.toDouble(),
+          exponentWidth: dut.exponentWidth, mantissaWidth: dut.mantissaWidth);
+      expect(fpv.sign, fpvExpected.sign);
+      expect(fpv.exponent.bitString, fpvExpected.exponent.bitString,
+          reason: 'exponent mismatch');
+      expect(fpv.mantissa.bitString, fpvExpected.mantissa.bitString,
+          reason: 'mantissa mismatch');
+    }
+  });
+
 }

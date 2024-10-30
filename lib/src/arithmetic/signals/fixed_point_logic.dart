@@ -125,4 +125,31 @@ class FixedPoint extends Logic {
   /// Greater-than-or-equal-to.
   @override
   Logic operator >=(dynamic other) => gte(other);
+
+  @override
+  Logic eq(dynamic other) {
+    _verifyCompatible(other);
+    return super.eq(other);
+  }
+
+  @override
+  Logic neq(dynamic other) {
+    _verifyCompatible(other);
+    return super.neq(other);
+  }
+
+  @override
+  Logic operator %(dynamic other) {
+    throw UnimplementedError('Operator not implemented.');
+  }
+
+  @override
+  Logic operator /(dynamic other) {
+    throw UnimplementedError('Operator not implemented.');
+  }
+
+  @override
+  Logic pow(dynamic exponent) {
+    throw UnimplementedError('Operator not implemented.');
+  }
 }
