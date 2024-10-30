@@ -34,7 +34,7 @@ When the division is complete, the module will assert the `validOut` signal alon
 
 For the division, implicit rounding towards 0 is always performed. I.e., a negative quotient will always be rounded up if the dividend is not evenly divisible by the divisor. Note that this behavior is not uniform across all programming languages (for example, Python rounds towards negative infinity).
 
-For the remainder, the following equation will always precisely hold true: `dividend = divisor * quotient + remainder`. Note that this differs from the Euclidean modulo operator where the sign of the remainder is always positive. 
+For the remainder, the following equation will always precisely hold true: `dividend = divisor * quotient + remainder`. Note that this differs from the Euclidean modulo operator where the sign of the remainder is always positive.
 
 ## Code Example
 
