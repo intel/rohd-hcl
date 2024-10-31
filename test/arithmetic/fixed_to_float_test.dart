@@ -16,8 +16,7 @@ import 'package:test/test.dart';
 void main() async {
   test('Smoke', () async {
     final fixed = FixedPoint(signed: true, m: 34, n: 33);
-    final dut =
-        FixedToFloat(fixed, exponentWidth: 8, mantissaWidth: 3);
+    final dut = FixedToFloat(fixed, exponentWidth: 8, mantissaWidth: 3);
     await dut.build();
     File('${dut.name}.sv').writeAsStringSync(dut.generateSynth());
     fixed.put(FixedPointValue.ofDouble(1.25,
@@ -34,8 +33,7 @@ void main() async {
 
   test('Q16.16 to E5M2 < pow(2,14)', () async {
     final fixed = FixedPoint(signed: true, m: 16, n: 16);
-    final dut =
-        FixedToFloat(fixed, exponentWidth: 5, mantissaWidth: 2);
+    final dut = FixedToFloat(fixed, exponentWidth: 5, mantissaWidth: 2);
     await dut.build();
     for (var val = 0; val < pow(2, 14); val++) {
       final fixedValue = FixedPointValue(
@@ -57,8 +55,7 @@ void main() async {
 
   test('Signed Q4.4 to E3M2', () async {
     final fixed = FixedPoint(signed: true, m: 4, n: 4);
-    final dut =
-        FixedToFloat(fixed, exponentWidth: 3, mantissaWidth: 2);
+    final dut = FixedToFloat(fixed, exponentWidth: 3, mantissaWidth: 2);
     await dut.build();
     for (var val = 0; val < pow(2, fixed.width); val++) {
       final fixedValue = FixedPointValue(
@@ -80,8 +77,7 @@ void main() async {
 
   test('Unsigned Q4.4 to E3M2', () async {
     final fixed = FixedPoint(signed: false, m: 4, n: 4);
-    final dut =
-        FixedToFloat(fixed, exponentWidth: 3, mantissaWidth: 2);
+    final dut = FixedToFloat(fixed, exponentWidth: 3, mantissaWidth: 2);
     await dut.build();
     for (var val = 0; val < pow(2, fixed.width); val++) {
       final fixedValue = FixedPointValue(
@@ -103,8 +99,7 @@ void main() async {
 
   test('Signed Q0.8 to E3M2 shrink', () async {
     final fixed = FixedPoint(signed: true, m: 0, n: 7);
-    final dut =
-        FixedToFloat(fixed, exponentWidth: 3, mantissaWidth: 2);
+    final dut = FixedToFloat(fixed, exponentWidth: 3, mantissaWidth: 2);
     await dut.build();
     for (var val = 0; val < pow(2, fixed.width); val++) {
       final fixedValue = FixedPointValue(
@@ -126,8 +121,7 @@ void main() async {
 
   test('Signed Q0.3 to E5M6 expand', () async {
     final fixed = FixedPoint(signed: true, m: 0, n: 3);
-    final dut =
-        FixedToFloat(fixed, exponentWidth: 5, mantissaWidth: 6);
+    final dut = FixedToFloat(fixed, exponentWidth: 5, mantissaWidth: 6);
     await dut.build();
     for (var val = 0; val < pow(2, fixed.width); val++) {
       final fixedValue = FixedPointValue(
@@ -150,8 +144,7 @@ void main() async {
   // Test is skipped as FloatingPointValue.ofDouble does not handle infinities.
   test('Signed Q7.0 to E3M2', () async {
     final fixed = FixedPoint(signed: true, m: 7, n: 0);
-    final dut =
-        FixedToFloat(fixed, exponentWidth: 3, mantissaWidth: 2);
+    final dut = FixedToFloat(fixed, exponentWidth: 3, mantissaWidth: 2);
     await dut.build();
     for (var val = 0; val < pow(2, fixed.width); val++) {
       final fixedValue = FixedPointValue(
