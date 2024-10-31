@@ -11,9 +11,10 @@ import 'dart:math';
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
 
-/// [FixedToFloatConverter] converts a fixed point input to floating point.
-/// Normals are rounded to nearest even. Subnormals are truncated.
-class FixedToFloatConverter extends Module {
+/// [FixedToFloat] converts a fixed point input to floating point with
+/// rouding to nearest even. If the input exceeds the floating point range,
+/// the output will be infinity.
+class FixedToFloat extends Module {
   /// Width of exponent, must be greater than 0.
   final int exponentWidth;
 
@@ -28,10 +29,10 @@ class FixedToFloatConverter extends Module {
   late final FloatingPoint float = _float.clone()..gets(output('float'));
 
   /// Constructor
-  FixedToFloatConverter(FixedPoint fixed,
+  FixedToFloat(FixedPoint fixed,
       {required this.exponentWidth,
       required this.mantissaWidth,
-      super.name = 'FixedToFloatConverter'}) {
+      super.name = 'FixedToFloat'}) {
     fixed = fixed.clone()..gets(addInput('fixed', fixed, width: fixed.width));
     addOutput('float', width: _float.width) <= _float;
 
