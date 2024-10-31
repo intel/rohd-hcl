@@ -81,10 +81,12 @@
         Port(&#39;reset&#39;),
         Port(&#39;dividend&#39;, dataWidth),
         Port(&#39;divisor&#39;, dataWidth),
+        Port(&#39;isSigned&#39;),
         Port(&#39;validIn&#39;),
         Port(&#39;readyOut&#39;),
       ], portsFromConsumer: [
         Port(&#39;quotient&#39;, dataWidth),
+        Port(&#39;remainder&#39;, dataWidth),
         Port(&#39;divZero&#39;),
         Port(&#39;validOut&#39;),
         Port(&#39;readyIn&#39;),

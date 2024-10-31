@@ -67,6 +67,7 @@
 <li><span class="parameter" id="ofLogics-param-validIn"><span>required</span> <span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.5.3/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">validIn</span>, </span></li>
 <li><span class="parameter" id="ofLogics-param-dividend"><span>required</span> <span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.5.3/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">dividend</span>, </span></li>
 <li><span class="parameter" id="ofLogics-param-divisor"><span>required</span> <span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.5.3/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">divisor</span>, </span></li>
+<li><span class="parameter" id="ofLogics-param-isSigned"><span>required</span> <span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.5.3/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">isSigned</span>, </span></li>
 <li><span class="parameter" id="ofLogics-param-readyOut"><span>required</span> <span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.5.3/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">readyOut</span>, </span></li>
 </ol>})
     </section>
@@ -87,6 +88,7 @@ from explicit Logic signals instead of an interface</p>
   required Logic validIn,
   required Logic dividend,
   required Logic divisor,
+  required Logic isSigned,
   required Logic readyOut,
 }) {
   assert(dividend.width == divisor.width,
@@ -98,6 +100,7 @@ from explicit Logic signals instead of an interface</p>
   intf.validIn &lt;= validIn;
   intf.dividend &lt;= dividend;
   intf.divisor &lt;= divisor;
+  intf.isSigned &lt;= isSigned;
   intf.readyOut &lt;= readyOut;
   return MultiCycleDivider(intf);
 }</code></pre>
