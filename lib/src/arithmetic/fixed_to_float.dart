@@ -20,14 +20,12 @@ class FixedToFloatConverter extends Module {
   /// Width of mantissa, must be greater than 0.
   final int mantissaWidth;
 
-  /// Output port [float]
-  late final FloatingPoint float =
-      FloatingPoint(exponentWidth: exponentWidth, mantissaWidth: mantissaWidth)
-        ..gets(output('float'));
-
   /// Internal representation of the output port
   late final FloatingPoint _float =
       FloatingPoint(exponentWidth: exponentWidth, mantissaWidth: mantissaWidth);
+
+  /// Output port [float]
+  late final FloatingPoint float = _float.clone()..gets(output('float'));
 
   /// Constructor
   FixedToFloatConverter(FixedPoint fixed,
@@ -57,7 +55,7 @@ class FixedToFloatConverter extends Module {
     final absValue = Logic(name: 'absValue', width: fixed.width)
       ..gets(mux(_float.sign, ~(fixed - 1), fixed));
 
-    final jBit = Const(absValue.width-1, width: iWidth) -
+    final jBit =
         ParallelPrefixPriorityEncoder(absValue.reversed).out.zeroExtend(iWidth);
 
     // Extract mantissa
@@ -65,62 +63,41 @@ class FixedToFloatConverter extends Module {
     final guard = Logic(name: 'guardBit');
     final sticky = Logic(name: 'stickBit');
     final j = Logic(name: 'j', width: iWidth);
-    final minIndex = max(0, fixed.n - bias + 1);
+    final maxShift = fixed.width - fixed.n + bias - 2;
 
-    if (minIndex > 0) {
-      j <= mux(jBit.lt(minIndex), Const(minIndex, width: iWidth), jBit);
+    if (maxShift > 0) {
+      j <= mux(jBit.gt(maxShift), Const(maxShift, width: iWidth), jBit);
     } else {
       j <= jBit;
     }
 
-    Combinational([
-      Case(j, conditionalType: ConditionalType.unique, [
-        CaseItem(Const(0, width: iWidth), [
-          mantissa < 0,
-          guard < 0,
-          sticky < 0,
-        ]),
-        for (var i = 1; i <= mantissaWidth; i++)
-          CaseItem(Const(i, width: iWidth), [
-            mantissa <
-                [
-                  absValue.slice(i - 1, 0),
-                  Const(0, width: max(0, mantissaWidth - i))
-                ].swizzle(),
-            guard < 0,
-            sticky < 0,
-          ]),
-        CaseItem(Const(mantissaWidth + 1, width: iWidth), [
-          mantissa < absValue.slice(mantissaWidth, 1),
-          guard < absValue[0],
-          sticky < 0,
-        ]),
-        for (var i = mantissaWidth + 2; i < absValue.width; i++)
-          CaseItem(Const(i, width: iWidth), [
-            mantissa < absValue.slice(i - 1, max(0, i - mantissaWidth)),
-            guard < absValue[i - mantissaWidth - 1],
-            sticky < absValue.slice(i - mantissaWidth - 2, 0).or(),
-          ]),
-      ], defaultItem: [
-        mantissa < 0,
-        guard < 0,
-        sticky < 0,
-      ]),
-    ]);
+    final absValueShifted =
+        Logic(width: max(absValue.width, mantissaWidth + 2));
+    if (absValue.width < mantissaWidth + 2) {
+      final zeros = Const(0, width: mantissaWidth + 2 - absValue.width);
+      absValueShifted <= [absValue, zeros].swizzle() << j;
+    } else {
+      absValueShifted <= absValue << j;
+    }
+
+    mantissa <= absValueShifted.getRange(-mantissaWidth - 1, -1);
+    guard <= absValueShifted.getRange(-mantissaWidth - 2, -mantissaWidth - 1);
+    sticky <= absValueShifted.getRange(0, -mantissaWidth - 2).or();
 
     /// Round to nearest even: mantissa | guard sticky
     final roundUp = guard & (sticky | mantissa[0]);
     final mantissaRounded = mux(roundUp, mantissa + 1, mantissa);
 
     // Extract exponent
-    final expoRaw =
-        jBit + Const(bias, width: iWidth) - Const(fixed.n, width: iWidth);
-    final expoRawRne =
-        mux(roundUp & ~mantissaRounded.or(), expoRaw + 1, expoRaw);
+    final eRaw = mux(
+        absValueShifted[-1],
+        Const(bias + fixed.width - fixed.n - 1, width: iWidth) - j,
+        Const(0, width: iWidth));
+    final eRawRne = mux(roundUp & ~mantissaRounded.or(), eRaw + 1, eRaw);
 
     // Select output with corner cases
-    final expoLessThanOne = expoRawRne[-1] | ~expoRawRne.or();
-    final expoMoreThanMax = ~expoRawRne[-1] & (expoRawRne.gt(eMax));
+    final expoLessThanOne = eRawRne[-1] | ~eRawRne.or();
+    final expoMoreThanMax = ~eRawRne[-1] & (eRawRne.gt(eMax));
     Combinational([
       If.block([
         Iff(~absValue.or(), [
@@ -140,7 +117,7 @@ class FixedToFloatConverter extends Module {
         ]),
         Else([
           // Normal
-          _float.exponent < expoRawRne.slice(exponentWidth - 1, 0),
+          _float.exponent < eRawRne.slice(exponentWidth - 1, 0),
           _float.mantissa < mantissaRounded
         ])
       ])
