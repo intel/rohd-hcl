@@ -6,9 +6,9 @@ Fixed-point binary representation of numbers is useful several applications incl
 
 A `FixedPointValue` represents a signed or unsigned fixed-point value following the Q notation (Qm.n format) as introduced by [Texas Instruments](https://www.ti.com/lit/ug/spru565b/spru565b.pdf). It comprises an optional sign, integer part and/or a fractional part. `FixedPointValue`s can be constructed from individual fields or from a Dart `double`, converted to Dart `double`, can be compared and can be operated on (+, -, *, /).
 
-## FixedPointValue
+## FixedPoint
 
-The `FixedPoint` type is an extension of `Logic` with additional attributes (signed or unsigned, integer width and fraction width). This type is provided to simplify the design of fixed-point arithmetic blocks. 
+The `FixedPoint` type is an extension of `Logic` with additional attributes (signed or unsigned, integer width and fraction width). This type is provided to simplify the design of fixed-point arithmetic blocks.
 
 ## FixedToFloat
 
