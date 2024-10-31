@@ -21,7 +21,7 @@ class FixedToFloat extends Module {
   /// Width of mantissa, must be greater than 0.
   final int mantissaWidth;
 
-  /// Internal representation of the output port
+  /// Internal representation of the output port.
   late final FloatingPoint _float =
       FloatingPoint(exponentWidth: exponentWidth, mantissaWidth: mantissaWidth);
 
@@ -66,12 +66,14 @@ class FixedToFloat extends Module {
     final j = Logic(name: 'j', width: iWidth);
     final maxShift = fixed.width - fixed.n + bias - 2;
 
+    // Limit to minimum exponent
     if (maxShift > 0) {
       j <= mux(jBit.gt(maxShift), Const(maxShift, width: iWidth), jBit);
     } else {
       j <= jBit;
     }
 
+    // Align mantissa
     final absValueShifted =
         Logic(width: max(absValue.width, mantissaWidth + 2));
     if (absValue.width < mantissaWidth + 2) {
@@ -89,14 +91,14 @@ class FixedToFloat extends Module {
     final roundUp = guard & (sticky | mantissa[0]);
     final mantissaRounded = mux(roundUp, mantissa + 1, mantissa);
 
-    // Extract exponent
+    // Calculate biased exponent
     final eRaw = mux(
         absValueShifted[-1],
         Const(bias + fixed.width - fixed.n - 1, width: iWidth) - j,
         Const(0, width: iWidth));
     final eRawRne = mux(roundUp & ~mantissaRounded.or(), eRaw + 1, eRaw);
 
-    // Select output with corner cases
+    // Select output handling corner cases
     final expoLessThanOne = eRawRne[-1] | ~eRawRne.or();
     final expoMoreThanMax = ~eRawRne[-1] & (eRawRne.gt(eMax));
     Combinational([
