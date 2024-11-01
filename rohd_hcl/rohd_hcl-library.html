@@ -512,6 +512,16 @@ dangerous conditions.
   A <a href="../rohd_hcl/Configurator-class.html">Configurator</a> for <a href="../rohd_hcl/Find-class.html">Find</a>.
 </dd>
 
+          <dt id="FixedPoint">
+  <span class="name "><a href="../rohd_hcl/FixedPoint-class.html">FixedPoint</a></span> 
+
+</dt>
+<dd>
+  A representation of (un)signed fixed-point logic following
+Q notation (Qm.n format) as introduced by
+(Texas Instruments)<code>https://www.ti.com/lit/ug/spru565b/spru565b.pdf</code>.
+</dd>
+
           <dt id="FixedPointValue">
   <span class="name "><a href="../rohd_hcl/FixedPointValue-class.html">FixedPointValue</a></span> 
 
@@ -520,6 +530,25 @@ dangerous conditions.
   An immutable representation of (un)signed fixed-point values following
 Q notation (Qm.n format) as introduced by
 (Texas Instruments)<code>https://www.ti.com/lit/ug/spru565b/spru565b.pdf</code>.
+</dd>
+
+          <dt id="FixedToFloat">
+  <span class="name "><a href="../rohd_hcl/FixedToFloat-class.html">FixedToFloat</a></span> 
+
+</dt>
+<dd>
+  <a href="../rohd_hcl/FixedToFloat-class.html">FixedToFloat</a> converts a fixed point input to floating point with
+rouding to nearest even. If the input exceeds the floating point range,
+the output will be infinity. E4M3 is not supported as this format doesn't
+support infinity.
+</dd>
+
+          <dt id="FixedToFloatConfigurator">
+  <span class="name "><a href="../rohd_hcl/FixedToFloatConfigurator-class.html">FixedToFloatConfigurator</a></span> 
+
+</dt>
+<dd>
+  A <a href="../rohd_hcl/Configurator-class.html">Configurator</a> for <a href="../rohd_hcl/FixedToFloat-class.html">FixedToFloat</a>.
 </dd>
 
           <dt id="FloatingPoint">
