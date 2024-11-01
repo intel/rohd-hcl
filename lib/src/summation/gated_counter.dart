@@ -1,7 +1,7 @@
 // Copyright (C) 2024 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 //
-// counter.dart
+// gated_counter.dart
 // A flexible counter implementation with clock and toggle gating.
 //
 // 2024 October
