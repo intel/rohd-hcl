@@ -19,6 +19,7 @@ confapp/.vscode/*
 *tracker.json
 *tracker.log
 devtools_options.yaml
+*.sv
 
 # Exceptions
 !.vscode/extensions.json
