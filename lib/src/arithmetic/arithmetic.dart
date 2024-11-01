@@ -7,6 +7,7 @@ export 'carry_save_mutiplier.dart';
 export 'compound_adder.dart';
 export 'divider.dart';
 export 'fixed_to_float.dart';
+export 'float_to_fixed.dart';
 export 'floating_point/floating_point.dart';
 export 'multiplier.dart';
 export 'multiplier_lib.dart';
