@@ -7,7 +7,6 @@
 // 2024 October 24
 // Author: Soner Yaldiz <soner.yaldiz@intel.com>
 
-import 'dart:io';
 import 'dart:math';
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
@@ -18,7 +17,6 @@ void main() async {
     final fixed = FixedPoint(signed: true, m: 34, n: 33);
     final dut = FixedToFloat(fixed, exponentWidth: 8, mantissaWidth: 3);
     await dut.build();
-    File('${dut.name}.sv').writeAsStringSync(dut.generateSynth());
     fixed.put(FixedPointValue.ofDouble(1.25,
         signed: fixed.signed, m: fixed.m, n: fixed.n));
     final fpv = dut.float.floatingPointValue;
@@ -142,6 +140,7 @@ void main() async {
   });
 
   // Test is skipped as FloatingPointValue.ofDouble does not handle infinities.
+  // TODO(desmonddak): <https://github.com/intel/rohd-hcl/issues/119>
   test('Signed Q7.0 to E3M2', () async {
     final fixed = FixedPoint(signed: true, m: 7, n: 0);
     final dut = FixedToFloat(fixed, exponentWidth: 3, mantissaWidth: 2);

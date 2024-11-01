@@ -13,7 +13,8 @@ import 'package:rohd_hcl/rohd_hcl.dart';
 
 /// [FixedToFloat] converts a fixed point input to floating point with
 /// rouding to nearest even. If the input exceeds the floating point range,
-/// the output will be infinity.
+/// the output will be infinity. E4M3 is not supported as this format doesn't 
+/// support infinity. 
 class FixedToFloat extends Module {
   /// Width of exponent, must be greater than 0.
   final int exponentWidth;
