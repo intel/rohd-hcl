@@ -13,8 +13,36 @@ import 'package:meta/meta.dart';
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
 
+/// Conditionally constructs a positive edge triggered flip condFlop on [clk].
+///
+/// It returns either [FlipFlop.q] if [clk] is valid or [d] if not.
+///
+/// When the optional [en] is provided, an additional input will be created for
+/// condFlop. If optional [en] is high or not provided, output will vary as per
+/// input[d]. For low [en], output remains frozen irrespective of input [d].
+///
+/// When the optional [reset] is provided, the condFlop will be reset (active-high).
+/// If no [resetValue] is provided, the reset value is always `0`. Otherwise,
+/// it will reset to the provided [resetValue].
+Logic condFlop(
+  Logic? clk,
+  Logic d, {
+  Logic? en,
+  Logic? reset,
+  dynamic resetValue,
+}) =>
+    (clk == null)
+        ? d
+        : flop(
+            clk,
+            d,
+            en: en,
+            reset: reset,
+            resetValue: resetValue,
+          );
+
 /// An adder module for variable FloatingPoint type with rounding.
-// This is the Seidel/Even adder, dual-path
+// This is a Seidel/Even adder, dual-path implementation.
 class FloatingPointAdderRound extends Module {
   /// Must be greater than 0.
   final int exponentWidth;
@@ -22,7 +50,19 @@ class FloatingPointAdderRound extends Module {
   /// Must be greater than 0.
   final int mantissaWidth;
 
-  /// Output [FloatingPoint] computed
+  /// The [clk]:  if a valid clock signal is passed in, a pipestage is added to
+  /// the adder to help optimize frequency.
+  Logic? clk;
+
+  /// Optional [reset], used only if a [clk] is not null to reset the pipeline
+  /// flops.
+  Logic? reset;
+
+  /// Optional [enable], used only if a [clk] is not null to enable the pipeline
+  /// flops.
+  Logic? enable;
+
+  /// Output [FloatingPoint] representing the sum of two input [FloatingPoint]s
   late final FloatingPoint sum =
       FloatingPoint(exponentWidth: exponentWidth, mantissaWidth: mantissaWidth)
         ..gets(output('sum'));
@@ -48,6 +88,9 @@ class FloatingPointAdderRound extends Module {
   ///  functions.
   FloatingPointAdderRound(FloatingPoint a, FloatingPoint b,
       {Logic? subtract,
+      this.clk,
+      this.reset,
+      this.enable,
       Adder Function(Logic, Logic) adderGen = ParallelPrefixAdder.new,
       ParallelPrefix Function(List<Logic>, Logic Function(Logic, Logic))
           ppTree = KoggeStone.new,
@@ -57,6 +100,15 @@ class FloatingPointAdderRound extends Module {
     if (b.exponent.width != exponentWidth ||
         b.mantissa.width != mantissaWidth) {
       throw RohdHclException('FloatingPoint widths must match');
+    }
+    if (clk != null) {
+      clk = addInput('clk', clk!);
+    }
+    if (reset != null) {
+      reset = addInput('reset', reset!);
+    }
+    if (enable != null) {
+      enable = addInput('enable', enable!);
     }
     a = a.clone()..gets(addInput('a', a, width: a.width));
     b = b.clone()..gets(addInput('b', b, width: b.width));
@@ -108,17 +160,35 @@ class FloatingPointAdderRound extends Module {
         smallerAlignRPath.width - 1,
         smallerAlignRPath.width - largeOperand.width);
 
+    /// R Pipestage here:
+    final aIsNormalLatched =
+        condFlop(clk, a.isNormal(), en: enable, reset: reset);
+    final bIsNormalLatched =
+        condFlop(clk, b.isNormal(), en: enable, reset: reset);
+    final effectiveSubtractionLatched =
+        condFlop(clk, effectiveSubtraction, en: enable, reset: reset);
+    final largeOperandLatched =
+        condFlop(clk, largeOperand, en: enable, reset: reset);
+    final smallerOperandRPathLatched =
+        condFlop(clk, smallerOperandRPath, en: enable, reset: reset);
+    final smallerAlignRPathLatched =
+        condFlop(clk, smallerAlignRPath, en: enable, reset: reset);
+    final largerExpLatched =
+        condFlop(clk, larger.exponent, en: enable, reset: reset);
+    final deltaLatched = condFlop(clk, delta, en: enable, reset: reset);
+
     final carryRPath = Logic();
     final significandAdderRPath = OnesComplementAdder(
-        largeOperand, smallerOperandRPath,
-        subtractIn: effectiveSubtraction,
+        largeOperandLatched, smallerOperandRPathLatched,
+        subtractIn: effectiveSubtractionLatched,
         carryOut: carryRPath,
         adderGen: adderGen);
 
-    final lowBitsRPath = smallerAlignRPath.slice(extendWidthRPath - 1, 0);
+    final lowBitsRPath =
+        smallerAlignRPathLatched.slice(extendWidthRPath - 1, 0);
     final lowAdderRPath = OnesComplementAdder(
         carryRPath.zeroExtend(extendWidthRPath),
-        mux(effectiveSubtraction, ~lowBitsRPath, lowBitsRPath),
+        mux(effectiveSubtractionLatched, ~lowBitsRPath, lowBitsRPath),
         adderGen: adderGen);
 
     final preStickyRPath =
@@ -135,8 +205,10 @@ class FloatingPointAdderRound extends Module {
     final sumP1RPath =
         (significandAdderRPath.sum + 1).slice(mantissaWidth + 1, 0);
 
-    final sumLeadZeroRPath = ~sumRPath[-1] & (a.isNormal() | b.isNormal());
-    final sumP1LeadZeroRPath = ~sumP1RPath[-1] & (a.isNormal() | b.isNormal());
+    final sumLeadZeroRPath =
+        ~sumRPath[-1] & (aIsNormalLatched | bIsNormalLatched);
+    final sumP1LeadZeroRPath =
+        ~sumP1RPath[-1] & (aIsNormalLatched | bIsNormalLatched);
 
     final selectRPath = lowAdderRPath.sum[-1];
     final shiftGRSRPath = [earlyGRSRPath[2], stickyBitRPath].swizzle();
@@ -162,25 +234,26 @@ class FloatingPointAdderRound extends Module {
 
     final firstZeroRPath = mux(selectRPath, ~sumP1RPath[-1], ~sumRPath[-1]);
 
-    final exponentRPath = Logic(width: larger.exponent.width);
+    final exponentRPath = Logic(width: exponentWidth);
     Combinational([
       If.block([
         // Subtract 1 from exponent
-        Iff(~incExpRPath & effectiveSubtraction & firstZeroRPath, [
-          exponentRPath < ParallelPrefixDecr(larger.exponent, ppGen: ppTree).out
+        Iff(~incExpRPath & effectiveSubtractionLatched & firstZeroRPath, [
+          exponentRPath <
+              ParallelPrefixDecr(largerExpLatched, ppGen: ppTree).out
         ]),
         // Add 1 to exponent
         ElseIf(
-            ~effectiveSubtraction &
+            ~effectiveSubtractionLatched &
                 (incExpRPath & firstZeroRPath | ~incExpRPath & ~firstZeroRPath),
             [
               exponentRPath <
-                  ParallelPrefixIncr(larger.exponent, ppGen: ppTree).out
+                  ParallelPrefixIncr(largerExpLatched, ppGen: ppTree).out
             ]),
         // Add 2 to exponent
-        ElseIf(incExpRPath & effectiveSubtraction & ~firstZeroRPath,
-            [exponentRPath < larger.exponent << 1]),
-        Else([exponentRPath < larger.exponent])
+        ElseIf(incExpRPath & effectiveSubtractionLatched & ~firstZeroRPath,
+            [exponentRPath < largerExpLatched << 1]),
+        Else([exponentRPath < largerExpLatched])
       ])
     ]);
 
@@ -208,9 +281,22 @@ class FloatingPointAdderRound extends Module {
             .zeroExtend(exponentWidth),
         Const(15, width: exponentWidth));
 
+    // N pipestage here:
+    final significandNPathLatched =
+        condFlop(clk, significandNPath, en: enable, reset: reset);
+    final significandSubtractorNPathSignLatched = condFlop(
+        clk, significandSubtractorNPath.sign,
+        en: enable, reset: reset);
+    final leadOneNPathLatched =
+        condFlop(clk, leadOneNPath, en: enable, reset: reset);
+    final largerSignLatched =
+        condFlop(clk, larger.sign, en: enable, reset: reset);
+    final smallerSignLatched =
+        condFlop(clk, smaller.sign, en: enable, reset: reset);
+
     final expCalcNPath = OnesComplementAdder(
-        larger.exponent, leadOneNPath.zeroExtend(larger.exponent.width),
-        subtractIn: effectiveSubtraction, adderGen: adderGen);
+        largerExpLatched, leadOneNPathLatched.zeroExtend(exponentWidth),
+        subtractIn: effectiveSubtractionLatched, adderGen: adderGen);
 
     final preExpNPath = expCalcNPath.sum.slice(exponentWidth - 1, 0);
 
@@ -218,29 +304,30 @@ class FloatingPointAdderRound extends Module {
 
     final exponentNPath = mux(posExpNPath, preExpNPath, zeroExp);
 
-    final preMinShiftNPath = ~leadOneNPath.or() | ~larger.exponent.or();
+    final preMinShiftNPath = ~leadOneNPathLatched.or() | ~largerExpLatched.or();
 
-    final minShiftNPath =
-        mux(posExpNPath | preMinShiftNPath, leadOneNPath, larger.exponent - 1);
-    final notSubnormalNPath = a.isNormal() | b.isNormal();
+    final minShiftNPath = mux(posExpNPath | preMinShiftNPath,
+        leadOneNPathLatched, largerExpLatched - 1);
+    final notSubnormalNPath = aIsNormalLatched | bIsNormalLatched;
 
     final shiftedSignificandNPath =
-        (significandNPath << minShiftNPath).slice(mantissaWidth, 1);
+        (significandNPathLatched << minShiftNPath).slice(mantissaWidth, 1);
 
     final finalSignificandNPath = mux(
         notSubnormalNPath,
         shiftedSignificandNPath,
-        significandNPath.slice(significandNPath.width - 1, 2));
+        significandNPathLatched.slice(significandNPathLatched.width - 1, 2));
 
-    final signNPath =
-        mux(significandSubtractorNPath.sign, smaller.sign, larger.sign);
+    final signNPath = mux(significandSubtractorNPathSignLatched,
+        smallerSignLatched, largerSignLatched);
 
-    final isR = delta.gte(Const(2, width: delta.width)) | ~effectiveSubtraction;
+    final isR = deltaLatched.gte(Const(2, width: delta.width)) |
+        ~effectiveSubtractionLatched;
     _sum <=
         mux(
             isR,
             [
-              larger.sign,
+              largerSignLatched,
               exponentRPath,
               mantissaRPath.slice(mantissaRPath.width - 2, 1)
             ].swizzle(),
