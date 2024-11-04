@@ -11,6 +11,7 @@
 import 'package:meta/meta.dart';
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
+import 'package:rohd_hcl/src/arithmetic/partial_product_sign_extend.dart';
 
 /// An abstract class for all multiplier implementations.
 abstract class Multiplier extends Module {
@@ -75,7 +76,8 @@ class CompressionTreeMultiplier extends Multiplier {
   /// Construct a compression tree integer multipler with
   ///   a given radix and final adder functor
   CompressionTreeMultiplier(super.a, super.b, int radix,
-      {ParallelPrefix Function(List<Logic>, Logic Function(Logic, Logic))
+      {Logic? selectSigned,
+      ParallelPrefix Function(List<Logic>, Logic Function(Logic, Logic))
           ppTree = KoggeStone.new,
       super.signed = false})
       : super(
@@ -86,7 +88,7 @@ class CompressionTreeMultiplier extends Multiplier {
     final product = addOutput('product', width: a.width + b.width);
     final pp = PartialProductGeneratorCompactRectSignExtension(
         a, b, RadixEncoder(radix),
-        signed: signed);
+        selectSigned: selectSigned, signed: signed);
 
     final compressor = ColumnCompressor(pp)..compress();
     final adder = ParallelPrefixAdder(
@@ -106,6 +108,7 @@ class CompressionTreeMultiplyAccumulate extends MultiplyAccumulate {
   ///   a given radix and final adder functor
   CompressionTreeMultiplyAccumulate(super.a, super.b, super.c, int radix,
       {required super.signed,
+      Logic? selectSigned,
       ParallelPrefix Function(List<Logic>, Logic Function(Logic, Logic))
           ppTree = KoggeStone.new})
       : super(
@@ -114,7 +117,7 @@ class CompressionTreeMultiplyAccumulate extends MultiplyAccumulate {
     final accumulate = addOutput('accumulate', width: a.width + b.width + 1);
     final pp = PartialProductGeneratorCompactRectSignExtension(
         a, b, RadixEncoder(radix),
-        signed: signed);
+        selectSigned: selectSigned, signed: signed);
 
     // TODO(desmonddak): This sign extension method for the additional
     //  addend may only work with CompactRectSignExtension

@@ -126,7 +126,7 @@ void main() {
             }
             final ppg = curryPartialProductGenerator(signExtension);
             final pp = ppg(Logic(name: 'X', width: width),
-                Logic(name: 'Y', width: width), encoder,
+                Logic(name: 'Y', width: width), encoder, null,
                 signed: signed);
 
             checkEvaluateExhaustive(pp);
@@ -152,7 +152,7 @@ void main() {
             ]) {
               final ppg = curryPartialProductGenerator(signExtension);
               final pp = ppg(Logic(name: 'X', width: width),
-                  Logic(name: 'Y', width: width + skew), encoder,
+                  Logic(name: 'Y', width: width + skew), encoder, null,
                   signed: signed);
               checkEvaluateRandom(pp, 20);
             }
@@ -214,7 +214,7 @@ void main() {
           }
           final ppg = curryPartialProductGenerator(signExtension);
           final pp = ppg(Logic(name: 'X', width: width),
-              Logic(name: 'Y', width: width + skew), encoder,
+              Logic(name: 'Y', width: width + skew), encoder, null,
               signed: signed);
           checkEvaluateRandom(pp, 100);
         }
@@ -238,7 +238,7 @@ void main() {
           {
             final ppg = curryPartialProductGenerator(signExtension);
             final pp = ppg(Logic(name: 'X', width: width),
-                Logic(name: 'Y', width: width + skew), encoder,
+                Logic(name: 'Y', width: width + skew), encoder, null,
                 signed: signed);
             checkEvaluateExhaustive(pp);
           }

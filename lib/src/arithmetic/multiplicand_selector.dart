@@ -28,17 +28,31 @@ class MultiplicandSelector {
   late LogicArray multiples;
 
   /// Generate required multiples of multiplicand
-  MultiplicandSelector(this.radix, this.multiplicand, {required bool signed})
+  MultiplicandSelector(this.radix, this.multiplicand,
+      {Logic? selectSigned, bool signed = false})
       : shift = log2Ceil(radix) {
+    if (signed && (selectSigned != null)) {
+      throw RohdHclException('sign reconfiguration requires signed=false');
+    }
     if (radix > 16) {
       throw RohdHclException('Radices beyond 16 are not yet supported');
     }
     final width = multiplicand.width + shift;
     final numMultiples = radix ~/ 2;
     multiples = LogicArray([numMultiples], width);
-    final extendedMultiplicand = signed
-        ? multiplicand.signExtend(width)
-        : multiplicand.zeroExtend(width);
+    final Logic extendedMultiplicand;
+    if (selectSigned == null) {
+      extendedMultiplicand = signed
+          ? multiplicand.signExtend(width)
+          : multiplicand.zeroExtend(width);
+    } else {
+      final len = multiplicand.width;
+      final sign = multiplicand[len - 1];
+      final extension = [
+        for (var i = len; i < width; i++) mux(selectSigned, sign, Const(0))
+      ];
+      extendedMultiplicand = (multiplicand.elements + extension).swizzle();
+    }
 
     for (var pos = 0; pos < numMultiples; pos++) {
       final ratio = pos + 1;

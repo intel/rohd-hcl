@@ -11,6 +11,7 @@ import 'dart:math';
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
 import 'package:rohd_hcl/src/arithmetic/evaluate_compressor.dart';
+import 'package:rohd_hcl/src/arithmetic/partial_product_sign_extend.dart';
 import 'package:test/test.dart';
 
 // Inner test of a multipy accumulate unit
@@ -108,26 +109,34 @@ void main() {
           int radix,
           ParallelPrefix Function(List<Logic>, Logic Function(Logic, Logic))
               ppTree,
-          {required bool signed}) =>
+          {required bool signed,
+          Logic? selectSigned}) =>
       (a, b) => CompressionTreeMultiplier(a, b, radix,
-          ppTree: ppTree, signed: signed);
+          selectSigned: selectSigned, ppTree: ppTree, signed: signed);
 
   MultiplyAccumulateCallback curryMultiplierAsMultiplyAccumulate(
           int radix,
+          Logic? selectSign,
           ParallelPrefix Function(List<Logic>, Logic Function(Logic, Logic))
               ppTree,
           {required bool signed}) =>
-      (a, b, c) => MutiplyOnly(a, b, c,
-          curryCompressionTreeMultiplier(radix, ppTree, signed: signed));
+      (a, b, c) => MutiplyOnly(
+          a,
+          b,
+          c,
+          curryCompressionTreeMultiplier(radix, ppTree,
+              selectSigned: selectSign, signed: signed));
 
   MultiplyAccumulateCallback curryMultiplyAccumulate(
           int radix,
+          Logic? selectSign,
           ParallelPrefix Function(List<Logic>, Logic Function(Logic, Logic))
               ppTree,
           {required bool signed}) =>
       (a, b, c) => CompressionTreeMultiplyAccumulate(a, b, c, radix,
-          ppTree: ppTree, signed: signed);
+          selectSigned: selectSign, ppTree: ppTree, signed: signed);
 
+  //  TODO(desmonddak): fix the selectSign null
   group('Curried Test of Compression Tree Multiplier', () {
     for (final signed in [false, true]) {
       for (final radix in [2, 16]) {
@@ -136,7 +145,7 @@ void main() {
             testMultiplyAccumulateRandom(
                 width,
                 10,
-                curryMultiplierAsMultiplyAccumulate(radix, ppTree,
+                curryMultiplierAsMultiplyAccumulate(radix, null, ppTree,
                     signed: signed));
           }
         }
@@ -150,7 +159,7 @@ void main() {
         for (final width in [5, 6]) {
           for (final ppTree in [KoggeStone.new, BrentKung.new]) {
             testMultiplyAccumulateRandom(width, 10,
-                curryMultiplyAccumulate(radix, ppTree, signed: signed));
+                curryMultiplyAccumulate(radix, null, ppTree, signed: signed));
           }
         }
       }
@@ -162,7 +171,6 @@ void main() {
     final a = Logic(name: 'a', width: width);
     final b = Logic(name: 'b', width: width);
     final c = Logic(name: 'c', width: 2 * width);
-
     const av = 0;
     const bv = 0;
     const cv = -512;
@@ -294,9 +302,9 @@ void main() {
 
     const expectedEval = '''
        15      14      13      12      11      10       9       8       7       6       5       4       3       2       1       0
-        1       1       0       0       0       0       0       0       1       1       0       0       0       1       1       0        = 49350 (-16186)
-                        1       1       1       0       0       0       0       0       0       0       1       0       0                = 14344 (14344)
-                                        0       0       1       0       0       0       0       1       1                                = 536 (536)
+        1       I       0       0       0       0       0       0       1       1       0       0       0       1       1       0        = 49350 (-16186)
+                        1       I       1       0       0       0       0       0       0       0       1       0       0                = 14344 (14344)
+                                        0       i       1       0       0       0       0       1       1                                = 536 (536)
                                                 i       S       S       1       1       0                                                = 960 (960)
 p       1       1       1       1       1       1       1       0       1       0       1       0       0       1       1       0        = 65190 (-346)''';
     expect(ts.toString(), equals(expectedEval));
