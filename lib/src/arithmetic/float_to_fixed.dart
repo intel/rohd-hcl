@@ -81,6 +81,12 @@ class Float8ToFixed extends Module {
   /// Output port [fixed]
   Logic get fixed => output('fixed');
 
+  /// Getter for Q23.9
+  FixedPoint get q23p9 => FixedPoint.of(fixed, signed: true, m: 23, n: 9);
+
+  /// Getter for Q16.16
+  FixedPoint get q16p16 => FixedPoint.of(fixed, signed: true, m: 16, n: 16);
+
   /// Constructor
   Float8ToFixed(Logic float, Logic mode, {super.name = 'Float8ToFixed'}) {
     float = addInput('float', float, width: float.width);

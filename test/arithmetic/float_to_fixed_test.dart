@@ -46,6 +46,7 @@ void main() async {
         final fx8 =
             FixedPointValue.ofDouble(fp8.toDouble(), signed: true, m: 23, n: 9);
         expect(dut.fixed.value.bitString, fx8.value.bitString);
+        expect(dut.q23p9.value, fx8.value);
       }
     }
 
@@ -59,6 +60,7 @@ void main() async {
         final fx8 = FixedPointValue.ofDouble(fp8.toDouble(),
             signed: true, m: 16, n: 16);
         expect(dut.fixed.value.bitString, fx8.value.bitString);
+        expect(dut.q16p16.value, fx8.value);
       }
     }
   });
