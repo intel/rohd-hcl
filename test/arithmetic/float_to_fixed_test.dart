@@ -17,14 +17,49 @@ void main() async {
     final float = FloatingPoint(exponentWidth: 5, mantissaWidth: 2);
     final dut = FloatToFixed(float);
     await dut.build();
-    for (var val = 0; val < pow(2, 6); val++) {
-      final floatValue = FloatingPointValue.ofLogicValue(
+    for (var val = 0; val < pow(2, 8); val++) {
+      final fpv = FloatingPointValue.ofLogicValue(
           5, 2, LogicValue.ofInt(val, float.width));
-      float.put(floatValue);
-      final fxp = dut.fixed;
-      final fxpExp = FixedPointValue.ofDouble(floatValue.toDouble(),
-          signed: true, m: dut.m, n: dut.n);
-      expect(fxp.value.bitString, fxpExp.value.bitString);
+      if (!fpv.isNaN()) {
+        float.put(fpv);
+        final fxp = dut.fixed;
+        final fxpExp = FixedPointValue.ofDouble(fpv.toDouble(),
+            signed: true, m: dut.m, n: dut.n);
+        expect(fxp.value.bitString, fxpExp.value.bitString);
+      }
+    }
+  });
+
+  test('FP8toINT: exhaustive', () async {
+    final float = Logic(width: 8);
+    final mode = Logic();
+    final dut = Float8ToFixed(float, mode);
+    await dut.build();
+
+    // E4M3
+    mode.put(1);
+    for (var val = 0; val < pow(2, 8); val++) {
+      final fp8 = FloatingPointValue.ofLogicValue(
+          4, 3, LogicValue.ofInt(val, float.width));
+      if (!fp8.isNaN()) {
+        float.put(fp8.value);
+        final fx8 =
+            FixedPointValue.ofDouble(fp8.toDouble(), signed: true, m: 23, n: 9);
+        expect(dut.fixed.value.bitString, fx8.value.bitString);
+      }
+    }
+
+    // E5M2
+    mode.put(0);
+    for (var val = 0; val < pow(2, 8); val++) {
+      final fp8 = FloatingPointValue.ofLogicValue(
+          5, 2, LogicValue.ofInt(val, float.width));
+      if (!fp8.isNaN()) {
+        float.put(fp8.value);
+        final fx8 = FixedPointValue.ofDouble(fp8.toDouble(),
+            signed: true, m: 16, n: 16);
+        expect(dut.fixed.value.bitString, fx8.value.bitString);
+      }
     }
   });
 }
