@@ -76,8 +76,8 @@ class RadixEncoder {
       ].swizzle().and());
     }
 
-    return RadixEncode._(
-        multiples.rswizzle(), multiplierSlice[multiplierSlice.width - 1]);
+    return RadixEncode._(multiples.rswizzle(),
+        multiples.rswizzle().or() & multiplierSlice[multiplierSlice.width - 1]);
   }
 }
 
