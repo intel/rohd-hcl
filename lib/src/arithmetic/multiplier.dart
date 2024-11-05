@@ -73,8 +73,17 @@ class CompressionTreeMultiplier extends Multiplier {
   @override
   Logic get product => output('product');
 
-  /// Construct a compression tree integer multipler with
-  ///   a given radix and final adder functor
+  /// Construct a compression tree integer multiplier with a given [radix]
+  /// and prefix tree functor [ppTree] for the compressor and final adder.
+  ///
+  /// [a] and [b] are the product terms and they can be different widths
+  /// allowing for rectangular multiplication.
+  ///
+  /// [signed] parameter configures the multiplier as a signed multiplier
+  /// (default is unsigned).
+  ///
+  /// Optional [selectSigned] allows for runtime configuration of signed
+  /// or unsigned operation, overriding the [signed] static configuration.
   CompressionTreeMultiplier(super.a, super.b, int radix,
       {Logic? selectSigned,
       ParallelPrefix Function(List<Logic>, Logic Function(Logic, Logic))
@@ -98,14 +107,23 @@ class CompressionTreeMultiplier extends Multiplier {
   }
 }
 
-/// An implementation of an integer multiply accumulate using compression trees
+/// An implementation of an integer multiply-accumulate using compression trees
 class CompressionTreeMultiplyAccumulate extends MultiplyAccumulate {
   /// The final product of the multiplier module.
   @override
   Logic get accumulate => output('accumulate');
 
-  /// Construct a compression tree integer multipler with
-  ///   a given radix and final adder functor
+  /// Construct a compression tree integer multiply-add with a given [radix]
+  /// and prefix tree functor [ppTree] for the compressor and final adder.
+  ///
+  /// [a] and [b] are the product terms, [c] is the accumulate term which
+  /// must be the sum of the widths plus 1.
+  ///
+  /// [signed] parameter configures the multiplier as a signed multiplier
+  /// (default is unsigned).
+  ///
+  /// Optional [selectSigned] allows for runtime configuration of signed
+  /// or unsigned operation, overriding the [signed] static configuration.
   CompressionTreeMultiplyAccumulate(super.a, super.b, super.c, int radix,
       {required super.signed,
       Logic? selectSigned,
@@ -154,7 +172,7 @@ class MutiplyOnly extends MultiplyAccumulate {
   Logic get accumulate => output('accumulate');
 
   /// Construct a MultiplyAccumulate that only multiplies to enable
-  /// using the same tester with zero addend.
+  /// using the same tester with zero accumulate addend [c].
   MutiplyOnly(super.a, super.b, super.c,
       Multiplier Function(Logic a, Logic b) multiplyGenerator,
       {super.signed = false}) // Will be overrwridden by multiplyGenerator

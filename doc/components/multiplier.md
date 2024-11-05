@@ -82,10 +82,11 @@ digital signal processing.
 The parameters of the
 `CompressionTreeMultiplier` are:
 
-- Two input terms `a` and `b`
+- Two input terms `a` and `b` which can be different widths
 - The radix used for Booth encoding (2, 4, 8, and 16 are currently supported)
 - The type of `ParallelPrefix` tree used in the final `ParallelPrefixAdder` (optional)
-- Whether the operands should be treated as signed (2s complement) or unsigned
+- `signed` parameter: whether the operands should be treated as signed (2s complement) or unsigned
+- An optional `selectSigned` control signal which overrides the `signed` configuration allowing for runtime control of signed or unsigned operation with the same hardware.
 
 Here is an example of use of the `CompressionTreeMultiplier`:
 
@@ -116,11 +117,12 @@ tree to allow for accumulation into this third input.
 The parameters of the
 `CompressionTreeMultiplyAccumulate` are:
 
-- Two input terms a and b
-- The accumulate input term c
+- Two input product terms `a` and `b` which can be different widths
+- The accumulate input term `c` which must have width as sum of the two operand widths + 1.
 - The radix used for Booth encoding (2, 4, 8, and 16 are currently supported)
-- The type of `ParallelPrefix` tree used in the final `ParallelPrefixAdder` (optional)
-- Whether the operands should be treated as signed (2s complement) or unsigned
+- The type of `ParallelPrefix` tree used in the final `ParallelPrefixAdder` (default Kogge-Stone).
+- `signed` parameter: whether the operands should be treated as signed (2s complement) or unsigned
+- An optional `selectSigned` control signal which overrides the `signed` configuration allowing for runtime control of signed or unsigned operation with the same hardware.
 
 Here is an example of using the `CompressionTreeMultiplyAccumulate`:
 
