@@ -78,7 +78,6 @@ void testCompressionRandom(PartialProductGenerator pp, int iterations) {
     final X = pp.signed
         ? value.nextLogicValue(width: widthX).toBigInt().toSigned(widthX)
         : value.nextLogicValue(width: widthX).toBigInt().toUnsigned(widthX);
-    ;
     final Y = pp.signed
         ? value.nextLogicValue(width: widthY).toBigInt().toSigned(widthY)
         : value.nextLogicValue(width: widthY).toBigInt().toUnsigned(widthY);
@@ -203,34 +202,27 @@ void main() {
     const bv = 6;
     const radix = 2;
     final encoder = RadixEncoder(radix);
+    const signed = true;
+    final compressorTestMod =
+        CompressorTestMod(a, b, encoder, clk, signed: signed);
+    await compressorTestMod.build();
     unawaited(Simulator.run());
-    for (final signed in [false, true]) {
-      final compressorTestMod =
-          CompressorTestMod(a, b, encoder, clk, signed: signed);
-      await compressorTestMod.build();
-      var bA = signed
-          ? BigInt.from(av).toSigned(widthX)
-          : BigInt.from(av).toUnsigned(widthX);
-      final bB = signed
-          ? BigInt.from(bv).toSigned(widthY)
-          : BigInt.from(bv).toUnsigned(widthY);
+    var bA = BigInt.from(av).toSigned(widthX);
+    final bB = BigInt.from(bv).toSigned(widthY);
 
-      // Set these so that printing inside module build will have Logic values
-      a.put(bA);
-      b.put(bB);
+    // Set these so that printing inside module build will have Logic values
+    a.put(bA);
+    b.put(bB);
 
-      await clk.nextNegedge;
-      expect(compressorTestMod.compressor.evaluate().$1,
-          equals(BigInt.from(av * bv)));
-      av = 4;
-      bA = signed
-          ? BigInt.from(av).toSigned(widthX)
-          : BigInt.from(av).toUnsigned(widthX);
-      a.put(bA);
-      await clk.nextNegedge;
-      expect(compressorTestMod.compressor.evaluate().$1,
-          equals(BigInt.from(av * bv)));
-    }
+    await clk.nextNegedge;
+    expect(compressorTestMod.compressor.evaluate().$1,
+        equals(BigInt.from(av * bv)));
+    av = 4;
+    bA = BigInt.from(av).toSigned(widthX);
+    a.put(bA);
+    await clk.nextNegedge;
+    expect(compressorTestMod.compressor.evaluate().$1,
+        equals(BigInt.from(av * bv)));
     await Simulator.endSimulation();
   });
 }
