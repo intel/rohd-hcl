@@ -522,7 +522,7 @@ void main() {
       await tb.divider.build();
 
       // Attach a waveform dumper to the DUT
-      WaveDumper(tb.divider);
+      // WaveDumper(tb.divider);
 
       // Set a maximum simulation time so it doesn't run forever
       Simulator.setMaxSimTime(100000);

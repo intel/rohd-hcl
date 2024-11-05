@@ -170,8 +170,22 @@ class ColumnCompressor {
   /// The partial product array to be compressed
   final PartialProductArray pp;
 
+  /// The clk for the pipelined version of column compression.
+  Logic? clk;
+
+  /// Optional reset for configurable pipestage
+  Logic? reset;
+
+  /// Optional enable for configurable pipestage.
+  Logic? enable;
+
   /// Initialize a ColumnCompressor for a set of partial products
-  ColumnCompressor(this.pp) {
+  ///
+  /// If [clk] is not null then a set of flops are used to latch the output
+  /// after compression (see [extractRow]).  [reset] and [enable] are optional
+  /// inputs to control these flops when [clk] is provided. If [clk] is null,
+  /// the [ColumnCompressor] is built as a combinational tree of compressors.
+  ColumnCompressor(this.pp, {this.clk, this.reset, this.enable}) {
     columns = List.generate(pp.maxWidth(), (i) => ColumnQueue());
 
     for (var row = 0; row < pp.rows; row++) {
@@ -197,7 +211,9 @@ class ColumnCompressor {
       final colList = columns[col].toList();
       if (row < colList.length) {
         final value = colList[row].logic;
-        rowBits.add(value);
+
+        rowBits.add(
+            clk != null ? flop(clk!, value, reset: reset, en: enable) : value);
       }
     }
     rowBits.addAll(List.filled(pp.rowShift[row], Const(0)));
