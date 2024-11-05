@@ -202,7 +202,6 @@ void main() {
     const bv = 6;
     const radix = 2;
     final encoder = RadixEncoder(radix);
-    const signed = true;
     final compressorTestMod = CompressorTestMod(a, b, encoder, clk);
     await compressorTestMod.build();
     unawaited(Simulator.run());
