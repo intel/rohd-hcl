@@ -60,12 +60,14 @@ class FloatingPointTF32Value extends FloatingPointValue {
   /// [FloatingPointTF32Value] constructor from a set of [BigInt]s of the binary
   /// representation
   FloatingPointTF32Value.ofBigInts(super.exponent, super.mantissa, {super.sign})
-      : super.ofBigInts();
+      : super.ofBigInts(
+            exponentWidth: exponentWidth, mantissaWidth: mantissaWidth);
 
   /// [FloatingPointTF32Value] constructor from a set of [int]s of the binary
   /// representation
   FloatingPointTF32Value.ofInts(super.exponent, super.mantissa, {super.sign})
-      : super.ofInts();
+      : super.ofInts(
+            exponentWidth: exponentWidth, mantissaWidth: mantissaWidth);
 
   /// Numeric conversion of a [FloatingPointTF32Value] from a host double
   factory FloatingPointTF32Value.ofDouble(double inDouble) {

@@ -53,12 +53,14 @@ class FloatingPoint64Value extends FloatingPointValue {
   /// [FloatingPoint64Value] constructor from a set of [BigInt]s of the binary
   /// representation
   FloatingPoint64Value.ofBigInts(super.exponent, super.mantissa, {super.sign})
-      : super.ofBigInts();
+      : super.ofBigInts(
+            exponentWidth: exponentWidth, mantissaWidth: mantissaWidth);
 
   /// [FloatingPoint64Value] constructor from a set of [int]s of the binary
   /// representation
   FloatingPoint64Value.ofInts(super.exponent, super.mantissa, {super.sign})
-      : super.ofInts();
+      : super.ofInts(
+            exponentWidth: exponentWidth, mantissaWidth: mantissaWidth);
 
   /// Numeric conversion of a [FloatingPoint64Value] from a host double
   factory FloatingPoint64Value.ofDouble(double inDouble) {
