@@ -13,3 +13,11 @@ The `FixedPoint` type is an extension of `Logic` with additional attributes (sig
 ## FixedToFloat
 
 This component converts a fixed-point signal to a floating point signal specified by exponent and mantissa width. The output is rounded to nearest even when applicable and set to infinity if the input exceed the representable range.
+
+## FloatToFixed
+
+This component converts a floating-point signal to a signed fixed-point signal. Infinities and NaN's are not supported. The integer and fraction widths are auto-calculated to achieve lossles conversion.
+
+## Float8ToFixed
+
+This component converts an 8-bit floating-point (FP8) representation (E5M2 or E4M3) to a signed fixed-point representation. This component offers using the same hardware for both FP8 formats. Therefore, both input and output are of type `Logic` and can be cast from/to floating point/fixed point by the producer/consumer based on the selected `mode`. Infinities and NaN's are not supported. The output width is 33 to accomodate E5M2 without loss.
