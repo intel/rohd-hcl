@@ -203,8 +203,7 @@ void main() {
     const radix = 2;
     final encoder = RadixEncoder(radix);
     const signed = true;
-    final compressorTestMod =
-        CompressorTestMod(a, b, encoder, clk, signed: signed);
+    final compressorTestMod = CompressorTestMod(a, b, encoder, clk);
     await compressorTestMod.build();
     unawaited(Simulator.run());
     var bA = BigInt.from(av).toSigned(widthX);
