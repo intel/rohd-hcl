@@ -30,5 +30,7 @@ List<Configurator> get componentRegistry => [
       CompressionTreeMultiplierConfigurator(),
       ExtremaConfigurator(),
       CompoundAdderConfigurator(),
-      FixedToFloatConfigurator()
+      FixedToFloatConfigurator(),
+      FloatToFixedConfigurator(),
+      Float8ToFixedConfigurator()
     ];
