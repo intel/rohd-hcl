@@ -238,7 +238,6 @@ void main() {
     final out = fp2.floatingPointValue + fp1.floatingPointValue;
 
     final adder = FloatingPointAdderSimple(fp1, fp2);
-    // TODO(desmonddak):  figure out how to handle -0.0, as this would fail
     expect(adder.sum.floatingPointValue.abs().compareTo(out), 0);
   });
 

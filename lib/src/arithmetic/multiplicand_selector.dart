@@ -51,7 +51,7 @@ class MultiplicandSelector {
       final extension = [
         for (var i = len; i < width; i++) mux(selectSigned, sign, Const(0))
       ];
-      extendedMultiplicand = (multiplicand.elements + extension).swizzle();
+      extendedMultiplicand = (multiplicand.elements + extension).rswizzle();
     }
 
     for (var pos = 0; pos < numMultiples; pos++) {

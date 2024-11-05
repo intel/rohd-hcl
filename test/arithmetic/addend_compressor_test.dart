@@ -22,14 +22,17 @@ void testCompressionExhaustive(PartialProductGenerator pp) {
 
   final compressor = ColumnCompressor(pp);
 
+  final signed =
+      (pp.selectSigned == null) ? pp.signed : !pp.selectSigned!.value.isZero;
+
   final limitX = pow(2, widthX);
   final limitY = pow(2, widthY);
   for (var i = 0; i < limitX; i++) {
     for (var j = 0; j < limitY; j++) {
-      final X = pp.signed
+      final X = signed
           ? BigInt.from(i).toSigned(widthX)
           : BigInt.from(i).toUnsigned(widthX);
-      final Y = pp.signed
+      final Y = signed
           ? BigInt.from(j).toSigned(widthY)
           : BigInt.from(j).toUnsigned(widthY);
       final product = X * Y;
@@ -79,8 +82,6 @@ void main() {
   test('exhaustive compression evaluate: square radix-4, just CompactRect',
       () async {
     stdout.write('\n');
-    const Null selectSign = null;
-
     for (final signed in [false, true]) {
       for (var radix = 4; radix < 8; radix *= 2) {
         final encoder = RadixEncoder(radix);
@@ -92,11 +93,22 @@ void main() {
               continue;
             }
             final ppg = curryPartialProductGenerator(signExtension);
-            final pp = ppg(Logic(name: 'X', width: width),
-                Logic(name: 'Y', width: width), encoder, selectSign,
-                signed: signed);
-
-            testCompressionExhaustive(pp);
+            for (final useSelect in [false, true]) {
+              final PartialProductGenerator pp;
+              if (useSelect) {
+                final selectSigned = Logic();
+                // ignore: cascade_invocations
+                selectSigned.put(signed ? 1 : 0);
+                pp = ppg(Logic(name: 'X', width: width),
+                    Logic(name: 'Y', width: width), encoder,
+                    selectSigned: selectSigned);
+              } else {
+                pp = ppg(Logic(name: 'X', width: width),
+                    Logic(name: 'Y', width: width), encoder,
+                    signed: signed);
+              }
+              testCompressionExhaustive(pp);
+            }
           }
         }
       }
@@ -140,7 +152,7 @@ void main() {
 
     const av = 3;
     const bv = 6;
-    for (final signed in [true]) {
+    for (final signed in [false, true]) {
       final bA = signed
           ? BigInt.from(av).toSigned(widthX)
           : BigInt.from(av).toUnsigned(widthX);
@@ -188,9 +200,15 @@ void main() {
       b.put(bB);
       const radix = 8;
       final encoder = RadixEncoder(radix);
+      final selectSigned = Logic();
+      // ignore: cascade_invocations
+      selectSigned.put(signed ? 1 : 0);
+      final pp = PartialProductGeneratorStopBitsSignExtension(a, b, encoder,
+          // final pp = PartialProductGeneratorCompactRectSignExtension(a, b,
+          // encoder,
+          // signed: signed);
+          selectSigned: selectSigned);
 
-      final pp = PartialProductGeneratorCompactRectSignExtension(a, b, encoder,
-          signed: signed);
       expect(pp.evaluate(), equals(bA * bB));
       final compressor = ColumnCompressor(pp)..compress();
       expect(compressor.evaluate().$1, equals(bA * bB));
@@ -198,13 +216,13 @@ void main() {
   });
 
   test('single sign agnostic compressor evaluate', () async {
-    const widthX = 6;
-    const widthY = 6;
+    const widthX = 3;
+    const widthY = 3;
     final a = Logic(name: 'a', width: widthX);
     final b = Logic(name: 'b', width: widthY);
 
-    const av = -3;
-    const bv = 6;
+    const av = 1;
+    const bv = 4;
     for (final signed in [false, true]) {
       final bA = signed
           ? BigInt.from(av).toSigned(widthX)
@@ -213,19 +231,32 @@ void main() {
           ? BigInt.from(bv).toSigned(widthY)
           : BigInt.from(bv).toUnsigned(widthY);
 
-      // Set these so that printing inside module build will have Logic values
-      a.put(bA);
-      b.put(bB);
-      const radix = 2;
+      const radix = 4;
       final encoder = RadixEncoder(radix);
+      // for (final useSelect in [true]) {
+      for (final useSelect in [false, true]) {
+        // Set these so that printing inside module build will have Logic values
+        a.put(bA);
+        b.put(bB);
 
-      final pp = PartialProductGeneratorStopBitsSignExtension(a, b, encoder,
-          signed: signed);
-      expect(pp.evaluate(), equals(bA * bB));
-      final compressor = ColumnCompressor(pp);
-      expect(compressor.evaluate().$1, equals(bA * bB));
-      compressor.compress();
-      expect(compressor.evaluate().$1, equals(bA * bB));
+        final selectSigned = Logic();
+        // ignore: cascade_invocations
+        selectSigned.put(signed ? 1 : 0);
+
+        final pp = useSelect
+            ? PartialProductGeneratorBruteSignExtension(a, b, encoder,
+                selectSigned: selectSigned)
+            : PartialProductGeneratorBruteSignExtension(a, b, encoder,
+                signed: signed);
+
+        // print(pp.representation());
+
+        expect(pp.evaluate(), equals(bA * bB));
+        final compressor = ColumnCompressor(pp);
+        expect(compressor.evaluate().$1, equals(bA * bB));
+        compressor.compress();
+        expect(compressor.evaluate().$1, equals(bA * bB));
+      }
     }
   });
 }

@@ -124,7 +124,7 @@ class MultiplierEncoder {
         for (var i = len - 1; i < (rows * (_sliceWidth - 1)); i++)
           mux(selectSigned, sign, Const(0))
       ];
-      _extendedMultiplier = (multiplier.elements + extension).swizzle();
+      _extendedMultiplier = (multiplier.elements + extension).rswizzle();
     }
   }
 

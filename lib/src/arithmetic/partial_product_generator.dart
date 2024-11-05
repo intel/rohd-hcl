@@ -200,7 +200,7 @@ abstract class PartialProductGenerator extends PartialProductArray {
   late final MultiplicandSelector selector;
 
   /// Operands are signed
-  final bool signed;
+  late final bool signed;
 
   /// Used to avoid sign extending more than once
   bool isSignExtended = false;
@@ -212,7 +212,7 @@ abstract class PartialProductGenerator extends PartialProductArray {
   /// Construct a [PartialProductGenerator] -- the partial product matrix
   PartialProductGenerator(
       Logic multiplicand, Logic multiplier, RadixEncoder radixEncoder,
-      {required this.signed, this.selectSigned}) {
+      {this.signed = false, this.selectSigned}) {
     if (signed && (selectSigned != null)) {
       throw RohdHclException('sign reconfiguration requires signed=false');
     }

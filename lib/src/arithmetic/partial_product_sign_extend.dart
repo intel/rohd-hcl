@@ -32,15 +32,15 @@ enum SignExtension {
 
 /// Used to test different sign extension methods
 typedef PPGFunction = PartialProductGenerator Function(
-    Logic a, Logic b, RadixEncoder radixEncoder, Logic? selectSigned,
-    {bool signed});
+    Logic a, Logic b, RadixEncoder radixEncoder,
+    {Logic? selectSigned, bool signed});
 
 /// Used to test different sign extension methods
 PPGFunction curryPartialProductGenerator(SignExtension signExtension) =>
-    (a, b, encoder, selectSigned, {signed = false}) => switch (signExtension) {
+    (a, b, encoder, {selectSigned, signed = false}) => switch (signExtension) {
           SignExtension.none => PartialProductGeneratorNoSignExtension(
               a, b, encoder,
-              selectSigned: selectSigned, signed: signed),
+              signed: signed),
           SignExtension.brute => PartialProductGeneratorBruteSignExtension(
               a, b, encoder,
               selectSigned: selectSigned, signed: signed),
@@ -49,10 +49,10 @@ PPGFunction curryPartialProductGenerator(SignExtension signExtension) =>
               selectSigned: selectSigned, signed: signed),
           SignExtension.compact => PartialProductGeneratorCompactSignExtension(
               a, b, encoder,
-              selectSigned: selectSigned, signed: signed),
+              signed: signed),
           SignExtension.compactRect =>
             PartialProductGeneratorCompactRectSignExtension(a, b, encoder,
-                selectSigned: selectSigned, signed: signed),
+                signed: signed),
         };
 
 /// These other sign extensions are for asssisting with testing and debugging.
@@ -65,13 +65,14 @@ class PartialProductGeneratorBruteSignExtension
   /// Construct a brute-force sign extending Partial Product Generator
   PartialProductGeneratorBruteSignExtension(
       super.multiplicand, super.multiplier, super.radixEncoder,
-      {required super.signed,
-      // ignore: avoid_unused_constructor_parameters
-      Logic? selectSigned});
+      {super.signed, super.selectSigned});
 
   /// Fully sign extend the PP array: useful for reference only
   @override
   void signExtend() {
+    if (signed && (selectSigned != null)) {
+      throw RohdHclException('sign reconfiguration requires signed=false');
+    }
     if (isSignExtended) {
       throw RohdHclException('Partial Product array already sign-extended');
     }
@@ -79,8 +80,14 @@ class PartialProductGeneratorBruteSignExtension
     final signs = [for (var r = 0; r < rows; r++) encoder.getEncoding(r).sign];
     for (var row = 0; row < rows; row++) {
       final addend = partialProducts[row];
-      final sign = SignBit(signed ? addend.last : signs[row]);
-      addend.addAll(List.filled((rows - row) * shift, sign));
+      // final sign = SignBit(signed ? addend.last : signs[row]);
+      final Logic sign;
+      if (selectSigned != null) {
+        sign = mux(selectSigned!, addend.last, signs[row]);
+      } else {
+        sign = signed ? addend.last : signs[row];
+      }
+      addend.addAll(List.filled((rows - row) * shift, SignBit(sign)));
       if (row > 0) {
         addend
           ..insertAll(0, List.filled(shift - 1, Const(0)))
@@ -101,9 +108,7 @@ class PartialProductGeneratorCompactSignExtension
   /// Construct a compact sign extending Partial Product Generator
   PartialProductGeneratorCompactSignExtension(
       super.multiplicand, super.multiplier, super.radixEncoder,
-      {required super.signed,
-      // ignore: avoid_unused_constructor_parameters
-      Logic? selectSigned});
+      {super.signed, super.selectSigned});
 
   /// Sign extend the PP array using stop bits without adding a row.
   @override
@@ -112,6 +117,9 @@ class PartialProductGeneratorCompactSignExtension
     // Mohanty, B.K., Choubey, A. Efficient Design for Radix-8 Booth Multiplier
     // and Its Application in Lifting 2-D DWT. Circuits Syst Signal Process 36,
     // 1129–1149 (2017). https://doi.org/10.1007/s00034-016-0349-9
+    if (signed && (selectSigned != null)) {
+      throw RohdHclException('sign reconfiguration requires signed=false');
+    }
     if (isSignExtended) {
       throw RohdHclException('Partial Product array already sign-extended');
     }
@@ -166,7 +174,7 @@ class PartialProductGeneratorCompactSignExtension
     remainders[lastRow] <= propagate[lastRow][alignRow0Sign];
 
     // Compute Sign extension for row==0
-    final firstSign = signed ? firstAddend.last : signs[0];
+    final firstSign = !signed ? signs[0] : firstAddend.last;
     final q = [
       firstSign ^ remainders[lastRow],
       ~(firstSign & ~remainders[lastRow]),
@@ -181,12 +189,6 @@ class PartialProductGeneratorCompactSignExtension
           addend[i] = m[row][i];
         }
         addStopSignFlip(addend, SignBit(~signs[row], inverted: true));
-        // // Stop bits
-        // if (signed) {
-        //   addend.last = ~addend.last;
-        // } else {
-        //   addend.add(~signs[row]);
-        // }
         addend
           ..insert(0, remainders[row - 1])
           ..addAll(List.filled(shift - 1, Const(1)));
@@ -195,10 +197,10 @@ class PartialProductGeneratorCompactSignExtension
         for (var i = 0; i < shift - 1; i++) {
           firstAddend[i] = m[0][i];
         }
-        if (signed) {
-          firstAddend.last = q[0];
-        } else {
+        if (!signed) {
           firstAddend.add(q[0]);
+        } else {
+          firstAddend.last = q[0];
         }
         firstAddend.addAll(q.getRange(1, q.length));
       }
@@ -215,7 +217,7 @@ class PartialProductGeneratorStopBitsSignExtension
   /// Construct a stop bits sign extending Partial Product Generator
   PartialProductGeneratorStopBitsSignExtension(
       super.multiplicand, super.multiplier, super.radixEncoder,
-      {required super.signed, super.selectSigned});
+      {super.signed, super.selectSigned});
 
   /// Sign extend the PP array using stop bits.
   /// If possible, fold the final carry into another row (only when rectangular
@@ -241,9 +243,15 @@ class PartialProductGeneratorStopBitsSignExtension
             : 0;
 
     final signs = [for (var r = 0; r < rows; r++) encoder.getEncoding(r).sign];
+
     for (var row = 0; row < rows; row++) {
       final addend = partialProducts[row];
-      final sign = signed ? addend.last : signs[row];
+      final Logic sign;
+      if (selectSigned != null) {
+        sign = mux(selectSigned!, addend.last, signs[row]);
+      } else {
+        sign = signed ? addend.last : signs[row];
+      }
       if (row == 0) {
         if (!signed) {
           addend.addAll(List.filled(shift, SignBit(sign)));
@@ -253,11 +261,6 @@ class PartialProductGeneratorStopBitsSignExtension
         addend.add(SignBit(~sign, inverted: true));
       } else {
         addStopSign(addend, SignBit(~sign, inverted: true));
-        // if (signed) {
-        //   addend.last = SignBit(~sign, inverted: true);
-        // } else {
-        //   addend.add(SignBit(~sign, inverted: true));
-        // }
         addend
           ..addAll(List.filled(shift - 1, Const(1)))
           ..insertAll(0, List.filled(shift - 1, Const(0)))
@@ -273,7 +276,7 @@ class PartialProductGeneratorStopBitsSignExtension
             finalCarryPos - (extensionRow.length + rowShift[finalCarryRow]),
             Const(0)))
         ..add(SignBit(signs[rows - 1]));
-    } else if (signed) {
+    } else if (signed | (selectSigned != null)) {
       // Create an extra row to hold the final carry bit
       partialProducts
           .add(List.filled(selector.width, Const(0), growable: true));
@@ -302,6 +305,9 @@ class PartialProductGeneratorCompactRectSignExtension
   /// Desmond A. Kirkpatrick
   @override
   void signExtend() {
+    if (signed && (selectSigned != null)) {
+      throw RohdHclException('sign reconfiguration requires signed=false');
+    }
     if (isSignExtended) {
       throw RohdHclException('Partial Product array already sign-extended');
     }

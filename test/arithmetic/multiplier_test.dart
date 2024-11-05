@@ -136,7 +136,7 @@ void main() {
       (a, b, c) => CompressionTreeMultiplyAccumulate(a, b, c, radix,
           selectSigned: selectSign, ppTree: ppTree, signed: signed);
 
-  //  TODO(desmonddak): fix the selectSign null
+  // TODO(desmonddak): fix the selectSign null
   group('Curried Test of Compression Tree Multiplier', () {
     for (final signed in [false, true]) {
       for (final radix in [2, 16]) {
