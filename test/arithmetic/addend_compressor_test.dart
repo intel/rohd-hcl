@@ -175,7 +175,7 @@ void main() {
 
     const av = 3;
     const bv = 6;
-    for (final signed in [true]) {
+    for (final signed in [false, true]) {
       final bA = signed
           ? BigInt.from(av).toSigned(widthX)
           : BigInt.from(av).toUnsigned(widthX);
@@ -251,7 +251,7 @@ void main() {
 
     const av = 37;
     const bv = 6;
-    for (final signed in [true]) {
+    for (final signed in [false, true]) {
       final bA = signed
           ? BigInt.from(av).toSigned(widthX)
           : BigInt.from(av).toUnsigned(widthX);
