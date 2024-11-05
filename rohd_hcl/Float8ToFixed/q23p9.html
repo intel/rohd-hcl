@@ -4,8 +4,8 @@
   <meta charset="utf-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
-  <meta name="description" content="API docs for the extractRow method from the ColumnCompressor class, for the Dart programming language.">
-  <title>extractRow method - ColumnCompressor class - rohd_hcl library - Dart API</title>
+  <meta name="description" content="API docs for the q23p9 property from the Float8ToFixed class, for the Dart programming language.">
+  <title>q23p9 property - Float8ToFixed class - rohd_hcl library - Dart API</title>
 
 
   
@@ -30,10 +30,10 @@
   <ol class="breadcrumbs gt-separated dark hidden-xs">
     <li><a href="../../index.html">rohd_hcl</a></li>
     <li><a href="../../rohd_hcl/rohd_hcl-library.html">rohd_hcl.dart</a></li>
-    <li><a href="../../rohd_hcl/ColumnCompressor-class.html">ColumnCompressor</a></li>
-    <li class="self-crumb">extractRow method</li>
+    <li><a href="../../rohd_hcl/Float8ToFixed-class.html">Float8ToFixed</a></li>
+    <li class="self-crumb">q23p9 property</li>
   </ol>
-  <div class="self-name">extractRow</div>
+  <div class="self-name">q23p9</div>
   <form class="search navbar-right" role="search">
     <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
   </form>
@@ -54,57 +54,42 @@
 <div
     id="dartdoc-main-content"
     class="main-content"
-    data-above-sidebar="rohd_hcl&#47;ColumnCompressor-class-sidebar.html"
+    data-above-sidebar="rohd_hcl&#47;Float8ToFixed-class-sidebar.html"
     data-below-sidebar="">
     <div>
-<h1><span class="kind-method">extractRow</span> method 
+<h1><span class="kind-property">q23p9</span> property 
 </h1></div>
+
+
+        
+  <section id="getter">
 
     <section class="multi-line-signature">
       
-
-<span class="returntype"><a href="https://pub.dev/documentation/rohd/0.5.3/rohd/Logic-class.html">Logic</a></span>
-<span class="name ">extractRow</span>(<wbr><ol class="parameter-list single-line"> <li><span class="parameter" id="extractRow-param-row"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.5.4/dart-core/int-class.html">int</a></span> <span class="parameter-name">row</span></span></li>
-</ol>)
-
+      <span class="returntype"><a href="../../rohd_hcl/FixedPoint-class.html">FixedPoint</a></span>
+      <span class="name ">q23p9</span>
       
 
     </section>
+
     
 <section class="desc markdown">
-  <p>Convert a row to a Logic bitvector</p>
+  <p>Getter for Q23.9</p>
 </section>
-
 
     
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
-  <pre class="language-dart"><code class="language-dart">Logic extractRow(int row) {
-  final width = pp.maxWidth();
-
-  final rowBits = &lt;Logic&gt;[];
-  for (var col = columns.length - 1; col &gt;= 0; col--) {
-    final colList = columns[col].toList();
-    if (row &lt; colList.length) {
-      final value = colList[row].logic;
-
-      rowBits.add(
-          clk != null ? flop(clk!, value, reset: reset, en: enable) : value);
-    }
-  }
-  rowBits.addAll(List.filled(pp.rowShift[row], Const(0)));
-  if (width &gt; rowBits.length) {
-    return rowBits.swizzle().zeroExtend(width);
-  }
-  return rowBits.swizzle().getRange(0, width);
-}</code></pre>
+  <pre class="language-dart"><code class="language-dart">FixedPoint get q23p9 =&gt; FixedPoint.of(fixed, signed: true, m: 23, n: 9);</code></pre>
 </section>
 
+  </section>
 
-  </div> <!-- /.main-content -->
 
-  <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
-    <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
+</div> <!-- /.main-content -->
+
+<div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+  <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
 <header id="header-search-sidebar" class="hidden-l">
   <form class="search-sidebar" role="search">
     <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
@@ -114,16 +99,16 @@
 <ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
     <li><a href="../../index.html">rohd_hcl</a></li>
     <li><a href="../../rohd_hcl/rohd_hcl-library.html">rohd_hcl</a></li>
-    <li><a href="../../rohd_hcl/ColumnCompressor-class.html">ColumnCompressor</a></li>
-    <li class="self-crumb">extractRow method</li>
+    <li><a href="../../rohd_hcl/Float8ToFixed-class.html">Float8ToFixed</a></li>
+    <li class="self-crumb">q23p9 property</li>
 </ol>
 
 
-    <h5>ColumnCompressor class</h5>
-    <div id="dartdoc-sidebar-left-content"></div>
-  </div><!--/.sidebar-offcanvas-->
+  <h5>Float8ToFixed class</h5>
+  <div id="dartdoc-sidebar-left-content"></div>
+</div><!--/.sidebar-offcanvas-->
 
-  <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+<div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
 </div><!--/.sidebar-offcanvas-->
 
 </main>

@@ -4,8 +4,8 @@
   <meta charset="utf-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
-  <meta name="description" content="API docs for the ColumnCompressor constructor from Class ColumnCompressor from the rohd_hcl library, for the Dart programming language.">
-  <title>ColumnCompressor constructor - ColumnCompressor - rohd_hcl library - Dart API</title>
+  <meta name="description" content="API docs for the Float8ToFixed constructor from Class Float8ToFixed from the rohd_hcl library, for the Dart programming language.">
+  <title>Float8ToFixed constructor - Float8ToFixed - rohd_hcl library - Dart API</title>
 
 
   
@@ -30,10 +30,10 @@
   <ol class="breadcrumbs gt-separated dark hidden-xs">
     <li><a href="../../index.html">rohd_hcl</a></li>
     <li><a href="../../rohd_hcl/rohd_hcl-library.html">rohd_hcl.dart</a></li>
-    <li><a href="../../rohd_hcl/ColumnCompressor-class.html">ColumnCompressor</a></li>
-    <li class="self-crumb">ColumnCompressor constructor</li>
+    <li><a href="../../rohd_hcl/Float8ToFixed-class.html">Float8ToFixed</a></li>
+    <li class="self-crumb">Float8ToFixed constructor</li>
   </ol>
-  <div class="self-name">ColumnCompressor</div>
+  <div class="self-name">Float8ToFixed</div>
   <form class="search navbar-right" role="search">
     <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
   </form>
@@ -54,45 +54,55 @@
   <div
       id="dartdoc-main-content"
       class="main-content"
-      data-above-sidebar="rohd_hcl&#47;ColumnCompressor-class-sidebar.html"
+      data-above-sidebar="rohd_hcl&#47;Float8ToFixed-class-sidebar.html"
       data-below-sidebar="">
       <div>
-<h1><span class="kind-constructor">ColumnCompressor</span> constructor 
+<h1><span class="kind-constructor">Float8ToFixed</span> constructor 
 </h1></div>
 
     <section class="multi-line-signature">
       
-      <span class="name ">ColumnCompressor</span>(<wbr><ol class="parameter-list"> <li><span class="parameter" id="-param-pp"><span class="type-annotation"><a href="../../rohd_hcl/PartialProductArray-class.html">PartialProductArray</a></span> <span class="parameter-name">pp</span>, {</span></li>
-<li><span class="parameter" id="-param-clk"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.5.3/rohd/Logic-class.html">Logic</a>?</span> <span class="parameter-name">clk</span>, </span></li>
-<li><span class="parameter" id="-param-reset"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.5.3/rohd/Logic-class.html">Logic</a>?</span> <span class="parameter-name">reset</span>, </span></li>
-<li><span class="parameter" id="-param-enable"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.5.3/rohd/Logic-class.html">Logic</a>?</span> <span class="parameter-name">enable</span>, </span></li>
+      <span class="name ">Float8ToFixed</span>(<wbr><ol class="parameter-list"> <li><span class="parameter" id="-param-float"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.5.3/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">float</span>, </span></li>
+<li><span class="parameter" id="-param-mode"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.5.3/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">mode</span>, {</span></li>
+<li><span class="parameter" id="-param-name"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.5.4/dart-core/String-class.html">String</a></span> <span class="parameter-name">name</span> = <span class="default-value">&#39;Float8ToFixed&#39;</span>, </span></li>
 </ol>})
     </section>
 
     
 <section class="desc markdown">
-  <p>Initialize a ColumnCompressor for a set of partial products</p>
-<p>If <a href="../../rohd_hcl/ColumnCompressor/clk.html">clk</a> is not null then a set of flops are used to latch the output
-after compression (see <a href="../../rohd_hcl/ColumnCompressor/extractRow.html">extractRow</a>).  <a href="../../rohd_hcl/ColumnCompressor/reset.html">reset</a> and <a href="../../rohd_hcl/ColumnCompressor/enable.html">enable</a> are optional
-inputs to control these flops when <a href="../../rohd_hcl/ColumnCompressor/clk.html">clk</a> is provided. If <a href="../../rohd_hcl/ColumnCompressor/clk.html">clk</a> is null,
-the <a href="../../rohd_hcl/ColumnCompressor-class.html">ColumnCompressor</a> is built as a combinational tree of compressors.</p>
+  <p>Constructor</p>
 </section>
 
 
     
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
-  <pre class="language-dart"><code class="language-dart">ColumnCompressor(this.pp, {this.clk, this.reset, this.enable}) {
-  columns = List.generate(pp.maxWidth(), (i) =&gt; ColumnQueue());
+  <pre class="language-dart"><code class="language-dart">Float8ToFixed(Logic float, Logic mode, {super.name = &#39;Float8ToFixed&#39;}) {
+  float = addInput(&#39;float&#39;, float, width: float.width);
+  mode = addInput(&#39;mode&#39;, mode);
+  addOutput(&#39;fixed&#39;, width: 33);
 
-  for (var row = 0; row &lt; pp.rows; row++) {
-    for (var col = 0; col &lt; pp.partialProducts[row].length; col++) {
-      final trueColumn = pp.rowShift[row] + col;
-      final term = CompressTerm(CompressTermType.pp,
-          pp.partialProducts[row][col], [], row, trueColumn);
-      columns[trueColumn].add(term);
-    }
+  if (float.width != 8) {
+    throw RohdHclException(&#39;Input width must be 8.&#39;);
   }
+
+  final exponent = Logic(name: &#39;exponent&#39;, width: 5)
+    ..gets(mux(
+        mode, [Const(0), float.slice(6, 3)].swizzle(), float.slice(6, 2)));
+
+  final jBit = Logic(name: &#39;jBit&#39;)..gets(exponent.or());
+
+  final mantissa = Logic(name: &#39;mantissa&#39;, width: 4)
+    ..gets(mux(mode, [jBit, float.slice(2, 0)].swizzle(),
+        [Const(0), jBit, float.slice(1, 0)].swizzle()));
+
+  final shift = Logic(name: &#39;shift&#39;, width: exponent.width)
+    ..gets(mux(jBit, exponent - 1, Const(0, width: exponent.width)));
+
+  final number = Logic(name: &#39;number&#39;, width: 33)
+    ..gets([Const(0, width: 29), mantissa].swizzle() &lt;&lt; shift);
+
+  fixed &lt;= mux(float[float.width - 1], ~number + 1, number);
 }</code></pre>
 </section>
 
@@ -110,12 +120,12 @@ the <a href="../../rohd_hcl/ColumnCompressor-class.html">ColumnCompressor</a> is
 <ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
     <li><a href="../../index.html">rohd_hcl</a></li>
     <li><a href="../../rohd_hcl/rohd_hcl-library.html">rohd_hcl</a></li>
-    <li><a href="../../rohd_hcl/ColumnCompressor-class.html">ColumnCompressor</a></li>
-    <li class="self-crumb">ColumnCompressor constructor</li>
+    <li><a href="../../rohd_hcl/Float8ToFixed-class.html">Float8ToFixed</a></li>
+    <li class="self-crumb">Float8ToFixed constructor</li>
 </ol>
 
 
-    <h5>ColumnCompressor class</h5>
+    <h5>Float8ToFixed class</h5>
     <div id="dartdoc-sidebar-left-content"></div>
   </div><!--/.sidebar-offcanvas-left-->
 

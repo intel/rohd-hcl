@@ -551,6 +551,36 @@ support infinity.
   A <a href="../rohd_hcl/Configurator-class.html">Configurator</a> for <a href="../rohd_hcl/FixedToFloat-class.html">FixedToFloat</a>.
 </dd>
 
+          <dt id="Float8ToFixed">
+  <span class="name "><a href="../rohd_hcl/Float8ToFixed-class.html">Float8ToFixed</a></span> 
+
+</dt>
+<dd>
+  <a href="../rohd_hcl/Float8ToFixed-class.html">Float8ToFixed</a> converts an 8-bit floating point (FP8) input
+to a signed fixed-point output following Q notation (Qm.n) as introduced by
+(Texas Instruments)<code>https://www.ti.com/lit/ug/spru565b/spru565b.pdf</code>.
+FP8 input must follow E4M3 or E5M2 as described in
+(FP8 formats for deep learning)<code>https://arxiv.org/pdf/2209.05433</code>.
+This component offers re-using the same hardware for both FP8 formats.
+Infinities and NaN's are not supported.
+The output is of type <a href="https://pub.dev/documentation/rohd/0.5.3/rohd/Logic-class.html">Logic</a> and in two's complement.
+It can be cast to a <a href="../rohd_hcl/FixedPoint-class.html">FixedPoint</a> by the consumer based on the mode.
+if <code>mode</code> is true:
+  Input is treated as E4M3 and converted to Q9.9
+  <code>fixed[17:9] contains integer part   </code>fixed<code>8:0</code> contains fractional part
+else:
+   Input is treated as E5M2 and converted to Q16.16
+  <code>fixed[31:16] contains integer part   </code>fixed<code>15:0</code> contains fractional part
+</dd>
+
+          <dt id="Float8ToFixedConfigurator">
+  <span class="name "><a href="../rohd_hcl/Float8ToFixedConfigurator-class.html">Float8ToFixedConfigurator</a></span> 
+
+</dt>
+<dd>
+  A <a href="../rohd_hcl/Configurator-class.html">Configurator</a> for <a href="../rohd_hcl/Float8ToFixed-class.html">Float8ToFixed</a>.
+</dd>
+
           <dt id="FloatingPoint">
   <span class="name "><a href="../rohd_hcl/FloatingPoint-class.html">FloatingPoint</a></span> 
 
@@ -700,6 +730,28 @@ A <a href="../rohd_hcl/FloatingPointValue-class.html">FloatingPointValue</a> has
 has minExponent() &lt;= exponent &lt;= maxExponent() and a mantissa in the
 range of [1,2).  Subnormal numbers are represented with a zero exponent
 and leading zeros in the mantissa capture the negative exponent value.
+</dd>
+
+          <dt id="FloatToFixed">
+  <span class="name "><a href="../rohd_hcl/FloatToFixed-class.html">FloatToFixed</a></span> 
+
+</dt>
+<dd>
+  <a href="../rohd_hcl/FloatToFixed-class.html">FloatToFixed</a> converts a floating point input to a signed
+fixed-point output following Q notation (Qm.n format) as introduced by
+(Texas Instruments)<code>https://www.ti.com/lit/ug/spru565b/spru565b.pdf</code>.
+Infinities and NaN's are not supported. Conversion is lossless.
+The output is in two's complement and in Qm.n format where:
+m = e_max - bias + 1
+n = mantissa + bias - 1
+</dd>
+
+          <dt id="FloatToFixedConfigurator">
+  <span class="name "><a href="../rohd_hcl/FloatToFixedConfigurator-class.html">FloatToFixedConfigurator</a></span> 
+
+</dt>
+<dd>
+  A <a href="../rohd_hcl/Configurator-class.html">Configurator</a> for <a href="../rohd_hcl/FloatToFixed-class.html">FloatToFixed</a>.
 </dd>
 
           <dt id="FullAdder">
