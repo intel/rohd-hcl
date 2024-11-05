@@ -21,7 +21,8 @@ import 'package:rohd_hcl/rohd_hcl.dart';
 /// condFlop. If optional [en] is high or not provided, output will vary as per
 /// input[d]. For low [en], output remains frozen irrespective of input [d].
 ///
-/// When the optional [reset] is provided, the condFlop will be reset (active-high).
+/// When the optional [reset] is provided, the condFlop will be reset
+/// (active-high).
 /// If no [resetValue] is provided, the reset value is always `0`. Otherwise,
 /// it will reset to the provided [resetValue].
 Logic condFlop(
