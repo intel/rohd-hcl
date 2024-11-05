@@ -170,8 +170,17 @@ class ColumnCompressor {
   /// The partial product array to be compressed
   final PartialProductArray pp;
 
+  /// The clk
+  Logic? clk;
+
+  /// Optional reset
+  Logic? reset;
+
+  /// Optional enable
+  Logic? enable;
+
   /// Initialize a ColumnCompressor for a set of partial products
-  ColumnCompressor(this.pp) {
+  ColumnCompressor(this.pp, {this.clk, this.reset, this.enable}) {
     columns = List.generate(pp.maxWidth(), (i) => ColumnQueue());
 
     for (var row = 0; row < pp.rows; row++) {
@@ -197,7 +206,9 @@ class ColumnCompressor {
       final colList = columns[col].toList();
       if (row < colList.length) {
         final value = colList[row].logic;
-        rowBits.add(value);
+
+        rowBits.add(
+            clk != null ? flop(clk!, value, reset: reset, en: enable) : value);
       }
     }
     rowBits.addAll(List.filled(pp.rowShift[row], Const(0)));

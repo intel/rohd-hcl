@@ -7,6 +7,7 @@
 // 2024 June 04
 // Author: Desmond Kirkpatrick <desmond.a.kirkpatrick@intel.com>
 
+import 'dart:async';
 import 'dart:io';
 import 'dart:math';
 import 'package:rohd/rohd.dart';
@@ -15,6 +16,38 @@ import 'package:rohd_hcl/src/arithmetic/evaluate_compressor.dart';
 import 'package:rohd_hcl/src/arithmetic/evaluate_partial_product.dart';
 import 'package:rohd_hcl/src/arithmetic/partial_product_sign_extend.dart';
 import 'package:test/test.dart';
+
+/// A simple module to test partial product generation and compression
+class CompressorTestMod extends Module {
+  late final PartialProductGenerator pp;
+
+  late final ColumnCompressor compressor;
+
+  Logic get r0 => output('r0');
+
+  Logic get r1 => output('r1');
+
+  CompressorTestMod(Logic ia, Logic ib, RadixEncoder encoder, Logic? iclk,
+      {bool signed = true})
+      : super(name: 'compressor_test_mod') {
+    final a = addInput('a', ia, width: ia.width);
+    final b = addInput('b', ib, width: ib.width);
+    Logic? clk;
+    if (iclk != null) {
+      clk = addInput('clk', iclk);
+    }
+
+    pp = PartialProductGeneratorCompactRectSignExtension(a, b, encoder,
+        signed: signed);
+    compressor = ColumnCompressor(pp, clk: clk);
+    compressor.compress();
+    final r0 = addOutput('r0', width: compressor.columns.length);
+    final r1 = addOutput('r1', width: compressor.columns.length);
+
+    r0 <= compressor.extractRow(0);
+    r1 <= compressor.extractRow(1);
+  }
+}
 
 void testCompressionExhaustive(PartialProductGenerator pp) {
   final widthX = pp.selector.multiplicand.width;
@@ -79,6 +112,9 @@ void testCompressionExhaustive(PartialProductGenerator pp) {
 }
 
 void main() {
+  tearDown(() async {
+    await Simulator.reset();
+  });
   test('exhaustive compression evaluate: square radix-4, just CompactRect',
       () async {
     stdout.write('\n');
@@ -176,6 +212,50 @@ void main() {
       expect(compressor.evaluate().$1, equals(BigInt.from(av * bv)));
       compressor.compress();
       expect(compressor.evaluate().$1, equals(BigInt.from(av * bv)));
+    }
+  });
+
+  test('single compressor evaluate flopped', () async {
+    final clk = SimpleClockGenerator(10).clk;
+    const widthX = 6;
+    const widthY = 6;
+    final a = Logic(name: 'a', width: widthX);
+    final b = Logic(name: 'b', width: widthY);
+
+    var av = 3;
+    const bv = 6;
+    for (final signed in [true]) {
+      var bA = signed
+          ? BigInt.from(av).toSigned(widthX)
+          : BigInt.from(av).toUnsigned(widthX);
+      final bB = signed
+          ? BigInt.from(bv).toSigned(widthY)
+          : BigInt.from(bv).toUnsigned(widthY);
+
+      // Set these so that printing inside module build will have Logic values
+      a.put(bA);
+      b.put(bB);
+      const radix = 2;
+      final encoder = RadixEncoder(radix);
+
+      final compressorTestMod = CompressorTestMod(a, b, encoder, clk);
+      await compressorTestMod.build();
+
+      unawaited(Simulator.run());
+
+      await clk.nextNegedge;
+      expect(compressorTestMod.compressor.evaluate().$1,
+          equals(BigInt.from(av * bv)));
+      av = 4;
+      bA = signed
+          ? BigInt.from(av).toSigned(widthX)
+          : BigInt.from(bv).toUnsigned(widthX);
+      a.put(bA);
+      await clk.nextNegedge;
+      expect(compressorTestMod.compressor.evaluate().$1,
+          equals(BigInt.from(av * bv)));
+
+      await Simulator.endSimulation();
     }
   });
 
