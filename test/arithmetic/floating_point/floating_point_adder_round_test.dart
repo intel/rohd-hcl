@@ -139,7 +139,7 @@ void main() {
     final clk = SimpleClockGenerator(10).clk;
 
     const eWidth = 4;
-    const mWidth = 6;
+    const mWidth = 5;
 
     final fa = FloatingPoint(exponentWidth: eWidth, mantissaWidth: mWidth);
     final fb = FloatingPoint(exponentWidth: eWidth, mantissaWidth: mWidth);
