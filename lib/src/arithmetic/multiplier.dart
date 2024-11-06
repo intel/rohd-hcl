@@ -11,6 +11,7 @@
 import 'package:meta/meta.dart';
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
+import 'package:rohd_hcl/src/arithmetic/partial_product_sign_extend.dart';
 
 /// An abstract class for all multiplier implementations.
 abstract class Multiplier extends Module {
@@ -72,10 +73,20 @@ class CompressionTreeMultiplier extends Multiplier {
   @override
   Logic get product => output('product');
 
-  /// Construct a compression tree integer multipler with
-  ///   a given radix and final adder functor
+  /// Construct a compression tree integer multiplier with a given [radix]
+  /// and prefix tree functor [ppTree] for the compressor and final adder.
+  ///
+  /// [a] and [b] are the product terms and they can be different widths
+  /// allowing for rectangular multiplication.
+  ///
+  /// [signed] parameter configures the multiplier as a signed multiplier
+  /// (default is unsigned).
+  ///
+  /// Optional [selectSigned] allows for runtime configuration of signed
+  /// or unsigned operation, overriding the [signed] static configuration.
   CompressionTreeMultiplier(super.a, super.b, int radix,
-      {ParallelPrefix Function(List<Logic>, Logic Function(Logic, Logic))
+      {Logic? selectSigned,
+      ParallelPrefix Function(List<Logic>, Logic Function(Logic, Logic))
           ppTree = KoggeStone.new,
       super.signed = false})
       : super(
@@ -86,7 +97,7 @@ class CompressionTreeMultiplier extends Multiplier {
     final product = addOutput('product', width: a.width + b.width);
     final pp = PartialProductGeneratorCompactRectSignExtension(
         a, b, RadixEncoder(radix),
-        signed: signed);
+        selectSigned: selectSigned, signed: signed);
 
     final compressor = ColumnCompressor(pp)..compress();
     final adder = ParallelPrefixAdder(
@@ -96,16 +107,26 @@ class CompressionTreeMultiplier extends Multiplier {
   }
 }
 
-/// An implementation of an integer multiply accumulate using compression trees
+/// An implementation of an integer multiply-accumulate using compression trees
 class CompressionTreeMultiplyAccumulate extends MultiplyAccumulate {
   /// The final product of the multiplier module.
   @override
   Logic get accumulate => output('accumulate');
 
-  /// Construct a compression tree integer multipler with
-  ///   a given radix and final adder functor
+  /// Construct a compression tree integer multiply-add with a given [radix]
+  /// and prefix tree functor [ppTree] for the compressor and final adder.
+  ///
+  /// [a] and [b] are the product terms, [c] is the accumulate term which
+  /// must be the sum of the widths plus 1.
+  ///
+  /// [signed] parameter configures the multiplier as a signed multiplier
+  /// (default is unsigned).
+  ///
+  /// Optional [selectSigned] allows for runtime configuration of signed
+  /// or unsigned operation, overriding the [signed] static configuration.
   CompressionTreeMultiplyAccumulate(super.a, super.b, super.c, int radix,
       {required super.signed,
+      Logic? selectSigned,
       ParallelPrefix Function(List<Logic>, Logic Function(Logic, Logic))
           ppTree = KoggeStone.new})
       : super(
@@ -114,7 +135,7 @@ class CompressionTreeMultiplyAccumulate extends MultiplyAccumulate {
     final accumulate = addOutput('accumulate', width: a.width + b.width + 1);
     final pp = PartialProductGeneratorCompactRectSignExtension(
         a, b, RadixEncoder(radix),
-        signed: signed);
+        selectSigned: selectSigned, signed: signed);
 
     // TODO(desmonddak): This sign extension method for the additional
     //  addend may only work with CompactRectSignExtension
@@ -151,7 +172,7 @@ class MutiplyOnly extends MultiplyAccumulate {
   Logic get accumulate => output('accumulate');
 
   /// Construct a MultiplyAccumulate that only multiplies to enable
-  /// using the same tester with zero addend.
+  /// using the same tester with zero accumulate addend [c].
   MutiplyOnly(super.a, super.b, super.c,
       Multiplier Function(Logic a, Logic b) multiplyGenerator,
       {super.signed = false}) // Will be overrwridden by multiplyGenerator

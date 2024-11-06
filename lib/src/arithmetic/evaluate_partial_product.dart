@@ -25,7 +25,11 @@ extension EvaluateLivePartialProduct on PartialProductGenerator {
       }
     }
     final sum = LogicValue.ofBigInt(accum, maxW).toBigInt();
-    return signed ? sum.toSigned(maxW) : sum;
+    return signed
+        ? sum.toSigned(maxW)
+        : (selectSigned != null && !selectSigned!.value.isZero)
+            ? sum.toSigned(maxW)
+            : sum;
   }
 
   /// Print out the partial product matrix
