@@ -61,12 +61,14 @@ class FloatingPoint32Value extends FloatingPointValue {
   /// [FloatingPoint32Value] constructor from a set of [BigInt]s of the binary
   /// representation
   FloatingPoint32Value.ofBigInts(super.exponent, super.mantissa, {super.sign})
-      : super.ofBigInts();
+      : super.ofBigInts(
+            exponentWidth: exponentWidth, mantissaWidth: mantissaWidth);
 
   /// [FloatingPoint32Value] constructor from a set of [int]s of the binary
   /// representation
   FloatingPoint32Value.ofInts(super.exponent, super.mantissa, {super.sign})
-      : super.ofInts();
+      : super.ofInts(
+            exponentWidth: exponentWidth, mantissaWidth: mantissaWidth);
 
   /// Numeric conversion of a [FloatingPoint32Value] from a host double
   factory FloatingPoint32Value.ofDouble(double inDouble) {

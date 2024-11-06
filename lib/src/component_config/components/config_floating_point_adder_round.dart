@@ -46,8 +46,12 @@ class FloatingPointAdderRoundConfigurator extends Configurator {
   /// Controls the width of the mantissa.
   final IntConfigKnob mantissaWidthKnob = IntConfigKnob(value: 5);
 
+  /// Controls whether the adder is pipelined
+  final ToggleConfigKnob pipelinedKnob = ToggleConfigKnob(value: false);
+
   @override
   Module createModule() => FloatingPointAdderRound(
+      clk: pipelinedKnob.value ? Logic() : null,
       FloatingPoint(
         exponentWidth: exponentWidthKnob.value,
         mantissaWidth: mantissaWidthKnob.value,
@@ -64,6 +68,7 @@ class FloatingPointAdderRoundConfigurator extends Configurator {
     'Adder tree type': adderTreeKnob,
     'Exponent width': exponentWidthKnob,
     'Mantissa width': mantissaWidthKnob,
+    'Pipelined': pipelinedKnob,
   });
 
   @override

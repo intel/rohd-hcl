@@ -285,4 +285,11 @@ void main() {
     expect(fp, isNot(isA<FloatingPoint8E5M2Value>()));
     expect(fp.toMappedSubtype(), isA<FloatingPoint8E5M2Value>());
   });
+
+  test('Initializing derived type', () {
+    final fp = FloatingPoint16Value.ofInts(15, 0);
+    final s = fp.toString();
+    final fp2 = FloatingPoint16Value.ofSpacedBinaryString(s);
+    expect(fp, equals(fp2));
+  });
 }

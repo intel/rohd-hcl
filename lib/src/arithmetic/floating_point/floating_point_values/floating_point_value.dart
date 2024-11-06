@@ -552,16 +552,19 @@ class FloatingPointValue implements Comparable<FloatingPointValue> {
         (mantissa.width != other.mantissa.width)) {
       throw Exception('FloatingPointValue widths must match for comparison');
     }
-    final signCompare = sign.compareTo(other.sign);
-    if (signCompare != 0) {
-      return signCompare;
+    // } else {
+    final expCompare = exponent.compareTo(other.exponent);
+    final mantCompare = mantissa.compareTo(other.mantissa);
+    if (expCompare != 0) {
+      return expCompare;
+    } else if (mantCompare != 0) {
+      return mantCompare;
     } else {
-      final expCompare = exponent.compareTo(other.exponent);
-      if (expCompare != 0) {
-        return expCompare;
-      } else {
-        return mantissa.compareTo(other.mantissa);
+      final signCompare = sign.compareTo(other.sign);
+      if ((signCompare != 0) && !(exponent.isZero && mantissa.isZero)) {
+        return signCompare;
       }
+      return 0;
     }
   }
 
@@ -577,6 +580,11 @@ class FloatingPointValue implements Comparable<FloatingPointValue> {
     if ((exponent.width != other.exponent.width) |
         (mantissa.width != other.mantissa.width)) {
       return false;
+    }
+    // IEEE 754: -0 an +0 are considered equal
+    if ((exponent.isZero && mantissa.isZero) &&
+        (other.exponent.isZero && other.mantissa.isZero)) {
+      return true;
     }
 
     return (sign == other.sign) &

@@ -133,12 +133,14 @@ class FloatingPoint8E5M2Value extends FloatingPointValue {
   /// binary representation
   FloatingPoint8E5M2Value.ofBigInts(super.exponent, super.mantissa,
       {super.sign})
-      : super.ofBigInts();
+      : super.ofBigInts(
+            exponentWidth: exponentWidth, mantissaWidth: mantissaWidth);
 
   /// [FloatingPoint8E5M2Value] constructor from a set of [int]s of the binary
   /// representation
   FloatingPoint8E5M2Value.ofInts(super.exponent, super.mantissa, {super.sign})
-      : super.ofInts();
+      : super.ofInts(
+            exponentWidth: exponentWidth, mantissaWidth: mantissaWidth);
 
   /// Numeric conversion of a [FloatingPoint8E5M2Value] from a host double
   factory FloatingPoint8E5M2Value.ofDouble(double inDouble) {
