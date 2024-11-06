@@ -36,6 +36,8 @@ For the division, implicit rounding towards 0 is always performed. I.e., a negat
 
 For the remainder, the following equation will always precisely hold true: `dividend = divisor * quotient + remainder`. Note that this differs from the Euclidean modulo operator where the sign of the remainder is always positive.
 
+Overflow can only occur when `dividend=<max negative number>`, `divisor=-1` and `isSigned=1`. In this case, the hardware will return `quotient=<max negative number>` and `remainder=0`. This is by design as the mathematically correct quotient cannot be represented in the fixed number of bits available.
+
 ## Code Example
 
 ```dart
