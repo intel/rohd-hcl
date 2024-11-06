@@ -64,7 +64,8 @@
       
       <span class="name ">MultiplicandSelector</span>(<wbr><ol class="parameter-list"> <li><span class="parameter" id="-param-radix"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.5.4/dart-core/int-class.html">int</a></span> <span class="parameter-name">radix</span>, </span></li>
 <li><span class="parameter" id="-param-multiplicand"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.5.3/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">multiplicand</span>, {</span></li>
-<li><span class="parameter" id="-param-signed"><span>required</span> <span class="type-annotation"><a href="https://api.dart.dev/stable/3.5.4/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">signed</span>, </span></li>
+<li><span class="parameter" id="-param-selectSigned"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.5.3/rohd/Logic-class.html">Logic</a>?</span> <span class="parameter-name">selectSigned</span>, </span></li>
+<li><span class="parameter" id="-param-signed"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.5.4/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">signed</span> = <span class="default-value">false</span>, </span></li>
 </ol>})
     </section>
 
@@ -77,17 +78,31 @@
     
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
-  <pre class="language-dart"><code class="language-dart">MultiplicandSelector(this.radix, this.multiplicand, {required bool signed})
+  <pre class="language-dart"><code class="language-dart">MultiplicandSelector(this.radix, this.multiplicand,
+    {Logic? selectSigned, bool signed = false})
     : shift = log2Ceil(radix) {
+  if (signed &amp;&amp; (selectSigned != null)) {
+    throw RohdHclException(&#39;sign reconfiguration requires signed=false&#39;);
+  }
   if (radix &gt; 16) {
     throw RohdHclException(&#39;Radices beyond 16 are not yet supported&#39;);
   }
   final width = multiplicand.width + shift;
   final numMultiples = radix ~&#47; 2;
   multiples = LogicArray([numMultiples], width);
-  final extendedMultiplicand = signed
-      ? multiplicand.signExtend(width)
-      : multiplicand.zeroExtend(width);
+  final Logic extendedMultiplicand;
+  if (selectSigned == null) {
+    extendedMultiplicand = signed
+        ? multiplicand.signExtend(width)
+        : multiplicand.zeroExtend(width);
+  } else {
+    final len = multiplicand.width;
+    final sign = multiplicand[len - 1];
+    final extension = [
+      for (var i = len; i &lt; width; i++) mux(selectSigned, sign, Const(0))
+    ];
+    extendedMultiplicand = (multiplicand.elements + extension).rswizzle();
+  }
 
   for (var pos = 0; pos &lt; numMultiples; pos++) {
     final ratio = pos + 1;

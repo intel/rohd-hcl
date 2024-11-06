@@ -66,6 +66,7 @@
 <li><span class="parameter" id="-param-multiplier"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.5.3/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">multiplier</span>, </span></li>
 <li><span class="parameter" id="-param-radixEncoder"><span class="type-annotation"><a href="../../rohd_hcl/RadixEncoder-class.html">RadixEncoder</a></span> <span class="parameter-name">radixEncoder</span>, {</span></li>
 <li><span class="parameter" id="-param-signed"><span>required</span> <span class="type-annotation"><a href="https://api.dart.dev/stable/3.5.4/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">signed</span>, </span></li>
+<li><span class="parameter" id="-param-selectSigned"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.5.3/rohd/Logic-class.html">Logic</a>?</span> <span class="parameter-name">selectSigned</span>, </span></li>
 </ol>})
     </section>
 
@@ -80,7 +81,9 @@
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">PartialProductGeneratorNoSignExtension(
     super.multiplicand, super.multiplier, super.radixEncoder,
-    {required super.signed});</code></pre>
+    {required super.signed,
+    &#47;&#47; ignore: avoid_unused_constructor_parameters
+    Logic? selectSigned});</code></pre>
 </section>
 
 

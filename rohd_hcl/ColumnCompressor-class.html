@@ -73,7 +73,7 @@
 
     <dl class="constructor-summary-list">
         <dt id="ColumnCompressor" class="callable">
-          <span class="name"><a href="../rohd_hcl/ColumnCompressor/ColumnCompressor.html">ColumnCompressor</a></span><span class="signature">(<span class="parameter" id="-param-pp"><span class="type-annotation"><a href="../rohd_hcl/PartialProductArray-class.html">PartialProductArray</a></span> <span class="parameter-name">pp</span></span>)</span>
+          <span class="name"><a href="../rohd_hcl/ColumnCompressor/ColumnCompressor.html">ColumnCompressor</a></span><span class="signature">(<span class="parameter" id="-param-pp"><span class="type-annotation"><a href="../rohd_hcl/PartialProductArray-class.html">PartialProductArray</a></span> <span class="parameter-name">pp</span>, {</span><span class="parameter" id="-param-clk"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.5.3/rohd/Logic-class.html">Logic</a>?</span> <span class="parameter-name">clk</span>, </span><span class="parameter" id="-param-reset"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.5.3/rohd/Logic-class.html">Logic</a>?</span> <span class="parameter-name">reset</span>, </span><span class="parameter" id="-param-enable"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.5.3/rohd/Logic-class.html">Logic</a>?</span> <span class="parameter-name">enable</span></span>})</span>
         </dt>
         <dd>
           Initialize a ColumnCompressor for a set of partial products
@@ -86,6 +86,18 @@
       id="instance-properties">
     <h2>Properties</h2>
     <dl class="properties">
+        <dt id="clk" class="property">
+  <span class="name"><a href="../rohd_hcl/ColumnCompressor/clk.html">clk</a></span>
+  <span class="signature">&#8596; <a href="https://pub.dev/documentation/rohd/0.5.3/rohd/Logic-class.html">Logic</a>?</span>
+  
+
+</dt>
+<dd>
+  The clk for the pipelined version of column compression.
+  <div class="features"><span class="feature">getter/setter pair</span></div>
+
+</dd>
+
         <dt id="columns" class="property">
   <span class="name"><a href="../rohd_hcl/ColumnCompressor/columns.html">columns</a></span>
   <span class="signature">&#8596; <a href="https://api.dart.dev/stable/3.5.4/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../rohd_hcl/ColumnQueue.html">ColumnQueue</a></span>&gt;</span></span>
@@ -95,6 +107,18 @@
 <dd>
   Columns of partial product CompressTerms
   <div class="features"><span class="feature">late</span><span class="feature">final</span></div>
+
+</dd>
+
+        <dt id="enable" class="property">
+  <span class="name"><a href="../rohd_hcl/ColumnCompressor/enable.html">enable</a></span>
+  <span class="signature">&#8596; <a href="https://pub.dev/documentation/rohd/0.5.3/rohd/Logic-class.html">Logic</a>?</span>
+  
+
+</dt>
+<dd>
+  Optional enable for configurable pipestage.
+  <div class="features"><span class="feature">getter/setter pair</span></div>
 
 </dd>
 
@@ -119,6 +143,18 @@
 <dd>
   The partial product array to be compressed
   <div class="features"><span class="feature">final</span></div>
+
+</dd>
+
+        <dt id="reset" class="property">
+  <span class="name"><a href="../rohd_hcl/ColumnCompressor/reset.html">reset</a></span>
+  <span class="signature">&#8596; <a href="https://pub.dev/documentation/rohd/0.5.3/rohd/Logic-class.html">Logic</a>?</span>
+  
+
+</dt>
+<dd>
+  Optional reset for configurable pipestage
+  <div class="features"><span class="feature">getter/setter pair</span></div>
 
 </dd>
 

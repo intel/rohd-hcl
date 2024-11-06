@@ -65,7 +65,8 @@
       <span class="name ">PartialProductGenerator</span>(<wbr><ol class="parameter-list"> <li><span class="parameter" id="-param-multiplicand"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.5.3/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">multiplicand</span>, </span></li>
 <li><span class="parameter" id="-param-multiplier"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.5.3/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">multiplier</span>, </span></li>
 <li><span class="parameter" id="-param-radixEncoder"><span class="type-annotation"><a href="../../rohd_hcl/RadixEncoder-class.html">RadixEncoder</a></span> <span class="parameter-name">radixEncoder</span>, {</span></li>
-<li><span class="parameter" id="-param-signed"><span>required</span> <span class="type-annotation"><a href="https://api.dart.dev/stable/3.5.4/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">signed</span>, </span></li>
+<li><span class="parameter" id="-param-signed"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.5.4/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">signed</span> = <span class="default-value">false</span>, </span></li>
+<li><span class="parameter" id="-param-selectSigned"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.5.3/rohd/Logic-class.html">Logic</a>?</span> <span class="parameter-name">selectSigned</span>, </span></li>
 </ol>})
     </section>
 
@@ -80,10 +81,14 @@
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">PartialProductGenerator(
     Logic multiplicand, Logic multiplier, RadixEncoder radixEncoder,
-    {required this.signed}) {
-  encoder = MultiplierEncoder(multiplier, radixEncoder, signed: signed);
-  selector =
-      MultiplicandSelector(radixEncoder.radix, multiplicand, signed: signed);
+    {this.signed = false, this.selectSigned}) {
+  if (signed &amp;&amp; (selectSigned != null)) {
+    throw RohdHclException(&#39;sign reconfiguration requires signed=false&#39;);
+  }
+  encoder = MultiplierEncoder(multiplier, radixEncoder,
+      selectSigned: selectSigned, signed: signed);
+  selector = MultiplicandSelector(radixEncoder.radix, multiplicand,
+      selectSigned: selectSigned, signed: signed);
 
   if (multiplicand.width &lt; selector.shift) {
     throw RohdHclException(&#39;multiplicand width must be greater than &#39;

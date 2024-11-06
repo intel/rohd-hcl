@@ -87,7 +87,9 @@
     final colList = columns[col].toList();
     if (row &lt; colList.length) {
       final value = colList[row].logic;
-      rowBits.add(value);
+
+      rowBits.add(
+          clk != null ? flop(clk!, value, reset: reset, en: enable) : value);
     }
   }
   rowBits.addAll(List.filled(pp.rowShift[row], Const(0)));

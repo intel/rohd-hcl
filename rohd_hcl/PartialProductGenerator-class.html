@@ -87,7 +87,6 @@ manipulated by sign extension, before being compressed</p>
 
           <dt>Implementers</dt>
           <dd><ul class="comma-separated clazz-relationships">
-              <li><a href="../rohd_hcl/PartialProductGeneratorCompactRectSignExtension-class.html">PartialProductGeneratorCompactRectSignExtension</a></li>
               <li><a href="../rohd_hcl/PartialProductGeneratorNoSignExtension-class.html">PartialProductGeneratorNoSignExtension</a></li>
           </ul></dd>
 
@@ -104,7 +103,7 @@ manipulated by sign extension, before being compressed</p>
 
     <dl class="constructor-summary-list">
         <dt id="PartialProductGenerator" class="callable">
-          <span class="name"><a href="../rohd_hcl/PartialProductGenerator/PartialProductGenerator.html">PartialProductGenerator</a></span><span class="signature">(<span class="parameter" id="-param-multiplicand"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.5.3/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">multiplicand</span>, </span><span class="parameter" id="-param-multiplier"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.5.3/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">multiplier</span>, </span><span class="parameter" id="-param-radixEncoder"><span class="type-annotation"><a href="../rohd_hcl/RadixEncoder-class.html">RadixEncoder</a></span> <span class="parameter-name">radixEncoder</span>, {</span><span class="parameter" id="-param-signed"><span>required</span> <span class="type-annotation"><a href="https://api.dart.dev/stable/3.5.4/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">signed</span></span>})</span>
+          <span class="name"><a href="../rohd_hcl/PartialProductGenerator/PartialProductGenerator.html">PartialProductGenerator</a></span><span class="signature">(<span class="parameter" id="-param-multiplicand"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.5.3/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">multiplicand</span>, </span><span class="parameter" id="-param-multiplier"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.5.3/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">multiplier</span>, </span><span class="parameter" id="-param-radixEncoder"><span class="type-annotation"><a href="../rohd_hcl/RadixEncoder-class.html">RadixEncoder</a></span> <span class="parameter-name">radixEncoder</span>, {</span><span class="parameter" id="-param-signed"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.5.4/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">signed</span> = <span class="default-value">false</span>, </span><span class="parameter" id="-param-selectSigned"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.5.3/rohd/Logic-class.html">Logic</a>?</span> <span class="parameter-name">selectSigned</span></span>})</span>
         </dt>
         <dd>
           Construct a <a href="../rohd_hcl/PartialProductGenerator-class.html">PartialProductGenerator</a> -- the partial product matrix
@@ -241,6 +240,19 @@ multiples of the multiplicand and generate partial products
 
 </dd>
 
+        <dt id="selectSigned" class="property">
+  <span class="name"><a href="../rohd_hcl/PartialProductGenerator/selectSigned.html">selectSigned</a></span>
+  <span class="signature">&#8596; <a href="https://pub.dev/documentation/rohd/0.5.3/rohd/Logic-class.html">Logic</a>?</span>
+  
+
+</dt>
+<dd>
+  If not null, use this signal to select between signed and unsigned
+operation.
+  <div class="features"><span class="feature">late</span><span class="feature">final</span></div>
+
+</dd>
+
         <dt id="shift" class="property">
   <span class="name"><a href="../rohd_hcl/PartialProductGenerator/shift.html">shift</a></span>
   <span class="signature">&#8594; <a href="https://api.dart.dev/stable/3.5.4/dart-core/int-class.html">int</a></span>
@@ -255,13 +267,13 @@ multiples of the multiplicand and generate partial products
 
         <dt id="signed" class="property">
   <span class="name"><a href="../rohd_hcl/PartialProductGenerator/signed.html">signed</a></span>
-  <span class="signature">&#8594; <a href="https://api.dart.dev/stable/3.5.4/dart-core/bool-class.html">bool</a></span>
+  <span class="signature">&#8596; <a href="https://api.dart.dev/stable/3.5.4/dart-core/bool-class.html">bool</a></span>
   
 
 </dt>
 <dd>
   Operands are signed
-  <div class="features"><span class="feature">final</span></div>
+  <div class="features"><span class="feature">late</span><span class="feature">final</span></div>
 
 </dd>
 
@@ -273,6 +285,34 @@ multiples of the multiplicand and generate partial products
       id="instance-methods">
     <h2>Methods</h2>
     <dl class="callables">
+        <dt id="addStopSign" class="callable">
+  <span class="name"><a href="../rohd_hcl/PartialProductGenerator/addStopSign.html">addStopSign</a></span><span class="signature">(<wbr><span class="parameter" id="addStopSign-param-addend"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.5.4/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://pub.dev/documentation/rohd/0.5.3/rohd/Logic-class.html">Logic</a></span>&gt;</span></span> <span class="parameter-name">addend</span>, </span><span class="parameter" id="addStopSign-param-sign"><span class="type-annotation"><a href="../rohd_hcl/SignBit-class.html">SignBit</a></span> <span class="parameter-name">sign</span></span>)
+    <span class="returntype parameter">&#8594; void</span>
+  </span>
+  
+
+</dt>
+<dd>
+  Helper function for sign extension routines:
+For signed operands, set the MSB to <code>sign</code>, otherwise add this <code>sign</code> bit.
+  
+
+</dd>
+
+        <dt id="addStopSignFlip" class="callable">
+  <span class="name"><a href="../rohd_hcl/PartialProductGenerator/addStopSignFlip.html">addStopSignFlip</a></span><span class="signature">(<wbr><span class="parameter" id="addStopSignFlip-param-addend"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.5.4/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://pub.dev/documentation/rohd/0.5.3/rohd/Logic-class.html">Logic</a></span>&gt;</span></span> <span class="parameter-name">addend</span>, </span><span class="parameter" id="addStopSignFlip-param-sign"><span class="type-annotation"><a href="../rohd_hcl/SignBit-class.html">SignBit</a></span> <span class="parameter-name">sign</span></span>)
+    <span class="returntype parameter">&#8594; void</span>
+  </span>
+  
+
+</dt>
+<dd>
+  Helper function for sign extension routines:
+For signed operands, flip the MSB, otherwise add this <code>sign</code> bit.
+  
+
+</dd>
+
         <dt id="getAbsolute" class="callable inherited">
   <span class="name"><a href="../rohd_hcl/PartialProductArray/getAbsolute.html">getAbsolute</a></span><span class="signature">(<wbr><span class="parameter" id="getAbsolute-param-row"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.5.4/dart-core/int-class.html">int</a></span> <span class="parameter-name">row</span>, </span><span class="parameter" id="getAbsolute-param-col"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.5.4/dart-core/int-class.html">int</a></span> <span class="parameter-name">col</span></span>)
     <span class="returntype parameter">&#8594; <a href="https://pub.dev/documentation/rohd/0.5.3/rohd/Logic-class.html">Logic</a></span>
