@@ -292,4 +292,18 @@ void main() {
     final fp2 = FloatingPoint16Value.ofSpacedBinaryString(s);
     expect(fp, equals(fp2));
   });
+  test('FPV Value comparison', () {
+    final fp = FloatingPointValue.ofSpacedBinaryString('1 0101 0101');
+    expect(fp.compareTo(FloatingPointValue.ofSpacedBinaryString('1 0101 0101')),
+        0);
+    expect(fp.compareTo(FloatingPointValue.ofSpacedBinaryString('1 0100 0101')),
+        lessThan(0));
+    expect(fp.compareTo(FloatingPointValue.ofSpacedBinaryString('1 0101 0100')),
+        lessThan(0));
+
+    final fp2 = FloatingPointValue.ofSpacedBinaryString('1 0000 0000');
+    expect(
+        fp2.compareTo(FloatingPointValue.ofSpacedBinaryString('0 0000 0000')),
+        equals(0));
+  });
 }
