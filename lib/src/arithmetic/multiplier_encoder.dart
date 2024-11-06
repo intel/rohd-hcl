@@ -76,8 +76,8 @@ class RadixEncoder {
       ].swizzle().and());
     }
 
-    return RadixEncode._(
-        multiples.rswizzle(), multiplierSlice[multiplierSlice.width - 1]);
+    return RadixEncode._(multiples.rswizzle(),
+        multiples.rswizzle().or() & multiplierSlice[multiplierSlice.width - 1]);
   }
 }
 
@@ -97,9 +97,12 @@ class MultiplierEncoder {
 
   /// Generate an encoding of the input multiplier
   MultiplierEncoder(this.multiplier, RadixEncoder radixEncoder,
-      {required bool signed})
+      {Logic? selectSigned, bool signed = false})
       : _encoder = radixEncoder,
         _sliceWidth = log2Ceil(radixEncoder.radix) + 1 {
+    if (signed && (selectSigned != null)) {
+      throw RohdHclException('sign reconfiguration requires signed=false');
+    }
     // Unsigned encoding wants to overlap past the multipler
     if (signed) {
       rows =
@@ -109,10 +112,20 @@ class MultiplierEncoder {
       rows = (((multiplier.width + 1) % (_sliceWidth - 1) == 0) ? 0 : 1) +
           ((multiplier.width + 1) ~/ log2Ceil(radixEncoder.radix));
     }
-    // slices overlap by 1 and start at -1
-    _extendedMultiplier = (signed
-        ? multiplier.signExtend(rows * (_sliceWidth - 1))
-        : multiplier.zeroExtend(rows * (_sliceWidth - 1)));
+    // slices overlap by 1 and start at -1a
+    if (selectSigned == null) {
+      _extendedMultiplier = (signed
+          ? multiplier.signExtend(rows * (_sliceWidth - 1))
+          : multiplier.zeroExtend(rows * (_sliceWidth - 1)));
+    } else {
+      final len = multiplier.width;
+      final sign = multiplier[len - 1];
+      final extension = [
+        for (var i = len - 1; i < (rows * (_sliceWidth - 1)); i++)
+          mux(selectSigned, sign, Const(0))
+      ];
+      _extendedMultiplier = (multiplier.elements + extension).rswizzle();
+    }
   }
 
   /// Retrieve the Booth encoding for the row

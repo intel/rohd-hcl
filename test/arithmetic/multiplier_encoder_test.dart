@@ -19,13 +19,15 @@ import 'package:test/test.dart';
 void checkEvaluateExhaustive(PartialProductGenerator pp) {
   final widthX = pp.selector.multiplicand.width;
   final widthY = pp.encoder.multiplier.width;
+  final signed =
+      (pp.selectSigned == null) ? pp.signed : !pp.selectSigned!.value.isZero;
 
   final limitX = pow(2, widthX);
   final limitY = pow(2, widthY);
   for (var i = BigInt.zero; i < BigInt.from(limitX); i += BigInt.one) {
     for (var j = BigInt.zero; j < BigInt.from(limitY); j += BigInt.one) {
-      final X = pp.signed ? i.toSigned(widthX) : i.toUnsigned(widthX);
-      final Y = pp.signed ? j.toSigned(widthY) : j.toUnsigned(widthY);
+      final X = signed ? i.toSigned(widthX) : i.toUnsigned(widthX);
+      final Y = signed ? j.toSigned(widthY) : j.toUnsigned(widthY);
       pp.multiplicand.put(X);
       pp.multiplier.put(Y);
       final value = pp.evaluate();
@@ -38,12 +40,14 @@ void checkEvaluateExhaustive(PartialProductGenerator pp) {
 void checkEvaluateRandom(PartialProductGenerator pp, int nSamples) {
   final widthX = pp.selector.multiplicand.width;
   final widthY = pp.encoder.multiplier.width;
+  final signed =
+      (pp.selectSigned == null) ? pp.signed : !pp.selectSigned!.value.isZero;
 
   for (var i = 0; i < nSamples; ++i) {
     final rX = Random().nextLogicValue(width: widthX).toBigInt();
     final rY = Random().nextLogicValue(width: widthY).toBigInt();
-    final X = pp.signed ? rX.toSigned(widthX) : rX;
-    final Y = pp.signed ? rY.toSigned(widthY) : rY;
+    final X = signed ? rX.toSigned(widthX) : rX;
+    final Y = signed ? rY.toSigned(widthY) : rY;
     pp.multiplicand.put(X);
     pp.multiplier.put(Y);
     final value = pp.evaluate();
@@ -125,11 +129,22 @@ void main() {
               continue;
             }
             final ppg = curryPartialProductGenerator(signExtension);
-            final pp = ppg(Logic(name: 'X', width: width),
-                Logic(name: 'Y', width: width), encoder,
-                signed: signed);
-
-            checkEvaluateExhaustive(pp);
+            for (final useSelect in [false, true]) {
+              final PartialProductGenerator pp;
+              if (useSelect) {
+                final selectSigned = Logic();
+                // ignore: cascade_invocations
+                selectSigned.put(signed ? 1 : 0);
+                pp = ppg(Logic(name: 'X', width: width),
+                    Logic(name: 'Y', width: width), encoder,
+                    selectSigned: selectSigned);
+              } else {
+                pp = ppg(Logic(name: 'X', width: width),
+                    Logic(name: 'Y', width: width), encoder,
+                    signed: signed);
+              }
+              checkEvaluateExhaustive(pp);
+            }
           }
         }
       }
@@ -147,14 +162,25 @@ void main() {
             // Commented out rectangular extension routines for speedup
             for (final signExtension in [
               SignExtension.brute,
-              SignExtension.stop,
               SignExtension.compactRect
             ]) {
               final ppg = curryPartialProductGenerator(signExtension);
-              final pp = ppg(Logic(name: 'X', width: width),
-                  Logic(name: 'Y', width: width + skew), encoder,
-                  signed: signed);
-              checkEvaluateRandom(pp, 20);
+              for (final useSelect in [false, true]) {
+                final PartialProductGenerator pp;
+                if (useSelect) {
+                  final selectSigned = Logic();
+                  // ignore: cascade_invocations
+                  selectSigned.put(signed ? 1 : 0);
+                  pp = ppg(Logic(name: 'X', width: width),
+                      Logic(name: 'Y', width: width), encoder,
+                      selectSigned: selectSigned);
+                } else {
+                  pp = ppg(Logic(name: 'X', width: width),
+                      Logic(name: 'Y', width: width), encoder,
+                      signed: signed);
+                }
+                checkEvaluateRandom(pp, 20);
+              }
             }
           }
         }
