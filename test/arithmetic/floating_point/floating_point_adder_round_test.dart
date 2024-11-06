@@ -227,8 +227,6 @@ void main() {
   });
 
   test('FP: R path, full all', () async {
-    final clk = SimpleClockGenerator(10).clk;
-
     const eWidth = 3;
     const mWidth = 5;
 
@@ -236,10 +234,8 @@ void main() {
     final fb = FloatingPoint(exponentWidth: eWidth, mantissaWidth: mWidth);
     fa.put(0);
     fb.put(0);
-    final adder = FloatingPointAdderRound(clk: clk, fa, fb);
+    final adder = FloatingPointAdderRound(fa, fb);
     await adder.build();
-    unawaited(Simulator.run());
-
     final largestExponent = FloatingPointValue.computeBias(eWidth) +
         FloatingPointValue.computeMaxExponent(eWidth);
     final largestMantissa = pow(2, mWidth).toInt() - 1;
@@ -256,9 +252,6 @@ void main() {
                 fa.put(fva);
                 fb.put(fvb);
                 final expected = fva + fvb;
-                await clk.nextNegedge;
-                fa.put(0);
-                fb.put(0);
 
                 final computed = adder.sum.floatingPointValue;
                 expect(computed.isNaN(), equals(expected.isNaN()));
@@ -269,7 +262,6 @@ void main() {
         }
       }
     }
-    await Simulator.endSimulation();
   });
 
   test('FP: R path, full random', () async {
