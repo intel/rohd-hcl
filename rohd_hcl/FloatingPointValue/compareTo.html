@@ -93,16 +93,19 @@ int compareTo(Object other) {
       (mantissa.width != other.mantissa.width)) {
     throw Exception(&#39;FloatingPointValue widths must match for comparison&#39;);
   }
-  final signCompare = sign.compareTo(other.sign);
-  if (signCompare != 0) {
-    return signCompare;
+  &#47;&#47; } else {
+  final expCompare = exponent.compareTo(other.exponent);
+  final mantCompare = mantissa.compareTo(other.mantissa);
+  if (expCompare != 0) {
+    return expCompare;
+  } else if (mantCompare != 0) {
+    return mantCompare;
   } else {
-    final expCompare = exponent.compareTo(other.exponent);
-    if (expCompare != 0) {
-      return expCompare;
-    } else {
-      return mantissa.compareTo(other.mantissa);
+    final signCompare = sign.compareTo(other.sign);
+    if ((signCompare != 0) &amp;&amp; !(exponent.isZero &amp;&amp; mantissa.isZero)) {
+      return signCompare;
     }
+    return 0;
   }
 }</code></pre>
 </section>

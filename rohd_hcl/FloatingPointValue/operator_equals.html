@@ -96,6 +96,11 @@ bool operator ==(Object other) {
       (mantissa.width != other.mantissa.width)) {
     return false;
   }
+  &#47;&#47; IEEE 754: -0 an +0 are considered equal
+  if ((exponent.isZero &amp;&amp; mantissa.isZero) &amp;&amp;
+      (other.exponent.isZero &amp;&amp; other.mantissa.isZero)) {
+    return true;
+  }
 
   return (sign == other.sign) &amp;
       (exponent == other.exponent) &amp;

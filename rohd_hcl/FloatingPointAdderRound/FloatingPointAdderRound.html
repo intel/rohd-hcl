@@ -65,6 +65,9 @@
       <span class="name ">FloatingPointAdderRound</span>(<wbr><ol class="parameter-list"> <li><span class="parameter" id="-param-a"><span class="type-annotation"><a href="../../rohd_hcl/FloatingPoint-class.html">FloatingPoint</a></span> <span class="parameter-name">a</span>, </span></li>
 <li><span class="parameter" id="-param-b"><span class="type-annotation"><a href="../../rohd_hcl/FloatingPoint-class.html">FloatingPoint</a></span> <span class="parameter-name">b</span>, {</span></li>
 <li><span class="parameter" id="-param-subtract"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.5.3/rohd/Logic-class.html">Logic</a>?</span> <span class="parameter-name">subtract</span>, </span></li>
+<li><span class="parameter" id="-param-clk"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.5.3/rohd/Logic-class.html">Logic</a>?</span> <span class="parameter-name">clk</span>, </span></li>
+<li><span class="parameter" id="-param-reset"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.5.3/rohd/Logic-class.html">Logic</a>?</span> <span class="parameter-name">reset</span>, </span></li>
+<li><span class="parameter" id="-param-enable"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.5.3/rohd/Logic-class.html">Logic</a>?</span> <span class="parameter-name">enable</span>, </span></li>
 <li><span class="parameter" id="-param-adderGen"><span class="type-annotation"><a href="../../rohd_hcl/Adder-class.html">Adder</a></span> <span class="parameter-name">adderGen</span>(<ol class="parameter-list single-line"> <li><span class="parameter" id="param-"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.5.3/rohd/Logic-class.html">Logic</a></span>, </span></li>
 <li><span class="parameter" id="param-"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.5.3/rohd/Logic-class.html">Logic</a></span></span></li>
 </ol>) = <span class="default-value">ParallelPrefixAdder.new</span>, </span></li>
@@ -93,6 +96,9 @@ functions.
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">FloatingPointAdderRound(FloatingPoint a, FloatingPoint b,
     {Logic? subtract,
+    this.clk,
+    this.reset,
+    this.enable,
     Adder Function(Logic, Logic) adderGen = ParallelPrefixAdder.new,
     ParallelPrefix Function(List&lt;Logic&gt;, Logic Function(Logic, Logic))
         ppTree = KoggeStone.new,
@@ -102,6 +108,15 @@ functions.
   if (b.exponent.width != exponentWidth ||
       b.mantissa.width != mantissaWidth) {
     throw RohdHclException(&#39;FloatingPoint widths must match&#39;);
+  }
+  if (clk != null) {
+    clk = addInput(&#39;clk&#39;, clk!);
+  }
+  if (reset != null) {
+    reset = addInput(&#39;reset&#39;, reset!);
+  }
+  if (enable != null) {
+    enable = addInput(&#39;enable&#39;, enable!);
   }
   a = a.clone()..gets(addInput(&#39;a&#39;, a, width: a.width));
   b = b.clone()..gets(addInput(&#39;b&#39;, b, width: b.width));
@@ -153,17 +168,35 @@ functions.
       smallerAlignRPath.width - 1,
       smallerAlignRPath.width - largeOperand.width);
 
+  &#47;&#47;&#47; R Pipestage here:
+  final aIsNormalLatched =
+      condFlop(clk, a.isNormal(), en: enable, reset: reset);
+  final bIsNormalLatched =
+      condFlop(clk, b.isNormal(), en: enable, reset: reset);
+  final effectiveSubtractionLatched =
+      condFlop(clk, effectiveSubtraction, en: enable, reset: reset);
+  final largeOperandLatched =
+      condFlop(clk, largeOperand, en: enable, reset: reset);
+  final smallerOperandRPathLatched =
+      condFlop(clk, smallerOperandRPath, en: enable, reset: reset);
+  final smallerAlignRPathLatched =
+      condFlop(clk, smallerAlignRPath, en: enable, reset: reset);
+  final largerExpLatched =
+      condFlop(clk, larger.exponent, en: enable, reset: reset);
+  final deltaLatched = condFlop(clk, delta, en: enable, reset: reset);
+
   final carryRPath = Logic();
   final significandAdderRPath = OnesComplementAdder(
-      largeOperand, smallerOperandRPath,
-      subtractIn: effectiveSubtraction,
+      largeOperandLatched, smallerOperandRPathLatched,
+      subtractIn: effectiveSubtractionLatched,
       carryOut: carryRPath,
       adderGen: adderGen);
 
-  final lowBitsRPath = smallerAlignRPath.slice(extendWidthRPath - 1, 0);
+  final lowBitsRPath =
+      smallerAlignRPathLatched.slice(extendWidthRPath - 1, 0);
   final lowAdderRPath = OnesComplementAdder(
       carryRPath.zeroExtend(extendWidthRPath),
-      mux(effectiveSubtraction, ~lowBitsRPath, lowBitsRPath),
+      mux(effectiveSubtractionLatched, ~lowBitsRPath, lowBitsRPath),
       adderGen: adderGen);
 
   final preStickyRPath =
@@ -180,8 +213,10 @@ functions.
   final sumP1RPath =
       (significandAdderRPath.sum + 1).slice(mantissaWidth + 1, 0);
 
-  final sumLeadZeroRPath = ~sumRPath[-1] &amp; (a.isNormal() | b.isNormal());
-  final sumP1LeadZeroRPath = ~sumP1RPath[-1] &amp; (a.isNormal() | b.isNormal());
+  final sumLeadZeroRPath =
+      ~sumRPath[-1] &amp; (aIsNormalLatched | bIsNormalLatched);
+  final sumP1LeadZeroRPath =
+      ~sumP1RPath[-1] &amp; (aIsNormalLatched | bIsNormalLatched);
 
   final selectRPath = lowAdderRPath.sum[-1];
   final shiftGRSRPath = [earlyGRSRPath[2], stickyBitRPath].swizzle();
@@ -207,25 +242,26 @@ functions.
 
   final firstZeroRPath = mux(selectRPath, ~sumP1RPath[-1], ~sumRPath[-1]);
 
-  final exponentRPath = Logic(width: larger.exponent.width);
+  final exponentRPath = Logic(width: exponentWidth);
   Combinational([
     If.block([
       &#47;&#47; Subtract 1 from exponent
-      Iff(~incExpRPath &amp; effectiveSubtraction &amp; firstZeroRPath, [
-        exponentRPath &lt; ParallelPrefixDecr(larger.exponent, ppGen: ppTree).out
+      Iff(~incExpRPath &amp; effectiveSubtractionLatched &amp; firstZeroRPath, [
+        exponentRPath &lt;
+            ParallelPrefixDecr(largerExpLatched, ppGen: ppTree).out
       ]),
       &#47;&#47; Add 1 to exponent
       ElseIf(
-          ~effectiveSubtraction &amp;
+          ~effectiveSubtractionLatched &amp;
               (incExpRPath &amp; firstZeroRPath | ~incExpRPath &amp; ~firstZeroRPath),
           [
             exponentRPath &lt;
-                ParallelPrefixIncr(larger.exponent, ppGen: ppTree).out
+                ParallelPrefixIncr(largerExpLatched, ppGen: ppTree).out
           ]),
       &#47;&#47; Add 2 to exponent
-      ElseIf(incExpRPath &amp; effectiveSubtraction &amp; ~firstZeroRPath,
-          [exponentRPath &lt; larger.exponent &lt;&lt; 1]),
-      Else([exponentRPath &lt; larger.exponent])
+      ElseIf(incExpRPath &amp; effectiveSubtractionLatched &amp; ~firstZeroRPath,
+          [exponentRPath &lt; largerExpLatched &lt;&lt; 1]),
+      Else([exponentRPath &lt; largerExpLatched])
     ])
   ]);
 
@@ -253,9 +289,22 @@ functions.
           .zeroExtend(exponentWidth),
       Const(15, width: exponentWidth));
 
+  &#47;&#47; N pipestage here:
+  final significandNPathLatched =
+      condFlop(clk, significandNPath, en: enable, reset: reset);
+  final significandSubtractorNPathSignLatched = condFlop(
+      clk, significandSubtractorNPath.sign,
+      en: enable, reset: reset);
+  final leadOneNPathLatched =
+      condFlop(clk, leadOneNPath, en: enable, reset: reset);
+  final largerSignLatched =
+      condFlop(clk, larger.sign, en: enable, reset: reset);
+  final smallerSignLatched =
+      condFlop(clk, smaller.sign, en: enable, reset: reset);
+
   final expCalcNPath = OnesComplementAdder(
-      larger.exponent, leadOneNPath.zeroExtend(larger.exponent.width),
-      subtractIn: effectiveSubtraction, adderGen: adderGen);
+      largerExpLatched, leadOneNPathLatched.zeroExtend(exponentWidth),
+      subtractIn: effectiveSubtractionLatched, adderGen: adderGen);
 
   final preExpNPath = expCalcNPath.sum.slice(exponentWidth - 1, 0);
 
@@ -263,29 +312,30 @@ functions.
 
   final exponentNPath = mux(posExpNPath, preExpNPath, zeroExp);
 
-  final preMinShiftNPath = ~leadOneNPath.or() | ~larger.exponent.or();
+  final preMinShiftNPath = ~leadOneNPathLatched.or() | ~largerExpLatched.or();
 
-  final minShiftNPath =
-      mux(posExpNPath | preMinShiftNPath, leadOneNPath, larger.exponent - 1);
-  final notSubnormalNPath = a.isNormal() | b.isNormal();
+  final minShiftNPath = mux(posExpNPath | preMinShiftNPath,
+      leadOneNPathLatched, largerExpLatched - 1);
+  final notSubnormalNPath = aIsNormalLatched | bIsNormalLatched;
 
   final shiftedSignificandNPath =
-      (significandNPath &lt;&lt; minShiftNPath).slice(mantissaWidth, 1);
+      (significandNPathLatched &lt;&lt; minShiftNPath).slice(mantissaWidth, 1);
 
   final finalSignificandNPath = mux(
       notSubnormalNPath,
       shiftedSignificandNPath,
-      significandNPath.slice(significandNPath.width - 1, 2));
+      significandNPathLatched.slice(significandNPathLatched.width - 1, 2));
 
-  final signNPath =
-      mux(significandSubtractorNPath.sign, smaller.sign, larger.sign);
+  final signNPath = mux(significandSubtractorNPathSignLatched,
+      smallerSignLatched, largerSignLatched);
 
-  final isR = delta.gte(Const(2, width: delta.width)) | ~effectiveSubtraction;
+  final isR = deltaLatched.gte(Const(2, width: delta.width)) |
+      ~effectiveSubtractionLatched;
   _sum &lt;=
       mux(
           isR,
           [
-            larger.sign,
+            largerSignLatched,
             exponentRPath,
             mantissaRPath.slice(mantissaRPath.width - 2, 1)
           ].swizzle(),
