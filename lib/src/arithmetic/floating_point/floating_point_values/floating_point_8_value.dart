@@ -61,12 +61,14 @@ class FloatingPoint8E4M3Value extends FloatingPointValue {
   ///  binary representation
   FloatingPoint8E4M3Value.ofBigInts(super.exponent, super.mantissa,
       {super.sign})
-      : super.ofBigInts();
+      : super.ofBigInts(
+            exponentWidth: exponentWidth, mantissaWidth: mantissaWidth);
 
   /// [FloatingPoint8E4M3Value] constructor from a set of [int]s of the binary
   /// representation
   FloatingPoint8E4M3Value.ofInts(super.exponent, super.mantissa, {super.sign})
-      : super.ofInts();
+      : super.ofInts(
+            exponentWidth: exponentWidth, mantissaWidth: mantissaWidth);
 
   /// Numeric conversion of a [FloatingPoint8E4M3Value] from a host double
   factory FloatingPoint8E4M3Value.ofDouble(double inDouble) {
