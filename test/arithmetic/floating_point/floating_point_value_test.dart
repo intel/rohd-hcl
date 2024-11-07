@@ -292,6 +292,13 @@ void main() {
     final fp2 = FloatingPoint16Value.ofSpacedBinaryString(s);
     expect(fp, equals(fp2));
   });
+
+  test('Initializing derived type', () {
+    final fp = FloatingPoint16Value.ofInts(15, 0);
+    final s = fp.toString();
+    final fp2 = FloatingPoint16Value.ofSpacedBinaryString(s);
+    expect(fp, equals(fp2));
+  });
   test('FPV Value comparison', () {
     final fp = FloatingPointValue.ofSpacedBinaryString('1 0101 0101');
     expect(fp.compareTo(FloatingPointValue.ofSpacedBinaryString('1 0101 0101')),
