@@ -16,4 +16,6 @@ export 'parallel_prefix_operations.dart';
 export 'ripple_carry_adder.dart';
 export 'sign_magnitude_adder.dart';
 export 'signals/fixed_point_logic.dart';
+export 'signals/floating_point_logic.dart';
 export 'values/fixed_point_value.dart';
+export 'values/floating_point_values/floating_point_values.dart';
