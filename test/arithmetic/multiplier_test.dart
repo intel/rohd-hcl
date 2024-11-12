@@ -14,6 +14,24 @@ import 'package:rohd_hcl/src/arithmetic/evaluate_compressor.dart';
 import 'package:rohd_hcl/src/arithmetic/partial_product_sign_extend.dart';
 import 'package:test/test.dart';
 
+/// Simple multiplier to demonstrate instantiation of CompressionTreeMultiplier
+class SimpleMultiplier extends Module {
+  /// The output of the simple multiplier
+  late final Logic product;
+
+  /// Construct a simple multiplier with runtime sign operation
+  SimpleMultiplier(Logic a, Logic b, Logic multASigned)
+      : super(name: 'my_test_module') {
+    a = addInput('a', a, width: a.width);
+    b = addInput('b', b, width: b.width);
+    multASigned = addInput('multASigned', multASigned);
+    product = addOutput('product', width: a.width + b.width);
+
+    final mult = CompressionTreeMultiplier(a, b, 4, selectSigned: multASigned);
+    product <= mult.product;
+  }
+}
+
 // Inner test of a multipy accumulate unit
 void checkMultiplyAccumulate(
     MultiplyAccumulate mod, BigInt bA, BigInt bB, BigInt bC) {
@@ -173,6 +191,64 @@ void main() {
         }
       }
     }
+  });
+
+  test('single multiplier', () async {
+    const width = 8;
+    final a = Logic(name: 'a', width: width);
+    final b = Logic(name: 'b', width: width);
+    const av = 12;
+    const bv = 13;
+    for (final signed in [true, false]) {
+      for (final useSignedLogic in [true, false]) {
+        final bA = signed
+            ? BigInt.from(av).toSigned(width)
+            : BigInt.from(av).toUnsigned(width);
+        final bB = signed
+            ? BigInt.from(bv).toSigned(width)
+            : BigInt.from(bv).toUnsigned(width);
+
+        final Logic? signedSelect;
+
+        if (useSignedLogic) {
+          signedSelect = Logic()..put(signed ? 1 : 0);
+        } else {
+          signedSelect = null;
+        }
+
+        // Set these so that printing inside module build will have Logic values
+        a.put(bA);
+        b.put(bB);
+
+        final mod = CompressionTreeMultiplier(a, b, 4,
+            signed: !useSignedLogic && signed, selectSigned: signedSelect);
+        await mod.build();
+        mod.generateSynth();
+        final golden = bA * bB;
+        final result = mod.signed
+            ? mod.product.value.toBigInt().toSigned(mod.product.width)
+            : mod.product.value.toBigInt().toUnsigned(mod.product.width);
+        expect(result, equals(golden));
+      }
+    }
+  });
+
+  test('trivial instnatiated multiplier', () async {
+    const dataWidth = 8;
+    const av = 12;
+    const bv = 13;
+
+    final multA = Logic(name: 'multA', width: dataWidth);
+    final multB = Logic(name: 'multB', width: dataWidth);
+    final signedOperands = Logic(name: 'signedOperands');
+
+    multA.put(av);
+    multB.put(bv);
+
+    final mult = SimpleMultiplier(multA, multB, signedOperands);
+
+    await mult.build();
+    mult.generateSynth();
   });
 
   test('single mac', () async {
