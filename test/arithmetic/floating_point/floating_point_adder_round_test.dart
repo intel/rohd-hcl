@@ -8,7 +8,6 @@
 // Author: Desmond A Kirkpatrick <desmond.a.kirkpatrick@intel.com
 
 import 'dart:async';
-import 'dart:io';
 import 'dart:math';
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
@@ -41,9 +40,6 @@ void main() {
     final expected = expectedNoRound;
 
     final adder = FloatingPointAdderRound(fa, fb, clk: clk);
-
-    await adder.build();
-    File('gen/adder.sv').writeAsStringSync(adder.generateSynth());
 
     unawaited(Simulator.run());
     await clk.nextNegedge;
@@ -262,7 +258,6 @@ void main() {
     fb.put(0);
     final adder = FloatingPointAdderRound(fa, fb);
     await adder.build();
-    File('gen/adder.sv').writeAsStringSync(adder.generateSynth());
     unawaited(Simulator.run());
     final value = Random(51);
 

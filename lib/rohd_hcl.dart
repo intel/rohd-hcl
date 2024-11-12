@@ -3,7 +3,6 @@
 
 export 'src/arbiters/arbiters.dart';
 export 'src/arithmetic/arithmetic.dart';
-
 export 'src/binary_gray.dart';
 export 'src/clock_gating.dart';
 export 'src/component_config/component_config.dart';

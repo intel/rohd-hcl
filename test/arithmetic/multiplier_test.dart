@@ -127,7 +127,7 @@ void main() {
           int radix,
           ParallelPrefix Function(List<Logic>, Logic Function(Logic, Logic))
               ppTree,
-          {required bool signed,
+          {bool signed = false,
           Logic? selectSigned}) =>
       (a, b) => CompressionTreeMultiplier(a, b, radix,
           selectSigned: selectSigned,
@@ -141,7 +141,7 @@ void main() {
           int radix,
           ParallelPrefix Function(List<Logic>, Logic Function(Logic, Logic))
               ppTree,
-          {required bool signed,
+          {bool signed = false,
           Logic? selectSign}) =>
       (a, b, c) => MutiplyOnly(
           a,
@@ -153,7 +153,7 @@ void main() {
   MultiplyAccumulateCallback curryMultiplyAccumulate(
     int radix,
     ParallelPrefix Function(List<Logic>, Logic Function(Logic, Logic)) ppTree, {
-    required bool signed,
+    bool signed = false,
     Logic? selectSign,
   }) =>
       (a, b, c) => CompressionTreeMultiplyAccumulate(a, b, c, radix,
@@ -233,7 +233,7 @@ void main() {
     }
   });
 
-  test('trivial instnatiated multiplier', () async {
+  test('trivial instantiated multiplier', () async {
     const dataWidth = 8;
     const av = 12;
     const bv = 13;
