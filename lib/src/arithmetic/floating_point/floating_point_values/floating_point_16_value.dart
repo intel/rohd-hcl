@@ -60,12 +60,14 @@ class FloatingPoint16Value extends FloatingPointValue {
   /// [FloatingPoint16Value] constructor from a set of [BigInt]s of the binary
   /// representation
   FloatingPoint16Value.ofBigInts(super.exponent, super.mantissa, {super.sign})
-      : super.ofBigInts();
+      : super.ofBigInts(
+            exponentWidth: exponentWidth, mantissaWidth: mantissaWidth);
 
   /// [FloatingPoint16Value] constructor from a set of [int]s of the binary
   /// representation
   FloatingPoint16Value.ofInts(super.exponent, super.mantissa, {super.sign})
-      : super.ofInts();
+      : super.ofInts(
+            exponentWidth: exponentWidth, mantissaWidth: mantissaWidth);
 
   /// Numeric conversion of a [FloatingPoint16Value] from a host double
   factory FloatingPoint16Value.ofDouble(double inDouble) {

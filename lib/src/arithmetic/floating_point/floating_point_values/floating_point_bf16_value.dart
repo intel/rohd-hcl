@@ -60,12 +60,14 @@ class FloatingPointBF16Value extends FloatingPointValue {
   /// [FloatingPointBF16Value] constructor from a set of [BigInt]s of the binary
   /// representation
   FloatingPointBF16Value.ofBigInts(super.exponent, super.mantissa, {super.sign})
-      : super.ofBigInts();
+      : super.ofBigInts(
+            exponentWidth: exponentWidth, mantissaWidth: mantissaWidth);
 
   /// [FloatingPointBF16Value] constructor from a set of [int]s of the binary
   /// representation
   FloatingPointBF16Value.ofInts(super.exponent, super.mantissa, {super.sign})
-      : super.ofInts();
+      : super.ofInts(
+            exponentWidth: exponentWidth, mantissaWidth: mantissaWidth);
 
   /// Numeric conversion of a [FloatingPointBF16Value] from a host double
   factory FloatingPointBF16Value.ofDouble(double inDouble) {
