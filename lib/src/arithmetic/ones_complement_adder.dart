@@ -34,10 +34,8 @@ class OnesComplementAdder extends Adder {
       {Adder Function(Logic, Logic) adderGen = ParallelPrefixAdder.new,
       Logic? subtractIn,
       Logic? carryOut,
-      bool subtract = false})
-      : super(
-            name: 'Ones Complement Adder: '
-                '${adderGen.call(Logic(), Logic()).name}') {
+      bool subtract = false,
+      super.name = 'ones_complement_adder'}) {
     if (subtractIn != null) {
       subtractIn = addInput('subtractIn', subtractIn);
     }

@@ -19,7 +19,7 @@ abstract class CompoundAdder extends Adder {
   /// Takes in input [a] and input [b] and return the [sum] of the addition
   /// result and [sum1] sum + 1.
   /// The width of input [a] and [b] must be the same.
-  CompoundAdder(super.a, super.b, {super.name}) {
+  CompoundAdder(super.a, super.b, {super.name = 'compound_adders'}) {
     if (a.width != b.width) {
       throw RohdHclException('inputs of a and b should have same width.');
     }

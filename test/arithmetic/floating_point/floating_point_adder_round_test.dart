@@ -2,12 +2,13 @@
 // SPDX-License-Identifier: BSD-3-Clause
 //
 // floating_point_rnd_test.dart
-// Tests of FloatingPointAdderRnd -- a rounding FP Adder.
+// Tests of FloatingPointAdderRound -- a rounding FP Adder.
 //
 // 2024 August 30
 // Author: Desmond A Kirkpatrick <desmond.a.kirkpatrick@intel.com
 
 import 'dart:async';
+import 'dart:io';
 import 'dart:math';
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
@@ -40,7 +41,10 @@ void main() {
     final expected = expectedNoRound;
 
     final adder = FloatingPointAdderRound(fa, fb, clk: clk);
+
     await adder.build();
+    File('gen/adder.sv').writeAsStringSync(adder.generateSynth());
+
     unawaited(Simulator.run());
     await clk.nextNegedge;
     fa.put(0);
@@ -53,9 +57,7 @@ void main() {
   });
 
   test('FP: N path, subtraction, delta < 2', () async {
-    final clk = SimpleClockGenerator(10).clk;
-
-    const eWidth = 4;
+    const eWidth = 3;
     const mWidth = 5;
 
     final one = FloatingPointValue.getFloatingPointConstant(
@@ -64,7 +66,7 @@ void main() {
     final fb = FloatingPoint(exponentWidth: eWidth, mantissaWidth: mWidth);
     fa.put(one);
     fb.put(one);
-    final adder = FloatingPointAdderRound(clk: clk, fa, fb);
+    final adder = FloatingPointAdderRound(fa, fb);
     await adder.build();
     unawaited(Simulator.run());
 
@@ -88,9 +90,6 @@ void main() {
                   fva.toDouble() + fvb.toDouble(),
                   exponentWidth: eWidth,
                   mantissaWidth: mWidth);
-              await clk.nextNegedge;
-              fa.put(0);
-              fb.put(0);
 
               final computed = adder.sum.floatingPointValue;
               expect(computed.isNaN(), equals(expected.isNaN()));
@@ -136,8 +135,6 @@ void main() {
   });
 
   test('FP: R path, strict subnormal', () async {
-    final clk = SimpleClockGenerator(10).clk;
-
     const eWidth = 4;
     const mWidth = 5;
 
@@ -145,7 +142,7 @@ void main() {
     final fb = FloatingPoint(exponentWidth: eWidth, mantissaWidth: mWidth);
     fa.put(0);
     fb.put(0);
-    final adder = FloatingPointAdderRound(clk: clk, fa, fb);
+    final adder = FloatingPointAdderRound(fa, fb);
     await adder.build();
     unawaited(Simulator.run());
 
@@ -164,10 +161,6 @@ void main() {
                 fa.put(fva);
                 fb.put(fvb);
                 final expected = fva + fvb;
-                await clk.nextNegedge;
-                fa.put(0);
-                fb.put(0);
-
                 final computed = adder.sum.floatingPointValue;
                 expect(computed.isNaN(), equals(expected.isNaN()));
                 expect(computed, equals(expected));
@@ -260,8 +253,6 @@ void main() {
   });
 
   test('FP: full random wide', () async {
-    final clk = SimpleClockGenerator(10).clk;
-
     const eWidth = 11;
     const mWidth = 52;
 
@@ -269,8 +260,9 @@ void main() {
     final fb = FloatingPoint(exponentWidth: eWidth, mantissaWidth: mWidth);
     fa.put(0);
     fb.put(0);
-    final adder = FloatingPointAdderRound(clk: clk, fa, fb);
+    final adder = FloatingPointAdderRound(fa, fb);
     await adder.build();
+    File('gen/adder.sv').writeAsStringSync(adder.generateSynth());
     unawaited(Simulator.run());
     final value = Random(51);
 
@@ -283,9 +275,6 @@ void main() {
       fa.put(fva);
       fb.put(fvb);
       final expected = fva + fvb;
-      await clk.nextNegedge;
-      fa.put(0);
-      fb.put(0);
       final computed = adder.sum.floatingPointValue;
       expect(computed.isNaN(), equals(expected.isNaN()));
       expect(computed, equals(expected));

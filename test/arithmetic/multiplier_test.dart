@@ -112,14 +112,19 @@ void main() {
           {required bool signed,
           Logic? selectSigned}) =>
       (a, b) => CompressionTreeMultiplier(a, b, radix,
-          selectSigned: selectSigned, ppTree: ppTree, signed: signed);
+          selectSigned: selectSigned,
+          ppTree: ppTree,
+          signed: signed,
+          name: 'Compression Tree Multiplier: ${ppTree.call([
+                Logic()
+              ], (a, b) => Logic()).name}');
 
   MultiplyAccumulateCallback curryMultiplierAsMultiplyAccumulate(
           int radix,
-          Logic? selectSign,
           ParallelPrefix Function(List<Logic>, Logic Function(Logic, Logic))
               ppTree,
-          {required bool signed}) =>
+          {required bool signed,
+          Logic? selectSign}) =>
       (a, b, c) => MutiplyOnly(
           a,
           b,
@@ -128,15 +133,19 @@ void main() {
               selectSigned: selectSign, signed: signed));
 
   MultiplyAccumulateCallback curryMultiplyAccumulate(
-          int radix,
-          Logic? selectSign,
-          ParallelPrefix Function(List<Logic>, Logic Function(Logic, Logic))
-              ppTree,
-          {required bool signed}) =>
+    int radix,
+    ParallelPrefix Function(List<Logic>, Logic Function(Logic, Logic)) ppTree, {
+    required bool signed,
+    Logic? selectSign,
+  }) =>
       (a, b, c) => CompressionTreeMultiplyAccumulate(a, b, c, radix,
-          selectSigned: selectSign, ppTree: ppTree, signed: signed);
+          selectSigned: selectSign,
+          ppTree: ppTree,
+          signed: signed,
+          name: 'Compression Tree MAC: ${ppTree.call([
+                Logic()
+              ], (a, b) => Logic()).name}');
 
-  // TODO(desmonddak): fix the selectSign null
   group('Curried Test of Compression Tree Multiplier', () {
     for (final signed in [false, true]) {
       for (final radix in [2, 16]) {
@@ -145,7 +154,7 @@ void main() {
             testMultiplyAccumulateRandom(
                 width,
                 10,
-                curryMultiplierAsMultiplyAccumulate(radix, null, ppTree,
+                curryMultiplierAsMultiplyAccumulate(radix, ppTree,
                     signed: signed));
           }
         }
@@ -159,7 +168,7 @@ void main() {
         for (final width in [5, 6]) {
           for (final ppTree in [KoggeStone.new, BrentKung.new]) {
             testMultiplyAccumulateRandom(width, 10,
-                curryMultiplyAccumulate(radix, null, ppTree, signed: signed));
+                curryMultiplyAccumulate(radix, ppTree, signed: signed));
           }
         }
       }

@@ -95,7 +95,7 @@ class FloatingPointAdderRound extends Module {
       Adder Function(Logic, Logic) adderGen = ParallelPrefixAdder.new,
       ParallelPrefix Function(List<Logic>, Logic Function(Logic, Logic))
           ppTree = KoggeStone.new,
-      super.name = 'floating_point_adder'})
+      super.name = 'floating_point_adder_round'})
       : exponentWidth = a.exponent.width,
         mantissaWidth = a.mantissa.width {
     if (b.exponent.width != exponentWidth ||
@@ -116,7 +116,7 @@ class FloatingPointAdderRound extends Module {
     addOutput('sum', width: _sum.width) <= _sum;
 
     final exponentSubtractor = OnesComplementAdder(a.exponent, b.exponent,
-        subtract: true, adderGen: adderGen);
+        subtract: true, adderGen: adderGen, name: 'exponent_sub');
     final signDelta = exponentSubtractor.sign;
 
     final delta = exponentSubtractor.sum;
@@ -183,14 +183,16 @@ class FloatingPointAdderRound extends Module {
         largeOperandLatched, smallerOperandRPathLatched,
         subtractIn: effectiveSubtractionLatched,
         carryOut: carryRPath,
-        adderGen: adderGen);
+        adderGen: adderGen,
+        name: 'rpath_significand_adder');
 
     final lowBitsRPath =
         smallerAlignRPathLatched.slice(extendWidthRPath - 1, 0);
     final lowAdderRPath = OnesComplementAdder(
         carryRPath.zeroExtend(extendWidthRPath),
         mux(effectiveSubtractionLatched, ~lowBitsRPath, lowBitsRPath),
-        adderGen: adderGen);
+        adderGen: adderGen,
+        name: 'rpath_lowadder');
 
     final preStickyRPath =
         lowAdderRPath.sum.slice(lowAdderRPath.sum.width - 4, 0).or();
@@ -235,22 +237,21 @@ class FloatingPointAdderRound extends Module {
 
     final firstZeroRPath = mux(selectRPath, ~sumP1RPath[-1], ~sumRPath[-1]);
 
+    final expDecr = ParallelPrefixDecr(largerExpLatched,
+        ppGen: ppTree, name: 'exp_decrement');
+    final expIncr = ParallelPrefixIncr(largerExpLatched,
+        ppGen: ppTree, name: 'exp_increment');
     final exponentRPath = Logic(width: exponentWidth);
     Combinational([
       If.block([
         // Subtract 1 from exponent
-        Iff(~incExpRPath & effectiveSubtractionLatched & firstZeroRPath, [
-          exponentRPath <
-              ParallelPrefixDecr(largerExpLatched, ppGen: ppTree).out
-        ]),
+        Iff(~incExpRPath & effectiveSubtractionLatched & firstZeroRPath,
+            [exponentRPath < expDecr.out]),
         // Add 1 to exponent
         ElseIf(
             ~effectiveSubtractionLatched &
                 (incExpRPath & firstZeroRPath | ~incExpRPath & ~firstZeroRPath),
-            [
-              exponentRPath <
-                  ParallelPrefixIncr(largerExpLatched, ppGen: ppTree).out
-            ]),
+            [exponentRPath < expIncr.out]),
         // Add 2 to exponent
         ElseIf(incExpRPath & effectiveSubtractionLatched & ~firstZeroRPath,
             [exponentRPath < largerExpLatched << 1]),
@@ -270,14 +271,17 @@ class FloatingPointAdderRound extends Module {
 
     final significandSubtractorNPath = OnesComplementAdder(
         largeOperand, smallOperandNPath,
-        subtractIn: effectiveSubtraction, adderGen: adderGen);
+        subtractIn: effectiveSubtraction,
+        adderGen: adderGen,
+        name: 'npath_significand_sub');
 
     final significandNPath =
         significandSubtractorNPath.sum.slice(smallOperandNPath.width - 1, 0);
 
     final leadOneNPath = mux(
         significandNPath.or(),
-        ParallelPrefixPriorityEncoder(significandNPath.reversed, ppGen: ppTree)
+        ParallelPrefixPriorityEncoder(significandNPath.reversed,
+                ppGen: ppTree, name: 'npath_leadingOne')
             .out
             .zeroExtend(exponentWidth),
         Const(15, width: exponentWidth));
@@ -297,7 +301,9 @@ class FloatingPointAdderRound extends Module {
 
     final expCalcNPath = OnesComplementAdder(
         largerExpLatched, leadOneNPathLatched.zeroExtend(exponentWidth),
-        subtractIn: effectiveSubtractionLatched, adderGen: adderGen);
+        subtractIn: effectiveSubtractionLatched,
+        adderGen: adderGen,
+        name: 'npath_expcalc');
 
     final preExpNPath = expCalcNPath.sum.slice(exponentWidth - 1, 0);
 
@@ -307,8 +313,8 @@ class FloatingPointAdderRound extends Module {
 
     final preMinShiftNPath = ~leadOneNPathLatched.or() | ~largerExpLatched.or();
 
-    final minShiftNPath = mux(posExpNPath | preMinShiftNPath,
-        leadOneNPathLatched, largerExpLatched - 1);
+    final minShiftNPath =
+        mux(posExpNPath | preMinShiftNPath, leadOneNPathLatched, expDecr.out);
     final notSubnormalNPath = aIsNormalLatched | bIsNormalLatched;
 
     final shiftedSignificandNPath =
