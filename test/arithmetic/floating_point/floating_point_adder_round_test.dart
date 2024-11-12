@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: BSD-3-Clause
 //
 // floating_point_rnd_test.dart
-// Tests of FloatingPointAdderRnd -- a rounding FP Adder.
+// Tests of FloatingPointAdderRound -- a rounding FP Adder.
 //
 // 2024 August 30
 // Author: Desmond A Kirkpatrick <desmond.a.kirkpatrick@intel.com
@@ -57,7 +57,7 @@ void main() {
   });
 
   test('FP: N path, subtraction, delta < 2', () async {
-    const eWidth = 4;
+    const eWidth = 3;
     const mWidth = 5;
 
     final one = FloatingPointValue.getFloatingPointConstant(

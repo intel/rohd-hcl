@@ -3,10 +3,7 @@
 
 export 'src/arbiters/arbiters.dart';
 export 'src/arithmetic/arithmetic.dart';
-export 'src/arithmetic/signals/fixed_point_logic.dart';
-export 'src/arithmetic/signals/floating_point_logic.dart';
-export 'src/arithmetic/values/fixed_point_value.dart';
-export 'src/arithmetic/values/floating_point_values/floating_point_values.dart';
+
 export 'src/binary_gray.dart';
 export 'src/clock_gating.dart';
 export 'src/component_config/component_config.dart';
