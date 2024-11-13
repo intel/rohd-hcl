@@ -41,7 +41,7 @@ class FloatingPointAdderSimple extends Module {
   FloatingPointAdderSimple(FloatingPoint a, FloatingPoint b,
       {ParallelPrefix Function(List<Logic>, Logic Function(Logic, Logic))
           ppGen = KoggeStone.new,
-      super.name})
+      super.name = 'floatingpoint_adder_simple'})
       : exponentWidth = a.exponent.width,
         mantissaWidth = a.mantissa.width {
     if (b.exponent.width != exponentWidth ||

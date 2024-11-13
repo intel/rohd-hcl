@@ -88,12 +88,12 @@ class CompressionTreeMultiplier extends Multiplier {
       {Logic? selectSigned,
       ParallelPrefix Function(List<Logic>, Logic Function(Logic, Logic))
           ppTree = KoggeStone.new,
-      super.signed = false})
-      : super(
-            name: 'Compression Tree Multiplier: '
-                'R${radix}_${ppTree.call([
-              Logic()
-            ], (a, b) => Logic()).runtimeType}') {
+      super.signed = false,
+      super.name = 'compression_tree_multiplier'}) {
+    if (selectSigned != null) {
+      selectSigned = addInput('selectSigned', selectSigned);
+    }
+
     final product = addOutput('product', width: a.width + b.width);
     final pp = PartialProductGeneratorCompactRectSignExtension(
         a, b, RadixEncoder(radix),
@@ -128,10 +128,11 @@ class CompressionTreeMultiplyAccumulate extends MultiplyAccumulate {
       {required super.signed,
       Logic? selectSigned,
       ParallelPrefix Function(List<Logic>, Logic Function(Logic, Logic))
-          ppTree = KoggeStone.new})
-      : super(
-            name: 'Compression Tree Multiply Accumulate: '
-                'R${radix}_${ppTree.call([Logic()], (a, b) => Logic()).name}') {
+          ppTree = KoggeStone.new,
+      super.name = 'compression_tree_mac'}) {
+    if (selectSigned != null) {
+      selectSigned = addInput('selectSigned', selectSigned);
+    }
     final accumulate = addOutput('accumulate', width: a.width + b.width + 1);
     final pp = PartialProductGeneratorCompactRectSignExtension(
         a, b, RadixEncoder(radix),
