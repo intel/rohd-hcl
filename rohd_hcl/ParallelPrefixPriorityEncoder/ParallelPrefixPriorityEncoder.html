@@ -68,6 +68,7 @@
 <li><span class="parameter" id="param-"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.5.3/rohd/Logic-class.html">Logic</a></span></span></li>
 </ol>)</span></li>
 </ol>) = <span class="default-value">KoggeStone.new</span>, </span></li>
+<li><span class="parameter" id="-param-name"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.5.4/dart-core/String-class.html">String</a></span> <span class="parameter-name">name</span> = <span class="default-value">&#39;parallel_prefix_encoder&#39;</span>, </span></li>
 </ol>})
     </section>
 
@@ -82,11 +83,8 @@
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">ParallelPrefixPriorityEncoder(Logic inp,
     {ParallelPrefix Function(List&lt;Logic&gt;, Logic Function(Logic, Logic))
-        ppGen = KoggeStone.new})
-    : super(
-          name: &#39;ParallelPrefixEncoder: ${ppGen.call([
-            Logic()
-          ], (a, b) =&gt; Logic()).name}&#39;) {
+        ppGen = KoggeStone.new,
+    super.name = &#39;parallel_prefix_encoder&#39;}) {
   inp = addInput(&#39;inp&#39;, inp, width: inp.width);
   addOutput(&#39;out&#39;, width: log2Ceil(inp.width));
   final u = ParallelPrefixPriorityFinder(inp, ppGen: ppGen);

@@ -70,6 +70,7 @@
 <li><span class="parameter" id="param-"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.5.3/rohd/Logic-class.html">Logic</a></span></span></li>
 </ol>), {</span></li>
 <li><span class="parameter" id="-param-largestMagnitudeFirst"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.5.4/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">largestMagnitudeFirst</span> = <span class="default-value">false</span>, </span></li>
+<li><span class="parameter" id="-param-name"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.5.4/dart-core/String-class.html">String</a></span> <span class="parameter-name">name</span> = <span class="default-value">&#39;sign_magnitude_adder&#39;</span>, </span></li>
 </ol>})
     </section>
 
@@ -89,10 +90,8 @@ too 'true' to avoid a comparator.</p>
   <pre class="language-dart"><code class="language-dart">&#47;&#47; TODO(desmonddak): this adder may need a carry-in for rounding
 SignMagnitudeAdder(this.aSign, super.a, this.bSign, super.b,
     Adder Function(Logic, Logic) adderGen,
-    {this.largestMagnitudeFirst = false})
-    : super(
-          name: &#39;Sign Magnitude Adder: &#39;
-              &#39;${adderGen.call(Logic(), Logic()).name}&#39;) {
+    {this.largestMagnitudeFirst = false,
+    super.name = &#39;sign_magnitude_adder&#39;}) {
   aSign = addInput(&#39;aSign&#39;, aSign);
   bSign = addInput(&#39;bSign&#39;, bSign);
   _sign = addOutput(&#39;sign&#39;);

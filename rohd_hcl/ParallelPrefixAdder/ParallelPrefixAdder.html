@@ -69,6 +69,7 @@
 <li><span class="parameter" id="param-"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.5.3/rohd/Logic-class.html">Logic</a></span></span></li>
 </ol>)</span></li>
 </ol>) = <span class="default-value">KoggeStone.new</span>, </span></li>
+<li><span class="parameter" id="-param-name"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.5.4/dart-core/String-class.html">String</a></span> <span class="parameter-name">name</span> = <span class="default-value">&#39;parallel_prefix_adder&#39;</span>, </span></li>
 </ol>})
     </section>
 
@@ -83,11 +84,8 @@
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">ParallelPrefixAdder(super.a, super.b,
     {ParallelPrefix Function(List&lt;Logic&gt;, Logic Function(Logic, Logic))
-        ppGen = KoggeStone.new})
-    : super(
-          name: &#39;ParallelPrefixAdder: ${ppGen.call([
-            Logic()
-          ], (a, b) =&gt; Logic()).name}&#39;) {
+        ppGen = KoggeStone.new,
+    super.name = &#39;parallel_prefix_adder&#39;}) {
   final u = ppGen(
       List&lt;Logic&gt;.generate(
           a.width, (i) =&gt; [a[i] &amp; b[i], a[i] | b[i]].swizzle()),

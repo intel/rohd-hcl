@@ -76,7 +76,7 @@
 <li><span class="parameter" id="param-"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.5.3/rohd/Logic-class.html">Logic</a></span></span></li>
 </ol>)</span></li>
 </ol>) = <span class="default-value">KoggeStone.new</span>, </span></li>
-<li><span class="parameter" id="-param-name"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.5.4/dart-core/String-class.html">String</a></span> <span class="parameter-name">name</span> = <span class="default-value">&#39;floating_point_adder&#39;</span>, </span></li>
+<li><span class="parameter" id="-param-name"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.5.4/dart-core/String-class.html">String</a></span> <span class="parameter-name">name</span> = <span class="default-value">&#39;floating_point_adder_round&#39;</span>, </span></li>
 </ol>})
     </section>
 
@@ -102,7 +102,7 @@ functions.
     Adder Function(Logic, Logic) adderGen = ParallelPrefixAdder.new,
     ParallelPrefix Function(List&lt;Logic&gt;, Logic Function(Logic, Logic))
         ppTree = KoggeStone.new,
-    super.name = &#39;floating_point_adder&#39;})
+    super.name = &#39;floating_point_adder_round&#39;})
     : exponentWidth = a.exponent.width,
       mantissaWidth = a.mantissa.width {
   if (b.exponent.width != exponentWidth ||
@@ -123,7 +123,7 @@ functions.
   addOutput(&#39;sum&#39;, width: _sum.width) &lt;= _sum;
 
   final exponentSubtractor = OnesComplementAdder(a.exponent, b.exponent,
-      subtract: true, adderGen: adderGen);
+      subtract: true, adderGen: adderGen, name: &#39;exponent_sub&#39;);
   final signDelta = exponentSubtractor.sign;
 
   final delta = exponentSubtractor.sum;
@@ -190,14 +190,16 @@ functions.
       largeOperandLatched, smallerOperandRPathLatched,
       subtractIn: effectiveSubtractionLatched,
       carryOut: carryRPath,
-      adderGen: adderGen);
+      adderGen: adderGen,
+      name: &#39;rpath_significand_adder&#39;);
 
   final lowBitsRPath =
       smallerAlignRPathLatched.slice(extendWidthRPath - 1, 0);
   final lowAdderRPath = OnesComplementAdder(
       carryRPath.zeroExtend(extendWidthRPath),
       mux(effectiveSubtractionLatched, ~lowBitsRPath, lowBitsRPath),
-      adderGen: adderGen);
+      adderGen: adderGen,
+      name: &#39;rpath_lowadder&#39;);
 
   final preStickyRPath =
       lowAdderRPath.sum.slice(lowAdderRPath.sum.width - 4, 0).or();
@@ -242,22 +244,21 @@ functions.
 
   final firstZeroRPath = mux(selectRPath, ~sumP1RPath[-1], ~sumRPath[-1]);
 
+  final expDecr = ParallelPrefixDecr(largerExpLatched,
+      ppGen: ppTree, name: &#39;exp_decrement&#39;);
+  final expIncr = ParallelPrefixIncr(largerExpLatched,
+      ppGen: ppTree, name: &#39;exp_increment&#39;);
   final exponentRPath = Logic(width: exponentWidth);
   Combinational([
     If.block([
       &#47;&#47; Subtract 1 from exponent
-      Iff(~incExpRPath &amp; effectiveSubtractionLatched &amp; firstZeroRPath, [
-        exponentRPath &lt;
-            ParallelPrefixDecr(largerExpLatched, ppGen: ppTree).out
-      ]),
+      Iff(~incExpRPath &amp; effectiveSubtractionLatched &amp; firstZeroRPath,
+          [exponentRPath &lt; expDecr.out]),
       &#47;&#47; Add 1 to exponent
       ElseIf(
           ~effectiveSubtractionLatched &amp;
               (incExpRPath &amp; firstZeroRPath | ~incExpRPath &amp; ~firstZeroRPath),
-          [
-            exponentRPath &lt;
-                ParallelPrefixIncr(largerExpLatched, ppGen: ppTree).out
-          ]),
+          [exponentRPath &lt; expIncr.out]),
       &#47;&#47; Add 2 to exponent
       ElseIf(incExpRPath &amp; effectiveSubtractionLatched &amp; ~firstZeroRPath,
           [exponentRPath &lt; largerExpLatched &lt;&lt; 1]),
@@ -277,14 +278,17 @@ functions.
 
   final significandSubtractorNPath = OnesComplementAdder(
       largeOperand, smallOperandNPath,
-      subtractIn: effectiveSubtraction, adderGen: adderGen);
+      subtractIn: effectiveSubtraction,
+      adderGen: adderGen,
+      name: &#39;npath_significand_sub&#39;);
 
   final significandNPath =
       significandSubtractorNPath.sum.slice(smallOperandNPath.width - 1, 0);
 
   final leadOneNPath = mux(
       significandNPath.or(),
-      ParallelPrefixPriorityEncoder(significandNPath.reversed, ppGen: ppTree)
+      ParallelPrefixPriorityEncoder(significandNPath.reversed,
+              ppGen: ppTree, name: &#39;npath_leadingOne&#39;)
           .out
           .zeroExtend(exponentWidth),
       Const(15, width: exponentWidth));
@@ -304,7 +308,9 @@ functions.
 
   final expCalcNPath = OnesComplementAdder(
       largerExpLatched, leadOneNPathLatched.zeroExtend(exponentWidth),
-      subtractIn: effectiveSubtractionLatched, adderGen: adderGen);
+      subtractIn: effectiveSubtractionLatched,
+      adderGen: adderGen,
+      name: &#39;npath_expcalc&#39;);
 
   final preExpNPath = expCalcNPath.sum.slice(exponentWidth - 1, 0);
 
@@ -314,8 +320,8 @@ functions.
 
   final preMinShiftNPath = ~leadOneNPathLatched.or() | ~largerExpLatched.or();
 
-  final minShiftNPath = mux(posExpNPath | preMinShiftNPath,
-      leadOneNPathLatched, largerExpLatched - 1);
+  final minShiftNPath =
+      mux(posExpNPath | preMinShiftNPath, leadOneNPathLatched, expDecr.out);
   final notSubnormalNPath = aIsNormalLatched | bIsNormalLatched;
 
   final shiftedSignificandNPath =
