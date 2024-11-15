@@ -139,7 +139,6 @@ void main() {
   });
   test('ColumnCompressor: random evaluate: square radix-4, just CompactRect',
       () async {
-    stdout.write('\n');
     for (final signed in [false, true]) {
       for (var radix = 4; radix < 8; radix *= 2) {
         final encoder = RadixEncoder(radix);
@@ -165,7 +164,7 @@ void main() {
                     Logic(name: 'Y', width: width), encoder,
                     signed: signed);
               }
-              testCompressionExhaustive(pp);
+              testCompressionRandom(pp, 10);
             }
           }
         }

@@ -40,8 +40,12 @@ class CompressionTreeMultiplierConfigurator extends Configurator {
   /// Controls the width of the multiplier.!
   final IntConfigKnob multiplierWidthKnob = IntConfigKnob(value: 5);
 
+  /// Controls whether the adder is pipelined
+  final ToggleConfigKnob pipelinedKnob = ToggleConfigKnob(value: false);
+
   @override
   Module createModule() => CompressionTreeMultiplier(
+      clk: pipelinedKnob.value ? Logic() : null,
       Logic(name: 'a', width: multiplicandWidthKnob.value),
       Logic(name: 'b', width: multiplierWidthKnob.value),
       radixKnob.value,
@@ -53,6 +57,7 @@ class CompressionTreeMultiplierConfigurator extends Configurator {
     'Radix': radixKnob,
     'Multiplicand width': multiplicandWidthKnob,
     'Multiplier width': multiplierWidthKnob,
+    'Pipelined': pipelinedKnob,
   });
 
   @override

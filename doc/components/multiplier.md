@@ -86,7 +86,9 @@ The parameters of the
 - The radix used for Booth encoding (2, 4, 8, and 16 are currently supported)
 - The type of `ParallelPrefix` tree used in the final `ParallelPrefixAdder` (optional)
 - `signed` parameter: whether the operands should be treated as signed (2s complement) or unsigned
-- An optional `selectSigned` control signal which overrides the `signed` configuration allowing for runtime control of signed or unsigned operation with the same hardware.
+- `ppGen` parameter: the type of `PartialProductGenerator` to use which has derived classes for different styles of sign extension. In some cases this adds an extra row to hold a sign bit.
+- An optional `selectSigned` control signal which overrides the `signed` configuration allowing for runtime control of signed or unsigned operation with the same hardware. `signed` must be false if using this control signal.
+- An optional `clk`, as well as `enable` and `reset` that are used to add a pipestage in the `ColumnCompressor` to allow for pipelined operation.
 
 Here is an example of use of the `CompressionTreeMultiplier`:
 
@@ -122,7 +124,9 @@ The parameters of the
 - The radix used for Booth encoding (2, 4, 8, and 16 are currently supported)
 - The type of `ParallelPrefix` tree used in the final `ParallelPrefixAdder` (default Kogge-Stone).
 - `signed` parameter: whether the operands should be treated as signed (2s complement) or unsigned
-- An optional `selectSigned` control signal which overrides the `signed` configuration allowing for runtime control of signed or unsigned operation with the same hardware.
+- `ppGen` parameter: the type of `PartialProductGenerator` to use which has derived classes for different styles of sign extension. In some cases this adds an extra row to hold a sign bit (default `PartialProductGeneratorCompactRectSignExtension`).
+- An optional `selectSigned` control signal which overrides the `signed` configuration allowing for runtime control of signed or unsigned operation with the same hardware. `signed` must be false if using this control signal.
+- An optional `clk`, as well as `enable` and `reset` that are used to add a pipestage in the `ColumnCompressor` to allow for pipelined operation.
 
 Here is an example of using the `CompressionTreeMultiplyAccumulate`:
 

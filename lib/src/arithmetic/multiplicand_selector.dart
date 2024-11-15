@@ -53,7 +53,6 @@ class MultiplicandSelector {
       ];
       extendedMultiplicand = (multiplicand.elements + extension).rswizzle();
     }
-
     for (var pos = 0; pos < numMultiples; pos++) {
       final ratio = pos + 1;
       multiples.elements[pos] <=

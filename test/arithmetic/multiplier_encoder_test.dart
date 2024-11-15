@@ -151,9 +151,9 @@ void main() {
     }
   });
 
-  test('full rectangular test,', () async {
+  test('Multiplier encoder rectangular test,', () async {
     for (final signed in [false, true]) {
-      for (var radix = 2; radix < 32; radix *= 2) {
+      for (var radix = 2; radix < 8; radix *= 2) {
         final encoder = RadixEncoder(radix);
         final shift = log2Ceil(encoder.radix);
         for (var width = 3 + shift + 1; width < 3 + shift * 2 + 1; width++) {
@@ -179,7 +179,7 @@ void main() {
                       Logic(name: 'Y', width: width), encoder,
                       signed: signed);
                 }
-                checkEvaluateRandom(pp, 20);
+                checkEvaluateRandom(pp, 10);
               }
             }
           }

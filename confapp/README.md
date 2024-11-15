@@ -2,6 +2,13 @@
 
 This is a web app that allows RTL generation (SystemVerilog) based on the specific configuration.
 
+For local testing:
+
+```shell
+cd confapp
+flutter run --profile -d web-server --web-hostname=0.0.0.0 --web-port=3000
+```
+
 ## Widget Tree
 
 ```mermaid

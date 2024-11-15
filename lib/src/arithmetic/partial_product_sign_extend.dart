@@ -65,7 +65,7 @@ class PartialProductGeneratorBruteSignExtension
   /// Construct a brute-force sign extending Partial Product Generator
   PartialProductGeneratorBruteSignExtension(
       super.multiplicand, super.multiplier, super.radixEncoder,
-      {super.signed, super.selectSigned});
+      {super.signed, super.selectSigned, super.name = 'brute'});
 
   /// Fully sign extend the PP array: useful for reference only
   @override
@@ -108,7 +108,7 @@ class PartialProductGeneratorCompactSignExtension
   /// Construct a compact sign extending Partial Product Generator
   PartialProductGeneratorCompactSignExtension(
       super.multiplicand, super.multiplier, super.radixEncoder,
-      {super.signed, super.selectSigned});
+      {super.signed, super.selectSigned, super.name = 'compact'});
 
   /// Sign extend the PP array using stop bits without adding a row.
   @override
@@ -128,17 +128,10 @@ class PartialProductGeneratorCompactSignExtension
     final lastRow = rows - 1;
     final firstAddend = partialProducts[0];
     final lastAddend = partialProducts[lastRow];
-    var alignRow0Sign = selector.width -
-        shift * lastRow -
-        ((shift > 1)
-            ? 1
-            : signed
-                ? 1
-                : 0);
 
-    if (alignRow0Sign < 0) {
-      alignRow0Sign = 0;
-    }
+    final firstRowQStart = selector.width - (signed ? 1 : 0);
+    final lastRowSignPos = shift * lastRow;
+    final alignRow0Sign = firstRowQStart - lastRowSignPos;
 
     final signs = [for (var r = 0; r < rows; r++) encoder.getEncoding(r).sign];
 
@@ -174,7 +167,13 @@ class PartialProductGeneratorCompactSignExtension
     remainders[lastRow] <= propagate[lastRow][alignRow0Sign];
 
     // Compute Sign extension for row==0
-    final firstSign = !signed ? signs[0] : firstAddend.last;
+    // final firstSign = !signed ? signs[0] : firstAddend.last;
+    final Logic firstSign;
+    if (selectSigned == null) {
+      firstSign = signed ? SignBit(firstAddend.last) : SignBit(signs[0]);
+    } else {
+      firstSign = SignBit(mux(selectSigned!, firstAddend.last, signs[0]));
+    }
     final q = [
       firstSign ^ remainders[lastRow],
       ~(firstSign & ~remainders[lastRow]),
@@ -217,7 +216,7 @@ class PartialProductGeneratorStopBitsSignExtension
   /// Construct a stop bits sign extending Partial Product Generator
   PartialProductGeneratorStopBitsSignExtension(
       super.multiplicand, super.multiplier, super.radixEncoder,
-      {super.signed, super.selectSigned});
+      {super.signed, super.selectSigned, super.name = 'stop_bits'});
 
   /// Sign extend the PP array using stop bits.
   /// If possible, fold the final carry into another row (only when rectangular
@@ -297,7 +296,7 @@ class PartialProductGeneratorCompactRectSignExtension
   /// Construct a compact rect sign extending Partial Product Generator
   PartialProductGeneratorCompactRectSignExtension(
       super.multiplicand, super.multiplier, super.radixEncoder,
-      {required super.signed, super.selectSigned});
+      {required super.signed, super.selectSigned, super.name = 'compact_rect'});
 
   /// Sign extend the PP array using stop bits without adding a row
   /// This routine works with different widths of multiplicand/multiplier,
@@ -394,7 +393,14 @@ class PartialProductGeneratorCompactRectSignExtension
     // Insert the lastRow sign:  Either in firstRow's Q if there is a
     // collision or in another row if it lands beyond the Q sign extension
 
-    final firstSign = signed ? SignBit(firstAddend.last) : SignBit(signs[0]);
+    // final firstSign = signed ? SignBit(firstAddend.last) : SignBit(signs[0]);
+
+    final Logic firstSign;
+    if (selectSigned == null) {
+      firstSign = signed ? SignBit(firstAddend.last) : SignBit(signs[0]);
+    } else {
+      firstSign = SignBit(mux(selectSigned!, firstAddend.last, signs[0]));
+    }
     final lastSign = SignBit(remainders[lastRow]);
     // Compute Sign extension MSBs for firstRow
     final qLen = shift + 1;
@@ -417,7 +423,8 @@ class PartialProductGeneratorCompactRectSignExtension
     if (-align >= q.length) {
       q.last = SignBit(~firstSign, inverted: true);
     }
-    addStopSign(firstAddend, q[0]);
+
+    addStopSign(firstAddend, SignBit(q[0]));
     firstAddend.addAll(q.getRange(1, q.length));
 
     if (-align >= q.length) {
