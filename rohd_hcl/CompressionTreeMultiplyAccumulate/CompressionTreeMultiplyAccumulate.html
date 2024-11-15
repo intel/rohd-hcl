@@ -120,12 +120,12 @@ the <a href="../../rohd_hcl/ColumnCompressor-class.html">ColumnCompressor</a> is
             {required bool signed, Logic? selectSigned})
         ppGen = PartialProductGeneratorCompactRectSignExtension.new,
     super.name = &#39;compression_tree_mac&#39;}) {
-  final Logic? internalSelectSigned;
-  if (selectSigned != null) {
-    internalSelectSigned = addInput(&#39;selectSigned&#39;, selectSigned);
-  } else {
-    internalSelectSigned = null;
-  }
+  final internalSelectSigned =
+      (selectSigned != null) ? addInput(&#39;selectSigned&#39;, selectSigned) : null;
+  final iClk = (clk != null) ? addInput(&#39;clk&#39;, clk!) : null;
+  final iReset = (reset != null) ? addInput(&#39;reset&#39;, reset!) : null;
+  final iEnable = (enable != null) ? addInput(&#39;enable&#39;, enable!) : null;
+
   final accumulate = addOutput(&#39;accumulate&#39;, width: a.width + b.width + 1);
   final pp = ppGen(a, b, RadixEncoder(radix),
       selectSigned: internalSelectSigned, signed: signed);
@@ -153,7 +153,7 @@ the <a href="../../rohd_hcl/ColumnCompressor-class.html">ColumnCompressor</a> is
   pp.rowShift.insert(0, 0);
 
   final compressor =
-      ColumnCompressor(clk: clk, reset: reset, enable: enable, pp)
+      ColumnCompressor(clk: iClk, reset: iReset, enable: iEnable, pp)
         ..compress();
   final adder = ParallelPrefixAdder(
       compressor.extractRow(0), compressor.extractRow(1),
