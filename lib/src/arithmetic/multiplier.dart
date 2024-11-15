@@ -113,19 +113,18 @@ class CompressionTreeMultiplier extends Multiplier {
           ppGen = PartialProductGeneratorCompactRectSignExtension.new,
       super.signed = false,
       super.name = 'compression_tree_multiplier'}) {
-    final Logic? internalSelectSigned;
-    if (selectSigned != null) {
-      internalSelectSigned = addInput('selectSigned', selectSigned);
-    } else {
-      internalSelectSigned = null;
-    }
+    final internalSelectSigned =
+        (selectSigned != null) ? addInput('selectSigned', selectSigned) : null;
+    final iClk = (clk != null) ? addInput('clk', clk!) : null;
+    final iReset = (reset != null) ? addInput('reset', reset!) : null;
+    final iEnable = (enable != null) ? addInput('enable', enable!) : null;
 
     final product = addOutput('product', width: a.width + b.width);
     final pp = ppGen(a, b, RadixEncoder(radix),
         selectSigned: internalSelectSigned, signed: signed);
 
     final compressor =
-        ColumnCompressor(clk: clk, reset: reset, enable: enable, pp)
+        ColumnCompressor(clk: iClk, reset: iReset, enable: iEnable, pp)
           ..compress();
     final adder = ParallelPrefixAdder(
         compressor.extractRow(0), compressor.extractRow(1),
@@ -180,12 +179,12 @@ class CompressionTreeMultiplyAccumulate extends MultiplyAccumulate {
               {required bool signed, Logic? selectSigned})
           ppGen = PartialProductGeneratorCompactRectSignExtension.new,
       super.name = 'compression_tree_mac'}) {
-    final Logic? internalSelectSigned;
-    if (selectSigned != null) {
-      internalSelectSigned = addInput('selectSigned', selectSigned);
-    } else {
-      internalSelectSigned = null;
-    }
+    final internalSelectSigned =
+        (selectSigned != null) ? addInput('selectSigned', selectSigned) : null;
+    final iClk = (clk != null) ? addInput('clk', clk!) : null;
+    final iReset = (reset != null) ? addInput('reset', reset!) : null;
+    final iEnable = (enable != null) ? addInput('enable', enable!) : null;
+
     final accumulate = addOutput('accumulate', width: a.width + b.width + 1);
     final pp = ppGen(a, b, RadixEncoder(radix),
         selectSigned: internalSelectSigned, signed: signed);
@@ -213,7 +212,7 @@ class CompressionTreeMultiplyAccumulate extends MultiplyAccumulate {
     pp.rowShift.insert(0, 0);
 
     final compressor =
-        ColumnCompressor(clk: clk, reset: reset, enable: enable, pp)
+        ColumnCompressor(clk: iClk, reset: iReset, enable: iEnable, pp)
           ..compress();
     final adder = ParallelPrefixAdder(
         compressor.extractRow(0), compressor.extractRow(1),
