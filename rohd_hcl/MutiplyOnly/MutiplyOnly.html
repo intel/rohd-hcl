@@ -65,10 +65,12 @@
       <span class="name ">MutiplyOnly</span>(<wbr><ol class="parameter-list"> <li><span class="parameter" id="-param-a"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.5.3/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">a</span>, </span></li>
 <li><span class="parameter" id="-param-b"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.5.3/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">b</span>, </span></li>
 <li><span class="parameter" id="-param-c"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.5.3/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">c</span>, </span></li>
-<li><span class="parameter" id="-param-multiplyGenerator"><span class="type-annotation"><a href="../../rohd_hcl/Multiplier-class.html">Multiplier</a></span> <span class="parameter-name">multiplyGenerator</span>(<ol class="parameter-list single-line"> <li><span class="parameter" id="param-a"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.5.3/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">a</span>, </span></li>
-<li><span class="parameter" id="param-b"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.5.3/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">b</span></span></li>
-</ol>), {</span></li>
+<li><span class="parameter" id="-param-mulGen"><span class="type-annotation"><a href="../../rohd_hcl/Multiplier-class.html">Multiplier</a></span> <span class="parameter-name">mulGen</span>(<ol class="parameter-list"> <li><span class="parameter" id="param-a"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.5.3/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">a</span>, </span></li>
+<li><span class="parameter" id="param-b"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.5.3/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">b</span>, {</span></li>
+<li><span class="parameter" id="param-selectSigned"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.5.3/rohd/Logic-class.html">Logic</a>?</span> <span class="parameter-name">selectSigned</span>, </span></li>
+</ol>}), {</span></li>
 <li><span class="parameter" id="-param-signed"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.5.4/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">signed</span> = <span class="default-value">false</span>, </span></li>
+<li><span class="parameter" id="-param-selectSigned"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.5.3/rohd/Logic-class.html">Logic</a>?</span> <span class="parameter-name">selectSigned</span>, </span></li>
 </ol>})
     </section>
 
@@ -83,19 +85,32 @@ using the same tester with zero accumulate addend <code>c</code>.</p>
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">MutiplyOnly(super.a, super.b, super.c,
-    Multiplier Function(Logic a, Logic b) multiplyGenerator,
-    {super.signed = false}) &#47;&#47; Will be overrwridden by multiplyGenerator
-    : super(name: &#39;Multiply Only: ${multiplyGenerator.call(a, b).name}&#39;) {
+    Multiplier Function(Logic a, Logic b, {Logic? selectSigned}) mulGen,
+    {super.signed = false,
+    Logic? selectSigned}) &#47;&#47; Will be overrwridden by multiplyGenerator
+    : super(
+          name: &#39;Multiply Only: &#39;
+              &#39;${mulGen.call(a, b, selectSigned: selectSigned).name}&#39;) {
+  final Logic? internalSelectSigned;
+
+  if (selectSigned != null) {
+    internalSelectSigned = addInput(&#39;selectSigned&#39;, selectSigned);
+  } else {
+    internalSelectSigned = null;
+  }
   final accumulate = addOutput(&#39;accumulate&#39;, width: a.width + b.width + 1);
 
-  final multiply = multiplyGenerator(a, b);
+  final multiply = mulGen(a, b, selectSigned: internalSelectSigned);
   signed = multiply.signed;
 
   accumulate &lt;=
-      (signed
-          ? [multiply.product[multiply.product.width - 1], multiply.product]
-              .swizzle()
-          : multiply.product.zeroExtend(accumulate.width));
+      mux(
+          (internalSelectSigned != null)
+              ? internalSelectSigned
+              : (signed ? Const(1) : Const(0)),
+          [multiply.product[multiply.product.width - 1], multiply.product]
+              .swizzle(),
+          multiply.product.zeroExtend(accumulate.width));
 }</code></pre>
 </section>
 

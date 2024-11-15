@@ -85,6 +85,7 @@
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">@override
 Module createModule() =&gt; CompressionTreeMultiplier(
+    clk: pipelinedKnob.value ? Logic() : null,
     Logic(name: &#39;a&#39;, width: multiplicandWidthKnob.value),
     Logic(name: &#39;b&#39;, width: multiplierWidthKnob.value),
     radixKnob.value,

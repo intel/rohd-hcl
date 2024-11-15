@@ -65,12 +65,21 @@
       <span class="name ">CompressionTreeMultiplier</span>(<wbr><ol class="parameter-list"> <li><span class="parameter" id="-param-a"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.5.3/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">a</span>, </span></li>
 <li><span class="parameter" id="-param-b"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.5.3/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">b</span>, </span></li>
 <li><span class="parameter" id="-param-radix"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.5.4/dart-core/int-class.html">int</a></span> <span class="parameter-name">radix</span>, {</span></li>
+<li><span class="parameter" id="-param-clk"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.5.3/rohd/Logic-class.html">Logic</a>?</span> <span class="parameter-name">clk</span>, </span></li>
+<li><span class="parameter" id="-param-reset"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.5.3/rohd/Logic-class.html">Logic</a>?</span> <span class="parameter-name">reset</span>, </span></li>
+<li><span class="parameter" id="-param-enable"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.5.3/rohd/Logic-class.html">Logic</a>?</span> <span class="parameter-name">enable</span>, </span></li>
 <li><span class="parameter" id="-param-selectSigned"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.5.3/rohd/Logic-class.html">Logic</a>?</span> <span class="parameter-name">selectSigned</span>, </span></li>
 <li><span class="parameter" id="-param-ppTree"><span class="type-annotation"><a href="../../rohd_hcl/ParallelPrefix-class.html">ParallelPrefix</a></span> <span class="parameter-name">ppTree</span>(<ol class="parameter-list single-line"> <li><span class="parameter" id="param-"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.5.4/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://pub.dev/documentation/rohd/0.5.3/rohd/Logic-class.html">Logic</a></span>&gt;</span></span>, </span></li>
 <li><span class="parameter" id="param-"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.5.3/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name"></span>(<ol class="parameter-list single-line"> <li><span class="parameter" id="param-"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.5.3/rohd/Logic-class.html">Logic</a></span>, </span></li>
 <li><span class="parameter" id="param-"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.5.3/rohd/Logic-class.html">Logic</a></span></span></li>
 </ol>)</span></li>
 </ol>) = <span class="default-value">KoggeStone.new</span>, </span></li>
+<li><span class="parameter" id="-param-ppGen"><span class="type-annotation"><a href="../../rohd_hcl/PartialProductGenerator-class.html">PartialProductGenerator</a></span> <span class="parameter-name">ppGen</span>(<ol class="parameter-list"> <li><span class="parameter" id="param-"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.5.3/rohd/Logic-class.html">Logic</a></span>, </span></li>
+<li><span class="parameter" id="param-"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.5.3/rohd/Logic-class.html">Logic</a></span>, </span></li>
+<li><span class="parameter" id="param-"><span class="type-annotation"><a href="../../rohd_hcl/RadixEncoder-class.html">RadixEncoder</a></span>, {</span></li>
+<li><span class="parameter" id="param-selectSigned"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.5.3/rohd/Logic-class.html">Logic</a>?</span> <span class="parameter-name">selectSigned</span>, </span></li>
+<li><span class="parameter" id="param-signed"><span>required</span> <span class="type-annotation"><a href="https://api.dart.dev/stable/3.5.4/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">signed</span>, </span></li>
+</ol>}) = <span class="default-value">PartialProductGeneratorCompactRectSignExtension.new</span>, </span></li>
 <li><span class="parameter" id="-param-signed"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.5.4/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">signed</span> = <span class="default-value">false</span>, </span></li>
 <li><span class="parameter" id="-param-name"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.5.4/dart-core/String-class.html">String</a></span> <span class="parameter-name">name</span> = <span class="default-value">&#39;compression_tree_multiplier&#39;</span>, </span></li>
 </ol>})
@@ -80,12 +89,18 @@
 <section class="desc markdown">
   <p>Construct a compression tree integer multiplier with a given <code>radix</code>
 and prefix tree functor <code>ppTree</code> for the compressor and final adder.</p>
+<p>Sign extension methodology is defined by the partial product generator
+supplied via <code>ppGen</code>.</p>
 <p><code>a</code> and <code>b</code> are the product terms and they can be different widths
 allowing for rectangular multiplication.</p>
 <p><a href="../../rohd_hcl/Multiplier/signed.html">signed</a> parameter configures the multiplier as a signed multiplier
 (default is unsigned).</p>
 <p>Optional <code>selectSigned</code> allows for runtime configuration of signed
 or unsigned operation, overriding the <a href="../../rohd_hcl/Multiplier/signed.html">signed</a> static configuration.</p>
+<p>If <a href="../../rohd_hcl/CompressionTreeMultiplier/clk.html">clk</a> is not null then a set of flops are used to latch the output
+after compression.  <a href="../../rohd_hcl/CompressionTreeMultiplier/reset.html">reset</a> and <a href="../../rohd_hcl/CompressionTreeMultiplier/enable.html">enable</a> are optional
+inputs to control these flops when <a href="../../rohd_hcl/CompressionTreeMultiplier/clk.html">clk</a> is provided. If <a href="../../rohd_hcl/CompressionTreeMultiplier/clk.html">clk</a> is null,
+the <a href="../../rohd_hcl/ColumnCompressor-class.html">ColumnCompressor</a> is built as a combinational tree of compressors.</p>
 </section>
 
 
@@ -93,21 +108,31 @@ or unsigned operation, overriding the <a href="../../rohd_hcl/Multiplier/signed.
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">CompressionTreeMultiplier(super.a, super.b, int radix,
-    {Logic? selectSigned,
+    {this.clk,
+    this.reset,
+    this.enable,
+    Logic? selectSigned,
     ParallelPrefix Function(List&lt;Logic&gt;, Logic Function(Logic, Logic))
         ppTree = KoggeStone.new,
+    PartialProductGenerator Function(Logic, Logic, RadixEncoder,
+            {required bool signed, Logic? selectSigned})
+        ppGen = PartialProductGeneratorCompactRectSignExtension.new,
     super.signed = false,
     super.name = &#39;compression_tree_multiplier&#39;}) {
+  final Logic? internalSelectSigned;
   if (selectSigned != null) {
-    selectSigned = addInput(&#39;selectSigned&#39;, selectSigned);
+    internalSelectSigned = addInput(&#39;selectSigned&#39;, selectSigned);
+  } else {
+    internalSelectSigned = null;
   }
 
   final product = addOutput(&#39;product&#39;, width: a.width + b.width);
-  final pp = PartialProductGeneratorCompactRectSignExtension(
-      a, b, RadixEncoder(radix),
-      selectSigned: selectSigned, signed: signed);
+  final pp = ppGen(a, b, RadixEncoder(radix),
+      selectSigned: internalSelectSigned, signed: signed);
 
-  final compressor = ColumnCompressor(pp)..compress();
+  final compressor =
+      ColumnCompressor(clk: clk, reset: reset, enable: enable, pp)
+        ..compress();
   final adder = ParallelPrefixAdder(
       compressor.extractRow(0), compressor.extractRow(1),
       ppGen: ppTree);
