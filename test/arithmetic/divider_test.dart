@@ -122,7 +122,7 @@ class MultiCycleDividerDriver extends Driver<MultiCycleDividerInputSeqItem> {
     // Every clock negative edge, drive the next pending item if it exists
     // but only when the DUT isn't busy
     intf.clk.negedge.listen((args) {
-      if (_pendingItems.isNotEmpty && intf.readyIn.value == LogicValue.zero) {
+      if (_pendingItems.isNotEmpty && intf.readyIn.value == LogicValue.one) {
         final nextItem = _pendingItems.removeFirst();
         drive(nextItem);
         if (_pendingItems.isEmpty) {
@@ -167,7 +167,7 @@ class MultiCycleDividerInputMonitor
     // Every positive edge of the clock
     intf.clk.posedge.listen((event) {
       if (intf.validIn.value == LogicValue.one &&
-          intf.readyIn.value == LogicValue.zero) {
+          intf.readyIn.value == LogicValue.one) {
         add(MultiCycleDividerInputSeqItem(
             mDividend: intf.isSigned.value.toBool()
                 ? _twosComp(intf.dividend.value.toInt(), intf.dividend.width)
@@ -266,11 +266,22 @@ class MultiCycleDividerScoreboard extends Component {
             inSign ? _twosComp(currResult, intf.quotient.width) : currResult;
         final tCurrRemain =
             inSign ? _twosComp(currRemain, intf.remainder.width) : currRemain;
+        final overflow = inSign &&
+            in1 ==
+                _twosComp(
+                    1 << (intf.quotient.width - 1), intf.quotient.width) &&
+            in2 == -1;
         if (triggerCheck) {
-          final check1 = (in2 == 0) ? divZero : ((in1 ~/ in2) == tCurrResult);
-          final check2 = (in2 == 0)
+          var check1 = (in2 == 0) ? divZero : ((in1 ~/ in2) == tCurrResult);
+          var check2 = (in2 == 0)
               ? divZero
               : ((in1 - (in2 * tCurrResult)) == tCurrRemain);
+          if (overflow) {
+            check1 = tCurrResult ==
+                _twosComp(1 << (intf.quotient.width - 1), intf.quotient.width);
+            check2 = tCurrRemain == 0;
+          }
+
           if (check1 && check2) {
             final msg = (in2 == 0)
                 ? '''
@@ -399,6 +410,84 @@ class MultiCycleDividerBasicSequence extends Sequence {
   }
 }
 
+class MultiCycleDividerEvilSequence extends Sequence {
+  late final int numBits;
+
+  MultiCycleDividerEvilSequence(
+      {required this.numBits, String name = 'MultiCycleDividerEvilSequence'})
+      : super(name);
+
+  @override
+  Future<void> body(Sequencer sequencer) async {
+    sequencer as MultiCycleDividerSequencer
+      // largest positive divided by largest positive
+      ..add(MultiCycleDividerInputSeqItem(
+          mDividend: (1 << (numBits - 1)) - 1,
+          mDivisor: (1 << (numBits - 1)) - 1,
+          mValidIn: true,
+          mIsSigned: true,
+          mReadyOut: true))
+      // largest positive divided by largest negative
+      ..add(MultiCycleDividerInputSeqItem(
+          mDividend: (1 << (numBits - 1)) - 1,
+          mDivisor: (1 << (numBits - 1)),
+          mValidIn: true,
+          mIsSigned: true,
+          mReadyOut: true))
+      // largest negative divided by largest positive
+      ..add(MultiCycleDividerInputSeqItem(
+          mDividend: (1 << (numBits - 1)),
+          mDivisor: (1 << (numBits - 1)) - 1,
+          mValidIn: true,
+          mIsSigned: false,
+          mReadyOut: true))
+      // largest negative divided by largest negative
+      ..add(MultiCycleDividerInputSeqItem(
+          mDividend: (1 << (numBits - 1)),
+          mDivisor: (1 << (numBits - 1)),
+          mValidIn: true,
+          mIsSigned: false,
+          mReadyOut: true))
+      // largest positive divided by negative 1
+      ..add(MultiCycleDividerInputSeqItem(
+          mDividend: (1 << (numBits - 1)) - 1,
+          mDivisor: -1,
+          mValidIn: true,
+          mIsSigned: true,
+          mReadyOut: true))
+      // largest negative divided by negative 1
+      // this is the only true overflow case...
+      ..add(MultiCycleDividerInputSeqItem(
+          mDividend: (1 << (numBits - 1)),
+          mDivisor: -1,
+          mValidIn: true,
+          mIsSigned: true,
+          mReadyOut: true))
+      // largest positive divided by 1
+      ..add(MultiCycleDividerInputSeqItem(
+          mDividend: (1 << (numBits - 1)) - 1,
+          mDivisor: 1,
+          mValidIn: true,
+          mIsSigned: true,
+          mReadyOut: true))
+      // largest negative divided by 1
+      ..add(MultiCycleDividerInputSeqItem(
+          mDividend: (1 << (numBits - 1)),
+          mDivisor: 1,
+          mValidIn: true,
+          mIsSigned: true,
+          mReadyOut: true))
+      // unsigned version of overflow case
+      // which should not result in overflow
+      ..add(MultiCycleDividerInputSeqItem(
+          mDividend: (1 << (numBits - 1)),
+          mDivisor: -1,
+          mValidIn: true,
+          mIsSigned: false,
+          mReadyOut: true));
+  }
+}
+
 class MultiCycleDividerVolumeSequence extends Sequence {
   final int numReps;
   final rng = Random(0xdeadbeef); // fixed seed
@@ -479,6 +568,7 @@ class MultiCycleDividerTest extends Test {
 
     // Kick off a sequence on the sequencer
     await _divSequencer.start(MultiCycleDividerBasicSequence());
+    await _divSequencer.start(MultiCycleDividerEvilSequence(numBits: 32));
     await _divSequencer.start(MultiCycleDividerVolumeSequence(1000));
 
     logger.info('Done adding stimulus to the sequencer');
@@ -512,7 +602,7 @@ void main() {
   group('divider tests', () {
     test('VF tests', () async {
       // Set the logger level
-      Logger.root.level = Level.OFF;
+      Logger.root.level = Level.SEVERE;
 
       // Create the testbench
       final intf = MultiCycleDividerInterface();
