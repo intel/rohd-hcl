@@ -113,6 +113,7 @@ class CompressionTreeMultiplier extends Multiplier {
           ppGen = PartialProductGeneratorCompactRectSignExtension.new,
       super.signed = false,
       super.name = 'compression_tree_multiplier'}) {
+
     final internalSelectSigned =
         (selectSigned != null) ? addInput('selectSigned', selectSigned) : null;
     final iClk = (clk != null) ? addInput('clk', clk!) : null;
@@ -179,6 +180,7 @@ class CompressionTreeMultiplyAccumulate extends MultiplyAccumulate {
               {required bool signed, Logic? selectSigned})
           ppGen = PartialProductGeneratorCompactRectSignExtension.new,
       super.name = 'compression_tree_mac'}) {
+
     final internalSelectSigned =
         (selectSigned != null) ? addInput('selectSigned', selectSigned) : null;
     final iClk = (clk != null) ? addInput('clk', clk!) : null;
