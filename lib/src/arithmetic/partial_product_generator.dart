@@ -27,9 +27,12 @@ class SignBit extends Logic {
 /// A [PartialProductArray] is a class that holds a set of partial products
 /// for manipulation by [PartialProductGenerator] and [ColumnCompressor].
 abstract class PartialProductArray {
+  /// name used for PartialProductGenerators
+  final String name;
+
   /// Construct a basic List<List<Logic> to hold an array of partial products
   /// as well as a rowShift array to hold the row shifts.
-  PartialProductArray();
+  PartialProductArray({this.name = 'ppa'});
 
   /// The actual shift in each row. This value will be modified by the
   /// sign extension routine used when folding in a sign bit from another
@@ -212,7 +215,7 @@ abstract class PartialProductGenerator extends PartialProductArray {
   /// Construct a [PartialProductGenerator] -- the partial product matrix
   PartialProductGenerator(
       Logic multiplicand, Logic multiplier, RadixEncoder radixEncoder,
-      {this.signed = false, this.selectSigned}) {
+      {this.signed = false, this.selectSigned, super.name = 'ppg'}) {
     if (signed && (selectSigned != null)) {
       throw RohdHclException('sign reconfiguration requires signed=false');
     }
@@ -263,7 +266,12 @@ abstract class PartialProductGenerator extends PartialProductArray {
   /// For signed operands, flip the MSB, otherwise add this [sign] bit.
   void addStopSignFlip(List<Logic> addend, SignBit sign) {
     if (!signed) {
-      addend.add(sign);
+      if (selectSigned == null) {
+        addend.add(sign);
+      } else {
+        addend.add(SignBit(mux(selectSigned!, ~addend.last, sign),
+            inverted: selectSigned != null));
+      }
     } else {
       addend.last = SignBit(~addend.last, inverted: true);
     }

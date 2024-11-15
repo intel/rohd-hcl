@@ -69,12 +69,24 @@ abstract class MultiplyAccumulate extends Module {
 
 /// An implementation of an integer multiplier using compression trees
 class CompressionTreeMultiplier extends Multiplier {
+  /// The clk for the pipelined version of column compression.
+  Logic? clk;
+
+  /// Optional reset for configurable pipestage
+  Logic? reset;
+
+  /// Optional enable for configurable pipestage.
+  Logic? enable;
+
   /// The final product of the multiplier module.
   @override
   Logic get product => output('product');
 
   /// Construct a compression tree integer multiplier with a given [radix]
   /// and prefix tree functor [ppTree] for the compressor and final adder.
+  ///
+  /// Sign extension methodology is defined by the partial product generator
+  /// supplied via [ppGen].
   ///
   /// [a] and [b] are the product terms and they can be different widths
   /// allowing for rectangular multiplication.
@@ -84,22 +96,37 @@ class CompressionTreeMultiplier extends Multiplier {
   ///
   /// Optional [selectSigned] allows for runtime configuration of signed
   /// or unsigned operation, overriding the [signed] static configuration.
+  ///
+  /// If [clk] is not null then a set of flops are used to latch the output
+  /// after compression.  [reset] and [enable] are optional
+  /// inputs to control these flops when [clk] is provided. If [clk] is null,
+  /// the [ColumnCompressor] is built as a combinational tree of compressors.
   CompressionTreeMultiplier(super.a, super.b, int radix,
-      {Logic? selectSigned,
+      {this.clk,
+      this.reset,
+      this.enable,
+      Logic? selectSigned,
       ParallelPrefix Function(List<Logic>, Logic Function(Logic, Logic))
           ppTree = KoggeStone.new,
+      PartialProductGenerator Function(Logic, Logic, RadixEncoder,
+              {required bool signed, Logic? selectSigned})
+          ppGen = PartialProductGeneratorCompactRectSignExtension.new,
       super.signed = false,
       super.name = 'compression_tree_multiplier'}) {
+    final Logic? internalSelectSigned;
     if (selectSigned != null) {
-      selectSigned = addInput('selectSigned', selectSigned);
+      internalSelectSigned = addInput('selectSigned', selectSigned);
+    } else {
+      internalSelectSigned = null;
     }
 
     final product = addOutput('product', width: a.width + b.width);
-    final pp = PartialProductGeneratorCompactRectSignExtension(
-        a, b, RadixEncoder(radix),
-        selectSigned: selectSigned, signed: signed);
+    final pp = ppGen(a, b, RadixEncoder(radix),
+        selectSigned: internalSelectSigned, signed: signed);
 
-    final compressor = ColumnCompressor(pp)..compress();
+    final compressor =
+        ColumnCompressor(clk: clk, reset: reset, enable: enable, pp)
+          ..compress();
     final adder = ParallelPrefixAdder(
         compressor.extractRow(0), compressor.extractRow(1),
         ppGen: ppTree);
@@ -109,6 +136,15 @@ class CompressionTreeMultiplier extends Multiplier {
 
 /// An implementation of an integer multiply-accumulate using compression trees
 class CompressionTreeMultiplyAccumulate extends MultiplyAccumulate {
+  /// The clk for the pipelined version of column compression.
+  Logic? clk;
+
+  /// Optional reset for configurable pipestage
+  Logic? reset;
+
+  /// Optional enable for configurable pipestage.
+  Logic? enable;
+
   /// The final product of the multiplier module.
   @override
   Logic get accumulate => output('accumulate');
@@ -122,29 +158,47 @@ class CompressionTreeMultiplyAccumulate extends MultiplyAccumulate {
   /// [signed] parameter configures the multiplier as a signed multiplier
   /// (default is unsigned).
   ///
+  /// Sign extension methodology is defined by the partial product generator
+  /// supplied via [ppGen].
+  ///
   /// Optional [selectSigned] allows for runtime configuration of signed
   /// or unsigned operation, overriding the [signed] static configuration.
+  ///
+  /// If[clk] is not null then a set of flops are used to latch the output
+  /// after compression.  [reset] and [enable] are optional
+  /// inputs to control these flops when [clk] is provided. If [clk] is null,
+  /// the [ColumnCompressor] is built as a combinational tree of compressors.
   CompressionTreeMultiplyAccumulate(super.a, super.b, super.c, int radix,
-      {required super.signed,
+      {this.clk,
+      this.reset,
+      this.enable,
+      super.signed = false,
       Logic? selectSigned,
       ParallelPrefix Function(List<Logic>, Logic Function(Logic, Logic))
           ppTree = KoggeStone.new,
+      PartialProductGenerator Function(Logic, Logic, RadixEncoder,
+              {required bool signed, Logic? selectSigned})
+          ppGen = PartialProductGeneratorCompactRectSignExtension.new,
       super.name = 'compression_tree_mac'}) {
+    final Logic? internalSelectSigned;
     if (selectSigned != null) {
-      selectSigned = addInput('selectSigned', selectSigned);
+      internalSelectSigned = addInput('selectSigned', selectSigned);
+    } else {
+      internalSelectSigned = null;
     }
     final accumulate = addOutput('accumulate', width: a.width + b.width + 1);
-    final pp = PartialProductGeneratorCompactRectSignExtension(
-        a, b, RadixEncoder(radix),
-        selectSigned: selectSigned, signed: signed);
-
-    // TODO(desmonddak): This sign extension method for the additional
-    //  addend may only work with CompactRectSignExtension
+    final pp = ppGen(a, b, RadixEncoder(radix),
+        selectSigned: internalSelectSigned, signed: signed);
 
     final lastLength =
         pp.partialProducts[pp.rows - 1].length + pp.rowShift[pp.rows - 1];
 
-    final sign = signed ? c[c.width - 1] : Const(0);
+    final sign = mux(
+        (internalSelectSigned != null)
+            ? internalSelectSigned
+            : (signed ? Const(1) : Const(0)),
+        c[c.width - 1],
+        Const(0));
     final l = [for (var i = 0; i < c.width; i++) c[i]];
     while (l.length < lastLength) {
       l.add(sign);
@@ -158,7 +212,9 @@ class CompressionTreeMultiplyAccumulate extends MultiplyAccumulate {
     pp.partialProducts.insert(0, l);
     pp.rowShift.insert(0, 0);
 
-    final compressor = ColumnCompressor(pp)..compress();
+    final compressor =
+        ColumnCompressor(clk: clk, reset: reset, enable: enable, pp)
+          ..compress();
     final adder = ParallelPrefixAdder(
         compressor.extractRow(0), compressor.extractRow(1),
         ppGen: ppTree);
@@ -175,18 +231,31 @@ class MutiplyOnly extends MultiplyAccumulate {
   /// Construct a MultiplyAccumulate that only multiplies to enable
   /// using the same tester with zero accumulate addend [c].
   MutiplyOnly(super.a, super.b, super.c,
-      Multiplier Function(Logic a, Logic b) multiplyGenerator,
-      {super.signed = false}) // Will be overrwridden by multiplyGenerator
-      : super(name: 'Multiply Only: ${multiplyGenerator.call(a, b).name}') {
+      Multiplier Function(Logic a, Logic b, {Logic? selectSigned}) mulGen,
+      {super.signed = false,
+      Logic? selectSigned}) // Will be overrwridden by multiplyGenerator
+      : super(
+            name: 'Multiply Only: '
+                '${mulGen.call(a, b, selectSigned: selectSigned).name}') {
+    final Logic? internalSelectSigned;
+
+    if (selectSigned != null) {
+      internalSelectSigned = addInput('selectSigned', selectSigned);
+    } else {
+      internalSelectSigned = null;
+    }
     final accumulate = addOutput('accumulate', width: a.width + b.width + 1);
 
-    final multiply = multiplyGenerator(a, b);
+    final multiply = mulGen(a, b, selectSigned: internalSelectSigned);
     signed = multiply.signed;
 
     accumulate <=
-        (signed
-            ? [multiply.product[multiply.product.width - 1], multiply.product]
-                .swizzle()
-            : multiply.product.zeroExtend(accumulate.width));
+        mux(
+            (internalSelectSigned != null)
+                ? internalSelectSigned
+                : (signed ? Const(1) : Const(0)),
+            [multiply.product[multiply.product.width - 1], multiply.product]
+                .swizzle(),
+            multiply.product.zeroExtend(accumulate.width));
   }
 }
