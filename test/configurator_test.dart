@@ -305,6 +305,14 @@ void main() {
     expect(mod.saturates, true);
   });
 
+  test('gated counter configurator', () async {
+    final cfg = CounterConfigurator();
+    cfg.clockGatingKnob.value = true;
+
+    final mod = cfg.createModule() as GatedCounter;
+    await mod.build();
+  });
+
   group('configurator builds', () {
     for (final componentConfigurator in componentRegistry) {
       test(componentConfigurator.name, () async {

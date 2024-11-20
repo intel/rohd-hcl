@@ -65,6 +65,7 @@ Some in-development items will have opened issues, as well. Feel free to create 
 - Counters
   - [Summation](./components/summation.md#sum)
   - [Binary counter](./components/summation.md#counter)
+  - [Gated counter](./components/summation.md#gated-counter)
   - Gray counter
 - Pseudorandom
   - LFSR
@@ -73,8 +74,9 @@ Some in-development items will have opened issues, as well. Feel free to create 
   - CRC
   - [Parity](./components/parity.md)
   - Interleaving
-- Clocking
+- Gating
   - [Clock gating](./components/clock_gating.md)
+  - [Toggle gating](./components/toggle_gate.md)
 - Data flow
   - Ready/Valid
   - Connect/Disconnect

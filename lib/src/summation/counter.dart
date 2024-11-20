@@ -7,6 +7,7 @@
 // 2024 August 26
 // Author: Max Korbel <max.korbel@intel.com>
 
+import 'package:meta/meta.dart';
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
 import 'package:rohd_hcl/src/summation/summation_base.dart';
@@ -16,6 +17,19 @@ import 'package:rohd_hcl/src/summation/summation_base.dart';
 class Counter extends SummationBase {
   /// The output value of the counter.
   Logic get count => output('count');
+
+  /// The main clock signal.
+  @visibleForTesting
+  @protected
+  late final Logic clk;
+
+  /// The reset signal.
+  @protected
+  late final Logic reset;
+
+  /// The restart signal.
+  @protected
+  late final Logic? restart;
 
   /// Creates a counter that increments according to the provided [interfaces].
   ///
@@ -50,39 +64,54 @@ class Counter extends SummationBase {
     super.saturates,
     super.name = 'counter',
   }) : super(initialValue: resetValue) {
-    clk = addInput('clk', clk);
-    reset = addInput('reset', reset);
+    this.clk = addInput('clk', clk);
+    this.reset = addInput('reset', reset);
 
     if (restart != null) {
-      restart = addInput('restart', restart);
+      this.restart = addInput('restart', restart);
+    } else {
+      this.restart = null;
     }
 
     addOutput('count', width: width);
 
-    final sum = Sum(
-      interfaces,
-      initialValue:
-          restart != null ? mux(restart, initialValueLogic, count) : count,
-      maxValue: maxValueLogic,
-      minValue: minValueLogic,
-      width: width,
-      saturates: saturates,
-    );
+    _buildLogic();
+  }
 
-    count <=
-        flop(
-          clk,
-          sum.sum,
-          reset: reset,
-          resetValue: initialValueLogic,
-        );
+  /// The internal [Sum] that is used to keep track of the count.
+  @protected
+  late final Sum summer = Sum(
+    interfaces,
+    initialValue:
+        restart != null ? mux(restart!, initialValueLogic, count) : count,
+    maxValue: maxValueLogic,
+    minValue: minValueLogic,
+    width: width,
+    saturates: saturates,
+  );
+
+  /// Builds the internal logic for the counter.
+  void _buildLogic() {
+    buildFlops();
 
     // need to flop these since value is flopped
-    overflowed <= flop(clk, sum.overflowed, reset: reset);
-    underflowed <= flop(clk, sum.underflowed, reset: reset);
+    overflowed <= flop(clk, summer.overflowed, reset: reset);
+    underflowed <= flop(clk, summer.underflowed, reset: reset);
 
     equalsMax <= count.eq(maxValueLogic);
     equalsMin <= count.eq(minValueLogic);
+  }
+
+  /// Builds the flops that store the [count].
+  @protected
+  void buildFlops() {
+    count <=
+        flop(
+          clk,
+          summer.sum,
+          reset: reset,
+          resetValue: initialValueLogic,
+        );
   }
 
   /// A simplified constructor for [Counter] that accepts a single fixed amount
