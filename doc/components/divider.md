@@ -1,6 +1,6 @@
 # Divider
 
-ROHD HCL provides an integer divider module to get the dividend of numerator and denominator operands. The divider implementation is not pipelined and has a minimum latency of 3 cycles. The maximum latency is dependent on the width of the operands (upper bound of `O(WIDTH**2)`). Note that latency increases exponentially as the absolute difference between the dividend and the divisor increases (worst case: largest possible dividend and divisor of 1).
+ROHD HCL provides an integer divider module to get the quotient and the remainder of dividend and divisor operands. The divider implementation is not pipelined and has a minimum latency of 3 cycles. The maximum latency is dependent on the width of the operands (upper bound of `O(WIDTH**2)`). Note that latency increases exponentially as the absolute difference between the dividend and the divisor increases (worst case: largest possible dividend and divisor of 1).
 
 ## Interface
 
