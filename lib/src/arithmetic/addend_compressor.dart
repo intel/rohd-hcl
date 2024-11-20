@@ -10,7 +10,6 @@
 import 'package:collection/collection.dart';
 import 'package:meta/meta.dart';
 import 'package:rohd/rohd.dart';
-import 'package:rohd_hcl/src/arithmetic/evaluate_compressor.dart';
 import 'package:rohd_hcl/src/arithmetic/multiplier_lib.dart';
 import 'package:rohd_hcl/src/exceptions.dart';
 
@@ -122,7 +121,7 @@ class CompressTerm implements Comparable<CompressTerm> {
   String toString() {
     final str = StringBuffer();
     final ts = switch (type) {
-      CompressTermType.pp => 'p',
+      CompressTermType.pp => 'pp',
       CompressTermType.carry => 'c',
       CompressTermType.cout => 'o',
       CompressTermType.sum => 's',
@@ -135,8 +134,6 @@ class CompressTerm implements Comparable<CompressTerm> {
   }
 }
 
-// TODO(desmonddak): Could we use List<CompressTerms> in constructor instead
-// PRoblem is we pass BitCOmpressor into CompressTErm constructor for delay
 /// Base class for bit-level column compressor function
 abstract class BitCompressor extends Module {
   /// Input bits to compress
@@ -155,12 +152,11 @@ abstract class BitCompressor extends Module {
   late final List<List<double>> _delays;
 
   /// Construct a column compressor.
-  BitCompressor(Logic compressBits) {
-    this.compressBits = addInput(
-      'compressBits',
-      compressBits,
-      width: compressBits.width,
-    );
+  BitCompressor(this.terms) {
+    compressBits = [
+      for (var pos = 0; pos < terms.length; pos++)
+        addInput('t_$pos', terms[pos].logic)
+    ].swizzle();
     addOutput('sum');
     addOutput('carry');
     _delays = List.filled(CompressTermType.values.length,
@@ -175,7 +171,7 @@ abstract class BitCompressor extends Module {
 /// 2-input column compressor (half-adder)
 class Compressor2 extends BitCompressor {
   /// Construct a 2-input compressor (half-adder).
-  Compressor2(super.compressBits) {
+  Compressor2(super.terms) {
     sum <= compressBits.xor();
     carry <= compressBits.and();
     _delays[CompressTermType.sum.index][CompressTermType.pp.index] = 1.0;
@@ -186,12 +182,13 @@ class Compressor2 extends BitCompressor {
 /// 3-input column compressor (full-adder)
 class Compressor3 extends BitCompressor {
   /// Construct a 3-input column compressor (full-adder).
-  Compressor3(super.compressBits) {
+  Compressor3(super.terms) {
     sum <= compressBits.xor();
     carry <=
         mux(compressBits[0], compressBits.slice(2, 1).or(),
             compressBits.slice(2, 1).and());
     // TODO(desmonddak): wiring different inputs for different delays
+    // means we may need to index by input not just type
     _delays[CompressTermType.sum.index][CompressTermType.pp.index] = 1.0;
     _delays[CompressTermType.carry.index][CompressTermType.pp.index] = 1.5;
   }
@@ -203,14 +200,17 @@ class Compressor4 extends BitCompressor {
   Logic get cout => output('cout');
 
   /// Construct a 4-input column compressor using two 3-input compressors.
-  Compressor4(super.compressBits, List<Logic> cinL) {
+  Compressor4(List<CompressTerm> terms, List<CompressTerm> cinL)
+      : super(terms) {
     for (final cin in cinL) {
-      addInput('cin', cin);
+      addInput('cin', cin.logic);
     }
     addOutput('cout');
-    final c3A = Compressor3(compressBits.slice(2, 0));
+    final c3A = Compressor3(terms.sublist(1, 4));
     cout <= c3A.carry;
-    final c3B = Compressor3([c3A.sum, compressBits[3], cinL[0]].swizzle());
+    final t = CompressTerm(
+        c3A, CompressTermType.sum, c3A.sum, terms.sublist(1, 4), 0, 0);
+    final c3B = Compressor3([t, terms[0], cinL[0]]);
     carry <= c3B.carry;
     sum <= c3B.sum;
 
@@ -256,6 +256,9 @@ class ColumnCompressor {
   /// after compression (see [extractRow]).  [reset] and [enable] are optional
   /// inputs to control these flops when [clk] is provided. If [clk] is null,
   /// the [ColumnCompressor] is built as a combinational tree of compressors.
+  ///
+  /// [use42Compressors] will combine 4:2, 3:2, and 2:2 compressors in building
+  /// a compression tree.
   ColumnCompressor(this.pp,
       {this.use42Compressors = false, this.clk, this.reset, this.enable}) {
     columns = List.generate(pp.maxWidth(), (i) => ColumnQueue());
@@ -317,13 +320,13 @@ class ColumnCompressor {
           BitCompressor compressor;
           if (depth > 4 && use42Compressors) {
             final cin = carryQueue.isNotEmpty
-                ? [carryQueue.removeFirst().logic]
-                : <Logic>[Const(0)];
+                ? carryQueue.removeFirst()
+                : CompressTerm(null, CompressTermType.cin, Const(0), [], 0, 0);
             inputs
               ..add(queue.removeFirst())
               ..add(queue.removeFirst());
-            compressor =
-                Compressor4([for (final i in inputs) i.logic].swizzle(), cin);
+
+            compressor = Compressor4(inputs, [cin]);
             if (col < columns.length - 1) {
               final t = CompressTerm(compressor, CompressTermType.carry,
                   (compressor as Compressor4).cout, inputs, 0, col);
@@ -331,11 +334,9 @@ class ColumnCompressor {
             }
           } else if (depth > 3) {
             inputs.add(queue.removeFirst());
-            compressor =
-                Compressor3([for (final i in inputs) i.logic].swizzle());
+            compressor = Compressor3(inputs);
           } else {
-            compressor =
-                Compressor2([for (final i in inputs) i.logic].swizzle());
+            compressor = Compressor2(inputs);
           }
           final t = CompressTerm(
               compressor, CompressTermType.sum, compressor.sum, inputs, 0, col);
@@ -359,8 +360,6 @@ class ColumnCompressor {
     var iterations = longestColumn();
     while (iterations > 0) {
       terms.addAll(_compressIter(iterations--));
-      // final cc = this;
-      // print(cc.representation());
       if (longestColumn() <= 2) {
         break;
       }

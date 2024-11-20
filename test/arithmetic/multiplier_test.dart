@@ -595,24 +595,31 @@ void main() {
     expect(ppG0.getAbsolute(1, 9).value, equals(Const(1).value));
     expect(ppG0.getAbsolute(1, 10).value, equals(Const(0).value));
 
-//     final cc = ColumnCompressor(ppG0);
-//     const expectedRep = '''
-// 	pp3,15	pp3,14	pp3,13	pp3,12	pp3,11	pp3,10	pp3,9	pp3,8	pp3,7	pp3,6	pp3,5	pp2,4	pp2,3	pp1,2	pp1,1	pp0,0
-// 			pp2,13	pp2,12	pp1,11	pp2,10	pp2,9	pp2,8	pp2,7	pp2,6	pp2,5	pp0,4	pp0,3	pp0,2	pp0,1
-// 					pp2,11	pp1,10	pp1,9	pp1,8	pp1,7	pp1,6	pp1,5	pp1,4	pp1,3
-// 						pp0,10	pp0,9	pp0,8	pp0,7	pp0,6	pp0,5
-// ''';
-//     expect(cc.representation(), equals(expectedRep));
+    final cc = ColumnCompressor(ppG0);
+    const expectedRep = '''
+	pp3,15	pp3,14	pp3,13	pp3,12	pp3,11	pp3,10	pp3,9	pp3,8	pp3,7	pp3,6	pp3,5	pp2,4	pp2,3	pp1,2	pp1,1	pp0,0
+			pp2,13	pp2,12	pp1,11	pp2,10	pp2,9	pp2,8	pp2,7	pp2,6	pp2,5	pp0,4	pp0,3	pp0,2	pp0,1
+					pp2,11	pp1,10	pp1,9	pp1,8	pp1,7	pp1,6	pp1,5	pp1,4	pp1,3
+						pp0,10	pp0,9	pp0,8	pp0,7	pp0,6	pp0,5
+''';
+    const expectedRep2 = '''
+	pp3,15	pp3,14	pp3,13	pp3,12	pp3,11	pp3,10	pp3,9	pp3,8	pp3,7	pp3,6	pp3,5	pp2,4	pp2,3	pp1,2	pp1,1	pp0,0
+			pp2,13	pp2,12	pp1,11	pp2,10	pp2,9	pp2,8	pp2,7	pp2,6	pp2,5	pp0,4	pp0,3	pp0,2	pp0,1	
+					pp2,11	pp1,10	pp1,9	pp1,8	pp1,7	pp1,6	pp1,5	pp1,4	pp1,3			
+						pp0,10	pp0,9	pp0,8	pp0,7	pp0,6	pp0,5					
+''';
+    // print(cc.representation());
+    expect(cc.representation(), equals(expectedRep2));
 
-//     final (v, ts) = cc.evaluate(printOut: true);
+    final (v, ts) = cc.evaluate(printOut: true);
 
-//     const expectedEval = '''
-//        15      14      13      12      11      10       9       8       7       6       5       4       3       2       1       0
-//         1       I       0       0       0       0       0       0       1       1       0       0       0       1       1       0        = 49350 (-16186)
-//                         1       I       1       0       0       0       0       0       0       0       1       0       0                = 14344 (14344)
-//                                         0       i       1       0       0       0       0       1       1                                = 536 (536)
-//                                                 i       S       S       1       1       0                                                = 960 (960)
-// p       1       1       1       1       1       1       1       0       1       0       1       0       0       1       1       0        = 65190 (-346)''';
-//     expect(ts.toString(), equals(expectedEval));
+    const expectedEval = '''
+       15      14      13      12      11      10       9       8       7       6       5       4       3       2       1       0
+        1       I       0       0       0       0       0       0       1       1       0       0       0       1       1       0        = 49350 (-16186)
+                        1       I       1       0       0       0       0       0       0       0       1       0       0                = 14344 (14344)
+                                        0       i       1       0       0       0       0       1       1                                = 536 (536)
+                                                i       S       S       1       1       0                                                = 960 (960)
+p       1       1       1       1       1       1       1       0       1       0       1       0       0       1       1       0        = 65190 (-346)''';
+    expect(ts.toString(), equals(expectedEval));
   });
 }

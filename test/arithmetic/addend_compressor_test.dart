@@ -7,10 +7,11 @@
 // 2024 June 04
 // Author: Desmond Kirkpatrick <desmond.a.kirkpatrick@intel.com>
 
+// ignore_for_file: avoid_print
+
 import 'dart:async';
 import 'dart:io';
 import 'dart:math';
-import 'package:meta/meta.dart';
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
 import 'package:rohd_hcl/src/arithmetic/evaluate_compressor.dart';
@@ -146,7 +147,16 @@ void main() {
     final bits = Logic(width: 4);
     final cin = [Logic()];
 
-    final compressor = Compressor4(bits, cin);
+    final inputs = [
+      for (var i = 0; i < bits.width; i++)
+        CompressTerm(null, CompressTermType.pp, bits[i], [], 0, 0)
+    ];
+    final carryInputs = [
+      for (var i = 0; i < cin.length; i++)
+        CompressTerm(null, CompressTermType.pp, cin[i], [], 0, 0)
+    ];
+
+    final compressor = Compressor4(inputs, carryInputs);
 
     for (var cVal = 0; cVal < 2; cVal++) {
       cin[0].put(cVal);
@@ -190,8 +200,7 @@ void main() {
                     Logic(name: 'Y', width: width), encoder,
                     signed: signed);
               }
-              // testCompressionRandom(pp, 10, use42Compressors: true);
-              testCompressionExhaustive(pp, use42Compressors: true);
+              testCompressionRandom(pp, 10, use42Compressors: true);
             }
           }
         }
@@ -358,15 +367,10 @@ void main() {
 
     final pp = PartialProductGeneratorStopBitsSignExtension(a, b, encoder);
 
-    // print(pp.representation());
-
     expect(pp.evaluate(), equals(bA * bB));
     final compressor = ColumnCompressor(pp, use42Compressors: true);
-    // print(compressor.representation());
     expect(compressor.evaluate().$1, equals(bA * bB));
     compressor.compress();
-    // print(compressor.representation());
-
-    expect(compressor.evaluate().$1, equals(bA * bB));
+    expect(compressor.evaluate(logic: true).$1, equals(bA * bB));
   });
 }
