@@ -4,8 +4,8 @@
   <meta charset="utf-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
-  <meta name="description" content="API docs for the Counter constructor from Class Counter from the rohd_hcl library, for the Dart programming language.">
-  <title>Counter constructor - Counter - rohd_hcl library - Dart API</title>
+  <meta name="description" content="API docs for the GatedCounter constructor from Class GatedCounter from the rohd_hcl library, for the Dart programming language.">
+  <title>GatedCounter constructor - GatedCounter - rohd_hcl library - Dart API</title>
 
 
   
@@ -30,10 +30,10 @@
   <ol class="breadcrumbs gt-separated dark hidden-xs">
     <li><a href="../../index.html">rohd_hcl</a></li>
     <li><a href="../../rohd_hcl/rohd_hcl-library.html">rohd_hcl.dart</a></li>
-    <li><a href="../../rohd_hcl/Counter-class.html">Counter</a></li>
-    <li class="self-crumb">Counter constructor</li>
+    <li><a href="../../rohd_hcl/GatedCounter-class.html">GatedCounter</a></li>
+    <li class="self-crumb">GatedCounter constructor</li>
   </ol>
-  <div class="self-name">Counter</div>
+  <div class="self-name">GatedCounter</div>
   <form class="search navbar-right" role="search">
     <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
   </form>
@@ -54,15 +54,15 @@
   <div
       id="dartdoc-main-content"
       class="main-content"
-      data-above-sidebar="rohd_hcl&#47;Counter-class-sidebar.html"
+      data-above-sidebar="rohd_hcl&#47;GatedCounter-class-sidebar.html"
       data-below-sidebar="">
       <div>
-<h1><span class="kind-constructor">Counter</span> constructor 
+<h1><span class="kind-constructor">GatedCounter</span> constructor 
 </h1></div>
 
     <section class="multi-line-signature">
       
-      <span class="name ">Counter</span>(<wbr><ol class="parameter-list"> <li><span class="parameter" id="-param-interfaces"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.5.4/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../../rohd_hcl/SumInterface-class.html">SumInterface</a></span>&gt;</span></span> <span class="parameter-name">interfaces</span>, {</span></li>
+      <span class="name ">GatedCounter</span>(<wbr><ol class="parameter-list"> <li><span class="parameter" id="-param-interfaces"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.5.4/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../../rohd_hcl/SumInterface-class.html">SumInterface</a></span>&gt;</span></span> <span class="parameter-name">interfaces</span>, {</span></li>
 <li><span class="parameter" id="-param-clk"><span>required</span> <span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.5.3/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">clk</span>, </span></li>
 <li><span class="parameter" id="-param-reset"><span>required</span> <span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.5.3/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">reset</span>, </span></li>
 <li><span class="parameter" id="-param-restart"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.5.3/rohd/Logic-class.html">Logic</a>?</span> <span class="parameter-name">restart</span>, </span></li>
@@ -71,59 +71,53 @@
 <li><span class="parameter" id="-param-minValue"><span class="type-annotation">dynamic</span> <span class="parameter-name">minValue</span> = <span class="default-value">0</span>, </span></li>
 <li><span class="parameter" id="-param-width"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.5.4/dart-core/int-class.html">int</a>?</span> <span class="parameter-name">width</span>, </span></li>
 <li><span class="parameter" id="-param-saturates"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.5.4/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">saturates</span> = <span class="default-value">false</span>, </span></li>
+<li><span class="parameter" id="-param-gateToggles"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.5.4/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">gateToggles</span> = <span class="default-value">true</span>, </span></li>
+<li><span class="parameter" id="-param-clockGateControlInterface"><span class="type-annotation"><a href="../../rohd_hcl/ClockGateControlInterface-class.html">ClockGateControlInterface</a>?</span> <span class="parameter-name">clockGateControlInterface</span>, </span></li>
+<li><span class="parameter" id="-param-clkGatePartitionIndex"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.5.4/dart-core/int-class.html">int</a>?</span> <span class="parameter-name">clkGatePartitionIndex</span>, </span></li>
 <li><span class="parameter" id="-param-name"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.5.4/dart-core/String-class.html">String</a></span> <span class="parameter-name">name</span> = <span class="default-value">&#39;counter&#39;</span>, </span></li>
 </ol>})
     </section>
 
     
 <section class="desc markdown">
-  <p>Creates a counter that increments according to the provided <code>interfaces</code>.</p>
-<p>The <code>width</code> can be either explicitly provided or inferred from other
-values such as a <code>maxValue</code>, <code>minValue</code>, or <code>resetValue</code> that contain
-width information (e.g. a <a href="https://pub.dev/documentation/rohd/0.5.3/rohd/LogicValue-class.html">LogicValue</a>), or by making it large enough to
-fit <code>maxValue</code>, or by inspecting widths of <code>interfaces</code>. There must be
-enough information provided to determine the <code>width</code>.</p>
-<p>If no <code>maxValue</code> is provided, one will be inferred by the maximum that can
-fit inside of the <code>width</code>.</p>
-<p>The <code>restart</code> input can be used to restart the counter to a new value, but
-also continue to increment in that same cycle. This is distinct from
-<code>reset</code> which will reset the counter, holding the <a href="../../rohd_hcl/Counter/count.html">count</a> at <code>resetValue</code>.</p>
-<p>If <code>saturates</code> is <code>true</code>, then it will saturate at the <code>maxValue</code> and
-<code>minValue</code>. If <code>false</code>, will wrap around (overflow/underflow) at the
-<code>maxValue</code> and <code>minValue</code>.  The <a href="../../rohd_hcl/Counter/equalsMax.html">equalsMax</a>, <a href="../../rohd_hcl/Counter/equalsMin.html">equalsMin</a>, <a href="../../rohd_hcl/Counter/overflowed.html">overflowed</a>,
-and <a href="../../rohd_hcl/Counter/underflowed.html">underflowed</a> outputs can be used to determine if the sum is at the
-maximum, minimum, (would have) overflowed, or  (would have) underflowed,
-respectively.</p>
+  <p>Constructs a <a href="../../rohd_hcl/GatedCounter-class.html">GatedCounter</a> in the same way as a <a href="../../rohd_hcl/Counter-class.html">Counter</a>, but with the
+added ability to <a href="../../rohd_hcl/GatedCounter/gateToggles.html">gateToggles</a> of the interfaces when they are not enabled
+and gate the clocks of the counter in a partitioned way.</p>
+<p>Clock gating is performed on the same cycle as the increment/decrement(s),
+so the functionality when compared to the base <a href="../../rohd_hcl/Counter-class.html">Counter</a> is identical with
+no added latency to the <a href="../../rohd_hcl/Counter/count.html">count</a>.</p>
+<p>The <code>clkGatePartitionIndex</code> is the index at which to partition the counter
+for clock gating. If the <code>clkGatePartitionIndex</code> is less than 0 or greater
+than the <code>width</code>, then the entire counter will be gated together rather
+than partitioned. If no <code>clkGatePartitionIndex</code> is provided, the counter
+will attempt to infer a good partition index based on the interfaces
+provided.</p>
 </section>
 
 
     
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
-  <pre class="language-dart"><code class="language-dart">Counter(
+  <pre class="language-dart"><code class="language-dart">GatedCounter(
   super.interfaces, {
-  required Logic clk,
-  required Logic reset,
-  Logic? restart,
-  dynamic resetValue = 0,
+  required super.clk,
+  required super.reset,
+  super.restart,
+  super.resetValue,
   super.maxValue,
-  super.minValue = 0,
+  super.minValue,
   super.width,
   super.saturates,
-  super.name = &#39;counter&#39;,
-}) : super(initialValue: resetValue) {
-  this.clk = addInput(&#39;clk&#39;, clk);
-  this.reset = addInput(&#39;reset&#39;, reset);
-
-  if (restart != null) {
-    this.restart = addInput(&#39;restart&#39;, restart);
-  } else {
-    this.restart = null;
-  }
-
-  addOutput(&#39;count&#39;, width: width);
-
-  _buildLogic();
+  this.gateToggles = true,
+  ClockGateControlInterface? clockGateControlInterface,
+  int? clkGatePartitionIndex,
+  super.name,
+})  : _providedClkGateParitionIndex = clkGatePartitionIndex,
+      _clockGateControlInterface = clockGateControlInterface == null
+          ? null
+          : ClockGateControlInterface.clone(clockGateControlInterface) {
+  _clockGateControlInterface?.pairConnectIO(
+      this, clockGateControlInterface!, PairRole.consumer);
 }</code></pre>
 </section>
 
@@ -141,12 +135,12 @@ respectively.</p>
 <ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
     <li><a href="../../index.html">rohd_hcl</a></li>
     <li><a href="../../rohd_hcl/rohd_hcl-library.html">rohd_hcl</a></li>
-    <li><a href="../../rohd_hcl/Counter-class.html">Counter</a></li>
-    <li class="self-crumb">Counter constructor</li>
+    <li><a href="../../rohd_hcl/GatedCounter-class.html">GatedCounter</a></li>
+    <li class="self-crumb">GatedCounter constructor</li>
 </ol>
 
 
-    <h5>Counter class</h5>
+    <h5>GatedCounter class</h5>
     <div id="dartdoc-sidebar-left-content"></div>
   </div><!--/.sidebar-offcanvas-left-->
 

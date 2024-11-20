@@ -4,8 +4,8 @@
   <meta charset="utf-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
-  <meta name="description" content="API docs for the knobs property from the CounterConfigurator class, for the Dart programming language.">
-  <title>knobs property - CounterConfigurator class - rohd_hcl library - Dart API</title>
+  <meta name="description" content="API docs for the gateTogglesKnob property from the CounterConfigurator class, for the Dart programming language.">
+  <title>gateTogglesKnob property - CounterConfigurator class - rohd_hcl library - Dart API</title>
 
 
   
@@ -31,9 +31,9 @@
     <li><a href="../../index.html">rohd_hcl</a></li>
     <li><a href="../../rohd_hcl/rohd_hcl-library.html">rohd_hcl.dart</a></li>
     <li><a href="../../rohd_hcl/CounterConfigurator-class.html">CounterConfigurator</a></li>
-    <li class="self-crumb">knobs property</li>
+    <li class="self-crumb">gateTogglesKnob property</li>
   </ol>
-  <div class="self-name">knobs</div>
+  <div class="self-name">gateTogglesKnob</div>
   <form class="search navbar-right" role="search">
     <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
   </form>
@@ -57,48 +57,26 @@
     data-above-sidebar="rohd_hcl&#47;CounterConfigurator-class-sidebar.html"
     data-below-sidebar="">
     <div>
-<h1><span class="kind-property">knobs</span> property 
+<h1><span class="kind-property">gateTogglesKnob</span> property 
 </h1></div>
 
-
+      <section class="multi-line-signature">
         
-  <section id="getter">
+        <a href="../../rohd_hcl/ToggleConfigKnob-class.html">ToggleConfigKnob</a>
+        <span class="name ">gateTogglesKnob</span>
+        <div class="features"><span class="feature">final</span></div>
 
-    <section class="multi-line-signature">
+      </section>
       
-  <div>
-    <ol class="annotation-list">
-        <li>@<a href="https://api.dart.dev/stable/3.5.4/dart-core/override-constant.html">override</a></li>
-    </ol>
-  </div>
-      <span class="returntype"><a href="https://api.dart.dev/stable/3.5.4/dart-core/Map-class.html">Map</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.dart.dev/stable/3.5.4/dart-core/String-class.html">String</a></span>, <span class="type-parameter"><a href="../../rohd_hcl/ConfigKnob-class.html">ConfigKnob</a></span>&gt;</span></span>
-      <span class="name ">knobs</span>
-      <div class="features"><span class="feature">override</span></div>
-
-    </section>
-
-    
 <section class="desc markdown">
-  <p>A mapping from configuration names to <code>ConfigKnob</code>s that can be used
-to configure this component.</p>
+  <p>The gate toggles knob.</p>
 </section>
 
-    
+      
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
-  <pre class="language-dart"><code class="language-dart">@override
-Map&lt;String, ConfigKnob&lt;dynamic&gt;&gt; get knobs =&gt; {
-      ...super.knobs,
-      &#39;Reset Value&#39;: resetValueKnob,
-      &#39;Clock Gating&#39;: clockGatingKnob,
-      if (clockGatingKnob.value) ...{
-        &#39;Clock Gating Partition Index&#39;: clockGatingPartitionIndexKnob,
-        &#39;Gate Toggles&#39;: gateTogglesKnob,
-      },
-    };</code></pre>
+  <pre class="language-dart"><code class="language-dart">final ToggleConfigKnob gateTogglesKnob = ToggleConfigKnob(value: false);</code></pre>
 </section>
-
-  </section>
 
 
 </div> <!-- /.main-content -->
@@ -115,7 +93,7 @@ Map&lt;String, ConfigKnob&lt;dynamic&gt;&gt; get knobs =&gt; {
     <li><a href="../../index.html">rohd_hcl</a></li>
     <li><a href="../../rohd_hcl/rohd_hcl-library.html">rohd_hcl</a></li>
     <li><a href="../../rohd_hcl/CounterConfigurator-class.html">CounterConfigurator</a></li>
-    <li class="self-crumb">knobs property</li>
+    <li class="self-crumb">gateTogglesKnob property</li>
 </ol>
 
 

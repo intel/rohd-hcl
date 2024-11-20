@@ -4,8 +4,8 @@
   <meta charset="utf-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
-  <meta name="description" content="API docs for the Sum class from the rohd_hcl library, for the Dart programming language.">
-  <title>Sum class - rohd_hcl library - Dart API</title>
+  <meta name="description" content="API docs for the GatedCounter class from the rohd_hcl library, for the Dart programming language.">
+  <title>GatedCounter class - rohd_hcl library - Dart API</title>
 
 
   
@@ -30,9 +30,9 @@
   <ol class="breadcrumbs gt-separated dark hidden-xs">
     <li><a href="../index.html">rohd_hcl</a></li>
     <li><a href="../rohd_hcl/rohd_hcl-library.html">rohd_hcl.dart</a></li>
-    <li class="self-crumb">Sum class</li>
+    <li class="self-crumb">GatedCounter class</li>
   </ol>
-  <div class="self-name">Sum</div>
+  <div class="self-name">GatedCounter</div>
   <form class="search navbar-right" role="search">
     <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
   </form>
@@ -54,16 +54,16 @@
     id="dartdoc-main-content"
     class="main-content"
     data-above-sidebar="rohd_hcl&#47;rohd_hcl-library-sidebar.html"
-    data-below-sidebar="rohd_hcl&#47;Sum-class-sidebar.html">
+    data-below-sidebar="rohd_hcl&#47;GatedCounter-class-sidebar.html">
     <div>
-<h1><span class="kind-class">Sum</span> class 
+<h1><span class="kind-class">GatedCounter</span> class 
  
 </h1></div>
 
     
 <section class="desc markdown">
-  <p>Computes a sum of any number of sources with optional configuration for
-widths and saturation behavior.</p>
+  <p>A version of a <a href="../rohd_hcl/Counter-class.html">Counter</a> which includes <a href="../rohd_hcl/ClockGate-class.html">ClockGate</a>ing and <a href="../rohd_hcl/ToggleGate-class.html">ToggleGate</a>ing
+for power savings.</p>
 </section>
 
 
@@ -75,7 +75,8 @@ widths and saturation behavior.</p>
     <ul class="gt-separated dark clazz-relationships">
       <li><a href="https://api.dart.dev/stable/3.5.4/dart-core/Object-class.html">Object</a></li>
         <li><a href="https://pub.dev/documentation/rohd/0.5.3/rohd/Module-class.html">Module</a></li>
-      <li>Sum</li>
+        <li><a href="../rohd_hcl/Counter-class.html">Counter</a></li>
+      <li>GatedCounter</li>
     </ul>
   </dd>
 
@@ -95,18 +96,13 @@ widths and saturation behavior.</p>
     <h2>Constructors</h2>
 
     <dl class="constructor-summary-list">
-        <dt id="Sum" class="callable">
-          <span class="name"><a href="../rohd_hcl/Sum/Sum.html">Sum</a></span><span class="signature">(<span class="parameter" id="-param-interfaces"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.5.4/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../rohd_hcl/SumInterface-class.html">SumInterface</a></span>&gt;</span></span> <span class="parameter-name">interfaces</span>, {</span><span class="parameter" id="-param-initialValue"><span class="type-annotation">dynamic</span> <span class="parameter-name">initialValue</span> = <span class="default-value">0</span>, </span><span class="parameter" id="-param-maxValue"><span class="type-annotation">dynamic</span> <span class="parameter-name">maxValue</span>, </span><span class="parameter" id="-param-minValue"><span class="type-annotation">dynamic</span> <span class="parameter-name">minValue</span> = <span class="default-value">0</span>, </span><span class="parameter" id="-param-width"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.5.4/dart-core/int-class.html">int</a>?</span> <span class="parameter-name">width</span>, </span><span class="parameter" id="-param-saturates"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.5.4/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">saturates</span> = <span class="default-value">false</span>, </span><span class="parameter" id="-param-name"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.5.4/dart-core/String-class.html">String</a></span> <span class="parameter-name">name</span> = <span class="default-value">&#39;sum&#39;</span></span>})</span>
+        <dt id="GatedCounter" class="callable">
+          <span class="name"><a href="../rohd_hcl/GatedCounter/GatedCounter.html">GatedCounter</a></span><span class="signature">(<span class="parameter" id="-param-interfaces"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.5.4/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../rohd_hcl/SumInterface-class.html">SumInterface</a></span>&gt;</span></span> <span class="parameter-name">interfaces</span>, {</span><span class="parameter" id="-param-clk"><span>required</span> <span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.5.3/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">clk</span>, </span><span class="parameter" id="-param-reset"><span>required</span> <span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.5.3/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">reset</span>, </span><span class="parameter" id="-param-restart"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.5.3/rohd/Logic-class.html">Logic</a>?</span> <span class="parameter-name">restart</span>, </span><span class="parameter" id="-param-resetValue"><span class="type-annotation">dynamic</span> <span class="parameter-name">resetValue</span> = <span class="default-value">0</span>, </span><span class="parameter" id="-param-maxValue"><span class="type-annotation">dynamic</span> <span class="parameter-name">maxValue</span>, </span><span class="parameter" id="-param-minValue"><span class="type-annotation">dynamic</span> <span class="parameter-name">minValue</span> = <span class="default-value">0</span>, </span><span class="parameter" id="-param-width"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.5.4/dart-core/int-class.html">int</a>?</span> <span class="parameter-name">width</span>, </span><span class="parameter" id="-param-saturates"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.5.4/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">saturates</span> = <span class="default-value">false</span>, </span><span class="parameter" id="-param-gateToggles"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.5.4/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">gateToggles</span> = <span class="default-value">true</span>, </span><span class="parameter" id="-param-clockGateControlInterface"><span class="type-annotation"><a href="../rohd_hcl/ClockGateControlInterface-class.html">ClockGateControlInterface</a>?</span> <span class="parameter-name">clockGateControlInterface</span>, </span><span class="parameter" id="-param-clkGatePartitionIndex"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.5.4/dart-core/int-class.html">int</a>?</span> <span class="parameter-name">clkGatePartitionIndex</span>, </span><span class="parameter" id="-param-name"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.5.4/dart-core/String-class.html">String</a></span> <span class="parameter-name">name</span> = <span class="default-value">&#39;counter&#39;</span></span>})</span>
         </dt>
         <dd>
-          Computes a <a href="../rohd_hcl/Sum/sum.html">sum</a> across the provided <code>interfaces</code>.
-        </dd>
-        <dt id="Sum.ofLogics" class="callable">
-          <span class="name"><a href="../rohd_hcl/Sum/Sum.ofLogics.html">Sum.ofLogics</a></span><span class="signature">(<span class="parameter" id="ofLogics-param-logics"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.5.4/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://pub.dev/documentation/rohd/0.5.3/rohd/Logic-class.html">Logic</a></span>&gt;</span></span> <span class="parameter-name">logics</span>, {</span><span class="parameter" id="ofLogics-param-initialValue"><span class="type-annotation">dynamic</span> <span class="parameter-name">initialValue</span> = <span class="default-value">0</span>, </span><span class="parameter" id="ofLogics-param-maxValue"><span class="type-annotation">dynamic</span> <span class="parameter-name">maxValue</span>, </span><span class="parameter" id="ofLogics-param-minValue"><span class="type-annotation">dynamic</span> <span class="parameter-name">minValue</span> = <span class="default-value">0</span>, </span><span class="parameter" id="ofLogics-param-enable"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.5.3/rohd/Logic-class.html">Logic</a>?</span> <span class="parameter-name">enable</span>, </span><span class="parameter" id="ofLogics-param-width"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.5.4/dart-core/int-class.html">int</a>?</span> <span class="parameter-name">width</span>, </span><span class="parameter" id="ofLogics-param-saturates"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.5.4/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">saturates</span> = <span class="default-value">false</span>, </span><span class="parameter" id="ofLogics-param-name"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.5.4/dart-core/String-class.html">String</a></span> <span class="parameter-name">name</span> = <span class="default-value">&#39;sum&#39;</span></span>})</span>
-        </dt>
-        <dd>
-          Computes a <a href="../rohd_hcl/Sum-class.html">Sum</a> across the provided <code>logics</code>.
-            <div class="constructor-modifier features">factory</div>
+          Constructs a <a href="../rohd_hcl/GatedCounter-class.html">GatedCounter</a> in the same way as a <a href="../rohd_hcl/Counter-class.html">Counter</a>, but with the
+added ability to <a href="../rohd_hcl/GatedCounter/gateToggles.html">gateToggles</a> of the interfaces when they are not enabled
+and gate the clocks of the counter in a partitioned way.
         </dd>
     </dl>
   </section>
@@ -116,8 +112,32 @@ widths and saturation behavior.</p>
       id="instance-properties">
     <h2>Properties</h2>
     <dl class="properties">
+        <dt id="clk" class="property inherited">
+  <span class="name"><a href="../rohd_hcl/Counter/clk.html">clk</a></span>
+  <span class="signature">&#8596; <a href="https://pub.dev/documentation/rohd/0.5.3/rohd/Logic-class.html">Logic</a></span>
+  
+
+</dt>
+<dd class="inherited">
+  The main clock signal.
+  <div class="features"><span class="feature">late</span><span class="feature">final</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="clkGatePartitionIndex" class="property">
+  <span class="name"><a href="../rohd_hcl/GatedCounter/clkGatePartitionIndex.html">clkGatePartitionIndex</a></span>
+  <span class="signature">&#8596; <a href="https://api.dart.dev/stable/3.5.4/dart-core/int-class.html">int</a></span>
+  
+
+</dt>
+<dd>
+  The index at which to partition the counter for clock gating.
+  <div class="features"><span class="feature">late</span><span class="feature">final</span></div>
+
+</dd>
+
         <dt id="constantMaxValue" class="property inherited">
-  <span class="name"><a href="../rohd_hcl/Sum/constantMaxValue.html">constantMaxValue</a></span>
+  <span class="name"><a href="../rohd_hcl/Counter/constantMaxValue.html">constantMaxValue</a></span>
   <span class="signature">&#8596; <a href="https://api.dart.dev/stable/3.5.4/dart-core/BigInt-class.html">BigInt</a>?</span>
   
 
@@ -130,7 +150,7 @@ value. Otherwise, it will be <code>null</code>.
 </dd>
 
         <dt id="constantMinValue" class="property inherited">
-  <span class="name"><a href="../rohd_hcl/Sum/constantMinValue.html">constantMinValue</a></span>
+  <span class="name"><a href="../rohd_hcl/Counter/constantMinValue.html">constantMinValue</a></span>
   <span class="signature">&#8596; <a href="https://api.dart.dev/stable/3.5.4/dart-core/BigInt-class.html">BigInt</a>?</span>
   
 
@@ -139,6 +159,18 @@ value. Otherwise, it will be <code>null</code>.
   If the provided <code>minValue</code> was a constant, then this will be the constant
 value. Otherwise, it will be <code>null</code>.
   <div class="features"><span class="feature">late</span><span class="feature">final</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="count" class="property inherited">
+  <span class="name"><a href="../rohd_hcl/Counter/count.html">count</a></span>
+  <span class="signature">&#8594; <a href="https://pub.dev/documentation/rohd/0.5.3/rohd/Logic-class.html">Logic</a></span>
+  
+
+</dt>
+<dd class="inherited">
+  The output value of the counter.
+  <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
 
 </dd>
 
@@ -156,7 +188,7 @@ generated code.
 </dd>
 
         <dt id="equalsMax" class="property inherited">
-  <span class="name"><a href="../rohd_hcl/Sum/equalsMax.html">equalsMax</a></span>
+  <span class="name"><a href="../rohd_hcl/Counter/equalsMax.html">equalsMax</a></span>
   <span class="signature">&#8594; <a href="https://pub.dev/documentation/rohd/0.5.3/rohd/Logic-class.html">Logic</a></span>
   
 
@@ -169,7 +201,7 @@ equal to the maximum.
 </dd>
 
         <dt id="equalsMin" class="property inherited">
-  <span class="name"><a href="../rohd_hcl/Sum/equalsMin.html">equalsMin</a></span>
+  <span class="name"><a href="../rohd_hcl/Counter/equalsMin.html">equalsMin</a></span>
   <span class="signature">&#8594; <a href="https://pub.dev/documentation/rohd/0.5.3/rohd/Logic-class.html">Logic</a></span>
   
 
@@ -178,6 +210,19 @@ equal to the maximum.
   Indicates whether the sum (including potential saturation) is currently
 equal to the minimum.
   <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="gateToggles" class="property">
+  <span class="name"><a href="../rohd_hcl/GatedCounter/gateToggles.html">gateToggles</a></span>
+  <span class="signature">&#8594; <a href="https://api.dart.dev/stable/3.5.4/dart-core/bool-class.html">bool</a></span>
+  
+
+</dt>
+<dd>
+  If <code>true</code>, then the counter will gate the toggles of the interfaces when
+they are not enabled.
+  <div class="features"><span class="feature">final</span></div>
 
 </dd>
 
@@ -206,7 +251,7 @@ equal to the minimum.
 </dd>
 
         <dt id="initialValueLogic" class="property inherited">
-  <span class="name"><a href="../rohd_hcl/Sum/initialValueLogic.html">initialValueLogic</a></span>
+  <span class="name"><a href="../rohd_hcl/Counter/initialValueLogic.html">initialValueLogic</a></span>
   <span class="signature">&#8596; <a href="https://pub.dev/documentation/rohd/0.5.3/rohd/Logic-class.html">Logic</a></span>
   
 
@@ -230,15 +275,15 @@ signals.
 
 </dd>
 
-        <dt id="interfaces" class="property inherited">
-  <span class="name"><a href="../rohd_hcl/Sum/interfaces.html">interfaces</a></span>
+        <dt id="interfaces" class="property">
+  <span class="name"><a href="../rohd_hcl/GatedCounter/interfaces.html">interfaces</a></span>
   <span class="signature">&#8596; <a href="https://api.dart.dev/stable/3.5.4/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../rohd_hcl/SumInterface-class.html">SumInterface</a></span>&gt;</span></span>
   
 
 </dt>
-<dd class="inherited">
+<dd>
   The "internal" versions of the <code>SumInterface</code>s for this computation.
-  <div class="features"><span class="feature">late</span><span class="feature">final</span><span class="feature">inherited</span></div>
+  <div class="features"><span class="feature">getter/setter pair</span><span class="feature">inherited-setter</span></div>
 
 </dd>
 
@@ -255,8 +300,20 @@ signals.
 
 </dd>
 
+        <dt id="lowerGatedClock" class="property">
+  <span class="name"><a href="../rohd_hcl/GatedCounter/lowerGatedClock.html">lowerGatedClock</a></span>
+  <span class="signature">&#8596; <a href="https://pub.dev/documentation/rohd/0.5.3/rohd/Logic-class.html">Logic</a></span>
+  
+
+</dt>
+<dd>
+  The gated clock for the lower partition of the counter.
+  <div class="features"><span class="feature">late</span><span class="feature">final</span></div>
+
+</dd>
+
         <dt id="maxValueLogic" class="property inherited">
-  <span class="name"><a href="../rohd_hcl/Sum/maxValueLogic.html">maxValueLogic</a></span>
+  <span class="name"><a href="../rohd_hcl/Counter/maxValueLogic.html">maxValueLogic</a></span>
   <span class="signature">&#8596; <a href="https://pub.dev/documentation/rohd/0.5.3/rohd/Logic-class.html">Logic</a></span>
   
 
@@ -267,8 +324,32 @@ signals.
 
 </dd>
 
+        <dt id="mayOverflow" class="property">
+  <span class="name"><a href="../rohd_hcl/GatedCounter/mayOverflow.html">mayOverflow</a></span>
+  <span class="signature">&#8594; <a href="https://pub.dev/documentation/rohd/0.5.3/rohd/Logic-class.html">Logic</a></span>
+  
+
+</dt>
+<dd>
+  High if the counter may overflow.
+  <div class="features"><span class="feature">late</span><span class="feature">final</span></div>
+
+</dd>
+
+        <dt id="mayUnderflow" class="property">
+  <span class="name"><a href="../rohd_hcl/GatedCounter/mayUnderflow.html">mayUnderflow</a></span>
+  <span class="signature">&#8594; <a href="https://pub.dev/documentation/rohd/0.5.3/rohd/Logic-class.html">Logic</a></span>
+  
+
+</dt>
+<dd>
+  High if the counter may underflow.
+  <div class="features"><span class="feature">late</span><span class="feature">final</span></div>
+
+</dd>
+
         <dt id="minValueLogic" class="property inherited">
-  <span class="name"><a href="../rohd_hcl/Sum/minValueLogic.html">minValueLogic</a></span>
+  <span class="name"><a href="../rohd_hcl/Counter/minValueLogic.html">minValueLogic</a></span>
   <span class="signature">&#8596; <a href="https://pub.dev/documentation/rohd/0.5.3/rohd/Logic-class.html">Logic</a></span>
   
 
@@ -305,14 +386,14 @@ signals.
 </dd>
 
         <dt id="overflowed" class="property inherited">
-  <span class="name"><a href="../rohd_hcl/Sum/overflowed.html">overflowed</a></span>
+  <span class="name"><a href="../rohd_hcl/Counter/overflowed.html">overflowed</a></span>
   <span class="signature">&#8594; <a href="https://pub.dev/documentation/rohd/0.5.3/rohd/Logic-class.html">Logic</a></span>
   
 
 </dt>
 <dd class="inherited">
   Indicates whether the sum is greater than the maximum value. The actual
-resulting value depends on the provided <a href="../rohd_hcl/Sum/saturates.html">saturates</a> behavior (staturation
+resulting value depends on the provided <a href="../rohd_hcl/Counter/saturates.html">saturates</a> behavior (staturation
 or overflow).
   <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
 
@@ -356,6 +437,30 @@ or else it will fail.
 
 </dd>
 
+        <dt id="reset" class="property inherited">
+  <span class="name"><a href="../rohd_hcl/Counter/reset.html">reset</a></span>
+  <span class="signature">&#8596; <a href="https://pub.dev/documentation/rohd/0.5.3/rohd/Logic-class.html">Logic</a></span>
+  
+
+</dt>
+<dd class="inherited">
+  The reset signal.
+  <div class="features"><span class="feature">late</span><span class="feature">final</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="restart" class="property inherited">
+  <span class="name"><a href="../rohd_hcl/Counter/restart.html">restart</a></span>
+  <span class="signature">&#8596; <a href="https://pub.dev/documentation/rohd/0.5.3/rohd/Logic-class.html">Logic</a>?</span>
+  
+
+</dt>
+<dd class="inherited">
+  The restart signal.
+  <div class="features"><span class="feature">late</span><span class="feature">final</span><span class="feature">inherited</span></div>
+
+</dd>
+
         <dt id="runtimeType" class="property inherited">
   <span class="name"><a href="https://api.dart.dev/stable/3.5.4/dart-core/Object/runtimeType.html">runtimeType</a></span>
   <span class="signature">&#8594; <a href="https://api.dart.dev/stable/3.5.4/dart-core/Type-class.html">Type</a></span>
@@ -369,7 +474,7 @@ or else it will fail.
 </dd>
 
         <dt id="saturates" class="property inherited">
-  <span class="name"><a href="../rohd_hcl/Sum/saturates.html">saturates</a></span>
+  <span class="name"><a href="../rohd_hcl/Counter/saturates.html">saturates</a></span>
   <span class="signature">&#8594; <a href="https://api.dart.dev/stable/3.5.4/dart-core/bool-class.html">bool</a></span>
   
 
@@ -406,27 +511,27 @@ inputs, outputs, and internal signals of this <a href="https://pub.dev/documenta
 
 </dd>
 
-        <dt id="sum" class="property">
-  <span class="name"><a href="../rohd_hcl/Sum/sum.html">sum</a></span>
-  <span class="signature">&#8594; <a href="https://pub.dev/documentation/rohd/0.5.3/rohd/Logic-class.html">Logic</a></span>
+        <dt id="summer" class="property inherited">
+  <span class="name"><a href="../rohd_hcl/Counter/summer.html">summer</a></span>
+  <span class="signature">&#8594; <a href="../rohd_hcl/Sum-class.html">Sum</a></span>
   
 
 </dt>
-<dd>
-  The resulting <a href="../rohd_hcl/Sum/sum.html">sum</a>.
-  <div class="features"><span class="feature">no setter</span></div>
+<dd class="inherited">
+  The internal <a href="../rohd_hcl/Sum-class.html">Sum</a> that is used to keep track of the count.
+  <div class="features"><span class="feature">late</span><span class="feature">final</span><span class="feature">inherited</span></div>
 
 </dd>
 
         <dt id="underflowed" class="property inherited">
-  <span class="name"><a href="../rohd_hcl/Sum/underflowed.html">underflowed</a></span>
+  <span class="name"><a href="../rohd_hcl/Counter/underflowed.html">underflowed</a></span>
   <span class="signature">&#8594; <a href="https://pub.dev/documentation/rohd/0.5.3/rohd/Logic-class.html">Logic</a></span>
   
 
 </dt>
 <dd class="inherited">
   Indicates whether the sum is less than the minimum value. The actual
-resulting value depends on the provided <a href="../rohd_hcl/Sum/saturates.html">saturates</a> behavior (saturation
+resulting value depends on the provided <a href="../rohd_hcl/Counter/saturates.html">saturates</a> behavior (saturation
 or underflow).
   <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
 
@@ -445,8 +550,20 @@ unique name within its scope.
 
 </dd>
 
+        <dt id="upperGatedClock" class="property">
+  <span class="name"><a href="../rohd_hcl/GatedCounter/upperGatedClock.html">upperGatedClock</a></span>
+  <span class="signature">&#8596; <a href="https://pub.dev/documentation/rohd/0.5.3/rohd/Logic-class.html">Logic</a></span>
+  
+
+</dt>
+<dd>
+  The gated clock for the upper partition of the counter.
+  <div class="features"><span class="feature">late</span><span class="feature">final</span></div>
+
+</dd>
+
         <dt id="width" class="property inherited">
-  <span class="name"><a href="../rohd_hcl/Sum/width.html">width</a></span>
+  <span class="name"><a href="../rohd_hcl/Counter/width.html">width</a></span>
   <span class="signature">&#8594; <a href="https://api.dart.dev/stable/3.5.4/dart-core/int-class.html">int</a></span>
   
 
@@ -461,7 +578,7 @@ unique name within its scope.
   </section>
     
   <section
-      class="summary offset-anchor inherited"
+      class="summary offset-anchor"
       id="instance-methods">
     <h2>Methods</h2>
     <dl class="callables">
@@ -533,6 +650,19 @@ named <code>name</code>.
 <dd class="inherited">
   Builds the <a href="https://pub.dev/documentation/rohd/0.5.3/rohd/Module-class.html">Module</a> and all <a href="https://pub.dev/documentation/rohd/0.5.3/rohd/Module/subModules.html">subModules</a> within it.
   <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="buildFlops" class="callable">
+  <span class="name"><a href="../rohd_hcl/GatedCounter/buildFlops.html">buildFlops</a></span><span class="signature">(<wbr>)
+    <span class="returntype parameter">&#8594; void</span>
+  </span>
+  
+
+</dt>
+<dd>
+  Builds the flops that store the <a href="../rohd_hcl/Counter/count.html">count</a>.
+  <div class="features"><span class="feature">override</span></div>
 
 </dd>
 
@@ -740,7 +870,7 @@ named <code>name</code>.
 <ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
     <li><a href="../index.html">rohd_hcl</a></li>
     <li><a href="../rohd_hcl/rohd_hcl-library.html">rohd_hcl</a></li>
-    <li class="self-crumb">Sum class</li>
+    <li class="self-crumb">GatedCounter class</li>
 </ol>
 
 

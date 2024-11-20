@@ -98,7 +98,10 @@ interface.</p>
     : width = (width == null &amp;&amp; fixedAmount == null)
           ? throw RohdHclException(
               &#39;Must provide either a fixedAmount or width.&#39;)
-          : width ?? LogicValue.ofInferWidth(fixedAmount).width {
+          : width ?? max(LogicValue.ofInferWidth(fixedAmount).width, 1) {
+  if (this.width &lt;= 0) {
+    throw RohdHclException(&#39;Width must be positive.&#39;);
+  }
   setPorts([
     if (fixedAmount == null) Port(&#39;amount&#39;, this.width),
     if (hasEnable) Port(&#39;enable&#39;),

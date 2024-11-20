@@ -82,6 +82,10 @@ configuration for widths, saturation behavior, and restarting.</p>
         
         
 
+          <dt>Implementers</dt>
+          <dd><ul class="comma-separated clazz-relationships">
+              <li><a href="../rohd_hcl/GatedCounter-class.html">GatedCounter</a></li>
+          </ul></dd>
 
 
         
@@ -126,6 +130,44 @@ other available configuration in the default <a href="../rohd_hcl/Counter-class.
       id="instance-properties">
     <h2>Properties</h2>
     <dl class="properties">
+        <dt id="clk" class="property">
+  <span class="name"><a href="../rohd_hcl/Counter/clk.html">clk</a></span>
+  <span class="signature">&#8596; <a href="https://pub.dev/documentation/rohd/0.5.3/rohd/Logic-class.html">Logic</a></span>
+  
+
+</dt>
+<dd>
+  The main clock signal.
+  <div class="features"><span class="feature">late</span><span class="feature">final</span></div>
+
+</dd>
+
+        <dt id="constantMaxValue" class="property inherited">
+  <span class="name"><a href="../rohd_hcl/Counter/constantMaxValue.html">constantMaxValue</a></span>
+  <span class="signature">&#8596; <a href="https://api.dart.dev/stable/3.5.4/dart-core/BigInt-class.html">BigInt</a>?</span>
+  
+
+</dt>
+<dd class="inherited">
+  If the provided <code>maxValue</code> was a constant, then this will be the constant
+value. Otherwise, it will be <code>null</code>.
+  <div class="features"><span class="feature">late</span><span class="feature">final</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="constantMinValue" class="property inherited">
+  <span class="name"><a href="../rohd_hcl/Counter/constantMinValue.html">constantMinValue</a></span>
+  <span class="signature">&#8596; <a href="https://api.dart.dev/stable/3.5.4/dart-core/BigInt-class.html">BigInt</a>?</span>
+  
+
+</dt>
+<dd class="inherited">
+  If the provided <code>minValue</code> was a constant, then this will be the constant
+value. Otherwise, it will be <code>null</code>.
+  <div class="features"><span class="feature">late</span><span class="feature">final</span><span class="feature">inherited</span></div>
+
+</dd>
+
         <dt id="count" class="property">
   <span class="name"><a href="../rohd_hcl/Counter/count.html">count</a></span>
   <span class="signature">&#8594; <a href="https://pub.dev/documentation/rohd/0.5.3/rohd/Logic-class.html">Logic</a></span>
@@ -352,6 +394,30 @@ or else it will fail.
 
 </dd>
 
+        <dt id="reset" class="property">
+  <span class="name"><a href="../rohd_hcl/Counter/reset.html">reset</a></span>
+  <span class="signature">&#8596; <a href="https://pub.dev/documentation/rohd/0.5.3/rohd/Logic-class.html">Logic</a></span>
+  
+
+</dt>
+<dd>
+  The reset signal.
+  <div class="features"><span class="feature">late</span><span class="feature">final</span></div>
+
+</dd>
+
+        <dt id="restart" class="property">
+  <span class="name"><a href="../rohd_hcl/Counter/restart.html">restart</a></span>
+  <span class="signature">&#8596; <a href="https://pub.dev/documentation/rohd/0.5.3/rohd/Logic-class.html">Logic</a>?</span>
+  
+
+</dt>
+<dd>
+  The restart signal.
+  <div class="features"><span class="feature">late</span><span class="feature">final</span></div>
+
+</dd>
+
         <dt id="runtimeType" class="property inherited">
   <span class="name"><a href="https://api.dart.dev/stable/3.5.4/dart-core/Object/runtimeType.html">runtimeType</a></span>
   <span class="signature">&#8594; <a href="https://api.dart.dev/stable/3.5.4/dart-core/Type-class.html">Type</a></span>
@@ -402,6 +468,18 @@ inputs, outputs, and internal signals of this <a href="https://pub.dev/documenta
 
 </dd>
 
+        <dt id="summer" class="property">
+  <span class="name"><a href="../rohd_hcl/Counter/summer.html">summer</a></span>
+  <span class="signature">&#8594; <a href="../rohd_hcl/Sum-class.html">Sum</a></span>
+  
+
+</dt>
+<dd>
+  The internal <a href="../rohd_hcl/Sum-class.html">Sum</a> that is used to keep track of the count.
+  <div class="features"><span class="feature">late</span><span class="feature">final</span></div>
+
+</dd>
+
         <dt id="underflowed" class="property inherited">
   <span class="name"><a href="../rohd_hcl/Counter/underflowed.html">underflowed</a></span>
   <span class="signature">&#8594; <a href="https://pub.dev/documentation/rohd/0.5.3/rohd/Logic-class.html">Logic</a></span>
@@ -445,7 +523,7 @@ unique name within its scope.
   </section>
     
   <section
-      class="summary offset-anchor inherited"
+      class="summary offset-anchor"
       id="instance-methods">
     <h2>Methods</h2>
     <dl class="callables">
@@ -517,6 +595,19 @@ named <code>name</code>.
 <dd class="inherited">
   Builds the <a href="https://pub.dev/documentation/rohd/0.5.3/rohd/Module-class.html">Module</a> and all <a href="https://pub.dev/documentation/rohd/0.5.3/rohd/Module/subModules.html">subModules</a> within it.
   <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="buildFlops" class="callable">
+  <span class="name"><a href="../rohd_hcl/Counter/buildFlops.html">buildFlops</a></span><span class="signature">(<wbr>)
+    <span class="returntype parameter">&#8594; void</span>
+  </span>
+  
+
+</dt>
+<dd>
+  Builds the flops that store the <a href="../rohd_hcl/Counter/count.html">count</a>.
+  
 
 </dd>
 

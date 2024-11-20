@@ -84,17 +84,21 @@
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">@override
-Module createModule() =&gt; Counter(
-      sumInterfaceKnobs.knobs
-          .map((e) =&gt; e as SumInterfaceKnob)
-          .map((e) =&gt; SumInterface(
-                hasEnable: e.hasEnableKnob.value,
-                fixedAmount:
-                    e.isFixedValueKnob.value ? e.fixedValueKnob.value : null,
-                width: e.widthKnob.value,
-                increments: e.incrementsKnob.value,
-              ))
-          .toList(),
+Module createModule() {
+  final sumIntfs = sumInterfaceKnobs.knobs
+      .map((e) =&gt; e as SumInterfaceKnob)
+      .map((e) =&gt; SumInterface(
+            hasEnable: e.hasEnableKnob.value,
+            fixedAmount:
+                e.isFixedValueKnob.value ? e.fixedValueKnob.value : null,
+            width: e.widthKnob.value,
+            increments: e.incrementsKnob.value,
+          ))
+      .toList();
+
+  if (clockGatingKnob.value) {
+    return GatedCounter(
+      sumIntfs,
       resetValue: resetValueKnob.value,
       width: widthKnob.value,
       minValue: minValueKnob.value,
@@ -102,7 +106,22 @@ Module createModule() =&gt; Counter(
       saturates: saturatesKnob.value,
       clk: Logic(),
       reset: Logic(),
-    );</code></pre>
+      clkGatePartitionIndex: clockGatingPartitionIndexKnob.value,
+      gateToggles: gateTogglesKnob.value,
+    );
+  } else {
+    return Counter(
+      sumIntfs,
+      resetValue: resetValueKnob.value,
+      width: widthKnob.value,
+      minValue: minValueKnob.value,
+      maxValue: maxValueKnob.value,
+      saturates: saturatesKnob.value,
+      clk: Logic(),
+      reset: Logic(),
+    );
+  }
+}</code></pre>
 </section>
 
 
