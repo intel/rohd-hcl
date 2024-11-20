@@ -49,4 +49,11 @@ extension LogicValueMajority on LogicValue {
     }
     return result;
   }
+
+  /// Return the populationCount of 1s in a LogicValue
+  int popCount() {
+    final r = RegExp('1');
+    final matches = r.allMatches(bitString);
+    return matches.length;
+  }
 }

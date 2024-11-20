@@ -111,6 +111,7 @@ class CompressionTreeMultiplier extends Multiplier {
       PartialProductGenerator Function(Logic, Logic, RadixEncoder,
               {required bool signed, Logic? selectSigned})
           ppGen = PartialProductGeneratorCompactRectSignExtension.new,
+      bool use42Compressors = false,
       super.signed = false,
       super.name = 'compression_tree_multiplier'}) {
     final internalSelectSigned =
@@ -123,9 +124,13 @@ class CompressionTreeMultiplier extends Multiplier {
     final pp = ppGen(a, b, RadixEncoder(radix),
         selectSigned: internalSelectSigned, signed: signed);
 
-    final compressor =
-        ColumnCompressor(clk: iClk, reset: iReset, enable: iEnable, pp)
-          ..compress();
+    final compressor = ColumnCompressor(
+        clk: iClk,
+        reset: iReset,
+        enable: iEnable,
+        pp,
+        use42Compressors: use42Compressors)
+      ..compress();
     final adder = ParallelPrefixAdder(
         compressor.extractRow(0), compressor.extractRow(1),
         ppGen: ppTree);
@@ -178,6 +183,7 @@ class CompressionTreeMultiplyAccumulate extends MultiplyAccumulate {
       PartialProductGenerator Function(Logic, Logic, RadixEncoder,
               {required bool signed, Logic? selectSigned})
           ppGen = PartialProductGeneratorCompactRectSignExtension.new,
+      bool use42Compressors = false,
       super.name = 'compression_tree_mac'}) {
     final internalSelectSigned =
         (selectSigned != null) ? addInput('selectSigned', selectSigned) : null;
@@ -211,9 +217,13 @@ class CompressionTreeMultiplyAccumulate extends MultiplyAccumulate {
     pp.partialProducts.insert(0, l);
     pp.rowShift.insert(0, 0);
 
-    final compressor =
-        ColumnCompressor(clk: iClk, reset: iReset, enable: iEnable, pp)
-          ..compress();
+    final compressor = ColumnCompressor(
+        clk: iClk,
+        reset: iReset,
+        enable: iEnable,
+        pp,
+        use42Compressors: use42Compressors)
+      ..compress();
     final adder = ParallelPrefixAdder(
         compressor.extractRow(0), compressor.extractRow(1),
         ppGen: ppTree);

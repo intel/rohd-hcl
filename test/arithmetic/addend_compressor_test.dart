@@ -10,6 +10,7 @@
 import 'dart:async';
 import 'dart:io';
 import 'dart:math';
+import 'package:meta/meta.dart';
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
 import 'package:rohd_hcl/src/arithmetic/evaluate_compressor.dart';
@@ -48,7 +49,8 @@ class CompressorTestMod extends Module {
   }
 }
 
-void testCompressionExhaustive(PartialProductGenerator pp) {
+void testCompressionExhaustive(PartialProductGenerator pp,
+    {bool use42Compressors = false}) {
   final widthX = pp.selector.multiplicand.width;
   final widthY = pp.encoder.multiplier.width;
 
@@ -66,12 +68,13 @@ void testCompressionExhaustive(PartialProductGenerator pp) {
           ? BigInt.from(j).toSigned(widthY)
           : BigInt.from(j).toUnsigned(widthY);
 
-      checkCompressor(pp, X, Y);
+      checkCompressor(pp, X, Y, use42Compressors: use42Compressors);
     }
   }
 }
 
-void testCompressionRandom(PartialProductGenerator pp, int iterations) {
+void testCompressionRandom(PartialProductGenerator pp, int iterations,
+    {bool use42Compressors = false}) {
   final widthX = pp.selector.multiplicand.width;
   final widthY = pp.encoder.multiplier.width;
 
@@ -84,14 +87,15 @@ void testCompressionRandom(PartialProductGenerator pp, int iterations) {
         ? value.nextLogicValue(width: widthY).toBigInt().toSigned(widthY)
         : value.nextLogicValue(width: widthY).toBigInt().toUnsigned(widthY);
 
-    checkCompressor(pp, X, Y);
+    checkCompressor(pp, X, Y, use42Compressors: use42Compressors);
   }
 }
 
-void checkCompressor(PartialProductGenerator pp, BigInt X, BigInt Y) {
+void checkCompressor(PartialProductGenerator pp, BigInt X, BigInt Y,
+    {bool use42Compressors = false}) {
   final widthX = pp.selector.multiplicand.width;
   final widthY = pp.encoder.multiplier.width;
-  final compressor = ColumnCompressor(pp);
+  final compressor = ColumnCompressor(pp, use42Compressors: use42Compressors);
 
   final product = X * Y;
 
@@ -137,6 +141,28 @@ void main() {
   tearDown(() async {
     await Simulator.reset();
   });
+
+  test('4-2 compressor', () {
+    final bits = Logic(width: 4);
+    final cin = [Logic()];
+
+    final compressor = Compressor4(bits, cin);
+
+    for (var cVal = 0; cVal < 2; cVal++) {
+      cin[0].put(cVal);
+
+      for (var val = 0; val < pow(2, 4) - 1; val++) {
+        bits.put(val);
+        final count = compressor.sum.value.toInt() +
+            2 *
+                (compressor.carry.value.toInt() +
+                    compressor.cout.value.toInt());
+        final bitCount =
+            bits.value.popCount() + ((cin[0].value == LogicValue.one) ? 1 : 0);
+        expect(count, equals(bitCount));
+      }
+    }
+  });
   test('ColumnCompressor: random evaluate: square radix-4, just CompactRect',
       () async {
     for (final signed in [false, true]) {
@@ -164,7 +190,8 @@ void main() {
                     Logic(name: 'Y', width: width), encoder,
                     signed: signed);
               }
-              testCompressionRandom(pp, 10);
+              // testCompressionRandom(pp, 10, use42Compressors: true);
+              testCompressionExhaustive(pp, use42Compressors: true);
             }
           }
         }
@@ -262,9 +289,6 @@ void main() {
       // ignore: cascade_invocations
       selectSigned.put(signed ? 1 : 0);
       final pp = PartialProductGeneratorStopBitsSignExtension(a, b, encoder,
-          // final pp = PartialProductGeneratorCompactRectSignExtension(a, b,
-          // encoder,
-          // signed: signed);
           selectSigned: selectSigned);
 
       expect(pp.evaluate(), equals(bA * bB));
@@ -291,7 +315,6 @@ void main() {
 
       const radix = 4;
       final encoder = RadixEncoder(radix);
-      // for (final useSelect in [true]) {
       for (final useSelect in [false, true]) {
         // Set these so that printing inside module build will have Logic values
         a.put(bA);
@@ -307,8 +330,6 @@ void main() {
             : PartialProductGeneratorBruteSignExtension(a, b, encoder,
                 signed: signed);
 
-        // print(pp.representation());
-
         expect(pp.evaluate(), equals(bA * bB));
         final compressor = ColumnCompressor(pp);
         expect(compressor.evaluate().$1, equals(bA * bB));
@@ -316,5 +337,36 @@ void main() {
         expect(compressor.evaluate().$1, equals(bA * bB));
       }
     }
+  });
+
+  test('Compressor singleton test', () {
+    const widthX = 6;
+    const widthY = 6;
+    final a = Logic(name: 'a', width: widthX);
+    final b = Logic(name: 'b', width: widthY);
+
+    const av = 1;
+    const bv = 4;
+    final bA = BigInt.from(av).toUnsigned(widthX);
+    final bB = BigInt.from(bv).toUnsigned(widthY);
+
+    const radix = 2;
+    final encoder = RadixEncoder(radix);
+    // Set these so that printing inside module build will have Logic values
+    a.put(bA);
+    b.put(bB);
+
+    final pp = PartialProductGeneratorStopBitsSignExtension(a, b, encoder);
+
+    // print(pp.representation());
+
+    expect(pp.evaluate(), equals(bA * bB));
+    final compressor = ColumnCompressor(pp, use42Compressors: true);
+    // print(compressor.representation());
+    expect(compressor.evaluate().$1, equals(bA * bB));
+    compressor.compress();
+    // print(compressor.representation());
+
+    expect(compressor.evaluate().$1, equals(bA * bB));
   });
 }
