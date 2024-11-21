@@ -222,7 +222,7 @@ class Compressor4 extends BitCompressor {
     carry <= c3B.carry;
     sum <= c3B.sum;
 
-    // TODO(desmonddak): wiriting different inputs for different delays
+    // TODO(desmonddak): wiring different inputs for different delays
     _delays[CompressTermType.sum.index][CompressTermType.pp.index] = 4.0;
     _delays[CompressTermType.sum.index][CompressTermType.cin.index] = 2.0;
     _delays[CompressTermType.carry.index][CompressTermType.pp.index] = 3.0;
