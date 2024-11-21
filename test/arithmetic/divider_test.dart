@@ -406,7 +406,14 @@ class MultiCycleDividerBasicSequence extends Sequence {
           mDivisor: 0,
           mValidIn: true,
           mIsSigned: true,
-          mReadyOut: true)); // divide by 0
+          mReadyOut: true)) // divide by 0
+      // long latency division
+      ..add(MultiCycleDividerInputSeqItem(
+          mDividend: 0xffffffec,
+          mDivisor: 0x6,
+          mValidIn: true,
+          mIsSigned: false,
+          mReadyOut: true));
   }
 }
 

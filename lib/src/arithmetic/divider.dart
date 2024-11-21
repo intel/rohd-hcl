@@ -258,10 +258,7 @@ class MultiCycleDivider extends Module {
               orElse: [
                 tmpDifference < (aBuf - tmpShift),
                 // move to accumulate if tmpDifference <= 0
-                If(
-                    ~tmpShift.or() |
-                        tmpDifference[dataWidth - 1] |
-                        ~tmpDifference.or(),
+                If(~tmpShift.or() | tmpDifference[-1] | ~tmpDifference.or(),
                     then: [nextState < _MultiCycleDividerState.accumulate],
                     orElse: [nextState < _MultiCycleDividerState.process])
               ])
@@ -375,7 +372,7 @@ class MultiCycleDivider extends Module {
             currentState.eq(_MultiCycleDividerState
                 .process), // didn't exceed a_buf, so count as success
             [
-              If(~tmpDifference[dataWidth - 1], then: [
+              If(~tmpDifference[-1], then: [
                 lastSuccess <
                     (Const(1, width: dataWidth + 1) <<
                         currIndex), // capture 2^i
