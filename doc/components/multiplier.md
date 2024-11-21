@@ -89,6 +89,7 @@ The parameters of the
 - `ppGen` parameter: the type of `PartialProductGenerator` to use which has derived classes for different styles of sign extension. In some cases this adds an extra row to hold a sign bit.
 - An optional `selectSigned` control signal which overrides the `signed` configuration allowing for runtime control of signed or unsigned operation with the same hardware. `signed` must be false if using this control signal.
 - An optional `clk`, as well as `enable` and `reset` that are used to add a pipestage in the `ColumnCompressor` to allow for pipelined operation.
+- An optional `use42Compressors` boolean enables the `ColumnCompressor` to use 4:2 compressors in addition to 3:2 (Full Adder) and 2:2 (Half Adder) compressors.
 
 Here is an example of use of the `CompressionTreeMultiplier`:
 
@@ -127,6 +128,7 @@ The parameters of the
 - `ppGen` parameter: the type of `PartialProductGenerator` to use which has derived classes for different styles of sign extension. In some cases this adds an extra row to hold a sign bit (default `PartialProductGeneratorCompactRectSignExtension`).
 - An optional `selectSigned` control signal which overrides the `signed` configuration allowing for runtime control of signed or unsigned operation with the same hardware. `signed` must be false if using this control signal.
 - An optional `clk`, as well as `enable` and `reset` that are used to add a pipestage in the `ColumnCompressor` to allow for pipelined operation.
+- An optional `use42Compressors` boolean enables the `ColumnCompressor` to use 4:2 compressors in addition to 3:2 (Full Adder) and 2:2 (Half Adder) compressors.
 
 Here is an example of using the `CompressionTreeMultiplyAccumulate`:
 

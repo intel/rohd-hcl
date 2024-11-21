@@ -202,15 +202,23 @@ class Compressor4 extends BitCompressor {
   /// Construct a 4-input column compressor using two 3-input compressors.
   Compressor4(List<CompressTerm> terms, List<CompressTerm> cinL)
       : super(terms) {
-    for (final cin in cinL) {
-      addInput('cin', cin.logic);
-    }
+    // We need to use internal Logic and regenerate Term lists inside
+    cinL = [
+      for (final cin in cinL)
+        CompressTerm(this, cin.type, addInput('cin', cin.logic), cin.inputs,
+            cin.row, cin.col)
+    ];
+    final internalTerms = [
+      for (var i = 0; i < compressBits.width; i++)
+        CompressTerm(this, terms[i].type, compressBits.reversed[i],
+            terms.sublist(0, 4), terms[i].row, terms[i].col)
+    ];
     addOutput('cout');
-    final c3A = Compressor3(terms.sublist(1, 4));
+    final c3A = Compressor3(internalTerms.sublist(1, 4));
     cout <= c3A.carry;
     final t = CompressTerm(
-        c3A, CompressTermType.sum, c3A.sum, terms.sublist(1, 4), 0, 0);
-    final c3B = Compressor3([t, terms[0], cinL[0]]);
+        c3A, CompressTermType.sum, c3A.sum, internalTerms.sublist(1, 4), 0, 0);
+    final c3B = Compressor3([t, internalTerms[0], cinL[0]]);
     carry <= c3B.carry;
     sum <= c3B.sum;
 

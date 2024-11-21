@@ -101,6 +101,9 @@ class CompressionTreeMultiplier extends Multiplier {
   /// after compression.  [reset] and [enable] are optional
   /// inputs to control these flops when [clk] is provided. If [clk] is null,
   /// the [ColumnCompressor] is built as a combinational tree of compressors.
+  ///
+  /// [use42Compressors] will combine 4:2, 3:2, and 2:2 compressors in building
+  /// a compression tree.
   CompressionTreeMultiplier(super.a, super.b, int radix,
       {this.clk,
       this.reset,
@@ -172,6 +175,9 @@ class CompressionTreeMultiplyAccumulate extends MultiplyAccumulate {
   /// after compression.  [reset] and [enable] are optional
   /// inputs to control these flops when [clk] is provided. If [clk] is null,
   /// the [ColumnCompressor] is built as a combinational tree of compressors.
+  ///
+  /// [use42Compressors] will combine 4:2, 3:2, and 2:2 compressors in building
+  /// a compression tree.
   CompressionTreeMultiplyAccumulate(super.a, super.b, super.c, int radix,
       {this.clk,
       this.reset,

@@ -43,13 +43,17 @@ class CompressionTreeMultiplierConfigurator extends Configurator {
   /// Controls whether the adder is pipelined
   final ToggleConfigKnob pipelinedKnob = ToggleConfigKnob(value: false);
 
+  /// Controls whether the adder is pipelined
+  final ToggleConfigKnob use42CompressorsKnob = ToggleConfigKnob(value: false);
+
   @override
   Module createModule() => CompressionTreeMultiplier(
       clk: pipelinedKnob.value ? Logic() : null,
       Logic(name: 'a', width: multiplicandWidthKnob.value),
       Logic(name: 'b', width: multiplierWidthKnob.value),
       radixKnob.value,
-      ppTree: generatorMap[prefixTreeKnob.value]!);
+      ppTree: generatorMap[prefixTreeKnob.value]!,
+      use42Compressors: use42CompressorsKnob.value);
 
   @override
   late final Map<String, ConfigKnob<dynamic>> knobs = UnmodifiableMapView({
@@ -58,6 +62,7 @@ class CompressionTreeMultiplierConfigurator extends Configurator {
     'Multiplicand width': multiplicandWidthKnob,
     'Multiplier width': multiplierWidthKnob,
     'Pipelined': pipelinedKnob,
+    'Use 4:2 Compressors': use42CompressorsKnob,
   });
 
   @override
