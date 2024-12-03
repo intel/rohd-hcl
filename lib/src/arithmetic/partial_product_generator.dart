@@ -202,35 +202,52 @@ abstract class PartialProductGenerator extends PartialProductArray {
   /// multiples of the multiplicand and generate partial products
   late final MultiplicandSelector selector;
 
-  /// Operands are signed
-  late final bool signed;
+  /// [multiplicand] operand is always signed
+  late final bool signedMultiplicand;
+
+  /// [multiplier] operand is always signed
+  late final bool signedMultiplier;
 
   /// Used to avoid sign extending more than once
   bool isSignExtended = false;
 
   /// If not null, use this signal to select between signed and unsigned
-  /// operation.
-  late final Logic? selectSigned;
+  /// [multiplicand].
+  late final Logic? selectSignedMultiplicand;
 
-  /// Construct a [PartialProductGenerator] -- the partial product matrix
+  /// If not null, use this signal to select between signed and unsigned
+  /// [multiplier].
+  late final Logic? selectSignedMultiplier;
+
+  /// Construct a [PartialProductGenerator] -- the partial product matrix.
+  ///
+  /// [signedMultiplier] generates a fixed signed encoder versus using
+  /// [selectSignedMultiplier] which is a runtime sign selection [Logic]
+  /// in which case [signedMultiplier] must be false.
   PartialProductGenerator(
       Logic multiplicand, Logic multiplier, RadixEncoder radixEncoder,
-      {this.signed = false, this.selectSigned, super.name = 'ppg'}) {
-    if (signed && (selectSigned != null)) {
+      {this.signedMultiplicand = false,
+      this.selectSignedMultiplicand,
+      this.signedMultiplier = false,
+      this.selectSignedMultiplier,
+      super.name = 'ppg'}) {
+    if (signedMultiplier && (selectSignedMultiplier != null)) {
       throw RohdHclException('sign reconfiguration requires signed=false');
     }
     encoder = MultiplierEncoder(multiplier, radixEncoder,
-        selectSigned: selectSigned, signed: signed);
+        signedMultiplier: signedMultiplier,
+        selectSignedMultiplier: selectSignedMultiplier);
     selector = MultiplicandSelector(radixEncoder.radix, multiplicand,
-        selectSigned: selectSigned, signed: signed);
+        signedMultiplicand: signedMultiplicand,
+        selectSignedMultiplicand: selectSignedMultiplicand);
 
     if (multiplicand.width < selector.shift) {
       throw RohdHclException('multiplicand width must be greater than '
-          '${selector.shift}');
+          'or equal to ${selector.shift}');
     }
-    if (multiplier.width < (selector.shift + (signed ? 1 : 0))) {
+    if (multiplier.width < (selector.shift + (signedMultiplier ? 1 : 0))) {
       throw RohdHclException('multiplier width must be greater than '
-          '${selector.shift + (signed ? 1 : 0)}');
+          'or equal to ${selector.shift + (signedMultiplier ? 1 : 0)}');
     }
     _build();
     signExtend();
@@ -252,10 +269,20 @@ abstract class PartialProductGenerator extends PartialProductArray {
     }
   }
 
+  /// Return true if [multiplicand] is truly signed (fixed or runtime)
+  bool isSignedMultiplicand() => (selectSignedMultiplicand == null)
+      ? signedMultiplicand
+      : !selectSignedMultiplicand!.value.isZero;
+
+  /// Return true if [multiplier] is truly signed (fixed or runtime)
+  bool isSignedMultiplier() => (selectSignedMultiplier == null)
+      ? signedMultiplier
+      : !selectSignedMultiplier!.value.isZero;
+
   /// Helper function for sign extension routines:
   /// For signed operands, set the MSB to [sign], otherwise add this [sign] bit.
   void addStopSign(List<Logic> addend, SignBit sign) {
-    if (!signed) {
+    if (!signedMultiplicand) {
       addend.add(sign);
     } else {
       addend.last = sign;
@@ -265,12 +292,12 @@ abstract class PartialProductGenerator extends PartialProductArray {
   /// Helper function for sign extension routines:
   /// For signed operands, flip the MSB, otherwise add this [sign] bit.
   void addStopSignFlip(List<Logic> addend, SignBit sign) {
-    if (!signed) {
-      if (selectSigned == null) {
+    if (!signedMultiplicand) {
+      if (selectSignedMultiplicand == null) {
         addend.add(sign);
       } else {
-        addend.add(SignBit(mux(selectSigned!, ~addend.last, sign),
-            inverted: selectSigned != null));
+        addend.add(SignBit(mux(selectSignedMultiplicand!, ~addend.last, sign),
+            inverted: selectSignedMultiplicand != null));
       }
     } else {
       addend.last = SignBit(~addend.last, inverted: true);
@@ -279,13 +306,14 @@ abstract class PartialProductGenerator extends PartialProductArray {
 }
 
 /// A Partial Product Generator with no sign extension
-class PartialProductGeneratorNoSignExtension extends PartialProductGenerator {
+class PartialProductGeneratorNoneSignExtension extends PartialProductGenerator {
   /// Construct a basic Partial Product Generator
-  PartialProductGeneratorNoSignExtension(
+  PartialProductGeneratorNoneSignExtension(
       super.multiplicand, super.multiplier, super.radixEncoder,
-      {required super.signed,
-      // ignore: avoid_unused_constructor_parameters
-      Logic? selectSigned});
+      {required super.signedMultiplicand,
+      required super.signedMultiplier,
+      super.selectSignedMultiplicand,
+      super.selectSignedMultiplier});
 
   @override
   void signExtend() {}
