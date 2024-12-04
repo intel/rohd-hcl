@@ -82,12 +82,14 @@ digital signal processing.
 The parameters of the
 `CompressionTreeMultiplier` are:
 
-- Two input terms `a` and `b` which can be different widths
-- The radix used for Booth encoding (2, 4, 8, and 16 are currently supported)
-- The type of `ParallelPrefix` tree used in the final `ParallelPrefixAdder` (optional)
-- `signed` parameter: whether the operands should be treated as signed (2s complement) or unsigned
+- Two input terms `a` and `b` which can be different widths.
+- The radix used for Booth encoding (2, 4, 8, and 16 are currently supported).
+- The type of `ParallelPrefix` tree used in the final `ParallelPrefixAdder` (optional).
 - `ppGen` parameter: the type of `PartialProductGenerator` to use which has derived classes for different styles of sign extension. In some cases this adds an extra row to hold a sign bit.
-- An optional `selectSigned` control signal which overrides the `signed` configuration allowing for runtime control of signed or unsigned operation with the same hardware. `signed` must be false if using this control signal.
+- `signedMultiplicand` parameter: whether the multiplicand (first arg) should be treated as signed (2s complement) or unsigned.
+- `signedMultiplier` parameter: whether the multiplier (second arg) should be treated as signed (2s complement) or unsigned.
+- An optional `selectSignedMultiplicand` control signal which overrides the `signedMultiplicand` parameter allowing for runtime control of signed or unsigned operation with the same hardware. `signedMultiplicand` must be false if using this control signal.
+- An optional `selectSignedMultiplier` control signal which overrides the `signedMultiplier` parameter allowing for runtime control of signed or unsigned operation with the same hardware. `signedMultiplier` must be false if using this control signal.
 - An optional `clk`, as well as `enable` and `reset` that are used to add a pipestage in the `ColumnCompressor` to allow for pipelined operation.
 
 Here is an example of use of the `CompressionTreeMultiplier`:
@@ -123,9 +125,13 @@ The parameters of the
 - The accumulate input term `c` which must have width as sum of the two operand widths + 1.
 - The radix used for Booth encoding (2, 4, 8, and 16 are currently supported)
 - The type of `ParallelPrefix` tree used in the final `ParallelPrefixAdder` (default Kogge-Stone).
-- `signed` parameter: whether the operands should be treated as signed (2s complement) or unsigned
 - `ppGen` parameter: the type of `PartialProductGenerator` to use which has derived classes for different styles of sign extension. In some cases this adds an extra row to hold a sign bit (default `PartialProductGeneratorCompactRectSignExtension`).
-- An optional `selectSigned` control signal which overrides the `signed` configuration allowing for runtime control of signed or unsigned operation with the same hardware. `signed` must be false if using this control signal.
+- `signedMultiplicand` parameter: whether the multiplicand (first arg) should be treated as signed (2s complement) or unsigned
+- `signedMultiplier` parameter: whether the multiplier (second arg) should be treated as signed (2s complement) or unsigned
+- `signedAddend` parameter: whether the addend (third arg) should be treated as signed (2s complement) or unsigned
+- An optional `selectSignedMultiplicand` control signal which overrides the `signedMultiplicand` parameter allowing for runtime control of signed or unsigned operation with the same hardware. `signedMultiplicand` must be false if using this control signal.
+- An optional `selectSignedMultiplier` control signal which overrides the `signedMultiplier` parameter allowing for runtime control of signed or unsigned operation with the same hardware. `signedMultiplier` must be false if using this control signal.
+- An optional `selectSignedAddend` control signal which overrides the `signedAddend` parameter allowing for runtime control of signed or unsigned operation with the same hardware. `signedAddend` must be false if using this control signal.
 - An optional `clk`, as well as `enable` and `reset` that are used to add a pipestage in the `ColumnCompressor` to allow for pipelined operation.
 
 Here is an example of using the `CompressionTreeMultiplyAccumulate`:
