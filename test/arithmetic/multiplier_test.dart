@@ -20,12 +20,12 @@ extension TestMultiplierSignage on Multiplier {
   /// Return true if multiplicand [a] is truly signed (fixed or runtime)
   bool isSignedMultiplicand() => (selectSignedMultiplicand == null)
       ? signedMultiplicand
-      : selectSignedMultiplicand!.value.isZero;
+      : !selectSignedMultiplicand!.value.isZero;
 
   /// Return true if multiplier [b] is truly signed (fixed or runtime)
   bool isSignedMultiplier() => (selectSignedMultiplier == null)
       ? signedMultiplier
-      : selectSignedMultiplier!.value.isZero;
+      : !selectSignedMultiplier!.value.isZero;
 
   /// Return true if accumulate result is truly signed (fixed or runtime)
   bool isSignedResult() => isSignedMultiplicand() | isSignedMultiplier();

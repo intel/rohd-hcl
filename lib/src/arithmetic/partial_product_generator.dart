@@ -269,16 +269,6 @@ abstract class PartialProductGenerator extends PartialProductArray {
     }
   }
 
-  /// Return true if [multiplicand] is truly signed (fixed or runtime)
-  bool isSignedMultiplicand() => (selectSignedMultiplicand == null)
-      ? signedMultiplicand
-      : !selectSignedMultiplicand!.value.isZero;
-
-  /// Return true if [multiplier] is truly signed (fixed or runtime)
-  bool isSignedMultiplier() => (selectSignedMultiplier == null)
-      ? signedMultiplier
-      : !selectSignedMultiplier!.value.isZero;
-
   /// Helper function for sign extension routines:
   /// For signed operands, set the MSB to [sign], otherwise add this [sign] bit.
   void addStopSign(List<Logic> addend, SignBit sign) {
