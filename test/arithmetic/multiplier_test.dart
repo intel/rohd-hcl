@@ -7,6 +7,8 @@
 // 2024 August 7
 // Author: Desmond Kirkpatrick <desmond.a.kirkpatrick@intel.com>
 
+// ignore_for_file: invalid_use_of_protected_member
+
 import 'dart:async';
 import 'dart:math';
 import 'package:rohd/rohd.dart';
@@ -54,20 +56,16 @@ extension TestMultiplierAccumulateSignage on MultiplyAccumulate {
 }
 
 /// Simple multiplier to demonstrate instantiation of CompressionTreeMultiplier
-class SimpleMultiplier extends Module {
+class SimpleMultiplier extends Multiplier {
   /// The output of the simple multiplier
-  late final Logic product;
+  @override
+  Logic get product => output('product');
 
   /// Construct a simple multiplier with runtime sign operation
-  SimpleMultiplier(
-      Logic a, Logic b, Logic selSignedMultiplicand, Logic selSignedMultiplier)
-      : super(name: 'my_test_module') {
-    a = addInput('a', a, width: a.width);
-    b = addInput('b', b, width: b.width);
-    selSignedMultiplicand = addInput('multDSigned', selSignedMultiplicand);
-    selSignedMultiplier = addInput('multMSigned', selSignedMultiplier);
-    product = addOutput('product', width: a.width + b.width);
-
+  SimpleMultiplier(Logic a, Logic b, Logic? selSignedMultiplicand,
+      Logic? selSignedMultiplier)
+      : super(a, b) {
+    addOutput('product', width: a.width + b.width);
     final mult = CompressionTreeMultiplier(a, b, 4,
         selectSignedMultiplicand: selSignedMultiplicand,
         selectSignedMultiplier: selSignedMultiplier);
@@ -79,17 +77,13 @@ class SimpleMultiplier extends Module {
 void checkMultiplyAccumulate(
     MultiplyAccumulate mod, BigInt bA, BigInt bB, BigInt bC) {
   final golden = bA * bB + bC;
-  // ignore: invalid_use_of_protected_member
   mod.a.put(bA);
-  // ignore: invalid_use_of_protected_member
   mod.b.put(bB);
-  // ignore: invalid_use_of_protected_member
   mod.c.put(bC);
 
   final result = mod.accumulate.value
       .toBigInt()
       .toCondSigned(mod.accumulate.width, signed: mod.isSignedResult());
-
   expect(result, equals(golden));
 }
 
@@ -103,7 +97,7 @@ void testMultiplyAccumulateSingle(int width, BigInt ibA, BigInt ibB, BigInt ibC,
   c.put(0);
   final mod = fn(a, b, c);
   test('single_W${width}_${mod.name}', () async {
-    final multiplyOnly = mod is MutiplyOnly;
+    final multiplyOnly = mod is MultiplyOnly;
     await mod.build();
     final bA = ibA.toCondSigned(width, signed: mod.isSignedMultiplicand());
     final bB = ibB.toCondSigned(width, signed: mod.isSignedMultiplier());
@@ -125,7 +119,7 @@ void testMultiplyAccumulateRandom(int width, int iterations,
   c.put(0);
   final mod = fn(a, b, c);
   test('random_W${width}_I${iterations}_${mod.name}', () {
-    final multiplyOnly = mod is MutiplyOnly;
+    final multiplyOnly = mod is MultiplyOnly;
 
     final value = Random(47);
     for (var i = 0; i < iterations; i++) {
@@ -161,7 +155,7 @@ void testMultiplyAccumulateExhaustive(
   final mod = fn(a, b, c);
   test('exhaustive_W${width}_${mod.name}', () async {
     await mod.build();
-    final multiplyOnly = mod is MutiplyOnly;
+    final multiplyOnly = mod is MultiplyOnly;
 
     for (var aa = 0; aa < (1 << width); ++aa) {
       for (var bb = 0; bb < (1 << width); ++bb) {
@@ -210,10 +204,10 @@ void main() {
           selectSignedMultiplier:
               selectSignedMultiplier != null ? Logic() : null,
         ).name;
-    final signage = ' SelD=${(selectSignedMultiplicand != null) ? 1 : 0}'
-        ' SelM=${(selectSignedMultiplier != null) ? 1 : 0}'
-        ' SD=${signedMultiplicand ? 1 : 0}'
-        ' SM=${signedMultiplier ? 1 : 0}';
+    final signage = ' SD=${signedMultiplicand ? 1 : 0}'
+        ' SM=${signedMultiplier ? 1 : 0}'
+        ' SelD=${(selectSignedMultiplicand != null) ? 1 : 0}'
+        ' SelM=${(selectSignedMultiplier != null) ? 1 : 0}';
     return (a, b, {selectSignedMultiplicand, selectSignedMultiplier}) =>
         CompressionTreeMultiplier(a, b, radix,
             ppTree: ppTree,
@@ -227,17 +221,16 @@ void main() {
                 '$signage R${radix}_E${genName(a, b)}');
   }
 
-  MultiplyAccumulateCallback curryMultiplierAsMultiplyAccumulate(
-          int radix,
-          ParallelPrefix Function(List<Logic>, Logic Function(Logic, Logic))
-              ppTree,
-          {PPGFunction ppGen =
+  MultiplyAccumulateCallback curryMultiplierAsMultiplyAccumulate(int radix,
+          {ParallelPrefix Function(List<Logic>, Logic Function(Logic, Logic))
+              ppTree = KoggeStone.new,
+          PPGFunction ppGen =
               PartialProductGeneratorCompactRectSignExtension.new,
           bool signedMultiplicand = false,
           bool signedMultiplier = false,
           Logic? selectSignedMultiplicand,
           Logic? selectSignedMultiplier}) =>
-      (a, b, c) => MutiplyOnly(
+      (a, b, c) => MultiplyOnly(
           a,
           b,
           c,
@@ -256,8 +249,9 @@ void main() {
           ));
 
   MultiplyAccumulateCallback curryMultiplyAccumulate(
-    int radix,
-    ParallelPrefix Function(List<Logic>, Logic Function(Logic, Logic)) ppTree, {
+    int radix, {
+    ParallelPrefix Function(List<Logic>, Logic Function(Logic, Logic)) ppTree =
+        KoggeStone.new,
     PPGFunction ppGen = PartialProductGeneratorCompactRectSignExtension.new,
     bool signedMultiplicand = false,
     bool signedMultiplier = false,
@@ -277,10 +271,10 @@ void main() {
           selectSignedMultiplier:
               selectSignedMultiplier != null ? Logic() : null,
         ).name;
-    final signage = ' SelD=${(selectSignedMultiplicand != null) ? 1 : 0}'
-        ' SelM=${(selectSignedMultiplier != null) ? 1 : 0}'
-        ' SD=${signedMultiplicand ? 1 : 0}'
-        ' SM=${signedMultiplier ? 1 : 0}';
+    final signage = ' SD=${signedMultiplicand ? 1 : 0}'
+        ' SM=${signedMultiplier ? 1 : 0}'
+        ' SelD=${(selectSignedMultiplicand != null) ? 1 : 0}'
+        ' SelM=${(selectSignedMultiplier != null) ? 1 : 0}';
 
     return (a, b, c) => CompressionTreeMultiplyAccumulate(a, b, c, radix,
         ppTree: ppTree,
@@ -297,27 +291,80 @@ void main() {
             ' $signage R$radix E${genName(a, b)}');
   }
 
-  group('Compression Tree Multiplier: curried random radix/width', () {
-    for (final signedTest in [false, true]) {
-      for (final signedOperands in [false, true]) {
-        final Logic? signedSelect;
-        if (signedOperands) {
-          signedSelect = Logic()..put(signedTest ? 1 : 0);
-        } else {
-          signedSelect = null;
+  group('Compression Tree Multiplier: curried random radix/ptree/width', () {
+    for (final radix in [2, 4]) {
+      for (final width in [3, 4]) {
+        for (final ppTree in [KoggeStone.new, BrentKung.new, Sklansky.new]) {
+          testMultiplyAccumulateRandom(width, 10,
+              curryMultiplierAsMultiplyAccumulate(radix, ppTree: ppTree));
         }
-        for (final radix in [2, 4]) {
-          for (final width in [3, 4]) {
-            for (final ppTree in [KoggeStone.new]) {
-              testMultiplyAccumulateRandom(
-                  width,
-                  10,
-                  curryMultiplierAsMultiplyAccumulate(radix, ppTree,
-                      ppGen: PartialProductGeneratorStopBitsSignExtension.new,
-                      signedMultiplicand: !signedOperands && signedTest,
-                      signedMultiplier: !signedOperands && signedTest,
-                      selectSignedMultiplicand: signedSelect,
-                      selectSignedMultiplier: signedSelect));
+      }
+    }
+  });
+  group('Compression Tree Multiplier: curried random radix/extension/width',
+      () {
+    for (final radix in [2, 4]) {
+      for (final width in [3, 4]) {
+        for (final signExtension
+            in SignExtension.values.where((e) => e != SignExtension.none)) {
+          final ppg = curryPartialProductGenerator(signExtension);
+          testMultiplyAccumulateRandom(width, 10,
+              curryMultiplierAsMultiplyAccumulate(radix, ppGen: ppg));
+        }
+      }
+    }
+  });
+
+  group('Compression Tree Multiplier: curried random sign/select', () {
+    for (final selectSignedMultiplicand in [null, Const(0), Const(1)]) {
+      for (final signedMultiplicand
+          in (selectSignedMultiplicand == null) ? [false, true] : [false]) {
+        for (final selectSignedMultiplier in [null, Const(0), Const(1)]) {
+          for (final signedMultiplier
+              in (selectSignedMultiplier == null) ? [false, true] : [false]) {
+            for (final radix in [4]) {
+              for (final width in [1 + log2Ceil(radix)]) {
+                testMultiplyAccumulateRandom(
+                    width,
+                    10,
+                    curryMultiplierAsMultiplyAccumulate(radix,
+                        signedMultiplicand: signedMultiplicand,
+                        signedMultiplier: signedMultiplier,
+                        selectSignedMultiplicand: selectSignedMultiplicand,
+                        selectSignedMultiplier: selectSignedMultiplier));
+              }
+            }
+          }
+        }
+      }
+    }
+  });
+
+  group('Compression Tree MAC: curried random sign/select', () {
+    for (final selectSignedMultiplicand in [null, Const(0), Const(1)]) {
+      for (final signedMultiplicand
+          in (selectSignedMultiplicand == null) ? [false, true] : [false]) {
+        for (final selectSignedMultiplier in [null, Const(0), Const(1)]) {
+          for (final signedMultiplier
+              in (selectSignedMultiplier == null) ? [false, true] : [false]) {
+            for (final selectSignedAddend in [null, Const(0), Const(1)]) {
+              for (final signedAddend
+                  in (selectSignedAddend == null) ? [false, true] : [false]) {
+                for (final radix in [4]) {
+                  for (final width in [1 + log2Ceil(radix)]) {
+                    testMultiplyAccumulateRandom(
+                        width,
+                        10,
+                        curryMultiplyAccumulate(radix,
+                            signedMultiplicand: signedMultiplicand,
+                            signedMultiplier: signedMultiplier,
+                            signedAddend: signedAddend,
+                            selectSignedMultiplicand: selectSignedMultiplicand,
+                            selectSignedMultiplier: selectSignedMultiplier,
+                            selectSignedAddend: selectSignedAddend));
+                  }
+                }
+              }
             }
           }
         }
@@ -351,99 +398,6 @@ void main() {
     expect(result, equals(golden));
     await Simulator.endSimulation();
   });
-
-  group('Compression Tree Multiplier: curried random sign/select/extension',
-      () {
-    for (final signedTest in [false, true]) {
-      for (final signedOperands in [false, true]) {
-        final Logic? signedSelect;
-        if (signedOperands) {
-          signedSelect = Logic()..put(signedTest ? 1 : 0);
-        } else {
-          signedSelect = null;
-        }
-        for (final radix in [2, 4]) {
-          for (final ppTree in [KoggeStone.new]) {
-            for (final ppGen in [
-              PartialProductGeneratorCompactSignExtension.new,
-              PartialProductGeneratorCompactRectSignExtension.new,
-              PartialProductGeneratorStopBitsSignExtension.new,
-              PartialProductGeneratorBruteSignExtension.new
-            ]) {
-              for (final width in [1 + log2Ceil(radix)]) {
-                testMultiplyAccumulateRandom(
-                    width,
-                    10,
-                    curryMultiplierAsMultiplyAccumulate(radix, ppTree,
-                        ppGen: ppGen,
-                        signedMultiplicand: !signedOperands && signedTest,
-                        signedMultiplier: !signedOperands && signedTest,
-                        selectSignedMultiplicand: signedSelect,
-                        selectSignedMultiplier: signedSelect));
-              }
-            }
-          }
-        }
-      }
-    }
-  });
-
-  group('Compression Tree MAC: random + signed/radix/width', () {
-    for (final signedTest in [false, true]) {
-      for (final signedOperands in [false, true]) {
-        final Logic? signedSelect;
-        if (signedOperands) {
-          signedSelect = Logic()..put(signedTest ? 1 : 0);
-        } else {
-          signedSelect = null;
-        }
-        for (final radix in [2, 4]) {
-          for (final width in [3, 4]) {
-            for (final ppTree in [KoggeStone.new]) {
-              testMultiplyAccumulateRandom(
-                  width,
-                  10,
-                  curryMultiplyAccumulate(
-                    radix,
-                    ppTree,
-                    signedMultiplicand: !signedOperands && signedTest,
-                    signedMultiplier: !signedOperands && signedTest,
-                    signedAddend: !signedOperands && signedTest,
-                    selectSignedMultiplicand: signedSelect,
-                    selectSignedMultiplier: signedSelect,
-                    selectSignedAddend: signedSelect,
-                  ));
-            }
-          }
-        }
-      }
-    }
-  });
-
-  test('Trim Curried Test of Compression Tree MAC', () async {
-    final Logic? signedSelect;
-    signedSelect = Logic()..put(1);
-    const width = 5;
-    final a = Logic(name: 'a', width: width);
-    final b = Logic(name: 'b', width: width);
-    final c = Logic(name: 'c', width: width * 2);
-    final bA = BigInt.from(0).toSigned(width);
-    final bB = BigInt.from(0).toSigned(width);
-    final bC = BigInt.from(-1).toSigned(width * 2);
-    a.put(bA);
-    b.put(bB);
-    c.put(bC);
-    final mod = curryMultiplyAccumulate(
-      4,
-      KoggeStone.new,
-      selectSignedMultiplicand: signedSelect,
-      selectSignedMultiplier: signedSelect,
-      selectSignedAddend: signedSelect,
-    )(a, b, c);
-
-    checkMultiplyAccumulate(mod, bA, bB, bC);
-  });
-
   test('Compression Tree MAC: pipelined test', () async {
     final clk = SimpleClockGenerator(10).clk;
     final Logic? signedSelect;
@@ -520,6 +474,7 @@ void main() {
   });
 
   test('trivial instantiated multiplier', () async {
+    // Using this to find trace errors when instantiating multipliers
     const dataWidth = 5;
     final av = BigInt.from(-16).toSigned(dataWidth);
     final bv = BigInt.from(-6).toSigned(dataWidth);
@@ -533,9 +488,15 @@ void main() {
     multA.put(av);
     multB.put(bv);
 
-    final mod = curryMultiplierAsMultiplyAccumulate(4, KoggeStone.new,
+    final mod = MultiplyOnly(
+        multA,
+        multB,
+        Logic(),
+        (a, b, {selectSignedMultiplicand, selectSignedMultiplier}) =>
+            SimpleMultiplier(
+                a, b, selectSignedMultiplicand, selectSignedMultiplier),
         selectSignedMultiplicand: signedOperands,
-        selectSignedMultiplier: signedOperands)(multA, multB, Const(0));
+        selectSignedMultiplier: signedOperands);
 
     checkMultiplyAccumulate(mod, av, bv, BigInt.zero);
   });

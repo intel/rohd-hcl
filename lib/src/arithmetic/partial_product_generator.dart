@@ -203,21 +203,21 @@ abstract class PartialProductGenerator extends PartialProductArray {
   late final MultiplicandSelector selector;
 
   /// [multiplicand] operand is always signed
-  late final bool signedMultiplicand;
+  final bool signedMultiplicand;
 
   /// [multiplier] operand is always signed
-  late final bool signedMultiplier;
+  final bool signedMultiplier;
 
   /// Used to avoid sign extending more than once
   bool isSignExtended = false;
 
   /// If not null, use this signal to select between signed and unsigned
   /// [multiplicand].
-  late final Logic? selectSignedMultiplicand;
+  final Logic? selectSignedMultiplicand;
 
   /// If not null, use this signal to select between signed and unsigned
   /// [multiplier].
-  late final Logic? selectSignedMultiplier;
+  final Logic? selectSignedMultiplier;
 
   /// Construct a [PartialProductGenerator] -- the partial product matrix.
   ///
@@ -300,8 +300,8 @@ class PartialProductGeneratorNoneSignExtension extends PartialProductGenerator {
   /// Construct a basic Partial Product Generator
   PartialProductGeneratorNoneSignExtension(
       super.multiplicand, super.multiplier, super.radixEncoder,
-      {required super.signedMultiplicand,
-      required super.signedMultiplier,
+      {super.signedMultiplicand,
+      super.signedMultiplier,
       super.selectSignedMultiplicand,
       super.selectSignedMultiplier});
 

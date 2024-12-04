@@ -6,7 +6,8 @@
 // need to inherit this module to ensure consistency.
 //
 // 2023 May 29
-// Author: Yao Jing Quek <yao.jing.quek@intel.com>
+// Author: Yao Jing Quek <yao.jing.quek@intel.com>, Desmond Kirkpatrick
+// <desmond.a.kirkpatrick@intel.com>
 
 import 'package:meta/meta.dart';
 import 'package:rohd/rohd.dart';
@@ -17,28 +18,36 @@ import 'package:rohd_hcl/src/arithmetic/partial_product_sign_extend.dart';
 abstract class Multiplier extends Module {
   /// The multiplicand input [a].
   @protected
-  late final Logic a;
+  Logic get a => input('a');
 
   /// The multiplier input [b].
   @protected
-  late final Logic b;
+  Logic get b => input('b');
 
   /// The multiplier treats input [a] always as a signed input.
-  bool signedMultiplicand;
+  @protected
+  final bool signedMultiplicand;
 
   /// The multiplier treats input [b] always as a signed input.
-  bool signedMultiplier;
+  @protected
+  final bool signedMultiplier;
 
   /// If not null, use this signal to select between signed and unsigned
   /// multiplicand [a].
-  late Logic? selectSignedMultiplicand;
+  @protected
+  Logic? get selectSignedMultiplicand => tryInput('selectSignedMultiplicand');
 
   /// If not null, use this signal to select between signed and unsigned
   /// multiplier [b]
-  late Logic? selectSignedMultiplier;
+  @protected
+  Logic? get selectSignedMultiplier => tryInput('selectSignedMultiplier');
 
   /// The multiplication results of the multiplier.
   Logic get product;
+
+  /// Logic that tells us [product] is signed.
+  @protected
+  Logic get isProductSigned => output('isProductSigned');
 
   /// Take input [a] and input [b] and return the
   /// [product] of the multiplication result.
@@ -57,13 +66,29 @@ abstract class Multiplier extends Module {
   /// signed or unsigned operation, overriding the [signedMultiplier] static
   /// configuration.
   Multiplier(Logic a, Logic b,
-      {required this.signedMultiplicand,
-      required this.signedMultiplier,
-      this.selectSignedMultiplicand,
-      this.selectSignedMultiplier,
+      {this.signedMultiplicand = false,
+      this.signedMultiplier = false,
+      Logic? selectSignedMultiplicand,
+      Logic? selectSignedMultiplier,
       super.name}) {
-    this.a = addInput('a', a, width: a.width);
-    this.b = addInput('b', b, width: b.width);
+    a = addInput('a', a, width: a.width);
+    b = addInput('b', b, width: b.width);
+
+    selectSignedMultiplicand = (selectSignedMultiplicand != null)
+        ? addInput('selectSignedMultiplicand', selectSignedMultiplicand)
+        : null;
+    selectSignedMultiplier = (selectSignedMultiplier != null)
+        ? addInput('selectSignedMultiplier', selectSignedMultiplier)
+        : null;
+
+    addOutput('isProductSigned') <=
+        (signedMultiplicand | signedMultiplier ? Const(1) : Const(0)) |
+            ((selectSignedMultiplicand != null)
+                ? selectSignedMultiplicand
+                : Const(0)) |
+            ((selectSignedMultiplier != null)
+                ? selectSignedMultiplier
+                : Const(0));
   }
 }
 
@@ -71,39 +96,49 @@ abstract class Multiplier extends Module {
 abstract class MultiplyAccumulate extends Module {
   /// The input to the multiplier pin [a].
   @protected
-  late final Logic a;
+  Logic get a => input('a');
 
   /// The input to the multiplier pin [b].
   @protected
-  late final Logic b;
+  Logic get b => input('b');
 
   /// The input to the addend pin [c].
   @protected
-  late final Logic c;
+  Logic get c => input('c');
 
   /// The MAC treats multiplicand [a] as always signed.
-  bool signedMultiplicand;
+  @protected
+  final bool signedMultiplicand;
 
   /// The MAC treats multiplier [b] as always signed.
-  bool signedMultiplier;
+  @protected
+  final bool signedMultiplier;
 
   /// The MAC treats addend [c] as always signed.
-  bool signedAddend;
+  @protected
+  final bool signedAddend;
 
   /// If not null, use this signal to select between signed and unsigned
   /// multiplicand [a].
-  late Logic? selectSignedMultiplicand;
+  @protected
+  Logic? get selectSignedMultiplicand => tryInput('selectSignedMultiplicand');
 
   /// If not null, use this signal to select between signed and unsigned
   /// multiplier [b]
-  late Logic? selectSignedMultiplier;
+  @protected
+  Logic? get selectSignedMultiplier => tryInput('selectSignedMultiplier');
 
   /// If not null, use this signal to select between signed and unsigned
   /// addend [c]
-  late Logic? selectSignedAddend;
+  @protected
+  Logic? get selectSignedAddend => tryInput('selectSignedAddend');
 
-  /// The multiplication results of the multiply-accumulate.
+  /// The multiplication and addition or [accumulate] result.
   Logic get accumulate;
+
+  /// Logic that tells us [accumulate] is signed.
+  @protected
+  Logic get isAccumulateSigned => output('isAccumulateSigned');
 
   /// Take input [a] and input [b], compute their
   /// product, add input [c] to produce the [accumulate] result.
@@ -120,16 +155,36 @@ abstract class MultiplyAccumulate extends Module {
   /// signed or unsigned operation, overriding the [signedAddend] static
   /// configuration.
   MultiplyAccumulate(Logic a, Logic b, Logic c,
-      {required this.signedMultiplicand,
-      required this.signedMultiplier,
-      required this.signedAddend,
-      this.selectSignedMultiplicand,
-      this.selectSignedMultiplier,
-      this.selectSignedAddend,
+      {this.signedMultiplicand = false,
+      this.signedMultiplier = false,
+      this.signedAddend = false,
+      Logic? selectSignedMultiplicand,
+      Logic? selectSignedMultiplier,
+      Logic? selectSignedAddend,
       super.name}) {
-    this.a = addInput('a', a, width: a.width);
-    this.b = addInput('b', b, width: b.width);
-    this.c = addInput('c', c, width: c.width);
+    a = addInput('a', a, width: a.width);
+    b = addInput('b', b, width: b.width);
+    c = addInput('c', c, width: c.width);
+    selectSignedMultiplicand = (selectSignedMultiplicand != null)
+        ? addInput('selectSignedMultiplicand', selectSignedMultiplicand)
+        : null;
+    selectSignedMultiplier = (selectSignedMultiplier != null)
+        ? addInput('selectSignedMultiplier', selectSignedMultiplier)
+        : null;
+    selectSignedAddend = (selectSignedAddend != null)
+        ? addInput('selectSignedAddend', selectSignedAddend)
+        : null;
+    addOutput('isAccumulateSigned') <=
+        (signedMultiplicand | signedMultiplier | signedAddend
+                ? Const(1)
+                : Const(0)) |
+            ((selectSignedMultiplicand != null)
+                ? selectSignedMultiplicand
+                : Const(0)) |
+            ((selectSignedMultiplier != null)
+                ? selectSignedMultiplier
+                : Const(0)) |
+            ((selectSignedAddend != null) ? selectSignedAddend : Const(0));
   }
 }
 
@@ -192,12 +247,6 @@ class CompressionTreeMultiplier extends Multiplier {
               Logic? selectSignedMultiplicand})
           ppGen = PartialProductGeneratorCompactRectSignExtension.new,
       super.name = 'compression_tree_multiplier'}) {
-    selectSignedMultiplicand = (selectSignedMultiplicand != null)
-        ? addInput('selectSignedMultiplicand', selectSignedMultiplicand!)
-        : null;
-    selectSignedMultiplier = (selectSignedMultiplier != null)
-        ? addInput('selectSignedMultiplier', selectSignedMultiplier!)
-        : null;
     clk = (clk != null) ? addInput('clk', clk!) : null;
     reset = (reset != null) ? addInput('reset', reset!) : null;
     enable = (enable != null) ? addInput('enable', enable!) : null;
@@ -226,13 +275,16 @@ class CompressionTreeMultiplier extends Multiplier {
 /// An implementation of an integer multiply-accumulate using compression trees
 class CompressionTreeMultiplyAccumulate extends MultiplyAccumulate {
   /// The clk for the pipelined version of column compression.
-  Logic? clk;
+  @protected
+  Logic? get clk => tryInput('clk');
 
   /// Optional reset for configurable pipestage
-  Logic? reset;
+  @protected
+  Logic? get reset => tryInput('reset');
 
   /// Optional enable for configurable pipestage.
-  Logic? enable;
+  @protected
+  Logic? get enable => tryInput('enable');
 
   /// The final product of the multiplier module.
   @override
@@ -273,9 +325,9 @@ class CompressionTreeMultiplyAccumulate extends MultiplyAccumulate {
   /// inputs to control these flops when [clk] is provided. If [clk] is null,
   /// the [ColumnCompressor] is built as a combinational tree of compressors.
   CompressionTreeMultiplyAccumulate(super.a, super.b, super.c, int radix,
-      {this.clk,
-      this.reset,
-      this.enable,
+      {Logic? clk,
+      Logic? reset,
+      Logic? enable,
       super.signedMultiplicand = false,
       super.signedMultiplier = false,
       super.signedAddend = false,
@@ -291,18 +343,9 @@ class CompressionTreeMultiplyAccumulate extends MultiplyAccumulate {
               Logic? selectSignedMultiplicand})
           ppGen = PartialProductGeneratorCompactRectSignExtension.new,
       super.name = 'compression_tree_mac'}) {
-    selectSignedMultiplicand = (selectSignedMultiplicand != null)
-        ? addInput('selectSignedMultiplicand', selectSignedMultiplicand!)
-        : null;
-    selectSignedMultiplier = (selectSignedMultiplier != null)
-        ? addInput('selectSignedMultiplier', selectSignedMultiplier!)
-        : null;
-    selectSignedAddend = (selectSignedAddend != null)
-        ? addInput('selectSignedAddend', selectSignedAddend!)
-        : null;
-    final iClk = (clk != null) ? addInput('clk', clk!) : null;
-    final iReset = (reset != null) ? addInput('reset', reset!) : null;
-    final iEnable = (enable != null) ? addInput('enable', enable!) : null;
+    clk = (clk != null) ? addInput('clk', clk) : null;
+    reset = (reset != null) ? addInput('reset', reset) : null;
+    enable = (enable != null) ? addInput('enable', enable) : null;
 
     final accumulate = addOutput('accumulate', width: a.width + b.width + 1);
     final pp = ppGen(
@@ -338,7 +381,7 @@ class CompressionTreeMultiplyAccumulate extends MultiplyAccumulate {
     pp.rowShift.insert(0, 0);
 
     final compressor =
-        ColumnCompressor(clk: iClk, reset: iReset, enable: iEnable, pp)
+        ColumnCompressor(clk: clk, reset: reset, enable: enable, pp)
           ..compress();
     final adder = ParallelPrefixAdder(
         compressor.extractRow(0), compressor.extractRow(1),
@@ -349,7 +392,7 @@ class CompressionTreeMultiplyAccumulate extends MultiplyAccumulate {
 
 /// A MultiplyAccumulate which ignores the [c] term and applies the
 /// multiplier function
-class MutiplyOnly extends MultiplyAccumulate {
+class MultiplyOnly extends MultiplyAccumulate {
   @override
   Logic get accumulate => output('accumulate');
 
@@ -369,7 +412,7 @@ class MutiplyOnly extends MultiplyAccumulate {
 
   /// Construct a MultiplyAccumulate that only multiplies to enable
   /// using the same tester with zero accumulate addend [c].
-  MutiplyOnly(
+  MultiplyOnly(
     super.a,
     super.b,
     super.c,
@@ -388,32 +431,16 @@ class MutiplyOnly extends MultiplyAccumulate {
             name: 'Multiply Only: ' +
                 _genName(mulGen, a, b, selectSignedMultiplicand,
                     selectSignedMultiplier)) {
-    if (selectSignedMultiplicand != null) {
-      selectSignedMultiplicand =
-          addInput('selectSignedMultiplicand', selectSignedMultiplicand!);
-    }
-
-    if (selectSignedMultiplier != null) {
-      selectSignedMultiplier =
-          addInput('selectSignedMultiplier', selectSignedMultiplier!);
-    }
-    if (selectSignedAddend != null) {
-      selectSignedAddend = addInput('selectSignedAddend', selectSignedAddend!);
-    }
     final accumulate = addOutput('accumulate', width: a.width + b.width + 1);
 
     final multiply = mulGen(a, b,
         selectSignedMultiplicand: selectSignedMultiplicand,
         selectSignedMultiplier: selectSignedMultiplier);
-    final signed = multiply.signedMultiplicand | multiply.signedMultiplier;
 
     accumulate <=
         mux(
-            (selectSignedMultiplier != null)
-                ? selectSignedMultiplier!
-                : (signed ? Const(1) : Const(0)),
-            [multiply.product[multiply.product.width - 1], multiply.product]
-                .swizzle(),
+            multiply.isProductSigned,
+            multiply.product.signExtend(accumulate.width),
             multiply.product.zeroExtend(accumulate.width));
   }
 }

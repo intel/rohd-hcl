@@ -48,7 +48,7 @@ PPGFunction curryPartialProductGenerator(SignExtension signExtension) =>
       SignExtension.compact => PartialProductGeneratorCompactSignExtension.new,
       SignExtension.compactRect =>
         PartialProductGeneratorCompactRectSignExtension.new,
-    } as PPGFunction;
+    };
 
 /// These other sign extensions are for assisting with testing and debugging.
 /// More robust and simpler sign extensions in case

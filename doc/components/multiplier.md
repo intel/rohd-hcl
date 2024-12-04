@@ -4,7 +4,12 @@ ROHD-HCL provides an abstract `Multiplier` module which multiplies two
 numbers represented as two `Logic`s, potentially of different widths,
 treating them as either signed (2s complement) or unsigned. It
 produces the product as a `Logic` with width equal to the sum of the
-widths of the inputs. As of now, we have the following implementations
+widths of the inputs. The signs of the operands are either fixed by a parameter,
+or runtime selectable, e.g.:   `signedMultiplicand` or `selectSignedMultiplicand`.
+The output of the multiplier also has a signal telling us if the result is to be
+treated as signed.
+
+As of now, we have the following implementations
 of this abstract `Module`:
 
 - [Carry Save Multiplier](#carry-save-multiplier)
@@ -13,7 +18,13 @@ of this abstract `Module`:
 An additional kind of abstract module provided is a
 `MultiplyAccumulate` module which multiplies two numbers represented
 as two `Logic`s and adds the result to a third `Logic` with width
-equal to the sum of the widths of the main inputs. We have a
+equal to the sum of the widths of the main inputs. Similar to the `Multiplier`,
+the signs of the operands are either fixed by a parameter,
+or runtime selectable, e.g.:   `signedMultiplicand` or `selectSignedMultiplicand`.
+The output of the multiplier also has a signal telling us if the result is to be
+treated as signed.
+
+We have a
 high-performance implementation:
 
 - [Compression Tree Multiply Accumulate](#compression-tree-multiply-accumulate)
