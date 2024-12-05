@@ -50,3 +50,16 @@ extension LogicValueMajority on LogicValue {
     return result;
   }
 }
+
+/// This extension will provide conversion to Signed or Unsigned BigInt
+extension SignedBigInt on BigInt {
+  /// Convert a BigInt to Signed when [signed] is true
+  BigInt toCondSigned(int width, {bool signed = false}) =>
+      signed ? toSigned(width) : toUnsigned(width);
+
+  /// Construct a Signed BigInt from an int when [signed] is true
+  static BigInt fromSignedInt(int value, int width, {bool signed = false}) =>
+      signed
+          ? BigInt.from(value).toSigned(width)
+          : BigInt.from(value).toUnsigned(width);
+}

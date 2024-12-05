@@ -12,7 +12,7 @@ import 'package:rohd_hcl/rohd_hcl.dart';
 
 /// A class accessing the multiples of the multiplicand at a position
 class MultiplicandSelector {
-  /// radix of the selector
+  /// The radix of the selector
   int radix;
 
   /// The bit shift of the selector (typically overlaps 1)
@@ -21,17 +21,25 @@ class MultiplicandSelector {
   /// New width of partial products generated from the multiplicand
   int get width => multiplicand.width + shift - 1;
 
-  /// Access the multiplicand
+  /// The base multiplicand from which to generate multiples to select.
   Logic multiplicand = Logic();
 
-  /// Place to store multiples of the multiplicand
+  /// Place to store [multiples] of the [multiplicand] (e.g. *1, *2, *-1, *-2..)
   late LogicArray multiples;
 
-  /// Generate required multiples of multiplicand
+  /// Build a [MultiplicandSelector] generationg required [multiples] of
+  /// [multiplicand] to [select] using a [RadixEncoder] argument.
+  ///
+  /// [multiplicand] is base multiplicand multiplied by Booth encodings of
+  /// the [RadixEncoder] during [select].
+  ///
+  /// [signedMultiplicand] generates a fixed signed selector versus using
+  /// [selectSignedMultiplicand] which is a runtime sign selection [Logic]
+  /// in which case [signedMultiplicand] must be false.
   MultiplicandSelector(this.radix, this.multiplicand,
-      {Logic? selectSigned, bool signed = false})
+      {Logic? selectSignedMultiplicand, bool signedMultiplicand = false})
       : shift = log2Ceil(radix) {
-    if (signed && (selectSigned != null)) {
+    if (signedMultiplicand && (selectSignedMultiplicand != null)) {
       throw RohdHclException('sign reconfiguration requires signed=false');
     }
     if (radix > 16) {
@@ -41,15 +49,16 @@ class MultiplicandSelector {
     final numMultiples = radix ~/ 2;
     multiples = LogicArray([numMultiples], width);
     final Logic extendedMultiplicand;
-    if (selectSigned == null) {
-      extendedMultiplicand = signed
+    if (selectSignedMultiplicand == null) {
+      extendedMultiplicand = signedMultiplicand
           ? multiplicand.signExtend(width)
           : multiplicand.zeroExtend(width);
     } else {
       final len = multiplicand.width;
       final sign = multiplicand[len - 1];
       final extension = [
-        for (var i = len; i < width; i++) mux(selectSigned, sign, Const(0))
+        for (var i = len; i < width; i++)
+          mux(selectSignedMultiplicand, sign, Const(0))
       ];
       extendedMultiplicand = (multiplicand.elements + extension).rswizzle();
     }

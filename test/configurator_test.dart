@@ -136,8 +136,6 @@ void main() {
     test('should return both Int knobs to be configured', () {
       final multiplier = CarrySaveMultiplierConfigurator();
       expect(multiplier.knobs.values.whereType<IntConfigKnob>().length, 1);
-      expect(multiplier.knobs.values.whereType<ChoiceConfigKnob<bool>>().length,
-          1);
     });
 
     test('should return rtl code when invoke generate() with default value',
@@ -157,6 +155,42 @@ void main() {
 
       expect(multiplierDefaultRTL.length > multiplierCustomRTL.length,
           equals(true));
+    });
+  });
+
+  group('compression_tree_multiplier', () {
+    test('should return Compression Tree Multiplier for component name', () {
+      final multiplier = CompressionTreeMultiplierConfigurator();
+      expect(multiplier.name, 'Comp. Tree Multiplier');
+    });
+
+    test('should return both Int knobs to be configured', () {
+      final multiplier = CompressionTreeMultiplierConfigurator();
+      expect(multiplier.knobs.values.whereType<IntConfigKnob>().length, 2);
+      expect(
+          multiplier.knobs.values.whereType<ChoiceConfigKnob<dynamic>>().length,
+          4);
+      expect(multiplier.knobs.values.whereType<ToggleConfigKnob>().length, 1);
+    });
+
+    test('should return rtl code when invoke generate() with default value',
+        () async {
+      final multiplier = CompressionTreeMultiplierConfigurator();
+      expect(
+          await multiplier.generateSV(), contains('CompressionTreeMultiplier'));
+    });
+
+    test('should return rtl code when invoke generate() with custom value',
+        () async {
+      final multiplierDefault = CompressionTreeMultiplierConfigurator();
+      final multiplierCustom = CompressionTreeMultiplierConfigurator();
+      multiplierCustom.knobs.values.toList()[1].value = 4;
+
+      final multiplierDefaultRTL = await multiplierDefault.generateSV();
+      final multiplierCustomRTL = await multiplierCustom.generateSV();
+
+      expect(multiplierDefaultRTL.length > multiplierCustomRTL.length,
+          equals(false));
     });
   });
 

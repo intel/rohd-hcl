@@ -51,7 +51,7 @@ row  slice  mult
 
 A few things to note: first, that we are negating by 1s complement (so we need a -0) and second, these rows do not add up to (18: 10010). For Booth encoded rows to add up properly, they need to be in 2s complement form, and they need to be sign-extended.
 
- Here is the matrix with crude sign extension (this formatting is available from our `PartialProductGenerator` component). With 2s complementation, and sign bits folded in (note the LSB of each row has a sign term from the previous row), these addends are correctly formed and add to (18: 10010).
+ Here is the matrix with a crude sign extension `brute` (the table formatting is available from our `PartialProductGenerator` component). With 2s complementation, and sign bits folded in (note the LSB of each row has a sign term from the previous row), these addends are correctly formed and add to (18: 10010).
 
 ```text
             7  6  5  4  3  2  1  0  
@@ -64,7 +64,7 @@ A few things to note: first, that we are negating by 1s complement (so we need a
             0  0  0  1  0  0  1  0  : 00010010 = 18 (18)
  ```
 
- There are more compact ways of doing sign-extension which result in far fewer additions. Here is an example of compact sign-extension:  
+ There are more compact ways of doing sign-extension which result in far fewer additions. Here is an example of `compact` sign-extension, where the last row which carries only a sign bit is folded into the previous row:  
 
 ```text
             7  6  5  4  3  2  1  0  
@@ -86,7 +86,7 @@ And of course, with higher radix-encoding, we select more bits at a time from th
             0  0  0  1  0  0  1  0  : 00010010 = 18 (18)
 ```
 
-Note that radix-4 shifts by 2 positions each row, but with only two rows and with sign-extension adding an LSB bit, you only see a shift of 1 in row 1.
+Note that radix-4 shifts by 2 positions each row, but with only two rows and with sign-extension adding an LSB bit to each row, you only see a shift of 1 in row 1, but in a larger example you would see the two-bit shift in the following rows.
 
 ## Partial Product Generator
 
@@ -222,7 +222,7 @@ Finally, we produce the product.
 
 ```dart
     final pp =
-        PartialProductGeneratorCompactRectSignExtension(a, b, RadixEncoder(radix), signed: true);
+        PartialProductGeneratorCompactRectSignExtension(a, b, RadixEncoder(radix), signedMultiplicand: true, signedMultiplier: true);
     final compressor = ColumnCompressor(pp)..compress();
     final adder = ParallelPrefixAdder(
         compressor.exractRow(0), compressor.extractRow(1), BrentKung.new);
