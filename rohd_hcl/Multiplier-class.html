@@ -101,7 +101,7 @@
 
     <dl class="constructor-summary-list">
         <dt id="Multiplier" class="callable">
-          <span class="name"><a href="../rohd_hcl/Multiplier/Multiplier.html">Multiplier</a></span><span class="signature">(<span class="parameter" id="-param-a"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.5.3/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">a</span>, </span><span class="parameter" id="-param-b"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.5.3/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">b</span>, {</span><span class="parameter" id="-param-signed"><span>required</span> <span class="type-annotation"><a href="https://api.dart.dev/stable/3.5.4/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">signed</span>, </span><span class="parameter" id="-param-name"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.5.4/dart-core/String-class.html">String</a></span> <span class="parameter-name">name</span> = <span class="default-value">&#39;unnamed_module&#39;</span></span>})</span>
+          <span class="name"><a href="../rohd_hcl/Multiplier/Multiplier.html">Multiplier</a></span><span class="signature">(<span class="parameter" id="-param-a"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.5.3/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">a</span>, </span><span class="parameter" id="-param-b"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.5.3/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">b</span>, {</span><span class="parameter" id="-param-signedMultiplicand"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.5.4/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">signedMultiplicand</span> = <span class="default-value">false</span>, </span><span class="parameter" id="-param-signedMultiplier"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.5.4/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">signedMultiplier</span> = <span class="default-value">false</span>, </span><span class="parameter" id="-param-selectSignedMultiplicand"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.5.3/rohd/Logic-class.html">Logic</a>?</span> <span class="parameter-name">selectSignedMultiplicand</span>, </span><span class="parameter" id="-param-selectSignedMultiplier"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.5.3/rohd/Logic-class.html">Logic</a>?</span> <span class="parameter-name">selectSignedMultiplier</span>, </span><span class="parameter" id="-param-name"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.5.4/dart-core/String-class.html">String</a></span> <span class="parameter-name">name</span> = <span class="default-value">&#39;unnamed_module&#39;</span></span>})</span>
         </dt>
         <dd>
           Take input <code>a</code> and input <code>b</code> and return the
@@ -117,25 +117,25 @@
     <dl class="properties">
         <dt id="a" class="property">
   <span class="name"><a href="../rohd_hcl/Multiplier/a.html">a</a></span>
-  <span class="signature">&#8596; <a href="https://pub.dev/documentation/rohd/0.5.3/rohd/Logic-class.html">Logic</a></span>
+  <span class="signature">&#8594; <a href="https://pub.dev/documentation/rohd/0.5.3/rohd/Logic-class.html">Logic</a></span>
   
 
 </dt>
 <dd>
-  The input to the multiplier pin <a href="../rohd_hcl/Multiplier/a.html">a</a>.
-  <div class="features"><span class="feature">late</span><span class="feature">final</span></div>
+  The multiplicand input <a href="../rohd_hcl/Multiplier/a.html">a</a>.
+  <div class="features"><span class="feature">no setter</span></div>
 
 </dd>
 
         <dt id="b" class="property">
   <span class="name"><a href="../rohd_hcl/Multiplier/b.html">b</a></span>
-  <span class="signature">&#8596; <a href="https://pub.dev/documentation/rohd/0.5.3/rohd/Logic-class.html">Logic</a></span>
+  <span class="signature">&#8594; <a href="https://pub.dev/documentation/rohd/0.5.3/rohd/Logic-class.html">Logic</a></span>
   
 
 </dt>
 <dd>
-  The input to the multiplier pin <a href="../rohd_hcl/Multiplier/b.html">b</a>.
-  <div class="features"><span class="feature">late</span><span class="feature">final</span></div>
+  The multiplier input <a href="../rohd_hcl/Multiplier/b.html">b</a>.
+  <div class="features"><span class="feature">no setter</span></div>
 
 </dd>
 
@@ -199,6 +199,18 @@ signals.
   An <a href="https://api.dart.dev/stable/3.5.4/dart-core/Iterable-class.html">Iterable</a> of all <code>Logic</code>s contained within this <a href="https://pub.dev/documentation/rohd/0.5.3/rohd/Module-class.html">Module</a> which are
 <em>not</em> an input or output port of this <a href="https://pub.dev/documentation/rohd/0.5.3/rohd/Module-class.html">Module</a>.
   <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="isProductSigned" class="property">
+  <span class="name"><a href="../rohd_hcl/Multiplier/isProductSigned.html">isProductSigned</a></span>
+  <span class="signature">&#8594; <a href="https://pub.dev/documentation/rohd/0.5.3/rohd/Logic-class.html">Logic</a></span>
+  
+
+</dt>
+<dd>
+  Logic that tells us <a href="../rohd_hcl/Multiplier/product.html">product</a> is signed.
+  <div class="features"><span class="feature">no setter</span></div>
 
 </dd>
 
@@ -289,6 +301,32 @@ or else it will fail.
 
 </dd>
 
+        <dt id="selectSignedMultiplicand" class="property">
+  <span class="name"><a href="../rohd_hcl/Multiplier/selectSignedMultiplicand.html">selectSignedMultiplicand</a></span>
+  <span class="signature">&#8594; <a href="https://pub.dev/documentation/rohd/0.5.3/rohd/Logic-class.html">Logic</a>?</span>
+  
+
+</dt>
+<dd>
+  If not null, use this signal to select between signed and unsigned
+multiplicand <a href="../rohd_hcl/Multiplier/a.html">a</a>.
+  <div class="features"><span class="feature">no setter</span></div>
+
+</dd>
+
+        <dt id="selectSignedMultiplier" class="property">
+  <span class="name"><a href="../rohd_hcl/Multiplier/selectSignedMultiplier.html">selectSignedMultiplier</a></span>
+  <span class="signature">&#8594; <a href="https://pub.dev/documentation/rohd/0.5.3/rohd/Logic-class.html">Logic</a>?</span>
+  
+
+</dt>
+<dd>
+  If not null, use this signal to select between signed and unsigned
+multiplier <a href="../rohd_hcl/Multiplier/b.html">b</a>
+  <div class="features"><span class="feature">no setter</span></div>
+
+</dd>
+
         <dt id="signals" class="property inherited">
   <span class="name"><a href="https://pub.dev/documentation/rohd/0.5.3/rohd/Module/signals.html">signals</a></span>
   <span class="signature">&#8594; <a href="https://api.dart.dev/stable/3.5.4/dart-core/Iterable-class.html">Iterable</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://pub.dev/documentation/rohd/0.5.3/rohd/Logic-class.html">Logic</a></span>&gt;</span></span>
@@ -302,15 +340,27 @@ inputs, outputs, and internal signals of this <a href="https://pub.dev/documenta
 
 </dd>
 
-        <dt id="signed" class="property">
-  <span class="name"><a href="../rohd_hcl/Multiplier/signed.html">signed</a></span>
-  <span class="signature">&#8596; <a href="https://api.dart.dev/stable/3.5.4/dart-core/bool-class.html">bool</a></span>
+        <dt id="signedMultiplicand" class="property">
+  <span class="name"><a href="../rohd_hcl/Multiplier/signedMultiplicand.html">signedMultiplicand</a></span>
+  <span class="signature">&#8594; <a href="https://api.dart.dev/stable/3.5.4/dart-core/bool-class.html">bool</a></span>
   
 
 </dt>
 <dd>
-  The multiplier treats operands and output as signed
-  <div class="features"><span class="feature">getter/setter pair</span></div>
+  The multiplier treats input <a href="../rohd_hcl/Multiplier/a.html">a</a> always as a signed input.
+  <div class="features"><span class="feature">final</span></div>
+
+</dd>
+
+        <dt id="signedMultiplier" class="property">
+  <span class="name"><a href="../rohd_hcl/Multiplier/signedMultiplier.html">signedMultiplier</a></span>
+  <span class="signature">&#8594; <a href="https://api.dart.dev/stable/3.5.4/dart-core/bool-class.html">bool</a></span>
+  
+
+</dt>
+<dd>
+  The multiplier treats input <a href="../rohd_hcl/Multiplier/b.html">b</a> always as a signed input.
+  <div class="features"><span class="feature">final</span></div>
 
 </dd>
 

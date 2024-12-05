@@ -64,14 +64,18 @@
       
       <span class="name ">MultiplierEncoder</span>(<wbr><ol class="parameter-list"> <li><span class="parameter" id="-param-multiplier"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.5.3/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">multiplier</span>, </span></li>
 <li><span class="parameter" id="-param-radixEncoder"><span class="type-annotation"><a href="../../rohd_hcl/RadixEncoder-class.html">RadixEncoder</a></span> <span class="parameter-name">radixEncoder</span>, {</span></li>
-<li><span class="parameter" id="-param-selectSigned"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.5.3/rohd/Logic-class.html">Logic</a>?</span> <span class="parameter-name">selectSigned</span>, </span></li>
-<li><span class="parameter" id="-param-signed"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.5.4/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">signed</span> = <span class="default-value">false</span>, </span></li>
+<li><span class="parameter" id="-param-selectSignedMultiplier"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.5.3/rohd/Logic-class.html">Logic</a>?</span> <span class="parameter-name">selectSignedMultiplier</span>, </span></li>
+<li><span class="parameter" id="-param-signedMultiplier"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.5.4/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">signedMultiplier</span> = <span class="default-value">false</span>, </span></li>
 </ol>})
     </section>
 
     
 <section class="desc markdown">
-  <p>Generate an encoding of the input multiplier</p>
+  <p>Generate the Booth encoding of an input <a href="../../rohd_hcl/MultiplierEncoder/multiplier.html">multiplier</a> using
+<code>radixEncoder</code>.</p>
+<p><code>signedMultiplier</code> generates a fixed signed encoder versus using
+<code>selectSignedMultiplier</code> which is a runtime sign selection <a href="https://pub.dev/documentation/rohd/0.5.3/rohd/Logic-class.html">Logic</a>
+in which case <code>signedMultiplier</code> must be false.</p>
 </section>
 
 
@@ -79,32 +83,33 @@
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">MultiplierEncoder(this.multiplier, RadixEncoder radixEncoder,
-    {Logic? selectSigned, bool signed = false})
-    : _encoder = radixEncoder,
-      _sliceWidth = log2Ceil(radixEncoder.radix) + 1 {
-  if (signed &amp;&amp; (selectSigned != null)) {
+    {Logic? selectSignedMultiplier, bool signedMultiplier = false})
+    : _encoder = radixEncoder {
+  if (signedMultiplier &amp;&amp; (selectSignedMultiplier != null)) {
     throw RohdHclException(&#39;sign reconfiguration requires signed=false&#39;);
   }
   &#47;&#47; Unsigned encoding wants to overlap past the multipler
-  if (signed) {
-    rows =
-        ((multiplier.width + (signed ? 0 : 1)) &#47; log2Ceil(radixEncoder.radix))
-            .ceil();
+  if (signedMultiplier) {
+    rows = ((multiplier.width + (signedMultiplier ? 0 : 1)) &#47;
+            log2Ceil(radixEncoder.radix))
+        .ceil();
   } else {
-    rows = (((multiplier.width + 1) % (_sliceWidth - 1) == 0) ? 0 : 1) +
+    rows = (((multiplier.width + 1) % (log2Ceil(radixEncoder.radix)) == 0)
+            ? 0
+            : 1) +
         ((multiplier.width + 1) ~&#47; log2Ceil(radixEncoder.radix));
   }
   &#47;&#47; slices overlap by 1 and start at -1a
-  if (selectSigned == null) {
-    _extendedMultiplier = (signed
-        ? multiplier.signExtend(rows * (_sliceWidth - 1))
-        : multiplier.zeroExtend(rows * (_sliceWidth - 1)));
+  if (selectSignedMultiplier == null) {
+    _extendedMultiplier = (signedMultiplier
+        ? multiplier.signExtend(rows * (log2Ceil(radixEncoder.radix)))
+        : multiplier.zeroExtend(rows * (log2Ceil(radixEncoder.radix))));
   } else {
     final len = multiplier.width;
     final sign = multiplier[len - 1];
     final extension = [
-      for (var i = len - 1; i &lt; (rows * (_sliceWidth - 1)); i++)
-        mux(selectSigned, sign, Const(0))
+      for (var i = len - 1; i &lt; (rows * (log2Ceil(radixEncoder.radix))); i++)
+        mux(selectSignedMultiplier, sign, Const(0))
     ];
     _extendedMultiplier = (multiplier.elements + extension).rswizzle();
   }

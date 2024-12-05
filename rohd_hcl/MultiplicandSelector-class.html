@@ -73,10 +73,11 @@
 
     <dl class="constructor-summary-list">
         <dt id="MultiplicandSelector" class="callable">
-          <span class="name"><a href="../rohd_hcl/MultiplicandSelector/MultiplicandSelector.html">MultiplicandSelector</a></span><span class="signature">(<span class="parameter" id="-param-radix"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.5.4/dart-core/int-class.html">int</a></span> <span class="parameter-name">radix</span>, </span><span class="parameter" id="-param-multiplicand"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.5.3/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">multiplicand</span>, {</span><span class="parameter" id="-param-selectSigned"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.5.3/rohd/Logic-class.html">Logic</a>?</span> <span class="parameter-name">selectSigned</span>, </span><span class="parameter" id="-param-signed"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.5.4/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">signed</span> = <span class="default-value">false</span></span>})</span>
+          <span class="name"><a href="../rohd_hcl/MultiplicandSelector/MultiplicandSelector.html">MultiplicandSelector</a></span><span class="signature">(<span class="parameter" id="-param-radix"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.5.4/dart-core/int-class.html">int</a></span> <span class="parameter-name">radix</span>, </span><span class="parameter" id="-param-multiplicand"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.5.3/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">multiplicand</span>, {</span><span class="parameter" id="-param-selectSignedMultiplicand"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.5.3/rohd/Logic-class.html">Logic</a>?</span> <span class="parameter-name">selectSignedMultiplicand</span>, </span><span class="parameter" id="-param-signedMultiplicand"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.5.4/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">signedMultiplicand</span> = <span class="default-value">false</span></span>})</span>
         </dt>
         <dd>
-          Generate required multiples of multiplicand
+          Build a <a href="../rohd_hcl/MultiplicandSelector-class.html">MultiplicandSelector</a> generationg required <a href="../rohd_hcl/MultiplicandSelector/multiples.html">multiples</a> of
+<a href="../rohd_hcl/MultiplicandSelector/multiplicand.html">multiplicand</a> to <a href="../rohd_hcl/MultiplicandSelector/select.html">select</a> using a <a href="../rohd_hcl/RadixEncoder-class.html">RadixEncoder</a> argument.
         </dd>
     </dl>
   </section>
@@ -105,7 +106,7 @@
 
 </dt>
 <dd>
-  Place to store multiples of the multiplicand
+  Place to store <a href="../rohd_hcl/MultiplicandSelector/multiples.html">multiples</a> of the <a href="../rohd_hcl/MultiplicandSelector/multiplicand.html">multiplicand</a> (e.g. *1, *2, *-1, *-2..)
   <div class="features"><span class="feature">getter/setter pair</span></div>
 
 </dd>
@@ -117,7 +118,7 @@
 
 </dt>
 <dd>
-  Access the multiplicand
+  The base multiplicand from which to generate multiples to select.
   <div class="features"><span class="feature">getter/setter pair</span></div>
 
 </dd>
@@ -129,7 +130,7 @@
 
 </dt>
 <dd>
-  radix of the selector
+  The radix of the selector
   <div class="features"><span class="feature">getter/setter pair</span></div>
 
 </dd>

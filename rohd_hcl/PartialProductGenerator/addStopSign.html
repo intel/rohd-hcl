@@ -82,7 +82,7 @@ For signed operands, set the MSB to <code>sign</code>, otherwise add this <code>
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">void addStopSign(List&lt;Logic&gt; addend, SignBit sign) {
-  if (!signed) {
+  if (!signedMultiplicand) {
     addend.add(sign);
   } else {
     addend.last = sign;

@@ -64,7 +64,10 @@
       
       <span class="name ">Multiplier</span>(<wbr><ol class="parameter-list"> <li><span class="parameter" id="-param-a"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.5.3/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">a</span>, </span></li>
 <li><span class="parameter" id="-param-b"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.5.3/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">b</span>, {</span></li>
-<li><span class="parameter" id="-param-signed"><span>required</span> <span class="type-annotation"><a href="https://api.dart.dev/stable/3.5.4/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">signed</span>, </span></li>
+<li><span class="parameter" id="-param-signedMultiplicand"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.5.4/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">signedMultiplicand</span> = <span class="default-value">false</span>, </span></li>
+<li><span class="parameter" id="-param-signedMultiplier"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.5.4/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">signedMultiplier</span> = <span class="default-value">false</span>, </span></li>
+<li><span class="parameter" id="-param-selectSignedMultiplicand"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.5.3/rohd/Logic-class.html">Logic</a>?</span> <span class="parameter-name">selectSignedMultiplicand</span>, </span></li>
+<li><span class="parameter" id="-param-selectSignedMultiplier"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.5.3/rohd/Logic-class.html">Logic</a>?</span> <span class="parameter-name">selectSignedMultiplier</span>, </span></li>
 <li><span class="parameter" id="-param-name"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.5.4/dart-core/String-class.html">String</a></span> <span class="parameter-name">name</span> = <span class="default-value">&#39;unnamed_module&#39;</span>, </span></li>
 </ol>})
     </section>
@@ -73,15 +76,46 @@
 <section class="desc markdown">
   <p>Take input <code>a</code> and input <code>b</code> and return the
 <a href="../../rohd_hcl/Multiplier/product.html">product</a> of the multiplication result.</p>
+<p><a href="../../rohd_hcl/Multiplier/signedMultiplicand.html">signedMultiplicand</a> parameter configures the multiplicand <code>a</code> as a signed
+multiplier (default is unsigned).</p>
+<p><a href="../../rohd_hcl/Multiplier/signedMultiplier.html">signedMultiplier</a> parameter configures the multiplier <code>b</code> as a signed
+multiplier (default is unsigned).</p>
+<p>Optional <code>selectSignedMultiplicand</code> allows for runtime configuration of
+signed or unsigned operation, overriding the <a href="../../rohd_hcl/Multiplier/signedMultiplicand.html">signedMultiplicand</a> static
+configuration.</p>
+<p>Optional <code>selectSignedMultiplier</code> allows for runtime configuration of
+signed or unsigned operation, overriding the <a href="../../rohd_hcl/Multiplier/signedMultiplier.html">signedMultiplier</a> static
+configuration.</p>
 </section>
 
 
     
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
-  <pre class="language-dart"><code class="language-dart">Multiplier(Logic a, Logic b, {required this.signed, super.name}) {
-  this.a = addInput(&#39;a&#39;, a, width: a.width);
-  this.b = addInput(&#39;b&#39;, b, width: b.width);
+  <pre class="language-dart"><code class="language-dart">Multiplier(Logic a, Logic b,
+    {this.signedMultiplicand = false,
+    this.signedMultiplier = false,
+    Logic? selectSignedMultiplicand,
+    Logic? selectSignedMultiplier,
+    super.name}) {
+  a = addInput(&#39;a&#39;, a, width: a.width);
+  b = addInput(&#39;b&#39;, b, width: b.width);
+
+  selectSignedMultiplicand = (selectSignedMultiplicand != null)
+      ? addInput(&#39;selectSignedMultiplicand&#39;, selectSignedMultiplicand)
+      : null;
+  selectSignedMultiplier = (selectSignedMultiplier != null)
+      ? addInput(&#39;selectSignedMultiplier&#39;, selectSignedMultiplier)
+      : null;
+
+  addOutput(&#39;isProductSigned&#39;) &lt;=
+      (signedMultiplicand | signedMultiplier ? Const(1) : Const(0)) |
+          ((selectSignedMultiplicand != null)
+              ? selectSignedMultiplicand
+              : Const(0)) |
+          ((selectSignedMultiplier != null)
+              ? selectSignedMultiplier
+              : Const(0));
 }</code></pre>
 </section>
 

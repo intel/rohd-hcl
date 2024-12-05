@@ -82,12 +82,12 @@ For signed operands, flip the MSB, otherwise add this <code>sign</code> bit.</p>
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">void addStopSignFlip(List&lt;Logic&gt; addend, SignBit sign) {
-  if (!signed) {
-    if (selectSigned == null) {
+  if (!signedMultiplicand) {
+    if (selectSignedMultiplicand == null) {
       addend.add(sign);
     } else {
-      addend.add(SignBit(mux(selectSigned!, ~addend.last, sign),
-          inverted: selectSigned != null));
+      addend.add(SignBit(mux(selectSignedMultiplicand!, ~addend.last, sign),
+          inverted: selectSignedMultiplicand != null));
     }
   } else {
     addend.last = SignBit(~addend.last, inverted: true);

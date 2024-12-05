@@ -64,14 +64,20 @@
       
       <span class="name ">MultiplicandSelector</span>(<wbr><ol class="parameter-list"> <li><span class="parameter" id="-param-radix"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.5.4/dart-core/int-class.html">int</a></span> <span class="parameter-name">radix</span>, </span></li>
 <li><span class="parameter" id="-param-multiplicand"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.5.3/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">multiplicand</span>, {</span></li>
-<li><span class="parameter" id="-param-selectSigned"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.5.3/rohd/Logic-class.html">Logic</a>?</span> <span class="parameter-name">selectSigned</span>, </span></li>
-<li><span class="parameter" id="-param-signed"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.5.4/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">signed</span> = <span class="default-value">false</span>, </span></li>
+<li><span class="parameter" id="-param-selectSignedMultiplicand"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.5.3/rohd/Logic-class.html">Logic</a>?</span> <span class="parameter-name">selectSignedMultiplicand</span>, </span></li>
+<li><span class="parameter" id="-param-signedMultiplicand"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.5.4/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">signedMultiplicand</span> = <span class="default-value">false</span>, </span></li>
 </ol>})
     </section>
 
     
 <section class="desc markdown">
-  <p>Generate required multiples of multiplicand</p>
+  <p>Build a <a href="../../rohd_hcl/MultiplicandSelector-class.html">MultiplicandSelector</a> generationg required <a href="../../rohd_hcl/MultiplicandSelector/multiples.html">multiples</a> of
+<a href="../../rohd_hcl/MultiplicandSelector/multiplicand.html">multiplicand</a> to <a href="../../rohd_hcl/MultiplicandSelector/select.html">select</a> using a <a href="../../rohd_hcl/RadixEncoder-class.html">RadixEncoder</a> argument.</p>
+<p><a href="../../rohd_hcl/MultiplicandSelector/multiplicand.html">multiplicand</a> is base multiplicand multiplied by Booth encodings of
+the <a href="../../rohd_hcl/RadixEncoder-class.html">RadixEncoder</a> during <a href="../../rohd_hcl/MultiplicandSelector/select.html">select</a>.</p>
+<p><code>signedMultiplicand</code> generates a fixed signed selector versus using
+<code>selectSignedMultiplicand</code> which is a runtime sign selection <a href="https://pub.dev/documentation/rohd/0.5.3/rohd/Logic-class.html">Logic</a>
+in which case <code>signedMultiplicand</code> must be false.</p>
 </section>
 
 
@@ -79,9 +85,9 @@
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">MultiplicandSelector(this.radix, this.multiplicand,
-    {Logic? selectSigned, bool signed = false})
+    {Logic? selectSignedMultiplicand, bool signedMultiplicand = false})
     : shift = log2Ceil(radix) {
-  if (signed &amp;&amp; (selectSigned != null)) {
+  if (signedMultiplicand &amp;&amp; (selectSignedMultiplicand != null)) {
     throw RohdHclException(&#39;sign reconfiguration requires signed=false&#39;);
   }
   if (radix &gt; 16) {
@@ -91,15 +97,16 @@
   final numMultiples = radix ~&#47; 2;
   multiples = LogicArray([numMultiples], width);
   final Logic extendedMultiplicand;
-  if (selectSigned == null) {
-    extendedMultiplicand = signed
+  if (selectSignedMultiplicand == null) {
+    extendedMultiplicand = signedMultiplicand
         ? multiplicand.signExtend(width)
         : multiplicand.zeroExtend(width);
   } else {
     final len = multiplicand.width;
     final sign = multiplicand[len - 1];
     final extension = [
-      for (var i = len; i &lt; width; i++) mux(selectSigned, sign, Const(0))
+      for (var i = len; i &lt; width; i++)
+        mux(selectSignedMultiplicand, sign, Const(0))
     ];
     extendedMultiplicand = (multiplicand.elements + extension).rswizzle();
   }

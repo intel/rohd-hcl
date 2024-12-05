@@ -89,6 +89,12 @@ Module createModule() =&gt; CompressionTreeMultiplier(
     Logic(name: &#39;a&#39;, width: multiplicandWidthKnob.value),
     Logic(name: &#39;b&#39;, width: multiplierWidthKnob.value),
     radixKnob.value,
+    signedMultiplicand: signMultiplicandValueKnob.value == &#39;signed&#39;,
+    signedMultiplier: signMultiplierValueKnob.value == &#39;signed&#39;,
+    selectSignedMultiplicand:
+        signMultiplicandValueKnob.value == &#39;selected&#39; ? Logic() : null,
+    selectSignedMultiplier:
+        signMultiplierValueKnob.value == &#39;selected&#39; ? Logic() : null,
     ppTree: generatorMap[prefixTreeKnob.value]!);</code></pre>
 </section>
 
