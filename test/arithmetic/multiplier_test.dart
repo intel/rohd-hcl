@@ -660,9 +660,7 @@ void main() {
       c.put(bC);
 
       final multiplier = CompressionTreeMultiplyAccumulate(a, b, c, radix,
-          signedMultiplicand: signed,
-          signedMultiplier: signed,
-          signedAddend: true);
+          signedMultiplicand: signed, signedMultiplier: signed);
       final accumulate = multiplier.accumulate;
       expect(accumulate.value.toBigInt(), equals(golden));
     }

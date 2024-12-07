@@ -265,7 +265,6 @@ class CompressionTreeMultiplier extends Multiplier {
       selectSignedMultiplier: selectSignedMultiplier,
       signedMultiplier: signedMultiplier,
     );
-
     final compressor = ColumnCompressor(
         clk: clk,
         reset: reset,
@@ -273,7 +272,6 @@ class CompressionTreeMultiplier extends Multiplier {
         pp,
         use42Compressors: use42Compressors)
       ..compress();
-
     final adder = ParallelPrefixAdder(
         compressor.extractRow(0), compressor.extractRow(1),
         ppGen: ppTree);
