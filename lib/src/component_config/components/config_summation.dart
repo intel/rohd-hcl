@@ -112,24 +112,56 @@ class CounterConfigurator extends SummationConfigurator {
   /// The reset value.
   final IntConfigKnob resetValueKnob = IntConfigKnob(value: 0);
 
+  /// Whether to instantiate a [GatedCounter].
+  final ToggleConfigKnob clockGatingKnob = ToggleConfigKnob(value: false);
+
+  /// The clock gating partition index.
+  final IntOptionalConfigKnob clockGatingPartitionIndexKnob =
+      IntOptionalConfigKnob(value: null);
+
+  /// The gate toggles knob.
+  final ToggleConfigKnob gateTogglesKnob = ToggleConfigKnob(value: false);
+
   @override
   Map<String, ConfigKnob<dynamic>> get knobs => {
         ...super.knobs,
         'Reset Value': resetValueKnob,
+        'Clock Gating': clockGatingKnob,
+        if (clockGatingKnob.value) ...{
+          'Clock Gating Partition Index': clockGatingPartitionIndexKnob,
+          'Gate Toggles': gateTogglesKnob,
+        },
       };
 
   @override
-  Module createModule() => Counter(
-        sumInterfaceKnobs.knobs
-            .map((e) => e as SumInterfaceKnob)
-            .map((e) => SumInterface(
-                  hasEnable: e.hasEnableKnob.value,
-                  fixedAmount:
-                      e.isFixedValueKnob.value ? e.fixedValueKnob.value : null,
-                  width: e.widthKnob.value,
-                  increments: e.incrementsKnob.value,
-                ))
-            .toList(),
+  Module createModule() {
+    final sumIntfs = sumInterfaceKnobs.knobs
+        .map((e) => e as SumInterfaceKnob)
+        .map((e) => SumInterface(
+              hasEnable: e.hasEnableKnob.value,
+              fixedAmount:
+                  e.isFixedValueKnob.value ? e.fixedValueKnob.value : null,
+              width: e.widthKnob.value,
+              increments: e.incrementsKnob.value,
+            ))
+        .toList();
+
+    if (clockGatingKnob.value) {
+      return GatedCounter(
+        sumIntfs,
+        resetValue: resetValueKnob.value,
+        width: widthKnob.value,
+        minValue: minValueKnob.value,
+        maxValue: maxValueKnob.value,
+        saturates: saturatesKnob.value,
+        clk: Logic(),
+        reset: Logic(),
+        clkGatePartitionIndex: clockGatingPartitionIndexKnob.value,
+        gateToggles: gateTogglesKnob.value,
+      );
+    } else {
+      return Counter(
+        sumIntfs,
         resetValue: resetValueKnob.value,
         width: widthKnob.value,
         minValue: minValueKnob.value,
@@ -138,6 +170,8 @@ class CounterConfigurator extends SummationConfigurator {
         clk: Logic(),
         reset: Logic(),
       );
+    }
+  }
 
   @override
   String get name => 'Counter';

@@ -155,8 +155,6 @@ void main() {
     await mod2.build();
     unawaited(Simulator.run());
 
-    WaveDumper(mod2);
-
     start.inject(0);
     reset.inject(0);
     for (var i = 0; i < len; i++) {

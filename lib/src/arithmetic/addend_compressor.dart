@@ -152,7 +152,7 @@ abstract class BitCompressor extends Module {
   late final List<List<double>> _delays;
 
   /// Construct a column compressor.
-  BitCompressor(this.terms) {
+  BitCompressor(this.terms, {super.name = 'bitcompressor'}) {
     compressBits = [
       for (var pos = 0; pos < terms.length; pos++)
         addInput('t_$pos', terms[pos].logic)
@@ -171,7 +171,7 @@ abstract class BitCompressor extends Module {
 /// 2-input column compressor (half-adder)
 class Compressor2 extends BitCompressor {
   /// Construct a 2-input compressor (half-adder).
-  Compressor2(super.terms) {
+  Compressor2(super.terms, {super.name = 'bitcompressor2'}) {
     sum <= compressBits.xor();
     carry <= compressBits.and();
     _delays[CompressTermType.sum.index][CompressTermType.pp.index] = 1.0;
@@ -182,7 +182,7 @@ class Compressor2 extends BitCompressor {
 /// 3-input column compressor (full-adder)
 class Compressor3 extends BitCompressor {
   /// Construct a 3-input column compressor (full-adder).
-  Compressor3(super.terms) {
+  Compressor3(super.terms, {super.name = 'bitcompressor3'}) {
     sum <= compressBits.xor();
     carry <=
         mux(compressBits[0], compressBits.slice(2, 1).or(),
@@ -200,7 +200,8 @@ class Compressor4 extends BitCompressor {
   Logic get cout => output('cout');
 
   /// Construct a 4-input column compressor using two 3-input compressors.
-  Compressor4(List<CompressTerm> terms, List<CompressTerm> cinL)
+  Compressor4(List<CompressTerm> terms, List<CompressTerm> cinL,
+      {super.name = 'bitcompressor4'})
       : super(terms) {
     // We need to use internal Logic and regenerate Term lists inside
     cinL = [
@@ -270,9 +271,9 @@ class ColumnCompressor {
   ColumnCompressor(this.pp,
       {this.use42Compressors = false, this.clk, this.reset, this.enable}) {
     columns = List.generate(pp.maxWidth(), (i) => ColumnQueue());
-    if (use42Compressors) {
-      carryColumns = List.generate(pp.maxWidth(), (i) => ColumnQueue());
-    }
+    // if (use42Compressors) {
+    carryColumns = List.generate(pp.maxWidth(), (i) => ColumnQueue());
+    // }
     for (var row = 0; row < pp.rows; row++) {
       for (var col = 0; col < pp.partialProducts[row].length; col++) {
         final trueColumn = pp.rowShift[row] + col;
@@ -285,7 +286,8 @@ class ColumnCompressor {
 
   /// Return the longest column length
   int longestColumn() =>
-      columns.reduce((a, b) => a.length > b.length ? a : b).length;
+      columns.reduce((a, b) => a.length > b.length ? a : b).length +
+      carryColumns.reduce((a, b) => a.length > b.length ? a : b).length;
 
   /// Convert a row to a Logic bitvector
   Logic extractRow(int row) {
@@ -293,15 +295,17 @@ class ColumnCompressor {
 
     final rowBits = <Logic>[];
     for (var col = columns.length - 1; col >= 0; col--) {
-      final colList = columns[col].toList();
+      final colList = carryColumns[col].toList() + columns[col].toList();
       if (row < colList.length) {
         final value = colList[row].logic;
 
         rowBits.add(
             clk != null ? flop(clk!, value, reset: reset, en: enable) : value);
+      } else {
+        rowBits.add(Const(0));
       }
     }
-    rowBits.addAll(List.filled(pp.rowShift[row], Const(0)));
+    // rowBits.addAll(List.filled(pp.rowShift[row], Const(0)));
     if (width > rowBits.length) {
       return rowBits.swizzle().zeroExtend(width);
     }
@@ -319,7 +323,7 @@ class ColumnCompressor {
       } else {
         carryQueue = PriorityQueue<CompressTerm>();
       }
-      final depth = queue.length;
+      final depth = queue.length + carryQueue.length;
       if (depth > iteration) {
         if (depth > 2) {
           final first = queue.removeFirst();
@@ -333,7 +337,6 @@ class ColumnCompressor {
             inputs
               ..add(queue.removeFirst())
               ..add(queue.removeFirst());
-
             compressor = Compressor4(inputs, [cin]);
             if (col < columns.length - 1) {
               final t = CompressTerm(compressor, CompressTermType.carry,

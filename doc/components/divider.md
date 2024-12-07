@@ -1,13 +1,13 @@
 # Divider
 
-ROHD HCL provides an integer divider module to get the dividend of numerator and denominator operands. The divider implementation is not pipelined and has a maximum latency of the bit width of the operands.
+ROHD HCL provides an integer divider module to get the quotient and the remainder of dividend and divisor operands. The divider implementation is not pipelined and has a minimum latency of 3 cycles. The maximum latency is dependent on the width of the operands (upper bound of `O(WIDTH**2)`). Note that latency increases exponentially as the absolute difference between the dividend and the divisor increases (worst case: largest possible dividend and divisor of 1).
 
 ## Interface
 
 The inputs to the divider module are:
 
 * `clock` => clock for synchronous logic
-* `reset` => reset for synchronous logic (active high)
+* `reset` => reset for synchronous logic (active high, synchronous to `clock`)
 * `dividend` => the numerator operand
 * `divisor` => the denominator operand
 * `isSigned` => should the operands of the division be treated as signed integers
@@ -30,7 +30,7 @@ To initiate a new request, it is expected that the requestor drive `validIn` to 
 
 When the division is complete, the module will assert the `validOut` signal along with the numerical values of `quotient` and `remainder` representing the division result and the signal `divZero` to indicate whether or not a division by zero occurred. The module will hold these signal values until `readyOut` is driven high by the integrating environment. The integrating environment must assume that `quotient` and `remainder` are meaningless if `divZero` is asserted.
 
-### Mathematical Properties
+## Mathematical Properties
 
 For the division, implicit rounding towards 0 is always performed. I.e., a negative quotient will always be rounded up if the dividend is not evenly divisible by the divisor. Note that this behavior is not uniform across all programming languages (for example, Python rounds towards negative infinity).
 
@@ -65,3 +65,7 @@ if (divIntf.validOut.value.toBool()) {
 }
 
 ```
+
+## Future Considerations
+
+In the future, an optimization might be added in which the `remainder` output is optional and controlled by a build time constructor parameter. If the remainder does not need to be computed, the implementation's upper bound latency can be significantly improved (`O(WIDTH**2)` => `O(WIDTH)`).

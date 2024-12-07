@@ -17,7 +17,7 @@ class CompressionTreeMultiplierConfigurator extends Configurator {
   /// Map from Type to Function for Parallel Prefix generator
   static Map<Type,
           ParallelPrefix Function(List<Logic>, Logic Function(Logic, Logic))>
-      generatorMap = {
+      ppGeneratorMap = {
     Ripple: Ripple.new,
     Sklansky: Sklansky.new,
     KoggeStone: KoggeStone.new,
@@ -26,7 +26,7 @@ class CompressionTreeMultiplierConfigurator extends Configurator {
 
   /// Controls the type of [ParallelPrefix] tree used in the adder.
   final prefixTreeKnob =
-      ChoiceConfigKnob(generatorMap.keys.toList(), value: KoggeStone);
+      ChoiceConfigKnob(ppGeneratorMap.keys.toList(), value: KoggeStone);
 
   /// Controls the Booth encoding radix of the multiplier.!
   final radixKnob = ChoiceConfigKnob<int>(
@@ -40,6 +40,14 @@ class CompressionTreeMultiplierConfigurator extends Configurator {
   /// Controls the width of the multiplier.!
   final IntConfigKnob multiplierWidthKnob = IntConfigKnob(value: 5);
 
+  /// A knob controlling the sign of the multiplicand
+  final ChoiceConfigKnob<dynamic> signMultiplicandValueKnob =
+      ChoiceConfigKnob(['unsigned', 'signed', 'selected'], value: 'unsigned');
+
+  /// A knob controlling the sign of the multiplier
+  final ChoiceConfigKnob<dynamic> signMultiplierValueKnob =
+      ChoiceConfigKnob(['unsigned', 'signed', 'selected'], value: 'unsigned');
+
   /// Controls whether the adder is pipelined
   final ToggleConfigKnob pipelinedKnob = ToggleConfigKnob(value: false);
 
@@ -52,7 +60,13 @@ class CompressionTreeMultiplierConfigurator extends Configurator {
       Logic(name: 'a', width: multiplicandWidthKnob.value),
       Logic(name: 'b', width: multiplierWidthKnob.value),
       radixKnob.value,
-      ppTree: generatorMap[prefixTreeKnob.value]!,
+      signedMultiplicand: signMultiplicandValueKnob.value == 'signed',
+      signedMultiplier: signMultiplierValueKnob.value == 'signed',
+      selectSignedMultiplicand:
+          signMultiplicandValueKnob.value == 'selected' ? Logic() : null,
+      selectSignedMultiplier:
+          signMultiplierValueKnob.value == 'selected' ? Logic() : null,
+      ppTree: ppGeneratorMap[prefixTreeKnob.value]!,
       use42Compressors: use42CompressorsKnob.value);
 
   @override
@@ -60,7 +74,9 @@ class CompressionTreeMultiplierConfigurator extends Configurator {
     'Tree type': prefixTreeKnob,
     'Radix': radixKnob,
     'Multiplicand width': multiplicandWidthKnob,
+    'Multiplicand sign': signMultiplicandValueKnob,
     'Multiplier width': multiplierWidthKnob,
+    'Multiplier sign': signMultiplierValueKnob,
     'Pipelined': pipelinedKnob,
     'Use 4:2 Compressors': use42CompressorsKnob,
   });
