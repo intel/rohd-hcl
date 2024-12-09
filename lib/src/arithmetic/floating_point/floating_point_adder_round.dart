@@ -154,7 +154,6 @@ class FloatingPointAdderRound extends Module {
 
     final smallerFullRPath =
         [smallShift, Const(0, width: extendWidthRPath)].swizzle();
-    smallerFullRPath <= smallerFullRPath.withSet(extendWidthRPath, smallShift);
 
     final smallerAlignRPath = smallerFullRPath >>> exponentSubtractor.sum;
     final smallerOperandRPath = smallerAlignRPath.slice(
