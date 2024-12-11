@@ -16,15 +16,11 @@
   <link rel="stylesheet" href="../../static-assets/github.css?v1">
   <link rel="stylesheet" href="../../static-assets/styles.css?v1">
   <link rel="icon" href="../../static-assets/favicon.png?v1">
-
   
 </head>
 
-
 <body data-base-href="../../" data-using-base-href="false" class="light-theme">
-
 <div id="overlay-under-drawer"></div>
-
 <header id="title">
   <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
   <ol class="breadcrumbs gt-separated dark hidden-xs">
@@ -50,7 +46,6 @@
   </div>
 </header>
 <main>
-
   <div
       id="dartdoc-main-content"
       class="main-content"
@@ -63,26 +58,25 @@
     <section class="multi-line-signature">
       
       <span class="name ">SumInterface</span>(<wbr>{<ol class="parameter-list"> <li><span class="parameter" id="-param-fixedAmount"><span class="type-annotation">dynamic</span> <span class="parameter-name">fixedAmount</span>, </span></li>
-<li><span class="parameter" id="-param-increments"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.5.4/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">increments</span> = <span class="default-value">true</span>, </span></li>
-<li><span class="parameter" id="-param-width"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.5.4/dart-core/int-class.html">int</a>?</span> <span class="parameter-name">width</span>, </span></li>
-<li><span class="parameter" id="-param-hasEnable"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.5.4/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">hasEnable</span> = <span class="default-value">false</span>, </span></li>
+<li><span class="parameter" id="-param-increments"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.6.0/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">increments</span> = <span class="default-value">true</span>, </span></li>
+<li><span class="parameter" id="-param-width"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.6.0/dart-core/int-class.html">int</a>?</span> <span class="parameter-name">width</span>, </span></li>
+<li><span class="parameter" id="-param-hasEnable"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.6.0/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">hasEnable</span> = <span class="default-value">false</span>, </span></li>
 </ol>})
     </section>
-
     
 <section class="desc markdown">
   <p>Creates a new <a href="../../rohd_hcl/SumInterface-class.html">SumInterface</a> with a fixed or variable <a href="../../rohd_hcl/SumInterface/amount.html">amount</a>, optionally
 with an <a href="../../rohd_hcl/SumInterface/enable.html">enable</a>, in either positive or negative direction based on
-<a href="../../rohd_hcl/SumInterface/increments.html">increments</a>.</p>
-<p>If <code>width</code> is <code>null</code>, it can be inferred from <a href="../../rohd_hcl/SumInterface/fixedAmount.html">fixedAmount</a> if provided
+<code>increments</code>.</p>
+<p>If <code>width</code> is <code>null</code>, it can be inferred from <code>fixedAmount</code> if provided
 with a type that contains width information (e.g. a <a href="https://pub.dev/documentation/rohd/0.5.3/rohd/LogicValue-class.html">LogicValue</a>). There
 must be enough information provided to determine the <code>width</code>.</p>
-<p>If a <a href="../../rohd_hcl/SumInterface/fixedAmount.html">fixedAmount</a> is provided, then <a href="../../rohd_hcl/SumInterface/amount.html">amount</a> will be tied to a <a href="https://pub.dev/documentation/rohd/0.5.3/rohd/Const-class.html">Const</a>. A
-provided <a href="../../rohd_hcl/SumInterface/fixedAmount.html">fixedAmount</a> must be parseable by <a href="https://pub.dev/documentation/rohd/0.5.3/rohd/LogicValue/of.html">LogicValue.of</a>. Note that the
-<a href="../../rohd_hcl/SumInterface/fixedAmount.html">fixedAmount</a> will always be interpreted as a positive value truncated to
-<code>width</code>. If no <a href="../../rohd_hcl/SumInterface/fixedAmount.html">fixedAmount</a> is provided, then <a href="../../rohd_hcl/SumInterface/amount.html">amount</a> will be a normal
+<p>If a <code>fixedAmount</code> is provided, then <a href="../../rohd_hcl/SumInterface/amount.html">amount</a> will be tied to a <a href="https://pub.dev/documentation/rohd/0.5.3/rohd/Const-class.html">Const</a>. A
+provided <code>fixedAmount</code> must be parseable by <a href="https://pub.dev/documentation/rohd/0.5.3/rohd/LogicValue/of.html">LogicValue.of</a>. Note that the
+<code>fixedAmount</code> will always be interpreted as a positive value truncated to
+<code>width</code>. If no <code>fixedAmount</code> is provided, then <a href="../../rohd_hcl/SumInterface/amount.html">amount</a> will be a normal
 <a href="https://pub.dev/documentation/rohd/0.5.3/rohd/Interface/port.html">port</a> with <code>width</code> bits.</p>
-<p>If <a href="../../rohd_hcl/SumInterface/hasEnable.html">hasEnable</a> is <code>true</code>, then an <a href="../../rohd_hcl/SumInterface/enable.html">enable</a> port will be added to the
+<p>If <code>hasEnable</code> is <code>true</code>, then an <a href="../../rohd_hcl/SumInterface/enable.html">enable</a> port will be added to the
 interface.</p>
 </section>
 
@@ -113,7 +107,6 @@ interface.</p>
 
 
   </div> <!-- /.main-content -->
-
   <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
     <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
 <header id="header-search-sidebar" class="hidden-l">
@@ -121,7 +114,6 @@ interface.</p>
     <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
   </form>
 </header>
-
 <ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
     <li><a href="../../index.html">rohd_hcl</a></li>
     <li><a href="../../rohd_hcl/rohd_hcl-library.html">rohd_hcl</a></li>
@@ -129,33 +121,24 @@ interface.</p>
     <li class="self-crumb">SumInterface constructor</li>
 </ol>
 
-
     <h5>SumInterface class</h5>
     <div id="dartdoc-sidebar-left-content"></div>
   </div><!--/.sidebar-offcanvas-left-->
-
   <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
   </div><!--/.sidebar-offcanvas-->
-
 </main>
-
 <footer>
   <span class="no-break">
     rohd_hcl
       0.1.0
   </span>
-
   
 </footer>
-
 
 
 <script src="../../static-assets/highlight.pack.js?v1"></script>
 <script src="../../static-assets/docs.dart.js"></script>
 
-
-
 </body>
-
 </html>
 

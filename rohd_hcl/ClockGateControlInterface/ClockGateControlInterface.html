@@ -16,15 +16,11 @@
   <link rel="stylesheet" href="../../static-assets/github.css?v1">
   <link rel="stylesheet" href="../../static-assets/styles.css?v1">
   <link rel="icon" href="../../static-assets/favicon.png?v1">
-
   
 </head>
 
-
 <body data-base-href="../../" data-using-base-href="false" class="light-theme">
-
 <div id="overlay-under-drawer"></div>
-
 <header id="title">
   <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
   <ol class="breadcrumbs gt-separated dark hidden-xs">
@@ -50,7 +46,6 @@
   </div>
 </header>
 <main>
-
   <div
       id="dartdoc-main-content"
       class="main-content"
@@ -62,28 +57,27 @@
 
     <section class="multi-line-signature">
       
-      <span class="name ">ClockGateControlInterface</span>(<wbr>{<ol class="parameter-list"> <li><span class="parameter" id="-param-isPresent"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.5.4/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">isPresent</span> = <span class="default-value">true</span>, </span></li>
-<li><span class="parameter" id="-param-hasEnableOverride"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.5.4/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">hasEnableOverride</span> = <span class="default-value">false</span>, </span></li>
-<li><span class="parameter" id="-param-additionalPorts"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.5.4/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://pub.dev/documentation/rohd/0.5.3/rohd/Port-class.html">Port</a></span>&gt;</span>?</span> <span class="parameter-name">additionalPorts</span>, </span></li>
+      <span class="name ">ClockGateControlInterface</span>(<wbr>{<ol class="parameter-list"> <li><span class="parameter" id="-param-isPresent"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.6.0/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">isPresent</span> = <span class="default-value">true</span>, </span></li>
+<li><span class="parameter" id="-param-hasEnableOverride"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.6.0/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">hasEnableOverride</span> = <span class="default-value">false</span>, </span></li>
+<li><span class="parameter" id="-param-additionalPorts"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.6.0/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://pub.dev/documentation/rohd/0.5.3/rohd/Port-class.html">Port</a></span>&gt;</span>?</span> <span class="parameter-name">additionalPorts</span>, </span></li>
 <li><span class="parameter" id="-param-gatedClockGenerator"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.5.3/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">gatedClockGenerator</span>(<ol class="parameter-list single-line"> <li><span class="parameter" id="param-intf"><span class="type-annotation"><a href="../../rohd_hcl/ClockGateControlInterface-class.html">ClockGateControlInterface</a></span> <span class="parameter-name">intf</span>, </span></li>
 <li><span class="parameter" id="param-clk"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.5.3/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">clk</span>, </span></li>
 <li><span class="parameter" id="param-enable"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.5.3/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">enable</span></span></li>
 </ol>) = <span class="default-value">defaultGenerateGatedClock</span>, </span></li>
 </ol>})
     </section>
-
     
 <section class="desc markdown">
   <p>Constructs a <a href="../../rohd_hcl/ClockGateControlInterface-class.html">ClockGateControlInterface</a> with the provided arguments.</p>
-<p>If <a href="../../rohd_hcl/ClockGateControlInterface/isPresent.html">isPresent</a> is false, then no clock gating will occur and no clock
+<p>If <code>isPresent</code> is false, then no clock gating will occur and no clock
 gating logic will be generated.</p>
-<p>If <a href="../../rohd_hcl/ClockGateControlInterface/hasEnableOverride.html">hasEnableOverride</a> is true, then an additional <a href="../../rohd_hcl/ClockGateControlInterface/enableOverride.html">enableOverride</a> port
+<p>If <code>hasEnableOverride</code> is true, then an additional <a href="../../rohd_hcl/ClockGateControlInterface/enableOverride.html">enableOverride</a> port
 will be generated.</p>
 <p><code>additionalPorts</code> can optionally be added to this interface, which can be
-useful in conjunction with a custom <a href="../../rohd_hcl/ClockGateControlInterface/gatedClockGenerator.html">gatedClockGenerator</a>. As the
+useful in conjunction with a custom <code>gatedClockGenerator</code>. As the
 interface is punched through hierarchies, any modules using this interface
 will automatically include the <code>additionalPorts</code> and use the custom
-<a href="../../rohd_hcl/ClockGateControlInterface/gatedClockGenerator.html">gatedClockGenerator</a> for clock gating logic.</p>
+<code>gatedClockGenerator</code> for clock gating logic.</p>
 </section>
 
 
@@ -103,7 +97,6 @@ will automatically include the <code>additionalPorts</code> and use the custom
 
 
   </div> <!-- /.main-content -->
-
   <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
     <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
 <header id="header-search-sidebar" class="hidden-l">
@@ -111,7 +104,6 @@ will automatically include the <code>additionalPorts</code> and use the custom
     <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
   </form>
 </header>
-
 <ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
     <li><a href="../../index.html">rohd_hcl</a></li>
     <li><a href="../../rohd_hcl/rohd_hcl-library.html">rohd_hcl</a></li>
@@ -119,33 +111,24 @@ will automatically include the <code>additionalPorts</code> and use the custom
     <li class="self-crumb">ClockGateControlInterface constructor</li>
 </ol>
 
-
     <h5>ClockGateControlInterface class</h5>
     <div id="dartdoc-sidebar-left-content"></div>
   </div><!--/.sidebar-offcanvas-left-->
-
   <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
   </div><!--/.sidebar-offcanvas-->
-
 </main>
-
 <footer>
   <span class="no-break">
     rohd_hcl
       0.1.0
   </span>
-
   
 </footer>
-
 
 
 <script src="../../static-assets/highlight.pack.js?v1"></script>
 <script src="../../static-assets/docs.dart.js"></script>
 
-
-
 </body>
-
 </html>
 

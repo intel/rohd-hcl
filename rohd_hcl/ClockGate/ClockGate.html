@@ -16,15 +16,11 @@
   <link rel="stylesheet" href="../../static-assets/github.css?v1">
   <link rel="stylesheet" href="../../static-assets/styles.css?v1">
   <link rel="icon" href="../../static-assets/favicon.png?v1">
-
   
 </head>
 
-
 <body data-base-href="../../" data-using-base-href="false" class="light-theme">
-
 <div id="overlay-under-drawer"></div>
-
 <header id="title">
   <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
   <ol class="breadcrumbs gt-separated dark hidden-xs">
@@ -50,7 +46,6 @@
   </div>
 </header>
 <main>
-
   <div
       id="dartdoc-main-content"
       class="main-content"
@@ -66,11 +61,10 @@
 <li><span class="parameter" id="-param-enable"><span>required</span> <span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.5.3/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">enable</span>, </span></li>
 <li><span class="parameter" id="-param-reset"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.5.3/rohd/Logic-class.html">Logic</a>?</span> <span class="parameter-name">reset</span>, </span></li>
 <li><span class="parameter" id="-param-controlIntf"><span class="type-annotation"><a href="../../rohd_hcl/ClockGateControlInterface-class.html">ClockGateControlInterface</a>?</span> <span class="parameter-name">controlIntf</span>, </span></li>
-<li><span class="parameter" id="-param-delayControlledSignals"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.5.4/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">delayControlledSignals</span> = <span class="default-value">false</span>, </span></li>
-<li><span class="parameter" id="-param-name"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.5.4/dart-core/String-class.html">String</a></span> <span class="parameter-name">name</span> = <span class="default-value">&#39;clock_gate&#39;</span>, </span></li>
+<li><span class="parameter" id="-param-delayControlledSignals"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.6.0/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">delayControlledSignals</span> = <span class="default-value">false</span>, </span></li>
+<li><span class="parameter" id="-param-name"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.6.0/dart-core/String-class.html">String</a></span> <span class="parameter-name">name</span> = <span class="default-value">&#39;clock_gate&#39;</span>, </span></li>
 </ol>})
     </section>
-
     
 <section class="desc markdown">
   <p>Constructs a clock gating block where <code>enable</code> controls whether the
@@ -79,15 +73,15 @@
 externally (for example whether the clock gating <a href="../../rohd_hcl/ClockGate/isPresent.html">isPresent</a> or using an
 override signal to force clocks enabled). If <code>controlIntf</code> is not
 provided, then the clock gating is always present.</p>
-<p>If <a href="../../rohd_hcl/ClockGate/delayControlledSignals.html">delayControlledSignals</a> is true, then any signals that are
+<p>If <code>delayControlledSignals</code> is true, then any signals that are
 <a href="../../rohd_hcl/ClockGate/controlled.html">controlled</a> by the clock gating will be delayed by 1 cycle. This can be
 helpful for timing purposes to avoid ungating the clock on the same cycle
 as the signal is used. Using the <a href="../../rohd_hcl/ClockGate/controlled.html">controlled</a> signals helps turn on or off
 the delay across all applicable signals via a single switch:
-<a href="../../rohd_hcl/ClockGate/delayControlledSignals.html">delayControlledSignals</a>.</p>
+<code>delayControlledSignals</code>.</p>
 <p>The <a href="../../rohd_hcl/ClockGate/gatedClk.html">gatedClk</a> is automatically enabled during <code>reset</code> (if provided) so
 that synchronous resets work properly, and the <code>enable</code> is extended for an
-appropriate duration (if <a href="../../rohd_hcl/ClockGate/delayControlledSignals.html">delayControlledSignals</a>) to ensure proper
+appropriate duration (if <code>delayControlledSignals</code>) to ensure proper
 capture of data.</p>
 </section>
 
@@ -136,7 +130,6 @@ capture of data.</p>
 
 
   </div> <!-- /.main-content -->
-
   <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
     <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
 <header id="header-search-sidebar" class="hidden-l">
@@ -144,7 +137,6 @@ capture of data.</p>
     <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
   </form>
 </header>
-
 <ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
     <li><a href="../../index.html">rohd_hcl</a></li>
     <li><a href="../../rohd_hcl/rohd_hcl-library.html">rohd_hcl</a></li>
@@ -152,33 +144,24 @@ capture of data.</p>
     <li class="self-crumb">ClockGate constructor</li>
 </ol>
 
-
     <h5>ClockGate class</h5>
     <div id="dartdoc-sidebar-left-content"></div>
   </div><!--/.sidebar-offcanvas-left-->
-
   <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
   </div><!--/.sidebar-offcanvas-->
-
 </main>
-
 <footer>
   <span class="no-break">
     rohd_hcl
       0.1.0
   </span>
-
   
 </footer>
-
 
 
 <script src="../../static-assets/highlight.pack.js?v1"></script>
 <script src="../../static-assets/docs.dart.js"></script>
 
-
-
 </body>
-
 </html>
 
