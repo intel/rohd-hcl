@@ -103,6 +103,7 @@ The parameters of the
 - An optional `selectSignedMultiplicand` control signal which overrides the `signedMultiplicand` parameter allowing for runtime control of signed or unsigned operation with the same hardware. `signedMultiplicand` must be false if using this control signal.
 - An optional `selectSignedMultiplier` control signal which overrides the `signedMultiplier` parameter allowing for runtime control of signed or unsigned operation with the same hardware. `signedMultiplier` must be false if using this control signal.
 - An optional `clk`, as well as `enable` and `reset` that are used to add a pipestage in the `ColumnCompressor` to allow for pipelined operation.
+- An optional `use42Compressors` boolean enables the `ColumnCompressor` to use 4:2 compressors in addition to 3:2 (Full Adder) and 2:2 (Half Adder) compressors.
 
 Here is an example of use of the `CompressionTreeMultiplier` with one signed input:
 
@@ -145,6 +146,7 @@ The parameters of the
 - An optional `selectSignedMultiplier` control signal which overrides the `signedMultiplier` parameter allowing for runtime control of signed or unsigned operation with the same hardware. `signedMultiplier` must be false if using this control signal.
 - An optional `selectSignedAddend` control signal which overrides the `signedAddend` parameter allowing for runtime control of signed or unsigned operation with the same hardware. `signedAddend` must be false if using this control signal.
 - An optional `clk`, as well as `enable` and `reset` that are used to add a pipestage in the `ColumnCompressor` to allow for pipelined operation.
+- An optional `use42Compressors` boolean enables the `ColumnCompressor` to use 4:2 compressors in addition to 3:2 (Full Adder) and 2:2 (Half Adder) compressors.
 
 Here is an example of using the `CompressionTreeMultiplyAccumulate` with all inputs as signed:
 
