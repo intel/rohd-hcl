@@ -155,10 +155,10 @@ class SpiSubTest extends Test {
     final obj = phase.raiseObjection('SpiSubTestObj');
 
     // reset flow
+    busIn.inject(0x00);
     reset.inject(false);
     await clk.waitCycles(1);
     reset.inject(true);
-    busIn.inject(0x00);
     await clk.waitCycles(1);
     reset.inject(false);
     //await clk.waitCycles(1);
@@ -296,6 +296,7 @@ void main() {
 
     Future<void> sendSubPacket(SpiMainTest test, LogicValue data) async {
       test.sub.sequencer.add(SpiPacket(data: data.reversed));
+      // TODO: fix reversed on subdriver
       await sendMainData(test, 0x00);
     }
 
@@ -362,7 +363,7 @@ void main() {
             .add(SpiPacket(data: LogicValue.ofInt(0xE2, 8))); // 1110 0010
         test.main.sequencer.add(SpiPacket(data: LogicValue.ofInt(0x00, 8)));
 
-        await test.clk.waitCycles(7);
+        await test.clk.waitCycles(8);
 
         await test.clk.nextPosedge;
         expect(test.sub.busOut.value.toInt(), 0xCD);
@@ -378,6 +379,7 @@ void main() {
         await test.clk.waitCycles(7);
         await test.clk.nextPosedge;
         expect(test.sub.busOut.value.toInt(), 0x00);
+        await test.clk.waitCycles(4);
       }, 'testSubA'));
     });
 
@@ -386,7 +388,7 @@ void main() {
         test.main.sequencer
             .add(SpiPacket(data: LogicValue.ofInt(0xCD, 8))); // 1100 1101
 
-        await test.clk.waitCycles(9);
+        await test.clk.waitCycles(8);
 
         await test.clk.nextPosedge;
         expect(test.sub.busOut.value.toInt(), 0xCD);
@@ -396,7 +398,7 @@ void main() {
 
         test.main.sequencer
             .add(SpiPacket(data: LogicValue.ofInt(0x72, 8))); // 0111 0010
-        await test.intf.sclk.waitCycles(8);
+        await test.clk.waitCycles(8);
 
         await test.clk.nextPosedge;
         expect(test.sub.busOut.value.toInt(), 0x72);
@@ -405,7 +407,7 @@ void main() {
         await test.clk.waitCycles(2);
 
         test.main.sequencer.add(SpiPacket(data: LogicValue.ofInt(0xAC, 8)));
-        await test.intf.sclk.waitCycles(8);
+        await test.clk.waitCycles(8);
 
         await test.clk.nextPosedge;
         expect(test.sub.busOut.value.toInt(), 0xAC);
@@ -415,7 +417,7 @@ void main() {
 
         test.main.sequencer.add(SpiPacket(data: LogicValue.ofInt(0xE2, 8)));
         test.main.sequencer.add(SpiPacket(data: LogicValue.ofInt(0x00, 8)));
-        await test.intf.sclk.waitCycles(8);
+        await test.clk.waitCycles(8);
 
         await test.clk.nextPosedge;
         expect(test.sub.busOut.value.toInt(), 0xE2);
@@ -432,7 +434,7 @@ void main() {
         test.main.sequencer.add(SpiPacket(data: LogicValue.ofInt(0xCD, 8)));
         test.main.sequencer.add(SpiPacket(data: LogicValue.ofInt(0x72, 8)));
 
-        await test.intf.sclk.waitCycles(7);
+        await test.clk.waitCycles(8);
 
         await test.clk.nextPosedge;
         expect(test.sub.busOut.value.toInt(), 0xCD);
@@ -466,7 +468,7 @@ void main() {
         expect(test.sub.busOut.value.toInt(), 0x00);
 
         await test.clk.waitCycles(4);
-      }, 'testSubC'));
+      }, 'testSubA'));
     });
   });
 
