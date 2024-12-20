@@ -18,13 +18,21 @@ import 'package:test/test.dart';
 
 import 'spi_test.dart';
 
+class SpiMod extends Module {
+  SpiMod(SpiInterface intf, {super.name = 'SpiModIntf'}) {
+    intf = SpiInterface.clone(intf)
+      ..connectIO(this, intf,
+          inputTags: [PairDirection.fromProvider, PairDirection.fromConsumer]);
+  }
+}
+
 class SpiBfmTest extends Test {
   late final SpiInterface intf;
   late final SpiMainAgent main;
   late final SpiSubAgent sub;
   late final SpiMonitor monitor;
 
-  String get outFolder => 'tmp_test/spibfm/$name/';
+  String get outFolder => 'tmp_test/spiBfm/$name/';
 
   SpiBfmTest(super.name) : super() {
     intf = SpiInterface(dataLength: 8);
@@ -95,12 +103,12 @@ void main() {
   });
 
   Future<void> runTest(SpiBfmTest spiBfmTest, {bool dumpWaves = true}) async {
-    Simulator.setMaxSimTime(6000);
+    Simulator.setMaxSimTime(3000);
 
     if (dumpWaves) {
-      final mod = SpiMainIntf(spiBfmTest.intf);
+      final mod = SpiMod(spiBfmTest.intf);
       await mod.build();
-      WaveDumper(mod);
+      WaveDumper(mod, outputPath: '${spiBfmTest.outFolder}/waves.vcd');
     }
 
     await spiBfmTest.start();

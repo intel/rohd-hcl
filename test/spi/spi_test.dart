@@ -12,21 +12,21 @@ import 'package:rohd_hcl/rohd_hcl.dart';
 import 'package:test/test.dart';
 
 class SpiMainIntf extends Module {
-  SpiMainIntf(SpiInterface intf) {
+  SpiMainIntf(SpiInterface intf, {super.name = 'SpiMainIntf'}) {
     intf = SpiInterface.clone(intf)
       ..pairConnectIO(this, intf, PairRole.provider);
   }
 }
 
 class SpiSubIntf extends Module {
-  SpiSubIntf(SpiInterface intf) {
+  SpiSubIntf(SpiInterface intf, {super.name = 'SpiSubIntf'}) {
     intf = SpiInterface.clone(intf)
       ..pairConnectIO(this, intf, PairRole.consumer);
   }
 }
 
 class SpiTopIntf extends Module {
-  SpiTopIntf() {
+  SpiTopIntf({super.name = 'SpiTopIntf'}) {
     final intf = SpiInterface();
     SpiMainIntf(intf);
     SpiSubIntf(intf);

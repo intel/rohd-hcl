@@ -28,15 +28,28 @@ class SpiMainDriver extends PendingClockedDriver<SpiPacket> {
     required super.sequencer,
     super.dropDelayCycles = 30,
     String name = 'spiMainDriver',
-  }) : super(name, parent);
+  }) : super(name, parent) {
+    intf.sclk <= ~clk & clkenable; //causing already connected to sclk issue
+    clkenable.inject(0);
+  }
 
   @override
   Future<void> run(Phase phase) async {
     unawaited(super.run(phase));
 
+    // intf.sclk.inject(0);
+
+    intf.sclk.changed.listen((_) {
+      logger.info('SCLK changed$_');
+    });
+
+    intf.csb.changed.listen((_) {
+      logger.info('CS changed$_');
+    });
+
     Simulator.injectAction(() {
-      intf.cs.put(1);
-      intf.sclk.put(0);
+      intf.csb.put(1);
+      // intf.sclk.put(0);
       intf.mosi.put(0);
     });
 
@@ -44,32 +57,36 @@ class SpiMainDriver extends PendingClockedDriver<SpiPacket> {
       if (pendingSeqItems.isNotEmpty) {
         await _drivePacket(pendingSeqItems.removeFirst());
       } else {
-        await clk.nextPosedge;
+        await clk.nextNegedge;
         Simulator.injectAction(() {
-          intf.cs.put(1);
-          intf.sclk.put(0);
+          intf.csb.put(1);
+          clkenable.inject(0);
+          // intf.sclk.put(0);
           intf.mosi.put(0);
         });
       }
     }
   }
 
+  ///
+  Logic clkenable = Logic(name: 'clkenable');
+
   /// Drives a packet onto the interface.
   Future<void> _drivePacket(SpiPacket packet) async {
-    intf.cs.inject(0);
-
-    // will be extended to multiple CS
+    intf.csb.inject(0);
 
     // Loop through the bits of the packet
-    for (var i = 0; i < packet.data.width; i++) {
+    for (var i = 1; i <= packet.data.width; i++) {
       logger.info('Driving main packet, index: $i');
-      intf.mosi.inject(packet.data[i]);
-      await clk.nextPosedge;
-      intf.sclk.inject(1);
+      intf.mosi.inject(packet.data[-i]);
+      await clk.nextNegedge;
+      clkenable.inject(1);
+      // intf.sclk.inject(1);
 
       // Wait for the next clock cycle
-      await clk.nextNegedge;
-      intf.sclk.inject(0);
+      await clk.nextPosedge;
+
+      // intf.sclk.inject(0);
     }
   }
 }

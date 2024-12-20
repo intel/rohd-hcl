@@ -10,7 +10,9 @@
 import 'dart:async';
 // import 'dart:convert';
 import 'dart:io';
+import 'dart:math';
 
+import 'package:collection/collection.dart';
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
 import 'package:rohd_vf/rohd_vf.dart';
@@ -24,6 +26,7 @@ class SpiMainTest extends Test {
   late final Logic reset;
   late final Logic starts;
   late final Logic clk;
+  late final Logic busInMain;
 
   String get outFolder => 'tmp_test/spiMain/$name/';
 
@@ -44,11 +47,12 @@ class SpiMainTest extends Test {
     clk = SimpleClockGenerator(10).clk;
 
     // initialize the bus with 00
-    final busData = Logic(width: 8)..inject(0x00);
+    busInMain = Logic(width: 8)..inject(0x00);
     reset = Logic();
     starts = Logic();
 
-    main = SpiMain(busData, intf, clk: clk, reset: reset, start: starts);
+    main =
+        SpiMain(intf, busIn: busInMain, clk: clk, reset: reset, start: starts);
 
     Simulator.registerEndOfSimulationAction(() async {
       await tracker.terminate();
@@ -74,11 +78,17 @@ class SpiMainTest extends Test {
     final obj = phase.raiseObjection('SpiMainTestObj');
 
     // reset flow
+    await clk.waitCycles(1);
     reset.inject(true);
     starts.inject(false);
     await clk.waitCycles(1);
     reset.inject(false);
-    //await clk.waitCycles(2);
+    await clk.waitCycles(1);
+    reset.inject(true);
+
+    await clk.waitCycles(1);
+    reset.inject(false);
+    await clk.waitCycles(1);
     await stimulus(this);
 
     obj.drop();
@@ -113,6 +123,10 @@ class SpiSubTest extends Test {
 
     sub = SpiSub(intf: intf, busIn: busIn, reset: reset);
 
+    sub.busOut.changed.listen((_) {
+      logger.info('BusOut changed: ${sub.busOut.value}');
+    });
+
     Directory(outFolder).createSync(recursive: true);
 
     final tracker =
@@ -141,7 +155,10 @@ class SpiSubTest extends Test {
     final obj = phase.raiseObjection('SpiSubTestObj');
 
     // reset flow
+    reset.inject(false);
+    await clk.waitCycles(1);
     reset.inject(true);
+    busIn.inject(0x00);
     await clk.waitCycles(1);
     reset.inject(false);
     //await clk.waitCycles(1);
@@ -193,25 +210,24 @@ class SpiPairTest extends Test {
     busInMain = Logic(width: 8);
     starts = Logic();
 
-    main = SpiMain(busInMain, intf, clk: clk, reset: resetMain, start: starts);
+    main = SpiMain(intf,
+        busIn: busInMain, clk: clk, reset: resetMain, start: starts);
 
     //init sub
     resetSub = Logic();
     busInSub = Logic(width: 8);
     sub = SpiSub(intf: intf, busIn: busInSub, reset: resetSub);
 
+    // sub.busOut.changed.listen((_) {
+    //   logger.info('BusOut changed: ${sub.busOut.value}');
+    // });
+
+    intf.miso.changed.listen((_) {
+      logger.info('Miso changed: ${intf.miso.value}');
+    });
+
     Simulator.registerEndOfSimulationAction(() async {
       await tracker.terminate();
-
-      //   // final jsonStr =
-      //   //      File('$outFolder/spiTracker.tracker.json').readAsStringSync();
-      //   // final jsonContents = json.decode(jsonStr);
-
-      //   // // ignore: avoid_dynamic_calls
-      //   // expect(jsonContents['records'].length, 2);
-
-      //   //Directory(outFolder).deleteSync(recursive: true);
-      // });
     });
 
     monitor.stream.listen(tracker.record);
@@ -223,16 +239,26 @@ class SpiPairTest extends Test {
 
     final obj = phase.raiseObjection('SpiPairTestObj');
 
-    // reset flow
-    resetMain.inject(true);
-    resetSub.inject(true);
-    starts.inject(false);
-    // extra cycles for easy waveform visibility
-    await clk.waitCycles(3);
-    resetMain.inject(false);
-    resetSub.inject(false);
+    // Initialize all inputs to initial state.
+    // Just for waveform clarity.
+    await clk.waitCycles(1);
+
+    busInMain.inject(00);
     busInSub.inject(00);
 
+    starts.inject(false);
+    resetMain.inject(false);
+    resetSub.inject(false);
+
+    await clk.waitCycles(1);
+    resetMain.inject(true);
+    resetSub.inject(true);
+
+    await clk.waitCycles(1);
+    resetMain.inject(false);
+    resetSub.inject(false);
+
+    await clk.waitCycles(1);
     await stimulus(this);
 
     obj.drop();
@@ -257,12 +283,20 @@ void main() {
       await spiMainTest.start();
     }
 
-    Future<void> sendSubPacket(SpiMainTest test, LogicValue data) async {
-      test.sub.sequencer.add(SpiPacket(data: data));
+    Future<void> sendMainData(SpiMainTest test, int data) async {
+      test.busInMain.inject(LogicValue.ofInt(data, test.intf.dataLength));
+      test.reset.inject(true);
+      await test.clk.nextPosedge;
+      test.reset.inject(false);
       test.starts.inject(true);
       await test.clk.waitCycles(1);
       test.starts.inject(false);
       await test.clk.waitCycles(7);
+    }
+
+    Future<void> sendSubPacket(SpiMainTest test, LogicValue data) async {
+      test.sub.sequencer.add(SpiPacket(data: data.reversed));
+      await sendMainData(test, 0x00);
     }
 
     test('simple transfers no gap', () async {
@@ -308,7 +342,7 @@ void main() {
   group('sub gasket tests', () {
     Future<void> runSubTest(SpiSubTest spiSubTest,
         {bool dumpWaves = true}) async {
-      Simulator.setMaxSimTime(6000);
+      Simulator.setMaxSimTime(3000);
       final mod = SpiTop(spiSubTest.intf, spiSubTest);
       if (dumpWaves) {
         await mod.build();
@@ -318,79 +352,288 @@ void main() {
       await spiSubTest.start();
     }
 
-    test('sub tx with busIn and reset', () async {
+    test('sub tx busOut correctly no gaps', () async {
       await runSubTest(SpiSubTest((test) async {
         test.main.sequencer
             .add(SpiPacket(data: LogicValue.ofInt(0xCD, 8))); // 1100 1101
         test.main.sequencer
-            .add(SpiPacket(data: LogicValue.ofInt(0x2E, 8))); // 0010 1110
-        await test.intf.sclk.waitCycles(16);
-        await test.clk.waitCycles(1);
-        test.busIn.inject(0x19); // 0001 1001 need to change to LSB.
+            .add(SpiPacket(data: LogicValue.ofInt(0x83, 8))); // 1000 0011
+        test.main.sequencer
+            .add(SpiPacket(data: LogicValue.ofInt(0xE2, 8))); // 1110 0010
+        test.main.sequencer.add(SpiPacket(data: LogicValue.ofInt(0x00, 8)));
+
+        await test.clk.waitCycles(7);
+
+        await test.clk.nextPosedge;
+        expect(test.sub.busOut.value.toInt(), 0xCD);
+
+        await test.clk.waitCycles(7);
+        await test.clk.nextPosedge;
+        expect(test.sub.busOut.value.toInt(), 0x83);
+
+        await test.clk.waitCycles(7);
+        await test.clk.nextPosedge;
+        expect(test.sub.busOut.value.toInt(), 0xE2);
+
+        await test.clk.waitCycles(7);
+        await test.clk.nextPosedge;
+        expect(test.sub.busOut.value.toInt(), 0x00);
+      }, 'testSubA'));
+    });
+
+    test('sub tx busOut correctly with gaps', () async {
+      await runSubTest(SpiSubTest((test) async {
+        test.main.sequencer
+            .add(SpiPacket(data: LogicValue.ofInt(0xCD, 8))); // 1100 1101
+
+        await test.clk.waitCycles(9);
+
+        await test.clk.nextPosedge;
+        expect(test.sub.busOut.value.toInt(), 0xCD);
+
+        //gap
+        await test.clk.waitCycles(7);
+
+        test.main.sequencer
+            .add(SpiPacket(data: LogicValue.ofInt(0x72, 8))); // 0111 0010
+        await test.intf.sclk.waitCycles(8);
+
+        await test.clk.nextPosedge;
+        expect(test.sub.busOut.value.toInt(), 0x72);
+
+        // gap
+        await test.clk.waitCycles(2);
+
+        test.main.sequencer.add(SpiPacket(data: LogicValue.ofInt(0xAC, 8)));
+        await test.intf.sclk.waitCycles(8);
+
+        await test.clk.nextPosedge;
+        expect(test.sub.busOut.value.toInt(), 0xAC);
+
+        // gap
+        await test.clk.waitCycles(3);
+
+        test.main.sequencer.add(SpiPacket(data: LogicValue.ofInt(0xE2, 8)));
+        test.main.sequencer.add(SpiPacket(data: LogicValue.ofInt(0x00, 8)));
+        await test.intf.sclk.waitCycles(8);
+
+        await test.clk.nextPosedge;
+        expect(test.sub.busOut.value.toInt(), 0xE2);
+
+        // waiting for the read packet
+        await test.clk.waitCycles(7);
+        await test.clk.nextPosedge;
+        expect(test.sub.busOut.value.toInt(), 0x00);
+      }, 'testSubA'));
+    });
+
+    test('sub tx with no gaps, busIn and reset injects', () async {
+      await runSubTest(SpiSubTest((test) async {
+        test.main.sequencer.add(SpiPacket(data: LogicValue.ofInt(0xCD, 8)));
+        test.main.sequencer.add(SpiPacket(data: LogicValue.ofInt(0x72, 8)));
+
+        await test.intf.sclk.waitCycles(7);
+
+        await test.clk.nextPosedge;
+        expect(test.sub.busOut.value.toInt(), 0xCD);
+
+        await test.clk.waitCycles(7);
+
+        // read busOut here
+        await test.clk.nextPosedge;
+        expect(test.sub.busOut.value.toInt(), 0x72);
+
+        // inject bus in on neg edge of same cycle
+        // will result in 1 clk cycle delay? assuming you had to read on pos and
+        // inject on neg edge
+        await test.clk.nextNegedge;
+
+        // td: when busin injected its sent out MSB, should be LSB
+        test.busIn.inject(0x19);
+
+        //td: but here running into the extra clk cycle issue in main driver?
+        test.main.sequencer.add(SpiPacket(data: LogicValue.ofInt(0x00, 8)));
+
+        // trigger reset
+        await test.clk.nextPosedge;
         test.reset.inject(true);
-        await test.clk.nextChanged;
+        await test.clk.waitCycles(1);
         test.reset.inject(false);
 
-        await test.clk.waitCycles(1);
-        test.main.sequencer.add(SpiPacket(data: LogicValue.ofInt(0x00, 8)));
-        await test.clk.waitCycles(10);
-      }, 'testSubA'));
+        await test.clk.waitCycles(7);
+
+        await test.clk.nextPosedge;
+        expect(test.sub.busOut.value.toInt(), 0x00);
+
+        await test.clk.waitCycles(4);
+      }, 'testSubC'));
     });
   });
 
   group('pair of gaskets tests', () {
     Future<void> runPairTest(SpiPairTest spiPairTest,
         {bool dumpWaves = true}) async {
-      Simulator.setMaxSimTime(6000);
+      Simulator.setMaxSimTime(3000);
       final mod = SpiTop(spiPairTest.intf, null);
       if (dumpWaves) {
         await mod.build();
         WaveDumper(mod, outputPath: '${spiPairTest.outFolder}/waves.vcd');
+        // print(mod.generateSynth());
       }
       await spiPairTest.start();
     }
 
-    Future<void> sendMainPacket(SpiPairTest test, LogicValue data) async {
-      test.busInMain.inject(data);
+    Future<void> sendMainData(SpiPairTest test, int data) async {
+      test.busInMain.inject(LogicValue.ofInt(data, test.intf.dataLength));
+      await test.clk.nextNegedge;
+      test.resetMain.inject(true);
+      await test.clk.nextPosedge;
+      test.resetMain.inject(false);
       test.starts.inject(true);
       await test.clk.waitCycles(1);
       test.starts.inject(false);
       await test.clk.waitCycles(7);
     }
 
-    Future<void> sendSubPacket(SpiPairTest test, LogicValue data) async {
-      test.busInSub.inject(data);
+    Future<void> sendBothData(SpiPairTest test,
+        {required int mainData, required int subData}) async {
+      test.busInSub.inject(LogicValue.ofInt(subData, test.intf.dataLength));
+      test.busInMain.inject(LogicValue.ofInt(mainData, test.intf.dataLength));
+      await test.clk.nextNegedge;
+      test.resetSub.inject(true);
+      test.resetMain.inject(true);
+      await test.clk.nextPosedge;
+      test.resetSub.inject(false);
+      test.resetMain.inject(false);
       test.starts.inject(true);
       await test.clk.waitCycles(1);
       test.starts.inject(false);
       await test.clk.waitCycles(7);
     }
 
-    test('simple transfers no gap', () async {
+    void checkMainBusOut(SpiPairTest test, int data) {
+      if (test.main.busOut.value.toInt() != data) {
+        test.logger.severe('main busOut: ${test.main.busOut.value}');
+      }
+    }
+
+    void checkSubBusOut(SpiPairTest test, int data) {
+      if (test.sub.busOut.value.toInt() != data) {
+        test.logger.severe('sub busOut: ${test.sub.busOut.value}');
+      }
+    }
+
+    test('main busIn injects, both busOut checks, no gaps', () async {
       await runPairTest(SpiPairTest((test) async {
-        await sendMainPacket(test, LogicValue.ofInt(0x72, 8)); // 0111 0010
-        await sendMainPacket(test, LogicValue.ofInt(0x00, 8)); // 0111 0010
-        expect(test.sub.busOut.value.toInt(), 0x72);
-        await test.clk.waitCycles(2);
-        // await sendMainPacket(test, LogicValue.ofInt(0xCD, 8));
-        // expect(test.main.busOut.value.toInt(), 0xCD);
-        // await sendMainPacket(test, LogicValue.ofInt(0x56, 8));
-        // expect(test.main.busOut.value.toInt(), 0x56);
+        // Send main data.
+        await sendMainData(test, 0x73); // 0111 0011
+        // Check both busOuts on posEdge of 8th sclk/ negEdge of 8th CLK
+        checkSubBusOut(test, 0x73);
+        checkMainBusOut(test, 0x00);
+
+        // Send new main data.
+        await sendMainData(test, 0xCD); // 1100 1101
+
+        // check both busOuts, main should equal previous main busIn data
+        checkSubBusOut(test, 0xCD);
+        checkMainBusOut(test, 0x73);
+
+        // Send new, check both busOuts
+        await sendMainData(test, 0xE2); // 1110 0010
+        checkSubBusOut(test, 0xE2);
+        checkMainBusOut(test, 0xCD);
+
+        // Send new, check both busOuts
+        await sendMainData(test, 0xB3); // 1011 0011
+        checkSubBusOut(test, 0xB3);
+        checkMainBusOut(test, 0xE2);
+
+        // Send new, check both busOuts
+        await sendMainData(test, 0x00); // 1011 0011
+        checkSubBusOut(test, 0x00);
+        checkMainBusOut(test, 0xB3);
       }, 'testPairA'));
     });
 
-    // test('simple transfers with gaps', () async {
-    //   await runBothTest(SpiBothTest((test) async {
-    //     await sendMainPacket(test, LogicValue.ofInt(0x72, 8));
-    //     await test.clk.waitCycles(1);
-    //     expect(test.main.busOut.value.toInt(), 0x72);
-    //     await sendMainPacket(test, LogicValue.ofInt(0xCD, 8));
-    //     await test.clk.waitCycles(4);
-    //     expect(test.main.busOut.value.toInt(), 0xCD);
-    //     await sendMainPacket(test, LogicValue.ofInt(0x56, 8));
-    //     await test.clk.waitCycles(1);
-    //     expect(test.main.busOut.value.toInt(), 0x56);
-    //   }, 'testPairB'));
-    // });
+    test('main busIn injects, both busOut checks, with gaps', () async {
+      await runPairTest(SpiPairTest((test) async {
+        // Send main data.
+        await sendMainData(test, 0x73); // 0111 0011
+        // Check both busOuts on posEdge of 8th sclk/ negEdge of 8th CLK
+        checkSubBusOut(test, 0x73);
+        checkMainBusOut(test, 0x00);
+
+        // 1 cycle gap
+        await test.clk.waitCycles(1);
+
+        // Send new main data.
+        await sendMainData(test, 0xCD); // 1100 1101
+
+        // check both busOuts, main should equal previous main busIn data
+        checkSubBusOut(test, 0xCD);
+        checkMainBusOut(test, 0x73);
+        await test.clk.waitCycles(1);
+        // Send new, check both busOuts
+        await sendMainData(test, 0xE2); // 1110 0010
+        checkSubBusOut(test, 0xE2);
+        checkMainBusOut(test, 0xCD);
+        await test.clk.waitCycles(3);
+        // Send new, check both busOuts
+        await sendMainData(test, 0xB3); // 1011 0011
+        checkSubBusOut(test, 0xB3);
+        checkMainBusOut(test, 0xE2);
+
+        // with gaps
+        await test.clk.waitCycles(1);
+
+        await sendMainData(test, 0x15); // 0001 0101
+        checkSubBusOut(test, 0x15);
+        checkMainBusOut(test, 0xB3);
+
+        await test.clk.waitCycles(4);
+
+        await sendMainData(test, 0x2D); // 0010 1101
+        checkSubBusOut(test, 0x2D);
+        checkMainBusOut(test, 0x15);
+
+        await test.clk.waitCycles(6);
+        await sendMainData(test, 0x00);
+        checkSubBusOut(test, 0x00);
+        checkMainBusOut(test, 0x2D);
+        await test.clk.waitCycles(4);
+      }, 'testPairA'));
+    });
+
+    test('main and sub busIn, both busOut checks', () async {
+      await runPairTest(SpiPairTest((test) async {
+        // Send regular main data.
+        // var mainData = Random().nextInt(256);
+        // var subData = Random().nextInt(256);
+        await sendBothData(test, mainData: 0x73, subData: 0x00); // 0111 0011
+        checkSubBusOut(test, 0x73);
+        checkMainBusOut(test, 0x00);
+
+        await test.clk.waitCycles(1);
+
+        // Send sub data with main 00 and check busOuts
+        await sendBothData(test, mainData: 0x00, subData: 0x6A); // 0110 1010
+        checkMainBusOut(test, 0x6A);
+        checkSubBusOut(test, 0x00);
+
+        await test.clk.waitCycles(2);
+
+        await sendBothData(test, mainData: 0x50, subData: 0x82); // 1000 0010
+        checkMainBusOut(test, 0x82);
+        checkSubBusOut(test, 0x50);
+
+        // await test.clk.waitCycles(4);
+
+        await sendBothData(test, mainData: 0x33, subData: 0x7D); // 1000 0010
+        checkMainBusOut(test, 0x7D);
+        checkSubBusOut(test, 0x33);
+
+        await test.clk.waitCycles(4);
+      }, 'testPairA'));
+    });
   });
 }

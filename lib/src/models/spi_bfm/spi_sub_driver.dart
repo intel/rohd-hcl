@@ -67,7 +67,7 @@ class SpiSubDriver extends PendingDriver<SpiPacket> {
       }
     }
 
-    intf.cs.negedge.listen((_) {
+    intf.csb.negedge.listen((_) {
       logger.info('cs negedge');
       packetHandler(loadOnly: true);
     });

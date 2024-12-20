@@ -12,17 +12,18 @@ import 'package:rohd_hcl/rohd_hcl.dart';
 
 /// Main component for SPI Interface.
 class SpiMain extends Module {
-  ///
+  /// Output bus from Main.
   Logic get busOut => output('busOut');
 
-  ///
+  /// Done signal from Main.
   Logic get done => output('done');
 
-  ///
-  SpiMain(Logic busIn, SpiInterface intf,
+  /// Constructs a SPI Main component.
+  SpiMain(SpiInterface intf,
       {required Logic clk,
       required Logic reset,
       required Logic start,
+      required Logic busIn,
       super.name = 'spiMain'}) {
     busIn = addInput('busIn', busIn, width: busIn.width);
 
@@ -39,45 +40,52 @@ class SpiMain extends Module {
     intf = SpiInterface.clone(intf)
       ..pairConnectIO(this, intf, PairRole.provider);
 
-    // Convert Logic bus into a LogicArray of bits
-    final busInArray = LogicArray([busIn.width], 1);
-    for (var i = 0; i < busIn.width; i++) {
-      busInArray.elements[i] <= busIn[i];
-    }
-
-    //
     final isRunning = Logic(name: 'isRunning');
 
-    // Serializes busInArray.
-    final serializer = Serializer(busInArray,
-        clk: clk,
+    final count = Counter.simple(
+        clk: ~clk,
+        // enable: start | (isRunning & ~done),
+        enable: start | isRunning,
         reset: reset,
-        enable: start | (isRunning & ~done),
-        flopInput: true);
+        minValue: 1,
+        maxValue: busIn.width);
 
-    // Will run when start is pulsed high, reset on reset or when serializer is done
+    // done <= flop(~clk, count.equalsMax, reset: reset, asyncReset: true);
+    done <= count.equalsMax;
+    // Will run when start is pulsed high, reset on reset or when serializer is
+    // done and start is low.
     isRunning <=
-        flop(clk, Const(1),
-            en: start, reset: reset | (serializer.done & ~start));
-
-    done <= serializer.done;
+        flop(
+          clk,
+          // start | (isRunning & ~done),
+          start | ~done,
+          // en: start,
+          reset: reset,
+          asyncReset: true,
+        );
 
     // Shift register in from MISO.
-    final shiftReg =
-        ShiftRegister(intf.miso, clk: intf.sclk, depth: intf.dataLength);
+    final shiftReg = ShiftRegister(
+      intf.miso,
+      clk: intf.sclk,
+      depth: intf.dataLength,
+      reset: reset,
+      asyncReset: true,
+      resetValue: busIn.elements,
+    );
 
     // Each busOut bit is connected to the corresponding shift Register stage
-    busOut <= shiftReg.stages.swizzle();
+    busOut <= shiftReg.stages.rswizzle();
 
-    // Sclk runs off clk when isRunning is true
-    intf.sclk <= clk & isRunning;
+    // Sclk runs off clk when isRunning is true or start is pulsed high.
+    intf.sclk <= ~clk & (isRunning | start);
 
-    // CS is active low. It will go low when isRunning is high
-    intf.cs <= ~(isRunning | start);
+    // CS is active low. It will go low when isRunning or start is pulsed high.
+    intf.csb <= ~(isRunning | start);
 
     // Mosi is connected to the serializer output.
-    intf.mosi <= flop(~intf.sclk, serializer.serialized);
+    intf.mosi <=
+        flop(~intf.sclk, shiftReg.dataOut,
+            reset: reset, asyncReset: true, resetValue: busIn[-1]);
   }
 }
-
-// Knob for SPI data lenght, SPI mode, CS qty

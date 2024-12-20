@@ -12,7 +12,7 @@ import 'package:rohd_hcl/rohd_hcl.dart';
 
 /// Sub component for SPI Interface.
 class SpiSub extends Module {
-  ///
+  /// Output bus from Sub.
   Logic get busOut => output('busOut');
 
   ///
@@ -31,6 +31,7 @@ class SpiSub extends Module {
     }
 
     // Reset signal for sub, if provided.
+    // will need to be toggled to load new busIn values
     if (reset != null) {
       reset = addInput('reset', reset);
     }
@@ -41,7 +42,8 @@ class SpiSub extends Module {
     // Shift Register
     final shiftReg = ShiftRegister(
       intf.mosi,
-      clk: intf.sclk & ~intf.cs,
+      enable: ~intf.csb,
+      clk: intf.sclk,
       depth: intf.dataLength,
       reset: reset,
       asyncReset: true,
@@ -49,9 +51,13 @@ class SpiSub extends Module {
     );
 
     // BusOut is connected to the stages of the shift register
-    busOut <= shiftReg.stages.swizzle();
+    busOut <= shiftReg.stages.rswizzle();
 
-    // Connect miso to the output of the shift register
-    intf.miso <= flop(~intf.sclk, shiftReg.dataOut);
+    intf.miso <=
+        flop(~intf.sclk, shiftReg.dataOut,
+            en: ~intf.csb,
+            reset: reset,
+            asyncReset: true,
+            resetValue: busIn?[-1]);
   }
 }

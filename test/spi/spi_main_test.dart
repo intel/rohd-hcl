@@ -48,7 +48,7 @@ class SpiMainTest extends Test {
     reset = Logic();
     starts = Logic();
 
-    main = SpiMain(busData, intf, clk: clk, reset: reset, start: starts);
+    main = SpiMain(intf, busIn: busData, clk: clk, reset: reset, start: starts);
 
     Simulator.registerEndOfSimulationAction(() async {
       await tracker.terminate();

@@ -11,28 +11,29 @@ import 'package:rohd/rohd.dart';
 
 /// A standard SPI interface.
 class SpiInterface extends PairInterface {
-  // The width of the data ports [mosi] and [miso].
-  // final int dataWidth;
-
-  /// The width of the chip select port [cs].
-  // CS as individual lines or one
-  // final int csWidth;
-
-  //
+  /// Data length.
   final int dataLength;
-
+// TODO(rtorres): add CPOL/CPHA
+  /// Serial clock.
   ///
+  /// Clock signal driven by main.
   Logic get sclk => port('SCLK');
 
+  /// Main Out Sub In.
   ///
+  /// Serial data from main to sub.
   Logic get mosi => port('MOSI');
 
+  /// Main In Sub Out.
   ///
+  /// Serial data from sub to main.
   Logic get miso => port('MISO');
 
+  /// Chip select (active low).
   ///
-  Logic get cs => port('CSB'); //CS bar
-
+  /// Chip select signal from main to sub.
+  Logic get csb => port('CSB');
+  // TODO(cs): add multiple CSB support
   ///
   SpiInterface({this.dataLength = 1})
       : super(
@@ -43,8 +44,4 @@ class SpiInterface extends PairInterface {
   SpiInterface.clone(SpiInterface super.otherInterface)
       : dataLength = otherInterface.dataLength,
         super.clone();
-
-  // multiple CS or 4 bits in parallel
 }
-
-// place for spi mode = cpol and cpha 
