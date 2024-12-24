@@ -74,6 +74,7 @@ void main() {
     final b = Logic(name: 'b', width: 10);
 
     final adder = CarrySelectCompoundAdder(a, b,
+        adderGen: RippleCarryAdder.new,
         widthGen: CarrySelectCompoundAdder.splitSelectAdderAlgorithm4Bit);
     await adder.build();
 
