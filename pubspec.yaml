@@ -18,13 +18,3 @@ dependencies:
 dev_dependencies:
   logging: ^1.0.1
   test: ^1.25.0
-
-dependency_overrides:
-  rohd: 
-    git: 
-      url: https://github.com/intel/rohd.git
-      ref: main
-  rohd_vf:
-    git: 
-      url: https://github.com/intel/rohd-vf.git
-      ref: main
