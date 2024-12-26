@@ -1,6 +1,6 @@
 # Adders
 
-ROHD-HCL provides a set of adder modules to get the sum from a pair of Logic. Adders which provide a carry input have a base class of [AdderCi](https://intel.github.io/rohd-hcl/rohd_hcl/Adder-class.html), those that don't use a base class of [Adder](https://intel.github.io/rohd-hcl/rohd_hcl/Adder-class.html). As of now, ROHD-HCL supplies:
+ROHD-HCL provides a set of adder modules to get the sum from a pair of Logic. Some adders provide an optional carry input provided in the base class of [Adder](https://intel.github.io/rohd-hcl/rohd_hcl/Adder-class.html). As of now, ROHD-HCL supplies:
 
 - [Ripple Carry Adder](#ripple-carry-adder)
 - [Parallel Prefix Adder](#parallel-prefix-adder)
@@ -48,7 +48,7 @@ Here is an example of instantiating a [ParallelPrefixAdder](https://intel.github
     print('${sum.value.toBigInt()}');
 ```
 
-## Ones Complement Adder Subtractor
+## Ones' Complement Adder Subtractor
 
 A ones-complement adder (and subtractor) is useful in efficient arithmetic operations as the
 end-around carry can be bypassed and used later.

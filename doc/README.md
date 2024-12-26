@@ -41,9 +41,9 @@ Some in-development items will have opened issues, as well. Feel free to create 
     - [Ripple Carry Adder](./components/adder.md#ripple-carry-adder)
     - [Parallel Prefix Adder](./components/parallel_prefix_operations.md)
     - [Sign Magnitude Adder](./components/adder.md#sign-magnitude-adder)
-    - [compound Adder](./components/adder.md#compound-adder)
+    - [Compound Adder](./components/adder.md#compound-adder)
   - Subtractors
-    - [Ones Complement Adder Subtractor](./components/adder.md#ones-complement-adder-subtractor)
+    - [Ones' Complement Adder Subtractor](./components/adder.md#ones-complement-adder-subtractor)
   - Multipliers
     - [Pipelined Integer Multiplier](./components/multiplier.md#carry-save-multiplier)
     - [Compression Tree Multiplier](./components/multiplier.md#compression-tree-multiplier)
@@ -59,7 +59,7 @@ Some in-development items will have opened issues, as well. Feel free to create 
       - Double (64-bit)
       - Float (32-bit)
       - BFloat16 (16-bit)
-      - TensorFloat32 (32-bit)
+      - TensorFloat32 (19-bit)
       - 8-bit E4/M3 and E5/M2
     - [Simple Floating-Point Adder](./components/floating_point.md#floatingpointadder)
     - [Rounding Floating-Point Adder](./components/floating_point.md#floatingpointadder)
