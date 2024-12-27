@@ -210,19 +210,28 @@ class ParallelPrefixPriorityEncoder extends Module {
 class ParallelPrefixAdder extends Adder {
   /// Adder constructor
   ParallelPrefixAdder(super.a, super.b,
-      {ParallelPrefix Function(List<Logic>, Logic Function(Logic, Logic))
-          ppGen = KoggeStone.new,
+      {super.carryIn,
+      ParallelPrefix Function(List<Logic>, Logic Function(Logic, Logic)) ppGen =
+          KoggeStone.new,
       super.name = 'parallel_prefix_adder'}) {
+    final l = List<Logic>.generate(a.width - 1,
+        (i) => [a[i + 1] & b[i + 1], a[i + 1] | b[i + 1]].swizzle());
+    final cin = carryIn ?? Const(0);
+    // ignore: cascade_invocations
+    l.insert(
+        0,
+        [(a[0] & b[0]) | (a[0] & cin) | (b[0] & cin), a[0] | b[0] | cin]
+            .swizzle());
     final u = ppGen(
-        List<Logic>.generate(
-            a.width, (i) => [a[i] & b[i], a[i] | b[i]].swizzle()),
-        (lhs, rhs) => [rhs[1] | rhs[0] & lhs[1], rhs[0] & lhs[0]].swizzle());
+        l, (lhs, rhs) => [rhs[1] | rhs[0] & lhs[1], rhs[0] & lhs[0]].swizzle());
     sum <=
         [
           u.val[a.width - 1][1],
-          List<Logic>.generate(a.width,
-                  (i) => (i == 0) ? a[i] ^ b[i] : a[i] ^ b[i] ^ u.val[i - 1][1])
-              .rswizzle()
+          List<Logic>.generate(
+              a.width,
+              (i) => (i == 0)
+                  ? a[i] ^ b[i] ^ cin
+                  : a[i] ^ b[i] ^ u.val[i - 1][1]).rswizzle()
         ].swizzle();
   }
 }

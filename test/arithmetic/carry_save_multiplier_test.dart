@@ -19,7 +19,7 @@ void main() {
     await Simulator.reset();
   });
 
-  test('should throw exception if inputs Logics have diferent width.', () {
+  test('should throw exception if inputs Logics have different width.', () {
     final a = Logic(name: 'a', width: 8);
     final b = Logic(name: 'b', width: 16);
     final clk = SimpleClockGenerator(10).clk;

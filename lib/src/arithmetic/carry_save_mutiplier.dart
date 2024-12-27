@@ -69,15 +69,15 @@ class CarrySaveMultiplier extends Multiplier {
 
             for (var column = maxIndexA; column >= row; column--) {
               final fullAdder = FullAdder(
-                  a: column == maxIndexA || row == 0
+                  column == maxIndexA || row == 0
                       ? Const(0)
                       : p.get(_sum[column]),
-                  b: p.get(a)[column - row] & p.get(b)[row],
+                  p.get(a)[column - row] & p.get(b)[row],
                   carryIn: row == 0 ? Const(0) : p.get(_carry[column - 1]));
 
               columnAdder
-                ..add(p.get(_carry[column]) < fullAdder.carryOut)
-                ..add(p.get(_sum[column]) < fullAdder.sum);
+                ..add(p.get(_carry[column]) < fullAdder.sum[1])
+                ..add(p.get(_sum[column]) < fullAdder.sum[0]);
             }
 
             return columnAdder;

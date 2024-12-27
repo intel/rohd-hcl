@@ -36,7 +36,7 @@ class SignMagnitudeAdder extends Adder {
   /// too 'true' to avoid a comparator.
   // TODO(desmonddak): this adder may need a carry-in for rounding
   SignMagnitudeAdder(this.aSign, super.a, this.bSign, super.b,
-      Adder Function(Logic, Logic) adderGen,
+      Adder Function(Logic, Logic, {Logic? carryIn}) adderGen,
       {this.largestMagnitudeFirst = false,
       super.name = 'sign_magnitude_adder'}) {
     aSign = addInput('aSign', aSign);

@@ -35,6 +35,7 @@ class ParallelPrefixAdderConfigurator extends Configurator {
   Module createModule() => ParallelPrefixAdder(
       Logic(name: 'a', width: dataWidthKnob.value),
       Logic(name: 'b', width: dataWidthKnob.value),
+      carryIn: Logic(name: 'carryIn'),
       ppGen: generatorMap[prefixTreeKnob.value]!);
 
   @override

@@ -5,13 +5,14 @@
 // Implementation of Adder Module.
 //
 // 2023 June 1
-// Author: Yao Jing Quek <yao.jing.quek@intel.com>
+// Author: Yao Jing Quek <yao.jing.quek@intel.com>,
+// Desmond Kirkpatrick <desmond.a.kirkpatrick@intel.com>
 
 import 'package:meta/meta.dart';
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
 
-/// An abstract class for all adder module.
+/// An abstract class for adders..
 abstract class Adder extends Module {
   /// The input to the adder pin [a].
   @protected
@@ -24,45 +25,45 @@ abstract class Adder extends Module {
   /// The addition results in 2s complement form as [sum]
   Logic get sum => output('sum');
 
+  /// The input to the carry in pin [carryIn]
+  @protected
+  Logic? get carryIn => tryInput('carryIn');
+
+  /// Check if this adder has a carryIn input
+  bool get hasCarryIn => carryIn != null;
+
   /// Takes in input [a] and input [b] and return the [sum] of the addition
   /// result. The width of input [a] and [b] must be the same.
-  Adder(Logic a, Logic b, {super.name}) {
+  Adder(Logic a, Logic b, {Logic? carryIn, super.name}) : super() {
     if (a.width != b.width) {
       throw RohdHclException('inputs of a and b should have same width.');
     }
     addInput('a', a, width: a.width);
     addInput('b', b, width: b.width);
     addOutput('sum', width: a.width + 1);
+    if (carryIn != null) {
+      addInput('carryIn', carryIn);
+    }
   }
 }
 
-/// A simple full-adder with inputs `a` and `b` to be added with a `carryIn`.
-class FullAdder extends Module {
-  /// The addition's result [sum].
-  Logic get sum => output('sum');
-
-  /// The carry bit's result [carryOut].
-  Logic get carryOut => output('carry_out');
-
+/// A simple full-adder with single-bit inputs `a` and `b` to be added
+/// with a `carryIn`.
+class FullAdder extends Adder {
   /// Constructs a [FullAdder] with value [a], [b] and [carryIn] based on
   /// full adder truth table.
-  FullAdder({
-    required Logic a,
-    required Logic b,
-    required Logic carryIn,
+  FullAdder(
+    super.a,
+    super.b, {
+    required super.carryIn,
     super.name = 'full_adder',
   }) {
-    a = addInput('a', a, width: a.width);
-    b = addInput('b', b, width: b.width);
-    carryIn = addInput('carry_in', carryIn, width: carryIn.width);
-
-    final carryOut = addOutput('carry_out');
-    final sum = addOutput('sum');
-
-    final and1 = carryIn & (a ^ b);
-    final and2 = b & a;
-
-    sum <= (a ^ b) ^ carryIn;
-    carryOut <= and1 | and2;
+    if ((a.width != 1) | (b.width != 1) | ((carryIn ?? Const(0)).width != 1)) {
+      throw RohdHclException('widths must all be one');
+    }
+    if (carryIn == null) {
+      throw RohdHclException('FullAdder must have a carryIn input');
+    }
+    sum <= [carryIn! & (a ^ b) | a & b, (a ^ b) ^ carryIn!].swizzle();
   }
 }

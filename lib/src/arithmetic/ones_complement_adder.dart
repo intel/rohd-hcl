@@ -31,7 +31,8 @@ class OnesComplementAdder extends Adder {
   /// is provided as not null, then the end-around carry is not performed and is
   /// left to the caller via the output [carryOut].
   OnesComplementAdder(super.a, super.b,
-      {Adder Function(Logic, Logic) adderGen = ParallelPrefixAdder.new,
+      {Adder Function(Logic, Logic, {Logic? carryIn}) adderGen =
+          ParallelPrefixAdder.new,
       Logic? subtractIn,
       Logic? carryOut,
       bool subtract = false,

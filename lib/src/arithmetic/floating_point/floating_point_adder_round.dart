@@ -92,7 +92,8 @@ class FloatingPointAdderRound extends Module {
       this.clk,
       this.reset,
       this.enable,
-      Adder Function(Logic, Logic) adderGen = ParallelPrefixAdder.new,
+      Adder Function(Logic, Logic, {Logic? carryIn}) adderGen =
+          ParallelPrefixAdder.new,
       ParallelPrefix Function(List<Logic>, Logic Function(Logic, Logic))
           ppTree = KoggeStone.new,
       super.name = 'floating_point_adder_round'})

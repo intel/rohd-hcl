@@ -71,7 +71,8 @@ class FloatingPointAdderSimple extends Module {
         [a.isNormal(), a.mantissa].swizzle(),
         b.sign,
         [b.isNormal(), b.mantissa].swizzle() >>> expDiff,
-        (a, b) => ParallelPrefixAdder(a, b, ppGen: ppGen));
+        (a, b, {carryIn}) =>
+            ParallelPrefixAdder(a, b, carryIn: carryIn, ppGen: ppGen));
 
     final sum = adder.sum.slice(adder.sum.width - 2, 0);
     final leadOneE =

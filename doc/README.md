@@ -11,6 +11,7 @@ Some in-development items will have opened issues, as well. Feel free to create 
   - [Binary to Gray](./components/binary_gray.md#binary-to-gray)
   - [Gray to Binary](./components/binary_gray.md#gray-to-binary)
   - Priority
+    - [Prefix-tree based Priority Encoder](./components/parallel_prefix_operations.md)
   - PLAs
 - Arbiters
   - [Priority Arbiter](./components/arbiter.md#priority-arbiter)
@@ -19,7 +20,7 @@ Some in-development items will have opened issues, as well. Feel free to create 
   - [Synchronous FIFO](./components/fifo.md)
   - Asynchronous / clock-crossing FIFO
   - [Shift register](./components/shift_register.md)
-- Find
+- [Find](./components/find.md)
   - [Find N'th bit (0 or 1) from the start/end](./components/find.md#find-nth)
   - [Extrema](./components/extrema.md)
   - Find N'th pattern from the start/end
@@ -37,10 +38,12 @@ Some in-development items will have opened issues, as well. Feel free to create 
     - [Incrementer](./components/parallel_prefix_operations.md)
     - [Decrementer](./components/parallel_prefix_operations.md)
   - [Adders](./components/adder.md)
-    - [Sign Magnitude Adder](./components/adder.md#ripple-carry-adder)
+    - [Ripple Carry Adder](./components/adder.md#ripple-carry-adder)
     - [Parallel Prefix Adder](./components/parallel_prefix_operations.md)
+    - [Sign Magnitude Adder](./components/adder.md#sign-magnitude-adder)
+    - [Compound Adder](./components/adder.md#compound-adder)
   - Subtractors
-    - [One's Complement Adder Subtractor](./components/adder.md#ones-complement-adder-subtractor)
+    - [Ones' Complement Adder Subtractor](./components/adder.md#ones-complement-adder-subtractor)
   - Multipliers
     - [Pipelined Integer Multiplier](./components/multiplier.md#carry-save-multiplier)
     - [Compression Tree Multiplier](./components/multiplier.md#compression-tree-multiplier)
@@ -52,14 +55,17 @@ Some in-development items will have opened issues, as well. Feel free to create 
   - Square root
   - Inverse square root
   - Floating point
-    - [Floating-Point Value Types](./components/floating_point.md)
-    - Double (64-bit)
-    - Float (32-bit)
-    - BFloat16 (16-bit)
-    - BFloat8 (8-bit)
-    - BFloat4 (4-bit)
+    - [Floating-Point Value Types](./components/floating_point.md#floatingpointvalue)
+      - Double (64-bit)
+      - Float (32-bit)
+      - BFloat16 (16-bit)
+      - TensorFloat32 (19-bit)
+      - 8-bit E4/M3 and E5/M2
     - [Simple Floating-Point Adder](./components/floating_point.md#floatingpointadder)
-  - Fixed point
+    - [Rounding Floating-Point Adder](./components/floating_point.md#floatingpointadder)
+  - [Fixed point](./components/fixed_point.md)
+    - [FloatToFixed](./components/fixed_point.md#floattofixed)
+    - [FixedToFloat](./components/fixed_point.md#fixedtofloat)
   - Binary-Coded Decimal (BCD)
 - [Rotate](./components/rotate.md)
 - Counters

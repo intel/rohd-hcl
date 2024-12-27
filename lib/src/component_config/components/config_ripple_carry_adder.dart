@@ -26,7 +26,6 @@ class RippleCarryAdderConfigurator extends Configurator {
 
   @override
   Module createModule() => RippleCarryAdder(
-        Logic(width: logicWidthKnob.value),
-        Logic(width: logicWidthKnob.value),
-      );
+      Logic(width: logicWidthKnob.value), Logic(width: logicWidthKnob.value),
+      carryIn: Logic());
 }
