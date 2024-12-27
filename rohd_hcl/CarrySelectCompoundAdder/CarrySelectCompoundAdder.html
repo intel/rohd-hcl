@@ -59,6 +59,11 @@
       
       <span class="name ">CarrySelectCompoundAdder</span>(<wbr><ol class="parameter-list"> <li><span class="parameter" id="-param-a"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.5.3/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">a</span>, </span></li>
 <li><span class="parameter" id="-param-b"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.5.3/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">b</span>, {</span></li>
+<li><span class="parameter" id="-param-adderGen"><span class="type-annotation"><a href="../../rohd_hcl/Adder-class.html">Adder</a></span> <span class="parameter-name">adderGen</span>(<ol class="parameter-list"> <li><span class="parameter" id="param-a"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.5.3/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">a</span>, </span></li>
+<li><span class="parameter" id="param-b"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.5.3/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">b</span>, {</span></li>
+<li><span class="parameter" id="param-carryIn"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.5.3/rohd/Logic-class.html">Logic</a>?</span> <span class="parameter-name">carryIn</span>, </span></li>
+<li><span class="parameter" id="param-name"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.6.0/dart-core/String-class.html">String</a></span> <span class="parameter-name">name</span>, </span></li>
+</ol>}) = <span class="default-value">ParallelPrefixAdder.new</span>, </span></li>
 <li><span class="parameter" id="-param-name"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.6.0/dart-core/String-class.html">String</a></span> <span class="parameter-name">name</span> = <span class="default-value">&#39;cs_compound_adder&#39;</span>, </span></li>
 <li><span class="parameter" id="-param-widthGen"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.6.0/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.dart.dev/stable/3.6.0/dart-core/int-class.html">int</a></span>&gt;</span></span> <span class="parameter-name">widthGen</span>(<ol class="parameter-list single-line"> <li><span class="parameter" id="param-"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.6.0/dart-core/int-class.html">int</a></span></span></li>
 </ol>) = <span class="default-value">splitSelectAdderAlgorithmSingleBlock</span>, </span></li>
@@ -74,7 +79,9 @@
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">CarrySelectCompoundAdder(super.a, super.b,
-    {super.name = &#39;cs_compound_adder&#39;,
+    {Adder Function(Logic a, Logic b, {Logic? carryIn, String name})
+        adderGen = ParallelPrefixAdder.new,
+    super.name = &#39;cs_compound_adder&#39;,
     List&lt;int&gt; Function(int) widthGen =
         splitSelectAdderAlgorithmSingleBlock}) {
   &#47;&#47; output bits lists
@@ -92,20 +99,20 @@
     &#47;&#47; input width of current ripple-carry adder block
     final blockWidth = adderSplit[i];
     if (blockWidth &lt;= 0) {
-      throw RohdHclException(&#39;non-positive ripple-carry adder block size.&#39;);
+      throw RohdHclException(&#39;non-positive adder block size.&#39;);
     }
     if (blockWidth + blockStartIdx &gt; a.width) {
-      throw RohdHclException(&#39;oversized ripple-carry adders sequence.&#39;);
+      throw RohdHclException(&#39;oversized adders sequence.&#39;);
     }
     final blockA = Logic(name: &#39;block_${i}_a&#39;, width: blockWidth);
     final blockB = Logic(name: &#39;block_${i}_b&#39;, width: blockWidth);
     blockA &lt;= a.getRange(blockStartIdx, blockStartIdx + blockWidth);
     blockB &lt;= b.getRange(blockStartIdx, blockStartIdx + blockWidth);
     &#47;&#47; Build ripple-carry adders for 0 and 1 carryin values
-    final fullAdder0 = RippleCarryAdder(blockA, blockB,
-        carryIn: Const(0), name: &#39;block0_$i&#39;);
-    final fullAdder1 = RippleCarryAdder(blockA, blockB,
-        carryIn: Const(1), name: &#39;block1_$i&#39;);
+    final fullAdder0 =
+        adderGen(blockA, blockB, carryIn: Const(0), name: &#39;block0_$i&#39;);
+    final fullAdder1 =
+        adderGen(blockA, blockB, carryIn: Const(1), name: &#39;block1_$i&#39;);
     for (var bitIdx = 0; bitIdx &lt; blockWidth; ++bitIdx) {
       if (i == 0) {
         &#47;&#47; connect directly to respective sum output bit

@@ -79,9 +79,8 @@
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">@override
 Module createModule() =&gt; RippleCarryAdder(
-      Logic(width: logicWidthKnob.value),
-      Logic(width: logicWidthKnob.value),
-    );</code></pre>
+    Logic(width: logicWidthKnob.value), Logic(width: logicWidthKnob.value),
+    carryIn: Logic());</code></pre>
 </section>
 
 

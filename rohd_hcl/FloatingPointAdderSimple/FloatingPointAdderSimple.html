@@ -109,7 +109,8 @@
       [a.isNormal(), a.mantissa].swizzle(),
       b.sign,
       [b.isNormal(), b.mantissa].swizzle() &gt;&gt;&gt; expDiff,
-      (a, b) =&gt; ParallelPrefixAdder(a, b, ppGen: ppGen));
+      (a, b, {carryIn}) =&gt;
+          ParallelPrefixAdder(a, b, carryIn: carryIn, ppGen: ppGen));
 
   final sum = adder.sum.slice(adder.sum.width - 2, 0);
   final leadOneE =

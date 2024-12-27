@@ -59,6 +59,7 @@
       
       <span class="name ">ParallelPrefixAdder</span>(<wbr><ol class="parameter-list"> <li><span class="parameter" id="-param-a"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.5.3/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">a</span>, </span></li>
 <li><span class="parameter" id="-param-b"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.5.3/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">b</span>, {</span></li>
+<li><span class="parameter" id="-param-carryIn"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.5.3/rohd/Logic-class.html">Logic</a>?</span> <span class="parameter-name">carryIn</span>, </span></li>
 <li><span class="parameter" id="-param-ppGen"><span class="type-annotation"><a href="../../rohd_hcl/ParallelPrefix-class.html">ParallelPrefix</a></span> <span class="parameter-name">ppGen</span>(<ol class="parameter-list single-line"> <li><span class="parameter" id="param-"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.6.0/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://pub.dev/documentation/rohd/0.5.3/rohd/Logic-class.html">Logic</a></span>&gt;</span></span>, </span></li>
 <li><span class="parameter" id="param-"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.5.3/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name"></span>(<ol class="parameter-list single-line"> <li><span class="parameter" id="param-"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.5.3/rohd/Logic-class.html">Logic</a></span>, </span></li>
 <li><span class="parameter" id="param-"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.5.3/rohd/Logic-class.html">Logic</a></span></span></li>
@@ -77,19 +78,28 @@
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">ParallelPrefixAdder(super.a, super.b,
-    {ParallelPrefix Function(List&lt;Logic&gt;, Logic Function(Logic, Logic))
-        ppGen = KoggeStone.new,
+    {super.carryIn,
+    ParallelPrefix Function(List&lt;Logic&gt;, Logic Function(Logic, Logic)) ppGen =
+        KoggeStone.new,
     super.name = &#39;parallel_prefix_adder&#39;}) {
+  final l = List&lt;Logic&gt;.generate(a.width - 1,
+      (i) =&gt; [a[i + 1] &amp; b[i + 1], a[i + 1] | b[i + 1]].swizzle());
+  final cin = carryIn ?? Const(0);
+  &#47;&#47; ignore: cascade_invocations
+  l.insert(
+      0,
+      [(a[0] &amp; b[0]) | (a[0] &amp; cin) | (b[0] &amp; cin), a[0] | b[0] | cin]
+          .swizzle());
   final u = ppGen(
-      List&lt;Logic&gt;.generate(
-          a.width, (i) =&gt; [a[i] &amp; b[i], a[i] | b[i]].swizzle()),
-      (lhs, rhs) =&gt; [rhs[1] | rhs[0] &amp; lhs[1], rhs[0] &amp; lhs[0]].swizzle());
+      l, (lhs, rhs) =&gt; [rhs[1] | rhs[0] &amp; lhs[1], rhs[0] &amp; lhs[0]].swizzle());
   sum &lt;=
       [
         u.val[a.width - 1][1],
-        List&lt;Logic&gt;.generate(a.width,
-                (i) =&gt; (i == 0) ? a[i] ^ b[i] : a[i] ^ b[i] ^ u.val[i - 1][1])
-            .rswizzle()
+        List&lt;Logic&gt;.generate(
+            a.width,
+            (i) =&gt; (i == 0)
+                ? a[i] ^ b[i] ^ cin
+                : a[i] ^ b[i] ^ u.val[i - 1][1]).rswizzle()
       ].swizzle();
 }</code></pre>
 </section>

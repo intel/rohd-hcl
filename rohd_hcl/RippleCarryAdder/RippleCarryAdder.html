@@ -73,22 +73,18 @@
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">RippleCarryAdder(super.a, super.b,
-    {Logic? carryIn, super.name = &#39;ripple_carry_adder_carry_in&#39;}) {
-  if (carryIn != null) {
-    carryIn = addInput(&#39;carry_in&#39;, carryIn, width: carryIn.width);
-  }
+    {super.carryIn, super.name = &#39;ripple_carry_adder_carry_in&#39;}) {
   Logic? carry;
   final sumList = &lt;Logic&gt;[];
   for (var i = 0; i &lt; a.width; i++) {
     final fullAdder =
-        FullAdder(a: a[i], b: b[i], carryIn: carry ?? (carryIn ?? Const(0)));
+        FullAdder(a[i], b[i], carryIn: carry ?? (carryIn ?? Const(0)));
 
-    carry = fullAdder.carryOut;
-    sumList.add(fullAdder.sum);
+    carry = fullAdder.sum[1];
+    sumList.add(fullAdder.sum[0]);
   }
 
   sumList.add(carry!);
-
   sum &lt;= sumList.rswizzle();
 }</code></pre>
 </section>
