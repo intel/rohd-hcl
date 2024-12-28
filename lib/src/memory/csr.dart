@@ -33,6 +33,13 @@ enum CsrAccess {
 }
 
 /// configuration for a register field
+/// if starting bit position and/or width is symbolic based on
+/// the parent register width and/or other fields
+/// it is assumed that those symbolic values are resolved
+/// before construction of the field config
+/// if a field should be duplicated n times within a register,
+/// it is assumed that this object is instantiated n times
+/// within the parent register config accordingly
 class CsrFieldConfig {
   /// starting bit position of the field in the register
   final int start;
@@ -47,31 +54,32 @@ class CsrFieldConfig {
   final CsrFieldAccess access;
 
   /// construct a new field configuration
-  CsrFieldConfig(this.start, this.width, this.name, this.access);
+  CsrFieldConfig({
+    required this.start,
+    required this.width,
+    required this.name,
+    required this.access,
+  });
 }
 
-/// configuration for a register
+/// configuration for an architectural register
+/// any architecturally fixed fields can be added directly to this class
+/// but any fields with implementation specific config should be left out
 class CsrConfig {
-  /// register's address within its block
-  final int addr;
-
-  /// number of bits in the register
-  final int width;
-
   /// name for the register
   final String name;
 
   /// access rules for the register
   final CsrAccess access;
 
-  /// reset value for the register
-  final int resetValue;
-
   /// fields in this register
   final List<CsrFieldConfig> fields = [];
 
   /// construct a new register configuration
-  CsrConfig(this.addr, this.width, this.name, this.access, this.resetValue);
+  CsrConfig({
+    required this.name,
+    required this.access,
+  });
 
   /// add a register field to this register
   void addField(CsrFieldConfig field) {
@@ -79,7 +87,52 @@ class CsrConfig {
   }
 }
 
+/// configuration for a register instance
+/// apply implementation specific information to an architectural register
+/// this includes instantiation of fields that require runtime configuration
+/// such runtime configuration might also apply for conditional
+/// instantiation of fields within the register
+class CsrInstanceConfig {
+  /// underlying architectural config
+  final CsrConfig arch;
+
+  /// register's address within its block
+  final int addr;
+
+  /// number of bits in the register
+  final int width;
+
+  /// reset value for the register
+  final int resetValue;
+
+  /// accessor to the name of the arch register
+  String get name => arch.name;
+
+  /// accessor to the privilege of the register
+  CsrAccess get access => arch.access;
+
+  /// accessor to the fields of the register
+  List<CsrFieldConfig> get fields => arch.fields;
+
+  /// construct a new register configuration
+  CsrInstanceConfig({
+    required this.arch,
+    required this.addr,
+    required this.width,
+    required this.resetValue,
+  });
+
+  /// add a register field to this register instance
+  void addField(CsrFieldConfig field) {
+    arch.addField(field);
+  }
+}
+
 /// definition for a coherent block of registers
+/// blocks by definition are instantiations of registers and
+/// hence require CsrInstanceConfig objects
+/// this class is also where the choice to instantiate
+/// any conditional registers should take place
 class CsrBlockConfig {
   /// name for the block
   final String name;
@@ -88,24 +141,30 @@ class CsrBlockConfig {
   final int baseAddr;
 
   /// registers in this block
-  final List<CsrConfig> registers = [];
+  final List<CsrInstanceConfig> registers = [];
 
   /// construct a new block configuration
-  CsrBlockConfig(
-    this.name,
-    this.baseAddr,
-  );
+  CsrBlockConfig({
+    required this.name,
+    required this.baseAddr,
+  });
 
   /// add a register to this block
-  void addRegister(CsrConfig register) {
+  void addRegister(CsrInstanceConfig register) {
     registers.add(register);
   }
 }
 
 /// definition for a top level module containing CSR blocks
+/// this class is also where the choice to instantiate
+/// any conditional blocks should take place
 class CsrTopConfig {
   /// name for the top module
   final String name;
+
+  /// number of LSBs in an incoming address to ignore
+  /// when assessing the address of a block
+  final int blockOffsetWidth;
 
   /// blocks in this module
   final List<CsrBlockConfig> blocks = [];
@@ -113,6 +172,7 @@ class CsrTopConfig {
   /// construct a new top level configuration
   CsrTopConfig(
     this.name,
+    this.blockOffsetWidth,
   );
 
   /// add a block to this module
@@ -124,7 +184,6 @@ class CsrTopConfig {
 /// Logic representation of a CSR
 class Csr extends LogicStructure {
   /// bit width of the CSR
-  @override
   final int csrWidth;
 
   /// address for the CSR
@@ -153,7 +212,7 @@ class Csr extends LogicStructure {
   }) : super(fields);
 
   factory Csr(
-    CsrConfig config,
+    CsrInstanceConfig config,
   ) {
     final fields = <Logic>[];
     var currIdx = 0;
@@ -235,6 +294,8 @@ class Csr extends LogicStructure {
 }
 
 /// a submodule representing a block of CSRs
+// TODO:
+//  backdoor reads and writes
 class CsrBlock extends Module {
   /// address for this block
   final int addr;
@@ -257,8 +318,6 @@ class CsrBlock extends Module {
   /// interface for frontdoor reads to CSRs
   late final DataPortInterface frontRead;
 
-  // TODO: how to deal with backdoor writes??
-
   CsrBlock._({
     required super.name,
     required this.addr,
@@ -278,8 +337,8 @@ class CsrBlock extends Module {
           uniquify: (original) => 'frontWrite_$original');
     frontRead = fdr.clone()
       ..connectIO(this, fdr,
-          inputTags: {DataPortGroup.control},
-          outputTags: {DataPortGroup.data},
+          inputTags: {DataPortGroup.control, DataPortGroup.data},
+          outputTags: {},
           uniquify: (original) => 'frontRead_$original');
 
     _buildLogic();
@@ -352,12 +411,17 @@ class CsrBlock extends Module {
   }
 }
 
+/// top level CSR module
 class CsrTop extends Module {
   /// width of address in bits
   final int addrWidth;
 
+  /// width of the LSBs of the address
+  /// to ignore when mapping to blocks
+  final int blockOffsetWidth;
+
   /// CSRs in this block
-  final List<CsrBlock> blocks;
+  final List<CsrBlock> blocks = [];
 
   /// clk for the module
   late final Logic clk;
@@ -377,11 +441,12 @@ class CsrTop extends Module {
 
   CsrTop._({
     required super.name,
-    required this.blocks,
+    required this.blockOffsetWidth,
     required Logic clk,
     required Logic reset,
     required DataPortInterface fdw,
     required DataPortInterface fdr,
+    required List<CsrBlockConfig> bCfgs,
   }) : addrWidth = fdw.addrWidth {
     clk = addInput('clk', clk);
     reset = addInput('reset', reset);
@@ -397,6 +462,12 @@ class CsrTop extends Module {
           outputTags: {DataPortGroup.data},
           uniquify: (original) => 'frontRead_$original');
 
+    for (final block in bCfgs) {
+      _fdWrites.add(DataPortInterface(fdw.dataWidth, blockOffsetWidth));
+      _fdReads.add(DataPortInterface(fdr.dataWidth, blockOffsetWidth));
+      blocks.add(CsrBlock(block, clk, reset, _fdWrites.last, _fdReads.last));
+    }
+
     _buildLogic();
   }
 
@@ -407,37 +478,37 @@ class CsrTop extends Module {
     Logic reset,
     DataPortInterface fdw,
     DataPortInterface fdr,
-  ) {
-    final blks = <CsrBlock>[];
-    for (final block in config.blocks) {
-      // TODO: how to derive the address width
-      // TODO: how to connect properly top level
-      // IDEA: need to remove the block portion of the address
-      _fdWrites.add(DataPortInterface(fdw.dataWidth, TODO));
-      _fdReads.add(DataPortInterface(fdr.dataWidth, TODO));
-      blks.add(CsrBlock(block, clk, reset, _fdWrites.last, _fdReads.last));
-    }
-    return CsrTop._(
-      name: config.name,
-      blocks: blks,
-      clk: clk,
-      reset: reset,
-      fdw: fdw,
-      fdr: fdr,
-    );
-  }
+  ) =>
+      CsrTop._(
+        name: config.name,
+        blockOffsetWidth: config.blockOffsetWidth,
+        clk: clk,
+        reset: reset,
+        fdw: fdw,
+        fdr: fdr,
+        bCfgs: config.blocks,
+      );
 
-  // TODO: how to map the address to the correct block
   void _buildLogic() {
+    // mask out LSBs to perform a match on block
+    final maskedFrontWrAddr =
+        frontWrite.addr & ~Const((1 << blockOffsetWidth) - 1, width: addrWidth);
+    final maskedFrontRdAddr =
+        frontRead.addr & ~Const((1 << blockOffsetWidth) - 1, width: addrWidth);
+
+    // shift out MSBs to pass the appropriate address into the blocks
+    final shiftedFrontWrAddr = frontWrite.addr.getRange(0, blockOffsetWidth);
+    final shiftedFrontRdAddr = frontRead.addr.getRange(0, blockOffsetWidth);
+
     // drive frontdoor write and read inputs
     for (var i = 0; i < blocks.length; i++) {
       _fdWrites[i].en <=
-          frontWrite.en & frontWrite.addr.eq(blocks[i].getAddr(addrWidth));
+          frontWrite.en & maskedFrontWrAddr.eq(blocks[i].getAddr(addrWidth));
       _fdReads[i].en <=
-          frontWrite.en & frontWrite.addr.eq(blocks[i].getAddr(addrWidth));
+          frontWrite.en & maskedFrontRdAddr.eq(blocks[i].getAddr(addrWidth));
 
-      _fdWrites[i].addr <= frontWrite.addr;
-      _fdReads[i].addr <= frontWrite.addr;
+      _fdWrites[i].addr <= shiftedFrontWrAddr;
+      _fdReads[i].addr <= shiftedFrontRdAddr;
 
       _fdWrites[i].data <= frontWrite.data;
     }
@@ -450,7 +521,7 @@ class CsrTop extends Module {
             ]))
         .toList();
     Combinational([
-      Case(frontRead.addr, rdCases, defaultItem: [
+      Case(maskedFrontRdAddr, rdCases, defaultItem: [
         rdData < Const(0, width: frontRead.dataWidth),
       ]),
     ]);
