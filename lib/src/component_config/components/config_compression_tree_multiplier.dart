@@ -17,7 +17,7 @@ class CompressionTreeMultiplierConfigurator extends Configurator {
   /// Map from Type to Function for Parallel Prefix generator
   static Map<Type,
           ParallelPrefix Function(List<Logic>, Logic Function(Logic, Logic))>
-      generatorMap = {
+      ppGeneratorMap = {
     Ripple: Ripple.new,
     Sklansky: Sklansky.new,
     KoggeStone: KoggeStone.new,
@@ -26,7 +26,7 @@ class CompressionTreeMultiplierConfigurator extends Configurator {
 
   /// Controls the type of [ParallelPrefix] tree used in the adder.
   final prefixTreeKnob =
-      ChoiceConfigKnob(generatorMap.keys.toList(), value: KoggeStone);
+      ChoiceConfigKnob(ppGeneratorMap.keys.toList(), value: KoggeStone);
 
   /// Controls the Booth encoding radix of the multiplier.!
   final radixKnob = ChoiceConfigKnob<int>(
@@ -51,6 +51,9 @@ class CompressionTreeMultiplierConfigurator extends Configurator {
   /// Controls whether the adder is pipelined
   final ToggleConfigKnob pipelinedKnob = ToggleConfigKnob(value: false);
 
+  /// Controls whether the adder is pipelined
+  final ToggleConfigKnob use42CompressorsKnob = ToggleConfigKnob(value: false);
+
   @override
   Module createModule() => CompressionTreeMultiplier(
       clk: pipelinedKnob.value ? Logic() : null,
@@ -63,7 +66,8 @@ class CompressionTreeMultiplierConfigurator extends Configurator {
           signMultiplicandValueKnob.value == 'selected' ? Logic() : null,
       selectSignedMultiplier:
           signMultiplierValueKnob.value == 'selected' ? Logic() : null,
-      ppTree: generatorMap[prefixTreeKnob.value]!);
+      ppTree: ppGeneratorMap[prefixTreeKnob.value]!,
+      use42Compressors: use42CompressorsKnob.value);
 
   @override
   late final Map<String, ConfigKnob<dynamic>> knobs = UnmodifiableMapView({
@@ -74,6 +78,7 @@ class CompressionTreeMultiplierConfigurator extends Configurator {
     'Multiplier width': multiplierWidthKnob,
     'Multiplier sign': signMultiplierValueKnob,
     'Pipelined': pipelinedKnob,
+    'Use 4:2 Compressors': use42CompressorsKnob,
   });
 
   @override
