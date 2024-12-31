@@ -8,15 +8,12 @@
 // Author: Roberto Torres <roberto.torres@intel.com>
 
 import 'dart:async';
-// import 'dart:convert';
 import 'dart:io';
 
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
 import 'package:rohd_vf/rohd_vf.dart';
 import 'package:test/test.dart';
-
-import 'spi_test.dart';
 
 class SpiMod extends Module {
   SpiMod(SpiInterface intf, {super.name = 'SpiModIntf'}) {
@@ -52,16 +49,6 @@ class SpiBfmTest extends Test {
 
     Simulator.registerEndOfSimulationAction(() async {
       await tracker.terminate();
-
-      // // Commented to avoid bug
-      //   final jsonStr =
-      //        File('$outFolder/spiTracker.tracker.json').readAsStringSync();
-      //   final jsonContents = json.decode(jsonStr);
-
-      //   // ignore: avoid_dynamic_calls
-      //   expect(jsonContents['records'].length, 2);
-
-      //   Directory(outFolder).deleteSync(recursive: true);
     });
 
     monitor.stream.listen(tracker.record);
@@ -78,8 +65,6 @@ class SpiBfmTest extends Test {
 
     main.sequencer.add(SpiPacket(data: LogicValue.ofInt(0x00, 8)));
 
-    //main.sequencer.add(SpiPacket(data: LogicValue.ofInt(0x00, 8)));
-
     unawaited(monitor.stream
         .where((event) =>
             event.direction == SpiDirection.main && event.data.toInt() == 0xCB)
@@ -88,10 +73,6 @@ class SpiBfmTest extends Test {
       sub.sequencer
           .add(SpiPacket(data: LogicValue.ofInt(0x1B, 8))); //0b0001 1011 = 27
     }));
-
-    // main.sequencer.add(SpiPacket(
-    //     data: LogicValue.ofInt(0x00, 8),
-    //     direction: SpiDirection.read)); //0b0111 0001 = 113
 
     obj.drop();
   }

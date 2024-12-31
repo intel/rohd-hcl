@@ -18,7 +18,7 @@ class SpiMonitor extends Monitor<SpiPacket> {
   /// The interface to watch.
   final SpiInterface intf;
 
-  ///
+  /// The direction to monitor.
   final SpiDirection? direction;
 
   /// Creates a new [SpiMonitor] for [intf].
@@ -29,7 +29,7 @@ class SpiMonitor extends Monitor<SpiPacket> {
       String name = 'spiMonitor'})
       : super(name, parent);
 
-  ///
+  /// Run function.
   @override
   Future<void> run(Phase phase) async {
     unawaited(super.run(phase));

@@ -10,12 +10,20 @@
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
 
-/// Sub component for SPI Interface.
+/// Sub component for Serial Peripheral Interface (SPI).
 class SpiSub extends Module {
   /// Output bus from Sub.
   Logic get busOut => output('busOut');
 
+  /// Creates a SPI Sub component that interfaces with [SpiInterface].
   ///
+  /// The SPI Sub component will enable via chip select from [SpiInterface.csb].
+  /// Clock signal will be received on [SpiInterface.sclk], data will shift in
+  /// from [SpiInterface.mosi], and shift data out from [SpiInterface.miso].
+  /// Data to shift out is provided from [busIn]. Data shifted in from
+  /// [SpiInterface.mosi] will be available on [busOut]. After data is available
+  /// on [busIn], pulsing [reset] will load the data, and a bit of data will be
+  /// transmitted per clock pulse.
   SpiSub(
       {required SpiInterface intf,
       Logic? busIn,
@@ -31,7 +39,6 @@ class SpiSub extends Module {
     }
 
     // Reset signal for sub, if provided.
-    // will need to be toggled to load new busIn values
     if (reset != null) {
       reset = addInput('reset', reset);
     }
@@ -39,7 +46,8 @@ class SpiSub extends Module {
     // Bus Output from Sub
     addOutput('busOut', width: intf.dataLength);
 
-    // Shift Register
+    // Shift Register in from MOSI.
+    // NOTE: Reset values are set to busIn values.
     final shiftReg = ShiftRegister(
       intf.mosi,
       enable: ~intf.csb,
@@ -50,9 +58,11 @@ class SpiSub extends Module {
       resetValue: busIn?.elements,
     );
 
-    // BusOut is connected to the stages of the shift register
+    // busOut bits are connected to the corresponding shift register data stage.
+    // NOTE: dataStage0 corresponds to the last bit shifted in.
     busOut <= shiftReg.stages.rswizzle();
 
+    // MISO is connected to shift register dataOut.
     intf.miso <=
         flop(~intf.sclk, shiftReg.dataOut,
             en: ~intf.csb,

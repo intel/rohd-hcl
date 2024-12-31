@@ -38,7 +38,6 @@ class SpiSubAgent extends Agent {
       sequencer: sequencer,
     );
 
-    ///
     monitor = SpiMonitor(
       parent: this,
       direction: SpiDirection.main,

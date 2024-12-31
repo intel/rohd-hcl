@@ -13,16 +13,15 @@ import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
 import 'package:rohd_vf/rohd_vf.dart';
 
-/// Doc [main] f
-/// Doc [sub] f
+/// Direction of the packet.
 enum SpiDirection { main, sub }
 
 /// A packet for the [SpiInterface].
 class SpiPacket extends SequenceItem implements Trackable {
-  ///
+  /// The data in the packet.
   final LogicValue data;
 
-  ///
+  /// Direction of the packet.
   final SpiDirection? direction;
 
   /// Creates a new packet.
@@ -37,7 +36,6 @@ class SpiPacket extends SequenceItem implements Trackable {
     _completer.complete();
   }
 
-  ///
   @override
   String? trackerString(TrackerField field) {
     switch (field.title) {

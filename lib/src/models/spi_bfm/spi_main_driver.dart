@@ -37,8 +37,6 @@ class SpiMainDriver extends PendingClockedDriver<SpiPacket> {
   Future<void> run(Phase phase) async {
     unawaited(super.run(phase));
 
-    // intf.sclk.inject(0);
-
     intf.sclk.changed.listen((_) {
       logger.info('SCLK changed$_');
     });
@@ -49,7 +47,6 @@ class SpiMainDriver extends PendingClockedDriver<SpiPacket> {
 
     Simulator.injectAction(() {
       intf.csb.put(1);
-      // intf.sclk.put(0);
       intf.mosi.put(0);
     });
 
@@ -61,14 +58,13 @@ class SpiMainDriver extends PendingClockedDriver<SpiPacket> {
         Simulator.injectAction(() {
           intf.csb.put(1);
           clkenable.inject(0);
-          // intf.sclk.put(0);
           intf.mosi.put(0);
         });
       }
     }
   }
 
-  ///
+  /// Clock enable signal.
   Logic clkenable = Logic(name: 'clkenable');
 
   /// Drives a packet onto the interface.
@@ -81,12 +77,9 @@ class SpiMainDriver extends PendingClockedDriver<SpiPacket> {
       intf.mosi.inject(packet.data[-i]);
       await clk.nextNegedge;
       clkenable.inject(1);
-      // intf.sclk.inject(1);
 
       // Wait for the next clock cycle
       await clk.nextPosedge;
-
-      // intf.sclk.inject(0);
     }
   }
 }
