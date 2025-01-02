@@ -62,9 +62,9 @@
         <li>@<a href="https://api.dart.dev/stable/3.6.0/dart-core/override-constant.html">override</a></li>
     </ol>
   </div>
-<span class="returntype"><a href="https://pub.dev/documentation/rohd/0.5.3/rohd/Logic-class.html">Logic</a></span>
+<span class="returntype"><a href="https://pub.dev/documentation/rohd/0.6.0/rohd/Logic-class.html">Logic</a></span>
 <span class="name ">addInput</span>(<wbr><ol class="parameter-list"> <li><span class="parameter" id="addInput-param-name"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.6.0/dart-core/String-class.html">String</a></span> <span class="parameter-name">name</span>, </span></li>
-<li><span class="parameter" id="addInput-param-x"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.5.3/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">x</span>, {</span></li>
+<li><span class="parameter" id="addInput-param-source"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.0/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">source</span>, {</span></li>
 <li><span class="parameter" id="addInput-param-width"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.6.0/dart-core/int-class.html">int</a></span> <span class="parameter-name">width</span> = <span class="default-value">1</span>, </span></li>
 </ol>})
 
@@ -73,9 +73,11 @@
     </section>
     
 <section class="desc markdown">
-  <p>Registers a signal as an input to this <a href="https://pub.dev/documentation/rohd/0.5.3/rohd/Module-class.html">Module</a> and returns an input port
+  <p>Registers a signal as an input to this <a href="https://pub.dev/documentation/rohd/0.6.0/rohd/Module-class.html">Module</a> and returns an input port
 that can be consumed.</p>
-<p>The return value is the same as what is returned by <a href="https://pub.dev/documentation/rohd/0.5.3/rohd/Module/input.html">input()</a>.</p>
+<p>The return value is the same as what is returned by <a href="https://pub.dev/documentation/rohd/0.6.0/rohd/Module/input.html">input</a> and should
+only be used within this <a href="https://pub.dev/documentation/rohd/0.6.0/rohd/Module-class.html">Module</a>. The provided <code>source</code> is accessible via
+<a href="https://pub.dev/documentation/rohd/0.6.0/rohd/Module/inputSource.html">inputSource</a>.</p>
 </section>
 
 
@@ -83,9 +85,9 @@ that can be consumed.</p>
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">@override
-Logic addInput(String name, Logic x, {int width = 1}) {
+Logic addInput(String name, Logic source, {int width = 1}) {
   _uniquifier.getUniqueName(initialName: name, reserved: true);
-  return super.addInput(name, x, width: width);
+  return super.addInput(name, source, width: width);
 }</code></pre>
 </section>
 

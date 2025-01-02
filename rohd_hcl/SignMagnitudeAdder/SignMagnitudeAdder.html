@@ -57,13 +57,13 @@
 
     <section class="multi-line-signature">
       
-      <span class="name ">SignMagnitudeAdder</span>(<wbr><ol class="parameter-list"> <li><span class="parameter" id="-param-aSign"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.5.3/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">aSign</span>, </span></li>
-<li><span class="parameter" id="-param-a"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.5.3/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">a</span>, </span></li>
-<li><span class="parameter" id="-param-bSign"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.5.3/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">bSign</span>, </span></li>
-<li><span class="parameter" id="-param-b"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.5.3/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">b</span>, </span></li>
-<li><span class="parameter" id="-param-adderGen"><span class="type-annotation"><a href="../../rohd_hcl/Adder-class.html">Adder</a></span> <span class="parameter-name">adderGen</span>(<ol class="parameter-list"> <li><span class="parameter" id="param-"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.5.3/rohd/Logic-class.html">Logic</a></span>, </span></li>
-<li><span class="parameter" id="param-"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.5.3/rohd/Logic-class.html">Logic</a></span>, {</span></li>
-<li><span class="parameter" id="param-carryIn"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.5.3/rohd/Logic-class.html">Logic</a>?</span> <span class="parameter-name">carryIn</span>, </span></li>
+      <span class="name ">SignMagnitudeAdder</span>(<wbr><ol class="parameter-list"> <li><span class="parameter" id="-param-aSign"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.0/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">aSign</span>, </span></li>
+<li><span class="parameter" id="-param-a"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.0/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">a</span>, </span></li>
+<li><span class="parameter" id="-param-bSign"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.0/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">bSign</span>, </span></li>
+<li><span class="parameter" id="-param-b"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.0/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">b</span>, </span></li>
+<li><span class="parameter" id="-param-adderGen"><span class="type-annotation"><a href="../../rohd_hcl/Adder-class.html">Adder</a></span> <span class="parameter-name">adderGen</span>(<ol class="parameter-list"> <li><span class="parameter" id="param-"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.0/rohd/Logic-class.html">Logic</a></span>, </span></li>
+<li><span class="parameter" id="param-"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.0/rohd/Logic-class.html">Logic</a></span>, {</span></li>
+<li><span class="parameter" id="param-carryIn"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.0/rohd/Logic-class.html">Logic</a>?</span> <span class="parameter-name">carryIn</span>, </span></li>
 </ol>}), {</span></li>
 <li><span class="parameter" id="-param-largestMagnitudeFirst"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.6.0/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">largestMagnitudeFirst</span> = <span class="default-value">false</span>, </span></li>
 <li><span class="parameter" id="-param-name"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.6.0/dart-core/String-class.html">String</a></span> <span class="parameter-name">name</span> = <span class="default-value">&#39;sign_magnitude_adder&#39;</span>, </span></li>
@@ -71,11 +71,11 @@
     </section>
     
 <section class="desc markdown">
-  <p><a href="../../rohd_hcl/SignMagnitudeAdder-class.html">SignMagnitudeAdder</a> constructor with an adder functor <code>adderGen</code>
-Inputs are (sign, magnitude) pairs: (<code>aSign</code>, <code>a</code>) and (<code>bSign</code>, <code>b</code>).
-If the caller can guarantee that the larger magnitude value
- is provided first in <code>a</code>, then they can set <code>largestMagnitudeFirst</code>
-too 'true' to avoid a comparator.</p>
+  <p><a href="../../rohd_hcl/SignMagnitudeAdder-class.html">SignMagnitudeAdder</a> constructor with an adder functor <code>adderGen</code>.</p>
+<p>Inputs are (sign, magnitude) pairs: (<code>aSign</code>, <code>a</code>) and (<code>bSign</code>, <code>b</code>). If
+the caller can guarantee that the larger magnitude value is provided first
+in <code>a</code>, then they can set <code>largestMagnitudeFirst</code> too 'true' to avoid a
+comparator.</p>
 </section>
 
 
