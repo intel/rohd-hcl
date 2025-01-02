@@ -1,4 +1,4 @@
-// Copyright (C) 2023-2024 Intel Corporation
+// Copyright (C) 2023-2025 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 //
 // carry_save_multiplier.dart
@@ -100,7 +100,6 @@ class CarrySaveMultiplier extends Multiplier {
             ],
       ],
       reset: reset,
-      resetValues: {product: Const(0)},
     );
 
     final nBitAdder = RippleCarryAdder(
