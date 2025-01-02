@@ -10,7 +10,7 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  rohd: ^0.5.0
+  rohd: ^0.6.0
   rohd_hcl:
     git: 
       url: https://github.com/intel/rohd-hcl
