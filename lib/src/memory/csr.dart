@@ -170,10 +170,10 @@ class CsrTopConfig {
   final List<CsrBlockConfig> blocks = [];
 
   /// construct a new top level configuration
-  CsrTopConfig(
-    this.name,
-    this.blockOffsetWidth,
-  );
+  CsrTopConfig({
+    required this.name,
+    required this.blockOffsetWidth,
+  });
 
   /// add a block to this module
   void addBlock(CsrBlockConfig block) {
@@ -307,16 +307,16 @@ class CsrBlock extends Module {
   final List<Csr> csrs;
 
   /// clk for the module
-  late final Logic clk;
+  late final Logic _clk;
 
   /// reset for the module
-  late final Logic reset;
+  late final Logic _reset;
 
   /// interface for frontdoor writes to CSRs
-  late final DataPortInterface frontWrite;
+  late final DataPortInterface _frontWrite;
 
   /// interface for frontdoor reads to CSRs
-  late final DataPortInterface frontRead;
+  late final DataPortInterface _frontRead;
 
   CsrBlock._({
     required super.name,
@@ -327,18 +327,18 @@ class CsrBlock extends Module {
     required DataPortInterface fdw,
     required DataPortInterface fdr,
   }) : addrWidth = fdw.addrWidth {
-    clk = addInput('clk', clk);
-    reset = addInput('reset', reset);
+    _clk = addInput('clk', clk);
+    _reset = addInput('reset', reset);
 
-    frontWrite = fdw.clone()
+    _frontWrite = fdw.clone()
       ..connectIO(this, fdw,
-          inputTags: {DataPortGroup.control},
-          outputTags: {DataPortGroup.data},
-          uniquify: (original) => 'frontWrite_$original');
-    frontRead = fdr.clone()
-      ..connectIO(this, fdr,
           inputTags: {DataPortGroup.control, DataPortGroup.data},
           outputTags: {},
+          uniquify: (original) => 'frontWrite_$original');
+    _frontRead = fdr.clone()
+      ..connectIO(this, fdr,
+          inputTags: {DataPortGroup.control},
+          outputTags: {DataPortGroup.data},
           uniquify: (original) => 'frontRead_$original');
 
     _buildLogic();
@@ -379,16 +379,16 @@ class CsrBlock extends Module {
       csrs.firstWhere((element) => element.addr == addr);
 
   /// API method to extract read data from block
-  Logic rdData() => frontRead.data;
+  Logic rdData() => _frontRead.data;
 
   void _buildLogic() {
     // individual CSR write logic
     for (final csr in csrs) {
-      Sequential(clk, reset: reset, resetValues: {
+      Sequential(_clk, reset: _reset, resetValues: {
         csr: csr.getResetValue(),
       }, [
-        If(frontWrite.en & frontWrite.addr.eq(csr.getAddr(addrWidth)), then: [
-          csr < csr.getWriteData(frontWrite.data),
+        If(_frontWrite.en & _frontWrite.addr.eq(csr.getAddr(addrWidth)), then: [
+          csr < csr.getWriteData(_frontWrite.data),
         ], orElse: [
           csr < csr,
         ]),
@@ -396,18 +396,18 @@ class CsrBlock extends Module {
     }
 
     // individual CSR read logic
-    final rdData = Logic(name: 'rdData', width: frontRead.dataWidth);
+    final rdData = Logic(name: 'rdData', width: _frontRead.dataWidth);
     final rdCases = csrs
         .map((csr) => CaseItem(csr.getAddr(addrWidth), [
               rdData < csr,
             ]))
         .toList();
     Combinational([
-      Case(frontRead.addr, rdCases, defaultItem: [
-        rdData < Const(0, width: frontRead.dataWidth),
+      Case(_frontRead.addr, rdCases, defaultItem: [
+        rdData < Const(0, width: _frontRead.dataWidth),
       ]),
     ]);
-    frontRead.data <= rdData;
+    _frontRead.data <= rdData;
   }
 }
 
@@ -421,19 +421,19 @@ class CsrTop extends Module {
   final int blockOffsetWidth;
 
   /// CSRs in this block
-  final List<CsrBlock> blocks = [];
+  final List<CsrBlock> _blocks = [];
 
   /// clk for the module
-  late final Logic clk;
+  late final Logic _clk;
 
   /// reset for the module
-  late final Logic reset;
+  late final Logic _reset;
 
   /// interface for frontdoor writes to CSRs
-  late final DataPortInterface frontWrite;
+  late final DataPortInterface _frontWrite;
 
   /// interface for frontdoor reads to CSRs
-  late final DataPortInterface frontRead;
+  late final DataPortInterface _frontRead;
 
   // individual sub interfaces to blocks
   final List<DataPortInterface> _fdWrites = [];
@@ -448,15 +448,15 @@ class CsrTop extends Module {
     required DataPortInterface fdr,
     required List<CsrBlockConfig> bCfgs,
   }) : addrWidth = fdw.addrWidth {
-    clk = addInput('clk', clk);
-    reset = addInput('reset', reset);
+    _clk = addInput('clk', clk);
+    _reset = addInput('reset', reset);
 
-    frontWrite = fdw.clone()
+    _frontWrite = fdw.clone()
       ..connectIO(this, fdw,
-          inputTags: {DataPortGroup.control},
-          outputTags: {DataPortGroup.data},
+          inputTags: {DataPortGroup.control, DataPortGroup.data},
+          outputTags: {},
           uniquify: (original) => 'frontWrite_$original');
-    frontRead = fdr.clone()
+    _frontRead = fdr.clone()
       ..connectIO(this, fdr,
           inputTags: {DataPortGroup.control},
           outputTags: {DataPortGroup.data},
@@ -465,7 +465,7 @@ class CsrTop extends Module {
     for (final block in bCfgs) {
       _fdWrites.add(DataPortInterface(fdw.dataWidth, blockOffsetWidth));
       _fdReads.add(DataPortInterface(fdr.dataWidth, blockOffsetWidth));
-      blocks.add(CsrBlock(block, clk, reset, _fdWrites.last, _fdReads.last));
+      _blocks.add(CsrBlock(block, _clk, _reset, _fdWrites.last, _fdReads.last));
     }
 
     _buildLogic();
@@ -491,48 +491,48 @@ class CsrTop extends Module {
 
   void _buildLogic() {
     // mask out LSBs to perform a match on block
-    final maskedFrontWrAddr =
-        frontWrite.addr & ~Const((1 << blockOffsetWidth) - 1, width: addrWidth);
+    final maskedFrontWrAddr = _frontWrite.addr &
+        ~Const((1 << blockOffsetWidth) - 1, width: addrWidth);
     final maskedFrontRdAddr =
-        frontRead.addr & ~Const((1 << blockOffsetWidth) - 1, width: addrWidth);
+        _frontRead.addr & ~Const((1 << blockOffsetWidth) - 1, width: addrWidth);
 
     // shift out MSBs to pass the appropriate address into the blocks
-    final shiftedFrontWrAddr = frontWrite.addr.getRange(0, blockOffsetWidth);
-    final shiftedFrontRdAddr = frontRead.addr.getRange(0, blockOffsetWidth);
+    final shiftedFrontWrAddr = _frontWrite.addr.getRange(0, blockOffsetWidth);
+    final shiftedFrontRdAddr = _frontRead.addr.getRange(0, blockOffsetWidth);
 
     // drive frontdoor write and read inputs
-    for (var i = 0; i < blocks.length; i++) {
+    for (var i = 0; i < _blocks.length; i++) {
       _fdWrites[i].en <=
-          frontWrite.en & maskedFrontWrAddr.eq(blocks[i].getAddr(addrWidth));
+          _frontWrite.en & maskedFrontWrAddr.eq(_blocks[i].getAddr(addrWidth));
       _fdReads[i].en <=
-          frontWrite.en & maskedFrontRdAddr.eq(blocks[i].getAddr(addrWidth));
+          _frontWrite.en & maskedFrontRdAddr.eq(_blocks[i].getAddr(addrWidth));
 
       _fdWrites[i].addr <= shiftedFrontWrAddr;
       _fdReads[i].addr <= shiftedFrontRdAddr;
 
-      _fdWrites[i].data <= frontWrite.data;
+      _fdWrites[i].data <= _frontWrite.data;
     }
 
     // capture frontdoor read output
-    final rdData = Logic(name: 'rdData', width: frontRead.dataWidth);
-    final rdCases = blocks
+    final rdData = Logic(name: 'rdData', width: _frontRead.dataWidth);
+    final rdCases = _blocks
         .map((block) => CaseItem(block.getAddr(addrWidth), [
               rdData < block.rdData(),
             ]))
         .toList();
     Combinational([
       Case(maskedFrontRdAddr, rdCases, defaultItem: [
-        rdData < Const(0, width: frontRead.dataWidth),
+        rdData < Const(0, width: _frontRead.dataWidth),
       ]),
     ]);
-    frontRead.data <= rdData;
+    _frontRead.data <= rdData;
   }
 
   /// method to return an individual by name
   CsrBlock getBlock(String nm) =>
-      blocks.firstWhere((element) => element.name == nm);
+      _blocks.firstWhere((element) => element.name == nm);
 
   /// method to return an individual by address
   CsrBlock getBlockByAddr(int addr) =>
-      blocks.firstWhere((element) => element.addr == addr);
+      _blocks.firstWhere((element) => element.addr == addr);
 }
