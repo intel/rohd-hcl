@@ -1,4 +1,4 @@
-// Copyright (C) 2023-2024 Intel Corporation
+// Copyright (C) 2024-2025 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 //
 // csr.dart
@@ -10,220 +10,61 @@
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
 
-/// definitions for various register field access patterns
-enum CsrFieldAccess {
-  /// register field is read only
-  FIELD_READ_ONLY,
-
-  /// register field can be read and written
-  FIELD_READ_WRITE,
-
-  /// writing 1's to the field triggers some other action
-  /// but the field itself is read only
-  FIELD_W1C,
-}
-
-/// definitions for various register access patterns
-enum CsrAccess {
-  /// register field is read only
-  REGISTER_READ_ONLY,
-
-  /// register field can be read and written
-  REGISTER_READ_WRITE,
-}
-
-/// configuration for a register field
-/// if starting bit position and/or width is symbolic based on
-/// the parent register width and/or other fields
-/// it is assumed that those symbolic values are resolved
-/// before construction of the field config
-/// if a field should be duplicated n times within a register,
-/// it is assumed that this object is instantiated n times
-/// within the parent register config accordingly
-class CsrFieldConfig {
-  /// starting bit position of the field in the register
-  final int start;
-
-  /// number of bits in the field
-  final int width;
-
-  /// name for the field
-  final String name;
-
-  /// access rules for the field
-  final CsrFieldAccess access;
-
-  /// construct a new field configuration
-  CsrFieldConfig({
-    required this.start,
-    required this.width,
-    required this.name,
-    required this.access,
-  });
-}
-
-/// configuration for an architectural register
-/// any architecturally fixed fields can be added directly to this class
-/// but any fields with implementation specific config should be left out
-class CsrConfig {
-  /// name for the register
-  final String name;
-
-  /// access rules for the register
-  final CsrAccess access;
-
-  /// fields in this register
-  final List<CsrFieldConfig> fields = [];
-
-  /// construct a new register configuration
-  CsrConfig({
-    required this.name,
-    required this.access,
-  });
-
-  /// add a register field to this register
-  void addField(CsrFieldConfig field) {
-    fields.add(field);
-  }
-}
-
-/// configuration for a register instance
-/// apply implementation specific information to an architectural register
-/// this includes instantiation of fields that require runtime configuration
-/// such runtime configuration might also apply for conditional
-/// instantiation of fields within the register
-class CsrInstanceConfig {
-  /// underlying architectural config
-  final CsrConfig arch;
-
-  /// register's address within its block
-  final int addr;
-
-  /// number of bits in the register
-  final int width;
-
-  /// reset value for the register
-  final int resetValue;
-
-  /// accessor to the name of the arch register
-  String get name => arch.name;
-
-  /// accessor to the privilege of the register
-  CsrAccess get access => arch.access;
-
-  /// accessor to the fields of the register
-  List<CsrFieldConfig> get fields => arch.fields;
-
-  /// construct a new register configuration
-  CsrInstanceConfig({
-    required this.arch,
-    required this.addr,
-    required this.width,
-    required this.resetValue,
-  });
-
-  /// add a register field to this register instance
-  void addField(CsrFieldConfig field) {
-    arch.addField(field);
-  }
-}
-
-/// definition for a coherent block of registers
-/// blocks by definition are instantiations of registers and
-/// hence require CsrInstanceConfig objects
-/// this class is also where the choice to instantiate
-/// any conditional registers should take place
-class CsrBlockConfig {
-  /// name for the block
-  final String name;
-
-  /// address of the first register in the block
-  final int baseAddr;
-
-  /// registers in this block
-  final List<CsrInstanceConfig> registers = [];
-
-  /// construct a new block configuration
-  CsrBlockConfig({
-    required this.name,
-    required this.baseAddr,
-  });
-
-  /// add a register to this block
-  void addRegister(CsrInstanceConfig register) {
-    registers.add(register);
-  }
-}
-
-/// definition for a top level module containing CSR blocks
-/// this class is also where the choice to instantiate
-/// any conditional blocks should take place
-class CsrTopConfig {
-  /// name for the top module
-  final String name;
-
-  /// number of LSBs in an incoming address to ignore
-  /// when assessing the address of a block
-  final int blockOffsetWidth;
-
-  /// blocks in this module
-  final List<CsrBlockConfig> blocks = [];
-
-  /// construct a new top level configuration
-  CsrTopConfig({
-    required this.name,
-    required this.blockOffsetWidth,
-  });
-
-  /// add a block to this module
-  void addBlock(CsrBlockConfig block) {
-    blocks.add(block);
-  }
-}
-
-/// Logic representation of a CSR
+/// Logic representation of a CSR.
+///
+/// Semantically, a register can be created with no fields.
+/// In this case, a single implicit field is created that is
+/// read/write and the entire width of the register.
 class Csr extends LogicStructure {
-  /// bit width of the CSR
-  final int csrWidth;
+  /// Configuration for the CSR.
+  final CsrInstanceConfig config;
 
-  /// address for the CSR
-  final int addr;
+  /// A list of indices of all of the reserved fields in the CSR.
+  /// This is necessary because the configuration does not explicitly
+  /// define reserved fields, but they must be accounted for
+  /// in certain logic involving the CSR.
+  final List<int> rsvdIndices;
 
-  /// reset value for the CSR
-  final int resetValue;
+  /// Getter for the address of the CSR.
+  int get addr => config.addr;
 
-  /// access control for the CSR
-  final CsrAccess access;
+  /// Getter for the reset value of the CSR.
+  int get resetValue => config.resetValue;
 
-  /// CSR fields
-  final List<Logic> fields;
+  /// Getter for the access control of the CSR.
+  CsrAccess get access => config.access;
 
-  /// access control for each field
-  final List<CsrFieldAccess> fieldAccess;
+  /// Getter for the field configuration of the CSR
+  List<CsrFieldConfig> get fields => config.fields;
 
+  /// Explicit constructor.
+  ///
+  /// This constructor is private and should not be used directly.
+  /// Instead, the factory constructor [Csr] should be used.
+  /// This facilitates proper calling of the super constructor.
   Csr._({
-    required super.name,
-    required this.csrWidth,
-    required this.addr,
-    required this.resetValue,
-    required this.access,
-    required this.fields,
-    required this.fieldAccess,
-  }) : super(fields);
+    required this.config,
+    required this.rsvdIndices,
+    required List<Logic> fields,
+  }) : super(fields, name: config.name);
 
+  /// Factory constructor for [Csr].
+  ///
+  /// Because LogicStructure requires a List<Logic> upon construction,
+  /// the factory method assists in creating the List upfront before
+  /// the LogicStructure constructor is called.
   factory Csr(
     CsrInstanceConfig config,
   ) {
     final fields = <Logic>[];
+    final rsvds = <int>[];
     var currIdx = 0;
     var rsvdCount = 0;
-    final acc = <CsrFieldAccess>[];
 
     // semantically a register with no fields means that
     // there is one read/write field that is the entire register
     if (config.fields.isEmpty) {
       fields.add(Logic(name: '${config.name}_data', width: config.width));
-      acc.add(CsrFieldAccess.FIELD_READ_WRITE);
     }
     // there is at least one field explicitly defined so
     // process them individually
@@ -233,100 +74,149 @@ class Csr extends LogicStructure {
           fields.add(Logic(
               name: '${config.name}_rsvd_$rsvdCount',
               width: field.start - currIdx));
-          acc.add(CsrFieldAccess.FIELD_READ_ONLY);
+          rsvds.add(fields.length - 1);
+          rsvdCount++;
         }
         fields.add(
             Logic(name: '${config.name}_${field.name}', width: field.width));
-        acc.add(field.access);
         currIdx = field.start + field.width;
       }
       if (currIdx < config.width) {
         fields.add(Logic(
             name: '${config.name}_rsvd_$rsvdCount',
             width: config.width - currIdx));
-        acc.add(CsrFieldAccess.FIELD_READ_ONLY);
+        rsvds.add(fields.length - 1);
       }
     }
     return Csr._(
-      name: config.name,
-      csrWidth: config.width,
-      addr: config.addr,
-      resetValue: config.resetValue,
-      access: config.access,
+      config: config,
+      rsvdIndices: rsvds,
       fields: fields,
-      fieldAccess: acc,
     );
   }
 
-  /// extract the address as a Const
-  Logic getAddr(int addrWidth) => Const(LogicValue.ofInt(addr, addrWidth));
-
-  /// extract the reset value as a Const
-  Logic getResetValue() => Const(LogicValue.ofInt(resetValue, width));
-
-  /// method to return an individual by name
+  /// Accessor to the bits of a particular field within the CSR by name [nm].
   Logic getField(String nm) =>
-      fields.firstWhere((element) => element.name == '${name}_$nm');
+      elements.firstWhere((element) => element.name == '${name}_$nm');
 
-  /// perform mapping of original write data based on access config
+  /// Accessor to the config of a particular field within the CSR by name [nm].
+  CsrFieldConfig getFieldConfigByName(String nm) => config.getFieldByName(nm);
+
+  /// Given some arbitrary data [wd] to write to this CSR,
+  /// return the data that should actually be written based
+  /// on the access control of the CSR and its fields.
   Logic getWriteData(Logic wd) {
     // if the whole register is ready only, return the current value
-    if (access == CsrAccess.REGISTER_READ_ONLY) {
+    if (access == CsrAccess.READ_ONLY) {
       return this;
     }
     // register can be written, but still need to look at the fields...
     else {
+      // special case of no explicit fields defined
+      // in this case, we have an implicit read/write field
+      // so there is nothing special to do
+      if (fields.isEmpty) {
+        return wd;
+      }
+
+      // otherwise, we need to look at the fields
       var finalWd = wd;
       var currIdx = 0;
-      for (var i = 0; i < fields.length; i++) {
-        // if the given field is read only, take the current value
-        // instead of the new value
-        final chk = fieldAccess[i] == CsrFieldAccess.FIELD_READ_ONLY ||
-            fieldAccess[i] == CsrFieldAccess.FIELD_W1C;
-        if (chk) {
-          finalWd = finalWd.withSet(currIdx, fields[i]);
+      var currField = 0;
+      for (var i = 0; i < elements.length; i++) {
+        // if the given field is reserved or read only
+        // take the current value instead of the new value
+        final chk1 = rsvdIndices.contains(i);
+        if (chk1) {
+          finalWd = finalWd.withSet(currIdx, elements[i]);
+          currIdx += elements[i].width;
+          continue;
         }
-        currIdx += fields[i].width;
+
+        // if the given field is read only
+        // take the current value instead of the new value
+        final chk2 = fields[currField].access == CsrFieldAccess.READ_ONLY ||
+            fields[currField].access == CsrFieldAccess.WRITE_ONES_CLEAR;
+        if (chk2) {
+          finalWd = finalWd.withSet(currIdx, elements[i]);
+          currField++;
+          currIdx += elements[i].width;
+          continue;
+        }
+
+        if (fields[currField].access == CsrFieldAccess.READ_WRITE_LEGAL) {
+          // if the given field is write legal
+          // make sure the value is in fact legal
+          // and transform it if not
+          final origVal =
+              wd.getRange(currIdx, currIdx + fields[currField].width);
+          final legalCases = <Logic, Logic>{};
+          for (var i = 0; i < fields[currField].legalValues.length; i++) {
+            legalCases[Const(fields[currField].legalValues[i],
+                width: fields[currField].width)] = origVal;
+          }
+          final newVal = cases(
+              origVal,
+              conditionalType: ConditionalType.unique,
+              legalCases,
+              defaultValue: Const(fields[currField].transformIllegalValue(),
+                  width: fields[currField].width));
+
+          finalWd = finalWd.withSet(currIdx, newVal);
+          currField++;
+          currIdx += elements[i].width;
+        } else {
+          // normal read/write field
+          currField++;
+          currIdx += elements[i].width;
+        }
       }
       return finalWd;
     }
   }
 }
 
-/// a submodule representing a block of CSRs
+/// Logic representation of a block of registers.
+///
+/// A block is just a collection of registers that are
+/// readable and writable through an addressing scheme
+/// that is relative (offset from) the base address of the block.
 // TODO:
 //  backdoor reads and writes
 class CsrBlock extends Module {
-  /// address for this block
-  final int addr;
+  /// Configuration for the CSR block.
+  final CsrBlockConfig config;
 
-  /// width of address in bits
-  final int addrWidth;
-
-  /// CSRs in this block
+  /// CSRs in this block.
   final List<Csr> csrs;
 
-  /// clk for the module
+  /// Clock for the module.
   late final Logic _clk;
 
-  /// reset for the module
+  /// Reset for the module.
   late final Logic _reset;
 
-  /// interface for frontdoor writes to CSRs
+  /// Interface for frontdoor writes to CSRs.
   late final DataPortInterface _frontWrite;
 
-  /// interface for frontdoor reads to CSRs
+  /// Interface for frontdoor reads to CSRs.
   late final DataPortInterface _frontRead;
 
+  /// Getter for block's base address
+  int get baseAddr => config.baseAddr;
+
+  /// Getter for the CSR configurations.
+  List<CsrInstanceConfig> get registers => config.registers;
+
+  /// Constructor for a CSR block.
   CsrBlock._({
-    required super.name,
-    required this.addr,
+    required this.config,
     required this.csrs,
     required Logic clk,
     required Logic reset,
     required DataPortInterface fdw,
     required DataPortInterface fdr,
-  }) : addrWidth = fdw.addrWidth {
+  }) : super(name: config.name) {
     _clk = addInput('clk', clk);
     _reset = addInput('reset', reset);
 
@@ -344,7 +234,7 @@ class CsrBlock extends Module {
     _buildLogic();
   }
 
-  /// create the CsrBlock from a configuration
+  /// Create the CsrBlock from a configuration.
   factory CsrBlock(
     CsrBlockConfig config,
     Logic clk,
@@ -357,8 +247,7 @@ class CsrBlock extends Module {
       csrs.add(Csr(reg));
     }
     return CsrBlock._(
-      name: config.name,
-      addr: config.baseAddr,
+      config: config,
       csrs: csrs,
       clk: clk,
       reset: reset,
@@ -367,38 +256,40 @@ class CsrBlock extends Module {
     );
   }
 
-  /// extract the address as a Const
-  Logic getAddr(int addrWidth) => Const(LogicValue.ofInt(addr, addrWidth));
+  /// Accessor to the config of a particular register
+  /// within the block by name [nm].
+  CsrInstanceConfig getRegisterByName(String nm) =>
+      config.getRegisterByName(nm);
 
-  /// method to return an individual register by name
-  Csr getRegister(String nm) =>
-      csrs.firstWhere((element) => element.name == nm);
-
-  /// method to return an individual by address
-  Csr getRegisterByAddr(int addr) =>
-      csrs.firstWhere((element) => element.addr == addr);
-
-  /// API method to extract read data from block
-  Logic rdData() => _frontRead.data;
+  /// Accessor to the config of a particular register
+  /// within the block by relative address [addr].
+  CsrInstanceConfig getRegisterByAddr(int addr) =>
+      config.getRegisterByAddr(addr);
 
   void _buildLogic() {
+    final addrWidth = _frontWrite.addrWidth;
+
     // individual CSR write logic
     for (final csr in csrs) {
       Sequential(_clk, reset: _reset, resetValues: {
-        csr: csr.getResetValue(),
+        csr: csr.resetValue,
       }, [
-        If(_frontWrite.en & _frontWrite.addr.eq(csr.getAddr(addrWidth)), then: [
-          csr < csr.getWriteData(_frontWrite.data),
-        ], orElse: [
-          csr < csr,
-        ]),
+        If(
+            _frontWrite.en &
+                _frontWrite.addr.eq(Const(csr.addr, width: addrWidth)),
+            then: [
+              csr < csr.getWriteData(_frontWrite.data),
+            ],
+            orElse: [
+              csr < csr,
+            ]),
       ]);
     }
 
     // individual CSR read logic
     final rdData = Logic(name: 'rdData', width: _frontRead.dataWidth);
     final rdCases = csrs
-        .map((csr) => CaseItem(csr.getAddr(addrWidth), [
+        .map((csr) => CaseItem(Const(csr.addr, width: addrWidth), [
               rdData < csr,
             ]))
         .toList();
@@ -411,43 +302,52 @@ class CsrBlock extends Module {
   }
 }
 
-/// top level CSR module
+/// Top level module encapsulating groups of CSRs.
+///
+/// This top module can include arbitrarily many CSR blocks.
+/// Individual blocks are addressable using some number of
+/// MSBs of the incoming address and registers within the given block
+/// are addressable using the remaining LSBs of the incoming address.
+// TODO:
+//  backdoor reads and writes
 class CsrTop extends Module {
-  /// width of address in bits
-  final int addrWidth;
-
   /// width of the LSBs of the address
   /// to ignore when mapping to blocks
   final int blockOffsetWidth;
 
-  /// CSRs in this block
+  /// Configuration for the CSR Top module.
+  final CsrTopConfig config;
+
+  /// List of CSR blocks in this module.
   final List<CsrBlock> _blocks = [];
 
-  /// clk for the module
+  /// Clock for the module.
   late final Logic _clk;
 
-  /// reset for the module
+  /// Reset for the module.
   late final Logic _reset;
 
-  /// interface for frontdoor writes to CSRs
+  /// Interface for frontdoor writes to CSRs.
   late final DataPortInterface _frontWrite;
 
-  /// interface for frontdoor reads to CSRs
+  /// Interface for frontdoor reads to CSRs.
   late final DataPortInterface _frontRead;
 
   // individual sub interfaces to blocks
   final List<DataPortInterface> _fdWrites = [];
   final List<DataPortInterface> _fdReads = [];
 
+  /// Getter for the block configurations of the CSR.
+  List<CsrBlockConfig> get blocks => config.blocks;
+
   CsrTop._({
-    required super.name,
-    required this.blockOffsetWidth,
+    required this.config,
+    required this.blockOffsetWidth, // TODO: make this part of the config??
     required Logic clk,
     required Logic reset,
     required DataPortInterface fdw,
     required DataPortInterface fdr,
-    required List<CsrBlockConfig> bCfgs,
-  }) : addrWidth = fdw.addrWidth {
+  }) : super(name: config.name) {
     _clk = addInput('clk', clk);
     _reset = addInput('reset', reset);
 
@@ -455,14 +355,14 @@ class CsrTop extends Module {
       ..connectIO(this, fdw,
           inputTags: {DataPortGroup.control, DataPortGroup.data},
           outputTags: {},
-          uniquify: (original) => 'frontWrite_$original');
+          uniquify: (original) => '${name}_frontWrite_$original');
     _frontRead = fdr.clone()
       ..connectIO(this, fdr,
           inputTags: {DataPortGroup.control},
           outputTags: {DataPortGroup.data},
-          uniquify: (original) => 'frontRead_$original');
+          uniquify: (original) => '${name}_frontRead_$original');
 
-    for (final block in bCfgs) {
+    for (final block in config.blocks) {
       _fdWrites.add(DataPortInterface(fdw.dataWidth, blockOffsetWidth));
       _fdReads.add(DataPortInterface(fdr.dataWidth, blockOffsetWidth));
       _blocks.add(CsrBlock(block, _clk, _reset, _fdWrites.last, _fdReads.last));
@@ -480,16 +380,25 @@ class CsrTop extends Module {
     DataPortInterface fdr,
   ) =>
       CsrTop._(
-        name: config.name,
+        config: config,
         blockOffsetWidth: config.blockOffsetWidth,
         clk: clk,
         reset: reset,
         fdw: fdw,
         fdr: fdr,
-        bCfgs: config.blocks,
       );
 
+  /// Accessor to the config of a particular register block
+  /// within the module by name [nm].
+  CsrBlockConfig getBlockByName(String nm) => config.getBlockByName(nm);
+
+  /// Accessor to the config of a particular register block
+  /// within the module by relative address [addr].
+  CsrBlockConfig getBlockByAddr(int addr) => config.getBlockByAddr(addr);
+
   void _buildLogic() {
+    final addrWidth = _frontWrite.addrWidth;
+
     // mask out LSBs to perform a match on block
     final maskedFrontWrAddr = _frontWrite.addr &
         ~Const((1 << blockOffsetWidth) - 1, width: addrWidth);
@@ -503,9 +412,13 @@ class CsrTop extends Module {
     // drive frontdoor write and read inputs
     for (var i = 0; i < _blocks.length; i++) {
       _fdWrites[i].en <=
-          _frontWrite.en & maskedFrontWrAddr.eq(_blocks[i].getAddr(addrWidth));
+          _frontWrite.en &
+              maskedFrontWrAddr
+                  .eq(Const(_blocks[i].baseAddr, width: addrWidth));
       _fdReads[i].en <=
-          _frontWrite.en & maskedFrontRdAddr.eq(_blocks[i].getAddr(addrWidth));
+          _frontWrite.en &
+              maskedFrontRdAddr
+                  .eq(Const(_blocks[i].baseAddr, width: addrWidth));
 
       _fdWrites[i].addr <= shiftedFrontWrAddr;
       _fdReads[i].addr <= shiftedFrontRdAddr;
@@ -516,9 +429,12 @@ class CsrTop extends Module {
     // capture frontdoor read output
     final rdData = Logic(name: 'rdData', width: _frontRead.dataWidth);
     final rdCases = _blocks
-        .map((block) => CaseItem(block.getAddr(addrWidth), [
-              rdData < block.rdData(),
-            ]))
+        .asMap()
+        .entries
+        .map(
+            (block) => CaseItem(Const(block.value.baseAddr, width: addrWidth), [
+                  rdData < _fdReads[block.key].data,
+                ]))
         .toList();
     Combinational([
       Case(maskedFrontRdAddr, rdCases, defaultItem: [
@@ -527,12 +443,4 @@ class CsrTop extends Module {
     ]);
     _frontRead.data <= rdData;
   }
-
-  /// method to return an individual by name
-  CsrBlock getBlock(String nm) =>
-      _blocks.firstWhere((element) => element.name == nm);
-
-  /// method to return an individual by address
-  CsrBlock getBlockByAddr(int addr) =>
-      _blocks.firstWhere((element) => element.addr == addr);
 }

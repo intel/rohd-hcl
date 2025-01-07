@@ -1,4 +1,4 @@
-// Copyright (C) 2023-2024 Intel Corporation
+// Copyright (C) 2024-2025 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 //
 // csr_test.dart
@@ -18,7 +18,7 @@ import 'package:test/test.dart';
 
 class MyNoFieldCsr extends CsrConfig {
   MyNoFieldCsr({super.name = 'myNoFieldCsr'})
-      : super(access: CsrAccess.REGISTER_READ_ONLY);
+      : super(access: CsrAccess.READ_ONLY);
 }
 
 class MyNoFieldCsrInstance extends CsrInstanceConfig {
@@ -31,8 +31,7 @@ class MyNoFieldCsrInstance extends CsrInstanceConfig {
 }
 
 class MyFieldCsr extends CsrConfig {
-  MyFieldCsr({super.name = 'myFieldCsr'})
-      : super(access: CsrAccess.REGISTER_READ_WRITE);
+  MyFieldCsr({super.name = 'myFieldCsr'}) : super(access: CsrAccess.READ_WRITE);
 }
 
 class MyFieldCsrInstance extends CsrInstanceConfig {
@@ -43,24 +42,22 @@ class MyFieldCsrInstance extends CsrInstanceConfig {
     String name = 'myFieldCsrInstance',
   }) : super(arch: MyFieldCsr(name: name)) {
     // example of a static field
-    addField(CsrFieldConfig(
-        start: 0,
-        width: 2,
-        name: 'field1',
-        access: CsrFieldAccess.FIELD_READ_ONLY));
-    // example of a field with dynamic start and width
-    addField(CsrFieldConfig(
-        start: width ~/ 2,
-        width: width ~/ 4,
-        name: 'field2',
-        access: CsrFieldAccess.FIELD_READ_WRITE));
+    fields
+      ..add(CsrFieldConfig(
+          start: 0, width: 2, name: 'field1', access: CsrFieldAccess.READ_ONLY))
+      // example of a field with dynamic start and width
+      ..add(CsrFieldConfig(
+          start: width ~/ 2,
+          width: width ~/ 4,
+          name: 'field2',
+          access: CsrFieldAccess.READ_WRITE));
     // example of field duplication
     for (var i = 0; i < width ~/ 4; i++) {
-      addField(CsrFieldConfig(
+      fields.add(CsrFieldConfig(
           start: (3 * width ~/ 4) + i,
           width: 1,
           name: 'field3_$i',
-          access: CsrFieldAccess.FIELD_W1C));
+          access: CsrFieldAccess.WRITE_ONES_CLEAR));
     }
   }
 }
@@ -78,13 +75,13 @@ class MyRegisterBlock extends CsrBlockConfig {
     this.evensOnly = false,
   }) {
     // static register instance
-    addRegister(MyFieldCsrInstance(addr: 0x0, width: csrWidth, name: 'csr1'));
+    registers.add(MyFieldCsrInstance(addr: 0x0, width: csrWidth, name: 'csr1'));
 
     // dynamic register instances
     for (var i = 0; i < numNoFieldCsrs; i++) {
       final chk = i.isEven || !evensOnly;
       if (chk) {
-        addRegister(MyNoFieldCsrInstance(
+        registers.add(MyNoFieldCsrInstance(
             addr: i + 1, width: csrWidth, name: 'csr2_$i'));
       }
     }
@@ -102,7 +99,7 @@ class MyCsrModule extends CsrTopConfig {
     // example of dynamic block instantiation
     const baseAddr = 0x0;
     for (var i = 0; i < numBlocks; i++) {
-      addBlock(MyRegisterBlock(
+      blocks.add(MyRegisterBlock(
           baseAddr: baseAddr + (i * 0x100),
           numNoFieldCsrs: i + 1,
           evensOnly: i.isEven,
@@ -119,19 +116,23 @@ void main() {
   });
 
   test('simple individual CSRs', () async {
+    const dataWidth1 = 32;
+    const dataWidth2 = 8;
+
     // register with no explicit fields, read only
-    final csr1Cfg = MyNoFieldCsrInstance(addr: 0x0, width: 32, name: 'csr1');
+    final csr1Cfg =
+        MyNoFieldCsrInstance(addr: 0x0, width: dataWidth1, name: 'csr1');
     final csr1 = Csr(csr1Cfg);
 
     // check address and reset value
-    expect(csr1.getAddr(8).value, LogicValue.ofInt(0x0, 8));
-    expect(csr1.getResetValue().value, LogicValue.ofInt(0x0, 32));
+    expect(csr1.addr, 0x0);
+    expect(csr1.resetValue, 0x0);
     csr1.put(csr1.resetValue);
 
     // check write data
     // should return the reset value, since it's read only
-    final wd1 = csr1.getWriteData(Const(0x12345678, width: 32));
-    expect(wd1.value, LogicValue.ofInt(0x0, 32));
+    final wd1 = csr1.getWriteData(Const(0x12345678, width: dataWidth1));
+    expect(wd1.value, LogicValue.ofInt(0x0, dataWidth1));
 
     // register with 3 explicit fields, read/write
     // fields don't cover full width of register
@@ -139,15 +140,15 @@ void main() {
     final csr2 = Csr(csr2Cfg);
 
     // check address and reset value
-    expect(csr2.getAddr(8).value, LogicValue.ofInt(0x1, 8));
-    expect(csr2.getResetValue().value, LogicValue.ofInt(0xff, 8));
+    expect(csr2.addr, 0x1);
+    expect(csr2.resetValue, 0xff);
     csr2.put(csr2.resetValue);
 
     // check the write data
     // only some of what we're trying to write should
     // given the field access rules
-    final wd2 = csr2.getWriteData(Const(0xab, width: 8));
-    expect(wd2.value, LogicValue.ofInt(0xef, 8));
+    final wd2 = csr2.getWriteData(Const(0xab, width: dataWidth2));
+    expect(wd2.value, LogicValue.ofInt(0xef, dataWidth2));
 
     // check grabbing individual fields
     final f1 = csr2.getField('field1');
@@ -189,11 +190,11 @@ void main() {
     unawaited(Simulator.run());
 
     // retrieve block address
-    final blkAddr = csrBlock.getAddr(16);
-    expect(blkAddr.value, LogicValue.ofInt(0x0, 16));
+    final blkAddr = csrBlock.baseAddr;
+    expect(blkAddr, 0x0);
 
     // grab pointers to the CSRs
-    final csr1 = csrBlock.getRegister('csr1');
+    final csr1 = csrBlock.getRegisterByName('csr1');
     final csr2 = csrBlock.getRegisterByAddr(0x2);
 
     // perform a reset
@@ -206,41 +207,42 @@ void main() {
     // ensure that the read data is the reset value
     await clk.nextNegedge;
     rIntf.en.inject(1);
-    rIntf.addr.inject(csr2.getAddr(rIntf.addrWidth).value);
+    rIntf.addr.inject(csr2.addr);
     await clk.nextNegedge;
     rIntf.en.inject(0);
-    expect(csrBlock.rdData().value, csr2.getResetValue().value);
+    expect(
+        rIntf.data.value, LogicValue.ofInt(csr2.resetValue, rIntf.dataWidth));
     await clk.waitCycles(10);
 
     // perform a write of csr2 and then a read
     // ensure that the write takes no effect b/c readonly
     await clk.nextNegedge;
     wIntf.en.inject(1);
-    wIntf.addr.inject(csr2.getAddr(wIntf.addrWidth).value);
+    wIntf.addr.inject(csr2.addr);
     wIntf.data.inject(0xdeadbeef);
     await clk.nextNegedge;
     wIntf.en.inject(0);
     rIntf.en.inject(1);
-    rIntf.addr.inject(csr2.getAddr(rIntf.addrWidth).value);
+    rIntf.addr.inject(csr2.addr);
     await clk.nextNegedge;
     rIntf.en.inject(0);
-    expect(csrBlock.rdData().value, csr2.getResetValue().value);
+    expect(
+        rIntf.data.value, LogicValue.ofInt(csr2.resetValue, rIntf.dataWidth));
     await clk.waitCycles(10);
 
     // perform a write of csr1
     // ensure that the write data is modified appropriately
     await clk.nextNegedge;
     wIntf.en.inject(1);
-    wIntf.addr.inject(csr1.getAddr(wIntf.addrWidth).value);
+    wIntf.addr.inject(csr1.addr);
     wIntf.data.inject(0xdeadbeef);
     await clk.nextNegedge;
     wIntf.en.inject(0);
     rIntf.en.inject(1);
-    rIntf.addr.inject(csr1.getAddr(rIntf.addrWidth).value);
+    rIntf.addr.inject(csr1.addr);
     await clk.nextNegedge;
     rIntf.en.inject(0);
-    expect(
-        csrBlock.rdData().value, LogicValue.ofInt(0xad00ff, rIntf.dataWidth));
+    expect(rIntf.data.value, LogicValue.ofInt(0xad00ff, rIntf.dataWidth));
     await clk.waitCycles(10);
 
     // perform a read of nothing
@@ -249,7 +251,7 @@ void main() {
     rIntf.addr.inject(0xff);
     await clk.nextNegedge;
     rIntf.en.inject(0);
-    expect(csrBlock.rdData().value, LogicValue.ofInt(0, rIntf.dataWidth));
+    expect(rIntf.data.value, LogicValue.ofInt(0, rIntf.dataWidth));
     await clk.waitCycles(10);
 
     await Simulator.endSimulation();
@@ -275,15 +277,15 @@ void main() {
 
     await csrTop.build();
 
-    WaveDumper(csrTop);
+    // WaveDumper(csrTop);
 
     Simulator.setMaxSimTime(10000);
     unawaited(Simulator.run());
 
     // grab pointers to certain blocks and CSRs
-    final block1 = csrTop.getBlock('block_0');
+    final block1 = csrTop.getBlockByName('block_0');
     final block2 = csrTop.getBlockByAddr(0x100);
-    final csr1 = block1.getRegister('csr1');
+    final csr1 = block1.getRegisterByName('csr1');
     final csr2 = block2.getRegisterByAddr(0x2);
 
     // perform a reset
@@ -293,19 +295,18 @@ void main() {
     await clk.waitCycles(10);
 
     // perform a read to a particular register in a particular block
-    final addr1 =
-        block2.getAddr(rIntf.addrWidth) + csr2.getAddr(rIntf.addrWidth);
+    final addr1 = Const(block2.baseAddr + csr2.addr, width: rIntf.addrWidth);
     await clk.nextNegedge;
     rIntf.en.inject(1);
     rIntf.addr.inject(addr1.value);
     await clk.nextNegedge;
     rIntf.en.inject(0);
-    expect(rIntf.data.value, csr2.getResetValue().value);
+    expect(
+        rIntf.data.value, LogicValue.ofInt(csr2.resetValue, rIntf.dataWidth));
     await clk.waitCycles(10);
 
     // perform a write to a particular register in a particular block
-    final addr2 =
-        block1.getAddr(rIntf.addrWidth) + csr1.getAddr(rIntf.addrWidth);
+    final addr2 = Const(block1.baseAddr + csr1.addr, width: rIntf.addrWidth);
     await clk.nextNegedge;
     wIntf.en.inject(1);
     wIntf.addr.inject(addr2.value);
