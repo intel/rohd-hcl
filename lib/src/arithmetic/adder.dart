@@ -67,3 +67,19 @@ class FullAdder extends Adder {
     sum <= [carryIn! & (a ^ b) | a & b, (a ^ b) ^ carryIn!].swizzle();
   }
 }
+
+/// A class which wraps the native '+' operator so that it can be passed
+/// into other modules as a parameter for using the native operation.
+class NativeAdder extends Adder {
+  /// The width of input [a] and [b] must be the same.
+  NativeAdder(super.a, super.b, {super.carryIn, super.name = 'native_adder'}) {
+    if (a.width != b.width) {
+      throw RohdHclException('inputs of a and b should have same width.');
+    }
+    if (carryIn != null) {
+      sum <= a.zeroExtend(a.width + 1) + b.zeroExtend(b.width + 1);
+    } else {
+      sum <= a.zeroExtend(a.width + 1) + b.zeroExtend(b.width + 1) + carryIn;
+    }
+  }
+}

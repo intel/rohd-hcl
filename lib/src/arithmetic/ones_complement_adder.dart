@@ -25,16 +25,18 @@ class OnesComplementAdder extends Adder {
   @protected
   Logic _sign = Logic();
 
-  /// [OnesComplementAdder] constructor with an adder functor [adderGen]
-  /// Either a Logic [subtractIn] or a boolean [subtract] can enable
-  /// subtraction, with [subtractIn] overriding [subtract].  If Logic [carryOut]
-  /// is provided as not null, then the end-around carry is not performed and is
-  /// left to the caller via the output [carryOut].
+  /// [OnesComplementAdder] constructor with an adder functor [adderGen].
+  ///  - Either a Logic [subtractIn] or a boolean [subtract] can enable
+  /// subtraction, with [subtractIn] overriding [subtract].
+  /// - If Logic [carryOut] is provided as not null, then the end-around carry
+  ///  is not performed and is provided as value on [carryOut].
+  /// - [carryIn] allows for another adder to chain into this one.
   OnesComplementAdder(super.a, super.b,
       {Adder Function(Logic, Logic, {Logic? carryIn}) adderGen =
           ParallelPrefixAdder.new,
       Logic? subtractIn,
       Logic? carryOut,
+      Logic? carryIn,
       bool subtract = false,
       super.name = 'ones_complement_adder'}) {
     if (subtractIn != null) {
@@ -55,12 +57,13 @@ class OnesComplementAdder extends Adder {
     final ax = a.zeroExtend(a.width);
     final bx = b.zeroExtend(b.width);
 
-    final adder = adderGen(ax, mux(doSubtract, ~bx, bx));
+    final adder =
+        adderGen(ax, mux(doSubtract, ~bx, bx), carryIn: carryIn ?? Const(0));
 
     if (this.carryOut != null) {
       this.carryOut! <= adder.sum[-1];
     }
-    final endAround = mux(doSubtract, adder.sum[-1], Const(0));
+    final endAround = adder.sum[-1];
     final magnitude = adder.sum.slice(a.width - 1, 0);
 
     sum <=

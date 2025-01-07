@@ -42,7 +42,7 @@ class FloatToFixed extends Module {
     n = bias + float.mantissa.width - 1;
     final outputWidth = m + n + 1;
 
-    final jBit = Logic(name: 'jBit')..gets(float.isNormal());
+    final jBit = Logic(name: 'jBit')..gets(float.isNormal);
     final shift = Logic(name: 'shift', width: float.exponent.width)
       ..gets(
           mux(jBit, float.exponent - 1, Const(0, width: float.exponent.width)));

@@ -4,7 +4,7 @@ ROHD-HCL provides a set of adder modules to get the sum from a pair of Logic. So
 
 - [Ripple Carry Adder](#ripple-carry-adder)
 - [Parallel Prefix Adder](#parallel-prefix-adder)
-- [One's Complement Adder Subtractor](#ones-complement-adder-subtractor)
+- [Ones' Complement Adder Subtractor](#ones-complement-adder-subtractor)
 - [Sign Magnitude Adder](#sign-magnitude-adder)
 - [Compound Adder](#compound-adder)
 
@@ -50,7 +50,7 @@ Here is an example of instantiating a [ParallelPrefixAdder](https://intel.github
 
 ## Ones' Complement Adder Subtractor
 
-A ones-complement adder (and subtractor) is useful in efficient arithmetic operations as the
+A ones'-complement adder (and subtractor) is useful in efficient arithmetic operations as the
 end-around carry can be bypassed and used later.
 
 The [OnesComplementAdder](https://intel.github.io/rohd-hcl/rohd_hcl/OnesComplementAdder-class.html) can take a subtraction command as either a `Logic` `subtractIn` or a boolean `subtract` (the Logic overrides the boolean).  If Logic `carry` is provided, the end-around carry is output on `carry` and the value will be one less than expected when `carry` is high.  An `adderGen` adder function can be provided that generates your favorite internal adder (such as a parallel prefix adder).
@@ -76,7 +76,7 @@ Here is an example of instantiating a  [OnesComplementAdder](https://intel.githu
 
 ## Sign Magnitude Adder
 
-A sign magnitude adder is useful in situations where the sign of the addends is separated from their magnitude (e.g., not 2s complement), such as in floating point multipliers.  The [SignMagnitudeAdder](https://intel.github.io/rohd-hcl/rohd_hcl/SignMagnitudeAdder-class.html) inherits from `Adder` but adds the `Logic` inputs for the two operands.
+A sign magnitude adder is useful in situations where the sign of the addends is separated from their magnitude (e.g., not twos' complement), such as in floating point multipliers.  The [SignMagnitudeAdder](https://intel.github.io/rohd-hcl/rohd_hcl/SignMagnitudeAdder-class.html) inherits from `Adder` but adds the `Logic` inputs for the two operands.
 
 If you can supply the largest magnitude number first, then you can disable a comparator generation inside by declaring the `largestMagnitudeFirst` option as true.
 
@@ -136,4 +136,24 @@ final sum1 = rippleCarryAdder.sum1;
 
 final rippleCarryAdder4BitBlock = CarrySelectCompoundAdder(a, b,
         widthGen: CarrySelectCompoundAdder.splitSelectAdderAlgorithm4Bit);
+```
+
+## Native Adder
+
+As logic synthesis can replace a '+' in RTL with a wide variety of adder architectures on its own, we have a [NativeAdder] wrapper class that allows you to use the native '+' with any component that exposes an [Adder] functor as a parameter:
+
+```dart
+// API definition: FloatingPointAdderRound(super.a, super.b,
+//       {Logic? subtract,
+//       super.clk,
+//       super.reset,
+//       super.enable,
+//       Adder Function(Logic, Logic, {Logic? carryIn}) adderGen =
+//           ParallelPrefixAdder.new,
+//       ParallelPrefix Function(List<Logic>, Logic Function(Logic, Logic))
+//           ppTree = KoggeStone.new,
+//       super.name = 'floating_point_adder_round'})
+
+// Instantiate with a NativeAdder as the internal adder
+final adder = FloatingPointAdderRound(a, b, adderGen: NativeAdder.new);
 ```

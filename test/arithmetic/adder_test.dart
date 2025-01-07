@@ -311,6 +311,22 @@ void main() {
     }
   });
 
+  test('ones complement subtractor', () {
+    const width = 5;
+    final a = Logic(width: width);
+    final b = Logic(width: width);
+
+    const subtract = true;
+    const av = 1;
+    const bv = 6;
+
+    a.put(av);
+    b.put(bv);
+    final adder = OnesComplementAdder(a, b, subtract: subtract);
+    expect(adder.sum.value.toInt(), equals(bv - av));
+    expect(adder.sign.value, LogicValue.one);
+  });
+
   test('ones complement with Logic subtract', () {
     const width = 2;
     final a = Logic(width: width);

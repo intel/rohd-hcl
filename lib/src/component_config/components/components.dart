@@ -13,6 +13,7 @@ export 'config_fixed_to_float.dart';
 export 'config_float8_to_fixed.dart';
 export 'config_float_to_fixed.dart';
 export 'config_floating_point_adder_round.dart';
+export 'config_floating_point_multiplier_simple.dart';
 export 'config_one_hot.dart';
 export 'config_parallel_prefix_adder.dart';
 export 'config_priority_arbiter.dart';

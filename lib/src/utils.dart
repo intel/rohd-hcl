@@ -63,3 +63,50 @@ extension SignedBigInt on BigInt {
           ? BigInt.from(value).toSigned(width)
           : BigInt.from(value).toUnsigned(width);
 }
+
+/// Conditionally constructs a positive edge triggered flip condFlop on [clk].
+///
+/// It returns either [FlipFlop.q] if [clk] is valid or [d] if not.
+///
+/// When the optional [en] is provided, an additional input will be created for
+/// condFlop. If optional [en] is high or not provided, output will vary as per
+/// input[d]. For low [en], output remains frozen irrespective of input [d].
+///
+/// When the optional [reset] is provided, the condFlop will be reset
+/// (active-high).
+/// If no [resetValue] is provided, the reset value is always `0`. Otherwise,
+/// it will reset to the provided [resetValue].
+Logic condFlop(
+  Logic? clk,
+  Logic d, {
+  Logic? en,
+  Logic? reset,
+  dynamic resetValue,
+}) =>
+    (clk == null)
+        ? d
+        : flop(
+            clk,
+            d,
+            en: en,
+            reset: reset,
+            resetValue: resetValue,
+          );
+
+/// A bit shifter that takes a positive or negative shift amount
+class SignedShifter extends Module {
+  /// The output [shifted] bits
+  Logic get shifted => output('shifted');
+
+  /// Create a [SignedShifter] that treats shift as signed
+  /// - [bits] is the input to be shifted
+  /// - [shift] is the signed amount to be shifted
+
+  SignedShifter(Logic bits, Logic shift, {super.name = 'shifter'}) {
+    bits = addInput('bits', bits, width: bits.width);
+    shift = addInput('shift', shift, width: shift.width);
+
+    addOutput('shifted', width: bits.width);
+    shifted <= mux(shift[-1], bits >>> shift.abs(), bits << shift);
+  }
+}

@@ -89,7 +89,7 @@ void testPriorityEncoder(
 
     // put/expect testing
 
-    for (var j = 0; j < (1 << n); ++j) {
+    for (var j = 1; j < (1 << n); ++j) {
       final golden = computePriorityEncoding(j);
       inp.put(j);
       final result = mod.out.value.toInt();
@@ -202,6 +202,22 @@ void main() {
     expect(ParallelPrefixPriorityEncoder(val).out.value.toInt(), equals(0));
     expect(ParallelPrefixPriorityEncoder(val.reversed).out.value.toInt(),
         equals(3));
+
+    final valid = Logic();
+    ParallelPrefixPriorityEncoder(val, valid: valid);
+    expect(valid.value.toBool(), equals(true));
+  });
+  test('priority encoder return beyond width if zero', () {
+    final val = Logic(width: 5);
+    // ignore: cascade_invocations
+    val.put(0);
+    expect(ParallelPrefixPriorityEncoder(val).out.value.toInt(),
+        equals(val.width + 1));
+    expect(ParallelPrefixPriorityEncoder(val.reversed).out.value.toInt(),
+        equals(val.width + 1));
+    final valid = Logic();
+    ParallelPrefixPriorityEncoder(val, valid: valid);
+    expect(valid.value.toBool(), equals(false));
   });
 
   // Note:  all ParallelPrefixAdders are tested in adder_test.dart

@@ -26,6 +26,7 @@ List<Configurator> get componentRegistry => [
       EdgeDetectorConfigurator(),
       FindConfigurator(),
       FloatingPointAdderRoundConfigurator(),
+      FloatingPointMultiplierSimpleConfigurator(),
       ParallelPrefixAdderConfigurator(),
       CompressionTreeMultiplierConfigurator(),
       ExtremaConfigurator(),

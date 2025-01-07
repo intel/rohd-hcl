@@ -17,27 +17,29 @@ import 'package:test/test.dart';
 
 void main() {
   test('FPV: exhaustive round-trip', () {
-    const signStr = '0';
     const exponentWidth = 4;
     const mantissaWidth = 4;
-    var exponent = LogicValue.zero.zeroExtend(exponentWidth);
-    var mantissa = LogicValue.zero.zeroExtend(mantissaWidth);
-    for (var k = 0; k < pow(2.0, exponentWidth).toInt() - 1; k++) {
-      final expStr = exponent.bitString;
-      for (var i = 0; i < pow(2.0, mantissaWidth).toInt(); i++) {
-        final mantStr = mantissa.bitString;
-        final fp = FloatingPointValue.ofBinaryStrings(signStr, expStr, mantStr);
-        final dbl = fp.toDouble();
-        final fp2 = FloatingPointValue.ofDouble(dbl,
-            exponentWidth: exponentWidth, mantissaWidth: mantissaWidth);
-        if (fp != fp2) {
-          if (fp.isNaN() != fp2.isNaN()) {
-            expect(fp, equals(fp2));
+    for (final signStr in ['0', '1']) {
+      var exponent = LogicValue.zero.zeroExtend(exponentWidth);
+      var mantissa = LogicValue.zero.zeroExtend(mantissaWidth);
+      for (var k = 0; k < pow(2.0, exponentWidth).toInt() - 1; k++) {
+        final expStr = exponent.bitString;
+        for (var i = 0; i < pow(2.0, mantissaWidth).toInt(); i++) {
+          final mantStr = mantissa.bitString;
+          final fp =
+              FloatingPointValue.ofBinaryStrings(signStr, expStr, mantStr);
+          final dbl = fp.toDouble();
+          final fp2 = FloatingPointValue.ofDouble(dbl,
+              exponentWidth: exponentWidth, mantissaWidth: mantissaWidth);
+          if (fp != fp2) {
+            if (fp.isNaN() != fp2.isNaN()) {
+              expect(fp, equals(fp2));
+            }
           }
+          mantissa = mantissa + 1;
         }
-        mantissa = mantissa + 1;
+        exponent = exponent + 1;
       }
-      exponent = exponent + 1;
     }
   });
 
@@ -164,10 +166,7 @@ void main() {
     for (var c = 0; c < corners.length; c++) {
       final val = corners[c][1] as double;
       final str = corners[c][0] as String;
-      final fp =
-          FloatingPointValue.ofDouble(val, exponentWidth: 4, mantissaWidth: 3);
-      expect(val, fp.toDouble());
-      expect(str, fp.toString());
+
       final fp8 = FloatingPoint8E4M3Value.ofDouble(val);
       expect(val, fp8.toDouble());
       expect(str, fp8.toString());
@@ -312,5 +311,106 @@ void main() {
     expect(
         fp2.compareTo(FloatingPointValue.ofSpacedBinaryString('0 0000 0000')),
         equals(0));
+  });
+  test('FPV: infinity/NaN conversion tests', () async {
+    const exponentWidth = 4;
+    const mantissaWidth = 4;
+    final infinity = FloatingPointValue.getFloatingPointConstant(
+        FloatingPointConstants.infinity, exponentWidth, mantissaWidth);
+    final negativeInfinity = FloatingPointValue.getFloatingPointConstant(
+        FloatingPointConstants.negativeInfinity, exponentWidth, mantissaWidth);
+
+    final tooLargeNumber = FloatingPointValue.ofDouble(257,
+        exponentWidth: exponentWidth, mantissaWidth: mantissaWidth);
+
+    expect(infinity.toDouble(), equals(double.infinity));
+    expect(negativeInfinity.toDouble(), equals(double.negativeInfinity));
+
+    expect(tooLargeNumber.toDouble(), equals(double.infinity));
+
+    expect(tooLargeNumber.negate().toDouble(), equals(double.negativeInfinity));
+
+    expect(
+        FloatingPointValue.getFloatingPointConstant(
+                FloatingPointConstants.nan, exponentWidth, mantissaWidth)
+            .toDouble()
+            .isNaN,
+        equals(true));
+  });
+  test('FPV: infinity/NaN unrounded conversion tests', () async {
+    const exponentWidth = 4;
+    const mantissaWidth = 4;
+    final infinity = FloatingPointValue.ofDoubleUnrounded(double.infinity,
+        exponentWidth: exponentWidth, mantissaWidth: mantissaWidth);
+    final negativeInfinity = FloatingPointValue.ofDoubleUnrounded(
+        double.negativeInfinity,
+        exponentWidth: exponentWidth,
+        mantissaWidth: mantissaWidth);
+    final tooLargeNumber = FloatingPointValue.ofDoubleUnrounded(257,
+        exponentWidth: exponentWidth, mantissaWidth: mantissaWidth);
+    expect(tooLargeNumber.toDouble(), equals(double.infinity));
+    expect(infinity.toDouble(), equals(double.infinity));
+    expect(tooLargeNumber.negate().toDouble(), equals(double.negativeInfinity));
+    expect(negativeInfinity.toDouble(), equals(double.negativeInfinity));
+  });
+
+  test('FPV: infinity operation tests', () {
+    const exponentWidth = 4;
+    const mantissaWidth = 4;
+    final one = FloatingPointValue.getFloatingPointConstant(
+        FloatingPointConstants.one, exponentWidth, mantissaWidth);
+    final zero = FloatingPointValue.getFloatingPointConstant(
+        FloatingPointConstants.positiveZero, exponentWidth, mantissaWidth);
+    final infinity = FloatingPointValue.getFloatingPointConstant(
+        FloatingPointConstants.infinity, exponentWidth, mantissaWidth);
+    final negativeInfinity = FloatingPointValue.getFloatingPointConstant(
+        FloatingPointConstants.negativeInfinity, exponentWidth, mantissaWidth);
+
+    for (final f in [infinity, negativeInfinity]) {
+      for (final s in [infinity, negativeInfinity]) {
+        // Addition
+        if (f == s) {
+          expect((f + s).toDouble(), equals(f.toDouble() + s.toDouble()));
+        } else {
+          expect((f + s).toDouble().isNaN,
+              equals((f.toDouble() + s.toDouble()).isNaN));
+        }
+        // Subtraction
+        if (f != s) {
+          expect((f - s).toDouble(), equals(f.toDouble()));
+        } else {
+          expect((f - s).toDouble().isNaN,
+              equals((f.toDouble() - s.toDouble()).isNaN));
+        }
+        // Multiplication
+        expect((f * s).toDouble(), equals(f.toDouble() * s.toDouble()));
+        // Division
+        expect((f / s).toDouble().isNaN,
+            equals((f.toDouble() / s.toDouble()).isNaN));
+      }
+    }
+    for (final f in [infinity, negativeInfinity]) {
+      for (final s in [zero, one]) {
+        // Addition
+        expect((f + s).toDouble(), equals(f.toDouble() + s.toDouble()));
+        // Subtraction
+        expect((f - s).toDouble(), equals(f.toDouble()));
+        expect((s - f).toDouble(), equals(-f.toDouble()));
+        // Multiplication
+        if (s == zero) {
+          expect((f * s).toDouble().isNaN,
+              equals((f.toDouble() * s.toDouble()).isNaN));
+        } else {
+          expect((f * s).toDouble(), equals(f.toDouble()));
+        }
+        // Division
+        if (s == zero) {
+          expect((f / s).toDouble().isNaN,
+              equals((f.toDouble() * s.toDouble()).isNaN));
+        } else {
+          expect((f / s).toDouble(), equals(f.toDouble()));
+        }
+      }
+    }
   });
 }

@@ -8,71 +8,12 @@
 // Author: Desmond A Kirkpatrick <desmond.a.kirkpatrick@intel.com
 
 import 'dart:math';
-
-import 'package:meta/meta.dart';
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
 
-/// Conditionally constructs a positive edge triggered flip condFlop on [clk].
-///
-/// It returns either [FlipFlop.q] if [clk] is valid or [d] if not.
-///
-/// When the optional [en] is provided, an additional input will be created for
-/// condFlop. If optional [en] is high or not provided, output will vary as per
-/// input[d]. For low [en], output remains frozen irrespective of input [d].
-///
-/// When the optional [reset] is provided, the condFlop will be reset
-/// (active-high).
-/// If no [resetValue] is provided, the reset value is always `0`. Otherwise,
-/// it will reset to the provided [resetValue].
-Logic condFlop(
-  Logic? clk,
-  Logic d, {
-  Logic? en,
-  Logic? reset,
-  dynamic resetValue,
-}) =>
-    (clk == null)
-        ? d
-        : flop(
-            clk,
-            d,
-            en: en,
-            reset: reset,
-            resetValue: resetValue,
-          );
-
 /// An adder module for variable FloatingPoint type with rounding.
 // This is a Seidel/Even adder, dual-path implementation.
-class FloatingPointAdderRound extends Module {
-  /// Must be greater than 0.
-  final int exponentWidth;
-
-  /// Must be greater than 0.
-  final int mantissaWidth;
-
-  /// The [clk]:  if a valid clock signal is passed in, a pipestage is added to
-  /// the adder to help optimize frequency.
-  Logic? clk;
-
-  /// Optional [reset], used only if a [clk] is not null to reset the pipeline
-  /// flops.
-  Logic? reset;
-
-  /// Optional [enable], used only if a [clk] is not null to enable the pipeline
-  /// flops.
-  Logic? enable;
-
-  /// Output [FloatingPoint] representing the sum of two input [FloatingPoint]s
-  late final FloatingPoint sum =
-      FloatingPoint(exponentWidth: exponentWidth, mantissaWidth: mantissaWidth)
-        ..gets(output('sum'));
-
-  /// The result of [FloatingPoint] addition
-  @protected
-  late final FloatingPoint _sum =
-      FloatingPoint(exponentWidth: exponentWidth, mantissaWidth: mantissaWidth);
-
+class FloatingPointAdderRound extends FloatingPointAdder {
   /// Swapping two FloatingPoint structures based on a conditional
   static (FloatingPoint, FloatingPoint) _swap(
           Logic swap, (FloatingPoint, FloatingPoint) toSwap) =>
@@ -87,34 +28,34 @@ class FloatingPointAdderRound extends Module {
   /// functions.
   /// [ppTree] is an ParallelPrefix generator for use in increment /decrement
   ///  functions.
-  FloatingPointAdderRound(FloatingPoint a, FloatingPoint b,
+  FloatingPointAdderRound(super.a, super.b,
       {Logic? subtract,
-      this.clk,
-      this.reset,
-      this.enable,
+      super.clk,
+      super.reset,
+      super.enable,
       Adder Function(Logic, Logic, {Logic? carryIn}) adderGen =
           ParallelPrefixAdder.new,
       ParallelPrefix Function(List<Logic>, Logic Function(Logic, Logic))
           ppTree = KoggeStone.new,
       super.name = 'floating_point_adder_round'})
-      : exponentWidth = a.exponent.width,
-        mantissaWidth = a.mantissa.width {
-    if (b.exponent.width != exponentWidth ||
-        b.mantissa.width != mantissaWidth) {
-      throw RohdHclException('FloatingPoint widths must match');
-    }
-    if (clk != null) {
-      clk = addInput('clk', clk!);
-    }
-    if (reset != null) {
-      reset = addInput('reset', reset!);
-    }
-    if (enable != null) {
-      enable = addInput('enable', enable!);
-    }
-    a = a.clone()..gets(addInput('a', a, width: a.width));
-    b = b.clone()..gets(addInput('b', b, width: b.width));
-    addOutput('sum', width: _sum.width) <= _sum;
+      : super() {
+    final outSum = FloatingPoint(
+        exponentWidth: exponentWidth, mantissaWidth: mantissaWidth);
+    addOutput('sum', width: outSum.width) <= outSum;
+
+    // Ensure that the larger number is wired as 'a'
+    final doSwap = ia.exponent.lt(ib.exponent) |
+        (ia.exponent.eq(ib.exponent) & ia.mantissa.lt(ib.mantissa)) |
+        ((ia.exponent.eq(ib.exponent) & ia.mantissa.eq(ib.mantissa)) & ia.sign);
+    final FloatingPoint a;
+    final FloatingPoint b;
+    (a, b) = _swap(doSwap, (ia, ib));
+
+    // Seidel: S.EFF = effectiveSubtraction
+    final effectiveSubtraction = a.sign ^ b.sign ^ (subtract ?? Const(0));
+    final isNaN =
+        a.isNaN | b.isNaN | a.isInfinity & b.isInfinity & effectiveSubtraction;
+    final isInf = a.isInfinity | b.isInfinity;
 
     final exponentSubtractor = OnesComplementAdder(a.exponent, b.exponent,
         subtract: true, adderGen: adderGen, name: 'exponent_sub');
@@ -126,16 +67,13 @@ class FloatingPointAdderRound extends Module {
     final (larger, smaller) = _swap(signDelta, (a, b));
 
     final fl = mux(
-        larger.isNormal(),
-        [larger.isNormal(), larger.mantissa].swizzle(),
+        larger.isNormal,
+        [larger.isNormal, larger.mantissa].swizzle(),
         [larger.mantissa, Const(0)].swizzle());
     final fs = mux(
-        smaller.isNormal(),
-        [smaller.isNormal(), smaller.mantissa].swizzle(),
+        smaller.isNormal,
+        [smaller.isNormal, smaller.mantissa].swizzle(),
         [smaller.mantissa, Const(0)].swizzle());
-
-    // Seidel: S.EFF = effectiveSubtraction
-    final effectiveSubtraction = a.sign ^ b.sign ^ (subtract ?? Const(0));
 
     // Seidel: flp  larger preshift, normally in [2,4)
     final sigWidth = fl.width + 1;
@@ -163,9 +101,9 @@ class FloatingPointAdderRound extends Module {
 
     /// R Pipestage here:
     final aIsNormalLatched =
-        condFlop(clk, a.isNormal(), en: enable, reset: reset);
+        condFlop(clk, a.isNormal, en: enable, reset: reset);
     final bIsNormalLatched =
-        condFlop(clk, b.isNormal(), en: enable, reset: reset);
+        condFlop(clk, b.isNormal, en: enable, reset: reset);
     final effectiveSubtractionLatched =
         condFlop(clk, effectiveSubtraction, en: enable, reset: reset);
     final largeOperandLatched =
@@ -177,6 +115,8 @@ class FloatingPointAdderRound extends Module {
     final largerExpLatched =
         condFlop(clk, larger.exponent, en: enable, reset: reset);
     final deltaLatched = condFlop(clk, delta, en: enable, reset: reset);
+    final isInfLatched = condFlop(clk, isInf, en: enable, reset: reset);
+    final isNaNLatched = condFlop(clk, isNaN, en: enable, reset: reset);
 
     final carryRPath = Logic();
     final significandAdderRPath = OnesComplementAdder(
@@ -278,13 +218,21 @@ class FloatingPointAdderRound extends Module {
     final significandNPath =
         significandSubtractorNPath.sum.slice(smallOperandNPath.width - 1, 0);
 
-    final leadOneNPath = mux(
-        significandNPath.or(),
-        ParallelPrefixPriorityEncoder(significandNPath.reversed,
-                ppGen: ppTree, name: 'npath_leadingOne')
-            .out
-            .zeroExtend(exponentWidth),
-        Const(15, width: exponentWidth));
+    final validLeadOneNPath = Logic();
+    final leadOneNPathPre = ParallelPrefixPriorityEncoder(
+            significandNPath.reversed,
+            ppGen: ppTree,
+            valid: validLeadOneNPath,
+            name: 'npath_leadingOne')
+        .out;
+    // Limit leadOne to exponent range and match widths
+    final leadOneNPath = (leadOneNPathPre.width > exponentWidth)
+        ? mux(
+            leadOneNPathPre
+                .gte(a.inf().exponent.zeroExtend(leadOneNPathPre.width)),
+            a.inf().exponent,
+            leadOneNPathPre.getRange(0, exponentWidth))
+        : leadOneNPathPre.zeroExtend(exponentWidth);
 
     // N pipestage here:
     final significandNPathLatched =
@@ -294,6 +242,8 @@ class FloatingPointAdderRound extends Module {
         en: enable, reset: reset);
     final leadOneNPathLatched =
         condFlop(clk, leadOneNPath, en: enable, reset: reset);
+    final validLeadOneNPathLatched =
+        condFlop(clk, validLeadOneNPath, en: enable, reset: reset);
     final largerSignLatched =
         condFlop(clk, larger.sign, en: enable, reset: reset);
     final smallerSignLatched =
@@ -307,7 +257,8 @@ class FloatingPointAdderRound extends Module {
 
     final preExpNPath = expCalcNPath.sum.slice(exponentWidth - 1, 0);
 
-    final posExpNPath = preExpNPath.or() & ~expCalcNPath.sign;
+    final posExpNPath =
+        preExpNPath.or() & ~expCalcNPath.sign & validLeadOneNPathLatched;
 
     final exponentNPath = mux(posExpNPath, preExpNPath, zeroExp);
 
@@ -330,14 +281,29 @@ class FloatingPointAdderRound extends Module {
 
     final isR = deltaLatched.gte(Const(2, width: delta.width)) |
         ~effectiveSubtractionLatched;
-    _sum <=
-        mux(
-            isR,
-            [
-              largerSignLatched,
-              exponentRPath,
-              mantissaRPath.slice(mantissaRPath.width - 2, 1)
-            ].swizzle(),
-            [signNPath, exponentNPath, finalSignificandNPath].swizzle());
+
+    Combinational([
+      If(isNaNLatched, then: [
+        outSum < outSum.nan,
+      ], orElse: [
+        If(isInfLatched, then: [
+          // ROHD 0.6.0 trace error if we use the following
+          // outSum < outSum.inf(inSign: largerSignLatched),
+          outSum.sign < largerSignLatched,
+          outSum.exponent < outSum.nan.exponent,
+          outSum.mantissa < Const(0, width: mantissaWidth, fill: true),
+        ], orElse: [
+          If(isR, then: [
+            outSum.sign < largerSignLatched,
+            outSum.exponent < exponentRPath,
+            outSum.mantissa < mantissaRPath.slice(mantissaRPath.width - 2, 1),
+          ], orElse: [
+            outSum.sign < signNPath,
+            outSum.exponent < exponentNPath,
+            outSum.mantissa < finalSignificandNPath,
+          ])
+        ])
+      ])
+    ]);
   }
 }
