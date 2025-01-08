@@ -33,8 +33,7 @@ class FloatingPointAdderRound extends FloatingPointAdder {
       super.clk,
       super.reset,
       super.enable,
-      Adder Function(Logic, Logic, {Logic? carryIn}) adderGen =
-          ParallelPrefixAdder.new,
+      Adder Function(Logic, Logic, {Logic? carryIn}) adderGen = NativeAdder.new,
       ParallelPrefix Function(List<Logic>, Logic Function(Logic, Logic))
           ppTree = KoggeStone.new,
       super.name = 'floating_point_adder_round'})

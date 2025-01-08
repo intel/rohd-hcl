@@ -76,10 +76,13 @@ class NativeAdder extends Adder {
     if (a.width != b.width) {
       throw RohdHclException('inputs of a and b should have same width.');
     }
-    if (carryIn != null) {
+    if (carryIn == null) {
       sum <= a.zeroExtend(a.width + 1) + b.zeroExtend(b.width + 1);
     } else {
-      sum <= a.zeroExtend(a.width + 1) + b.zeroExtend(b.width + 1) + carryIn;
+      sum <=
+          a.zeroExtend(a.width + 1) +
+              b.zeroExtend(b.width + 1) +
+              carryIn!.zeroExtend(a.width + 1);
     }
   }
 }

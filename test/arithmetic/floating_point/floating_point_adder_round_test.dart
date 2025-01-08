@@ -430,7 +430,7 @@ void main() {
         exponentWidth: exponentWidth, mantissaWidth: mantissaWidth);
     expect(adder.sum.floatingPointValue, equals(expectedNoRound));
   });
-  test('FP: rounding with native adder', () async {
+  test('FP: rounding with prefix adder', () async {
     final clk = SimpleClockGenerator(10).clk;
 
     const eWidth = 3;
@@ -459,8 +459,8 @@ void main() {
     } else {
       expected = expectedRound;
     }
-    final adder =
-        FloatingPointAdderRound(clk: clk, fa, fb, adderGen: NativeAdder.new);
+    final adder = FloatingPointAdderRound(
+        clk: clk, fa, fb, adderGen: ParallelPrefixAdder.new);
     await adder.build();
     unawaited(Simulator.run());
     await clk.nextNegedge;

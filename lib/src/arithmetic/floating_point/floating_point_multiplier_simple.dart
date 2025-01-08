@@ -14,12 +14,17 @@ import 'package:rohd_hcl/src/arithmetic/partial_product_sign_extend.dart';
 /// A multiplier module for FloatingPoint logic
 class FloatingPointMultiplierSimple extends FloatingPointMultiplier {
   /// Multiply two FloatingPoint numbers [a] and [b], returning result
-  /// in [product] FloatingPoint
+  /// in [product] FloatingPoint.
+  /// - [adderGen] is an adder generator to be used in the primary adder
+  /// functions.
+  /// - [ppTree] is an parallel prefix tree generator to be used in internal
+  /// functions.
   FloatingPointMultiplierSimple(super.a, super.b,
       {super.clk,
       super.reset,
       super.enable,
       int radix = 4,
+      Adder Function(Logic, Logic, {Logic? carryIn}) adderGen = NativeAdder.new,
       ParallelPrefix Function(List<Logic>, Logic Function(Logic, Logic))
           ppTree = KoggeStone.new,
       super.name}) {
@@ -43,9 +48,7 @@ class FloatingPointMultiplierSimple extends FloatingPointMultiplier {
     final compressor =
         ColumnCompressor(pp, clk: clk, reset: reset, enable: enable)
           ..compress();
-    final adder = ParallelPrefixAdder(
-        compressor.extractRow(0), compressor.extractRow(1),
-        ppGen: ppTree);
+    final adder = adderGen(compressor.extractRow(0), compressor.extractRow(1));
     // Input mantissas have implicit lead: product mantissa width is (mw+1)*2)
     final mantissa = adder.sum.getRange(0, (mantissaWidth + 1) * 2);
 

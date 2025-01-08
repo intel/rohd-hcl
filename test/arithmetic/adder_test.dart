@@ -194,10 +194,17 @@ void main() {
 
   final generators = [Ripple.new, Sklansky.new, KoggeStone.new, BrentKung.new];
 
+  final adders = [
+    RippleCarryAdder.new,
+    NativeAdder.new,
+  ];
+
   group('adder random', () {
     for (final n in [63, 64, 65]) {
       for (final testCin in [false, true]) {
-        testAdderRandom(n, 30, RippleCarryAdder.new, testCarryIn: testCin);
+        for (final adder in adders) {
+          testAdderRandom(n, 30, adder, testCarryIn: testCin);
+        }
         for (final ppGen in generators) {
           testAdderRandom(
               n,

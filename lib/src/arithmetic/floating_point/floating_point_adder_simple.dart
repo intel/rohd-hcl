@@ -22,14 +22,17 @@ class FloatingPointAdderSimple extends FloatingPointAdder {
       );
 
   /// Add two floating point numbers [a] and [b], returning result in [sum].
-  /// - [ppGen] is an adder generator to be used in the primary adder
+  /// - [adderGen] is an adder generator to be used in the primary adder
+  /// functions.
+  /// - [ppTree] is an parallel prefix tree generator to be used in internal
   /// functions.
   FloatingPointAdderSimple(super.a, super.b,
       {super.clk,
       super.reset,
       super.enable,
-      ParallelPrefix Function(List<Logic>, Logic Function(Logic, Logic)) ppGen =
-          KoggeStone.new,
+      Adder Function(Logic, Logic, {Logic? carryIn}) adderGen = NativeAdder.new,
+      ParallelPrefix Function(List<Logic>, Logic Function(Logic, Logic))
+          ppTree = KoggeStone.new,
       super.name = 'floatingpoint_adder_simple2'})
       : super() {
     final outputSum = FloatingPoint(
@@ -60,12 +63,7 @@ class FloatingPointAdderSimple extends FloatingPointAdder {
         [b.mantissa, Const(0, width: mantissaWidth + 2)].swizzle());
 
     final adder = SignMagnitudeAdder(
-        a.sign,
-        aMantissa,
-        b.sign,
-        bMantissa >>> expDiff,
-        (a, b, {carryIn}) =>
-            ParallelPrefixAdder(a, b, carryIn: carryIn, ppGen: ppGen));
+        a.sign, aMantissa, b.sign, bMantissa >>> expDiff, adderGen);
 
     final intSum = adder.sum.slice(adder.sum.width - 1, 0);
 
@@ -79,7 +77,7 @@ class FloatingPointAdderSimple extends FloatingPointAdder {
         sumLatched.reversed.getRange(0, min(intSum.width, intSum.width));
     final leadOneValid = Logic();
     final leadOnePre = ParallelPrefixPriorityEncoder(mantissa,
-            ppGen: ppGen, valid: leadOneValid)
+            ppGen: ppTree, valid: leadOneValid)
         .out;
     // Limit leadOne to exponent range and match widths
     // ROHD 0.6.0 trace error if we use this as well
