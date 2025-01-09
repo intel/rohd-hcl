@@ -294,9 +294,13 @@ class CsrBlock extends Module {
             ]))
         .toList();
     Combinational([
-      Case(_frontRead.addr, rdCases, defaultItem: [
-        rdData < Const(0, width: _frontRead.dataWidth),
-      ]),
+      Case(
+          _frontRead.addr,
+          conditionalType: ConditionalType.unique,
+          rdCases,
+          defaultItem: [
+            rdData < Const(0, width: _frontRead.dataWidth),
+          ]),
     ]);
     _frontRead.data <= rdData;
   }
@@ -437,9 +441,13 @@ class CsrTop extends Module {
                 ]))
         .toList();
     Combinational([
-      Case(maskedFrontRdAddr, rdCases, defaultItem: [
-        rdData < Const(0, width: _frontRead.dataWidth),
-      ]),
+      Case(
+          maskedFrontRdAddr,
+          conditionalType: ConditionalType.unique,
+          rdCases,
+          defaultItem: [
+            rdData < Const(0, width: _frontRead.dataWidth),
+          ]),
     ]);
     _frontRead.data <= rdData;
   }
