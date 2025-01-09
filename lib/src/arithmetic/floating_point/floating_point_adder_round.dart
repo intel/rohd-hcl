@@ -42,6 +42,24 @@ Logic condFlop(
             resetValue: resetValue,
           );
 
+/// Array form of [condFlop]
+LogicArray condFlopArray(
+  Logic? clk,
+  LogicArray d, {
+  Logic? en,
+  Logic? reset,
+  dynamic resetValue,
+}) =>
+    (clk == null)
+        ? d
+        : flop(
+            clk,
+            d,
+            en: en,
+            reset: reset,
+            resetValue: resetValue,
+          ) as LogicArray;
+
 /// An adder module for variable FloatingPoint type with rounding.
 // This is a Seidel/Even adder, dual-path implementation.
 class FloatingPointAdderRound extends Module {
