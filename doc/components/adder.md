@@ -140,7 +140,7 @@ final rippleCarryAdder4BitBlock = CarrySelectCompoundAdder(a, b,
 
 ## Native Adder
 
-As logic synthesis can replace a '+' in RTL with a wide variety of adder architectures on its own, we have a [NativeAdder] wrapper class that allows you to use the native '+' with any component that exposes an [Adder] functor as a parameter:
+As logic synthesis can replace a '+' in RTL with a wide variety of adder architectures on its own, we have a `NativeAdder` wrapper class that allows you to use the native '+' with any component that exposes an `Adder` functor as a parameter:
 
 ```dart
 // API definition: FloatingPointAdderRound(super.a, super.b,

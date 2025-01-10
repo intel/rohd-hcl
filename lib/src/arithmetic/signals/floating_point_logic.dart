@@ -1,4 +1,4 @@
-// Copyright (C) 2024 Intel Corporation
+// Copyright (C) 2024-2025 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 //
 // floating_point_logic.dart
@@ -47,38 +47,41 @@ class FloatingPoint extends LogicStructure {
 
   /// Return a Logic true if this FloatingPoint contains a normal number,
   /// defined as having mantissa in the range [1,2)
-  Logic get isNormal =>
-      exponent.neq(LogicValue.zero.zeroExtend(exponent.width));
+  late final Logic isNormal = Logic(name: '${name}_isNormal')
+    ..gets(exponent.neq(LogicValue.zero.zeroExtend(exponent.width)));
 
   /// Return a Logic true if this FloatingPoint is Not a Number (NaN)
   /// by having its exponent field set to the NaN value (typically all
   /// ones) and a non-zero mantissa.
-  Logic get isNaN =>
-      exponent.eq(floatingPointValue.nan.exponent) & mantissa.or().eq(Const(1));
+  late final isNaN = Logic(name: '${name}_isNaN')
+    ..gets(exponent.eq(floatingPointValue.nan.exponent) & mantissa.or());
 
   /// Return a Logic true if this FloatingPoint is an infinity
   /// by having its exponent field set to the NaN value (typically all
   /// ones) and a zero mantissa.
-  Logic get isInfinity =>
-      exponent.eq(floatingPointValue.infinity.exponent) &
-      mantissa.or().eq(Const(0));
+  late final isInfinity = Logic(name: '${name}_isInfinity')
+    ..gets(exponent.eq(floatingPointValue.infinity.exponent) & ~mantissa.or());
 
   /// Return a Logic true if this FloatingPoint is an zero
   /// by having its exponent field set to the NaN value (typically all
   /// ones) and a zero mantissa.
-  Logic get isZero =>
-      exponent.eq(floatingPointValue.zero.exponent) &
-      mantissa.or().eq(Const(0));
+  late final isZero = Logic(name: '${name}_isInfinity')
+    ..gets(exponent.eq(floatingPointValue.zero.exponent) & ~mantissa.or());
 
   /// Return the zero exponent representation for this type of FloatingPoint
-  Logic get zeroExponent => Const(LogicValue.zero).zeroExtend(exponent.width);
+  late final zeroExponent =
+      Logic(name: '${name}_zeroExponent', width: exponent.width)
+        ..gets(Const(LogicValue.zero, width: exponent.width));
 
   /// Return the one exponent representation for this type of FloatingPoint
-  Logic get oneExponent => Const(LogicValue.one).zeroExtend(exponent.width);
+  late final oneExponent =
+      Logic(name: '${name}_oneExponent', width: exponent.width)
+        ..gets(Const(LogicValue.one, width: exponent.width));
 
   /// Return the exponent Logic value representing the true zero exponent
   /// 2^0 = 1 often termed [bias] or the offset of the stored exponent.
-  Logic get bias => Const((1 << exponent.width - 1) - 1, width: exponent.width);
+  late final bias = Logic(name: '${name}_bias', width: exponent.width)
+    ..gets(Const((1 << exponent.width - 1) - 1, width: exponent.width));
 
   /// Construct a FloatingPoint that represents infinity for this FP type.
   FloatingPoint inf({Logic? inSign, bool sign = false}) => FloatingPoint.inf(
@@ -88,7 +91,7 @@ class FloatingPoint extends LogicStructure {
       sign: sign);
 
   /// Construct a FloatingPoint that represents NaN for this FP type.
-  FloatingPoint get nan => FloatingPoint.nan(
+  late final nan = FloatingPoint.nan(
       exponentWidth: exponent.width, mantissaWidth: mantissa.width);
 
   @override

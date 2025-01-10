@@ -21,23 +21,26 @@ abstract class FloatingPointMultiplier extends Module {
 
   /// The [clk]:  if a valid clock signal is passed in, a pipestage is added to
   /// the adder to help optimize frequency.
+  @protected
   Logic? clk;
 
   /// Optional [reset], used only if a [clk] is not null to reset the pipeline
   /// flops.
+  @protected
   Logic? reset;
 
   /// Optional [enable], used only if a [clk] is not null to enable the pipeline
   /// flops.
+  @protected
   Logic? enable;
 
-  /// The multiplicand [ia].
+  /// The multiplicand [a].
   @protected
-  late final FloatingPoint ia;
+  late final FloatingPoint a;
 
-  /// The multiplier [ib].
+  /// The multiplier [b].
   @protected
-  late final FloatingPoint ib;
+  late final FloatingPoint b;
 
   /// getter for the computed [FloatingPoint] output.
   late final FloatingPoint product =
@@ -72,8 +75,8 @@ abstract class FloatingPointMultiplier extends Module {
     if (enable != null) {
       enable = addInput('enable', enable!);
     }
-    ia = a.clone()..gets(addInput('a', a, width: a.width));
-    ib = b.clone()..gets(addInput('b', b, width: b.width));
-    // output 'product' must be constructed in the sub-class
+    this.a = a.clone()..gets(addInput('a', a, width: a.width));
+    this.b = b.clone()..gets(addInput('b', b, width: b.width));
+    addOutput('product', width: a.exponent.width + a.mantissa.width + 1);
   }
 }

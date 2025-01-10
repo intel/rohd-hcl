@@ -1,4 +1,4 @@
-// Copyright (C) 2024 Intel Corporation
+// Copyright (C) 2024-2025 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 //
 // floating_point_adder_round.dart
@@ -36,24 +36,29 @@ class FloatingPointAdderRound extends FloatingPointAdder {
       Adder Function(Logic, Logic, {Logic? carryIn}) adderGen = NativeAdder.new,
       ParallelPrefix Function(List<Logic>, Logic Function(Logic, Logic))
           ppTree = KoggeStone.new,
-      super.name = 'floating_point_adder_round'})
-      : super() {
-    final outSum = FloatingPoint(
+      super.name = 'floating_point_adder_round'}) {
+    final outputSum = FloatingPoint(
         exponentWidth: exponentWidth, mantissaWidth: mantissaWidth);
-    addOutput('sum', width: outSum.width) <= outSum;
+    output('sum') <= outputSum;
 
     // Ensure that the larger number is wired as 'a'
-    final doSwap = ia.exponent.lt(ib.exponent) |
-        (ia.exponent.eq(ib.exponent) & ia.mantissa.lt(ib.mantissa)) |
-        ((ia.exponent.eq(ib.exponent) & ia.mantissa.eq(ib.mantissa)) & ia.sign);
+    final ae = this.a.exponent;
+    final be = this.b.exponent;
+    final am = this.a.mantissa;
+    final bm = this.b.mantissa;
+    final doSwap = ae.lt(be) |
+        (ae.eq(be) & am.lt(bm)) |
+        ((ae.eq(be) & am.eq(bm)) & this.a.sign);
+
     final FloatingPoint a;
     final FloatingPoint b;
-    (a, b) = _swap(doSwap, (ia, ib));
+    (a, b) = _swap(doSwap, (super.a, super.b));
 
     // Seidel: S.EFF = effectiveSubtraction
     final effectiveSubtraction = a.sign ^ b.sign ^ (subtract ?? Const(0));
-    final isNaN =
-        a.isNaN | b.isNaN | a.isInfinity & b.isInfinity & effectiveSubtraction;
+    final isNaN = a.isNaN |
+        b.isNaN |
+        (a.isInfinity & b.isInfinity & effectiveSubtraction);
     final isInf = a.isInfinity | b.isInfinity;
 
     final exponentSubtractor = OnesComplementAdder(a.exponent, b.exponent,
@@ -283,23 +288,20 @@ class FloatingPointAdderRound extends FloatingPointAdder {
 
     Combinational([
       If(isNaNLatched, then: [
-        outSum < outSum.nan,
+        outputSum < outputSum.nan,
       ], orElse: [
         If(isInfLatched, then: [
-          // ROHD 0.6.0 trace error if we use the following
-          // outSum < outSum.inf(inSign: largerSignLatched),
-          outSum.sign < largerSignLatched,
-          outSum.exponent < outSum.nan.exponent,
-          outSum.mantissa < Const(0, width: mantissaWidth, fill: true),
+          outputSum < outputSum.inf(inSign: largerSignLatched),
         ], orElse: [
           If(isR, then: [
-            outSum.sign < largerSignLatched,
-            outSum.exponent < exponentRPath,
-            outSum.mantissa < mantissaRPath.slice(mantissaRPath.width - 2, 1),
+            outputSum.sign < largerSignLatched,
+            outputSum.exponent < exponentRPath,
+            outputSum.mantissa <
+                mantissaRPath.slice(mantissaRPath.width - 2, 1),
           ], orElse: [
-            outSum.sign < signNPath,
-            outSum.exponent < exponentNPath,
-            outSum.mantissa < finalSignificandNPath,
+            outputSum.sign < signNPath,
+            outputSum.exponent < exponentNPath,
+            outputSum.mantissa < finalSignificandNPath,
           ])
         ])
       ])

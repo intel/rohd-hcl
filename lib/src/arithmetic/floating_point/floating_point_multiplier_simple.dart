@@ -30,9 +30,9 @@ class FloatingPointMultiplierSimple extends FloatingPointMultiplier {
       super.name}) {
     final product = FloatingPoint(
         exponentWidth: exponentWidth, mantissaWidth: mantissaWidth);
-    addOutput('product', width: product.width) <= product;
-    final a = ia;
-    final b = ib;
+    output('product') <= product;
+    final a = this.a;
+    final b = this.b;
 
     final aMantissa = mux(a.isNormal, [a.isNormal, a.mantissa].swizzle(),
         [a.mantissa, Const(0)].swizzle());

@@ -1,4 +1,4 @@
-// Copyright (C) 2024 Intel Corporation
+// Copyright (C) 2024-2025 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 //
 // floating_point_adder_simple.dart
@@ -37,15 +37,19 @@ class FloatingPointAdderSimple extends FloatingPointAdder {
       : super() {
     final outputSum = FloatingPoint(
         exponentWidth: exponentWidth, mantissaWidth: mantissaWidth);
-    addOutput('sum', width: outputSum.width) <= outputSum;
+    output('sum') <= outputSum;
 
     // Ensure that the larger number is wired as 'a'
-    final doSwap = ia.exponent.lt(ib.exponent) |
-        (ia.exponent.eq(ib.exponent) & ia.mantissa.lt(ib.mantissa)) |
-        ((ia.exponent.eq(ib.exponent) & ia.mantissa.eq(ib.mantissa)) & ib.sign);
+    final ae = this.a.exponent;
+    final be = this.b.exponent;
+    final am = this.a.mantissa;
+    final bm = this.b.mantissa;
+    final doSwap = ae.lt(be) |
+        (ae.eq(be) & am.lt(bm)) |
+        ((ae.eq(be) & am.eq(bm)) & super.a.sign);
     final FloatingPoint a;
     final FloatingPoint b;
-    (a, b) = _swap(doSwap, (ia, ib));
+    (a, b) = _swap(doSwap, (super.a, super.b));
 
     final isInf = a.isInfinity | b.isInfinity;
     final isNaN =
@@ -80,10 +84,7 @@ class FloatingPointAdderSimple extends FloatingPointAdder {
             ppGen: ppTree, valid: leadOneValid)
         .out;
     // Limit leadOne to exponent range and match widths
-    // ROHD 0.6.0 trace error if we use this as well
-    // final infExponent = outputSum.inf(inSign: aSignLatched).exponent;
-    // We use hardcoding isntead
-    final infExponent = Const(1, width: exponentWidth, fill: true);
+    final infExponent = outputSum.inf(inSign: aSignLatched).exponent;
     final leadOne = (leadOnePre.width > exponentWidth)
         ? mux(leadOnePre.gte(infExponent.zeroExtend(leadOnePre.width)),
             infExponent, leadOnePre.getRange(0, exponentWidth))
@@ -93,10 +94,6 @@ class FloatingPointAdderSimple extends FloatingPointAdder {
     final outExp =
         mux(leadOneDominates, a.zeroExponent, aExpLatched - leadOne + 1);
 
-    // ROHD 0.6.0 trace error if we use either of the following:
-    // (I think trace is not able to figure out this dependency)
-    // final realIsInf = isInfLatched | outExp.eq(a.inf().exponent);
-    // final realIsInf = isInfLatched | outExp.eq(outputSum.inf().exponent);
     final realIsInf = isInfLatched | outExp.eq(infExponent);
 
     Combinational([
@@ -106,10 +103,10 @@ class FloatingPointAdderSimple extends FloatingPointAdder {
         ]),
         ElseIf(realIsInf, [
           // ROHD 0.6.0 trace error if we use the following
-          // outputSum < outputSum.inf(inSign: aSignLatched),
-          outputSum.sign < aSignLatched,
-          outputSum.exponent < infExponent,
-          outputSum.mantissa < Const(0, width: mantissaWidth, fill: true),
+          outputSum < outputSum.inf(inSign: aSignLatched),
+          // outputSum.sign < aSignLatched,
+          // outputSum.exponent < infExponent,
+          // outputSum.mantissa < Const(0, width: mantissaWidth, fill: true),
         ]),
         ElseIf(leadOneDominates, [
           outputSum.sign < aSignLatched,
