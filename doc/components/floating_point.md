@@ -16,7 +16,6 @@ $$minExponent <= exponent <= maxExponent$$
 
  And a mantissa in the range of $[1,2)$.  Subnormal numbers are represented with a zero exponent and leading zeros in the mantissa capture the negative exponent value.
 
-
 Conversions from the native `double` are supported, both in rounded and unrounded forms.  This is quite useful in testing narrower width floating point components leveraging the `double` native operations for validation.
 
 Appropriate string representations, comparison operations, and operators are available.  The usefulness of  [FloatingPointValue](https://intel.github.io/rohd-hcl/rohd_hcl/FloatingPointValue-class.html) is in the testing of [FloatingPoint](https://intel.github.io/rohd-hcl/rohd_hcl/FloatingPoint-class.html) components, where we can leverage the abstraction of a floating-point value type to drive and compare floating-point values operated upon by floating-point components.
