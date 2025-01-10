@@ -18,7 +18,7 @@ class SpiMonitor extends Monitor<SpiPacket> {
   /// The interface to watch.
   final SpiInterface intf;
 
-  /// The direction to monitor.
+  /// The direction to monitor. If null, monitors both directions.
   final SpiDirection? direction;
 
   /// Creates a new [SpiMonitor] for [intf].

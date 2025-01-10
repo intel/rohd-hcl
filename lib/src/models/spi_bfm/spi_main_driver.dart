@@ -29,21 +29,13 @@ class SpiMainDriver extends PendingClockedDriver<SpiPacket> {
     super.dropDelayCycles = 30,
     String name = 'spiMainDriver',
   }) : super(name, parent) {
-    intf.sclk <= ~clk & clkenable; //causing already connected to sclk issue
+    intf.sclk <= ~clk & clkenable;
     clkenable.inject(0);
   }
 
   @override
   Future<void> run(Phase phase) async {
     unawaited(super.run(phase));
-
-    intf.sclk.changed.listen((_) {
-      logger.info('SCLK changed$_');
-    });
-
-    intf.csb.changed.listen((_) {
-      logger.info('CS changed$_');
-    });
 
     Simulator.injectAction(() {
       intf.csb.put(1);

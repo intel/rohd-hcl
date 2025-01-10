@@ -47,12 +47,9 @@ class SpiSubDriver extends PendingDriver<SpiPacket> {
       if (packet != null) {
         if (loadOnly) {
           intf.miso.inject(packet!.data[dataIndex!]);
-          logger.info('injected sub packet, index: $dataIndex');
         } else {
           dataIndex = dataIndex! + 1;
-          logger.info('incremented index to: $dataIndex');
           if (dataIndex! < packet!.data.width) {
-            logger.info('injecting sub packet, index: $dataIndex');
             intf.miso.inject(packet!.data[dataIndex!]);
           }
         }
@@ -68,12 +65,10 @@ class SpiSubDriver extends PendingDriver<SpiPacket> {
     }
 
     intf.csb.negedge.listen((_) {
-      logger.info('cs negedge');
       packetHandler(loadOnly: true);
     });
 
     intf.sclk.negedge.listen((_) {
-      logger.info('sclk negedge');
       packetHandler(loadOnly: false);
     });
   }
