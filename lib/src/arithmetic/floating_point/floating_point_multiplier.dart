@@ -69,17 +69,17 @@ abstract class FloatingPointMultiplier extends Module {
       throw RohdHclException('FloatingPoint widths must match');
     }
     if (clk != null) {
-      this.clk = addInput('clk', clk!);
+      this.clk = addInput('clk', clk);
     } else {
       this.clk = clk;
     }
     if (reset != null) {
-      this.reset = addInput('reset', reset!);
+      this.reset = addInput('reset', reset);
     } else {
       this.reset = reset;
     }
     if (enable != null) {
-      this.enable = addInput('enable', enable!);
+      this.enable = addInput('enable', enable);
     } else {
       this.enable = enable;
     }

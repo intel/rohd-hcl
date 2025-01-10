@@ -16,9 +16,31 @@ $$minExponent <= exponent <= maxExponent$$
 
  And a mantissa in the range of $[1,2)$.  Subnormal numbers are represented with a zero exponent and leading zeros in the mantissa capture the negative exponent value.
 
-The various IEEE constants representing corner cases of the field of floating-point values for a given size of [FloatingPointValue](https://intel.github.io/rohd-hcl/rohd_hcl/FloatingPointValue-class.html): infinities, zeros, limits for normal (e.g. mantissa in the range of $[1,2)$ and sub-normal numbers (zero exponent, and mantissa <1).
+
+Conversions from the native `double` are supported, both in rounded and unrounded forms.  This is quite useful in testing narrower width floating point components leveraging the `double` native operations for validation.
 
 Appropriate string representations, comparison operations, and operators are available.  The usefulness of  [FloatingPointValue](https://intel.github.io/rohd-hcl/rohd_hcl/FloatingPointValue-class.html) is in the testing of [FloatingPoint](https://intel.github.io/rohd-hcl/rohd_hcl/FloatingPoint-class.html) components, where we can leverage the abstraction of a floating-point value type to drive and compare floating-point values operated upon by floating-point components.
+
+### Floating Point Constants
+
+The various IEEE constants representing corner cases of the field of floating-point values for a given size of [FloatingPointValue](https://intel.github.io/rohd-hcl/rohd_hcl/FloatingPointValue-class.html): infinities, zeros, limits for normal (e.g. mantissa in the range of $[1,2)$ and sub-normal numbers (zero exponent, and mantissa <1).
+
+For any basic arbitrary width `FloatingPointValue` ROHD-HCL supports the following constants in that format.
+
+- negativeInfinity: smallest possible number
+- negativeZero: The number zero, negative form
+- positiveZero: The number zero, positive form
+- smallestPositiveSubnormal: Smallest possible number, most exponent negative, LSB set in mantissa
+- largestPositiveSubnormal: Largest possible subnormal, most negative exponent, mantissa all 1s
+- smallestPositiveNormal: Smallest possible positive number, most negative exponent, mantissa is 0
+- largestLessThanOne: Largest number smaller than one
+- one: The number one
+- smallestLargerThanOne: Smallest number greater than one
+- largestNormal: Largest positive number, most positive exponent, full mantissa
+- infinity: Largest possible number:  all 1s in the exponent, all 0s in the mantissa
+- nan:  Not a Number, demarked by all 1s in exponent and any 1 in mantissa (we use the LSB)
+
+### Special subtypes
 
 As 64-bit double-precision and 32-bit single-precision floating-point types are most common, we have [FloatingPoint32Value](https://intel.github.io/rohd-hcl/rohd_hcl/FloatingPoint32Value-class.html) and [FloatingPoint64Value](https://intel.github.io/rohd-hcl/rohd_hcl/FloatingPoint64Value-class.html) subclasses with direct converters from Dart native [Double](https://api.dart.dev/stable/3.6.0/dart-core/double-class.html).
 

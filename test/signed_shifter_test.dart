@@ -13,10 +13,10 @@ import 'package:test/test.dart';
 
 void main() {
   test('sigend shifter test', () {
-    final value = Const(16, width: 32);
+    final bits = Const(16, width: 32);
     final shift = Logic(width: 3);
 
-    final shifter = SignedShifter(value, shift);
+    final shifter = SignedShifter(bits, shift);
     var expected = 16;
     for (var i = 0; i < 4; i++) {
       shift.put(i);

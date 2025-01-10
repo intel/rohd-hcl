@@ -7,6 +7,7 @@ ROHD-HCL provides a set of adder modules to get the sum from a pair of Logic. So
 - [Ones' Complement Adder Subtractor](#ones-complement-adder-subtractor)
 - [Sign Magnitude Adder](#sign-magnitude-adder)
 - [Compound Adder](#compound-adder)
+- [Native Adder](#native-adder)
 
 ## Ripple Carry Adder
 
