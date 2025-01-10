@@ -207,8 +207,6 @@ class BinaryTreeNodeAry {
     }
     // _out is a 1 dimension less LogicArray
     final reducedDimensions = List<int>.from(seq.dimensions)..removeAt(0);
-    print('reduced; ${reducedDimensions.length}');
-
     if (reducedDimensions.length > 1) {
       _out = LogicArray(reducedDimensions, seq.elementWidth);
     } else {
