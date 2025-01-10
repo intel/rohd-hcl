@@ -10,6 +10,74 @@
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
 
+/// A grouping for interface signals of [CsrBackdoorInterface]s.
+enum CsrBackdoorPortGroup {
+  /// For HW reads of CSRs.
+  read,
+
+  /// For HW writes to CSRs.
+  write
+}
+
+/// An interface to interact very simply with a CSR.
+///
+/// Can be used for either read, write or both directions.
+class CsrBackdoorInterface extends Interface<CsrBackdoorPortGroup> {
+  /// Configuration for the associated CSR.
+  final CsrInstanceConfig config;
+
+  /// Should this CSR be readable by the HW.
+  final bool hasRead;
+
+  /// Should this CSR be writable by the HW.
+  final bool hasWrite;
+
+  /// The width of data in the CSR.
+  final int dataWidth;
+
+  /// The read data from the CSR.
+  Csr? get rdData => tryPort(config.name) as Csr?;
+
+  /// Write the CSR in this cycle.
+  Logic? get wrEn => tryPort('${config.name}_wrEn');
+
+  /// Data to write to the CSR in this cycle.
+  Logic? get wrData => tryPort('${config.name}_wrData');
+
+  /// Constructs a new interface of specified [dataWidth]
+  /// and conditionally instantiates read and writes ports based on
+  /// [hasRead] and [hasWrite].
+  CsrBackdoorInterface(
+      {required this.config,
+      this.dataWidth = 0,
+      this.hasRead = true,
+      this.hasWrite = true}) {
+    if (hasRead) {
+      setPorts([
+        Csr(config),
+      ], [
+        CsrBackdoorPortGroup.read,
+      ]);
+    }
+
+    if (hasWrite) {
+      setPorts([
+        Port('${config.name}_wrEn'),
+        Port('${config.name}_wrData', dataWidth),
+      ], [
+        CsrBackdoorPortGroup.write,
+      ]);
+    }
+  }
+
+  /// Makes a copy of this [Interface] with matching configuration.
+  CsrBackdoorInterface clone() => CsrBackdoorInterface(
+      config: config,
+      dataWidth: dataWidth,
+      hasRead: hasRead,
+      hasWrite: hasWrite);
+}
+
 /// Logic representation of a CSR.
 ///
 /// Semantically, a register can be created with no fields.
@@ -181,14 +249,20 @@ class Csr extends LogicStructure {
 /// A block is just a collection of registers that are
 /// readable and writable through an addressing scheme
 /// that is relative (offset from) the base address of the block.
-// TODO:
-//  backdoor reads and writes
 class CsrBlock extends Module {
   /// Configuration for the CSR block.
   final CsrBlockConfig config;
 
   /// CSRs in this block.
   final List<Csr> csrs;
+
+  /// Direct access ports for reading and writing individual registers.
+  ///
+  /// There is a public copy that is exported out of the module
+  /// for consumption at higher levels in the hierarchy.
+  /// The private copies are used for internal logic.
+  final List<CsrBackdoorInterface> backdoorInterfaces = [];
+  final List<CsrBackdoorInterface> _backdoorInterfaces = [];
 
   /// Clock for the module.
   late final Logic _clk;
@@ -231,6 +305,19 @@ class CsrBlock extends Module {
           outputTags: {DataPortGroup.data},
           uniquify: (original) => 'frontRead_$original');
 
+    for (var i = 0; i < csrs.length; i++) {
+      // TODO: pull hasRead and hasWrite from config??
+      _backdoorInterfaces.add(CsrBackdoorInterface(
+          config: csrs[i].config, dataWidth: fdr.dataWidth));
+      backdoorInterfaces.add(CsrBackdoorInterface(
+          config: csrs[i].config, dataWidth: fdr.dataWidth));
+      _backdoorInterfaces.last.connectIO(this, backdoorInterfaces.last,
+          outputTags: {CsrBackdoorPortGroup.read},
+          inputTags: {CsrBackdoorPortGroup.write},
+          uniquify: (original) =>
+              '${name}_${csrs[i].config.name}_backdoor_$original');
+    }
+
     _buildLogic();
   }
 
@@ -266,28 +353,65 @@ class CsrBlock extends Module {
   CsrInstanceConfig getRegisterByAddr(int addr) =>
       config.getRegisterByAddr(addr);
 
+  /// Accessor to the backdoor ports of a particular register
+  /// within the block by name [nm].
+  CsrBackdoorInterface getBackdoorPortsByName(String nm) {
+    final idx = config.registers.indexOf(config.getRegisterByName(nm));
+    if (idx >= 0 && idx < backdoorInterfaces.length) {
+      return backdoorInterfaces[idx];
+    } else {
+      throw Exception('Register $nm not found in block ${config.name}');
+    }
+  }
+
+  /// Accessor to the backdoor ports of a particular register
+  /// within the block by relative address [addr].
+  CsrBackdoorInterface getBackdoorPortsByAddr(int addr) {
+    final idx = config.registers.indexOf(config.getRegisterByAddr(addr));
+    if (idx >= 0 && idx < backdoorInterfaces.length) {
+      return backdoorInterfaces[idx];
+    } else {
+      throw Exception(
+          'Register address $addr not found in block ${config.name}');
+    }
+  }
+
   void _buildLogic() {
     final addrWidth = _frontWrite.addrWidth;
 
     // individual CSR write logic
-    for (final csr in csrs) {
-      Sequential(_clk, reset: _reset, resetValues: {
-        csr: csr.resetValue,
-      }, [
-        If(
-            _frontWrite.en &
-                _frontWrite.addr.eq(Const(csr.addr, width: addrWidth)),
-            then: [
-              csr < csr.getWriteData(_frontWrite.data),
-            ],
-            orElse: [
-              csr < csr,
+    for (var i = 0; i < csrs.length; i++) {
+      Sequential(
+        _clk,
+        reset: _reset,
+        resetValues: {
+          csrs[i]: csrs[i].resetValue,
+        },
+        [
+          If.block([
+            // frontdoor write takes highest priority
+            Iff(
+                _frontWrite.en &
+                    _frontWrite.addr.eq(Const(csrs[i].addr, width: addrWidth)),
+                [
+                  csrs[i] < csrs[i].getWriteData(_frontWrite.data),
+                ]),
+            // backdoor write takes next priority
+            if (_backdoorInterfaces[i].hasWrite)
+              ElseIf(_backdoorInterfaces[i].wrEn!, [
+                csrs[i] < csrs[i].getWriteData(_backdoorInterfaces[i].wrData!),
+              ]),
+            // nothing to write this cycle
+            Else([
+              csrs[i] < csrs[i],
             ]),
-      ]);
+          ])
+        ],
+      );
     }
 
     // individual CSR read logic
-    final rdData = Logic(name: 'rdData', width: _frontRead.dataWidth);
+    final rdData = Logic(name: 'internalRdData', width: _frontRead.dataWidth);
     final rdCases = csrs
         .map((csr) => CaseItem(Const(csr.addr, width: addrWidth), [
               rdData < csr,
@@ -303,6 +427,13 @@ class CsrBlock extends Module {
           ]),
     ]);
     _frontRead.data <= rdData;
+
+    // driving of backdoor read outputs
+    for (var i = 0; i < csrs.length; i++) {
+      if (_backdoorInterfaces[i].hasRead) {
+        _backdoorInterfaces[i].rdData! <= csrs[i];
+      }
+    }
   }
 }
 
@@ -312,8 +443,6 @@ class CsrBlock extends Module {
 /// Individual blocks are addressable using some number of
 /// MSBs of the incoming address and registers within the given block
 /// are addressable using the remaining LSBs of the incoming address.
-// TODO:
-//  backdoor reads and writes
 class CsrTop extends Module {
   /// width of the LSBs of the address
   /// to ignore when mapping to blocks
@@ -341,8 +470,38 @@ class CsrTop extends Module {
   final List<DataPortInterface> _fdWrites = [];
   final List<DataPortInterface> _fdReads = [];
 
+  /// Direct access ports for reading and writing individual registers.
+  ///
+  /// There is a public copy that is exported out of the module
+  /// for consumption at higher levels in the hierarchy.
+  /// The private copies are used for internal logic.
+  final List<List<CsrBackdoorInterface>> backdoorInterfaces = [];
+  final List<List<CsrBackdoorInterface>> _backdoorInterfaces = [];
+
   /// Getter for the block configurations of the CSR.
   List<CsrBlockConfig> get blocks => config.blocks;
+
+  /// Accessor to the backdoor ports of a particular register [reg]
+  /// within the block [block].
+  CsrBackdoorInterface getBackdoorPortsByName(String block, String reg) {
+    final idx = config.blocks.indexOf(config.getBlockByName(block));
+    if (idx >= 0 && idx < backdoorInterfaces.length) {
+      return _blocks[idx].getBackdoorPortsByName(reg);
+    } else {
+      throw Exception('Block $block could not be found.');
+    }
+  }
+
+  /// Accessor to the backdoor ports of a particular register
+  /// using its address [regAddr] within the block with address [blockAddr].
+  CsrBackdoorInterface getBackdoorPortsByAddr(int blockAddr, int regAddr) {
+    final idx = config.blocks.indexOf(config.getBlockByAddr(blockAddr));
+    if (idx >= 0 && idx < backdoorInterfaces.length) {
+      return _blocks[idx].getBackdoorPortsByAddr(regAddr);
+    } else {
+      throw Exception('Block with address $blockAddr could not be found.');
+    }
+  }
 
   CsrTop._({
     required this.config,
@@ -370,6 +529,23 @@ class CsrTop extends Module {
       _fdWrites.add(DataPortInterface(fdw.dataWidth, blockOffsetWidth));
       _fdReads.add(DataPortInterface(fdr.dataWidth, blockOffsetWidth));
       _blocks.add(CsrBlock(block, _clk, _reset, _fdWrites.last, _fdReads.last));
+    }
+
+    for (var i = 0; i < blocks.length; i++) {
+      _backdoorInterfaces.add([]);
+      backdoorInterfaces.add([]);
+      for (var j = 0; j < blocks[i].registers.length; j++) {
+        // TODO: pull hasRead and hasWrite from config??
+        _backdoorInterfaces[i].add(CsrBackdoorInterface(
+            config: blocks[i].registers[j], dataWidth: fdr.dataWidth));
+        backdoorInterfaces[i].add(CsrBackdoorInterface(
+            config: blocks[i].registers[j], dataWidth: fdr.dataWidth));
+        _backdoorInterfaces[i].last.connectIO(this, backdoorInterfaces[i].last,
+            outputTags: {CsrBackdoorPortGroup.read},
+            inputTags: {CsrBackdoorPortGroup.write},
+            uniquify: (original) =>
+                '${name}_${blocks[i].name}_${blocks[i].registers[j].name}_backdoor_$original');
+      }
     }
 
     _buildLogic();
@@ -428,10 +604,20 @@ class CsrTop extends Module {
       _fdReads[i].addr <= shiftedFrontRdAddr;
 
       _fdWrites[i].data <= _frontWrite.data;
+
+      // drive backdoor write ports
+      for (var j = 0; j < blocks[i].registers.length; j++) {
+        if (_backdoorInterfaces[i][j].hasWrite) {
+          _blocks[i].backdoorInterfaces[j].wrEn! <=
+              _backdoorInterfaces[i][j].wrEn!;
+          _blocks[i].backdoorInterfaces[j].wrData! <=
+              _backdoorInterfaces[i][j].wrData!;
+        }
+      }
     }
 
     // capture frontdoor read output
-    final rdData = Logic(name: 'rdData', width: _frontRead.dataWidth);
+    final rdData = Logic(name: 'internalRdData', width: _frontRead.dataWidth);
     final rdCases = _blocks
         .asMap()
         .entries
@@ -450,5 +636,15 @@ class CsrTop extends Module {
           ]),
     ]);
     _frontRead.data <= rdData;
+
+    // driving of backdoor read outputs
+    for (var i = 0; i < blocks.length; i++) {
+      for (var j = 0; j < blocks[i].registers.length; j++) {
+        if (_backdoorInterfaces[i][j].hasRead) {
+          _backdoorInterfaces[i][j].rdData! <=
+              _blocks[i].backdoorInterfaces[j].rdData!;
+        }
+      }
+    }
   }
 }

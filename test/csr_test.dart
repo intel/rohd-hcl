@@ -184,7 +184,14 @@ void main() {
 
     await csrBlock.build();
 
-    // WaveDumper(csrBlock);
+    for (var i = 0; i < csrBlock.backdoorInterfaces.length; i++) {
+      if (csrBlock.backdoorInterfaces[i].hasWrite) {
+        csrBlock.backdoorInterfaces[i].wrEn!.put(0);
+        csrBlock.backdoorInterfaces[i].wrData!.put(0);
+      }
+    }
+
+    WaveDumper(csrBlock);
 
     Simulator.setMaxSimTime(10000);
     unawaited(Simulator.run());
@@ -254,6 +261,22 @@ void main() {
     expect(rIntf.data.value, LogicValue.ofInt(0, rIntf.dataWidth));
     await clk.waitCycles(10);
 
+    // grab backdoor interfaces
+    final back1 = csrBlock.getBackdoorPortsByName('csr1');
+    final back2 = csrBlock.getBackdoorPortsByAddr(0x2);
+
+    // perform backdoor read of csr2
+    expect(back2.rdData!.value,
+        LogicValue.ofInt(csr2.resetValue, rIntf.dataWidth));
+
+    // perform a backdoor write and then a backdoor read of csr1
+    await clk.nextNegedge;
+    back1.wrData!.inject(1);
+    back1.wrData!.inject(0xdeadbeef);
+    await clk.nextNegedge;
+    back1.wrData!.inject(0);
+    expect(back1.rdData!.value, LogicValue.ofInt(0xad00ff, rIntf.dataWidth));
+
     await Simulator.endSimulation();
     await Simulator.simulationEnded;
   });
@@ -276,6 +299,15 @@ void main() {
     rIntf.addr.inject(0);
 
     await csrTop.build();
+
+    for (var i = 0; i < csrTop.backdoorInterfaces.length; i++) {
+      for (var j = 0; j < csrTop.backdoorInterfaces[i].length; j++) {
+        if (csrTop.backdoorInterfaces[i][j].hasWrite) {
+          csrTop.backdoorInterfaces[i][j].wrEn!.put(0);
+          csrTop.backdoorInterfaces[i][j].wrData!.put(0);
+        }
+      }
+    }
 
     // WaveDumper(csrTop);
 
@@ -328,6 +360,22 @@ void main() {
     rIntf.en.inject(0);
     expect(rIntf.data.value, LogicValue.ofInt(0, rIntf.dataWidth));
     await clk.waitCycles(10);
+
+    // grab backdoor interfaces
+    final back1 = csrTop.getBackdoorPortsByName('block_0', 'csr1');
+    final back2 = csrTop.getBackdoorPortsByAddr(0x100, 0x2);
+
+    // perform backdoor read of csr2
+    expect(back2.rdData!.value,
+        LogicValue.ofInt(csr2.resetValue, rIntf.dataWidth));
+
+    // perform a backdoor write and then a backdoor read of csr1
+    await clk.nextNegedge;
+    back1.wrData!.inject(1);
+    back1.wrData!.inject(0xdeadbeef);
+    await clk.nextNegedge;
+    back1.wrData!.inject(0);
+    expect(back1.rdData!.value, LogicValue.ofInt(0xad00ff, rIntf.dataWidth));
 
     await Simulator.endSimulation();
     await Simulator.simulationEnded;
