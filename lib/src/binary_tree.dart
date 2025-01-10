@@ -17,18 +17,18 @@ import 'package:rohd_hcl/rohd_hcl.dart';
 /// or functions. Note that this is a pure generator class, not a [Module]
 /// and is to be used in a larger module that builds the tree.
 class BinaryTreeNode {
-  /// The final output of the tree.
+  /// The final output of the current node.
   Logic get out => _out;
 
-  /// The combinational depth of since the last flop.
+  /// The combinational depth since the last flop.
   int get depth => _depth;
 
-  /// The flop depth of the tree.
+  /// The current flop depth of the tree from this node to the leaves.
   int get flopDepth => _flopDepth;
 
-  /// The 2-input operation to be performed at each node
+  /// The 2-input operation to be performed at each node.
   @protected
-  final Logic Function(Logic a, Logic b) op;
+  final Logic Function(Logic a, Logic b) operation;
 
   @protected
   late final Logic _out;
@@ -39,14 +39,14 @@ class BinaryTreeNode {
   @protected
   late final int _flopDepth;
 
-  /// Generate a node of the tree based on dividing the input [seq] into
+  /// Generate a node of a binary tree based on dividing the input [seq] into
   /// two halves and recursively constructing two child nodes to operate
   /// on each half.
-  /// - [op] is the operation to be performed at each node.
+  /// - [operation] is the operation to be performed at each node.
   /// Optional parameters to be used for creatign a pipelined tree:
   /// - [clk], [reset], [enable] are optionally provided to allow for flopping.
   /// - [depthToFlop] specifies how many nodes deep before a flop is added.
-  BinaryTreeNode(List<Logic> seq, this.op,
+  BinaryTreeNode(List<Logic> seq, this.operation,
       {Logic? clk, Logic? enable, Logic? reset, int? depthToFlop}) {
     if (seq.isEmpty) {
       throw RohdHclException("Don't use TreeOfTwoInputModules "
@@ -60,10 +60,11 @@ class BinaryTreeNode {
       _depth = 0;
       _flopDepth = 0;
     } else {
-      final a = BinaryTreeNode(seq.getRange(0, seq.length ~/ 2).toList(), op,
+      final a = BinaryTreeNode(
+          seq.getRange(0, seq.length ~/ 2).toList(), operation,
           clk: clk, enable: enable, reset: reset, depthToFlop: depthToFlop);
       final b = BinaryTreeNode(
-          seq.getRange(seq.length ~/ 2, seq.length).toList(), op,
+          seq.getRange(seq.length ~/ 2, seq.length).toList(), operation,
           clk: clk, enable: enable, reset: reset, depthToFlop: depthToFlop);
 
       final treeDepth = max(a.depth, b.depth);
@@ -93,16 +94,15 @@ class BinaryTreeNode {
       _depth = doFlop ? 0 : treeDepth + 1;
       _flopDepth = max(a._flopDepth, b._flopDepth) + (doFlop ? 1 : 0);
       final int maxLen = max(v1.width, v2.width);
-      final computed = op(v1.zeroExtend(maxLen), v2.zeroExtend(maxLen));
+      final computed = operation(v1.zeroExtend(maxLen), v2.zeroExtend(maxLen));
       _out = computed;
     }
   }
 }
 
-/// Module using the [BinaryTreeNode] generator.
+/// Module driving inputs to the [BinaryTreeNode] generator.
 class BinaryTreeModule extends Module {
   /// The final output of the tree.
-  ///
   Logic get out => output('out');
 
   /// The flop depth of the tree.
@@ -115,11 +115,11 @@ class BinaryTreeModule extends Module {
   /// two halves and recursively constructing two child nodes to operate
   /// on each half.
   /// - [seq] is the input sequence to be reduced using the tree of operations.
-  /// - [op] is the operation to be performed at each node.
+  /// - [operation] is the operation to be performed at each node.
   /// Optional parameters to be used for creatign a pipelined tree:
   /// - [clk], [reset], [enable] are optionally provided to allow for flopping.
   /// - [depthToFlop] specifies how many nodes deep before a flop is added.
-  BinaryTreeModule(List<Logic> seq, Logic Function(Logic a, Logic b) op,
+  BinaryTreeModule(List<Logic> seq, Logic Function(Logic a, Logic b) operation,
       {Logic? clk,
       Logic? enable,
       Logic? reset,
@@ -139,12 +139,23 @@ class BinaryTreeModule extends Module {
     if (reset != null) {
       clk = addInput('clk', reset);
     }
-    _tree = BinaryTreeNode(seq, op,
+    _tree = BinaryTreeNode(seq, operation,
         clk: clk, enable: enable, reset: reset, depthToFlop: depthToFlop);
 
     addOutput('out', width: _tree.out.width) <= _tree.out;
   }
 }
+
+/// The following class is experimental:  an effort to use [LogicArray] instead
+/// of [List<Logic>] to generalize the binary tree construction.
+/// - A fundamental issue is about extension of operands:  the base case
+/// of [Logic]s in a [List] can easily use sign extension or zero extension.
+/// But when we think of a [LogicArray] as a list of 1-less-dimension
+/// [LogicArray]s, we can still do a binary tree, but not easily
+/// with sign extension if needed (or is it sensible).
+/// Yet we want the base case to be supported as well.
+/// Perhaps the solution is to not allow sign extension on higher-dimensional
+/// [LogicArray], just support it when it is one-dimensional.
 
 /// A generator utility which constructs a tree of 2-input / 1-output modules
 /// or functions. Note that this is a pure generator class, not a [Module]
@@ -172,17 +183,6 @@ class BinaryTreeNodeAry {
 
   @protected
   late final int _flopDepth;
-
-  /// This class is experimental:  an effort to use [LogicArray] instead
-  /// of [List<Logic>] to generalize the binary tree construction.
-  /// - A fundamental issue is about extension of operands:  the base case
-  /// of [Logic]s in a [List] can easily use sign extension or zero extension.
-  /// But when we think of a [LogicArray] as a list of 1-less-dimension
-  /// [LogicArray]s, we can still do a binary tree, but not easily
-  /// with sign extension if needed (or is it sensible).
-  /// Yet we want the base case to be supported as well.
-  /// Perhaps the solution is to not allow sign extension on higher-dimensional
-  /// [LogicArray], just support it when it is one-dimensional.
 
   /// Generate a node of a tree based on dividing the input [seq] into
   /// two halves and recursively constructing two child nodes to operate
