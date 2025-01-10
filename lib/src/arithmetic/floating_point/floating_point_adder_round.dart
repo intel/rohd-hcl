@@ -14,14 +14,6 @@ import 'package:rohd_hcl/rohd_hcl.dart';
 /// An adder module for variable FloatingPoint type with rounding.
 // This is a Seidel/Even adder, dual-path implementation.
 class FloatingPointAdderRound extends FloatingPointAdder {
-  /// Swapping two FloatingPoint structures based on a conditional
-  static (FloatingPoint, FloatingPoint) _swap(
-          Logic swap, (FloatingPoint, FloatingPoint) toSwap) =>
-      (
-        toSwap.$1.clone()..gets(mux(swap, toSwap.$2, toSwap.$1)),
-        toSwap.$2.clone()..gets(mux(swap, toSwap.$1, toSwap.$2))
-      );
-
   /// Add two floating point numbers [a] and [b], returning result in [sum].
   /// [subtract] is an optional Logic input to do subtraction
   /// [adderGen] is an adder generator to be used in the primary adder
@@ -33,8 +25,10 @@ class FloatingPointAdderRound extends FloatingPointAdder {
       super.clk,
       super.reset,
       super.enable,
-      Adder Function(Logic, Logic, {Logic? carryIn}) adderGen = NativeAdder.new,
-      ParallelPrefix Function(List<Logic>, Logic Function(Logic, Logic))
+      Adder Function(Logic a, Logic b, {Logic? carryIn}) adderGen =
+          NativeAdder.new,
+      ParallelPrefix Function(
+              List<Logic> inps, Logic Function(Logic term1, Logic term2) op)
           ppTree = KoggeStone.new,
       super.name = 'floating_point_adder_round'}) {
     final outputSum = FloatingPoint(
@@ -52,7 +46,7 @@ class FloatingPointAdderRound extends FloatingPointAdder {
 
     final FloatingPoint a;
     final FloatingPoint b;
-    (a, b) = _swap(doSwap, (super.a, super.b));
+    (a, b) = swap(doSwap, (super.a, super.b));
 
     // Seidel: S.EFF = effectiveSubtraction
     final effectiveSubtraction = a.sign ^ b.sign ^ (subtract ?? Const(0));
@@ -68,7 +62,7 @@ class FloatingPointAdderRound extends FloatingPointAdder {
     final delta = exponentSubtractor.sum;
 
     // Seidel: (sl, el, fl) = larger; (ss, es, fs) = smaller
-    final (larger, smaller) = _swap(signDelta, (a, b));
+    final (larger, smaller) = swap(signDelta, (a, b));
 
     final fl = mux(
         larger.isNormal,
@@ -104,23 +98,16 @@ class FloatingPointAdderRound extends FloatingPointAdder {
         smallerAlignRPath.width - largeOperand.width);
 
     /// R Pipestage here:
-    final aIsNormalLatched =
-        condFlop(clk, a.isNormal, en: enable, reset: reset);
-    final bIsNormalLatched =
-        condFlop(clk, b.isNormal, en: enable, reset: reset);
-    final effectiveSubtractionLatched =
-        condFlop(clk, effectiveSubtraction, en: enable, reset: reset);
-    final largeOperandLatched =
-        condFlop(clk, largeOperand, en: enable, reset: reset);
-    final smallerOperandRPathLatched =
-        condFlop(clk, smallerOperandRPath, en: enable, reset: reset);
-    final smallerAlignRPathLatched =
-        condFlop(clk, smallerAlignRPath, en: enable, reset: reset);
-    final largerExpLatched =
-        condFlop(clk, larger.exponent, en: enable, reset: reset);
-    final deltaLatched = condFlop(clk, delta, en: enable, reset: reset);
-    final isInfLatched = condFlop(clk, isInf, en: enable, reset: reset);
-    final isNaNLatched = condFlop(clk, isNaN, en: enable, reset: reset);
+    final aIsNormalLatched = localFlop(a.isNormal);
+    final bIsNormalLatched = localFlop(b.isNormal);
+    final effectiveSubtractionLatched = localFlop(effectiveSubtraction);
+    final largeOperandLatched = localFlop(largeOperand);
+    final smallerOperandRPathLatched = localFlop(smallerOperandRPath);
+    final smallerAlignRPathLatched = localFlop(smallerAlignRPath);
+    final largerExpLatched = localFlop(larger.exponent);
+    final deltaLatched = localFlop(delta);
+    final isInfLatched = localFlop(isInf);
+    final isNaNLatched = localFlop(isNaN);
 
     final carryRPath = Logic();
     final significandAdderRPath = OnesComplementAdder(
@@ -239,19 +226,13 @@ class FloatingPointAdderRound extends FloatingPointAdder {
         : leadOneNPathPre.zeroExtend(exponentWidth);
 
     // N pipestage here:
-    final significandNPathLatched =
-        condFlop(clk, significandNPath, en: enable, reset: reset);
-    final significandSubtractorNPathSignLatched = condFlop(
-        clk, significandSubtractorNPath.sign,
-        en: enable, reset: reset);
-    final leadOneNPathLatched =
-        condFlop(clk, leadOneNPath, en: enable, reset: reset);
-    final validLeadOneNPathLatched =
-        condFlop(clk, validLeadOneNPath, en: enable, reset: reset);
-    final largerSignLatched =
-        condFlop(clk, larger.sign, en: enable, reset: reset);
-    final smallerSignLatched =
-        condFlop(clk, smaller.sign, en: enable, reset: reset);
+    final significandNPathLatched = localFlop(significandNPath);
+    final significandSubtractorNPathSignLatched =
+        localFlop(significandSubtractorNPath.sign);
+    final leadOneNPathLatched = localFlop(leadOneNPath);
+    final validLeadOneNPathLatched = localFlop(validLeadOneNPath);
+    final largerSignLatched = localFlop(larger.sign);
+    final smallerSignLatched = localFlop(smaller.sign);
 
     final expCalcNPath = OnesComplementAdder(
         largerExpLatched, leadOneNPathLatched.zeroExtend(exponentWidth),
@@ -291,7 +272,7 @@ class FloatingPointAdderRound extends FloatingPointAdder {
         outputSum < outputSum.nan,
       ], orElse: [
         If(isInfLatched, then: [
-          outputSum < outputSum.inf(inSign: largerSignLatched),
+          outputSum < outputSum.inf(sign: largerSignLatched),
         ], orElse: [
           If(isR, then: [
             outputSum.sign < largerSignLatched,

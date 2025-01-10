@@ -632,13 +632,13 @@ class FloatingPointValue implements Comparable<FloatingPointValue> {
         (mantissa.width != other.mantissa.width)) {
       return false;
     }
-    if (isNaN() != other.isNaN()) {
+    if (isNaN != other.isNaN) {
       return false;
     }
-    if (isAnInfinity() != other.isAnInfinity()) {
+    if (isAnInfinity != other.isAnInfinity) {
       return false;
     }
-    if (isAnInfinity()) {
+    if (isAnInfinity) {
       return sign == other.sign;
     }
     // IEEE 754: -0 an +0 are considered equal
@@ -653,7 +653,7 @@ class FloatingPointValue implements Comparable<FloatingPointValue> {
 
   /// Return true if the represented floating point number is considered
   ///  NaN or 'Not a Number'
-  bool isNaN() =>
+  bool get isNaN =>
       (exponent.toInt() ==
           computeMaxExponent(exponent.width) +
               computeBias(exponent.width) +
@@ -662,7 +662,7 @@ class FloatingPointValue implements Comparable<FloatingPointValue> {
 
   /// Return true if the represented floating point number is considered
   ///  infinity or negative infinity
-  bool isAnInfinity() =>
+  bool get isAnInfinity =>
       (exponent.toInt() ==
           computeMaxExponent(exponent.width) +
               computeBias(exponent.width) +
@@ -673,17 +673,17 @@ class FloatingPointValue implements Comparable<FloatingPointValue> {
   /// that the equality operator will treat
   /// [FloatingPointConstants.positiveZero]
   /// and [FloatingPointConstants.negativeZero] as equal.
-  bool isZero() =>
+  bool get isZero =>
       this ==
       FloatingPointValue.getFloatingPointConstant(
           FloatingPointConstants.positiveZero, exponent.width, mantissa.width);
 
   /// Return the value of the floating point number in a Dart [double] type.
   double toDouble() {
-    if (isNaN()) {
+    if (isNaN) {
       return double.nan;
     }
-    if (isAnInfinity()) {
+    if (isAnInfinity) {
       return sign.isZero ? double.infinity : double.negativeInfinity;
     }
     var doubleVal = double.nan;
@@ -693,7 +693,7 @@ class FloatingPointValue implements Comparable<FloatingPointValue> {
             pow(2.0, computeMinExponent(exponent.width)) *
             mantissa.toBigInt().toDouble() /
             pow(2.0, mantissa.width);
-      } else if (!isNaN()) {
+      } else if (!isNaN) {
         doubleVal = (sign.toBool() ? -1.0 : 1.0) *
             (1.0 + mantissa.toBigInt().toDouble() / pow(2.0, mantissa.width)) *
             pow(
@@ -737,7 +737,7 @@ class FloatingPointValue implements Comparable<FloatingPointValue> {
       throw RohdHclException('FloatingPointValue: '
           'multiplicand must have the same mantissa and exponent widths');
     }
-    if (isNaN() | other.isNaN()) {
+    if (isNaN | other.isNaN) {
       return FloatingPointValue.getFloatingPointConstant(
           FloatingPointConstants.nan, exponent.width, mantissa.width);
     }
@@ -748,16 +748,16 @@ class FloatingPointValue implements Comparable<FloatingPointValue> {
 
   /// Multiply operation for [FloatingPointValue]
   FloatingPointValue operator *(FloatingPointValue multiplicand) {
-    if (isAnInfinity()) {
-      if (multiplicand.isAnInfinity()) {
+    if (isAnInfinity) {
+      if (multiplicand.isAnInfinity) {
         return sign != multiplicand.sign ? negativeInfinity : infinity;
-      } else if (multiplicand.isZero()) {
+      } else if (multiplicand.isZero) {
         return nan;
       } else {
         return this;
       }
-    } else if (multiplicand.isAnInfinity()) {
-      if (isZero()) {
+    } else if (multiplicand.isAnInfinity) {
+      if (isZero) {
         return nan;
       } else {
         return multiplicand;
@@ -768,8 +768,8 @@ class FloatingPointValue implements Comparable<FloatingPointValue> {
 
   /// Addition operation for [FloatingPointValue]
   FloatingPointValue operator +(FloatingPointValue addend) {
-    if (isAnInfinity()) {
-      if (addend.isAnInfinity()) {
+    if (isAnInfinity) {
+      if (addend.isAnInfinity) {
         if (sign != addend.sign) {
           return nan;
         } else {
@@ -778,7 +778,7 @@ class FloatingPointValue implements Comparable<FloatingPointValue> {
       } else {
         return this;
       }
-    } else if (addend.isAnInfinity()) {
+    } else if (addend.isAnInfinity) {
       return addend;
     }
     return _performOp(addend, (a, b) => a + b);
@@ -786,14 +786,14 @@ class FloatingPointValue implements Comparable<FloatingPointValue> {
 
   /// Divide operation for [FloatingPointValue]
   FloatingPointValue operator /(FloatingPointValue divisor) {
-    if (isAnInfinity()) {
-      if (divisor.isAnInfinity() | divisor.isZero()) {
+    if (isAnInfinity) {
+      if (divisor.isAnInfinity | divisor.isZero) {
         return nan;
       } else {
         return this;
       }
     } else {
-      if (divisor.isZero()) {
+      if (divisor.isZero) {
         return sign != divisor.sign ? negativeInfinity : infinity;
       }
     }
@@ -802,15 +802,15 @@ class FloatingPointValue implements Comparable<FloatingPointValue> {
 
   /// Subtract operation for [FloatingPointValue]
   FloatingPointValue operator -(FloatingPointValue subend) {
-    if (isAnInfinity() & subend.isAnInfinity()) {
+    if (isAnInfinity & subend.isAnInfinity) {
       if (sign == subend.sign) {
         return nan;
       } else {
         return this;
       }
-    } else if (subend.isAnInfinity()) {
+    } else if (subend.isAnInfinity) {
       return subend.negate();
-    } else if (isAnInfinity()) {
+    } else if (isAnInfinity) {
       return this;
     }
     return _performOp(subend, (a, b) => a - b);

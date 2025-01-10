@@ -77,10 +77,10 @@ class FloatingPoint8E4M3Value extends FloatingPointValue {
 
   /// Inf is not representable in this format
   @override
-  bool isAnInfinity() => false;
+  bool get isAnInfinity => false;
 
   @override
-  bool isNaN() => (exponent.toInt() == 15) && (mantissa.toInt() == 7);
+  bool get isNaN => (exponent.toInt() == 15) && (mantissa.toInt() == 7);
 
   /// Override the toDouble to avoid NaN
   @override

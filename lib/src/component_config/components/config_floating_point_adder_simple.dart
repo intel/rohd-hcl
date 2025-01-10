@@ -1,10 +1,10 @@
-// Copyright (C) 2023-2025 Intel Corporation
+// Copyright (C) 2025 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 //
-// config_floating_point_multiplier_simple.dart
-// Configurator for a simple Floating-Point multiplier.
+// config_floating_point_adder_simple.dart
+// Configurator for a simple Floating-Point adder.
 //
-// 2025 January 6
+// 2025 January 9
 // Author: Desmond Kirkpatrick <desmond.a.kirkpatrick@intel.com>
 
 import 'dart:collection';
@@ -12,8 +12,8 @@ import 'dart:collection';
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
 
-/// A [Configurator] for [FloatingPointMultiplierSimple]s.
-class FloatingPointMultiplierSimpleConfigurator extends Configurator {
+/// A [Configurator] for [FloatingPointAdderSimple]s.
+class FloatingPointAdderSimpleConfigurator extends Configurator {
   /// Map from Type to Function for Adder generator
   static Map<Type, Adder Function(Logic, Logic, {Logic? carryIn})>
       adderGeneratorMap = {
@@ -42,7 +42,7 @@ class FloatingPointMultiplierSimpleConfigurator extends Configurator {
   final adderTypeKnob =
       ChoiceConfigKnob(adderGeneratorMap.keys.toList(), value: NativeAdder);
 
-  /// Controls the type of [ParallelPrefix] tree used in the internal functions.
+  /// Controls the type of [ParallelPrefix] tree used in the other functions.
   final prefixTreeKnob =
       ChoiceConfigKnob(treeGeneratorMap.keys.toList(), value: KoggeStone);
 
@@ -52,11 +52,11 @@ class FloatingPointMultiplierSimpleConfigurator extends Configurator {
   /// Controls the width of the mantissa.
   final IntConfigKnob mantissaWidthKnob = IntConfigKnob(value: 5);
 
-  /// Controls whether the multiplier is pipelined
+  /// Controls whether the adder is pipelined
   final ToggleConfigKnob pipelinedKnob = ToggleConfigKnob(value: false);
 
   @override
-  Module createModule() => FloatingPointMultiplierSimple(
+  Module createModule() => FloatingPointAdderSimple(
       clk: pipelinedKnob.value ? Logic() : null,
       FloatingPoint(
         exponentWidth: exponentWidthKnob.value,
@@ -70,13 +70,13 @@ class FloatingPointMultiplierSimpleConfigurator extends Configurator {
 
   @override
   late final Map<String, ConfigKnob<dynamic>> knobs = UnmodifiableMapView({
-    'Adder type': adderTypeKnob,
     'Prefix tree type': prefixTreeKnob,
+    'Adder tree type': adderTypeKnob,
     'Exponent width': exponentWidthKnob,
     'Mantissa width': mantissaWidthKnob,
     'Pipelined': pipelinedKnob,
   });
 
   @override
-  final String name = 'Floating-Point Simple Multiplier';
+  final String name = 'Floating-Point Simple Adder';
 }

@@ -26,8 +26,8 @@ class OnesComplementAdder extends Adder {
   Logic _sign = Logic();
 
   /// [OnesComplementAdder] constructor with an adder functor [adderGen].
-  ///  - Either a Logic [subtractIn] or a boolean [subtract] can enable
-  /// subtraction, with [subtractIn] overriding [subtract].
+  /// - Either an optional Logic [subtractIn] or a boolean [subtract] can enable
+  /// subtraction, but providing both non-null will result in an exception.
   /// - If Logic [carryOut] is provided as not null, then the end-around carry
   ///  is not performed and is provided as value on [carryOut].
   /// - [carryIn] allows for another adder to chain into this one.
@@ -37,7 +37,7 @@ class OnesComplementAdder extends Adder {
       Logic? subtractIn,
       Logic? carryOut,
       Logic? carryIn,
-      bool subtract = false,
+      bool? subtract,
       super.name = 'ones_complement_adder'}) {
     if (subtractIn != null) {
       subtractIn = addInput('subtractIn', subtractIn);
@@ -47,12 +47,14 @@ class OnesComplementAdder extends Adder {
       addOutput('carryOut');
       carryOut <= this.carryOut!;
     }
-    if ((subtractIn != null) & subtract) {
+    if ((subtractIn != null) & (subtract != null)) {
       throw RohdHclException(
-          'Subtraction is controlled by a non-null subtractIn: '
-          'subtract boolean is ignored');
+          "either provide a Logic signal 'subtractIn' for runtime "
+          " configuration, or a boolean parameter 'subtract' for "
+          'generation time configuration, but not both.');
     }
-    final doSubtract = subtractIn ?? (subtract ? Const(1) : Const(0));
+    final doSubtract =
+        subtractIn ?? (subtract != null ? Const(subtract) : Const(0));
 
     final ax = a.zeroExtend(a.width);
     final bx = b.zeroExtend(b.width);

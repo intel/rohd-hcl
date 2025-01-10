@@ -47,48 +47,49 @@ class FloatingPoint extends LogicStructure {
 
   /// Return a Logic true if this FloatingPoint contains a normal number,
   /// defined as having mantissa in the range [1,2)
-  late final Logic isNormal = Logic(name: '${name}_isNormal')
+  late final Logic isNormal = Logic(name: 'isNormal', naming: Naming.mergeable)
     ..gets(exponent.neq(LogicValue.zero.zeroExtend(exponent.width)));
 
   /// Return a Logic true if this FloatingPoint is Not a Number (NaN)
   /// by having its exponent field set to the NaN value (typically all
   /// ones) and a non-zero mantissa.
-  late final isNaN = Logic(name: '${name}_isNaN')
+  late final isNaN = Logic(name: 'isNaN', naming: Naming.mergeable)
     ..gets(exponent.eq(floatingPointValue.nan.exponent) & mantissa.or());
 
   /// Return a Logic true if this FloatingPoint is an infinity
   /// by having its exponent field set to the NaN value (typically all
   /// ones) and a zero mantissa.
-  late final isInfinity = Logic(name: '${name}_isInfinity')
+  late final isInfinity = Logic(name: 'isInfinity', naming: Naming.mergeable)
     ..gets(exponent.eq(floatingPointValue.infinity.exponent) & ~mantissa.or());
 
   /// Return a Logic true if this FloatingPoint is an zero
   /// by having its exponent field set to the NaN value (typically all
   /// ones) and a zero mantissa.
-  late final isZero = Logic(name: '${name}_isInfinity')
+  late final isZero = Logic(name: 'isZero', naming: Naming.mergeable)
     ..gets(exponent.eq(floatingPointValue.zero.exponent) & ~mantissa.or());
 
   /// Return the zero exponent representation for this type of FloatingPoint
-  late final zeroExponent =
-      Logic(name: '${name}_zeroExponent', width: exponent.width)
-        ..gets(Const(LogicValue.zero, width: exponent.width));
+  late final zeroExponent = Logic(
+      name: 'zeroExponent', naming: Naming.mergeable, width: exponent.width)
+    ..gets(Const(LogicValue.zero, width: exponent.width));
 
   /// Return the one exponent representation for this type of FloatingPoint
-  late final oneExponent =
-      Logic(name: '${name}_oneExponent', width: exponent.width)
-        ..gets(Const(LogicValue.one, width: exponent.width));
+  late final oneExponent = Logic(
+      name: 'oneExponent', naming: Naming.mergeable, width: exponent.width)
+    ..gets(Const(LogicValue.one, width: exponent.width));
 
   /// Return the exponent Logic value representing the true zero exponent
   /// 2^0 = 1 often termed [bias] or the offset of the stored exponent.
-  late final bias = Logic(name: '${name}_bias', width: exponent.width)
-    ..gets(Const((1 << exponent.width - 1) - 1, width: exponent.width));
+  late final bias =
+      Logic(name: 'bias', naming: Naming.mergeable, width: exponent.width)
+        ..gets(Const((1 << exponent.width - 1) - 1, width: exponent.width));
 
   /// Construct a FloatingPoint that represents infinity for this FP type.
-  FloatingPoint inf({Logic? inSign, bool sign = false}) => FloatingPoint.inf(
+  FloatingPoint inf({Logic? sign, bool negative = false}) => FloatingPoint.inf(
       exponentWidth: exponent.width,
       mantissaWidth: mantissa.width,
-      inSign: inSign,
-      sign: sign);
+      sign: sign,
+      negative: negative);
 
   /// Construct a FloatingPoint that represents NaN for this FP type.
   late final nan = FloatingPoint.nan(
@@ -107,10 +108,9 @@ class FloatingPoint extends LogicStructure {
   factory FloatingPoint.inf(
       {required int exponentWidth,
       required int mantissaWidth,
-      Logic? inSign,
-      bool sign = false}) {
-    final signLogic = mux(inSign ?? Const(sign), Const(1), Const(0));
-    // final signLogic = inSign ?? Const(sign);
+      Logic? sign,
+      bool negative = false}) {
+    final signLogic = Logic()..gets(sign ?? Const(negative));
     final exponent = Const(1, width: exponentWidth, fill: true);
     final mantissa = Const(0, width: mantissaWidth, fill: true);
     return FloatingPoint._(signLogic, exponent, mantissa);

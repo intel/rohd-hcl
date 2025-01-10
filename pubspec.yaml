@@ -18,9 +18,3 @@ dependencies:
 dev_dependencies:
   logging: ^1.0.1
   test: ^1.25.0
-
-dependency_overrides:
-  rohd:
-    git:
-      url: https://github.com/mkorbel1/rohd
-      ref: trace_struct_fix

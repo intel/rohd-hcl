@@ -51,12 +51,12 @@ void main() {
 
       if ((computed.mantissa != expectedNoRound.mantissa) &
           (computed.mantissa != expectedRound.mantissa)) {
-        expect(computed, equals(expectedRound),
-            reason: '\t$fv1 (${fv1.toDouble()})\n'
-                '\t$fv2 (${fv2.toDouble()}) =\n'
-                '\t$computed (${computed.toDouble()}) computed\n'
-                '\t$expectedNoRound '
-                '(${expectedNoRound.toDouble()}) expected');
+        expect(computed, equals(expectedRound), reason: '''
+      $fv1 (${fv1.toDouble()})\t+
+      $fv2 (${fv2.toDouble()})\t=
+      $computed (${computed.toDouble()})\tcomputed
+      $expectedNoRound (${expectedNoRound.toDouble()})\texpected
+''');
       }
     }
   });
@@ -103,12 +103,12 @@ void main() {
                   mantissaWidth: mantissaWidth);
 
               if ((computed != expectedNoRound) & (computed != expectedRound)) {
-                expect(computed, equals(expectedRound),
-                    reason: '\t$fv1 (${fv1.toDouble()})\n'
-                        '\t$fv2 (${fv2.toDouble()}) =\n'
-                        '\t$computed (${computed.toDouble()}) computed\n'
-                        '\t$expectedNoRound '
-                        '(${expectedNoRound.toDouble()}) expected');
+                expect(computed, equals(expectedRound), reason: '''
+      $fv1 (${fv1.toDouble()})\t+
+      $fv2 (${fv2.toDouble()})\t=
+      $computed (${computed.toDouble()})\tcomputed
+      $expectedNoRound (${expectedNoRound.toDouble()})\texpected
+''');
               }
             }
           }
@@ -183,11 +183,12 @@ void main() {
 
         final computed = adder.sum.floatingPointValue;
         if ((computed != expectedNoRound) && (computed != expectedRound)) {
-          expect(computed, equals(expected),
-              reason: '\t$fv1 (${fv1.toDouble()})\n'
-                  '\t$fv2 (${fv2.toDouble()}) =\n'
-                  '\t$computed (${computed.toDouble()}) computed\n'
-                  '\t$expected (${expected.toDouble()}) expected');
+          expect(computed, equals(expected), reason: '''
+      $fv1 (${fv1.toDouble()})\t+
+      $fv2 (${fv2.toDouble()})\t=
+      $computed (${computed.toDouble()})\tcomputed
+      $expectedNoRound (${expectedNoRound.toDouble()})\texpected
+''');
         }
       }
     });
@@ -270,12 +271,12 @@ void main() {
             mantissaWidth: mantissaWidth);
 
         if ((computed != expectedNoRound) & (computed != expectedRound)) {
-          expect(computed, equals(expectedNoRound),
-              reason: '\t$fv1 (${fv1.toDouble()})\n'
-                  '\t$fv2 (${fv2.toDouble()}) =\n'
-                  '\t$computed (${computed.toDouble()}) computed\n'
-                  '\t$expectedNoRound '
-                  '(${expectedNoRound.toDouble()}) expected');
+          expect(computed, equals(expectedNoRound), reason: '''
+      $fv1 (${fv1.toDouble()})\t+
+      $fv2 (${fv2.toDouble()})\t=
+      $computed (${computed.toDouble()})\tcomputed
+      $expectedNoRound (${expectedNoRound.toDouble()})\texpected
+''');
         }
       }
       await Simulator.endSimulation();
@@ -318,12 +319,12 @@ void main() {
           mantissaWidth: mantissaWidth);
 
       if ((computed != expectedNoRound) & (computed != expectedRound)) {
-        expect(computed, equals(expectedNoRound),
-            reason: '\t$fv1 (${fv1.toDouble()})\n'
-                '\t$fv2 (${fv2.toDouble()}) =\n'
-                '\t$computed (${computed.toDouble()}) computed\n'
-                '\t$expectedNoRound '
-                '(${expectedNoRound.toDouble()}) expected');
+        expect(computed, equals(expectedNoRound), reason: '''
+      $fv1 (${fv1.toDouble()})\t+
+      $fv2 (${fv2.toDouble()})\t=
+      $computed (${computed.toDouble()})\tcomputed
+      $expectedNoRound (${expectedNoRound.toDouble()})\texpected
+''');
       }
     }
   });
@@ -363,12 +364,12 @@ void main() {
           mantissaWidth: mantissaWidth);
 
       if ((computed != expectedNoRound) & (computed != expectedRound)) {
-        expect(computed, equals(expectedNoRound),
-            reason: '\t$fv1 (${fv1.toDouble()})\n'
-                '\t$fv2 (${fv2.toDouble()}) =\n'
-                '\t$computed (${computed.toDouble()}) computed\n'
-                '\t$expectedNoRound '
-                '(${expectedNoRound.toDouble()}) expected');
+        expect(computed, equals(expectedNoRound), reason: '''
+      $fv1 (${fv1.toDouble()})\t+
+      $fv2 (${fv2.toDouble()})\t=
+      $computed (${computed.toDouble()})\tcomputed
+      $expectedNoRound (${expectedNoRound.toDouble()})\texpected
+''');
       }
     }
   });

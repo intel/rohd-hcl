@@ -1,8 +1,8 @@
 // Copyright (C) 2024-2025 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 //
-// floating_point_test.dart
-// Tests of Floating Point stuff
+// floating_point_multiplier_test.dart
+// Tests for floating point multipliers.
 //
 // 2024 December 30
 // Authors:
@@ -48,11 +48,12 @@ void main() {
           fp2.put(fv2.value);
           final computed = multiply.product.floatingPointValue;
 
-          expect(computed, equals(expected),
-              reason: '\t$fv1 (${fv1.toDouble()})\n'
-                  '\t$fv2 (${fv2.toDouble()}) =\n'
-                  '\t$computed (${computed.toDouble()}) computed\n'
-                  '\t$expected (${expected.toDouble()}) expected');
+          expect(computed, equals(expected), reason: '''
+      $fv1 (${fv1.toDouble()})\t+
+      $fv2 (${fv2.toDouble()})\t=
+      $computed (${computed.toDouble()})\tcomputed
+      $expected (${expected.toDouble()})\texpected
+''');
         }
       }
     });
@@ -102,11 +103,12 @@ void main() {
         final multiply = FloatingPointMultiplierSimple(fp1, fp2);
         final computed = multiply.product.floatingPointValue;
 
-        expect(computed, equals(expected),
-            reason: '\t$fv1 (${fv1.toDouble()})\n'
-                '\t$fv2 (${fv2.toDouble()}) =\n'
-                '\t$computed (${computed.toDouble()}) computed\n'
-                '\t$expected (${expected.toDouble()}) expected');
+        expect(computed, equals(expected), reason: '''
+      $fv1 (${fv1.toDouble()})\t+
+      $fv2 (${fv2.toDouble()})\t=
+      $computed (${computed.toDouble()})\tcomputed
+      $expected (${expected.toDouble()})\texpected
+''');
       }
     });
 
@@ -145,11 +147,12 @@ void main() {
                 fp2.put(fv2.value);
                 final computed = multiply.product.floatingPointValue;
 
-                expect(computed, equals(expected),
-                    reason: '\t$fv1 (${fv1.toDouble()})\n'
-                        '\t$fv2 (${fv2.toDouble()}) =\n'
-                        '\t$computed (${computed.toDouble()}) computed\n'
-                        '\t$expected (${expected.toDouble()}) expected');
+                expect(computed, equals(expected), reason: '''
+      $fv1 (${fv1.toDouble()})\t+
+      $fv2 (${fv2.toDouble()})\t=
+      $computed (${computed.toDouble()})\tcomputed
+      $expected (${expected.toDouble()})\texpected
+''');
               }
             }
           }
@@ -185,10 +188,12 @@ void main() {
             mantissaWidth: mantissaWidth);
         final computed = multiplier.product.floatingPointValue;
 
-        expect(computed, equals(expected),
-            reason: '\t  fa=$fv1 (${fv1.toDouble()}) \n'
-                '\t* fb=$fv2 (${fv2.toDouble()}) = \n'
-                '\t  prd=$computed (${computed.toDouble()})');
+        expect(computed, equals(expected), reason: '''
+      $fv1 (${fv1.toDouble()})\t+
+      $fv2 (${fv2.toDouble()})\t=
+      $computed (${computed.toDouble()})\tcomputed
+      $expected (${expected.toDouble()})\texpected
+''');
         cnt--;
       }
     });
@@ -214,10 +219,12 @@ void main() {
       final multiply = FloatingPointMultiplierSimple(fp1, fp2);
       final computed = multiply.product.floatingPointValue;
 
-      expect(computed, equals(expected),
-          reason: '\t  fp1=$fv1 (${fv1.toDouble()}) \n'
-              '\t* fp2=$fv2 (${fv2.toDouble()}) = \n'
-              '\t  prd=$computed (${computed.toDouble()})');
+      expect(computed, equals(expected), reason: '''
+      $fv1 (${fv1.toDouble()})\t+
+      $fv2 (${fv2.toDouble()})\t=
+      $computed (${computed.toDouble()})\tcomputed
+      $expected (${expected.toDouble()})\texpected
+''');
     });
   });
   test('FP: simple multiplier singleton pipelined', () async {
@@ -249,10 +256,12 @@ void main() {
     fp2.put(0);
     final computed = multiply.product.floatingPointValue;
 
-    expect(computed, equals(expected),
-        reason: '\t  fp1=$fv1 (${fv1.toDouble()}) \n'
-            '\t* fp2=$fv2 (${fv2.toDouble()}) = \n'
-            '\t  prd=$computed (${computed.toDouble()})');
+    expect(computed, equals(expected), reason: '''
+      $fv1 (${fv1.toDouble()})\t+
+      $fv2 (${fv2.toDouble()})\t=
+      $computed (${computed.toDouble()})\tcomputed
+      $expected (${expected.toDouble()})\texpected
+''');
     await Simulator.endSimulation();
   });
 }

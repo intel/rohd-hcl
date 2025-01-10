@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: BSD-3-Clause
 //
 // floating_point_multiplier_simple.dart
-// Implementation of non-rounding floating-point multiplier
+// Implementation of a non-rounding floating-point multiplier.
 //
 // 2024 December 30
 // Author: Desmond A Kirkpatrick <desmond.a.kirkpatrick@intel.com
@@ -15,6 +15,8 @@ import 'package:rohd_hcl/src/arithmetic/partial_product_sign_extend.dart';
 class FloatingPointMultiplierSimple extends FloatingPointMultiplier {
   /// Multiply two FloatingPoint numbers [a] and [b], returning result
   /// in [product] FloatingPoint.
+  /// - [radix] is the Booth encoder radix used (default=4:
+  /// options are [2,4,8,16].
   /// - [adderGen] is an adder generator to be used in the primary adder
   /// functions.
   /// - [ppTree] is an parallel prefix tree generator to be used in internal
@@ -24,8 +26,10 @@ class FloatingPointMultiplierSimple extends FloatingPointMultiplier {
       super.reset,
       super.enable,
       int radix = 4,
-      Adder Function(Logic, Logic, {Logic? carryIn}) adderGen = NativeAdder.new,
-      ParallelPrefix Function(List<Logic>, Logic Function(Logic, Logic))
+      Adder Function(Logic a, Logic b, {Logic? carryIn}) adderGen =
+          NativeAdder.new,
+      ParallelPrefix Function(
+              List<Logic> inps, Logic Function(Logic term1, Logic term2) op)
           ppTree = KoggeStone.new,
       super.name}) {
     final product = FloatingPoint(
@@ -57,11 +61,11 @@ class FloatingPointMultiplierSimple extends FloatingPointMultiplier {
         b.isNaN |
         ((a.isInfinity | b.isInfinity) & (a.isZero | b.isZero));
 
-    final productExpLatch = condFlop(clk, productExp, en: enable, reset: reset);
-    final aSignLatch = condFlop(clk, a.sign, en: enable, reset: reset);
-    final bSignLatch = condFlop(clk, b.sign, en: enable, reset: reset);
-    final isInfLatch = condFlop(clk, isInf, en: enable, reset: reset);
-    final isNaNLatch = condFlop(clk, isNaN, en: enable, reset: reset);
+    final productExpLatch = localFlop(productExp);
+    final aSignLatch = localFlop(a.sign);
+    final bSignLatch = localFlop(b.sign);
+    final isInfLatch = localFlop(isInf);
+    final isNaNLatch = localFlop(isNaN);
 
     final leadingOnePos = ParallelPrefixPriorityEncoder(mantissa.reversed,
             ppGen: ppTree, name: 'leading_one_encoder')
@@ -86,6 +90,7 @@ class FloatingPointMultiplierSimple extends FloatingPointMultiplier {
         product < product.nan,
       ], orElse: [
         If(overFlow, then: [
+          // TODO(desmonddak): use this line after trace issue is resolved
           // product < product.inf(inSign: aSignLatch ^ bSignLatch),
           product.sign < aSignLatch ^ bSignLatch,
           product.exponent < product.nan.exponent,

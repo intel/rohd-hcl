@@ -162,7 +162,8 @@ class ParallelPrefixOrScan extends Module {
 
   /// OrScan constructor
   ParallelPrefixOrScan(Logic inp,
-      {ParallelPrefix Function(List<Logic>, Logic Function(Logic, Logic))
+      {ParallelPrefix Function(
+              List<Logic> inps, Logic Function(Logic term1, Logic term2) op)
           ppGen = KoggeStone.new,
       super.name = 'parallel_prefix_orscan'}) {
     inp = addInput('inp', inp, width: inp.width);
@@ -179,7 +180,8 @@ class ParallelPrefixPriorityFinder extends Module {
 
   /// Priority Finder constructor
   ParallelPrefixPriorityFinder(Logic inp,
-      {ParallelPrefix Function(List<Logic>, Logic Function(Logic, Logic))
+      {ParallelPrefix Function(
+              List<Logic> inps, Logic Function(Logic term1, Logic term2) op)
           ppGen = KoggeStone.new,
       super.name = 'parallel_prefix_finder'}) {
     inp = addInput('inp', inp, width: inp.width);
@@ -208,7 +210,8 @@ class ParallelPrefixPriorityEncoder extends Module {
   /// If there is no 1' in the [inp], it sets [out] to [inp].width + 1,
   /// as well as setting optional [valid] to false.
   ParallelPrefixPriorityEncoder(Logic inp,
-      {ParallelPrefix Function(List<Logic>, Logic Function(Logic, Logic))
+      {ParallelPrefix Function(
+              List<Logic> inps, Logic Function(Logic term1, Logic term2) op)
           ppGen = KoggeStone.new,
       Logic? valid,
       super.name = 'parallel_prefix_encoder'}) {
@@ -233,8 +236,9 @@ class ParallelPrefixAdder extends Adder {
   /// Adder constructor
   ParallelPrefixAdder(super.a, super.b,
       {super.carryIn,
-      ParallelPrefix Function(List<Logic>, Logic Function(Logic, Logic)) ppGen =
-          KoggeStone.new,
+      ParallelPrefix Function(
+              List<Logic> inps, Logic Function(Logic term1, Logic term2) op)
+          ppGen = KoggeStone.new,
       super.name = 'parallel_prefix_adder'}) {
     final l = List<Logic>.generate(a.width - 1,
         (i) => [a[i + 1] & b[i + 1], a[i + 1] | b[i + 1]].swizzle());
@@ -265,7 +269,8 @@ class ParallelPrefixIncr extends Module {
 
   /// Increment constructor
   ParallelPrefixIncr(Logic inp,
-      {ParallelPrefix Function(List<Logic>, Logic Function(Logic, Logic))
+      {ParallelPrefix Function(
+              List<Logic> inps, Logic Function(Logic term1, Logic term2) op)
           ppGen = KoggeStone.new,
       super.name = 'parallel_prefix_incr'}) {
     inp = addInput('inp', inp, width: inp.width);
@@ -284,7 +289,8 @@ class ParallelPrefixDecr extends Module {
 
   /// Decrement constructor
   ParallelPrefixDecr(Logic inp,
-      {ParallelPrefix Function(List<Logic>, Logic Function(Logic, Logic))
+      {ParallelPrefix Function(
+              List<Logic> inps, Logic Function(Logic term1, Logic term2) op)
           ppGen = KoggeStone.new,
       super.name = 'parallel_prefix_decr'}) {
     inp = addInput('inp', inp, width: inp.width);

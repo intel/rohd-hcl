@@ -13,14 +13,6 @@ import 'package:rohd_hcl/rohd_hcl.dart';
 
 /// An adder module for FloatingPoint values
 class FloatingPointAdderSimple extends FloatingPointAdder {
-  /// Swapping two FloatingPoint structures based on a conditional
-  static (FloatingPoint, FloatingPoint) _swap(
-          Logic swap, (FloatingPoint, FloatingPoint) toSwap) =>
-      (
-        toSwap.$1.clone()..gets(mux(swap, toSwap.$2, toSwap.$1)),
-        toSwap.$2.clone()..gets(mux(swap, toSwap.$1, toSwap.$2))
-      );
-
   /// Add two floating point numbers [a] and [b], returning result in [sum].
   /// - [adderGen] is an adder generator to be used in the primary adder
   /// functions.
@@ -30,10 +22,12 @@ class FloatingPointAdderSimple extends FloatingPointAdder {
       {super.clk,
       super.reset,
       super.enable,
-      Adder Function(Logic, Logic, {Logic? carryIn}) adderGen = NativeAdder.new,
-      ParallelPrefix Function(List<Logic>, Logic Function(Logic, Logic))
+      Adder Function(Logic a, Logic b, {Logic? carryIn}) adderGen =
+          NativeAdder.new,
+      ParallelPrefix Function(
+              List<Logic> inps, Logic Function(Logic term1, Logic term2) op)
           ppTree = KoggeStone.new,
-      super.name = 'floatingpoint_adder_simple2'})
+      super.name = 'floatingpoint_adder_simple'})
       : super() {
     final outputSum = FloatingPoint(
         exponentWidth: exponentWidth, mantissaWidth: mantissaWidth);
@@ -49,7 +43,7 @@ class FloatingPointAdderSimple extends FloatingPointAdder {
         ((ae.eq(be) & am.eq(bm)) & super.a.sign);
     final FloatingPoint a;
     final FloatingPoint b;
-    (a, b) = _swap(doSwap, (super.a, super.b));
+    (a, b) = swap(doSwap, (super.a, super.b));
 
     final isInf = a.isInfinity | b.isInfinity;
     final isNaN =
@@ -71,11 +65,11 @@ class FloatingPointAdderSimple extends FloatingPointAdder {
 
     final intSum = adder.sum.slice(adder.sum.width - 1, 0);
 
-    final aSignLatched = condFlop(clk, a.sign, en: enable, reset: reset);
-    final aExpLatched = condFlop(clk, a.exponent, en: enable, reset: reset);
-    final sumLatched = condFlop(clk, intSum, en: enable, reset: reset);
-    final isInfLatched = condFlop(clk, isInf, en: enable, reset: reset);
-    final isNaNLatched = condFlop(clk, isNaN, en: enable, reset: reset);
+    final aSignLatched = localFlop(a.sign);
+    final aExpLatched = localFlop(a.exponent);
+    final sumLatched = localFlop(intSum);
+    final isInfLatched = localFlop(isInf);
+    final isNaNLatched = localFlop(isNaN);
 
     final mantissa =
         sumLatched.reversed.getRange(0, min(intSum.width, intSum.width));
@@ -84,7 +78,7 @@ class FloatingPointAdderSimple extends FloatingPointAdder {
             ppGen: ppTree, valid: leadOneValid)
         .out;
     // Limit leadOne to exponent range and match widths
-    final infExponent = outputSum.inf(inSign: aSignLatched).exponent;
+    final infExponent = outputSum.inf(sign: aSignLatched).exponent;
     final leadOne = (leadOnePre.width > exponentWidth)
         ? mux(leadOnePre.gte(infExponent.zeroExtend(leadOnePre.width)),
             infExponent, leadOnePre.getRange(0, exponentWidth))
@@ -103,7 +97,7 @@ class FloatingPointAdderSimple extends FloatingPointAdder {
         ]),
         ElseIf(realIsInf, [
           // ROHD 0.6.0 trace error if we use the following
-          outputSum < outputSum.inf(inSign: aSignLatched),
+          outputSum < outputSum.inf(sign: aSignLatched),
           // outputSum.sign < aSignLatched,
           // outputSum.exponent < infExponent,
           // outputSum.mantissa < Const(0, width: mantissaWidth, fill: true),

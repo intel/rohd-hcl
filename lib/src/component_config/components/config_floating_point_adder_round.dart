@@ -22,12 +22,15 @@ class FloatingPointAdderRoundConfigurator extends Configurator {
         ParallelPrefixAdder(a, b, ppGen: Sklansky.new),
     KoggeStone: ParallelPrefixAdder.new,
     BrentKung: (a, b, {carryIn}) =>
-        ParallelPrefixAdder(a, b, ppGen: BrentKung.new)
+        ParallelPrefixAdder(a, b, ppGen: BrentKung.new),
+    NativeAdder: (a, b, {carryIn}) => NativeAdder(a, b, carryIn: carryIn)
   };
 
   /// Map from Type to Function for Parallel Prefix generator
-  static Map<Type,
-          ParallelPrefix Function(List<Logic>, Logic Function(Logic, Logic))>
+  static Map<
+          Type,
+          ParallelPrefix Function(
+              List<Logic> inps, Logic Function(Logic term1, Logic term2) op)>
       treeGeneratorMap = {
     Ripple: Ripple.new,
     Sklansky: Sklansky.new,
@@ -35,9 +38,9 @@ class FloatingPointAdderRoundConfigurator extends Configurator {
     BrentKung: BrentKung.new
   };
 
-  /// Controls the type of [ParallelPrefix] tree used in internal adders.
-  final adderTreeKnob =
-      ChoiceConfigKnob(adderGeneratorMap.keys.toList(), value: KoggeStone);
+  /// Controls the type of [Adder] used for internal adders.
+  final adderTypeKnob =
+      ChoiceConfigKnob(adderGeneratorMap.keys.toList(), value: NativeAdder);
 
   /// Controls the type of [ParallelPrefix] tree used in the other functions.
   final prefixTreeKnob =
@@ -62,13 +65,13 @@ class FloatingPointAdderRoundConfigurator extends Configurator {
       FloatingPoint(
           exponentWidth: exponentWidthKnob.value,
           mantissaWidth: mantissaWidthKnob.value),
-      adderGen: adderGeneratorMap[adderTreeKnob.value]!,
+      adderGen: adderGeneratorMap[adderTypeKnob.value]!,
       ppTree: treeGeneratorMap[prefixTreeKnob.value]!);
 
   @override
   late final Map<String, ConfigKnob<dynamic>> knobs = UnmodifiableMapView({
     'Prefix tree type': prefixTreeKnob,
-    'Adder tree type': adderTreeKnob,
+    'Adder tree type': adderTypeKnob,
     'Exponent width': exponentWidthKnob,
     'Mantissa width': mantissaWidthKnob,
     'Pipelined': pipelinedKnob,

@@ -1,4 +1,4 @@
-// Copyright (C) 2023-2024 Intel Corporation
+// Copyright (C) 2023-2025 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 //
 // multiplier.dart
@@ -204,7 +204,7 @@ class CompressionTreeMultiplier extends Multiplier {
   Logic get product => output('product');
 
   /// Construct a compression tree integer multiplier with a given [radix]
-  /// and prefix tree functor [ppTree] for the compressor and final adder.
+  /// and an [Adder] generator functor [adderGen] for the final adder.
   ///
   /// Sign extension methodology is defined by the partial product generator
   /// supplied via [ppGen].
@@ -238,9 +238,9 @@ class CompressionTreeMultiplier extends Multiplier {
       super.signedMultiplier = false,
       super.selectSignedMultiplicand,
       super.selectSignedMultiplier,
-      ParallelPrefix Function(List<Logic>, Logic Function(Logic, Logic))
-          ppTree = KoggeStone.new,
-      PartialProductGenerator Function(Logic, Logic, RadixEncoder,
+      Adder Function(Logic a, Logic b, {Logic? carryIn}) adderGen =
+          NativeAdder.new,
+      PartialProductGenerator Function(Logic a, Logic b, RadixEncoder encoder,
               {required bool signedMultiplier,
               required bool signedMultiplicand,
               Logic? selectSignedMultiplier,
@@ -265,9 +265,7 @@ class CompressionTreeMultiplier extends Multiplier {
     final compressor =
         ColumnCompressor(clk: clk, reset: reset, enable: enable, pp)
           ..compress();
-    final adder = ParallelPrefixAdder(
-        compressor.extractRow(0), compressor.extractRow(1),
-        ppGen: ppTree);
+    final adder = adderGen(compressor.extractRow(0), compressor.extractRow(1));
     product <= adder.sum.slice(a.width + b.width - 1, 0);
   }
 }
@@ -291,7 +289,7 @@ class CompressionTreeMultiplyAccumulate extends MultiplyAccumulate {
   Logic get accumulate => output('accumulate');
 
   /// Construct a compression tree integer multiply-add with a given [radix]
-  /// and prefix tree functor [ppTree] for the compressor and final adder.
+  /// and an [Adder] generator functor [adderGen] for the final adder.
   ///
   /// [a] and [b] are the product terms, [c] is the accumulate term which
   /// must be the sum of the widths plus 1.
@@ -334,9 +332,9 @@ class CompressionTreeMultiplyAccumulate extends MultiplyAccumulate {
       super.selectSignedMultiplicand,
       super.selectSignedMultiplier,
       super.selectSignedAddend,
-      ParallelPrefix Function(List<Logic>, Logic Function(Logic, Logic))
-          ppTree = KoggeStone.new,
-      PartialProductGenerator Function(Logic, Logic, RadixEncoder,
+      Adder Function(Logic a, Logic b, {Logic? carryIn}) adderGen =
+          NativeAdder.new,
+      PartialProductGenerator Function(Logic a, Logic b, RadixEncoder encoder,
               {required bool signedMultiplier,
               required bool signedMultiplicand,
               Logic? selectSignedMultiplier,
@@ -383,9 +381,7 @@ class CompressionTreeMultiplyAccumulate extends MultiplyAccumulate {
     final compressor =
         ColumnCompressor(clk: clk, reset: reset, enable: enable, pp)
           ..compress();
-    final adder = ParallelPrefixAdder(
-        compressor.extractRow(0), compressor.extractRow(1),
-        ppGen: ppTree);
+    final adder = adderGen(compressor.extractRow(0), compressor.extractRow(1));
     accumulate <= adder.sum.slice(a.width + b.width - 1 + 1, 0);
   }
 }

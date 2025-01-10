@@ -126,7 +126,7 @@ void main() {
     fp2.put(0);
 
     final computed = adder.sum.floatingPointValue;
-    expect(computed.isNaN(), equals(expected.isNaN()));
+    expect(computed.isNaN, equals(expected.isNaN));
     expect(computed, equals(expected));
     await Simulator.endSimulation();
   });
@@ -163,7 +163,12 @@ void main() {
                 fp2.put(fv2);
                 final expected = fv1 + fv2;
                 final computed = adder.sum.floatingPointValue;
-                expect(computed, equals(expected));
+                expect(computed, equals(expected), reason: '''
+      $fv1 (${fv1.toDouble()})\t+
+      $fv2 (${fv2.toDouble()})\t=
+      $computed (${computed.toDouble()})\tcomputed
+      $expected (${expected.toDouble()})\texpected
+''');
               }
             }
           }
@@ -205,7 +210,12 @@ void main() {
         fp1.put(0);
         fp2.put(0);
         final computed = adder.sum.floatingPointValue;
-        expect(computed, equals(expected));
+        expect(computed, equals(expected), reason: '''
+      $fv1 (${fv1.toDouble()})\t+
+      $fv2 (${fv2.toDouble()})\t=
+      $computed (${computed.toDouble()})\tcomputed
+      $expected (${expected.toDouble()})\texpected
+''');
       }
     }
     await Simulator.endSimulation();
@@ -250,7 +260,12 @@ void main() {
     fp2.put(0);
 
     final computed = adder.sum.floatingPointValue;
-    expect(computed, equals(expected));
+    expect(computed, equals(expected), reason: '''
+      $fv1 (${fv1.toDouble()})\t+
+      $fv2 (${fv2.toDouble()})\t=
+      $computed (${computed.toDouble()})\tcomputed
+      $expected (${expected.toDouble()})\texpected
+''');
     await Simulator.endSimulation();
   });
 
@@ -279,8 +294,13 @@ void main() {
       fp2.put(fv2);
       final expected = fv1 + fv2;
       final computed = adder.sum.floatingPointValue;
-      expect(computed.isNaN(), equals(expected.isNaN()));
-      expect(computed, equals(expected));
+      expect(computed.isNaN, equals(expected.isNaN));
+      expect(computed, equals(expected), reason: '''
+      $fv1 (${fv1.toDouble()})\t+
+      $fv2 (${fv2.toDouble()})\t=
+      $computed (${computed.toDouble()})\tcomputed
+      $expected (${expected.toDouble()})\texpected
+''');
       cnt--;
     }
     await Simulator.endSimulation();
@@ -318,7 +338,12 @@ void main() {
     final adder = FloatingPointAdderRound(fp1, fp2);
 
     final computed = adder.sum.floatingPointValue;
-    expect(computed, equals(expected));
+    expect(computed, equals(expected), reason: '''
+      $fv1 (${fv1.toDouble()})\t+
+      $fv2 (${fv2.toDouble()})\t=
+      $computed (${computed.toDouble()})\tcomputed
+      $expected (${expected.toDouble()})\texpected
+''');
   });
 
   test('FP: rounding adder singleton', () async {
@@ -352,8 +377,12 @@ void main() {
     final adder = FloatingPointAdderRound(fp1, fp2);
 
     final computed = adder.sum.floatingPointValue;
-
-    expect(computed, equals(expected));
+    expect(computed, equals(expected), reason: '''
+      $fv1 (${fv1.toDouble()})\t+
+      $fv2 (${fv2.toDouble()})\t=
+      $computed (${computed.toDouble()})\tcomputed
+      $expected (${expected.toDouble()})\texpected
+''');
   });
 
   test('FP: rounding adder exhaustive', () {
@@ -395,11 +424,12 @@ void main() {
                     exponentWidth: exponentWidth, mantissaWidth: mantissaWidth);
               }
 
-              expect(computed, equals(expected),
-                  reason: '\t$fv1 (${fv1.toDouble()})\n'
-                      '\t$fv2 (${fv2.toDouble()}) =\n'
-                      '\t$computed (${computed.toDouble()}) computed\n'
-                      '\t$expected (${expected.toDouble()}) expected');
+              expect(computed, equals(expected), reason: '''
+      $fv1 (${fv1.toDouble()})\t+
+      $fv2 (${fv2.toDouble()})\t=
+      $computed (${computed.toDouble()})\tcomputed
+      $expected (${expected.toDouble()})\texpected
+''');
             }
           }
         }
@@ -439,22 +469,22 @@ void main() {
     final fb = FloatingPoint(exponentWidth: eWidth, mantissaWidth: mWidth);
     fa.put(0);
     fb.put(0);
-    final fva = FloatingPointValue.ofInts(14, 31,
+    final fv1 = FloatingPointValue.ofInts(14, 31,
         exponentWidth: eWidth, mantissaWidth: mWidth);
-    final fvb = FloatingPointValue.ofInts(13, 7,
+    final fv2 = FloatingPointValue.ofInts(13, 7,
         exponentWidth: eWidth, mantissaWidth: mWidth, sign: true);
-    fa.put(fva);
-    fb.put(fvb);
+    fa.put(fv1);
+    fb.put(fv2);
 
     final expectedNoRound = FloatingPointValue.ofDoubleUnrounded(
-        fva.toDouble() + fvb.toDouble(),
+        fv1.toDouble() + fv2.toDouble(),
         exponentWidth: eWidth,
         mantissaWidth: mWidth);
 
     final FloatingPointValue expected;
-    final expectedRound = fva + fvb;
-    if (((fva.exponent.toInt() - fvb.exponent.toInt()).abs() < 2) &
-        (fva.sign.toInt() != fvb.sign.toInt())) {
+    final expectedRound = fv1 + fv2;
+    if (((fv1.exponent.toInt() - fv2.exponent.toInt()).abs() < 2) &
+        (fv1.sign.toInt() != fv2.sign.toInt())) {
       expected = expectedNoRound;
     } else {
       expected = expectedRound;
@@ -468,8 +498,13 @@ void main() {
     fb.put(0);
 
     final computed = adder.sum.floatingPointValue;
-    expect(computed.isNaN(), equals(expected.isNaN()));
-    expect(computed, equals(expected));
+    expect(computed.isNaN, equals(expected.isNaN));
+    expect(computed, equals(expected), reason: '''
+      $fv1 (${fv1.toDouble()})\t+
+      $fv2 (${fv2.toDouble()})\t=
+      $computed (${computed.toDouble()})\tcomputed
+      $expected (${expected.toDouble()})\texpected
+''');
     await Simulator.endSimulation();
   });
 }

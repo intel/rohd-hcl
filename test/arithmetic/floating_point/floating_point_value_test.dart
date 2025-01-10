@@ -31,11 +31,7 @@ void main() {
           final dbl = fp.toDouble();
           final fp2 = FloatingPointValue.ofDouble(dbl,
               exponentWidth: exponentWidth, mantissaWidth: mantissaWidth);
-          if (fp != fp2) {
-            if (fp.isNaN() != fp2.isNaN()) {
-              expect(fp, equals(fp2));
-            }
-          }
+          expect(fp, equals(fp2));
           mantissa = mantissa + 1;
         }
         exponent = exponent + 1;
