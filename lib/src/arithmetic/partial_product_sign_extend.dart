@@ -41,6 +41,14 @@ typedef PPGFunction = PartialProductGenerator Function(
 /// Used to test different sign extension methods
 PPGFunction curryPartialProductGenerator(SignExtension signExtension) =>
     switch (signExtension) {
+      SignExtension.none => OldPartialProductGeneratorNoneSignExtension.new,
+      SignExtension.brute => OldPartialProductGeneratorBruteSignExtension.new,
+      SignExtension.stopBits =>
+        OldPartialProductGeneratorStopBitsSignExtension.new,
+      SignExtension.compact =>
+        OldPartialProductGeneratorCompactSignExtension.new,
+      SignExtension.compactRect =>
+        OldPartialProductGeneratorCompactRectSignExtension.new,
       // SignExtension.none =>
       // NewPartialProductGeneratorNoneSignExtension.new,
       // SignExtension.brute =>
@@ -51,14 +59,6 @@ PPGFunction curryPartialProductGenerator(SignExtension signExtension) =>
       //   NewPartialProductGeneratorCompactSignExtension.new,
       // SignExtension.compactRect =>
       //   NewPartialProductGeneratorCompactRectSignExtension.new,
-      SignExtension.none => NewPartialProductGeneratorNoneSignExtension.new,
-      SignExtension.brute => NewPartialProductGeneratorBruteSignExtension.new,
-      SignExtension.stopBits =>
-        NewPartialProductGeneratorStopBitsSignExtension.new,
-      SignExtension.compact =>
-        NewPartialProductGeneratorCompactSignExtension.new,
-      SignExtension.compactRect =>
-        NewPartialProductGeneratorCompactRectSignExtension.new,
     };
 
 /// API for sign extension classes
