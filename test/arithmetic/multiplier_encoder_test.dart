@@ -472,6 +472,57 @@ void main() {
     expect(pp.evaluate(), equals(product));
   });
 
+  test('single MAC partial product sign extension test', () async {
+    final encoder = RadixEncoder(16);
+    const widthX = 8;
+    const widthY = 18;
+
+    const i = 1478;
+    const j = 9;
+    const k = 0;
+
+    final X = BigInt.from(i).toSigned(widthX);
+    final Y = BigInt.from(j).toSigned(widthY);
+    final Z = BigInt.from(k).toSigned(widthX + widthY);
+    // print('X=$X Y=$Y, Z=$Z');
+    final product = X * Y + Z;
+
+    final logicX = Logic(name: 'X', width: widthX);
+    final logicY = Logic(name: 'Y', width: widthY);
+    final logicZ = Logic(name: 'Z', width: widthX + widthY);
+    logicX.put(X);
+    logicY.put(Y);
+    logicZ.put(Z);
+
+    final pp = PartialProductGeneratorCompactRectSignExtension(
+        logicX, logicY, encoder,
+        signedMultiplicand: true, signedMultiplier: true);
+
+    final lastLength =
+        pp.partialProducts[pp.rows - 1].length + pp.rowShift[pp.rows - 1];
+
+    final sign = logicZ[logicZ.width - 1];
+    // for unsigned versus signed testing
+    // final sign = signed ? logicZ[logicZ.width - 1] : Const(0);
+    final l = [for (var i = 0; i < logicZ.width; i++) logicZ[i]];
+    while (l.length < lastLength) {
+      l.add(sign);
+    }
+    l
+      ..add(~sign)
+      ..add(Const(1));
+    // print(pp.representation());
+
+    pp.partialProducts.insert(0, l);
+    pp.rowShift.insert(0, 0);
+    // print(pp.representation());
+
+    if (pp.evaluate() != product) {
+      stdout.write('Fail: $X * $Y: ${pp.evaluate()} vs expected $product\n');
+    }
+    expect(pp.evaluate(), equals(product));
+  });
+
   test('majority function', () async {
     expect(LogicValue.ofBigInt(BigInt.from(7), 5).majority(), true);
     expect(LogicValue.ofBigInt(BigInt.from(7) << 1, 5).majority(), true);

@@ -227,12 +227,16 @@ abstract class PartialProductGenerator extends PartialProductArray {
   PartialProductGenerator(
       Logic multiplicand, Logic multiplier, RadixEncoder radixEncoder,
       {this.signedMultiplicand = false,
-      this.selectSignedMultiplicand,
       this.signedMultiplier = false,
+      this.selectSignedMultiplicand,
       this.selectSignedMultiplier,
       super.name = 'ppg'}) {
     if (signedMultiplier && (selectSignedMultiplier != null)) {
       throw RohdHclException('sign reconfiguration requires signed=false');
+    }
+    if (signedMultiplicand && (selectSignedMultiplicand != null)) {
+      throw RohdHclException('multiplicand sign reconfiguration requires '
+          'signedMultiplicand=false');
     }
     encoder = MultiplierEncoder(multiplier, radixEncoder,
         signedMultiplier: signedMultiplier,
@@ -250,7 +254,7 @@ abstract class PartialProductGenerator extends PartialProductArray {
           'or equal to ${selector.shift + (signedMultiplier ? 1 : 0)}');
     }
     _build();
-    signExtend();
+    // signExtend();
   }
 
   /// Perform sign extension (defined in child classes)
