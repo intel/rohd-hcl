@@ -297,18 +297,3 @@ abstract class PartialProductGenerator extends PartialProductArray {
     }
   }
 }
-
-/// A Partial Product Generator with no sign extension
-class OldPartialProductGeneratorNoneSignExtension
-    extends PartialProductGenerator {
-  /// Construct a basic Partial Product Generator
-  OldPartialProductGeneratorNoneSignExtension(
-      super.multiplicand, super.multiplier, super.radixEncoder,
-      {super.signedMultiplicand,
-      super.signedMultiplier,
-      super.selectSignedMultiplicand,
-      super.selectSignedMultiplier});
-
-  @override
-  void signExtend() {}
-}

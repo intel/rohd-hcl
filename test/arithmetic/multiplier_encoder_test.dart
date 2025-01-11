@@ -197,7 +197,7 @@ void main() {
         a.put(X);
         b.put(Y);
         final PartialProductGenerator pp;
-        pp = OldPartialProductGeneratorStopBitsSignExtension(a, b, encoder,
+        pp = NewPartialProductGeneratorStopBitsSignExtension(a, b, encoder,
             signedMultiplicand: signedMultiplicand,
             signedMultiplier: signedMultiplier);
         testPartialProductSingle(pp, X, Y);
@@ -256,7 +256,7 @@ void main() {
         selectSignMultiplicand.put(selectMultiplicand ? 1 : 0);
         selectSignMultiplier.put(selectMultiplier ? 1 : 0);
         final PartialProductGenerator pp;
-        pp = OldPartialProductGeneratorStopBitsSignExtension(
+        pp = NewPartialProductGeneratorStopBitsSignExtension(
             Logic(name: 'X', width: width),
             Logic(name: 'Y', width: width),
             encoder,
@@ -405,7 +405,7 @@ void main() {
     final multiplicand = Logic(width: widthX);
     final multiplier = Logic(width: widthY);
     for (final signed in [false, true]) {
-      final pp = OldPartialProductGeneratorCompactSignExtension(
+      final pp = NewPartialProductGeneratorCompactSignExtension(
           multiplicand, multiplier, radixEncoder,
           signedMultiplicand: signed, signedMultiplier: signed);
       for (var i = BigInt.zero; i < BigInt.from(limitX); i += BigInt.one) {
