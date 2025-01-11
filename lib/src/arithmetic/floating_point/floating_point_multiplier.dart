@@ -68,21 +68,10 @@ abstract class FloatingPointMultiplier extends Module {
         b.mantissa.width != mantissaWidth) {
       throw RohdHclException('FloatingPoint widths must match');
     }
-    if (clk != null) {
-      this.clk = addInput('clk', clk);
-    } else {
-      this.clk = clk;
-    }
-    if (reset != null) {
-      this.reset = addInput('reset', reset);
-    } else {
-      this.reset = reset;
-    }
-    if (enable != null) {
-      this.enable = addInput('enable', enable);
-    } else {
-      this.enable = enable;
-    }
+    this.clk = (clk != null) ? addInput('clk', clk) : clk;
+    this.enable = (enable != null) ? addInput('enable', enable) : enable;
+    this.reset = (reset != null) ? addInput('clk', reset) : reset;
+
     this.a = a.clone()..gets(addInput('a', a, width: a.width));
     this.b = b.clone()..gets(addInput('b', b, width: b.width));
     addOutput('product', width: a.exponent.width + a.mantissa.width + 1);
