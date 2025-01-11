@@ -188,7 +188,8 @@ void main() {
 
   MultiplierCallback curryCompressionTreeMultiplier(int radix,
       ParallelPrefix Function(List<Logic>, Logic Function(Logic, Logic)) ppTree,
-      {PPGFunction ppGen = PartialProductGeneratorCompactRectSignExtension.new,
+      {PPGFunction ppGen =
+          NewPartialProductGeneratorCompactRectSignExtension.new,
       bool signedMultiplicand = false,
       bool signedMultiplier = false,
       Logic? selectSignedMultiplicand,
@@ -225,7 +226,7 @@ void main() {
           {ParallelPrefix Function(List<Logic>, Logic Function(Logic, Logic))
               ppTree = KoggeStone.new,
           PPGFunction ppGen =
-              PartialProductGeneratorCompactRectSignExtension.new,
+              NewPartialProductGeneratorCompactRectSignExtension.new,
           bool signedMultiplicand = false,
           bool signedMultiplier = false,
           Logic? selectSignedMultiplicand,
@@ -252,7 +253,7 @@ void main() {
     int radix, {
     ParallelPrefix Function(List<Logic>, Logic Function(Logic, Logic)) ppTree =
         KoggeStone.new,
-    PPGFunction ppGen = PartialProductGeneratorCompactRectSignExtension.new,
+    PPGFunction ppGen = NewPartialProductGeneratorCompactRectSignExtension.new,
     bool signedMultiplicand = false,
     bool signedMultiplier = false,
     bool signedAddend = false,
@@ -617,7 +618,7 @@ void main() {
     a.put(6);
     b.put(3);
 
-    final ppG0 = PartialProductGeneratorCompactRectSignExtension(
+    final ppG0 = NewPartialProductGeneratorCompactRectSignExtension(
         a, b, RadixEncoder(4),
         signedMultiplicand: true, signedMultiplier: true);
 

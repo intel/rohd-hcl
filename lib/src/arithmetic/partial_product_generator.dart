@@ -254,7 +254,6 @@ abstract class PartialProductGenerator extends PartialProductArray {
           'or equal to ${selector.shift + (signedMultiplier ? 1 : 0)}');
     }
     _build();
-    // signExtend();
   }
 
   /// Perform sign extension (defined in child classes)
@@ -300,9 +299,10 @@ abstract class PartialProductGenerator extends PartialProductArray {
 }
 
 /// A Partial Product Generator with no sign extension
-class PartialProductGeneratorNoneSignExtension extends PartialProductGenerator {
+class OldPartialProductGeneratorNoneSignExtension
+    extends PartialProductGenerator {
   /// Construct a basic Partial Product Generator
-  PartialProductGeneratorNoneSignExtension(
+  OldPartialProductGeneratorNoneSignExtension(
       super.multiplicand, super.multiplier, super.radixEncoder,
       {super.signedMultiplicand,
       super.signedMultiplier,

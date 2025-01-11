@@ -245,7 +245,7 @@ class CompressionTreeMultiplier extends Multiplier {
               required bool signedMultiplicand,
               Logic? selectSignedMultiplier,
               Logic? selectSignedMultiplicand})
-          ppGen = PartialProductGeneratorCompactRectSignExtension.new,
+          ppGen = NewPartialProductGeneratorCompactRectSignExtension.new,
       super.name = 'compression_tree_multiplier'}) {
     clk = (clk != null) ? addInput('clk', clk!) : null;
     reset = (reset != null) ? addInput('reset', reset!) : null;
@@ -341,7 +341,7 @@ class CompressionTreeMultiplyAccumulate extends MultiplyAccumulate {
               required bool signedMultiplicand,
               Logic? selectSignedMultiplier,
               Logic? selectSignedMultiplicand})
-          ppGen = PartialProductGeneratorCompactRectSignExtension.new,
+          ppGen = NewPartialProductGeneratorCompactRectSignExtension.new,
       super.name = 'compression_tree_mac'}) {
     clk = (clk != null) ? addInput('clk', clk) : null;
     reset = (reset != null) ? addInput('reset', reset) : null;

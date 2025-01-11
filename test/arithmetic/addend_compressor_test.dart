@@ -36,7 +36,7 @@ class CompressorTestMod extends Module {
       clk = addInput('clk', iclk);
     }
 
-    pp = PartialProductGeneratorCompactRectSignExtension(a, b, encoder,
+    pp = NewPartialProductGeneratorCompactRectSignExtension(a, b, encoder,
         signedMultiplicand: signed, signedMultiplier: signed);
     compressor = ColumnCompressor(pp, clk: clk);
     compressor.compress();
@@ -111,7 +111,7 @@ void main() {
           selectSignedMultiplicand!.put(signed ? 1 : 0);
           selectSignedMultiplier!.put(signed ? 1 : 0);
         }
-        final pp = PartialProductGeneratorCompactRectSignExtension(
+        final pp = NewPartialProductGeneratorCompactRectSignExtension(
             a, b, encoder,
             signedMultiplicand: !useSelect & signed,
             signedMultiplier: !useSelect & signed,

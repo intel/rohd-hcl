@@ -197,7 +197,7 @@ void main() {
         a.put(X);
         b.put(Y);
         final PartialProductGenerator pp;
-        pp = PartialProductGeneratorStopBitsSignExtension(a, b, encoder,
+        pp = OldPartialProductGeneratorStopBitsSignExtension(a, b, encoder,
             signedMultiplicand: signedMultiplicand,
             signedMultiplier: signedMultiplier);
         testPartialProductSingle(pp, X, Y);
@@ -256,7 +256,7 @@ void main() {
         selectSignMultiplicand.put(selectMultiplicand ? 1 : 0);
         selectSignMultiplier.put(selectMultiplier ? 1 : 0);
         final PartialProductGenerator pp;
-        pp = PartialProductGeneratorStopBitsSignExtension(
+        pp = OldPartialProductGeneratorStopBitsSignExtension(
             Logic(name: 'X', width: width),
             Logic(name: 'Y', width: width),
             encoder,
@@ -385,7 +385,7 @@ void main() {
 
         final skew = align.$3;
 
-        final pp = PartialProductGeneratorCompactRectSignExtension(
+        final pp = NewPartialProductGeneratorCompactRectSignExtension(
             Logic(name: 'X', width: width),
             Logic(name: 'Y', width: width + skew),
             encoder);
@@ -405,7 +405,7 @@ void main() {
     final multiplicand = Logic(width: widthX);
     final multiplier = Logic(width: widthY);
     for (final signed in [false, true]) {
-      final pp = PartialProductGeneratorCompactSignExtension(
+      final pp = OldPartialProductGeneratorCompactSignExtension(
           multiplicand, multiplier, radixEncoder,
           signedMultiplicand: signed, signedMultiplier: signed);
       for (var i = BigInt.zero; i < BigInt.from(limitX); i += BigInt.one) {
@@ -443,7 +443,7 @@ void main() {
     logicX.put(X);
     logicY.put(Y);
     logicZ.put(Z);
-    final pp = PartialProductGeneratorCompactRectSignExtension(
+    final pp = NewPartialProductGeneratorCompactRectSignExtension(
         logicX, logicY, encoder,
         signedMultiplicand: true, signedMultiplier: true);
 
@@ -494,7 +494,7 @@ void main() {
     logicY.put(Y);
     logicZ.put(Z);
 
-    final pp = PartialProductGeneratorCompactRectSignExtension(
+    final pp = NewPartialProductGeneratorCompactRectSignExtension(
         logicX, logicY, encoder,
         signedMultiplicand: true, signedMultiplier: true);
 
