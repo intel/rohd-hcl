@@ -12,7 +12,6 @@ import 'dart:math';
 import 'package:meta/meta.dart';
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
-import 'package:rohd_hcl/src/binary_tree.dart';
 
 /// A generator which constructs a tree of k-input / 1-output modules
 /// or functions. Note that this is a pure generator class, not a [Module]
@@ -40,97 +39,129 @@ class ReductionTreeNode {
   @protected
   late final int _flopDepth;
 
+  /// Optional clock input for flopping the tree
   @protected
   late final Logic? clk;
 
+  /// Optional reset input for flopping the tree
   @protected
   late final Logic? reset;
 
+  /// Optional enable input for flopping the tree
   @protected
   late final Logic? enable;
 
-  late final int depthToFlop;
+  late final int? _depthToFlop;
+
+  /// The specified reduction parameter for the tree (e.g., binary = 2).
+  late final int reduce;
 
   /// Generate a node of a reduction tree based on dividing the input [seq] into
   /// [reduce] segments and recursively constructing two child nodes to operate
   /// on each segment.
-  /// - [reduce] is the size of input to each segment for the [operation]
+  /// - [reduce] reduction parameter for the tree (e.g., binary = 2).
   /// - [operation] is the operation to be performed at each node.
   /// Optional parameters to be used for creatign a pipelined tree:
   /// - [clk], [reset], [enable] are optionally provided to allow for flopping.
   /// - [depthToFlop] specifies how many nodes deep before a flop is added.
   ReductionTreeNode(List<Logic> seq, this.operation,
-      {int reduce = 2, this.clk, this.enable, this.reset, int? depthToFlop}) {
+      {this.reduce = 2, this.clk, this.enable, this.reset, int? depthToFlop})
+      : _depthToFlop = depthToFlop {
     if (seq.isEmpty) {
       throw RohdHclException("Don't use ReductionTreeNode "
           'with an empty sequence');
     }
-    if ((clk == null) & (depthToFlop != null)) {
+    if ((clk == null) & (_depthToFlop != null)) {
       throw RohdHclException('clk needs to be provided in order to flop');
     }
-    if (seq.length < reduce) {
-      _out = operation(seq);
-      _depth = 0;
-      _flopDepth = 0;
-    } else {
-      final segment = seq.length ~/ reduce;
 
-      final children = <ReductionTreeNode>[];
+    final v = iter(seq);
+    _out = v.value;
+    _depth = v.depth;
+    _flopDepth = v.flopDepth;
+  }
+
+  /// Iteration
+  ({Logic value, int depth, int flopDepth}) iter(List<Logic> seq) {
+    if (seq.length < reduce) {
+      return (value: operation(seq), depth: 0, flopDepth: 0);
+    } else {
+      final children = <({Logic value, int depth, int flopDepth})>[];
+      final segment = seq.length ~/ reduce;
       var cnt = 0;
       for (var i = 0; i < reduce; i++) {
         final s = cnt;
         final e = (i < reduce - 1) ? cnt + segment : seq.length;
-        final c = ReductionTreeNode(
-            seq.getRange(s, e).toList(),
-            reduce: reduce,
-            operation,
-            clk: clk,
-            enable: enable,
-            reset: reset,
-            depthToFlop: depthToFlop);
+        final c = iter(seq.getRange(s, e).toList());
         children.add(c);
         cnt += segment;
       }
-      final flopDepth = children.map((e) => e.flopDepth).reduce(max);
-      final results = [
-        for (final c in children)
-          condFlop(
-              (c.flopDepth < flopDepth) ? clk : null,
-              reset: reset,
-              en: enable,
-              c.out)
-      ];
-
-      final treeDepth = children.map((e) => e.depth).reduce(max);
+      final flopDepth = children.map((c) => c.flopDepth).reduce(max);
+      final treeDepth = children.map((c) => c.depth).reduce(max);
       final doFlop = [
-        if (depthToFlop != null)
-          (treeDepth > 0) & (treeDepth % depthToFlop == 0)
+        if (_depthToFlop != null)
+          (treeDepth > 0) & (treeDepth % _depthToFlop! == 0)
         else
           false
       ].first;
 
+      final maxLen = children.map((c) => c.value.width).reduce(max);
+
+      final alignedValues = children.map((c) => condFlop(
+          (c.flopDepth < flopDepth) ? clk : null,
+          reset: reset,
+          en: enable,
+          c.value));
+
       final resultsFlop = [
-        for (final r in results)
+        for (final r in alignedValues)
           condFlop(doFlop ? clk : null, reset: reset, en: enable, r)
       ];
-      _depth = doFlop ? 0 : treeDepth + 1;
-      _flopDepth = flopDepth + (doFlop ? 1 : 0);
-      final maxLen = children.map((e) => e.out.width).reduce(max);
-
       final resultsFinal = [for (final r in resultsFlop) r.zeroExtend(maxLen)];
       final computed = operation(resultsFinal);
-      _out = computed;
+      return (
+        value: computed,
+        depth: doFlop ? 0 : treeDepth + 1,
+        flopDepth: flopDepth + (doFlop ? 1 : 0)
+      );
     }
   }
 }
 
 /// Module driving inputs to the [ReductionTreeNode] generator.
 class ReductionTreeModule extends Module {
+  /// Get THIS from a better pipelined example
+  @protected
+  late final Logic? clk;
+
+  /// Get THIS from a better pipelined example
+  @protected
+  late final Logic? reset;
+
+  /// Get THIS from a better pipelined example
+  @protected
+  late final Logic? enable;
+
   /// The final output of the tree.
   Logic get out => output('out');
 
-  /// The flop depth of the tree.
+  /// The combinational depth since the last flop.
+  int get depth => _tree.depth;
+
+  /// The current flop depth of the tree from this node to the leaves.
   int get flopDepth => _tree.flopDepth;
+
+  /// The 2-input operation to be performed at each node.
+  @protected
+  final Logic Function(List<Logic> inputs) operation;
+
+  /// specified depth of nodes at which to flop
+  @protected
+  late final int? depthToFlop;
+
+  /// Specified width of reduction node (e.g., binary=2)
+  @protected
+  late final int reduce;
 
   @protected
   late final ReductionTreeNode _tree;
@@ -140,16 +171,17 @@ class ReductionTreeModule extends Module {
   /// on each segments.
   /// - [seq] is the input sequence to be reduced using the tree of operations.
   /// - [operation] is the operation to be performed at each node.
+  /// - [reduce] is the width of reduction at each node in the tree (e.g.,
+  /// binary = 2).
   /// Optional parameters to be used for creatign a pipelined tree:
   /// - [clk], [reset], [enable] are optionally provided to allow for flopping.
   /// - [depthToFlop] specifies how many nodes deep before a flop is added.
-  ReductionTreeModule(
-      List<Logic> seq, Logic Function(List<Logic> inputs) operation,
-      {int reduce = 2,
+  ReductionTreeModule(List<Logic> seq, this.operation,
+      {this.reduce = 2,
       Logic? clk,
       Logic? enable,
       Logic? reset,
-      int? depthToFlop,
+      this.depthToFlop,
       super.name = 'my_tree'}) {
     if (seq.isEmpty) {
       throw RohdHclException("Don't use reductionTreeModule "
@@ -159,16 +191,9 @@ class ReductionTreeModule extends Module {
       for (var i = 0; i < seq.length; i++)
         addInput('seq$i', seq[i], width: seq[i].width)
     ];
-
-    if (clk != null) {
-      clk = addInput('clk', clk);
-    }
-    if (enable != null) {
-      enable = addInput('enable', enable);
-    }
-    if (reset != null) {
-      clk = addInput('clk', reset);
-    }
+    clk = (clk != null) ? addInput('clk', clk) : null;
+    enable = (enable != null) ? addInput('enable', enable) : null;
+    reset = (reset != null) ? addInput('reset', reset) : null;
     _tree = ReductionTreeNode(
         seq,
         reduce: reduce,
