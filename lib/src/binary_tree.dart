@@ -49,7 +49,7 @@ class BinaryTreeNode {
   BinaryTreeNode(List<Logic> seq, this.operation,
       {Logic? clk, Logic? enable, Logic? reset, int? depthToFlop}) {
     if (seq.isEmpty) {
-      throw RohdHclException("Don't use TreeOfTwoInputModules "
+      throw RohdHclException("Don't use BinaryTreeNode "
           'with an empty sequence');
     }
     if ((clk == null) & (depthToFlop != null)) {
@@ -125,6 +125,10 @@ class BinaryTreeModule extends Module {
       Logic? reset,
       int? depthToFlop,
       super.name = 'my_tree'}) {
+    if (seq.isEmpty) {
+      throw RohdHclException("Don't use BinaryTreeModule "
+          'with an empty sequence');
+    }
     seq = [
       for (var i = 0; i < seq.length; i++)
         addInput('seq$i', seq[i], width: seq[i].width)
@@ -148,6 +152,7 @@ class BinaryTreeModule extends Module {
 
 /// The following class is experimental:  an effort to use [LogicArray] instead
 /// of [List<Logic>] to generalize the binary tree construction.
+///
 /// - A fundamental issue is about extension of operands:  the base case
 /// of [Logic]s in a [List] can easily use sign extension or zero extension.
 /// But when we think of a [LogicArray] as a list of 1-less-dimension
@@ -156,6 +161,9 @@ class BinaryTreeModule extends Module {
 /// Yet we want the base case to be supported as well.
 /// Perhaps the solution is to not allow sign extension on higher-dimensional
 /// [LogicArray], just support it when it is one-dimensional.
+/// - A second issue is the need for (minor) reshaping of [LogicArray] that is
+/// needed:  peeling off the outer dimension to create a sequence of
+/// smaller dimension [LogicArray].
 
 /// A generator utility which constructs a tree of 2-input / 1-output modules
 /// or functions. Note that this is a pure generator class, not a [Module]
@@ -199,7 +207,7 @@ class BinaryTreeNodeAry {
   BinaryTreeNodeAry(LogicArray seq, this.operation,
       {Logic? clk, Logic? enable, Logic? reset, int? depthToFlop}) {
     if (seq.elements.isEmpty) {
-      throw RohdHclException("Don't use TreeOfTwoInputModules "
+      throw RohdHclException("Don't use BinaryTreeNodeAry "
           'with an empty LogicArray');
     }
     if ((clk == null) & (depthToFlop != null)) {
@@ -290,6 +298,10 @@ class BinaryTreeAryModule extends Module {
       Logic? reset,
       int? depthToFlop,
       super.name = 'binary_tree'}) {
+    if (ary.elements.isEmpty) {
+      throw RohdHclException("Don't use BinaryTreeAryModule "
+          'with an empty LogicArray');
+    }
     ary = addInputArray('array', ary,
         dimensions: ary.dimensions, elementWidth: ary.elementWidth);
     if (clk != null) {
