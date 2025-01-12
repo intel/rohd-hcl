@@ -23,9 +23,7 @@ void main() {
     return a;
   }
 
-  test('reduction tree of adders -- quick test', () async {
-    final clk = SimpleClockGenerator(10).clk;
-
+  test('reduction tree of add operations -- quick test', () async {
     const width = 17;
     const length = 79;
     final vec = <Logic>[];
@@ -36,12 +34,11 @@ void main() {
       count = count + i;
     }
     for (var reduce = 2; reduce < length; reduce++) {
-      final prefixAdd =
-          ReductionTreeModule(vec, reduce: reduce, addReduce, clk: clk);
+      final prefixAdd = ReductionTree(vec, radix: reduce, addReduce);
       expect(prefixAdd.out.value.toInt(), equals(count));
     }
   });
-  test('reduction tree of adders', () async {
+  test('reduction tree of adders -- large', () async {
     final clk = SimpleClockGenerator(10).clk;
 
     const width = 17;
@@ -54,13 +51,12 @@ void main() {
       count = count + i;
     }
     for (var reduce = 2; reduce < length; reduce++) {
-      final prefixAdd =
-          ReductionTreeModule(vec, reduce: reduce, addReduce, clk: clk);
+      final prefixAdd = ReductionTree(vec, radix: reduce, addReduce, clk: clk);
       expect(prefixAdd.out.value.toInt(), equals(count));
     }
   });
 
-  test('reduction tree of adders', () async {
+  test('reduction tree of adders -- large, pipelined', () async {
     final clk = SimpleClockGenerator(10).clk;
 
     const width = 17;
@@ -71,8 +67,8 @@ void main() {
       vec.add(Const(i, width: width));
     }
     const reduce = 4;
-    final prefixAdd = ReductionTreeModule(
-        vec, reduce: reduce, addReduce, clk: clk, depthToFlop: 1);
+    final prefixAdd =
+        ReductionTree(vec, radix: reduce, addReduce, clk: clk, depthToFlop: 1);
 
     await prefixAdd.build();
     WaveDumper(prefixAdd);
@@ -116,7 +112,8 @@ void main() {
     }
   }
 
-  test('reduction tree of real adders', () async {
+  test('reduction tree of prefix adders -- large, pipelined, radix 4',
+      () async {
     final clk = SimpleClockGenerator(10).clk;
 
     const width = 17;
@@ -127,8 +124,8 @@ void main() {
       vec.add(Const(i, width: width));
     }
     const reduce = 4;
-    final prefixAdd = ReductionTreeModule(
-        vec, reduce: reduce, addReduceAdders, clk: clk, depthToFlop: 1);
+    final prefixAdd = ReductionTree(
+        vec, radix: reduce, addReduceAdders, clk: clk, depthToFlop: 1);
 
     await prefixAdd.build();
     WaveDumper(prefixAdd);
