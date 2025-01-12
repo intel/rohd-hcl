@@ -34,7 +34,7 @@ Finally, we have a [random value constructor](https://intel.github.io/rohd-hcl/r
 
 ## FloatingPoint
 
-The [FloatingPoint](https://intel.github.io/rohd-hcl/rohd_hcl/FloatingPoint-class.html) type is a [LogicStructure](https://pub.dev/documentation/rohd/latest/rohd/LogicStructure-class.html) which comprises the [Logic](https://pub.dev/documentation/rohd/latest/rohd/Logic-class.html) bits for the sign, exponent, and mantissa used in hardware floating-point.  This type is provided to simplify and abstract the declaration and manipulation of floating-point bits in hardware.  This type is parameterized like [FloatingPointValue](https://intel.github.io/rohd-hcl/rohd_hcl/FloatingPointValue-class.html), for exponent and mantissa width.
+The [FloatingPoint](https://intel.github.io/rohd-hcl/rohd_hcl/FloatingPoint-class.html) type is a [LogicStructure](https://intel.github.io/rohd/rohd/LogicStructure-class.html) which comprises the [Logic](https://intel.github.io/rohd/rohd/Logic-class.html) bits for the sign, exponent, and mantissa used in hardware floating-point.  This type is provided to simplify and abstract the declaration and manipulation of floating-point bits in hardware.  This type is parameterized like [FloatingPointValue](https://intel.github.io/rohd-hcl/rohd_hcl/FloatingPointValue-class.html), for exponent and mantissa width.
 
 Again, like  [FloatingPointValue](https://intel.github.io/rohd-hcl/rohd_hcl/FloatingPointValue-class.html), [FloatingPoint64](https://intel.github.io/rohd-hcl/rohd_hcl/FloatingPoint64-class.html) and [FloatingPoint32](https://intel.github.io/rohd-hcl/rohd_hcl/FloatingPoint32-class.html) subclasses are provided as these are the most common floating-point number types.
 
