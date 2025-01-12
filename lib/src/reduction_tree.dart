@@ -51,7 +51,8 @@ class ReductionTreeNode {
   @protected
   late final Logic? enable;
 
-  late final int? _depthToFlop;
+  /// specified depth of nodes at which to flop
+  late final int? depthToFlop;
 
   /// The specified reduction parameter for the tree (e.g., binary = 2).
   late final int reduce;
@@ -65,13 +66,12 @@ class ReductionTreeNode {
   /// - [clk], [reset], [enable] are optionally provided to allow for flopping.
   /// - [depthToFlop] specifies how many nodes deep before a flop is added.
   ReductionTreeNode(List<Logic> seq, this.operation,
-      {this.reduce = 2, this.clk, this.enable, this.reset, int? depthToFlop})
-      : _depthToFlop = depthToFlop {
+      {this.reduce = 2, this.clk, this.enable, this.reset, this.depthToFlop}) {
     if (seq.isEmpty) {
       throw RohdHclException("Don't use ReductionTreeNode "
           'with an empty sequence');
     }
-    if ((clk == null) & (_depthToFlop != null)) {
+    if ((clk == null) & (depthToFlop != null)) {
       throw RohdHclException('clk needs to be provided in order to flop');
     }
 
@@ -99,8 +99,8 @@ class ReductionTreeNode {
       final flopDepth = children.map((c) => c.flopDepth).reduce(max);
       final treeDepth = children.map((c) => c.depth).reduce(max);
       final doFlop = [
-        if (_depthToFlop != null)
-          (treeDepth > 0) & (treeDepth % _depthToFlop! == 0)
+        if (depthToFlop != null)
+          (treeDepth > 0) & (treeDepth % depthToFlop! == 0)
         else
           false
       ].first;
