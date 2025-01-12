@@ -1,4 +1,4 @@
-// Copyright (C) 2023-2024 Intel Corporation
+// Copyright (C) 2023-2025 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 //
 // addend_compressor_test.dart
@@ -36,8 +36,10 @@ class CompressorTestMod extends Module {
       clk = addInput('clk', iclk);
     }
 
-    pp = NewPartialProductGeneratorCompactRectSignExtension(a, b, encoder,
+    final pp = PartialProductGeneratorBasic(a, b, encoder,
         signedMultiplicand: signed, signedMultiplier: signed);
+    CompactRectSignExtension(pp).signExtend();
+
     compressor = ColumnCompressor(pp, clk: clk);
     compressor.compress();
     final r0 = addOutput('r0', width: compressor.columns.length);
@@ -111,12 +113,13 @@ void main() {
           selectSignedMultiplicand!.put(signed ? 1 : 0);
           selectSignedMultiplier!.put(signed ? 1 : 0);
         }
-        final pp = NewPartialProductGeneratorCompactRectSignExtension(
-            a, b, encoder,
+        final pp = PartialProductGeneratorBasic(a, b, encoder,
             signedMultiplicand: !useSelect & signed,
             signedMultiplier: !useSelect & signed,
             selectSignedMultiplicand: selectSignedMultiplicand,
             selectSignedMultiplier: selectSignedMultiplier);
+        CompactRectSignExtension(pp).signExtend();
+
         expect(pp.evaluate(), equals(bA * bB));
         final compressor = ColumnCompressor(pp);
         expect(compressor.evaluate().$1, equals(bA * bB));

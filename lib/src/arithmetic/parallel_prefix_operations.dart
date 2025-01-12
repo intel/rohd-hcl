@@ -1,4 +1,4 @@
-// Copyright (C) 2023-2024 Intel Corporation
+// Copyright (C) 2023-2025 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 //
 // parallel_prefix_operations.dart
@@ -61,7 +61,7 @@ class Ripple extends ParallelPrefix {
 /// Sklansky shaped ParallelPrefix tree
 class Sklansky extends ParallelPrefix {
   /// Sklansky constructor
-  Sklansky(List<Logic> inps, Logic Function(Logic, Logic) op)
+  Sklansky(List<Logic> inps, Logic Function(Logic term1, Logic term2) op)
       : super(inps, 'sklansky') {
     final iseq = <Logic>[];
 
@@ -90,7 +90,7 @@ class Sklansky extends ParallelPrefix {
 /// KoggeStone shaped ParallelPrefix tree
 class KoggeStone extends ParallelPrefix {
   /// KoggeStone constructor
-  KoggeStone(List<Logic> inps, Logic Function(Logic, Logic) op)
+  KoggeStone(List<Logic> inps, Logic Function(Logic term1, Logic term2) op)
       : super(inps, 'kogge_stone') {
     final iseq = <Logic>[];
 
@@ -117,7 +117,7 @@ class KoggeStone extends ParallelPrefix {
 /// BrentKung shaped ParallelPrefix tree
 class BrentKung extends ParallelPrefix {
   /// BrentKung constructor
-  BrentKung(List<Logic> inps, Logic Function(Logic, Logic) op)
+  BrentKung(List<Logic> inps, Logic Function(Logic term1, Logic term2) op)
       : super(inps, 'brent_kung') {
     final iseq = <Logic>[];
 
@@ -162,7 +162,8 @@ class ParallelPrefixOrScan extends Module {
 
   /// OrScan constructor
   ParallelPrefixOrScan(Logic inp,
-      {ParallelPrefix Function(List<Logic>, Logic Function(Logic, Logic))
+      {ParallelPrefix Function(
+              List<Logic> inps, Logic Function(Logic term1, Logic term2) op)
           ppGen = KoggeStone.new,
       super.name = 'parallel_prefix_orscan'}) {
     inp = addInput('inp', inp, width: inp.width);
@@ -179,7 +180,8 @@ class ParallelPrefixPriorityFinder extends Module {
 
   /// Priority Finder constructor
   ParallelPrefixPriorityFinder(Logic inp,
-      {ParallelPrefix Function(List<Logic>, Logic Function(Logic, Logic))
+      {ParallelPrefix Function(
+              List<Logic> inps, Logic Function(Logic term1, Logic term2) op)
           ppGen = KoggeStone.new,
       super.name = 'parallel_prefix_finder'}) {
     inp = addInput('inp', inp, width: inp.width);
@@ -196,7 +198,8 @@ class ParallelPrefixPriorityEncoder extends Module {
 
   /// PriorityEncoder constructor
   ParallelPrefixPriorityEncoder(Logic inp,
-      {ParallelPrefix Function(List<Logic>, Logic Function(Logic, Logic))
+      {ParallelPrefix Function(
+              List<Logic> inps, Logic Function(Logic term1, Logic term2) op)
           ppGen = KoggeStone.new,
       super.name = 'parallel_prefix_encoder'}) {
     inp = addInput('inp', inp, width: inp.width);
@@ -211,8 +214,9 @@ class ParallelPrefixAdder extends Adder {
   /// Adder constructor
   ParallelPrefixAdder(super.a, super.b,
       {super.carryIn,
-      ParallelPrefix Function(List<Logic>, Logic Function(Logic, Logic)) ppGen =
-          KoggeStone.new,
+      ParallelPrefix Function(
+              List<Logic> inps, Logic Function(Logic term1, Logic term2) op)
+          ppGen = KoggeStone.new,
       super.name = 'parallel_prefix_adder'}) {
     final l = List<Logic>.generate(a.width - 1,
         (i) => [a[i + 1] & b[i + 1], a[i + 1] | b[i + 1]].swizzle());
@@ -243,7 +247,8 @@ class ParallelPrefixIncr extends Module {
 
   /// Increment constructor
   ParallelPrefixIncr(Logic inp,
-      {ParallelPrefix Function(List<Logic>, Logic Function(Logic, Logic))
+      {ParallelPrefix Function(
+              List<Logic> inps, Logic Function(Logic term1, Logic term2) op)
           ppGen = KoggeStone.new,
       super.name = 'parallel_prefix_incr'}) {
     inp = addInput('inp', inp, width: inp.width);
@@ -262,7 +267,8 @@ class ParallelPrefixDecr extends Module {
 
   /// Decrement constructor
   ParallelPrefixDecr(Logic inp,
-      {ParallelPrefix Function(List<Logic>, Logic Function(Logic, Logic))
+      {ParallelPrefix Function(
+              List<Logic> inps, Logic Function(Logic term1, Logic term2) op)
           ppGen = KoggeStone.new,
       super.name = 'parallel_prefix_decr'}) {
     inp = addInput('inp', inp, width: inp.width);

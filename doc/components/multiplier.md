@@ -137,7 +137,7 @@ The parameters of the
 - The accumulate input term `c` which must have width as sum of the two operand widths + 1.
 - The radix used for Booth encoding (2, 4, 8, and 16 are currently supported)
 - The type of `ParallelPrefix` tree used in the final `ParallelPrefixAdder` (default Kogge-Stone).
-- `ppGen` parameter: the type of `PartialProductGenerator` to use which has derived classes for different styles of sign extension. In some cases this adds an extra row to hold a sign bit (default `PartialProductGeneratorCompactRectSignExtension`).
+- `esGen` parameter: the type of `PartialProductSignExtension` to use which has derived classes for different styles of sign extension. In some cases this adds an extra row to hold a sign bit (default `CompactRectSignExtension`).
 - `signedMultiplicand` parameter: whether the multiplicand (first arg) should be treated as signed (2s complement) or unsigned
 - `signedMultiplier` parameter: whether the multiplier (second arg) should be treated as signed (twos' complement) or unsigned
 - `signedAddend` parameter: whether the addend (third arg) should be treated as signed (twos' complement) or unsigned

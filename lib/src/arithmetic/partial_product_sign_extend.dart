@@ -1,4 +1,4 @@
-// Copyright (C) 2024 Intel Corporation
+// Copyright (C) 2024-2025 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 //
 // partial_product_test_sign_extend.dart
@@ -38,37 +38,27 @@ typedef PPGFunction = PartialProductGenerator Function(
     bool signedMultiplier,
     Logic? selectSignedMultiplier});
 
-/// Used to test different sign extension methods
-PPGFunction curryPartialProductGenerator(SignExtension signExtension) =>
-    switch (signExtension) {
-      SignExtension.none => NewPartialProductGeneratorNoneSignExtension.new,
-      SignExtension.brute => NewPartialProductGeneratorBruteSignExtension.new,
-      SignExtension.stopBits =>
-        NewPartialProductGeneratorStopBitsSignExtension.new,
-      SignExtension.compact =>
-        NewPartialProductGeneratorCompactSignExtension.new,
-      SignExtension.compactRect =>
-        NewPartialProductGeneratorCompactRectSignExtension.new,
-    };
-
 /// API for sign extension classes
 abstract class PartialProductSignExtension {
+  /// name used for PartialProductSignExtension
+  final String name;
+
   /// The partial product generator we are sign extending.
   final PartialProductGenerator ppg;
 
   /// multiplicand operand is always signed.
-  final bool signedMultiplicand;
+  bool get signedMultiplicand => ppg.signedMultiplicand;
 
   /// multiplier operand is always signed.
-  final bool signedMultiplier;
+  bool get signedMultiplier => ppg.signedMultiplier;
 
   /// If not null, use this signal to select between signed and unsigned
   /// multiplicand.
-  final Logic? selectSignedMultiplicand;
+  Logic? get selectSignedMultiplicand => ppg.selectSignedMultiplicand;
 
   /// If not null, use this signal to select between signed and unsigned
   /// multiplier.
-  final Logic? selectSignedMultiplier;
+  Logic? get selectSignedMultiplier => ppg.selectSignedMultiplier;
 
   /// in PPA
   int get rows => ppg.rows;
@@ -98,13 +88,7 @@ abstract class PartialProductSignExtension {
 
   /// Sign Extension class that operates on a [PartialProductGenerator]
   /// and sign-extends the entries.
-  PartialProductSignExtension(
-    this.ppg, {
-    this.signedMultiplicand = false,
-    this.signedMultiplier = false,
-    this.selectSignedMultiplicand,
-    this.selectSignedMultiplier,
-  }) {
+  PartialProductSignExtension(this.ppg, {this.name = 'no_sign_extension'}) {
     //
     if (signedMultiplier && (selectSignedMultiplier != null)) {
       throw RohdHclException('sign reconfiguration requires signed=false');
@@ -145,15 +129,11 @@ abstract class PartialProductSignExtension {
 }
 
 /// Used to test different sign extension methods
-typedef SignExtensionFunction = PartialProductSignExtension Function(
-    PartialProductGenerator ppg,
-    {bool signedMultiplicand,
-    bool signedMultiplier,
-    Logic? selectSignedMultiplicand,
-    Logic? selectSignedMultiplier});
+typedef SignExtensionFunction = PartialProductSignExtension
+    Function(PartialProductGenerator ppg, {String name});
 
 /// Used to test different sign extension methods
-SignExtensionFunction currysignExtensionFunction(SignExtension signExtension) =>
+SignExtensionFunction currySignExtensionFunction(SignExtension signExtension) =>
     switch (signExtension) {
       SignExtension.none => NoneSignExtension.new,
       SignExtension.brute => BruteSignExtension.new,
@@ -169,39 +149,27 @@ SignExtensionFunction currysignExtensionFunction(SignExtension signExtension) =>
 /// /// A Partial Product Generator using None Sign Extension
 class NoneSignExtension extends PartialProductSignExtension {
   /// Construct a no sign-extension class.
-  NoneSignExtension(
-    super.ppg, {
-    super.signedMultiplicand = false,
-    super.signedMultiplier = false,
-    super.selectSignedMultiplicand,
-    super.selectSignedMultiplier,
-  });
+  NoneSignExtension(super.ppg, {super.name = 'none_sign_extension'});
 
   /// Fully sign extend the PP array: useful for reference only
   @override
   void signExtend() {}
 }
 
-/// A wrapper class for [NoneSignExtension] we used
-/// during refactoring to be compatible with old calls.
-class NewPartialProductGeneratorNoneSignExtension
-    extends PartialProductGenerator {
+/// A concrete base class for partial product generation
+class PartialProductGeneratorBasic extends PartialProductGenerator {
   /// The extension routine we will be using.
   late final PartialProductSignExtension extender;
 
   /// Construct a none sign extending Partial Product Generator
-  NewPartialProductGeneratorNoneSignExtension(
+  PartialProductGeneratorBasic(
       super.multiplicand, super.multiplier, super.radixEncoder,
       {super.signedMultiplicand,
       super.signedMultiplier,
       super.selectSignedMultiplicand,
       super.selectSignedMultiplier,
       super.name = 'none'}) {
-    extender = BruteSignExtension(this,
-        signedMultiplicand: signedMultiplicand,
-        signedMultiplier: signedMultiplier,
-        selectSignedMultiplicand: selectSignedMultiplicand,
-        selectSignedMultiplier: selectSignedMultiplier);
+    extender = NoneSignExtension(this);
     signExtend();
   }
 
@@ -211,20 +179,34 @@ class NewPartialProductGeneratorNoneSignExtension
   }
 }
 
-/// These other sign extensions are for assisting with testing and debugging.
-/// More robust and simpler sign extensions in case
-/// complex sign extension routines obscure other bugs.
+/// A wrapper class for [NoneSignExtension] we used
+/// during refactoring to be compatible with old calls.
+class PartialProductGeneratorNoneSignExtension extends PartialProductGenerator {
+  /// The extension routine we will be using.
+  late final PartialProductSignExtension extender;
+
+  /// Construct a none sign extending Partial Product Generator
+  PartialProductGeneratorNoneSignExtension(
+      super.multiplicand, super.multiplier, super.radixEncoder,
+      {super.signedMultiplicand,
+      super.signedMultiplier,
+      super.selectSignedMultiplicand,
+      super.selectSignedMultiplier,
+      super.name = 'none'}) {
+    extender = NoneSignExtension(this);
+    signExtend();
+  }
+
+  @override
+  void signExtend() {
+    extender.signExtend();
+  }
+}
 
 /// A Brute Sign Extension class.
 class BruteSignExtension extends PartialProductSignExtension {
   /// Construct a brute-force sign extending Partial Product Generator
-  BruteSignExtension(
-    super.ppg, {
-    super.signedMultiplicand = false,
-    super.signedMultiplier = false,
-    super.selectSignedMultiplicand,
-    super.selectSignedMultiplier,
-  });
+  BruteSignExtension(super.ppg, {super.name = 'brute_sign_extension'});
 
   /// Fully sign extend the PP array: useful for reference only
   @override
@@ -263,24 +245,20 @@ class BruteSignExtension extends PartialProductSignExtension {
 
 /// A wrapper class for [BruteSignExtension] we used
 /// during refactoring to be compatible with old calls.
-class NewPartialProductGeneratorBruteSignExtension
+class PartialProductGeneratorBruteSignExtension
     extends PartialProductGenerator {
   /// The extension routine we will be using.
   late final PartialProductSignExtension extender;
 
   /// Construct a compact rect sign extending Partial Product Generator
-  NewPartialProductGeneratorBruteSignExtension(
+  PartialProductGeneratorBruteSignExtension(
       super.multiplicand, super.multiplier, super.radixEncoder,
       {super.signedMultiplicand,
       super.signedMultiplier,
       super.selectSignedMultiplicand,
       super.selectSignedMultiplier,
       super.name = 'brute'}) {
-    extender = BruteSignExtension(this,
-        signedMultiplicand: signedMultiplicand,
-        signedMultiplier: signedMultiplier,
-        selectSignedMultiplicand: selectSignedMultiplicand,
-        selectSignedMultiplier: selectSignedMultiplier);
+    extender = BruteSignExtension(this);
     signExtend();
   }
 
@@ -293,13 +271,7 @@ class NewPartialProductGeneratorBruteSignExtension
 /// A Compact Sign Extension class.
 class CompactSignExtension extends PartialProductSignExtension {
   /// Construct a compact sign extendsion class.
-  CompactSignExtension(
-    super.ppg, {
-    super.signedMultiplicand = false,
-    super.signedMultiplier = false,
-    super.selectSignedMultiplicand,
-    super.selectSignedMultiplier,
-  });
+  CompactSignExtension(super.ppg, {super.name = 'compact_sign_extension'});
 
   @override
   void signExtend() {
@@ -415,24 +387,20 @@ class CompactSignExtension extends PartialProductSignExtension {
 
 /// A wrapper class for [CompactSignExtension] we used
 /// during refactoring to be compatible with old calls.
-class NewPartialProductGeneratorCompactSignExtension
+class PartialProductGeneratorCompactSignExtension
     extends PartialProductGenerator {
   /// The extension routine we will be using.
   late final PartialProductSignExtension extender;
 
   /// Construct a compact sign extending Partial Product Generator
-  NewPartialProductGeneratorCompactSignExtension(
+  PartialProductGeneratorCompactSignExtension(
       super.multiplicand, super.multiplier, super.radixEncoder,
       {super.signedMultiplicand,
       super.signedMultiplier,
       super.selectSignedMultiplicand,
       super.selectSignedMultiplier,
       super.name = 'compact'}) {
-    extender = CompactSignExtension(this,
-        signedMultiplicand: signedMultiplicand,
-        signedMultiplier: signedMultiplier,
-        selectSignedMultiplicand: selectSignedMultiplicand,
-        selectSignedMultiplier: selectSignedMultiplier);
+    extender = CompactSignExtension(this);
     signExtend();
   }
 
@@ -445,13 +413,7 @@ class NewPartialProductGeneratorCompactSignExtension
 /// A StopBits Sign Extension.
 class StopBitsSignExtension extends PartialProductSignExtension {
   /// Construct a stop bits sign extendsion class.
-  StopBitsSignExtension(
-    super.ppg, {
-    super.signedMultiplicand = false,
-    super.signedMultiplier = false,
-    super.selectSignedMultiplicand,
-    super.selectSignedMultiplier,
-  });
+  StopBitsSignExtension(super.ppg, {super.name = 'stopbits_sign_extension'});
 
   /// Sign extend the PP array using stop bits.
   /// If possible, fold the final carry into another row (only when rectangular
@@ -533,24 +495,20 @@ class StopBitsSignExtension extends PartialProductSignExtension {
 
 /// A wrapper class for [StopBitsSignExtension] we used
 /// during refactoring to be compatible with old calls.
-class NewPartialProductGeneratorStopBitsSignExtension
+class PartialProductGeneratorStopBitsSignExtension
     extends PartialProductGenerator {
   /// The extension routine we will be using.
   late final PartialProductSignExtension extender;
 
   /// Construct a stop bits sign extending Partial Product Generator
-  NewPartialProductGeneratorStopBitsSignExtension(
+  PartialProductGeneratorStopBitsSignExtension(
       super.multiplicand, super.multiplier, super.radixEncoder,
       {super.signedMultiplicand,
       super.signedMultiplier,
       super.selectSignedMultiplicand,
       super.selectSignedMultiplier,
       super.name = 'stop_bits'}) {
-    extender = StopBitsSignExtension(this,
-        signedMultiplicand: signedMultiplicand,
-        signedMultiplier: signedMultiplier,
-        selectSignedMultiplicand: selectSignedMultiplicand,
-        selectSignedMultiplier: selectSignedMultiplier);
+    extender = StopBitsSignExtension(this);
     signExtend();
   }
 
@@ -562,24 +520,20 @@ class NewPartialProductGeneratorStopBitsSignExtension
 
 /// A wrapper class for CompactRectSignExtension we used
 /// during refactoring to be compatible with old calls.
-class NewPartialProductGeneratorCompactRectSignExtension
+class PartialProductGeneratorCompactRectSignExtension
     extends PartialProductGenerator {
   /// The extension routine we will be using.
   late final PartialProductSignExtension extender;
 
   /// Construct a compact rect sign extending Partial Product Generator
-  NewPartialProductGeneratorCompactRectSignExtension(
+  PartialProductGeneratorCompactRectSignExtension(
       super.multiplicand, super.multiplier, super.radixEncoder,
       {super.signedMultiplicand,
       super.signedMultiplier,
       super.selectSignedMultiplicand,
       super.selectSignedMultiplier,
       super.name = 'compact_rect'}) {
-    extender = CompactRectSignExtension(this,
-        signedMultiplicand: signedMultiplicand,
-        signedMultiplier: signedMultiplier,
-        selectSignedMultiplicand: selectSignedMultiplicand,
-        selectSignedMultiplier: selectSignedMultiplier);
+    extender = CompactRectSignExtension(this);
     signExtend();
   }
 
@@ -595,13 +549,8 @@ class CompactRectSignExtension extends PartialProductSignExtension {
   /// This routine works with different widths of multiplicand/multiplier,
   /// an extension of Mohanty, B.K., Choubey designed by
   /// Desmond A. Kirkpatrick.
-  CompactRectSignExtension(
-    super.ppg, {
-    super.signedMultiplicand = false,
-    super.signedMultiplier = false,
-    super.selectSignedMultiplicand,
-    super.selectSignedMultiplier,
-  });
+  CompactRectSignExtension(super.ppg,
+      {super.name = 'compactrect_sign_extension'});
 
   @override
   void signExtend() {

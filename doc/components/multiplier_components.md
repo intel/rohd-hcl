@@ -90,7 +90,19 @@ Note that radix-4 shifts by 2 positions each row, but with only two rows and wit
 
 ## Partial Product Generator
 
-This building block creates a set of rows of partial products from a multiplicand and a multiplier.  It maintains the partial products as a list of rows, which are themselves lists of Logic as well as a row shift value for each row to represent the starting column of the row's least-significant bit.  Its primary inputs are the multiplicand, multiplier, `RadixEncoder`, whether the operands are signed, and the type of `SignExtension` to use in generating the partial product rows.
+The base class of `PartialProductGenerator` is `PartialProductArray`  which is simply a `List<List<Logic>>` to represent addends and a `rowShift[row]` to represent the shifts in the partial product matrix. If customization is needed beyond sign extension options, routines are provided that allow for fixed customization of bit positions or conditional (mux based on a Logic) form in the `PartialProductArray`.
+
+```dart
+final ppa = PartialProductArray(a,b);
+ppa.setAbsolute(row, col, logic);
+ppa.setAbsoluteAll(row, col, List<Logic>);
+ppa.muxAbsolute(row, col, condition, logic);
+ppa.muxAbsoluteAll(row, col, condition, List<logic>);
+```
+
+ The `PartialProductGenerator` adds to this the `RadixEncoder` to encode the rows along with a matching  `MultiplicandSelector` to create the actual mantissas used in each row.
+
+As a building block which  creates a set of rows of partial products from a multiplicand and a multiplier, it maintains the partial products as a list of rows om the `PartialProductArray` base. Its primary inputs are the multiplicand, multiplier, `RadixEncoder`, and whether the operands are signed.
 
 The partial product generator produces a set of addends in shifted position to be added.  The main output of the component is
 
@@ -122,17 +134,13 @@ Our `RadixEncoder` module is general, creating selection tables for arbitrary Bo
 
 ### Sign Extension Option
 
-The `PartialProductGenerator` class also provides for sign extension with multiple options including `SignExtension.none` which is no sign extension for help in debugging, as well as `SignExtension.compactRect` which is a compact form which works for rectangular products where the multiplicand and multiplier can be of different widths.
+The `PartialProductSignExtension` defines the API for doing different kinds of sign extension on the `PartialProductArray`, from very simplistic for helping design new arithmetics to fairly standard to even compact, rectangular forms.
 
-The `PartialProductGenerator` creates a set of addends in its base class `PartialProductArray` which is simply a `List<List<Logic>>` to represent addends and a `rowShift[row]` to represent the shifts in the partial product matrix. If customization is needed beyond sign extension options, routines are provided that allow for fixed customization of bit positions or conditional (mux based on a Logic) form in the `PartialProductArray`.
-
-```dart
-final ppg = PartialProductGenerator(a,b);
-ppg.setAbsolute(row, col, logic);
-ppg.setAbsoluteAll(row, col, List<Logic>);
-ppg.muxAbsolute(row, col, condition, logic);
-ppg.muxAbsoluteAll(row, col, condition, List<logic>);
-```
+- None:  no sign extension.
+- Brute:  full width extension which is robust but costly.
+- StopBit:  A standard form which has the inverse-sign and a '1' stop bit in each row
+- Compact:  A form that eliminates a final sign in an otherwise empty final row.
+- CompactRect:  An enhanced form of compact that can handle rectangular multiplications.
 
 ### Partial Product Visualization
 
@@ -213,7 +221,7 @@ Any adder can be used as the final adder of the final two addends produced from 
 
 Here is a code snippet that shows how these components can be used to create a multiplier.  
 
-First the partial product generator is used, which has compact sign extension for rectangular products (`PartialProductGeneratorCompactRectSignExtension`) which we pass in the `RadixEncoder`, whether the operands are signed, and the kind of sign extension to use on the partial products. Note that sign extension is needed regardless of whether operands are signed or not due to Booth encoding.
+First the partial product generator is used (`PartialProductGenerator`),  which we pass in the `RadixEncoder`, whether the operands are signed.  We operate on this generator with a compact sign extension class  for rectangular products (`CompactRectSignExtension`). Note that sign extension is needed regardless of whether operands are signed or not due to Booth encoding.
 
 Next, we use the `ColumnCompressor` to compress the partial products into two final addends.
 
@@ -222,7 +230,8 @@ Finally, we produce the product.
 
 ```dart
     final pp =
-        PartialProductGeneratorCompactRectSignExtension(a, b, RadixEncoder(radix), signedMultiplicand: true, signedMultiplier: true);
+        PartialProductGenerator(a, b, RadixEncoder(radix), signedMultiplicand: true, signedMultiplier: true);
+    CompactRectSignExtension(pp).signExtend();
     final compressor = ColumnCompressor(pp)..compress();
     final adder = ParallelPrefixAdder(
         compressor.exractRow(0), compressor.extractRow(1), BrentKung.new);

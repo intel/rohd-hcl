@@ -1,4 +1,4 @@
-// Copyright (C) 2024 Intel Corporation
+// Copyright (C) 2024-2025 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 //
 // multiplier_test.dart
@@ -188,23 +188,13 @@ void main() {
 
   MultiplierCallback curryCompressionTreeMultiplier(int radix,
       ParallelPrefix Function(List<Logic>, Logic Function(Logic, Logic)) ppTree,
-      {PPGFunction ppGen =
-          NewPartialProductGeneratorCompactRectSignExtension.new,
+      {SignExtensionFunction seGen = CompactRectSignExtension.new,
       bool signedMultiplicand = false,
       bool signedMultiplier = false,
       Logic? selectSignedMultiplicand,
       Logic? selectSignedMultiplier}) {
-    String genName(Logic a, Logic b) => ppGen(
-          a,
-          b,
-          RadixEncoder(radix),
-          signedMultiplicand: signedMultiplicand,
-          signedMultiplier: signedMultiplier,
-          selectSignedMultiplicand:
-              selectSignedMultiplicand != null ? Logic() : null,
-          selectSignedMultiplier:
-              selectSignedMultiplier != null ? Logic() : null,
-        ).name;
+    String genName(Logic a, Logic b) =>
+        seGen(PartialProductGeneratorBasic(a, b, RadixEncoder(radix))).name;
     final signage = ' SD=${signedMultiplicand ? 1 : 0}'
         ' SM=${signedMultiplier ? 1 : 0}'
         ' SelD=${(selectSignedMultiplicand != null) ? 1 : 0}'
@@ -212,7 +202,6 @@ void main() {
     return (a, b, {selectSignedMultiplicand, selectSignedMultiplier}) =>
         CompressionTreeMultiplier(a, b, radix,
             ppTree: ppTree,
-            ppGen: ppGen,
             signedMultiplicand: signedMultiplicand,
             signedMultiplier: signedMultiplier,
             selectSignedMultiplicand: selectSignedMultiplicand,
@@ -225,8 +214,7 @@ void main() {
   MultiplyAccumulateCallback curryMultiplierAsMultiplyAccumulate(int radix,
           {ParallelPrefix Function(List<Logic>, Logic Function(Logic, Logic))
               ppTree = KoggeStone.new,
-          PPGFunction ppGen =
-              NewPartialProductGeneratorCompactRectSignExtension.new,
+          SignExtensionFunction seGen = CompactRectSignExtension.new,
           bool signedMultiplicand = false,
           bool signedMultiplier = false,
           Logic? selectSignedMultiplicand,
@@ -242,7 +230,7 @@ void main() {
           curryCompressionTreeMultiplier(
             radix,
             ppTree,
-            ppGen: ppGen,
+            seGen: seGen,
             signedMultiplicand: signedMultiplicand,
             signedMultiplier: signedMultiplier,
             selectSignedMultiplicand: selectSignedMultiplicand,
@@ -253,7 +241,7 @@ void main() {
     int radix, {
     ParallelPrefix Function(List<Logic>, Logic Function(Logic, Logic)) ppTree =
         KoggeStone.new,
-    PPGFunction ppGen = NewPartialProductGeneratorCompactRectSignExtension.new,
+    SignExtensionFunction seGen = CompactRectSignExtension.new,
     bool signedMultiplicand = false,
     bool signedMultiplier = false,
     bool signedAddend = false,
@@ -261,17 +249,8 @@ void main() {
     Logic? selectSignedMultiplier,
     Logic? selectSignedAddend,
   }) {
-    String genName(Logic a, Logic b) => ppGen(
-          a,
-          b,
-          RadixEncoder(radix),
-          signedMultiplicand: signedMultiplicand,
-          signedMultiplier: signedMultiplier,
-          selectSignedMultiplicand:
-              selectSignedMultiplicand != null ? Logic() : null,
-          selectSignedMultiplier:
-              selectSignedMultiplier != null ? Logic() : null,
-        ).name;
+    String genName(Logic a, Logic b) =>
+        seGen(PartialProductGeneratorBasic(a, b, RadixEncoder(radix))).name;
     final signage = ' SD=${signedMultiplicand ? 1 : 0}'
         ' SM=${signedMultiplier ? 1 : 0}'
         ' SelD=${(selectSignedMultiplicand != null) ? 1 : 0}'
@@ -279,7 +258,6 @@ void main() {
 
     return (a, b, c) => CompressionTreeMultiplyAccumulate(a, b, c, radix,
         ppTree: ppTree,
-        ppGen: ppGen,
         signedMultiplicand: signedMultiplicand,
         signedMultiplier: signedMultiplier,
         signedAddend: signedAddend,
@@ -308,9 +286,9 @@ void main() {
       for (final width in [3, 4]) {
         for (final signExtension
             in SignExtension.values.where((e) => e != SignExtension.none)) {
-          final ppg = curryPartialProductGenerator(signExtension);
+          final seg = currySignExtensionFunction(signExtension);
           testMultiplyAccumulateRandom(width, 10,
-              curryMultiplierAsMultiplyAccumulate(radix, ppGen: ppg));
+              curryMultiplierAsMultiplyAccumulate(radix, seGen: seg));
         }
       }
     }
@@ -618,7 +596,7 @@ void main() {
     a.put(6);
     b.put(3);
 
-    final ppG0 = NewPartialProductGeneratorCompactRectSignExtension(
+    final ppG0 = PartialProductGeneratorCompactRectSignExtension(
         a, b, RadixEncoder(4),
         signedMultiplicand: true, signedMultiplier: true);
 

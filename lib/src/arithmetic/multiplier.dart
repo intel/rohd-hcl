@@ -1,4 +1,4 @@
-// Copyright (C) 2023-2024 Intel Corporation
+// Copyright (C) 2023-2025 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 //
 // multiplier.dart
@@ -207,7 +207,7 @@ class CompressionTreeMultiplier extends Multiplier {
   /// and prefix tree functor [ppTree] for the compressor and final adder.
   ///
   /// Sign extension methodology is defined by the partial product generator
-  /// supplied via [ppGen].
+  /// supplied via [seGen].
   ///
   /// [a] multiplicand and [b] multiplier are the product terms and they can
   /// be different widths allowing for rectangular multiplication.
@@ -238,21 +238,19 @@ class CompressionTreeMultiplier extends Multiplier {
       super.signedMultiplier = false,
       super.selectSignedMultiplicand,
       super.selectSignedMultiplier,
-      ParallelPrefix Function(List<Logic>, Logic Function(Logic, Logic))
+      ParallelPrefix Function(
+              List<Logic> inp, Logic Function(Logic term1, Logic term2))
           ppTree = KoggeStone.new,
-      PartialProductGenerator Function(Logic, Logic, RadixEncoder,
-              {required bool signedMultiplier,
-              required bool signedMultiplicand,
-              Logic? selectSignedMultiplier,
-              Logic? selectSignedMultiplicand})
-          ppGen = NewPartialProductGeneratorCompactRectSignExtension.new,
+      PartialProductSignExtension Function(PartialProductGenerator pp,
+              {String name})
+          seGen = CompactRectSignExtension.new,
       super.name = 'compression_tree_multiplier'}) {
     clk = (clk != null) ? addInput('clk', clk!) : null;
     reset = (reset != null) ? addInput('reset', reset!) : null;
     enable = (enable != null) ? addInput('enable', enable!) : null;
 
     final product = addOutput('product', width: a.width + b.width);
-    final pp = ppGen(
+    final pp = PartialProductGeneratorBasic(
       a,
       b,
       RadixEncoder(radix),
@@ -261,6 +259,8 @@ class CompressionTreeMultiplier extends Multiplier {
       selectSignedMultiplier: selectSignedMultiplier,
       signedMultiplier: signedMultiplier,
     );
+
+    seGen(pp).signExtend();
 
     final compressor =
         ColumnCompressor(clk: clk, reset: reset, enable: enable, pp)
@@ -334,14 +334,15 @@ class CompressionTreeMultiplyAccumulate extends MultiplyAccumulate {
       super.selectSignedMultiplicand,
       super.selectSignedMultiplier,
       super.selectSignedAddend,
-      ParallelPrefix Function(List<Logic>, Logic Function(Logic, Logic))
+      ParallelPrefix Function(
+              List<Logic> inps, Logic Function(Logic term1, Logic term2))
           ppTree = KoggeStone.new,
       PartialProductGenerator Function(Logic, Logic, RadixEncoder,
               {required bool signedMultiplier,
               required bool signedMultiplicand,
               Logic? selectSignedMultiplier,
               Logic? selectSignedMultiplicand})
-          ppGen = NewPartialProductGeneratorCompactRectSignExtension.new,
+          ppGen = PartialProductGeneratorCompactRectSignExtension.new,
       super.name = 'compression_tree_mac'}) {
     clk = (clk != null) ? addInput('clk', clk) : null;
     reset = (reset != null) ? addInput('reset', reset) : null;
