@@ -188,7 +188,7 @@ abstract class MultiplyAccumulate extends Module {
   }
 }
 
-/// An implementation of an integer multiplier using compression trees
+/// An implementation of an integer multiplier using compression trees.
 class CompressionTreeMultiplier extends Multiplier {
   /// The clk for the pipelined version of column compression.
   Logic? clk;

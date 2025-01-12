@@ -51,7 +51,7 @@ row  slice  mult
 
 A few things to note: first, that we are negating by ones' complement (so we need a -0) and second, these rows do not add up to (18: 10010). For Booth encoded rows to add up properly, they need to be in twos' complement form, and they need to be sign-extended.
 
- Here is the matrix with a crude sign extension `brute` (the table formatting is available from our `PartialProductGenerator` component). With twos' complementation, and sign bits folded in (note the LSB of each row has a sign term from the previous row), these addends are correctly formed and add to (18: 10010).
+ Here is the matrix with a crude sign extension `brute` (the table formatting is available from our [PartialProductGenerator](https://intel.github.io/rohd-hcl/rohd_hcl/PartialProductGenerator-class.html)  component). With twos' complementation, and sign bits folded in (note the LSB of each row has a sign term from the previous row), these addends are correctly formed and add to (18: 10010).
 
 ```text
             7  6  5  4  3  2  1  0  
@@ -90,7 +90,7 @@ Note that radix-4 shifts by 2 positions each row, but with only two rows and wit
 
 ## Partial Product Generator
 
-The base class of `PartialProductGenerator` is `PartialProductArray`  which is simply a `List<List<Logic>>` to represent addends and a `rowShift[row]` to represent the shifts in the partial product matrix. If customization is needed beyond sign extension options, routines are provided that allow for fixed customization of bit positions or conditional (mux based on a Logic) form in the `PartialProductArray`.
+The base class of `PartialProductGenerator` is [PartialProductArray](https://intel.github.io/rohd-hcl/rohd_hcl/PartialProductArray-class.html)   which is simply a `List<List<Logic>>` to represent addends and a `rowShift[row]` to represent the shifts in the partial product matrix. If customization is needed beyond sign extension options, routines are provided that allow for fixed customization of bit positions or conditional (mux based on a Logic) form in the `PartialProductArray`.
 
 ```dart
 final ppa = PartialProductArray(a,b);
@@ -100,7 +100,7 @@ ppa.muxAbsolute(row, col, condition, logic);
 ppa.muxAbsoluteAll(row, col, condition, List<logic>);
 ```
 
- The `PartialProductGenerator` adds to this the `RadixEncoder` to encode the rows along with a matching  `MultiplicandSelector` to create the actual mantissas used in each row.
+ The `PartialProductGenerator` adds to this the [RadixEncoder](https://intel.github.io/rohd-hcl/rohd_hcl/RadixEncoder-class.html)  to encode the rows along with a matching  `MultiplicandSelector` to create the actual mantissas used in each row.
 
 As a building block which  creates a set of rows of partial products from a multiplicand and a multiplier, it maintains the partial products as a list of rows om the `PartialProductArray` base. Its primary inputs are the multiplicand, multiplier, `RadixEncoder`, and whether the operands are signed.
 
@@ -175,7 +175,7 @@ You can also generate a Markdown form of the same matrix:
 
 Once you have a partial product matrix, you would like to add up the addends.  Traditionally this is done using compression trees which instantiate 2:1 and 3:2 column compressors (or carry-save adders) to reduce the matrix to two addends.  The final two addends are often added with an efficient final adder.
 
-Our `ColumnCompressor` class uses a delay-driven approach to efficiently compress the rows of the partial product matrix.  Its only argument is a `PartialProductArray` (base class of `PartialProductGenerator`), and it creates a list of `ColumnQueue`s containing the final two addends stored by column after compression. An `extractRow`routine can be used to extract the columns.  `ColumnCompressor` currently has an extension `EvaluateColumnCompressor` which can be used to print out the compression progress. Here is the legend for these printouts.
+Our [ColumnCompressor](https://intel.github.io/rohd-hcl/rohd_hcl/ColumnCompressor-class.html)  class uses a delay-driven approach to efficiently compress the rows of the partial product matrix.  Its only argument is a `PartialProductArray` (base class of `PartialProductGenerator`), and it creates a list of `ColumnQueue`s containing the final two addends stored by column after compression. An `extractRow`routine can be used to extract the columns.  `ColumnCompressor` currently has an extension `EvaluateColumnCompressor` which can be used to print out the compression progress. Here is the legend for these printouts.
 
 - `ppR,C` = partial product entry at row R, column C
 - `sR,C` = sum term coming last from row R, column C

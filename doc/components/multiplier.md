@@ -1,6 +1,6 @@
-# Multiplier
+# Integer Multiplier
 
-ROHD-HCL provides an abstract `Multiplier` module which multiplies two
+ROHD-HCL provides an abstract [Multiplier](https://intel.github.io/rohd-hcl/rohd_hcl/Multiplier-class.html) module which multiplies two
 numbers represented as two `Logic`s, potentially of different widths,
 treating them as either signed (twos' complement) or unsigned. It
 produces the product as a `Logic` with width equal to the sum of the
@@ -16,7 +16,7 @@ of this abstract `Module`:
 - [Compression Tree Multiplier](#compression-tree-multiplier)
 
 An additional kind of abstract module provided is a
-`MultiplyAccumulate` module which multiplies two numbers represented
+[MultiplierAccumulate](https://intel.github.io/rohd-hcl/rohd_hcl/MultiplyAccumulate-class.html) module which multiplies two numbers represented
 as two `Logic`s and adds the result to a third `Logic` with width
 equal to the sum of the widths of the main inputs. Similar to the `Multiplier`,
 the signs of the operands are either fixed by a parameter,
@@ -86,23 +86,24 @@ Simulator.endSimulation();
 
 A compression tree multiplier is a digital circuit used for performing
 multiplication operations, using Booth encoding to produce addends, a
-compression tree for reducing addends to a final pair, and a final
-adder generated from a parallel prefix tree option. It is particularly
-useful in applications that require high speed multiplication, such as
-digital signal processing.
+compression tree for reducing addends to a final pair, and a final adder
+generated from a parallel prefix tree functor parameter. It is particularly
+useful in applications that require high speed and varying width multiplication,
+such as digital signal processing.
 
 The parameters of the
-`CompressionTreeMultiplier` are:
+[CompressionTreeMultiplier](https://intel.github.io/rohd-hcl/rohd_hcl/CompressionTreeMultiplier-class.html) are:
 
 - Two input terms `a` and `b` which can be different widths.
 - The radix used for Booth encoding (2, 4, 8, and 16 are currently supported).
-- The type of `ParallelPrefix` tree used in the final `ParallelPrefixAdder` (optional).
-- `ppGen` parameter: the type of `PartialProductGenerator` to use which has derived classes for different styles of sign extension. In some cases this adds an extra row to hold a sign bit.
-- `signedMultiplicand` parameter: whether the multiplicand (first arg) should be treated as signed (twos' complement) or unsigned.
-- `signedMultiplier` parameter: whether the multiplier (second arg) should be treated as signed (twos' complement) or unsigned.
-- An optional `selectSignedMultiplicand` control signal which overrides the `signedMultiplicand` parameter allowing for runtime control of signed or unsigned operation with the same hardware. `signedMultiplicand` must be false if using this control signal.
-- An optional `selectSignedMultiplier` control signal which overrides the `signedMultiplier` parameter allowing for runtime control of signed or unsigned operation with the same hardware. `signedMultiplier` must be false if using this control signal.
-- An optional `clk`, as well as `enable` and `reset` that are used to add a pipestage in the `ColumnCompressor` to allow for pipelined operation.
+- `seGen` parameter: the type of `PartialProductSignExtension` functor to use which has derived classes for different styles of sign extension. In some cases this adds an extra row to hold a sign bit (default `CompactRectSignExtension` does not).  See [Sign Extension Options](./multiplier_components.md#sign-extension-option).
+- Signed or unsigned operands:
+  - `signedMultiplicand` parameter: whether the multiplicand (first arg) should be treated as signed (twos' complement) or unsigned.
+  - `signedMultiplier` parameter: whether the multiplier (second arg) should be treated as signed (twos' complement) or unsigned.
+- Alternatively, it supports runtime control of signage:
+  - An optional `selectSignedMultiplicand` control signal which allows for runtime control of signed or unsigned operation with the same hardware. `signedMultiplicand` must be false if using this control signal.
+  - An optional `selectSignedMultiplier` control signal which allows for runtime control of signed or unsigned operation with the same hardware. `signedMultiplier` must be false if using this control signal.
+- An optional `clk`, as well as `enable` and `reset` that are used to add a pipestage in the `ColumnCompressor` to allow for pipelined operation, making the multiplier operate in 2 cycles.
 
 Here is an example of use of the `CompressionTreeMultiplier` with one signed input:
 
@@ -130,21 +131,17 @@ A compression tree multiply-accumulate is similar to a compress tree
 multiplier, but it inserts an additional addend into the compression
 tree to allow for accumulation into this third input.
 
-The parameters of the
-`CompressionTreeMultiplyAccumulate` are:
+The additional parameters of the
+[CompressionTreeMultiplyAccumulate](https://intel.github.io/rohd-hcl/rohd_hcl/CompressionTreeMultiplyAccumulate-class.html)  over the [CompressionTreeMltiplier](#compression-tree-multiplier) are:
 
-- Two input product terms `a` and `b` which can be different widths
 - The accumulate input term `c` which must have width as sum of the two operand widths + 1.
-- The radix used for Booth encoding (2, 4, 8, and 16 are currently supported)
-- The type of `ParallelPrefix` tree used in the final `ParallelPrefixAdder` (default Kogge-Stone).
-- `esGen` parameter: the type of `PartialProductSignExtension` to use which has derived classes for different styles of sign extension. In some cases this adds an extra row to hold a sign bit (default `CompactRectSignExtension`).
-- `signedMultiplicand` parameter: whether the multiplicand (first arg) should be treated as signed (2s complement) or unsigned
-- `signedMultiplier` parameter: whether the multiplier (second arg) should be treated as signed (twos' complement) or unsigned
-- `signedAddend` parameter: whether the addend (third arg) should be treated as signed (twos' complement) or unsigned
-- An optional `selectSignedMultiplicand` control signal which overrides the `signedMultiplicand` parameter allowing for runtime control of signed or unsigned operation with the same hardware. `signedMultiplicand` must be false if using this control signal.
-- An optional `selectSignedMultiplier` control signal which overrides the `signedMultiplier` parameter allowing for runtime control of signed or unsigned operation with the same hardware. `signedMultiplier` must be false if using this control signal.
-- An optional `selectSignedAddend` control signal which overrides the `signedAddend` parameter allowing for runtime control of signed or unsigned operation with the same hardware. `signedAddend` must be false if using this control signal.
+- Addend signage:
+  - `signedAddend` parameter: whether the addend (third arg) should be treated as signed (twos' complement) or unsigned
+OR
+  - An optional `selectSignedAddend` control signal allows for runtime control of signed or unsigned operation with the same hardware. `signedAddend` must be false if using this control signal.
 - An optional `clk`, as well as `enable` and `reset` that are used to add a pipestage in the `ColumnCompressor` to allow for pipelined operation.
+
+The output width of the `CompressionTreeMultiplier` is the sum of the product term widths plus one to accomodate the additional acccumulate term.
 
 Here is an example of using the `CompressionTreeMultiplyAccumulate` with all inputs as signed:
 
