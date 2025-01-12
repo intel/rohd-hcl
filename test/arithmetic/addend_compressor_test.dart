@@ -18,7 +18,7 @@ import 'package:test/test.dart';
 /// This [CompressorTestMod] module is used to test instantiation, where we can
 /// catch trace errors (IO not added) not found in a simple test instantiation.
 class CompressorTestMod extends Module {
-  late final PartialProductGenerator pp;
+  late final PartialProductGeneratorBase pp;
 
   late final ColumnCompressor compressor;
 

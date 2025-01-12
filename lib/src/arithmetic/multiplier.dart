@@ -241,7 +241,7 @@ class CompressionTreeMultiplier extends Multiplier {
       ParallelPrefix Function(
               List<Logic> inp, Logic Function(Logic term1, Logic term2))
           ppTree = KoggeStone.new,
-      PartialProductSignExtension Function(PartialProductGenerator pp,
+      PartialProductSignExtension Function(PartialProductGeneratorBase pp,
               {String name})
           seGen = CompactRectSignExtension.new,
       super.name = 'compression_tree_multiplier'}) {
@@ -337,7 +337,7 @@ class CompressionTreeMultiplyAccumulate extends MultiplyAccumulate {
       ParallelPrefix Function(
               List<Logic> inps, Logic Function(Logic term1, Logic term2))
           ppTree = KoggeStone.new,
-      PartialProductGenerator Function(Logic, Logic, RadixEncoder,
+      PartialProductGeneratorBase Function(Logic, Logic, RadixEncoder,
               {required bool signedMultiplier,
               required bool signedMultiplicand,
               Logic? selectSignedMultiplier,

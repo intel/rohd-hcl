@@ -26,7 +26,7 @@ import 'package:test/test.dart';
 //   - Rectangular: again, need to cross a shift interval
 // - Sign Extension: [brute, stop, compact, compactRect]
 
-void testPartialProductExhaustive(PartialProductGenerator pp) {
+void testPartialProductExhaustive(PartialProductGeneratorBase pp) {
   final widthX = pp.selector.multiplicand.width;
   final widthY = pp.encoder.multiplier.width;
 
@@ -72,7 +72,7 @@ void testPartialProductExhaustive(PartialProductGenerator pp) {
   });
 }
 
-void testPartialProductRandom(PartialProductGenerator pp, int iterations) {
+void testPartialProductRandom(PartialProductGeneratorBase pp, int iterations) {
   final widthX = pp.selector.multiplicand.width;
   final widthY = pp.encoder.multiplier.width;
 
@@ -119,7 +119,8 @@ void testPartialProductRandom(PartialProductGenerator pp, int iterations) {
   });
 }
 
-void testPartialProductSingle(PartialProductGenerator pp, BigInt X, BigInt Y) {
+void testPartialProductSingle(
+    PartialProductGeneratorBase pp, BigInt X, BigInt Y) {
   test(
       'single: ${pp.name} R${pp.selector.radix} '
       'WD=${pp.multiplicand.width} WM=${pp.multiplier.width} '
@@ -137,7 +138,7 @@ void testPartialProductSingle(PartialProductGenerator pp, BigInt X, BigInt Y) {
   });
 }
 
-void checkPartialProduct(PartialProductGenerator pp, BigInt iX, BigInt iY) {
+void checkPartialProduct(PartialProductGeneratorBase pp, BigInt iX, BigInt iY) {
   final widthX = pp.selector.multiplicand.width;
   final widthY = pp.encoder.multiplier.width;
 
@@ -198,7 +199,7 @@ void main() {
             SignedBigInt.fromSignedInt(j, width, signed: signedMultiplier);
         a.put(X);
         b.put(Y);
-        final PartialProductGenerator pp;
+        final PartialProductGeneratorBase pp;
         pp = PartialProductGeneratorBasic(a, b, encoder,
             signedMultiplicand: signedMultiplicand,
             signedMultiplier: signedMultiplier);
@@ -224,7 +225,7 @@ void main() {
               for (final signExtension in SignExtension.values
                   .where((e) => e != SignExtension.none)) {
                 final width = log2Ceil(radix) + (signMultiplier ? 1 : 0);
-                final PartialProductGenerator pp;
+                final PartialProductGeneratorBase pp;
                 pp = PartialProductGeneratorBasic(
                     Logic(name: 'X', width: width),
                     Logic(name: 'Y', width: width),
@@ -258,7 +259,7 @@ void main() {
       for (final selectMultiplier in [false, true]) {
         selectSignMultiplicand.put(selectMultiplicand ? 1 : 0);
         selectSignMultiplier.put(selectMultiplier ? 1 : 0);
-        final PartialProductGenerator pp;
+        final PartialProductGeneratorBase pp;
         pp = PartialProductGeneratorStopBitsSignExtension(
             Logic(name: 'X', width: width),
             Logic(name: 'Y', width: width),
