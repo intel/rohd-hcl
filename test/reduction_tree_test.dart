@@ -71,7 +71,6 @@ void main() {
         ReductionTree(vec, radix: reduce, addReduce, clk: clk, depthToFlop: 1);
 
     await prefixAdd.build();
-    WaveDumper(prefixAdd);
     unawaited(Simulator.run());
     var cycles = 0;
     await clk.nextNegedge;
@@ -128,7 +127,6 @@ void main() {
         vec, radix: reduce, addReduceAdders, clk: clk, depthToFlop: 1);
 
     await prefixAdd.build();
-    WaveDumper(prefixAdd);
     unawaited(Simulator.run());
     var cycles = 0;
     await clk.nextNegedge;
