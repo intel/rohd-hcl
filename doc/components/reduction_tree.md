@@ -43,7 +43,7 @@ Here is the same example radix-4 computation tree but using prefix adders on 79 
       return add2.sum;
     }
 
-  /// Tree reduction using addReduce
+  /// Tree reduction using addReduceAdders
     const width = 13;
     const length = 79;
     final vec = <Logic>[];
