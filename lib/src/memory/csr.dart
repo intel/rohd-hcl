@@ -291,8 +291,8 @@ class CsrBlock extends Module {
     required DataPortInterface fdw,
     required DataPortInterface fdr,
   }) : super(name: config.name) {
-    _clk = addInput('clk', clk);
-    _reset = addInput('reset', reset);
+    _clk = addInput('${name}_clk', clk);
+    _reset = addInput('${name}_reset', reset);
 
     _frontWrite = fdw.clone()
       ..connectIO(this, fdw,
@@ -486,7 +486,13 @@ class CsrTop extends Module {
   CsrBackdoorInterface getBackdoorPortsByName(String block, String reg) {
     final idx = config.blocks.indexOf(config.getBlockByName(block));
     if (idx >= 0 && idx < backdoorInterfaces.length) {
-      return _blocks[idx].getBackdoorPortsByName(reg);
+      final idx1 = config.blocks[idx].registers
+          .indexOf(config.blocks[idx].getRegisterByName(reg));
+      if (idx1 >= 0 && idx1 < backdoorInterfaces[idx].length) {
+        return backdoorInterfaces[idx][idx1];
+      } else {
+        throw Exception('Register $reg in block $block could not be found.');
+      }
     } else {
       throw Exception('Block $block could not be found.');
     }
@@ -497,7 +503,14 @@ class CsrTop extends Module {
   CsrBackdoorInterface getBackdoorPortsByAddr(int blockAddr, int regAddr) {
     final idx = config.blocks.indexOf(config.getBlockByAddr(blockAddr));
     if (idx >= 0 && idx < backdoorInterfaces.length) {
-      return _blocks[idx].getBackdoorPortsByAddr(regAddr);
+      final idx1 = config.blocks[idx].registers
+          .indexOf(config.blocks[idx].getRegisterByAddr(regAddr));
+      if (idx1 >= 0 && idx1 < backdoorInterfaces[idx].length) {
+        return backdoorInterfaces[idx][idx1];
+      } else {
+        throw Exception(
+            'Register with address $regAddr in block with address $blockAddr could not be found.');
+      }
     } else {
       throw Exception('Block with address $blockAddr could not be found.');
     }
@@ -511,8 +524,8 @@ class CsrTop extends Module {
     required DataPortInterface fdw,
     required DataPortInterface fdr,
   }) : super(name: config.name) {
-    _clk = addInput('clk', clk);
-    _reset = addInput('reset', reset);
+    _clk = addInput('${name}_clk', clk);
+    _reset = addInput('${name}_reset', reset);
 
     _frontWrite = fdw.clone()
       ..connectIO(this, fdw,

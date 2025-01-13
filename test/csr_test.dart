@@ -45,18 +45,25 @@ class MyFieldCsrInstance extends CsrInstanceConfig {
     fields
       ..add(CsrFieldConfig(
           start: 0, width: 2, name: 'field1', access: CsrFieldAccess.READ_ONLY))
+      ..add(CsrFieldConfig(
+          start: 2,
+          width: 2,
+          name: 'field2',
+          access: CsrFieldAccess.READ_WRITE_LEGAL)
+        ..addLegalValue(0x0)
+        ..addLegalValue(0x1))
       // example of a field with dynamic start and width
       ..add(CsrFieldConfig(
           start: width ~/ 2,
           width: width ~/ 4,
-          name: 'field2',
+          name: 'field3',
           access: CsrFieldAccess.READ_WRITE));
     // example of field duplication
     for (var i = 0; i < width ~/ 4; i++) {
       fields.add(CsrFieldConfig(
           start: (3 * width ~/ 4) + i,
           width: 1,
-          name: 'field3_$i',
+          name: 'field4_$i',
           access: CsrFieldAccess.WRITE_ONES_CLEAR));
     }
   }
@@ -108,6 +115,30 @@ class MyCsrModule extends CsrTopConfig {
   }
 }
 
+// to test potentially issues with CsrTop port propagation
+class DummyCsrTopModule extends Module {
+  // ignore: unused_field
+  late final Logic _clk;
+  // ignore: unused_field
+  late final Logic _reset;
+
+  // ignore: unused_field
+  late final CsrTop _top;
+  late final DataPortInterface _fdr;
+  late final DataPortInterface _fdw;
+
+  DummyCsrTopModule(
+      {required Logic clk,
+      required Logic reset,
+      required CsrTopConfig config}) {
+    _clk = addInput('clk', clk);
+    _reset = addInput('reset', reset);
+    _fdr = DataPortInterface(32, 32);
+    _fdw = DataPortInterface(32, 32);
+    _top = CsrTop(config, _clk, _reset, _fdw, _fdr);
+  }
+}
+
 ///// END DEFINE SOME HELPER CLASSES FOR TESTING /////
 
 void main() {
@@ -148,17 +179,19 @@ void main() {
     // only some of what we're trying to write should
     // given the field access rules
     final wd2 = csr2.getWriteData(Const(0xab, width: dataWidth2));
-    expect(wd2.value, LogicValue.ofInt(0xef, dataWidth2));
+    expect(wd2.value, LogicValue.ofInt(0xe3, dataWidth2));
 
     // check grabbing individual fields
     final f1 = csr2.getField('field1');
     expect(f1.value, LogicValue.ofInt(0x3, 2));
     final f2 = csr2.getField('field2');
-    expect(f2.value, LogicValue.ofInt(0x3, 2));
-    final f3a = csr2.getField('field3_0');
-    expect(f3a.value, LogicValue.ofInt(0x1, 1));
-    final f3b = csr2.getField('field3_1');
-    expect(f3b.value, LogicValue.ofInt(0x1, 1));
+    expect(f2.value, LogicValue.ofInt(0x3, 2)); // never wrote the value...
+    final f3 = csr2.getField('field3');
+    expect(f3.value, LogicValue.ofInt(0x3, 2));
+    final f4a = csr2.getField('field4_0');
+    expect(f4a.value, LogicValue.ofInt(0x1, 1));
+    final f4b = csr2.getField('field4_1');
+    expect(f4b.value, LogicValue.ofInt(0x1, 1));
   });
 
   test('simple CSR block', () async {
@@ -191,7 +224,7 @@ void main() {
       }
     }
 
-    WaveDumper(csrBlock);
+    // WaveDumper(csrBlock);
 
     Simulator.setMaxSimTime(10000);
     unawaited(Simulator.run());
@@ -249,7 +282,7 @@ void main() {
     rIntf.addr.inject(csr1.addr);
     await clk.nextNegedge;
     rIntf.en.inject(0);
-    expect(rIntf.data.value, LogicValue.ofInt(0xad00ff, rIntf.dataWidth));
+    expect(rIntf.data.value, LogicValue.ofInt(0xad00f3, rIntf.dataWidth));
     await clk.waitCycles(10);
 
     // perform a read of nothing
@@ -275,7 +308,7 @@ void main() {
     back1.wrData!.inject(0xdeadbeef);
     await clk.nextNegedge;
     back1.wrData!.inject(0);
-    expect(back1.rdData!.value, LogicValue.ofInt(0xad00ff, rIntf.dataWidth));
+    expect(back1.rdData!.value, LogicValue.ofInt(0xad00f3, rIntf.dataWidth));
 
     await Simulator.endSimulation();
     await Simulator.simulationEnded;
@@ -349,7 +382,7 @@ void main() {
     rIntf.addr.inject(addr2.value);
     await clk.nextNegedge;
     rIntf.en.inject(0);
-    expect(rIntf.data.value, LogicValue.ofInt(0xad00ff, rIntf.dataWidth));
+    expect(rIntf.data.value, LogicValue.ofInt(0xad00f3, rIntf.dataWidth));
     await clk.waitCycles(10);
 
     // perform a read to an invalid block
@@ -375,9 +408,16 @@ void main() {
     back1.wrData!.inject(0xdeadbeef);
     await clk.nextNegedge;
     back1.wrData!.inject(0);
-    expect(back1.rdData!.value, LogicValue.ofInt(0xad00ff, rIntf.dataWidth));
+    expect(back1.rdData!.value, LogicValue.ofInt(0xad00f3, rIntf.dataWidth));
 
     await Simulator.endSimulation();
     await Simulator.simulationEnded;
+  });
+
+  test('simple CSR top sub-instantiation', () async {
+    final csrTopCfg = MyCsrModule(numBlocks: 4);
+    final mod =
+        DummyCsrTopModule(clk: Logic(), reset: Logic(), config: csrTopCfg);
+    await mod.build();
   });
 }
