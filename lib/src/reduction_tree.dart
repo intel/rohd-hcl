@@ -47,7 +47,7 @@ class ReductionTree extends Module {
   /// The final output of the tree computation.
   Logic get out => output('out');
 
-  /// The flop depth of the tree from tthe output to the leaves.
+  /// The flop depth of the tree from the output to the leaves.
   int get flopDepth => _computed.flopDepth;
 
   /// The combinational depth since the last flop. The total compute depth of
@@ -109,35 +109,34 @@ class ReductionTree extends Module {
     } else {
       final results = <({Logic value, int depth, int flopDepth})>[];
       final segment = seq.length ~/ radix;
-      var cnt = 0;
+      var pos = 0;
       for (var i = 0; i < radix; i++) {
         final c = reductionTreeRecurse(seq
-            .getRange(cnt, (i < radix - 1) ? cnt + segment : seq.length)
+            .getRange(pos, (i < radix - 1) ? pos + segment : seq.length)
             .toList());
         results.add(c);
-        cnt += segment;
+        pos += segment;
       }
       final flopDepth = results.map((c) => c.flopDepth).reduce(max);
       final treeDepth = results.map((c) => c.depth).reduce(max);
 
-      final doFlop = (depthToFlop != null) &&
-          (treeDepth > 0) & (treeDepth % depthToFlop! == 0);
-
       final alignedResults = results
           .map((c) => localFlop(c.value, doFlop: c.flopDepth < flopDepth));
 
+      final depthFlop = (depthToFlop != null) &&
+          (treeDepth > 0) & (treeDepth % depthToFlop! == 0);
       final resultsFlop =
-          alignedResults.map((r) => localFlop(r, doFlop: doFlop));
+          alignedResults.map((r) => localFlop(r, doFlop: depthFlop));
 
       final alignWidth = results.map((c) => c.value.width).reduce(max);
-
       final resultsExtend = resultsFlop.map((r) =>
           signExtend ? r.signExtend(alignWidth) : r.zeroExtend(alignWidth));
+
       final computed = operation(resultsExtend.toList());
       return (
         value: computed,
-        depth: doFlop ? 0 : treeDepth + 1,
-        flopDepth: flopDepth + (doFlop ? 1 : 0)
+        depth: depthFlop ? 0 : treeDepth + 1,
+        flopDepth: flopDepth + (depthFlop ? 1 : 0)
       );
     }
   }

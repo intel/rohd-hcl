@@ -2,7 +2,13 @@
 
 The `ReductionTree` component is a general tree generator that allows for arbitrary radix or tree-branching factor in the computation.  It takes a sequence of `Logic` values and performs a specified operation at each node of the tree, taking in 'radix' inputs and producing one output.  If the operation widens the output (say in addition), then the `ReductionTree` will widen values using either sign-extension or zero-extension as specified.
 
-The input sequence is provided in the form `List<Logic>'.  The operation must be provided in the form ```Logic Function(List<Logic> operands)``` and support operand lengths between $[2,radix]$.
+The input sequence is provided in the form 'List\<Logic\>'.  The operation must be provided in the form
+
+ ```dart
+ Logic Function(List<Logic> operands)
+ ```
+
+ and support operand lengths between $[2,radix]$.
 
 The `ReductionTree` does not require the sequence length to be a power of the radix; it can be of arbitrary length.
 
