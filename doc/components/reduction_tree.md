@@ -42,16 +42,12 @@ Here is the same example radix-4 computation tree but using prefix adders on 79 
       final add2 = ParallelPrefixAdder(add0.sum, add1.sum);
       return add2.sum;
     }
-  }
-    Logic addReduce(List<Logic> inputs) {
-    final a = inputs.reduce((v, e) => v + e);
-    return a;
-  }
+
   /// Tree reduction using addReduce
     const width = 13;
     const length = 79;
     final vec = <Logic>[];
 
     final reductionTree = ReductionTree(
-        vec, radix: 4, addReduce, clk: clk, depthToFlop; 2);
+        vec, radix: 4, addReduceAdders, clk: clk, depthToFlop; 2);
   ```
