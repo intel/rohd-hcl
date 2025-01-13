@@ -13,9 +13,9 @@ import 'package:meta/meta.dart';
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
 
-/// A generator which constructs a tree of k-input / 1-output modules.
+/// A generator which constructs a tree of radix-input / 1-output modules.
 class ReductionTree extends Module {
-  /// The 2-input operation to be performed at each node.
+  /// The radix-sized input operation to be performed at each node.
   @protected
   final Logic Function(List<Logic> inputs) operation;
 
@@ -47,24 +47,25 @@ class ReductionTree extends Module {
   /// The final output of the tree computation.
   Logic get out => output('out');
 
-  /// The flop depth of the tree from the output to the leaves.
-  int get flopDepth => _computed.flopDepth;
-
   /// The combinational depth since the last flop. The total compute depth of
   /// the tree is: depth + flopDepth * depthToflop;
   int get depth => _computed.depth;
+
+  /// The flop depth of the tree from the output to the leaves.
+  int get flopDepth => _computed.flopDepth;
 
   /// Capture the record of compute: the final value, its depth (from last
   /// flop or input), and its flopDepth if pipelined.
   late final ({Logic value, int depth, int flopDepth}) _computed;
 
-  /// Generate a node of the tree based on dividing the input [sequence] into
+  /// Generate a tree based on dividing the input [sequence] of a node into
   /// segments, recursively constructing [radix] child nodes to operate
   /// on each segment.
   /// - [sequence] is the input sequence to be reduced using the tree of
   /// operations.
   /// - Logic Function(List<Logic> inputs) [operation] is the operation to be
-  /// performed at each node. Note that [operation] can widen the output.
+  /// performed at each node. Note that [operation] can widen the output. The
+  /// logic function must support the operation for 2 to radix inputs.
   /// - [radix] is the width of reduction at each node in the tree (e.g.,
   /// binary: radix=2).
   /// - [signExtend] if true, use sign-extension to widen [Logic] values as
