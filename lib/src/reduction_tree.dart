@@ -107,6 +107,10 @@ class ReductionTree extends Module {
     addOutput('out', width: _out.width) <= _out;
   }
 
+  /// Local conditional flop using module reset/enable
+  Logic localFlop(Logic l, {bool doFlop = false}) =>
+      condFlop(doFlop ? clk : null, reset: reset, en: enable, l);
+
   /// Recursively construct the computation tree
   ({Logic value, int depth, int flopDepth}) reductionTreeRecurse(
       List<Logic> seq) {
@@ -125,30 +129,21 @@ class ReductionTree extends Module {
       }
       final flopDepth = results.map((c) => c.flopDepth).reduce(max);
       final treeDepth = results.map((c) => c.depth).reduce(max);
-      final doFlop = [
-        if (depthToFlop != null)
-          (treeDepth > 0) & (treeDepth % depthToFlop! == 0)
-        else
-          false
-      ].first;
+
+      final doFlop = (depthToFlop != null) &&
+          (treeDepth > 0) & (treeDepth % depthToFlop! == 0);
+
+      final alignedResults = results
+          .map((c) => localFlop(c.value, doFlop: c.flopDepth < flopDepth));
+
+      final resultsFlop =
+          alignedResults.map((r) => localFlop(r, doFlop: doFlop));
 
       final alignWidth = results.map((c) => c.value.width).reduce(max);
 
-      final alignedResults = results.map((c) => condFlop(
-          (c.flopDepth < flopDepth) ? clk : null,
-          reset: reset,
-          en: enable,
-          c.value));
-
-      final resultsFlop = [
-        for (final r in alignedResults)
-          condFlop(doFlop ? clk : null, reset: reset, en: enable, r)
-      ];
-      final resultsFinal = [
-        for (final r in resultsFlop)
-          signExtend ? r.signExtend(alignWidth) : r.zeroExtend(alignWidth)
-      ];
-      final computed = operation(resultsFinal);
+      final resultsFinal = resultsFlop.map((r) =>
+          signExtend ? r.signExtend(alignWidth) : r.zeroExtend(alignWidth));
+      final computed = operation(resultsFinal.toList());
       return (
         value: computed,
         depth: doFlop ? 0 : treeDepth + 1,
