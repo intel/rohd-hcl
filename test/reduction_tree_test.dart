@@ -13,6 +13,17 @@ import 'package:rohd_hcl/rohd_hcl.dart';
 import 'package:rohd_vf/rohd_vf.dart';
 import 'package:test/test.dart';
 
+Logic addReduceAdders(List<Logic> inputs) {
+  if (inputs.length < 4) {
+    return inputs.reduce((v, e) => v + e);
+  } else {
+    final add0 = ParallelPrefixAdder(inputs[0], inputs[1]);
+    final add1 = ParallelPrefixAdder(inputs[2], inputs[3]);
+    final add2 = ParallelPrefixAdder(add0.sum, add1.sum);
+    return add2.sum;
+  }
+}
+
 void main() {
   tearDown(() async {
     await Simulator.reset();
@@ -23,7 +34,7 @@ void main() {
   }
 
   test('reduction tree of add operations -- quick test', () async {
-    const width = 17;
+    const width = 13;
     const length = 79;
     final vec = <Logic>[];
     // First sum will be length *(length-1) /2
@@ -98,17 +109,6 @@ void main() {
     await clk.nextNegedge;
     await Simulator.endSimulation();
   });
-
-  Logic addReduceAdders(List<Logic> inputs) {
-    if (inputs.length < 4) {
-      return inputs.reduce((v, e) => v + e);
-    } else {
-      final add0 = ParallelPrefixAdder(inputs[0], inputs[1]);
-      final add1 = ParallelPrefixAdder(inputs[2], inputs[3]);
-      final add2 = ParallelPrefixAdder(add0.sum, add1.sum);
-      return add2.sum;
-    }
-  }
 
   test('reduction tree of prefix adders -- large, pipelined, radix 4',
       () async {
