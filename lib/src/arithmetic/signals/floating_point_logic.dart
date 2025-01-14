@@ -24,21 +24,31 @@ class FloatingPoint extends LogicStructure {
   /// [sign] bit with '1' representing a negative number
   final Logic sign;
 
+  static String _nameJoin(String? structName, String signalName) {
+    if (structName == null) {
+      return signalName;
+    }
+    return '${structName}_$signalName';
+  }
+
   /// [FloatingPoint] Constructor for a variable size binary
   /// floating point number
-  FloatingPoint({required int exponentWidth, required int mantissaWidth})
+  FloatingPoint(
+      {required int exponentWidth, required int mantissaWidth, String? name})
       : this._(
-            Logic(name: 'sign'),
-            Logic(width: exponentWidth, name: 'exponent'),
-            Logic(width: mantissaWidth, name: 'mantissa'));
+            Logic(name: _nameJoin(name, 'sign')),
+            Logic(width: exponentWidth, name: _nameJoin(name, 'exponent')),
+            Logic(width: mantissaWidth, name: _nameJoin(name, 'mantissa')),
+            name: name);
 
-  FloatingPoint._(this.sign, this.exponent, this.mantissa, {String? name})
-      : super([mantissa, exponent, sign], name: name ?? 'FloatingPoint');
+  FloatingPoint._(this.sign, this.exponent, this.mantissa, {super.name})
+      : super([mantissa, exponent, sign]);
 
   @override
   FloatingPoint clone({String? name}) => FloatingPoint(
         exponentWidth: exponent.width,
         mantissaWidth: mantissa.width,
+        name: name,
       );
 
   /// Return the [FloatingPointValue]
@@ -59,7 +69,7 @@ class FloatingPoint extends LogicStructure {
   /// Return a Logic true if this FloatingPoint is an infinity
   /// by having its exponent field set to the NaN value (typically all
   /// ones) and a zero mantissa.
-  late final isInfinity = Logic(name: 'isInfinity', naming: Naming.mergeable)
+  late final isInfinity = Logic(name: _nameJoin('isInfinity', name), naming: Naming.mergeable)
     ..gets(exponent.eq(floatingPointValue.infinity.exponent) & ~mantissa.or());
 
   /// Return a Logic true if this FloatingPoint is an zero

@@ -43,9 +43,9 @@ abstract class FloatingPointAdder extends Module {
   late final FloatingPoint b;
 
   /// getter for the computed [FloatingPoint] output.
-  late final FloatingPoint sum =
-      FloatingPoint(exponentWidth: exponentWidth, mantissaWidth: mantissaWidth)
-        ..gets(output('sum'));
+  late final FloatingPoint sum = FloatingPoint(
+      exponentWidth: exponentWidth, mantissaWidth: mantissaWidth, name: 'sum')
+    ..gets(output('sum'));
 
   /// Add two floating point numbers [a] and [b], returning result in [sum].
   /// - [clk], [reset], [enable] are optional inputs to control a pipestage
@@ -77,8 +77,8 @@ abstract class FloatingPointAdder extends Module {
     } else {
       this.enable = enable;
     }
-    this.a = a.clone()..gets(addInput('a', a, width: a.width));
-    this.b = b.clone()..gets(addInput('b', b, width: b.width));
+    this.a = a.clone(name: 'a')..gets(addInput('a', a, width: a.width));
+    this.b = b.clone(name: 'b')..gets(addInput('b', b, width: b.width));
     addOutput('sum', width: exponentWidth + mantissaWidth + 1);
   }
 
@@ -90,6 +90,26 @@ abstract class FloatingPointAdder extends Module {
         toSwap.$1.clone()..gets(mux(swap, toSwap.$2, toSwap.$1)),
         toSwap.$2.clone()..gets(mux(swap, toSwap.$1, toSwap.$2))
       );
+
+  @protected
+  (FloatingPoint larger, FloatingPoint smaller) sortFp(
+      (FloatingPoint, FloatingPoint) toSort) {
+    final ae = toSort.$1.exponent;
+    final be = toSort.$2.exponent;
+    final am = toSort.$1.mantissa;
+    final bm = toSort.$2.mantissa;
+    final doSwap = Logic(name: 'doSwap')
+      ..gets(ae.lt(be) |
+          (ae.eq(be) & am.lt(bm)) |
+          ((ae.eq(be) & am.eq(bm)) & toSort.$1.sign));
+
+    final swapped = swap(doSwap, toSort);
+
+    final larger = swapped.$1.clone(name: 'larger')..gets(swapped.$1);
+    final smaller = swapped.$2.clone(name: 'smaller')..gets(swapped.$2);
+
+    return (larger, smaller);
+  }
 
   /// Pipelining helper that uses the context for signals clk/enable/reset
   Logic localFlop(Logic input) =>

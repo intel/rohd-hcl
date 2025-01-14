@@ -30,43 +30,42 @@ class FloatingPointAdderSimple extends FloatingPointAdder {
       super.name = 'floatingpoint_adder_simple'})
       : super() {
     final outputSum = FloatingPoint(
-        exponentWidth: exponentWidth, mantissaWidth: mantissaWidth);
+        exponentWidth: exponentWidth,
+        mantissaWidth: mantissaWidth,
+        name: 'sum');
     output('sum') <= outputSum;
 
-    // Ensure that the larger number is wired as 'a'
-    final ae = this.a.exponent;
-    final be = this.b.exponent;
-    final am = this.a.mantissa;
-    final bm = this.b.mantissa;
-    final doSwap = ae.lt(be) |
-        (ae.eq(be) & am.lt(bm)) |
-        ((ae.eq(be) & am.eq(bm)) & super.a.sign);
-    final FloatingPoint a;
-    final FloatingPoint b;
-    (a, b) = swap(doSwap, (super.a, super.b));
+    final (larger, smaller) = sortFp((super.a, super.b));
 
-    final isInf = a.isInfinity | b.isInfinity;
-    final isNaN =
-        a.isNaN | b.isNaN | (a.isInfinity & b.isInfinity & (a.sign ^ b.sign));
+    final isInf = Logic(name: 'isInf')
+      ..gets(larger.isInfinity | smaller.isInfinity);
+    final isNaN = Logic(name: 'isNaN')
+      ..gets(larger.isNaN |
+          smaller.isNaN |
+          (larger.isInfinity &
+              smaller.isInfinity &
+              (larger.sign ^ smaller.sign)));
 
     // Align and add mantissas
-    final expDiff = a.exponent - b.exponent;
+    final expDiff = larger.exponent - smaller.exponent;
     final aMantissa = mux(
-        a.isNormal,
-        [Const(1), a.mantissa, Const(0, width: mantissaWidth + 1)].swizzle(),
-        [a.mantissa, Const(0, width: mantissaWidth + 2)].swizzle());
+        larger.isNormal,
+        [Const(1), larger.mantissa, Const(0, width: mantissaWidth + 1)]
+            .swizzle(),
+        [larger.mantissa, Const(0, width: mantissaWidth + 2)].swizzle());
     final bMantissa = mux(
-        b.isNormal,
-        [Const(1), b.mantissa, Const(0, width: mantissaWidth + 1)].swizzle(),
-        [b.mantissa, Const(0, width: mantissaWidth + 2)].swizzle());
+        smaller.isNormal,
+        [Const(1), smaller.mantissa, Const(0, width: mantissaWidth + 1)]
+            .swizzle(),
+        [smaller.mantissa, Const(0, width: mantissaWidth + 2)].swizzle());
 
     final adder = SignMagnitudeAdder(
-        a.sign, aMantissa, b.sign, bMantissa >>> expDiff, adderGen);
+        larger.sign, aMantissa, smaller.sign, bMantissa >>> expDiff, adderGen);
 
     final intSum = adder.sum.slice(adder.sum.width - 1, 0);
 
-    final aSignLatched = localFlop(a.sign);
-    final aExpLatched = localFlop(a.exponent);
+    final aSignLatched = localFlop(larger.sign);
+    final aExpLatched = localFlop(larger.exponent);
     final sumLatched = localFlop(intSum);
     final isInfLatched = localFlop(isInf);
     final isNaNLatched = localFlop(isNaN);
@@ -86,7 +85,7 @@ class FloatingPointAdderSimple extends FloatingPointAdder {
 
     final leadOneDominates = leadOne.gt(aExpLatched) | ~leadOneValid;
     final outExp =
-        mux(leadOneDominates, a.zeroExponent, aExpLatched - leadOne + 1);
+        mux(leadOneDominates, larger.zeroExponent, aExpLatched - leadOne + 1);
 
     final realIsInf = isInfLatched | outExp.eq(infExponent);
 
@@ -104,7 +103,7 @@ class FloatingPointAdderSimple extends FloatingPointAdder {
         ]),
         ElseIf(leadOneDominates, [
           outputSum.sign < aSignLatched,
-          outputSum.exponent < a.zeroExponent,
+          outputSum.exponent < larger.zeroExponent,
           outputSum.mantissa <
               (sumLatched << aExpLatched + 1)
                   .getRange(intSum.width - mantissaWidth, intSum.width),
