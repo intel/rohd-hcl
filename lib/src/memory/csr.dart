@@ -97,6 +97,18 @@ class Csr extends LogicStructure {
   /// Getter for the access control of the CSR.
   CsrAccess get access => config.access;
 
+  /// Accessor to the architectural frontdoor readability of the register.
+  bool get isFrontdoorReadable => config.isFrontdoorReadable;
+
+  /// Accessor to the architectural frontdoor writability of the register.
+  bool get isFrontdoorWritable => config.isFrontdoorWritable;
+
+  /// Accessor to the architectural backdoor readability of the register.
+  bool get isBackdoorReadable => config.isBackdoorReadable;
+
+  /// Accessor to the architectural backdoor writability of the register.
+  bool get isBackdoorWritable => config.isBackdoorWritable;
+
   /// Getter for the field configuration of the CSR
   List<CsrFieldConfig> get fields => config.fields;
 
@@ -388,12 +400,14 @@ class CsrBlock extends Module {
         [
           If.block([
             // frontdoor write takes highest priority
-            Iff(
-                _frontWrite.en &
-                    _frontWrite.addr.eq(Const(csrs[i].addr, width: addrWidth)),
-                [
-                  csrs[i] < csrs[i].getWriteData(_frontWrite.data),
-                ]),
+            if (config.registers[i].isFrontdoorWritable)
+              ElseIf(
+                  _frontWrite.en &
+                      _frontWrite.addr
+                          .eq(Const(csrs[i].addr, width: addrWidth)),
+                  [
+                    csrs[i] < csrs[i].getWriteData(_frontWrite.data),
+                  ]),
             // backdoor write takes next priority
             if (_backdoorIndexMap.containsKey(i) &&
                 _backdoorInterfaces[_backdoorIndexMap[i]!].hasWrite)
@@ -414,6 +428,7 @@ class CsrBlock extends Module {
     // individual CSR read logic
     final rdData = Logic(name: 'internalRdData', width: _frontRead.dataWidth);
     final rdCases = csrs
+        .where((csr) => csr.isFrontdoorReadable)
         .map((csr) => CaseItem(Const(csr.addr, width: addrWidth), [
               rdData < csr,
             ]))
