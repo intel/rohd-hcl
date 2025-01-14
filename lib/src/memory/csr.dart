@@ -47,11 +47,9 @@ class CsrBackdoorInterface extends Interface<CsrBackdoorPortGroup> {
   /// Constructs a new interface of specified [dataWidth]
   /// and conditionally instantiates read and writes ports based on
   /// [hasRead] and [hasWrite].
-  CsrBackdoorInterface(
-      {required this.config,
-      this.dataWidth = 0,
-      this.hasRead = true,
-      this.hasWrite = true}) {
+  CsrBackdoorInterface({required this.config, this.dataWidth = 0})
+      : hasRead = config.isBackdoorReadable,
+        hasWrite = config.isBackdoorWritable {
     if (hasRead) {
       setPorts([
         Csr(config),
@@ -71,11 +69,8 @@ class CsrBackdoorInterface extends Interface<CsrBackdoorPortGroup> {
   }
 
   /// Makes a copy of this [Interface] with matching configuration.
-  CsrBackdoorInterface clone() => CsrBackdoorInterface(
-      config: config,
-      dataWidth: dataWidth,
-      hasRead: hasRead,
-      hasWrite: hasWrite);
+  CsrBackdoorInterface clone() =>
+      CsrBackdoorInterface(config: config, dataWidth: dataWidth);
 }
 
 /// Logic representation of a CSR.
@@ -263,6 +258,7 @@ class CsrBlock extends Module {
   /// The private copies are used for internal logic.
   final List<CsrBackdoorInterface> backdoorInterfaces = [];
   final List<CsrBackdoorInterface> _backdoorInterfaces = [];
+  final Map<int, int> _backdoorIndexMap = {};
 
   /// Clock for the module.
   late final Logic _clk;
@@ -306,16 +302,18 @@ class CsrBlock extends Module {
           uniquify: (original) => 'frontRead_$original');
 
     for (var i = 0; i < csrs.length; i++) {
-      // TODO: pull hasRead and hasWrite from config??
-      _backdoorInterfaces.add(CsrBackdoorInterface(
-          config: csrs[i].config, dataWidth: fdr.dataWidth));
-      backdoorInterfaces.add(CsrBackdoorInterface(
-          config: csrs[i].config, dataWidth: fdr.dataWidth));
-      _backdoorInterfaces.last.connectIO(this, backdoorInterfaces.last,
-          outputTags: {CsrBackdoorPortGroup.read},
-          inputTags: {CsrBackdoorPortGroup.write},
-          uniquify: (original) =>
-              '${name}_${csrs[i].config.name}_backdoor_$original');
+      if (csrs[i].config.backdoorAccessible) {
+        _backdoorInterfaces.add(CsrBackdoorInterface(
+            config: csrs[i].config, dataWidth: fdr.dataWidth));
+        backdoorInterfaces.add(CsrBackdoorInterface(
+            config: csrs[i].config, dataWidth: fdr.dataWidth));
+        _backdoorInterfaces.last.connectIO(this, backdoorInterfaces.last,
+            outputTags: {CsrBackdoorPortGroup.read},
+            inputTags: {CsrBackdoorPortGroup.write},
+            uniquify: (original) =>
+                '${name}_${csrs[i].config.name}_backdoor_$original');
+        _backdoorIndexMap[i] = _backdoorInterfaces.length - 1;
+      }
     }
 
     _buildLogic();
@@ -357,8 +355,8 @@ class CsrBlock extends Module {
   /// within the block by name [nm].
   CsrBackdoorInterface getBackdoorPortsByName(String nm) {
     final idx = config.registers.indexOf(config.getRegisterByName(nm));
-    if (idx >= 0 && idx < backdoorInterfaces.length) {
-      return backdoorInterfaces[idx];
+    if (_backdoorIndexMap.containsKey(idx)) {
+      return backdoorInterfaces[_backdoorIndexMap[idx]!];
     } else {
       throw Exception('Register $nm not found in block ${config.name}');
     }
@@ -368,8 +366,8 @@ class CsrBlock extends Module {
   /// within the block by relative address [addr].
   CsrBackdoorInterface getBackdoorPortsByAddr(int addr) {
     final idx = config.registers.indexOf(config.getRegisterByAddr(addr));
-    if (idx >= 0 && idx < backdoorInterfaces.length) {
-      return backdoorInterfaces[idx];
+    if (_backdoorIndexMap.containsKey(idx)) {
+      return backdoorInterfaces[_backdoorIndexMap[idx]!];
     } else {
       throw Exception(
           'Register address $addr not found in block ${config.name}');
@@ -397,9 +395,12 @@ class CsrBlock extends Module {
                   csrs[i] < csrs[i].getWriteData(_frontWrite.data),
                 ]),
             // backdoor write takes next priority
-            if (_backdoorInterfaces[i].hasWrite)
-              ElseIf(_backdoorInterfaces[i].wrEn!, [
-                csrs[i] < csrs[i].getWriteData(_backdoorInterfaces[i].wrData!),
+            if (_backdoorIndexMap.containsKey(i) &&
+                _backdoorInterfaces[_backdoorIndexMap[i]!].hasWrite)
+              ElseIf(_backdoorInterfaces[_backdoorIndexMap[i]!].wrEn!, [
+                csrs[i] <
+                    csrs[i].getWriteData(
+                        _backdoorInterfaces[_backdoorIndexMap[i]!].wrData!),
               ]),
             // nothing to write this cycle
             Else([
@@ -430,8 +431,9 @@ class CsrBlock extends Module {
 
     // driving of backdoor read outputs
     for (var i = 0; i < csrs.length; i++) {
-      if (_backdoorInterfaces[i].hasRead) {
-        _backdoorInterfaces[i].rdData! <= csrs[i];
+      if (_backdoorIndexMap.containsKey(i) &&
+          _backdoorInterfaces[_backdoorIndexMap[i]!].hasRead) {
+        _backdoorInterfaces[_backdoorIndexMap[i]!].rdData! <= csrs[i];
       }
     }
   }
@@ -477,6 +479,7 @@ class CsrTop extends Module {
   /// The private copies are used for internal logic.
   final List<List<CsrBackdoorInterface>> backdoorInterfaces = [];
   final List<List<CsrBackdoorInterface>> _backdoorInterfaces = [];
+  final List<Map<int, int>> _backdoorIndexMaps = [];
 
   /// Getter for the block configurations of the CSR.
   List<CsrBlockConfig> get blocks => config.blocks;
@@ -488,8 +491,8 @@ class CsrTop extends Module {
     if (idx >= 0 && idx < backdoorInterfaces.length) {
       final idx1 = config.blocks[idx].registers
           .indexOf(config.blocks[idx].getRegisterByName(reg));
-      if (idx1 >= 0 && idx1 < backdoorInterfaces[idx].length) {
-        return backdoorInterfaces[idx][idx1];
+      if (_backdoorIndexMaps[idx].containsKey(idx1)) {
+        return backdoorInterfaces[idx][_backdoorIndexMaps[idx][idx1]!];
       } else {
         throw Exception('Register $reg in block $block could not be found.');
       }
@@ -505,8 +508,8 @@ class CsrTop extends Module {
     if (idx >= 0 && idx < backdoorInterfaces.length) {
       final idx1 = config.blocks[idx].registers
           .indexOf(config.blocks[idx].getRegisterByAddr(regAddr));
-      if (idx1 >= 0 && idx1 < backdoorInterfaces[idx].length) {
-        return backdoorInterfaces[idx][idx1];
+      if (_backdoorIndexMaps[idx].containsKey(idx1)) {
+        return backdoorInterfaces[idx][_backdoorIndexMaps[idx][idx1]!];
       } else {
         throw Exception(
             'Register with address $regAddr in block with address $blockAddr could not be found.');
@@ -547,17 +550,21 @@ class CsrTop extends Module {
     for (var i = 0; i < blocks.length; i++) {
       _backdoorInterfaces.add([]);
       backdoorInterfaces.add([]);
+      _backdoorIndexMaps.add({});
       for (var j = 0; j < blocks[i].registers.length; j++) {
-        // TODO: pull hasRead and hasWrite from config??
-        _backdoorInterfaces[i].add(CsrBackdoorInterface(
-            config: blocks[i].registers[j], dataWidth: fdr.dataWidth));
-        backdoorInterfaces[i].add(CsrBackdoorInterface(
-            config: blocks[i].registers[j], dataWidth: fdr.dataWidth));
-        _backdoorInterfaces[i].last.connectIO(this, backdoorInterfaces[i].last,
-            outputTags: {CsrBackdoorPortGroup.read},
-            inputTags: {CsrBackdoorPortGroup.write},
-            uniquify: (original) =>
-                '${name}_${blocks[i].name}_${blocks[i].registers[j].name}_backdoor_$original');
+        if (blocks[i].registers[j].backdoorAccessible) {
+          _backdoorInterfaces[i].add(CsrBackdoorInterface(
+              config: blocks[i].registers[j], dataWidth: fdr.dataWidth));
+          backdoorInterfaces[i].add(CsrBackdoorInterface(
+              config: blocks[i].registers[j], dataWidth: fdr.dataWidth));
+          _backdoorInterfaces[i].last.connectIO(
+              this, backdoorInterfaces[i].last,
+              outputTags: {CsrBackdoorPortGroup.read},
+              inputTags: {CsrBackdoorPortGroup.write},
+              uniquify: (original) =>
+                  '${name}_${blocks[i].name}_${blocks[i].registers[j].name}_backdoor_$original');
+          _backdoorIndexMaps[i][j] = _backdoorInterfaces[i].length - 1;
+        }
       }
     }
 
@@ -620,11 +627,12 @@ class CsrTop extends Module {
 
       // drive backdoor write ports
       for (var j = 0; j < blocks[i].registers.length; j++) {
-        if (_backdoorInterfaces[i][j].hasWrite) {
-          _blocks[i].backdoorInterfaces[j].wrEn! <=
-              _backdoorInterfaces[i][j].wrEn!;
-          _blocks[i].backdoorInterfaces[j].wrData! <=
-              _backdoorInterfaces[i][j].wrData!;
+        if (_backdoorIndexMaps[i].containsKey(j) &&
+            _backdoorInterfaces[i][_backdoorIndexMaps[i][j]!].hasWrite) {
+          _blocks[i].backdoorInterfaces[_backdoorIndexMaps[i][j]!].wrEn! <=
+              _backdoorInterfaces[i][_backdoorIndexMaps[i][j]!].wrEn!;
+          _blocks[i].backdoorInterfaces[_backdoorIndexMaps[i][j]!].wrData! <=
+              _backdoorInterfaces[i][_backdoorIndexMaps[i][j]!].wrData!;
         }
       }
     }
@@ -653,9 +661,10 @@ class CsrTop extends Module {
     // driving of backdoor read outputs
     for (var i = 0; i < blocks.length; i++) {
       for (var j = 0; j < blocks[i].registers.length; j++) {
-        if (_backdoorInterfaces[i][j].hasRead) {
-          _backdoorInterfaces[i][j].rdData! <=
-              _blocks[i].backdoorInterfaces[j].rdData!;
+        if (_backdoorIndexMaps[i].containsKey(j) &&
+            _backdoorInterfaces[i][_backdoorIndexMaps[i][j]!].hasRead) {
+          _backdoorInterfaces[i][_backdoorIndexMaps[i][j]!].rdData! <=
+              _blocks[i].backdoorInterfaces[_backdoorIndexMaps[i][j]!].rdData!;
         }
       }
     }

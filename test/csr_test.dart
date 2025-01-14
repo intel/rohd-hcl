@@ -27,7 +27,10 @@ class MyNoFieldCsrInstance extends CsrInstanceConfig {
     required super.width,
     super.resetValue = 0x0,
     String name = 'myNoFieldCsrInstance',
-  }) : super(arch: MyNoFieldCsr(name: name));
+  }) : super(
+            arch: MyNoFieldCsr(name: name),
+            isBackdoorReadable: addr != 0x1,
+            isBackdoorWritable: false);
 }
 
 class MyFieldCsr extends CsrConfig {
@@ -40,7 +43,7 @@ class MyFieldCsrInstance extends CsrInstanceConfig {
     required super.width,
     super.resetValue = 0xff,
     String name = 'myFieldCsrInstance',
-  }) : super(arch: MyFieldCsr(name: name)) {
+  }) : super(arch: MyFieldCsr(name: name), isBackdoorWritable: true) {
     // example of a static field
     fields
       ..add(CsrFieldConfig(
@@ -304,7 +307,7 @@ void main() {
 
     // perform a backdoor write and then a backdoor read of csr1
     await clk.nextNegedge;
-    back1.wrData!.inject(1);
+    back1.wrEn!.inject(1);
     back1.wrData!.inject(0xdeadbeef);
     await clk.nextNegedge;
     back1.wrData!.inject(0);
@@ -404,7 +407,7 @@ void main() {
 
     // perform a backdoor write and then a backdoor read of csr1
     await clk.nextNegedge;
-    back1.wrData!.inject(1);
+    back1.wrEn!.inject(1);
     back1.wrData!.inject(0xdeadbeef);
     await clk.nextNegedge;
     back1.wrData!.inject(0);

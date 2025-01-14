@@ -104,6 +104,26 @@ class CsrConfig {
   /// Note that this can be overridden in the instantiation of the register.
   int resetValue;
 
+  /// Architectural property in which the register can be frontdoor read.
+  ///
+  /// A frontdoor read occurs explicitly using the register's address.
+  bool isFrontdoorReadable;
+
+  /// Architectural property in which the register can be frontdoor written.
+  ///
+  /// A frontdoor write occurs explicitly using the register's address.
+  bool isFrontdoorWritable;
+
+  /// Architectural property in which the register can be backdoor read.
+  ///
+  /// A backdoor read exposes the register's value combinationally to the HW.
+  bool isBackdoorReadable;
+
+  /// Architectural property in which the register can be backdoor written.
+  ///
+  /// A backdoor write exposes direct write access to the HW through an enable.
+  bool isBackdoorWritable;
+
   /// Fields in this register.
   final List<CsrFieldConfig> fields = [];
 
@@ -112,6 +132,10 @@ class CsrConfig {
     required this.name,
     required this.access,
     this.resetValue = 0,
+    this.isFrontdoorReadable = true,
+    this.isFrontdoorWritable = true,
+    this.isBackdoorReadable = true,
+    this.isBackdoorWritable = true,
   });
 
   /// Accessor to the config of a particular field
@@ -148,6 +172,24 @@ class CsrInstanceConfig {
   /// Accessor to the architectural reset value of the register.
   int get resetValue => arch.resetValue;
 
+  /// Accessor to the architectural frontdoor readability of the register.
+  bool get isFrontdoorReadable => arch.isFrontdoorReadable;
+
+  /// Accessor to the architectural frontdoor writability of the register.
+  bool get isFrontdoorWritable => arch.isFrontdoorWritable;
+
+  /// Accessor to the architectural backdoor readability of the register.
+  bool get isBackdoorReadable => arch.isBackdoorReadable;
+
+  /// Accessor to the architectural backdoor writability of the register.
+  bool get isBackdoorWritable => arch.isBackdoorWritable;
+
+  /// Helper for determining if the register is frontdoor accessible.
+  bool get frontdoorAccessible => isFrontdoorReadable || isFrontdoorWritable;
+
+  /// Helper for determining if the register is frontdoor accessible.
+  bool get backdoorAccessible => isBackdoorReadable || isBackdoorWritable;
+
   /// Accessor to the fields of the register.
   List<CsrFieldConfig> get fields => arch.fields;
 
@@ -157,9 +199,25 @@ class CsrInstanceConfig {
     required this.addr,
     required this.width,
     int? resetValue,
+    bool? isFrontdoorReadable,
+    bool? isFrontdoorWritable,
+    bool? isBackdoorReadable,
+    bool? isBackdoorWritable,
   }) {
     if (resetValue != null) {
       arch.resetValue = resetValue;
+    }
+    if (isFrontdoorReadable != null) {
+      arch.isFrontdoorReadable = isFrontdoorReadable;
+    }
+    if (isFrontdoorWritable != null) {
+      arch.isFrontdoorWritable = isFrontdoorWritable;
+    }
+    if (isBackdoorReadable != null) {
+      arch.isBackdoorReadable = isBackdoorReadable;
+    }
+    if (isBackdoorWritable != null) {
+      arch.isBackdoorWritable = isBackdoorWritable;
     }
   }
 
