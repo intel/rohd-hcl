@@ -230,6 +230,9 @@ class CompressionTreeMultiplier extends Multiplier {
   /// after compression.  [reset] and [enable] are optional
   /// inputs to control these flops when [clk] is provided. If [clk] is null,
   /// the [ColumnCompressor] is built as a combinational tree of compressors.
+  ///
+  /// [use42Compressors] will combine 4:2, 3:2, and 2:2 compressors in building
+  /// a compression tree.
   CompressionTreeMultiplier(super.a, super.b, int radix,
       {this.clk,
       this.reset,
@@ -246,6 +249,7 @@ class CompressionTreeMultiplier extends Multiplier {
               Logic? selectSignedMultiplier,
               Logic? selectSignedMultiplicand})
           ppGen = PartialProductGeneratorCompactRectSignExtension.new,
+      bool use42Compressors = false,
       super.name = 'compression_tree_multiplier'}) {
     clk = (clk != null) ? addInput('clk', clk!) : null;
     reset = (reset != null) ? addInput('reset', reset!) : null;
@@ -261,13 +265,17 @@ class CompressionTreeMultiplier extends Multiplier {
       selectSignedMultiplier: selectSignedMultiplier,
       signedMultiplier: signedMultiplier,
     );
-
-    final compressor =
-        ColumnCompressor(clk: clk, reset: reset, enable: enable, pp)
-          ..compress();
+    final compressor = ColumnCompressor(
+        clk: clk,
+        reset: reset,
+        enable: enable,
+        pp,
+        use42Compressors: use42Compressors)
+      ..compress();
     final adder = ParallelPrefixAdder(
         compressor.extractRow(0), compressor.extractRow(1),
         ppGen: ppTree);
+
     product <= adder.sum.slice(a.width + b.width - 1, 0);
   }
 }
@@ -324,6 +332,9 @@ class CompressionTreeMultiplyAccumulate extends MultiplyAccumulate {
   /// after compression.  [reset] and [enable] are optional
   /// inputs to control these flops when [clk] is provided. If [clk] is null,
   /// the [ColumnCompressor] is built as a combinational tree of compressors.
+  ///
+  /// [use42Compressors] will combine 4:2, 3:2, and 2:2 compressors in building
+  /// a compression tree.
   CompressionTreeMultiplyAccumulate(super.a, super.b, super.c, int radix,
       {Logic? clk,
       Logic? reset,
@@ -342,6 +353,7 @@ class CompressionTreeMultiplyAccumulate extends MultiplyAccumulate {
               Logic? selectSignedMultiplier,
               Logic? selectSignedMultiplicand})
           ppGen = PartialProductGeneratorCompactRectSignExtension.new,
+      bool use42Compressors = false,
       super.name = 'compression_tree_mac'}) {
     clk = (clk != null) ? addInput('clk', clk) : null;
     reset = (reset != null) ? addInput('reset', reset) : null;
@@ -380,9 +392,13 @@ class CompressionTreeMultiplyAccumulate extends MultiplyAccumulate {
     pp.partialProducts.insert(0, l);
     pp.rowShift.insert(0, 0);
 
-    final compressor =
-        ColumnCompressor(clk: clk, reset: reset, enable: enable, pp)
-          ..compress();
+    final compressor = ColumnCompressor(
+        clk: clk,
+        reset: reset,
+        enable: enable,
+        pp,
+        use42Compressors: use42Compressors)
+      ..compress();
     final adder = ParallelPrefixAdder(
         compressor.extractRow(0), compressor.extractRow(1),
         ppGen: ppTree);
