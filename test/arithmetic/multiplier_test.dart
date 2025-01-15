@@ -461,7 +461,6 @@ void main() {
             selectSignedMultiplicand: signedSelect,
             selectSignedMultiplier: signedSelect);
         await mod.build();
-        mod.generateSynth();
         final golden = bA * bB;
         final result = mod.isSignedResult()
             ? mod.product.value.toBigInt().toSigned(mod.product.width)

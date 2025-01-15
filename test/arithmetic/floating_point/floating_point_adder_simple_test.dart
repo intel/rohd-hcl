@@ -11,7 +11,6 @@
 //
 
 import 'dart:async';
-import 'dart:io';
 import 'dart:math';
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
@@ -389,7 +388,6 @@ void main() {
     fp2.put(fv2);
     final adder = FloatingPointAdderSimple(fp1, fp2);
     await adder.build();
-    File('fpsimple.sv').writeAsStringSync(adder.generateSynth());
     final exponentWidth = adder.sum.exponent.width;
     final mantissaWidth = adder.sum.mantissa.width;
 
