@@ -26,18 +26,18 @@ The various IEEE constants representing corner cases of the field of floating-po
 
 For any basic arbitrary width `FloatingPointValue` ROHD-HCL supports the following constants in that format.
 
-- negativeInfinity: smallest possible number
-- negativeZero: The number zero, negative form
-- positiveZero: The number zero, positive form
-- smallestPositiveSubnormal: Smallest possible number, most exponent negative, LSB set in mantissa
-- largestPositiveSubnormal: Largest possible subnormal, most negative exponent, mantissa all 1s
-- smallestPositiveNormal: Smallest possible positive number, most negative exponent, mantissa is 0
-- largestLessThanOne: Largest number smaller than one
-- one: The number one
-- smallestLargerThanOne: Smallest number greater than one
-- largestNormal: Largest positive number, most positive exponent, full mantissa
-- infinity: Largest possible number:  all 1s in the exponent, all 0s in the mantissa
-- nan:  Not a Number, demarked by all 1s in exponent and any 1 in mantissa (we use the LSB)
+- `negativeInfinity`: smallest possible number
+- `negativeZero`: The number zero, negative form
+- `positiveZero`: The number zero, positive form
+- `smallestPositiveSubnormal`: Smallest possible number, most exponent negative, LSB set in mantissa
+- `largestPositiveSubnormal`: Largest possible subnormal, most negative exponent, mantissa all 1s
+- `smallestPositiveNormal`: Smallest possible positive number, most negative exponent, mantissa is 0
+- `largestLessThanOne`: Largest number smaller than one
+- `one`: The number one
+- `smallestLargerThanOne`: Smallest number greater than one
+- `largestNormal`: Largest positive number, most positive exponent, full mantissa
+- `infinity`: Largest possible number:  all 1s in the exponent, all 0s in the mantissa
+- `nan`:  Not a Number, demarked by all 1s in exponent and any 1 in mantissa (we use the LSB)
 
 ### Special subtypes
 
@@ -69,10 +69,10 @@ A second [FloatingPointAdderRound](https://intel.github.io/rohd-hcl/rohd_hcl/Flo
 
 ## FloatingPointMultiplier
 
-A very basic [FloatingPointMultiplierSimple] (link TBD here) component is available which does not perform any rounding. It takes two [FloatingPoint](https://intel.github.io/rohd-hcl/rohd_hcl/FloatingPoint-class.html) [LogicStructure](https://intel.github.io/rohd/rohd/LogicStructure-class.html)s and multiplies them, returning a normalized [FloatingPoint](https://intel.github.io/rohd-hcl/rohd_hcl/FloatingPoint-class.html) on the output 'product'.  
+A very basic [FloatingPointMultiplierSimple] component is available which does not perform any rounding. It takes two [FloatingPoint](https://intel.github.io/rohd-hcl/rohd_hcl/FloatingPoint-class.html) [LogicStructure](https://intel.github.io/rohd/rohd/LogicStructure-class.html)s and multiplies them, returning a normalized [FloatingPoint](https://intel.github.io/rohd-hcl/rohd_hcl/FloatingPoint-class.html) on the output 'product'.  
 
 It has options to control its performance:
 
 - 'radix':  used to specify the radix of the Booth encoder (default radix=4: options are [2,4,8,16])'.
-- adderGen':  used to specify the kind of [Adder] used for key functions like the mantiss add. Defaults to [NativeAdder], but you can select a [ParallelPrefixAdder] of  your choice.
+- adderGen':  used to specify the kind of [Adder] used for key functions like the mantissa addition. Defaults to [NativeAdder], but you can select a [ParallelPrefixAdder] of  your choice.
 - 'ppTree':  used to specify the type of ['ParallelPrefix'](https://intel.github.io/rohd-hcl/rohd_hcl/ParallelPrefix-class.html) used in the pther critical functions like leading-one detect.

@@ -11,12 +11,12 @@ import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
 import 'package:rohd_hcl/src/arithmetic/partial_product_sign_extend.dart';
 
-/// A multiplier module for FloatingPoint logic
+/// A multiplier module for FloatingPoint logic.
 class FloatingPointMultiplierSimple extends FloatingPointMultiplier {
   /// Multiply two FloatingPoint numbers [a] and [b], returning result
   /// in [product] FloatingPoint.
-  /// - [radix] is the Booth encoder radix used (default=4:
-  /// options are [2,4,8,16].
+  /// - [radix] is the Booth encoder radix used with options [2,4,8,16]
+  /// ((default=4).
   /// - [adderGen] is an adder generator to be used in the primary adder
   /// functions.
   /// - [ppTree] is an parallel prefix tree generator to be used in internal
