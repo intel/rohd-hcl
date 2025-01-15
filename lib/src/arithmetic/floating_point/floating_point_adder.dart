@@ -85,12 +85,22 @@ abstract class FloatingPointAdder extends Module {
   /// Swapping two FloatingPoint structures based on a conditional
   @protected
   (FloatingPoint, FloatingPoint) swap(
-          Logic swap, (FloatingPoint, FloatingPoint) toSwap) =>
-      (
-        toSwap.$1.clone()..gets(mux(swap, toSwap.$2, toSwap.$1)),
-        toSwap.$2.clone()..gets(mux(swap, toSwap.$1, toSwap.$2))
-      );
+      Logic swap, (FloatingPoint, FloatingPoint) toSwap) {
+    final in1 = Logic(name: 'swap_in_${toSwap.$1.name}', width: a.width)
+      ..gets(toSwap.$1);
+    final in2 = Logic(name: 'swap_in_${toSwap.$2.name}', width: a.width)
+      ..gets(toSwap.$2);
 
+    final out1 = Logic(name: 'swap_out_larger', width: a.width)
+      ..gets(mux(swap, in2, in1));
+    final out2 = Logic(name: 'swap_out_smaller', width: a.width)
+      ..gets(mux(swap, in1, in2));
+    final first = a.clone(name: 'larger')..gets(out1);
+    final second = a.clone(name: 'smaller')..gets(out2);
+    return (first, second);
+  }
+
+  /// Sort two FloatingPointNumbers and swap
   @protected
   (FloatingPoint larger, FloatingPoint smaller) sortFp(
       (FloatingPoint, FloatingPoint) toSort) {

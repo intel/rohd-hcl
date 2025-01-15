@@ -33,33 +33,42 @@ class FloatingPointMultiplierSimple extends FloatingPointMultiplier {
           ppTree = KoggeStone.new,
       super.name}) {
     final product = FloatingPoint(
-        exponentWidth: exponentWidth, mantissaWidth: mantissaWidth);
+        exponentWidth: exponentWidth,
+        mantissaWidth: mantissaWidth,
+        name: 'product');
     output('product') <= product;
-    final a = this.a;
-    final b = this.b;
 
-    final aMantissa = mux(a.isNormal, [a.isNormal, a.mantissa].swizzle(),
-        [a.mantissa, Const(0)].swizzle());
-    final bMantissa = mux(b.isNormal, [b.isNormal, b.mantissa].swizzle(),
-        [b.mantissa, Const(0)].swizzle());
+    final aMantissa = Logic(name: 'a_mantissa', width: mantissaWidth + 1)
+      ..gets(mux(a.isNormal, [a.isNormal, a.mantissa].swizzle(),
+          [a.mantissa, Const(0)].swizzle()));
+    final bMantissa = Logic(name: 'a_mantissa', width: mantissaWidth + 1)
+      ..gets(mux(b.isNormal, [b.isNormal, b.mantissa].swizzle(),
+          [b.mantissa, Const(0)].swizzle()));
 
-    final productExp = a.exponent.zeroExtend(exponentWidth + 2) +
-        b.exponent.zeroExtend(exponentWidth + 2) -
-        a.bias.zeroExtend(exponentWidth + 2);
+    final productExp = Logic(name: 'productExp', width: exponentWidth + 2)
+      ..gets(a.exponent.zeroExtend(exponentWidth + 2) +
+          b.exponent.zeroExtend(exponentWidth + 2) -
+          a.bias.zeroExtend(exponentWidth + 2));
 
     final pp = PartialProductGeneratorCompactRectSignExtension(
         aMantissa, bMantissa, RadixEncoder(radix));
     final compressor =
         ColumnCompressor(pp, clk: clk, reset: reset, enable: enable)
           ..compress();
-    final adder = adderGen(compressor.extractRow(0), compressor.extractRow(1));
+    final row0 = Logic(name: 'row0', width: compressor.columns.length)
+      ..gets(compressor.extractRow(0));
+    final row1 = Logic(name: 'row1', width: compressor.columns.length)
+      ..gets(compressor.extractRow(1));
+    final adder = adderGen(row0, row1);
     // Input mantissas have implicit lead: product mantissa width is (mw+1)*2)
-    final mantissa = adder.sum.getRange(0, (mantissaWidth + 1) * 2);
+    final mantissa = Logic(name: 'mantissa', width: (mantissaWidth + 1) * 2)
+      ..gets(adder.sum.getRange(0, (mantissaWidth + 1) * 2));
 
-    final isInf = a.isInfinity | b.isInfinity;
-    final isNaN = a.isNaN |
-        b.isNaN |
-        ((a.isInfinity | b.isInfinity) & (a.isZero | b.isZero));
+    final isInf = Logic(name: 'isInf')..gets(a.isInfinity | b.isInfinity);
+    final isNaN = Logic(name: 'isNaN')
+      ..gets(a.isNaN |
+          b.isNaN |
+          ((a.isInfinity | b.isInfinity) & (a.isZero | b.isZero)));
 
     final productExpLatch = localFlop(productExp);
     final aSignLatch = localFlop(a.sign);
@@ -67,10 +76,11 @@ class FloatingPointMultiplierSimple extends FloatingPointMultiplier {
     final isInfLatch = localFlop(isInf);
     final isNaNLatch = localFlop(isNaN);
 
-    final leadingOnePos = ParallelPrefixPriorityEncoder(mantissa.reversed,
-            ppGen: ppTree, name: 'leading_one_encoder')
-        .out
-        .zeroExtend(exponentWidth + 2);
+    final leadingOnePos = Logic(name: 'leadingone', width: exponentWidth + 2)
+      ..gets(ParallelPrefixPriorityEncoder(mantissa.reversed,
+              ppGen: ppTree, name: 'leading_one_encoder')
+          .out
+          .zeroExtend(exponentWidth + 2));
 
     final shifter = SignedShifter(
         mantissa,
@@ -78,12 +88,14 @@ class FloatingPointMultiplierSimple extends FloatingPointMultiplier {
             productExpLatch, leadingOnePos),
         name: 'mantissa_shifter');
 
-    final remainingExp = productExpLatch - leadingOnePos + 1;
+    final remainingExp = Logic(name: 'remainingExp', width: leadingOnePos.width)
+      ..gets(productExpLatch - leadingOnePos + 1);
 
-    final overFlow = isInfLatch |
-        (~remainingExp[-1] &
-            remainingExp.abs().gte(Const(1, width: exponentWidth, fill: true)
-                .zeroExtend(exponentWidth + 2)));
+    final overFlow = Logic(name: 'overflow')
+      ..gets(isInfLatch |
+          (~remainingExp[-1] &
+              remainingExp.abs().gte(Const(1, width: exponentWidth, fill: true)
+                  .zeroExtend(exponentWidth + 2))));
 
     Combinational([
       If(isNaNLatch, then: [
@@ -91,10 +103,10 @@ class FloatingPointMultiplierSimple extends FloatingPointMultiplier {
       ], orElse: [
         If(overFlow, then: [
           // TODO(desmonddak): use this line after trace issue is resolved
-          // product < product.inf(inSign: aSignLatch ^ bSignLatch),
-          product.sign < aSignLatch ^ bSignLatch,
-          product.exponent < product.nan.exponent,
-          product.mantissa < Const(0, width: mantissaWidth, fill: true),
+          product < product.inf(sign: aSignLatch ^ bSignLatch),
+          // product.sign < aSignLatch ^ bSignLatch,
+          // product.exponent < product.nan.exponent,
+          // product.mantissa < Const(0, width: mantissaWidth, fill: true),
         ], orElse: [
           product.sign < aSignLatch ^ bSignLatch,
           If(remainingExp[-1], then: [

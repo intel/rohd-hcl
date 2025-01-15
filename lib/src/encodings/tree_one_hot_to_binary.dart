@@ -41,8 +41,10 @@ class _NodeOneHotToBinary extends Module {
     } else {
       final mid = 1 << (log2Ceil(wid) - 1);
       addOutput('binary', width: log2Ceil(mid + 1));
-      final hi = onehot.getRange(mid).zeroExtend(mid);
-      final lo = onehot.getRange(0, mid).zeroExtend(mid);
+      final hi = Logic(name: 'hi', width: mid)
+        ..gets(onehot.getRange(mid).zeroExtend(mid));
+      final lo = Logic(name: 'hi', width: mid)
+        ..gets(onehot.getRange(0, mid).zeroExtend(mid));
       final recurse = lo | hi;
       final response = _NodeOneHotToBinary(recurse).binary;
       binary <= [hi.or(), response].swizzle();
