@@ -7,6 +7,18 @@
 // 2024 December
 // Author: Josh Kimmel <joshua1.kimmel@intel.com>
 
+/// Targeted Exception type for Csr valiation.
+class CsrValidationException implements Exception {
+  /// Message associated with the Exception.
+  final String message;
+
+  /// Public constructor.
+  CsrValidationException(this.message);
+
+  @override
+  String toString() => message;
+}
+
 /// Definitions for various register field access patterns.
 enum CsrFieldAccess {
   /// Register field is read only.
@@ -85,6 +97,17 @@ class CsrFieldConfig {
   /// This is a default implementation that simply takes the first
   /// legal value but can be overridden in a derived class.
   int transformIllegalValue() => legalValues[0];
+
+  /// Method to validate the configuration of a single field.
+  void validate() {
+    // there must be at least 1 legal value for a READ_WRITE_LEGAL field
+    if (access == CsrFieldAccess.READ_WRITE_LEGAL) {
+      if (legalValues.isEmpty) {
+        throw CsrValidationException(
+            'Field $name has no legal values but has access READ_WRITE_LEGAL.');
+      }
+    }
+  }
 }
 
 /// Configuration for an architectural register.
@@ -142,6 +165,46 @@ class CsrConfig {
   /// within the register by name [nm].
   CsrFieldConfig getFieldByName(String nm) =>
       fields.firstWhere((element) => element.name == nm);
+
+  /// Method to validate the configuration of a single register.
+  ///
+  /// Must check that its fields are mutually valid.
+  void validate() {
+    final ranges = <List<int>>[];
+    final issues = <String>[];
+    for (final field in fields) {
+      // check the field on its own for issues
+      try {
+        field.validate();
+      } on Exception catch (e) {
+        issues.add(e.toString());
+      }
+
+      // check to ensure that the field doesn't overlap with any other field
+      // overlap can occur on name or on bit placement
+      for (var i = 0; i < ranges.length; i++) {
+        // check against all other names
+        if (field.name == fields[i].name) {
+          issues.add('Field ${field.name} is duplicated.');
+        }
+        // check field start to see if it falls within another field
+        else if (field.start >= ranges[i][0] && field.start <= ranges[i][1]) {
+          issues.add(
+              'Field ${field.name} overlaps with field ${fields[i].name}.');
+        }
+        // check field end to see if it falls within another field
+        else if (field.start + field.width - 1 >= ranges[i][0] &&
+            field.start + field.width - 1 <= ranges[i][1]) {
+          issues.add(
+              'Field ${field.name} overlaps with field ${fields[i].name}.');
+        }
+      }
+      ranges.add([field.start, field.start + field.width - 1]);
+    }
+    if (issues.isNotEmpty) {
+      throw CsrValidationException(issues.join('\n'));
+    }
+  }
 }
 
 /// Configuration for a register instance.
@@ -224,6 +287,27 @@ class CsrInstanceConfig {
   /// Accessor to the config of a particular field
   /// within the register by name [nm].
   CsrFieldConfig getFieldByName(String nm) => arch.getFieldByName(nm);
+
+  /// Method to validate the configuration of a single register.
+  ///
+  /// Must check that its fields are mutually valid.
+  void validate() {
+    // start by running architectural register validation
+    arch.validate();
+
+    // check that the field widths don't exceed the register width
+    var impliedEnd = 0;
+    for (final field in fields) {
+      final currEnd = field.start + field.width - 1;
+      if (currEnd > impliedEnd) {
+        impliedEnd = currEnd;
+      }
+    }
+    if (impliedEnd > width - 1) {
+      throw CsrValidationException(
+          'Register width implied by its fields exceeds true register width.');
+    }
+  }
 }
 
 /// Definition for a coherent block of registers.
@@ -257,6 +341,49 @@ class CsrBlockConfig {
   /// within the block by relative address [addr].
   CsrInstanceConfig getRegisterByAddr(int addr) =>
       registers.firstWhere((element) => element.addr == addr);
+
+  /// Method to validate the configuration of a single register block.
+  ///
+  /// Must check that its registers are mutually valid.
+  /// Note that this method does not call the validate method of
+  /// the individual registers in the block. It is assumed that
+  /// register validation is called separately (i.e., in Csr HW construction).
+  void validate() {
+    // at least 1 register
+    if (registers.isEmpty) {
+      throw CsrValidationException('Block $name has no registers.');
+    }
+
+    // no two registers with the same name
+    // no two registers with the same address
+    final issues = <String>[];
+    for (var i = 0; i < registers.length; i++) {
+      for (var j = i + 1; j < registers.length; j++) {
+        if (registers[i].name == registers[j].name) {
+          issues.add('Register ${registers[i].name} is duplicated.');
+        }
+        if (registers[i].addr == registers[j].addr) {
+          issues.add('Register ${registers[i].name} has a duplicate address.');
+        }
+      }
+    }
+    if (issues.isNotEmpty) {
+      throw CsrValidationException(issues.join('\n'));
+    }
+  }
+
+  /// Method to determine the minimum number of address bits
+  /// needed to address all registers in the block. This is
+  /// based on the maximum register address offset.
+  int minAddrBits() {
+    var maxAddr = 0;
+    for (final reg in registers) {
+      if (reg.addr > maxAddr) {
+        maxAddr = reg.addr;
+      }
+    }
+    return maxAddr.bitLength;
+  }
 }
 
 /// Definition for a top level module containing CSR blocks.
@@ -291,4 +418,56 @@ class CsrTopConfig {
   /// within the module by relative address [addr].
   CsrBlockConfig getBlockByAddr(int addr) =>
       blocks.firstWhere((element) => element.baseAddr == addr);
+
+  /// Method to validate the configuration of register top module.
+  ///
+  /// Must check that its blocks are mutually valid.
+  /// Note that this method does not call the validate method of
+  /// the individual blocks. It is assumed that
+  /// block validation is called separately (i.e., in CsrBlock HW construction).
+  void validate() {
+    // at least 1 block
+    if (blocks.isEmpty) {
+      throw CsrValidationException(
+          'Csr top module $name has no register blocks.');
+    }
+
+    // no two blocks with the same name
+    // no two blocks with the same base address
+    // no two blocks with base addresses that are too close together
+    // also compute the max min address bits across the blocks
+    final issues = <String>[];
+    var maxMinAddrBits = 0;
+    for (var i = 0; i < blocks.length; i++) {
+      final currMaxMin = blocks[i].minAddrBits();
+      if (currMaxMin > maxMinAddrBits) {
+        maxMinAddrBits = currMaxMin;
+      }
+
+      for (var j = i + 1; j < blocks.length; j++) {
+        if (blocks[i].name == blocks[j].name) {
+          issues.add('Register block ${blocks[i].name} is duplicated.');
+        }
+
+        if (blocks[i].baseAddr == blocks[j].baseAddr) {
+          issues.add(
+              'Register block ${blocks[i].name} has a duplicate base address.');
+        } else if ((blocks[i].baseAddr - blocks[j].baseAddr).abs().bitLength <
+            blockOffsetWidth) {
+          issues.add(
+              'Register blocks ${blocks[i].name} and ${blocks[j].name} are too close together per the block offset width.');
+        }
+      }
+    }
+    if (issues.isNotEmpty) {
+      throw CsrValidationException(issues.join('\n'));
+    }
+
+    // is the block offset width big enough to address
+    // every register in every block
+    if (blockOffsetWidth < maxMinAddrBits) {
+      throw CsrValidationException(
+          'Block offset width is too small to address all register in all blocks in the module. The minimum offset width is $maxMinAddrBits.');
+    }
+  }
 }

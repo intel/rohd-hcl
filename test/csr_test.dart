@@ -104,7 +104,7 @@ class MyCsrModule extends CsrTopConfig {
   MyCsrModule({
     this.numBlocks = 1,
     super.name = 'myCsrModule',
-    super.blockOffsetWidth = 16,
+    super.blockOffsetWidth = 8,
   }) {
     // example of dynamic block instantiation
     const baseAddr = 0x0;
@@ -422,5 +422,102 @@ void main() {
     final mod =
         DummyCsrTopModule(clk: Logic(), reset: Logic(), config: csrTopCfg);
     await mod.build();
+  });
+
+  test('CSR validation failures', () async {
+    // illegal individual field
+    final badFieldCfg = CsrFieldConfig(
+        start: 0,
+        width: 1,
+        name: 'badFieldCfg',
+        access: CsrFieldAccess.READ_WRITE_LEGAL);
+    expect(badFieldCfg.validate,
+        throwsA(predicate((f) => f is CsrValidationException)));
+
+    // illegal architectural register
+    final badArchRegCfg =
+        CsrConfig(access: CsrAccess.READ_WRITE, name: 'badArchRegCfg')
+          ..fields.add(CsrFieldConfig(
+              start: 0,
+              width: 8,
+              name: 'field',
+              access: CsrFieldAccess.READ_WRITE))
+          ..fields.add(CsrFieldConfig(
+              start: 3,
+              width: 4,
+              name: 'field',
+              access: CsrFieldAccess.READ_WRITE))
+          ..fields.add(CsrFieldConfig(
+              start: 3,
+              width: 10,
+              name: 'field1',
+              access: CsrFieldAccess.READ_WRITE))
+          ..fields.add(CsrFieldConfig(
+              start: 9,
+              width: 11,
+              name: 'field2',
+              access: CsrFieldAccess.READ_WRITE));
+    expect(badArchRegCfg.validate,
+        throwsA(predicate((f) => f is CsrValidationException)));
+
+    // illegal register instance
+    final badRegInstCfg = CsrInstanceConfig(
+        arch: CsrConfig(access: CsrAccess.READ_WRITE, name: 'reg')
+          ..fields.add(CsrFieldConfig(
+              start: 0,
+              width: 32,
+              name: 'field',
+              access: CsrFieldAccess.READ_WRITE)),
+        addr: 0x0,
+        width: 4);
+    expect(badRegInstCfg.validate,
+        throwsA(predicate((f) => f is CsrValidationException)));
+  });
+
+  test('CSR block and top validation failures', () async {
+    // illegal block - empty
+    final badBlockCfg1 = CsrBlockConfig(name: 'block', baseAddr: 0x0);
+    expect(badBlockCfg1.validate,
+        throwsA(predicate((f) => f is CsrValidationException)));
+
+    // illegal block - duplication
+    final badBlockCfg2 = CsrBlockConfig(name: 'block', baseAddr: 0x0)
+      ..registers.add(CsrInstanceConfig(
+          arch: CsrConfig(access: CsrAccess.READ_WRITE, name: 'reg'),
+          addr: 0x0,
+          width: 4))
+      ..registers.add(CsrInstanceConfig(
+          arch: CsrConfig(access: CsrAccess.READ_WRITE, name: 'reg'),
+          addr: 0x1,
+          width: 4))
+      ..registers.add(CsrInstanceConfig(
+          arch: CsrConfig(access: CsrAccess.READ_WRITE, name: 'reg1'),
+          addr: 0x1,
+          width: 4));
+    expect(badBlockCfg2.validate,
+        throwsA(predicate((f) => f is CsrValidationException)));
+
+    // illegal top - empty
+    final badTopCfg1 = CsrTopConfig(name: 'top', blockOffsetWidth: 8);
+    expect(badTopCfg1.validate,
+        throwsA(predicate((f) => f is CsrValidationException)));
+
+    // illegal top - duplication and closeness
+    final badTopCfg2 = CsrTopConfig(name: 'top', blockOffsetWidth: 8)
+      ..blocks.add(CsrBlockConfig(name: 'block', baseAddr: 0x0))
+      ..blocks.add(CsrBlockConfig(name: 'block', baseAddr: 0x1))
+      ..blocks.add(CsrBlockConfig(name: 'block1', baseAddr: 0x1));
+    expect(badTopCfg2.validate,
+        throwsA(predicate((f) => f is CsrValidationException)));
+
+    // illegal top - bad block offset width
+    final badTopCfg3 = CsrTopConfig(name: 'top', blockOffsetWidth: 1)
+      ..blocks.add(CsrBlockConfig(name: 'block', baseAddr: 0x0)
+        ..registers.add(CsrInstanceConfig(
+            arch: CsrConfig(access: CsrAccess.READ_WRITE, name: 'reg'),
+            addr: 0x4,
+            width: 4)));
+    expect(badTopCfg3.validate,
+        throwsA(predicate((f) => f is CsrValidationException)));
   });
 }

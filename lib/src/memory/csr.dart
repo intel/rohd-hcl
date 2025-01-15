@@ -121,7 +121,9 @@ class Csr extends LogicStructure {
     required this.config,
     required this.rsvdIndices,
     required List<Logic> fields,
-  }) : super(fields, name: config.name);
+  }) : super(fields, name: config.name) {
+    config.validate();
+  }
 
   /// Factory constructor for [Csr].
   ///
@@ -299,6 +301,8 @@ class CsrBlock extends Module {
     required DataPortInterface fdw,
     required DataPortInterface fdr,
   }) : super(name: config.name) {
+    config.validate();
+
     _clk = addInput('${name}_clk', clk);
     _reset = addInput('${name}_reset', reset);
 
@@ -461,10 +465,6 @@ class CsrBlock extends Module {
 /// MSBs of the incoming address and registers within the given block
 /// are addressable using the remaining LSBs of the incoming address.
 class CsrTop extends Module {
-  /// width of the LSBs of the address
-  /// to ignore when mapping to blocks
-  final int blockOffsetWidth;
-
   /// Configuration for the CSR Top module.
   final CsrTopConfig config;
 
@@ -495,6 +495,9 @@ class CsrTop extends Module {
   final List<List<CsrBackdoorInterface>> backdoorInterfaces = [];
   final List<List<CsrBackdoorInterface>> _backdoorInterfaces = [];
   final List<Map<int, int>> _backdoorIndexMaps = [];
+
+  /// Getter for the block offset width.
+  int get blockOffsetWidth => config.blockOffsetWidth;
 
   /// Getter for the block configurations of the CSR.
   List<CsrBlockConfig> get blocks => config.blocks;
@@ -536,12 +539,13 @@ class CsrTop extends Module {
 
   CsrTop._({
     required this.config,
-    required this.blockOffsetWidth, // TODO: make this part of the config??
     required Logic clk,
     required Logic reset,
     required DataPortInterface fdw,
     required DataPortInterface fdr,
   }) : super(name: config.name) {
+    config.validate();
+
     _clk = addInput('${name}_clk', clk);
     _reset = addInput('${name}_reset', reset);
 
@@ -596,7 +600,6 @@ class CsrTop extends Module {
   ) =>
       CsrTop._(
         config: config,
-        blockOffsetWidth: config.blockOffsetWidth,
         clk: clk,
         reset: reset,
         fdw: fdw,
