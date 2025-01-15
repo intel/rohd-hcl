@@ -92,7 +92,6 @@ abstract class PartialProductSignExtension {
   /// Sign Extension class that operates on a [PartialProductGeneratorBase]
   /// and sign-extends the entries.
   PartialProductSignExtension(this.ppg, {this.name = 'no_sign_extension'}) {
-    //
     if (signedMultiplier && (selectSignedMultiplier != null)) {
       throw RohdHclException('sign reconfiguration requires signed=false');
     }
@@ -145,11 +144,11 @@ SignExtensionFunction currySignExtensionFunction(SignExtension signExtension) =>
       SignExtension.compactRect => CompactRectSignExtension.new,
     };
 
-/// These other sign extensions are for assisting with testing and debugging.
-/// More robust and simpler sign extensions in case
-/// complex sign extension routines obscure other bugs.
-///
-/// /// A Partial Product Generator using None Sign Extension
+/// A range of SignExtension classes to be used in building new arithmetic
+/// building blocks.  Start with [BruteSignExtension] when composing new
+/// partial product array shapes as it should work in all situations.
+
+/// A Partial Product Generator using None Sign Extension
 class NoneSignExtension extends PartialProductSignExtension {
   /// Construct a no sign-extension class.
   NoneSignExtension(super.ppg, {super.name = 'none_sign_extension'});
@@ -166,31 +165,6 @@ class PartialProductGeneratorBasic extends PartialProductGeneratorBase {
 
   /// Construct a none sign extending Partial Product Generator
   PartialProductGeneratorBasic(
-      super.multiplicand, super.multiplier, super.radixEncoder,
-      {super.signedMultiplicand,
-      super.signedMultiplier,
-      super.selectSignedMultiplicand,
-      super.selectSignedMultiplier,
-      super.name = 'none'}) {
-    extender = NoneSignExtension(this);
-    signExtend();
-  }
-
-  @override
-  void signExtend() {
-    extender.signExtend();
-  }
-}
-
-/// A wrapper class for [NoneSignExtension] we used
-/// during refactoring to be compatible with old calls.
-class PartialProductGeneratorNoneSignExtension
-    extends PartialProductGeneratorBase {
-  /// The extension routine we will be using.
-  late final PartialProductSignExtension extender;
-
-  /// Construct a none sign extending Partial Product Generator
-  PartialProductGeneratorNoneSignExtension(
       super.multiplicand, super.multiplier, super.radixEncoder,
       {super.signedMultiplicand,
       super.signedMultiplier,
