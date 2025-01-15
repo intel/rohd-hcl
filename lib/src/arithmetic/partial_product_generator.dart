@@ -263,8 +263,8 @@ abstract class PartialProductGenerator extends PartialProductArray {
     for (var row = 0; row < encoder.rows; row++) {
       partialProducts.add(List.generate(
           selector.width,
-          (i) => Logic(name: 'pp_r${row}_c$i')
-            ..gets(selector.select(i, encoder.getEncoding(row)))));
+          (i) => nameLogic(
+              'pp_r${row}_c$i', selector.select(i, encoder.getEncoding(row)))));
     }
     for (var row = 0; row < rows; row++) {
       rowShift.add(row * shift);

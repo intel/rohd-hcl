@@ -95,3 +95,8 @@ Logic condFlop(
               reset: reset,
               resetValue: resetValue,
               asyncReset: asyncReset)));
+
+/// Wrapper for constructing a new Logic with a name to bind to a Logic
+/// operation.
+Logic nameLogic(String name, Logic logic, {Naming? naming}) =>
+    Logic(name: name, width: logic.width, naming: naming)..gets(logic);

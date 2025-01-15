@@ -37,14 +37,14 @@ class FloatingPointAdderSimple extends FloatingPointAdder {
 
     final (larger, smaller) = sortFp((super.a, super.b));
 
-    final isInf = Logic(name: 'isInf')
-      ..gets(larger.isInfinity | smaller.isInfinity);
-    final isNaN = Logic(name: 'isNaN')
-      ..gets(larger.isNaN |
-          smaller.isNaN |
-          (larger.isInfinity &
-              smaller.isInfinity &
-              (larger.sign ^ smaller.sign)));
+    final isInf = nameLogic('isInf', larger.isInfinity | smaller.isInfinity);
+    final isNaN = nameLogic(
+        'isNaN',
+        larger.isNaN |
+            smaller.isNaN |
+            (larger.isInfinity &
+                smaller.isInfinity &
+                (larger.sign ^ smaller.sign)));
 
     // Align and add mantissas
     final expDiff = larger.exponent - smaller.exponent;
@@ -62,7 +62,7 @@ class FloatingPointAdderSimple extends FloatingPointAdder {
     final adder = SignMagnitudeAdder(
         larger.sign, aMantissa, smaller.sign, bMantissa >>> expDiff, adderGen);
 
-    final intSum = adder.sum.slice(adder.sum.width - 1, 0);
+    final intSum = nameLogic('intsum', adder.sum.slice(adder.sum.width - 1, 0));
 
     final aSignLatched = localFlop(larger.sign);
     final aExpLatched = localFlop(larger.exponent);
@@ -70,24 +70,37 @@ class FloatingPointAdderSimple extends FloatingPointAdder {
     final isInfLatched = localFlop(isInf);
     final isNaNLatched = localFlop(isNaN);
 
-    final mantissa =
-        sumLatched.reversed.getRange(0, min(intSum.width, intSum.width));
-    final leadOneValid = Logic();
+    final mantissa = nameLogic('mantissa',
+        sumLatched.reversed.getRange(0, min(intSum.width, intSum.width)));
+    final leadOneValid = Logic(name: 'leadone_valid');
     final leadOnePre = ParallelPrefixPriorityEncoder(mantissa,
             ppGen: ppTree, valid: leadOneValid)
         .out;
     // Limit leadOne to exponent range and match widths
     final infExponent = outputSum.inf(sign: aSignLatched).exponent;
-    final leadOne = (leadOnePre.width > exponentWidth)
-        ? mux(leadOnePre.gte(infExponent.zeroExtend(leadOnePre.width)),
-            infExponent, leadOnePre.getRange(0, exponentWidth))
-        : leadOnePre.zeroExtend(exponentWidth);
+    final leadOne = nameLogic(
+        'leadone',
+        (leadOnePre.width > exponentWidth)
+            ? mux(leadOnePre.gte(infExponent.zeroExtend(leadOnePre.width)),
+                infExponent, leadOnePre.getRange(0, exponentWidth))
+            : leadOnePre.zeroExtend(exponentWidth));
 
-    final leadOneDominates = leadOne.gt(aExpLatched) | ~leadOneValid;
-    final outExp =
-        mux(leadOneDominates, larger.zeroExponent, aExpLatched - leadOne + 1);
+    final leadOneDominates =
+        nameLogic('leadone_dominates', leadOne.gt(aExpLatched) | ~leadOneValid);
+    final outExp = nameLogic('outexponent',
+        mux(leadOneDominates, larger.zeroExponent, aExpLatched - leadOne + 1));
 
-    final realIsInf = isInfLatched | outExp.eq(infExponent);
+    final realIsInf =
+        nameLogic('realisinf', isInfLatched | outExp.eq(infExponent));
+
+    final shiftMantissabyExp = nameLogic(
+        'shiftmantissa_exp',
+        (sumLatched << aExpLatched + 1)
+            .getRange(intSum.width - mantissaWidth, intSum.width));
+    final shiftMantissabyLeadOne = nameLogic(
+        'shiftmantissa_leadone',
+        (sumLatched << leadOne + 1)
+            .getRange(intSum.width - mantissaWidth, intSum.width));
 
     Combinational([
       If.block([
@@ -95,25 +108,17 @@ class FloatingPointAdderSimple extends FloatingPointAdder {
           outputSum < outputSum.nan,
         ]),
         ElseIf(realIsInf, [
-          // ROHD 0.6.0 trace error if we use the following
           outputSum < outputSum.inf(sign: aSignLatched),
-          // outputSum.sign < aSignLatched,
-          // outputSum.exponent < infExponent,
-          // outputSum.mantissa < Const(0, width: mantissaWidth, fill: true),
         ]),
         ElseIf(leadOneDominates, [
           outputSum.sign < aSignLatched,
           outputSum.exponent < larger.zeroExponent,
-          outputSum.mantissa <
-              (sumLatched << aExpLatched + 1)
-                  .getRange(intSum.width - mantissaWidth, intSum.width),
+          outputSum.mantissa < shiftMantissabyExp,
         ]),
         Else([
           outputSum.sign < aSignLatched,
           outputSum.exponent < aExpLatched - leadOne + 1,
-          outputSum.mantissa <
-              (sumLatched << leadOne + 1)
-                  .getRange(intSum.width - mantissaWidth, intSum.width),
+          outputSum.mantissa < shiftMantissabyLeadOne,
         ])
       ])
     ]);

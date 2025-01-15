@@ -53,8 +53,8 @@ class OnesComplementAdder extends Adder {
           " configuration, or a boolean parameter 'subtract' for "
           'generation time configuration, but not both.');
     }
-    final doSubtract = Logic(name: 'dosubtract')
-      ..gets(subtractIn ?? (subtract != null ? Const(subtract) : Const(0)));
+    final doSubtract = nameLogic('dosubtract',
+        subtractIn ?? (subtract != null ? Const(subtract) : Const(0)));
 
     final adder =
         adderGen(a, mux(doSubtract, ~b, b), carryIn: carryIn ?? Const(0));
@@ -62,13 +62,11 @@ class OnesComplementAdder extends Adder {
     if (this.carryOut != null) {
       this.carryOut! <= adder.sum[-1];
     }
-    final endAround = Logic(name: 'endaround')..gets(adder.sum[-1]);
-    final magnitude = Logic(name: 'magnitude', width: a.width)
-      ..gets(adder.sum.slice(a.width - 1, 0));
+    final endAround = nameLogic('endaround', adder.sum[-1]);
+    final magnitude = nameLogic('magnitude', adder.sum.slice(a.width - 1, 0));
 
     final incrementer = ParallelPrefixIncr(magnitude);
-    final magnitudep1 = Logic(name: 'magnitude_p1', width: magnitude.width)
-      ..gets(incrementer.out);
+    final magnitudep1 = nameLogic('magnitude_p1', incrementer.out);
 
     sum <=
         mux(

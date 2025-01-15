@@ -62,21 +62,9 @@ abstract class FloatingPointAdder extends Module {
         b.mantissa.width != mantissaWidth) {
       throw RohdHclException('FloatingPoint widths must match');
     }
-    if (clk != null) {
-      this.clk = addInput('clk', clk);
-    } else {
-      this.clk = clk;
-    }
-    if (reset != null) {
-      this.reset = addInput('reset', reset);
-    } else {
-      this.reset = reset;
-    }
-    if (enable != null) {
-      this.enable = addInput('enable', enable);
-    } else {
-      this.enable = enable;
-    }
+    this.clk = (clk != null) ? addInput('clk', clk) : null;
+    this.reset = (reset != null) ? addInput('reset', reset) : null;
+    this.enable = (enable != null) ? addInput('enable', enable) : null;
     this.a = a.clone(name: 'a')..gets(addInput('a', a, width: a.width));
     this.b = b.clone(name: 'b')..gets(addInput('b', b, width: b.width));
     addOutput('sum', width: exponentWidth + mantissaWidth + 1);
@@ -86,15 +74,11 @@ abstract class FloatingPointAdder extends Module {
   @protected
   (FloatingPoint, FloatingPoint) swap(
       Logic swap, (FloatingPoint, FloatingPoint) toSwap) {
-    final in1 = Logic(name: 'swap_in_${toSwap.$1.name}', width: a.width)
-      ..gets(toSwap.$1);
-    final in2 = Logic(name: 'swap_in_${toSwap.$2.name}', width: a.width)
-      ..gets(toSwap.$2);
+    final in1 = nameLogic('swap_in_${toSwap.$1.name}', toSwap.$1);
+    final in2 = nameLogic('swap_in_${toSwap.$2.name}', toSwap.$2);
 
-    final out1 = Logic(name: 'swap_out_larger', width: a.width)
-      ..gets(mux(swap, in2, in1));
-    final out2 = Logic(name: 'swap_out_smaller', width: a.width)
-      ..gets(mux(swap, in1, in2));
+    final out1 = nameLogic('swap_out_larger', mux(swap, in2, in1));
+    final out2 = nameLogic('swap_out_smaller', mux(swap, in1, in2));
     final first = a.clone(name: 'larger')..gets(out1);
     final second = a.clone(name: 'smaller')..gets(out2);
     return (first, second);
@@ -108,10 +92,11 @@ abstract class FloatingPointAdder extends Module {
     final be = toSort.$2.exponent;
     final am = toSort.$1.mantissa;
     final bm = toSort.$2.mantissa;
-    final doSwap = Logic(name: 'doSwap')
-      ..gets(ae.lt(be) |
-          (ae.eq(be) & am.lt(bm)) |
-          ((ae.eq(be) & am.eq(bm)) & toSort.$1.sign));
+    final doSwap = nameLogic(
+        'doSwap',
+        ae.lt(be) |
+            (ae.eq(be) & am.lt(bm)) |
+            ((ae.eq(be) & am.eq(bm)) & toSort.$1.sign));
 
     final swapped = swap(doSwap, toSort);
 

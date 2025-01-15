@@ -103,14 +103,13 @@ class KoggeStone extends ParallelPrefix {
 
     while (skip < inps.length) {
       for (var i = inps.length - 1; i >= skip; --i) {
-        iseq[i] = Logic(name: 'ks$i', width: iseq[i].width)
-          ..gets(op(iseq[i - skip], iseq[i]));
+        iseq[i] = nameLogic('ks$i', op(iseq[i - skip], iseq[i]));
       }
       skip *= 2;
     }
 
     iseq.forEachIndexed((i, el) {
-      _oseq[i] <= (Logic(name: 'o', width: el.width)..gets(el));
+      _oseq[i] <= (nameLogic('o', el));
     });
   }
 }
@@ -131,8 +130,7 @@ class BrentKung extends ParallelPrefix {
     var skip = 2;
     while (skip <= inps.length) {
       for (var i = skip - 1; i < inps.length; i += skip) {
-        iseq[i] = Logic(name: 'reduce$i', width: iseq[i].width)
-          ..gets(op(iseq[i - skip ~/ 2], iseq[i]));
+        iseq[i] = nameLogic('reduce$i', op(iseq[i - skip ~/ 2], iseq[i]));
       }
       skip *= 2;
     }
@@ -141,20 +139,18 @@ class BrentKung extends ParallelPrefix {
     skip = largestPow2LessThan(inps.length);
     while (skip > 2) {
       for (var i = 3 * (skip ~/ 2) - 1; i < inps.length; i += skip) {
-        iseq[i] = Logic(name: 'prefix$i', width: iseq[i].width)
-          ..gets(op(iseq[i - skip ~/ 2], iseq[i]));
+        iseq[i] = nameLogic('prefix$i', op(iseq[i - skip ~/ 2], iseq[i]));
       }
       skip ~/= 2;
     }
 
     // Final row
     for (var i = 2; i < inps.length; i += 2) {
-      iseq[i] = Logic(name: 'final$i', width: iseq[i].width)
-        ..gets(op(iseq[i - 1], iseq[i]));
+      iseq[i] = nameLogic('final$i', op(iseq[i - 1], iseq[i]));
     }
 
     iseq.forEachIndexed((i, el) {
-      _oseq[i] <= (Logic(name: 'o', width: el.width)..gets(el));
+      _oseq[i] <= (nameLogic('o', el));
     });
   }
 }
@@ -227,8 +223,7 @@ class ParallelPrefixPriorityEncoder extends Module {
       valid <= this.valid!;
     }
     final u = ParallelPrefixPriorityFinder(inp, ppGen: ppGen);
-    final pos = Logic(name: 'pos', width: sz)
-      ..gets(OneHotToBinary(u.out).binary.zeroExtend(sz));
+    final pos = nameLogic('pos', OneHotToBinary(u.out).binary.zeroExtend(sz));
     if (this.valid != null) {
       this.valid! <= pos.or() | inp[0];
     }
@@ -251,24 +246,24 @@ class ParallelPrefixAdder extends Adder {
     // ignore: cascade_invocations
     l.insert(
         0,
-        Logic(name: 'pg', width: 2)
-          ..gets([
-            (a[0] & b[0]) | (a[0] & cin) | (b[0] & cin),
-            a[0] | b[0] | cin
-          ].swizzle()));
+        nameLogic(
+            'pg',
+            [(a[0] & b[0]) | (a[0] & cin) | (b[0] & cin), a[0] | b[0] | cin]
+                .swizzle()));
     final u = ppGen(
         l,
-        (lhs, rhs) => Logic(name: 'pg', width: 2)
-          ..gets([rhs[1] | rhs[0] & lhs[1], rhs[0] & lhs[0]].swizzle()));
+        (lhs, rhs) => nameLogic(
+            'pg', [rhs[1] | rhs[0] & lhs[1], rhs[0] & lhs[0]].swizzle()));
     sum <=
         [
           u.val[a.width - 1][1],
           List<Logic>.generate(
               a.width,
-              (i) => Logic(name: 't$i')
-                ..gets((i == 0)
-                    ? a[i] ^ b[i] ^ cin
-                    : a[i] ^ b[i] ^ u.val[i - 1][1])).rswizzle()
+              (i) => nameLogic(
+                  't$i',
+                  (i == 0)
+                      ? a[i] ^ b[i] ^ cin
+                      : a[i] ^ b[i] ^ u.val[i - 1][1])).rswizzle()
         ].swizzle();
   }
 }
@@ -289,8 +284,8 @@ class ParallelPrefixIncr extends Module {
     addOutput('out', width: inp.width) <=
         (List<Logic>.generate(
             inp.width,
-            (i) => Logic(name: 'o$i')
-              ..gets((i == 0) ? ~inp[i] : inp[i] ^ u.val[i - 1])).rswizzle());
+            (i) => nameLogic(
+                'o$i', (i == 0) ? ~inp[i] : inp[i] ^ u.val[i - 1])).rswizzle());
   }
 }
 
@@ -310,7 +305,7 @@ class ParallelPrefixDecr extends Module {
     addOutput('out', width: inp.width) <=
         (List<Logic>.generate(
             inp.width,
-            (i) => Logic(name: 'o$i')
-              ..gets((i == 0) ? ~inp[i] : inp[i] ^ u.val[i - 1])).rswizzle());
+            (i) => nameLogic(
+                'o$i', (i == 0) ? ~inp[i] : inp[i] ^ u.val[i - 1])).rswizzle());
   }
 }
