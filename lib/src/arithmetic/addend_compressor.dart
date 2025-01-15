@@ -271,9 +271,7 @@ class ColumnCompressor {
   ColumnCompressor(this.pp,
       {this.use42Compressors = false, this.clk, this.reset, this.enable}) {
     columns = List.generate(pp.maxWidth(), (i) => ColumnQueue());
-    // if (use42Compressors) {
     carryColumns = List.generate(pp.maxWidth(), (i) => ColumnQueue());
-    // }
     for (var row = 0; row < pp.rows; row++) {
       for (var col = 0; col < pp.partialProducts[row].length; col++) {
         final trueColumn = pp.rowShift[row] + col;
@@ -305,7 +303,6 @@ class ColumnCompressor {
         rowBits.add(Const(0));
       }
     }
-    // rowBits.addAll(List.filled(pp.rowShift[row], Const(0)));
     if (width > rowBits.length) {
       return rowBits.swizzle().zeroExtend(width);
     }
