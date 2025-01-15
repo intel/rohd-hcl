@@ -58,7 +58,7 @@
     
       <section class="multi-line-signature">
         
-        <a href="https://api.dart.dev/stable/3.6.0/dart-core/Map-class.html">Map</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.dart.dev/stable/3.6.0/dart-core/Type-class.html">Type</a></span>, <span class="type-parameter"><a href="../../rohd_hcl/ParallelPrefix-class.html">ParallelPrefix</a> Function<span class="signature">(<span class="parameter" id="param-"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.6.0/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://pub.dev/documentation/rohd/0.6.0/rohd/Logic-class.html">Logic</a></span>&gt;</span></span>, </span><span class="parameter" id="param-"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.0/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name"></span>(<span class="parameter" id="param-"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.0/rohd/Logic-class.html">Logic</a></span>, </span><span class="parameter" id="param-"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.0/rohd/Logic-class.html">Logic</a></span></span>)</span>)</span></span>&gt;</span>
+        <a href="https://api.dart.dev/stable/3.6.1/dart-core/Map-class.html">Map</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.dart.dev/stable/3.6.1/dart-core/Type-class.html">Type</a></span>, <span class="type-parameter"><a href="../../rohd_hcl/ParallelPrefix-class.html">ParallelPrefix</a> Function<span class="signature">(<span class="parameter" id="param-inps"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.6.1/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://pub.dev/documentation/rohd/0.6.0/rohd/Logic-class.html">Logic</a></span>&gt;</span></span> <span class="parameter-name">inps</span>, </span><span class="parameter" id="param-op"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.0/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">op</span>(<span class="parameter" id="param-term1"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.0/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">term1</span>, </span><span class="parameter" id="param-term2"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.0/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">term2</span></span>)</span>)</span></span>&gt;</span>
         <span class="name ">generatorMap</span>
         <div class="features"><span class="feature">getter/setter pair</span></div>
 
@@ -71,8 +71,10 @@
       
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
-  <pre class="language-dart"><code class="language-dart">static Map&lt;Type,
-        ParallelPrefix Function(List&lt;Logic&gt;, Logic Function(Logic, Logic))&gt;
+  <pre class="language-dart"><code class="language-dart">static Map&lt;
+        Type,
+        ParallelPrefix Function(
+            List&lt;Logic&gt; inps, Logic Function(Logic term1, Logic term2) op)&gt;
     generatorMap = {
   Ripple: Ripple.new,
   Sklansky: Sklansky.new,

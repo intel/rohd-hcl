@@ -4,8 +4,8 @@
   <meta charset="utf-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
-  <meta name="description" content="API docs for the zeroExponent method from the FloatingPoint class, for the Dart programming language.">
-  <title>zeroExponent method - FloatingPoint class - rohd_hcl library - Dart API</title>
+  <meta name="description" content="API docs for the zeroExponent property from the FloatingPoint class, for the Dart programming language.">
+  <title>zeroExponent property - FloatingPoint class - rohd_hcl library - Dart API</title>
 
 
   
@@ -27,7 +27,7 @@
     <li><a href="../../index.html">rohd_hcl</a></li>
     <li><a href="../../rohd_hcl/rohd_hcl-library.html">rohd_hcl.dart</a></li>
     <li><a href="../../rohd_hcl/FloatingPoint-class.html">FloatingPoint</a></li>
-    <li class="self-crumb">zeroExponent method</li>
+    <li class="self-crumb">zeroExponent property</li>
   </ol>
   <div class="self-name">zeroExponent</div>
   <form class="search navbar-right" role="search">
@@ -52,33 +52,35 @@
     data-above-sidebar="rohd_hcl&#47;FloatingPoint-class-sidebar.html"
     data-below-sidebar="">
     <div>
-<h1><span class="kind-method">zeroExponent</span> method 
+<h1><span class="kind-property">zeroExponent</span> property 
 </h1></div>
 
-    <section class="multi-line-signature">
-      
-<span class="returntype"><a href="https://pub.dev/documentation/rohd/0.6.0/rohd/Logic-class.html">Logic</a></span>
-<span class="name ">zeroExponent</span>(<wbr>)
-
-      
-
-    </section>
     
+      <section class="multi-line-signature">
+        
+        <a href="https://pub.dev/documentation/rohd/0.6.0/rohd/Logic-class.html">Logic</a>
+        <span class="name ">zeroExponent</span>
+        <div class="features"><span class="feature">late</span><span class="feature">final</span></div>
+
+      </section>
+      
 <section class="desc markdown">
   <p>Return the zero exponent representation for this type of FloatingPoint</p>
 </section>
 
-
-    
+      
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
-  <pre class="language-dart"><code class="language-dart">Logic zeroExponent() =&gt; Const(LogicValue.zero).zeroExtend(exponent.width);</code></pre>
+  <pre class="language-dart"><code class="language-dart">late final zeroExponent = Logic(
+    name: &#39;zeroExponent&#39;, naming: Naming.mergeable, width: exponent.width)
+  ..gets(Const(LogicValue.zero, width: exponent.width));</code></pre>
 </section>
 
 
-  </div> <!-- /.main-content -->
-  <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
-    <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
+    
+</div> <!-- /.main-content -->
+<div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+  <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
 <header id="header-search-sidebar" class="hidden-l">
   <form class="search-sidebar" role="search">
     <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
@@ -88,13 +90,13 @@
     <li><a href="../../index.html">rohd_hcl</a></li>
     <li><a href="../../rohd_hcl/rohd_hcl-library.html">rohd_hcl</a></li>
     <li><a href="../../rohd_hcl/FloatingPoint-class.html">FloatingPoint</a></li>
-    <li class="self-crumb">zeroExponent method</li>
+    <li class="self-crumb">zeroExponent property</li>
 </ol>
 
-    <h5>FloatingPoint class</h5>
-    <div id="dartdoc-sidebar-left-content"></div>
-  </div><!--/.sidebar-offcanvas-->
-  <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+  <h5>FloatingPoint class</h5>
+  <div id="dartdoc-sidebar-left-content"></div>
+</div><!--/.sidebar-offcanvas-->
+<div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
 </div><!--/.sidebar-offcanvas-->
 </main>
 <footer>

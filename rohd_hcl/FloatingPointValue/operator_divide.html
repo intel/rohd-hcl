@@ -73,8 +73,20 @@
     
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
-  <pre class="language-dart"><code class="language-dart">FloatingPointValue operator &#47;(FloatingPointValue divisor) =&gt;
-    _performOp(divisor, (a, b) =&gt; a &#47; b);</code></pre>
+  <pre class="language-dart"><code class="language-dart">FloatingPointValue operator &#47;(FloatingPointValue divisor) {
+  if (isAnInfinity) {
+    if (divisor.isAnInfinity | divisor.isZero) {
+      return nan;
+    } else {
+      return this;
+    }
+  } else {
+    if (divisor.isZero) {
+      return sign != divisor.sign ? negativeInfinity : infinity;
+    }
+  }
+  return _performOp(divisor, (a, b) =&gt; a &#47; b);
+}</code></pre>
 </section>
 
 

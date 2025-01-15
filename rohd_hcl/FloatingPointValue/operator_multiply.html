@@ -73,8 +73,24 @@
     
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
-  <pre class="language-dart"><code class="language-dart">FloatingPointValue operator *(FloatingPointValue multiplicand) =&gt;
-    _performOp(multiplicand, (a, b) =&gt; a * b);</code></pre>
+  <pre class="language-dart"><code class="language-dart">FloatingPointValue operator *(FloatingPointValue multiplicand) {
+  if (isAnInfinity) {
+    if (multiplicand.isAnInfinity) {
+      return sign != multiplicand.sign ? negativeInfinity : infinity;
+    } else if (multiplicand.isZero) {
+      return nan;
+    } else {
+      return this;
+    }
+  } else if (multiplicand.isAnInfinity) {
+    if (isZero) {
+      return nan;
+    } else {
+      return multiplicand;
+    }
+  }
+  return _performOp(multiplicand, (a, b) =&gt; a * b);
+}</code></pre>
 </section>
 
 

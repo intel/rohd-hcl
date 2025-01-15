@@ -62,7 +62,7 @@
   <section id="getter">
     <section class="multi-line-signature">
       
-      <span class="returntype"><a href="https://api.dart.dev/stable/3.6.0/dart-core/double-class.html">double</a></span>
+      <span class="returntype"><a href="https://api.dart.dev/stable/3.6.1/dart-core/double-class.html">double</a></span>
       get
       <span class="name ">minValue</span>
       
@@ -76,7 +76,9 @@
     
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
-  <pre class="language-dart"><code class="language-dart">static double get minValue =&gt; pow(2, -9).toDouble();</code></pre>
+  <pre class="language-dart"><code class="language-dart">static double get minValue =&gt; FloatingPointValue.getFloatingPointConstant(
+        FloatingPointConstants.smallestPositiveSubnormal, 4, 3)
+    .toDouble();</code></pre>
 </section>
 
   </section>

@@ -73,8 +73,22 @@
     
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
-  <pre class="language-dart"><code class="language-dart">FloatingPointValue operator +(FloatingPointValue addend) =&gt;
-    _performOp(addend, (a, b) =&gt; a + b);</code></pre>
+  <pre class="language-dart"><code class="language-dart">FloatingPointValue operator +(FloatingPointValue addend) {
+  if (isAnInfinity) {
+    if (addend.isAnInfinity) {
+      if (sign != addend.sign) {
+        return nan;
+      } else {
+        return sign.toBool() ? negativeInfinity : infinity;
+      }
+    } else {
+      return this;
+    }
+  } else if (addend.isAnInfinity) {
+    return addend;
+  }
+  return _performOp(addend, (a, b) =&gt; a + b);
+}</code></pre>
 </section>
 
 

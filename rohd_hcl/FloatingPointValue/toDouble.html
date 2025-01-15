@@ -57,7 +57,7 @@
 
     <section class="multi-line-signature">
       
-<span class="returntype"><a href="https://api.dart.dev/stable/3.6.0/dart-core/double-class.html">double</a></span>
+<span class="returntype"><a href="https://api.dart.dev/stable/3.6.1/dart-core/double-class.html">double</a></span>
 <span class="name ">toDouble</span>(<wbr>)
 
       
@@ -65,7 +65,7 @@
     </section>
     
 <section class="desc markdown">
-  <p>Return the value of the floating point number in a Dart <a href="https://api.dart.dev/stable/3.6.0/dart-core/double-class.html">double</a> type.</p>
+  <p>Return the value of the floating point number in a Dart <a href="https://api.dart.dev/stable/3.6.1/dart-core/double-class.html">double</a> type.</p>
 </section>
 
 
@@ -73,6 +73,12 @@
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">double toDouble() {
+  if (isNaN) {
+    return double.nan;
+  }
+  if (isAnInfinity) {
+    return sign.isZero ? double.infinity : double.negativeInfinity;
+  }
   var doubleVal = double.nan;
   if (value.isValid) {
     if (exponent.toInt() == 0) {
@@ -80,7 +86,7 @@
           pow(2.0, computeMinExponent(exponent.width)) *
           mantissa.toBigInt().toDouble() &#47;
           pow(2.0, mantissa.width);
-    } else if (!isNaN()) {
+    } else if (!isNaN) {
       doubleVal = (sign.toBool() ? -1.0 : 1.0) *
           (1.0 + mantissa.toBigInt().toDouble() &#47; pow(2.0, mantissa.width)) *
           pow(

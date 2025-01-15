@@ -58,8 +58,8 @@
     <section class="multi-line-signature">
       
       <span class="name ">FloatingPointValue.getFloatingPointConstant</span>(<wbr><ol class="parameter-list single-line"> <li><span class="parameter" id="getFloatingPointConstant-param-constantFloatingPoint"><span class="type-annotation"><a href="../../rohd_hcl/FloatingPointConstants.html">FloatingPointConstants</a></span> <span class="parameter-name">constantFloatingPoint</span>, </span></li>
-<li><span class="parameter" id="getFloatingPointConstant-param-exponentWidth"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.6.0/dart-core/int-class.html">int</a></span> <span class="parameter-name">exponentWidth</span>, </span></li>
-<li><span class="parameter" id="getFloatingPointConstant-param-mantissaWidth"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.6.0/dart-core/int-class.html">int</a></span> <span class="parameter-name">mantissaWidth</span></span></li>
+<li><span class="parameter" id="getFloatingPointConstant-param-exponentWidth"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.6.1/dart-core/int-class.html">int</a></span> <span class="parameter-name">exponentWidth</span>, </span></li>
+<li><span class="parameter" id="getFloatingPointConstant-param-mantissaWidth"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.6.1/dart-core/int-class.html">int</a></span> <span class="parameter-name">mantissaWidth</span></span></li>
 </ol>)
     </section>
     
@@ -124,12 +124,17 @@
     &#47;&#47;&#47; Largest positive number, most positive exponent, full mantissa
     case FloatingPointConstants.largestNormal:
       return FloatingPointValue.ofBinaryStrings(
-          &#39;0&#39;, &#39;0&#39; * exponentWidth, &#39;1&#39; * mantissaWidth);
+          &#39;0&#39;, &#39;${&#39;1&#39; * (exponentWidth - 1)}0&#39;, &#39;1&#39; * mantissaWidth);
 
     &#47;&#47;&#47; Largest possible number
     case FloatingPointConstants.infinity:
       return FloatingPointValue.ofBinaryStrings(
           &#39;0&#39;, &#39;1&#39; * exponentWidth, &#39;0&#39; * mantissaWidth);
+
+    &#47;&#47;&#47; Not a Number (NaN)
+    case FloatingPointConstants.nan:
+      return FloatingPointValue.ofBinaryStrings(
+          &#39;0&#39;, &#39;1&#39; * exponentWidth, &#39;${&#39;0&#39; * (mantissaWidth - 1)}1&#39;);
   }
 }</code></pre>
 </section>

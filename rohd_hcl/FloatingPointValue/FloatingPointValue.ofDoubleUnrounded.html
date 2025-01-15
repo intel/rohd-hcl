@@ -62,9 +62,9 @@
         <li>@<a href="https://pub.dev/documentation/meta/1.16.0/meta/internal-constant.html">internal</a></li>
     </ol>
   </div>
-      <span class="name ">FloatingPointValue.ofDoubleUnrounded</span>(<wbr><ol class="parameter-list"> <li><span class="parameter" id="ofDoubleUnrounded-param-inDouble"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.6.0/dart-core/double-class.html">double</a></span> <span class="parameter-name">inDouble</span>, {</span></li>
-<li><span class="parameter" id="ofDoubleUnrounded-param-exponentWidth"><span>required</span> <span class="type-annotation"><a href="https://api.dart.dev/stable/3.6.0/dart-core/int-class.html">int</a></span> <span class="parameter-name">exponentWidth</span>, </span></li>
-<li><span class="parameter" id="ofDoubleUnrounded-param-mantissaWidth"><span>required</span> <span class="type-annotation"><a href="https://api.dart.dev/stable/3.6.0/dart-core/int-class.html">int</a></span> <span class="parameter-name">mantissaWidth</span>, </span></li>
+      <span class="name ">FloatingPointValue.ofDoubleUnrounded</span>(<wbr><ol class="parameter-list"> <li><span class="parameter" id="ofDoubleUnrounded-param-inDouble"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.6.1/dart-core/double-class.html">double</a></span> <span class="parameter-name">inDouble</span>, {</span></li>
+<li><span class="parameter" id="ofDoubleUnrounded-param-exponentWidth"><span>required</span> <span class="type-annotation"><a href="https://api.dart.dev/stable/3.6.1/dart-core/int-class.html">int</a></span> <span class="parameter-name">exponentWidth</span>, </span></li>
+<li><span class="parameter" id="ofDoubleUnrounded-param-mantissaWidth"><span>required</span> <span class="type-annotation"><a href="https://api.dart.dev/stable/3.6.1/dart-core/int-class.html">int</a></span> <span class="parameter-name">mantissaWidth</span>, </span></li>
 </ol>})
     </section>
     
@@ -85,22 +85,26 @@ factory FloatingPointValue.ofDoubleUnrounded(double inDouble,
   } else if ((exponentWidth == 11) &amp;&amp; (mantissaWidth == 52)) {
     return FloatingPoint64Value.ofDouble(inDouble);
   }
+  if (inDouble.isNaN) {
+    return FloatingPointValue.getFloatingPointConstant(
+        FloatingPointConstants.nan, exponentWidth, mantissaWidth);
+  }
 
   var doubleVal = inDouble;
-  if (inDouble.isNaN) {
-    return FloatingPointValue(
-      exponent:
-          LogicValue.ofInt(pow(2, exponentWidth).toInt() - 1, exponentWidth),
-      mantissa: LogicValue.zero,
-      sign: LogicValue.zero,
-    );
-  }
   LogicValue sign;
   if (inDouble &lt; 0.0) {
     doubleVal = -doubleVal;
     sign = LogicValue.one;
   } else {
     sign = LogicValue.zero;
+  }
+  if (inDouble.isInfinite) {
+    return FloatingPointValue.getFloatingPointConstant(
+        sign.toBool()
+            ? FloatingPointConstants.negativeInfinity
+            : FloatingPointConstants.infinity,
+        exponentWidth,
+        mantissaWidth);
   }
 
   &#47;&#47; If we are dealing with a really small number we need to scale it up
@@ -140,6 +144,15 @@ factory FloatingPointValue.ofDoubleUnrounded(double inDouble,
       ? fullLength - mantissaWidth - scaleToWhole
       : FloatingPointValue.computeMinExponent(exponentWidth);
 
+  if (e &gt; FloatingPointValue.computeMaxExponent(exponentWidth) + 1) {
+    return FloatingPointValue.getFloatingPointConstant(
+        sign.toBool()
+            ? FloatingPointConstants.negativeInfinity
+            : FloatingPointConstants.infinity,
+        exponentWidth,
+        mantissaWidth);
+  }
+
   if (e &lt;= -FloatingPointValue.computeBias(exponentWidth)) {
     fullValue = fullValue &gt;&gt;&gt;
         (scaleToWhole - FloatingPointValue.computeBias(exponentWidth));
@@ -161,10 +174,7 @@ factory FloatingPointValue.ofDoubleUnrounded(double inDouble,
           .reversed;
 
   return FloatingPointValue(
-    exponent: exponent,
-    mantissa: mantissa,
-    sign: sign,
-  );
+      exponent: exponent, mantissa: mantissa, sign: sign);
 }</code></pre>
 </section>
 

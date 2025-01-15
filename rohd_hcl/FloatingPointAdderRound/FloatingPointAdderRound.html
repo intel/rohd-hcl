@@ -63,21 +63,21 @@
 <li><span class="parameter" id="-param-clk"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.0/rohd/Logic-class.html">Logic</a>?</span> <span class="parameter-name">clk</span>, </span></li>
 <li><span class="parameter" id="-param-reset"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.0/rohd/Logic-class.html">Logic</a>?</span> <span class="parameter-name">reset</span>, </span></li>
 <li><span class="parameter" id="-param-enable"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.0/rohd/Logic-class.html">Logic</a>?</span> <span class="parameter-name">enable</span>, </span></li>
-<li><span class="parameter" id="-param-adderGen"><span class="type-annotation"><a href="../../rohd_hcl/Adder-class.html">Adder</a></span> <span class="parameter-name">adderGen</span>(<ol class="parameter-list"> <li><span class="parameter" id="param-"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.0/rohd/Logic-class.html">Logic</a></span>, </span></li>
-<li><span class="parameter" id="param-"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.0/rohd/Logic-class.html">Logic</a></span>, {</span></li>
+<li><span class="parameter" id="-param-adderGen"><span class="type-annotation"><a href="../../rohd_hcl/Adder-class.html">Adder</a></span> <span class="parameter-name">adderGen</span>(<ol class="parameter-list"> <li><span class="parameter" id="param-a"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.0/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">a</span>, </span></li>
+<li><span class="parameter" id="param-b"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.0/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">b</span>, {</span></li>
 <li><span class="parameter" id="param-carryIn"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.0/rohd/Logic-class.html">Logic</a>?</span> <span class="parameter-name">carryIn</span>, </span></li>
-</ol>}) = <span class="default-value">ParallelPrefixAdder.new</span>, </span></li>
-<li><span class="parameter" id="-param-ppTree"><span class="type-annotation"><a href="../../rohd_hcl/ParallelPrefix-class.html">ParallelPrefix</a></span> <span class="parameter-name">ppTree</span>(<ol class="parameter-list single-line"> <li><span class="parameter" id="param-"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.6.0/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://pub.dev/documentation/rohd/0.6.0/rohd/Logic-class.html">Logic</a></span>&gt;</span></span>, </span></li>
-<li><span class="parameter" id="param-"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.0/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name"></span>(<ol class="parameter-list single-line"> <li><span class="parameter" id="param-"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.0/rohd/Logic-class.html">Logic</a></span>, </span></li>
-<li><span class="parameter" id="param-"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.0/rohd/Logic-class.html">Logic</a></span></span></li>
+</ol>}) = <span class="default-value">NativeAdder.new</span>, </span></li>
+<li><span class="parameter" id="-param-ppTree"><span class="type-annotation"><a href="../../rohd_hcl/ParallelPrefix-class.html">ParallelPrefix</a></span> <span class="parameter-name">ppTree</span>(<ol class="parameter-list single-line"> <li><span class="parameter" id="param-inps"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.6.1/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://pub.dev/documentation/rohd/0.6.0/rohd/Logic-class.html">Logic</a></span>&gt;</span></span> <span class="parameter-name">inps</span>, </span></li>
+<li><span class="parameter" id="param-op"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.0/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">op</span>(<ol class="parameter-list single-line"> <li><span class="parameter" id="param-term1"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.0/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">term1</span>, </span></li>
+<li><span class="parameter" id="param-term2"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.0/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">term2</span></span></li>
 </ol>)</span></li>
 </ol>) = <span class="default-value">KoggeStone.new</span>, </span></li>
-<li><span class="parameter" id="-param-name"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.6.0/dart-core/String-class.html">String</a></span> <span class="parameter-name">name</span> = <span class="default-value">&#39;floating_point_adder_round&#39;</span>, </span></li>
+<li><span class="parameter" id="-param-name"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.6.1/dart-core/String-class.html">String</a></span> <span class="parameter-name">name</span> = <span class="default-value">&#39;floating_point_adder_round&#39;</span>, </span></li>
 </ol>})
     </section>
     
 <section class="desc markdown">
-  <p>Add two floating point numbers <code>a</code> and <code>b</code>, returning result in <a href="../../rohd_hcl/FloatingPointAdderRound/sum.html">sum</a>.
+  <p>Add two floating point numbers <code>a</code> and <code>b</code>, returning result in <a href="../../rohd_hcl/FloatingPointAdder/sum.html">sum</a>.
 <code>subtract</code> is an optional Logic input to do subtraction
 <code>adderGen</code> is an adder generator to be used in the primary adder
 functions.
@@ -89,34 +89,40 @@ functions.
     
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
-  <pre class="language-dart"><code class="language-dart">FloatingPointAdderRound(FloatingPoint a, FloatingPoint b,
+  <pre class="language-dart"><code class="language-dart">FloatingPointAdderRound(super.a, super.b,
     {Logic? subtract,
-    this.clk,
-    this.reset,
-    this.enable,
-    Adder Function(Logic, Logic, {Logic? carryIn}) adderGen =
-        ParallelPrefixAdder.new,
-    ParallelPrefix Function(List&lt;Logic&gt;, Logic Function(Logic, Logic))
+    super.clk,
+    super.reset,
+    super.enable,
+    Adder Function(Logic a, Logic b, {Logic? carryIn}) adderGen =
+        NativeAdder.new,
+    ParallelPrefix Function(
+            List&lt;Logic&gt; inps, Logic Function(Logic term1, Logic term2) op)
         ppTree = KoggeStone.new,
-    super.name = &#39;floating_point_adder_round&#39;})
-    : exponentWidth = a.exponent.width,
-      mantissaWidth = a.mantissa.width {
-  if (b.exponent.width != exponentWidth ||
-      b.mantissa.width != mantissaWidth) {
-    throw RohdHclException(&#39;FloatingPoint widths must match&#39;);
-  }
-  if (clk != null) {
-    clk = addInput(&#39;clk&#39;, clk!);
-  }
-  if (reset != null) {
-    reset = addInput(&#39;reset&#39;, reset!);
-  }
-  if (enable != null) {
-    enable = addInput(&#39;enable&#39;, enable!);
-  }
-  a = a.clone()..gets(addInput(&#39;a&#39;, a, width: a.width));
-  b = b.clone()..gets(addInput(&#39;b&#39;, b, width: b.width));
-  addOutput(&#39;sum&#39;, width: _sum.width) &lt;= _sum;
+    super.name = &#39;floating_point_adder_round&#39;}) {
+  final outputSum = FloatingPoint(
+      exponentWidth: exponentWidth, mantissaWidth: mantissaWidth);
+  output(&#39;sum&#39;) &lt;= outputSum;
+
+  &#47;&#47; Ensure that the larger number is wired as &#39;a&#39;
+  final ae = this.a.exponent;
+  final be = this.b.exponent;
+  final am = this.a.mantissa;
+  final bm = this.b.mantissa;
+  final doSwap = ae.lt(be) |
+      (ae.eq(be) &amp; am.lt(bm)) |
+      ((ae.eq(be) &amp; am.eq(bm)) &amp; this.a.sign);
+
+  final FloatingPoint a;
+  final FloatingPoint b;
+  (a, b) = swap(doSwap, (super.a, super.b));
+
+  &#47;&#47; Seidel: S.EFF = effectiveSubtraction
+  final effectiveSubtraction = a.sign ^ b.sign ^ (subtract ?? Const(0));
+  final isNaN = a.isNaN |
+      b.isNaN |
+      (a.isInfinity &amp; b.isInfinity &amp; effectiveSubtraction);
+  final isInf = a.isInfinity | b.isInfinity;
 
   final exponentSubtractor = OnesComplementAdder(a.exponent, b.exponent,
       subtract: true, adderGen: adderGen, name: &#39;exponent_sub&#39;);
@@ -125,19 +131,16 @@ functions.
   final delta = exponentSubtractor.sum;
 
   &#47;&#47; Seidel: (sl, el, fl) = larger; (ss, es, fs) = smaller
-  final (larger, smaller) = _swap(signDelta, (a, b));
+  final (larger, smaller) = swap(signDelta, (a, b));
 
   final fl = mux(
-      larger.isNormal(),
-      [larger.isNormal(), larger.mantissa].swizzle(),
+      larger.isNormal,
+      [larger.isNormal, larger.mantissa].swizzle(),
       [larger.mantissa, Const(0)].swizzle());
   final fs = mux(
-      smaller.isNormal(),
-      [smaller.isNormal(), smaller.mantissa].swizzle(),
+      smaller.isNormal,
+      [smaller.isNormal, smaller.mantissa].swizzle(),
       [smaller.mantissa, Const(0)].swizzle());
-
-  &#47;&#47; Seidel: S.EFF = effectiveSubtraction
-  final effectiveSubtraction = a.sign ^ b.sign ^ (subtract ?? Const(0));
 
   &#47;&#47; Seidel: flp  larger preshift, normally in [2,4)
   final sigWidth = fl.width + 1;
@@ -164,21 +167,16 @@ functions.
       smallerAlignRPath.width - largeOperand.width);
 
   &#47;&#47;&#47; R Pipestage here:
-  final aIsNormalLatched =
-      condFlop(clk, a.isNormal(), en: enable, reset: reset);
-  final bIsNormalLatched =
-      condFlop(clk, b.isNormal(), en: enable, reset: reset);
-  final effectiveSubtractionLatched =
-      condFlop(clk, effectiveSubtraction, en: enable, reset: reset);
-  final largeOperandLatched =
-      condFlop(clk, largeOperand, en: enable, reset: reset);
-  final smallerOperandRPathLatched =
-      condFlop(clk, smallerOperandRPath, en: enable, reset: reset);
-  final smallerAlignRPathLatched =
-      condFlop(clk, smallerAlignRPath, en: enable, reset: reset);
-  final largerExpLatched =
-      condFlop(clk, larger.exponent, en: enable, reset: reset);
-  final deltaLatched = condFlop(clk, delta, en: enable, reset: reset);
+  final aIsNormalLatched = localFlop(a.isNormal);
+  final bIsNormalLatched = localFlop(b.isNormal);
+  final effectiveSubtractionLatched = localFlop(effectiveSubtraction);
+  final largeOperandLatched = localFlop(largeOperand);
+  final smallerOperandRPathLatched = localFlop(smallerOperandRPath);
+  final smallerAlignRPathLatched = localFlop(smallerAlignRPath);
+  final largerExpLatched = localFlop(larger.exponent);
+  final deltaLatched = localFlop(delta);
+  final isInfLatched = localFlop(isInf);
+  final isNaNLatched = localFlop(isNaN);
 
   final carryRPath = Logic();
   final significandAdderRPath = OnesComplementAdder(
@@ -280,26 +278,30 @@ functions.
   final significandNPath =
       significandSubtractorNPath.sum.slice(smallOperandNPath.width - 1, 0);
 
-  final leadOneNPath = mux(
-      significandNPath.or(),
-      ParallelPrefixPriorityEncoder(significandNPath.reversed,
-              ppGen: ppTree, name: &#39;npath_leadingOne&#39;)
-          .out
-          .zeroExtend(exponentWidth),
-      Const(15, width: exponentWidth));
+  final validLeadOneNPath = Logic();
+  final leadOneNPathPre = ParallelPrefixPriorityEncoder(
+          significandNPath.reversed,
+          ppGen: ppTree,
+          valid: validLeadOneNPath,
+          name: &#39;npath_leadingOne&#39;)
+      .out;
+  &#47;&#47; Limit leadOne to exponent range and match widths
+  final leadOneNPath = (leadOneNPathPre.width &gt; exponentWidth)
+      ? mux(
+          leadOneNPathPre
+              .gte(a.inf().exponent.zeroExtend(leadOneNPathPre.width)),
+          a.inf().exponent,
+          leadOneNPathPre.getRange(0, exponentWidth))
+      : leadOneNPathPre.zeroExtend(exponentWidth);
 
   &#47;&#47; N pipestage here:
-  final significandNPathLatched =
-      condFlop(clk, significandNPath, en: enable, reset: reset);
-  final significandSubtractorNPathSignLatched = condFlop(
-      clk, significandSubtractorNPath.sign,
-      en: enable, reset: reset);
-  final leadOneNPathLatched =
-      condFlop(clk, leadOneNPath, en: enable, reset: reset);
-  final largerSignLatched =
-      condFlop(clk, larger.sign, en: enable, reset: reset);
-  final smallerSignLatched =
-      condFlop(clk, smaller.sign, en: enable, reset: reset);
+  final significandNPathLatched = localFlop(significandNPath);
+  final significandSubtractorNPathSignLatched =
+      localFlop(significandSubtractorNPath.sign);
+  final leadOneNPathLatched = localFlop(leadOneNPath);
+  final validLeadOneNPathLatched = localFlop(validLeadOneNPath);
+  final largerSignLatched = localFlop(larger.sign);
+  final smallerSignLatched = localFlop(smaller.sign);
 
   final expCalcNPath = OnesComplementAdder(
       largerExpLatched, leadOneNPathLatched.zeroExtend(exponentWidth),
@@ -309,7 +311,8 @@ functions.
 
   final preExpNPath = expCalcNPath.sum.slice(exponentWidth - 1, 0);
 
-  final posExpNPath = preExpNPath.or() &amp; ~expCalcNPath.sign;
+  final posExpNPath =
+      preExpNPath.or() &amp; ~expCalcNPath.sign &amp; validLeadOneNPathLatched;
 
   final exponentNPath = mux(posExpNPath, preExpNPath, zeroExp);
 
@@ -332,15 +335,27 @@ functions.
 
   final isR = deltaLatched.gte(Const(2, width: delta.width)) |
       ~effectiveSubtractionLatched;
-  _sum &lt;=
-      mux(
-          isR,
-          [
-            largerSignLatched,
-            exponentRPath,
-            mantissaRPath.slice(mantissaRPath.width - 2, 1)
-          ].swizzle(),
-          [signNPath, exponentNPath, finalSignificandNPath].swizzle());
+
+  Combinational([
+    If(isNaNLatched, then: [
+      outputSum &lt; outputSum.nan,
+    ], orElse: [
+      If(isInfLatched, then: [
+        outputSum &lt; outputSum.inf(sign: largerSignLatched),
+      ], orElse: [
+        If(isR, then: [
+          outputSum.sign &lt; largerSignLatched,
+          outputSum.exponent &lt; exponentRPath,
+          outputSum.mantissa &lt;
+              mantissaRPath.slice(mantissaRPath.width - 2, 1),
+        ], orElse: [
+          outputSum.sign &lt; signNPath,
+          outputSum.exponent &lt; exponentNPath,
+          outputSum.mantissa &lt; finalSignificandNPath,
+        ])
+      ])
+    ])
+  ]);
 }</code></pre>
 </section>
 
