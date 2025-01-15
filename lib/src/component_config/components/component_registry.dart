@@ -1,4 +1,4 @@
-// Copyright (C) 2023-2024 Intel Corporation
+// Copyright (C) 2023-2025 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 //
 // component_registry.dart
@@ -26,6 +26,8 @@ List<Configurator> get componentRegistry => [
       EdgeDetectorConfigurator(),
       FindConfigurator(),
       FloatingPointAdderRoundConfigurator(),
+      FloatingPointAdderSimpleConfigurator(),
+      FloatingPointMultiplierSimpleConfigurator(),
       ParallelPrefixAdderConfigurator(),
       CompressionTreeMultiplierConfigurator(),
       ExtremaConfigurator(),

@@ -1,4 +1,4 @@
-// Copyright (C) 2024 Intel Corporation
+// Copyright (C) 2024-2025 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 //
 // multiplier_test.dart
@@ -210,7 +210,6 @@ void main() {
         ' SelM=${(selectSignedMultiplier != null) ? 1 : 0}';
     return (a, b, {selectSignedMultiplicand, selectSignedMultiplier}) =>
         CompressionTreeMultiplier(a, b, radix,
-            ppTree: ppTree,
             ppGen: ppGen,
             signedMultiplicand: signedMultiplicand,
             signedMultiplier: signedMultiplier,
@@ -277,7 +276,6 @@ void main() {
         ' SelM=${(selectSignedMultiplier != null) ? 1 : 0}';
 
     return (a, b, c) => CompressionTreeMultiplyAccumulate(a, b, c, radix,
-        ppTree: ppTree,
         ppGen: ppGen,
         signedMultiplicand: signedMultiplicand,
         signedMultiplier: signedMultiplier,
