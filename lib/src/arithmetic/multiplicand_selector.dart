@@ -27,6 +27,9 @@ class MultiplicandSelector {
   /// Place to store [multiples] of the [multiplicand] (e.g. *1, *2, *-1, *-2..)
   late LogicArray multiples;
 
+  /// Multiples sliced into columns for select to access
+  late final multiplesSlice = <Logic>[];
+
   /// Build a [MultiplicandSelector] generationg required [multiples] of
   /// [multiplicand] to [select] using a [RadixEncoder] argument.
   ///
@@ -47,7 +50,7 @@ class MultiplicandSelector {
     }
     final width = multiplicand.width + shift;
     final numMultiples = radix ~/ 2;
-    multiples = LogicArray([numMultiples], width);
+    multiples = LogicArray([numMultiples], width, name: 'multiples');
     final Logic extendedMultiplicand;
     if (selectSignedMultiplicand == null) {
       extendedMultiplicand = signedMultiplicand
@@ -77,18 +80,37 @@ class MultiplicandSelector {
             _ => throw RohdHclException('Radix is beyond 16')
           };
     }
+    for (var c = 0; c < width; c++) {
+      multiplesSlice.add(getMultiples(c));
+    }
   }
 
-  /// Retrieve the multiples of the multiplicand at current bit position
-  Logic getMultiples(int col) => [
+  /// Compute the multiples of the multiplicand at current bit position
+  Logic getMultiples(int col) => nameLogic(
+      'multiples_c$col',
+      naming: Naming.mergeable,
+      [
         for (var i = 0; i < multiples.elements.length; i++)
           multiples.elements[i][col]
-      ].swizzle().reversed;
+      ].swizzle().reversed);
 
-  Logic _select(Logic multiples, RadixEncode encode) =>
-      (encode.multiples & multiples).or() ^ encode.sign;
+  /// Retrieve the multiples of the multiplicand at current bit position
+  Logic fetchMultiples(int col) => multiplesSlice[col];
+
+  // _select attempts to name signals that RadixEncode cannot due to trace
+  Logic _select(Logic multiples, RadixEncode encode) {
+    final eMultiples = nameLogic(
+        'encoded_multiple_r${encode.row}', encode.multiples,
+        naming: Naming.mergeable);
+    final eSign = nameLogic('encode_sign_r${encode.row}', encode.sign,
+        naming: Naming.mergeable);
+    return (eMultiples & multiples).or() ^ eSign;
+  }
 
   /// Select the partial product term from the multiples using a RadixEncode
-  Logic select(int col, RadixEncode encode) =>
-      _select(getMultiples(col), encode);
+  Logic select(int col, RadixEncode encode) {
+    final mults = nameLogic('select_r${encode.row}_c$col', fetchMultiples(col),
+        naming: Naming.mergeable);
+    return _select(mults, encode);
+  }
 }

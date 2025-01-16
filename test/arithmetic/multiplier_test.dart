@@ -10,6 +10,7 @@
 // ignore_for_file: invalid_use_of_protected_member
 
 import 'dart:async';
+import 'dart:io';
 import 'dart:math';
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
@@ -427,7 +428,7 @@ void main() {
   });
 
   test('single multiplier', () async {
-    const width = 8;
+    const width = 16;
     final a = Logic(name: 'a', width: width);
     final b = Logic(name: 'b', width: width);
     const av = 12;
@@ -455,6 +456,7 @@ void main() {
             selectSignedMultiplicand: signedSelect,
             selectSignedMultiplier: signedSelect);
         await mod.build();
+        File('multiply.sv').writeAsStringSync(mod.generateSynth());
         final golden = bA * bB;
         final result = mod.isSignedResult()
             ? mod.product.value.toBigInt().toSigned(mod.product.width)

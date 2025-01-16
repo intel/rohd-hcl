@@ -19,7 +19,8 @@ class SignBit extends Logic {
   bool inverted = false;
 
   /// Construct a sign bit to store
-  SignBit(Logic inl, {this.inverted = false}) : super(name: inl.name) {
+  SignBit(Logic inl, {this.inverted = false})
+      : super(name: '${inl.name}_signbit', naming: Naming.mergeable) {
     this <= inl;
   }
 }
@@ -265,8 +266,8 @@ abstract class PartialProductGeneratorBase extends PartialProductArray {
     for (var row = 0; row < encoder.rows; row++) {
       partialProducts.add(List.generate(
           selector.width,
-          (i) => nameLogic(
-              'pp_r${row}_c$i', selector.select(i, encoder.getEncoding(row)))));
+          (i) => nameLogic('pp_r${row}_c$i',
+              selector.select(i, encoder.fetchEncoding(row)))));
     }
     for (var row = 0; row < rows; row++) {
       rowShift.add(row * shift);

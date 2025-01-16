@@ -546,7 +546,14 @@ class CompactRectSignExtension extends PartialProductSignExtension {
 
     final align = firstRowQStart - lastRowSignPos;
 
-    final signs = [for (var r = 0; r < rows; r++) encoder.getEncoding(r).sign];
+    final signs = [
+      for (var r = 0; r < rows; r++)
+        nameLogic(
+          'sign_r$r',
+          naming: Naming.mergeable,
+          encoder.fetchEncoding(r).sign,
+        )
+    ];
 
     // Compute propgation info for folding sign bits into main rows
     final propagate =
@@ -566,7 +573,10 @@ class CompactRectSignExtension extends PartialProductSignExtension {
       }
       // Now compute the propagation logic
       for (var col = 1; col < propagate[row].length; col++) {
-        propagate[row][col] = propagate[row][col] & propagate[row][col - 1];
+        propagate[row][col] = nameLogic(
+            'propagate_r${row}_c$col',
+            naming: Naming.mergeable,
+            propagate[row][col] & propagate[row][col - 1]);
       }
     }
 

@@ -10,7 +10,7 @@
 import 'package:collection/collection.dart';
 import 'package:meta/meta.dart';
 import 'package:rohd/rohd.dart';
-import 'package:rohd_hcl/src/arithmetic/multiplier_lib.dart';
+import 'package:rohd_hcl/rohd_hcl.dart';
 
 /// Base class for bit-level column compressor function
 abstract class BitCompressor extends Module {
@@ -237,19 +237,30 @@ class ColumnCompressor {
           BitCompressor compressor;
           if (depth > 3) {
             inputs.add(queue.removeFirst());
-            compressor =
-                Compressor3([for (final i in inputs) i.logic].swizzle());
+            compressor = Compressor3(
+                [for (final i in inputs) i.logic].swizzle(),
+                name: 'cmp3_iter${iteration}_col$col');
           } else {
-            compressor =
-                Compressor2([for (final i in inputs) i.logic].swizzle());
+            compressor = Compressor2(
+                [for (final i in inputs) i.logic].swizzle(),
+                name: 'cmp2_iter${iteration}_col$col');
           }
           final t = CompressTerm(
-              CompressTermType.sum, compressor.sum, inputs, 0, col);
+              CompressTermType.sum,
+              nameLogic('compress_sum_iter${iteration}_c$col', compressor.sum),
+              inputs,
+              0,
+              col);
           terms.add(t);
           columns[col].add(t);
           if (col < columns.length - 1) {
             final t = CompressTerm(
-                CompressTermType.carry, compressor.carry, inputs, 0, col);
+                CompressTermType.carry,
+                nameLogic(
+                    'compress_carry_iter${iteration}_c$col', compressor.carry),
+                inputs,
+                0,
+                col);
             columns[col + 1].add(t);
             terms.add(t);
           }

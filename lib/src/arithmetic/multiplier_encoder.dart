@@ -21,17 +21,26 @@ class RadixEncode extends LogicStructure {
   /// 'sign' of multiple
   final Logic sign;
 
-  /// Structure for holding Radix Encoding
-  RadixEncode({required int numMultiples})
-      : this._(
-            Logic(width: numMultiples, name: 'multiples'), Logic(name: 'sign'));
+  /// The
+  ///
+  late final int row;
 
-  RadixEncode._(this.multiples, this.sign, {String? name})
+  /// Structure for holding Radix Encoding
+  RadixEncode(int row, {required int numMultiples})
+      : this._(
+            Logic(
+                width: numMultiples,
+                name: 'multiples',
+                naming: Naming.mergeable),
+            Logic(name: 'sign'),
+            row);
+
+  RadixEncode._(this.multiples, this.sign, this.row, {String? name})
       : super([multiples, sign], name: name ?? 'RadixLogic');
 
   @override
   RadixEncode clone({String? name}) =>
-      RadixEncode(numMultiples: multiples.width);
+      RadixEncode(row, numMultiples: multiples.width);
 }
 
 /// Base interface for radix radixEncoder
@@ -47,7 +56,7 @@ class RadixEncoder {
   }
 
   /// Encode a multiplier slice into the Booth encoded value
-  RadixEncode encode(Logic multiplierSlice) {
+  RadixEncode encode(Logic multiplierSlice, int row) {
     if (multiplierSlice.width != log2Ceil(radix) + 1) {
       throw RohdHclException('multiplier slice width ${multiplierSlice.width}'
           'must be same length as log(radix)+1=${log2Ceil(radix) + 1}');
@@ -55,8 +64,10 @@ class RadixEncoder {
     final width = log2Ceil(radix) + 1;
     final inputXor = Logic(width: width);
     inputXor <=
-        (multiplierSlice ^ (multiplierSlice >>> 1))
-            .slice(multiplierSlice.width - 1, 0);
+        nameLogic(
+            '${multiplierSlice.name}_xor',
+            (multiplierSlice ^ (multiplierSlice >>> 1))
+                .slice(multiplierSlice.width - 1, 0));
 
     final multiples = <Logic>[];
     for (var i = 2; i < radix + 1; i += 2) {
@@ -69,15 +80,25 @@ class RadixEncoder {
       // Where multiples agree, we need the sense or direction (1 or 0)
       final senseMultiples = xorA & xorB;
 
-      multiples.add([
+      multiples.add(
+              // TODO(desmonddak): This produces a trace error when running
+              // a pipelined compressor test
+              // nameLogic(
+              //   'multiple${i}_of_${multiplierSlice.name}',
+              //   naming: Naming.mergeable,
+              [
         for (var j = 0; j < width - 1; j++)
           if (multiplesDisagree[j].isZero)
             if (senseMultiples[j].isZero) ~inputXor[j] else inputXor[j]
-      ].swizzle().and());
+      ].swizzle().and())
+          // )
+          ;
     }
 
-    return RadixEncode._(multiples.rswizzle(),
-        multiples.rswizzle().or() & multiplierSlice[multiplierSlice.width - 1]);
+    return RadixEncode._(
+        multiples.rswizzle(),
+        multiples.rswizzle().or() & multiplierSlice[multiplierSlice.width - 1],
+        row);
   }
 }
 
@@ -95,6 +116,8 @@ class MultiplierEncoder {
 
   /// Store the [RadixEncoder] used.
   late final RadixEncoder _encoder;
+
+  late final _encodings = <RadixEncode>[];
 
   /// Generate the Booth encoding of an input [multiplier] using
   /// [radixEncoder].
@@ -121,9 +144,11 @@ class MultiplierEncoder {
     }
     // slices overlap by 1 and start at -1a
     if (selectSignedMultiplier == null) {
-      _extendedMultiplier = (signedMultiplier
-          ? multiplier.signExtend(rows * (log2Ceil(radixEncoder.radix)))
-          : multiplier.zeroExtend(rows * (log2Ceil(radixEncoder.radix))));
+      _extendedMultiplier = nameLogic(
+          'encoded_multiplier',
+          (signedMultiplier
+              ? multiplier.signExtend(rows * (log2Ceil(radixEncoder.radix)))
+              : multiplier.zeroExtend(rows * (log2Ceil(radixEncoder.radix)))));
     } else {
       final len = multiplier.width;
       final sign = multiplier[len - 1];
@@ -133,23 +158,39 @@ class MultiplierEncoder {
       ];
       _extendedMultiplier = (multiplier.elements + extension).rswizzle();
     }
+    for (var i = 0; i < rows; i++) {
+      _encodings.add(getEncoding(i));
+    }
   }
 
-  /// Retrieve the Booth encoding for the row
+  /// Compute the Booth encoding for the row
   RadixEncode getEncoding(int row) {
     if (row >= rows) {
       throw RohdHclException('row $row is not < number of encoding rows $rows');
     }
     final base = row * log2Ceil(_encoder.radix);
-    final multiplierSlice = [
-      if (row > 0)
-        _extendedMultiplier.slice(base + log2Ceil(_encoder.radix) - 1, base - 1)
-      else
+    final multiplierSlice = nameLogic(
+        'mult_slice_r$row',
+        naming: Naming.mergeable,
         [
-          _extendedMultiplier.slice(base + log2Ceil(_encoder.radix) - 1, base),
-          Const(0)
-        ].swizzle()
-    ];
-    return _encoder.encode(multiplierSlice.first);
+          if (row > 0)
+            _extendedMultiplier.slice(
+                base + log2Ceil(_encoder.radix) - 1, base - 1)
+          else
+            [
+              _extendedMultiplier.slice(
+                  base + log2Ceil(_encoder.radix) - 1, base),
+              Const(0)
+            ].swizzle()
+        ].first);
+    return _encoder.encode(multiplierSlice, row);
+  }
+
+  /// Retrieve the Booth encoding for the row
+  RadixEncode fetchEncoding(int row) {
+    if (row >= rows) {
+      throw RohdHclException('row $row is not < number of encoding rows $rows');
+    }
+    return _encodings[row];
   }
 }
