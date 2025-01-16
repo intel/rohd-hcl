@@ -7,6 +7,8 @@
 // 2024 December
 // Author: Josh Kimmel <joshua1.kimmel@intel.com>
 
+import 'dart:math';
+
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
 
@@ -317,6 +319,8 @@ class CsrBlock extends Module {
           outputTags: {DataPortGroup.data},
           uniquify: (original) => 'frontRead_$original');
 
+    _validate();
+
     for (var i = 0; i < csrs.length; i++) {
       if (csrs[i].config.backdoorAccessible) {
         _backdoorInterfaces.add(CsrBackdoorInterface(
@@ -387,6 +391,29 @@ class CsrBlock extends Module {
     } else {
       throw Exception(
           'Register address $addr not found in block ${config.name}');
+    }
+  }
+
+  // validate the frontdoor interface widths to ensure that they are wide enough
+  void _validate() {
+    // check frontdoor interfaces
+    // data width must be at least as wide as the biggest register in the block
+    // address width must be at least wide enough to address all registers in the block
+    if (_frontRead.dataWidth < config.maxRegWidth()) {
+      throw CsrValidationException(
+          'Frontdoor read interface data width must be at least ${config.maxRegWidth()}.');
+    }
+    if (_frontWrite.dataWidth < config.maxRegWidth()) {
+      throw CsrValidationException(
+          'Frontdoor write interface data width must be at least ${config.maxRegWidth()}.');
+    }
+    if (_frontRead.addrWidth < config.minAddrBits()) {
+      throw CsrValidationException(
+          'Frontdoor read interface address width must be at least ${config.minAddrBits()}.');
+    }
+    if (_frontWrite.dataWidth < config.minAddrBits()) {
+      throw CsrValidationException(
+          'Frontdoor write interface address width must be at least ${config.minAddrBits()}.');
     }
   }
 
@@ -560,6 +587,8 @@ class CsrTop extends Module {
           outputTags: {DataPortGroup.data},
           uniquify: (original) => '${name}_frontRead_$original');
 
+    _validate();
+
     for (final block in config.blocks) {
       _fdWrites.add(DataPortInterface(fdw.dataWidth, blockOffsetWidth));
       _fdReads.add(DataPortInterface(fdr.dataWidth, blockOffsetWidth));
@@ -613,6 +642,29 @@ class CsrTop extends Module {
   /// Accessor to the config of a particular register block
   /// within the module by relative address [addr].
   CsrBlockConfig getBlockByAddr(int addr) => config.getBlockByAddr(addr);
+
+  // validate the frontdoor interface widths to ensure that they are wide enough
+  void _validate() {
+    // data width must be at least as wide as the biggest register across all blocks
+    // address width must be at least wide enough to address all registers in all blocks
+    if (_frontRead.dataWidth < config.maxRegWidth()) {
+      throw CsrValidationException(
+          'Frontdoor read interface data width must be at least ${config.maxRegWidth()}.');
+    }
+    if (_frontWrite.dataWidth < config.maxRegWidth()) {
+      throw CsrValidationException(
+          'Frontdoor write interface data width must be at least ${config.maxRegWidth()}.');
+    }
+    if (_frontRead.addrWidth < config.minAddrBits() ||
+        _frontRead.addrWidth < blockOffsetWidth) {
+      throw CsrValidationException(
+          'Frontdoor read interface address width must be at least ${max(config.minAddrBits(), blockOffsetWidth)}.');
+    }
+    if (_frontWrite.dataWidth < config.minAddrBits()) {
+      throw CsrValidationException(
+          'Frontdoor write interface address width must be at least ${max(config.minAddrBits(), blockOffsetWidth)}.');
+    }
+  }
 
   void _buildLogic() {
     final addrWidth = _frontWrite.addrWidth;

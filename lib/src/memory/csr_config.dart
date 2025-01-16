@@ -384,6 +384,18 @@ class CsrBlockConfig {
     }
     return maxAddr.bitLength;
   }
+
+  /// Method to determine the maximum register size.
+  /// This is important for interface data width validation.
+  int maxRegWidth() {
+    var maxWidth = 0;
+    for (final reg in registers) {
+      if (reg.width > maxWidth) {
+        maxWidth = reg.width;
+      }
+    }
+    return maxWidth;
+  }
 }
 
 /// Definition for a top level module containing CSR blocks.
@@ -469,5 +481,32 @@ class CsrTopConfig {
       throw CsrValidationException(
           'Block offset width is too small to address all register in all blocks in the module. The minimum offset width is $maxMinAddrBits.');
     }
+  }
+
+  /// Method to determine the minimum number of address bits
+  /// needed to address all registers across all blocks. This is
+  /// based on the maximum block base address. Note that we independently
+  /// validate the block offset width relative to the base addresses
+  /// so we can trust the simpler analysis here.
+  int minAddrBits() {
+    var maxAddr = 0;
+    for (final block in blocks) {
+      if (block.baseAddr > maxAddr) {
+        maxAddr = block.baseAddr;
+      }
+    }
+    return maxAddr.bitLength;
+  }
+
+  /// Method to determine the maximum register size.
+  /// This is important for interface data width validation.
+  int maxRegWidth() {
+    var maxWidth = 0;
+    for (final block in blocks) {
+      if (block.maxRegWidth() > maxWidth) {
+        maxWidth = block.maxRegWidth();
+      }
+    }
+    return maxWidth;
   }
 }
