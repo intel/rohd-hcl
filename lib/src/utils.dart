@@ -100,4 +100,3 @@ Logic condFlop(
 /// operation.
 Logic nameLogic(String name, Logic logic, {Naming? naming}) =>
     Logic(name: name, width: logic.width, naming: naming)..gets(logic);
-

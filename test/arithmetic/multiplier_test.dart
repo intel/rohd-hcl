@@ -67,6 +67,7 @@ class SimpleMultiplier extends Multiplier {
       : super(a, b) {
     addOutput('product', width: a.width + b.width);
     final mult = CompressionTreeMultiplier(a, b, 4,
+        adderGen: ParallelPrefixAdder.new,
         selectSignedMultiplicand: selSignedMultiplicand,
         selectSignedMultiplier: selSignedMultiplier);
     product <= mult.product;
@@ -187,12 +188,14 @@ void main() {
   });
 
   MultiplierCallback curryCompressionTreeMultiplier(int radix,
-      ParallelPrefix Function(List<Logic>, Logic Function(Logic, Logic)) ppTree,
       {SignExtensionFunction seGen = CompactRectSignExtension.new,
+      Adder Function(Logic a, Logic b, {Logic? carryIn, String name}) adderGen =
+          NativeAdder.new,
       bool signedMultiplicand = false,
       bool signedMultiplier = false,
       Logic? selectSignedMultiplicand,
       Logic? selectSignedMultiplier}) {
+    String adderName(Logic a, Logic b) => adderGen(a, b).name;
     String genName(Logic a, Logic b) =>
         seGen(PartialProductGeneratorBasic(a, b, RadixEncoder(radix))).name;
     final signage = ' SD=${signedMultiplicand ? 1 : 0}'
@@ -205,15 +208,17 @@ void main() {
             signedMultiplier: signedMultiplier,
             selectSignedMultiplicand: selectSignedMultiplicand,
             selectSignedMultiplier: selectSignedMultiplier,
+            seGen: seGen,
+            adderGen: adderGen,
             name: 'Compression Tree Multiplier: '
-                '${ppTree([Logic()], (a, b) => Logic()).name}'
+                '${adderName(a, b)}'
                 '$signage R${radix}_E${genName(a, b)}');
   }
 
   MultiplyAccumulateCallback curryMultiplierAsMultiplyAccumulate(int radix,
-          {ParallelPrefix Function(List<Logic>, Logic Function(Logic, Logic))
-              ppTree = KoggeStone.new,
-          SignExtensionFunction seGen = CompactRectSignExtension.new,
+          {SignExtensionFunction seGen = CompactRectSignExtension.new,
+          Adder Function(Logic a, Logic b, {Logic? carryIn, String name})
+              adderGen = NativeAdder.new,
           bool signedMultiplicand = false,
           bool signedMultiplier = false,
           Logic? selectSignedMultiplicand,
@@ -228,7 +233,7 @@ void main() {
           selectSignedMultiplier: selectSignedMultiplier,
           curryCompressionTreeMultiplier(
             radix,
-            ppTree,
+            adderGen: adderGen,
             seGen: seGen,
             signedMultiplicand: signedMultiplicand,
             signedMultiplier: signedMultiplier,
@@ -238,8 +243,8 @@ void main() {
 
   MultiplyAccumulateCallback curryMultiplyAccumulate(
     int radix, {
-    ParallelPrefix Function(List<Logic>, Logic Function(Logic, Logic)) ppTree =
-        KoggeStone.new,
+    Adder Function(Logic a, Logic b, {Logic? carryIn, String name}) adderGen =
+        NativeAdder.new,
     SignExtensionFunction seGen = CompactRectSignExtension.new,
     bool signedMultiplicand = false,
     bool signedMultiplier = false,
@@ -256,15 +261,15 @@ void main() {
         ' SelM=${(selectSignedMultiplier != null) ? 1 : 0}';
 
     return (a, b, c) => CompressionTreeMultiplyAccumulate(a, b, c, radix,
+        adderGen: adderGen,
+        seGen: seGen,
         signedMultiplicand: signedMultiplicand,
         signedMultiplier: signedMultiplier,
         signedAddend: signedAddend,
         selectSignedMultiplicand: selectSignedMultiplicand,
         selectSignedMultiplier: selectSignedMultiplier,
         selectSignedAddend: selectSignedAddend,
-        name: 'Compression Tree MAC: ${ppTree.call([
-              Logic()
-            ], (a, b) => Logic()).name}'
+        name: 'Compression Tree MAC: '
             ' $signage R$radix E${genName(a, b)}');
   }
 
@@ -272,8 +277,10 @@ void main() {
     for (final radix in [2, 4]) {
       for (final width in [3, 4]) {
         for (final ppTree in [KoggeStone.new, BrentKung.new, Sklansky.new]) {
+          Adder adderFn(Logic a, Logic b, {Logic? carryIn, String? name}) =>
+              ParallelPrefixAdder(a, b, carryIn: carryIn, ppGen: ppTree);
           testMultiplyAccumulateRandom(width, 10,
-              curryMultiplierAsMultiplyAccumulate(radix, ppTree: ppTree));
+              curryMultiplierAsMultiplyAccumulate(radix, adderGen: adderFn));
         }
       }
     }
@@ -285,8 +292,11 @@ void main() {
         for (final signExtension
             in SignExtension.values.where((e) => e != SignExtension.none)) {
           final seg = currySignExtensionFunction(signExtension);
-          testMultiplyAccumulateRandom(width, 10,
-              curryMultiplierAsMultiplyAccumulate(radix, seGen: seg));
+          testMultiplyAccumulateRandom(
+              width,
+              10,
+              curryMultiplierAsMultiplyAccumulate(radix,
+                  adderGen: ParallelPrefixAdder.new, seGen: seg));
         }
       }
     }
@@ -305,6 +315,7 @@ void main() {
                     width,
                     10,
                     curryMultiplierAsMultiplyAccumulate(radix,
+                        adderGen: ParallelPrefixAdder.new,
                         signedMultiplicand: signedMultiplicand,
                         signedMultiplier: signedMultiplier,
                         selectSignedMultiplicand: selectSignedMultiplicand,
@@ -333,6 +344,7 @@ void main() {
                         width,
                         10,
                         curryMultiplyAccumulate(radix,
+                            adderGen: ParallelPrefixAdder.new,
                             signedMultiplicand: signedMultiplicand,
                             signedMultiplier: signedMultiplier,
                             signedAddend: signedAddend,
@@ -360,6 +372,7 @@ void main() {
     final bB = BigInt.from(-10).toSigned(width);
     final mod = CompressionTreeMultiplier(a, b, 4,
         clk: clk,
+        adderGen: ParallelPrefixAdder.new,
         selectSignedMultiplicand: signedSelect,
         selectSignedMultiplier: signedSelect);
     unawaited(Simulator.run());
@@ -392,6 +405,7 @@ void main() {
 
     final mod = CompressionTreeMultiplyAccumulate(a, b, c, 4,
         clk: clk,
+        adderGen: ParallelPrefixAdder.new,
         selectSignedMultiplicand: signedSelect,
         selectSignedMultiplier: signedSelect,
         selectSignedAddend: signedSelect);
@@ -436,6 +450,7 @@ void main() {
         b.put(bB);
 
         final mod = CompressionTreeMultiplier(a, b, 4,
+            adderGen: ParallelPrefixAdder.new,
             signedMultiplier: !useSignedLogic && signed,
             selectSignedMultiplicand: signedSelect,
             selectSignedMultiplier: signedSelect);
