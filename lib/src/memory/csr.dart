@@ -324,9 +324,9 @@ class CsrBlock extends Module {
     for (var i = 0; i < csrs.length; i++) {
       if (csrs[i].config.backdoorAccessible) {
         _backdoorInterfaces.add(CsrBackdoorInterface(
-            config: csrs[i].config, dataWidth: fdr.dataWidth));
+            config: csrs[i].config, dataWidth: csrs[i].config.width));
         backdoorInterfaces.add(CsrBackdoorInterface(
-            config: csrs[i].config, dataWidth: fdr.dataWidth));
+            config: csrs[i].config, dataWidth: csrs[i].config.width));
         _backdoorInterfaces.last.connectIO(this, backdoorInterfaces.last,
             outputTags: {CsrBackdoorPortGroup.read},
             inputTags: {CsrBackdoorPortGroup.write},
@@ -437,7 +437,9 @@ class CsrBlock extends Module {
                       _frontWrite.addr
                           .eq(Const(csrs[i].addr, width: addrWidth)),
                   [
-                    csrs[i] < csrs[i].getWriteData(_frontWrite.data),
+                    csrs[i] <
+                        csrs[i].getWriteData(
+                            _frontWrite.data.getRange(0, csrs[i].config.width)),
                   ]),
             // backdoor write takes next priority
             if (_backdoorIndexMap.containsKey(i) &&
@@ -461,7 +463,7 @@ class CsrBlock extends Module {
     final rdCases = csrs
         .where((csr) => csr.isFrontdoorReadable)
         .map((csr) => CaseItem(Const(csr.addr, width: addrWidth), [
-              rdData < csr,
+              rdData < csr.zeroExtend(_frontRead.dataWidth),
             ]))
         .toList();
     Combinational([
@@ -602,9 +604,11 @@ class CsrTop extends Module {
       for (var j = 0; j < blocks[i].registers.length; j++) {
         if (blocks[i].registers[j].backdoorAccessible) {
           _backdoorInterfaces[i].add(CsrBackdoorInterface(
-              config: blocks[i].registers[j], dataWidth: fdr.dataWidth));
+              config: blocks[i].registers[j],
+              dataWidth: blocks[i].registers[j].width));
           backdoorInterfaces[i].add(CsrBackdoorInterface(
-              config: blocks[i].registers[j], dataWidth: fdr.dataWidth));
+              config: blocks[i].registers[j],
+              dataWidth: blocks[i].registers[j].width));
           _backdoorInterfaces[i].last.connectIO(
               this, backdoorInterfaces[i].last,
               outputTags: {CsrBackdoorPortGroup.read},
