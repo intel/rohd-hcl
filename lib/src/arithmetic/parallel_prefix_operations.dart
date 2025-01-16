@@ -192,20 +192,42 @@ class ParallelPrefixPriorityFinder extends Module {
 
 /// Priority Encoder based on ParallelPrefix tree
 class ParallelPrefixPriorityEncoder extends Module {
-  /// Output [out] is the bit position of the first '1' in the Logic input
-  /// Search is counted from the LSB
+  /// Output [out] is the bit position of the first '1' in the Logic input.
+  /// Search starts from the LSB.
   Logic get out => output('out');
 
+  /// Optional output that says the encoded position is valid.
+  Logic? get valid => tryOutput('valid');
+
   /// PriorityEncoder constructor
+  /// - [ppGen] is the type of [ParallelPrefix] tree to use
+  /// - [valid] is an optional Logic output to raise if no '1' is found
+  ///
+  /// If there is a '1' in the [inp], the [ParallelPrefixPriorityEncoder]
+  /// sets [out] to the index of the position of the first '1' starting from
+  /// the LSb (and optionally sets [valid] to true).
+  ///
+  /// If there is no 1' in the [inp], it sets [out] to [inp].width + 1,
+  /// as well as setting optional [valid] to false.
   ParallelPrefixPriorityEncoder(Logic inp,
       {ParallelPrefix Function(
               List<Logic> inps, Logic Function(Logic term1, Logic term2) op)
           ppGen = KoggeStone.new,
+      Logic? valid,
       super.name = 'parallel_prefix_encoder'}) {
     inp = addInput('inp', inp, width: inp.width);
-    addOutput('out', width: log2Ceil(inp.width));
+    final sz = log2Ceil(inp.width + 1);
+    addOutput('out', width: sz);
+    if (valid != null) {
+      addOutput('valid');
+      valid <= this.valid!;
+    }
     final u = ParallelPrefixPriorityFinder(inp, ppGen: ppGen);
-    out <= OneHotToBinary(u.out).binary;
+    final pos = OneHotToBinary(u.out).binary.zeroExtend(sz);
+    if (this.valid != null) {
+      this.valid! <= pos.or() | inp[0];
+    }
+    out <= mux(pos.or() | inp[0], pos, Const(inp.width + 1, width: sz));
   }
 }
 

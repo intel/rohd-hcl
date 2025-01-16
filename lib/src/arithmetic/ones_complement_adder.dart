@@ -1,4 +1,4 @@
-// Copyright (C) 2024 Intel Corporation
+// Copyright (C) 2024-2025 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 //
 // ones_complement_adder.dart
@@ -25,17 +25,19 @@ class OnesComplementAdder extends Adder {
   @protected
   Logic _sign = Logic();
 
-  /// [OnesComplementAdder] constructor with an adder functor [adderGen]
-  /// Either a Logic [subtractIn] or a boolean [subtract] can enable
-  /// subtraction, with [subtractIn] overriding [subtract].  If Logic [carryOut]
-  /// is provided as not null, then the end-around carry is not performed and is
-  /// left to the caller via the output [carryOut].
+  /// [OnesComplementAdder] constructor with an adder functor [adderGen].
+  /// - Either an optional Logic [subtractIn] or a boolean [subtract] can enable
+  /// subtraction, but providing both non-null will result in an exception.
+  /// - If Logic [carryOut] is provided as not null, then the end-around carry
+  ///  is not performed and is provided as value on [carryOut].
+  /// - [carryIn] allows for another adder to chain into this one.
   OnesComplementAdder(super.a, super.b,
       {Adder Function(Logic, Logic, {Logic? carryIn}) adderGen =
           ParallelPrefixAdder.new,
       Logic? subtractIn,
       Logic? carryOut,
-      bool subtract = false,
+      Logic? carryIn,
+      bool? subtract,
       super.name = 'ones_complement_adder'}) {
     if (subtractIn != null) {
       subtractIn = addInput('subtractIn', subtractIn);
@@ -45,22 +47,25 @@ class OnesComplementAdder extends Adder {
       addOutput('carryOut');
       carryOut <= this.carryOut!;
     }
-    if ((subtractIn != null) & subtract) {
+    if ((subtractIn != null) & (subtract != null)) {
       throw RohdHclException(
-          'Subtraction is controlled by a non-null subtractIn: '
-          'subtract boolean is ignored');
+          "either provide a Logic signal 'subtractIn' for runtime "
+          " configuration, or a boolean parameter 'subtract' for "
+          'generation time configuration, but not both.');
     }
-    final doSubtract = subtractIn ?? (subtract ? Const(1) : Const(0));
+    final doSubtract =
+        subtractIn ?? (subtract != null ? Const(subtract) : Const(0));
 
     final ax = a.zeroExtend(a.width);
     final bx = b.zeroExtend(b.width);
 
-    final adder = adderGen(ax, mux(doSubtract, ~bx, bx));
+    final adder =
+        adderGen(ax, mux(doSubtract, ~bx, bx), carryIn: carryIn ?? Const(0));
 
     if (this.carryOut != null) {
       this.carryOut! <= adder.sum[-1];
     }
-    final endAround = mux(doSubtract, adder.sum[-1], Const(0));
+    final endAround = adder.sum[-1];
     final magnitude = adder.sum.slice(a.width - 1, 0);
 
     sum <=

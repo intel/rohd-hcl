@@ -1,4 +1,4 @@
-// Copyright (C) 2023-2024 Intel Corporation
+// Copyright (C) 2023-2025 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 //
 // config_compression_tree_multiplier.dart
@@ -23,6 +23,7 @@ class CompressionTreeMultiplierConfigurator extends Configurator {
     KoggeStone: ParallelPrefixAdder.new,
     BrentKung: (a, b, {carryIn}) =>
         ParallelPrefixAdder(a, b, ppGen: BrentKung.new),
+    NativeAdder: (a, b, {carryIn}) => NativeAdder(a, b, carryIn: carryIn)
   };
 
   /// Controls the Booth encoding radix of the multiplier.!
@@ -33,7 +34,7 @@ class CompressionTreeMultiplierConfigurator extends Configurator {
 
   /// Controls the type of [Adder] used for internal adders.
   final adderTypeKnob =
-      ChoiceConfigKnob(adderGeneratorMap.keys.toList(), value: KoggeStone);
+      ChoiceConfigKnob(adderGeneratorMap.keys.toList(), value: NativeAdder);
 
   /// Controls the width of the multiplicand.!
   final IntConfigKnob multiplicandWidthKnob = IntConfigKnob(value: 5);

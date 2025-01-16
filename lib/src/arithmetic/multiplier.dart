@@ -239,7 +239,7 @@ class CompressionTreeMultiplier extends Multiplier {
       super.selectSignedMultiplicand,
       super.selectSignedMultiplier,
       Adder Function(Logic a, Logic b, {Logic? carryIn}) adderGen =
-          ParallelPrefixAdder.new,
+          NativeAdder.new,
       PartialProductSignExtension Function(PartialProductGeneratorBase pp,
               {String name})
           seGen = CompactRectSignExtension.new,
@@ -332,10 +332,11 @@ class CompressionTreeMultiplyAccumulate extends MultiplyAccumulate {
       super.selectSignedMultiplier,
       super.selectSignedAddend,
       Adder Function(Logic a, Logic b, {Logic? carryIn}) adderGen =
-          ParallelPrefixAdder.new,
+          NativeAdder.new,
       PartialProductSignExtension Function(PartialProductGeneratorBase pp,
               {String name})
           seGen = CompactRectSignExtension.new,
+
       super.name = 'compression_tree_mac'}) {
     clk = (clk != null) ? addInput('clk', clk) : null;
     reset = (reset != null) ? addInput('reset', reset) : null;
