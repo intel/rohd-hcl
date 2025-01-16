@@ -43,6 +43,7 @@ abstract class FloatingPointAdder extends Module {
   late final FloatingPoint b;
 
   /// getter for the computed [FloatingPoint] output.
+
   late final FloatingPoint sum = FloatingPoint(
       exponentWidth: exponentWidth, mantissaWidth: mantissaWidth, name: 'sum')
     ..gets(output('sum'));
@@ -67,12 +68,14 @@ abstract class FloatingPointAdder extends Module {
     this.enable = (enable != null) ? addInput('enable', enable) : null;
     this.a = a.clone(name: 'a')..gets(addInput('a', a, width: a.width));
     this.b = b.clone(name: 'b')..gets(addInput('b', b, width: b.width));
+
     addOutput('sum', width: exponentWidth + mantissaWidth + 1);
   }
 
   /// Swapping two FloatingPoint structures based on a conditional
   @protected
   (FloatingPoint, FloatingPoint) swap(
+
       Logic swap, (FloatingPoint, FloatingPoint) toSwap) {
     final in1 = nameLogic('swap_in_${toSwap.$1.name}', toSwap.$1);
     final in2 = nameLogic('swap_in_${toSwap.$2.name}', toSwap.$2);
@@ -105,6 +108,7 @@ abstract class FloatingPointAdder extends Module {
 
     return (larger, smaller);
   }
+
 
   /// Pipelining helper that uses the context for signals clk/enable/reset
   Logic localFlop(Logic input) =>

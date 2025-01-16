@@ -373,6 +373,7 @@ void main() {
       }
     }
   });
+
   test('FP: simple adder general singleton test', () async {
     FloatingPointValue ofString(String s) =>
         FloatingPointValue.ofSpacedBinaryString(s);
@@ -388,6 +389,7 @@ void main() {
     fp2.put(fv2);
     final adder = FloatingPointAdderSimple(fp1, fp2);
     await adder.build();
+
     final exponentWidth = adder.sum.exponent.width;
     final mantissaWidth = adder.sum.mantissa.width;
 

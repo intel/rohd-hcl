@@ -53,6 +53,7 @@ class OnesComplementAdder extends Adder {
           " configuration, or a boolean parameter 'subtract' for "
           'generation time configuration, but not both.');
     }
+
     final doSubtract = nameLogic('dosubtract',
         subtractIn ?? (subtract != null ? Const(subtract) : Const(0)));
 

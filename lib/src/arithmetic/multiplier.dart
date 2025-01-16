@@ -188,7 +188,7 @@ abstract class MultiplyAccumulate extends Module {
   }
 }
 
-/// An implementation of an integer multiplier using compression trees
+/// An implementation of an integer multiplier using compression trees.
 class CompressionTreeMultiplier extends Multiplier {
   /// The clk for the pipelined version of column compression.
   Logic? clk;
@@ -207,7 +207,7 @@ class CompressionTreeMultiplier extends Multiplier {
   /// and an [Adder] generator functor [adderGen] for the final adder.
   ///
   /// Sign extension methodology is defined by the partial product generator
-  /// supplied via [ppGen].
+  /// supplied via [seGen].
   ///
   /// [a] multiplicand and [b] multiplier are the product terms and they can
   /// be different widths allowing for rectangular multiplication.
@@ -240,19 +240,16 @@ class CompressionTreeMultiplier extends Multiplier {
       super.selectSignedMultiplier,
       Adder Function(Logic a, Logic b, {Logic? carryIn}) adderGen =
           NativeAdder.new,
-      PartialProductGenerator Function(Logic a, Logic b, RadixEncoder encoder,
-              {required bool signedMultiplier,
-              required bool signedMultiplicand,
-              Logic? selectSignedMultiplier,
-              Logic? selectSignedMultiplicand})
-          ppGen = PartialProductGeneratorCompactRectSignExtension.new,
+      PartialProductSignExtension Function(PartialProductGeneratorBase pp,
+              {String name})
+          seGen = CompactRectSignExtension.new,
       super.name = 'compression_tree_multiplier'}) {
     clk = (clk != null) ? addInput('clk', clk!) : null;
     reset = (reset != null) ? addInput('reset', reset!) : null;
     enable = (enable != null) ? addInput('enable', enable!) : null;
 
     final product = addOutput('product', width: a.width + b.width);
-    final pp = ppGen(
+    final pp = PartialProductGeneratorBasic(
       a,
       b,
       RadixEncoder(radix),
@@ -261,6 +258,8 @@ class CompressionTreeMultiplier extends Multiplier {
       selectSignedMultiplier: selectSignedMultiplier,
       signedMultiplier: signedMultiplier,
     );
+
+    seGen(pp).signExtend();
 
     final compressor =
         ColumnCompressor(clk: clk, reset: reset, enable: enable, pp)
@@ -304,7 +303,7 @@ class CompressionTreeMultiplyAccumulate extends MultiplyAccumulate {
   /// always signed (default is unsigned).
   ///
   /// Sign extension methodology is defined by the partial product generator
-  /// supplied via [ppGen].
+  /// supplied via [seGen].
   ///
   /// Optional [selectSignedMultiplicand] allows for runtime configuration of
   /// signed or unsigned operation, overriding the [signedMultiplicand] static
@@ -334,19 +333,16 @@ class CompressionTreeMultiplyAccumulate extends MultiplyAccumulate {
       super.selectSignedAddend,
       Adder Function(Logic a, Logic b, {Logic? carryIn}) adderGen =
           NativeAdder.new,
-      PartialProductGenerator Function(Logic a, Logic b, RadixEncoder encoder,
-              {required bool signedMultiplier,
-              required bool signedMultiplicand,
-              Logic? selectSignedMultiplier,
-              Logic? selectSignedMultiplicand})
-          ppGen = PartialProductGeneratorCompactRectSignExtension.new,
+      PartialProductSignExtension Function(PartialProductGeneratorBase pp,
+              {String name})
+          seGen = CompactRectSignExtension.new,
       super.name = 'compression_tree_mac'}) {
     clk = (clk != null) ? addInput('clk', clk) : null;
     reset = (reset != null) ? addInput('reset', reset) : null;
     enable = (enable != null) ? addInput('enable', enable) : null;
 
     final accumulate = addOutput('accumulate', width: a.width + b.width + 1);
-    final pp = ppGen(
+    final pp = PartialProductGeneratorBasic(
       a,
       b,
       RadixEncoder(radix),
@@ -355,6 +351,8 @@ class CompressionTreeMultiplyAccumulate extends MultiplyAccumulate {
       selectSignedMultiplier: selectSignedMultiplier,
       signedMultiplier: signedMultiplier,
     );
+
+    seGen(pp).signExtend();
 
     final lastLength =
         pp.partialProducts[pp.rows - 1].length + pp.rowShift[pp.rows - 1];

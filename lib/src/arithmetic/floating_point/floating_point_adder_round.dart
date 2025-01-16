@@ -46,6 +46,7 @@ class FloatingPointAdderRound extends FloatingPointAdder {
 
     final exponentSubtractor = OnesComplementAdder(
         super.a.exponent, super.b.exponent,
+
         subtract: true, adderGen: adderGen, name: 'exponent_sub');
     final signDelta = Logic(name: 'signDelta')..gets(exponentSubtractor.sign);
 
@@ -69,6 +70,7 @@ class FloatingPointAdderRound extends FloatingPointAdder {
           [smaller.isNormal, smaller.mantissa].swizzle(),
           [smaller.mantissa, Const(0)].swizzle(),
         ));
+
 
     // Seidel: flp  larger preshift, normally in [2,4)
     final sigWidth = fl.width + 1;
@@ -112,6 +114,7 @@ class FloatingPointAdderRound extends FloatingPointAdder {
     final isNaNFlopped = localFlop(isNaN);
 
     final carryRPath = Logic(name: 'carry_rpath');
+
     final significandAdderRPath = OnesComplementAdder(
         largeOperandFlopped, smallerOperandRPathFlopped,
         subtractIn: effectiveSubtractionFlopped,
@@ -234,6 +237,7 @@ class FloatingPointAdderRound extends FloatingPointAdder {
         significandSubtractorNPath.sum.slice(smallOperandNPath.width - 1, 0));
 
     final validLeadOneNPath = Logic(name: 'valid_lead1_npath');
+
     final leadOneNPathPre = ParallelPrefixPriorityEncoder(
             significandNPath.reversed,
             ppGen: ppTree,
@@ -259,6 +263,7 @@ class FloatingPointAdderRound extends FloatingPointAdder {
     final validLeadOneNPathFlopped = localFlop(validLeadOneNPath);
     final largerSignFlopped = localFlop(larger.sign);
     final smallerSignFlopped = localFlop(smaller.sign);
+
 
     final expCalcNPath = OnesComplementAdder(
         largerExpFlopped, leadOneNPathFlopped.zeroExtend(exponentWidth),
@@ -312,6 +317,7 @@ class FloatingPointAdderRound extends FloatingPointAdder {
         ], orElse: [
           If(isR, then: [
             outputSum.sign < largerSignFlopped,
+
             outputSum.exponent < exponentRPath,
             outputSum.mantissa <
                 mantissaRPath.slice(mantissaRPath.width - 2, 1),

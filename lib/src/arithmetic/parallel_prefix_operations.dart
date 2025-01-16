@@ -61,7 +61,7 @@ class Ripple extends ParallelPrefix {
 /// Sklansky shaped ParallelPrefix tree
 class Sklansky extends ParallelPrefix {
   /// Sklansky constructor
-  Sklansky(List<Logic> inps, Logic Function(Logic, Logic) op)
+  Sklansky(List<Logic> inps, Logic Function(Logic term1, Logic term2) op)
       : super(inps, 'sklansky') {
     final iseq = <Logic>[];
 
@@ -90,7 +90,7 @@ class Sklansky extends ParallelPrefix {
 /// KoggeStone shaped ParallelPrefix tree
 class KoggeStone extends ParallelPrefix {
   /// KoggeStone constructor
-  KoggeStone(List<Logic> inps, Logic Function(Logic, Logic) op)
+  KoggeStone(List<Logic> inps, Logic Function(Logic term1, Logic term2) op)
       : super(inps, 'kogge_stone') {
     final iseq = <Logic>[];
 
@@ -117,7 +117,7 @@ class KoggeStone extends ParallelPrefix {
 /// BrentKung shaped ParallelPrefix tree
 class BrentKung extends ParallelPrefix {
   /// BrentKung constructor
-  BrentKung(List<Logic> inps, Logic Function(Logic, Logic) op)
+  BrentKung(List<Logic> inps, Logic Function(Logic term1, Logic term2) op)
       : super(inps, 'brent_kung') {
     final iseq = <Logic>[];
 
