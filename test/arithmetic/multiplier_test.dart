@@ -188,29 +188,19 @@ void main() {
 
   MultiplierCallback curryCompressionTreeMultiplier(int radix,
       ParallelPrefix Function(List<Logic>, Logic Function(Logic, Logic)) ppTree,
-      {PPGFunction ppGen = PartialProductGeneratorCompactRectSignExtension.new,
+      {SignExtensionFunction seGen = CompactRectSignExtension.new,
       bool signedMultiplicand = false,
       bool signedMultiplier = false,
       Logic? selectSignedMultiplicand,
       Logic? selectSignedMultiplier}) {
-    String genName(Logic a, Logic b) => ppGen(
-          a,
-          b,
-          RadixEncoder(radix),
-          signedMultiplicand: signedMultiplicand,
-          signedMultiplier: signedMultiplier,
-          selectSignedMultiplicand:
-              selectSignedMultiplicand != null ? Logic() : null,
-          selectSignedMultiplier:
-              selectSignedMultiplier != null ? Logic() : null,
-        ).name;
+    String genName(Logic a, Logic b) =>
+        seGen(PartialProductGeneratorBasic(a, b, RadixEncoder(radix))).name;
     final signage = ' SD=${signedMultiplicand ? 1 : 0}'
         ' SM=${signedMultiplier ? 1 : 0}'
         ' SelD=${(selectSignedMultiplicand != null) ? 1 : 0}'
         ' SelM=${(selectSignedMultiplier != null) ? 1 : 0}';
     return (a, b, {selectSignedMultiplicand, selectSignedMultiplier}) =>
         CompressionTreeMultiplier(a, b, radix,
-            ppGen: ppGen,
             signedMultiplicand: signedMultiplicand,
             signedMultiplier: signedMultiplier,
             selectSignedMultiplicand: selectSignedMultiplicand,
@@ -223,8 +213,7 @@ void main() {
   MultiplyAccumulateCallback curryMultiplierAsMultiplyAccumulate(int radix,
           {ParallelPrefix Function(List<Logic>, Logic Function(Logic, Logic))
               ppTree = KoggeStone.new,
-          PPGFunction ppGen =
-              PartialProductGeneratorCompactRectSignExtension.new,
+          SignExtensionFunction seGen = CompactRectSignExtension.new,
           bool signedMultiplicand = false,
           bool signedMultiplier = false,
           Logic? selectSignedMultiplicand,
@@ -240,7 +229,7 @@ void main() {
           curryCompressionTreeMultiplier(
             radix,
             ppTree,
-            ppGen: ppGen,
+            seGen: seGen,
             signedMultiplicand: signedMultiplicand,
             signedMultiplier: signedMultiplier,
             selectSignedMultiplicand: selectSignedMultiplicand,
@@ -251,7 +240,7 @@ void main() {
     int radix, {
     ParallelPrefix Function(List<Logic>, Logic Function(Logic, Logic)) ppTree =
         KoggeStone.new,
-    PPGFunction ppGen = PartialProductGeneratorCompactRectSignExtension.new,
+    SignExtensionFunction seGen = CompactRectSignExtension.new,
     bool signedMultiplicand = false,
     bool signedMultiplier = false,
     bool signedAddend = false,
@@ -259,24 +248,14 @@ void main() {
     Logic? selectSignedMultiplier,
     Logic? selectSignedAddend,
   }) {
-    String genName(Logic a, Logic b) => ppGen(
-          a,
-          b,
-          RadixEncoder(radix),
-          signedMultiplicand: signedMultiplicand,
-          signedMultiplier: signedMultiplier,
-          selectSignedMultiplicand:
-              selectSignedMultiplicand != null ? Logic() : null,
-          selectSignedMultiplier:
-              selectSignedMultiplier != null ? Logic() : null,
-        ).name;
+    String genName(Logic a, Logic b) =>
+        seGen(PartialProductGeneratorBasic(a, b, RadixEncoder(radix))).name;
     final signage = ' SD=${signedMultiplicand ? 1 : 0}'
         ' SM=${signedMultiplier ? 1 : 0}'
         ' SelD=${(selectSignedMultiplicand != null) ? 1 : 0}'
         ' SelM=${(selectSignedMultiplier != null) ? 1 : 0}';
 
     return (a, b, c) => CompressionTreeMultiplyAccumulate(a, b, c, radix,
-        ppGen: ppGen,
         signedMultiplicand: signedMultiplicand,
         signedMultiplier: signedMultiplier,
         signedAddend: signedAddend,
@@ -305,9 +284,9 @@ void main() {
       for (final width in [3, 4]) {
         for (final signExtension
             in SignExtension.values.where((e) => e != SignExtension.none)) {
-          final ppg = curryPartialProductGenerator(signExtension);
+          final seg = currySignExtensionFunction(signExtension);
           testMultiplyAccumulateRandom(width, 10,
-              curryMultiplierAsMultiplyAccumulate(radix, ppGen: ppg));
+              curryMultiplierAsMultiplyAccumulate(radix, seGen: seg));
         }
       }
     }
