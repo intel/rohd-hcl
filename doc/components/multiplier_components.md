@@ -51,7 +51,7 @@ row  slice  mult
 
 A few things to note: first, that we are negating by ones' complement (so we need a -0) and second, these rows do not add up to (18: 10010). For Booth encoded rows to add up properly, they need to be in twos' complement form, and they need to be sign-extended.
 
- Here is the matrix with a crude sign extension `brute` (the table formatting is available from our [PartialProductGenerator](https://intel.github.io/rohd-hcl/rohd_hcl/PartialProductGenerator-class.html)  component). With twos' complementation, and sign bits folded in (note the LSB of each row has a sign term from the previous row), these addends are correctly formed and add to (18: 10010).
+ Here is the matrix with a crude sign extension `brute` (the table formatting is available from our [PartialProductGeneratorBase](https://intel.github.io/rohd-hcl/rohd_hcl/PartialProductGeneratorBase-class.html) component). With twos' complementation, and sign bits folded in (note the LSB of each row has a sign term from the previous row), these addends are correctly formed and add to (18: 10010).
 
 ```text
             7  6  5  4  3  2  1  0  
