@@ -333,19 +333,16 @@ class CompressionTreeMultiplyAccumulate extends MultiplyAccumulate {
       super.selectSignedAddend,
       Adder Function(Logic a, Logic b, {Logic? carryIn}) adderGen =
           ParallelPrefixAdder.new,
-      PartialProductGeneratorBase Function(Logic, Logic, RadixEncoder,
-              {required bool signedMultiplier,
-              required bool signedMultiplicand,
-              Logic? selectSignedMultiplier,
-              Logic? selectSignedMultiplicand})
-          ppGen = PartialProductGeneratorCompactRectSignExtension.new,
+      PartialProductSignExtension Function(PartialProductGeneratorBase pp,
+              {String name})
+          seGen = CompactRectSignExtension.new,
       super.name = 'compression_tree_mac'}) {
     clk = (clk != null) ? addInput('clk', clk) : null;
     reset = (reset != null) ? addInput('reset', reset) : null;
     enable = (enable != null) ? addInput('enable', enable) : null;
 
     final accumulate = addOutput('accumulate', width: a.width + b.width + 1);
-    final pp = ppGen(
+    final pp = PartialProductGeneratorBasic(
       a,
       b,
       RadixEncoder(radix),
@@ -354,6 +351,8 @@ class CompressionTreeMultiplyAccumulate extends MultiplyAccumulate {
       selectSignedMultiplier: selectSignedMultiplier,
       signedMultiplier: signedMultiplier,
     );
+
+    seGen(pp).signExtend();
 
     final lastLength =
         pp.partialProducts[pp.rows - 1].length + pp.rowShift[pp.rows - 1];
