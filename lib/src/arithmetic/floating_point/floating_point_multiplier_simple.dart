@@ -34,7 +34,6 @@ class FloatingPointMultiplierSimple extends FloatingPointMultiplier {
           ppTree = KoggeStone.new,
       super.name}) {
     final product = FloatingPoint(
-
         exponentWidth: exponentWidth,
         mantissaWidth: mantissaWidth,
         name: 'product');

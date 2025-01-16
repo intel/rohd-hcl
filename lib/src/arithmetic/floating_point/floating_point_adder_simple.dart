@@ -114,7 +114,6 @@ class FloatingPointAdderSimple extends FloatingPointAdder {
           outputSum.sign < aSignLatched,
           outputSum.exponent < larger.zeroExponent,
           outputSum.mantissa < shiftMantissabyExp,
-
         ]),
         Else([
           outputSum.sign < aSignLatched,

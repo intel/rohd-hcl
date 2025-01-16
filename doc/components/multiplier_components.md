@@ -221,7 +221,7 @@ Any adder can be used as the final adder of the final two addends produced from 
 
 Here is a code snippet that shows how these components can be used to create a multiplier.  
 
-First the partial product generator is used (`PartialProductGenerator`),  which we pass in the `RadixEncoder`, whether the operands are signed.  We operate on this generator with a compact sign extension class  for rectangular products (`CompactRectSignExtension`). Note that sign extension is needed regardless of whether operands are signed or not due to Booth encoding.
+First the partial product generator is used (`PartialProductGenerator`), which we pass in the `RadixEncoder`, whether the operands are signed.  We operate on this generator with a compact sign extension class for rectangular products (`CompactRectSignExtension`). Note that sign extension is needed regardless of whether operands are signed or not due to Booth encoding.
 
 Next, we use the `ColumnCompressor` to compress the partial products into two final addends.
 

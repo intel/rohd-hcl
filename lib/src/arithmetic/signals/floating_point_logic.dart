@@ -78,7 +78,7 @@ class FloatingPoint extends LogicStructure {
       _nameJoin('isInfinity', name),
       naming: Naming.mergeable,
       exponent.eq(floatingPointValue.infinity.exponent) & ~mantissa.or());
-  
+
   /// Return a Logic true if this FloatingPoint is an zero
   /// by having its exponent field set to the NaN value (typically all
   /// ones) and a zero mantissa.

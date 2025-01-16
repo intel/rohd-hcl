@@ -75,7 +75,6 @@ abstract class FloatingPointAdder extends Module {
   /// Swapping two FloatingPoint structures based on a conditional
   @protected
   (FloatingPoint, FloatingPoint) swap(
-
       Logic swap, (FloatingPoint, FloatingPoint) toSwap) {
     final in1 = nameLogic('swap_in_${toSwap.$1.name}', toSwap.$1);
     final in2 = nameLogic('swap_in_${toSwap.$2.name}', toSwap.$2);
@@ -108,7 +107,6 @@ abstract class FloatingPointAdder extends Module {
 
     return (larger, smaller);
   }
-
 
   /// Pipelining helper that uses the context for signals clk/enable/reset
   Logic localFlop(Logic input) =>
