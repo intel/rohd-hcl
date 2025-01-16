@@ -61,8 +61,8 @@
 <li><span class="parameter" id="-param-a"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.0/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">a</span>, </span></li>
 <li><span class="parameter" id="-param-bSign"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.0/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">bSign</span>, </span></li>
 <li><span class="parameter" id="-param-b"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.0/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">b</span>, </span></li>
-<li><span class="parameter" id="-param-adderGen"><span class="type-annotation"><a href="../../rohd_hcl/Adder-class.html">Adder</a></span> <span class="parameter-name">adderGen</span>(<ol class="parameter-list"> <li><span class="parameter" id="param-"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.0/rohd/Logic-class.html">Logic</a></span>, </span></li>
-<li><span class="parameter" id="param-"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.0/rohd/Logic-class.html">Logic</a></span>, {</span></li>
+<li><span class="parameter" id="-param-adderGen"><span class="type-annotation"><a href="../../rohd_hcl/Adder-class.html">Adder</a></span> <span class="parameter-name">adderGen</span>(<ol class="parameter-list"> <li><span class="parameter" id="param-a"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.0/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">a</span>, </span></li>
+<li><span class="parameter" id="param-b"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.0/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">b</span>, {</span></li>
 <li><span class="parameter" id="param-carryIn"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.0/rohd/Logic-class.html">Logic</a>?</span> <span class="parameter-name">carryIn</span>, </span></li>
 </ol>}), {</span></li>
 <li><span class="parameter" id="-param-largestMagnitudeFirst"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.6.1/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">largestMagnitudeFirst</span> = <span class="default-value">false</span>, </span></li>
@@ -84,7 +84,7 @@ comparator.</p>
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">&#47;&#47; TODO(desmonddak): this adder may need a carry-in for rounding
 SignMagnitudeAdder(this.aSign, super.a, this.bSign, super.b,
-    Adder Function(Logic, Logic, {Logic? carryIn}) adderGen,
+    Adder Function(Logic a, Logic b, {Logic? carryIn}) adderGen,
     {this.largestMagnitudeFirst = false,
     super.name = &#39;sign_magnitude_adder&#39;}) {
   aSign = addInput(&#39;aSign&#39;, aSign);

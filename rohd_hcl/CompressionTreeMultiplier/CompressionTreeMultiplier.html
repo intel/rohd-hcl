@@ -71,14 +71,9 @@
 <li><span class="parameter" id="param-b"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.0/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">b</span>, {</span></li>
 <li><span class="parameter" id="param-carryIn"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.0/rohd/Logic-class.html">Logic</a>?</span> <span class="parameter-name">carryIn</span>, </span></li>
 </ol>}) = <span class="default-value">NativeAdder.new</span>, </span></li>
-<li><span class="parameter" id="-param-ppGen"><span class="type-annotation"><a href="../../rohd_hcl/PartialProductGenerator-class.html">PartialProductGenerator</a></span> <span class="parameter-name">ppGen</span>(<ol class="parameter-list"> <li><span class="parameter" id="param-a"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.0/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">a</span>, </span></li>
-<li><span class="parameter" id="param-b"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.0/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">b</span>, </span></li>
-<li><span class="parameter" id="param-encoder"><span class="type-annotation"><a href="../../rohd_hcl/RadixEncoder-class.html">RadixEncoder</a></span> <span class="parameter-name">encoder</span>, {</span></li>
-<li><span class="parameter" id="param-selectSignedMultiplicand"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.0/rohd/Logic-class.html">Logic</a>?</span> <span class="parameter-name">selectSignedMultiplicand</span>, </span></li>
-<li><span class="parameter" id="param-selectSignedMultiplier"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.0/rohd/Logic-class.html">Logic</a>?</span> <span class="parameter-name">selectSignedMultiplier</span>, </span></li>
-<li><span class="parameter" id="param-signedMultiplicand"><span>required</span> <span class="type-annotation"><a href="https://api.dart.dev/stable/3.6.1/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">signedMultiplicand</span>, </span></li>
-<li><span class="parameter" id="param-signedMultiplier"><span>required</span> <span class="type-annotation"><a href="https://api.dart.dev/stable/3.6.1/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">signedMultiplier</span>, </span></li>
-</ol>}) = <span class="default-value">PartialProductGeneratorCompactRectSignExtension.new</span>, </span></li>
+<li><span class="parameter" id="-param-seGen"><span class="type-annotation">PartialProductSignExtension</span> <span class="parameter-name">seGen</span>(<ol class="parameter-list"> <li><span class="parameter" id="param-pp"><span class="type-annotation"><a href="../../rohd_hcl/PartialProductGeneratorBase-class.html">PartialProductGeneratorBase</a></span> <span class="parameter-name">pp</span>, {</span></li>
+<li><span class="parameter" id="param-name"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.6.1/dart-core/String-class.html">String</a></span> <span class="parameter-name">name</span>, </span></li>
+</ol>}) = <span class="default-value">CompactRectSignExtension.new</span>, </span></li>
 <li><span class="parameter" id="-param-name"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.6.1/dart-core/String-class.html">String</a></span> <span class="parameter-name">name</span> = <span class="default-value">&#39;compression_tree_multiplier&#39;</span>, </span></li>
 </ol>})
     </section>
@@ -87,7 +82,7 @@
   <p>Construct a compression tree integer multiplier with a given <code>radix</code>
 and an <a href="../../rohd_hcl/Adder-class.html">Adder</a> generator functor <code>adderGen</code> for the final adder.</p>
 <p>Sign extension methodology is defined by the partial product generator
-supplied via <code>ppGen</code>.</p>
+supplied via <code>seGen</code>.</p>
 <p><code>a</code> multiplicand and <code>b</code> multiplier are the product terms and they can
 be different widths allowing for rectangular multiplication.</p>
 <p><code>signedMultiplicand</code> parameter configures the multiplicand <code>a</code> as a signed
@@ -120,19 +115,16 @@ the <a href="../../rohd_hcl/ColumnCompressor-class.html">ColumnCompressor</a> is
     super.selectSignedMultiplier,
     Adder Function(Logic a, Logic b, {Logic? carryIn}) adderGen =
         NativeAdder.new,
-    PartialProductGenerator Function(Logic a, Logic b, RadixEncoder encoder,
-            {required bool signedMultiplier,
-            required bool signedMultiplicand,
-            Logic? selectSignedMultiplier,
-            Logic? selectSignedMultiplicand})
-        ppGen = PartialProductGeneratorCompactRectSignExtension.new,
+    PartialProductSignExtension Function(PartialProductGeneratorBase pp,
+            {String name})
+        seGen = CompactRectSignExtension.new,
     super.name = &#39;compression_tree_multiplier&#39;}) {
   clk = (clk != null) ? addInput(&#39;clk&#39;, clk!) : null;
   reset = (reset != null) ? addInput(&#39;reset&#39;, reset!) : null;
   enable = (enable != null) ? addInput(&#39;enable&#39;, enable!) : null;
 
   final product = addOutput(&#39;product&#39;, width: a.width + b.width);
-  final pp = ppGen(
+  final pp = PartialProductGeneratorBasic(
     a,
     b,
     RadixEncoder(radix),
@@ -141,6 +133,8 @@ the <a href="../../rohd_hcl/ColumnCompressor-class.html">ColumnCompressor</a> is
     selectSignedMultiplier: selectSignedMultiplier,
     signedMultiplier: signedMultiplier,
   );
+
+  seGen(pp).signExtend();
 
   final compressor =
       ColumnCompressor(clk: clk, reset: reset, enable: enable, pp)
