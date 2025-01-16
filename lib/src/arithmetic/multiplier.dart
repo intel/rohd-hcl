@@ -303,7 +303,7 @@ class CompressionTreeMultiplyAccumulate extends MultiplyAccumulate {
   /// always signed (default is unsigned).
   ///
   /// Sign extension methodology is defined by the partial product generator
-  /// supplied via [ppGen].
+  /// supplied via [seGen].
   ///
   /// Optional [selectSignedMultiplicand] allows for runtime configuration of
   /// signed or unsigned operation, overriding the [signedMultiplicand] static
@@ -336,7 +336,6 @@ class CompressionTreeMultiplyAccumulate extends MultiplyAccumulate {
       PartialProductSignExtension Function(PartialProductGeneratorBase pp,
               {String name})
           seGen = CompactRectSignExtension.new,
-
       super.name = 'compression_tree_mac'}) {
     clk = (clk != null) ? addInput('clk', clk) : null;
     reset = (reset != null) ? addInput('reset', reset) : null;
