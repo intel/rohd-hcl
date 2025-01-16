@@ -201,7 +201,6 @@ void main() {
         ' SelM=${(selectSignedMultiplier != null) ? 1 : 0}';
     return (a, b, {selectSignedMultiplicand, selectSignedMultiplier}) =>
         CompressionTreeMultiplier(a, b, radix,
-            ppTree: ppTree,
             signedMultiplicand: signedMultiplicand,
             signedMultiplier: signedMultiplier,
             selectSignedMultiplicand: selectSignedMultiplicand,
@@ -257,7 +256,6 @@ void main() {
         ' SelM=${(selectSignedMultiplier != null) ? 1 : 0}';
 
     return (a, b, c) => CompressionTreeMultiplyAccumulate(a, b, c, radix,
-        ppTree: ppTree,
         signedMultiplicand: signedMultiplicand,
         signedMultiplier: signedMultiplier,
         signedAddend: signedAddend,
