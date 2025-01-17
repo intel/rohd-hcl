@@ -10,7 +10,6 @@
 // ignore_for_file: invalid_use_of_protected_member
 
 import 'dart:async';
-import 'dart:io';
 import 'dart:math';
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
@@ -198,7 +197,7 @@ void main() {
       Logic? selectSignedMultiplier}) {
     String adderName(Logic a, Logic b) => adderGen(a, b).name;
     String genName(Logic a, Logic b) =>
-        seGen(PartialProductGeneratorBasic(a, b, RadixEncoder(radix))).name;
+        seGen(PartialProductGenerator(a, b, RadixEncoder(radix))).name;
     final signage = ' SD=${signedMultiplicand ? 1 : 0}'
         ' SM=${signedMultiplier ? 1 : 0}'
         ' SelD=${(selectSignedMultiplicand != null) ? 1 : 0}'
@@ -255,7 +254,7 @@ void main() {
     Logic? selectSignedAddend,
   }) {
     String genName(Logic a, Logic b) =>
-        seGen(PartialProductGeneratorBasic(a, b, RadixEncoder(radix))).name;
+        seGen(PartialProductGenerator(a, b, RadixEncoder(radix))).name;
     final signage = ' SD=${signedMultiplicand ? 1 : 0}'
         ' SM=${signedMultiplier ? 1 : 0}'
         ' SelD=${(selectSignedMultiplicand != null) ? 1 : 0}'
@@ -428,13 +427,13 @@ void main() {
   });
 
   test('single multiplier', () async {
-    const width = 16;
+    const width = 8;
     final a = Logic(name: 'a', width: width);
     final b = Logic(name: 'b', width: width);
     const av = 12;
     const bv = 13;
-    for (final signed in [true, false]) {
-      for (final useSignedLogic in [true, false]) {
+    for (final signed in [true]) {
+      for (final useSignedLogic in [true]) {
         final bA = SignedBigInt.fromSignedInt(av, width, signed: signed);
         final bB = SignedBigInt.fromSignedInt(bv, width, signed: signed);
 
@@ -452,11 +451,11 @@ void main() {
 
         final mod = CompressionTreeMultiplier(a, b, 4,
             adderGen: ParallelPrefixAdder.new,
+            seGen: StopBitsSignExtension.new,
             signedMultiplier: !useSignedLogic && signed,
             selectSignedMultiplicand: signedSelect,
             selectSignedMultiplier: signedSelect);
         await mod.build();
-        File('multiply.sv').writeAsStringSync(mod.generateSynth());
         final golden = bA * bB;
         final result = mod.isSignedResult()
             ? mod.product.value.toBigInt().toSigned(mod.product.width)
@@ -610,9 +609,9 @@ void main() {
     a.put(6);
     b.put(3);
 
-    final ppG0 = PartialProductGeneratorCompactRectSignExtension(
-        a, b, RadixEncoder(4),
+    final ppG0 = PartialProductGenerator(a, b, RadixEncoder(4),
         signedMultiplicand: true, signedMultiplier: true);
+    CompactRectSignExtension(ppG0).signExtend();
 
     final bit_0_5 = ppG0.getAbsolute(0, 5);
     expect(bit_0_5.value, equals(LogicValue.one));

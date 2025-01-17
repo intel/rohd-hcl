@@ -159,12 +159,12 @@ class NoneSignExtension extends PartialProductSignExtension {
 }
 
 /// A concrete base class for partial product generation
-class PartialProductGeneratorBasic extends PartialProductGeneratorBase {
+class PartialProductGenerator extends PartialProductGeneratorBase {
   /// The extension routine we will be using.
   late final PartialProductSignExtension extender;
 
   /// Construct a none sign extending Partial Product Generator
-  PartialProductGeneratorBasic(
+  PartialProductGenerator(
       super.multiplicand, super.multiplier, super.radixEncoder,
       {super.signedMultiplicand,
       super.signedMultiplier,

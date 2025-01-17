@@ -249,7 +249,7 @@ class CompressionTreeMultiplier extends Multiplier {
     enable = (enable != null) ? addInput('enable', enable!) : null;
 
     final product = addOutput('product', width: a.width + b.width);
-    final pp = PartialProductGeneratorBasic(
+    final pp = PartialProductGenerator(
       a,
       b,
       RadixEncoder(radix),
@@ -342,7 +342,7 @@ class CompressionTreeMultiplyAccumulate extends MultiplyAccumulate {
     enable = (enable != null) ? addInput('enable', enable) : null;
 
     final accumulate = addOutput('accumulate', width: a.width + b.width + 1);
-    final pp = PartialProductGeneratorBasic(
+    final pp = PartialProductGenerator(
       a,
       b,
       RadixEncoder(radix),

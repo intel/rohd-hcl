@@ -29,6 +29,9 @@ class FloatingPointMultiplierSimple extends FloatingPointMultiplier {
       int radix = 4,
       Adder Function(Logic a, Logic b, {Logic? carryIn}) adderGen =
           NativeAdder.new,
+      PartialProductSignExtension Function(PartialProductGeneratorBase pp,
+              {String name})
+          seGen = CompactRectSignExtension.new,
       ParallelPrefix Function(
               List<Logic> inps, Logic Function(Logic term1, Logic term2) op)
           ppTree = KoggeStone.new,
@@ -54,8 +57,9 @@ class FloatingPointMultiplierSimple extends FloatingPointMultiplier {
             b.exponent.zeroExtend(exponentWidth + 2) -
             a.bias.zeroExtend(exponentWidth + 2));
 
-    final pp = PartialProductGeneratorCompactRectSignExtension(
-        aMantissa, bMantissa, RadixEncoder(radix));
+    final pp =
+        PartialProductGenerator(aMantissa, bMantissa, RadixEncoder(radix));
+    seGen(pp).signExtend();
     final compressor =
         ColumnCompressor(pp, clk: clk, reset: reset, enable: enable)
           ..compress();
