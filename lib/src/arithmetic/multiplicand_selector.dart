@@ -86,13 +86,16 @@ class MultiplicandSelector {
   }
 
   /// Compute the multiples of the multiplicand at current bit position
-  Logic getMultiples(int col) => nameLogic(
-      'multiples_c$col',
-      naming: Naming.mergeable,
-      [
-        for (var i = 0; i < multiples.elements.length; i++)
-          multiples.elements[i][col]
-      ].swizzle().reversed);
+  Logic getMultiples(int col) {
+    final columnMultiples = nameLogic(
+        'multiples_c$col',
+        naming: Naming.mergeable,
+        [
+          for (var i = 0; i < multiples.elements.length; i++)
+            multiples.elements[i][col]
+        ].swizzle());
+    return columnMultiples.reversed;
+  }
 
   /// Retrieve the multiples of the multiplicand at current bit position
   Logic fetchMultiples(int col) => multiplesSlice[col];

@@ -257,6 +257,8 @@ abstract class PartialProductGeneratorBase extends PartialProductArray {
   }
 
   /// Perform sign extension (defined in child classes)
+  @Deprecated('Replace this call with a construction of a '
+      '[PartialProductSignExtension] class')
   @protected
   void signExtend();
 

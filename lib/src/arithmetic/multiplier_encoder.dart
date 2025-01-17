@@ -80,25 +80,23 @@ class RadixEncoder {
       // Where multiples agree, we need the sense or direction (1 or 0)
       final senseMultiples = xorA & xorB;
 
-      multiples.add(
-              // TODO(desmonddak): This produces a trace error when running
-              // a pipelined compressor test
-              // nameLogic(
-              //   'multiple${i}_of_${multiplierSlice.name}',
-              //   naming: Naming.mergeable,
-              [
-        for (var j = 0; j < width - 1; j++)
-          if (multiplesDisagree[j].isZero)
-            if (senseMultiples[j].isZero) ~inputXor[j] else inputXor[j]
-      ].swizzle().and())
-          // )
-          ;
+      multiples.add(nameLogic(
+          'multiple${i}_of_${multiplierSlice.name}',
+          naming: Naming.mergeable,
+          [
+            for (var j = 0; j < width - 1; j++)
+              if (multiplesDisagree[j].isZero)
+                if (senseMultiples[j].isZero) ~inputXor[j] else inputXor[j]
+          ].swizzle().and()));
     }
 
-    return RadixEncode._(
-        multiples.rswizzle(),
-        multiples.rswizzle().or() & multiplierSlice[multiplierSlice.width - 1],
-        row);
+    final multiplesR = nameLogic(
+        'multiples_reversed_r$row',
+        naming: Naming.mergeable,
+        multiples.rswizzle());
+
+    return RadixEncode._(multiplesR,
+        multiplesR.or() & multiplierSlice[multiplierSlice.width - 1], row);
   }
 }
 
@@ -145,7 +143,7 @@ class MultiplierEncoder {
     // slices overlap by 1 and start at -1a
     if (selectSignedMultiplier == null) {
       _extendedMultiplier = nameLogic(
-          'encoded_multiplier',
+          'extended_multiplier',
           (signedMultiplier
               ? multiplier.signExtend(rows * (log2Ceil(radixEncoder.radix)))
               : multiplier.zeroExtend(rows * (log2Ceil(radixEncoder.radix)))));
@@ -156,7 +154,8 @@ class MultiplierEncoder {
         for (var i = len - 1; i < (rows * (log2Ceil(radixEncoder.radix))); i++)
           mux(selectSignedMultiplier, sign, Const(0))
       ];
-      _extendedMultiplier = (multiplier.elements + extension).rswizzle();
+      _extendedMultiplier = nameLogic(
+          'extended_multiplier', (multiplier.elements + extension).rswizzle());
     }
     for (var i = 0; i < rows; i++) {
       _encodings.add(getEncoding(i));

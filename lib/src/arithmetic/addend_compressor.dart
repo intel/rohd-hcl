@@ -247,7 +247,7 @@ class ColumnCompressor {
           }
           final t = CompressTerm(
               CompressTermType.sum,
-              nameLogic('compress_sum_iter${iteration}_c$col', compressor.sum),
+              nameLogic('cmp_sum_iter${iteration}_c$col', compressor.sum),
               inputs,
               0,
               col);
@@ -256,8 +256,7 @@ class ColumnCompressor {
           if (col < columns.length - 1) {
             final t = CompressTerm(
                 CompressTermType.carry,
-                nameLogic(
-                    'compress_carry_iter${iteration}_c$col', compressor.carry),
+                nameLogic('cmp_carry_iter${iteration}_c$col', compressor.carry),
                 inputs,
                 0,
                 col);
