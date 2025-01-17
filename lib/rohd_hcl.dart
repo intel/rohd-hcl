@@ -21,6 +21,7 @@ export 'src/reduction_tree.dart';
 export 'src/rotate.dart';
 export 'src/serialization/serialization.dart';
 export 'src/shift_register.dart';
+export 'src/signed_shifter.dart';
 export 'src/sort.dart';
 export 'src/summation/summation.dart';
 export 'src/toggle_gate.dart';

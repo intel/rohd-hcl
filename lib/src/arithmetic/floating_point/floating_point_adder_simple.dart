@@ -1,4 +1,4 @@
-// Copyright (C) 2024 Intel Corporation
+// Copyright (C) 2024-2025 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 //
 // floating_point_adder_simple.dart
@@ -7,98 +7,114 @@
 // 2024 August 30
 // Author: Desmond A Kirkpatrick <desmond.a.kirkpatrick@intel.com
 
-import 'package:meta/meta.dart';
+import 'dart:math';
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
 
 /// An adder module for FloatingPoint values
-class FloatingPointAdderSimple extends Module {
-  /// Must be greater than 0.
-  final int exponentWidth;
-
-  /// Must be greater than 0.
-  final int mantissaWidth;
-
-  /// Output [FloatingPoint] computed
-  late final FloatingPoint sum =
-      FloatingPoint(exponentWidth: exponentWidth, mantissaWidth: mantissaWidth)
-        ..gets(output('sum'));
-
-  /// The result of [FloatingPoint] addition
-  @protected
-  late final FloatingPoint _sum =
-      FloatingPoint(exponentWidth: exponentWidth, mantissaWidth: mantissaWidth);
-
-  /// Swapping two FloatingPoint structures based on a conditional
-  static (FloatingPoint, FloatingPoint) _swap(
-          Logic swap, (FloatingPoint, FloatingPoint) toSwap) =>
-      (
-        toSwap.$1.clone()..gets(mux(swap, toSwap.$2, toSwap.$1)),
-        toSwap.$2.clone()..gets(mux(swap, toSwap.$1, toSwap.$2))
-      );
-
-  /// Add two floating point numbers [a] and [b], returning result in [sum]
-  FloatingPointAdderSimple(FloatingPoint a, FloatingPoint b,
-      {ParallelPrefix Function(List<Logic>, Logic Function(Logic, Logic))
-          ppGen = KoggeStone.new,
+class FloatingPointAdderSimple extends FloatingPointAdder {
+  /// Add two floating point numbers [a] and [b], returning result in [sum].
+  /// - [adderGen] is an adder generator to be used in the primary adder
+  /// functions.
+  /// - [ppTree] is an parallel prefix tree generator to be used in internal
+  /// functions.
+  FloatingPointAdderSimple(super.a, super.b,
+      {super.clk,
+      super.reset,
+      super.enable,
+      Adder Function(Logic a, Logic b, {Logic? carryIn}) adderGen =
+          NativeAdder.new,
+      ParallelPrefix Function(
+              List<Logic> inps, Logic Function(Logic term1, Logic term2) op)
+          ppTree = KoggeStone.new,
       super.name = 'floatingpoint_adder_simple'})
-      : exponentWidth = a.exponent.width,
-        mantissaWidth = a.mantissa.width {
-    if (b.exponent.width != exponentWidth ||
-        b.mantissa.width != mantissaWidth) {
-      throw RohdHclException('FloatingPoint widths must match');
-    }
-    a = a.clone()..gets(addInput('a', a, width: a.width));
-    b = b.clone()..gets(addInput('b', b, width: b.width));
-    addOutput('sum', width: _sum.width) <= _sum;
+      : super() {
+    final outputSum = FloatingPoint(
+        exponentWidth: exponentWidth, mantissaWidth: mantissaWidth);
+    output('sum') <= outputSum;
 
     // Ensure that the larger number is wired as 'a'
-    final doSwap = a.exponent.lt(b.exponent) |
-        (a.exponent.eq(b.exponent) & a.mantissa.lt(b.mantissa)) |
-        ((a.exponent.eq(b.exponent) & a.mantissa.eq(b.mantissa)) & b.sign);
+    final ae = this.a.exponent;
+    final be = this.b.exponent;
+    final am = this.a.mantissa;
+    final bm = this.b.mantissa;
+    final doSwap = ae.lt(be) |
+        (ae.eq(be) & am.lt(bm)) |
+        ((ae.eq(be) & am.eq(bm)) & super.a.sign);
+    final FloatingPoint a;
+    final FloatingPoint b;
+    (a, b) = swap(doSwap, (super.a, super.b));
 
-    (a, b) = _swap(doSwap, (a, b));
-
-    final aExp =
-        a.exponent + mux(a.isNormal(), a.zeroExponent(), a.oneExponent());
-    final bExp =
-        b.exponent + mux(b.isNormal(), b.zeroExponent(), b.oneExponent());
+    final isInf = a.isInfinity | b.isInfinity;
+    final isNaN =
+        a.isNaN | b.isNaN | (a.isInfinity & b.isInfinity & (a.sign ^ b.sign));
 
     // Align and add mantissas
-    final expDiff = aExp - bExp;
+    final expDiff = a.exponent - b.exponent;
+    final aMantissa = mux(
+        a.isNormal,
+        [Const(1), a.mantissa, Const(0, width: mantissaWidth + 1)].swizzle(),
+        [a.mantissa, Const(0, width: mantissaWidth + 2)].swizzle());
+    final bMantissa = mux(
+        b.isNormal,
+        [Const(1), b.mantissa, Const(0, width: mantissaWidth + 1)].swizzle(),
+        [b.mantissa, Const(0, width: mantissaWidth + 2)].swizzle());
+
     final adder = SignMagnitudeAdder(
-        a.sign,
-        [a.isNormal(), a.mantissa].swizzle(),
-        b.sign,
-        [b.isNormal(), b.mantissa].swizzle() >>> expDiff,
-        (a, b, {carryIn}) =>
-            ParallelPrefixAdder(a, b, carryIn: carryIn, ppGen: ppGen));
+        a.sign, aMantissa, b.sign, bMantissa >>> expDiff, adderGen);
 
-    final sum = adder.sum.slice(adder.sum.width - 2, 0);
-    final leadOneE =
-        ParallelPrefixPriorityEncoder(sum.reversed, ppGen: ppGen).out;
-    final leadOne = leadOneE.zeroExtend(exponentWidth);
+    final intSum = adder.sum.slice(adder.sum.width - 1, 0);
 
-    // Assemble the output FloatingPoint
-    _sum.sign <= adder.sign;
+    final aSignLatched = localFlop(a.sign);
+    final aExpLatched = localFlop(a.exponent);
+    final sumLatched = localFlop(intSum);
+    final isInfLatched = localFlop(isInf);
+    final isNaNLatched = localFlop(isNaN);
+
+    final mantissa =
+        sumLatched.reversed.getRange(0, min(intSum.width, intSum.width));
+    final leadOneValid = Logic();
+    final leadOnePre = ParallelPrefixPriorityEncoder(mantissa,
+            ppGen: ppTree, valid: leadOneValid)
+        .out;
+    // Limit leadOne to exponent range and match widths
+    final infExponent = outputSum.inf(sign: aSignLatched).exponent;
+    final leadOne = (leadOnePre.width > exponentWidth)
+        ? mux(leadOnePre.gte(infExponent.zeroExtend(leadOnePre.width)),
+            infExponent, leadOnePre.getRange(0, exponentWidth))
+        : leadOnePre.zeroExtend(exponentWidth);
+
+    final leadOneDominates = leadOne.gt(aExpLatched) | ~leadOneValid;
+    final outExp =
+        mux(leadOneDominates, a.zeroExponent, aExpLatched - leadOne + 1);
+
+    final realIsInf = isInfLatched | outExp.eq(infExponent);
+
     Combinational([
       If.block([
-        Iff(adder.sum[-1] & a.sign.eq(b.sign), [
-          _sum.mantissa < (sum >> 1).slice(mantissaWidth - 1, 0),
-          _sum.exponent < a.exponent + 1
+        Iff(isNaNLatched, [
+          outputSum < outputSum.nan,
         ]),
-        ElseIf(a.exponent.gt(leadOne) & sum.or(), [
-          _sum.mantissa < (sum << leadOne).slice(mantissaWidth - 1, 0),
-          _sum.exponent < a.exponent - leadOne
+        ElseIf(realIsInf, [
+          // ROHD 0.6.0 trace error if we use the following
+          outputSum < outputSum.inf(sign: aSignLatched),
+          // outputSum.sign < aSignLatched,
+          // outputSum.exponent < infExponent,
+          // outputSum.mantissa < Const(0, width: mantissaWidth, fill: true),
         ]),
-        ElseIf(leadOne.eq(0) & sum.or(), [
-          _sum.mantissa < (sum << leadOne).slice(mantissaWidth - 1, 0),
-          _sum.exponent < a.exponent - leadOne + 1
+        ElseIf(leadOneDominates, [
+          outputSum.sign < aSignLatched,
+          outputSum.exponent < a.zeroExponent,
+          outputSum.mantissa <
+              (sumLatched << aExpLatched + 1)
+                  .getRange(intSum.width - mantissaWidth, intSum.width),
         ]),
         Else([
-          // subnormal result
-          _sum.mantissa < sum.slice(mantissaWidth - 1, 0),
-          _sum.exponent < _sum.zeroExponent()
+          outputSum.sign < aSignLatched,
+          outputSum.exponent < aExpLatched - leadOne + 1,
+          outputSum.mantissa <
+              (sumLatched << leadOne + 1)
+                  .getRange(intSum.width - mantissaWidth, intSum.width),
         ])
       ])
     ]);

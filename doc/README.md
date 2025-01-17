@@ -42,6 +42,7 @@ Some in-development items will have opened issues, as well. Feel free to create 
     - [Parallel Prefix Adder](./components/parallel_prefix_operations.md)
     - [Sign Magnitude Adder](./components/adder.md#sign-magnitude-adder)
     - [Compound Adder](./components/adder.md#compound-adder)
+    - [Native Adder](./components/adder.md#native-adder)
   - Subtractors
     - [Ones' Complement Adder Subtractor](./components/adder.md#ones-complement-adder-subtractor)
   - Multipliers
@@ -63,11 +64,13 @@ Some in-development items will have opened issues, as well. Feel free to create 
       - 8-bit E4/M3 and E5/M2
     - [Simple Floating-Point Adder](./components/floating_point.md#floatingpointadder)
     - [Rounding Floating-Point Adder](./components/floating_point.md#floatingpointadder)
+    - [Simple Floating-Point Multiplier](./components/floating_point.md#floatingpointmultiplier)
   - [Fixed point](./components/fixed_point.md)
     - [FloatToFixed](./components/fixed_point.md#floattofixed)
     - [FixedToFloat](./components/fixed_point.md#fixedtofloat)
   - Binary-Coded Decimal (BCD)
 - [Rotate](./components/rotate.md)
+- [SignedShifter](./components/shifter.md)
 - Counters
   - [Summation](./components/summation.md#sum)
   - [Binary counter](./components/summation.md#counter)
