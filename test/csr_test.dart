@@ -425,13 +425,34 @@ void main() {
   });
 
   test('CSR validation failures', () async {
-    // illegal individual field
-    final badFieldCfg = CsrFieldConfig(
+    // illegal individual field - no legal values
+    final badFieldCfg1 = CsrFieldConfig(
         start: 0,
         width: 1,
         name: 'badFieldCfg',
         access: CsrFieldAccess.READ_WRITE_LEGAL);
-    expect(badFieldCfg.validate,
+    expect(badFieldCfg1.validate,
+        throwsA(predicate((f) => f is CsrValidationException)));
+
+    // illegal individual field - reset value doesn't fit
+    final badFieldCfg2 = CsrFieldConfig(
+        start: 0,
+        width: 1,
+        name: 'badFieldCfg',
+        access: CsrFieldAccess.READ_WRITE,
+        resetValue: 0xfff);
+    expect(badFieldCfg2.validate,
+        throwsA(predicate((f) => f is CsrValidationException)));
+
+    // illegal individual field - legal value doesn't fit
+    final badFieldCfg3 = CsrFieldConfig(
+        start: 0,
+        width: 1,
+        name: 'badFieldCfg',
+        access: CsrFieldAccess.READ_WRITE_LEGAL)
+      ..addLegalValue(0x0)
+      ..addLegalValue(0xfff);
+    expect(badFieldCfg3.validate,
         throwsA(predicate((f) => f is CsrValidationException)));
 
     // illegal architectural register
@@ -460,8 +481,8 @@ void main() {
     expect(badArchRegCfg.validate,
         throwsA(predicate((f) => f is CsrValidationException)));
 
-    // illegal register instance
-    final badRegInstCfg = CsrInstanceConfig(
+    // illegal register instance - field surpasses reg width
+    final badRegInstCfg1 = CsrInstanceConfig(
         arch: CsrConfig(access: CsrAccess.READ_WRITE, name: 'reg')
           ..fields.add(CsrFieldConfig(
               start: 0,
@@ -470,7 +491,21 @@ void main() {
               access: CsrFieldAccess.READ_WRITE)),
         addr: 0x0,
         width: 4);
-    expect(badRegInstCfg.validate,
+    expect(badRegInstCfg1.validate,
+        throwsA(predicate((f) => f is CsrValidationException)));
+
+    // illegal register instance - reset value surpasses reg width
+    final badRegInstCfg2 = CsrInstanceConfig(
+        arch: CsrConfig(access: CsrAccess.READ_WRITE, name: 'reg')
+          ..fields.add(CsrFieldConfig(
+              start: 0,
+              width: 4,
+              name: 'field',
+              access: CsrFieldAccess.READ_WRITE)),
+        addr: 0x0,
+        width: 4,
+        resetValue: 0xfff);
+    expect(badRegInstCfg2.validate,
         throwsA(predicate((f) => f is CsrValidationException)));
   });
 

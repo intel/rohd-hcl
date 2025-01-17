@@ -72,6 +72,11 @@ class CsrFieldConfig {
   /// Access rule for the field.
   final CsrFieldAccess access;
 
+  /// Reset value for the field.
+  ///
+  /// Can be unspecified in which case takes 0.
+  final int resetValue;
+
   /// A list of legal values for the field.
   ///
   /// This list can be empty and in general is only
@@ -84,6 +89,7 @@ class CsrFieldConfig {
     required this.width,
     required this.name,
     required this.access,
+    this.resetValue = 0,
   });
 
   /// Add a legal value for the field.
@@ -100,11 +106,29 @@ class CsrFieldConfig {
 
   /// Method to validate the configuration of a single field.
   void validate() {
+    // reset value must fit within the field's width
+    if (resetValue.bitLength > width) {
+      throw CsrValidationException(
+          'Field $name reset value does not fit within the field.');
+    }
+
     // there must be at least 1 legal value for a READ_WRITE_LEGAL field
+    // and the reset value must be legal
+    // and every legal value must fit within the field's width
     if (access == CsrFieldAccess.READ_WRITE_LEGAL) {
       if (legalValues.isEmpty) {
         throw CsrValidationException(
             'Field $name has no legal values but has access READ_WRITE_LEGAL.');
+      } else if (!legalValues.contains(resetValue)) {
+        throw CsrValidationException(
+            'Field $name reset value is not a legal value.');
+      }
+
+      for (final lv in legalValues) {
+        if (lv.bitLength > width) {
+          throw CsrValidationException(
+              'Field $name legal value $lv does not fit within the field.');
+        }
       }
     }
   }
@@ -125,7 +149,7 @@ class CsrConfig {
   /// Architectural reset value for the register.
   ///
   /// Note that this can be overridden in the instantiation of the register.
-  int resetValue;
+  int? resetValue;
 
   /// Architectural property in which the register can be frontdoor read.
   ///
@@ -154,7 +178,7 @@ class CsrConfig {
   CsrConfig({
     required this.name,
     required this.access,
-    this.resetValue = 0,
+    this.resetValue,
     this.isFrontdoorReadable = true,
     this.isFrontdoorWritable = true,
     this.isBackdoorReadable = true,
@@ -165,6 +189,17 @@ class CsrConfig {
   /// within the register by name [nm].
   CsrFieldConfig getFieldByName(String nm) =>
       fields.firstWhere((element) => element.name == nm);
+
+  /// Helper to derive a reset value for the register from its fields.
+  ///
+  /// Only should be used if a reset value isn't explicitly provided.
+  int resetValueFromFields() {
+    var rv = 0;
+    for (final field in fields) {
+      rv |= field.resetValue << field.start;
+    }
+    return rv;
+  }
 
   /// Method to validate the configuration of a single register.
   ///
@@ -233,7 +268,7 @@ class CsrInstanceConfig {
   CsrAccess get access => arch.access;
 
   /// Accessor to the architectural reset value of the register.
-  int get resetValue => arch.resetValue;
+  int get resetValue => arch.resetValue ?? arch.resetValueFromFields();
 
   /// Accessor to the architectural frontdoor readability of the register.
   bool get isFrontdoorReadable => arch.isFrontdoorReadable;
@@ -294,6 +329,12 @@ class CsrInstanceConfig {
   void validate() {
     // start by running architectural register validation
     arch.validate();
+
+    // reset value must fit within the register's width
+    if (resetValue.bitLength > width) {
+      throw CsrValidationException(
+          'Register $name reset value does not fit within its width.');
+    }
 
     // check that the field widths don't exceed the register width
     var impliedEnd = 0;
