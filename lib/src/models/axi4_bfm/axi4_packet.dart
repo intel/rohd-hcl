@@ -11,10 +11,11 @@ import 'dart:async';
 
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
+import 'package:rohd_hcl/src/models/axi4_bfm/axi4_bfm.dart';
 import 'package:rohd_vf/rohd_vf.dart';
 
-/// A packet on an AXI4 interface.
-abstract class Axi4Packet extends SequenceItem implements Trackable {
+/// A request packet on an AXI4 interface.
+abstract class Axi4RequestPacket extends SequenceItem implements Trackable {
   /// Address.
   final LogicValue addr;
 
@@ -49,7 +50,7 @@ abstract class Axi4Packet extends SequenceItem implements Trackable {
   final LogicValue? user;
 
   /// Creates a new packet.
-  Axi4Packet(
+  Axi4RequestPacket(
       {required this.addr,
       required this.prot,
       this.id,
@@ -77,7 +78,7 @@ abstract class Axi4Packet extends SequenceItem implements Trackable {
 
   /// Called by a completer when a transfer is completed.
   void complete({LogicValue? resp, LogicValue? user}) {
-    if (_returnedResponse != null) {
+    if (_returnedResponse != null || _returnedUserData != null) {
       throw RohdHclException('Packet is already completed.');
     }
 
@@ -91,10 +92,32 @@ abstract class Axi4Packet extends SequenceItem implements Trackable {
     switch (field.title) {
       case Axi4Tracker.timeField:
         return Simulator.time.toString();
+      case Axi4Tracker.idField:
+        return Simulator.time.toString();
       case Axi4Tracker.addrField:
         return addr.toString();
-      case Axi4Tracker.selectField:
-        return selectIndex.toString();
+      case Axi4Tracker.lenField:
+        return len.toString();
+      case Axi4Tracker.sizeField:
+        return size.toString();
+      case Axi4Tracker.burstField:
+        return burst.toString();
+      case Axi4Tracker.lockField:
+        return lock.toString();
+      case Axi4Tracker.cacheField:
+        return cache.toString();
+      case Axi4Tracker.protField:
+        return prot.toString();
+      case Axi4Tracker.qosField:
+        return qos.toString();
+      case Axi4Tracker.regionField:
+        return region.toString();
+      case Axi4Tracker.userField:
+        return user.toString();
+      case Axi4Tracker.respField:
+        return returnedResponse.toString();
+      case Axi4Tracker.rUserField:
+        return returnedUserData.toString();
     }
 
     return null;
@@ -102,14 +125,14 @@ abstract class Axi4Packet extends SequenceItem implements Trackable {
 }
 
 /// A read packet on an [Axi4ReadInterface].
-class Axi4ReadPacket extends Axi4Packet {
+class Axi4ReadRequestPacket extends Axi4RequestPacket {
   /// Data returned by the read.
-  LogicValue? get returnedData => _returnedData;
+  List<LogicValue> get returnedData => _returnedData;
 
-  LogicValue? _returnedData;
+  List<LogicValue> _returnedData = [];
 
   /// Creates a read packet.
-  Axi4ReadPacket({
+  Axi4ReadRequestPacket({
     required super.addr,
     required super.prot,
     super.id,
@@ -126,11 +149,11 @@ class Axi4ReadPacket extends Axi4Packet {
   /// Called by a completer when a transfer is completed.
   @override
   void complete({
-    LogicValue? data,
+    List<LogicValue> data = const [],
     LogicValue? resp,
     LogicValue? user,
   }) {
-    if (_returnedData != null) {
+    if (_returnedData.isNotEmpty) {
       throw RohdHclException('Packet is already completed.');
     }
     _returnedData = data;
@@ -140,12 +163,14 @@ class Axi4ReadPacket extends Axi4Packet {
   @override
   String? trackerString(TrackerField field) {
     switch (field.title) {
-      case ApbTracker.typeField:
+      case Axi4Tracker.typeField:
         return 'R';
-      case ApbTracker.dataField:
-        return returnedData?.toString();
-      case ApbTracker.slverrField:
-        return returnedSlvErr?.toString(includeWidth: false);
+      case Axi4Tracker.dataField:
+        return returnedData
+            .map((d) => d.toRadixString(radix: 16))
+            .toList()
+            .reversed
+            .join();
     }
 
     return super.trackerString(field);
@@ -153,22 +178,23 @@ class Axi4ReadPacket extends Axi4Packet {
 }
 
 /// A write packet on an [Axi4WriteInterface].
-class Axi4WritePacket extends Axi4Packet {
+class Axi4WriteRequestPacket extends Axi4RequestPacket {
   /// The data for this packet.
-  final LogicValue data;
+  final List<LogicValue> data;
 
   /// The strobe associated with this write.
-  final LogicValue? strobe;
+  final List<LogicValue?> strobe;
 
   /// The user metadata associated with this write.
-  final LogicValue? wUser;
+  final List<LogicValue?> wUser;
 
   /// Creates a write packet.
   ///
   /// If no [strobe] is provided, it will default to all high.
-  Axi4WritePacket(
+  Axi4WriteRequestPacket(
       {required super.addr,
       required super.prot,
+      required this.data,
       super.id,
       super.len,
       super.size,
@@ -178,20 +204,29 @@ class Axi4WritePacket extends Axi4Packet {
       super.qos,
       super.region,
       super.user,
-      LogicValue? strobe,
-      required this.data,
-      this.wUser})
-      : strobe = strobe ?? LogicValue.filled(data.width ~/ 8, LogicValue.one);
+      this.strobe = const [],
+      this.wUser = const []});
 
   @override
   String? trackerString(TrackerField field) {
     switch (field.title) {
-      case ApbTracker.typeField:
+      case Axi4Tracker.typeField:
         return 'W';
-      case ApbTracker.dataField:
-        return data.toString();
-      case ApbTracker.strobeField:
-        return strobe.toString(includeWidth: false);
+      case Axi4Tracker.dataField:
+        return data
+            .map((d) => d.toRadixString(radix: 16))
+            .toList()
+            .reversed
+            .join();
+      case Axi4Tracker.strbField:
+        return strobe
+            .where(
+              (element) => element != null,
+            )
+            .map((d) => d!.toRadixString(radix: 16))
+            .toList()
+            .reversed
+            .join();
     }
 
     return super.trackerString(field);

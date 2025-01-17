@@ -1,42 +1,53 @@
-// Copyright (C) 2023-2024 Intel Corporation
+// Copyright (C) 2024-2025 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 //
-// apb_completer.dart
-// An agent for completing APB requests.
+// axi4_subordinate.dart
+// A subordinate AXI4 agent.
 //
-// 2023 June 12
-// Author: Max Korbel <max.korbel@intel.com>
+// 2025 January
+// Author: Josh Kimmel <joshua1.kimmel@intel.com>
 
 import 'dart:async';
 
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
+import 'package:rohd_hcl/src/models/axi4_bfm/axi4_bfm.dart';
 import 'package:rohd_vf/rohd_vf.dart';
 
-/// A model for the completer side of an [ApbInterface].
-class ApbCompleterAgent extends Agent {
-  /// The interface to drive.
-  final ApbInterface intf;
+// TODO: FIGURE OUT IF DATA TRANSFERS CAN OCCUR OVER ARBITARY CYCLES
 
-  /// The index that this is listening to on the [intf].
-  final int selectIndex;
+/// A model for the subordinate side of an [Axi4ReadInterface] and [Axi4WriteInterface].
+class Axi4SubordinateAgent extends Agent {
+  /// The system interface.
+  final Axi4SystemInterface sIntf;
 
-  /// A place where the completer should save and retrieve data.
+  /// The read interface to drive.
+  final Axi4ReadInterface rIntf;
+
+  /// The write interface to drive.
+  final Axi4WriteInterface wIntf;
+
+  /// A place where the subordinate should save and retrieve data.
   ///
-  /// The [ApbCompleterAgent] will reset [storage] whenever the `resetN` signal
+  /// The [Axi4SubordinateAgent] will reset [storage] whenever the `resetN` signal
   /// is dropped.
   final MemoryStorage storage;
 
   /// A function which delays the response for the given `request`.
   ///
   /// If none is provided, then the delay will always be `0`.
-  final int Function(ApbPacket request)? responseDelay;
+  final int Function(Axi4ReadRequestPacket request)? readResponseDelay;
+
+  /// A function which delays the response for the given `request`.
+  ///
+  /// If none is provided, then the delay will always be `0`.
+  final int Function(Axi4WriteRequestPacket request)? writeResponseDelay;
 
   /// A function that determines whether a response for a request should contain
   /// an error (`slvErr`).
   ///
   /// If none is provided, it will always respond with no error.
-  final bool Function(ApbPacket request)? respondWithError;
+  final bool Function(Axi4RequestPacket request)? respondWithError;
 
   /// If true, then returned data on an error will be `x`.
   final bool invalidReadDataOnError;
@@ -45,23 +56,39 @@ class ApbCompleterAgent extends Agent {
   /// [storage].
   final bool dropWriteDataOnError;
 
-  /// Creates a new model [ApbCompleterAgent].
+  // to handle response read responses
+  final List<Axi4ReadRequestPacket> _dataReadResponseMetadataQueue = [];
+  final List<List<LogicValue>> _dataReadResponseDataQueue = [];
+  int _dataReadResponseIndex = 0;
+
+  // to handle writes
+  final List<Axi4WriteRequestPacket> _writeMetadataQueue = [];
+  final List<List<LogicValue>> _writeDataQueue = [];
+  bool _writeReadyToOccur = false;
+
+  /// Creates a new model [Axi4SubordinateAgent].
   ///
   /// If no [storage] is provided, it will use a default [SparseMemoryStorage].
-  ApbCompleterAgent(
-      {required this.intf,
+  Axi4SubordinateAgent(
+      {required this.sIntf,
+      required this.rIntf,
+      required this.wIntf,
       required Component parent,
       MemoryStorage? storage,
-      this.selectIndex = 0,
-      this.responseDelay,
+      this.readResponseDelay,
+      this.writeResponseDelay,
       this.respondWithError,
       this.invalidReadDataOnError = true,
       this.dropWriteDataOnError = true,
-      String name = 'apbCompleter'})
-      : storage = storage ??
+      String name = 'axi4SubordinateAgent'})
+      : assert(rIntf.addrWidth == wIntf.addrWidth,
+            'Read and write interfaces should have same address width.'),
+        assert(rIntf.dataWidth == wIntf.dataWidth,
+            'Read and write interfaces should have same data width.'),
+        storage = storage ??
             SparseMemoryStorage(
-              addrWidth: intf.addrWidth,
-              dataWidth: intf.dataWidth,
+              addrWidth: rIntf.addrWidth,
+              dataWidth: rIntf.dataWidth,
             ),
         super(name, parent);
 
@@ -69,17 +96,23 @@ class ApbCompleterAgent extends Agent {
   Future<void> run(Phase phase) async {
     unawaited(super.run(phase));
 
-    intf.resetN.negedge.listen((event) {
+    sIntf.resetN.negedge.listen((event) {
       storage.reset();
+      _dataReadResponseDataQueue.clear();
+      _dataReadResponseMetadataQueue.clear();
+      _dataReadResponseIndex = 0;
     });
 
-    _respond(ready: false);
-
     // wait for reset to complete
-    await intf.resetN.nextPosedge;
+    await sIntf.resetN.nextPosedge;
 
     while (!Simulator.simulationHasEnded) {
-      await _receive();
+      await sIntf.clk.nextNegedge;
+      _driveReadys();
+      _respondRead();
+      _respondWrite();
+      _receiveRead();
+      _receiveWrite();
     }
   }
 
@@ -92,84 +125,180 @@ class ApbCompleterAgent extends Agent {
               .getRange(i * 8, i * 8 + 8)
       ].rswizzle();
 
-  /// Receives one packet (or returns if not selected).
-  Future<void> _receive() async {
-    await intf.enable.nextPosedge;
-
-    if (!intf.sel[selectIndex].value.toBool()) {
-      // we're not selected, wait for the next time
-      return;
-    }
-
-    ApbPacket packet;
-    if (intf.write.value.toBool()) {
-      packet = ApbWritePacket(
-        addr: intf.addr.value,
-        data: intf.wData.value,
-        strobe: intf.strb.value,
-      );
-    } else {
-      packet = ApbReadPacket(addr: intf.addr.value);
-    }
-
-    if (responseDelay != null) {
-      final delayCycles = responseDelay!(packet);
-      if (delayCycles > 0) {
-        await intf.clk.waitCycles(delayCycles);
-      }
-    }
-
-    if (packet is ApbWritePacket) {
-      final writeError = respondWithError != null && respondWithError!(packet);
-
-      // store the data
-      if (!(writeError && dropWriteDataOnError)) {
-        storage.writeData(
-          packet.addr,
-          packet.strobe.and().toBool() // don't `readData` if all 1's
-              ? packet.data
-              : _strobeData(
-                  storage.readData(packet.addr),
-                  packet.data,
-                  packet.strobe,
-                ),
-        );
-      }
-
-      _respond(
-        ready: true,
-        error: writeError,
-      );
-    } else if (packet is ApbReadPacket) {
-      // capture the data
-      _respond(
-        ready: true,
-        data: storage.readData(packet.addr),
-        error: respondWithError != null && respondWithError!(packet),
-      );
-    }
-
-    // drop the ready when enable drops
-    await intf.enable.nextNegedge;
-    _respond(ready: false);
+  // assesses the input ready signals and drives them appropriately
+  void _driveReadys() {
+    // for now, assume we can always handle a new request
+    rIntf.arReady.put(true);
+    wIntf.awReady.put(true);
+    wIntf.wReady.put(true);
   }
 
-  /// Sets up response signals for the completer (including using inject).
-  void _respond({required bool ready, bool? error, LogicValue? data}) {
-    Simulator.injectAction(() {
-      intf.ready.put(ready);
+  /// Receives one packet (or returns if not selected).
+  void _receiveRead() {
+    // work to if main is indicating a valid read that we are ready to handle
+    if (rIntf.arValid.value.toBool() && rIntf.arReady.value.toBool()) {
+      final packet = Axi4ReadRequestPacket(
+          addr: rIntf.arAddr.value,
+          prot: rIntf.arProt.value,
+          id: rIntf.arId?.value,
+          len: rIntf.arLen?.value,
+          size: rIntf.arSize?.value,
+          burst: rIntf.arBurst?.value,
+          lock: rIntf.arLock?.value,
+          cache: rIntf.arCache?.value,
+          qos: rIntf.arQos?.value,
+          region: rIntf.arRegion?.value,
+          user: rIntf.arUser?.value);
 
-      if (error == null) {
-        intf.slvErr?.put(LogicValue.x);
-      } else {
-        intf.slvErr?.put(error);
+      // NOTE: generic model does not handle the following read request fields:
+      //  cache
+      //  qos
+      //  region
+      //  user
+      // These can be handled in a derived class of this model if need be.
+      // Because for the most part they require implementation specific handling.
+
+      // NOTE: generic model doesn't honor the prot field in read requests.
+      // It will be added as a feature request in the future.
+
+      // NOTE: generic model doesn't honor the lock field in read requests.
+      // It will be added as a feature request in the future.
+
+      // query storage to retrieve the data
+      final data = <LogicValue>[];
+      var addrToRead = rIntf.arAddr.value;
+      final endCount = rIntf.arLen?.value.toInt() ?? 1;
+      final dSize = (rIntf.arSize?.value.toInt() ?? 0) * 8;
+      final increment = rIntf.arBurst?.value.toInt() ?? 1;
+      for (var i = 0; i < endCount; i++) {
+        var currData = storage.readData(addrToRead);
+        if (dSize > 0) {
+          if (currData.width < dSize) {
+            currData = currData.zeroExtend(dSize);
+          } else if (currData.width > dSize) {
+            currData = currData.getRange(0, dSize);
+          }
+        }
+        data.add(currData);
+        addrToRead = addrToRead + increment;
       }
 
-      if (data == null || ((error ?? false) && invalidReadDataOnError)) {
-        intf.rData.put(LogicValue.x);
+      _dataReadResponseMetadataQueue.add(packet);
+      _dataReadResponseDataQueue.add(data);
+    }
+  }
+
+  // respond to a read request
+  void _respondRead() {
+    // only respond if there is something to respond to
+    // and the main side is indicating that it is ready to receive
+    if (_dataReadResponseMetadataQueue.isNotEmpty &&
+        _dataReadResponseDataQueue.isNotEmpty &&
+        rIntf.rReady.value.toBool()) {
+      final packet = _dataReadResponseMetadataQueue[0];
+      final currData = _dataReadResponseDataQueue[0][_dataReadResponseIndex];
+      final error = respondWithError != null && respondWithError!(packet);
+      final last =
+          _dataReadResponseIndex == _dataReadResponseDataQueue[0].length - 1;
+
+      // TODO: how to deal with delays??
+      // if (readResponseDelay != null) {
+      //   final delayCycles = readResponseDelay!(packet);
+      //   if (delayCycles > 0) {
+      //     await sIntf.clk.waitCycles(delayCycles);
+      //   }
+      // }
+
+      // for now, only support sending slvErr and okay as responses
+      rIntf.rValid.put(true);
+      rIntf.rId?.put(packet.id);
+      rIntf.rData.put(currData);
+      rIntf.rResp?.put(error
+          ? LogicValue.ofInt(Axi4RespField.slvErr.value, rIntf.rResp!.width)
+          : LogicValue.ofInt(Axi4RespField.okay.value, rIntf.rResp!.width));
+      rIntf.rUser?.put(0); // don't support user field for now
+      rIntf.rLast?.put(last);
+
+      if (last) {
+        // pop this read response off the queue
+        _dataReadResponseIndex = 0;
+        _dataReadResponseMetadataQueue.removeAt(0);
+        _dataReadResponseDataQueue.removeAt(0);
       } else {
-        intf.rData.put(data);
+        // move to the next chunk of data
+        _dataReadResponseIndex++;
       }
-    });
+    }
+  }
+
+  // handle an incoming write request
+  void _receiveWrite() {
+    // work to if main is indicating a valid read that we are ready to handle
+    if (wIntf.awValid.value.toBool() && wIntf.awReady.value.toBool()) {
+      var packet = Axi4WriteRequestPacket(
+          addr: wIntf.awAddr.value,
+          prot: wIntf.awProt.value,
+          id: wIntf.awId?.value,
+          len: wIntf.awLen?.value,
+          size: wIntf.awSize?.value,
+          burst: wIntf.awBurst?.value,
+          lock: wIntf.awLock?.value,
+          cache: wIntf.awCache?.value,
+          qos: wIntf.awQos?.value,
+          region: wIntf.awRegion?.value,
+          user: wIntf.awUser?.value,
+          data: [],
+          strobe: []);
+
+      // might need to capture the first data and strobe simultaneously
+      // NOTE: we are dropping wUser on the floor for now...
+      final idMatch = wIntf.awId?.value == wIntf.wId?.value;
+      if (wIntf.wValid.value.toBool() && wIntf.wReady.value.toBool()) {
+        packet.data.add(wIntf.wData.value);
+        packet.strobe.add(wIntf.wStrb.value);
+        if (wIntf.wLast.value.toBool()) {
+          _writeReadyToOccur = true;
+        }
+      }
+
+      // queue up the packet for further processing
+      _writeMetadataQueue.add(packet);
+
+      // NOTE: generic model does not handle the following read request fields:
+      //  cache
+      //  qos
+      //  region
+      //  user
+      // These can be handled in a derived class of this model if need be.
+      // Because for the most part they require implementation specific handling.
+
+      // NOTE: generic model doesn't honor the prot field in read requests.
+      // It will be added as a feature request in the future.
+
+      // NOTE: generic model doesn't honor the lock field in read requests.
+      // It will be added as a feature request in the future.
+
+      // write data to the storage
+      final data = <LogicValue>[];
+      var addrToRead = rIntf.arAddr.value;
+      final endCount = rIntf.arLen?.value.toInt() ?? 1;
+      final dSize = (rIntf.arSize?.value.toInt() ?? 0) * 8;
+      final increment = rIntf.arBurst?.value.toInt() ?? 1;
+      for (var i = 0; i < endCount; i++) {
+        var currData = storage.readData(addrToRead);
+        if (dSize > 0) {
+          if (currData.width < dSize) {
+            currData = currData.zeroExtend(dSize);
+          } else if (currData.width > dSize) {
+            currData = currData.getRange(0, dSize);
+          }
+        }
+        data.add(currData);
+        addrToRead = addrToRead + increment;
+      }
+
+      _dataReadResponseMetadataQueue.add(packet);
+      _dataReadResponseDataQueue.add(data);
+    }
   }
 }

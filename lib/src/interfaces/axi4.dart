@@ -549,3 +549,94 @@ class Axi4WriteInterface extends Interface<Axi4Direction> {
     }
   }
 }
+
+/// Helper to enumerate the encodings of the xRESP signal.
+enum Axi4BurstField {
+  /// Address remains constants.
+  fixed(0x0),
+
+  /// Address increments by the transfer size.
+  incr(0x1),
+
+  /// Similar to incr, but wraps around to a lower boundary when a boundary is reached.
+  wrap(0x2);
+
+  /// Underlying value.
+  final int value;
+
+  const Axi4BurstField(this.value);
+}
+
+/// Helper to enumerate the one hot encodings of the AxPROT signal.
+enum Axi4ProtField {
+  /// Transaction to be performed in privileged mode (1) or non-privileged (0).
+  privileged(0x1),
+
+  /// Transaction is accessing secure memory (0) or unsecure memory (1).
+  secure(0x2),
+
+  /// Transaction is performing an instruction fetch (1) or data fetch (0).
+  instruction(0x4);
+
+  /// Underlying value.
+  final int value;
+
+  const Axi4ProtField(this.value);
+}
+
+/// Helper to enumerate the encodings of the AxLOCK signal.
+enum Axi4LockField {
+  /// Normal transaction.
+  normal(0x0),
+
+  /// Part of a read-modify-write.
+  exclusive(0x2),
+
+  /// Resource can't be accessed until transaction completes.
+  locked(0x3);
+
+  /// Underlying value.
+  final int value;
+
+  const Axi4LockField(this.value);
+}
+
+/// Helper to enumerate the one hot encodings of the AxCACHE signal.
+enum Axi4CacheField {
+  /// Transaction can be buffered.
+  bufferable(0x1),
+
+  /// Transaction can be cached.
+  cacheable(0x2),
+
+  /// Cache space can be allocated during a read.
+  readAllocate(0x4),
+
+  /// Cache space can be allocated during a write
+  writeAllocate(0x8);
+
+  /// Underlying one hot encoded value.
+  final int value;
+
+  const Axi4CacheField(this.value);
+}
+
+/// Helper to enumerate the encodings of the xRESP signal.
+enum Axi4RespField {
+  /// Expected result.
+  okay(0x0),
+
+  /// Okay, exclusive access granted.
+  exOkay(0x1),
+
+  /// Subordinate recoverable error.
+  slvErr(0x2),
+
+  /// Subordinate fatal error.
+  decErr(0x3);
+
+  /// Underlying value.
+  final int value;
+
+  const Axi4RespField(this.value);
+}
