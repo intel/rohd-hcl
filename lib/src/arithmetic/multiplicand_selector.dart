@@ -87,13 +87,10 @@ class MultiplicandSelector {
 
   /// Compute the multiples of the multiplicand at current bit position
   Logic getMultiples(int col) {
-    final columnMultiples = nameLogic(
-        'multiples_c$col',
-        naming: Naming.mergeable,
-        [
-          for (var i = 0; i < multiples.elements.length; i++)
-            multiples.elements[i][col]
-        ].swizzle());
+    final columnMultiples = [
+      for (var i = 0; i < multiples.elements.length; i++)
+        multiples.elements[i][col]
+    ].swizzle().named('multiples_c$col', naming: Naming.mergeable);
     return columnMultiples.reversed;
   }
 
@@ -102,18 +99,17 @@ class MultiplicandSelector {
 
   // _select attempts to name signals that RadixEncode cannot due to trace
   Logic _select(Logic multiples, RadixEncode encode) {
-    final eMultiples = nameLogic(
-        'encoded_multiple_r${encode.row}', encode.multiples,
-        naming: Naming.mergeable);
-    final eSign = nameLogic('encode_sign_r${encode.row}', encode.sign,
-        naming: Naming.mergeable);
+    final eMultiples = encode.multiples
+        .named('encoded_multiple_r${encode.row}', naming: Naming.mergeable);
+    final eSign = encode.sign
+        .named('encode_sign_r${encode.row}', naming: Naming.mergeable);
     return (eMultiples & multiples).or() ^ eSign;
   }
 
   /// Select the partial product term from the multiples using a RadixEncode
   Logic select(int col, RadixEncode encode) {
-    final mults = nameLogic('select_r${encode.row}_c$col', fetchMultiples(col),
-        naming: Naming.mergeable);
+    final mults = fetchMultiples(col)
+        .named('select_r${encode.row}_c$col', naming: Naming.mergeable);
     return _select(mults, encode);
   }
 }

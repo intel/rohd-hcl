@@ -76,11 +76,11 @@ abstract class FloatingPointAdder extends Module {
   @protected
   (FloatingPoint, FloatingPoint) swap(
       Logic swap, (FloatingPoint, FloatingPoint) toSwap) {
-    final in1 = nameLogic('swap_in_${toSwap.$1.name}', toSwap.$1);
-    final in2 = nameLogic('swap_in_${toSwap.$2.name}', toSwap.$2);
+    final in1 = toSwap.$1.named('swap_in_${toSwap.$1.name}');
+    final in2 = toSwap.$2.named('swap_in_${toSwap.$2.name}');
 
-    final out1 = nameLogic('swap_out_larger', mux(swap, in2, in1));
-    final out2 = nameLogic('swap_out_smaller', mux(swap, in1, in2));
+    final out1 = mux(swap, in2, in1).named('swap_out_larger');
+    final out2 = mux(swap, in1, in2).named('swap_out_smaller');
     final first = a.clone(name: 'larger')..gets(out1);
     final second = a.clone(name: 'smaller')..gets(out2);
     return (first, second);
@@ -94,11 +94,10 @@ abstract class FloatingPointAdder extends Module {
     final be = toSort.$2.exponent;
     final am = toSort.$1.mantissa;
     final bm = toSort.$2.mantissa;
-    final doSwap = nameLogic(
-        'doSwap',
-        ae.lt(be) |
+    final doSwap = (ae.lt(be) |
             (ae.eq(be) & am.lt(bm)) |
-            ((ae.eq(be) & am.eq(bm)) & toSort.$1.sign));
+            ((ae.eq(be) & am.eq(bm)) & toSort.$1.sign))
+        .named('doSwap');
 
     final swapped = swap(doSwap, toSort);
 

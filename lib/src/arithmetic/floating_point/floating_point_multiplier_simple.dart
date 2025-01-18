@@ -42,20 +42,16 @@ class FloatingPointMultiplierSimple extends FloatingPointMultiplier {
         name: 'product');
     output('product') <= product;
 
-    final aMantissa = nameLogic(
-        'a_mantissa',
-        mux(a.isNormal, [a.isNormal, a.mantissa].swizzle(),
-            [a.mantissa, Const(0)].swizzle()));
-    final bMantissa = nameLogic(
-        'a_mantissa',
-        mux(b.isNormal, [b.isNormal, b.mantissa].swizzle(),
-            [b.mantissa, Const(0)].swizzle()));
+    final aMantissa = mux(a.isNormal, [a.isNormal, a.mantissa].swizzle(),
+            [a.mantissa, Const(0)].swizzle())
+        .named('aMantissa');
+    final bMantissa = mux(b.isNormal, [b.isNormal, b.mantissa].swizzle(),
+            [b.mantissa, Const(0)].swizzle())
+        .named('bMantissa');
 
-    final productExp = nameLogic(
-        'productExp',
-        a.exponent.zeroExtend(exponentWidth + 2) +
-            b.exponent.zeroExtend(exponentWidth + 2) -
-            a.bias.zeroExtend(exponentWidth + 2));
+    final productExp = a.exponent.zeroExtend(exponentWidth + 2) +
+        b.exponent.zeroExtend(exponentWidth + 2) -
+        a.bias.zeroExtend(exponentWidth + 2).named('productExp');
 
     final pp =
         PartialProductGenerator(aMantissa, bMantissa, RadixEncoder(radix));
@@ -64,19 +60,18 @@ class FloatingPointMultiplierSimple extends FloatingPointMultiplier {
         ColumnCompressor(pp, clk: clk, reset: reset, enable: enable)
           ..compress();
 
-    final row0 = nameLogic('row0', compressor.extractRow(0));
-    final row1 = nameLogic('row1', compressor.extractRow(1));
+    final row0 = compressor.extractRow(0).named('row0');
+    final row1 = compressor.extractRow(1).named('row1');
     final adder = adderGen(row0, row1);
     // Input mantissas have implicit lead: product mantissa width is (mw+1)*2)
     final mantissa =
-        nameLogic('mantissa', adder.sum.getRange(0, (mantissaWidth + 1) * 2));
+        adder.sum.getRange(0, (mantissaWidth + 1) * 2).named('mantissa');
 
-    final isInf = nameLogic('isInf', a.isInfinity | b.isInfinity);
-    final isNaN = nameLogic(
-        'isNaN',
-        a.isNaN |
+    final isInf = (a.isInfinity | b.isInfinity).named('isInf');
+    final isNaN = (a.isNaN |
             b.isNaN |
-            ((a.isInfinity | b.isInfinity) & (a.isZero | b.isZero)));
+            ((a.isInfinity | b.isInfinity) & (a.isZero | b.isZero)))
+        .named('isNaN');
 
     final productExpLatch = localFlop(productExp);
     final aSignLatch = localFlop(a.sign);
@@ -84,12 +79,11 @@ class FloatingPointMultiplierSimple extends FloatingPointMultiplier {
     final isInfLatch = localFlop(isInf);
     final isNaNLatch = localFlop(isNaN);
 
-    final leadingOnePos = nameLogic(
-        'leadingone',
-        ParallelPrefixPriorityEncoder(mantissa.reversed,
-                ppGen: ppTree, name: 'leading_one_encoder')
-            .out
-            .zeroExtend(exponentWidth + 2));
+    final leadingOnePos = ParallelPrefixPriorityEncoder(mantissa.reversed,
+            ppGen: ppTree, name: 'leading_one_encoder')
+        .out
+        .zeroExtend(exponentWidth + 2)
+        .named('leadingOne');
 
     final shifter = SignedShifter(
         mantissa,
@@ -98,15 +92,14 @@ class FloatingPointMultiplierSimple extends FloatingPointMultiplier {
         name: 'mantissa_shifter');
 
     final remainingExp =
-        nameLogic('remainingExp', productExpLatch - leadingOnePos + 1);
+        (productExpLatch - leadingOnePos + 1).named('remainingExp');
 
-    final overFlow = nameLogic(
-        'overflow',
-        isInfLatch |
+    final overFlow = (isInfLatch |
             (~remainingExp[-1] &
                 remainingExp.abs().gte(
                     Const(1, width: exponentWidth, fill: true)
-                        .zeroExtend(exponentWidth + 2))));
+                        .zeroExtend(exponentWidth + 2))))
+        .named('overflow');
 
     Combinational([
       If(isNaNLatch, then: [

@@ -36,50 +36,43 @@ class FloatingPointAdderRound extends FloatingPointAdder {
     output('sum') <= outputSum;
 
     // Seidel: S.EFF = effectiveSubtraction
-    final effectiveSubtraction = Logic(name: 'eff_subtract')
-      ..gets(a.sign ^ b.sign ^ (subtract ?? Const(0)));
-    final isNaN = Logic(name: 'isNaN')
-      ..gets(a.isNaN |
-          b.isNaN |
-          (a.isInfinity & b.isInfinity & effectiveSubtraction));
-    final isInf = Logic(name: 'isInf')..gets(a.isInfinity | b.isInfinity);
+    final effectiveSubtraction =
+        (a.sign ^ b.sign ^ (subtract ?? Const(0))).named('effSubtraction');
+    final isNaN = (a.isNaN |
+            b.isNaN |
+            (a.isInfinity & b.isInfinity & effectiveSubtraction))
+        .named('isNaN');
+    final isInf = (a.isInfinity | b.isInfinity).named('isInf');
 
     final exponentSubtractor = OnesComplementAdder(
         super.a.exponent, super.b.exponent,
         subtract: true, adderGen: adderGen, name: 'exponent_sub');
-    final signDelta = Logic(name: 'signDelta')..gets(exponentSubtractor.sign);
+    final signDelta = exponentSubtractor.sign.named('signDelta');
 
-    final delta = Logic(name: 'expdelta', width: exponentSubtractor.sum.width)
-      ..gets(exponentSubtractor.sum);
+    final delta = exponentSubtractor.sum.named('expDelta');
 
     // Seidel: (sl, el, fl) = larger; (ss, es, fs) = smaller
     final (larger, smaller) = swap(signDelta, (a, b));
 
-    final fl = nameLogic(
-        'full_larger',
-        mux(
-          larger.isNormal,
-          [larger.isNormal, larger.mantissa].swizzle(),
-          [larger.mantissa, Const(0)].swizzle(),
-        ));
-    final fs = nameLogic(
-        'full_smaller',
-        mux(
-          smaller.isNormal,
-          [smaller.isNormal, smaller.mantissa].swizzle(),
-          [smaller.mantissa, Const(0)].swizzle(),
-        ));
+    final fl = mux(
+      larger.isNormal,
+      [larger.isNormal, larger.mantissa].swizzle(),
+      [larger.mantissa, Const(0)].swizzle(),
+    ).named('fullLarger');
+    final fs = mux(
+      smaller.isNormal,
+      [smaller.isNormal, smaller.mantissa].swizzle(),
+      [smaller.mantissa, Const(0)].swizzle(),
+    ).named('fullSmaller');
 
     // Seidel: flp  larger preshift, normally in [2,4)
     final sigWidth = fl.width + 1;
-    final largeShift = nameLogic(
-        'largeShift',
-        mux(effectiveSubtraction, fl.zeroExtend(sigWidth) << 1,
-            fl.zeroExtend(sigWidth)));
-    final smallShift = nameLogic(
-        'largeShift',
-        mux(effectiveSubtraction, fs.zeroExtend(sigWidth) << 1,
-            fs.zeroExtend(sigWidth)));
+    final largeShift = mux(effectiveSubtraction, fl.zeroExtend(sigWidth) << 1,
+            fl.zeroExtend(sigWidth))
+        .named('largeShift');
+    final smallShift = mux(effectiveSubtraction, fs.zeroExtend(sigWidth) << 1,
+            fs.zeroExtend(sigWidth))
+        .named('smallShift');
 
     final zeroExp = a.zeroExponent;
     final largeOperand = largeShift;
@@ -89,15 +82,16 @@ class FloatingPointAdderRound extends FloatingPointAdder {
     final extendWidthRPath =
         min(mantissaWidth + 3, pow(2, exponentWidth).toInt() - 3);
 
-    final smallerFullRPath = nameLogic('smallerfull_rpath',
-        [smallShift, Const(0, width: extendWidthRPath)].swizzle());
+    final smallerFullRPath = [smallShift, Const(0, width: extendWidthRPath)]
+        .swizzle()
+        .named('smallerFull_rpath');
 
-    final smallerAlignRPath = nameLogic(
-        'smaller_align_rpath', smallerFullRPath >>> exponentSubtractor.sum);
-    final smallerOperandRPath = nameLogic(
-        'smaller_operand_rpath',
-        smallerAlignRPath.slice(smallerAlignRPath.width - 1,
-            smallerAlignRPath.width - largeOperand.width));
+    final smallerAlignRPath = (smallerFullRPath >>> exponentSubtractor.sum)
+        .named('smallerAligned_rpath');
+    final smallerOperandRPath = smallerAlignRPath
+        .slice(smallerAlignRPath.width - 1,
+            smallerAlignRPath.width - largeOperand.width)
+        .named('smallerOperand_rpath');
 
     /// R Pipestage here:
     final aIsNormalFlopped = localFlop(a.isNormal);
@@ -119,73 +113,83 @@ class FloatingPointAdderRound extends FloatingPointAdder {
         adderGen: adderGen,
         name: 'rpath_significand_adder');
 
-    final lowBitsRPath = nameLogic('lowbits_rpath',
-        smallerAlignRPathFlopped.slice(extendWidthRPath - 1, 0));
+    final lowBitsRPath = smallerAlignRPathFlopped
+        .slice(extendWidthRPath - 1, 0)
+        .named('lowbits_rpath');
 
-    final lowAdderRPathSum = nameLogic(
-        'lowadder_sum_rpath',
-        OnesComplementAdder(carryRPath.zeroExtend(extendWidthRPath),
-                mux(effectiveSubtractionFlopped, ~lowBitsRPath, lowBitsRPath),
-                adderGen: adderGen, name: 'rpath_lowadder')
-            .sum);
+    final lowAdderRPathSum = OnesComplementAdder(
+            carryRPath.zeroExtend(extendWidthRPath),
+            mux(effectiveSubtractionFlopped, ~lowBitsRPath, lowBitsRPath),
+            adderGen: adderGen,
+            name: 'rpath_lowadder')
+        .sum
+        .named('lowAdderSum_rpath');
 
-    final preStickyRPath = nameLogic('presticky_rpath',
-        lowAdderRPathSum.slice(lowAdderRPathSum.width - 4, 0).or());
+    final preStickyRPath = lowAdderRPathSum
+        .slice(lowAdderRPathSum.width - 4, 0)
+        .or()
+        .named('preSticky_rpath');
     final stickyBitRPath =
-        nameLogic('stickybit_rpath', lowAdderRPathSum[-3] | preStickyRPath);
+        (lowAdderRPathSum[-3] | preStickyRPath).named('stickyBit_rpath');
 
-    final earlyGRSRPath = nameLogic(
-        'earlyGRS_rpath',
-        [
-          lowAdderRPathSum.slice(
-              lowAdderRPathSum.width - 2, lowAdderRPathSum.width - 3),
-          preStickyRPath
-        ].swizzle());
+    final earlyGRSRPath = [
+      lowAdderRPathSum.slice(
+          lowAdderRPathSum.width - 2, lowAdderRPathSum.width - 3),
+      preStickyRPath
+    ].swizzle().named('earlyGRS_rpath');
 
-    final sumRPath = nameLogic(
-        'sum_rpath', significandAdderRPath.sum.slice(mantissaWidth + 1, 0));
+    final sumRPath = significandAdderRPath.sum
+        .slice(mantissaWidth + 1, 0)
+        .named('sum_rpath');
     // TODO(desmonddak): we should use a compound adder here
-    final sumP1RPath = nameLogic('sump1_rpath',
-        (significandAdderRPath.sum + 1).slice(mantissaWidth + 1, 0));
+    final sumP1RPath = (significandAdderRPath.sum + 1)
+        .named('sumPlusOne_rpath')
+        .slice(mantissaWidth + 1, 0);
 
-    final sumLeadZeroRPath = nameLogic('sumlead0_rpath',
-        ~sumRPath[-1] & (aIsNormalFlopped | bIsNormalFlopped));
-    final sumP1LeadZeroRPath = nameLogic('sump1lead0_rpath',
-        ~sumP1RPath[-1] & (aIsNormalFlopped | bIsNormalFlopped));
+    final sumLeadZeroRPath =
+        (~sumRPath[-1] & (aIsNormalFlopped | bIsNormalFlopped))
+            .named('sumlead0_rpath');
+    final sumP1LeadZeroRPath =
+        (~sumP1RPath[-1] & (aIsNormalFlopped | bIsNormalFlopped))
+            .named('sumP1lead0_rpath');
 
-    final selectRPath = nameLogic('select_rpath', lowAdderRPathSum[-1]);
-    final shiftGRSRPath = nameLogic(
-        'shiftGRS_rpath', [earlyGRSRPath[2], stickyBitRPath].swizzle());
-    final mergedSumRPath = nameLogic(
-        'mergedsum_rpath',
-        mux(
+    final selectRPath = lowAdderRPathSum[-1].named('selectRpath');
+    final shiftGRSRPath =
+        [earlyGRSRPath[2], stickyBitRPath].swizzle().named('shiftGRS_rpath');
+    final mergedSumRPath = mux(
             sumLeadZeroRPath,
-            [sumRPath, earlyGRSRPath].swizzle().slice(sumRPath.width + 1, 0),
-            [sumRPath, shiftGRSRPath].swizzle()));
+            [sumRPath, earlyGRSRPath]
+                .swizzle()
+                .named('sum_earlyGRS_rpath')
+                .slice(sumRPath.width + 1, 0),
+            [sumRPath, shiftGRSRPath].swizzle())
+        .named('mergedSum_rpath');
 
-    final mergedSumP1RPath = nameLogic(
-        'mergedsump1_rpath',
-        mux(
+    final mergedSumP1RPath = mux(
             sumP1LeadZeroRPath,
-            [sumP1RPath, earlyGRSRPath].swizzle().slice(sumRPath.width + 1, 0),
-            [sumP1RPath, shiftGRSRPath].swizzle()));
+            [sumP1RPath, earlyGRSRPath]
+                .swizzle()
+                .named('sump1_earlyGRS')
+                .slice(sumRPath.width + 1, 0),
+            [sumP1RPath, shiftGRSRPath].swizzle())
+        .named('mergedSumP1');
 
-    final finalSumLGRSRPath = nameLogic('finalsumLGRS_rpath',
-        mux(selectRPath, mergedSumP1RPath, mergedSumRPath));
+    final finalSumLGRSRPath = mux(selectRPath, mergedSumP1RPath, mergedSumRPath)
+        .named('finalSumLGRS_rpath');
     // RNE: guard & (lsb | round | sticky)
-    final rndRPath = nameLogic(
-        'rnd_rpath',
-        finalSumLGRSRPath[2] &
+    final rndRPath = (finalSumLGRSRPath[2] &
             (finalSumLGRSRPath[3] |
                 finalSumLGRSRPath[1] |
-                finalSumLGRSRPath[0]));
+                finalSumLGRSRPath[0]))
+        .named('rnd_rpath');
 
     // Rounding from 1111 to 0000.
-    final incExpRPath = nameLogic('inc_exp_rpath',
-        rndRPath & sumLeadZeroRPath.eq(Const(1)) & sumP1LeadZeroRPath.eq(0));
+    final incExpRPath =
+        (rndRPath & sumLeadZeroRPath.eq(Const(1)) & sumP1LeadZeroRPath.eq(0))
+            .named('inc_exp_rpath');
 
-    final firstZeroRPath = nameLogic(
-        'firstzero_rpath', mux(selectRPath, ~sumP1RPath[-1], ~sumRPath[-1]));
+    final firstZeroRPath = mux(selectRPath, ~sumP1RPath[-1], ~sumRPath[-1])
+        .named('firstZero_rpath');
 
     final expDecr = ParallelPrefixDecr(largerExpFlopped,
         ppGen: ppTree, name: 'exp_decrement');
@@ -209,20 +213,21 @@ class FloatingPointAdderRound extends FloatingPointAdder {
       ])
     ]);
 
-    final sumMantissaRPath = nameLogic(
-        'summantissa_rpath',
-        mux(selectRPath, sumP1RPath, sumRPath) +
-            rndRPath.zeroExtend(sumRPath.width));
-    final mantissaRPath = nameLogic(
-        'mantissa_rpath',
-        sumMantissaRPath <<
-            mux(selectRPath, sumP1LeadZeroRPath, sumLeadZeroRPath));
+    final sumMantissaRPath =
+        mux(selectRPath, sumP1RPath, sumRPath).named('selectSumMantissa_rpath');
+    // TODO(desmonddak):  the '+' operator fails to pick up names directly
+    final sumMantissaRPathRnd = (sumMantissaRPath +
+            rndRPath.zeroExtend(sumRPath.width).named('rndExtend_rpath'))
+        .named('sumMantissaRnd_rpath');
+    final mantissaRPath = (sumMantissaRPathRnd <<
+            mux(selectRPath, sumP1LeadZeroRPath, sumLeadZeroRPath))
+        .named('mantissa_rpath');
 
     //
     //  N Datapath here:  close exponents, subtraction
     //
-    final smallOperandNPath = nameLogic(
-        'smalloperand', smallShift >>> (a.exponent[0] ^ b.exponent[0]));
+    final smallOperandNPath =
+        (smallShift >>> (a.exponent[0] ^ b.exponent[0])).named('smallOperand');
 
     final significandSubtractorNPath = OnesComplementAdder(
         largeOperand, smallOperandNPath,
@@ -230,8 +235,9 @@ class FloatingPointAdderRound extends FloatingPointAdder {
         adderGen: adderGen,
         name: 'npath_significand_sub');
 
-    final significandNPath = nameLogic('significand_npath',
-        significandSubtractorNPath.sum.slice(smallOperandNPath.width - 1, 0));
+    final significandNPath = significandSubtractorNPath.sum
+        .slice(smallOperandNPath.width - 1, 0)
+        .named('significand_npath');
 
     final validLeadOneNPath = Logic(name: 'valid_lead1_npath');
     final leadOneNPathPre = ParallelPrefixPriorityEncoder(
@@ -241,15 +247,14 @@ class FloatingPointAdderRound extends FloatingPointAdder {
             name: 'npath_leadingOne')
         .out;
     // Limit leadOne to exponent range and match widths
-    final leadOneNPath = nameLogic(
-        'lead1_npath',
-        (leadOneNPathPre.width > exponentWidth)
+    final leadOneNPath = ((leadOneNPathPre.width > exponentWidth)
             ? mux(
                 leadOneNPathPre
                     .gte(a.inf().exponent.zeroExtend(leadOneNPathPre.width)),
                 a.inf().exponent,
                 leadOneNPathPre.getRange(0, exponentWidth))
-            : leadOneNPathPre.zeroExtend(exponentWidth));
+            : leadOneNPathPre.zeroExtend(exponentWidth))
+        .named('leadOne_npath');
 
     // N pipestage here:
     final significandNPathFlopped = localFlop(significandNPath);
@@ -267,41 +272,41 @@ class FloatingPointAdderRound extends FloatingPointAdder {
         name: 'npath_expcalc');
 
     final preExpNPath =
-        nameLogic('preexp_npath', expCalcNPath.sum.slice(exponentWidth - 1, 0));
+        expCalcNPath.sum.slice(exponentWidth - 1, 0).named('preExp_npath');
 
-    final posExpNPath = nameLogic('posexp_npath',
-        preExpNPath.or() & ~expCalcNPath.sign & validLeadOneNPathFlopped);
+    final posExpNPath =
+        (preExpNPath.or() & ~expCalcNPath.sign & validLeadOneNPathFlopped)
+            .named('posexp_npath');
 
     final exponentNPath =
-        nameLogic('exp_npath', mux(posExpNPath, preExpNPath, zeroExp));
+        mux(posExpNPath, preExpNPath, zeroExp).named('exponent_npath');
 
-    final preMinShiftNPath = nameLogic('preminshift_npath',
-        ~leadOneNPathFlopped.or() | ~largerExpFlopped.or());
+    final preMinShiftNPath =
+        (~leadOneNPathFlopped.or() | ~largerExpFlopped.or())
+            .named('preminshift_npath');
 
-    final minShiftNPath = nameLogic('minshift_npath',
-        mux(posExpNPath | preMinShiftNPath, leadOneNPathFlopped, expDecr.out));
+    final minShiftNPath =
+        mux(posExpNPath | preMinShiftNPath, leadOneNPathFlopped, expDecr.out)
+            .named('minShift_npath');
     final notSubnormalNPath = aIsNormalFlopped | bIsNormalFlopped;
 
-    final shiftedSignificandNPath = nameLogic('shifted_significand_npath',
-        (significandNPathFlopped << minShiftNPath).slice(mantissaWidth, 1));
+    final shiftedSignificandNPath = (significandNPathFlopped << minShiftNPath)
+        .named('shiftedSignificand_npath')
+        .slice(mantissaWidth, 1);
 
-    final finalSignificandNPath = nameLogic(
-        'final_significand_npath',
-        mux(
+    final finalSignificandNPath = mux(
             notSubnormalNPath,
             shiftedSignificandNPath,
-            significandNPathFlopped.slice(
-                significandNPathFlopped.width - 1, 2)));
+            significandNPathFlopped.slice(significandNPathFlopped.width - 1, 2))
+        .named('finalSignificand_npath');
 
-    final signNPath = nameLogic(
-        'sign_npath',
-        mux(significandSubtractorNPathSignFlopped, smallerSignFlopped,
-            largerSignFlopped));
+    final signNPath = mux(significandSubtractorNPathSignFlopped,
+            smallerSignFlopped, largerSignFlopped)
+        .named('sign_npath');
 
-    final isR = nameLogic(
-        'isR',
-        deltaFlopped.gte(Const(2, width: delta.width)) |
-            ~effectiveSubtractionFlopped);
+    final isR = (deltaFlopped.gte(Const(2, width: delta.width)) |
+            ~effectiveSubtractionFlopped)
+        .named('isR');
 
     Combinational([
       If(isNaNFlopped, then: [

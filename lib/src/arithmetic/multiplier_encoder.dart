@@ -64,10 +64,9 @@ class RadixEncoder {
     final width = log2Ceil(radix) + 1;
     final inputXor = Logic(width: width);
     inputXor <=
-        nameLogic(
-            '${multiplierSlice.name}_xor',
-            (multiplierSlice ^ (multiplierSlice >>> 1))
-                .slice(multiplierSlice.width - 1, 0));
+        (multiplierSlice ^ (multiplierSlice >>> 1))
+            .slice(multiplierSlice.width - 1, 0)
+            .named('${multiplierSlice.name}_xor', naming: Naming.mergeable);
 
     final multiples = <Logic>[];
     for (var i = 2; i < radix + 1; i += 2) {
@@ -80,20 +79,17 @@ class RadixEncoder {
       // Where multiples agree, we need the sense or direction (1 or 0)
       final senseMultiples = xorA & xorB;
 
-      multiples.add(nameLogic(
-          'multiple${i}_of_${multiplierSlice.name}',
-          naming: Naming.mergeable,
-          [
-            for (var j = 0; j < width - 1; j++)
-              if (multiplesDisagree[j].isZero)
-                if (senseMultiples[j].isZero) ~inputXor[j] else inputXor[j]
-          ].swizzle().and()));
+      multiples.add([
+        for (var j = 0; j < width - 1; j++)
+          if (multiplesDisagree[j].isZero)
+            if (senseMultiples[j].isZero) ~inputXor[j] else inputXor[j]
+      ].swizzle().and().named('multiple${i}_of_${multiplierSlice.name}',
+          naming: Naming.mergeable));
     }
 
-    final multiplesR = nameLogic(
-        'multiples_reversed_r$row',
-        naming: Naming.mergeable,
-        multiples.rswizzle());
+    final multiplesR = multiples
+        .rswizzle()
+        .named('multiples_reversed_r$row', naming: Naming.mergeable);
 
     return RadixEncode._(multiplesR,
         multiplesR.or() & multiplierSlice[multiplierSlice.width - 1], row);
@@ -142,11 +138,10 @@ class MultiplierEncoder {
     }
     // slices overlap by 1 and start at -1a
     if (selectSignedMultiplier == null) {
-      _extendedMultiplier = nameLogic(
-          'extended_multiplier',
-          (signedMultiplier
+      _extendedMultiplier = (signedMultiplier
               ? multiplier.signExtend(rows * (log2Ceil(radixEncoder.radix)))
-              : multiplier.zeroExtend(rows * (log2Ceil(radixEncoder.radix)))));
+              : multiplier.zeroExtend(rows * (log2Ceil(radixEncoder.radix))))
+          .named('extended_multiplier', naming: Naming.mergeable);
     } else {
       final len = multiplier.width;
       final sign = multiplier[len - 1];
@@ -154,8 +149,9 @@ class MultiplierEncoder {
         for (var i = len - 1; i < (rows * (log2Ceil(radixEncoder.radix))); i++)
           mux(selectSignedMultiplier, sign, Const(0))
       ];
-      _extendedMultiplier = nameLogic(
-          'extended_multiplier', (multiplier.elements + extension).rswizzle());
+      _extendedMultiplier = (multiplier.elements + extension)
+          .rswizzle()
+          .named('extended_multiplier', naming: Naming.mergeable);
     }
     for (var i = 0; i < rows; i++) {
       _encodings.add(getEncoding(i));
@@ -168,20 +164,15 @@ class MultiplierEncoder {
       throw RohdHclException('row $row is not < number of encoding rows $rows');
     }
     final base = row * log2Ceil(_encoder.radix);
-    final multiplierSlice = nameLogic(
-        'mult_slice_r$row',
-        naming: Naming.mergeable,
+    final multiplierSlice = [
+      if (row > 0)
+        _extendedMultiplier.slice(base + log2Ceil(_encoder.radix) - 1, base - 1)
+      else
         [
-          if (row > 0)
-            _extendedMultiplier.slice(
-                base + log2Ceil(_encoder.radix) - 1, base - 1)
-          else
-            [
-              _extendedMultiplier.slice(
-                  base + log2Ceil(_encoder.radix) - 1, base),
-              Const(0)
-            ].swizzle()
-        ].first);
+          _extendedMultiplier.slice(base + log2Ceil(_encoder.radix) - 1, base),
+          Const(0)
+        ].swizzle()
+    ].first.named('mult_slice_r$row', naming: Naming.mergeable);
     return _encoder.encode(multiplierSlice, row);
   }
 

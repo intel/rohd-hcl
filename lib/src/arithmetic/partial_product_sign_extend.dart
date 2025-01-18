@@ -199,8 +199,10 @@ class BruteSignExtension extends PartialProductSignExtension {
     isSignExtended = true;
     final signs = [
       for (var r = 0; r < rows; r++)
-        nameLogic(
-            'sign_r$r', naming: Naming.mergeable, encoder.fetchEncoding(r).sign)
+        encoder
+            .fetchEncoding(r)
+            .sign
+            .named('sign_r$r', naming: Naming.mergeable)
     ];
     for (var row = 0; row < rows; row++) {
       final addend = partialProducts[row];
@@ -282,8 +284,10 @@ class CompactSignExtension extends PartialProductSignExtension {
 
     final signs = [
       for (var r = 0; r < rows; r++)
-        nameLogic(
-            'sign_r$r', naming: Naming.mergeable, encoder.fetchEncoding(r).sign)
+        encoder
+            .fetchEncoding(r)
+            .sign
+            .named('sign_r$r', naming: Naming.mergeable)
     ];
 
     final propagate =
@@ -292,10 +296,8 @@ class CompactSignExtension extends PartialProductSignExtension {
     for (var row = 0; row < rows; row++) {
       propagate[row].add(signs[row]);
       for (var col = 0; col < 2 * (shift - 1); col++) {
-        propagate[row].add(nameLogic(
-            'propagate_r${row}_c$col',
-            naming: Naming.mergeable,
-            partialProducts[row][col]));
+        propagate[row].add(partialProducts[row][col]
+            .named('propagate_r${row}_c$col', naming: Naming.mergeable));
       }
       // Last row has extend sign propagation to Q start
       if (row == lastRow) {
@@ -305,20 +307,16 @@ class CompactSignExtension extends PartialProductSignExtension {
         }
       }
       for (var col = 1; col < propagate[row].length; col++) {
-        propagate[row][col] = nameLogic(
-            'propagate_r${row}_c$col',
-            naming: Naming.mergeable,
-            propagate[row][col] & propagate[row][col - 1]);
+        propagate[row][col] = (propagate[row][col] & propagate[row][col - 1])
+            .named('propagate_r${row}_c$col', naming: Naming.mergeable);
       }
     }
     final m =
         List.generate(rows, (i) => List.filled(0, Logic(), growable: true));
     for (var row = 0; row < rows; row++) {
       for (var c = 0; c < shift - 1; c++) {
-        m[row].add(nameLogic(
-            'm_r${row}_c$c',
-            naming: Naming.mergeable,
-            partialProducts[row][c] ^ propagate[row][c]));
+        m[row].add((partialProducts[row][c] ^ propagate[row][c])
+            .named('m_r${row}_c$c', naming: Naming.mergeable));
       }
       m[row].addAll(List.filled(shift - 1, Logic()));
     }
@@ -327,25 +325,19 @@ class CompactSignExtension extends PartialProductSignExtension {
     }
     // TODO(desmonddak): this seems unused when looking at Verilog output
     for (var i = shift - 1; i < m[lastRow].length; i++) {
-      m[lastRow][i] = nameLogic(
-          'm_lastr_c$i',
-          naming: Naming.mergeable,
-          lastAddend[i] ^
-              (i < alignRow0Sign ? propagate[lastRow][i] : Const(0)));
+      m[lastRow][i] = (lastAddend[i] ^
+              (i < alignRow0Sign ? propagate[lastRow][i] : Const(0)))
+          .named('m_lastr_c$i', naming: Naming.mergeable);
     }
 
     final remainders = List.filled(rows, Logic());
     for (var row = 0; row < lastRow; row++) {
-      remainders[row] = nameLogic(
-          'remainders_r$row',
-          naming: Naming.mergeable,
-          propagate[row][shift - 1]);
+      remainders[row] = propagate[row][shift - 1]
+          .named('remainders_r$row', naming: Naming.mergeable);
     }
     remainders[lastRow] <=
-        nameLogic(
-            'remainders_lastrow',
-            naming: Naming.mergeable,
-            propagate[lastRow][max(alignRow0Sign, 0)]);
+        propagate[lastRow][max(alignRow0Sign, 0)]
+            .named('remainders_lastrow', naming: Naming.mergeable);
 
     // Compute Sign extension for row==0
     final firstSign = Logic(name: 'firstsign', naming: Naming.mergeable);
@@ -357,8 +349,10 @@ class CompactSignExtension extends PartialProductSignExtension {
           SignBit(mux(selectSignedMultiplicand!, firstAddend.last, signs[0]));
     }
     final q = [
-      nameLogic('q0', firstSign ^ remainders[lastRow]),
-      nameLogic('q1', ~(firstSign & ~remainders[lastRow])),
+      (firstSign ^ remainders[lastRow])
+          .named('qfirst', naming: Naming.mergeable),
+      (~(firstSign & ~remainders[lastRow]))
+          .named('q_last', naming: Naming.mergeable),
     ];
     q.insertAll(1, List.filled(shift - 1, ~q[1]));
 
@@ -452,11 +446,10 @@ class StopBitsSignExtension extends PartialProductSignExtension {
 
     final signs = [
       for (var r = 0; r < rows; r++)
-        nameLogic(
-          'sign_r$r',
-          naming: Naming.mergeable,
-          encoder.fetchEncoding(r).sign,
-        )
+        encoder
+            .fetchEncoding(r)
+            .sign
+            .named('sign_r$r', naming: Naming.mergeable)
     ];
 
     for (var row = 0; row < rows; row++) {
@@ -592,11 +585,10 @@ class CompactRectSignExtension extends PartialProductSignExtension {
 
     final signs = [
       for (var r = 0; r < rows; r++)
-        nameLogic(
-          'sign_r$r',
-          naming: Naming.mergeable,
-          encoder.fetchEncoding(r).sign,
-        )
+        encoder
+            .fetchEncoding(r)
+            .sign
+            .named('sign_r$r', naming: Naming.mergeable)
     ];
 
     // Compute propgation info for folding sign bits into main rows
@@ -606,10 +598,8 @@ class CompactRectSignExtension extends PartialProductSignExtension {
     for (var row = 0; row < rows; row++) {
       propagate[row].add(SignBit(signs[row]));
       for (var col = 0; col < 2 * (shift - 1); col++) {
-        propagate[row].add(nameLogic(
-            'propagate_r${row}_c$col',
-            naming: Naming.mergeable,
-            partialProducts[row][col]));
+        propagate[row].add(partialProducts[row][col]
+            .named('propagate_r${row}_c$col', naming: Naming.mergeable));
       }
       // Last row has extend sign propagation to Q start
       if (row == lastRow) {
@@ -620,10 +610,8 @@ class CompactRectSignExtension extends PartialProductSignExtension {
       }
       // Now compute the propagation logic
       for (var col = 1; col < propagate[row].length; col++) {
-        propagate[row][col] = nameLogic(
-            'propagate_r${row}_c$col',
-            naming: Naming.mergeable,
-            propagate[row][col] & propagate[row][col - 1]);
+        propagate[row][col] = (propagate[row][col] & propagate[row][col - 1])
+            .named('propagate_r${row}_c$col', naming: Naming.mergeable);
       }
     }
 
@@ -632,8 +620,8 @@ class CompactRectSignExtension extends PartialProductSignExtension {
         List.generate(rows, (i) => List.filled(0, Logic(), growable: true));
     for (var row = 0; row < rows; row++) {
       for (var c = 0; c < shift - 1; c++) {
-        m[row].add(nameLogic(
-            'm_r${row}_c$c', partialProducts[row][c] ^ propagate[row][c]));
+        m[row].add((partialProducts[row][c] ^ propagate[row][c])
+            .named('m_r${row}_c$c', naming: Naming.mergeable));
       }
       m[row].addAll(List.filled(shift - 1, Logic()));
     }
@@ -642,23 +630,18 @@ class CompactRectSignExtension extends PartialProductSignExtension {
       m[lastRow].add(Logic());
     }
     for (var i = shift - 1; i < m[lastRow].length; i++) {
-      m[lastRow][i] = nameLogic(
-          'm_lastrow_$i',
-          naming: Naming.mergeable,
-          lastAddend[i] ^ (i < align ? propagate[lastRow][i] : Const(0)));
+      m[lastRow][i] =
+          (lastAddend[i] ^ (i < align ? propagate[lastRow][i] : Const(0)))
+              .named('m_lastrow_$i', naming: Naming.mergeable);
     }
 
     final remainders = List.filled(rows, Logic());
     for (var row = 0; row < lastRow; row++) {
-      remainders[row] = nameLogic(
-          'remainder_r$row',
-          naming: Naming.mergeable,
-          propagate[row][shift - 1]);
+      remainders[row] = propagate[row][shift - 1]
+          .named('remainder_r$row', naming: Naming.mergeable);
     }
-    remainders[lastRow] = nameLogic(
-        'remainder_lastrow',
-        naming: Naming.mergeable,
-        propagate[lastRow][align > 0 ? align : 0]);
+    remainders[lastRow] = propagate[lastRow][align > 0 ? align : 0]
+        .named('remainder_lastrow', naming: Naming.mergeable);
 
     // Merge 'm' into the LSBs of each addend
     for (var row = 0; row < rows; row++) {

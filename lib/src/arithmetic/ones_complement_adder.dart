@@ -54,8 +54,9 @@ class OnesComplementAdder extends Adder {
           'generation time configuration, but not both.');
     }
 
-    final doSubtract = nameLogic('dosubtract',
-        subtractIn ?? (subtract != null ? Const(subtract) : Const(0)));
+    final doSubtract =
+        (subtractIn ?? (subtract != null ? Const(subtract) : Const(0)))
+            .named('dosubtract', naming: Naming.mergeable);
 
     final adder =
         adderGen(a, mux(doSubtract, ~b, b), carryIn: carryIn ?? Const(0));
@@ -63,11 +64,11 @@ class OnesComplementAdder extends Adder {
     if (this.carryOut != null) {
       this.carryOut! <= adder.sum[-1];
     }
-    final endAround = nameLogic('endaround', adder.sum[-1]);
-    final magnitude = nameLogic('magnitude', adder.sum.slice(a.width - 1, 0));
+    final endAround = adder.sum[-1].named('endaround');
+    final magnitude = adder.sum.slice(a.width - 1, 0).named('magnitude');
 
     final incrementer = ParallelPrefixIncr(magnitude);
-    final magnitudep1 = nameLogic('magnitude_p1', incrementer.out);
+    final magnitudep1 = incrementer.out.named('magnitude_plus1');
 
     sum <=
         mux(

@@ -57,54 +57,46 @@ class FloatingPoint extends LogicStructure {
 
   /// Return a Logic true if this FloatingPoint contains a normal number,
   /// defined as having mantissa in the range [1,2)
-  late final Logic isNormal = nameLogic(
-      'isNormal',
-      naming: Naming.mergeable,
-      exponent.neq(LogicValue.zero.zeroExtend(exponent.width)));
+  late final Logic isNormal = exponent
+      .neq(LogicValue.zero.zeroExtend(exponent.width))
+      .named('isNormal', naming: Naming.mergeable);
 
   /// Return a Logic true if this FloatingPoint is Not a Number (NaN)
   /// by having its exponent field set to the NaN value (typically all
   /// ones) and a non-zero mantissa.
-  late final isNaN = nameLogic(
-      'isNaN',
-      naming: Naming.mergeable,
-      exponent.eq(floatingPointValue.nan.exponent) & mantissa.or());
+  late final isNaN = exponent.eq(floatingPointValue.nan.exponent) &
+      mantissa.or().named(
+            'isNaN',
+            naming: Naming.mergeable,
+          );
 
   /// Return a Logic true if this FloatingPoint is an infinity
   /// by having its exponent field set to the NaN value (typically all
   /// ones) and a zero mantissa.
 
-  late final isInfinity = nameLogic(
-      _nameJoin('isInfinity', name),
-      naming: Naming.mergeable,
-      exponent.eq(floatingPointValue.infinity.exponent) & ~mantissa.or());
+  late final isInfinity =
+      (exponent.eq(floatingPointValue.infinity.exponent) & ~mantissa.or())
+          .named(_nameJoin('isInfinity', name), naming: Naming.mergeable);
 
   /// Return a Logic true if this FloatingPoint is an zero
   /// by having its exponent field set to the NaN value (typically all
   /// ones) and a zero mantissa.
-  late final isZero = nameLogic(
-      'isZero',
-      naming: Naming.mergeable,
-      exponent.eq(floatingPointValue.zero.exponent) & ~mantissa.or());
+  late final isZero =
+      (exponent.eq(floatingPointValue.zero.exponent) & ~mantissa.or())
+          .named('isZero', naming: Naming.mergeable);
 
   /// Return the zero exponent representation for this type of FloatingPoint
-  late final zeroExponent = nameLogic(
-      'zeroExponent',
-      naming: Naming.mergeable,
-      Const(LogicValue.zero, width: exponent.width));
+  late final zeroExponent = Const(LogicValue.zero, width: exponent.width)
+      .named('zeroExponent', naming: Naming.mergeable);
 
   /// Return the one exponent representation for this type of FloatingPoint
-  late final oneExponent = nameLogic(
-      'oneExponent',
-      naming: Naming.mergeable,
-      Const(LogicValue.one, width: exponent.width));
+  late final oneExponent = Const(LogicValue.one, width: exponent.width)
+      .named('oneExponent', naming: Naming.mergeable);
 
   /// Return the exponent Logic value representing the true zero exponent
   /// 2^0 = 1 often termed [bias] or the offset of the stored exponent.
-  late final bias = nameLogic(
-      'bias',
-      naming: Naming.mergeable,
-      Const((1 << exponent.width - 1) - 1, width: exponent.width));
+  late final bias = Const((1 << exponent.width - 1) - 1, width: exponent.width)
+      .named('bias', naming: Naming.mergeable);
 
   /// Construct a FloatingPoint that represents infinity for this FP type.
   FloatingPoint inf({Logic? sign, bool negative = false}) => FloatingPoint.inf(

@@ -103,13 +103,14 @@ class KoggeStone extends ParallelPrefix {
 
     while (skip < inps.length) {
       for (var i = inps.length - 1; i >= skip; --i) {
-        iseq[i] = nameLogic('ks$i', op(iseq[i - skip], iseq[i]));
+        iseq[i] = op(iseq[i - skip], iseq[i])
+            .named('ks_skip${skip}_i$i', naming: Naming.mergeable);
       }
       skip *= 2;
     }
 
     iseq.forEachIndexed((i, el) {
-      _oseq[i] <= (nameLogic('o', el));
+      _oseq[i] <= el.named('o_$i', naming: Naming.mergeable);
     });
   }
 }
@@ -130,7 +131,8 @@ class BrentKung extends ParallelPrefix {
     var skip = 2;
     while (skip <= inps.length) {
       for (var i = skip - 1; i < inps.length; i += skip) {
-        iseq[i] = nameLogic('reduce$i', op(iseq[i - skip ~/ 2], iseq[i]));
+        iseq[i] = op(iseq[i - skip ~/ 2], iseq[i])
+            .named('reduce_$i', naming: Naming.mergeable);
       }
       skip *= 2;
     }
@@ -139,18 +141,20 @@ class BrentKung extends ParallelPrefix {
     skip = largestPow2LessThan(inps.length);
     while (skip > 2) {
       for (var i = 3 * (skip ~/ 2) - 1; i < inps.length; i += skip) {
-        iseq[i] = nameLogic('prefix$i', op(iseq[i - skip ~/ 2], iseq[i]));
+        iseq[i] = op(iseq[i - skip ~/ 2], iseq[i])
+            .named('prefix_$i', naming: Naming.mergeable);
       }
       skip ~/= 2;
     }
 
     // Final row
     for (var i = 2; i < inps.length; i += 2) {
-      iseq[i] = nameLogic('final$i', op(iseq[i - 1], iseq[i]));
+      iseq[i] =
+          op(iseq[i - 1], iseq[i]).named('final_$i', naming: Naming.mergeable);
     }
 
     iseq.forEachIndexed((i, el) {
-      _oseq[i] <= (nameLogic('o', el));
+      _oseq[i] <= el.named('o_$i', naming: Naming.mergeable);
     });
   }
 }
@@ -186,7 +190,8 @@ class ParallelPrefixPriorityFinder extends Module {
       super.name = 'parallel_prefix_finder'}) {
     inp = addInput('inp', inp, width: inp.width);
     final u = ParallelPrefixOrScan(inp, ppGen: ppGen);
-    addOutput('out', width: inp.width) <= (u.out & ~(u.out << Const(1)));
+    addOutput('out', width: inp.width) <=
+        (u.out & ~(u.out << Const(1))).named('pos', naming: Naming.mergeable);
   }
 }
 
@@ -223,11 +228,16 @@ class ParallelPrefixPriorityEncoder extends Module {
       valid <= this.valid!;
     }
     final u = ParallelPrefixPriorityFinder(inp, ppGen: ppGen);
-    final pos = nameLogic('pos', OneHotToBinary(u.out).binary.zeroExtend(sz));
+    final pos = OneHotToBinary(u.out)
+        .binary
+        .zeroExtend(sz)
+        .named('pos', naming: Naming.mergeable);
     if (this.valid != null) {
       this.valid! <= pos.or() | inp[0];
     }
-    out <= mux(pos.or() | inp[0], pos, Const(inp.width + 1, width: sz));
+    out <=
+        mux(pos.or() | inp[0], pos, Const(inp.width + 1, width: sz))
+            .named('encoded_pos', naming: Naming.mergeable);
   }
 }
 
@@ -246,24 +256,22 @@ class ParallelPrefixAdder extends Adder {
     // ignore: cascade_invocations
     l.insert(
         0,
-        nameLogic(
-            'pg',
-            [(a[0] & b[0]) | (a[0] & cin) | (b[0] & cin), a[0] | b[0] | cin]
-                .swizzle()));
+        [(a[0] & b[0]) | (a[0] & cin) | (b[0] & cin), a[0] | b[0] | cin]
+            .swizzle()
+            .named('pg_base', naming: Naming.mergeable));
     final u = ppGen(
         l,
-        (lhs, rhs) => nameLogic(
-            'pg', [rhs[1] | rhs[0] & lhs[1], rhs[0] & lhs[0]].swizzle()));
+        (lhs, rhs) => [rhs[1] | rhs[0] & lhs[1], rhs[0] & lhs[0]]
+            .swizzle()
+            .named('pg', naming: Naming.mergeable));
     sum <=
         [
           u.val[a.width - 1][1],
           List<Logic>.generate(
               a.width,
-              (i) => nameLogic(
-                  't$i',
-                  (i == 0)
-                      ? a[i] ^ b[i] ^ cin
-                      : a[i] ^ b[i] ^ u.val[i - 1][1])).rswizzle()
+              (i) =>
+                  ((i == 0) ? a[i] ^ b[i] ^ cin : a[i] ^ b[i] ^ u.val[i - 1][1])
+                      .named('t_$i')).rswizzle()
         ].swizzle();
   }
 }
@@ -283,9 +291,10 @@ class ParallelPrefixIncr extends Module {
     final u = ppGen(inp.elements, (lhs, rhs) => rhs & lhs);
     addOutput('out', width: inp.width) <=
         (List<Logic>.generate(
-            inp.width,
-            (i) => nameLogic(
-                'o$i', (i == 0) ? ~inp[i] : inp[i] ^ u.val[i - 1])).rswizzle());
+                inp.width,
+                (i) =>
+                    ((i == 0) ? ~inp[i] : inp[i] ^ u.val[i - 1]).named('o_$i'))
+            .rswizzle());
   }
 }
 
@@ -304,8 +313,9 @@ class ParallelPrefixDecr extends Module {
     final u = ppGen((~inp).elements, (lhs, rhs) => rhs & lhs);
     addOutput('out', width: inp.width) <=
         (List<Logic>.generate(
-            inp.width,
-            (i) => nameLogic(
-                'o$i', (i == 0) ? ~inp[i] : inp[i] ^ u.val[i - 1])).rswizzle());
+                inp.width,
+                (i) =>
+                    ((i == 0) ? ~inp[i] : inp[i] ^ u.val[i - 1]).named('o_$i'))
+            .rswizzle());
   }
 }

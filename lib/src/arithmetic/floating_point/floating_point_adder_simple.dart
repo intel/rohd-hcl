@@ -37,17 +37,16 @@ class FloatingPointAdderSimple extends FloatingPointAdder {
 
     final (larger, smaller) = sortFp((super.a, super.b));
 
-    final isInf = nameLogic('isInf', larger.isInfinity | smaller.isInfinity);
-    final isNaN = nameLogic(
-        'isNaN',
-        larger.isNaN |
+    final isInf = (larger.isInfinity | smaller.isInfinity).named('isInf');
+    final isNaN = (larger.isNaN |
             smaller.isNaN |
             (larger.isInfinity &
                 smaller.isInfinity &
-                (larger.sign ^ smaller.sign)));
+                (larger.sign ^ smaller.sign)))
+        .named('isNaN');
 
     // Align and add mantissas
-    final expDiff = larger.exponent - smaller.exponent;
+    final expDiff = (larger.exponent - smaller.exponent).named('expDiff');
     final aMantissa = mux(
         larger.isNormal,
         [Const(1), larger.mantissa, Const(0, width: mantissaWidth + 1)]
@@ -62,7 +61,7 @@ class FloatingPointAdderSimple extends FloatingPointAdder {
     final adder = SignMagnitudeAdder(
         larger.sign, aMantissa, smaller.sign, bMantissa >>> expDiff, adderGen);
 
-    final intSum = nameLogic('intsum', adder.sum.slice(adder.sum.width - 1, 0));
+    final intSum = adder.sum.slice(adder.sum.width - 1, 0).named('intsum');
 
     final aSignLatched = localFlop(larger.sign);
     final aExpLatched = localFlop(larger.exponent);
@@ -70,37 +69,36 @@ class FloatingPointAdderSimple extends FloatingPointAdder {
     final isInfLatched = localFlop(isInf);
     final isNaNLatched = localFlop(isNaN);
 
-    final mantissa = nameLogic('mantissa',
-        sumLatched.reversed.getRange(0, min(intSum.width, intSum.width)));
-    final leadOneValid = Logic(name: 'leadone_valid');
+    final mantissa = sumLatched.reversed
+        .getRange(0, min(intSum.width, intSum.width))
+        .named('mantissa');
+    final leadOneValid = Logic(name: 'leadOne_valid');
     final leadOnePre = ParallelPrefixPriorityEncoder(mantissa,
             ppGen: ppTree, valid: leadOneValid)
         .out;
     // Limit leadOne to exponent range and match widths
     final infExponent = outputSum.inf(sign: aSignLatched).exponent;
-    final leadOne = nameLogic(
-        'leadone',
-        (leadOnePre.width > exponentWidth)
+    final leadOne = ((leadOnePre.width > exponentWidth)
             ? mux(leadOnePre.gte(infExponent.zeroExtend(leadOnePre.width)),
                 infExponent, leadOnePre.getRange(0, exponentWidth))
-            : leadOnePre.zeroExtend(exponentWidth));
+            : leadOnePre.zeroExtend(exponentWidth))
+        .named('leadOne');
 
     final leadOneDominates =
-        nameLogic('leadone_dominates', leadOne.gt(aExpLatched) | ~leadOneValid);
-    final outExp = nameLogic('outexponent',
-        mux(leadOneDominates, larger.zeroExponent, aExpLatched - leadOne + 1));
+        (leadOne.gt(aExpLatched) | ~leadOneValid).named('leadone_dominates');
+    final normalExp = (aExpLatched - leadOne + 1).named('normalExponent');
+    final outExp = mux(leadOneDominates, larger.zeroExponent, normalExp)
+        .named('outExponent');
 
     final realIsInf =
-        nameLogic('realisinf', isInfLatched | outExp.eq(infExponent));
+        (isInfLatched | outExp.eq(infExponent)).named('realIsInf');
 
-    final shiftMantissabyExp = nameLogic(
-        'shiftmantissa_exp',
-        (sumLatched << aExpLatched + 1)
-            .getRange(intSum.width - mantissaWidth, intSum.width));
-    final shiftMantissabyLeadOne = nameLogic(
-        'shiftmantissa_leadone',
-        (sumLatched << leadOne + 1)
-            .getRange(intSum.width - mantissaWidth, intSum.width));
+    final shiftMantissabyExp = (sumLatched << aExpLatched + 1)
+        .named('shiftMantissaExp', naming: Naming.mergeable)
+        .getRange(intSum.width - mantissaWidth, intSum.width);
+    final shiftMantissabyLeadOne = (sumLatched << leadOne + 1)
+        .getRange(intSum.width - mantissaWidth, intSum.width)
+        .named('shiftMantissa_leadone', naming: Naming.mergeable);
 
     Combinational([
       If.block([
@@ -117,7 +115,7 @@ class FloatingPointAdderSimple extends FloatingPointAdder {
         ]),
         Else([
           outputSum.sign < aSignLatched,
-          outputSum.exponent < aExpLatched - leadOne + 1,
+          outputSum.exponent < normalExp,
           outputSum.mantissa < shiftMantissabyLeadOne,
         ])
       ])
