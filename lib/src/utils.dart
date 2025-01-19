@@ -89,8 +89,9 @@ Logic condFlop(
 }) =>
     (clk == null)
         ? d
-        : flop(clk, d,
-            en: en,
-            reset: reset,
-            resetValue: resetValue,
-            asyncReset: asyncReset);
+        : (Logic(name: '${d.name}_flopped', width: d.width)
+          ..gets(flop(clk, d,
+              en: en,
+              reset: reset,
+              resetValue: resetValue,
+              asyncReset: asyncReset)));

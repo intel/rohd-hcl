@@ -17,6 +17,7 @@ class FloatingPointMultiplierSimple extends FloatingPointMultiplier {
   /// in [product] FloatingPoint.
   /// - [radix] is the Booth encoder radix used with options [2,4,8,16]
   /// ((default=4).
+
   /// - [adderGen] is an adder generator to be used in the primary adder
   /// functions.
   /// - [ppTree] is an parallel prefix tree generator to be used in internal
@@ -28,38 +29,49 @@ class FloatingPointMultiplierSimple extends FloatingPointMultiplier {
       int radix = 4,
       Adder Function(Logic a, Logic b, {Logic? carryIn}) adderGen =
           NativeAdder.new,
+      PartialProductSignExtension Function(PartialProductGeneratorBase pp,
+              {String name})
+          seGen = CompactRectSignExtension.new,
       ParallelPrefix Function(
               List<Logic> inps, Logic Function(Logic term1, Logic term2) op)
           ppTree = KoggeStone.new,
       super.name}) {
     final product = FloatingPoint(
-        exponentWidth: exponentWidth, mantissaWidth: mantissaWidth);
+        exponentWidth: exponentWidth,
+        mantissaWidth: mantissaWidth,
+        name: 'product');
     output('product') <= product;
-    final a = this.a;
-    final b = this.b;
 
     final aMantissa = mux(a.isNormal, [a.isNormal, a.mantissa].swizzle(),
-        [a.mantissa, Const(0)].swizzle());
+            [a.mantissa, Const(0)].swizzle())
+        .named('aMantissa');
     final bMantissa = mux(b.isNormal, [b.isNormal, b.mantissa].swizzle(),
-        [b.mantissa, Const(0)].swizzle());
+            [b.mantissa, Const(0)].swizzle())
+        .named('bMantissa');
 
     final productExp = a.exponent.zeroExtend(exponentWidth + 2) +
         b.exponent.zeroExtend(exponentWidth + 2) -
-        a.bias.zeroExtend(exponentWidth + 2);
+        a.bias.zeroExtend(exponentWidth + 2).named('productExp');
 
-    final pp = PartialProductGeneratorCompactRectSignExtension(
-        aMantissa, bMantissa, RadixEncoder(radix));
+    final pp =
+        PartialProductGenerator(aMantissa, bMantissa, RadixEncoder(radix));
+    seGen(pp).signExtend();
     final compressor =
         ColumnCompressor(pp, clk: clk, reset: reset, enable: enable)
           ..compress();
-    final adder = adderGen(compressor.extractRow(0), compressor.extractRow(1));
-    // Input mantissas have implicit lead: product mantissa width is (mw+1)*2)
-    final mantissa = adder.sum.getRange(0, (mantissaWidth + 1) * 2);
 
-    final isInf = a.isInfinity | b.isInfinity;
-    final isNaN = a.isNaN |
-        b.isNaN |
-        ((a.isInfinity | b.isInfinity) & (a.isZero | b.isZero));
+    final row0 = compressor.extractRow(0).named('row0');
+    final row1 = compressor.extractRow(1).named('row1');
+    final adder = adderGen(row0, row1);
+    // Input mantissas have implicit lead: product mantissa width is (mw+1)*2)
+    final mantissa =
+        adder.sum.getRange(0, (mantissaWidth + 1) * 2).named('mantissa');
+
+    final isInf = (a.isInfinity | b.isInfinity).named('isInf');
+    final isNaN = (a.isNaN |
+            b.isNaN |
+            ((a.isInfinity | b.isInfinity) & (a.isZero | b.isZero)))
+        .named('isNaN');
 
     final productExpLatch = localFlop(productExp);
     final aSignLatch = localFlop(a.sign);
@@ -70,7 +82,8 @@ class FloatingPointMultiplierSimple extends FloatingPointMultiplier {
     final leadingOnePos = ParallelPrefixPriorityEncoder(mantissa.reversed,
             ppGen: ppTree, name: 'leading_one_encoder')
         .out
-        .zeroExtend(exponentWidth + 2);
+        .zeroExtend(exponentWidth + 2)
+        .named('leadingOne');
 
     final shifter = SignedShifter(
         mantissa,
@@ -78,23 +91,22 @@ class FloatingPointMultiplierSimple extends FloatingPointMultiplier {
             productExpLatch, leadingOnePos),
         name: 'mantissa_shifter');
 
-    final remainingExp = productExpLatch - leadingOnePos + 1;
+    final remainingExp =
+        (productExpLatch - leadingOnePos + 1).named('remainingExp');
 
-    final overFlow = isInfLatch |
-        (~remainingExp[-1] &
-            remainingExp.abs().gte(Const(1, width: exponentWidth, fill: true)
-                .zeroExtend(exponentWidth + 2)));
+    final overFlow = (isInfLatch |
+            (~remainingExp[-1] &
+                remainingExp.abs().gte(
+                    Const(1, width: exponentWidth, fill: true)
+                        .zeroExtend(exponentWidth + 2))))
+        .named('overflow');
 
     Combinational([
       If(isNaNLatch, then: [
         product < product.nan,
       ], orElse: [
         If(overFlow, then: [
-          // TODO(desmonddak): use this line after trace issue is resolved
-          // product < product.inf(inSign: aSignLatch ^ bSignLatch),
-          product.sign < aSignLatch ^ bSignLatch,
-          product.exponent < product.nan.exponent,
-          product.mantissa < Const(0, width: mantissaWidth, fill: true),
+          product < product.inf(sign: aSignLatch ^ bSignLatch),
         ], orElse: [
           product.sign < aSignLatch ^ bSignLatch,
           If(remainingExp[-1], then: [

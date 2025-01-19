@@ -68,6 +68,7 @@ abstract class FloatingPointMultiplier extends Module {
         b.mantissa.width != mantissaWidth) {
       throw RohdHclException('FloatingPoint widths must match');
     }
+
     this.clk = (clk != null) ? addInput('clk', clk) : clk;
     this.enable = (enable != null) ? addInput('enable', enable) : enable;
     this.reset = (reset != null) ? addInput('clk', reset) : reset;

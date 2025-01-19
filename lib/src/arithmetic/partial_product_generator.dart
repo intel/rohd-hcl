@@ -19,7 +19,8 @@ class SignBit extends Logic {
   bool inverted = false;
 
   /// Construct a sign bit to store
-  SignBit(Logic inl, {this.inverted = false}) : super(name: inl.name) {
+  SignBit(Logic inl, {this.inverted = false})
+      : super(name: '${inl.name}_signbit', naming: Naming.mergeable) {
     this <= inl;
   }
 }
@@ -256,6 +257,8 @@ abstract class PartialProductGeneratorBase extends PartialProductArray {
   }
 
   /// Perform sign extension (defined in child classes)
+  @Deprecated('Replace this call with a construction of a '
+      '[PartialProductSignExtension] class')
   @protected
   void signExtend();
 
@@ -264,7 +267,10 @@ abstract class PartialProductGeneratorBase extends PartialProductArray {
     partialProducts = <List<Logic>>[];
     for (var row = 0; row < encoder.rows; row++) {
       partialProducts.add(List.generate(
-          selector.width, (i) => selector.select(i, encoder.getEncoding(row))));
+          selector.width,
+          (i) => selector
+              .select(i, encoder.fetchEncoding(row))
+              .named('pp_r${row}_c$i', naming: Naming.mergeable)));
     }
     for (var row = 0; row < rows; row++) {
       rowShift.add(row * shift);

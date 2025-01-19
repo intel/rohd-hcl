@@ -168,10 +168,8 @@ void main() {
           final width = log2Ceil(radix) + (signedMultiplier ? 1 : 0);
           for (final signExtension
               in SignExtension.values.where((e) => e != SignExtension.none)) {
-            final pp = PartialProductGeneratorBasic(
-                Logic(name: 'X', width: width),
-                Logic(name: 'Y', width: width),
-                RadixEncoder(radix),
+            final pp = PartialProductGenerator(Logic(name: 'X', width: width),
+                Logic(name: 'Y', width: width), RadixEncoder(radix),
                 signedMultiplicand: signedMultiplicand,
                 signedMultiplier: signedMultiplier);
             currySignExtensionFunction(signExtension)(pp).signExtend();
@@ -200,7 +198,7 @@ void main() {
         a.put(X);
         b.put(Y);
         final PartialProductGeneratorBase pp;
-        pp = PartialProductGeneratorBasic(a, b, encoder,
+        pp = PartialProductGenerator(a, b, encoder,
             signedMultiplicand: signedMultiplicand,
             signedMultiplier: signedMultiplier);
         StopBitsSignExtension(pp).signExtend();
@@ -226,10 +224,8 @@ void main() {
                   .where((e) => e != SignExtension.none)) {
                 final width = log2Ceil(radix) + (signMultiplier ? 1 : 0);
                 final PartialProductGeneratorBase pp;
-                pp = PartialProductGeneratorBasic(
-                    Logic(name: 'X', width: width),
-                    Logic(name: 'Y', width: width),
-                    encoder,
+                pp = PartialProductGenerator(Logic(name: 'X', width: width),
+                    Logic(name: 'Y', width: width), encoder,
                     signedMultiplicand: signMultiplicand,
                     signedMultiplier: signMultiplier,
                     selectSignedMultiplicand:
@@ -260,16 +256,16 @@ void main() {
         selectSignMultiplicand.put(selectMultiplicand ? 1 : 0);
         selectSignMultiplier.put(selectMultiplier ? 1 : 0);
         final PartialProductGeneratorBase pp;
-        pp = PartialProductGeneratorStopBitsSignExtension(
-            Logic(name: 'X', width: width),
-            Logic(name: 'Y', width: width),
-            encoder,
+        pp = PartialProductGenerator(Logic(name: 'X', width: width),
+            Logic(name: 'Y', width: width), encoder,
             signedMultiplicand: !selectMultiplicand,
             signedMultiplier: !selectMultiplier,
             selectSignedMultiplicand:
                 selectMultiplicand ? selectSignMultiplicand : null,
             selectSignedMultiplier:
                 selectMultiplier ? selectSignMultiplier : null);
+
+        CompactRectSignExtension(pp).signExtend();
 
         const i = 6;
         const j = -6;
@@ -291,10 +287,8 @@ void main() {
         for (final signExtension
             in SignExtension.values.where((e) => e != SignExtension.none)) {
           // final ppg = curryPartialProductGenerator(signExtension);
-          final pp = PartialProductGeneratorBasic(
-              Logic(name: 'X', width: width),
-              Logic(name: 'Y', width: width),
-              encoder);
+          final pp = PartialProductGenerator(Logic(name: 'X', width: width),
+              Logic(name: 'Y', width: width), encoder);
           currySignExtensionFunction(signExtension)(pp).signExtend();
 
           testPartialProductExhaustive(pp);
@@ -316,7 +310,7 @@ void main() {
               SignExtension.stopBits,
               SignExtension.compactRect
             ]) {
-              final pp = PartialProductGeneratorBasic(
+              final pp = PartialProductGenerator(
                   Logic(name: 'X', width: widthX),
                   Logic(name: 'Y', width: widthY),
                   encoder,
@@ -339,10 +333,8 @@ void main() {
       for (var width = shift; width < min(5, 2 * shift); width++) {
         for (final signExtension
             in SignExtension.values.where((e) => e != SignExtension.none)) {
-          final pp = PartialProductGeneratorBasic(
-              Logic(name: 'X', width: width),
-              Logic(name: 'Y', width: width),
-              encoder);
+          final pp = PartialProductGenerator(Logic(name: 'X', width: width),
+              Logic(name: 'Y', width: width), encoder);
           currySignExtensionFunction(signExtension)(pp).signExtend();
 
           testPartialProductExhaustive(pp);
@@ -366,7 +358,7 @@ void main() {
               SignExtension.stopBits,
               SignExtension.compactRect
             ]) {
-              final pp = PartialProductGeneratorBasic(
+              final pp = PartialProductGenerator(
                   Logic(name: 'X', width: widthX),
                   Logic(name: 'Y', width: widthY),
                   encoder,
@@ -402,7 +394,7 @@ void main() {
 
         final skew = align.$3;
 
-        final pp = PartialProductGeneratorBasic(Logic(name: 'X', width: width),
+        final pp = PartialProductGenerator(Logic(name: 'X', width: width),
             Logic(name: 'Y', width: width + skew), encoder);
         CompactRectSignExtension(pp).signExtend();
 
@@ -421,7 +413,7 @@ void main() {
     final multiplicand = Logic(width: widthX);
     final multiplier = Logic(width: widthY);
     for (final signed in [false, true]) {
-      final ppg = PartialProductGeneratorBasic(
+      final ppg = PartialProductGenerator(
           multiplicand, multiplier, radixEncoder,
           signedMultiplicand: signed, signedMultiplier: signed);
       CompactSignExtension(ppg).signExtend();
@@ -460,7 +452,7 @@ void main() {
     logicX.put(X);
     logicY.put(Y);
     logicZ.put(Z);
-    final pp = PartialProductGeneratorBasic(logicX, logicY, encoder,
+    final pp = PartialProductGenerator(logicX, logicY, encoder,
         signedMultiplicand: true, signedMultiplier: true);
     CompactRectSignExtension(pp).signExtend();
 
@@ -510,7 +502,7 @@ void main() {
     logicX.put(X);
     logicY.put(Y);
     logicZ.put(Z);
-    final pp = PartialProductGeneratorBasic(logicX, logicY, encoder,
+    final pp = PartialProductGenerator(logicX, logicY, encoder,
         signedMultiplicand: true, signedMultiplier: true);
     CompactRectSignExtension(pp).signExtend();
 

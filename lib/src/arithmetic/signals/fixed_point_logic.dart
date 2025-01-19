@@ -43,6 +43,7 @@ class FixedPoint extends Logic {
   }
 
   /// Clone for I/O ports.
+  @override
   FixedPoint clone({String? name}) => FixedPoint(signed: signed, m: m, n: n);
 
   /// Cast logic to fixed point
