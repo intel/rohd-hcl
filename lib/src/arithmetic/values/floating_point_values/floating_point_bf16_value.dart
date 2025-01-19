@@ -9,8 +9,6 @@
 //  Max Korbel <max.korbel@intel.com>
 //  Desmond A Kirkpatrick <desmond.a.kirkpatrick@intel.com>
 
-import 'dart:math';
-
 import 'package:meta/meta.dart';
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
@@ -71,15 +69,6 @@ class FloatingPointBF16Value extends FloatingPointValue {
       : super.ofInts(
             exponentWidth: exponentWidth, mantissaWidth: mantissaWidth);
 
-  /// Generate a random [FloatingPointBF16Value], supplying random seed [rv].
-  factory FloatingPointBF16Value.random(Random rv, {bool normal = false}) {
-    final randFloat = FloatingPointValue.random(rv,
-        exponentWidth: exponentWidth,
-        mantissaWidth: mantissaWidth,
-        normal: normal);
-    return FloatingPointBF16Value.ofLogicValue(randFloat.value);
-  }
-
   /// Numeric conversion of a [FloatingPointBF16Value] from a host double
   factory FloatingPointBF16Value.ofDouble(double inDouble) {
     final fpv = FloatingPointValue.ofDouble(inDouble,
@@ -87,59 +76,6 @@ class FloatingPointBF16Value extends FloatingPointValue {
 
     return FloatingPointBF16Value.ofLogicValue(fpv.value);
   }
-
-  /// Convert a floating point number into a [FloatingPointBF16Value]
-  /// representation. This form performs NO ROUNDING.
-  factory FloatingPointBF16Value.ofDoubleUnrounded(double inDouble) {
-    final fpv = FloatingPointValue.ofDoubleUnrounded(inDouble,
-        exponentWidth: exponentWidth, mantissaWidth: mantissaWidth);
-
-    return FloatingPointBF16Value.ofLogicValue(fpv.value);
-  }
-
-  // TODO(desmonddak): We need to add all these operators for subclasses unless
-  // We figure out a way to use templates to do them.  Currently just BF16
-
-  /// Multiply operation for [FloatingPointBF16Value]
-  @override
-  FloatingPointBF16Value operator *(
-      covariant FloatingPointBF16Value multiplicand) {
-    final fpv = super * multiplicand;
-    return FloatingPointBF16Value.ofLogicValue(fpv.value);
-  }
-
-  /// Addition operation for [FloatingPointBF16Value]
-  @override
-  FloatingPointBF16Value operator +(covariant FloatingPointBF16Value addend) {
-    final fpv = super + addend;
-    return FloatingPointBF16Value.ofLogicValue(fpv.value);
-  }
-
-  /// Divide operation for [FloatingPointBF16Value]
-  @override
-  FloatingPointBF16Value operator /(covariant FloatingPointBF16Value divisor) {
-    final fpv = super / divisor;
-    return FloatingPointBF16Value.ofLogicValue(fpv.value);
-  }
-
-  /// Subtract operation for [FloatingPointBF16Value]
-  @override
-  FloatingPointBF16Value operator -(covariant FloatingPointBF16Value subend) {
-    final fpv = super - subend;
-    return FloatingPointBF16Value.ofLogicValue(fpv.value);
-  }
-
-  /// Negate operation for [FloatingPointBF16Value]
-  @override
-  FloatingPointBF16Value negate() => FloatingPointBF16Value(
-      sign: sign.isZero ? LogicValue.one : LogicValue.zero,
-      exponent: exponent,
-      mantissa: mantissa);
-
-  /// Absolute value operation for [FloatingPointBF16Value]
-  @override
-  FloatingPointBF16Value abs() => FloatingPointBF16Value(
-      sign: LogicValue.zero, exponent: exponent, mantissa: mantissa);
 
   /// Construct a [FloatingPointBF16Value] from a Logic word
   factory FloatingPointBF16Value.ofLogicValue(LogicValue val) =>
