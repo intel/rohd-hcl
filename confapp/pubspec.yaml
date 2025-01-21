@@ -10,7 +10,7 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  rohd: ^0.6.0
+  rohd: ^0.6.1
   rohd_hcl:
     git: 
       url: https://github.com/intel/rohd-hcl
@@ -24,10 +24,6 @@ dependencies:
 dependency_overrides:
   rohd_hcl:
     path: ../
-  rohd:
-    git:
-      url: https://github.com/mkorbel1/rohd
-      ref: namedclones
 
 dev_dependencies:
   flutter_test:
