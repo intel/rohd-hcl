@@ -24,6 +24,10 @@ dependencies:
 dependency_overrides:
   rohd_hcl:
     path: ../
+  rohd:
+    git:
+      url: https://github.com/mkorbel1/rohd
+      ref: namedclones
 
 dev_dependencies:
   flutter_test:
