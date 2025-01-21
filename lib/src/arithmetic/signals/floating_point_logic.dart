@@ -24,6 +24,8 @@ class FloatingPoint extends LogicStructure {
   /// [sign] bit with '1' representing a negative number
   final Logic sign;
 
+  /// Utility to keep track of the Logic structure name by attaching it
+  /// to the Logic signal name in the output Verilog.
   static String _nameJoin(String? structName, String signalName) {
     if (structName == null) {
       return signalName;
@@ -73,7 +75,6 @@ class FloatingPoint extends LogicStructure {
   /// Return a Logic true if this FloatingPoint is an infinity
   /// by having its exponent field set to the NaN value (typically all
   /// ones) and a zero mantissa.
-
   late final isInfinity =
       (exponent.eq(floatingPointValue.infinity.exponent) & ~mantissa.or())
           .named(_nameJoin('isInfinity', name), naming: Naming.mergeable);
@@ -143,7 +144,7 @@ class FloatingPoint extends LogicStructure {
 /// Single floating point representation
 class FloatingPoint32 extends FloatingPoint {
   /// Construct a 32-bit (single-precision) floating point number
-  FloatingPoint32()
+  FloatingPoint32({super.name})
       : super(
             exponentWidth: FloatingPoint32Value.exponentWidth,
             mantissaWidth: FloatingPoint32Value.mantissaWidth);
@@ -152,7 +153,7 @@ class FloatingPoint32 extends FloatingPoint {
 /// Double floating point representation
 class FloatingPoint64 extends FloatingPoint {
   /// Construct a 64-bit (double-precision) floating point number
-  FloatingPoint64()
+  FloatingPoint64({super.name})
       : super(
             exponentWidth: FloatingPoint64Value.exponentWidth,
             mantissaWidth: FloatingPoint64Value.mantissaWidth);
@@ -161,7 +162,7 @@ class FloatingPoint64 extends FloatingPoint {
 /// Eight-bit floating point representation for deep learning: E4M3
 class FloatingPoint8E4M3 extends FloatingPoint {
   /// Construct an 8-bit floating point number
-  FloatingPoint8E4M3()
+  FloatingPoint8E4M3({super.name})
       : super(
             mantissaWidth: FloatingPoint8E4M3Value.mantissaWidth,
             exponentWidth: FloatingPoint8E4M3Value.exponentWidth);
@@ -170,7 +171,7 @@ class FloatingPoint8E4M3 extends FloatingPoint {
 /// Eight-bit floating point representation for deep learning: E5M2
 class FloatingPoint8E5M2 extends FloatingPoint {
   /// Construct an 8-bit floating point number
-  FloatingPoint8E5M2()
+  FloatingPoint8E5M2({super.name})
       : super(
             mantissaWidth: FloatingPoint8E5M2Value.mantissaWidth,
             exponentWidth: FloatingPoint8E5M2Value.exponentWidth);
@@ -179,7 +180,7 @@ class FloatingPoint8E5M2 extends FloatingPoint {
 /// Sixteen-bit BF16 floating point representation
 class FloatingPointBF16 extends FloatingPoint {
   /// Construct a BF16 16-bit floating point number
-  FloatingPointBF16()
+  FloatingPointBF16({super.name})
       : super(
             mantissaWidth: FloatingPointBF16Value.mantissaWidth,
             exponentWidth: FloatingPointBF16Value.exponentWidth);
@@ -188,7 +189,7 @@ class FloatingPointBF16 extends FloatingPoint {
 /// Sixteen-bit floating point representation
 class FloatingPoint16 extends FloatingPoint {
   /// Construct a 16-bit floating point number
-  FloatingPoint16()
+  FloatingPoint16({super.name})
       : super(
             mantissaWidth: FloatingPoint16Value.mantissaWidth,
             exponentWidth: FloatingPoint16Value.exponentWidth);

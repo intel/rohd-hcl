@@ -18,11 +18,11 @@ class RadixEncode extends LogicStructure {
   /// Which multiples need to be selected
   final Logic multiples;
 
-  /// 'sign' of multiple
+  /// 'sign' of multiple.
   final Logic sign;
 
-  /// The
-  ///
+  /// The [row] that is encoded by this RadixEncode (encoding an
+  /// overlapping segment of the multiplier).
   late final int row;
 
   /// Structure for holding Radix Encoding
