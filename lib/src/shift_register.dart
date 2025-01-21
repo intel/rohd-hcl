@@ -38,9 +38,11 @@ class ShiftRegister extends Module {
   final String dataName;
 
   /// Creates a new shift register with specified [depth] which is only active
-  /// when [enable]d. If [reset] is provided, it will reset synchronously with
-  /// [clk] or aynchronously if [asyncReset] is true. The [reset] will reset all
-  /// stages to a default of `0` or to the provided [resetValue].
+  /// when [enable]d.
+  ///
+  /// If [reset] is provided, it will reset synchronously with [clk] or
+  /// aynchronously if [asyncReset] is true. The [reset] will reset allstages to
+  /// a default of `0` or to the provided [resetValue].
   /// If [resetValue] is a [List] the stages will reset to the corresponding
   /// value in the list.
   ShiftRegister(

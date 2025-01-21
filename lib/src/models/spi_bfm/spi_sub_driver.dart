@@ -1,4 +1,4 @@
-// Copyright (C) 2024 Intel Corporation
+// Copyright (C) 2024-2025 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 //
 // spi_sub_driver.dart
@@ -30,46 +30,47 @@ class SpiSubDriver extends PendingDriver<SpiPacket> {
     unawaited(super.run(phase));
 
     intf.miso.inject(0);
+
+    intf.csb.negedge.listen((_) {
+      _packetHandler(loadOnly: true);
+    });
+
+    intf.sclk.negedge.listen((_) {
+      _packetHandler(loadOnly: false);
+    });
+  }
+
+  // Function handles the packet.
+  void _packetHandler({required bool loadOnly}) {
     SpiPacket? packet;
 
     int? dataIndex;
 
-    // Function handles the packet.
-    void packetHandler({required bool loadOnly}) {
-      if (packet == null && pendingSeqItems.isNotEmpty) {
-        packet = pendingSeqItems.removeFirst();
-        if (loadOnly) {
-          dataIndex = 0;
-        } else {
-          dataIndex = -1;
-        }
-      }
-      if (packet != null) {
-        if (loadOnly) {
-          intf.miso.inject(packet!.data[dataIndex!]);
-        } else {
-          dataIndex = dataIndex! + 1;
-          if (dataIndex! < packet!.data.width) {
-            intf.miso.inject(packet!.data[dataIndex!]);
-          }
-        }
-
-        if (dataIndex! >= packet!.data.width) {
-          packet = null;
-          dataIndex = null;
-          packetHandler(loadOnly: loadOnly);
-        }
+    if (pendingSeqItems.isNotEmpty) {
+      packet = pendingSeqItems.removeFirst();
+      if (loadOnly) {
+        dataIndex = 0;
       } else {
-        intf.miso.inject(0);
+        dataIndex = -1;
       }
     }
+    if (packet != null) {
+      if (loadOnly) {
+        intf.miso.inject(packet.data[dataIndex!]);
+      } else {
+        dataIndex = dataIndex! + 1;
+        if (dataIndex < packet.data.width) {
+          intf.miso.inject(packet.data[dataIndex]);
+        }
+      }
 
-    intf.csb.negedge.listen((_) {
-      packetHandler(loadOnly: true);
-    });
-
-    intf.sclk.negedge.listen((_) {
-      packetHandler(loadOnly: false);
-    });
+      if (dataIndex >= packet.data.width) {
+        packet = null;
+        dataIndex = null;
+        _packetHandler(loadOnly: loadOnly);
+      }
+    } else {
+      intf.miso.inject(0);
+    }
   }
 }

@@ -1,4 +1,4 @@
-// Copyright (C) 2024 Intel Corporation
+// Copyright (C) 2024-2025 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 //
 // spi_gaskets_test.dart
@@ -158,7 +158,6 @@ class SpiSubTest extends Test {
     reset.inject(true);
     await clk.waitCycles(1);
     reset.inject(false);
-    //await clk.waitCycles(1);
     await stimulus(this);
 
     obj.drop();
@@ -214,10 +213,6 @@ class SpiPairTest extends Test {
     resetSub = Logic();
     busInSub = Logic(width: 8);
     sub = SpiSub(intf: intf, busIn: busInSub, reset: resetSub);
-
-    // sub.busOut.changed.listen((_) {
-    //   logger.info('BusOut changed: ${sub.busOut.value}');
-    // });
 
     intf.miso.changed.listen((_) {
       logger.info('Miso changed: ${intf.miso.value}');
