@@ -1,318 +1,85 @@
-// Copyright (C) 2024 Intel Corporation
+// Copyright (C) 2025 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 //
-// floating_point_test.dart
-// Tests of Floating Point stuff
+// floating_point_adder_test.dart
+// Basic tests for all floating-point adders.
 //
-// 2024 April 1
-// Authors:
-//  Max Korbel <max.korbel@intel.com>
-//  Desmond A Kirkpatrick <desmond.a.kirkpatrick@intel.com
-//
+// 2025 January 3
+// Author: Desmond A Kirkpatrick <desmond.a.kirkpatrick@intel.com
 
-import 'dart:math';
+import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
 import 'package:test/test.dart';
 
 void main() {
-  test('FP: basic adder test', () {
-    final fp1 = FloatingPoint32()
-      ..put(FloatingPoint32Value.fromDouble(3.25).value);
-    final fp2 = FloatingPoint32()
-      ..put(FloatingPoint32Value.fromDouble(1.5).value);
-    final out = FloatingPoint32Value.fromDouble(3.25 + 1.5);
-    final adder = FloatingPointAdder(fp1, fp2);
-
-    final fpSuper = adder.sum.floatingPointValue;
-    final fpStr = fpSuper.toDouble().toStringAsPrecision(7);
-    final valStr = out.toDouble().toStringAsPrecision(7);
-    expect(fpStr, valStr);
+  tearDown(() async {
+    await Simulator.reset();
   });
+  test('FP: adder basic interesting extreme corners', () {
+    const exponentWidth = 4;
+    const mantissaWidth = 4;
 
-  test('FP: small numbers adder test', () {
-    final val = pow(2.0, -23).toDouble();
-    final fp1 = FloatingPoint32()
-      ..put(FloatingPoint32Value.fromDouble(pow(2.0, -23).toDouble()).value);
-    final fp2 = FloatingPoint32()
-      ..put(FloatingPoint32Value.fromDouble(pow(2.0, -23).toDouble()).value);
-    final out = FloatingPoint32Value.fromDouble(val + val);
+    final fv = FloatingPointValue(
+        sign: LogicValue.zero,
+        exponent: LogicValue.filled(exponentWidth, LogicValue.one),
+        mantissa: LogicValue.filled(exponentWidth, LogicValue.zero));
 
-    final adder = FloatingPointAdder(fp1, fp2);
+    final fp1 = FloatingPoint(
+        exponentWidth: exponentWidth, mantissaWidth: mantissaWidth);
+    final fp2 = FloatingPoint(
+        exponentWidth: exponentWidth, mantissaWidth: mantissaWidth);
+    fp1.put(fv);
+    fp2.put(fv);
 
-    final fpSuper = adder.sum.floatingPointValue;
-    final fpStr = fpSuper.toDouble().toStringAsPrecision(7);
-    final valStr = out.toDouble().toStringAsPrecision(7);
-    expect(fpStr, valStr);
-  });
+    for (final adder in [
+      FloatingPointAdderSimple(fp1, fp2),
+      FloatingPointAdderRound(fp1, fp2)
+    ]) {
+      final testCases = [
+        (fv.infinity, fv.infinity),
+        (fv.negativeInfinity, fv.negativeInfinity),
+        (fv.infinity, fv.negativeInfinity),
+        (fv.infinity, fv.zero),
+        (fv.negativeInfinity, fv.zero),
+        (fv.infinity, fv.one),
+        (fv.negativeInfinity, fv.one),
+        (fv.one.negate(), fv.one),
+        (fv.zero, fv.zero),
+        (fv.zero.negate(), fv.zero),
+      ];
 
-  test('FP: basic loop adder test', () {
-    final input = [(3.25, 1.5), (4.5, 3.75)];
+      for (final test in testCases) {
+        final fv1 = test.$1;
+        final fv2 = test.$2;
 
-    for (final pair in input) {
-      final fp1 = FloatingPoint32()
-        ..put(FloatingPoint32Value.fromDouble(pair.$1).value);
-      final fp2 = FloatingPoint32()
-        ..put(FloatingPoint32Value.fromDouble(pair.$2).value);
-      final out = FloatingPoint32Value.fromDouble(pair.$1 + pair.$2);
+        final doubleProduct = fv1.toDouble() + fv2.toDouble();
+        final partWay = FloatingPointValue.ofDouble(doubleProduct,
+            exponentWidth: exponentWidth, mantissaWidth: mantissaWidth);
+        final roundTrip = partWay.toDouble();
 
-      final adder = FloatingPointAdder(fp1, fp2);
+        fp1.put(fv1.value);
+        fp2.put(fv2.value);
+        final fpOut = adder.sum;
+        expect(fpOut.floatingPointValue, equals(partWay),
+            reason: '\t${fp1.floatingPointValue} '
+                '(${fp1.floatingPointValue.toDouble()})\n'
+                '\t${fp2.floatingPointValue} '
+                '(${fp2.floatingPointValue.toDouble()}) =\n'
+                '\t${fpOut.floatingPointValue} '
+                '(${fpOut.floatingPointValue.toDouble()}) actual\n'
+                '\t$partWay ($roundTrip) expected');
 
-      final fpSuper = adder.sum.floatingPointValue;
-      final fpStr = fpSuper.toDouble().toStringAsPrecision(7);
-      final valStr = out.toDouble().toStringAsPrecision(7);
-      expect(fpStr, valStr);
-    }
-  });
-
-  test('FP: basic adder test', () {
-    final fp1 = FloatingPoint32()
-      ..put(FloatingPoint32Value.fromDouble(3.25).value);
-    final fp2 = FloatingPoint32()
-      ..put(FloatingPoint32Value.fromDouble(1.5).value);
-    final out = FloatingPoint32Value.fromDouble(3.25 + 1.5);
-
-    final adder = FloatingPointAdder(fp1, fp2);
-
-    final fpSuper = adder.sum.floatingPointValue;
-    final fpStr = fpSuper.toDouble().toStringAsPrecision(7);
-    final valStr = out.toDouble().toStringAsPrecision(7);
-    expect(fpStr, valStr);
-  });
-
-  test('FP: addersmall numbers test', () {
-    final val = FloatingPoint32Value.getFloatingPointConstant(
-            FloatingPointConstants.smallestPositiveSubnormal)
-        .toDouble();
-    final fp1 = FloatingPoint32()
-      ..put(FloatingPoint32Value.getFloatingPointConstant(
-              FloatingPointConstants.smallestPositiveSubnormal)
-          .value);
-    final fp2 = FloatingPoint32()
-      ..put(FloatingPoint32Value.getFloatingPointConstant(
-              FloatingPointConstants.smallestPositiveSubnormal)
-          .negate()
-          .value);
-    final out = FloatingPoint32Value.fromDouble(val - val);
-
-    final adder = FloatingPointAdder(fp1, fp2);
-
-    final fpSuper = adder.sum.floatingPointValue;
-    final fpStr = fpSuper.toDouble().abs().toStringAsPrecision(7);
-    final valStr = out.toDouble().toStringAsPrecision(7);
-    expect(fpStr, valStr);
-  });
-
-  test('FP: adder carry numbers test', () {
-    final val = pow(2.5, -12).toDouble();
-    final fp1 = FloatingPoint32()
-      ..put(FloatingPoint32Value.fromDouble(pow(2.5, -12).toDouble()).value);
-    final fp2 = FloatingPoint32()
-      ..put(FloatingPoint32Value.fromDouble(pow(2.5, -12).toDouble()).value);
-    final out = FloatingPoint32Value.fromDouble(val + val);
-
-    final adder = FloatingPointAdder(fp1, fp2);
-
-    final fpSuper = adder.sum.floatingPointValue;
-    final fpStr = fpSuper.toDouble().toStringAsPrecision(7);
-    final valStr = out.toDouble().toStringAsPrecision(7);
-    expect(fpStr, valStr);
-  });
-
-  test('FP: adder basic loop test', () {
-    final input = [(3.25, 1.5), (4.5, 3.75)];
-
-    for (final pair in input) {
-      final fp1 = FloatingPoint32()
-        ..put(FloatingPoint32Value.fromDouble(pair.$1).value);
-      final fp2 = FloatingPoint32()
-        ..put(FloatingPoint32Value.fromDouble(pair.$2).value);
-      final out = FloatingPoint32Value.fromDouble(pair.$1 + pair.$2);
-
-      final adder = FloatingPointAdder(fp1, fp2);
-
-      final fpSuper = adder.sum.floatingPointValue;
-      final fpStr = fpSuper.toDouble().toStringAsPrecision(7);
-      final valStr = out.toDouble().toStringAsPrecision(7);
-      expect(fpStr, valStr);
-    }
-  });
-
-// if you name two tests the same they get run together
-// RippleCarryAdder: cannot access inputs from outside -- super.a issue
-  test('FP: adder basic loop test - negative numbers', () {
-    final input = [(4.5, 3.75), (9.0, -3.75), (-9.0, 3.9375), (-3.9375, 9.0)];
-
-    for (final pair in input) {
-      final fp1 = FloatingPoint32()
-        ..put(FloatingPoint32Value.fromDouble(pair.$1).value);
-      final fp2 = FloatingPoint32()
-        ..put(FloatingPoint32Value.fromDouble(pair.$2).value);
-      final out = FloatingPoint32Value.fromDouble(pair.$1 + pair.$2);
-
-      final adder = FloatingPointAdder(fp1, fp2);
-
-      final fpSuper = adder.sum.floatingPointValue;
-      final fpStr = fpSuper.toDouble().toStringAsPrecision(7);
-      final valStr = out.toDouble().toStringAsPrecision(7);
-      expect(fpStr, valStr);
-    }
-  });
-
-  test('FP: adder basic subnormal test', () {
-    final fp1 = FloatingPoint32()
-      ..put(FloatingPoint32Value.getFloatingPointConstant(
-              FloatingPointConstants.smallestPositiveNormal)
-          .value);
-    final fp2 = FloatingPoint32()
-      ..put(FloatingPoint32Value.getFloatingPointConstant(
-              FloatingPointConstants.smallestPositiveSubnormal)
-          .negate()
-          .value);
-
-    final out = FloatingPoint32Value.fromDouble(
-        fp1.floatingPointValue.toDouble() + fp2.floatingPointValue.toDouble());
-    final adder = FloatingPointAdder(fp1, fp2);
-
-    final fpSuper = adder.sum.floatingPointValue;
-    final fpStr = fpSuper.toDouble().toStringAsPrecision(7);
-    final valStr = out.toDouble().toStringAsPrecision(7);
-    expect(fpStr, valStr);
-  });
-
-  test('FP: tiny subnormal test', () {
-    const ew = 4;
-    const mw = 4;
-    final fp1 = FloatingPoint(exponentWidth: ew, mantissaWidth: mw)
-      ..put(FloatingPointValue.getFloatingPointConstant(
-              FloatingPointConstants.smallestPositiveNormal, ew, mw)
-          .value);
-    final fp2 = FloatingPoint(exponentWidth: ew, mantissaWidth: mw)
-      ..put(FloatingPointValue.getFloatingPointConstant(
-              FloatingPointConstants.smallestPositiveSubnormal, ew, mw)
-          .negate()
-          .value);
-
-    final outDouble =
-        fp1.floatingPointValue.toDouble() + fp2.floatingPointValue.toDouble();
-    final out = FloatingPointValue.fromDoubleIter(outDouble,
-        exponentWidth: ew, mantissaWidth: mw);
-    final adder = FloatingPointAdder(fp1, fp2);
-
-    expect(adder.sum.floatingPointValue.compareTo(out), 0);
-  });
-
-  test('FP: addernegative number requiring a carryOut', () {
-    const pair = (9.0, -3.75);
-    const ew = 3;
-    const mw = 5;
-
-    final fp1 = FloatingPoint(exponentWidth: ew, mantissaWidth: mw)
-      ..put(FloatingPointValue.fromDouble(pair.$1,
-              exponentWidth: ew, mantissaWidth: mw)
-          .value);
-    final fp2 = FloatingPoint(exponentWidth: ew, mantissaWidth: mw)
-      ..put(FloatingPointValue.fromDouble(pair.$2,
-              exponentWidth: ew, mantissaWidth: mw)
-          .value);
-
-    final out = FloatingPointValue.fromDouble(pair.$1 + pair.$2,
-        exponentWidth: ew, mantissaWidth: mw);
-    final adder = FloatingPointAdder(fp1, fp2);
-
-    expect(adder.sum.floatingPointValue.compareTo(out), 0);
-  });
-
-  test('FP: adder subnormal cancellation', () {
-    const ew = 4;
-    const mw = 4;
-    final fp1 = FloatingPoint(exponentWidth: ew, mantissaWidth: mw)
-      ..put(FloatingPointValue.getFloatingPointConstant(
-              FloatingPointConstants.smallestPositiveSubnormal, ew, mw)
-          .negate()
-          .value);
-    final fp2 = FloatingPoint(exponentWidth: ew, mantissaWidth: mw)
-      ..put(FloatingPointValue.getFloatingPointConstant(
-              FloatingPointConstants.smallestPositiveSubnormal, ew, mw)
-          .value);
-
-    final out = fp2.floatingPointValue + fp1.floatingPointValue;
-
-    final adder = FloatingPointAdder(fp1, fp2);
-    // TODO(desmonddak):  figure out how to handle -0.0, as this would fail
-    expect(adder.sum.floatingPointValue.abs().compareTo(out), 0);
-  });
-
-  test('FP: adder adder basic loop adder test2', () {
-    final input = [(4.5, 3.75), (9.0, -3.75), (-9.0, 3.9375), (-3.9375, 9.0)];
-
-    for (final pair in input) {
-      final fp1 = FloatingPoint32()
-        ..put(FloatingPoint32Value.fromDouble(pair.$1).value);
-      final fp2 = FloatingPoint32()
-        ..put(FloatingPoint32Value.fromDouble(pair.$2).value);
-      final out = FloatingPoint32Value.fromDouble(pair.$1 + pair.$2);
-
-      final adder = FloatingPointAdder(fp1, fp2);
-
-      final fpSuper = adder.sum.floatingPointValue;
-      final fpStr = fpSuper.toDouble().toStringAsPrecision(7);
-      final valStr = out.toDouble().toStringAsPrecision(7);
-      expect(fpStr, valStr);
-    }
-  });
-  test('FP: adder singleton', () {
-    const pair = (9.0, -3.75);
-    {
-      final fp1 = FloatingPoint32()
-        ..put(FloatingPoint32Value.fromDouble(pair.$1).value);
-      final fp2 = FloatingPoint32()
-        ..put(FloatingPoint32Value.fromDouble(pair.$2).value);
-      final out = FloatingPoint32Value.fromDouble(pair.$1 + pair.$2);
-
-      final adder = FloatingPointAdder(fp1, fp2);
-
-      final fpSuper = adder.sum.floatingPointValue;
-      final fpStr = fpSuper.toDouble().toStringAsPrecision(7);
-      final valStr = out.toDouble().toStringAsPrecision(7);
-      expect(fpStr, valStr);
-    }
-  });
-  test('FP: adder random', () {
-    const eWidth = 5;
-    const mWidth = 20;
-
-    final fa = FloatingPoint(exponentWidth: eWidth, mantissaWidth: mWidth);
-    final fb = FloatingPoint(exponentWidth: eWidth, mantissaWidth: mWidth);
-    final fpv = FloatingPointValue.ofInts(0, 0,
-        exponentWidth: eWidth, mantissaWidth: mWidth);
-    final smallest = FloatingPointValue.getFloatingPointConstant(
-        FloatingPointConstants.smallestPositiveNormal, eWidth, mWidth);
-    fa.put(0);
-    fb.put(0);
-    final adder = FloatingPointAdder(fa, fb);
-    final value = Random(513);
-    for (var i = 0; i < 50; i++) {
-      final fva = FloatingPointValue.random(value,
-          exponentWidth: eWidth, mantissaWidth: mWidth, normal: true);
-      final fvb = FloatingPointValue.random(value,
-          exponentWidth: eWidth, mantissaWidth: mWidth, normal: true);
-      fa.put(fva);
-      fb.put(fvb);
-      // fromDoubleIter does not round like '+' would
-      final expected = FloatingPointValue.fromDoubleIter(
-          fva.toDouble() + fvb.toDouble(),
-          exponentWidth: fpv.exponent.width,
-          mantissaWidth: fpv.mantissa.width);
-      final computed = adder.sum.floatingPointValue;
-      final ulp = FloatingPointValue.ofInts(
-          max(expected.exponent.toInt(), 1), 1,
-          exponentWidth: eWidth, mantissaWidth: mWidth);
-      final diff = (expected.toDouble() - computed.toDouble()).abs();
-      if (expected.isNormal()) {
-        expect(expected.isNaN(), equals(computed.isNaN()));
-        if (!expected.isNaN()) {
-          expect(diff, lessThan(ulp.toDouble() * smallest.toDouble()));
-        }
+        final partWayU = FloatingPointValue.ofDoubleUnrounded(doubleProduct,
+            exponentWidth: exponentWidth, mantissaWidth: mantissaWidth);
+        final roundTripU = partWay.toDouble();
+        expect(fpOut.floatingPointValue, equals(partWayU),
+            reason: '\t${fp1.floatingPointValue} '
+                '(${fp1.floatingPointValue.toDouble()})\n'
+                '\t${fp2.floatingPointValue} '
+                '(${fp2.floatingPointValue.toDouble()}) =\n'
+                '\t${fpOut.floatingPointValue} '
+                '(${fpOut.floatingPointValue.toDouble()}) actual\n'
+                '\t$partWayU ($roundTripU) expected');
       }
     }
   });

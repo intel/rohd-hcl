@@ -15,7 +15,7 @@ jobs:
   run-checks:
     name: Run Checks
     permissions: {}
-    timeout-minutes: 30
+    timeout-minutes: 60
     runs-on: ${{ github.repository_owner == 'intel' && 'intel-ubuntu-latest' || 'ubuntu-latest' }}
     steps:
       - name: Checkout
@@ -62,6 +62,9 @@ jobs:
 
       - name: Generate HTML for examples
         run: tool/gh_actions/create_htmls.sh
+      
+      - name: Check temporary test files
+        run: tool/gh_actions/check_tmp_test.sh
 
       # https://github.com/devcontainers/ci/blob/main/docs/github-action.md
       - name: Build dev container and run tests in it

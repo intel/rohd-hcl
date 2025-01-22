@@ -19,14 +19,13 @@ void main() {
     await Simulator.reset();
   });
 
-  test('should throw exception if inputs Logics have diferent width.', () {
+  test('should throw exception if inputs Logics have different width.', () {
     final a = Logic(name: 'a', width: 8);
     final b = Logic(name: 'b', width: 16);
     final clk = SimpleClockGenerator(10).clk;
     final reset = Logic(name: 'reset');
 
-    expect(
-        () => CarrySaveMultiplier(clk: clk, reset: reset, signed: true, a, b),
+    expect(() => CarrySaveMultiplier(clk: clk, reset: reset, a, b),
         throwsA(const TypeMatcher<RohdHclException>()));
   });
 
@@ -37,7 +36,7 @@ void main() {
     final reset = Logic(name: 'reset');
     final clk = SimpleClockGenerator(10).clk;
 
-    final csm = CarrySaveMultiplier(clk: clk, reset: reset, signed: true, a, b);
+    final csm = CarrySaveMultiplier(clk: clk, reset: reset, a, b);
 
     await csm.build();
 

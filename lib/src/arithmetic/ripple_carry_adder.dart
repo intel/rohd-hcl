@@ -18,18 +18,19 @@ import 'package:rohd_hcl/rohd_hcl.dart';
 /// adder sequentially adds corresponding bits of two binary numbers.
 class RippleCarryAdder extends Adder {
   /// Constructs an n-bit adder based on inputs List of inputs.
-  RippleCarryAdder(super.a, super.b, {super.name = 'ripple_carry_adder'}) {
+  RippleCarryAdder(super.a, super.b,
+      {super.carryIn, super.name = 'ripple_carry_adder_carry_in'}) {
     Logic? carry;
     final sumList = <Logic>[];
     for (var i = 0; i < a.width; i++) {
-      final fullAdder = FullAdder(a: a[i], b: b[i], carryIn: carry ?? Const(0));
+      final fullAdder =
+          FullAdder(a[i], b[i], carryIn: carry ?? (carryIn ?? Const(0)));
 
-      carry = fullAdder.carryOut;
-      sumList.add(fullAdder.sum);
+      carry = fullAdder.sum[1];
+      sumList.add(fullAdder.sum[0]);
     }
 
     sumList.add(carry!);
-
     sum <= sumList.rswizzle();
   }
 }

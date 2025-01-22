@@ -1,4 +1,4 @@
-// Copyright (C) 2023-2024 Intel Corporation
+// Copyright (C) 2023-2025 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 //
 // component_registry.dart
@@ -25,7 +25,14 @@ List<Configurator> get componentRegistry => [
       RegisterFileConfigurator(),
       EdgeDetectorConfigurator(),
       FindConfigurator(),
+      FloatingPointAdderRoundConfigurator(),
+      FloatingPointAdderSimpleConfigurator(),
+      FloatingPointMultiplierSimpleConfigurator(),
       ParallelPrefixAdderConfigurator(),
       CompressionTreeMultiplierConfigurator(),
       ExtremaConfigurator(),
+      CompoundAdderConfigurator(),
+      FixedToFloatConfigurator(),
+      FloatToFixedConfigurator(),
+      Float8ToFixedConfigurator()
     ];
