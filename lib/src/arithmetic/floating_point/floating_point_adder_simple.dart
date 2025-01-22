@@ -72,10 +72,11 @@ class FloatingPointAdderSimple extends FloatingPointAdder {
     final mantissa = sumLatched.reversed
         .getRange(0, min(intSum.width, intSum.width))
         .named('mantissa');
-    final leadOneValid = Logic(name: 'leadOne_valid');
+    final leadOneValid = Logic(name: 'leadOneValid');
     final leadOnePre = ParallelPrefixPriorityEncoder(mantissa,
             ppGen: ppTree, valid: leadOneValid)
-        .out;
+        .out
+        .named('leadOnePre');
     // Limit leadOne to exponent range and match widths
     final infExponent = outputSum.inf(sign: aSignLatched).exponent;
     final leadOne = ((leadOnePre.width > exponentWidth)
@@ -85,7 +86,7 @@ class FloatingPointAdderSimple extends FloatingPointAdder {
         .named('leadOne');
 
     final leadOneDominates =
-        (leadOne.gt(aExpLatched) | ~leadOneValid).named('leadone_dominates');
+        (leadOne.gt(aExpLatched) | ~leadOneValid).named('leadOneDominates');
     final normalExp = (aExpLatched - leadOne + 1).named('normalExponent');
     final outExp = mux(leadOneDominates, larger.zeroExponent, normalExp)
         .named('outExponent');
@@ -93,12 +94,16 @@ class FloatingPointAdderSimple extends FloatingPointAdder {
     final realIsInf =
         (isInfLatched | outExp.eq(infExponent)).named('realIsInf');
 
-    final shiftMantissabyExp = (sumLatched << aExpLatched + 1)
-        .named('shiftMantissaExp', naming: Naming.mergeable)
-        .getRange(intSum.width - mantissaWidth, intSum.width);
-    final shiftMantissabyLeadOne = (sumLatched << leadOne + 1)
-        .getRange(intSum.width - mantissaWidth, intSum.width)
-        .named('shiftMantissa_leadone', naming: Naming.mergeable);
+    final shiftMantissabyExp =
+        (sumLatched << (aExpLatched + 1).named('expPlus1'))
+            .named('shiftMantissaByExp', naming: Naming.mergeable)
+            .getRange(intSum.width - mantissaWidth, intSum.width)
+            .named('shiftMantissaByExpSliced');
+    final shiftMantissabyLeadOne =
+        (sumLatched << (leadOne + 1).named('leadOnePlus1'))
+            .named('sumShiftLeadOnePlus1')
+            .getRange(intSum.width - mantissaWidth, intSum.width)
+            .named('shiftMantissaLeadPlus1Sliced', naming: Naming.mergeable);
 
     Combinational([
       If.block([

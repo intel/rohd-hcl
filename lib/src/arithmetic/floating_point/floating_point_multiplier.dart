@@ -93,8 +93,8 @@ abstract class FloatingPointMultiplier extends Module {
     this.enable = (enable != null) ? addInput('enable', enable) : enable;
     this.reset = (reset != null) ? addInput('clk', reset) : reset;
 
-    this.a = a.clone()..gets(addInput('a', a, width: a.width));
-    this.b = b.clone()..gets(addInput('b', b, width: b.width));
+    this.a = a.clone(name: 'a')..gets(addInput('a', a, width: a.width));
+    this.b = b.clone(name: 'b')..gets(addInput('b', b, width: b.width));
   }
 
   /// Pipelining helper that uses the context for signals clk/enable/reset

@@ -38,9 +38,15 @@ class FloatingPoint extends LogicStructure {
   FloatingPoint(
       {required int exponentWidth, required int mantissaWidth, String? name})
       : this._(
-            Logic(name: _nameJoin(name, 'sign')),
-            Logic(width: exponentWidth, name: _nameJoin(name, 'exponent')),
-            Logic(width: mantissaWidth, name: _nameJoin(name, 'mantissa')),
+            Logic(name: _nameJoin(name, 'sign'), naming: Naming.mergeable),
+            Logic(
+                width: exponentWidth,
+                name: _nameJoin(name, 'exponent'),
+                naming: Naming.mergeable),
+            Logic(
+                width: mantissaWidth,
+                name: _nameJoin(name, 'mantissa'),
+                naming: Naming.mergeable),
             name: name);
 
   FloatingPoint._(this.sign, this.exponent, this.mantissa, {super.name})
@@ -61,14 +67,14 @@ class FloatingPoint extends LogicStructure {
   /// defined as having mantissa in the range [1,2)
   late final Logic isNormal = exponent
       .neq(LogicValue.zero.zeroExtend(exponent.width))
-      .named('isNormal', naming: Naming.mergeable);
+      .named(_nameJoin('isNormal', name), naming: Naming.mergeable);
 
   /// Return a Logic true if this FloatingPoint is Not a Number (NaN)
   /// by having its exponent field set to the NaN value (typically all
   /// ones) and a non-zero mantissa.
   late final isNaN = exponent.eq(floatingPointValue.nan.exponent) &
       mantissa.or().named(
-            'isNaN',
+            _nameJoin('isNaN', name),
             naming: Naming.mergeable,
           );
 

@@ -62,29 +62,35 @@ class FloatingPointMultiplierSimple extends FloatingPointMultiplier {
         .named('isNaN');
 
     final productExpLatch = localFlop(productExp);
-    final aSignLatch = localFlop(a.sign);
-    final bSignLatch = localFlop(b.sign);
+    final aSignLatch =
+        localFlop(a.sign).named('a_sign', naming: Naming.renameable);
+    final bSignLatch =
+        localFlop(b.sign).named('b_sign', naming: Naming.renameable);
     final isInfLatch = localFlop(isInf);
     final isNaNLatch = localFlop(isNaN);
 
     final leadingOnePosPre = ParallelPrefixPriorityEncoder(mantissa.reversed,
             ppGen: ppTree, name: 'leading_one_encoder')
         .out
+        .named('leadingOneRaw')
         .zeroExtend(exponentWidth + 2)
-        .named('leadingOne');
+        .named('leadingOneRawExtended', naming: Naming.mergeable);
 
     final leadingOnePos = mux(
-        leadingOnePosPre.gt(mantissa.width),
-        Const(product.bias.value.toInt() + 1, width: leadingOnePosPre.width),
-        leadingOnePosPre);
+            leadingOnePosPre.gt(mantissa.width),
+            Const(product.bias.value.toInt() + 1,
+                width: leadingOnePosPre.width),
+            leadingOnePosPre)
+        .named('leadingOnePosition');
 
     final remainingExp =
-        (productExpLatch - leadingOnePos + 1).named('remainingExp');
+        ((productExpLatch - leadingOnePos).named('productExpMinusLeadOne') + 1)
+            .named('remainingExp');
 
     final internalOverflow = (~remainingExp[-1] &
-            remainingExp.abs().gte(Const(1, width: exponentWidth, fill: true)
+            remainingExp.gte(Const(1, width: exponentWidth, fill: true)
                 .zeroExtend(exponentWidth + 2)))
-        .named('internal_overflow');
+        .named('internalOverflow');
 
     final overFlow = (isInfLatch | internalOverflow).named('overflow');
 
