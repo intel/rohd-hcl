@@ -146,7 +146,7 @@ class MultiplierEncoder {
       final len = multiplier.width;
       final sign = multiplier[len - 1];
       final extension = [
-        for (var i = len - 1; i < (rows * (log2Ceil(radixEncoder.radix))); i++)
+        for (var i = len; i < (rows * (log2Ceil(radixEncoder.radix))); i++)
           mux(selectSignedMultiplier, sign, Const(0))
       ];
       _extendedMultiplier = (multiplier.elements + extension)

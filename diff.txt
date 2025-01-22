@@ -1,0 +1,13 @@
+diff --git a/confapp/pubspec.yaml b/confapp/pubspec.yaml
+diff --git a/lib/src/arithmetic/fixed_to_float.dart b/lib/src/arithmetic/fixed_to_float.dart
+diff --git a/lib/src/arithmetic/floating_point/floating_point_multiplier.dart b/lib/src/arithmetic/floating_point/floating_point_multiplier.dart
+diff --git a/lib/src/arithmetic/floating_point/floating_point_multiplier_simple.dart b/lib/src/arithmetic/floating_point/floating_point_multiplier_simple.dart
+diff --git a/lib/src/arithmetic/multiplier_encoder.dart b/lib/src/arithmetic/multiplier_encoder.dart
+diff --git a/lib/src/arithmetic/values/floating_point_values/floating_point_32_value.dart b/lib/src/arithmetic/values/floating_point_values/floating_point_32_value.dart
+diff --git a/lib/src/arithmetic/values/floating_point_values/floating_point_bf16_value.dart b/lib/src/arithmetic/values/floating_point_values/floating_point_bf16_value.dart
+diff --git a/lib/src/arithmetic/values/floating_point_values/floating_point_value.dart b/lib/src/arithmetic/values/floating_point_values/floating_point_value.dart
+-      final diff = (abs() - other.abs()).abs();
+-      if (diff.compareTo(ulp()) == 1) {
+diff --git a/test/arithmetic/floating_point/floating_point_adder_simple_test.dart b/test/arithmetic/floating_point/floating_point_adder_simple_test.dart
+diff --git a/test/arithmetic/floating_point/floating_point_multiplier_test.dart b/test/arithmetic/floating_point/floating_point_multiplier_test.dart
+diff --git a/test/arithmetic/floating_point/floating_point_value_test.dart b/test/arithmetic/floating_point/floating_point_value_test.dart

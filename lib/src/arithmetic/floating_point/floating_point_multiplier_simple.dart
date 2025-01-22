@@ -22,6 +22,7 @@ class FloatingPointMultiplierSimple extends FloatingPointMultiplier {
       {super.clk,
       super.reset,
       super.enable,
+      super.outProduct,
       Multiplier Function(Logic a, Logic b,
               {Logic? clk, Logic? reset, Logic? enable, String name})
           multGen = NativeMultiplier.new,
@@ -29,12 +30,6 @@ class FloatingPointMultiplierSimple extends FloatingPointMultiplier {
               List<Logic> inps, Logic Function(Logic term1, Logic term2) op)
           ppTree = KoggeStone.new,
       super.name}) {
-    final product = FloatingPoint(
-        exponentWidth: exponentWidth,
-        mantissaWidth: mantissaWidth,
-        name: 'product');
-    output('product') <= product;
-
     final aMantissa = mux(a.isNormal, [a.isNormal, a.mantissa].swizzle(),
             [a.mantissa, Const(0)].swizzle())
         .named('aMantissa');
@@ -42,18 +37,22 @@ class FloatingPointMultiplierSimple extends FloatingPointMultiplier {
             [b.mantissa, Const(0)].swizzle())
         .named('bMantissa');
 
-    final expAdd = (a.exponent.zeroExtend(exponentWidth + 2) +
-            b.exponent.zeroExtend(exponentWidth + 2))
-        .named('exponent_add');
-
-    final productExp =
-        (expAdd - a.bias.zeroExtend(exponentWidth + 2)).named('productExp');
+    final expCalcWidth = exponentWidth + 2;
+    final addBias =
+        (a.bias.zeroExtend(expCalcWidth) + b.bias.zeroExtend(expCalcWidth))
+            .named('addBias');
+    final deltaBias =
+        (product.bias.zeroExtend(expCalcWidth) - addBias).named('rebias');
+    final addExp = (a.exponent.zeroExtend(expCalcWidth) +
+            b.exponent.zeroExtend(expCalcWidth))
+        .named('addExp');
+    final productExp = (addExp + deltaBias).named('productExp');
 
     final mantissaMult = multGen(aMantissa, bMantissa,
         clk: clk, reset: reset, enable: enable, name: 'mantissa_mult');
 
     final mantissa = mantissaMult.product
-        .getRange(0, (mantissaWidth + 1) * 2)
+        .getRange(0, (a.mantissa.width + 1) * 2)
         .named('mantissa');
 
     final isInf = (a.isInfinity | b.isInfinity).named('isInf');
@@ -68,17 +67,16 @@ class FloatingPointMultiplierSimple extends FloatingPointMultiplier {
     final isInfLatch = localFlop(isInf);
     final isNaNLatch = localFlop(isNaN);
 
-    final leadingOnePos = ParallelPrefixPriorityEncoder(mantissa.reversed,
+    final leadingOnePosPre = ParallelPrefixPriorityEncoder(mantissa.reversed,
             ppGen: ppTree, name: 'leading_one_encoder')
         .out
         .zeroExtend(exponentWidth + 2)
         .named('leadingOne');
 
-    final shifter = SignedShifter(
-        mantissa,
-        mux(productExpLatch[-1] | productExpLatch.lt(leadingOnePos),
-            productExpLatch, leadingOnePos),
-        name: 'mantissa_shifter');
+    final leadingOnePos = mux(
+        leadingOnePosPre.gt(mantissa.width),
+        Const(product.bias.value.toInt() + 1, width: leadingOnePosPre.width),
+        leadingOnePosPre);
 
     final remainingExp =
         (productExpLatch - leadingOnePos + 1).named('remainingExp');
@@ -90,22 +88,38 @@ class FloatingPointMultiplierSimple extends FloatingPointMultiplier {
 
     final overFlow = (isInfLatch | internalOverflow).named('overflow');
 
+    final fullMantissa = (mantissaWidth + 1 > mantissa.width)
+        ? [
+            mantissa,
+            Const(0, width: mantissaWidth + 1 - mantissa.width, fill: true)
+          ].swizzle().named('extendMantissa')
+        : mantissa.named('fullMantissa');
+
+    final fullShift = SignedShifter(
+            fullMantissa,
+            mux(productExpLatch[-1] | productExpLatch.lt(leadingOnePos),
+                productExpLatch, leadingOnePos),
+            name: 'full_mantissa_shifter')
+        .shifted
+        .named('shiftMantissa');
+    final finalMantissa = fullShift
+        .getRange(fullShift.width - mantissaWidth - 1, fullShift.width - 1)
+        .named('finalMantissa');
+
     Combinational([
       If(isNaNLatch, then: [
-        product < product.nan,
+        internalProduct < product.nan,
       ], orElse: [
         If(overFlow, then: [
-          product < product.inf(sign: aSignLatch ^ bSignLatch),
+          internalProduct < product.inf(sign: aSignLatch ^ bSignLatch),
         ], orElse: [
-          product.sign < aSignLatch ^ bSignLatch,
+          internalProduct.sign < aSignLatch ^ bSignLatch,
           If(remainingExp[-1], then: [
-            product.exponent < Const(0, width: exponentWidth)
+            internalProduct.exponent < Const(0, width: exponentWidth)
           ], orElse: [
-            product.exponent < remainingExp.getRange(0, exponentWidth),
+            internalProduct.exponent < remainingExp.getRange(0, exponentWidth),
           ]),
-          // Remove the leading one for implicit representation
-          product.mantissa <
-              shifter.shifted.getRange(-mantissaWidth - 1, mantissa.width - 1)
+          internalProduct.mantissa < finalMantissa
         ])
       ])
     ]);
