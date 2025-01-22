@@ -198,7 +198,48 @@ void main() {
       }
     });
 
-    test('FP: simple multiplier singleton', () {
+    test('FP: simple multiplier full random with compression tree mult',
+        () async {
+      const exponentWidth = 4;
+      const mantissaWidth = 4;
+
+      final fp1 = FloatingPoint(
+          exponentWidth: exponentWidth, mantissaWidth: mantissaWidth);
+      final fp2 = FloatingPoint(
+          exponentWidth: exponentWidth, mantissaWidth: mantissaWidth);
+      fp1.put(0);
+      fp2.put(0);
+      final multiplier = FloatingPointMultiplierSimple(fp1, fp2,
+          multGen: (a, b, {clk, reset, enable, name = 'multiplier'}) =>
+              CompressionTreeMultiplier(a, b, 4, name: name));
+      final value = Random(51);
+
+      var cnt = 1000;
+      while (cnt > 0) {
+        final fv1 = FloatingPointValue.random(value,
+            exponentWidth: exponentWidth, mantissaWidth: mantissaWidth);
+        final fv2 = FloatingPointValue.random(value,
+            exponentWidth: exponentWidth, mantissaWidth: mantissaWidth);
+        fp1.put(fv1);
+        fp2.put(fv2);
+
+        final expected = FloatingPointValue.ofDoubleUnrounded(
+            fv1.toDouble() * fv2.toDouble(),
+            exponentWidth: exponentWidth,
+            mantissaWidth: mantissaWidth);
+        final computed = multiplier.product.floatingPointValue;
+
+        expect(computed, equals(expected), reason: '''
+      $fv1 (${fv1.toDouble()})\t+
+      $fv2 (${fv2.toDouble()})\t=
+      $computed (${computed.toDouble()})\tcomputed
+      $expected (${expected.toDouble()})\texpected
+''');
+        cnt--;
+      }
+    });
+
+    test('FP: simple multiplier singleton', () async {
       const exponentWidth = 4;
       const mantissaWidth = 4;
       final fp1 = FloatingPoint(
@@ -217,6 +258,7 @@ void main() {
       fp2.put(fv2.value);
 
       final multiply = FloatingPointMultiplierSimple(fp1, fp2);
+      await multiply.build();
       final computed = multiply.product.floatingPointValue;
 
       expect(computed, equals(expected), reason: '''
@@ -249,6 +291,47 @@ void main() {
     fp2.put(fv2.value);
 
     final multiply = FloatingPointMultiplierSimple(fp1, fp2, clk: clk);
+
+    unawaited(Simulator.run());
+    await clk.nextNegedge;
+    fp1.put(0);
+    fp2.put(0);
+    final computed = multiply.product.floatingPointValue;
+
+    expect(computed, equals(expected), reason: '''
+      $fv1 (${fv1.toDouble()})\t+
+      $fv2 (${fv2.toDouble()})\t=
+      $computed (${computed.toDouble()})\tcomputed
+      $expected (${expected.toDouble()})\texpected
+''');
+    await Simulator.endSimulation();
+  });
+  test('FP: simple multiplier singleton pipelined compression-tree', () async {
+    final clk = SimpleClockGenerator(10).clk;
+
+    const exponentWidth = 4;
+    const mantissaWidth = 4;
+    final fp1 = FloatingPoint(
+        exponentWidth: exponentWidth, mantissaWidth: mantissaWidth);
+    final fv1 = FloatingPointValue.ofBinaryStrings('0', '0111', '0000');
+
+    final fp2 = FloatingPoint(
+        exponentWidth: exponentWidth, mantissaWidth: mantissaWidth);
+    final fv2 = FloatingPointValue.ofBinaryStrings('0', '1101', '0101');
+
+    final expected = FloatingPointValue.ofDoubleUnrounded(
+        fv1.toDouble() * fv2.toDouble(),
+        exponentWidth: exponentWidth,
+        mantissaWidth: mantissaWidth);
+
+    fp1.put(fv1.value);
+    fp2.put(fv2.value);
+
+    final multiply = FloatingPointMultiplierSimple(fp1, fp2,
+        clk: clk,
+        multGen: (a, b, {clk, reset, enable, name = 'multiplier'}) =>
+            CompressionTreeMultiplier(a, b, 4,
+                clk: clk, reset: reset, enable: enable, name: name));
 
     unawaited(Simulator.run());
     await clk.nextNegedge;

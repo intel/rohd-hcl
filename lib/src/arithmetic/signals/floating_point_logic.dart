@@ -84,20 +84,20 @@ class FloatingPoint extends LogicStructure {
   /// ones) and a zero mantissa.
   late final isZero =
       (exponent.eq(floatingPointValue.zero.exponent) & ~mantissa.or())
-          .named('isZero', naming: Naming.mergeable);
+          .named(_nameJoin('isZero', name), naming: Naming.mergeable);
 
   /// Return the zero exponent representation for this type of FloatingPoint
   late final zeroExponent = Const(LogicValue.zero, width: exponent.width)
-      .named('zeroExponent', naming: Naming.mergeable);
+      .named(_nameJoin('zeroExponent', name), naming: Naming.mergeable);
 
   /// Return the one exponent representation for this type of FloatingPoint
   late final oneExponent = Const(LogicValue.one, width: exponent.width)
-      .named('oneExponent', naming: Naming.mergeable);
+      .named(_nameJoin('oneExponent', name), naming: Naming.mergeable);
 
   /// Return the exponent Logic value representing the true zero exponent
   /// 2^0 = 1 often termed [bias] or the offset of the stored exponent.
   late final bias = Const((1 << exponent.width - 1) - 1, width: exponent.width)
-      .named('bias', naming: Naming.mergeable);
+      .named(_nameJoin('bias', name), naming: Naming.mergeable);
 
   /// Construct a FloatingPoint that represents infinity for this FP type.
   FloatingPoint inf({Logic? sign, bool negative = false}) => FloatingPoint.inf(
@@ -148,6 +148,9 @@ class FloatingPoint32 extends FloatingPoint {
       : super(
             exponentWidth: FloatingPoint32Value.exponentWidth,
             mantissaWidth: FloatingPoint32Value.mantissaWidth);
+
+  @override
+  FloatingPoint32 clone({String? name}) => FloatingPoint32(name: name);
 }
 
 /// Double floating point representation
@@ -157,6 +160,8 @@ class FloatingPoint64 extends FloatingPoint {
       : super(
             exponentWidth: FloatingPoint64Value.exponentWidth,
             mantissaWidth: FloatingPoint64Value.mantissaWidth);
+  @override
+  FloatingPoint64 clone({String? name}) => FloatingPoint64(name: name);
 }
 
 /// Eight-bit floating point representation for deep learning: E4M3
@@ -166,6 +171,8 @@ class FloatingPoint8E4M3 extends FloatingPoint {
       : super(
             mantissaWidth: FloatingPoint8E4M3Value.mantissaWidth,
             exponentWidth: FloatingPoint8E4M3Value.exponentWidth);
+  @override
+  FloatingPoint8E4M3 clone({String? name}) => FloatingPoint8E4M3(name: name);
 }
 
 /// Eight-bit floating point representation for deep learning: E5M2
@@ -175,6 +182,8 @@ class FloatingPoint8E5M2 extends FloatingPoint {
       : super(
             mantissaWidth: FloatingPoint8E5M2Value.mantissaWidth,
             exponentWidth: FloatingPoint8E5M2Value.exponentWidth);
+  @override
+  FloatingPoint8E5M2 clone({String? name}) => FloatingPoint8E5M2(name: name);
 }
 
 /// Sixteen-bit BF16 floating point representation
@@ -184,6 +193,8 @@ class FloatingPointBF16 extends FloatingPoint {
       : super(
             mantissaWidth: FloatingPointBF16Value.mantissaWidth,
             exponentWidth: FloatingPointBF16Value.exponentWidth);
+  @override
+  FloatingPointBF16 clone({String? name}) => FloatingPointBF16(name: name);
 }
 
 /// Sixteen-bit floating point representation
@@ -193,4 +204,6 @@ class FloatingPoint16 extends FloatingPoint {
       : super(
             mantissaWidth: FloatingPoint16Value.mantissaWidth,
             exponentWidth: FloatingPoint16Value.exponentWidth);
+  @override
+  FloatingPoint16 clone({String? name}) => FloatingPoint16(name: name);
 }

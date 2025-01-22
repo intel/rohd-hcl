@@ -16,6 +16,15 @@ import 'package:rohd_hcl/src/arithmetic/partial_product_sign_extend.dart';
 
 /// An abstract class for all multiplier implementations.
 abstract class Multiplier extends Module {
+  /// The clk for the pipelined version of column compression.
+  Logic? clk;
+
+  /// Optional reset for configurable pipestage
+  Logic? reset;
+
+  /// Optional enable for configurable pipestage.
+  Logic? enable;
+
   /// The multiplicand input [a].
   @protected
   Logic get a => input('a');
@@ -65,12 +74,25 @@ abstract class Multiplier extends Module {
   /// Optional [selectSignedMultiplier] allows for runtime configuration of
   /// signed or unsigned operation, overriding the [signedMultiplier] static
   /// configuration.
+  /// If [clk] is not null then a set of flops are used to make the multiply
+  /// a 2-cycle latency operation. [reset] and [enable] are optional
+  /// inputs to control these flops when [clk] is provided.
   Multiplier(Logic a, Logic b,
-      {this.signedMultiplicand = false,
+      {this.clk,
+      this.reset,
+      this.enable,
+      this.signedMultiplicand = false,
       this.signedMultiplier = false,
       Logic? selectSignedMultiplicand,
       Logic? selectSignedMultiplier,
-      super.name}) {
+      super.name = 'multiplier'}) {
+    if (signedMultiplicand && (selectSignedMultiplicand != null)) {
+      throw RohdHclException('multiplicand sign reconfiguration requires '
+          'signedMultiplicand=false');
+    }
+    if (signedMultiplier && (selectSignedMultiplier != null)) {
+      throw RohdHclException('sign reconfiguration requires signed=false');
+    }
     a = addInput('a', a, width: a.width);
     b = addInput('b', b, width: b.width);
 
@@ -89,6 +111,69 @@ abstract class Multiplier extends Module {
             ((selectSignedMultiplier != null)
                 ? selectSignedMultiplier
                 : Const(0));
+  }
+}
+
+/// A class which wraps the native '*' operator so that it can be passed
+/// into other modules as a parameter for using the native operation.
+class NativeMultiplier extends Multiplier {
+  /// The multiplication results of the multiplier.
+  @override
+  Logic get product => output('product');
+
+  /// The width of input [a] and [b] must be the same.
+  NativeMultiplier(super.a, super.b,
+      {super.clk,
+      super.reset,
+      super.enable,
+      super.signedMultiplicand = false,
+      super.signedMultiplier = false,
+      super.selectSignedMultiplicand,
+      super.selectSignedMultiplier,
+      super.name = 'native_multiplier'}) {
+    if (a.width != b.width) {
+      throw RohdHclException('inputs of a and b should have same width.');
+    }
+    clk = (clk != null) ? addInput('clk', clk!) : null;
+    reset = (reset != null) ? addInput('reset', reset!) : null;
+    enable = (enable != null) ? addInput('enable', enable!) : null;
+    final pW = a.width + b.width;
+    final product = addOutput('product', width: pW);
+
+    final Logic extendedMultiplicand;
+    final Logic extendedMultiplier;
+    if (selectSignedMultiplicand == null) {
+      extendedMultiplicand =
+          signedMultiplicand ? a.signExtend(pW) : a.zeroExtend(pW);
+    } else {
+      final len = a.width;
+      final sign = a[len - 1];
+      final extension = [
+        for (var i = len; i < pW; i++)
+          mux(selectSignedMultiplicand!, sign, Const(0))
+      ];
+      extendedMultiplicand = (a.elements + extension).rswizzle();
+    }
+    if (selectSignedMultiplier == null) {
+      extendedMultiplier =
+          (signedMultiplier ? b.signExtend(pW) : b.zeroExtend(pW))
+              .named('extended_multiplier', naming: Naming.mergeable);
+    } else {
+      final len = b.width;
+      final sign = b[len - 1];
+      final extension = [
+        // TODO(desmonddak): check other places like this
+        for (var i = len; i < pW; i++)
+          mux(selectSignedMultiplier!, sign, Const(0))
+      ];
+      extendedMultiplier = (b.elements + extension)
+          .rswizzle()
+          .named('extended_multiplier', naming: Naming.mergeable);
+    }
+
+    final internalProduct =
+        (extendedMultiplicand * extendedMultiplier).named('internalProduct');
+    product <= condFlop(clk, reset: reset, en: enable, internalProduct);
   }
 }
 
@@ -190,15 +275,6 @@ abstract class MultiplyAccumulate extends Module {
 
 /// An implementation of an integer multiplier using compression trees.
 class CompressionTreeMultiplier extends Multiplier {
-  /// The clk for the pipelined version of column compression.
-  Logic? clk;
-
-  /// Optional reset for configurable pipestage
-  Logic? reset;
-
-  /// Optional enable for configurable pipestage.
-  Logic? enable;
-
   /// The final product of the multiplier module.
   @override
   Logic get product => output('product');
@@ -231,9 +307,9 @@ class CompressionTreeMultiplier extends Multiplier {
   /// inputs to control these flops when [clk] is provided. If [clk] is null,
   /// the [ColumnCompressor] is built as a combinational tree of compressors.
   CompressionTreeMultiplier(super.a, super.b, int radix,
-      {this.clk,
-      this.reset,
-      this.enable,
+      {super.clk,
+      super.reset,
+      super.enable,
       super.signedMultiplicand = false,
       super.signedMultiplier = false,
       super.selectSignedMultiplicand,
@@ -248,6 +324,7 @@ class CompressionTreeMultiplier extends Multiplier {
     reset = (reset != null) ? addInput('reset', reset!) : null;
     enable = (enable != null) ? addInput('enable', enable!) : null;
 
+// Should be done in base TODO(desmonddak):
     final product = addOutput('product', width: a.width + b.width);
     final pp = PartialProductGenerator(
       a,

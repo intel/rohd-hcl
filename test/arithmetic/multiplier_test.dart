@@ -273,6 +273,79 @@ void main() {
             ' $signage R$radix E${genName(a, b)}');
   }
 
+  test('Native multiplier sweep with signage test', () async {
+    const width = 5;
+    final a = Logic(width: width);
+    final b = Logic(width: width);
+
+    for (final selectSignedMultiplicand in [null, Const(0), Const(1)]) {
+      for (final signedMultiplicand
+          in (selectSignedMultiplicand == null) ? [false, true] : [false]) {
+        for (final selectSignedMultiplier in [null, Const(0), Const(1)]) {
+          for (final signedMultiplier
+              in (selectSignedMultiplier == null) ? [false, true] : [false]) {
+            final mod = NativeMultiplier(a, b,
+                signedMultiplicand: signedMultiplicand,
+                signedMultiplier: signedMultiplier);
+            for (var i = 0; i < pow(2, width); i++) {
+              for (var j = 0; j < pow(2, width); j++) {
+                final ai = signedMultiplicand
+                    ? BigInt.from(i).toSigned(width)
+                    : BigInt.from(i).toUnsigned(width);
+                final bi = signedMultiplier
+                    ? BigInt.from(j).toSigned(width)
+                    : BigInt.from(j).toUnsigned(width);
+                a.put(ai);
+                b.put(bi);
+                final expected = ai * bi;
+                final product = mod.isSignedResult()
+                    ? mod.product.value.toBigInt().toSigned(width * 2)
+                    : mod.product.value.toBigInt();
+                expect(product, equals(expected));
+              }
+            }
+          }
+        }
+      }
+    }
+  });
+
+// TODO(desmonddak): must set variables in the enclosing
+// module, so we can't really curry
+// unless the enclosing module reads them off
+// the passed in multiplier.
+  group('Native multiplier check', () {
+    for (final selectSignedMultiplicand in [null, Const(0), Const(1)]) {
+      // for (final selectSignedMultiplicand in [null]) {
+      for (final signedMultiplicand
+          in (selectSignedMultiplicand == null) ? [false, true] : [false]) {
+        for (final selectSignedMultiplier in [null, Const(0), Const(1)]) {
+          // for (final selectSignedMultiplier in [null]) {
+          for (final signedMultiplier
+              in (selectSignedMultiplier == null) ? [false, true] : [false]) {
+            testMultiplyAccumulateExhaustive(
+                5,
+                (a, b, c) => MultiplyOnly(
+                    a,
+                    b,
+                    c,
+                    signedMultiplier: signedMultiplier,
+                    signedMultiplicand: signedMultiplicand,
+                    selectSignedMultiplicand: selectSignedMultiplicand,
+                    selectSignedMultiplier: selectSignedMultiplier,
+                    (a, b,
+                            {selectSignedMultiplicand,
+                            selectSignedMultiplier}) =>
+                        NativeMultiplier(a, b,
+                            signedMultiplicand: signedMultiplicand,
+                            signedMultiplier: signedMultiplier,
+                            selectSignedMultiplicand: selectSignedMultiplicand,
+                            selectSignedMultiplier: selectSignedMultiplier)));
+          }
+        }
+      }
+    }
+  });
   group('Compression Tree Multiplier: curried random radix/ptree/width', () {
     for (final radix in [2, 4]) {
       for (final width in [3, 4]) {

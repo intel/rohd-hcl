@@ -231,19 +231,19 @@ abstract class PartialProductGeneratorBase extends PartialProductArray {
       this.selectSignedMultiplicand,
       this.selectSignedMultiplier,
       super.name = 'ppg'}) {
-    if (signedMultiplier && (selectSignedMultiplier != null)) {
-      throw RohdHclException('sign reconfiguration requires signed=false');
-    }
     if (signedMultiplicand && (selectSignedMultiplicand != null)) {
       throw RohdHclException('multiplicand sign reconfiguration requires '
           'signedMultiplicand=false');
     }
-    encoder = MultiplierEncoder(multiplier, radixEncoder,
-        signedMultiplier: signedMultiplier,
-        selectSignedMultiplier: selectSignedMultiplier);
+    if (signedMultiplier && (selectSignedMultiplier != null)) {
+      throw RohdHclException('sign reconfiguration requires signed=false');
+    }
     selector = MultiplicandSelector(radixEncoder.radix, multiplicand,
         signedMultiplicand: signedMultiplicand,
         selectSignedMultiplicand: selectSignedMultiplicand);
+    encoder = MultiplierEncoder(multiplier, radixEncoder,
+        signedMultiplier: signedMultiplier,
+        selectSignedMultiplier: selectSignedMultiplier);
 
     if (multiplicand.width < selector.shift) {
       throw RohdHclException('multiplicand width must be greater than '

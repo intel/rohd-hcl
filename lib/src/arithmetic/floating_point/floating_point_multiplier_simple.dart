@@ -9,29 +9,22 @@
 
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
-import 'package:rohd_hcl/src/arithmetic/partial_product_sign_extend.dart';
 
 /// A multiplier module for FloatingPoint logic.
 class FloatingPointMultiplierSimple extends FloatingPointMultiplier {
   /// Multiply two FloatingPoint numbers [a] and [b], returning result
   /// in [product] FloatingPoint.
-  /// - [radix] is the Booth encoder radix used with options [2,4,8,16]
-  /// ((default=4).
-
-  /// - [adderGen] is an adder generator to be used in the primary adder
-  /// functions.
-  /// - [ppTree] is an parallel prefix tree generator to be used in internal
-  /// functions.
+  /// - [multGen] is a multiplier generator to be used in the mantissa
+  /// multiplication.
+  /// - [ppTree] is an parallel prefix tree generator to be used in the
+  /// leading one detection ([ParallelPrefixPriorityEncoder]).
   FloatingPointMultiplierSimple(super.a, super.b,
       {super.clk,
       super.reset,
       super.enable,
-      int radix = 4,
-      Adder Function(Logic a, Logic b, {Logic? carryIn}) adderGen =
-          NativeAdder.new,
-      PartialProductSignExtension Function(PartialProductGeneratorBase pp,
-              {String name})
-          seGen = CompactRectSignExtension.new,
+      Multiplier Function(Logic a, Logic b,
+              {Logic? clk, Logic? reset, Logic? enable, String name})
+          multGen = NativeMultiplier.new,
       ParallelPrefix Function(
               List<Logic> inps, Logic Function(Logic term1, Logic term2) op)
           ppTree = KoggeStone.new,
@@ -49,23 +42,19 @@ class FloatingPointMultiplierSimple extends FloatingPointMultiplier {
             [b.mantissa, Const(0)].swizzle())
         .named('bMantissa');
 
-    final productExp = a.exponent.zeroExtend(exponentWidth + 2) +
-        b.exponent.zeroExtend(exponentWidth + 2) -
-        a.bias.zeroExtend(exponentWidth + 2).named('productExp');
+    final expAdd = (a.exponent.zeroExtend(exponentWidth + 2) +
+            b.exponent.zeroExtend(exponentWidth + 2))
+        .named('exponent_add');
 
-    final pp =
-        PartialProductGenerator(aMantissa, bMantissa, RadixEncoder(radix));
-    seGen(pp).signExtend();
-    final compressor =
-        ColumnCompressor(pp, clk: clk, reset: reset, enable: enable)
-          ..compress();
+    final productExp =
+        (expAdd - a.bias.zeroExtend(exponentWidth + 2)).named('productExp');
 
-    final row0 = compressor.extractRow(0).named('row0');
-    final row1 = compressor.extractRow(1).named('row1');
-    final adder = adderGen(row0, row1);
-    // Input mantissas have implicit lead: product mantissa width is (mw+1)*2)
-    final mantissa =
-        adder.sum.getRange(0, (mantissaWidth + 1) * 2).named('mantissa');
+    final mantissaMult = multGen(aMantissa, bMantissa,
+        clk: clk, reset: reset, enable: enable, name: 'mantissa_mult');
+
+    final mantissa = mantissaMult.product
+        .getRange(0, (mantissaWidth + 1) * 2)
+        .named('mantissa');
 
     final isInf = (a.isInfinity | b.isInfinity).named('isInf');
     final isNaN = (a.isNaN |
@@ -94,12 +83,12 @@ class FloatingPointMultiplierSimple extends FloatingPointMultiplier {
     final remainingExp =
         (productExpLatch - leadingOnePos + 1).named('remainingExp');
 
-    final overFlow = (isInfLatch |
-            (~remainingExp[-1] &
-                remainingExp.abs().gte(
-                    Const(1, width: exponentWidth, fill: true)
-                        .zeroExtend(exponentWidth + 2))))
-        .named('overflow');
+    final internalOverflow = (~remainingExp[-1] &
+            remainingExp.abs().gte(Const(1, width: exponentWidth, fill: true)
+                .zeroExtend(exponentWidth + 2)))
+        .named('internal_overflow');
+
+    final overFlow = (isInfLatch | internalOverflow).named('overflow');
 
     Combinational([
       If(isNaNLatch, then: [
