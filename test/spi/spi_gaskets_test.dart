@@ -39,7 +39,7 @@ class SpiMainTest extends Test {
     Directory(outFolder).createSync(recursive: true);
 
     final tracker =
-        SpiTracker(intf: intf, dumpTable: true, outputFolder: outFolder);
+        SpiTracker(intf: intf, dumpTable: false, outputFolder: outFolder);
 
     clk = SimpleClockGenerator(10).clk;
 
@@ -53,16 +53,6 @@ class SpiMainTest extends Test {
 
     Simulator.registerEndOfSimulationAction(() async {
       await tracker.terminate();
-
-      //   // final jsonStr =
-      //   //      File('$outFolder/spiTracker.tracker.json').readAsStringSync();
-      //   // final jsonContents = json.decode(jsonStr);
-
-      //   // // ignore: avoid_dynamic_calls
-      //   // expect(jsonContents['records'].length, 2);
-
-      //   //Directory(outFolder).deleteSync(recursive: true);
-      // });
     });
 
     monitor.stream.listen(tracker.record);
@@ -127,19 +117,10 @@ class SpiSubTest extends Test {
     Directory(outFolder).createSync(recursive: true);
 
     final tracker =
-        SpiTracker(intf: intf, dumpTable: true, outputFolder: outFolder);
+        SpiTracker(intf: intf, dumpTable: false, outputFolder: outFolder);
 
     Simulator.registerEndOfSimulationAction(() async {
       await tracker.terminate();
-
-      // final jsonStr =
-      //      File('$outFolder/spiTracker.tracker.json').readAsStringSync();
-      // final jsonContents = json.decode(jsonStr);
-
-      // // ignore: avoid_dynamic_calls
-      // expect(jsonContents['records'].length, 2);
-
-      //Directory(outFolder).deleteSync(recursive: true);
     });
 
     monitor.stream.listen(tracker.record);
@@ -197,7 +178,7 @@ class SpiPairTest extends Test {
     Directory(outFolder).createSync(recursive: true);
 
     final tracker =
-        SpiTracker(intf: intf, dumpTable: true, outputFolder: outFolder);
+        SpiTracker(intf: intf, dumpTable: false, outputFolder: outFolder);
 
     clk = SimpleClockGenerator(10).clk;
 
@@ -213,10 +194,6 @@ class SpiPairTest extends Test {
     resetSub = Logic();
     busInSub = Logic(width: 8);
     sub = SpiSub(intf: intf, busIn: busInSub, reset: resetSub);
-
-    intf.miso.changed.listen((_) {
-      logger.info('Miso changed: ${intf.miso.value}');
-    });
 
     Simulator.registerEndOfSimulationAction(() async {
       await tracker.terminate();
