@@ -27,9 +27,8 @@ class Counter extends SummationBase {
   @protected
   late final Logic reset;
 
-  /// Whether the reset is asynchronous.
-  @protected
-  late final bool asyncReset;
+  /// Whether the [reset] is asynchronous.
+  final bool asyncReset;
 
   /// The restart signal.
   @protected

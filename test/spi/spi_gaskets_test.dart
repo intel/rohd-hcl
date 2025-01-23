@@ -121,6 +121,7 @@ class SpiSubTest extends Test {
 
     Simulator.registerEndOfSimulationAction(() async {
       await tracker.terminate();
+      Directory(outFolder).deleteSync(recursive: true);
     });
 
     monitor.stream.listen(tracker.record);
@@ -197,6 +198,7 @@ class SpiPairTest extends Test {
 
     Simulator.registerEndOfSimulationAction(() async {
       await tracker.terminate();
+      Directory(outFolder).deleteSync(recursive: true);
     });
 
     monitor.stream.listen(tracker.record);
@@ -272,6 +274,7 @@ void main() {
       await runMainTest(SpiMainTest((test) async {
         await sendSubPacket(test, LogicValue.ofInt(0x72, 8));
         expect(test.main.busOut.value.toInt(), 0x72);
+        expect(test.main.done.value.toBool(), true);
 
         // await test.clk.nextNegedge;
         await sendSubPacket(test, LogicValue.ofInt(0xCD, 8));
@@ -293,8 +296,9 @@ void main() {
         await sendSubPacket(test, LogicValue.ofInt(0x72, 8));
 
         expect(test.main.busOut.value.toInt(), 0x72);
-        await test.clk.waitCycles(3);
+        expect(test.main.done.value.toBool(), true);
 
+        await test.clk.waitCycles(3);
         await sendSubPacket(test, LogicValue.ofInt(0xCD, 8)); // 1100 1101
 
         expect(test.main.busOut.value.toInt(), 0xCD);
@@ -453,7 +457,6 @@ void main() {
       if (dumpWaves) {
         await mod.build();
         WaveDumper(mod, outputPath: '${spiPairTest.outFolder}/waves.vcd');
-        // print(mod.generateSynth());
       }
       await spiPairTest.start();
     }
@@ -467,6 +470,7 @@ void main() {
       test.starts.inject(true);
       await test.clk.waitCycles(1);
       test.starts.inject(false);
+      expect(test.sub.done.value.toBool(), false);
       await test.clk.waitCycles(7);
     }
 

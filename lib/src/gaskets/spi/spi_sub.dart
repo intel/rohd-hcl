@@ -15,15 +15,21 @@ class SpiSub extends Module {
   /// Output bus from Sub.
   Logic get busOut => output('busOut');
 
+  /// Done signal from Sub.
+  Logic get done => output('done');
+
   /// Creates a SPI Sub component that interfaces with [SpiInterface].
   ///
   /// The SPI Sub component will enable via chip select from [SpiInterface.csb].
   /// Clock signal will be received on [SpiInterface.sclk], data will shift in
   /// from [SpiInterface.mosi], and shift data out from [SpiInterface.miso].
-  /// Data to shift out is provided from [busIn]. Data shifted in from
-  /// [SpiInterface.mosi] will be available on [busOut]. After data is available
-  /// on [busIn], pulsing [reset] will load the data, and a bit of data will be
-  /// transmitted per clock pulse.
+  /// Data shifted in from [SpiInterface.mosi] will be available on [busOut].
+  ///
+  /// If [busIn] and [reset] are provided, data to shift out will be loaded from
+  /// [busIn]. After data is available on [busIn], pulsing [reset] will load the
+  /// data asynchronously, and a bit of data will be transmitted per pulse of
+  /// [SpiInterface.sclk]. After all data is shifted out, an optional [done]
+  /// signal will indicate completion.
   SpiSub(
       {required SpiInterface intf,
       Logic? busIn,
@@ -47,6 +53,18 @@ class SpiSub extends Module {
     addOutput('busOut', width: intf.dataLength);
 
     addOutput('done');
+
+    // Counter to track of the number of bits shifted out.
+    final count = Counter.simple(
+        clk: intf.sclk,
+        enable: ~intf.csb,
+        reset: reset ?? Const(0, width: 1),
+        asyncReset: true,
+        minValue: 1,
+        maxValue: intf.dataLength);
+
+    // Done signal will be high when the counter is at the max value.
+    done <= count.equalsMax;
 
     // Shift Register in from MOSI.
     // NOTE: Reset values are set to busIn values.

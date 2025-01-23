@@ -51,6 +51,7 @@ class SpiMain extends Module {
 
     final isRunning = Logic(name: 'isRunning');
 
+    // Counter to track of the number of bits shifted out.
     final count = Counter.simple(
         clk: ~clk,
         enable: start | isRunning,
