@@ -176,6 +176,11 @@ class NativeMultiplier extends Multiplier {
   }
 }
 
+// TODO(desmonddak): add pipelining to MAC
+// TODO(desmonddak): add a multiply generator option to MAC
+// TODO(desmonddak): add a variable width output as we did with fp multiply
+// as well as a variable width accumulate input
+
 /// An abstract class for all multiply accumulate implementations.
 abstract class MultiplyAccumulate extends Module {
   /// The input to the multiplier pin [a].

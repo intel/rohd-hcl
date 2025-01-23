@@ -846,6 +846,9 @@ class FloatingPointValue implements Comparable<FloatingPointValue> {
       return FloatingPointValue.ofBinaryStrings(
           sign.bitString, newExponent.bitString, '0' * (mantissa.width));
     } else {
+      // TODO(desmonddak): need to handle exponent < mantissa width by
+      // shifting the 1 for ULP incrementally, not just putting it at
+      // the end.
       return FloatingPointValue.ofBinaryStrings(
           sign.bitString, exponent.bitString, '${'0' * (mantissa.width - 1)}1');
     }
