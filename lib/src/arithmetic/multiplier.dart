@@ -16,13 +16,16 @@ import 'package:rohd_hcl/src/arithmetic/partial_product_sign_extend.dart';
 
 /// An abstract class for all multiplier implementations.
 abstract class Multiplier extends Module {
-  /// The clk for the pipelined version of column compression.
+  /// The clk for pipelining the multiplication.
+  @protected
   Logic? clk;
 
-  /// Optional reset for configurable pipestage
+  /// Optional reset for configurable pipestaging.
+  @protected
   Logic? reset;
 
-  /// Optional enable for configurable pipestage.
+  /// Optional enable for configurable pipestaging.
+  @protected
   Logic? enable;
 
   /// The multiplicand input [a].
@@ -78,9 +81,9 @@ abstract class Multiplier extends Module {
   /// a 2-cycle latency operation. [reset] and [enable] are optional
   /// inputs to control these flops when [clk] is provided.
   Multiplier(Logic a, Logic b,
-      {this.clk,
-      this.reset,
-      this.enable,
+      {Logic? clk,
+      Logic? reset,
+      Logic? enable,
       this.signedMultiplicand = false,
       this.signedMultiplier = false,
       Logic? selectSignedMultiplicand,
@@ -93,6 +96,9 @@ abstract class Multiplier extends Module {
     if (signedMultiplier && (selectSignedMultiplier != null)) {
       throw RohdHclException('sign reconfiguration requires signed=false');
     }
+    this.clk = (clk != null) ? addInput('clk', clk) : null;
+    this.reset = (reset != null) ? addInput('reset', reset) : null;
+    this.enable = (enable != null) ? addInput('enable', enable) : null;
     a = addInput('a', a, width: a.width);
     b = addInput('b', b, width: b.width);
 
@@ -134,9 +140,6 @@ class NativeMultiplier extends Multiplier {
     if (a.width != b.width) {
       throw RohdHclException('inputs of a and b should have same width.');
     }
-    clk = (clk != null) ? addInput('clk', clk!) : null;
-    reset = (reset != null) ? addInput('reset', reset!) : null;
-    enable = (enable != null) ? addInput('enable', enable!) : null;
     final pW = a.width + b.width;
     final product = addOutput('product', width: pW);
 
@@ -176,13 +179,24 @@ class NativeMultiplier extends Multiplier {
   }
 }
 
-// TODO(desmonddak): add pipelining to MAC
 // TODO(desmonddak): add a multiply generator option to MAC
 // TODO(desmonddak): add a variable width output as we did with fp multiply
 // as well as a variable width accumulate input
 
 /// An abstract class for all multiply accumulate implementations.
 abstract class MultiplyAccumulate extends Module {
+  /// The clk for pipelining the multiplication.
+  @protected
+  Logic? clk;
+
+  /// Optional reset for configurable pipestaging.
+  @protected
+  Logic? reset;
+
+  /// Optional enable for configurable pipestaging.
+  @protected
+  Logic? enable;
+
   /// The input to the multiplier pin [a].
   @protected
   Logic get a => input('a');
@@ -244,13 +258,19 @@ abstract class MultiplyAccumulate extends Module {
   /// signed or unsigned operation, overriding the [signedAddend] static
   /// configuration.
   MultiplyAccumulate(Logic a, Logic b, Logic c,
-      {this.signedMultiplicand = false,
+      {Logic? clk,
+      Logic? reset,
+      Logic? enable,
+      this.signedMultiplicand = false,
       this.signedMultiplier = false,
       this.signedAddend = false,
       Logic? selectSignedMultiplicand,
       Logic? selectSignedMultiplier,
       Logic? selectSignedAddend,
       super.name}) {
+    this.clk = (clk != null) ? addInput('clk', clk) : null;
+    this.reset = (reset != null) ? addInput('reset', reset) : null;
+    this.enable = (enable != null) ? addInput('enable', enable) : null;
     a = addInput('a', a, width: a.width);
     b = addInput('b', b, width: b.width);
     c = addInput('c', c, width: c.width);
@@ -324,10 +344,6 @@ class CompressionTreeMultiplier extends Multiplier {
               {String name})
           seGen = CompactRectSignExtension.new,
       super.name = 'compression_tree_multiplier'}) {
-    clk = (clk != null) ? addInput('clk', clk!) : null;
-    reset = (reset != null) ? addInput('reset', reset!) : null;
-    enable = (enable != null) ? addInput('enable', enable!) : null;
-
 // Should be done in base TODO(desmonddak):
     final product = addOutput('product', width: a.width + b.width);
     final pp = PartialProductGenerator(
@@ -352,18 +368,6 @@ class CompressionTreeMultiplier extends Multiplier {
 
 /// An implementation of an integer multiply-accumulate using compression trees
 class CompressionTreeMultiplyAccumulate extends MultiplyAccumulate {
-  /// The clk for the pipelined version of column compression.
-  @protected
-  Logic? get clk => tryInput('clk');
-
-  /// Optional reset for configurable pipestage
-  @protected
-  Logic? get reset => tryInput('reset');
-
-  /// Optional enable for configurable pipestage.
-  @protected
-  Logic? get enable => tryInput('enable');
-
   /// The final product of the multiplier module.
   @override
   Logic get accumulate => output('accumulate');

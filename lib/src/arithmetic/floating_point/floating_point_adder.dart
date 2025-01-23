@@ -11,6 +11,8 @@ import 'package:meta/meta.dart';
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
 
+// TODO(desmonddak): add variable width output as we did with fpmultiply
+
 /// An abstract API for floating point adders.
 abstract class FloatingPointAdder extends Module {
   /// Width of the output exponent field.
@@ -76,11 +78,11 @@ abstract class FloatingPointAdder extends Module {
   @protected
   (FloatingPoint, FloatingPoint) swap(
       Logic swap, (FloatingPoint, FloatingPoint) toSwap) {
-    final in1 = toSwap.$1.named('swap_in_${toSwap.$1.name}');
-    final in2 = toSwap.$2.named('swap_in_${toSwap.$2.name}');
+    final in1 = toSwap.$1.named('swapIn_${toSwap.$1.name}');
+    final in2 = toSwap.$2.named('swapIn_${toSwap.$2.name}');
 
-    final out1 = mux(swap, in2, in1).named('swap_out_larger');
-    final out2 = mux(swap, in1, in2).named('swap_out_smaller');
+    final out1 = mux(swap, in2, in1).named('swapOut_larger');
+    final out2 = mux(swap, in1, in2).named('swapOut_smaller');
     final first = a.clone(name: 'larger')..gets(out1);
     final second = a.clone(name: 'smaller')..gets(out2);
     return (first, second);

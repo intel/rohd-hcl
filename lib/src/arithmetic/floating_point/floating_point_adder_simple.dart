@@ -61,7 +61,7 @@ class FloatingPointAdderSimple extends FloatingPointAdder {
     final adder = SignMagnitudeAdder(
         larger.sign, aMantissa, smaller.sign, bMantissa >>> expDiff, adderGen);
 
-    final intSum = adder.sum.slice(adder.sum.width - 1, 0).named('intsum');
+    final intSum = adder.sum.slice(adder.sum.width - 1, 0).named('intSum');
 
     final aSignLatched = localFlop(larger.sign);
     final aExpLatched = localFlop(larger.exponent);
