@@ -55,6 +55,7 @@ class SpiMain extends Module {
         clk: ~clk,
         enable: start | isRunning,
         reset: reset,
+        asyncReset: true,
         minValue: 1,
         maxValue: busIn.width);
 

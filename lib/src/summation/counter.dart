@@ -27,6 +27,10 @@ class Counter extends SummationBase {
   @protected
   late final Logic reset;
 
+  /// Whether the reset is asynchronous.
+  @protected
+  late final bool asyncReset;
+
   /// The restart signal.
   @protected
   late final Logic? restart;
@@ -58,7 +62,7 @@ class Counter extends SummationBase {
     required Logic reset,
     Logic? restart,
     dynamic resetValue = 0,
-    bool asyncReset = false,
+    this.asyncReset = false,
     super.maxValue,
     super.minValue = 0,
     super.width,
@@ -67,7 +71,6 @@ class Counter extends SummationBase {
   }) : super(initialValue: resetValue) {
     this.clk = addInput('clk', clk);
     this.reset = addInput('reset', reset);
-
     if (restart != null) {
       this.restart = addInput('restart', restart);
     } else {
@@ -96,8 +99,10 @@ class Counter extends SummationBase {
     buildFlops();
 
     // need to flop these since value is flopped
-    overflowed <= flop(clk, summer.overflowed, reset: reset);
-    underflowed <= flop(clk, summer.underflowed, reset: reset);
+    overflowed <=
+        flop(clk, summer.overflowed, reset: reset, asyncReset: asyncReset);
+    underflowed <=
+        flop(clk, summer.underflowed, reset: reset, asyncReset: asyncReset);
 
     equalsMax <= count.eq(maxValueLogic);
     equalsMin <= count.eq(minValueLogic);
@@ -112,6 +117,7 @@ class Counter extends SummationBase {
           summer.sum,
           reset: reset,
           resetValue: initialValueLogic,
+          asyncReset: asyncReset,
         );
   }
 
@@ -129,6 +135,7 @@ class Counter extends SummationBase {
     Logic? restart,
     bool saturates = false,
     bool increments = true,
+    bool asyncReset = false,
     int resetValue = 0,
     String name = 'counter',
   }) : this([
@@ -142,6 +149,7 @@ class Counter extends SummationBase {
             clk: clk,
             reset: reset,
             resetValue: resetValue,
+            asyncReset: asyncReset,
             restart: restart,
             maxValue: maxValue,
             minValue: minValue,
@@ -166,6 +174,7 @@ class Counter extends SummationBase {
     Logic? enable,
     int? width,
     bool saturates = false,
+    bool asyncReset = false,
     String name = 'counter',
   }) =>
       Counter(
@@ -177,6 +186,7 @@ class Counter extends SummationBase {
         clk: clk,
         reset: reset,
         resetValue: resetValue,
+        asyncReset: asyncReset,
         maxValue: maxValue,
         minValue: minValue,
         width: width,
