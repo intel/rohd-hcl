@@ -18,6 +18,9 @@ class FloatingPointMultiplierSimple extends FloatingPointMultiplier {
   /// multiplication.
   /// - [ppTree] is an parallel prefix tree generator to be used in the
   /// leading one detection ([ParallelPrefixPriorityEncoder]).
+  ///
+  /// The multiplier currently does not support a [product] with narrower
+  /// exponent or mantissa fields and will throw an exception.
   FloatingPointMultiplierSimple(super.a, super.b,
       {super.clk,
       super.reset,
@@ -30,6 +33,14 @@ class FloatingPointMultiplierSimple extends FloatingPointMultiplier {
               List<Logic> inps, Logic Function(Logic term1, Logic term2) op)
           ppTree = KoggeStone.new,
       super.name}) {
+    if (exponentWidth < a.exponent.width) {
+      throw RohdHclException('product exponent width must be >= '
+          ' input exponent width');
+    }
+    if (mantissaWidth < a.mantissa.width) {
+      throw RohdHclException('product mantissa width must be >= '
+          ' input mantissa width');
+    }
     final aMantissa = mux(a.isNormal, [a.isNormal, a.mantissa].swizzle(),
             [a.mantissa, Const(0)].swizzle())
         .named('aMantissa');
@@ -37,6 +48,8 @@ class FloatingPointMultiplierSimple extends FloatingPointMultiplier {
             [b.mantissa, Const(0)].swizzle())
         .named('bMantissa');
 
+    // TODO(desmonddak): do this calculation using the maximum exponent width
+    // Then adapt to the product exponent width.
     final expCalcWidth = exponentWidth + 2;
     final addBias =
         (a.bias.zeroExtend(expCalcWidth) + b.bias.zeroExtend(expCalcWidth))
@@ -54,6 +67,10 @@ class FloatingPointMultiplierSimple extends FloatingPointMultiplier {
     final mantissa = mantissaMult.product
         .getRange(0, (a.mantissa.width + 1) * 2)
         .named('mantissa');
+
+    // TODO(desmonddak): This is where we need to either truncate or round to
+    // the product mantissa width.  Today it simply is expanded only, but
+    // upon narrowing, it will need to truncate for simple multiplication.
 
     final isInf = (a.isInfinity | b.isInfinity).named('isInf');
     final isNaN = (a.isNaN |
