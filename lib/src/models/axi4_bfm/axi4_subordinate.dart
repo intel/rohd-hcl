@@ -14,8 +14,6 @@ import 'package:rohd_hcl/rohd_hcl.dart';
 import 'package:rohd_hcl/src/models/axi4_bfm/axi4_bfm.dart';
 import 'package:rohd_vf/rohd_vf.dart';
 
-// TODO: FIGURE OUT IF DATA TRANSFERS CAN OCCUR OVER ARBITARY CYCLES
-
 /// A model for the subordinate side of an [Axi4ReadInterface] and [Axi4WriteInterface].
 class Axi4SubordinateAgent extends Agent {
   /// The system interface.
@@ -63,7 +61,6 @@ class Axi4SubordinateAgent extends Agent {
 
   // to handle writes
   final List<Axi4WriteRequestPacket> _writeMetadataQueue = [];
-  final List<List<LogicValue>> _writeDataQueue = [];
   bool _writeReadyToOccur = false;
 
   /// Creates a new model [Axi4SubordinateAgent].
@@ -101,6 +98,8 @@ class Axi4SubordinateAgent extends Agent {
       _dataReadResponseDataQueue.clear();
       _dataReadResponseMetadataQueue.clear();
       _dataReadResponseIndex = 0;
+      _writeMetadataQueue.clear();
+      _writeReadyToOccur = false;
     });
 
     // wait for reset to complete
@@ -112,6 +111,7 @@ class Axi4SubordinateAgent extends Agent {
       _respondRead();
       _respondWrite();
       _receiveRead();
+      _captureWriteData();
       _receiveWrite();
     }
   }
@@ -135,7 +135,7 @@ class Axi4SubordinateAgent extends Agent {
 
   /// Receives one packet (or returns if not selected).
   void _receiveRead() {
-    // work to if main is indicating a valid read that we are ready to handle
+    // work to do if main is indicating a valid read that we are ready to handle
     if (rIntf.arValid.value.toBool() && rIntf.arReady.value.toBool()) {
       final packet = Axi4ReadRequestPacket(
           addr: rIntf.arAddr.value,
@@ -169,7 +169,13 @@ class Axi4SubordinateAgent extends Agent {
       var addrToRead = rIntf.arAddr.value;
       final endCount = rIntf.arLen?.value.toInt() ?? 1;
       final dSize = (rIntf.arSize?.value.toInt() ?? 0) * 8;
-      final increment = rIntf.arBurst?.value.toInt() ?? 1;
+      var increment = 0;
+      if (rIntf.arBurst == null ||
+          rIntf.arBurst?.value.toInt() == Axi4BurstField.wrap.value ||
+          rIntf.arBurst?.value.toInt() == Axi4BurstField.incr.value) {
+        increment = dSize ~/ 8;
+      }
+
       for (var i = 0; i < endCount; i++) {
         var currData = storage.readData(addrToRead);
         if (dSize > 0) {
@@ -233,9 +239,9 @@ class Axi4SubordinateAgent extends Agent {
 
   // handle an incoming write request
   void _receiveWrite() {
-    // work to if main is indicating a valid read that we are ready to handle
+    // work to do if main is indicating a valid write that we are ready to handle
     if (wIntf.awValid.value.toBool() && wIntf.awReady.value.toBool()) {
-      var packet = Axi4WriteRequestPacket(
+      final packet = Axi4WriteRequestPacket(
           addr: wIntf.awAddr.value,
           prot: wIntf.awProt.value,
           id: wIntf.awId?.value,
@@ -252,7 +258,6 @@ class Axi4SubordinateAgent extends Agent {
 
       // might need to capture the first data and strobe simultaneously
       // NOTE: we are dropping wUser on the floor for now...
-      final idMatch = wIntf.awId?.value == wIntf.wId?.value;
       if (wIntf.wValid.value.toBool() && wIntf.wReady.value.toBool()) {
         packet.data.add(wIntf.wData.value);
         packet.strobe.add(wIntf.wStrb.value);
@@ -263,42 +268,90 @@ class Axi4SubordinateAgent extends Agent {
 
       // queue up the packet for further processing
       _writeMetadataQueue.add(packet);
+    }
+  }
 
-      // NOTE: generic model does not handle the following read request fields:
-      //  cache
-      //  qos
-      //  region
-      //  user
-      // These can be handled in a derived class of this model if need be.
-      // Because for the most part they require implementation specific handling.
+  // method to capture incoming write data after the initial request
+  // note that this method does not handle the first flit of write data
+  // if it is transmitted simultaneously with the write request
+  void _captureWriteData() {
+    // NOTE: we are dropping wUser on the floor for now...
+    if (_writeMetadataQueue.isNotEmpty &&
+        wIntf.wValid.value.toBool() &&
+        wIntf.wReady.value.toBool()) {
+      final packet = _writeMetadataQueue[0];
+      packet.data.add(wIntf.wData.value);
+      packet.strobe.add(wIntf.wStrb.value);
+      if (wIntf.wLast.value.toBool()) {
+        _writeReadyToOccur = true;
+      }
+    }
+  }
 
-      // NOTE: generic model doesn't honor the prot field in read requests.
-      // It will be added as a feature request in the future.
+  void _respondWrite() {
+    // only work to do if we have received all of the data for our write request
+    if (_writeReadyToOccur) {
+      // only respond if the main is ready
+      if (wIntf.bReady.value.toBool()) {
+        final packet = _writeMetadataQueue[0];
+        final error = respondWithError != null && respondWithError!(packet);
 
-      // NOTE: generic model doesn't honor the lock field in read requests.
-      // It will be added as a feature request in the future.
+        // for now, only support sending slvErr and okay as responses
+        wIntf.bValid.put(true);
+        wIntf.bId?.put(packet.id);
+        wIntf.bResp?.put(error
+            ? LogicValue.ofInt(Axi4RespField.slvErr.value, wIntf.bResp!.width)
+            : LogicValue.ofInt(Axi4RespField.okay.value, wIntf.bResp!.width));
+        wIntf.bUser?.put(0); // don't support user field for now
 
-      // write data to the storage
-      final data = <LogicValue>[];
-      var addrToRead = rIntf.arAddr.value;
-      final endCount = rIntf.arLen?.value.toInt() ?? 1;
-      final dSize = (rIntf.arSize?.value.toInt() ?? 0) * 8;
-      final increment = rIntf.arBurst?.value.toInt() ?? 1;
-      for (var i = 0; i < endCount; i++) {
-        var currData = storage.readData(addrToRead);
-        if (dSize > 0) {
-          if (currData.width < dSize) {
-            currData = currData.zeroExtend(dSize);
-          } else if (currData.width > dSize) {
-            currData = currData.getRange(0, dSize);
+        // TODO: how to deal with delays??
+        // if (readResponseDelay != null) {
+        //   final delayCycles = readResponseDelay!(packet);
+        //   if (delayCycles > 0) {
+        //     await sIntf.clk.waitCycles(delayCycles);
+        //   }
+        // }
+
+        // NOTE: generic model does not handle the following write request fields:
+        //  cache
+        //  qos
+        //  region
+        //  user
+        // These can be handled in a derived class of this model if need be.
+        // Because for the most part they require implementation specific handling.
+
+        // NOTE: generic model doesn't honor the prot field in write requests.
+        // It will be added as a feature request in the future.
+
+        // NOTE: generic model doesn't honor the lock field in write requests.
+        // It will be added as a feature request in the future.
+
+        if (!error || !dropWriteDataOnError) {
+          // write the data to the storage
+          var addrToWrite = packet.addr;
+          final dSize = (packet.size?.toInt() ?? 0) * 8;
+          var increment = 0;
+          if (packet.burst == null ||
+              packet.burst!.toInt() == Axi4BurstField.wrap.value ||
+              packet.burst!.toInt() == Axi4BurstField.incr.value) {
+            increment = dSize ~/ 8;
+          }
+
+          for (var i = 0; i < packet.data.length; i++) {
+            final strobedData = _strobeData(
+                storage.readData(addrToWrite),
+                packet.data[i],
+                packet.strobe[i] ??
+                    LogicValue.filled(packet.data[i].width, LogicValue.one));
+            storage.writeData(addrToWrite, strobedData.getRange(0, dSize));
+            addrToWrite = addrToWrite + increment;
           }
         }
-        data.add(currData);
-        addrToRead = addrToRead + increment;
-      }
 
-      _dataReadResponseMetadataQueue.add(packet);
-      _dataReadResponseDataQueue.add(data);
+        // pop this write response off the queue
+        _writeMetadataQueue.removeAt(0);
+        _writeReadyToOccur = false;
+      }
     }
   }
 }

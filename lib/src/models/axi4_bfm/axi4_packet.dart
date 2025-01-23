@@ -186,26 +186,27 @@ class Axi4WriteRequestPacket extends Axi4RequestPacket {
   final List<LogicValue?> strobe;
 
   /// The user metadata associated with this write.
-  final List<LogicValue?> wUser;
+  LogicValue? wUser;
 
   /// Creates a write packet.
   ///
   /// If no [strobe] is provided, it will default to all high.
-  Axi4WriteRequestPacket(
-      {required super.addr,
-      required super.prot,
-      required this.data,
-      super.id,
-      super.len,
-      super.size,
-      super.burst,
-      super.lock,
-      super.cache,
-      super.qos,
-      super.region,
-      super.user,
-      this.strobe = const [],
-      this.wUser = const []});
+  Axi4WriteRequestPacket({
+    required super.addr,
+    required super.prot,
+    required this.data,
+    super.id,
+    super.len,
+    super.size,
+    super.burst,
+    super.lock,
+    super.cache,
+    super.qos,
+    super.region,
+    super.user,
+    this.strobe = const [],
+    this.wUser,
+  });
 
   @override
   String? trackerString(TrackerField field) {

@@ -1,38 +1,46 @@
-// Copyright (C) 2023-2024 Intel Corporation
+// Copyright (C) 2024-2025 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 //
-// apb_requester_driver.dart
-// A driver for APB requests.
+// axi4_main_driver.dart
+// A driver for AXI4 requests.
 //
-// 2023 June 12
-// Author: Max Korbel <max.korbel@intel.com>
+// 2025 January
+// Author: Josh Kimmel <joshua1.kimmel@intel.com>
 
 import 'dart:async';
 
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/src/interfaces/interfaces.dart';
-import 'package:rohd_hcl/src/models/apb_bfm/apb_packet.dart';
+import 'package:rohd_hcl/src/models/axi4_bfm/axi4_bfm.dart';
 import 'package:rohd_vf/rohd_vf.dart';
 
-/// A driver for the [ApbInterface] from the requester side.
+/// A driver for the [Axi4ReadInterface] and [Axi4WriteInterface] interfaces on the main side.
 ///
 /// Driven read packets will update the returned data into the same packet.
-class ApbRequesterDriver extends PendingClockedDriver<ApbPacket> {
-  /// The interface to drive.
-  final ApbInterface intf;
+class Axi4MainDriver extends PendingClockedDriver<Axi4RequestPacket> {
+  /// AXI4 System Interface.
+  final Axi4SystemInterface sIntf;
 
-  /// Creates a new [ApbRequesterDriver].
-  ApbRequesterDriver({
+  /// AXI4 Read Interface.
+  final Axi4ReadInterface rIntf;
+
+  /// AXI4 Write Interface.
+  final Axi4WriteInterface wIntf;
+
+  /// Creates a new [Axi4MainDriver].
+  Axi4MainDriver({
     required Component parent,
-    required this.intf,
+    required this.sIntf,
+    required this.rIntf,
+    required this.wIntf,
     required super.sequencer,
     super.timeoutCycles = 500,
     super.dropDelayCycles = 30,
-    String name = 'apbRequesterDriver',
+    String name = 'axi4MainDriver',
   }) : super(
           name,
           parent,
-          clk: intf.clk,
+          clk: sIntf.clk,
         );
 
   @override
@@ -40,91 +48,146 @@ class ApbRequesterDriver extends PendingClockedDriver<ApbPacket> {
     unawaited(super.run(phase));
 
     Simulator.injectAction(() {
-      _deselectAll();
-      intf.enable.put(0);
-      intf.write.put(0);
-      intf.addr.put(0);
-      intf.wData.put(0);
-      intf.strb.put(0);
+      rIntf.arValid.put(0);
+      rIntf.arId?.put(0);
+      rIntf.arAddr.put(0);
+      rIntf.arLen?.put(0);
+      rIntf.arSize?.put(0);
+      rIntf.arBurst?.put(0);
+      rIntf.arLock?.put(0);
+      rIntf.arCache?.put(0);
+      rIntf.arProt.put(0);
+      rIntf.arQos?.put(0);
+      rIntf.arRegion?.put(0);
+      rIntf.arUser?.put(0);
+      rIntf.rReady.put(0);
+      wIntf.awValid.put(0);
+      wIntf.awId?.put(0);
+      wIntf.awAddr.put(0);
+      wIntf.awLen?.put(0);
+      wIntf.awSize?.put(0);
+      wIntf.awBurst?.put(0);
+      wIntf.awLock?.put(0);
+      wIntf.awCache?.put(0);
+      wIntf.awProt.put(0);
+      wIntf.awQos?.put(0);
+      wIntf.awRegion?.put(0);
+      wIntf.awUser?.put(0);
+      wIntf.wValid.put(0);
+      wIntf.wData.put(0);
+      wIntf.wStrb.put(0);
+      wIntf.wLast.put(0);
+      wIntf.bReady.put(0);
     });
 
     // wait for reset to complete before driving anything
-    await intf.resetN.nextPosedge;
+    await sIntf.resetN.nextPosedge;
 
     while (!Simulator.simulationHasEnded) {
       if (pendingSeqItems.isNotEmpty) {
         await _drivePacket(pendingSeqItems.removeFirst());
-      } else {
-        await intf.clk.nextPosedge;
-        Simulator.injectAction(() {
-          _deselectAll();
-          intf.enable.put(0);
-        });
-      }
+      } else {}
     }
   }
 
   /// Drives a packet onto the interface.
-  Future<void> _drivePacket(ApbPacket packet) async {
-    // first, SETUP
+  Future<void> _drivePacket(Axi4RequestPacket packet) async {
+    if (packet is Axi4ReadRequestPacket) {
+      await _driveReadPacket(packet);
+    } else if (packet is Axi4WriteRequestPacket) {
+      await _driveWritePacket(packet);
+    } else {}
+  }
 
-    await intf.clk.nextPosedge;
+  // TODO: need a more robust way of driving the "ready" signals...
+  //  RREADY for read data responses
+  //  BREADY for write responses
+  // specifically, when should they toggle on/off?
+  //  ON => either always or when the associated request is driven?
+  //  OFF => either never or when there are no more outstanding requests of the given type?
+  // should we enable the ability to backpressure??
 
-    // if we're not selecting this interface, then we need to select it
-    if (!intf.sel[packet.selectIndex].value.toBool()) {
-      _select(packet.selectIndex);
-    }
-
+  Future<void> _driveReadPacket(Axi4ReadRequestPacket packet) async {
+    await sIntf.clk.nextPosedge;
     Simulator.injectAction(() {
-      intf.enable.put(0);
-      intf.addr.put(packet.addr);
-
-      if (packet is ApbWritePacket) {
-        intf.write.put(1);
-        intf.wData.put(packet.data);
-        intf.strb.put(packet.strobe);
-      } else if (packet is ApbReadPacket) {
-        intf.write.put(0);
-        intf.wData.put(0);
-        intf.strb.put(0);
-      }
+      rIntf.arValid.put(1);
+      rIntf.arId?.put(packet.id);
+      rIntf.arAddr.put(packet.addr);
+      rIntf.arLen?.put(packet.len);
+      rIntf.arSize?.put(packet.size);
+      rIntf.arBurst?.put(packet.burst);
+      rIntf.arLock?.put(packet.lock);
+      rIntf.arCache?.put(packet.cache);
+      rIntf.arProt.put(packet.prot);
+      rIntf.arQos?.put(packet.qos);
+      rIntf.arRegion?.put(packet.region);
+      rIntf.arUser?.put(packet.user);
+      rIntf.rReady.put(1);
     });
 
-    await intf.clk.nextPosedge;
-
-    // now, ACCESS
-    intf.enable.inject(1);
-
-    // wait for ready from completer, if not already asserted
-    if (!intf.ready.value.toBool()) {
-      await intf.ready.nextPosedge;
+    // need to hold the request until receiver is ready
+    await sIntf.clk.nextPosedge;
+    if (!rIntf.arReady.value.toBool()) {
+      await rIntf.arReady.nextPosedge;
     }
 
-    if (packet is ApbWritePacket) {
-      packet.complete(
-        slvErr: intf.slvErr?.value,
-      );
-    } else if (packet is ApbReadPacket) {
-      packet.complete(
-        data: intf.rData.value,
-        slvErr: intf.slvErr?.value,
-      );
-    }
+    // now we can release the request
+    Simulator.injectAction(() {
+      rIntf.arValid.put(0);
+    });
 
-    // now we're done, since enable and ready are both high, move on
+    // TODO: wait for the response to complete??
   }
 
-  /// Selects [index] and deselects the rest.
-  void _select(int index) {
-    _deselectAll();
-    intf.sel[index].put(1);
-  }
+  Future<void> _driveWritePacket(Axi4WriteRequestPacket packet) async {
+    await sIntf.clk.nextPosedge;
+    Simulator.injectAction(() {
+      wIntf.awValid.put(1);
+      wIntf.awId?.put(packet.id);
+      wIntf.awAddr.put(packet.addr);
+      wIntf.awLen?.put(packet.len);
+      wIntf.awSize?.put(packet.size);
+      wIntf.awBurst?.put(packet.burst);
+      wIntf.awLock?.put(packet.lock);
+      wIntf.awCache?.put(packet.cache);
+      wIntf.awProt.put(packet.prot);
+      wIntf.awQos?.put(packet.qos);
+      wIntf.awRegion?.put(packet.region);
+      wIntf.awUser?.put(packet.user);
+      wIntf.bReady.put(1);
+    });
 
-  /// Clears all selects.
-  void _deselectAll() {
-    // zero out all the selects, which should mask everything else
-    for (var i = 0; i < intf.numSelects; i++) {
-      intf.sel[i].put(0);
+    // need to hold the request until receiver is ready
+    await sIntf.clk.nextPosedge;
+    if (!wIntf.awReady.value.toBool()) {
+      await wIntf.awReady.nextPosedge;
     }
+
+    // now we can release the request
+    Simulator.injectAction(() {
+      wIntf.awValid.put(0);
+    });
+
+    // next send the data for the write
+    for (var i = 0; i < packet.data.length; i++) {
+      if (!wIntf.wReady.value.toBool()) {
+        await wIntf.wReady.nextPosedge;
+      }
+      Simulator.injectAction(() {
+        wIntf.wValid.put(1);
+        wIntf.wData.put(packet.data[i]);
+        wIntf.wStrb.put(packet.strobe[i]);
+        wIntf.wLast.put(i == packet.data.length - 1 ? 1 : 0);
+        wIntf.wUser?.put(packet.wUser);
+      });
+      await sIntf.clk.nextPosedge;
+    }
+
+    // now we can stop the write data
+    Simulator.injectAction(() {
+      wIntf.wValid.put(0);
+    });
+
+    // TODO: wait for the response to complete??
   }
 }

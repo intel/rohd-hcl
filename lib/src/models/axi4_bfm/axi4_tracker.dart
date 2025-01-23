@@ -69,7 +69,7 @@ class Axi4Tracker extends Tracker<Axi4RequestPacket> {
   /// If the [selectColumnWidth] is set to 0, the field will be omitted.
   Axi4Tracker({
     required Axi4ReadInterface rIntf,
-    required Axi4ReadInterface wIntf,
+    required Axi4WriteInterface wIntf,
     String name = 'Axi4Tracker',
     super.dumpJson,
     super.dumpTable,

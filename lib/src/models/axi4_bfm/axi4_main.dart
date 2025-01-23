@@ -1,27 +1,34 @@
-// Copyright (C) 2023-2024 Intel Corporation
+// Copyright (C) 2024-2025 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 //
-// apb_requester.dart
-// An agent sending for APB requests.
+// axi4_main.dart
+// An agent sending for AXI4 requests.
 //
-// 2023 June 12
-// Author: Max Korbel <max.korbel@intel.com>
+// 2025 January
+// Author: Josh Kimmel <joshua1.kimmel@intel.com>
 
 import 'package:rohd_hcl/rohd_hcl.dart';
+import 'package:rohd_hcl/src/models/axi4_bfm/axi4_bfm.dart';
 import 'package:rohd_vf/rohd_vf.dart';
 
-/// An agent for sending requests on an [ApbInterface].
+/// An agent for sending requests on [Axi4ReadInterface]s and [Axi4WriteInterface]s.
 ///
 /// Driven read packets will update the returned data into the same packet.
-class ApbRequesterAgent extends Agent {
-  /// The interface to drive.
-  final ApbInterface intf;
+class Axi4MainAgent extends Agent {
+  /// AXI4 System Interface.
+  final Axi4SystemInterface sIntf;
+
+  /// AXI4 Read Interface.
+  final Axi4ReadInterface rIntf;
+
+  /// AXI4 Write Interface.
+  final Axi4WriteInterface wIntf;
 
   /// The sequencer where requests should be sent.
-  late final Sequencer<ApbPacket> sequencer;
+  late final Sequencer<Axi4RequestPacket> sequencer;
 
   /// The driver that sends the requests over the interface.
-  late final ApbRequesterDriver driver;
+  late final Axi4MainDriver driver;
 
   /// The number of cycles before timing out if no transactions can be sent.
   final int timeoutCycles;
@@ -30,19 +37,23 @@ class ApbRequesterAgent extends Agent {
   /// no pending packets to send.
   final int dropDelayCycles;
 
-  /// Constructs a new [ApbRequesterAgent].
-  ApbRequesterAgent({
-    required this.intf,
+  /// Constructs a new [Axi4MainAgent].
+  Axi4MainAgent({
+    required this.sIntf,
+    required this.rIntf,
+    required this.wIntf,
     required Component parent,
-    String name = 'apbRequester',
+    String name = 'axiMainAgent',
     this.timeoutCycles = 500,
     this.dropDelayCycles = 30,
   }) : super(name, parent) {
-    sequencer = Sequencer<ApbPacket>('sequencer', this);
+    sequencer = Sequencer<Axi4RequestPacket>('sequencer', this);
 
-    driver = ApbRequesterDriver(
+    driver = Axi4MainDriver(
       parent: this,
-      intf: intf,
+      sIntf: sIntf,
+      rIntf: rIntf,
+      wIntf: wIntf,
       sequencer: sequencer,
       timeoutCycles: timeoutCycles,
       dropDelayCycles: dropDelayCycles,

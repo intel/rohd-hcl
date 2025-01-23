@@ -1,30 +1,37 @@
-// Copyright (C) 2023-2024 Intel Corporation
+// Copyright (C) 2024-2025 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 //
-// apb_completer.dart
-// An agent for completing APB requests.
+// axi4_compliance_checker.dart
+// Compliance checking for AXI4.
 //
-// 2023 June 14
-// Author: Max Korbel <max.korbel@intel.com>
+// 2025 January
+// Author: Josh Kimmel <joshua1.kimmel@intel.com>
 
 import 'dart:async';
 
-import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
 import 'package:rohd_vf/rohd_vf.dart';
 
-/// A checker for some of the rules defined in the APB interface specification.
+/// A checker for some of the rules defined in the AXI4 interface specification.
 ///
 /// This does not necessarily cover all rules defined in the spec.
-class ApbComplianceChecker extends Component {
-  /// The interface being checked.
-  final ApbInterface intf;
+class Axi4ComplianceChecker extends Component {
+  /// AXI4 System Interface.
+  final Axi4SystemInterface sIntf;
 
-  /// Creates a new compliance checker for [intf].
-  ApbComplianceChecker(
-    this.intf, {
+  /// AXI4 Read Interface.
+  final Axi4ReadInterface rIntf;
+
+  /// AXI4 Write Interface.
+  final Axi4WriteInterface wIntf;
+
+  /// Creates a new compliance checker for AXI4.
+  Axi4ComplianceChecker(
+    this.sIntf,
+    this.rIntf,
+    this.wIntf, {
     required Component parent,
-    String name = 'apbComplianceChecker',
+    String name = 'axi4ComplianceChecker',
   }) : super(name, parent);
 
   @override
@@ -32,122 +39,81 @@ class ApbComplianceChecker extends Component {
     unawaited(super.run(phase));
 
     // wait for reset to complete
-    await intf.resetN.nextPosedge;
+    await sIntf.resetN.nextPosedge;
 
-    var accessLastCycle = false;
+    // checks to run
+    // READ REQUESTS
+    //   number of flits returned matches ARLEN if no error
+    //   if RLAST is present, asserted on the final flit only
+    //   if RID is present, every read response should match a pending request ARID
+    // WRITE REQUESTS
+    //   number of flits sent matches AWLEN
+    //   WLAST is asserted on the final flit only
+    //   if BID is present, every write response should match a pending request AWID
 
-    LogicValue? lastWrite;
-    LogicValue? lastAddr;
-    List<LogicValue>? lastSel;
-    LogicValue? lastWriteData;
-    LogicValue? lastStrb;
-    LogicValue? lastProt;
-    LogicValue? lastAuser;
-    LogicValue? lastWuser;
+    final rLastPresent = rIntf.rLast != null;
 
-    intf.clk.posedge.listen((event) {
-      final currSels = intf.sel.map((e) => e.value).toList();
+    final readReqMap = <int, List<int>>{};
+    final writeReqMap = <int, List<int>>{};
+    var lastWriteReqId = -1;
 
-      if (currSels.map((e) => e.isValid).reduce((a, b) => a | b)) {
-        // if any select is high
+    sIntf.clk.posedge.listen((event) {
+      // capture read requests for counting
+      if (rIntf.arValid.previousValue!.toBool()) {
+        final id = rIntf.arId?.previousValue?.toInt() ?? 0;
+        final len = rIntf.arLen?.previousValue?.toInt() ?? 1;
+        readReqMap[id] = [len, 0];
+      }
 
-        // valid checks
-        if (!intf.write.value.isValid) {
-          logger.severe('Write must be valid during select.');
-        }
-        if (!intf.addr.value.isValid) {
-          logger.severe('Addr must be valid during select.');
-        }
-        if (!intf.wData.value.isValid) {
-          logger.severe('WData must be valid during select.');
-        }
-        if (!intf.strb.value.isValid) {
-          logger.severe('Strobe must be valid during select.');
-        }
-        if (!intf.enable.value.isValid) {
-          logger.severe('Enable must be valid during select.');
+      // track write data flits
+      if (wIntf.wValid.previousValue!.toBool()) {
+        final id = rIntf.rId?.previousValue?.toInt() ?? 0;
+        if (!readReqMap.containsKey(id)) {
+          logger.severe(
+              'Cannot match a read response to any pending read request. ID captured by the response was $id.');
         }
 
-        // stability checks
-        if (intf.enable.value.isValid && intf.enable.value.toBool()) {
-          if (lastWrite != null && lastWrite != intf.write.value) {
-            logger.severe('Write must be stable until ready.');
-          }
-          if (lastAddr != null && lastAddr != intf.addr.value) {
-            logger.severe('Addr must be stable until ready.');
-          }
-          if (lastSel != null) {
-            for (var i = 0; i < intf.numSelects; i++) {
-              if (intf.sel[i].value != lastSel![i]) {
-                logger.severe('Sel must be stable until ready.');
-              }
-            }
-          }
-          if (lastWriteData != null && lastWriteData != intf.wData.value) {
-            logger.severe('Write data must be stable until ready.');
-          }
-          if (lastStrb != null && lastStrb != intf.strb.value) {
-            logger.severe('Strobe must be stable until ready.');
-          }
-          if (lastProt != null && lastProt != intf.prot.value) {
-            logger.severe('Prot must be stable until ready.');
-          }
-          if (lastAuser != null && lastAuser != intf.aUser?.value) {
-            logger.severe('AUser must be stable until ready.');
-          }
-          if (lastWuser != null && lastWuser != intf.wUser?.value) {
-            logger.severe('WUser must be stable until ready.');
-          }
-
-          // collect "last" items for next check
-          lastWrite = intf.write.value;
-          lastAddr = intf.addr.value;
-          lastSel = currSels;
-          lastWriteData = intf.wData.value;
-          lastStrb = intf.strb.value;
-          lastProt = intf.prot.value;
-          lastAuser = intf.aUser?.value;
-          lastWuser = intf.wUser?.value;
+        readReqMap[id]![1] = readReqMap[id]![1] + 1;
+        final len = readReqMap[id]![0];
+        final currCount = readReqMap[id]![1];
+        if (currCount > len) {
+          logger.severe(
+              'Received more read response data flits than indicated by the request with ID $id ARLEN. Expected $len but got $currCount');
+        } else if (currCount == len &&
+            rLastPresent &&
+            !rIntf.rLast!.previousValue!.toBool()) {
+          logger.severe(
+              'Received the final flit in the read response data per the request with ID $id ARLEN but RLAST is not asserted.');
         }
       }
 
-      if (intf.ready.value.toBool()) {
-        lastWrite = null;
-        lastAddr = null;
-        lastSel = null;
-        lastWriteData = null;
-        lastStrb = null;
-        lastProt = null;
-        lastAuser = null;
-        lastWuser = null;
-      }
-
-      if (intf.write.value.isValid &&
-          !intf.write.value.toBool() &&
-          intf.enable.value.isValid &&
-          intf.enable.value.toBool() &&
-          intf.strb.value.isValid &&
-          intf.strb.value.toInt() > 0) {
-        // strobe must not be "active" during read xfer (all low during read)
-        logger.severe('Strobe must not be active during read transfer.');
-      }
-
-      if (intf.enable.value.isValid &&
-          intf.enable.value.toBool() &&
-          intf.ready.value.isValid &&
-          intf.ready.value.toBool()) {
-        if (accessLastCycle) {
-          logger.severe('Cannot have back-to-back accesses.');
-        }
-
-        if (intf.includeSlvErr && !intf.slvErr!.value.isValid) {
-          logger.severe('SlvErr must be valid during transfer.');
-        }
-
-        accessLastCycle = true;
-      } else {
-        accessLastCycle = false;
+      // track write requests
+      if (wIntf.awValid.previousValue!.toBool()) {
+        final id = wIntf.awId?.previousValue?.toInt() ?? 0;
+        final len = wIntf.awLen?.previousValue?.toInt() ?? 1;
+        writeReqMap[id] = [len, 0];
+        lastWriteReqId = id;
       }
     });
+
+    // track read response flits
+    if (rIntf.rValid.previousValue!.toBool()) {
+      final id = lastWriteReqId;
+      if (!writeReqMap.containsKey(id)) {
+        logger.severe(
+            'There is no pending write request to associate with valid write data.');
+      }
+
+      writeReqMap[id]![1] = writeReqMap[id]![1] + 1;
+      final len = writeReqMap[id]![0];
+      final currCount = writeReqMap[id]![1];
+      if (currCount > len) {
+        logger.severe(
+            'Sent more write data flits than indicated by the request with ID $id AWLEN. Expected $len but sent $currCount');
+      } else if (currCount == len && !wIntf.wLast.previousValue!.toBool()) {
+        logger.severe(
+            'Sent the final flit in the write data per the request with ID $id AWLEN but WLAST is not asserted.');
+      }
+    }
   }
 }
