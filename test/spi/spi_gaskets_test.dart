@@ -8,6 +8,7 @@
 // Author: Roberto Torres <roberto.torres@intel.com>
 
 import 'dart:async';
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:rohd/rohd.dart';
@@ -53,6 +54,14 @@ class SpiMainTest extends Test {
 
     Simulator.registerEndOfSimulationAction(() async {
       await tracker.terminate();
+      const numTransfers = 4;
+      final jsonStr =
+          File('$outFolder/spiTracker.tracker.json').readAsStringSync();
+      final jsonContents = json.decode(jsonStr);
+      // ignore: avoid_dynamic_calls
+      expect(jsonContents['records'].length, 2 * numTransfers);
+
+      Directory(outFolder).deleteSync(recursive: true);
     });
 
     monitor.stream.listen(tracker.record);
@@ -294,6 +303,11 @@ void main() {
         await sendSubPacket(test, LogicValue.ofInt(0x56, 8));
 
         expect(test.main.busOut.value.toInt(), 0x56);
+        await test.clk.waitCycles(4);
+
+        await sendSubPacket(test, LogicValue.ofInt(0xAB, 8));
+
+        expect(test.main.busOut.value.toInt(), 0xAB);
         await test.clk.waitCycles(4);
       }, 'testMainB'));
     });

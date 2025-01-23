@@ -111,9 +111,10 @@ class ShiftRegister extends Module {
     }
 
     Sequential.multi(
-      [clk, if (asyncReset && reset != null) reset],
+      [clk],
       reset: reset,
       resetValues: resetValues,
+      asyncReset: asyncReset,
       conds,
     );
 
