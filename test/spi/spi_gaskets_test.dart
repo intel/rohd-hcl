@@ -71,11 +71,6 @@ class SpiMainTest extends Test {
     await clk.waitCycles(1);
     reset.inject(false);
     await clk.waitCycles(1);
-    reset.inject(true);
-
-    await clk.waitCycles(1);
-    reset.inject(false);
-    await clk.waitCycles(1);
     await stimulus(this);
 
     obj.drop();
@@ -109,10 +104,6 @@ class SpiSubTest extends Test {
     reset = Logic();
 
     sub = SpiSub(intf: intf, busIn: busIn, reset: reset);
-
-    sub.busOut.changed.listen((_) {
-      logger.info('BusOut changed: ${sub.busOut.value}');
-    });
 
     Directory(outFolder).createSync(recursive: true);
 
@@ -264,8 +255,7 @@ void main() {
     }
 
     Future<void> sendSubPacket(SpiMainTest test, LogicValue data) async {
-      test.sub.sequencer.add(SpiPacket(data: data.reversed));
-      // TODO: fix reversed on subdriver
+      test.sub.sequencer.add(SpiPacket(data: data));
       await sendMainData(test, 0x00);
     }
 
@@ -311,7 +301,7 @@ void main() {
 
   group('sub gasket tests', () {
     Future<void> runSubTest(SpiSubTest spiSubTest,
-        {bool dumpWaves = true}) async {
+        {bool dumpWaves = false}) async {
       Simulator.setMaxSimTime(3000);
       final mod = SpiTop(spiSubTest.intf, spiSubTest);
       if (dumpWaves) {
@@ -443,7 +433,7 @@ void main() {
 
   group('pair of gaskets tests', () {
     Future<void> runPairTest(SpiPairTest spiPairTest,
-        {bool dumpWaves = true}) async {
+        {bool dumpWaves = false}) async {
       Simulator.setMaxSimTime(3000);
       final mod = SpiTop(spiPairTest.intf, null);
       if (dumpWaves) {

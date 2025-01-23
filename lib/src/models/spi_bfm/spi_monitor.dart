@@ -47,12 +47,12 @@ class SpiMonitor extends Monitor<SpiPacket> {
 
       if (dataListWrite.length == intf.dataLength) {
         add(SpiPacket(
-            data: dataListWrite.rswizzle(), direction: SpiDirection.main));
+            data: dataListWrite.swizzle(), direction: SpiDirection.main));
         dataListWrite.clear();
       }
       if (dataListRead.length == intf.dataLength) {
         add(SpiPacket(
-            data: dataListRead.rswizzle(), direction: SpiDirection.sub));
+            data: dataListRead.swizzle(), direction: SpiDirection.sub));
         dataListRead.clear();
       }
     });

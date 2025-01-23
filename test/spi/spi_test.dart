@@ -42,6 +42,7 @@ void main() {
   test('spi_test', () async {
     final mod = SpiTopIntf();
     await mod.build();
-    //print(mod.generateSynth());
+    final genSV = mod.generateSynth();
+    expect(genSV, contains('input logic MOSI'));
   });
 }

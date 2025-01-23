@@ -74,6 +74,18 @@ class SpiBfmTest extends Test {
           .add(SpiPacket(data: LogicValue.ofInt(0x1B, 8))); //0b0001 1011 = 27
     }));
 
+    var packetReceived = false;
+
+    await monitor.stream
+        .where((event) =>
+            event.direction == SpiDirection.sub && event.data.toInt() == 0x1B)
+        .first
+        .then((_) {
+      packetReceived = true;
+    });
+
+    expect(packetReceived, true);
+
     obj.drop();
   }
 }

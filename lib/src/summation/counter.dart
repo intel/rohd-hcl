@@ -58,6 +58,7 @@ class Counter extends SummationBase {
     required Logic reset,
     Logic? restart,
     dynamic resetValue = 0,
+    bool asyncReset = false,
     super.maxValue,
     super.minValue = 0,
     super.width,

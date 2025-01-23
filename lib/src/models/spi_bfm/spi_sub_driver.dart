@@ -40,33 +40,35 @@ class SpiSubDriver extends PendingDriver<SpiPacket> {
     });
   }
 
+  /// The pending packet.
+  SpiPacket? _packet;
+
+  ///
+  int? _dataIndex;
+
   // Function handles the packet.
   void _packetHandler({required bool loadOnly}) {
-    SpiPacket? packet;
-
-    int? dataIndex;
-
     if (pendingSeqItems.isNotEmpty) {
-      packet = pendingSeqItems.removeFirst();
+      _packet = pendingSeqItems.removeFirst();
       if (loadOnly) {
-        dataIndex = 0;
+        _dataIndex = _packet!.data.width - 1;
       } else {
-        dataIndex = -1;
+        _dataIndex = _packet!.data.width;
       }
     }
-    if (packet != null) {
+    if (_packet != null) {
       if (loadOnly) {
-        intf.miso.inject(packet.data[dataIndex!]);
+        intf.miso.inject(_packet!.data[_dataIndex!]);
       } else {
-        dataIndex = dataIndex! + 1;
-        if (dataIndex < packet.data.width) {
-          intf.miso.inject(packet.data[dataIndex]);
+        _dataIndex = _dataIndex! - 1;
+        if (_dataIndex! > -1) {
+          intf.miso.inject(_packet!.data[_dataIndex!]);
         }
       }
 
-      if (dataIndex >= packet.data.width) {
-        packet = null;
-        dataIndex = null;
+      if (_dataIndex! <= -1) {
+        _packet = null;
+        _dataIndex = null;
         _packetHandler(loadOnly: loadOnly);
       }
     } else {

@@ -65,7 +65,6 @@ class SpiMainDriver extends PendingClockedDriver<SpiPacket> {
 
     // Loop through the bits of the packet
     for (var i = 1; i <= packet.data.width; i++) {
-      logger.info('Driving main packet, index: $i');
       intf.mosi.inject(packet.data[-i]);
       await clk.nextNegedge;
       clkenable.inject(1);

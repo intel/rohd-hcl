@@ -46,6 +46,8 @@ class SpiSub extends Module {
     // Bus Output from Sub
     addOutput('busOut', width: intf.dataLength);
 
+    addOutput('done');
+
     // Shift Register in from MOSI.
     // NOTE: Reset values are set to busIn values.
     final shiftReg = ShiftRegister(
