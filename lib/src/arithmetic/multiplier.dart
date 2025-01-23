@@ -162,7 +162,6 @@ class NativeMultiplier extends Multiplier {
       final len = b.width;
       final sign = b[len - 1];
       final extension = [
-        // TODO(desmonddak): check other places like this
         for (var i = len; i < pW; i++)
           mux(selectSignedMultiplier!, sign, Const(0))
       ];

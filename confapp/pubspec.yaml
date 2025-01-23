@@ -24,6 +24,11 @@ dependencies:
 dependency_overrides:
   rohd_hcl:
     path: ../
+  rohd:
+    git:
+      url: https://github.com/intel/rohd/
+      ref: main
+
 
 dev_dependencies:
   flutter_test:
