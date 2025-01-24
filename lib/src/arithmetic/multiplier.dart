@@ -402,7 +402,7 @@ class CompressionTreeMultiplyAccumulate extends MultiplyAccumulate {
   /// signed or unsigned operation, overriding the [signedAddend] static
   /// configuration.
   ///
-  /// If[clk] is not null then a set of flops are used to latch the output
+  /// If [clk] is not null then a set of flops are used to latch the output
   /// after compression.  [reset] and [enable] are optional
   /// inputs to control these flops when [clk] is provided. If [clk] is null,
   /// the [ColumnCompressor] is built as a combinational tree of compressors.
