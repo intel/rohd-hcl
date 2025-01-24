@@ -43,7 +43,7 @@ class SpiSubDriver extends PendingDriver<SpiPacket> {
   /// The pending packet.
   SpiPacket? _packet;
 
-  ///
+  /// The index of the data.
   int? _dataIndex;
 
   // Function handles the packet.

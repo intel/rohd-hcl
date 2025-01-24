@@ -29,8 +29,8 @@ class SpiMainDriver extends PendingClockedDriver<SpiPacket> {
     super.dropDelayCycles = 30,
     String name = 'spiMainDriver',
   }) : super(name, parent) {
-    intf.sclk <= ~clk & clkenable;
-    clkenable.inject(0);
+    intf.sclk <= ~clk & _clkenable;
+    _clkenable.inject(0);
   }
 
   @override
@@ -49,7 +49,7 @@ class SpiMainDriver extends PendingClockedDriver<SpiPacket> {
         await clk.nextNegedge;
         Simulator.injectAction(() {
           intf.csb.put(1);
-          clkenable.inject(0);
+          _clkenable.inject(0);
           intf.mosi.put(0);
         });
       }
@@ -57,7 +57,7 @@ class SpiMainDriver extends PendingClockedDriver<SpiPacket> {
   }
 
   /// Clock enable signal.
-  Logic clkenable = Logic(name: 'clkenable');
+  final _clkenable = Logic(name: 'clkenable');
 
   /// Drives a packet onto the interface.
   Future<void> _drivePacket(SpiPacket packet) async {
@@ -67,7 +67,7 @@ class SpiMainDriver extends PendingClockedDriver<SpiPacket> {
     for (var i = 1; i <= packet.data.width; i++) {
       intf.mosi.inject(packet.data[-i]);
       await clk.nextNegedge;
-      clkenable.inject(1);
+      _clkenable.inject(1);
 
       // Wait for the next clock cycle
       await clk.nextPosedge;

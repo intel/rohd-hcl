@@ -423,14 +423,8 @@ void main() {
         expect(test.sub.busOut.value.toInt(), 0x72);
 
         // inject bus in on neg edge of same cycle
-        // will result in 1 clk cycle delay? assuming you had to read on pos and
-        // inject on neg edge
         await test.clk.nextNegedge;
-
-        // td: when busin injected its sent out MSB, should be LSB
         test.busIn.inject(0x19);
-
-        //td: but here running into the extra clk cycle issue in main driver?
         test.main.sequencer.add(SpiPacket(data: LogicValue.ofInt(0x00, 8)));
 
         // trigger reset
