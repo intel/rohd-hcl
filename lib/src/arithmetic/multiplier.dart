@@ -422,10 +422,6 @@ class CompressionTreeMultiplyAccumulate extends MultiplyAccumulate {
               {String name})
           seGen = CompactRectSignExtension.new,
       super.name = 'compression_tree_mac'}) {
-    clk = (clk != null) ? addInput('clk', clk) : null;
-    reset = (reset != null) ? addInput('reset', reset) : null;
-    enable = (enable != null) ? addInput('enable', enable) : null;
-
     final accumulate = addOutput('accumulate', width: a.width + b.width + 1);
     final pp = PartialProductGenerator(
       a,
