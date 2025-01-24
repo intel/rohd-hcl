@@ -57,9 +57,9 @@
 
     <section class="multi-line-signature">
       
-      <span class="name ">MultiplierEncoder</span>(<wbr><ol class="parameter-list"> <li><span class="parameter" id="-param-multiplier"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.0/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">multiplier</span>, </span></li>
+      <span class="name ">MultiplierEncoder</span>(<wbr><ol class="parameter-list"> <li><span class="parameter" id="-param-multiplier"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.1/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">multiplier</span>, </span></li>
 <li><span class="parameter" id="-param-radixEncoder"><span class="type-annotation"><a href="../../rohd_hcl/RadixEncoder-class.html">RadixEncoder</a></span> <span class="parameter-name">radixEncoder</span>, {</span></li>
-<li><span class="parameter" id="-param-selectSignedMultiplier"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.0/rohd/Logic-class.html">Logic</a>?</span> <span class="parameter-name">selectSignedMultiplier</span>, </span></li>
+<li><span class="parameter" id="-param-selectSignedMultiplier"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.1/rohd/Logic-class.html">Logic</a>?</span> <span class="parameter-name">selectSignedMultiplier</span>, </span></li>
 <li><span class="parameter" id="-param-signedMultiplier"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.6.1/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">signedMultiplier</span> = <span class="default-value">false</span>, </span></li>
 </ol>})
     </section>
@@ -68,7 +68,7 @@
   <p>Generate the Booth encoding of an input <code>multiplier</code> using
 <code>radixEncoder</code>.</p>
 <p><code>signedMultiplier</code> generates a fixed signed encoder versus using
-<code>selectSignedMultiplier</code> which is a runtime sign selection <a href="https://pub.dev/documentation/rohd/0.6.0/rohd/Logic-class.html">Logic</a>
+<code>selectSignedMultiplier</code> which is a runtime sign selection <a href="https://pub.dev/documentation/rohd/0.6.1/rohd/Logic-class.html">Logic</a>
 in which case <code>signedMultiplier</code> must be false.</p>
 </section>
 
@@ -96,16 +96,22 @@ in which case <code>signedMultiplier</code> must be false.</p>
   &#47;&#47; slices overlap by 1 and start at -1a
   if (selectSignedMultiplier == null) {
     _extendedMultiplier = (signedMultiplier
-        ? multiplier.signExtend(rows * (log2Ceil(radixEncoder.radix)))
-        : multiplier.zeroExtend(rows * (log2Ceil(radixEncoder.radix))));
+            ? multiplier.signExtend(rows * (log2Ceil(radixEncoder.radix)))
+            : multiplier.zeroExtend(rows * (log2Ceil(radixEncoder.radix))))
+        .named(&#39;extended_multiplier&#39;, naming: Naming.mergeable);
   } else {
     final len = multiplier.width;
     final sign = multiplier[len - 1];
     final extension = [
-      for (var i = len - 1; i &lt; (rows * (log2Ceil(radixEncoder.radix))); i++)
+      for (var i = len; i &lt; (rows * (log2Ceil(radixEncoder.radix))); i++)
         mux(selectSignedMultiplier, sign, Const(0))
     ];
-    _extendedMultiplier = (multiplier.elements + extension).rswizzle();
+    _extendedMultiplier = (multiplier.elements + extension)
+        .rswizzle()
+        .named(&#39;extended_multiplier&#39;, naming: Naming.mergeable);
+  }
+  for (var i = 0; i &lt; rows; i++) {
+    _encodings.add(getEncoding(i));
   }
 }</code></pre>
 </section>

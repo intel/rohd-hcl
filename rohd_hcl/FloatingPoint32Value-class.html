@@ -89,7 +89,7 @@
     <h2>Constructors</h2>
     <dl class="constructor-summary-list">
         <dt id="FloatingPoint32Value" class="callable">
-          <span class="name"><a href="../rohd_hcl/FloatingPoint32Value/FloatingPoint32Value.html">FloatingPoint32Value</a></span><span class="signature">({<span class="parameter" id="-param-sign"><span>required</span> <span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.0/rohd/LogicValue-class.html">LogicValue</a></span> <span class="parameter-name">sign</span>, </span><span class="parameter" id="-param-exponent"><span>required</span> <span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.0/rohd/LogicValue-class.html">LogicValue</a></span> <span class="parameter-name">exponent</span>, </span><span class="parameter" id="-param-mantissa"><span>required</span> <span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.0/rohd/LogicValue-class.html">LogicValue</a></span> <span class="parameter-name">mantissa</span></span>})</span>
+          <span class="name"><a href="../rohd_hcl/FloatingPoint32Value/FloatingPoint32Value.html">FloatingPoint32Value</a></span><span class="signature">({<span class="parameter" id="-param-sign"><span>required</span> <span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.1/rohd/LogicValue-class.html">LogicValue</a></span> <span class="parameter-name">sign</span>, </span><span class="parameter" id="-param-exponent"><span>required</span> <span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.1/rohd/LogicValue-class.html">LogicValue</a></span> <span class="parameter-name">exponent</span>, </span><span class="parameter" id="-param-mantissa"><span>required</span> <span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.1/rohd/LogicValue-class.html">LogicValue</a></span> <span class="parameter-name">mantissa</span></span>})</span>
         </dt>
         <dd>
           Constructor for a single precision floating point value
@@ -122,6 +122,14 @@ individual bitfields
           Numeric conversion of a <a href="../rohd_hcl/FloatingPoint32Value-class.html">FloatingPoint32Value</a> from a host double
             <div class="constructor-modifier features">factory</div>
         </dd>
+        <dt id="FloatingPoint32Value.ofDoubleUnrounded" class="callable">
+          <span class="name"><a href="../rohd_hcl/FloatingPoint32Value/FloatingPoint32Value.ofDoubleUnrounded.html">FloatingPoint32Value.ofDoubleUnrounded</a></span><span class="signature">(<span class="parameter" id="ofDoubleUnrounded-param-inDouble"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.6.1/dart-core/double-class.html">double</a></span> <span class="parameter-name">inDouble</span></span>)</span>
+        </dt>
+        <dd>
+          Convert a floating point number into a <a href="../rohd_hcl/FloatingPoint32Value-class.html">FloatingPoint32Value</a>
+representation. This form performs NO ROUNDING.
+            <div class="constructor-modifier features">factory</div>
+        </dd>
         <dt id="FloatingPoint32Value.ofInts" class="callable">
           <span class="name"><a href="../rohd_hcl/FloatingPoint32Value/FloatingPoint32Value.ofInts.html">FloatingPoint32Value.ofInts</a></span><span class="signature">(<span class="parameter" id="ofInts-param-exponent"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.6.1/dart-core/int-class.html">int</a></span> <span class="parameter-name">exponent</span>, </span><span class="parameter" id="ofInts-param-mantissa"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.6.1/dart-core/int-class.html">int</a></span> <span class="parameter-name">mantissa</span>, {</span><span class="parameter" id="ofInts-param-sign"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.6.1/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">sign</span> = <span class="default-value">false</span></span>})</span>
         </dt>
@@ -130,7 +138,7 @@ individual bitfields
 representation
         </dd>
         <dt id="FloatingPoint32Value.ofLogicValue" class="callable">
-          <span class="name"><a href="../rohd_hcl/FloatingPoint32Value/FloatingPoint32Value.ofLogicValue.html">FloatingPoint32Value.ofLogicValue</a></span><span class="signature">(<span class="parameter" id="ofLogicValue-param-val"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.0/rohd/LogicValue-class.html">LogicValue</a></span> <span class="parameter-name">val</span></span>)</span>
+          <span class="name"><a href="../rohd_hcl/FloatingPoint32Value/FloatingPoint32Value.ofLogicValue.html">FloatingPoint32Value.ofLogicValue</a></span><span class="signature">(<span class="parameter" id="ofLogicValue-param-val"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.1/rohd/LogicValue-class.html">LogicValue</a></span> <span class="parameter-name">val</span></span>)</span>
         </dt>
         <dd>
           Construct a <a href="../rohd_hcl/FloatingPoint32Value-class.html">FloatingPoint32Value</a> from a Logic word
@@ -149,6 +157,13 @@ individual bitfields
         <dd>
           <a href="../rohd_hcl/FloatingPoint32Value-class.html">FloatingPoint32Value</a> constructor from a single string representing
 space-separated bitfields
+        </dd>
+        <dt id="FloatingPoint32Value.random" class="callable">
+          <span class="name"><a href="../rohd_hcl/FloatingPoint32Value/FloatingPoint32Value.random.html">FloatingPoint32Value.random</a></span><span class="signature">(<span class="parameter" id="random-param-rv"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.6.1/dart-math/Random-class.html">Random</a></span> <span class="parameter-name">rv</span>, {</span><span class="parameter" id="random-param-normal"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.6.1/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">normal</span> = <span class="default-value">false</span></span>})</span>
+        </dt>
+        <dd>
+          Generate a random <a href="../rohd_hcl/FloatingPoint32Value-class.html">FloatingPoint32Value</a>, supplying random seed <code>rv</code>.
+            <div class="constructor-modifier features">factory</div>
         </dd>
     </dl>
   </section>
@@ -198,7 +213,7 @@ sub-class of this floating-point value
 
         <dt id="exponent" class="property inherited">
   <span class="name"><a href="../rohd_hcl/FloatingPointValue/exponent.html">exponent</a></span>
-  <span class="signature">&#8594; <a href="https://pub.dev/documentation/rohd/0.6.0/rohd/LogicValue-class.html">LogicValue</a></span>
+  <span class="signature">&#8594; <a href="https://pub.dev/documentation/rohd/0.6.1/rohd/LogicValue-class.html">LogicValue</a></span>
   
 
 </dt>
@@ -277,7 +292,7 @@ and <a href="../src_arithmetic_values_floating_point_values_floating_point_value
 
         <dt id="mantissa" class="property inherited">
   <span class="name"><a href="../rohd_hcl/FloatingPointValue/mantissa.html">mantissa</a></span>
-  <span class="signature">&#8594; <a href="https://pub.dev/documentation/rohd/0.6.0/rohd/LogicValue-class.html">LogicValue</a></span>
+  <span class="signature">&#8594; <a href="https://pub.dev/documentation/rohd/0.6.1/rohd/LogicValue-class.html">LogicValue</a></span>
   
 
 </dt>
@@ -361,7 +376,7 @@ and <a href="../src_arithmetic_values_floating_point_values_floating_point_value
 
         <dt id="sign" class="property inherited">
   <span class="name"><a href="../rohd_hcl/FloatingPointValue/sign.html">sign</a></span>
-  <span class="signature">&#8594; <a href="https://pub.dev/documentation/rohd/0.6.0/rohd/LogicValue-class.html">LogicValue</a></span>
+  <span class="signature">&#8594; <a href="https://pub.dev/documentation/rohd/0.6.1/rohd/LogicValue-class.html">LogicValue</a></span>
   
 
 </dt>
@@ -373,7 +388,7 @@ and <a href="../src_arithmetic_values_floating_point_values_floating_point_value
 
         <dt id="value" class="property inherited">
   <span class="name"><a href="../rohd_hcl/FloatingPointValue/value.html">value</a></span>
-  <span class="signature">&#8594; <a href="https://pub.dev/documentation/rohd/0.6.0/rohd/LogicValue-class.html">LogicValue</a></span>
+  <span class="signature">&#8594; <a href="https://pub.dev/documentation/rohd/0.6.1/rohd/LogicValue-class.html">LogicValue</a></span>
   
 
 </dt>
@@ -510,6 +525,33 @@ constructor.
   Return a string representation of FloatingPointValue.
 if <code>integer</code> is true, return sign, exponent, mantissa as integers.
 if <code>integer</code> is false, return sign, exponent, mantissa as ibinary strings.
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="ulp" class="callable inherited">
+  <span class="name"><a href="../rohd_hcl/FloatingPointValue/ulp.html">ulp</a></span><span class="signature">(<wbr>)
+    <span class="returntype parameter">&#8594; <a href="../rohd_hcl/FloatingPointValue-class.html">FloatingPointValue</a></span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Compute the unit in the last place for the given <a href="../rohd_hcl/FloatingPointValue-class.html">FloatingPointValue</a>
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="withinRounding" class="callable inherited">
+  <span class="name"><a href="../rohd_hcl/FloatingPointValue/withinRounding.html">withinRounding</a></span><span class="signature">(<wbr><span class="parameter" id="withinRounding-param-other"><span class="type-annotation"><a href="../rohd_hcl/FloatingPointValue-class.html">FloatingPointValue</a></span> <span class="parameter-name">other</span></span>)
+    <span class="returntype parameter">&#8594; <a href="https://api.dart.dev/stable/3.6.1/dart-core/bool-class.html">bool</a></span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Return true if the other <a href="../rohd_hcl/FloatingPointValue-class.html">FloatingPointValue</a> is within a rounding
+error of this value.
   <div class="features"><span class="feature">inherited</span></div>
 
 </dd>

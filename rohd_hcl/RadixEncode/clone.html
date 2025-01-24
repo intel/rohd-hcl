@@ -71,7 +71,8 @@
     </section>
     
 <section class="desc markdown">
-  <p>Creates a new <a href="https://pub.dev/documentation/rohd/0.6.0/rohd/LogicStructure-class.html">LogicStructure</a> with the same structure as <code>this</code>.</p>
+  <p>Creates a new <a href="https://pub.dev/documentation/rohd/0.6.1/rohd/LogicStructure-class.html">LogicStructure</a> with the same structure as <code>this</code> and
+<a href="../../rohd_hcl/RadixEncode/clone.html">clone</a>d <a href="https://pub.dev/documentation/rohd/0.6.1/rohd/LogicStructure/elements.html">elements</a>, optionally with the provided <code>name</code>.</p>
 </section>
 
 
@@ -80,7 +81,7 @@
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">@override
 RadixEncode clone({String? name}) =&gt;
-    RadixEncode(numMultiples: multiples.width);</code></pre>
+    RadixEncode(row, numMultiples: multiples.width);</code></pre>
 </section>
 
 

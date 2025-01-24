@@ -58,7 +58,7 @@
     
       <section class="multi-line-signature">
         
-        <a href="https://pub.dev/documentation/rohd/0.6.0/rohd/Logic-class.html">Logic</a>
+        <a href="https://pub.dev/documentation/rohd/0.6.1/rohd/Logic-class.html">Logic</a>
         <span class="name ">oneExponent</span>
         <div class="features"><span class="feature">late</span><span class="feature">final</span></div>
 
@@ -71,9 +71,8 @@
       
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
-  <pre class="language-dart"><code class="language-dart">late final oneExponent = Logic(
-    name: &#39;oneExponent&#39;, naming: Naming.mergeable, width: exponent.width)
-  ..gets(Const(LogicValue.one, width: exponent.width));</code></pre>
+  <pre class="language-dart"><code class="language-dart">late final oneExponent = Const(LogicValue.one, width: exponent.width)
+    .named(_nameJoin(&#39;oneExponent&#39;, name), naming: Naming.mergeable);</code></pre>
 </section>
 
 

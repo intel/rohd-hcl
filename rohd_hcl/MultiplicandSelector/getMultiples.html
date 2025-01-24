@@ -57,7 +57,7 @@
 
     <section class="multi-line-signature">
       
-<span class="returntype"><a href="https://pub.dev/documentation/rohd/0.6.0/rohd/Logic-class.html">Logic</a></span>
+<span class="returntype"><a href="https://pub.dev/documentation/rohd/0.6.1/rohd/Logic-class.html">Logic</a></span>
 <span class="name ">getMultiples</span>(<wbr><ol class="parameter-list single-line"> <li><span class="parameter" id="getMultiples-param-col"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.6.1/dart-core/int-class.html">int</a></span> <span class="parameter-name">col</span></span></li>
 </ol>)
 
@@ -66,17 +66,20 @@
     </section>
     
 <section class="desc markdown">
-  <p>Retrieve the multiples of the multiplicand at current bit position</p>
+  <p>Compute the multiples of the multiplicand at current bit position</p>
 </section>
 
 
     
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
-  <pre class="language-dart"><code class="language-dart">Logic getMultiples(int col) =&gt; [
-      for (var i = 0; i &lt; multiples.elements.length; i++)
-        multiples.elements[i][col]
-    ].swizzle().reversed;</code></pre>
+  <pre class="language-dart"><code class="language-dart">Logic getMultiples(int col) {
+  final columnMultiples = [
+    for (var i = 0; i &lt; multiples.elements.length; i++)
+      multiples.elements[i][col]
+  ].swizzle().named(&#39;multiples_c$col&#39;, naming: Naming.mergeable);
+  return columnMultiples.reversed;
+}</code></pre>
 </section>
 
 

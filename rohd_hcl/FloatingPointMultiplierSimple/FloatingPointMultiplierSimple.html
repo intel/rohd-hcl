@@ -59,17 +59,20 @@
       
       <span class="name ">FloatingPointMultiplierSimple</span>(<wbr><ol class="parameter-list"> <li><span class="parameter" id="-param-a"><span class="type-annotation"><a href="../../rohd_hcl/FloatingPoint-class.html">FloatingPoint</a></span> <span class="parameter-name">a</span>, </span></li>
 <li><span class="parameter" id="-param-b"><span class="type-annotation"><a href="../../rohd_hcl/FloatingPoint-class.html">FloatingPoint</a></span> <span class="parameter-name">b</span>, {</span></li>
-<li><span class="parameter" id="-param-clk"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.0/rohd/Logic-class.html">Logic</a>?</span> <span class="parameter-name">clk</span>, </span></li>
-<li><span class="parameter" id="-param-reset"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.0/rohd/Logic-class.html">Logic</a>?</span> <span class="parameter-name">reset</span>, </span></li>
-<li><span class="parameter" id="-param-enable"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.0/rohd/Logic-class.html">Logic</a>?</span> <span class="parameter-name">enable</span>, </span></li>
-<li><span class="parameter" id="-param-radix"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.6.1/dart-core/int-class.html">int</a></span> <span class="parameter-name">radix</span> = <span class="default-value">4</span>, </span></li>
-<li><span class="parameter" id="-param-adderGen"><span class="type-annotation"><a href="../../rohd_hcl/Adder-class.html">Adder</a></span> <span class="parameter-name">adderGen</span>(<ol class="parameter-list"> <li><span class="parameter" id="param-a"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.0/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">a</span>, </span></li>
-<li><span class="parameter" id="param-b"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.0/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">b</span>, {</span></li>
-<li><span class="parameter" id="param-carryIn"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.0/rohd/Logic-class.html">Logic</a>?</span> <span class="parameter-name">carryIn</span>, </span></li>
-</ol>}) = <span class="default-value">NativeAdder.new</span>, </span></li>
-<li><span class="parameter" id="-param-ppTree"><span class="type-annotation"><a href="../../rohd_hcl/ParallelPrefix-class.html">ParallelPrefix</a></span> <span class="parameter-name">ppTree</span>(<ol class="parameter-list single-line"> <li><span class="parameter" id="param-inps"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.6.1/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://pub.dev/documentation/rohd/0.6.0/rohd/Logic-class.html">Logic</a></span>&gt;</span></span> <span class="parameter-name">inps</span>, </span></li>
-<li><span class="parameter" id="param-op"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.0/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">op</span>(<ol class="parameter-list single-line"> <li><span class="parameter" id="param-term1"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.0/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">term1</span>, </span></li>
-<li><span class="parameter" id="param-term2"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.0/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">term2</span></span></li>
+<li><span class="parameter" id="-param-clk"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.1/rohd/Logic-class.html">Logic</a>?</span> <span class="parameter-name">clk</span>, </span></li>
+<li><span class="parameter" id="-param-reset"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.1/rohd/Logic-class.html">Logic</a>?</span> <span class="parameter-name">reset</span>, </span></li>
+<li><span class="parameter" id="-param-enable"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.1/rohd/Logic-class.html">Logic</a>?</span> <span class="parameter-name">enable</span>, </span></li>
+<li><span class="parameter" id="-param-outProduct"><span class="type-annotation"><a href="../../rohd_hcl/FloatingPoint-class.html">FloatingPoint</a>?</span> <span class="parameter-name">outProduct</span>, </span></li>
+<li><span class="parameter" id="-param-multGen"><span class="type-annotation"><a href="../../rohd_hcl/Multiplier-class.html">Multiplier</a></span> <span class="parameter-name">multGen</span>(<ol class="parameter-list"> <li><span class="parameter" id="param-a"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.1/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">a</span>, </span></li>
+<li><span class="parameter" id="param-b"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.1/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">b</span>, {</span></li>
+<li><span class="parameter" id="param-clk"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.1/rohd/Logic-class.html">Logic</a>?</span> <span class="parameter-name">clk</span>, </span></li>
+<li><span class="parameter" id="param-enable"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.1/rohd/Logic-class.html">Logic</a>?</span> <span class="parameter-name">enable</span>, </span></li>
+<li><span class="parameter" id="param-name"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.6.1/dart-core/String-class.html">String</a></span> <span class="parameter-name">name</span>, </span></li>
+<li><span class="parameter" id="param-reset"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.1/rohd/Logic-class.html">Logic</a>?</span> <span class="parameter-name">reset</span>, </span></li>
+</ol>}) = <span class="default-value">NativeMultiplier.new</span>, </span></li>
+<li><span class="parameter" id="-param-ppTree"><span class="type-annotation"><a href="../../rohd_hcl/ParallelPrefix-class.html">ParallelPrefix</a></span> <span class="parameter-name">ppTree</span>(<ol class="parameter-list single-line"> <li><span class="parameter" id="param-inps"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.6.1/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://pub.dev/documentation/rohd/0.6.1/rohd/Logic-class.html">Logic</a></span>&gt;</span></span> <span class="parameter-name">inps</span>, </span></li>
+<li><span class="parameter" id="param-op"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.1/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">op</span>(<ol class="parameter-list single-line"> <li><span class="parameter" id="param-term1"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.1/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">term1</span>, </span></li>
+<li><span class="parameter" id="param-term2"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.1/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">term2</span></span></li>
 </ol>)</span></li>
 </ol>) = <span class="default-value">KoggeStone.new</span>, </span></li>
 <li><span class="parameter" id="-param-name"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.6.1/dart-core/String-class.html">String</a></span> <span class="parameter-name">name</span> = <span class="default-value">&#39;floating_point_multiplier&#39;</span>, </span></li>
@@ -80,13 +83,13 @@
   <p>Multiply two FloatingPoint numbers <code>a</code> and <code>b</code>, returning result
 in <a href="../../rohd_hcl/FloatingPointMultiplier/product.html">product</a> FloatingPoint.</p>
 <ul>
-<li><code>radix</code> is the Booth encoder radix used with options <code>2,4,8,16</code>
-((default=4).</li>
-<li><code>adderGen</code> is an adder generator to be used in the primary adder
-functions.</li>
-<li><code>ppTree</code> is an parallel prefix tree generator to be used in internal
-functions.</li>
+<li><code>multGen</code> is a multiplier generator to be used in the mantissa
+multiplication.</li>
+<li><code>ppTree</code> is an parallel prefix tree generator to be used in the
+leading one detection (<a href="../../rohd_hcl/ParallelPrefixPriorityEncoder-class.html">ParallelPrefixPriorityEncoder</a>).</li>
 </ul>
+<p>The multiplier currently does not support a <a href="../../rohd_hcl/FloatingPointMultiplier/product.html">product</a> with narrower
+exponent or mantissa fields and will throw an exception.</p>
 </section>
 
 
@@ -97,86 +100,124 @@ functions.</li>
     {super.clk,
     super.reset,
     super.enable,
-    int radix = 4,
-    Adder Function(Logic a, Logic b, {Logic? carryIn}) adderGen =
-        NativeAdder.new,
+    super.outProduct,
+    Multiplier Function(Logic a, Logic b,
+            {Logic? clk, Logic? reset, Logic? enable, String name})
+        multGen = NativeMultiplier.new,
     ParallelPrefix Function(
             List&lt;Logic&gt; inps, Logic Function(Logic term1, Logic term2) op)
         ppTree = KoggeStone.new,
     super.name}) {
-  final product = FloatingPoint(
-      exponentWidth: exponentWidth, mantissaWidth: mantissaWidth);
-  output(&#39;product&#39;) &lt;= product;
-  final a = this.a;
-  final b = this.b;
-
+  if (exponentWidth &lt; a.exponent.width) {
+    throw RohdHclException(&#39;product exponent width must be &gt;= &#39;
+        &#39; input exponent width&#39;);
+  }
+  if (mantissaWidth &lt; a.mantissa.width) {
+    throw RohdHclException(&#39;product mantissa width must be &gt;= &#39;
+        &#39; input mantissa width&#39;);
+  }
   final aMantissa = mux(a.isNormal, [a.isNormal, a.mantissa].swizzle(),
-      [a.mantissa, Const(0)].swizzle());
+          [a.mantissa, Const(0)].swizzle())
+      .named(&#39;aMantissa&#39;);
   final bMantissa = mux(b.isNormal, [b.isNormal, b.mantissa].swizzle(),
-      [b.mantissa, Const(0)].swizzle());
+          [b.mantissa, Const(0)].swizzle())
+      .named(&#39;bMantissa&#39;);
 
-  final productExp = a.exponent.zeroExtend(exponentWidth + 2) +
-      b.exponent.zeroExtend(exponentWidth + 2) -
-      a.bias.zeroExtend(exponentWidth + 2);
+  &#47;&#47; TODO(desmonddak): do this calculation using the maximum exponent width
+  &#47;&#47; Then adapt to the product exponent width.
+  final expCalcWidth = exponentWidth + 2;
+  final addBias =
+      (a.bias.zeroExtend(expCalcWidth) + b.bias.zeroExtend(expCalcWidth))
+          .named(&#39;addBias&#39;);
+  final deltaBias =
+      (product.bias.zeroExtend(expCalcWidth) - addBias).named(&#39;rebias&#39;);
+  final addExp = (a.exponent.zeroExtend(expCalcWidth) +
+          b.exponent.zeroExtend(expCalcWidth))
+      .named(&#39;addExp&#39;);
+  final productExp = (addExp + deltaBias).named(&#39;productExp&#39;);
 
-  final pp = PartialProductGeneratorCompactRectSignExtension(
-      aMantissa, bMantissa, RadixEncoder(radix));
-  final compressor =
-      ColumnCompressor(pp, clk: clk, reset: reset, enable: enable)
-        ..compress();
-  final adder = adderGen(compressor.extractRow(0), compressor.extractRow(1));
-  &#47;&#47; Input mantissas have implicit lead: product mantissa width is (mw+1)*2)
-  final mantissa = adder.sum.getRange(0, (mantissaWidth + 1) * 2);
+  final mantissaMult = multGen(aMantissa, bMantissa,
+      clk: clk, reset: reset, enable: enable, name: &#39;mantissa_mult&#39;);
 
-  final isInf = a.isInfinity | b.isInfinity;
-  final isNaN = a.isNaN |
-      b.isNaN |
-      ((a.isInfinity | b.isInfinity) &amp; (a.isZero | b.isZero));
+  final mantissa = mantissaMult.product
+      .getRange(0, (a.mantissa.width + 1) * 2)
+      .named(&#39;mantissa&#39;);
+
+  &#47;&#47; TODO(desmonddak): This is where we need to either truncate or round to
+  &#47;&#47; the product mantissa width.  Today it simply is expanded only, but
+  &#47;&#47; upon narrowing, it will need to truncate for simple multiplication.
+
+  final isInf = (a.isInfinity | b.isInfinity).named(&#39;isInf&#39;);
+  final isNaN = (a.isNaN |
+          b.isNaN |
+          ((a.isInfinity | b.isInfinity) &amp; (a.isZero | b.isZero)))
+      .named(&#39;isNaN&#39;);
 
   final productExpLatch = localFlop(productExp);
-  final aSignLatch = localFlop(a.sign);
-  final bSignLatch = localFlop(b.sign);
+  final aSignLatch =
+      localFlop(a.sign).named(&#39;a_sign&#39;, naming: Naming.renameable);
+  final bSignLatch =
+      localFlop(b.sign).named(&#39;b_sign&#39;, naming: Naming.renameable);
   final isInfLatch = localFlop(isInf);
   final isNaNLatch = localFlop(isNaN);
 
-  final leadingOnePos = ParallelPrefixPriorityEncoder(mantissa.reversed,
+  final leadingOnePosPre = ParallelPrefixPriorityEncoder(mantissa.reversed,
           ppGen: ppTree, name: &#39;leading_one_encoder&#39;)
       .out
-      .zeroExtend(exponentWidth + 2);
+      .named(&#39;leadingOneRaw&#39;)
+      .zeroExtend(exponentWidth + 2)
+      .named(&#39;leadingOneRawExtended&#39;, naming: Naming.mergeable);
 
-  final shifter = SignedShifter(
-      mantissa,
-      mux(productExpLatch[-1] | productExpLatch.lt(leadingOnePos),
-          productExpLatch, leadingOnePos),
-      name: &#39;mantissa_shifter&#39;);
+  final leadingOnePos = mux(
+          leadingOnePosPre.gt(mantissa.width),
+          Const(product.bias.value.toInt() + 1,
+              width: leadingOnePosPre.width),
+          leadingOnePosPre)
+      .named(&#39;leadingOnePosition&#39;);
 
-  final remainingExp = productExpLatch - leadingOnePos + 1;
+  final remainingExp =
+      ((productExpLatch - leadingOnePos).named(&#39;productExpMinusLeadOne&#39;) + 1)
+          .named(&#39;remainingExp&#39;);
 
-  final overFlow = isInfLatch |
-      (~remainingExp[-1] &amp;
-          remainingExp.abs().gte(Const(1, width: exponentWidth, fill: true)
-              .zeroExtend(exponentWidth + 2)));
+  final internalOverflow = (~remainingExp[-1] &amp;
+          remainingExp.gte(Const(1, width: exponentWidth, fill: true)
+              .zeroExtend(exponentWidth + 2)))
+      .named(&#39;internalOverflow&#39;);
+
+  final overFlow = (isInfLatch | internalOverflow).named(&#39;overflow&#39;);
+
+  final fullMantissa = (mantissaWidth + 1 &gt; mantissa.width)
+      ? [
+          mantissa,
+          Const(0, width: mantissaWidth + 1 - mantissa.width, fill: true)
+        ].swizzle().named(&#39;extendMantissa&#39;)
+      : mantissa.named(&#39;fullMantissa&#39;);
+
+  final fullShift = SignedShifter(
+          fullMantissa,
+          mux(productExpLatch[-1] | productExpLatch.lt(leadingOnePos),
+              productExpLatch, leadingOnePos),
+          name: &#39;full_mantissa_shifter&#39;)
+      .shifted
+      .named(&#39;shiftMantissa&#39;);
+  final finalMantissa = fullShift
+      .getRange(fullShift.width - mantissaWidth - 1, fullShift.width - 1)
+      .named(&#39;finalMantissa&#39;);
 
   Combinational([
     If(isNaNLatch, then: [
-      product &lt; product.nan,
+      internalProduct &lt; product.nan,
     ], orElse: [
       If(overFlow, then: [
-        &#47;&#47; TODO(desmonddak): use this line after trace issue is resolved
-        &#47;&#47; product &lt; product.inf(inSign: aSignLatch ^ bSignLatch),
-        product.sign &lt; aSignLatch ^ bSignLatch,
-        product.exponent &lt; product.nan.exponent,
-        product.mantissa &lt; Const(0, width: mantissaWidth, fill: true),
+        internalProduct &lt; product.inf(sign: aSignLatch ^ bSignLatch),
       ], orElse: [
-        product.sign &lt; aSignLatch ^ bSignLatch,
+        internalProduct.sign &lt; aSignLatch ^ bSignLatch,
         If(remainingExp[-1], then: [
-          product.exponent &lt; Const(0, width: exponentWidth)
+          internalProduct.exponent &lt; Const(0, width: exponentWidth)
         ], orElse: [
-          product.exponent &lt; remainingExp.getRange(0, exponentWidth),
+          internalProduct.exponent &lt; remainingExp.getRange(0, exponentWidth),
         ]),
-        &#47;&#47; Remove the leading one for implicit representation
-        product.mantissa &lt;
-            shifter.shifted.getRange(-mantissaWidth - 1, mantissa.width - 1)
+        internalProduct.mantissa &lt; finalMantissa
       ])
     ])
   ]);

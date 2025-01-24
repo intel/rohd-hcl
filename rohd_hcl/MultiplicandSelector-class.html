@@ -67,7 +67,7 @@
     <h2>Constructors</h2>
     <dl class="constructor-summary-list">
         <dt id="MultiplicandSelector" class="callable">
-          <span class="name"><a href="../rohd_hcl/MultiplicandSelector/MultiplicandSelector.html">MultiplicandSelector</a></span><span class="signature">(<span class="parameter" id="-param-radix"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.6.1/dart-core/int-class.html">int</a></span> <span class="parameter-name">radix</span>, </span><span class="parameter" id="-param-multiplicand"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.0/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">multiplicand</span>, {</span><span class="parameter" id="-param-selectSignedMultiplicand"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.0/rohd/Logic-class.html">Logic</a>?</span> <span class="parameter-name">selectSignedMultiplicand</span>, </span><span class="parameter" id="-param-signedMultiplicand"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.6.1/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">signedMultiplicand</span> = <span class="default-value">false</span></span>})</span>
+          <span class="name"><a href="../rohd_hcl/MultiplicandSelector/MultiplicandSelector.html">MultiplicandSelector</a></span><span class="signature">(<span class="parameter" id="-param-radix"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.6.1/dart-core/int-class.html">int</a></span> <span class="parameter-name">radix</span>, </span><span class="parameter" id="-param-multiplicand"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.1/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">multiplicand</span>, {</span><span class="parameter" id="-param-selectSignedMultiplicand"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.1/rohd/Logic-class.html">Logic</a>?</span> <span class="parameter-name">selectSignedMultiplicand</span>, </span><span class="parameter" id="-param-signedMultiplicand"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.6.1/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">signedMultiplicand</span> = <span class="default-value">false</span></span>})</span>
         </dt>
         <dd>
           Build a <a href="../rohd_hcl/MultiplicandSelector-class.html">MultiplicandSelector</a> generationg required <a href="../rohd_hcl/MultiplicandSelector/multiples.html">multiples</a> of
@@ -95,7 +95,7 @@
 
         <dt id="multiples" class="property">
   <span class="name"><a href="../rohd_hcl/MultiplicandSelector/multiples.html">multiples</a></span>
-  <span class="signature">&#8596; <a href="https://pub.dev/documentation/rohd/0.6.0/rohd/LogicArray-class.html">LogicArray</a></span>
+  <span class="signature">&#8596; <a href="https://pub.dev/documentation/rohd/0.6.1/rohd/LogicArray-class.html">LogicArray</a></span>
   
 
 </dt>
@@ -105,9 +105,21 @@
 
 </dd>
 
+        <dt id="multiplesSlice" class="property">
+  <span class="name"><a href="../rohd_hcl/MultiplicandSelector/multiplesSlice.html">multiplesSlice</a></span>
+  <span class="signature">&#8594; <a href="https://api.dart.dev/stable/3.6.1/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://pub.dev/documentation/rohd/0.6.1/rohd/Logic-class.html">Logic</a></span>&gt;</span></span>
+  
+
+</dt>
+<dd>
+  Multiples sliced into columns for select to access
+  <div class="features"><span class="feature">late</span><span class="feature">final</span></div>
+
+</dd>
+
         <dt id="multiplicand" class="property">
   <span class="name"><a href="../rohd_hcl/MultiplicandSelector/multiplicand.html">multiplicand</a></span>
-  <span class="signature">&#8596; <a href="https://pub.dev/documentation/rohd/0.6.0/rohd/Logic-class.html">Logic</a></span>
+  <span class="signature">&#8596; <a href="https://pub.dev/documentation/rohd/0.6.1/rohd/Logic-class.html">Logic</a></span>
   
 
 </dt>
@@ -174,15 +186,28 @@
       id="instance-methods">
     <h2>Methods</h2>
     <dl class="callables">
-        <dt id="getMultiples" class="callable">
-  <span class="name"><a href="../rohd_hcl/MultiplicandSelector/getMultiples.html">getMultiples</a></span><span class="signature">(<wbr><span class="parameter" id="getMultiples-param-col"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.6.1/dart-core/int-class.html">int</a></span> <span class="parameter-name">col</span></span>)
-    <span class="returntype parameter">&#8594; <a href="https://pub.dev/documentation/rohd/0.6.0/rohd/Logic-class.html">Logic</a></span>
+        <dt id="fetchMultiples" class="callable">
+  <span class="name"><a href="../rohd_hcl/MultiplicandSelector/fetchMultiples.html">fetchMultiples</a></span><span class="signature">(<wbr><span class="parameter" id="fetchMultiples-param-col"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.6.1/dart-core/int-class.html">int</a></span> <span class="parameter-name">col</span></span>)
+    <span class="returntype parameter">&#8594; <a href="https://pub.dev/documentation/rohd/0.6.1/rohd/Logic-class.html">Logic</a></span>
   </span>
   
 
 </dt>
 <dd>
   Retrieve the multiples of the multiplicand at current bit position
+  
+
+</dd>
+
+        <dt id="getMultiples" class="callable">
+  <span class="name"><a href="../rohd_hcl/MultiplicandSelector/getMultiples.html">getMultiples</a></span><span class="signature">(<wbr><span class="parameter" id="getMultiples-param-col"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.6.1/dart-core/int-class.html">int</a></span> <span class="parameter-name">col</span></span>)
+    <span class="returntype parameter">&#8594; <a href="https://pub.dev/documentation/rohd/0.6.1/rohd/Logic-class.html">Logic</a></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Compute the multiples of the multiplicand at current bit position
   
 
 </dd>
@@ -202,7 +227,7 @@
 
         <dt id="select" class="callable">
   <span class="name"><a href="../rohd_hcl/MultiplicandSelector/select.html">select</a></span><span class="signature">(<wbr><span class="parameter" id="select-param-col"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.6.1/dart-core/int-class.html">int</a></span> <span class="parameter-name">col</span>, </span><span class="parameter" id="select-param-encode"><span class="type-annotation"><a href="../rohd_hcl/RadixEncode-class.html">RadixEncode</a></span> <span class="parameter-name">encode</span></span>)
-    <span class="returntype parameter">&#8594; <a href="https://pub.dev/documentation/rohd/0.6.0/rohd/Logic-class.html">Logic</a></span>
+    <span class="returntype parameter">&#8594; <a href="https://pub.dev/documentation/rohd/0.6.1/rohd/Logic-class.html">Logic</a></span>
   </span>
   
 

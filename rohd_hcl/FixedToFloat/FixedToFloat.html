@@ -99,8 +99,10 @@
   final absValue = Logic(name: &#39;absValue&#39;, width: fixed.width)
     ..gets(mux(_float.sign, ~(fixed - 1), fixed));
 
-  final jBit =
-      ParallelPrefixPriorityEncoder(absValue.reversed).out.zeroExtend(iWidth);
+  final jBit = ParallelPrefixPriorityEncoder(absValue.reversed)
+      .out
+      .zeroExtend(iWidth)
+      .named(&#39;jBit&#39;);
 
   &#47;&#47; Extract mantissa
   final mantissa = Logic(name: &#39;mantissa&#39;, width: mantissaWidth);
@@ -117,8 +119,8 @@
   }
 
   &#47;&#47; Align mantissa
-  final absValueShifted =
-      Logic(width: max(absValue.width, mantissaWidth + 2));
+  final absValueShifted = Logic(
+      width: max(absValue.width, mantissaWidth + 2), name: &#39;absValueShifted&#39;);
   if (absValue.width &lt; mantissaWidth + 2) {
     final zeros = Const(0, width: mantissaWidth + 2 - absValue.width);
     absValueShifted &lt;= [absValue, zeros].swizzle() &lt;&lt; j;
@@ -131,19 +133,25 @@
   sticky &lt;= absValueShifted.getRange(0, -mantissaWidth - 2).or();
 
   &#47;&#47;&#47; Round to nearest even: mantissa | guard sticky
-  final roundUp = guard &amp; (sticky | mantissa[0]);
-  final mantissaRounded = mux(roundUp, mantissa + 1, mantissa);
+  final roundUp = (guard &amp; (sticky | mantissa[0])).named(&#39;roundUp&#39;);
+  final mantissaRounded =
+      mux(roundUp, mantissa + 1, mantissa).named(&#39;roundedMantissa&#39;);
 
   &#47;&#47; Calculate biased exponent
   final eRaw = mux(
-      absValueShifted[-1],
-      Const(bias + fixed.width - fixed.n - 1, width: iWidth) - j,
-      Const(0, width: iWidth));
-  final eRawRne = mux(roundUp &amp; ~mantissaRounded.or(), eRaw + 1, eRaw);
+          absValueShifted[-1],
+          (Const(bias + fixed.width - fixed.n - 1, width: iWidth) - j)
+              .named(&#39;eShift&#39;),
+          Const(0, width: iWidth))
+      .named(&#39;eRaw&#39;);
+  final eRawRne =
+      mux(roundUp &amp; ~mantissaRounded.or(), eRaw + 1, eRaw).named(&#39;eRawRNE&#39;);
 
   &#47;&#47; Select output handling corner cases
-  final expoLessThanOne = eRawRne[-1] | ~eRawRne.or();
-  final expoMoreThanMax = ~eRawRne[-1] &amp; (eRawRne.gt(eMax));
+  final expoLessThanOne =
+      (eRawRne[-1] | ~eRawRne.or()).named(&#39;expLessThanOne&#39;);
+  final expoMoreThanMax =
+      (~eRawRne[-1] &amp; (eRawRne.gt(eMax))).named(&#39;expMoreThanMax&#39;);
   Combinational([
     If.block([
       Iff(~absValue.or(), [

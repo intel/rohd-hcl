@@ -58,7 +58,8 @@
     <section class="multi-line-signature">
       
 <span class="returntype"><a href="../../rohd_hcl/RadixEncode-class.html">RadixEncode</a></span>
-<span class="name ">encode</span>(<wbr><ol class="parameter-list single-line"> <li><span class="parameter" id="encode-param-multiplierSlice"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.0/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">multiplierSlice</span></span></li>
+<span class="name ">encode</span>(<wbr><ol class="parameter-list single-line"> <li><span class="parameter" id="encode-param-multiplierSlice"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.1/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">multiplierSlice</span>, </span></li>
+<li><span class="parameter" id="encode-param-row"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.6.1/dart-core/int-class.html">int</a></span> <span class="parameter-name">row</span></span></li>
 </ol>)
 
       
@@ -73,7 +74,7 @@
     
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
-  <pre class="language-dart"><code class="language-dart">RadixEncode encode(Logic multiplierSlice) {
+  <pre class="language-dart"><code class="language-dart">RadixEncode encode(Logic multiplierSlice, int row) {
   if (multiplierSlice.width != log2Ceil(radix) + 1) {
     throw RohdHclException(&#39;multiplier slice width ${multiplierSlice.width}&#39;
         &#39;must be same length as log(radix)+1=${log2Ceil(radix) + 1}&#39;);
@@ -82,7 +83,8 @@
   final inputXor = Logic(width: width);
   inputXor &lt;=
       (multiplierSlice ^ (multiplierSlice &gt;&gt;&gt; 1))
-          .slice(multiplierSlice.width - 1, 0);
+          .slice(multiplierSlice.width - 1, 0)
+          .named(&#39;${multiplierSlice.name}_xor&#39;, naming: Naming.mergeable);
 
   final multiples = &lt;Logic&gt;[];
   for (var i = 2; i &lt; radix + 1; i += 2) {
@@ -99,11 +101,16 @@
       for (var j = 0; j &lt; width - 1; j++)
         if (multiplesDisagree[j].isZero)
           if (senseMultiples[j].isZero) ~inputXor[j] else inputXor[j]
-    ].swizzle().and());
+    ].swizzle().and().named(&#39;multiple${i}_of_${multiplierSlice.name}&#39;,
+        naming: Naming.mergeable));
   }
 
-  return RadixEncode._(multiples.rswizzle(),
-      multiples.rswizzle().or() &amp; multiplierSlice[multiplierSlice.width - 1]);
+  final multiplesR = multiples
+      .rswizzle()
+      .named(&#39;multiples_reversed_r$row&#39;, naming: Naming.mergeable);
+
+  return RadixEncode._(multiplesR,
+      multiplesR.or() &amp; multiplierSlice[multiplierSlice.width - 1], row);
 }</code></pre>
 </section>
 

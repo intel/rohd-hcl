@@ -89,7 +89,7 @@
     <h2>Constructors</h2>
     <dl class="constructor-summary-list">
         <dt id="FloatingPointBF16Value" class="callable">
-          <span class="name"><a href="../rohd_hcl/FloatingPointBF16Value/FloatingPointBF16Value.html">FloatingPointBF16Value</a></span><span class="signature">({<span class="parameter" id="-param-sign"><span>required</span> <span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.0/rohd/LogicValue-class.html">LogicValue</a></span> <span class="parameter-name">sign</span>, </span><span class="parameter" id="-param-exponent"><span>required</span> <span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.0/rohd/LogicValue-class.html">LogicValue</a></span> <span class="parameter-name">exponent</span>, </span><span class="parameter" id="-param-mantissa"><span>required</span> <span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.0/rohd/LogicValue-class.html">LogicValue</a></span> <span class="parameter-name">mantissa</span></span>})</span>
+          <span class="name"><a href="../rohd_hcl/FloatingPointBF16Value/FloatingPointBF16Value.html">FloatingPointBF16Value</a></span><span class="signature">({<span class="parameter" id="-param-sign"><span>required</span> <span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.1/rohd/LogicValue-class.html">LogicValue</a></span> <span class="parameter-name">sign</span>, </span><span class="parameter" id="-param-exponent"><span>required</span> <span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.1/rohd/LogicValue-class.html">LogicValue</a></span> <span class="parameter-name">exponent</span>, </span><span class="parameter" id="-param-mantissa"><span>required</span> <span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.1/rohd/LogicValue-class.html">LogicValue</a></span> <span class="parameter-name">mantissa</span></span>})</span>
         </dt>
         <dd>
           Constructor for a single precision floating point value
@@ -122,6 +122,14 @@ individual bitfields
           Numeric conversion of a <a href="../rohd_hcl/FloatingPointBF16Value-class.html">FloatingPointBF16Value</a> from a host double
             <div class="constructor-modifier features">factory</div>
         </dd>
+        <dt id="FloatingPointBF16Value.ofDoubleUnrounded" class="callable">
+          <span class="name"><a href="../rohd_hcl/FloatingPointBF16Value/FloatingPointBF16Value.ofDoubleUnrounded.html">FloatingPointBF16Value.ofDoubleUnrounded</a></span><span class="signature">(<span class="parameter" id="ofDoubleUnrounded-param-inDouble"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.6.1/dart-core/double-class.html">double</a></span> <span class="parameter-name">inDouble</span></span>)</span>
+        </dt>
+        <dd>
+          Convert a floating point number into a <a href="../rohd_hcl/FloatingPointBF16Value-class.html">FloatingPointBF16Value</a>
+representation. This form performs NO ROUNDING.
+            <div class="constructor-modifier features">factory</div>
+        </dd>
         <dt id="FloatingPointBF16Value.ofInts" class="callable">
           <span class="name"><a href="../rohd_hcl/FloatingPointBF16Value/FloatingPointBF16Value.ofInts.html">FloatingPointBF16Value.ofInts</a></span><span class="signature">(<span class="parameter" id="ofInts-param-exponent"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.6.1/dart-core/int-class.html">int</a></span> <span class="parameter-name">exponent</span>, </span><span class="parameter" id="ofInts-param-mantissa"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.6.1/dart-core/int-class.html">int</a></span> <span class="parameter-name">mantissa</span>, {</span><span class="parameter" id="ofInts-param-sign"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.6.1/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">sign</span> = <span class="default-value">false</span></span>})</span>
         </dt>
@@ -130,7 +138,7 @@ individual bitfields
 representation
         </dd>
         <dt id="FloatingPointBF16Value.ofLogicValue" class="callable">
-          <span class="name"><a href="../rohd_hcl/FloatingPointBF16Value/FloatingPointBF16Value.ofLogicValue.html">FloatingPointBF16Value.ofLogicValue</a></span><span class="signature">(<span class="parameter" id="ofLogicValue-param-val"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.0/rohd/LogicValue-class.html">LogicValue</a></span> <span class="parameter-name">val</span></span>)</span>
+          <span class="name"><a href="../rohd_hcl/FloatingPointBF16Value/FloatingPointBF16Value.ofLogicValue.html">FloatingPointBF16Value.ofLogicValue</a></span><span class="signature">(<span class="parameter" id="ofLogicValue-param-val"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.1/rohd/LogicValue-class.html">LogicValue</a></span> <span class="parameter-name">val</span></span>)</span>
         </dt>
         <dd>
           Construct a <a href="../rohd_hcl/FloatingPointBF16Value-class.html">FloatingPointBF16Value</a> from a Logic word
@@ -149,6 +157,13 @@ individual bitfields
         <dd>
           <a href="../rohd_hcl/FloatingPointBF16Value-class.html">FloatingPointBF16Value</a> constructor from a single string representing
 space-separated bitfields
+        </dd>
+        <dt id="FloatingPointBF16Value.random" class="callable">
+          <span class="name"><a href="../rohd_hcl/FloatingPointBF16Value/FloatingPointBF16Value.random.html">FloatingPointBF16Value.random</a></span><span class="signature">(<span class="parameter" id="random-param-rv"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.6.1/dart-math/Random-class.html">Random</a></span> <span class="parameter-name">rv</span>, {</span><span class="parameter" id="random-param-normal"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.6.1/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">normal</span> = <span class="default-value">false</span></span>})</span>
+        </dt>
+        <dd>
+          Generate a random <a href="../rohd_hcl/FloatingPointBF16Value-class.html">FloatingPointBF16Value</a>, supplying random seed <code>rv</code>.
+            <div class="constructor-modifier features">factory</div>
         </dd>
     </dl>
   </section>
@@ -198,7 +213,7 @@ sub-class of this floating-point value
 
         <dt id="exponent" class="property inherited">
   <span class="name"><a href="../rohd_hcl/FloatingPointValue/exponent.html">exponent</a></span>
-  <span class="signature">&#8594; <a href="https://pub.dev/documentation/rohd/0.6.0/rohd/LogicValue-class.html">LogicValue</a></span>
+  <span class="signature">&#8594; <a href="https://pub.dev/documentation/rohd/0.6.1/rohd/LogicValue-class.html">LogicValue</a></span>
   
 
 </dt>
@@ -277,7 +292,7 @@ and <a href="../src_arithmetic_values_floating_point_values_floating_point_value
 
         <dt id="mantissa" class="property inherited">
   <span class="name"><a href="../rohd_hcl/FloatingPointValue/mantissa.html">mantissa</a></span>
-  <span class="signature">&#8594; <a href="https://pub.dev/documentation/rohd/0.6.0/rohd/LogicValue-class.html">LogicValue</a></span>
+  <span class="signature">&#8594; <a href="https://pub.dev/documentation/rohd/0.6.1/rohd/LogicValue-class.html">LogicValue</a></span>
   
 
 </dt>
@@ -361,7 +376,7 @@ and <a href="../src_arithmetic_values_floating_point_values_floating_point_value
 
         <dt id="sign" class="property inherited">
   <span class="name"><a href="../rohd_hcl/FloatingPointValue/sign.html">sign</a></span>
-  <span class="signature">&#8594; <a href="https://pub.dev/documentation/rohd/0.6.0/rohd/LogicValue-class.html">LogicValue</a></span>
+  <span class="signature">&#8594; <a href="https://pub.dev/documentation/rohd/0.6.1/rohd/LogicValue-class.html">LogicValue</a></span>
   
 
 </dt>
@@ -373,7 +388,7 @@ and <a href="../src_arithmetic_values_floating_point_values_floating_point_value
 
         <dt id="value" class="property inherited">
   <span class="name"><a href="../rohd_hcl/FloatingPointValue/value.html">value</a></span>
-  <span class="signature">&#8594; <a href="https://pub.dev/documentation/rohd/0.6.0/rohd/LogicValue-class.html">LogicValue</a></span>
+  <span class="signature">&#8594; <a href="https://pub.dev/documentation/rohd/0.6.1/rohd/LogicValue-class.html">LogicValue</a></span>
   
 
 </dt>
@@ -400,20 +415,20 @@ and <a href="../src_arithmetic_values_floating_point_values_floating_point_value
 
     
   <section
-      class="summary offset-anchor inherited"
+      class="summary offset-anchor"
       id="instance-methods">
     <h2>Methods</h2>
     <dl class="callables">
-        <dt id="abs" class="callable inherited">
-  <span class="name"><a href="../rohd_hcl/FloatingPointValue/abs.html">abs</a></span><span class="signature">(<wbr>)
-    <span class="returntype parameter">&#8594; <a href="../rohd_hcl/FloatingPointValue-class.html">FloatingPointValue</a></span>
+        <dt id="abs" class="callable">
+  <span class="name"><a href="../rohd_hcl/FloatingPointBF16Value/abs.html">abs</a></span><span class="signature">(<wbr>)
+    <span class="returntype parameter">&#8594; <a href="../rohd_hcl/FloatingPointBF16Value-class.html">FloatingPointBF16Value</a></span>
   </span>
   
 
 </dt>
-<dd class="inherited">
-  Absolute value operation for <a href="../rohd_hcl/FloatingPointValue-class.html">FloatingPointValue</a>
-  <div class="features"><span class="feature">inherited</span></div>
+<dd>
+  Absolute value operation for <a href="../rohd_hcl/FloatingPointBF16Value-class.html">FloatingPointBF16Value</a>
+  <div class="features"><span class="feature">override</span></div>
 
 </dd>
 
@@ -444,16 +459,16 @@ defined as having mantissa in the range [1,2)
 
 </dd>
 
-        <dt id="negate" class="callable inherited">
-  <span class="name"><a href="../rohd_hcl/FloatingPointValue/negate.html">negate</a></span><span class="signature">(<wbr>)
-    <span class="returntype parameter">&#8594; <a href="../rohd_hcl/FloatingPointValue-class.html">FloatingPointValue</a></span>
+        <dt id="negate" class="callable">
+  <span class="name"><a href="../rohd_hcl/FloatingPointBF16Value/negate.html">negate</a></span><span class="signature">(<wbr>)
+    <span class="returntype parameter">&#8594; <a href="../rohd_hcl/FloatingPointBF16Value-class.html">FloatingPointBF16Value</a></span>
   </span>
   
 
 </dt>
-<dd class="inherited">
-  Negate operation for <a href="../rohd_hcl/FloatingPointValue-class.html">FloatingPointValue</a>
-  <div class="features"><span class="feature">inherited</span></div>
+<dd>
+  Negate operation for <a href="../rohd_hcl/FloatingPointBF16Value-class.html">FloatingPointBF16Value</a>
+  <div class="features"><span class="feature">override</span></div>
 
 </dd>
 
@@ -514,63 +529,90 @@ if <code>integer</code> is false, return sign, exponent, mantissa as ibinary str
 
 </dd>
 
+        <dt id="ulp" class="callable inherited">
+  <span class="name"><a href="../rohd_hcl/FloatingPointValue/ulp.html">ulp</a></span><span class="signature">(<wbr>)
+    <span class="returntype parameter">&#8594; <a href="../rohd_hcl/FloatingPointValue-class.html">FloatingPointValue</a></span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Compute the unit in the last place for the given <a href="../rohd_hcl/FloatingPointValue-class.html">FloatingPointValue</a>
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="withinRounding" class="callable inherited">
+  <span class="name"><a href="../rohd_hcl/FloatingPointValue/withinRounding.html">withinRounding</a></span><span class="signature">(<wbr><span class="parameter" id="withinRounding-param-other"><span class="type-annotation"><a href="../rohd_hcl/FloatingPointValue-class.html">FloatingPointValue</a></span> <span class="parameter-name">other</span></span>)
+    <span class="returntype parameter">&#8594; <a href="https://api.dart.dev/stable/3.6.1/dart-core/bool-class.html">bool</a></span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Return true if the other <a href="../rohd_hcl/FloatingPointValue-class.html">FloatingPointValue</a> is within a rounding
+error of this value.
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
     </dl>
   </section>
     
   <section
-      class="summary offset-anchor inherited"
+      class="summary offset-anchor"
       id="operators">
     <h2>Operators</h2>
     <dl class="callables">
-        <dt id="operator *" class="callable inherited">
-  <span class="name"><a href="../rohd_hcl/FloatingPointValue/operator_multiply.html">operator *</a></span><span class="signature">(<wbr><span class="parameter" id="*-param-multiplicand"><span class="type-annotation"><a href="../rohd_hcl/FloatingPointValue-class.html">FloatingPointValue</a></span> <span class="parameter-name">multiplicand</span></span>)
-    <span class="returntype parameter">&#8594; <a href="../rohd_hcl/FloatingPointValue-class.html">FloatingPointValue</a></span>
+        <dt id="operator *" class="callable">
+  <span class="name"><a href="../rohd_hcl/FloatingPointBF16Value/operator_multiply.html">operator *</a></span><span class="signature">(<wbr><span class="parameter" id="*-param-multiplicand"><span>covariant</span> <span class="type-annotation"><a href="../rohd_hcl/FloatingPointBF16Value-class.html">FloatingPointBF16Value</a></span> <span class="parameter-name">multiplicand</span></span>)
+    <span class="returntype parameter">&#8594; <a href="../rohd_hcl/FloatingPointBF16Value-class.html">FloatingPointBF16Value</a></span>
   </span>
   
 
 </dt>
-<dd class="inherited">
-  Multiply operation for <a href="../rohd_hcl/FloatingPointValue-class.html">FloatingPointValue</a>
-  <div class="features"><span class="feature">inherited</span></div>
+<dd>
+  Multiply operation for <a href="../rohd_hcl/FloatingPointBF16Value-class.html">FloatingPointBF16Value</a>
+  <div class="features"><span class="feature">override</span></div>
 
 </dd>
 
-        <dt id="operator +" class="callable inherited">
-  <span class="name"><a href="../rohd_hcl/FloatingPointValue/operator_plus.html">operator +</a></span><span class="signature">(<wbr><span class="parameter" id="+-param-addend"><span class="type-annotation"><a href="../rohd_hcl/FloatingPointValue-class.html">FloatingPointValue</a></span> <span class="parameter-name">addend</span></span>)
-    <span class="returntype parameter">&#8594; <a href="../rohd_hcl/FloatingPointValue-class.html">FloatingPointValue</a></span>
+        <dt id="operator +" class="callable">
+  <span class="name"><a href="../rohd_hcl/FloatingPointBF16Value/operator_plus.html">operator +</a></span><span class="signature">(<wbr><span class="parameter" id="+-param-addend"><span>covariant</span> <span class="type-annotation"><a href="../rohd_hcl/FloatingPointBF16Value-class.html">FloatingPointBF16Value</a></span> <span class="parameter-name">addend</span></span>)
+    <span class="returntype parameter">&#8594; <a href="../rohd_hcl/FloatingPointBF16Value-class.html">FloatingPointBF16Value</a></span>
   </span>
   
 
 </dt>
-<dd class="inherited">
-  Addition operation for <a href="../rohd_hcl/FloatingPointValue-class.html">FloatingPointValue</a>
-  <div class="features"><span class="feature">inherited</span></div>
+<dd>
+  Addition operation for <a href="../rohd_hcl/FloatingPointBF16Value-class.html">FloatingPointBF16Value</a>
+  <div class="features"><span class="feature">override</span></div>
 
 </dd>
 
-        <dt id="operator -" class="callable inherited">
-  <span class="name"><a href="../rohd_hcl/FloatingPointValue/operator_minus.html">operator -</a></span><span class="signature">(<wbr><span class="parameter" id="--param-subend"><span class="type-annotation"><a href="../rohd_hcl/FloatingPointValue-class.html">FloatingPointValue</a></span> <span class="parameter-name">subend</span></span>)
-    <span class="returntype parameter">&#8594; <a href="../rohd_hcl/FloatingPointValue-class.html">FloatingPointValue</a></span>
+        <dt id="operator -" class="callable">
+  <span class="name"><a href="../rohd_hcl/FloatingPointBF16Value/operator_minus.html">operator -</a></span><span class="signature">(<wbr><span class="parameter" id="--param-subend"><span>covariant</span> <span class="type-annotation"><a href="../rohd_hcl/FloatingPointBF16Value-class.html">FloatingPointBF16Value</a></span> <span class="parameter-name">subend</span></span>)
+    <span class="returntype parameter">&#8594; <a href="../rohd_hcl/FloatingPointBF16Value-class.html">FloatingPointBF16Value</a></span>
   </span>
   
 
 </dt>
-<dd class="inherited">
-  Subtract operation for <a href="../rohd_hcl/FloatingPointValue-class.html">FloatingPointValue</a>
-  <div class="features"><span class="feature">inherited</span></div>
+<dd>
+  Subtract operation for <a href="../rohd_hcl/FloatingPointBF16Value-class.html">FloatingPointBF16Value</a>
+  <div class="features"><span class="feature">override</span></div>
 
 </dd>
 
-        <dt id="operator &#47;" class="callable inherited">
-  <span class="name"><a href="../rohd_hcl/FloatingPointValue/operator_divide.html">operator /</a></span><span class="signature">(<wbr><span class="parameter" id="/-param-divisor"><span class="type-annotation"><a href="../rohd_hcl/FloatingPointValue-class.html">FloatingPointValue</a></span> <span class="parameter-name">divisor</span></span>)
-    <span class="returntype parameter">&#8594; <a href="../rohd_hcl/FloatingPointValue-class.html">FloatingPointValue</a></span>
+        <dt id="operator &#47;" class="callable">
+  <span class="name"><a href="../rohd_hcl/FloatingPointBF16Value/operator_divide.html">operator /</a></span><span class="signature">(<wbr><span class="parameter" id="/-param-divisor"><span>covariant</span> <span class="type-annotation"><a href="../rohd_hcl/FloatingPointBF16Value-class.html">FloatingPointBF16Value</a></span> <span class="parameter-name">divisor</span></span>)
+    <span class="returntype parameter">&#8594; <a href="../rohd_hcl/FloatingPointBF16Value-class.html">FloatingPointBF16Value</a></span>
   </span>
   
 
 </dt>
-<dd class="inherited">
-  Divide operation for <a href="../rohd_hcl/FloatingPointValue-class.html">FloatingPointValue</a>
-  <div class="features"><span class="feature">inherited</span></div>
+<dd>
+  Divide operation for <a href="../rohd_hcl/FloatingPointBF16Value-class.html">FloatingPointBF16Value</a>
+  <div class="features"><span class="feature">override</span></div>
 
 </dd>
 

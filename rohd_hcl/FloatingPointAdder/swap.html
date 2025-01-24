@@ -63,7 +63,7 @@
     </ol>
   </div>
 <span class="returntype">(<span class="field"><span class="type-annotation"><a href="../../rohd_hcl/FloatingPoint-class.html">FloatingPoint</a></span>, </span><span class="field"><span class="type-annotation"><a href="../../rohd_hcl/FloatingPoint-class.html">FloatingPoint</a></span></span>)</span>
-<span class="name ">swap</span>(<wbr><ol class="parameter-list single-line"> <li><span class="parameter" id="swap-param-swap"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.0/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">swap</span>, </span></li>
+<span class="name ">swap</span>(<wbr><ol class="parameter-list single-line"> <li><span class="parameter" id="swap-param-swap"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.1/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">swap</span>, </span></li>
 <li><span class="parameter" id="swap-param-toSwap"><span class="type-annotation">(<span class="field"><span class="type-annotation"><a href="../../rohd_hcl/FloatingPoint-class.html">FloatingPoint</a></span>, </span><span class="field"><span class="type-annotation"><a href="../../rohd_hcl/FloatingPoint-class.html">FloatingPoint</a></span></span>)</span> <span class="parameter-name">toSwap</span></span></li>
 </ol>)
 
@@ -81,11 +81,16 @@
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">@protected
 (FloatingPoint, FloatingPoint) swap(
-        Logic swap, (FloatingPoint, FloatingPoint) toSwap) =&gt;
-    (
-      toSwap.$1.clone()..gets(mux(swap, toSwap.$2, toSwap.$1)),
-      toSwap.$2.clone()..gets(mux(swap, toSwap.$1, toSwap.$2))
-    );</code></pre>
+    Logic swap, (FloatingPoint, FloatingPoint) toSwap) {
+  final in1 = toSwap.$1.named(&#39;swapIn_${toSwap.$1.name}&#39;);
+  final in2 = toSwap.$2.named(&#39;swapIn_${toSwap.$2.name}&#39;);
+
+  final out1 = mux(swap, in2, in1).named(&#39;swapOut_larger&#39;);
+  final out2 = mux(swap, in1, in2).named(&#39;swapOut_smaller&#39;);
+  final first = a.clone(name: &#39;larger&#39;)..gets(out1);
+  final second = a.clone(name: &#39;smaller&#39;)..gets(out2);
+  return (first, second);
+}</code></pre>
 </section>
 
 

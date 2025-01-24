@@ -66,7 +66,7 @@
     </section>
     
 <section class="desc markdown">
-  <p>Retrieve the Booth encoding for the row</p>
+  <p>Compute the Booth encoding for the row</p>
 </section>
 
 
@@ -86,8 +86,8 @@
         _extendedMultiplier.slice(base + log2Ceil(_encoder.radix) - 1, base),
         Const(0)
       ].swizzle()
-  ];
-  return _encoder.encode(multiplierSlice.first);
+  ].first.named(&#39;mult_slice_r$row&#39;, naming: Naming.mergeable);
+  return _encoder.encode(multiplierSlice, row);
 }</code></pre>
 </section>
 

@@ -59,6 +59,7 @@
       
       <span class="name ">FloatingPoint</span>(<wbr>{<ol class="parameter-list"> <li><span class="parameter" id="-param-exponentWidth"><span>required</span> <span class="type-annotation"><a href="https://api.dart.dev/stable/3.6.1/dart-core/int-class.html">int</a></span> <span class="parameter-name">exponentWidth</span>, </span></li>
 <li><span class="parameter" id="-param-mantissaWidth"><span>required</span> <span class="type-annotation"><a href="https://api.dart.dev/stable/3.6.1/dart-core/int-class.html">int</a></span> <span class="parameter-name">mantissaWidth</span>, </span></li>
+<li><span class="parameter" id="-param-name"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.6.1/dart-core/String-class.html">String</a>?</span> <span class="parameter-name">name</span>, </span></li>
 </ol>})
     </section>
     
@@ -71,11 +72,19 @@ floating point number</p>
     
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
-  <pre class="language-dart"><code class="language-dart">FloatingPoint({required int exponentWidth, required int mantissaWidth})
+  <pre class="language-dart"><code class="language-dart">FloatingPoint(
+    {required int exponentWidth, required int mantissaWidth, String? name})
     : this._(
-          Logic(name: &#39;sign&#39;),
-          Logic(width: exponentWidth, name: &#39;exponent&#39;),
-          Logic(width: mantissaWidth, name: &#39;mantissa&#39;));</code></pre>
+          Logic(name: _nameJoin(name, &#39;sign&#39;), naming: Naming.mergeable),
+          Logic(
+              width: exponentWidth,
+              name: _nameJoin(name, &#39;exponent&#39;),
+              naming: Naming.mergeable),
+          Logic(
+              width: mantissaWidth,
+              name: _nameJoin(name, &#39;mantissa&#39;),
+              naming: Naming.mergeable),
+          name: name);</code></pre>
 </section>
 
 

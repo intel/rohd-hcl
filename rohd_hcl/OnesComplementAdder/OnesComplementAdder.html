@@ -57,15 +57,15 @@
 
     <section class="multi-line-signature">
       
-      <span class="name ">OnesComplementAdder</span>(<wbr><ol class="parameter-list"> <li><span class="parameter" id="-param-a"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.0/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">a</span>, </span></li>
-<li><span class="parameter" id="-param-b"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.0/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">b</span>, {</span></li>
-<li><span class="parameter" id="-param-adderGen"><span class="type-annotation"><a href="../../rohd_hcl/Adder-class.html">Adder</a></span> <span class="parameter-name">adderGen</span>(<ol class="parameter-list"> <li><span class="parameter" id="param-"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.0/rohd/Logic-class.html">Logic</a></span>, </span></li>
-<li><span class="parameter" id="param-"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.0/rohd/Logic-class.html">Logic</a></span>, {</span></li>
-<li><span class="parameter" id="param-carryIn"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.0/rohd/Logic-class.html">Logic</a>?</span> <span class="parameter-name">carryIn</span>, </span></li>
+      <span class="name ">OnesComplementAdder</span>(<wbr><ol class="parameter-list"> <li><span class="parameter" id="-param-a"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.1/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">a</span>, </span></li>
+<li><span class="parameter" id="-param-b"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.1/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">b</span>, {</span></li>
+<li><span class="parameter" id="-param-adderGen"><span class="type-annotation"><a href="../../rohd_hcl/Adder-class.html">Adder</a></span> <span class="parameter-name">adderGen</span>(<ol class="parameter-list"> <li><span class="parameter" id="param-"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.1/rohd/Logic-class.html">Logic</a></span>, </span></li>
+<li><span class="parameter" id="param-"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.1/rohd/Logic-class.html">Logic</a></span>, {</span></li>
+<li><span class="parameter" id="param-carryIn"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.1/rohd/Logic-class.html">Logic</a>?</span> <span class="parameter-name">carryIn</span>, </span></li>
 </ol>}) = <span class="default-value">ParallelPrefixAdder.new</span>, </span></li>
-<li><span class="parameter" id="-param-subtractIn"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.0/rohd/Logic-class.html">Logic</a>?</span> <span class="parameter-name">subtractIn</span>, </span></li>
-<li><span class="parameter" id="-param-carryOut"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.0/rohd/Logic-class.html">Logic</a>?</span> <span class="parameter-name">carryOut</span>, </span></li>
-<li><span class="parameter" id="-param-carryIn"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.0/rohd/Logic-class.html">Logic</a>?</span> <span class="parameter-name">carryIn</span>, </span></li>
+<li><span class="parameter" id="-param-subtractIn"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.1/rohd/Logic-class.html">Logic</a>?</span> <span class="parameter-name">subtractIn</span>, </span></li>
+<li><span class="parameter" id="-param-carryOut"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.1/rohd/Logic-class.html">Logic</a>?</span> <span class="parameter-name">carryOut</span>, </span></li>
+<li><span class="parameter" id="-param-carryIn"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.1/rohd/Logic-class.html">Logic</a>?</span> <span class="parameter-name">carryIn</span>, </span></li>
 <li><span class="parameter" id="-param-subtract"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.6.1/dart-core/bool-class.html">bool</a>?</span> <span class="parameter-name">subtract</span>, </span></li>
 <li><span class="parameter" id="-param-name"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.6.1/dart-core/String-class.html">String</a></span> <span class="parameter-name">name</span> = <span class="default-value">&#39;ones_complement_adder&#39;</span>, </span></li>
 </ol>})
@@ -108,31 +108,35 @@ subtraction, but providing both non-null will result in an exception.</li>
         &quot; configuration, or a boolean parameter &#39;subtract&#39; for &quot;
         &#39;generation time configuration, but not both.&#39;);
   }
+
   final doSubtract =
-      subtractIn ?? (subtract != null ? Const(subtract) : Const(0));
+      (subtractIn ?? (subtract != null ? Const(subtract) : Const(0)))
+          .named(&#39;dosubtract&#39;, naming: Naming.mergeable);
 
-  final ax = a.zeroExtend(a.width);
-  final bx = b.zeroExtend(b.width);
-
-  final adder =
-      adderGen(ax, mux(doSubtract, ~bx, bx), carryIn: carryIn ?? Const(0));
+  final adderSum =
+      adderGen(a, mux(doSubtract, ~b, b), carryIn: carryIn ?? Const(0))
+          .sum
+          .named(&#39;adderSum&#39;, naming: Naming.mergeable);
 
   if (this.carryOut != null) {
-    this.carryOut! &lt;= adder.sum[-1];
+    this.carryOut! &lt;= adderSum[-1];
   }
-  final endAround = adder.sum[-1];
-  final magnitude = adder.sum.slice(a.width - 1, 0);
+  final endAround = adderSum[-1].named(&#39;endaround&#39;);
+  final magnitude = adderSum.slice(a.width - 1, 0).named(&#39;magnitude&#39;);
+
+  final incrementer = ParallelPrefixIncr(magnitude);
+  final magnitudep1 = incrementer.out.named(&#39;magnitude_plus1&#39;);
 
   sum &lt;=
       mux(
           doSubtract,
           mux(
                   endAround,
-                  [if (this.carryOut != null) magnitude else magnitude + 1]
+                  [if (this.carryOut != null) magnitude else magnitudep1]
                       .first,
                   ~magnitude)
               .zeroExtend(sum.width),
-          adder.sum);
+          adderSum);
   _sign &lt;= mux(doSubtract, ~endAround, Const(0));
 }</code></pre>
 </section>

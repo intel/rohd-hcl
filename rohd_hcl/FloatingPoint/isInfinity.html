@@ -58,7 +58,7 @@
     
       <section class="multi-line-signature">
         
-        <a href="https://pub.dev/documentation/rohd/0.6.0/rohd/Logic-class.html">Logic</a>
+        <a href="https://pub.dev/documentation/rohd/0.6.1/rohd/Logic-class.html">Logic</a>
         <span class="name ">isInfinity</span>
         <div class="features"><span class="feature">late</span><span class="feature">final</span></div>
 
@@ -73,8 +73,9 @@ ones) and a zero mantissa.</p>
       
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
-  <pre class="language-dart"><code class="language-dart">late final isInfinity = Logic(name: &#39;isInfinity&#39;, naming: Naming.mergeable)
-  ..gets(exponent.eq(floatingPointValue.infinity.exponent) &amp; ~mantissa.or());</code></pre>
+  <pre class="language-dart"><code class="language-dart">late final isInfinity =
+    (exponent.eq(floatingPointValue.infinity.exponent) &amp; ~mantissa.or())
+        .named(_nameJoin(&#39;isInfinity&#39;, name), naming: Naming.mergeable);</code></pre>
 </section>
 
 
