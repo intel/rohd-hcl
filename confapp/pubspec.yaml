@@ -21,15 +21,6 @@ dependencies:
   bloc: ^8.1.2
   google_fonts: 6.1.0
 
-dependency_overrides:
-  rohd_hcl:
-    path: ../
-  rohd:
-    git:
-      url: https://github.com/intel/rohd/
-      ref: main
-
-
 dev_dependencies:
   flutter_test:
     sdk: flutter
