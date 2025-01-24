@@ -22,32 +22,26 @@ class CsrValidationException implements Exception {
 /// Definitions for various register field access patterns.
 enum CsrFieldAccess {
   /// Register field is read only.
-  // ignore: constant_identifier_names
-  READ_ONLY,
+  readOnly,
 
   /// Register field can be read and written.
-  // ignore: constant_identifier_names
-  READ_WRITE,
+  readWrite,
 
   /// Writing 1's to the field triggers some other action,
   /// but the field itself is read only.
-  // ignore: constant_identifier_names
-  WRITE_ONES_CLEAR,
+  writeOnesClear,
 
   /// Only legal values can be written
-  // ignore: constant_identifier_names
-  READ_WRITE_LEGAL,
+  readWriteLegal,
 }
 
 /// Definitions for various register access patterns.
 enum CsrAccess {
   /// Register is read only.
-  // ignore: constant_identifier_names
-  READ_ONLY,
+  readOnly,
 
   /// Register can be read and written.
-  // ignore: constant_identifier_names
-  READ_WRITE,
+  readWrite,
 }
 
 /// Configuration for a register field.
@@ -115,7 +109,7 @@ class CsrFieldConfig {
     // there must be at least 1 legal value for a READ_WRITE_LEGAL field
     // and the reset value must be legal
     // and every legal value must fit within the field's width
-    if (access == CsrFieldAccess.READ_WRITE_LEGAL) {
+    if (access == CsrFieldAccess.readWriteLegal) {
       if (legalValues.isEmpty) {
         throw CsrValidationException(
             'Field $name has no legal values but has access READ_WRITE_LEGAL.');
@@ -186,9 +180,9 @@ class CsrConfig {
   });
 
   /// Accessor to the config of a particular field
-  /// within the register by name [nm].
-  CsrFieldConfig getFieldByName(String nm) =>
-      fields.firstWhere((element) => element.name == nm);
+  /// within the register by name [name].
+  CsrFieldConfig getFieldByName(String name) =>
+      fields.firstWhere((element) => element.name == name);
 
   /// Helper to derive a reset value for the register from its fields.
   ///
@@ -320,8 +314,8 @@ class CsrInstanceConfig {
   }
 
   /// Accessor to the config of a particular field
-  /// within the register by name [nm].
-  CsrFieldConfig getFieldByName(String nm) => arch.getFieldByName(nm);
+  /// within the register by name [name].
+  CsrFieldConfig getFieldByName(String name) => arch.getFieldByName(name);
 
   /// Method to validate the configuration of a single register.
   ///
@@ -374,9 +368,9 @@ class CsrBlockConfig {
   });
 
   /// Accessor to the config of a particular register
-  /// within the block by name [nm].
-  CsrInstanceConfig getRegisterByName(String nm) =>
-      registers.firstWhere((element) => element.name == nm);
+  /// within the block by name [name].
+  CsrInstanceConfig getRegisterByName(String name) =>
+      registers.firstWhere((element) => element.name == name);
 
   /// Accessor to the config of a particular register
   /// within the block by relative address [addr].
@@ -463,9 +457,9 @@ class CsrTopConfig {
   });
 
   /// Accessor to the config of a particular register block
-  /// within the module by name [nm].
-  CsrBlockConfig getBlockByName(String nm) =>
-      blocks.firstWhere((element) => element.name == nm);
+  /// within the module by name [name].
+  CsrBlockConfig getBlockByName(String name) =>
+      blocks.firstWhere((element) => element.name == name);
 
   /// Accessor to the config of a particular register block
   /// within the module by relative address [addr].
@@ -508,7 +502,8 @@ class CsrTopConfig {
         } else if ((blocks[i].baseAddr - blocks[j].baseAddr).abs().bitLength <
             blockOffsetWidth) {
           issues.add(
-              'Register blocks ${blocks[i].name} and ${blocks[j].name} are too close together per the block offset width.');
+              'Register blocks ${blocks[i].name} and ${blocks[j].name} are '
+              'too close together per the block offset width.');
         }
       }
     }
@@ -520,7 +515,8 @@ class CsrTopConfig {
     // every register in every block
     if (blockOffsetWidth < maxMinAddrBits) {
       throw CsrValidationException(
-          'Block offset width is too small to address all register in all blocks in the module. The minimum offset width is $maxMinAddrBits.');
+          'Block offset width is too small to address all register in all '
+          'blocks in the module. The minimum offset width is $maxMinAddrBits.');
     }
   }
 
