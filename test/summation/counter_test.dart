@@ -272,6 +272,88 @@ void main() {
     await Simulator.endSimulation();
   });
 
+  test('async reset, clock tied off', () async {
+    final clk = SimpleClockGenerator(10).clk;
+    final reset = Logic();
+    final restart = Logic();
+
+    final counter = Counter(
+      [
+        SumInterface(fixedAmount: 4),
+        SumInterface(fixedAmount: 2, increments: false),
+      ],
+      clk: Const(0),
+      reset: reset,
+      restart: restart,
+      asyncReset: true,
+      resetValue: 4,
+      maxValue: 10,
+      minValue: 1,
+    );
+
+    await counter.build();
+
+    Simulator.setMaxSimTime(1000);
+    unawaited(Simulator.run());
+    WaveDumper(counter);
+    // initializing/resetting with no clock
+    await clk.waitCycles(2);
+    reset.inject(0);
+    restart.inject(0);
+    await clk.nextNegedge;
+    reset.inject(1);
+    await clk.nextPosedge;
+    expect(counter.count.value.toInt(), 4);
+
+    await clk.waitCycles(2);
+    await Simulator.endSimulation();
+  });
+
+  test('async reset with clock', () async {
+    final clk = SimpleClockGenerator(10).clk;
+    final reset = Logic();
+    final restart = Logic();
+
+    final counter = Counter(
+      [
+        SumInterface(fixedAmount: 4),
+        SumInterface(fixedAmount: 2, increments: false),
+      ],
+      clk: clk,
+      reset: reset,
+      restart: restart,
+      asyncReset: true,
+      resetValue: 2,
+      maxValue: 20,
+      minValue: 1,
+    );
+
+    await counter.build();
+
+    Simulator.setMaxSimTime(1000);
+    unawaited(Simulator.run());
+
+    // initial reset flow
+    reset.inject(0);
+    restart.inject(0);
+    await clk.nextNegedge;
+    reset.inject(1);
+    await clk.nextPosedge;
+    reset.inject(0);
+
+    // check counter counts
+    await clk.waitCycles(4);
+    expect(counter.count.value.toInt(), 10);
+
+    // reset
+    reset.inject(1);
+    await clk.nextChanged;
+    expect(counter.count.previousValue!.toInt(), 2);
+    await clk.waitCycles(2);
+
+    await Simulator.endSimulation();
+  });
+
   group('random counter', () {
     const numRandCounters = 20;
     const restartProbability = 0.05;
