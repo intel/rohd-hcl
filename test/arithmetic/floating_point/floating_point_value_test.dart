@@ -409,4 +409,17 @@ void main() {
       }
     }
   });
+  test('FPV: rounding check', () async {
+    final fpv1 = FloatingPoint32Value.ofDouble(1);
+    final fpv2 = FloatingPoint32Value.ofDouble(0.5);
+    final fpv3 = FloatingPoint32Value.ofDoubleUnrounded(
+        FloatingPoint32Value.getFloatingPointConstant(
+                    FloatingPointConstants.smallestPositiveSubnormal)
+                .toDouble() +
+            fpv1.toDouble());
+
+    expect(fpv1.withinRounding(fpv2), false);
+    expect(fpv1.withinRounding(fpv1), true);
+    expect(fpv1.withinRounding(fpv3), true);
+  });
 }

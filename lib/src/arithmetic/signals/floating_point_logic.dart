@@ -24,21 +24,39 @@ class FloatingPoint extends LogicStructure {
   /// [sign] bit with '1' representing a negative number
   final Logic sign;
 
+  /// Utility to keep track of the Logic structure name by attaching it
+  /// to the Logic signal name in the output Verilog.
+  static String _nameJoin(String? structName, String signalName) {
+    if (structName == null) {
+      return signalName;
+    }
+    return '${structName}_$signalName';
+  }
+
   /// [FloatingPoint] Constructor for a variable size binary
   /// floating point number
-  FloatingPoint({required int exponentWidth, required int mantissaWidth})
+  FloatingPoint(
+      {required int exponentWidth, required int mantissaWidth, String? name})
       : this._(
-            Logic(name: 'sign'),
-            Logic(width: exponentWidth, name: 'exponent'),
-            Logic(width: mantissaWidth, name: 'mantissa'));
+            Logic(name: _nameJoin(name, 'sign'), naming: Naming.mergeable),
+            Logic(
+                width: exponentWidth,
+                name: _nameJoin(name, 'exponent'),
+                naming: Naming.mergeable),
+            Logic(
+                width: mantissaWidth,
+                name: _nameJoin(name, 'mantissa'),
+                naming: Naming.mergeable),
+            name: name);
 
-  FloatingPoint._(this.sign, this.exponent, this.mantissa, {String? name})
-      : super([mantissa, exponent, sign], name: name ?? 'FloatingPoint');
+  FloatingPoint._(this.sign, this.exponent, this.mantissa, {super.name})
+      : super([mantissa, exponent, sign]);
 
   @override
   FloatingPoint clone({String? name}) => FloatingPoint(
         exponentWidth: exponent.width,
         mantissaWidth: mantissa.width,
+        name: name,
       );
 
   /// Return the [FloatingPointValue]
@@ -47,42 +65,45 @@ class FloatingPoint extends LogicStructure {
 
   /// Return a Logic true if this FloatingPoint contains a normal number,
   /// defined as having mantissa in the range [1,2)
-  late final Logic isNormal = Logic(name: 'isNormal', naming: Naming.mergeable)
-    ..gets(exponent.neq(LogicValue.zero.zeroExtend(exponent.width)));
+  late final Logic isNormal = exponent
+      .neq(LogicValue.zero.zeroExtend(exponent.width))
+      .named(_nameJoin('isNormal', name), naming: Naming.mergeable);
 
   /// Return a Logic true if this FloatingPoint is Not a Number (NaN)
   /// by having its exponent field set to the NaN value (typically all
   /// ones) and a non-zero mantissa.
-  late final isNaN = Logic(name: 'isNaN', naming: Naming.mergeable)
-    ..gets(exponent.eq(floatingPointValue.nan.exponent) & mantissa.or());
+  late final isNaN = exponent.eq(floatingPointValue.nan.exponent) &
+      mantissa.or().named(
+            _nameJoin('isNaN', name),
+            naming: Naming.mergeable,
+          );
 
   /// Return a Logic true if this FloatingPoint is an infinity
   /// by having its exponent field set to the NaN value (typically all
   /// ones) and a zero mantissa.
-  late final isInfinity = Logic(name: 'isInfinity', naming: Naming.mergeable)
-    ..gets(exponent.eq(floatingPointValue.infinity.exponent) & ~mantissa.or());
+  late final isInfinity =
+      (exponent.eq(floatingPointValue.infinity.exponent) & ~mantissa.or())
+          .named(_nameJoin('isInfinity', name), naming: Naming.mergeable);
 
   /// Return a Logic true if this FloatingPoint is an zero
   /// by having its exponent field set to the NaN value (typically all
   /// ones) and a zero mantissa.
-  late final isZero = Logic(name: 'isZero', naming: Naming.mergeable)
-    ..gets(exponent.eq(floatingPointValue.zero.exponent) & ~mantissa.or());
+  late final isZero =
+      (exponent.eq(floatingPointValue.zero.exponent) & ~mantissa.or())
+          .named(_nameJoin('isZero', name), naming: Naming.mergeable);
 
   /// Return the zero exponent representation for this type of FloatingPoint
-  late final zeroExponent = Logic(
-      name: 'zeroExponent', naming: Naming.mergeable, width: exponent.width)
-    ..gets(Const(LogicValue.zero, width: exponent.width));
+  late final zeroExponent = Const(LogicValue.zero, width: exponent.width)
+      .named(_nameJoin('zeroExponent', name), naming: Naming.mergeable);
 
   /// Return the one exponent representation for this type of FloatingPoint
-  late final oneExponent = Logic(
-      name: 'oneExponent', naming: Naming.mergeable, width: exponent.width)
-    ..gets(Const(LogicValue.one, width: exponent.width));
+  late final oneExponent = Const(LogicValue.one, width: exponent.width)
+      .named(_nameJoin('oneExponent', name), naming: Naming.mergeable);
 
   /// Return the exponent Logic value representing the true zero exponent
   /// 2^0 = 1 often termed [bias] or the offset of the stored exponent.
-  late final bias =
-      Logic(name: 'bias', naming: Naming.mergeable, width: exponent.width)
-        ..gets(Const((1 << exponent.width - 1) - 1, width: exponent.width));
+  late final bias = Const((1 << exponent.width - 1) - 1, width: exponent.width)
+      .named(_nameJoin('bias', name), naming: Naming.mergeable);
 
   /// Construct a FloatingPoint that represents infinity for this FP type.
   FloatingPoint inf({Logic? sign, bool negative = false}) => FloatingPoint.inf(
@@ -129,53 +150,66 @@ class FloatingPoint extends LogicStructure {
 /// Single floating point representation
 class FloatingPoint32 extends FloatingPoint {
   /// Construct a 32-bit (single-precision) floating point number
-  FloatingPoint32()
+  FloatingPoint32({super.name})
       : super(
             exponentWidth: FloatingPoint32Value.exponentWidth,
             mantissaWidth: FloatingPoint32Value.mantissaWidth);
+
+  @override
+  FloatingPoint32 clone({String? name}) => FloatingPoint32(name: name);
 }
 
 /// Double floating point representation
 class FloatingPoint64 extends FloatingPoint {
   /// Construct a 64-bit (double-precision) floating point number
-  FloatingPoint64()
+  FloatingPoint64({super.name})
       : super(
             exponentWidth: FloatingPoint64Value.exponentWidth,
             mantissaWidth: FloatingPoint64Value.mantissaWidth);
+  @override
+  FloatingPoint64 clone({String? name}) => FloatingPoint64(name: name);
 }
 
 /// Eight-bit floating point representation for deep learning: E4M3
 class FloatingPoint8E4M3 extends FloatingPoint {
   /// Construct an 8-bit floating point number
-  FloatingPoint8E4M3()
+  FloatingPoint8E4M3({super.name})
       : super(
             mantissaWidth: FloatingPoint8E4M3Value.mantissaWidth,
             exponentWidth: FloatingPoint8E4M3Value.exponentWidth);
+  @override
+  FloatingPoint8E4M3 clone({String? name}) => FloatingPoint8E4M3(name: name);
 }
 
 /// Eight-bit floating point representation for deep learning: E5M2
 class FloatingPoint8E5M2 extends FloatingPoint {
   /// Construct an 8-bit floating point number
-  FloatingPoint8E5M2()
+  FloatingPoint8E5M2({super.name})
       : super(
             mantissaWidth: FloatingPoint8E5M2Value.mantissaWidth,
             exponentWidth: FloatingPoint8E5M2Value.exponentWidth);
+  @override
+  FloatingPoint8E5M2 clone({String? name}) => FloatingPoint8E5M2(name: name);
 }
 
 /// Sixteen-bit BF16 floating point representation
 class FloatingPointBF16 extends FloatingPoint {
   /// Construct a BF16 16-bit floating point number
-  FloatingPointBF16()
+  FloatingPointBF16({super.name})
       : super(
             mantissaWidth: FloatingPointBF16Value.mantissaWidth,
             exponentWidth: FloatingPointBF16Value.exponentWidth);
+  @override
+  FloatingPointBF16 clone({String? name}) => FloatingPointBF16(name: name);
 }
 
 /// Sixteen-bit floating point representation
 class FloatingPoint16 extends FloatingPoint {
   /// Construct a 16-bit floating point number
-  FloatingPoint16()
+  FloatingPoint16({super.name})
       : super(
             mantissaWidth: FloatingPoint16Value.mantissaWidth,
             exponentWidth: FloatingPoint16Value.exponentWidth);
+  @override
+  FloatingPoint16 clone({String? name}) => FloatingPoint16(name: name);
 }

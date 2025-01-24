@@ -41,23 +41,16 @@ void main() {
       final expectedDouble =
           fp1.floatingPointValue.toDouble() + fp2.floatingPointValue.toDouble();
 
-      final expectedRound = FloatingPointValue.ofDouble(expectedDouble,
-          exponentWidth: exponentWidth, mantissaWidth: mantissaWidth);
-
       final expectedNoRound = FloatingPointValue.ofDoubleUnrounded(
           expectedDouble,
           exponentWidth: exponentWidth,
           mantissaWidth: mantissaWidth);
-
-      if ((computed.mantissa != expectedNoRound.mantissa) &
-          (computed.mantissa != expectedRound.mantissa)) {
-        expect(computed, equals(expectedRound), reason: '''
+      expect(computed.withinRounding(expectedNoRound), true, reason: '''
       $fv1 (${fv1.toDouble()})\t+
       $fv2 (${fv2.toDouble()})\t=
       $computed (${computed.toDouble()})\tcomputed
       $expectedNoRound (${expectedNoRound.toDouble()})\texpected
 ''');
-      }
     }
   });
 
@@ -91,25 +84,17 @@ void main() {
               fp2.put(fv2.value);
 
               final computed = adder.sum.floatingPointValue;
-
-              final expectedRound = FloatingPointValue.ofDouble(
-                  fv1.toDouble() + fv2.toDouble(),
-                  exponentWidth: exponentWidth,
-                  mantissaWidth: mantissaWidth);
-
               final expectedNoRound = FloatingPointValue.ofDoubleUnrounded(
                   fv1.toDouble() + fv2.toDouble(),
                   exponentWidth: exponentWidth,
                   mantissaWidth: mantissaWidth);
 
-              if ((computed != expectedNoRound) & (computed != expectedRound)) {
-                expect(computed, equals(expectedRound), reason: '''
+              expect(computed.withinRounding(expectedNoRound), true, reason: '''
       $fv1 (${fv1.toDouble()})\t+
       $fv2 (${fv2.toDouble()})\t=
       $computed (${computed.toDouble()})\tcomputed
       $expectedNoRound (${expectedNoRound.toDouble()})\texpected
 ''');
-              }
             }
           }
         }
@@ -172,24 +157,18 @@ void main() {
         final expectedDouble = fp1.floatingPointValue.toDouble() +
             fp2.floatingPointValue.toDouble();
 
-        final expectedRound = FloatingPointValue.ofDouble(expectedDouble,
-            exponentWidth: exponentWidth, mantissaWidth: mantissaWidth);
-
         final expectedNoRound = FloatingPointValue.ofDoubleUnrounded(
             expectedDouble,
             exponentWidth: exponentWidth,
             mantissaWidth: mantissaWidth);
-        final expected = expectedNoRound;
 
         final computed = adder.sum.floatingPointValue;
-        if ((computed != expectedNoRound) && (computed != expectedRound)) {
-          expect(computed, equals(expected), reason: '''
+        expect(computed.withinRounding(expectedNoRound), true, reason: '''
       $fv1 (${fv1.toDouble()})\t+
       $fv2 (${fv2.toDouble()})\t=
       $computed (${computed.toDouble()})\tcomputed
       $expectedNoRound (${expectedNoRound.toDouble()})\texpected
 ''');
-        }
       }
     });
     test('FP: simple adder narrow singleton test', () {
@@ -260,24 +239,17 @@ void main() {
 
         final computed = adder.sum.floatingPointValue;
 
-        final expectedRound = FloatingPointValue.ofDouble(
-            fv1.toDouble() + fv2.toDouble(),
-            exponentWidth: exponentWidth,
-            mantissaWidth: mantissaWidth);
-
         final expectedNoRound = FloatingPointValue.ofDoubleUnrounded(
             fv1.toDouble() + fv2.toDouble(),
             exponentWidth: exponentWidth,
             mantissaWidth: mantissaWidth);
 
-        if ((computed != expectedNoRound) & (computed != expectedRound)) {
-          expect(computed, equals(expectedNoRound), reason: '''
+        expect(computed.withinRounding(expectedNoRound), true, reason: '''
       $fv1 (${fv1.toDouble()})\t+
       $fv2 (${fv2.toDouble()})\t=
       $computed (${computed.toDouble()})\tcomputed
       $expectedNoRound (${expectedNoRound.toDouble()})\texpected
 ''');
-        }
       }
       await Simulator.endSimulation();
     });
@@ -308,24 +280,17 @@ void main() {
 
       final computed = adder.sum.floatingPointValue;
 
-      final expectedRound = FloatingPointValue.ofDouble(
-          fv1.toDouble() + fv2.toDouble(),
-          exponentWidth: exponentWidth,
-          mantissaWidth: mantissaWidth);
-
       final expectedNoRound = FloatingPointValue.ofDoubleUnrounded(
           fv1.toDouble() + fv2.toDouble(),
           exponentWidth: exponentWidth,
           mantissaWidth: mantissaWidth);
 
-      if ((computed != expectedNoRound) & (computed != expectedRound)) {
-        expect(computed, equals(expectedNoRound), reason: '''
+      expect(computed.withinRounding(expectedNoRound), true, reason: '''
       $fv1 (${fv1.toDouble()})\t+
       $fv2 (${fv2.toDouble()})\t=
       $computed (${computed.toDouble()})\tcomputed
       $expectedNoRound (${expectedNoRound.toDouble()})\texpected
 ''');
-      }
     }
   });
 
@@ -353,27 +318,21 @@ void main() {
 
       final computed = adder.sum.floatingPointValue;
 
-      final expectedRound = FloatingPointValue.ofDouble(
-          fv1.toDouble() + fv2.toDouble(),
-          exponentWidth: exponentWidth,
-          mantissaWidth: mantissaWidth);
-
       final expectedNoRound = FloatingPointValue.ofDoubleUnrounded(
           fv1.toDouble() + fv2.toDouble(),
           exponentWidth: exponentWidth,
           mantissaWidth: mantissaWidth);
 
-      if ((computed != expectedNoRound) & (computed != expectedRound)) {
-        expect(computed, equals(expectedNoRound), reason: '''
+      expect(computed.withinRounding(expectedNoRound), true, reason: '''
       $fv1 (${fv1.toDouble()})\t+
       $fv2 (${fv2.toDouble()})\t=
       $computed (${computed.toDouble()})\tcomputed
       $expectedNoRound (${expectedNoRound.toDouble()})\texpected
 ''');
-      }
     }
   });
-  test('FP: simple adder general singleton test', () {
+
+  test('FP: simple adder general singleton test', () async {
     FloatingPointValue ofString(String s) =>
         FloatingPointValue.ofSpacedBinaryString(s);
 
@@ -387,6 +346,8 @@ void main() {
     fp1.put(fv1);
     fp2.put(fv2);
     final adder = FloatingPointAdderSimple(fp1, fp2);
+    await adder.build();
+
     final exponentWidth = adder.sum.exponent.width;
     final mantissaWidth = adder.sum.mantissa.width;
 
