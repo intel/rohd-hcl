@@ -42,6 +42,8 @@ class SpiMainTest extends Test {
     final tracker =
         SpiTracker(intf: intf, dumpTable: false, outputFolder: outFolder);
 
+    SpiChecker(intf, parent: this);
+
     clk = SimpleClockGenerator(10).clk;
 
     // initialize the bus with 00
@@ -119,6 +121,8 @@ class SpiSubTest extends Test {
     final tracker =
         SpiTracker(intf: intf, dumpTable: false, outputFolder: outFolder);
 
+    SpiChecker(intf, parent: this);
+
     Simulator.registerEndOfSimulationAction(() async {
       await tracker.terminate();
       Directory(outFolder).deleteSync(recursive: true);
@@ -180,6 +184,8 @@ class SpiPairTest extends Test {
 
     final tracker =
         SpiTracker(intf: intf, dumpTable: false, outputFolder: outFolder);
+
+    SpiChecker(intf, parent: this);
 
     clk = SimpleClockGenerator(10).clk;
 
@@ -276,15 +282,12 @@ void main() {
         expect(test.main.busOut.value.toInt(), 0x72);
         expect(test.main.done.value.toBool(), true);
 
-        // await test.clk.nextNegedge;
         await sendSubPacket(test, LogicValue.ofInt(0xCD, 8));
         expect(test.main.busOut.value.toInt(), 0xCD);
 
-        // await test.clk.nextNegedge;
         await sendSubPacket(test, LogicValue.ofInt(0x56, 8));
         expect(test.main.busOut.value.toInt(), 0x56);
 
-        // await test.clk.nextNegedge;
         await sendSubPacket(test, LogicValue.ofInt(0xE2, 8));
         expect(test.main.busOut.value.toInt(), 0xE2);
         await test.clk.waitCycles(4);
@@ -366,10 +369,10 @@ void main() {
             .add(SpiPacket(data: LogicValue.ofInt(0xCD, 8))); // 1100 1101
 
         await test.clk.waitCycles(8);
-
+        expect(test.sub.done.value.toBool(), false);
         await test.clk.nextPosedge;
         expect(test.sub.busOut.value.toInt(), 0xCD);
-
+        expect(test.sub.done.value.toBool(), true);
         //gap
         await test.clk.waitCycles(7);
 

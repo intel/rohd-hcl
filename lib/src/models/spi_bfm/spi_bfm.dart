@@ -7,6 +7,7 @@
 // 2024 September 23
 // Author: Roberto Torres <roberto.torres@intel.com>
 
+export 'spi_checker.dart';
 export 'spi_main_agent.dart';
 export 'spi_main_driver.dart';
 export 'spi_monitor.dart';
