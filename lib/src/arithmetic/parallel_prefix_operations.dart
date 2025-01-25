@@ -293,7 +293,8 @@ class ParallelPrefixIncr extends Module {
       {ParallelPrefix Function(
               List<Logic> inps, Logic Function(Logic term1, Logic term2) op)
           ppGen = KoggeStone.new,
-      super.name = 'parallel_prefix_incr'}) {
+      super.name = 'parallel_prefix_incr'})
+      : super(definitionName: 'ParallelPrefixIncr_W${inp.width}') {
     inp = addInput('inp', inp, width: inp.width);
     final u = ppGen(inp.elements, (lhs, rhs) => rhs & lhs);
     addOutput('out', width: inp.width) <=
@@ -315,7 +316,8 @@ class ParallelPrefixDecr extends Module {
       {ParallelPrefix Function(
               List<Logic> inps, Logic Function(Logic term1, Logic term2) op)
           ppGen = KoggeStone.new,
-      super.name = 'parallel_prefix_decr'}) {
+      super.name = 'parallel_prefix_decr'})
+      : super(definitionName: 'ParallelPrefixDecr_W${inp.width}') {
     inp = addInput('inp', inp, width: inp.width);
     final u = ppGen((~inp).elements, (lhs, rhs) => rhs & lhs);
     addOutput('out', width: inp.width) <=
