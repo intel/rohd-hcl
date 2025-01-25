@@ -10,6 +10,8 @@
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
 
+// TODO(desmonddak): Should FloatToFixed be abstract?
+
 /// [FloatToFixed] converts a floating point input to a signed
 /// fixed-point output following Q notation (Qm.n format) as introduced by
 /// (Texas Instruments)[https://www.ti.com/lit/ug/spru565b/spru565b.pdf].
@@ -31,7 +33,10 @@ class FloatToFixed extends Module {
   late final FixedPoint fixed = _fixed.clone()..gets(output('fixed'));
 
   /// Constructor
-  FloatToFixed(FloatingPoint float, {super.name = 'FloatToFixed'}) {
+  FloatToFixed(FloatingPoint float, {super.name = 'FloatToFixed'})
+      : super(
+            definitionName: 'FloatE${float.exponent.width}'
+                'M${float.mantissa.width}ToFixed') {
     float = float.clone()..gets(addInput('float', float, width: float.width));
 
     final bias = FloatingPointValue.computeBias(float.exponent.width);
