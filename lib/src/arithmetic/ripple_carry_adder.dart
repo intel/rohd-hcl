@@ -19,7 +19,8 @@ import 'package:rohd_hcl/rohd_hcl.dart';
 class RippleCarryAdder extends Adder {
   /// Constructs an n-bit adder based on inputs List of inputs.
   RippleCarryAdder(super.a, super.b,
-      {super.carryIn, super.name = 'ripple_carry_adder_carry_in'}) {
+      {super.carryIn, super.name = 'ripple_carry_adder_carry_in'})
+      : super(definitionName: 'RippleCarryAdder_W${a.width}') {
     Logic? carry;
     final sumList = <Logic>[];
     for (var i = 0; i < a.width; i++) {

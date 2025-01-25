@@ -255,7 +255,8 @@ class ParallelPrefixAdder extends Adder {
       ParallelPrefix Function(
               List<Logic> inps, Logic Function(Logic term1, Logic term2) op)
           ppGen = KoggeStone.new,
-      super.name = 'parallel_prefix_adder'}) {
+      super.name = 'parallel_prefix_adder'})
+      : super(definitionName: 'ParallelPrefixAdder_W${a.width}') {
     final l = List<Logic>.generate(a.width - 1,
         (i) => [a[i + 1] & b[i + 1], a[i + 1] | b[i + 1]].swizzle());
     final cin = carryIn ?? Const(0);
