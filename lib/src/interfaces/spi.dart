@@ -16,7 +16,6 @@ class SpiInterface extends PairInterface {
 
   /// Serial clock (SCLK). Clock signal from main to sub(s).
   Logic get sclk => port('SCLK');
-  // TODO(rt): add CPOL/CPHA support
 
   /// Main Out Sub In (MOSI). Serial data from main to sub(s).
   Logic get mosi => port('MOSI');
@@ -26,7 +25,6 @@ class SpiInterface extends PairInterface {
 
   /// Chip select (active low). Chip select signal from main to sub.
   Logic get csb => port('CSB');
-  // TODO(rt): add multiple CSB support
 
   /// Creates a new [SpiInterface].
   SpiInterface({this.dataLength = 1})
