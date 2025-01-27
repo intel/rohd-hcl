@@ -109,14 +109,14 @@ Some in-development items will have opened issues, as well. Feel free to create 
   - PCIe
   - UCIe
   - JTAG
-  - SPI
+  - [SPI](./components/standard_interfaces.md#spi)
   - UART
   - DDR
   - HBM
 - Models
   - [APB](./components/apb_bfm.md)
   - [Ready/Valid](./components/ready_valid_bfm.md)
-  - SPI
+  - [SPI](./components/spi_bfm.md)
   - CXL
 
 ----------------

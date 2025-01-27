@@ -260,61 +260,103 @@ void main() {
       await spiMainTest.start();
     }
 
-    Future<void> sendMainData(SpiMainTest test, int data) async {
-      test.busInMain.inject(LogicValue.ofInt(data, test.intf.dataLength));
-      test.reset.inject(true);
-      await test.clk.nextPosedge;
-      test.reset.inject(false);
-      test.starts.inject(true);
-      await test.clk.waitCycles(1);
-      test.starts.inject(false);
-      await test.clk.waitCycles(7);
-    }
-
-    Future<void> sendSubPacket(SpiMainTest test, LogicValue data) async {
-      test.sub.sequencer.add(SpiPacket(data: data));
-      await sendMainData(test, 0x00);
-    }
-
     test('simple transfers no gap', () async {
       await runMainTest(SpiMainTest((test) async {
+        Future<void> sendMainData(SpiMainTest test, int data) async {
+          test.busInMain.inject(LogicValue.ofInt(data, test.intf.dataLength));
+          test.reset.inject(true);
+          await test.clk.nextNegedge;
+          test.reset.inject(false);
+          test.starts.inject(true);
+          await test.clk.waitCycles(1);
+          test.starts.inject(false);
+          await test.clk.waitCycles(6);
+          await test.clk.nextPosedge;
+        }
+
+        Future<void> sendSubPacket(SpiMainTest test, LogicValue data) async {
+          test.sub.sequencer.add(SpiPacket(data: data));
+          await sendMainData(test, 0x00);
+        }
+
+        var clkCount = 0;
+        test.clk.negedge.listen((event) {
+          clkCount++;
+        });
+        final txPeriod = test.intf.dataLength;
+
         await sendSubPacket(test, LogicValue.ofInt(0x72, 8));
         expect(test.main.busOut.value.toInt(), 0x72);
-        expect(test.main.done.value.toBool(), true);
+        expect(clkCount, txPeriod);
 
         await sendSubPacket(test, LogicValue.ofInt(0xCD, 8));
         expect(test.main.busOut.value.toInt(), 0xCD);
+        expect(clkCount, 2 * txPeriod);
 
         await sendSubPacket(test, LogicValue.ofInt(0x56, 8));
         expect(test.main.busOut.value.toInt(), 0x56);
+        expect(clkCount, 3 * txPeriod);
 
         await sendSubPacket(test, LogicValue.ofInt(0xE2, 8));
         expect(test.main.busOut.value.toInt(), 0xE2);
+        expect(clkCount, 4 * txPeriod);
+
         await test.clk.waitCycles(4);
       }, 'testMainA'));
     });
 
     test('simple transfers with gaps', () async {
       await runMainTest(SpiMainTest((test) async {
+        Future<void> sendMainData(SpiMainTest test, int data) async {
+          test.busInMain.inject(LogicValue.ofInt(data, test.intf.dataLength));
+          test.reset.inject(true);
+          await test.clk.nextPosedge;
+          test.reset.inject(false);
+          test.starts.inject(true);
+          await test.clk.waitCycles(1);
+          test.starts.inject(false);
+          await test.clk.waitCycles(7);
+        }
+
+        Future<void> sendSubPacket(SpiMainTest test, LogicValue data) async {
+          test.sub.sequencer.add(SpiPacket(data: data));
+          await sendMainData(test, 0x00);
+        }
+
+        var clkCount = 0;
+        test.clk.negedge.listen((event) {
+          clkCount++;
+        });
+
+        final clkPeriod = test.intf.dataLength + 1;
         await sendSubPacket(test, LogicValue.ofInt(0x72, 8));
 
         expect(test.main.busOut.value.toInt(), 0x72);
         expect(test.main.done.value.toBool(), true);
+        expect(clkCount, clkPeriod);
 
         await test.clk.waitCycles(3);
-        await sendSubPacket(test, LogicValue.ofInt(0xCD, 8)); // 1100 1101
+        expect(clkCount, clkPeriod + 3);
 
+        await sendSubPacket(test, LogicValue.ofInt(0xCD, 8)); // 1100 1101
         expect(test.main.busOut.value.toInt(), 0xCD);
+        expect(test.main.done.value.toBool(), true);
+        expect(clkCount, (2 * clkPeriod) + 3);
+
         await test.clk.waitCycles(4);
 
         await sendSubPacket(test, LogicValue.ofInt(0x56, 8));
-
         expect(test.main.busOut.value.toInt(), 0x56);
+        expect(test.main.done.value.toBool(), true);
+        expect(clkCount, (3 * clkPeriod) + 7);
+
         await test.clk.waitCycles(4);
 
         await sendSubPacket(test, LogicValue.ofInt(0xAB, 8));
-
         expect(test.main.busOut.value.toInt(), 0xAB);
+        expect(test.main.done.value.toBool(), true);
+        expect(clkCount, (4 * clkPeriod) + 11);
+
         await test.clk.waitCycles(4);
       }, 'testMainB'));
     });

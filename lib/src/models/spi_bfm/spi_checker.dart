@@ -14,7 +14,7 @@ import 'package:rohd_vf/rohd_vf.dart';
 
 /// Checker component for Serial Peripheral Interface (SPI).
 class SpiChecker extends Component {
-  /// Error signal from Checker.
+  /// Interface to check.
   final SpiInterface intf;
 
   /// Creates a SPI Checker component that interfaces with [SpiInterface].
@@ -31,7 +31,7 @@ class SpiChecker extends Component {
     LogicValue? mosiVal;
     LogicValue? misoVal;
 
-    // save the value of mosi and miso on posedge
+    // Save the value of mosi and miso on posedge
     intf.sclk.posedge.listen((event) {
       mosiVal = intf.mosi.value;
       misoVal = intf.miso.value;
