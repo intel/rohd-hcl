@@ -14,7 +14,13 @@ import 'package:rohd_hcl/rohd_hcl.dart';
 import 'package:rohd_vf/rohd_vf.dart';
 
 /// Direction of the packet.
-enum SpiDirection { main, sub }
+enum SpiDirection {
+  /// Main direction.
+  main,
+
+  /// Sub direction.
+  sub
+}
 
 /// A packet for the [SpiInterface].
 class SpiPacket extends SequenceItem implements Trackable {
