@@ -1,4 +1,4 @@
-// Copyright (C) 2023-2024 Intel Corporation
+// Copyright (C) 2023-2025 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 //
 // compound_adder.dart
@@ -19,9 +19,13 @@ abstract class CompoundAdder extends Adder {
   /// Takes in input [a] and input [b] and return the [sum] of the addition
   /// result and [sum1] sum + 1.
   /// The width of input [a] and [b] must be the same.
-  CompoundAdder(super.a, super.b, {super.name = 'compound_adders'}) {
+  CompoundAdder(super.a, super.b,
+      {Logic? carryIn, super.name = 'compound_adders'}) {
     if (a.width != b.width) {
       throw RohdHclException('inputs of a and b should have same width.');
+    }
+    if (carryIn != null) {
+      throw RohdHclException("we don't support carryIn");
     }
     addOutput('sum1', width: a.width + 1);
   }
@@ -31,7 +35,7 @@ abstract class CompoundAdder extends Adder {
 class TrivialCompoundAdder extends CompoundAdder {
   /// Constructs a [CompoundAdder].
   TrivialCompoundAdder(super.a, super.b,
-      {super.name = 'trivial_compound_adder'}) {
+      {super.carryIn, super.name = 'trivial_compound_adder'}) {
     sum <= a.zeroExtend(a.width + 1) + b.zeroExtend(b.width + 1);
     sum1 <= sum + 1;
   }
@@ -66,7 +70,10 @@ class CarrySelectCompoundAdder extends CompoundAdder {
 
   /// Constructs a [CarrySelectCompoundAdder].
   CarrySelectCompoundAdder(super.a, super.b,
-      {super.name = 'cs_compound_adder',
+      {Adder Function(Logic a, Logic b, {Logic? carryIn, String name})
+          adderGen = ParallelPrefixAdder.new,
+      super.carryIn,
+      super.name = 'cs_compound_adder',
       List<int> Function(int) widthGen =
           splitSelectAdderAlgorithmSingleBlock}) {
     // output bits lists
@@ -84,20 +91,20 @@ class CarrySelectCompoundAdder extends CompoundAdder {
       // input width of current ripple-carry adder block
       final blockWidth = adderSplit[i];
       if (blockWidth <= 0) {
-        throw RohdHclException('non-positive ripple-carry adder block size.');
+        throw RohdHclException('non-positive adder block size.');
       }
       if (blockWidth + blockStartIdx > a.width) {
-        throw RohdHclException('oversized ripple-carry adders sequence.');
+        throw RohdHclException('oversized adders sequence.');
       }
       final blockA = Logic(name: 'block_${i}_a', width: blockWidth);
       final blockB = Logic(name: 'block_${i}_b', width: blockWidth);
       blockA <= a.getRange(blockStartIdx, blockStartIdx + blockWidth);
       blockB <= b.getRange(blockStartIdx, blockStartIdx + blockWidth);
       // Build ripple-carry adders for 0 and 1 carryin values
-      final fullAdder0 = RippleCarryAdder(blockA, blockB,
-          carryIn: Const(0), name: 'block0_$i');
-      final fullAdder1 = RippleCarryAdder(blockA, blockB,
-          carryIn: Const(1), name: 'block1_$i');
+      final fullAdder0 =
+          adderGen(blockA, blockB, carryIn: Const(0), name: 'block0_$i');
+      final fullAdder1 =
+          adderGen(blockA, blockB, carryIn: Const(1), name: 'block1_$i');
       for (var bitIdx = 0; bitIdx < blockWidth; ++bitIdx) {
         if (i == 0) {
           // connect directly to respective sum output bit

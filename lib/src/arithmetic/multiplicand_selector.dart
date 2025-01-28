@@ -1,4 +1,4 @@
-// Copyright (C) 2024 Intel Corporation
+// Copyright (C) 2024-2025 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 //
 // multiplicand_selector.dart
@@ -27,6 +27,9 @@ class MultiplicandSelector {
   /// Place to store [multiples] of the [multiplicand] (e.g. *1, *2, *-1, *-2..)
   late LogicArray multiples;
 
+  /// Multiples sliced into columns for select to access
+  late final multiplesSlice = <Logic>[];
+
   /// Build a [MultiplicandSelector] generationg required [multiples] of
   /// [multiplicand] to [select] using a [RadixEncoder] argument.
   ///
@@ -47,7 +50,7 @@ class MultiplicandSelector {
     }
     final width = multiplicand.width + shift;
     final numMultiples = radix ~/ 2;
-    multiples = LogicArray([numMultiples], width);
+    multiples = LogicArray([numMultiples], width, name: 'multiples');
     final Logic extendedMultiplicand;
     if (selectSignedMultiplicand == null) {
       extendedMultiplicand = signedMultiplicand
@@ -77,18 +80,36 @@ class MultiplicandSelector {
             _ => throw RohdHclException('Radix is beyond 16')
           };
     }
+    for (var c = 0; c < width; c++) {
+      multiplesSlice.add(getMultiples(c));
+    }
+  }
+
+  /// Compute the multiples of the multiplicand at current bit position
+  Logic getMultiples(int col) {
+    final columnMultiples = [
+      for (var i = 0; i < multiples.elements.length; i++)
+        multiples.elements[i][col]
+    ].swizzle().named('multiples_c$col', naming: Naming.mergeable);
+    return columnMultiples.reversed;
   }
 
   /// Retrieve the multiples of the multiplicand at current bit position
-  Logic getMultiples(int col) => [
-        for (var i = 0; i < multiples.elements.length; i++)
-          multiples.elements[i][col]
-      ].swizzle().reversed;
+  Logic fetchMultiples(int col) => multiplesSlice[col];
 
-  Logic _select(Logic multiples, RadixEncode encode) =>
-      (encode.multiples & multiples).or() ^ encode.sign;
+  // _select attempts to name signals that RadixEncode cannot due to trace
+  Logic _select(Logic multiples, RadixEncode encode) {
+    final eMultiples = encode.multiples
+        .named('encoded_multiple_r${encode.row}', naming: Naming.mergeable);
+    final eSign = encode.sign
+        .named('encode_sign_r${encode.row}', naming: Naming.mergeable);
+    return (eMultiples & multiples).or() ^ eSign;
+  }
 
   /// Select the partial product term from the multiples using a RadixEncode
-  Logic select(int col, RadixEncode encode) =>
-      _select(getMultiples(col), encode);
+  Logic select(int col, RadixEncode encode) {
+    final mults = fetchMultiples(col)
+        .named('select_r${encode.row}_c$col', naming: Naming.mergeable);
+    return _select(mults, encode);
+  }
 }

@@ -1,4 +1,4 @@
-// Copyright (C) 2023-2024 Intel Corporation
+// Copyright (C) 2023-2025 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 //
 // compound_adder_test.dart
@@ -74,6 +74,7 @@ void main() {
     final b = Logic(name: 'b', width: 10);
 
     final adder = CarrySelectCompoundAdder(a, b,
+        adderGen: RippleCarryAdder.new,
         widthGen: CarrySelectCompoundAdder.splitSelectAdderAlgorithm4Bit);
     await adder.build();
 

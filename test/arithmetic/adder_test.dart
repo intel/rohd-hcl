@@ -1,4 +1,4 @@
-// Copyright (C) 2023-2024 Intel Corporation
+// Copyright (C) 2023-2025 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 //
 // adder_test.dart
@@ -7,73 +7,82 @@
 // 2024 April 4
 // Author: Desmond Kirkpatrick <desmond.a.kirkpatrick@intel.com>
 
+// ignore_for_file: invalid_use_of_protected_member
+
 import 'dart:math';
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
 import 'package:test/test.dart';
 
-void checkAdder(Adder adder, LogicValue av, LogicValue bv) {
+void checkAdder(Adder adder, LogicValue av, LogicValue bv, LogicValue cv) {
   final aB = av.toBigInt();
   final bB = bv.toBigInt();
-  // ignore: invalid_use_of_protected_member
+  final cB = cv.toBigInt();
   adder.a.put(av);
-  // ignore: invalid_use_of_protected_member
   adder.b.put(bv);
-
-  expect(
-      adder.sum.value.toBigInt(),
-      // ignore: invalid_use_of_protected_member
-      // equals((aB + bB) & ((BigInt.one << adder.a.width) - BigInt.one)));
-      equals(aB + bB));
-  expect(adder.sum.value.toBigInt(), equals(aB + bB));
+  final BigInt golden;
+  if (adder.hasCarryIn) {
+    adder.carryIn!.put(cv);
+    golden = aB + bB + cB;
+  } else {
+    golden = aB + bB;
+  }
+  expect(adder.sum.value.toBigInt(), equals(golden));
 }
 
-void testExhaustive(int n, Adder Function(Logic a, Logic b) fn) {
-  final a = Logic(name: 'a', width: n);
-  final b = Logic(name: 'b', width: n);
+void testAdderRandomIter(int n, int nSamples, Adder adder) {
+  test('random ci: ${adder.name}_W${n}_I$nSamples', () async {
+    for (var i = 0; i < nSamples; i++) {
+      final aa = Random().nextLogicValue(width: n);
+      final bb = Random().nextLogicValue(width: n);
+      final cc = Random().nextLogicValue(width: 1);
+      checkAdder(adder, aa, bb, cc);
+    }
+  });
+}
 
-  final mod = fn(a, b);
+void testAdderExhaustiveIter(int n, Adder mod) {
   test(
-      'exhaustive: ${mod.name}_W$n'
-      '_G${fn.call(a, b).name}', () async {
-    await mod.build();
+      'exhaustive cin: ${mod.name}_W$n'
+      '_G${mod.name}', () async {
+    for (var aa = 0; aa < (1 << n); aa++) {
+      for (var bb = 0; bb < (1 << n); bb++) {
+        for (var cc = 0; cc < 2; cc++) {
+          final av = LogicValue.of(BigInt.from(aa), width: n);
+          final bv = LogicValue.of(BigInt.from(bb), width: n);
+          final cv = Random().nextLogicValue(width: 1);
 
-    for (var aa = 0; aa < (1 << n); ++aa) {
-      for (var bb = 0; bb < (1 << n); ++bb) {
-        final av = LogicValue.of(BigInt.from(aa), width: n);
-        final bv = LogicValue.of(BigInt.from(bb), width: n);
-        checkAdder(mod, av, bv);
+          checkAdder(mod, av, bv, cv);
+        }
       }
     }
   });
 }
 
-void testAdderRandom(int n, int nSamples, Adder Function(Logic a, Logic b) fn) {
-  final a = Logic(name: 'a', width: n);
-  final b = Logic(name: 'b', width: n);
+void testAdderRandom(
+    int n, int nSamples, Adder Function(Logic a, Logic b, {Logic? carryIn}) fn,
+    {bool testCarryIn = true}) {
+  testAdderRandomIter(
+      n,
+      nSamples,
+      fn(Logic(name: 'a', width: n), Logic(name: 'b', width: n),
+          carryIn: testCarryIn ? Logic(name: 'c') : null));
+}
 
-  final adder = fn(a, b);
-  test('random: ${adder.name}_W${a.width}_I$nSamples', () async {
-    await adder.build();
-
-    for (var i = 0; i < nSamples; ++i) {
-      final aa = Random().nextLogicValue(width: n);
-      final bb = Random().nextLogicValue(width: n);
-      checkAdder(adder, aa, bb);
-    }
-  });
+void testAdderExhaustive(
+    int n, Adder Function(Logic a, Logic b, {Logic? carryIn}) fn,
+    {bool testCarryIn = true}) {
+  testAdderExhaustiveIter(
+      n,
+      fn(Logic(name: 'a', width: n), Logic(name: 'b', width: n),
+          carryIn: testCarryIn ? Logic(name: 'c') : null));
 }
 
 void checkSignMagnitudeAdder(SignMagnitudeAdder adder, LogicValue aSign,
     LogicValue aMagnitude, LogicValue bSign, LogicValue bMagnitude) {
-  // ignore: invalid_use_of_protected_member
   adder.aSign.put(aSign);
-  // ignore: invalid_use_of_protected_member
   adder.bSign.put(bSign);
-
-  // ignore: invalid_use_of_protected_member
   adder.a.put(aMagnitude);
-  // ignore: invalid_use_of_protected_member
   adder.b.put(bMagnitude);
 
   final computedVal = (adder.sign.value == LogicValue.one)
@@ -93,7 +102,8 @@ void checkSignMagnitudeAdder(SignMagnitudeAdder adder, LogicValue aSign,
   expect(computedVal, equals(expectVal));
 }
 
-void testExhaustiveSignMagnitude(int n, Adder Function(Logic a, Logic b) fn,
+void testExhaustiveSignMagnitude(
+    int n, Adder Function(Logic a, Logic b, {Logic? carryIn}) fn,
     {bool operandsArePresorted = true}) {
   final aSign = Logic(name: 'aSign');
   final a = Logic(name: 'a', width: n);
@@ -105,8 +115,8 @@ void testExhaustiveSignMagnitude(int n, Adder Function(Logic a, Logic b) fn,
   test(
       'exhaustive Sign Magnitude: '
       '${adder.name}_W${a.width}_N$operandsArePresorted', () {
-    for (var i = 0; i < pow(2, n); i += 1) {
-      for (var j = 0; j < pow(2, n); j += 1) {
+    for (var i = 0; i < pow(2, n); i++) {
+      for (var j = 0; j < pow(2, n); j++) {
         final bI = BigInt.from(i).toSigned(n);
         final bJ = BigInt.from(j).toSigned(n);
 
@@ -134,8 +144,8 @@ void testExhaustiveSignMagnitude(int n, Adder Function(Logic a, Logic b) fn,
   });
 }
 
-void testRandomSignMagnitude(
-    int width, int nSamples, Adder Function(Logic a, Logic b) fn,
+void testRandomSignMagnitude(int width, int nSamples,
+    Adder Function(Logic a, Logic b, {Logic? carryIn}) fn,
     {bool sortOperands = true}) {
   final aSign = Logic(name: 'aSign');
   final a = Logic(name: 'a', width: width);
@@ -148,7 +158,7 @@ void testRandomSignMagnitude(
       () async {
     await adder.build();
 
-    for (var i = 0; i < nSamples; ++i) {
+    for (var i = 0; i < nSamples; i++) {
       final aa = Random().nextLogicValue(width: width);
       final av = aa.toBigInt().toSigned(width);
       final bb = Random().nextLogicValue(width: width);
@@ -184,29 +194,52 @@ void main() {
 
   final generators = [Ripple.new, Sklansky.new, KoggeStone.new, BrentKung.new];
 
-  group('adderRandom', () {
-    for (final n in [64, 64, 65]) {
-      testAdderRandom(n, 30, RippleCarryAdder.new);
+  final adders = [
+    RippleCarryAdder.new,
+    NativeAdder.new,
+  ];
+
+  group('adder random', () {
+    for (final n in [63, 64, 65]) {
+      for (final testCin in [false, true]) {
+        for (final adder in adders) {
+          testAdderRandom(n, 30, adder, testCarryIn: testCin);
+        }
+        for (final ppGen in generators) {
+          testAdderRandom(
+              n,
+              30,
+              (a, b, {carryIn}) =>
+                  ParallelPrefixAdder(a, b, ppGen: ppGen, carryIn: carryIn),
+              testCarryIn: testCin);
+        }
+      }
+      testAdderRandom(
+          n, 30, (a, b, {carryIn}) => CarrySelectCompoundAdder(a, b));
+    }
+  });
+  group('adder exhaustive', () {
+    for (final testCin in [false, true]) {
+      testAdderExhaustive(4, RippleCarryAdder.new, testCarryIn: testCin);
       for (final ppGen in generators) {
-        testAdderRandom(
-            n, 30, (a, b) => ParallelPrefixAdder(a, b, ppGen: ppGen));
+        testAdderExhaustive(
+            4,
+            (a, b, {carryIn}) =>
+                ParallelPrefixAdder(a, b, ppGen: ppGen, carryIn: carryIn),
+            testCarryIn: testCin);
       }
     }
+    testAdderExhaustive(4, (a, b, {carryIn}) => CarrySelectCompoundAdder(a, b));
   });
-  group('exhaustive', () {
-    testExhaustive(4, RippleCarryAdder.new);
-    for (final ppGen in generators) {
-      testExhaustive(4, (a, b) => ParallelPrefixAdder(a, b, ppGen: ppGen));
-    }
-  });
+
   group('SignMagnitude random', () {
     for (final ppGen in generators) {
       testRandomSignMagnitude(4, 30, RippleCarryAdder.new);
       testRandomSignMagnitude(4, 30, RippleCarryAdder.new, sortOperands: false);
       testRandomSignMagnitude(
-          4, 30, (a, b) => ParallelPrefixAdder(a, b, ppGen: ppGen));
+          4, 30, (a, b, {carryIn}) => ParallelPrefixAdder(a, b, ppGen: ppGen));
       testRandomSignMagnitude(
-          4, 30, (a, b) => ParallelPrefixAdder(a, b, ppGen: ppGen),
+          4, 30, (a, b, {carryIn}) => ParallelPrefixAdder(a, b, ppGen: ppGen),
           sortOperands: false);
     }
   });
@@ -216,12 +249,13 @@ void main() {
       testExhaustiveSignMagnitude(4, RippleCarryAdder.new,
           operandsArePresorted: false);
       testExhaustiveSignMagnitude(
-          4, (a, b) => ParallelPrefixAdder(a, b, ppGen: ppGen));
+          4, (a, b, {carryIn}) => ParallelPrefixAdder(a, b, ppGen: ppGen));
       testExhaustiveSignMagnitude(
-          4, (a, b) => ParallelPrefixAdder(a, b, ppGen: ppGen),
+          4, (a, b, {carryIn}) => ParallelPrefixAdder(a, b, ppGen: ppGen),
           operandsArePresorted: false);
     }
   });
+
   test('trivial parallel prefix adder test', () async {
     const width = 6;
     final a = Logic(name: 'a', width: width);
@@ -282,6 +316,22 @@ void main() {
         }
       }
     }
+  });
+
+  test('ones complement subtractor', () {
+    const width = 5;
+    final a = Logic(width: width);
+    final b = Logic(width: width);
+
+    const subtract = true;
+    const av = 1;
+    const bv = 6;
+
+    a.put(av);
+    b.put(bv);
+    final adder = OnesComplementAdder(a, b, subtract: subtract);
+    expect(adder.sum.value.toInt(), equals(bv - av));
+    expect(adder.sign.value, LogicValue.one);
   });
 
   test('ones complement with Logic subtract', () {

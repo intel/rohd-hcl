@@ -9,6 +9,7 @@
 //  Max Korbel <max.korbel@intel.com>
 //  Desmond A Kirkpatrick <desmond.a.kirkpatrick@intel.com>
 
+import 'dart:math';
 import 'dart:typed_data';
 import 'package:meta/meta.dart';
 import 'package:rohd/rohd.dart';
@@ -70,6 +71,15 @@ class FloatingPoint32Value extends FloatingPointValue {
       : super.ofInts(
             exponentWidth: exponentWidth, mantissaWidth: mantissaWidth);
 
+  /// Generate a random [FloatingPoint32Value], supplying random seed [rv].
+  factory FloatingPoint32Value.random(Random rv, {bool normal = false}) {
+    final randFloat = FloatingPointValue.random(rv,
+        exponentWidth: exponentWidth,
+        mantissaWidth: mantissaWidth,
+        normal: normal);
+    return FloatingPoint32Value.ofLogicValue(randFloat.value);
+  }
+
   /// Numeric conversion of a [FloatingPoint32Value] from a host double
   factory FloatingPoint32Value.ofDouble(double inDouble) {
     final byteData = ByteData(4)..setFloat32(0, inDouble);
@@ -82,6 +92,15 @@ class FloatingPoint32Value extends FloatingPointValue {
         sign: accum[-1],
         exponent: accum.slice(exponentWidth + mantissaWidth - 1, mantissaWidth),
         mantissa: accum.slice(mantissaWidth - 1, 0));
+  }
+
+  /// Convert a floating point number into a [FloatingPoint32Value]
+  /// representation. This form performs NO ROUNDING.
+  factory FloatingPoint32Value.ofDoubleUnrounded(double inDouble) {
+    final fpv = FloatingPointValue.ofDoubleUnrounded(inDouble,
+        exponentWidth: exponentWidth, mantissaWidth: mantissaWidth);
+
+    return FloatingPoint32Value.ofLogicValue(fpv.value);
   }
 
   /// Construct a [FloatingPoint32Value] from a Logic word
