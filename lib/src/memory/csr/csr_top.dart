@@ -19,8 +19,11 @@ import 'package:rohd_hcl/rohd_hcl.dart';
 /// MSBs of the incoming address and registers within the given block
 /// are addressable using the remaining LSBs of the incoming address.
 class CsrTop extends Module {
+  // private config object
+  final CsrTopConfig _config;
+
   /// Configuration for the CSR Top module.
-  final CsrTopConfig config;
+  CsrTopConfig get config => _config.clone();
 
   /// List of CSR blocks in this module.
   final List<CsrBlock> _blocks = [];
@@ -59,10 +62,10 @@ class CsrTop extends Module {
   /// Accessor to the backdoor ports of a particular register [reg]
   /// within the block [block].
   CsrBackdoorInterface getBackdoorPortsByName(String block, String reg) {
-    final idx = config.blocks.indexOf(config.getBlockByName(block));
+    final idx = _config.blocks.indexOf(_config.getBlockByName(block));
     if (idx >= 0 && idx < backdoorInterfaces.length) {
-      final idx1 = config.blocks[idx].registers
-          .indexOf(config.blocks[idx].getRegisterByName(reg));
+      final idx1 = _config.blocks[idx].registers
+          .indexOf(_config.blocks[idx].getRegisterByName(reg));
       if (_backdoorIndexMaps[idx].containsKey(idx1)) {
         return backdoorInterfaces[idx][_backdoorIndexMaps[idx][idx1]!];
       } else {
@@ -76,10 +79,10 @@ class CsrTop extends Module {
   /// Accessor to the backdoor ports of a particular register
   /// using its address [regAddr] within the block with address [blockAddr].
   CsrBackdoorInterface getBackdoorPortsByAddr(int blockAddr, int regAddr) {
-    final idx = config.blocks.indexOf(config.getBlockByAddr(blockAddr));
+    final idx = _config.blocks.indexOf(_config.getBlockByAddr(blockAddr));
     if (idx >= 0 && idx < backdoorInterfaces.length) {
-      final idx1 = config.blocks[idx].registers
-          .indexOf(config.blocks[idx].getRegisterByAddr(regAddr));
+      final idx1 = _config.blocks[idx].registers
+          .indexOf(_config.blocks[idx].getRegisterByAddr(regAddr));
       if (_backdoorIndexMaps[idx].containsKey(idx1)) {
         return backdoorInterfaces[idx][_backdoorIndexMaps[idx][idx1]!];
       } else {
@@ -108,13 +111,14 @@ class CsrTop extends Module {
       );
 
   CsrTop._({
-    required this.config,
+    required CsrTopConfig config,
     required Logic clk,
     required Logic reset,
     required DataPortInterface fdw,
     required DataPortInterface fdr,
-  }) : super(name: config.name) {
-    config.validate();
+  })  : _config = config.clone(),
+        super(name: config.name) {
+    _config.validate();
 
     _clk = addInput('${name}_clk', clk);
     _reset = addInput('${name}_reset', reset);
@@ -132,7 +136,7 @@ class CsrTop extends Module {
 
     _validate();
 
-    for (final block in config.blocks) {
+    for (final block in _config.blocks) {
       _fdWrites.add(DataPortInterface(fdw.dataWidth, blockOffsetWidth));
       _fdReads.add(DataPortInterface(fdr.dataWidth, blockOffsetWidth));
       _blocks.add(CsrBlock(block, _clk, _reset, _fdWrites.last, _fdReads.last));
@@ -177,26 +181,26 @@ class CsrTop extends Module {
     // the biggest register across all blocks
     // address width must be at least wide enough
     //to address all registers in all blocks
-    if (_frontRead.dataWidth < config.maxRegWidth()) {
+    if (_frontRead.dataWidth < _config.maxRegWidth()) {
       throw CsrValidationException(
           'Frontdoor read interface data width must be '
-          'at least ${config.maxRegWidth()}.');
+          'at least ${_config.maxRegWidth()}.');
     }
-    if (_frontWrite.dataWidth < config.maxRegWidth()) {
+    if (_frontWrite.dataWidth < _config.maxRegWidth()) {
       throw CsrValidationException(
           'Frontdoor write interface data width must be '
-          'at least ${config.maxRegWidth()}.');
+          'at least ${_config.maxRegWidth()}.');
     }
-    if (_frontRead.addrWidth < config.minAddrBits() ||
+    if (_frontRead.addrWidth < _config.minAddrBits() ||
         _frontRead.addrWidth < blockOffsetWidth) {
       throw CsrValidationException(
           'Frontdoor read interface address width must be '
-          'at least ${max(config.minAddrBits(), blockOffsetWidth)}.');
+          'at least ${max(_config.minAddrBits(), blockOffsetWidth)}.');
     }
-    if (_frontWrite.dataWidth < config.minAddrBits()) {
+    if (_frontWrite.dataWidth < _config.minAddrBits()) {
       throw CsrValidationException(
           'Frontdoor write interface address width must be '
-          'at least ${max(config.minAddrBits(), blockOffsetWidth)}.');
+          'at least ${max(_config.minAddrBits(), blockOffsetWidth)}.');
     }
   }
 

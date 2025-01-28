@@ -23,8 +23,11 @@ enum CsrBackdoorPortGroup {
 ///
 /// Can be used for either read, write or both directions.
 class CsrBackdoorInterface extends Interface<CsrBackdoorPortGroup> {
+  // private config object
+  final CsrInstanceConfig _config;
+
   /// Configuration for the associated CSR.
-  final CsrInstanceConfig config;
+  CsrInstanceConfig get config => _config.clone();
 
   /// Should this CSR be readable by the HW.
   final bool hasRead;
@@ -36,25 +39,26 @@ class CsrBackdoorInterface extends Interface<CsrBackdoorPortGroup> {
   final int dataWidth;
 
   /// The read data from the CSR.
-  Csr? get rdData => tryPort(config.name) as Csr?;
+  Csr? get rdData => tryPort(_config.name) as Csr?;
 
   /// Write the CSR in this cycle.
-  Logic? get wrEn => tryPort('${config.name}_wrEn');
+  Logic? get wrEn => tryPort('${_config.name}_wrEn');
 
   /// Data to write to the CSR in this cycle.
-  Logic? get wrData => tryPort('${config.name}_wrData');
+  Logic? get wrData => tryPort('${_config.name}_wrData');
 
   /// Constructs a new interface of specified [dataWidth]
   /// and conditionally instantiates read and writes ports based on
   /// [hasRead] and [hasWrite].
   CsrBackdoorInterface({
-    required this.config,
-  })  : dataWidth = config.width,
+    required CsrInstanceConfig config,
+  })  : _config = config.clone(),
+        dataWidth = config.width,
         hasRead = config.isBackdoorReadable,
         hasWrite = config.isBackdoorWritable {
     if (hasRead) {
       setPorts([
-        Csr(config),
+        Csr(_config),
       ], [
         CsrBackdoorPortGroup.read,
       ]);
@@ -62,8 +66,8 @@ class CsrBackdoorInterface extends Interface<CsrBackdoorPortGroup> {
 
     if (hasWrite) {
       setPorts([
-        Port('${config.name}_wrEn'),
-        Port('${config.name}_wrData', dataWidth),
+        Port('${_config.name}_wrEn'),
+        Port('${_config.name}_wrData', dataWidth),
       ], [
         CsrBackdoorPortGroup.write,
       ]);
@@ -71,7 +75,7 @@ class CsrBackdoorInterface extends Interface<CsrBackdoorPortGroup> {
   }
 
   /// Makes a copy of this [Interface] with matching configuration.
-  CsrBackdoorInterface clone() => CsrBackdoorInterface(config: config);
+  CsrBackdoorInterface clone() => CsrBackdoorInterface(config: _config.clone());
 }
 
 /// Logic representation of a block of registers.
@@ -80,8 +84,11 @@ class CsrBackdoorInterface extends Interface<CsrBackdoorPortGroup> {
 /// readable and writable through an addressing scheme
 /// that is relative (offset from) the base address of the block.
 class CsrBlock extends Module {
+  // private config object
+  final CsrBlockConfig _config;
+
   /// Configuration for the CSR block.
-  final CsrBlockConfig config;
+  CsrBlockConfig get config => _config.clone();
 
   /// CSRs in this block.
   final List<Csr> csrs;
@@ -137,14 +144,15 @@ class CsrBlock extends Module {
 
   /// Constructor for a CSR block.
   CsrBlock._({
-    required this.config,
+    required CsrBlockConfig config,
     required this.csrs,
     required Logic clk,
     required Logic reset,
     required DataPortInterface fdw,
     required DataPortInterface fdr,
-  }) : super(name: config.name) {
-    config.validate();
+  })  : _config = config.clone(),
+        super(name: config.name) {
+    _config.validate();
 
     _clk = addInput('${name}_clk', clk);
     _reset = addInput('${name}_reset', reset);
@@ -191,23 +199,23 @@ class CsrBlock extends Module {
   /// Accessor to the backdoor ports of a particular register
   /// within the block by name [name].
   CsrBackdoorInterface getBackdoorPortsByName(String name) {
-    final idx = config.registers.indexOf(config.getRegisterByName(name));
+    final idx = _config.registers.indexOf(_config.getRegisterByName(name));
     if (_backdoorIndexMap.containsKey(idx)) {
       return backdoorInterfaces[_backdoorIndexMap[idx]!];
     } else {
-      throw Exception('Register $name not found in block ${config.name}');
+      throw Exception('Register $name not found in block ${_config.name}');
     }
   }
 
   /// Accessor to the backdoor ports of a particular register
   /// within the block by relative address [addr].
   CsrBackdoorInterface getBackdoorPortsByAddr(int addr) {
-    final idx = config.registers.indexOf(config.getRegisterByAddr(addr));
+    final idx = _config.registers.indexOf(_config.getRegisterByAddr(addr));
     if (_backdoorIndexMap.containsKey(idx)) {
       return backdoorInterfaces[_backdoorIndexMap[idx]!];
     } else {
       throw Exception(
-          'Register address $addr not found in block ${config.name}');
+          'Register address $addr not found in block ${_config.name}');
     }
   }
 
@@ -217,25 +225,25 @@ class CsrBlock extends Module {
     // data width must be at least as wide as the biggest register in the block
     // address width must be at least wide enough
     // to address all registers in the block
-    if (_frontRead.dataWidth < config.maxRegWidth()) {
+    if (_frontRead.dataWidth < _config.maxRegWidth()) {
       throw CsrValidationException(
           'Frontdoor read interface data width must be '
-          'at least ${config.maxRegWidth()}.');
+          'at least ${_config.maxRegWidth()}.');
     }
-    if (_frontWrite.dataWidth < config.maxRegWidth()) {
+    if (_frontWrite.dataWidth < _config.maxRegWidth()) {
       throw CsrValidationException(
           'Frontdoor write interface data width must be '
-          'at least ${config.maxRegWidth()}.');
+          'at least ${_config.maxRegWidth()}.');
     }
-    if (_frontRead.addrWidth < config.minAddrBits()) {
+    if (_frontRead.addrWidth < _config.minAddrBits()) {
       throw CsrValidationException(
           'Frontdoor read interface address width must be '
-          'at least ${config.minAddrBits()}.');
+          'at least ${_config.minAddrBits()}.');
     }
-    if (_frontWrite.dataWidth < config.minAddrBits()) {
+    if (_frontWrite.dataWidth < _config.minAddrBits()) {
       throw CsrValidationException(
           'Frontdoor write interface address width must be '
-          'at least ${config.minAddrBits()}.');
+          'at least ${_config.minAddrBits()}.');
     }
   }
 
@@ -253,7 +261,7 @@ class CsrBlock extends Module {
         [
           If.block([
             // frontdoor write takes highest priority
-            if (config.registers[i].isFrontdoorWritable)
+            if (_config.registers[i].isFrontdoorWritable)
               ElseIf(
                   _frontWrite.en &
                       _frontWrite.addr

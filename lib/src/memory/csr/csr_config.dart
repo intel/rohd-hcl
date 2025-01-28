@@ -126,6 +126,15 @@ class CsrFieldConfig {
       }
     }
   }
+
+  /// Deep clone method.
+  CsrFieldConfig clone() => CsrFieldConfig(
+        start: start,
+        width: width,
+        name: name,
+        access: access,
+        resetValue: resetValue,
+      )..legalValues.addAll(legalValues);
 }
 
 /// Configuration for an architectural register.
@@ -187,7 +196,7 @@ class CsrConfig {
   /// Helper to derive a reset value for the register from its fields.
   ///
   /// Only should be used if a reset value isn't explicitly provided.
-  int resetValueFromFields() {
+  int _resetValueFromFields() {
     var rv = 0;
     for (final field in fields) {
       rv |= field.resetValue << field.start;
@@ -234,6 +243,17 @@ class CsrConfig {
       throw CsrValidationException(issues.join('\n'));
     }
   }
+
+  /// Deep clone method.
+  CsrConfig clone() => CsrConfig(
+        name: name,
+        access: access,
+        resetValue: resetValue,
+        isFrontdoorReadable: isFrontdoorReadable,
+        isFrontdoorWritable: isFrontdoorWritable,
+        isBackdoorReadable: isBackdoorReadable,
+        isBackdoorWritable: isBackdoorWritable,
+      )..fields.addAll(fields.map((e) => e.clone()));
 }
 
 /// Configuration for a register instance.
@@ -262,7 +282,7 @@ class CsrInstanceConfig {
   CsrAccess get access => arch.access;
 
   /// Accessor to the architectural reset value of the register.
-  int get resetValue => arch.resetValue ?? arch.resetValueFromFields();
+  int get resetValue => arch.resetValue ?? arch._resetValueFromFields();
 
   /// Accessor to the architectural frontdoor readability of the register.
   bool get isFrontdoorReadable => arch.isFrontdoorReadable;
@@ -343,6 +363,13 @@ class CsrInstanceConfig {
           'Register width implied by its fields exceeds true register width.');
     }
   }
+
+  /// Deep clone method.
+  CsrInstanceConfig clone() => CsrInstanceConfig(
+        arch: arch.clone(),
+        addr: addr,
+        width: width,
+      );
 }
 
 /// Definition for a coherent block of registers.
@@ -431,6 +458,12 @@ class CsrBlockConfig {
     }
     return maxWidth;
   }
+
+  /// Deep clone method.
+  CsrBlockConfig clone() => CsrBlockConfig(
+        name: name,
+        baseAddr: baseAddr,
+      )..registers.addAll(registers.map((e) => e.clone()));
 }
 
 /// Definition for a top level module containing CSR blocks.
@@ -546,4 +579,10 @@ class CsrTopConfig {
     }
     return maxWidth;
   }
+
+  /// Deep clone method.
+  CsrTopConfig clone() => CsrTopConfig(
+        name: name,
+        blockOffsetWidth: blockOffsetWidth,
+      )..blocks.addAll(blocks.map((e) => e.clone()));
 }
