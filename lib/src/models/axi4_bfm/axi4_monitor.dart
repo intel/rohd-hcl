@@ -89,11 +89,12 @@ class Axi4Monitor extends Monitor<Axi4RequestPacket> {
         if (targIdx >= 0 && _pendingReadRequests.length > targIdx) {
           _pendingReadResponseData[targIdx].add(rIntf.rData.previousValue!);
           if (rIntf.rLast?.value.toBool() ?? true) {
-            _pendingReadRequests[targIdx].complete(
-              data: _pendingReadResponseData[targIdx],
-              resp: rIntf.rResp?.previousValue,
-              user: rIntf.rUser?.previousValue,
-            );
+            add(_pendingReadRequests[targIdx]
+              ..complete(
+                data: _pendingReadResponseData[targIdx],
+                resp: rIntf.rResp?.previousValue,
+                user: rIntf.rUser?.previousValue,
+              ));
             _pendingReadRequests.removeAt(targIdx);
             _pendingReadResponseData.removeAt(targIdx);
           }
@@ -146,10 +147,11 @@ class Axi4Monitor extends Monitor<Axi4RequestPacket> {
               element.id!.toInt() == wIntf.bId!.previousValue!.toInt());
         }
         if (targIdx >= 0 && _pendingWriteRequests.length > targIdx) {
-          _pendingWriteRequests[targIdx].complete(
-            resp: wIntf.bResp?.previousValue,
-            user: wIntf.bUser?.previousValue,
-          );
+          add(_pendingWriteRequests[targIdx]
+            ..complete(
+              resp: wIntf.bResp?.previousValue,
+              user: wIntf.bUser?.previousValue,
+            ));
           _pendingWriteRequests.removeAt(targIdx);
         }
       }
