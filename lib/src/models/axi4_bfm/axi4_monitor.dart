@@ -54,7 +54,9 @@ class Axi4Monitor extends Monitor<Axi4RequestPacket> {
 
     sIntf.clk.posedge.listen((event) {
       // read request monitoring
-      if (rIntf.arValid.previousValue!.toBool() &&
+      if (rIntf.arValid.previousValue!.isValid &&
+          rIntf.arReady.previousValue!.isValid &&
+          rIntf.arValid.previousValue!.toBool() &&
           rIntf.arReady.previousValue!.toBool()) {
         _pendingReadRequests.add(
           Axi4ReadRequestPacket(
@@ -75,14 +77,16 @@ class Axi4Monitor extends Monitor<Axi4RequestPacket> {
       }
 
       // read response data monitoring
-      if (rIntf.rValid.previousValue!.toBool() &&
+      if (rIntf.rValid.previousValue!.isValid &&
+          rIntf.rReady.previousValue!.isValid &&
+          rIntf.rValid.previousValue!.toBool() &&
           rIntf.rReady.previousValue!.toBool()) {
         var targIdx = 0;
         if (rIntf.rId != null) {
           targIdx = _pendingReadRequests.indexWhere((element) =>
-              element.id!.toBigInt() == rIntf.rId!.previousValue!.toBigInt());
+              element.id!.toInt() == rIntf.rId!.previousValue!.toInt());
         }
-        if (_pendingReadRequests.length > targIdx) {
+        if (targIdx >= 0 && _pendingReadRequests.length > targIdx) {
           _pendingReadResponseData[targIdx].add(rIntf.rData.previousValue!);
           if (rIntf.rLast?.value.toBool() ?? true) {
             _pendingReadRequests[targIdx].complete(
@@ -97,9 +101,11 @@ class Axi4Monitor extends Monitor<Axi4RequestPacket> {
       }
 
       // write request monitoring
-      if (wIntf.awValid.previousValue!.toBool() &&
+      if (wIntf.awValid.previousValue!.isValid &&
+          wIntf.awReady.previousValue!.isValid &&
+          wIntf.awValid.previousValue!.toBool() &&
           wIntf.awReady.previousValue!.toBool()) {
-        add(
+        _pendingWriteRequests.add(
           Axi4WriteRequestPacket(
               addr: wIntf.awAddr.previousValue!,
               prot: wIntf.awProt.previousValue!,
@@ -119,27 +125,32 @@ class Axi4Monitor extends Monitor<Axi4RequestPacket> {
 
       // write data monitoring
       // NOTE: not dealing with WLAST here b/c it is implicit in how the interface behaves
-      if (wIntf.wValid.previousValue!.toBool() &&
+      if (wIntf.wValid.previousValue!.isValid &&
+          wIntf.wReady.previousValue!.isValid &&
+          wIntf.wValid.previousValue!.toBool() &&
           wIntf.wReady.previousValue!.toBool()) {
         final targIdx = _pendingWriteRequests.length - 1;
         _pendingWriteRequests[targIdx].data.add(wIntf.wData.previousValue!);
-        _pendingWriteRequests[targIdx].strobe.add(wIntf.wStrb.previousValue);
+        _pendingWriteRequests[targIdx].strobe.add(wIntf.wStrb.previousValue!);
         _pendingWriteRequests[targIdx].wUser = wIntf.wUser?.previousValue;
       }
 
       // write response monitoring
-      if (wIntf.bValid.previousValue!.toBool() &&
+      if (wIntf.bValid.previousValue!.isValid &&
+          wIntf.bReady.previousValue!.isValid &&
+          wIntf.bValid.previousValue!.toBool() &&
           wIntf.bReady.previousValue!.toBool()) {
         var targIdx = 0;
         if (wIntf.bId != null) {
           targIdx = _pendingWriteRequests.indexWhere((element) =>
-              element.id!.toBigInt() == wIntf.bId!.previousValue!.toBigInt());
+              element.id!.toInt() == wIntf.bId!.previousValue!.toInt());
         }
-        if (_pendingWriteRequests.length > targIdx) {
+        if (targIdx >= 0 && _pendingWriteRequests.length > targIdx) {
           _pendingWriteRequests[targIdx].complete(
             resp: wIntf.bResp?.previousValue,
             user: wIntf.bUser?.previousValue,
           );
+          _pendingWriteRequests.removeAt(targIdx);
         }
       }
     });

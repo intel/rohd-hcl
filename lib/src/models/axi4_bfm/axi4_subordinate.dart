@@ -14,7 +14,8 @@ import 'package:rohd_hcl/rohd_hcl.dart';
 import 'package:rohd_hcl/src/models/axi4_bfm/axi4_bfm.dart';
 import 'package:rohd_vf/rohd_vf.dart';
 
-/// A model for the subordinate side of an [Axi4ReadInterface] and [Axi4WriteInterface].
+/// A model for the subordinate side of
+/// an [Axi4ReadInterface] and [Axi4WriteInterface].
 class Axi4SubordinateAgent extends Agent {
   /// The system interface.
   final Axi4SystemInterface sIntf;
@@ -27,8 +28,8 @@ class Axi4SubordinateAgent extends Agent {
 
   /// A place where the subordinate should save and retrieve data.
   ///
-  /// The [Axi4SubordinateAgent] will reset [storage] whenever the `resetN` signal
-  /// is dropped.
+  /// The [Axi4SubordinateAgent] will reset [storage] whenever
+  /// the `resetN` signal is dropped.
   final MemoryStorage storage;
 
   /// A function which delays the response for the given `request`.
@@ -107,12 +108,14 @@ class Axi4SubordinateAgent extends Agent {
 
     while (!Simulator.simulationHasEnded) {
       await sIntf.clk.nextNegedge;
+      // WE EVENTUALLY GET STUCK WAITING FOR THIS NEGEDGE!!!
       _driveReadys();
       _respondRead();
       _respondWrite();
       _receiveRead();
       _captureWriteData();
       _receiveWrite();
+      print('BLAH2');
     }
   }
 
@@ -137,6 +140,8 @@ class Axi4SubordinateAgent extends Agent {
   void _receiveRead() {
     // work to do if main is indicating a valid read that we are ready to handle
     if (rIntf.arValid.value.toBool() && rIntf.arReady.value.toBool()) {
+      print('Received read request at time ${Simulator.time}');
+
       final packet = Axi4ReadRequestPacket(
           addr: rIntf.arAddr.value,
           prot: rIntf.arProt.value,
@@ -150,13 +155,13 @@ class Axi4SubordinateAgent extends Agent {
           region: rIntf.arRegion?.value,
           user: rIntf.arUser?.value);
 
-      // NOTE: generic model does not handle the following read request fields:
+      // generic model does not handle the following read request fields:
       //  cache
       //  qos
       //  region
       //  user
       // These can be handled in a derived class of this model if need be.
-      // Because for the most part they require implementation specific handling.
+      // Because they require implementation specific handling.
 
       // NOTE: generic model doesn't honor the prot field in read requests.
       // It will be added as a feature request in the future.
@@ -167,7 +172,7 @@ class Axi4SubordinateAgent extends Agent {
       // query storage to retrieve the data
       final data = <LogicValue>[];
       var addrToRead = rIntf.arAddr.value;
-      final endCount = rIntf.arLen?.value.toInt() ?? 1;
+      final endCount = (rIntf.arLen?.value.toInt() ?? 0) + 1;
       final dSize = (rIntf.arSize?.value.toInt() ?? 0) * 8;
       var increment = 0;
       if (rIntf.arBurst == null ||
@@ -207,6 +212,10 @@ class Axi4SubordinateAgent extends Agent {
       final last =
           _dataReadResponseIndex == _dataReadResponseDataQueue[0].length - 1;
 
+      print('HELLO JOSH');
+      print(_dataReadResponseIndex);
+      print(_dataReadResponseDataQueue[0].length);
+
       // TODO: how to deal with delays??
       // if (readResponseDelay != null) {
       //   final delayCycles = readResponseDelay!(packet);
@@ -230,10 +239,15 @@ class Axi4SubordinateAgent extends Agent {
         _dataReadResponseIndex = 0;
         _dataReadResponseMetadataQueue.removeAt(0);
         _dataReadResponseDataQueue.removeAt(0);
+
+        print('Finished sending read response at time ${Simulator.time}');
       } else {
         // move to the next chunk of data
         _dataReadResponseIndex++;
+        print('Still send the read response as of time ${Simulator.time}');
       }
+    } else {
+      rIntf.rValid.put(false);
     }
   }
 
@@ -241,6 +255,7 @@ class Axi4SubordinateAgent extends Agent {
   void _receiveWrite() {
     // work to do if main is indicating a valid write that we are ready to handle
     if (wIntf.awValid.value.toBool() && wIntf.awReady.value.toBool()) {
+      print('Received write request at time ${Simulator.time}');
       final packet = Axi4WriteRequestPacket(
           addr: wIntf.awAddr.value,
           prot: wIntf.awProt.value,
@@ -268,6 +283,7 @@ class Axi4SubordinateAgent extends Agent {
 
       // queue up the packet for further processing
       _writeMetadataQueue.add(packet);
+      print('JOSH1');
     }
   }
 
@@ -283,14 +299,18 @@ class Axi4SubordinateAgent extends Agent {
       packet.data.add(wIntf.wData.value);
       packet.strobe.add(wIntf.wStrb.value);
       if (wIntf.wLast.value.toBool()) {
+        print('JOSH3');
         _writeReadyToOccur = true;
       }
+      print('JOSH2');
     }
   }
 
   void _respondWrite() {
     // only work to do if we have received all of the data for our write request
+    print('JOSH5');
     if (_writeReadyToOccur) {
+      print('JOSH4');
       // only respond if the main is ready
       if (wIntf.bReady.value.toBool()) {
         final packet = _writeMetadataQueue[0];
@@ -312,13 +332,13 @@ class Axi4SubordinateAgent extends Agent {
         //   }
         // }
 
-        // NOTE: generic model does not handle the following write request fields:
+        // generic model does not handle the following write request fields:
         //  cache
         //  qos
         //  region
         //  user
         // These can be handled in a derived class of this model if need be.
-        // Because for the most part they require implementation specific handling.
+        // Because they require implementation specific handling.
 
         // NOTE: generic model doesn't honor the prot field in write requests.
         // It will be added as a feature request in the future.
@@ -351,7 +371,11 @@ class Axi4SubordinateAgent extends Agent {
         // pop this write response off the queue
         _writeMetadataQueue.removeAt(0);
         _writeReadyToOccur = false;
+
+        print('Sent write response at time ${Simulator.time}');
       }
+    } else {
+      wIntf.bValid.put(false);
     }
   }
 }

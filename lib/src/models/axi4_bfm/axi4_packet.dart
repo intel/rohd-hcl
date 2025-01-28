@@ -183,7 +183,7 @@ class Axi4WriteRequestPacket extends Axi4RequestPacket {
   final List<LogicValue> data;
 
   /// The strobe associated with this write.
-  final List<LogicValue?> strobe;
+  final List<LogicValue> strobe;
 
   /// The user metadata associated with this write.
   LogicValue? wUser;
@@ -195,6 +195,7 @@ class Axi4WriteRequestPacket extends Axi4RequestPacket {
     required super.addr,
     required super.prot,
     required this.data,
+    required this.strobe,
     super.id,
     super.len,
     super.size,
@@ -204,7 +205,6 @@ class Axi4WriteRequestPacket extends Axi4RequestPacket {
     super.qos,
     super.region,
     super.user,
-    this.strobe = const [],
     this.wUser,
   });
 
@@ -221,10 +221,7 @@ class Axi4WriteRequestPacket extends Axi4RequestPacket {
             .join();
       case Axi4Tracker.strbField:
         return strobe
-            .where(
-              (element) => element != null,
-            )
-            .map((d) => d!.toRadixString(radix: 16))
+            .map((d) => d.toRadixString(radix: 16))
             .toList()
             .reversed
             .join();

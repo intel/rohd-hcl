@@ -14,9 +14,9 @@ import 'package:rohd_hcl/src/interfaces/interfaces.dart';
 import 'package:rohd_hcl/src/models/axi4_bfm/axi4_bfm.dart';
 import 'package:rohd_vf/rohd_vf.dart';
 
-/// A driver for the [Axi4ReadInterface] and [Axi4WriteInterface] interfaces on the main side.
+/// A driver for the [Axi4ReadInterface] and [Axi4WriteInterface] interfaces.
 ///
-/// Driven read packets will update the returned data into the same packet.
+/// Driving from the perspective of the Main agent.
 class Axi4MainDriver extends PendingClockedDriver<Axi4RequestPacket> {
   /// AXI4 System Interface.
   final Axi4SystemInterface sIntf;
@@ -86,17 +86,22 @@ class Axi4MainDriver extends PendingClockedDriver<Axi4RequestPacket> {
     while (!Simulator.simulationHasEnded) {
       if (pendingSeqItems.isNotEmpty) {
         await _drivePacket(pendingSeqItems.removeFirst());
-      } else {}
+      } else {
+        await sIntf.clk.nextPosedge;
+      }
     }
   }
 
   /// Drives a packet onto the interface.
   Future<void> _drivePacket(Axi4RequestPacket packet) async {
+    print('Driving packet at time ${Simulator.time}');
     if (packet is Axi4ReadRequestPacket) {
       await _driveReadPacket(packet);
     } else if (packet is Axi4WriteRequestPacket) {
       await _driveWritePacket(packet);
-    } else {}
+    } else {
+      await sIntf.clk.nextPosedge;
+    }
   }
 
   // TODO: need a more robust way of driving the "ready" signals...

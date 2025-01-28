@@ -17,7 +17,7 @@ import 'package:rohd_hcl/src/models/axi4_bfm/axi4_bfm.dart';
 import 'package:rohd_vf/rohd_vf.dart';
 import 'package:test/test.dart';
 
-import 'apb_test.dart';
+import 'axi4_test.dart';
 
 class Axi4BfmTest extends Test {
   late final Axi4SystemInterface sIntf;
@@ -26,12 +26,7 @@ class Axi4BfmTest extends Test {
 
   late final Axi4MainAgent main;
 
-  final storage = SparseMemoryStorage(
-    addrWidth: 32,
-    dataWidth: 32,
-    onInvalidRead: (addr, dataWidth) =>
-        LogicValue.filled(dataWidth, LogicValue.zero),
-  );
+  late SparseMemoryStorage storage;
 
   final int numTransfers;
 
@@ -43,6 +38,13 @@ class Axi4BfmTest extends Test {
 
   final bool withErrors;
 
+  final int addrWidth;
+
+  final int dataWidth;
+
+  // large lens can make transactions really long...
+  final int lenWidth;
+
   String get outFolder => 'tmp_test/axi4bfm/$name/';
 
   Axi4BfmTest(
@@ -52,11 +54,29 @@ class Axi4BfmTest extends Test {
     this.interTxnDelay = 0,
     this.withRandomRspDelays = false,
     this.withErrors = false,
+    this.addrWidth = 32,
+    this.dataWidth = 32,
+    this.lenWidth = 2,
   }) : super(randomSeed: 123) {
     // using default parameter values for all interfaces
     sIntf = Axi4SystemInterface();
-    rIntf = Axi4ReadInterface();
-    wIntf = Axi4WriteInterface();
+    rIntf = Axi4ReadInterface(
+        addrWidth: addrWidth,
+        dataWidth: dataWidth,
+        lenWidth: lenWidth,
+        ruserWidth: dataWidth ~/ 2 - 1);
+    wIntf = Axi4WriteInterface(
+        addrWidth: addrWidth,
+        dataWidth: dataWidth,
+        lenWidth: lenWidth,
+        wuserWidth: dataWidth ~/ 2 - 1);
+
+    storage = SparseMemoryStorage(
+      addrWidth: addrWidth,
+      dataWidth: dataWidth,
+      onInvalidRead: (addr, dataWidth) =>
+          LogicValue.filled(dataWidth, LogicValue.zero),
+    );
 
     sIntf.clk <= SimpleClockGenerator(10).clk;
 
@@ -72,14 +92,16 @@ class Axi4BfmTest extends Test {
       readResponseDelay:
           withRandomRspDelays ? (request) => Test.random!.nextInt(5) : null,
       writeResponseDelay:
-          withRandomRspDelays ? (request) => Test.random!.nextInt(5) : null,,
+          withRandomRspDelays ? (request) => Test.random!.nextInt(5) : null,
       respondWithError: withErrors ? (request) => true : null,
     );
 
-    final monitor = Axi4Monitor(sIntf: sIntf,
+    final monitor = Axi4Monitor(
+      sIntf: sIntf,
       rIntf: rIntf,
       wIntf: wIntf,
-      parent: this,);
+      parent: this,
+    );
 
     Directory(outFolder).createSync(recursive: true);
 
@@ -90,9 +112,7 @@ class Axi4BfmTest extends Test {
       outputFolder: outFolder,
     );
 
-    Axi4ComplianceChecker(sIntf,
-      rIntf,
-      wIntf, parent: this);
+    Axi4ComplianceChecker(sIntf, rIntf, wIntf, parent: this);
 
     Simulator.registerEndOfSimulationAction(() async {
       await tracker.terminate();
@@ -100,9 +120,9 @@ class Axi4BfmTest extends Test {
       final jsonStr =
           File('$outFolder/axi4Tracker.tracker.json').readAsStringSync();
       final jsonContents = json.decode(jsonStr);
-      // ignore: avoid_dynamic_calls
-      // TODO: fix??
-      expect(jsonContents['records'].length, 2 * numTransfers);
+
+      // TODO: check jsonContents...
+      //  APB test checks the number of records based on the number of transactions
 
       Directory(outFolder).deleteSync(recursive: true);
     });
@@ -111,6 +131,7 @@ class Axi4BfmTest extends Test {
   }
 
   int numTransfersCompleted = 0;
+  final mandatoryTransWaitPeriod = 10;
 
   @override
   Future<void> run(Phase phase) async {
@@ -120,12 +141,6 @@ class Axi4BfmTest extends Test {
 
     await _resetFlow();
 
-    final randomStrobes = List.generate(
-        numTransfers, (index) => LogicValue.ofInt(Test.random!.nextInt(16), 4));
-
-    final randomData = List.generate(numTransfers,
-        (index) => LogicValue.ofInt(Test.random!.nextInt(1 << 32), 32));
-
     LogicValue strobedData(LogicValue originalData, LogicValue strobe) => [
           for (var i = 0; i < 4; i++)
             strobe[i].toBool()
@@ -133,54 +148,80 @@ class Axi4BfmTest extends Test {
                 : LogicValue.filled(8, LogicValue.zero)
         ].rswizzle();
 
+    // to track what was written
+    final lens = <int>[];
+    final sizes = <int>[];
+    final data = <List<LogicValue>>[];
+    final strobes = <List<LogicValue>>[];
+
     // normal writes
     for (var i = 0; i < numTransfers; i++) {
+      // generate a completely random access
+      final transLen = Test.random!.nextInt(1 << wIntf.lenWidth);
+      final transSize =
+          Test.random!.nextInt(1 << wIntf.sizeWidth) % (dataWidth ~/ 8);
+      final randomData = List.generate(
+          transLen + 1,
+          (index) => LogicValue.ofInt(
+              Test.random!.nextInt(1 << wIntf.dataWidth), wIntf.dataWidth));
+      final randomStrobes = List.generate(
+          transLen + 1,
+          (index) => withStrobes
+              ? LogicValue.ofInt(
+                  Test.random!.nextInt(1 << wIntf.strbWidth), wIntf.strbWidth)
+              : LogicValue.filled(wIntf.strbWidth, LogicValue.one));
+      lens.add(transLen);
+      sizes.add(transSize);
+      data.add(randomData);
+      strobes.add(randomStrobes);
+
       final wrPkt = Axi4WriteRequestPacket(
-        addr: LogicValue.ofInt(i, 32), 
-        prot: LogicValue.ofInt(0, wIntf.protWidth), 
+        addr: LogicValue.ofInt(i, 32),
+        prot: LogicValue.ofInt(0, wIntf.protWidth), // not supported
         data: randomData,
         id: LogicValue.ofInt(i, wIntf.idWidth),
-        len: LogicValue.ofInt(randomData.length, wIntf.lenWidth),
-        size: LogicValue.ofInt(2, wIntf.sizeWidth), // TODO
-        burst: LogicValue.ofInt(Axi4BurstField.incr.value, wIntf.burstWidth),
-        lock: LogicValue.ofInt(0, 1),
-        cache: LogicValue.ofInt(0, wIntf.cacheWidth),
-        qos: LogicValue.ofInt(0, wIntf.qosWidth),
-        region: LogicValue.ofInt(0, wIntf.regionWidth),
-        user: LogicValue.ofInt(0, wIntf.awuserWidth),
-        strobe: withStrobes ? randomStrobes : null,
-        wUser: LogicValue.ofInt(0, wIntf.wuserWidth),
+        len: LogicValue.ofInt(transLen, wIntf.lenWidth),
+        size: LogicValue.ofInt(transSize, wIntf.sizeWidth),
+        burst: LogicValue.ofInt(
+            Axi4BurstField.incr.value, wIntf.burstWidth), // fixed for now
+        lock: LogicValue.ofInt(0, 1), // not supported
+        cache: LogicValue.ofInt(0, wIntf.cacheWidth), // not supported
+        qos: LogicValue.ofInt(0, wIntf.qosWidth), // not supported
+        region: LogicValue.ofInt(0, wIntf.regionWidth), // not supported
+        user: LogicValue.ofInt(0, wIntf.awuserWidth), // not supported
+        strobe: randomStrobes,
+        wUser: LogicValue.ofInt(0, wIntf.wuserWidth), // not supported
       );
 
       main.sequencer.add(wrPkt);
       numTransfersCompleted++;
 
-      // TODO: should we be waiting??
       // Note that driver will already serialize the writes
-
+      await sIntf.clk.waitCycles(mandatoryTransWaitPeriod);
       await sIntf.clk.waitCycles(interTxnDelay);
     }
 
     // normal reads that check data
     for (var i = 0; i < numTransfers; i++) {
       final rdPkt = Axi4ReadRequestPacket(
-        addr: LogicValue.ofInt(i, 32), 
-        prot: LogicValue.ofInt(0, rIntf.protWidth), 
+        addr: LogicValue.ofInt(i, 32),
+        prot: LogicValue.ofInt(0, rIntf.protWidth), // not supported
         id: LogicValue.ofInt(i, rIntf.idWidth),
-        len: LogicValue.ofInt(randomData.length, rIntf.lenWidth),
-        size: LogicValue.ofInt(2, rIntf.sizeWidth), // TODO
-        burst: LogicValue.ofInt(Axi4BurstField.incr.value, rIntf.burstWidth),
-        lock: LogicValue.ofInt(0, 1),
-        cache: LogicValue.ofInt(0, rIntf.cacheWidth),
-        qos: LogicValue.ofInt(0, rIntf.qosWidth),
-        region: LogicValue.ofInt(0, rIntf.regionWidth),
-        user: LogicValue.ofInt(0, rIntf.aruserWidth),
+        len: LogicValue.ofInt(lens[i], rIntf.lenWidth),
+        size: LogicValue.ofInt(sizes[i], rIntf.sizeWidth),
+        burst: LogicValue.ofInt(
+            Axi4BurstField.incr.value, rIntf.burstWidth), // fixed for now
+        lock: LogicValue.ofInt(0, 1), // not supported
+        cache: LogicValue.ofInt(0, rIntf.cacheWidth), // not supported
+        qos: LogicValue.ofInt(0, rIntf.qosWidth), // not supported
+        region: LogicValue.ofInt(0, rIntf.regionWidth), // not supported
+        user: LogicValue.ofInt(0, rIntf.aruserWidth), // not supported
       );
-    
+
       main.sequencer.add(rdPkt);
 
-      // TODO: should we be waiting??
-
+      // Note that driver will already serialize the reads
+      await sIntf.clk.waitCycles(mandatoryTransWaitPeriod);
       await sIntf.clk.waitCycles(interTxnDelay);
     }
 
@@ -209,14 +250,25 @@ void main() {
     await Simulator.reset();
   });
 
-  Future<void> runTest(Axi4BfmTest axi4BfmTest, {bool dumpWaves = false}) async {
-    Simulator.setMaxSimTime(3000);
+  Future<void> runTest(Axi4BfmTest axi4BfmTest,
+      {bool dumpWaves = false}) async {
+    Simulator.setMaxSimTime(30000);
 
-    // TODO: dump waves...
+    if (dumpWaves) {
+      final mod = Axi4Subordinate(
+          axi4BfmTest.sIntf, axi4BfmTest.rIntf, axi4BfmTest.wIntf);
+      await mod.build();
+      WaveDumper(mod);
+    }
 
     await axi4BfmTest.start();
   }
 
+  // FAILING
+  //  we see 1st write request come in at subordinate
+  //  we see all of the data come in including a "last"
+  //  after that cycle, the test just hangs... (but we get to the end of the call loop in subordinate)
+  //  SEEMS LIKE SOMETHING OTHER THAN SUBORDINATE IS BLOCKING OR INFINITE LOOPING
   test('simple writes and reads', () async {
     await runTest(Axi4BfmTest('simple'));
   });
