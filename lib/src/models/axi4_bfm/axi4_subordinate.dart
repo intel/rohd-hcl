@@ -108,14 +108,12 @@ class Axi4SubordinateAgent extends Agent {
 
     while (!Simulator.simulationHasEnded) {
       await sIntf.clk.nextNegedge;
-      // WE EVENTUALLY GET STUCK WAITING FOR THIS NEGEDGE!!!
       _driveReadys();
       _respondRead();
       _respondWrite();
       _receiveRead();
       _captureWriteData();
       _receiveWrite();
-      print('BLAH2');
     }
   }
 
@@ -140,7 +138,7 @@ class Axi4SubordinateAgent extends Agent {
   void _receiveRead() {
     // work to do if main is indicating a valid read that we are ready to handle
     if (rIntf.arValid.value.toBool() && rIntf.arReady.value.toBool()) {
-      print('Received read request at time ${Simulator.time}');
+      logger.info('Received read request.');
 
       final packet = Axi4ReadRequestPacket(
           addr: rIntf.arAddr.value,
@@ -212,10 +210,6 @@ class Axi4SubordinateAgent extends Agent {
       final last =
           _dataReadResponseIndex == _dataReadResponseDataQueue[0].length - 1;
 
-      print('HELLO JOSH');
-      print(_dataReadResponseIndex);
-      print(_dataReadResponseDataQueue[0].length);
-
       // TODO: how to deal with delays??
       // if (readResponseDelay != null) {
       //   final delayCycles = readResponseDelay!(packet);
@@ -240,11 +234,11 @@ class Axi4SubordinateAgent extends Agent {
         _dataReadResponseMetadataQueue.removeAt(0);
         _dataReadResponseDataQueue.removeAt(0);
 
-        print('Finished sending read response at time ${Simulator.time}');
+        logger.info('Finished sending read response.');
       } else {
         // move to the next chunk of data
         _dataReadResponseIndex++;
-        print('Still send the read response as of time ${Simulator.time}');
+        logger.info('Still sending the read response.');
       }
     } else {
       rIntf.rValid.put(false);
@@ -253,9 +247,9 @@ class Axi4SubordinateAgent extends Agent {
 
   // handle an incoming write request
   void _receiveWrite() {
-    // work to do if main is indicating a valid write that we are ready to handle
+    // work to do if main is indicating a valid + ready write
     if (wIntf.awValid.value.toBool() && wIntf.awReady.value.toBool()) {
-      print('Received write request at time ${Simulator.time}');
+      logger.info('Received write request.');
       final packet = Axi4WriteRequestPacket(
           addr: wIntf.awAddr.value,
           prot: wIntf.awProt.value,
@@ -283,7 +277,6 @@ class Axi4SubordinateAgent extends Agent {
 
       // queue up the packet for further processing
       _writeMetadataQueue.add(packet);
-      print('JOSH1');
     }
   }
 
@@ -298,19 +291,17 @@ class Axi4SubordinateAgent extends Agent {
       final packet = _writeMetadataQueue[0];
       packet.data.add(wIntf.wData.value);
       packet.strobe.add(wIntf.wStrb.value);
+      logger.info('Captured write data.');
       if (wIntf.wLast.value.toBool()) {
-        print('JOSH3');
+        logger.info('Finished capturing write data.');
         _writeReadyToOccur = true;
       }
-      print('JOSH2');
     }
   }
 
   void _respondWrite() {
     // only work to do if we have received all of the data for our write request
-    print('JOSH5');
     if (_writeReadyToOccur) {
-      print('JOSH4');
       // only respond if the main is ready
       if (wIntf.bReady.value.toBool()) {
         final packet = _writeMetadataQueue[0];
@@ -358,12 +349,14 @@ class Axi4SubordinateAgent extends Agent {
           }
 
           for (var i = 0; i < packet.data.length; i++) {
-            final strobedData = _strobeData(
-                storage.readData(addrToWrite),
-                packet.data[i],
-                packet.strobe[i] ??
-                    LogicValue.filled(packet.data[i].width, LogicValue.one));
-            storage.writeData(addrToWrite, strobedData.getRange(0, dSize));
+            final rdData = storage.readData(addrToWrite);
+            final strobedData =
+                _strobeData(rdData, packet.data[i], packet.strobe[i]);
+            final wrData = (dSize < strobedData.width)
+                ? [strobedData.getRange(0, dSize), rdData.getRange(dSize)]
+                    .rswizzle()
+                : strobedData;
+            storage.writeData(addrToWrite, wrData);
             addrToWrite = addrToWrite + increment;
           }
         }
@@ -372,7 +365,7 @@ class Axi4SubordinateAgent extends Agent {
         _writeMetadataQueue.removeAt(0);
         _writeReadyToOccur = false;
 
-        print('Sent write response at time ${Simulator.time}');
+        logger.info('Sent write response.');
       }
     } else {
       wIntf.bValid.put(false);

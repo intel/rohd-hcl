@@ -481,7 +481,7 @@ class Axi4WriteInterface extends Interface<Axi4Direction> {
       if (awuserWidth > 0) Port('AWUSER', awuserWidth),
       Port('AWVALID'),
       Port('WDATA', dataWidth),
-      if (strbWidth > 0) Port('WSTRB', strbWidth),
+      Port('WSTRB', strbWidth),
       Port('WLAST'),
       if (wuserWidth > 0) Port('WUSER', wuserWidth),
       Port('WVALID'),
@@ -550,7 +550,7 @@ class Axi4WriteInterface extends Interface<Axi4Direction> {
   }
 }
 
-/// Helper to enumerate the encodings of the xRESP signal.
+/// Helper to enumerate the encodings of the xBURST signal.
 enum Axi4BurstField {
   /// Address remains constants.
   fixed(0x0),
@@ -558,7 +558,8 @@ enum Axi4BurstField {
   /// Address increments by the transfer size.
   incr(0x1),
 
-  /// Similar to incr, but wraps around to a lower boundary when a boundary is reached.
+  /// Similar to incr, but wraps around to a lower boundary point
+  /// when an upper boundary point is reached.
   wrap(0x2);
 
   /// Underlying value.

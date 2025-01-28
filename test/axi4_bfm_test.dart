@@ -117,14 +117,14 @@ class Axi4BfmTest extends Test {
     Simulator.registerEndOfSimulationAction(() async {
       await tracker.terminate();
 
-      final jsonStr =
-          File('$outFolder/axi4Tracker.tracker.json').readAsStringSync();
-      final jsonContents = json.decode(jsonStr);
+      // final jsonStr =
+      //     File('$outFolder/axi4Tracker.tracker.json').readAsStringSync();
+      // final jsonContents = json.decode(jsonStr);
 
-      // TODO: check jsonContents...
-      //  APB test checks the number of records based on the number of transactions
+      // // TODO: check jsonContents...
+      // //  APB test checks the number of records based on the number of transactions
 
-      Directory(outFolder).deleteSync(recursive: true);
+      // Directory(outFolder).deleteSync(recursive: true);
     });
 
     monitor.stream.listen(tracker.record);
@@ -141,12 +141,12 @@ class Axi4BfmTest extends Test {
 
     await _resetFlow();
 
-    LogicValue strobedData(LogicValue originalData, LogicValue strobe) => [
-          for (var i = 0; i < 4; i++)
-            strobe[i].toBool()
-                ? originalData.getRange(i * 8, i * 8 + 8)
-                : LogicValue.filled(8, LogicValue.zero)
-        ].rswizzle();
+    // LogicValue strobedData(LogicValue originalData, LogicValue strobe) => [
+    //       for (var i = 0; i < 4; i++)
+    //         strobe[i].toBool()
+    //             ? originalData.getRange(i * 8, i * 8 + 8)
+    //             : LogicValue.filled(8, LogicValue.zero)
+    //     ].rswizzle();
 
     // to track what was written
     final lens = <int>[];
@@ -219,6 +219,7 @@ class Axi4BfmTest extends Test {
       );
 
       main.sequencer.add(rdPkt);
+      numTransfersCompleted++;
 
       // Note that driver will already serialize the reads
       await sIntf.clk.waitCycles(mandatoryTransWaitPeriod);
@@ -264,11 +265,6 @@ void main() {
     await axi4BfmTest.start();
   }
 
-  // FAILING
-  //  we see 1st write request come in at subordinate
-  //  we see all of the data come in including a "last"
-  //  after that cycle, the test just hangs... (but we get to the end of the call loop in subordinate)
-  //  SEEMS LIKE SOMETHING OTHER THAN SUBORDINATE IS BLOCKING OR INFINITE LOOPING
   test('simple writes and reads', () async {
     await runTest(Axi4BfmTest('simple'));
   });
