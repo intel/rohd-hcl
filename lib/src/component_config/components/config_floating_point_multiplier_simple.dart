@@ -38,9 +38,28 @@ class FloatingPointMultiplierSimpleConfigurator extends Configurator {
     BrentKung: BrentKung.new
   };
 
+  /// Map from Type to Function for Mantissa Multiplier
+  static Map<
+      Type,
+      Multiplier Function(Logic term1, Logic term2,
+          {Logic? clk,
+          Logic? reset,
+          Logic? enable,
+          String name})> multGeneratorMap = {
+    NativeMultiplier: NativeMultiplier.new,
+    CompressionTreeMultiplier: (term1, term2,
+            {Logic? clk, Logic? reset, Logic? enable, String? name}) =>
+        CompressionTreeMultiplier(term1, term2, 4, name: name!)
+    // TODO(desmonddak): put tree type, adder type, and radix options here
+  };
+
   /// Controls the type of [Adder] used for internal adders.
   final adderTypeKnob =
       ChoiceConfigKnob(adderGeneratorMap.keys.toList(), value: NativeAdder);
+
+  /// Controls the type of [Multiplier] used for mantissa multiplication.
+  final multTypeKnob =
+      ChoiceConfigKnob(multGeneratorMap.keys.toList(), value: NativeMultiplier);
 
   /// Controls the type of [ParallelPrefix] tree used in the internal functions.
   final prefixTreeKnob =
@@ -65,13 +84,13 @@ class FloatingPointMultiplierSimpleConfigurator extends Configurator {
       FloatingPoint(
           exponentWidth: exponentWidthKnob.value,
           mantissaWidth: mantissaWidthKnob.value),
-      adderGen: adderGeneratorMap[adderTypeKnob.value]!,
+      multGen: multGeneratorMap[multTypeKnob.value]!,
       ppTree: treeGeneratorMap[prefixTreeKnob.value]!);
 
   @override
   late final Map<String, ConfigKnob<dynamic>> knobs = UnmodifiableMapView({
-    'Adder type': adderTypeKnob,
-    'Prefix tree type': prefixTreeKnob,
+    // 'Adder type': adderTypeKnob,
+    // 'Prefix tree type': prefixTreeKnob,
     'Exponent width': exponentWidthKnob,
     'Mantissa width': mantissaWidthKnob,
     'Pipelined': pipelinedKnob,

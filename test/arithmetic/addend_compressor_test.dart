@@ -36,7 +36,7 @@ class CompressorTestMod extends Module {
       clk = addInput('clk', iclk);
     }
 
-    final pp = PartialProductGeneratorBasic(a, b, encoder,
+    final pp = PartialProductGenerator(a, b, encoder,
         signedMultiplicand: signed, signedMultiplier: signed);
     CompactRectSignExtension(pp).signExtend();
 
@@ -113,7 +113,7 @@ void main() {
           selectSignedMultiplicand!.put(signed ? 1 : 0);
           selectSignedMultiplier!.put(signed ? 1 : 0);
         }
-        final pp = PartialProductGeneratorBasic(a, b, encoder,
+        final pp = PartialProductGenerator(a, b, encoder,
             signedMultiplicand: !useSelect & signed,
             signedMultiplier: !useSelect & signed,
             selectSignedMultiplicand: selectSignedMultiplicand,

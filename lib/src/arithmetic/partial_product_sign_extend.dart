@@ -159,12 +159,12 @@ class NoneSignExtension extends PartialProductSignExtension {
 }
 
 /// A concrete base class for partial product generation
-class PartialProductGeneratorBasic extends PartialProductGeneratorBase {
+class PartialProductGenerator extends PartialProductGeneratorBase {
   /// The extension routine we will be using.
   late final PartialProductSignExtension extender;
 
   /// Construct a none sign extending Partial Product Generator
-  PartialProductGeneratorBasic(
+  PartialProductGenerator(
       super.multiplicand, super.multiplier, super.radixEncoder,
       {super.signedMultiplicand,
       super.signedMultiplier,
@@ -197,7 +197,13 @@ class BruteSignExtension extends PartialProductSignExtension {
       throw RohdHclException('Partial Product array already sign-extended');
     }
     isSignExtended = true;
-    final signs = [for (var r = 0; r < rows; r++) encoder.getEncoding(r).sign];
+    final signs = [
+      for (var r = 0; r < rows; r++)
+        encoder
+            .fetchEncoding(r)
+            .sign
+            .named('sign_r$r', naming: Naming.mergeable)
+    ];
     for (var row = 0; row < rows; row++) {
       final addend = partialProducts[row];
       final Logic sign;
@@ -223,12 +229,14 @@ class BruteSignExtension extends PartialProductSignExtension {
 
 /// A wrapper class for [BruteSignExtension] we used
 /// during refactoring to be compatible with old calls.
+@Deprecated('Use BruteSignExtension class after PartialProductGeneratorBasic')
 class PartialProductGeneratorBruteSignExtension
     extends PartialProductGeneratorBase {
   /// The extension routine we will be using.
   late final PartialProductSignExtension extender;
 
   /// Construct a compact rect sign extending Partial Product Generator
+  @Deprecated('Use BruteSignExtension class after PartialProductGeneratorBasic')
   PartialProductGeneratorBruteSignExtension(
       super.multiplicand, super.multiplier, super.radixEncoder,
       {super.signedMultiplicand,
@@ -274,7 +282,13 @@ class CompactSignExtension extends PartialProductSignExtension {
     final lastRowSignPos = shift * lastRow;
     final alignRow0Sign = firstRowQStart - lastRowSignPos;
 
-    final signs = [for (var r = 0; r < rows; r++) encoder.getEncoding(r).sign];
+    final signs = [
+      for (var r = 0; r < rows; r++)
+        encoder
+            .fetchEncoding(r)
+            .sign
+            .named('sign_r$r', naming: Naming.mergeable)
+    ];
 
     final propagate =
         List.generate(rows, (i) => List.filled(0, Logic(), growable: true));
@@ -282,7 +296,8 @@ class CompactSignExtension extends PartialProductSignExtension {
     for (var row = 0; row < rows; row++) {
       propagate[row].add(signs[row]);
       for (var col = 0; col < 2 * (shift - 1); col++) {
-        propagate[row].add(partialProducts[row][col]);
+        propagate[row].add(partialProducts[row][col]
+            .named('propagate_r${row}_c$col', naming: Naming.mergeable));
       }
       // Last row has extend sign propagation to Q start
       if (row == lastRow) {
@@ -292,44 +307,52 @@ class CompactSignExtension extends PartialProductSignExtension {
         }
       }
       for (var col = 1; col < propagate[row].length; col++) {
-        propagate[row][col] = propagate[row][col] & propagate[row][col - 1];
+        propagate[row][col] = (propagate[row][col] & propagate[row][col - 1])
+            .named('propagate_r${row}_c$col', naming: Naming.mergeable);
       }
     }
     final m =
         List.generate(rows, (i) => List.filled(0, Logic(), growable: true));
     for (var row = 0; row < rows; row++) {
       for (var c = 0; c < shift - 1; c++) {
-        m[row].add(partialProducts[row][c] ^ propagate[row][c]);
+        m[row].add((partialProducts[row][c] ^ propagate[row][c])
+            .named('m_r${row}_c$c', naming: Naming.mergeable));
       }
       m[row].addAll(List.filled(shift - 1, Logic()));
     }
     while (m[lastRow].length < alignRow0Sign) {
       m[lastRow].add(Logic());
     }
-
+    // TODO(desmonddak): this seems unused when looking at Verilog output
     for (var i = shift - 1; i < m[lastRow].length; i++) {
-      m[lastRow][i] = lastAddend[i] ^
-          (i < alignRow0Sign ? propagate[lastRow][i] : Const(0));
+      m[lastRow][i] = (lastAddend[i] ^
+              (i < alignRow0Sign ? propagate[lastRow][i] : Const(0)))
+          .named('m_lastr_c$i', naming: Naming.mergeable);
     }
 
     final remainders = List.filled(rows, Logic());
     for (var row = 0; row < lastRow; row++) {
-      remainders[row] = propagate[row][shift - 1];
+      remainders[row] = propagate[row][shift - 1]
+          .named('remainders_r$row', naming: Naming.mergeable);
     }
-    remainders[lastRow] <= propagate[lastRow][max(alignRow0Sign, 0)];
+    remainders[lastRow] <=
+        propagate[lastRow][max(alignRow0Sign, 0)]
+            .named('remainders_lastrow', naming: Naming.mergeable);
 
     // Compute Sign extension for row==0
-    final Logic firstSign;
+    final firstSign = Logic(name: 'firstsign', naming: Naming.mergeable);
     if (selectSignedMultiplicand == null) {
-      firstSign =
-          signedMultiplicand ? SignBit(firstAddend.last) : SignBit(signs[0]);
+      firstSign <=
+          (signedMultiplicand ? SignBit(firstAddend.last) : SignBit(signs[0]));
     } else {
-      firstSign =
+      firstSign <=
           SignBit(mux(selectSignedMultiplicand!, firstAddend.last, signs[0]));
     }
     final q = [
-      firstSign ^ remainders[lastRow],
-      ~(firstSign & ~remainders[lastRow]),
+      (firstSign ^ remainders[lastRow])
+          .named('qfirst', naming: Naming.mergeable),
+      (~(firstSign & ~remainders[lastRow]))
+          .named('q_last', naming: Naming.mergeable),
     ];
     q.insertAll(1, List.filled(shift - 1, ~q[1]));
 
@@ -365,12 +388,15 @@ class CompactSignExtension extends PartialProductSignExtension {
 
 /// A wrapper class for [CompactSignExtension] we used
 /// during refactoring to be compatible with old calls.
+@Deprecated('Use CompactSignExtension class after PartialProductGeneratorBasic')
 class PartialProductGeneratorCompactSignExtension
     extends PartialProductGeneratorBase {
   /// The extension routine we will be using.
   late final PartialProductSignExtension extender;
 
   /// Construct a compact sign extending Partial Product Generator
+  @Deprecated(
+      'Use CompactSignExtension class after PartialProductGeneratorBasic')
   PartialProductGeneratorCompactSignExtension(
       super.multiplicand, super.multiplier, super.radixEncoder,
       {super.signedMultiplicand,
@@ -418,7 +444,13 @@ class StopBitsSignExtension extends PartialProductSignExtension {
             ? (finalCarryRelPos / shift).floor()
             : 0;
 
-    final signs = [for (var r = 0; r < rows; r++) encoder.getEncoding(r).sign];
+    final signs = [
+      for (var r = 0; r < rows; r++)
+        encoder
+            .fetchEncoding(r)
+            .sign
+            .named('sign_r$r', naming: Naming.mergeable)
+    ];
 
     for (var row = 0; row < rows; row++) {
       final addend = partialProducts[row];
@@ -469,16 +501,17 @@ class StopBitsSignExtension extends PartialProductSignExtension {
   }
 }
 
-//
-
-/// A wrapper class for [StopBitsSignExtension] we used
-/// during refactoring to be compatible with old calls.
+/// Stop-bits based sign extension
+@Deprecated(
+    'Use StopBitsSignExtension class after PartialProductGeneratorBasic')
 class PartialProductGeneratorStopBitsSignExtension
     extends PartialProductGeneratorBase {
   /// The extension routine we will be using.
   late final PartialProductSignExtension extender;
 
   /// Construct a stop bits sign extending Partial Product Generator
+  @Deprecated(
+      'Use StopBitsSignExtension class after PartialProductGeneratorBasic')
   PartialProductGeneratorStopBitsSignExtension(
       super.multiplicand, super.multiplier, super.radixEncoder,
       {super.signedMultiplicand,
@@ -496,14 +529,18 @@ class PartialProductGeneratorStopBitsSignExtension
   }
 }
 
-/// A wrapper class for CompactRectSignExtension we used
+/// A wrapper class for [CompactRectSignExtension] we used
 /// during refactoring to be compatible with old calls.
+@Deprecated(
+    'Use CompactRectSignExtension class after PartialProductGeneratorBasic')
 class PartialProductGeneratorCompactRectSignExtension
     extends PartialProductGeneratorBase {
   /// The extension routine we will be using.
   late final PartialProductSignExtension extender;
 
   /// Construct a compact rect sign extending Partial Product Generator
+  @Deprecated(
+      'Use CompactRectSignExtension class after PartialProductGeneratorBasic')
   PartialProductGeneratorCompactRectSignExtension(
       super.multiplicand, super.multiplier, super.radixEncoder,
       {super.signedMultiplicand,
@@ -546,7 +583,13 @@ class CompactRectSignExtension extends PartialProductSignExtension {
 
     final align = firstRowQStart - lastRowSignPos;
 
-    final signs = [for (var r = 0; r < rows; r++) encoder.getEncoding(r).sign];
+    final signs = [
+      for (var r = 0; r < rows; r++)
+        encoder
+            .fetchEncoding(r)
+            .sign
+            .named('sign_r$r', naming: Naming.mergeable)
+    ];
 
     // Compute propgation info for folding sign bits into main rows
     final propagate =
@@ -555,7 +598,8 @@ class CompactRectSignExtension extends PartialProductSignExtension {
     for (var row = 0; row < rows; row++) {
       propagate[row].add(SignBit(signs[row]));
       for (var col = 0; col < 2 * (shift - 1); col++) {
-        propagate[row].add(partialProducts[row][col]);
+        propagate[row].add(partialProducts[row][col]
+            .named('propagate_r${row}_c$col', naming: Naming.mergeable));
       }
       // Last row has extend sign propagation to Q start
       if (row == lastRow) {
@@ -566,7 +610,8 @@ class CompactRectSignExtension extends PartialProductSignExtension {
       }
       // Now compute the propagation logic
       for (var col = 1; col < propagate[row].length; col++) {
-        propagate[row][col] = propagate[row][col] & propagate[row][col - 1];
+        propagate[row][col] = (propagate[row][col] & propagate[row][col - 1])
+            .named('propagate_r${row}_c$col', naming: Naming.mergeable);
       }
     }
 
@@ -575,7 +620,8 @@ class CompactRectSignExtension extends PartialProductSignExtension {
         List.generate(rows, (i) => List.filled(0, Logic(), growable: true));
     for (var row = 0; row < rows; row++) {
       for (var c = 0; c < shift - 1; c++) {
-        m[row].add(partialProducts[row][c] ^ propagate[row][c]);
+        m[row].add((partialProducts[row][c] ^ propagate[row][c])
+            .named('m_r${row}_c$c', naming: Naming.mergeable));
       }
       m[row].addAll(List.filled(shift - 1, Logic()));
     }
@@ -585,14 +631,17 @@ class CompactRectSignExtension extends PartialProductSignExtension {
     }
     for (var i = shift - 1; i < m[lastRow].length; i++) {
       m[lastRow][i] =
-          lastAddend[i] ^ (i < align ? propagate[lastRow][i] : Const(0));
+          (lastAddend[i] ^ (i < align ? propagate[lastRow][i] : Const(0)))
+              .named('m_lastrow_$i', naming: Naming.mergeable);
     }
 
     final remainders = List.filled(rows, Logic());
     for (var row = 0; row < lastRow; row++) {
-      remainders[row] = propagate[row][shift - 1];
+      remainders[row] = propagate[row][shift - 1]
+          .named('remainder_r$row', naming: Naming.mergeable);
     }
-    remainders[lastRow] = propagate[lastRow][align > 0 ? align : 0];
+    remainders[lastRow] = propagate[lastRow][align > 0 ? align : 0]
+        .named('remainder_lastrow', naming: Naming.mergeable);
 
     // Merge 'm' into the LSBs of each addend
     for (var row = 0; row < rows; row++) {
@@ -618,13 +667,13 @@ class CompactRectSignExtension extends PartialProductSignExtension {
 
     // Insert the lastRow sign:  Either in firstRow's Q if there is a
     // collision or in another row if it lands beyond the Q sign extension
-    final Logic firstSign;
+    final firstSign = Logic(name: 'firstsign', naming: Naming.mergeable);
     if (selectSignedMultiplicand == null) {
-      firstSign =
-          signedMultiplicand ? SignBit(firstAddend.last) : SignBit(signs[0]);
+      firstSign <=
+          (signedMultiplicand ? SignBit(firstAddend.last) : SignBit(signs[0]));
     } else {
-      firstSign =
-          SignBit(mux(selectSignedMultiplicand!, firstAddend.last, signs[0]));
+      firstSign <=
+          (SignBit(mux(selectSignedMultiplicand!, firstAddend.last, signs[0])));
     }
     final lastSign = SignBit(remainders[lastRow]);
     // Compute Sign extension MSBs for firstRow
