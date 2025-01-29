@@ -37,7 +37,7 @@ The `CsrConfig` contains the architectural definition of a CSR (i.e., applies to
 - A name for the CSR (called `name`).
 - An access mode for the CSR (called `access`).
 - An optional architectural reset value for the CSR (called `resetValue`).
-- Configuration for the readability and writeability of the CSR (Booleans called `isFrontdoorReadable`, `isFrontdoorWriteable`, `isBackdoorReadable`, `isBackdoorWriteable`). All of these values default to `true` if not provided. 
+- Configuration for the readability and writeability of the CSR (Booleans called `isFrontdoorReadable`, `isFrontdoorWriteable`, `isBackdoorReadable`, `isBackdoorWriteable`). All of these values default to `true` if not provided.
 - A `validate()` method to check for configuration correctness and consistency.
 - A method `resetValueFromFields()` that computes an implicit reset value for the CSR based on the reset values for its individual fields.
 
@@ -48,7 +48,7 @@ At the full CSR granularity, the access modes, defined in the Enum `CsrAccess`, 
 - Read only
 - Read/write
 
-Note that access rules only apply to frontdoor accesses. I.e., a read only register is still backdoor writeable if the configuration indicates as such. 
+Note that access rules only apply to frontdoor accesses. I.e., a read only register is still backdoor writeable if the configuration indicates as such.
 
 #### CSR Readability and Writeability Configuration
 
@@ -114,7 +114,7 @@ In addition, the following attributes and methods are exposed:
 
 - Accessors to all of the member attributes of the underlying `CsrInstanceConfig`.
 - `Logic getField(String name)` which returns a `Logic` for the field within the CSR with the name `name`. This enables easy read/write access to the fields of the register if needed for logic in the parent hardware module.
-- `Logic getWriteData(Logic wd) ` which returns a `Logic` tranforming the input `Logic` in such a way as to be a legal value to write to the given register. For example, if a field is read only, the current data for that field is grafted into the input data in the appropriate bit position.
+- `Logic getWriteData(Logic wd)` which returns a `Logic` tranforming the input `Logic` in such a way as to be a legal value to write to the given register. For example, if a field is read only, the current data for that field is grafted into the input data in the appropriate bit position.
 
 ## CSR Block Definition
 
@@ -143,7 +143,7 @@ The following checks are run:
 - No two register instances in the block have the same `name`.
 - No two register instances in the block have the same `addr`.
 
-### Frontdoor CSR Access
+### Frontdoor CSR Access - Block
 
 The `CsrBlock` module provides frontdoor read/write access to its registers through a read `DataPortInterface` and a write `DataPortInterface`. These are passed to the module in its constructor.
 
@@ -159,7 +159,7 @@ If a given register is configured as not frontdoor readable, there is no hardwar
 
 On module build, the width of the address signal on both `DataPortInterface`s is checked to ensure that it is at least as wide as the block's `minAddrBits`. On module build, the width of the input and output data signals on the `DataPortInterface`s are checked to ensure that they are at least as wide as the block's `maxRegWidth`.
 
-### Backdoor CSR Access
+### Backdoor CSR Access - Block
 
 The `CsrBlock` module provides backdoor read/write access to its registers through a `CsrBackdoorInterface`. One interface is instantiated per register that is backdoor accessible in the block and ported out of the module on build.
 
@@ -183,7 +183,7 @@ The `CsrBackdoorInterface` is constructed with a `CsrInstanceConfig`. This confi
 - Conditionally instantiate the `rdData` signal only if the associated register is backdoor readable.
 - Conditionally instantiate the `wrEn` and `wrData` signals only if the associated register is backdoor writeable.
 
-Note that `rdData` actually returns a `Csr` (i.e., a `LogicStructure`). This can be useful for subsequently retrieving fields. 
+Note that `rdData` actually returns a `Csr` (i.e., a `LogicStructure`). This can be useful for subsequently retrieving fields.
 
 ### API for CsrBlock
 
@@ -218,7 +218,7 @@ The following checks are run:
 - No two register blocks in the module have `baseAddr`s that are too close together such there would be an address collision. This is based on the `minAddrBits` of each block to determine how much room that block needs before the next `baseAddr`.
 - The `blockOffsetWidth` must be wide enough to cover the largest `minAddrBits` across all blocks.
 
-### Frontdoor CSR Access
+### Frontdoor CSR Access - Top
 
 Similar to `CsrBlock`, the `CsrTop` module provides frontdoor read/write access to its blocks/registers through a read `DataPortInterface` and a write `DataPortInterface`. These are passed to the module in its constructor.
 
@@ -230,7 +230,7 @@ If an access drives an address that doesn't map to any block, writes are NOPs an
 
 On module build, the width of the address signal on both `DataPortInterface`s is checked to ensure that it is at least as wide as the module's `minAddrBits`. On module build, the width of the input and output data signals on the `DataPortInterface`s are checked to ensure that they are at least as wide as the module's `maxRegWidth`.
 
-### Backdoor CSR Access
+### Backdoor CSR Access - Top
 
 The `CsrTop` module provides backdoor read/write access to its blocks' registers through a `CsrBackdoorInterface`. One interface is instantiated per register in every block that is backdoor accessible and ported out of the module on build.
 
