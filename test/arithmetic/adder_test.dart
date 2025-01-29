@@ -1,4 +1,4 @@
-// Copyright (C) 2023-2024 Intel Corporation
+// Copyright (C) 2023-2025 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 //
 // adder_test.dart
@@ -194,10 +194,17 @@ void main() {
 
   final generators = [Ripple.new, Sklansky.new, KoggeStone.new, BrentKung.new];
 
+  final adders = [
+    RippleCarryAdder.new,
+    NativeAdder.new,
+  ];
+
   group('adder random', () {
     for (final n in [63, 64, 65]) {
       for (final testCin in [false, true]) {
-        testAdderRandom(n, 30, RippleCarryAdder.new, testCarryIn: testCin);
+        for (final adder in adders) {
+          testAdderRandom(n, 30, adder, testCarryIn: testCin);
+        }
         for (final ppGen in generators) {
           testAdderRandom(
               n,
@@ -309,6 +316,22 @@ void main() {
         }
       }
     }
+  });
+
+  test('ones complement subtractor', () {
+    const width = 5;
+    final a = Logic(width: width);
+    final b = Logic(width: width);
+
+    const subtract = true;
+    const av = 1;
+    const bv = 6;
+
+    a.put(av);
+    b.put(bv);
+    final adder = OnesComplementAdder(a, b, subtract: subtract);
+    expect(adder.sum.value.toInt(), equals(bv - av));
+    expect(adder.sign.value, LogicValue.one);
   });
 
   test('ones complement with Logic subtract', () {

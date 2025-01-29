@@ -1,4 +1,4 @@
-// Copyright (C) 2023-2024 Intel Corporation
+// Copyright (C) 2023-2025 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 //
 // compound_adder.dart
@@ -19,9 +19,13 @@ abstract class CompoundAdder extends Adder {
   /// Takes in input [a] and input [b] and return the [sum] of the addition
   /// result and [sum1] sum + 1.
   /// The width of input [a] and [b] must be the same.
-  CompoundAdder(super.a, super.b, {super.name = 'compound_adders'}) {
+  CompoundAdder(super.a, super.b,
+      {Logic? carryIn, super.name = 'compound_adders'}) {
     if (a.width != b.width) {
       throw RohdHclException('inputs of a and b should have same width.');
+    }
+    if (carryIn != null) {
+      throw RohdHclException("we don't support carryIn");
     }
     addOutput('sum1', width: a.width + 1);
   }
@@ -31,7 +35,7 @@ abstract class CompoundAdder extends Adder {
 class TrivialCompoundAdder extends CompoundAdder {
   /// Constructs a [CompoundAdder].
   TrivialCompoundAdder(super.a, super.b,
-      {super.name = 'trivial_compound_adder'}) {
+      {super.carryIn, super.name = 'trivial_compound_adder'}) {
     sum <= a.zeroExtend(a.width + 1) + b.zeroExtend(b.width + 1);
     sum1 <= sum + 1;
   }
@@ -68,6 +72,7 @@ class CarrySelectCompoundAdder extends CompoundAdder {
   CarrySelectCompoundAdder(super.a, super.b,
       {Adder Function(Logic a, Logic b, {Logic? carryIn, String name})
           adderGen = ParallelPrefixAdder.new,
+      super.carryIn,
       super.name = 'cs_compound_adder',
       List<int> Function(int) widthGen =
           splitSelectAdderAlgorithmSingleBlock}) {

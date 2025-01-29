@@ -1,4 +1,4 @@
-// Copyright (C) 2024 Intel Corporation
+// Copyright (C) 2024-2025 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 //
 // addend_compressor.dart
@@ -10,7 +10,7 @@
 import 'package:collection/collection.dart';
 import 'package:meta/meta.dart';
 import 'package:rohd/rohd.dart';
-import 'package:rohd_hcl/src/arithmetic/multiplier_lib.dart';
+import 'package:rohd_hcl/rohd_hcl.dart';
 
 /// Base class for bit-level column compressor function
 abstract class BitCompressor extends Module {
@@ -25,7 +25,7 @@ abstract class BitCompressor extends Module {
   Logic get carry => output('carry');
 
   /// Construct a column compressor
-  BitCompressor(Logic compressBits) {
+  BitCompressor(Logic compressBits, {super.name = 'bit_compressor'}) {
     this.compressBits = addInput(
       'compressBits',
       compressBits,
@@ -39,7 +39,7 @@ abstract class BitCompressor extends Module {
 /// 2-input column compressor (half-adder)
 class Compressor2 extends BitCompressor {
   /// Construct a 2-input compressor (half-adder)
-  Compressor2(super.compressBits) {
+  Compressor2(super.compressBits, {super.name = 'compressor_2'}) {
     sum <= compressBits.xor();
     carry <= compressBits.and();
   }
@@ -48,7 +48,7 @@ class Compressor2 extends BitCompressor {
 /// 3-input column compressor (full-adder)
 class Compressor3 extends BitCompressor {
   /// Construct a 3-input column compressor (full-adder)
-  Compressor3(super.compressBits) {
+  Compressor3(super.compressBits, {super.name = 'compressor_3'}) {
     sum <= compressBits.xor();
     carry <=
         mux(compressBits[0], compressBits.slice(2, 1).or(),
@@ -237,19 +237,31 @@ class ColumnCompressor {
           BitCompressor compressor;
           if (depth > 3) {
             inputs.add(queue.removeFirst());
-            compressor =
-                Compressor3([for (final i in inputs) i.logic].swizzle());
+            compressor = Compressor3(
+                [for (final i in inputs) i.logic].swizzle(),
+                name: 'cmp3_iter${iteration}_col$col');
           } else {
-            compressor =
-                Compressor2([for (final i in inputs) i.logic].swizzle());
+            compressor = Compressor2(
+                [for (final i in inputs) i.logic].swizzle(),
+                name: 'cmp2_iter${iteration}_col$col');
           }
           final t = CompressTerm(
-              CompressTermType.sum, compressor.sum, inputs, 0, col);
+              CompressTermType.sum,
+              compressor.sum.named('cmp_sum_iter${iteration}_c$col',
+                  naming: Naming.mergeable),
+              inputs,
+              0,
+              col);
           terms.add(t);
           columns[col].add(t);
           if (col < columns.length - 1) {
             final t = CompressTerm(
-                CompressTermType.carry, compressor.carry, inputs, 0, col);
+                CompressTermType.carry,
+                compressor.carry.named('cmp_carry_iter${iteration}_c$col',
+                    naming: Naming.mergeable),
+                inputs,
+                0,
+                col);
             columns[col + 1].add(t);
             terms.add(t);
           }

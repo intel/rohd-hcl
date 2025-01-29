@@ -1,4 +1,4 @@
-// Copyright (C) 2023-2024 Intel Corporation
+// Copyright (C) 2023-2025 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 //
 // parallel_prefix_operations.dart
@@ -61,7 +61,7 @@ class Ripple extends ParallelPrefix {
 /// Sklansky shaped ParallelPrefix tree
 class Sklansky extends ParallelPrefix {
   /// Sklansky constructor
-  Sklansky(List<Logic> inps, Logic Function(Logic, Logic) op)
+  Sklansky(List<Logic> inps, Logic Function(Logic term1, Logic term2) op)
       : super(inps, 'sklansky') {
     final iseq = <Logic>[];
 
@@ -90,7 +90,7 @@ class Sklansky extends ParallelPrefix {
 /// KoggeStone shaped ParallelPrefix tree
 class KoggeStone extends ParallelPrefix {
   /// KoggeStone constructor
-  KoggeStone(List<Logic> inps, Logic Function(Logic, Logic) op)
+  KoggeStone(List<Logic> inps, Logic Function(Logic term1, Logic term2) op)
       : super(inps, 'kogge_stone') {
     final iseq = <Logic>[];
 
@@ -103,13 +103,14 @@ class KoggeStone extends ParallelPrefix {
 
     while (skip < inps.length) {
       for (var i = inps.length - 1; i >= skip; --i) {
-        iseq[i] = op(iseq[i - skip], iseq[i]);
+        iseq[i] = op(iseq[i - skip], iseq[i])
+            .named('ks_skip${skip}_i$i', naming: Naming.mergeable);
       }
       skip *= 2;
     }
 
     iseq.forEachIndexed((i, el) {
-      _oseq[i] <= el;
+      _oseq[i] <= el.named('o_$i', naming: Naming.mergeable);
     });
   }
 }
@@ -117,7 +118,7 @@ class KoggeStone extends ParallelPrefix {
 /// BrentKung shaped ParallelPrefix tree
 class BrentKung extends ParallelPrefix {
   /// BrentKung constructor
-  BrentKung(List<Logic> inps, Logic Function(Logic, Logic) op)
+  BrentKung(List<Logic> inps, Logic Function(Logic term1, Logic term2) op)
       : super(inps, 'brent_kung') {
     final iseq = <Logic>[];
 
@@ -130,7 +131,8 @@ class BrentKung extends ParallelPrefix {
     var skip = 2;
     while (skip <= inps.length) {
       for (var i = skip - 1; i < inps.length; i += skip) {
-        iseq[i] = op(iseq[i - skip ~/ 2], iseq[i]);
+        iseq[i] = op(iseq[i - skip ~/ 2], iseq[i])
+            .named('reduce_$i', naming: Naming.mergeable);
       }
       skip *= 2;
     }
@@ -139,18 +141,20 @@ class BrentKung extends ParallelPrefix {
     skip = largestPow2LessThan(inps.length);
     while (skip > 2) {
       for (var i = 3 * (skip ~/ 2) - 1; i < inps.length; i += skip) {
-        iseq[i] = op(iseq[i - skip ~/ 2], iseq[i]);
+        iseq[i] = op(iseq[i - skip ~/ 2], iseq[i])
+            .named('prefix_$i', naming: Naming.mergeable);
       }
       skip ~/= 2;
     }
 
     // Final row
     for (var i = 2; i < inps.length; i += 2) {
-      iseq[i] = op(iseq[i - 1], iseq[i]);
+      iseq[i] =
+          op(iseq[i - 1], iseq[i]).named('final_$i', naming: Naming.mergeable);
     }
 
     iseq.forEachIndexed((i, el) {
-      _oseq[i] <= el;
+      _oseq[i] <= el.named('o_$i', naming: Naming.mergeable);
     });
   }
 }
@@ -162,7 +166,8 @@ class ParallelPrefixOrScan extends Module {
 
   /// OrScan constructor
   ParallelPrefixOrScan(Logic inp,
-      {ParallelPrefix Function(List<Logic>, Logic Function(Logic, Logic))
+      {ParallelPrefix Function(
+              List<Logic> inps, Logic Function(Logic term1, Logic term2) op)
           ppGen = KoggeStone.new,
       super.name = 'parallel_prefix_orscan'}) {
     inp = addInput('inp', inp, width: inp.width);
@@ -179,30 +184,60 @@ class ParallelPrefixPriorityFinder extends Module {
 
   /// Priority Finder constructor
   ParallelPrefixPriorityFinder(Logic inp,
-      {ParallelPrefix Function(List<Logic>, Logic Function(Logic, Logic))
+      {ParallelPrefix Function(
+              List<Logic> inps, Logic Function(Logic term1, Logic term2) op)
           ppGen = KoggeStone.new,
       super.name = 'parallel_prefix_finder'}) {
     inp = addInput('inp', inp, width: inp.width);
     final u = ParallelPrefixOrScan(inp, ppGen: ppGen);
-    addOutput('out', width: inp.width) <= (u.out & ~(u.out << Const(1)));
+    addOutput('out', width: inp.width) <=
+        (u.out & ~(u.out << Const(1))).named('pos', naming: Naming.mergeable);
   }
 }
 
 /// Priority Encoder based on ParallelPrefix tree
 class ParallelPrefixPriorityEncoder extends Module {
-  /// Output [out] is the bit position of the first '1' in the Logic input
-  /// Search is counted from the LSB
+  /// Output [out] is the bit position of the first '1' in the Logic input.
+  /// Search starts from the LSB.
   Logic get out => output('out');
 
+  /// Optional output that says the encoded position is valid.
+  Logic? get valid => tryOutput('valid');
+
   /// PriorityEncoder constructor
+  /// - [ppGen] is the type of [ParallelPrefix] tree to use
+  /// - [valid] is an optional Logic output to raise if no '1' is found
+  ///
+  /// If there is a '1' in the [inp], the [ParallelPrefixPriorityEncoder]
+  /// sets [out] to the index of the position of the first '1' starting from
+  /// the LSb (and optionally sets [valid] to true).
+  ///
+  /// If there is no 1' in the [inp], it sets [out] to [inp].width + 1,
+  /// as well as setting optional [valid] to false.
   ParallelPrefixPriorityEncoder(Logic inp,
-      {ParallelPrefix Function(List<Logic>, Logic Function(Logic, Logic))
+      {ParallelPrefix Function(
+              List<Logic> inps, Logic Function(Logic term1, Logic term2) op)
           ppGen = KoggeStone.new,
+      Logic? valid,
       super.name = 'parallel_prefix_encoder'}) {
     inp = addInput('inp', inp, width: inp.width);
-    addOutput('out', width: log2Ceil(inp.width));
+    final sz = log2Ceil(inp.width + 1);
+    addOutput('out', width: sz);
+    if (valid != null) {
+      addOutput('valid');
+      valid <= this.valid!;
+    }
     final u = ParallelPrefixPriorityFinder(inp, ppGen: ppGen);
-    out <= OneHotToBinary(u.out).binary;
+    final pos = OneHotToBinary(u.out)
+        .binary
+        .zeroExtend(sz)
+        .named('pos', naming: Naming.mergeable);
+    if (this.valid != null) {
+      this.valid! <= pos.or() | inp[0];
+    }
+    out <=
+        mux(pos.or() | inp[0], pos, Const(inp.width + 1, width: sz))
+            .named('encoded_pos', naming: Naming.mergeable);
   }
 }
 
@@ -211,8 +246,9 @@ class ParallelPrefixAdder extends Adder {
   /// Adder constructor
   ParallelPrefixAdder(super.a, super.b,
       {super.carryIn,
-      ParallelPrefix Function(List<Logic>, Logic Function(Logic, Logic)) ppGen =
-          KoggeStone.new,
+      ParallelPrefix Function(
+              List<Logic> inps, Logic Function(Logic term1, Logic term2) op)
+          ppGen = KoggeStone.new,
       super.name = 'parallel_prefix_adder'}) {
     final l = List<Logic>.generate(a.width - 1,
         (i) => [a[i + 1] & b[i + 1], a[i + 1] | b[i + 1]].swizzle());
@@ -221,17 +257,21 @@ class ParallelPrefixAdder extends Adder {
     l.insert(
         0,
         [(a[0] & b[0]) | (a[0] & cin) | (b[0] & cin), a[0] | b[0] | cin]
-            .swizzle());
+            .swizzle()
+            .named('pg_base', naming: Naming.mergeable));
     final u = ppGen(
-        l, (lhs, rhs) => [rhs[1] | rhs[0] & lhs[1], rhs[0] & lhs[0]].swizzle());
+        l,
+        (lhs, rhs) => [rhs[1] | rhs[0] & lhs[1], rhs[0] & lhs[0]]
+            .swizzle()
+            .named('pg', naming: Naming.mergeable));
     sum <=
         [
           u.val[a.width - 1][1],
           List<Logic>.generate(
               a.width,
-              (i) => (i == 0)
-                  ? a[i] ^ b[i] ^ cin
-                  : a[i] ^ b[i] ^ u.val[i - 1][1]).rswizzle()
+              (i) =>
+                  ((i == 0) ? a[i] ^ b[i] ^ cin : a[i] ^ b[i] ^ u.val[i - 1][1])
+                      .named('t_$i')).rswizzle()
         ].swizzle();
   }
 }
@@ -243,14 +283,17 @@ class ParallelPrefixIncr extends Module {
 
   /// Increment constructor
   ParallelPrefixIncr(Logic inp,
-      {ParallelPrefix Function(List<Logic>, Logic Function(Logic, Logic))
+      {ParallelPrefix Function(
+              List<Logic> inps, Logic Function(Logic term1, Logic term2) op)
           ppGen = KoggeStone.new,
       super.name = 'parallel_prefix_incr'}) {
     inp = addInput('inp', inp, width: inp.width);
     final u = ppGen(inp.elements, (lhs, rhs) => rhs & lhs);
     addOutput('out', width: inp.width) <=
         (List<Logic>.generate(
-                inp.width, (i) => ((i == 0) ? ~inp[i] : inp[i] ^ u.val[i - 1]))
+                inp.width,
+                (i) =>
+                    ((i == 0) ? ~inp[i] : inp[i] ^ u.val[i - 1]).named('o_$i'))
             .rswizzle());
   }
 }
@@ -262,14 +305,17 @@ class ParallelPrefixDecr extends Module {
 
   /// Decrement constructor
   ParallelPrefixDecr(Logic inp,
-      {ParallelPrefix Function(List<Logic>, Logic Function(Logic, Logic))
+      {ParallelPrefix Function(
+              List<Logic> inps, Logic Function(Logic term1, Logic term2) op)
           ppGen = KoggeStone.new,
       super.name = 'parallel_prefix_decr'}) {
     inp = addInput('inp', inp, width: inp.width);
     final u = ppGen((~inp).elements, (lhs, rhs) => rhs & lhs);
     addOutput('out', width: inp.width) <=
         (List<Logic>.generate(
-                inp.width, (i) => ((i == 0) ? ~inp[i] : inp[i] ^ u.val[i - 1]))
+                inp.width,
+                (i) =>
+                    ((i == 0) ? ~inp[i] : inp[i] ^ u.val[i - 1]).named('o_$i'))
             .rswizzle());
   }
 }

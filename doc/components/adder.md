@@ -4,15 +4,16 @@ ROHD-HCL provides a set of adder modules to get the sum from a pair of Logic. So
 
 - [Ripple Carry Adder](#ripple-carry-adder)
 - [Parallel Prefix Adder](#parallel-prefix-adder)
-- [One's Complement Adder Subtractor](#ones-complement-adder-subtractor)
+- [Ones' Complement Adder Subtractor](#ones-complement-adder-subtractor)
 - [Sign Magnitude Adder](#sign-magnitude-adder)
 - [Compound Adder](#compound-adder)
+- [Native Adder](#native-adder)
 
 ## Ripple Carry Adder
 
 A ripple carry adder is a digital circuit used for binary addition. It consists of a series of  [FullAdder](https://intel.github.io/rohd-hcl/rohd_hcl/FullAdder-class.html)s connected in a chain, with the carry output of each adder linked to the carry input of the next one. Starting from the least significant bit (LSB) to most significant bit (MSB), the adder sequentially adds corresponding bits of two binary numbers.
 
-The [RippleCarryAdder](https://intel.github.io/rohd-hcl/rohd_hcl/RippleCarryAdder-class.html) module in ROHD-HCL accept input `Logic`s a and b as the input pin and the name of the module `name`. Note that the width of the inputs must be the same or a [RohdHclException](https://intel.github.io/rohd-hcl/rohd_hcl/RohdHclException-class.html) will be thrown.
+The [adder](https://intel.github.io/rohd-hcl/rohd_hcl/Adder-class.html) module in ROHD-HCL accept input `Logic`s a and b as the input pin and the name of the module `name`. Note that the width of the inputs must be the same or a [RohdHclException](https://intel.github.io/rohd-hcl/rohd_hcl/RohdHclException-class.html) will be thrown.
 
 An example is shown below to add two inputs of signals that have 8-bits of width.
 
@@ -23,8 +24,8 @@ final b = Logic(name: 'b', width: 8);
 a.put(5);
 b.put(5);
 
-final rippleCarryAdder = RippleCarryAdder(a, b);
-final sum = rippleCarryAdder.sum;
+final adder = adder(a, b);
+final sum = adder.sum;
 ```
 
 ## Parallel Prefix Adder
@@ -50,7 +51,7 @@ Here is an example of instantiating a [ParallelPrefixAdder](https://intel.github
 
 ## Ones' Complement Adder Subtractor
 
-A ones-complement adder (and subtractor) is useful in efficient arithmetic operations as the
+A ones'-complement adder (and subtractor) is useful in efficient arithmetic operations as the
 end-around carry can be bypassed and used later.
 
 The [OnesComplementAdder](https://intel.github.io/rohd-hcl/rohd_hcl/OnesComplementAdder-class.html) can take a subtraction command as either a `Logic` `subtractIn` or a boolean `subtract` (the Logic overrides the boolean).  If Logic `carry` is provided, the end-around carry is output on `carry` and the value will be one less than expected when `carry` is high.  An `adderGen` adder function can be provided that generates your favorite internal adder (such as a parallel prefix adder).
@@ -68,7 +69,7 @@ Here is an example of instantiating a  [OnesComplementAdder](https://intel.githu
     b.put(bv);
     final carry = Logic();
     final adder = OnesComplementAdder(
-        a, b, carryOut: carry, adderGen: RippleCarryAdder.new,
+        a, b, carryOut: carry, adderGen: adder.new,
         subtract: true);
     final mag = adder.sum.value.toInt() + (carry.value.isZero ? 0 : 1));
     final out = (adder.sign.value.toInt() == 1 ? -mag : mag);
@@ -76,7 +77,7 @@ Here is an example of instantiating a  [OnesComplementAdder](https://intel.githu
 
 ## Sign Magnitude Adder
 
-A sign magnitude adder is useful in situations where the sign of the addends is separated from their magnitude (e.g., not 2s complement), such as in floating point multipliers.  The [SignMagnitudeAdder](https://intel.github.io/rohd-hcl/rohd_hcl/SignMagnitudeAdder-class.html) inherits from `Adder` but adds the `Logic` inputs for the two operands.
+A sign magnitude adder is useful in situations where the sign of the addends is separated from their magnitude (e.g., not twos' complement), such as in floating point multipliers.  The [SignMagnitudeAdder](https://intel.github.io/rohd-hcl/rohd_hcl/SignMagnitudeAdder-class.html) inherits from `Adder` but adds the `Logic` inputs for the two operands.
 
 If you can supply the largest magnitude number first, then you can disable a comparator generation inside by declaring the `largestMagnitudeFirst` option as true.
 
@@ -96,7 +97,7 @@ Here is an example of instantiating a [SignMagnitudeAdder](https://intel.github.
     b.put(18);
     bSign.put(0);
 
-    final adder = SignMagnitudeAdder(aSign, a, bSign, b, adderGen: RippleCarryAdder.new,
+    final adder = SignMagnitudeAdder(aSign, a, bSign, b, adderGen: adder.new,
         largestMagnitudeFirst: true);
 
     final sum = adder.sum;
@@ -112,14 +113,18 @@ The [`CarrySelectCompoundAdder`](https://intel.github.io/rohd-hcl/rohd_hcl/Carry
 The delay of the adder is defined by the combination of the sub-adders and the accumulated carry-select chain delay.
 
 The [CarrySelectCompoundAdder](https://intel.github.io/rohd-hcl/rohd_hcl/CarrySelectCompoundAdder-class.html) module in ROHD-HCL accepts input `Logic`s a and b as the input pin and the name of the module `name`. Note that the width of the inputs must be the same or a [RohdHclException](https://intel.github.io/rohd-hcl/rohd_hcl/RohdHclException-class.html) will be thrown.
-The compound adder generator provides two alogithms for splitting the adder into adder sub-blocks:
 
-- The [CarrySelectCompoundAdder.splitSelectAdderAlgorithm4Bit](https://intel.github.io/rohd-hcl/rohd_hcl/CarrySelectCompoundAdder/splitSelectAdderAlgorithm4Bit.html) algoritm splits the adder into blocks of 4-bit ripple-carry adders with the first one width adjusted down.
-- The [CarrySelectCompoundAdder.splitSelectAdderAlgorithmSingleBlock](https://intel.github.io/rohd-hcl/rohd_hcl/CarrySelectCompoundAdder/splitSelectAdderAlgorithmSingleBlock.html) algorithm generates only one sub=block with the full bitwidth of the adder.
+The compound adder forms a select chain around a set of adders specified by:
 
-Input `List<int> Function(int adderFullWidth) widthGen` should be used to specify the custom adder splitting algorithm that returns a list of sub-adders width. The default one is [CarrySelectCompoundAdder.splitSelectAdderAlgorithmSingleBlock](<https://intel.github.io/rohd-hcl/rohd_hcl/CarrySelectCompoundAdder/splitSelectAdderAlgorithmSingleBlock.html>).  
+- `addergen`: an adder generator functor option to build the block adders with the default being `ParallelPrefixAdder`.
 
-The `adderGen` input selects the type of sub-adder used, with the default being `ParallelPrefixAdder`.
+The compound adder generator provides two algorithms for splitting the adder into adder sub-blocks:
+
+- `splitSelectAdderAlgorithmSingleBlock:
+  - The [CarrySelectCompoundAdder.splitSelectAdderAlgorithm4Bit](https://intel.github.io/rohd-hcl/rohd_hcl/CarrySelectCompoundAdder/splitSelectAdderAlgorithm4Bit.html) algoritm splits the adder into blocks of 4-bit ripple-carry adders with the first one width adjusted down.
+  - The [CarrySelectCompoundAdder.splitSelectAdderAlgorithmSingleBlock](https://intel.github.io/rohd-hcl/rohd_hcl/CarrySelectCompoundAdder/splitSelectAdderAlgorithmSingleBlock.html) algorithm generates only one sub=block with the full bitwidth of the adder.
+
+- `List<int> Function(int adderFullWidth) widthGen` should be used to specify the custom adder splitting algorithm that returns a list of sub-adders width. The default one is [CarrySelectCompoundAdder.splitSelectAdderAlgorithmSingleBlock](<https://intel.github.io/rohd-hcl/rohd_hcl/CarrySelectCompoundAdder/splitSelectAdderAlgorithmSingleBlock.html>).  
 
 An example is shown below to add two inputs of signals that have 8-bits of width.
 
@@ -130,10 +135,30 @@ final b = Logic(name: 'b', width: 8);
 a.put(5);
 b.put(5);
 
-final rippleCarryAdder = CarrySelectCompoundAdder(a, b);
-final sum = rippleCarryAdder.sum;
-final sum1 = rippleCarryAdder.sum1;
+final adder = CarrySelectCompoundAdder(a, b);
+final sum = adder.sum;
+final sum1 = adder.sum1;
 
-final rippleCarryAdder4BitBlock = CarrySelectCompoundAdder(a, b,
+final adder4BitBlock = CarrySelectCompoundAdder(a, b,
         widthGen: CarrySelectCompoundAdder.splitSelectAdderAlgorithm4Bit);
+```
+
+## Native Adder
+
+As logic synthesis can replace a '+' in RTL with a wide variety of adder architectures on its own, we have a `NativeAdder` wrapper class that allows you to use the native '+' with any component that exposes an `Adder` functor as a parameter:
+
+```dart
+// API definition: FloatingPointAdderRound(super.a, super.b,
+//       {Logic? subtract,
+//       super.clk,
+//       super.reset,
+//       super.enable,
+//       Adder Function(Logic, Logic, {Logic? carryIn}) adderGen =
+//           ParallelPrefixAdder.new,
+//       ParallelPrefix Function(List<Logic>, Logic Function(Logic, Logic))
+//           ppTree = KoggeStone.new,
+//       super.name = 'floating_point_adder_round'})
+
+// Instantiate with a NativeAdder as the internal adder
+final adder = FloatingPointAdderRound(a, b, adderGen: NativeAdder.new);
 ```

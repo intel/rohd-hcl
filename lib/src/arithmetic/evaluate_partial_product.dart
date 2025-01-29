@@ -11,7 +11,7 @@ import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
 
 /// The following routines are useful only during testing
-extension TestPartialProductSignage on PartialProductGenerator {
+extension TestPartialProductSignage on PartialProductGeneratorBase {
   /// Return true if multiplicand is truly signed (fixed or runtime)
   bool isSignedMultiplicand() => (selectSignedMultiplicand == null)
       ? signedMultiplicand
@@ -28,7 +28,7 @@ extension TestPartialProductSignage on PartialProductGenerator {
 
 /// Debug routines for printing out partial product matrix during
 /// simulation with live logic values
-extension EvaluateLivePartialProduct on PartialProductGenerator {
+extension EvaluateLivePartialProduct on PartialProductGeneratorBase {
   /// Accumulate the partial products and return as BigInt
   BigInt evaluate() {
     final maxW = maxWidth();
