@@ -73,7 +73,9 @@ A very basic [FloatingPointMultiplierSimple] component is available which does n
 
 It has options to control its performance:
 
+
 - `radix`: used to specify the radix of the Booth encoder (default radix=4: options are [2,4,8,16])'.
 - `adderGen`: used to specify the kind of [Adder] used for key functions like the mantissa addition. Defaults to [NativeAdder], but you can select a [ParallelPrefixAdder] of your choice.
 - `seGen`: type of sign extension routine used, base class is [PartialProductSignExtension].
 - `ppTree`: used to specify the type of ['ParallelPrefix'](https://intel.github.io/rohd-hcl/rohd_hcl/ParallelPrefix-class.html) used in the other critical functions like leading-one detect.
+
