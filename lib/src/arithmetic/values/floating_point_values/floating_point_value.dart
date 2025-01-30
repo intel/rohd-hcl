@@ -396,6 +396,13 @@ class FloatingPointValue implements Comparable<FloatingPointValue> {
     }
   }
 
+// TODO(desmonddak): we may have a bug in ofDouble() when
+// the FPV is close to the width of the native double:  for LGRS to work
+// we need three bits of space to handle the LSB|Guard|Round|Sticky.
+// If the FPV is only 2 bits shorter than native, then we know we can round
+// with LSB+Guard, but can't fit the round and sticky bits.
+// The algorithm needs to extend with zeros and handle.
+
   /// Convert from double using its native binary representation
   factory FloatingPointValue.ofDouble(double inDouble,
       {required int exponentWidth,
@@ -442,8 +449,11 @@ class FloatingPointValue implements Comparable<FloatingPointValue> {
     ].first;
     var mantissa = mantissa64.slice(51, 51 - mantissaWidth + 1);
 
+    // TODO(desmonddak): this should be in a separate function to use
+    // with a FloatingPointValue converter we need.
     if (roundingMode == FloatingPointRoundingMode.roundNearestEven) {
       final sticky = mantissa64.slice(51 - (mantissaWidth + 2), 0).or();
+
       final roundPos = 51 - (mantissaWidth + 2) + 1;
       final round = mantissa64[roundPos];
       final guard = mantissa64[roundPos + 1];
@@ -461,6 +471,19 @@ class FloatingPointValue implements Comparable<FloatingPointValue> {
       }
     }
 
+    // TODO(desmonddak): how to convert to infinity and check that it is
+    // supported by the format.
+    if (expVal >
+        FloatingPointValue.computeBias(exponentWidth) +
+            FloatingPointValue.computeMaxExponent(exponentWidth)) {
+      return (fp64.sign == LogicValue.one)
+          ? FloatingPointValue.getFloatingPointConstant(
+              FloatingPointConstants.negativeInfinity,
+              exponentWidth,
+              mantissaWidth)
+          : FloatingPointValue.getFloatingPointConstant(
+              FloatingPointConstants.infinity, exponentWidth, mantissaWidth);
+    }
     final exponent =
         LogicValue.ofBigInt(BigInt.from(max(expVal, 0)), exponentWidth);
 
@@ -651,23 +674,26 @@ class FloatingPointValue implements Comparable<FloatingPointValue> {
         (mantissa == other.mantissa);
   }
 
+  /// Test if exponent is all '1's.
+  bool get isExponentAllOnes => exponent.and() == LogicValue.one;
+
+  /// Test if exponent is all '0's.
+  bool get isExponentAllZeros => exponent.or() == LogicValue.zero;
+
+  /// Test if mantissa is all '0's.
+  bool get isMantissaAllZeroes => mantissa.or() == LogicValue.zero;
+
   /// Return true if the represented floating point number is considered
   ///  NaN or 'Not a Number'
-  bool get isNaN =>
-      (exponent.toInt() ==
-          computeMaxExponent(exponent.width) +
-              computeBias(exponent.width) +
-              1) &
-      !mantissa.or().isZero;
+  bool get isNaN => isExponentAllOnes && !isMantissaAllZeroes;
+
+  /// Return true if the represented floating point number is considered
+  ///  'subnormal', including [isZero].
+  bool isSubnormal() => isExponentAllZeros;
 
   /// Return true if the represented floating point number is considered
   ///  infinity or negative infinity
-  bool get isAnInfinity =>
-      (exponent.toInt() ==
-          computeMaxExponent(exponent.width) +
-              computeBias(exponent.width) +
-              1) &
-      mantissa.or().isZero;
+  bool get isAnInfinity => isExponentAllOnes && isMantissaAllZeroes;
 
   /// Return true if the represented floating point number is zero. Note
   /// that the equality operator will treat
@@ -846,9 +872,6 @@ class FloatingPointValue implements Comparable<FloatingPointValue> {
       return FloatingPointValue.ofBinaryStrings(
           sign.bitString, newExponent.bitString, '0' * (mantissa.width));
     } else {
-      // TODO(desmonddak): need to handle exponent < mantissa width by
-      // shifting the 1 for ULP incrementally, not just putting it at
-      // the end.
       return FloatingPointValue.ofBinaryStrings(
           sign.bitString, exponent.bitString, '${'0' * (mantissa.width - 1)}1');
     }
