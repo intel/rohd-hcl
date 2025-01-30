@@ -34,7 +34,8 @@ class MaskRoundRobinArbiter extends StatefulArbiter
   /// and keeping record of requests already granted, in order to mask it until
   /// granting the turn of each request to start again
   MaskRoundRobinArbiter(super.requests,
-      {required super.clk, required super.reset}) {
+      {required super.clk, required super.reset})
+      : super(definitionName: 'MaskRoundRobinArbiter_W${requests.length}') {
     _requestMask = List.generate(count, (i) => Logic(name: 'requestMask$i'));
     _grantMask = List.generate(count, (i) => Logic(name: 'grantMask$i'));
     Sequential(clk, [

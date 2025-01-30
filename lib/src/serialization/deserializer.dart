@@ -1,4 +1,4 @@
-// Copyright (C) 2024 Intel Corporation
+// Copyright (C) 2025 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 //
 // deserializer.dart
@@ -36,7 +36,8 @@ class Deserializer extends Module {
       {required Logic clk,
       required Logic reset,
       Logic? enable,
-      super.name = 'deserializer'}) {
+      super.name = 'deserializer'})
+      : super(definitionName: 'Deserializer_W${serialized.width}_L$length') {
     clk = addInput('clk', clk);
     reset = addInput('reset', reset);
     if (enable != null) {

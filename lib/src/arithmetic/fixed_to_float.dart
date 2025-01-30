@@ -36,7 +36,7 @@ class FixedToFloat extends Module {
       super.name = 'FixedToFloat'})
       : super(
             definitionName:
-                'Fixed${fixed.width}ToFloatE${exponentWidth}M${mantissaWidth}') {
+                'Fixed${fixed.width}ToFloatE${exponentWidth}M$mantissaWidth') {
     fixed = fixed.clone()..gets(addInput('fixed', fixed, width: fixed.width));
     addOutput('float', width: _float.width) <= _float;
 

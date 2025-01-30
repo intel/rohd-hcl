@@ -123,7 +123,7 @@ abstract class Memory extends Module {
   /// Must provide at least one port (read or write).
   Memory(Logic clk, Logic reset, List<DataPortInterface> writePorts,
       List<DataPortInterface> readPorts,
-      {super.name = 'memory'})
+      {super.name = 'memory', String? definitionName})
       : numWrites = writePorts.length,
         numReads = readPorts.length,
         dataWidth = (writePorts.isNotEmpty)
@@ -135,8 +135,10 @@ abstract class Memory extends Module {
             ? writePorts[0].addrWidth
             : (readPorts.isNotEmpty)
                 ? readPorts[0].addrWidth
-                : 0 // at least one of these must exist
-  {
+                : 0, // at least one of these must exist
+        super(
+            definitionName: definitionName ??
+                'Memory_WP${writePorts.length}_RP${readPorts.length}') {
     if (writePorts.isEmpty && readPorts.isEmpty) {
       throw RohdHclException(
           'Must specify at least one read port or one write port.');

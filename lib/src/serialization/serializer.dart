@@ -1,4 +1,4 @@
-// Copyright (C) 2024 Intel Corporation
+// Copyright (C) 2025 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 //
 // serializer.dart
@@ -38,7 +38,10 @@ class Serializer extends Module {
       required Logic reset,
       Logic? enable,
       bool flopInput = false,
-      super.name = 'serializer'}) {
+      super.name = 'serializer'})
+      : super(
+            definitionName: 'Serializer_W${deserialized.width}_'
+                '${deserialized.elementWidth}') {
     clk = addInput('clk', clk);
     reset = addInput('reset', reset);
     if (enable != null) {

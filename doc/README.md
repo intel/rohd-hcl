@@ -95,7 +95,6 @@ Some in-development items will have opened issues, as well. Feel free to create 
   - NoC's
     - Coherent
     - Non-Coherent
-  - [Reduction Tree](./components/reduction_tree.md)
 - Memory
   - [Register File](./components/memory.md#register-files)
   - [Masking](./components/memory.md#masks)

@@ -26,7 +26,11 @@ abstract class StatefulArbiter extends Arbiter {
   late final Logic reset = input('reset');
 
   /// Creates a new [StatefulArbiter] with associated [clk] and [reset].
-  StatefulArbiter(super.requests, {required Logic clk, required Logic reset}) {
+  StatefulArbiter(super.requests,
+      {required Logic clk, required Logic reset, String? definitionName})
+      : super(
+            definitionName:
+                definitionName ?? 'StatefulArbiter_W${requests.length}') {
     addInput('clk', clk);
     addInput('reset', reset);
   }

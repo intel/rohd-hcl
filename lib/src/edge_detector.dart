@@ -38,7 +38,9 @@ class EdgeDetector extends Module {
     dynamic resetValue,
     this.edgeType = Edge.pos,
     String? name,
-  }) : super(name: name ?? '${edgeType.name}_edge_detector') {
+  }) : super(
+            name: name ?? '${edgeType.name}_edge_detector',
+            definitionName: 'EdgeDetector_W${signal.width}') {
     if (signal.width != 1 ||
         (resetValue is Logic && resetValue.width != 1) ||
         (resetValue is LogicValue && resetValue.width != 1)) {
