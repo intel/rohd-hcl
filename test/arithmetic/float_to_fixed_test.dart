@@ -1,4 +1,4 @@
-// Copyright (C) 2024 Intel Corporation
+// Copyright (C) 2024-2025 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 //
 // float_to_fixed_test.dart
@@ -20,7 +20,7 @@ void main() async {
     for (var val = 0; val < pow(2, 8); val++) {
       final fpv = FloatingPointValue.ofLogicValue(
           5, 2, LogicValue.ofInt(val, float.width));
-      if (!fpv.isNaN()) {
+      if (!fpv.isAnInfinity & !fpv.isNaN) {
         float.put(fpv);
         final fxp = dut.fixed;
         final fxpExp = FixedPointValue.ofDouble(fpv.toDouble(),
@@ -41,7 +41,7 @@ void main() async {
     for (var val = 0; val < pow(2, 8); val++) {
       final fp8 = FloatingPointValue.ofLogicValue(
           4, 3, LogicValue.ofInt(val, float.width));
-      if (!fp8.isNaN()) {
+      if (!fp8.isNaN & !fp8.isAnInfinity) {
         float.put(fp8.value);
         final fx8 =
             FixedPointValue.ofDouble(fp8.toDouble(), signed: true, m: 23, n: 9);
@@ -55,7 +55,7 @@ void main() async {
     for (var val = 0; val < pow(2, 8); val++) {
       final fp8 = FloatingPointValue.ofLogicValue(
           5, 2, LogicValue.ofInt(val, float.width));
-      if (!fp8.isNaN()) {
+      if (!fp8.isNaN & !fp8.isAnInfinity) {
         float.put(fp8.value);
         final fx8 = FixedPointValue.ofDouble(fp8.toDouble(),
             signed: true, m: 16, n: 16);

@@ -1,4 +1,4 @@
-// Copyright (C) 2023-2024 Intel Corporation
+// Copyright (C) 2023-2025 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 //
 // utils.dart
@@ -28,3 +28,35 @@ extension SignedBigInt on BigInt {
           ? BigInt.from(value).toSigned(width)
           : BigInt.from(value).toUnsigned(width);
 }
+
+/// Conditionally constructs a positive edge triggered flip condFlop on [clk].
+///
+/// It returns either [FlipFlop.q] if [clk] is non-null or [d] if not.
+///
+/// When the optional [en] is provided, an additional input will be created for
+/// condFlop. If optional [en] is high or not provided, output will vary as per
+/// input[d]. For low [en], output remains frozen irrespective of input [d].
+///
+/// - When the optional [reset] is provided, the condFlop will be reset
+/// (active-high).
+/// - If no [resetValue] is provided, the reset value is always `0`. Otherwise,
+/// it will reset to the provided [resetValue].
+/// - If [asyncReset] is true, the [reset] signal (if provided) will be treated
+/// as an async reset. If [asyncReset] is false, the reset signal will be
+/// treated as synchronous.
+Logic condFlop(
+  Logic? clk,
+  Logic d, {
+  Logic? en,
+  Logic? reset,
+  dynamic resetValue,
+  bool asyncReset = false,
+}) =>
+    (clk == null)
+        ? d
+        : flop(clk, d,
+                en: en,
+                reset: reset,
+                resetValue: resetValue,
+                asyncReset: asyncReset)
+            .named('${d.name}_flopped');
