@@ -1,6 +1,13 @@
-import 'dart:io';
+// Copyright (C) 2025 Intel Corporation
+// SPDX-License-Identifier: BSD-3-Clause
+//
+// floating_point_conversion_test.dart
+// Tests for floating point conversion (FP to FP)
+//
+// 2025 January 30
+// Author: Desmond A Kirkpatrick <desmond.a.kirkpatrick@intel.com
+
 import 'dart:math';
-import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
 import 'package:test/test.dart';
 
@@ -20,7 +27,6 @@ void main() {
     fp1.put(fv1);
     final convert = FloatingPointConverter(fp1, fp2);
     await convert.build();
-    File('convert.sv').writeAsStringSync(convert.generateSynth());
 
     final expected = FloatingPointValue.ofDoubleUnrounded(fv1.toDouble(),
         exponentWidth: destExponentWidth, mantissaWidth: destMantissaWidth);
@@ -29,10 +35,6 @@ void main() {
 
     final computed = convert.destination.floatingPointValue;
     expect(computed, equals(fp2.floatingPointValue));
-
-    print('computed   =$computed');
-    print('expected   =$expected');
-    print('expectedRnd=$expectedRound');
 
     expect(computed, equals(expectedRound), reason: '''
       $fv1 (${fv1.toDouble()})\t=
@@ -43,38 +45,15 @@ void main() {
 ''');
   });
 
-  test('FP: try vector slice', () async {
-    //
-
-    final v = Logic(width: 10);
-    v.put(1491);
-    print('${v.value.bitString}');
-
-    final len = 6;
-    final xv = v.reversed.getRange(1, 1 + len).reversed;
-    print('${xv.value.bitString}');
-
-    final yv = v.slice(v.width - len - 1, v.width - 2);
-    print('${yv.value.bitString}');
-
-    final zv = v.slice(v.width - 2, 0);
-    ;
-    print('zv=${zv.value.bitString}');
-
-    final zzv = v.slice(-2, 0);
-    print('zzv=${zzv.value.bitString}');
-  });
-
   test('FP: singleton conversion narrow to wide exponent', () {
-    // final fv1 = FloatingPointValue.ofBinaryStrings('0', '000', '0001');
-    final fv1 = FloatingPointValue.ofBinaryStrings('0', '00', '00');
+    final fv1 = FloatingPointValue.ofBinaryStrings('0', '000', '0001');
     final exponentWidth = fv1.exponent.width;
     final mantissaWidth = fv1.mantissa.width;
     final fp1 = FloatingPoint(
         exponentWidth: exponentWidth, mantissaWidth: mantissaWidth);
 
-    const destExponentWidth = 2;
-    const destMantissaWidth = 2;
+    const destExponentWidth = 4;
+    const destMantissaWidth = 4;
 
     fp1.put(fv1);
     final fp2 = FloatingPoint(
@@ -153,15 +132,11 @@ void main() {
     for (var destExponentWidth = exponentWidth;
         destExponentWidth < exponentWidth + 4;
         destExponentWidth++) {
-      print('converting to e=$destExponentWidth');
-
       for (var destMantissaWidth = mantissaWidth - 2;
           destMantissaWidth < mantissaWidth + 6;
           destMantissaWidth++) {
-        print('converting to m=$destMantissaWidth');
         final fp2 = FloatingPoint(
             exponentWidth: destExponentWidth, mantissaWidth: destMantissaWidth);
-
         final convert = FloatingPointConverter(fp1, fp2);
         final expLimit = pow(2, exponentWidth) - 1;
         final mantLimit = pow(2, mantissaWidth);

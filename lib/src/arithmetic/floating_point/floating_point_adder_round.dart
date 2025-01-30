@@ -35,7 +35,10 @@ class FloatingPointAdderRound extends FloatingPointAdder {
       ParallelPrefix Function(
               List<Logic> inps, Logic Function(Logic term1, Logic term2) op)
           ppTree = KoggeStone.new,
-      super.name = 'floating_point_adder_round'}) {
+      super.name = 'floating_point_adder_round'})
+      : super(
+            definitionName: 'FloatingPointAdderRound_'
+                'E${a.exponent.width}M${a.mantissa.width}') {
     final outputSum = FloatingPoint(
         exponentWidth: exponentWidth, mantissaWidth: mantissaWidth);
     output('sum') <= outputSum;
@@ -312,6 +315,15 @@ class FloatingPointAdderRound extends FloatingPointAdder {
             ~effectiveSubtractionFlopped)
         .named('isR');
 
+    final inf = outputSum.inf(sign: largerSignFlopped);
+    final infExponent = inf.exponent;
+
+    final realIsInfRPath =
+        exponentRPath.eq(infExponent).named('realIsInfRPath');
+
+    final realIsInfNPath =
+        exponentNPath.eq(infExponent).named('realIsInfNPath');
+
     Combinational([
       If(isNaNFlopped, then: [
         outputSum < outputSum.nan,
@@ -320,14 +332,22 @@ class FloatingPointAdderRound extends FloatingPointAdder {
           outputSum < outputSum.inf(sign: largerSignFlopped),
         ], orElse: [
           If(isR, then: [
-            outputSum.sign < largerSignFlopped,
-            outputSum.exponent < exponentRPath,
-            outputSum.mantissa <
-                mantissaRPath.slice(mantissaRPath.width - 2, 1),
+            If(realIsInfRPath, then: [
+              outputSum < inf,
+            ], orElse: [
+              outputSum.sign < largerSignFlopped,
+              outputSum.exponent < exponentRPath,
+              outputSum.mantissa <
+                  mantissaRPath.slice(mantissaRPath.width - 2, 1),
+            ]),
           ], orElse: [
-            outputSum.sign < signNPath,
-            outputSum.exponent < exponentNPath,
-            outputSum.mantissa < finalSignificandNPath,
+            If(realIsInfNPath, then: [
+              outputSum < inf,
+            ], orElse: [
+              outputSum.sign < signNPath,
+              outputSum.exponent < exponentNPath,
+              outputSum.mantissa < finalSignificandNPath,
+            ])
           ])
         ])
       ])
