@@ -36,7 +36,6 @@ class FloatingPointMultiplierSimple extends FloatingPointMultiplier {
       : super(
             definitionName: 'FloatingPointMultiplierSimple_'
                 'E${a.exponent.width}M${a.mantissa.width}') {
-
     if (exponentWidth < a.exponent.width) {
       throw RohdHclException('product exponent width must be >= '
           ' input exponent width');

@@ -68,14 +68,12 @@ abstract class FloatingPointMultiplier extends Module {
       // ignore: avoid_unused_constructor_parameters
       ParallelPrefix Function(List<Logic>, Logic Function(Logic, Logic)) ppGen =
           KoggeStone.new,
-
       super.name = 'floating_point_multiplier',
       String? definitionName})
       : super(
             definitionName: definitionName ??
                 'FloatingPointMultiplier_E${a.exponent.width}'
                     'M${a.mantissa.width}') {
-
     if (b.exponent.width != a.exponent.width ||
         b.mantissa.width != a.mantissa.width) {
       throw RohdHclException('FloatingPoint widths must match');
