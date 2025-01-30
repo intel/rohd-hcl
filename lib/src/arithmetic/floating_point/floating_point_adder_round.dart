@@ -11,11 +11,6 @@ import 'dart:math';
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
 
-// TODO(desmonddak): factor rounding into a utility by merging
-// the near and far bits and creating a LGRS algorithm on that word.
-
-// TODO(desmondak): investigate how to implement other forms of rounding.
-
 /// An adder module for variable FloatingPoint type with rounding.
 // This is a Seidel/Even adder, dual-path implementation.
 class FloatingPointAdderRound extends FloatingPointAdder {
