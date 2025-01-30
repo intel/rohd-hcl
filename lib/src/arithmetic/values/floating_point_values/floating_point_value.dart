@@ -825,4 +825,32 @@ class FloatingPointValue implements Comparable<FloatingPointValue> {
   /// Absolute value operation for [FloatingPointValue]
   FloatingPointValue abs() => FloatingPointValue(
       sign: LogicValue.zero, exponent: exponent, mantissa: mantissa);
+
+  /// Return true if the other [FloatingPointValue] is within a rounding
+  /// error of this value.
+  bool withinRounding(FloatingPointValue other) {
+    if (this != other) {
+      final diff = (abs() - other.abs()).abs();
+      if (diff.compareTo(ulp()) == 1) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  /// Compute the unit in the last place for the given [FloatingPointValue]
+  FloatingPointValue ulp() {
+    if (exponent.toInt() > mantissa.width) {
+      final newExponent =
+          LogicValue.ofInt(exponent.toInt() - mantissa.width, exponent.width);
+      return FloatingPointValue.ofBinaryStrings(
+          sign.bitString, newExponent.bitString, '0' * (mantissa.width));
+    } else {
+      // TODO(desmonddak): need to handle exponent < mantissa width by
+      // shifting the 1 for ULP incrementally, not just putting it at
+      // the end.
+      return FloatingPointValue.ofBinaryStrings(
+          sign.bitString, exponent.bitString, '${'0' * (mantissa.width - 1)}1');
+    }
+  }
 }

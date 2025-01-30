@@ -76,13 +76,21 @@ class NativeAdder extends Adder {
     if (a.width != b.width) {
       throw RohdHclException('inputs of a and b should have same width.');
     }
+    final aExtended =
+        a.zeroExtend(a.width + 1).named('aExtended', naming: Naming.mergeable);
+    final bExtended =
+        b.zeroExtend(a.width + 1).named('bExtended', naming: Naming.mergeable);
+    final aPlusb = (aExtended + bExtended)
+        .named('aExtended_plus_bExtended', naming: Naming.mergeable);
     if (carryIn == null) {
-      sum <= a.zeroExtend(a.width + 1) + b.zeroExtend(b.width + 1);
+      sum <= aPlusb;
     } else {
+      final cinExtendend = carryIn!
+          .zeroExtend(a.width + 1)
+          .named('carryInExtended', naming: Naming.mergeable);
       sum <=
-          a.zeroExtend(a.width + 1) +
-              b.zeroExtend(b.width + 1) +
-              carryIn!.zeroExtend(a.width + 1);
+          (aPlusb + cinExtendend)
+              .named('sumWithCarryIn', naming: Naming.mergeable);
     }
   }
 }

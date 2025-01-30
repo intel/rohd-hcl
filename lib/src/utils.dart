@@ -90,7 +90,8 @@ Logic condFlop(
     (clk == null)
         ? d
         : flop(clk, d,
-            en: en,
-            reset: reset,
-            resetValue: resetValue,
-            asyncReset: asyncReset);
+                en: en,
+                reset: reset,
+                resetValue: resetValue,
+                asyncReset: asyncReset)
+            .named('${d.name}_flopped');
