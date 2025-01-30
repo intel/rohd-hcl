@@ -68,7 +68,7 @@ class CompressionTreeMultiplierConfigurator extends Configurator {
           signMultiplicandValueKnob.value == 'selected' ? Logic() : null,
       selectSignedMultiplier:
           signMultiplierValueKnob.value == 'selected' ? Logic() : null,
-      adderGen: adderGeneratorMap[adderTypeKnob.value]!);
+      adderGen: adderGeneratorMap[adderTypeKnob.value]!,
       use42Compressors: use42CompressorsKnob.value);
 
   @override

@@ -191,7 +191,7 @@ void main() {
       {SignExtensionFunction seGen = CompactRectSignExtension.new,
       Adder Function(Logic a, Logic b, {Logic? carryIn, String name}) adderGen =
           NativeAdder.new,
-
+      bool use42Compressors = false,
       bool signedMultiplicand = false,
       bool signedMultiplier = false,
       Logic? selectSignedMultiplicand,
@@ -367,12 +367,14 @@ void main() {
     for (final radix in [2, 4]) {
       for (final width in [8, 10]) {
         for (final ppTree in [KoggeStone.new]) {
+          Adder adderFn(Logic a, Logic b, {Logic? carryIn, String? name}) =>
+              ParallelPrefixAdder(a, b, carryIn: carryIn, ppGen: ppTree);
           testMultiplyAccumulateRandom(
               // testMultiplyAccumulateExhaustive(
               width,
               10,
               curryMultiplierAsMultiplyAccumulate(radix,
-                  ppTree: ppTree, use42Compressors: true));
+                  adderGen: adderFn, use42Compressors: true));
         }
       }
     }
@@ -544,7 +546,6 @@ void main() {
         final mod = CompressionTreeMultiplier(a, b, 4,
             adderGen: ParallelPrefixAdder.new,
             seGen: StopBitsSignExtension.new,
-
             signedMultiplier: !useSignedLogic && signed,
             selectSignedMultiplicand: signedSelect,
             selectSignedMultiplier: signedSelect);

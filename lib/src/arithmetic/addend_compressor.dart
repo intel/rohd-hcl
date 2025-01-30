@@ -12,50 +12,49 @@ import 'package:meta/meta.dart';
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
 
-/// Base class for bit-level column compressor function
-abstract class BitCompressor extends Module {
-  /// Input bits to compress
-  @protected
-  late final Logic compressBits;
+// /// Base class for bit-level column compressor function
+// abstract class BitCompressor extends Module {
+//   /// Input bits to compress
+//   @protected
+//   late final Logic compressBits;
 
-  /// The addition results [sum] including carry bit
-  Logic get sum => output('sum');
+//   /// The addition results [sum] including carry bit
+//   Logic get sum => output('sum');
 
-  /// The carry results [carry].
-  Logic get carry => output('carry');
+//   /// The carry results [carry].
+//   Logic get carry => output('carry');
 
-  /// Construct a column compressor
-  BitCompressor(Logic compressBits, {super.name = 'bit_compressor'}) {
-    this.compressBits = addInput(
-      'compressBits',
-      compressBits,
-      width: compressBits.width,
-    );
-    addOutput('sum');
-    addOutput('carry');
-  }
-}
+//   /// Construct a column compressor
+//   BitCompressor(Logic compressBits, {super.name = 'bit_compressor'}) {
+//     this.compressBits = addInput(
+//       'compressBits',
+//       compressBits,
+//       width: compressBits.width,
+//     );
+//     addOutput('sum');
+//     addOutput('carry');
+//   }
+// }
 
-/// 2-input column compressor (half-adder)
-class Compressor2 extends BitCompressor {
-  /// Construct a 2-input compressor (half-adder)
-  Compressor2(super.compressBits, {super.name = 'compressor_2'}) {
-    sum <= compressBits.xor();
-    carry <= compressBits.and();
-  }
-}
+// /// 2-input column compressor (half-adder)
+// class Compressor2 extends BitCompressor {
+//   /// Construct a 2-input compressor (half-adder)
+//   Compressor2(super.compressBits, {super.name = 'compressor_2'}) {
+//     sum <= compressBits.xor();
+//     carry <= compressBits.and();
+//   }
+// }
 
-/// 3-input column compressor (full-adder)
-class Compressor3 extends BitCompressor {
-  /// Construct a 3-input column compressor (full-adder)
-  Compressor3(super.compressBits, {super.name = 'compressor_3'}) {
-    sum <= compressBits.xor();
-    carry <=
-        mux(compressBits[0], compressBits.slice(2, 1).or(),
-            compressBits.slice(2, 1).and());
-  }
-}
-
+// /// 3-input column compressor (full-adder)
+// class Compressor3 extends BitCompressor {
+//   /// Construct a 3-input column compressor (full-adder)
+//   Compressor3(super.compressBits, {super.name = 'compressor_3'}) {
+//     sum <= compressBits.xor();
+//     carry <=
+//         mux(compressBits[0], compressBits.slice(2, 1).or(),
+//             compressBits.slice(2, 1).and());
+//   }
+// }
 
 /// Compress terms
 enum CompressTermType {
@@ -386,15 +385,14 @@ class ColumnCompressor {
             }
           } else if (depth > 3) {
             inputs.add(queue.removeFirst());
-            compressor = Compressor3(
-                [for (final i in inputs) i.logic].swizzle(),
-                name: 'cmp3_iter${iteration}_col$col');
+            compressor =
+                Compressor3(inputs, name: 'cmp3_iter${iteration}_col$col');
           } else {
-            compressor = Compressor2(
-                [for (final i in inputs) i.logic].swizzle(),
-                name: 'cmp2_iter${iteration}_col$col');
+            compressor =
+                Compressor2(inputs, name: 'cmp2_iter${iteration}_col$col');
           }
           final t = CompressTerm(
+              compressor,
               CompressTermType.sum,
               compressor.sum.named('cmp_sum_iter${iteration}_c$col',
                   naming: Naming.mergeable),
@@ -405,6 +403,7 @@ class ColumnCompressor {
           columns[col].add(t);
           if (col < columns.length - 1) {
             final t = CompressTerm(
+                compressor,
                 CompressTermType.carry,
                 compressor.carry.named('cmp_carry_iter${iteration}_c$col',
                     naming: Naming.mergeable),
