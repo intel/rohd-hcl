@@ -10,6 +10,26 @@
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
 
+/// This extension will eventually move to ROHD once it is proven useful
+extension LogicFirstOne on LogicValue {
+  /// Compute the first One find operation on LogicValue, returning its position
+  int? firstOne() {
+    if (!isValid) {
+      return null;
+    }
+    var shiftedValue = this;
+    var result = 0;
+    while (shiftedValue[0] != LogicValue.one) {
+      result++;
+      if (result == width) {
+        return null;
+      }
+      shiftedValue >>>= 1;
+    }
+    return result;
+  }
+}
+
 /// The following routines are useful only during testing
 extension TestPartialProductSignage on PartialProductGenerator {
   /// Return true if multiplicand is truly signed (fixed or runtime)
