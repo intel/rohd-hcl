@@ -346,7 +346,7 @@ class CompressionTreeMultiplier extends Multiplier {
       PartialProductSignExtension Function(PartialProductGeneratorBase pp,
               {String name})
           seGen = CompactRectSignExtension.new,
-
+      bool use42Compressors = false,
       super.name = 'compression_tree_multiplier'}) {
 // Should be done in base TODO(desmonddak):
     final product = addOutput('product', width: a.width + b.width);
@@ -360,9 +360,13 @@ class CompressionTreeMultiplier extends Multiplier {
       signedMultiplier: signedMultiplier,
     );
     seGen(pp).signExtend();
-    final compressor =
-        ColumnCompressor(clk: clk, reset: reset, enable: enable, pp, use42Compressors: use42Compressors)
-          ..compress();
+    final compressor = ColumnCompressor(
+        clk: clk,
+        reset: reset,
+        enable: enable,
+        pp,
+        use42Compressors: use42Compressors)
+      ..compress();
     final adder = adderGen(compressor.extractRow(0), compressor.extractRow(1));
 
     product <= adder.sum.slice(a.width + b.width - 1, 0);
@@ -427,8 +431,7 @@ class CompressionTreeMultiplyAccumulate extends MultiplyAccumulate {
       PartialProductSignExtension Function(PartialProductGeneratorBase pp,
               {String name})
           seGen = CompactRectSignExtension.new,
-             bool use42Compressors = false,
-
+      bool use42Compressors = false,
       super.name = 'compression_tree_mac'}) {
     final accumulate = addOutput('accumulate', width: a.width + b.width + 1);
     final pp = PartialProductGenerator(
@@ -465,9 +468,13 @@ class CompressionTreeMultiplyAccumulate extends MultiplyAccumulate {
     pp.partialProducts.insert(0, l);
     pp.rowShift.insert(0, 0);
 
-    final compressor =
-        ColumnCompressor(clk: clk, reset: reset, enable: enable, pp, use42Compressors: use42Compressors)
-          ..compress();
+    final compressor = ColumnCompressor(
+        clk: clk,
+        reset: reset,
+        enable: enable,
+        pp,
+        use42Compressors: use42Compressors)
+      ..compress();
     final adder = adderGen(compressor.extractRow(0), compressor.extractRow(1));
     accumulate <= adder.sum.slice(a.width + b.width - 1 + 1, 0);
   }
