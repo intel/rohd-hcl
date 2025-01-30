@@ -8,19 +8,22 @@
 // Author: Desmond A Kirkpatrick <desmond.a.kirkpatrick@intel.com
 
 import 'dart:async';
+import 'dart:io';
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
 import 'package:rohd_vf/rohd_vf.dart';
 import 'package:test/test.dart';
 
-Logic addReduceAdders(List<Logic> inputs) {
+Logic addReduceAdders(List<Logic> inputs, {String name = 'prefix'}) {
   if (inputs.length < 4) {
     return inputs.reduce((v, e) => v + e);
   } else {
-    final add0 = ParallelPrefixAdder(inputs[0], inputs[1]);
-    final add1 = ParallelPrefixAdder(inputs[2], inputs[3]);
-    final add2 = ParallelPrefixAdder(add0.sum, add1.sum);
-    return add2.sum;
+    final add0 =
+        ParallelPrefixAdder(inputs[0], inputs[1], name: '${name}_add0');
+    final add1 =
+        ParallelPrefixAdder(inputs[2], inputs[3], name: '${name}_add1');
+    final addf = ParallelPrefixAdder(add0.sum, add1.sum, name: '${name}_addf');
+    return addf.sum;
   }
 }
 
@@ -28,7 +31,7 @@ void main() {
   tearDown(() async {
     await Simulator.reset();
   });
-  Logic addReduce(List<Logic> inputs) {
+  Logic addReduce(List<Logic> inputs, {String name = ''}) {
     final a = inputs.reduce((v, e) => v + e);
     return a;
   }
@@ -43,8 +46,8 @@ void main() {
       vec.add(Const(i, width: width));
       count = count + i;
     }
-    for (var reduce = 2; reduce < length; reduce++) {
-      final prefixAdd = ReductionTree(vec, radix: reduce, addReduce);
+    for (var radix = 2; radix < length; radix++) {
+      final prefixAdd = ReductionTree(vec, radix: radix, addReduce);
       expect(prefixAdd.out.value.toInt(), equals(count));
     }
   });
@@ -60,8 +63,8 @@ void main() {
       vec.add(Const(i, width: width));
       count = count + i;
     }
-    for (var reduce = 2; reduce < length; reduce++) {
-      final prefixAdd = ReductionTree(vec, radix: reduce, addReduce, clk: clk);
+    for (var radix = 2; radix < length; radix++) {
+      final prefixAdd = ReductionTree(vec, radix: radix, addReduce, clk: clk);
       expect(prefixAdd.out.value.toInt(), equals(count));
     }
   });
@@ -76,9 +79,9 @@ void main() {
     for (var i = 0; i < length; i++) {
       vec.add(Const(i, width: width));
     }
-    const reduce = 4;
+    const radix = 4;
     final prefixAdd =
-        ReductionTree(vec, radix: reduce, addReduce, clk: clk, depthToFlop: 1);
+        ReductionTree(vec, radix: radix, addReduce, clk: clk, depthToFlop: 1);
 
     await prefixAdd.build();
     unawaited(Simulator.run());
@@ -95,8 +98,8 @@ void main() {
     for (var i = 0; i < length; i++) {
       vec[i].inject(2);
     }
-    if (prefixAdd.flopDepth > cycles) {
-      await clk.waitCycles(prefixAdd.flopDepth - cycles);
+    if (prefixAdd.latency > cycles) {
+      await clk.waitCycles(prefixAdd.latency - cycles);
       await clk.nextNegedge;
     }
     expect(prefixAdd.out.value.toInt(), equals(length * (length - 1) / 2));
@@ -140,8 +143,8 @@ void main() {
     for (var i = 0; i < length; i++) {
       vec[i].inject(2);
     }
-    if (prefixAdd.flopDepth > cycles) {
-      await clk.waitCycles(prefixAdd.flopDepth - cycles);
+    if (prefixAdd.latency > cycles) {
+      await clk.waitCycles(prefixAdd.latency - cycles);
       await clk.nextNegedge;
     }
     expect(prefixAdd.out.value.toInt(), equals(length * (length - 1) / 2));

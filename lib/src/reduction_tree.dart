@@ -17,7 +17,7 @@ import 'package:rohd_hcl/rohd_hcl.dart';
 class ReductionTree extends Module {
   /// The radix-sized input operation to be performed at each node.
   @protected
-  final Logic Function(List<Logic> inputs) operation;
+  final Logic Function(List<Logic> inputs, {String name}) operation;
 
   /// Specified width of input to each reduction node (e.g., binary: radix=2)
   @protected
@@ -52,7 +52,7 @@ class ReductionTree extends Module {
   int get depth => _computed.depth;
 
   /// The flop depth of the tree from the output to the leaves.
-  int get flopDepth => _computed.flopDepth;
+  int get latency => _computed.flopDepth;
 
   /// Capture the record of compute: the final value, its depth (from last
   /// flop or input), and its flopDepth if pipelined.
@@ -63,7 +63,8 @@ class ReductionTree extends Module {
   /// on each segment.
   /// - [sequence] is the input sequence to be reduced using the tree of
   /// operations.
-  /// - Logic Function(List<Logic> inputs) [operation] is the operation to be
+  /// - Logic Function(List<Logic> inputs, {String name}) [operation]
+  /// is the operation to be
   /// performed at each node. Note that [operation] can widen the output. The
   /// logic function must support the operation for 2 to radix inputs.
   /// - [radix] is the width of reduction at each node in the tree (e.g.,
@@ -81,7 +82,8 @@ class ReductionTree extends Module {
       Logic? clk,
       Logic? enable,
       Logic? reset,
-      super.name = 'reduction_tree'}) {
+      super.name = 'reduction_tree'})
+      : super(definitionName: 'ReductionTree_R${radix}_L${sequence.length}}') {
     if (sequence.isEmpty) {
       throw RohdHclException("Don't use ReductionTree "
           'with an empty sequence');
@@ -133,7 +135,8 @@ class ReductionTree extends Module {
       final resultsExtend = resultsFlop.map((r) =>
           signExtend ? r.signExtend(alignWidth) : r.zeroExtend(alignWidth));
 
-      final computed = operation(resultsExtend.toList());
+      final computed = operation(resultsExtend.toList(),
+          name: 'reduce_d${(treeDepth + 1) + flopDepth * (depthToFlop ?? 0)}');
       return (
         value: computed,
         depth: depthFlop ? 0 : treeDepth + 1,
