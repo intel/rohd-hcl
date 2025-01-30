@@ -1,4 +1,4 @@
-// Copyright (C) 2024 Intel Corporation
+// Copyright (C) 2024-2025 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 //
 // clock_gating.dart
@@ -146,9 +146,9 @@ class ClockGate extends Module {
   // override the addInput and addOutput functions for uniquification purposes
 
   @override
-  Logic addInput(String name, Logic x, {int width = 1}) {
+  Logic addInput(String name, Logic source, {int width = 1}) {
     _uniquifier.getUniqueName(initialName: name, reserved: true);
-    return super.addInput(name, x, width: width);
+    return super.addInput(name, source, width: width);
   }
 
   @override

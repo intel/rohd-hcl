@@ -1,4 +1,4 @@
-// Copyright (C) 2023-2024 Intel Corporation
+// Copyright (C) 2023-2025 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 //
 // find.dart
@@ -52,7 +52,7 @@ class Find extends Module {
       final count = Count(bus.getRange(0, i + 1), countOne: countOne);
 
       // Below code will make `n` comparable to `count`
-      var paddedCountValue = count.index;
+      var paddedCountValue = count.count;
       var paddedNValue = (n ?? Const(0)) + 1;
 
       if (paddedNValue.width < paddedCountValue.width) {

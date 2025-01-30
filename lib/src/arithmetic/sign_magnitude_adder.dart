@@ -1,4 +1,4 @@
-// Copyright (C) 2024 Intel Corporation
+// Copyright (C) 2024-2025 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 //
 // sign_magnitude_adder.dart
@@ -29,14 +29,15 @@ class SignMagnitudeAdder extends Adder {
   /// the argument with a negative sign.
   bool largestMagnitudeFirst;
 
-  /// [SignMagnitudeAdder] constructor with an adder functor [adderGen]
-  ///Inputs are (sign, magnitude) pairs: ([aSign], [a]) and ([bSign], [b]).
-  /// If the caller can guarantee that the larger magnitude value
-  ///  is provided first in [a], then they can set [largestMagnitudeFirst]
-  /// too 'true' to avoid a comparator.
+  /// [SignMagnitudeAdder] constructor with an adder functor [adderGen].
+  ///
+  /// Inputs are (sign, magnitude) pairs: ([aSign], [a]) and ([bSign], [b]). If
+  /// the caller can guarantee that the larger magnitude value is provided first
+  /// in [a], then they can set [largestMagnitudeFirst] too 'true' to avoid a
+  /// comparator.
   // TODO(desmonddak): this adder may need a carry-in for rounding
   SignMagnitudeAdder(this.aSign, super.a, this.bSign, super.b,
-      Adder Function(Logic, Logic) adderGen,
+      Adder Function(Logic a, Logic b, {Logic? carryIn}) adderGen,
       {this.largestMagnitudeFirst = false,
       super.name = 'sign_magnitude_adder'}) {
     aSign = addInput('aSign', aSign);

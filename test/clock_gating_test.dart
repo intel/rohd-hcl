@@ -1,4 +1,4 @@
-// Copyright (C) 2024 Intel Corporation
+// Copyright (C) 2024-2025 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 //
 // clock_gating_test.dart
@@ -14,7 +14,7 @@ import 'package:rohd_hcl/src/clock_gating.dart';
 import 'package:rohd_vf/rohd_vf.dart';
 import 'package:test/test.dart';
 
-class CustomClockGateMacro extends Module with CustomSystemVerilog {
+class CustomClockGateMacro extends Module with SystemVerilog {
   Logic get gatedClk => output('gatedClk');
 
   CustomClockGateMacro({
@@ -36,13 +36,13 @@ class CustomClockGateMacro extends Module with CustomSystemVerilog {
 
   @override
   String instantiationVerilog(String instanceType, String instanceName,
-          Map<String, String> inputs, Map<String, String> outputs) =>
+          Map<String, String> ports) =>
       '`CUSTOM_CLOCK_GATE('
-      '${outputs['gatedClk']}, '
-      '${inputs['clk']}, '
-      '${inputs['en']}, '
-      '${inputs['override']}, '
-      '${inputs['another_override']}'
+      '${ports['gatedClk']}, '
+      '${ports['clk']}, '
+      '${ports['en']}, '
+      '${ports['override']}, '
+      '${ports['another_override']}'
       ')';
 }
 

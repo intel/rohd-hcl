@@ -1,4 +1,4 @@
-// Copyright (C) 2024 Intel Corporation
+// Copyright (C) 2024-2025 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 //
 // floating_point_value.dart
@@ -48,6 +48,9 @@ enum FloatingPointConstants {
 
   /// Largest possible number
   infinity,
+
+  /// Not a Number, demarked by all 1s in exponent and any 1 in mantissa
+  nan,
 }
 
 /// IEEE Floating Point Rounding Modes
@@ -299,6 +302,32 @@ class FloatingPointValue implements Comparable<FloatingPointValue> {
         mantissa: val.slice(mantissaWidth - 1, 0));
   }
 
+  /// Abbreviation Functions for common constants
+
+  /// Return the Infinity value for this FloatingPointValue size.
+  FloatingPointValue get infinity =>
+      FloatingPointValue.getFloatingPointConstant(
+          FloatingPointConstants.infinity, exponent.width, mantissa.width);
+
+  /// Return the Negative Infinity value for this FloatingPointValue size.
+  FloatingPointValue get negativeInfinity =>
+      FloatingPointValue.getFloatingPointConstant(
+          FloatingPointConstants.negativeInfinity,
+          exponent.width,
+          mantissa.width);
+
+  /// Return the Negative Infinity value for this FloatingPointValue size.
+  FloatingPointValue get nan => FloatingPointValue.getFloatingPointConstant(
+      FloatingPointConstants.nan, exponent.width, mantissa.width);
+
+  /// Return the value one for this FloatingPointValue size.
+  FloatingPointValue get one => FloatingPointValue.getFloatingPointConstant(
+      FloatingPointConstants.one, exponent.width, mantissa.width);
+
+  /// Return the Negative Infinity value for this FloatingPointValue size.
+  FloatingPointValue get zero => FloatingPointValue.getFloatingPointConstant(
+      FloatingPointConstants.positiveZero, exponent.width, mantissa.width);
+
   /// Return the [FloatingPointValue] representing the constant specified
   factory FloatingPointValue.getFloatingPointConstant(
       FloatingPointConstants constantFloatingPoint,
@@ -353,12 +382,17 @@ class FloatingPointValue implements Comparable<FloatingPointValue> {
       /// Largest positive number, most positive exponent, full mantissa
       case FloatingPointConstants.largestNormal:
         return FloatingPointValue.ofBinaryStrings(
-            '0', '0' * exponentWidth, '1' * mantissaWidth);
+            '0', '${'1' * (exponentWidth - 1)}0', '1' * mantissaWidth);
 
       /// Largest possible number
       case FloatingPointConstants.infinity:
         return FloatingPointValue.ofBinaryStrings(
             '0', '1' * exponentWidth, '0' * mantissaWidth);
+
+      /// Not a Number (NaN)
+      case FloatingPointConstants.nan:
+        return FloatingPointValue.ofBinaryStrings(
+            '0', '1' * exponentWidth, '${'0' * (mantissaWidth - 1)}1');
     }
   }
 
@@ -373,6 +407,19 @@ class FloatingPointValue implements Comparable<FloatingPointValue> {
       return FloatingPoint32Value.ofDouble(inDouble);
     } else if ((exponentWidth == 11) && (mantissaWidth == 52)) {
       return FloatingPoint64Value.ofDouble(inDouble);
+    }
+
+    if (inDouble.isNaN) {
+      return FloatingPointValue.getFloatingPointConstant(
+          FloatingPointConstants.nan, exponentWidth, mantissaWidth);
+    }
+    if (inDouble.isInfinite) {
+      return FloatingPointValue.getFloatingPointConstant(
+          inDouble < 0.0
+              ? FloatingPointConstants.negativeInfinity
+              : FloatingPointConstants.infinity,
+          exponentWidth,
+          mantissaWidth);
     }
 
     if (roundingMode != FloatingPointRoundingMode.roundNearestEven &&
@@ -457,22 +504,26 @@ class FloatingPointValue implements Comparable<FloatingPointValue> {
     } else if ((exponentWidth == 11) && (mantissaWidth == 52)) {
       return FloatingPoint64Value.ofDouble(inDouble);
     }
+    if (inDouble.isNaN) {
+      return FloatingPointValue.getFloatingPointConstant(
+          FloatingPointConstants.nan, exponentWidth, mantissaWidth);
+    }
 
     var doubleVal = inDouble;
-    if (inDouble.isNaN) {
-      return FloatingPointValue(
-        exponent:
-            LogicValue.ofInt(pow(2, exponentWidth).toInt() - 1, exponentWidth),
-        mantissa: LogicValue.zero,
-        sign: LogicValue.zero,
-      );
-    }
     LogicValue sign;
     if (inDouble < 0.0) {
       doubleVal = -doubleVal;
       sign = LogicValue.one;
     } else {
       sign = LogicValue.zero;
+    }
+    if (inDouble.isInfinite) {
+      return FloatingPointValue.getFloatingPointConstant(
+          sign.toBool()
+              ? FloatingPointConstants.negativeInfinity
+              : FloatingPointConstants.infinity,
+          exponentWidth,
+          mantissaWidth);
     }
 
     // If we are dealing with a really small number we need to scale it up
@@ -512,6 +563,15 @@ class FloatingPointValue implements Comparable<FloatingPointValue> {
         ? fullLength - mantissaWidth - scaleToWhole
         : FloatingPointValue.computeMinExponent(exponentWidth);
 
+    if (e > FloatingPointValue.computeMaxExponent(exponentWidth) + 1) {
+      return FloatingPointValue.getFloatingPointConstant(
+          sign.toBool()
+              ? FloatingPointConstants.negativeInfinity
+              : FloatingPointConstants.infinity,
+          exponentWidth,
+          mantissaWidth);
+    }
+
     if (e <= -FloatingPointValue.computeBias(exponentWidth)) {
       fullValue = fullValue >>>
           (scaleToWhole - FloatingPointValue.computeBias(exponentWidth));
@@ -533,10 +593,7 @@ class FloatingPointValue implements Comparable<FloatingPointValue> {
             .reversed;
 
     return FloatingPointValue(
-      exponent: exponent,
-      mantissa: mantissa,
-      sign: sign,
-    );
+        exponent: exponent, mantissa: mantissa, sign: sign);
   }
 
   @override
@@ -566,47 +623,69 @@ class FloatingPointValue implements Comparable<FloatingPointValue> {
     return 0;
   }
 
-  /// Return the bias of this FP format
-  // int bias() => FloatingPointValue.computeBias(exponent.width);
-
   @override
   bool operator ==(Object other) {
     if (other is! FloatingPointValue) {
       return false;
     }
-
     if ((exponent.width != other.exponent.width) |
         (mantissa.width != other.mantissa.width)) {
       return false;
+    }
+    if (isNaN != other.isNaN) {
+      return false;
+    }
+    if (isAnInfinity != other.isAnInfinity) {
+      return false;
+    }
+    if (isAnInfinity) {
+      return sign == other.sign;
     }
     // IEEE 754: -0 an +0 are considered equal
     if ((exponent.isZero && mantissa.isZero) &&
         (other.exponent.isZero && other.mantissa.isZero)) {
       return true;
     }
-
     return (sign == other.sign) &
         (exponent == other.exponent) &
         (mantissa == other.mantissa);
   }
 
-  // TODO(desmonddak): figure out the difference with Infinity
   /// Return true if the represented floating point number is considered
-  ///  NaN or 'Not a Number' due to overflow
-  bool isNaN() {
-    if ((exponent.width == 4) & (mantissa.width == 3)) {
-      // FP8 E4M3 does not support infinities
-      final cond1 = (1 + exponent.toInt()) == pow(2, exponent.width).toInt();
-      final cond2 = (1 + mantissa.toInt()) == pow(2, mantissa.width).toInt();
-      return cond1 & cond2;
-    } else {
-      return exponent.toInt() ==
-          computeMaxExponent(exponent.width) + computeBias(exponent.width) + 1;
-    }
-  }
+  ///  NaN or 'Not a Number'
+  bool get isNaN =>
+      (exponent.toInt() ==
+          computeMaxExponent(exponent.width) +
+              computeBias(exponent.width) +
+              1) &
+      !mantissa.or().isZero;
+
+  /// Return true if the represented floating point number is considered
+  ///  infinity or negative infinity
+  bool get isAnInfinity =>
+      (exponent.toInt() ==
+          computeMaxExponent(exponent.width) +
+              computeBias(exponent.width) +
+              1) &
+      mantissa.or().isZero;
+
+  /// Return true if the represented floating point number is zero. Note
+  /// that the equality operator will treat
+  /// [FloatingPointConstants.positiveZero]
+  /// and [FloatingPointConstants.negativeZero] as equal.
+  bool get isZero =>
+      this ==
+      FloatingPointValue.getFloatingPointConstant(
+          FloatingPointConstants.positiveZero, exponent.width, mantissa.width);
 
   /// Return the value of the floating point number in a Dart [double] type.
   double toDouble() {
+    if (isNaN) {
+      return double.nan;
+    }
+    if (isAnInfinity) {
+      return sign.isZero ? double.infinity : double.negativeInfinity;
+    }
     var doubleVal = double.nan;
     if (value.isValid) {
       if (exponent.toInt() == 0) {
@@ -614,7 +693,7 @@ class FloatingPointValue implements Comparable<FloatingPointValue> {
             pow(2.0, computeMinExponent(exponent.width)) *
             mantissa.toBigInt().toDouble() /
             pow(2.0, mantissa.width);
-      } else if (!isNaN()) {
+      } else if (!isNaN) {
         doubleVal = (sign.toBool() ? -1.0 : 1.0) *
             (1.0 + mantissa.toBigInt().toDouble() / pow(2.0, mantissa.width)) *
             pow(
@@ -658,26 +737,84 @@ class FloatingPointValue implements Comparable<FloatingPointValue> {
       throw RohdHclException('FloatingPointValue: '
           'multiplicand must have the same mantissa and exponent widths');
     }
+    if (isNaN | other.isNaN) {
+      return FloatingPointValue.getFloatingPointConstant(
+          FloatingPointConstants.nan, exponent.width, mantissa.width);
+    }
 
     return FloatingPointValue.ofDouble(op(toDouble(), other.toDouble()),
         mantissaWidth: mantissa.width, exponentWidth: exponent.width);
   }
 
   /// Multiply operation for [FloatingPointValue]
-  FloatingPointValue operator *(FloatingPointValue multiplicand) =>
-      _performOp(multiplicand, (a, b) => a * b);
+  FloatingPointValue operator *(FloatingPointValue multiplicand) {
+    if (isAnInfinity) {
+      if (multiplicand.isAnInfinity) {
+        return sign != multiplicand.sign ? negativeInfinity : infinity;
+      } else if (multiplicand.isZero) {
+        return nan;
+      } else {
+        return this;
+      }
+    } else if (multiplicand.isAnInfinity) {
+      if (isZero) {
+        return nan;
+      } else {
+        return multiplicand;
+      }
+    }
+    return _performOp(multiplicand, (a, b) => a * b);
+  }
 
   /// Addition operation for [FloatingPointValue]
-  FloatingPointValue operator +(FloatingPointValue addend) =>
-      _performOp(addend, (a, b) => a + b);
+  FloatingPointValue operator +(FloatingPointValue addend) {
+    if (isAnInfinity) {
+      if (addend.isAnInfinity) {
+        if (sign != addend.sign) {
+          return nan;
+        } else {
+          return sign.toBool() ? negativeInfinity : infinity;
+        }
+      } else {
+        return this;
+      }
+    } else if (addend.isAnInfinity) {
+      return addend;
+    }
+    return _performOp(addend, (a, b) => a + b);
+  }
 
   /// Divide operation for [FloatingPointValue]
-  FloatingPointValue operator /(FloatingPointValue divisor) =>
-      _performOp(divisor, (a, b) => a / b);
+  FloatingPointValue operator /(FloatingPointValue divisor) {
+    if (isAnInfinity) {
+      if (divisor.isAnInfinity | divisor.isZero) {
+        return nan;
+      } else {
+        return this;
+      }
+    } else {
+      if (divisor.isZero) {
+        return sign != divisor.sign ? negativeInfinity : infinity;
+      }
+    }
+    return _performOp(divisor, (a, b) => a / b);
+  }
 
   /// Subtract operation for [FloatingPointValue]
-  FloatingPointValue operator -(FloatingPointValue subend) =>
-      _performOp(subend, (a, b) => a - b);
+  FloatingPointValue operator -(FloatingPointValue subend) {
+    if (isAnInfinity & subend.isAnInfinity) {
+      if (sign == subend.sign) {
+        return nan;
+      } else {
+        return this;
+      }
+    } else if (subend.isAnInfinity) {
+      return subend.negate();
+    } else if (isAnInfinity) {
+      return this;
+    }
+    return _performOp(subend, (a, b) => a - b);
+  }
 
   /// Negate operation for [FloatingPointValue]
   FloatingPointValue negate() => FloatingPointValue(
@@ -688,4 +825,32 @@ class FloatingPointValue implements Comparable<FloatingPointValue> {
   /// Absolute value operation for [FloatingPointValue]
   FloatingPointValue abs() => FloatingPointValue(
       sign: LogicValue.zero, exponent: exponent, mantissa: mantissa);
+
+  /// Return true if the other [FloatingPointValue] is within a rounding
+  /// error of this value.
+  bool withinRounding(FloatingPointValue other) {
+    if (this != other) {
+      final diff = (abs() - other.abs()).abs();
+      if (diff.compareTo(ulp()) == 1) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  /// Compute the unit in the last place for the given [FloatingPointValue]
+  FloatingPointValue ulp() {
+    if (exponent.toInt() > mantissa.width) {
+      final newExponent =
+          LogicValue.ofInt(exponent.toInt() - mantissa.width, exponent.width);
+      return FloatingPointValue.ofBinaryStrings(
+          sign.bitString, newExponent.bitString, '0' * (mantissa.width));
+    } else {
+      // TODO(desmonddak): need to handle exponent < mantissa width by
+      // shifting the 1 for ULP incrementally, not just putting it at
+      // the end.
+      return FloatingPointValue.ofBinaryStrings(
+          sign.bitString, exponent.bitString, '${'0' * (mantissa.width - 1)}1');
+    }
+  }
 }

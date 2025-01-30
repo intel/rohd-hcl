@@ -1,4 +1,4 @@
-// Copyright (C) 2024 Intel Corporation
+// Copyright (C) 2024-2025 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 //
 // fixed_point_logic.dart
@@ -43,6 +43,7 @@ class FixedPoint extends Logic {
   }
 
   /// Clone for I/O ports.
+  @override
   FixedPoint clone({String? name}) => FixedPoint(signed: signed, m: m, n: n);
 
   /// Cast logic to fixed point

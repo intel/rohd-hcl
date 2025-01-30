@@ -1,4 +1,4 @@
-// Copyright (C) 2024 Intel Corporation
+// Copyright (C) 2024-2025 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 //
 // floating_point_8_value.dart
@@ -32,10 +32,15 @@ class FloatingPoint8E4M3Value extends FloatingPointValue {
   int get constrainedMantissaWidth => mantissaWidth;
 
   /// The maximum value representable by the E4M3 format
-  static double get maxValue => 448.toDouble();
+  static double get maxValue =>
+      FloatingPoint8E4M3Value.getFloatingPointConstant(
+              FloatingPointConstants.largestNormal)
+          .toDouble();
 
   /// The minimum value representable by the E4M3 format
-  static double get minValue => pow(2, -9).toDouble();
+  static double get minValue => FloatingPointValue.getFloatingPointConstant(
+          FloatingPointConstants.smallestPositiveSubnormal, 4, 3)
+      .toDouble();
 
   /// Constructor for a double precision floating point value
   FloatingPoint8E4M3Value(
@@ -70,6 +75,22 @@ class FloatingPoint8E4M3Value extends FloatingPointValue {
       : super.ofInts(
             exponentWidth: exponentWidth, mantissaWidth: mantissaWidth);
 
+  /// Inf is not representable in this format
+  @override
+  bool get isAnInfinity => false;
+
+  @override
+  bool get isNaN => (exponent.toInt() == 15) && (mantissa.toInt() == 7);
+
+  /// Override the toDouble to avoid NaN
+  @override
+  double toDouble() {
+    if (exponent.toInt() == 15) {
+      return 448;
+    }
+    return super.toDouble();
+  }
+
   /// Numeric conversion of a [FloatingPoint8E4M3Value] from a host double
   factory FloatingPoint8E4M3Value.ofDouble(double inDouble) {
     if ((inDouble.abs() > maxValue) |
@@ -86,6 +107,28 @@ class FloatingPoint8E4M3Value extends FloatingPointValue {
   factory FloatingPoint8E4M3Value.ofLogicValue(LogicValue val) =>
       FloatingPointValue.buildOfLogicValue(
           FloatingPoint8E4M3Value.new, exponentWidth, mantissaWidth, val);
+
+  /// Return the [FloatingPointValue] representing the constant specified.
+  /// Special case for 8E4M3 type.
+  factory FloatingPoint8E4M3Value.getFloatingPointConstant(
+      FloatingPointConstants constantFloatingPoint) {
+    switch (constantFloatingPoint) {
+      /// Largest positive number, most positive exponent, full mantissa
+      case FloatingPointConstants.largestNormal:
+        return FloatingPoint8E4M3Value.ofBinaryStrings(
+            '0', '1' * exponentWidth, '${'1' * (mantissaWidth - 1)}0');
+      case FloatingPointConstants.nan:
+        return FloatingPoint8E4M3Value.ofBinaryStrings(
+            '0', '${'1' * (exponentWidth - 1)}1', '1' * mantissaWidth);
+      case FloatingPointConstants.infinity:
+      case FloatingPointConstants.negativeInfinity:
+        throw RohdHclException('Infinity is not representable in this format');
+      case _:
+        return FloatingPointValue.getFloatingPointConstant(
+                constantFloatingPoint, exponentWidth, mantissaWidth)
+            as FloatingPoint8E4M3Value;
+    }
+  }
 }
 
 /// The E5M2 representation of a 8-bit floating point value as defined in
