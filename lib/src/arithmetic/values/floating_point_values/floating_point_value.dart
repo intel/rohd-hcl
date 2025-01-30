@@ -474,7 +474,7 @@ class FloatingPointValue implements Comparable<FloatingPointValue> {
     // TODO(desmonddak): how to convert to infinity and check that it is
     // supported by the format.
     if ((exponentWidth == 4) && (mantissaWidth == 3)) {
-      // TODO (desmonddak): need a better way to detect subclass limitations
+      // TODO(desmonddak): need a better way to detect subclass limitations
       // Here we avoid returning infinity for FP8E4M3
     } else {
       if (expVal >
