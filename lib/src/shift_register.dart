@@ -55,7 +55,8 @@ class ShiftRegister extends Module {
   })  : width = dataIn.width,
         super(
             name: '${dataName}_shift_register',
-            definitionName: 'ShiftRegister_W${dataIn.width}') {
+            definitionName: 'ShiftRegister_W${dataIn.width}'
+                '_D$depth') {
     dataIn = addInput('${dataName}_in', dataIn, width: width);
     clk = addInput('clk', clk);
 

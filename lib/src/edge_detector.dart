@@ -1,4 +1,4 @@
-// Copyright (C) 2024 Intel Corporation
+// Copyright (C) 2024-2025 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 //
 // edge_detector.dart
@@ -40,7 +40,7 @@ class EdgeDetector extends Module {
     String? name,
   }) : super(
             name: name ?? '${edgeType.name}_edge_detector',
-            definitionName: 'EdgeDetector_W${signal.width}') {
+            definitionName: 'EdgeDetector_T${edgeType.name}') {
     if (signal.width != 1 ||
         (resetValue is Logic && resetValue.width != 1) ||
         (resetValue is LogicValue && resetValue.width != 1)) {
