@@ -77,3 +77,22 @@ It has options to control its performance:
 - `adderGen`: used to specify the kind of [Adder] used for key functions like the mantissa addition. Defaults to [NativeAdder], but you can select a [ParallelPrefixAdder] of your choice.
 - `seGen`: type of sign extension routine used, base class is [PartialProductSignExtension].
 - `ppTree`: used to specify the type of ['ParallelPrefix'](https://intel.github.io/rohd-hcl/rohd_hcl/ParallelPrefix-class.html) used in the other critical functions like leading-one detect.
+
+
+## FloatingPointConverter
+
+A [FloatingPointConverter] component translates arbitrary width floating-point logic structures from one size to another, including handling sub-normals, infinities, and performs RNE rounding.
+
+Here is an example using the converter to translate from 32-bit single-precision floating point to 16-bit brain (bfloat16) floating-point format.
+
+```dart
+    final fp32 = FloatingPoint32();
+    final bf16 = FloatingPointBF16();
+
+    final one = FloatingPoint32Value.getFloatingPointConstant(
+        FloatingPointConstants.one);
+
+    fp32.put(one);
+    FloatingPointConverter(fp32, bf16);
+    expect(bf16.floatingPointValue.toDouble(), equals(1.0));
+```

@@ -41,7 +41,13 @@ class FloatingPointConverter extends Module {
       mantissaWidth: destMantissaWidth,
       name: 'dest');
 
-  /// Convert a floating point number from one format to another
+  /// Convert a [FloatingPoint] logic structure from one format to another.
+  /// - [source] is the source format [FloatingPoint] logic structure.
+  /// - [destination] is the destination format [FloatingPoint] logic
+  /// structure.
+  /// - [ppTree] can be specified to use a specific [ParallelPrefix] tree
+  /// for the leading-1 detection during normalization.
+  /// - [adderGen] can specify the [Adder] to use for exponent calculations.
   FloatingPointConverter(FloatingPoint source, FloatingPoint destination,
       {ParallelPrefix Function(
               List<Logic> inps, Logic Function(Logic term1, Logic term2) op)
