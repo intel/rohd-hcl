@@ -32,7 +32,12 @@ class FloatingPointMultiplierSimple extends FloatingPointMultiplier {
       ParallelPrefix Function(
               List<Logic> inps, Logic Function(Logic term1, Logic term2) op)
           ppTree = KoggeStone.new,
-      super.name}) {
+      super.name})
+      : super(
+            definitionName: 'FloatingPointMultiplierSimple_'
+                'E${a.exponent.width}M${a.mantissa.width}'
+                '${outProduct != null ? '_OE${outProduct.exponent.width}_'
+                    'OM${outProduct.mantissa.width}' : ''}') {
     if (exponentWidth < a.exponent.width) {
       throw RohdHclException('product exponent width must be >= '
           ' input exponent width');

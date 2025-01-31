@@ -28,7 +28,8 @@ class Count extends Module {
   ///
   /// Takes in [bus] of type [Logic]. by default performs [countOne] (`1`)
   /// if [countOne] is `false` will count `0`
-  Count(Logic bus, {bool countOne = true}) {
+  Count(Logic bus, {bool countOne = true})
+      : super(definitionName: 'Count_W${bus.width}') {
     bus = addInput('bus', bus, width: bus.width);
     Logic count = Const(0, width: max(1, log2Ceil(bus.width + 1)));
     for (var i = 0; i < bus.width; i++) {
