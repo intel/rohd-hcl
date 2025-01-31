@@ -8,9 +8,7 @@ The input sequence is provided in the form 'List\<Logic\>'.  The operation must 
  Logic Function(List<Logic> operands, {String name})
  ```
 
- This function should support operand lengths between $[2,radix]$ if the tree is to support an input sequence that is not a power of the radix.
-
-The `ReductionTree` itself not require the sequence length to be a power of the radix; it can be of arbitrary length.
+ This function should support operand lengths between $[2,radix]$ if the tree is to support an arbitrary length sequence: Note that the `ReductionTree` itself does not require the sequence length to be a power of the radix; it will use shorter operations to balance the tree when the sequence length is not a power of the radix.
 
 The resulting tree can be pipelined by specifying the depth of nodes before a pipestage is added.  Since the input can be of arbitrary length, paths in the tree may not be balanced, and extra pipestages will be added in shorter sections of the tree to align the computation.
 
