@@ -1,4 +1,4 @@
-// Copyright (C) 2023-2024 Intel Corporation
+// Copyright (C) 2023-2025 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 //
 // register_file.dart
@@ -23,7 +23,10 @@ class RegisterFile extends Memory {
   /// [MaskedDataPortInterface]s are supported on `writePorts`, but not on
   /// `readPorts`.
   RegisterFile(super.clk, super.reset, super.writePorts, super.readPorts,
-      {this.numEntries = 8, super.name = 'rf'}) {
+      {this.numEntries = 8, super.name = 'rf'})
+      : super(
+            definitionName: 'RegisterFile_WP${writePorts.length}'
+                '_RP${readPorts.length}_E$numEntries') {
     _buildLogic();
   }
 

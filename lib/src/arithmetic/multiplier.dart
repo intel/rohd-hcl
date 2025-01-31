@@ -88,7 +88,11 @@ abstract class Multiplier extends Module {
       this.signedMultiplier = false,
       Logic? selectSignedMultiplicand,
       Logic? selectSignedMultiplier,
-      super.name = 'multiplier'}) {
+      super.name = 'multiplier',
+      String? definitionName})
+      : super(
+            definitionName:
+                definitionName ?? 'Multiplier_W${a.width}x${b.width}') {
     if (signedMultiplicand && (selectSignedMultiplicand != null)) {
       throw RohdHclException('multiplicand sign reconfiguration requires '
           'signedMultiplicand=false');
@@ -136,7 +140,8 @@ class NativeMultiplier extends Multiplier {
       super.signedMultiplier = false,
       super.selectSignedMultiplicand,
       super.selectSignedMultiplier,
-      super.name = 'native_multiplier'}) {
+      super.name = 'native_multiplier'})
+      : super(definitionName: 'NativeMultiplier_W${a.width}') {
     if (a.width != b.width) {
       throw RohdHclException('inputs of a and b should have same width.');
     }
@@ -267,7 +272,12 @@ abstract class MultiplyAccumulate extends Module {
       Logic? selectSignedMultiplicand,
       Logic? selectSignedMultiplier,
       Logic? selectSignedAddend,
-      super.name}) {
+      super.name,
+      String? definitionName})
+      : super(
+            definitionName: definitionName ??
+                'MultiplyAccumulate_W${a.width}x${b.width}_'
+                    'Acc${c.width}') {
     this.clk = (clk != null) ? addInput('clk', clk) : null;
     this.reset = (reset != null) ? addInput('reset', reset) : null;
     this.enable = (enable != null) ? addInput('enable', enable) : null;
@@ -343,7 +353,15 @@ class CompressionTreeMultiplier extends Multiplier {
       PartialProductSignExtension Function(PartialProductGeneratorBase pp,
               {String name})
           seGen = CompactRectSignExtension.new,
-      super.name = 'compression_tree_multiplier'}) {
+      super.name = 'compression_tree_multiplier'})
+      : super(
+            definitionName: 'CompressionTreeMultiplier_W${a.width}x'
+                '${b.width}_'
+                '${signedMultiplicand ? 'SD_' : ''}'
+                '${signedMultiplier ? 'SM_' : ''}'
+                '${selectSignedMultiplicand != null ? 'SSD_' : ''}'
+                '${selectSignedMultiplier != null ? 'SSM_' : ''}'
+                'with${adderGen(a, b).definitionName}') {
 // Should be done in base TODO(desmonddak):
     final product = addOutput('product', width: a.width + b.width);
     final pp = PartialProductGenerator(

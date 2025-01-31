@@ -35,7 +35,10 @@ class FloatingPointAdderRound extends FloatingPointAdder {
       ParallelPrefix Function(
               List<Logic> inps, Logic Function(Logic term1, Logic term2) op)
           ppTree = KoggeStone.new,
-      super.name = 'floating_point_adder_round'}) {
+      super.name = 'floating_point_adder_round'})
+      : super(
+            definitionName: 'FloatingPointAdderRound_'
+                'E${a.exponent.width}M${a.mantissa.width}') {
     final outputSum = FloatingPoint(
         exponentWidth: exponentWidth, mantissaWidth: mantissaWidth);
     output('sum') <= outputSum;

@@ -1,4 +1,4 @@
-// Copyright (C) 2023-2024 Intel Corporation
+// Copyright (C) 2023-2025 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 //
 // rotate.dart
@@ -40,10 +40,9 @@ abstract class _Rotate extends Module {
   /// represented by the maximum value of [rotateAmount].
   _Rotate(this._direction, Logic original, Logic rotateAmount,
       {int? maxAmount, super.name = 'rotate'})
-      : maxAmount = min(
-          maxAmount ?? original.width,
-          pow(2, rotateAmount.width).toInt() - 1,
-        ) {
+      : maxAmount = min(maxAmount ?? original.width,
+            pow(2, rotateAmount.width).toInt() - 1),
+        super(definitionName: 'Rotate_${_direction.name}_W${original.width}') {
     original = addInput('original', original, width: original.width);
     rotateAmount =
         addInput('rotate_amount', rotateAmount, width: rotateAmount.width);
@@ -109,7 +108,9 @@ class _RotateFixed extends Module {
   /// Rotates [original] by [rotateAmount] to the [_direction].
   _RotateFixed(this._direction, Logic original, this.rotateAmount,
       {super.name = 'rotate_fixed'})
-      : super(definitionName: 'rotate_${_direction.name}_by_$rotateAmount') {
+      : super(
+            definitionName: 'RotateFixed_${_direction.name}_'
+                'by_$rotateAmount') {
     original = addInput('original', original, width: original.width);
     addOutput('rotated', width: original.width);
 

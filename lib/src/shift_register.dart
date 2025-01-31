@@ -1,4 +1,4 @@
-// Copyright (C) 2023-2024 Intel Corporation
+// Copyright (C) 2023-2025 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 //
 // shift_register.dart
@@ -53,7 +53,10 @@ class ShiftRegister extends Module {
     dynamic resetValue,
     this.dataName = 'data',
   })  : width = dataIn.width,
-        super(name: '${dataName}_shift_register') {
+        super(
+            name: '${dataName}_shift_register',
+            definitionName: 'ShiftRegister_W${dataIn.width}'
+                '_D$depth') {
     dataIn = addInput('${dataName}_in', dataIn, width: width);
     clk = addInput('clk', clk);
 

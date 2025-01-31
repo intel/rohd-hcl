@@ -26,7 +26,10 @@ class _NodeOneHotToBinary extends Module {
 
   /// Build a shorter-input module for recursion
   /// (borrowed from Chisel OHToUInt)
-  _NodeOneHotToBinary(Logic onehot) : super(name: 'node_one_hot_to_binary') {
+  _NodeOneHotToBinary(Logic onehot)
+      : super(
+            name: 'node_one_hot_to_binary',
+            definitionName: 'NodeOneHotToBinary_W${onehot.width}') {
     final wid = onehot.width;
     onehot = addInput('onehot', onehot, width: wid);
 
