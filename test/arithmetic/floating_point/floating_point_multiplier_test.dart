@@ -10,7 +10,6 @@
 //
 
 import 'dart:async';
-import 'dart:io';
 import 'dart:math';
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
@@ -296,7 +295,6 @@ void main() {
       final multiply =
           FloatingPointMultiplierSimple(fp1, fp2, outProduct: fpout);
       await multiply.build();
-      File('widem.sv').writeAsStringSync(multiply.generateSynth());
       final computed = multiply.product.floatingPointValue;
 
       expect(computed, equals(expected), reason: '''
