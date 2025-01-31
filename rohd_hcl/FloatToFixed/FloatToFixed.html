@@ -70,7 +70,10 @@
     
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
-  <pre class="language-dart"><code class="language-dart">FloatToFixed(FloatingPoint float, {super.name = &#39;FloatToFixed&#39;}) {
+  <pre class="language-dart"><code class="language-dart">FloatToFixed(FloatingPoint float, {super.name = &#39;FloatToFixed&#39;})
+    : super(
+          definitionName: &#39;FloatE${float.exponent.width}&#39;
+              &#39;M${float.mantissa.width}ToFixed&#39;) {
   float = float.clone()..gets(addInput(&#39;float&#39;, float, width: float.width));
 
   final bias = FloatingPointValue.computeBias(float.exponent.width);

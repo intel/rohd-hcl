@@ -57,8 +57,8 @@
 
     <section class="multi-line-signature">
       
-      <span class="name ">SignedShifter</span>(<wbr><ol class="parameter-list"> <li><span class="parameter" id="-param-bits"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.1/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">bits</span>, </span></li>
-<li><span class="parameter" id="-param-shift"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.1/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">shift</span>, {</span></li>
+      <span class="name ">SignedShifter</span>(<wbr><ol class="parameter-list"> <li><span class="parameter" id="-param-bits"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.2/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">bits</span>, </span></li>
+<li><span class="parameter" id="-param-shift"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.2/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">shift</span>, {</span></li>
 <li><span class="parameter" id="-param-name"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.6.2/dart-core/String-class.html">String</a></span> <span class="parameter-name">name</span> = <span class="default-value">&#39;shifter&#39;</span>, </span></li>
 </ol>})
     </section>
@@ -75,7 +75,8 @@
     
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
-  <pre class="language-dart"><code class="language-dart">SignedShifter(Logic bits, Logic shift, {super.name = &#39;shifter&#39;}) {
+  <pre class="language-dart"><code class="language-dart">SignedShifter(Logic bits, Logic shift, {super.name = &#39;shifter&#39;})
+    : super(definitionName: &#39;SignedShifter_W${bits.width}&#39;) {
   bits = addInput(&#39;bits&#39;, bits, width: bits.width);
   shift = addInput(&#39;shift&#39;, shift, width: shift.width);
 

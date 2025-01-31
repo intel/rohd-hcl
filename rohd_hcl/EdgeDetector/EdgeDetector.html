@@ -57,9 +57,9 @@
 
     <section class="multi-line-signature">
       
-      <span class="name ">EdgeDetector</span>(<wbr><ol class="parameter-list"> <li><span class="parameter" id="-param-signal"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.1/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">signal</span>, {</span></li>
-<li><span class="parameter" id="-param-clk"><span>required</span> <span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.1/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">clk</span>, </span></li>
-<li><span class="parameter" id="-param-reset"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.1/rohd/Logic-class.html">Logic</a>?</span> <span class="parameter-name">reset</span>, </span></li>
+      <span class="name ">EdgeDetector</span>(<wbr><ol class="parameter-list"> <li><span class="parameter" id="-param-signal"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.2/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">signal</span>, {</span></li>
+<li><span class="parameter" id="-param-clk"><span>required</span> <span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.2/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">clk</span>, </span></li>
+<li><span class="parameter" id="-param-reset"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.2/rohd/Logic-class.html">Logic</a>?</span> <span class="parameter-name">reset</span>, </span></li>
 <li><span class="parameter" id="-param-resetValue"><span class="type-annotation">dynamic</span> <span class="parameter-name">resetValue</span>, </span></li>
 <li><span class="parameter" id="-param-edgeType"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd_vf/0.6.0/rohd_vf/Edge.html">Edge</a></span> <span class="parameter-name">edgeType</span> = <span class="default-value">Edge.pos</span>, </span></li>
 <li><span class="parameter" id="-param-name"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.6.2/dart-core/String-class.html">String</a>?</span> <span class="parameter-name">name</span>, </span></li>
@@ -86,7 +86,9 @@ provided).</p>
   dynamic resetValue,
   this.edgeType = Edge.pos,
   String? name,
-}) : super(name: name ?? &#39;${edgeType.name}_edge_detector&#39;) {
+}) : super(
+          name: name ?? &#39;${edgeType.name}_edge_detector&#39;,
+          definitionName: &#39;EdgeDetector_T${edgeType.name}&#39;) {
   if (signal.width != 1 ||
       (resetValue is Logic &amp;&amp; resetValue.width != 1) ||
       (resetValue is LogicValue &amp;&amp; resetValue.width != 1)) {

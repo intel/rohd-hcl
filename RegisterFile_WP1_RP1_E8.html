@@ -1,0 +1,1258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>d3-hwschematic</title>
+</head>
+<body>
+  </script>
+  <script type="text/javascript" src="d3-hwschematic-assets/d3/dist/d3.js"></script>
+  <!-- <script type="text/javascript" src="d3-hwschematic-assets/d3/dist/d3.min.js"></script>  -->
+  <script type="text/javascript" src="d3-hwschematic-assets/elkjs/lib/elk.bundled.js"></script>
+  <script type="text/javascript" src="d3-hwschematic-assets/d3-hwschematic.js"></script>
+  <link href="d3-hwschematic-assets/d3-hwschematic.css" rel="stylesheet">
+  <style>
+  	body {
+	   margin: 0;
+    }
+  </style>
+</head>
+<body>
+    <svg id="scheme-placeholder"></svg>
+    <script>
+        // schematic rendering script
+        function viewport() {
+          var e = window,
+            a = 'inner';
+          if (!(innerWidth in window)) {
+            a = 'client';
+            e = document.documentElement || document.body;
+          }
+          return {
+            width: e[a + 'Width'],
+            height: e[a + 'Height']
+          }
+        }
+      var exmpl = `{
+  "creator": "Yosys 0.29+11 (git sha1 d82bae32b, clang 10.0.0-4ubuntu1 -fPIC -Os)",
+  "modules": {
+    "RegisterFile_WP1_RP1_E8": {
+      "attributes": {
+        "top": 1,
+        "src": "RegisterFile_WP1_RP1_E8.v:7.1-112.36"
+      },
+      "ports": {
+        "clk": {
+          "direction": "input",
+          "bits": [ 2 ]
+        },
+        "reset": {
+          "direction": "input",
+          "bits": [ 3 ]
+        },
+        "rd_en_0": {
+          "direction": "input",
+          "bits": [ 4 ]
+        },
+        "rd_addr_0": {
+          "direction": "input",
+          "bits": [ 5, 6, 7, 8 ]
+        },
+        "wr_en_0": {
+          "direction": "input",
+          "bits": [ 9 ]
+        },
+        "wr_addr_0": {
+          "direction": "input",
+          "bits": [ 10, 11, 12, 13 ]
+        },
+        "wr_data_0": {
+          "direction": "input",
+          "bits": [ 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29 ]
+        },
+        "rd_data_0": {
+          "direction": "output",
+          "bits": [ 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45 ]
+        }
+      },
+      "cells": {
+        "$and$RegisterFile_WP1_RP1_E8.v:100$17": {
+          "hide_name": 1,
+          "type": "$and",
+          "parameters": {
+            "A_SIGNED": 0,
+            "A_WIDTH": 1,
+            "B_SIGNED": 0,
+            "B_WIDTH": 1,
+            "Y_WIDTH": 1
+          },
+          "attributes": {
+            "src": "RegisterFile_WP1_RP1_E8.v:100.11-100.40"
+          },
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [ 9 ],
+            "B": [ 46 ],
+            "Y": [ 47 ]
+          }
+        },
+        "$and$RegisterFile_WP1_RP1_E8.v:104$19": {
+          "hide_name": 1,
+          "type": "$and",
+          "parameters": {
+            "A_SIGNED": 0,
+            "A_WIDTH": 1,
+            "B_SIGNED": 0,
+            "B_WIDTH": 1,
+            "Y_WIDTH": 1
+          },
+          "attributes": {
+            "src": "RegisterFile_WP1_RP1_E8.v:104.11-104.40"
+          },
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [ 9 ],
+            "B": [ 48 ],
+            "Y": [ 49 ]
+          }
+        },
+        "$and$RegisterFile_WP1_RP1_E8.v:76$5": {
+          "hide_name": 1,
+          "type": "$and",
+          "parameters": {
+            "A_SIGNED": 0,
+            "A_WIDTH": 1,
+            "B_SIGNED": 0,
+            "B_WIDTH": 1,
+            "Y_WIDTH": 1
+          },
+          "attributes": {
+            "src": "RegisterFile_WP1_RP1_E8.v:76.11-76.40"
+          },
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [ 9 ],
+            "B": [ 50 ],
+            "Y": [ 51 ]
+          }
+        },
+        "$and$RegisterFile_WP1_RP1_E8.v:80$7": {
+          "hide_name": 1,
+          "type": "$and",
+          "parameters": {
+            "A_SIGNED": 0,
+            "A_WIDTH": 1,
+            "B_SIGNED": 0,
+            "B_WIDTH": 1,
+            "Y_WIDTH": 1
+          },
+          "attributes": {
+            "src": "RegisterFile_WP1_RP1_E8.v:80.11-80.40"
+          },
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [ 9 ],
+            "B": [ 52 ],
+            "Y": [ 53 ]
+          }
+        },
+        "$and$RegisterFile_WP1_RP1_E8.v:84$9": {
+          "hide_name": 1,
+          "type": "$and",
+          "parameters": {
+            "A_SIGNED": 0,
+            "A_WIDTH": 1,
+            "B_SIGNED": 0,
+            "B_WIDTH": 1,
+            "Y_WIDTH": 1
+          },
+          "attributes": {
+            "src": "RegisterFile_WP1_RP1_E8.v:84.11-84.40"
+          },
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [ 9 ],
+            "B": [ 54 ],
+            "Y": [ 55 ]
+          }
+        },
+        "$and$RegisterFile_WP1_RP1_E8.v:88$11": {
+          "hide_name": 1,
+          "type": "$and",
+          "parameters": {
+            "A_SIGNED": 0,
+            "A_WIDTH": 1,
+            "B_SIGNED": 0,
+            "B_WIDTH": 1,
+            "Y_WIDTH": 1
+          },
+          "attributes": {
+            "src": "RegisterFile_WP1_RP1_E8.v:88.11-88.40"
+          },
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [ 9 ],
+            "B": [ 56 ],
+            "Y": [ 57 ]
+          }
+        },
+        "$and$RegisterFile_WP1_RP1_E8.v:92$13": {
+          "hide_name": 1,
+          "type": "$and",
+          "parameters": {
+            "A_SIGNED": 0,
+            "A_WIDTH": 1,
+            "B_SIGNED": 0,
+            "B_WIDTH": 1,
+            "Y_WIDTH": 1
+          },
+          "attributes": {
+            "src": "RegisterFile_WP1_RP1_E8.v:92.11-92.40"
+          },
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [ 9 ],
+            "B": [ 58 ],
+            "Y": [ 59 ]
+          }
+        },
+        "$and$RegisterFile_WP1_RP1_E8.v:96$15": {
+          "hide_name": 1,
+          "type": "$and",
+          "parameters": {
+            "A_SIGNED": 0,
+            "A_WIDTH": 1,
+            "B_SIGNED": 0,
+            "B_WIDTH": 1,
+            "Y_WIDTH": 1
+          },
+          "attributes": {
+            "src": "RegisterFile_WP1_RP1_E8.v:96.11-96.40"
+          },
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [ 9 ],
+            "B": [ 60 ],
+            "Y": [ 61 ]
+          }
+        },
+        "$auto$ff.cc:266:slice$85": {
+          "hide_name": 1,
+          "type": "$sdffe",
+          "parameters": {
+            "CLK_POLARITY": 1,
+            "EN_POLARITY": 1,
+            "SRST_POLARITY": 1,
+            "SRST_VALUE": 0,
+            "WIDTH": 16
+          },
+          "attributes": {
+            "always_ff": 1,
+            "src": "RegisterFile_WP1_RP1_E8.v:65.1-110.4"
+          },
+          "port_directions": {
+            "CLK": "input",
+            "D": "input",
+            "EN": "input",
+            "Q": "output",
+            "SRST": "input"
+          },
+          "connections": {
+            "CLK": [ 2 ],
+            "D": [ 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29 ],
+            "EN": [ 49 ],
+            "Q": [ 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77 ],
+            "SRST": [ 3 ]
+          }
+        },
+        "$auto$ff.cc:266:slice$87": {
+          "hide_name": 1,
+          "type": "$sdffe",
+          "parameters": {
+            "CLK_POLARITY": 1,
+            "EN_POLARITY": 1,
+            "SRST_POLARITY": 1,
+            "SRST_VALUE": 0,
+            "WIDTH": 16
+          },
+          "attributes": {
+            "always_ff": 1,
+            "src": "RegisterFile_WP1_RP1_E8.v:65.1-110.4"
+          },
+          "port_directions": {
+            "CLK": "input",
+            "D": "input",
+            "EN": "input",
+            "Q": "output",
+            "SRST": "input"
+          },
+          "connections": {
+            "CLK": [ 2 ],
+            "D": [ 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29 ],
+            "EN": [ 51 ],
+            "Q": [ 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93 ],
+            "SRST": [ 3 ]
+          }
+        },
+        "$auto$ff.cc:266:slice$89": {
+          "hide_name": 1,
+          "type": "$sdffe",
+          "parameters": {
+            "CLK_POLARITY": 1,
+            "EN_POLARITY": 1,
+            "SRST_POLARITY": 1,
+            "SRST_VALUE": 0,
+            "WIDTH": 16
+          },
+          "attributes": {
+            "always_ff": 1,
+            "src": "RegisterFile_WP1_RP1_E8.v:65.1-110.4"
+          },
+          "port_directions": {
+            "CLK": "input",
+            "D": "input",
+            "EN": "input",
+            "Q": "output",
+            "SRST": "input"
+          },
+          "connections": {
+            "CLK": [ 2 ],
+            "D": [ 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29 ],
+            "EN": [ 53 ],
+            "Q": [ 94, 95, 96, 97, 98, 99, 100, 101, 102, 103, 104, 105, 106, 107, 108, 109 ],
+            "SRST": [ 3 ]
+          }
+        },
+        "$auto$ff.cc:266:slice$91": {
+          "hide_name": 1,
+          "type": "$sdffe",
+          "parameters": {
+            "CLK_POLARITY": 1,
+            "EN_POLARITY": 1,
+            "SRST_POLARITY": 1,
+            "SRST_VALUE": 0,
+            "WIDTH": 16
+          },
+          "attributes": {
+            "always_ff": 1,
+            "src": "RegisterFile_WP1_RP1_E8.v:65.1-110.4"
+          },
+          "port_directions": {
+            "CLK": "input",
+            "D": "input",
+            "EN": "input",
+            "Q": "output",
+            "SRST": "input"
+          },
+          "connections": {
+            "CLK": [ 2 ],
+            "D": [ 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29 ],
+            "EN": [ 55 ],
+            "Q": [ 110, 111, 112, 113, 114, 115, 116, 117, 118, 119, 120, 121, 122, 123, 124, 125 ],
+            "SRST": [ 3 ]
+          }
+        },
+        "$auto$ff.cc:266:slice$93": {
+          "hide_name": 1,
+          "type": "$sdffe",
+          "parameters": {
+            "CLK_POLARITY": 1,
+            "EN_POLARITY": 1,
+            "SRST_POLARITY": 1,
+            "SRST_VALUE": 0,
+            "WIDTH": 16
+          },
+          "attributes": {
+            "always_ff": 1,
+            "src": "RegisterFile_WP1_RP1_E8.v:65.1-110.4"
+          },
+          "port_directions": {
+            "CLK": "input",
+            "D": "input",
+            "EN": "input",
+            "Q": "output",
+            "SRST": "input"
+          },
+          "connections": {
+            "CLK": [ 2 ],
+            "D": [ 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29 ],
+            "EN": [ 57 ],
+            "Q": [ 126, 127, 128, 129, 130, 131, 132, 133, 134, 135, 136, 137, 138, 139, 140, 141 ],
+            "SRST": [ 3 ]
+          }
+        },
+        "$auto$ff.cc:266:slice$95": {
+          "hide_name": 1,
+          "type": "$sdffe",
+          "parameters": {
+            "CLK_POLARITY": 1,
+            "EN_POLARITY": 1,
+            "SRST_POLARITY": 1,
+            "SRST_VALUE": 0,
+            "WIDTH": 16
+          },
+          "attributes": {
+            "always_ff": 1,
+            "src": "RegisterFile_WP1_RP1_E8.v:65.1-110.4"
+          },
+          "port_directions": {
+            "CLK": "input",
+            "D": "input",
+            "EN": "input",
+            "Q": "output",
+            "SRST": "input"
+          },
+          "connections": {
+            "CLK": [ 2 ],
+            "D": [ 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29 ],
+            "EN": [ 59 ],
+            "Q": [ 142, 143, 144, 145, 146, 147, 148, 149, 150, 151, 152, 153, 154, 155, 156, 157 ],
+            "SRST": [ 3 ]
+          }
+        },
+        "$auto$ff.cc:266:slice$97": {
+          "hide_name": 1,
+          "type": "$sdffe",
+          "parameters": {
+            "CLK_POLARITY": 1,
+            "EN_POLARITY": 1,
+            "SRST_POLARITY": 1,
+            "SRST_VALUE": 0,
+            "WIDTH": 16
+          },
+          "attributes": {
+            "always_ff": 1,
+            "src": "RegisterFile_WP1_RP1_E8.v:65.1-110.4"
+          },
+          "port_directions": {
+            "CLK": "input",
+            "D": "input",
+            "EN": "input",
+            "Q": "output",
+            "SRST": "input"
+          },
+          "connections": {
+            "CLK": [ 2 ],
+            "D": [ 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29 ],
+            "EN": [ 61 ],
+            "Q": [ 158, 159, 160, 161, 162, 163, 164, 165, 166, 167, 168, 169, 170, 171, 172, 173 ],
+            "SRST": [ 3 ]
+          }
+        },
+        "$auto$ff.cc:266:slice$99": {
+          "hide_name": 1,
+          "type": "$sdffe",
+          "parameters": {
+            "CLK_POLARITY": 1,
+            "EN_POLARITY": 1,
+            "SRST_POLARITY": 1,
+            "SRST_VALUE": 0,
+            "WIDTH": 16
+          },
+          "attributes": {
+            "always_ff": 1,
+            "src": "RegisterFile_WP1_RP1_E8.v:65.1-110.4"
+          },
+          "port_directions": {
+            "CLK": "input",
+            "D": "input",
+            "EN": "input",
+            "Q": "output",
+            "SRST": "input"
+          },
+          "connections": {
+            "CLK": [ 2 ],
+            "D": [ 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29 ],
+            "EN": [ 47 ],
+            "Q": [ 174, 175, 176, 177, 178, 179, 180, 181, 182, 183, 184, 185, 186, 187, 188, 189 ],
+            "SRST": [ 3 ]
+          }
+        },
+        "$eq$RegisterFile_WP1_RP1_E8.v:100$16": {
+          "hide_name": 1,
+          "type": "$eq",
+          "parameters": {
+            "A_SIGNED": 0,
+            "A_WIDTH": 4,
+            "B_SIGNED": 0,
+            "B_WIDTH": 4,
+            "Y_WIDTH": 1
+          },
+          "attributes": {
+            "src": "RegisterFile_WP1_RP1_E8.v:100.22-100.39"
+          },
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [ 10, 11, 12, 13 ],
+            "B": [ "0", "1", "1", "0" ],
+            "Y": [ 46 ]
+          }
+        },
+        "$eq$RegisterFile_WP1_RP1_E8.v:104$18": {
+          "hide_name": 1,
+          "type": "$eq",
+          "parameters": {
+            "A_SIGNED": 0,
+            "A_WIDTH": 4,
+            "B_SIGNED": 0,
+            "B_WIDTH": 4,
+            "Y_WIDTH": 1
+          },
+          "attributes": {
+            "src": "RegisterFile_WP1_RP1_E8.v:104.22-104.39"
+          },
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [ 10, 11, 12, 13 ],
+            "B": [ "1", "1", "1", "0" ],
+            "Y": [ 48 ]
+          }
+        },
+        "$eq$RegisterFile_WP1_RP1_E8.v:76$4": {
+          "hide_name": 1,
+          "type": "$logic_not",
+          "parameters": {
+            "A_SIGNED": 0,
+            "A_WIDTH": 4,
+            "Y_WIDTH": 1
+          },
+          "attributes": {
+            "src": "RegisterFile_WP1_RP1_E8.v:76.22-76.39"
+          },
+          "port_directions": {
+            "A": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [ 10, 11, 12, 13 ],
+            "Y": [ 50 ]
+          }
+        },
+        "$eq$RegisterFile_WP1_RP1_E8.v:80$6": {
+          "hide_name": 1,
+          "type": "$eq",
+          "parameters": {
+            "A_SIGNED": 0,
+            "A_WIDTH": 4,
+            "B_SIGNED": 0,
+            "B_WIDTH": 4,
+            "Y_WIDTH": 1
+          },
+          "attributes": {
+            "src": "RegisterFile_WP1_RP1_E8.v:80.22-80.39"
+          },
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [ 10, 11, 12, 13 ],
+            "B": [ "1", "0", "0", "0" ],
+            "Y": [ 52 ]
+          }
+        },
+        "$eq$RegisterFile_WP1_RP1_E8.v:84$8": {
+          "hide_name": 1,
+          "type": "$eq",
+          "parameters": {
+            "A_SIGNED": 0,
+            "A_WIDTH": 4,
+            "B_SIGNED": 0,
+            "B_WIDTH": 4,
+            "Y_WIDTH": 1
+          },
+          "attributes": {
+            "src": "RegisterFile_WP1_RP1_E8.v:84.22-84.39"
+          },
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [ 10, 11, 12, 13 ],
+            "B": [ "0", "1", "0", "0" ],
+            "Y": [ 54 ]
+          }
+        },
+        "$eq$RegisterFile_WP1_RP1_E8.v:88$10": {
+          "hide_name": 1,
+          "type": "$eq",
+          "parameters": {
+            "A_SIGNED": 0,
+            "A_WIDTH": 4,
+            "B_SIGNED": 0,
+            "B_WIDTH": 4,
+            "Y_WIDTH": 1
+          },
+          "attributes": {
+            "src": "RegisterFile_WP1_RP1_E8.v:88.22-88.39"
+          },
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [ 10, 11, 12, 13 ],
+            "B": [ "1", "1", "0", "0" ],
+            "Y": [ 56 ]
+          }
+        },
+        "$eq$RegisterFile_WP1_RP1_E8.v:92$12": {
+          "hide_name": 1,
+          "type": "$eq",
+          "parameters": {
+            "A_SIGNED": 0,
+            "A_WIDTH": 4,
+            "B_SIGNED": 0,
+            "B_WIDTH": 4,
+            "Y_WIDTH": 1
+          },
+          "attributes": {
+            "src": "RegisterFile_WP1_RP1_E8.v:92.22-92.39"
+          },
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [ 10, 11, 12, 13 ],
+            "B": [ "0", "0", "1", "0" ],
+            "Y": [ 58 ]
+          }
+        },
+        "$eq$RegisterFile_WP1_RP1_E8.v:96$14": {
+          "hide_name": 1,
+          "type": "$eq",
+          "parameters": {
+            "A_SIGNED": 0,
+            "A_WIDTH": 4,
+            "B_SIGNED": 0,
+            "B_WIDTH": 4,
+            "Y_WIDTH": 1
+          },
+          "attributes": {
+            "src": "RegisterFile_WP1_RP1_E8.v:96.22-96.39"
+          },
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [ 10, 11, 12, 13 ],
+            "B": [ "1", "0", "1", "0" ],
+            "Y": [ 60 ]
+          }
+        },
+        "$procmux$61": {
+          "hide_name": 1,
+          "type": "$pmux",
+          "parameters": {
+            "S_WIDTH": 8,
+            "WIDTH": 16
+          },
+          "attributes": {
+            "full_case": 1,
+            "src": "RegisterFile_WP1_RP1_E8.v:0.0-0.0|RegisterFile_WP1_RP1_E8.v:30.7-58.14"
+          },
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "S": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [ "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0" ],
+            "B": [ 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 174, 175, 176, 177, 178, 179, 180, 181, 182, 183, 184, 185, 186, 187, 188, 189, 158, 159, 160, 161, 162, 163, 164, 165, 166, 167, 168, 169, 170, 171, 172, 173, 142, 143, 144, 145, 146, 147, 148, 149, 150, 151, 152, 153, 154, 155, 156, 157, 126, 127, 128, 129, 130, 131, 132, 133, 134, 135, 136, 137, 138, 139, 140, 141, 110, 111, 112, 113, 114, 115, 116, 117, 118, 119, 120, 121, 122, 123, 124, 125, 94, 95, 96, 97, 98, 99, 100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93 ],
+            "S": [ 190, 191, 192, 193, 194, 195, 196, 197 ],
+            "Y": [ 198, 199, 200, 201, 202, 203, 204, 205, 206, 207, 208, 209, 210, 211, 212, 213 ]
+          }
+        },
+        "$procmux$62_CMP0": {
+          "hide_name": 1,
+          "type": "$eq",
+          "parameters": {
+            "A_SIGNED": 0,
+            "A_WIDTH": 4,
+            "B_SIGNED": 0,
+            "B_WIDTH": 4,
+            "Y_WIDTH": 1
+          },
+          "attributes": {
+            "full_case": 1,
+            "src": "RegisterFile_WP1_RP1_E8.v:0.0-0.0|RegisterFile_WP1_RP1_E8.v:30.7-58.14"
+          },
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [ 5, 6, 7, 8 ],
+            "B": [ "1", "1", "1", "0" ],
+            "Y": [ 190 ]
+          }
+        },
+        "$procmux$63_CMP0": {
+          "hide_name": 1,
+          "type": "$eq",
+          "parameters": {
+            "A_SIGNED": 0,
+            "A_WIDTH": 4,
+            "B_SIGNED": 0,
+            "B_WIDTH": 4,
+            "Y_WIDTH": 1
+          },
+          "attributes": {
+            "full_case": 1,
+            "src": "RegisterFile_WP1_RP1_E8.v:0.0-0.0|RegisterFile_WP1_RP1_E8.v:30.7-58.14"
+          },
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [ 5, 6, 7, 8 ],
+            "B": [ "0", "1", "1", "0" ],
+            "Y": [ 191 ]
+          }
+        },
+        "$procmux$64_CMP0": {
+          "hide_name": 1,
+          "type": "$eq",
+          "parameters": {
+            "A_SIGNED": 0,
+            "A_WIDTH": 4,
+            "B_SIGNED": 0,
+            "B_WIDTH": 4,
+            "Y_WIDTH": 1
+          },
+          "attributes": {
+            "full_case": 1,
+            "src": "RegisterFile_WP1_RP1_E8.v:0.0-0.0|RegisterFile_WP1_RP1_E8.v:30.7-58.14"
+          },
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [ 5, 6, 7, 8 ],
+            "B": [ "1", "0", "1", "0" ],
+            "Y": [ 192 ]
+          }
+        },
+        "$procmux$65_CMP0": {
+          "hide_name": 1,
+          "type": "$eq",
+          "parameters": {
+            "A_SIGNED": 0,
+            "A_WIDTH": 4,
+            "B_SIGNED": 0,
+            "B_WIDTH": 4,
+            "Y_WIDTH": 1
+          },
+          "attributes": {
+            "full_case": 1,
+            "src": "RegisterFile_WP1_RP1_E8.v:0.0-0.0|RegisterFile_WP1_RP1_E8.v:30.7-58.14"
+          },
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [ 5, 6, 7, 8 ],
+            "B": [ "0", "0", "1", "0" ],
+            "Y": [ 193 ]
+          }
+        },
+        "$procmux$66_CMP0": {
+          "hide_name": 1,
+          "type": "$eq",
+          "parameters": {
+            "A_SIGNED": 0,
+            "A_WIDTH": 4,
+            "B_SIGNED": 0,
+            "B_WIDTH": 4,
+            "Y_WIDTH": 1
+          },
+          "attributes": {
+            "full_case": 1,
+            "src": "RegisterFile_WP1_RP1_E8.v:0.0-0.0|RegisterFile_WP1_RP1_E8.v:30.7-58.14"
+          },
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [ 5, 6, 7, 8 ],
+            "B": [ "1", "1", "0", "0" ],
+            "Y": [ 194 ]
+          }
+        },
+        "$procmux$67_CMP0": {
+          "hide_name": 1,
+          "type": "$eq",
+          "parameters": {
+            "A_SIGNED": 0,
+            "A_WIDTH": 4,
+            "B_SIGNED": 0,
+            "B_WIDTH": 4,
+            "Y_WIDTH": 1
+          },
+          "attributes": {
+            "full_case": 1,
+            "src": "RegisterFile_WP1_RP1_E8.v:0.0-0.0|RegisterFile_WP1_RP1_E8.v:30.7-58.14"
+          },
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [ 5, 6, 7, 8 ],
+            "B": [ "0", "1", "0", "0" ],
+            "Y": [ 195 ]
+          }
+        },
+        "$procmux$68_CMP0": {
+          "hide_name": 1,
+          "type": "$eq",
+          "parameters": {
+            "A_SIGNED": 0,
+            "A_WIDTH": 4,
+            "B_SIGNED": 0,
+            "B_WIDTH": 4,
+            "Y_WIDTH": 1
+          },
+          "attributes": {
+            "full_case": 1,
+            "src": "RegisterFile_WP1_RP1_E8.v:0.0-0.0|RegisterFile_WP1_RP1_E8.v:30.7-58.14"
+          },
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [ 5, 6, 7, 8 ],
+            "B": [ "1", "0", "0", "0" ],
+            "Y": [ 196 ]
+          }
+        },
+        "$procmux$69_CMP0": {
+          "hide_name": 1,
+          "type": "$logic_not",
+          "parameters": {
+            "A_SIGNED": 0,
+            "A_WIDTH": 4,
+            "Y_WIDTH": 1
+          },
+          "attributes": {
+            "full_case": 1,
+            "src": "RegisterFile_WP1_RP1_E8.v:0.0-0.0|RegisterFile_WP1_RP1_E8.v:30.7-58.14"
+          },
+          "port_directions": {
+            "A": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [ 5, 6, 7, 8 ],
+            "Y": [ 197 ]
+          }
+        },
+        "$procmux$74": {
+          "hide_name": 1,
+          "type": "$mux",
+          "parameters": {
+            "WIDTH": 16
+          },
+          "attributes": {
+            "full_case": 1,
+            "src": "RegisterFile_WP1_RP1_E8.v:27.6-27.16|RegisterFile_WP1_RP1_E8.v:27.3-60.6"
+          },
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "S": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [ "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0" ],
+            "B": [ 198, 199, 200, 201, 202, 203, 204, 205, 206, 207, 208, 209, 210, 211, 212, 213 ],
+            "S": [ 4 ],
+            "Y": [ 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45 ]
+          }
+        }
+      },
+      "netnames": {
+        "$2__rd_data_0[15:0]": {
+          "hide_name": 1,
+          "bits": [ 198, 199, 200, 201, 202, 203, 204, 205, 206, 207, 208, 209, 210, 211, 212, 213 ],
+          "attributes": {
+            "src": "RegisterFile_WP1_RP1_E8.v:0.0-0.0"
+          }
+        },
+        "$and$RegisterFile_WP1_RP1_E8.v:100$17_Y": {
+          "hide_name": 1,
+          "bits": [ 47 ],
+          "attributes": {
+            "src": "RegisterFile_WP1_RP1_E8.v:100.11-100.40"
+          }
+        },
+        "$and$RegisterFile_WP1_RP1_E8.v:104$19_Y": {
+          "hide_name": 1,
+          "bits": [ 49 ],
+          "attributes": {
+            "src": "RegisterFile_WP1_RP1_E8.v:104.11-104.40"
+          }
+        },
+        "$and$RegisterFile_WP1_RP1_E8.v:76$5_Y": {
+          "hide_name": 1,
+          "bits": [ 51 ],
+          "attributes": {
+            "src": "RegisterFile_WP1_RP1_E8.v:76.11-76.40"
+          }
+        },
+        "$and$RegisterFile_WP1_RP1_E8.v:80$7_Y": {
+          "hide_name": 1,
+          "bits": [ 53 ],
+          "attributes": {
+            "src": "RegisterFile_WP1_RP1_E8.v:80.11-80.40"
+          }
+        },
+        "$and$RegisterFile_WP1_RP1_E8.v:84$9_Y": {
+          "hide_name": 1,
+          "bits": [ 55 ],
+          "attributes": {
+            "src": "RegisterFile_WP1_RP1_E8.v:84.11-84.40"
+          }
+        },
+        "$and$RegisterFile_WP1_RP1_E8.v:88$11_Y": {
+          "hide_name": 1,
+          "bits": [ 57 ],
+          "attributes": {
+            "src": "RegisterFile_WP1_RP1_E8.v:88.11-88.40"
+          }
+        },
+        "$and$RegisterFile_WP1_RP1_E8.v:92$13_Y": {
+          "hide_name": 1,
+          "bits": [ 59 ],
+          "attributes": {
+            "src": "RegisterFile_WP1_RP1_E8.v:92.11-92.40"
+          }
+        },
+        "$and$RegisterFile_WP1_RP1_E8.v:96$15_Y": {
+          "hide_name": 1,
+          "bits": [ 61 ],
+          "attributes": {
+            "src": "RegisterFile_WP1_RP1_E8.v:96.11-96.40"
+          }
+        },
+        "$eq$RegisterFile_WP1_RP1_E8.v:100$16_Y": {
+          "hide_name": 1,
+          "bits": [ 46 ],
+          "attributes": {
+            "src": "RegisterFile_WP1_RP1_E8.v:100.22-100.39"
+          }
+        },
+        "$eq$RegisterFile_WP1_RP1_E8.v:104$18_Y": {
+          "hide_name": 1,
+          "bits": [ 48 ],
+          "attributes": {
+            "src": "RegisterFile_WP1_RP1_E8.v:104.22-104.39"
+          }
+        },
+        "$eq$RegisterFile_WP1_RP1_E8.v:76$4_Y": {
+          "hide_name": 1,
+          "bits": [ 50 ],
+          "attributes": {
+            "src": "RegisterFile_WP1_RP1_E8.v:76.22-76.39"
+          }
+        },
+        "$eq$RegisterFile_WP1_RP1_E8.v:80$6_Y": {
+          "hide_name": 1,
+          "bits": [ 52 ],
+          "attributes": {
+            "src": "RegisterFile_WP1_RP1_E8.v:80.22-80.39"
+          }
+        },
+        "$eq$RegisterFile_WP1_RP1_E8.v:84$8_Y": {
+          "hide_name": 1,
+          "bits": [ 54 ],
+          "attributes": {
+            "src": "RegisterFile_WP1_RP1_E8.v:84.22-84.39"
+          }
+        },
+        "$eq$RegisterFile_WP1_RP1_E8.v:88$10_Y": {
+          "hide_name": 1,
+          "bits": [ 56 ],
+          "attributes": {
+            "src": "RegisterFile_WP1_RP1_E8.v:88.22-88.39"
+          }
+        },
+        "$eq$RegisterFile_WP1_RP1_E8.v:92$12_Y": {
+          "hide_name": 1,
+          "bits": [ 58 ],
+          "attributes": {
+            "src": "RegisterFile_WP1_RP1_E8.v:92.22-92.39"
+          }
+        },
+        "$eq$RegisterFile_WP1_RP1_E8.v:96$14_Y": {
+          "hide_name": 1,
+          "bits": [ 60 ],
+          "attributes": {
+            "src": "RegisterFile_WP1_RP1_E8.v:96.22-96.39"
+          }
+        },
+        "$procmux$62_CMP": {
+          "hide_name": 1,
+          "bits": [ 190 ],
+          "attributes": {
+          }
+        },
+        "$procmux$63_CMP": {
+          "hide_name": 1,
+          "bits": [ 191 ],
+          "attributes": {
+          }
+        },
+        "$procmux$64_CMP": {
+          "hide_name": 1,
+          "bits": [ 192 ],
+          "attributes": {
+          }
+        },
+        "$procmux$65_CMP": {
+          "hide_name": 1,
+          "bits": [ 193 ],
+          "attributes": {
+          }
+        },
+        "$procmux$66_CMP": {
+          "hide_name": 1,
+          "bits": [ 194 ],
+          "attributes": {
+          }
+        },
+        "$procmux$67_CMP": {
+          "hide_name": 1,
+          "bits": [ 195 ],
+          "attributes": {
+          }
+        },
+        "$procmux$68_CMP": {
+          "hide_name": 1,
+          "bits": [ 196 ],
+          "attributes": {
+          }
+        },
+        "$procmux$69_CMP": {
+          "hide_name": 1,
+          "bits": [ 197 ],
+          "attributes": {
+          }
+        },
+        "clk": {
+          "hide_name": 0,
+          "bits": [ 2 ],
+          "attributes": {
+            "src": "RegisterFile_WP1_RP1_E8.v:8.13-8.16"
+          }
+        },
+        "rd_addr_0": {
+          "hide_name": 0,
+          "bits": [ 5, 6, 7, 8 ],
+          "attributes": {
+            "src": "RegisterFile_WP1_RP1_E8.v:11.19-11.28"
+          }
+        },
+        "rd_data_0": {
+          "hide_name": 0,
+          "bits": [ 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45 ],
+          "attributes": {
+            "src": "RegisterFile_WP1_RP1_E8.v:15.21-15.30"
+          }
+        },
+        "rd_en_0": {
+          "hide_name": 0,
+          "bits": [ 4 ],
+          "attributes": {
+            "src": "RegisterFile_WP1_RP1_E8.v:10.13-10.20"
+          }
+        },
+        "reset": {
+          "hide_name": 0,
+          "bits": [ 3 ],
+          "attributes": {
+            "src": "RegisterFile_WP1_RP1_E8.v:9.13-9.18"
+          }
+        },
+        "storageBank_0": {
+          "hide_name": 0,
+          "bits": [ 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93 ],
+          "attributes": {
+            "src": "RegisterFile_WP1_RP1_E8.v:17.14-17.27"
+          }
+        },
+        "storageBank_1": {
+          "hide_name": 0,
+          "bits": [ 94, 95, 96, 97, 98, 99, 100, 101, 102, 103, 104, 105, 106, 107, 108, 109 ],
+          "attributes": {
+            "src": "RegisterFile_WP1_RP1_E8.v:18.14-18.27"
+          }
+        },
+        "storageBank_2": {
+          "hide_name": 0,
+          "bits": [ 110, 111, 112, 113, 114, 115, 116, 117, 118, 119, 120, 121, 122, 123, 124, 125 ],
+          "attributes": {
+            "src": "RegisterFile_WP1_RP1_E8.v:19.14-19.27"
+          }
+        },
+        "storageBank_3": {
+          "hide_name": 0,
+          "bits": [ 126, 127, 128, 129, 130, 131, 132, 133, 134, 135, 136, 137, 138, 139, 140, 141 ],
+          "attributes": {
+            "src": "RegisterFile_WP1_RP1_E8.v:20.14-20.27"
+          }
+        },
+        "storageBank_4": {
+          "hide_name": 0,
+          "bits": [ 142, 143, 144, 145, 146, 147, 148, 149, 150, 151, 152, 153, 154, 155, 156, 157 ],
+          "attributes": {
+            "src": "RegisterFile_WP1_RP1_E8.v:21.14-21.27"
+          }
+        },
+        "storageBank_5": {
+          "hide_name": 0,
+          "bits": [ 158, 159, 160, 161, 162, 163, 164, 165, 166, 167, 168, 169, 170, 171, 172, 173 ],
+          "attributes": {
+            "src": "RegisterFile_WP1_RP1_E8.v:22.14-22.27"
+          }
+        },
+        "storageBank_6": {
+          "hide_name": 0,
+          "bits": [ 174, 175, 176, 177, 178, 179, 180, 181, 182, 183, 184, 185, 186, 187, 188, 189 ],
+          "attributes": {
+            "src": "RegisterFile_WP1_RP1_E8.v:23.14-23.27"
+          }
+        },
+        "storageBank_7": {
+          "hide_name": 0,
+          "bits": [ 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77 ],
+          "attributes": {
+            "src": "RegisterFile_WP1_RP1_E8.v:24.14-24.27"
+          }
+        },
+        "wr_addr_0": {
+          "hide_name": 0,
+          "bits": [ 10, 11, 12, 13 ],
+          "attributes": {
+            "src": "RegisterFile_WP1_RP1_E8.v:13.19-13.28"
+          }
+        },
+        "wr_data_0": {
+          "hide_name": 0,
+          "bits": [ 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29 ],
+          "attributes": {
+            "src": "RegisterFile_WP1_RP1_E8.v:14.20-14.29"
+          }
+        },
+        "wr_en_0": {
+          "hide_name": 0,
+          "bits": [ 9 ],
+          "attributes": {
+            "src": "RegisterFile_WP1_RP1_E8.v:12.13-12.20"
+          }
+        }
+      }
+    }
+  }
+}`;
+        var width = viewport().width,
+            height = viewport().height;
+
+        var svg = d3.select("#scheme-placeholder")
+            .attr("width", width)
+            .attr("height", height);
+
+        var orig = document.body.onresize;
+        document.body.onresize = function(ev) {
+            if (orig)
+        	    orig(ev);
+
+            var w = viewport();
+            svg.attr("width", w.width);
+			svg.attr("height", w.height);
+        }
+
+        var hwSchematic = new d3.HwSchematic(svg);
+        var zoom = d3.zoom();
+        zoom.on("zoom", function applyTransform(ev) {
+        	hwSchematic.root.attr("transform", ev.transform)
+        });
+
+        // disable zoom on doubleclick
+        // because it interferes with component expanding/collapsing
+        svg.call(zoom)
+           .on("dblclick.zoom", null)
+
+      graph = JSON.parse(exmpl);
+      if ("creator" in graph) {
+	  graph = d3.HwSchematic.fromYosys(graph);
+      }
+      if (graph.hwMeta && graph.hwMeta.name) {
+          document.title = graph.hwMeta.name;
+	  hwSchematic.bindData(graph);
+      }
+    </script>
+</body>
+</html>
+

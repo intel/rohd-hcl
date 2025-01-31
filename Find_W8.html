@@ -1,0 +1,2603 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>d3-hwschematic</title>
+</head>
+<body>
+  </script>
+  <script type="text/javascript" src="d3-hwschematic-assets/d3/dist/d3.js"></script>
+  <!-- <script type="text/javascript" src="d3-hwschematic-assets/d3/dist/d3.min.js"></script>  -->
+  <script type="text/javascript" src="d3-hwschematic-assets/elkjs/lib/elk.bundled.js"></script>
+  <script type="text/javascript" src="d3-hwschematic-assets/d3-hwschematic.js"></script>
+  <link href="d3-hwschematic-assets/d3-hwschematic.css" rel="stylesheet">
+  <style>
+  	body {
+	   margin: 0;
+    }
+  </style>
+</head>
+<body>
+    <svg id="scheme-placeholder"></svg>
+    <script>
+        // schematic rendering script
+        function viewport() {
+          var e = window,
+            a = 'inner';
+          if (!(innerWidth in window)) {
+            a = 'client';
+            e = document.documentElement || document.body;
+          }
+          return {
+            width: e[a + 'Width'],
+            height: e[a + 'Height']
+          }
+        }
+      var exmpl = `{
+  "creator": "Yosys 0.29+11 (git sha1 d82bae32b, clang 10.0.0-4ubuntu1 -fPIC -Os)",
+  "modules": {
+    "Count_W1": {
+      "attributes": {
+        "src": "Find_W8.v:161.1-167.21"
+      },
+      "ports": {
+        "bus": {
+          "direction": "input",
+          "bits": [ 2 ]
+        },
+        "countOne": {
+          "direction": "output",
+          "bits": [ 2 ]
+        }
+      },
+      "cells": {
+      },
+      "netnames": {
+        "_const_0_add__swizzled_carry": {
+          "hide_name": 0,
+          "bits": [ "0" ],
+          "attributes": {
+            "src": "Find_W8.v:165.7-165.35"
+          }
+        },
+        "bus": {
+          "hide_name": 0,
+          "bits": [ 2 ],
+          "attributes": {
+            "src": "Find_W8.v:162.13-162.16"
+          }
+        },
+        "countOne": {
+          "hide_name": 0,
+          "bits": [ 2 ],
+          "attributes": {
+            "src": "Find_W8.v:163.14-163.22"
+          }
+        }
+      }
+    },
+    "Count_W2": {
+      "attributes": {
+        "src": "Find_W8.v:148.1-157.21"
+      },
+      "ports": {
+        "bus": {
+          "direction": "input",
+          "bits": [ 2, 3 ]
+        },
+        "countOne": {
+          "direction": "output",
+          "bits": [ 4, 5 ]
+        }
+      },
+      "cells": {
+        "$add$Find_W8.v:155$34": {
+          "hide_name": 1,
+          "type": "$add",
+          "parameters": {
+            "A_SIGNED": 0,
+            "A_WIDTH": 2,
+            "B_SIGNED": 0,
+            "B_WIDTH": 3,
+            "Y_WIDTH": 3
+          },
+          "attributes": {
+            "src": "Find_W8.v:155.65-155.112"
+          },
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [ 2, "0" ],
+            "B": [ 3, "0", "0" ],
+            "Y": [ 4, 5, 6 ]
+          }
+        }
+      },
+      "netnames": {
+        "_const_0_add__swizzled_add__swizzled_carry": {
+          "hide_name": 0,
+          "bits": [ 6 ],
+          "attributes": {
+            "src": "Find_W8.v:152.7-152.49",
+            "unused_bits": "0 "
+          }
+        },
+        "_const_0_add__swizzled_carry": {
+          "hide_name": 0,
+          "bits": [ "0" ],
+          "attributes": {
+            "src": "Find_W8.v:153.7-153.35"
+          }
+        },
+        "_in0__const_0_add__swizzled": {
+          "hide_name": 0,
+          "bits": [ 2, "0" ],
+          "attributes": {
+            "src": "Find_W8.v:154.13-154.40"
+          }
+        },
+        "bus": {
+          "hide_name": 0,
+          "bits": [ 2, 3 ],
+          "attributes": {
+            "src": "Find_W8.v:149.19-149.22"
+          }
+        },
+        "countOne": {
+          "hide_name": 0,
+          "bits": [ 4, 5 ],
+          "attributes": {
+            "src": "Find_W8.v:150.20-150.28"
+          }
+        }
+      }
+    },
+    "Count_W3": {
+      "attributes": {
+        "src": "Find_W8.v:132.1-144.21"
+      },
+      "ports": {
+        "bus": {
+          "direction": "input",
+          "bits": [ 2, 3, 4 ]
+        },
+        "countOne": {
+          "direction": "output",
+          "bits": [ 5, 6 ]
+        }
+      },
+      "cells": {
+        "$add$Find_W8.v:141$31": {
+          "hide_name": 1,
+          "type": "$add",
+          "parameters": {
+            "A_SIGNED": 0,
+            "A_WIDTH": 2,
+            "B_SIGNED": 0,
+            "B_WIDTH": 3,
+            "Y_WIDTH": 3
+          },
+          "attributes": {
+            "src": "Find_W8.v:141.79-141.140"
+          },
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [ 7, 8 ],
+            "B": [ 4, "0", "0" ],
+            "Y": [ 5, 6, 9 ]
+          }
+        },
+        "$add$Find_W8.v:142$32": {
+          "hide_name": 1,
+          "type": "$add",
+          "parameters": {
+            "A_SIGNED": 0,
+            "A_WIDTH": 2,
+            "B_SIGNED": 0,
+            "B_WIDTH": 3,
+            "Y_WIDTH": 3
+          },
+          "attributes": {
+            "src": "Find_W8.v:142.98-142.145"
+          },
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [ 2, "0" ],
+            "B": [ 3, "0", "0" ],
+            "Y": [ 7, 8, 10 ]
+          }
+        }
+      },
+      "netnames": {
+        "_const_0_add__swizzled_add__swizzled_add__swizzled_carry": {
+          "hide_name": 0,
+          "bits": [ 9 ],
+          "attributes": {
+            "src": "Find_W8.v:136.7-136.63",
+            "unused_bits": "0 "
+          }
+        },
+        "_const_0_add__swizzled_add__swizzled_carry": {
+          "hide_name": 0,
+          "bits": [ 10 ],
+          "attributes": {
+            "src": "Find_W8.v:137.7-137.49",
+            "unused_bits": "0 "
+          }
+        },
+        "_const_0_add__swizzled_carry": {
+          "hide_name": 0,
+          "bits": [ "0" ],
+          "attributes": {
+            "src": "Find_W8.v:138.7-138.35"
+          }
+        },
+        "_in0__const_0_add__swizzled": {
+          "hide_name": 0,
+          "bits": [ 2, "0" ],
+          "attributes": {
+            "src": "Find_W8.v:139.13-139.40"
+          }
+        },
+        "_in0__const_0_add__swizzled_add__swizzled": {
+          "hide_name": 0,
+          "bits": [ 7, 8 ],
+          "attributes": {
+            "src": "Find_W8.v:140.13-140.54"
+          }
+        },
+        "bus": {
+          "hide_name": 0,
+          "bits": [ 2, 3, 4 ],
+          "attributes": {
+            "src": "Find_W8.v:133.19-133.22"
+          }
+        },
+        "countOne": {
+          "hide_name": 0,
+          "bits": [ 5, 6 ],
+          "attributes": {
+            "src": "Find_W8.v:134.20-134.28"
+          }
+        }
+      }
+    },
+    "Count_W4": {
+      "attributes": {
+        "src": "Find_W8.v:113.1-128.21"
+      },
+      "ports": {
+        "bus": {
+          "direction": "input",
+          "bits": [ 2, 3, 4, 5 ]
+        },
+        "countOne": {
+          "direction": "output",
+          "bits": [ 6, 7, 8 ]
+        }
+      },
+      "cells": {
+        "$add$Find_W8.v:124$27": {
+          "hide_name": 1,
+          "type": "$add",
+          "parameters": {
+            "A_SIGNED": 0,
+            "A_WIDTH": 3,
+            "B_SIGNED": 0,
+            "B_WIDTH": 4,
+            "Y_WIDTH": 4
+          },
+          "attributes": {
+            "src": "Find_W8.v:124.93-124.168"
+          },
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [ 9, 10, 11 ],
+            "B": [ 5, "0", "0", "0" ],
+            "Y": [ 6, 7, 8, 12 ]
+          }
+        },
+        "$add$Find_W8.v:125$28": {
+          "hide_name": 1,
+          "type": "$add",
+          "parameters": {
+            "A_SIGNED": 0,
+            "A_WIDTH": 3,
+            "B_SIGNED": 0,
+            "B_WIDTH": 4,
+            "Y_WIDTH": 4
+          },
+          "attributes": {
+            "src": "Find_W8.v:125.126-125.187"
+          },
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [ 13, 14, 15 ],
+            "B": [ 4, "0", "0", "0" ],
+            "Y": [ 9, 10, 11, 16 ]
+          }
+        },
+        "$add$Find_W8.v:126$29": {
+          "hide_name": 1,
+          "type": "$add",
+          "parameters": {
+            "A_SIGNED": 0,
+            "A_WIDTH": 3,
+            "B_SIGNED": 0,
+            "B_WIDTH": 4,
+            "Y_WIDTH": 4
+          },
+          "attributes": {
+            "src": "Find_W8.v:126.98-126.145"
+          },
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [ 2, "0", "0" ],
+            "B": [ 3, "0", "0", "0" ],
+            "Y": [ 13, 14, 15, 17 ]
+          }
+        }
+      },
+      "netnames": {
+        "_const_0_add__swizzled_add__swizzled_add__swizzled_add__swizzled_carry": {
+          "hide_name": 0,
+          "bits": [ 12 ],
+          "attributes": {
+            "src": "Find_W8.v:117.7-117.77",
+            "unused_bits": "0 "
+          }
+        },
+        "_const_0_add__swizzled_add__swizzled_add__swizzled_carry": {
+          "hide_name": 0,
+          "bits": [ 16 ],
+          "attributes": {
+            "src": "Find_W8.v:118.7-118.63",
+            "unused_bits": "0 "
+          }
+        },
+        "_const_0_add__swizzled_add__swizzled_carry": {
+          "hide_name": 0,
+          "bits": [ 17 ],
+          "attributes": {
+            "src": "Find_W8.v:119.7-119.49",
+            "unused_bits": "0 "
+          }
+        },
+        "_const_0_add__swizzled_carry": {
+          "hide_name": 0,
+          "bits": [ "0" ],
+          "attributes": {
+            "src": "Find_W8.v:120.7-120.35"
+          }
+        },
+        "_in0__const_0_add__swizzled": {
+          "hide_name": 0,
+          "bits": [ 2, "0", "0" ],
+          "attributes": {
+            "src": "Find_W8.v:121.13-121.40"
+          }
+        },
+        "_in0__const_0_add__swizzled_add__swizzled": {
+          "hide_name": 0,
+          "bits": [ 13, 14, 15 ],
+          "attributes": {
+            "src": "Find_W8.v:122.13-122.54"
+          }
+        },
+        "_in0__const_0_add__swizzled_add__swizzled_add__swizzled": {
+          "hide_name": 0,
+          "bits": [ 9, 10, 11 ],
+          "attributes": {
+            "src": "Find_W8.v:123.13-123.68"
+          }
+        },
+        "bus": {
+          "hide_name": 0,
+          "bits": [ 2, 3, 4, 5 ],
+          "attributes": {
+            "src": "Find_W8.v:114.19-114.22"
+          }
+        },
+        "countOne": {
+          "hide_name": 0,
+          "bits": [ 6, 7, 8 ],
+          "attributes": {
+            "src": "Find_W8.v:115.20-115.28"
+          }
+        }
+      }
+    },
+    "Count_W5": {
+      "attributes": {
+        "src": "Find_W8.v:91.1-109.21"
+      },
+      "ports": {
+        "bus": {
+          "direction": "input",
+          "bits": [ 2, 3, 4, 5, 6 ]
+        },
+        "countOne": {
+          "direction": "output",
+          "bits": [ 7, 8, 9 ]
+        }
+      },
+      "cells": {
+        "$add$Find_W8.v:104$22": {
+          "hide_name": 1,
+          "type": "$add",
+          "parameters": {
+            "A_SIGNED": 0,
+            "A_WIDTH": 3,
+            "B_SIGNED": 0,
+            "B_WIDTH": 4,
+            "Y_WIDTH": 4
+          },
+          "attributes": {
+            "src": "Find_W8.v:104.107-104.196"
+          },
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [ 10, 11, 12 ],
+            "B": [ 6, "0", "0", "0" ],
+            "Y": [ 7, 8, 9, 13 ]
+          }
+        },
+        "$add$Find_W8.v:105$23": {
+          "hide_name": 1,
+          "type": "$add",
+          "parameters": {
+            "A_SIGNED": 0,
+            "A_WIDTH": 3,
+            "B_SIGNED": 0,
+            "B_WIDTH": 4,
+            "Y_WIDTH": 4
+          },
+          "attributes": {
+            "src": "Find_W8.v:105.154-105.229"
+          },
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [ 14, 15, 16 ],
+            "B": [ 5, "0", "0", "0" ],
+            "Y": [ 10, 11, 12, 17 ]
+          }
+        },
+        "$add$Find_W8.v:106$24": {
+          "hide_name": 1,
+          "type": "$add",
+          "parameters": {
+            "A_SIGNED": 0,
+            "A_WIDTH": 3,
+            "B_SIGNED": 0,
+            "B_WIDTH": 4,
+            "Y_WIDTH": 4
+          },
+          "attributes": {
+            "src": "Find_W8.v:106.126-106.187"
+          },
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [ 18, 19, 20 ],
+            "B": [ 4, "0", "0", "0" ],
+            "Y": [ 14, 15, 16, 21 ]
+          }
+        },
+        "$add$Find_W8.v:107$25": {
+          "hide_name": 1,
+          "type": "$add",
+          "parameters": {
+            "A_SIGNED": 0,
+            "A_WIDTH": 3,
+            "B_SIGNED": 0,
+            "B_WIDTH": 4,
+            "Y_WIDTH": 4
+          },
+          "attributes": {
+            "src": "Find_W8.v:107.98-107.145"
+          },
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [ 2, "0", "0" ],
+            "B": [ 3, "0", "0", "0" ],
+            "Y": [ 18, 19, 20, 22 ]
+          }
+        }
+      },
+      "netnames": {
+        "_const_0_add__swizzled_add__swizzled_add__swizzled_add__swizzled_add__swizzled_carry": {
+          "hide_name": 0,
+          "bits": [ 13 ],
+          "attributes": {
+            "src": "Find_W8.v:95.7-95.91",
+            "unused_bits": "0 "
+          }
+        },
+        "_const_0_add__swizzled_add__swizzled_add__swizzled_add__swizzled_carry": {
+          "hide_name": 0,
+          "bits": [ 17 ],
+          "attributes": {
+            "src": "Find_W8.v:96.7-96.77",
+            "unused_bits": "0 "
+          }
+        },
+        "_const_0_add__swizzled_add__swizzled_add__swizzled_carry": {
+          "hide_name": 0,
+          "bits": [ 21 ],
+          "attributes": {
+            "src": "Find_W8.v:97.7-97.63",
+            "unused_bits": "0 "
+          }
+        },
+        "_const_0_add__swizzled_add__swizzled_carry": {
+          "hide_name": 0,
+          "bits": [ 22 ],
+          "attributes": {
+            "src": "Find_W8.v:98.7-98.49",
+            "unused_bits": "0 "
+          }
+        },
+        "_const_0_add__swizzled_carry": {
+          "hide_name": 0,
+          "bits": [ "0" ],
+          "attributes": {
+            "src": "Find_W8.v:99.7-99.35"
+          }
+        },
+        "_in0__const_0_add__swizzled": {
+          "hide_name": 0,
+          "bits": [ 2, "0", "0" ],
+          "attributes": {
+            "src": "Find_W8.v:100.13-100.40"
+          }
+        },
+        "_in0__const_0_add__swizzled_add__swizzled": {
+          "hide_name": 0,
+          "bits": [ 18, 19, 20 ],
+          "attributes": {
+            "src": "Find_W8.v:101.13-101.54"
+          }
+        },
+        "_in0__const_0_add__swizzled_add__swizzled_add__swizzled": {
+          "hide_name": 0,
+          "bits": [ 14, 15, 16 ],
+          "attributes": {
+            "src": "Find_W8.v:102.13-102.68"
+          }
+        },
+        "_in0__const_0_add__swizzled_add__swizzled_add__swizzled_add__swizzled": {
+          "hide_name": 0,
+          "bits": [ 10, 11, 12 ],
+          "attributes": {
+            "src": "Find_W8.v:103.13-103.82"
+          }
+        },
+        "bus": {
+          "hide_name": 0,
+          "bits": [ 2, 3, 4, 5, 6 ],
+          "attributes": {
+            "src": "Find_W8.v:92.19-92.22"
+          }
+        },
+        "countOne": {
+          "hide_name": 0,
+          "bits": [ 7, 8, 9 ],
+          "attributes": {
+            "src": "Find_W8.v:93.20-93.28"
+          }
+        }
+      }
+    },
+    "Count_W6": {
+      "attributes": {
+        "src": "Find_W8.v:66.1-87.21"
+      },
+      "ports": {
+        "bus": {
+          "direction": "input",
+          "bits": [ 2, 3, 4, 5, 6, 7 ]
+        },
+        "countOne": {
+          "direction": "output",
+          "bits": [ 8, 9, 10 ]
+        }
+      },
+      "cells": {
+        "$add$Find_W8.v:81$16": {
+          "hide_name": 1,
+          "type": "$add",
+          "parameters": {
+            "A_SIGNED": 0,
+            "A_WIDTH": 3,
+            "B_SIGNED": 0,
+            "B_WIDTH": 4,
+            "Y_WIDTH": 4
+          },
+          "attributes": {
+            "src": "Find_W8.v:81.121-81.224"
+          },
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [ 11, 12, 13 ],
+            "B": [ 7, "0", "0", "0" ],
+            "Y": [ 8, 9, 10, 14 ]
+          }
+        },
+        "$add$Find_W8.v:82$17": {
+          "hide_name": 1,
+          "type": "$add",
+          "parameters": {
+            "A_SIGNED": 0,
+            "A_WIDTH": 3,
+            "B_SIGNED": 0,
+            "B_WIDTH": 4,
+            "Y_WIDTH": 4
+          },
+          "attributes": {
+            "src": "Find_W8.v:82.182-82.271"
+          },
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [ 15, 16, 17 ],
+            "B": [ 6, "0", "0", "0" ],
+            "Y": [ 11, 12, 13, 18 ]
+          }
+        },
+        "$add$Find_W8.v:83$18": {
+          "hide_name": 1,
+          "type": "$add",
+          "parameters": {
+            "A_SIGNED": 0,
+            "A_WIDTH": 3,
+            "B_SIGNED": 0,
+            "B_WIDTH": 4,
+            "Y_WIDTH": 4
+          },
+          "attributes": {
+            "src": "Find_W8.v:83.154-83.229"
+          },
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [ 19, 20, 21 ],
+            "B": [ 5, "0", "0", "0" ],
+            "Y": [ 15, 16, 17, 22 ]
+          }
+        },
+        "$add$Find_W8.v:84$19": {
+          "hide_name": 1,
+          "type": "$add",
+          "parameters": {
+            "A_SIGNED": 0,
+            "A_WIDTH": 3,
+            "B_SIGNED": 0,
+            "B_WIDTH": 4,
+            "Y_WIDTH": 4
+          },
+          "attributes": {
+            "src": "Find_W8.v:84.126-84.187"
+          },
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [ 23, 24, 25 ],
+            "B": [ 4, "0", "0", "0" ],
+            "Y": [ 19, 20, 21, 26 ]
+          }
+        },
+        "$add$Find_W8.v:85$20": {
+          "hide_name": 1,
+          "type": "$add",
+          "parameters": {
+            "A_SIGNED": 0,
+            "A_WIDTH": 3,
+            "B_SIGNED": 0,
+            "B_WIDTH": 4,
+            "Y_WIDTH": 4
+          },
+          "attributes": {
+            "src": "Find_W8.v:85.98-85.145"
+          },
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [ 2, "0", "0" ],
+            "B": [ 3, "0", "0", "0" ],
+            "Y": [ 23, 24, 25, 27 ]
+          }
+        }
+      },
+      "netnames": {
+        "_const_0_add__swizzled_add__swizzled_add__swizzled_add__swizzled_add__swizzled_add__swizzled_carry": {
+          "hide_name": 0,
+          "bits": [ 14 ],
+          "attributes": {
+            "src": "Find_W8.v:70.7-70.105",
+            "unused_bits": "0 "
+          }
+        },
+        "_const_0_add__swizzled_add__swizzled_add__swizzled_add__swizzled_add__swizzled_carry": {
+          "hide_name": 0,
+          "bits": [ 18 ],
+          "attributes": {
+            "src": "Find_W8.v:71.7-71.91",
+            "unused_bits": "0 "
+          }
+        },
+        "_const_0_add__swizzled_add__swizzled_add__swizzled_add__swizzled_carry": {
+          "hide_name": 0,
+          "bits": [ 22 ],
+          "attributes": {
+            "src": "Find_W8.v:72.7-72.77",
+            "unused_bits": "0 "
+          }
+        },
+        "_const_0_add__swizzled_add__swizzled_add__swizzled_carry": {
+          "hide_name": 0,
+          "bits": [ 26 ],
+          "attributes": {
+            "src": "Find_W8.v:73.7-73.63",
+            "unused_bits": "0 "
+          }
+        },
+        "_const_0_add__swizzled_add__swizzled_carry": {
+          "hide_name": 0,
+          "bits": [ 27 ],
+          "attributes": {
+            "src": "Find_W8.v:74.7-74.49",
+            "unused_bits": "0 "
+          }
+        },
+        "_const_0_add__swizzled_carry": {
+          "hide_name": 0,
+          "bits": [ "0" ],
+          "attributes": {
+            "src": "Find_W8.v:75.7-75.35"
+          }
+        },
+        "_in0__const_0_add__swizzled": {
+          "hide_name": 0,
+          "bits": [ 2, "0", "0" ],
+          "attributes": {
+            "src": "Find_W8.v:76.13-76.40"
+          }
+        },
+        "_in0__const_0_add__swizzled_add__swizzled": {
+          "hide_name": 0,
+          "bits": [ 23, 24, 25 ],
+          "attributes": {
+            "src": "Find_W8.v:77.13-77.54"
+          }
+        },
+        "_in0__const_0_add__swizzled_add__swizzled_add__swizzled": {
+          "hide_name": 0,
+          "bits": [ 19, 20, 21 ],
+          "attributes": {
+            "src": "Find_W8.v:78.13-78.68"
+          }
+        },
+        "_in0__const_0_add__swizzled_add__swizzled_add__swizzled_add__swizzled": {
+          "hide_name": 0,
+          "bits": [ 15, 16, 17 ],
+          "attributes": {
+            "src": "Find_W8.v:79.13-79.82"
+          }
+        },
+        "_in0__const_0_add__swizzled_add__swizzled_add__swizzled_add__swizzled_add__swizzled": {
+          "hide_name": 0,
+          "bits": [ 11, 12, 13 ],
+          "attributes": {
+            "src": "Find_W8.v:80.13-80.96"
+          }
+        },
+        "bus": {
+          "hide_name": 0,
+          "bits": [ 2, 3, 4, 5, 6, 7 ],
+          "attributes": {
+            "src": "Find_W8.v:67.19-67.22"
+          }
+        },
+        "countOne": {
+          "hide_name": 0,
+          "bits": [ 8, 9, 10 ],
+          "attributes": {
+            "src": "Find_W8.v:68.20-68.28"
+          }
+        }
+      }
+    },
+    "Count_W7": {
+      "attributes": {
+        "src": "Find_W8.v:38.1-62.21"
+      },
+      "ports": {
+        "bus": {
+          "direction": "input",
+          "bits": [ 2, 3, 4, 5, 6, 7, 8 ]
+        },
+        "countOne": {
+          "direction": "output",
+          "bits": [ 9, 10, 11 ]
+        }
+      },
+      "cells": {
+        "$add$Find_W8.v:55$9": {
+          "hide_name": 1,
+          "type": "$add",
+          "parameters": {
+            "A_SIGNED": 0,
+            "A_WIDTH": 3,
+            "B_SIGNED": 0,
+            "B_WIDTH": 4,
+            "Y_WIDTH": 4
+          },
+          "attributes": {
+            "src": "Find_W8.v:55.135-55.252"
+          },
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [ 12, 13, 14 ],
+            "B": [ 8, "0", "0", "0" ],
+            "Y": [ 9, 10, 11, 15 ]
+          }
+        },
+        "$add$Find_W8.v:56$10": {
+          "hide_name": 1,
+          "type": "$add",
+          "parameters": {
+            "A_SIGNED": 0,
+            "A_WIDTH": 3,
+            "B_SIGNED": 0,
+            "B_WIDTH": 4,
+            "Y_WIDTH": 4
+          },
+          "attributes": {
+            "src": "Find_W8.v:56.210-56.313"
+          },
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [ 16, 17, 18 ],
+            "B": [ 7, "0", "0", "0" ],
+            "Y": [ 12, 13, 14, 19 ]
+          }
+        },
+        "$add$Find_W8.v:57$11": {
+          "hide_name": 1,
+          "type": "$add",
+          "parameters": {
+            "A_SIGNED": 0,
+            "A_WIDTH": 3,
+            "B_SIGNED": 0,
+            "B_WIDTH": 4,
+            "Y_WIDTH": 4
+          },
+          "attributes": {
+            "src": "Find_W8.v:57.182-57.271"
+          },
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [ 20, 21, 22 ],
+            "B": [ 6, "0", "0", "0" ],
+            "Y": [ 16, 17, 18, 23 ]
+          }
+        },
+        "$add$Find_W8.v:58$12": {
+          "hide_name": 1,
+          "type": "$add",
+          "parameters": {
+            "A_SIGNED": 0,
+            "A_WIDTH": 3,
+            "B_SIGNED": 0,
+            "B_WIDTH": 4,
+            "Y_WIDTH": 4
+          },
+          "attributes": {
+            "src": "Find_W8.v:58.154-58.229"
+          },
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [ 24, 25, 26 ],
+            "B": [ 5, "0", "0", "0" ],
+            "Y": [ 20, 21, 22, 27 ]
+          }
+        },
+        "$add$Find_W8.v:59$13": {
+          "hide_name": 1,
+          "type": "$add",
+          "parameters": {
+            "A_SIGNED": 0,
+            "A_WIDTH": 3,
+            "B_SIGNED": 0,
+            "B_WIDTH": 4,
+            "Y_WIDTH": 4
+          },
+          "attributes": {
+            "src": "Find_W8.v:59.126-59.187"
+          },
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [ 28, 29, 30 ],
+            "B": [ 4, "0", "0", "0" ],
+            "Y": [ 24, 25, 26, 31 ]
+          }
+        },
+        "$add$Find_W8.v:60$14": {
+          "hide_name": 1,
+          "type": "$add",
+          "parameters": {
+            "A_SIGNED": 0,
+            "A_WIDTH": 3,
+            "B_SIGNED": 0,
+            "B_WIDTH": 4,
+            "Y_WIDTH": 4
+          },
+          "attributes": {
+            "src": "Find_W8.v:60.98-60.145"
+          },
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [ 2, "0", "0" ],
+            "B": [ 3, "0", "0", "0" ],
+            "Y": [ 28, 29, 30, 32 ]
+          }
+        }
+      },
+      "netnames": {
+        "_const_0_add__swizzled_add__swizzled_add__swizzled_add__swizzled_add__swizzled_add__swizzled_add__swizzled_carry": {
+          "hide_name": 0,
+          "bits": [ 15 ],
+          "attributes": {
+            "src": "Find_W8.v:42.7-42.119",
+            "unused_bits": "0 "
+          }
+        },
+        "_const_0_add__swizzled_add__swizzled_add__swizzled_add__swizzled_add__swizzled_add__swizzled_carry": {
+          "hide_name": 0,
+          "bits": [ 19 ],
+          "attributes": {
+            "src": "Find_W8.v:43.7-43.105",
+            "unused_bits": "0 "
+          }
+        },
+        "_const_0_add__swizzled_add__swizzled_add__swizzled_add__swizzled_add__swizzled_carry": {
+          "hide_name": 0,
+          "bits": [ 23 ],
+          "attributes": {
+            "src": "Find_W8.v:44.7-44.91",
+            "unused_bits": "0 "
+          }
+        },
+        "_const_0_add__swizzled_add__swizzled_add__swizzled_add__swizzled_carry": {
+          "hide_name": 0,
+          "bits": [ 27 ],
+          "attributes": {
+            "src": "Find_W8.v:45.7-45.77",
+            "unused_bits": "0 "
+          }
+        },
+        "_const_0_add__swizzled_add__swizzled_add__swizzled_carry": {
+          "hide_name": 0,
+          "bits": [ 31 ],
+          "attributes": {
+            "src": "Find_W8.v:46.7-46.63",
+            "unused_bits": "0 "
+          }
+        },
+        "_const_0_add__swizzled_add__swizzled_carry": {
+          "hide_name": 0,
+          "bits": [ 32 ],
+          "attributes": {
+            "src": "Find_W8.v:47.7-47.49",
+            "unused_bits": "0 "
+          }
+        },
+        "_const_0_add__swizzled_carry": {
+          "hide_name": 0,
+          "bits": [ "0" ],
+          "attributes": {
+            "src": "Find_W8.v:48.7-48.35"
+          }
+        },
+        "_in0__const_0_add__swizzled": {
+          "hide_name": 0,
+          "bits": [ 2, "0", "0" ],
+          "attributes": {
+            "src": "Find_W8.v:49.13-49.40"
+          }
+        },
+        "_in0__const_0_add__swizzled_add__swizzled": {
+          "hide_name": 0,
+          "bits": [ 28, 29, 30 ],
+          "attributes": {
+            "src": "Find_W8.v:50.13-50.54"
+          }
+        },
+        "_in0__const_0_add__swizzled_add__swizzled_add__swizzled": {
+          "hide_name": 0,
+          "bits": [ 24, 25, 26 ],
+          "attributes": {
+            "src": "Find_W8.v:51.13-51.68"
+          }
+        },
+        "_in0__const_0_add__swizzled_add__swizzled_add__swizzled_add__swizzled": {
+          "hide_name": 0,
+          "bits": [ 20, 21, 22 ],
+          "attributes": {
+            "src": "Find_W8.v:52.13-52.82"
+          }
+        },
+        "_in0__const_0_add__swizzled_add__swizzled_add__swizzled_add__swizzled_add__swizzled": {
+          "hide_name": 0,
+          "bits": [ 16, 17, 18 ],
+          "attributes": {
+            "src": "Find_W8.v:53.13-53.96"
+          }
+        },
+        "_in0__const_0_add__swizzled_add__swizzled_add__swizzled_add__swizzled_add__swizzled_add__swizzled": {
+          "hide_name": 0,
+          "bits": [ 12, 13, 14 ],
+          "attributes": {
+            "src": "Find_W8.v:54.13-54.110"
+          }
+        },
+        "bus": {
+          "hide_name": 0,
+          "bits": [ 2, 3, 4, 5, 6, 7, 8 ],
+          "attributes": {
+            "src": "Find_W8.v:39.19-39.22"
+          }
+        },
+        "countOne": {
+          "hide_name": 0,
+          "bits": [ 9, 10, 11 ],
+          "attributes": {
+            "src": "Find_W8.v:40.20-40.28"
+          }
+        }
+      }
+    },
+    "Count_W8": {
+      "attributes": {
+        "src": "Find_W8.v:7.1-34.21"
+      },
+      "ports": {
+        "bus": {
+          "direction": "input",
+          "bits": [ 2, 3, 4, 5, 6, 7, 8, 9 ]
+        },
+        "countOne": {
+          "direction": "output",
+          "bits": [ 10, 11, 12, 13 ]
+        }
+      },
+      "cells": {
+        "$add$Find_W8.v:26$1": {
+          "hide_name": 1,
+          "type": "$add",
+          "parameters": {
+            "A_SIGNED": 0,
+            "A_WIDTH": 4,
+            "B_SIGNED": 0,
+            "B_WIDTH": 5,
+            "Y_WIDTH": 5
+          },
+          "attributes": {
+            "src": "Find_W8.v:26.149-26.280"
+          },
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [ 14, 15, 16, 17 ],
+            "B": [ 9, "0", "0", "0", "0" ],
+            "Y": [ 10, 11, 12, 13, 18 ]
+          }
+        },
+        "$add$Find_W8.v:27$2": {
+          "hide_name": 1,
+          "type": "$add",
+          "parameters": {
+            "A_SIGNED": 0,
+            "A_WIDTH": 4,
+            "B_SIGNED": 0,
+            "B_WIDTH": 5,
+            "Y_WIDTH": 5
+          },
+          "attributes": {
+            "src": "Find_W8.v:27.238-27.355"
+          },
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [ 19, 20, 21, 22 ],
+            "B": [ 8, "0", "0", "0", "0" ],
+            "Y": [ 14, 15, 16, 17, 23 ]
+          }
+        },
+        "$add$Find_W8.v:28$3": {
+          "hide_name": 1,
+          "type": "$add",
+          "parameters": {
+            "A_SIGNED": 0,
+            "A_WIDTH": 4,
+            "B_SIGNED": 0,
+            "B_WIDTH": 5,
+            "Y_WIDTH": 5
+          },
+          "attributes": {
+            "src": "Find_W8.v:28.210-28.313"
+          },
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [ 24, 25, 26, 27 ],
+            "B": [ 7, "0", "0", "0", "0" ],
+            "Y": [ 19, 20, 21, 22, 28 ]
+          }
+        },
+        "$add$Find_W8.v:29$4": {
+          "hide_name": 1,
+          "type": "$add",
+          "parameters": {
+            "A_SIGNED": 0,
+            "A_WIDTH": 4,
+            "B_SIGNED": 0,
+            "B_WIDTH": 5,
+            "Y_WIDTH": 5
+          },
+          "attributes": {
+            "src": "Find_W8.v:29.182-29.271"
+          },
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [ 29, 30, 31, 32 ],
+            "B": [ 6, "0", "0", "0", "0" ],
+            "Y": [ 24, 25, 26, 27, 33 ]
+          }
+        },
+        "$add$Find_W8.v:30$5": {
+          "hide_name": 1,
+          "type": "$add",
+          "parameters": {
+            "A_SIGNED": 0,
+            "A_WIDTH": 4,
+            "B_SIGNED": 0,
+            "B_WIDTH": 5,
+            "Y_WIDTH": 5
+          },
+          "attributes": {
+            "src": "Find_W8.v:30.154-30.229"
+          },
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [ 34, 35, 36, 37 ],
+            "B": [ 5, "0", "0", "0", "0" ],
+            "Y": [ 29, 30, 31, 32, 38 ]
+          }
+        },
+        "$add$Find_W8.v:31$6": {
+          "hide_name": 1,
+          "type": "$add",
+          "parameters": {
+            "A_SIGNED": 0,
+            "A_WIDTH": 4,
+            "B_SIGNED": 0,
+            "B_WIDTH": 5,
+            "Y_WIDTH": 5
+          },
+          "attributes": {
+            "src": "Find_W8.v:31.126-31.187"
+          },
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [ 39, 40, 41, 42 ],
+            "B": [ 4, "0", "0", "0", "0" ],
+            "Y": [ 34, 35, 36, 37, 43 ]
+          }
+        },
+        "$add$Find_W8.v:32$7": {
+          "hide_name": 1,
+          "type": "$add",
+          "parameters": {
+            "A_SIGNED": 0,
+            "A_WIDTH": 4,
+            "B_SIGNED": 0,
+            "B_WIDTH": 5,
+            "Y_WIDTH": 5
+          },
+          "attributes": {
+            "src": "Find_W8.v:32.98-32.145"
+          },
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [ 2, "0", "0", "0" ],
+            "B": [ 3, "0", "0", "0", "0" ],
+            "Y": [ 39, 40, 41, 42, 44 ]
+          }
+        }
+      },
+      "netnames": {
+        "_const_0_add__swizzled_add__swizzled_add__swizzled_add__swizzled_add__swizzled_add__swizzled_add__swizzled_add__swizzled_carry": {
+          "hide_name": 0,
+          "bits": [ 18 ],
+          "attributes": {
+            "src": "Find_W8.v:11.7-11.133",
+            "unused_bits": "0 "
+          }
+        },
+        "_const_0_add__swizzled_add__swizzled_add__swizzled_add__swizzled_add__swizzled_add__swizzled_add__swizzled_carry": {
+          "hide_name": 0,
+          "bits": [ 23 ],
+          "attributes": {
+            "src": "Find_W8.v:12.7-12.119",
+            "unused_bits": "0 "
+          }
+        },
+        "_const_0_add__swizzled_add__swizzled_add__swizzled_add__swizzled_add__swizzled_add__swizzled_carry": {
+          "hide_name": 0,
+          "bits": [ 28 ],
+          "attributes": {
+            "src": "Find_W8.v:13.7-13.105",
+            "unused_bits": "0 "
+          }
+        },
+        "_const_0_add__swizzled_add__swizzled_add__swizzled_add__swizzled_add__swizzled_carry": {
+          "hide_name": 0,
+          "bits": [ 33 ],
+          "attributes": {
+            "src": "Find_W8.v:14.7-14.91",
+            "unused_bits": "0 "
+          }
+        },
+        "_const_0_add__swizzled_add__swizzled_add__swizzled_add__swizzled_carry": {
+          "hide_name": 0,
+          "bits": [ 38 ],
+          "attributes": {
+            "src": "Find_W8.v:15.7-15.77",
+            "unused_bits": "0 "
+          }
+        },
+        "_const_0_add__swizzled_add__swizzled_add__swizzled_carry": {
+          "hide_name": 0,
+          "bits": [ 43 ],
+          "attributes": {
+            "src": "Find_W8.v:16.7-16.63",
+            "unused_bits": "0 "
+          }
+        },
+        "_const_0_add__swizzled_add__swizzled_carry": {
+          "hide_name": 0,
+          "bits": [ 44 ],
+          "attributes": {
+            "src": "Find_W8.v:17.7-17.49",
+            "unused_bits": "0 "
+          }
+        },
+        "_const_0_add__swizzled_carry": {
+          "hide_name": 0,
+          "bits": [ "0" ],
+          "attributes": {
+            "src": "Find_W8.v:18.7-18.35"
+          }
+        },
+        "_in0__const_0_add__swizzled": {
+          "hide_name": 0,
+          "bits": [ 2, "0", "0", "0" ],
+          "attributes": {
+            "src": "Find_W8.v:19.13-19.40"
+          }
+        },
+        "_in0__const_0_add__swizzled_add__swizzled": {
+          "hide_name": 0,
+          "bits": [ 39, 40, 41, 42 ],
+          "attributes": {
+            "src": "Find_W8.v:20.13-20.54"
+          }
+        },
+        "_in0__const_0_add__swizzled_add__swizzled_add__swizzled": {
+          "hide_name": 0,
+          "bits": [ 34, 35, 36, 37 ],
+          "attributes": {
+            "src": "Find_W8.v:21.13-21.68"
+          }
+        },
+        "_in0__const_0_add__swizzled_add__swizzled_add__swizzled_add__swizzled": {
+          "hide_name": 0,
+          "bits": [ 29, 30, 31, 32 ],
+          "attributes": {
+            "src": "Find_W8.v:22.13-22.82"
+          }
+        },
+        "_in0__const_0_add__swizzled_add__swizzled_add__swizzled_add__swizzled_add__swizzled": {
+          "hide_name": 0,
+          "bits": [ 24, 25, 26, 27 ],
+          "attributes": {
+            "src": "Find_W8.v:23.13-23.96"
+          }
+        },
+        "_in0__const_0_add__swizzled_add__swizzled_add__swizzled_add__swizzled_add__swizzled_add__swizzled": {
+          "hide_name": 0,
+          "bits": [ 19, 20, 21, 22 ],
+          "attributes": {
+            "src": "Find_W8.v:24.13-24.110"
+          }
+        },
+        "_in0__const_0_add__swizzled_add__swizzled_add__swizzled_add__swizzled_add__swizzled_add__swizzled_add__swizzled": {
+          "hide_name": 0,
+          "bits": [ 14, 15, 16, 17 ],
+          "attributes": {
+            "src": "Find_W8.v:25.13-25.124"
+          }
+        },
+        "bus": {
+          "hide_name": 0,
+          "bits": [ 2, 3, 4, 5, 6, 7, 8, 9 ],
+          "attributes": {
+            "src": "Find_W8.v:8.19-8.22"
+          }
+        },
+        "countOne": {
+          "hide_name": 0,
+          "bits": [ 10, 11, 12, 13 ],
+          "attributes": {
+            "src": "Find_W8.v:9.20-9.28"
+          }
+        }
+      }
+    },
+    "Find_W8": {
+      "attributes": {
+        "top": 1,
+        "src": "Find_W8.v:213.1-258.20"
+      },
+      "ports": {
+        "bus": {
+          "direction": "input",
+          "bits": [ 2, 3, 4, 5, 6, 7, 8, 9 ]
+        },
+        "index": {
+          "direction": "output",
+          "bits": [ 10, 11, 12 ]
+        }
+      },
+      "cells": {
+        "$and$Find_W8.v:241$39": {
+          "hide_name": 1,
+          "type": "$and",
+          "parameters": {
+            "A_SIGNED": 0,
+            "A_WIDTH": 1,
+            "B_SIGNED": 0,
+            "B_WIDTH": 1,
+            "Y_WIDTH": 1
+          },
+          "attributes": {
+            "src": "Find_W8.v:241.376-241.430"
+          },
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [ 2 ],
+            "B": [ 13 ],
+            "Y": [ 14 ]
+          }
+        },
+        "$and$Find_W8.v:241$41": {
+          "hide_name": 1,
+          "type": "$and",
+          "parameters": {
+            "A_SIGNED": 0,
+            "A_WIDTH": 1,
+            "B_SIGNED": 0,
+            "B_WIDTH": 1,
+            "Y_WIDTH": 1
+          },
+          "attributes": {
+            "src": "Find_W8.v:241.333-241.373"
+          },
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [ 3 ],
+            "B": [ 15 ],
+            "Y": [ 16 ]
+          }
+        },
+        "$and$Find_W8.v:241$43": {
+          "hide_name": 1,
+          "type": "$and",
+          "parameters": {
+            "A_SIGNED": 0,
+            "A_WIDTH": 1,
+            "B_SIGNED": 0,
+            "B_WIDTH": 1,
+            "Y_WIDTH": 1
+          },
+          "attributes": {
+            "src": "Find_W8.v:241.274-241.330"
+          },
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [ 4 ],
+            "B": [ 17 ],
+            "Y": [ 18 ]
+          }
+        },
+        "$and$Find_W8.v:241$45": {
+          "hide_name": 1,
+          "type": "$and",
+          "parameters": {
+            "A_SIGNED": 0,
+            "A_WIDTH": 1,
+            "B_SIGNED": 0,
+            "B_WIDTH": 1,
+            "Y_WIDTH": 1
+          },
+          "attributes": {
+            "src": "Find_W8.v:241.229-241.271"
+          },
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [ 5 ],
+            "B": [ 19 ],
+            "Y": [ 20 ]
+          }
+        },
+        "$and$Find_W8.v:241$47": {
+          "hide_name": 1,
+          "type": "$and",
+          "parameters": {
+            "A_SIGNED": 0,
+            "A_WIDTH": 1,
+            "B_SIGNED": 0,
+            "B_WIDTH": 1,
+            "Y_WIDTH": 1
+          },
+          "attributes": {
+            "src": "Find_W8.v:241.184-241.226"
+          },
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [ 6 ],
+            "B": [ 21 ],
+            "Y": [ 22 ]
+          }
+        },
+        "$and$Find_W8.v:241$49": {
+          "hide_name": 1,
+          "type": "$and",
+          "parameters": {
+            "A_SIGNED": 0,
+            "A_WIDTH": 1,
+            "B_SIGNED": 0,
+            "B_WIDTH": 1,
+            "Y_WIDTH": 1
+          },
+          "attributes": {
+            "src": "Find_W8.v:241.139-241.181"
+          },
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [ 7 ],
+            "B": [ 23 ],
+            "Y": [ 24 ]
+          }
+        },
+        "$and$Find_W8.v:241$51": {
+          "hide_name": 1,
+          "type": "$and",
+          "parameters": {
+            "A_SIGNED": 0,
+            "A_WIDTH": 1,
+            "B_SIGNED": 0,
+            "B_WIDTH": 1,
+            "Y_WIDTH": 1
+          },
+          "attributes": {
+            "src": "Find_W8.v:241.94-241.136"
+          },
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [ 8 ],
+            "B": [ 25 ],
+            "Y": [ 26 ]
+          }
+        },
+        "$and$Find_W8.v:241$53": {
+          "hide_name": 1,
+          "type": "$and",
+          "parameters": {
+            "A_SIGNED": 0,
+            "A_WIDTH": 1,
+            "B_SIGNED": 0,
+            "B_WIDTH": 1,
+            "Y_WIDTH": 1
+          },
+          "attributes": {
+            "src": "Find_W8.v:241.49-241.91"
+          },
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [ 9 ],
+            "B": [ 27 ],
+            "Y": [ 28 ]
+          }
+        },
+        "$eq$Find_W8.v:241$40": {
+          "hide_name": 1,
+          "type": "$eq",
+          "parameters": {
+            "A_SIGNED": 0,
+            "A_WIDTH": 2,
+            "B_SIGNED": 0,
+            "B_WIDTH": 2,
+            "Y_WIDTH": 1
+          },
+          "attributes": {
+            "src": "Find_W8.v:241.345-241.372"
+          },
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [ "1", "0" ],
+            "B": [ 29, 30 ],
+            "Y": [ 15 ]
+          }
+        },
+        "$eq$Find_W8.v:241$42": {
+          "hide_name": 1,
+          "type": "$eq",
+          "parameters": {
+            "A_SIGNED": 0,
+            "A_WIDTH": 2,
+            "B_SIGNED": 0,
+            "B_WIDTH": 2,
+            "Y_WIDTH": 1
+          },
+          "attributes": {
+            "src": "Find_W8.v:241.286-241.329"
+          },
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [ "1", "0" ],
+            "B": [ 31, 32 ],
+            "Y": [ 17 ]
+          }
+        },
+        "$eq$Find_W8.v:241$44": {
+          "hide_name": 1,
+          "type": "$eq",
+          "parameters": {
+            "A_SIGNED": 0,
+            "A_WIDTH": 3,
+            "B_SIGNED": 0,
+            "B_WIDTH": 3,
+            "Y_WIDTH": 1
+          },
+          "attributes": {
+            "src": "Find_W8.v:241.241-241.270"
+          },
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [ "1", "0", "0" ],
+            "B": [ 33, 34, 35 ],
+            "Y": [ 19 ]
+          }
+        },
+        "$eq$Find_W8.v:241$46": {
+          "hide_name": 1,
+          "type": "$eq",
+          "parameters": {
+            "A_SIGNED": 0,
+            "A_WIDTH": 3,
+            "B_SIGNED": 0,
+            "B_WIDTH": 3,
+            "Y_WIDTH": 1
+          },
+          "attributes": {
+            "src": "Find_W8.v:241.196-241.225"
+          },
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [ "1", "0", "0" ],
+            "B": [ 36, 37, 38 ],
+            "Y": [ 21 ]
+          }
+        },
+        "$eq$Find_W8.v:241$48": {
+          "hide_name": 1,
+          "type": "$eq",
+          "parameters": {
+            "A_SIGNED": 0,
+            "A_WIDTH": 3,
+            "B_SIGNED": 0,
+            "B_WIDTH": 3,
+            "Y_WIDTH": 1
+          },
+          "attributes": {
+            "src": "Find_W8.v:241.151-241.180"
+          },
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [ "1", "0", "0" ],
+            "B": [ 39, 40, 41 ],
+            "Y": [ 23 ]
+          }
+        },
+        "$eq$Find_W8.v:241$50": {
+          "hide_name": 1,
+          "type": "$eq",
+          "parameters": {
+            "A_SIGNED": 0,
+            "A_WIDTH": 3,
+            "B_SIGNED": 0,
+            "B_WIDTH": 3,
+            "Y_WIDTH": 1
+          },
+          "attributes": {
+            "src": "Find_W8.v:241.106-241.135"
+          },
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [ "1", "0", "0" ],
+            "B": [ 42, 43, 44 ],
+            "Y": [ 25 ]
+          }
+        },
+        "$eq$Find_W8.v:241$52": {
+          "hide_name": 1,
+          "type": "$eq",
+          "parameters": {
+            "A_SIGNED": 0,
+            "A_WIDTH": 4,
+            "B_SIGNED": 0,
+            "B_WIDTH": 4,
+            "Y_WIDTH": 1
+          },
+          "attributes": {
+            "src": "Find_W8.v:241.61-241.90"
+          },
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [ "1", "0", "0", "0" ],
+            "B": [ 45, 46, 47, 48 ],
+            "Y": [ 27 ]
+          }
+        },
+        "one_hot_to_binary": {
+          "hide_name": 0,
+          "type": "OneHotToBinary_W8",
+          "parameters": {
+          },
+          "attributes": {
+            "module_not_derived": 1,
+            "src": "Find_W8.v:241.20-241.450"
+          },
+          "port_directions": {
+            "binary": "output",
+            "onehot": "input"
+          },
+          "connections": {
+            "binary": [ 10, 11, 12 ],
+            "onehot": [ 14, 16, 18, 20, 22, 24, 26, 28 ]
+          }
+        },
+        "unnamed_module": {
+          "hide_name": 0,
+          "type": "Count_W1",
+          "parameters": {
+          },
+          "attributes": {
+            "module_not_derived": 1,
+            "src": "Find_W8.v:243.11-243.61"
+          },
+          "port_directions": {
+            "bus": "input",
+            "countOne": "output"
+          },
+          "connections": {
+            "bus": [ 2 ],
+            "countOne": [ 13 ]
+          }
+        },
+        "unnamed_module_0": {
+          "hide_name": 0,
+          "type": "Count_W2",
+          "parameters": {
+          },
+          "attributes": {
+            "module_not_derived": 1,
+            "src": "Find_W8.v:245.11-245.67"
+          },
+          "port_directions": {
+            "bus": "input",
+            "countOne": "output"
+          },
+          "connections": {
+            "bus": [ 2, 3 ],
+            "countOne": [ 29, 30 ]
+          }
+        },
+        "unnamed_module_1": {
+          "hide_name": 0,
+          "type": "Count_W3",
+          "parameters": {
+          },
+          "attributes": {
+            "module_not_derived": 1,
+            "src": "Find_W8.v:247.11-247.67"
+          },
+          "port_directions": {
+            "bus": "input",
+            "countOne": "output"
+          },
+          "connections": {
+            "bus": [ 2, 3, 4 ],
+            "countOne": [ 31, 32 ]
+          }
+        },
+        "unnamed_module_2": {
+          "hide_name": 0,
+          "type": "Count_W4",
+          "parameters": {
+          },
+          "attributes": {
+            "module_not_derived": 1,
+            "src": "Find_W8.v:249.11-249.67"
+          },
+          "port_directions": {
+            "bus": "input",
+            "countOne": "output"
+          },
+          "connections": {
+            "bus": [ 2, 3, 4, 5 ],
+            "countOne": [ 33, 34, 35 ]
+          }
+        },
+        "unnamed_module_3": {
+          "hide_name": 0,
+          "type": "Count_W5",
+          "parameters": {
+          },
+          "attributes": {
+            "module_not_derived": 1,
+            "src": "Find_W8.v:251.11-251.67"
+          },
+          "port_directions": {
+            "bus": "input",
+            "countOne": "output"
+          },
+          "connections": {
+            "bus": [ 2, 3, 4, 5, 6 ],
+            "countOne": [ 36, 37, 38 ]
+          }
+        },
+        "unnamed_module_4": {
+          "hide_name": 0,
+          "type": "Count_W6",
+          "parameters": {
+          },
+          "attributes": {
+            "module_not_derived": 1,
+            "src": "Find_W8.v:253.11-253.67"
+          },
+          "port_directions": {
+            "bus": "input",
+            "countOne": "output"
+          },
+          "connections": {
+            "bus": [ 2, 3, 4, 5, 6, 7 ],
+            "countOne": [ 39, 40, 41 ]
+          }
+        },
+        "unnamed_module_5": {
+          "hide_name": 0,
+          "type": "Count_W7",
+          "parameters": {
+          },
+          "attributes": {
+            "module_not_derived": 1,
+            "src": "Find_W8.v:255.11-255.67"
+          },
+          "port_directions": {
+            "bus": "input",
+            "countOne": "output"
+          },
+          "connections": {
+            "bus": [ 2, 3, 4, 5, 6, 7, 8 ],
+            "countOne": [ 42, 43, 44 ]
+          }
+        },
+        "unnamed_module_6": {
+          "hide_name": 0,
+          "type": "Count_W8",
+          "parameters": {
+          },
+          "attributes": {
+            "module_not_derived": 1,
+            "src": "Find_W8.v:257.11-257.60"
+          },
+          "port_directions": {
+            "bus": "input",
+            "countOne": "output"
+          },
+          "connections": {
+            "bus": [ 2, 3, 4, 5, 6, 7, 8, 9 ],
+            "countOne": [ 45, 46, 47, 48 ]
+          }
+        }
+      },
+      "netnames": {
+        "$and$Find_W8.v:241$39_Y": {
+          "hide_name": 1,
+          "bits": [ 14 ],
+          "attributes": {
+            "src": "Find_W8.v:241.376-241.430"
+          }
+        },
+        "$and$Find_W8.v:241$41_Y": {
+          "hide_name": 1,
+          "bits": [ 16 ],
+          "attributes": {
+            "src": "Find_W8.v:241.333-241.373"
+          }
+        },
+        "$and$Find_W8.v:241$43_Y": {
+          "hide_name": 1,
+          "bits": [ 18 ],
+          "attributes": {
+            "src": "Find_W8.v:241.274-241.330"
+          }
+        },
+        "$and$Find_W8.v:241$45_Y": {
+          "hide_name": 1,
+          "bits": [ 20 ],
+          "attributes": {
+            "src": "Find_W8.v:241.229-241.271"
+          }
+        },
+        "$and$Find_W8.v:241$47_Y": {
+          "hide_name": 1,
+          "bits": [ 22 ],
+          "attributes": {
+            "src": "Find_W8.v:241.184-241.226"
+          }
+        },
+        "$and$Find_W8.v:241$49_Y": {
+          "hide_name": 1,
+          "bits": [ 24 ],
+          "attributes": {
+            "src": "Find_W8.v:241.139-241.181"
+          }
+        },
+        "$and$Find_W8.v:241$51_Y": {
+          "hide_name": 1,
+          "bits": [ 26 ],
+          "attributes": {
+            "src": "Find_W8.v:241.94-241.136"
+          }
+        },
+        "$and$Find_W8.v:241$53_Y": {
+          "hide_name": 1,
+          "bits": [ 28 ],
+          "attributes": {
+            "src": "Find_W8.v:241.49-241.91"
+          }
+        },
+        "$eq$Find_W8.v:241$40_Y": {
+          "hide_name": 1,
+          "bits": [ 15 ],
+          "attributes": {
+            "src": "Find_W8.v:241.345-241.372"
+          }
+        },
+        "$eq$Find_W8.v:241$42_Y": {
+          "hide_name": 1,
+          "bits": [ 17 ],
+          "attributes": {
+            "src": "Find_W8.v:241.286-241.329"
+          }
+        },
+        "$eq$Find_W8.v:241$44_Y": {
+          "hide_name": 1,
+          "bits": [ 19 ],
+          "attributes": {
+            "src": "Find_W8.v:241.241-241.270"
+          }
+        },
+        "$eq$Find_W8.v:241$46_Y": {
+          "hide_name": 1,
+          "bits": [ 21 ],
+          "attributes": {
+            "src": "Find_W8.v:241.196-241.225"
+          }
+        },
+        "$eq$Find_W8.v:241$48_Y": {
+          "hide_name": 1,
+          "bits": [ 23 ],
+          "attributes": {
+            "src": "Find_W8.v:241.151-241.180"
+          }
+        },
+        "$eq$Find_W8.v:241$50_Y": {
+          "hide_name": 1,
+          "bits": [ 25 ],
+          "attributes": {
+            "src": "Find_W8.v:241.106-241.135"
+          }
+        },
+        "$eq$Find_W8.v:241$52_Y": {
+          "hide_name": 1,
+          "bits": [ 27 ],
+          "attributes": {
+            "src": "Find_W8.v:241.61-241.90"
+          }
+        },
+        "_const_0_add_const_1": {
+          "hide_name": 0,
+          "bits": [ "1" ],
+          "attributes": {
+            "src": "Find_W8.v:217.7-217.27"
+          }
+        },
+        "_const_0_add_const_1_carry": {
+          "hide_name": 0,
+          "bits": [ "0" ],
+          "attributes": {
+            "src": "Find_W8.v:218.7-218.33"
+          }
+        },
+        "_const_0_add_const_1_carry_0": {
+          "hide_name": 0,
+          "bits": [ "0" ],
+          "attributes": {
+            "src": "Find_W8.v:219.7-219.35"
+          }
+        },
+        "_const_0_add_const_1_carry_1": {
+          "hide_name": 0,
+          "bits": [ "0" ],
+          "attributes": {
+            "src": "Find_W8.v:220.7-220.35"
+          }
+        },
+        "_const_0_add_const_1_carry_2": {
+          "hide_name": 0,
+          "bits": [ "0" ],
+          "attributes": {
+            "src": "Find_W8.v:221.7-221.35"
+          }
+        },
+        "_const_0_add_const_1_carry_3": {
+          "hide_name": 0,
+          "bits": [ "0" ],
+          "attributes": {
+            "src": "Find_W8.v:222.7-222.35"
+          }
+        },
+        "_const_0_add_const_1_carry_4": {
+          "hide_name": 0,
+          "bits": [ "0" ],
+          "attributes": {
+            "src": "Find_W8.v:223.7-223.35"
+          }
+        },
+        "_const_0_add_const_1_carry_5": {
+          "hide_name": 0,
+          "bits": [ "0" ],
+          "attributes": {
+            "src": "Find_W8.v:224.7-224.35"
+          }
+        },
+        "_const_0_add_const_1_carry_6": {
+          "hide_name": 0,
+          "bits": [ "0" ],
+          "attributes": {
+            "src": "Find_W8.v:225.7-225.35"
+          }
+        },
+        "_in0": {
+          "hide_name": 0,
+          "bits": [ "1" ],
+          "attributes": {
+            "src": "Find_W8.v:226.7-226.11"
+          }
+        },
+        "_in0_0": {
+          "hide_name": 0,
+          "bits": [ "1" ],
+          "attributes": {
+            "src": "Find_W8.v:227.7-227.13"
+          }
+        },
+        "_in0_1": {
+          "hide_name": 0,
+          "bits": [ "1" ],
+          "attributes": {
+            "src": "Find_W8.v:228.7-228.13"
+          }
+        },
+        "_in0_2": {
+          "hide_name": 0,
+          "bits": [ "1" ],
+          "attributes": {
+            "src": "Find_W8.v:229.7-229.13"
+          }
+        },
+        "_in0_3": {
+          "hide_name": 0,
+          "bits": [ "1" ],
+          "attributes": {
+            "src": "Find_W8.v:230.7-230.13"
+          }
+        },
+        "_in0_4": {
+          "hide_name": 0,
+          "bits": [ "1" ],
+          "attributes": {
+            "src": "Find_W8.v:231.7-231.13"
+          }
+        },
+        "_in0__const_0_add_const_1": {
+          "hide_name": 0,
+          "bits": [ "1" ],
+          "attributes": {
+            "src": "Find_W8.v:232.7-232.32"
+          }
+        },
+        "bus": {
+          "hide_name": 0,
+          "bits": [ 2, 3, 4, 5, 6, 7, 8, 9 ],
+          "attributes": {
+            "src": "Find_W8.v:214.19-214.22"
+          }
+        },
+        "countOne": {
+          "hide_name": 0,
+          "bits": [ 13 ],
+          "attributes": {
+            "src": "Find_W8.v:233.7-233.15"
+          }
+        },
+        "countOne_0": {
+          "hide_name": 0,
+          "bits": [ 29, 30 ],
+          "attributes": {
+            "src": "Find_W8.v:234.13-234.23"
+          }
+        },
+        "countOne_1": {
+          "hide_name": 0,
+          "bits": [ 31, 32 ],
+          "attributes": {
+            "src": "Find_W8.v:235.13-235.23"
+          }
+        },
+        "countOne_2": {
+          "hide_name": 0,
+          "bits": [ 33, 34, 35 ],
+          "attributes": {
+            "src": "Find_W8.v:236.13-236.23"
+          }
+        },
+        "countOne_3": {
+          "hide_name": 0,
+          "bits": [ 36, 37, 38 ],
+          "attributes": {
+            "src": "Find_W8.v:237.13-237.23"
+          }
+        },
+        "countOne_4": {
+          "hide_name": 0,
+          "bits": [ 39, 40, 41 ],
+          "attributes": {
+            "src": "Find_W8.v:238.13-238.23"
+          }
+        },
+        "countOne_5": {
+          "hide_name": 0,
+          "bits": [ 42, 43, 44 ],
+          "attributes": {
+            "src": "Find_W8.v:239.13-239.23"
+          }
+        },
+        "countOne_6": {
+          "hide_name": 0,
+          "bits": [ 45, 46, 47, 48 ],
+          "attributes": {
+            "src": "Find_W8.v:240.13-240.23"
+          }
+        },
+        "index": {
+          "hide_name": 0,
+          "bits": [ 10, 11, 12 ],
+          "attributes": {
+            "src": "Find_W8.v:215.20-215.25"
+          }
+        }
+      }
+    },
+    "OneHotToBinary_W8": {
+      "attributes": {
+        "src": "Find_W8.v:171.1-209.30"
+      },
+      "ports": {
+        "onehot": {
+          "direction": "input",
+          "bits": [ 2, 3, 4, 5, 6, 7, 8, 9 ]
+        },
+        "binary": {
+          "direction": "output",
+          "bits": [ 10, 11, 12 ]
+        }
+      },
+      "cells": {
+        "$procmux$55": {
+          "hide_name": 1,
+          "type": "$pmux",
+          "parameters": {
+            "S_WIDTH": 7,
+            "WIDTH": 3
+          },
+          "attributes": {
+            "full_case": 1,
+            "parallel_case": 1,
+            "src": "Find_W8.v:0.0-0.0|Find_W8.v:177.10-205.10"
+          },
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "S": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [ "0", "0", "0" ],
+            "B": [ "1", "1", "1", "0", "1", "1", "1", "0", "1", "0", "0", "1", "1", "1", "0", "0", "1", "0", "1", "0", "0" ],
+            "S": [ 13, 14, 15, 16, 17, 18, 19 ],
+            "Y": [ 10, 11, 12 ]
+          }
+        },
+        "$procmux$56_CMP0": {
+          "hide_name": 1,
+          "type": "$eq",
+          "parameters": {
+            "A_SIGNED": 0,
+            "A_WIDTH": 8,
+            "B_SIGNED": 0,
+            "B_WIDTH": 8,
+            "Y_WIDTH": 1
+          },
+          "attributes": {
+            "full_case": 1,
+            "parallel_case": 1,
+            "src": "Find_W8.v:0.0-0.0|Find_W8.v:177.10-205.10"
+          },
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [ 2, 3, 4, 5, 6, 7, 8, 9 ],
+            "B": [ "0", "0", "0", "0", "0", "0", "0", "1" ],
+            "Y": [ 13 ]
+          }
+        },
+        "$procmux$57_CMP0": {
+          "hide_name": 1,
+          "type": "$eq",
+          "parameters": {
+            "A_SIGNED": 0,
+            "A_WIDTH": 8,
+            "B_SIGNED": 0,
+            "B_WIDTH": 8,
+            "Y_WIDTH": 1
+          },
+          "attributes": {
+            "full_case": 1,
+            "parallel_case": 1,
+            "src": "Find_W8.v:0.0-0.0|Find_W8.v:177.10-205.10"
+          },
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [ 2, 3, 4, 5, 6, 7, 8, 9 ],
+            "B": [ "0", "0", "0", "0", "0", "0", "1", "0" ],
+            "Y": [ 14 ]
+          }
+        },
+        "$procmux$58_CMP0": {
+          "hide_name": 1,
+          "type": "$eq",
+          "parameters": {
+            "A_SIGNED": 0,
+            "A_WIDTH": 8,
+            "B_SIGNED": 0,
+            "B_WIDTH": 8,
+            "Y_WIDTH": 1
+          },
+          "attributes": {
+            "full_case": 1,
+            "parallel_case": 1,
+            "src": "Find_W8.v:0.0-0.0|Find_W8.v:177.10-205.10"
+          },
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [ 2, 3, 4, 5, 6, 7, 8, 9 ],
+            "B": [ "0", "0", "0", "0", "0", "1", "0", "0" ],
+            "Y": [ 15 ]
+          }
+        },
+        "$procmux$59_CMP0": {
+          "hide_name": 1,
+          "type": "$eq",
+          "parameters": {
+            "A_SIGNED": 0,
+            "A_WIDTH": 8,
+            "B_SIGNED": 0,
+            "B_WIDTH": 8,
+            "Y_WIDTH": 1
+          },
+          "attributes": {
+            "full_case": 1,
+            "parallel_case": 1,
+            "src": "Find_W8.v:0.0-0.0|Find_W8.v:177.10-205.10"
+          },
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [ 2, 3, 4, 5, 6, 7, 8, 9 ],
+            "B": [ "0", "0", "0", "0", "1", "0", "0", "0" ],
+            "Y": [ 16 ]
+          }
+        },
+        "$procmux$60_CMP0": {
+          "hide_name": 1,
+          "type": "$eq",
+          "parameters": {
+            "A_SIGNED": 0,
+            "A_WIDTH": 8,
+            "B_SIGNED": 0,
+            "B_WIDTH": 8,
+            "Y_WIDTH": 1
+          },
+          "attributes": {
+            "full_case": 1,
+            "parallel_case": 1,
+            "src": "Find_W8.v:0.0-0.0|Find_W8.v:177.10-205.10"
+          },
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [ 2, 3, 4, 5, 6, 7, 8, 9 ],
+            "B": [ "0", "0", "0", "1", "0", "0", "0", "0" ],
+            "Y": [ 17 ]
+          }
+        },
+        "$procmux$61_CMP0": {
+          "hide_name": 1,
+          "type": "$eq",
+          "parameters": {
+            "A_SIGNED": 0,
+            "A_WIDTH": 8,
+            "B_SIGNED": 0,
+            "B_WIDTH": 8,
+            "Y_WIDTH": 1
+          },
+          "attributes": {
+            "full_case": 1,
+            "parallel_case": 1,
+            "src": "Find_W8.v:0.0-0.0|Find_W8.v:177.10-205.10"
+          },
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [ 2, 3, 4, 5, 6, 7, 8, 9 ],
+            "B": [ "0", "0", "1", "0", "0", "0", "0", "0" ],
+            "Y": [ 18 ]
+          }
+        },
+        "$procmux$62_CMP0": {
+          "hide_name": 1,
+          "type": "$eq",
+          "parameters": {
+            "A_SIGNED": 0,
+            "A_WIDTH": 8,
+            "B_SIGNED": 0,
+            "B_WIDTH": 8,
+            "Y_WIDTH": 1
+          },
+          "attributes": {
+            "full_case": 1,
+            "parallel_case": 1,
+            "src": "Find_W8.v:0.0-0.0|Find_W8.v:177.10-205.10"
+          },
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [ 2, 3, 4, 5, 6, 7, 8, 9 ],
+            "B": [ "0", "1", "0", "0", "0", "0", "0", "0" ],
+            "Y": [ 19 ]
+          }
+        }
+      },
+      "netnames": {
+        "$procmux$56_CMP": {
+          "hide_name": 1,
+          "bits": [ 13 ],
+          "attributes": {
+          }
+        },
+        "$procmux$57_CMP": {
+          "hide_name": 1,
+          "bits": [ 14 ],
+          "attributes": {
+          }
+        },
+        "$procmux$58_CMP": {
+          "hide_name": 1,
+          "bits": [ 15 ],
+          "attributes": {
+          }
+        },
+        "$procmux$59_CMP": {
+          "hide_name": 1,
+          "bits": [ 16 ],
+          "attributes": {
+          }
+        },
+        "$procmux$60_CMP": {
+          "hide_name": 1,
+          "bits": [ 17 ],
+          "attributes": {
+          }
+        },
+        "$procmux$61_CMP": {
+          "hide_name": 1,
+          "bits": [ 18 ],
+          "attributes": {
+          }
+        },
+        "$procmux$62_CMP": {
+          "hide_name": 1,
+          "bits": [ 19 ],
+          "attributes": {
+          }
+        },
+        "binary": {
+          "hide_name": 0,
+          "bits": [ 10, 11, 12 ],
+          "attributes": {
+            "src": "Find_W8.v:173.20-173.26"
+          }
+        },
+        "onehot": {
+          "hide_name": 0,
+          "bits": [ 2, 3, 4, 5, 6, 7, 8, 9 ],
+          "attributes": {
+            "src": "Find_W8.v:172.19-172.25"
+          }
+        }
+      }
+    }
+  }
+}`;
+        var width = viewport().width,
+            height = viewport().height;
+
+        var svg = d3.select("#scheme-placeholder")
+            .attr("width", width)
+            .attr("height", height);
+
+        var orig = document.body.onresize;
+        document.body.onresize = function(ev) {
+            if (orig)
+        	    orig(ev);
+
+            var w = viewport();
+            svg.attr("width", w.width);
+			svg.attr("height", w.height);
+        }
+
+        var hwSchematic = new d3.HwSchematic(svg);
+        var zoom = d3.zoom();
+        zoom.on("zoom", function applyTransform(ev) {
+        	hwSchematic.root.attr("transform", ev.transform)
+        });
+
+        // disable zoom on doubleclick
+        // because it interferes with component expanding/collapsing
+        svg.call(zoom)
+           .on("dblclick.zoom", null)
+
+      graph = JSON.parse(exmpl);
+      if ("creator" in graph) {
+	  graph = d3.HwSchematic.fromYosys(graph);
+      }
+      if (graph.hwMeta && graph.hwMeta.name) {
+          document.title = graph.hwMeta.name;
+	  hwSchematic.bindData(graph);
+      }
+    </script>
+</body>
+</html>
+

@@ -1,0 +1,2303 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>d3-hwschematic</title>
+</head>
+<body>
+  </script>
+  <script type="text/javascript" src="d3-hwschematic-assets/d3/dist/d3.js"></script>
+  <!-- <script type="text/javascript" src="d3-hwschematic-assets/d3/dist/d3.min.js"></script>  -->
+  <script type="text/javascript" src="d3-hwschematic-assets/elkjs/lib/elk.bundled.js"></script>
+  <script type="text/javascript" src="d3-hwschematic-assets/d3-hwschematic.js"></script>
+  <link href="d3-hwschematic-assets/d3-hwschematic.css" rel="stylesheet">
+  <style>
+  	body {
+	   margin: 0;
+    }
+  </style>
+</head>
+<body>
+    <svg id="scheme-placeholder"></svg>
+    <script>
+        // schematic rendering script
+        function viewport() {
+          var e = window,
+            a = 'inner';
+          if (!(innerWidth in window)) {
+            a = 'client';
+            e = document.documentElement || document.body;
+          }
+          return {
+            width: e[a + 'Width'],
+            height: e[a + 'Height']
+          }
+        }
+      var exmpl = `{
+  "creator": "Yosys 0.29+11 (git sha1 d82bae32b, clang 10.0.0-4ubuntu1 -fPIC -Os)",
+  "modules": {
+    "BitonicSort_W1": {
+      "attributes": {
+        "src": "BitonicSort_W4.v:66.1-73.27"
+      },
+      "ports": {
+        "clk": {
+          "direction": "input",
+          "bits": [ 2 ]
+        },
+        "reset": {
+          "direction": "input",
+          "bits": [ 3 ]
+        },
+        "toSort0": {
+          "direction": "input",
+          "bits": [ 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19 ]
+        },
+        "sorted_0": {
+          "direction": "output",
+          "bits": [ 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19 ]
+        }
+      },
+      "cells": {
+      },
+      "netnames": {
+        "clk": {
+          "hide_name": 0,
+          "bits": [ 2 ],
+          "attributes": {
+            "src": "BitonicSort_W4.v:67.13-67.16"
+          }
+        },
+        "reset": {
+          "hide_name": 0,
+          "bits": [ 3 ],
+          "attributes": {
+            "src": "BitonicSort_W4.v:68.13-68.18"
+          }
+        },
+        "sorted_0": {
+          "hide_name": 0,
+          "bits": [ 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19 ],
+          "attributes": {
+            "src": "BitonicSort_W4.v:70.21-70.29"
+          }
+        },
+        "toSort0": {
+          "hide_name": 0,
+          "bits": [ 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19 ],
+          "attributes": {
+            "src": "BitonicSort_W4.v:69.20-69.27"
+          }
+        }
+      }
+    },
+    "BitonicSort_W2": {
+      "attributes": {
+        "src": "BitonicSort_W4.v:171.1-184.27"
+      },
+      "ports": {
+        "clk": {
+          "direction": "input",
+          "bits": [ 2 ]
+        },
+        "reset": {
+          "direction": "input",
+          "bits": [ 3 ]
+        },
+        "toSort0": {
+          "direction": "input",
+          "bits": [ 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19 ]
+        },
+        "toSort1": {
+          "direction": "input",
+          "bits": [ 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35 ]
+        },
+        "sorted_0": {
+          "direction": "output",
+          "bits": [ 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51 ]
+        },
+        "sorted_1": {
+          "direction": "output",
+          "bits": [ 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67 ]
+        }
+      },
+      "cells": {
+        "bitonic_merge": {
+          "hide_name": 0,
+          "type": "_BitonicMerge_W2",
+          "parameters": {
+          },
+          "attributes": {
+            "module_not_derived": 1,
+            "src": "BitonicSort_W4.v:181.19-181.169"
+          },
+          "port_directions": {
+            "bitonicSequence0": "input",
+            "bitonicSequence1": "input",
+            "clk": "input",
+            "reset": "input",
+            "sorted_0": "output",
+            "sorted_1": "output"
+          },
+          "connections": {
+            "bitonicSequence0": [ 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83 ],
+            "bitonicSequence1": [ 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99 ],
+            "clk": [ 2 ],
+            "reset": [ 3 ],
+            "sorted_0": [ 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51 ],
+            "sorted_1": [ 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67 ]
+          }
+        },
+        "sort_left_1": {
+          "hide_name": 0,
+          "type": "BitonicSort_W1",
+          "parameters": {
+          },
+          "attributes": {
+            "module_not_derived": 1,
+            "src": "BitonicSort_W4.v:182.17-182.99"
+          },
+          "port_directions": {
+            "clk": "input",
+            "reset": "input",
+            "sorted_0": "output",
+            "toSort0": "input"
+          },
+          "connections": {
+            "clk": [ 2 ],
+            "reset": [ 3 ],
+            "sorted_0": [ 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83 ],
+            "toSort0": [ 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19 ]
+          }
+        },
+        "sort_right_1": {
+          "hide_name": 0,
+          "type": "BitonicSort_W1",
+          "parameters": {
+          },
+          "attributes": {
+            "module_not_derived": 1,
+            "src": "BitonicSort_W4.v:183.17-183.100"
+          },
+          "port_directions": {
+            "clk": "input",
+            "reset": "input",
+            "sorted_0": "output",
+            "toSort0": "input"
+          },
+          "connections": {
+            "clk": [ 2 ],
+            "reset": [ 3 ],
+            "sorted_0": [ 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99 ],
+            "toSort0": [ 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35 ]
+          }
+        }
+      },
+      "netnames": {
+        "bitonicSequence0": {
+          "hide_name": 0,
+          "bits": [ 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83 ],
+          "attributes": {
+            "src": "BitonicSort_W4.v:179.14-179.30"
+          }
+        },
+        "bitonicSequence1": {
+          "hide_name": 0,
+          "bits": [ 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99 ],
+          "attributes": {
+            "src": "BitonicSort_W4.v:180.14-180.30"
+          }
+        },
+        "clk": {
+          "hide_name": 0,
+          "bits": [ 2 ],
+          "attributes": {
+            "src": "BitonicSort_W4.v:172.13-172.16"
+          }
+        },
+        "reset": {
+          "hide_name": 0,
+          "bits": [ 3 ],
+          "attributes": {
+            "src": "BitonicSort_W4.v:173.13-173.18"
+          }
+        },
+        "sorted_0": {
+          "hide_name": 0,
+          "bits": [ 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51 ],
+          "attributes": {
+            "src": "BitonicSort_W4.v:176.21-176.29"
+          }
+        },
+        "sorted_1": {
+          "hide_name": 0,
+          "bits": [ 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67 ],
+          "attributes": {
+            "src": "BitonicSort_W4.v:177.21-177.29"
+          }
+        },
+        "toSort0": {
+          "hide_name": 0,
+          "bits": [ 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19 ],
+          "attributes": {
+            "src": "BitonicSort_W4.v:174.20-174.27"
+          }
+        },
+        "toSort1": {
+          "hide_name": 0,
+          "bits": [ 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35 ],
+          "attributes": {
+            "src": "BitonicSort_W4.v:175.20-175.27"
+          }
+        }
+      }
+    },
+    "BitonicSort_W2_0": {
+      "attributes": {
+        "src": "BitonicSort_W4.v:188.1-201.29"
+      },
+      "ports": {
+        "clk": {
+          "direction": "input",
+          "bits": [ 2 ]
+        },
+        "reset": {
+          "direction": "input",
+          "bits": [ 3 ]
+        },
+        "toSort0": {
+          "direction": "input",
+          "bits": [ 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19 ]
+        },
+        "toSort1": {
+          "direction": "input",
+          "bits": [ 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35 ]
+        },
+        "sorted_0": {
+          "direction": "output",
+          "bits": [ 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51 ]
+        },
+        "sorted_1": {
+          "direction": "output",
+          "bits": [ 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67 ]
+        }
+      },
+      "cells": {
+        "bitonic_merge": {
+          "hide_name": 0,
+          "type": "_BitonicMerge_W2_0",
+          "parameters": {
+          },
+          "attributes": {
+            "module_not_derived": 1,
+            "src": "BitonicSort_W4.v:198.21-198.171"
+          },
+          "port_directions": {
+            "bitonicSequence0": "input",
+            "bitonicSequence1": "input",
+            "clk": "input",
+            "reset": "input",
+            "sorted_0": "output",
+            "sorted_1": "output"
+          },
+          "connections": {
+            "bitonicSequence0": [ 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83 ],
+            "bitonicSequence1": [ 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99 ],
+            "clk": [ 2 ],
+            "reset": [ 3 ],
+            "sorted_0": [ 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51 ],
+            "sorted_1": [ 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67 ]
+          }
+        },
+        "sort_left_1": {
+          "hide_name": 0,
+          "type": "BitonicSort_W1",
+          "parameters": {
+          },
+          "attributes": {
+            "module_not_derived": 1,
+            "src": "BitonicSort_W4.v:199.17-199.99"
+          },
+          "port_directions": {
+            "clk": "input",
+            "reset": "input",
+            "sorted_0": "output",
+            "toSort0": "input"
+          },
+          "connections": {
+            "clk": [ 2 ],
+            "reset": [ 3 ],
+            "sorted_0": [ 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83 ],
+            "toSort0": [ 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19 ]
+          }
+        },
+        "sort_right_1": {
+          "hide_name": 0,
+          "type": "BitonicSort_W1",
+          "parameters": {
+          },
+          "attributes": {
+            "module_not_derived": 1,
+            "src": "BitonicSort_W4.v:200.17-200.100"
+          },
+          "port_directions": {
+            "clk": "input",
+            "reset": "input",
+            "sorted_0": "output",
+            "toSort0": "input"
+          },
+          "connections": {
+            "clk": [ 2 ],
+            "reset": [ 3 ],
+            "sorted_0": [ 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99 ],
+            "toSort0": [ 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35 ]
+          }
+        }
+      },
+      "netnames": {
+        "bitonicSequence0": {
+          "hide_name": 0,
+          "bits": [ 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83 ],
+          "attributes": {
+            "src": "BitonicSort_W4.v:196.14-196.30"
+          }
+        },
+        "bitonicSequence1": {
+          "hide_name": 0,
+          "bits": [ 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99 ],
+          "attributes": {
+            "src": "BitonicSort_W4.v:197.14-197.30"
+          }
+        },
+        "clk": {
+          "hide_name": 0,
+          "bits": [ 2 ],
+          "attributes": {
+            "src": "BitonicSort_W4.v:189.13-189.16"
+          }
+        },
+        "reset": {
+          "hide_name": 0,
+          "bits": [ 3 ],
+          "attributes": {
+            "src": "BitonicSort_W4.v:190.13-190.18"
+          }
+        },
+        "sorted_0": {
+          "hide_name": 0,
+          "bits": [ 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51 ],
+          "attributes": {
+            "src": "BitonicSort_W4.v:193.21-193.29"
+          }
+        },
+        "sorted_1": {
+          "hide_name": 0,
+          "bits": [ 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67 ],
+          "attributes": {
+            "src": "BitonicSort_W4.v:194.21-194.29"
+          }
+        },
+        "toSort0": {
+          "hide_name": 0,
+          "bits": [ 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19 ],
+          "attributes": {
+            "src": "BitonicSort_W4.v:191.20-191.27"
+          }
+        },
+        "toSort1": {
+          "hide_name": 0,
+          "bits": [ 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35 ],
+          "attributes": {
+            "src": "BitonicSort_W4.v:192.20-192.27"
+          }
+        }
+      }
+    },
+    "BitonicSort_W4": {
+      "attributes": {
+        "top": 1,
+        "src": "BitonicSort_W4.v:233.1-252.27"
+      },
+      "ports": {
+        "clk": {
+          "direction": "input",
+          "bits": [ 2 ]
+        },
+        "reset": {
+          "direction": "input",
+          "bits": [ 3 ]
+        },
+        "toSort0": {
+          "direction": "input",
+          "bits": [ 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19 ]
+        },
+        "toSort1": {
+          "direction": "input",
+          "bits": [ 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35 ]
+        },
+        "toSort2": {
+          "direction": "input",
+          "bits": [ 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51 ]
+        },
+        "toSort3": {
+          "direction": "input",
+          "bits": [ 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67 ]
+        },
+        "sorted_0": {
+          "direction": "output",
+          "bits": [ 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83 ]
+        },
+        "sorted_1": {
+          "direction": "output",
+          "bits": [ 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99 ]
+        },
+        "sorted_2": {
+          "direction": "output",
+          "bits": [ 100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115 ]
+        },
+        "sorted_3": {
+          "direction": "output",
+          "bits": [ 116, 117, 118, 119, 120, 121, 122, 123, 124, 125, 126, 127, 128, 129, 130, 131 ]
+        }
+      },
+      "cells": {
+        "bitonic_merge": {
+          "hide_name": 0,
+          "type": "_BitonicMerge_W4",
+          "parameters": {
+          },
+          "attributes": {
+            "module_not_derived": 1,
+            "src": "BitonicSort_W4.v:249.19-249.281"
+          },
+          "port_directions": {
+            "bitonicSequence0": "input",
+            "bitonicSequence1": "input",
+            "bitonicSequence2": "input",
+            "bitonicSequence3": "input",
+            "clk": "input",
+            "reset": "input",
+            "sorted_0": "output",
+            "sorted_1": "output",
+            "sorted_2": "output",
+            "sorted_3": "output"
+          },
+          "connections": {
+            "bitonicSequence0": [ 132, 133, 134, 135, 136, 137, 138, 139, 140, 141, 142, 143, 144, 145, 146, 147 ],
+            "bitonicSequence1": [ 148, 149, 150, 151, 152, 153, 154, 155, 156, 157, 158, 159, 160, 161, 162, 163 ],
+            "bitonicSequence2": [ 164, 165, 166, 167, 168, 169, 170, 171, 172, 173, 174, 175, 176, 177, 178, 179 ],
+            "bitonicSequence3": [ 180, 181, 182, 183, 184, 185, 186, 187, 188, 189, 190, 191, 192, 193, 194, 195 ],
+            "clk": [ 2 ],
+            "reset": [ 3 ],
+            "sorted_0": [ 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83 ],
+            "sorted_1": [ 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99 ],
+            "sorted_2": [ 100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115 ],
+            "sorted_3": [ 116, 117, 118, 119, 120, 121, 122, 123, 124, 125, 126, 127, 128, 129, 130, 131 ]
+          }
+        },
+        "sort_left_2": {
+          "hide_name": 0,
+          "type": "BitonicSort_W2_0",
+          "parameters": {
+          },
+          "attributes": {
+            "module_not_derived": 1,
+            "src": "BitonicSort_W4.v:250.19-250.147"
+          },
+          "port_directions": {
+            "clk": "input",
+            "reset": "input",
+            "sorted_0": "output",
+            "sorted_1": "output",
+            "toSort0": "input",
+            "toSort1": "input"
+          },
+          "connections": {
+            "clk": [ 2 ],
+            "reset": [ 3 ],
+            "sorted_0": [ 132, 133, 134, 135, 136, 137, 138, 139, 140, 141, 142, 143, 144, 145, 146, 147 ],
+            "sorted_1": [ 148, 149, 150, 151, 152, 153, 154, 155, 156, 157, 158, 159, 160, 161, 162, 163 ],
+            "toSort0": [ 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19 ],
+            "toSort1": [ 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35 ]
+          }
+        },
+        "sort_right_2": {
+          "hide_name": 0,
+          "type": "BitonicSort_W2",
+          "parameters": {
+          },
+          "attributes": {
+            "module_not_derived": 1,
+            "src": "BitonicSort_W4.v:251.17-251.146"
+          },
+          "port_directions": {
+            "clk": "input",
+            "reset": "input",
+            "sorted_0": "output",
+            "sorted_1": "output",
+            "toSort0": "input",
+            "toSort1": "input"
+          },
+          "connections": {
+            "clk": [ 2 ],
+            "reset": [ 3 ],
+            "sorted_0": [ 164, 165, 166, 167, 168, 169, 170, 171, 172, 173, 174, 175, 176, 177, 178, 179 ],
+            "sorted_1": [ 180, 181, 182, 183, 184, 185, 186, 187, 188, 189, 190, 191, 192, 193, 194, 195 ],
+            "toSort0": [ 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51 ],
+            "toSort1": [ 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67 ]
+          }
+        }
+      },
+      "netnames": {
+        "bitonicSequence0": {
+          "hide_name": 0,
+          "bits": [ 132, 133, 134, 135, 136, 137, 138, 139, 140, 141, 142, 143, 144, 145, 146, 147 ],
+          "attributes": {
+            "src": "BitonicSort_W4.v:245.14-245.30"
+          }
+        },
+        "bitonicSequence1": {
+          "hide_name": 0,
+          "bits": [ 148, 149, 150, 151, 152, 153, 154, 155, 156, 157, 158, 159, 160, 161, 162, 163 ],
+          "attributes": {
+            "src": "BitonicSort_W4.v:246.14-246.30"
+          }
+        },
+        "bitonicSequence2": {
+          "hide_name": 0,
+          "bits": [ 164, 165, 166, 167, 168, 169, 170, 171, 172, 173, 174, 175, 176, 177, 178, 179 ],
+          "attributes": {
+            "src": "BitonicSort_W4.v:247.14-247.30"
+          }
+        },
+        "bitonicSequence3": {
+          "hide_name": 0,
+          "bits": [ 180, 181, 182, 183, 184, 185, 186, 187, 188, 189, 190, 191, 192, 193, 194, 195 ],
+          "attributes": {
+            "src": "BitonicSort_W4.v:248.14-248.30"
+          }
+        },
+        "clk": {
+          "hide_name": 0,
+          "bits": [ 2 ],
+          "attributes": {
+            "src": "BitonicSort_W4.v:234.13-234.16"
+          }
+        },
+        "reset": {
+          "hide_name": 0,
+          "bits": [ 3 ],
+          "attributes": {
+            "src": "BitonicSort_W4.v:235.13-235.18"
+          }
+        },
+        "sorted_0": {
+          "hide_name": 0,
+          "bits": [ 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83 ],
+          "attributes": {
+            "src": "BitonicSort_W4.v:240.21-240.29"
+          }
+        },
+        "sorted_1": {
+          "hide_name": 0,
+          "bits": [ 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99 ],
+          "attributes": {
+            "src": "BitonicSort_W4.v:241.21-241.29"
+          }
+        },
+        "sorted_2": {
+          "hide_name": 0,
+          "bits": [ 100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115 ],
+          "attributes": {
+            "src": "BitonicSort_W4.v:242.21-242.29"
+          }
+        },
+        "sorted_3": {
+          "hide_name": 0,
+          "bits": [ 116, 117, 118, 119, 120, 121, 122, 123, 124, 125, 126, 127, 128, 129, 130, 131 ],
+          "attributes": {
+            "src": "BitonicSort_W4.v:243.21-243.29"
+          }
+        },
+        "toSort0": {
+          "hide_name": 0,
+          "bits": [ 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19 ],
+          "attributes": {
+            "src": "BitonicSort_W4.v:236.20-236.27"
+          }
+        },
+        "toSort1": {
+          "hide_name": 0,
+          "bits": [ 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35 ],
+          "attributes": {
+            "src": "BitonicSort_W4.v:237.20-237.27"
+          }
+        },
+        "toSort2": {
+          "hide_name": 0,
+          "bits": [ 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51 ],
+          "attributes": {
+            "src": "BitonicSort_W4.v:238.20-238.27"
+          }
+        },
+        "toSort3": {
+          "hide_name": 0,
+          "bits": [ 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67 ],
+          "attributes": {
+            "src": "BitonicSort_W4.v:239.20-239.27"
+          }
+        }
+      }
+    },
+    "_BitonicMerge_W1": {
+      "attributes": {
+        "src": "BitonicSort_W4.v:7.1-14.29"
+      },
+      "ports": {
+        "clk": {
+          "direction": "input",
+          "bits": [ 2 ]
+        },
+        "reset": {
+          "direction": "input",
+          "bits": [ 3 ]
+        },
+        "bitonicSequence0": {
+          "direction": "input",
+          "bits": [ 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19 ]
+        },
+        "sorted_0": {
+          "direction": "output",
+          "bits": [ 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19 ]
+        }
+      },
+      "cells": {
+      },
+      "netnames": {
+        "bitonicSequence0": {
+          "hide_name": 0,
+          "bits": [ 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19 ],
+          "attributes": {
+            "src": "BitonicSort_W4.v:10.20-10.36"
+          }
+        },
+        "clk": {
+          "hide_name": 0,
+          "bits": [ 2 ],
+          "attributes": {
+            "src": "BitonicSort_W4.v:8.13-8.16"
+          }
+        },
+        "reset": {
+          "hide_name": 0,
+          "bits": [ 3 ],
+          "attributes": {
+            "src": "BitonicSort_W4.v:9.13-9.18"
+          }
+        },
+        "sorted_0": {
+          "hide_name": 0,
+          "bits": [ 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19 ],
+          "attributes": {
+            "src": "BitonicSort_W4.v:11.21-11.29"
+          }
+        }
+      }
+    },
+    "_BitonicMerge_W2": {
+      "attributes": {
+        "src": "BitonicSort_W4.v:77.1-90.29"
+      },
+      "ports": {
+        "clk": {
+          "direction": "input",
+          "bits": [ 2 ]
+        },
+        "reset": {
+          "direction": "input",
+          "bits": [ 3 ]
+        },
+        "bitonicSequence0": {
+          "direction": "input",
+          "bits": [ 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19 ]
+        },
+        "bitonicSequence1": {
+          "direction": "input",
+          "bits": [ 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35 ]
+        },
+        "sorted_0": {
+          "direction": "output",
+          "bits": [ 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51 ]
+        },
+        "sorted_1": {
+          "direction": "output",
+          "bits": [ 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67 ]
+        }
+      },
+      "cells": {
+        "compare_swap_0_1": {
+          "hide_name": 0,
+          "type": "_CompareSwap_W2",
+          "parameters": {
+          },
+          "attributes": {
+            "module_not_derived": 1,
+            "src": "BitonicSort_W4.v:88.18-88.153"
+          },
+          "port_directions": {
+            "clk": "input",
+            "reset": "input",
+            "swapped0": "output",
+            "swapped1": "output",
+            "toSort0": "input",
+            "toSort1": "input"
+          },
+          "connections": {
+            "clk": [ 2 ],
+            "reset": [ 3 ],
+            "swapped0": [ 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83 ],
+            "swapped1": [ 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99 ],
+            "toSort0": [ 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19 ],
+            "toSort1": [ 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35 ]
+          }
+        },
+        "merge_left": {
+          "hide_name": 0,
+          "type": "_BitonicMerge_W1",
+          "parameters": {
+          },
+          "attributes": {
+            "module_not_derived": 1,
+            "src": "BitonicSort_W4.v:87.19-87.102"
+          },
+          "port_directions": {
+            "bitonicSequence0": "input",
+            "clk": "input",
+            "reset": "input",
+            "sorted_0": "output"
+          },
+          "connections": {
+            "bitonicSequence0": [ 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83 ],
+            "clk": [ 2 ],
+            "reset": [ 3 ],
+            "sorted_0": [ 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51 ]
+          }
+        },
+        "merge_right": {
+          "hide_name": 0,
+          "type": "_BitonicMerge_W1",
+          "parameters": {
+          },
+          "attributes": {
+            "module_not_derived": 1,
+            "src": "BitonicSort_W4.v:89.19-89.103"
+          },
+          "port_directions": {
+            "bitonicSequence0": "input",
+            "clk": "input",
+            "reset": "input",
+            "sorted_0": "output"
+          },
+          "connections": {
+            "bitonicSequence0": [ 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99 ],
+            "clk": [ 2 ],
+            "reset": [ 3 ],
+            "sorted_0": [ 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67 ]
+          }
+        }
+      },
+      "netnames": {
+        "bitonicSequence0": {
+          "hide_name": 0,
+          "bits": [ 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19 ],
+          "attributes": {
+            "src": "BitonicSort_W4.v:80.20-80.36"
+          }
+        },
+        "bitonicSequence1": {
+          "hide_name": 0,
+          "bits": [ 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35 ],
+          "attributes": {
+            "src": "BitonicSort_W4.v:81.20-81.36"
+          }
+        },
+        "clk": {
+          "hide_name": 0,
+          "bits": [ 2 ],
+          "attributes": {
+            "src": "BitonicSort_W4.v:78.13-78.16"
+          }
+        },
+        "reset": {
+          "hide_name": 0,
+          "bits": [ 3 ],
+          "attributes": {
+            "src": "BitonicSort_W4.v:79.13-79.18"
+          }
+        },
+        "sorted_0": {
+          "hide_name": 0,
+          "bits": [ 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51 ],
+          "attributes": {
+            "src": "BitonicSort_W4.v:82.21-82.29"
+          }
+        },
+        "sorted_1": {
+          "hide_name": 0,
+          "bits": [ 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67 ],
+          "attributes": {
+            "src": "BitonicSort_W4.v:83.21-83.29"
+          }
+        },
+        "swapped0": {
+          "hide_name": 0,
+          "bits": [ 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83 ],
+          "attributes": {
+            "src": "BitonicSort_W4.v:85.14-85.22"
+          }
+        },
+        "swapped1": {
+          "hide_name": 0,
+          "bits": [ 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99 ],
+          "attributes": {
+            "src": "BitonicSort_W4.v:86.14-86.22"
+          }
+        }
+      }
+    },
+    "_BitonicMerge_W2_0": {
+      "attributes": {
+        "src": "BitonicSort_W4.v:94.1-107.31"
+      },
+      "ports": {
+        "clk": {
+          "direction": "input",
+          "bits": [ 2 ]
+        },
+        "reset": {
+          "direction": "input",
+          "bits": [ 3 ]
+        },
+        "bitonicSequence0": {
+          "direction": "input",
+          "bits": [ 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19 ]
+        },
+        "bitonicSequence1": {
+          "direction": "input",
+          "bits": [ 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35 ]
+        },
+        "sorted_0": {
+          "direction": "output",
+          "bits": [ 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51 ]
+        },
+        "sorted_1": {
+          "direction": "output",
+          "bits": [ 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67 ]
+        }
+      },
+      "cells": {
+        "compare_swap_0_1": {
+          "hide_name": 0,
+          "type": "_CompareSwap_W2_0",
+          "parameters": {
+          },
+          "attributes": {
+            "module_not_derived": 1,
+            "src": "BitonicSort_W4.v:105.20-105.155"
+          },
+          "port_directions": {
+            "clk": "input",
+            "reset": "input",
+            "swapped0": "output",
+            "swapped1": "output",
+            "toSort0": "input",
+            "toSort1": "input"
+          },
+          "connections": {
+            "clk": [ 2 ],
+            "reset": [ 3 ],
+            "swapped0": [ 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83 ],
+            "swapped1": [ 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99 ],
+            "toSort0": [ 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19 ],
+            "toSort1": [ 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35 ]
+          }
+        },
+        "merge_left": {
+          "hide_name": 0,
+          "type": "_BitonicMerge_W1",
+          "parameters": {
+          },
+          "attributes": {
+            "module_not_derived": 1,
+            "src": "BitonicSort_W4.v:104.19-104.102"
+          },
+          "port_directions": {
+            "bitonicSequence0": "input",
+            "clk": "input",
+            "reset": "input",
+            "sorted_0": "output"
+          },
+          "connections": {
+            "bitonicSequence0": [ 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83 ],
+            "clk": [ 2 ],
+            "reset": [ 3 ],
+            "sorted_0": [ 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51 ]
+          }
+        },
+        "merge_right": {
+          "hide_name": 0,
+          "type": "_BitonicMerge_W1",
+          "parameters": {
+          },
+          "attributes": {
+            "module_not_derived": 1,
+            "src": "BitonicSort_W4.v:106.19-106.103"
+          },
+          "port_directions": {
+            "bitonicSequence0": "input",
+            "clk": "input",
+            "reset": "input",
+            "sorted_0": "output"
+          },
+          "connections": {
+            "bitonicSequence0": [ 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99 ],
+            "clk": [ 2 ],
+            "reset": [ 3 ],
+            "sorted_0": [ 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67 ]
+          }
+        }
+      },
+      "netnames": {
+        "bitonicSequence0": {
+          "hide_name": 0,
+          "bits": [ 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19 ],
+          "attributes": {
+            "src": "BitonicSort_W4.v:97.20-97.36"
+          }
+        },
+        "bitonicSequence1": {
+          "hide_name": 0,
+          "bits": [ 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35 ],
+          "attributes": {
+            "src": "BitonicSort_W4.v:98.20-98.36"
+          }
+        },
+        "clk": {
+          "hide_name": 0,
+          "bits": [ 2 ],
+          "attributes": {
+            "src": "BitonicSort_W4.v:95.13-95.16"
+          }
+        },
+        "reset": {
+          "hide_name": 0,
+          "bits": [ 3 ],
+          "attributes": {
+            "src": "BitonicSort_W4.v:96.13-96.18"
+          }
+        },
+        "sorted_0": {
+          "hide_name": 0,
+          "bits": [ 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51 ],
+          "attributes": {
+            "src": "BitonicSort_W4.v:99.21-99.29"
+          }
+        },
+        "sorted_1": {
+          "hide_name": 0,
+          "bits": [ 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67 ],
+          "attributes": {
+            "src": "BitonicSort_W4.v:100.21-100.29"
+          }
+        },
+        "swapped0": {
+          "hide_name": 0,
+          "bits": [ 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83 ],
+          "attributes": {
+            "src": "BitonicSort_W4.v:102.14-102.22"
+          }
+        },
+        "swapped1": {
+          "hide_name": 0,
+          "bits": [ 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99 ],
+          "attributes": {
+            "src": "BitonicSort_W4.v:103.14-103.22"
+          }
+        }
+      }
+    },
+    "_BitonicMerge_W4": {
+      "attributes": {
+        "src": "BitonicSort_W4.v:205.1-229.29"
+      },
+      "ports": {
+        "clk": {
+          "direction": "input",
+          "bits": [ 2 ]
+        },
+        "reset": {
+          "direction": "input",
+          "bits": [ 3 ]
+        },
+        "bitonicSequence0": {
+          "direction": "input",
+          "bits": [ 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19 ]
+        },
+        "bitonicSequence1": {
+          "direction": "input",
+          "bits": [ 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35 ]
+        },
+        "bitonicSequence2": {
+          "direction": "input",
+          "bits": [ 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51 ]
+        },
+        "bitonicSequence3": {
+          "direction": "input",
+          "bits": [ 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67 ]
+        },
+        "sorted_0": {
+          "direction": "output",
+          "bits": [ 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83 ]
+        },
+        "sorted_1": {
+          "direction": "output",
+          "bits": [ 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99 ]
+        },
+        "sorted_2": {
+          "direction": "output",
+          "bits": [ 100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115 ]
+        },
+        "sorted_3": {
+          "direction": "output",
+          "bits": [ 116, 117, 118, 119, 120, 121, 122, 123, 124, 125, 126, 127, 128, 129, 130, 131 ]
+        }
+      },
+      "cells": {
+        "compare_swap_0_2": {
+          "hide_name": 0,
+          "type": "_CompareSwap_W4",
+          "parameters": {
+          },
+          "attributes": {
+            "module_not_derived": 1,
+            "src": "BitonicSort_W4.v:227.18-227.243"
+          },
+          "port_directions": {
+            "clk": "input",
+            "reset": "input",
+            "swapped0": "output",
+            "swapped1": "output",
+            "swapped2": "output",
+            "swapped3": "output",
+            "toSort0": "input",
+            "toSort1": "input",
+            "toSort2": "input",
+            "toSort3": "input"
+          },
+          "connections": {
+            "clk": [ 2 ],
+            "reset": [ 3 ],
+            "swapped0": [ 132, 133, 134, 135, 136, 137, 138, 139, 140, 141, 142, 143, 144, 145, 146, 147 ],
+            "swapped1": [ 148, 149, 150, 151, 152, 153, 154, 155, 156, 157, 158, 159, 160, 161, 162, 163 ],
+            "swapped2": [ 164, 165, 166, 167, 168, 169, 170, 171, 172, 173, 174, 175, 176, 177, 178, 179 ],
+            "swapped3": [ 180, 181, 182, 183, 184, 185, 186, 187, 188, 189, 190, 191, 192, 193, 194, 195 ],
+            "toSort0": [ 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19 ],
+            "toSort1": [ 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35 ],
+            "toSort2": [ 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51 ],
+            "toSort3": [ 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67 ]
+          }
+        },
+        "compare_swap_1_3": {
+          "hide_name": 0,
+          "type": "_CompareSwap_W4_0",
+          "parameters": {
+          },
+          "attributes": {
+            "module_not_derived": 1,
+            "src": "BitonicSort_W4.v:226.20-226.213"
+          },
+          "port_directions": {
+            "clk": "input",
+            "reset": "input",
+            "swapped0": "output",
+            "swapped1": "output",
+            "swapped2": "output",
+            "swapped3": "output",
+            "toSort0": "input",
+            "toSort1": "input",
+            "toSort2": "input",
+            "toSort3": "input"
+          },
+          "connections": {
+            "clk": [ 2 ],
+            "reset": [ 3 ],
+            "swapped0": [ 196, 197, 198, 199, 200, 201, 202, 203, 204, 205, 206, 207, 208, 209, 210, 211 ],
+            "swapped1": [ 212, 213, 214, 215, 216, 217, 218, 219, 220, 221, 222, 223, 224, 225, 226, 227 ],
+            "swapped2": [ 228, 229, 230, 231, 232, 233, 234, 235, 236, 237, 238, 239, 240, 241, 242, 243 ],
+            "swapped3": [ 244, 245, 246, 247, 248, 249, 250, 251, 252, 253, 254, 255, 256, 257, 258, 259 ],
+            "toSort0": [ 132, 133, 134, 135, 136, 137, 138, 139, 140, 141, 142, 143, 144, 145, 146, 147 ],
+            "toSort1": [ 148, 149, 150, 151, 152, 153, 154, 155, 156, 157, 158, 159, 160, 161, 162, 163 ],
+            "toSort2": [ 164, 165, 166, 167, 168, 169, 170, 171, 172, 173, 174, 175, 176, 177, 178, 179 ],
+            "toSort3": [ 180, 181, 182, 183, 184, 185, 186, 187, 188, 189, 190, 191, 192, 193, 194, 195 ]
+          }
+        },
+        "merge_left": {
+          "hide_name": 0,
+          "type": "_BitonicMerge_W2_0",
+          "parameters": {
+          },
+          "attributes": {
+            "module_not_derived": 1,
+            "src": "BitonicSort_W4.v:225.21-225.152"
+          },
+          "port_directions": {
+            "bitonicSequence0": "input",
+            "bitonicSequence1": "input",
+            "clk": "input",
+            "reset": "input",
+            "sorted_0": "output",
+            "sorted_1": "output"
+          },
+          "connections": {
+            "bitonicSequence0": [ 196, 197, 198, 199, 200, 201, 202, 203, 204, 205, 206, 207, 208, 209, 210, 211 ],
+            "bitonicSequence1": [ 212, 213, 214, 215, 216, 217, 218, 219, 220, 221, 222, 223, 224, 225, 226, 227 ],
+            "clk": [ 2 ],
+            "reset": [ 3 ],
+            "sorted_0": [ 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83 ],
+            "sorted_1": [ 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99 ]
+          }
+        },
+        "merge_right": {
+          "hide_name": 0,
+          "type": "_BitonicMerge_W2_0",
+          "parameters": {
+          },
+          "attributes": {
+            "module_not_derived": 1,
+            "src": "BitonicSort_W4.v:228.21-228.153"
+          },
+          "port_directions": {
+            "bitonicSequence0": "input",
+            "bitonicSequence1": "input",
+            "clk": "input",
+            "reset": "input",
+            "sorted_0": "output",
+            "sorted_1": "output"
+          },
+          "connections": {
+            "bitonicSequence0": [ 228, 229, 230, 231, 232, 233, 234, 235, 236, 237, 238, 239, 240, 241, 242, 243 ],
+            "bitonicSequence1": [ 244, 245, 246, 247, 248, 249, 250, 251, 252, 253, 254, 255, 256, 257, 258, 259 ],
+            "clk": [ 2 ],
+            "reset": [ 3 ],
+            "sorted_0": [ 100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115 ],
+            "sorted_1": [ 116, 117, 118, 119, 120, 121, 122, 123, 124, 125, 126, 127, 128, 129, 130, 131 ]
+          }
+        }
+      },
+      "netnames": {
+        "bitonicSequence0": {
+          "hide_name": 0,
+          "bits": [ 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19 ],
+          "attributes": {
+            "src": "BitonicSort_W4.v:208.20-208.36"
+          }
+        },
+        "bitonicSequence1": {
+          "hide_name": 0,
+          "bits": [ 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35 ],
+          "attributes": {
+            "src": "BitonicSort_W4.v:209.20-209.36"
+          }
+        },
+        "bitonicSequence2": {
+          "hide_name": 0,
+          "bits": [ 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51 ],
+          "attributes": {
+            "src": "BitonicSort_W4.v:210.20-210.36"
+          }
+        },
+        "bitonicSequence3": {
+          "hide_name": 0,
+          "bits": [ 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67 ],
+          "attributes": {
+            "src": "BitonicSort_W4.v:211.20-211.36"
+          }
+        },
+        "clk": {
+          "hide_name": 0,
+          "bits": [ 2 ],
+          "attributes": {
+            "src": "BitonicSort_W4.v:206.13-206.16"
+          }
+        },
+        "reset": {
+          "hide_name": 0,
+          "bits": [ 3 ],
+          "attributes": {
+            "src": "BitonicSort_W4.v:207.13-207.18"
+          }
+        },
+        "sorted_0": {
+          "hide_name": 0,
+          "bits": [ 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83 ],
+          "attributes": {
+            "src": "BitonicSort_W4.v:212.21-212.29"
+          }
+        },
+        "sorted_1": {
+          "hide_name": 0,
+          "bits": [ 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99 ],
+          "attributes": {
+            "src": "BitonicSort_W4.v:213.21-213.29"
+          }
+        },
+        "sorted_2": {
+          "hide_name": 0,
+          "bits": [ 100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115 ],
+          "attributes": {
+            "src": "BitonicSort_W4.v:214.21-214.29"
+          }
+        },
+        "sorted_3": {
+          "hide_name": 0,
+          "bits": [ 116, 117, 118, 119, 120, 121, 122, 123, 124, 125, 126, 127, 128, 129, 130, 131 ],
+          "attributes": {
+            "src": "BitonicSort_W4.v:215.21-215.29"
+          }
+        },
+        "swapped0": {
+          "hide_name": 0,
+          "bits": [ 196, 197, 198, 199, 200, 201, 202, 203, 204, 205, 206, 207, 208, 209, 210, 211 ],
+          "attributes": {
+            "src": "BitonicSort_W4.v:217.14-217.22"
+          }
+        },
+        "swapped1": {
+          "hide_name": 0,
+          "bits": [ 212, 213, 214, 215, 216, 217, 218, 219, 220, 221, 222, 223, 224, 225, 226, 227 ],
+          "attributes": {
+            "src": "BitonicSort_W4.v:218.14-218.22"
+          }
+        },
+        "swapped2": {
+          "hide_name": 0,
+          "bits": [ 228, 229, 230, 231, 232, 233, 234, 235, 236, 237, 238, 239, 240, 241, 242, 243 ],
+          "attributes": {
+            "src": "BitonicSort_W4.v:219.14-219.22"
+          }
+        },
+        "swapped3": {
+          "hide_name": 0,
+          "bits": [ 244, 245, 246, 247, 248, 249, 250, 251, 252, 253, 254, 255, 256, 257, 258, 259 ],
+          "attributes": {
+            "src": "BitonicSort_W4.v:220.14-220.22"
+          }
+        },
+        "toSort0": {
+          "hide_name": 0,
+          "bits": [ 132, 133, 134, 135, 136, 137, 138, 139, 140, 141, 142, 143, 144, 145, 146, 147 ],
+          "attributes": {
+            "src": "BitonicSort_W4.v:221.14-221.21"
+          }
+        },
+        "toSort1": {
+          "hide_name": 0,
+          "bits": [ 148, 149, 150, 151, 152, 153, 154, 155, 156, 157, 158, 159, 160, 161, 162, 163 ],
+          "attributes": {
+            "src": "BitonicSort_W4.v:222.14-222.21"
+          }
+        },
+        "toSort2": {
+          "hide_name": 0,
+          "bits": [ 164, 165, 166, 167, 168, 169, 170, 171, 172, 173, 174, 175, 176, 177, 178, 179 ],
+          "attributes": {
+            "src": "BitonicSort_W4.v:223.14-223.21"
+          }
+        },
+        "toSort3": {
+          "hide_name": 0,
+          "bits": [ 180, 181, 182, 183, 184, 185, 186, 187, 188, 189, 190, 191, 192, 193, 194, 195 ],
+          "attributes": {
+            "src": "BitonicSort_W4.v:224.14-224.21"
+          }
+        }
+      }
+    },
+    "_CompareSwap_W2": {
+      "attributes": {
+        "src": "BitonicSort_W4.v:18.1-38.28"
+      },
+      "ports": {
+        "clk": {
+          "direction": "input",
+          "bits": [ 2 ]
+        },
+        "reset": {
+          "direction": "input",
+          "bits": [ 3 ]
+        },
+        "toSort0": {
+          "direction": "input",
+          "bits": [ 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19 ]
+        },
+        "toSort1": {
+          "direction": "input",
+          "bits": [ 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35 ]
+        },
+        "swapped0": {
+          "direction": "output",
+          "bits": [ 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51 ]
+        },
+        "swapped1": {
+          "direction": "output",
+          "bits": [ 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67 ]
+        }
+      },
+      "cells": {
+        "$lt$BitonicSort_W4.v:28$2": {
+          "hide_name": 1,
+          "type": "$lt",
+          "parameters": {
+            "A_SIGNED": 0,
+            "A_WIDTH": 16,
+            "B_SIGNED": 0,
+            "B_WIDTH": 16,
+            "Y_WIDTH": 1
+          },
+          "attributes": {
+            "src": "BitonicSort_W4.v:28.7-28.24"
+          },
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [ 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19 ],
+            "B": [ 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35 ],
+            "Y": [ 68 ]
+          }
+        },
+        "$procdff$39": {
+          "hide_name": 1,
+          "type": "$dff",
+          "parameters": {
+            "CLK_POLARITY": 1,
+            "WIDTH": 16
+          },
+          "attributes": {
+            "always_ff": 1,
+            "src": "BitonicSort_W4.v:27.1-36.4"
+          },
+          "port_directions": {
+            "CLK": "input",
+            "D": "input",
+            "Q": "output"
+          },
+          "connections": {
+            "CLK": [ 2 ],
+            "D": [ 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84 ],
+            "Q": [ 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51 ]
+          }
+        },
+        "$procdff$40": {
+          "hide_name": 1,
+          "type": "$dff",
+          "parameters": {
+            "CLK_POLARITY": 1,
+            "WIDTH": 16
+          },
+          "attributes": {
+            "always_ff": 1,
+            "src": "BitonicSort_W4.v:27.1-36.4"
+          },
+          "port_directions": {
+            "CLK": "input",
+            "D": "input",
+            "Q": "output"
+          },
+          "connections": {
+            "CLK": [ 2 ],
+            "D": [ 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99, 100 ],
+            "Q": [ 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67 ]
+          }
+        },
+        "$procmux$28": {
+          "hide_name": 1,
+          "type": "$mux",
+          "parameters": {
+            "WIDTH": 16
+          },
+          "attributes": {
+            "full_case": 1,
+            "src": "BitonicSort_W4.v:28.6-28.25|BitonicSort_W4.v:28.3-34.6"
+          },
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "S": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [ 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35 ],
+            "B": [ 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19 ],
+            "S": [ 68 ],
+            "Y": [ 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99, 100 ]
+          }
+        },
+        "$procmux$31": {
+          "hide_name": 1,
+          "type": "$mux",
+          "parameters": {
+            "WIDTH": 16
+          },
+          "attributes": {
+            "full_case": 1,
+            "src": "BitonicSort_W4.v:28.6-28.25|BitonicSort_W4.v:28.3-34.6"
+          },
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "S": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [ 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19 ],
+            "B": [ 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35 ],
+            "S": [ 68 ],
+            "Y": [ 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84 ]
+          }
+        }
+      },
+      "netnames": {
+        "$0__swapped0[15:0]": {
+          "hide_name": 1,
+          "bits": [ 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84 ],
+          "attributes": {
+            "src": "BitonicSort_W4.v:27.1-36.4"
+          }
+        },
+        "$0__swapped1[15:0]": {
+          "hide_name": 1,
+          "bits": [ 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99, 100 ],
+          "attributes": {
+            "src": "BitonicSort_W4.v:27.1-36.4"
+          }
+        },
+        "$lt$BitonicSort_W4.v:28$2_Y": {
+          "hide_name": 1,
+          "bits": [ 68 ],
+          "attributes": {
+            "src": "BitonicSort_W4.v:28.7-28.24"
+          }
+        },
+        "clk": {
+          "hide_name": 0,
+          "bits": [ 2 ],
+          "attributes": {
+            "src": "BitonicSort_W4.v:19.13-19.16"
+          }
+        },
+        "reset": {
+          "hide_name": 0,
+          "bits": [ 3 ],
+          "attributes": {
+            "src": "BitonicSort_W4.v:20.13-20.18"
+          }
+        },
+        "swapped0": {
+          "hide_name": 0,
+          "bits": [ 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51 ],
+          "attributes": {
+            "src": "BitonicSort_W4.v:23.21-23.29"
+          }
+        },
+        "swapped1": {
+          "hide_name": 0,
+          "bits": [ 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67 ],
+          "attributes": {
+            "src": "BitonicSort_W4.v:24.21-24.29"
+          }
+        },
+        "toSort0": {
+          "hide_name": 0,
+          "bits": [ 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19 ],
+          "attributes": {
+            "src": "BitonicSort_W4.v:21.20-21.27"
+          }
+        },
+        "toSort1": {
+          "hide_name": 0,
+          "bits": [ 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35 ],
+          "attributes": {
+            "src": "BitonicSort_W4.v:22.20-22.27"
+          }
+        }
+      }
+    },
+    "_CompareSwap_W2_0": {
+      "attributes": {
+        "src": "BitonicSort_W4.v:42.1-62.30"
+      },
+      "ports": {
+        "clk": {
+          "direction": "input",
+          "bits": [ 2 ]
+        },
+        "reset": {
+          "direction": "input",
+          "bits": [ 3 ]
+        },
+        "toSort0": {
+          "direction": "input",
+          "bits": [ 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19 ]
+        },
+        "toSort1": {
+          "direction": "input",
+          "bits": [ 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35 ]
+        },
+        "swapped0": {
+          "direction": "output",
+          "bits": [ 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51 ]
+        },
+        "swapped1": {
+          "direction": "output",
+          "bits": [ 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67 ]
+        }
+      },
+      "cells": {
+        "$gt$BitonicSort_W4.v:52$4": {
+          "hide_name": 1,
+          "type": "$gt",
+          "parameters": {
+            "A_SIGNED": 0,
+            "A_WIDTH": 16,
+            "B_SIGNED": 0,
+            "B_WIDTH": 16,
+            "Y_WIDTH": 1
+          },
+          "attributes": {
+            "src": "BitonicSort_W4.v:52.7-52.24"
+          },
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [ 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19 ],
+            "B": [ 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35 ],
+            "Y": [ 68 ]
+          }
+        },
+        "$procdff$37": {
+          "hide_name": 1,
+          "type": "$dff",
+          "parameters": {
+            "CLK_POLARITY": 1,
+            "WIDTH": 16
+          },
+          "attributes": {
+            "always_ff": 1,
+            "src": "BitonicSort_W4.v:51.1-60.4"
+          },
+          "port_directions": {
+            "CLK": "input",
+            "D": "input",
+            "Q": "output"
+          },
+          "connections": {
+            "CLK": [ 2 ],
+            "D": [ 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84 ],
+            "Q": [ 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51 ]
+          }
+        },
+        "$procdff$38": {
+          "hide_name": 1,
+          "type": "$dff",
+          "parameters": {
+            "CLK_POLARITY": 1,
+            "WIDTH": 16
+          },
+          "attributes": {
+            "always_ff": 1,
+            "src": "BitonicSort_W4.v:51.1-60.4"
+          },
+          "port_directions": {
+            "CLK": "input",
+            "D": "input",
+            "Q": "output"
+          },
+          "connections": {
+            "CLK": [ 2 ],
+            "D": [ 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99, 100 ],
+            "Q": [ 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67 ]
+          }
+        },
+        "$procmux$22": {
+          "hide_name": 1,
+          "type": "$mux",
+          "parameters": {
+            "WIDTH": 16
+          },
+          "attributes": {
+            "full_case": 1,
+            "src": "BitonicSort_W4.v:52.6-52.25|BitonicSort_W4.v:52.3-58.6"
+          },
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "S": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [ 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35 ],
+            "B": [ 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19 ],
+            "S": [ 68 ],
+            "Y": [ 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99, 100 ]
+          }
+        },
+        "$procmux$25": {
+          "hide_name": 1,
+          "type": "$mux",
+          "parameters": {
+            "WIDTH": 16
+          },
+          "attributes": {
+            "full_case": 1,
+            "src": "BitonicSort_W4.v:52.6-52.25|BitonicSort_W4.v:52.3-58.6"
+          },
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "S": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [ 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19 ],
+            "B": [ 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35 ],
+            "S": [ 68 ],
+            "Y": [ 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84 ]
+          }
+        }
+      },
+      "netnames": {
+        "$0__swapped0[15:0]": {
+          "hide_name": 1,
+          "bits": [ 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84 ],
+          "attributes": {
+            "src": "BitonicSort_W4.v:51.1-60.4"
+          }
+        },
+        "$0__swapped1[15:0]": {
+          "hide_name": 1,
+          "bits": [ 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99, 100 ],
+          "attributes": {
+            "src": "BitonicSort_W4.v:51.1-60.4"
+          }
+        },
+        "$gt$BitonicSort_W4.v:52$4_Y": {
+          "hide_name": 1,
+          "bits": [ 68 ],
+          "attributes": {
+            "src": "BitonicSort_W4.v:52.7-52.24"
+          }
+        },
+        "clk": {
+          "hide_name": 0,
+          "bits": [ 2 ],
+          "attributes": {
+            "src": "BitonicSort_W4.v:43.13-43.16"
+          }
+        },
+        "reset": {
+          "hide_name": 0,
+          "bits": [ 3 ],
+          "attributes": {
+            "src": "BitonicSort_W4.v:44.13-44.18"
+          }
+        },
+        "swapped0": {
+          "hide_name": 0,
+          "bits": [ 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51 ],
+          "attributes": {
+            "src": "BitonicSort_W4.v:47.21-47.29"
+          }
+        },
+        "swapped1": {
+          "hide_name": 0,
+          "bits": [ 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67 ],
+          "attributes": {
+            "src": "BitonicSort_W4.v:48.21-48.29"
+          }
+        },
+        "toSort0": {
+          "hide_name": 0,
+          "bits": [ 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19 ],
+          "attributes": {
+            "src": "BitonicSort_W4.v:45.20-45.27"
+          }
+        },
+        "toSort1": {
+          "hide_name": 0,
+          "bits": [ 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35 ],
+          "attributes": {
+            "src": "BitonicSort_W4.v:46.20-46.27"
+          }
+        }
+      }
+    },
+    "_CompareSwap_W4": {
+      "attributes": {
+        "src": "BitonicSort_W4.v:111.1-137.28"
+      },
+      "ports": {
+        "clk": {
+          "direction": "input",
+          "bits": [ 2 ]
+        },
+        "reset": {
+          "direction": "input",
+          "bits": [ 3 ]
+        },
+        "toSort0": {
+          "direction": "input",
+          "bits": [ 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19 ]
+        },
+        "toSort1": {
+          "direction": "input",
+          "bits": [ 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35 ]
+        },
+        "toSort2": {
+          "direction": "input",
+          "bits": [ 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51 ]
+        },
+        "toSort3": {
+          "direction": "input",
+          "bits": [ 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67 ]
+        },
+        "swapped0": {
+          "direction": "output",
+          "bits": [ 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83 ]
+        },
+        "swapped1": {
+          "direction": "output",
+          "bits": [ 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35 ]
+        },
+        "swapped2": {
+          "direction": "output",
+          "bits": [ 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99 ]
+        },
+        "swapped3": {
+          "direction": "output",
+          "bits": [ 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67 ]
+        }
+      },
+      "cells": {
+        "$gt$BitonicSort_W4.v:127$6": {
+          "hide_name": 1,
+          "type": "$gt",
+          "parameters": {
+            "A_SIGNED": 0,
+            "A_WIDTH": 16,
+            "B_SIGNED": 0,
+            "B_WIDTH": 16,
+            "Y_WIDTH": 1
+          },
+          "attributes": {
+            "src": "BitonicSort_W4.v:127.7-127.24"
+          },
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [ 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19 ],
+            "B": [ 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51 ],
+            "Y": [ 100 ]
+          }
+        },
+        "$procdff$35": {
+          "hide_name": 1,
+          "type": "$dff",
+          "parameters": {
+            "CLK_POLARITY": 1,
+            "WIDTH": 16
+          },
+          "attributes": {
+            "always_ff": 1,
+            "src": "BitonicSort_W4.v:126.1-135.4"
+          },
+          "port_directions": {
+            "CLK": "input",
+            "D": "input",
+            "Q": "output"
+          },
+          "connections": {
+            "CLK": [ 2 ],
+            "D": [ 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115, 116 ],
+            "Q": [ 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83 ]
+          }
+        },
+        "$procdff$36": {
+          "hide_name": 1,
+          "type": "$dff",
+          "parameters": {
+            "CLK_POLARITY": 1,
+            "WIDTH": 16
+          },
+          "attributes": {
+            "always_ff": 1,
+            "src": "BitonicSort_W4.v:126.1-135.4"
+          },
+          "port_directions": {
+            "CLK": "input",
+            "D": "input",
+            "Q": "output"
+          },
+          "connections": {
+            "CLK": [ 2 ],
+            "D": [ 117, 118, 119, 120, 121, 122, 123, 124, 125, 126, 127, 128, 129, 130, 131, 132 ],
+            "Q": [ 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99 ]
+          }
+        },
+        "$procmux$16": {
+          "hide_name": 1,
+          "type": "$mux",
+          "parameters": {
+            "WIDTH": 16
+          },
+          "attributes": {
+            "full_case": 1,
+            "src": "BitonicSort_W4.v:127.6-127.25|BitonicSort_W4.v:127.3-133.6"
+          },
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "S": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [ 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51 ],
+            "B": [ 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19 ],
+            "S": [ 100 ],
+            "Y": [ 117, 118, 119, 120, 121, 122, 123, 124, 125, 126, 127, 128, 129, 130, 131, 132 ]
+          }
+        },
+        "$procmux$19": {
+          "hide_name": 1,
+          "type": "$mux",
+          "parameters": {
+            "WIDTH": 16
+          },
+          "attributes": {
+            "full_case": 1,
+            "src": "BitonicSort_W4.v:127.6-127.25|BitonicSort_W4.v:127.3-133.6"
+          },
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "S": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [ 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19 ],
+            "B": [ 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51 ],
+            "S": [ 100 ],
+            "Y": [ 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115, 116 ]
+          }
+        }
+      },
+      "netnames": {
+        "$0__swapped0[15:0]": {
+          "hide_name": 1,
+          "bits": [ 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115, 116 ],
+          "attributes": {
+            "src": "BitonicSort_W4.v:126.1-135.4"
+          }
+        },
+        "$0__swapped2[15:0]": {
+          "hide_name": 1,
+          "bits": [ 117, 118, 119, 120, 121, 122, 123, 124, 125, 126, 127, 128, 129, 130, 131, 132 ],
+          "attributes": {
+            "src": "BitonicSort_W4.v:126.1-135.4"
+          }
+        },
+        "$gt$BitonicSort_W4.v:127$6_Y": {
+          "hide_name": 1,
+          "bits": [ 100 ],
+          "attributes": {
+            "src": "BitonicSort_W4.v:127.7-127.24"
+          }
+        },
+        "clk": {
+          "hide_name": 0,
+          "bits": [ 2 ],
+          "attributes": {
+            "src": "BitonicSort_W4.v:112.13-112.16"
+          }
+        },
+        "reset": {
+          "hide_name": 0,
+          "bits": [ 3 ],
+          "attributes": {
+            "src": "BitonicSort_W4.v:113.13-113.18"
+          }
+        },
+        "swapped0": {
+          "hide_name": 0,
+          "bits": [ 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83 ],
+          "attributes": {
+            "src": "BitonicSort_W4.v:118.21-118.29"
+          }
+        },
+        "swapped1": {
+          "hide_name": 0,
+          "bits": [ 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35 ],
+          "attributes": {
+            "src": "BitonicSort_W4.v:119.21-119.29"
+          }
+        },
+        "swapped2": {
+          "hide_name": 0,
+          "bits": [ 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99 ],
+          "attributes": {
+            "src": "BitonicSort_W4.v:120.21-120.29"
+          }
+        },
+        "swapped3": {
+          "hide_name": 0,
+          "bits": [ 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67 ],
+          "attributes": {
+            "src": "BitonicSort_W4.v:121.21-121.29"
+          }
+        },
+        "toSort0": {
+          "hide_name": 0,
+          "bits": [ 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19 ],
+          "attributes": {
+            "src": "BitonicSort_W4.v:114.20-114.27"
+          }
+        },
+        "toSort1": {
+          "hide_name": 0,
+          "bits": [ 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35 ],
+          "attributes": {
+            "src": "BitonicSort_W4.v:115.20-115.27"
+          }
+        },
+        "toSort2": {
+          "hide_name": 0,
+          "bits": [ 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51 ],
+          "attributes": {
+            "src": "BitonicSort_W4.v:116.20-116.27"
+          }
+        },
+        "toSort3": {
+          "hide_name": 0,
+          "bits": [ 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67 ],
+          "attributes": {
+            "src": "BitonicSort_W4.v:117.20-117.27"
+          }
+        }
+      }
+    },
+    "_CompareSwap_W4_0": {
+      "attributes": {
+        "src": "BitonicSort_W4.v:141.1-167.30"
+      },
+      "ports": {
+        "clk": {
+          "direction": "input",
+          "bits": [ 2 ]
+        },
+        "reset": {
+          "direction": "input",
+          "bits": [ 3 ]
+        },
+        "toSort0": {
+          "direction": "input",
+          "bits": [ 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19 ]
+        },
+        "toSort1": {
+          "direction": "input",
+          "bits": [ 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35 ]
+        },
+        "toSort2": {
+          "direction": "input",
+          "bits": [ 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51 ]
+        },
+        "toSort3": {
+          "direction": "input",
+          "bits": [ 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67 ]
+        },
+        "swapped0": {
+          "direction": "output",
+          "bits": [ 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19 ]
+        },
+        "swapped1": {
+          "direction": "output",
+          "bits": [ 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83 ]
+        },
+        "swapped2": {
+          "direction": "output",
+          "bits": [ 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51 ]
+        },
+        "swapped3": {
+          "direction": "output",
+          "bits": [ 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99 ]
+        }
+      },
+      "cells": {
+        "$gt$BitonicSort_W4.v:157$8": {
+          "hide_name": 1,
+          "type": "$gt",
+          "parameters": {
+            "A_SIGNED": 0,
+            "A_WIDTH": 16,
+            "B_SIGNED": 0,
+            "B_WIDTH": 16,
+            "Y_WIDTH": 1
+          },
+          "attributes": {
+            "src": "BitonicSort_W4.v:157.7-157.24"
+          },
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [ 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35 ],
+            "B": [ 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67 ],
+            "Y": [ 100 ]
+          }
+        },
+        "$procdff$33": {
+          "hide_name": 1,
+          "type": "$dff",
+          "parameters": {
+            "CLK_POLARITY": 1,
+            "WIDTH": 16
+          },
+          "attributes": {
+            "always_ff": 1,
+            "src": "BitonicSort_W4.v:156.1-165.4"
+          },
+          "port_directions": {
+            "CLK": "input",
+            "D": "input",
+            "Q": "output"
+          },
+          "connections": {
+            "CLK": [ 2 ],
+            "D": [ 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115, 116 ],
+            "Q": [ 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83 ]
+          }
+        },
+        "$procdff$34": {
+          "hide_name": 1,
+          "type": "$dff",
+          "parameters": {
+            "CLK_POLARITY": 1,
+            "WIDTH": 16
+          },
+          "attributes": {
+            "always_ff": 1,
+            "src": "BitonicSort_W4.v:156.1-165.4"
+          },
+          "port_directions": {
+            "CLK": "input",
+            "D": "input",
+            "Q": "output"
+          },
+          "connections": {
+            "CLK": [ 2 ],
+            "D": [ 117, 118, 119, 120, 121, 122, 123, 124, 125, 126, 127, 128, 129, 130, 131, 132 ],
+            "Q": [ 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99 ]
+          }
+        },
+        "$procmux$10": {
+          "hide_name": 1,
+          "type": "$mux",
+          "parameters": {
+            "WIDTH": 16
+          },
+          "attributes": {
+            "full_case": 1,
+            "src": "BitonicSort_W4.v:157.6-157.25|BitonicSort_W4.v:157.3-163.6"
+          },
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "S": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [ 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67 ],
+            "B": [ 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35 ],
+            "S": [ 100 ],
+            "Y": [ 117, 118, 119, 120, 121, 122, 123, 124, 125, 126, 127, 128, 129, 130, 131, 132 ]
+          }
+        },
+        "$procmux$13": {
+          "hide_name": 1,
+          "type": "$mux",
+          "parameters": {
+            "WIDTH": 16
+          },
+          "attributes": {
+            "full_case": 1,
+            "src": "BitonicSort_W4.v:157.6-157.25|BitonicSort_W4.v:157.3-163.6"
+          },
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "S": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [ 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35 ],
+            "B": [ 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67 ],
+            "S": [ 100 ],
+            "Y": [ 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115, 116 ]
+          }
+        }
+      },
+      "netnames": {
+        "$0__swapped1[15:0]": {
+          "hide_name": 1,
+          "bits": [ 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115, 116 ],
+          "attributes": {
+            "src": "BitonicSort_W4.v:156.1-165.4"
+          }
+        },
+        "$0__swapped3[15:0]": {
+          "hide_name": 1,
+          "bits": [ 117, 118, 119, 120, 121, 122, 123, 124, 125, 126, 127, 128, 129, 130, 131, 132 ],
+          "attributes": {
+            "src": "BitonicSort_W4.v:156.1-165.4"
+          }
+        },
+        "$gt$BitonicSort_W4.v:157$8_Y": {
+          "hide_name": 1,
+          "bits": [ 100 ],
+          "attributes": {
+            "src": "BitonicSort_W4.v:157.7-157.24"
+          }
+        },
+        "clk": {
+          "hide_name": 0,
+          "bits": [ 2 ],
+          "attributes": {
+            "src": "BitonicSort_W4.v:142.13-142.16"
+          }
+        },
+        "reset": {
+          "hide_name": 0,
+          "bits": [ 3 ],
+          "attributes": {
+            "src": "BitonicSort_W4.v:143.13-143.18"
+          }
+        },
+        "swapped0": {
+          "hide_name": 0,
+          "bits": [ 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19 ],
+          "attributes": {
+            "src": "BitonicSort_W4.v:148.21-148.29"
+          }
+        },
+        "swapped1": {
+          "hide_name": 0,
+          "bits": [ 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83 ],
+          "attributes": {
+            "src": "BitonicSort_W4.v:149.21-149.29"
+          }
+        },
+        "swapped2": {
+          "hide_name": 0,
+          "bits": [ 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51 ],
+          "attributes": {
+            "src": "BitonicSort_W4.v:150.21-150.29"
+          }
+        },
+        "swapped3": {
+          "hide_name": 0,
+          "bits": [ 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99 ],
+          "attributes": {
+            "src": "BitonicSort_W4.v:151.21-151.29"
+          }
+        },
+        "toSort0": {
+          "hide_name": 0,
+          "bits": [ 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19 ],
+          "attributes": {
+            "src": "BitonicSort_W4.v:144.20-144.27"
+          }
+        },
+        "toSort1": {
+          "hide_name": 0,
+          "bits": [ 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35 ],
+          "attributes": {
+            "src": "BitonicSort_W4.v:145.20-145.27"
+          }
+        },
+        "toSort2": {
+          "hide_name": 0,
+          "bits": [ 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51 ],
+          "attributes": {
+            "src": "BitonicSort_W4.v:146.20-146.27"
+          }
+        },
+        "toSort3": {
+          "hide_name": 0,
+          "bits": [ 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67 ],
+          "attributes": {
+            "src": "BitonicSort_W4.v:147.20-147.27"
+          }
+        }
+      }
+    }
+  }
+}`;
+        var width = viewport().width,
+            height = viewport().height;
+
+        var svg = d3.select("#scheme-placeholder")
+            .attr("width", width)
+            .attr("height", height);
+
+        var orig = document.body.onresize;
+        document.body.onresize = function(ev) {
+            if (orig)
+        	    orig(ev);
+
+            var w = viewport();
+            svg.attr("width", w.width);
+			svg.attr("height", w.height);
+        }
+
+        var hwSchematic = new d3.HwSchematic(svg);
+        var zoom = d3.zoom();
+        zoom.on("zoom", function applyTransform(ev) {
+        	hwSchematic.root.attr("transform", ev.transform)
+        });
+
+        // disable zoom on doubleclick
+        // because it interferes with component expanding/collapsing
+        svg.call(zoom)
+           .on("dblclick.zoom", null)
+
+      graph = JSON.parse(exmpl);
+      if ("creator" in graph) {
+	  graph = d3.HwSchematic.fromYosys(graph);
+      }
+      if (graph.hwMeta && graph.hwMeta.name) {
+          document.title = graph.hwMeta.name;
+	  hwSchematic.bindData(graph);
+      }
+    </script>
+</body>
+</html>
+

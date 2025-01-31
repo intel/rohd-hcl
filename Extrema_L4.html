@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>d3-hwschematic</title>
+</head>
+<body>
+  </script>
+  <script type="text/javascript" src="d3-hwschematic-assets/d3/dist/d3.js"></script>
+  <!-- <script type="text/javascript" src="d3-hwschematic-assets/d3/dist/d3.min.js"></script>  -->
+  <script type="text/javascript" src="d3-hwschematic-assets/elkjs/lib/elk.bundled.js"></script>
+  <script type="text/javascript" src="d3-hwschematic-assets/d3-hwschematic.js"></script>
+  <link href="d3-hwschematic-assets/d3-hwschematic.css" rel="stylesheet">
+  <style>
+  	body {
+	   margin: 0;
+    }
+  </style>
+</head>
+<body>
+    <svg id="scheme-placeholder"></svg>
+    <script>
+        // schematic rendering script
+        function viewport() {
+          var e = window,
+            a = 'inner';
+          if (!(innerWidth in window)) {
+            a = 'client';
+            e = document.documentElement || document.body;
+          }
+          return {
+            width: e[a + 'Width'],
+            height: e[a + 'Height']
+          }
+        }
+      var exmpl = `{
+  "creator": "Yosys 0.29+11 (git sha1 d82bae32b, clang 10.0.0-4ubuntu1 -fPIC -Os)",
+  "modules": {
+    "Extrema_L4": {
+      "attributes": {
+        "top": 1,
+        "src": "Extrema_L4.v:7.1-29.23"
+      },
+      "ports": {
+        "signal0": {
+          "direction": "input",
+          "bits": [ 2, 3, 4, 5, 6, 7, 8, 9 ]
+        },
+        "signal1": {
+          "direction": "input",
+          "bits": [ 10, 11, 12, 13, 14, 15, 16, 17 ]
+        },
+        "signal2": {
+          "direction": "input",
+          "bits": [ 18, 19, 20, 21, 22, 23, 24, 25 ]
+        },
+        "signal3": {
+          "direction": "input",
+          "bits": [ 26, 27, 28, 29, 30, 31, 32, 33 ]
+        },
+        "index": {
+          "direction": "output",
+          "bits": [ 34, 35 ]
+        },
+        "val": {
+          "direction": "output",
+          "bits": [ 36, 37, 38, 39, 40, 41, 42, 43 ]
+        }
+      },
+      "cells": {
+        "$gt$Extrema_L4.v:23$4": {
+          "hide_name": 1,
+          "type": "$gt",
+          "parameters": {
+            "A_SIGNED": 0,
+            "A_WIDTH": 8,
+            "B_SIGNED": 0,
+            "B_WIDTH": 8,
+            "Y_WIDTH": 1
+          },
+          "attributes": {
+            "src": "Extrema_L4.v:23.48-23.65"
+          },
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [ 26, 27, 28, 29, 30, 31, 32, 33 ],
+            "B": [ 44, 45, 46, 47, 48, 49, 50, 51 ],
+            "Y": [ 52 ]
+          }
+        },
+        "$gt$Extrema_L4.v:26$7": {
+          "hide_name": 1,
+          "type": "$gt",
+          "parameters": {
+            "A_SIGNED": 0,
+            "A_WIDTH": 8,
+            "B_SIGNED": 0,
+            "B_WIDTH": 8,
+            "Y_WIDTH": 1
+          },
+          "attributes": {
+            "src": "Extrema_L4.v:26.48-26.65"
+          },
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [ 18, 19, 20, 21, 22, 23, 24, 25 ],
+            "B": [ 53, 54, 55, 56, 57, 58, 59, 60 ],
+            "Y": [ 61 ]
+          }
+        },
+        "$gt$Extrema_L4.v:28$9": {
+          "hide_name": 1,
+          "type": "$gt",
+          "parameters": {
+            "A_SIGNED": 0,
+            "A_WIDTH": 8,
+            "B_SIGNED": 0,
+            "B_WIDTH": 8,
+            "Y_WIDTH": 1
+          },
+          "attributes": {
+            "src": "Extrema_L4.v:28.48-28.65"
+          },
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [ 10, 11, 12, 13, 14, 15, 16, 17 ],
+            "B": [ 2, 3, 4, 5, 6, 7, 8, 9 ],
+            "Y": [ 62 ]
+          }
+        },
+        "$ternary$Extrema_L4.v:22$1": {
+          "hide_name": 1,
+          "type": "$mux",
+          "parameters": {
+            "WIDTH": 2
+          },
+          "attributes": {
+            "src": "Extrema_L4.v:22.112-22.163"
+          },
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "S": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [ "0", "0" ],
+            "B": [ "1", "0" ],
+            "S": [ 62 ],
+            "Y": [ 63, 64 ]
+          }
+        },
+        "$ternary$Extrema_L4.v:22$2": {
+          "hide_name": 1,
+          "type": "$mux",
+          "parameters": {
+            "WIDTH": 2
+          },
+          "attributes": {
+            "src": "Extrema_L4.v:22.64-22.164"
+          },
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "S": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [ 63, 64 ],
+            "B": [ "0", "1" ],
+            "S": [ 61 ],
+            "Y": [ 65, 66 ]
+          }
+        },
+        "$ternary$Extrema_L4.v:22$3": {
+          "hide_name": 1,
+          "type": "$mux",
+          "parameters": {
+            "WIDTH": 2
+          },
+          "attributes": {
+            "src": "Extrema_L4.v:22.16-22.165"
+          },
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "S": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [ 65, 66 ],
+            "B": [ "1", "1" ],
+            "S": [ 52 ],
+            "Y": [ 34, 35 ]
+          }
+        },
+        "$ternary$Extrema_L4.v:24$5": {
+          "hide_name": 1,
+          "type": "$mux",
+          "parameters": {
+            "WIDTH": 8
+          },
+          "attributes": {
+            "src": "Extrema_L4.v:24.18-24.75"
+          },
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "S": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [ 44, 45, 46, 47, 48, 49, 50, 51 ],
+            "B": [ 26, 27, 28, 29, 30, 31, 32, 33 ],
+            "S": [ 52 ],
+            "Y": [ 36, 37, 38, 39, 40, 41, 42, 43 ]
+          }
+        },
+        "$ternary$Extrema_L4.v:25$6": {
+          "hide_name": 1,
+          "type": "$mux",
+          "parameters": {
+            "WIDTH": 8
+          },
+          "attributes": {
+            "src": "Extrema_L4.v:25.18-25.75"
+          },
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "S": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [ 53, 54, 55, 56, 57, 58, 59, 60 ],
+            "B": [ 18, 19, 20, 21, 22, 23, 24, 25 ],
+            "S": [ 61 ],
+            "Y": [ 44, 45, 46, 47, 48, 49, 50, 51 ]
+          }
+        },
+        "$ternary$Extrema_L4.v:27$8": {
+          "hide_name": 1,
+          "type": "$mux",
+          "parameters": {
+            "WIDTH": 8
+          },
+          "attributes": {
+            "src": "Extrema_L4.v:27.18-27.75"
+          },
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "S": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [ 2, 3, 4, 5, 6, 7, 8, 9 ],
+            "B": [ 10, 11, 12, 13, 14, 15, 16, 17 ],
+            "S": [ 62 ],
+            "Y": [ 53, 54, 55, 56, 57, 58, 59, 60 ]
+          }
+        }
+      },
+      "netnames": {
+        "$ternary$Extrema_L4.v:22$1_Y": {
+          "hide_name": 1,
+          "bits": [ 63, 64 ],
+          "attributes": {
+            "src": "Extrema_L4.v:22.112-22.163"
+          }
+        },
+        "$ternary$Extrema_L4.v:22$2_Y": {
+          "hide_name": 1,
+          "bits": [ 65, 66 ],
+          "attributes": {
+            "src": "Extrema_L4.v:22.64-22.164"
+          }
+        },
+        "_control__signal1_greaterThan_signal0": {
+          "hide_name": 0,
+          "bits": [ 62 ],
+          "attributes": {
+            "src": "Extrema_L4.v:15.7-15.44"
+          }
+        },
+        "_control__signal2_greaterThan_muxOut1": {
+          "hide_name": 0,
+          "bits": [ 61 ],
+          "attributes": {
+            "src": "Extrema_L4.v:16.7-16.44"
+          }
+        },
+        "_control__signal3_greaterThan_muxOut2": {
+          "hide_name": 0,
+          "bits": [ 52 ],
+          "attributes": {
+            "src": "Extrema_L4.v:17.7-17.44"
+          }
+        },
+        "index": {
+          "hide_name": 0,
+          "bits": [ 34, 35 ],
+          "attributes": {
+            "src": "Extrema_L4.v:12.20-12.25"
+          }
+        },
+        "muxOut1": {
+          "hide_name": 0,
+          "bits": [ 53, 54, 55, 56, 57, 58, 59, 60 ],
+          "attributes": {
+            "src": "Extrema_L4.v:18.13-18.20"
+          }
+        },
+        "muxOut2": {
+          "hide_name": 0,
+          "bits": [ 44, 45, 46, 47, 48, 49, 50, 51 ],
+          "attributes": {
+            "src": "Extrema_L4.v:19.13-19.20"
+          }
+        },
+        "muxOut3": {
+          "hide_name": 0,
+          "bits": [ 36, 37, 38, 39, 40, 41, 42, 43 ],
+          "attributes": {
+            "src": "Extrema_L4.v:20.13-20.20"
+          }
+        },
+        "signal0": {
+          "hide_name": 0,
+          "bits": [ 2, 3, 4, 5, 6, 7, 8, 9 ],
+          "attributes": {
+            "src": "Extrema_L4.v:8.19-8.26"
+          }
+        },
+        "signal1": {
+          "hide_name": 0,
+          "bits": [ 10, 11, 12, 13, 14, 15, 16, 17 ],
+          "attributes": {
+            "src": "Extrema_L4.v:9.19-9.26"
+          }
+        },
+        "signal2": {
+          "hide_name": 0,
+          "bits": [ 18, 19, 20, 21, 22, 23, 24, 25 ],
+          "attributes": {
+            "src": "Extrema_L4.v:10.19-10.26"
+          }
+        },
+        "signal3": {
+          "hide_name": 0,
+          "bits": [ 26, 27, 28, 29, 30, 31, 32, 33 ],
+          "attributes": {
+            "src": "Extrema_L4.v:11.19-11.26"
+          }
+        },
+        "val": {
+          "hide_name": 0,
+          "bits": [ 36, 37, 38, 39, 40, 41, 42, 43 ],
+          "attributes": {
+            "src": "Extrema_L4.v:13.20-13.23"
+          }
+        }
+      }
+    }
+  }
+}`;
+        var width = viewport().width,
+            height = viewport().height;
+
+        var svg = d3.select("#scheme-placeholder")
+            .attr("width", width)
+            .attr("height", height);
+
+        var orig = document.body.onresize;
+        document.body.onresize = function(ev) {
+            if (orig)
+        	    orig(ev);
+
+            var w = viewport();
+            svg.attr("width", w.width);
+			svg.attr("height", w.height);
+        }
+
+        var hwSchematic = new d3.HwSchematic(svg);
+        var zoom = d3.zoom();
+        zoom.on("zoom", function applyTransform(ev) {
+        	hwSchematic.root.attr("transform", ev.transform)
+        });
+
+        // disable zoom on doubleclick
+        // because it interferes with component expanding/collapsing
+        svg.call(zoom)
+           .on("dblclick.zoom", null)
+
+      graph = JSON.parse(exmpl);
+      if ("creator" in graph) {
+	  graph = d3.HwSchematic.fromYosys(graph);
+      }
+      if (graph.hwMeta && graph.hwMeta.name) {
+          document.title = graph.hwMeta.name;
+	  hwSchematic.bindData(graph);
+      }
+    </script>
+</body>
+</html>
+

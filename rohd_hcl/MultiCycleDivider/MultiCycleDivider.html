@@ -72,7 +72,9 @@
   <pre class="language-dart"><code class="language-dart">MultiCycleDivider(MultiCycleDividerInterface interface)
     : dataWidth = interface.dataWidth,
       logDataWidth = log2Ceil(interface.dataWidth),
-      super(name: &#39;divider&#39;) {
+      super(
+          name: &#39;divider&#39;,
+          definitionName: &#39;MultiCycleDivider_W${interface.dataWidth}&#39;) {
   intf = MultiCycleDividerInterface.match(interface)
     ..pairConnectIO(
       this,
