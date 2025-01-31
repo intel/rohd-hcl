@@ -78,7 +78,6 @@ It has options to control its performance:
 - `seGen`: type of sign extension routine used, base class is [PartialProductSignExtension].
 - `ppTree`: used to specify the type of ['ParallelPrefix'](https://intel.github.io/rohd-hcl/rohd_hcl/ParallelPrefix-class.html) used in the other critical functions like leading-one detect.
 
-
 ## FloatingPointConverter
 
 A [FloatingPointConverter] component translates arbitrary width floating-point logic structures from one size to another, including handling sub-normals, infinities, and performs RNE rounding.
