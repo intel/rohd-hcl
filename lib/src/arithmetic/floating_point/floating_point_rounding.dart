@@ -1,8 +1,8 @@
 // Copyright (C) 2025 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 //
-// floating_point_converter.dart
-// A Floating-point to floating-point arbitrary width converter.
+// floating_point_rounding.dart
+// Floating-point rounding support.
 //
 // 2025 January 28 2025
 // Author: Desmond A. Kirkpatrick <desmond.a.kirkpatrick@intel.com>
