@@ -61,4 +61,4 @@ Also included are `extension`s for `LogicValue` with a similar rotation API for 
 LogicValue.ofInt(0xf000, 16).rotateLeft(8); // results in 0x00f0
 ```
 
-[Rotate Right Schematic](https://intel.github.io/rohd-hcl/RotateRight.html)
+[Rotate Right Schematic](https://intel.github.io/rohd-hcl/Rotate_right_W16.html)
