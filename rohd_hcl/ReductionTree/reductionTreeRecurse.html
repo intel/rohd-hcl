@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="API docs for the reductionTreeRecurse method from the ReductionTree class, for the Dart programming language.">
+  <title>reductionTreeRecurse method - ReductionTree class - rohd_hcl library - Dart API</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../../static-assets/github.css?v1">
+  <link rel="stylesheet" href="../../static-assets/styles.css?v1">
+  <link rel="icon" href="../../static-assets/favicon.png?v1">
+  
+</head>
+
+<body data-base-href="../../" data-using-base-href="false" class="light-theme">
+<div id="overlay-under-drawer"></div>
+<header id="title">
+  <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="../../index.html">rohd_hcl</a></li>
+    <li><a href="../../rohd_hcl/rohd_hcl-library.html">rohd_hcl.dart</a></li>
+    <li><a href="../../rohd_hcl/ReductionTree-class.html">ReductionTree</a></li>
+    <li class="self-crumb">reductionTreeRecurse method</li>
+  </ol>
+  <div class="self-name">reductionTreeRecurse</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+  <div class="toggle" id="theme-button" title="Toggle brightness">
+    <label for="theme">
+      <input type="checkbox" id="theme" value="light-theme">
+      <span id="dark-theme-button" class="material-symbols-outlined">
+        dark_mode
+      </span>
+      <span id="light-theme-button" class="material-symbols-outlined">
+        light_mode
+      </span>
+    </label>
+  </div>
+</header>
+<main>
+<div
+    id="dartdoc-main-content"
+    class="main-content"
+    data-above-sidebar="rohd_hcl&#47;ReductionTree-class-sidebar.html"
+    data-below-sidebar="">
+    <div>
+<h1><span class="kind-method">reductionTreeRecurse</span> method 
+</h1></div>
+
+    <section class="multi-line-signature">
+      
+<span class="returntype">(<span class="field">{<span class="type-annotation"><a href="https://api.dart.dev/stable/3.6.2/dart-core/int-class.html">int</a></span> <span class="field-name">depth</span>, </span><span class="field"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.6.2/dart-core/int-class.html">int</a></span> <span class="field-name">flopDepth</span>, </span><span class="field"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.2/rohd/Logic-class.html">Logic</a></span> <span class="field-name">value</span>}</span>)</span>
+<span class="name ">reductionTreeRecurse</span>(<wbr><ol class="parameter-list single-line"> <li><span class="parameter" id="reductionTreeRecurse-param-seq"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.6.2/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://pub.dev/documentation/rohd/0.6.2/rohd/Logic-class.html">Logic</a></span>&gt;</span></span> <span class="parameter-name">seq</span></span></li>
+</ol>)
+
+      
+
+    </section>
+    
+<section class="desc markdown">
+  <p>Recursively construct the computation tree</p>
+</section>
+
+
+    
+<section class="summary source-code" id="source">
+  <h2><span>Implementation</span></h2>
+  <pre class="language-dart"><code class="language-dart">({Logic value, int depth, int flopDepth}) reductionTreeRecurse(
+    List&lt;Logic&gt; seq) {
+  if (seq.length &lt; radix) {
+    return (value: operation(seq), depth: 0, flopDepth: 0);
+  } else {
+    final results = &lt;({Logic value, int depth, int flopDepth})&gt;[];
+    final segment = seq.length ~&#47; radix;
+    var pos = 0;
+    for (var i = 0; i &lt; radix; i++) {
+      final c = reductionTreeRecurse(seq
+          .getRange(pos, (i &lt; radix - 1) ? pos + segment : seq.length)
+          .toList());
+      results.add(c);
+      pos += segment;
+    }
+    final flopDepth = results.map((c) =&gt; c.flopDepth).reduce(max);
+    final treeDepth = results.map((c) =&gt; c.depth).reduce(max);
+
+    final alignedResults = results
+        .map((c) =&gt; localFlop(c.value, doFlop: c.flopDepth &lt; flopDepth));
+
+    final depthFlop = (depthToFlop != null) &amp;&amp;
+        (treeDepth &gt; 0) &amp; (treeDepth % depthToFlop! == 0);
+    final resultsFlop =
+        alignedResults.map((r) =&gt; localFlop(r, doFlop: depthFlop));
+
+    final alignWidth = results.map((c) =&gt; c.value.width).reduce(max);
+    final resultsExtend = resultsFlop.map((r) =&gt;
+        signExtend ? r.signExtend(alignWidth) : r.zeroExtend(alignWidth));
+
+    final computed = operation(resultsExtend.toList(),
+        name: &#39;reduce_d${(treeDepth + 1) + flopDepth * (depthToFlop ?? 0)}&#39;);
+    return (
+      value: computed,
+      depth: depthFlop ? 0 : treeDepth + 1,
+      flopDepth: flopDepth + (depthFlop ? 1 : 0)
+    );
+  }
+}</code></pre>
+</section>
+
+
+  </div> <!-- /.main-content -->
+  <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+    <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
+<header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+    <li><a href="../../index.html">rohd_hcl</a></li>
+    <li><a href="../../rohd_hcl/rohd_hcl-library.html">rohd_hcl</a></li>
+    <li><a href="../../rohd_hcl/ReductionTree-class.html">ReductionTree</a></li>
+    <li class="self-crumb">reductionTreeRecurse method</li>
+</ol>
+
+    <h5>ReductionTree class</h5>
+    <div id="dartdoc-sidebar-left-content"></div>
+  </div><!--/.sidebar-offcanvas-->
+  <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+</div><!--/.sidebar-offcanvas-->
+</main>
+<footer>
+  <span class="no-break">
+    rohd_hcl
+      0.1.0
+  </span>
+  
+</footer>
+
+
+<script src="../../static-assets/highlight.pack.js?v1"></script>
+<script src="../../static-assets/docs.dart.js"></script>
+
+</body>
+</html>
+
