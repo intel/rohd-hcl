@@ -1,4 +1,4 @@
-// Copyright (C) 2023-2024 Intel Corporation
+// Copyright (C) 2023-2025 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 //
 // fifo.dart
@@ -88,7 +88,8 @@ class Fifo extends Module {
       this.generateBypass = false,
       super.name = 'fifo'})
       : dataWidth = writeData.width,
-        _addrWidth = max(1, log2Ceil(depth)) {
+        _addrWidth = max(1, log2Ceil(depth)),
+        super(definitionName: 'Fifo_D${depth}_W${writeData.width}') {
     if (depth <= 0) {
       throw RohdHclException('Depth must be at least 1.');
     }

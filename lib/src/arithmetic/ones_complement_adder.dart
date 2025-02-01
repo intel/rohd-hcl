@@ -38,7 +38,8 @@ class OnesComplementAdder extends Adder {
       Logic? carryOut,
       Logic? carryIn,
       bool? subtract,
-      super.name = 'ones_complement_adder'}) {
+      super.name = 'ones_complement_adder'})
+      : super(definitionName: 'OnesComplementAdder_W${a.width}') {
     if (subtractIn != null) {
       subtractIn = addInput('subtractIn', subtractIn);
     }

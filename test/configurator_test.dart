@@ -1,4 +1,4 @@
-// Copyright (C) 2023-2024 Intel Corporation
+// Copyright (C) 2023-2025 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 //
 // configurator_test.dart
@@ -73,7 +73,7 @@ void main() {
     test('should return RotateRight module when generate() with default value',
         () async {
       final rotate = RotateConfigurator();
-      expect(await rotate.generateSV(), contains('RotateRight'));
+      expect(await rotate.generateSV(), contains('Rotate_right'));
     });
 
     test('should return RotateLeft when invoke generate() with default value',
@@ -87,7 +87,7 @@ void main() {
       rotate.rotateWidthKnob.value = rotateAmountWidth;
 
       final sv = await rotate.generateSV();
-      expect(sv, contains('RotateLeft'));
+      expect(sv, contains('Rotate_left'));
       expect(sv, contains('input logic [9:0] original'));
       expect(sv, contains('input logic [4:0] rotate_amount'));
     });
@@ -271,7 +271,7 @@ void main() {
       final sv = await bitonicSortGenerator.generateSV();
 
       expect(sv, contains('input logic [7:0]'));
-      expect(sv, contains('BitonicSort_2'));
+      expect(sv, contains('BitonicSort_W2'));
       expect(sv, contains('if((toSort1 > toSort3)) begin'));
     });
 
@@ -289,7 +289,7 @@ void main() {
       final sv = await bitonicSortGenerator.generateSV();
 
       expect(sv, contains('input logic [7:0]'));
-      expect(sv, contains('BitonicSort_2'));
+      expect(sv, contains('BitonicSort_W2'));
       expect(sv, contains('if((toSort1 < toSort3)) begin'));
     });
   });
