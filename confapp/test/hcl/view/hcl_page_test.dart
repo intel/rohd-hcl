@@ -72,8 +72,7 @@ void main() {
     // wait for widget to rebuild by pump
     await tester.pumpAndSettle();
 
-    // TODO(desmonddak): Temporarily remove until we get confapp online
-    // expect(observeOutput(tester)?.contains('Rotate_Left_W16'), true);
+    expect(observeOutput(tester)?.contains('Rotate_left_W16'), true);
   });
 
   testWidgets('should transit to another component when clicked on sidebar',
@@ -102,7 +101,6 @@ void main() {
     // wait for changes
     await tester.pumpAndSettle();
 
-    // TODO(desmonddak): Temporarily remove until we get confapp online
-    // expect(observeOutput(tester)?.contains('PriorityArbiter_W8'), true);
+    expect(observeOutput(tester)?.contains('PriorityArbiter_W8'), true);
   });
 }
