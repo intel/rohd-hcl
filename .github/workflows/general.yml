@@ -26,11 +26,11 @@ jobs:
         with:
           globs: '**/*.md'
 
-      # - name: Check Markdown links
-      #   uses: gaurav-nelson/github-action-markdown-link-check@v1
-      #   with:
-      #     use-quiet-mode: yes # output is too noisy, see https://github.com/gaurav-nelson/github-action-markdown-link-check/issues/121
-      #     config-file: .github/configs/mlc_config.json
+      - name: Check Markdown links
+        uses: gaurav-nelson/github-action-markdown-link-check@v1
+        with:
+          use-quiet-mode: yes # output is too noisy, see https://github.com/gaurav-nelson/github-action-markdown-link-check/issues/121
+          config-file: .github/configs/mlc_config.json
 
       # get submodules *after* checking markdown, we dont care about markdown errors in submodules
       - name: Checkout submodules
