@@ -356,9 +356,8 @@ class CompressionTreeMultiplier extends Multiplier {
       PartialProductSignExtension Function(PartialProductGeneratorBase pp,
               {String name})
           seGen = CompactRectSignExtension.new,
-
       bool use42Compressors = false,
-
+      super.name = 'compressison_tree_multiplier'})
       : super(
             definitionName: 'CompressionTreeMultiplier_W${a.width}x'
                 '${b.width}_'
