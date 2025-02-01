@@ -79,9 +79,6 @@
     return FloatingPointValue.ofBinaryStrings(
         sign.bitString, newExponent.bitString, &#39;0&#39; * (mantissa.width));
   } else {
-    &#47;&#47; TODO(desmonddak): need to handle exponent &lt; mantissa width by
-    &#47;&#47; shifting the 1 for ULP incrementally, not just putting it at
-    &#47;&#47; the end.
     return FloatingPointValue.ofBinaryStrings(
         sign.bitString, exponent.bitString, &#39;${&#39;0&#39; * (mantissa.width - 1)}1&#39;);
   }

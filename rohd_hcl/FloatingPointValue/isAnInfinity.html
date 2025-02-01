@@ -77,12 +77,7 @@ infinity or negative infinity</p>
     
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
-  <pre class="language-dart"><code class="language-dart">bool get isAnInfinity =&gt;
-    (exponent.toInt() ==
-        computeMaxExponent(exponent.width) +
-            computeBias(exponent.width) +
-            1) &amp;
-    mantissa.or().isZero;</code></pre>
+  <pre class="language-dart"><code class="language-dart">bool get isAnInfinity =&gt; isExponentAllOnes &amp;&amp; isMantissaAllZeroes;</code></pre>
 </section>
 
   </section>

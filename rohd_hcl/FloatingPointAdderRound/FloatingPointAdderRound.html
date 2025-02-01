@@ -379,6 +379,15 @@ functions.
           ~effectiveSubtractionFlopped)
       .named(&#39;isR&#39;);
 
+  final inf = outputSum.inf(sign: largerSignFlopped);
+  final infExponent = inf.exponent;
+
+  final realIsInfRPath =
+      exponentRPath.eq(infExponent).named(&#39;realIsInfRPath&#39;);
+
+  final realIsInfNPath =
+      exponentNPath.eq(infExponent).named(&#39;realIsInfNPath&#39;);
+
   Combinational([
     If(isNaNFlopped, then: [
       outputSum &lt; outputSum.nan,
@@ -387,14 +396,22 @@ functions.
         outputSum &lt; outputSum.inf(sign: largerSignFlopped),
       ], orElse: [
         If(isR, then: [
-          outputSum.sign &lt; largerSignFlopped,
-          outputSum.exponent &lt; exponentRPath,
-          outputSum.mantissa &lt;
-              mantissaRPath.slice(mantissaRPath.width - 2, 1),
+          If(realIsInfRPath, then: [
+            outputSum &lt; inf,
+          ], orElse: [
+            outputSum.sign &lt; largerSignFlopped,
+            outputSum.exponent &lt; exponentRPath,
+            outputSum.mantissa &lt;
+                mantissaRPath.slice(mantissaRPath.width - 2, 1),
+          ]),
         ], orElse: [
-          outputSum.sign &lt; signNPath,
-          outputSum.exponent &lt; exponentNPath,
-          outputSum.mantissa &lt; finalSignificandNPath,
+          If(realIsInfNPath, then: [
+            outputSum &lt; inf,
+          ], orElse: [
+            outputSum.sign &lt; signNPath,
+            outputSum.exponent &lt; exponentNPath,
+            outputSum.mantissa &lt; finalSignificandNPath,
+          ])
         ])
       ])
     ])

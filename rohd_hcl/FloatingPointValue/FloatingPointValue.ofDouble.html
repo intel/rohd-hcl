@@ -117,8 +117,11 @@
   ].first;
   var mantissa = mantissa64.slice(51, 51 - mantissaWidth + 1);
 
+  &#47;&#47; TODO(desmonddak): this should be in a separate function to use
+  &#47;&#47; with a FloatingPointValue converter we need.
   if (roundingMode == FloatingPointRoundingMode.roundNearestEven) {
     final sticky = mantissa64.slice(51 - (mantissaWidth + 2), 0).or();
+
     final roundPos = 51 - (mantissaWidth + 2) + 1;
     final round = mantissa64[roundPos];
     final guard = mantissa64[roundPos + 1];
@@ -136,6 +139,24 @@
     }
   }
 
+  &#47;&#47; TODO(desmonddak): how to convert to infinity and check that it is
+  &#47;&#47; supported by the format.
+  if ((exponentWidth == 4) &amp;&amp; (mantissaWidth == 3)) {
+    &#47;&#47; TODO(desmonddak): need a better way to detect subclass limitations
+    &#47;&#47; Here we avoid returning infinity for FP8E4M3
+  } else {
+    if (expVal &gt;
+        FloatingPointValue.computeBias(exponentWidth) +
+            FloatingPointValue.computeMaxExponent(exponentWidth)) {
+      return (fp64.sign == LogicValue.one)
+          ? FloatingPointValue.getFloatingPointConstant(
+              FloatingPointConstants.negativeInfinity,
+              exponentWidth,
+              mantissaWidth)
+          : FloatingPointValue.getFloatingPointConstant(
+              FloatingPointConstants.infinity, exponentWidth, mantissaWidth);
+    }
+  }
   final exponent =
       LogicValue.ofBigInt(BigInt.from(max(expVal, 0)), exponentWidth);
 
