@@ -1,4 +1,4 @@
-// Copyright (C) 2023-2024 Intel Corporation
+// Copyright (C) 2023-2025 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 //
 // ripple_carry_adder.dart
@@ -19,7 +19,8 @@ import 'package:rohd_hcl/rohd_hcl.dart';
 class RippleCarryAdder extends Adder {
   /// Constructs an n-bit adder based on inputs List of inputs.
   RippleCarryAdder(super.a, super.b,
-      {super.carryIn, super.name = 'ripple_carry_adder_carry_in'}) {
+      {super.carryIn, super.name = 'ripple_carry_adder_carry_in'})
+      : super(definitionName: 'RippleCarryAdder_W${a.width}') {
     Logic? carry;
     final sumList = <Logic>[];
     for (var i = 0; i < a.width; i++) {

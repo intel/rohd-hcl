@@ -1,4 +1,4 @@
-// Copyright (C) 2023-2024 Intel Corporation
+// Copyright (C) 2023-2025 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 //
 // parity.dart
@@ -19,7 +19,7 @@ class ParityTransmitter extends ErrorCheckingTransmitter {
 
   /// Creates a transmitter that sends data with a parity bit.
   ParityTransmitter(super.data, {super.name = 'parity_tx'})
-      : super(codeWidth: 1);
+      : super(codeWidth: 1, definitionName: 'ParityTransmitter_W${data.width}');
 
   @override
   @protected
@@ -33,7 +33,10 @@ class ParityReceiver extends ErrorCheckingReceiver {
   /// into 2 parts: the [originalData], and the error bit upon which [error] is
   /// calculated for parity error checking.
   ParityReceiver(super.transmission, {super.name = 'parity_rx'})
-      : super(codeWidth: 1, supportsErrorCorrection: false);
+      : super(
+            codeWidth: 1,
+            supportsErrorCorrection: false,
+            definitionName: 'ParityReceiver_W${transmission.width}');
 
   @override
   @protected

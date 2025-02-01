@@ -1,4 +1,4 @@
-// Copyright (C) 2023-2024 Intel Corporation
+// Copyright (C) 2023-2025 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 //
 // sort.dart
@@ -24,7 +24,11 @@ abstract class Sort extends Module {
 
   /// Sort algorithm MUST have List of [toSort], direction of
   /// sort [isAscending] and a name for the sorting module.
-  Sort({required this.toSort, this.isAscending = true, super.name});
+  Sort(
+      {required this.toSort,
+      this.isAscending = true,
+      super.name,
+      super.definitionName});
 }
 
 /// Compare and Swap [Logic] to the specified order.
@@ -51,7 +55,9 @@ class _CompareSwap extends Module {
   /// swapping.
   _CompareSwap(Logic clk, Logic reset, List<Logic> toSort, int i, int j,
       {required this.isAscending})
-      : super(name: 'compare_swap_${i}_$j') {
+      : super(
+            name: 'compare_swap_${i}_$j',
+            definitionName: '_CompareSwap_W${toSort.length}') {
     clk = addInput('clk', clk);
     reset = addInput('reset', reset);
 
@@ -109,7 +115,7 @@ class _BitonicMerge extends Module {
     required bool isAscending,
     required Iterable<Logic> bitonicSequence,
     super.name = 'bitonic_merge',
-  }) {
+  }) : super(definitionName: '_BitonicMerge_W${bitonicSequence.length}') {
     clk = addInput('clk', clk);
     reset = addInput('reset', reset);
 
@@ -205,7 +211,8 @@ class BitonicSort extends Sort {
   /// await sortMod.build();
   /// ```
   BitonicSort(Logic clk, Logic reset,
-      {required super.toSort, super.isAscending, super.name}) {
+      {required super.toSort, super.isAscending, super.name})
+      : super(definitionName: 'BitonicSort_W${toSort.length}') {
     clk = addInput('clk', clk);
     reset = addInput('reset', reset);
 

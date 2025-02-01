@@ -43,7 +43,10 @@ class CarrySaveMultiplier extends Multiplier {
       {required Logic clk,
       required Logic reset,
       super.name = 'carry_save_multiplier'})
-      : super(signedMultiplicand: false, signedMultiplier: false) {
+      : super(
+            signedMultiplicand: false,
+            signedMultiplier: false,
+            definitionName: 'CarrySaveMultiplier_W${a.width}') {
     if (a.width != b.width) {
       throw RohdHclException('inputs of a and b should have same width.');
     }
