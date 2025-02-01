@@ -2,7 +2,7 @@
 
 The `ReductionTree` component is a general tree generator that allows for arbitrary radix or tree-branching factor in the computation.  It takes a sequence of `Logic` values and performs a specified operation at each node of the tree, taking in 'radix' inputs and producing one output.  If the operation widens the output (say in addition), then the `ReductionTree` will widen values using either sign-extension or zero-extension as specified.
 
-The input sequence is provided in the form 'List\<Logic\>'.  The operation must be provided in the form
+The input sequence is provided in the form 'List\<Logic\>'.  The operation must be provided in the form:
 
  ```dart
  Logic Function(List<Logic> operands, {String name})
