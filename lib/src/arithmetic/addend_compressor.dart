@@ -12,50 +12,6 @@ import 'package:meta/meta.dart';
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
 
-// /// Base class for bit-level column compressor function
-// abstract class BitCompressor extends Module {
-//   /// Input bits to compress
-//   @protected
-//   late final Logic compressBits;
-
-//   /// The addition results [sum] including carry bit
-//   Logic get sum => output('sum');
-
-//   /// The carry results [carry].
-//   Logic get carry => output('carry');
-
-//   /// Construct a column compressor
-//   BitCompressor(Logic compressBits, {super.name = 'bit_compressor'}) {
-//     this.compressBits = addInput(
-//       'compressBits',
-//       compressBits,
-//       width: compressBits.width,
-//     );
-//     addOutput('sum');
-//     addOutput('carry');
-//   }
-// }
-
-// /// 2-input column compressor (half-adder)
-// class Compressor2 extends BitCompressor {
-//   /// Construct a 2-input compressor (half-adder)
-//   Compressor2(super.compressBits, {super.name = 'compressor_2'}) {
-//     sum <= compressBits.xor();
-//     carry <= compressBits.and();
-//   }
-// }
-
-// /// 3-input column compressor (full-adder)
-// class Compressor3 extends BitCompressor {
-//   /// Construct a 3-input column compressor (full-adder)
-//   Compressor3(super.compressBits, {super.name = 'compressor_3'}) {
-//     sum <= compressBits.xor();
-//     carry <=
-//         mux(compressBits[0], compressBits.slice(2, 1).or(),
-//             compressBits.slice(2, 1).and());
-//   }
-// }
-
 /// Compress terms
 enum CompressTermType {
   /// A cout (horizontal carry)
