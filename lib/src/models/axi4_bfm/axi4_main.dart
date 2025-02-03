@@ -11,7 +11,8 @@ import 'package:rohd_hcl/rohd_hcl.dart';
 import 'package:rohd_hcl/src/models/axi4_bfm/axi4_bfm.dart';
 import 'package:rohd_vf/rohd_vf.dart';
 
-/// An agent for sending requests on [Axi4ReadInterface]s and [Axi4WriteInterface]s.
+/// An agent for sending requests on
+/// the [Axi4ReadInterface] and [Axi4WriteInterface].
 ///
 /// Driven read packets will update the returned data into the same packet.
 class Axi4MainAgent extends Agent {

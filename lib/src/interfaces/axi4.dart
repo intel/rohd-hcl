@@ -1,7 +1,7 @@
 // Copyright (C) 2024-2025 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 //
-// axi.dart
+// axi4.dart
 // Definitions for the AXI interface.
 //
 // 2025 January
@@ -10,7 +10,8 @@
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/src/exceptions.dart';
 
-/// A grouping of signals on the [Axi4ReadInterface] interface based on direction.
+/// A grouping of signals on the [Axi4ReadInterface] and [Axi4WriteInterface]
+/// interfaces based on direction.
 enum Axi4Direction {
   /// Miscellaneous system-level signals, common inputs to both sides.
   misc,
@@ -26,12 +27,14 @@ enum Axi4Direction {
 class Axi4SystemInterface extends Interface<Axi4Direction> {
   /// Clock for the interface.
   ///
-  /// Global clock signals. Synchronous signals are sampled on the rising edge of the global clock.
+  /// Global clock signals. Synchronous signals are sampled
+  /// on the rising edge of the global clock.
   Logic get clk => port('ACLK');
 
   /// Reset signal (active LOW).
   ///
-  /// Global reset signal. This signal is active-LOW, synchronous but can be asserted asynchronously.
+  /// Global reset signal. This signal is active-LOW, synchronous
+  /// but can be asserted asynchronously.
   Logic get resetN => port('ARESETn');
 
   /// Construct a new instance of an AXI4 interface.
@@ -112,7 +115,8 @@ class Axi4ReadInterface extends Interface<Axi4Direction> {
   /// Width is equal to [sizeWidth].
   Logic? get arSize => tryPort('ARSIZE');
 
-  /// Burst type, indicates how address changes between each transfer in a read transaction.
+  /// Burst type, indicates how address changes between
+  /// each transfer in a read transaction.
   ///
   /// Width is equal to [burstWidth].
   Logic? get arBurst => tryPort('ARBURST');
@@ -127,7 +131,7 @@ class Axi4ReadInterface extends Interface<Axi4Direction> {
   /// Width is equal to [cacheWidth].
   Logic? get arCache => tryPort('ARCACHE');
 
-  /// Protection attributes of a read transaction: privilege, security level, and access type.
+  /// Protection attributes of a read transaction.
   ///
   /// Width is equal to [protWidth].
   Logic get arProt => port('ARPROT');
@@ -352,7 +356,7 @@ class Axi4WriteInterface extends Interface<Axi4Direction> {
   /// Width is equal to [sizeWidth].
   Logic? get awSize => tryPort('AWSIZE');
 
-  /// Burst type, indicates how address changes between each transfer in a write transaction.
+  /// Burst type, indicates how address changes between each transfer.
   ///
   /// Width is equal to [burstWidth].
   Logic? get awBurst => tryPort('AWBURST');
@@ -362,12 +366,12 @@ class Axi4WriteInterface extends Interface<Axi4Direction> {
   /// Width is always 1.
   Logic? get awLock => tryPort('AWLOCK');
 
-  /// Indicates how a write transaction is required to progress through a system.
+  /// Indicates how a write transaction is required to progress in a system.
   ///
   /// Width is equal to [cacheWidth].
   Logic? get awCache => tryPort('AWCACHE');
 
-  /// Protection attributes of a write transaction: privilege, security level, and access type.
+  /// Protection attributes of a write transaction.
   ///
   /// Width is equal to [protWidth].
   Logic get awProt => port('AWPROT');
