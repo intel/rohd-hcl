@@ -42,4 +42,4 @@ types:
 - ['Brent-Kung](https://intel.github.io/rohd-hcl/rohd_hcl/BrentKung-class.html)
 
 Here is an example adder schematic:
-[ParallelPrefixAdder Schematic](https://intel.github.io/rohd-hcl/ParallelPrefixAdder.html)
+[ParallelPrefixAdder Schematic](https://intel.github.io/rohd-hcl/ParallelPrefixAdder_W4.html)

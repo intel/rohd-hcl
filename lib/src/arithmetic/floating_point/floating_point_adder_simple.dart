@@ -28,7 +28,9 @@ class FloatingPointAdderSimple extends FloatingPointAdder {
               List<Logic> inps, Logic Function(Logic term1, Logic term2) op)
           ppTree = KoggeStone.new,
       super.name = 'floatingpoint_adder_simple'})
-      : super() {
+      : super(
+            definitionName: 'FloatingPointAdderSimple_'
+                'E${a.exponent.width}M${a.mantissa.width}') {
     final outputSum = FloatingPoint(
         exponentWidth: exponentWidth,
         mantissaWidth: mantissaWidth,

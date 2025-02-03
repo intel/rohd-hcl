@@ -22,7 +22,7 @@ Appropriate string representations, comparison operations, and operators are ava
 
 ### Floating Point Constants
 
-The various IEEE constants representing corner cases of the field of floating-point values for a given size of [FloatingPointValue](https://intel.github.io/rohd-hcl/rohd_hcl/FloatingPointValue-class.html): infinities, zeros, limits for normal (e.g. mantissa in the range of $[1,2)$ and sub-normal numbers (zero exponent, and mantissa <1).
+The various IEEE constants representing corner cases of the field of floating-point values for a given size of [FloatingPointValue](https://intel.github.io/rohd-hcl/rohd_hcl/FloatingPointValue-class.html): infinities, zeros, limits for normal (e.g. mantissa in the range of $[1,2)$) and sub-normal numbers (zero exponent, and mantissa <1).
 
 For any basic arbitrary width `FloatingPointValue` ROHD-HCL supports the following constants in that format.
 
@@ -36,8 +36,8 @@ For any basic arbitrary width `FloatingPointValue` ROHD-HCL supports the followi
 - `one`: The number one
 - `smallestLargerThanOne`: Smallest number greater than one
 - `largestNormal`: Largest positive number, most positive exponent, full mantissa
-- `infinity`: Largest possible number:  all 1s in the exponent, all 0s in the mantissa
-- `nan`:  Not a Number, demarked by all 1s in exponent and any 1 in mantissa (we use the LSB)
+- `infinity`: Largest possible number: all 1s in the exponent, all 0s in the mantissa
+- `nan`: Not a Number, designated by all 1s in exponent and any 1 in mantissa (we use the LSB)
 
 ### Special subtypes
 
@@ -73,7 +73,25 @@ A very basic [FloatingPointMultiplierSimple] component is available which does n
 
 It has options to control its performance:
 
-- 'radix':  used to specify the radix of the Booth encoder (default radix=4: options are [2,4,8,16])'.
+- `radix`: used to specify the radix of the Booth encoder (default radix=4: options are [2,4,8,16])'.
+- `adderGen`: used to specify the kind of [Adder] used for key functions like the mantissa addition. Defaults to [NativeAdder], but you can select a [ParallelPrefixAdder] of your choice.
+- `seGen`: type of sign extension routine used, base class is [PartialProductSignExtension].
+- `ppTree`: used to specify the type of ['ParallelPrefix'](https://intel.github.io/rohd-hcl/rohd_hcl/ParallelPrefix-class.html) used in the other critical functions like leading-one detect.
 
-- 'adderGen':  used to specify the kind of [Adder] used for key functions like the mantiss addition. Defaults to [NativeAdder], but you can select a [ParallelPrefixAdder] of  your choice.
-- 'ppTree':  used to specify the type of ['ParallelPrefix'](https://intel.github.io/rohd-hcl/rohd_hcl/ParallelPrefix-class.html) used in the pther critical functions like leading-one detect.
+## FloatingPointConverter
+
+A [FloatingPointConverter] component translates arbitrary width floating-point logic structures from one size to another, including handling sub-normals, infinities, and performs RNE rounding.
+
+Here is an example using the converter to translate from 32-bit single-precision floating point to 16-bit brain (bfloat16) floating-point format.
+
+```dart
+    final fp32 = FloatingPoint32();
+    final bf16 = FloatingPointBF16();
+
+    final one = FloatingPoint32Value.getFloatingPointConstant(
+        FloatingPointConstants.one);
+
+    fp32.put(one);
+    FloatingPointConverter(fp32, bf16);
+    expect(bf16.floatingPointValue.toDouble(), equals(1.0));
+```

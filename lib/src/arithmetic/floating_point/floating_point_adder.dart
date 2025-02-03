@@ -57,10 +57,14 @@ abstract class FloatingPointAdder extends Module {
       {Logic? clk,
       Logic? reset,
       Logic? enable,
-      super.name = 'floating_point_adder'})
+      super.name = 'floating_point_adder',
+      String? definitionName})
       : exponentWidth = a.exponent.width,
         mantissaWidth = a.mantissa.width,
-        super() {
+        super(
+            definitionName: definitionName ??
+                'FloatingPointAdder_E${a.exponent.width}'
+                    'M${a.mantissa.width}') {
     if (b.exponent.width != exponentWidth ||
         b.mantissa.width != mantissaWidth) {
       throw RohdHclException('FloatingPoint widths must match');

@@ -1,4 +1,4 @@
-// Copyright (C) 2023-2024 Intel Corporation
+// Copyright (C) 2023-2025 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 //
 // one_hot_to_binary.dart
@@ -51,7 +51,12 @@ abstract class OneHotToBinary extends Module {
   /// Constructs a [Module] which decodes a one-hot number [onehot] into a 2s
   /// complement number [binary] by encoding the position of the '1'.
   OneHotToBinary.base(Logic onehot,
-      {this.generateError = false, super.name = 'one_hot_to_binary'}) {
+      {this.generateError = false,
+      super.name = 'one_hot_to_binary',
+      String? definitionName})
+      : super(
+            definitionName:
+                definitionName ?? 'OneHotToBinary_W${onehot.width}') {
     onehot = addInput('onehot', onehot, width: onehot.width);
     addOutput('binary', width: max(log2Ceil(onehot.width), 1));
 

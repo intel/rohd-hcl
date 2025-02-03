@@ -1,4 +1,4 @@
-// Copyright (C) 2024 Intel Corporation
+// Copyright (C) 2025 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 //
 // extrema.dart
@@ -25,7 +25,8 @@ class Extrema extends Module {
   /// If [max] is `true`, will find maximum value, else will find minimum.
   ///
   /// Outputs the [index] and [val] of the extrema in the list of [signals].
-  Extrema(List<Logic> signals, {bool max = true}) {
+  Extrema(List<Logic> signals, {bool max = true})
+      : super(definitionName: 'Extrema_L${signals.length}') {
     // List to consume inputs internally.
     final logics = <Logic>[];
 
