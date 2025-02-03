@@ -16,18 +16,6 @@ import 'package:rohd_hcl/rohd_hcl.dart';
 import 'package:test/test.dart';
 
 void main() {
-  test('FPV: type system', () {
-    final fpv32a = FloatingPoint32Value.ofDouble(1.1);
-    final fpv32b = FloatingPoint32Value.ofDouble(1.6);
-    final fpv16a = FloatingPoint16Value.ofDouble(1.1);
-    final fpv16b = FloatingPoint16Value.ofDouble(1.6);
-
-    final fp32add = fpv32a + fpv32b;
-    final fp16add = fpv16a + fpv16b;
-
-    print('$fp32add');
-    print('$fp16add');
-  });
   test('FPV: exhaustive round-trip', () {
     const exponentWidth = 4;
     const mantissaWidth = 4;
