@@ -314,6 +314,7 @@ class FloatingPointAdderRound extends FloatingPointAdder {
     final isR = (deltaFlopped.gte(Const(2, width: delta.width)) |
             ~effectiveSubtractionFlopped)
         .named('isR');
+    final infExponent = outputSum.inf(sign: largerSignFlopped).exponent;
 
     Combinational([
       If(isNaNFlopped, then: [
@@ -323,14 +324,22 @@ class FloatingPointAdderRound extends FloatingPointAdder {
           outputSum < outputSum.inf(sign: largerSignFlopped),
         ], orElse: [
           If(isR, then: [
-            outputSum.sign < largerSignFlopped,
-            outputSum.exponent < exponentRPath,
-            outputSum.mantissa <
-                mantissaRPath.slice(mantissaRPath.width - 2, 1),
+            If(exponentRPath.eq(infExponent), then: [
+              outputSum < outputSum.inf(sign: largerSignFlopped),
+            ], orElse: [
+              outputSum.sign < largerSignFlopped,
+              outputSum.exponent < exponentRPath,
+              outputSum.mantissa <
+                  mantissaRPath.slice(mantissaRPath.width - 2, 1),
+            ]),
           ], orElse: [
-            outputSum.sign < signNPath,
-            outputSum.exponent < exponentNPath,
-            outputSum.mantissa < finalSignificandNPath,
+            If(exponentNPath.eq(infExponent), then: [
+              outputSum < outputSum.inf(sign: largerSignFlopped),
+            ], orElse: [
+              outputSum.sign < signNPath,
+              outputSum.exponent < exponentNPath,
+              outputSum.mantissa < finalSignificandNPath,
+            ]),
           ])
         ])
       ])
