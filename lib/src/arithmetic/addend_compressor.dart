@@ -204,9 +204,9 @@ class Compressor4 extends BitCompressor {
       : super(terms) {
     // We need to use internal Logic and regenerate Term lists inside
     cinL = [
-      for (final cin in cinL)
-        CompressTerm(this, cin.type, addInput('cin', cin.logic), cin.inputs,
-            cin.row, cin.col)
+      for (final (i, c) in cinL.indexed)
+        CompressTerm(
+            this, c.type, addInput('cin_$i', c.logic), c.inputs, c.row, c.col)
     ];
     final internalTerms = [
       for (var i = 0; i < compressBits.width; i++)

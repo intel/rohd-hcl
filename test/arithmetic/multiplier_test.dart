@@ -10,6 +10,7 @@
 // ignore_for_file: invalid_use_of_protected_member
 
 import 'dart:async';
+import 'dart:io';
 import 'dart:math';
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
@@ -521,7 +522,7 @@ void main() {
   });
 
   test('single multiplier', () async {
-    const width = 8;
+    const width = 16;
     final a = Logic(name: 'a', width: width);
     final b = Logic(name: 'b', width: width);
     const av = 12;
@@ -544,6 +545,7 @@ void main() {
         b.put(bB);
 
         final mod = CompressionTreeMultiplier(a, b, 4,
+            use42Compressors: true,
             adderGen: ParallelPrefixAdder.new,
             seGen: StopBitsSignExtension.new,
             signedMultiplier: !useSignedLogic && signed,
