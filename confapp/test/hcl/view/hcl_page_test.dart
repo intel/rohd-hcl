@@ -72,7 +72,7 @@ void main() {
     // wait for widget to rebuild by pump
     await tester.pumpAndSettle();
 
-    expect(observeOutput(tester)?.contains('RotateLeft'), true);
+    expect(observeOutput(tester)?.contains('Rotate_left_W16'), true);
   });
 
   testWidgets('should transit to another component when clicked on sidebar',
@@ -101,6 +101,6 @@ void main() {
     // wait for changes
     await tester.pumpAndSettle();
 
-    expect(observeOutput(tester)?.contains('PriorityArbiter'), true);
+    expect(observeOutput(tester)?.contains('PriorityArbiter_W8'), true);
   });
 }

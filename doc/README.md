@@ -65,6 +65,7 @@ Some in-development items will have opened issues, as well. Feel free to create 
     - [Simple Floating-Point Adder](./components/floating_point.md#floatingpointadder)
     - [Rounding Floating-Point Adder](./components/floating_point.md#floatingpointadder)
     - [Simple Floating-Point Multiplier](./components/floating_point.md#floatingpointmultiplier)
+    - [Floating-Point Converter](./components/floating_point.md#floatingpointconverter)
   - [Fixed point](./components/fixed_point.md)
     - [FloatToFixed](./components/fixed_point.md#floattofixed)
     - [FixedToFloat](./components/fixed_point.md#fixedtofloat)
@@ -95,6 +96,7 @@ Some in-development items will have opened issues, as well. Feel free to create 
   - NoC's
     - Coherent
     - Non-Coherent
+  - [Reduction Tree](./components/reduction_tree.md)
 - Memory
   - [Register File](./components/memory.md#register-files)
   - [Masking](./components/memory.md#masks)

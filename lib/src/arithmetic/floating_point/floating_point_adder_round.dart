@@ -11,11 +11,6 @@ import 'dart:math';
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
 
-// TODO(desmonddak): factor rounding into a utility by merging
-// the near and far bits and creating a LGRS algorithm on that word.
-
-// TODO(desmondak): investigate how to implement other forms of rounding.
-
 /// An adder module for variable FloatingPoint type with rounding.
 // This is a Seidel/Even adder, dual-path implementation.
 class FloatingPointAdderRound extends FloatingPointAdder {
@@ -316,6 +311,15 @@ class FloatingPointAdderRound extends FloatingPointAdder {
         .named('isR');
     final infExponent = outputSum.inf(sign: largerSignFlopped).exponent;
 
+    final inf = outputSum.inf(sign: largerSignFlopped);
+    final infExponent = inf.exponent;
+
+    final realIsInfRPath =
+        exponentRPath.eq(infExponent).named('realIsInfRPath');
+
+    final realIsInfNPath =
+        exponentNPath.eq(infExponent).named('realIsInfNPath');
+
     Combinational([
       If(isNaNFlopped, then: [
         outputSum < outputSum.nan,
@@ -324,8 +328,8 @@ class FloatingPointAdderRound extends FloatingPointAdder {
           outputSum < outputSum.inf(sign: largerSignFlopped),
         ], orElse: [
           If(isR, then: [
-            If(exponentRPath.eq(infExponent), then: [
-              outputSum < outputSum.inf(sign: largerSignFlopped),
+            If(realIsInfRPath, then: [
+              outputSum < inf,
             ], orElse: [
               outputSum.sign < largerSignFlopped,
               outputSum.exponent < exponentRPath,
@@ -333,8 +337,8 @@ class FloatingPointAdderRound extends FloatingPointAdder {
                   mantissaRPath.slice(mantissaRPath.width - 2, 1),
             ]),
           ], orElse: [
-            If(exponentNPath.eq(infExponent), then: [
-              outputSum < outputSum.inf(sign: largerSignFlopped),
+            If(realIsInfNPath, then: [
+              outputSum < inf,
             ], orElse: [
               outputSum.sign < signNPath,
               outputSum.exponent < exponentNPath,
