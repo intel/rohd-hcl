@@ -312,7 +312,6 @@ class FloatingPointAdderRound extends FloatingPointAdder {
     final infExponent = outputSum.inf(sign: largerSignFlopped).exponent;
 
     final inf = outputSum.inf(sign: largerSignFlopped);
-    final infExponent = inf.exponent;
 
     final realIsInfRPath =
         exponentRPath.eq(infExponent).named('realIsInfRPath');
