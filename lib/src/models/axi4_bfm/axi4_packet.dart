@@ -11,7 +11,6 @@ import 'dart:async';
 
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
-import 'package:rohd_hcl/src/models/axi4_bfm/axi4_bfm.dart';
 import 'package:rohd_vf/rohd_vf.dart';
 
 /// A request packet on an AXI4 interface.

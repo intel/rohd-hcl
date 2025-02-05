@@ -12,43 +12,51 @@ import 'package:rohd_hcl/rohd_hcl.dart';
 import 'package:test/test.dart';
 
 class Axi4Subordinate extends Module {
-  Axi4Subordinate(Axi4SystemInterface sIntf, Axi4ReadInterface rIntf,
-      Axi4WriteInterface wIntf) {
+  Axi4Subordinate(Axi4SystemInterface sIntf, List<Axi4ReadInterface> rIntfs,
+      List<Axi4WriteInterface> wIntfs) {
     sIntf = Axi4SystemInterface()
       ..connectIO(this, sIntf, inputTags: {Axi4Direction.misc});
 
-    rIntf = Axi4ReadInterface.clone(rIntf)
-      ..connectIO(this, rIntf,
-          inputTags: {Axi4Direction.fromMain},
-          outputTags: {Axi4Direction.fromSubordinate});
+    for (var i = 0; i < rIntfs.length; i++) {
+      rIntfs.add(Axi4ReadInterface.clone(rIntfs[i])
+        ..connectIO(this, rIntfs[i],
+            inputTags: {Axi4Direction.fromMain},
+            outputTags: {Axi4Direction.fromSubordinate}));
+    }
 
-    wIntf = Axi4WriteInterface.clone(wIntf)
-      ..connectIO(this, wIntf,
-          inputTags: {Axi4Direction.fromMain},
-          outputTags: {Axi4Direction.fromSubordinate});
+    for (var i = 0; i < wIntfs.length; i++) {
+      wIntfs.add(Axi4WriteInterface.clone(wIntfs[i])
+        ..connectIO(this, wIntfs[i],
+            inputTags: {Axi4Direction.fromMain},
+            outputTags: {Axi4Direction.fromSubordinate}));
+    }
   }
 }
 
 class Axi4Main extends Module {
-  Axi4Main(Axi4SystemInterface sIntf, Axi4ReadInterface rIntf,
-      Axi4WriteInterface wIntf) {
+  Axi4Main(Axi4SystemInterface sIntf, List<Axi4ReadInterface> rIntfs,
+      List<Axi4WriteInterface> wIntfs) {
     sIntf = Axi4SystemInterface()
       ..connectIO(this, sIntf, inputTags: {Axi4Direction.misc});
 
-    rIntf = Axi4ReadInterface.clone(rIntf)
-      ..connectIO(this, rIntf,
-          inputTags: {Axi4Direction.fromSubordinate},
-          outputTags: {Axi4Direction.fromMain});
+    for (var i = 0; i < rIntfs.length; i++) {
+      rIntfs.add(Axi4ReadInterface.clone(rIntfs[i])
+        ..connectIO(this, rIntfs[i],
+            inputTags: {Axi4Direction.fromSubordinate},
+            outputTags: {Axi4Direction.fromMain}));
+    }
 
-    wIntf = Axi4WriteInterface.clone(wIntf)
-      ..connectIO(this, wIntf,
-          inputTags: {Axi4Direction.fromSubordinate},
-          outputTags: {Axi4Direction.fromMain});
+    for (var i = 0; i < wIntfs.length; i++) {
+      wIntfs.add(Axi4WriteInterface.clone(wIntfs[i])
+        ..connectIO(this, wIntfs[i],
+            inputTags: {Axi4Direction.fromSubordinate},
+            outputTags: {Axi4Direction.fromMain}));
+    }
   }
 }
 
 class Axi4Pair extends Module {
-  Axi4Pair(Logic clk, Logic reset) {
+  Axi4Pair(Logic clk, Logic reset, {int numReads = 1, int numWrites = 1}) {
     clk = addInput('clk', clk);
     reset = addInput('reset', reset);
 
@@ -56,8 +64,15 @@ class Axi4Pair extends Module {
     sIntf.clk <= clk;
     sIntf.resetN <= ~reset;
 
-    final rIntf = Axi4ReadInterface();
-    final wIntf = Axi4WriteInterface();
+    final rIntf = <Axi4ReadInterface>[];
+    for (var i = 0; i < numReads; i++) {
+      rIntf.add(Axi4ReadInterface());
+    }
+
+    final wIntf = <Axi4WriteInterface>[];
+    for (var i = 0; i < numWrites; i++) {
+      wIntf.add(Axi4WriteInterface());
+    }
 
     Axi4Main(sIntf, rIntf, wIntf);
     Axi4Subordinate(sIntf, rIntf, wIntf);

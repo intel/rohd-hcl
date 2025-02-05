@@ -8,11 +8,10 @@
 // Author: Josh Kimmel <joshua1.kimmel@intel.com>
 
 import 'package:rohd_hcl/rohd_hcl.dart';
-import 'package:rohd_hcl/src/models/axi4_bfm/axi4_bfm.dart';
 import 'package:rohd_vf/rohd_vf.dart';
 
 /// An agent for sending requests on
-/// the [Axi4ReadInterface] and [Axi4WriteInterface].
+/// [Axi4ReadInterface]s and [Axi4WriteInterface]s.
 ///
 /// Driven read packets will update the returned data into the same packet.
 class Axi4MainAgent extends Agent {
@@ -20,16 +19,28 @@ class Axi4MainAgent extends Agent {
   final Axi4SystemInterface sIntf;
 
   /// AXI4 Read Interface.
-  final Axi4ReadInterface rIntf;
+  final List<Axi4ReadInterface> rIntfs;
 
   /// AXI4 Write Interface.
-  final Axi4WriteInterface wIntf;
+  final List<Axi4WriteInterface> wIntfs;
 
-  /// The sequencer where requests should be sent.
-  late final Sequencer<Axi4RequestPacket> sequencer;
+  /// The sequencers where read requests should be sent.
+  late final List<Sequencer<Axi4ReadRequestPacket>> rdSequencers;
 
-  /// The driver that sends the requests over the interface.
-  late final Axi4MainDriver driver;
+  /// The sequencers where write requests should be sent.
+  late final List<Sequencer<Axi4WriteRequestPacket>> wrSequencers;
+
+  /// The drivers that send read requests over the interface.
+  late final List<Axi4ReadMainDriver> rdDrivers;
+
+  /// The drivers that send write requests over the interface.
+  late final List<Axi4WriteMainDriver> wrDrivers;
+
+  /// Monitoring of read requests over the interface.
+  late final List<Axi4ReadMonitor> rdMonitors;
+
+  /// Monitoring of write requests over the interface.
+  late final List<Axi4WriteMonitor> wrMonitors;
 
   /// The number of cycles before timing out if no transactions can be sent.
   final int timeoutCycles;
@@ -41,23 +52,49 @@ class Axi4MainAgent extends Agent {
   /// Constructs a new [Axi4MainAgent].
   Axi4MainAgent({
     required this.sIntf,
-    required this.rIntf,
-    required this.wIntf,
+    required this.rIntfs,
+    required this.wIntfs,
     required Component parent,
     String name = 'axiMainAgent',
     this.timeoutCycles = 500,
     this.dropDelayCycles = 30,
   }) : super(name, parent) {
-    sequencer = Sequencer<Axi4RequestPacket>('sequencer', this);
+    for (var i = 0; i < rIntfs.length; i++) {
+      rdSequencers
+          .add(Sequencer<Axi4ReadRequestPacket>('axiRdSequencer$i', this));
+      rdDrivers.add(Axi4ReadMainDriver(
+        parent: this,
+        sIntf: sIntf,
+        rIntf: rIntfs[i],
+        sequencer: rdSequencers[i],
+        timeoutCycles: timeoutCycles,
+        dropDelayCycles: dropDelayCycles,
+        name: 'axiRdDriver$i',
+      ));
+      rdMonitors.add(Axi4ReadMonitor(
+          sIntf: sIntf,
+          rIntf: rIntfs[i],
+          parent: parent,
+          name: 'axiRdMonitor$i'));
+    }
 
-    driver = Axi4MainDriver(
-      parent: this,
-      sIntf: sIntf,
-      rIntf: rIntf,
-      wIntf: wIntf,
-      sequencer: sequencer,
-      timeoutCycles: timeoutCycles,
-      dropDelayCycles: dropDelayCycles,
-    );
+    for (var i = 0; i < wIntfs.length; i++) {
+      wrSequencers
+          .add(Sequencer<Axi4WriteRequestPacket>('axiWrSequencer$i', this));
+      wrDrivers.add(Axi4WriteMainDriver(
+        parent: this,
+        sIntf: sIntf,
+        wIntf: wIntfs[i],
+        sequencer: wrSequencers[i],
+        timeoutCycles: timeoutCycles,
+        dropDelayCycles: dropDelayCycles,
+        name: 'axiWrDriver$i',
+      ));
+      wrMonitors.add(Axi4WriteMonitor(
+          sIntf: sIntf,
+          wIntf: wIntfs[i],
+          parent: parent,
+          name: 'axiWrMonitor$i'));
+    }
   }
 }

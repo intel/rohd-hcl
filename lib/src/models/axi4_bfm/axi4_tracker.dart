@@ -8,7 +8,6 @@
 // Author: Josh Kimmel <joshua1.kimmel@intel.com>
 
 import 'package:rohd_hcl/rohd_hcl.dart';
-import 'package:rohd_hcl/src/models/axi4_bfm/axi4_bfm.dart';
 import 'package:rohd_vf/rohd_vf.dart';
 
 /// A tracker for the [Axi4ReadInterface] or [Axi4WriteInterface].
@@ -65,11 +64,7 @@ class Axi4Tracker extends Tracker<Axi4RequestPacket> {
   static const strbField = 'STRB';
 
   /// Creates a new tracker for [Axi4ReadInterface] and [Axi4WriteInterface].
-  ///
-  /// If the [selectColumnWidth] is set to 0, the field will be omitted.
   Axi4Tracker({
-    required Axi4ReadInterface rIntf,
-    required Axi4WriteInterface wIntf,
     String name = 'Axi4Tracker',
     super.dumpJson,
     super.dumpTable,

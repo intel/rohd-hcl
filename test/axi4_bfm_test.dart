@@ -12,7 +12,6 @@ import 'dart:io';
 
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
-import 'package:rohd_hcl/src/models/axi4_bfm/axi4_bfm.dart';
 import 'package:rohd_vf/rohd_vf.dart';
 import 'package:test/test.dart';
 
@@ -20,8 +19,11 @@ import 'axi4_test.dart';
 
 class Axi4BfmTest extends Test {
   late final Axi4SystemInterface sIntf;
-  late final Axi4ReadInterface rIntf;
-  late final Axi4WriteInterface wIntf;
+
+  final int numReads;
+  final int numWrites;
+  late final List<Axi4ReadInterface> rIntf;
+  late final List<Axi4WriteInterface> wIntf;
 
   late final Axi4MainAgent main;
 
@@ -48,6 +50,8 @@ class Axi4BfmTest extends Test {
 
   Axi4BfmTest(
     super.name, {
+    this.numReads = 1,
+    this.numWrites = 1,
     this.numTransfers = 10,
     this.withStrobes = false,
     this.interTxnDelay = 0,
@@ -59,16 +63,24 @@ class Axi4BfmTest extends Test {
   }) : super(randomSeed: 123) {
     // using default parameter values for all interfaces
     sIntf = Axi4SystemInterface();
-    rIntf = Axi4ReadInterface(
+    for (var i = 0; i < numReads; i++) {
+      rIntf.add(Axi4ReadInterface(
         addrWidth: addrWidth,
         dataWidth: dataWidth,
         lenWidth: lenWidth,
-        ruserWidth: dataWidth ~/ 2 - 1);
-    wIntf = Axi4WriteInterface(
+        ruserWidth: dataWidth ~/ 2 - 1,
+      ));
+      Axi4ReadComplianceChecker(sIntf, rIntf.last, parent: this);
+    }
+    for (var i = 0; i < numWrites; i++) {
+      wIntf.add(Axi4WriteInterface(
         addrWidth: addrWidth,
         dataWidth: dataWidth,
         lenWidth: lenWidth,
-        wuserWidth: dataWidth ~/ 2 - 1);
+        wuserWidth: dataWidth ~/ 2 - 1,
+      ));
+      Axi4WriteComplianceChecker(sIntf, wIntf.last, parent: this);
+    }
 
     storage = SparseMemoryStorage(
       addrWidth: addrWidth,
@@ -80,12 +92,12 @@ class Axi4BfmTest extends Test {
     sIntf.clk <= SimpleClockGenerator(10).clk;
 
     main =
-        Axi4MainAgent(sIntf: sIntf, rIntf: rIntf, wIntf: wIntf, parent: this);
+        Axi4MainAgent(sIntf: sIntf, rIntfs: rIntf, wIntfs: wIntf, parent: this);
 
     Axi4SubordinateAgent(
       sIntf: sIntf,
-      rIntf: rIntf,
-      wIntf: wIntf,
+      rIntfs: rIntf,
+      wIntfs: wIntf,
       parent: this,
       storage: storage,
       readResponseDelay:
@@ -95,23 +107,12 @@ class Axi4BfmTest extends Test {
       respondWithError: withErrors ? (request) => true : null,
     );
 
-    final monitor = Axi4Monitor(
-      sIntf: sIntf,
-      rIntf: rIntf,
-      wIntf: wIntf,
-      parent: this,
-    );
-
     Directory(outFolder).createSync(recursive: true);
 
     final tracker = Axi4Tracker(
-      rIntf: rIntf,
-      wIntf: wIntf,
       dumpTable: false,
       outputFolder: outFolder,
     );
-
-    Axi4ComplianceChecker(sIntf, rIntf, wIntf, parent: this);
 
     Simulator.registerEndOfSimulationAction(() async {
       await tracker.terminate();
@@ -126,7 +127,12 @@ class Axi4BfmTest extends Test {
       // Directory(outFolder).deleteSync(recursive: true);
     });
 
-    monitor.stream.listen(tracker.record);
+    for (var i = 0; i < numReads; i++) {
+      main.rdMonitors[i].stream.listen(tracker.record);
+    }
+    for (var i = 0; i < numWrites; i++) {
+      main.wrMonitors[i].stream.listen(tracker.record);
+    }
   }
 
   int numTransfersCompleted = 0;
@@ -155,20 +161,24 @@ class Axi4BfmTest extends Test {
 
     // normal writes
     for (var i = 0; i < numTransfers; i++) {
+      // pick a random write interface
+      final currW = Test.random!.nextInt(wIntf.length);
+      final wIntfC = wIntf[currW];
+
       // generate a completely random access
-      final transLen = Test.random!.nextInt(1 << wIntf.lenWidth);
+      final transLen = Test.random!.nextInt(1 << wIntfC.lenWidth);
       final transSize =
-          Test.random!.nextInt(1 << wIntf.sizeWidth) % (dataWidth ~/ 8);
+          Test.random!.nextInt(1 << wIntfC.sizeWidth) % (dataWidth ~/ 8);
       final randomData = List.generate(
           transLen + 1,
           (index) => LogicValue.ofInt(
-              Test.random!.nextInt(1 << wIntf.dataWidth), wIntf.dataWidth));
+              Test.random!.nextInt(1 << wIntfC.dataWidth), wIntfC.dataWidth));
       final randomStrobes = List.generate(
           transLen + 1,
           (index) => withStrobes
               ? LogicValue.ofInt(
-                  Test.random!.nextInt(1 << wIntf.strbWidth), wIntf.strbWidth)
-              : LogicValue.filled(wIntf.strbWidth, LogicValue.one));
+                  Test.random!.nextInt(1 << wIntfC.strbWidth), wIntfC.strbWidth)
+              : LogicValue.filled(wIntfC.strbWidth, LogicValue.one));
       lens.add(transLen);
       sizes.add(transSize);
       data.add(randomData);
@@ -176,23 +186,23 @@ class Axi4BfmTest extends Test {
 
       final wrPkt = Axi4WriteRequestPacket(
         addr: LogicValue.ofInt(i, 32),
-        prot: LogicValue.ofInt(0, wIntf.protWidth), // not supported
+        prot: LogicValue.ofInt(0, wIntfC.protWidth), // not supported
         data: randomData,
-        id: LogicValue.ofInt(i, wIntf.idWidth),
-        len: LogicValue.ofInt(transLen, wIntf.lenWidth),
-        size: LogicValue.ofInt(transSize, wIntf.sizeWidth),
+        id: LogicValue.ofInt(i, wIntfC.idWidth),
+        len: LogicValue.ofInt(transLen, wIntfC.lenWidth),
+        size: LogicValue.ofInt(transSize, wIntfC.sizeWidth),
         burst: LogicValue.ofInt(
-            Axi4BurstField.incr.value, wIntf.burstWidth), // fixed for now
+            Axi4BurstField.incr.value, wIntfC.burstWidth), // fixed for now
         lock: LogicValue.ofInt(0, 1), // not supported
-        cache: LogicValue.ofInt(0, wIntf.cacheWidth), // not supported
-        qos: LogicValue.ofInt(0, wIntf.qosWidth), // not supported
-        region: LogicValue.ofInt(0, wIntf.regionWidth), // not supported
-        user: LogicValue.ofInt(0, wIntf.awuserWidth), // not supported
+        cache: LogicValue.ofInt(0, wIntfC.cacheWidth), // not supported
+        qos: LogicValue.ofInt(0, wIntfC.qosWidth), // not supported
+        region: LogicValue.ofInt(0, wIntfC.regionWidth), // not supported
+        user: LogicValue.ofInt(0, wIntfC.awuserWidth), // not supported
         strobe: randomStrobes,
-        wUser: LogicValue.ofInt(0, wIntf.wuserWidth), // not supported
+        wUser: LogicValue.ofInt(0, wIntfC.wuserWidth), // not supported
       );
 
-      main.sequencer.add(wrPkt);
+      main.wrSequencers[currW].add(wrPkt);
       numTransfersCompleted++;
 
       // Note that driver will already serialize the writes
@@ -202,22 +212,26 @@ class Axi4BfmTest extends Test {
 
     // normal reads that check data
     for (var i = 0; i < numTransfers; i++) {
+      // pick a random read interface
+      final currR = Test.random!.nextInt(rIntf.length);
+      final rIntfC = rIntf[currR];
+
       final rdPkt = Axi4ReadRequestPacket(
         addr: LogicValue.ofInt(i, 32),
-        prot: LogicValue.ofInt(0, rIntf.protWidth), // not supported
-        id: LogicValue.ofInt(i, rIntf.idWidth),
-        len: LogicValue.ofInt(lens[i], rIntf.lenWidth),
-        size: LogicValue.ofInt(sizes[i], rIntf.sizeWidth),
+        prot: LogicValue.ofInt(0, rIntfC.protWidth), // not supported
+        id: LogicValue.ofInt(i, rIntfC.idWidth),
+        len: LogicValue.ofInt(lens[i], rIntfC.lenWidth),
+        size: LogicValue.ofInt(sizes[i], rIntfC.sizeWidth),
         burst: LogicValue.ofInt(
-            Axi4BurstField.incr.value, rIntf.burstWidth), // fixed for now
+            Axi4BurstField.incr.value, rIntfC.burstWidth), // fixed for now
         lock: LogicValue.ofInt(0, 1), // not supported
-        cache: LogicValue.ofInt(0, rIntf.cacheWidth), // not supported
-        qos: LogicValue.ofInt(0, rIntf.qosWidth), // not supported
-        region: LogicValue.ofInt(0, rIntf.regionWidth), // not supported
-        user: LogicValue.ofInt(0, rIntf.aruserWidth), // not supported
+        cache: LogicValue.ofInt(0, rIntfC.cacheWidth), // not supported
+        qos: LogicValue.ofInt(0, rIntfC.qosWidth), // not supported
+        region: LogicValue.ofInt(0, rIntfC.regionWidth), // not supported
+        user: LogicValue.ofInt(0, rIntfC.aruserWidth), // not supported
       );
 
-      main.sequencer.add(rdPkt);
+      main.rdSequencers[currR].add(rdPkt);
       numTransfersCompleted++;
 
       // Note that driver will already serialize the reads
@@ -300,6 +314,8 @@ void main() {
     await runTest(Axi4BfmTest(
       'randeverything',
       numTransfers: 20,
+      numReads: 4,
+      numWrites: 8,
       withRandomRspDelays: true,
       withStrobes: true,
       interTxnDelay: 3,

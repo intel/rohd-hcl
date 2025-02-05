@@ -8,10 +8,10 @@
 // Author: Josh Kimmel <joshua1.kimmel@intel.com>
 
 import 'dart:async';
+import 'dart:math';
 
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
-import 'package:rohd_hcl/src/models/axi4_bfm/axi4_bfm.dart';
 import 'package:rohd_vf/rohd_vf.dart';
 
 /// A model for the subordinate side of
@@ -21,16 +21,16 @@ class Axi4SubordinateAgent extends Agent {
   final Axi4SystemInterface sIntf;
 
   /// The read interface to drive.
-  final Axi4ReadInterface rIntf;
+  final List<Axi4ReadInterface> rIntfs;
 
   /// The write interface to drive.
-  final Axi4WriteInterface wIntf;
+  final List<Axi4WriteInterface> wIntfs;
 
   /// A place where the subordinate should save and retrieve data.
   ///
   /// The [Axi4SubordinateAgent] will reset [storage] whenever
   /// the `resetN` signal is dropped.
-  final MemoryStorage storage;
+  late final MemoryStorage storage;
 
   /// A function which delays the response for the given `request`.
   ///
@@ -56,21 +56,21 @@ class Axi4SubordinateAgent extends Agent {
   final bool dropWriteDataOnError;
 
   // to handle response read responses
-  final List<Axi4ReadRequestPacket> _dataReadResponseMetadataQueue = [];
-  final List<List<LogicValue>> _dataReadResponseDataQueue = [];
-  int _dataReadResponseIndex = 0;
+  final List<List<Axi4ReadRequestPacket>> _dataReadResponseMetadataQueue = [];
+  final List<List<List<LogicValue>>> _dataReadResponseDataQueue = [];
+  final List<int> _dataReadResponseIndex = [];
 
   // to handle writes
-  final List<Axi4WriteRequestPacket> _writeMetadataQueue = [];
-  bool _writeReadyToOccur = false;
+  final List<List<Axi4WriteRequestPacket>> _writeMetadataQueue = [];
+  final List<bool> _writeReadyToOccur = [];
 
   /// Creates a new model [Axi4SubordinateAgent].
   ///
   /// If no [storage] is provided, it will use a default [SparseMemoryStorage].
   Axi4SubordinateAgent(
       {required this.sIntf,
-      required this.rIntf,
-      required this.wIntf,
+      required this.rIntfs,
+      required this.wIntfs,
       required Component parent,
       MemoryStorage? storage,
       this.readResponseDelay,
@@ -79,16 +79,33 @@ class Axi4SubordinateAgent extends Agent {
       this.invalidReadDataOnError = true,
       this.dropWriteDataOnError = true,
       String name = 'axi4SubordinateAgent'})
-      : assert(rIntf.addrWidth == wIntf.addrWidth,
-            'Read and write interfaces should have same address width.'),
-        assert(rIntf.dataWidth == wIntf.dataWidth,
-            'Read and write interfaces should have same data width.'),
-        storage = storage ??
-            SparseMemoryStorage(
-              addrWidth: rIntf.addrWidth,
-              dataWidth: rIntf.dataWidth,
-            ),
-        super(name, parent);
+      : super(name, parent) {
+    var maxAddrWidth = 0;
+    var maxDataWidth = 0;
+    for (var i = 0; i < rIntfs.length; i++) {
+      maxAddrWidth = max(maxAddrWidth, rIntfs[i].addrWidth);
+      maxDataWidth = max(maxDataWidth, rIntfs[i].dataWidth);
+    }
+    for (var i = 0; i < wIntfs.length; i++) {
+      maxAddrWidth = max(maxAddrWidth, wIntfs[i].addrWidth);
+      maxDataWidth = max(maxDataWidth, wIntfs[i].dataWidth);
+    }
+
+    storage = storage ??
+        SparseMemoryStorage(
+          addrWidth: maxAddrWidth,
+          dataWidth: maxDataWidth,
+        );
+    for (var i = 0; i < rIntfs.length; i++) {
+      _dataReadResponseMetadataQueue.add([]);
+      _dataReadResponseDataQueue.add([]);
+      _dataReadResponseIndex.add(0);
+    }
+    for (var i = 0; i < wIntfs.length; i++) {
+      _writeMetadataQueue.add([]);
+      _writeReadyToOccur.add(false);
+    }
+  }
 
   @override
   Future<void> run(Phase phase) async {
@@ -96,11 +113,16 @@ class Axi4SubordinateAgent extends Agent {
 
     sIntf.resetN.negedge.listen((event) {
       storage.reset();
-      _dataReadResponseDataQueue.clear();
-      _dataReadResponseMetadataQueue.clear();
-      _dataReadResponseIndex = 0;
-      _writeMetadataQueue.clear();
-      _writeReadyToOccur = false;
+      for (var i = 0; i < rIntfs.length; i++) {
+        _dataReadResponseDataQueue[i].clear();
+        _dataReadResponseMetadataQueue[i].clear();
+        _dataReadResponseIndex[i] = 0;
+      }
+
+      for (var i = 0; i < wIntfs.length; i++) {
+        _writeMetadataQueue[i].clear();
+        _writeReadyToOccur[i] = false;
+      }
     });
 
     // wait for reset to complete
@@ -108,12 +130,18 @@ class Axi4SubordinateAgent extends Agent {
 
     while (!Simulator.simulationHasEnded) {
       await sIntf.clk.nextNegedge;
-      _driveReadys();
-      _respondRead();
-      _respondWrite();
-      _receiveRead();
-      _captureWriteData();
-      _receiveWrite();
+      for (var i = 0; i < rIntfs.length; i++) {
+        _driveReadReadys(index: i);
+        _respondRead(index: i);
+        _receiveRead(index: i);
+      }
+
+      for (var i = 0; i < wIntfs.length; i++) {
+        _driveWriteReadys(index: i);
+        _respondWrite(index: i);
+        _captureWriteData(index: i);
+        _receiveWrite(index: i);
+      }
     }
   }
 
@@ -127,31 +155,37 @@ class Axi4SubordinateAgent extends Agent {
       ].rswizzle();
 
   // assesses the input ready signals and drives them appropriately
-  void _driveReadys() {
+  void _driveReadReadys({int index = 0}) {
     // for now, assume we can always handle a new request
-    rIntf.arReady.put(true);
-    wIntf.awReady.put(true);
-    wIntf.wReady.put(true);
+    rIntfs[index].arReady.put(true);
+  }
+
+  // assesses the input ready signals and drives them appropriately
+  void _driveWriteReadys({int index = 0}) {
+    // for now, assume we can always handle a new request
+    wIntfs[index].awReady.put(true);
+    wIntfs[index].wReady.put(true);
   }
 
   /// Receives one packet (or returns if not selected).
-  void _receiveRead() {
+  void _receiveRead({int index = 0}) {
     // work to do if main is indicating a valid read that we are ready to handle
-    if (rIntf.arValid.value.toBool() && rIntf.arReady.value.toBool()) {
-      logger.info('Received read request.');
+    if (rIntfs[index].arValid.value.toBool() &&
+        rIntfs[index].arReady.value.toBool()) {
+      logger.info('Received read request on interface $index.');
 
       final packet = Axi4ReadRequestPacket(
-          addr: rIntf.arAddr.value,
-          prot: rIntf.arProt.value,
-          id: rIntf.arId?.value,
-          len: rIntf.arLen?.value,
-          size: rIntf.arSize?.value,
-          burst: rIntf.arBurst?.value,
-          lock: rIntf.arLock?.value,
-          cache: rIntf.arCache?.value,
-          qos: rIntf.arQos?.value,
-          region: rIntf.arRegion?.value,
-          user: rIntf.arUser?.value);
+          addr: rIntfs[index].arAddr.value,
+          prot: rIntfs[index].arProt.value,
+          id: rIntfs[index].arId?.value,
+          len: rIntfs[index].arLen?.value,
+          size: rIntfs[index].arSize?.value,
+          burst: rIntfs[index].arBurst?.value,
+          lock: rIntfs[index].arLock?.value,
+          cache: rIntfs[index].arCache?.value,
+          qos: rIntfs[index].arQos?.value,
+          region: rIntfs[index].arRegion?.value,
+          user: rIntfs[index].arUser?.value);
 
       // generic model does not handle the following read request fields:
       //  cache
@@ -169,13 +203,13 @@ class Axi4SubordinateAgent extends Agent {
 
       // query storage to retrieve the data
       final data = <LogicValue>[];
-      var addrToRead = rIntf.arAddr.value;
-      final endCount = (rIntf.arLen?.value.toInt() ?? 0) + 1;
-      final dSize = (rIntf.arSize?.value.toInt() ?? 0) * 8;
+      var addrToRead = rIntfs[index].arAddr.value;
+      final endCount = (rIntfs[index].arLen?.value.toInt() ?? 0) + 1;
+      final dSize = (rIntfs[index].arSize?.value.toInt() ?? 0) * 8;
       var increment = 0;
-      if (rIntf.arBurst == null ||
-          rIntf.arBurst?.value.toInt() == Axi4BurstField.wrap.value ||
-          rIntf.arBurst?.value.toInt() == Axi4BurstField.incr.value) {
+      if (rIntfs[index].arBurst == null ||
+          rIntfs[index].arBurst?.value.toInt() == Axi4BurstField.wrap.value ||
+          rIntfs[index].arBurst?.value.toInt() == Axi4BurstField.incr.value) {
         increment = dSize ~/ 8;
       }
 
@@ -192,23 +226,24 @@ class Axi4SubordinateAgent extends Agent {
         addrToRead = addrToRead + increment;
       }
 
-      _dataReadResponseMetadataQueue.add(packet);
-      _dataReadResponseDataQueue.add(data);
+      _dataReadResponseMetadataQueue[index].add(packet);
+      _dataReadResponseDataQueue[index].add(data);
     }
   }
 
   // respond to a read request
-  void _respondRead() {
+  void _respondRead({int index = 0}) {
     // only respond if there is something to respond to
     // and the main side is indicating that it is ready to receive
-    if (_dataReadResponseMetadataQueue.isNotEmpty &&
-        _dataReadResponseDataQueue.isNotEmpty &&
-        rIntf.rReady.value.toBool()) {
-      final packet = _dataReadResponseMetadataQueue[0];
-      final currData = _dataReadResponseDataQueue[0][_dataReadResponseIndex];
+    if (_dataReadResponseMetadataQueue[index].isNotEmpty &&
+        _dataReadResponseDataQueue[index].isNotEmpty &&
+        rIntfs[index].rReady.value.toBool()) {
+      final packet = _dataReadResponseMetadataQueue[index][0];
+      final currData =
+          _dataReadResponseDataQueue[0][index][_dataReadResponseIndex[index]];
       final error = respondWithError != null && respondWithError!(packet);
-      final last =
-          _dataReadResponseIndex == _dataReadResponseDataQueue[0].length - 1;
+      final last = _dataReadResponseIndex[index] ==
+          _dataReadResponseDataQueue[index][0].length - 1;
 
       // TODO: how to deal with delays??
       // if (readResponseDelay != null) {
@@ -219,101 +254,107 @@ class Axi4SubordinateAgent extends Agent {
       // }
 
       // for now, only support sending slvErr and okay as responses
-      rIntf.rValid.put(true);
-      rIntf.rId?.put(packet.id);
-      rIntf.rData.put(currData);
-      rIntf.rResp?.put(error
-          ? LogicValue.ofInt(Axi4RespField.slvErr.value, rIntf.rResp!.width)
-          : LogicValue.ofInt(Axi4RespField.okay.value, rIntf.rResp!.width));
-      rIntf.rUser?.put(0); // don't support user field for now
-      rIntf.rLast?.put(last);
+      rIntfs[index].rValid.put(true);
+      rIntfs[index].rId?.put(packet.id);
+      rIntfs[index].rData.put(currData);
+      rIntfs[index].rResp?.put(error
+          ? LogicValue.ofInt(
+              Axi4RespField.slvErr.value, rIntfs[index].rResp!.width)
+          : LogicValue.ofInt(
+              Axi4RespField.okay.value, rIntfs[index].rResp!.width));
+      rIntfs[index].rUser?.put(0); // don't support user field for now
+      rIntfs[index].rLast?.put(last);
 
       if (last) {
         // pop this read response off the queue
-        _dataReadResponseIndex = 0;
-        _dataReadResponseMetadataQueue.removeAt(0);
-        _dataReadResponseDataQueue.removeAt(0);
+        _dataReadResponseIndex[index] = 0;
+        _dataReadResponseMetadataQueue[index].removeAt(0);
+        _dataReadResponseDataQueue[index].removeAt(0);
 
-        logger.info('Finished sending read response.');
+        logger.info('Finished sending read response for interface $index.');
       } else {
         // move to the next chunk of data
-        _dataReadResponseIndex++;
-        logger.info('Still sending the read response.');
+        _dataReadResponseIndex[index]++;
+        logger.info('Still sending the read response for interface $index.');
       }
     } else {
-      rIntf.rValid.put(false);
+      rIntfs[index].rValid.put(false);
     }
   }
 
   // handle an incoming write request
-  void _receiveWrite() {
+  void _receiveWrite({int index = 0}) {
     // work to do if main is indicating a valid + ready write
-    if (wIntf.awValid.value.toBool() && wIntf.awReady.value.toBool()) {
-      logger.info('Received write request.');
+    if (wIntfs[index].awValid.value.toBool() &&
+        wIntfs[index].awReady.value.toBool()) {
+      logger.info('Received write request on interface $index.');
       final packet = Axi4WriteRequestPacket(
-          addr: wIntf.awAddr.value,
-          prot: wIntf.awProt.value,
-          id: wIntf.awId?.value,
-          len: wIntf.awLen?.value,
-          size: wIntf.awSize?.value,
-          burst: wIntf.awBurst?.value,
-          lock: wIntf.awLock?.value,
-          cache: wIntf.awCache?.value,
-          qos: wIntf.awQos?.value,
-          region: wIntf.awRegion?.value,
-          user: wIntf.awUser?.value,
+          addr: wIntfs[index].awAddr.value,
+          prot: wIntfs[index].awProt.value,
+          id: wIntfs[index].awId?.value,
+          len: wIntfs[index].awLen?.value,
+          size: wIntfs[index].awSize?.value,
+          burst: wIntfs[index].awBurst?.value,
+          lock: wIntfs[index].awLock?.value,
+          cache: wIntfs[index].awCache?.value,
+          qos: wIntfs[index].awQos?.value,
+          region: wIntfs[index].awRegion?.value,
+          user: wIntfs[index].awUser?.value,
           data: [],
           strobe: []);
 
       // might need to capture the first data and strobe simultaneously
       // NOTE: we are dropping wUser on the floor for now...
-      if (wIntf.wValid.value.toBool() && wIntf.wReady.value.toBool()) {
-        packet.data.add(wIntf.wData.value);
-        packet.strobe.add(wIntf.wStrb.value);
-        if (wIntf.wLast.value.toBool()) {
-          _writeReadyToOccur = true;
+      if (wIntfs[index].wValid.value.toBool() &&
+          wIntfs[index].wReady.value.toBool()) {
+        packet.data.add(wIntfs[index].wData.value);
+        packet.strobe.add(wIntfs[index].wStrb.value);
+        if (wIntfs[index].wLast.value.toBool()) {
+          _writeReadyToOccur[index] = true;
         }
       }
 
       // queue up the packet for further processing
-      _writeMetadataQueue.add(packet);
+      _writeMetadataQueue[index].add(packet);
     }
   }
 
   // method to capture incoming write data after the initial request
   // note that this method does not handle the first flit of write data
   // if it is transmitted simultaneously with the write request
-  void _captureWriteData() {
+  void _captureWriteData({int index = 0}) {
     // NOTE: we are dropping wUser on the floor for now...
-    if (_writeMetadataQueue.isNotEmpty &&
-        wIntf.wValid.value.toBool() &&
-        wIntf.wReady.value.toBool()) {
-      final packet = _writeMetadataQueue[0];
-      packet.data.add(wIntf.wData.value);
-      packet.strobe.add(wIntf.wStrb.value);
-      logger.info('Captured write data.');
-      if (wIntf.wLast.value.toBool()) {
-        logger.info('Finished capturing write data.');
-        _writeReadyToOccur = true;
+    if (_writeMetadataQueue[index].isNotEmpty &&
+        wIntfs[index].wValid.value.toBool() &&
+        wIntfs[index].wReady.value.toBool()) {
+      final packet = _writeMetadataQueue[index][0];
+      packet.data.add(wIntfs[index].wData.value);
+      packet.strobe.add(wIntfs[index].wStrb.value);
+      logger.info('Captured write data on interface $index.');
+      if (wIntfs[index].wLast.value.toBool()) {
+        logger.info('Finished capturing write data on interface $index.');
+        _writeReadyToOccur[index] = true;
       }
     }
   }
 
-  void _respondWrite() {
+  void _respondWrite({int index = 0}) {
     // only work to do if we have received all of the data for our write request
-    if (_writeReadyToOccur) {
+    if (_writeReadyToOccur[index]) {
       // only respond if the main is ready
-      if (wIntf.bReady.value.toBool()) {
-        final packet = _writeMetadataQueue[0];
+      if (wIntfs[index].bReady.value.toBool()) {
+        final packet = _writeMetadataQueue[index][0];
         final error = respondWithError != null && respondWithError!(packet);
 
         // for now, only support sending slvErr and okay as responses
-        wIntf.bValid.put(true);
-        wIntf.bId?.put(packet.id);
-        wIntf.bResp?.put(error
-            ? LogicValue.ofInt(Axi4RespField.slvErr.value, wIntf.bResp!.width)
-            : LogicValue.ofInt(Axi4RespField.okay.value, wIntf.bResp!.width));
-        wIntf.bUser?.put(0); // don't support user field for now
+        wIntfs[index].bValid.put(true);
+        wIntfs[index].bId?.put(packet.id);
+        wIntfs[index].bResp?.put(error
+            ? LogicValue.ofInt(
+                Axi4RespField.slvErr.value, wIntfs[index].bResp!.width)
+            : LogicValue.ofInt(
+                Axi4RespField.okay.value, wIntfs[index].bResp!.width));
+        wIntfs[index].bUser?.put(0); // don't support user field for now
 
         // TODO: how to deal with delays??
         // if (readResponseDelay != null) {
@@ -362,13 +403,13 @@ class Axi4SubordinateAgent extends Agent {
         }
 
         // pop this write response off the queue
-        _writeMetadataQueue.removeAt(0);
-        _writeReadyToOccur = false;
+        _writeMetadataQueue[index].removeAt(0);
+        _writeReadyToOccur[index] = false;
 
-        logger.info('Sent write response.');
+        logger.info('Sent write response on interface $index.');
       }
     } else {
-      wIntf.bValid.put(false);
+      wIntfs[index].bValid.put(false);
     }
   }
 }
