@@ -19,28 +19,28 @@ class Axi4MainAgent extends Agent {
   final Axi4SystemInterface sIntf;
 
   /// AXI4 Read Interface.
-  final List<Axi4ReadInterface> rIntfs;
+  List<Axi4ReadInterface> rIntfs = [];
 
   /// AXI4 Write Interface.
-  final List<Axi4WriteInterface> wIntfs;
+  List<Axi4WriteInterface> wIntfs = [];
 
   /// The sequencers where read requests should be sent.
-  late final List<Sequencer<Axi4ReadRequestPacket>> rdSequencers;
+  final List<Sequencer<Axi4ReadRequestPacket>> rdSequencers = [];
 
   /// The sequencers where write requests should be sent.
-  late final List<Sequencer<Axi4WriteRequestPacket>> wrSequencers;
+  final List<Sequencer<Axi4WriteRequestPacket>> wrSequencers = [];
 
   /// The drivers that send read requests over the interface.
-  late final List<Axi4ReadMainDriver> rdDrivers;
+  final List<Axi4ReadMainDriver> rdDrivers = [];
 
   /// The drivers that send write requests over the interface.
-  late final List<Axi4WriteMainDriver> wrDrivers;
+  final List<Axi4WriteMainDriver> wrDrivers = [];
 
   /// Monitoring of read requests over the interface.
-  late final List<Axi4ReadMonitor> rdMonitors;
+  final List<Axi4ReadMonitor> rdMonitors = [];
 
   /// Monitoring of write requests over the interface.
-  late final List<Axi4WriteMonitor> wrMonitors;
+  final List<Axi4WriteMonitor> wrMonitors = [];
 
   /// The number of cycles before timing out if no transactions can be sent.
   final int timeoutCycles;

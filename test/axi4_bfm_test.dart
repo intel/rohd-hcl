@@ -22,8 +22,8 @@ class Axi4BfmTest extends Test {
 
   final int numReads;
   final int numWrites;
-  late final List<Axi4ReadInterface> rIntf;
-  late final List<Axi4WriteInterface> wIntf;
+  final List<Axi4ReadInterface> rIntf = [];
+  final List<Axi4WriteInterface> wIntf = [];
 
   late final Axi4MainAgent main;
 
