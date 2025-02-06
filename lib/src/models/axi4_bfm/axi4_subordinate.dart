@@ -91,7 +91,7 @@ class Axi4SubordinateAgent extends Agent {
       maxDataWidth = max(maxDataWidth, wIntfs[i].dataWidth);
     }
 
-    storage = storage ??
+    this.storage = storage ??
         SparseMemoryStorage(
           addrWidth: maxAddrWidth,
           dataWidth: maxDataWidth,
