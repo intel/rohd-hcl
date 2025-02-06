@@ -95,6 +95,9 @@ class MyRegisterBlock extends CsrBlockConfig {
             addr: i + 1, width: csrWidth, name: 'csr2_$i'));
       }
     }
+
+    registers.add(MyNoFieldCsrInstance(
+        addr: numNoFieldCsrs + 1, width: csrWidth * 2, name: 'csr3'));
   }
 }
 
@@ -138,7 +141,7 @@ class DummyCsrTopModule extends Module {
     _reset = addInput('reset', reset);
     _fdr = DataPortInterface(32, 32);
     _fdw = DataPortInterface(32, 32);
-    _top = CsrTop(config, _clk, _reset, _fdw, _fdr);
+    _top = CsrTop(config, _clk, _reset, _fdw, _fdr, allowLargerRegisters: true);
   }
 }
 
@@ -209,7 +212,8 @@ void main() {
     final reset = Logic()..put(0);
     final wIntf = DataPortInterface(csrWidth, 8);
     final rIntf = DataPortInterface(csrWidth, 8);
-    final csrBlock = CsrBlock(csrBlockCfg, clk, reset, wIntf, rIntf);
+    final csrBlock = CsrBlock(csrBlockCfg, clk, reset, wIntf, rIntf,
+        allowLargerRegisters: true);
 
     wIntf.en.put(0);
     wIntf.addr.put(0);
@@ -325,7 +329,8 @@ void main() {
     final reset = Logic()..inject(0);
     final wIntf = DataPortInterface(csrWidth, 32);
     final rIntf = DataPortInterface(csrWidth, 32);
-    final csrTop = CsrTop(csrTopCfg, clk, reset, wIntf, rIntf);
+    final csrTop =
+        CsrTop(csrTopCfg, clk, reset, wIntf, rIntf, allowLargerRegisters: true);
 
     wIntf.en.inject(0);
     wIntf.addr.inject(0);
