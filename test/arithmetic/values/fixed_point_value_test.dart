@@ -174,6 +174,32 @@ void main() {
         LogicValue.one);
   });
 
+  test('FixedPointValue: exhaustive double round-trip', () {
+    const width = 8;
+    const m = 3;
+    const n = 4;
+    for (var i = 0; i < pow(2, width); i++) {
+      final fxv = FixedPointValue(
+          value: LogicValue.ofInt(i, width), signed: true, m: m, n: n);
+      final dbl = fxv.toDouble();
+      final fxv2 = FixedPointValue.ofDouble(dbl, signed: true, m: m, n: n);
+      expect(fxv, equals(fxv2));
+    }
+  });
+
+  test('FixedPoint: Math singleton', () {
+    final fxp1 = FixedPointValue.ofDouble(signed: true, 0.25, m: 2, n: 3);
+    final fxp2 = FixedPointValue.ofDouble(signed: true, 0.25, m: 2, n: 3);
+    final exp = FixedPointValue.ofDouble(0.0625, signed: true, m: 5, n: 6);
+
+    final fxp = fxp1 * fxp2;
+    print(fxp1);
+    print(fxp2);
+    print('exp = $exp (${exp.toDouble()})');
+    print('fxp = $fxp (${fxp.toDouble()})');
+    print('1=${fxp1.toDouble()} 2=${fxp2.toDouble()} p=${fxp.toDouble()}');
+  });
+
   test('Math', () {
     const w = 4;
     FixedPointValue fxp;

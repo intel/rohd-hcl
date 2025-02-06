@@ -42,6 +42,10 @@ class FixedPoint extends Logic {
     }
   }
 
+  /// Retrieve the [FixedPointValue] of this [FixedPoint] logical signal.
+  FixedPointValue get fixedPointValue =>
+      FixedPointValue(value: value, signed: signed, m: m, n: n);
+
   /// Clone for I/O ports.
   @override
   FixedPoint clone({String? name}) => FixedPoint(signed: signed, m: m, n: n);
