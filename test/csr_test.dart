@@ -96,8 +96,12 @@ class MyRegisterBlock extends CsrBlockConfig {
       }
     }
 
-    registers.add(MyNoFieldCsrInstance(
-        addr: numNoFieldCsrs + 1, width: csrWidth * 2, name: 'csr3'));
+    // adding a register on the fly
+    // with a larger width for potential frontdoor excess
+    registers.add(CsrInstanceConfig(
+        arch: CsrConfig(name: 'csr3', access: CsrAccess.readWrite),
+        addr: numNoFieldCsrs + 2,
+        width: csrWidth * 2));
   }
 }
 
@@ -242,6 +246,7 @@ void main() {
     // grab pointers to the CSRs
     final csr1 = csrBlock.getRegisterByName('csr1');
     final csr2 = csrBlock.getRegisterByAddr(0x2);
+    final csr3 = csrBlock.getRegisterByName('csr3');
 
     // perform a reset
     reset.inject(1);
@@ -289,6 +294,30 @@ void main() {
     await clk.nextNegedge;
     rIntf.en.inject(0);
     expect(rIntf.data.value, LogicValue.ofInt(0xad00f3, rIntf.dataWidth));
+    await clk.waitCycles(10);
+
+    // perform a write of the top half of csr3
+    // then a read of the bottom half
+    // ensure that the bottom half is unchanged
+    await clk.nextNegedge;
+    wIntf.en.inject(1);
+    wIntf.addr.inject(csr3.addr + csrBlock.logicalRegisterIncrement);
+    wIntf.data.inject(0xdeadbeef);
+    await clk.nextNegedge;
+    wIntf.en.inject(0);
+    rIntf.en.inject(1);
+    rIntf.addr.inject(csr3.addr);
+    await clk.nextNegedge;
+    rIntf.en.inject(0);
+    expect(
+        rIntf.data.value, LogicValue.ofInt(csr3.resetValue, rIntf.dataWidth));
+    await clk.nextNegedge;
+    wIntf.en.inject(0);
+    rIntf.en.inject(1);
+    rIntf.addr.inject(csr3.addr + csrBlock.logicalRegisterIncrement);
+    await clk.nextNegedge;
+    rIntf.en.inject(0);
+    expect(rIntf.data.value, LogicValue.ofInt(0xdeadbeef, rIntf.dataWidth));
     await clk.waitCycles(10);
 
     // perform a read of nothing

@@ -329,7 +329,7 @@ class CsrBlock extends Module {
                 j * dataWidth,
                 csrs[i]
                     .getWriteData([
-                      if (j * dataWidth > 0) Const(0, width: j * dataWidth),
+                      if (j * dataWidth > 0) csrs[i].getRange(0, j * dataWidth),
                       _frontWrite.data.getRange(0, rem == 0 ? dataWidth : rem)
                     ].rswizzle())
                     .getRange(j * dataWidth,
@@ -340,11 +340,10 @@ class CsrBlock extends Module {
                 j * dataWidth,
                 csrs[i]
                     .getWriteData([
-                      if (j * dataWidth > 0) Const(0, width: j * dataWidth),
+                      if (j * dataWidth > 0) csrs[i].getRange(0, j * dataWidth),
                       _frontWrite.data,
                       if ((j + 1) * dataWidth < csrs[i].config.width)
-                        Const(0,
-                            width: csrs[i].config.width - (j + 1) * dataWidth),
+                        csrs[i].getRange((j + 1) * dataWidth),
                     ].rswizzle())
                     .getRange(j * dataWidth, (j + 1) * dataWidth));
           }
