@@ -156,12 +156,15 @@ class FixedPointValue implements Comparable<FixedPointValue> {
   static bool canStore(double val,
       {required bool signed, required int m, required int n}) {
     final w = signed ? 1 + m + n : m + n;
-    final bigIntegerValue = BigInt.from(val * pow(2, n));
-    final negBigIntegerValue = BigInt.from(-val * pow(2, n));
-    final l = (val < 0.0)
-        ? max(bigIntegerValue.bitLength, negBigIntegerValue.bitLength)
-        : bigIntegerValue.bitLength;
-    return l <= w;
+    if (val.isFinite) {
+      final bigIntegerValue = BigInt.from(val * pow(2, n));
+      final negBigIntegerValue = BigInt.from(-val * pow(2, n));
+      final l = (val < 0.0)
+          ? max(bigIntegerValue.bitLength, negBigIntegerValue.bitLength)
+          : bigIntegerValue.bitLength;
+      return l <= w;
+    }
+    return false;
   }
 
   /// Constructs [FixedPointValue] from a Dart [double] rounding away from zero.

@@ -234,4 +234,54 @@ void main() async {
       }
     }
   });
+  test('FloatToFixed: BF16 singleton', () {
+    final bf16 = FloatingPointBF16();
+    final bf16Val =
+        FloatingPointBF16Value.ofBinaryStrings('0', '00000000', '0000010');
+    bf16.put(bf16Val);
+    const m = 18;
+    const n = 16;
+    final convert = FloatToFixed(bf16, m: m, n: n);
+    final expectedDbl = bf16Val.toDouble();
+
+    if (FixedPointValue.canStore(expectedDbl,
+        signed: true, m: convert.m, n: convert.n)) {
+      final expected =
+          FixedPointValue.ofDouble(expectedDbl, signed: true, m: m, n: n);
+      final fixedVal = convert.fixed;
+      final computedDbl = fixedVal.fixedPointValue.toDouble();
+      final computed =
+          FixedPointValue.ofDouble(computedDbl, signed: true, m: m, n: n);
+      expect(expected, equals(computed), reason: '''
+          expected=$expected ($expectedDbl)
+          computed=$computed ($computedDbl)
+''');
+    }
+  });
+  test('FloatToFixed: BF16', () {
+    final bf16 = FloatingPointBF16()..put(0);
+    const m = 18;
+    const n = 16;
+    final convert = FloatToFixed(bf16, m: m, n: n);
+    for (var i = 0; i < pow(2, 16); i++) {
+      final val = LogicValue.ofInt(i, 16);
+      final bf16Val = FloatingPointBF16Value.ofLogicValue(val);
+      bf16.put(bf16Val);
+      final expectedDbl = bf16Val.toDouble();
+
+      if (FixedPointValue.canStore(expectedDbl,
+          signed: true, m: convert.m, n: convert.n)) {
+        final expected =
+            FixedPointValue.ofDouble(expectedDbl, signed: true, m: m, n: n);
+        final fixedVal = convert.fixed;
+        final computedDbl = fixedVal.fixedPointValue.toDouble();
+        final computed =
+            FixedPointValue.ofDouble(computedDbl, signed: true, m: m, n: n);
+        expect(expected, equals(computed), reason: '''
+          expected=$expected ($expectedDbl)
+          computed=$computed ($computedDbl)
+''');
+      }
+    }
+  });
 }

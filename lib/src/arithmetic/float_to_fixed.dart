@@ -78,6 +78,10 @@ class FloatToFixed extends Module {
           mux(jBit, exp, Const(0, width: eWidth)) -
               Const(noLossN - this.n, width: eWidth);
     }
+    // TODO(desmonddak): Could use signed shifter if we unified shift math
+    final shiftRight = ((fullMantissa.width > outputWidth)
+        ? (~shift + 1) - (fullMantissa.width - outputWidth)
+        : (~shift + 1));
 
     if (checkOverflow & ((this.m < noLossM) | (this.n < noLossN))) {
       final overFlow = Logic(name: 'overflow');
@@ -104,11 +108,7 @@ class FloatToFixed extends Module {
     final preNumber = (outputWidth >= fullMantissa.width)
         ? fullMantissa.zeroExtend(outputWidth)
         : fullMantissa.slice(-1, fullMantissa.width - outputWidth);
-    // TODO(desmonddak): Rounder is needed when shift is negative,
-    // LSB(fullMantissa) = shiftRight
-    final shiftRight = ((fullMantissa.width > outputWidth)
-        ? (~shift + 1) - (fullMantissa.width - outputWidth)
-        : (~shift + 1));
+    // TODO(desmonddak): Rounder is needed when shifting right
 
     final number = mux(shift[-1], preNumber >>> shiftRight, preNumber << shift);
 

@@ -167,8 +167,6 @@ void main() async {
     }
   });
 
-  // TODO(desmonddak): complete this test as now
-  //     FloatingPointValue.ofDouble handles infinities.
   test('Signed Q7.0 to E3M2', () async {
     final fixed = FixedPoint(signed: true, m: 7, n: 0);
     final dut = FixedToFloat(fixed, exponentWidth: 3, mantissaWidth: 2);
