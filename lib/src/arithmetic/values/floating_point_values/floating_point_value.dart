@@ -117,9 +117,9 @@ class FloatingPointValue implements Comparable<FloatingPointValue> {
   /// Return the minimum exponent of this [FloatingPointValue].
   int get minExponent => _minExp;
 
-  final int _bias;
-  final int _maxExp;
-  final int _minExp;
+  late final int _bias;
+  late final int _maxExp;
+  late final int _minExp;
 
   /// Constructor for a [FloatingPointValue] with a sign, exponent, and
   /// mantissa.
@@ -253,68 +253,74 @@ class FloatingPointValue implements Comparable<FloatingPointValue> {
   FloatingPointValue get zero => FloatingPointValue.getFloatingPointConstant(
       FloatingPointConstants.positiveZero, exponent.width, mantissa.width);
 
-  (LogicValue sign, LogicValue exponent, LogicValue mantissa) computeThingy(
-      FloatingPointConstants constantFloatingPoint) {
+  /// Return the [FloatingPointValue] represented by the given
+  /// [FloatingPointConstants] at a given [exponentWidth] and [mantissaWidth].
+  FloatingPointValue.getFloatingPointConstant(
+      FloatingPointConstants constantFloatingPoint,
+      int exponentWidth,
+      int mantissaWidth) {
+    final (String signStr, exponentStr, mantissaStr) = getFPConstantStrings(
+        constantFloatingPoint, exponentWidth, mantissaWidth);
+    FloatingPointValue.ofBinaryStrings(signStr, exponentStr, mantissaStr);
+  }
+
+  /// Return the set of binary strings for a given
+  /// [FloatingPointConstants] at a given [exponentWidth] and [mantissaWidth].
+  static (String signStr, String exponentStr, String mantissaStr)
+      getFPConstantStrings(FloatingPointConstants constantFloatingPoint,
+          int exponentWidth, int mantissaWidth) {
     switch (constantFloatingPoint) {
       /// smallest possible number
       case FloatingPointConstants.negativeInfinity:
-        return FloatingPointValue.ofBinaryStrings(
-            '1', '1' * exponentWidth, '0' * mantissaWidth);
+        return ('1', '1' * exponentWidth, '0' * mantissaWidth);
 
       /// -0.0
       case FloatingPointConstants.negativeZero:
-        return FloatingPointValue.ofBinaryStrings(
-            '1', '0' * exponentWidth, '0' * mantissaWidth);
+        return ('1', '0' * exponentWidth, '0' * mantissaWidth);
 
       /// 0.0
       case FloatingPointConstants.positiveZero:
-        return FloatingPointValue.ofBinaryStrings(
-            '0', '0' * exponentWidth, '0' * mantissaWidth);
+        return ('0', '0' * exponentWidth, '0' * mantissaWidth);
 
       /// Smallest possible number, most exponent negative, LSB set in mantissa
       case FloatingPointConstants.smallestPositiveSubnormal:
-        return FloatingPointValue.ofBinaryStrings(
-            '0', '0' * exponentWidth, '${'0' * (mantissaWidth - 1)}1');
+        return ('0', '0' * exponentWidth, '${'0' * (mantissaWidth - 1)}1');
 
       /// Largest possible subnormal, most negative exponent, mantissa all 1s
       case FloatingPointConstants.largestPositiveSubnormal:
-        return FloatingPointValue.ofBinaryStrings(
-            '0', '0' * exponentWidth, '1' * mantissaWidth);
+        return ('0', '0' * exponentWidth, '1' * mantissaWidth);
 
       /// Smallest possible positive number, most negative exponent, mantissa 0
       case FloatingPointConstants.smallestPositiveNormal:
-        return FloatingPointValue.ofBinaryStrings(
-            '0', '${'0' * (exponentWidth - 1)}1', '0' * mantissaWidth);
+        return ('0', '${'0' * (exponentWidth - 1)}1', '0' * mantissaWidth);
 
       /// Largest number smaller than one
       case FloatingPointConstants.largestLessThanOne:
-        return FloatingPointValue.ofBinaryStrings(
-            '0', '0${'1' * (exponentWidth - 2)}0', '1' * mantissaWidth);
+        return ('0', '0${'1' * (exponentWidth - 2)}0', '1' * mantissaWidth);
 
       /// The number '1.0'
       case FloatingPointConstants.one:
-        return FloatingPointValue.ofBinaryStrings(
-            '0', '0${'1' * (exponentWidth - 1)}', '0' * mantissaWidth);
+        return ('0', '0${'1' * (exponentWidth - 1)}', '0' * mantissaWidth);
 
       /// Smallest number greater than one
       case FloatingPointConstants.smallestLargerThanOne:
-        return FloatingPointValue.ofBinaryStrings('0',
-            '0${'1' * (exponentWidth - 2)}0', '${'0' * (mantissaWidth - 1)}1');
+        return (
+          '0',
+          '0${'1' * (exponentWidth - 2)}0',
+          '${'0' * (mantissaWidth - 1)}1'
+        );
 
       /// Largest positive number, most positive exponent, full mantissa
       case FloatingPointConstants.largestNormal:
-        return FloatingPointValue.ofBinaryStrings(
-            '0', '${'1' * (exponentWidth - 1)}0', '1' * mantissaWidth);
+        return ('0', '${'1' * (exponentWidth - 1)}0', '1' * mantissaWidth);
 
       /// Largest possible number
       case FloatingPointConstants.infinity:
-        return FloatingPointValue.ofBinaryStrings(
-            '0', '1' * exponentWidth, '0' * mantissaWidth);
+        return ('0', '1' * exponentWidth, '0' * mantissaWidth);
 
       /// Not a Number (NaN)
       case FloatingPointConstants.nan:
-        return FloatingPointValue.ofBinaryStrings(
-            '0', '1' * exponentWidth, '${'0' * (mantissaWidth - 1)}1');
+        return ('0', '1' * exponentWidth, '${'0' * (mantissaWidth - 1)}1');
     }
   }
 
@@ -332,16 +338,16 @@ class FloatingPointValue implements Comparable<FloatingPointValue> {
       FloatingPointRoundingMode roundingMode =
           FloatingPointRoundingMode.roundNearestEven}) {
     if (inDouble.isNaN) {
-      final thingy = computeThingy(FloatingPointConstants.nan);
+      final thingy = FloatingPointValue.getFloatingPointConstant(
+          FloatingPointConstants.nan, exponentWidth, mantissaWidth);
       this.mantissa = thingy.mantissa;
-      exponent = thingy.exponent;
-      sign = thingy.sign;
-      return;
+      this.exponent = thingy.exponent;
+      this.sign = thingy.sign;
       // return FloatingPointValue.getFloatingPointConstant(
       //     FloatingPointConstants.nan, exponentWidth, mantissaWidth);
     }
     if (inDouble.isInfinite) {
-      return FloatingPointValue.getFloatingPointConstant(
+      FloatingPointValue.getFloatingPointConstant(
           inDouble < 0.0
               ? FloatingPointConstants.negativeInfinity
               : FloatingPointConstants.infinity,
@@ -423,8 +429,12 @@ class FloatingPointValue implements Comparable<FloatingPointValue> {
     final exponent =
         LogicValue.ofBigInt(BigInt.from(max(expVal, 0)), exponentWidth);
 
-    return FloatingPointValue(
+    // TODO(desmonddak): Remove this HACK
+    final x = FloatingPointValue(
         sign: fp64.sign, exponent: exponent, mantissa: mantissa);
+    sign = x.sign;
+    this.exponent = x.exponent;
+    this.mantissa = x.mantissa;
   }
 
   /// Generate a random [FloatingPointValue], supplying random seed [rv].
