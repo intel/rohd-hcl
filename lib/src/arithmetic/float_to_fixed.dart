@@ -62,9 +62,8 @@ class FloatToFixed extends Module {
 
     final jBit = Logic(name: 'jBit')..gets(float.isNormal);
     final fullMantissa = [jBit, float.mantissa].swizzle().named('fullMantissa');
-    print('fullMantissa: ${fullMantissa.value.bitString}');
 
-    final eWidth = max(log2Ceil(this.n + this.m), float.exponent.width) + 1;
+    final eWidth = max(log2Ceil(this.n + this.m), float.exponent.width) + 2;
     final shift = Logic(name: 'shift', width: eWidth);
     final exp = (float.exponent - 1).zeroExtend(eWidth);
 
@@ -79,8 +78,6 @@ class FloatToFixed extends Module {
           mux(jBit, exp, Const(0, width: eWidth)) -
               Const(noLossN - this.n, width: eWidth);
     }
-
-    print('shift=${shift.value.toInt()}');
 
     if (checkOverflow & ((this.m < noLossM) | (this.n < noLossN))) {
       final overFlow = Logic(name: 'overflow');

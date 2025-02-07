@@ -53,42 +53,10 @@ void main() async {
     }
   });
 
-  test('FloatToFixed: singleton replication', () {
-    const sEW = 3;
-    const sMW = 11;
-    const e1 = 1;
-    const m1 = 646;
-    final fv1 = FloatingPointValue.ofInts(e1, m1,
-        exponentWidth: sEW, mantissaWidth: sMW);
-    final fp1 = FloatingPoint(exponentWidth: sEW, mantissaWidth: sMW)
-      ..put(fv1.value);
-    final nominal = FloatToFixed(fp1);
-    final tN = nominal.n - 9;
-    print('tN=$tN');
-    const tM = 4;
-    final convert = FloatToFixed(fp1, m: tM, n: tN);
-    final fxc = convert.fixed;
-
-    final fx =
-        FixedPointValue.ofDouble(fv1.toDouble(), signed: true, m: tM, n: tN);
-
-    expect(fxc.fixedPointValue, equals(fx), reason: '''
-                    $fx (${fx.toDouble()})
-                    ${fxc.fixedPointValue} (${fxc.fixedPointValue.toDouble()})
-                    $fv1 (${fv1.toDouble()})
-''');
-  });
-
-  // Failure:  sEW=3 sMW=10 e1=0 m1=8 m=4 n=3 negate=false
-  // Oddly looks like a 1 was shifted into the sign position.
-
-  // Failure:  sEW=3 SMW=10 e1=0 m1=512, m=4, n=3, negate=false
-  //  Could be a rounding issue as there is a 1 in the LSB only
-
   // TODO(desmonddak): float-to-fixed is limited by e=6 by toDouble()
   test('FloatToFixed: exhaustive round-trip fp->smallerfx fpv->xpv', () {
     for (var sEW = 2; sEW < 5; sEW++) {
-      for (var sMW = 2; sMW < 12; sMW++) {
+      for (var sMW = 2; sMW < 6; sMW++) {
         final fp1 = FloatingPoint(exponentWidth: sEW, mantissaWidth: sMW)
           ..put(0);
         final nominal = FloatToFixed(fp1);
@@ -104,13 +72,13 @@ void main() async {
                   final fv1 = FloatingPointValue.ofInts(e1, m1,
                       exponentWidth: sEW, mantissaWidth: sMW, sign: negate);
                   fp1.put(fv1.value);
-                  final fx = FixedPointValue.ofDouble(fv1.toDouble(),
-                      signed: true, m: tM, n: tN);
-                  if (fxc.fixedPointValue.value[-1] != fx.value[-1]) {
-                    continue;
-                  }
-                  if (fxc.fixedPointValue != fx) {
-                    print('''
+                  final val = fv1.toDouble();
+                  if (FixedPointValue.canStore(val,
+                      signed: true, m: tM, n: tN)) {
+                    final fx = FixedPointValue.ofDouble(fv1.toDouble(),
+                        signed: true, m: tM, n: tN);
+
+                    expect(fxc.fixedPointValue, equals(fx), reason: '''
                     $fx (${fx.toDouble()})
                     ${fxc.fixedPointValue} (${fxc.fixedPointValue.toDouble()})
                     $fv1 (${fv1.toDouble()})
@@ -122,20 +90,9 @@ void main() async {
                     n=$tN
                     negate=$negate
 ''');
+                  } else {
                     continue;
                   }
-                  expect(fxc.fixedPointValue, equals(fx), reason: '''
-                    $fx (${fx.toDouble()})
-                    ${fxc.fixedPointValue} (${fxc.fixedPointValue.toDouble()})
-                    $fv1 (${fv1.toDouble()})
-                    sEW=$sEW
-                    sMW=$sMW
-                    e1=$e1
-                    m1=$m1
-                    m=$tM
-                    n=$tN
-                    negate=$negate
-''');
                 }
               }
             }

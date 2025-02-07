@@ -182,6 +182,10 @@ void main() {
       final fxv = FixedPointValue(
           value: LogicValue.ofInt(i, width), signed: true, m: m, n: n);
       final dbl = fxv.toDouble();
+      if (!FixedPointValue.canStore(dbl,
+          signed: fxv.signed, m: fxv.m, n: fxv.n)) {
+        print('error');
+      }
       final fxv2 = FixedPointValue.ofDouble(dbl, signed: true, m: m, n: n);
       expect(fxv, equals(fxv2));
     }

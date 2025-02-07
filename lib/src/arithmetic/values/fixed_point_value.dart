@@ -151,11 +151,28 @@ class FixedPointValue implements Comparable<FixedPointValue> {
       "${(m > 0) ? '${value.slice(m + n - 1, n).bitString} ' : ''}"
       '${value.slice(n - 1, 0).toString(includeWidth: false)})';
 
+  /// Return true if double [val] be stored in FixedPointValue with [m] and [n]
+  /// lengths.
+  static bool canStore(double val,
+      {required bool signed, required int m, required int n}) {
+    final w = signed ? 1 + m + n : m + n;
+    final bigIntegerValue = BigInt.from(val * pow(2, n));
+    final negBigIntegerValue = BigInt.from(-val * pow(2, n));
+    final l = (val < 0.0)
+        ? max(bigIntegerValue.bitLength, negBigIntegerValue.bitLength)
+        : bigIntegerValue.bitLength;
+    return l <= w;
+  }
+
   /// Constructs [FixedPointValue] from a Dart [double] rounding away from zero.
   factory FixedPointValue.ofDouble(double val,
       {required bool signed, required int m, required int n}) {
     if (!signed & (val < 0)) {
       throw RohdHclException('Negative input not allowed with unsigned');
+    }
+    if (!canStore(val, signed: signed, m: m, n: n)) {
+      throw RohdHclException('Double is too long to store in '
+          'FixedPointValue: $m, $n');
     }
     final integerValue = (val * pow(2, n)).toInt();
     final w = signed ? 1 + m + n : m + n;
