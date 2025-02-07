@@ -184,7 +184,7 @@ void main() {
       final dbl = fxv.toDouble();
       if (!FixedPointValue.canStore(dbl,
           signed: fxv.signed, m: fxv.m, n: fxv.n)) {
-        print('error');
+        throw RohdHclException('generated a value that we cannot store');
       }
       final fxv2 = FixedPointValue.ofDouble(dbl, signed: true, m: m, n: n);
       expect(fxv, equals(fxv2));
