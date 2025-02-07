@@ -12,13 +12,13 @@ The [FixedPoint](https://intel.github.io/rohd-hcl/rohd_hcl/FixedPoint-class.html
 
 ## FixedToFloat
 
-This component converts a fixed-point signal to a floating point signal specified by exponent and mantissa width. The output is rounded to the nearest even (RNE) when applicable and set to infinity if the input exceed the representable range.
+The [FixedToFloat](https://intel.github.io/rohd-hcl/rohd_hcl/FixedToFloat-class.html) component converts a fixed-point signal to a floating point signal specified by exponent and mantissa width. The output is rounded to the nearest even (RNE) when applicable and set to infinity if the input exceed the representable range.
 
 ## FloatToFixed
 
 This component converts a floating-point signal to a signed fixed-point signal. Infinities and NaN's are not supported. The integer and fraction widths are auto-calculated to achieve lossless conversion.
 
-If the `m` and `n` integer and fraction widths are supplied, then lossy conversion is performed to fit the floating-point value into the fixed-point value. For testing, [FixedPointValue] has a `canStore` method to predetermine if a given double can fit.  For execution, [FloatToFixed] can perform overflow detection by setting a `checkOverflow` option.
+If the `m` and `n` integer and fraction widths are supplied, then lossy conversion is performed to fit the floating-point value into the fixed-point value. For testing, [FixedPointValue](https://intel.github.io/rohd-hcl/rohd_hcl/FixedPointValue-class.html) has a `canStore` method to predetermine if a given double can fit.  For execution, [FloatToFixed](https://intel.github.io/rohd-hcl/rohd_hcl/FloatToFixed-class.html) can perform overflow detection by setting a `checkOverflow` option, which is a property of the class and set in the constructor (default is false as it must add significant logic to do the check).
 
 ## Float8ToFixed
 

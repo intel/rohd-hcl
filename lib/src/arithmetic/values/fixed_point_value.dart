@@ -146,13 +146,12 @@ class FixedPointValue implements Comparable<FixedPointValue> {
   /// Return a string representation of FloatingPointValue.
   ///  return sign, exponent, mantissa as binary strings.
   @override
-  String toString() =>
-      "(${signed ? '${value[-1].toString(includeWidth: false)} ' : ''}"
+  String toString() => "(${signed ? '${value[-1].bitString} ' : ''}"
       "${(m > 0) ? '${value.slice(m + n - 1, n).bitString} ' : ''}"
-      '${value.slice(n - 1, 0).toString(includeWidth: false)})';
+      '${value.slice(n - 1, 0).bitString})';
 
-  /// Return true if double [val] be stored in FixedPointValue with [m] and [n]
-  /// lengths.
+  /// Return true if double [val] to be stored in [FixedPointValue]
+  /// with [m] and [n] lengths without overflowing.
   static bool canStore(double val,
       {required bool signed, required int m, required int n}) {
     final w = signed ? 1 + m + n : m + n;

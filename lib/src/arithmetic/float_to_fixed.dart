@@ -26,6 +26,9 @@ class FloatToFixed extends Module {
   /// Width of output fractional part.
   late final int n;
 
+  /// Add overflow checking logic
+  final bool checkOverflow;
+
   /// Return true if the conversion overflowed.
   Logic? get overflow => tryOutput('overflow');
 
@@ -43,7 +46,7 @@ class FloatToFixed extends Module {
   /// case that loss can occur and an optional output [overflow] will be
   ///  produced that returns true when overflow occurs.
   FloatToFixed(FloatingPoint float,
-      {super.name = 'FloatToFixed', int? m, int? n, bool checkOverflow = false})
+      {super.name = 'FloatToFixed', int? m, int? n, this.checkOverflow = false})
       : super(
             definitionName: 'FloatE${float.exponent.width}'
                 'M${float.mantissa.width}ToFixed') {
