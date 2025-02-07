@@ -77,7 +77,6 @@ class FloatingPointTF32Value extends FloatingPointValue {
   }
 
   /// Construct a [FloatingPointTF32Value] from a Logic word
-  factory FloatingPointTF32Value.ofLogicValue(LogicValue val) =>
-      FloatingPointValue.buildOfLogicValue(
-          FloatingPointTF32Value.new, exponentWidth, mantissaWidth, val);
+  FloatingPointTF32Value.ofLogicValue(LogicValue val)
+      : super.ofLogicValue(exponentWidth, mantissaWidth, val);
 }

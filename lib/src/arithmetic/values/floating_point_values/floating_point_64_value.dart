@@ -77,7 +77,6 @@ class FloatingPoint64Value extends FloatingPointValue {
   }
 
   /// Construct a [FloatingPoint32Value] from a Logic word
-  factory FloatingPoint64Value.ofLogicValue(LogicValue val) =>
-      FloatingPointValue.buildOfLogicValue(
-          FloatingPoint64Value.new, exponentWidth, mantissaWidth, val);
+  FloatingPoint64Value.ofLogicValue(LogicValue val)
+      : super.ofLogicValue(exponentWidth, mantissaWidth, val);
 }

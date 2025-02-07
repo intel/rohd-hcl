@@ -142,7 +142,6 @@ class FloatingPointBF16Value extends FloatingPointValue {
       sign: LogicValue.zero, exponent: exponent, mantissa: mantissa);
 
   /// Construct a [FloatingPointBF16Value] from a Logic word
-  factory FloatingPointBF16Value.ofLogicValue(LogicValue val) =>
-      FloatingPointValue.buildOfLogicValue(
-          FloatingPointBF16Value.new, exponentWidth, mantissaWidth, val);
+  FloatingPointBF16Value.ofLogicValue(LogicValue val)
+      : super.ofLogicValue(exponentWidth, mantissaWidth, val);
 }

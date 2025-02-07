@@ -263,25 +263,9 @@ void main() {
     expect(fpConvert, equals(fpTrunc));
   });
 
-  test('mapped subtype constructor', () {
-    final fp = FloatingPointValue.withMappedSubtype(
-      sign: LogicValue.zero,
-      exponent: LogicValue.ofString('10101'),
-      mantissa: LogicValue.ofString('10'),
-    );
-
-    expect(fp, isA<FloatingPoint8E5M2Value>());
-  });
-
-  test('mapped subtype conversion', () {
-    final fp = FloatingPointValue(
-      sign: LogicValue.zero,
-      exponent: LogicValue.ofString('10101'),
-      mantissa: LogicValue.ofString('10'),
-    );
-
-    expect(fp, isNot(isA<FloatingPoint8E5M2Value>()));
-    expect(fp.toMappedSubtype(), isA<FloatingPoint8E5M2Value>());
+  test('asdf', () {
+    FloatingPoint8E4M3Value.getFloatingPointConstant(
+        FloatingPointConstants.one);
   });
 
   test('Initializing derived type', () {

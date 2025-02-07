@@ -83,17 +83,17 @@ enum FloatingPointRoundingMode {
 @immutable
 class FloatingPointValue implements Comparable<FloatingPointValue> {
   /// The full floating point value bit storage
-  final LogicValue value;
+  late final LogicValue value = [sign, exponent, mantissa].swizzle();
 
   /// The sign of the value:  1 means a negative value
-  final LogicValue sign;
+  late final LogicValue sign;
 
   /// The exponent of the floating point: this is biased about a midpoint for
   /// positive and negative exponents
-  final LogicValue exponent;
+  late final LogicValue exponent;
 
   /// The mantissa of the floating point
-  final LogicValue mantissa;
+  late final LogicValue mantissa;
 
   /// Return the exponent value representing the true zero exponent 2^0 = 1
   ///   often termed [computeBias] or the offset of the exponent
@@ -121,41 +121,12 @@ class FloatingPointValue implements Comparable<FloatingPointValue> {
   final int _maxExp;
   final int _minExp;
 
-  /// A mapping from a `({exponentWidth, mantissaWidth})` record to a
-  /// constructor for a specific FloatingPointValue subtype. This map is used by
-  /// the [FloatingPointValue.withMappedSubtype] constructor to select the
-  /// appropriate constructor for a given set of widths.
-  ///
-  /// By default, this is populated with available subtypes from ROHD-HCL, but
-  /// it can be overridden or extended based on the user's needs.
-  static Map<
-      ({int exponentWidth, int mantissaWidth}),
-      FloatingPointValue Function(
-          {required LogicValue sign,
-          required LogicValue exponent,
-          required LogicValue mantissa})> subtypeConstructorMap = {
-    (
-      exponentWidth: FloatingPoint32Value.exponentWidth,
-      mantissaWidth: FloatingPoint32Value.mantissaWidth
-    ): FloatingPoint32Value.new,
-    (
-      exponentWidth: FloatingPoint64Value.exponentWidth,
-      mantissaWidth: FloatingPoint64Value.mantissaWidth
-    ): FloatingPoint64Value.new,
-    (exponentWidth: 4, mantissaWidth: 3): FloatingPoint8E4M3Value.new,
-    (exponentWidth: 5, mantissaWidth: 2): FloatingPoint8E5M2Value.new,
-    (exponentWidth: 5, mantissaWidth: 10): FloatingPoint16Value.new,
-    (exponentWidth: 8, mantissaWidth: 7): FloatingPointBF16Value.new,
-    (exponentWidth: 8, mantissaWidth: 10): FloatingPointTF32Value.new,
-  };
-
   /// Constructor for a [FloatingPointValue] with a sign, exponent, and
   /// mantissa.
   @protected
   FloatingPointValue(
       {required this.sign, required this.exponent, required this.mantissa})
-      : value = [sign, exponent, mantissa].swizzle(),
-        _bias = computeBias(exponent.width),
+      : _bias = computeBias(exponent.width),
         _minExp = computeMinExponent(exponent.width),
         _maxExp = computeMaxExponent(exponent.width) {
     if (sign.width != 1) {
@@ -172,31 +143,6 @@ class FloatingPointValue implements Comparable<FloatingPointValue> {
           '$constrainedExponentWidth');
     }
   }
-
-  /// Constructs a [FloatingPointValue] with a sign, exponent, and mantissa
-  /// using one of the builders provided from [subtypeConstructorMap] if
-  /// available, otherwise using the default constructor.
-  factory FloatingPointValue.withMappedSubtype(
-      {required LogicValue sign,
-      required LogicValue exponent,
-      required LogicValue mantissa}) {
-    final key = (exponentWidth: exponent.width, mantissaWidth: mantissa.width);
-
-    if (subtypeConstructorMap.containsKey(key)) {
-      return subtypeConstructorMap[key]!(
-          sign: sign, exponent: exponent, mantissa: mantissa);
-    }
-
-    return FloatingPointValue(
-        sign: sign, exponent: exponent, mantissa: mantissa);
-  }
-
-  /// Converts this [FloatingPointValue] to a [FloatingPointValue] with the same
-  /// sign, exponent, and mantissa using the constructor provided in
-  /// [subtypeConstructorMap] if available, otherwise using the default
-  /// constructor.
-  FloatingPointValue toMappedSubtype() => FloatingPointValue.withMappedSubtype(
-      sign: sign, exponent: exponent, mantissa: mantissa);
 
   /// [constrainedMantissaWidth] is the hard-coded mantissa width of the
   /// sub-class of this floating-point value
@@ -273,34 +219,13 @@ class FloatingPointValue implements Comparable<FloatingPointValue> {
                 LogicValue.ofBigInt(BigInt.from(mantissa), mantissaWidth));
 
   /// Construct a [FloatingPointValue] from a [LogicValue]
-  factory FloatingPointValue.ofLogicValue(
-          int exponentWidth, int mantissaWidth, LogicValue val) =>
-      buildOfLogicValue(
-          FloatingPointValue.new, exponentWidth, mantissaWidth, val);
-
-  /// A helper function for [FloatingPointValue.ofLogicValue] and base classes
-  /// which performs some width checks and slicing.
-  @protected
-  static T buildOfLogicValue<T extends FloatingPointValue>(
-    T Function(
-            {required LogicValue sign,
-            required LogicValue exponent,
-            required LogicValue mantissa})
-        constructor,
-    int exponentWidth,
-    int mantissaWidth,
-    LogicValue val,
-  ) {
-    final expectedWidth = 1 + exponentWidth + mantissaWidth;
-    if (val.width != expectedWidth) {
-      throw RohdHclException('Width of $val must be $expectedWidth');
-    }
-
-    return constructor(
-        sign: val[-1],
-        exponent: val.slice(exponentWidth + mantissaWidth - 1, mantissaWidth),
-        mantissa: val.slice(mantissaWidth - 1, 0));
-  }
+  FloatingPointValue.ofLogicValue(
+      int exponentWidth, int mantissaWidth, LogicValue val)
+      : this(
+          sign: val[-1],
+          exponent: val.getRange(mantissaWidth, mantissaWidth + exponentWidth),
+          mantissa: val.getRange(0, mantissaWidth),
+        );
 
   /// Abbreviation Functions for common constants
 
@@ -328,11 +253,8 @@ class FloatingPointValue implements Comparable<FloatingPointValue> {
   FloatingPointValue get zero => FloatingPointValue.getFloatingPointConstant(
       FloatingPointConstants.positiveZero, exponent.width, mantissa.width);
 
-  /// Return the [FloatingPointValue] representing the constant specified
-  factory FloatingPointValue.getFloatingPointConstant(
-      FloatingPointConstants constantFloatingPoint,
-      int exponentWidth,
-      int mantissaWidth) {
+  (LogicValue sign, LogicValue exponent, LogicValue mantissa) computeThingy(
+      FloatingPointConstants constantFloatingPoint) {
     switch (constantFloatingPoint) {
       /// smallest possible number
       case FloatingPointConstants.negativeInfinity:
@@ -404,21 +326,19 @@ class FloatingPointValue implements Comparable<FloatingPointValue> {
 // The algorithm needs to extend with zeros and handle.
 
   /// Convert from double using its native binary representation
-  factory FloatingPointValue.ofDouble(double inDouble,
+  FloatingPointValue.ofDouble(double inDouble,
       {required int exponentWidth,
       required int mantissaWidth,
       FloatingPointRoundingMode roundingMode =
           FloatingPointRoundingMode.roundNearestEven}) {
-    if ((exponentWidth == 8) && (mantissaWidth == 23)) {
-      // TODO(desmonddak): handle rounding mode for 32 bit?
-      return FloatingPoint32Value.ofDouble(inDouble);
-    } else if ((exponentWidth == 11) && (mantissaWidth == 52)) {
-      return FloatingPoint64Value.ofDouble(inDouble);
-    }
-
     if (inDouble.isNaN) {
-      return FloatingPointValue.getFloatingPointConstant(
-          FloatingPointConstants.nan, exponentWidth, mantissaWidth);
+      final thingy = computeThingy(FloatingPointConstants.nan);
+      this.mantissa = thingy.mantissa;
+      exponent = thingy.exponent;
+      sign = thingy.sign;
+      return;
+      // return FloatingPointValue.getFloatingPointConstant(
+      //     FloatingPointConstants.nan, exponentWidth, mantissaWidth);
     }
     if (inDouble.isInfinite) {
       return FloatingPointValue.getFloatingPointConstant(

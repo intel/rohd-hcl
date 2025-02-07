@@ -104,9 +104,8 @@ class FloatingPoint8E4M3Value extends FloatingPointValue {
   }
 
   /// Construct a [FloatingPoint8E4M3Value] from a Logic word
-  factory FloatingPoint8E4M3Value.ofLogicValue(LogicValue val) =>
-      FloatingPointValue.buildOfLogicValue(
-          FloatingPoint8E4M3Value.new, exponentWidth, mantissaWidth, val);
+  FloatingPoint8E4M3Value.ofLogicValue(LogicValue val)
+      : super.ofLogicValue(exponentWidth, mantissaWidth, val);
 
   /// Return the [FloatingPointValue] representing the constant specified.
   /// Special case for 8E4M3 type.
@@ -200,7 +199,6 @@ class FloatingPoint8E5M2Value extends FloatingPointValue {
   }
 
   /// Construct a [FloatingPoint8E5M2Value] from a Logic word
-  factory FloatingPoint8E5M2Value.ofLogicValue(LogicValue val) =>
-      FloatingPointValue.buildOfLogicValue(
-          FloatingPoint8E5M2Value.new, exponentWidth, mantissaWidth, val);
+  FloatingPoint8E5M2Value.ofLogicValue(LogicValue val)
+      : super.ofLogicValue(exponentWidth, mantissaWidth, val);
 }
