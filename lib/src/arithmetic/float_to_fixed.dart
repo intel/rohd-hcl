@@ -65,31 +65,36 @@ class FloatToFixed extends Module {
 
     final eWidth = max(log2Ceil(this.n + this.m), float.exponent.width) + 2;
     final shift = Logic(name: 'shift', width: eWidth);
-    final exp = (float.exponent - 1).zeroExtend(eWidth);
+    final exp = (float.exponent - 1).zeroExtend(eWidth).named('expMinus1');
 
     if (this.n > noLossN) {
       shift <=
           mux(jBit, exp, Const(0, width: eWidth)) +
-              Const(this.n - noLossN, width: eWidth);
+              Const(this.n - noLossN, width: eWidth).named('deltaN');
     } else if (this.n == noLossN) {
       shift <= mux(jBit, exp, Const(0, width: eWidth));
     } else {
       shift <=
           mux(jBit, exp, Const(0, width: eWidth)) -
-              Const(noLossN - this.n, width: eWidth);
+              Const(noLossN - this.n, width: eWidth).named('deltaN');
     }
     // TODO(desmonddak): Could use signed shifter if we unified shift math
     final shiftRight = ((fullMantissa.width > outputWidth)
-        ? (~shift + 1) - (fullMantissa.width - outputWidth)
-        : (~shift + 1));
+            ? (~shift + 1) - (fullMantissa.width - outputWidth)
+            : (~shift + 1))
+        .named('shiftRight');
 
     if (checkOverflow & ((this.m < noLossM) | (this.n < noLossN))) {
       final overFlow = Logic(name: 'overflow');
-      final leadDetect = ParallelPrefixPriorityEncoder(fullMantissa.reversed);
+      final leadDetect = ParallelPrefixPriorityEncoder(fullMantissa.reversed,
+          name: 'leadone_detector');
 
       final sWidth = max(eWidth, leadDetect.out.width);
-      final fShift = shift.zeroExtend(sWidth);
-      final leadOne = leadDetect.out.zeroExtend(sWidth);
+      final fShift = shift.zeroExtend(sWidth).named('wideShift');
+      final leadOne = leadDetect.out
+          .named('leadOneRaw')
+          .zeroExtend(sWidth)
+          .named('leadOne');
 
       Combinational([
         If(jBit, then: [
@@ -105,14 +110,16 @@ class FloatToFixed extends Module {
       ]);
       addOutput('overflow') <= overFlow;
     }
-    final preNumber = (outputWidth >= fullMantissa.width)
-        ? fullMantissa.zeroExtend(outputWidth)
-        : fullMantissa.slice(-1, fullMantissa.width - outputWidth);
+    final preNumber = ((outputWidth >= fullMantissa.width)
+            ? fullMantissa.zeroExtend(outputWidth)
+            : fullMantissa.slice(-1, fullMantissa.width - outputWidth))
+        .named('newMantissaPreShift');
     // TODO(desmonddak): Rounder is needed when shifting right
 
-    final number = mux(shift[-1], preNumber >>> shiftRight, preNumber << shift);
+    final number = mux(shift[-1], preNumber >>> shiftRight, preNumber << shift)
+        .named('number');
 
-    _fixed <= mux(float.sign, ~number + 1, number);
+    _fixed <= mux(float.sign, (~number + 1).named('negNumber'), number);
     addOutput('fixed', width: outputWidth) <= _fixed;
   }
 }
