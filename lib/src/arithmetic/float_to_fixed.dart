@@ -88,7 +88,7 @@ class FloatToFixed extends Module {
         .named('shiftRight');
 
     if (checkOverflow & ((this.m < noLossM) | (this.n < noLossN))) {
-      final overFlow = Logic(name: 'overflow');
+      final overflow = Logic(name: 'overflow');
       final leadDetect = ParallelPrefixPriorityEncoder(fullMantissa.reversed,
           name: 'leadone_detector');
 
@@ -101,17 +101,17 @@ class FloatToFixed extends Module {
 
       Combinational([
         If(jBit, then: [
-          overFlow < shift.gte(outputWidth - float.mantissa.width - 1),
+          overflow < shift.gte(outputWidth - float.mantissa.width - 1),
         ], orElse: [
           If(fShift.gt(leadOne), then: [
-            overFlow <
+            overflow <
                 (fShift - leadOne).gte(outputWidth - float.mantissa.width - 1),
           ], orElse: [
-            overFlow < Const(0),
+            overflow < Const(0),
           ]),
         ]),
       ]);
-      addOutput('overflow') <= overFlow;
+      addOutput('overflow') <= overflow;
     }
     final preNumber = ((outputWidth >= fullMantissa.width)
             ? fullMantissa.zeroExtend(outputWidth)
