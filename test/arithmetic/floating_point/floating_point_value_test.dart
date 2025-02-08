@@ -263,9 +263,18 @@ void main() {
     expect(fpConvert, equals(fpTrunc));
   });
 
-  test('asdf', () {
+  test('get constants', () {
+    //TODO: try lots of types, lots of constants
     FloatingPoint8E4M3Value.getFloatingPointConstant(
         FloatingPointConstants.one);
+  });
+
+  test('operations return same type', () {
+    //TODO: more types and operations
+    expect(
+        FloatingPoint8E4M3Value.ofDouble(1.0) +
+            FloatingPoint8E4M3Value.ofDouble(2.1),
+        isA<FloatingPoint8E4M3Value>());
   });
 
   test('Initializing derived type', () {
