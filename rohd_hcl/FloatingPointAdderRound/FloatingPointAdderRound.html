@@ -378,9 +378,9 @@ functions.
   final isR = (deltaFlopped.gte(Const(2, width: delta.width)) |
           ~effectiveSubtractionFlopped)
       .named(&#39;isR&#39;);
+  final infExponent = outputSum.inf(sign: largerSignFlopped).exponent;
 
   final inf = outputSum.inf(sign: largerSignFlopped);
-  final infExponent = inf.exponent;
 
   final realIsInfRPath =
       exponentRPath.eq(infExponent).named(&#39;realIsInfRPath&#39;);
@@ -411,7 +411,7 @@ functions.
             outputSum.sign &lt; signNPath,
             outputSum.exponent &lt; exponentNPath,
             outputSum.mantissa &lt; finalSignificandNPath,
-          ])
+          ]),
         ])
       ])
     ])

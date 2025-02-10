@@ -96,7 +96,10 @@ for the leading-1 detection during normalization.</li>
         NativeAdder.new,
     super.name})
     : sourceExponentWidth = source.exponent.width,
-      sourceMantissaWidth = source.mantissa.width {
+      sourceMantissaWidth = source.mantissa.width,
+      super(
+          definitionName: &#39;FloatingPointConverter_${source.runtimeType}_&#39;
+              &#39;${destination.runtimeType}&#39;) {
   destExponentWidth = destination.exponent.width;
   destMantissaWidth = destination.mantissa.width;
   source = source.clone(name: &#39;source&#39;)

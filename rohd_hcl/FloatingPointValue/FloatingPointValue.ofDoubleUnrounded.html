@@ -144,15 +144,6 @@ factory FloatingPointValue.ofDoubleUnrounded(double inDouble,
       ? fullLength - mantissaWidth - scaleToWhole
       : FloatingPointValue.computeMinExponent(exponentWidth);
 
-  if (e &gt; FloatingPointValue.computeMaxExponent(exponentWidth) + 1) {
-    return FloatingPointValue.getFloatingPointConstant(
-        sign.toBool()
-            ? FloatingPointConstants.negativeInfinity
-            : FloatingPointConstants.infinity,
-        exponentWidth,
-        mantissaWidth);
-  }
-
   if (e &lt;= -FloatingPointValue.computeBias(exponentWidth)) {
     fullValue = fullValue &gt;&gt;&gt;
         (scaleToWhole - FloatingPointValue.computeBias(exponentWidth));
@@ -163,6 +154,15 @@ factory FloatingPointValue.ofDoubleUnrounded(double inDouble,
     if (e &gt; -FloatingPointValue.computeBias(exponentWidth)) {
       fullValue = fullValue &lt;&lt; 1; &#47;&#47; Chop the first &#39;1&#39;
     }
+  }
+
+  if (e &gt; FloatingPointValue.computeMaxExponent(exponentWidth)) {
+    return FloatingPointValue.getFloatingPointConstant(
+        sign.toBool()
+            ? FloatingPointConstants.negativeInfinity
+            : FloatingPointConstants.infinity,
+        exponentWidth,
+        mantissaWidth);
   }
   &#47;&#47; We reverse so that we fit into a shorter BigInt, we keep the MSB.
   &#47;&#47; The conversion fills leftward.

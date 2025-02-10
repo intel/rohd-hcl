@@ -108,6 +108,7 @@
 
   var expVal = (exponent64.toInt() - fp64.bias) +
       FloatingPointValue.computeBias(exponentWidth);
+
   &#47;&#47; Handle subnormal
   final mantissa64 = [
     if (expVal &lt;= 0)
@@ -137,6 +138,16 @@
         }
       }
     }
+  }
+  if (expVal &gt;
+      FloatingPointValue.computeMaxExponent(exponentWidth) +
+          FloatingPointValue.computeBias(exponentWidth)) {
+    return FloatingPointValue.getFloatingPointConstant(
+        fp64.sign.toBool()
+            ? FloatingPointConstants.negativeInfinity
+            : FloatingPointConstants.infinity,
+        exponentWidth,
+        mantissaWidth);
   }
 
   &#47;&#47; TODO(desmonddak): how to convert to infinity and check that it is
