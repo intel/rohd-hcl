@@ -14,6 +14,26 @@ import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
 import 'package:rohd_vf/rohd_vf.dart';
 
+/// A repesentation of an address region for the
+/// AXI Subordinate. Regions can have access modes
+/// and can be leveraged for wrapping bursts.
+class AxiAddressRange {
+  /// Starting address of the range.
+  final LogicValue start;
+  
+  /// Ending address of the range (exclusive).
+  final LogicValue end;
+
+  /// Secure region.
+  final bool isSecure;
+  
+  /// Only accessible in privileged mode.
+  final bool isPrivileged;
+
+  /// Constructor.
+  AxiAddressRange({required this.start, required this.end, this.isSecure = false, this.isPrivileged = false});
+}
+
 /// A model for the subordinate side of
 /// an [Axi4ReadInterface] and [Axi4WriteInterface].
 class Axi4SubordinateAgent extends Agent {
@@ -55,6 +75,11 @@ class Axi4SubordinateAgent extends Agent {
   /// [storage].
   final bool dropWriteDataOnError;
 
+  /// Address range configuration. Controls access to addresses and helps
+  /// with the wrap mode for bursts.
+  /// TODO: ensure non-overlapping??
+  List<AxiAddressRange> ranges = [];
+
   // to handle response read responses
   final List<List<Axi4ReadRequestPacket>> _dataReadResponseMetadataQueue = [];
   final List<List<List<LogicValue>>> _dataReadResponseDataQueue = [];
@@ -78,6 +103,7 @@ class Axi4SubordinateAgent extends Agent {
       this.respondWithError,
       this.invalidReadDataOnError = true,
       this.dropWriteDataOnError = true,
+      this.ranges = const [],
       String name = 'axi4SubordinateAgent'})
       : super(name, parent) {
     var maxAddrWidth = 0;
@@ -154,6 +180,17 @@ class Axi4SubordinateAgent extends Agent {
               .getRange(i * 8, i * 8 + 8)
       ].rswizzle();
 
+  // find the index of the region that the provided address falls in
+  // if none, return -1
+  int _checkRegion(LogicValue addr) {
+    for (var j=0; j<ranges.length; j++) {
+      if ((addr >= ranges[j].start).toBool() && (addr < ranges[j].end).toBool()) {
+        return j;
+      }
+    }
+    return -1;
+  }
+
   // assesses the input ready signals and drives them appropriately
   void _driveReadReadys({int index = 0}) {
     // for now, assume we can always handle a new request
@@ -212,6 +249,10 @@ class Axi4SubordinateAgent extends Agent {
           rIntfs[index].arBurst?.value.toInt() == Axi4BurstField.incr.value) {
         increment = dSize ~/ 8;
       }
+      
+      // determine if the address falls in a region
+      final region = _checkRegion(addrToRead);
+      final inRegion = region >= 0;
 
       for (var i = 0; i < endCount; i++) {
         var currData = storage.readData(addrToRead);
@@ -223,7 +264,22 @@ class Axi4SubordinateAgent extends Agent {
           }
         }
         data.add(currData);
-        addrToRead = addrToRead + increment;
+        if (inRegion && (addrToRead + increment >= ranges[region].end).toBool()) {
+          // the original access fell in a region but the next access in
+          // the burst overflows the region
+          if (rIntfs[index].arBurst?.value.toInt() == Axi4BurstField.wrap.value) {
+            // indication that we should wrap around back to the region start
+            addrToRead = ranges[region].start;
+          }
+          else {
+            // OK to overflow
+            addrToRead = addrToRead + increment;
+          }
+        }
+        else {
+          // no region or overflow
+          addrToRead = addrToRead + increment;
+        }
       }
 
       _dataReadResponseMetadataQueue[index].add(packet);
@@ -245,6 +301,13 @@ class Axi4SubordinateAgent extends Agent {
       final last = _dataReadResponseIndex[index] ==
           _dataReadResponseDataQueue[index][0].length - 1;
 
+      
+      // check the request's region for legality
+      final region = _checkRegion(packet.addr);
+      final inRegion = region >= 0;
+
+      final accessError = inRegion && ((ranges[region].isSecure && ((packet.prot.toInt() & Axi4ProtField.secure.value) == 0)) || (ranges[region].isPrivileged && ((packet.prot.toInt() & Axi4ProtField.privileged.value) == 0)));
+
       // TODO: how to deal with delays??
       // if (readResponseDelay != null) {
       //   final delayCycles = readResponseDelay!(packet);
@@ -257,7 +320,7 @@ class Axi4SubordinateAgent extends Agent {
       rIntfs[index].rValid.put(true);
       rIntfs[index].rId?.put(packet.id);
       rIntfs[index].rData.put(currData);
-      rIntfs[index].rResp?.put(error
+      rIntfs[index].rResp?.put(error | accessError
           ? LogicValue.ofInt(
               Axi4RespField.slvErr.value, rIntfs[index].rResp!.width)
           : LogicValue.ofInt(
@@ -265,7 +328,7 @@ class Axi4SubordinateAgent extends Agent {
       rIntfs[index].rUser?.put(0); // don't support user field for now
       rIntfs[index].rLast?.put(last);
 
-      if (last) {
+      if (last || accessError) {
         // pop this read response off the queue
         _dataReadResponseIndex[index] = 0;
         _dataReadResponseMetadataQueue[index].removeAt(0);
@@ -344,12 +407,19 @@ class Axi4SubordinateAgent extends Agent {
       // only respond if the main is ready
       if (wIntfs[index].bReady.value.toBool()) {
         final packet = _writeMetadataQueue[index][0];
+        
+        // determine if the address falls in a region
+        var addrToWrite = packet.addr;
+        final region = _checkRegion(addrToWrite);
+        final inRegion = region >= 0;
+        final accessError = inRegion && ((ranges[region].isSecure && ((packet.prot.toInt() & Axi4ProtField.secure.value) == 0)) || (ranges[region].isPrivileged && ((packet.prot.toInt() & Axi4ProtField.privileged.value) == 0)));
+        
         final error = respondWithError != null && respondWithError!(packet);
 
         // for now, only support sending slvErr and okay as responses
         wIntfs[index].bValid.put(true);
         wIntfs[index].bId?.put(packet.id);
-        wIntfs[index].bResp?.put(error
+        wIntfs[index].bResp?.put(error || accessError
             ? LogicValue.ofInt(
                 Axi4RespField.slvErr.value, wIntfs[index].bResp!.width)
             : LogicValue.ofInt(
@@ -378,9 +448,8 @@ class Axi4SubordinateAgent extends Agent {
         // NOTE: generic model doesn't honor the lock field in write requests.
         // It will be added as a feature request in the future.
 
-        if (!error || !dropWriteDataOnError) {
+        if (!error && !dropWriteDataOnError && !accessError) {
           // write the data to the storage
-          var addrToWrite = packet.addr;
           final dSize = (packet.size?.toInt() ?? 0) * 8;
           var increment = 0;
           if (packet.burst == null ||
@@ -398,7 +467,22 @@ class Axi4SubordinateAgent extends Agent {
                     .rswizzle()
                 : strobedData;
             storage.writeData(addrToWrite, wrData);
-            addrToWrite = addrToWrite + increment;
+            if (inRegion && (addrToWrite + increment >= ranges[region].end).toBool()) {
+              // the original access fell in a region but the next access in
+              // the burst overflows the region
+              if (packet.burst!.toInt() == Axi4BurstField.wrap.value) {
+                // indication that we should wrap around back to the region start
+                addrToWrite = ranges[region].start;
+              }
+              else {
+                // OK to overflow
+                addrToWrite = addrToWrite + increment;
+              }
+            }
+            else {
+              // no region or overflow
+              addrToWrite = addrToWrite + increment;
+            }
           }
         }
 
