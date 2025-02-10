@@ -56,7 +56,10 @@ class FloatingPointConverter extends Module {
           NativeAdder.new,
       super.name})
       : sourceExponentWidth = source.exponent.width,
-        sourceMantissaWidth = source.mantissa.width {
+        sourceMantissaWidth = source.mantissa.width,
+        super(
+            definitionName: 'FloatingPointConverter_${source.runtimeType}_'
+                '${destination.runtimeType}') {
     destExponentWidth = destination.exponent.width;
     destMantissaWidth = destination.mantissa.width;
     source = source.clone(name: 'source')

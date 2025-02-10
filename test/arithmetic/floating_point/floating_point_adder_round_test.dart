@@ -355,8 +355,8 @@ void main() {
         exponentWidth: exponentWidth, mantissaWidth: mantissaWidth);
     fp1.put(0);
     fp2.put(0);
-    final fv1 = FloatingPointValue.ofBinaryStrings('0', '1100', '0000');
-    final fv2 = FloatingPointValue.ofBinaryStrings('1', '1100', '0000');
+    final fv1 = FloatingPointValue.ofBinaryStrings('0', '1110', '1111');
+    final fv2 = FloatingPointValue.ofBinaryStrings('0', '1110', '0000');
 
     fp1.put(fv1);
     fp2.put(fv2);
