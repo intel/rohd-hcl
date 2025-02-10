@@ -11,52 +11,68 @@ import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
 import 'package:test/test.dart';
 
+import 'axi4_bfm_test.dart';
+
 class Axi4Subordinate extends Module {
-  Axi4Subordinate(Axi4SystemInterface sIntf, List<Axi4ReadInterface> rIntfs,
-      List<Axi4WriteInterface> wIntfs) {
+  Axi4Subordinate(Axi4SystemInterface sIntf, List<Axi4Channel> channels) {
     sIntf = Axi4SystemInterface()
       ..connectIO(this, sIntf, inputTags: {Axi4Direction.misc});
 
-    for (var i = 0; i < rIntfs.length; i++) {
-      rIntfs.add(Axi4ReadInterface.clone(rIntfs[i])
-        ..connectIO(this, rIntfs[i],
-            inputTags: {Axi4Direction.fromMain},
-            outputTags: {Axi4Direction.fromSubordinate}));
-    }
-
-    for (var i = 0; i < wIntfs.length; i++) {
-      wIntfs.add(Axi4WriteInterface.clone(wIntfs[i])
-        ..connectIO(this, wIntfs[i],
-            inputTags: {Axi4Direction.fromMain},
-            outputTags: {Axi4Direction.fromSubordinate}));
+    final channelsL = <Axi4Channel>[];
+    for (var i = 0; i < channels.length; i++) {
+      channelsL.add(Axi4Channel(
+          channelId: channels[i].channelId,
+          hasRead: channels[i].hasRead,
+          hasWrite: channels[i].hasWrite,
+          rIntf: channels[i].hasRead
+              ? (Axi4ReadInterface.clone(channels[i].rIntf!)
+                ..connectIO(this, channels[i].rIntf!,
+                    inputTags: {Axi4Direction.fromMain},
+                    outputTags: {Axi4Direction.fromSubordinate}))
+              : null,
+          wIntf: channels[i].hasWrite
+              ? (Axi4WriteInterface.clone(channels[i].wIntf!)
+                ..connectIO(this, channels[i].wIntf!,
+                    inputTags: {Axi4Direction.fromMain},
+                    outputTags: {Axi4Direction.fromSubordinate}))
+              : null));
     }
   }
 }
 
 class Axi4Main extends Module {
-  Axi4Main(Axi4SystemInterface sIntf, List<Axi4ReadInterface> rIntfs,
-      List<Axi4WriteInterface> wIntfs) {
+  Axi4Main(Axi4SystemInterface sIntf, List<Axi4Channel> channels) {
     sIntf = Axi4SystemInterface()
       ..connectIO(this, sIntf, inputTags: {Axi4Direction.misc});
 
-    for (var i = 0; i < rIntfs.length; i++) {
-      rIntfs.add(Axi4ReadInterface.clone(rIntfs[i])
-        ..connectIO(this, rIntfs[i],
-            inputTags: {Axi4Direction.fromSubordinate},
-            outputTags: {Axi4Direction.fromMain}));
-    }
-
-    for (var i = 0; i < wIntfs.length; i++) {
-      wIntfs.add(Axi4WriteInterface.clone(wIntfs[i])
-        ..connectIO(this, wIntfs[i],
-            inputTags: {Axi4Direction.fromSubordinate},
-            outputTags: {Axi4Direction.fromMain}));
+    final channelsL = <Axi4Channel>[];
+    for (var i = 0; i < channels.length; i++) {
+      channelsL.add(Axi4Channel(
+          channelId: channels[i].channelId,
+          hasRead: channels[i].hasRead,
+          hasWrite: channels[i].hasWrite,
+          rIntf: channels[i].hasRead
+              ? (Axi4ReadInterface.clone(channels[i].rIntf!)
+                ..connectIO(this, channels[i].rIntf!,
+                    inputTags: {Axi4Direction.fromSubordinate},
+                    outputTags: {Axi4Direction.fromMain}))
+              : null,
+          wIntf: channels[i].hasWrite
+              ? (Axi4WriteInterface.clone(channels[i].wIntf!)
+                ..connectIO(this, channels[i].wIntf!,
+                    inputTags: {Axi4Direction.fromSubordinate},
+                    outputTags: {Axi4Direction.fromMain}))
+              : null));
     }
   }
 }
 
 class Axi4Pair extends Module {
-  Axi4Pair(Logic clk, Logic reset, {int numReads = 1, int numWrites = 1}) {
+  Axi4Pair(Logic clk, Logic reset,
+      {int numChannels = 1,
+      List<Axi4BfmTestChannelConfig> channelConfigs = const [
+        Axi4BfmTestChannelConfig.readWrite
+      ]}) {
     clk = addInput('clk', clk);
     reset = addInput('reset', reset);
 
@@ -64,18 +80,22 @@ class Axi4Pair extends Module {
     sIntf.clk <= clk;
     sIntf.resetN <= ~reset;
 
-    final rIntf = <Axi4ReadInterface>[];
-    for (var i = 0; i < numReads; i++) {
-      rIntf.add(Axi4ReadInterface());
+    final channels = <Axi4Channel>[];
+    for (var i = 0; i < numChannels; i++) {
+      final hasRead = channelConfigs[i] == Axi4BfmTestChannelConfig.read ||
+          channelConfigs[i] == Axi4BfmTestChannelConfig.readWrite;
+      final hasWrite = channelConfigs[i] == Axi4BfmTestChannelConfig.write ||
+          channelConfigs[i] == Axi4BfmTestChannelConfig.readWrite;
+      channels.add(Axi4Channel(
+          channelId: i,
+          hasRead: hasRead,
+          hasWrite: hasWrite,
+          rIntf: hasRead ? Axi4ReadInterface() : null,
+          wIntf: hasWrite ? Axi4WriteInterface() : null));
     }
 
-    final wIntf = <Axi4WriteInterface>[];
-    for (var i = 0; i < numWrites; i++) {
-      wIntf.add(Axi4WriteInterface());
-    }
-
-    Axi4Main(sIntf, rIntf, wIntf);
-    Axi4Subordinate(sIntf, rIntf, wIntf);
+    Axi4Main(sIntf, channels);
+    Axi4Subordinate(sIntf, channels);
   }
 }
 

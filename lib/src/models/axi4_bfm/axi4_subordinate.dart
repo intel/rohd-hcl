@@ -20,18 +20,22 @@ import 'package:rohd_vf/rohd_vf.dart';
 class AxiAddressRange {
   /// Starting address of the range.
   final LogicValue start;
-  
+
   /// Ending address of the range (exclusive).
   final LogicValue end;
 
   /// Secure region.
   final bool isSecure;
-  
+
   /// Only accessible in privileged mode.
   final bool isPrivileged;
 
   /// Constructor.
-  AxiAddressRange({required this.start, required this.end, this.isSecure = false, this.isPrivileged = false});
+  AxiAddressRange(
+      {required this.start,
+      required this.end,
+      this.isSecure = false,
+      this.isPrivileged = false});
 }
 
 /// A model for the subordinate side of
@@ -40,11 +44,8 @@ class Axi4SubordinateAgent extends Agent {
   /// The system interface.
   final Axi4SystemInterface sIntf;
 
-  /// The read interface to drive.
-  final List<Axi4ReadInterface> rIntfs;
-
-  /// The write interface to drive.
-  final List<Axi4WriteInterface> wIntfs;
+  /// Channels that the subordinate manages.
+  final List<Axi4Channel> channels;
 
   /// A place where the subordinate should save and retrieve data.
   ///
@@ -89,13 +90,16 @@ class Axi4SubordinateAgent extends Agent {
   final List<List<Axi4WriteRequestPacket>> _writeMetadataQueue = [];
   final List<bool> _writeReadyToOccur = [];
 
+  // capture mapping of channel ID to TB object index
+  final Map<int, int> _readAddrToChannel = {};
+  final Map<int, int> _writeAddrToChannel = {};
+
   /// Creates a new model [Axi4SubordinateAgent].
   ///
   /// If no [storage] is provided, it will use a default [SparseMemoryStorage].
   Axi4SubordinateAgent(
       {required this.sIntf,
-      required this.rIntfs,
-      required this.wIntfs,
+      required this.channels,
       required Component parent,
       MemoryStorage? storage,
       this.readResponseDelay,
@@ -108,13 +112,15 @@ class Axi4SubordinateAgent extends Agent {
       : super(name, parent) {
     var maxAddrWidth = 0;
     var maxDataWidth = 0;
-    for (var i = 0; i < rIntfs.length; i++) {
-      maxAddrWidth = max(maxAddrWidth, rIntfs[i].addrWidth);
-      maxDataWidth = max(maxDataWidth, rIntfs[i].dataWidth);
-    }
-    for (var i = 0; i < wIntfs.length; i++) {
-      maxAddrWidth = max(maxAddrWidth, wIntfs[i].addrWidth);
-      maxDataWidth = max(maxDataWidth, wIntfs[i].dataWidth);
+    for (var i = 0; i < channels.length; i++) {
+      if (channels[i].hasRead) {
+        maxAddrWidth = max(maxAddrWidth, channels[i].rIntf!.addrWidth);
+        maxDataWidth = max(maxDataWidth, channels[i].rIntf!.dataWidth);
+      }
+      if (channels[i].hasWrite) {
+        maxAddrWidth = max(maxAddrWidth, channels[i].wIntf!.addrWidth);
+        maxDataWidth = max(maxDataWidth, channels[i].wIntf!.dataWidth);
+      }
     }
 
     this.storage = storage ??
@@ -122,14 +128,18 @@ class Axi4SubordinateAgent extends Agent {
           addrWidth: maxAddrWidth,
           dataWidth: maxDataWidth,
         );
-    for (var i = 0; i < rIntfs.length; i++) {
-      _dataReadResponseMetadataQueue.add([]);
-      _dataReadResponseDataQueue.add([]);
-      _dataReadResponseIndex.add(0);
-    }
-    for (var i = 0; i < wIntfs.length; i++) {
-      _writeMetadataQueue.add([]);
-      _writeReadyToOccur.add(false);
+    for (var i = 0; i < channels.length; i++) {
+      if (channels[i].hasRead) {
+        _dataReadResponseMetadataQueue.add([]);
+        _dataReadResponseDataQueue.add([]);
+        _dataReadResponseIndex.add(0);
+        _readAddrToChannel[i] = _dataReadResponseMetadataQueue.length - 1;
+      }
+      if (channels[i].hasWrite) {
+        _writeMetadataQueue.add([]);
+        _writeReadyToOccur.add(false);
+        _writeAddrToChannel[i] = _writeMetadataQueue.length - 1;
+      }
     }
   }
 
@@ -139,15 +149,16 @@ class Axi4SubordinateAgent extends Agent {
 
     sIntf.resetN.negedge.listen((event) {
       storage.reset();
-      for (var i = 0; i < rIntfs.length; i++) {
-        _dataReadResponseDataQueue[i].clear();
-        _dataReadResponseMetadataQueue[i].clear();
-        _dataReadResponseIndex[i] = 0;
-      }
-
-      for (var i = 0; i < wIntfs.length; i++) {
-        _writeMetadataQueue[i].clear();
-        _writeReadyToOccur[i] = false;
+      for (var i = 0; i < channels.length; i++) {
+        if (channels[i].hasRead) {
+          _dataReadResponseMetadataQueue[_readAddrToChannel[i]!].clear();
+          _dataReadResponseDataQueue[_readAddrToChannel[i]!].clear();
+          _dataReadResponseIndex[_readAddrToChannel[i]!] = 0;
+        }
+        if (channels[i].hasWrite) {
+          _writeMetadataQueue[_writeAddrToChannel[i]!].clear();
+          _writeReadyToOccur[_writeAddrToChannel[i]!] = false;
+        }
       }
     });
 
@@ -156,17 +167,18 @@ class Axi4SubordinateAgent extends Agent {
 
     while (!Simulator.simulationHasEnded) {
       await sIntf.clk.nextNegedge;
-      for (var i = 0; i < rIntfs.length; i++) {
-        _driveReadReadys(index: i);
-        _respondRead(index: i);
-        _receiveRead(index: i);
-      }
-
-      for (var i = 0; i < wIntfs.length; i++) {
-        _driveWriteReadys(index: i);
-        _respondWrite(index: i);
-        _captureWriteData(index: i);
-        _receiveWrite(index: i);
+      for (var i = 0; i < channels.length; i++) {
+        if (channels[i].hasRead) {
+          _driveReadReadys(index: i);
+          _respondRead(index: i);
+          _receiveRead(index: i);
+        }
+        if (channels[i].hasWrite) {
+          _driveWriteReadys(index: i);
+          _respondWrite(index: i);
+          _captureWriteData(index: i);
+          _receiveWrite(index: i);
+        }
       }
     }
   }
@@ -183,8 +195,9 @@ class Axi4SubordinateAgent extends Agent {
   // find the index of the region that the provided address falls in
   // if none, return -1
   int _checkRegion(LogicValue addr) {
-    for (var j=0; j<ranges.length; j++) {
-      if ((addr >= ranges[j].start).toBool() && (addr < ranges[j].end).toBool()) {
+    for (var j = 0; j < ranges.length; j++) {
+      if ((addr >= ranges[j].start).toBool() &&
+          (addr < ranges[j].end).toBool()) {
         return j;
       }
     }
@@ -194,35 +207,37 @@ class Axi4SubordinateAgent extends Agent {
   // assesses the input ready signals and drives them appropriately
   void _driveReadReadys({int index = 0}) {
     // for now, assume we can always handle a new request
-    rIntfs[index].arReady.put(true);
+    channels[index].rIntf!.arReady.put(true);
   }
 
   // assesses the input ready signals and drives them appropriately
   void _driveWriteReadys({int index = 0}) {
     // for now, assume we can always handle a new request
-    wIntfs[index].awReady.put(true);
-    wIntfs[index].wReady.put(true);
+    channels[index].wIntf!.awReady.put(true);
+    channels[index].wIntf!.wReady.put(true);
   }
 
   /// Receives one packet (or returns if not selected).
   void _receiveRead({int index = 0}) {
+    final rIntf = channels[index].rIntf!;
+    final mapIdx = _readAddrToChannel[index]!;
+
     // work to do if main is indicating a valid read that we are ready to handle
-    if (rIntfs[index].arValid.value.toBool() &&
-        rIntfs[index].arReady.value.toBool()) {
-      logger.info('Received read request on interface $index.');
+    if (rIntf.arValid.value.toBool() && rIntf.arReady.value.toBool()) {
+      logger.info('Received read request on channel $index.');
 
       final packet = Axi4ReadRequestPacket(
-          addr: rIntfs[index].arAddr.value,
-          prot: rIntfs[index].arProt.value,
-          id: rIntfs[index].arId?.value,
-          len: rIntfs[index].arLen?.value,
-          size: rIntfs[index].arSize?.value,
-          burst: rIntfs[index].arBurst?.value,
-          lock: rIntfs[index].arLock?.value,
-          cache: rIntfs[index].arCache?.value,
-          qos: rIntfs[index].arQos?.value,
-          region: rIntfs[index].arRegion?.value,
-          user: rIntfs[index].arUser?.value);
+          addr: rIntf.arAddr.value,
+          prot: rIntf.arProt.value,
+          id: rIntf.arId?.value,
+          len: rIntf.arLen?.value,
+          size: rIntf.arSize?.value,
+          burst: rIntf.arBurst?.value,
+          lock: rIntf.arLock?.value,
+          cache: rIntf.arCache?.value,
+          qos: rIntf.arQos?.value,
+          region: rIntf.arRegion?.value,
+          user: rIntf.arUser?.value);
 
       // generic model does not handle the following read request fields:
       //  cache
@@ -240,16 +255,16 @@ class Axi4SubordinateAgent extends Agent {
 
       // query storage to retrieve the data
       final data = <LogicValue>[];
-      var addrToRead = rIntfs[index].arAddr.value;
-      final endCount = (rIntfs[index].arLen?.value.toInt() ?? 0) + 1;
-      final dSize = (rIntfs[index].arSize?.value.toInt() ?? 0) * 8;
+      var addrToRead = rIntf.arAddr.value;
+      final endCount = (rIntf.arLen?.value.toInt() ?? 0) + 1;
+      final dSize = (rIntf.arSize?.value.toInt() ?? 0) * 8;
       var increment = 0;
-      if (rIntfs[index].arBurst == null ||
-          rIntfs[index].arBurst?.value.toInt() == Axi4BurstField.wrap.value ||
-          rIntfs[index].arBurst?.value.toInt() == Axi4BurstField.incr.value) {
+      if (rIntf.arBurst == null ||
+          rIntf.arBurst?.value.toInt() == Axi4BurstField.wrap.value ||
+          rIntf.arBurst?.value.toInt() == Axi4BurstField.incr.value) {
         increment = dSize ~/ 8;
       }
-      
+
       // determine if the address falls in a region
       final region = _checkRegion(addrToRead);
       final inRegion = region >= 0;
@@ -264,49 +279,55 @@ class Axi4SubordinateAgent extends Agent {
           }
         }
         data.add(currData);
-        if (inRegion && (addrToRead + increment >= ranges[region].end).toBool()) {
+        if (inRegion &&
+            (addrToRead + increment >= ranges[region].end).toBool()) {
           // the original access fell in a region but the next access in
           // the burst overflows the region
-          if (rIntfs[index].arBurst?.value.toInt() == Axi4BurstField.wrap.value) {
+          if (rIntf.arBurst?.value.toInt() == Axi4BurstField.wrap.value) {
             // indication that we should wrap around back to the region start
             addrToRead = ranges[region].start;
-          }
-          else {
+          } else {
             // OK to overflow
             addrToRead = addrToRead + increment;
           }
-        }
-        else {
+        } else {
           // no region or overflow
           addrToRead = addrToRead + increment;
         }
       }
 
-      _dataReadResponseMetadataQueue[index].add(packet);
-      _dataReadResponseDataQueue[index].add(data);
+      _dataReadResponseMetadataQueue[mapIdx].add(packet);
+      _dataReadResponseDataQueue[mapIdx].add(data);
     }
   }
 
   // respond to a read request
   void _respondRead({int index = 0}) {
+    final rIntf = channels[index].rIntf!;
+    final mapIdx = _readAddrToChannel[index]!;
+
     // only respond if there is something to respond to
     // and the main side is indicating that it is ready to receive
-    if (_dataReadResponseMetadataQueue[index].isNotEmpty &&
-        _dataReadResponseDataQueue[index].isNotEmpty &&
-        rIntfs[index].rReady.value.toBool()) {
-      final packet = _dataReadResponseMetadataQueue[index][0];
+    if (_dataReadResponseMetadataQueue[mapIdx].isNotEmpty &&
+        _dataReadResponseDataQueue[mapIdx].isNotEmpty &&
+        rIntf.rReady.value.toBool()) {
+      final packet = _dataReadResponseMetadataQueue[mapIdx][0];
       final currData =
-          _dataReadResponseDataQueue[0][index][_dataReadResponseIndex[index]];
+          _dataReadResponseDataQueue[mapIdx][0][_dataReadResponseIndex[mapIdx]];
       final error = respondWithError != null && respondWithError!(packet);
-      final last = _dataReadResponseIndex[index] ==
-          _dataReadResponseDataQueue[index][0].length - 1;
+      final last = _dataReadResponseIndex[mapIdx] ==
+          _dataReadResponseDataQueue[mapIdx][0].length - 1;
 
-      
       // check the request's region for legality
       final region = _checkRegion(packet.addr);
       final inRegion = region >= 0;
 
-      final accessError = inRegion && ((ranges[region].isSecure && ((packet.prot.toInt() & Axi4ProtField.secure.value) == 0)) || (ranges[region].isPrivileged && ((packet.prot.toInt() & Axi4ProtField.privileged.value) == 0)));
+      final accessError = inRegion &&
+          ((ranges[region].isSecure &&
+                  ((packet.prot.toInt() & Axi4ProtField.secure.value) == 0)) ||
+              (ranges[region].isPrivileged &&
+                  ((packet.prot.toInt() & Axi4ProtField.privileged.value) ==
+                      0)));
 
       // TODO: how to deal with delays??
       // if (readResponseDelay != null) {
@@ -317,68 +338,67 @@ class Axi4SubordinateAgent extends Agent {
       // }
 
       // for now, only support sending slvErr and okay as responses
-      rIntfs[index].rValid.put(true);
-      rIntfs[index].rId?.put(packet.id);
-      rIntfs[index].rData.put(currData);
-      rIntfs[index].rResp?.put(error | accessError
-          ? LogicValue.ofInt(
-              Axi4RespField.slvErr.value, rIntfs[index].rResp!.width)
-          : LogicValue.ofInt(
-              Axi4RespField.okay.value, rIntfs[index].rResp!.width));
-      rIntfs[index].rUser?.put(0); // don't support user field for now
-      rIntfs[index].rLast?.put(last);
+      rIntf.rValid.put(true);
+      rIntf.rId?.put(packet.id);
+      rIntf.rData.put(currData);
+      rIntf.rResp?.put(error | accessError
+          ? LogicValue.ofInt(Axi4RespField.slvErr.value, rIntf.rResp!.width)
+          : LogicValue.ofInt(Axi4RespField.okay.value, rIntf.rResp!.width));
+      rIntf.rUser?.put(0); // don't support user field for now
+      rIntf.rLast?.put(last);
 
       if (last || accessError) {
         // pop this read response off the queue
-        _dataReadResponseIndex[index] = 0;
-        _dataReadResponseMetadataQueue[index].removeAt(0);
-        _dataReadResponseDataQueue[index].removeAt(0);
+        _dataReadResponseIndex[mapIdx] = 0;
+        _dataReadResponseMetadataQueue[mapIdx].removeAt(0);
+        _dataReadResponseDataQueue[mapIdx].removeAt(0);
 
-        logger.info('Finished sending read response for interface $index.');
+        logger.info('Finished sending read response for channel $index.');
       } else {
         // move to the next chunk of data
-        _dataReadResponseIndex[index]++;
-        logger.info('Still sending the read response for interface $index.');
+        _dataReadResponseIndex[mapIdx]++;
+        logger.info('Still sending the read response for channel $index.');
       }
     } else {
-      rIntfs[index].rValid.put(false);
+      rIntf.rValid.put(false);
     }
   }
 
   // handle an incoming write request
   void _receiveWrite({int index = 0}) {
+    final wIntf = channels[index].wIntf!;
+    final mapIdx = _writeAddrToChannel[index]!;
+
     // work to do if main is indicating a valid + ready write
-    if (wIntfs[index].awValid.value.toBool() &&
-        wIntfs[index].awReady.value.toBool()) {
-      logger.info('Received write request on interface $index.');
+    if (wIntf.awValid.value.toBool() && wIntf.awReady.value.toBool()) {
+      logger.info('Received write request on channel $index.');
       final packet = Axi4WriteRequestPacket(
-          addr: wIntfs[index].awAddr.value,
-          prot: wIntfs[index].awProt.value,
-          id: wIntfs[index].awId?.value,
-          len: wIntfs[index].awLen?.value,
-          size: wIntfs[index].awSize?.value,
-          burst: wIntfs[index].awBurst?.value,
-          lock: wIntfs[index].awLock?.value,
-          cache: wIntfs[index].awCache?.value,
-          qos: wIntfs[index].awQos?.value,
-          region: wIntfs[index].awRegion?.value,
-          user: wIntfs[index].awUser?.value,
+          addr: wIntf.awAddr.value,
+          prot: wIntf.awProt.value,
+          id: wIntf.awId?.value,
+          len: wIntf.awLen?.value,
+          size: wIntf.awSize?.value,
+          burst: wIntf.awBurst?.value,
+          lock: wIntf.awLock?.value,
+          cache: wIntf.awCache?.value,
+          qos: wIntf.awQos?.value,
+          region: wIntf.awRegion?.value,
+          user: wIntf.awUser?.value,
           data: [],
           strobe: []);
 
       // might need to capture the first data and strobe simultaneously
       // NOTE: we are dropping wUser on the floor for now...
-      if (wIntfs[index].wValid.value.toBool() &&
-          wIntfs[index].wReady.value.toBool()) {
-        packet.data.add(wIntfs[index].wData.value);
-        packet.strobe.add(wIntfs[index].wStrb.value);
-        if (wIntfs[index].wLast.value.toBool()) {
-          _writeReadyToOccur[index] = true;
+      if (wIntf.wValid.value.toBool() && wIntf.wReady.value.toBool()) {
+        packet.data.add(wIntf.wData.value);
+        packet.strobe.add(wIntf.wStrb.value);
+        if (wIntf.wLast.value.toBool()) {
+          _writeReadyToOccur[mapIdx] = true;
         }
       }
 
       // queue up the packet for further processing
-      _writeMetadataQueue[index].add(packet);
+      _writeMetadataQueue[mapIdx].add(packet);
     }
   }
 
@@ -386,45 +406,55 @@ class Axi4SubordinateAgent extends Agent {
   // note that this method does not handle the first flit of write data
   // if it is transmitted simultaneously with the write request
   void _captureWriteData({int index = 0}) {
+    final wIntf = channels[index].wIntf!;
+    final mapIdx = _writeAddrToChannel[index]!;
+
     // NOTE: we are dropping wUser on the floor for now...
-    if (_writeMetadataQueue[index].isNotEmpty &&
-        wIntfs[index].wValid.value.toBool() &&
-        wIntfs[index].wReady.value.toBool()) {
-      final packet = _writeMetadataQueue[index][0];
-      packet.data.add(wIntfs[index].wData.value);
-      packet.strobe.add(wIntfs[index].wStrb.value);
-      logger.info('Captured write data on interface $index.');
-      if (wIntfs[index].wLast.value.toBool()) {
-        logger.info('Finished capturing write data on interface $index.');
-        _writeReadyToOccur[index] = true;
+    if (_writeMetadataQueue[mapIdx].isNotEmpty &&
+        wIntf.wValid.value.toBool() &&
+        wIntf.wReady.value.toBool()) {
+      final packet = _writeMetadataQueue[mapIdx][0];
+      packet.data.add(wIntf.wData.value);
+      packet.strobe.add(wIntf.wStrb.value);
+      logger.info('Captured write data on channel $index.');
+      if (wIntf.wLast.value.toBool()) {
+        logger.info('Finished capturing write data on channel $index.');
+        _writeReadyToOccur[mapIdx] = true;
       }
     }
   }
 
   void _respondWrite({int index = 0}) {
+    final wIntf = channels[index].wIntf!;
+    final mapIdx = _writeAddrToChannel[index]!;
+
     // only work to do if we have received all of the data for our write request
-    if (_writeReadyToOccur[index]) {
+    if (_writeReadyToOccur[mapIdx]) {
       // only respond if the main is ready
-      if (wIntfs[index].bReady.value.toBool()) {
-        final packet = _writeMetadataQueue[index][0];
-        
+      if (wIntf.bReady.value.toBool()) {
+        final packet = _writeMetadataQueue[mapIdx][0];
+
         // determine if the address falls in a region
         var addrToWrite = packet.addr;
         final region = _checkRegion(addrToWrite);
         final inRegion = region >= 0;
-        final accessError = inRegion && ((ranges[region].isSecure && ((packet.prot.toInt() & Axi4ProtField.secure.value) == 0)) || (ranges[region].isPrivileged && ((packet.prot.toInt() & Axi4ProtField.privileged.value) == 0)));
-        
+        final accessError = inRegion &&
+            ((ranges[region].isSecure &&
+                    ((packet.prot.toInt() & Axi4ProtField.secure.value) ==
+                        0)) ||
+                (ranges[region].isPrivileged &&
+                    ((packet.prot.toInt() & Axi4ProtField.privileged.value) ==
+                        0)));
+
         final error = respondWithError != null && respondWithError!(packet);
 
         // for now, only support sending slvErr and okay as responses
-        wIntfs[index].bValid.put(true);
-        wIntfs[index].bId?.put(packet.id);
-        wIntfs[index].bResp?.put(error || accessError
-            ? LogicValue.ofInt(
-                Axi4RespField.slvErr.value, wIntfs[index].bResp!.width)
-            : LogicValue.ofInt(
-                Axi4RespField.okay.value, wIntfs[index].bResp!.width));
-        wIntfs[index].bUser?.put(0); // don't support user field for now
+        wIntf.bValid.put(true);
+        wIntf.bId?.put(packet.id);
+        wIntf.bResp?.put(error || accessError
+            ? LogicValue.ofInt(Axi4RespField.slvErr.value, wIntf.bResp!.width)
+            : LogicValue.ofInt(Axi4RespField.okay.value, wIntf.bResp!.width));
+        wIntf.bUser?.put(0); // don't support user field for now
 
         // TODO: how to deal with delays??
         // if (readResponseDelay != null) {
@@ -467,19 +497,18 @@ class Axi4SubordinateAgent extends Agent {
                     .rswizzle()
                 : strobedData;
             storage.writeData(addrToWrite, wrData);
-            if (inRegion && (addrToWrite + increment >= ranges[region].end).toBool()) {
+            if (inRegion &&
+                (addrToWrite + increment >= ranges[region].end).toBool()) {
               // the original access fell in a region but the next access in
               // the burst overflows the region
               if (packet.burst!.toInt() == Axi4BurstField.wrap.value) {
                 // indication that we should wrap around back to the region start
                 addrToWrite = ranges[region].start;
-              }
-              else {
+              } else {
                 // OK to overflow
                 addrToWrite = addrToWrite + increment;
               }
-            }
-            else {
+            } else {
               // no region or overflow
               addrToWrite = addrToWrite + increment;
             }
@@ -487,13 +516,13 @@ class Axi4SubordinateAgent extends Agent {
         }
 
         // pop this write response off the queue
-        _writeMetadataQueue[index].removeAt(0);
-        _writeReadyToOccur[index] = false;
+        _writeMetadataQueue[mapIdx].removeAt(0);
+        _writeReadyToOccur[mapIdx] = false;
 
-        logger.info('Sent write response on interface $index.');
+        logger.info('Sent write response on channel $index.');
       }
     } else {
-      wIntfs[index].bValid.put(false);
+      wIntf.bValid.put(false);
     }
   }
 }
