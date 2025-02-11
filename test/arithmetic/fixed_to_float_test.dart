@@ -29,6 +29,34 @@ void main() async {
         reason: 'mantissa mismatch');
   });
 
+  test('FixedToFloat: exhaustive', () async {
+    final fixed = FixedPoint(signed: true, m: 8, n: 8);
+    final dut = FixedToFloat(fixed, exponentWidth: 8, mantissaWidth: 16);
+    await dut.build();
+    for (var val = 0; val < pow(2, fixed.width); val++) {
+      final fixedValue = FixedPointValue(
+          value: LogicValue.ofInt(val, fixed.width),
+          signed: true,
+          m: fixed.m,
+          n: fixed.n);
+      fixed.put(fixedValue);
+      final fpv = dut.float.floatingPointValue;
+      final fpvExpected = FloatingPointValue.ofDouble(fixedValue.toDouble(),
+          exponentWidth: dut.exponentWidth, mantissaWidth: dut.mantissaWidth);
+      final newFixed = FixedPointValue.ofDouble(fpv.toDouble(),
+          signed: true, m: fixed.m, n: fixed.n);
+      expect(newFixed, equals(fixedValue), reason: '''
+          fpvdbl=${fpv.toDouble()} $fpv
+          ${newFixed.toDouble()} $newFixed
+          ${fixedValue.toDouble()} $fixedValue
+          ${fixed.fixedPointValue.toDouble()}  ${fixed.fixedPointValue}
+''');
+      expect(fpv.sign, fpvExpected.sign);
+      expect(fpv.exponent, fpvExpected.exponent, reason: 'exponent');
+      expect(fpv.mantissa, fpvExpected.mantissa, reason: 'mantissa');
+    }
+  });
+
   test('Q16.16 to E5M2 < pow(2,14)', () async {
     final fixed = FixedPoint(signed: true, m: 16, n: 16);
     final dut = FixedToFloat(fixed, exponentWidth: 5, mantissaWidth: 2);
@@ -139,8 +167,6 @@ void main() async {
     }
   });
 
-  // TODO(desmonddak): complete this test as now
-  //     FloatingPointValue.ofDouble handles infinities.
   test('Signed Q7.0 to E3M2', () async {
     final fixed = FixedPoint(signed: true, m: 7, n: 0);
     final dut = FixedToFloat(fixed, exponentWidth: 3, mantissaWidth: 2);

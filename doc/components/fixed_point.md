@@ -1,6 +1,6 @@
 # Fixed-Point Arithmetic
 
-Fixed-point binary representation of numbers is useful several applications including digital signal processing and embedded systems. As a first step towards enabling fixed-point components, we created a new value system [FixedPointValue](https://intel.github.io/rohd-hcl/rohd_hcl/FixedPointValue-class.html)  similar to [LogicValue](https://intel.github.io/rohd/rohd/LogicValue-class.html).
+Fixed-point binary representation of numbers is useful several applications including digital signal processing and embedded systems. As a first step towards enabling fixed-point components, we created a new value system [FixedPointValue](https://intel.github.io/rohd-hcl/rohd_hcl/FixedPointValue-class.html) similar to [LogicValue](https://intel.github.io/rohd/rohd/LogicValue-class.html).
 
 ## FixedPointValue
 
@@ -12,12 +12,16 @@ The [FixedPoint](https://intel.github.io/rohd-hcl/rohd_hcl/FixedPoint-class.html
 
 ## FixedToFloat
 
-This component converts a fixed-point signal to a floating point signal specified by exponent and mantissa width. The output is rounded to nearest even when applicable and set to infinity if the input exceed the representable range.
+The [FixedToFloat](https://intel.github.io/rohd-hcl/rohd_hcl/FixedToFloat-class.html) component converts a fixed-point signal to a floating point signal specified by exponent and mantissa width. The output is rounded to the nearest even (RNE) when applicable and set to infinity if the input exceed the representable range.
 
 ## FloatToFixed
 
-This component converts a floating-point signal to a signed fixed-point signal. Infinities and NaN's are not supported. The integer and fraction widths are auto-calculated to achieve lossles conversion.
+This component converts a floating-point signal to a signed fixed-point signal. Infinities and NaN's are not supported. The integer and fraction widths are auto-calculated to achieve lossless conversion.
+
+If the `m` and `n` integer and fraction widths are supplied, then lossy conversion is performed to fit the floating-point value into the fixed-point value. For testing, [FixedPointValue](https://intel.github.io/rohd-hcl/rohd_hcl/FixedPointValue-class.html) has a `canStore` method to predetermine if a given double can fit.  For execution, [FloatToFixed](https://intel.github.io/rohd-hcl/rohd_hcl/FloatToFixed-class.html) can perform overflow detection by setting a `checkOverflow` option, which is a property of the class and set in the constructor (default is false as it must add significant logic to do the check).
+
+Currently, the FloatToFixed converter, when in lossy mode, is not performing any real rounding (just truncating).
 
 ## Float8ToFixed
 
-This component converts an 8-bit floating-point (FP8) representation ([FloatingPoint8E4M3Value](https://intel.github.io/rohd-hcl/rohd_hcl/FloatingPoint8E4M3Value-class.html) or [FloatingPoint8E5M2Value](https://intel.github.io/rohd-hcl/rohd_hcl/FloatingPoint8E5M2Value-class.html)) to a signed fixed-point representation. This component offers using the same hardware for both FP8 formats. Therefore, both input and output are of type [Logic](https://intel.github.io/rohd/rohd/Logic-class.html) and can be cast from/to floating point/fixed point by the producer/consumer based on the selected `mode`. Infinities and NaN's are not supported. The output width is 33bits to accomodate [FloatingPoint8E5M2Value](https://intel.github.io/rohd-hcl/rohd_hcl/FloatingPoint8E5M2Value-class.html) without loss.
+This component converts an 8-bit floating-point (FP8) representation ([FloatingPoint8E4M3Value](https://intel.github.io/rohd-hcl/rohd_hcl/FloatingPoint8E4M3Value-class.html) or [FloatingPoint8E5M2Value](https://intel.github.io/rohd-hcl/rohd_hcl/FloatingPoint8E5M2Value-class.html)) to a signed fixed-point representation. This component offers using the same hardware for both FP8 formats. Therefore, both input and output are of type [Logic](https://intel.github.io/rohd/rohd/Logic-class.html) and can be cast from/to floating point/fixed point by the producer/consumer based on the selected `mode`. Infinities and NaN's are not supported. The output width is 33bits to accommodate [FloatingPoint8E5M2Value](https://intel.github.io/rohd-hcl/rohd_hcl/FloatingPoint8E5M2Value-class.html) without loss.
