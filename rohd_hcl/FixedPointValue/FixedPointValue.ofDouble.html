@@ -65,7 +65,7 @@
     </section>
     
 <section class="desc markdown">
-  <p>Constructs <a href="../../rohd_hcl/FixedPointValue-class.html">FixedPointValue</a> of a Dart <a href="https://api.dart.dev/stable/3.6.2/dart-core/double-class.html">double</a> rounding away from zero.</p>
+  <p>Constructs <a href="../../rohd_hcl/FixedPointValue-class.html">FixedPointValue</a> from a Dart <a href="https://api.dart.dev/stable/3.6.2/dart-core/double-class.html">double</a> rounding away from zero.</p>
 </section>
 
 
@@ -76,6 +76,10 @@
     {required bool signed, required int m, required int n}) {
   if (!signed &amp; (val &lt; 0)) {
     throw RohdHclException(&#39;Negative input not allowed with unsigned&#39;);
+  }
+  if (!canStore(val, signed: signed, m: m, n: n)) {
+    throw RohdHclException(&#39;Double is too long to store in &#39;
+        &#39;FixedPointValue: $m, $n&#39;);
   }
   final integerValue = (val * pow(2, n)).toInt();
   final w = signed ? 1 + m + n : m + n;

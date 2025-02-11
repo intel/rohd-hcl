@@ -107,6 +107,8 @@
       .zeroExtend(iWidth)
       .named(&#39;jBit&#39;);
 
+  &#47;&#47; TODO(desmonddak): refactor to use the roundRNE component
+
   &#47;&#47; Extract mantissa
   final mantissa = Logic(name: &#39;mantissa&#39;, width: mantissaWidth);
   final guard = Logic(name: &#39;guardBit&#39;);

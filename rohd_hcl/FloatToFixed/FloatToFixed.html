@@ -59,18 +59,30 @@
       
       <span class="name ">FloatToFixed</span>(<wbr><ol class="parameter-list"> <li><span class="parameter" id="-param-float"><span class="type-annotation"><a href="../../rohd_hcl/FloatingPoint-class.html">FloatingPoint</a></span> <span class="parameter-name">float</span>, {</span></li>
 <li><span class="parameter" id="-param-name"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.6.2/dart-core/String-class.html">String</a></span> <span class="parameter-name">name</span> = <span class="default-value">&#39;FloatToFixed&#39;</span>, </span></li>
+<li><span class="parameter" id="-param-m"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.6.2/dart-core/int-class.html">int</a>?</span> <span class="parameter-name">m</span>, </span></li>
+<li><span class="parameter" id="-param-n"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.6.2/dart-core/int-class.html">int</a>?</span> <span class="parameter-name">n</span>, </span></li>
+<li><span class="parameter" id="-param-checkOverflow"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.6.2/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">checkOverflow</span> = <span class="default-value">false</span>, </span></li>
 </ol>})
     </section>
     
 <section class="desc markdown">
-  <p>Constructor</p>
+  <p>Build a <a href="../../rohd_hcl/FloatingPoint-class.html">FloatingPoint</a> to <a href="../../rohd_hcl/FixedPoint-class.html">FixedPoint</a> converter.</p>
+<ul>
+<li>if <code>m</code> and <code>n</code> are supplied, an m.n fixed-point output will be produced.
+Otherwise, the converter will compute a lossless size for <code>m</code> and <code>n</code> for
+outputing the floating-point value into a fixed-point value.</li>
+<li><code>checkOverflow</code> set to true will cause overflow detection to happen in
+case that loss can occur and an optional output <a href="../../rohd_hcl/FloatToFixed/overflow.html">overflow</a> will be
+ produced that returns true when overflow occurs.</li>
+</ul>
 </section>
 
 
     
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
-  <pre class="language-dart"><code class="language-dart">FloatToFixed(FloatingPoint float, {super.name = &#39;FloatToFixed&#39;})
+  <pre class="language-dart"><code class="language-dart">FloatToFixed(FloatingPoint float,
+    {super.name = &#39;FloatToFixed&#39;, int? m, int? n, this.checkOverflow = false})
     : super(
           definitionName: &#39;FloatE${float.exponent.width}&#39;
               &#39;M${float.mantissa.width}ToFixed&#39;) {
@@ -78,26 +90,75 @@
 
   final bias = FloatingPointValue.computeBias(float.exponent.width);
   &#47;&#47; E4M3 expands the max exponent by 1.
-  m = ((float.exponent.width == 4) &amp; (float.mantissa.width == 3))
-      ? bias + 1
-      : bias;
-  n = bias + float.mantissa.width - 1;
-  final outputWidth = m + n + 1;
+  final noLossM = ((float.exponent.width == 4) &amp; (float.mantissa.width == 3))
+      ? bias + 2
+      : bias + 1; &#47;&#47; accomodate the jbit
+  final noLossN = bias + float.mantissa.width - 1;
+
+  this.m = m ?? noLossM;
+  this.n = n ?? noLossN;
+  final outputWidth = this.m + this.n + 1;
 
   final jBit = Logic(name: &#39;jBit&#39;)..gets(float.isNormal);
-  final shift = Logic(name: &#39;shift&#39;, width: float.exponent.width)
-    ..gets(
-        mux(jBit, float.exponent - 1, Const(0, width: float.exponent.width)));
+  final fullMantissa = [jBit, float.mantissa].swizzle().named(&#39;fullMantissa&#39;);
 
-  final number = Logic(name: &#39;number&#39;, width: outputWidth)
-    ..gets([
-          Const(0, width: outputWidth - float.mantissa.width - 1),
-          jBit,
-          float.mantissa
-        ].swizzle() &lt;&lt;
-        shift);
+  final eWidth = max(log2Ceil(this.n + this.m), float.exponent.width) + 2;
+  final shift = Logic(name: &#39;shift&#39;, width: eWidth);
+  final exp = (float.exponent - 1).zeroExtend(eWidth).named(&#39;expMinus1&#39;);
 
-  _fixed &lt;= mux(float.sign, ~number + 1, number);
+  if (this.n &gt; noLossN) {
+    shift &lt;=
+        mux(jBit, exp, Const(0, width: eWidth)) +
+            Const(this.n - noLossN, width: eWidth).named(&#39;deltaN&#39;);
+  } else if (this.n == noLossN) {
+    shift &lt;= mux(jBit, exp, Const(0, width: eWidth));
+  } else {
+    shift &lt;=
+        mux(jBit, exp, Const(0, width: eWidth)) -
+            Const(noLossN - this.n, width: eWidth).named(&#39;deltaN&#39;);
+  }
+  &#47;&#47; TODO(desmonddak): Could use signed shifter if we unified shift math
+  final shiftRight = ((fullMantissa.width &gt; outputWidth)
+          ? (~shift + 1) - (fullMantissa.width - outputWidth)
+          : (~shift + 1))
+      .named(&#39;shiftRight&#39;);
+
+  if (checkOverflow &amp; ((this.m &lt; noLossM) | (this.n &lt; noLossN))) {
+    final overflow = Logic(name: &#39;overflow&#39;);
+    final leadDetect = ParallelPrefixPriorityEncoder(fullMantissa.reversed,
+        name: &#39;leadone_detector&#39;);
+
+    final sWidth = max(eWidth, leadDetect.out.width);
+    final fShift = shift.zeroExtend(sWidth).named(&#39;wideShift&#39;);
+    final leadOne = leadDetect.out
+        .named(&#39;leadOneRaw&#39;)
+        .zeroExtend(sWidth)
+        .named(&#39;leadOne&#39;);
+
+    Combinational([
+      If(jBit, then: [
+        overflow &lt; shift.gte(outputWidth - float.mantissa.width - 1),
+      ], orElse: [
+        If(fShift.gt(leadOne), then: [
+          overflow &lt;
+              (fShift - leadOne).gte(outputWidth - float.mantissa.width - 1),
+        ], orElse: [
+          overflow &lt; Const(0),
+        ]),
+      ]),
+    ]);
+    addOutput(&#39;overflow&#39;) &lt;= overflow;
+  }
+  final preNumber = ((outputWidth &gt;= fullMantissa.width)
+          ? fullMantissa.zeroExtend(outputWidth)
+          : fullMantissa.slice(-1, fullMantissa.width - outputWidth))
+      .named(&#39;newMantissaPreShift&#39;);
+  &#47;&#47; TODO(desmonddak): Rounder is needed when shifting right
+
+  final number = mux(shift[-1], preNumber &gt;&gt;&gt; shiftRight, preNumber &lt;&lt; shift)
+      .named(&#39;number&#39;);
+
+  _fixed &lt;= mux(float.sign, (~number + 1).named(&#39;negNumber&#39;), number);
   addOutput(&#39;fixed&#39;, width: outputWidth) &lt;= _fixed;
 }</code></pre>
 </section>
