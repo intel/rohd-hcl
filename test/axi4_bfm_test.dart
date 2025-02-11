@@ -47,6 +47,8 @@ class Axi4BfmTest extends Test {
   // large lens can make transactions really long...
   final int lenWidth;
 
+  final bool supportLocking;
+
   String get outFolder => 'tmp_test/axi4bfm/$name/';
 
   bool get hasAnyReads => channels.any((element) => element.hasRead);
@@ -65,6 +67,7 @@ class Axi4BfmTest extends Test {
     this.addrWidth = 32,
     this.dataWidth = 32,
     this.lenWidth = 2,
+    this.supportLocking = false,
   })  : assert(numChannels > 0, 'Every test must have at least one channel.'),
         assert(numChannels == channelConfigs.length,
             'Every channel must have a config.'),
@@ -74,6 +77,7 @@ class Axi4BfmTest extends Test {
     for (var i = 0; i < numChannels; i++) {
       if (channelConfigs[i] == Axi4BfmTestChannelConfig.readWrite) {
         channels.add(Axi4Channel(
+          channelId: i,
           rIntf: Axi4ReadInterface(
             addrWidth: addrWidth,
             dataWidth: dataWidth,
@@ -91,6 +95,7 @@ class Axi4BfmTest extends Test {
         Axi4WriteComplianceChecker(sIntf, channels.last.wIntf!, parent: this);
       } else if (channelConfigs[i] == Axi4BfmTestChannelConfig.read) {
         channels.add(Axi4Channel(
+          channelId: i,
           hasWrite: false,
           rIntf: Axi4ReadInterface(
             addrWidth: addrWidth,
@@ -102,6 +107,7 @@ class Axi4BfmTest extends Test {
         Axi4ReadComplianceChecker(sIntf, channels.last.rIntf!, parent: this);
       } else if (channelConfigs[i] == Axi4BfmTestChannelConfig.write) {
         channels.add(Axi4Channel(
+          channelId: i,
           hasRead: false,
           wIntf: Axi4WriteInterface(
             addrWidth: addrWidth,
@@ -135,6 +141,7 @@ class Axi4BfmTest extends Test {
       writeResponseDelay:
           withRandomRspDelays ? (request) => Test.random!.nextInt(5) : null,
       respondWithError: withErrors ? (request) => true : null,
+      supportLocking: supportLocking,
     );
 
     Directory(outFolder).createSync(recursive: true);
@@ -186,6 +193,7 @@ class Axi4BfmTest extends Test {
     final sizes = <int>[];
     final data = <List<LogicValue>>[];
     final strobes = <List<LogicValue>>[];
+    final locks = <LogicValue>[];
 
     // normal writes
     if (hasAnyWrites) {
@@ -213,10 +221,14 @@ class Axi4BfmTest extends Test {
                 ? LogicValue.ofInt(Test.random!.nextInt(1 << wIntfC.strbWidth),
                     wIntfC.strbWidth)
                 : LogicValue.filled(wIntfC.strbWidth, LogicValue.one));
+        final randomLock = (supportLocking
+            ? (Test.random!.nextInt(2) == 1 ? LogicValue.one : LogicValue.zero)
+            : LogicValue.zero);
         lens.add(transLen);
         sizes.add(transSize);
         data.add(randomData);
         strobes.add(randomStrobes);
+        locks.add(randomLock);
 
         final wrPkt = Axi4WriteRequestPacket(
           addr: LogicValue.ofInt(i, 32),
@@ -227,7 +239,7 @@ class Axi4BfmTest extends Test {
           size: LogicValue.ofInt(transSize, wIntfC.sizeWidth),
           burst: LogicValue.ofInt(
               Axi4BurstField.incr.value, wIntfC.burstWidth), // fixed for now
-          lock: LogicValue.ofInt(0, 1), // not supported
+          lock: randomLock,
           cache: LogicValue.ofInt(0, wIntfC.cacheWidth), // not supported
           qos: LogicValue.ofInt(0, wIntfC.qosWidth), // not supported
           region: LogicValue.ofInt(0, wIntfC.regionWidth), // not supported
@@ -265,7 +277,7 @@ class Axi4BfmTest extends Test {
           size: LogicValue.ofInt(sizes[i], rIntfC.sizeWidth),
           burst: LogicValue.ofInt(
               Axi4BurstField.incr.value, rIntfC.burstWidth), // fixed for now
-          lock: LogicValue.ofInt(0, 1), // not supported
+          lock: locks[i],
           cache: LogicValue.ofInt(0, rIntfC.cacheWidth), // not supported
           qos: LogicValue.ofInt(0, rIntfC.qosWidth), // not supported
           region: LogicValue.ofInt(0, rIntfC.regionWidth), // not supported
@@ -365,6 +377,7 @@ void main() {
       withRandomRspDelays: true,
       withStrobes: true,
       interTxnDelay: 3,
+      supportLocking: true,
     ));
   });
 

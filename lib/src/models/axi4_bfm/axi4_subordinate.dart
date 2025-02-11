@@ -81,9 +81,13 @@ class Axi4SubordinateAgent extends Agent {
   /// TODO: ensure non-overlapping??
   List<AxiAddressRange> ranges = [];
 
+  /// Enable locking functionality as per AXI4 spec.
+  final bool supportLocking;
+
   // to handle response read responses
   final List<List<Axi4ReadRequestPacket>> _dataReadResponseMetadataQueue = [];
   final List<List<List<LogicValue>>> _dataReadResponseDataQueue = [];
+  final List<List<bool>> _dataReadResponseErrorQueue = [];
   final List<int> _dataReadResponseIndex = [];
 
   // to handle writes
@@ -93,6 +97,10 @@ class Axi4SubordinateAgent extends Agent {
   // capture mapping of channel ID to TB object index
   final Map<int, int> _readAddrToChannel = {};
   final Map<int, int> _writeAddrToChannel = {};
+
+  // for locking behavior
+  final Map<LogicValue, int> _rmwLocks = {};
+  final Map<LogicValue, int> _hardLocks = {};
 
   /// Creates a new model [Axi4SubordinateAgent].
   ///
@@ -108,6 +116,7 @@ class Axi4SubordinateAgent extends Agent {
       this.invalidReadDataOnError = true,
       this.dropWriteDataOnError = true,
       this.ranges = const [],
+      this.supportLocking = false,
       String name = 'axi4SubordinateAgent'})
       : super(name, parent) {
     var maxAddrWidth = 0;
@@ -132,6 +141,7 @@ class Axi4SubordinateAgent extends Agent {
       if (channels[i].hasRead) {
         _dataReadResponseMetadataQueue.add([]);
         _dataReadResponseDataQueue.add([]);
+        _dataReadResponseErrorQueue.add([]);
         _dataReadResponseIndex.add(0);
         _readAddrToChannel[i] = _dataReadResponseMetadataQueue.length - 1;
       }
@@ -153,6 +163,7 @@ class Axi4SubordinateAgent extends Agent {
         if (channels[i].hasRead) {
           _dataReadResponseMetadataQueue[_readAddrToChannel[i]!].clear();
           _dataReadResponseDataQueue[_readAddrToChannel[i]!].clear();
+          _dataReadResponseErrorQueue[_readAddrToChannel[i]!].clear();
           _dataReadResponseIndex[_readAddrToChannel[i]!] = 0;
         }
         if (channels[i].hasWrite) {
@@ -247,11 +258,7 @@ class Axi4SubordinateAgent extends Agent {
       // These can be handled in a derived class of this model if need be.
       // Because they require implementation specific handling.
 
-      // NOTE: generic model doesn't honor the prot field in read requests.
-      // It will be added as a feature request in the future.
-
-      // NOTE: generic model doesn't honor the lock field in read requests.
-      // It will be added as a feature request in the future.
+      // NOTE: generic model doesn't use the instruction/data bit of the prot field.
 
       // query storage to retrieve the data
       final data = <LogicValue>[];
@@ -269,6 +276,13 @@ class Axi4SubordinateAgent extends Agent {
       final region = _checkRegion(addrToRead);
       final inRegion = region >= 0;
 
+      // examine locking behavior
+      final isRmw = supportLocking &&
+          rIntf.arLock?.value.toInt() == Axi4LockField.exclusive.value;
+      final isHardLock = supportLocking &&
+          rIntf.arLock?.value.toInt() == Axi4LockField.locked.value;
+
+      var hardLockErr = false;
       for (var i = 0; i < endCount; i++) {
         var currData = storage.readData(addrToRead);
         if (dSize > 0) {
@@ -279,6 +293,47 @@ class Axi4SubordinateAgent extends Agent {
           }
         }
         data.add(currData);
+
+        // lock handling logic
+        if (supportLocking) {
+          // part of an rmw operation
+          if (isRmw) {
+            // assign the lock to this channel
+            // regardless if it existed before
+            _rmwLocks[addrToRead] = index;
+          }
+          // hard lock request
+          else if (isHardLock) {
+            // there must not be a hard lock on this address
+            // from another channel
+            if (_hardLocks.containsKey(addrToRead) &&
+                _hardLocks[addrToRead] != index) {
+              hardLockErr |= true;
+            }
+            // make sure to add the hard lock if it doesn't already exist
+            else {
+              _hardLocks[addrToRead] = index;
+            }
+          } else {
+            // remove the rmw lock if it is there
+            // regardless of what channel we came from
+            if (_rmwLocks.containsKey(addrToRead)) {
+              _rmwLocks.remove(addrToRead);
+            }
+
+            // there must not be a hard lock on this address
+            // from another channel
+            if (_hardLocks.containsKey(addrToRead) &&
+                _hardLocks[addrToRead] != index) {
+              hardLockErr |= true;
+            }
+            // if we have a hard lock, we can remove it now
+            else if (_hardLocks.containsKey(addrToRead)) {
+              _hardLocks.remove(addrToRead);
+            }
+          }
+        }
+
         if (inRegion &&
             (addrToRead + increment >= ranges[region].end).toBool()) {
           // the original access fell in a region but the next access in
@@ -298,6 +353,7 @@ class Axi4SubordinateAgent extends Agent {
 
       _dataReadResponseMetadataQueue[mapIdx].add(packet);
       _dataReadResponseDataQueue[mapIdx].add(data);
+      _dataReadResponseErrorQueue[mapIdx].add(hardLockErr);
     }
   }
 
@@ -310,8 +366,10 @@ class Axi4SubordinateAgent extends Agent {
     // and the main side is indicating that it is ready to receive
     if (_dataReadResponseMetadataQueue[mapIdx].isNotEmpty &&
         _dataReadResponseDataQueue[mapIdx].isNotEmpty &&
+        _dataReadResponseErrorQueue[mapIdx].isNotEmpty &&
         rIntf.rReady.value.toBool()) {
       final packet = _dataReadResponseMetadataQueue[mapIdx][0];
+      final reqSideError = _dataReadResponseErrorQueue[mapIdx][0];
       final currData =
           _dataReadResponseDataQueue[mapIdx][0][_dataReadResponseIndex[mapIdx]];
       final error = respondWithError != null && respondWithError!(packet);
@@ -341,7 +399,7 @@ class Axi4SubordinateAgent extends Agent {
       rIntf.rValid.put(true);
       rIntf.rId?.put(packet.id);
       rIntf.rData.put(currData);
-      rIntf.rResp?.put(error | accessError
+      rIntf.rResp?.put(error || accessError || reqSideError
           ? LogicValue.ofInt(Axi4RespField.slvErr.value, rIntf.rResp!.width)
           : LogicValue.ofInt(Axi4RespField.okay.value, rIntf.rResp!.width));
       rIntf.rUser?.put(0); // don't support user field for now
@@ -352,6 +410,7 @@ class Axi4SubordinateAgent extends Agent {
         _dataReadResponseIndex[mapIdx] = 0;
         _dataReadResponseMetadataQueue[mapIdx].removeAt(0);
         _dataReadResponseDataQueue[mapIdx].removeAt(0);
+        _dataReadResponseErrorQueue[mapIdx].removeAt(0);
 
         logger.info('Finished sending read response for channel $index.');
       } else {
@@ -446,12 +505,101 @@ class Axi4SubordinateAgent extends Agent {
                     ((packet.prot.toInt() & Axi4ProtField.privileged.value) ==
                         0)));
 
+        // examine locking behavior
+        final isRmw = supportLocking &&
+            packet.lock != null &&
+            packet.lock!.toInt() == Axi4LockField.exclusive.value;
+        final isHardLock = supportLocking &&
+            packet.lock != null &&
+            packet.lock!.toInt() == Axi4LockField.locked.value;
+
+        // compute data size and increment
+        final dSize = (packet.size?.toInt() ?? 0) * 8;
+        var increment = 0;
+        if (packet.burst == null ||
+            packet.burst!.toInt() == Axi4BurstField.wrap.value ||
+            packet.burst!.toInt() == Axi4BurstField.incr.value) {
+          increment = dSize ~/ 8;
+        }
+
+        // compute the addresses to write to
+        // based on the burst mode, len, and size
+        final addrsToWrite = <LogicValue>[];
+        for (var i = 0; i < packet.data.length; i++) {
+          addrsToWrite.add(addrToWrite);
+          if (inRegion &&
+              (addrToWrite + increment >= ranges[region].end).toBool()) {
+            // the original access fell in a region but the next access in
+            // the burst overflows the region
+            if (packet.burst!.toInt() == Axi4BurstField.wrap.value) {
+              // indication that we should wrap around back to the region start
+              addrToWrite = ranges[region].start;
+            } else {
+              // OK to overflow
+              addrToWrite = addrToWrite + increment;
+            }
+          } else {
+            // no region or overflow
+            addrToWrite = addrToWrite + increment;
+          }
+        }
+
+        // locking logic for write ops
+        var rmwErr = false;
+        var hardLockErr = false;
+        if (supportLocking) {
+          for (final addr in addrsToWrite) {
+            // given write is rmw locked
+            if (isRmw) {
+              // rmw lock must be associated with our channel
+              // if not, must respond with an error
+              // also remove the lock moving forward
+              if (!_rmwLocks.containsKey(addr) || _rmwLocks[addr] != index) {
+                rmwErr |= true;
+                if (_rmwLocks.containsKey(addr)) {
+                  _rmwLocks.remove(addr);
+                }
+              }
+            }
+            // given write is hard locked
+            else if (isHardLock) {
+              // there must not be a hard lock on this address
+              // from another channel
+              if (_hardLocks.containsKey(addr) && _hardLocks[addr] != index) {
+                hardLockErr |= true;
+              }
+              // make sure to add the hard lock if it doesn't already exist
+              else {
+                _hardLocks[addr] = index;
+              }
+            }
+            // given write is not rmw locked
+            else {
+              // remove the rmw lock if it is there
+              // regardless of what channel we came from
+              if (_rmwLocks.containsKey(addr)) {
+                _rmwLocks.remove(addr);
+              }
+
+              // there must not be a hard lock on this address
+              // from another channel
+              if (_hardLocks.containsKey(addr) && _hardLocks[addr] != index) {
+                hardLockErr |= true;
+              }
+              // if we have a hard lock, we can remove it now
+              else if (_hardLocks.containsKey(addr)) {
+                _hardLocks.remove(addr);
+              }
+            }
+          }
+        }
+
         final error = respondWithError != null && respondWithError!(packet);
 
         // for now, only support sending slvErr and okay as responses
         wIntf.bValid.put(true);
         wIntf.bId?.put(packet.id);
-        wIntf.bResp?.put(error || accessError
+        wIntf.bResp?.put(error || accessError || rmwErr || hardLockErr
             ? LogicValue.ofInt(Axi4RespField.slvErr.value, wIntf.bResp!.width)
             : LogicValue.ofInt(Axi4RespField.okay.value, wIntf.bResp!.width));
         wIntf.bUser?.put(0); // don't support user field for now
@@ -472,24 +620,17 @@ class Axi4SubordinateAgent extends Agent {
         // These can be handled in a derived class of this model if need be.
         // Because they require implementation specific handling.
 
-        // NOTE: generic model doesn't honor the prot field in write requests.
-        // It will be added as a feature request in the future.
+        // NOTE: generic model doesn't use the instruction/data bit of the prot field.
 
-        // NOTE: generic model doesn't honor the lock field in write requests.
-        // It will be added as a feature request in the future.
-
-        if (!error && !dropWriteDataOnError && !accessError) {
-          // write the data to the storage
-          final dSize = (packet.size?.toInt() ?? 0) * 8;
-          var increment = 0;
-          if (packet.burst == null ||
-              packet.burst!.toInt() == Axi4BurstField.wrap.value ||
-              packet.burst!.toInt() == Axi4BurstField.incr.value) {
-            increment = dSize ~/ 8;
-          }
-
+        // apply the write to storage
+        // only if there were no errors
+        if (!error &&
+            !dropWriteDataOnError &&
+            !accessError &&
+            !rmwErr &&
+            !hardLockErr) {
           for (var i = 0; i < packet.data.length; i++) {
-            final rdData = storage.readData(addrToWrite);
+            final rdData = storage.readData(addrsToWrite[i]);
             final strobedData =
                 _strobeData(rdData, packet.data[i], packet.strobe[i]);
             final wrData = (dSize < strobedData.width)
@@ -497,21 +638,6 @@ class Axi4SubordinateAgent extends Agent {
                     .rswizzle()
                 : strobedData;
             storage.writeData(addrToWrite, wrData);
-            if (inRegion &&
-                (addrToWrite + increment >= ranges[region].end).toBool()) {
-              // the original access fell in a region but the next access in
-              // the burst overflows the region
-              if (packet.burst!.toInt() == Axi4BurstField.wrap.value) {
-                // indication that we should wrap around back to the region start
-                addrToWrite = ranges[region].start;
-              } else {
-                // OK to overflow
-                addrToWrite = addrToWrite + increment;
-              }
-            } else {
-              // no region or overflow
-              addrToWrite = addrToWrite + increment;
-            }
           }
         }
 
