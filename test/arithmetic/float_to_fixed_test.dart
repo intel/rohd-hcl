@@ -18,8 +18,9 @@ void main() async {
     final dut = FloatToFixed(float);
     await dut.build();
     for (var val = 0; val < pow(2, 8); val++) {
-      final fpv = FloatingPointValue.ofLogicValue(
-          5, 2, LogicValue.ofInt(val, float.width));
+      final fpv =
+          FloatingPointValue.populator(exponentWidth: 5, mantissaWidth: 2)
+              .ofLogicValue(LogicValue.ofInt(val, float.width));
       if (!fpv.isAnInfinity & !fpv.isNaN) {
         float.put(fpv);
         final fxp = dut.fixed;
@@ -209,8 +210,9 @@ void main() async {
     // E4M3
     mode.put(1);
     for (var val = 0; val < pow(2, 8); val++) {
-      final fp8 = FloatingPointValue.ofLogicValue(
-          4, 3, LogicValue.ofInt(val, float.width));
+      final fp8 =
+          FloatingPointValue.populator(exponentWidth: 4, mantissaWidth: 3)
+              .ofLogicValue(LogicValue.ofInt(val, float.width));
       if (!fp8.isNaN & !fp8.isAnInfinity) {
         float.put(fp8.value);
         final fx8 =
@@ -223,8 +225,9 @@ void main() async {
     // E5M2
     mode.put(0);
     for (var val = 0; val < pow(2, 8); val++) {
-      final fp8 = FloatingPointValue.ofLogicValue(
-          5, 2, LogicValue.ofInt(val, float.width));
+      final fp8 =
+          FloatingPointValue.populator(exponentWidth: 5, mantissaWidth: 2)
+              .ofLogicValue(LogicValue.ofInt(val, float.width));
       if (!fp8.isNaN & !fp8.isAnInfinity) {
         float.put(fp8.value);
         final fx8 = FixedPointValue.ofDouble(fp8.toDouble(),

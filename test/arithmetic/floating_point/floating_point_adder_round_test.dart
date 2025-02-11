@@ -232,8 +232,9 @@ void main() {
         exponentWidth: exponentWidth, mantissaWidth: mantissaWidth);
     fp1.put(0);
     fp2.put(0);
-    final fv1 = FloatingPointValue.ofInts(14, 31,
-        exponentWidth: exponentWidth, mantissaWidth: mantissaWidth);
+    final fv1 = FloatingPointValue.populator(
+            exponentWidth: exponentWidth, mantissaWidth: mantissaWidth)
+        .ofInts(14, 31);
     final fv2 = FloatingPointValue.ofInts(13, 7,
         exponentWidth: exponentWidth, mantissaWidth: mantissaWidth, sign: true);
     fp1.put(fv1);

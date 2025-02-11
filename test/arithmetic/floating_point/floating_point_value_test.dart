@@ -29,8 +29,9 @@ void main() {
           final fp =
               FloatingPointValue.ofBinaryStrings(signStr, expStr, mantStr);
           final dbl = fp.toDouble();
-          final fp2 = FloatingPointValue.ofDouble(dbl,
-              exponentWidth: exponentWidth, mantissaWidth: mantissaWidth);
+          final fp2 = FloatingPointValue.populator(
+                  exponentWidth: exponentWidth, mantissaWidth: mantissaWidth)
+              .ofDouble(dbl);
           expect(fp, equals(fp2));
           mantissa = mantissa + 1;
         }
@@ -48,8 +49,11 @@ void main() {
         final mantStr = (mantissa << i).bitString;
         final fp = FloatingPointValue.ofBinaryStrings(signStr, expStr, mantStr);
         expect(fp.toString(), '$signStr $expStr $mantStr');
-        final fp2 = FloatingPointValue.ofDouble(fp.toDouble(),
-            exponentWidth: exponentWidth, mantissaWidth: mantissaWidth);
+        final fp2 = FloatingPointValue.populator(
+                exponentWidth: exponentWidth, mantissaWidth: mantissaWidth)
+            .ofDouble(
+          fp.toDouble(),
+        );
         expect(fp2, equals(fp));
       }
     }
@@ -66,8 +70,9 @@ void main() {
           final fp =
               FloatingPointValue.ofBinaryStrings(signStr, expStr, mantStr);
           expect(fp.toString(), '$signStr $expStr $mantStr');
-          final fp2 = FloatingPointValue.ofDoubleUnrounded(fp.toDouble(),
-              exponentWidth: exponentWidth, mantissaWidth: mantissaWidth);
+          final fp2 = FloatingPointValue.populator(
+                  exponentWidth: exponentWidth, mantissaWidth: mantissaWidth)
+              .ofDoubleUnrounded(fp.toDouble());
           expect(fp2, equals(fp));
         }
       }
@@ -76,22 +81,23 @@ void main() {
 
   test('FPV: round trip 32', () {
     final values = [
-      FloatingPoint32Value.getFloatingPointConstant(
+      FloatingPoint32Value.populator().ofFloatingPointConstant(
           FloatingPointConstants.largestPositiveSubnormal),
-      FloatingPoint32Value.getFloatingPointConstant(
+      FloatingPoint32Value.populator().ofFloatingPointConstant(
           FloatingPointConstants.smallestPositiveSubnormal),
-      FloatingPoint32Value.getFloatingPointConstant(
+      FloatingPoint32Value.populator().ofFloatingPointConstant(
           FloatingPointConstants.smallestPositiveNormal),
-      FloatingPoint32Value.getFloatingPointConstant(
-          FloatingPointConstants.largestLessThanOne),
-      FloatingPoint32Value.getFloatingPointConstant(FloatingPointConstants.one),
-      FloatingPoint32Value.getFloatingPointConstant(
+      FloatingPoint32Value.populator()
+          .ofFloatingPointConstant(FloatingPointConstants.largestLessThanOne),
+      FloatingPoint32Value.populator()
+          .ofFloatingPointConstant(FloatingPointConstants.one),
+      FloatingPoint32Value.populator().ofFloatingPointConstant(
           FloatingPointConstants.smallestLargerThanOne),
-      FloatingPoint32Value.getFloatingPointConstant(
-          FloatingPointConstants.largestNormal)
+      FloatingPoint32Value.populator()
+          .ofFloatingPointConstant(FloatingPointConstants.largestNormal)
     ];
     for (final fp in values) {
-      final fp2 = FloatingPoint32Value.ofDouble(fp.toDouble());
+      final fp2 = FloatingPoint32Value.populator().ofDouble(fp.toDouble());
       expect(fp2, equals(fp));
     }
   });
@@ -305,10 +311,16 @@ void main() {
         equals(0));
   });
   test('FPV: infinity/NaN conversion tests', () async {
+    FloatingPointValue.constant(FloatingPointBF16Value.toFill, Constants.inf);
+
+    final mybf16 =
+        FloatingPointValue.ofDoubleGenerator(FloatingPoint16Value.toFill, 1.0);
+    final myOtherBf16 = FloatingPoint16Value.ofDouble(1.0);
+
     const exponentWidth = 4;
     const mantissaWidth = 4;
     final infinity = FloatingPointValue.getFloatingPointConstant(
-        FloatingPointConstants.infinity, exponentWidth, mantissaWidth);
+        FloatingPointConstants.positiveInfinity, exponentWidth, mantissaWidth);
     final negativeInfinity = FloatingPointValue.getFloatingPointConstant(
         FloatingPointConstants.negativeInfinity, exponentWidth, mantissaWidth);
 
@@ -357,7 +369,7 @@ void main() {
     final zero = FloatingPointValue.getFloatingPointConstant(
         FloatingPointConstants.positiveZero, exponentWidth, mantissaWidth);
     final infinity = FloatingPointValue.getFloatingPointConstant(
-        FloatingPointConstants.infinity, exponentWidth, mantissaWidth);
+        FloatingPointConstants.positiveInfinity, exponentWidth, mantissaWidth);
     final negativeInfinity = FloatingPointValue.getFloatingPointConstant(
         FloatingPointConstants.negativeInfinity, exponentWidth, mantissaWidth);
 

@@ -10,6 +10,7 @@
 //  Desmond A Kirkpatrick <desmond.a.kirkpatrick@intel.com
 //
 
+import 'package:meta/meta.dart';
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
 
@@ -52,6 +53,7 @@ class FloatingPoint extends LogicStructure {
   FloatingPoint._(this.sign, this.exponent, this.mantissa, {super.name})
       : super([mantissa, exponent, sign]);
 
+  @mustBeOverridden
   @override
   FloatingPoint clone({String? name}) => FloatingPoint(
         exponentWidth: exponent.width,
@@ -60,6 +62,7 @@ class FloatingPoint extends LogicStructure {
       );
 
   /// Return the [FloatingPointValue]
+  @mustBeOverridden
   FloatingPointValue get floatingPointValue => FloatingPointValue(
       sign: sign.value, exponent: exponent.value, mantissa: mantissa.value);
 
@@ -72,25 +75,33 @@ class FloatingPoint extends LogicStructure {
   /// Return a Logic true if this FloatingPoint is Not a Number (NaN)
   /// by having its exponent field set to the NaN value (typically all
   /// ones) and a non-zero mantissa.
-  late final isNaN = exponent.eq(floatingPointValue.nan.exponent) &
-      mantissa.or().named(
-            _nameJoin('isNaN', name),
-            naming: Naming.mergeable,
-          );
+  late final isNaN =
+      exponent.eq(floatingPointValue.clonePopulator().nan.exponent) &
+          mantissa.or().named(
+                _nameJoin('isNaN', name),
+                naming: Naming.mergeable,
+              );
 
   /// Return a Logic true if this FloatingPoint is an infinity
   /// by having its exponent field set to the NaN value (typically all
   /// ones) and a zero mantissa.
-  late final isInfinity =
-      (exponent.eq(floatingPointValue.infinity.exponent) & ~mantissa.or())
-          .named(_nameJoin('isInfinity', name), naming: Naming.mergeable);
+  late final isAnInfinity = (exponent.isIn([
+            floatingPointValue.clonePopulator().positiveInfinity.exponent,
+            floatingPointValue.clonePopulator().negativeInfinity.exponent,
+          ]) &
+          //TODO: if infinity throws an exception, tie to 0?
+          ~mantissa.or())
+      .named(_nameJoin('isAnInfinity', name), naming: Naming.mergeable);
 
   /// Return a Logic true if this FloatingPoint is an zero
   /// by having its exponent field set to the NaN value (typically all
   /// ones) and a zero mantissa.
-  late final isZero =
-      (exponent.eq(floatingPointValue.zero.exponent) & ~mantissa.or())
-          .named(_nameJoin('isZero', name), naming: Naming.mergeable);
+  late final isAZero = (exponent.isIn([
+            floatingPointValue.clonePopulator().positiveZero.exponent,
+            floatingPointValue.clonePopulator().negativeZero.exponent,
+          ]) &
+          ~mantissa.or())
+      .named(_nameJoin('isAZero', name), naming: Naming.mergeable);
 
   /// Return the zero exponent representation for this type of FloatingPoint
   late final zeroExponent = Const(LogicValue.zero, width: exponent.width)
@@ -152,11 +163,15 @@ class FloatingPoint32 extends FloatingPoint {
   /// Construct a 32-bit (single-precision) floating point number
   FloatingPoint32({super.name})
       : super(
-            exponentWidth: FloatingPoint32Value.exponentWidth,
-            mantissaWidth: FloatingPoint32Value.mantissaWidth);
+            exponentWidth: FloatingPoint32Value.populator().exponentWidth,
+            mantissaWidth: FloatingPoint32Value.populator().mantissaWidth);
 
   @override
   FloatingPoint32 clone({String? name}) => FloatingPoint32(name: name);
+
+  @override
+  FloatingPoint32Value get floatingPointValue =>
+      FloatingPoint32Value.populator().ofFloatingPoint(this);
 }
 
 /// Double floating point representation
@@ -164,10 +179,14 @@ class FloatingPoint64 extends FloatingPoint {
   /// Construct a 64-bit (double-precision) floating point number
   FloatingPoint64({super.name})
       : super(
-            exponentWidth: FloatingPoint64Value.exponentWidth,
-            mantissaWidth: FloatingPoint64Value.mantissaWidth);
+            exponentWidth: FloatingPoint64Value.populator().exponentWidth,
+            mantissaWidth: FloatingPoint64Value.populator().mantissaWidth);
   @override
   FloatingPoint64 clone({String? name}) => FloatingPoint64(name: name);
+
+  @override
+  FloatingPointValue get floatingPointValue =>
+      FloatingPoint64Value.populator().ofFloatingPoint(this);
 }
 
 /// Eight-bit floating point representation for deep learning: E4M3
@@ -175,10 +194,14 @@ class FloatingPoint8E4M3 extends FloatingPoint {
   /// Construct an 8-bit floating point number
   FloatingPoint8E4M3({super.name})
       : super(
-            mantissaWidth: FloatingPoint8E4M3Value.mantissaWidth,
-            exponentWidth: FloatingPoint8E4M3Value.exponentWidth);
+            mantissaWidth: FloatingPoint8E4M3Value.populator().mantissaWidth,
+            exponentWidth: FloatingPoint8E4M3Value.populator().exponentWidth);
   @override
   FloatingPoint8E4M3 clone({String? name}) => FloatingPoint8E4M3(name: name);
+
+  @override
+  FloatingPointValue get floatingPointValue =>
+      FloatingPoint8E4M3Value.populator().ofFloatingPoint(this);
 }
 
 /// Eight-bit floating point representation for deep learning: E5M2
@@ -186,10 +209,14 @@ class FloatingPoint8E5M2 extends FloatingPoint {
   /// Construct an 8-bit floating point number
   FloatingPoint8E5M2({super.name})
       : super(
-            mantissaWidth: FloatingPoint8E5M2Value.mantissaWidth,
-            exponentWidth: FloatingPoint8E5M2Value.exponentWidth);
+            mantissaWidth: FloatingPoint8E5M2Value.populator().mantissaWidth,
+            exponentWidth: FloatingPoint8E5M2Value.populator().exponentWidth);
   @override
   FloatingPoint8E5M2 clone({String? name}) => FloatingPoint8E5M2(name: name);
+
+  @override
+  FloatingPointValue get floatingPointValue =>
+      FloatingPoint8E5M2Value.populator().ofFloatingPoint(this);
 }
 
 /// Sixteen-bit BF16 floating point representation
@@ -197,10 +224,14 @@ class FloatingPointBF16 extends FloatingPoint {
   /// Construct a BF16 16-bit floating point number
   FloatingPointBF16({super.name})
       : super(
-            mantissaWidth: FloatingPointBF16Value.mantissaWidth,
-            exponentWidth: FloatingPointBF16Value.exponentWidth);
+            mantissaWidth: FloatingPointBF16Value.populator().mantissaWidth,
+            exponentWidth: FloatingPointBF16Value.populator().exponentWidth);
   @override
   FloatingPointBF16 clone({String? name}) => FloatingPointBF16(name: name);
+
+  @override
+  FloatingPointValue get floatingPointValue =>
+      FloatingPointBF16Value.populator().ofFloatingPoint(this);
 }
 
 /// Sixteen-bit floating point representation
@@ -208,8 +239,12 @@ class FloatingPoint16 extends FloatingPoint {
   /// Construct a 16-bit floating point number
   FloatingPoint16({super.name})
       : super(
-            mantissaWidth: FloatingPoint16Value.mantissaWidth,
-            exponentWidth: FloatingPoint16Value.exponentWidth);
+            mantissaWidth: FloatingPoint16Value.populator().mantissaWidth,
+            exponentWidth: FloatingPoint16Value.populator().exponentWidth);
   @override
   FloatingPoint16 clone({String? name}) => FloatingPoint16(name: name);
+
+  @override
+  FloatingPointValue get floatingPointValue =>
+      FloatingPoint16Value.populator().ofFloatingPoint(this);
 }

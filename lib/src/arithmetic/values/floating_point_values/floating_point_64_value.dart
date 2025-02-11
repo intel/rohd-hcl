@@ -11,72 +11,59 @@
 
 import 'dart:typed_data';
 
+import 'package:meta/meta.dart';
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
 
 /// A representation of a double-precision floating-point value.
 class FloatingPoint64Value extends FloatingPointValue {
   /// The exponent width
-  static const int exponentWidth = 11;
+  @override
+  final int exponentWidth = 11;
 
   /// The mantissa width
-  static const int mantissaWidth = 52;
+  @override
+  final int mantissaWidth = 52;
 
   /// Constructor for a double precision floating point value
-  FloatingPoint64Value(
-      {required super.sign, required super.mantissa, required super.exponent});
+  factory FloatingPoint64Value(
+          {required LogicValue sign,
+          required LogicValue exponent,
+          required LogicValue mantissa}) =>
+      populator().populate(sign: sign, exponent: exponent, mantissa: mantissa);
 
-  /// Return the [FloatingPoint64Value] representing the constant specified
-  factory FloatingPoint64Value.getFloatingPointConstant(
-          FloatingPointConstants constantFloatingPoint) =>
-      FloatingPoint64Value.ofLogicValue(
-          FloatingPointValue.getFloatingPointConstant(
-                  constantFloatingPoint, exponentWidth, mantissaWidth)
-              .value);
+  @protected
+  @override
+  FloatingPoint64Value.unpop() : super.uninitialized();
 
-  /// [FloatingPoint64Value] constructor from string representation of
-  /// individual bitfields
-  FloatingPoint64Value.ofBinaryStrings(
-      super.sign, super.exponent, super.mantissa)
-      : super.ofBinaryStrings();
+  static FloatingPointValuePopulator<FloatingPoint64Value> populator() =>
+      FloatingPoint64ValuePopulator(FloatingPoint64Value.unpop());
 
-  /// [FloatingPoint64Value] constructor from spaced string representation of
-  /// individual bitfields
-  FloatingPoint64Value.ofSpacedBinaryString(super.fp)
-      : super.ofSpacedBinaryString();
+  @override
+  FloatingPointValuePopulator clonePopulator() => populator();
+}
 
-  /// [FloatingPoint64Value] constructor from a single string representing
-  /// space-separated bitfields
-  FloatingPoint64Value.ofString(String fp, {super.radix})
-      : super.ofString(fp, exponentWidth, mantissaWidth);
+class FloatingPoint64ValuePopulator
+    extends FloatingPointValuePopulator<FloatingPoint64Value> {
+  FloatingPoint64ValuePopulator(super._unpopulated);
 
-  /// [FloatingPoint64Value] constructor from a set of [BigInt]s of the binary
-  /// representation
-  FloatingPoint64Value.ofBigInts(super.exponent, super.mantissa, {super.sign})
-      : super.ofBigInts(
-            exponentWidth: exponentWidth, mantissaWidth: mantissaWidth);
+  @override
+  FloatingPoint64Value ofDouble(double inDouble,
+      {FloatingPointRoundingMode roundingMode =
+          FloatingPointRoundingMode.roundNearestEven}) {
+    if (roundingMode != FloatingPointRoundingMode.roundNearestEven) {
+      return super.ofDouble(inDouble, roundingMode: roundingMode);
+    }
 
-  /// [FloatingPoint64Value] constructor from a set of [int]s of the binary
-  /// representation
-  FloatingPoint64Value.ofInts(super.exponent, super.mantissa, {super.sign})
-      : super.ofInts(
-            exponentWidth: exponentWidth, mantissaWidth: mantissaWidth);
-
-  /// Numeric conversion of a [FloatingPoint64Value] from a host double
-  factory FloatingPoint64Value.ofDouble(double inDouble) {
     final byteData = ByteData(8)..setFloat64(0, inDouble);
     final accum = byteData.buffer
         .asUint8List()
         .map((b) => LogicValue.ofInt(b, 64))
         .reduce((accum, v) => (accum << 8) | v);
 
-    return FloatingPoint64Value(
+    return populate(
         sign: accum[-1],
         exponent: accum.slice(exponentWidth + mantissaWidth - 1, mantissaWidth),
         mantissa: accum.slice(mantissaWidth - 1, 0));
   }
-
-  /// Construct a [FloatingPoint32Value] from a Logic word
-  FloatingPoint64Value.ofLogicValue(LogicValue val)
-      : super.ofLogicValue(exponentWidth, mantissaWidth, val);
 }

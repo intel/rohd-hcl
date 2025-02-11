@@ -20,8 +20,9 @@ void main() async {
     fixed.put(FixedPointValue.ofDouble(1.25,
         signed: fixed.signed, m: fixed.m, n: fixed.n));
     final fpv = dut.float.floatingPointValue;
-    final fpvExpected = FloatingPointValue.ofDouble(1.25,
-        exponentWidth: dut.exponentWidth, mantissaWidth: dut.mantissaWidth);
+    final fpvExpected = FloatingPointValue.populator(
+            exponentWidth: dut.exponentWidth, mantissaWidth: dut.mantissaWidth)
+        .ofDouble(1.25);
     expect(fpv.sign, fpvExpected.sign);
     expect(fpv.exponent.bitString, fpvExpected.exponent.bitString,
         reason: 'exponent mismatch');
@@ -69,8 +70,10 @@ void main() async {
           n: fixed.n);
       fixed.put(fixedValue);
       final fpv = dut.float.floatingPointValue;
-      final fpvExpected = FloatingPointValue.ofDouble(fixedValue.toDouble(),
-          exponentWidth: dut.exponentWidth, mantissaWidth: dut.mantissaWidth);
+      final fpvExpected = FloatingPointValue.populator(
+              exponentWidth: dut.exponentWidth,
+              mantissaWidth: dut.mantissaWidth)
+          .ofDouble(fixedValue.toDouble());
       expect(fpv.sign, fpvExpected.sign);
       expect(fpv.exponent.bitString, fpvExpected.exponent.bitString,
           reason: 'exponent');
@@ -91,8 +94,10 @@ void main() async {
           n: fixed.n);
       fixed.put(fixedValue);
       final fpv = dut.float.floatingPointValue;
-      final fpvExpected = FloatingPointValue.ofDouble(fixedValue.toDouble(),
-          exponentWidth: dut.exponentWidth, mantissaWidth: dut.mantissaWidth);
+      final fpvExpected = FloatingPointValue.populator(
+              exponentWidth: dut.exponentWidth,
+              mantissaWidth: dut.mantissaWidth)
+          .ofDouble(fixedValue.toDouble());
       expect(fpv.sign, fpvExpected.sign);
       expect(fpv.exponent.bitString, fpvExpected.exponent.bitString,
           reason: 'exponent mismatch');
@@ -113,8 +118,10 @@ void main() async {
           n: fixed.n);
       fixed.put(fixedValue);
       final fpv = dut.float.floatingPointValue;
-      final fpvExpected = FloatingPointValue.ofDouble(fixedValue.toDouble(),
-          exponentWidth: dut.exponentWidth, mantissaWidth: dut.mantissaWidth);
+      final fpvExpected = FloatingPointValue.populator(
+              exponentWidth: dut.exponentWidth,
+              mantissaWidth: dut.mantissaWidth)
+          .ofDouble(fixedValue.toDouble());
       expect(fpv.sign, fpvExpected.sign);
       expect(fpv.exponent.bitString, fpvExpected.exponent.bitString,
           reason: 'exponent mismatch');
@@ -135,8 +142,10 @@ void main() async {
           n: fixed.n);
       fixed.put(fixedValue);
       final fpv = dut.float.floatingPointValue;
-      final fpvExpected = FloatingPointValue.ofDouble(fixedValue.toDouble(),
-          exponentWidth: dut.exponentWidth, mantissaWidth: dut.mantissaWidth);
+      final fpvExpected = FloatingPointValue.populator(
+              exponentWidth: dut.exponentWidth,
+              mantissaWidth: dut.mantissaWidth)
+          .ofDouble(fixedValue.toDouble());
       expect(fpv.sign, fpvExpected.sign);
       expect(fpv.exponent.bitString, fpvExpected.exponent.bitString,
           reason: 'exponent mismatch');
@@ -157,8 +166,10 @@ void main() async {
           n: fixed.n);
       fixed.put(fixedValue);
       final fpv = dut.float.floatingPointValue;
-      final fpvExpected = FloatingPointValue.ofDouble(fixedValue.toDouble(),
-          exponentWidth: dut.exponentWidth, mantissaWidth: dut.mantissaWidth);
+      final fpvExpected = FloatingPointValue.populator(
+              exponentWidth: dut.exponentWidth,
+              mantissaWidth: dut.mantissaWidth)
+          .ofDouble(fixedValue.toDouble());
       expect(fpv.sign, fpvExpected.sign);
       expect(fpv.exponent.bitString, fpvExpected.exponent.bitString,
           reason: 'exponent mismatch');
@@ -179,8 +190,10 @@ void main() async {
           n: fixed.n);
       fixed.put(fixedValue);
       final fpv = dut.float.floatingPointValue;
-      final fpvExpected = FloatingPointValue.ofDouble(fixedValue.toDouble(),
-          exponentWidth: dut.exponentWidth, mantissaWidth: dut.mantissaWidth);
+      final fpvExpected = FloatingPointValue.populator(
+              exponentWidth: dut.exponentWidth,
+              mantissaWidth: dut.mantissaWidth)
+          .ofDouble(fixedValue.toDouble());
       expect(fpv.sign, fpvExpected.sign);
       expect(fpv.exponent.bitString, fpvExpected.exponent.bitString,
           reason: 'exponent mismatch');
