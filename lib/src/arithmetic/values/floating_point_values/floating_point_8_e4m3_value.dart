@@ -31,13 +31,12 @@ class FloatingPoint8E4M3Value extends FloatingPointValue {
   FloatingPointValuePopulator clonePopulator() => populator();
 
   /// The maximum value representable by the E4M3 format
-  static double get maxValue => populator()
-      .ofFloatingPointConstant(FloatingPointConstants.largestNormal)
-      .toDouble();
+  static double get maxValue =>
+      populator().ofConstant(FloatingPointConstants.largestNormal).toDouble();
 
   /// The minimum value representable by the E4M3 format
   static double get minValue => populator()
-      .ofFloatingPointConstant(FloatingPointConstants.smallestPositiveSubnormal)
+      .ofConstant(FloatingPointConstants.smallestPositiveSubnormal)
       .toDouble();
 
   /// Inf is not representable in this format

@@ -17,6 +17,10 @@ import 'package:rohd_hcl/rohd_hcl.dart';
 import 'package:test/test.dart';
 
 void main() {
+  tearDown(() async {
+    await Simulator.reset();
+  });
+
   test('FP: simple adder random', () {
     const exponentWidth = 5;
     const mantissaWidth = 20;
@@ -30,10 +34,12 @@ void main() {
     final adder = FloatingPointAdderSimple(fp1, fp2);
     final value = Random(513);
     for (var i = 0; i < 500; i++) {
-      final fv1 = FloatingPointValue.random(value,
-          exponentWidth: exponentWidth, mantissaWidth: mantissaWidth);
-      final fv2 = FloatingPointValue.random(value,
-          exponentWidth: exponentWidth, mantissaWidth: mantissaWidth);
+      final fv1 = FloatingPointValue.populator(
+              exponentWidth: exponentWidth, mantissaWidth: mantissaWidth)
+          .random(value);
+      final fv2 = FloatingPointValue.populator(
+              exponentWidth: exponentWidth, mantissaWidth: mantissaWidth)
+          .random(value);
       fp1.put(fv1);
       fp2.put(fv2);
       final computed = adder.sum.floatingPointValue;
@@ -41,10 +47,9 @@ void main() {
       final expectedDouble =
           fp1.floatingPointValue.toDouble() + fp2.floatingPointValue.toDouble();
 
-      final expectedNoRound = FloatingPointValue.ofDoubleUnrounded(
-          expectedDouble,
-          exponentWidth: exponentWidth,
-          mantissaWidth: mantissaWidth);
+      final expectedNoRound = FloatingPointValue.populator(
+              exponentWidth: exponentWidth, mantissaWidth: mantissaWidth)
+          .ofDoubleUnrounded(expectedDouble);
       expect(computed.withinRounding(expectedNoRound), true, reason: '''
       $fv1 (${fv1.toDouble()})\t+
       $fv2 (${fv2.toDouble()})\t=
@@ -71,23 +76,24 @@ void main() {
       final mantLimit = pow(2, mantissaWidth);
       for (var e1 = 0; e1 < expLimit; e1++) {
         for (var m1 = 0; m1 < mantLimit; m1++) {
-          final fv1 = FloatingPointValue.ofInts(e1, m1,
-              exponentWidth: exponentWidth, mantissaWidth: mantissaWidth);
+          final fv1 = FloatingPointValue.populator(
+                  exponentWidth: exponentWidth, mantissaWidth: mantissaWidth)
+              .ofInts(e1, m1);
           for (var e2 = 0; e2 < expLimit; e2++) {
             for (var m2 = 0; m2 < mantLimit; m2++) {
-              final fv2 = FloatingPointValue.ofInts(e2, m2,
-                  exponentWidth: exponentWidth,
-                  mantissaWidth: mantissaWidth,
-                  sign: subtract == 1);
+              final fv2 = FloatingPointValue.populator(
+                      exponentWidth: exponentWidth,
+                      mantissaWidth: mantissaWidth)
+                  .ofInts(e2, m2, sign: subtract == 1);
 
               fp1.put(fv1.value);
               fp2.put(fv2.value);
 
               final computed = adder.sum.floatingPointValue;
-              final expectedNoRound = FloatingPointValue.ofDoubleUnrounded(
-                  fv1.toDouble() + fv2.toDouble(),
-                  exponentWidth: exponentWidth,
-                  mantissaWidth: mantissaWidth);
+              final expectedNoRound = FloatingPointValue.populator(
+                      exponentWidth: exponentWidth,
+                      mantissaWidth: mantissaWidth)
+                  .ofDoubleUnrounded(fv1.toDouble() + fv2.toDouble());
 
               expect(computed.withinRounding(expectedNoRound), true, reason: '''
       $fv1 (${fv1.toDouble()})\t+
@@ -157,10 +163,9 @@ void main() {
         final expectedDouble = fp1.floatingPointValue.toDouble() +
             fp2.floatingPointValue.toDouble();
 
-        final expectedNoRound = FloatingPointValue.ofDoubleUnrounded(
-            expectedDouble,
-            exponentWidth: exponentWidth,
-            mantissaWidth: mantissaWidth);
+        final expectedNoRound = FloatingPointValue.populator(
+                exponentWidth: exponentWidth, mantissaWidth: mantissaWidth)
+            .ofDoubleUnrounded(expectedDouble);
 
         final computed = adder.sum.floatingPointValue;
         expect(computed.withinRounding(expectedNoRound), true, reason: '''
@@ -179,10 +184,9 @@ void main() {
       final expectedDouble =
           fp1.floatingPointValue.toDouble() + fp2.floatingPointValue.toDouble();
 
-      final expectedNoRound = FloatingPointValue.ofDoubleUnrounded(
-          expectedDouble,
-          exponentWidth: exponentWidth,
-          mantissaWidth: mantissaWidth);
+      final expectedNoRound = FloatingPointValue.populator(
+              exponentWidth: exponentWidth, mantissaWidth: mantissaWidth)
+          .ofDoubleUnrounded(expectedDouble);
       expect(adder.sum.floatingPointValue, equals(expectedNoRound));
     });
     test('FP: simple adder singleton pipelined path', () async {
@@ -193,10 +197,9 @@ void main() {
       final expectedDouble =
           fp1.floatingPointValue.toDouble() + fp2.floatingPointValue.toDouble();
 
-      final expectedNoRound = FloatingPointValue.ofDoubleUnrounded(
-          expectedDouble,
-          exponentWidth: exponentWidth,
-          mantissaWidth: mantissaWidth);
+      final expectedNoRound = FloatingPointValue.populator(
+              exponentWidth: exponentWidth, mantissaWidth: mantissaWidth)
+          .ofDoubleUnrounded(expectedDouble);
 
       final FloatingPointValue expected;
       expected = expectedNoRound;
@@ -222,14 +225,12 @@ void main() {
       final value = Random(513);
 
       for (var i = 0; i < 500; i++) {
-        final fv1 = FloatingPointValue.random(value,
-            exponentWidth: exponentWidth,
-            mantissaWidth: mantissaWidth,
-            normal: true);
-        final fv2 = FloatingPointValue.random(value,
-            exponentWidth: exponentWidth,
-            mantissaWidth: mantissaWidth,
-            normal: true);
+        final fv1 = FloatingPointValue.populator(
+                exponentWidth: exponentWidth, mantissaWidth: mantissaWidth)
+            .random(value, normal: true);
+        final fv2 = FloatingPointValue.populator(
+                exponentWidth: exponentWidth, mantissaWidth: mantissaWidth)
+            .random(value, normal: true);
 
         fp1.put(fv1.value);
         fp2.put(fv2.value);
@@ -239,10 +240,9 @@ void main() {
 
         final computed = adder.sum.floatingPointValue;
 
-        final expectedNoRound = FloatingPointValue.ofDoubleUnrounded(
-            fv1.toDouble() + fv2.toDouble(),
-            exponentWidth: exponentWidth,
-            mantissaWidth: mantissaWidth);
+        final expectedNoRound = FloatingPointValue.populator(
+                exponentWidth: exponentWidth, mantissaWidth: mantissaWidth)
+            .ofDoubleUnrounded(fv1.toDouble() + fv2.toDouble());
 
         expect(computed.withinRounding(expectedNoRound), true, reason: '''
       $fv1 (${fv1.toDouble()})\t+
@@ -270,20 +270,21 @@ void main() {
     final value = Random(513);
 
     for (var i = 0; i < 500; i++) {
-      final fv1 = FloatingPointValue.random(value,
-          exponentWidth: exponentWidth, mantissaWidth: mantissaWidth);
-      final fv2 = FloatingPointValue.random(value,
-          exponentWidth: exponentWidth, mantissaWidth: mantissaWidth);
+      final fv1 = FloatingPointValue.populator(
+              exponentWidth: exponentWidth, mantissaWidth: mantissaWidth)
+          .random(value);
+      final fv2 = FloatingPointValue.populator(
+              exponentWidth: exponentWidth, mantissaWidth: mantissaWidth)
+          .random(value);
 
       fp1.put(fv1.value);
       fp2.put(fv2.value);
 
       final computed = adder.sum.floatingPointValue;
 
-      final expectedNoRound = FloatingPointValue.ofDoubleUnrounded(
-          fv1.toDouble() + fv2.toDouble(),
-          exponentWidth: exponentWidth,
-          mantissaWidth: mantissaWidth);
+      final expectedNoRound = FloatingPointValue.populator(
+              exponentWidth: exponentWidth, mantissaWidth: mantissaWidth)
+          .ofDoubleUnrounded(fv1.toDouble() + fv2.toDouble());
 
       expect(computed.withinRounding(expectedNoRound), true, reason: '''
       $fv1 (${fv1.toDouble()})\t+
@@ -308,20 +309,21 @@ void main() {
     final value = Random(513);
 
     for (var i = 0; i < 500; i++) {
-      final fv1 = FloatingPointValue.random(value,
-          exponentWidth: exponentWidth, mantissaWidth: mantissaWidth);
-      final fv2 = FloatingPointValue.random(value,
-          exponentWidth: exponentWidth, mantissaWidth: mantissaWidth);
+      final fv1 = FloatingPointValue.populator(
+              exponentWidth: exponentWidth, mantissaWidth: mantissaWidth)
+          .random(value);
+      final fv2 = FloatingPointValue.populator(
+              exponentWidth: exponentWidth, mantissaWidth: mantissaWidth)
+          .random(value);
 
       fp1.put(fv1.value);
       fp2.put(fv2.value);
 
       final computed = adder.sum.floatingPointValue;
 
-      final expectedNoRound = FloatingPointValue.ofDoubleUnrounded(
-          fv1.toDouble() + fv2.toDouble(),
-          exponentWidth: exponentWidth,
-          mantissaWidth: mantissaWidth);
+      final expectedNoRound = FloatingPointValue.populator(
+              exponentWidth: exponentWidth, mantissaWidth: mantissaWidth)
+          .ofDoubleUnrounded(fv1.toDouble() + fv2.toDouble());
 
       expect(computed.withinRounding(expectedNoRound), true, reason: '''
       $fv1 (${fv1.toDouble()})\t+
@@ -354,8 +356,9 @@ void main() {
     final expectedDouble =
         fp1.floatingPointValue.toDouble() + fp2.floatingPointValue.toDouble();
 
-    final expectedNoRound = FloatingPointValue.ofDoubleUnrounded(expectedDouble,
-        exponentWidth: exponentWidth, mantissaWidth: mantissaWidth);
+    final expectedNoRound = FloatingPointValue.populator(
+            exponentWidth: exponentWidth, mantissaWidth: mantissaWidth)
+        .ofDoubleUnrounded(expectedDouble);
     expect(adder.sum.floatingPointValue, equals(expectedNoRound));
   });
 }
