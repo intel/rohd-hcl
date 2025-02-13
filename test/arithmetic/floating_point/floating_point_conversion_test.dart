@@ -28,10 +28,14 @@ void main() {
     final convert = FloatingPointConverter(fp1, fp2);
     await convert.build();
 
-    final expected = FloatingPointValue.ofDoubleUnrounded(fv1.toDouble(),
-        exponentWidth: destExponentWidth, mantissaWidth: destMantissaWidth);
-    final expectedRound = FloatingPointValue.ofDouble(fv1.toDouble(),
-        exponentWidth: destExponentWidth, mantissaWidth: destMantissaWidth);
+    final expected = FloatingPointValue.populator(
+            exponentWidth: destExponentWidth, mantissaWidth: destMantissaWidth)
+        .ofDoubleUnrounded(
+      fv1.toDouble(),
+    );
+    final expectedRound = FloatingPointValue.populator(
+            exponentWidth: destExponentWidth, mantissaWidth: destMantissaWidth)
+        .ofDouble(fv1.toDouble());
 
     final computed = convert.destination.floatingPointValue;
     expect(computed, equals(fp2.floatingPointValue));
@@ -60,8 +64,9 @@ void main() {
         exponentWidth: destExponentWidth, mantissaWidth: destMantissaWidth);
     final convert = FloatingPointConverter(fp1, fp2);
 
-    final expected = FloatingPointValue.ofDouble(fv1.toDouble(),
-        exponentWidth: destExponentWidth, mantissaWidth: destMantissaWidth);
+    final expected = FloatingPointValue.populator(
+            exponentWidth: destExponentWidth, mantissaWidth: destMantissaWidth)
+        .ofDouble(fv1.toDouble());
 
     final computed = convert.destination.floatingPointValue;
     expect(computed, equals(fp2.floatingPointValue));
@@ -94,15 +99,16 @@ void main() {
         for (final negate in [false, true]) {
           for (var e1 = normal; e1 < expLimit; e1++) {
             for (var m1 = 0; m1 < mantLimit; m1++) {
-              final fv1 = FloatingPointValue.ofInts(e1, m1,
-                  exponentWidth: exponentWidth,
-                  mantissaWidth: mantissaWidth,
-                  sign: negate);
+              final fv1 = FloatingPointValue.populator(
+                      exponentWidth: exponentWidth,
+                      mantissaWidth: mantissaWidth)
+                  .ofInts(e1, m1, sign: negate);
               fp1.put(fv1.value);
 
-              final expected = FloatingPointValue.ofDouble(fv1.toDouble(),
-                  exponentWidth: destExponentWidth,
-                  mantissaWidth: destMantissaWidth);
+              final expected = FloatingPointValue.populator(
+                      exponentWidth: destExponentWidth,
+                      mantissaWidth: destMantissaWidth)
+                  .ofDouble(fv1.toDouble());
 
               final computed = convert.destination.floatingPointValue;
               expect(computed, equals(fp2.floatingPointValue));
@@ -143,15 +149,16 @@ void main() {
         for (final negate in [false, true]) {
           for (var e1 = normal; e1 < expLimit; e1++) {
             for (var m1 = 0; m1 < mantLimit; m1++) {
-              final fv1 = FloatingPointValue.ofInts(e1, m1,
-                  exponentWidth: exponentWidth,
-                  mantissaWidth: mantissaWidth,
-                  sign: negate);
+              final fv1 = FloatingPointValue.populator(
+                      exponentWidth: exponentWidth,
+                      mantissaWidth: mantissaWidth)
+                  .ofInts(e1, m1, sign: negate);
               fp1.put(fv1.value);
 
-              final expected = FloatingPointValue.ofDouble(fv1.toDouble(),
-                  exponentWidth: destExponentWidth,
-                  mantissaWidth: destMantissaWidth);
+              final expected = FloatingPointValue.populator(
+                      exponentWidth: destExponentWidth,
+                      mantissaWidth: destMantissaWidth)
+                  .ofDouble(fv1.toDouble());
 
               final computed = convert.destination.floatingPointValue;
               expect(computed, equals(fp2.floatingPointValue));
@@ -180,12 +187,14 @@ void main() {
             for (final negate in [false, true]) {
               for (var e1 = 0; e1 < pow(2, sEW) - 1; e1++) {
                 for (var m1 = 0; m1 < pow(2, sMW); m1++) {
-                  final fv1 = FloatingPointValue.ofInts(e1, m1,
-                      exponentWidth: sEW, mantissaWidth: sMW, sign: negate);
+                  final fv1 = FloatingPointValue.populator(
+                          exponentWidth: sEW, mantissaWidth: sMW)
+                      .ofInts(e1, m1, sign: negate);
                   fp1.put(fv1.value);
 
-                  final expected = FloatingPointValue.ofDouble(fv1.toDouble(),
-                      exponentWidth: dEW, mantissaWidth: dMW);
+                  final expected = FloatingPointValue.populator(
+                          exponentWidth: dEW, mantissaWidth: dMW)
+                      .ofDouble(fv1.toDouble());
 
                   final computed = convert.destination.floatingPointValue;
 
@@ -208,8 +217,8 @@ void main() {
     final fp32 = FloatingPoint32();
     final bf16 = FloatingPointBF16();
 
-    final one = FloatingPoint32Value.getFloatingPointConstant(
-        FloatingPointConstants.one);
+    final one =
+        FloatingPoint32Value.populator().ofConstant(FloatingPointConstants.one);
 
     fp32.put(one);
     FloatingPointConverter(fp32, bf16);

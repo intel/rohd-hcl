@@ -76,9 +76,7 @@ class FloatingPointConverter extends Module {
       log2Ceil(destMantissaWidth + 2)
     ].reduce(max);
     final sBias = source.bias.zeroExtend(maxExpWidth).named('sourceBias');
-    final dBias = Const(FloatingPointValue.computeBias(destExponentWidth),
-            width: maxExpWidth)
-        .named('destBias');
+    final dBias = destination.bias.zeroExtend(maxExpWidth).named('destBias');
     final se = source.exponent.zeroExtend(maxExpWidth).named('sourceExp');
     final mantissa =
         [source.isNormal, source.mantissa].swizzle().named('mantissa');
@@ -89,7 +87,7 @@ class FloatingPointConverter extends Module {
     final Logic destMantissa;
     if (destExponentWidth >= source.exponent.width) {
       // Narrow to Wide
-      infinity = source.isInfinity;
+      infinity = source.isAnInfinity;
       final biasDiff = (dBias - sBias).named('biasDiff');
       final predictExp = (se + biasDiff).named('predictExp');
 
@@ -185,11 +183,11 @@ class FloatingPointConverter extends Module {
           roundedMantissa.getRange(0, destMantissaWidth).named('destMantissa');
 
       final maxDestExp = Const(
-          FloatingPointValue.computeMaxExponent(destExponentWidth) +
-              FloatingPointValue.computeBias(destExponentWidth),
+          destination.floatingPointValue.maxExponent +
+              destination.floatingPointValue.bias,
           width: maxExpWidth);
 
-      infinity = source.isInfinity |
+      infinity = source.isAnInfinity |
           (se.gt(biasDiff) & (se - biasDiff).gt(maxDestExp));
     }
     Combinational([

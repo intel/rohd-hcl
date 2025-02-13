@@ -393,17 +393,19 @@ void main() {
   test('FPV: infinity/NaN unrounded conversion tests', () async {
     const exponentWidth = 4;
     const mantissaWidth = 4;
-    final infinity = FloatingPointValue.ofDoubleUnrounded(double.infinity,
-        exponentWidth: exponentWidth, mantissaWidth: mantissaWidth);
-    final negativeInfinity = FloatingPointValue.ofDoubleUnrounded(
-        double.negativeInfinity,
-        exponentWidth: exponentWidth,
-        mantissaWidth: mantissaWidth);
-    final tooLargeNumber = FloatingPointValue.ofDoubleUnrounded(557,
-        exponentWidth: exponentWidth, mantissaWidth: mantissaWidth);
+    final infinity = FloatingPointValue.populator(
+            exponentWidth: exponentWidth, mantissaWidth: mantissaWidth)
+        .ofDoubleUnrounded(double.infinity);
+    final negativeInfinity = FloatingPointValue.populator(
+            exponentWidth: exponentWidth, mantissaWidth: mantissaWidth)
+        .ofDoubleUnrounded(double.negativeInfinity);
+    final tooLargeNumber = FloatingPointValue.populator(
+            exponentWidth: exponentWidth, mantissaWidth: mantissaWidth)
+        .ofDoubleUnrounded(557);
     expect(tooLargeNumber.toDouble(), equals(double.infinity));
-    final tooLargeNumberRnded = FloatingPointValue.ofDouble(557,
-        exponentWidth: exponentWidth, mantissaWidth: mantissaWidth);
+    final tooLargeNumberRnded = FloatingPointValue.populator(
+            exponentWidth: exponentWidth, mantissaWidth: mantissaWidth)
+        .ofDouble(557);
     expect(tooLargeNumberRnded.toDouble(), equals(double.infinity));
     expect(infinity.toDouble(), equals(double.infinity));
     expect(tooLargeNumber.negate().toDouble(), equals(double.negativeInfinity));

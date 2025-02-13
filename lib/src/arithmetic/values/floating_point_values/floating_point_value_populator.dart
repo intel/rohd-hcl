@@ -194,28 +194,18 @@ class FloatingPointValuePopulator<FpvType extends FloatingPointValue> {
 
   /// Convert from double using its native binary representation
   FpvType ofDouble(double inDouble,
-      {required int exponentWidth,
-      required int mantissaWidth,
-      FloatingPointRoundingMode roundingMode =
+      {FloatingPointRoundingMode roundingMode =
           FloatingPointRoundingMode.roundNearestEven}) {
     if (inDouble.isNaN) {
-      final nan = this.nan;
-      mantissa = nan.mantissa;
-      exponent = nan.exponent;
-      sign = nan.sign;
-      return;
+      return nan;
     }
 
     if (inDouble.isInfinite) {
       return ofConstant(
         inDouble < 0.0
             ? FloatingPointConstants.negativeInfinity
-            : FloatingPointConstants.infinity,
+            : FloatingPointConstants.positiveInfinity,
       );
-      mantissa = inf.mantissa;
-      exponent = inf.exponent;
-      sign = inf.sign;
-      return;
     }
 
     if (roundingMode != FloatingPointRoundingMode.roundNearestEven &&
@@ -224,7 +214,7 @@ class FloatingPointValuePopulator<FpvType extends FloatingPointValue> {
           'Only roundNearestEven or truncate is supported for this width');
     }
 
-    final fp64 = FloatingPoint64Value.ofDouble(inDouble);
+    final fp64 = FloatingPoint64Value.populator().ofDouble(inDouble);
     final exponent64 = fp64.exponent;
 
     var expVal = (exponent64.toInt() - fp64.bias) + bias;
@@ -235,7 +225,7 @@ class FloatingPointValuePopulator<FpvType extends FloatingPointValue> {
       else
         fp64.mantissa
     ].first;
-    mantissa = mantissa64.slice(51, 51 - mantissaWidth + 1);
+    var mantissa = mantissa64.slice(51, 51 - mantissaWidth + 1);
 
     // TODO(desmonddak): this should be in a separate function to use
     // with a FloatingPointValue converter we need.
@@ -258,15 +248,12 @@ class FloatingPointValuePopulator<FpvType extends FloatingPointValue> {
         }
       }
     }
-    if (expVal >
-        FloatingPointValue.computeMaxExponent(exponentWidth) +
-            FloatingPointValue.computeBias(exponentWidth)) {
-      return FloatingPointValue.getFloatingPointConstant(
-          fp64.sign.toBool()
-              ? FloatingPointConstants.negativeInfinity
-              : FloatingPointConstants.infinity,
-          exponentWidth,
-          mantissaWidth);
+    if (expVal > maxExponent + bias) {
+      return ofConstant(
+        fp64.sign.toBool()
+            ? FloatingPointConstants.negativeInfinity
+            : FloatingPointConstants.positiveInfinity,
+      );
     }
 
     // TODO(desmonddak): how to convert to infinity and check that it is
@@ -275,32 +262,30 @@ class FloatingPointValuePopulator<FpvType extends FloatingPointValue> {
       // TODO(desmonddak): need a better way to detect subclass limitations
       // Here we avoid returning infinity for FP8E4M3
     } else {
-      if (expVal >
-          FloatingPointValue.computeBias(exponentWidth) +
-              FloatingPointValue.computeMaxExponent(exponentWidth)) {
+      if (expVal > bias + maxExponent) {
         return (fp64.sign == LogicValue.one)
-            ? FloatingPointValue.getFloatingPointConstant(
-                FloatingPointConstants.negativeInfinity,
-                exponentWidth,
-                mantissaWidth)
-            : FloatingPointValue.getFloatingPointConstant(
-                FloatingPointConstants.infinity, exponentWidth, mantissaWidth);
+            ? ofConstant(FloatingPointConstants.negativeInfinity)
+            : ofConstant(FloatingPointConstants.positiveInfinity);
       }
     }
     final exponent =
         LogicValue.ofBigInt(BigInt.from(max(expVal, 0)), exponentWidth);
 
-    sign = fp64.sign;
+    final sign = fp64.sign;
+
+    return populate(
+      sign: sign,
+      exponent: exponent,
+      mantissa: mantissa,
+    );
   }
 
   /// Convert a floating point number into a [FloatingPointValue]
   /// representation. This form performs NO ROUNDING.
   @internal
-  FpvType ofDoubleUnrounded(double inDouble,
-      {required int exponentWidth, required int mantissaWidth}) {
+  FpvType ofDoubleUnrounded(double inDouble) {
     if (inDouble.isNaN) {
-      return FloatingPointValue.getFloatingPointConstant(
-          FloatingPointConstants.nan, exponentWidth, mantissaWidth);
+      return ofConstant(FloatingPointConstants.nan);
     }
 
     var doubleVal = inDouble;
@@ -354,39 +339,37 @@ class FloatingPointValuePopulator<FpvType extends FloatingPointValue> {
     var fullValue = LogicValue.ofBigInt(scaledValue, fullLength);
     var e = (fullLength > 0)
         ? fullLength - mantissaWidth - scaleToWhole
-        : FloatingPointValue.computeMinExponent(exponentWidth);
+        : minExponent;
 
-    if (e <= -FloatingPointValue.computeBias(exponentWidth)) {
-      fullValue = fullValue >>>
-          (scaleToWhole - FloatingPointValue.computeBias(exponentWidth));
-      e = -FloatingPointValue.computeBias(exponentWidth);
+    if (e <= -bias) {
+      fullValue = fullValue >>> (scaleToWhole - bias);
+      e = -bias;
     } else {
       // Could be just one away from subnormal
       e -= 1;
-      if (e > -FloatingPointValue.computeBias(exponentWidth)) {
+      if (e > -bias) {
         fullValue = fullValue << 1; // Chop the first '1'
       }
     }
 
-    if (e > FloatingPointValue.computeMaxExponent(exponentWidth)) {
-      return FloatingPointValue.getFloatingPointConstant(
-          sign.toBool()
-              ? FloatingPointConstants.negativeInfinity
-              : FloatingPointConstants.infinity,
-          exponentWidth,
-          mantissaWidth);
+    if (e > maxExponent) {
+      return ofConstant(sign.toBool()
+          ? FloatingPointConstants.negativeInfinity
+          : FloatingPointConstants.positiveInfinity);
     }
     // We reverse so that we fit into a shorter BigInt, we keep the MSB.
     // The conversion fills leftward.
     // We reverse again after conversion.
-    final exponent = LogicValue.ofInt(
-        e + FloatingPointValue.computeBias(exponentWidth), exponentWidth);
+    final exponent = LogicValue.ofInt(e + bias, exponentWidth);
     final mantissa =
         LogicValue.ofBigInt(fullValue.reversed.toBigInt(), mantissaWidth)
             .reversed;
 
-    return FloatingPointValue(
-        exponent: exponent, mantissa: mantissa, sign: sign);
+    return populate(
+      exponent: exponent,
+      mantissa: mantissa,
+      sign: sign,
+    );
   }
 
   /// Generate a random [FloatingPointValue], supplying random seed [rv].
@@ -398,11 +381,12 @@ class FloatingPointValuePopulator<FpvType extends FloatingPointValue> {
   /// If [normal] is true, This routine will only generate mantissas in the
   /// range of `[1,2)` and `minExponent() <= exponent <= maxExponent().`
   FpvType random(Random rv, {bool normal = false}) {
-    sign = rv.nextLogicValue(width: 1);
+    final sign = rv.nextLogicValue(width: 1);
 
-    mantissa = rv.nextLogicValue(width: mantissaWidth);
+    final mantissa = rv.nextLogicValue(width: mantissaWidth);
 
     final largestExponent = bias + maxExponent;
+    final LogicValue exponent;
     if (normal) {
       exponent =
           rv.nextLogicValue(width: exponentWidth, max: largestExponent - 1) +
@@ -411,6 +395,6 @@ class FloatingPointValuePopulator<FpvType extends FloatingPointValue> {
       exponent = rv.nextLogicValue(width: exponentWidth, max: largestExponent);
     }
 
-    validate();
+    return populate(sign: sign, exponent: exponent, mantissa: mantissa);
   }
 }
