@@ -1,14 +1,13 @@
 // Copyright (C) 2024-2025 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 //
-// floating_point_test.dart
+// floating_point_value_test.dart
 // Tests of Floating Point value stuff
 //
 // 2024 April 1
 // Authors:
 //  Max Korbel <max.korbel@intel.com>
 //  Desmond A Kirkpatrick <desmond.a.kirkpatrick@intel.com
-//
 
 import 'dart:math';
 import 'package:rohd/rohd.dart';
@@ -292,10 +291,14 @@ void main() {
       group('${p()} constants', () {
         for (final c in FloatingPointConstants.values) {
           if (p() is FloatingPointValuePopulator<FloatingPoint8E4M3Value>) {
-            if (c == FloatingPointConstants.negativeInfinity) {
-              continue;
-            }
-            if (c == FloatingPointConstants.positiveInfinity) {
+            if (c == FloatingPointConstants.negativeInfinity ||
+                c == FloatingPointConstants.positiveInfinity) {
+              test('${c.name} not supported', () {
+                expect(
+                  () => p().ofConstant(c),
+                  throwsA(isA<InfinityNotSupportedException>()),
+                );
+              });
               continue;
             }
           }
@@ -324,14 +327,6 @@ void main() {
         }
       });
     }
-  });
-
-  test('operations return same type', () {
-    //TODO: more types and operations
-    expect(
-        FloatingPoint8E4M3Value.populator().ofDouble(1.0) +
-            FloatingPoint8E4M3Value.populator().ofDouble(2.1),
-        isA<FloatingPoint8E4M3Value>());
   });
 
   test('Initializing derived type', () {

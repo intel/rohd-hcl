@@ -13,6 +13,7 @@
 import 'package:meta/meta.dart';
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
+import 'package:rohd_hcl/src/arithmetic/values/floating_point_values/floating_point_exceptions.dart';
 
 /// Flexible floating point logic representation
 class FloatingPoint extends LogicStructure {
@@ -85,12 +86,13 @@ class FloatingPoint extends LogicStructure {
   /// Return a Logic true if this FloatingPoint is an infinity
   /// by having its exponent field set to the NaN value (typically all
   /// ones) and a zero mantissa.
-  late final isAnInfinity = (exponent.isIn([
-            floatingPointValue.clonePopulator().positiveInfinity.exponent,
-            floatingPointValue.clonePopulator().negativeInfinity.exponent,
-          ]) &
-          //TODO: if infinity throws an exception, tie to 0?
-          ~mantissa.or())
+  late final isAnInfinity = (floatingPointValue.supportsInfinities
+          ? exponent.isIn([
+                floatingPointValue.clonePopulator().positiveInfinity.exponent,
+                floatingPointValue.clonePopulator().negativeInfinity.exponent,
+              ]) &
+              ~mantissa.or()
+          : Const(0))
       .named(_nameJoin('isAnInfinity', name), naming: Naming.mergeable);
 
   /// Return a Logic true if this FloatingPoint is an zero

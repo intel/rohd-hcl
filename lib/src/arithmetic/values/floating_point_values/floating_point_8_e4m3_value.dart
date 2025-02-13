@@ -12,6 +12,7 @@
 import 'package:meta/meta.dart';
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
+import 'package:rohd_hcl/src/arithmetic/values/floating_point_values/floating_point_exceptions.dart';
 
 /// The E4M3 representation of a 8-bit floating point value as defined in
 /// [FP8 Formats for Deep Learning](https://arxiv.org/abs/2209.05433).
@@ -51,9 +52,9 @@ class FloatingPoint8E4M3Value extends FloatingPointValue {
       .ofConstant(FloatingPointConstants.smallestPositiveSubnormal)
       .toDouble();
 
-  /// Inf is not representable in this format
+  // Inf is not representable in this format
   @override
-  bool get isAnInfinity => false;
+  bool get supportsInfinities => false;
 
   @override
   bool get isNaN => (exponent.toInt() == 15) && (mantissa.toInt() == 7);
@@ -87,7 +88,8 @@ class FloatingPoint8E4M3Value extends FloatingPointValue {
             ('0', '${'1' * (exponentWidth - 1)}1', '1' * mantissaWidth);
       case FloatingPointConstants.positiveInfinity:
       case FloatingPointConstants.negativeInfinity:
-        throw RohdHclException('Infinity is not representable in this format');
+        throw InfinityNotSupportedException(
+            'Infinity is not representable in E4M3 format');
       case _:
         return super.getConstantComponents(constantFloatingPoint);
     }

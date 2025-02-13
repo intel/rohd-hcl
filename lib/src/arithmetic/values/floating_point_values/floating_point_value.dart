@@ -55,6 +55,10 @@ class FloatingPointValue implements Comparable<FloatingPointValue> {
   /// Return the minimum exponent of this [FloatingPointValue].
   int get minExponent => -pow(2, exponentWidth - 1).toInt() + 2;
 
+  /// Indicates whether [FloatingPointConstants.positiveInfinity] and
+  /// [FloatingPointConstants.negativeInfinity] representations are supported.
+  bool get supportsInfinities => true;
+
   /// Constructor for a [FloatingPointValue] with the provided [sign],
   /// [exponent], and [mantissa].
   @protected
@@ -279,12 +283,13 @@ class FloatingPointValue implements Comparable<FloatingPointValue> {
   bool get isNaN => isExponentAllOnes && !isMantissaAllZeroes;
 
   /// Return true if the represented floating point number is considered
-  ///  'subnormal', including [isZero].
+  ///  'subnormal', including [isAZero].
   bool isSubnormal() => isExponentAllZeros;
 
   /// Return true if the represented floating point number is considered
   ///  infinity or negative infinity
-  bool get isAnInfinity => isExponentAllOnes && isMantissaAllZeroes;
+  bool get isAnInfinity =>
+      supportsInfinities && isExponentAllOnes && isMantissaAllZeroes;
 
   /// Return true if the represented floating point number is zero. Note
   /// that the equality operator will treat
