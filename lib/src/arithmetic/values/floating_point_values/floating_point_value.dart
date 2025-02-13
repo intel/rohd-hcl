@@ -74,8 +74,6 @@ class FloatingPointValue implements Comparable<FloatingPointValue> {
   @protected
   FloatingPointValue.uninitialized();
 
-  //TODO: write nice documentation in docs/ about how to use populator
-
   /// Creates a [FloatingPointValuePopulator] with the provided [exponentWidth]
   /// and [mantissaWidth], which can then be used to complete construction of
   /// a [FloatingPointValue] using population functions.
