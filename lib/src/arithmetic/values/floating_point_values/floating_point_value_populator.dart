@@ -46,6 +46,10 @@ class FloatingPointValuePopulator<FpvType extends FloatingPointValue> {
   /// [FloatingPointValue].
   FloatingPointValuePopulator(this._unpopulated);
 
+  @override
+  String toString() =>
+      'FloatingPointValuePopulator<${_unpopulated.runtimeType}>';
+
   /// Populates the [FloatingPointValue] with the given [sign], [exponent], and
   /// [mantissa], then performs additional validation.
   FpvType populate({

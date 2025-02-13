@@ -277,9 +277,53 @@ void main() {
     expect(fpConvert, equals(fpTrunc));
   });
 
-  test('get constants', () {
-    //TODO: try lots of types, lots of constants
-    FloatingPoint8E4M3Value.populator().ofConstant(FloatingPointConstants.one);
+  group('populators', () {
+    final populators = [
+      FloatingPoint32Value.populator,
+      FloatingPoint64Value.populator,
+      FloatingPoint8E4M3Value.populator,
+      FloatingPoint8E5M2Value.populator,
+      FloatingPoint16Value.populator,
+      FloatingPointBF16Value.populator,
+      FloatingPointTF32Value.populator,
+    ];
+
+    for (final p in populators) {
+      group('${p()} constants', () {
+        for (final c in FloatingPointConstants.values) {
+          if (p() is FloatingPointValuePopulator<FloatingPoint8E4M3Value>) {
+            if (c == FloatingPointConstants.negativeInfinity) {
+              continue;
+            }
+            if (c == FloatingPointConstants.positiveInfinity) {
+              continue;
+            }
+          }
+          test(c.name, () {
+            p().ofConstant(c);
+            //TODO: is there more to check here?
+          });
+        }
+      });
+
+      group('${p()} operations', () {
+        final operations = {
+          'add': (FloatingPointValue a) => a + a,
+          'sub': (FloatingPointValue a) => a - a,
+          'mul': (FloatingPointValue a) => a * a,
+          'div': (FloatingPointValue a) => a / a,
+          'neg': (FloatingPointValue a) => a.negate(),
+          'abs': (FloatingPointValue a) => a.abs(),
+          'ulp': (FloatingPointValue a) => a.ulp(),
+        };
+        for (final MapEntry(key: opName, value: op) in operations.entries) {
+          test(opName, () {
+            final fp = p().ofDouble(1.2);
+            expect(op(fp).runtimeType, equals(fp.runtimeType));
+          });
+        }
+      });
+    }
   });
 
   test('operations return same type', () {
