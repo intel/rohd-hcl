@@ -1,8 +1,8 @@
 // Copyright (C) 2024-2025 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 //
-// floating_point_8_value.dart
-// Implementation of 8-bit Floating-Point value representations.
+// floating_point_8_e5m2_value.dart
+// Implementation of 8-bit E5M2 Floating-Point value representations.
 //
 // 2024 October 15
 // Authors:
@@ -36,12 +36,15 @@ class FloatingPoint8E5M2Value extends FloatingPointValue {
           required LogicValue mantissa}) =>
       populator().populate(sign: sign, exponent: exponent, mantissa: mantissa);
 
+  /// Creates an unpopulated version, intended to be called with the
+  /// [populator].
   @protected
-  @override
-  FloatingPoint8E5M2Value.unpop() : super.uninitialized();
+  FloatingPoint8E5M2Value.uninitialized() : super.uninitialized();
 
+  /// Creates a [FloatingPointValuePopulator], which can then be used to
+  /// complete construction using population functions.
   static FloatingPointValuePopulator<FloatingPoint8E5M2Value> populator() =>
-      FloatingPointValuePopulator(FloatingPoint8E5M2Value.unpop());
+      FloatingPointValuePopulator(FloatingPoint8E5M2Value.uninitialized());
 
   @override
   FloatingPointValuePopulator clonePopulator() => populator();

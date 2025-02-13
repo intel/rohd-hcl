@@ -1,4 +1,4 @@
-// Copyright (C) 2024 Intel Corporation
+// Copyright (C) 2024-2025 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 //
 // floating_point_64_value.dart
@@ -32,19 +32,25 @@ class FloatingPoint64Value extends FloatingPointValue {
           required LogicValue mantissa}) =>
       populator().populate(sign: sign, exponent: exponent, mantissa: mantissa);
 
+  /// Creates an unpopulated version, intended to be called with the
+  /// [populator].
   @protected
-  @override
-  FloatingPoint64Value.unpop() : super.uninitialized();
+  FloatingPoint64Value.uninitialized() : super.uninitialized();
 
+  /// Creates a [FloatingPointValuePopulator], which can then be used to
+  /// complete construction using population functions.
   static FloatingPointValuePopulator<FloatingPoint64Value> populator() =>
-      FloatingPoint64ValuePopulator(FloatingPoint64Value.unpop());
+      FloatingPoint64ValuePopulator(FloatingPoint64Value.uninitialized());
 
   @override
   FloatingPointValuePopulator clonePopulator() => populator();
 }
 
+/// A special type of [FloatingPointValuePopulator] that adjusts how
+/// [FloatingPoint64Value]s are populated.
 class FloatingPoint64ValuePopulator
     extends FloatingPointValuePopulator<FloatingPoint64Value> {
+  /// Constructor for a 64-bit floating point value populator.
   FloatingPoint64ValuePopulator(super._unpopulated);
 
   @override

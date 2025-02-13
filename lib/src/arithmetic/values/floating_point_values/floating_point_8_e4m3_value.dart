@@ -1,4 +1,13 @@
-//TODO: header
+// Copyright (C) 2024-2025 Intel Corporation
+// SPDX-License-Identifier: BSD-3-Clause
+//
+// floating_point_8_e4m3_value.dart
+// Implementation of 8-bit E4M3 Floating-Point value representations.
+//
+// 2024 October 15
+// Authors:
+//  Max Korbel <max.korbel@intel.com>
+//  Desmond A Kirkpatrick <desmond.a.kirkpatrick@intel.com>
 
 import 'package:meta/meta.dart';
 import 'package:rohd/rohd.dart';
@@ -20,12 +29,15 @@ class FloatingPoint8E4M3Value extends FloatingPointValue {
           required LogicValue mantissa}) =>
       populator().populate(sign: sign, exponent: exponent, mantissa: mantissa);
 
+  /// Creates an unpopulated version, intended to be called with the
+  /// [populator].
   @protected
-  @override
-  FloatingPoint8E4M3Value.unpop() : super.uninitialized();
+  FloatingPoint8E4M3Value.uninitialized() : super.uninitialized();
 
+  /// Creates a [FloatingPointValuePopulator], which can then be used to
+  /// complete construction using population functions.
   static FloatingPointValuePopulator<FloatingPoint8E4M3Value> populator() =>
-      FloatingPointValuePopulator(FloatingPoint8E4M3Value.unpop());
+      FloatingPointValuePopulator(FloatingPoint8E4M3Value.uninitialized());
 
   @override
   FloatingPointValuePopulator clonePopulator() => populator();

@@ -1,4 +1,13 @@
-//TODO: header
+// Copyright (C) 2024-2025 Intel Corporation
+// SPDX-License-Identifier: BSD-3-Clause
+//
+// floating_point_value_populator.dart
+// Populator for Floating Point Values
+//
+// 2024 October 15
+// Authors:
+//  Max Korbel <max.korbel@intel.com>
+//  Desmond A Kirkpatrick <desmond.a.kirkpatrick@intel.com>
 
 import 'dart:math';
 
@@ -6,20 +15,39 @@ import 'package:meta/meta.dart';
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
 
+/// A populator for [FloatingPointValue]s, a utility that can populate various
+/// forms of [FloatingPointValue]s.
 class FloatingPointValuePopulator<FpvType extends FloatingPointValue> {
+  /// An unpopulated [FloatingPointValue] that this populator will populate.
+  ///
+  /// The `late final` variables will not yet be initialized until after this
+  /// populator is used to [populate] it.
   final FpvType _unpopulated;
 
+  /// The width of the exponent field.
   int get exponentWidth => _unpopulated.exponentWidth;
+
+  /// The width of the mantissa field.
   int get mantissaWidth => _unpopulated.mantissaWidth;
 
+  /// The bias of floating point value.
   int get bias => _unpopulated.bias;
+
+  /// The minimum exponent value.
   int get minExponent => _unpopulated.minExponent;
+
+  /// The maximum exponent value.
   int get maxExponent => _unpopulated.maxExponent;
 
+  /// Whether or not this populator has already populated values.
   bool _hasPopulated = false;
 
+  /// Creates a [FloatingPointValuePopulator] for the given [_unpopulated]
+  /// [FloatingPointValue].
   FloatingPointValuePopulator(this._unpopulated);
 
+  /// Populates the [FloatingPointValue] with the given [sign], [exponent], and
+  /// [mantissa], then performs additional validation.
   FpvType populate({
     required LogicValue sign,
     required LogicValue exponent,
@@ -38,6 +66,7 @@ class FloatingPointValuePopulator<FpvType extends FloatingPointValue> {
       ..validate();
   }
 
+  /// Extracts a [FloatingPointValue] from a [FloatingPoint]'s current `value`.
   FpvType ofFloatingPoint(FloatingPoint fp) => populate(
         sign: fp.sign.value,
         exponent: fp.exponent.value,
@@ -57,6 +86,7 @@ class FloatingPointValuePopulator<FpvType extends FloatingPointValue> {
   ///
   /// For example:
   /// ```dart
+  /// //                    s e        m
   /// ofSpacedBinaryString('0 00000000 00000000000000000000000')
   /// ```
   FpvType ofSpacedBinaryString(String fp) {

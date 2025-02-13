@@ -1,4 +1,4 @@
-// Copyright (C) 2024 Intel Corporation
+// Copyright (C) 2024-2025 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 //
 // floating_point_32_value.dart
@@ -29,19 +29,25 @@ class FloatingPoint32Value extends FloatingPointValue {
           required LogicValue mantissa}) =>
       populator().populate(sign: sign, exponent: exponent, mantissa: mantissa);
 
+  /// Creates an unpopulated version, intended to be called with the
+  /// [populator].
   @protected
-  @override
-  FloatingPoint32Value.unpop() : super.uninitialized();
+  FloatingPoint32Value.uninitialized() : super.uninitialized();
 
+  /// Creates a [FloatingPointValuePopulator], which can then be used to
+  /// complete construction using population functions.
   static FloatingPointValuePopulator<FloatingPoint32Value> populator() =>
-      FloatingPoint32ValuePopulator(FloatingPoint32Value.unpop());
+      FloatingPoint32ValuePopulator(FloatingPoint32Value.uninitialized());
 
   @override
   FloatingPointValuePopulator clonePopulator() => populator();
 }
 
+/// A special type of [FloatingPointValuePopulator] that adjusts how
+/// [FloatingPoint32Value]s are populated.
 class FloatingPoint32ValuePopulator
     extends FloatingPointValuePopulator<FloatingPoint32Value> {
+  /// Constructor for a 32-bit floating point value populator.
   FloatingPoint32ValuePopulator(super._unpopulated);
 
   @override

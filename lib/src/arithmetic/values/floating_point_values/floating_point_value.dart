@@ -65,19 +65,28 @@ class FloatingPointValue implements Comparable<FloatingPointValue> {
       populator(exponentWidth: exponent.width, mantissaWidth: mantissa.width)
           .populate(sign: sign, exponent: exponent, mantissa: mantissa);
 
-  /// Creates an unpopulated version of a [FloatingPointValue], intended to
-  /// be called with "populate" functions, such as //TODO
+  /// Creates an unpopulated version of a [FloatingPointValue], intended to be
+  /// called with the [populator].
   @protected
   FloatingPointValue.uninitialized();
 
   //TODO: write nice documentation in docs/ about how to use populator
 
+  /// Creates a [FloatingPointValuePopulator] with the provided [exponentWidth]
+  /// and [mantissaWidth], which can then be used to complete construction of
+  /// a [FloatingPointValue] using population functions.
   static FloatingPointValuePopulator populator(
           {required int exponentWidth, required int mantissaWidth}) =>
       FloatingPointValuePopulator(FloatingPointValue.uninitialized()
         .._exponentWidth = exponentWidth
         .._mantissaWidth = mantissaWidth);
 
+  /// Creates a [FloatingPointValuePopulator] for the same type as `this` and
+  /// with the same widths.
+  ///
+  /// This must be overridden in subclasses so that the correct type of
+  /// [FloatingPointValuePopulator] is returned for generating equivalent types
+  /// of [FloatingPointValue]s.
   @mustBeOverridden
   FloatingPointValuePopulator clonePopulator() =>
       FloatingPointValuePopulator(FloatingPointValue.uninitialized()
