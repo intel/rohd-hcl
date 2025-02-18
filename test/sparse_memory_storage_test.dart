@@ -19,7 +19,14 @@ void main() {
     final storage = SparseMemoryStorage(addrWidth: 32, dataWidth: 32)
       ..loadMemHex(hex);
 
+    print(storage.dumpMemString());
+
     expect(storage.getData(LogicValue.ofInt(0x8000000c, 32))!.toInt(),
         equals(0x1ff50513));
   });
+
+  // Testplan:
+  //  - comments (at start of line, end of line)
+  //  - radix 2, 16
+  //  - weird chunks of data not aligned
 }
