@@ -14,18 +14,33 @@ import 'package:rohd_hcl/src/models/sparse_memory_storage.dart';
 import 'package:test/test.dart';
 
 void main() {
-  test('sparse memory storage can load a simple file', () {
+  test('sparse memory storage can load a simple file (legacy)', () {
     final hex = File('test/example1.hex').readAsStringSync();
     final storage = SparseMemoryStorage(addrWidth: 32, dataWidth: 32)
       ..loadMemHex(hex);
-
-    print(storage.dumpMemString());
 
     expect(storage.getData(LogicValue.ofInt(0x8000000c, 32))!.toInt(),
         equals(0x1ff50513));
   });
 
-  // Testplan:
+  test('sparse memory storage can load, dump, and load a simple file', () {
+    final hex = File('test/example1.hex').readAsStringSync();
+    final storage = SparseMemoryStorage(addrWidth: 32, dataWidth: 32)
+      ..loadMemString(hex);
+
+    expect(storage.getData(LogicValue.ofInt(0x8000000c, 32))!.toInt(),
+        equals(0x1ff50513));
+
+    final dumped = storage.dumpMemString();
+
+    final storage2 = SparseMemoryStorage(addrWidth: 32, dataWidth: 32)
+      ..loadMemString(dumped);
+
+    expect(storage2.getData(LogicValue.ofInt(0x8000000c, 32))!.toInt(),
+        equals(0x1ff50513));
+  });
+
+  // TODO Testplan:
   //  - comments (at start of line, end of line)
   //  - radix 2, 16
   //  - weird chunks of data not aligned
