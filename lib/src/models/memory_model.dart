@@ -130,7 +130,9 @@ class MemoryModel extends Memory {
 
   /// Updates read data for [rdPort] after [readLatency] time.
   Future<void> _updateRead(DataPortInterface rdPort, LogicValue data) async {
-    await clk.waitCycles(readLatency - 1);
+    if (readLatency > 1) {
+      await clk.waitCycles(readLatency - 1);
+    }
     rdPort.data.inject(data);
   }
 }
