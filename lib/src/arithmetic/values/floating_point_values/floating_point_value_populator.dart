@@ -215,26 +215,29 @@ class FloatingPointValuePopulator<FpvType extends FloatingPointValue> {
     }
 
     final fp64 = FloatingPoint64Value.populator().ofDouble(inDouble);
+    final fp64Mw = fp64.mantissa.width;
     final exponent64 = fp64.exponent;
 
     var expVal = (exponent64.toInt() - fp64.bias) + bias;
-    // Handle subnormal
-    final mantissa64 = [
-      if (expVal <= 0)
-        ([LogicValue.one, fp64.mantissa].swizzle() >>> -expVal).slice(52, 1)
-      else
-        fp64.mantissa
-    ].first;
-    var mantissa = mantissa64.slice(51, 51 - mantissaWidth + 1);
+    final mantissa64n = ((expVal <= 0)
+        ? [LogicValue.one, fp64.mantissa].swizzle() >>>
+            (-expVal + (fp64.exponent.toInt() > 0 ? 1 : 0))
+        : [LogicValue.one, fp64.mantissa].swizzle());
+
+    var mantissa = mantissa64n.slice(fp64Mw - 1, fp64Mw - mantissaWidth);
 
     // TODO(desmonddak): this should be in a separate function to use
     // with a FloatingPointValue converter we need.
     if (roundingMode == FloatingPointRoundingMode.roundNearestEven) {
-      final sticky = mantissa64.slice(51 - (mantissaWidth + 2), 0).or();
-
-      final roundPos = 51 - (mantissaWidth + 2) + 1;
-      final round = mantissa64[roundPos];
-      final guard = mantissa64[roundPos + 1];
+      final stickyPos = fp64Mw - (mantissaWidth + 3);
+      final sticky =
+          (stickyPos >= 0) ? mantissa64n.slice(stickyPos, 0).or() : 0;
+      final roundPos = stickyPos + 1;
+      final round = ((roundPos >= 0) & (roundPos > stickyPos))
+          ? mantissa64n[roundPos]
+          : 0;
+      final guardPos = roundPos + 1;
+      final guard = (guardPos >= 1) ? mantissa64n[roundPos + 1] : 0;
 
       // RNE Rounding
       if (guard == LogicValue.one) {
@@ -390,7 +393,7 @@ class FloatingPointValuePopulator<FpvType extends FloatingPointValue> {
     if (normal) {
       exponent =
           rv.nextLogicValue(width: exponentWidth, max: largestExponent - 1) +
-              LogicValue.one;
+              LogicValue.one.zeroExtend(exponentWidth);
     } else {
       exponent = rv.nextLogicValue(width: exponentWidth, max: largestExponent);
     }
