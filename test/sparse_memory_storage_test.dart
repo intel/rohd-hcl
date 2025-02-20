@@ -66,6 +66,31 @@ void main() {
 ''');
     });
 
+    test('binary radix read and write', () {
+      const data = '''
+@2
+00000000
+11111111
+01010101
+1010 1111
+''';
+
+      final storage = SparseMemoryStorage(addrWidth: 8, dataWidth: 8)
+        ..loadMemString(data, radix: 2);
+
+      final memStr = storage.dumpMemString(radix: 2);
+
+      const expected = '''
+@2
+00000000
+11111111
+01010101
+11111010
+''';
+
+      expect(memStr, expected);
+    });
+
     test('comments and whitespace and out of order work properly', () {
       const data = '''
 
