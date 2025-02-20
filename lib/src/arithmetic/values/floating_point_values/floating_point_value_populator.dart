@@ -77,6 +77,16 @@ class FloatingPointValuePopulator<FpvType extends FloatingPointValue> {
         mantissa: fp.mantissa.value,
       );
 
+  /// Extracts a [FloatingPointValue] from a [FloatingPoint]'s `previousValue`.
+  FpvType? ofFloatingPointPrevious(FloatingPoint fp) {
+    final prevVal = fp.previousValue;
+    if (prevVal == null) {
+      return null;
+    }
+
+    return ofLogicValue(prevVal);
+  }
+
   /// [FloatingPointValue] constructor from a binary string representation of
   /// individual bitfields
   FpvType ofBinaryStrings(String sign, String exponent, String mantissa) =>

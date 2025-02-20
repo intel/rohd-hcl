@@ -61,10 +61,19 @@ class FloatingPoint extends LogicStructure {
         name: name,
       );
 
-  /// Return the [FloatingPointValue]
+  /// A [FloatingPointValuePopulator] for values associated with this
+  /// [FloatingPoint] type.
   @mustBeOverridden
-  FloatingPointValue get floatingPointValue => FloatingPointValue(
-      sign: sign.value, exponent: exponent.value, mantissa: mantissa.value);
+  FloatingPointValuePopulator valuePopulator() => FloatingPointValue.populator(
+      exponentWidth: exponent.width, mantissaWidth: mantissa.width);
+
+  /// Return the [FloatingPointValue] of the current [value].
+  FloatingPointValue get floatingPointValue =>
+      valuePopulator().ofFloatingPoint(this);
+
+  /// Return the [FloatingPointValue] of the [previousValue].
+  FloatingPointValue? get previousFloatingPointValue =>
+      valuePopulator().ofFloatingPointPrevious(this);
 
   /// Return a Logic true if this FloatingPoint contains a normal number,
   /// defined as having mantissa in the range [1,2)
@@ -171,8 +180,8 @@ class FloatingPoint32 extends FloatingPoint {
   FloatingPoint32 clone({String? name}) => FloatingPoint32(name: name);
 
   @override
-  FloatingPoint32Value get floatingPointValue =>
-      FloatingPoint32Value.populator().ofFloatingPoint(this);
+  FloatingPointValuePopulator<FloatingPoint32Value> valuePopulator() =>
+      FloatingPoint32Value.populator();
 }
 
 /// Double floating point representation
@@ -186,8 +195,8 @@ class FloatingPoint64 extends FloatingPoint {
   FloatingPoint64 clone({String? name}) => FloatingPoint64(name: name);
 
   @override
-  FloatingPointValue get floatingPointValue =>
-      FloatingPoint64Value.populator().ofFloatingPoint(this);
+  FloatingPointValuePopulator<FloatingPoint64Value> valuePopulator() =>
+      FloatingPoint64Value.populator();
 }
 
 /// Eight-bit floating point representation for deep learning: E4M3
@@ -201,8 +210,8 @@ class FloatingPoint8E4M3 extends FloatingPoint {
   FloatingPoint8E4M3 clone({String? name}) => FloatingPoint8E4M3(name: name);
 
   @override
-  FloatingPointValue get floatingPointValue =>
-      FloatingPoint8E4M3Value.populator().ofFloatingPoint(this);
+  FloatingPointValuePopulator<FloatingPoint8E4M3Value> valuePopulator() =>
+      FloatingPoint8E4M3Value.populator();
 }
 
 /// Eight-bit floating point representation for deep learning: E5M2
@@ -216,8 +225,8 @@ class FloatingPoint8E5M2 extends FloatingPoint {
   FloatingPoint8E5M2 clone({String? name}) => FloatingPoint8E5M2(name: name);
 
   @override
-  FloatingPointValue get floatingPointValue =>
-      FloatingPoint8E5M2Value.populator().ofFloatingPoint(this);
+  FloatingPointValuePopulator<FloatingPoint8E5M2Value> valuePopulator() =>
+      FloatingPoint8E5M2Value.populator();
 }
 
 /// Sixteen-bit BF16 floating point representation
@@ -231,8 +240,8 @@ class FloatingPointBF16 extends FloatingPoint {
   FloatingPointBF16 clone({String? name}) => FloatingPointBF16(name: name);
 
   @override
-  FloatingPointValue get floatingPointValue =>
-      FloatingPointBF16Value.populator().ofFloatingPoint(this);
+  FloatingPointValuePopulator<FloatingPointBF16Value> valuePopulator() =>
+      FloatingPointBF16Value.populator();
 }
 
 /// Sixteen-bit floating point representation
@@ -246,6 +255,6 @@ class FloatingPoint16 extends FloatingPoint {
   FloatingPoint16 clone({String? name}) => FloatingPoint16(name: name);
 
   @override
-  FloatingPointValue get floatingPointValue =>
-      FloatingPoint16Value.populator().ofFloatingPoint(this);
+  FloatingPointValuePopulator<FloatingPoint16Value> valuePopulator() =>
+      FloatingPoint16Value.populator();
 }
