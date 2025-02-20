@@ -138,7 +138,4 @@ void main() {
       expect(memStr, expected);
     });
   });
-
-  // TODO Testplan:
-  //  - radix 2, 16
 }
