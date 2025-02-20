@@ -34,7 +34,7 @@ class FloatingPoint extends LogicStructure {
     return '${structName}_$signalName';
   }
 
-  /// [FloatingPoint] Constructor for a variable size binary
+  /// [FloatingPoint] constructor for a variable size binary
   /// floating point number
   FloatingPoint(
       {required int exponentWidth, required int mantissaWidth, String? name})
@@ -50,6 +50,7 @@ class FloatingPoint extends LogicStructure {
                 naming: Naming.mergeable),
             name: name);
 
+  /// [FloatingPoint] internal constructor.
   FloatingPoint._(this.sign, this.exponent, this.mantissa, {super.name})
       : super([mantissa, exponent, sign]);
 

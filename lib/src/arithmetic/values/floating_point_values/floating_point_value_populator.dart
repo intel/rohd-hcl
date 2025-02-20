@@ -196,11 +196,11 @@ class FloatingPointValuePopulator<FpvType extends FloatingPointValue> {
   FpvType get negativeZero => ofConstant(FloatingPointConstants.negativeZero);
 
   // TODO(desmonddak): we may have a bug in ofDouble() when
-// the FPV is close to the width of the native double:  for LGRS to work
-// we need three bits of space to handle the LSB|Guard|Round|Sticky.
-// If the FPV is only 2 bits shorter than native, then we know we can round
-// with LSB+Guard, but can't fit the round and sticky bits.
-// The algorithm needs to extend with zeros and handle.
+  //  the FPV is close to the width of the native double:  for LGRS to work
+  //  we need three bits of space to handle the LSB|Guard|Round|Sticky.
+  //  If the FPV is only 2 bits shorter than native, then we know we can round
+  //  with LSB+Guard, but can't fit the round and sticky bits.
+  //  The algorithm needs to extend with zeros and handle.
 
   /// Convert from double using its native binary representation
   FpvType ofDouble(double inDouble,
@@ -237,7 +237,7 @@ class FloatingPointValuePopulator<FpvType extends FloatingPointValue> {
     var mantissa = mantissa64n.slice(fp64Mw - 1, fp64Mw - mantissaWidth);
 
     // TODO(desmonddak): this should be in a separate function to use
-    // with a FloatingPointValue converter we need.
+    //  with a FloatingPointValue converter we need.
     if (roundingMode == FloatingPointRoundingMode.roundNearestEven) {
       final stickyPos = fp64Mw - (mantissaWidth + 3);
       final sticky =
@@ -270,10 +270,10 @@ class FloatingPointValuePopulator<FpvType extends FloatingPointValue> {
     }
 
     // TODO(desmonddak): how to convert to infinity and check that it is
-    // supported by the format.
+    //  supported by the format.
     if ((exponentWidth == 4) && (mantissaWidth == 3)) {
       // TODO(desmonddak): need a better way to detect subclass limitations
-      // Here we avoid returning infinity for FP8E4M3
+      //  Here we avoid returning infinity for FP8E4M3
     } else {
       if (expVal > bias + maxExponent) {
         return (fp64.sign == LogicValue.one)
