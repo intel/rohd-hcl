@@ -84,20 +84,19 @@ class FloatingPoint extends LogicStructure {
   /// Return a Logic true if this FloatingPoint is Not a Number (NaN)
   /// by having its exponent field set to the NaN value (typically all
   /// ones) and a non-zero mantissa.
-  late final isNaN =
-      exponent.eq(floatingPointValue.clonePopulator().nan.exponent) &
-          mantissa.or().named(
-                _nameJoin('isNaN', name),
-                naming: Naming.mergeable,
-              );
+  late final isNaN = exponent.eq(valuePopulator().nan.exponent) &
+      mantissa.or().named(
+            _nameJoin('isNaN', name),
+            naming: Naming.mergeable,
+          );
 
   /// Return a Logic true if this FloatingPoint is an infinity
   /// by having its exponent field set to the NaN value (typically all
   /// ones) and a zero mantissa.
   late final isAnInfinity = (floatingPointValue.supportsInfinities
           ? exponent.isIn([
-                floatingPointValue.clonePopulator().positiveInfinity.exponent,
-                floatingPointValue.clonePopulator().negativeInfinity.exponent,
+                valuePopulator().positiveInfinity.exponent,
+                valuePopulator().negativeInfinity.exponent,
               ]) &
               ~mantissa.or()
           : Const(0))
@@ -107,8 +106,8 @@ class FloatingPoint extends LogicStructure {
   /// by having its exponent field set to the NaN value (typically all
   /// ones) and a zero mantissa.
   late final isAZero = (exponent.isIn([
-            floatingPointValue.clonePopulator().positiveZero.exponent,
-            floatingPointValue.clonePopulator().negativeZero.exponent,
+            valuePopulator().positiveZero.exponent,
+            valuePopulator().negativeZero.exponent,
           ]) &
           ~mantissa.or())
       .named(_nameJoin('isAZero', name), naming: Naming.mergeable);
