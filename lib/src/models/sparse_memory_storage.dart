@@ -73,11 +73,11 @@ abstract class MemoryStorage {
 
   /// Reads a verilog-compliant mem file and preloads memory with it.
   ///
-  /// The loaded address will increment each [lineWidthBits] bits of data
-  /// between address `@` annotations.  Data is parsed according to the provided
+  /// The loaded address will increment each [dataWidth] bits of data between
+  /// address `@` annotations.  Data is parsed according to the provided
   /// [radix], which must be a positive power of 2 up to 16. The address for
   /// data will increment by 1 for each [bitsPerAddress] bits of data, which
-  /// must be a power of 2 less than [lineWidthBits].
+  /// must be a power of 2 less than [dataWidth].
   ///
   /// Line comments (`//`) are supported and any whitespace is supported as a
   /// separator between data.  Block comments (`/* */`) are not supported.
@@ -93,19 +93,18 @@ abstract class MemoryStorage {
   /// 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
   /// ```
   void loadMemString(String memContents,
-      {int radix = 16, int lineWidthBits = 32, int bitsPerAddress = 8}) {
+      {int radix = 16, int bitsPerAddress = 8}) {
     if (radix <= 0 || (radix & (radix - 1) != 0) || radix > 16) {
       throw RohdHclException('Radix must be a positive power of 2 (max 16).');
     }
 
-    if (lineWidthBits % bitsPerAddress != 0) {
-      throw RohdHclException(
-          'lineWidthBits must be a multiple of bitsPerAddress.');
+    if (dataWidth % bitsPerAddress != 0) {
+      throw RohdHclException('dataWidth must be a multiple of bitsPerAddress.');
     }
 
     final bitsPerChar = log2Ceil(radix);
-    final charsPerLine = lineWidthBits ~/ bitsPerChar;
-    final addrIncrPerLine = lineWidthBits ~/ bitsPerAddress;
+    final charsPerLine = dataWidth ~/ bitsPerChar;
+    final addrIncrPerLine = dataWidth ~/ bitsPerAddress;
 
     var address = 0;
     final chunks = <String>[];
@@ -122,10 +121,11 @@ abstract class MemoryStorage {
 
       while (chunksLength >= charsPerLine) {
         final pendingData = chunks.reversed.join();
-        final thisData = pendingData.substring(0, chunksLength);
+        final cutPoint = chunksLength - charsPerLine;
+        final thisData = pendingData.substring(cutPoint);
         chunks.clear();
 
-        final remaining = pendingData.substring(chunksLength);
+        final remaining = pendingData.substring(0, cutPoint);
 
         chunksLength = 0;
 
@@ -135,7 +135,7 @@ abstract class MemoryStorage {
         }
 
         final lvData = LogicValue.ofBigInt(
-            BigInt.parse(thisData, radix: radix), lineWidthBits);
+            BigInt.parse(thisData, radix: radix), dataWidth);
         final addr =
             LogicValue.ofInt(address - (address % addrIncrPerLine), addrWidth);
         setData(addr, lvData);
@@ -198,6 +198,11 @@ abstract class MemoryStorage {
     padToAlignment();
   }
 
+  /// Dumps the contents of memory to a verilog-compliant hex file.
+  ///
+  /// The address will increment each [bitsPerAddress] bits of data between
+  /// address `@` annotations. Data is output according to the provided [radix],
+  /// which must be a positive power of 2 up to 16.
   String dumpMemString({int radix = 16, int bitsPerAddress = 8}) {
     if (radix <= 0 || (radix & (radix - 1) != 0) || radix > 16) {
       throw RohdHclException('Radix must be a positive power of 2 (max 16).');

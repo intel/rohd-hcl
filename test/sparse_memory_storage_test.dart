@@ -18,13 +18,14 @@ void main() {
     test('can load a simple file (legacy)', () {
       final hex = File('test/example1.hex').readAsStringSync();
       final storage = SparseMemoryStorage(addrWidth: 32, dataWidth: 32)
+        // ignore: deprecated_member_use_from_same_package
         ..loadMemHex(hex);
 
       expect(storage.getData(LogicValue.ofInt(0x8000000c, 32))!.toInt(),
           equals(0x1ff50513));
     });
 
-    test('can load, dump, and load a simple file', () {
+    test('can load, dump, and reload a simple file', () {
       final hex = File('test/example1.hex').readAsStringSync();
       final storage = SparseMemoryStorage(addrWidth: 32, dataWidth: 32)
         ..loadMemString(hex);
@@ -41,7 +42,7 @@ void main() {
           equals(0x1ff50513));
     });
 
-    test('store 32-bit 1-addr data', () {
+    test('store 32-bit 1-per-addr data', () {
       final storage = SparseMemoryStorage(addrWidth: 8, dataWidth: 32);
       for (var i = 0; i < 10; i++) {
         storage.setData(
@@ -64,10 +65,55 @@ void main() {
 99999999
 ''');
     });
+
+    test('comments and whitespace and out of order work properly', () {
+      const data = '''
+
+@100
+00000000
+//11111111
+2222 //2222
+
+33333333  // some comment
+4444//4444
+@80
+5555 4321
+
+// @100
+65432100
+77777 777
+
+
+8 8888887
+ 9876 
+54 3 
+2
+
+
+''';
+
+      final storage = SparseMemoryStorage(addrWidth: 12, dataWidth: 32)
+        ..loadMemString(data, bitsPerAddress: 32);
+
+      final memStr = storage.dumpMemString(bitsPerAddress: 32);
+
+      const expected = '''
+@80
+43215555
+65432100
+77777777
+88888878
+23549876
+@100
+00000000
+33332222
+44443333
+''';
+
+      expect(memStr, expected);
+    });
   });
 
   // TODO Testplan:
-  //  - comments (at start of line, end of line)
   //  - radix 2, 16
-  //  - weird chunks of data not aligned
 }
