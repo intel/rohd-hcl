@@ -11,7 +11,7 @@
 
 /// Critical threshold constants
 enum FloatingPointConstants {
-  /// smallest possible number.
+  /// The smallest possible number.
   negativeInfinity,
 
   /// The number zero, negative form.
