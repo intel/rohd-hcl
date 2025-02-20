@@ -302,9 +302,9 @@ void main() {
               continue;
             }
           }
+
           test(c.name, () {
             p().ofConstant(c);
-            //TODO: is there more to check here?
           });
         }
       });
