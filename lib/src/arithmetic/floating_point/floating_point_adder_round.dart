@@ -309,9 +309,9 @@ class FloatingPointAdderRound extends FloatingPointAdder {
     final isR = (deltaFlopped.gte(Const(2, width: delta.width)) |
             ~effectiveSubtractionFlopped)
         .named('isR');
+    final infExponent = outputSum.inf(sign: largerSignFlopped).exponent;
 
     final inf = outputSum.inf(sign: largerSignFlopped);
-    final infExponent = inf.exponent;
 
     final realIsInfRPath =
         exponentRPath.eq(infExponent).named('realIsInfRPath');
@@ -342,7 +342,7 @@ class FloatingPointAdderRound extends FloatingPointAdder {
               outputSum.sign < signNPath,
               outputSum.exponent < exponentNPath,
               outputSum.mantissa < finalSignificandNPath,
-            ])
+            ]),
           ])
         ])
       ])

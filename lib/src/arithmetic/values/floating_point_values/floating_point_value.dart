@@ -440,6 +440,7 @@ class FloatingPointValue implements Comparable<FloatingPointValue> {
 
     var expVal = (exponent64.toInt() - fp64.bias) +
         FloatingPointValue.computeBias(exponentWidth);
+
     // Handle subnormal
     final mantissa64 = [
       if (expVal <= 0)
@@ -469,6 +470,16 @@ class FloatingPointValue implements Comparable<FloatingPointValue> {
           }
         }
       }
+    }
+    if (expVal >
+        FloatingPointValue.computeMaxExponent(exponentWidth) +
+            FloatingPointValue.computeBias(exponentWidth)) {
+      return FloatingPointValue.getFloatingPointConstant(
+          fp64.sign.toBool()
+              ? FloatingPointConstants.negativeInfinity
+              : FloatingPointConstants.infinity,
+          exponentWidth,
+          mantissaWidth);
     }
 
     // TODO(desmonddak): how to convert to infinity and check that it is
@@ -591,15 +602,6 @@ class FloatingPointValue implements Comparable<FloatingPointValue> {
         ? fullLength - mantissaWidth - scaleToWhole
         : FloatingPointValue.computeMinExponent(exponentWidth);
 
-    if (e > FloatingPointValue.computeMaxExponent(exponentWidth) + 1) {
-      return FloatingPointValue.getFloatingPointConstant(
-          sign.toBool()
-              ? FloatingPointConstants.negativeInfinity
-              : FloatingPointConstants.infinity,
-          exponentWidth,
-          mantissaWidth);
-    }
-
     if (e <= -FloatingPointValue.computeBias(exponentWidth)) {
       fullValue = fullValue >>>
           (scaleToWhole - FloatingPointValue.computeBias(exponentWidth));
@@ -610,6 +612,15 @@ class FloatingPointValue implements Comparable<FloatingPointValue> {
       if (e > -FloatingPointValue.computeBias(exponentWidth)) {
         fullValue = fullValue << 1; // Chop the first '1'
       }
+    }
+
+    if (e > FloatingPointValue.computeMaxExponent(exponentWidth)) {
+      return FloatingPointValue.getFloatingPointConstant(
+          sign.toBool()
+              ? FloatingPointConstants.negativeInfinity
+              : FloatingPointConstants.infinity,
+          exponentWidth,
+          mantissaWidth);
     }
     // We reverse so that we fit into a shorter BigInt, we keep the MSB.
     // The conversion fills leftward.
