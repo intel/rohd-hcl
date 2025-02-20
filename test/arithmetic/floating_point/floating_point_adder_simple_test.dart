@@ -32,14 +32,14 @@ void main() {
     fp1.put(0);
     fp2.put(0);
     final adder = FloatingPointAdderSimple(fp1, fp2);
-    final value = Random(513);
+    final rand = Random(513);
     for (var i = 0; i < 500; i++) {
       final fv1 = FloatingPointValue.populator(
               exponentWidth: exponentWidth, mantissaWidth: mantissaWidth)
-          .random(value);
+          .random(rand);
       final fv2 = FloatingPointValue.populator(
               exponentWidth: exponentWidth, mantissaWidth: mantissaWidth)
-          .random(value);
+          .random(rand);
       fp1.put(fv1);
       fp2.put(fv2);
       final computed = adder.sum.floatingPointValue;
@@ -222,15 +222,15 @@ void main() {
       await adder.build();
       unawaited(Simulator.run());
 
-      final value = Random(513);
+      final rand = Random(513);
 
       for (var i = 0; i < 500; i++) {
         final fv1 = FloatingPointValue.populator(
                 exponentWidth: exponentWidth, mantissaWidth: mantissaWidth)
-            .random(value, normal: true);
+            .random(rand, normal: true);
         final fv2 = FloatingPointValue.populator(
                 exponentWidth: exponentWidth, mantissaWidth: mantissaWidth)
-            .random(value, normal: true);
+            .random(rand, normal: true);
 
         fp1.put(fv1.value);
         fp2.put(fv2.value);
@@ -267,15 +267,15 @@ void main() {
     await adder.build();
     unawaited(Simulator.run());
 
-    final value = Random(513);
+    final rand = Random(513);
 
     for (var i = 0; i < 500; i++) {
       final fv1 = FloatingPointValue.populator(
               exponentWidth: exponentWidth, mantissaWidth: mantissaWidth)
-          .random(value);
+          .random(rand);
       final fv2 = FloatingPointValue.populator(
               exponentWidth: exponentWidth, mantissaWidth: mantissaWidth)
-          .random(value);
+          .random(rand);
 
       fp1.put(fv1.value);
       fp2.put(fv2.value);
@@ -306,15 +306,15 @@ void main() {
     final adder = FloatingPointAdderSimple(fp1, fp2);
     await adder.build();
 
-    final value = Random(513);
+    final rand = Random(513);
 
     for (var i = 0; i < 500; i++) {
       final fv1 = FloatingPointValue.populator(
               exponentWidth: exponentWidth, mantissaWidth: mantissaWidth)
-          .random(value);
+          .random(rand);
       final fv2 = FloatingPointValue.populator(
               exponentWidth: exponentWidth, mantissaWidth: mantissaWidth)
-          .random(value);
+          .random(rand);
 
       fp1.put(fv1.value);
       fp2.put(fv2.value);
