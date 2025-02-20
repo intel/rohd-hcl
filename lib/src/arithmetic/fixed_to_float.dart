@@ -65,6 +65,8 @@ class FixedToFloat extends Module {
         .zeroExtend(iWidth)
         .named('jBit');
 
+    // TODO(desmonddak): refactor to use the roundRNE component
+
     // Extract mantissa
     final mantissa = Logic(name: 'mantissa', width: mantissaWidth);
     final guard = Logic(name: 'guardBit');

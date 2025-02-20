@@ -124,7 +124,7 @@ void main() {
       fp2.put(0);
       final multiply = FloatingPointMultiplierSimple(fp1, fp2);
 
-      final expLimit = pow(2, exponentWidth) - 1;
+      final expLimit = pow(2, exponentWidth);
       final mantLimit = pow(2, mantissaWidth);
       for (final subtract in [0, 1]) {
         for (var e1 = 0; e1 < expLimit; e1++) {

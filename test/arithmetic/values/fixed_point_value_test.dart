@@ -174,6 +174,23 @@ void main() {
         LogicValue.one);
   });
 
+  test('FixedPointValue: exhaustive double round-trip', () {
+    const width = 8;
+    const m = 3;
+    const n = 4;
+    for (var i = 0; i < pow(2, width); i++) {
+      final fxv = FixedPointValue(
+          value: LogicValue.ofInt(i, width), signed: true, m: m, n: n);
+      final dbl = fxv.toDouble();
+      if (!FixedPointValue.canStore(dbl,
+          signed: fxv.signed, m: fxv.m, n: fxv.n)) {
+        throw RohdHclException('generated a value that we cannot store');
+      }
+      final fxv2 = FixedPointValue.ofDouble(dbl, signed: true, m: m, n: n);
+      expect(fxv, equals(fxv2));
+    }
+  });
+
   test('Math', () {
     const w = 4;
     FixedPointValue fxp;
