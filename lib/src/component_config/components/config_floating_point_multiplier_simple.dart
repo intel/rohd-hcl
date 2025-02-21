@@ -26,17 +26,17 @@ class FloatingPointMultiplierSimpleConfigurator extends Configurator {
     NativeAdder: (a, b, {carryIn}) => NativeAdder(a, b, carryIn: carryIn)
   };
 
-  /// Map from Type to Function for Parallel Prefix generator
-  static Map<
-          Type,
-          ParallelPrefix Function(
-              List<Logic> inps, Logic Function(Logic term1, Logic term2) op)>
-      treeGeneratorMap = {
-    Ripple: Ripple.new,
-    Sklansky: Sklansky.new,
-    KoggeStone: KoggeStone.new,
-    BrentKung: BrentKung.new
-  };
+  // /// Map from Type to Function for Parallel Prefix generator
+  // static Map<
+  //         Type,
+  //         ParallelPrefix Function(
+  //             List<Logic> inps, Logic Function(Logic term1, Logic term2) op)>
+  //     treeGeneratorMap = {
+  //   Ripple: Ripple.new,
+  //   Sklansky: Sklansky.new,
+  //   KoggeStone: KoggeStone.new,
+  //   BrentKung: BrentKung.new
+  // };
 
   /// Map from Type to Function for Mantissa Multiplier
   static Map<
@@ -61,9 +61,9 @@ class FloatingPointMultiplierSimpleConfigurator extends Configurator {
   final multTypeKnob =
       ChoiceConfigKnob(multGeneratorMap.keys.toList(), value: NativeMultiplier);
 
-  /// Controls the type of [ParallelPrefix] tree used in the internal functions.
-  final prefixTreeKnob =
-      ChoiceConfigKnob(treeGeneratorMap.keys.toList(), value: KoggeStone);
+  // /// Controls the type of [ParallelPrefix] tree used in the internal functions.
+  // final prefixTreeKnob =
+  //     ChoiceConfigKnob(treeGeneratorMap.keys.toList(), value: KoggeStone);
 
   /// Controls the width of the exponent.
   final IntConfigKnob exponentWidthKnob = IntConfigKnob(value: 4);
@@ -84,13 +84,10 @@ class FloatingPointMultiplierSimpleConfigurator extends Configurator {
       FloatingPoint(
           exponentWidth: exponentWidthKnob.value,
           mantissaWidth: mantissaWidthKnob.value),
-      multGen: multGeneratorMap[multTypeKnob.value]!,
-      ppTree: treeGeneratorMap[prefixTreeKnob.value]!);
+      multGen: multGeneratorMap[multTypeKnob.value]!);
 
   @override
   late final Map<String, ConfigKnob<dynamic>> knobs = UnmodifiableMapView({
-    // 'Adder type': adderTypeKnob,
-    // 'Prefix tree type': prefixTreeKnob,
     'Exponent width': exponentWidthKnob,
     'Mantissa width': mantissaWidthKnob,
     'Pipelined': pipelinedKnob,

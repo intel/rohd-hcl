@@ -45,13 +45,12 @@ class FloatingPointConverter extends Module {
   /// - [source] is the source format [FloatingPoint] logic structure.
   /// - [destination] is the destination format [FloatingPoint] logic
   /// structure.
-  /// - [ppTree] can be specified to use a specific [ParallelPrefix] tree
-  /// for the leading-1 detection during normalization.
+  /// - [priorityGen] is a [PriorityEncoder] generator to be used in the
+  /// leading one detection (default [RecursiveModulePriorityEncoder]).
   /// - [adderGen] can specify the [Adder] to use for exponent calculations.
   FloatingPointConverter(FloatingPoint source, FloatingPoint destination,
-      {ParallelPrefix Function(
-              List<Logic> inps, Logic Function(Logic term1, Logic term2) op)
-          ppTree = KoggeStone.new,
+      {PriorityEncoder Function(Logic bitVector, {Logic? valid, String name})
+          priorityGen = RecursiveModulePriorityEncoder.new,
       Adder Function(Logic a, Logic b, {Logic? carryIn}) adderGen =
           NativeAdder.new,
       super.name})
@@ -92,8 +91,8 @@ class FloatingPointConverter extends Module {
       final predictExp = (se + biasDiff).named('predictExp');
 
       final leadOneValid = Logic(name: 'leadOne_valid');
-      final leadOnePre = ParallelPrefixPriorityEncoder(mantissa.reversed,
-              ppGen: ppTree, valid: leadOneValid, name: 'lead_one_encoder')
+      final leadOnePre = priorityGen(mantissa.reversed,
+              valid: leadOneValid, name: 'lead_one_encoder')
           .out;
       final leadOne =
           mux(leadOneValid, leadOnePre.zeroExtend(biasDiff.width), biasDiff)

@@ -16,17 +16,16 @@ class FloatingPointAdderSimple extends FloatingPointAdder {
   /// Add two floating point numbers [a] and [b], returning result in [sum].
   /// - [adderGen] is an adder generator to be used in the primary adder
   /// functions.
-  /// - [ppTree] is an parallel prefix tree generator to be used in internal
-  /// functions.
+  /// - [priorityGen] is a [PriorityEncoder] generator to be used in the
+  /// leading one detection (default [RecursiveModulePriorityEncoder]).
   FloatingPointAdderSimple(super.a, super.b,
       {super.clk,
       super.reset,
       super.enable,
       Adder Function(Logic a, Logic b, {Logic? carryIn}) adderGen =
           NativeAdder.new,
-      ParallelPrefix Function(
-              List<Logic> inps, Logic Function(Logic term1, Logic term2) op)
-          ppTree = KoggeStone.new,
+      PriorityEncoder Function(Logic bitVector, {Logic? valid, String name})
+          priorityGen = RecursiveModulePriorityEncoder.new,
       super.name = 'floatingpoint_adder_simple'})
       : super(
             definitionName: 'FloatingPointAdderSimple_'
@@ -75,10 +74,8 @@ class FloatingPointAdderSimple extends FloatingPointAdder {
         .getRange(0, min(intSum.width, intSum.width))
         .named('mantissa');
     final leadOneValid = Logic(name: 'leadOneValid');
-    final leadOnePre = ParallelPrefixPriorityEncoder(mantissa,
-            ppGen: ppTree, valid: leadOneValid)
-        .out
-        .named('leadOnePre');
+    final leadOnePre =
+        priorityGen(mantissa, valid: leadOneValid).out.named('leadOnePre');
     // Limit leadOne to exponent range and match widths
     final infExponent = outputSum.inf(sign: aSignLatched).exponent;
     final leadOne = ((leadOnePre.width > exponentWidth)
