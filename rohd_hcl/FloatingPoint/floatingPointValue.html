@@ -25,7 +25,7 @@
   <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
   <ol class="breadcrumbs gt-separated dark hidden-xs">
     <li><a href="../../index.html">rohd_hcl</a></li>
-    <li><a href="../../rohd_hcl/rohd_hcl-library.html">rohd_hcl.dart</a></li>
+    <li><a href="../../rohd_hcl">rohd_hcl.dart</a></li>
     <li><a href="../../rohd_hcl/FloatingPoint-class.html">FloatingPoint</a></li>
     <li class="self-crumb">floatingPointValue property</li>
   </ol>
@@ -70,14 +70,14 @@
     </section>
     
 <section class="desc markdown">
-  <p>Return the <a href="../../rohd_hcl/FloatingPointValue-class.html">FloatingPointValue</a></p>
+  <p>Return the <a href="../../rohd_hcl/FloatingPointValue-class.html">FloatingPointValue</a> of the current <a href="https://pub.dev/documentation/rohd/0.6.3/rohd/LogicStructure/value.html">value</a>.</p>
 </section>
 
     
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
-  <pre class="language-dart"><code class="language-dart">FloatingPointValue get floatingPointValue =&gt; FloatingPointValue(
-    sign: sign.value, exponent: exponent.value, mantissa: mantissa.value);</code></pre>
+  <pre class="language-dart"><code class="language-dart">FloatingPointValue get floatingPointValue =&gt;
+    valuePopulator().ofFloatingPoint(this);</code></pre>
 </section>
 
   </section>
@@ -93,7 +93,7 @@
 </header>
 <ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
     <li><a href="../../index.html">rohd_hcl</a></li>
-    <li><a href="../../rohd_hcl/rohd_hcl-library.html">rohd_hcl</a></li>
+    <li><a href="../../rohd_hcl">rohd_hcl</a></li>
     <li><a href="../../rohd_hcl/FloatingPoint-class.html">FloatingPoint</a></li>
     <li class="self-crumb">floatingPointValue property</li>
 </ol>

@@ -25,7 +25,7 @@
   <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
   <ol class="breadcrumbs gt-separated dark hidden-xs">
     <li><a href="../../index.html">rohd_hcl</a></li>
-    <li><a href="../../rohd_hcl/rohd_hcl-library.html">rohd_hcl.dart</a></li>
+    <li><a href="../../rohd_hcl">rohd_hcl.dart</a></li>
     <li><a href="../../rohd_hcl/FloatingPointValue-class.html">FloatingPointValue</a></li>
     <li class="self-crumb">ulp method</li>
   </ol>
@@ -65,7 +65,7 @@
     </section>
     
 <section class="desc markdown">
-  <p>Compute the unit in the last place for the given <a href="../../rohd_hcl/FloatingPointValue-class.html">FloatingPointValue</a></p>
+  <p>Compute the unit in the last place for the given <a href="../../rohd_hcl/FloatingPointValue-class.html">FloatingPointValue</a>.</p>
 </section>
 
 
@@ -76,10 +76,10 @@
   if (exponent.toInt() &gt; mantissa.width) {
     final newExponent =
         LogicValue.ofInt(exponent.toInt() - mantissa.width, exponent.width);
-    return FloatingPointValue.ofBinaryStrings(
+    return clonePopulator().ofBinaryStrings(
         sign.bitString, newExponent.bitString, &#39;0&#39; * (mantissa.width));
   } else {
-    return FloatingPointValue.ofBinaryStrings(
+    return clonePopulator().ofBinaryStrings(
         sign.bitString, exponent.bitString, &#39;${&#39;0&#39; * (mantissa.width - 1)}1&#39;);
   }
 }</code></pre>
@@ -96,7 +96,7 @@
 </header>
 <ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
     <li><a href="../../index.html">rohd_hcl</a></li>
-    <li><a href="../../rohd_hcl/rohd_hcl-library.html">rohd_hcl</a></li>
+    <li><a href="../../rohd_hcl">rohd_hcl</a></li>
     <li><a href="../../rohd_hcl/FloatingPointValue-class.html">FloatingPointValue</a></li>
     <li class="self-crumb">ulp method</li>
 </ol>

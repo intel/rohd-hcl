@@ -25,7 +25,7 @@
   <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
   <ol class="breadcrumbs gt-separated dark hidden-xs">
     <li><a href="../../index.html">rohd_hcl</a></li>
-    <li><a href="../../rohd_hcl/rohd_hcl-library.html">rohd_hcl.dart</a></li>
+    <li><a href="../../rohd_hcl">rohd_hcl.dart</a></li>
     <li><a href="../../rohd_hcl/FloatingPointValue-class.html">FloatingPointValue</a></li>
     <li class="self-crumb">operator * method</li>
   </ol>
@@ -66,7 +66,7 @@
     </section>
     
 <section class="desc markdown">
-  <p>Multiply operation for <a href="../../rohd_hcl/FloatingPointValue-class.html">FloatingPointValue</a></p>
+  <p>Multiply operation for <a href="../../rohd_hcl/FloatingPointValue-class.html">FloatingPointValue</a>.</p>
 </section>
 
 
@@ -76,15 +76,17 @@
   <pre class="language-dart"><code class="language-dart">FloatingPointValue operator *(FloatingPointValue multiplicand) {
   if (isAnInfinity) {
     if (multiplicand.isAnInfinity) {
-      return sign != multiplicand.sign ? negativeInfinity : infinity;
-    } else if (multiplicand.isZero) {
-      return nan;
+      return sign != multiplicand.sign
+          ? clonePopulator().negativeInfinity
+          : clonePopulator().positiveInfinity;
+    } else if (multiplicand.isAZero) {
+      return clonePopulator().nan;
     } else {
       return this;
     }
   } else if (multiplicand.isAnInfinity) {
-    if (isZero) {
-      return nan;
+    if (isAZero) {
+      return clonePopulator().nan;
     } else {
       return multiplicand;
     }
@@ -104,7 +106,7 @@
 </header>
 <ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
     <li><a href="../../index.html">rohd_hcl</a></li>
-    <li><a href="../../rohd_hcl/rohd_hcl-library.html">rohd_hcl</a></li>
+    <li><a href="../../rohd_hcl">rohd_hcl</a></li>
     <li><a href="../../rohd_hcl/FloatingPointValue-class.html">FloatingPointValue</a></li>
     <li class="self-crumb">operator * method</li>
 </ol>

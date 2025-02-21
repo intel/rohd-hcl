@@ -25,7 +25,7 @@
   <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
   <ol class="breadcrumbs gt-separated dark hidden-xs">
     <li><a href="../../index.html">rohd_hcl</a></li>
-    <li><a href="../../rohd_hcl/rohd_hcl-library.html">rohd_hcl.dart</a></li>
+    <li><a href="../../rohd_hcl">rohd_hcl.dart</a></li>
     <li><a href="../../rohd_hcl/FloatingPointValue-class.html">FloatingPointValue</a></li>
     <li class="self-crumb">operator + method</li>
   </ol>
@@ -66,7 +66,7 @@
     </section>
     
 <section class="desc markdown">
-  <p>Addition operation for <a href="../../rohd_hcl/FloatingPointValue-class.html">FloatingPointValue</a></p>
+  <p>Addition operation for <a href="../../rohd_hcl/FloatingPointValue-class.html">FloatingPointValue</a>.</p>
 </section>
 
 
@@ -77,9 +77,11 @@
   if (isAnInfinity) {
     if (addend.isAnInfinity) {
       if (sign != addend.sign) {
-        return nan;
+        return clonePopulator().nan;
       } else {
-        return sign.toBool() ? negativeInfinity : infinity;
+        return sign.toBool()
+            ? clonePopulator().negativeInfinity
+            : clonePopulator().positiveInfinity;
       }
     } else {
       return this;
@@ -102,7 +104,7 @@
 </header>
 <ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
     <li><a href="../../index.html">rohd_hcl</a></li>
-    <li><a href="../../rohd_hcl/rohd_hcl-library.html">rohd_hcl</a></li>
+    <li><a href="../../rohd_hcl">rohd_hcl</a></li>
     <li><a href="../../rohd_hcl/FloatingPointValue-class.html">FloatingPointValue</a></li>
     <li class="self-crumb">operator + method</li>
 </ol>

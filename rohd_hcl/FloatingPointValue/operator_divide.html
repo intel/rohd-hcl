@@ -25,7 +25,7 @@
   <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
   <ol class="breadcrumbs gt-separated dark hidden-xs">
     <li><a href="../../index.html">rohd_hcl</a></li>
-    <li><a href="../../rohd_hcl/rohd_hcl-library.html">rohd_hcl.dart</a></li>
+    <li><a href="../../rohd_hcl">rohd_hcl.dart</a></li>
     <li><a href="../../rohd_hcl/FloatingPointValue-class.html">FloatingPointValue</a></li>
     <li class="self-crumb">operator / method</li>
   </ol>
@@ -66,7 +66,7 @@
     </section>
     
 <section class="desc markdown">
-  <p>Divide operation for <a href="../../rohd_hcl/FloatingPointValue-class.html">FloatingPointValue</a></p>
+  <p>Divide operation for <a href="../../rohd_hcl/FloatingPointValue-class.html">FloatingPointValue</a>.</p>
 </section>
 
 
@@ -75,14 +75,16 @@
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">FloatingPointValue operator &#47;(FloatingPointValue divisor) {
   if (isAnInfinity) {
-    if (divisor.isAnInfinity | divisor.isZero) {
-      return nan;
+    if (divisor.isAnInfinity | divisor.isAZero) {
+      return clonePopulator().nan;
     } else {
       return this;
     }
   } else {
-    if (divisor.isZero) {
-      return sign != divisor.sign ? negativeInfinity : infinity;
+    if (divisor.isAZero) {
+      return sign != divisor.sign
+          ? clonePopulator().negativeInfinity
+          : clonePopulator().positiveInfinity;
     }
   }
   return _performOp(divisor, (a, b) =&gt; a &#47; b);
@@ -100,7 +102,7 @@
 </header>
 <ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
     <li><a href="../../index.html">rohd_hcl</a></li>
-    <li><a href="../../rohd_hcl/rohd_hcl-library.html">rohd_hcl</a></li>
+    <li><a href="../../rohd_hcl">rohd_hcl</a></li>
     <li><a href="../../rohd_hcl/FloatingPointValue-class.html">FloatingPointValue</a></li>
     <li class="self-crumb">operator / method</li>
 </ol>

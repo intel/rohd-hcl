@@ -84,6 +84,32 @@
             "Y": [ 5 ]
           }
         },
+        "$auto$ff.cc:266:slice$9": {
+          "hide_name": 1,
+          "type": "$sdff",
+          "parameters": {
+            "CLK_POLARITY": 1,
+            "SRST_POLARITY": 1,
+            "SRST_VALUE": 0,
+            "WIDTH": 1
+          },
+          "attributes": {
+            "always_ff": 1,
+            "src": "EdgeDetector_Tpos.v:15.1-15.88"
+          },
+          "port_directions": {
+            "CLK": "input",
+            "D": "input",
+            "Q": "output",
+            "SRST": "input"
+          },
+          "connections": {
+            "CLK": [ 2 ],
+            "D": [ 3 ],
+            "Q": [ 7 ],
+            "SRST": [ 4 ]
+          }
+        },
         "$not$EdgeDetector_Tpos.v:14$1": {
           "hide_name": 1,
           "type": "$not",
@@ -102,32 +128,6 @@
           "connections": {
             "A": [ 7 ],
             "Y": [ 6 ]
-          }
-        },
-        "$procdff$5": {
-          "hide_name": 1,
-          "type": "$adff",
-          "parameters": {
-            "ARST_POLARITY": 1,
-            "ARST_VALUE": 0,
-            "CLK_POLARITY": 1,
-            "WIDTH": 1
-          },
-          "attributes": {
-            "always_ff": 1,
-            "src": "EdgeDetector_Tpos.v:15.1-15.105"
-          },
-          "port_directions": {
-            "ARST": "input",
-            "CLK": "input",
-            "D": "input",
-            "Q": "output"
-          },
-          "connections": {
-            "ARST": [ 4 ],
-            "CLK": [ 2 ],
-            "D": [ 3 ],
-            "Q": [ 7 ]
           }
         }
       },

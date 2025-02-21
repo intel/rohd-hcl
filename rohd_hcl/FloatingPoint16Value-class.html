@@ -25,7 +25,7 @@
   <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
   <ol class="breadcrumbs gt-separated dark hidden-xs">
     <li><a href="../index.html">rohd_hcl</a></li>
-    <li><a href="../rohd_hcl/rohd_hcl-library.html">rohd_hcl.dart</a></li>
+    <li><a href="../rohd_hcl">rohd_hcl.dart</a></li>
     <li class="self-crumb">FloatingPoint16Value class</li>
   </ol>
   <div class="self-name">FloatingPoint16Value</div>
@@ -67,7 +67,7 @@
   <dt>Inheritance</dt>
   <dd>
     <ul class="gt-separated dark clazz-relationships">
-      <li><a href="https://api.dart.dev/stable/3.6.2/dart-core/Object-class.html">Object</a></li>
+      <li><a href="https://api.dart.dev/stable/3.7.0/dart-core/Object-class.html">Object</a></li>
         <li><a href="../rohd_hcl/FloatingPointValue-class.html">FloatingPointValue</a></li>
       <li>FloatingPoint16Value</li>
     </ul>
@@ -89,66 +89,18 @@
     <h2>Constructors</h2>
     <dl class="constructor-summary-list">
         <dt id="FloatingPoint16Value" class="callable">
-          <span class="name"><a href="../rohd_hcl/FloatingPoint16Value/FloatingPoint16Value.html">FloatingPoint16Value</a></span><span class="signature">({<span class="parameter" id="-param-sign"><span>required</span> <span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.2/rohd/LogicValue-class.html">LogicValue</a></span> <span class="parameter-name">sign</span>, </span><span class="parameter" id="-param-exponent"><span>required</span> <span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.2/rohd/LogicValue-class.html">LogicValue</a></span> <span class="parameter-name">exponent</span>, </span><span class="parameter" id="-param-mantissa"><span>required</span> <span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.2/rohd/LogicValue-class.html">LogicValue</a></span> <span class="parameter-name">mantissa</span></span>})</span>
+          <span class="name"><a href="../rohd_hcl/FloatingPoint16Value/FloatingPoint16Value.html">FloatingPoint16Value</a></span><span class="signature">({<span class="parameter" id="-param-sign"><span>required</span> <span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.3/rohd/LogicValue-class.html">LogicValue</a></span> <span class="parameter-name">sign</span>, </span><span class="parameter" id="-param-exponent"><span>required</span> <span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.3/rohd/LogicValue-class.html">LogicValue</a></span> <span class="parameter-name">exponent</span>, </span><span class="parameter" id="-param-mantissa"><span>required</span> <span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.3/rohd/LogicValue-class.html">LogicValue</a></span> <span class="parameter-name">mantissa</span></span>})</span>
         </dt>
         <dd>
-          Constructor for a single precision floating point value
-        </dd>
-        <dt id="FloatingPoint16Value.getFloatingPointConstant" class="callable">
-          <span class="name"><a href="../rohd_hcl/FloatingPoint16Value/FloatingPoint16Value.getFloatingPointConstant.html">FloatingPoint16Value.getFloatingPointConstant</a></span><span class="signature">(<span class="parameter" id="getFloatingPointConstant-param-constantFloatingPoint"><span class="type-annotation"><a href="../rohd_hcl/FloatingPointConstants.html">FloatingPointConstants</a></span> <span class="parameter-name">constantFloatingPoint</span></span>)</span>
-        </dt>
-        <dd>
-          Return the <a href="../rohd_hcl/FloatingPoint16Value-class.html">FloatingPoint16Value</a> representing the constant specified
+          Constructor for a FP16 floating point value.
             <div class="constructor-modifier features">factory</div>
         </dd>
-        <dt id="FloatingPoint16Value.ofBigInts" class="callable">
-          <span class="name"><a href="../rohd_hcl/FloatingPoint16Value/FloatingPoint16Value.ofBigInts.html">FloatingPoint16Value.ofBigInts</a></span><span class="signature">(<span class="parameter" id="ofBigInts-param-exponent"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.6.2/dart-core/BigInt-class.html">BigInt</a></span> <span class="parameter-name">exponent</span>, </span><span class="parameter" id="ofBigInts-param-mantissa"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.6.2/dart-core/BigInt-class.html">BigInt</a></span> <span class="parameter-name">mantissa</span>, {</span><span class="parameter" id="ofBigInts-param-sign"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.6.2/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">sign</span> = <span class="default-value">false</span></span>})</span>
+        <dt id="FloatingPoint16Value.uninitialized" class="callable">
+          <span class="name"><a href="../rohd_hcl/FloatingPoint16Value/FloatingPoint16Value.uninitialized.html">FloatingPoint16Value.uninitialized</a></span><span class="signature">()</span>
         </dt>
         <dd>
-          <a href="../rohd_hcl/FloatingPoint16Value-class.html">FloatingPoint16Value</a> constructor from a set of <a href="https://api.dart.dev/stable/3.6.2/dart-core/BigInt-class.html">BigInt</a>s of the binary
-representation
-        </dd>
-        <dt id="FloatingPoint16Value.ofBinaryStrings" class="callable">
-          <span class="name"><a href="../rohd_hcl/FloatingPoint16Value/FloatingPoint16Value.ofBinaryStrings.html">FloatingPoint16Value.ofBinaryStrings</a></span><span class="signature">(<span class="parameter" id="ofBinaryStrings-param-sign"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.6.2/dart-core/String-class.html">String</a></span> <span class="parameter-name">sign</span>, </span><span class="parameter" id="ofBinaryStrings-param-exponent"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.6.2/dart-core/String-class.html">String</a></span> <span class="parameter-name">exponent</span>, </span><span class="parameter" id="ofBinaryStrings-param-mantissa"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.6.2/dart-core/String-class.html">String</a></span> <span class="parameter-name">mantissa</span></span>)</span>
-        </dt>
-        <dd>
-          <a href="../rohd_hcl/FloatingPoint16Value-class.html">FloatingPoint16Value</a> constructor from string representation of
-individual bitfields
-        </dd>
-        <dt id="FloatingPoint16Value.ofDouble" class="callable">
-          <span class="name"><a href="../rohd_hcl/FloatingPoint16Value/FloatingPoint16Value.ofDouble.html">FloatingPoint16Value.ofDouble</a></span><span class="signature">(<span class="parameter" id="ofDouble-param-inDouble"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.6.2/dart-core/double-class.html">double</a></span> <span class="parameter-name">inDouble</span></span>)</span>
-        </dt>
-        <dd>
-          Numeric conversion of a <a href="../rohd_hcl/FloatingPoint16Value-class.html">FloatingPoint16Value</a> from a host double
-            <div class="constructor-modifier features">factory</div>
-        </dd>
-        <dt id="FloatingPoint16Value.ofInts" class="callable">
-          <span class="name"><a href="../rohd_hcl/FloatingPoint16Value/FloatingPoint16Value.ofInts.html">FloatingPoint16Value.ofInts</a></span><span class="signature">(<span class="parameter" id="ofInts-param-exponent"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.6.2/dart-core/int-class.html">int</a></span> <span class="parameter-name">exponent</span>, </span><span class="parameter" id="ofInts-param-mantissa"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.6.2/dart-core/int-class.html">int</a></span> <span class="parameter-name">mantissa</span>, {</span><span class="parameter" id="ofInts-param-sign"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.6.2/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">sign</span> = <span class="default-value">false</span></span>})</span>
-        </dt>
-        <dd>
-          <a href="../rohd_hcl/FloatingPoint16Value-class.html">FloatingPoint16Value</a> constructor from a set of <a href="https://api.dart.dev/stable/3.6.2/dart-core/int-class.html">int</a>s of the binary
-representation
-        </dd>
-        <dt id="FloatingPoint16Value.ofLogicValue" class="callable">
-          <span class="name"><a href="../rohd_hcl/FloatingPoint16Value/FloatingPoint16Value.ofLogicValue.html">FloatingPoint16Value.ofLogicValue</a></span><span class="signature">(<span class="parameter" id="ofLogicValue-param-val"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.2/rohd/LogicValue-class.html">LogicValue</a></span> <span class="parameter-name">val</span></span>)</span>
-        </dt>
-        <dd>
-          Construct a <a href="../rohd_hcl/FloatingPoint16Value-class.html">FloatingPoint16Value</a> from a Logic word
-            <div class="constructor-modifier features">factory</div>
-        </dd>
-        <dt id="FloatingPoint16Value.ofSpacedBinaryString" class="callable">
-          <span class="name"><a href="../rohd_hcl/FloatingPoint16Value/FloatingPoint16Value.ofSpacedBinaryString.html">FloatingPoint16Value.ofSpacedBinaryString</a></span><span class="signature">(<span class="parameter" id="ofSpacedBinaryString-param-fp"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.6.2/dart-core/String-class.html">String</a></span> <span class="parameter-name">fp</span></span>)</span>
-        </dt>
-        <dd>
-          <a href="../rohd_hcl/FloatingPoint16Value-class.html">FloatingPoint16Value</a> constructor from spaced string representation of
-individual bitfields
-        </dd>
-        <dt id="FloatingPoint16Value.ofString" class="callable">
-          <span class="name"><a href="../rohd_hcl/FloatingPoint16Value/FloatingPoint16Value.ofString.html">FloatingPoint16Value.ofString</a></span><span class="signature">(<span class="parameter" id="ofString-param-fp"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.6.2/dart-core/String-class.html">String</a></span> <span class="parameter-name">fp</span>, {</span><span class="parameter" id="ofString-param-radix"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.6.2/dart-core/int-class.html">int</a></span> <span class="parameter-name">radix</span> = <span class="default-value">2</span></span>})</span>
-        </dt>
-        <dd>
-          <a href="../rohd_hcl/FloatingPoint16Value-class.html">FloatingPoint16Value</a> constructor from a single string representing
-space-separated bitfields
+          Creates an unpopulated version, intended to be called with the
+<a href="../rohd_hcl/FloatingPoint16Value/populator.html">populator</a>.
         </dd>
     </dl>
   </section>
@@ -160,7 +112,7 @@ space-separated bitfields
     <dl class="properties">
         <dt id="bias" class="property inherited">
   <span class="name"><a href="../rohd_hcl/FloatingPointValue/bias.html">bias</a></span>
-  <span class="signature">&#8594; <a href="https://api.dart.dev/stable/3.6.2/dart-core/int-class.html">int</a></span>
+  <span class="signature">&#8594; <a href="https://api.dart.dev/stable/3.7.0/dart-core/int-class.html">int</a></span>
   
 
 </dt>
@@ -170,48 +122,34 @@ space-separated bitfields
 
 </dd>
 
-        <dt id="constrainedExponentWidth" class="property">
-  <span class="name"><a href="../rohd_hcl/FloatingPoint16Value/constrainedExponentWidth.html">constrainedExponentWidth</a></span>
-  <span class="signature">&#8594; <a href="https://api.dart.dev/stable/3.6.2/dart-core/int-class.html">int</a></span>
-  
-
-</dt>
-<dd>
-  <a href="../rohd_hcl/FloatingPoint16Value/constrainedExponentWidth.html">constrainedExponentWidth</a> is the hard-coded exponent width of the
-sub-class of this floating-point value
-  <div class="features"><span class="feature">no setter</span><span class="feature">override</span></div>
-
-</dd>
-
-        <dt id="constrainedMantissaWidth" class="property">
-  <span class="name"><a href="../rohd_hcl/FloatingPoint16Value/constrainedMantissaWidth.html">constrainedMantissaWidth</a></span>
-  <span class="signature">&#8594; <a href="https://api.dart.dev/stable/3.6.2/dart-core/int-class.html">int</a></span>
-  
-
-</dt>
-<dd>
-  <a href="../rohd_hcl/FloatingPoint16Value/constrainedMantissaWidth.html">constrainedMantissaWidth</a> is the hard-coded mantissa width of the
-sub-class of this floating-point value
-  <div class="features"><span class="feature">no setter</span><span class="feature">override</span></div>
-
-</dd>
-
         <dt id="exponent" class="property inherited">
   <span class="name"><a href="../rohd_hcl/FloatingPointValue/exponent.html">exponent</a></span>
-  <span class="signature">&#8594; <a href="https://pub.dev/documentation/rohd/0.6.2/rohd/LogicValue-class.html">LogicValue</a></span>
+  <span class="signature">&#8596; <a href="https://pub.dev/documentation/rohd/0.6.3/rohd/LogicValue-class.html">LogicValue</a></span>
   
 
 </dt>
 <dd class="inherited">
   The exponent of the floating point: this is biased about a midpoint for
-positive and negative exponents
-  <div class="features"><span class="feature">final</span><span class="feature">inherited</span></div>
+positive and negative exponents.
+  <div class="features"><span class="feature">late</span><span class="feature">final</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="exponentWidth" class="property">
+  <span class="name"><a href="../rohd_hcl/FloatingPoint16Value/exponentWidth.html">exponentWidth</a></span>
+  <span class="signature">&#8594; <a href="https://api.dart.dev/stable/3.7.0/dart-core/int-class.html">int</a></span>
+  
+
+</dt>
+<dd>
+  The <a href="../rohd_hcl/FloatingPointValue/exponent.html">exponent</a> width.
+  <div class="features"><span class="feature">final</span></div>
 
 </dd>
 
         <dt id="hashCode" class="property inherited">
   <span class="name"><a href="../rohd_hcl/FloatingPointValue/hashCode.html">hashCode</a></span>
-  <span class="signature">&#8594; <a href="https://api.dart.dev/stable/3.6.2/dart-core/int-class.html">int</a></span>
+  <span class="signature">&#8594; <a href="https://api.dart.dev/stable/3.7.0/dart-core/int-class.html">int</a></span>
   
 
 </dt>
@@ -221,22 +159,9 @@ positive and negative exponents
 
 </dd>
 
-        <dt id="infinity" class="property inherited">
-  <span class="name"><a href="../rohd_hcl/FloatingPointValue/infinity.html">infinity</a></span>
-  <span class="signature">&#8594; <a href="../rohd_hcl/FloatingPointValue-class.html">FloatingPointValue</a></span>
-  
-
-</dt>
-<dd class="inherited">
-  Abbreviation Functions for common constants
-Return the Infinity value for this FloatingPointValue size.
-  <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
-
-</dd>
-
         <dt id="isAnInfinity" class="property inherited">
   <span class="name"><a href="../rohd_hcl/FloatingPointValue/isAnInfinity.html">isAnInfinity</a></span>
-  <span class="signature">&#8594; <a href="https://api.dart.dev/stable/3.6.2/dart-core/bool-class.html">bool</a></span>
+  <span class="signature">&#8594; <a href="https://api.dart.dev/stable/3.7.0/dart-core/bool-class.html">bool</a></span>
   
 
 </dt>
@@ -247,9 +172,24 @@ infinity or negative infinity
 
 </dd>
 
+        <dt id="isAZero" class="property inherited">
+  <span class="name"><a href="../rohd_hcl/FloatingPointValue/isAZero.html">isAZero</a></span>
+  <span class="signature">&#8594; <a href="https://api.dart.dev/stable/3.7.0/dart-core/bool-class.html">bool</a></span>
+  
+
+</dt>
+<dd class="inherited">
+  Return true if the represented floating point number is zero. Note
+that the equality operator will treat
+<a href="../src_arithmetic_values_floating_point_values_floating_point_constants/FloatingPointConstants.html">FloatingPointConstants.positiveZero</a>
+and <a href="../src_arithmetic_values_floating_point_values_floating_point_constants/FloatingPointConstants.html">FloatingPointConstants.negativeZero</a> as equal.
+  <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
+
+</dd>
+
         <dt id="isExponentAllOnes" class="property inherited">
   <span class="name"><a href="../rohd_hcl/FloatingPointValue/isExponentAllOnes.html">isExponentAllOnes</a></span>
-  <span class="signature">&#8594; <a href="https://api.dart.dev/stable/3.6.2/dart-core/bool-class.html">bool</a></span>
+  <span class="signature">&#8594; <a href="https://api.dart.dev/stable/3.7.0/dart-core/bool-class.html">bool</a></span>
   
 
 </dt>
@@ -261,7 +201,7 @@ infinity or negative infinity
 
         <dt id="isExponentAllZeros" class="property inherited">
   <span class="name"><a href="../rohd_hcl/FloatingPointValue/isExponentAllZeros.html">isExponentAllZeros</a></span>
-  <span class="signature">&#8594; <a href="https://api.dart.dev/stable/3.6.2/dart-core/bool-class.html">bool</a></span>
+  <span class="signature">&#8594; <a href="https://api.dart.dev/stable/3.7.0/dart-core/bool-class.html">bool</a></span>
   
 
 </dt>
@@ -273,7 +213,7 @@ infinity or negative infinity
 
         <dt id="isMantissaAllZeroes" class="property inherited">
   <span class="name"><a href="../rohd_hcl/FloatingPointValue/isMantissaAllZeroes.html">isMantissaAllZeroes</a></span>
-  <span class="signature">&#8594; <a href="https://api.dart.dev/stable/3.6.2/dart-core/bool-class.html">bool</a></span>
+  <span class="signature">&#8594; <a href="https://api.dart.dev/stable/3.7.0/dart-core/bool-class.html">bool</a></span>
   
 
 </dt>
@@ -285,47 +225,44 @@ infinity or negative infinity
 
         <dt id="isNaN" class="property inherited">
   <span class="name"><a href="../rohd_hcl/FloatingPointValue/isNaN.html">isNaN</a></span>
-  <span class="signature">&#8594; <a href="https://api.dart.dev/stable/3.6.2/dart-core/bool-class.html">bool</a></span>
+  <span class="signature">&#8594; <a href="https://api.dart.dev/stable/3.7.0/dart-core/bool-class.html">bool</a></span>
   
 
 </dt>
 <dd class="inherited">
   Return true if the represented floating point number is considered
-NaN or 'Not a Number'
-  <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
-
-</dd>
-
-        <dt id="isZero" class="property inherited">
-  <span class="name"><a href="../rohd_hcl/FloatingPointValue/isZero.html">isZero</a></span>
-  <span class="signature">&#8594; <a href="https://api.dart.dev/stable/3.6.2/dart-core/bool-class.html">bool</a></span>
-  
-
-</dt>
-<dd class="inherited">
-  Return true if the represented floating point number is zero. Note
-that the equality operator will treat
-<a href="../src_arithmetic_values_floating_point_values_floating_point_value/FloatingPointConstants.html">FloatingPointConstants.positiveZero</a>
-and <a href="../src_arithmetic_values_floating_point_values_floating_point_value/FloatingPointConstants.html">FloatingPointConstants.negativeZero</a> as equal.
+NaN or "Not a Number".
   <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
 
 </dd>
 
         <dt id="mantissa" class="property inherited">
   <span class="name"><a href="../rohd_hcl/FloatingPointValue/mantissa.html">mantissa</a></span>
-  <span class="signature">&#8594; <a href="https://pub.dev/documentation/rohd/0.6.2/rohd/LogicValue-class.html">LogicValue</a></span>
+  <span class="signature">&#8596; <a href="https://pub.dev/documentation/rohd/0.6.3/rohd/LogicValue-class.html">LogicValue</a></span>
   
 
 </dt>
 <dd class="inherited">
-  The mantissa of the floating point
-  <div class="features"><span class="feature">final</span><span class="feature">inherited</span></div>
+  The mantissa of the floating point.
+  <div class="features"><span class="feature">late</span><span class="feature">final</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="mantissaWidth" class="property">
+  <span class="name"><a href="../rohd_hcl/FloatingPoint16Value/mantissaWidth.html">mantissaWidth</a></span>
+  <span class="signature">&#8594; <a href="https://api.dart.dev/stable/3.7.0/dart-core/int-class.html">int</a></span>
+  
+
+</dt>
+<dd>
+  The <a href="../rohd_hcl/FloatingPointValue/mantissa.html">mantissa</a> width.
+  <div class="features"><span class="feature">final</span></div>
 
 </dd>
 
         <dt id="maxExponent" class="property inherited">
   <span class="name"><a href="../rohd_hcl/FloatingPointValue/maxExponent.html">maxExponent</a></span>
-  <span class="signature">&#8594; <a href="https://api.dart.dev/stable/3.6.2/dart-core/int-class.html">int</a></span>
+  <span class="signature">&#8594; <a href="https://api.dart.dev/stable/3.7.0/dart-core/int-class.html">int</a></span>
   
 
 </dt>
@@ -337,7 +274,7 @@ and <a href="../src_arithmetic_values_floating_point_values_floating_point_value
 
         <dt id="minExponent" class="property inherited">
   <span class="name"><a href="../rohd_hcl/FloatingPointValue/minExponent.html">minExponent</a></span>
-  <span class="signature">&#8594; <a href="https://api.dart.dev/stable/3.6.2/dart-core/int-class.html">int</a></span>
+  <span class="signature">&#8594; <a href="https://api.dart.dev/stable/3.7.0/dart-core/int-class.html">int</a></span>
   
 
 </dt>
@@ -347,45 +284,9 @@ and <a href="../src_arithmetic_values_floating_point_values_floating_point_value
 
 </dd>
 
-        <dt id="nan" class="property inherited">
-  <span class="name"><a href="../rohd_hcl/FloatingPointValue/nan.html">nan</a></span>
-  <span class="signature">&#8594; <a href="../rohd_hcl/FloatingPointValue-class.html">FloatingPointValue</a></span>
-  
-
-</dt>
-<dd class="inherited">
-  Return the Negative Infinity value for this FloatingPointValue size.
-  <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
-
-</dd>
-
-        <dt id="negativeInfinity" class="property inherited">
-  <span class="name"><a href="../rohd_hcl/FloatingPointValue/negativeInfinity.html">negativeInfinity</a></span>
-  <span class="signature">&#8594; <a href="../rohd_hcl/FloatingPointValue-class.html">FloatingPointValue</a></span>
-  
-
-</dt>
-<dd class="inherited">
-  Return the Negative Infinity value for this FloatingPointValue size.
-  <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
-
-</dd>
-
-        <dt id="one" class="property inherited">
-  <span class="name"><a href="../rohd_hcl/FloatingPointValue/one.html">one</a></span>
-  <span class="signature">&#8594; <a href="../rohd_hcl/FloatingPointValue-class.html">FloatingPointValue</a></span>
-  
-
-</dt>
-<dd class="inherited">
-  Return the value one for this FloatingPointValue size.
-  <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
-
-</dd>
-
         <dt id="runtimeType" class="property inherited">
-  <span class="name"><a href="https://api.dart.dev/stable/3.6.2/dart-core/Object/runtimeType.html">runtimeType</a></span>
-  <span class="signature">&#8594; <a href="https://api.dart.dev/stable/3.6.2/dart-core/Type-class.html">Type</a></span>
+  <span class="name"><a href="https://api.dart.dev/stable/3.7.0/dart-core/Object/runtimeType.html">runtimeType</a></span>
+  <span class="signature">&#8594; <a href="https://api.dart.dev/stable/3.7.0/dart-core/Type-class.html">Type</a></span>
   
 
 </dt>
@@ -397,37 +298,38 @@ and <a href="../src_arithmetic_values_floating_point_values_floating_point_value
 
         <dt id="sign" class="property inherited">
   <span class="name"><a href="../rohd_hcl/FloatingPointValue/sign.html">sign</a></span>
-  <span class="signature">&#8594; <a href="https://pub.dev/documentation/rohd/0.6.2/rohd/LogicValue-class.html">LogicValue</a></span>
+  <span class="signature">&#8596; <a href="https://pub.dev/documentation/rohd/0.6.3/rohd/LogicValue-class.html">LogicValue</a></span>
   
 
 </dt>
 <dd class="inherited">
-  The sign of the value:  1 means a negative value
-  <div class="features"><span class="feature">final</span><span class="feature">inherited</span></div>
+  The sign of the value: 1 means a negative value.
+  <div class="features"><span class="feature">late</span><span class="feature">final</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="supportsInfinities" class="property inherited">
+  <span class="name"><a href="../rohd_hcl/FloatingPointValue/supportsInfinities.html">supportsInfinities</a></span>
+  <span class="signature">&#8594; <a href="https://api.dart.dev/stable/3.7.0/dart-core/bool-class.html">bool</a></span>
+  
+
+</dt>
+<dd class="inherited">
+  Indicates whether <a href="../src_arithmetic_values_floating_point_values_floating_point_constants/FloatingPointConstants.html">FloatingPointConstants.positiveInfinity</a> and
+<a href="../src_arithmetic_values_floating_point_values_floating_point_constants/FloatingPointConstants.html">FloatingPointConstants.negativeInfinity</a> representations are supported.
+  <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
 
 </dd>
 
         <dt id="value" class="property inherited">
   <span class="name"><a href="../rohd_hcl/FloatingPointValue/value.html">value</a></span>
-  <span class="signature">&#8594; <a href="https://pub.dev/documentation/rohd/0.6.2/rohd/LogicValue-class.html">LogicValue</a></span>
+  <span class="signature">&#8594; <a href="https://pub.dev/documentation/rohd/0.6.3/rohd/LogicValue-class.html">LogicValue</a></span>
   
 
 </dt>
 <dd class="inherited">
-  The full floating point value bit storage
-  <div class="features"><span class="feature">final</span><span class="feature">inherited</span></div>
-
-</dd>
-
-        <dt id="zero" class="property inherited">
-  <span class="name"><a href="../rohd_hcl/FloatingPointValue/zero.html">zero</a></span>
-  <span class="signature">&#8594; <a href="../rohd_hcl/FloatingPointValue-class.html">FloatingPointValue</a></span>
-  
-
-</dt>
-<dd class="inherited">
-  Return the Negative Infinity value for this FloatingPointValue size.
-  <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
+  The full floating point value concatenated as a <a href="https://pub.dev/documentation/rohd/0.6.3/rohd/LogicValue-class.html">LogicValue</a>.
+  <div class="features"><span class="feature">late</span><span class="feature">final</span><span class="feature">inherited</span></div>
 
 </dd>
 
@@ -436,7 +338,7 @@ and <a href="../src_arithmetic_values_floating_point_values_floating_point_value
 
     
   <section
-      class="summary offset-anchor inherited"
+      class="summary offset-anchor"
       id="instance-methods">
     <h2>Methods</h2>
     <dl class="callables">
@@ -448,14 +350,28 @@ and <a href="../src_arithmetic_values_floating_point_values_floating_point_value
 
 </dt>
 <dd class="inherited">
-  Absolute value operation for <a href="../rohd_hcl/FloatingPointValue-class.html">FloatingPointValue</a>
+  Absolute value operation for <a href="../rohd_hcl/FloatingPointValue-class.html">FloatingPointValue</a>.
   <div class="features"><span class="feature">inherited</span></div>
 
 </dd>
 
+        <dt id="clonePopulator" class="callable">
+  <span class="name"><a href="../rohd_hcl/FloatingPoint16Value/clonePopulator.html">clonePopulator</a></span><span class="signature">(<wbr>)
+    <span class="returntype parameter">&#8594; <a href="../rohd_hcl/FloatingPointValuePopulator-class.html">FloatingPointValuePopulator</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../rohd_hcl/FloatingPointValue-class.html">FloatingPointValue</a></span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Creates a <a href="../rohd_hcl/FloatingPointValuePopulator-class.html">FloatingPointValuePopulator</a> for the same type as <code>this</code> and
+with the same widths.
+  <div class="features"><span class="feature">override</span></div>
+
+</dd>
+
         <dt id="compareTo" class="callable inherited">
-  <span class="name"><a href="../rohd_hcl/FloatingPointValue/compareTo.html">compareTo</a></span><span class="signature">(<wbr><span class="parameter" id="compareTo-param-other"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.6.2/dart-core/Object-class.html">Object</a></span> <span class="parameter-name">other</span></span>)
-    <span class="returntype parameter">&#8594; <a href="https://api.dart.dev/stable/3.6.2/dart-core/int-class.html">int</a></span>
+  <span class="name"><a href="../rohd_hcl/FloatingPointValue/compareTo.html">compareTo</a></span><span class="signature">(<wbr><span class="parameter" id="compareTo-param-other"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.7.0/dart-core/Object-class.html">Object</a></span> <span class="parameter-name">other</span></span>)
+    <span class="returntype parameter">&#8594; <a href="https://api.dart.dev/stable/3.7.0/dart-core/int-class.html">int</a></span>
   </span>
   
 
@@ -466,30 +382,44 @@ and <a href="../src_arithmetic_values_floating_point_values_floating_point_value
 
 </dd>
 
+        <dt id="getConstantComponents" class="callable inherited">
+  <span class="name"><a href="../rohd_hcl/FloatingPointValue/getConstantComponents.html">getConstantComponents</a></span><span class="signature">(<wbr><span class="parameter" id="getConstantComponents-param-constantFloatingPoint"><span class="type-annotation"><a href="../rohd_hcl/FloatingPointConstants.html">FloatingPointConstants</a></span> <span class="parameter-name">constantFloatingPoint</span></span>)
+    <span class="returntype parameter">&#8594; (<span class="field">{<span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.3/rohd/LogicValue-class.html">LogicValue</a></span> <span class="field-name">exponent</span>, </span><span class="field"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.3/rohd/LogicValue-class.html">LogicValue</a></span> <span class="field-name">mantissa</span>, </span><span class="field"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.3/rohd/LogicValue-class.html">LogicValue</a></span> <span class="field-name">sign</span>}</span>)</span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Return the set of <a href="https://pub.dev/documentation/rohd/0.6.3/rohd/LogicValue-class.html">LogicValue</a>s for a given <a href="../rohd_hcl/FloatingPointConstants.html">FloatingPointConstants</a> at a
+given <a href="../rohd_hcl/FloatingPointValue/exponentWidth.html">exponentWidth</a> and <a href="../rohd_hcl/FloatingPointValue/mantissaWidth.html">mantissaWidth</a>.
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
         <dt id="isNormal" class="callable inherited">
   <span class="name"><a href="../rohd_hcl/FloatingPointValue/isNormal.html">isNormal</a></span><span class="signature">(<wbr>)
-    <span class="returntype parameter">&#8594; <a href="https://api.dart.dev/stable/3.6.2/dart-core/bool-class.html">bool</a></span>
+    <span class="returntype parameter">&#8594; <a href="https://api.dart.dev/stable/3.7.0/dart-core/bool-class.html">bool</a></span>
   </span>
   
 
 </dt>
 <dd class="inherited">
   Return a Logic true if this FloatingPointVa;ie contains a normal number,
-defined as having mantissa in the range [1,2)
+defined as having mantissa in the range <code>[1,2)</code>.
   <div class="features"><span class="feature">inherited</span></div>
 
 </dd>
 
         <dt id="isSubnormal" class="callable inherited">
   <span class="name"><a href="../rohd_hcl/FloatingPointValue/isSubnormal.html">isSubnormal</a></span><span class="signature">(<wbr>)
-    <span class="returntype parameter">&#8594; <a href="https://api.dart.dev/stable/3.6.2/dart-core/bool-class.html">bool</a></span>
+    <span class="returntype parameter">&#8594; <a href="https://api.dart.dev/stable/3.7.0/dart-core/bool-class.html">bool</a></span>
   </span>
   
 
 </dt>
 <dd class="inherited">
   Return true if the represented floating point number is considered
-'subnormal', including <a href="../rohd_hcl/FloatingPointValue/isZero.html">isZero</a>.
+"subnormal", including <a href="../rohd_hcl/FloatingPointValue/isAZero.html">isAZero</a>.
   <div class="features"><span class="feature">inherited</span></div>
 
 </dd>
@@ -502,13 +432,13 @@ defined as having mantissa in the range [1,2)
 
 </dt>
 <dd class="inherited">
-  Negate operation for <a href="../rohd_hcl/FloatingPointValue-class.html">FloatingPointValue</a>
+  Negate operation for <a href="../rohd_hcl/FloatingPointValue-class.html">FloatingPointValue</a>.
   <div class="features"><span class="feature">inherited</span></div>
 
 </dd>
 
         <dt id="noSuchMethod" class="callable inherited">
-  <span class="name"><a href="https://api.dart.dev/stable/3.6.2/dart-core/Object/noSuchMethod.html">noSuchMethod</a></span><span class="signature">(<wbr><span class="parameter" id="noSuchMethod-param-invocation"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.6.2/dart-core/Invocation-class.html">Invocation</a></span> <span class="parameter-name">invocation</span></span>)
+  <span class="name"><a href="https://api.dart.dev/stable/3.7.0/dart-core/Object/noSuchMethod.html">noSuchMethod</a></span><span class="signature">(<wbr><span class="parameter" id="noSuchMethod-param-invocation"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.7.0/dart-core/Invocation-class.html">Invocation</a></span> <span class="parameter-name">invocation</span></span>)
     <span class="returntype parameter">&#8594; dynamic</span>
   </span>
   
@@ -522,44 +452,26 @@ defined as having mantissa in the range [1,2)
 
         <dt id="toDouble" class="callable inherited">
   <span class="name"><a href="../rohd_hcl/FloatingPointValue/toDouble.html">toDouble</a></span><span class="signature">(<wbr>)
-    <span class="returntype parameter">&#8594; <a href="https://api.dart.dev/stable/3.6.2/dart-core/double-class.html">double</a></span>
+    <span class="returntype parameter">&#8594; <a href="https://api.dart.dev/stable/3.7.0/dart-core/double-class.html">double</a></span>
   </span>
   
 
 </dt>
 <dd class="inherited">
-  Return the value of the floating point number in a Dart <a href="https://api.dart.dev/stable/3.6.2/dart-core/double-class.html">double</a> type.
-  <div class="features"><span class="feature">inherited</span></div>
-
-</dd>
-
-        <dt id="toMappedSubtype" class="callable inherited">
-  <span class="name"><a href="../rohd_hcl/FloatingPointValue/toMappedSubtype.html">toMappedSubtype</a></span><span class="signature">(<wbr>)
-    <span class="returntype parameter">&#8594; <a href="../rohd_hcl/FloatingPointValue-class.html">FloatingPointValue</a></span>
-  </span>
-  
-
-</dt>
-<dd class="inherited">
-  Converts this <a href="../rohd_hcl/FloatingPointValue-class.html">FloatingPointValue</a> to a <a href="../rohd_hcl/FloatingPointValue-class.html">FloatingPointValue</a> with the same
-sign, exponent, and mantissa using the constructor provided in
-<a href="../rohd_hcl/FloatingPointValue/subtypeConstructorMap.html">subtypeConstructorMap</a> if available, otherwise using the default
-constructor.
+  Return the value of the floating point number in a Dart <a href="https://api.dart.dev/stable/3.7.0/dart-core/double-class.html">double</a> type.
   <div class="features"><span class="feature">inherited</span></div>
 
 </dd>
 
         <dt id="toString" class="callable inherited">
-  <span class="name"><a href="../rohd_hcl/FloatingPointValue/toString.html">toString</a></span><span class="signature">(<wbr>{<span class="parameter" id="toString-param-integer"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.6.2/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">integer</span> = <span class="default-value">false</span></span>})
-    <span class="returntype parameter">&#8594; <a href="https://api.dart.dev/stable/3.6.2/dart-core/String-class.html">String</a></span>
+  <span class="name"><a href="../rohd_hcl/FloatingPointValue/toString.html">toString</a></span><span class="signature">(<wbr>{<span class="parameter" id="toString-param-integer"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.7.0/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">integer</span> = <span class="default-value">false</span></span>})
+    <span class="returntype parameter">&#8594; <a href="https://api.dart.dev/stable/3.7.0/dart-core/String-class.html">String</a></span>
   </span>
   
 
 </dt>
 <dd class="inherited">
   Return a string representation of FloatingPointValue.
-if <code>integer</code> is true, return sign, exponent, mantissa as integers.
-if <code>integer</code> is false, return sign, exponent, mantissa as ibinary strings.
   <div class="features"><span class="feature">inherited</span></div>
 
 </dd>
@@ -572,21 +484,35 @@ if <code>integer</code> is false, return sign, exponent, mantissa as ibinary str
 
 </dt>
 <dd class="inherited">
-  Compute the unit in the last place for the given <a href="../rohd_hcl/FloatingPointValue-class.html">FloatingPointValue</a>
+  Compute the unit in the last place for the given <a href="../rohd_hcl/FloatingPointValue-class.html">FloatingPointValue</a>.
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="validate" class="callable inherited">
+  <span class="name"><a href="../rohd_hcl/FloatingPointValue/validate.html">validate</a></span><span class="signature">(<wbr>)
+    <span class="returntype parameter">&#8594; void</span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Validate the <a href="../rohd_hcl/FloatingPointValue-class.html">FloatingPointValue</a> to ensure widths and other
+characteristics are legal.
   <div class="features"><span class="feature">inherited</span></div>
 
 </dd>
 
         <dt id="withinRounding" class="callable inherited">
   <span class="name"><a href="../rohd_hcl/FloatingPointValue/withinRounding.html">withinRounding</a></span><span class="signature">(<wbr><span class="parameter" id="withinRounding-param-other"><span class="type-annotation"><a href="../rohd_hcl/FloatingPointValue-class.html">FloatingPointValue</a></span> <span class="parameter-name">other</span></span>)
-    <span class="returntype parameter">&#8594; <a href="https://api.dart.dev/stable/3.6.2/dart-core/bool-class.html">bool</a></span>
+    <span class="returntype parameter">&#8594; <a href="https://api.dart.dev/stable/3.7.0/dart-core/bool-class.html">bool</a></span>
   </span>
   
 
 </dt>
 <dd class="inherited">
-  Return true if the other <a href="../rohd_hcl/FloatingPointValue-class.html">FloatingPointValue</a> is within a rounding
-error of this value.
+  Return true if the other <a href="../rohd_hcl/FloatingPointValue-class.html">FloatingPointValue</a> is within a rounding error
+of this value.
   <div class="features"><span class="feature">inherited</span></div>
 
 </dd>
@@ -607,7 +533,7 @@ error of this value.
 
 </dt>
 <dd class="inherited">
-  Multiply operation for <a href="../rohd_hcl/FloatingPointValue-class.html">FloatingPointValue</a>
+  Multiply operation for <a href="../rohd_hcl/FloatingPointValue-class.html">FloatingPointValue</a>.
   <div class="features"><span class="feature">inherited</span></div>
 
 </dd>
@@ -620,7 +546,7 @@ error of this value.
 
 </dt>
 <dd class="inherited">
-  Addition operation for <a href="../rohd_hcl/FloatingPointValue-class.html">FloatingPointValue</a>
+  Addition operation for <a href="../rohd_hcl/FloatingPointValue-class.html">FloatingPointValue</a>.
   <div class="features"><span class="feature">inherited</span></div>
 
 </dd>
@@ -633,7 +559,7 @@ error of this value.
 
 </dt>
 <dd class="inherited">
-  Subtract operation for <a href="../rohd_hcl/FloatingPointValue-class.html">FloatingPointValue</a>
+  Subtract operation for <a href="../rohd_hcl/FloatingPointValue-class.html">FloatingPointValue</a>.
   <div class="features"><span class="feature">inherited</span></div>
 
 </dd>
@@ -646,14 +572,14 @@ error of this value.
 
 </dt>
 <dd class="inherited">
-  Divide operation for <a href="../rohd_hcl/FloatingPointValue-class.html">FloatingPointValue</a>
+  Divide operation for <a href="../rohd_hcl/FloatingPointValue-class.html">FloatingPointValue</a>.
   <div class="features"><span class="feature">inherited</span></div>
 
 </dd>
 
         <dt id="operator ==" class="callable inherited">
-  <span class="name"><a href="../rohd_hcl/FloatingPointValue/operator_equals.html">operator ==</a></span><span class="signature">(<wbr><span class="parameter" id="==-param-other"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.6.2/dart-core/Object-class.html">Object</a></span> <span class="parameter-name">other</span></span>)
-    <span class="returntype parameter">&#8594; <a href="https://api.dart.dev/stable/3.6.2/dart-core/bool-class.html">bool</a></span>
+  <span class="name"><a href="../rohd_hcl/FloatingPointValue/operator_equals.html">operator ==</a></span><span class="signature">(<wbr><span class="parameter" id="==-param-other"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.7.0/dart-core/Object-class.html">Object</a></span> <span class="parameter-name">other</span></span>)
+    <span class="returntype parameter">&#8594; <a href="https://api.dart.dev/stable/3.7.0/dart-core/bool-class.html">bool</a></span>
   </span>
   
 
@@ -668,37 +594,27 @@ error of this value.
   </section>
     
     
-    
-
-  <section class="summary offset-anchor" id="constants">
-    <h2>Constants</h2>
-    <dl class="properties">
-        <dt id="exponentWidth" class="constant">
-    <span class="name "><a href="../rohd_hcl/FloatingPoint16Value/exponentWidth-constant.html">exponentWidth</a></span>
-  <span class="signature">&#8594; const <a href="https://api.dart.dev/stable/3.6.2/dart-core/int-class.html">int</a></span>
+  <section class="summary offset-anchor" id="static-methods">
+    <h2>Static Methods</h2>
+    <dl class="callables">
+        <dt id="populator" class="callable">
+  <span class="name"><a href="../rohd_hcl/FloatingPoint16Value/populator.html">populator</a></span><span class="signature">(<wbr>)
+    <span class="returntype parameter">&#8594; <a href="../rohd_hcl/FloatingPointValuePopulator-class.html">FloatingPointValuePopulator</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../rohd_hcl/FloatingPoint16Value-class.html">FloatingPoint16Value</a></span>&gt;</span></span>
+  </span>
   
 
 </dt>
 <dd>
-  The exponent width
-  
-
-</dd>
-
-        <dt id="mantissaWidth" class="constant">
-    <span class="name "><a href="../rohd_hcl/FloatingPoint16Value/mantissaWidth-constant.html">mantissaWidth</a></span>
-  <span class="signature">&#8594; const <a href="https://api.dart.dev/stable/3.6.2/dart-core/int-class.html">int</a></span>
-  
-
-</dt>
-<dd>
-  The mantissa width
-  
+  Creates a <a href="../rohd_hcl/FloatingPointValuePopulator-class.html">FloatingPointValuePopulator</a>, which can then be used to
+complete construction using population functions.
+  <div class="features"><span class="feature">override</span></div>
 
 </dd>
 
     </dl>
   </section>
+    
+
   </div> <!-- /.main-content -->
   <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
     <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
@@ -709,7 +625,7 @@ error of this value.
 </header>
 <ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
     <li><a href="../index.html">rohd_hcl</a></li>
-    <li><a href="../rohd_hcl/rohd_hcl-library.html">rohd_hcl</a></li>
+    <li><a href="../rohd_hcl">rohd_hcl</a></li>
     <li class="self-crumb">FloatingPoint16Value class</li>
 </ol>
 

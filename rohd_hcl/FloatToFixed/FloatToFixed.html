@@ -25,7 +25,7 @@
   <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
   <ol class="breadcrumbs gt-separated dark hidden-xs">
     <li><a href="../../index.html">rohd_hcl</a></li>
-    <li><a href="../../rohd_hcl/rohd_hcl-library.html">rohd_hcl.dart</a></li>
+    <li><a href="../../rohd_hcl">rohd_hcl.dart</a></li>
     <li><a href="../../rohd_hcl/FloatToFixed-class.html">FloatToFixed</a></li>
     <li class="self-crumb">FloatToFixed constructor</li>
   </ol>
@@ -58,10 +58,10 @@
     <section class="multi-line-signature">
       
       <span class="name ">FloatToFixed</span>(<wbr><ol class="parameter-list"> <li><span class="parameter" id="-param-float"><span class="type-annotation"><a href="../../rohd_hcl/FloatingPoint-class.html">FloatingPoint</a></span> <span class="parameter-name">float</span>, {</span></li>
-<li><span class="parameter" id="-param-name"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.6.2/dart-core/String-class.html">String</a></span> <span class="parameter-name">name</span> = <span class="default-value">&#39;FloatToFixed&#39;</span>, </span></li>
-<li><span class="parameter" id="-param-m"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.6.2/dart-core/int-class.html">int</a>?</span> <span class="parameter-name">m</span>, </span></li>
-<li><span class="parameter" id="-param-n"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.6.2/dart-core/int-class.html">int</a>?</span> <span class="parameter-name">n</span>, </span></li>
-<li><span class="parameter" id="-param-checkOverflow"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.6.2/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">checkOverflow</span> = <span class="default-value">false</span>, </span></li>
+<li><span class="parameter" id="-param-name"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.7.0/dart-core/String-class.html">String</a></span> <span class="parameter-name">name</span> = <span class="default-value">&#39;FloatToFixed&#39;</span>, </span></li>
+<li><span class="parameter" id="-param-m"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.7.0/dart-core/int-class.html">int</a>?</span> <span class="parameter-name">m</span>, </span></li>
+<li><span class="parameter" id="-param-n"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.7.0/dart-core/int-class.html">int</a>?</span> <span class="parameter-name">n</span>, </span></li>
+<li><span class="parameter" id="-param-checkOverflow"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.7.0/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">checkOverflow</span> = <span class="default-value">false</span>, </span></li>
 </ol>})
     </section>
     
@@ -88,7 +88,7 @@ case that loss can occur and an optional output <a href="../../rohd_hcl/FloatToF
               &#39;M${float.mantissa.width}ToFixed&#39;) {
   float = float.clone()..gets(addInput(&#39;float&#39;, float, width: float.width));
 
-  final bias = FloatingPointValue.computeBias(float.exponent.width);
+  final bias = float.floatingPointValue.bias;
   &#47;&#47; E4M3 expands the max exponent by 1.
   final noLossM = ((float.exponent.width == 4) &amp; (float.mantissa.width == 3))
       ? bias + 2
@@ -174,7 +174,7 @@ case that loss can occur and an optional output <a href="../../rohd_hcl/FloatToF
 </header>
 <ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
     <li><a href="../../index.html">rohd_hcl</a></li>
-    <li><a href="../../rohd_hcl/rohd_hcl-library.html">rohd_hcl</a></li>
+    <li><a href="../../rohd_hcl">rohd_hcl</a></li>
     <li><a href="../../rohd_hcl/FloatToFixed-class.html">FloatToFixed</a></li>
     <li class="self-crumb">FloatToFixed constructor</li>
 </ol>

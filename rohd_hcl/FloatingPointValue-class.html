@@ -25,7 +25,7 @@
   <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
   <ol class="breadcrumbs gt-separated dark hidden-xs">
     <li><a href="../index.html">rohd_hcl</a></li>
-    <li><a href="../rohd_hcl/rohd_hcl-library.html">rohd_hcl.dart</a></li>
+    <li><a href="../rohd_hcl">rohd_hcl.dart</a></li>
     <li class="self-crumb">FloatingPointValue class</li>
   </ol>
   <div class="self-name">FloatingPointValue</div>
@@ -57,12 +57,11 @@
 
     
 <section class="desc markdown">
-  <p>A flexible representation of floating point values.
-A <a href="../rohd_hcl/FloatingPointValue-class.html">FloatingPointValue</a> hasa mantissa in [0,2) with
-0 &lt;= exponent &lt;= maxExponent();  A normal <a href="../rohd_hcl/FloatingPointValue/isNormal.html">isNormal</a> <a href="../rohd_hcl/FloatingPointValue-class.html">FloatingPointValue</a>
-has minExponent() &lt;= exponent &lt;= maxExponent() and a mantissa in the
-range of [1,2).  Subnormal numbers are represented with a zero exponent
-and leading zeros in the mantissa capture the negative exponent value.</p>
+  <p>A flexible representation of floating point values. A <a href="../rohd_hcl/FloatingPointValue-class.html">FloatingPointValue</a>
+has a mantissa in <code>[0,2)</code> with <code>0 &lt;= exponent &lt;= maxExponent();</code>  A value
+which <a href="../rohd_hcl/FloatingPointValue/isNormal.html">FloatingPointValue.isNormal</a> has <code>minExponent() &lt;= exponent &lt;= maxExponent()</code> and a mantissa in the range of <code>[1,2)</code>.  Subnormal numbers
+are represented with a zero exponent and leading zeros in the mantissa
+capture the negative exponent value.</p>
 </section>
 
 
@@ -74,7 +73,7 @@ and leading zeros in the mantissa capture the negative exponent value.</p>
   <dt>Implemented types</dt>
   <dd>
     <ul class="comma-separated clazz-relationships">
-        <li><a href="https://api.dart.dev/stable/3.6.2/dart-core/Comparable-class.html">Comparable</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../rohd_hcl/FloatingPointValue-class.html">FloatingPointValue</a></span>&gt;</span></li>
+        <li><a href="https://api.dart.dev/stable/3.7.0/dart-core/Comparable-class.html">Comparable</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../rohd_hcl/FloatingPointValue-class.html">FloatingPointValue</a></span>&gt;</span></li>
     </ul>
   </dd>
         
@@ -108,96 +107,35 @@ and leading zeros in the mantissa capture the negative exponent value.</p>
     <h2>Constructors</h2>
     <dl class="constructor-summary-list">
         <dt id="FloatingPointValue" class="callable">
-          <span class="name"><a href="../rohd_hcl/FloatingPointValue/FloatingPointValue.html">FloatingPointValue</a></span><span class="signature">({<span class="parameter" id="-param-sign"><span>required</span> <span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.2/rohd/LogicValue-class.html">LogicValue</a></span> <span class="parameter-name">sign</span>, </span><span class="parameter" id="-param-exponent"><span>required</span> <span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.2/rohd/LogicValue-class.html">LogicValue</a></span> <span class="parameter-name">exponent</span>, </span><span class="parameter" id="-param-mantissa"><span>required</span> <span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.2/rohd/LogicValue-class.html">LogicValue</a></span> <span class="parameter-name">mantissa</span></span>})</span>
+          <span class="name"><a href="../rohd_hcl/FloatingPointValue/FloatingPointValue.html">FloatingPointValue</a></span><span class="signature">({<span class="parameter" id="-param-sign"><span>required</span> <span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.3/rohd/LogicValue-class.html">LogicValue</a></span> <span class="parameter-name">sign</span>, </span><span class="parameter" id="-param-exponent"><span>required</span> <span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.3/rohd/LogicValue-class.html">LogicValue</a></span> <span class="parameter-name">exponent</span>, </span><span class="parameter" id="-param-mantissa"><span>required</span> <span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.3/rohd/LogicValue-class.html">LogicValue</a></span> <span class="parameter-name">mantissa</span></span>})</span>
         </dt>
         <dd>
-          Constructor for a <a href="../rohd_hcl/FloatingPointValue-class.html">FloatingPointValue</a> with a sign, exponent, and
-mantissa.
-        </dd>
-        <dt id="FloatingPointValue.getFloatingPointConstant" class="callable">
-          <span class="name"><a href="../rohd_hcl/FloatingPointValue/FloatingPointValue.getFloatingPointConstant.html">FloatingPointValue.getFloatingPointConstant</a></span><span class="signature">(<span class="parameter" id="getFloatingPointConstant-param-constantFloatingPoint"><span class="type-annotation"><a href="../rohd_hcl/FloatingPointConstants.html">FloatingPointConstants</a></span> <span class="parameter-name">constantFloatingPoint</span>, </span><span class="parameter" id="getFloatingPointConstant-param-exponentWidth"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.6.2/dart-core/int-class.html">int</a></span> <span class="parameter-name">exponentWidth</span>, </span><span class="parameter" id="getFloatingPointConstant-param-mantissaWidth"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.6.2/dart-core/int-class.html">int</a></span> <span class="parameter-name">mantissaWidth</span></span>)</span>
-        </dt>
-        <dd>
-          Return the <a href="../rohd_hcl/FloatingPointValue-class.html">FloatingPointValue</a> representing the constant specified
+          Constructor for a <a href="../rohd_hcl/FloatingPointValue-class.html">FloatingPointValue</a> with the provided <code>sign</code>,
+<code>exponent</code>, and <code>mantissa</code>.
             <div class="constructor-modifier features">factory</div>
-        </dd>
-        <dt id="FloatingPointValue.ofBigInts" class="callable">
-          <span class="name"><a href="../rohd_hcl/FloatingPointValue/FloatingPointValue.ofBigInts.html">FloatingPointValue.ofBigInts</a></span><span class="signature">(<span class="parameter" id="ofBigInts-param-exponent"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.6.2/dart-core/BigInt-class.html">BigInt</a></span> <span class="parameter-name">exponent</span>, </span><span class="parameter" id="ofBigInts-param-mantissa"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.6.2/dart-core/BigInt-class.html">BigInt</a></span> <span class="parameter-name">mantissa</span>, {</span><span class="parameter" id="ofBigInts-param-exponentWidth"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.6.2/dart-core/int-class.html">int</a></span> <span class="parameter-name">exponentWidth</span> = <span class="default-value">0</span>, </span><span class="parameter" id="ofBigInts-param-mantissaWidth"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.6.2/dart-core/int-class.html">int</a></span> <span class="parameter-name">mantissaWidth</span> = <span class="default-value">0</span>, </span><span class="parameter" id="ofBigInts-param-sign"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.6.2/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">sign</span> = <span class="default-value">false</span></span>})</span>
-        </dt>
-        <dd>
-          <a href="../rohd_hcl/FloatingPointValue-class.html">FloatingPointValue</a> constructor from a set of <a href="https://api.dart.dev/stable/3.6.2/dart-core/BigInt-class.html">BigInt</a>s of the binary
-representation and the size of the exponent and mantissa
         </dd>
         <dt id="FloatingPointValue.ofBinaryStrings" class="callable">
-          <span class="name"><a href="../rohd_hcl/FloatingPointValue/FloatingPointValue.ofBinaryStrings.html">FloatingPointValue.ofBinaryStrings</a></span><span class="signature">(<span class="parameter" id="ofBinaryStrings-param-sign"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.6.2/dart-core/String-class.html">String</a></span> <span class="parameter-name">sign</span>, </span><span class="parameter" id="ofBinaryStrings-param-exponent"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.6.2/dart-core/String-class.html">String</a></span> <span class="parameter-name">exponent</span>, </span><span class="parameter" id="ofBinaryStrings-param-mantissa"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.6.2/dart-core/String-class.html">String</a></span> <span class="parameter-name">mantissa</span></span>)</span>
+          <span class="name"><a href="../rohd_hcl/FloatingPointValue/FloatingPointValue.ofBinaryStrings.html">FloatingPointValue.ofBinaryStrings</a></span><span class="signature">(<span class="parameter" id="ofBinaryStrings-param-sign"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.7.0/dart-core/String-class.html">String</a></span> <span class="parameter-name">sign</span>, </span><span class="parameter" id="ofBinaryStrings-param-exponent"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.7.0/dart-core/String-class.html">String</a></span> <span class="parameter-name">exponent</span>, </span><span class="parameter" id="ofBinaryStrings-param-mantissa"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.7.0/dart-core/String-class.html">String</a></span> <span class="parameter-name">mantissa</span></span>)</span>
         </dt>
         <dd>
-          <a href="../rohd_hcl/FloatingPointValue-class.html">FloatingPointValue</a> constructor from a binary string representation of
-individual bitfields
-        </dd>
-        <dt id="FloatingPointValue.ofDouble" class="callable">
-          <span class="name"><a href="../rohd_hcl/FloatingPointValue/FloatingPointValue.ofDouble.html">FloatingPointValue.ofDouble</a></span><span class="signature">(<span class="parameter" id="ofDouble-param-inDouble"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.6.2/dart-core/double-class.html">double</a></span> <span class="parameter-name">inDouble</span>, {</span><span class="parameter" id="ofDouble-param-exponentWidth"><span>required</span> <span class="type-annotation"><a href="https://api.dart.dev/stable/3.6.2/dart-core/int-class.html">int</a></span> <span class="parameter-name">exponentWidth</span>, </span><span class="parameter" id="ofDouble-param-mantissaWidth"><span>required</span> <span class="type-annotation"><a href="https://api.dart.dev/stable/3.6.2/dart-core/int-class.html">int</a></span> <span class="parameter-name">mantissaWidth</span>, </span><span class="parameter" id="ofDouble-param-roundingMode"><span class="type-annotation"><a href="../rohd_hcl/FloatingPointRoundingMode.html">FloatingPointRoundingMode</a></span> <span class="parameter-name">roundingMode</span> = <span class="default-value">FloatingPointRoundingMode.roundNearestEven</span></span>})</span>
-        </dt>
-        <dd>
-          Convert from double using its native binary representation
-            <div class="constructor-modifier features">factory</div>
-        </dd>
-        <dt id="FloatingPointValue.ofDoubleUnrounded" class="callable">
-          <span class="name"><a href="../rohd_hcl/FloatingPointValue/FloatingPointValue.ofDoubleUnrounded.html">FloatingPointValue.ofDoubleUnrounded</a></span><span class="signature">(<span class="parameter" id="ofDoubleUnrounded-param-inDouble"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.6.2/dart-core/double-class.html">double</a></span> <span class="parameter-name">inDouble</span>, {</span><span class="parameter" id="ofDoubleUnrounded-param-exponentWidth"><span>required</span> <span class="type-annotation"><a href="https://api.dart.dev/stable/3.6.2/dart-core/int-class.html">int</a></span> <span class="parameter-name">exponentWidth</span>, </span><span class="parameter" id="ofDoubleUnrounded-param-mantissaWidth"><span>required</span> <span class="type-annotation"><a href="https://api.dart.dev/stable/3.6.2/dart-core/int-class.html">int</a></span> <span class="parameter-name">mantissaWidth</span></span>})</span>
-        </dt>
-        <dd>
-          Convert a floating point number into a <a href="../rohd_hcl/FloatingPointValue-class.html">FloatingPointValue</a>
-representation. This form performs NO ROUNDING.
-            <div class="constructor-modifier features">factory</div>
-        </dd>
-        <dt id="FloatingPointValue.ofInts" class="callable">
-          <span class="name"><a href="../rohd_hcl/FloatingPointValue/FloatingPointValue.ofInts.html">FloatingPointValue.ofInts</a></span><span class="signature">(<span class="parameter" id="ofInts-param-exponent"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.6.2/dart-core/int-class.html">int</a></span> <span class="parameter-name">exponent</span>, </span><span class="parameter" id="ofInts-param-mantissa"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.6.2/dart-core/int-class.html">int</a></span> <span class="parameter-name">mantissa</span>, {</span><span class="parameter" id="ofInts-param-exponentWidth"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.6.2/dart-core/int-class.html">int</a></span> <span class="parameter-name">exponentWidth</span> = <span class="default-value">0</span>, </span><span class="parameter" id="ofInts-param-mantissaWidth"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.6.2/dart-core/int-class.html">int</a></span> <span class="parameter-name">mantissaWidth</span> = <span class="default-value">0</span>, </span><span class="parameter" id="ofInts-param-sign"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.6.2/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">sign</span> = <span class="default-value">false</span></span>})</span>
-        </dt>
-        <dd>
-          <a href="../rohd_hcl/FloatingPointValue-class.html">FloatingPointValue</a> constructor from a set of <a href="https://api.dart.dev/stable/3.6.2/dart-core/int-class.html">int</a>s of the binary
-representation and the size of the exponent and mantissa
-        </dd>
-        <dt id="FloatingPointValue.ofLogicValue" class="callable">
-          <span class="name"><a href="../rohd_hcl/FloatingPointValue/FloatingPointValue.ofLogicValue.html">FloatingPointValue.ofLogicValue</a></span><span class="signature">(<span class="parameter" id="ofLogicValue-param-exponentWidth"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.6.2/dart-core/int-class.html">int</a></span> <span class="parameter-name">exponentWidth</span>, </span><span class="parameter" id="ofLogicValue-param-mantissaWidth"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.6.2/dart-core/int-class.html">int</a></span> <span class="parameter-name">mantissaWidth</span>, </span><span class="parameter" id="ofLogicValue-param-val"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.2/rohd/LogicValue-class.html">LogicValue</a></span> <span class="parameter-name">val</span></span>)</span>
-        </dt>
-        <dd>
-          Construct a <a href="../rohd_hcl/FloatingPointValue-class.html">FloatingPointValue</a> from a <a href="https://pub.dev/documentation/rohd/0.6.2/rohd/LogicValue-class.html">LogicValue</a>
+          A wrapper around <a href="../rohd_hcl/FloatingPointValuePopulator/ofString.html">FloatingPointValuePopulator.ofString</a> that computes the
+widths of the exponent and mantissa from the input string.
             <div class="constructor-modifier features">factory</div>
         </dd>
         <dt id="FloatingPointValue.ofSpacedBinaryString" class="callable">
-          <span class="name"><a href="../rohd_hcl/FloatingPointValue/FloatingPointValue.ofSpacedBinaryString.html">FloatingPointValue.ofSpacedBinaryString</a></span><span class="signature">(<span class="parameter" id="ofSpacedBinaryString-param-fp"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.6.2/dart-core/String-class.html">String</a></span> <span class="parameter-name">fp</span></span>)</span>
+          <span class="name"><a href="../rohd_hcl/FloatingPointValue/FloatingPointValue.ofSpacedBinaryString.html">FloatingPointValue.ofSpacedBinaryString</a></span><span class="signature">(<span class="parameter" id="ofSpacedBinaryString-param-fp"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.7.0/dart-core/String-class.html">String</a></span> <span class="parameter-name">fp</span></span>)</span>
         </dt>
         <dd>
-          <a href="../rohd_hcl/FloatingPointValue-class.html">FloatingPointValue</a> constructor from a single binary string representing
-space-separated bitfields
-        </dd>
-        <dt id="FloatingPointValue.ofString" class="callable">
-          <span class="name"><a href="../rohd_hcl/FloatingPointValue/FloatingPointValue.ofString.html">FloatingPointValue.ofString</a></span><span class="signature">(<span class="parameter" id="ofString-param-fp"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.6.2/dart-core/String-class.html">String</a></span> <span class="parameter-name">fp</span>, </span><span class="parameter" id="ofString-param-exponentWidth"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.6.2/dart-core/int-class.html">int</a></span> <span class="parameter-name">exponentWidth</span>, </span><span class="parameter" id="ofString-param-mantissaWidth"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.6.2/dart-core/int-class.html">int</a></span> <span class="parameter-name">mantissaWidth</span>, {</span><span class="parameter" id="ofString-param-radix"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.6.2/dart-core/int-class.html">int</a></span> <span class="parameter-name">radix</span> = <span class="default-value">2</span></span>})</span>
-        </dt>
-        <dd>
-          <a href="../rohd_hcl/FloatingPointValue-class.html">FloatingPointValue</a> constructor from a radix-encoded string
-representation and the size of the exponent and mantissa
-        </dd>
-        <dt id="FloatingPointValue.random" class="callable">
-          <span class="name"><a href="../rohd_hcl/FloatingPointValue/FloatingPointValue.random.html">FloatingPointValue.random</a></span><span class="signature">(<span class="parameter" id="random-param-rv"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.6.2/dart-math/Random-class.html">Random</a></span> <span class="parameter-name">rv</span>, {</span><span class="parameter" id="random-param-exponentWidth"><span>required</span> <span class="type-annotation"><a href="https://api.dart.dev/stable/3.6.2/dart-core/int-class.html">int</a></span> <span class="parameter-name">exponentWidth</span>, </span><span class="parameter" id="random-param-mantissaWidth"><span>required</span> <span class="type-annotation"><a href="https://api.dart.dev/stable/3.6.2/dart-core/int-class.html">int</a></span> <span class="parameter-name">mantissaWidth</span>, </span><span class="parameter" id="random-param-normal"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.6.2/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">normal</span> = <span class="default-value">false</span></span>})</span>
-        </dt>
-        <dd>
-          Generate a random <a href="../rohd_hcl/FloatingPointValue-class.html">FloatingPointValue</a>, supplying random seed <code>rv</code>.
-This generates a valid <a href="../rohd_hcl/FloatingPointValue-class.html">FloatingPointValue</a> anywhere in the range
-it can represent:a general <a href="../rohd_hcl/FloatingPointValue-class.html">FloatingPointValue</a> has
-a mantissa in [0,2) with 0 &lt;= exponent &lt;= maxExponent();
-If <code>normal</code> is true, This routine will only generate mantissas in the
-range of [1,2) and minExponent() &lt;= exponent &lt;= maxExponent().
+          A wrapper around <a href="../rohd_hcl/FloatingPointValuePopulator/ofSpacedBinaryString.html">FloatingPointValuePopulator.ofSpacedBinaryString</a> that
+computes the widths of the exponent and mantissa from the input string.
             <div class="constructor-modifier features">factory</div>
         </dd>
-        <dt id="FloatingPointValue.withMappedSubtype" class="callable">
-          <span class="name"><a href="../rohd_hcl/FloatingPointValue/FloatingPointValue.withMappedSubtype.html">FloatingPointValue.withMappedSubtype</a></span><span class="signature">({<span class="parameter" id="withMappedSubtype-param-sign"><span>required</span> <span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.2/rohd/LogicValue-class.html">LogicValue</a></span> <span class="parameter-name">sign</span>, </span><span class="parameter" id="withMappedSubtype-param-exponent"><span>required</span> <span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.2/rohd/LogicValue-class.html">LogicValue</a></span> <span class="parameter-name">exponent</span>, </span><span class="parameter" id="withMappedSubtype-param-mantissa"><span>required</span> <span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.2/rohd/LogicValue-class.html">LogicValue</a></span> <span class="parameter-name">mantissa</span></span>})</span>
+        <dt id="FloatingPointValue.uninitialized" class="callable">
+          <span class="name"><a href="../rohd_hcl/FloatingPointValue/FloatingPointValue.uninitialized.html">FloatingPointValue.uninitialized</a></span><span class="signature">()</span>
         </dt>
         <dd>
-          Constructs a <a href="../rohd_hcl/FloatingPointValue-class.html">FloatingPointValue</a> with a sign, exponent, and mantissa
-using one of the builders provided from <a href="../rohd_hcl/FloatingPointValue/subtypeConstructorMap.html">subtypeConstructorMap</a> if
-available, otherwise using the default constructor.
-            <div class="constructor-modifier features">factory</div>
+          Creates an unpopulated version of a <a href="../rohd_hcl/FloatingPointValue-class.html">FloatingPointValue</a>, intended to be
+called with the <a href="../rohd_hcl/FloatingPointValue/populator.html">populator</a>.
         </dd>
     </dl>
   </section>
@@ -209,7 +147,7 @@ available, otherwise using the default constructor.
     <dl class="properties">
         <dt id="bias" class="property">
   <span class="name"><a href="../rohd_hcl/FloatingPointValue/bias.html">bias</a></span>
-  <span class="signature">&#8594; <a href="https://api.dart.dev/stable/3.6.2/dart-core/int-class.html">int</a></span>
+  <span class="signature">&#8594; <a href="https://api.dart.dev/stable/3.7.0/dart-core/int-class.html">int</a></span>
   
 
 </dt>
@@ -219,48 +157,34 @@ available, otherwise using the default constructor.
 
 </dd>
 
-        <dt id="constrainedExponentWidth" class="property">
-  <span class="name"><a href="../rohd_hcl/FloatingPointValue/constrainedExponentWidth.html">constrainedExponentWidth</a></span>
-  <span class="signature">&#8594; <a href="https://api.dart.dev/stable/3.6.2/dart-core/int-class.html">int</a>?</span>
-  
-
-</dt>
-<dd>
-  <a href="../rohd_hcl/FloatingPointValue/constrainedExponentWidth.html">constrainedExponentWidth</a> is the hard-coded exponent width of the
-sub-class of this floating-point value
-  <div class="features"><span class="feature">no setter</span></div>
-
-</dd>
-
-        <dt id="constrainedMantissaWidth" class="property">
-  <span class="name"><a href="../rohd_hcl/FloatingPointValue/constrainedMantissaWidth.html">constrainedMantissaWidth</a></span>
-  <span class="signature">&#8594; <a href="https://api.dart.dev/stable/3.6.2/dart-core/int-class.html">int</a>?</span>
-  
-
-</dt>
-<dd>
-  <a href="../rohd_hcl/FloatingPointValue/constrainedMantissaWidth.html">constrainedMantissaWidth</a> is the hard-coded mantissa width of the
-sub-class of this floating-point value
-  <div class="features"><span class="feature">no setter</span></div>
-
-</dd>
-
         <dt id="exponent" class="property">
   <span class="name"><a href="../rohd_hcl/FloatingPointValue/exponent.html">exponent</a></span>
-  <span class="signature">&#8594; <a href="https://pub.dev/documentation/rohd/0.6.2/rohd/LogicValue-class.html">LogicValue</a></span>
+  <span class="signature">&#8596; <a href="https://pub.dev/documentation/rohd/0.6.3/rohd/LogicValue-class.html">LogicValue</a></span>
   
 
 </dt>
 <dd>
   The exponent of the floating point: this is biased about a midpoint for
-positive and negative exponents
-  <div class="features"><span class="feature">final</span></div>
+positive and negative exponents.
+  <div class="features"><span class="feature">late</span><span class="feature">final</span></div>
+
+</dd>
+
+        <dt id="exponentWidth" class="property">
+  <span class="name"><a href="../rohd_hcl/FloatingPointValue/exponentWidth.html">exponentWidth</a></span>
+  <span class="signature">&#8594; <a href="https://api.dart.dev/stable/3.7.0/dart-core/int-class.html">int</a></span>
+  
+
+</dt>
+<dd>
+  The <a href="../rohd_hcl/FloatingPointValue/exponent.html">exponent</a> width.
+  <div class="features"><span class="feature">no setter</span></div>
 
 </dd>
 
         <dt id="hashCode" class="property">
   <span class="name"><a href="../rohd_hcl/FloatingPointValue/hashCode.html">hashCode</a></span>
-  <span class="signature">&#8594; <a href="https://api.dart.dev/stable/3.6.2/dart-core/int-class.html">int</a></span>
+  <span class="signature">&#8594; <a href="https://api.dart.dev/stable/3.7.0/dart-core/int-class.html">int</a></span>
   
 
 </dt>
@@ -270,22 +194,9 @@ positive and negative exponents
 
 </dd>
 
-        <dt id="infinity" class="property">
-  <span class="name"><a href="../rohd_hcl/FloatingPointValue/infinity.html">infinity</a></span>
-  <span class="signature">&#8594; <a href="../rohd_hcl/FloatingPointValue-class.html">FloatingPointValue</a></span>
-  
-
-</dt>
-<dd>
-  Abbreviation Functions for common constants
-Return the Infinity value for this FloatingPointValue size.
-  <div class="features"><span class="feature">no setter</span></div>
-
-</dd>
-
         <dt id="isAnInfinity" class="property">
   <span class="name"><a href="../rohd_hcl/FloatingPointValue/isAnInfinity.html">isAnInfinity</a></span>
-  <span class="signature">&#8594; <a href="https://api.dart.dev/stable/3.6.2/dart-core/bool-class.html">bool</a></span>
+  <span class="signature">&#8594; <a href="https://api.dart.dev/stable/3.7.0/dart-core/bool-class.html">bool</a></span>
   
 
 </dt>
@@ -296,9 +207,24 @@ infinity or negative infinity
 
 </dd>
 
+        <dt id="isAZero" class="property">
+  <span class="name"><a href="../rohd_hcl/FloatingPointValue/isAZero.html">isAZero</a></span>
+  <span class="signature">&#8594; <a href="https://api.dart.dev/stable/3.7.0/dart-core/bool-class.html">bool</a></span>
+  
+
+</dt>
+<dd>
+  Return true if the represented floating point number is zero. Note
+that the equality operator will treat
+<a href="../src_arithmetic_values_floating_point_values_floating_point_constants/FloatingPointConstants.html">FloatingPointConstants.positiveZero</a>
+and <a href="../src_arithmetic_values_floating_point_values_floating_point_constants/FloatingPointConstants.html">FloatingPointConstants.negativeZero</a> as equal.
+  <div class="features"><span class="feature">no setter</span></div>
+
+</dd>
+
         <dt id="isExponentAllOnes" class="property">
   <span class="name"><a href="../rohd_hcl/FloatingPointValue/isExponentAllOnes.html">isExponentAllOnes</a></span>
-  <span class="signature">&#8594; <a href="https://api.dart.dev/stable/3.6.2/dart-core/bool-class.html">bool</a></span>
+  <span class="signature">&#8594; <a href="https://api.dart.dev/stable/3.7.0/dart-core/bool-class.html">bool</a></span>
   
 
 </dt>
@@ -310,7 +236,7 @@ infinity or negative infinity
 
         <dt id="isExponentAllZeros" class="property">
   <span class="name"><a href="../rohd_hcl/FloatingPointValue/isExponentAllZeros.html">isExponentAllZeros</a></span>
-  <span class="signature">&#8594; <a href="https://api.dart.dev/stable/3.6.2/dart-core/bool-class.html">bool</a></span>
+  <span class="signature">&#8594; <a href="https://api.dart.dev/stable/3.7.0/dart-core/bool-class.html">bool</a></span>
   
 
 </dt>
@@ -322,7 +248,7 @@ infinity or negative infinity
 
         <dt id="isMantissaAllZeroes" class="property">
   <span class="name"><a href="../rohd_hcl/FloatingPointValue/isMantissaAllZeroes.html">isMantissaAllZeroes</a></span>
-  <span class="signature">&#8594; <a href="https://api.dart.dev/stable/3.6.2/dart-core/bool-class.html">bool</a></span>
+  <span class="signature">&#8594; <a href="https://api.dart.dev/stable/3.7.0/dart-core/bool-class.html">bool</a></span>
   
 
 </dt>
@@ -334,47 +260,44 @@ infinity or negative infinity
 
         <dt id="isNaN" class="property">
   <span class="name"><a href="../rohd_hcl/FloatingPointValue/isNaN.html">isNaN</a></span>
-  <span class="signature">&#8594; <a href="https://api.dart.dev/stable/3.6.2/dart-core/bool-class.html">bool</a></span>
+  <span class="signature">&#8594; <a href="https://api.dart.dev/stable/3.7.0/dart-core/bool-class.html">bool</a></span>
   
 
 </dt>
 <dd>
   Return true if the represented floating point number is considered
-NaN or 'Not a Number'
-  <div class="features"><span class="feature">no setter</span></div>
-
-</dd>
-
-        <dt id="isZero" class="property">
-  <span class="name"><a href="../rohd_hcl/FloatingPointValue/isZero.html">isZero</a></span>
-  <span class="signature">&#8594; <a href="https://api.dart.dev/stable/3.6.2/dart-core/bool-class.html">bool</a></span>
-  
-
-</dt>
-<dd>
-  Return true if the represented floating point number is zero. Note
-that the equality operator will treat
-<a href="../src_arithmetic_values_floating_point_values_floating_point_value/FloatingPointConstants.html">FloatingPointConstants.positiveZero</a>
-and <a href="../src_arithmetic_values_floating_point_values_floating_point_value/FloatingPointConstants.html">FloatingPointConstants.negativeZero</a> as equal.
+NaN or "Not a Number".
   <div class="features"><span class="feature">no setter</span></div>
 
 </dd>
 
         <dt id="mantissa" class="property">
   <span class="name"><a href="../rohd_hcl/FloatingPointValue/mantissa.html">mantissa</a></span>
-  <span class="signature">&#8594; <a href="https://pub.dev/documentation/rohd/0.6.2/rohd/LogicValue-class.html">LogicValue</a></span>
+  <span class="signature">&#8596; <a href="https://pub.dev/documentation/rohd/0.6.3/rohd/LogicValue-class.html">LogicValue</a></span>
   
 
 </dt>
 <dd>
-  The mantissa of the floating point
-  <div class="features"><span class="feature">final</span></div>
+  The mantissa of the floating point.
+  <div class="features"><span class="feature">late</span><span class="feature">final</span></div>
+
+</dd>
+
+        <dt id="mantissaWidth" class="property">
+  <span class="name"><a href="../rohd_hcl/FloatingPointValue/mantissaWidth.html">mantissaWidth</a></span>
+  <span class="signature">&#8594; <a href="https://api.dart.dev/stable/3.7.0/dart-core/int-class.html">int</a></span>
+  
+
+</dt>
+<dd>
+  The <a href="../rohd_hcl/FloatingPointValue/mantissa.html">mantissa</a> width.
+  <div class="features"><span class="feature">no setter</span></div>
 
 </dd>
 
         <dt id="maxExponent" class="property">
   <span class="name"><a href="../rohd_hcl/FloatingPointValue/maxExponent.html">maxExponent</a></span>
-  <span class="signature">&#8594; <a href="https://api.dart.dev/stable/3.6.2/dart-core/int-class.html">int</a></span>
+  <span class="signature">&#8594; <a href="https://api.dart.dev/stable/3.7.0/dart-core/int-class.html">int</a></span>
   
 
 </dt>
@@ -386,7 +309,7 @@ and <a href="../src_arithmetic_values_floating_point_values_floating_point_value
 
         <dt id="minExponent" class="property">
   <span class="name"><a href="../rohd_hcl/FloatingPointValue/minExponent.html">minExponent</a></span>
-  <span class="signature">&#8594; <a href="https://api.dart.dev/stable/3.6.2/dart-core/int-class.html">int</a></span>
+  <span class="signature">&#8594; <a href="https://api.dart.dev/stable/3.7.0/dart-core/int-class.html">int</a></span>
   
 
 </dt>
@@ -396,45 +319,9 @@ and <a href="../src_arithmetic_values_floating_point_values_floating_point_value
 
 </dd>
 
-        <dt id="nan" class="property">
-  <span class="name"><a href="../rohd_hcl/FloatingPointValue/nan.html">nan</a></span>
-  <span class="signature">&#8594; <a href="../rohd_hcl/FloatingPointValue-class.html">FloatingPointValue</a></span>
-  
-
-</dt>
-<dd>
-  Return the Negative Infinity value for this FloatingPointValue size.
-  <div class="features"><span class="feature">no setter</span></div>
-
-</dd>
-
-        <dt id="negativeInfinity" class="property">
-  <span class="name"><a href="../rohd_hcl/FloatingPointValue/negativeInfinity.html">negativeInfinity</a></span>
-  <span class="signature">&#8594; <a href="../rohd_hcl/FloatingPointValue-class.html">FloatingPointValue</a></span>
-  
-
-</dt>
-<dd>
-  Return the Negative Infinity value for this FloatingPointValue size.
-  <div class="features"><span class="feature">no setter</span></div>
-
-</dd>
-
-        <dt id="one" class="property">
-  <span class="name"><a href="../rohd_hcl/FloatingPointValue/one.html">one</a></span>
-  <span class="signature">&#8594; <a href="../rohd_hcl/FloatingPointValue-class.html">FloatingPointValue</a></span>
-  
-
-</dt>
-<dd>
-  Return the value one for this FloatingPointValue size.
-  <div class="features"><span class="feature">no setter</span></div>
-
-</dd>
-
         <dt id="runtimeType" class="property inherited">
-  <span class="name"><a href="https://api.dart.dev/stable/3.6.2/dart-core/Object/runtimeType.html">runtimeType</a></span>
-  <span class="signature">&#8594; <a href="https://api.dart.dev/stable/3.6.2/dart-core/Type-class.html">Type</a></span>
+  <span class="name"><a href="https://api.dart.dev/stable/3.7.0/dart-core/Object/runtimeType.html">runtimeType</a></span>
+  <span class="signature">&#8594; <a href="https://api.dart.dev/stable/3.7.0/dart-core/Type-class.html">Type</a></span>
   
 
 </dt>
@@ -446,37 +333,38 @@ and <a href="../src_arithmetic_values_floating_point_values_floating_point_value
 
         <dt id="sign" class="property">
   <span class="name"><a href="../rohd_hcl/FloatingPointValue/sign.html">sign</a></span>
-  <span class="signature">&#8594; <a href="https://pub.dev/documentation/rohd/0.6.2/rohd/LogicValue-class.html">LogicValue</a></span>
+  <span class="signature">&#8596; <a href="https://pub.dev/documentation/rohd/0.6.3/rohd/LogicValue-class.html">LogicValue</a></span>
   
 
 </dt>
 <dd>
-  The sign of the value:  1 means a negative value
-  <div class="features"><span class="feature">final</span></div>
+  The sign of the value: 1 means a negative value.
+  <div class="features"><span class="feature">late</span><span class="feature">final</span></div>
+
+</dd>
+
+        <dt id="supportsInfinities" class="property">
+  <span class="name"><a href="../rohd_hcl/FloatingPointValue/supportsInfinities.html">supportsInfinities</a></span>
+  <span class="signature">&#8594; <a href="https://api.dart.dev/stable/3.7.0/dart-core/bool-class.html">bool</a></span>
+  
+
+</dt>
+<dd>
+  Indicates whether <a href="../src_arithmetic_values_floating_point_values_floating_point_constants/FloatingPointConstants.html">FloatingPointConstants.positiveInfinity</a> and
+<a href="../src_arithmetic_values_floating_point_values_floating_point_constants/FloatingPointConstants.html">FloatingPointConstants.negativeInfinity</a> representations are supported.
+  <div class="features"><span class="feature">no setter</span></div>
 
 </dd>
 
         <dt id="value" class="property">
   <span class="name"><a href="../rohd_hcl/FloatingPointValue/value.html">value</a></span>
-  <span class="signature">&#8594; <a href="https://pub.dev/documentation/rohd/0.6.2/rohd/LogicValue-class.html">LogicValue</a></span>
+  <span class="signature">&#8594; <a href="https://pub.dev/documentation/rohd/0.6.3/rohd/LogicValue-class.html">LogicValue</a></span>
   
 
 </dt>
 <dd>
-  The full floating point value bit storage
-  <div class="features"><span class="feature">final</span></div>
-
-</dd>
-
-        <dt id="zero" class="property">
-  <span class="name"><a href="../rohd_hcl/FloatingPointValue/zero.html">zero</a></span>
-  <span class="signature">&#8594; <a href="../rohd_hcl/FloatingPointValue-class.html">FloatingPointValue</a></span>
-  
-
-</dt>
-<dd>
-  Return the Negative Infinity value for this FloatingPointValue size.
-  <div class="features"><span class="feature">no setter</span></div>
+  The full floating point value concatenated as a <a href="https://pub.dev/documentation/rohd/0.6.3/rohd/LogicValue-class.html">LogicValue</a>.
+  <div class="features"><span class="feature">late</span><span class="feature">final</span></div>
 
 </dd>
 
@@ -497,14 +385,28 @@ and <a href="../src_arithmetic_values_floating_point_values_floating_point_value
 
 </dt>
 <dd>
-  Absolute value operation for <a href="../rohd_hcl/FloatingPointValue-class.html">FloatingPointValue</a>
+  Absolute value operation for <a href="../rohd_hcl/FloatingPointValue-class.html">FloatingPointValue</a>.
+  
+
+</dd>
+
+        <dt id="clonePopulator" class="callable">
+  <span class="name"><a href="../rohd_hcl/FloatingPointValue/clonePopulator.html">clonePopulator</a></span><span class="signature">(<wbr>)
+    <span class="returntype parameter">&#8594; <a href="../rohd_hcl/FloatingPointValuePopulator-class.html">FloatingPointValuePopulator</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../rohd_hcl/FloatingPointValue-class.html">FloatingPointValue</a></span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Creates a <a href="../rohd_hcl/FloatingPointValuePopulator-class.html">FloatingPointValuePopulator</a> for the same type as <code>this</code> and
+with the same widths.
   
 
 </dd>
 
         <dt id="compareTo" class="callable">
-  <span class="name"><a href="../rohd_hcl/FloatingPointValue/compareTo.html">compareTo</a></span><span class="signature">(<wbr><span class="parameter" id="compareTo-param-other"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.6.2/dart-core/Object-class.html">Object</a></span> <span class="parameter-name">other</span></span>)
-    <span class="returntype parameter">&#8594; <a href="https://api.dart.dev/stable/3.6.2/dart-core/int-class.html">int</a></span>
+  <span class="name"><a href="../rohd_hcl/FloatingPointValue/compareTo.html">compareTo</a></span><span class="signature">(<wbr><span class="parameter" id="compareTo-param-other"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.7.0/dart-core/Object-class.html">Object</a></span> <span class="parameter-name">other</span></span>)
+    <span class="returntype parameter">&#8594; <a href="https://api.dart.dev/stable/3.7.0/dart-core/int-class.html">int</a></span>
   </span>
   
 
@@ -515,30 +417,44 @@ and <a href="../src_arithmetic_values_floating_point_values_floating_point_value
 
 </dd>
 
+        <dt id="getConstantComponents" class="callable">
+  <span class="name"><a href="../rohd_hcl/FloatingPointValue/getConstantComponents.html">getConstantComponents</a></span><span class="signature">(<wbr><span class="parameter" id="getConstantComponents-param-constantFloatingPoint"><span class="type-annotation"><a href="../rohd_hcl/FloatingPointConstants.html">FloatingPointConstants</a></span> <span class="parameter-name">constantFloatingPoint</span></span>)
+    <span class="returntype parameter">&#8594; (<span class="field">{<span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.3/rohd/LogicValue-class.html">LogicValue</a></span> <span class="field-name">exponent</span>, </span><span class="field"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.3/rohd/LogicValue-class.html">LogicValue</a></span> <span class="field-name">mantissa</span>, </span><span class="field"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.3/rohd/LogicValue-class.html">LogicValue</a></span> <span class="field-name">sign</span>}</span>)</span>
+  </span>
+  
+
+</dt>
+<dd>
+  Return the set of <a href="https://pub.dev/documentation/rohd/0.6.3/rohd/LogicValue-class.html">LogicValue</a>s for a given <a href="../rohd_hcl/FloatingPointConstants.html">FloatingPointConstants</a> at a
+given <a href="../rohd_hcl/FloatingPointValue/exponentWidth.html">exponentWidth</a> and <a href="../rohd_hcl/FloatingPointValue/mantissaWidth.html">mantissaWidth</a>.
+  
+
+</dd>
+
         <dt id="isNormal" class="callable">
   <span class="name"><a href="../rohd_hcl/FloatingPointValue/isNormal.html">isNormal</a></span><span class="signature">(<wbr>)
-    <span class="returntype parameter">&#8594; <a href="https://api.dart.dev/stable/3.6.2/dart-core/bool-class.html">bool</a></span>
+    <span class="returntype parameter">&#8594; <a href="https://api.dart.dev/stable/3.7.0/dart-core/bool-class.html">bool</a></span>
   </span>
   
 
 </dt>
 <dd>
   Return a Logic true if this FloatingPointVa;ie contains a normal number,
-defined as having mantissa in the range [1,2)
+defined as having mantissa in the range <code>[1,2)</code>.
   
 
 </dd>
 
         <dt id="isSubnormal" class="callable">
   <span class="name"><a href="../rohd_hcl/FloatingPointValue/isSubnormal.html">isSubnormal</a></span><span class="signature">(<wbr>)
-    <span class="returntype parameter">&#8594; <a href="https://api.dart.dev/stable/3.6.2/dart-core/bool-class.html">bool</a></span>
+    <span class="returntype parameter">&#8594; <a href="https://api.dart.dev/stable/3.7.0/dart-core/bool-class.html">bool</a></span>
   </span>
   
 
 </dt>
 <dd>
   Return true if the represented floating point number is considered
-'subnormal', including <a href="../rohd_hcl/FloatingPointValue/isZero.html">isZero</a>.
+"subnormal", including <a href="../rohd_hcl/FloatingPointValue/isAZero.html">isAZero</a>.
   
 
 </dd>
@@ -551,13 +467,13 @@ defined as having mantissa in the range [1,2)
 
 </dt>
 <dd>
-  Negate operation for <a href="../rohd_hcl/FloatingPointValue-class.html">FloatingPointValue</a>
+  Negate operation for <a href="../rohd_hcl/FloatingPointValue-class.html">FloatingPointValue</a>.
   
 
 </dd>
 
         <dt id="noSuchMethod" class="callable inherited">
-  <span class="name"><a href="https://api.dart.dev/stable/3.6.2/dart-core/Object/noSuchMethod.html">noSuchMethod</a></span><span class="signature">(<wbr><span class="parameter" id="noSuchMethod-param-invocation"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.6.2/dart-core/Invocation-class.html">Invocation</a></span> <span class="parameter-name">invocation</span></span>)
+  <span class="name"><a href="https://api.dart.dev/stable/3.7.0/dart-core/Object/noSuchMethod.html">noSuchMethod</a></span><span class="signature">(<wbr><span class="parameter" id="noSuchMethod-param-invocation"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.7.0/dart-core/Invocation-class.html">Invocation</a></span> <span class="parameter-name">invocation</span></span>)
     <span class="returntype parameter">&#8594; dynamic</span>
   </span>
   
@@ -571,44 +487,26 @@ defined as having mantissa in the range [1,2)
 
         <dt id="toDouble" class="callable">
   <span class="name"><a href="../rohd_hcl/FloatingPointValue/toDouble.html">toDouble</a></span><span class="signature">(<wbr>)
-    <span class="returntype parameter">&#8594; <a href="https://api.dart.dev/stable/3.6.2/dart-core/double-class.html">double</a></span>
+    <span class="returntype parameter">&#8594; <a href="https://api.dart.dev/stable/3.7.0/dart-core/double-class.html">double</a></span>
   </span>
   
 
 </dt>
 <dd>
-  Return the value of the floating point number in a Dart <a href="https://api.dart.dev/stable/3.6.2/dart-core/double-class.html">double</a> type.
-  
-
-</dd>
-
-        <dt id="toMappedSubtype" class="callable">
-  <span class="name"><a href="../rohd_hcl/FloatingPointValue/toMappedSubtype.html">toMappedSubtype</a></span><span class="signature">(<wbr>)
-    <span class="returntype parameter">&#8594; <a href="../rohd_hcl/FloatingPointValue-class.html">FloatingPointValue</a></span>
-  </span>
-  
-
-</dt>
-<dd>
-  Converts this <a href="../rohd_hcl/FloatingPointValue-class.html">FloatingPointValue</a> to a <a href="../rohd_hcl/FloatingPointValue-class.html">FloatingPointValue</a> with the same
-sign, exponent, and mantissa using the constructor provided in
-<a href="../rohd_hcl/FloatingPointValue/subtypeConstructorMap.html">subtypeConstructorMap</a> if available, otherwise using the default
-constructor.
+  Return the value of the floating point number in a Dart <a href="https://api.dart.dev/stable/3.7.0/dart-core/double-class.html">double</a> type.
   
 
 </dd>
 
         <dt id="toString" class="callable">
-  <span class="name"><a href="../rohd_hcl/FloatingPointValue/toString.html">toString</a></span><span class="signature">(<wbr>{<span class="parameter" id="toString-param-integer"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.6.2/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">integer</span> = <span class="default-value">false</span></span>})
-    <span class="returntype parameter">&#8594; <a href="https://api.dart.dev/stable/3.6.2/dart-core/String-class.html">String</a></span>
+  <span class="name"><a href="../rohd_hcl/FloatingPointValue/toString.html">toString</a></span><span class="signature">(<wbr>{<span class="parameter" id="toString-param-integer"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.7.0/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">integer</span> = <span class="default-value">false</span></span>})
+    <span class="returntype parameter">&#8594; <a href="https://api.dart.dev/stable/3.7.0/dart-core/String-class.html">String</a></span>
   </span>
   
 
 </dt>
 <dd>
   Return a string representation of FloatingPointValue.
-if <code>integer</code> is true, return sign, exponent, mantissa as integers.
-if <code>integer</code> is false, return sign, exponent, mantissa as ibinary strings.
   <div class="features"><span class="feature">override</span></div>
 
 </dd>
@@ -621,21 +519,35 @@ if <code>integer</code> is false, return sign, exponent, mantissa as ibinary str
 
 </dt>
 <dd>
-  Compute the unit in the last place for the given <a href="../rohd_hcl/FloatingPointValue-class.html">FloatingPointValue</a>
+  Compute the unit in the last place for the given <a href="../rohd_hcl/FloatingPointValue-class.html">FloatingPointValue</a>.
+  
+
+</dd>
+
+        <dt id="validate" class="callable">
+  <span class="name"><a href="../rohd_hcl/FloatingPointValue/validate.html">validate</a></span><span class="signature">(<wbr>)
+    <span class="returntype parameter">&#8594; void</span>
+  </span>
+  
+
+</dt>
+<dd>
+  Validate the <a href="../rohd_hcl/FloatingPointValue-class.html">FloatingPointValue</a> to ensure widths and other
+characteristics are legal.
   
 
 </dd>
 
         <dt id="withinRounding" class="callable">
   <span class="name"><a href="../rohd_hcl/FloatingPointValue/withinRounding.html">withinRounding</a></span><span class="signature">(<wbr><span class="parameter" id="withinRounding-param-other"><span class="type-annotation"><a href="../rohd_hcl/FloatingPointValue-class.html">FloatingPointValue</a></span> <span class="parameter-name">other</span></span>)
-    <span class="returntype parameter">&#8594; <a href="https://api.dart.dev/stable/3.6.2/dart-core/bool-class.html">bool</a></span>
+    <span class="returntype parameter">&#8594; <a href="https://api.dart.dev/stable/3.7.0/dart-core/bool-class.html">bool</a></span>
   </span>
   
 
 </dt>
 <dd>
-  Return true if the other <a href="../rohd_hcl/FloatingPointValue-class.html">FloatingPointValue</a> is within a rounding
-error of this value.
+  Return true if the other <a href="../rohd_hcl/FloatingPointValue-class.html">FloatingPointValue</a> is within a rounding error
+of this value.
   
 
 </dd>
@@ -656,7 +568,7 @@ error of this value.
 
 </dt>
 <dd>
-  Multiply operation for <a href="../rohd_hcl/FloatingPointValue-class.html">FloatingPointValue</a>
+  Multiply operation for <a href="../rohd_hcl/FloatingPointValue-class.html">FloatingPointValue</a>.
   
 
 </dd>
@@ -669,7 +581,7 @@ error of this value.
 
 </dt>
 <dd>
-  Addition operation for <a href="../rohd_hcl/FloatingPointValue-class.html">FloatingPointValue</a>
+  Addition operation for <a href="../rohd_hcl/FloatingPointValue-class.html">FloatingPointValue</a>.
   
 
 </dd>
@@ -682,7 +594,7 @@ error of this value.
 
 </dt>
 <dd>
-  Subtract operation for <a href="../rohd_hcl/FloatingPointValue-class.html">FloatingPointValue</a>
+  Subtract operation for <a href="../rohd_hcl/FloatingPointValue-class.html">FloatingPointValue</a>.
   
 
 </dd>
@@ -695,14 +607,14 @@ error of this value.
 
 </dt>
 <dd>
-  Divide operation for <a href="../rohd_hcl/FloatingPointValue-class.html">FloatingPointValue</a>
+  Divide operation for <a href="../rohd_hcl/FloatingPointValue-class.html">FloatingPointValue</a>.
   
 
 </dd>
 
         <dt id="operator ==" class="callable">
-  <span class="name"><a href="../rohd_hcl/FloatingPointValue/operator_equals.html">operator ==</a></span><span class="signature">(<wbr><span class="parameter" id="==-param-other"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.6.2/dart-core/Object-class.html">Object</a></span> <span class="parameter-name">other</span></span>)
-    <span class="returntype parameter">&#8594; <a href="https://api.dart.dev/stable/3.6.2/dart-core/bool-class.html">bool</a></span>
+  <span class="name"><a href="../rohd_hcl/FloatingPointValue/operator_equals.html">operator ==</a></span><span class="signature">(<wbr><span class="parameter" id="==-param-other"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.7.0/dart-core/Object-class.html">Object</a></span> <span class="parameter-name">other</span></span>)
+    <span class="returntype parameter">&#8594; <a href="https://api.dart.dev/stable/3.7.0/dart-core/bool-class.html">bool</a></span>
   </span>
   
 
@@ -716,80 +628,21 @@ error of this value.
     </dl>
   </section>
     
-  <section class="summary offset-anchor" id="static-properties">
-    <h2>Static Properties</h2>
-    <dl class="properties">
-        <dt id="subtypeConstructorMap" class="property">
-  <span class="name"><a href="../rohd_hcl/FloatingPointValue/subtypeConstructorMap.html">subtypeConstructorMap</a></span>
-  <span class="signature">&#8596; <a href="https://api.dart.dev/stable/3.6.2/dart-core/Map-class.html">Map</a><span class="signature">&lt;<wbr><span class="type-parameter">(<span class="field">{<span class="type-annotation"><a href="https://api.dart.dev/stable/3.6.2/dart-core/int-class.html">int</a></span> <span class="field-name">exponentWidth</span>, </span><span class="field"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.6.2/dart-core/int-class.html">int</a></span> <span class="field-name">mantissaWidth</span>}</span>)</span>, <span class="type-parameter"><a href="../rohd_hcl/FloatingPointValue-class.html">FloatingPointValue</a> Function<span class="signature">({<span class="parameter" id="param-exponent"><span>required</span> <span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.2/rohd/LogicValue-class.html">LogicValue</a></span> <span class="parameter-name">exponent</span>, </span><span class="parameter" id="param-mantissa"><span>required</span> <span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.2/rohd/LogicValue-class.html">LogicValue</a></span> <span class="parameter-name">mantissa</span>, </span><span class="parameter" id="param-sign"><span>required</span> <span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.2/rohd/LogicValue-class.html">LogicValue</a></span> <span class="parameter-name">sign</span></span>})</span></span>&gt;</span></span>
-  
-
-</dt>
-<dd>
-  A mapping from a <code>({exponentWidth, mantissaWidth})</code> record to a
-constructor for a specific FloatingPointValue subtype. This map is used by
-the <a href="../rohd_hcl/FloatingPointValue/FloatingPointValue.withMappedSubtype.html">FloatingPointValue.withMappedSubtype</a> constructor to select the
-appropriate constructor for a given set of widths.
-  <div class="features"><span class="feature">getter/setter pair</span></div>
-
-</dd>
-
-    </dl>
-  </section>
     
   <section class="summary offset-anchor" id="static-methods">
     <h2>Static Methods</h2>
     <dl class="callables">
-        <dt id="buildOfLogicValue" class="callable">
-  <span class="name"><a href="../rohd_hcl/FloatingPointValue/buildOfLogicValue.html">buildOfLogicValue</a></span><span class="signature">&lt;<wbr><span class="type-parameter">T extends <a href="../rohd_hcl/FloatingPointValue-class.html">FloatingPointValue</a></span>&gt;</span><span class="signature">(<wbr><span class="parameter" id="buildOfLogicValue-param-constructor"><span class="type-annotation">T</span> <span class="parameter-name">constructor</span>({<span class="parameter" id="param-exponent"><span>required</span> <span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.2/rohd/LogicValue-class.html">LogicValue</a></span> <span class="parameter-name">exponent</span>, </span><span class="parameter" id="param-mantissa"><span>required</span> <span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.2/rohd/LogicValue-class.html">LogicValue</a></span> <span class="parameter-name">mantissa</span>, </span><span class="parameter" id="param-sign"><span>required</span> <span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.2/rohd/LogicValue-class.html">LogicValue</a></span> <span class="parameter-name">sign</span></span>}), </span><span class="parameter" id="buildOfLogicValue-param-exponentWidth"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.6.2/dart-core/int-class.html">int</a></span> <span class="parameter-name">exponentWidth</span>, </span><span class="parameter" id="buildOfLogicValue-param-mantissaWidth"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.6.2/dart-core/int-class.html">int</a></span> <span class="parameter-name">mantissaWidth</span>, </span><span class="parameter" id="buildOfLogicValue-param-val"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.2/rohd/LogicValue-class.html">LogicValue</a></span> <span class="parameter-name">val</span></span>)
-    <span class="returntype parameter">&#8594; T</span>
+        <dt id="populator" class="callable">
+  <span class="name"><a href="../rohd_hcl/FloatingPointValue/populator.html">populator</a></span><span class="signature">(<wbr>{<span class="parameter" id="populator-param-exponentWidth"><span>required</span> <span class="type-annotation"><a href="https://api.dart.dev/stable/3.7.0/dart-core/int-class.html">int</a></span> <span class="parameter-name">exponentWidth</span>, </span><span class="parameter" id="populator-param-mantissaWidth"><span>required</span> <span class="type-annotation"><a href="https://api.dart.dev/stable/3.7.0/dart-core/int-class.html">int</a></span> <span class="parameter-name">mantissaWidth</span></span>})
+    <span class="returntype parameter">&#8594; <a href="../rohd_hcl/FloatingPointValuePopulator-class.html">FloatingPointValuePopulator</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../rohd_hcl/FloatingPointValue-class.html">FloatingPointValue</a></span>&gt;</span></span>
   </span>
   
 
 </dt>
 <dd>
-  A helper function for <a href="../rohd_hcl/FloatingPointValue/FloatingPointValue.ofLogicValue.html">FloatingPointValue.ofLogicValue</a> and base classes
-which performs some width checks and slicing.
-  
-
-</dd>
-
-        <dt id="computeBias" class="callable">
-  <span class="name"><a href="../rohd_hcl/FloatingPointValue/computeBias.html">computeBias</a></span><span class="signature">(<wbr><span class="parameter" id="computeBias-param-exponentWidth"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.6.2/dart-core/int-class.html">int</a></span> <span class="parameter-name">exponentWidth</span></span>)
-    <span class="returntype parameter">&#8594; <a href="https://api.dart.dev/stable/3.6.2/dart-core/int-class.html">int</a></span>
-  </span>
-  
-
-</dt>
-<dd>
-  Return the exponent value representing the true zero exponent 2^0 = 1
-often termed <a href="../rohd_hcl/FloatingPointValue/computeBias.html">computeBias</a> or the offset of the exponent
-  
-
-</dd>
-
-        <dt id="computeMaxExponent" class="callable">
-  <span class="name"><a href="../rohd_hcl/FloatingPointValue/computeMaxExponent.html">computeMaxExponent</a></span><span class="signature">(<wbr><span class="parameter" id="computeMaxExponent-param-exponentWidth"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.6.2/dart-core/int-class.html">int</a></span> <span class="parameter-name">exponentWidth</span></span>)
-    <span class="returntype parameter">&#8594; <a href="https://api.dart.dev/stable/3.6.2/dart-core/int-class.html">int</a></span>
-  </span>
-  
-
-</dt>
-<dd>
-  Return the maximum exponent value
-  
-
-</dd>
-
-        <dt id="computeMinExponent" class="callable">
-  <span class="name"><a href="../rohd_hcl/FloatingPointValue/computeMinExponent.html">computeMinExponent</a></span><span class="signature">(<wbr><span class="parameter" id="computeMinExponent-param-exponentWidth"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.6.2/dart-core/int-class.html">int</a></span> <span class="parameter-name">exponentWidth</span></span>)
-    <span class="returntype parameter">&#8594; <a href="https://api.dart.dev/stable/3.6.2/dart-core/int-class.html">int</a></span>
-  </span>
-  
-
-</dt>
-<dd>
-  Return the minimum exponent value
+  Creates a <a href="../rohd_hcl/FloatingPointValuePopulator-class.html">FloatingPointValuePopulator</a> with the provided <code>exponentWidth</code>
+and <code>mantissaWidth</code>, which can then be used to complete construction of
+a <a href="../rohd_hcl/FloatingPointValue-class.html">FloatingPointValue</a> using population functions.
   
 
 </dd>
@@ -808,7 +661,7 @@ often termed <a href="../rohd_hcl/FloatingPointValue/computeBias.html">computeBi
 </header>
 <ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
     <li><a href="../index.html">rohd_hcl</a></li>
-    <li><a href="../rohd_hcl/rohd_hcl-library.html">rohd_hcl</a></li>
+    <li><a href="../rohd_hcl">rohd_hcl</a></li>
     <li class="self-crumb">FloatingPointValue class</li>
 </ol>
 

@@ -25,7 +25,7 @@
   <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
   <ol class="breadcrumbs gt-separated dark hidden-xs">
     <li><a href="../../index.html">rohd_hcl</a></li>
-    <li><a href="../../rohd_hcl/rohd_hcl-library.html">rohd_hcl.dart</a></li>
+    <li><a href="../../rohd_hcl">rohd_hcl.dart</a></li>
     <li><a href="../../rohd_hcl/FloatingPoint8E4M3Value-class.html">FloatingPoint8E4M3Value</a></li>
     <li class="self-crumb">maxValue property</li>
   </ol>
@@ -62,7 +62,7 @@
   <section id="getter">
     <section class="multi-line-signature">
       
-      <span class="returntype"><a href="https://api.dart.dev/stable/3.6.2/dart-core/double-class.html">double</a></span>
+      <span class="returntype"><a href="https://api.dart.dev/stable/3.7.0/dart-core/double-class.html">double</a></span>
       get
       <span class="name ">maxValue</span>
       
@@ -77,9 +77,7 @@
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">static double get maxValue =&gt;
-    FloatingPoint8E4M3Value.getFloatingPointConstant(
-            FloatingPointConstants.largestNormal)
-        .toDouble();</code></pre>
+    populator().ofConstant(FloatingPointConstants.largestNormal).toDouble();</code></pre>
 </section>
 
   </section>
@@ -95,7 +93,7 @@
 </header>
 <ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
     <li><a href="../../index.html">rohd_hcl</a></li>
-    <li><a href="../../rohd_hcl/rohd_hcl-library.html">rohd_hcl</a></li>
+    <li><a href="../../rohd_hcl">rohd_hcl</a></li>
     <li><a href="../../rohd_hcl/FloatingPoint8E4M3Value-class.html">FloatingPoint8E4M3Value</a></li>
     <li class="self-crumb">maxValue property</li>
 </ol>

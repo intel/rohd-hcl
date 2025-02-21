@@ -25,9 +25,9 @@
   <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
   <ol class="breadcrumbs gt-separated dark hidden-xs">
     <li><a href="../../index.html">rohd_hcl</a></li>
-    <li><a href="../../rohd_hcl/rohd_hcl-library.html">rohd_hcl.dart</a></li>
+    <li><a href="../../rohd_hcl">rohd_hcl.dart</a></li>
     <li><a href="../../rohd_hcl/FloatingPointValue-class.html">FloatingPointValue</a></li>
-    <li class="self-crumb">FloatingPointValue.ofBinaryStrings constructor</li>
+    <li class="self-crumb">FloatingPointValue.ofBinaryStrings factory constructor</li>
   </ol>
   <div class="self-name">FloatingPointValue.ofBinaryStrings</div>
   <form class="search navbar-right" role="search">
@@ -57,27 +57,25 @@
 
     <section class="multi-line-signature">
       
-      <span class="name ">FloatingPointValue.ofBinaryStrings</span>(<wbr><ol class="parameter-list single-line"> <li><span class="parameter" id="ofBinaryStrings-param-sign"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.6.2/dart-core/String-class.html">String</a></span> <span class="parameter-name">sign</span>, </span></li>
-<li><span class="parameter" id="ofBinaryStrings-param-exponent"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.6.2/dart-core/String-class.html">String</a></span> <span class="parameter-name">exponent</span>, </span></li>
-<li><span class="parameter" id="ofBinaryStrings-param-mantissa"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.6.2/dart-core/String-class.html">String</a></span> <span class="parameter-name">mantissa</span></span></li>
+      <span class="name ">FloatingPointValue.ofBinaryStrings</span>(<wbr><ol class="parameter-list single-line"> <li><span class="parameter" id="ofBinaryStrings-param-sign"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.7.0/dart-core/String-class.html">String</a></span> <span class="parameter-name">sign</span>, </span></li>
+<li><span class="parameter" id="ofBinaryStrings-param-exponent"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.7.0/dart-core/String-class.html">String</a></span> <span class="parameter-name">exponent</span>, </span></li>
+<li><span class="parameter" id="ofBinaryStrings-param-mantissa"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.7.0/dart-core/String-class.html">String</a></span> <span class="parameter-name">mantissa</span></span></li>
 </ol>)
     </section>
     
 <section class="desc markdown">
-  <p><a href="../../rohd_hcl/FloatingPointValue-class.html">FloatingPointValue</a> constructor from a binary string representation of
-individual bitfields</p>
+  <p>A wrapper around <a href="../../rohd_hcl/FloatingPointValuePopulator/ofString.html">FloatingPointValuePopulator.ofString</a> that computes the
+widths of the exponent and mantissa from the input string.</p>
 </section>
 
 
     
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
-  <pre class="language-dart"><code class="language-dart">FloatingPointValue.ofBinaryStrings(
-    String sign, String exponent, String mantissa)
-    : this(
-          sign: LogicValue.of(sign),
-          exponent: LogicValue.of(exponent),
-          mantissa: LogicValue.of(mantissa));</code></pre>
+  <pre class="language-dart"><code class="language-dart">factory FloatingPointValue.ofBinaryStrings(
+        String sign, String exponent, String mantissa) =&gt;
+    populator(exponentWidth: exponent.length, mantissaWidth: mantissa.length)
+        .ofBinaryStrings(sign, exponent, mantissa);</code></pre>
 </section>
 
 
@@ -91,9 +89,9 @@ individual bitfields</p>
 </header>
 <ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
     <li><a href="../../index.html">rohd_hcl</a></li>
-    <li><a href="../../rohd_hcl/rohd_hcl-library.html">rohd_hcl</a></li>
+    <li><a href="../../rohd_hcl">rohd_hcl</a></li>
     <li><a href="../../rohd_hcl/FloatingPointValue-class.html">FloatingPointValue</a></li>
-    <li class="self-crumb">FloatingPointValue.ofBinaryStrings constructor</li>
+    <li class="self-crumb">FloatingPointValue.ofBinaryStrings factory constructor</li>
 </ol>
 
     <h5>FloatingPointValue class</h5>

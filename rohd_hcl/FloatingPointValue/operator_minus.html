@@ -25,7 +25,7 @@
   <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
   <ol class="breadcrumbs gt-separated dark hidden-xs">
     <li><a href="../../index.html">rohd_hcl</a></li>
-    <li><a href="../../rohd_hcl/rohd_hcl-library.html">rohd_hcl.dart</a></li>
+    <li><a href="../../rohd_hcl">rohd_hcl.dart</a></li>
     <li><a href="../../rohd_hcl/FloatingPointValue-class.html">FloatingPointValue</a></li>
     <li class="self-crumb">operator - method</li>
   </ol>
@@ -66,7 +66,7 @@
     </section>
     
 <section class="desc markdown">
-  <p>Subtract operation for <a href="../../rohd_hcl/FloatingPointValue-class.html">FloatingPointValue</a></p>
+  <p>Subtract operation for <a href="../../rohd_hcl/FloatingPointValue-class.html">FloatingPointValue</a>.</p>
 </section>
 
 
@@ -76,7 +76,7 @@
   <pre class="language-dart"><code class="language-dart">FloatingPointValue operator -(FloatingPointValue subend) {
   if (isAnInfinity &amp; subend.isAnInfinity) {
     if (sign == subend.sign) {
-      return nan;
+      return clonePopulator().nan;
     } else {
       return this;
     }
@@ -100,7 +100,7 @@
 </header>
 <ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
     <li><a href="../../index.html">rohd_hcl</a></li>
-    <li><a href="../../rohd_hcl/rohd_hcl-library.html">rohd_hcl</a></li>
+    <li><a href="../../rohd_hcl">rohd_hcl</a></li>
     <li><a href="../../rohd_hcl/FloatingPointValue-class.html">FloatingPointValue</a></li>
     <li class="self-crumb">operator - method</li>
 </ol>
