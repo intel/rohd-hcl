@@ -294,7 +294,7 @@ void main() {
     expect(-sum.value.toBigInt(), equals(BigInt.from(18 - 24)));
   });
 
-  test('ones complement with boolean subtract', () {
+  test('ones complement adder: exhaustive with boolean subtract', () {
     const width = 2;
     final a = Logic(width: width);
     final b = Logic(width: width);
@@ -314,6 +314,41 @@ void main() {
           final expected = [if (subtract) av - bv else av + bv].first;
           expect(out, equals(expected));
         }
+      }
+    }
+  });
+
+  test('ones complement adder: random with boolean subtract', () {
+    const width = 4;
+    final a = Logic(width: width);
+    final b = Logic(width: width);
+    const nSamples = 100;
+
+    for (var i = 0; i < nSamples; i++) {
+      final av = Random().nextLogicValue(width: width);
+      final bv = Random().nextLogicValue(width: width);
+
+      for (final subtract in [true]) {
+        a.put(av);
+        b.put(bv);
+        final carry = Logic();
+        final adder = CarrySelectOnesComplementCompoundAdder(a, b,
+            subtract: subtract, carryOut: carry);
+        final mag = adder.sum.value.toInt() +
+            (subtract ? (carry.value.isZero ? 0 : 1) : 0);
+        final out = (adder.sign.value.toBool() ? -mag : mag);
+
+        // Use integer math to avoid twos-complement of av+bv
+        final expected = [
+          if (subtract) av.toInt() - bv.toInt() else av.toInt() + bv.toInt()
+        ].first;
+        expect(out, equals(expected), reason: '''
+      a=$av ${av.toInt()}
+      b=$bv ${bv.toInt()}
+      sum: 2s= ${(av + bv).toInt()} 1s=${av.toInt() + bv.toInt()}
+      output=$out
+      expected=$expected
+      ''');
       }
     }
   });

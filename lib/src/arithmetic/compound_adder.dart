@@ -8,44 +8,52 @@
 // 2024 September
 // Author: Anton Sorokin <anton.a.sorokin@intel.com>
 
+import 'package:meta/meta.dart';
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
 
 /// An abstract class for all compound adder module implementations.
 abstract class CompoundAdder extends Adder {
-  /// The addition result [sum] + 1 in 2s complement form as [sum1]
-  Logic get sum1 => output('sum1');
+  /// The addition result [sum] + 1 in 2s complement form as [sumP1]
+  Logic get sumP1 => output('sumP1');
 
-  /// Takes in input [a] and input [b] and return the [sum] of the addition
-  /// result and [sum1] sum + 1.
-  /// The width of input [a] and [b] must be the same.
+  /// Takes in input [a] and input [b] and return the [sum] as well as
+  /// [sumP1] which is [sum] plus 1.
+  /// The width of input [a] and [b] must be the same, both [sum] and
+  /// [sumP1] are one wider than the inputs.
   CompoundAdder(super.a, super.b,
-      {Logic? carryIn, super.name = 'compound_adders'}) {
+      {Logic? carryIn,
+      super.name = 'compound_adder',
+      super.definitionName = 'compound_adder'}) {
     if (a.width != b.width) {
       throw RohdHclException('inputs of a and b should have same width.');
     }
     if (carryIn != null) {
       throw RohdHclException("we don't support carryIn");
     }
-    addOutput('sum1', width: a.width + 1);
+    addOutput('sumP1', width: a.width + 1);
   }
 }
+
+/// Splitting algorithm Function
+typedef Splitter = List<int> Function(int adderWidth);
 
 /// A trivial compound adder.
 class TrivialCompoundAdder extends CompoundAdder {
   /// Constructs a [CompoundAdder].
   TrivialCompoundAdder(super.a, super.b,
-      {super.carryIn, super.name = 'trivial_compound_adder'}) {
+      {super.carryIn, super.name = 'trivial_compound_adder'})
+      : super(definitionName: 'trival_compound_adder') {
     sum <= a.zeroExtend(a.width + 1) + b.zeroExtend(b.width + 1);
-    sum1 <= sum + 1;
+    sumP1 <= sum + 1;
   }
 }
 
 /// Carry-select compound adder.
 class CarrySelectCompoundAdder extends CompoundAdder {
-  /// Adder ripple-carry block size computation algorithm.
+  /// Adder block size computation algorithm.
   /// Generates only one carry-select block
-  /// Return list of carry-ripple block sizes starting from
+  /// Return list of adder block sizes starting from
   /// the LSB connected one.
   /// [adderWidth] is a whole width of adder.
   static List<int> splitSelectAdderAlgorithmSingleBlock(int adderWidth) {
@@ -53,11 +61,12 @@ class CarrySelectCompoundAdder extends CompoundAdder {
     return splitData;
   }
 
-  /// Adder ripple-carry block size computation algorithm.
+  /// Adder  block size computation algorithm.
   /// Generates 4 bit carry-select blocks with 1st entry width adjusted down.
-  /// Return list of carry-ripple block sizes starting from
+  /// Return list of block sizes starting from
   /// the LSB connected one.
   /// [adderWidth] is a whole width of adder.
+  @Deprecated('use splitSelectAdderAlgorithmNBit instead')
   static List<int> splitSelectAdderAlgorithm4Bit(int adderWidth) {
     final blockNb = (adderWidth / 4.0).ceil();
     final firstBlockSize = adderWidth - (blockNb - 1) * 4;
@@ -68,27 +77,55 @@ class CarrySelectCompoundAdder extends CompoundAdder {
     return splitData;
   }
 
+  /// General width splitter
+  static List<int> _splitAdderNBitFunctor(int adderWidth, int n) {
+    final blockNb = (adderWidth / n).ceil();
+    final firstBlockSize = adderWidth - (blockNb - 1) * n;
+    final splitData = <int>[firstBlockSize];
+    for (var i = 1; i < blockNb; ++i) {
+      splitData.add(n);
+    }
+    return splitData;
+  }
+
+  /// Generator of splitter algorithm
+  static Splitter splitSelectAdderAlgorithmNBit(int n) =>
+      (adderWidth) => _splitAdderNBitFunctor(adderWidth, n);
+
+  /// Default adder functor to use.
+  static Adder defaultAdder(Logic a, Logic b,
+          {Logic? carryIn, Logic? subtractIn, String name = ''}) =>
+      ParallelPrefixAdder(a, b, carryIn: carryIn, name: name);
+
   /// Constructs a [CarrySelectCompoundAdder].
   CarrySelectCompoundAdder(super.a, super.b,
-      {Adder Function(Logic a, Logic b, {Logic? carryIn, String name})
-          adderGen = ParallelPrefixAdder.new,
+      {Adder Function(Logic a, Logic b,
+              {Logic? carryIn, Logic? subtractIn, String name})
+          adderGen = defaultAdder,
+      String? definitionName,
+      Logic? subtractIn,
       super.carryIn,
       super.name = 'cs_compound_adder',
-      List<int> Function(int) widthGen =
-          splitSelectAdderAlgorithmSingleBlock}) {
+      List<int> Function(int) widthGen = splitSelectAdderAlgorithmSingleBlock})
+      : super(
+            definitionName: definitionName ??
+                'CarrySelectCompoundAdder_${adderGen(a, b).definitionName}') {
+    subtractIn = (subtractIn != null)
+        ? addInput('subtractIn', subtractIn, width: subtractIn.width)
+        : null;
     // output bits lists
     final sumList0 = <Logic>[];
     final sumList1 = <Logic>[];
-    // carryout of previous ripple-carry adder block
+    // carryout of previous adder block
     // for sum and sum+1
     Logic? carry0;
     Logic? carry1;
-    // Get size of each ripple-carry adder block
+    // Get size of each adder block
     final adderSplit = widthGen(a.width);
     // 1st output bit index of each block
     var blockStartIdx = 0;
     for (var i = 0; i < adderSplit.length; ++i) {
-      // input width of current ripple-carry adder block
+      // input width of current adder block
       final blockWidth = adderSplit[i];
       if (blockWidth <= 0) {
         throw RohdHclException('non-positive adder block size.');
@@ -100,11 +137,11 @@ class CarrySelectCompoundAdder extends CompoundAdder {
       final blockB = Logic(name: 'block_${i}_b', width: blockWidth);
       blockA <= a.getRange(blockStartIdx, blockStartIdx + blockWidth);
       blockB <= b.getRange(blockStartIdx, blockStartIdx + blockWidth);
-      // Build ripple-carry adders for 0 and 1 carryin values
-      final fullAdder0 =
-          adderGen(blockA, blockB, carryIn: Const(0), name: 'block0_$i');
-      final fullAdder1 =
-          adderGen(blockA, blockB, carryIn: Const(1), name: 'block1_$i');
+      // Build sub adders for 0 and 1 carryin values
+      final fullAdder0 = adderGen(blockA, blockB,
+          subtractIn: subtractIn, carryIn: Const(0), name: 'block0_$i');
+      final fullAdder1 = adderGen(blockA, blockB,
+          subtractIn: subtractIn, carryIn: Const(1), name: 'block1_$i');
       for (var bitIdx = 0; bitIdx < blockWidth; ++bitIdx) {
         if (i == 0) {
           // connect directly to respective sum output bit
@@ -141,6 +178,101 @@ class CarrySelectCompoundAdder extends CompoundAdder {
     sumList1.add(carry1!);
 
     sum <= sumList0.rswizzle();
-    sum1 <= sumList1.rswizzle();
+    sumP1 <= sumList1.rswizzle();
+
+    // print('s  =${sum.value.bitString}');
+    // print('sp1=${sumP1.value.bitString}');
+  }
+}
+
+/// Carry-select ones-complement compound adder.
+class CarrySelectOnesComplementCompoundAdder extends CompoundAdder {
+  /// The sign of the [sum]
+  Logic get sign => output('sign');
+
+  /// The sign of the [sumP1]
+  Logic get signP1 => output('signP1');
+
+  /// The end-around carry for the [sum] should be added to it to get the final
+  /// result.
+  Logic? get carryOut => tryOutput('carryOut');
+
+  /// The end-around carry for the [sumP1] should be added to it to get the
+  /// final result.
+  Logic? get carryOutP1 => tryOutput('carryOutP1');
+
+  /// Subtraction controlled by an optional logic [subtractIn]
+  @protected
+  late final Logic? subtractIn;
+
+  /// Constructs a [CarrySelectCompoundAdder] using a set of
+  /// [OnesComplementAdder] in a carry-select configuration.
+  /// Adds (or subtracts) [a] and [b] to produce [sum] and [sumP1] (sum
+  /// plus 1).
+  /// - [adderGen] is the adder used inside the [OnesComplementAdder].
+  /// - [subtractIn] is an optional Logic control for subtraction.
+  /// - [subtract] is a boolean control for subtraction. It must be false
+  /// if a [subtractIn] is not null.
+  /// - [widthGen] is a function which produces a list for splitting
+  /// the adder for the carry-select chain.  The default is
+  /// [CarrySelectCompoundAdder.splitSelectAdderAlgorithmSingleBlock],
+  CarrySelectOnesComplementCompoundAdder(super.a, super.b,
+      {Adder Function(Logic, Logic, {Logic? carryIn}) adderGen =
+          ParallelPrefixAdder.new,
+      Logic? subtractIn,
+      Logic? carryOut,
+      Logic? carryOutP1,
+      bool subtract = false,
+      List<int> Function(int) widthGen =
+          CarrySelectCompoundAdder.splitSelectAdderAlgorithmSingleBlock,
+      super.name})
+      : super(
+            definitionName:
+                'CarrySelectOnesComplementCompoundAdder_W${a.width}') {
+    subtractIn = (subtractIn != null)
+        ? addInput('subtractIn', subtractIn, width: subtractIn.width)
+        : null;
+
+    if (carryOut != null) {
+      addOutput('carryOut');
+      carryOut <= this.carryOut!;
+    }
+    if (carryOutP1 != null) {
+      addOutput('carryOutP1');
+      carryOutP1 <= this.carryOutP1!;
+    }
+
+    final doSubtract = subtractIn ?? (subtract ? Const(subtract) : Const(0));
+
+    final csadder = CarrySelectCompoundAdder(a, b,
+        widthGen: widthGen,
+        subtractIn: subtractIn,
+        adderGen: (a, b, {carryIn, subtractIn, name = 'ones_complement'}) =>
+            OnesComplementAdder(a, b,
+                adderGen: adderGen,
+                carryIn: carryIn,
+                carryOut: Logic(),
+                subtract: subtract,
+                chainable: true,
+                subtractIn: subtractIn));
+
+    addOutput('sign') <= mux(doSubtract, ~csadder.sum[-1], Const(0));
+    addOutput('signP1') <= mux(doSubtract, ~csadder.sumP1[-1], Const(0));
+    final sumPlus1 =
+        mux(doSubtract & csadder.sumP1[-1], ~csadder.sumP1, csadder.sumP1);
+    if (carryOutP1 != null) {
+      sumP1 <= sumPlus1;
+
+      this.carryOutP1! <= csadder.sumP1[-1];
+    } else {
+      final incrementer = ParallelPrefixIncr(sumPlus1);
+      sumP1 <= incrementer.out.named('sum_plus2');
+    }
+    if (carryOut != null) {
+      sum <= mux(doSubtract & csadder.sum[-1], ~csadder.sum, csadder.sum);
+      this.carryOut! <= csadder.sum[-1];
+    } else {
+      sum <= sumPlus1;
+    }
   }
 }
