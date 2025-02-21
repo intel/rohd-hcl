@@ -39,11 +39,11 @@ class FloatingPointAdderSimple extends FloatingPointAdder {
 
     final (larger, smaller) = sortFp((super.a, super.b));
 
-    final isInf = (larger.isInfinity | smaller.isInfinity).named('isInf');
+    final isInf = (larger.isAnInfinity | smaller.isAnInfinity).named('isInf');
     final isNaN = (larger.isNaN |
             smaller.isNaN |
-            (larger.isInfinity &
-                smaller.isInfinity &
+            (larger.isAnInfinity &
+                smaller.isAnInfinity &
                 (larger.sign ^ smaller.sign)))
         .named('isNaN');
 

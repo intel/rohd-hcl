@@ -18,8 +18,9 @@ void main() async {
     final dut = FloatToFixed(float);
     await dut.build();
     for (var val = 0; val < pow(2, 8); val++) {
-      final fpv = FloatingPointValue.ofLogicValue(
-          5, 2, LogicValue.ofInt(val, float.width));
+      final fpv =
+          FloatingPointValue.populator(exponentWidth: 5, mantissaWidth: 2)
+              .ofLogicValue(LogicValue.ofInt(val, float.width));
       if (!fpv.isAnInfinity & !fpv.isNaN) {
         float.put(fpv);
         final fxp = dut.fixed;
@@ -39,8 +40,9 @@ void main() async {
         for (final negate in [false, true]) {
           for (var e1 = 0; e1 < pow(2, sEW) - 1; e1++) {
             for (var m1 = 0; m1 < pow(2, sMW); m1++) {
-              final fv1 = FloatingPointValue.ofInts(e1, m1,
-                  exponentWidth: sEW, mantissaWidth: sMW, sign: negate);
+              final fv1 = FloatingPointValue.populator(
+                      exponentWidth: sEW, mantissaWidth: sMW)
+                  .ofInts(e1, m1, sign: negate);
               fp1.put(fv1.value);
               final fx2 = convert.fixed;
               final dbl = fx2.fixedPointValue.toDouble();
@@ -69,8 +71,9 @@ void main() async {
             for (final negate in [false, true]) {
               for (var e1 = 0; e1 < pow(2, sEW) - 1; e1++) {
                 for (var m1 = 0; m1 < pow(2, sMW); m1++) {
-                  final fv1 = FloatingPointValue.ofInts(e1, m1,
-                      exponentWidth: sEW, mantissaWidth: sMW, sign: negate);
+                  final fv1 = FloatingPointValue.populator(
+                          exponentWidth: sEW, mantissaWidth: sMW)
+                      .ofInts(e1, m1, sign: negate);
                   fp1.put(fv1.value);
                   final val = fv1.toDouble();
                   if (FixedPointValue.canStore(val,
@@ -117,8 +120,9 @@ void main() async {
           for (final negate in [false, true]) {
             for (var e1 = 0; e1 < pow(2, sEW) - 1; e1++) {
               for (var m1 = 0; m1 < pow(2, sMW); m1++) {
-                final fv1 = FloatingPointValue.ofInts(e1, m1,
-                    exponentWidth: sEW, mantissaWidth: sMW, sign: negate);
+                final fv1 = FloatingPointValue.populator(
+                        exponentWidth: sEW, mantissaWidth: sMW)
+                    .ofInts(e1, m1, sign: negate);
                 fp1.put(fv1.value);
                 final fxc = convert.fixed;
 
@@ -158,8 +162,9 @@ void main() async {
           for (final negate in [false, true]) {
             for (var e1 = 0; e1 < pow(2, sEW) - 1; e1++) {
               for (var m1 = 0; m1 < pow(2, sMW); m1++) {
-                final fv1 = FloatingPointValue.ofInts(e1, m1,
-                    exponentWidth: sEW, mantissaWidth: sMW, sign: negate);
+                final fv1 = FloatingPointValue.populator(
+                        exponentWidth: sEW, mantissaWidth: sMW)
+                    .ofInts(e1, m1, sign: negate);
                 fp1.put(fv1.value);
                 final fx2 = convert.fixed;
                 final dbl = fx2.fixedPointValue.toDouble();
@@ -186,8 +191,9 @@ void main() async {
         for (final negate in [false, true]) {
           for (var e1 = 0; e1 < pow(2, sEW) - 1; e1++) {
             for (var m1 = 0; m1 < pow(2, sMW); m1++) {
-              final fv1 = FloatingPointValue.ofInts(e1, m1,
-                  exponentWidth: sEW, mantissaWidth: sMW, sign: negate);
+              final fv1 = FloatingPointValue.populator(
+                      exponentWidth: sEW, mantissaWidth: sMW)
+                  .ofInts(e1, m1, sign: negate);
               fp1.put(fv1.value);
               final fx2 = convert.fixed;
               final dbl = fx2.fixedPointValue.toDouble();
@@ -209,8 +215,9 @@ void main() async {
     // E4M3
     mode.put(1);
     for (var val = 0; val < pow(2, 8); val++) {
-      final fp8 = FloatingPointValue.ofLogicValue(
-          4, 3, LogicValue.ofInt(val, float.width));
+      final fp8 =
+          FloatingPointValue.populator(exponentWidth: 4, mantissaWidth: 3)
+              .ofLogicValue(LogicValue.ofInt(val, float.width));
       if (!fp8.isNaN & !fp8.isAnInfinity) {
         float.put(fp8.value);
         final fx8 =
@@ -223,8 +230,9 @@ void main() async {
     // E5M2
     mode.put(0);
     for (var val = 0; val < pow(2, 8); val++) {
-      final fp8 = FloatingPointValue.ofLogicValue(
-          5, 2, LogicValue.ofInt(val, float.width));
+      final fp8 =
+          FloatingPointValue.populator(exponentWidth: 5, mantissaWidth: 2)
+              .ofLogicValue(LogicValue.ofInt(val, float.width));
       if (!fp8.isNaN & !fp8.isAnInfinity) {
         float.put(fp8.value);
         final fx8 = FixedPointValue.ofDouble(fp8.toDouble(),
@@ -236,8 +244,8 @@ void main() async {
   });
   test('FloatToFixed: BF16 singleton', () {
     final bf16 = FloatingPointBF16();
-    final bf16Val =
-        FloatingPointBF16Value.ofBinaryStrings('0', '00000000', '0000010');
+    final bf16Val = FloatingPointBF16Value.populator()
+        .ofBinaryStrings('0', '00000000', '0000010');
     bf16.put(bf16Val);
     const m = 18;
     const n = 16;
@@ -265,7 +273,7 @@ void main() async {
     final convert = FloatToFixed(bf16, m: m, n: n);
     for (var i = 0; i < pow(2, 16); i++) {
       final val = LogicValue.ofInt(i, 16);
-      final bf16Val = FloatingPointBF16Value.ofLogicValue(val);
+      final bf16Val = FloatingPointBF16Value.populator().ofLogicValue(val);
       bf16.put(bf16Val);
       final expectedDbl = bf16Val.toDouble();
 

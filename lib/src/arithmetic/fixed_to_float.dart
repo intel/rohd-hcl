@@ -40,7 +40,7 @@ class FixedToFloat extends Module {
     fixed = fixed.clone()..gets(addInput('fixed', fixed, width: fixed.width));
     addOutput('float', width: _float.width) <= _float;
 
-    final bias = FloatingPointValue.computeBias(exponentWidth);
+    final bias = float.floatingPointValue.bias;
     final eMax = pow(2, exponentWidth) - 2;
     final iWidth =
         (2 + max(fixed.n, max(log2Ceil(fixed.width), exponentWidth))).toInt();
