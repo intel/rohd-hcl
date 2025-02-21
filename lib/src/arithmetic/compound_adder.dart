@@ -35,6 +35,9 @@ abstract class CompoundAdder extends Adder {
   }
 }
 
+/// Splitting algorithm Function
+typedef Splitter = List<int> Function(int adderWidth);
+
 /// A trivial compound adder.
 class TrivialCompoundAdder extends CompoundAdder {
   /// Constructs a [CompoundAdder].

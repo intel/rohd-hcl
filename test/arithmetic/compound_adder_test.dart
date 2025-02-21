@@ -103,7 +103,6 @@ void main() {
       expect(adder.sumP1.value.toInt(), equals(randA + randB + 1));
     }
   });
-
   test('CarrySelectAdder ones complement: basic cases', () {
     const width = 8;
     final a = Logic(width: width);
