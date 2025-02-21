@@ -18,6 +18,7 @@ class FloatingPoint8E4M3 extends FloatingPoint {
       : super(
             mantissaWidth: FloatingPoint8E4M3Value.populator().mantissaWidth,
             exponentWidth: FloatingPoint8E4M3Value.populator().exponentWidth);
+
   @override
   FloatingPoint8E4M3 clone({String? name}) => FloatingPoint8E4M3(name: name);
 

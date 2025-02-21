@@ -18,6 +18,7 @@ class FloatingPoint16 extends FloatingPoint {
       : super(
             mantissaWidth: FloatingPoint16Value.populator().mantissaWidth,
             exponentWidth: FloatingPoint16Value.populator().exponentWidth);
+
   @override
   FloatingPoint16 clone({String? name}) => FloatingPoint16(name: name);
 
