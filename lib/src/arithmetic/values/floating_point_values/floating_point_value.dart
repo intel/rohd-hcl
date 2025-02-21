@@ -314,9 +314,6 @@ class FloatingPointValue implements Comparable<FloatingPointValue> {
       } else if (!isNaN) {
         doubleVal = (sign.toBool() ? -1.0 : 1.0) *
             (1.0 + mantissa.toBigInt().toDouble() / pow(2.0, mantissa.width)) *
-            pow(2.0, exponent.toInt().toSigned(exponent.width) - bias);
-        doubleVal = (sign.toBool() ? -1.0 : 1.0) *
-            (1.0 + mantissa.toBigInt().toDouble() / pow(2.0, mantissa.width)) *
             pow(2.0, exponent.toInt() - bias);
       }
     }
