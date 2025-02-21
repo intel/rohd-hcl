@@ -36,18 +36,14 @@ class Axi4Channel {
   /// Constructor.
   Axi4Channel({
     this.channelId = 0,
-    this.hasRead = true,
-    this.hasWrite = true,
     this.rIntf,
     this.wIntf,
-  })  : assert(
-            hasRead || hasWrite,
+  })  : hasRead = rIntf != null,
+        hasWrite = wIntf != null,
+        assert(
+            rIntf != null || wIntf != null,
             'A channel must support either'
-            ' reads or writes (or both)'),
-        assert(!hasRead || rIntf != null,
-            'A channel that supports reads must have a read interface'),
-        assert(!hasWrite || wIntf != null,
-            'A channel that supports writes must have a write interface');
+            ' reads or writes (or both)');
 }
 
 /// An agent for sending requests on

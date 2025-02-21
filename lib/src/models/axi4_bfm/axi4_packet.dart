@@ -92,7 +92,7 @@ abstract class Axi4RequestPacket extends SequenceItem implements Trackable {
       case Axi4Tracker.timeField:
         return Simulator.time.toString();
       case Axi4Tracker.idField:
-        return Simulator.time.toString();
+        return id.toString();
       case Axi4Tracker.addrField:
         return addr.toString();
       case Axi4Tracker.lenField:

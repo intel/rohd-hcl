@@ -22,8 +22,6 @@ class Axi4Subordinate extends Module {
     for (var i = 0; i < channels.length; i++) {
       channelsL.add(Axi4Channel(
           channelId: channels[i].channelId,
-          hasRead: channels[i].hasRead,
-          hasWrite: channels[i].hasWrite,
           rIntf: channels[i].hasRead
               ? (Axi4ReadInterface.clone(channels[i].rIntf!)
                 ..connectIO(this, channels[i].rIntf!,
@@ -49,8 +47,6 @@ class Axi4Main extends Module {
     for (var i = 0; i < channels.length; i++) {
       channelsL.add(Axi4Channel(
           channelId: channels[i].channelId,
-          hasRead: channels[i].hasRead,
-          hasWrite: channels[i].hasWrite,
           rIntf: channels[i].hasRead
               ? (Axi4ReadInterface.clone(channels[i].rIntf!)
                 ..connectIO(this, channels[i].rIntf!,
@@ -88,8 +84,6 @@ class Axi4Pair extends Module {
           channelConfigs[i] == Axi4BfmTestChannelConfig.readWrite;
       channels.add(Axi4Channel(
           channelId: i,
-          hasRead: hasRead,
-          hasWrite: hasWrite,
           rIntf: hasRead ? Axi4ReadInterface() : null,
           wIntf: hasWrite ? Axi4WriteInterface() : null));
     }

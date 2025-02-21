@@ -218,14 +218,14 @@ class Axi4SubordinateAgent extends Agent {
   // assesses the input ready signals and drives them appropriately
   void _driveReadReadys({int index = 0}) {
     // for now, assume we can always handle a new request
-    channels[index].rIntf!.arReady.put(true);
+    channels[index].rIntf!.arReady.inject(true);
   }
 
   // assesses the input ready signals and drives them appropriately
   void _driveWriteReadys({int index = 0}) {
     // for now, assume we can always handle a new request
-    channels[index].wIntf!.awReady.put(true);
-    channels[index].wIntf!.wReady.put(true);
+    channels[index].wIntf!.awReady.inject(true);
+    channels[index].wIntf!.wReady.inject(true);
   }
 
   /// Receives one packet (or returns if not selected).
@@ -396,14 +396,14 @@ class Axi4SubordinateAgent extends Agent {
       // }
 
       // for now, only support sending slvErr and okay as responses
-      rIntf.rValid.put(true);
-      rIntf.rId?.put(packet.id);
-      rIntf.rData.put(currData);
-      rIntf.rResp?.put(error || accessError || reqSideError
+      rIntf.rValid.inject(true);
+      rIntf.rId?.inject(packet.id);
+      rIntf.rData.inject(currData);
+      rIntf.rResp?.inject(error || accessError || reqSideError
           ? LogicValue.ofInt(Axi4RespField.slvErr.value, rIntf.rResp!.width)
           : LogicValue.ofInt(Axi4RespField.okay.value, rIntf.rResp!.width));
-      rIntf.rUser?.put(0); // don't support user field for now
-      rIntf.rLast?.put(last);
+      rIntf.rUser?.inject(0); // don't support user field for now
+      rIntf.rLast?.inject(last);
 
       if (last || accessError) {
         // pop this read response off the queue
@@ -419,7 +419,7 @@ class Axi4SubordinateAgent extends Agent {
         logger.info('Still sending the read response for channel $index.');
       }
     } else {
-      rIntf.rValid.put(false);
+      rIntf.rValid.inject(false);
     }
   }
 
@@ -597,12 +597,12 @@ class Axi4SubordinateAgent extends Agent {
         final error = respondWithError != null && respondWithError!(packet);
 
         // for now, only support sending slvErr and okay as responses
-        wIntf.bValid.put(true);
-        wIntf.bId?.put(packet.id);
-        wIntf.bResp?.put(error || accessError || rmwErr || hardLockErr
+        wIntf.bValid.inject(true);
+        wIntf.bId?.inject(packet.id);
+        wIntf.bResp?.inject(error || accessError || rmwErr || hardLockErr
             ? LogicValue.ofInt(Axi4RespField.slvErr.value, wIntf.bResp!.width)
             : LogicValue.ofInt(Axi4RespField.okay.value, wIntf.bResp!.width));
-        wIntf.bUser?.put(0); // don't support user field for now
+        wIntf.bUser?.inject(0); // don't support user field for now
 
         // TODO: how to deal with delays??
         // if (readResponseDelay != null) {
@@ -648,7 +648,7 @@ class Axi4SubordinateAgent extends Agent {
         logger.info('Sent write response on channel $index.');
       }
     } else {
-      wIntf.bValid.put(false);
+      wIntf.bValid.inject(false);
     }
   }
 }

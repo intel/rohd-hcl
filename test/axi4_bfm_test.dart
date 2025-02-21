@@ -96,7 +96,6 @@ class Axi4BfmTest extends Test {
       } else if (channelConfigs[i] == Axi4BfmTestChannelConfig.read) {
         channels.add(Axi4Channel(
           channelId: i,
-          hasWrite: false,
           rIntf: Axi4ReadInterface(
             addrWidth: addrWidth,
             dataWidth: dataWidth,
@@ -108,7 +107,6 @@ class Axi4BfmTest extends Test {
       } else if (channelConfigs[i] == Axi4BfmTestChannelConfig.write) {
         channels.add(Axi4Channel(
           channelId: i,
-          hasRead: false,
           wIntf: Axi4WriteInterface(
             addrWidth: addrWidth,
             dataWidth: dataWidth,
