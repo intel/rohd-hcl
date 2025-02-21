@@ -13,7 +13,7 @@ import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
 
 /// Base class for priority encoders.
-abstract class PriorityEncoder extends Module {
+class PriorityEncoder extends Module {
   /// The input bitvector
   Logic get inp => input('inp');
 
