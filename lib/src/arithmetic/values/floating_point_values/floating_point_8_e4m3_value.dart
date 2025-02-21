@@ -12,7 +12,6 @@
 import 'package:meta/meta.dart';
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
-import 'package:rohd_hcl/src/arithmetic/values/floating_point_values/floating_point_exceptions.dart';
 
 /// The E4M3 representation of a 8-bit floating point value as defined in
 /// [FP8 Formats for Deep Learning](https://arxiv.org/abs/2209.05433).

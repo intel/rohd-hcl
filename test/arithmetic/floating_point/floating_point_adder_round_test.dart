@@ -202,16 +202,16 @@ void main() {
     final adder = FloatingPointAdderRound(clk: clk, fp1, fp2);
     await adder.build();
     unawaited(Simulator.run());
-    final value = Random(47);
+    final rand = Random(47);
 
     var cnt = 200;
     while (cnt > 0) {
       final fv1 = FloatingPointValue.populator(
               exponentWidth: exponentWidth, mantissaWidth: mantissaWidth)
-          .random(value);
+          .random(rand);
       final fv2 = FloatingPointValue.populator(
               exponentWidth: exponentWidth, mantissaWidth: mantissaWidth)
-          .random(value);
+          .random(rand);
       fp1.put(fv1);
       fp2.put(fv2);
       if ((fv1.exponent.toInt() - fv2.exponent.toInt()).abs() >= 2) {
@@ -294,16 +294,16 @@ void main() {
     final adder = FloatingPointAdderRound(fp1, fp2);
     await adder.build();
     unawaited(Simulator.run());
-    final value = Random(51);
+    final rand = Random(51);
 
     var cnt = 100;
     while (cnt > 0) {
       final fv1 = FloatingPointValue.populator(
               exponentWidth: exponentWidth, mantissaWidth: mantissaWidth)
-          .random(value);
+          .random(rand);
       final fv2 = FloatingPointValue.populator(
               exponentWidth: exponentWidth, mantissaWidth: mantissaWidth)
-          .random(value);
+          .random(rand);
       fp1.put(fv1);
       fp2.put(fv2);
       final expected = fv1 + fv2;

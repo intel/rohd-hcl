@@ -22,21 +22,21 @@ import 'package:rohd_hcl/rohd_hcl.dart';
 /// capture the negative exponent value.
 @immutable
 class FloatingPointValue implements Comparable<FloatingPointValue> {
-  /// The full floating point value bit storage
+  /// The full floating point value concatenated as a [LogicValue].
   late final LogicValue value = [sign, exponent, mantissa].swizzle();
 
-  /// The sign of the value:  1 means a negative value
+  /// The sign of the value: 1 means a negative value.
   late final LogicValue sign;
 
   /// The exponent of the floating point: this is biased about a midpoint for
-  /// positive and negative exponents
+  /// positive and negative exponents.
   late final LogicValue exponent;
 
   /// The [exponent] width.
   int get exponentWidth => _exponentWidth;
   late final int _exponentWidth;
 
-  /// The mantissa of the floating point
+  /// The mantissa of the floating point.
   late final LogicValue mantissa;
 
   /// The [mantissa] width.
@@ -61,7 +61,6 @@ class FloatingPointValue implements Comparable<FloatingPointValue> {
 
   /// Constructor for a [FloatingPointValue] with the provided [sign],
   /// [exponent], and [mantissa].
-  @protected
   factory FloatingPointValue(
           {required LogicValue sign,
           required LogicValue exponent,
@@ -277,11 +276,11 @@ class FloatingPointValue implements Comparable<FloatingPointValue> {
   bool get isMantissaAllZeroes => mantissa.or() == LogicValue.zero;
 
   /// Return true if the represented floating point number is considered
-  ///  NaN or 'Not a Number'
+  /// NaN or "Not a Number".
   bool get isNaN => isExponentAllOnes && !isMantissaAllZeroes;
 
   /// Return true if the represented floating point number is considered
-  ///  'subnormal', including [isAZero].
+  /// "subnormal", including [isAZero].
   bool isSubnormal() => isExponentAllZeros;
 
   /// Return true if the represented floating point number is considered
@@ -315,9 +314,6 @@ class FloatingPointValue implements Comparable<FloatingPointValue> {
       } else if (!isNaN) {
         doubleVal = (sign.toBool() ? -1.0 : 1.0) *
             (1.0 + mantissa.toBigInt().toDouble() / pow(2.0, mantissa.width)) *
-            pow(2.0, exponent.toInt().toSigned(exponent.width) - bias);
-        doubleVal = (sign.toBool() ? -1.0 : 1.0) *
-            (1.0 + mantissa.toBigInt().toDouble() / pow(2.0, mantissa.width)) *
             pow(2.0, exponent.toInt() - bias);
       }
     }
@@ -325,12 +321,13 @@ class FloatingPointValue implements Comparable<FloatingPointValue> {
   }
 
   /// Return a Logic true if this FloatingPointVa;ie contains a normal number,
-  /// defined as having mantissa in the range [1,2)
+  /// defined as having mantissa in the range `[1,2)`.
   bool isNormal() => exponent != LogicValue.ofInt(0, exponent.width);
 
   /// Return a string representation of FloatingPointValue.
-  /// if [integer] is true, return sign, exponent, mantissa as integers.
-  /// if [integer] is false, return sign, exponent, mantissa as ibinary strings.
+  ///
+  /// If [integer] is `true`, returns sign, exponent, mantissa as integers. If
+  /// [integer] is `false`, returns sign, exponent, mantissa as binary strings.
   @override
   String toString({bool integer = false}) {
     if (integer) {
@@ -345,6 +342,9 @@ class FloatingPointValue implements Comparable<FloatingPointValue> {
   }
 
   // TODO(desmonddak): what about floating point representations >> 64 bits?
+
+  /// Performs an operation [op] between this [FloatingPointValue] and another
+  /// [FloatingPointValue] [other].
   FloatingPointValue _performOp(
       FloatingPointValue other, double Function(double a, double b) op) {
     // make sure multiplicand has the same sizes as this
@@ -360,7 +360,7 @@ class FloatingPointValue implements Comparable<FloatingPointValue> {
     return clonePopulator().ofDouble(op(toDouble(), other.toDouble()));
   }
 
-  /// Multiply operation for [FloatingPointValue]
+  /// Multiply operation for [FloatingPointValue].
   FloatingPointValue operator *(FloatingPointValue multiplicand) {
     if (isAnInfinity) {
       if (multiplicand.isAnInfinity) {
@@ -382,7 +382,7 @@ class FloatingPointValue implements Comparable<FloatingPointValue> {
     return _performOp(multiplicand, (a, b) => a * b);
   }
 
-  /// Addition operation for [FloatingPointValue]
+  /// Addition operation for [FloatingPointValue].
   FloatingPointValue operator +(FloatingPointValue addend) {
     if (isAnInfinity) {
       if (addend.isAnInfinity) {
@@ -402,7 +402,7 @@ class FloatingPointValue implements Comparable<FloatingPointValue> {
     return _performOp(addend, (a, b) => a + b);
   }
 
-  /// Divide operation for [FloatingPointValue]
+  /// Divide operation for [FloatingPointValue].
   FloatingPointValue operator /(FloatingPointValue divisor) {
     if (isAnInfinity) {
       if (divisor.isAnInfinity | divisor.isAZero) {
@@ -420,7 +420,7 @@ class FloatingPointValue implements Comparable<FloatingPointValue> {
     return _performOp(divisor, (a, b) => a / b);
   }
 
-  /// Subtract operation for [FloatingPointValue]
+  /// Subtract operation for [FloatingPointValue].
   FloatingPointValue operator -(FloatingPointValue subend) {
     if (isAnInfinity & subend.isAnInfinity) {
       if (sign == subend.sign) {
@@ -436,18 +436,18 @@ class FloatingPointValue implements Comparable<FloatingPointValue> {
     return _performOp(subend, (a, b) => a - b);
   }
 
-  /// Negate operation for [FloatingPointValue]
+  /// Negate operation for [FloatingPointValue].
   FloatingPointValue negate() => clonePopulator().populate(
       sign: sign.isZero ? LogicValue.one : LogicValue.zero,
       exponent: exponent,
       mantissa: mantissa);
 
-  /// Absolute value operation for [FloatingPointValue]
+  /// Absolute value operation for [FloatingPointValue].
   FloatingPointValue abs() => clonePopulator()
       .populate(sign: LogicValue.zero, exponent: exponent, mantissa: mantissa);
 
-  /// Return true if the other [FloatingPointValue] is within a rounding
-  /// error of this value.
+  /// Return true if the other [FloatingPointValue] is within a rounding error
+  /// of this value.
   bool withinRounding(FloatingPointValue other) {
     if (this != other) {
       final diff = (abs() - other.abs()).abs();
@@ -458,7 +458,7 @@ class FloatingPointValue implements Comparable<FloatingPointValue> {
     return true;
   }
 
-  /// Compute the unit in the last place for the given [FloatingPointValue]
+  /// Compute the unit in the last place for the given [FloatingPointValue].
   FloatingPointValue ulp() {
     if (exponent.toInt() > mantissa.width) {
       final newExponent =

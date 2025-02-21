@@ -160,10 +160,7 @@ void main() {
   test('FPV: E4M3', () {
     final corners = [
       ['0 0000 000', 0.toDouble()],
-      // TODO(desmonddak): put this test back after virtualizing subclasses
-      // The issue is factor method ofDouble cannot call overridden methods
-      // to comprehend specialization like differente exponent limits.
-      // ['0 1111 110', 448.toDouble()],
+      ['0 1111 110', 448.toDouble()],
       ['0 0001 000', pow(2, -6).toDouble()],
       ['0 0000 111', 0.875 * pow(2, -6).toDouble()],
       ['0 0000 001', pow(2, -9).toDouble()],
@@ -302,9 +299,9 @@ void main() {
               continue;
             }
           }
+
           test(c.name, () {
             p().ofConstant(c);
-            //TODO: is there more to check here?
           });
         }
       });
