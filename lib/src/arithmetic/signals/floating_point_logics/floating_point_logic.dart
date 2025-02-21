@@ -8,8 +8,8 @@
 // Authors:
 //  Max Korbel <max.korbel@intel.com>
 //  Desmond A Kirkpatrick <desmond.a.kirkpatrick@intel.com
-//
 
+import 'package:meta/meta.dart';
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
 
@@ -33,7 +33,7 @@ class FloatingPoint extends LogicStructure {
     return '${structName}_$signalName';
   }
 
-  /// [FloatingPoint] Constructor for a variable size binary
+  /// [FloatingPoint] constructor for a variable size binary
   /// floating point number
   FloatingPoint(
       {required int exponentWidth, required int mantissaWidth, String? name})
@@ -49,9 +49,11 @@ class FloatingPoint extends LogicStructure {
                 naming: Naming.mergeable),
             name: name);
 
+  /// [FloatingPoint] internal constructor.
   FloatingPoint._(this.sign, this.exponent, this.mantissa, {super.name})
       : super([mantissa, exponent, sign]);
 
+  @mustBeOverridden
   @override
   FloatingPoint clone({String? name}) => FloatingPoint(
         exponentWidth: exponent.width,
@@ -59,9 +61,19 @@ class FloatingPoint extends LogicStructure {
         name: name,
       );
 
-  /// Return the [FloatingPointValue]
-  FloatingPointValue get floatingPointValue => FloatingPointValue(
-      sign: sign.value, exponent: exponent.value, mantissa: mantissa.value);
+  /// A [FloatingPointValuePopulator] for values associated with this
+  /// [FloatingPoint] type.
+  @mustBeOverridden
+  FloatingPointValuePopulator valuePopulator() => FloatingPointValue.populator(
+      exponentWidth: exponent.width, mantissaWidth: mantissa.width);
+
+  /// Return the [FloatingPointValue] of the current [value].
+  FloatingPointValue get floatingPointValue =>
+      valuePopulator().ofFloatingPoint(this);
+
+  /// Return the [FloatingPointValue] of the [previousValue].
+  FloatingPointValue? get previousFloatingPointValue =>
+      valuePopulator().ofFloatingPointPrevious(this);
 
   /// Return a Logic true if this FloatingPoint contains a normal number,
   /// defined as having mantissa in the range [1,2)
@@ -72,7 +84,7 @@ class FloatingPoint extends LogicStructure {
   /// Return a Logic true if this FloatingPoint is Not a Number (NaN)
   /// by having its exponent field set to the NaN value (typically all
   /// ones) and a non-zero mantissa.
-  late final isNaN = exponent.eq(floatingPointValue.nan.exponent) &
+  late final isNaN = exponent.eq(valuePopulator().nan.exponent) &
       mantissa.or().named(
             _nameJoin('isNaN', name),
             naming: Naming.mergeable,
@@ -81,16 +93,24 @@ class FloatingPoint extends LogicStructure {
   /// Return a Logic true if this FloatingPoint is an infinity
   /// by having its exponent field set to the NaN value (typically all
   /// ones) and a zero mantissa.
-  late final isInfinity =
-      (exponent.eq(floatingPointValue.infinity.exponent) & ~mantissa.or())
-          .named(_nameJoin('isInfinity', name), naming: Naming.mergeable);
+  late final isAnInfinity = (floatingPointValue.supportsInfinities
+          ? exponent.isIn([
+                valuePopulator().positiveInfinity.exponent,
+                valuePopulator().negativeInfinity.exponent,
+              ]) &
+              ~mantissa.or()
+          : Const(0))
+      .named(_nameJoin('isAnInfinity', name), naming: Naming.mergeable);
 
   /// Return a Logic true if this FloatingPoint is an zero
   /// by having its exponent field set to the NaN value (typically all
   /// ones) and a zero mantissa.
-  late final isZero =
-      (exponent.eq(floatingPointValue.zero.exponent) & ~mantissa.or())
-          .named(_nameJoin('isZero', name), naming: Naming.mergeable);
+  late final isAZero = (exponent.isIn([
+            valuePopulator().positiveZero.exponent,
+            valuePopulator().negativeZero.exponent,
+          ]) &
+          ~mantissa.or())
+      .named(_nameJoin('isAZero', name), naming: Naming.mergeable);
 
   /// Return the zero exponent representation for this type of FloatingPoint
   late final zeroExponent = Const(LogicValue.zero, width: exponent.width)
@@ -145,71 +165,4 @@ class FloatingPoint extends LogicStructure {
     final mantissa = Const(1, width: mantissaWidth);
     return FloatingPoint._(signLogic, exponent, mantissa);
   }
-}
-
-/// Single floating point representation
-class FloatingPoint32 extends FloatingPoint {
-  /// Construct a 32-bit (single-precision) floating point number
-  FloatingPoint32({super.name})
-      : super(
-            exponentWidth: FloatingPoint32Value.exponentWidth,
-            mantissaWidth: FloatingPoint32Value.mantissaWidth);
-
-  @override
-  FloatingPoint32 clone({String? name}) => FloatingPoint32(name: name);
-}
-
-/// Double floating point representation
-class FloatingPoint64 extends FloatingPoint {
-  /// Construct a 64-bit (double-precision) floating point number
-  FloatingPoint64({super.name})
-      : super(
-            exponentWidth: FloatingPoint64Value.exponentWidth,
-            mantissaWidth: FloatingPoint64Value.mantissaWidth);
-  @override
-  FloatingPoint64 clone({String? name}) => FloatingPoint64(name: name);
-}
-
-/// Eight-bit floating point representation for deep learning: E4M3
-class FloatingPoint8E4M3 extends FloatingPoint {
-  /// Construct an 8-bit floating point number
-  FloatingPoint8E4M3({super.name})
-      : super(
-            mantissaWidth: FloatingPoint8E4M3Value.mantissaWidth,
-            exponentWidth: FloatingPoint8E4M3Value.exponentWidth);
-  @override
-  FloatingPoint8E4M3 clone({String? name}) => FloatingPoint8E4M3(name: name);
-}
-
-/// Eight-bit floating point representation for deep learning: E5M2
-class FloatingPoint8E5M2 extends FloatingPoint {
-  /// Construct an 8-bit floating point number
-  FloatingPoint8E5M2({super.name})
-      : super(
-            mantissaWidth: FloatingPoint8E5M2Value.mantissaWidth,
-            exponentWidth: FloatingPoint8E5M2Value.exponentWidth);
-  @override
-  FloatingPoint8E5M2 clone({String? name}) => FloatingPoint8E5M2(name: name);
-}
-
-/// Sixteen-bit BF16 floating point representation
-class FloatingPointBF16 extends FloatingPoint {
-  /// Construct a BF16 16-bit floating point number
-  FloatingPointBF16({super.name})
-      : super(
-            mantissaWidth: FloatingPointBF16Value.mantissaWidth,
-            exponentWidth: FloatingPointBF16Value.exponentWidth);
-  @override
-  FloatingPointBF16 clone({String? name}) => FloatingPointBF16(name: name);
-}
-
-/// Sixteen-bit floating point representation
-class FloatingPoint16 extends FloatingPoint {
-  /// Construct a 16-bit floating point number
-  FloatingPoint16({super.name})
-      : super(
-            mantissaWidth: FloatingPoint16Value.mantissaWidth,
-            exponentWidth: FloatingPoint16Value.exponentWidth);
-  @override
-  FloatingPoint16 clone({String? name}) => FloatingPoint16(name: name);
 }

@@ -77,10 +77,10 @@ class FloatingPointMultiplierSimple extends FloatingPointMultiplier {
     // the product mantissa width.  Today it simply is expanded only, but
     // upon narrowing, it will need to truncate for simple multiplication.
 
-    final isInf = (a.isInfinity | b.isInfinity).named('isInf');
+    final isInf = (a.isAnInfinity | b.isAnInfinity).named('isInf');
     final isNaN = (a.isNaN |
             b.isNaN |
-            ((a.isInfinity | b.isInfinity) & (a.isZero | b.isZero)))
+            ((a.isAnInfinity | b.isAnInfinity) & (a.isAZero | b.isAZero)))
         .named('isNaN');
 
     final productExpLatch = localFlop(productExp);

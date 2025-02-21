@@ -94,10 +94,10 @@ void testPartialProductRandom(PartialProductGeneratorBase pp, int iterations) {
       'SM=${pp.signedMultiplier ? 1 : 0} '
       'SelD=${pp.selectSignedMultiplicand != null ? 1 : 0} '
       'SelM=${pp.selectSignedMultiplier != null ? 1 : 0}', () async {
-    final value = Random(47);
+    final rand = Random(47);
     for (var i = 0; i < iterations; i++) {
       for (final multiplicandSign in multiplicandSigns) {
-        final X = value
+        final X = rand
             .nextLogicValue(width: widthX)
             .toBigInt()
             .toCondSigned(widthX, signed: multiplicandSign);
@@ -105,7 +105,7 @@ void testPartialProductRandom(PartialProductGeneratorBase pp, int iterations) {
           pp.selectSignedMultiplicand!.put(multiplicandSign ? 1 : 0);
         }
         for (final multiplierSign in multiplierSigns) {
-          final Y = value
+          final Y = rand
               .nextLogicValue(width: widthY)
               .toBigInt()
               .toCondSigned(widthY, signed: multiplierSign);

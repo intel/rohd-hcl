@@ -122,20 +122,20 @@ void testMultiplyAccumulateRandom(int width, int iterations,
   test('random_W${width}_I${iterations}_${mod.name}', () {
     final multiplyOnly = mod is MultiplyOnly;
 
-    final value = Random(47);
+    final rand = Random(47);
     for (var i = 0; i < iterations; i++) {
-      final bA = value
+      final bA = rand
           .nextLogicValue(width: width)
           .toBigInt()
           .toCondSigned(width, signed: mod.isSignedMultiplicand());
-      final bB = value
+      final bB = rand
           .nextLogicValue(width: width)
           .toBigInt()
           .toCondSigned(width, signed: mod.isSignedMultiplier());
 
       final bC = multiplyOnly
           ? BigInt.zero
-          : value
+          : rand
               .nextLogicValue(width: width)
               .toBigInt()
               .toCondSigned(width, signed: mod.isSignedAddend());
