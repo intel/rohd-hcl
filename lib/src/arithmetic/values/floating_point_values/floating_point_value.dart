@@ -14,625 +14,201 @@ import 'package:meta/meta.dart';
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
 
-/// Critical threshold constants
-enum FloatingPointConstants {
-  /// smallest possible number
-  negativeInfinity,
-
-  /// The number zero, negative form
-  negativeZero,
-
-  /// The number zero, positive form
-  positiveZero,
-
-  /// Smallest possible number, most exponent negative, LSB set in mantissa
-  smallestPositiveSubnormal,
-
-  /// Largest possible subnormal, most negative exponent, mantissa all 1s
-  largestPositiveSubnormal,
-
-  /// Smallest possible positive number, most negative exponent, mantissa is 0
-  smallestPositiveNormal,
-
-  /// Largest number smaller than one
-  largestLessThanOne,
-
-  /// The number one
-  one,
-
-  /// Smallest number greater than one
-  smallestLargerThanOne,
-
-  /// Largest positive number, most positive exponent, full mantissa
-  largestNormal,
-
-  /// Largest possible number
-  infinity,
-
-  /// Not a Number, demarked by all 1s in exponent and any 1 in mantissa
-  nan,
-}
-
-/// IEEE Floating Point Rounding Modes
-enum FloatingPointRoundingMode {
-  /// Truncate the result, no rounding
-  truncate,
-
-  /// Round to nearest, ties to even
-  roundNearestEven,
-
-  /// Round to nearest, tieas away from zero
-  roundNearestTiesAway,
-
-  /// Round toward zero
-  roundTowardsZero,
-
-  /// Round toward +infinity
-  roundTowardsInfinity,
-
-  /// Round toward -infinity
-  roundTowardsNegativeInfinity
-}
-
-/// A flexible representation of floating point values.
-/// A [FloatingPointValue] hasa mantissa in [0,2) with
-/// 0 <= exponent <= maxExponent();  A normal [isNormal] [FloatingPointValue]
-/// has minExponent() <= exponent <= maxExponent() and a mantissa in the
-/// range of [1,2).  Subnormal numbers are represented with a zero exponent
-/// and leading zeros in the mantissa capture the negative exponent value.
+/// A flexible representation of floating point values. A [FloatingPointValue]
+/// has a mantissa in `[0,2)` with `0 <= exponent <= maxExponent();`  A value
+/// which [FloatingPointValue.isNormal] has `minExponent() <= exponent <=
+/// maxExponent()` and a mantissa in the range of `[1,2)`.  Subnormal numbers
+/// are represented with a zero exponent and leading zeros in the mantissa
+/// capture the negative exponent value.
 @immutable
 class FloatingPointValue implements Comparable<FloatingPointValue> {
-  /// The full floating point value bit storage
-  final LogicValue value;
+  /// The full floating point value concatenated as a [LogicValue].
+  late final LogicValue value = [sign, exponent, mantissa].swizzle();
 
-  /// The sign of the value:  1 means a negative value
-  final LogicValue sign;
+  /// The sign of the value: 1 means a negative value.
+  late final LogicValue sign;
 
   /// The exponent of the floating point: this is biased about a midpoint for
-  /// positive and negative exponents
-  final LogicValue exponent;
+  /// positive and negative exponents.
+  late final LogicValue exponent;
 
-  /// The mantissa of the floating point
-  final LogicValue mantissa;
+  /// The [exponent] width.
+  int get exponentWidth => _exponentWidth;
+  late final int _exponentWidth;
 
-  /// Return the exponent value representing the true zero exponent 2^0 = 1
-  ///   often termed [computeBias] or the offset of the exponent
-  static int computeBias(int exponentWidth) =>
-      pow(2, exponentWidth - 1).toInt() - 1;
+  /// The mantissa of the floating point.
+  late final LogicValue mantissa;
 
-  /// Return the minimum exponent value
-  static int computeMinExponent(int exponentWidth) =>
-      -pow(2, exponentWidth - 1).toInt() + 2;
-
-  /// Return the maximum exponent value
-  static int computeMaxExponent(int exponentWidth) =>
-      computeBias(exponentWidth);
+  /// The [mantissa] width.
+  int get mantissaWidth => _mantissaWidth;
+  late final int _mantissaWidth;
 
   /// Return the bias of this [FloatingPointValue].
-  int get bias => _bias;
+  ///
+  /// Representing the true zero exponent `2^0 = 1`, often termed the offset of
+  /// the exponent.
+  int get bias => pow(2, exponentWidth - 1).toInt() - 1;
 
   /// Return the maximum exponent of this [FloatingPointValue].
-  int get maxExponent => _maxExp;
+  int get maxExponent => bias;
 
   /// Return the minimum exponent of this [FloatingPointValue].
-  int get minExponent => _minExp;
+  int get minExponent => -pow(2, exponentWidth - 1).toInt() + 2;
 
-  final int _bias;
-  final int _maxExp;
-  final int _minExp;
+  /// Indicates whether [FloatingPointConstants.positiveInfinity] and
+  /// [FloatingPointConstants.negativeInfinity] representations are supported.
+  bool get supportsInfinities => true;
 
-  /// A mapping from a `({exponentWidth, mantissaWidth})` record to a
-  /// constructor for a specific FloatingPointValue subtype. This map is used by
-  /// the [FloatingPointValue.withMappedSubtype] constructor to select the
-  /// appropriate constructor for a given set of widths.
-  ///
-  /// By default, this is populated with available subtypes from ROHD-HCL, but
-  /// it can be overridden or extended based on the user's needs.
-  static Map<
-      ({int exponentWidth, int mantissaWidth}),
-      FloatingPointValue Function(
+  /// Constructor for a [FloatingPointValue] with the provided [sign],
+  /// [exponent], and [mantissa].
+  factory FloatingPointValue(
           {required LogicValue sign,
           required LogicValue exponent,
-          required LogicValue mantissa})> subtypeConstructorMap = {
-    (
-      exponentWidth: FloatingPoint32Value.exponentWidth,
-      mantissaWidth: FloatingPoint32Value.mantissaWidth
-    ): FloatingPoint32Value.new,
-    (
-      exponentWidth: FloatingPoint64Value.exponentWidth,
-      mantissaWidth: FloatingPoint64Value.mantissaWidth
-    ): FloatingPoint64Value.new,
-    (exponentWidth: 4, mantissaWidth: 3): FloatingPoint8E4M3Value.new,
-    (exponentWidth: 5, mantissaWidth: 2): FloatingPoint8E5M2Value.new,
-    (exponentWidth: 5, mantissaWidth: 10): FloatingPoint16Value.new,
-    (exponentWidth: 8, mantissaWidth: 7): FloatingPointBF16Value.new,
-    (exponentWidth: 8, mantissaWidth: 10): FloatingPointTF32Value.new,
-  };
+          required LogicValue mantissa}) =>
+      populator(exponentWidth: exponent.width, mantissaWidth: mantissa.width)
+          .populate(sign: sign, exponent: exponent, mantissa: mantissa);
 
-  /// Constructor for a [FloatingPointValue] with a sign, exponent, and
-  /// mantissa.
+  /// Creates an unpopulated version of a [FloatingPointValue], intended to be
+  /// called with the [populator].
   @protected
-  FloatingPointValue(
-      {required this.sign, required this.exponent, required this.mantissa})
-      : value = [sign, exponent, mantissa].swizzle(),
-        _bias = computeBias(exponent.width),
-        _minExp = computeMinExponent(exponent.width),
-        _maxExp = computeMaxExponent(exponent.width) {
+  FloatingPointValue.uninitialized();
+
+  /// Creates a [FloatingPointValuePopulator] with the provided [exponentWidth]
+  /// and [mantissaWidth], which can then be used to complete construction of
+  /// a [FloatingPointValue] using population functions.
+  static FloatingPointValuePopulator populator(
+          {required int exponentWidth, required int mantissaWidth}) =>
+      FloatingPointValuePopulator(FloatingPointValue.uninitialized()
+        .._exponentWidth = exponentWidth
+        .._mantissaWidth = mantissaWidth);
+
+  /// Creates a [FloatingPointValuePopulator] for the same type as `this` and
+  /// with the same widths.
+  ///
+  /// This must be overridden in subclasses so that the correct type of
+  /// [FloatingPointValuePopulator] is returned for generating equivalent types
+  /// of [FloatingPointValue]s.
+  @mustBeOverridden
+  FloatingPointValuePopulator clonePopulator() =>
+      FloatingPointValuePopulator(FloatingPointValue.uninitialized()
+        .._exponentWidth = exponentWidth
+        .._mantissaWidth = mantissaWidth);
+
+  /// A wrapper around [FloatingPointValuePopulator.ofString] that computes the
+  /// widths of the exponent and mantissa from the input string.
+  factory FloatingPointValue.ofBinaryStrings(
+          String sign, String exponent, String mantissa) =>
+      populator(exponentWidth: exponent.length, mantissaWidth: mantissa.length)
+          .ofBinaryStrings(sign, exponent, mantissa);
+
+  /// A wrapper around [FloatingPointValuePopulator.ofSpacedBinaryString] that
+  /// computes the widths of the exponent and mantissa from the input string.
+  factory FloatingPointValue.ofSpacedBinaryString(String fp) {
+    final split = fp.split(' ');
+    return populator(
+            exponentWidth: split[1].length, mantissaWidth: split[2].length)
+        .ofSpacedBinaryString(fp);
+  }
+
+  /// Validate the [FloatingPointValue] to ensure widths and other
+  /// characteristics are legal.
+  @protected
+  @visibleForOverriding
+  void validate() {
     if (sign.width != 1) {
       throw RohdHclException('FloatingPointValue: sign width must be 1');
     }
-    if (constrainedMantissaWidth != null &&
-        mantissa.width != constrainedMantissaWidth) {
+    if (mantissa.width != mantissaWidth) {
       throw RohdHclException('FloatingPointValue: mantissa width must be '
-          '$constrainedMantissaWidth');
+          '$mantissaWidth');
     }
-    if (constrainedExponentWidth != null &&
-        exponent.width != constrainedExponentWidth) {
+    if (exponent.width != exponentWidth) {
       throw RohdHclException('FloatingPointValue: exponent width must be '
-          '$constrainedExponentWidth');
+          '$exponentWidth');
     }
-  }
-
-  /// Constructs a [FloatingPointValue] with a sign, exponent, and mantissa
-  /// using one of the builders provided from [subtypeConstructorMap] if
-  /// available, otherwise using the default constructor.
-  factory FloatingPointValue.withMappedSubtype(
-      {required LogicValue sign,
-      required LogicValue exponent,
-      required LogicValue mantissa}) {
-    final key = (exponentWidth: exponent.width, mantissaWidth: mantissa.width);
-
-    if (subtypeConstructorMap.containsKey(key)) {
-      return subtypeConstructorMap[key]!(
-          sign: sign, exponent: exponent, mantissa: mantissa);
-    }
-
-    return FloatingPointValue(
-        sign: sign, exponent: exponent, mantissa: mantissa);
-  }
-
-  /// Converts this [FloatingPointValue] to a [FloatingPointValue] with the same
-  /// sign, exponent, and mantissa using the constructor provided in
-  /// [subtypeConstructorMap] if available, otherwise using the default
-  /// constructor.
-  FloatingPointValue toMappedSubtype() => FloatingPointValue.withMappedSubtype(
-      sign: sign, exponent: exponent, mantissa: mantissa);
-
-  /// [constrainedMantissaWidth] is the hard-coded mantissa width of the
-  /// sub-class of this floating-point value
-  @protected
-  int? get constrainedMantissaWidth => null;
-
-  /// [constrainedExponentWidth] is the hard-coded exponent width of the
-  /// sub-class of this floating-point value
-  @protected
-  int? get constrainedExponentWidth => null;
-
-  /// [FloatingPointValue] constructor from a binary string representation of
-  /// individual bitfields
-  FloatingPointValue.ofBinaryStrings(
-      String sign, String exponent, String mantissa)
-      : this(
-            sign: LogicValue.of(sign),
-            exponent: LogicValue.of(exponent),
-            mantissa: LogicValue.of(mantissa));
-
-  /// [FloatingPointValue] constructor from a single binary string representing
-  /// space-separated bitfields
-  FloatingPointValue.ofSpacedBinaryString(String fp)
-      : this.ofBinaryStrings(
-            fp.split(' ')[0], fp.split(' ')[1], fp.split(' ')[2]);
-
-  /// [FloatingPointValue] constructor from a radix-encoded string
-  /// representation and the size of the exponent and mantissa
-  FloatingPointValue.ofString(String fp, int exponentWidth, int mantissaWidth,
-      {int radix = 2})
-      : this.ofBinaryStrings(
-            _extractBinaryStrings(fp, exponentWidth, mantissaWidth, radix).sign,
-            _extractBinaryStrings(fp, exponentWidth, mantissaWidth, radix)
-                .exponent,
-            _extractBinaryStrings(fp, exponentWidth, mantissaWidth, radix)
-                .mantissa);
-
-  /// Helper function for extracting binary strings from a longer
-  /// binary string and the known exponent and mantissa widths.
-  static ({String sign, String exponent, String mantissa})
-      _extractBinaryStrings(
-          String fp, int exponentWidth, int mantissaWidth, int radix) {
-    final binaryFp = LogicValue.ofBigInt(
-            BigInt.parse(fp, radix: radix), exponentWidth + mantissaWidth + 1)
-        .bitString;
-
-    return (
-      sign: binaryFp.substring(0, 1),
-      exponent: binaryFp.substring(1, 1 + exponentWidth),
-      mantissa: binaryFp.substring(
-          1 + exponentWidth, 1 + exponentWidth + mantissaWidth)
-    );
   }
 
   // TODO(desmonddak): toRadixString() would be useful, not limited to binary
 
-  /// [FloatingPointValue] constructor from a set of [BigInt]s of the binary
-  /// representation and the size of the exponent and mantissa
-  FloatingPointValue.ofBigInts(BigInt exponent, BigInt mantissa,
-      {int exponentWidth = 0, int mantissaWidth = 0, bool sign = false})
-      : this(
-            sign: LogicValue.ofBigInt(sign ? BigInt.one : BigInt.zero, 1),
-            exponent: LogicValue.ofBigInt(exponent, exponentWidth),
-            mantissa: LogicValue.ofBigInt(mantissa, mantissaWidth));
-
-  /// [FloatingPointValue] constructor from a set of [int]s of the binary
-  /// representation and the size of the exponent and mantissa
-  FloatingPointValue.ofInts(int exponent, int mantissa,
-      {int exponentWidth = 0, int mantissaWidth = 0, bool sign = false})
-      : this(
-            sign: LogicValue.ofBigInt(sign ? BigInt.one : BigInt.zero, 1),
-            exponent: LogicValue.ofBigInt(BigInt.from(exponent), exponentWidth),
-            mantissa:
-                LogicValue.ofBigInt(BigInt.from(mantissa), mantissaWidth));
-
-  /// Construct a [FloatingPointValue] from a [LogicValue]
-  factory FloatingPointValue.ofLogicValue(
-          int exponentWidth, int mantissaWidth, LogicValue val) =>
-      buildOfLogicValue(
-          FloatingPointValue.new, exponentWidth, mantissaWidth, val);
-
-  /// A helper function for [FloatingPointValue.ofLogicValue] and base classes
-  /// which performs some width checks and slicing.
+  /// Return the set of [LogicValue]s for a given [FloatingPointConstants] at a
+  /// given [exponentWidth] and [mantissaWidth].
+  ///
+  /// This is a good function to override if constants behave specially in
+  /// subclases.
   @protected
-  static T buildOfLogicValue<T extends FloatingPointValue>(
-    T Function(
-            {required LogicValue sign,
-            required LogicValue exponent,
-            required LogicValue mantissa})
-        constructor,
-    int exponentWidth,
-    int mantissaWidth,
-    LogicValue val,
-  ) {
-    final expectedWidth = 1 + exponentWidth + mantissaWidth;
-    if (val.width != expectedWidth) {
-      throw RohdHclException('Width of $val must be $expectedWidth');
-    }
+  ({LogicValue sign, LogicValue exponent, LogicValue mantissa})
+      getConstantComponents(FloatingPointConstants constantFloatingPoint) {
+    final (
+      String signStr,
+      String exponentStr,
+      String mantissaStr
+    ) stringComponents;
 
-    return constructor(
-        sign: val[-1],
-        exponent: val.slice(exponentWidth + mantissaWidth - 1, mantissaWidth),
-        mantissa: val.slice(mantissaWidth - 1, 0));
-  }
-
-  /// Abbreviation Functions for common constants
-
-  /// Return the Infinity value for this FloatingPointValue size.
-  FloatingPointValue get infinity =>
-      FloatingPointValue.getFloatingPointConstant(
-          FloatingPointConstants.infinity, exponent.width, mantissa.width);
-
-  /// Return the Negative Infinity value for this FloatingPointValue size.
-  FloatingPointValue get negativeInfinity =>
-      FloatingPointValue.getFloatingPointConstant(
-          FloatingPointConstants.negativeInfinity,
-          exponent.width,
-          mantissa.width);
-
-  /// Return the Negative Infinity value for this FloatingPointValue size.
-  FloatingPointValue get nan => FloatingPointValue.getFloatingPointConstant(
-      FloatingPointConstants.nan, exponent.width, mantissa.width);
-
-  /// Return the value one for this FloatingPointValue size.
-  FloatingPointValue get one => FloatingPointValue.getFloatingPointConstant(
-      FloatingPointConstants.one, exponent.width, mantissa.width);
-
-  /// Return the Negative Infinity value for this FloatingPointValue size.
-  FloatingPointValue get zero => FloatingPointValue.getFloatingPointConstant(
-      FloatingPointConstants.positiveZero, exponent.width, mantissa.width);
-
-  /// Return the [FloatingPointValue] representing the constant specified
-  factory FloatingPointValue.getFloatingPointConstant(
-      FloatingPointConstants constantFloatingPoint,
-      int exponentWidth,
-      int mantissaWidth) {
     switch (constantFloatingPoint) {
-      /// smallest possible number
+      // smallest possible number
       case FloatingPointConstants.negativeInfinity:
-        return FloatingPointValue.ofBinaryStrings(
-            '1', '1' * exponentWidth, '0' * mantissaWidth);
+        stringComponents = ('1', '1' * exponentWidth, '0' * mantissaWidth);
 
-      /// -0.0
+      // -0.0
       case FloatingPointConstants.negativeZero:
-        return FloatingPointValue.ofBinaryStrings(
-            '1', '0' * exponentWidth, '0' * mantissaWidth);
+        stringComponents = ('1', '0' * exponentWidth, '0' * mantissaWidth);
 
-      /// 0.0
+      // 0.0
       case FloatingPointConstants.positiveZero:
-        return FloatingPointValue.ofBinaryStrings(
-            '0', '0' * exponentWidth, '0' * mantissaWidth);
+        stringComponents = ('0', '0' * exponentWidth, '0' * mantissaWidth);
 
-      /// Smallest possible number, most exponent negative, LSB set in mantissa
+      // Smallest possible number, most exponent negative, LSB set in mantissa
       case FloatingPointConstants.smallestPositiveSubnormal:
-        return FloatingPointValue.ofBinaryStrings(
-            '0', '0' * exponentWidth, '${'0' * (mantissaWidth - 1)}1');
+        stringComponents =
+            ('0', '0' * exponentWidth, '${'0' * (mantissaWidth - 1)}1');
 
-      /// Largest possible subnormal, most negative exponent, mantissa all 1s
+      // Largest possible subnormal, most negative exponent, mantissa all 1s
       case FloatingPointConstants.largestPositiveSubnormal:
-        return FloatingPointValue.ofBinaryStrings(
-            '0', '0' * exponentWidth, '1' * mantissaWidth);
+        stringComponents = ('0', '0' * exponentWidth, '1' * mantissaWidth);
 
-      /// Smallest possible positive number, most negative exponent, mantissa 0
+      // Smallest possible positive number, most negative exponent, mantissa 0
       case FloatingPointConstants.smallestPositiveNormal:
-        return FloatingPointValue.ofBinaryStrings(
-            '0', '${'0' * (exponentWidth - 1)}1', '0' * mantissaWidth);
+        stringComponents =
+            ('0', '${'0' * (exponentWidth - 1)}1', '0' * mantissaWidth);
 
-      /// Largest number smaller than one
+      // Largest number smaller than one
       case FloatingPointConstants.largestLessThanOne:
-        return FloatingPointValue.ofBinaryStrings(
-            '0', '0${'1' * (exponentWidth - 2)}0', '1' * mantissaWidth);
+        stringComponents =
+            ('0', '0${'1' * (exponentWidth - 2)}0', '1' * mantissaWidth);
 
-      /// The number '1.0'
+      // The number '1.0'
       case FloatingPointConstants.one:
-        return FloatingPointValue.ofBinaryStrings(
-            '0', '0${'1' * (exponentWidth - 1)}', '0' * mantissaWidth);
+        stringComponents =
+            ('0', '0${'1' * (exponentWidth - 1)}', '0' * mantissaWidth);
 
-      /// Smallest number greater than one
+      // Smallest number greater than one
       case FloatingPointConstants.smallestLargerThanOne:
-        return FloatingPointValue.ofBinaryStrings('0',
-            '0${'1' * (exponentWidth - 2)}0', '${'0' * (mantissaWidth - 1)}1');
+        stringComponents = (
+          '0',
+          '0${'1' * (exponentWidth - 2)}0',
+          '${'0' * (mantissaWidth - 1)}1'
+        );
 
-      /// Largest positive number, most positive exponent, full mantissa
+      // Largest positive number, most positive exponent, full mantissa
       case FloatingPointConstants.largestNormal:
-        return FloatingPointValue.ofBinaryStrings(
-            '0', '${'1' * (exponentWidth - 1)}0', '1' * mantissaWidth);
+        stringComponents =
+            ('0', '${'1' * (exponentWidth - 1)}0', '1' * mantissaWidth);
 
-      /// Largest possible number
-      case FloatingPointConstants.infinity:
-        return FloatingPointValue.ofBinaryStrings(
-            '0', '1' * exponentWidth, '0' * mantissaWidth);
+      // Largest possible number
+      case FloatingPointConstants.positiveInfinity:
+        stringComponents = ('0', '1' * exponentWidth, '0' * mantissaWidth);
 
-      /// Not a Number (NaN)
+      // Not a Number (NaN)
       case FloatingPointConstants.nan:
-        return FloatingPointValue.ofBinaryStrings(
-            '0', '1' * exponentWidth, '${'0' * (mantissaWidth - 1)}1');
-    }
-  }
-
-// TODO(desmonddak): we may have a bug in ofDouble() when
-// the FPV is close to the width of the native double:  for LGRS to work
-// we need three bits of space to handle the LSB|Guard|Round|Sticky.
-// If the FPV is only 2 bits shorter than native, then we know we can round
-// with LSB+Guard, but can't fit the round and sticky bits.
-// The algorithm needs to extend with zeros and handle.
-
-  /// Convert from double using its native binary representation
-  factory FloatingPointValue.ofDouble(double inDouble,
-      {required int exponentWidth,
-      required int mantissaWidth,
-      FloatingPointRoundingMode roundingMode =
-          FloatingPointRoundingMode.roundNearestEven}) {
-    if ((exponentWidth == 8) && (mantissaWidth == 23)) {
-      // TODO(desmonddak): handle rounding mode for 32 bit?
-      return FloatingPoint32Value.ofDouble(inDouble);
-    } else if ((exponentWidth == 11) && (mantissaWidth == 52)) {
-      return FloatingPoint64Value.ofDouble(inDouble);
+        stringComponents =
+            ('0', '1' * exponentWidth, '${'0' * (mantissaWidth - 1)}1');
     }
 
-    if (inDouble.isNaN) {
-      return FloatingPointValue.getFloatingPointConstant(
-          FloatingPointConstants.nan, exponentWidth, mantissaWidth);
-    }
-    if (inDouble.isInfinite) {
-      return FloatingPointValue.getFloatingPointConstant(
-          inDouble < 0.0
-              ? FloatingPointConstants.negativeInfinity
-              : FloatingPointConstants.infinity,
-          exponentWidth,
-          mantissaWidth);
-    }
-
-    if (roundingMode != FloatingPointRoundingMode.roundNearestEven &&
-        roundingMode != FloatingPointRoundingMode.truncate) {
-      throw UnimplementedError(
-          'Only roundNearestEven or truncate is supported for this width');
-    }
-
-    final fp64 = FloatingPoint64Value.ofDouble(inDouble);
-    final exponent64 = fp64.exponent;
-
-    var expVal = (exponent64.toInt() - fp64.bias) +
-        FloatingPointValue.computeBias(exponentWidth);
-
-    // Handle subnormal
-    final mantissa64 = [
-      if (expVal <= 0)
-        ([LogicValue.one, fp64.mantissa].swizzle() >>> -expVal).slice(52, 1)
-      else
-        fp64.mantissa
-    ].first;
-    var mantissa = mantissa64.slice(51, 51 - mantissaWidth + 1);
-
-    // TODO(desmonddak): this should be in a separate function to use
-    // with a FloatingPointValue converter we need.
-    if (roundingMode == FloatingPointRoundingMode.roundNearestEven) {
-      final sticky = mantissa64.slice(51 - (mantissaWidth + 2), 0).or();
-
-      final roundPos = 51 - (mantissaWidth + 2) + 1;
-      final round = mantissa64[roundPos];
-      final guard = mantissa64[roundPos + 1];
-
-      // RNE Rounding
-      if (guard == LogicValue.one) {
-        if ((round == LogicValue.one) |
-            (sticky == LogicValue.one) |
-            (mantissa[0] == LogicValue.one)) {
-          mantissa += 1;
-          if (mantissa == LogicValue.zero.zeroExtend(mantissa.width)) {
-            expVal += 1;
-          }
-        }
-      }
-    }
-    if (expVal >
-        FloatingPointValue.computeMaxExponent(exponentWidth) +
-            FloatingPointValue.computeBias(exponentWidth)) {
-      return FloatingPointValue.getFloatingPointConstant(
-          fp64.sign.toBool()
-              ? FloatingPointConstants.negativeInfinity
-              : FloatingPointConstants.infinity,
-          exponentWidth,
-          mantissaWidth);
-    }
-
-    // TODO(desmonddak): how to convert to infinity and check that it is
-    // supported by the format.
-    if ((exponentWidth == 4) && (mantissaWidth == 3)) {
-      // TODO(desmonddak): need a better way to detect subclass limitations
-      // Here we avoid returning infinity for FP8E4M3
-    } else {
-      if (expVal >
-          FloatingPointValue.computeBias(exponentWidth) +
-              FloatingPointValue.computeMaxExponent(exponentWidth)) {
-        return (fp64.sign == LogicValue.one)
-            ? FloatingPointValue.getFloatingPointConstant(
-                FloatingPointConstants.negativeInfinity,
-                exponentWidth,
-                mantissaWidth)
-            : FloatingPointValue.getFloatingPointConstant(
-                FloatingPointConstants.infinity, exponentWidth, mantissaWidth);
-      }
-    }
-    final exponent =
-        LogicValue.ofBigInt(BigInt.from(max(expVal, 0)), exponentWidth);
-
-    return FloatingPointValue(
-        sign: fp64.sign, exponent: exponent, mantissa: mantissa);
-  }
-
-  /// Generate a random [FloatingPointValue], supplying random seed [rv].
-  /// This generates a valid [FloatingPointValue] anywhere in the range
-  /// it can represent:a general [FloatingPointValue] has
-  /// a mantissa in [0,2) with 0 <= exponent <= maxExponent();
-  /// If [normal] is true, This routine will only generate mantissas in the
-  /// range of [1,2) and minExponent() <= exponent <= maxExponent().
-  factory FloatingPointValue.random(Random rv,
-      {required int exponentWidth,
-      required int mantissaWidth,
-      bool normal = false}) {
-    final largestExponent = FloatingPointValue.computeBias(exponentWidth) +
-        FloatingPointValue.computeMaxExponent(exponentWidth);
-    final s = rv.nextLogicValue(width: 1).toInt();
-    var e = BigInt.one;
-    do {
-      e = rv
-          .nextLogicValue(width: exponentWidth, max: largestExponent)
-          .toBigInt();
-    } while ((e == BigInt.zero) & normal);
-    final m = rv.nextLogicValue(width: mantissaWidth).toBigInt();
-    return FloatingPointValue(
-        sign: LogicValue.ofInt(s, 1),
-        exponent: LogicValue.ofBigInt(e, exponentWidth),
-        mantissa: LogicValue.ofBigInt(m, mantissaWidth));
-  }
-
-  /// Convert a floating point number into a [FloatingPointValue]
-  /// representation. This form performs NO ROUNDING.
-  @internal
-  factory FloatingPointValue.ofDoubleUnrounded(double inDouble,
-      {required int exponentWidth, required int mantissaWidth}) {
-    if ((exponentWidth == 8) && (mantissaWidth == 23)) {
-      return FloatingPoint32Value.ofDouble(inDouble);
-    } else if ((exponentWidth == 11) && (mantissaWidth == 52)) {
-      return FloatingPoint64Value.ofDouble(inDouble);
-    }
-    if (inDouble.isNaN) {
-      return FloatingPointValue.getFloatingPointConstant(
-          FloatingPointConstants.nan, exponentWidth, mantissaWidth);
-    }
-
-    var doubleVal = inDouble;
-    LogicValue sign;
-    if (inDouble < 0.0) {
-      doubleVal = -doubleVal;
-      sign = LogicValue.one;
-    } else {
-      sign = LogicValue.zero;
-    }
-    if (inDouble.isInfinite) {
-      return FloatingPointValue.getFloatingPointConstant(
-          sign.toBool()
-              ? FloatingPointConstants.negativeInfinity
-              : FloatingPointConstants.infinity,
-          exponentWidth,
-          mantissaWidth);
-    }
-
-    // If we are dealing with a really small number we need to scale it up
-    var scaleToWhole = (doubleVal != 0) ? (-log(doubleVal) / log(2)).ceil() : 0;
-
-    if (doubleVal < 1.0) {
-      var myCnt = 0;
-      var myVal = doubleVal;
-      while (myVal % 1 != 0.0) {
-        myVal = myVal * 2.0;
-        myCnt++;
-      }
-      if (myCnt < scaleToWhole) {
-        scaleToWhole = myCnt;
-      }
-    }
-
-    // Scale it up to go beyond the mantissa and include the GRS bits
-    final scale = mantissaWidth + scaleToWhole;
-    var s = scale;
-
-    var sVal = doubleVal;
-    if (s > 0) {
-      while (s > 0) {
-        sVal *= 2.0;
-        s = s - 1;
-      }
-    } else {
-      sVal = doubleVal * pow(2.0, scale);
-    }
-
-    final scaledValue = BigInt.from(sVal);
-    final fullLength = scaledValue.bitLength;
-
-    var fullValue = LogicValue.ofBigInt(scaledValue, fullLength);
-    var e = (fullLength > 0)
-        ? fullLength - mantissaWidth - scaleToWhole
-        : FloatingPointValue.computeMinExponent(exponentWidth);
-
-    if (e <= -FloatingPointValue.computeBias(exponentWidth)) {
-      fullValue = fullValue >>>
-          (scaleToWhole - FloatingPointValue.computeBias(exponentWidth));
-      e = -FloatingPointValue.computeBias(exponentWidth);
-    } else {
-      // Could be just one away from subnormal
-      e -= 1;
-      if (e > -FloatingPointValue.computeBias(exponentWidth)) {
-        fullValue = fullValue << 1; // Chop the first '1'
-      }
-    }
-
-    if (e > FloatingPointValue.computeMaxExponent(exponentWidth)) {
-      return FloatingPointValue.getFloatingPointConstant(
-          sign.toBool()
-              ? FloatingPointConstants.negativeInfinity
-              : FloatingPointConstants.infinity,
-          exponentWidth,
-          mantissaWidth);
-    }
-    // We reverse so that we fit into a shorter BigInt, we keep the MSB.
-    // The conversion fills leftward.
-    // We reverse again after conversion.
-    final exponent = LogicValue.ofInt(
-        e + FloatingPointValue.computeBias(exponentWidth), exponentWidth);
-    final mantissa =
-        LogicValue.ofBigInt(fullValue.reversed.toBigInt(), mantissaWidth)
-            .reversed;
-
-    return FloatingPointValue(
-        exponent: exponent, mantissa: mantissa, sign: sign);
+    return (
+      sign: LogicValue.of(stringComponents.$1),
+      exponent: LogicValue.of(stringComponents.$2),
+      mantissa: LogicValue.of(stringComponents.$3)
+    );
   }
 
   @override
@@ -700,25 +276,25 @@ class FloatingPointValue implements Comparable<FloatingPointValue> {
   bool get isMantissaAllZeroes => mantissa.or() == LogicValue.zero;
 
   /// Return true if the represented floating point number is considered
-  ///  NaN or 'Not a Number'
+  /// NaN or "Not a Number".
   bool get isNaN => isExponentAllOnes && !isMantissaAllZeroes;
 
   /// Return true if the represented floating point number is considered
-  ///  'subnormal', including [isZero].
+  /// "subnormal", including [isAZero].
   bool isSubnormal() => isExponentAllZeros;
 
   /// Return true if the represented floating point number is considered
   ///  infinity or negative infinity
-  bool get isAnInfinity => isExponentAllOnes && isMantissaAllZeroes;
+  bool get isAnInfinity =>
+      supportsInfinities && isExponentAllOnes && isMantissaAllZeroes;
 
   /// Return true if the represented floating point number is zero. Note
   /// that the equality operator will treat
   /// [FloatingPointConstants.positiveZero]
   /// and [FloatingPointConstants.negativeZero] as equal.
-  bool get isZero =>
-      this ==
-      FloatingPointValue.getFloatingPointConstant(
-          FloatingPointConstants.positiveZero, exponent.width, mantissa.width);
+  bool get isAZero =>
+      this == clonePopulator().positiveZero ||
+      this == clonePopulator().negativeZero;
 
   /// Return the value of the floating point number in a Dart [double] type.
   double toDouble() {
@@ -732,31 +308,26 @@ class FloatingPointValue implements Comparable<FloatingPointValue> {
     if (value.isValid) {
       if (exponent.toInt() == 0) {
         doubleVal = (sign.toBool() ? -1.0 : 1.0) *
-            pow(2.0, computeMinExponent(exponent.width)) *
+            pow(2.0, minExponent) *
             mantissa.toBigInt().toDouble() /
             pow(2.0, mantissa.width);
       } else if (!isNaN) {
         doubleVal = (sign.toBool() ? -1.0 : 1.0) *
             (1.0 + mantissa.toBigInt().toDouble() / pow(2.0, mantissa.width)) *
-            pow(
-                2.0,
-                exponent.toInt().toSigned(exponent.width) -
-                    computeBias(exponent.width));
-        doubleVal = (sign.toBool() ? -1.0 : 1.0) *
-            (1.0 + mantissa.toBigInt().toDouble() / pow(2.0, mantissa.width)) *
-            pow(2.0, exponent.toInt() - computeBias(exponent.width));
+            pow(2.0, exponent.toInt() - bias);
       }
     }
     return doubleVal;
   }
 
   /// Return a Logic true if this FloatingPointVa;ie contains a normal number,
-  /// defined as having mantissa in the range [1,2)
+  /// defined as having mantissa in the range `[1,2)`.
   bool isNormal() => exponent != LogicValue.ofInt(0, exponent.width);
 
   /// Return a string representation of FloatingPointValue.
-  /// if [integer] is true, return sign, exponent, mantissa as integers.
-  /// if [integer] is false, return sign, exponent, mantissa as ibinary strings.
+  ///
+  /// If [integer] is `true`, returns sign, exponent, mantissa as integers. If
+  /// [integer] is `false`, returns sign, exponent, mantissa as binary strings.
   @override
   String toString({bool integer = false}) {
     if (integer) {
@@ -771,6 +342,9 @@ class FloatingPointValue implements Comparable<FloatingPointValue> {
   }
 
   // TODO(desmonddak): what about floating point representations >> 64 bits?
+
+  /// Performs an operation [op] between this [FloatingPointValue] and another
+  /// [FloatingPointValue] [other].
   FloatingPointValue _performOp(
       FloatingPointValue other, double Function(double a, double b) op) {
     // make sure multiplicand has the same sizes as this
@@ -780,27 +354,27 @@ class FloatingPointValue implements Comparable<FloatingPointValue> {
           'multiplicand must have the same mantissa and exponent widths');
     }
     if (isNaN | other.isNaN) {
-      return FloatingPointValue.getFloatingPointConstant(
-          FloatingPointConstants.nan, exponent.width, mantissa.width);
+      return clonePopulator().nan;
     }
 
-    return FloatingPointValue.ofDouble(op(toDouble(), other.toDouble()),
-        mantissaWidth: mantissa.width, exponentWidth: exponent.width);
+    return clonePopulator().ofDouble(op(toDouble(), other.toDouble()));
   }
 
-  /// Multiply operation for [FloatingPointValue]
+  /// Multiply operation for [FloatingPointValue].
   FloatingPointValue operator *(FloatingPointValue multiplicand) {
     if (isAnInfinity) {
       if (multiplicand.isAnInfinity) {
-        return sign != multiplicand.sign ? negativeInfinity : infinity;
-      } else if (multiplicand.isZero) {
-        return nan;
+        return sign != multiplicand.sign
+            ? clonePopulator().negativeInfinity
+            : clonePopulator().positiveInfinity;
+      } else if (multiplicand.isAZero) {
+        return clonePopulator().nan;
       } else {
         return this;
       }
     } else if (multiplicand.isAnInfinity) {
-      if (isZero) {
-        return nan;
+      if (isAZero) {
+        return clonePopulator().nan;
       } else {
         return multiplicand;
       }
@@ -808,14 +382,16 @@ class FloatingPointValue implements Comparable<FloatingPointValue> {
     return _performOp(multiplicand, (a, b) => a * b);
   }
 
-  /// Addition operation for [FloatingPointValue]
+  /// Addition operation for [FloatingPointValue].
   FloatingPointValue operator +(FloatingPointValue addend) {
     if (isAnInfinity) {
       if (addend.isAnInfinity) {
         if (sign != addend.sign) {
-          return nan;
+          return clonePopulator().nan;
         } else {
-          return sign.toBool() ? negativeInfinity : infinity;
+          return sign.toBool()
+              ? clonePopulator().negativeInfinity
+              : clonePopulator().positiveInfinity;
         }
       } else {
         return this;
@@ -826,27 +402,29 @@ class FloatingPointValue implements Comparable<FloatingPointValue> {
     return _performOp(addend, (a, b) => a + b);
   }
 
-  /// Divide operation for [FloatingPointValue]
+  /// Divide operation for [FloatingPointValue].
   FloatingPointValue operator /(FloatingPointValue divisor) {
     if (isAnInfinity) {
-      if (divisor.isAnInfinity | divisor.isZero) {
-        return nan;
+      if (divisor.isAnInfinity | divisor.isAZero) {
+        return clonePopulator().nan;
       } else {
         return this;
       }
     } else {
-      if (divisor.isZero) {
-        return sign != divisor.sign ? negativeInfinity : infinity;
+      if (divisor.isAZero) {
+        return sign != divisor.sign
+            ? clonePopulator().negativeInfinity
+            : clonePopulator().positiveInfinity;
       }
     }
     return _performOp(divisor, (a, b) => a / b);
   }
 
-  /// Subtract operation for [FloatingPointValue]
+  /// Subtract operation for [FloatingPointValue].
   FloatingPointValue operator -(FloatingPointValue subend) {
     if (isAnInfinity & subend.isAnInfinity) {
       if (sign == subend.sign) {
-        return nan;
+        return clonePopulator().nan;
       } else {
         return this;
       }
@@ -858,18 +436,18 @@ class FloatingPointValue implements Comparable<FloatingPointValue> {
     return _performOp(subend, (a, b) => a - b);
   }
 
-  /// Negate operation for [FloatingPointValue]
-  FloatingPointValue negate() => FloatingPointValue(
+  /// Negate operation for [FloatingPointValue].
+  FloatingPointValue negate() => clonePopulator().populate(
       sign: sign.isZero ? LogicValue.one : LogicValue.zero,
       exponent: exponent,
       mantissa: mantissa);
 
-  /// Absolute value operation for [FloatingPointValue]
-  FloatingPointValue abs() => FloatingPointValue(
-      sign: LogicValue.zero, exponent: exponent, mantissa: mantissa);
+  /// Absolute value operation for [FloatingPointValue].
+  FloatingPointValue abs() => clonePopulator()
+      .populate(sign: LogicValue.zero, exponent: exponent, mantissa: mantissa);
 
-  /// Return true if the other [FloatingPointValue] is within a rounding
-  /// error of this value.
+  /// Return true if the other [FloatingPointValue] is within a rounding error
+  /// of this value.
   bool withinRounding(FloatingPointValue other) {
     if (this != other) {
       final diff = (abs() - other.abs()).abs();
@@ -880,15 +458,15 @@ class FloatingPointValue implements Comparable<FloatingPointValue> {
     return true;
   }
 
-  /// Compute the unit in the last place for the given [FloatingPointValue]
+  /// Compute the unit in the last place for the given [FloatingPointValue].
   FloatingPointValue ulp() {
     if (exponent.toInt() > mantissa.width) {
       final newExponent =
           LogicValue.ofInt(exponent.toInt() - mantissa.width, exponent.width);
-      return FloatingPointValue.ofBinaryStrings(
+      return clonePopulator().ofBinaryStrings(
           sign.bitString, newExponent.bitString, '0' * (mantissa.width));
     } else {
-      return FloatingPointValue.ofBinaryStrings(
+      return clonePopulator().ofBinaryStrings(
           sign.bitString, exponent.bitString, '${'0' * (mantissa.width - 1)}1');
     }
   }

@@ -1,28 +1,36 @@
 // Copyright (C) 2024-2025 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 //
-// floating_point_fp16_value.dart
-// Implementation of FP16 Floating-Point value representations.
+// floating_point_8_e5m2_value.dart
+// Implementation of 8-bit E5M2 Floating-Point value representations.
 //
 // 2024 October 15
 // Authors:
 //  Max Korbel <max.korbel@intel.com>
 //  Desmond A Kirkpatrick <desmond.a.kirkpatrick@intel.com>
 
+import 'dart:math';
 import 'package:meta/meta.dart';
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
 
-/// A representation of an FP16 floating-point value.
-class FloatingPoint16Value extends FloatingPointValue {
+/// The E5M2 representation of a 8-bit floating point value as defined in
+/// [FP8 Formats for Deep Learning](https://arxiv.org/abs/2209.05433).
+class FloatingPoint8E5M2Value extends FloatingPointValue {
   @override
   final int exponentWidth = 5;
 
   @override
-  final int mantissaWidth = 10;
+  final int mantissaWidth = 2;
 
-  /// Constructor for a FP16 floating point value.
-  factory FloatingPoint16Value(
+  /// The maximum value representable by the E5M2 format.
+  static double get maxValue => 57344.toDouble();
+
+  /// The minimum value representable by the E5M2 format.
+  static double get minValue => pow(2, -16).toDouble();
+
+  /// Constructor for an 8-bit E5M2 floating point value.
+  factory FloatingPoint8E5M2Value(
           {required LogicValue sign,
           required LogicValue exponent,
           required LogicValue mantissa}) =>
@@ -31,12 +39,12 @@ class FloatingPoint16Value extends FloatingPointValue {
   /// Creates an unpopulated version, intended to be called with the
   /// [populator].
   @protected
-  FloatingPoint16Value.uninitialized() : super.uninitialized();
+  FloatingPoint8E5M2Value.uninitialized() : super.uninitialized();
 
   /// Creates a [FloatingPointValuePopulator], which can then be used to
   /// complete construction using population functions.
-  static FloatingPointValuePopulator<FloatingPoint16Value> populator() =>
-      FloatingPointValuePopulator(FloatingPoint16Value.uninitialized());
+  static FloatingPointValuePopulator<FloatingPoint8E5M2Value> populator() =>
+      FloatingPointValuePopulator(FloatingPoint8E5M2Value.uninitialized());
 
   @override
   FloatingPointValuePopulator clonePopulator() => populator();

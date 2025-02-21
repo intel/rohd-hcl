@@ -43,9 +43,9 @@ class FloatingPointAdderRound extends FloatingPointAdder {
         (a.sign ^ b.sign ^ (subtract ?? Const(0))).named('effSubtraction');
     final isNaN = (a.isNaN |
             b.isNaN |
-            (a.isInfinity & b.isInfinity & effectiveSubtraction))
+            (a.isAnInfinity & b.isAnInfinity & effectiveSubtraction))
         .named('isNaN');
-    final isInf = (a.isInfinity | b.isInfinity).named('isInf');
+    final isInf = (a.isAnInfinity | b.isAnInfinity).named('isInf');
 
     final exponentSubtractor = OnesComplementAdder(
         super.a.exponent, super.b.exponent,
