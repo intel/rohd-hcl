@@ -32,6 +32,7 @@ void testPriorityEncoder(int n, PriorityEncoder Function(Logic a) fn) {
       final golden = computePriorityEncoding(j);
       inp.put(j);
       final result = mod.out.value.toInt();
+      // print('priority_encoder: $j $result $golden');
       expect(result, equals(golden));
     }
   });
