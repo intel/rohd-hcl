@@ -50,12 +50,12 @@ class FloatingPointAdderSimple<FpType extends FloatingPoint>
     // Align and add mantissas
     final expDiff = (larger.exponent - smaller.exponent).named('expDiff');
     final aMantissa = mux(
-        larger.isNormal,
+        larger.isNormal & (larger.implicitJBit ? Const(1) : Const(0)),
         [Const(1), larger.mantissa, Const(0, width: mantissaWidth + 1)]
             .swizzle(),
         [larger.mantissa, Const(0, width: mantissaWidth + 2)].swizzle());
     final bMantissa = mux(
-        smaller.isNormal,
+        smaller.isNormal & (smaller.implicitJBit ? Const(1) : Const(0)),
         [Const(1), smaller.mantissa, Const(0, width: mantissaWidth + 1)]
             .swizzle(),
         [smaller.mantissa, Const(0, width: mantissaWidth + 2)].swizzle());

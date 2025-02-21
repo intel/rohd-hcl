@@ -33,15 +33,24 @@ class FloatingPointValue implements Comparable<FloatingPointValue> {
   late final LogicValue exponent;
 
   /// The [exponent] width.
-  int get exponentWidth => _exponentWidth;
-  late final int _exponentWidth;
+  int get exponentWidth => storedExponentWidth;
+
+  /// The stored exponent width.
+  @protected
+  late final int storedExponentWidth;
 
   /// The mantissa of the floating point.
   late final LogicValue mantissa;
 
   /// The [mantissa] width.
-  int get mantissaWidth => _mantissaWidth;
-  late final int _mantissaWidth;
+  int get mantissaWidth => storedMantissaWidth;
+
+  /// The stored mantissa width.
+  @protected
+  late final int storedMantissaWidth;
+
+  /// Return true if the JBit is implicitly represented.
+  bool get implicitJBit => true;
 
   /// Return the bias of this [FloatingPointValue].
   ///
@@ -79,8 +88,8 @@ class FloatingPointValue implements Comparable<FloatingPointValue> {
   static FloatingPointValuePopulator populator(
           {required int exponentWidth, required int mantissaWidth}) =>
       FloatingPointValuePopulator(FloatingPointValue.uninitialized()
-        .._exponentWidth = exponentWidth
-        .._mantissaWidth = mantissaWidth);
+        ..storedExponentWidth = exponentWidth
+        ..storedMantissaWidth = mantissaWidth);
 
   /// Creates a [FloatingPointValuePopulator] for the same type as `this` and
   /// with the same widths.
@@ -91,8 +100,8 @@ class FloatingPointValue implements Comparable<FloatingPointValue> {
   @mustBeOverridden
   FloatingPointValuePopulator clonePopulator() =>
       FloatingPointValuePopulator(FloatingPointValue.uninitialized()
-        .._exponentWidth = exponentWidth
-        .._mantissaWidth = mantissaWidth);
+        ..storedExponentWidth = exponentWidth
+        ..storedMantissaWidth = mantissaWidth);
 
   /// A wrapper around [FloatingPointValuePopulator.ofString] that computes the
   /// widths of the exponent and mantissa from the input string.
@@ -313,7 +322,9 @@ class FloatingPointValue implements Comparable<FloatingPointValue> {
             pow(2.0, mantissa.width);
       } else if (!isNaN) {
         doubleVal = (sign.toBool() ? -1.0 : 1.0) *
-            (1.0 + mantissa.toBigInt().toDouble() / pow(2.0, mantissa.width)) *
+            ((implicitJBit ? 1.0 : 0.0) +
+                mantissa.toBigInt().toDouble() /
+                    pow(2.0, mantissa.width - (implicitJBit ? 0 : 1))) *
             pow(2.0, exponent.toInt() - bias);
       }
     }

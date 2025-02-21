@@ -480,4 +480,28 @@ void main() {
     expect(fpv1.withinRounding(fpv1), true);
     expect(fpv1.withinRounding(fpv3), true);
   });
+
+  test('FPV: explicit j-bit exhaustive round-trip', () {
+    const exponentWidth = 4;
+    const mantissaWidth = 4;
+    for (final signStr in ['0', '1']) {
+      var exponent = LogicValue.zero.zeroExtend(exponentWidth);
+      var mantissa = LogicValue.zero.zeroExtend(mantissaWidth);
+      for (var k = 0; k < pow(2.0, exponentWidth).toInt(); k++) {
+        final expStr = exponent.bitString;
+        for (var i = 0; i < pow(2.0, mantissaWidth).toInt(); i++) {
+          final mantStr = mantissa.bitString;
+          final fp = FloatingPointExplicitJBitValue.ofBinaryStrings(
+              signStr, expStr, mantStr);
+          final dbl = fp.toDouble();
+          final fp2 = FloatingPointExplicitJBitValue.populator(
+                  exponentWidth: exponentWidth, mantissaWidth: mantissaWidth)
+              .ofDouble(dbl);
+          expect(fp.normalized(), equals(fp2));
+          mantissa = mantissa + 1;
+        }
+        exponent = exponent + 1;
+      }
+    }
+  });
 }

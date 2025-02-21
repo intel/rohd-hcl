@@ -361,4 +361,60 @@ void main() {
         .ofDoubleUnrounded(expectedDouble);
     expect(adder.sum.floatingPointValue, equals(expectedNoRound));
   });
+
+  test('FP: simple adder with explicit j-bit exhaustive', () {
+    const exponentWidth = 3;
+    const mantissaWidth = 4;
+
+    final fp1 = FloatingPointExplicitJBit(
+        exponentWidth: exponentWidth, mantissaWidth: mantissaWidth);
+    final fp2 = FloatingPointExplicitJBit(
+        exponentWidth: exponentWidth, mantissaWidth: mantissaWidth);
+    fp1.put(0);
+    fp2.put(0);
+    final adder = FloatingPointAdderSimple(fp1, fp2);
+
+    for (final subtract in [0, 1]) {
+      final expLimit = pow(2, exponentWidth);
+      final mantLimit = pow(2, mantissaWidth);
+      for (var e1 = 0; e1 < expLimit; e1++) {
+        for (var m1 = 0; m1 < mantLimit; m1++) {
+          if ((e1 != 0) && (m1 == 0)) {
+            continue;
+          }
+          final fv1 = FloatingPointExplicitJBitValue.populator(
+                  exponentWidth: exponentWidth, mantissaWidth: mantissaWidth)
+              .ofInts(e1, m1);
+          for (var e2 = 0; e2 < expLimit; e2++) {
+            for (var m2 = 0; m2 < mantLimit; m2++) {
+              if ((e2 != 0) && (m2 == 0)) {
+                continue;
+              }
+              final fv2 = FloatingPointExplicitJBitValue.populator(
+                      exponentWidth: exponentWidth,
+                      mantissaWidth: mantissaWidth)
+                  .ofInts(e2, m2, sign: subtract == 1);
+
+              fp1.put(fv1.value);
+              fp2.put(fv2.value);
+
+              final computed = adder.sum.floatingPointValue;
+              final expectedNoRound = FloatingPointValue.populator(
+                      exponentWidth: exponentWidth,
+                      mantissaWidth: mantissaWidth)
+                  .ofDouble(fv1.toDouble() + fv2.toDouble(),
+                      roundingMode: FloatingPointRoundingMode.truncate);
+
+              expect(computed.withinRounding(expectedNoRound), true, reason: '''
+      $fv1 (${fv1.toDouble()})\t+
+      $fv2 (${fv2.toDouble()})\t=
+      $computed (${computed.toDouble()})\tcomputed
+      $expectedNoRound (${expectedNoRound.toDouble()})\texpected
+''');
+            }
+          }
+        }
+      }
+    }
+  });
 }

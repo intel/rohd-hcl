@@ -67,6 +67,13 @@ class FloatingPoint extends LogicStructure {
   FloatingPointValuePopulator valuePopulator() => FloatingPointValue.populator(
       exponentWidth: exponent.width, mantissaWidth: mantissa.width);
 
+  /// Return true if the J-bit is not explicitly represented in the mantissa
+  /// when in normal form.
+  bool get implicitJBit => true;
+
+  // TODO(desmonddak): this will work incorrectly and must be fixed.
+  // The issue is that it should return the EJ version of this or
+  // convert to the original (we may need both routines here)
   /// Return the [FloatingPointValue] of the current [value].
   FloatingPointValue get floatingPointValue =>
       valuePopulator().ofFloatingPoint(this);
@@ -165,4 +172,41 @@ class FloatingPoint extends LogicStructure {
     final mantissa = Const(1, width: mantissaWidth);
     return FloatingPoint._(signLogic, exponent, mantissa);
   }
+}
+
+/// A floating-point Logic signal with an explicit J-bit in the mantissa
+class FloatingPointExplicitJBit extends FloatingPoint {
+  /// Construct an explicit J-bit floating-point Logic
+  FloatingPointExplicitJBit(
+      {required super.exponentWidth, required super.mantissaWidth, super.name})
+      : super();
+
+  FloatingPointExplicitJBit._(Logic sign, Logic exponent, Logic mantissa,
+      {String name = 'floatingPointEJ'})
+      : super._(sign, exponent, mantissa, name: name);
+  @override
+  FloatingPointExplicitJBit clone({String? name}) => FloatingPointExplicitJBit(
+        exponentWidth: exponent.width,
+        mantissaWidth: mantissa.width,
+        name: name,
+      );
+  @override
+  FloatingPointValue get floatingPointValue => FloatingPointValue(
+      sign: sign.value, exponent: exponent.value, mantissa: mantissa.value);
+
+  /// A [FloatingPointValuePopulator] for values associated with this
+  /// [FloatingPoint] type.
+  @override
+  FloatingPointValuePopulator valuePopulator() => FloatingPointValue.populator(
+      exponentWidth: exponent.width, mantissaWidth: mantissa.width);
+
+  /// Return a Logic true if this FloatingPoint contains a normal number,
+  /// defined as having mantissa in the range [1,2)
+  @override
+  Logic get isNormal => Const(0);
+
+  /// Return true if the J-bit is not explicitly represented in the mantissa
+  /// when in normal form.
+  @override
+  bool get implicitJBit => false;
 }
