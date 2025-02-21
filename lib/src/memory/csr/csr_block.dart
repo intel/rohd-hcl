@@ -248,10 +248,7 @@ class CsrBlock extends Module {
         final regCheck = <int>[];
         for (final csr in csrs) {
           if (csr.config.width > _frontRead.dataWidth) {
-            final rem = csr.width % _frontRead.dataWidth;
-            final targ = rem == 0
-                ? csr.width ~/ _frontRead.dataWidth
-                : csr.width ~/ _frontRead.dataWidth + 1;
+            final targ = (csr.width / _frontRead.dataWidth).ceil();
 
             for (var j = 0; j < targ; j++) {
               regCheck.add(csr.addr + j * logicalRegisterIncrement);
@@ -305,9 +302,7 @@ class CsrBlock extends Module {
       Logic dataToWrite;
       if (dataWidth < csrs[i].config.width) {
         final rem = csrs[i].config.width % dataWidth;
-        final targ = rem == 0
-            ? csrs[i].config.width ~/ dataWidth
-            : csrs[i].config.width ~/ dataWidth + 1;
+        final targ = (csrs[i].config.width / dataWidth).ceil();
 
         // must logically separate the register out across multiple addresses
         final addrs = List.generate(
@@ -396,8 +391,7 @@ class CsrBlock extends Module {
       if (csr.isFrontdoorReadable) {
         if (dataWidth < csr.config.width) {
           final rem = csr.width % dataWidth;
-          final targ =
-              rem == 0 ? csr.width ~/ dataWidth : csr.width ~/ dataWidth + 1;
+          final targ = (csr.width / dataWidth).ceil();
 
           // must further examine logical registers
           // and capture the correct logical chunk
