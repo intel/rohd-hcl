@@ -53,6 +53,11 @@ void main() {
             .valuePopulator()
             .ofConstant(FloatingPointConstants.one),
         isA<FloatingPoint8E4M3Value>());
+    expect(
+        FloatingPointTF32()
+            .valuePopulator()
+            .ofConstant(FloatingPointConstants.one),
+        isA<FloatingPointTF32Value>());
   });
 
   test('floating point floatingPointValue and previousFloatingPointValue',

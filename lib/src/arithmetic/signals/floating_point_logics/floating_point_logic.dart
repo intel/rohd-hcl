@@ -8,7 +8,6 @@
 // Authors:
 //  Max Korbel <max.korbel@intel.com>
 //  Desmond A Kirkpatrick <desmond.a.kirkpatrick@intel.com
-//
 
 import 'package:meta/meta.dart';
 import 'package:rohd/rohd.dart';
@@ -166,95 +165,4 @@ class FloatingPoint extends LogicStructure {
     final mantissa = Const(1, width: mantissaWidth);
     return FloatingPoint._(signLogic, exponent, mantissa);
   }
-}
-
-/// Single floating point representation
-class FloatingPoint32 extends FloatingPoint {
-  /// Construct a 32-bit (single-precision) floating point number
-  FloatingPoint32({super.name})
-      : super(
-            exponentWidth: FloatingPoint32Value.populator().exponentWidth,
-            mantissaWidth: FloatingPoint32Value.populator().mantissaWidth);
-
-  @override
-  FloatingPoint32 clone({String? name}) => FloatingPoint32(name: name);
-
-  @override
-  FloatingPointValuePopulator<FloatingPoint32Value> valuePopulator() =>
-      FloatingPoint32Value.populator();
-}
-
-/// Double floating point representation
-class FloatingPoint64 extends FloatingPoint {
-  /// Construct a 64-bit (double-precision) floating point number
-  FloatingPoint64({super.name})
-      : super(
-            exponentWidth: FloatingPoint64Value.populator().exponentWidth,
-            mantissaWidth: FloatingPoint64Value.populator().mantissaWidth);
-  @override
-  FloatingPoint64 clone({String? name}) => FloatingPoint64(name: name);
-
-  @override
-  FloatingPointValuePopulator<FloatingPoint64Value> valuePopulator() =>
-      FloatingPoint64Value.populator();
-}
-
-/// Eight-bit floating point representation for deep learning: E4M3
-class FloatingPoint8E4M3 extends FloatingPoint {
-  /// Construct an 8-bit floating point number
-  FloatingPoint8E4M3({super.name})
-      : super(
-            mantissaWidth: FloatingPoint8E4M3Value.populator().mantissaWidth,
-            exponentWidth: FloatingPoint8E4M3Value.populator().exponentWidth);
-  @override
-  FloatingPoint8E4M3 clone({String? name}) => FloatingPoint8E4M3(name: name);
-
-  @override
-  FloatingPointValuePopulator<FloatingPoint8E4M3Value> valuePopulator() =>
-      FloatingPoint8E4M3Value.populator();
-}
-
-/// Eight-bit floating point representation for deep learning: E5M2
-class FloatingPoint8E5M2 extends FloatingPoint {
-  /// Construct an 8-bit floating point number
-  FloatingPoint8E5M2({super.name})
-      : super(
-            mantissaWidth: FloatingPoint8E5M2Value.populator().mantissaWidth,
-            exponentWidth: FloatingPoint8E5M2Value.populator().exponentWidth);
-  @override
-  FloatingPoint8E5M2 clone({String? name}) => FloatingPoint8E5M2(name: name);
-
-  @override
-  FloatingPointValuePopulator<FloatingPoint8E5M2Value> valuePopulator() =>
-      FloatingPoint8E5M2Value.populator();
-}
-
-/// Sixteen-bit BF16 floating point representation
-class FloatingPointBF16 extends FloatingPoint {
-  /// Construct a BF16 16-bit floating point number
-  FloatingPointBF16({super.name})
-      : super(
-            mantissaWidth: FloatingPointBF16Value.populator().mantissaWidth,
-            exponentWidth: FloatingPointBF16Value.populator().exponentWidth);
-  @override
-  FloatingPointBF16 clone({String? name}) => FloatingPointBF16(name: name);
-
-  @override
-  FloatingPointValuePopulator<FloatingPointBF16Value> valuePopulator() =>
-      FloatingPointBF16Value.populator();
-}
-
-/// Sixteen-bit floating point representation
-class FloatingPoint16 extends FloatingPoint {
-  /// Construct a 16-bit floating point number
-  FloatingPoint16({super.name})
-      : super(
-            mantissaWidth: FloatingPoint16Value.populator().mantissaWidth,
-            exponentWidth: FloatingPoint16Value.populator().exponentWidth);
-  @override
-  FloatingPoint16 clone({String? name}) => FloatingPoint16(name: name);
-
-  @override
-  FloatingPointValuePopulator<FloatingPoint16Value> valuePopulator() =>
-      FloatingPoint16Value.populator();
 }
