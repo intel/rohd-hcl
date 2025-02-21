@@ -25,7 +25,7 @@ class FloatingPointAdderRound extends FloatingPointAdder {
       super.clk,
       super.reset,
       super.enable,
-      Adder Function(Logic a, Logic b, {Logic? carryIn}) adderGen =
+      Adder Function(Logic a, Logic b, {Logic? carryIn, String name}) adderGen =
           NativeAdder.new,
       ParallelPrefix Function(
               List<Logic> inps, Logic Function(Logic term1, Logic term2) op)
@@ -109,10 +109,12 @@ class FloatingPointAdderRound extends FloatingPointAdder {
     final isNaNFlopped = localFlop(isNaN);
 
     final carryRPath = Logic(name: 'carryRpath');
-    final significandAdderRPath = OnesComplementAdder(
+    final carryP1RPath = Logic(name: 'carryRpath');
+    final significandAdderRPath = CarrySelectOnesComplementCompoundAdder(
         largeOperandFlopped, smallerOperandRPathFlopped,
         subtractIn: effectiveSubtractionFlopped,
         carryOut: carryRPath,
+        carryOutP1: carryP1RPath,
         adderGen: adderGen,
         name: 'rpath_significand_adder');
 
@@ -120,10 +122,8 @@ class FloatingPointAdderRound extends FloatingPointAdder {
         .slice(extendWidthRPath - 1, 0)
         .named('lowbitsRpath');
 
-    final lowAdderRPathSum = OnesComplementAdder(
-            carryRPath.zeroExtend(extendWidthRPath),
+    final lowAdderRPathSum = adderGen(carryRPath.zeroExtend(extendWidthRPath),
             mux(effectiveSubtractionFlopped, ~lowBitsRPath, lowBitsRPath),
-            adderGen: adderGen,
             name: 'rpath_lowadder')
         .sum
         .named('lowAdderSumRpath');
@@ -143,8 +143,7 @@ class FloatingPointAdderRound extends FloatingPointAdder {
 
     final sumRPath =
         significandAdderRPath.sum.slice(mantissaWidth + 1, 0).named('sumRpath');
-    // TODO(desmonddak): we should use a compound adder here
-    final sumP1RPath = (significandAdderRPath.sum + 1)
+    final sumP1RPath = significandAdderRPath.sumP1
         .named('sumPlusOneRpath')
         .slice(mantissaWidth + 1, 0);
 
