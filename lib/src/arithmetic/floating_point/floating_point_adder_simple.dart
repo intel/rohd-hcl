@@ -75,7 +75,9 @@ class FloatingPointAdderSimple extends FloatingPointAdder {
         .named('mantissa');
     final leadOneValid = Logic(name: 'leadOneValid');
     final leadOnePre =
-        priorityGen(mantissa, valid: leadOneValid).out.named('leadOnePre');
+        priorityGen(mantissa, valid: leadOneValid, name: 'leading_one_detect')
+            .out
+            .named('leadOnePre');
     // Limit leadOne to exponent range and match widths
     final infExponent = outputSum.inf(sign: aSignLatched).exponent;
     final leadOne = ((leadOnePre.width > exponentWidth)

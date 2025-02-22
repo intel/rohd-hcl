@@ -26,21 +26,6 @@ Logic addReduceAdders(List<Logic> inputs, {String name = 'prefix'}) {
   }
 }
 
-int recurse(int w, int r) {
-  final segment = w ~/ r;
-
-  var depth = 0;
-  if (w > r) {
-    for (var i = 0; i < r; i++) {
-      final d = recurse(i < r - 1 ? segment : w - (r - 1) * segment, r);
-      if (d >= depth) {
-        depth = d + 1;
-      }
-    }
-  }
-  return depth;
-}
-
 void main() {
   tearDown(() async {
     await Simulator.reset();
@@ -49,11 +34,6 @@ void main() {
     final a = inputs.reduce((v, e) => v + e);
     return a;
   }
-
-  test('recurse', () {
-    //
-    print('recurse:  ${recurse(81, 3)}');
-  });
 
   test('reduction tree of add operations -- quick test', () async {
     const width = 13;
