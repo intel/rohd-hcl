@@ -8,6 +8,7 @@
 // Author: Desmond A Kirkpatrick <desmond.a.kirkpatrick@intel.com
 
 import 'dart:async';
+import 'dart:math';
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
 import 'package:rohd_vf/rohd_vf.dart';
@@ -50,6 +51,7 @@ void main() {
       expect(prefixAdd.out.value.toInt(), equals(count));
     }
   });
+
   test('reduction tree of adders -- large', () async {
     final clk = SimpleClockGenerator(10).clk;
 
