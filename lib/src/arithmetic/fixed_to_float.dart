@@ -60,7 +60,7 @@ class FixedToFloat extends Module {
     final absValue = Logic(name: 'absValue', width: fixed.width)
       ..gets(mux(_float.sign, ~(fixed - 1), fixed));
 
-    final jBit = ParallelPrefixPriorityEncoder(absValue.reversed)
+    final jBit = RecursiveModulePriorityEncoder(absValue.reversed)
         .out
         .zeroExtend(iWidth)
         .named('jBit');

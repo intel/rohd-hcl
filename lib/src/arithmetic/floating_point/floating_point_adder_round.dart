@@ -242,9 +242,8 @@ class FloatingPointAdderRound extends FloatingPointAdder {
         .named('significandNpath');
 
     final validLeadOneNPath = Logic(name: 'validLead1Npath');
-    final leadOneNPathPre = ParallelPrefixPriorityEncoder(
+    final leadOneNPathPre = RecursiveModulePriorityEncoder(
             significandNPath.reversed,
-            ppGen: ppTree,
             valid: validLeadOneNPath,
             name: 'npath_leadingOne')
         .out;
