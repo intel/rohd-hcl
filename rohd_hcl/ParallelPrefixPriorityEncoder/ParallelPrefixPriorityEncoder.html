@@ -69,43 +69,31 @@
     </section>
     
 <section class="desc markdown">
-  <p>PriorityEncoder constructor</p>
+  <p>Build a <a href="../../rohd_hcl/PriorityEncoder-class.html">PriorityEncoder</a> using a <a href="../../rohd_hcl/ParallelPrefix-class.html">ParallelPrefix</a> tree.</p>
 <ul>
 <li><code>ppGen</code> is the type of <a href="../../rohd_hcl/ParallelPrefix-class.html">ParallelPrefix</a> tree to use</li>
-<li><code>valid</code> is an optional Logic output to raise if no '1' is found</li>
 </ul>
-<p>If there is a '1' in the <code>inp</code>, the <a href="../../rohd_hcl/ParallelPrefixPriorityEncoder-class.html">ParallelPrefixPriorityEncoder</a>
-sets <a href="../../rohd_hcl/ParallelPrefixPriorityEncoder/out.html">out</a> to the index of the position of the first '1' starting from
-the LSb (and optionally sets <code>valid</code> to true).</p>
-<p>If there is no 1' in the <code>inp</code>, it sets <a href="../../rohd_hcl/ParallelPrefixPriorityEncoder/out.html">out</a> to <code>inp</code>.width + 1,
-as well as setting optional <code>valid</code> to false.</p>
 </section>
 
 
     
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
-  <pre class="language-dart"><code class="language-dart">ParallelPrefixPriorityEncoder(Logic inp,
+  <pre class="language-dart"><code class="language-dart">ParallelPrefixPriorityEncoder(super.inp,
     {ParallelPrefix Function(
             List&lt;Logic&gt; inps, Logic Function(Logic term1, Logic term2) op)
         ppGen = KoggeStone.new,
-    Logic? valid,
+    super.valid,
     super.name = &#39;parallel_prefix_encoder&#39;})
     : super(definitionName: &#39;ParallelPrefixPriorityEncoder_W${inp.width}&#39;) {
-  inp = addInput(&#39;inp&#39;, inp, width: inp.width);
   final sz = log2Ceil(inp.width + 1);
-  addOutput(&#39;out&#39;, width: sz);
-  if (valid != null) {
-    addOutput(&#39;valid&#39;);
-    valid &lt;= this.valid!;
-  }
   final u = ParallelPrefixPriorityFinder(inp, ppGen: ppGen);
   final pos = OneHotToBinary(u.out)
       .binary
       .zeroExtend(sz)
       .named(&#39;pos&#39;, naming: Naming.mergeable);
-  if (this.valid != null) {
-    this.valid! &lt;= pos.or() | inp[0];
+  if (valid != null) {
+    valid! &lt;= pos.or() | inp[0];
   }
   out &lt;=
       mux(pos.or() | inp[0], pos, Const(inp.width + 1, width: sz))

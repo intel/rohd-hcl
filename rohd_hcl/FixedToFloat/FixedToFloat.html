@@ -102,7 +102,7 @@
   final absValue = Logic(name: &#39;absValue&#39;, width: fixed.width)
     ..gets(mux(_float.sign, ~(fixed - 1), fixed));
 
-  final jBit = ParallelPrefixPriorityEncoder(absValue.reversed)
+  final jBit = RecursiveModulePriorityEncoder(absValue.reversed)
       .out
       .zeroExtend(iWidth)
       .named(&#39;jBit&#39;);

@@ -66,11 +66,10 @@
 <li><span class="parameter" id="param-b"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.3/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">b</span>, {</span></li>
 <li><span class="parameter" id="param-carryIn"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.3/rohd/Logic-class.html">Logic</a>?</span> <span class="parameter-name">carryIn</span>, </span></li>
 </ol>}) = <span class="default-value">NativeAdder.new</span>, </span></li>
-<li><span class="parameter" id="-param-ppTree"><span class="type-annotation"><a href="../../rohd_hcl/ParallelPrefix-class.html">ParallelPrefix</a></span> <span class="parameter-name">ppTree</span>(<ol class="parameter-list single-line"> <li><span class="parameter" id="param-inps"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.7.0/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://pub.dev/documentation/rohd/0.6.3/rohd/Logic-class.html">Logic</a></span>&gt;</span></span> <span class="parameter-name">inps</span>, </span></li>
-<li><span class="parameter" id="param-op"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.3/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">op</span>(<ol class="parameter-list single-line"> <li><span class="parameter" id="param-term1"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.3/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">term1</span>, </span></li>
-<li><span class="parameter" id="param-term2"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.3/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">term2</span></span></li>
-</ol>)</span></li>
-</ol>) = <span class="default-value">KoggeStone.new</span>, </span></li>
+<li><span class="parameter" id="-param-priorityGen"><span class="type-annotation"><a href="../../rohd_hcl/PriorityEncoder-class.html">PriorityEncoder</a></span> <span class="parameter-name">priorityGen</span>(<ol class="parameter-list"> <li><span class="parameter" id="param-bitVector"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.3/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">bitVector</span>, {</span></li>
+<li><span class="parameter" id="param-name"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.7.0/dart-core/String-class.html">String</a></span> <span class="parameter-name">name</span>, </span></li>
+<li><span class="parameter" id="param-valid"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.3/rohd/Logic-class.html">Logic</a>?</span> <span class="parameter-name">valid</span>, </span></li>
+</ol>}) = <span class="default-value">RecursiveModulePriorityEncoder.new</span>, </span></li>
 <li><span class="parameter" id="-param-name"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.7.0/dart-core/String-class.html">String</a></span> <span class="parameter-name">name</span> = <span class="default-value">&#39;floatingpoint_adder_simple&#39;</span>, </span></li>
 </ol>})
     </section>
@@ -80,8 +79,8 @@
 <ul>
 <li><code>adderGen</code> is an adder generator to be used in the primary adder
 functions.</li>
-<li><code>ppTree</code> is an parallel prefix tree generator to be used in internal
-functions.</li>
+<li><code>priorityGen</code> is a <a href="../../rohd_hcl/PriorityEncoder-class.html">PriorityEncoder</a> generator to be used in the
+leading one detection (default <a href="../../rohd_hcl/RecursiveModulePriorityEncoder-class.html">RecursiveModulePriorityEncoder</a>).</li>
 </ul>
 </section>
 
@@ -95,9 +94,8 @@ functions.</li>
     super.enable,
     Adder Function(Logic a, Logic b, {Logic? carryIn}) adderGen =
         NativeAdder.new,
-    ParallelPrefix Function(
-            List&lt;Logic&gt; inps, Logic Function(Logic term1, Logic term2) op)
-        ppTree = KoggeStone.new,
+    PriorityEncoder Function(Logic bitVector, {Logic? valid, String name})
+        priorityGen = RecursiveModulePriorityEncoder.new,
     super.name = &#39;floatingpoint_adder_simple&#39;})
     : super(
           definitionName: &#39;FloatingPointAdderSimple_&#39;
@@ -146,10 +144,10 @@ functions.</li>
       .getRange(0, min(intSum.width, intSum.width))
       .named(&#39;mantissa&#39;);
   final leadOneValid = Logic(name: &#39;leadOneValid&#39;);
-  final leadOnePre = ParallelPrefixPriorityEncoder(mantissa,
-          ppGen: ppTree, valid: leadOneValid)
-      .out
-      .named(&#39;leadOnePre&#39;);
+  final leadOnePre =
+      priorityGen(mantissa, valid: leadOneValid, name: &#39;leading_one_detect&#39;)
+          .out
+          .named(&#39;leadOnePre&#39;);
   &#47;&#47; Limit leadOne to exponent range and match widths
   final infExponent = outputSum.inf(sign: aSignLatched).exponent;
   final leadOne = ((leadOnePre.width &gt; exponentWidth)

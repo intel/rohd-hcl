@@ -311,9 +311,8 @@ functions.
       .named(&#39;significandNpath&#39;);
 
   final validLeadOneNPath = Logic(name: &#39;validLead1Npath&#39;);
-  final leadOneNPathPre = ParallelPrefixPriorityEncoder(
+  final leadOneNPathPre = RecursiveModulePriorityEncoder(
           significandNPath.reversed,
-          ppGen: ppTree,
           valid: validLeadOneNPath,
           name: &#39;npath_leadingOne&#39;)
       .out;

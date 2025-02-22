@@ -125,7 +125,7 @@ case that loss can occur and an optional output <a href="../../rohd_hcl/FloatToF
 
   if (checkOverflow &amp; ((this.m &lt; noLossM) | (this.n &lt; noLossN))) {
     final overflow = Logic(name: &#39;overflow&#39;);
-    final leadDetect = ParallelPrefixPriorityEncoder(fullMantissa.reversed,
+    final leadDetect = RecursiveModulePriorityEncoder(fullMantissa.reversed,
         name: &#39;leadone_detector&#39;);
 
     final sWidth = max(eWidth, leadDetect.out.width);
