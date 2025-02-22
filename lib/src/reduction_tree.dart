@@ -13,9 +13,11 @@ import 'package:meta/meta.dart';
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
 
-/// A generator which constructs a tree of radix-input / 1-output modules.
+/// Recursive Node for Reduction Tree
 class ReductionTree extends Module {
-  /// The radix-sized input operation to be performed at each node.
+  /// Operation to be performed at each node. Note that [operation] can widen
+  /// the output. The logic function must support the operation for [2 to radix]
+  /// inputs.
   @protected
   final Logic Function(List<Logic> inputs, {String name}) operation;
 
@@ -54,9 +56,17 @@ class ReductionTree extends Module {
   /// The flop depth of the tree from the output to the leaves.
   int get latency => _computed.flopDepth;
 
+  /// The input sequence
+  @protected
+  late final List<Logic> sequence;
+
   /// Capture the record of compute: the final value, its depth (from last
   /// flop or input), and its flopDepth if pipelined.
   late final ({Logic value, int depth, int flopDepth}) _computed;
+
+  /// Local conditional flop using module reset/enable
+  Logic localFlop(Logic d, {bool doFlop = false}) =>
+      condFlop(doFlop ? clk : null, reset: reset, en: enable, d);
 
   /// Generate a tree based on dividing the input [sequence] of a node into
   /// segments, recursively constructing [radix] child nodes to operate
@@ -64,12 +74,12 @@ class ReductionTree extends Module {
   /// - [sequence] is the input sequence to be reduced using the tree of
   /// operations.
   /// - Logic Function(List<Logic> inputs, {String name}) [operation]
-  /// is the operation to be
-  /// performed at each node. Note that [operation] can widen the output. The
-  /// logic function must support the operation for 2 to radix inputs.
+  /// is the operation to be performed at each node. Note that [operation]
+  /// can widen the output. The logic function must support the operation for
+  /// (2 to [radix]) inputs.
   /// - [radix] is the width of reduction at each node in the tree (e.g.,
   /// binary: radix=2).
-  /// - [signExtend] if true, use sign-extension to widen [Logic] values as
+  /// - [signExtend] if true, use sign-extension to widen Logic values as
   /// needed in the tree, otherwise use zero-extension (default).
   ///
   /// Optional parameters to be used for creating a pipelined computation tree:
@@ -83,12 +93,9 @@ class ReductionTree extends Module {
       Logic? enable,
       Logic? reset,
       super.name = 'reduction_tree'})
-      : super(definitionName: 'ReductionTree_R${radix}_L${sequence.length}}') {
-    if (sequence.isEmpty) {
-      throw RohdHclException("Don't use ReductionTree "
-          'with an empty sequence');
-    }
-    sequence = [
+      : super(
+            definitionName: 'ReductionTreeNode_R${radix}_L${sequence.length}') {
+    this.sequence = [
       for (var i = 0; i < sequence.length; i++)
         addInput('seq$i', sequence[i], width: sequence[i].width)
     ];
@@ -96,28 +103,30 @@ class ReductionTree extends Module {
     this.enable = (enable != null) ? addInput('enable', enable) : null;
     this.reset = (reset != null) ? addInput('reset', reset) : null;
 
-    _computed = reductionTreeRecurse(sequence);
-    addOutput('out', width: _computed.value.width) <= _computed.value;
-  }
-
-  /// Local conditional flop using module reset/enable
-  Logic localFlop(Logic d, {bool doFlop = false}) =>
-      condFlop(doFlop ? clk : null, reset: reset, en: enable, d);
-
-  /// Recursively construct the computation tree
-  ({Logic value, int depth, int flopDepth}) reductionTreeRecurse(
-      List<Logic> seq) {
-    if (seq.length < radix) {
-      return (value: operation(seq), depth: 0, flopDepth: 0);
+    if (this.sequence.length < radix) {
+      final value = operation(this.sequence);
+      addOutput('out', width: value.width) <= value;
+      _computed = (value: output('out'), depth: 0, flopDepth: 0);
     } else {
       final results = <({Logic value, int depth, int flopDepth})>[];
-      final segment = seq.length ~/ radix;
+      final segment = this.sequence.length ~/ radix;
+
       var pos = 0;
       for (var i = 0; i < radix; i++) {
-        final c = reductionTreeRecurse(seq
-            .getRange(pos, (i < radix - 1) ? pos + segment : seq.length)
-            .toList());
-        results.add(c);
+        final tree = ReductionTree(
+            this
+                .sequence
+                .getRange(
+                    pos, (i < radix - 1) ? pos + segment : this.sequence.length)
+                .toList(),
+            operation,
+            radix: radix,
+            signExtend: signExtend,
+            depthToFlop: depthToFlop,
+            clk: this.clk,
+            enable: this.enable,
+            reset: this.reset);
+        results.add(tree._computed);
         pos += segment;
       }
       final flopDepth = results.map((c) => c.flopDepth).reduce(max);
@@ -135,10 +144,12 @@ class ReductionTree extends Module {
       final resultsExtend = resultsFlop.map((r) =>
           signExtend ? r.signExtend(alignWidth) : r.zeroExtend(alignWidth));
 
-      final computed = operation(resultsExtend.toList(),
+      final value = operation(resultsExtend.toList(),
           name: 'reduce_d${(treeDepth + 1) + flopDepth * (depthToFlop ?? 0)}');
-      return (
-        value: computed,
+
+      addOutput('out', width: value.width) <= value;
+      _computed = (
+        value: output('out'),
         depth: depthFlop ? 0 : treeDepth + 1,
         flopDepth: flopDepth + (depthFlop ? 1 : 0)
       );
