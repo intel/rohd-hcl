@@ -159,6 +159,12 @@ If a given register is configured as not frontdoor readable, there is no hardwar
 
 On module build, the width of the address signal on both `DataPortInterface`s is checked to ensure that it is at least as wide as the block's `minAddrBits`. On module build, the width of the input and output data signals on the `DataPortInterface`s are checked to ensure that they are at least as wide as the block's `maxRegWidth`.
 
+#### Larger Width Registers in a Block
+
+There is a special mode called `allowLargerRegisters` where any register in the block can have a width that exceeds the width of the frontdoor interface data. In this case, HW generation will assign multiple logical addresses to the given register. Each logical address points to a contiguous chunk of bits in the register. Each chunk is at most the width of the frontdoor data, but can be less (if the register width is not evenly divisible by the frontdoor data width, the last chunk will be smaller). The number of logical addresses (chunks) is `ceil(register.width / frontdoor.data.width)`. The 0th chunk contains the LSBs of the register and has a logical address of `register.address` as defined in its config object. Each subsequent chunk contains the next LSBs of the register and has a logical address of `prior_chunk_address + logicalRegisterIncrement` where `logicalRegisterIncrement` is another construction parameter (with a default value of 1).
+
+Note that there is additional validation to ensure that the implicit addresses "added" by this mechanism do not overlap with any other existing address in the block.
+
 ### Backdoor CSR Access - Block
 
 The `CsrBlock` module provides backdoor read/write access to its registers through a `CsrBackdoorInterface`. One interface is instantiated per register that is backdoor accessible in the block and ported out of the module on build.
@@ -229,6 +235,8 @@ In the hardware's construction, each `CsrBlock`'s `DataPortInterface` is driven 
 If an access drives an address that doesn't map to any block, writes are NOPs and reads return 0x0.
 
 On module build, the width of the address signal on both `DataPortInterface`s is checked to ensure that it is at least as wide as the module's `minAddrBits`. On module build, the width of the input and output data signals on the `DataPortInterface`s are checked to ensure that they are at least as wide as the module's `maxRegWidth`.
+
+Note that the same parameters `allowLargerRegisters` and `logicalRegisterIncrement` that are found in `CsrBlock` can be passed at the top and propagated down to all blocks within the module.
 
 ### Backdoor CSR Access - Top
 

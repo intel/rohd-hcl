@@ -104,6 +104,7 @@ Some in-development items will have opened issues, as well. Feel free to create 
   - Replacement Policies
     - LRU
   - [Memory Model](./components/memory.md#memory-models)
+  - [Control/Status Registers (CSRs)](./components/csr.md)
 - Standard interfaces
   - AXI
   - [APB](./components/standard_interfaces.md#apb)
