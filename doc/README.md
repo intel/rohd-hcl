@@ -10,8 +10,9 @@ Some in-development items will have opened issues, as well. Feel free to create 
   - [Binary to 1-hot](./components/onehot.md)
   - [Binary to Gray](./components/binary_gray.md#binary-to-gray)
   - [Gray to Binary](./components/binary_gray.md#gray-to-binary)
-  - Priority
-    - [Prefix-tree based Priority Encoder](./components/parallel_prefix_operations.md)
+  - Priority Encoders
+    - [Prefix-tree based Priority Encoder](./components/priority_encoder.md#parallel-prefix-priority-encoder)
+    - [Recursive Priority Encoder](./components/priority_encoder.md#recursive-priority-encoder)
   - PLAs
 - Arbiters
   - [Priority Arbiter](./components/arbiter.md#priority-arbiter)
@@ -103,6 +104,7 @@ Some in-development items will have opened issues, as well. Feel free to create 
   - Replacement Policies
     - LRU
   - [Memory Model](./components/memory.md#memory-models)
+  - [Control/Status Registers (CSRs)](./components/csr.md)
 - Standard interfaces
   - AXI
   - [APB](./components/standard_interfaces.md#apb)

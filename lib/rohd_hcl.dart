@@ -17,6 +17,7 @@ export 'src/find.dart';
 export 'src/interfaces/interfaces.dart';
 export 'src/memory/memories.dart';
 export 'src/models/models.dart';
+export 'src/priority_encoder.dart';
 export 'src/reduction_tree.dart';
 export 'src/rotate.dart';
 export 'src/serialization/serialization.dart';
