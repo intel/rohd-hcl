@@ -61,8 +61,10 @@
 <li><span class="parameter" id="-param-clk"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.3/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">clk</span>, </span></li>
 <li><span class="parameter" id="-param-reset"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.3/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">reset</span>, </span></li>
 <li><span class="parameter" id="-param-fdw"><span class="type-annotation"><a href="../../rohd_hcl/DataPortInterface-class.html">DataPortInterface</a></span> <span class="parameter-name">fdw</span>, </span></li>
-<li><span class="parameter" id="-param-fdr"><span class="type-annotation"><a href="../../rohd_hcl/DataPortInterface-class.html">DataPortInterface</a></span> <span class="parameter-name">fdr</span>, </span></li>
-</ol>)
+<li><span class="parameter" id="-param-fdr"><span class="type-annotation"><a href="../../rohd_hcl/DataPortInterface-class.html">DataPortInterface</a></span> <span class="parameter-name">fdr</span>, {</span></li>
+<li><span class="parameter" id="-param-allowLargerRegisters"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.7.0/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">allowLargerRegisters</span> = <span class="default-value">false</span>, </span></li>
+<li><span class="parameter" id="-param-logicalRegisterIncrement"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.7.0/dart-core/int-class.html">int</a></span> <span class="parameter-name">logicalRegisterIncrement</span> = <span class="default-value">1</span>, </span></li>
+</ol>})
     </section>
     
 <section class="desc markdown">
@@ -73,19 +75,18 @@
     
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
-  <pre class="language-dart"><code class="language-dart">factory CsrTop(
-  CsrTopConfig config,
-  Logic clk,
-  Logic reset,
-  DataPortInterface fdw,
-  DataPortInterface fdr,
-) =&gt;
+  <pre class="language-dart"><code class="language-dart">factory CsrTop(CsrTopConfig config, Logic clk, Logic reset,
+        DataPortInterface fdw, DataPortInterface fdr,
+        {bool allowLargerRegisters = false,
+        int logicalRegisterIncrement = 1}) =&gt;
     CsrTop._(
       config: config,
       clk: clk,
       reset: reset,
       fdw: fdw,
       fdr: fdr,
+      allowLargerRegisters: allowLargerRegisters,
+      logicalRegisterIncrement: logicalRegisterIncrement,
     );</code></pre>
 </section>
 

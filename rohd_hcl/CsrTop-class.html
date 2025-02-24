@@ -93,7 +93,7 @@ are addressable using the remaining LSBs of the incoming address.</p>
     <h2>Constructors</h2>
     <dl class="constructor-summary-list">
         <dt id="CsrTop" class="callable">
-          <span class="name"><a href="../rohd_hcl/CsrTop/CsrTop.html">CsrTop</a></span><span class="signature">(<span class="parameter" id="-param-config"><span class="type-annotation"><a href="../rohd_hcl/CsrTopConfig-class.html">CsrTopConfig</a></span> <span class="parameter-name">config</span>, </span><span class="parameter" id="-param-clk"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.3/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">clk</span>, </span><span class="parameter" id="-param-reset"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.3/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">reset</span>, </span><span class="parameter" id="-param-fdw"><span class="type-annotation"><a href="../rohd_hcl/DataPortInterface-class.html">DataPortInterface</a></span> <span class="parameter-name">fdw</span>, </span><span class="parameter" id="-param-fdr"><span class="type-annotation"><a href="../rohd_hcl/DataPortInterface-class.html">DataPortInterface</a></span> <span class="parameter-name">fdr</span></span>)</span>
+          <span class="name"><a href="../rohd_hcl/CsrTop/CsrTop.html">CsrTop</a></span><span class="signature">(<span class="parameter" id="-param-config"><span class="type-annotation"><a href="../rohd_hcl/CsrTopConfig-class.html">CsrTopConfig</a></span> <span class="parameter-name">config</span>, </span><span class="parameter" id="-param-clk"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.3/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">clk</span>, </span><span class="parameter" id="-param-reset"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.3/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">reset</span>, </span><span class="parameter" id="-param-fdw"><span class="type-annotation"><a href="../rohd_hcl/DataPortInterface-class.html">DataPortInterface</a></span> <span class="parameter-name">fdw</span>, </span><span class="parameter" id="-param-fdr"><span class="type-annotation"><a href="../rohd_hcl/DataPortInterface-class.html">DataPortInterface</a></span> <span class="parameter-name">fdr</span>, {</span><span class="parameter" id="-param-allowLargerRegisters"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.7.0/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">allowLargerRegisters</span> = <span class="default-value">false</span>, </span><span class="parameter" id="-param-logicalRegisterIncrement"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.7.0/dart-core/int-class.html">int</a></span> <span class="parameter-name">logicalRegisterIncrement</span> = <span class="default-value">1</span></span>})</span>
         </dt>
         <dd>
           create the CsrBlock from a configuration
@@ -107,6 +107,19 @@ are addressable using the remaining LSBs of the incoming address.</p>
       id="instance-properties">
     <h2>Properties</h2>
     <dl class="properties">
+        <dt id="allowLargerRegisters" class="property">
+  <span class="name"><a href="../rohd_hcl/CsrTop/allowLargerRegisters.html">allowLargerRegisters</a></span>
+  <span class="signature">&#8594; <a href="https://api.dart.dev/stable/3.7.0/dart-core/bool-class.html">bool</a></span>
+  
+
+</dt>
+<dd>
+  Is it legal for the largest register width to be
+greater than the data width of the frontdoor interfaces.
+  <div class="features"><span class="feature">final</span></div>
+
+</dd>
+
         <dt id="backdoorInterfaces" class="property">
   <span class="name"><a href="../rohd_hcl/CsrTop/backdoorInterfaces.html">backdoorInterfaces</a></span>
   <span class="signature">&#8594; <a href="https://api.dart.dev/stable/3.7.0/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.dart.dev/stable/3.7.0/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../rohd_hcl/CsrBackdoorInterface-class.html">CsrBackdoorInterface</a></span>&gt;</span></span>&gt;</span></span>
@@ -228,6 +241,19 @@ signals.
   An <a href="https://api.dart.dev/stable/3.7.0/dart-core/Iterable-class.html">Iterable</a> of all <a href="https://pub.dev/documentation/rohd/0.6.3/rohd/Logic-class.html">Logic</a>s contained within this <a href="https://pub.dev/documentation/rohd/0.6.3/rohd/Module-class.html">Module</a> which are
 <em>not</em> an input or output port of this <a href="https://pub.dev/documentation/rohd/0.6.3/rohd/Module-class.html">Module</a>.
   <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="logicalRegisterIncrement" class="property">
+  <span class="name"><a href="../rohd_hcl/CsrTop/logicalRegisterIncrement.html">logicalRegisterIncrement</a></span>
+  <span class="signature">&#8594; <a href="https://api.dart.dev/stable/3.7.0/dart-core/int-class.html">int</a></span>
+  
+
+</dt>
+<dd>
+  What increment value to use when deriving logical addresses
+for registers that are wider than the frontdoor data width.
+  <div class="features"><span class="feature">final</span></div>
 
 </dd>
 
