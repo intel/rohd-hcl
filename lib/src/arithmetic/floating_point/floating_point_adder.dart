@@ -12,9 +12,11 @@ import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
 
 // TODO(desmonddak): add variable width output as we did with fpmultiply
+//  consider: this would mean we can't (easily?) use a parameter like FpType for
+//  the output, since we aren't guaranteed to have something to `clone` from.
 
 /// An abstract API for floating point adders.
-abstract class FloatingPointAdder extends Module {
+abstract class FloatingPointAdder<FpType extends FloatingPoint> extends Module {
   /// Width of the output exponent field.
   final int exponentWidth;
 
@@ -38,22 +40,19 @@ abstract class FloatingPointAdder extends Module {
 
   /// The first addend [a], named this way to allow for a local variable 'a'.
   @protected
-  late final FloatingPoint a;
+  late final FpType a;
 
   /// The second addend [b], named this way to allow for a local variable 'b'.
   @protected
-  late final FloatingPoint b;
+  late final FpType b;
 
   /// getter for the computed [FloatingPoint] output.
-
-  late final FloatingPoint sum = FloatingPoint(
-      exponentWidth: exponentWidth, mantissaWidth: mantissaWidth, name: 'sum')
-    ..gets(output('sum'));
+  late final FpType sum = (a.clone(name: 'sum') as FpType)..gets(output('sum'));
 
   /// Add two floating point numbers [a] and [b], returning result in [sum].
   /// - [clk], [reset], [enable] are optional inputs to control a pipestage
   /// (only inserted if [clk] is provided).
-  FloatingPointAdder(FloatingPoint a, FloatingPoint b,
+  FloatingPointAdder(FpType a, FpType b,
       {Logic? clk,
       Logic? reset,
       Logic? enable,
@@ -72,45 +71,12 @@ abstract class FloatingPointAdder extends Module {
     this.clk = (clk != null) ? addInput('clk', clk) : null;
     this.reset = (reset != null) ? addInput('reset', reset) : null;
     this.enable = (enable != null) ? addInput('enable', enable) : null;
-    this.a = a.clone(name: 'a')..gets(addInput('a', a, width: a.width));
-    this.b = b.clone(name: 'b')..gets(addInput('b', b, width: b.width));
+    this.a = (a.clone(name: 'a') as FpType)
+      ..gets(addInput('a', a, width: a.width));
+    this.b = (b.clone(name: 'b') as FpType)
+      ..gets(addInput('b', b, width: b.width));
 
     addOutput('sum', width: exponentWidth + mantissaWidth + 1);
-  }
-
-  /// Swapping two FloatingPoint structures based on a conditional
-  @protected
-  (FloatingPoint, FloatingPoint) swap(
-      Logic swap, (FloatingPoint, FloatingPoint) toSwap) {
-    final in1 = toSwap.$1.named('swapIn_${toSwap.$1.name}');
-    final in2 = toSwap.$2.named('swapIn_${toSwap.$2.name}');
-
-    final out1 = mux(swap, in2, in1).named('swapOut_larger');
-    final out2 = mux(swap, in1, in2).named('swapOut_smaller');
-    final first = a.clone(name: 'larger')..gets(out1);
-    final second = a.clone(name: 'smaller')..gets(out2);
-    return (first, second);
-  }
-
-  /// Sort two FloatingPointNumbers and swap
-  @protected
-  (FloatingPoint larger, FloatingPoint smaller) sortFp(
-      (FloatingPoint, FloatingPoint) toSort) {
-    final ae = toSort.$1.exponent;
-    final be = toSort.$2.exponent;
-    final am = toSort.$1.mantissa;
-    final bm = toSort.$2.mantissa;
-    final doSwap = (ae.lt(be) |
-            (ae.eq(be) & am.lt(bm)) |
-            ((ae.eq(be) & am.eq(bm)) & toSort.$1.sign))
-        .named('doSwap');
-
-    final swapped = swap(doSwap, toSort);
-
-    final larger = swapped.$1.clone(name: 'larger')..gets(swapped.$1);
-    final smaller = swapped.$2.clone(name: 'smaller')..gets(swapped.$2);
-
-    return (larger, smaller);
   }
 
   /// Pipelining helper that uses the context for signals clk/enable/reset

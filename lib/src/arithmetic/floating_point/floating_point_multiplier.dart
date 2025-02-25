@@ -12,7 +12,8 @@ import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
 
 /// An abstract API for floating-point multipliers.
-abstract class FloatingPointMultiplier extends Module {
+abstract class FloatingPointMultiplier<FpInType extends FloatingPoint>
+    extends Module {
   /// Width of the output exponent field.
   late final int exponentWidth;
 
@@ -36,11 +37,11 @@ abstract class FloatingPointMultiplier extends Module {
 
   /// The multiplicand [a].
   @protected
-  late final FloatingPoint a;
+  late final FpInType a;
 
   /// The multiplier [b].
   @protected
-  late final FloatingPoint b;
+  late final FpInType b;
 
   /// The computed [FloatingPoint] product of [a] * [b].
   late final FloatingPoint product =
@@ -60,7 +61,7 @@ abstract class FloatingPointMultiplier extends Module {
   /// (only inserted if [clk] is provided).
   /// - [ppGen] is the type of [ParallelPrefix] used in internal adder
   /// generation.
-  FloatingPointMultiplier(FloatingPoint a, FloatingPoint b,
+  FloatingPointMultiplier(FpInType a, FpInType b,
       {Logic? clk,
       Logic? reset,
       Logic? enable,
@@ -98,8 +99,10 @@ abstract class FloatingPointMultiplier extends Module {
     this.enable = (enable != null) ? addInput('enable', enable) : enable;
     this.reset = (reset != null) ? addInput('clk', reset) : reset;
 
-    this.a = a.clone(name: 'a')..gets(addInput('a', a, width: a.width));
-    this.b = b.clone(name: 'b')..gets(addInput('b', b, width: b.width));
+    this.a = (a.clone(name: 'a') as FpInType)
+      ..gets(addInput('a', a, width: a.width));
+    this.b = (b.clone(name: 'b') as FpInType)
+      ..gets(addInput('b', b, width: b.width));
   }
 
   /// Pipelining helper that uses the context for signals clk/enable/reset

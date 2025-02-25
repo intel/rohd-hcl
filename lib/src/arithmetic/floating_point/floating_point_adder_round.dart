@@ -13,7 +13,8 @@ import 'package:rohd_hcl/rohd_hcl.dart';
 
 /// An adder module for variable FloatingPoint type with rounding.
 // This is a Seidel/Even adder, dual-path implementation.
-class FloatingPointAdderRound extends FloatingPointAdder {
+class FloatingPointAdderRound<FpType extends FloatingPoint>
+    extends FloatingPointAdder<FpType> {
   /// Add two floating point numbers [a] and [b], returning result in [sum].
   /// [subtract] is an optional Logic input to do subtraction
   /// [adderGen] is an adder generator to be used in the primary adder
@@ -55,7 +56,7 @@ class FloatingPointAdderRound extends FloatingPointAdder {
     final delta = exponentSubtractor.sum.named('expDelta');
 
     // Seidel: (sl, el, fl) = larger; (ss, es, fs) = smaller
-    final (larger, smaller) = swap(signDelta, (a, b));
+    final (larger, smaller) = FloatingPointUtilities.swap(signDelta, (a, b));
 
     final fl = mux(
       larger.isNormal,
