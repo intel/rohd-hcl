@@ -29,7 +29,7 @@ abstract class FloatingPointUtilities {
 
   /// Sort two [FloatingPoint]s and swap them if necessary so that the larger
   /// of the two is the first element in the returned tuple.
-  static (FpType larger, FpType smaller) sortFp<FpType extends FloatingPoint>(
+  static (FpType larger, FpType smaller) sort<FpType extends FloatingPoint>(
       (FpType, FpType) toSort) {
     final ae = toSort.$1.exponent;
     final be = toSort.$2.exponent;

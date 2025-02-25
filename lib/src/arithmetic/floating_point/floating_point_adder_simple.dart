@@ -37,7 +37,7 @@ class FloatingPointAdderSimple<FpType extends FloatingPoint>
         name: 'sum');
     output('sum') <= outputSum;
 
-    final (larger, smaller) = FloatingPointUtilities.sortFp((super.a, super.b));
+    final (larger, smaller) = FloatingPointUtilities.sort((super.a, super.b));
 
     final isInf = (larger.isAnInfinity | smaller.isAnInfinity).named('isInf');
     final isNaN = (larger.isNaN |
