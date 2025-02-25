@@ -1,4 +1,4 @@
-// Copyright (C) 2023-2024 Intel Corporation
+// Copyright (C) 2023-2025 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 //
 // sparse_memory_storage.dart
@@ -6,8 +6,10 @@
 //
 // 2023 June 12
 
+import 'package:collection/collection.dart';
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/src/exceptions.dart';
+import 'package:rohd_hcl/src/utils.dart';
 
 /// A storage for memory models.
 abstract class MemoryStorage {
@@ -69,6 +71,173 @@ abstract class MemoryStorage {
         onInvalidRead = onInvalidRead ?? _defaultOnInvalidRead,
         alignAddress = alignAddress ?? _defaultAlignAddress;
 
+  /// Reads a verilog-compliant mem file and preloads memory with it.
+  ///
+  /// The loaded address will increment each [dataWidth] bits of data between
+  /// address `@` annotations.  Data is parsed according to the provided
+  /// [radix], which must be a positive power of 2 up to 16. The address for
+  /// data will increment by 1 for each [bitsPerAddress] bits of data, which
+  /// must be a power of 2 less than [dataWidth].
+  ///
+  /// Line comments (`//`) are supported and any whitespace is supported as a
+  /// separator between data.  Block comments (`/* */`) are not supported.
+  ///
+  /// Example input format:
+  /// ```
+  /// @80000000
+  /// B3 02 00 00 33 05 00 00 B3 05 00 00 13 05 F5 1F
+  /// 6F 00 40 00 93 02 10 00 17 03 00 00 13 03 83 02
+  /// 23 20 53 00 6F 00 00 00
+  /// @80000040
+  /// 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  /// 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  /// ```
+  void loadMemString(String memContents,
+      {int radix = 16, int bitsPerAddress = 8}) {
+    if (radix <= 0 || (radix & (radix - 1) != 0) || radix > 16) {
+      throw RohdHclException('Radix must be a positive power of 2 (max 16).');
+    }
+
+    if (dataWidth % bitsPerAddress != 0) {
+      throw RohdHclException('dataWidth must be a multiple of bitsPerAddress.');
+    }
+
+    final bitsPerChar = log2Ceil(radix);
+    final charsPerLine = dataWidth ~/ bitsPerChar;
+    final addrIncrPerLine = dataWidth ~/ bitsPerAddress;
+
+    var address = 0;
+    final chunks = <String>[];
+    var chunksLength = 0;
+
+    void addChunk([String? chunk]) {
+      if (chunk != null) {
+        // ignore: parameter_assignments
+        chunk = chunk.trim();
+
+        chunks.add(chunk);
+        chunksLength += chunk.length;
+      }
+
+      while (chunksLength >= charsPerLine) {
+        final pendingData = chunks.reversed.join();
+        final cutPoint = chunksLength - charsPerLine;
+        final thisData = pendingData.substring(cutPoint);
+        chunks.clear();
+
+        final remaining = pendingData.substring(0, cutPoint);
+
+        chunksLength = 0;
+
+        if (remaining.isNotEmpty) {
+          chunks.add(remaining);
+          chunksLength = remaining.length;
+        }
+
+        final lvData = LogicValue.ofBigInt(
+            BigInt.parse(thisData, radix: radix), dataWidth);
+        final addr =
+            LogicValue.ofInt(address - (address % addrIncrPerLine), addrWidth);
+        setData(addr, lvData);
+
+        address += addrIncrPerLine;
+      }
+    }
+
+    void padToAlignment() {
+      addChunk();
+      while (chunksLength != 0) {
+        addChunk('0');
+      }
+    }
+
+    for (var line in memContents.split('\n')) {
+      // if there's a `//` comment on this line, ditch everything after it
+      final commentIdx = line.indexOf('//');
+      if (commentIdx != -1) {
+        line = line.substring(0, commentIdx);
+      }
+
+      line = line.trim();
+
+      if (line.isEmpty) {
+        continue;
+      }
+
+      if (line.startsWith('@')) {
+        // pad out remaining bytes as 0
+        padToAlignment();
+
+        // if it doesn't match the format, throw
+        if (!RegExp('@([0-9a-fA-F]+)').hasMatch(line)) {
+          throw RohdHclException('Invalid address format: $line');
+        }
+
+        // check to see if this block already exists in memory
+        final lineAddr = int.parse(line.substring(1), radix: 16);
+        final lineAddrLv =
+            LogicValue.ofInt(lineAddr - lineAddr % addrIncrPerLine, addrWidth);
+        if (getData(lineAddrLv) != null) {
+          // must reconstruct the bytes array ending at the provided address
+          final endOff = lineAddr % addrIncrPerLine;
+          final origData = getData(lineAddrLv);
+          chunks
+            ..clear()
+            ..add(origData!
+                .getRange(0, endOff * bitsPerAddress)
+                .toInt()
+                .toRadixString(radix));
+        }
+
+        address = lineAddrLv.toInt();
+      } else {
+        line.split(RegExp(r'\s')).forEach(addChunk);
+      }
+    }
+    // pad out remaining bytes as 0
+    padToAlignment();
+  }
+
+  /// Dumps the contents of memory to a verilog-compliant hex file.
+  ///
+  /// The address will increment each [bitsPerAddress] bits of data between
+  /// address `@` annotations. Data is output according to the provided [radix],
+  /// which must be a positive power of 2 up to 16.
+  String dumpMemString({int radix = 16, int bitsPerAddress = 8}) {
+    if (radix <= 0 || (radix & (radix - 1) != 0) || radix > 16) {
+      throw RohdHclException('Radix must be a positive power of 2 (max 16).');
+    }
+
+    if (isEmpty) {
+      return '';
+    }
+
+    final bitsPerChar = log2Ceil(radix);
+
+    final addrs = addresses.sorted();
+
+    final memString = StringBuffer();
+
+    LogicValue? currentAddr;
+
+    for (final addr in addrs) {
+      if (currentAddr != addr) {
+        memString.writeln('@${addr.toInt().toRadixString(16)}');
+        currentAddr = addr;
+      }
+
+      final data = getData(addr)!;
+      memString.writeln(data
+          .toInt()
+          .toRadixString(radix)
+          .padLeft(data.width ~/ bitsPerChar, '0'));
+      currentAddr = currentAddr! +
+          LogicValue.ofInt(dataWidth ~/ bitsPerAddress, addrWidth);
+    }
+
+    return memString.toString();
+  }
+
   /// Reads a verilog-compliant hex file and preloads memory with it.
   ///
   /// Example input format:
@@ -81,79 +250,9 @@ abstract class MemoryStorage {
   /// 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
   /// 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
   /// ```
+  @Deprecated('Use `loadMemString` instead.')
   void loadMemHex(String hexMemContents) {
-    /// The number of bytes per cacheline.
-    const lineBytes = 4;
-
-    var address = 0;
-    var bytes = <String>[];
-
-    void addByte(String byte) {
-      bytes.add(byte);
-      if (bytes.length == lineBytes) {
-        final lvData = LogicValue.ofBigInt(
-            BigInt.parse(bytes.reversed.join(), radix: 16), lineBytes * 8);
-        final addr = LogicValue.ofInt(address - address % lineBytes, addrWidth);
-        setData(addr, lvData);
-        bytes = [];
-      }
-    }
-
-    List<String> reconstruct(LogicValue data) {
-      final out = <String>[];
-      for (var counter = 0; counter < lineBytes; counter++) {
-        out.add(data
-            .getRange(counter * 8, (counter + 1) * 8)
-            .toInt()
-            .toRadixString(16)
-            .padLeft(2, '0'));
-      }
-
-      return out;
-    }
-
-    for (var line in hexMemContents.split('\n')) {
-      line = line.trim();
-      if (line.startsWith('@')) {
-        // pad out remaining bytes as 0
-        // add that many to address
-        if (bytes.isNotEmpty) {
-          final thres = lineBytes - bytes.length;
-          for (var i = 0; i < thres; i++) {
-            addByte('00');
-            address++;
-          }
-        }
-
-        // check to see if this block already exists in memory
-        final lineAddr = int.parse(line.substring(1), radix: 16);
-        final lineAddrLv =
-            LogicValue.ofInt(lineAddr - lineAddr % lineBytes, addrWidth);
-        if (getData(lineAddrLv) != null) {
-          // must reconstruct the bytes array ending at the provided address
-          final endOff = lineAddr % lineBytes;
-          final origData = getData(lineAddrLv);
-          final newData = reconstruct(origData!).sublist(0, endOff);
-          bytes = newData;
-        }
-
-        address = lineAddr;
-      } else {
-        for (final byte in line.split(RegExp(r'\s'))) {
-          addByte(byte);
-          address++;
-        }
-      }
-    }
-    // pad out remaining bytes as 0
-    // add that many to address
-    final thres = lineBytes - bytes.length;
-    if (bytes.isNotEmpty) {
-      for (var i = 0; i < thres; i++) {
-        addByte('00');
-        address++;
-      }
-    }
+    loadMemString(hexMemContents);
   }
 
   /// Resets all memory to initial state.
@@ -195,6 +294,9 @@ abstract class MemoryStorage {
 
   /// Returns true if there is no data stored in this memory.
   bool get isEmpty;
+
+  /// A list of [addresses] which have data stored in this memory.
+  List<LogicValue> get addresses;
 }
 
 /// A sparse storage for memory models.
@@ -217,15 +319,32 @@ class SparseMemoryStorage extends MemoryStorage {
       throw RohdHclException('Can only write to valid addresses.');
     }
 
+    if (addr.width != addrWidth) {
+      throw RohdHclException('Address width must be $addrWidth.');
+    }
+
+    if (data.width != dataWidth) {
+      throw RohdHclException('Data width must be $dataWidth.');
+    }
+
     _memory[addr] = data;
   }
 
   @override
-  LogicValue? getData(LogicValue addr) => _memory[addr];
+  LogicValue? getData(LogicValue addr) {
+    if (addr.width != addrWidth) {
+      throw RohdHclException('Address width must be $addrWidth.');
+    }
+
+    return _memory[addr];
+  }
 
   @override
   void reset() => _memory.clear();
 
   @override
   bool get isEmpty => _memory.isEmpty;
+
+  @override
+  List<LogicValue> get addresses => _memory.keys.toList();
 }

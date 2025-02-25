@@ -14,4 +14,7 @@ class RohdHclException implements Exception {
 
   /// Creates an [Exception] for the ROHD Hardware Component Library.
   RohdHclException(this.message);
+
+  @override
+  String toString() => 'RohdHclException($message)';
 }
