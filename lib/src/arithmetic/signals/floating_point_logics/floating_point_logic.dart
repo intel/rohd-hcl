@@ -13,7 +13,7 @@ import 'package:meta/meta.dart';
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
 
-/// Flexible floating point logic representation
+/// Flexible floating point logic representation.
 class FloatingPoint extends LogicStructure {
   /// unsigned, biased binary [exponent]
   final Logic exponent;
