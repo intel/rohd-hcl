@@ -96,14 +96,15 @@ The parameters of the
 
 - Two input terms `a` and `b` which can be different widths.
 - The radix used for Booth encoding (2, 4, 8, and 16 are currently supported).
-- `seGen` parameter: the type of `PartialProductSignExtension` functor to use which has derived classes for different styles of sign extension. In some cases this adds an extra row to hold a sign bit (default `CompactRectSignExtension` does not).  See [Sign Extension Options](./multiplier_components.md#sign-extension-option).
-- Signed or unsigned operands:
-  - `signedMultiplicand` parameter: whether the multiplicand (first arg) should be treated as signed (twos' complement) or unsigned.
-  - `signedMultiplier` parameter: whether the multiplier (second arg) should be treated as signed (twos' complement) or unsigned.
-- Alternatively, it supports runtime control of signage:
-  - An optional `selectSignedMultiplicand` control signal which allows for runtime control of signed or unsigned operation with the same hardware. `signedMultiplicand` must be false if using this control signal.
-  - An optional `selectSignedMultiplier` control signal which allows for runtime control of signed or unsigned operation with the same hardware. `signedMultiplier` must be false if using this control signal.
-- An optional `clk`, as well as `enable` and `reset` that are used to add a pipestage in the `ColumnCompressor` to allow for pipelined operation, making the multiplier operate in 2 cycles.
+
+- The type of `ParallelPrefix` tree used in the final `ParallelPrefixAdder` (optional).
+- `ppGen` parameter: the type of `PartialProductGenerator` to use which has derived classes for different styles of sign extension. In some cases this adds an extra row to hold a sign bit.
+- `signedMultiplicand` parameter: whether the multiplicand (first arg) should be treated as signed (2s complement) or unsigned.
+- `signedMultiplier` parameter: whether the multiplier (second arg) should be treated as signed (2s complement) or unsigned.
+- An optional `selectSignedMultiplicand` control signal which overrides the `signedMultiplicand` parameter allowing for runtime control of signed or unsigned operation with the same hardware. `signedMultiplicand` must be false if using this control signal.
+- An optional `selectSignedMultiplier` control signal which overrides the `signedMultiplier` parameter allowing for runtime control of signed or unsigned operation with the same hardware. `signedMultiplier` must be false if using this control signal.
+- An optional `clk`, as well as `enable` and `reset` that are used to add a pipestage in the `ColumnCompressor` to allow for pipelined operation.
+- An optional `use42Compressors` boolean enables the `ColumnCompressor` to use 4:2 compressors in addition to 3:2 (Full Adder) and 2:2 (Half Adder) compressors.
 
 Here is an example of use of the `CompressionTreeMultiplier` with one signed input:
 
@@ -140,6 +141,7 @@ The additional parameters of the
 OR
   - An optional `selectSignedAddend` control signal allows for runtime control of signed or unsigned operation with the same hardware. `signedAddend` must be false if using this control signal.
 - An optional `clk`, as well as `enable` and `reset` that are used to add a pipestage in the `ColumnCompressor` to allow for pipelined operation.
+- An optional `use42Compressors` boolean enables the `ColumnCompressor` to use 4:2 compressors in addition to 3:2 (Full Adder) and 2:2 (Half Adder) compressors.
 
 The output width of the `CompressionTreeMultiplier` is the sum of the product term widths plus one to accomodate the additional acccumulate term.
 
