@@ -486,18 +486,22 @@ void main() {
     const mantissaWidth = 4;
     for (final signStr in ['0', '1']) {
       var exponent = LogicValue.zero.zeroExtend(exponentWidth);
-      var mantissa = LogicValue.zero.zeroExtend(mantissaWidth);
-      for (var k = 0; k < pow(2.0, exponentWidth).toInt(); k++) {
+      for (var e = 0; e < pow(2.0, exponentWidth).toInt(); e++) {
         final expStr = exponent.bitString;
-        for (var i = 0; i < pow(2.0, mantissaWidth).toInt(); i++) {
+        var mantissa = LogicValue.zero.zeroExtend(mantissaWidth);
+        for (var m = 0; m < pow(2.0, mantissaWidth).toInt(); m++) {
           final mantStr = mantissa.bitString;
-          final fp = FloatingPointExplicitJBitValue.ofBinaryStrings(
-              signStr, expStr, mantStr);
-          final dbl = fp.toDouble();
-          final fp2 = FloatingPointExplicitJBitValue.populator(
-                  exponentWidth: exponentWidth, mantissaWidth: mantissaWidth)
-              .ofDouble(dbl);
-          expect(fp.normalized(), equals(fp2));
+          if (((e == 0) & (m < (1 << (mantissaWidth - 1)))) |
+              ((e > 0) && (m >= (1 << (mantissaWidth - 1))))) {
+            final fp = FloatingPointExplicitJBitValue.ofBinaryStrings(
+                signStr, expStr, mantStr);
+            final dbl = fp.toDouble();
+            final fp2 = FloatingPointExplicitJBitValue.populator(
+                    exponentWidth: exponentWidth, mantissaWidth: mantissaWidth)
+                .ofDouble(dbl,
+                    roundingMode: FloatingPointRoundingMode.truncate);
+            expect(fp.normalized(), equals(fp2));
+          }
           mantissa = mantissa + 1;
         }
         exponent = exponent + 1;

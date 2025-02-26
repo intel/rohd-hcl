@@ -181,29 +181,33 @@ class FloatingPointExplicitJBit extends FloatingPoint {
       {required super.exponentWidth, required super.mantissaWidth, super.name})
       : super();
 
-  FloatingPointExplicitJBit._(Logic sign, Logic exponent, Logic mantissa,
-      {String name = 'floatingPointEJ'})
-      : super._(sign, exponent, mantissa, name: name);
+  // FloatingPointExplicitJBit._(Logic sign, Logic exponent, Logic mantissa,
+  //     {String name = 'floatingPointEJ'})
+  //     : super._(sign, exponent, mantissa, name: name);
+
   @override
   FloatingPointExplicitJBit clone({String? name}) => FloatingPointExplicitJBit(
         exponentWidth: exponent.width,
         mantissaWidth: mantissa.width,
         name: name,
       );
+
   @override
   FloatingPointValue get floatingPointValue => FloatingPointValue(
       sign: sign.value, exponent: exponent.value, mantissa: mantissa.value);
 
+  /// Return the [FloatingPointExplicitJBitValue] of the current [value].
+  FloatingPointExplicitJBitValue get floatingPointExplicitJBitValue =>
+      FloatingPointExplicitJBitValue.populator(
+              exponentWidth: exponent.width, mantissaWidth: mantissa.width)
+          .ofLogicValue(value);
+
   /// A [FloatingPointValuePopulator] for values associated with this
   /// [FloatingPoint] type.
   @override
-  FloatingPointValuePopulator valuePopulator() => FloatingPointValue.populator(
-      exponentWidth: exponent.width, mantissaWidth: mantissa.width);
-
-  /// Return a Logic true if this FloatingPoint contains a normal number,
-  /// defined as having mantissa in the range [1,2)
-  @override
-  Logic get isNormal => Const(0);
+  FloatingPointValuePopulator valuePopulator() =>
+      FloatingPointExplicitJBitValue.populator(
+          exponentWidth: exponent.width, mantissaWidth: mantissa.width);
 
   /// Return true if the J-bit is not explicitly represented in the mantissa
   /// when in normal form.

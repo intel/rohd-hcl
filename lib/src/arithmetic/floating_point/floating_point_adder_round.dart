@@ -59,12 +59,12 @@ class FloatingPointAdderRound<FpType extends FloatingPoint>
     final (larger, smaller) = FloatingPointUtilities.swap(signDelta, (a, b));
 
     final fl = mux(
-      larger.isNormal,
+      larger.isNormal & (larger.implicitJBit ? Const(1) : Const(0)),
       [larger.isNormal, larger.mantissa].swizzle(),
       [larger.mantissa, Const(0)].swizzle(),
     ).named('fullLarger');
     final fs = mux(
-      smaller.isNormal,
+      smaller.isNormal & (smaller.implicitJBit ? Const(1) : Const(0)),
       [smaller.isNormal, smaller.mantissa].swizzle(),
       [smaller.mantissa, Const(0)].swizzle(),
     ).named('fullSmaller');

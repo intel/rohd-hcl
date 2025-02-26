@@ -47,18 +47,33 @@ class FloatingPointAdderSimple<FpType extends FloatingPoint>
                 (larger.sign ^ smaller.sign)))
         .named('isNaN');
 
-    // Align and add mantissas
+    final largeImplicit = larger.implicitJBit ? Const(1) : Const(0);
+    final smallImplicit = smaller.implicitJBit ? Const(1) : Const(0);
+
     final expDiff = (larger.exponent - smaller.exponent).named('expDiff');
     final aMantissa = mux(
-        larger.isNormal & (larger.implicitJBit ? Const(1) : Const(0)),
-        [Const(1), larger.mantissa, Const(0, width: mantissaWidth + 1)]
-            .swizzle(),
-        [larger.mantissa, Const(0, width: mantissaWidth + 2)].swizzle());
+        larger.isNormal ^ largeImplicit,
+        [larger.mantissa, Const(0, width: mantissaWidth + 2)].swizzle(),
+        mux(
+            larger.isNormal,
+            [Const(1), larger.mantissa, Const(0, width: mantissaWidth + 1)]
+                .swizzle(),
+            [
+              larger.mantissa.getRange(0, mantissaWidth - 1),
+              Const(0, width: mantissaWidth + 3)
+            ].swizzle()));
+
     final bMantissa = mux(
-        smaller.isNormal & (smaller.implicitJBit ? Const(1) : Const(0)),
-        [Const(1), smaller.mantissa, Const(0, width: mantissaWidth + 1)]
-            .swizzle(),
-        [smaller.mantissa, Const(0, width: mantissaWidth + 2)].swizzle());
+        smaller.isNormal ^ smallImplicit,
+        [smaller.mantissa, Const(0, width: mantissaWidth + 2)].swizzle(),
+        mux(
+            smaller.isNormal,
+            [Const(1), smaller.mantissa, Const(0, width: mantissaWidth + 1)]
+                .swizzle(),
+            [
+              smaller.mantissa.getRange(0, mantissaWidth - 1),
+              Const(0, width: mantissaWidth + 3)
+            ].swizzle()));
 
     final adder = SignMagnitudeAdder(
         larger.sign, aMantissa, smaller.sign, bMantissa >>> expDiff,
@@ -88,6 +103,7 @@ class FloatingPointAdderSimple<FpType extends FloatingPoint>
 
     final leadOneDominates =
         (leadOne.gt(aExpLatched) | ~leadOneValid).named('leadOneDominates');
+
     final normalExp = (aExpLatched - leadOne + 1).named('normalExponent');
     final outExp = mux(leadOneDominates, larger.zeroExponent, normalExp)
         .named('outExponent');
@@ -100,6 +116,7 @@ class FloatingPointAdderSimple<FpType extends FloatingPoint>
             .named('shiftMantissaByExp', naming: Naming.mergeable)
             .getRange(intSum.width - mantissaWidth, intSum.width)
             .named('shiftMantissaByExpSliced');
+
     final shiftMantissabyLeadOne =
         (sumLatched << (leadOne + 1).named('leadOnePlus1'))
             .named('sumShiftLeadOnePlus1')

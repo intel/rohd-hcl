@@ -234,7 +234,12 @@ class FloatingPointValuePopulator<FpvType extends FloatingPointValue> {
     var expVal = (exponent64.toInt() - fp64.bias) + bias;
     final mantissa64n = ((expVal <= 0)
         ? [LogicValue.one, fp64.mantissa].swizzle() >>>
-            (-expVal + (implicitJbit & (fp64.exponent.toInt() > 0) ? 1 : 0))
+            (-expVal +
+                (implicitJbit & (fp64.exponent.toInt() > 0)
+                    ? 1
+                    : (!implicitJbit)
+                        ? 1
+                        : 0))
         : [LogicValue.one, fp64.mantissa].swizzle());
 
     var mantissa = mantissa64n.slice(fp64Mw - (implicitJbit ? 1 : 0),

@@ -75,6 +75,15 @@ class FloatingPointExplicitJBitValue extends FloatingPointValue {
       populator(exponentWidth: exponent.length, mantissaWidth: mantissa.length)
           .ofBinaryStrings(sign, exponent, mantissa);
 
+  /// A wrapper around [FloatingPointValuePopulator.ofSpacedBinaryString] that
+  /// computes the widths of the exponent and mantissa from the input string.
+  factory FloatingPointExplicitJBitValue.ofSpacedBinaryString(String fp) {
+    final split = fp.split(' ');
+    return populator(
+            exponentWidth: split[1].length, mantissaWidth: split[2].length)
+        .ofSpacedBinaryString(fp);
+  }
+
   /// Return true if the JBit is implicitly represented.
   @override
   bool get implicitJBit => false;
@@ -88,7 +97,7 @@ class FloatingPointExplicitJBitValue extends FloatingPointValue {
     if (!isAnInfinity) {
       if (!isNaN) {
         if (mant.or() == LogicValue.one) {
-          while ((mant[-1] == LogicValue.zero) & (expVal > 0)) {
+          while ((mant[-1] == LogicValue.zero) & (expVal > 1)) {
             expVal--;
             mant = mant << 1;
           }

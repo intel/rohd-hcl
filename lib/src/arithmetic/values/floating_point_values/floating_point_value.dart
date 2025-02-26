@@ -319,7 +319,7 @@ class FloatingPointValue implements Comparable<FloatingPointValue> {
         doubleVal = (sign.toBool() ? -1.0 : 1.0) *
             pow(2.0, minExponent) *
             mantissa.toBigInt().toDouble() /
-            pow(2.0, mantissa.width);
+            pow(2.0, mantissa.width - (implicitJBit ? 0 : 1));
       } else if (!isNaN) {
         doubleVal = (sign.toBool() ? -1.0 : 1.0) *
             ((implicitJBit ? 1.0 : 0.0) +
