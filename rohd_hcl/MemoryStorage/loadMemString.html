@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="API docs for the loadMemString method from the MemoryStorage class, for the Dart programming language.">
+  <title>loadMemString method - MemoryStorage class - rohd_hcl library - Dart API</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../../static-assets/github.css?v1">
+  <link rel="stylesheet" href="../../static-assets/styles.css?v1">
+  <link rel="icon" href="../../static-assets/favicon.png?v1">
+  
+</head>
+
+<body data-base-href="../../" data-using-base-href="false" class="light-theme">
+<div id="overlay-under-drawer"></div>
+<header id="title">
+  <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="../../index.html">rohd_hcl</a></li>
+    <li><a href="../../rohd_hcl">rohd_hcl.dart</a></li>
+    <li><a href="../../rohd_hcl/MemoryStorage-class.html">MemoryStorage</a></li>
+    <li class="self-crumb">loadMemString method</li>
+  </ol>
+  <div class="self-name">loadMemString</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+  <div class="toggle" id="theme-button" title="Toggle brightness">
+    <label for="theme">
+      <input type="checkbox" id="theme" value="light-theme">
+      <span id="dark-theme-button" class="material-symbols-outlined">
+        dark_mode
+      </span>
+      <span id="light-theme-button" class="material-symbols-outlined">
+        light_mode
+      </span>
+    </label>
+  </div>
+</header>
+<main>
+<div
+    id="dartdoc-main-content"
+    class="main-content"
+    data-above-sidebar="rohd_hcl&#47;MemoryStorage-class-sidebar.html"
+    data-below-sidebar="">
+    <div>
+<h1><span class="kind-method">loadMemString</span> method 
+</h1></div>
+
+    <section class="multi-line-signature">
+      
+<span class="returntype">void</span>
+<span class="name ">loadMemString</span>(<wbr><ol class="parameter-list"> <li><span class="parameter" id="loadMemString-param-memContents"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.7.0/dart-core/String-class.html">String</a></span> <span class="parameter-name">memContents</span>, {</span></li>
+<li><span class="parameter" id="loadMemString-param-radix"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.7.0/dart-core/int-class.html">int</a></span> <span class="parameter-name">radix</span> = <span class="default-value">16</span>, </span></li>
+<li><span class="parameter" id="loadMemString-param-bitsPerAddress"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.7.0/dart-core/int-class.html">int</a></span> <span class="parameter-name">bitsPerAddress</span> = <span class="default-value">8</span>, </span></li>
+</ol>})
+
+      
+
+    </section>
+    
+<section class="desc markdown">
+  <p>Reads a verilog-compliant mem file and preloads memory with it.</p>
+<p>The loaded address will increment each <a href="../../rohd_hcl/MemoryStorage/dataWidth.html">dataWidth</a> bits of data between
+address <code>@</code> annotations.  Data is parsed according to the provided
+<code>radix</code>, which must be a positive power of 2 up to 16. The address for
+data will increment by 1 for each <code>bitsPerAddress</code> bits of data, which
+must be a power of 2 less than <a href="../../rohd_hcl/MemoryStorage/dataWidth.html">dataWidth</a>.</p>
+<p>Line comments (<code>//</code>) are supported and any whitespace is supported as a
+separator between data.  Block comments (<code>/* */</code>) are not supported.</p>
+<p>Example input format:</p>
+<pre class="language-dart"><code>@80000000
+B3 02 00 00 33 05 00 00 B3 05 00 00 13 05 F5 1F
+6F 00 40 00 93 02 10 00 17 03 00 00 13 03 83 02
+23 20 53 00 6F 00 00 00
+@80000040
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+</code></pre>
+</section>
+
+
+    
+<section class="summary source-code" id="source">
+  <h2><span>Implementation</span></h2>
+  <pre class="language-dart"><code class="language-dart">void loadMemString(String memContents,
+    {int radix = 16, int bitsPerAddress = 8}) {
+  if (radix &lt;= 0 || (radix &amp; (radix - 1) != 0) || radix &gt; 16) {
+    throw RohdHclException(&#39;Radix must be a positive power of 2 (max 16).&#39;);
+  }
+
+  if (dataWidth % bitsPerAddress != 0) {
+    throw RohdHclException(&#39;dataWidth must be a multiple of bitsPerAddress.&#39;);
+  }
+
+  final bitsPerChar = log2Ceil(radix);
+  final charsPerLine = dataWidth ~&#47; bitsPerChar;
+  final addrIncrPerLine = dataWidth ~&#47; bitsPerAddress;
+
+  var address = 0;
+  final chunks = &lt;String&gt;[];
+  var chunksLength = 0;
+
+  void addChunk([String? chunk]) {
+    if (chunk != null) {
+      &#47;&#47; ignore: parameter_assignments
+      chunk = chunk.trim();
+
+      chunks.add(chunk);
+      chunksLength += chunk.length;
+    }
+
+    while (chunksLength &gt;= charsPerLine) {
+      final pendingData = chunks.reversed.join();
+      final cutPoint = chunksLength - charsPerLine;
+      final thisData = pendingData.substring(cutPoint);
+      chunks.clear();
+
+      final remaining = pendingData.substring(0, cutPoint);
+
+      chunksLength = 0;
+
+      if (remaining.isNotEmpty) {
+        chunks.add(remaining);
+        chunksLength = remaining.length;
+      }
+
+      final lvData = LogicValue.ofBigInt(
+          BigInt.parse(thisData, radix: radix), dataWidth);
+      final addr =
+          LogicValue.ofInt(address - (address % addrIncrPerLine), addrWidth);
+      setData(addr, lvData);
+
+      address += addrIncrPerLine;
+    }
+  }
+
+  void padToAlignment() {
+    addChunk();
+    while (chunksLength != 0) {
+      addChunk(&#39;0&#39;);
+    }
+  }
+
+  for (var line in memContents.split(&#39;\n&#39;)) {
+    &#47;&#47; if there&#39;s a `&#47;&#47;` comment on this line, ditch everything after it
+    final commentIdx = line.indexOf(&#39;&#47;&#47;&#39;);
+    if (commentIdx != -1) {
+      line = line.substring(0, commentIdx);
+    }
+
+    line = line.trim();
+
+    if (line.isEmpty) {
+      continue;
+    }
+
+    if (line.startsWith(&#39;@&#39;)) {
+      &#47;&#47; pad out remaining bytes as 0
+      padToAlignment();
+
+      &#47;&#47; if it doesn&#39;t match the format, throw
+      if (!RegExp(&#39;@([0-9a-fA-F]+)&#39;).hasMatch(line)) {
+        throw RohdHclException(&#39;Invalid address format: $line&#39;);
+      }
+
+      &#47;&#47; check to see if this block already exists in memory
+      final lineAddr = int.parse(line.substring(1), radix: 16);
+      final lineAddrLv =
+          LogicValue.ofInt(lineAddr - lineAddr % addrIncrPerLine, addrWidth);
+      if (getData(lineAddrLv) != null) {
+        &#47;&#47; must reconstruct the bytes array ending at the provided address
+        final endOff = lineAddr % addrIncrPerLine;
+        final origData = getData(lineAddrLv);
+        chunks
+          ..clear()
+          ..add(origData!
+              .getRange(0, endOff * bitsPerAddress)
+              .toInt()
+              .toRadixString(radix));
+      }
+
+      address = lineAddrLv.toInt();
+    } else {
+      line.split(RegExp(r&#39;\s&#39;)).forEach(addChunk);
+    }
+  }
+  &#47;&#47; pad out remaining bytes as 0
+  padToAlignment();
+}</code></pre>
+</section>
+
+
+  </div> <!-- /.main-content -->
+  <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+    <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
+<header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+    <li><a href="../../index.html">rohd_hcl</a></li>
+    <li><a href="../../rohd_hcl">rohd_hcl</a></li>
+    <li><a href="../../rohd_hcl/MemoryStorage-class.html">MemoryStorage</a></li>
+    <li class="self-crumb">loadMemString method</li>
+</ol>
+
+    <h5>MemoryStorage class</h5>
+    <div id="dartdoc-sidebar-left-content"></div>
+  </div><!--/.sidebar-offcanvas-->
+  <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+</div><!--/.sidebar-offcanvas-->
+</main>
+<footer>
+  <span class="no-break">
+    rohd_hcl
+      0.1.0
+  </span>
+  
+</footer>
+
+
+<script src="../../static-assets/highlight.pack.js?v1"></script>
+<script src="../../static-assets/docs.dart.js"></script>
+
+</body>
+</html>
+

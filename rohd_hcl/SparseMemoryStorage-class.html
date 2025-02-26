@@ -103,6 +103,18 @@ addresses.
       id="instance-properties">
     <h2>Properties</h2>
     <dl class="properties">
+        <dt id="addresses" class="property">
+  <span class="name"><a href="../rohd_hcl/SparseMemoryStorage/addresses.html">addresses</a></span>
+  <span class="signature">&#8594; <a href="https://api.dart.dev/stable/3.7.0/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://pub.dev/documentation/rohd/0.6.3/rohd/LogicValue-class.html">LogicValue</a></span>&gt;</span></span>
+  
+
+</dt>
+<dd>
+  A list of <a href="../rohd_hcl/SparseMemoryStorage/addresses.html">addresses</a> which have data stored in this memory.
+  <div class="features"><span class="feature">no setter</span><span class="feature">override</span></div>
+
+</dd>
+
         <dt id="addrWidth" class="property inherited">
   <span class="name"><a href="../rohd_hcl/MemoryStorage/addrWidth.html">addrWidth</a></span>
   <span class="signature">&#8594; <a href="https://api.dart.dev/stable/3.7.0/dart-core/int-class.html">int</a></span>
@@ -208,6 +220,19 @@ addresses.
       id="instance-methods">
     <h2>Methods</h2>
     <dl class="callables">
+        <dt id="dumpMemString" class="callable inherited">
+  <span class="name"><a href="../rohd_hcl/MemoryStorage/dumpMemString.html">dumpMemString</a></span><span class="signature">(<wbr>{<span class="parameter" id="dumpMemString-param-radix"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.7.0/dart-core/int-class.html">int</a></span> <span class="parameter-name">radix</span> = <span class="default-value">16</span>, </span><span class="parameter" id="dumpMemString-param-bitsPerAddress"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.7.0/dart-core/int-class.html">int</a></span> <span class="parameter-name">bitsPerAddress</span> = <span class="default-value">8</span></span>})
+    <span class="returntype parameter">&#8594; <a href="https://api.dart.dev/stable/3.7.0/dart-core/String-class.html">String</a></span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Dumps the contents of memory to a verilog-compliant hex file.
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
         <dt id="getData" class="callable">
   <span class="name"><a href="../rohd_hcl/SparseMemoryStorage/getData.html">getData</a></span><span class="signature">(<wbr><span class="parameter" id="getData-param-addr"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.3/rohd/LogicValue-class.html">LogicValue</a></span> <span class="parameter-name">addr</span></span>)
     <span class="returntype parameter">&#8594; <a href="https://pub.dev/documentation/rohd/0.6.3/rohd/LogicValue-class.html">LogicValue</a>?</span>
@@ -236,7 +261,7 @@ addresses.
 </dd>
 
         <dt id="loadMemHex" class="callable inherited">
-  <span class="name"><a href="../rohd_hcl/MemoryStorage/loadMemHex.html">loadMemHex</a></span><span class="signature">(<wbr><span class="parameter" id="loadMemHex-param-hexMemContents"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.7.0/dart-core/String-class.html">String</a></span> <span class="parameter-name">hexMemContents</span></span>)
+  <span class="name deprecated"><a class="deprecated" href="../rohd_hcl/MemoryStorage/loadMemHex.html">loadMemHex</a></span><span class="signature">(<wbr><span class="parameter" id="loadMemHex-param-hexMemContents"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.7.0/dart-core/String-class.html">String</a></span> <span class="parameter-name">hexMemContents</span></span>)
     <span class="returntype parameter">&#8594; void</span>
   </span>
   
@@ -244,6 +269,19 @@ addresses.
 </dt>
 <dd class="inherited">
   Reads a verilog-compliant hex file and preloads memory with it.
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="loadMemString" class="callable inherited">
+  <span class="name"><a href="../rohd_hcl/MemoryStorage/loadMemString.html">loadMemString</a></span><span class="signature">(<wbr><span class="parameter" id="loadMemString-param-memContents"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.7.0/dart-core/String-class.html">String</a></span> <span class="parameter-name">memContents</span>, {</span><span class="parameter" id="loadMemString-param-radix"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.7.0/dart-core/int-class.html">int</a></span> <span class="parameter-name">radix</span> = <span class="default-value">16</span>, </span><span class="parameter" id="loadMemString-param-bitsPerAddress"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.7.0/dart-core/int-class.html">int</a></span> <span class="parameter-name">bitsPerAddress</span> = <span class="default-value">8</span></span>})
+    <span class="returntype parameter">&#8594; void</span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Reads a verilog-compliant mem file and preloads memory with it.
   <div class="features"><span class="feature">inherited</span></div>
 
 </dd>

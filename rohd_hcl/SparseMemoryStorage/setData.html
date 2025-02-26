@@ -85,6 +85,14 @@ void setData(LogicValue addr, LogicValue data) {
     throw RohdHclException(&#39;Can only write to valid addresses.&#39;);
   }
 
+  if (addr.width != addrWidth) {
+    throw RohdHclException(&#39;Address width must be $addrWidth.&#39;);
+  }
+
+  if (data.width != dataWidth) {
+    throw RohdHclException(&#39;Data width must be $dataWidth.&#39;);
+  }
+
   _memory[addr] = data;
 }</code></pre>
 </section>

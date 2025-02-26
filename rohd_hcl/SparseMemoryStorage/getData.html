@@ -79,7 +79,13 @@
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">@override
-LogicValue? getData(LogicValue addr) =&gt; _memory[addr];</code></pre>
+LogicValue? getData(LogicValue addr) {
+  if (addr.width != addrWidth) {
+    throw RohdHclException(&#39;Address width must be $addrWidth.&#39;);
+  }
+
+  return _memory[addr];
+}</code></pre>
 </section>
 
 
