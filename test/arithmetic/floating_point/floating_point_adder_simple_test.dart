@@ -351,45 +351,34 @@ void main() {
       final mantLimit = pow(2, mantissaWidth);
       for (var e1 = 0; e1 < expLimit; e1++) {
         for (var m1 = 0; m1 < mantLimit; m1++) {
-          if ((e1 == 0) && (m1 >= (1 << (mantissaWidth - 1)))) {
-            continue;
-          }
-          if ((e1 > 0) && (m1 < (1 << (mantissaWidth - 1)))) {
-            continue;
-          }
           final fv1 = FloatingPointExplicitJBitValue.populator(
                   exponentWidth: exponentWidth, mantissaWidth: mantissaWidth)
               .ofInts(e1, m1);
-          for (var e2 = 0; e2 < expLimit; e2++) {
-            for (var m2 = 0; m2 < mantLimit; m2++) {
-              if ((e2 == 0) && (m2 >= (1 << (mantissaWidth - 1)))) {
-                continue;
-              }
-              if ((e2 > 0) && (m2 < (1 << (mantissaWidth - 1)))) {
-                continue;
-              }
-              final fv2 = FloatingPointExplicitJBitValue.populator(
-                      exponentWidth: exponentWidth,
-                      mantissaWidth: mantissaWidth)
-                  .ofInts(e2, m2, sign: subtract == 1);
+          if (fv1.isLegalValue()) {
+            for (var e2 = 0; e2 < expLimit; e2++) {
+              for (var m2 = 0; m2 < mantLimit; m2++) {
+                final fv2 = FloatingPointExplicitJBitValue.populator(
+                        exponentWidth: exponentWidth,
+                        mantissaWidth: mantissaWidth)
+                    .ofInts(e2, m2, sign: subtract == 1);
+                if (fv2.isLegalValue()) {
+                  fp1.put(fv1.value);
+                  fp2.put(fv2.value);
 
-              fp1.put(fv1.value);
-              fp2.put(fv2.value);
+                  final computed = adder.sum.floatingPointValue;
+                  final expectedNoRound = FloatingPointValue.populator(
+                          exponentWidth: exponentWidth,
+                          mantissaWidth: mantissaWidth)
+                      .ofDouble(fv1.toDouble() + fv2.toDouble());
+                  final expectedRound = FloatingPointValue.populator(
+                          exponentWidth: exponentWidth,
+                          mantissaWidth: mantissaWidth)
+                      .ofDoubleUnrounded(fv1.toDouble() + fv2.toDouble());
 
-              final computed = adder.sum.floatingPointValue;
-              final expectedNoRound = FloatingPointValue.populator(
-                      exponentWidth: exponentWidth,
-                      mantissaWidth: mantissaWidth)
-                  .ofDouble(fv1.toDouble() + fv2.toDouble());
-              final expectedRound = FloatingPointValue.populator(
-                      exponentWidth: exponentWidth,
-                      mantissaWidth: mantissaWidth)
-                  .ofDoubleUnrounded(fv1.toDouble() + fv2.toDouble());
-
-              if ((computed.mantissa != expectedNoRound.mantissa) &
-                  (computed.mantissa != expectedRound.mantissa)) {
-                expect(computed.mantissa, equals(expectedNoRound.mantissa),
-                    reason: '''
+                  if ((computed.mantissa != expectedNoRound.mantissa) &
+                      (computed.mantissa != expectedRound.mantissa)) {
+                    expect(computed.mantissa, equals(expectedNoRound.mantissa),
+                        reason: '''
                   $fv1 (${fv1.toDouble()})\t+
                   $fv2 (${fv2.toDouble()})\t=
                   $computed (${computed.toDouble()})\tcomputed
@@ -397,12 +386,12 @@ void main() {
                   $expectedRound (${expectedRound.toDouble()})\texpected
                   e1=$e1 m1=$m1  e2=$e2 m2=$m2
 ''');
-              }
+                  }
 
-              if ((computed.exponent != expectedNoRound.exponent) &
-                  (computed.exponent != expectedRound.exponent)) {
-                expect(computed.exponent, equals(expectedNoRound.exponent),
-                    reason: '''
+                  if ((computed.exponent != expectedNoRound.exponent) &
+                      (computed.exponent != expectedRound.exponent)) {
+                    expect(computed.exponent, equals(expectedNoRound.exponent),
+                        reason: '''
                   $fv1 (${fv1.toDouble()})\t+
                   $fv2 (${fv2.toDouble()})\t=
                   $computed (${computed.toDouble()})\tcomputed
@@ -410,6 +399,8 @@ void main() {
                   $expectedRound (${expectedRound.toDouble()})\texpected
                   e1=$e1 m1=$m1  e2=$e2 m2=$m2
 ''');
+                  }
+                }
               }
             }
           }

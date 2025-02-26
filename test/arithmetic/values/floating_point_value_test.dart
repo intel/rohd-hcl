@@ -491,10 +491,10 @@ void main() {
         var mantissa = LogicValue.zero.zeroExtend(mantissaWidth);
         for (var m = 0; m < pow(2.0, mantissaWidth).toInt(); m++) {
           final mantStr = mantissa.bitString;
-          if (((e == 0) & (m < (1 << (mantissaWidth - 1)))) |
-              ((e > 0) && (m >= (1 << (mantissaWidth - 1))))) {
-            final fp = FloatingPointExplicitJBitValue.ofBinaryStrings(
-                signStr, expStr, mantStr);
+
+          final fp = FloatingPointExplicitJBitValue.ofBinaryStrings(
+              signStr, expStr, mantStr);
+          if (fp.isLegalValue()) {
             final dbl = fp.toDouble();
             final fp2 = FloatingPointExplicitJBitValue.populator(
                     exponentWidth: exponentWidth, mantissaWidth: mantissaWidth)

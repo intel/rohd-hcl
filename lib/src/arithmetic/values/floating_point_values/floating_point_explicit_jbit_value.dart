@@ -114,4 +114,12 @@ class FloatingPointExplicitJBitValue extends FloatingPointValue {
         exponent: LogicValue.ofInt(expVal, exponentWidth),
         mantissa: mant);
   }
+
+  /// Check if the mantissa and exponent stored are compatible
+  bool isLegalValue() {
+    final e = exponent.toInt();
+    final m = mantissa.toInt();
+    final normMantissa = 1 << (mantissa.width - 1);
+    return ((e == 0) && (m < normMantissa)) || ((e > 0) && (m >= normMantissa));
+  }
 }
