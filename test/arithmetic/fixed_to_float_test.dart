@@ -7,6 +7,7 @@
 // 2024 October 24
 // Author: Soner Yaldiz <soner.yaldiz@intel.com>
 
+import 'dart:io';
 import 'dart:math';
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
@@ -15,14 +16,16 @@ import 'package:test/test.dart';
 void main() async {
   test('Smoke', () async {
     final fixed = FixedPoint(signed: true, m: 34, n: 33);
-    final dut = FixedToFloat(fixed, exponentWidth: 8, mantissaWidth: 3);
-    await dut.build();
-    fixed.put(FixedPointValue.ofDouble(1.25,
+    const inDouble = 1.5;
+    fixed.put(FixedPointValue.ofDouble(inDouble,
         signed: fixed.signed, m: fixed.m, n: fixed.n));
+    final dut = FixedToFloat(fixed, exponentWidth: 8, mantissaWidth: 23);
+    await dut.build();
+    File('fixed2float.sv').writeAsStringSync(dut.generateSynth());
     final fpv = dut.float.floatingPointValue;
     final fpvExpected = FloatingPointValue.populator(
             exponentWidth: dut.exponentWidth, mantissaWidth: dut.mantissaWidth)
-        .ofDouble(1.25);
+        .ofDoubleUnrounded(inDouble);
     expect(fpv.sign, fpvExpected.sign);
     expect(fpv.exponent.bitString, fpvExpected.exponent.bitString,
         reason: 'exponent mismatch');

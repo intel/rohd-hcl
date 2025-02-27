@@ -43,7 +43,10 @@ class FixedToFloat extends Module {
     final bias = float.floatingPointValue.bias;
     final eMax = pow(2, exponentWidth) - 2;
     final iWidth =
-        (2 + max(fixed.n, max(log2Ceil(fixed.width), exponentWidth))).toInt();
+        (1 + max(log2Ceil(fixed.n), max(log2Ceil(fixed.width), exponentWidth)))
+            .toInt();
+
+    // print('iwidth=$iWidth');
 
     // Special handling needed for E4M3 as it does not support inf
     if ((exponentWidth == 4) && (mantissaWidth == 3)) {
@@ -51,11 +54,7 @@ class FixedToFloat extends Module {
     }
 
     // Extract sign bit
-    if (fixed.signed) {
-      _float.sign <= fixed[-1];
-    } else {
-      _float.sign <= Const(0);
-    }
+    _float.sign <= (fixed.signed ? fixed[-1] : Const(0));
 
     final absValue = Logic(name: 'absValue', width: fixed.width)
       ..gets(mux(_float.sign, ~(fixed - 1), fixed));
@@ -88,12 +87,22 @@ class FixedToFloat extends Module {
       final zeros = Const(0, width: mantissaWidth + 2 - absValue.width);
       absValueShifted <= [absValue, zeros].swizzle() << j;
     } else {
+      // print('here ${absValueShifted.width} $mantissaWidth');
       absValueShifted <= absValue << j;
     }
 
     mantissa <= absValueShifted.getRange(-mantissaWidth - 1, -1);
     guard <= absValueShifted.getRange(-mantissaWidth - 2, -mantissaWidth - 1);
     sticky <= absValueShifted.getRange(0, -mantissaWidth - 2).or();
+
+    // print('iwidth=$iWidth');
+    // print('fixed= ${fixed.value.toRadixString()}');
+    // print('absVal=${absValue.value.toRadixString()}');
+    // print('absValS=${absValueShifted.value.toRadixString()}');
+    // print('mantissa=${mantissa.value.toRadixString()}');
+    // print('jBit   ${jBit.value.toRadixString(radix: 10)}');
+    // print('rebias   '
+    //     '${(Const(bias + fixed.width - fixed.n - 1, width: iWidth) - j).value.toRadixString(radix: 10)}');
 
     /// Round to nearest even: mantissa | guard sticky
     final roundUp = (guard & (sticky | mantissa[0])).named('roundUp');
@@ -107,6 +116,11 @@ class FixedToFloat extends Module {
                 .named('eShift'),
             Const(0, width: iWidth))
         .named('eRaw');
+
+    // print('eRaw: ${eRaw.value.toInt()}');
+
+    // TODO(desmonddak): this should be mantissa, but we could figure it out
+    // from absValue as only the zeros case would cause the and to fail.
     final eRawRne =
         mux(roundUp & ~mantissaRounded.or(), eRaw + 1, eRaw).named('eRawRNE');
 
