@@ -18,15 +18,16 @@ $$minExponent <= exponent <= maxExponent$$
 
 Conversions from the native `double` are supported, both in rounded and unrounded forms.  This is quite useful in testing narrower width floating point components leveraging the `double` native operations for validation.
 
-Appropriate string representations, comparison operations, and operators are available.  The usefulness of  [FloatingPointValue](https://intel.github.io/rohd-hcl/rohd_hcl/FloatingPointValue-class.html) is in the testing of [FloatingPoint](https://intel.github.io/rohd-hcl/rohd_hcl/FloatingPoint-class.html) components, where we can leverage the abstraction of a floating-point value type to drive and compare floating-point values operated upon by floating-point components.
+Appropriate string representations, comparison operations, and operators are available.  The usefulness of [FloatingPointValue](https://intel.github.io/rohd-hcl/rohd_hcl/FloatingPointValue-class.html) is in the testing of [FloatingPoint](https://intel.github.io/rohd-hcl/rohd_hcl/FloatingPoint-class.html) components, where we can leverage the abstraction of a floating-point value type to drive and compare floating-point values operated upon by floating-point components.
 
 ### Floating Point Constants
 
-The various IEEE constants representing corner cases of the field of floating-point values for a given size of [FloatingPointValue](https://intel.github.io/rohd-hcl/rohd_hcl/FloatingPointValue-class.html): infinities, zeros, limits for normal (e.g. mantissa in the range of $[1,2)$ and sub-normal numbers (zero exponent, and mantissa <1).
+The various IEEE constants representing corner cases of the field of floating-point values for a given size of [FloatingPointValue](https://intel.github.io/rohd-hcl/rohd_hcl/FloatingPointValue-class.html): infinities, zeros, limits for normal (e.g. mantissa in the range of $[1,2)$) and sub-normal numbers (zero exponent, and mantissa <1).
 
 For any basic arbitrary width `FloatingPointValue` ROHD-HCL supports the following constants in that format.
 
 - `negativeInfinity`: smallest possible number
+- `positiveInfinity`: Largest possible number: all 1s in the exponent, all 0s in the mantissa
 - `negativeZero`: The number zero, negative form
 - `positiveZero`: The number zero, positive form
 - `smallestPositiveSubnormal`: Smallest possible number, most exponent negative, LSB set in mantissa
@@ -36,8 +37,7 @@ For any basic arbitrary width `FloatingPointValue` ROHD-HCL supports the followi
 - `one`: The number one
 - `smallestLargerThanOne`: Smallest number greater than one
 - `largestNormal`: Largest positive number, most positive exponent, full mantissa
-- `infinity`: Largest possible number:  all 1s in the exponent, all 0s in the mantissa
-- `nan`:  Not a Number, demarked by all 1s in exponent and any 1 in mantissa (we use the LSB)
+- `nan`: Not a Number, designated by all 1s in exponent and any 1 in mantissa (we use the LSB)
 
 ### Special subtypes
 
@@ -51,13 +51,29 @@ Other special widths of floating-point values supported are:
 - [FloatingPointBF16Value](https://intel.github.io/rohd-hcl/rohd_hcl/FloatingPointBF16Value-class.html)
 - [FloatingPointTF32Value](https://intel.github.io/rohd-hcl/rohd_hcl/FloatingPointTF32Value-class.html)
 
-Finally, we have a [random value constructor](https://intel.github.io/rohd-hcl/rohd_hcl/FloatingPointValue/FloatingPointValue.random.html) generator for testing purposes, generating valid [FloatingPointValue](https://intel.github.io/rohd-hcl/rohd_hcl/FloatingPointValue-class.html) types, optionally constrained to normal range (mantissa in $[1, 2)$).
+Finally, we have a [random value constructor](https://intel.github.io/rohd-hcl/rohd_hcl/FloatingPointValuePopulator/random.html) generator for testing purposes, generating valid [FloatingPointValue](https://intel.github.io/rohd-hcl/rohd_hcl/FloatingPointValue-class.html) types, optionally constrained to normal range (mantissa in $[1, 2)$).
+
+### Populators
+
+A `FloatingPointValuePopulator` is similar to a builder design pattern that helps populate the components of a `FloatingPointValue` predictably across different special subtypes. The general pattern is to call the `populator` static function on a `FloatingPointValue` (or special subtype), then subsequently call one of the population methods on the provided populator to receive a completed object.  Some examples are shown below:
+
+```dart
+// a [FloatingPointBF16Value] with a value representing the selected constant
+FloatingPointBF16Value.populator()
+    .ofConstant(FloatingPointConstants.smallestLargerThanOne);
+
+// a custom exponent and mantissa width for a non-special-subtype
+FloatingPointValue.populator(exponentWidth: 5, mantissaWidth: 6)
+    .ofDouble(1.23);
+```
+
+`FloatingPointValue` types also have a `clonePopulator` function which creates a new `FloatingPointValuePopulator` with the same characteristics (e.g. mantissa and exponent widths) to construct a similar `FloatingPointValue` as the original.
 
 ## FloatingPoint
 
 The [FloatingPoint](https://intel.github.io/rohd-hcl/rohd_hcl/FloatingPoint-class.html) type is a [LogicStructure](https://intel.github.io/rohd/rohd/LogicStructure-class.html) which comprises the [Logic](https://intel.github.io/rohd/rohd/Logic-class.html) bits for the sign, exponent, and mantissa used in hardware floating-point.  This type is provided to simplify and abstract the declaration and manipulation of floating-point bits in hardware.  This type is parameterized like [FloatingPointValue](https://intel.github.io/rohd-hcl/rohd_hcl/FloatingPointValue-class.html), for exponent and mantissa width.
 
-Again, like  [FloatingPointValue](https://intel.github.io/rohd-hcl/rohd_hcl/FloatingPointValue-class.html), [FloatingPoint64](https://intel.github.io/rohd-hcl/rohd_hcl/FloatingPoint64-class.html) and [FloatingPoint32](https://intel.github.io/rohd-hcl/rohd_hcl/FloatingPoint32-class.html) subclasses are provided as these are the most common floating-point number types.
+Again, like [FloatingPointValue](https://intel.github.io/rohd-hcl/rohd_hcl/FloatingPointValue-class.html), [FloatingPoint64](https://intel.github.io/rohd-hcl/rohd_hcl/FloatingPoint64-class.html) and [FloatingPoint32](https://intel.github.io/rohd-hcl/rohd_hcl/FloatingPoint32-class.html) subclasses are provided as these are the most common floating-point number types.
 
 ## FloatingPointAdder
 
@@ -65,7 +81,7 @@ A very basic [FloatingPointAdderSimple](https://intel.github.io/rohd-hcl/rohd_hc
 
 Currently, the [FloatingPointAdderSimple](https://intel.github.io/rohd-hcl/rohd_hcl/FloatingPointAdderSimple-class.html) is close in accuracy (as it has no rounding) and is not optimized for circuit performance, but only provides the key functionalities of alignment, addition, and normalization.  Still, this component is a starting point for more realistic floating-point components that leverage the logical [FloatingPoint](https://intel.github.io/rohd-hcl/rohd_hcl/FloatingPoint-class.html) and literal [FloatingPointValue](https://intel.github.io/rohd-hcl/rohd_hcl/FloatingPointValue-class.html) type abstractions.
 
-A second [FloatingPointAdderRound](https://intel.github.io/rohd-hcl/rohd_hcl/FloatingPointAdderRound-class.html) component is available which does perform rounding.  It is based on "Delay-Optimized Implementation of IEEE Floating-Point Addition", by Peter-Michael Seidel and Guy Even, using an R-path and an N-path to process far-apart exponents and use rounding and an N-path for exponents within 2 and subtraction, which is exact.  If you pass in an optional clock, a pipestage will be added to help optimize frequency; an optional reset and enable are can control the pipestage.
+A second [FloatingPointAdderRound](https://intel.github.io/rohd-hcl/rohd_hcl/FloatingPointAdderRound-class.html) component is available which does perform rounding.  It is based on "Delay-Optimized Implementation of IEEE Floating-Point Addition", by Peter-Michael Seidel and Guy Even, using an R-path and an N-path to process far-apart exponents and use rounding and an N-path for exponents within 2 and subtraction, which is exact.  If you pass in an optional clock, a pipe stage will be added to help optimize frequency; an optional reset and enable are can control the pipe stage.
 
 ## FloatingPointMultiplier
 
@@ -73,6 +89,25 @@ A very basic [FloatingPointMultiplierSimple] component is available which does n
 
 It has options to control its performance:
 
-- 'radix':  used to specify the radix of the Booth encoder (default radix=4: options are [2,4,8,16])'.
-- adderGen':  used to specify the kind of [Adder] used for key functions like the mantissa addition. Defaults to [NativeAdder], but you can select a [ParallelPrefixAdder] of  your choice.
-- 'ppTree':  used to specify the type of ['ParallelPrefix'](https://intel.github.io/rohd-hcl/rohd_hcl/ParallelPrefix-class.html) used in the pther critical functions like leading-one detect.
+- `radix`: used to specify the radix of the Booth encoder (default radix=4: options are [2,4,8,16])'.
+- `adderGen`: used to specify the kind of [Adder] used for key functions like the mantissa addition. Defaults to [NativeAdder], but you can select a [ParallelPrefixAdder] of your choice.
+- `seGen`: type of sign extension routine used, base class is [PartialProductSignExtension].
+- `priorityGen`: used to specify the type of [PriorityEncoder] used in the other critical functions like leading-one detect.
+
+## FloatingPointConverter
+
+A [FloatingPointConverter] component translates arbitrary width floating-point logic structures from one size to another, including handling subnormals, infinities, and performs RNE rounding.
+
+Here is an example using the converter to translate from 32-bit single-precision floating point to 16-bit brain (bfloat16) floating-point format.
+
+```dart
+    final fp32 = FloatingPoint32();
+    final bf16 = FloatingPointBF16();
+
+    final one = FloatingPoint32Value.getFloatingPointConstant(
+        FloatingPointConstants.one);
+
+    fp32.put(one);
+    FloatingPointConverter(fp32, bf16);
+    expect(bf16.floatingPointValue.toDouble(), equals(1.0));
+```

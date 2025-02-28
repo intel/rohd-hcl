@@ -1,4 +1,4 @@
-// Copyright (C) 2024 Intel Corporation
+// Copyright (C) 2024-2025 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 //
 // floating_point_bf16_value.dart
@@ -15,70 +15,29 @@ import 'package:rohd_hcl/rohd_hcl.dart';
 
 /// A representation of a BF16 floating-point value.
 class FloatingPointBF16Value extends FloatingPointValue {
-  /// The exponent width
-  static const int exponentWidth = 8;
-
-  /// The mantissa width
-  static const int mantissaWidth = 7;
+  @override
+  final int exponentWidth = 8;
 
   @override
+  final int mantissaWidth = 7;
+
+  /// Constructor for a BF16 precision floating point value.
+  factory FloatingPointBF16Value(
+          {required LogicValue sign,
+          required LogicValue exponent,
+          required LogicValue mantissa}) =>
+      populator().populate(sign: sign, exponent: exponent, mantissa: mantissa);
+
+  /// Creates an unpopulated version, intended to be called with the
+  /// [populator].
   @protected
-  int get constrainedExponentWidth => exponentWidth;
+  FloatingPointBF16Value.uninitialized() : super.uninitialized();
+
+  /// Creates a [FloatingPointValuePopulator], which can then be used to
+  /// complete construction using population functions.
+  static FloatingPointValuePopulator<FloatingPointBF16Value> populator() =>
+      FloatingPointValuePopulator(FloatingPointBF16Value.uninitialized());
 
   @override
-  @protected
-  int get constrainedMantissaWidth => mantissaWidth;
-
-  /// Constructor for a single precision floating point value
-  FloatingPointBF16Value(
-      {required super.sign, required super.exponent, required super.mantissa});
-
-  /// Return the [FloatingPointBF16Value] representing the constant specified
-  factory FloatingPointBF16Value.getFloatingPointConstant(
-          FloatingPointConstants constantFloatingPoint) =>
-      FloatingPointBF16Value.ofLogicValue(
-          FloatingPointValue.getFloatingPointConstant(
-                  constantFloatingPoint, exponentWidth, mantissaWidth)
-              .value);
-
-  /// [FloatingPointBF16Value] constructor from string representation of
-  /// individual bitfields
-  FloatingPointBF16Value.ofBinaryStrings(
-      super.sign, super.exponent, super.mantissa)
-      : super.ofBinaryStrings();
-
-  /// [FloatingPointBF16Value] constructor from spaced string representation of
-  /// individual bitfields
-  FloatingPointBF16Value.ofSpacedBinaryString(super.fp)
-      : super.ofSpacedBinaryString();
-
-  /// [FloatingPointBF16Value] constructor from a single string representing
-  /// space-separated bitfields
-  FloatingPointBF16Value.ofString(String fp, {super.radix})
-      : super.ofString(fp, exponentWidth, mantissaWidth);
-
-  /// [FloatingPointBF16Value] constructor from a set of [BigInt]s of the binary
-  /// representation
-  FloatingPointBF16Value.ofBigInts(super.exponent, super.mantissa, {super.sign})
-      : super.ofBigInts(
-            exponentWidth: exponentWidth, mantissaWidth: mantissaWidth);
-
-  /// [FloatingPointBF16Value] constructor from a set of [int]s of the binary
-  /// representation
-  FloatingPointBF16Value.ofInts(super.exponent, super.mantissa, {super.sign})
-      : super.ofInts(
-            exponentWidth: exponentWidth, mantissaWidth: mantissaWidth);
-
-  /// Numeric conversion of a [FloatingPointBF16Value] from a host double
-  factory FloatingPointBF16Value.ofDouble(double inDouble) {
-    final fpv = FloatingPointValue.ofDouble(inDouble,
-        exponentWidth: exponentWidth, mantissaWidth: mantissaWidth);
-
-    return FloatingPointBF16Value.ofLogicValue(fpv.value);
-  }
-
-  /// Construct a [FloatingPointBF16Value] from a Logic word
-  factory FloatingPointBF16Value.ofLogicValue(LogicValue val) =>
-      FloatingPointValue.buildOfLogicValue(
-          FloatingPointBF16Value.new, exponentWidth, mantissaWidth, val);
+  FloatingPointValuePopulator clonePopulator() => populator();
 }

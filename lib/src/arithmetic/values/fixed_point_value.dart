@@ -143,15 +143,54 @@ class FixedPointValue implements Comparable<FixedPointValue> {
     return compareTo(other) == 0;
   }
 
-  /// Constructs [FixedPointValue] of a Dart [double] rounding away from zero.
+  /// Return a string representation of FloatingPointValue.
+  ///  return sign, exponent, mantissa as binary strings.
+  @override
+  String toString() => "(${signed ? '${value[-1].bitString} ' : ''}"
+      "${(m > 0) ? '${value.slice(m + n - 1, n).bitString} ' : ''}"
+      '${value.slice(n - 1, 0).bitString})';
+
+  /// Return true if double [val] to be stored in [FixedPointValue]
+  /// with [m] and [n] lengths without overflowing.
+  static bool canStore(double val,
+      {required bool signed, required int m, required int n}) {
+    final w = signed ? 1 + m + n : m + n;
+    if (val.isFinite) {
+      final bigIntegerValue = BigInt.from(val * pow(2, n));
+      final negBigIntegerValue = BigInt.from(-val * pow(2, n));
+      final l = (val < 0.0)
+          ? max(bigIntegerValue.bitLength, negBigIntegerValue.bitLength)
+          : bigIntegerValue.bitLength;
+      return l <= w;
+    }
+    return false;
+  }
+
+  /// Constructs [FixedPointValue] from a Dart [double] rounding away from zero.
   factory FixedPointValue.ofDouble(double val,
       {required bool signed, required int m, required int n}) {
     if (!signed & (val < 0)) {
       throw RohdHclException('Negative input not allowed with unsigned');
     }
+    if (!canStore(val, signed: signed, m: m, n: n)) {
+      throw RohdHclException('Double is too long to store in '
+          'FixedPointValue: $m, $n');
+    }
     final integerValue = (val * pow(2, n)).toInt();
     final w = signed ? 1 + m + n : m + n;
     final v = LogicValue.ofInt(integerValue, w);
+    return FixedPointValue(value: v, signed: signed, m: m, n: n);
+  }
+
+  /// Constructs [FixedPointValue] from a Dart [double] without rounding.
+  factory FixedPointValue.ofDoubleUnrounded(double val,
+      {required bool signed, required int m, required int n}) {
+    if (!signed & (val < 0)) {
+      throw RohdHclException('Negative input not allowed with unsigned');
+    }
+    final integerValue = (val * pow(2, n + 1)).toInt();
+    final w = signed ? 1 + m + n : m + n;
+    final v = LogicValue.ofInt(integerValue >> 1, w);
     return FixedPointValue(value: v, signed: signed, m: m, n: n);
   }
 
