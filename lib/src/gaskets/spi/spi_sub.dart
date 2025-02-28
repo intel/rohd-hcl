@@ -56,8 +56,8 @@ class SpiSub extends Module {
           enable: ~intf.csb,
           reset: reset,
           asyncReset: true,
-          minValue: 1,
-          maxValue: intf.dataLength);
+          resetValue: intf.dataLength - 1,
+          maxValue: intf.dataLength - 1);
 
       // Done signal will be high when the counter is at the max value.
       done! <= count.equalsMax;

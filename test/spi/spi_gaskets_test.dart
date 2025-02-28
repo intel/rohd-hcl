@@ -11,6 +11,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:logging/logging.dart';
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
 import 'package:rohd_vf/rohd_vf.dart';
@@ -63,7 +64,7 @@ class SpiMainTest extends Test {
       // ignore: avoid_dynamic_calls
       expect(jsonContents['records'].length, 2 * numTransfers);
 
-      // Directory(outFolder).deleteSync(recursive: true);
+      Directory(outFolder).deleteSync(recursive: true);
     });
 
     monitor.stream.listen(tracker.record);
@@ -246,7 +247,7 @@ class SpiCheckerTest extends Test {
   late final SpiInterface intf;
   late final Logic clk;
 
-  SpiCheckerTest(super.name) : super() {
+  SpiCheckerTest(super.name) : super(printLevel: Level.OFF) {
     intf = SpiInterface(dataLength: 8);
     clk = SimpleClockGenerator(10).clk;
 
