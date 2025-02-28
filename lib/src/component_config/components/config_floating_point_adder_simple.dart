@@ -65,8 +65,7 @@ class FloatingPointAdderSimpleConfigurator extends Configurator {
       FloatingPoint(
           exponentWidth: exponentWidthKnob.value,
           mantissaWidth: mantissaWidthKnob.value),
-      adderGen: adderGeneratorMap[adderTypeKnob.value]!,
-      ppTree: treeGeneratorMap[prefixTreeKnob.value]!);
+      adderGen: adderGeneratorMap[adderTypeKnob.value]!);
 
   @override
   late final Map<String, ConfigKnob<dynamic>> knobs = UnmodifiableMapView({

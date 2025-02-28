@@ -36,16 +36,34 @@ void main() {
       FloatingPointAdderRound(fp1, fp2)
     ]) {
       final testCases = [
-        (fv.infinity, fv.infinity),
-        (fv.negativeInfinity, fv.negativeInfinity),
-        (fv.infinity, fv.negativeInfinity),
-        (fv.infinity, fv.zero),
-        (fv.negativeInfinity, fv.zero),
-        (fv.infinity, fv.one),
-        (fv.negativeInfinity, fv.one),
-        (fv.one.negate(), fv.one),
-        (fv.zero, fv.zero),
-        (fv.zero.negate(), fv.zero),
+        (
+          fv.clonePopulator().positiveInfinity,
+          fv.clonePopulator().positiveInfinity
+        ),
+        (
+          fv.clonePopulator().negativeInfinity,
+          fv.clonePopulator().negativeInfinity
+        ),
+        (
+          fv.clonePopulator().positiveInfinity,
+          fv.clonePopulator().negativeInfinity
+        ),
+        (
+          fv.clonePopulator().positiveInfinity,
+          fv.clonePopulator().positiveZero
+        ),
+        (
+          fv.clonePopulator().negativeInfinity,
+          fv.clonePopulator().positiveZero
+        ),
+        (fv.clonePopulator().positiveInfinity, fv.clonePopulator().one),
+        (fv.clonePopulator().negativeInfinity, fv.clonePopulator().one),
+        (fv.clonePopulator().one.negate(), fv.clonePopulator().one),
+        (fv.clonePopulator().positiveZero, fv.clonePopulator().positiveZero),
+        (
+          fv.clonePopulator().positiveZero.negate(),
+          fv.clonePopulator().positiveZero
+        ),
       ];
 
       for (final test in testCases) {
@@ -53,8 +71,9 @@ void main() {
         final fv2 = test.$2;
 
         final doubleProduct = fv1.toDouble() + fv2.toDouble();
-        final partWay = FloatingPointValue.ofDouble(doubleProduct,
-            exponentWidth: exponentWidth, mantissaWidth: mantissaWidth);
+        final partWay = FloatingPointValue.populator(
+                exponentWidth: exponentWidth, mantissaWidth: mantissaWidth)
+            .ofDouble(doubleProduct);
         final roundTrip = partWay.toDouble();
 
         fp1.put(fv1.value);
@@ -69,8 +88,9 @@ void main() {
                 '(${fpOut.floatingPointValue.toDouble()}) actual\n'
                 '\t$partWay ($roundTrip) expected');
 
-        final partWayU = FloatingPointValue.ofDoubleUnrounded(doubleProduct,
-            exponentWidth: exponentWidth, mantissaWidth: mantissaWidth);
+        final partWayU = FloatingPointValue.populator(
+                exponentWidth: exponentWidth, mantissaWidth: mantissaWidth)
+            .ofDoubleUnrounded(doubleProduct);
         final roundTripU = partWay.toDouble();
         expect(fpOut.floatingPointValue, equals(partWayU),
             reason: '\t${fp1.floatingPointValue} '

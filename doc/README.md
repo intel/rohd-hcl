@@ -10,8 +10,9 @@ Some in-development items will have opened issues, as well. Feel free to create 
   - [Binary to 1-hot](./components/onehot.md)
   - [Binary to Gray](./components/binary_gray.md#binary-to-gray)
   - [Gray to Binary](./components/binary_gray.md#gray-to-binary)
-  - Priority
-    - [Prefix-tree based Priority Encoder](./components/parallel_prefix_operations.md)
+  - Priority Encoders
+    - [Prefix-tree based Priority Encoder](./components/priority_encoder.md#parallel-prefix-priority-encoder)
+    - [Recursive Priority Encoder](./components/priority_encoder.md#recursive-priority-encoder)
   - PLAs
 - Arbiters
   - [Priority Arbiter](./components/arbiter.md#priority-arbiter)
@@ -65,6 +66,7 @@ Some in-development items will have opened issues, as well. Feel free to create 
     - [Simple Floating-Point Adder](./components/floating_point.md#floatingpointadder)
     - [Rounding Floating-Point Adder](./components/floating_point.md#floatingpointadder)
     - [Simple Floating-Point Multiplier](./components/floating_point.md#floatingpointmultiplier)
+    - [Floating-Point Converter](./components/floating_point.md#floatingpointconverter)
   - [Fixed point](./components/fixed_point.md)
     - [FloatToFixed](./components/fixed_point.md#floattofixed)
     - [FixedToFloat](./components/fixed_point.md#fixedtofloat)
@@ -95,12 +97,14 @@ Some in-development items will have opened issues, as well. Feel free to create 
   - NoC's
     - Coherent
     - Non-Coherent
+  - [Reduction Tree](./components/reduction_tree.md)
 - Memory
   - [Register File](./components/memory.md#register-files)
   - [Masking](./components/memory.md#masks)
   - Replacement Policies
     - LRU
   - [Memory Model](./components/memory.md#memory-models)
+  - [Control/Status Registers (CSRs)](./components/csr.md)
 - Standard interfaces
   - AXI
   - [APB](./components/standard_interfaces.md#apb)

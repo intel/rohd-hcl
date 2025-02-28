@@ -1,4 +1,4 @@
-// Copyright (C) 2024 Intel Corporation
+// Copyright (C) 2024-2025 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 //
 // divider.dart
@@ -128,7 +128,9 @@ class MultiCycleDivider extends Module {
   MultiCycleDivider(MultiCycleDividerInterface interface)
       : dataWidth = interface.dataWidth,
         logDataWidth = log2Ceil(interface.dataWidth),
-        super(name: 'divider') {
+        super(
+            name: 'divider',
+            definitionName: 'MultiCycleDivider_W${interface.dataWidth}') {
     intf = MultiCycleDividerInterface.match(interface)
       ..pairConnectIO(
         this,

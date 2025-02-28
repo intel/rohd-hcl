@@ -1,4 +1,4 @@
-// Copyright (C) 2024 Intel Corporation
+// Copyright (C) 2024-2025 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 //
 // fixed_to_float.dart
@@ -33,11 +33,14 @@ class FixedToFloat extends Module {
   FixedToFloat(FixedPoint fixed,
       {required this.exponentWidth,
       required this.mantissaWidth,
-      super.name = 'FixedToFloat'}) {
+      super.name = 'FixedToFloat'})
+      : super(
+            definitionName:
+                'Fixed${fixed.width}ToFloatE${exponentWidth}M$mantissaWidth') {
     fixed = fixed.clone()..gets(addInput('fixed', fixed, width: fixed.width));
     addOutput('float', width: _float.width) <= _float;
 
-    final bias = FloatingPointValue.computeBias(exponentWidth);
+    final bias = float.floatingPointValue.bias;
     final eMax = pow(2, exponentWidth) - 2;
     final iWidth =
         (2 + max(fixed.n, max(log2Ceil(fixed.width), exponentWidth))).toInt();
@@ -57,8 +60,12 @@ class FixedToFloat extends Module {
     final absValue = Logic(name: 'absValue', width: fixed.width)
       ..gets(mux(_float.sign, ~(fixed - 1), fixed));
 
-    final jBit =
-        ParallelPrefixPriorityEncoder(absValue.reversed).out.zeroExtend(iWidth);
+    final jBit = RecursiveModulePriorityEncoder(absValue.reversed)
+        .out
+        .zeroExtend(iWidth)
+        .named('jBit');
+
+    // TODO(desmonddak): refactor to use the roundRNE component
 
     // Extract mantissa
     final mantissa = Logic(name: 'mantissa', width: mantissaWidth);
@@ -75,8 +82,8 @@ class FixedToFloat extends Module {
     }
 
     // Align mantissa
-    final absValueShifted =
-        Logic(width: max(absValue.width, mantissaWidth + 2));
+    final absValueShifted = Logic(
+        width: max(absValue.width, mantissaWidth + 2), name: 'absValueShifted');
     if (absValue.width < mantissaWidth + 2) {
       final zeros = Const(0, width: mantissaWidth + 2 - absValue.width);
       absValueShifted <= [absValue, zeros].swizzle() << j;
@@ -89,19 +96,25 @@ class FixedToFloat extends Module {
     sticky <= absValueShifted.getRange(0, -mantissaWidth - 2).or();
 
     /// Round to nearest even: mantissa | guard sticky
-    final roundUp = guard & (sticky | mantissa[0]);
-    final mantissaRounded = mux(roundUp, mantissa + 1, mantissa);
+    final roundUp = (guard & (sticky | mantissa[0])).named('roundUp');
+    final mantissaRounded =
+        mux(roundUp, mantissa + 1, mantissa).named('roundedMantissa');
 
     // Calculate biased exponent
     final eRaw = mux(
-        absValueShifted[-1],
-        Const(bias + fixed.width - fixed.n - 1, width: iWidth) - j,
-        Const(0, width: iWidth));
-    final eRawRne = mux(roundUp & ~mantissaRounded.or(), eRaw + 1, eRaw);
+            absValueShifted[-1],
+            (Const(bias + fixed.width - fixed.n - 1, width: iWidth) - j)
+                .named('eShift'),
+            Const(0, width: iWidth))
+        .named('eRaw');
+    final eRawRne =
+        mux(roundUp & ~mantissaRounded.or(), eRaw + 1, eRaw).named('eRawRNE');
 
     // Select output handling corner cases
-    final expoLessThanOne = eRawRne[-1] | ~eRawRne.or();
-    final expoMoreThanMax = ~eRawRne[-1] & (eRawRne.gt(eMax));
+    final expoLessThanOne =
+        (eRawRne[-1] | ~eRawRne.or()).named('expLessThanOne');
+    final expoMoreThanMax =
+        (~eRawRne[-1] & (eRawRne.gt(eMax))).named('expMoreThanMax');
     Combinational([
       If.block([
         Iff(~absValue.or(), [

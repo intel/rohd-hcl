@@ -1,4 +1,4 @@
-// Copyright (C) 2023-2024 Intel Corporation
+// Copyright (C) 2023-2025 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 
 export 'adder.dart';
@@ -15,7 +15,6 @@ export 'ones_complement_adder.dart';
 export 'parallel_prefix_operations.dart';
 export 'ripple_carry_adder.dart';
 export 'sign_magnitude_adder.dart';
-export 'signals/fixed_point_logic.dart';
-export 'signals/floating_point_logic.dart';
+export 'signals/signals.dart';
 export 'values/fixed_point_value.dart';
 export 'values/floating_point_values/floating_point_values.dart';

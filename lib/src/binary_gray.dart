@@ -1,4 +1,4 @@
-// Copyright (C) 2023-2024 Intel Corporation
+// Copyright (C) 2023-2025 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 //
 // binary_gray.dart
@@ -30,7 +30,8 @@ class BinaryToGrayConverter extends Module {
   /// The [binary] parameter is the binary input that you want to convert
   /// to Gray code. The width of the input [binary] determines the width
   /// of the Gray code output.
-  BinaryToGrayConverter(Logic binary) {
+  BinaryToGrayConverter(Logic binary)
+      : super(definitionName: 'BinaryToGrayConverter_W${binary.width}') {
     final inputWidth = binary.width;
     binary = addInput('binary', binary, width: inputWidth);
     final grayVal = addOutput('gray', width: inputWidth);
@@ -97,7 +98,8 @@ class GrayToBinaryConverter extends Module {
   /// The [gray] parameter is the Gray code input that you want to convert to
   /// binary. The width of the input [gray] determines the width of the binary
   /// output.
-  GrayToBinaryConverter(Logic gray) {
+  GrayToBinaryConverter(Logic gray)
+      : super(definitionName: 'GrayToBinaryConverter_W${gray.width}') {
     final inputWidth = gray.width;
     gray = addInput('gray', gray, width: inputWidth);
     final binaryVal = addOutput('binary', width: inputWidth);

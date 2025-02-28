@@ -38,7 +38,8 @@ class OnesComplementAdder extends Adder {
       Logic? carryOut,
       Logic? carryIn,
       bool? subtract,
-      super.name = 'ones_complement_adder'}) {
+      super.name = 'ones_complement_adder'})
+      : super(definitionName: 'OnesComplementAdder_W${a.width}') {
     if (subtractIn != null) {
       subtractIn = addInput('subtractIn', subtractIn);
     }
@@ -53,31 +54,35 @@ class OnesComplementAdder extends Adder {
           " configuration, or a boolean parameter 'subtract' for "
           'generation time configuration, but not both.');
     }
+
     final doSubtract =
-        subtractIn ?? (subtract != null ? Const(subtract) : Const(0));
+        (subtractIn ?? (subtract != null ? Const(subtract) : Const(0)))
+            .named('dosubtract', naming: Naming.mergeable);
 
-    final ax = a.zeroExtend(a.width);
-    final bx = b.zeroExtend(b.width);
-
-    final adder =
-        adderGen(ax, mux(doSubtract, ~bx, bx), carryIn: carryIn ?? Const(0));
+    final adderSum =
+        adderGen(a, mux(doSubtract, ~b, b), carryIn: carryIn ?? Const(0))
+            .sum
+            .named('adderSum', naming: Naming.mergeable);
 
     if (this.carryOut != null) {
-      this.carryOut! <= adder.sum[-1];
+      this.carryOut! <= adderSum[-1];
     }
-    final endAround = adder.sum[-1];
-    final magnitude = adder.sum.slice(a.width - 1, 0);
+    final endAround = adderSum[-1].named('endaround');
+    final magnitude = adderSum.slice(a.width - 1, 0).named('magnitude');
+
+    final incrementer = ParallelPrefixIncr(magnitude);
+    final magnitudep1 = incrementer.out.named('magnitude_plus1');
 
     sum <=
         mux(
             doSubtract,
             mux(
                     endAround,
-                    [if (this.carryOut != null) magnitude else magnitude + 1]
+                    [if (this.carryOut != null) magnitude else magnitudep1]
                         .first,
                     ~magnitude)
                 .zeroExtend(sum.width),
-            adder.sum);
+            adderSum);
     _sign <= mux(doSubtract, ~endAround, Const(0));
   }
 }

@@ -1,4 +1,4 @@
-// Copyright (C) 2023-2024 Intel Corporation
+// Copyright (C) 2023-2025 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 //
 // tree_one_hot_to_binary.dart
@@ -26,7 +26,10 @@ class _NodeOneHotToBinary extends Module {
 
   /// Build a shorter-input module for recursion
   /// (borrowed from Chisel OHToUInt)
-  _NodeOneHotToBinary(Logic onehot) : super(name: 'node_one_hot_to_binary') {
+  _NodeOneHotToBinary(Logic onehot)
+      : super(
+            name: 'node_one_hot_to_binary',
+            definitionName: 'NodeOneHotToBinary_W${onehot.width}') {
     final wid = onehot.width;
     onehot = addInput('onehot', onehot, width: wid);
 
@@ -41,8 +44,8 @@ class _NodeOneHotToBinary extends Module {
     } else {
       final mid = 1 << (log2Ceil(wid) - 1);
       addOutput('binary', width: log2Ceil(mid + 1));
-      final hi = onehot.getRange(mid).zeroExtend(mid);
-      final lo = onehot.getRange(0, mid).zeroExtend(mid);
+      final hi = onehot.getRange(mid).zeroExtend(mid).named('hi');
+      final lo = onehot.getRange(0, mid).zeroExtend(mid).named('lo');
       final recurse = lo | hi;
       final response = _NodeOneHotToBinary(recurse).binary;
       binary <= [hi.or(), response].swizzle();

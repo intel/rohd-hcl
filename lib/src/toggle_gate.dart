@@ -1,4 +1,4 @@
-// Copyright (C) 2024 Intel Corporation
+// Copyright (C) 2024-2025 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 //
 // toggle_gate.dart
@@ -37,7 +37,7 @@ class ToggleGate extends Module {
     dynamic resetValue,
     ClockGateControlInterface? clockGateControlIntf,
     super.name = 'toggle_gate',
-  }) {
+  }) : super(definitionName: 'ToggleGate_W${data.width}') {
     enable = addInput('enable', enable);
     data = addInput('data', data, width: data.width);
     clk = addInput('clk', clk);

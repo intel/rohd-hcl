@@ -8,4 +8,4 @@ The encoders take a Logic bit-vector, with the constraint that only a single bit
 
 The decoders take a Logic input representing the bit position to be set to '1', and returns a Logic bit-vector with that bit position set to '1', and all others set to '0'
 
-[OneHotToBinary Schematic](https://intel.github.io/rohd-hcl/CaseOneHotToBinary.html)
+[OneHotToBinary Schematic](https://intel.github.io/rohd-hcl/OneHotToBinary_W4.html)
