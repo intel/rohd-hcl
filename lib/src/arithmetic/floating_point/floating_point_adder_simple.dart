@@ -12,7 +12,8 @@ import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
 
 /// An adder module for FloatingPoint values
-class FloatingPointAdderSimple extends FloatingPointAdder {
+class FloatingPointAdderSimple<FpType extends FloatingPoint>
+    extends FloatingPointAdder<FpType> {
   /// Add two floating point numbers [a] and [b], returning result in [sum].
   /// - [adderGen] is an adder generator to be used in the primary adder
   /// functions.
@@ -36,7 +37,7 @@ class FloatingPointAdderSimple extends FloatingPointAdder {
         name: 'sum');
     output('sum') <= outputSum;
 
-    final (larger, smaller) = sortFp((super.a, super.b));
+    final (larger, smaller) = FloatingPointUtilities.sort((super.a, super.b));
 
     final isInf = (larger.isAnInfinity | smaller.isAnInfinity).named('isInf');
     final isNaN = (larger.isNaN |
