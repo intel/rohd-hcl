@@ -8,7 +8,6 @@
 // Author: Roberto Torres <roberto.torres@intel.com>
 
 import 'dart:async';
-import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
 import 'package:rohd_vf/rohd_vf.dart';
 
@@ -28,21 +27,12 @@ class SpiChecker extends Component {
   Future<void> run(Phase phase) async {
     unawaited(super.run(phase));
 
-    LogicValue? mosiVal;
-    LogicValue? misoVal;
-
-    // Save the value of mosi and miso on posedge
+    // checking prev value at posedge
     intf.sclk.posedge.listen((event) {
-      mosiVal = intf.mosi.value;
-      misoVal = intf.miso.value;
-    });
-
-    // checking prev value at negedge
-    intf.sclk.negedge.listen((event) {
-      if (misoVal != null && misoVal != intf.miso.previousValue) {
+      if (intf.miso.previousValue != intf.miso.value) {
         logger.severe('Data on MISO is changing on posedge of sclk');
       }
-      if (mosiVal != null && mosiVal != intf.mosi.previousValue) {
+      if (intf.mosi.previousValue != intf.mosi.value) {
         logger.severe('Data on MOSI is changing on posedge of sclk');
       }
     });

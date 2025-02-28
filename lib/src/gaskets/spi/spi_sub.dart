@@ -16,7 +16,7 @@ class SpiSub extends Module {
   Logic get busOut => output('busOut');
 
   /// Done signal from Sub.
-  Logic get done => output('done');
+  Logic? get done => tryOutput('done');
 
   /// Creates a SPI Sub component that interfaces with [SpiInterface].
   ///
@@ -44,27 +44,27 @@ class SpiSub extends Module {
       busIn = addInput('busIn', busIn, width: intf.dataLength);
     }
 
-    // Reset signal for sub, if provided.
+    // If reset is provided, add the reset input and done output.
     if (reset != null) {
       reset = addInput('reset', reset);
+
+      addOutput('done');
+
+      // Counter to track of the number of bits shifted out.
+      final count = Counter.simple(
+          clk: intf.sclk,
+          enable: ~intf.csb,
+          reset: reset,
+          asyncReset: true,
+          minValue: 1,
+          maxValue: intf.dataLength);
+
+      // Done signal will be high when the counter is at the max value.
+      done! <= count.equalsMax;
     }
 
     // Bus Output from Sub
     addOutput('busOut', width: intf.dataLength);
-
-    addOutput('done');
-
-    // Counter to track of the number of bits shifted out.
-    final count = Counter.simple(
-        clk: intf.sclk,
-        enable: ~intf.csb,
-        reset: reset ?? Const(0, width: 1),
-        asyncReset: true,
-        minValue: 1,
-        maxValue: intf.dataLength);
-
-    // Done signal will be high when the counter is at the max value.
-    done <= count.equalsMax;
 
     // Shift Register in from MOSI.
     // NOTE: Reset values are set to busIn values.

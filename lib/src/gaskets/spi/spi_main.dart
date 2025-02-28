@@ -57,8 +57,8 @@ class SpiMain extends Module {
         enable: start | isRunning,
         reset: reset,
         asyncReset: true,
-        minValue: 1,
-        maxValue: busIn.width);
+        resetValue: busIn.width - 1,
+        maxValue: busIn.width - 1);
 
     // Done signal will be high when the counter is at the max value.
     done <= count.equalsMax;

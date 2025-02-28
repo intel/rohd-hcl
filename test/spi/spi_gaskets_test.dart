@@ -63,7 +63,7 @@ class SpiMainTest extends Test {
       // ignore: avoid_dynamic_calls
       expect(jsonContents['records'].length, 2 * numTransfers);
 
-      Directory(outFolder).deleteSync(recursive: true);
+      // Directory(outFolder).deleteSync(recursive: true);
     });
 
     monitor.stream.listen(tracker.record);
@@ -242,6 +242,34 @@ class SpiPairTest extends Test {
   }
 }
 
+class SpiCheckerTest extends Test {
+  late final SpiInterface intf;
+  late final Logic clk;
+
+  SpiCheckerTest(super.name) : super() {
+    intf = SpiInterface(dataLength: 8);
+    clk = SimpleClockGenerator(10).clk;
+
+    SpiChecker(intf, parent: this);
+
+    intf.csb <= Const(0);
+    intf.sclk <= clk;
+    intf.mosi <= ~clk;
+    intf.miso <= clk;
+  }
+
+  @override
+  Future<void> run(Phase phase) async {
+    unawaited(super.run(phase));
+
+    final obj = phase.raiseObjection('SpiPairTestObj');
+
+    await clk.waitCycles(2);
+
+    obj.drop();
+  }
+}
+
 void main() {
   tearDown(() async {
     await Simulator.reset();
@@ -249,7 +277,7 @@ void main() {
 
   group('main gasket tests', () {
     Future<void> runMainTest(SpiMainTest spiMainTest,
-        {bool dumpWaves = true}) async {
+        {bool dumpWaves = false}) async {
       Simulator.setMaxSimTime(3000);
 
       if (dumpWaves) {
@@ -265,13 +293,12 @@ void main() {
         Future<void> sendMainData(SpiMainTest test, int data) async {
           test.busInMain.inject(LogicValue.ofInt(data, test.intf.dataLength));
           test.reset.inject(true);
-          await test.clk.nextNegedge;
-          test.reset.inject(false);
+          Simulator.registerAction(
+              Simulator.time + 2, () => test.reset.inject(false));
           test.starts.inject(true);
           await test.clk.waitCycles(1);
           test.starts.inject(false);
-          await test.clk.waitCycles(6);
-          await test.clk.nextPosedge;
+          await test.clk.waitCycles(7);
         }
 
         Future<void> sendSubPacket(SpiMainTest test, LogicValue data) async {
@@ -286,19 +313,19 @@ void main() {
         final txPeriod = test.intf.dataLength;
 
         await sendSubPacket(test, LogicValue.ofInt(0x72, 8));
-        expect(test.main.busOut.value.toInt(), 0x72);
+        expect(test.main.busOut.previousValue?.toInt(), 0x72);
         expect(clkCount, txPeriod);
 
         await sendSubPacket(test, LogicValue.ofInt(0xCD, 8));
-        expect(test.main.busOut.value.toInt(), 0xCD);
+        expect(test.main.busOut.previousValue?.toInt(), 0xCD);
         expect(clkCount, 2 * txPeriod);
 
         await sendSubPacket(test, LogicValue.ofInt(0x56, 8));
-        expect(test.main.busOut.value.toInt(), 0x56);
+        expect(test.main.busOut.previousValue?.toInt(), 0x56);
         expect(clkCount, 3 * txPeriod);
 
         await sendSubPacket(test, LogicValue.ofInt(0xE2, 8));
-        expect(test.main.busOut.value.toInt(), 0xE2);
+        expect(test.main.busOut.previousValue?.toInt(), 0xE2);
         expect(clkCount, 4 * txPeriod);
 
         await test.clk.waitCycles(4);
@@ -411,10 +438,10 @@ void main() {
             .add(SpiPacket(data: LogicValue.ofInt(0xCD, 8))); // 1100 1101
 
         await test.clk.waitCycles(8);
-        expect(test.sub.done.value.toBool(), false);
+        expect(test.sub.done?.value.toBool(), false);
         await test.clk.nextPosedge;
         expect(test.sub.busOut.value.toInt(), 0xCD);
-        expect(test.sub.done.value.toBool(), true);
+        expect(test.sub.done?.value.toBool(), true);
         //gap
         await test.clk.waitCycles(7);
 
@@ -509,7 +536,7 @@ void main() {
       test.starts.inject(true);
       await test.clk.waitCycles(1);
       test.starts.inject(false);
-      expect(test.sub.done.value.toBool(), false);
+      expect(test.sub.done?.value.toBool(), false);
       await test.clk.waitCycles(7);
     }
 
@@ -653,5 +680,22 @@ void main() {
         await test.clk.waitCycles(4);
       }, 'testPairA'));
     });
+  });
+
+  test('SpiChecker test', () async {
+    final checkerTest = SpiCheckerTest('checkerTest');
+    var sawError = false;
+
+    Simulator.setMaxSimTime(200);
+
+    try {
+      await checkerTest.start();
+    } on Exception {
+      sawError = true;
+    }
+
+    expect(sawError, isTrue);
+
+    await Simulator.endSimulation();
   });
 }
