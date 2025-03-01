@@ -14,18 +14,22 @@ import 'package:rohd_hcl/rohd_hcl.dart';
 /// A [Configurator] for [CompoundAdder].
 class CompoundAdderConfigurator extends Configurator {
   /// Map from Type to Function for Adder generator
-  static Map<Type, Adder Function(Logic, Logic, {Logic? carryIn, String? name})>
-      adderGeneratorMap = {
-    Ripple: (a, b, {carryIn, name}) =>
+  static Map<
+      Type,
+      Adder Function(Logic, Logic,
+          {Logic? carryIn,
+          Logic? subtractIn,
+          String? name})> adderGeneratorMap = {
+    Ripple: (a, b, {carryIn, subtractIn, name}) =>
         ParallelPrefixAdder(a, b, ppGen: Ripple.new, name: name!),
-    Sklansky: (a, b, {carryIn, name}) =>
+    Sklansky: (a, b, {carryIn, subtractIn, name}) =>
         ParallelPrefixAdder(a, b, ppGen: Sklansky.new, name: name!),
-    KoggeStone: (a, b, {carryIn, name}) =>
+    KoggeStone: (a, b, {carryIn, subtractIn, name}) =>
         ParallelPrefixAdder(a, b, name: name!),
-    BrentKung: (a, b, {carryIn, name}) =>
+    BrentKung: (a, b, {carryIn, subtractIn, name}) =>
         ParallelPrefixAdder(a, b, ppGen: BrentKung.new, name: name!),
-    NativeAdder: (a, b, {carryIn, name}) =>
-        NativeAdder(a, b, carryIn: carryIn, name: name!)
+    NativeAdder: (a, b, {carryIn, subtractIn, name}) =>
+        NativeAdder(a, b, carryIn: carryIn, name: name ?? '')
   };
 
   /// Controls the type of [Adder] used for internal adders.
