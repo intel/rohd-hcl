@@ -4,7 +4,7 @@ A priority encoder is used to find the trailing `1` in a Logic (or, equivalently
 
 ## Parallel-Prefix Priority Encoder
 
-We provide one implementation based on `ParallelPrefix` trees, which finds the trailing-1 position using and then encodes that position.  This `ParallelPrefixPriorityEncoder` allows you to select the prefix-tree of your choice to use in the find position portion, which is followed by a `OneHotToBinary` module to encode that position.
+We provide one implementation based on `ParallelPrefix` trees, which finds the trailing-1 position using a prefix-tree and then encodes that position.  This `ParallelPrefixPriorityEncoder` allows you to select the prefix-tree of your choice to use in the find position portion, which is followed by a `OneHotToBinary` module to encode that position.
 
 ```dart
     final bitVector = Logic(width: 5);

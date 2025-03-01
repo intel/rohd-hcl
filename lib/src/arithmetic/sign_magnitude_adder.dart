@@ -47,8 +47,11 @@ class SignMagnitudeAdder extends Adder {
     final bLarger = a.lt(b) | (a.eq(b) & bSign.gt(aSign));
 
     _sign <= (largestMagnitudeFirst ? aSign : mux(bLarger, bSign, aSign));
-    final adder = OnesComplementAdder(a, b,
-        subtractIn: aSign ^ bSign, adderGen: adderGen);
+    final sub = aSign ^ bSign;
+    final adder = OnesComplementAdder(mux(sub, ~a, a), mux(sub, ~b, b),
+        carryOut: largestMagnitudeFirst ? Logic() : null,
+        subtractIn: sub,
+        adderGen: adderGen);
     sum <= adder.sum;
   }
 }

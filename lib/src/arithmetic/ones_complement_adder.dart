@@ -35,6 +35,9 @@ class OnesComplementAdder extends Adder {
   /// - If Logic [carryOut] is provided as not null, then the end-around carry
   ///  is not performed and is provided as value on [carryOut].
   /// - [carryIn] allows for another adder to chain into this one.
+  /// - [chainable] tells this adder to not store the [carryOut] in the sign
+  /// bit as well, but to zero that to allow adders to be chained such as for
+  /// use in the [CarrySelectCompoundAdder].
   OnesComplementAdder(super.a, super.b,
       {Adder Function(Logic, Logic, {Logic? carryIn}) adderGen =
           ParallelPrefixAdder.new,

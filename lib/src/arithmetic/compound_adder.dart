@@ -35,9 +35,6 @@ abstract class CompoundAdder extends Adder {
   }
 }
 
-/// Splitting algorithm Function
-typedef Splitter = List<int> Function(int adderWidth);
-
 /// A trivial compound adder.
 class TrivialCompoundAdder extends CompoundAdder {
   /// Constructs a [CompoundAdder].
@@ -89,25 +86,34 @@ class CarrySelectCompoundAdder extends CompoundAdder {
   }
 
   /// Generator of splitter algorithm
-  static Splitter splitSelectAdderAlgorithmNBit(int n) =>
+  static List<int> Function(int adderWidth) splitSelectAdderAlgorithmNBit(
+          int n) =>
       (adderWidth) => _splitAdderNBitFunctor(adderWidth, n);
 
   /// Default adder functor to use.
-  static Adder defaultAdder(Logic a, Logic b,
+  static Adder _defaultBlockAdder(Logic a, Logic b,
           {Logic? carryIn, Logic? subtractIn, String name = ''}) =>
       ParallelPrefixAdder(a, b, carryIn: carryIn, name: name);
 
   /// Constructs a [CarrySelectCompoundAdder].
-  CarrySelectCompoundAdder(super.a, super.b,
-      {Adder Function(Logic a, Logic b,
-              {Logic? carryIn, Logic? subtractIn, String name})
-          adderGen = defaultAdder,
-      String? definitionName,
-      Logic? subtractIn,
-      super.carryIn,
-      super.name = 'cs_compound_adder',
-      List<int> Function(int) widthGen = splitSelectAdderAlgorithmSingleBlock})
-      : super(
+  /// - [subtractIn] can be provided to dynamically select a subtraction.
+  /// - [carryIn] is a carry Logic into the [CarrySelectCompoundAdder]
+  /// - [adderGen] provides an adder Function which must supply optional
+  /// [carryIn] and [subtractIn] Logic controls.
+  /// - [widthGen] is the splitting function for creating the different adder
+  /// blocks.
+  CarrySelectCompoundAdder(
+    super.a,
+    super.b, {
+    Logic? subtractIn,
+    super.carryIn,
+    Adder Function(Logic a, Logic b,
+            {Logic? carryIn, Logic? subtractIn, String name})
+        adderGen = _defaultBlockAdder,
+    List<int> Function(int) widthGen = splitSelectAdderAlgorithmSingleBlock,
+    String? definitionName,
+    super.name = 'cs_compound_adder',
+  }) : super(
             definitionName: definitionName ??
                 'CarrySelectCompoundAdder_${adderGen(a, b).definitionName}') {
     subtractIn = (subtractIn != null)
@@ -173,15 +179,12 @@ class CarrySelectCompoundAdder extends CompoundAdder {
       blockStartIdx += blockWidth;
     }
 
-    // append carryout bit
+    // Append carryout bit
     sumList0.add(carry0!);
     sumList1.add(carry1!);
 
     sum <= sumList0.rswizzle();
     sumP1 <= sumList1.rswizzle();
-
-    // print('s  =${sum.value.bitString}');
-    // print('sp1=${sumP1.value.bitString}');
   }
 }
 
