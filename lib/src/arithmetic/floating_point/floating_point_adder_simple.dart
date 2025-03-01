@@ -60,7 +60,12 @@ class FloatingPointAdderSimple extends FloatingPointAdder {
         [smaller.mantissa, Const(0, width: mantissaWidth + 2)].swizzle());
 
     final adder = SignMagnitudeAdder(
-        larger.sign, aMantissa, smaller.sign, bMantissa >>> expDiff, adderGen);
+        larger.sign,
+        aMantissa,
+        smaller.sign,
+        bMantissa >>> expDiff,
+        largestMagnitudeFirst: true,
+        adderGen);
 
     final intSum = adder.sum.slice(adder.sum.width - 1, 0).named('intSum');
 
