@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="API docs for the SpiSub constructor from Class SpiSub from the rohd_hcl library, for the Dart programming language.">
+  <title>SpiSub constructor - SpiSub - rohd_hcl library - Dart API</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../../static-assets/github.css?v1">
+  <link rel="stylesheet" href="../../static-assets/styles.css?v1">
+  <link rel="icon" href="../../static-assets/favicon.png?v1">
+  
+</head>
+
+<body data-base-href="../../" data-using-base-href="false" class="light-theme">
+<div id="overlay-under-drawer"></div>
+<header id="title">
+  <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="../../index.html">rohd_hcl</a></li>
+    <li><a href="../../rohd_hcl">rohd_hcl.dart</a></li>
+    <li><a href="../../rohd_hcl/SpiSub-class.html">SpiSub</a></li>
+    <li class="self-crumb">SpiSub constructor</li>
+  </ol>
+  <div class="self-name">SpiSub</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+  <div class="toggle" id="theme-button" title="Toggle brightness">
+    <label for="theme">
+      <input type="checkbox" id="theme" value="light-theme">
+      <span id="dark-theme-button" class="material-symbols-outlined">
+        dark_mode
+      </span>
+      <span id="light-theme-button" class="material-symbols-outlined">
+        light_mode
+      </span>
+    </label>
+  </div>
+</header>
+<main>
+  <div
+      id="dartdoc-main-content"
+      class="main-content"
+      data-above-sidebar="rohd_hcl&#47;SpiSub-class-sidebar.html"
+      data-below-sidebar="">
+      <div>
+<h1><span class="kind-constructor">SpiSub</span> constructor 
+</h1></div>
+
+    <section class="multi-line-signature">
+      
+      <span class="name ">SpiSub</span>(<wbr>{<ol class="parameter-list"> <li><span class="parameter" id="-param-intf"><span>required</span> <span class="type-annotation"><a href="../../rohd_hcl/SpiInterface-class.html">SpiInterface</a></span> <span class="parameter-name">intf</span>, </span></li>
+<li><span class="parameter" id="-param-busIn"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.3/rohd/Logic-class.html">Logic</a>?</span> <span class="parameter-name">busIn</span>, </span></li>
+<li><span class="parameter" id="-param-reset"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.3/rohd/Logic-class.html">Logic</a>?</span> <span class="parameter-name">reset</span>, </span></li>
+<li><span class="parameter" id="-param-name"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.7.1/dart-core/String-class.html">String</a></span> <span class="parameter-name">name</span> = <span class="default-value">&#39;spiSub&#39;</span>, </span></li>
+</ol>})
+    </section>
+    
+<section class="desc markdown">
+  <p>Creates a SPI Sub component that interfaces with <a href="../../rohd_hcl/SpiInterface-class.html">SpiInterface</a>.</p>
+<p>The SPI Sub component will enable via chip select from <a href="../../rohd_hcl/SpiInterface/csb.html">SpiInterface.csb</a>.
+Clock signal will be received on <a href="../../rohd_hcl/SpiInterface/sclk.html">SpiInterface.sclk</a>, data will shift in
+from <a href="../../rohd_hcl/SpiInterface/mosi.html">SpiInterface.mosi</a>, and shift data out from <a href="../../rohd_hcl/SpiInterface/miso.html">SpiInterface.miso</a>.
+Data shifted in from <a href="../../rohd_hcl/SpiInterface/mosi.html">SpiInterface.mosi</a> will be available on <a href="../../rohd_hcl/SpiSub/busOut.html">busOut</a>.</p>
+<p>If <code>busIn</code> and <code>reset</code> are provided, data to shift out will be loaded from
+<code>busIn</code>. After data is available on <code>busIn</code>, pulsing <code>reset</code> will load the
+data asynchronously, and a bit of data will be transmitted per pulse of
+<a href="../../rohd_hcl/SpiInterface/sclk.html">SpiInterface.sclk</a>. After all data is shifted out, an optional <a href="../../rohd_hcl/SpiSub/done.html">done</a>
+signal will indicate completion.</p>
+</section>
+
+
+    
+<section class="summary source-code" id="source">
+  <h2><span>Implementation</span></h2>
+  <pre class="language-dart"><code class="language-dart">SpiSub(
+    {required SpiInterface intf,
+    Logic? busIn,
+    Logic? reset,
+    super.name = &#39;spiSub&#39;}) {
+  &#47;&#47; SPI Interface
+  intf = SpiInterface.clone(intf)
+    ..pairConnectIO(this, intf, PairRole.consumer);
+
+  &#47;&#47; Bus Input to sub, if provided.
+  if (busIn != null) {
+    busIn = addInput(&#39;busIn&#39;, busIn, width: intf.dataLength);
+  }
+
+  &#47;&#47; If reset is provided, add the reset input and done output.
+  if (reset != null) {
+    reset = addInput(&#39;reset&#39;, reset);
+
+    addOutput(&#39;done&#39;);
+
+    &#47;&#47; Counter to track of the number of bits shifted out.
+    final count = Counter.simple(
+        clk: intf.sclk,
+        enable: ~intf.csb,
+        reset: reset,
+        asyncReset: true,
+        resetValue: intf.dataLength - 1,
+        maxValue: intf.dataLength - 1);
+
+    &#47;&#47; Done signal will be high when the counter is at the max value.
+    done! &lt;= count.equalsMax;
+  }
+
+  &#47;&#47; Bus Output from Sub
+  addOutput(&#39;busOut&#39;, width: intf.dataLength);
+
+  &#47;&#47; Shift Register in from MOSI.
+  &#47;&#47; NOTE: Reset values are set to busIn values.
+  final shiftReg = ShiftRegister(
+    intf.mosi,
+    enable: ~intf.csb,
+    clk: intf.sclk,
+    depth: intf.dataLength,
+    reset: reset,
+    asyncReset: true,
+    resetValue: busIn?.elements,
+  );
+
+  &#47;&#47; busOut bits are connected to the corresponding shift register data stage.
+  &#47;&#47; NOTE: dataStage0 corresponds to the last bit shifted in.
+  busOut &lt;= shiftReg.stages.rswizzle();
+
+  &#47;&#47; MISO is connected to shift register dataOut.
+  intf.miso &lt;=
+      flop(~intf.sclk, shiftReg.dataOut,
+          en: ~intf.csb,
+          reset: reset,
+          asyncReset: true,
+          resetValue: busIn?[-1]);
+}</code></pre>
+</section>
+
+
+  </div> <!-- /.main-content -->
+  <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+    <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
+<header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+    <li><a href="../../index.html">rohd_hcl</a></li>
+    <li><a href="../../rohd_hcl">rohd_hcl</a></li>
+    <li><a href="../../rohd_hcl/SpiSub-class.html">SpiSub</a></li>
+    <li class="self-crumb">SpiSub constructor</li>
+</ol>
+
+    <h5>SpiSub class</h5>
+    <div id="dartdoc-sidebar-left-content"></div>
+  </div><!--/.sidebar-offcanvas-left-->
+  <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+  </div><!--/.sidebar-offcanvas-->
+</main>
+<footer>
+  <span class="no-break">
+    rohd_hcl
+      0.1.0
+  </span>
+  
+</footer>
+
+
+<script src="../../static-assets/highlight.pack.js?v1"></script>
+<script src="../../static-assets/docs.dart.js"></script>
+
+</body>
+</html>
+

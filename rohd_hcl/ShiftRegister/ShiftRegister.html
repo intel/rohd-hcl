@@ -70,11 +70,11 @@
     
 <section class="desc markdown">
   <p>Creates a new shift register with specified <code>depth</code> which is only active
-when <code>enable</code>d. If <code>reset</code> is provided, it will reset synchronously with
-<code>clk</code> or aynchronously if <code>asyncReset</code> is true. The <code>reset</code> will reset all
-stages to a default of <code>0</code> or to the provided <code>resetValue</code>.
-If <code>resetValue</code> is a <a href="https://api.dart.dev/stable/3.7.1/dart-core/List-class.html">List</a> the stages will reset to the corresponding
-value in the list.</p>
+when <code>enable</code>d.</p>
+<p>If <code>reset</code> is provided, it will reset synchronously with <code>clk</code> or
+aynchronously if <code>asyncReset</code> is true. The <code>reset</code> will reset all  stages
+to a default of <code>0</code> or to the provided <code>resetValue</code>. If <code>resetValue</code> is
+a <a href="https://api.dart.dev/stable/3.7.1/dart-core/List-class.html">List</a> the stages will reset to the corresponding value in the list.</p>
 </section>
 
 
@@ -118,6 +118,8 @@ value in the list.</p>
               &#39;ResetValue list length must equal shift register depth.&#39;);
         }
 
+        resetValue = List.of(resetValue);
+
         for (var i = 0; i &lt; resetValue.length; i++) {
           final element = resetValue[i];
           if (element is Logic) {
@@ -149,9 +151,10 @@ value in the list.</p>
   }
 
   Sequential.multi(
-    [clk, if (asyncReset &amp;&amp; reset != null) reset],
+    [clk],
     reset: reset,
     resetValues: resetValues,
+    asyncReset: asyncReset,
     conds,
   );
 

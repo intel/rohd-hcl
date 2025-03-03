@@ -62,6 +62,7 @@
 <li><span class="parameter" id="-param-reset"><span>required</span> <span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.3/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">reset</span>, </span></li>
 <li><span class="parameter" id="-param-restart"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.3/rohd/Logic-class.html">Logic</a>?</span> <span class="parameter-name">restart</span>, </span></li>
 <li><span class="parameter" id="-param-resetValue"><span class="type-annotation">dynamic</span> <span class="parameter-name">resetValue</span> = <span class="default-value">0</span>, </span></li>
+<li><span class="parameter" id="-param-asyncReset"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.7.1/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">asyncReset</span> = <span class="default-value">false</span>, </span></li>
 <li><span class="parameter" id="-param-maxValue"><span class="type-annotation">dynamic</span> <span class="parameter-name">maxValue</span>, </span></li>
 <li><span class="parameter" id="-param-minValue"><span class="type-annotation">dynamic</span> <span class="parameter-name">minValue</span> = <span class="default-value">0</span>, </span></li>
 <li><span class="parameter" id="-param-width"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.7.1/dart-core/int-class.html">int</a>?</span> <span class="parameter-name">width</span>, </span></li>
@@ -100,6 +101,7 @@ respectively.</p>
   required Logic reset,
   Logic? restart,
   dynamic resetValue = 0,
+  this.asyncReset = false,
   super.maxValue,
   super.minValue = 0,
   super.width,
@@ -108,7 +110,6 @@ respectively.</p>
 }) : super(initialValue: resetValue) {
   this.clk = addInput(&#39;clk&#39;, clk);
   this.reset = addInput(&#39;reset&#39;, reset);
-
   if (restart != null) {
     this.restart = addInput(&#39;restart&#39;, restart);
   } else {
