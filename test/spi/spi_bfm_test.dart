@@ -49,6 +49,7 @@ class SpiBfmTest extends Test {
 
     Simulator.registerEndOfSimulationAction(() async {
       await tracker.terminate();
+      Directory(outFolder).deleteSync(recursive: true);
     });
 
     monitor.stream.listen(tracker.record);

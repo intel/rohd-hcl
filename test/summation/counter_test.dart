@@ -295,7 +295,6 @@ void main() {
 
     Simulator.setMaxSimTime(1000);
     unawaited(Simulator.run());
-    WaveDumper(counter);
     // initializing/resetting with no clock
     await clk.waitCycles(2);
     reset.inject(0);
