@@ -95,7 +95,7 @@ void main() {
     await Simulator.reset();
   });
 
-  Future<void> runTest(SpiBfmTest spiBfmTest, {bool dumpWaves = true}) async {
+  Future<void> runTest(SpiBfmTest spiBfmTest, {bool dumpWaves = false}) async {
     Simulator.setMaxSimTime(3000);
 
     if (dumpWaves) {
