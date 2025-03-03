@@ -38,11 +38,12 @@ class ShiftRegister extends Module {
   final String dataName;
 
   /// Creates a new shift register with specified [depth] which is only active
-  /// when [enable]d. If [reset] is provided, it will reset synchronously with
-  /// [clk] or aynchronously if [asyncReset] is true. The [reset] will reset all
-  /// stages to a default of `0` or to the provided [resetValue].
-  /// If [resetValue] is a [List] the stages will reset to the corresponding
-  /// value in the list.
+  /// when [enable]d.
+  ///
+  /// If [reset] is provided, it will reset synchronously with [clk] or
+  /// aynchronously if [asyncReset] is true. The [reset] will reset all  stages
+  /// to a default of `0` or to the provided [resetValue]. If [resetValue] is
+  /// a [List] the stages will reset to the corresponding value in the list.
   ShiftRegister(
     Logic dataIn, {
     required Logic clk,
@@ -80,6 +81,8 @@ class ShiftRegister extends Module {
                 'ResetValue list length must equal shift register depth.');
           }
 
+          resetValue = List.of(resetValue);
+
           for (var i = 0; i < resetValue.length; i++) {
             final element = resetValue[i];
             if (element is Logic) {
@@ -111,9 +114,10 @@ class ShiftRegister extends Module {
     }
 
     Sequential.multi(
-      [clk, if (asyncReset && reset != null) reset],
+      [clk],
       reset: reset,
       resetValues: resetValues,
+      asyncReset: asyncReset,
       conds,
     );
 

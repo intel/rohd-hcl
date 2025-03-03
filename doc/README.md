@@ -113,17 +113,19 @@ Some in-development items will have opened issues, as well. Feel free to create 
   - PCIe
   - UCIe
   - JTAG
-  - SPI
+  - [SPI](./components/standard_interfaces.md#spi)
   - UART
   - DDR
   - HBM
 - Models
   - [APB](./components/apb_bfm.md)
   - [Ready/Valid](./components/ready_valid_bfm.md)
-  - SPI
+  - [SPI](./components/spi_bfm.md)
   - CXL
+- Gaskets
+  - [SPI](./components/spi_gaskets.md)
 
 ----------------
 
-Copyright (C) 2023-2024 Intel Corporation  
+Copyright (C) 2023-2025 Intel Corporation  
 SPDX-License-Identifier: BSD-3-Clause
