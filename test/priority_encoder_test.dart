@@ -50,6 +50,7 @@ void main() {
     expect(dut.out.value.toInt(), equals(3));
     expect(valid.value.toBool(), equals(true));
   });
+
   test('RecursivePriorityModuleEncoder quick test', () async {
     final inp = Logic(width: 87)..put(8);
     final valid = Logic();
