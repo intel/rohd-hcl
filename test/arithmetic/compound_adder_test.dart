@@ -134,7 +134,8 @@ void main() {
 
       final refCarry = Logic();
       final refAdder = OnesComplementAdder(a, b,
-          carryOut: refCarry, subtractIn: doSubtract ? Const(1) : Const(0));
+          endAroundCarry: refCarry,
+          subtractIn: doSubtract ? Const(1) : Const(0));
 
       final expectedVal = doSubtract ? ai - bi : ai + bi;
       final expectedValP1 = expectedVal + 1;
@@ -179,7 +180,7 @@ void main() {
                 CarrySelectCompoundAdder.splitSelectAdderAlgorithmNBit(4));
         final refCarry = Logic();
         final refAdder = OnesComplementAdder(a, b,
-            carryOut: refCarry, subtractIn: useLogic, subtract: subtract);
+            endAroundCarry: refCarry, subtractIn: useLogic, subtract: subtract);
         for (var ai = 0; ai < pow(2, width); ai++) {
           for (var bi = 0; bi < pow(2, width); bi++) {
             final av = LogicValue.ofInt(ai, width);

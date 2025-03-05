@@ -17,10 +17,12 @@ class OnesComplementAdder extends Adder {
   /// The sign of the result
   Logic get sign => output('sign');
 
-  /// The end-around carry which should be added to the resulting [sum]
-  /// If the input [carryOut] is not null, this value is stored there.
-  ///  Otherwise, the end-around carry is internally added to [sum]
-  Logic? get carryOut => tryOutput('carryOut');
+  /// The end-around carry which should be added to the resulting [sum].
+  /// If the input [endAroundCarry] is not null, this value is stored there.
+  /// Otherwise, the end-around carry is internally added to [sum]. This
+  /// happens when subtracting a smaller number from a larger oneusing
+  /// ones complement arithmetic.
+  Logic? get endAroundCarry => tryOutput('endAroundCarry');
 
   @protected
   Logic _sign = Logic();
@@ -32,17 +34,19 @@ class OnesComplementAdder extends Adder {
   /// [OnesComplementAdder] constructor with an adder functor [adderGen].
   /// - Either an optional Logic [subtractIn] or a boolean [subtract] can enable
   /// subtraction, but providing both non-null will result in an exception.
-  /// - If Logic [carryOut] is provided as not null, then the end-around carry
-  ///  is not performed and is provided as value on [carryOut].
+  /// - If Logic [endAroundCarry] is provided as not null, then the end-around
+  /// carry is not performed and is provided as value on [endAroundCarry]. If
+  /// [endAroundCarry] is null, extra hardware takes care of adding the
+  /// end-around carry to [sum].
   /// - [carryIn] allows for another adder to chain into this one.
-  /// - [chainable] tells this adder to not store the [carryOut] in the sign
-  /// bit as well, but to zero that to allow adders to be chained such as for
-  /// use in the [CarrySelectCompoundAdder].
+  /// - [chainable] tells this adder to not store the [endAroundCarry] in the
+  /// sign bit as well, but to zero that to allow adders to be chained such as
+  /// for use in the [CarrySelectCompoundAdder].
   OnesComplementAdder(super.a, super.b,
       {Adder Function(Logic, Logic, {Logic? carryIn}) adderGen =
           ParallelPrefixAdder.new,
       Logic? subtractIn,
-      Logic? carryOut,
+      Logic? endAroundCarry,
       super.carryIn,
       bool subtract = false,
       bool chainable = false,
@@ -51,9 +55,9 @@ class OnesComplementAdder extends Adder {
       : super(
             definitionName:
                 definitionName ?? 'OnesComplementAdder_W${a.width}') {
-    if (carryOut != null) {
-      addOutput('carryOut');
-      carryOut <= this.carryOut!;
+    if (endAroundCarry != null) {
+      addOutput('endAroundCarry');
+      endAroundCarry <= this.endAroundCarry!;
     }
     if ((subtractIn != null) & subtract) {
       throw RohdHclException(
@@ -74,19 +78,18 @@ class OnesComplementAdder extends Adder {
             .sum
             .named('adderSum', naming: Naming.mergeable);
 
-    if (this.carryOut != null) {
-      this.carryOut! <= adderSum[-1];
+    if (this.endAroundCarry != null) {
+      this.endAroundCarry! <= adderSum[-1];
     }
     final endAround = adderSum[-1].named('endaround');
     final magnitude = adderSum.slice(a.width - 1, 0).named('magnitude');
     final Logic magnitudep1;
-    if (this.carryOut == null) {
+    if (this.endAroundCarry == null) {
       final incrementer = ParallelPrefixIncr(magnitude);
       magnitudep1 = incrementer.out.named('magnitude_plus1');
     } else {
       magnitudep1 = Const(0);
     }
-
     sum <=
         mux(
             doSubtract,
@@ -94,7 +97,8 @@ class OnesComplementAdder extends Adder {
               if (chainable) endAround else Const(0),
               mux(
                   [if (chainable) Const(0) else endAround].first,
-                  [if (this.carryOut != null) magnitude else magnitudep1].first,
+                  [if (this.endAroundCarry != null) magnitude else magnitudep1]
+                      .first,
                   ~magnitude)
             ].swizzle(),
             adderSum);

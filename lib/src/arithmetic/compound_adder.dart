@@ -254,7 +254,7 @@ class CarrySelectOnesComplementCompoundAdder extends CompoundAdder {
             OnesComplementAdder(a, b,
                 adderGen: adderGen,
                 carryIn: carryIn,
-                carryOut: Logic(),
+                endAroundCarry: Logic(),
                 subtract: subtract,
                 chainable: true,
                 subtractIn: subtractIn));
