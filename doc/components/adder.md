@@ -116,7 +116,7 @@ The [CarrySelectCompoundAdder](https://intel.github.io/rohd-hcl/rohd_hcl/CarrySe
 
 The compound adder forms a select chain around a set of adders specified by:
 
-- `adderGen`: an adder generator functor option to build the block adders with the default being a closure returning `ParallelPrefixAdder`.  This functor has the signature:  
+- `adderGen`: an adder generator functor option to build the block adders with the default being a functor returning `ParallelPrefixAdder`.  This functor has the signature:  
 
 ```dart
 (Logic a, Logic b, {Logic? carryIn, Logic? subtractIn, String name = ''}) => Adder
@@ -147,7 +147,7 @@ final adder4BitBlock = CarrySelectCompoundAdder(a, b,
         widthGen: CarrySelectCompoundAdder.splitSelectAdderAlgorithmNBit(4));
 ```
 
-## Compound Ones Complement Adder
+## Carry Select Ones Complement Compound Adder
 
 ROHD-HCL has an implementation of a `CompoundAdder` that uses a `OnesComplement` adder to produce sum and sum plus one including for subtraction using ones-complement.
 

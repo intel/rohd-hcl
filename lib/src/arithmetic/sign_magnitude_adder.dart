@@ -11,7 +11,7 @@ import 'package:meta/meta.dart';
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
 
-/// A [SignMagnitudeAdder] performsa addition on values in sign/magnitude
+/// A [SignMagnitudeAdder] performs addition on values in sign/magnitude
 /// format.
 class SignMagnitudeAdder extends Adder {
   /// The sign of the first input
