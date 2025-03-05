@@ -68,12 +68,14 @@ void main() {
       }
     }
   });
+
   group('Prefix Priority Encoder tests', () {
     for (final n in [7, 8, 9]) {
       testPriorityEncoder(n, RecursivePriorityEncoder.new);
       testPriorityEncoder(n, RecursiveModulePriorityEncoder.new);
     }
   });
+
   test('PrefixPriorityEncoder simple test', () {
     final val = Logic(width: 5);
     // ignore: cascade_invocations
@@ -86,6 +88,7 @@ void main() {
     ParallelPrefixPriorityEncoder(val, valid: valid);
     expect(valid.value.toBool(), equals(true));
   });
+
   test('PrefixPriorityEncoder simple test', () {
     final bitVector = Logic(width: 5);
     // ignore: cascade_invocations
@@ -96,6 +99,7 @@ void main() {
 
     expect(encoder.out.value.toInt(), equals(3));
   });
+
   test('PrefixPriorityEncoder return beyond width if zero', () {
     final val = Logic(width: 5);
     // ignore: cascade_invocations

@@ -471,6 +471,7 @@ void main() {
           sortOperands: false);
     }
   });
+
   group('SignMagnitude exhaustive', () {
     testExhaustiveSignMagnitude(4, RippleCarryAdder.new);
     testExhaustiveSignMagnitude(4, RippleCarryAdder.new,
