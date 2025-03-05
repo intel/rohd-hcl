@@ -38,7 +38,7 @@ class SpiMainDriver extends PendingClockedDriver<SpiPacket> {
     unawaited(super.run(phase));
 
     Simulator.injectAction(() {
-      intf.csb.put(1);
+      intf.csb[0].put(1);
       intf.mosi.put(0);
     });
 
@@ -48,7 +48,7 @@ class SpiMainDriver extends PendingClockedDriver<SpiPacket> {
       } else {
         await clk.nextNegedge;
         Simulator.injectAction(() {
-          intf.csb.put(1);
+          intf.csb[0].put(1);
           _clkenable.inject(0);
           intf.mosi.put(0);
         });
@@ -61,7 +61,7 @@ class SpiMainDriver extends PendingClockedDriver<SpiPacket> {
 
   /// Drives a packet onto the interface.
   Future<void> _drivePacket(SpiPacket packet) async {
-    intf.csb.inject(0);
+    intf.csb[0].inject(0);
 
     // Loop through the bits of the packet
     for (var i = 1; i <= packet.data.width; i++) {

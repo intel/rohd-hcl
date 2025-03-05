@@ -33,6 +33,7 @@ class SpiMain extends Module {
       required Logic reset,
       required Logic start,
       required Logic busIn,
+      Logic? css,
       super.name = 'spiMain'}) {
     busIn = addInput('busIn', busIn, width: busIn.width);
 
@@ -41,6 +42,10 @@ class SpiMain extends Module {
     reset = addInput('reset', reset);
 
     start = addInput('start', start);
+
+    if (css != null) {
+      css = addInput('css', css, width: intf.multiChipSelects);
+    }
 
     addOutput('busOut', width: busIn.width);
 
@@ -91,7 +96,17 @@ class SpiMain extends Module {
     intf.sclk <= ~clk & (isRunning | start);
 
     // CS is active low. It will go low when isRunning or start is pulsed high.
-    intf.csb <= ~(isRunning | start);
+    // intf.csb <= ~(isRunning | start);
+
+    if (css != null) {
+      for (var i = 0; i < intf.multiChipSelects; i++) {
+        intf.csb[i] <= ~css[i] & ~(isRunning | start);
+      }
+    } else {
+      for (var i = 0; i < intf.multiChipSelects; i++) {
+        intf.csb[i] <= ~(isRunning | start);
+      }
+    }
 
     // MOSI is connected shift register dataOut.
     intf.mosi <=

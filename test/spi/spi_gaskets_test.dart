@@ -253,7 +253,7 @@ class SpiCheckerTest extends Test {
 
     SpiChecker(intf, parent: this);
 
-    intf.csb <= Const(0);
+    intf.csb[0] <= Const(0);
     intf.sclk <= clk;
     intf.mosi <= ~clk;
     intf.miso <= clk;
