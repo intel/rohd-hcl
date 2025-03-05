@@ -122,15 +122,12 @@ The compound adder forms a select chain around a set of adders specified by:
 (Logic a, Logic b, {Logic? carryIn, Logic? subtractIn, String name = ''}) => Adder
 ```
 
-The compound adder generator provides two algorithms for splitting the adder into adder sub-blocks:
+- `widthGen`:  this is a function, with signature `List<int> Function(int adderFullWidth) widthGen` used to specify the positions at which to split the addition into sub-adders. The compound adder generator provides two such algorithms for splitting the adder into adder sub-blocks:
 
-- `splitSelectAdderAlgorithmSingleBlock:
   - The `CarrySelectCompoundAdder.splitSelectAdderAlgorithmNBit` algorithm splits the adder into blocks of n-bit adders with the first one width adjusted down.
   - The [CarrySelectCompoundAdder.splitSelectAdderAlgorithmSingleBlock](https://intel.github.io/rohd-hcl/rohd_hcl/CarrySelectCompoundAdder/splitSelectAdderAlgorithmSingleBlock.html) algorithm generates only one sub-block with the full bit-width of the adder.
 
-- `List<int> Function(int adderFullWidth) widthGen` should be used to specify the custom adder splitting algorithm that returns a list of sub-adders width. The default one is [CarrySelectCompoundAdder.splitSelectAdderAlgorithmSingleBlock](<https://intel.github.io/rohd-hcl/rohd_hcl/CarrySelectCompoundAdder/splitSelectAdderAlgorithmSingleBlock.html>).  
-
-An example is shown below to add two inputs of signals that have 8-bits of width.
+An example is shown below of using the `CarrySelectCompoundAdder` to add 2 8-bit numbers splitting at bit position 4.
 
 ```dart
 final a = Logic(name: 'a', width: 8);
