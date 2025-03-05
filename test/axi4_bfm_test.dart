@@ -55,6 +55,97 @@ class Axi4BfmTest extends Test {
 
   bool get hasAnyWrites => channels.any((element) => element.hasWrite);
 
+  /// Mechanism to generate a write request in the test.
+  Axi4WriteRequestPacket genWrPacket(
+    int channelId, {
+    int? addr,
+    List<int> data = const [],
+    int? len,
+    int? size,
+    List<int> strb = const [],
+    Axi4BurstField? burst,
+    Axi4LockField? lock,
+  }) {
+    final wIntfC = channels[channelId].wIntf!;
+    final pAddr = addr ?? Test.random!.nextInt(1 << addrWidth);
+    final transLen = len ?? Test.random!.nextInt(1 << wIntfC.lenWidth);
+    final transSize =
+        size ?? Test.random!.nextInt(1 << wIntfC.sizeWidth) % (dataWidth ~/ 8);
+    final pData = data.isNotEmpty
+        ? data.map((e) => LogicValue.ofInt(e, wIntfC.dataWidth)).toList()
+        : List.generate(
+            transLen + 1,
+            (index) => LogicValue.ofInt(
+                Test.random!.nextInt(1 << wIntfC.dataWidth), wIntfC.dataWidth));
+    final pStrobes = strb.isNotEmpty
+        ? strb.map((e) => LogicValue.ofInt(e, wIntfC.strbWidth)).toList()
+        : List.generate(
+            transLen + 1,
+            (index) => withStrobes
+                ? LogicValue.ofInt(Test.random!.nextInt(1 << wIntfC.strbWidth),
+                    wIntfC.strbWidth)
+                : LogicValue.filled(wIntfC.strbWidth, LogicValue.one));
+    final pBurst = burst ?? Axi4BurstField.incr;
+    final pLock = supportLocking
+        ? (lock != null
+            ? LogicValue.ofInt(lock.value, 4)
+            : LogicValue.ofInt(Test.random!.nextInt(2), 4))
+        : LogicValue.ofInt(0, 4);
+
+    return Axi4WriteRequestPacket(
+      addr: LogicValue.ofInt(pAddr, addrWidth),
+      prot: LogicValue.ofInt(0, wIntfC.protWidth), // not supported
+      data: pData,
+      id: LogicValue.ofInt(channelId, wIntfC.idWidth),
+      len: LogicValue.ofInt(transLen, wIntfC.lenWidth),
+      size: LogicValue.ofInt(transSize, wIntfC.sizeWidth),
+      burst: LogicValue.ofInt(pBurst.value, wIntfC.burstWidth),
+      lock: pLock,
+      cache: LogicValue.ofInt(0, wIntfC.cacheWidth), // not supported
+      qos: LogicValue.ofInt(0, wIntfC.qosWidth), // not supported
+      region: LogicValue.ofInt(0, wIntfC.regionWidth), // not supported
+      user: LogicValue.ofInt(0, wIntfC.awuserWidth), // not supported
+      strobe: pStrobes,
+      wUser: LogicValue.ofInt(0, wIntfC.wuserWidth), // not supported
+    );
+  }
+
+  /// Mechanism to generate a read request in the test.
+  Axi4ReadRequestPacket genRdPacket(
+    int channelId, {
+    int? addr,
+    int? len,
+    int? size,
+    Axi4BurstField? burst,
+    Axi4LockField? lock,
+  }) {
+    final rIntfC = channels[channelId].rIntf!;
+    final pAddr = addr ?? Test.random!.nextInt(1 << addrWidth);
+    final transLen = len ?? Test.random!.nextInt(1 << rIntfC.lenWidth);
+    final transSize =
+        size ?? Test.random!.nextInt(1 << rIntfC.sizeWidth) % (dataWidth ~/ 8);
+    final pBurst = burst ?? Axi4BurstField.incr;
+    final pLock = supportLocking
+        ? (lock != null
+            ? LogicValue.ofInt(lock.value, 4)
+            : LogicValue.ofInt(Test.random!.nextInt(2), 4))
+        : LogicValue.ofInt(0, 4);
+
+    return Axi4ReadRequestPacket(
+      addr: LogicValue.ofInt(pAddr, addrWidth),
+      prot: LogicValue.ofInt(0, rIntfC.protWidth), // not supported
+      id: LogicValue.ofInt(channelId, rIntfC.idWidth),
+      len: LogicValue.ofInt(transLen, rIntfC.lenWidth),
+      size: LogicValue.ofInt(transSize, rIntfC.sizeWidth),
+      burst: LogicValue.ofInt(pBurst.value, rIntfC.burstWidth),
+      lock: pLock,
+      cache: LogicValue.ofInt(0, rIntfC.cacheWidth), // not supported
+      qos: LogicValue.ofInt(0, rIntfC.qosWidth), // not supported
+      region: LogicValue.ofInt(0, rIntfC.regionWidth), // not supported
+      user: LogicValue.ofInt(0, rIntfC.aruserWidth), // not supported
+    );
+  }
+
   Axi4BfmTest(
     super.name, {
     this.numChannels = 1,
@@ -156,8 +247,7 @@ class Axi4BfmTest extends Test {
       //     File('$outFolder/axi4Tracker.tracker.json').readAsStringSync();
       // final jsonContents = json.decode(jsonStr);
 
-      // // TODO: check jsonContents...
-      // //  APB test checks the number of records based on the number of transactions
+      // Here can do any checking against the tracker contents...
 
       // Directory(outFolder).deleteSync(recursive: true);
     });
@@ -171,144 +261,568 @@ class Axi4BfmTest extends Test {
   int numTransfersCompleted = 0;
   final mandatoryTransWaitPeriod = 10;
 
+  // This base class doesn't do anything interesting...
   @override
   Future<void> run(Phase phase) async {
     unawaited(super.run(phase));
 
     final obj = phase.raiseObjection('axi4BfmTestObj');
-
-    await _resetFlow();
-
-    // LogicValue strobedData(LogicValue originalData, LogicValue strobe) => [
-    //       for (var i = 0; i < 4; i++)
-    //         strobe[i].toBool()
-    //             ? originalData.getRange(i * 8, i * 8 + 8)
-    //             : LogicValue.filled(8, LogicValue.zero)
-    //     ].rswizzle();
-
-    // to track what was written
-    final lens = <int>[];
-    final sizes = <int>[];
-    final data = <List<LogicValue>>[];
-    final strobes = <List<LogicValue>>[];
-    final locks = <LogicValue>[];
-
-    // normal writes
-    if (hasAnyWrites) {
-      for (var i = 0; i < numTransfers; i++) {
-        // pick a random write interface
-        var foundWrChannel = false;
-        var currW = 0;
-        while (!foundWrChannel) {
-          currW = Test.random!.nextInt(channels.length);
-          foundWrChannel = channels[currW].hasWrite;
-        }
-        final wIntfC = channels[currW].wIntf!;
-
-        // generate a completely random access
-        final transLen = Test.random!.nextInt(1 << wIntfC.lenWidth);
-        final transSize =
-            Test.random!.nextInt(1 << wIntfC.sizeWidth) % (dataWidth ~/ 8);
-        final randomData = List.generate(
-            transLen + 1,
-            (index) => LogicValue.ofInt(
-                Test.random!.nextInt(1 << wIntfC.dataWidth), wIntfC.dataWidth));
-        final randomStrobes = List.generate(
-            transLen + 1,
-            (index) => withStrobes
-                ? LogicValue.ofInt(Test.random!.nextInt(1 << wIntfC.strbWidth),
-                    wIntfC.strbWidth)
-                : LogicValue.filled(wIntfC.strbWidth, LogicValue.one));
-        final randomLock = (supportLocking
-            ? (Test.random!.nextInt(2) == 1 ? LogicValue.one : LogicValue.zero)
-            : LogicValue.zero);
-        lens.add(transLen);
-        sizes.add(transSize);
-        data.add(randomData);
-        strobes.add(randomStrobes);
-        locks.add(randomLock);
-
-        final wrPkt = Axi4WriteRequestPacket(
-          addr: LogicValue.ofInt(i, 32),
-          prot: LogicValue.ofInt(0, wIntfC.protWidth), // not supported
-          data: randomData,
-          id: LogicValue.ofInt(i, wIntfC.idWidth),
-          len: LogicValue.ofInt(transLen, wIntfC.lenWidth),
-          size: LogicValue.ofInt(transSize, wIntfC.sizeWidth),
-          burst: LogicValue.ofInt(
-              Axi4BurstField.incr.value, wIntfC.burstWidth), // fixed for now
-          lock: randomLock,
-          cache: LogicValue.ofInt(0, wIntfC.cacheWidth), // not supported
-          qos: LogicValue.ofInt(0, wIntfC.qosWidth), // not supported
-          region: LogicValue.ofInt(0, wIntfC.regionWidth), // not supported
-          user: LogicValue.ofInt(0, wIntfC.awuserWidth), // not supported
-          strobe: randomStrobes,
-          wUser: LogicValue.ofInt(0, wIntfC.wuserWidth), // not supported
-        );
-
-        main.getWrSequencer(currW)!.add(wrPkt);
-        numTransfersCompleted++;
-
-        // Note that driver will already serialize the writes
-        await sIntf.clk.waitCycles(mandatoryTransWaitPeriod);
-        await sIntf.clk.waitCycles(interTxnDelay);
-      }
-    }
-
-    // normal reads that check data
-    if (hasAnyReads) {
-      for (var i = 0; i < numTransfers; i++) {
-        // pick a random read interface
-        var foundRdChannel = false;
-        var currR = 0;
-        while (!foundRdChannel) {
-          currR = Test.random!.nextInt(channels.length);
-          foundRdChannel = channels[currR].hasRead;
-        }
-        final rIntfC = channels[currR].rIntf!;
-
-        final rdPkt = Axi4ReadRequestPacket(
-          addr: LogicValue.ofInt(i, 32),
-          prot: LogicValue.ofInt(0, rIntfC.protWidth), // not supported
-          id: LogicValue.ofInt(i, rIntfC.idWidth),
-          len: LogicValue.ofInt(lens[i], rIntfC.lenWidth),
-          size: LogicValue.ofInt(sizes[i], rIntfC.sizeWidth),
-          burst: LogicValue.ofInt(
-              Axi4BurstField.incr.value, rIntfC.burstWidth), // fixed for now
-          lock: locks[i],
-          cache: LogicValue.ofInt(0, rIntfC.cacheWidth), // not supported
-          qos: LogicValue.ofInt(0, rIntfC.qosWidth), // not supported
-          region: LogicValue.ofInt(0, rIntfC.regionWidth), // not supported
-          user: LogicValue.ofInt(0, rIntfC.aruserWidth), // not supported
-        );
-
-        main.getRdSequencer(currR)!.add(rdPkt);
-        numTransfersCompleted++;
-
-        // Note that driver will already serialize the reads
-        await sIntf.clk.waitCycles(mandatoryTransWaitPeriod);
-        await sIntf.clk.waitCycles(interTxnDelay);
-      }
-    }
-
+    await resetFlow();
     obj.drop();
   }
 
-  Future<void> _resetFlow() async {
+  Future<void> resetFlow() async {
     await sIntf.clk.waitCycles(2);
     sIntf.resetN.inject(0);
     await sIntf.clk.waitCycles(3);
     sIntf.resetN.inject(1);
   }
 
+  // Nothing in particular to check...
   @override
-  void check() {
-    expect(numTransfersCompleted, numTransfers * 2);
+  void check() {}
+}
 
-    if (withErrors) {
-      expect(storage.isEmpty, true);
+class Axi4BfmSimpleWriteReadTest extends Axi4BfmTest {
+  /// Write then read on same channel to same target
+  Future<void> simpleWrRd(
+    int channelId, {
+    int? addr,
+    List<int> data = const [],
+    int? len,
+    int? size,
+    List<int> strb = const [],
+    Axi4BurstField? burst,
+  }) async {
+    final wIntfC = channels[channelId].wIntf!;
+    final rIntfC = channels[channelId].rIntf!;
+
+    final pAddr = addr ?? Test.random!.nextInt(1 << addrWidth);
+    final transLen = len ?? Test.random!.nextInt(1 << rIntfC.lenWidth);
+    final transSize =
+        size ?? Test.random!.nextInt(1 << rIntfC.sizeWidth) % (dataWidth ~/ 8);
+    final pBurst = burst ?? Axi4BurstField.incr;
+    final pData = data.isNotEmpty
+        ? data
+        : List.generate(transLen + 1,
+            (index) => Test.random!.nextInt(1 << wIntfC.dataWidth));
+    final pStrobes = strb.isNotEmpty
+        ? strb
+        : List.generate(
+            transLen + 1,
+            (index) => withStrobes
+                ? Test.random!.nextInt(1 << wIntfC.strbWidth)
+                : LogicValue.filled(wIntfC.strbWidth, LogicValue.one).toInt());
+
+    final wrPkt = genWrPacket(
+      channelId,
+      addr: pAddr,
+      data: pData,
+      len: transLen,
+      size: transSize,
+      strb: pStrobes,
+      burst: pBurst,
+      lock: Axi4LockField.normal,
+    );
+    this.main.getWrSequencer(channelId)!.add(wrPkt);
+
+    await wrPkt.completed;
+
+    final rdPkt = genRdPacket(
+      channelId,
+      addr: pAddr,
+      len: transLen,
+      size: transSize,
+      burst: pBurst,
+      lock: Axi4LockField.normal,
+    );
+    this.main.getRdSequencer(channelId)!.add(rdPkt);
+
+    await rdPkt.completed;
+  }
+
+  Axi4BfmSimpleWriteReadTest(
+    super.name, {
+    super.numChannels,
+    super.channelConfigs,
+    super.numTransfers,
+    super.withStrobes,
+    super.interTxnDelay,
+    super.withRandomRspDelays,
+    super.withErrors,
+    super.addrWidth,
+    super.dataWidth,
+    super.lenWidth,
+    super.supportLocking,
+  });
+
+  @override
+  Future<void> run(Phase phase) async {
+    unawaited(super.run(phase));
+
+    final obj = phase.raiseObjection('${name}Obj');
+
+    await resetFlow();
+
+    // perform a random simple write-read on every channel
+    // only for channels that are capable of both...
+    for (var i = 0; i < channels.length; i++) {
+      if (channels[i].hasWrite && channels[i].hasRead) {
+        await simpleWrRd(i);
+      }
+    }
+
+    obj.drop();
+  }
+
+  // nothing really to check that isn't covered
+  // by compliance checker...
+  @override
+  void check() {}
+}
+
+class Axi4BfmReadModifyWriteTest extends Axi4BfmTest {
+  /// Read-modify-write to same target
+  /// Use AXI lock functionality
+  Future<void> rmw(
+    int channelId, {
+    int? addr,
+    int? len,
+    int? size,
+    Axi4BurstField? burst,
+    int Function(int)? dataModifier,
+  }) async {
+    final wIntfC = channels[channelId].wIntf!;
+    final rIntfC = channels[channelId].rIntf!;
+
+    dataModifier ??= (data) => data;
+
+    final pAddr = addr ?? Test.random!.nextInt(1 << addrWidth);
+    final transLen = len ?? Test.random!.nextInt(1 << rIntfC.lenWidth);
+    final transSize =
+        size ?? Test.random!.nextInt(1 << rIntfC.sizeWidth) % (dataWidth ~/ 8);
+    final pBurst = burst ?? Axi4BurstField.incr;
+
+    final rdPkt = genRdPacket(
+      channelId,
+      addr: pAddr,
+      len: transLen,
+      size: transSize,
+      burst: pBurst,
+      lock: Axi4LockField.locked,
+    );
+    this.main.getRdSequencer(channelId)!.add(rdPkt);
+
+    await rdPkt.completed;
+
+    final pData =
+        rdPkt.returnedData.map((e) => dataModifier!(e.toInt())).toList();
+    final pStrobes = List.generate(transLen + 1,
+        (index) => LogicValue.filled(wIntfC.strbWidth, LogicValue.one).toInt());
+
+    final wrPkt = genWrPacket(
+      channelId,
+      addr: pAddr,
+      data: pData,
+      len: transLen,
+      size: transSize,
+      strb: pStrobes,
+      burst: pBurst,
+      lock: Axi4LockField.locked,
+    );
+    this.main.getWrSequencer(channelId)!.add(wrPkt);
+
+    await wrPkt.completed;
+  }
+
+  Axi4BfmReadModifyWriteTest(
+    super.name, {
+    super.numChannels,
+    super.channelConfigs,
+    super.numTransfers,
+    super.withStrobes,
+    super.interTxnDelay,
+    super.withRandomRspDelays,
+    super.withErrors,
+    super.addrWidth,
+    super.dataWidth,
+    super.lenWidth,
+    super.supportLocking,
+  });
+
+  @override
+  Future<void> run(Phase phase) async {
+    unawaited(super.run(phase));
+
+    final obj = phase.raiseObjection('${name}Obj');
+
+    await resetFlow();
+
+    // perform a random read-modify-write on every channel
+    // only for channels that are capable of both...
+    for (var i = 0; i < channels.length; i++) {
+      if (channels[i].hasWrite && channels[i].hasRead) {
+        await rmw(i);
+      }
+    }
+
+    obj.drop();
+  }
+
+  // nothing really to check that isn't covered
+  // by compliance checker...
+  @override
+  void check() {}
+}
+
+class Axi4BfmReadModifyWriteAbortTest extends Axi4BfmTest {
+  /// Read-modify-write that gets aborted
+  /// Use AXI lock functionality
+  Future<void> rmwAbort(
+    int channelId1,
+    int channelId2, {
+    int? addr,
+    int? len,
+    int? size,
+    Axi4BurstField? burst,
+    int Function(int)? dataModifier,
+  }) async {
+    final wIntf1 = channels[channelId1].wIntf!;
+    final rIntf1 = channels[channelId1].rIntf!;
+
+    dataModifier ??= (data) => data;
+
+    final pAddr = addr ?? Test.random!.nextInt(1 << addrWidth);
+    final transLen = len ?? Test.random!.nextInt(1 << rIntf1.lenWidth);
+    final transSize =
+        size ?? Test.random!.nextInt(1 << rIntf1.sizeWidth) % (dataWidth ~/ 8);
+    final pBurst = burst ?? Axi4BurstField.incr;
+
+    // send the read
+    final rdPkt = genRdPacket(
+      channelId1,
+      addr: pAddr,
+      len: transLen,
+      size: transSize,
+      burst: pBurst,
+      lock: Axi4LockField.locked,
+    );
+    this.main.getRdSequencer(channelId1)!.add(rdPkt);
+
+    await rdPkt.completed;
+
+    // now send a read on another channel
+    final rdPktBad = genRdPacket(
+      channelId2,
+      addr: pAddr,
+      len: transLen,
+      size: transSize,
+      burst: pBurst,
+      lock: Axi4LockField.normal,
+    );
+    this.main.getRdSequencer(channelId2)!.add(rdPkt);
+
+    await rdPktBad.completed;
+
+    final pData =
+        rdPkt.returnedData.map((e) => dataModifier!(e.toInt())).toList();
+    final pStrobes = List.generate(transLen + 1,
+        (index) => LogicValue.filled(wIntf1.strbWidth, LogicValue.one).toInt());
+
+    // lastly send the write
+    // this should trigger an error
+    final wrPkt = genWrPacket(
+      channelId1,
+      addr: pAddr,
+      data: pData,
+      len: transLen,
+      size: transSize,
+      strb: pStrobes,
+      burst: pBurst,
+      lock: Axi4LockField.locked,
+    );
+    this.main.getWrSequencer(channelId1)!.add(wrPkt);
+
+    await wrPkt.completed;
+  }
+
+  Axi4BfmReadModifyWriteAbortTest(
+    super.name, {
+    super.numChannels,
+    super.channelConfigs,
+    super.numTransfers,
+    super.withStrobes,
+    super.interTxnDelay,
+    super.withRandomRspDelays,
+    super.withErrors,
+    super.addrWidth,
+    super.dataWidth,
+    super.lenWidth,
+    super.supportLocking,
+  });
+
+  @override
+  Future<void> run(Phase phase) async {
+    unawaited(super.run(phase));
+
+    final obj = phase.raiseObjection('${name}Obj');
+
+    await resetFlow();
+
+    // for every channel that is read-write enabled
+    // find another channel that is read enabled
+    // use those two to confirm the abortion
+    for (var i = 0; i < channels.length; i++) {
+      if (channels[i].hasWrite && channels[i].hasRead) {
+        for (var j = 0; j < channels.length; j++) {
+          if (channels[j].hasRead && j != i) {
+            await rmwAbort(i, j);
+          }
+        }
+      }
+    }
+
+    obj.drop();
+  }
+
+  // nothing really to check that isn't covered
+  // by compliance checker...
+  @override
+  void check() {}
+}
+
+class Axi4BfmExclusiveTest extends Axi4BfmTest {
+  /// Exclusive lock
+  /// Use AXI lock functionality
+  Future<void> exclusive(
+    int channelId, {
+    int? addr,
+    int? len,
+    int? size,
+    Axi4BurstField? burst,
+    int numTries = 2,
+  }) async {
+    final rIntfC = channels[channelId].rIntf!;
+
+    final pAddr = addr ?? Test.random!.nextInt(1 << addrWidth);
+    final transLen = len ?? Test.random!.nextInt(1 << rIntfC.lenWidth);
+    final transSize =
+        size ?? Test.random!.nextInt(1 << rIntfC.sizeWidth) % (dataWidth ~/ 8);
+    final pBurst = burst ?? Axi4BurstField.incr;
+
+    for (var i = 0; i < numTries; i++) {
+      final rdPkt = genRdPacket(
+        channelId,
+        addr: pAddr,
+        len: transLen,
+        size: transSize,
+        burst: pBurst,
+        lock: Axi4LockField.exclusive,
+      );
+      this.main.getRdSequencer(channelId)!.add(rdPkt);
+
+      await rdPkt.completed;
+    }
+
+    // one more to unlock
+    final rdPkt = genRdPacket(
+      channelId,
+      addr: pAddr,
+      len: transLen,
+      size: transSize,
+      burst: pBurst,
+      lock: Axi4LockField.normal,
+    );
+    this.main.getRdSequencer(channelId)!.add(rdPkt);
+
+    await rdPkt.completed;
+  }
+
+  Axi4BfmExclusiveTest(
+    super.name, {
+    super.numChannels,
+    super.channelConfigs,
+    super.numTransfers,
+    super.withStrobes,
+    super.interTxnDelay,
+    super.withRandomRspDelays,
+    super.withErrors,
+    super.addrWidth,
+    super.dataWidth,
+    super.lenWidth,
+    super.supportLocking,
+  });
+
+  @override
+  Future<void> run(Phase phase) async {
+    unawaited(super.run(phase));
+
+    final obj = phase.raiseObjection('${name}Obj');
+
+    await resetFlow();
+
+    // for every channel that is read enabled
+    // use this to obtain an exclusive lock
+    for (var i = 0; i < channels.length; i++) {
+      if (channels[i].hasRead) {
+        await exclusive(i);
+      }
+    }
+
+    obj.drop();
+  }
+
+  // nothing really to check that isn't covered
+  // by compliance checker...
+  @override
+  void check() {}
+}
+
+class Axi4BfmExclusiveBadTest extends Axi4BfmTest {
+  /// Exclusive lock, someone else gets locked out
+  /// Use AXI lock functionality
+  Future<void> exclusiveBad(
+    int channelId1,
+    int channelId2, {
+    int? addr,
+    int? len,
+    int? size,
+    Axi4BurstField? burst,
+  }) async {
+    final rIntfC = channels[channelId1].rIntf!;
+
+    final pAddr = addr ?? Test.random!.nextInt(1 << addrWidth);
+    final transLen = len ?? Test.random!.nextInt(1 << rIntfC.lenWidth);
+    final transSize =
+        size ?? Test.random!.nextInt(1 << rIntfC.sizeWidth) % (dataWidth ~/ 8);
+    final pBurst = burst ?? Axi4BurstField.incr;
+
+    // send the initial lock
+    final rdPkt = genRdPacket(
+      channelId1,
+      addr: pAddr,
+      len: transLen,
+      size: transSize,
+      burst: pBurst,
+      lock: Axi4LockField.exclusive,
+    );
+    this.main.getRdSequencer(channelId1)!.add(rdPkt);
+
+    await rdPkt.completed;
+
+    // try on another channel
+    // should return an error
+    final rdPktBad = genRdPacket(
+      channelId2,
+      addr: pAddr,
+      len: transLen,
+      size: transSize,
+      burst: pBurst,
+      lock: Axi4LockField.normal,
+    );
+    this.main.getRdSequencer(channelId2)!.add(rdPktBad);
+
+    await rdPktBad.completed;
+  }
+
+  Axi4BfmExclusiveBadTest(
+    super.name, {
+    super.numChannels,
+    super.channelConfigs,
+    super.numTransfers,
+    super.withStrobes,
+    super.interTxnDelay,
+    super.withRandomRspDelays,
+    super.withErrors,
+    super.addrWidth,
+    super.dataWidth,
+    super.lenWidth,
+  });
+
+  @override
+  Future<void> run(Phase phase) async {
+    unawaited(super.run(phase));
+
+    final obj = phase.raiseObjection('${name}Obj');
+
+    await resetFlow();
+
+    // for every channel that is read enabled
+    // find another channel that is read enabled
+    // use those two to confirm the lock error
+    for (var i = 0; i < channels.length; i++) {
+      if (channels[i].hasRead) {
+        for (var j = 0; j < channels.length; j++) {
+          if (channels[j].hasRead && j != i) {
+            await exclusiveBad(i, j);
+          }
+        }
+      }
+    }
+
+    obj.drop();
+  }
+
+  // nothing really to check that isn't covered
+  // by compliance checker...
+  @override
+  void check() {}
+}
+
+class Axi4BfmRandomAccessTest extends Axi4BfmTest {
+  /// Completely random collection of reads and writes.
+  Future<void> fullRandom({
+    int numTransfers = 10,
+  }) async {
+    for (var i = 0; i < numTransfers; i++) {
+      final nextChannel = Test.random!.nextInt(channels.length);
+      final channel = channels[nextChannel];
+      final isRead = (channel.hasRead && !channel.hasWrite) ||
+          (channel.hasRead && channel.hasWrite && Test.random!.nextBool());
+
+      if (isRead) {
+        final rdPkt = genRdPacket(nextChannel);
+        this.main.getRdSequencer(nextChannel)!.add(rdPkt);
+        await rdPkt.completed;
+      } else {
+        final wrPkt = genWrPacket(nextChannel);
+        this.main.getWrSequencer(nextChannel)!.add(wrPkt);
+        await wrPkt.completed;
+      }
     }
   }
+
+  Axi4BfmRandomAccessTest(
+    super.name, {
+    required super.numTransfers,
+    super.numChannels,
+    super.channelConfigs,
+    super.withStrobes,
+    super.interTxnDelay,
+    super.withRandomRspDelays,
+    super.withErrors,
+    super.addrWidth,
+    super.dataWidth,
+    super.lenWidth,
+    super.supportLocking,
+  });
+
+  @override
+  Future<void> run(Phase phase) async {
+    unawaited(super.run(phase));
+
+    final obj = phase.raiseObjection('${name}Obj');
+
+    await resetFlow();
+    await fullRandom(numTransfers: numTransfers);
+
+    obj.drop();
+  }
+
+  // nothing really to check that isn't covered
+  // by compliance checker...
+  @override
+  void check() {}
 }
 
 void main() {
@@ -329,40 +843,42 @@ void main() {
     await axi4BfmTest.start();
   }
 
-  test('simple writes and reads', () async {
-    await runTest(Axi4BfmTest('simple'));
+  test('simple writes and reads no strobes', () async {
+    await runTest(Axi4BfmSimpleWriteReadTest('simpleNoStrobes'));
   });
 
-  test('writes with strobes', () async {
-    await runTest(Axi4BfmTest('strobes', numTransfers: 20, withStrobes: true));
+  test('simple writes and reads with strobes', () async {
+    await runTest(
+        Axi4BfmSimpleWriteReadTest('simpleStrobes', withStrobes: true));
   });
 
-  test('writes and reads with 1 cycle delays', () async {
-    await runTest(Axi4BfmTest('delay1', interTxnDelay: 1));
+  test('simple writes and reads with delays', () async {
+    await runTest(Axi4BfmSimpleWriteReadTest('simpleDelays', interTxnDelay: 5));
   });
 
-  test('writes and reads with 2 cycle delays', () async {
-    await runTest(Axi4BfmTest('delay2', interTxnDelay: 2));
+  test('simple writes and reads with response delays', () async {
+    await runTest(Axi4BfmSimpleWriteReadTest('simpleResponseDelays',
+        withRandomRspDelays: true));
   });
 
-  test('writes and reads with 3 cycle delays', () async {
-    await runTest(Axi4BfmTest('delay3', interTxnDelay: 3));
+  test('read-modify-write flow', () async {
+    await runTest(Axi4BfmReadModifyWriteTest('rmw'));
   });
 
-  test('writes and reads with big delays', () async {
-    await runTest(Axi4BfmTest('delay5', interTxnDelay: 5));
+  test('read-modify-write with abort flow', () async {
+    await runTest(Axi4BfmReadModifyWriteAbortTest('rmwAbort'));
   });
 
-  test('random response delays', () async {
-    await runTest(Axi4BfmTest(
-      'randrsp',
-      numTransfers: 20,
-      withRandomRspDelays: true,
-    ));
+  test('exclusive lock flow', () async {
+    await runTest(Axi4BfmExclusiveTest('exclusive'));
+  });
+
+  test('exclusive lock with lock out flow', () async {
+    await runTest(Axi4BfmExclusiveBadTest('exclusiveBad'));
   });
 
   test('random everything', () async {
-    await runTest(Axi4BfmTest(
+    await runTest(Axi4BfmRandomAccessTest(
       'randeverything',
       numTransfers: 20,
       numChannels: 4,
@@ -375,7 +891,6 @@ void main() {
       withRandomRspDelays: true,
       withStrobes: true,
       interTxnDelay: 3,
-      supportLocking: true,
     ));
   });
 
