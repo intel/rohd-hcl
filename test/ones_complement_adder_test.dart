@@ -116,11 +116,12 @@ void testRandomSignMagnitude(int width, int nSamples,
   test('random Sign Magnitude: ${adder.name}_W${a.width}_N$sortOperands',
       () async {
     await adder.build();
+    final rnd = Random(57);
 
     for (var i = 0; i < nSamples; i++) {
-      final aa = Random().nextLogicValue(width: width);
+      final aa = rnd.nextLogicValue(width: width);
       final av = aa.toBigInt().toSigned(width);
-      final bb = Random().nextLogicValue(width: width);
+      final bb = rnd.nextLogicValue(width: width);
       final bv = bb.toBigInt().toSigned(width);
 
       final bigger = av;
@@ -276,7 +277,7 @@ void main() {
 
       final adder = SignMagnitudeAdder(aSign, a, bSign, b,
           largestMagnitudeFirst: t.sorted, endAroundCarry: t.carry);
-      // expect(adder.sign.value, equals(t.sign));
+      expect(adder.sign.value, equals(t.sign));
       expect(adder.sum.value, equals(t.mag));
       expect(adder.endAroundCarry == null, equals(t.endAroundCarry == null));
       if (adder.endAroundCarry != null) {

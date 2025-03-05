@@ -96,10 +96,13 @@ class CarrySelectCompoundAdder extends CompoundAdder {
       ParallelPrefixAdder(a, b, carryIn: carryIn, name: name);
 
   /// Constructs a [CarrySelectCompoundAdder].
-  /// - [subtractIn] can be provided to dynamically select a subtraction.
   /// - [carryIn] is a carry Logic into the [CarrySelectCompoundAdder]
   /// - [adderGen] provides an adder Function which must supply optional
   /// [carryIn] and [subtractIn] Logic controls.
+  /// - [subtractIn]  This
+  /// option is used by the [CarrySelectOnesComplementCompoundAdder] and should
+  /// not be used directly as it requires ones-complement behavior from
+  /// [adderGen].
   /// - [widthGen] is the splitting function for creating the different adder
   /// blocks.
   CarrySelectCompoundAdder(
@@ -214,8 +217,8 @@ class CarrySelectOnesComplementCompoundAdder extends CompoundAdder {
   /// plus 1).
   /// - [adderGen] is the adder used inside the [OnesComplementAdder].
   /// - [subtractIn] is an optional Logic control for subtraction.
-  /// - [subtract] is a boolean control for subtraction. It must be false
-  /// if a [subtractIn] is not null.
+  /// - [subtract] is a boolean control for subtraction. It must be
+  /// false(default) if a [subtractIn] Logic is provided.
   /// - [widthGen] is a function which produces a list for splitting
   /// the adder for the carry-select chain.  The default is
   /// [CarrySelectCompoundAdder.splitSelectAdderAlgorithmSingleBlock],

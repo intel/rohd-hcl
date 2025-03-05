@@ -63,6 +63,7 @@ void main() {
             widthGen:
                 CarrySelectCompoundAdder.splitSelectAdderAlgorithmNBit(4)));
   });
+
   test('trivial compound adder test', () async {
     const width = 6;
     final a = Logic(name: 'a', width: width);
@@ -102,6 +103,7 @@ void main() {
       expect(adder.sumP1.value.toInt(), equals(randA + randB + 1));
     }
   });
+
   test('CarrySelectAdder ones complement: basic cases', () {
     const width = 8;
     final a = Logic(width: width);
@@ -160,7 +162,8 @@ void main() {
       expect(adder.signP1.value.toBool(), equals(expectedSignP1));
     }
   });
-  test('CarrySelectAdder: ones complement adder: exhaustive ', () {
+
+  test('CarrySelectOnesComplementCompoundAdder: exhaustive ', () {
     const width = 6;
     final a = Logic(width: width);
     final b = Logic(width: width);
