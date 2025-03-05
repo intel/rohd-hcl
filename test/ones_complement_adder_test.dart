@@ -7,6 +7,8 @@
 // 2025 Mar 4
 // Author: Desmond Kirkpatrick <desmond.a.kirkpatrick@intel.com>
 
+// ignore_for_file: invalid_use_of_protected_member
+
 import 'dart:math';
 
 import 'package:rohd/rohd.dart';
