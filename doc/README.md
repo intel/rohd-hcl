@@ -24,7 +24,7 @@ Some in-development items will have opened issues, as well. Feel free to create 
 - [Find](./components/find.md)
   - [Find N'th bit (0 or 1) from the start/end](./components/find.md#find-nth)
   - [Extrema](./components/extrema.md)
-  - Find N'th pattern from the start/end
+  - [Find N'th pattern from the start/end](./components/find.md#find-nth-pattern)
 - Count
   - [Count bit occurrence](./components/count.md)
   - Count pattern occurrence
