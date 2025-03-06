@@ -78,7 +78,7 @@ class FloatingPointAdderRound<FpType extends FloatingPoint>
             fs.zeroExtend(sigWidth))
         .named('smallShift');
 
-    final zeroExp = a.zeroExponent;
+    final zeroExp = outputSum.zeroExponent;
     final largeOperand = largeShift;
     //
     // R Datapath:  Far exponents or addition
