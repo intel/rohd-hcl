@@ -66,6 +66,7 @@
 <li><span class="parameter" id="-param-adderGen"><span class="type-annotation"><a href="../../rohd_hcl/Adder-class.html">Adder</a></span> <span class="parameter-name">adderGen</span>(<ol class="parameter-list"> <li><span class="parameter" id="param-a"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.3/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">a</span>, </span></li>
 <li><span class="parameter" id="param-b"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.3/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">b</span>, {</span></li>
 <li><span class="parameter" id="param-carryIn"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.3/rohd/Logic-class.html">Logic</a>?</span> <span class="parameter-name">carryIn</span>, </span></li>
+<li><span class="parameter" id="param-name"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.7.1/dart-core/String-class.html">String</a></span> <span class="parameter-name">name</span>, </span></li>
 </ol>}) = <span class="default-value">NativeAdder.new</span>, </span></li>
 <li><span class="parameter" id="-param-ppTree"><span class="type-annotation"><a href="../../rohd_hcl/ParallelPrefix-class.html">ParallelPrefix</a></span> <span class="parameter-name">ppTree</span>(<ol class="parameter-list single-line"> <li><span class="parameter" id="param-inps"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.7.1/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://pub.dev/documentation/rohd/0.6.3/rohd/Logic-class.html">Logic</a></span>&gt;</span></span> <span class="parameter-name">inps</span>, </span></li>
 <li><span class="parameter" id="param-op"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.3/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">op</span>(<ol class="parameter-list single-line"> <li><span class="parameter" id="param-term1"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.3/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">term1</span>, </span></li>
@@ -94,7 +95,7 @@ functions.
     super.clk,
     super.reset,
     super.enable,
-    Adder Function(Logic a, Logic b, {Logic? carryIn}) adderGen =
+    Adder Function(Logic a, Logic b, {Logic? carryIn, String name}) adderGen =
         NativeAdder.new,
     ParallelPrefix Function(
             List&lt;Logic&gt; inps, Logic Function(Logic term1, Logic term2) op)
@@ -178,10 +179,12 @@ functions.
   final isNaNFlopped = localFlop(isNaN);
 
   final carryRPath = Logic(name: &#39;carryRpath&#39;);
-  final significandAdderRPath = OnesComplementAdder(
+  final carryP1RPath = Logic(name: &#39;carryRpath&#39;);
+  final significandAdderRPath = CarrySelectOnesComplementCompoundAdder(
       largeOperandFlopped, smallerOperandRPathFlopped,
       subtractIn: effectiveSubtractionFlopped,
       carryOut: carryRPath,
+      carryOutP1: carryP1RPath,
       adderGen: adderGen,
       name: &#39;rpath_significand_adder&#39;);
 
@@ -189,10 +192,8 @@ functions.
       .slice(extendWidthRPath - 1, 0)
       .named(&#39;lowbitsRpath&#39;);
 
-  final lowAdderRPathSum = OnesComplementAdder(
-          carryRPath.zeroExtend(extendWidthRPath),
+  final lowAdderRPathSum = adderGen(carryRPath.zeroExtend(extendWidthRPath),
           mux(effectiveSubtractionFlopped, ~lowBitsRPath, lowBitsRPath),
-          adderGen: adderGen,
           name: &#39;rpath_lowadder&#39;)
       .sum
       .named(&#39;lowAdderSumRpath&#39;);
@@ -212,8 +213,7 @@ functions.
 
   final sumRPath =
       significandAdderRPath.sum.slice(mantissaWidth + 1, 0).named(&#39;sumRpath&#39;);
-  &#47;&#47; TODO(desmonddak): we should use a compound adder here
-  final sumP1RPath = (significandAdderRPath.sum + 1)
+  final sumP1RPath = significandAdderRPath.sumP1
       .named(&#39;sumPlusOneRpath&#39;)
       .slice(mantissaWidth + 1, 0);
 

@@ -59,46 +59,70 @@
       
       <span class="name ">CarrySelectCompoundAdder</span>(<wbr><ol class="parameter-list"> <li><span class="parameter" id="-param-a"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.3/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">a</span>, </span></li>
 <li><span class="parameter" id="-param-b"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.3/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">b</span>, {</span></li>
+<li><span class="parameter" id="-param-subtractIn"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.3/rohd/Logic-class.html">Logic</a>?</span> <span class="parameter-name">subtractIn</span>, </span></li>
+<li><span class="parameter" id="-param-carryIn"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.3/rohd/Logic-class.html">Logic</a>?</span> <span class="parameter-name">carryIn</span>, </span></li>
 <li><span class="parameter" id="-param-adderGen"><span class="type-annotation"><a href="../../rohd_hcl/Adder-class.html">Adder</a></span> <span class="parameter-name">adderGen</span>(<ol class="parameter-list"> <li><span class="parameter" id="param-a"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.3/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">a</span>, </span></li>
 <li><span class="parameter" id="param-b"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.3/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">b</span>, {</span></li>
 <li><span class="parameter" id="param-carryIn"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.3/rohd/Logic-class.html">Logic</a>?</span> <span class="parameter-name">carryIn</span>, </span></li>
 <li><span class="parameter" id="param-name"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.7.1/dart-core/String-class.html">String</a></span> <span class="parameter-name">name</span>, </span></li>
-</ol>}) = <span class="default-value">ParallelPrefixAdder.new</span>, </span></li>
-<li><span class="parameter" id="-param-carryIn"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.3/rohd/Logic-class.html">Logic</a>?</span> <span class="parameter-name">carryIn</span>, </span></li>
-<li><span class="parameter" id="-param-name"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.7.1/dart-core/String-class.html">String</a></span> <span class="parameter-name">name</span> = <span class="default-value">&#39;cs_compound_adder&#39;</span>, </span></li>
+<li><span class="parameter" id="param-subtractIn"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.3/rohd/Logic-class.html">Logic</a>?</span> <span class="parameter-name">subtractIn</span>, </span></li>
+</ol>}) = <span class="default-value">_defaultBlockAdder</span>, </span></li>
 <li><span class="parameter" id="-param-widthGen"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.7.1/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.dart.dev/stable/3.7.1/dart-core/int-class.html">int</a></span>&gt;</span></span> <span class="parameter-name">widthGen</span>(<ol class="parameter-list single-line"> <li><span class="parameter" id="param-"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.7.1/dart-core/int-class.html">int</a></span></span></li>
 </ol>) = <span class="default-value">splitSelectAdderAlgorithmSingleBlock</span>, </span></li>
+<li><span class="parameter" id="-param-definitionName"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.7.1/dart-core/String-class.html">String</a>?</span> <span class="parameter-name">definitionName</span>, </span></li>
+<li><span class="parameter" id="-param-name"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.7.1/dart-core/String-class.html">String</a></span> <span class="parameter-name">name</span> = <span class="default-value">&#39;cs_compound_adder&#39;</span>, </span></li>
 </ol>})
     </section>
     
 <section class="desc markdown">
   <p>Constructs a <a href="../../rohd_hcl/CarrySelectCompoundAdder-class.html">CarrySelectCompoundAdder</a>.</p>
+<ul>
+<li><code>carryIn</code> is a carry Logic into the <a href="../../rohd_hcl/CarrySelectCompoundAdder-class.html">CarrySelectCompoundAdder</a></li>
+<li><code>adderGen</code> provides an adder Function which must supply optional
+<code>carryIn</code> and <code>subtractIn</code> Logic controls.</li>
+<li><code>subtractIn</code>  This
+option is used by the <a href="../../rohd_hcl/CarrySelectOnesComplementCompoundAdder-class.html">CarrySelectOnesComplementCompoundAdder</a> and should
+not be used directly as it requires ones-complement behavior from
+<code>adderGen</code>.</li>
+<li><code>widthGen</code> is the splitting function for creating the different adder
+blocks.</li>
+</ul>
 </section>
 
 
     
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
-  <pre class="language-dart"><code class="language-dart">CarrySelectCompoundAdder(super.a, super.b,
-    {Adder Function(Logic a, Logic b, {Logic? carryIn, String name})
-        adderGen = ParallelPrefixAdder.new,
-    super.carryIn,
-    super.name = &#39;cs_compound_adder&#39;,
-    List&lt;int&gt; Function(int) widthGen =
-        splitSelectAdderAlgorithmSingleBlock}) {
+  <pre class="language-dart"><code class="language-dart">CarrySelectCompoundAdder(
+  super.a,
+  super.b, {
+  Logic? subtractIn,
+  super.carryIn,
+  Adder Function(Logic a, Logic b,
+          {Logic? carryIn, Logic? subtractIn, String name})
+      adderGen = _defaultBlockAdder,
+  List&lt;int&gt; Function(int) widthGen = splitSelectAdderAlgorithmSingleBlock,
+  String? definitionName,
+  super.name = &#39;cs_compound_adder&#39;,
+}) : super(
+          definitionName: definitionName ??
+              &#39;CarrySelectCompoundAdder_${adderGen(a, b).definitionName}&#39;) {
+  subtractIn = (subtractIn != null)
+      ? addInput(&#39;subtractIn&#39;, subtractIn, width: subtractIn.width)
+      : null;
   &#47;&#47; output bits lists
   final sumList0 = &lt;Logic&gt;[];
   final sumList1 = &lt;Logic&gt;[];
-  &#47;&#47; carryout of previous ripple-carry adder block
+  &#47;&#47; carryout of previous adder block
   &#47;&#47; for sum and sum+1
   Logic? carry0;
   Logic? carry1;
-  &#47;&#47; Get size of each ripple-carry adder block
+  &#47;&#47; Get size of each adder block
   final adderSplit = widthGen(a.width);
   &#47;&#47; 1st output bit index of each block
   var blockStartIdx = 0;
   for (var i = 0; i &lt; adderSplit.length; ++i) {
-    &#47;&#47; input width of current ripple-carry adder block
+    &#47;&#47; input width of current adder block
     final blockWidth = adderSplit[i];
     if (blockWidth &lt;= 0) {
       throw RohdHclException(&#39;non-positive adder block size.&#39;);
@@ -110,11 +134,11 @@
     final blockB = Logic(name: &#39;block_${i}_b&#39;, width: blockWidth);
     blockA &lt;= a.getRange(blockStartIdx, blockStartIdx + blockWidth);
     blockB &lt;= b.getRange(blockStartIdx, blockStartIdx + blockWidth);
-    &#47;&#47; Build ripple-carry adders for 0 and 1 carryin values
-    final fullAdder0 =
-        adderGen(blockA, blockB, carryIn: Const(0), name: &#39;block0_$i&#39;);
-    final fullAdder1 =
-        adderGen(blockA, blockB, carryIn: Const(1), name: &#39;block1_$i&#39;);
+    &#47;&#47; Build sub adders for 0 and 1 carryin values
+    final fullAdder0 = adderGen(blockA, blockB,
+        subtractIn: subtractIn, carryIn: Const(0), name: &#39;block0_$i&#39;);
+    final fullAdder1 = adderGen(blockA, blockB,
+        subtractIn: subtractIn, carryIn: Const(1), name: &#39;block1_$i&#39;);
     for (var bitIdx = 0; bitIdx &lt; blockWidth; ++bitIdx) {
       if (i == 0) {
         &#47;&#47; connect directly to respective sum output bit
@@ -146,12 +170,12 @@
     blockStartIdx += blockWidth;
   }
 
-  &#47;&#47; append carryout bit
+  &#47;&#47; Append carryout bit
   sumList0.add(carry0!);
   sumList1.add(carry1!);
 
   sum &lt;= sumList0.rswizzle();
-  sum1 &lt;= sumList1.rswizzle();
+  sumP1 &lt;= sumList1.rswizzle();
 }</code></pre>
 </section>
 

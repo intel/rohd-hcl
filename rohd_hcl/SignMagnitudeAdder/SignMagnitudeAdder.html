@@ -60,12 +60,13 @@
       <span class="name ">SignMagnitudeAdder</span>(<wbr><ol class="parameter-list"> <li><span class="parameter" id="-param-aSign"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.3/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">aSign</span>, </span></li>
 <li><span class="parameter" id="-param-a"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.3/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">a</span>, </span></li>
 <li><span class="parameter" id="-param-bSign"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.3/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">bSign</span>, </span></li>
-<li><span class="parameter" id="-param-b"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.3/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">b</span>, </span></li>
+<li><span class="parameter" id="-param-b"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.3/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">b</span>, {</span></li>
 <li><span class="parameter" id="-param-adderGen"><span class="type-annotation"><a href="../../rohd_hcl/Adder-class.html">Adder</a></span> <span class="parameter-name">adderGen</span>(<ol class="parameter-list"> <li><span class="parameter" id="param-a"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.3/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">a</span>, </span></li>
 <li><span class="parameter" id="param-b"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.3/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">b</span>, {</span></li>
 <li><span class="parameter" id="param-carryIn"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.3/rohd/Logic-class.html">Logic</a>?</span> <span class="parameter-name">carryIn</span>, </span></li>
-</ol>}), {</span></li>
+</ol>}) = <span class="default-value">NativeAdder.new</span>, </span></li>
 <li><span class="parameter" id="-param-largestMagnitudeFirst"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.7.1/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">largestMagnitudeFirst</span> = <span class="default-value">false</span>, </span></li>
+<li><span class="parameter" id="-param-endAroundCarry"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.3/rohd/Logic-class.html">Logic</a>?</span> <span class="parameter-name">endAroundCarry</span>, </span></li>
 <li><span class="parameter" id="-param-name"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.7.1/dart-core/String-class.html">String</a></span> <span class="parameter-name">name</span> = <span class="default-value">&#39;sign_magnitude_adder&#39;</span>, </span></li>
 </ol>})
     </section>
@@ -74,8 +75,15 @@
   <p><a href="../../rohd_hcl/SignMagnitudeAdder-class.html">SignMagnitudeAdder</a> constructor with an adder functor <code>adderGen</code>.</p>
 <p>Inputs are (sign, magnitude) pairs: (<code>aSign</code>, <code>a</code>) and (<code>bSign</code>, <code>b</code>). If
 the caller can guarantee that the larger magnitude value is provided first
-in <code>a</code>, then they can set <code>largestMagnitudeFirst</code> too 'true' to avoid a
-comparator.</p>
+in <code>a</code>, then they can set <code>largestMagnitudeFirst</code> too 'true' to avoid
+adding a comparator. Without the comparator, the <a href="../../rohd_hcl/SignMagnitudeAdder/sign.html">sign</a> may be wrong, but
+magnitude will be correct.</p>
+<ul>
+<li><code>endAroundCarry</code> avoids extra hardware to add the final '1' in an
+end-around carry during subtraction. For subtractions that remain positive
+the <code>endAroundCarry</code> will hold that final +1 that needs to be added.
+For subtractions that go negative, the <code>endAroundCarry</code> will be '0'.</li>
+</ul>
 </section>
 
 
@@ -84,19 +92,43 @@ comparator.</p>
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">&#47;&#47; TODO(desmonddak): this adder may need a carry-in for rounding
 SignMagnitudeAdder(this.aSign, super.a, this.bSign, super.b,
-    Adder Function(Logic a, Logic b, {Logic? carryIn}) adderGen,
-    {this.largestMagnitudeFirst = false, super.name = &#39;sign_magnitude_adder&#39;})
+    {Adder Function(Logic a, Logic b, {Logic? carryIn}) adderGen =
+        NativeAdder.new,
+    this.largestMagnitudeFirst = false,
+    Logic? endAroundCarry,
+    super.name = &#39;sign_magnitude_adder&#39;})
     : super(definitionName: &#39;SignMagnitudeAdder_W${a.width}&#39;) {
   aSign = addInput(&#39;aSign&#39;, aSign);
   bSign = addInput(&#39;bSign&#39;, bSign);
   _sign = addOutput(&#39;sign&#39;);
 
-  final bLarger = a.lt(b) | (a.eq(b) &amp; bSign.gt(aSign));
+  if (endAroundCarry != null) {
+    endAroundCarry = addOutput(&#39;endAroundCarry&#39;);
+  }
 
-  _sign &lt;= (largestMagnitudeFirst ? aSign : mux(bLarger, bSign, aSign));
-  final adder = OnesComplementAdder(a, b,
-      subtractIn: aSign ^ bSign, adderGen: adderGen);
+  if (!largestMagnitudeFirst) {
+    final bLarger = a.lt(b) | (a.eq(b) &amp; bSign.gt(aSign));
+    _sign &lt;= mux(bLarger, bSign, aSign);
+  } else {
+    _sign &lt;= aSign;
+  }
+
+  final sub = aSign ^ bSign;
+  final endCarry = Logic();
+  final adder =
+      OnesComplementAdder(mux(_sign &amp; sub, ~a, a), mux(_sign &amp; sub, ~b, b),
+          endAroundCarry: largestMagnitudeFirst
+              ? endAroundCarry != null
+                  ? endCarry
+                  : null
+              : null,
+          subtractIn: sub,
+          adderGen: adderGen);
+  &#47;&#47; sum &lt;= adder.sum.getRange(0, adder.sum.width - 1).zeroExtend(sum.width);
   sum &lt;= adder.sum;
+  if (endAroundCarry != null) {
+    output(&#39;endAroundCarry&#39;) &lt;= (largestMagnitudeFirst ? endCarry : Const(0));
+  }
 }</code></pre>
 </section>
 

@@ -73,9 +73,10 @@
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">TrivialCompoundAdder(super.a, super.b,
-    {super.carryIn, super.name = &#39;trivial_compound_adder&#39;}) {
+    {super.carryIn, super.name = &#39;trivial_compound_adder&#39;})
+    : super(definitionName: &#39;trival_compound_adder&#39;) {
   sum &lt;= a.zeroExtend(a.width + 1) + b.zeroExtend(b.width + 1);
-  sum1 &lt;= sum + 1;
+  sumP1 &lt;= sum + 1;
 }</code></pre>
 </section>
 

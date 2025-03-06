@@ -27,7 +27,7 @@
     <li><a href="../../index.html">rohd_hcl</a></li>
     <li><a href="../../rohd_hcl">rohd_hcl.dart</a></li>
     <li><a href="../../rohd_hcl/CarrySelectCompoundAdder-class.html">CarrySelectCompoundAdder</a></li>
-    <li class="self-crumb">splitSelectAdderAlgorithm4Bit static method</li>
+    <li class="self-crumb"><span class="deprecated">splitSelectAdderAlgorithm4Bit</span> static method</li>
   </ol>
   <div class="self-name">splitSelectAdderAlgorithm4Bit</div>
   <form class="search navbar-right" role="search">
@@ -57,8 +57,13 @@
 
     <section class="multi-line-signature">
       
+  <div>
+    <ol class="annotation-list">
+        <li>@<a href="https://api.dart.dev/stable/3.7.1/dart-core/Deprecated-class.html">Deprecated</a>(&#39;use splitSelectAdderAlgorithmNBit instead&#39;)</li>
+    </ol>
+  </div>
 <span class="returntype"><a href="https://api.dart.dev/stable/3.7.1/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.dart.dev/stable/3.7.1/dart-core/int-class.html">int</a></span>&gt;</span></span>
-<span class="name ">splitSelectAdderAlgorithm4Bit</span>(<wbr><ol class="parameter-list single-line"> <li><span class="parameter" id="splitSelectAdderAlgorithm4Bit-param-adderWidth"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.7.1/dart-core/int-class.html">int</a></span> <span class="parameter-name">adderWidth</span></span></li>
+<span class="name deprecated">splitSelectAdderAlgorithm4Bit</span>(<wbr><ol class="parameter-list single-line"> <li><span class="parameter" id="splitSelectAdderAlgorithm4Bit-param-adderWidth"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.7.1/dart-core/int-class.html">int</a></span> <span class="parameter-name">adderWidth</span></span></li>
 </ol>)
 
       
@@ -66,9 +71,9 @@
     </section>
     
 <section class="desc markdown">
-  <p>Adder ripple-carry block size computation algorithm.
+  <p>Adder  block size computation algorithm.
 Generates 4 bit carry-select blocks with 1st entry width adjusted down.
-Return list of carry-ripple block sizes starting from
+Return list of block sizes starting from
 the LSB connected one.
 <code>adderWidth</code> is a whole width of adder.</p>
 </section>
@@ -77,7 +82,8 @@ the LSB connected one.
     
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
-  <pre class="language-dart"><code class="language-dart">static List&lt;int&gt; splitSelectAdderAlgorithm4Bit(int adderWidth) {
+  <pre class="language-dart"><code class="language-dart">@Deprecated(&#39;use splitSelectAdderAlgorithmNBit instead&#39;)
+static List&lt;int&gt; splitSelectAdderAlgorithm4Bit(int adderWidth) {
   final blockNb = (adderWidth &#47; 4.0).ceil();
   final firstBlockSize = adderWidth - (blockNb - 1) * 4;
   final splitData = &lt;int&gt;[firstBlockSize];
@@ -101,7 +107,7 @@ the LSB connected one.
     <li><a href="../../index.html">rohd_hcl</a></li>
     <li><a href="../../rohd_hcl">rohd_hcl</a></li>
     <li><a href="../../rohd_hcl/CarrySelectCompoundAdder-class.html">CarrySelectCompoundAdder</a></li>
-    <li class="self-crumb">splitSelectAdderAlgorithm4Bit static method</li>
+    <li class="self-crumb"><span class="deprecated">splitSelectAdderAlgorithm4Bit</span> static method</li>
 </ol>
 
     <h5>CarrySelectCompoundAdder class</h5>

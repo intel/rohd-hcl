@@ -81,6 +81,7 @@
           <dt>Implementers</dt>
           <dd><ul class="comma-separated clazz-relationships">
               <li><a href="../rohd_hcl/CarrySelectCompoundAdder-class.html">CarrySelectCompoundAdder</a></li>
+              <li><a href="../rohd_hcl/CarrySelectOnesComplementCompoundAdder-class.html">CarrySelectOnesComplementCompoundAdder</a></li>
               <li><a href="../rohd_hcl/TrivialCompoundAdder-class.html">TrivialCompoundAdder</a></li>
           </ul></dd>
 
@@ -96,12 +97,13 @@
     <h2>Constructors</h2>
     <dl class="constructor-summary-list">
         <dt id="CompoundAdder" class="callable">
-          <span class="name"><a href="../rohd_hcl/CompoundAdder/CompoundAdder.html">CompoundAdder</a></span><span class="signature">(<span class="parameter" id="-param-a"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.3/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">a</span>, </span><span class="parameter" id="-param-b"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.3/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">b</span>, {</span><span class="parameter" id="-param-carryIn"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.3/rohd/Logic-class.html">Logic</a>?</span> <span class="parameter-name">carryIn</span>, </span><span class="parameter" id="-param-name"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.7.1/dart-core/String-class.html">String</a></span> <span class="parameter-name">name</span> = <span class="default-value">&#39;compound_adders&#39;</span></span>})</span>
+          <span class="name"><a href="../rohd_hcl/CompoundAdder/CompoundAdder.html">CompoundAdder</a></span><span class="signature">(<span class="parameter" id="-param-a"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.3/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">a</span>, </span><span class="parameter" id="-param-b"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.3/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">b</span>, {</span><span class="parameter" id="-param-carryIn"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.3/rohd/Logic-class.html">Logic</a>?</span> <span class="parameter-name">carryIn</span>, </span><span class="parameter" id="-param-name"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.7.1/dart-core/String-class.html">String</a></span> <span class="parameter-name">name</span> = <span class="default-value">&#39;compound_adder&#39;</span>, </span><span class="parameter" id="-param-definitionName"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.7.1/dart-core/String-class.html">String</a>?</span> <span class="parameter-name">definitionName</span> = <span class="default-value">&#39;compound_adder&#39;</span></span>})</span>
         </dt>
         <dd>
-          Takes in input <code>a</code> and input <code>b</code> and return the <a href="../rohd_hcl/Adder/sum.html">sum</a> of the addition
-result and <a href="../rohd_hcl/CompoundAdder/sum1.html">sum1</a> sum + 1.
-The width of input <code>a</code> and <code>b</code> must be the same.
+          Takes in input <code>a</code> and input <code>b</code> and return the <a href="../rohd_hcl/Adder/sum.html">sum</a> as well as
+<a href="../rohd_hcl/CompoundAdder/sumP1.html">sumP1</a> which is <a href="../rohd_hcl/Adder/sum.html">sum</a> plus 1.
+The width of input <code>a</code> and <code>b</code> must be the same, both <a href="../rohd_hcl/Adder/sum.html">sum</a> and
+<a href="../rohd_hcl/CompoundAdder/sumP1.html">sumP1</a> are one wider than the inputs.
         </dd>
     </dl>
   </section>
@@ -347,14 +349,14 @@ inputs, outputs, and internal signals of this <a href="https://pub.dev/documenta
 
 </dd>
 
-        <dt id="sum1" class="property">
-  <span class="name"><a href="../rohd_hcl/CompoundAdder/sum1.html">sum1</a></span>
+        <dt id="sumP1" class="property">
+  <span class="name"><a href="../rohd_hcl/CompoundAdder/sumP1.html">sumP1</a></span>
   <span class="signature">&#8594; <a href="https://pub.dev/documentation/rohd/0.6.3/rohd/Logic-class.html">Logic</a></span>
   
 
 </dt>
 <dd>
-  The addition result <a href="../rohd_hcl/Adder/sum.html">sum</a> + 1 in 2s complement form as <a href="../rohd_hcl/CompoundAdder/sum1.html">sum1</a>
+  The addition result <a href="../rohd_hcl/Adder/sum.html">sum</a> + 1 in 2s complement form as <a href="../rohd_hcl/CompoundAdder/sumP1.html">sumP1</a>
   <div class="features"><span class="feature">no setter</span></div>
 
 </dd>

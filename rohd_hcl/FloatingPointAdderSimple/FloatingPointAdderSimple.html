@@ -130,7 +130,8 @@ leading one detection (default <a href="../../rohd_hcl/RecursiveModulePriorityEn
       [smaller.mantissa, Const(0, width: mantissaWidth + 2)].swizzle());
 
   final adder = SignMagnitudeAdder(
-      larger.sign, aMantissa, smaller.sign, bMantissa &gt;&gt;&gt; expDiff, adderGen);
+      larger.sign, aMantissa, smaller.sign, bMantissa &gt;&gt;&gt; expDiff,
+      largestMagnitudeFirst: true, adderGen: adderGen);
 
   final intSum = adder.sum.slice(adder.sum.width - 1, 0).named(&#39;intSum&#39;);
 
@@ -145,9 +146,7 @@ leading one detection (default <a href="../../rohd_hcl/RecursiveModulePriorityEn
       .named(&#39;mantissa&#39;);
   final leadOneValid = Logic(name: &#39;leadOneValid&#39;);
   final leadOnePre =
-      priorityGen(mantissa, valid: leadOneValid, name: &#39;leading_one_detect&#39;)
-          .out
-          .named(&#39;leadOnePre&#39;);
+      priorityGen(mantissa, valid: leadOneValid).out.named(&#39;leadOnePre&#39;);
   &#47;&#47; Limit leadOne to exponent range and match widths
   final infExponent = outputSum.inf(sign: aSignLatched).exponent;
   final leadOne = ((leadOnePre.width &gt; exponentWidth)

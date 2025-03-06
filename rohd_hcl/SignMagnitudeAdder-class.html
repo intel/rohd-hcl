@@ -57,7 +57,8 @@
 
     
 <section class="desc markdown">
-  <p>A <a href="../rohd_hcl/SignMagnitudeAdder-class.html">SignMagnitudeAdder</a> performsa addition on values in sign/magnitude format.</p>
+  <p>A <a href="../rohd_hcl/SignMagnitudeAdder-class.html">SignMagnitudeAdder</a> performs addition on values in sign/magnitude
+format.</p>
 </section>
 
 
@@ -90,7 +91,7 @@
     <h2>Constructors</h2>
     <dl class="constructor-summary-list">
         <dt id="SignMagnitudeAdder" class="callable">
-          <span class="name"><a href="../rohd_hcl/SignMagnitudeAdder/SignMagnitudeAdder.html">SignMagnitudeAdder</a></span><span class="signature">(<span class="parameter" id="-param-aSign"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.3/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">aSign</span>, </span><span class="parameter" id="-param-a"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.3/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">a</span>, </span><span class="parameter" id="-param-bSign"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.3/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">bSign</span>, </span><span class="parameter" id="-param-b"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.3/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">b</span>, </span><span class="parameter" id="-param-adderGen"><span class="type-annotation"><a href="../rohd_hcl/Adder-class.html">Adder</a></span> <span class="parameter-name">adderGen</span>(<span class="parameter" id="param-a"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.3/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">a</span>, </span><span class="parameter" id="param-b"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.3/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">b</span>, {</span><span class="parameter" id="param-carryIn"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.3/rohd/Logic-class.html">Logic</a>?</span> <span class="parameter-name">carryIn</span></span>}), {</span><span class="parameter" id="-param-largestMagnitudeFirst"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.7.1/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">largestMagnitudeFirst</span> = <span class="default-value">false</span>, </span><span class="parameter" id="-param-name"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.7.1/dart-core/String-class.html">String</a></span> <span class="parameter-name">name</span> = <span class="default-value">&#39;sign_magnitude_adder&#39;</span></span>})</span>
+          <span class="name"><a href="../rohd_hcl/SignMagnitudeAdder/SignMagnitudeAdder.html">SignMagnitudeAdder</a></span><span class="signature">(<span class="parameter" id="-param-aSign"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.3/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">aSign</span>, </span><span class="parameter" id="-param-a"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.3/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">a</span>, </span><span class="parameter" id="-param-bSign"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.3/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">bSign</span>, </span><span class="parameter" id="-param-b"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.3/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">b</span>, {</span><span class="parameter" id="-param-adderGen"><span class="type-annotation"><a href="../rohd_hcl/Adder-class.html">Adder</a></span> <span class="parameter-name">adderGen</span>(<span class="parameter" id="param-a"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.3/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">a</span>, </span><span class="parameter" id="param-b"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.3/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">b</span>, {</span><span class="parameter" id="param-carryIn"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.3/rohd/Logic-class.html">Logic</a>?</span> <span class="parameter-name">carryIn</span></span>}) = <span class="default-value">NativeAdder.new</span>, </span><span class="parameter" id="-param-largestMagnitudeFirst"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.7.1/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">largestMagnitudeFirst</span> = <span class="default-value">false</span>, </span><span class="parameter" id="-param-endAroundCarry"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.3/rohd/Logic-class.html">Logic</a>?</span> <span class="parameter-name">endAroundCarry</span>, </span><span class="parameter" id="-param-name"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.7.1/dart-core/String-class.html">String</a></span> <span class="parameter-name">name</span> = <span class="default-value">&#39;sign_magnitude_adder&#39;</span></span>})</span>
         </dt>
         <dd>
           <a href="../rohd_hcl/SignMagnitudeAdder-class.html">SignMagnitudeAdder</a> constructor with an adder functor <code>adderGen</code>.
@@ -173,6 +174,20 @@
   The definition name of this <a href="https://pub.dev/documentation/rohd/0.6.3/rohd/Module-class.html">Module</a> used when instantiating instances in
 generated code.
   <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="endAroundCarry" class="property">
+  <span class="name"><a href="../rohd_hcl/SignMagnitudeAdder/endAroundCarry.html">endAroundCarry</a></span>
+  <span class="signature">&#8594; <a href="https://pub.dev/documentation/rohd/0.6.3/rohd/Logic-class.html">Logic</a>?</span>
+  
+
+</dt>
+<dd>
+  The end-around carry which should be added to the resulting <a href="../rohd_hcl/Adder/sum.html">sum</a>
+If the input <a href="../rohd_hcl/SignMagnitudeAdder/endAroundCarry.html">endAroundCarry</a> is not null, this value is stored there.
+ Otherwise, the end-around carry is internally added to <a href="../rohd_hcl/Adder/sum.html">sum</a>
+  <div class="features"><span class="feature">no setter</span></div>
 
 </dd>
 
