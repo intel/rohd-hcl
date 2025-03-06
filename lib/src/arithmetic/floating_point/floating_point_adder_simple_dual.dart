@@ -26,9 +26,9 @@ class FloatingPointAdderSimpleDual extends FloatingPointAdder {
           NativeAdder.new,
       PriorityEncoder Function(Logic bitVector, {Logic? valid, String name})
           priorityGen = RecursiveModulePriorityEncoder.new,
-      super.name = 'floatingpoint_adder_simple'})
+      super.name = 'floatingpoint_adder_simple_dual'})
       : super(
-            definitionName: 'FloatingPointAdderSimple_'
+            definitionName: 'FloatingPointAdderSimpleDual_'
                 'E${a.exponent.width}M${a.mantissa.width}') {
     final outputSum = FloatingPoint(
         exponentWidth: exponentWidth,
