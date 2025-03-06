@@ -61,7 +61,8 @@ class FloatingPointAdderSimple<FpType extends FloatingPoint>
         [smaller.mantissa, Const(0, width: mantissaWidth + 2)].swizzle());
 
     final adder = SignMagnitudeAdder(
-        larger.sign, aMantissa, smaller.sign, bMantissa >>> expDiff, adderGen);
+        larger.sign, aMantissa, smaller.sign, bMantissa >>> expDiff,
+        largestMagnitudeFirst: true, adderGen: adderGen);
 
     final intSum = adder.sum.slice(adder.sum.width - 1, 0).named('intSum');
 
@@ -76,9 +77,7 @@ class FloatingPointAdderSimple<FpType extends FloatingPoint>
         .named('mantissa');
     final leadOneValid = Logic(name: 'leadOneValid');
     final leadOnePre =
-        priorityGen(mantissa, valid: leadOneValid, name: 'leading_one_detect')
-            .out
-            .named('leadOnePre');
+        priorityGen(mantissa, valid: leadOneValid).out.named('leadOnePre');
     // Limit leadOne to exponent range and match widths
     final infExponent = outputSum.inf(sign: aSignLatched).exponent;
     final leadOne = ((leadOnePre.width > exponentWidth)

@@ -30,8 +30,8 @@ class FloatingPointMultiplierSimple<FpInType extends FloatingPoint>
       Multiplier Function(Logic a, Logic b,
               {Logic? clk, Logic? reset, Logic? enable, String name})
           multGen = NativeMultiplier.new,
-      PriorityEncoder Function(Logic bitVector, {String name}) priorityGen =
-          RecursiveModulePriorityEncoder.new,
+      PriorityEncoder Function(Logic bitVector, {Logic? valid, String name})
+          priorityGen = RecursiveModulePriorityEncoder.new,
       super.name})
       : super(
             definitionName: 'FloatingPointMultiplierSimple_'
