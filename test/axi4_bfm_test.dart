@@ -64,7 +64,7 @@ class Axi4BfmTest extends Test {
     int? size,
     List<int> strb = const [],
     Axi4BurstField? burst,
-    Axi4LockField? lock,
+    bool? lock,
   }) {
     final wIntfC = channels[channelId].wIntf!;
     final pAddr = addr ?? Test.random!.nextInt(1 << addrWidth);
@@ -87,10 +87,8 @@ class Axi4BfmTest extends Test {
                 : LogicValue.filled(wIntfC.strbWidth, LogicValue.one));
     final pBurst = burst ?? Axi4BurstField.incr;
     final pLock = supportLocking
-        ? (lock != null
-            ? LogicValue.ofInt(lock.value, 4)
-            : LogicValue.ofInt(Test.random!.nextInt(2), 4))
-        : LogicValue.ofInt(0, 4);
+        ? (lock != null && lock ? LogicValue.one : LogicValue.zero)
+        : LogicValue.zero;
 
     return Axi4WriteRequestPacket(
       addr: LogicValue.ofInt(pAddr, addrWidth),
@@ -117,7 +115,7 @@ class Axi4BfmTest extends Test {
     int? len,
     int? size,
     Axi4BurstField? burst,
-    Axi4LockField? lock,
+    bool? lock,
   }) {
     final rIntfC = channels[channelId].rIntf!;
     final pAddr = addr ?? Test.random!.nextInt(1 << addrWidth);
@@ -126,10 +124,8 @@ class Axi4BfmTest extends Test {
         size ?? Test.random!.nextInt(1 << rIntfC.sizeWidth) % (dataWidth ~/ 8);
     final pBurst = burst ?? Axi4BurstField.incr;
     final pLock = supportLocking
-        ? (lock != null
-            ? LogicValue.ofInt(lock.value, 4)
-            : LogicValue.ofInt(Test.random!.nextInt(2), 4))
-        : LogicValue.ofInt(0, 4);
+        ? (lock != null && lock ? LogicValue.one : LogicValue.zero)
+        : LogicValue.zero;
 
     return Axi4ReadRequestPacket(
       addr: LogicValue.ofInt(pAddr, addrWidth),
@@ -322,7 +318,7 @@ class Axi4BfmSimpleWriteReadTest extends Axi4BfmTest {
       size: transSize,
       strb: pStrobes,
       burst: pBurst,
-      lock: Axi4LockField.normal,
+      lock: false,
     );
     this.main.getWrSequencer(channelId)!.add(wrPkt);
 
@@ -334,7 +330,7 @@ class Axi4BfmSimpleWriteReadTest extends Axi4BfmTest {
       len: transLen,
       size: transSize,
       burst: pBurst,
-      lock: Axi4LockField.normal,
+      lock: false,
     );
     this.main.getRdSequencer(channelId)!.add(rdPkt);
 
@@ -409,7 +405,7 @@ class Axi4BfmReadModifyWriteTest extends Axi4BfmTest {
       len: transLen,
       size: transSize,
       burst: pBurst,
-      lock: Axi4LockField.locked,
+      lock: true,
     );
     this.main.getRdSequencer(channelId)!.add(rdPkt);
 
@@ -428,7 +424,7 @@ class Axi4BfmReadModifyWriteTest extends Axi4BfmTest {
       size: transSize,
       strb: pStrobes,
       burst: pBurst,
-      lock: Axi4LockField.locked,
+      lock: true,
     );
     this.main.getWrSequencer(channelId)!.add(wrPkt);
 
@@ -505,7 +501,7 @@ class Axi4BfmReadModifyWriteAbortTest extends Axi4BfmTest {
       len: transLen,
       size: transSize,
       burst: pBurst,
-      lock: Axi4LockField.locked,
+      lock: true,
     );
     this.main.getRdSequencer(channelId1)!.add(rdPkt);
 
@@ -518,9 +514,9 @@ class Axi4BfmReadModifyWriteAbortTest extends Axi4BfmTest {
       len: transLen,
       size: transSize,
       burst: pBurst,
-      lock: Axi4LockField.normal,
+      lock: false,
     );
-    this.main.getRdSequencer(channelId2)!.add(rdPkt);
+    this.main.getRdSequencer(channelId2)!.add(rdPktBad);
 
     await rdPktBad.completed;
 
@@ -539,7 +535,7 @@ class Axi4BfmReadModifyWriteAbortTest extends Axi4BfmTest {
       size: transSize,
       strb: pStrobes,
       burst: pBurst,
-      lock: Axi4LockField.locked,
+      lock: true,
     );
     this.main.getWrSequencer(channelId1)!.add(wrPkt);
 
@@ -577,184 +573,6 @@ class Axi4BfmReadModifyWriteAbortTest extends Axi4BfmTest {
         for (var j = 0; j < channels.length; j++) {
           if (channels[j].hasRead && j != i) {
             await rmwAbort(i, j);
-          }
-        }
-      }
-    }
-
-    obj.drop();
-  }
-
-  // nothing really to check that isn't covered
-  // by compliance checker...
-  @override
-  void check() {}
-}
-
-class Axi4BfmExclusiveTest extends Axi4BfmTest {
-  /// Exclusive lock
-  /// Use AXI lock functionality
-  Future<void> exclusive(
-    int channelId, {
-    int? addr,
-    int? len,
-    int? size,
-    Axi4BurstField? burst,
-    int numTries = 2,
-  }) async {
-    final rIntfC = channels[channelId].rIntf!;
-
-    final pAddr = addr ?? Test.random!.nextInt(1 << addrWidth);
-    final transLen = len ?? Test.random!.nextInt(1 << rIntfC.lenWidth);
-    final transSize =
-        size ?? Test.random!.nextInt(1 << rIntfC.sizeWidth) % (dataWidth ~/ 8);
-    final pBurst = burst ?? Axi4BurstField.incr;
-
-    for (var i = 0; i < numTries; i++) {
-      final rdPkt = genRdPacket(
-        channelId,
-        addr: pAddr,
-        len: transLen,
-        size: transSize,
-        burst: pBurst,
-        lock: Axi4LockField.exclusive,
-      );
-      this.main.getRdSequencer(channelId)!.add(rdPkt);
-
-      await rdPkt.completed;
-    }
-
-    // one more to unlock
-    final rdPkt = genRdPacket(
-      channelId,
-      addr: pAddr,
-      len: transLen,
-      size: transSize,
-      burst: pBurst,
-      lock: Axi4LockField.normal,
-    );
-    this.main.getRdSequencer(channelId)!.add(rdPkt);
-
-    await rdPkt.completed;
-  }
-
-  Axi4BfmExclusiveTest(
-    super.name, {
-    super.numChannels,
-    super.channelConfigs,
-    super.numTransfers,
-    super.withStrobes,
-    super.interTxnDelay,
-    super.withRandomRspDelays,
-    super.withErrors,
-    super.addrWidth,
-    super.dataWidth,
-    super.lenWidth,
-    super.supportLocking,
-  });
-
-  @override
-  Future<void> run(Phase phase) async {
-    unawaited(super.run(phase));
-
-    final obj = phase.raiseObjection('${name}Obj');
-
-    await resetFlow();
-
-    // for every channel that is read enabled
-    // use this to obtain an exclusive lock
-    for (var i = 0; i < channels.length; i++) {
-      if (channels[i].hasRead) {
-        await exclusive(i);
-      }
-    }
-
-    obj.drop();
-  }
-
-  // nothing really to check that isn't covered
-  // by compliance checker...
-  @override
-  void check() {}
-}
-
-class Axi4BfmExclusiveBadTest extends Axi4BfmTest {
-  /// Exclusive lock, someone else gets locked out
-  /// Use AXI lock functionality
-  Future<void> exclusiveBad(
-    int channelId1,
-    int channelId2, {
-    int? addr,
-    int? len,
-    int? size,
-    Axi4BurstField? burst,
-  }) async {
-    final rIntfC = channels[channelId1].rIntf!;
-
-    final pAddr = addr ?? Test.random!.nextInt(1 << addrWidth);
-    final transLen = len ?? Test.random!.nextInt(1 << rIntfC.lenWidth);
-    final transSize =
-        size ?? Test.random!.nextInt(1 << rIntfC.sizeWidth) % (dataWidth ~/ 8);
-    final pBurst = burst ?? Axi4BurstField.incr;
-
-    // send the initial lock
-    final rdPkt = genRdPacket(
-      channelId1,
-      addr: pAddr,
-      len: transLen,
-      size: transSize,
-      burst: pBurst,
-      lock: Axi4LockField.exclusive,
-    );
-    this.main.getRdSequencer(channelId1)!.add(rdPkt);
-
-    await rdPkt.completed;
-
-    // try on another channel
-    // should return an error
-    final rdPktBad = genRdPacket(
-      channelId2,
-      addr: pAddr,
-      len: transLen,
-      size: transSize,
-      burst: pBurst,
-      lock: Axi4LockField.normal,
-    );
-    this.main.getRdSequencer(channelId2)!.add(rdPktBad);
-
-    await rdPktBad.completed;
-  }
-
-  Axi4BfmExclusiveBadTest(
-    super.name, {
-    super.numChannels,
-    super.channelConfigs,
-    super.numTransfers,
-    super.withStrobes,
-    super.interTxnDelay,
-    super.withRandomRspDelays,
-    super.withErrors,
-    super.addrWidth,
-    super.dataWidth,
-    super.lenWidth,
-  });
-
-  @override
-  Future<void> run(Phase phase) async {
-    unawaited(super.run(phase));
-
-    final obj = phase.raiseObjection('${name}Obj');
-
-    await resetFlow();
-
-    // for every channel that is read enabled
-    // find another channel that is read enabled
-    // use those two to confirm the lock error
-    for (var i = 0; i < channels.length; i++) {
-      if (channels[i].hasRead) {
-        for (var j = 0; j < channels.length; j++) {
-          if (channels[j].hasRead && j != i) {
-            await exclusiveBad(i, j);
           }
         }
       }
@@ -861,20 +679,27 @@ void main() {
         withRandomRspDelays: true));
   });
 
+  test('simple writes and read with errors', () async {
+    await runTest(Axi4BfmSimpleWriteReadTest('werr', withErrors: true));
+  });
+
   test('read-modify-write flow', () async {
-    await runTest(Axi4BfmReadModifyWriteTest('rmw'));
+    await runTest(Axi4BfmReadModifyWriteTest(
+      'rmw',
+      supportLocking: true,
+    ));
   });
 
   test('read-modify-write with abort flow', () async {
-    await runTest(Axi4BfmReadModifyWriteAbortTest('rmwAbort'));
-  });
-
-  test('exclusive lock flow', () async {
-    await runTest(Axi4BfmExclusiveTest('exclusive'));
-  });
-
-  test('exclusive lock with lock out flow', () async {
-    await runTest(Axi4BfmExclusiveBadTest('exclusiveBad'));
+    await runTest(Axi4BfmReadModifyWriteAbortTest(
+      'rmwAbort',
+      numChannels: 2,
+      channelConfigs: [
+        Axi4BfmTestChannelConfig.readWrite,
+        Axi4BfmTestChannelConfig.read,
+      ],
+      supportLocking: true,
+    ));
   });
 
   test('random everything', () async {
@@ -891,10 +716,7 @@ void main() {
       withRandomRspDelays: true,
       withStrobes: true,
       interTxnDelay: 3,
+      supportLocking: true,
     ));
-  });
-
-  test('with errors', () async {
-    await runTest(Axi4BfmTest('werr', withErrors: true));
   });
 }

@@ -113,10 +113,10 @@ class Axi4ReadMainDriver extends PendingClockedDriver<Axi4ReadRequestPacket> {
     }
 
     // now we can release the request
+    // in the future, we may want to wait for the response to complete
     Simulator.injectAction(() {
       rIntf.arValid.put(0);
+      packet.complete();
     });
-
-    // TODO: wait for the response to complete??
   }
 }

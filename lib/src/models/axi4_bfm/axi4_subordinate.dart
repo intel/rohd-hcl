@@ -100,7 +100,6 @@ class Axi4SubordinateAgent extends Agent {
 
   // for locking behavior
   final Map<LogicValue, int> _rmwLocks = {};
-  final Map<LogicValue, int> _hardLocks = {};
 
   /// Creates a new model [Axi4SubordinateAgent].
   ///
@@ -278,11 +277,8 @@ class Axi4SubordinateAgent extends Agent {
 
       // examine locking behavior
       final isRmw = supportLocking &&
-          rIntf.arLock?.value.toInt() == Axi4LockField.exclusive.value;
-      final isHardLock = supportLocking &&
-          rIntf.arLock?.value.toInt() == Axi4LockField.locked.value;
+          (rIntf.arLock != null && rIntf.arLock!.value.toBool());
 
-      var hardLockErr = false;
       for (var i = 0; i < endCount; i++) {
         var currData = storage.readData(addrToRead);
         if (dSize > 0) {
@@ -300,36 +296,13 @@ class Axi4SubordinateAgent extends Agent {
           if (isRmw) {
             // assign the lock to this channel
             // regardless if it existed before
+            logger.info('RMW locking address $addrToRead on channel $index.');
             _rmwLocks[addrToRead] = index;
-          }
-          // hard lock request
-          else if (isHardLock) {
-            // there must not be a hard lock on this address
-            // from another channel
-            if (_hardLocks.containsKey(addrToRead) &&
-                _hardLocks[addrToRead] != index) {
-              hardLockErr |= true;
-            }
-            // make sure to add the hard lock if it doesn't already exist
-            else {
-              _hardLocks[addrToRead] = index;
-            }
           } else {
             // remove the rmw lock if it is there
             // regardless of what channel we came from
             if (_rmwLocks.containsKey(addrToRead)) {
               _rmwLocks.remove(addrToRead);
-            }
-
-            // there must not be a hard lock on this address
-            // from another channel
-            if (_hardLocks.containsKey(addrToRead) &&
-                _hardLocks[addrToRead] != index) {
-              hardLockErr |= true;
-            }
-            // if we have a hard lock, we can remove it now
-            else if (_hardLocks.containsKey(addrToRead)) {
-              _hardLocks.remove(addrToRead);
             }
           }
         }
@@ -353,7 +326,6 @@ class Axi4SubordinateAgent extends Agent {
 
       _dataReadResponseMetadataQueue[mapIdx].add(packet);
       _dataReadResponseDataQueue[mapIdx].add(data);
-      _dataReadResponseErrorQueue[mapIdx].add(hardLockErr);
     }
   }
 
@@ -506,12 +478,8 @@ class Axi4SubordinateAgent extends Agent {
                         0)));
 
         // examine locking behavior
-        final isRmw = supportLocking &&
-            packet.lock != null &&
-            packet.lock!.toInt() == Axi4LockField.exclusive.value;
-        final isHardLock = supportLocking &&
-            packet.lock != null &&
-            packet.lock!.toInt() == Axi4LockField.locked.value;
+        final isRmw =
+            supportLocking && (packet.lock != null && packet.lock!.toBool());
 
         // compute data size and increment
         final dSize = (packet.size?.toInt() ?? 0) * 8;
@@ -546,7 +514,6 @@ class Axi4SubordinateAgent extends Agent {
 
         // locking logic for write ops
         var rmwErr = false;
-        var hardLockErr = false;
         if (supportLocking) {
           for (final addr in addrsToWrite) {
             // given write is rmw locked
@@ -555,22 +522,13 @@ class Axi4SubordinateAgent extends Agent {
               // if not, must respond with an error
               // also remove the lock moving forward
               if (!_rmwLocks.containsKey(addr) || _rmwLocks[addr] != index) {
+                logger.info('Encountered a write on channel $index that is '
+                    'part of an RMW but the lock was either '
+                    'not initiated prior or removed.');
                 rmwErr |= true;
                 if (_rmwLocks.containsKey(addr)) {
                   _rmwLocks.remove(addr);
                 }
-              }
-            }
-            // given write is hard locked
-            else if (isHardLock) {
-              // there must not be a hard lock on this address
-              // from another channel
-              if (_hardLocks.containsKey(addr) && _hardLocks[addr] != index) {
-                hardLockErr |= true;
-              }
-              // make sure to add the hard lock if it doesn't already exist
-              else {
-                _hardLocks[addr] = index;
               }
             }
             // given write is not rmw locked
@@ -579,16 +537,6 @@ class Axi4SubordinateAgent extends Agent {
               // regardless of what channel we came from
               if (_rmwLocks.containsKey(addr)) {
                 _rmwLocks.remove(addr);
-              }
-
-              // there must not be a hard lock on this address
-              // from another channel
-              if (_hardLocks.containsKey(addr) && _hardLocks[addr] != index) {
-                hardLockErr |= true;
-              }
-              // if we have a hard lock, we can remove it now
-              else if (_hardLocks.containsKey(addr)) {
-                _hardLocks.remove(addr);
               }
             }
           }
@@ -599,7 +547,7 @@ class Axi4SubordinateAgent extends Agent {
         // for now, only support sending slvErr and okay as responses
         wIntf.bValid.inject(true);
         wIntf.bId?.inject(packet.id);
-        wIntf.bResp?.inject(error || accessError || rmwErr || hardLockErr
+        wIntf.bResp?.inject(error || accessError || rmwErr
             ? LogicValue.ofInt(Axi4RespField.slvErr.value, wIntf.bResp!.width)
             : LogicValue.ofInt(Axi4RespField.okay.value, wIntf.bResp!.width));
         wIntf.bUser?.inject(0); // don't support user field for now
@@ -624,11 +572,7 @@ class Axi4SubordinateAgent extends Agent {
 
         // apply the write to storage
         // only if there were no errors
-        if (!error &&
-            !dropWriteDataOnError &&
-            !accessError &&
-            !rmwErr &&
-            !hardLockErr) {
+        if (!error && !dropWriteDataOnError && !accessError && !rmwErr) {
           for (var i = 0; i < packet.data.length; i++) {
             final rdData = storage.readData(addrsToWrite[i]);
             final strobedData =

@@ -589,23 +589,6 @@ enum Axi4ProtField {
   const Axi4ProtField(this.value);
 }
 
-/// Helper to enumerate the encodings of the AxLOCK signal.
-enum Axi4LockField {
-  /// Normal transaction.
-  normal(0x0),
-
-  /// Part of a read-modify-write.
-  exclusive(0x2),
-
-  /// Resource can't be accessed until transaction completes.
-  locked(0x3);
-
-  /// Underlying value.
-  final int value;
-
-  const Axi4LockField(this.value);
-}
-
 /// Helper to enumerate the one hot encodings of the AxCACHE signal.
 enum Axi4CacheField {
   /// Transaction can be buffered.

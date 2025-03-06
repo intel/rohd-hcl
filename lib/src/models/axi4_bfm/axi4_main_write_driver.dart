@@ -137,10 +137,10 @@ class Axi4WriteMainDriver extends PendingClockedDriver<Axi4WriteRequestPacket> {
     }
 
     // now we can stop the write data
+    // in the future, we may want to wait for the response to complete
     Simulator.injectAction(() {
       wIntf.wValid.put(0);
+      packet.complete();
     });
-
-    // TODO: wait for the response to complete??
   }
 }
