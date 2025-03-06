@@ -57,7 +57,7 @@ void main() {
       final bus = Const(bin('10000001'), width: 8);
       final pattern = Const(bin('01'), width: 2);
       final findPattern = FindPattern(bus, pattern, start: false);
-      expect(findPattern.index.value.toInt(), equals(6));
+      expect(findPattern.index.value.toInt(), equals(7));
     });
     // test('Pattern not present', () async {
     //   final bus = Const(bin('00000000'), width: 8);
@@ -71,23 +71,23 @@ void main() {
     test('where n is 0', () async {
       final bus = Const(bin('10101001'), width: 8);
       final pattern = Const(bin('01'), width: 2);
-      final n = Const(0);
-      final findPattern = FindPattern(bus, pattern, start: true, n);
-      expect(findPattern.index.value.toInt(), equals(0));
+      final n = 0;
+      final findPattern = FindPattern(bus, pattern, start: true, n: n);
+      expect(findPattern.index.value.toInt(), equals(1));
     });
     test('where n is 2', () async {
       final bus = Const(bin('10101001'), width: 8);
       final pattern = Const(bin('01'), width: 2);
-      final n = Const(2);
-      final findPattern = FindPattern(bus, pattern, start: true, n);
-      expect(findPattern.index.value.toInt(), equals(5));
+      final n = 2;
+      final findPattern = FindPattern(bus, pattern, start: true, n: n);
+      expect(findPattern.index.value.toInt(), equals(6));
     });
     test('where n is outside bound', () async {
       final bus = Const(bin('10101001'), width: 8);
       final pattern = Const(bin('01'), width: 2);
-      final n = Const(5);
-      final findPattern = FindPattern(bus, pattern, start: true, n);
-      expect(findPattern.index.value.toInt(), equals(1));
+      final n = 5;
+      final findPattern = FindPattern(bus, pattern, start: true, n: n);
+      expect(findPattern.index.value.toInt(), equals(2));
     });
   });
 
@@ -95,23 +95,23 @@ void main() {
     test('where n is 0', () async {
       final bus = Const(bin('01010110'), width: 8);
       final pattern = Const(bin('01'), width: 2);
-      final n = Const(0);
-      final findPattern = FindPattern(bus, pattern, start: false, n);
-      expect(findPattern.index.value.toInt(), equals(0));
+      final n = 0;
+      final findPattern = FindPattern(bus, pattern, start: false, n: n);
+      expect(findPattern.index.value.toInt(), equals(1));
     });
     test('where n is 2', () async {
       final bus = Const(bin('10101001'), width: 8);
       final pattern = Const(bin('01'), width: 2);
-      final n = Const(2);
-      final findPattern = FindPattern(bus, pattern, start: false, n);
-      expect(findPattern.index.value.toInt(), equals(6));
+      final n = 2;
+      final findPattern = FindPattern(bus, pattern, start: false, n: n);
+      expect(findPattern.index.value.toInt(), equals(7));
     });
     test('where n is outside bound', () async {
       final bus = Const(bin('10101001'), width: 8);
       final pattern = Const(bin('01'), width: 2);
-      final n = Const(5);
-      final findPattern = FindPattern(bus, pattern, start: false, n);
-      expect(findPattern.index.value.toInt(), equals(1));
+      final n = 5;
+      final findPattern = FindPattern(bus, pattern, start: false, n: n);
+      expect(findPattern.index.value.toInt(), equals(2));
     });
   });
 }
