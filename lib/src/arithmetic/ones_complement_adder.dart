@@ -32,9 +32,11 @@ class OnesComplementAdder extends Adder {
   late final Logic? subtractIn;
 
   /// [OnesComplementAdder] constructor with an adder functor [adderGen].
-  /// - Either an optional Logic [subtractIn] or a boolean [subtract] can enable
-  /// subtraction, but providing both non-null will result in an exception.
-  /// - If Logic [endAroundCarry] is provided as not null, then the end-around
+  /// - A subtractor is created if [subtract] is set to true.  Alternatively,
+  /// if [subtract] configuration is false, and a Lgic control signal
+  /// [subtractIn] is provided, then subtraction can be dynamically selected.
+  /// Otherwise an adder is constructed.
+  /// - If Logic [endAroundCarry] is provided, then the end-around
   /// carry is not performed and is provided as value on [endAroundCarry]. If
   /// [endAroundCarry] is null, extra hardware takes care of adding the
   /// end-around carry to [sum].
