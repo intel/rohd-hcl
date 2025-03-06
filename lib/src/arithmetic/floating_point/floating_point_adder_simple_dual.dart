@@ -146,7 +146,7 @@ class FloatingPointAdderSimpleDual extends FloatingPointAdder {
         ]),
         ElseIf(leadOneDominates, [
           outputSum.sign < aSignLatched,
-          outputSum.exponent < mux(bIsLarger, b.zeroExponent, a.zeroExponent),
+          outputSum.exponent < outputSum.zeroExponent,
           outputSum.mantissa < shiftMantissabyExp,
         ]),
         Else([
