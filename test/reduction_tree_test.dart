@@ -50,6 +50,7 @@ void main() {
       expect(prefixAdd.out.value.toInt(), equals(count));
     }
   });
+
   test('reduction tree of adders -- large', () async {
     final clk = SimpleClockGenerator(10).clk;
 
