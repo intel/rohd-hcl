@@ -1,3 +1,4 @@
+import 'dart:math';
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
 import 'package:rohd_vf/rohd_vf.dart';
@@ -28,11 +29,11 @@ class FindPattern extends Module {
   /// of the pattern.
   /// If [n] is given, [FindPattern] will find the N'th occurrence
   /// of the pattern.
-  /// [n] starts from `1` as the first occurrence.
+  /// [n] starts from `0` as the first occurrence.
   ///
   /// Outputs pin `index` contains the position. Position starts from `0` based.
   FindPattern(Logic bus, Logic pattern,
-      {bool start = true, int n = 1, this.generateError = false})
+      {bool start = true, Logic? n, this.generateError = false})
       : super(definitionName: 'FindPattern_W${bus.width}_P${pattern.width}') {
     bus = addInput('bus', bus, width: bus.width);
     pattern = addInput('pattern', pattern, width: pattern.width);
@@ -41,8 +42,15 @@ class FindPattern extends Module {
     print('bus: ${bus.value.toInt()}');
     print('pattern: ${pattern.value.toInt()}');
 
+    if (n != null) {
+      n = addInput('n', n, width: n.width);
+    }
+
     // Initialize counter pattern occurrence to 0
-    var count = 0;
+    Logic count = Const(0, width: bus.width);
+    var nVal = (n ?? Const(0)) + 1;
+    print('count: ${count.value}, width: ${count.width}');
+    print('nVal: ${nVal.value}, width: ${nVal.width}');
 
     print('=======================');
 
@@ -59,11 +67,11 @@ class FindPattern extends Module {
         print('i: $i, busVal: ${busVal.value}, valCheck: ${valCheck.value}');
 
         // Check if pattern matches, count if found
-        count += (valCheck.value.toInt() == 1) ? 1 : 0;
-        print('count: $count');
+        count += ((valCheck.value.toInt() == 1) ? 1 : 0);
+        print('count: ${count.value}');
 
         // If count matches n, break and return index
-        if (n == count) {
+        if (nVal.value.toInt() == count.value.toInt()) {
           print('n == count');
           index <= Const(i, width: bus.width);
           print('index: ${index.value}');
@@ -83,14 +91,14 @@ class FindPattern extends Module {
         // Check if pattern matches
         final valCheck = busVal.eq(pattern);
         print('i: $i, busVal: ${busVal.value}, valCheck: ${valCheck.value}');
-        print('count: $count');
+        print('count: ${count.value}');
 
         // Check if pattern matches, count if found
-        count += (valCheck.value.toInt() == 1) ? 1 : 0;
-        print('count: $count');
+        count += ((valCheck.value.toInt() == 1) ? 1 : 0);
+        print('count: ${count.value}');
 
         // If count matches n, break and return index
-        if (n == count) {
+        if (nVal.value.toInt() == count.value.toInt()) {
           print('n == count');
           index <= Const(i, width: bus.width);
           print('index: ${index.value}');
@@ -102,7 +110,10 @@ class FindPattern extends Module {
 
     if (generateError) {
       // If pattern is not found, return error
-      var isError = (count < n || count == 0) ? 1 : 0;
+      var isError =
+          (count.value.toInt() < nVal.value.toInt() || count.value.toInt() == 0)
+              ? 1
+              : 0;
       addOutput('error');
       error! <= Const(isError, width: 1);
       print('error: ${error!.value}');
