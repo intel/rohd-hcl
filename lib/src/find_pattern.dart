@@ -44,7 +44,6 @@ class FindPattern extends Module {
       : super(definitionName: 'FindPattern_W${bus.width}_P${pattern.width}') {
     bus = addInput('bus', bus, width: bus.width);
     pattern = addInput('pattern', pattern, width: pattern.width);
-    addOutput('index', width: bus.width);
 
     if (n != null) {
       n = addInput('n', n, width: n.width);
@@ -77,6 +76,7 @@ class FindPattern extends Module {
 
       // If count matches n, break and return index
       if (nVal.value.toInt() == count.value.toInt()) {
+        addOutput('index', width: bus.width);
         index <= Const(i, width: bus.width);
         break;
       }
@@ -90,8 +90,6 @@ class FindPattern extends Module {
               : 0;
       addOutput('error');
       error! <= Const(isError, width: 1);
-      // If error is generated, return index as 255
-      index <= Const(255, width: bus.width);
     }
   }
 }
