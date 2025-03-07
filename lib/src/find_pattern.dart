@@ -1,3 +1,13 @@
+// Copyright (C) 2025 Intel Corporation
+// SPDX-License-Identifier: BSD-3-Clause
+//
+// find_pattern.dart
+// Implementation of Find Pattern Functionality.
+//
+// 2025 March 07
+// Author: Ramli, Nurul Izziany <nurul.izziany.ramli@intel.com>
+//
+
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
 import 'package:rohd_vf/rohd_vf.dart';
