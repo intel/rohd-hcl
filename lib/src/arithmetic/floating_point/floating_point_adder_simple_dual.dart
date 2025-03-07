@@ -39,13 +39,8 @@ class FloatingPointAdderSimpleDual extends FloatingPointAdder {
     // check which of a and b is larger
     final ae = a.exponent;
     final be = b.exponent;
-    final am = a.mantissa;
-    final bm = b.mantissa;
-    final bIsLarger = (ae.lt(be) |
-            (ae.eq(be) & am.lt(bm)) |
-            ((ae.eq(be) & am.eq(bm)) & a.sign))
-        .named('bIsLarger');
 
+    final bExpIsLarger = ae.lt(be).named('bExpIsLarger');
     final isInf = (a.isAnInfinity | b.isAnInfinity).named('isInf');
     final isNaN = (a.isNaN |
             b.isNaN |
@@ -55,9 +50,9 @@ class FloatingPointAdderSimpleDual extends FloatingPointAdder {
     final aImplicit = a.implicitJBit ? Const(1) : Const(0);
     final bImplicit = b.implicitJBit ? Const(1) : Const(0);
 
-    // compute both differences of exponents in parallel
-    final expDiff1 = (a.exponent - b.exponent).named('expDiff1');
-    final expDiff2 = (b.exponent - a.exponent).named('expDiff2');
+    final expDiff =
+        mux(bExpIsLarger, b.exponent - a.exponent, a.exponent - b.exponent)
+            .named('expDiff');
 
     final aMantissa = mux(
         a.isNormal ^ aImplicit,
@@ -83,25 +78,49 @@ class FloatingPointAdderSimpleDual extends FloatingPointAdder {
               Const(0, width: mantissaWidth + 3)
             ].swizzle()));
 
-    // perform 2 parallel mantissa additions
-    final adder1 = SignMagnitudeAdder(
-        a.sign, aMantissa, b.sign, bMantissa >>> expDiff1,
-        largestMagnitudeFirst: true, adderGen: adderGen);
-    final adder2 = SignMagnitudeAdder(
-        b.sign, bMantissa, a.sign, aMantissa >>> expDiff2,
-        largestMagnitudeFirst: true, adderGen: adderGen);
+    final largeExpMantissa = mux(bExpIsLarger, bMantissa, aMantissa);
+    final largeExpSign = mux(bExpIsLarger, b.sign, a.sign);
+    final smallExpMantissa =
+        mux(bExpIsLarger, aMantissa, bMantissa) >>> expDiff;
+    final smallExpSign = mux(bExpIsLarger, a.sign, b.sign);
 
-    final intSum1 = adder1.sum.slice(adder1.sum.width - 1, 0).named('intSum1');
-    final intSum2 = adder2.sum.slice(adder2.sum.width - 1, 0).named('intSum2');
+    final carryL = Logic();
+    final adderL = SignMagnitudeAdder(
+        largeExpSign, largeExpMantissa, smallExpSign, smallExpMantissa,
+        endAroundCarry: carryL,
+        largestMagnitudeFirst: true,
+        adderGen: adderGen);
 
-    final aSignLatched = localFlop(mux(bIsLarger, b.sign, a.sign));
-    final aExpLatched = localFlop(mux(bIsLarger, b.exponent, a.exponent));
-    final sumLatched = localFlop(mux(bIsLarger, intSum2, intSum1));
+    final carryS = Logic();
+    final adderS = SignMagnitudeAdder(
+        largeExpSign, smallExpMantissa, smallExpSign, largeExpMantissa,
+        endAroundCarry: carryS,
+        largestMagnitudeFirst: true,
+        adderGen: adderGen);
+    // Tricky:  if adderS has an end-around-carry, its magnitude is off
+    // by 1 (and the mantissa paired with the positive sign in this adder is
+    // biggest), so the other subtractor has the correct magnitude as sum.
+    final intSum = mux(adderS.endAroundCarry!, adderL.sum, adderS.sum);
+
+    final largeIsPositive =
+        (bExpIsLarger & ~b.sign) | (~bExpIsLarger & ~a.sign);
+    final smallIsPositive =
+        (bExpIsLarger & ~a.sign) | (~bExpIsLarger & ~b.sign);
+
+    final largeIsTrulyLarger = (~adderS.endAroundCarry! & largeIsPositive) |
+        (adderS.endAroundCarry! & smallIsPositive);
+
+    final bIsTrulyLargest = (bExpIsLarger & largeIsTrulyLarger) |
+        (~bExpIsLarger & ~largeIsTrulyLarger);
+
+    final aSignLatched = localFlop(mux(bIsTrulyLargest, b.sign, a.sign));
+    final aExpLatched = localFlop(mux(bIsTrulyLargest, b.exponent, a.exponent));
+    final sumLatched = localFlop(intSum.slice(intSum.width - 1, 0));
     final isInfLatched = localFlop(isInf);
     final isNaNLatched = localFlop(isNaN);
 
     final mantissa = sumLatched.reversed
-        .getRange(0, min(intSum1.width, intSum1.width))
+        .getRange(0, min(intSum.width, intSum.width))
         .named('mantissa');
     final leadOneValid = Logic(name: 'leadOneValid');
     final leadOnePre =
@@ -127,13 +146,13 @@ class FloatingPointAdderSimpleDual extends FloatingPointAdder {
     final shiftMantissabyExp =
         (sumLatched << (aExpLatched + 1).named('expPlus1'))
             .named('shiftMantissaByExp', naming: Naming.mergeable)
-            .getRange(intSum1.width - mantissaWidth, intSum1.width)
+            .getRange(intSum.width - mantissaWidth, intSum.width)
             .named('shiftMantissaByExpSliced');
 
     final shiftMantissabyLeadOne =
         (sumLatched << (leadOne + 1).named('leadOnePlus1'))
             .named('sumShiftLeadOnePlus1')
-            .getRange(intSum1.width - mantissaWidth, intSum1.width)
+            .getRange(intSum.width - mantissaWidth, intSum.width)
             .named('shiftMantissaLeadPlus1Sliced', naming: Naming.mergeable);
 
     Combinational([

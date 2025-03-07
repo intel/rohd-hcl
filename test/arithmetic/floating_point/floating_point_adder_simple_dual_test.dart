@@ -121,6 +121,8 @@ void main() {
         exponentWidth: exponentWidth, mantissaWidth: mantissaWidth);
     final fp2 = FloatingPoint(
         exponentWidth: exponentWidth, mantissaWidth: mantissaWidth);
+    fp1.put(0);
+    fp2.put(0);
     test('FP: simple adder narrow corner tests', () {
       final testCases = [
         (ofString('0 0001 0000'), ofString('0 0000 0000')),
@@ -176,6 +178,7 @@ void main() {
 ''');
       }
     });
+
     test('FP: simple adder narrow singleton test', () {
       fp1.put(ofString('0 1100 0000'));
       fp2.put(ofString('1 1100 0000'));
@@ -189,6 +192,7 @@ void main() {
           .ofDoubleUnrounded(expectedDouble);
       expect(adder.sum.floatingPointValue, equals(expectedNoRound));
     });
+
     test('FP: simple adder singleton pipelined path', () async {
       final clk = SimpleClockGenerator(10).clk;
       fp1.put(ofString('0 0000 0000'));
@@ -262,7 +266,8 @@ void main() {
         exponentWidth: exponentWidth, mantissaWidth: mantissaWidth);
     final fp2 = FloatingPoint(
         exponentWidth: exponentWidth, mantissaWidth: mantissaWidth);
-
+    fp1.put(0);
+    fp2.put(0);
     final adder = FloatingPointAdderSimpleDual(fp1, fp2);
     await adder.build();
     unawaited(Simulator.run());
@@ -302,7 +307,8 @@ void main() {
         exponentWidth: exponentWidth, mantissaWidth: mantissaWidth);
     final fp2 = FloatingPoint(
         exponentWidth: exponentWidth, mantissaWidth: mantissaWidth);
-
+    fp1.put(0);
+    fp2.put(0);
     final adder = FloatingPointAdderSimpleDual(fp1, fp2);
     await adder.build();
 
@@ -395,8 +401,8 @@ void main() {
                   $fv1 (${fv1.toDouble()})\t+
                   $fv2 (${fv2.toDouble()})\t=
                   $computed (${computed.toDouble()})\tcomputed
-                  $expectedNoRound (${expectedNoRound.toDouble()})\texpected
-                  $expectedRound (${expectedRound.toDouble()})\texpected
+                  $expectedNoRound (${expectedNoRound.toDouble()})\texpected no
+                  $expectedRound (${expectedRound.toDouble()})\texpected rnd
                   e1=$e1 m1=$m1  e2=$e2 m2=$m2
 ''');
                   }

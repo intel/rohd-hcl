@@ -59,7 +59,7 @@ class SignMagnitudeAdder extends Adder {
     _sign = addOutput('sign');
 
     if (endAroundCarry != null) {
-      endAroundCarry = addOutput('endAroundCarry');
+      endAroundCarry <= addOutput('endAroundCarry');
     }
 
     if (!largestMagnitudeFirst) {
