@@ -9,8 +9,6 @@
 //
 
 import 'package:rohd/rohd.dart';
-import 'package:rohd_hcl/rohd_hcl.dart';
-import 'package:rohd_vf/rohd_vf.dart';
 
 /// [FindPattern] functionality
 ///
