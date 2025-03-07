@@ -8,4 +8,6 @@ export 'floating_point_converter.dart';
 export 'floating_point_multiplier.dart';
 export 'floating_point_multiplier_simple.dart';
 export 'floating_point_rounding.dart';
+export 'floating_point_sqrt.dart';
+export 'floating_point_sqrt_simple.dart';
 export 'floating_point_utilities.dart';
