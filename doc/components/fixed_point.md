@@ -25,3 +25,7 @@ Currently, the FloatToFixed converter, when in lossy mode, is not performing any
 ## Float8ToFixed
 
 This component converts an 8-bit floating-point (FP8) representation ([FloatingPoint8E4M3Value](https://intel.github.io/rohd-hcl/rohd_hcl/FloatingPoint8E4M3Value-class.html) or [FloatingPoint8E5M2Value](https://intel.github.io/rohd-hcl/rohd_hcl/FloatingPoint8E5M2Value-class.html)) to a signed fixed-point representation. This component offers using the same hardware for both FP8 formats. Therefore, both input and output are of type [Logic](https://intel.github.io/rohd/rohd/Logic-class.html) and can be cast from/to floating point/fixed point by the producer/consumer based on the selected `mode`. Infinities and NaN's are not supported. The output width is 33bits to accommodate [FloatingPoint8E5M2Value](https://intel.github.io/rohd-hcl/rohd_hcl/FloatingPoint8E5M2Value-class.html) without loss.
+
+## FixedPointSqrt
+
+This component computes the square root of a 3.x fixed-point value, returning a result in the same format. The square root value is rounded to the ordered number of bits. The integral part must be 3 bits, and the fractional part may be any odd value <= 51. Even numbers of bits are currently not supported, integral bits in numbers other than 3 are currently not supported.
