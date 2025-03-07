@@ -29,10 +29,16 @@ class FixedToFloat extends Module {
   /// Output port [float]
   late final FloatingPoint float = _float.clone()..gets(output('float'));
 
-  /// Constructor
+  /// Constructor for fixed to floating-point conversion.
+  /// - [fixed] point num ber to convert
+  /// - [exponentWidth] desired exponent width of output
+  /// - [mantissaWidth] desired mantissa width of output
+  /// - [signed] optional, if set to false (default true)
+  /// treat input as unsigned.
   FixedToFloat(FixedPoint fixed,
       {required this.exponentWidth,
       required this.mantissaWidth,
+      bool signed = true,
       super.name = 'FixedToFloat'})
       : super(
             definitionName:
@@ -53,11 +59,18 @@ class FixedToFloat extends Module {
       UnimplementedError('E4M3 is not supported.');
     }
 
-    // Extract sign bit
-    _float.sign <= (fixed.signed ? fixed[-1] : Const(0));
+    final Logic absValue;
+    if (signed) {
+      // Extract sign bit
+      _float.sign <= (fixed.signed ? fixed[-1] : Const(0));
 
-    final absValue = Logic(name: 'absValue', width: fixed.width)
-      ..gets(mux(_float.sign, ~(fixed - 1), fixed));
+      absValue = Logic(name: 'absValue', width: fixed.width)
+        ..gets(mux(_float.sign, ~(fixed - 1), fixed));
+    } else {
+      _float.sign <= Const(0);
+      absValue = Logic(name: 'absValue', width: fixed.width)
+        ..gets(mux(_float.sign, fixed, fixed));
+    }
 
     final jBit = RecursiveModulePriorityEncoder(absValue.reversed)
         .out

@@ -34,32 +34,35 @@ void main() async {
   });
 
   test('FixedToFloat: exhaustive', () async {
-    final fixed = FixedPoint(signed: true, m: 8, n: 8);
-    final dut = FixedToFloat(fixed, exponentWidth: 8, mantissaWidth: 16);
-    await dut.build();
-    for (var val = 0; val < pow(2, fixed.width); val++) {
-      final fixedValue = FixedPointValue(
-          value: LogicValue.ofInt(val, fixed.width),
-          signed: true,
-          m: fixed.m,
-          n: fixed.n);
-      fixed.put(fixedValue);
-      final fpv = dut.float.floatingPointValue;
-      final fpvExpected = FloatingPointValue.populator(
-              exponentWidth: dut.exponentWidth,
-              mantissaWidth: dut.mantissaWidth)
-          .ofDouble(fixedValue.toDouble());
-      final newFixed = FixedPointValue.ofDouble(fpv.toDouble(),
-          signed: true, m: fixed.m, n: fixed.n);
-      expect(newFixed, equals(fixedValue), reason: '''
+    for (final signed in [false, true]) {
+      final fixed = FixedPoint(signed: signed, m: 8, n: 8);
+      final dut = FixedToFloat(fixed,
+          signed: signed, exponentWidth: 8, mantissaWidth: 16);
+      await dut.build();
+      for (var val = 0; val < pow(2, fixed.width); val++) {
+        final fixedValue = FixedPointValue(
+            value: LogicValue.ofInt(val, fixed.width),
+            signed: signed,
+            m: fixed.m,
+            n: fixed.n);
+        fixed.put(fixedValue);
+        final fpv = dut.float.floatingPointValue;
+        final fpvExpected = FloatingPointValue.populator(
+                exponentWidth: dut.exponentWidth,
+                mantissaWidth: dut.mantissaWidth)
+            .ofDouble(fixedValue.toDouble());
+        final newFixed = FixedPointValue.ofDouble(fpv.toDouble(),
+            signed: true, m: fixed.m, n: fixed.n);
+        expect(newFixed, equals(fixedValue), reason: '''
           fpvdbl=${fpv.toDouble()} $fpv
           ${newFixed.toDouble()} $newFixed
           ${fixedValue.toDouble()} $fixedValue
           ${fixed.fixedPointValue.toDouble()}  ${fixed.fixedPointValue}
 ''');
-      expect(fpv.sign, fpvExpected.sign);
-      expect(fpv.exponent, fpvExpected.exponent, reason: 'exponent');
-      expect(fpv.mantissa, fpvExpected.mantissa, reason: 'mantissa');
+        expect(fpv.sign, fpvExpected.sign);
+        expect(fpv.exponent, fpvExpected.exponent, reason: 'exponent');
+        expect(fpv.mantissa, fpvExpected.mantissa, reason: 'mantissa');
+      }
     }
   });
 
