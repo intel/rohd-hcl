@@ -2,9 +2,9 @@
 // SPDX-License-Identifier: BSD-3-Clause
 //
 // find_pattern_test.dart
-// Tests for FindPattern
+// Tests for Find Pattern
 //
-// 2025 June 3
+// 2025 March 6
 // Author: Louiz Ang Zhi Lin <louiz.zhi.lin.ang@intel.com>
 //
 
