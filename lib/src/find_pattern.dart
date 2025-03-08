@@ -9,55 +9,70 @@
 //
 
 import 'package:rohd/rohd.dart';
+import 'package:rohd_hcl/rohd_hcl.dart';
 
 /// [FindPattern] functionality
 ///
-/// Takes in a [Logic] to find location of a fixed-width pattern.
-/// Outputs pin `index` contains position.
+/// Takes in a [Logic] `bus` to find location of a fixed-width pattern.
+/// Outputs pin `index` contains position of the pattern in the bus.
 class FindPattern extends Module {
-  /// [index] is a getter for output of FindPattern
+  /// [index] is a getter for output of FindPattern.
+  /// It contains the position of the pattern in the bus depending on the
+  /// search direction defined.
+  /// [index] starts from `0` based.
   Logic get index => output('index');
 
-  /// [error] is a getter for error in FindPattern
-  /// When your pattern is not found it will result in error `1`
+  /// [error] is a getter for error in FindPattern and is generated when
+  /// [generateError] is `true`.
+  /// When pattern is not found it will result in error `1`.
   Logic? get error => tryOutput('error');
 
-  /// If `true`, then the [error] output will be generated.
+  /// If [generateError] is `true`, [error] output will be generated.
   final bool generateError;
 
-  /// Find a position for a fixed-width pattern
+  /// Find a position for a fixed-width pattern in a bus.
   ///
-  /// Takes in search pattern [pattern] and a boolean [start] to determine the
-  ///  search direction.
-  /// If [start] is `true`, the search starts from the beginning of the bus.
-  /// If [start] is `false`, the search starts from the end of the bus.
+  /// Takes in search pattern [pattern] and a boolean [fromStart] to
+  /// determine the search direction.
+  /// If [fromStart] is `true`, the search starts from the beginning of the bus.
+  /// If [fromStart] is `false`, the search starts from the end of the bus.
   ///
   /// By default, [FindPattern] will look for the first occurrence
-  /// of the pattern.
+  /// of the pattern and returns an output [index] containing the position.
   /// If [n] is given, [FindPattern] will find the N'th occurrence
   /// of the pattern.
   /// [n] starts from `0` as the first occurrence.
+  /// [index] position starts from `0` as the first position in bus.
   ///
-  /// Outputs pin `index` contains the position. Position starts from `0` based.
+  /// For example, if [bus] is `10000001` and [pattern] is `01`, the [index]
+  /// will be `0` if [fromStart] is `true` as the pattern is found at the
+  /// 0th position from the start of the bus. Otherwise, if [fromStart] is
+  /// `false`, the [index] will be `6` as the pattern is found at the
+  /// 6th position from end of the bus.
+  ///
+  /// [index] will be `undefined` (i.e., b'zzz) when pattern is not found.
   FindPattern(Logic bus, Logic pattern,
-      {bool start = true, Logic? n, this.generateError = false})
+      {bool fromStart = true, Logic? n, this.generateError = false})
       : super(definitionName: 'FindPattern_W${bus.width}_P${pattern.width}') {
     bus = addInput('bus', bus, width: bus.width);
     pattern = addInput('pattern', pattern, width: pattern.width);
+
+    // A list to store the index of the found pattern
+    final indexList = <Logic>[];
 
     if (n != null) {
       n = addInput('n', n, width: n.width);
     }
 
     // Initialize counter pattern occurrence to 0
-    Logic count = Const(0, width: bus.width);
-    final nVal = (n ?? Const(0)) + 1;
+    Logic count = Const(0, width: log2Ceil(bus.width + 1));
+    final nVal = ((n ?? Const(0)) + 1).zeroExtend(count.width);
 
     int minBit;
     int maxBit;
 
     for (var i = 0; i <= bus.width - pattern.width; i = i + 1) {
-      if (start) {
+      if (fromStart) {
         // Read from start of bus
         minBit = i;
         maxBit = i + pattern.width;
@@ -67,29 +82,22 @@ class FindPattern extends Module {
         maxBit = bus.width - i;
       }
 
-      // Check if pattern matches
-      final busVal = bus.getRange(minBit, maxBit);
-      final valCheck = busVal.eq(pattern);
-
-      // Check if pattern matches, count if found
-      count += ((valCheck.value.toInt() == 1) ? 1 : 0);
-
-      // If count matches n, break and return index
-      if (nVal.value.toInt() == count.value.toInt()) {
-        addOutput('index', width: bus.width);
-        index <= Const(i, width: bus.width);
-        break;
-      }
+      // Check if pattern matches, add to count
+      final valCheck = bus.getRange(minBit, maxBit).eq(pattern);
+      count += valCheck.zeroExtend(count.width);
+      // Append result to the index list
+      indexList.add(valCheck & nVal.eq(count));
     }
+
+    final indexBinary = OneHotToBinary(indexList.rswizzle());
+    final bin = indexBinary.binary;
+    addOutput('index', width: bin.width);
+    index <= bin;
 
     if (generateError) {
       // If pattern is not found, return error
-      final isError =
-          (count.value.toInt() < nVal.value.toInt() || count.value.toInt() == 0)
-              ? 1
-              : 0;
       addOutput('error');
-      error! <= Const(isError, width: 1);
+      error! <= count.lt(nVal) | count.eq(0);
     }
   }
 }
