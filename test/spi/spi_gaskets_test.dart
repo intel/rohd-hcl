@@ -363,7 +363,7 @@ class SpiMultiSubTest extends Test {
 
     Simulator.registerEndOfSimulationAction(() async {
       await tracker.terminate();
-      // Directory(outFolder).deleteSync(recursive: true);
+      Directory(outFolder).deleteSync(recursive: true);
     });
 
     monitor.stream.listen(tracker.record);
@@ -384,7 +384,7 @@ class SpiMultiSubTest extends Test {
     busInSubB.inject(00);
     busInSubC.inject(00);
     busInSubD.inject(00);
-    css.inject(0xF); // 0x0 gives all csb high (inactive), need to flip?
+    css.inject(0xF); // 1111 all cs are active low
     starts.inject(false);
     resetMain.inject(false);
     resetSubAll.inject(false);
@@ -844,7 +844,7 @@ void main() {
 
   group('multi sub tests', () {
     Future<void> runMultiSubTest(SpiMultiSubTest spiMultiSubTest,
-        {bool dumpWaves = true}) async {
+        {bool dumpWaves = false}) async {
       Simulator.setMaxSimTime(3000);
       final mod = SpiTop(spiMultiSubTest.intfMain, null);
       if (dumpWaves) {
