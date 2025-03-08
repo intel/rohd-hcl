@@ -15,7 +15,7 @@ To find the index of a fixed-width `pattern` in a `bus`. By default, it will fin
 
 `index` and `n` is zero-based index, where first index and first occurrence is defined `0`.
 
-If `pattern` is not found in the `bus`, output `index` will be undefined, and if `generateError` is `true`, output `error` will be generated and is equal to `1`.
+If `pattern` is not found in the `bus`, output `index` will be `0`, and if `generateError` is `true`, output `error` will be generated and is equal to `1`.
 
 ## Find Pattern from Start/End
 
@@ -81,4 +81,4 @@ expect(findPattern.index.value.toInt(), equals(6));
 
 ### Pattern not Found in Bus
 
-If `pattern` is not found in the Logic `bus`, output `index` will be `undefined` (i.e., `b'zzzz`). To generate the output pin `error`, set the `generateError` boolean to `true`. By default, `generateError` is `false`. If pattern is not found, `error` will be `1`.
+If `pattern` is not found in the Logic `bus`, output `index` will be `0`. To generate the output pin `error`, set the `generateError` boolean to `true`. By default, `generateError` is `false`. If pattern is not found, `error` will be `1`.

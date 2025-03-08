@@ -19,7 +19,7 @@ class FindPattern extends Module {
   /// [index] is a getter for output of FindPattern.
   /// It contains the position of the pattern in the bus depending on the
   /// search direction defined.
-  /// [index] starts from `0` based and is `undefined` if pattern is not found.
+  /// [index] starts from `0` based and is `0` if pattern is not found.
   Logic get index => output('index');
 
   /// [error] is a getter for error in FindPattern and is generated when
@@ -50,7 +50,7 @@ class FindPattern extends Module {
   /// `false`, the [index] will be `6` as the pattern is found at the
   /// 6th position from end of the bus.
   ///
-  /// [index] will be `undefined` (i.e., b'zzz) when pattern is not found.
+  /// [index] will be `0` when pattern is not found.
   FindPattern(Logic bus, Logic pattern,
       {bool fromStart = true, Logic? n, this.generateError = false})
       : super(definitionName: 'FindPattern_W${bus.width}_P${pattern.width}') {
@@ -88,7 +88,6 @@ class FindPattern extends Module {
       // Append result to the index list
       indexList.add(valCheck & nVal.eq(count));
     }
-
     final indexBinary = OneHotToBinary(indexList.rswizzle());
     final bin = indexBinary.binary;
     addOutput('index', width: bin.width);
