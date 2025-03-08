@@ -33,6 +33,7 @@ class SpiMain extends Module {
       required Logic reset,
       required Logic start,
       required Logic busIn,
+      Logic? css,
       super.name = 'spiMain'}) {
     busIn = addInput('busIn', busIn, width: busIn.width);
 
@@ -42,6 +43,10 @@ class SpiMain extends Module {
 
     start = addInput('start', start);
 
+    if (css != null) {
+      css = addInput('css', css, width: intf.multiChipSelects);
+    }
+
     addOutput('busOut', width: busIn.width);
 
     addOutput('done');
@@ -50,11 +55,15 @@ class SpiMain extends Module {
       ..pairConnectIO(this, intf, PairRole.provider);
 
     final isRunning = Logic(name: 'isRunning');
+    final active = Logic(name: 'enable');
+
+    // Active will be high when start is pulsed high or isRunning is high.
+    active <= start | isRunning;
 
     // Counter to track of the number of bits shifted out.
     final count = Counter.simple(
         clk: ~clk,
-        enable: start | isRunning,
+        enable: active,
         reset: reset,
         asyncReset: true,
         resetValue: busIn.width - 1,
@@ -87,11 +96,21 @@ class SpiMain extends Module {
     // NOTE: dataStage0 corresponds to the last bit shifted in.
     busOut <= shiftReg.stages.rswizzle();
 
-    // SCLK runs off clk when isRunning is true or start is pulsed high.
-    intf.sclk <= ~clk & (isRunning | start);
+    // SCLK runs off clk when active.
+    intf.sclk <= ~clk & active;
 
-    // CS is active low. It will go low when isRunning or start is pulsed high.
-    intf.csb <= ~(isRunning | start);
+    // CS is active low. It will go low when active for single sub.
+    // if multiple sub, css will be used to control each csb.
+
+    if (css != null) {
+      for (var i = 0; i < intf.multiChipSelects; i++) {
+        intf.csb[i] <= ~(~css[i] & active);
+      }
+    } else {
+      for (var i = 0; i < intf.multiChipSelects; i++) {
+        intf.csb[i] <= ~active;
+      }
+    }
 
     // MOSI is connected shift register dataOut.
     intf.mosi <=
