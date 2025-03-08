@@ -36,14 +36,3 @@ To find the nth occurrence just pass in `bus` along with Logic value `n` passed 
 ### Find Nth Zero
 
 To find the nth occurrence just pass in `bus` along with Logic value `n` passed in as an argument. In addition to finding occurrence of Zero (`0`), set the argument `countOne` to `false`.
-
-## Find Nth Pattern
-To find the nth pattern occurrence just pass in `bus` along with Logic pattern `pattern` passed in as an argument. Note that the `pattern` needs to be smaller than `bus`.
-
-### Find Nth Pattern from start
-To find the nth pattern occurrence just pass in `bus` along with Logic pattern `pattern` passed in as an argument. Note that the `pattern` needs to be smaller than `bus`.
-In addition to finding occurrence of `pattern`, set the argument `start` as true.
-
-### Find Nth Pattern from end
-To find the nth pattern occurrence just pass in `bus` along with Logic pattern `pattern` passed in as an argument. Note that the `pattern` needs to be smaller than `bus`.
-In addition to finding occurrence of `pattern`, set the argument `start` as false.
