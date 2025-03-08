@@ -5,20 +5,18 @@
 // An abstract base class defining the API for floating-point square root.
 //
 // 2025 March 3
-// Authors: James Farwell <james.c.farwell@intel.com>, Stephen
-// Weeks <stephen.weeks@intel.com>
+// Authors: James Farwell <james.c.farwell@intel.com>,
+//          Stephen Weeks <stephen.weeks@intel.com>
 
-/// An abstract API for fixed point square root.
-library;
-
+// An abstract API for fixed point square root.
 import 'package:meta/meta.dart';
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
 
-/// Abstract base class
+/// Base class for fixed-point square root
 abstract class FixedPointSqrtBase extends Module {
   /// Width of the input and output fields.
-  final int numWidth;
+  final int width;
 
   /// The value [a], named this way to allow for a local variable 'a'.
   @protected
@@ -30,13 +28,13 @@ abstract class FixedPointSqrtBase extends Module {
   /// Square root a fixed point number [a], returning result in [sqrtF].
   FixedPointSqrtBase(FixedPoint a,
       {super.name = 'fixed_point_square_root', String? definitionName})
-      : numWidth = a.width,
+      : width = a.width,
         super(
             definitionName:
                 definitionName ?? 'FixedPointSquareRoot${a.width}') {
     this.a = a.clone(name: 'a')..gets(addInput('a', a, width: a.width));
 
-    addOutput('sqrtF', width: numWidth);
+    addOutput('sqrtF', width: width);
   }
 }
 
@@ -46,6 +44,10 @@ abstract class FixedPointSqrtBase extends Module {
 class FixedPointSqrt extends FixedPointSqrtBase {
   /// Constructor
   FixedPointSqrt(super.a) {
+    if (a.signed) {
+      throw RohdHclException('Signed values not supported');
+    }
+
     Logic solution =
         FixedPoint(signed: a.signed, name: 'solution', m: a.m + 1, n: a.n + 1);
     Logic remainder =
@@ -64,16 +66,16 @@ class FixedPointSqrt extends FixedPointSqrtBase {
     output('sqrtF') <= outputSqrt;
 
     // loop once through input value
-    for (var i = 0; i < ((numWidth + 2) >> 1); i++) {
+    for (var i = 0; i < ((width + 2) >> 1); i++) {
       // append bits from a, two at a time
       remainder = [
-        remainder.slice(numWidth + 2 - 3, 0),
+        remainder.slice(width + 2 - 3, 0),
         aLoc.slice(aLoc.width - 1 - (i * 2), aLoc.width - 2 - (i * 2))
       ].swizzle();
       subtractionValue =
-          [solution.slice(numWidth + 2 - 3, 0), Const(1, width: 2)].swizzle();
+          [solution.slice(width + 2 - 3, 0), Const(1, width: 2)].swizzle();
       solution = [
-        solution.slice(numWidth + 2 - 2, 0),
+        solution.slice(width + 2 - 2, 0),
         subtractionValue.lte(remainder)
       ].swizzle();
       remainder = mux(subtractionValue.lte(remainder),
@@ -81,14 +83,14 @@ class FixedPointSqrt extends FixedPointSqrtBase {
     }
 
     // loop again to finish remainder
-    for (var i = 0; i < ((numWidth + 2) >> 1) - 1; i++) {
+    for (var i = 0; i < ((width + 2) >> 1) - 1; i++) {
       // don't try to append bits from a, they are done
       remainder =
-          [remainder.slice(numWidth + 2 - 3, 0), Const(0, width: 2)].swizzle();
+          [remainder.slice(width + 2 - 3, 0), Const(0, width: 2)].swizzle();
       subtractionValue =
-          [solution.slice(numWidth + 2 - 3, 0), Const(1, width: 2)].swizzle();
+          [solution.slice(width + 2 - 3, 0), Const(1, width: 2)].swizzle();
       solution = [
-        solution.slice(numWidth + 2 - 2, 0),
+        solution.slice(width + 2 - 2, 0),
         subtractionValue.lte(remainder)
       ].swizzle();
       remainder = mux(subtractionValue.lte(remainder),

@@ -6,8 +6,8 @@
 //
 // 2025 March 5
 // Authors: James Farwell <james.c.farwell@intel.com>,
-//Stephen Weeks <stephen.weeks@intel.com>,
-//Curtis Anderson <curtis.anders@intel.com>
+//          Stephen Weeks <stephen.weeks@intel.com>,
+//          Curtis Anderson <curtis.anders@intel.com>
 
 import 'dart:math';
 import 'package:rohd/rohd.dart';
