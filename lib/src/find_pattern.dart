@@ -19,7 +19,7 @@ class FindPattern extends Module {
   /// [index] is a getter for output of FindPattern.
   /// It contains the position of the pattern in the bus depending on the
   /// search direction defined.
-  /// [index] starts from `0` based.
+  /// [index] starts from `0` based and is `undefined` if pattern is not found.
   Logic get index => output('index');
 
   /// [error] is a getter for error in FindPattern and is generated when
