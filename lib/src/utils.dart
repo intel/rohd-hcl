@@ -16,41 +16,6 @@ extension LogicValueBitString on LogicValue {
   String get bitString => toString(includeWidth: false);
 }
 
-/// This extension will eventually move to ROHD once it is proven useful
-extension LogicValueMajority on LogicValue {
-  /// Compute the unary majority on LogicValue
-  bool majority() {
-    if (!isValid) {
-      return false;
-    }
-    final zero = LogicValue.filled(width, LogicValue.zero);
-    var shiftedValue = this;
-    var result = 0;
-    while (shiftedValue != zero) {
-      result += (shiftedValue[0] & LogicValue.one == LogicValue.one) ? 1 : 0;
-      shiftedValue >>>= 1;
-    }
-    return result > (width ~/ 2);
-  }
-
-  /// Compute the first One find operation on LogicValue, returning its position
-  int? firstOne() {
-    if (!isValid) {
-      return null;
-    }
-    var shiftedValue = this;
-    var result = 0;
-    while (shiftedValue[0] != LogicValue.one) {
-      result++;
-      if (result == width) {
-        return null;
-      }
-      shiftedValue >>>= 1;
-    }
-    return result;
-  }
-}
-
 /// This extension will provide conversion to Signed or Unsigned BigInt
 extension SignedBigInt on BigInt {
   /// Convert a BigInt to Signed when [signed] is true

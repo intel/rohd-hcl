@@ -24,23 +24,30 @@ extension EvaluateLiveColumnCompressor on ColumnCompressor {
       bool logic = false,
       bool header = true,
       int prefix = 1,
-      int extraSpace = 5}) {
+      int extraSpace = 0}) {
     final ts = StringBuffer();
     final rows = longestColumn();
     final width = pp.maxWidth();
     var accum = BigInt.zero;
 
     for (var row = 0; row < rows; row++) {
+      final int shift;
+      if (row >= pp.rows) {
+        shift = pp.rowShift[pp.rows - 1];
+      } else {
+        shift = pp.rowShift[row];
+      }
       final rowLogic = <Logic>[];
       for (var col = columns.length - 1; col >= 0; col--) {
-        final colList = columns[col].toList();
+        final colList = carryColumns[col].toList() + columns[col].toList();
         if (row < colList.length) {
           rowLogic.insert(0, colList[row].logic);
+        } else if (col >= shift) {
+          // rowLogic.insert(0, Const(0));
         }
       }
-      final rowBits = [for (final c in rowLogic) c.value].reversed.toList();
-      // ignore: cascade_invocations
-      rowBits.addAll(List.filled(pp.rowShift[row], LogicValue.zero));
+      final rowBits = [for (final c in rowLogic) c.value].reversed.toList()
+        ..addAll(List.filled(shift, LogicValue.zero));
       final rowBitsExtend = rowBits.length < width
           ? rowBits.swizzle().zeroExtend(width)
           : rowBits.swizzle();
@@ -53,7 +60,7 @@ extension EvaluateLiveColumnCompressor on ColumnCompressor {
             prefix: prefix,
             extraSpace: extraSpace,
             intValue: true,
-            shift: pp.rowShift[row]))
+            shift: shift))
         ..write('\n');
     }
 
@@ -67,15 +74,23 @@ extension EvaluateLiveColumnCompressor on ColumnCompressor {
   }
 
   /// Return a string representing the compression tree in its current state
-  String representation() {
+  String representation({bool evalLogic = false, bool useTabs = true}) {
     final ts = StringBuffer();
+
+    final sep = useTabs ? '\t' : '  ';
+
     for (var row = 0; row < longestColumn(); row++) {
+      ts.write(useTabs ? '' : ' ');
       for (var col = columns.length - 1; col >= 0; col--) {
-        final colList = columns[col].toList();
+        final colList = columns[col].toList() + carryColumns[col].toList();
         if (row < colList.length) {
-          ts.write('\t${colList[row]}');
+          if (evalLogic) {
+            ts.write('$sep${colList[row].logic.value.toInt()}');
+          } else {
+            ts.write('$sep${colList[row]}');
+          }
         } else {
-          ts.write('\t');
+          ts.write(useTabs ? sep : '$sep ');
         }
       }
       ts.write('\n');
