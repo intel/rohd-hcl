@@ -87,7 +87,7 @@ class Axi4SubordinateAgent extends Agent {
   // to handle response read responses
   final List<List<Axi4ReadRequestPacket>> _dataReadResponseMetadataQueue = [];
   final List<List<List<LogicValue>>> _dataReadResponseDataQueue = [];
-  final List<List<bool>> _dataReadResponseErrorQueue = [];
+  // final List<List<bool>> _dataReadResponseErrorQueue = [];
   final List<int> _dataReadResponseIndex = [];
 
   // to handle writes
@@ -140,7 +140,7 @@ class Axi4SubordinateAgent extends Agent {
       if (channels[i].hasRead) {
         _dataReadResponseMetadataQueue.add([]);
         _dataReadResponseDataQueue.add([]);
-        _dataReadResponseErrorQueue.add([]);
+        // _dataReadResponseErrorQueue.add([]);
         _dataReadResponseIndex.add(0);
         _readAddrToChannel[i] = _dataReadResponseMetadataQueue.length - 1;
       }
@@ -162,7 +162,7 @@ class Axi4SubordinateAgent extends Agent {
         if (channels[i].hasRead) {
           _dataReadResponseMetadataQueue[_readAddrToChannel[i]!].clear();
           _dataReadResponseDataQueue[_readAddrToChannel[i]!].clear();
-          _dataReadResponseErrorQueue[_readAddrToChannel[i]!].clear();
+          // _dataReadResponseErrorQueue[_readAddrToChannel[i]!].clear();
           _dataReadResponseIndex[_readAddrToChannel[i]!] = 0;
         }
         if (channels[i].hasWrite) {
@@ -263,7 +263,8 @@ class Axi4SubordinateAgent extends Agent {
       final data = <LogicValue>[];
       var addrToRead = rIntf.arAddr.value;
       final endCount = (rIntf.arLen?.value.toInt() ?? 0) + 1;
-      final dSize = (rIntf.arSize?.value.toInt() ?? 0) * 8;
+      final dSize = Axi4SizeField.getImpliedSize(
+          Axi4SizeField.fromValue(rIntf.arSize?.value.toInt() ?? 0));
       var increment = 0;
       if (rIntf.arBurst == null ||
           rIntf.arBurst?.value.toInt() == Axi4BurstField.wrap.value ||
@@ -337,11 +338,13 @@ class Axi4SubordinateAgent extends Agent {
     // only respond if there is something to respond to
     // and the main side is indicating that it is ready to receive
     if (_dataReadResponseMetadataQueue[mapIdx].isNotEmpty &&
-        _dataReadResponseDataQueue[mapIdx].isNotEmpty &&
-        _dataReadResponseErrorQueue[mapIdx].isNotEmpty &&
+        _dataReadResponseDataQueue[mapIdx]
+            .isNotEmpty /*&&
+        _dataReadResponseErrorQueue[mapIdx].isNotEmpty*/
+        &&
         rIntf.rReady.value.toBool()) {
       final packet = _dataReadResponseMetadataQueue[mapIdx][0];
-      final reqSideError = _dataReadResponseErrorQueue[mapIdx][0];
+      // final reqSideError = _dataReadResponseErrorQueue[mapIdx][0];
       final currData =
           _dataReadResponseDataQueue[mapIdx][0][_dataReadResponseIndex[mapIdx]];
       final error = respondWithError != null && respondWithError!(packet);
@@ -371,7 +374,7 @@ class Axi4SubordinateAgent extends Agent {
       rIntf.rValid.inject(true);
       rIntf.rId?.inject(packet.id);
       rIntf.rData.inject(currData);
-      rIntf.rResp?.inject(error || accessError || reqSideError
+      rIntf.rResp?.inject(error || accessError /*|| reqSideError*/
           ? LogicValue.ofInt(Axi4RespField.slvErr.value, rIntf.rResp!.width)
           : LogicValue.ofInt(Axi4RespField.okay.value, rIntf.rResp!.width));
       rIntf.rUser?.inject(0); // don't support user field for now
@@ -382,7 +385,7 @@ class Axi4SubordinateAgent extends Agent {
         _dataReadResponseIndex[mapIdx] = 0;
         _dataReadResponseMetadataQueue[mapIdx].removeAt(0);
         _dataReadResponseDataQueue[mapIdx].removeAt(0);
-        _dataReadResponseErrorQueue[mapIdx].removeAt(0);
+        // _dataReadResponseErrorQueue[mapIdx].removeAt(0);
 
         logger.info('Finished sending read response for channel $index.');
       } else {
@@ -482,7 +485,8 @@ class Axi4SubordinateAgent extends Agent {
             supportLocking && (packet.lock != null && packet.lock!.toBool());
 
         // compute data size and increment
-        final dSize = (packet.size?.toInt() ?? 0) * 8;
+        final dSize = Axi4SizeField.getImpliedSize(
+            Axi4SizeField.fromValue(packet.size!.toInt()));
         var increment = 0;
         if (packet.burst == null ||
             packet.burst!.toInt() == Axi4BurstField.wrap.value ||
@@ -572,7 +576,7 @@ class Axi4SubordinateAgent extends Agent {
 
         // apply the write to storage
         // only if there were no errors
-        if (!error && !dropWriteDataOnError && !accessError && !rmwErr) {
+        if (!(error || accessError || rmwErr) || !dropWriteDataOnError) {
           for (var i = 0; i < packet.data.length; i++) {
             final rdData = storage.readData(addrsToWrite[i]);
             final strobedData =

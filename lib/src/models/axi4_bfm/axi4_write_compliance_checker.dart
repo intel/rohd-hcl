@@ -44,8 +44,8 @@ class Axi4WriteComplianceChecker extends Component {
     //   if BID is present, every write response should match
     //   a pending request AWID
 
-    final writeReqMap = <int, List<int>>{};
-    var lastWriteReqId = -1;
+    final writeReqMap = <int, List<List<int>>>{};
+    final lastWriteReqId = <int>[];
 
     sIntf.clk.posedge.listen((event) {
       // track write requests
@@ -53,22 +53,35 @@ class Axi4WriteComplianceChecker extends Component {
           wIntf.awValid.previousValue!.toBool()) {
         final id = wIntf.awId?.previousValue!.toInt() ?? 0;
         final len = (wIntf.awLen?.previousValue!.toInt() ?? 0) + 1;
-        writeReqMap[id] = [len, 0];
-        lastWriteReqId = id;
+        if (!writeReqMap.containsKey(id)) {
+          writeReqMap[id] = [];
+        }
+        writeReqMap[id]!.add([len, 0]);
+        lastWriteReqId.add(id);
+        if (Axi4SizeField.getImpliedSize(
+                Axi4SizeField.fromValue(wIntf.awSize!.value.toInt())) >
+            wIntf.dataWidth) {
+          logger.severe(
+              'The AWSIZE value of ${wIntf.awSize!.value.toInt()} must be '
+              'less than or equal to '
+              '${Axi4SizeField.fromSize(wIntf.dataWidth).value} '
+              'corresponding to the interface '
+              'data width of ${wIntf.dataWidth}.');
+        }
       }
 
       // track write data flits
       if (wIntf.wValid.previousValue!.isValid &&
           wIntf.wValid.previousValue!.toBool()) {
-        final id = lastWriteReqId;
-        if (!writeReqMap.containsKey(id)) {
+        final id = lastWriteReqId.isEmpty ? -1 : lastWriteReqId[0];
+        if (!writeReqMap.containsKey(id) || writeReqMap[id]!.isEmpty) {
           logger.severe('There is no pending write request '
               'to associate with valid write data.');
         }
 
-        writeReqMap[id]![1] = writeReqMap[id]![1] + 1;
-        final len = writeReqMap[id]![0];
-        final currCount = writeReqMap[id]![1];
+        writeReqMap[id]![0][1] = writeReqMap[id]![0][1] + 1;
+        final len = writeReqMap[id]![0][0];
+        final currCount = writeReqMap[id]![0][1];
         if (currCount > len) {
           logger.severe(
               'Sent more write data flits than indicated by the request '
@@ -76,6 +89,9 @@ class Axi4WriteComplianceChecker extends Component {
         } else if (currCount == len && !wIntf.wLast.previousValue!.toBool()) {
           logger.severe('Sent the final flit in the write data per the request '
               'with ID $id AWLEN but WLAST is not asserted.');
+        } else if (currCount == len && wIntf.wLast.previousValue!.toBool()) {
+          writeReqMap[id]!.removeAt(0);
+          lastWriteReqId.removeAt(0);
         }
       }
     });

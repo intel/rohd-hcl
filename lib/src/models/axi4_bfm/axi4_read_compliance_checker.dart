@@ -45,7 +45,7 @@ class Axi4ReadComplianceChecker extends Component {
     //   a pending request ARID
 
     final rLastPresent = rIntf.rLast != null;
-    final readReqMap = <int, List<int>>{};
+    final readReqMap = <int, List<List<int>>>{};
 
     sIntf.clk.posedge.listen((event) {
       // capture read requests for counting
@@ -53,22 +53,35 @@ class Axi4ReadComplianceChecker extends Component {
           rIntf.arValid.previousValue!.toBool()) {
         final id = rIntf.arId?.previousValue!.toInt() ?? 0;
         final len = (rIntf.arLen?.previousValue!.toInt() ?? 0) + 1;
-        readReqMap[id] = [len, 0];
+        if (!readReqMap.containsKey(id)) {
+          readReqMap[id] = [];
+        }
+        readReqMap[id]!.add([len, 0]);
+        if (Axi4SizeField.getImpliedSize(
+                Axi4SizeField.fromValue(rIntf.arSize!.value.toInt())) >
+            rIntf.dataWidth) {
+          logger.severe('The ARSIZE value of ${rIntf.arSize!.value.toInt()} '
+              'must be less than or equal to '
+              '${Axi4SizeField.fromSize(rIntf.dataWidth).value} '
+              'corresponding to the interface '
+              'data width of ${rIntf.dataWidth}.');
+        }
       }
 
       // track read response flits
       if (rIntf.rValid.previousValue!.isValid &&
           rIntf.rValid.previousValue!.toBool()) {
         final id = rIntf.rId?.previousValue!.toInt() ?? 0;
-        if (!readReqMap.containsKey(id)) {
+        if (!readReqMap.containsKey(id) || readReqMap[id]!.isEmpty) {
           logger.severe(
               'Cannot match a read response to any pending read request. '
               'ID captured by the response was $id.');
         }
 
-        readReqMap[id]![1] = readReqMap[id]![1] + 1;
-        final len = readReqMap[id]![0];
-        final currCount = readReqMap[id]![1];
+        // always pull from the top
+        readReqMap[id]![0][1] = readReqMap[id]![0][1] + 1;
+        final len = readReqMap[id]![0][0];
+        final currCount = readReqMap[id]![0][1];
         if (currCount > len) {
           logger.severe(
               'Received more read response data flits than indicated by the '
@@ -78,6 +91,10 @@ class Axi4ReadComplianceChecker extends Component {
             !rIntf.rLast!.previousValue!.toBool()) {
           logger.severe('Received the final flit in the read response data per '
               'the request with ID $id ARLEN but RLAST is not asserted.');
+        } else if (currCount == len &&
+            rLastPresent &&
+            rIntf.rLast!.previousValue!.toBool()) {
+          readReqMap[id]!.removeAt(0);
         }
       }
     });

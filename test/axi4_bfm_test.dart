@@ -69,8 +69,8 @@ class Axi4BfmTest extends Test {
     final wIntfC = channels[channelId].wIntf!;
     final pAddr = addr ?? Test.random!.nextInt(1 << addrWidth);
     final transLen = len ?? Test.random!.nextInt(1 << wIntfC.lenWidth);
-    final transSize =
-        size ?? Test.random!.nextInt(1 << wIntfC.sizeWidth) % (dataWidth ~/ 8);
+    final maxSize = Axi4SizeField.fromSize(wIntfC.dataWidth).value;
+    final transSize = size ?? Test.random!.nextInt(maxSize + 1);
     final pData = data.isNotEmpty
         ? data.map((e) => LogicValue.ofInt(e, wIntfC.dataWidth)).toList()
         : List.generate(
@@ -120,8 +120,8 @@ class Axi4BfmTest extends Test {
     final rIntfC = channels[channelId].rIntf!;
     final pAddr = addr ?? Test.random!.nextInt(1 << addrWidth);
     final transLen = len ?? Test.random!.nextInt(1 << rIntfC.lenWidth);
-    final transSize =
-        size ?? Test.random!.nextInt(1 << rIntfC.sizeWidth) % (dataWidth ~/ 8);
+    final maxSize = Axi4SizeField.fromSize(rIntfC.dataWidth).value;
+    final transSize = size ?? Test.random!.nextInt(maxSize + 1);
     final pBurst = burst ?? Axi4BurstField.incr;
     final pLock = supportLocking
         ? (lock != null && lock ? LogicValue.one : LogicValue.zero)
@@ -295,8 +295,8 @@ class Axi4BfmSimpleWriteReadTest extends Axi4BfmTest {
 
     final pAddr = addr ?? Test.random!.nextInt(1 << addrWidth);
     final transLen = len ?? Test.random!.nextInt(1 << rIntfC.lenWidth);
-    final transSize =
-        size ?? Test.random!.nextInt(1 << rIntfC.sizeWidth) % (dataWidth ~/ 8);
+    final maxSize = Axi4SizeField.fromSize(wIntfC.dataWidth).value;
+    final transSize = size ?? Test.random!.nextInt(maxSize + 1);
     final pBurst = burst ?? Axi4BurstField.incr;
     final pData = data.isNotEmpty
         ? data
@@ -395,8 +395,8 @@ class Axi4BfmReadModifyWriteTest extends Axi4BfmTest {
 
     final pAddr = addr ?? Test.random!.nextInt(1 << addrWidth);
     final transLen = len ?? Test.random!.nextInt(1 << rIntfC.lenWidth);
-    final transSize =
-        size ?? Test.random!.nextInt(1 << rIntfC.sizeWidth) % (dataWidth ~/ 8);
+    final maxSize = Axi4SizeField.fromSize(wIntfC.dataWidth).value;
+    final transSize = size ?? Test.random!.nextInt(maxSize + 1);
     final pBurst = burst ?? Axi4BurstField.incr;
 
     final rdPkt = genRdPacket(
@@ -490,8 +490,8 @@ class Axi4BfmReadModifyWriteAbortTest extends Axi4BfmTest {
 
     final pAddr = addr ?? Test.random!.nextInt(1 << addrWidth);
     final transLen = len ?? Test.random!.nextInt(1 << rIntf1.lenWidth);
-    final transSize =
-        size ?? Test.random!.nextInt(1 << rIntf1.sizeWidth) % (dataWidth ~/ 8);
+    final maxSize = Axi4SizeField.fromSize(rIntf1.dataWidth).value;
+    final transSize = size ?? Test.random!.nextInt(maxSize + 1);
     final pBurst = burst ?? Axi4BurstField.incr;
 
     // send the read

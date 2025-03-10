@@ -572,6 +572,106 @@ enum Axi4BurstField {
   const Axi4BurstField(this.value);
 }
 
+/// Helper to enumerate the encodings of the xSIZE signal.
+enum Axi4SizeField {
+  /// 1 byte.
+  bit8(0x0),
+
+  /// 2 bytes.
+  bit16(0x1),
+
+  /// 4 bytes.
+  bit32(0x2),
+
+  /// 8 bytes.
+  bit64(0x3),
+
+  /// 16 bytes.
+  bit128(0x4),
+
+  /// 32 bytes.
+  bit256(0x5),
+
+  /// 64 bytes.
+  bit512(0x6),
+
+  /// 128 bytes.
+  bit1024(0x7);
+
+  /// Underlying value.
+  final int value;
+
+  const Axi4SizeField(this.value);
+
+  factory Axi4SizeField.fromValue(int value) {
+    switch (value) {
+      case 0x0:
+        return Axi4SizeField.bit8;
+      case 0x1:
+        return Axi4SizeField.bit16;
+      case 0x2:
+        return Axi4SizeField.bit32;
+      case 0x3:
+        return Axi4SizeField.bit64;
+      case 0x4:
+        return Axi4SizeField.bit128;
+      case 0x5:
+        return Axi4SizeField.bit256;
+      case 0x6:
+        return Axi4SizeField.bit512;
+      case 0x7:
+        return Axi4SizeField.bit1024;
+      default:
+        throw ArgumentError('Invalid field value: $value');
+    }
+  }
+
+  factory Axi4SizeField.fromSize(int value) {
+    switch (value) {
+      case 0x8:
+        return Axi4SizeField.bit8;
+      case 0x10:
+        return Axi4SizeField.bit16;
+      case 0x20:
+        return Axi4SizeField.bit32;
+      case 0x40:
+        return Axi4SizeField.bit64;
+      case 0x80:
+        return Axi4SizeField.bit128;
+      case 0x100:
+        return Axi4SizeField.bit256;
+      case 0x200:
+        return Axi4SizeField.bit512;
+      case 0x400:
+        return Axi4SizeField.bit1024;
+      default:
+        throw ArgumentError('Invalid size value: $value');
+    }
+  }
+
+  /// Helper to determine the implied size of the access.
+  static int getImpliedSize(Axi4SizeField size) {
+    switch (size) {
+      case Axi4SizeField.bit8:
+        return 8;
+      case Axi4SizeField.bit16:
+        return 16;
+      case Axi4SizeField.bit32:
+        return 32;
+      case Axi4SizeField.bit64:
+        return 64;
+      case Axi4SizeField.bit128:
+        return 128;
+      case Axi4SizeField.bit256:
+        return 256;
+      case Axi4SizeField.bit512:
+        return 512;
+      case Axi4SizeField.bit1024:
+        return 1024;
+    }
+  }
+}
+
 /// Helper to enumerate the one hot encodings of the AxPROT signal.
 enum Axi4ProtField {
   /// Transaction to be performed in privileged mode (1) or non-privileged (0).
