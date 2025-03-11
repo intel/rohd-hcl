@@ -8,6 +8,7 @@
 // Author: Josh Kimmel <joshua1.kimmel@intel.com>
 
 import 'dart:async';
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:rohd/rohd.dart';
@@ -239,13 +240,13 @@ class Axi4BfmTest extends Test {
     Simulator.registerEndOfSimulationAction(() async {
       await tracker.terminate();
 
-      // final jsonStr =
-      //     File('$outFolder/axi4Tracker.tracker.json').readAsStringSync();
-      // final jsonContents = json.decode(jsonStr);
+      final jsonStr =
+          File('$outFolder/axi4Tracker.tracker.json').readAsStringSync();
+      json.decode(jsonStr);
 
       // Here can do any checking against the tracker contents...
 
-      // Directory(outFolder).deleteSync(recursive: true);
+      Directory(outFolder).deleteSync(recursive: true);
     });
 
     for (var i = 0; i < numChannels; i++) {
