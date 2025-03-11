@@ -68,10 +68,9 @@ class FindPattern extends Module {
     Logic count = Const(0, width: log2Ceil(bus.width + 1));
     final nVal = ((n ?? Const(0)) + 1).zeroExtend(count.width);
 
-    int minBit;
-    int maxBit;
-
     for (var i = 0; i <= bus.width - pattern.width; i = i + 1) {
+      int minBit;
+      int maxBit;
       if (fromStart) {
         // Read from start of bus
         minBit = i;
