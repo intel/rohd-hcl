@@ -5,7 +5,7 @@ ROHD-HCL comes with a FindPattern.  The detailed API docs are available [here](h
 A FindPattern will search for first/nth occurrence of a fixed-width `pattern` within a given Logic `bus`.
 
 It takes a Binary Logic `bus` and finds the position of the desired `pattern` within the `bus`. A FindPattern function without any constructor arguments will find the first pattern from the start of the bus.
-That is to say, By default a FindPattern will go for finding the first occurrence when no `n` is passed. In addition, with `fromStart` which is set as `true` by default to search for the pattern from the start of the `bus`. Both boolean `fromStart` and Logic `n` are optional. Logic `bus` and Logic `pattern` are mandatory argument.
+That is to say, by default a FindPattern will go for finding the first occurrence when no `n` is passed. In addition, with `fromStart` which is set as `true` by default to search for the pattern from the start of the `bus`. Both boolean `fromStart` and Logic `n` are optional. Logic `bus` and Logic `pattern` are mandatory argument.
 
 FindPattern has an output pin named as `index`, for the index position on the occurrence searched taken from the LSB (Least Significant Bit) or MSB (Most Significant Bit) depending on the search direction defined with boolean `fromStart`.
 
@@ -38,7 +38,7 @@ expect(findPattern.index.value.toInt(), equals(4));
 
 To get the `index` location of the pattern from end of the bus (MSB), pass the Logic `bus`, Logic `pattern` and set the `fromStart` to `false`. Ensure that the `pattern` width is smaller than the `bus` width. By default, it will find the first occurrence of the `pattern` from end of the `bus`.
 
-For example, if `bus` is `11101010` and `pattern` is `11101`, the output `index` will return `40` as the first occurrence of the pattern is found at the 0th-bit of the bus from the MSB.
+For example, if `bus` is `11101010` and `pattern` is `11101`, the output `index` will return `0` as the first occurrence of the pattern is found at the 0th-bit of the bus from the MSB.
 
 ```dart
 final bus = Const(bin('11101010'), width: 8);
@@ -79,6 +79,13 @@ final findPattern = FindPattern(bus, pattern, fromStart: false, n: n);
 expect(findPattern.index.value.toInt(), equals(6));
 ```
 
-### Pattern not Found in Bus
+## Pattern not Found in Bus
 
 If `pattern` is not found in the Logic `bus`, output `index` will be `0`. To generate the output pin `error`, set the `generateError` boolean to `true`. By default, `generateError` is `false`. If pattern is not found, `error` will be `1`.
+
+```dart
+final bus = Const(bin('00000000'), width: 8);
+final pattern = Const(bin('111'), width: 3);
+final findPattern = FindPattern(bus, pattern, generateError: true);
+expect(findPattern.error!.value.toInt(), equals(1));
+```
