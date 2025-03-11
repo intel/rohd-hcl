@@ -13,7 +13,8 @@ import 'package:rohd_hcl/rohd_hcl.dart';
 
 /// An adder module for variable FloatingPoint type with rounding.
 // This is a Seidel/Even adder, dual-path implementation.
-class FloatingPointAdderRound extends FloatingPointAdder {
+class FloatingPointAdderRound<FpType extends FloatingPoint>
+    extends FloatingPointAdder<FpType> {
   /// Add two floating point numbers [a] and [b], returning result in [sum].
   /// [subtract] is an optional Logic input to do subtraction
   /// [adderGen] is an adder generator to be used in the primary adder
@@ -25,7 +26,7 @@ class FloatingPointAdderRound extends FloatingPointAdder {
       super.clk,
       super.reset,
       super.enable,
-      Adder Function(Logic a, Logic b, {Logic? carryIn}) adderGen =
+      Adder Function(Logic a, Logic b, {Logic? carryIn, String name}) adderGen =
           NativeAdder.new,
       ParallelPrefix Function(
               List<Logic> inps, Logic Function(Logic term1, Logic term2) op)
@@ -55,7 +56,7 @@ class FloatingPointAdderRound extends FloatingPointAdder {
     final delta = exponentSubtractor.sum.named('expDelta');
 
     // Seidel: (sl, el, fl) = larger; (ss, es, fs) = smaller
-    final (larger, smaller) = swap(signDelta, (a, b));
+    final (larger, smaller) = FloatingPointUtilities.swap(signDelta, (a, b));
 
     final fl = mux(
       larger.isNormal,
@@ -109,10 +110,12 @@ class FloatingPointAdderRound extends FloatingPointAdder {
     final isNaNFlopped = localFlop(isNaN);
 
     final carryRPath = Logic(name: 'carryRpath');
-    final significandAdderRPath = OnesComplementAdder(
+    final carryP1RPath = Logic(name: 'carryRpath');
+    final significandAdderRPath = CarrySelectOnesComplementCompoundAdder(
         largeOperandFlopped, smallerOperandRPathFlopped,
         subtractIn: effectiveSubtractionFlopped,
         carryOut: carryRPath,
+        carryOutP1: carryP1RPath,
         adderGen: adderGen,
         name: 'rpath_significand_adder');
 
@@ -120,10 +123,8 @@ class FloatingPointAdderRound extends FloatingPointAdder {
         .slice(extendWidthRPath - 1, 0)
         .named('lowbitsRpath');
 
-    final lowAdderRPathSum = OnesComplementAdder(
-            carryRPath.zeroExtend(extendWidthRPath),
+    final lowAdderRPathSum = adderGen(carryRPath.zeroExtend(extendWidthRPath),
             mux(effectiveSubtractionFlopped, ~lowBitsRPath, lowBitsRPath),
-            adderGen: adderGen,
             name: 'rpath_lowadder')
         .sum
         .named('lowAdderSumRpath');
@@ -143,8 +144,7 @@ class FloatingPointAdderRound extends FloatingPointAdder {
 
     final sumRPath =
         significandAdderRPath.sum.slice(mantissaWidth + 1, 0).named('sumRpath');
-    // TODO(desmonddak): we should use a compound adder here
-    final sumP1RPath = (significandAdderRPath.sum + 1)
+    final sumP1RPath = significandAdderRPath.sumP1
         .named('sumPlusOneRpath')
         .slice(mantissaWidth + 1, 0);
 
@@ -242,9 +242,8 @@ class FloatingPointAdderRound extends FloatingPointAdder {
         .named('significandNpath');
 
     final validLeadOneNPath = Logic(name: 'validLead1Npath');
-    final leadOneNPathPre = ParallelPrefixPriorityEncoder(
+    final leadOneNPathPre = RecursiveModulePriorityEncoder(
             significandNPath.reversed,
-            ppGen: ppTree,
             valid: validLeadOneNPath,
             name: 'npath_leadingOne')
         .out;

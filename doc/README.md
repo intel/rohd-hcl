@@ -10,8 +10,9 @@ Some in-development items will have opened issues, as well. Feel free to create 
   - [Binary to 1-hot](./components/onehot.md)
   - [Binary to Gray](./components/binary_gray.md#binary-to-gray)
   - [Gray to Binary](./components/binary_gray.md#gray-to-binary)
-  - Priority
-    - [Prefix-tree based Priority Encoder](./components/parallel_prefix_operations.md)
+  - Priority Encoders
+    - [Prefix-tree based Priority Encoder](./components/priority_encoder.md#parallel-prefix-priority-encoder)
+    - [Recursive Priority Encoder](./components/priority_encoder.md#recursive-priority-encoder)
   - PLAs
 - Arbiters
   - [Priority Arbiter](./components/arbiter.md#priority-arbiter)
@@ -103,6 +104,7 @@ Some in-development items will have opened issues, as well. Feel free to create 
   - Replacement Policies
     - LRU
   - [Memory Model](./components/memory.md#memory-models)
+  - [Control/Status Registers (CSRs)](./components/csr.md)
 - Standard interfaces
   - AXI
   - [APB](./components/standard_interfaces.md#apb)
@@ -111,17 +113,19 @@ Some in-development items will have opened issues, as well. Feel free to create 
   - PCIe
   - UCIe
   - JTAG
-  - SPI
+  - [SPI](./components/standard_interfaces.md#spi)
   - UART
   - DDR
   - HBM
 - Models
   - [APB](./components/apb_bfm.md)
   - [Ready/Valid](./components/ready_valid_bfm.md)
-  - SPI
+  - [SPI](./components/spi_bfm.md)
   - CXL
+- Gaskets
+  - [SPI](./components/spi_gaskets.md)
 
 ----------------
 
-Copyright (C) 2023-2024 Intel Corporation  
+Copyright (C) 2023-2025 Intel Corporation  
 SPDX-License-Identifier: BSD-3-Clause

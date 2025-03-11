@@ -12,21 +12,21 @@ import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
 
 /// An adder module for FloatingPoint values
-class FloatingPointAdderSimple extends FloatingPointAdder {
+class FloatingPointAdderSimple<FpType extends FloatingPoint>
+    extends FloatingPointAdder<FpType> {
   /// Add two floating point numbers [a] and [b], returning result in [sum].
   /// - [adderGen] is an adder generator to be used in the primary adder
   /// functions.
-  /// - [ppTree] is an parallel prefix tree generator to be used in internal
-  /// functions.
+  /// - [priorityGen] is a [PriorityEncoder] generator to be used in the
+  /// leading one detection (default [RecursiveModulePriorityEncoder]).
   FloatingPointAdderSimple(super.a, super.b,
       {super.clk,
       super.reset,
       super.enable,
       Adder Function(Logic a, Logic b, {Logic? carryIn}) adderGen =
           NativeAdder.new,
-      ParallelPrefix Function(
-              List<Logic> inps, Logic Function(Logic term1, Logic term2) op)
-          ppTree = KoggeStone.new,
+      PriorityEncoder Function(Logic bitVector, {Logic? valid, String name})
+          priorityGen = RecursiveModulePriorityEncoder.new,
       super.name = 'floatingpoint_adder_simple'})
       : super(
             definitionName: 'FloatingPointAdderSimple_'
@@ -37,7 +37,7 @@ class FloatingPointAdderSimple extends FloatingPointAdder {
         name: 'sum');
     output('sum') <= outputSum;
 
-    final (larger, smaller) = sortFp((super.a, super.b));
+    final (larger, smaller) = FloatingPointUtilities.sort((super.a, super.b));
 
     final isInf = (larger.isAnInfinity | smaller.isAnInfinity).named('isInf');
     final isNaN = (larger.isNaN |
@@ -61,7 +61,8 @@ class FloatingPointAdderSimple extends FloatingPointAdder {
         [smaller.mantissa, Const(0, width: mantissaWidth + 2)].swizzle());
 
     final adder = SignMagnitudeAdder(
-        larger.sign, aMantissa, smaller.sign, bMantissa >>> expDiff, adderGen);
+        larger.sign, aMantissa, smaller.sign, bMantissa >>> expDiff,
+        largestMagnitudeFirst: true, adderGen: adderGen);
 
     final intSum = adder.sum.slice(adder.sum.width - 1, 0).named('intSum');
 
@@ -75,10 +76,8 @@ class FloatingPointAdderSimple extends FloatingPointAdder {
         .getRange(0, min(intSum.width, intSum.width))
         .named('mantissa');
     final leadOneValid = Logic(name: 'leadOneValid');
-    final leadOnePre = ParallelPrefixPriorityEncoder(mantissa,
-            ppGen: ppTree, valid: leadOneValid)
-        .out
-        .named('leadOnePre');
+    final leadOnePre =
+        priorityGen(mantissa, valid: leadOneValid).out.named('leadOnePre');
     // Limit leadOne to exponent range and match widths
     final infExponent = outputSum.inf(sign: aSignLatched).exponent;
     final leadOne = ((leadOnePre.width > exponentWidth)

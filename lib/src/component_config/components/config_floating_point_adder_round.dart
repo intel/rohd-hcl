@@ -15,15 +15,16 @@ import 'package:rohd_hcl/rohd_hcl.dart';
 /// A [Configurator] for [FloatingPointAdderRound]s.
 class FloatingPointAdderRoundConfigurator extends Configurator {
   /// Map from Type to Function for Adder generator
-  static Map<Type, Adder Function(Logic, Logic, {Logic? carryIn})>
+  static Map<Type, Adder Function(Logic, Logic, {Logic? carryIn, String? name})>
       adderGeneratorMap = {
-    Ripple: (a, b, {carryIn}) => ParallelPrefixAdder(a, b, ppGen: Ripple.new),
-    Sklansky: (a, b, {carryIn}) =>
+    Ripple: (a, b, {carryIn, name}) =>
+        ParallelPrefixAdder(a, b, ppGen: Ripple.new),
+    Sklansky: (a, b, {carryIn, name}) =>
         ParallelPrefixAdder(a, b, ppGen: Sklansky.new),
-    KoggeStone: ParallelPrefixAdder.new,
-    BrentKung: (a, b, {carryIn}) =>
+    KoggeStone: (a, b, {carryIn, name}) => ParallelPrefixAdder(a, b),
+    BrentKung: (a, b, {carryIn, name}) =>
         ParallelPrefixAdder(a, b, ppGen: BrentKung.new),
-    NativeAdder: (a, b, {carryIn}) => NativeAdder(a, b, carryIn: carryIn)
+    NativeAdder: (a, b, {carryIn, name}) => NativeAdder(a, b, carryIn: carryIn)
   };
 
   /// Map from Type to Function for Parallel Prefix generator

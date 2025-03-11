@@ -51,7 +51,7 @@ Other special widths of floating-point values supported are:
 - [FloatingPointBF16Value](https://intel.github.io/rohd-hcl/rohd_hcl/FloatingPointBF16Value-class.html)
 - [FloatingPointTF32Value](https://intel.github.io/rohd-hcl/rohd_hcl/FloatingPointTF32Value-class.html)
 
-Finally, we have a [random value constructor](https://intel.github.io/rohd-hcl/rohd_hcl/FloatingPointValue/FloatingPointValue.random.html) generator for testing purposes, generating valid [FloatingPointValue](https://intel.github.io/rohd-hcl/rohd_hcl/FloatingPointValue-class.html) types, optionally constrained to normal range (mantissa in $[1, 2)$).
+Finally, we have a [random value constructor](https://intel.github.io/rohd-hcl/rohd_hcl/FloatingPointValuePopulator/random.html) generator for testing purposes, generating valid [FloatingPointValue](https://intel.github.io/rohd-hcl/rohd_hcl/FloatingPointValue-class.html) types, optionally constrained to normal range (mantissa in $[1, 2)$).
 
 ### Populators
 
@@ -92,7 +92,7 @@ It has options to control its performance:
 - `radix`: used to specify the radix of the Booth encoder (default radix=4: options are [2,4,8,16])'.
 - `adderGen`: used to specify the kind of [Adder] used for key functions like the mantissa addition. Defaults to [NativeAdder], but you can select a [ParallelPrefixAdder] of your choice.
 - `seGen`: type of sign extension routine used, base class is [PartialProductSignExtension].
-- `ppTree`: used to specify the type of ['ParallelPrefix'](https://intel.github.io/rohd-hcl/rohd_hcl/ParallelPrefix-class.html) used in the other critical functions like leading-one detect.
+- `priorityGen`: used to specify the type of [PriorityEncoder] used in the other critical functions like leading-one detect.
 
 ## FloatingPointConverter
 

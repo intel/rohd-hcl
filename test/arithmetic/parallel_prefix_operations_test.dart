@@ -71,34 +71,6 @@ void testPriorityFinder(
   });
 }
 
-void testPriorityEncoder(
-    int n, ParallelPrefixPriorityEncoder Function(Logic a) fn) {
-  final inp = Logic(name: 'inp', width: n);
-  final mod = fn(inp);
-  test('priority_encoder_${n}_${mod.name}', () async {
-    await mod.build();
-
-    int computePriorityEncoding(int j) {
-      for (var i = 0; i < n; ++i) {
-        if (((1 << i) & j) != 0) {
-          return i;
-        }
-      }
-      return 0;
-    }
-
-    // put/expect testing
-
-    for (var j = 1; j < (1 << n); ++j) {
-      final golden = computePriorityEncoding(j);
-      inp.put(j);
-      final result = mod.out.value.toInt();
-      // print('priority_encoder: $j $result $golden');
-      expect(result, equals(golden));
-    }
-  });
-}
-
 void testIncr(int n, ParallelPrefixIncr Function(Logic a) fn) {
   final inp = Logic(name: 'inp', width: n);
   final mod = fn(inp);
@@ -171,15 +143,6 @@ void main() {
     }
   });
 
-  group('priority_encoder', () {
-    for (final n in [7, 8, 9]) {
-      for (final ppGen in generators) {
-        testPriorityEncoder(
-            n, (inp) => ParallelPrefixPriorityEncoder(inp, ppGen: ppGen));
-      }
-    }
-  });
-
   group('incr', () {
     for (final n in [7, 8, 9]) {
       for (final ppGen in generators) {
@@ -195,30 +158,8 @@ void main() {
       }
     }
   });
-  test('simple priority encoder test', () {
-    final val = Logic(width: 5);
-    // ignore: cascade_invocations
-    val.put(3);
-    expect(ParallelPrefixPriorityEncoder(val).out.value.toInt(), equals(0));
-    expect(ParallelPrefixPriorityEncoder(val.reversed).out.value.toInt(),
-        equals(3));
-
-    final valid = Logic();
-    ParallelPrefixPriorityEncoder(val, valid: valid);
-    expect(valid.value.toBool(), equals(true));
-  });
-  test('priority encoder return beyond width if zero', () {
-    final val = Logic(width: 5);
-    // ignore: cascade_invocations
-    val.put(0);
-    expect(ParallelPrefixPriorityEncoder(val).out.value.toInt(),
-        equals(val.width + 1));
-    expect(ParallelPrefixPriorityEncoder(val.reversed).out.value.toInt(),
-        equals(val.width + 1));
-    final valid = Logic();
-    ParallelPrefixPriorityEncoder(val, valid: valid);
-    expect(valid.value.toBool(), equals(false));
-  });
 
   // Note:  all ParallelPrefixAdders are tested in adder_test.dart
+  // Note:  all ParallelPrefixPriorityEncoders are tested in
+  // priority_encoder_test.dart
 }

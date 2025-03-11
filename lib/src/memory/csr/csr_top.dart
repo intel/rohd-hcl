@@ -22,6 +22,17 @@ class CsrTop extends Module {
   // private config object
   final CsrTopConfig _config;
 
+  /// Is it legal for the largest register width to be
+  /// greater than the data width of the frontdoor interfaces.
+  ///
+  /// If this is true, HW generation must assign multiple addresses
+  /// to any register that exceeds the data width of the frontdoor.
+  final bool allowLargerRegisters;
+
+  /// What increment value to use when deriving logical addresses
+  /// for registers that are wider than the frontdoor data width.
+  final int logicalRegisterIncrement;
+
   /// Configuration for the CSR Top module.
   CsrTopConfig get config => _config.clone();
 
@@ -95,19 +106,18 @@ class CsrTop extends Module {
   }
 
   /// create the CsrBlock from a configuration
-  factory CsrTop(
-    CsrTopConfig config,
-    Logic clk,
-    Logic reset,
-    DataPortInterface fdw,
-    DataPortInterface fdr,
-  ) =>
+  factory CsrTop(CsrTopConfig config, Logic clk, Logic reset,
+          DataPortInterface fdw, DataPortInterface fdr,
+          {bool allowLargerRegisters = false,
+          int logicalRegisterIncrement = 1}) =>
       CsrTop._(
         config: config,
         clk: clk,
         reset: reset,
         fdw: fdw,
         fdr: fdr,
+        allowLargerRegisters: allowLargerRegisters,
+        logicalRegisterIncrement: logicalRegisterIncrement,
       );
 
   CsrTop._({
@@ -116,6 +126,8 @@ class CsrTop extends Module {
     required Logic reset,
     required DataPortInterface fdw,
     required DataPortInterface fdr,
+    this.allowLargerRegisters = false,
+    this.logicalRegisterIncrement = 1,
   })  : _config = config.clone(),
         super(name: config.name) {
     _config.validate();
@@ -139,7 +151,8 @@ class CsrTop extends Module {
     for (final block in _config.blocks) {
       _fdWrites.add(DataPortInterface(fdw.dataWidth, blockOffsetWidth));
       _fdReads.add(DataPortInterface(fdr.dataWidth, blockOffsetWidth));
-      _blocks.add(CsrBlock(block, _clk, _reset, _fdWrites.last, _fdReads.last));
+      _blocks.add(CsrBlock(block, _clk, _reset, _fdWrites.last, _fdReads.last,
+          allowLargerRegisters: allowLargerRegisters));
     }
 
     for (var i = 0; i < blocks.length; i++) {
@@ -181,12 +194,13 @@ class CsrTop extends Module {
     // the biggest register across all blocks
     // address width must be at least wide enough
     //to address all registers in all blocks
-    if (_frontRead.dataWidth < _config.maxRegWidth()) {
+    if (_frontRead.dataWidth < _config.maxRegWidth() && !allowLargerRegisters) {
       throw CsrValidationException(
           'Frontdoor read interface data width must be '
           'at least ${_config.maxRegWidth()}.');
     }
-    if (_frontWrite.dataWidth < _config.maxRegWidth()) {
+    if (_frontWrite.dataWidth < _config.maxRegWidth() &&
+        !allowLargerRegisters) {
       throw CsrValidationException(
           'Frontdoor write interface data width must be '
           'at least ${_config.maxRegWidth()}.');
@@ -197,7 +211,7 @@ class CsrTop extends Module {
           'Frontdoor read interface address width must be '
           'at least ${max(_config.minAddrBits(), blockOffsetWidth)}.');
     }
-    if (_frontWrite.dataWidth < _config.minAddrBits()) {
+    if (_frontWrite.addrWidth < _config.minAddrBits()) {
       throw CsrValidationException(
           'Frontdoor write interface address width must be '
           'at least ${max(_config.minAddrBits(), blockOffsetWidth)}.');

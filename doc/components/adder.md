@@ -116,17 +116,18 @@ The [CarrySelectCompoundAdder](https://intel.github.io/rohd-hcl/rohd_hcl/CarrySe
 
 The compound adder forms a select chain around a set of adders specified by:
 
-- `addergen`: an adder generator functor option to build the block adders with the default being `ParallelPrefixAdder`.
+- `adderGen`: an adder generator functor option to build the block adders with the default being a functor returning `ParallelPrefixAdder`.  This functor has the signature:  
 
-The compound adder generator provides two algorithms for splitting the adder into adder sub-blocks:
+```dart
+(Logic a, Logic b, {Logic? carryIn, Logic? subtractIn, String name = ''}) => Adder
+```
 
-- `splitSelectAdderAlgorithmSingleBlock:
-  - The [CarrySelectCompoundAdder.splitSelectAdderAlgorithm4Bit](https://intel.github.io/rohd-hcl/rohd_hcl/CarrySelectCompoundAdder/splitSelectAdderAlgorithm4Bit.html) algoritm splits the adder into blocks of 4-bit ripple-carry adders with the first one width adjusted down.
-  - The [CarrySelectCompoundAdder.splitSelectAdderAlgorithmSingleBlock](https://intel.github.io/rohd-hcl/rohd_hcl/CarrySelectCompoundAdder/splitSelectAdderAlgorithmSingleBlock.html) algorithm generates only one sub=block with the full bitwidth of the adder.
+- `widthGen`: this is a function, with signature `List<int> Function(int adderFullWidth) widthGen`, used to specify the positions at which to split the addition into sub-adders. The compound adder generator provides two such algorithms for splitting the adder into adder sub-blocks:
 
-- `List<int> Function(int adderFullWidth) widthGen` should be used to specify the custom adder splitting algorithm that returns a list of sub-adders width. The default one is [CarrySelectCompoundAdder.splitSelectAdderAlgorithmSingleBlock](<https://intel.github.io/rohd-hcl/rohd_hcl/CarrySelectCompoundAdder/splitSelectAdderAlgorithmSingleBlock.html>).  
+  - The `CarrySelectCompoundAdder.splitSelectAdderAlgorithmNBit` algorithm splits the adder into blocks of n-bit adders with the MSB adjacent adder width adjusted down.
+  - The [CarrySelectCompoundAdder.splitSelectAdderAlgorithmSingleBlock](https://intel.github.io/rohd-hcl/rohd_hcl/CarrySelectCompoundAdder/splitSelectAdderAlgorithmSingleBlock.html) algorithm generates only one sub-block with the full bit-width of the adder.
 
-An example is shown below to add two inputs of signals that have 8-bits of width.
+An example is shown below of using the `CarrySelectCompoundAdder` to add 2 8-bit numbers splitting at bit position 4.
 
 ```dart
 final a = Logic(name: 'a', width: 8);
@@ -140,7 +141,25 @@ final sum = adder.sum;
 final sum1 = adder.sum1;
 
 final adder4BitBlock = CarrySelectCompoundAdder(a, b,
-        widthGen: CarrySelectCompoundAdder.splitSelectAdderAlgorithm4Bit);
+        widthGen: CarrySelectCompoundAdder.splitSelectAdderAlgorithmNBit(4));
+```
+
+## Carry Select Ones Complement Compound Adder
+
+ROHD-HCL has an implementation of a `CompoundAdder` that uses a `OnesComplement` adder to produce sum and sum plus one including for subtraction using ones-complement.
+
+By providing optional outputs `carryOut` and `carryOutP1`, the user can ensure the adder does not convert to 2s complement but instead does the efficient 1s complement add (or subtract) and provides the end-around carry as an output.  Otherwise, the adder will add back the end-around carry to the result to convert back to 2s complement.  A sign is also output for the result.
+
+Both Logic control and boolean control are provided for enabling subtraction.
+
+```dart
+    final carryOut = Logic();
+    final carryOutP1 = Logic();
+    final adder = CarrySelectOnesComplementCompoundAdder(a, b,
+          subtract: doSubtract,
+          carryOut: carryOut,
+          carryOutP1: carryOutP1,
+          widthGen: CarrySelectCompoundAdder.splitSelectAdderAlgorithmNBit(4));
 ```
 
 ## Native Adder

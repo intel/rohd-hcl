@@ -3,3 +3,4 @@
 
 export 'apb.dart';
 export 'axi4.dart';
+export 'spi.dart';

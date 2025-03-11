@@ -11,13 +11,14 @@ import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
 
 /// A multiplier module for FloatingPoint logic.
-class FloatingPointMultiplierSimple extends FloatingPointMultiplier {
+class FloatingPointMultiplierSimple<FpInType extends FloatingPoint>
+    extends FloatingPointMultiplier<FpInType> {
   /// Multiply two FloatingPoint numbers [a] and [b], returning result
   /// in [product] FloatingPoint.
   /// - [multGen] is a multiplier generator to be used in the mantissa
   /// multiplication.
-  /// - [ppTree] is an parallel prefix tree generator to be used in the
-  /// leading one detection ([ParallelPrefixPriorityEncoder]).
+  /// - [priorityGen] is a [PriorityEncoder] generator to be used in the
+  /// leading one detection (default [RecursiveModulePriorityEncoder]).
   ///
   /// The multiplier currently does not support a [product] with narrower
   /// exponent or mantissa fields and will throw an exception.
@@ -29,9 +30,8 @@ class FloatingPointMultiplierSimple extends FloatingPointMultiplier {
       Multiplier Function(Logic a, Logic b,
               {Logic? clk, Logic? reset, Logic? enable, String name})
           multGen = NativeMultiplier.new,
-      ParallelPrefix Function(
-              List<Logic> inps, Logic Function(Logic term1, Logic term2) op)
-          ppTree = KoggeStone.new,
+      PriorityEncoder Function(Logic bitVector, {Logic? valid, String name})
+          priorityGen = RecursiveModulePriorityEncoder.new,
       super.name})
       : super(
             definitionName: 'FloatingPointMultiplierSimple_'
@@ -91,12 +91,12 @@ class FloatingPointMultiplierSimple extends FloatingPointMultiplier {
     final isInfLatch = localFlop(isInf);
     final isNaNLatch = localFlop(isNaN);
 
-    final leadingOnePosPre = ParallelPrefixPriorityEncoder(mantissa.reversed,
-            ppGen: ppTree, name: 'leading_one_encoder')
-        .out
-        .named('leadingOneRaw')
-        .zeroExtend(exponentWidth + 2)
-        .named('leadingOneRawExtended', naming: Naming.mergeable);
+    final leadingOnePosPre =
+        priorityGen(mantissa.reversed, name: 'leading_one_encoder')
+            .out
+            .named('leadingOneRaw')
+            .zeroExtend(exponentWidth + 2)
+            .named('leadingOneRawExtended', naming: Naming.mergeable);
 
     final leadingOnePos = mux(
             leadingOnePosPre.gt(mantissa.width),

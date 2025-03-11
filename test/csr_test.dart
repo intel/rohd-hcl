@@ -95,6 +95,13 @@ class MyRegisterBlock extends CsrBlockConfig {
             addr: i + 1, width: csrWidth, name: 'csr2_$i'));
       }
     }
+
+    // adding a register on the fly
+    // with a larger width for potential frontdoor excess
+    registers.add(CsrInstanceConfig(
+        arch: CsrConfig(name: 'csr3', access: CsrAccess.readWrite),
+        addr: numNoFieldCsrs + 2,
+        width: csrWidth * 2));
   }
 }
 
@@ -138,7 +145,7 @@ class DummyCsrTopModule extends Module {
     _reset = addInput('reset', reset);
     _fdr = DataPortInterface(32, 32);
     _fdw = DataPortInterface(32, 32);
-    _top = CsrTop(config, _clk, _reset, _fdw, _fdr);
+    _top = CsrTop(config, _clk, _reset, _fdw, _fdr, allowLargerRegisters: true);
   }
 }
 
@@ -209,7 +216,8 @@ void main() {
     final reset = Logic()..put(0);
     final wIntf = DataPortInterface(csrWidth, 8);
     final rIntf = DataPortInterface(csrWidth, 8);
-    final csrBlock = CsrBlock(csrBlockCfg, clk, reset, wIntf, rIntf);
+    final csrBlock = CsrBlock(csrBlockCfg, clk, reset, wIntf, rIntf,
+        allowLargerRegisters: true);
 
     wIntf.en.put(0);
     wIntf.addr.put(0);
@@ -238,6 +246,7 @@ void main() {
     // grab pointers to the CSRs
     final csr1 = csrBlock.getRegisterByName('csr1');
     final csr2 = csrBlock.getRegisterByAddr(0x2);
+    final csr3 = csrBlock.getRegisterByName('csr3');
 
     // perform a reset
     reset.inject(1);
@@ -287,6 +296,30 @@ void main() {
     expect(rIntf.data.value, LogicValue.ofInt(0xad00f3, rIntf.dataWidth));
     await clk.waitCycles(10);
 
+    // perform a write of the top half of csr3
+    // then a read of the bottom half
+    // ensure that the bottom half is unchanged
+    await clk.nextNegedge;
+    wIntf.en.inject(1);
+    wIntf.addr.inject(csr3.addr + csrBlock.logicalRegisterIncrement);
+    wIntf.data.inject(0xdeadbeef);
+    await clk.nextNegedge;
+    wIntf.en.inject(0);
+    rIntf.en.inject(1);
+    rIntf.addr.inject(csr3.addr);
+    await clk.nextNegedge;
+    rIntf.en.inject(0);
+    expect(
+        rIntf.data.value, LogicValue.ofInt(csr3.resetValue, rIntf.dataWidth));
+    await clk.nextNegedge;
+    wIntf.en.inject(0);
+    rIntf.en.inject(1);
+    rIntf.addr.inject(csr3.addr + csrBlock.logicalRegisterIncrement);
+    await clk.nextNegedge;
+    rIntf.en.inject(0);
+    expect(rIntf.data.value, LogicValue.ofInt(0xdeadbeef, rIntf.dataWidth));
+    await clk.waitCycles(10);
+
     // perform a read of nothing
     await clk.nextNegedge;
     rIntf.en.inject(1);
@@ -325,7 +358,8 @@ void main() {
     final reset = Logic()..inject(0);
     final wIntf = DataPortInterface(csrWidth, 32);
     final rIntf = DataPortInterface(csrWidth, 32);
-    final csrTop = CsrTop(csrTopCfg, clk, reset, wIntf, rIntf);
+    final csrTop =
+        CsrTop(csrTopCfg, clk, reset, wIntf, rIntf, allowLargerRegisters: true);
 
     wIntf.en.inject(0);
     wIntf.addr.inject(0);
