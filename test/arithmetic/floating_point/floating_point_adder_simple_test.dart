@@ -369,11 +369,11 @@ void main() {
                   final expectedNoRound = FloatingPointValue.populator(
                           exponentWidth: exponentWidth,
                           mantissaWidth: mantissaWidth)
-                      .ofDouble(fv1.toDouble() + fv2.toDouble());
+                      .ofDoubleUnrounded(fv1.toDouble() + fv2.toDouble());
                   final expectedRound = FloatingPointValue.populator(
                           exponentWidth: exponentWidth,
                           mantissaWidth: mantissaWidth)
-                      .ofDoubleUnrounded(fv1.toDouble() + fv2.toDouble());
+                      .ofDouble(fv1.toDouble() + fv2.toDouble());
 
                   if ((computed.mantissa != expectedNoRound.mantissa) &
                       (computed.mantissa != expectedRound.mantissa)) {
@@ -382,7 +382,7 @@ void main() {
                   $fv1 (${fv1.toDouble()})\t+
                   $fv2 (${fv2.toDouble()})\t=
                   $computed (${computed.toDouble()})\tcomputed
-                  $expectedNoRound (${expectedNoRound.toDouble()})\texpected
+                  $expectedNoRound (${expectedNoRound.toDouble()})\texpectedUn
                   $expectedRound (${expectedRound.toDouble()})\texpected
                   e1=$e1 m1=$m1  e2=$e2 m2=$m2
 ''');
@@ -395,7 +395,7 @@ void main() {
                   $fv1 (${fv1.toDouble()})\t+
                   $fv2 (${fv2.toDouble()})\t=
                   $computed (${computed.toDouble()})\tcomputed
-                  $expectedNoRound (${expectedNoRound.toDouble()})\texpected
+                  $expectedNoRound (${expectedNoRound.toDouble()})\texpectedUn
                   $expectedRound (${expectedRound.toDouble()})\texpected
                   e1=$e1 m1=$m1  e2=$e2 m2=$m2
 ''');

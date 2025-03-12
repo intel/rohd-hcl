@@ -58,16 +58,31 @@ class FloatingPointAdderRound<FpType extends FloatingPoint>
     // Seidel: (sl, el, fl) = larger; (ss, es, fs) = smaller
     final (larger, smaller) = FloatingPointUtilities.swap(signDelta, (a, b));
 
+    final largeImplicit = larger.implicitJBit ? Const(1) : Const(0);
+    final smallImplicit = smaller.implicitJBit ? Const(1) : Const(0);
+
     final fl = mux(
-      larger.isNormal & (larger.implicitJBit ? Const(1) : Const(0)),
-      [larger.isNormal, larger.mantissa].swizzle(),
-      [larger.mantissa, Const(0)].swizzle(),
-    ).named('fullLarger');
+            larger.isNormal ^ largeImplicit,
+            [larger.mantissa, Const(0)].swizzle(),
+            mux(
+                larger.isNormal,
+                [Const(1), larger.mantissa].swizzle(),
+                [
+                  larger.mantissa.getRange(0, mantissaWidth - 1),
+                  Const(0, width: 2)
+                ].swizzle()))
+        .named('fullLarger');
     final fs = mux(
-      smaller.isNormal & (smaller.implicitJBit ? Const(1) : Const(0)),
-      [smaller.isNormal, smaller.mantissa].swizzle(),
-      [smaller.mantissa, Const(0)].swizzle(),
-    ).named('fullSmaller');
+            smaller.isNormal ^ smallImplicit,
+            [smaller.mantissa, Const(0)].swizzle(),
+            mux(
+                smaller.isNormal,
+                [Const(1), smaller.mantissa].swizzle(),
+                [
+                  smaller.mantissa.getRange(0, mantissaWidth - 1),
+                  Const(0, width: 2)
+                ].swizzle()))
+        .named('fullSmaller');
 
     // Seidel: flp  larger preshift, normally in [2,4)
     final sigWidth = fl.width + 1;

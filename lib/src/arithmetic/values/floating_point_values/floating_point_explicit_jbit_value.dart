@@ -8,6 +8,8 @@
 // Author:
 //  Desmond A Kirkpatrick <desmond.a.kirkpatrick@intel.com
 
+import 'dart:math';
+
 import 'package:meta/meta.dart';
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
@@ -24,6 +26,25 @@ class FloatingPointExplicitJBitPopulator
   /// Creates a [FloatingPointValuePopulator] for the given [_unpopulated]
   /// [FloatingPointExplicitJBitValue].
   FloatingPointExplicitJBitPopulator(super._unpopulated);
+
+  /// Construct a [FloatingPointExplicitJBitValue] from a
+  /// [FloatingPointValue] with a mantissa that is one smaller (implicit jbit)
+  FloatingPointExplicitJBitValue ofFloatingPointValue(FloatingPointValue fpv) =>
+      populate(
+          sign: fpv.sign,
+          exponent: fpv.exponent,
+          mantissa: fpv.mantissa.zeroExtend(fpv.mantissa.width + 1) |
+              (fpv.isNormal()
+                  ? (LogicValue.of(1, width: fpv.mantissa.width + 1) <<
+                      fpv.mantissa.width)
+                  : LogicValue.of(0, width: fpv.mantissa.width + 1)));
+
+  @override
+  FloatingPointExplicitJBitValue ofConstant(
+          FloatingPointConstants constantFloatingPoint) =>
+      ofFloatingPointValue(FloatingPointValue.populator(
+              exponentWidth: exponentWidth, mantissaWidth: mantissaWidth - 1)
+          .ofConstant(constantFloatingPoint));
 }
 
 /// A flexible representation of floating point values. A
@@ -105,14 +126,25 @@ class FloatingPointExplicitJBitValue extends FloatingPointValue {
           expVal = 0;
         }
       } else {
-        mant = LogicValue.ofInt(1, exponentWidth);
-        sgn = LogicValue.zero;
+        return populator(
+                exponentWidth: exponentWidth, mantissaWidth: mantissaWidth)
+            .nan;
       }
     }
     return FloatingPointExplicitJBitValue(
         sign: sgn,
         exponent: LogicValue.ofInt(expVal, exponentWidth),
         mantissa: mant);
+  }
+
+  /// Convert to a [FloatingPointValue] with a mantissa that is one smaller
+  /// due to the implicit J-bit.
+  FloatingPointValue toFloatingPointValue() {
+    final norm = normalized();
+    return FloatingPointValue(
+        sign: norm.sign,
+        exponent: norm.exponent,
+        mantissa: norm.mantissa.getRange(0, norm.mantissa.width - 1));
   }
 
   /// Check if the mantissa and exponent stored are compatible

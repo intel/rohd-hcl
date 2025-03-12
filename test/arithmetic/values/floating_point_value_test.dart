@@ -501,6 +501,12 @@ void main() {
                 .ofDouble(dbl,
                     roundingMode: FloatingPointRoundingMode.truncate);
             expect(fp.normalized(), equals(fp2));
+            final fpOrig = FloatingPointValue.populator(
+                    exponentWidth: exponentWidth,
+                    mantissaWidth: mantissaWidth - 1)
+                .ofDouble(dbl,
+                    roundingMode: FloatingPointRoundingMode.truncate);
+            expect(fp.toFloatingPointValue(), equals(fpOrig));
           }
           mantissa = mantissa + 1;
         }
