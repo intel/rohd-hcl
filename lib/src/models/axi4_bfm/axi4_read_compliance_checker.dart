@@ -79,6 +79,8 @@ class Axi4ReadComplianceChecker extends Component {
         }
 
         // always pull from the top
+        // NOTE: error responses should still work b/c in quantity they
+        // should still match the request
         readReqMap[id]![0][1] = readReqMap[id]![0][1] + 1;
         final len = readReqMap[id]![0][0];
         final currCount = readReqMap[id]![0][1];

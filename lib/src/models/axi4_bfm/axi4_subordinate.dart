@@ -370,17 +370,22 @@ class Axi4SubordinateAgent extends Agent {
       //   }
       // }
 
+      // for security, must 0 out data when an error occurs
+      final rdData = error || accessError
+          ? LogicValue.ofInt(0x0, currData.width)
+          : currData;
+
       // for now, only support sending slvErr and okay as responses
       rIntf.rValid.inject(true);
       rIntf.rId?.inject(packet.id);
-      rIntf.rData.inject(currData);
+      rIntf.rData.inject(rdData);
       rIntf.rResp?.inject(error || accessError /*|| reqSideError*/
           ? LogicValue.ofInt(Axi4RespField.slvErr.value, rIntf.rResp!.width)
           : LogicValue.ofInt(Axi4RespField.okay.value, rIntf.rResp!.width));
       rIntf.rUser?.inject(0); // don't support user field for now
       rIntf.rLast?.inject(last);
 
-      if (last || accessError) {
+      if (last) {
         // pop this read response off the queue
         _dataReadResponseIndex[mapIdx] = 0;
         _dataReadResponseMetadataQueue[mapIdx].removeAt(0);
@@ -585,7 +590,7 @@ class Axi4SubordinateAgent extends Agent {
                 ? [strobedData.getRange(0, dSize), rdData.getRange(dSize)]
                     .rswizzle()
                 : strobedData;
-            storage.writeData(addrToWrite, wrData);
+            storage.writeData(addrsToWrite[i], wrData);
           }
         }
 
