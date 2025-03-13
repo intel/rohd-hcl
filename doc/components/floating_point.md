@@ -86,7 +86,7 @@ A second [FloatingPointAdderRound](https://intel.github.io/rohd-hcl/rohd_hcl/Flo
 ## FloatingPointSqrt
 
 A very basic [FloatingPointSqrtSimple] component is available which does not perform any
-rounding. It also only operates on variable mantissas of an odd value (1,3,5,etc) but these odd mantissas can be of variable length up to 51. It takes one
+rounding and does not support DeNorm numbers. It also only operates on variable mantissas of an odd value (1,3,5,etc) but these odd mantissas can be of variable length up to 51. It takes one
 [FloatingPoint](https://intel.github.io/rohd-hcl/rohd_hcl/FloatingPoint-class.html) [LogicStructure](https://intel.github.io/rohd/rohd/LogicStructure-class.html) and
 performs a square root on it, returning the [FloatingPoint](https://intel.github.io/rohd-hcl/rohd_hcl/FloatingPoint-class.html) value on the output.
 

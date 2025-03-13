@@ -45,7 +45,7 @@ void main() {
         fixed.put(FixedPointValue.ofDouble(test,
             signed: fixed.signed, m: fixed.m, n: fixed.n));
 
-        final fpvResult = dut.sqrtF.fixedPointValue;
+        final fpvResult = dut.sqrt.fixedPointValue;
 
         final fpvExpected = FixedPointValue.ofDouble(sqrt(test),
             signed: fixed.signed, m: fixed.m, n: fixed.n);

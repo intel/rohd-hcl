@@ -52,7 +52,7 @@ void main() {
         final Logic expError = Const(0);
 
         fp.put(fv);
-        final fpOut = sqrtT.sqrtR;
+        final fpOut = sqrtT.sqrt;
         final eOut = sqrtT.error;
         expect(fpOut.floatingPointValue, equals(expSqrt),
             reason: '\t${fp.floatingPointValue} '
@@ -132,7 +132,7 @@ void main() {
 
         fp.put(fv);
 
-        final compResult = sqrtDUT.sqrtR;
+        final compResult = sqrtDUT.sqrt;
         final compError = sqrtDUT.error;
 
         final expResult = FloatingPointValue.populator(
@@ -158,13 +158,14 @@ void main() {
   test('FP: random number sqrt', () {
     const exponentWidth = 5;
     const mantissaWidth = 9;
+    final systemTestIter = pow(2, exponentWidth) * pow(2, mantissaWidth);
 
     final fp = FloatingPoint(
         exponentWidth: exponentWidth, mantissaWidth: mantissaWidth);
 
     final sqrtDUT = FloatingPointSqrtSimple(fp);
     final rand = Random(513);
-    for (var i = 0; i < 4096; i++) {
+    for (var i = 0; i < systemTestIter; i++) {
       final fv = FloatingPointValue.populator(
               exponentWidth: exponentWidth, mantissaWidth: mantissaWidth)
           .random(rand, normal: true);
@@ -176,7 +177,7 @@ void main() {
           fp.sign.value.toBool()) {
         continue;
       }
-      final compResult = sqrtDUT.sqrtR;
+      final compResult = sqrtDUT.sqrt;
       final compError = sqrtDUT.error;
 
       final expResult = FloatingPointValue.populator(

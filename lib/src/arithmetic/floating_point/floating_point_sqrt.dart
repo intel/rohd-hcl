@@ -6,8 +6,8 @@
 //
 // 2025 March 3
 // Authors: James Farwell <james.c.farwell@intel.com>,
-//Stephen Weeks <stephen.weeks@intel.com>,
-//Curtis Anderson <curtis.anders@intel.com>
+//          Stephen Weeks <stephen.weeks@intel.com>,
+//          Curtis Anderson <curtis.anders@intel.com>
 
 import 'package:meta/meta.dart';
 import 'package:rohd/rohd.dart';
@@ -23,16 +23,19 @@ abstract class FloatingPointSqrt<FpType extends FloatingPoint> extends Module {
 
   /// The [clk] : if a non-null clock signal is passed in, a pipestage is added
   /// to the square root to help optimize frequency.
+  /// Plummed for future work for pipelining, currently unsupported.
   @protected
   late final Logic? clk;
 
   /// Optional [reset], used only if a [clk] is not null to reset the pipeline
   /// flops.
+  /// Plummed for future work for pipelining, currently unsupported.
   @protected
   late final Logic? reset;
 
   /// Optional [enable], used only if a [clk] is not null to enable the pipeline
   /// flops.
+  /// Plummed for future work for pipelining, currently unsupported.
   @protected
   late final Logic? enable;
 
@@ -41,8 +44,8 @@ abstract class FloatingPointSqrt<FpType extends FloatingPoint> extends Module {
   late final FpType a;
 
   /// getter for the computed [FloatingPoint] output.
-  late final FloatingPoint sqrtR = (a.clone(name: 'sqrtR') as FpType)
-    ..gets(output('sqrtR'));
+  late final FloatingPoint sqrt = (a.clone(name: 'sqrt') as FpType)
+    ..gets(output('sqrt'));
 
   /// getter for the [error] output.
   late final Logic error = Logic(name: 'error')..gets(output('error'));
@@ -50,7 +53,7 @@ abstract class FloatingPointSqrt<FpType extends FloatingPoint> extends Module {
   /// The internal error signal to pass through
   late final Logic errorSig;
 
-  /// Square root a floating point number [a], returning result in [sqrtR].
+  /// Square root a floating point number [a], returning result in [sqrt].
   /// - [clk], [reset], [enable] are optional inputs to control a pipestage
   /// (only inserted if [clk] is provided)
   FloatingPointSqrt(FpType a,
@@ -71,10 +74,8 @@ abstract class FloatingPointSqrt<FpType extends FloatingPoint> extends Module {
     this.a = (a.clone(name: 'a') as FpType)
       ..gets(addInput('a', a, width: a.width));
 
-    addOutput('sqrtR', width: exponentWidth + mantissaWidth + 1);
-    errorSig = Logic(name: 'error');
+    addOutput('sqrt', width: exponentWidth + mantissaWidth + 1);
     addOutput('error');
-    output('error') <= errorSig;
   }
 
   /// Pipelining helper that uses the context for signals clk/enable/reset
