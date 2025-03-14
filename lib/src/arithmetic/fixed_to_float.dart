@@ -108,15 +108,6 @@ class FixedToFloat extends Module {
     guard <= absValueShifted.getRange(-mantissaWidth - 2, -mantissaWidth - 1);
     sticky <= absValueShifted.getRange(0, -mantissaWidth - 2).or();
 
-    // print('iwidth=$iWidth');
-    // print('fixed= ${fixed.value.toRadixString()}');
-    // print('absVal=${absValue.value.toRadixString()}');
-    // print('absValS=${absValueShifted.value.toRadixString()}');
-    // print('mantissa=${mantissa.value.toRadixString()}');
-    // print('jBit   ${jBit.value.toRadixString(radix: 10)}');
-    // print('rebias   '
-    //     '${(Const(bias + fixed.width - fixed.n - 1, width: iWidth) - j).value.toRadixString(radix: 10)}');
-
     /// Round to nearest even: mantissa | guard sticky
     final roundUp = (guard & (sticky | mantissa[0])).named('roundUp');
     final mantissaRounded =
@@ -129,8 +120,6 @@ class FixedToFloat extends Module {
                 .named('eShift'),
             Const(0, width: iWidth))
         .named('eRaw');
-
-    // print('eRaw: ${eRaw.value.toInt()}');
 
     // TODO(desmonddak): this should be mantissa, but we could figure it out
     // from absValue as only the zeros case would cause the and to fail.
