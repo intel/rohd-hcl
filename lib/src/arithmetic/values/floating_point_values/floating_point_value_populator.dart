@@ -415,3 +415,51 @@ class FloatingPointValuePopulator<FpvType extends FloatingPointValue> {
     return populate(sign: sign, exponent: exponent, mantissa: mantissa);
   }
 }
+
+/// A populator for [FloatingPointExplicitJBitValue]s, a utility that can
+/// populate various forms of [FloatingPointExplicitJBitValue]s.
+class FloatingPointExplicitJBitPopulator
+    extends FloatingPointValuePopulator<FloatingPointExplicitJBitValue> {
+  /// Creates a [FloatingPointValuePopulator] for the given [_unpopulated]
+  /// [FloatingPointExplicitJBitValue].
+  FloatingPointExplicitJBitPopulator(super._unpopulated);
+
+  /// Construct a [FloatingPointExplicitJBitValue] from a
+  /// [FloatingPointValue] with a mantissa that is one smaller (implicit jbit)
+  FloatingPointExplicitJBitValue ofFloatingPointValue(FloatingPointValue fpv) =>
+      populate(
+          sign: fpv.sign,
+          exponent: fpv.exponent,
+          mantissa: fpv.mantissa.zeroExtend(fpv.mantissa.width + 1) |
+              (fpv.isNormal()
+                  ? (LogicValue.of(1, width: fpv.mantissa.width + 1) <<
+                      fpv.mantissa.width)
+                  : LogicValue.of(0, width: fpv.mantissa.width + 1)));
+
+  @override
+  FloatingPointExplicitJBitValue ofConstant(
+          FloatingPointConstants constantFloatingPoint) =>
+      ofFloatingPointValue(FloatingPointValue.populator(
+              exponentWidth: exponentWidth, mantissaWidth: mantissaWidth - 1)
+          .ofConstant(constantFloatingPoint));
+  @override
+  FloatingPointExplicitJBitValue ofDouble(double inDouble,
+          {FloatingPointRoundingMode roundingMode =
+              FloatingPointRoundingMode.roundNearestEven}) =>
+      ofFloatingPointValue(FloatingPointValue.populator(
+              exponentWidth: exponentWidth, mantissaWidth: mantissaWidth - 1)
+          .ofDouble(inDouble, roundingMode: roundingMode));
+
+  @override
+  @internal
+  FloatingPointExplicitJBitValue ofDoubleUnrounded(double inDouble) =>
+      ofFloatingPointValue(FloatingPointValue.populator(
+              exponentWidth: exponentWidth, mantissaWidth: mantissaWidth - 1)
+          .ofDoubleUnrounded(inDouble));
+
+  @override
+  FloatingPointExplicitJBitValue random(Random rv, {bool normal = false}) =>
+      ofFloatingPointValue(FloatingPointValue.populator(
+              exponentWidth: exponentWidth, mantissaWidth: mantissaWidth - 1)
+          .random(rv, normal: normal));
+}

@@ -47,8 +47,7 @@ abstract class FloatingPointAdder<FpType extends FloatingPoint> extends Module {
   late final FpType b;
 
   /// getter for the computed [FloatingPoint] output.
-  late final FloatingPoint sum = (a.clone(name: 'sum') as FpType)
-    ..gets(output('sum'));
+  late final FloatingPoint sum = a.clone(name: 'sum')..gets(output('sum'));
 
   /// Add two floating point numbers [a] and [b], returning result in [sum].
   /// - [clk], [reset], [enable] are optional inputs to control a pipestage

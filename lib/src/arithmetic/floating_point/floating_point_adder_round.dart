@@ -15,6 +15,11 @@ import 'package:rohd_hcl/rohd_hcl.dart';
 // This is a Seidel/Even adder, dual-path implementation.
 class FloatingPointAdderRound<FpType extends FloatingPoint>
     extends FloatingPointAdder<FpType> {
+  // /// Retrieve the [FloatingPoint] directly instead of as [FpType].
+  // late final FloatingPoint sum =
+  //     FloatingPoint(exponentWidth: exponentWidth, mantissaWidth: mantissaWidth)
+  //       ..gets(output('fp'));
+
   /// Add two floating point numbers [a] and [b], returning result in [sum].
   /// [subtract] is an optional Logic input to do subtraction
   /// [adderGen] is an adder generator to be used in the primary adder
@@ -37,6 +42,8 @@ class FloatingPointAdderRound<FpType extends FloatingPoint>
                 'E${a.exponent.width}M${a.mantissa.width}') {
     final outputSum = FloatingPoint(
         exponentWidth: exponentWidth, mantissaWidth: mantissaWidth);
+
+    // addOutput('fp', width: exponentWidth + mantissaWidth + 1);
     output('sum') <= outputSum;
 
     // Seidel: S.EFF = effectiveSubtraction
@@ -283,9 +290,7 @@ class FloatingPointAdderRound<FpType extends FloatingPoint>
 
     final expCalcNPath = OnesComplementAdder(
         largerExpFlopped, leadOneNPathFlopped.zeroExtend(exponentWidth),
-        subtractIn: effectiveSubtractionFlopped,
-        adderGen: adderGen,
-        name: 'npath_expcalc');
+        subtractIn: Const(1), adderGen: adderGen, name: 'npath_expcalc');
 
     final preExpNPath =
         expCalcNPath.sum.slice(exponentWidth - 1, 0).named('preExpNpath');

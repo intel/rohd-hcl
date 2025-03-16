@@ -8,44 +8,10 @@
 // Author:
 //  Desmond A Kirkpatrick <desmond.a.kirkpatrick@intel.com
 
-import 'dart:math';
-
 import 'package:meta/meta.dart';
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
 export 'floating_point_value.dart';
-
-// TODO(desmonddak):  FP constants, convert to FVP and validate,
-// unrounded conversion
-// what to do about rounding?  rounding adder?
-
-/// A populator for [FloatingPointExplicitJBitValue]s, a utility that can
-/// populate various forms of [FloatingPointExplicitJBitValue]s.
-class FloatingPointExplicitJBitPopulator
-    extends FloatingPointValuePopulator<FloatingPointExplicitJBitValue> {
-  /// Creates a [FloatingPointValuePopulator] for the given [_unpopulated]
-  /// [FloatingPointExplicitJBitValue].
-  FloatingPointExplicitJBitPopulator(super._unpopulated);
-
-  /// Construct a [FloatingPointExplicitJBitValue] from a
-  /// [FloatingPointValue] with a mantissa that is one smaller (implicit jbit)
-  FloatingPointExplicitJBitValue ofFloatingPointValue(FloatingPointValue fpv) =>
-      populate(
-          sign: fpv.sign,
-          exponent: fpv.exponent,
-          mantissa: fpv.mantissa.zeroExtend(fpv.mantissa.width + 1) |
-              (fpv.isNormal()
-                  ? (LogicValue.of(1, width: fpv.mantissa.width + 1) <<
-                      fpv.mantissa.width)
-                  : LogicValue.of(0, width: fpv.mantissa.width + 1)));
-
-  @override
-  FloatingPointExplicitJBitValue ofConstant(
-          FloatingPointConstants constantFloatingPoint) =>
-      ofFloatingPointValue(FloatingPointValue.populator(
-              exponentWidth: exponentWidth, mantissaWidth: mantissaWidth - 1)
-          .ofConstant(constantFloatingPoint));
-}
 
 /// A flexible representation of floating point values. A
 /// [FloatingPointExplicitJBitValue]is an explicit j-bit form of
@@ -114,13 +80,16 @@ class FloatingPointExplicitJBitValue extends FloatingPointValue {
   FloatingPointExplicitJBitValue normalized() {
     var expVal = exponent.toInt();
     var mant = mantissa;
-    var sgn = sign;
     if (!isAnInfinity) {
       if (!isNaN) {
         if (mant.or() == LogicValue.one) {
           while ((mant[-1] == LogicValue.zero) & (expVal > 1)) {
             expVal--;
             mant = mant << 1;
+          }
+          if ((mant[-1] == LogicValue.zero) & (expVal == 1)) {
+            // Make canonical: if it cannot be made normal, it is subnormal
+            expVal = 0;
           }
         } else {
           expVal = 0;
@@ -132,7 +101,7 @@ class FloatingPointExplicitJBitValue extends FloatingPointValue {
       }
     }
     return FloatingPointExplicitJBitValue(
-        sign: sgn,
+        sign: sign,
         exponent: LogicValue.ofInt(expVal, exponentWidth),
         mantissa: mant);
   }
@@ -151,7 +120,18 @@ class FloatingPointExplicitJBitValue extends FloatingPointValue {
   bool isLegalValue() {
     final e = exponent.toInt();
     final m = mantissa.toInt();
-    final normMantissa = 1 << (mantissa.width - 1);
+    final int normMantissa;
+    if (e < mantissa.width) {
+      normMantissa = 1 << (mantissa.width - e - 1);
+    } else {
+      normMantissa = 1;
+    }
+
+    /// TODO(desmonddak): This is too restrictive
+    /// if e == 2 then normMantissa can be shifted over by 1
+    /// so the rule is mantissa.width - e
+    //  normMantissa = 1 << (mantissa.width - 1);
+
     return ((e == 0) && (m < normMantissa)) || ((e > 0) && (m >= normMantissa));
   }
 }

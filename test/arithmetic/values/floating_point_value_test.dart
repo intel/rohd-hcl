@@ -481,6 +481,26 @@ void main() {
     expect(fpv1.withinRounding(fpv3), true);
   });
 
+  test('FPV: j-bit conversion singleton', () {
+    const exponentWidth = 4;
+    const mantissaWidth = 4;
+
+    final fp = FloatingPointExplicitJBitValue.populator(
+            exponentWidth: exponentWidth, mantissaWidth: mantissaWidth)
+        .ofSpacedBinaryString('0 0001 0111');
+    if (fp.isLegalValue()) {
+      final dbl = fp.toDouble();
+      final fp2 = FloatingPointExplicitJBitValue.populator(
+              exponentWidth: exponentWidth, mantissaWidth: mantissaWidth)
+          .ofDouble(dbl, roundingMode: FloatingPointRoundingMode.truncate);
+      expect(fp.normalized(), equals(fp2));
+      final fpOrig = FloatingPointValue.populator(
+              exponentWidth: exponentWidth, mantissaWidth: mantissaWidth - 1)
+          .ofDouble(dbl, roundingMode: FloatingPointRoundingMode.truncate);
+      expect(fp.toFloatingPointValue(), equals(fpOrig));
+    }
+  });
+
   test('FPV: explicit j-bit exhaustive round-trip', () {
     const exponentWidth = 4;
     const mantissaWidth = 4;

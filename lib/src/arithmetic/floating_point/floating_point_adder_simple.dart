@@ -14,6 +14,11 @@ import 'package:rohd_hcl/rohd_hcl.dart';
 /// An adder module for FloatingPoint values
 class FloatingPointAdderSimple<FpType extends FloatingPoint>
     extends FloatingPointAdder<FpType> {
+  /// Retrieve the [FloatingPoint] directly instead of as [FpType].
+//   late final FloatingPoint sum =
+//       FloatingPoint(exponentWidth: exponentWidth, mantissaWidth: mantissaWidth)
+//         ..gets(output('fp'));
+
   /// Add two floating point numbers [a] and [b], returning result in [sum].
   /// - [adderGen] is an adder generator to be used in the primary adder
   /// functions.
@@ -31,10 +36,10 @@ class FloatingPointAdderSimple<FpType extends FloatingPoint>
       : super(
             definitionName: 'FloatingPointAdderSimple_'
                 'E${a.exponent.width}M${a.mantissa.width}') {
+    // addOutput('fp', width: exponentWidth + mantissaWidth + 1);
+
     final outputSum = FloatingPoint(
-        exponentWidth: exponentWidth,
-        mantissaWidth: mantissaWidth,
-        name: 'sum');
+        exponentWidth: exponentWidth, mantissaWidth: mantissaWidth, name: 'fp');
     output('sum') <= outputSum;
 
     final (larger, smaller) = FloatingPointUtilities.sort((super.a, super.b));
@@ -75,13 +80,20 @@ class FloatingPointAdderSimple<FpType extends FloatingPoint>
               Const(0, width: mantissaWidth + 3)
             ].swizzle()));
 
-    final adder = SignMagnitudeAdder(
-        larger.sign, aMantissa, smaller.sign, bMantissa >>> expDiff,
-        largestMagnitudeFirst: true, adderGen: adderGen);
+    final carry = Logic();
+    final revAdder = SignMagnitudeAdder(
+        Const(0), aMantissa, larger.sign ^ smaller.sign, bMantissa >>> expDiff,
+        largestMagnitudeFirst: true, adderGen: adderGen, endAroundCarry: carry);
 
-    final intSum = adder.sum.slice(adder.sum.width - 1, 0).named('intSum');
+    final sum2sComplement =
+        ParallelPrefixIncr(revAdder.sum, name: 'sum2sComplement');
 
-    final aSignLatched = localFlop(larger.sign);
+    final sum = mux(carry, sum2sComplement.out, revAdder.sum);
+    final intSum = sum.slice(sum.width - 1, 0).named('intSum');
+
+    final realSign = mux(carry, larger.sign, smaller.sign);
+
+    final aSignLatched = localFlop(realSign);
     final aExpLatched = localFlop(larger.exponent);
     final sumLatched = localFlop(intSum);
     final isInfLatched = localFlop(isInf);
@@ -93,6 +105,7 @@ class FloatingPointAdderSimple<FpType extends FloatingPoint>
     final leadOneValid = Logic(name: 'leadOneValid');
     final leadOnePre =
         priorityGen(mantissa, valid: leadOneValid).out.named('leadOnePre');
+
     // Limit leadOne to exponent range and match widths
     final infExponent = outputSum.inf(sign: aSignLatched).exponent;
     final leadOne = ((leadOnePre.width > exponentWidth)

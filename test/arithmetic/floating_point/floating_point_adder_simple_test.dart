@@ -346,7 +346,7 @@ void main() {
     fp2.put(0);
     final adder = FloatingPointAdderSimple(fp1, fp2);
 
-    for (final subtract in [1]) {
+    for (final subtract in [0, 1]) {
       final expLimit = pow(2, exponentWidth);
       final mantLimit = pow(2, mantissaWidth);
       for (var e1 = 0; e1 < expLimit; e1++) {
@@ -374,6 +374,19 @@ void main() {
                           exponentWidth: exponentWidth,
                           mantissaWidth: mantissaWidth)
                       .ofDouble(fv1.toDouble() + fv2.toDouble());
+
+                  if (computed != expectedNoRound) {
+                    if (computed.sign != expectedNoRound.sign) {
+                      print('''
+                  $fv1 (${fv1.toDouble()})\t+
+                  $fv2 (${fv2.toDouble()})\t=
+                  $computed (${computed.toDouble()})\tcomputed
+                  $expectedNoRound (${expectedNoRound.toDouble()})\texpectedUn
+                  $expectedRound (${expectedRound.toDouble()})\texpected
+                  e1=$e1 m1=$m1  e2=$e2 m2=$m2
+''');
+                    }
+                  }
 
                   if ((computed.mantissa != expectedNoRound.mantissa) &
                       (computed.mantissa != expectedRound.mantissa)) {
