@@ -7,7 +7,6 @@
 // 2025 January 30
 // Author: Desmond A Kirkpatrick <desmond.a.kirkpatrick@intel.com
 
-import 'dart:io';
 import 'dart:math';
 import 'package:rohd_hcl/rohd_hcl.dart';
 import 'package:test/test.dart';
@@ -214,7 +213,7 @@ void main() {
       }
     }
   });
-  test('FP: conversion subtypes', () async {
+  test('FP: conversion subtypes', () {
     final fp32 = FloatingPoint32();
     final bf16 = FloatingPointBF16();
 
@@ -222,9 +221,7 @@ void main() {
         FloatingPoint32Value.populator().ofConstant(FloatingPointConstants.one);
 
     fp32.put(one);
-    final mod = FloatingPointConverter(fp32, bf16);
-    await mod.build();
-    File('convert.vs').writeAsStringSync(mod.generateSynth());
+    FloatingPointConverter(fp32, bf16);
     expect(bf16.floatingPointValue.toDouble(), equals(1.0));
   });
 }

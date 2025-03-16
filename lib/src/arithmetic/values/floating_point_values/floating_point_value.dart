@@ -52,6 +52,9 @@ class FloatingPointValue implements Comparable<FloatingPointValue> {
   /// Return true if the JBit is implicitly represented.
   bool get implicitJBit => true;
 
+  /// Return true if the JBit is explicitly representedin the mantissa.
+  bool get explicitJBit => false;
+
   /// Return the bias of this [FloatingPointValue].
   ///
   /// Representing the true zero exponent `2^0 = 1`, often termed the offset of
@@ -319,12 +322,12 @@ class FloatingPointValue implements Comparable<FloatingPointValue> {
         doubleVal = (sign.toBool() ? -1.0 : 1.0) *
             pow(2.0, minExponent) *
             mantissa.toBigInt().toDouble() /
-            pow(2.0, mantissa.width - (implicitJBit ? 0 : 1));
+            pow(2.0, mantissa.width - (explicitJBit ? 1 : 0));
       } else if (!isNaN) {
         doubleVal = (sign.toBool() ? -1.0 : 1.0) *
-            ((implicitJBit ? 1.0 : 0.0) +
+            ((explicitJBit ? 0.0 : 1.0) +
                 mantissa.toBigInt().toDouble() /
-                    pow(2.0, mantissa.width - (implicitJBit ? 0 : 1))) *
+                    pow(2.0, mantissa.width - (explicitJBit ? 1 : 0))) *
             pow(2.0, exponent.toInt() - bias);
       }
     }

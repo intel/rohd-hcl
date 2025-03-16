@@ -71,9 +71,9 @@ class FloatingPointExplicitJBitValue extends FloatingPointValue {
         .ofSpacedBinaryString(fp);
   }
 
-  /// Return true if the JBit is implicitly represented.
+  /// Return true if the JBit is explicitly represented in the mantissa.
   @override
-  bool get implicitJBit => false;
+  bool get explicitJBit => true;
 
   /// Return the normalized form of [FloatingPointExplicitJBitValue] which has
   /// the leading 1 at the front of the mantissa, or further right if subnormal.

@@ -71,6 +71,10 @@ class FloatingPoint extends LogicStructure {
   /// when in normal form.
   bool get implicitJBit => true;
 
+  /// Return true if the J-bit is explicitly represented in the mantissa
+  /// when in normal form.
+  bool get explicitJBit => false;
+
   // TODO(desmonddak): this will work incorrectly and must be fixed.
   // The issue is that it should return the EJ version of this or
   // convert to the original (we may need both routines here)
@@ -213,4 +217,9 @@ class FloatingPointExplicitJBit extends FloatingPoint {
   /// when in normal form.
   @override
   bool get implicitJBit => false;
+
+  /// Return true if the J-bit is explicitly represented in the mantissa
+  /// when in normal form.
+  @override
+  bool get explicitJBit => true;
 }

@@ -39,8 +39,8 @@ class FloatingPointValuePopulator<FpvType extends FloatingPointValue> {
   /// The maximum exponent value.
   int get maxExponent => _unpopulated.maxExponent;
 
-  /// True if the format stores the Jbit implicitly.
-  bool get implicitJbit => _unpopulated.implicitJBit;
+  /// True if the format stores the Jbit explicitly.
+  bool get explicitJBit => _unpopulated.explicitJBit;
 
   /// Whether or not this populator has already populated values.
   bool _hasPopulated = false;
@@ -235,15 +235,15 @@ class FloatingPointValuePopulator<FpvType extends FloatingPointValue> {
     final mantissa64n = ((expVal <= 0)
         ? [LogicValue.one, fp64.mantissa].swizzle() >>>
             (-expVal +
-                (implicitJbit & (fp64.exponent.toInt() > 0)
+                (!explicitJBit & (fp64.exponent.toInt() > 0)
                     ? 1
-                    : (!implicitJbit)
+                    : (explicitJBit)
                         ? 1
                         : 0))
         : [LogicValue.one, fp64.mantissa].swizzle());
 
-    var mantissa = mantissa64n.slice(fp64Mw - (implicitJbit ? 1 : 0),
-        fp64Mw - mantissaWidth + (implicitJbit ? 0 : 1));
+    var mantissa = mantissa64n.slice(fp64Mw - (explicitJBit ? 0 : 1),
+        fp64Mw - mantissaWidth + (explicitJBit ? 1 : 0));
 
     // TODO(desmonddak): this should be in a separate function to use
     //  with a FloatingPointValue converter we need.
@@ -266,7 +266,7 @@ class FloatingPointValuePopulator<FpvType extends FloatingPointValue> {
           mantissa += 1;
           if (mantissa == LogicValue.zero.zeroExtend(mantissa.width)) {
             expVal += 1;
-            if (!implicitJbit) {
+            if (explicitJBit) {
               mantissa = [
                 LogicValue.one,
                 LogicValue.zero.zeroExtend(mantissa.width - 1)

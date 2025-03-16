@@ -52,8 +52,8 @@ class FloatingPointAdderSimple<FpType extends FloatingPoint>
                 (larger.sign ^ smaller.sign)))
         .named('isNaN');
 
-    final largeImplicit = larger.implicitJBit ? Const(1) : Const(0);
-    final smallImplicit = smaller.implicitJBit ? Const(1) : Const(0);
+    final largeImplicit = larger.explicitJBit ? Const(0) : Const(1);
+    final smallImplicit = smaller.explicitJBit ? Const(0) : Const(1);
 
     final expDiff = (larger.exponent - smaller.exponent).named('expDiff');
     final aMantissa = mux(
