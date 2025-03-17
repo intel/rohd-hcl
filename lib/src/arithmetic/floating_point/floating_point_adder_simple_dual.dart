@@ -104,14 +104,14 @@ class FloatingPointAdderSimpleDual extends FloatingPointAdder {
     // Tricky:  if adderS has an end-around-carry, its magnitude is off
     // by 1 (and the mantissa paired with the positive sign in this adder is
     // biggest), so the other subtractor has the correct magnitude as sum.
-    final intSum = mux(adderS.endAroundCarry!, adderL.sum, adderS.sum);
+    final intSum = mux(adderL.endAroundCarry!, adderS.sum, adderL.sum);
 
     final largeIsPositive =
         (bExpIsLarger & ~b.sign) | (~bExpIsLarger & ~a.sign);
     final smallIsPositive =
         (bExpIsLarger & ~a.sign) | (~bExpIsLarger & ~b.sign);
 
-    final largeIsTrulyLarger = (~adderS.endAroundCarry! & largeIsPositive) |
+    final largeIsTrulyLarger = (adderL.endAroundCarry! & largeIsPositive) |
         (adderS.endAroundCarry! & smallIsPositive);
 
     final bIsTrulyLargest = (bExpIsLarger & largeIsTrulyLarger) |

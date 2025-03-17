@@ -375,9 +375,11 @@ void main() {
                           mantissaWidth: mantissaWidth)
                       .ofDouble(fv1.toDouble() + fv2.toDouble());
 
-                  if (computed != expectedNoRound) {
-                    if (computed.sign != expectedNoRound.sign) {
-                      print('''
+                  expect(
+                      computed,
+                      predicate(
+                          (c) => c == expectedNoRound || c == expectedRound),
+                      reason: '''
                   $fv1 (${fv1.toDouble()})\t+
                   $fv2 (${fv2.toDouble()})\t=
                   $computed (${computed.toDouble()})\tcomputed
@@ -385,34 +387,6 @@ void main() {
                   $expectedRound (${expectedRound.toDouble()})\texpected
                   e1=$e1 m1=$m1  e2=$e2 m2=$m2
 ''');
-                    }
-                  }
-
-                  if ((computed.mantissa != expectedNoRound.mantissa) &
-                      (computed.mantissa != expectedRound.mantissa)) {
-                    expect(computed.mantissa, equals(expectedNoRound.mantissa),
-                        reason: '''
-                  $fv1 (${fv1.toDouble()})\t+
-                  $fv2 (${fv2.toDouble()})\t=
-                  $computed (${computed.toDouble()})\tcomputed
-                  $expectedNoRound (${expectedNoRound.toDouble()})\texpectedUn
-                  $expectedRound (${expectedRound.toDouble()})\texpected
-                  e1=$e1 m1=$m1  e2=$e2 m2=$m2
-''');
-                  }
-
-                  if ((computed.exponent != expectedNoRound.exponent) &
-                      (computed.exponent != expectedRound.exponent)) {
-                    expect(computed.exponent, equals(expectedNoRound.exponent),
-                        reason: '''
-                  $fv1 (${fv1.toDouble()})\t+
-                  $fv2 (${fv2.toDouble()})\t=
-                  $computed (${computed.toDouble()})\tcomputed
-                  $expectedNoRound (${expectedNoRound.toDouble()})\texpectedUn
-                  $expectedRound (${expectedRound.toDouble()})\texpected
-                  e1=$e1 m1=$m1  e2=$e2 m2=$m2
-''');
-                  }
                 }
               }
             }
