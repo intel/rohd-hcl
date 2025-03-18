@@ -54,17 +54,15 @@ void main() {
         fp.put(fv);
         final fpOut = sqrtT.sqrt;
         final eOut = sqrtT.error;
-        expect(fpOut.floatingPointValue, equals(expSqrt),
-            reason: '\t${fp.floatingPointValue} '
-                '(${fp.floatingPointValue.toDouble()}) =\n'
-                '\t${fpOut.floatingPointValue}'
-                '(${fpOut.floatingPointValue.toDouble()}) actual\n'
-                '\t$expSqrtd ($expSqrt) expected');
+        expect(fpOut.floatingPointValue, equals(expSqrt), reason: '''
+  ${fp.floatingPointValue} (${fp.floatingPointValue.toDouble()}) =
+  ${fpOut.floatingPointValue}(${fpOut.floatingPointValue.toDouble()}) actual
+  $expSqrtd ($expSqrt) expected''');
 
-        expect(eOut.value, equals(expError.value),
-            reason: 'error =\n'
-                '\t${eOut.value} actual\n'
-                '\t${expError.value} expected');
+        expect(eOut.value, equals(expError.value), reason: '''
+error =
+  ${eOut.value} actual
+  ${expError.value} expected''');
       }
     }
   });
@@ -96,10 +94,10 @@ void main() {
         fp.put(fv);
         final eOut = sqrtDUT.error;
 
-        expect(eOut.value, equals(expError.value),
-            reason: 'error =\n'
-                '\t${eOut.value} actual\n'
-                '\t${expError.value} expected');
+        expect(eOut.value, equals(expError.value), reason: '''
+error =
+  ${eOut.value} actual
+  ${expError.value} expected''');
       }
     }
   });
@@ -141,16 +139,15 @@ void main() {
         final expError = Const(0);
         expect(compResult.floatingPointValue.toDouble(),
             equals(expResult.toDouble()),
-            reason: '\t${fp.floatingPointValue} '
-                '(${fp.floatingPointValue.toDouble()}) =\n'
-                '\t${compResult.floatingPointValue}'
-                '(${compResult.floatingPointValue.toDouble()}) actual\n'
-                '\t$expResult (${expResult.toDouble()}) expected');
+            reason: '''
+  ${fp.floatingPointValue} (${fp.floatingPointValue.toDouble()}) =
+  ${compResult.floatingPointValue}(${compResult.floatingPointValue.toDouble()}) actual
+  $expResult (${expResult.toDouble()}) expected''');
 
-        expect(compError.value, equals(expError.value),
-            reason: 'error =\n'
-                '\t${expError.value} actual\n'
-                '\t${expError.value} expected');
+        expect(compError.value, equals(expError.value), reason: '''
+error =
+${expError.value} actual
+${expError.value} expected''');
       }
     }
   });
@@ -186,16 +183,15 @@ void main() {
       final expError = Const(0);
 
       expect(compResult.floatingPointValue.withinRounding(expResult), true,
-          reason: '\t${fp.floatingPointValue} '
-              '(${fp.floatingPointValue.toDouble()}) =\n'
-              '\t${compResult.floatingPointValue}'
-              '(${compResult.floatingPointValue.toDouble()}) actual\n'
-              '\t$expResult (${expResult.toDouble()}) expected');
+          reason: '''
+  ${fp.floatingPointValue} (${fp.floatingPointValue.toDouble()}) =
+  ${compResult.floatingPointValue} (${compResult.floatingPointValue.toDouble()}) actual
+  $expResult (${expResult.toDouble()}) expected''');
 
-      expect(compError.value, equals(expError.value),
-          reason: 'error =\n'
-              '\t${expError.value} actual\n'
-              '\t${expError.value} expected');
+      expect(compError.value, equals(expError.value), reason: '''
+error =
+${expError.value} actual
+${expError.value} expected''');
     }
   });
 }
