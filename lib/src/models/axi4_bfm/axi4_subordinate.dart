@@ -355,6 +355,13 @@ class Axi4SubordinateAgent extends Agent {
       final region = _checkRegion(packet.addr);
       final inRegion = region >= 0;
 
+      // check if this was part of a locked transaction
+      final locked = supportLocking &&
+          packet.lock != null &&
+          packet.lock!.toBool() &&
+          _rmwLocks.containsKey(packet.addr) &&
+          _rmwLocks[packet.addr] == index;
+
       final accessError = inRegion &&
           ((ranges[region].isSecure &&
                   ((packet.prot.toInt() & Axi4ProtField.secure.value) == 0)) ||
@@ -381,7 +388,9 @@ class Axi4SubordinateAgent extends Agent {
       rIntf.rData.inject(rdData);
       rIntf.rResp?.inject(error || accessError /*|| reqSideError*/
           ? LogicValue.ofInt(Axi4RespField.slvErr.value, rIntf.rResp!.width)
-          : LogicValue.ofInt(Axi4RespField.okay.value, rIntf.rResp!.width));
+          : LogicValue.ofInt(
+              (locked ? Axi4RespField.exOkay.value : Axi4RespField.okay.value),
+              rIntf.rResp!.width));
       rIntf.rUser?.inject(0); // don't support user field for now
       rIntf.rLast?.inject(last);
 
@@ -556,9 +565,13 @@ class Axi4SubordinateAgent extends Agent {
         // for now, only support sending slvErr and okay as responses
         wIntf.bValid.inject(true);
         wIntf.bId?.inject(packet.id);
-        wIntf.bResp?.inject(error || accessError || rmwErr
+        wIntf.bResp?.inject(error || accessError
             ? LogicValue.ofInt(Axi4RespField.slvErr.value, wIntf.bResp!.width)
-            : LogicValue.ofInt(Axi4RespField.okay.value, wIntf.bResp!.width));
+            : LogicValue.ofInt(
+                (isRmw && !rmwErr
+                    ? Axi4RespField.exOkay.value
+                    : Axi4RespField.okay.value),
+                wIntf.bResp!.width));
         wIntf.bUser?.inject(0); // don't support user field for now
 
         // TODO: how to deal with delays??
@@ -581,7 +594,7 @@ class Axi4SubordinateAgent extends Agent {
 
         // apply the write to storage
         // only if there were no errors
-        if (!(error || accessError || rmwErr) || !dropWriteDataOnError) {
+        if (!(error || accessError) || !dropWriteDataOnError) {
           for (var i = 0; i < packet.data.length; i++) {
             final rdData = storage.readData(addrsToWrite[i]);
             final strobedData =
