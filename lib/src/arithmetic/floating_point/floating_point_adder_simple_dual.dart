@@ -13,11 +13,6 @@ import 'package:rohd_hcl/rohd_hcl.dart';
 
 /// An adder module for FloatingPoint values
 class FloatingPointAdderSimpleDual extends FloatingPointAdder {
-  // /// Retrieve the [FloatingPoint] directly instead of as [FpType].
-  // late final FloatingPoint sum =
-  //     FloatingPoint(exponentWidth: exponentWidth, mantissaWidth: mantissaWidth)
-  //       ..gets(output('fp'));
-
   /// Add two floating point numbers [a] and [b], returning result in [sum].
   /// - [adderGen] is an adder generator to be used in the primary adder
   /// functions.
@@ -36,8 +31,9 @@ class FloatingPointAdderSimpleDual extends FloatingPointAdder {
             definitionName: 'FloatingPointAdderSimpleDual_'
                 'E${a.exponent.width}M${a.mantissa.width}') {
     final outputSum = FloatingPoint(
-        exponentWidth: exponentWidth, mantissaWidth: mantissaWidth, name: 'fp');
-    // addOutput('fp', width: exponentWidth + mantissaWidth + 1);
+        exponentWidth: exponentWidth,
+        mantissaWidth: mantissaWidth,
+        name: 'sum');
     output('sum') <= outputSum;
 
     // check which of a and b is larger

@@ -14,11 +14,6 @@ import 'package:rohd_hcl/rohd_hcl.dart';
 /// An adder module for FloatingPoint values
 class FloatingPointAdderSimple<FpType extends FloatingPoint>
     extends FloatingPointAdder<FpType> {
-  /// Retrieve the [FloatingPoint] directly instead of as [FpType].
-//   late final FloatingPoint sum =
-//       FloatingPoint(exponentWidth: exponentWidth, mantissaWidth: mantissaWidth)
-//         ..gets(output('fp'));
-
   /// Add two floating point numbers [a] and [b], returning result in [sum].
   /// - [adderGen] is an adder generator to be used in the primary adder
   /// functions.
@@ -39,7 +34,9 @@ class FloatingPointAdderSimple<FpType extends FloatingPoint>
     // addOutput('fp', width: exponentWidth + mantissaWidth + 1);
 
     final outputSum = FloatingPoint(
-        exponentWidth: exponentWidth, mantissaWidth: mantissaWidth, name: 'fp');
+        exponentWidth: exponentWidth,
+        mantissaWidth: mantissaWidth,
+        name: 'sum');
     output('sum') <= outputSum;
 
     final (larger, smaller) = FloatingPointUtilities.sort((super.a, super.b));
