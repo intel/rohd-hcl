@@ -123,6 +123,13 @@ class FixedPoint extends Logic {
     }
   }
 
+  /// Multiply
+  Logic _multiply(dynamic other) {
+    _verifyCompatible(other);
+    final product = Multiply(this, other).out;
+    return FixedPoint.of(product, signed: false, m: 2 * m, n: 2 * n);
+  }
+
   /// Greater-than.
   @override
   Logic operator >(dynamic other) => gt(other);
@@ -130,6 +137,10 @@ class FixedPoint extends Logic {
   /// Greater-than-or-equal-to.
   @override
   Logic operator >=(dynamic other) => gte(other);
+
+  /// multiply
+  @override
+  Logic operator *(dynamic other) => _multiply(other);
 
   @override
   Logic eq(dynamic other) {
