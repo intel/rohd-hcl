@@ -58,8 +58,8 @@ class FloatingPointAdderRound<FpType extends FloatingPoint>
     // Seidel: (sl, el, fl) = larger; (ss, es, fs) = smaller
     final (larger, smaller) = FloatingPointUtilities.swap(signDelta, (a, b));
 
-    final largeImplicit = larger.explicitJBit ? Const(0) : Const(1);
-    final smallImplicit = smaller.explicitJBit ? Const(0) : Const(1);
+    final largeImplicit = ~larger.explicitJBit;
+    final smallImplicit = ~smaller.explicitJBit;
 
     final fl = mux(
             larger.isNormal ^ largeImplicit,

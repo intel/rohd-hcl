@@ -90,6 +90,8 @@ class FloatingPointExplicitJBitValue extends FloatingPointValue {
           if ((mant[-1] == LogicValue.zero) & (expVal == 1)) {
             // Make canonical: if it cannot be made normal, it is subnormal
             expVal = 0;
+          } else if ((mant[-1] == LogicValue.one) & (expVal == 0)) {
+            expVal = 1;
           }
         } else {
           expVal = 0;
@@ -116,8 +118,8 @@ class FloatingPointExplicitJBitValue extends FloatingPointValue {
         mantissa: norm.mantissa.getRange(0, norm.mantissa.width - 1));
   }
 
-  /// Check if the mantissa and exponent stored are compatible
-  bool isLegalValue() {
+  /// Check if the mantissa and exponent form a normal value
+  bool isNormalValue() {
     final e = exponent.toInt();
     final m = mantissa.toInt();
     final int normMantissa;
@@ -126,12 +128,25 @@ class FloatingPointExplicitJBitValue extends FloatingPointValue {
     } else {
       normMantissa = 1;
     }
+    return (e > 0) && (m >= normMantissa);
+  }
+
+  /// Check if the mantissa and exponent stored are compatible
+  bool isLegalValue() {
+    final e = exponent.toInt();
+    final m = mantissa.toInt();
+    // final int normMantissa;
+    // if (e < mantissa.width) {
+    //   normMantissa = 1 << (mantissa.width - e - 1);
+    // } else {
+    //   normMantissa = 1;
+    // }
 
     /// TODO(desmonddak): This is too restrictive
     /// if e == 2 then normMantissa can be shifted over by 1
     /// so the rule is mantissa.width - e
-    //  normMantissa = 1 << (mantissa.width - 1);
+    final normMantissa = 1 << (mantissa.width - 1);
 
-    return ((e == 0) && (m < normMantissa)) || ((e > 0) && (m >= normMantissa));
+    return ((e == 0) && (m < normMantissa)) || ((e > 0) && (m >= 1));
   }
 }

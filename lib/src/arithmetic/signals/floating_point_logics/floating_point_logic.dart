@@ -69,11 +69,11 @@ class FloatingPoint extends LogicStructure {
 
   /// Return true if the J-bit is not explicitly represented in the mantissa
   /// when in normal form.
-  bool get implicitJBit => true;
+  Const get implicitJBit => Const(1);
 
   /// Return true if the J-bit is explicitly represented in the mantissa
   /// when in normal form.
-  bool get explicitJBit => false;
+  Const get explicitJBit => Const(0);
 
   // TODO(desmonddak): this will work incorrectly and must be fixed.
   // The issue is that it should return the EJ version of this or
@@ -150,6 +150,13 @@ class FloatingPoint extends LogicStructure {
   @override
   void put(dynamic val, {bool fill = false}) {
     if (val is FloatingPointValue) {
+      if ((val.exponentWidth != exponent.width) ||
+          (val.mantissaWidth != mantissa.width)) {
+        throw RohdHclException('FloatingPoint width does not match');
+      }
+      if (val.explicitJBit != explicitJBit.value.toBool()) {
+        throw RohdHclException('FloatingPoint explicit jbit does not match');
+      }
       put(val.value);
     } else {
       super.put(val, fill: fill);
@@ -216,10 +223,10 @@ class FloatingPointExplicitJBit extends FloatingPoint {
   /// Return true if the J-bit is not explicitly represented in the mantissa
   /// when in normal form.
   @override
-  bool get implicitJBit => false;
+  Const get implicitJBit => Const(0);
 
   /// Return true if the J-bit is explicitly represented in the mantissa
   /// when in normal form.
   @override
-  bool get explicitJBit => true;
+  Const get explicitJBit => Const(1);
 }

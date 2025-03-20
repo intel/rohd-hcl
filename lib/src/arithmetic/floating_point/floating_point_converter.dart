@@ -14,7 +14,8 @@ import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
 
 /// A converter module for FloatingPoint values
-class FloatingPointConverter extends Module {
+class FloatingPointConverter<FpTypeIn extends FloatingPoint,
+    FpTypeOut extends FloatingPoint> extends Module {
   /// Source exponent width
   final int sourceExponentWidth;
 
@@ -28,18 +29,12 @@ class FloatingPointConverter extends Module {
   late final int destMantissaWidth;
 
   /// Output [FloatingPoint] computed
-  late final FloatingPoint destination = FloatingPoint(
-      exponentWidth: destExponentWidth,
-      mantissaWidth: destMantissaWidth,
-      name: 'dest')
-    ..gets(output('destination'));
+  final FpTypeOut destination;
 
   /// The result of [FloatingPoint] conversion
   @protected
-  late final FloatingPoint _destination = FloatingPoint(
-      exponentWidth: destExponentWidth,
-      mantissaWidth: destMantissaWidth,
-      name: 'dest');
+  late final FpTypeOut _destination =
+      destination.clone(name: 'destination') as FpTypeOut;
 
   /// Convert a [FloatingPoint] logic structure from one format to another.
   /// - [source] is the source format [FloatingPoint] logic structure.
@@ -48,7 +43,7 @@ class FloatingPointConverter extends Module {
   /// - [priorityGen] is a [PriorityEncoder] generator to be used in the
   /// leading one detection (default [RecursiveModulePriorityEncoder]).
   /// - [adderGen] can specify the [Adder] to use for exponent calculations.
-  FloatingPointConverter(FloatingPoint source, FloatingPoint destination,
+  FloatingPointConverter(FpTypeIn source, this.destination,
       {PriorityEncoder Function(Logic bitVector, {Logic? valid, String name})
           priorityGen = RecursiveModulePriorityEncoder.new,
       Adder Function(Logic a, Logic b, {Logic? carryIn}) adderGen =
@@ -61,10 +56,12 @@ class FloatingPointConverter extends Module {
                 '${destination.runtimeType}') {
     destExponentWidth = destination.exponent.width;
     destMantissaWidth = destination.mantissa.width;
-    source = source.clone(name: 'source')
+    source = (source.clone(name: 'source') as FpTypeIn)
       ..gets(addInput('source', source, width: source.width));
     addOutput('destination', width: _destination.width) <= _destination;
     destination <= output('destination');
+
+    // print('source is ${source.explicitJBit.value.toBool()}');
 
     // maxExpWidth: mantissa +2:
     //     1 for the hidden jbit and 1 for going past with leadingOneDetect
@@ -77,8 +74,9 @@ class FloatingPointConverter extends Module {
     final sBias = source.bias.zeroExtend(maxExpWidth).named('sourceBias');
     final dBias = destination.bias.zeroExtend(maxExpWidth).named('destBias');
     final se = source.exponent.zeroExtend(maxExpWidth).named('sourceExp');
-    final mantissa =
-        [source.isNormal, source.mantissa].swizzle().named('mantissa');
+    final mantissa = [source.isNormal & ~source.explicitJBit, source.mantissa]
+        .swizzle()
+        .named('mantissa');
 
     final nan = source.isNaN;
     final Logic infinity;
@@ -98,14 +96,18 @@ class FloatingPointConverter extends Module {
           mux(leadOneValid, leadOnePre.zeroExtend(biasDiff.width), biasDiff)
               .named('leadOne');
 
-      final predictSub = mux(
-              biasDiff.gte(leadOne) & leadOneValid,
-              biasDiff - (leadOne - Const(1, width: leadOne.width)),
-              Const(0, width: biasDiff.width))
-          .named('predictSubExp');
+      final fullDiff = mux(
+          source.explicitJBit,
+          biasDiff +
+              source.exponent.zeroExtend(biasDiff.width) +
+              mux(
+                  ~source.isNormal & source.explicitJBit,
+                  Const(1, width: biasDiff.width),
+                  Const(0, width: biasDiff.width)),
+          biasDiff);
 
-      final shift =
-          mux(biasDiff.gte(leadOne), leadOne, biasDiff).named('shift');
+      final shift = mux(fullDiff.gte(leadOne) & leadOneValid, leadOne, fullDiff)
+          .named('shift');
 
       final newMantissa = (mantissa << shift).named('mantissaShift');
 
@@ -126,15 +128,24 @@ class FloatingPointConverter extends Module {
         roundedMantissa = newMantissa;
         roundIncExp = Const(0);
       }
+      final sliceMantissa = mux(
+          (source.explicitJBit | ~source.isNormal) & destination.explicitJBit,
+          newMantissa.slice(-1, 1),
+          newMantissa.slice(-2, 0));
 
       destMantissa = ((destMantissaWidth >= source.mantissa.width)
               ? [
-                  newMantissa.slice(-2, 0),
+                  sliceMantissa,
                   Const(0, width: destMantissaWidth - newMantissa.width + 1)
                 ].swizzle().named('clippedMantissa')
               : roundedMantissa)
           .named('destMantissa');
 
+      final predictSub = mux(
+              fullDiff.gte(leadOne) & leadOneValid,
+              fullDiff - (leadOne - Const(1, width: leadOne.width)),
+              fullDiff - shift)
+          .named('predictSubExp');
       final preExponent =
           mux(shift.gt(Const(0, width: shift.width)), predictSub, predictExp)
                   .named('unRndDestExponent') +

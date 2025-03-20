@@ -39,7 +39,8 @@ class FloatingPointAdderSimple<FpType extends FloatingPoint>
         name: 'sum');
     output('sum') <= outputSum;
 
-    final (larger, smaller) = FloatingPointUtilities.sort((super.a, super.b));
+    final (larger, smaller) =
+        FloatingPointUtilities.sortByExp((super.a, super.b));
 
     final isInf = (larger.isAnInfinity | smaller.isAnInfinity).named('isInf');
     final isNaN = (larger.isNaN |
@@ -49,8 +50,8 @@ class FloatingPointAdderSimple<FpType extends FloatingPoint>
                 (larger.sign ^ smaller.sign)))
         .named('isNaN');
 
-    final largeImplicit = larger.explicitJBit ? Const(0) : Const(1);
-    final smallImplicit = smaller.explicitJBit ? Const(0) : Const(1);
+    final largeImplicit = ~larger.explicitJBit;
+    final smallImplicit = ~smaller.explicitJBit;
 
     final expDiff = (larger.exponent - smaller.exponent).named('expDiff');
     final aMantissa = mux(

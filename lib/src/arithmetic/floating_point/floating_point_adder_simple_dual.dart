@@ -47,8 +47,8 @@ class FloatingPointAdderSimpleDual extends FloatingPointAdder {
             (a.isAnInfinity & b.isAnInfinity & (a.sign ^ b.sign)))
         .named('isNaN');
 
-    final aImplicit = a.explicitJBit ? Const(0) : Const(1);
-    final bImplicit = b.explicitJBit ? Const(0) : Const(1);
+    final aImplicit = ~a.explicitJBit;
+    final bImplicit = ~b.explicitJBit;
 
     final expDiff =
         mux(bExpIsLarger, b.exponent - a.exponent, a.exponent - b.exponent)
