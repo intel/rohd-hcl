@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="API docs for the FloatingPointSqrtSimple constructor from Class FloatingPointSqrtSimple from the rohd_hcl library, for the Dart programming language.">
+  <title>FloatingPointSqrtSimple constructor - FloatingPointSqrtSimple - rohd_hcl library - Dart API</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../../static-assets/github.css?v1">
+  <link rel="stylesheet" href="../../static-assets/styles.css?v1">
+  <link rel="icon" href="../../static-assets/favicon.png?v1">
+  
+</head>
+
+<body data-base-href="../../" data-using-base-href="false" class="light-theme">
+<div id="overlay-under-drawer"></div>
+<header id="title">
+  <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="../../index.html">rohd_hcl</a></li>
+    <li><a href="../../rohd_hcl">rohd_hcl.dart</a></li>
+    <li><a href="../../rohd_hcl/FloatingPointSqrtSimple-class.html">FloatingPointSqrtSimple<span class="signature">&lt;<wbr><span class="type-parameter">FpType extends FloatingPoint</span>&gt;</span></a></li>
+    <li class="self-crumb">FloatingPointSqrtSimple constructor</li>
+  </ol>
+  <div class="self-name">FloatingPointSqrtSimple</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+  <div class="toggle" id="theme-button" title="Toggle brightness">
+    <label for="theme">
+      <input type="checkbox" id="theme" value="light-theme">
+      <span id="dark-theme-button" class="material-symbols-outlined">
+        dark_mode
+      </span>
+      <span id="light-theme-button" class="material-symbols-outlined">
+        light_mode
+      </span>
+    </label>
+  </div>
+</header>
+<main>
+  <div
+      id="dartdoc-main-content"
+      class="main-content"
+      data-above-sidebar="rohd_hcl&#47;FloatingPointSqrtSimple-class-sidebar.html"
+      data-below-sidebar="">
+      <div>
+<h1><span class="kind-constructor">FloatingPointSqrtSimple&lt;<wbr><span class="type-parameter">FpType extends FloatingPoint</span>&gt;</span> constructor 
+</h1></div>
+
+    <section class="multi-line-signature">
+      
+      <span class="name ">FloatingPointSqrtSimple&lt;<wbr><span class="type-parameter">FpType extends FloatingPoint</span>&gt;</span>(<wbr><ol class="parameter-list"> <li><span class="parameter" id="-param-a"><span class="type-annotation">FpType</span> <span class="parameter-name">a</span>, {</span></li>
+<li><span class="parameter" id="-param-clk"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.3/rohd/Logic-class.html">Logic</a>?</span> <span class="parameter-name">clk</span>, </span></li>
+<li><span class="parameter" id="-param-reset"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.3/rohd/Logic-class.html">Logic</a>?</span> <span class="parameter-name">reset</span>, </span></li>
+<li><span class="parameter" id="-param-enable"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.3/rohd/Logic-class.html">Logic</a>?</span> <span class="parameter-name">enable</span>, </span></li>
+<li><span class="parameter" id="-param-name"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.7.2/dart-core/String-class.html">String</a></span> <span class="parameter-name">name</span> = <span class="default-value">&#39;floatingpoint_square_root_simple&#39;</span>, </span></li>
+</ol>})
+    </section>
+    
+<section class="desc markdown">
+  <p>Square root one floating point number <code>a</code>, returning results
+<a href="../../rohd_hcl/FloatingPointSqrt/sqrt.html">sqrt</a> and <a href="../../rohd_hcl/FloatingPointSqrt/error.html">error</a></p>
+</section>
+
+
+    
+<section class="summary source-code" id="source">
+  <h2><span>Implementation</span></h2>
+  <pre class="language-dart"><code class="language-dart">FloatingPointSqrtSimple(super.a,
+    {super.clk,
+    super.reset,
+    super.enable,
+    super.name = &#39;floatingpoint_square_root_simple&#39;})
+    : super(
+          definitionName: &#39;FloatingPointSquareRootSimple_&#39;
+              &#39;E${a.exponent.width}M${a.mantissa.width}&#39;) {
+  final outputSqrt = FloatingPoint(
+      exponentWidth: exponentWidth,
+      mantissaWidth: mantissaWidth,
+      name: &#39;sqrt&#39;);
+  output(&#39;sqrt&#39;) &lt;= outputSqrt;
+  late final error = output(&#39;error&#39;);
+
+  &#47;&#47; check to see if we do sqrt at all or just return a
+  final isInf = a.isAnInfinity.named(&#39;isInf&#39;);
+  final isNaN = a.isNaN.named(&#39;isNan&#39;);
+  final isZero = a.isAZero.named(&#39;isZero&#39;);
+  final isDeNormal = ~a.isNormal.named(&#39;isDenorm&#39;);
+  final enableSqrt =
+      ~((isInf | isNaN | isZero | isDeNormal) | a.sign).named(&#39;enableSqrt&#39;);
+
+  &#47;&#47; debias the exponent
+  final deBiasAmt = (1 &lt;&lt; a.exponent.width - 1) - 1;
+
+  &#47;&#47; deBias math
+  final deBiasExp = a.exponent - deBiasAmt;
+
+  &#47;&#47; shift exponent
+  final shiftedExp = [deBiasExp[-1], deBiasExp.slice(a.exponent.width - 1, 1)]
+      .swizzle()
+      .named(&#39;deBiasExp&#39;);
+
+  &#47;&#47; check if exponent was odd
+  final isExpOdd = deBiasExp[0];
+
+  &#47;&#47; use fixed sqrt unit
+  final aFixed = FixedPoint(signed: false, m: 3, n: a.mantissa.width);
+  aFixed &lt;= [Const(1, width: 3), a.mantissa.getRange(0)].swizzle();
+
+  &#47;&#47; mux if we shift left by 1 if exponent was odd
+  final aFixedAdj = aFixed.clone()
+    ..gets(mux(isExpOdd, [aFixed.slice(-2, 0), Const(0)].swizzle(), aFixed)
+        .named(&#39;oddMantissaMux&#39;));
+
+  &#47;&#47; mux to choose if we do square root or not
+  final fixedSqrt = aFixedAdj.clone()
+    ..gets(mux(enableSqrt, FixedPointSqrt(aFixedAdj).sqrt, aFixedAdj)
+        .named(&#39;sqrtMux&#39;));
+
+  &#47;&#47; convert back to floating point representation
+  final fpSqrt = FixedToFloat(fixedSqrt,
+      exponentWidth: a.exponent.width, mantissaWidth: a.mantissa.width);
+
+  &#47;&#47; final calculation results
+  Combinational([
+    error &lt; Const(0),
+    If.block([
+      Iff(isInf &amp; ~a.sign, [
+        outputSqrt &lt; outputSqrt.inf(),
+      ]),
+      ElseIf(isInf &amp; a.sign, [
+        outputSqrt &lt; outputSqrt.inf(negative: true),
+        error &lt; Const(1),
+      ]),
+      ElseIf(isNaN, [
+        outputSqrt &lt; outputSqrt.nan,
+      ]),
+      ElseIf(isZero, [
+        outputSqrt.sign &lt; a.sign,
+        outputSqrt.exponent &lt; a.exponent,
+        outputSqrt.mantissa &lt; a.mantissa,
+      ]),
+      ElseIf(a.sign, [
+        outputSqrt &lt; outputSqrt.nan,
+        error &lt; Const(1),
+      ]),
+      ElseIf(isDeNormal, [
+        outputSqrt.sign &lt; a.sign,
+        outputSqrt.exponent &lt; a.exponent,
+        outputSqrt.mantissa &lt; a.mantissa,
+        error &lt; Const(1),
+      ]),
+      Else([
+        outputSqrt.sign &lt; a.sign,
+        outputSqrt.exponent &lt; (shiftedExp + deBiasAmt),
+        outputSqrt.mantissa &lt; fpSqrt.float.mantissa,
+      ])
+    ])
+  ]);
+}</code></pre>
+</section>
+
+
+  </div> <!-- /.main-content -->
+  <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+    <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
+<header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+    <li><a href="../../index.html">rohd_hcl</a></li>
+    <li><a href="../../rohd_hcl">rohd_hcl</a></li>
+    <li><a href="../../rohd_hcl/FloatingPointSqrtSimple-class.html">FloatingPointSqrtSimple<span class="signature">&lt;<wbr><span class="type-parameter">FpType extends FloatingPoint</span>&gt;</span></a></li>
+    <li class="self-crumb">FloatingPointSqrtSimple constructor</li>
+</ol>
+
+    <h5>FloatingPointSqrtSimple class</h5>
+    <div id="dartdoc-sidebar-left-content"></div>
+  </div><!--/.sidebar-offcanvas-left-->
+  <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+  </div><!--/.sidebar-offcanvas-->
+</main>
+<footer>
+  <span class="no-break">
+    rohd_hcl
+      0.1.0
+  </span>
+  
+</footer>
+
+
+<script src="../../static-assets/highlight.pack.js?v1"></script>
+<script src="../../static-assets/docs.dart.js"></script>
+
+</body>
+</html>
+
