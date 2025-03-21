@@ -77,21 +77,22 @@ class Axi4WriteComplianceChecker extends Component {
         if (!writeReqMap.containsKey(id) || writeReqMap[id]!.isEmpty) {
           logger.severe('There is no pending write request '
               'to associate with valid write data.');
-        }
-
-        writeReqMap[id]![0][1] = writeReqMap[id]![0][1] + 1;
-        final len = writeReqMap[id]![0][0];
-        final currCount = writeReqMap[id]![0][1];
-        if (currCount > len) {
-          logger.severe(
-              'Sent more write data flits than indicated by the request '
-              'with ID $id AWLEN. Expected $len but sent $currCount');
-        } else if (currCount == len && !wIntf.wLast.previousValue!.toBool()) {
-          logger.severe('Sent the final flit in the write data per the request '
-              'with ID $id AWLEN but WLAST is not asserted.');
-        } else if (currCount == len && wIntf.wLast.previousValue!.toBool()) {
-          writeReqMap[id]!.removeAt(0);
-          lastWriteReqId.removeAt(0);
+        } else {
+          writeReqMap[id]![0][1] = writeReqMap[id]![0][1] + 1;
+          final len = writeReqMap[id]![0][0];
+          final currCount = writeReqMap[id]![0][1];
+          if (currCount > len) {
+            logger.severe(
+                'Sent more write data flits than indicated by the request '
+                'with ID $id AWLEN. Expected $len but sent $currCount');
+          } else if (currCount == len && !wIntf.wLast.previousValue!.toBool()) {
+            logger
+                .severe('Sent the final flit in the write data per the request '
+                    'with ID $id AWLEN but WLAST is not asserted.');
+          } else if (currCount == len && wIntf.wLast.previousValue!.toBool()) {
+            writeReqMap[id]!.removeAt(0);
+            lastWriteReqId.removeAt(0);
+          }
         }
       }
     });

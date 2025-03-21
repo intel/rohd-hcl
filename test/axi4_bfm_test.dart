@@ -11,6 +11,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:logging/logging.dart';
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
 import 'package:rohd_vf/rohd_vf.dart';
@@ -905,9 +906,244 @@ class Axi4BfmRandomAccessTest extends Axi4BfmTest {
   void check() {}
 }
 
+class Axi4WriteComplianceEvilTest extends Test {
+  late final Axi4SystemInterface sIntf;
+  late final Axi4WriteInterface wIntf;
+
+  late final Axi4WriteMainDriver driver;
+  late final Sequencer<Axi4WriteRequestPacket> sequencer;
+
+  Axi4WriteComplianceEvilTest(super.name) : super(randomSeed: 123) {
+    // using default parameter values for all interfaces
+    sIntf = Axi4SystemInterface();
+    wIntf = Axi4WriteInterface(
+      addrWidth: 4,
+      dataWidth: 8,
+      lenWidth: 2,
+      wuserWidth: 3,
+    );
+    sequencer = Sequencer<Axi4WriteRequestPacket>('${name}_sequencer', this);
+    driver = Axi4WriteMainDriver(
+        sIntf: sIntf, wIntf: wIntf, sequencer: sequencer, parent: this);
+    Axi4WriteComplianceChecker(sIntf, wIntf, parent: this);
+
+    sIntf.clk <= SimpleClockGenerator(10).clk;
+  }
+
+  @override
+  Future<void> run(Phase phase) async {
+    unawaited(super.run(phase));
+
+    final obj = phase.raiseObjection('axi4WriteComplianceEvilTestObj');
+    await resetFlow();
+
+    // send a request with an invalid size
+    final req1 = Axi4WriteRequestPacket(
+      addr: LogicValue.ofInt(0x0, wIntf.addrWidth), // don't care
+      prot: LogicValue.ofInt(0x0, wIntf.protWidth), // don't care
+      data: [LogicValue.ofInt(0x0, wIntf.dataWidth)], // don't care
+      id: LogicValue.ofInt(0x0, wIntf.idWidth), // don't care
+      len: LogicValue.ofInt(0x0, wIntf.lenWidth), // don't care
+      size:
+          LogicValue.ofInt(Axi4SizeField.bit128.value, wIntf.sizeWidth), // bad
+      burst: LogicValue.ofInt(
+          Axi4BurstField.fixed.value, wIntf.burstWidth), // don't care
+      lock: LogicValue.zero, // don't care
+      cache: LogicValue.ofInt(0, wIntf.cacheWidth), // not supported
+      qos: LogicValue.ofInt(0, wIntf.qosWidth), // not supported
+      region: LogicValue.ofInt(0, wIntf.regionWidth), // not supported
+      user: LogicValue.ofInt(0, wIntf.awuserWidth), // not supported
+      strobe: [LogicValue.ofInt(0x0, wIntf.dataWidth)], // don't care
+      wUser: LogicValue.ofInt(0, wIntf.wuserWidth), // not supported
+    );
+    sequencer.add(req1);
+    await req1.completed;
+    await sIntf.clk.waitCycles(10);
+
+    // send a request, subsequent data has a different ID
+    // TODO: driving mechanism doesn't allow this right now!!
+
+    // send a request, send too many data flits
+    // send a request, send LAST on the wrong flit
+    final req2 = Axi4WriteRequestPacket(
+      addr: LogicValue.ofInt(0x0, wIntf.addrWidth), // don't care
+      prot: LogicValue.ofInt(0x0, wIntf.protWidth), // don't care
+      data: [
+        LogicValue.ofInt(0x0, wIntf.dataWidth),
+        LogicValue.ofInt(0x0, wIntf.dataWidth),
+        LogicValue.ofInt(0x0, wIntf.dataWidth),
+        LogicValue.ofInt(0x0, wIntf.dataWidth)
+      ], // bad
+      id: LogicValue.ofInt(0x1, wIntf.idWidth), // don't care
+      len: LogicValue.ofInt(0x0, wIntf.lenWidth), // don't care
+      size: LogicValue.ofInt(Axi4SizeField.bit8.value, wIntf.sizeWidth), // good
+      burst: LogicValue.ofInt(
+          Axi4BurstField.fixed.value, wIntf.burstWidth), // don't care
+      lock: LogicValue.zero, // don't care
+      cache: LogicValue.ofInt(0, wIntf.cacheWidth), // not supported
+      qos: LogicValue.ofInt(0, wIntf.qosWidth), // not supported
+      region: LogicValue.ofInt(0, wIntf.regionWidth), // not supported
+      user: LogicValue.ofInt(0, wIntf.awuserWidth), // not supported
+      strobe: [
+        LogicValue.ofInt(0x0, wIntf.strbWidth),
+        LogicValue.ofInt(0x0, wIntf.strbWidth),
+        LogicValue.ofInt(0x0, wIntf.strbWidth),
+        LogicValue.ofInt(0x0, wIntf.strbWidth)
+      ], // bad
+      wUser: LogicValue.ofInt(0, wIntf.wuserWidth), // not supported
+    );
+    sequencer.add(req2);
+    await req2.completed;
+    await sIntf.clk.waitCycles(10);
+
+    obj.drop();
+  }
+
+  Future<void> resetFlow() async {
+    await sIntf.clk.waitCycles(2);
+    sIntf.resetN.inject(0);
+    await sIntf.clk.waitCycles(3);
+    sIntf.resetN.inject(1);
+    wIntf.awReady.inject(1);
+    wIntf.wReady.inject(1);
+    wIntf.bReady.inject(1);
+  }
+
+  // Nothing in particular to check...
+  @override
+  void check() {}
+}
+
+class Axi4ReadComplianceEvilTest extends Test {
+  late final Axi4SystemInterface sIntf;
+  late final Axi4ReadInterface rIntf;
+
+  late final Axi4ReadMainDriver driver;
+  late final Sequencer<Axi4ReadRequestPacket> sequencer;
+
+  Axi4ReadComplianceEvilTest(super.name) : super(randomSeed: 123) {
+    // using default parameter values for all interfaces
+    sIntf = Axi4SystemInterface();
+    rIntf = Axi4ReadInterface(
+      addrWidth: 4,
+      dataWidth: 8,
+      lenWidth: 2,
+      ruserWidth: 0,
+    );
+    sequencer = Sequencer<Axi4ReadRequestPacket>('${name}_sequencer', this);
+    driver = Axi4ReadMainDriver(
+        sIntf: sIntf, rIntf: rIntf, sequencer: sequencer, parent: this);
+    Axi4ReadComplianceChecker(sIntf, rIntf, parent: this);
+
+    sIntf.clk <= SimpleClockGenerator(10).clk;
+  }
+
+  @override
+  Future<void> run(Phase phase) async {
+    unawaited(super.run(phase));
+
+    final obj = phase.raiseObjection('axi4WriteComplianceEvilTestObj');
+    await resetFlow();
+
+    // send a request with an invalid size
+    final req1 = Axi4ReadRequestPacket(
+      addr: LogicValue.ofInt(0x0, rIntf.addrWidth), // don't care
+      prot: LogicValue.ofInt(0x0, rIntf.protWidth), // don't care
+      id: LogicValue.ofInt(0x0, rIntf.idWidth), // don't care
+      len: LogicValue.ofInt(0x0, rIntf.lenWidth), // don't care
+      size:
+          LogicValue.ofInt(Axi4SizeField.bit128.value, rIntf.sizeWidth), // bad
+      burst: LogicValue.ofInt(
+          Axi4BurstField.fixed.value, rIntf.burstWidth), // don't care
+      lock: LogicValue.zero, // don't care
+      cache: LogicValue.ofInt(0, rIntf.cacheWidth), // not supported
+      qos: LogicValue.ofInt(0, rIntf.qosWidth), // not supported
+      region: LogicValue.ofInt(0, rIntf.regionWidth), // not supported
+      user: LogicValue.ofInt(0, rIntf.aruserWidth), // not supported
+    );
+    sequencer.add(req1);
+    await req1.completed;
+    await sIntf.clk.waitCycles(10);
+
+    // send a request, response data has a different ID
+    // send a request with an invalid size
+    final req2 = Axi4ReadRequestPacket(
+      addr: LogicValue.ofInt(0x0, rIntf.addrWidth), // don't care
+      prot: LogicValue.ofInt(0x0, rIntf.protWidth), // don't care
+      id: LogicValue.ofInt(0x1, rIntf.idWidth), // don't care
+      len: LogicValue.ofInt(0x0, rIntf.lenWidth), // don't care
+      size: LogicValue.ofInt(Axi4SizeField.bit8.value, rIntf.sizeWidth), // good
+      burst: LogicValue.ofInt(
+          Axi4BurstField.fixed.value, rIntf.burstWidth), // don't care
+      lock: LogicValue.zero, // don't care
+      cache: LogicValue.ofInt(0, rIntf.cacheWidth), // not supported
+      qos: LogicValue.ofInt(0, rIntf.qosWidth), // not supported
+      region: LogicValue.ofInt(0, rIntf.regionWidth), // not supported
+      user: LogicValue.ofInt(0, rIntf.aruserWidth), // not supported
+    );
+    sequencer.add(req2);
+    await req2.completed;
+    await sIntf.clk.nextNegedge;
+    rIntf.rValid.inject(1);
+    rIntf.rId!.inject(0x2);
+    await sIntf.clk.nextNegedge;
+    rIntf.rValid.inject(0);
+    await sIntf.clk.waitCycles(10);
+
+    // send a request, receive too many data flits
+    // send a request, receive LAST on the wrong flit
+    final req3 = Axi4ReadRequestPacket(
+      addr: LogicValue.ofInt(0x0, rIntf.addrWidth), // don't care
+      prot: LogicValue.ofInt(0x0, rIntf.protWidth), // don't care
+      id: LogicValue.ofInt(0x2, rIntf.idWidth), // don't care
+      len: LogicValue.ofInt(0x0, rIntf.lenWidth), // don't care
+      size: LogicValue.ofInt(Axi4SizeField.bit8.value, rIntf.sizeWidth), // good
+      burst: LogicValue.ofInt(
+          Axi4BurstField.fixed.value, rIntf.burstWidth), // don't care
+      lock: LogicValue.zero, // don't care
+      cache: LogicValue.ofInt(0, rIntf.cacheWidth), // not supported
+      qos: LogicValue.ofInt(0, rIntf.qosWidth), // not supported
+      region: LogicValue.ofInt(0, rIntf.regionWidth), // not supported
+      user: LogicValue.ofInt(0, rIntf.aruserWidth), // not supported
+    );
+    sequencer.add(req3);
+    await req3.completed;
+    rIntf.rLast!.inject(0);
+    for (var i = 0; i < 10; i++) {
+      await sIntf.clk.nextNegedge;
+      rIntf.rValid.inject(1);
+      rIntf.rId!.inject(0x2);
+      if (i == 10) {
+        rIntf.rLast!.inject(0x1);
+      }
+    }
+    await sIntf.clk.waitCycles(10);
+
+    obj.drop();
+  }
+
+  Future<void> resetFlow() async {
+    await sIntf.clk.waitCycles(2);
+    sIntf.resetN.inject(0);
+    await sIntf.clk.waitCycles(3);
+    sIntf.resetN.inject(1);
+    rIntf.arReady.inject(1);
+    rIntf.rReady.inject(1);
+  }
+
+  // Nothing in particular to check...
+  @override
+  void check() {}
+}
+
 void main() {
   tearDown(() async {
-    await Simulator.reset();
+    await Test.reset();
+  });
+
+  setUp(() async {
+    // Set the logger level
+    Logger.root.level = Level.SEVERE;
   });
 
   Future<void> runTest(Axi4BfmTest axi4BfmTest,
@@ -999,5 +1235,23 @@ void main() {
       interTxnDelay: 3,
       supportLocking: true,
     ));
+  });
+
+  test('evil write compliance', () async {
+    Simulator.setMaxSimTime(10000);
+    try {
+      await Axi4WriteComplianceEvilTest('evilWriteCompliance').start();
+    } on Exception catch (e) {
+      expect(e.toString(), contains('Test failed'));
+    }
+  });
+
+  test('evil read compliance', () async {
+    Simulator.setMaxSimTime(30000);
+    try {
+      await Axi4ReadComplianceEvilTest('evilReadCompliance').start();
+    } on Exception catch (e) {
+      expect(e.toString(), contains('Test failed'));
+    }
   });
 }

@@ -76,27 +76,28 @@ class Axi4ReadComplianceChecker extends Component {
           logger.severe(
               'Cannot match a read response to any pending read request. '
               'ID captured by the response was $id.');
-        }
-
-        // always pull from the top
-        // NOTE: error responses should still work b/c in quantity they
-        // should still match the request
-        readReqMap[id]![0][1] = readReqMap[id]![0][1] + 1;
-        final len = readReqMap[id]![0][0];
-        final currCount = readReqMap[id]![0][1];
-        if (currCount > len) {
-          logger.severe(
-              'Received more read response data flits than indicated by the '
-              'request with ID $id ARLEN. Expected $len but got $currCount');
-        } else if (currCount == len &&
-            rLastPresent &&
-            !rIntf.rLast!.previousValue!.toBool()) {
-          logger.severe('Received the final flit in the read response data per '
-              'the request with ID $id ARLEN but RLAST is not asserted.');
-        } else if (currCount == len &&
-            rLastPresent &&
-            rIntf.rLast!.previousValue!.toBool()) {
-          readReqMap[id]!.removeAt(0);
+        } else {
+          // always pull from the top
+          // NOTE: error responses should still work b/c in quantity they
+          // should still match the request
+          readReqMap[id]![0][1] = readReqMap[id]![0][1] + 1;
+          final len = readReqMap[id]![0][0];
+          final currCount = readReqMap[id]![0][1];
+          if (currCount > len) {
+            logger.severe(
+                'Received more read response data flits than indicated by the '
+                'request with ID $id ARLEN. Expected $len but got $currCount');
+          } else if (currCount == len &&
+              rLastPresent &&
+              !rIntf.rLast!.previousValue!.toBool()) {
+            logger
+                .severe('Received the final flit in the read response data per '
+                    'the request with ID $id ARLEN but RLAST is not asserted.');
+          } else if (currCount == len &&
+              rLastPresent &&
+              rIntf.rLast!.previousValue!.toBool()) {
+            readReqMap[id]!.removeAt(0);
+          }
         }
       }
     });
