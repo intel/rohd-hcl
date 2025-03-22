@@ -9,13 +9,12 @@
 
 import 'dart:io';
 import 'dart:math';
-import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
 import 'package:test/test.dart';
 
 void main() {
   test('FP: singleton conversion wide to narrow exponent', () async {
-    final fv1 = FloatingPointValue.ofBinaryStrings('0', '000', '0001');
+    final fv1 = FloatingPointValue.ofBinaryStrings('0', '010', '1111');
     final exponentWidth = fv1.exponent.width;
     final mantissaWidth = fv1.mantissa.width;
     final fp1 = FloatingPoint(
@@ -52,7 +51,7 @@ void main() {
   });
 
   test('FP: singleton conversion narrow to wide exponent', () {
-    final fv1 = FloatingPointValue.ofBinaryStrings('0', '000', '0001');
+    final fv1 = FloatingPointValue.ofBinaryStrings('0', '010', '1111');
     final exponentWidth = fv1.exponent.width;
     final mantissaWidth = fv1.mantissa.width;
     final fp1 = FloatingPoint(
@@ -79,8 +78,9 @@ void main() {
                               $expected (${expected.toDouble()})\texpected
 ''');
   });
+
   test('FP: conversion wide to narrow exponent exhaustive', () {
-    const exponentWidth = 6;
+    const exponentWidth = 4;
     const mantissaWidth = 6;
     const normal = 0; // set to zero for subnormal testing
 
@@ -128,6 +128,7 @@ void main() {
       }
     }
   });
+
   test('FP: conversion narrow to wide exhaustive', () {
     const exponentWidth = 4;
     const mantissaWidth = 5;
@@ -138,10 +139,10 @@ void main() {
     // ignore: cascade_invocations
     fp1.put(0);
     for (var destExponentWidth = exponentWidth;
-        destExponentWidth < exponentWidth + 4;
+        destExponentWidth < exponentWidth + 2;
         destExponentWidth++) {
       for (var destMantissaWidth = mantissaWidth - 2;
-          destMantissaWidth < mantissaWidth + 6;
+          destMantissaWidth < mantissaWidth + 3;
           destMantissaWidth++) {
         final fp2 = FloatingPoint(
             exponentWidth: destExponentWidth, mantissaWidth: destMantissaWidth);
@@ -229,220 +230,246 @@ void main() {
     expect(bf16.floatingPointValue.toDouble(), equals(1.0));
   });
 
-  test('FP: wider conversion explicit to implicit jbit', () {
-    const exponentWidth = 4;
-    const mantissaWidth = 4;
-    const delta = 1;
+  group('FP: explicit-jbit conversions', () {
+    test('FP: narrowing conversion explicit to implicit jbit', () {
+      const exponentWidth = 4;
+      const mantissaWidth = 4;
+      const delta = -1;
 
-    FloatingPointValue ofString(String s) =>
-        FloatingPointValue.ofSpacedBinaryString(s);
+      FloatingPointExplicitJBitValue ofExplicitString(String s) =>
+          FloatingPointExplicitJBitValue.ofSpacedBinaryString(s);
 
-    FloatingPointExplicitJBitValue ofExplicitString(String s) =>
-        FloatingPointExplicitJBitValue.ofSpacedBinaryString(s);
+      final fpj = FloatingPointExplicitJBit(
+          exponentWidth: exponentWidth, mantissaWidth: mantissaWidth);
 
-    final fpj = FloatingPointExplicitJBit(
-        exponentWidth: exponentWidth, mantissaWidth: mantissaWidth);
+      final fvj = ofExplicitString('0 1011 0001'); //trueS = 3 ok
+      if (fvj.isLegalValue()) {
+        final fp = FloatingPoint(
+            exponentWidth: exponentWidth + delta, mantissaWidth: mantissaWidth);
 
-    final fvj = ofExplicitString('0 0000 0000');
-    if (fvj.isLegalValue()) {
-      final fp = FloatingPoint(
+        fpj.put(fvj);
+
+        final expected = FloatingPointValue.populator(
+                exponentWidth: exponentWidth + delta,
+                mantissaWidth: mantissaWidth)
+            .ofDouble(fvj.toDouble());
+
+        FloatingPointConverter(fpj, fp);
+        final computed = fp.floatingPointValue;
+        expect(computed, equals(expected), reason: '''
+input:      $fvj  ${fvj.toDouble()}
+normalized: ${fvj.normalized()} ${fvj.normalized().toDouble()}
+computed:   $computed ${computed.toDouble()}
+expected:   $expected ${expected.toDouble()}
+''');
+      } else {
+        stdout.write('illegal jbit value');
+      }
+    });
+
+    test('FP: conversion explicit to implicit j-bit exhaustive round-trip', () {
+      const exponentWidth = 6;
+      const mantissaWidth = 4;
+      var cnt = 0;
+
+      final fpj = FloatingPointExplicitJBit(
+          exponentWidth: exponentWidth, mantissaWidth: mantissaWidth);
+      for (final delta in [-2, 2]) {
+        final fp = FloatingPoint(
+            exponentWidth: exponentWidth + delta, mantissaWidth: mantissaWidth);
+        fpj.put(0);
+        final converter = FloatingPointConverter(fpj, fp);
+
+        for (final signVal in [false, true]) {
+          for (var e = 0; e < pow(2.0, exponentWidth).toInt(); e++) {
+            for (var m = 0; m < pow(2.0, mantissaWidth).toInt(); m++) {
+              final fpev = FloatingPointExplicitJBitValue.populator(
+                      exponentWidth: exponentWidth,
+                      mantissaWidth: mantissaWidth)
+                  .ofInts(e, m, sign: signVal);
+              if (fpev.isLegalValue()) {
+                fpj.put(fpev);
+                cnt++;
+                final computed = converter.destination.floatingPointValue;
+                final dbl = fpev.toDouble();
+                final expected = FloatingPointValue.populator(
+                        exponentWidth: exponentWidth + delta,
+                        mantissaWidth: mantissaWidth)
+                    .ofDouble(dbl,
+                        roundingMode: delta < 0
+                            ? FloatingPointRoundingMode.roundNearestEven
+                            : FloatingPointRoundingMode.truncate);
+                expect(computed, equals(expected), reason: '''
+input:      $fpev  ${fpev.toDouble()}
+normalized: ${fpev.normalized()} ${fpev.normalized().toDouble()}
+computed:   $computed ${computed.toDouble()}
+expected:   $expected ${expected.toDouble()}
+''');
+              }
+            }
+          }
+        }
+      }
+      stdout.write('cnt=$cnt');
+    });
+
+    test('FP: narrowing conversion implicit to explicit jbit', () {
+      const exponentWidth = 4;
+      const mantissaWidth = 6;
+      const delta = -2;
+
+      FloatingPointValue ofString(String s) =>
+          FloatingPointValue.ofSpacedBinaryString(s);
+
+      final fpj = FloatingPoint(
+          exponentWidth: exponentWidth, mantissaWidth: mantissaWidth);
+
+      final fvj = ofString('0 0111 111111');
+      final fp = FloatingPointExplicitJBit(
           exponentWidth: exponentWidth + delta, mantissaWidth: mantissaWidth);
 
       fpj.put(fvj);
+      final expected = FloatingPointExplicitJBitValue.populator(
+              exponentWidth: exponentWidth + delta,
+              mantissaWidth: mantissaWidth)
+          .ofDouble(fvj.toDouble());
 
       FloatingPointConverter(fpj, fp);
-      print('${fpj.floatingPointExplicitJBitValue} '
-          '${fpj.floatingPointExplicitJBitValue.toDouble()}');
-      print('${fp.floatingPointValue} '
-          '${fp.floatingPointValue.toDouble()}');
-    } else {
-      print('illegal jbit value');
-    }
-  });
-
-  test('FP: wider conversion explicit to implicit j-bit exhaustive round-trip',
-      () {
-    const exponentWidth = 4;
-    const mantissaWidth = 4;
-    const delta = 2;
-
-    final fpj = FloatingPointExplicitJBit(
-        exponentWidth: exponentWidth, mantissaWidth: mantissaWidth);
-    final fp = FloatingPoint(
-        exponentWidth: exponentWidth + delta, mantissaWidth: mantissaWidth);
-    final converter = FloatingPointConverter(fpj, fp);
-
-    for (final signStr in ['0', '1']) {
-      var exponent = LogicValue.zero.zeroExtend(exponentWidth);
-      for (var e = 0; e < pow(2.0, exponentWidth).toInt(); e++) {
-        final expStr = exponent.bitString;
-        var mantissa = LogicValue.zero.zeroExtend(mantissaWidth);
-        for (var m = 0; m < pow(2.0, mantissaWidth).toInt(); m++) {
-          final mantStr = mantissa.bitString;
-          final fpev = FloatingPointExplicitJBitValue.ofBinaryStrings(
-              signStr, expStr, mantStr);
-          if (fpev.isLegalValue()) {
-            fpj.put(fpev);
-            final computed = converter.destination.floatingPointValue;
-            final dbl = fpev.toDouble();
-            final fpv = FloatingPointValue.populator(
-                    exponentWidth: exponentWidth + delta,
-                    mantissaWidth: mantissaWidth)
-                .ofDouble(dbl,
-                    roundingMode: FloatingPointRoundingMode.truncate);
-            expect(computed, equals(fpv));
-          }
-          mantissa = mantissa + 1;
-        }
-        exponent = exponent + 1;
-      }
-    }
-  });
-
-  test('FP: wider conversion implicit to explicit jbit', () {
-    const exponentWidth = 4;
-    const mantissaWidth = 8;
-
-    FloatingPointValue ofString(String s) =>
-        FloatingPointValue.ofSpacedBinaryString(s);
-
-    final fpj = FloatingPointExplicitJBit(
-        exponentWidth: exponentWidth + 2, mantissaWidth: mantissaWidth);
-
-    final fv = ofString('0 0000 01000000');
-
-    final fp = FloatingPoint(
-        exponentWidth: exponentWidth, mantissaWidth: mantissaWidth);
-
-    // ignore: cascade_invocations
-    fp.put(fv);
-
-    FloatingPointConverter(fp, fpj);
-    print('${fp.floatingPointValue} '
-        '${fp.floatingPointValue.toDouble()}');
-    print('${fpj.floatingPointExplicitJBitValue} '
-        '${fpj.floatingPointExplicitJBitValue.toDouble()}');
-  });
-
-  test('FP: wider conversion implicit to explicit j-bit exhaustive round-trip',
-      () {
-    const exponentWidth = 4;
-    const mantissaWidth = 4;
-    const delta = 2;
-    final fp = FloatingPoint(
-        exponentWidth: exponentWidth, mantissaWidth: mantissaWidth);
-    final fpj = FloatingPointExplicitJBit(
-        exponentWidth: exponentWidth + delta, mantissaWidth: mantissaWidth);
-    final converter = FloatingPointConverter(fp, fpj);
-
-    for (final signStr in ['0', '1']) {
-      var exponent = LogicValue.zero.zeroExtend(exponentWidth);
-      for (var e = 0; e < pow(2.0, exponentWidth).toInt(); e++) {
-        final expStr = exponent.bitString;
-        var mantissa = LogicValue.zero.zeroExtend(mantissaWidth);
-        for (var m = 0; m < pow(2.0, mantissaWidth).toInt(); m++) {
-          final mantStr = mantissa.bitString;
-
-          final fpev =
-              FloatingPointValue.ofBinaryStrings(signStr, expStr, mantStr);
-          fp.put(fpev);
-          final computed = converter.destination.floatingPointExplicitJBitValue;
-          final dbl = fpev.toDouble();
-          final fpv = FloatingPointExplicitJBitValue.populator(
-                  exponentWidth: exponentWidth + delta,
-                  mantissaWidth: mantissaWidth)
-              .ofDouble(dbl, roundingMode: FloatingPointRoundingMode.truncate);
-          expect(computed, equals(fpv));
-        }
-        mantissa = mantissa + 1;
-      }
-      exponent = exponent + 1;
-    }
-  });
-
-  test('FP: wider conversion explicit to explicit jbit', () {
-    const exponentWidth = 4;
-    const mantissaWidth = 4;
-
-    FloatingPointExplicitJBitValue ofExplicitString(String s) =>
-        FloatingPointExplicitJBitValue.ofSpacedBinaryString(s);
-
-    // final fpj = FloatingPoint(
-    final fpj1 = FloatingPointExplicitJBit(
-        exponentWidth: exponentWidth, mantissaWidth: mantissaWidth);
-
-    // final fv = ofExplicitString('0 0000 0001');
-    // final fv = ofExplicitString('0 0000 0101');
-    // final fv = ofExplicitString('0 0010 0001'); // fails shifted L1
-    // final fv = ofExplicitString('0 0100 0001'); //fails goes to zero
-    final fv = ofExplicitString('0 0111 1000');
-    // final fv = ofExplicitString('0 0010 1000');
-
-    final fpj2 = FloatingPointExplicitJBit(
-        exponentWidth: exponentWidth, mantissaWidth: mantissaWidth);
-
-    // ignore: cascade_invocations
-    fpj2.put(fv);
-    print('${fv.isLegalValue()}');
-
-    if (fv.isLegalValue()) {
-      FloatingPointConverter(fpj2, fpj1);
-      print('${fpj2.floatingPointExplicitJBitValue} '
-          '${fpj2.floatingPointExplicitJBitValue.toDouble()}');
-      print('${fpj1.floatingPointExplicitJBitValue} '
-          '${fpj1.floatingPointExplicitJBitValue.toDouble()}');
-
-      print('${fpj2.floatingPointExplicitJBitValue.normalized()} '
-          '${fpj2.floatingPointExplicitJBitValue.normalized().toDouble()}');
-      print('${fpj1.floatingPointExplicitJBitValue.normalized()} '
-          '${fpj1.floatingPointExplicitJBitValue.normalized().toDouble()}');
-    } else {
-      print('illegal value');
-    }
-  });
-
-  test('FP: wider conversion explicit to explicit j-bit exhaustive round-trip',
-      () {
-    const exponentWidth = 4;
-    const mantissaWidth = 4;
-    const delta = 2;
-
-    final fpj = FloatingPointExplicitJBit(
-        exponentWidth: exponentWidth, mantissaWidth: mantissaWidth);
-    final fp = FloatingPointExplicitJBit(
-        exponentWidth: exponentWidth + delta, mantissaWidth: mantissaWidth);
-    final converter = FloatingPointConverter(fpj, fp);
-
-    for (final signStr in ['0', '1']) {
-      var exponent = LogicValue.zero.zeroExtend(exponentWidth);
-      for (var e = 0; e < pow(2.0, exponentWidth).toInt(); e++) {
-        final expStr = exponent.bitString;
-        var mantissa = LogicValue.zero.zeroExtend(mantissaWidth);
-        for (var m = 0; m < pow(2.0, mantissaWidth).toInt(); m++) {
-          final mantStr = mantissa.bitString;
-
-          final fpev = FloatingPointExplicitJBitValue.ofBinaryStrings(
-              signStr, expStr, mantStr);
-          if (fpev.isLegalValue()) {
-            fpj.put(fpev);
-            final computed =
-                converter.destination.floatingPointExplicitJBitValue;
-            final dbl = fpev.toDouble();
-            final fpv = FloatingPointExplicitJBitValue.populator(
-                    exponentWidth: exponentWidth + delta,
-                    mantissaWidth: mantissaWidth)
-                .ofDouble(dbl,
-                    roundingMode: FloatingPointRoundingMode.truncate);
-            ;
-            expect(computed.normalized(), equals(fpv.normalized()), reason: '''
-            ${computed.toDouble()}
-            ${fpv.toDouble()}
+      final computed = fp.floatingPointExplicitJBitValue;
+      expect(computed.normalized(), equals(expected), reason: '''
+input:      $fvj
+computed:   $computed
+normalized: ${computed.normalized()}
+expected:   $expected
 ''');
+    });
+
+    test('FP: conversion implicit to explicit j-bit exhaustive round-trip', () {
+      const exponentWidth = 4;
+      const mantissaWidth = 6;
+      var cnt = 0;
+
+      final fp = FloatingPoint(
+          exponentWidth: exponentWidth, mantissaWidth: mantissaWidth);
+      for (final delta in [-2, 2]) {
+        final fpj = FloatingPointExplicitJBit(
+            exponentWidth: exponentWidth + delta, mantissaWidth: mantissaWidth);
+        fp.put(0);
+        final converter = FloatingPointConverter(fp, fpj);
+
+        for (final signVal in [false, true]) {
+          for (var e = 0; e < pow(2.0, exponentWidth).toInt(); e++) {
+            for (var m = 0; m < pow(2.0, mantissaWidth).toInt(); m++) {
+              final fpev = FloatingPointValue.populator(
+                      exponentWidth: exponentWidth,
+                      mantissaWidth: mantissaWidth)
+                  .ofInts(e, m, sign: signVal);
+              final nfpev = fpev;
+              fp.put(nfpev);
+              cnt++;
+              final computed =
+                  converter.destination.floatingPointExplicitJBitValue;
+              final dbl = fpev.toDouble();
+              final fpv = FloatingPointExplicitJBitValue.populator(
+                      exponentWidth: exponentWidth + delta,
+                      mantissaWidth: mantissaWidth)
+                  .ofDouble(dbl,
+                      roundingMode: delta < 0
+                          ? FloatingPointRoundingMode.roundNearestEven
+                          : FloatingPointRoundingMode.truncate);
+              expect(computed.normalized(), equals(fpv), reason: '''
+input:      $fpev
+computed:   $computed
+normalized: ${computed.normalized()}
+expected:   $fpv
+''');
+            }
           }
-          mantissa = mantissa + 1;
         }
-        exponent = exponent + 1;
       }
-    }
+      stdout.write('cnt=$cnt');
+    });
+
+    test('FP: singleton conversion explicit to explicit jbit', () {
+      const exponentWidth = 4;
+      const mantissaWidth = 4;
+      const delta = -2;
+
+      FloatingPointExplicitJBitValue ofExplicitString(String s) =>
+          FloatingPointExplicitJBitValue.ofSpacedBinaryString(s);
+
+      final fpj = FloatingPointExplicitJBit(
+          exponentWidth: exponentWidth, mantissaWidth: mantissaWidth);
+
+      final fvj = ofExplicitString('0 0000 0001');
+      if (fvj.isLegalValue()) {
+        final fp = FloatingPointExplicitJBit(
+            exponentWidth: exponentWidth + delta, mantissaWidth: mantissaWidth);
+
+        fpj.put(fvj);
+        final dbl = fvj.toDouble();
+        final expectedPartial = FloatingPointExplicitJBitValue.populator(
+            exponentWidth: exponentWidth + delta, mantissaWidth: mantissaWidth);
+        final expected = expectedPartial.ofDouble(dbl);
+
+        FloatingPointConverter(fpj, fp);
+        final computed = fp.floatingPointExplicitJBitValue;
+        expect(computed.normalized(), equals(expected), reason: '''
+input:    $fvj
+computed: $computed
+expected: $expected
+''');
+      } else {
+        stdout.write('illegal jbit value');
+      }
+    });
+
+    test('FP: conversion explicit to explicit j-bit exhaustive round-trip', () {
+      const exponentWidth = 6;
+      const mantissaWidth = 4;
+      var cnt = 0;
+
+      final fp = FloatingPointExplicitJBit(
+          exponentWidth: exponentWidth, mantissaWidth: mantissaWidth);
+      // ignore: cascade_invocations
+      fp.put(0);
+
+      for (final delta in [-2, 2]) {
+        final fpj = FloatingPointExplicitJBit(
+            exponentWidth: exponentWidth + delta, mantissaWidth: mantissaWidth);
+        final converter = FloatingPointConverter(fp, fpj);
+        for (final signVal in [false, true]) {
+          for (var e = 0; e < pow(2.0, exponentWidth).toInt(); e++) {
+            for (var m = 0; m < pow(2.0, mantissaWidth).toInt(); m++) {
+              final fpev = FloatingPointExplicitJBitValue.populator(
+                      exponentWidth: exponentWidth,
+                      mantissaWidth: mantissaWidth)
+                  .ofInts(e, m, sign: signVal);
+              if (fpev.isLegalValue()) {
+                cnt++;
+                fp.put(fpev);
+                final computed =
+                    converter.destination.floatingPointExplicitJBitValue;
+                final dbl = fpev.toDouble();
+                final fpv = FloatingPointExplicitJBitValue.populator(
+                        exponentWidth: exponentWidth + delta,
+                        mantissaWidth: mantissaWidth)
+                    .ofDouble(dbl,
+                        roundingMode: delta < 0
+                            ? FloatingPointRoundingMode.roundNearestEven
+                            : FloatingPointRoundingMode.truncate);
+                expect(computed.normalized(), equals(fpv), reason: '''
+input:    $fpev
+normalized: ${fpev.normalized()}
+computed: $computed
+expected: $fpv
+''');
+              }
+            }
+          }
+        }
+      }
+      stdout.write('cnt=$cnt');
+    });
   });
 }

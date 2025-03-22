@@ -237,7 +237,7 @@ class FloatingPointValuePopulator<FpvType extends FloatingPointValue> {
             (-expVal +
                 (!explicitJBit & (fp64.exponent.toInt() > 0)
                     ? 1
-                    : (explicitJBit)
+                    : explicitJBit
                         ? 1
                         : 0))
         : [LogicValue.one, fp64.mantissa].swizzle());
@@ -431,7 +431,7 @@ class FloatingPointExplicitJBitPopulator
           sign: fpv.sign,
           exponent: fpv.exponent,
           mantissa: fpv.mantissa.zeroExtend(fpv.mantissa.width + 1) |
-              (fpv.isNormal()
+              (fpv.isNormal() & !fpv.isAnInfinity & !fpv.isNaN
                   ? (LogicValue.of(1, width: fpv.mantissa.width + 1) <<
                       fpv.mantissa.width)
                   : LogicValue.of(0, width: fpv.mantissa.width + 1)));

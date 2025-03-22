@@ -61,8 +61,6 @@ class FloatingPointConverter<FpTypeIn extends FloatingPoint,
     addOutput('destination', width: _destination.width) <= _destination;
     destination <= output('destination');
 
-    // print('source is ${source.explicitJBit.value.toBool()}');
-
     // maxExpWidth: mantissa +2:
     //     1 for the hidden jbit and 1 for going past with leadingOneDetect
     final maxExpWidth = [
@@ -82,11 +80,11 @@ class FloatingPointConverter<FpTypeIn extends FloatingPoint,
     final Logic infinity;
     final Logic destExponent;
     final Logic destMantissa;
+
     if (destExponentWidth >= source.exponent.width) {
       // Narrow to Wide
       infinity = source.isAnInfinity;
       final biasDiff = (dBias - sBias).named('biasDiff');
-      final predictExp = (se + biasDiff).named('predictExp');
 
       final leadOneValid = Logic(name: 'leadOne_valid');
       final leadOnePre = priorityGen(mantissa.reversed,
@@ -109,7 +107,15 @@ class FloatingPointConverter<FpTypeIn extends FloatingPoint,
       final shift = mux(fullDiff.gte(leadOne) & leadOneValid, leadOne, fullDiff)
           .named('shift');
 
-      final newMantissa = (mantissa << shift).named('mantissaShift');
+      final trueShift = shift +
+          mux(
+              destination.explicitJBit & source.isNormal & ~source.explicitJBit,
+              Const(-1, width: biasDiff.width),
+              Const(0, width: biasDiff.width));
+
+      final newMantissa = mux(trueShift[-1], mantissa >> (~trueShift + 1),
+              mantissa << trueShift)
+          .named('mantissaShift');
 
       final Logic roundedMantissa;
       final Logic roundIncExp;
@@ -141,6 +147,7 @@ class FloatingPointConverter<FpTypeIn extends FloatingPoint,
               : roundedMantissa)
           .named('destMantissa');
 
+      final predictExp = (se + biasDiff).named('predictExp');
       final predictSub = mux(
               fullDiff.gte(leadOne) & leadOneValid,
               fullDiff - (leadOne - Const(1, width: leadOne.width)),
@@ -155,22 +162,46 @@ class FloatingPointConverter<FpTypeIn extends FloatingPoint,
     } else {
       // Wide to Narrow exponent
       final biasDiff = (sBias - dBias).named('biasDiff');
-      final predictE = mux(biasDiff.gte(se), Const(0, width: biasDiff.width),
-              (se - biasDiff).named('sourceRebiased'))
-          .named('predictExponent');
 
-      final shift = mux(
-          biasDiff.gte(se),
+      final leadOneValid = Logic(name: 'leadOne_valid');
+      final leadOnePre = priorityGen(mantissa.reversed,
+              valid: leadOneValid, name: 'lead_one_encoder')
+          .out;
+      final leadOne =
+          mux(leadOneValid, leadOnePre.zeroExtend(biasDiff.width), biasDiff)
+              .named('leadOne');
+
+      final seW = se.zeroExtend(biasDiff.width);
+      final newSe = mux(
+          leadOneValid & source.explicitJBit & source.isNormal,
+          mux(
+              seW.gte(leadOne),
+              seW - (leadOne - Const(1, width: biasDiff.width)),
+              Const(0, width: biasDiff.width)),
+          seW);
+
+      final nextShift = mux(
+          biasDiff.gte(newSe),
           (source.isNormal.zeroExtend(biasDiff.width).named('srcIsNormal') +
-                  (biasDiff - se).named('negSourceRebiased'))
+                  (biasDiff - newSe).named('negSourceRebiased'))
               .named('shiftSubnormal'),
           Const(0, width: biasDiff.width));
+
+      final tns = nextShift -
+          (se - newSe) +
+          mux(source.explicitJBit, Const(-1, width: biasDiff.width),
+              Const(0, width: biasDiff.width)) +
+          mux(destination.explicitJBit, Const(1, width: biasDiff.width),
+              Const(0, width: biasDiff.width));
 
       final fullMantissa = [mantissa, Const(0, width: destMantissaWidth + 2)]
           .swizzle()
           .named('fullMantissa');
 
-      final shiftMantissa = (fullMantissa >>> shift).named('shiftMantissa');
+      final shiftMantissa =
+          mux(tns[-1], fullMantissa << ~tns + 1, fullMantissa >>> tns)
+              .named('shiftMantissa');
+
       final rounder =
           RoundRNE(shiftMantissa, fullMantissa.width - destMantissaWidth - 1);
 
@@ -184,13 +215,24 @@ class FloatingPointConverter<FpTypeIn extends FloatingPoint,
               .swizzle()
               .named('rndIncrement'));
       final roundIncExp = roundAdder.sum[-1];
-      final roundedMantissa = roundAdder.sum.getRange(0, destMantissaWidth);
+      final rawMantissa = roundAdder.sum;
 
-      destExponent = (predictE + roundIncExp.zeroExtend(predictE.width))
+      final newSlice = roundIncExp & destination.explicitJBit;
+
+      final sliceMantissa =
+          mux(newSlice, rawMantissa.slice(-1, 1), rawMantissa.slice(-2, 0));
+
+      destMantissa = sliceMantissa.getRange(0, destMantissaWidth);
+
+      final predictEN = mux(
+              biasDiff.gte(newSe),
+              Const(0, width: biasDiff.width),
+              (newSe - biasDiff).named('sourceRebiased'))
+          .named('predictExponent');
+
+      destExponent = (predictEN + roundIncExp.zeroExtend(predictEN.width))
           .named('predictExpRounded')
           .getRange(0, destExponentWidth);
-      destMantissa =
-          roundedMantissa.getRange(0, destMantissaWidth).named('destMantissa');
 
       final maxDestExp = Const(
           destination.floatingPointValue.maxExponent +
@@ -198,7 +240,8 @@ class FloatingPointConverter<FpTypeIn extends FloatingPoint,
           width: maxExpWidth);
 
       infinity = source.isAnInfinity |
-          (se.gt(biasDiff) & (se - biasDiff).gt(maxDestExp));
+          (newSe.gt(biasDiff) & (newSe - biasDiff).gt(maxDestExp)) |
+          destExponent.zeroExtend(maxDestExp.width).gt(maxDestExp);
     }
     Combinational([
       If.block([
@@ -216,7 +259,7 @@ class FloatingPointConverter<FpTypeIn extends FloatingPoint,
                       mantissaWidth: destMantissaWidth)
                   .inf(sign: source.sign),
         ]),
-        ElseIf(Const(1), [
+        Else([
           _destination.sign < source.sign,
           _destination.exponent < destExponent,
           _destination.mantissa < destMantissa,
