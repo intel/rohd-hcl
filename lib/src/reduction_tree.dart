@@ -26,18 +26,18 @@ class ReductionTree extends Module {
 
   /// Operation to be performed at each node. Note that [_operation] can widen
   /// the output. The logic function must support the operation for 2 and up to
-  /// [_radix] inputs.
+  /// [radix] inputs.
   final Logic Function(List<Logic> inputs, {String name}) _operation;
 
   /// Specified width of input to each reduction node (e.g., binary: radix=2)
-  late final int _radix;
+  late final int radix;
 
-  /// When [_signExtend] is true, use sign-extension on values,
+  /// When [signExtend] is true, use sign-extension on values,
   /// otherwise use zero-extension.
-  late final bool _signExtend;
+  late final bool signExtend;
 
   /// Specified depth of nodes at which to flop (requires [_clk]).
-  late final int? _depthToFlop;
+  late final int? depthToFlop;
 
   /// Optional [_clk] input to create pipeline.
   late final Logic? _clk;
@@ -77,18 +77,19 @@ class ReductionTree extends Module {
   /// - [clk], [reset], [enable] are optionally provided to allow for flopping.
   /// - [depthToFlop] specifies how many nodes deep separate flops.
   ReductionTree(List<Logic> sequence, this._operation,
-      {int radix = 2,
-      bool signExtend = false,
-      int? depthToFlop,
+      {this.radix = 2,
+      this.signExtend = false,
+      this.depthToFlop,
       Logic? clk,
       Logic? enable,
       Logic? reset,
       super.name = 'reduction_tree'})
-      : _depthToFlop = depthToFlop,
-        _signExtend = signExtend,
-        _radix = radix,
-        super(
+      : super(
             definitionName: 'ReductionTreeNode_R${radix}_L${sequence.length}') {
+    if (sequence.isEmpty) {
+      throw RohdHclException("Don't use ReductionTree "
+          'with an empty sequence');
+    }
     _sequence = [
       for (var i = 0; i < sequence.length; i++)
         addInput('seq$i', sequence[i], width: sequence[i].width)
@@ -102,25 +103,25 @@ class ReductionTree extends Module {
 
   /// Build out the recursive tree
   void _buildLogic() {
-    if (_sequence.length <= _radix) {
+    if (_sequence.length <= radix) {
       final value = _operation(_sequence);
       addOutput('out', width: value.width) <= value;
       _computed = (value: output('out'), depth: 0, flopDepth: 0);
     } else {
       final results = <({Logic value, int depth, int flopDepth})>[];
-      final segment = _sequence.length ~/ _radix;
+      final segment = _sequence.length ~/ radix;
 
       var pos = 0;
-      for (var i = 0; i < _radix; i++) {
+      for (var i = 0; i < radix; i++) {
         final tree = ReductionTree(
             _sequence
                 .getRange(
-                    pos, (i < _radix - 1) ? pos + segment : _sequence.length)
+                    pos, (i < radix - 1) ? pos + segment : _sequence.length)
                 .toList(),
             _operation,
-            radix: _radix,
-            signExtend: _signExtend,
-            depthToFlop: _depthToFlop,
+            radix: radix,
+            signExtend: signExtend,
+            depthToFlop: depthToFlop,
             clk: _clk,
             enable: _enable,
             reset: _reset);
@@ -133,17 +134,17 @@ class ReductionTree extends Module {
       final alignedResults = results
           .map((c) => _localFlop(c.value, doFlop: c.flopDepth < flopDepth));
 
-      final depthFlop = (_depthToFlop != null) &&
-          (treeDepth > 0) & (treeDepth % _depthToFlop! == 0);
+      final depthFlop = (depthToFlop != null) &&
+          (treeDepth > 0) & (treeDepth % depthToFlop! == 0);
       final resultsFlop =
           alignedResults.map((r) => _localFlop(r, doFlop: depthFlop));
 
       final alignWidth = results.map((c) => c.value.width).reduce(max);
       final resultsExtend = resultsFlop.map((r) =>
-          _signExtend ? r.signExtend(alignWidth) : r.zeroExtend(alignWidth));
+          signExtend ? r.signExtend(alignWidth) : r.zeroExtend(alignWidth));
 
       final value = _operation(resultsExtend.toList(),
-          name: 'reduce_d${(treeDepth + 1) + flopDepth * (_depthToFlop ?? 0)}');
+          name: 'reduce_d${(treeDepth + 1) + flopDepth * (depthToFlop ?? 0)}');
 
       addOutput('out', width: value.width) <= value;
       _computed = (

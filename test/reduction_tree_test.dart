@@ -39,6 +39,7 @@ void main() {
     const width = 13;
     const length = 79;
     final vec = <Logic>[];
+
     // First sum will be length *(length-1) /2
     var count = 0;
     for (var i = 0; i < length; i++) {
@@ -57,6 +58,7 @@ void main() {
     const width = 17;
     const length = 290;
     final vec = <Logic>[];
+
     // First sum will be length *(length-1) /2
     var count = 0;
     for (var i = 0; i < length; i++) {
