@@ -101,6 +101,23 @@ class ReductionTree extends Module {
     _buildLogic();
   }
 
+  /// Compute the next splitting point taking into account trying to get
+  /// nice powers of the radix as a potential split.
+  static int _nextSplitDistance(
+      int seqRemaining, int radix, int branchesRemaining) {
+    if (branchesRemaining == 1) {
+      return seqRemaining;
+    }
+    final power = (log(seqRemaining) / log(radix)).toInt();
+
+    final chunk = pow(radix, power).toInt();
+
+    if (seqRemaining - chunk - (branchesRemaining - 1) >= 0) {
+      return pow(radix, power).toInt();
+    }
+    return pow(radix, max(power - 1, 0)).toInt();
+  }
+
   /// Build out the recursive tree
   void _buildLogic() {
     if (_sequence.length <= radix) {
@@ -109,16 +126,12 @@ class ReductionTree extends Module {
       _computed = (value: output('out'), depth: 0, flopDepth: 0);
     } else {
       final results = <({Logic value, int depth, int flopDepth})>[];
-      final segment = _sequence.length ~/ radix;
-
       var pos = 0;
       for (var i = 0; i < radix; i++) {
+        final end1 =
+            _nextSplitDistance(_sequence.length - pos, radix, radix - i) + pos;
         final tree = ReductionTree(
-            _sequence
-                .getRange(
-                    pos, (i < radix - 1) ? pos + segment : _sequence.length)
-                .toList(),
-            _operation,
+            _sequence.getRange(pos, end1).toList(), _operation,
             radix: radix,
             signExtend: signExtend,
             depthToFlop: depthToFlop,
@@ -126,7 +139,7 @@ class ReductionTree extends Module {
             enable: _enable,
             reset: _reset);
         results.add(tree._computed);
-        pos += segment;
+        pos = end1;
       }
       final flopDepth = results.map((c) => c.flopDepth).reduce(max);
       final treeDepth = results.map((c) => c.depth).reduce(max);
