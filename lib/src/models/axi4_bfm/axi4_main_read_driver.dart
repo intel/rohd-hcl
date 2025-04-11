@@ -73,19 +73,20 @@ class Axi4ReadMainDriver extends PendingClockedDriver<Axi4ReadRequestPacket> {
 
   /// Drives a packet onto the interface.
   Future<void> _drivePacket(Axi4RequestPacket packet) async {
-    print('Driving packet at time ${Simulator.time}');
     if (packet is Axi4ReadRequestPacket) {
+      logger.info('Driving read packet.');
       await _driveReadPacket(packet);
     } else {
       await sIntf.clk.nextPosedge;
     }
   }
 
-  // TODO: need a more robust way of driving the "ready" signals...
-  //  RREADY for read data responses
+  // TODO(kimmeljo): need a more robust way of
+  // driving the "ready" signals RREADY for read data responses
   // specifically, when should they toggle on/off?
   //  ON => either always or when the associated request is driven?
-  //  OFF => either never or when there are no more outstanding requests of the given type?
+  //  OFF => either never or when there are no more
+  //         outstanding requests of the given type?
   // should we enable the ability to backpressure??
 
   Future<void> _driveReadPacket(Axi4ReadRequestPacket packet) async {

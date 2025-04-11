@@ -77,19 +77,20 @@ class Axi4WriteMainDriver extends PendingClockedDriver<Axi4WriteRequestPacket> {
 
   /// Drives a packet onto the interface.
   Future<void> _drivePacket(Axi4RequestPacket packet) async {
-    print('Driving packet at time ${Simulator.time}');
     if (packet is Axi4WriteRequestPacket) {
+      logger.info('Driving write packet.');
       await _driveWritePacket(packet);
     } else {
       await sIntf.clk.nextPosedge;
     }
   }
 
-  // TODO: need a more robust way of driving the "ready" signals...
-  //  BREADY for write responses
+  // TODO(kimmeljo): need a more robust way of driving
+  // the "ready" signals BREADY for write responses
   // specifically, when should they toggle on/off?
   //  ON => either always or when the associated request is driven?
-  //  OFF => either never or when there are no more outstanding requests of the given type?
+  //  OFF => either never or when there are no more
+  //         outstanding requests of the given type?
   // should we enable the ability to backpressure??
 
   Future<void> _driveWritePacket(Axi4WriteRequestPacket packet) async {

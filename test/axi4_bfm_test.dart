@@ -961,7 +961,7 @@ class Axi4WriteComplianceEvilTest extends Test {
     await sIntf.clk.waitCycles(10);
 
     // send a request, subsequent data has a different ID
-    // TODO: driving mechanism doesn't allow this right now!!
+    // TODO(kimmeljo): driving mechanism doesn't allow this right now!!
 
     // send a request, send too many data flits
     // send a request, send LAST on the wrong flit

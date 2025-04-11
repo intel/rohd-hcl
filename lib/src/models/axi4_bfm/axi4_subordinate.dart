@@ -78,7 +78,7 @@ class Axi4SubordinateAgent extends Agent {
 
   /// Address range configuration. Controls access to addresses and helps
   /// with the wrap mode for bursts.
-  /// TODO: ensure non-overlapping??
+  // TODO(kimmeljo): ensure non-overlapping??
   List<AxiAddressRange> ranges = [];
 
   /// Enable locking functionality as per AXI4 spec.
@@ -369,7 +369,7 @@ class Axi4SubordinateAgent extends Agent {
                   ((packet.prot.toInt() & Axi4ProtField.privileged.value) ==
                       0)));
 
-      // TODO: how to deal with delays??
+      // TODO(kimmeljo): how to deal with delays??
       // if (readResponseDelay != null) {
       //   final delayCycles = readResponseDelay!(packet);
       //   if (delayCycles > 0) {
@@ -574,7 +574,7 @@ class Axi4SubordinateAgent extends Agent {
                 wIntf.bResp!.width));
         wIntf.bUser?.inject(0); // don't support user field for now
 
-        // TODO: how to deal with delays??
+        // TODO(kimmeljo): how to deal with delays??
         // if (readResponseDelay != null) {
         //   final delayCycles = readResponseDelay!(packet);
         //   if (delayCycles > 0) {

@@ -506,7 +506,8 @@ class Axi4WriteInterface extends Interface<Axi4Direction> {
     ]);
   }
 
-  /// Constructs a new [Axi4WriteInterface] with identical parameters to [other].
+  /// Constructs a new [Axi4WriteInterface] with
+  /// identical parameters to [other].
   Axi4WriteInterface.clone(Axi4WriteInterface other)
       : this(
           idWidth: other.idWidth,
