@@ -209,7 +209,7 @@ class CompressionTreeMultiplier extends Multiplier {
   /// If [clk] is not null then a set of flops are used to latch the output
   /// after compression.  [reset] and [enable] are optional
   /// inputs to control these flops when [clk] is provided. If [clk] is null,
-  /// the [ColumnCompressor] is built as a combinational tree of compressors.
+  /// the Column Compressor is built as a combinational tree of compressors.
   CompressionTreeMultiplier(super.a, super.b, int radix,
       {super.clk,
       super.reset,

@@ -28,7 +28,7 @@ class SignBit extends Logic {
 }
 
 /// A [PartialProductArray] is a class that holds a set of partial products
-/// for manipulation by [PartialProductGeneratorBase] and [ColumnCompressor].
+/// for manipulation by [PartialProductGeneratorBase] and column Compressor.
 abstract class PartialProductArray {
   /// name used for PartialProductGenerators
   final String name;
