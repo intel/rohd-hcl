@@ -142,9 +142,9 @@ class FloatingPointExplicitJBitValue extends FloatingPointValue {
     //   normMantissa = 1;
     // }
 
-    /// TODO(desmonddak): This is too restrictive
-    /// if e == 2 then normMantissa can be shifted over by 1
-    /// so the rule is mantissa.width - e
+    // TODO(desmonddak): This is too restrictive
+    // if e == 2 then normMantissa can be shifted over by 1
+    // so the rule is mantissa.width - e
     final normMantissa = 1 << (mantissa.width - 1);
 
     return ((e == 0) && (m < normMantissa)) || ((e > 0) && (m >= 1));
