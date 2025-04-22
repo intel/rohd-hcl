@@ -9,12 +9,14 @@
 
 import 'dart:math';
 
+import 'package:meta/meta.dart';
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
 
 /// Base class for priority encoders.
 abstract class PriorityEncoder extends Module {
   /// The input bitvector
+  @protected
   Logic get inp => input('inp');
 
   /// Output [out] is the bit position of the first '1' in the Logic input.
@@ -29,14 +31,14 @@ abstract class PriorityEncoder extends Module {
   /// one.  Will be set to one past the length of the input [inp] if
   /// there are no bits set in [inp].
   /// - Optional [valid] output is set if the output position is valid
-  PriorityEncoder(Logic inp, {Logic? valid, super.name, String? definitionName})
+  PriorityEncoder(Logic inp,
+      {bool outputValid = false, super.name, String? definitionName})
       : super(
             definitionName: definitionName ?? 'PriorityEncoder_W${inp.width}') {
     inp = addInput('inp', inp, width: inp.width);
 
-    if (valid != null) {
+    if (outputValid) {
       addOutput('valid');
-      valid <= this.valid!;
     }
     addOutput('out', width: log2Ceil(inp.width + 1));
   }
@@ -46,11 +48,11 @@ abstract class PriorityEncoder extends Module {
 class RecursivePriorityEncoder extends PriorityEncoder {
   /// [RecursivePriorityEncoder] constructor
   RecursivePriorityEncoder(super.inp,
-      {super.valid, super.name = 'recursive_priority_encoder'})
+      {super.outputValid, super.name = 'recursive_priority_encoder'})
       : super(definitionName: 'RecursivePriorityEncoder_W${inp.width}') {
     final lo = recurseFinder(inp.elements);
     if (valid != null) {
-      valid! <= lo.lt(inp.width);
+      output('valid') <= lo.lt(inp.width);
     }
     final sz = output('out').width;
     output('out') <= ((lo.width < sz) ? lo.zeroExtend(sz) : lo.getRange(0, sz));
@@ -125,18 +127,17 @@ class RecursiveModulePriorityEncoderNode extends Module {
   Logic get ret => output('ret');
 
   /// Construct the Node for a Recursive Priority Tree
-  RecursiveModulePriorityEncoderNode(List<Logic> seq,
-      {super.name, int depth = 0})
-      : super(definitionName: 'PriorityEncodeNode_W${seq.length}') {
-    seq = [
-      for (var i = 0; i < seq.length; i++)
-        addInput('seq$i', seq[i], width: seq[i].width)
-    ];
-    if (seq.length == 1) {
+  RecursiveModulePriorityEncoderNode(Logic seq, {super.name, int depth = 0})
+      : super(definitionName: 'PriorityEncodeNode_W${seq.width}') {
+    seq = addInput('seq', seq, width: seq.width);
+    // for (var i = 0; i < seq.length; i++)
+    // addInput('seq$i', seq[i], width: seq[i].width)
+    // ];
+    if (seq.width == 1) {
       addOutput('ret') <= ~seq[0];
-    } else if (seq.length == 2) {
-      final l = seq[0].named('leftLeafLead_d$depth');
-      final r = seq[1].named('rightLeafLead_d$depth');
+    } else if (seq.width == 2) {
+      final l = seq[0].named('leftLeafLead');
+      final r = seq[1].named('rightLeafLead');
       addOutput('ret', width: 2);
       Combinational([
         If.block([
@@ -152,41 +153,37 @@ class RecursiveModulePriorityEncoderNode extends Module {
         ]),
       ]);
     } else {
-      final divisor = (log(seq.length - 1) / log(2)).floor();
+      final divisor = (log(seq.width - 1) / log(2)).floor();
       final split = pow(2.0, divisor).toInt();
 
-      final left = RecursiveModulePriorityEncoderNode(
-              seq.getRange(0, split).toList(),
-              name: 'left_d$depth',
-              depth: depth + 1)
+      final left = RecursiveModulePriorityEncoderNode(seq.getRange(0, split),
+              name: 'left', depth: depth + 1)
           .ret;
       var right = RecursiveModulePriorityEncoderNode(
-              seq.getRange(split, seq.length).toList(),
-              name: 'right_d$depth',
+              seq.getRange(split, seq.width),
+              name: 'right',
               depth: depth + 1)
           .ret;
       if (right.width < left.width) {
         right = right.zeroExtend(left.width);
       }
-      final l = left[-1].named('leftLead_d$depth');
-      final r = right[-1].named('rightLead_d$depth');
+      final l = left[-1].named('leftLead');
+      final r = right[-1].named('rightLead');
       addOutput('ret', width: right.width + 1);
       final rhs = ((right.width > 1)
               ? [Const(0), Const(1), right.slice(-2, 0)]
                   .swizzle()
-                  .named('zo_right_d$depth')
-              : [Const(0), Const(1)].swizzle().named('zo_d$depth'))
-          .named('right_d$depth');
+                  .named('zo_right')
+              : [Const(0), Const(1)].swizzle().named('zo'))
+          .named('rhs');
       Combinational([
         If.block([
           Iff(l & r, [
             ret <
-                [Const(1), Const(0, width: right.width)]
-                    .swizzle()
-                    .named('lr_d$depth'),
+                [Const(1), Const(0, width: right.width)].swizzle().named('lr'),
           ]),
           ElseIf(~l, [
-            ret < [Const(0), left.slice(-1, 0)].swizzle().named('zl_d$depth'),
+            ret < [Const(0), left.slice(-1, 0)].swizzle().named('zl'),
           ]),
           ElseIf(l, [
             ret < rhs,
@@ -203,9 +200,9 @@ class RecursiveModulePriorityEncoder extends PriorityEncoder {
   /// of [RecursiveModulePriorityEncoderNode]s to compute the position
   /// of the trailing 1 from the LSB of [inp].
   RecursiveModulePriorityEncoder(super.inp,
-      {super.valid, super.name = 'recursive_module_priority_encoder'})
+      {super.outputValid, super.name = 'recursive_module_priority_encoder'})
       : super(definitionName: 'RecursiveModulePriorityEncoder_W${inp.width}') {
-    final topNode = RecursiveModulePriorityEncoderNode(inp.elements);
+    final topNode = RecursiveModulePriorityEncoderNode(inp);
     final lo = topNode.ret;
     if (valid != null) {
       valid! <= topNode.ret.lt(inp.width);
@@ -223,7 +220,7 @@ class ParallelPrefixPriorityEncoder extends PriorityEncoder {
       {ParallelPrefix Function(
               List<Logic> inps, Logic Function(Logic term1, Logic term2) op)
           ppGen = KoggeStone.new,
-      super.valid,
+      super.outputValid,
       super.name = 'parallel_prefix_encoder'})
       : super(definitionName: 'ParallelPrefixPriorityEncoder_W${inp.width}') {
     final sz = log2Ceil(inp.width + 1);

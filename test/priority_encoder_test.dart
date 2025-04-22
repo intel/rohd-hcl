@@ -32,7 +32,6 @@ void testPriorityEncoder(int n, PriorityEncoder Function(Logic a) fn) {
       final golden = computePriorityEncoding(j);
       inp.put(j);
       final result = mod.out.value.toInt();
-      // print('priority_encoder: $j $result $golden');
       expect(result, equals(golden));
     }
   });
@@ -46,20 +45,18 @@ void main() {
   final generators = [Ripple.new, Sklansky.new, KoggeStone.new, BrentKung.new];
   test('RecursivePriorityEncoder quick test', () {
     final inp = Logic(width: 4)..put(8);
-    final valid = Logic();
-    final dut = RecursivePriorityEncoder(inp, valid: valid);
+    final dut = RecursivePriorityEncoder(inp, outputValid: true);
     expect(dut.out.value.toInt(), equals(3));
-    expect(valid.value.toBool(), equals(true));
+    expect(dut.valid!.value.toBool(), equals(true));
   });
 
   test('RecursivePriorityModuleEncoder quick test', () async {
     final inp = Logic(width: 87)..put(8);
-    final valid = Logic();
-    final dut = RecursiveModulePriorityEncoder(inp, valid: valid);
+    final dut = RecursiveModulePriorityEncoder(inp, outputValid: true);
     await dut.build();
     File('recur.sv').writeAsStringSync(dut.generateSynth());
     expect(dut.out.value.toInt(), equals(3));
-    expect(valid.value.toBool(), equals(true));
+    expect(dut.valid!.value.toBool(), equals(true));
   });
 
   group('Prefix Priority Encoder tests', () {
@@ -86,18 +83,16 @@ void main() {
     expect(ParallelPrefixPriorityEncoder(val.reversed).out.value.toInt(),
         equals(3));
 
-    final valid = Logic();
-    ParallelPrefixPriorityEncoder(val, valid: valid);
-    expect(valid.value.toBool(), equals(true));
+    final dut = ParallelPrefixPriorityEncoder(val, outputValid: true);
+    expect(dut.valid!.value.toBool(), equals(true));
   });
 
   test('PrefixPriorityEncoder simple test', () {
     final bitVector = Logic(width: 5);
     // ignore: cascade_invocations
     bitVector.put(8);
-    final valid = Logic();
     final encoder = ParallelPrefixPriorityEncoder(bitVector,
-        ppGen: BrentKung.new, valid: valid);
+        ppGen: BrentKung.new, outputValid: true);
 
     expect(encoder.out.value.toInt(), equals(3));
   });
@@ -110,8 +105,7 @@ void main() {
         equals(val.width + 1));
     expect(ParallelPrefixPriorityEncoder(val.reversed).out.value.toInt(),
         equals(val.width + 1));
-    final valid = Logic();
-    ParallelPrefixPriorityEncoder(val, valid: valid);
-    expect(valid.value.toBool(), equals(false));
+    final dut = ParallelPrefixPriorityEncoder(val, outputValid: true);
+    expect(dut.valid!.value.toBool(), equals(false));
   });
 }

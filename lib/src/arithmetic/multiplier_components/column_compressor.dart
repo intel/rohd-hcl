@@ -1,7 +1,7 @@
 // Copyright (C) 2024-2025 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 //
-// addend_compressor.dart
+// column_compressor.dart
 // Column compression of partial prodcuts
 //
 // 2024 June 04
@@ -10,7 +10,6 @@
 import 'package:collection/collection.dart';
 import 'package:meta/meta.dart';
 import 'package:rohd/rohd.dart';
-import 'package:rohd_hcl/rohd_hcl.dart';
 
 /// Base class for bit-level column compressor function
 abstract class BitCompressor extends Module {
@@ -161,14 +160,19 @@ class CompressTerm implements Comparable<CompressTerm> {
 /// A column of partial product terms
 typedef ColumnQueue = PriorityQueue<CompressTerm>;
 
-/// A column compressor
-class ColumnCompressor {
-  /// Columns of partial product CompressTerms
+/// A column compressor module
+class ColumnCompressorModule extends Module {
+  /// After [compress] is invoked, this is the first of two output rows.
+  Logic get add0 => output('add0');
 
+  /// After [compress] is invoked, this is the second of two output rows.
+  Logic get add1 => output('add1');
+
+  /// Columns of partial product CompressTerms
   late final List<ColumnQueue> columns;
 
   /// The partial product array to be compressed
-  final PartialProductArray pp;
+  // late final PartialProductMatrixStore pp;
 
   /// The clk for the pipelined version of column compression.
   Logic? clk;
@@ -179,32 +183,69 @@ class ColumnCompressor {
   /// Optional enable for configurable pipestage.
   Logic? enable;
 
+  late final List<Logic> _rows;
+
+  /// Return the shift of each row
+  List<int> get rowShift => _rowShift;
+
+  final List<int> _rowShift;
+
   /// Initialize a ColumnCompressor for a set of partial products
   ///
   /// If [clk] is not null then a set of flops are used to latch the output
-  /// after compression (see [extractRow]).  [reset] and [enable] are optional
+  /// after compression (see [_extractRow]).  [reset] and [enable] are optional
   /// inputs to control these flops when [clk] is provided. If [clk] is null,
-  /// the [ColumnCompressor] is built as a combinational tree of compressors.
-  ColumnCompressor(this.pp, {this.clk, this.reset, this.enable}) {
-    columns = List.generate(pp.maxWidth(), (i) => ColumnQueue());
+  /// the [ColumnCompressorModule] is built as a combinational tree of
+  /// compressors.
+  ColumnCompressorModule(List<Logic> inRows, this._rowShift,
+      {Logic? clk,
+      Logic? reset,
+      Logic? enable,
+      super.name = 'column_compressor'}) {
+    this.clk = (clk != null) ? addInput('clk', clk) : null;
+    this.reset = (reset != null) ? addInput('reset', reset) : null;
+    this.enable = (enable != null) ? addInput('enable', enable) : null;
+    _rows = [
+      for (var row = 0; row < inRows.length; row++)
+        addInput('row_$row', inRows[row], width: inRows[row].width)
+    ];
+    // pp = PartialProductMatrixStore(inputRows, rowShift);
+    columns = List.generate(maxWidth(), (i) => ColumnQueue());
 
-    for (var row = 0; row < pp.rows; row++) {
-      for (var col = 0; col < pp.partialProducts[row].length; col++) {
-        final trueColumn = pp.rowShift[row] + col;
-        final term = CompressTerm(CompressTermType.pp,
-            pp.partialProducts[row][col], [], row, trueColumn);
+    for (var row = 0; row < _rows.length; row++) {
+      for (var col = 0; col < _rows[row].width; col++) {
+        final trueColumn = _rowShift[row] + col;
+        final term = CompressTerm(
+            CompressTermType.pp,
+            _rows[row][col].named('pp_${row}_$col', naming: Naming.mergeable),
+            [],
+            row,
+            trueColumn);
         columns[trueColumn].add(term);
       }
     }
+    addOutput('add0', width: maxWidth());
+    addOutput('add1', width: maxWidth());
   }
 
   /// Return the longest column length
   int longestColumn() =>
       columns.reduce((a, b) => a.length > b.length ? a : b).length;
 
+  /// Compute the maximum length of the rows
+  int maxWidth() {
+    var maxW = 0;
+    for (var row = 0; row < _rows.length; row++) {
+      if (_rows[row].width + _rowShift[row] > maxW) {
+        maxW = _rows[row].width + _rowShift[row];
+      }
+    }
+    return maxW;
+  }
+
   /// Convert a row to a Logic bitvector
-  Logic extractRow(int row) {
-    final width = pp.maxWidth();
+  Logic _extractRow(int row) {
+    final width = maxWidth();
 
     final rowBits = <Logic>[];
     for (var col = columns.length - 1; col >= 0; col--) {
@@ -216,7 +257,7 @@ class ColumnCompressor {
             clk != null ? flop(clk!, value, reset: reset, en: enable) : value);
       }
     }
-    rowBits.addAll(List.filled(pp.rowShift[row], Const(0)));
+    rowBits.addAll(List.filled(_rowShift[row], Const(0)));
     if (width > rowBits.length) {
       return rowBits.swizzle().zeroExtend(width);
     }
@@ -281,5 +322,7 @@ class ColumnCompressor {
         break;
       }
     }
+    output('add0') <= _extractRow(0);
+    output('add1') <= _extractRow(1);
   }
 }

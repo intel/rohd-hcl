@@ -12,8 +12,8 @@ import 'dart:math';
 
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
-import 'package:rohd_hcl/src/arithmetic/evaluate_partial_product.dart';
-import 'package:rohd_hcl/src/arithmetic/partial_product_sign_extend.dart';
+import 'package:rohd_hcl/src/arithmetic/multiplier_components/evaluate_partial_product.dart';
+import 'package:rohd_hcl/src/arithmetic/multiplier_components/partial_product_sign_extend.dart';
 import 'package:test/test.dart';
 
 // Here are the variations needed testing:
@@ -431,6 +431,29 @@ void main() {
     }
   });
 
+  test('PP Matrix: module test', () async {
+    const radix = 4;
+    final radixEncoder = RadixEncoder(radix);
+    const widthX = 20;
+    const widthY = 20;
+    final multiplicand = Logic(width: widthX);
+    final multiplier = Logic(width: widthY);
+
+    final ppm = PartialProduct(multiplicand, multiplier, radixEncoder);
+
+    CompactSignExtension(ppm.array).signExtend();
+
+    ppm.generateOutputs();
+    final compress = ColumnCompressorModule(ppm.rows, ppm.rowShift)..compress();
+    await ppm.build();
+    await compress.build();
+
+    File('ppg.sv').writeAsStringSync(ppm.generateSynth());
+    File('compress.sv').writeAsStringSync(compress.generateSynth());
+
+    // CompactSignExtension(ppg).signExtend();
+  });
+
   test('single MAC partial product test', () async {
     final encoder = RadixEncoder(16);
     const widthX = 8;
@@ -443,7 +466,6 @@ void main() {
     final X = BigInt.from(i).toSigned(widthX);
     final Y = BigInt.from(j).toSigned(widthY);
     final Z = BigInt.from(k).toSigned(widthX + widthY);
-    // print('X=$X Y=$Y, Z=$Z');
     final product = X * Y + Z;
 
     final logicX = Logic(name: 'X', width: widthX);
@@ -469,11 +491,9 @@ void main() {
     l
       ..add(~sign)
       ..add(Const(1));
-    // print(pp.representation());
 
     pp.partialProducts.insert(0, l);
     pp.rowShift.insert(0, 0);
-    // print(pp.representation());
 
     if (pp.evaluate() != product) {
       stdout.write('Fail: $X * $Y: ${pp.evaluate()} vs expected $product\n');
@@ -493,7 +513,6 @@ void main() {
     final X = BigInt.from(i).toSigned(widthX);
     final Y = BigInt.from(j).toSigned(widthY);
     final Z = BigInt.from(k).toSigned(widthX + widthY);
-    // print('X=$X Y=$Y, Z=$Z');
     final product = X * Y + Z;
 
     final logicX = Logic(name: 'X', width: widthX);
@@ -519,11 +538,9 @@ void main() {
     l
       ..add(~sign)
       ..add(Const(1));
-    // print(pp.representation());
 
     pp.partialProducts.insert(0, l);
     pp.rowShift.insert(0, 0);
-    // print(pp.representation());
 
     if (pp.evaluate() != product) {
       stdout.write('Fail: $X * $Y: ${pp.evaluate()} vs expected $product\n');

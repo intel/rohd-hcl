@@ -419,7 +419,6 @@ void main() {
                 mantissaWidth: fpout.mantissa.width)
             .ofDoubleUnrounded(fv1.toDouble() * fv2.toDouble());
         final computed = multiplier.product.floatingPointValue;
-        // print('c=$computed e=$expected');
         expect(computed.withinRounding(expected), true, reason: '''
       $fv1 (${fv1.toDouble()})\t*
       $fv2 (${fv2.toDouble()})\t=

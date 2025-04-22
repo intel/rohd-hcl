@@ -12,7 +12,7 @@ export 'config_find.dart';
 export 'config_fixed_to_float.dart';
 export 'config_float8_to_fixed.dart';
 export 'config_float_to_fixed.dart';
-export 'config_floating_point_adder_round.dart';
+export 'config_floating_point_adder_dualpath.dart';
 export 'config_floating_point_adder_simple.dart';
 export 'config_floating_point_multiplier_simple.dart';
 export 'config_one_hot.dart';

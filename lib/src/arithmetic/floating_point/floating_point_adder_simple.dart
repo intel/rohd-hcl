@@ -17,30 +17,31 @@ class FloatingPointAdderSimple<FpType extends FloatingPoint>
   /// Add two floating point numbers [a] and [b], returning result in [sum].
   /// - [adderGen] is an adder generator to be used in the primary adder
   /// functions.
-  /// - [priorityGen] is a [PriorityEncoder] generator to be used in the
-  /// leading one detection (default [RecursiveModulePriorityEncoder]).
   FloatingPointAdderSimple(super.a, super.b,
       {super.clk,
       super.reset,
       super.enable,
       Adder Function(Logic a, Logic b, {Logic? carryIn}) adderGen =
           NativeAdder.new,
-      PriorityEncoder Function(Logic bitVector, {Logic? valid, String name})
-          priorityGen = RecursiveModulePriorityEncoder.new,
+      List<int> Function(int) widthGen =
+          CarrySelectCompoundAdder.splitSelectAdderAlgorithmSingleBlock,
       super.name = 'floatingpoint_adder_simple'})
       : super(
             definitionName: 'FloatingPointAdderSimple_'
                 'E${a.exponent.width}M${a.mantissa.width}') {
-    // addOutput('fp', width: exponentWidth + mantissaWidth + 1);
-
+    if (a.runtimeType != b.runtimeType) {
+      throw RohdHclException('Floating point adder does not support '
+          'inputs of different types.');
+    }
     final outputSum = FloatingPoint(
         exponentWidth: exponentWidth,
         mantissaWidth: mantissaWidth,
         name: 'sum');
     output('sum') <= outputSum;
 
-    final (larger, smaller) =
-        FloatingPointUtilities.sortByExp((super.a, super.b));
+    final (larger, smaller) = FloatingPointUtilities.sortByExp((a, b));
+
+    final effectiveSubtraction = (a.sign ^ b.sign).named('effSubtraction');
 
     final isInf = (larger.isAnInfinity | smaller.isAnInfinity).named('isInf');
     final isNaN = (larger.isNaN |
@@ -54,103 +55,238 @@ class FloatingPointAdderSimple<FpType extends FloatingPoint>
     final smallImplicit = ~smaller.explicitJBit;
 
     final expDiff = (larger.exponent - smaller.exponent).named('expDiff');
-    final aMantissa = mux(
-        larger.isNormal ^ largeImplicit,
-        [larger.mantissa, Const(0, width: mantissaWidth + 2)].swizzle(),
-        mux(
-            larger.isNormal,
-            [Const(1), larger.mantissa, Const(0, width: mantissaWidth + 1)]
-                .swizzle(),
-            [
-              larger.mantissa.getRange(0, mantissaWidth - 1),
-              Const(0, width: mantissaWidth + 3)
-            ].swizzle()));
+    final largeMantissa = mux(
+            larger.isNormal ^ largeImplicit,
+            [larger.mantissa, Const(0)].swizzle(),
+            mux(
+                larger.isNormal,
+                [Const(1), larger.mantissa].swizzle(),
+                [
+                  larger.mantissa.getRange(0, mantissaWidth - 1),
+                  Const(0, width: 2)
+                ].swizzle()))
+        .named('largeMantissa');
 
-    final bMantissa = mux(
-        smaller.isNormal ^ smallImplicit,
-        [smaller.mantissa, Const(0, width: mantissaWidth + 2)].swizzle(),
-        mux(
-            smaller.isNormal,
-            [Const(1), smaller.mantissa, Const(0, width: mantissaWidth + 1)]
-                .swizzle(),
-            [
-              smaller.mantissa.getRange(0, mantissaWidth - 1),
-              Const(0, width: mantissaWidth + 3)
-            ].swizzle()));
+    final smallMantissa = mux(
+            smaller.isNormal ^ smallImplicit,
+            [smaller.mantissa, Const(0)].swizzle(),
+            mux(
+                smaller.isNormal,
+                [Const(1), smaller.mantissa].swizzle(),
+                [
+                  smaller.mantissa.getRange(0, mantissaWidth - 1),
+                  Const(0, width: 2)
+                ].swizzle()))
+        .named('smallMantissa');
 
-    final carry = Logic();
-    final revAdder = SignMagnitudeAdder(
-        Const(0), aMantissa, larger.sign ^ smaller.sign, bMantissa >>> expDiff,
-        largestMagnitudeFirst: true, adderGen: adderGen, endAroundCarry: carry);
+    final extendedWidth = min(
+        1 +
+            (mantissaWidth + 1) +
+            (a.runtimeType == FloatingPointExplicitJBit ? 2 : 0),
+        pow(2, exponentWidth).toInt() - 2);
 
-    final sum2sComplement =
-        ParallelPrefixIncr(revAdder.sum, name: 'sum2sComplement');
+    final largeFinalMantissa = largeMantissa;
+    final smallExtendedMantissa = [
+      smallMantissa,
+      Const(0, width: extendedWidth)
+    ].swizzle().named('smallExtendedMantissa');
+    final smallShiftedMantissa =
+        (smallExtendedMantissa >>> expDiff).named('smallShiftedMantissa');
 
-    final sum = mux(carry, sum2sComplement.out, revAdder.sum);
-    final intSum = sum.slice(sum.width - 1, 0).named('intSum');
+    // Compute sticky bits past extendedWidth: expDiff - extendedWidth
+    final eW = Const(extendedWidth, width: expDiff.width).named('eW');
+    final rem =
+        mux(expDiff.gt(eW), expDiff - eW, Const(0, width: expDiff.width))
+            .named('rem');
 
-    final realSign = mux(carry, larger.sign, smaller.sign);
+    final stickyBits =
+        (smallMantissa << Const(smallMantissa.width, width: rem.width) - rem)
+            .named('stickyBits');
+    final stickyBitsOr = stickyBits.or();
 
-    final aSignLatched = localFlop(realSign);
-    final aExpLatched = localFlop(larger.exponent);
-    final sumLatched = localFlop(intSum);
-    final isInfLatched = localFlop(isInf);
-    final isNaNLatched = localFlop(isNaN);
+    final largeNarrowMantissa = largeFinalMantissa;
+    final smallNarrowMantissa = smallShiftedMantissa.getRange(extendedWidth);
 
-    final mantissa = sumLatched.reversed
-        .getRange(0, min(intSum.width, intSum.width))
-        .named('mantissa');
-    final leadOneValid = Logic(name: 'leadOneValid');
-    final leadOnePre =
-        priorityGen(mantissa, valid: leadOneValid).out.named('leadOnePre');
+    final highBitsAdder = CarrySelectOnesComplementCompoundAdder(
+        largeNarrowMantissa, smallNarrowMantissa,
+        outputCarryOut: true,
+        outputCarryOutP1: true,
+        subtractIn: effectiveSubtraction,
+        widthGen: widthGen,
+        adderGen: adderGen);
 
-    // Limit leadOne to exponent range and match widths
-    final infExponent = outputSum.inf(sign: aSignLatched).exponent;
-    final leadOne = ((leadOnePre.width > exponentWidth)
-            ? mux(leadOnePre.gte(infExponent.zeroExtend(leadOnePre.width)),
-                infExponent, leadOnePre.getRange(0, exponentWidth))
-            : leadOnePre.zeroExtend(exponentWidth))
-        .named('leadOne');
+    final carry = highBitsAdder.carryOut!;
 
-    final leadOneDominates =
-        (leadOne.gt(aExpLatched) | ~leadOneValid).named('leadOneDominates');
+    final sum = highBitsAdder.sum.named('highBitsSum');
+    final sumP1 = highBitsAdder.sumP1.named('highBitsSumP1');
 
-    final normalExp = (aExpLatched - leadOne + 1).named('normalExponent');
-    final outExp = mux(leadOneDominates, outputSum.zeroExponent, normalExp)
+    final lowerBits =
+        smallShiftedMantissa.getRange(0, extendedWidth).named('lowerBits');
+
+    final trueSign = mux(carry, larger.sign, smaller.sign).named('trueSign');
+
+    final lowBitsIncrement = (effectiveSubtraction & carry & expDiff.neq(0))
+        .named('lowBitsIncrement');
+
+    final carryBits = ~lowerBits.or();
+
+    final highBitsLSB =
+        (carryBits & (~stickyBitsOr & lowBitsIncrement)).named('highBitsLSB');
+
+    // TODO(desmonddak): This can work on narrow if not explicit-jbit
+    // We could optimize by splitting the search across the pipestage for
+    // high and low bits (low only matter for explicit-jbit)
+    final limitSize = smallShiftedMantissa.width;
+    final predictor = LeadingZeroAnticipate(
+        Const(0),
+        [largeFinalMantissa, Const(0, width: extendedWidth)]
+            .swizzle()
+            .slice(limitSize - 1, 0),
+        effectiveSubtraction,
+        smallShiftedMantissa.slice(limitSize - 1, 0),
+        endAroundCarry: carry);
+
+    final lead1Prediction = predictor.leadingOne!.named('lead1Prediction');
+
+    final lead1PredictionValid =
+        predictor.validLeadOne!.named('lead1PredictionValid');
+
+    final trueSignFlopped = localFlop(trueSign).named('trueSignFlopped');
+    final largerExpFlopped =
+        localFlop(larger.exponent).named('largerExpFlopped');
+    final sumFlopped = localFlop(sum).named('sumFlopped');
+    final sumP1Flopped = localFlop(sumP1).named('sumP1Flopped');
+    final carryFlopped = localFlop(carry).named('carryFlopped');
+    final isInfFlopped = localFlop(isInf).named('isInfFlopped');
+    final isNaNFlopped = localFlop(isNaN).named('isNaNFlopped');
+    final highBitsLSBFlopped = localFlop(highBitsLSB).named('msbFlopped');
+    final lowerBitsFlopped = localFlop(lowerBits).named('lowerBitsFlopped');
+    final lowBitsOrFlopped = localFlop(stickyBitsOr).named('lowBitsOrFlopped');
+    final lowInvertFlopped =
+        localFlop(lowBitsIncrement).named('lowInvertFlopped');
+
+    final effectiveSubtractionFlopped =
+        localFlop(effectiveSubtraction).named('effectiveSubtractionFlopped');
+    final leadingZerosPredictionValidFlopped =
+        localFlop(lead1PredictionValid).named('l1PredictionValidflopped');
+    final leadingZerosPredictionFlopped =
+        localFlop(lead1Prediction).named('l1PredictionFlopped');
+    final expDiffFlopped = localFlop(expDiff).named('expDiffFlopped');
+
+    var incrementHighLSB = (sumFlopped +
+            ((highBitsLSBFlopped | expDiffFlopped.eq(0)) &
+                    effectiveSubtractionFlopped &
+                    carryFlopped)
+                .zeroExtend(sumFlopped.width))
+        .named('incrementHighLSB');
+
+    final incrementHighLSBN = mux(
+            (highBitsLSBFlopped | expDiffFlopped.eq(0)) &
+                effectiveSubtractionFlopped &
+                carryFlopped,
+            sumP1Flopped,
+            sumFlopped)
+        .named('incrementHighLSB');
+    incrementHighLSB = incrementHighLSBN;
+
+    final lowerBitsPolarity =
+        mux(lowInvertFlopped, ~lowerBitsFlopped, lowerBitsFlopped)
+            .named('lowerBitsPolarity');
+
+    final lowBitsSum = adderGen(
+            (~lowBitsOrFlopped & lowInvertFlopped).zeroExtend(lowerBits.width),
+            lowerBitsPolarity)
+        .sum
+        .named('lowBitsSum');
+
+    final fullSumWithIncrement = [
+      incrementHighLSB,
+      lowBitsSum.slice(lowBitsSum.width - 2, 0)
+    ].swizzle().named('fullMantissaWithIncr');
+
+    final fullMantissa = fullSumWithIncrement
+        .slice(fullSumWithIncrement.width - 2, 0)
+        .named('fullMantissa');
+
+    final lead1PredictionFlopped = leadingZerosPredictionFlopped;
+
+    final shiftedPrediction = (fullSumWithIncrement << lead1PredictionFlopped)
+        .named('shiftedPrediction');
+
+    final lead1Final = mux(shiftedPrediction[-1], lead1PredictionFlopped,
+            lead1PredictionFlopped + 1)
+        .named('lead1Final');
+
+    final shiftL1Final =
+        mux(shiftedPrediction[-1], shiftedPrediction, shiftedPrediction << 1)
+            .slice(shiftedPrediction.width - 2, 0)
+            .named('shiftL1Final');
+
+    final lead1Valid = leadingZerosPredictionValidFlopped;
+
+    final infExponent =
+        outputSum.inf(sign: trueSignFlopped).exponent.named('infExponent');
+
+    final lead1 = ((lead1Final.width > exponentWidth)
+            ? mux(lead1Final.gte(infExponent.zeroExtend(lead1Final.width)),
+                infExponent, lead1Final.getRange(0, exponentWidth))
+            : lead1Final.zeroExtend(exponentWidth))
+        .named('lead1');
+
+    final lead1Dominates =
+        (lead1.gt(largerExpFlopped) | ~lead1Valid).named('lead1Dominates');
+
+    final exponent = mux(
+            lead1Dominates,
+            outputSum.zeroExponent,
+            (largerExpFlopped - lead1 + Const(1, width: lead1.width))
+                .named('expMinusLead1'))
         .named('outExponent');
 
+    final shiftMantissaByExp =
+        (fullMantissa << largerExpFlopped).named('shiftMantissaByExp');
+
+    final mantissa =
+        mux(lead1Dominates, shiftMantissaByExp, shiftL1Final).named('mantissa');
+
+    final doRound =
+        RoundRNE(mantissa, extendedWidth + 1).doRound.named('doRound');
+
+    final mantissaTrimmed =
+        mantissa.getRange(extendedWidth + 1).named('mantissaTrimmed');
+
+    final mantissaRound = mux(
+            doRound,
+            (mantissaTrimmed + Const(1, width: mantissaWidth))
+                .named('mantissaTrimmedP1'),
+            mantissaTrimmed)
+        .named('mantissaRound');
+
+    final exponentRound = (exponent +
+            (doRound & mantissaTrimmed.and()).zeroExtend(exponent.width))
+        .named('exponentRoundIncr')
+        .named('exponentRound');
+
     final realIsInf =
-        (isInfLatched | outExp.eq(infExponent)).named('realIsInf');
-
-    final shiftMantissabyExp =
-        (sumLatched << (aExpLatched + 1).named('expPlus1'))
-            .named('shiftMantissaByExp', naming: Naming.mergeable)
-            .getRange(intSum.width - mantissaWidth, intSum.width)
-            .named('shiftMantissaByExpSliced');
-
-    final shiftMantissabyLeadOne =
-        (sumLatched << (leadOne + 1).named('leadOnePlus1'))
-            .named('sumShiftLeadOnePlus1')
-            .getRange(intSum.width - mantissaWidth, intSum.width)
-            .named('shiftMantissaLeadPlus1Sliced', naming: Naming.mergeable);
+        (isInfFlopped | exponent.eq(infExponent)).named('realIsInf');
 
     Combinational([
       If.block([
-        Iff(isNaNLatched, [
+        Iff(isNaNFlopped, [
           outputSum < outputSum.nan,
         ]),
         ElseIf(realIsInf, [
-          outputSum < outputSum.inf(sign: aSignLatched),
+          outputSum < outputSum.inf(sign: trueSignFlopped),
         ]),
-        ElseIf(leadOneDominates, [
-          outputSum.sign < aSignLatched,
-          outputSum.exponent < larger.zeroExponent,
-          outputSum.mantissa < shiftMantissabyExp,
+        ElseIf(lead1Dominates, [
+          outputSum.sign < trueSignFlopped,
+          outputSum.exponent < outputSum.zeroExponent,
+          outputSum.mantissa < mantissaRound,
         ]),
         Else([
-          outputSum.sign < aSignLatched,
-          outputSum.exponent < normalExp,
-          outputSum.mantissa < shiftMantissabyLeadOne,
+          outputSum.sign < trueSignFlopped,
+          outputSum.exponent < exponentRound,
+          outputSum.mantissa < mantissaRound,
         ])
       ])
     ]);

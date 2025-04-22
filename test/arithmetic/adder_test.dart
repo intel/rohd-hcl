@@ -90,6 +90,23 @@ void main() {
     NativeAdder.new,
   ];
 
+  test('singleton', () {
+    const width = 8;
+    final av = LogicValue.ofInt(-6, width);
+    final bv = LogicValue.ofInt(12, width);
+
+    final cv = LogicValue.ofInt(0, width);
+    final a = Logic(width: width);
+    final b = Logic(width: width);
+    final c = Logic(width: width);
+    a.put(av);
+    b.put(bv);
+    c.put(cv);
+
+    final adder = RippleCarryAdder(a, b);
+    checkAdder(adder, av, bv, cv);
+  });
+
   group('adder random', () {
     for (final n in [63, 64, 65]) {
       for (final testCin in [false, true]) {
@@ -109,9 +126,12 @@ void main() {
           n, 30, (a, b, {carryIn}) => CarrySelectCompoundAdder(a, b));
     }
   });
+
   group('adder exhaustive', () {
     for (final testCin in [false, true]) {
-      testAdderExhaustive(4, RippleCarryAdder.new, testCarryIn: testCin);
+      for (final adder in adders) {
+        testAdderExhaustive(4, adder, testCarryIn: testCin);
+      }
       for (final ppGen in generators) {
         testAdderExhaustive(
             4,
@@ -136,6 +156,7 @@ void main() {
     final sum = adder.sum;
     expect(sum.value.toBigInt(), equals(BigInt.from(18 + 24)));
   });
+
   test('trivial sign magnitude adder test', () async {
     const width = 6;
     final aSign = Logic(name: 'aSign');
@@ -171,9 +192,10 @@ void main() {
         for (var bv = 0; bv < pow(2, width); bv++) {
           a.put(av);
           b.put(bv);
-          final carry = Logic();
           final adder = OnesComplementAdder(a, b,
-              endAroundCarry: carry, subtract: subtract);
+              outputEndAroundCarry: true, subtract: subtract);
+
+          final carry = adder.endAroundCarry!;
           final mag = adder.sum.value.toInt() +
               (subtract ? (carry.value.isZero ? 0 : 1) : 0);
           final out = (adder.sign.value.toInt() == 1 ? -mag : mag);
@@ -198,9 +220,9 @@ void main() {
       for (final subtract in [true]) {
         a.put(av);
         b.put(bv);
-        final carry = Logic();
         final adder = CarrySelectOnesComplementCompoundAdder(a, b,
-            subtract: subtract, carryOut: carry);
+            subtract: subtract, outputCarryOut: true);
+        final carry = adder.carryOut!;
         final mag = adder.sum.value.toInt() +
             (subtract ? (carry.value.isZero ? 0 : 1) : 0);
         final out = (adder.sign.value.toBool() ? -mag : mag);
@@ -246,11 +268,12 @@ void main() {
         for (var bv = 0; bv < pow(2, width); bv++) {
           a.put(av);
           b.put(bv);
-          final carry = Logic();
           final adder = OnesComplementAdder(a, b,
               subtractIn: subtractIn,
-              endAroundCarry: carry,
+              // endAroundCarry: carry,
+              outputEndAroundCarry: true,
               adderGen: RippleCarryAdder.new);
+          final carry = adder.endAroundCarry!;
           final mag = adder.sum.value.toInt() +
               (subtractIn.value == LogicValue.one
                   ? (carry.value.isZero ? 0 : 1)
@@ -265,6 +288,7 @@ void main() {
       }
     }
   });
+
   test('trivial sign magnitude with onescomplement adder test', () async {
     const width = 8;
     final aSign = Logic(name: 'aSign');
@@ -281,7 +305,6 @@ void main() {
         adderGen: RippleCarryAdder.new, subtract: true);
 
     final sum = adder.sum;
-    // print('${adder.sign.value.toInt()} ${sum.value.toInt()}');
     expect(-sum.value.toBigInt(), equals(BigInt.from(6 - 24)));
   });
 }

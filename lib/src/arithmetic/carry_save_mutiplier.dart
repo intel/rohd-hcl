@@ -53,7 +53,7 @@ class CarrySaveMultiplier extends Multiplier {
     clk = addInput('clk', clk);
     reset = addInput('reset', reset);
 
-    final product = addOutput('product', width: a.width + b.width + 1);
+    // final product = addOutput('product', width: a.width + b.width + 1);
 
     _sum = List.generate(a.width * 2, (index) => Logic(name: 'sum_$index'));
     _carry = List.generate(a.width * 2, (index) => Logic(name: 'carry_$index'));
@@ -110,7 +110,7 @@ class CarrySaveMultiplier extends Multiplier {
       _pipeline.get(rCarryB),
     );
 
-    product <=
+    output('product') <=
         <Logic>[
           ...List.generate(
             a.width + 1,
@@ -120,6 +120,6 @@ class CarrySaveMultiplier extends Multiplier {
             a.width,
             (index) => _pipeline.get(_sum[a.width - index - 1]),
           )
-        ].swizzle();
+        ].swizzle().slice(product.width - 1, 0);
   }
 }

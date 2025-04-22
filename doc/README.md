@@ -46,6 +46,7 @@ Some in-development items will have opened issues, as well. Feel free to create 
     - [Native Adder](./components/adder.md#native-adder)
   - Subtractors
     - [Ones' Complement Adder Subtractor](./components/adder.md#ones-complement-adder-subtractor)
+    - [Leading Digit Anticipate](./components/leading_digit_anticipate.md)
   - Multipliers
     - [Pipelined Integer Multiplier](./components/multiplier.md#carry-save-multiplier)
     - [Compression Tree Multiplier](./components/multiplier.md#compression-tree-multiplier)
@@ -64,7 +65,7 @@ Some in-development items will have opened issues, as well. Feel free to create 
       - TensorFloat32 (19-bit)
       - 8-bit E4/M3 and E5/M2
     - [Simple Floating-Point Adder](./components/floating_point.md#floatingpointadder)
-    - [Rounding Floating-Point Adder](./components/floating_point.md#floatingpointadder)
+    - [Dual Path Floating-Point Adder](./components/floating_point.md#floatingpointadder)
     - [Simple Floating-Point Multiplier](./components/floating_point.md#floatingpointmultiplier)
     - [Floating-Point Converter](./components/floating_point.md#floatingpointconverter)
   - [Fixed point](./components/fixed_point.md)

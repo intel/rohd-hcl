@@ -1,8 +1,8 @@
 // Copyright (C) 2023-2025 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 //
-// config_floating_point_adder_round.dart
-// Configurator for a rounding Floating-Point adder.
+// config_floating_point_adder_dualpath.dart
+// Configurator for a dual path Floating-Point adder.
 //
 // 2024 October 11
 // Author: Desmond Kirkpatrick <desmond.a.kirkpatrick@intel.com>
@@ -12,8 +12,8 @@ import 'dart:collection';
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
 
-/// A [Configurator] for [FloatingPointAdderRound]s.
-class FloatingPointAdderRoundConfigurator extends Configurator {
+/// A [Configurator] for [FloatingPointAdderDualPath]s.
+class FloatingPointAdderDualPathConfigurator extends Configurator {
   /// Map from Type to Function for Adder generator
   static Map<Type, Adder Function(Logic, Logic, {Logic? carryIn, String? name})>
       adderGeneratorMap = {
@@ -57,7 +57,7 @@ class FloatingPointAdderRoundConfigurator extends Configurator {
   final ToggleConfigKnob pipelinedKnob = ToggleConfigKnob(value: false);
 
   @override
-  Module createModule() => FloatingPointAdderRound(
+  Module createModule() => FloatingPointAdderDualPath(
       clk: pipelinedKnob.value ? Logic() : null,
       FloatingPoint(
         exponentWidth: exponentWidthKnob.value,
@@ -79,5 +79,5 @@ class FloatingPointAdderRoundConfigurator extends Configurator {
   });
 
   @override
-  final String name = 'Floating-Point Rounding Adder';
+  final String name = 'Floating-Point Dual Path Adder';
 }

@@ -472,6 +472,8 @@ class FloatingPointValue implements Comparable<FloatingPointValue> {
     return true;
   }
 
+  // TODO(desmonddak): but when subnormal this fails to be accurate
+
   /// Compute the unit in the last place for the given [FloatingPointValue].
   FloatingPointValue ulp() {
     if (exponent.toInt() > mantissa.width) {

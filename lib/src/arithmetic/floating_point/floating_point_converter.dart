@@ -44,7 +44,8 @@ class FloatingPointConverter<FpTypeIn extends FloatingPoint,
   /// leading one detection (default [RecursiveModulePriorityEncoder]).
   /// - [adderGen] can specify the [Adder] to use for exponent calculations.
   FloatingPointConverter(FpTypeIn source, this.destination,
-      {PriorityEncoder Function(Logic bitVector, {Logic? valid, String name})
+      {PriorityEncoder Function(Logic bitVector,
+              {bool outputValid, String name})
           priorityGen = RecursiveModulePriorityEncoder.new,
       Adder Function(Logic a, Logic b, {Logic? carryIn}) adderGen =
           NativeAdder.new,
@@ -80,38 +81,47 @@ class FloatingPointConverter<FpTypeIn extends FloatingPoint,
     final Logic infinity;
     final Logic destExponent;
     final Logic destMantissa;
+    final Logic biasDiff;
+    final Logic fullDiff;
+    final Logic leadOne;
+    final Logic leadOneValid;
+    final Logic shift;
 
     if (destExponentWidth >= source.exponent.width) {
       // Narrow to Wide
       infinity = source.isAnInfinity;
-      final biasDiff = (dBias - sBias).named('biasDiff');
 
-      final leadOneValid = Logic(name: 'leadOne_valid');
-      final leadOnePre = priorityGen(mantissa.reversed,
-              valid: leadOneValid, name: 'lead_one_encoder')
-          .out;
-      final leadOne =
-          mux(leadOneValid, leadOnePre.zeroExtend(biasDiff.width), biasDiff)
-              .named('leadOne');
+      if (destExponentWidth > source.exponent.width) {
+        biasDiff = (dBias - sBias).named('biasDiff');
 
-      final fullDiff = mux(
-          source.explicitJBit,
-          biasDiff +
-              source.exponent.zeroExtend(biasDiff.width) +
-              mux(
-                  ~source.isNormal & source.explicitJBit,
-                  Const(1, width: biasDiff.width),
-                  Const(0, width: biasDiff.width)),
-          biasDiff);
+        final leadOneEncoder = priorityGen(mantissa.reversed,
+            outputValid: true, name: 'lead_one_encoder');
+        final leadOnePre = leadOneEncoder.out;
+        leadOneValid = leadOneEncoder.valid!;
+        leadOne =
+            mux(leadOneValid, leadOnePre.zeroExtend(maxExpWidth), biasDiff)
+                .named('leadOne');
 
-      final shift = mux(fullDiff.gte(leadOne) & leadOneValid, leadOne, fullDiff)
-          .named('shift');
+        fullDiff = mux(
+            source.explicitJBit,
+            biasDiff +
+                source.exponent.zeroExtend(biasDiff.width) +
+                mux(~source.isNormal & source.explicitJBit,
+                    Const(1, width: maxExpWidth), Const(0, width: maxExpWidth)),
+            biasDiff);
+        shift = mux(fullDiff.gte(leadOne) & leadOneValid, leadOne, fullDiff)
+            .named('shift');
+      } else {
+        biasDiff = Const(0, width: maxExpWidth);
+        fullDiff = Const(0, width: maxExpWidth);
+        leadOne = Const(0, width: maxExpWidth);
+        leadOneValid = Const(0);
+        shift = Const(0, width: maxExpWidth);
+      }
 
       final trueShift = shift +
-          mux(
-              destination.explicitJBit & source.isNormal & ~source.explicitJBit,
-              Const(-1, width: biasDiff.width),
-              Const(0, width: biasDiff.width));
+          mux(destination.explicitJBit & source.isNormal & ~source.explicitJBit,
+              Const(-1, width: maxExpWidth), Const(0, width: maxExpWidth));
 
       final newMantissa = mux(trueShift[-1], mantissa >> (~trueShift + 1),
               mantissa << trueShift)
@@ -147,52 +157,55 @@ class FloatingPointConverter<FpTypeIn extends FloatingPoint,
               : roundedMantissa)
           .named('destMantissa');
 
-      final predictExp = (se + biasDiff).named('predictExp');
-      final predictSub = mux(
-              fullDiff.gte(leadOne) & leadOneValid,
-              fullDiff - (leadOne - Const(1, width: leadOne.width)),
-              fullDiff - shift)
-          .named('predictSubExp');
-      final preExponent =
-          mux(shift.gt(Const(0, width: shift.width)), predictSub, predictExp)
-                  .named('unRndDestExponent') +
-              roundIncExp.zeroExtend(predictSub.width).named('rndIncExp');
+      final Logic preExponent;
+      if (destExponentWidth > source.exponent.width) {
+        final predictExp = (se + biasDiff).named('predictExp');
+        final predictSub = mux(
+                fullDiff.gte(leadOne) & leadOneValid,
+                fullDiff - (leadOne - Const(1, width: leadOne.width)),
+                fullDiff - shift)
+            .named('predictSubExp');
+        preExponent =
+            mux(shift.gt(Const(0, width: shift.width)), predictSub, predictExp)
+                    .named('unRndDestExponent') +
+                roundIncExp.zeroExtend(predictSub.width).named('rndIncExp');
+      } else {
+        preExponent = se + roundIncExp.zeroExtend(se.width).named('rndIncExp');
+      }
       destExponent =
           preExponent.getRange(0, destExponentWidth).named('destExponent');
     } else {
       // Wide to Narrow exponent
       final biasDiff = (sBias - dBias).named('biasDiff');
 
-      final leadOneValid = Logic(name: 'leadOne_valid');
-      final leadOnePre = priorityGen(mantissa.reversed,
-              valid: leadOneValid, name: 'lead_one_encoder')
-          .out;
+      final leadOneEncoder = priorityGen(mantissa.reversed,
+          outputValid: true, name: 'lead_one_encoder');
+      final leadOnePre = leadOneEncoder.out;
+      final leadOneValid = leadOneEncoder.valid!;
       final leadOne =
-          mux(leadOneValid, leadOnePre.zeroExtend(biasDiff.width), biasDiff)
+          mux(leadOneValid, leadOnePre.zeroExtend(maxExpWidth), biasDiff)
               .named('leadOne');
 
-      final seW = se.zeroExtend(biasDiff.width);
+      final seW = se.zeroExtend(maxExpWidth);
       final newSe = mux(
           leadOneValid & source.explicitJBit & source.isNormal,
-          mux(
-              seW.gte(leadOne),
-              seW - (leadOne - Const(1, width: biasDiff.width)),
-              Const(0, width: biasDiff.width)),
+          mux(seW.gte(leadOne), seW - (leadOne - Const(1, width: maxExpWidth)),
+              Const(0, width: maxExpWidth)),
           seW);
 
       final nextShift = mux(
           biasDiff.gte(newSe),
-          (source.isNormal.zeroExtend(biasDiff.width).named('srcIsNormal') +
+          (source.isNormal.zeroExtend(maxExpWidth).named('srcIsNormal') +
                   (biasDiff - newSe).named('negSourceRebiased'))
               .named('shiftSubnormal'),
-          Const(0, width: biasDiff.width));
+          Const(0, width: maxExpWidth));
 
       final tns = nextShift -
           (se - newSe) +
-          mux(source.explicitJBit, Const(-1, width: biasDiff.width),
-              Const(0, width: biasDiff.width)) +
-          mux(destination.explicitJBit, Const(1, width: biasDiff.width),
-              Const(0, width: biasDiff.width));
+          mux(source.explicitJBit, Const(-1, width: maxExpWidth),
+              Const(0, width: maxExpWidth)) +
+          mux(destination.explicitJBit, Const(1, width: maxExpWidth),
+              Const(0, width: maxExpWidth));
 
       final fullMantissa = [mantissa, Const(0, width: destMantissaWidth + 2)]
           .swizzle()
@@ -224,9 +237,7 @@ class FloatingPointConverter<FpTypeIn extends FloatingPoint,
 
       destMantissa = sliceMantissa.getRange(0, destMantissaWidth);
 
-      final predictEN = mux(
-              biasDiff.gte(newSe),
-              Const(0, width: biasDiff.width),
+      final predictEN = mux(biasDiff.gte(newSe), Const(0, width: maxExpWidth),
               (newSe - biasDiff).named('sourceRebiased'))
           .named('predictExponent');
 

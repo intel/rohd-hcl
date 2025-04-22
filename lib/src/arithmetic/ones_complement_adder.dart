@@ -46,9 +46,9 @@ class OnesComplementAdder extends Adder {
   /// for use in the [CarrySelectCompoundAdder].
   OnesComplementAdder(super.a, super.b,
       {Adder Function(Logic, Logic, {Logic? carryIn}) adderGen =
-          ParallelPrefixAdder.new,
+          NativeAdder.new,
       Logic? subtractIn,
-      Logic? endAroundCarry,
+      bool outputEndAroundCarry = false,
       super.carryIn,
       bool subtract = false,
       bool chainable = false,
@@ -57,9 +57,9 @@ class OnesComplementAdder extends Adder {
       : super(
             definitionName:
                 definitionName ?? 'OnesComplementAdder_W${a.width}') {
-    if (endAroundCarry != null) {
+    // if (endAroundCarry != null) {
+    if (outputEndAroundCarry) {
       addOutput('endAroundCarry');
-      endAroundCarry <= this.endAroundCarry!;
     }
     if ((subtractIn != null) & subtract) {
       throw RohdHclException(
@@ -80,13 +80,13 @@ class OnesComplementAdder extends Adder {
             .sum
             .named('adderSum', naming: Naming.mergeable);
 
-    if (this.endAroundCarry != null) {
-      this.endAroundCarry! <= adderSum[-1];
+    if (outputEndAroundCarry) {
+      output('endAroundCarry') <= adderSum[-1];
     }
     final endAround = adderSum[-1].named('endaround');
     final magnitude = adderSum.slice(a.width - 1, 0).named('magnitude');
     final Logic magnitudep1;
-    if (this.endAroundCarry == null) {
+    if (!outputEndAroundCarry) {
       final incrementer = ParallelPrefixIncr(magnitude);
       magnitudep1 = incrementer.out.named('magnitude_plus1');
     } else {
@@ -99,8 +99,7 @@ class OnesComplementAdder extends Adder {
               if (chainable) endAround else Const(0),
               mux(
                   [if (chainable) Const(0) else endAround].first,
-                  [if (this.endAroundCarry != null) magnitude else magnitudep1]
-                      .first,
+                  [if (outputEndAroundCarry) magnitude else magnitudep1].first,
                   ~magnitude)
             ].swizzle(),
             adderSum);

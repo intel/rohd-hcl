@@ -39,6 +39,7 @@ class FixedToFloat extends Module {
       {required this.exponentWidth,
       required this.mantissaWidth,
       bool signed = true,
+      Logic? leadingDigitPredict,
       super.name = 'FixedToFloat'})
       : super(
             definitionName:
@@ -46,13 +47,16 @@ class FixedToFloat extends Module {
     fixed = fixed.clone()..gets(addInput('fixed', fixed, width: fixed.width));
     addOutput('float', width: _float.width) <= _float;
 
+    final localLeadingDigitPredict = (leadingDigitPredict != null)
+        ? addInput('leadingDigitPredict', leadingDigitPredict,
+            width: leadingDigitPredict.width)
+        : null;
+
     final bias = float.floatingPointValue.bias;
     final eMax = pow(2, exponentWidth) - 2;
     final iWidth =
         (1 + max(log2Ceil(fixed.n), max(log2Ceil(fixed.width), exponentWidth)))
             .toInt();
-
-    // print('iwidth=$iWidth');
 
     // Special handling needed for E4M3 as it does not support inf
     if ((exponentWidth == 4) && (mantissaWidth == 3)) {
@@ -72,37 +76,59 @@ class FixedToFloat extends Module {
         ..gets(mux(_float.sign, fixed, fixed));
     }
 
-    final jBit = RecursiveModulePriorityEncoder(absValue.reversed)
-        .out
-        .zeroExtend(iWidth)
-        .named('jBit');
+    final maxShift = fixed.width - fixed.n + bias - 2;
+    final absValueShifted = Logic(
+        width: max(absValue.width, mantissaWidth + 2), name: 'absValueShifted');
 
+    final j = Logic(name: 'j', width: iWidth);
+    if (localLeadingDigitPredict != null) {
+      // Under construction
+      final absValueShiftedPre = Logic(
+          width: max(absValue.width, mantissaWidth + 2),
+          name: 'absValueShiftedPre');
+
+      if (absValue.width < mantissaWidth + 2) {
+        final zeros = Const(0, width: mantissaWidth + 2 - absValue.width);
+        absValueShiftedPre <=
+            [absValue, zeros].swizzle() << localLeadingDigitPredict;
+      } else {
+        // print('here ${absValueShifted.width} $mantissaWidth');
+        absValueShiftedPre <= absValue << localLeadingDigitPredict;
+      }
+      absValueShifted <=
+          mux(absValueShiftedPre[-1], absValueShiftedPre,
+              absValueShiftedPre << 1);
+      j <=
+          mux(absValueShiftedPre[-1], localLeadingDigitPredict,
+              localLeadingDigitPredict + 1);
+    } else {
+      final Logic jBit;
+      jBit = RecursiveModulePriorityEncoder(absValue.reversed)
+          .out
+          .zeroExtend(iWidth)
+          .named('jBit');
+      // Limit to minimum exponent
+      if (maxShift > 0) {
+        j <= mux(jBit.gt(maxShift), Const(maxShift, width: iWidth), jBit);
+      } else {
+        j <= jBit;
+      }
+
+      // Align mantissa
+      if (absValue.width < mantissaWidth + 2) {
+        final zeros = Const(0, width: mantissaWidth + 2 - absValue.width);
+        absValueShifted <= [absValue, zeros].swizzle() << j;
+      } else {
+        // print('here ${absValueShifted.width} $mantissaWidth');
+        absValueShifted <= absValue << j;
+      }
+    }
     // TODO(desmonddak): refactor to use the roundRNE component
 
     // Extract mantissa
     final mantissa = Logic(name: 'mantissa', width: mantissaWidth);
     final guard = Logic(name: 'guardBit');
     final sticky = Logic(name: 'stickBit');
-    final j = Logic(name: 'j', width: iWidth);
-    final maxShift = fixed.width - fixed.n + bias - 2;
-
-    // Limit to minimum exponent
-    if (maxShift > 0) {
-      j <= mux(jBit.gt(maxShift), Const(maxShift, width: iWidth), jBit);
-    } else {
-      j <= jBit;
-    }
-
-    // Align mantissa
-    final absValueShifted = Logic(
-        width: max(absValue.width, mantissaWidth + 2), name: 'absValueShifted');
-    if (absValue.width < mantissaWidth + 2) {
-      final zeros = Const(0, width: mantissaWidth + 2 - absValue.width);
-      absValueShifted <= [absValue, zeros].swizzle() << j;
-    } else {
-      // print('here ${absValueShifted.width} $mantissaWidth');
-      absValueShifted <= absValue << j;
-    }
 
     mantissa <= absValueShifted.getRange(-mantissaWidth - 1, -1);
     guard <= absValueShifted.getRange(-mantissaWidth - 2, -mantissaWidth - 1);

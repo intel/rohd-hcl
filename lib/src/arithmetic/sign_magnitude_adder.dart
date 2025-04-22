@@ -11,6 +11,33 @@ import 'package:meta/meta.dart';
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
 
+/// A [SignMagnitudeAdderBase] performs addition on values in sign/magnitude
+/// format.
+abstract class SignMagnitudeAdderBase extends Adder {
+  /// The sign of the first input
+  Logic aSign;
+
+  /// The sign of the second input
+  Logic bSign;
+
+  /// The sign of the result
+  Logic get sign => output('sign');
+
+  /// [SignMagnitudeAdder] constructor.
+  ///
+  /// Inputs are (sign, magnitude) pairs: ([aSign], [a]) and ([bSign], [b]). If
+  /// the caller can guarantee that the larger magnitude value is provided first
+  SignMagnitudeAdderBase(this.aSign, super.a, this.bSign, super.b,
+      {String? definitionName, super.name = 'sign_magnitude_adder'})
+      : super(
+            definitionName:
+                definitionName ?? 'SignMagnitudeAdder_W${a.width}') {
+    aSign = addInput('aSign', aSign);
+    bSign = addInput('bSign', bSign);
+    addOutput('sign');
+  }
+}
+
 /// A [SignMagnitudeAdder] performs addition on values in sign/magnitude
 /// format.
 class SignMagnitudeAdder extends Adder {
@@ -51,15 +78,18 @@ class SignMagnitudeAdder extends Adder {
       {Adder Function(Logic a, Logic b, {Logic? carryIn}) adderGen =
           NativeAdder.new,
       this.largestMagnitudeFirst = false,
-      Logic? endAroundCarry,
-      super.name = 'sign_magnitude_adder'})
-      : super(definitionName: 'SignMagnitudeAdder_W${a.width}') {
+      bool outputEndAroundCarry = false,
+      super.name = 'sign_magnitude_adder',
+      String? definitionName})
+      : super(
+            definitionName:
+                definitionName ?? 'SignMagnitudeAdder_W${a.width}') {
     aSign = addInput('aSign', aSign);
     bSign = addInput('bSign', bSign);
     _sign = addOutput('sign');
 
-    if (endAroundCarry != null) {
-      endAroundCarry <= addOutput('endAroundCarry');
+    if (outputEndAroundCarry) {
+      addOutput('endAroundCarry');
     }
 
     if (!largestMagnitudeFirst) {
@@ -70,20 +100,51 @@ class SignMagnitudeAdder extends Adder {
     }
 
     final sub = aSign ^ bSign;
-    final endCarry = Logic();
-    final adder =
-        OnesComplementAdder(mux(_sign & sub, ~a, a), mux(_sign & sub, ~b, b),
-            endAroundCarry: largestMagnitudeFirst
-                ? endAroundCarry != null
-                    ? endCarry
-                    : null
-                : null,
-            subtractIn: sub,
-            adderGen: adderGen);
-    // sum <= adder.sum.getRange(0, adder.sum.width - 1).zeroExtend(sum.width);
+
+    final adder = OnesComplementAdder(
+        mux(_sign & sub, ~a, a), mux(_sign & sub, ~b, b),
+        outputEndAroundCarry: largestMagnitudeFirst & outputEndAroundCarry,
+        subtractIn: sub,
+        adderGen: adderGen);
     sum <= adder.sum;
-    if (endAroundCarry != null) {
-      output('endAroundCarry') <= (largestMagnitudeFirst ? endCarry : Const(0));
+    if (outputEndAroundCarry) {
+      output('endAroundCarry') <=
+          (largestMagnitudeFirst ? adder.endAroundCarry! : Const(0));
     }
+  }
+}
+
+/// A sign-magnitude adder implementation that uses two ones-complement
+/// adders wired in opposition to compute the magnitude and sign without
+/// using internal twos-complement addition.
+class SignMagnitudeDualAdder extends SignMagnitudeAdderBase {
+  ////// [SignMagnitudeDualAdder] constructor with an adder functor [adderGen].
+  ///
+  /// Inputs are (sign, magnitude) pairs: ([aSign], [a]) and ([bSign], [b]).
+  /// The caller need not guarantee the order of inputs as this adder
+  /// performs two ones-complement subtractions and selects the appropriate one
+  /// to compute magnitude.
+  SignMagnitudeDualAdder(super.aSign, super.a, super.bSign, super.b,
+      {Adder Function(Logic a, Logic b, {Logic? carryIn}) adderGen =
+          NativeAdder.new,
+      super.name = 'sign_magnitude_dualadder'})
+      : super(definitionName: 'SignMagnitudeAdder_W${a.width}') {
+    // final carryForward = Logic();
+    final adderForward = SignMagnitudeAdder(Const(0), a, aSign ^ bSign, b,
+        outputEndAroundCarry: true,
+        largestMagnitudeFirst: true,
+        adderGen: adderGen);
+
+    // final carryReverse = Logic();
+    final adderReverse = SignMagnitudeAdder(Const(0), b, aSign ^ bSign, a,
+        outputEndAroundCarry: true,
+        largestMagnitudeFirst: true,
+        adderGen: adderGen);
+
+    // Not having the endAroundCarry means the second argument is bigger
+    // and that is also indicates the correct sign to choose.
+    sum <=
+        mux(adderForward.endAroundCarry!, adderReverse.sum, adderForward.sum);
+    output('sign') <= mux(adderForward.endAroundCarry!, aSign, bSign);
   }
 }

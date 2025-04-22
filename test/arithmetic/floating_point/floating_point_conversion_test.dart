@@ -178,6 +178,42 @@ void main() {
     }
   });
 
+  test('FP: conversion random', () {
+    for (var sEW = 2; sEW < 5; sEW++) {
+      for (var sMW = 2; sMW < 5; sMW++) {
+        final rv = Random(13);
+        final fp1 = FloatingPoint(exponentWidth: sEW, mantissaWidth: sMW)
+          ..put(0);
+        for (var dEW = 2; dEW < 6; dEW++) {
+          for (var dMW = 2; dMW < 6; dMW++) {
+            final fp2 = FloatingPoint(exponentWidth: dEW, mantissaWidth: dMW);
+            final convert = FloatingPointConverter(fp1, fp2);
+            for (var iter = 0; iter < 20; iter++) {
+              final fv1 = FloatingPointValue.populator(
+                      exponentWidth: sEW, mantissaWidth: sMW)
+                  .random(rv);
+              fp1.put(fv1.value);
+
+              final expected = FloatingPointValue.populator(
+                      exponentWidth: dEW, mantissaWidth: dMW)
+                  .ofDouble(fv1.toDouble());
+
+              final computed = convert.destination.floatingPointValue;
+
+              expect(computed, equals(fp2.floatingPointValue));
+
+              expect(computed, equals(expected), reason: '''
+                              $fv1 (${fv1.toDouble()})\t=>
+                              $computed (${computed.toDouble()})\tcomputed
+                              $expected (${expected.toDouble()})\texpected
+''');
+            }
+          }
+        }
+      }
+    }
+  });
+
   test('FP: conversion exhaustive', () {
     for (var sEW = 2; sEW < 5; sEW++) {
       for (var sMW = 2; sMW < 5; sMW++) {
@@ -214,6 +250,70 @@ void main() {
           }
         }
       }
+    }
+  });
+
+  test('FP: conversion 32-BF16 random', () {
+    final rv = Random(13);
+    final fp1 = FloatingPoint32()..put(0);
+    final fp2 = FloatingPointBF16();
+    final convert = FloatingPointConverter(fp1, fp2);
+
+    final maxV = FloatingPointBF16Value.populator()
+        .ofConstant(FloatingPointConstants.largestNormal)
+        .toDouble();
+    final minV = FloatingPoint16Value.populator()
+        .ofConstant(FloatingPointConstants.smallestPositiveSubnormal)
+        .toDouble();
+    var iter = 0;
+    while (iter < 20) {
+      final fv1 = FloatingPoint32Value.populator().random(rv);
+      fp1.put(fv1.value);
+      if (fv1.toDouble().abs() > maxV) {
+        continue;
+      }
+      if (fv1.toDouble().abs() < minV) {
+        continue;
+      }
+      iter++;
+      final expected =
+          FloatingPointBF16Value.populator().ofDouble(fv1.toDouble());
+
+      final computed = convert.destination.floatingPointValue;
+
+      expect(computed, equals(fp2.floatingPointValue));
+
+      expect(computed, equals(expected), reason: '''
+                              $fv1 (${fv1.toDouble()})\t=>
+                              $computed (${computed.toDouble()})\tcomputed
+                              $expected (${expected.toDouble()})\texpected
+''');
+    }
+  });
+
+  test('FP: conversion BF16-32 random', () {
+    final rv = Random(13);
+    final fp1 = FloatingPointBF16()..put(0);
+    final fp2 = FloatingPoint32();
+    final convert = FloatingPointConverter(fp1, fp2);
+
+    var iter = 0;
+    while (iter < 20) {
+      final fv1 = FloatingPointBF16Value.populator().random(rv);
+      fp1.put(fv1.value);
+      iter++;
+      final expected =
+          FloatingPoint32Value.populator().ofDouble(fv1.toDouble());
+
+      final computed = convert.destination.floatingPointValue;
+
+      expect(computed, equals(fp2.floatingPointValue));
+
+      expect(computed, equals(expected), reason: '''
+                              $fv1 (${fv1.toDouble()})\t=>
+                              $computed (${computed.toDouble()})\tcomputed
+                              $expected (${expected.toDouble()})\texpected
+''');
     }
   });
 

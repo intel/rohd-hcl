@@ -1,8 +1,8 @@
 // Copyright (C) 2024-2025 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 //
-// floating_point_adder_round.dart
-// A variable-width floating point adder with rounding
+// floating_point_adder_dualpath.dart
+// A variable-width floating point adder using a dual path computation.
 //
 // 2024 August 30
 // Author: Desmond A Kirkpatrick <desmond.a.kirkpatrick@intel.com
@@ -11,9 +11,9 @@ import 'dart:math';
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
 
-/// An adder module for variable FloatingPoint type with rounding.
+/// An adder module for variable FloatingPoint type.
 // This is a Seidel/Even adder, dual-path implementation.
-class FloatingPointAdderRound<FpType extends FloatingPoint>
+class FloatingPointAdderDualPath<FpType extends FloatingPoint>
     extends FloatingPointAdder<FpType> {
   /// Add two floating point numbers [a] and [b], returning result in [sum].
   /// [subtract] is an optional Logic input to do subtraction
@@ -21,7 +21,7 @@ class FloatingPointAdderRound<FpType extends FloatingPoint>
   /// functions.
   /// [ppTree] is an ParallelPrefix generator for use in increment /decrement
   ///  functions.
-  FloatingPointAdderRound(super.a, super.b,
+  FloatingPointAdderDualPath(super.a, super.b,
       {Logic? subtract,
       super.clk,
       super.reset,
@@ -124,15 +124,14 @@ class FloatingPointAdderRound<FpType extends FloatingPoint>
     final isInfFlopped = localFlop(isInf);
     final isNaNFlopped = localFlop(isNaN);
 
-    final carryRPath = Logic(name: 'carryRpath');
-    final carryP1RPath = Logic(name: 'carryRpath');
     final significandAdderRPath = CarrySelectOnesComplementCompoundAdder(
         largeOperandFlopped, smallerOperandRPathFlopped,
         subtractIn: effectiveSubtractionFlopped,
-        carryOut: carryRPath,
-        carryOutP1: carryP1RPath,
+        outputCarryOut: true,
+        outputCarryOutP1: true,
         adderGen: adderGen,
         name: 'rpath_significand_adder');
+    final carryRPath = significandAdderRPath.carryOut!;
 
     final lowBitsRPath = smallerAlignRPathFlopped
         .slice(extendWidthRPath - 1, 0)
@@ -232,7 +231,6 @@ class FloatingPointAdderRound<FpType extends FloatingPoint>
 
     final sumMantissaRPath =
         mux(selectRPath, sumP1RPath, sumRPath).named('selectSumMantissa_rpath');
-    // TODO(desmonddak):  the '+' operator fails to pick up names directly
     final sumMantissaRPathRnd = (sumMantissaRPath +
             rndRPath.zeroExtend(sumRPath.width).named('rndExtend_rpath'))
         .named('sumMantissaRndRpath');
@@ -256,12 +254,12 @@ class FloatingPointAdderRound<FpType extends FloatingPoint>
         .slice(smallOperandNPath.width - 1, 0)
         .named('significandNpath');
 
-    final validLeadOneNPath = Logic(name: 'validLead1Npath');
-    final leadOneNPathPre = RecursiveModulePriorityEncoder(
-            significandNPath.reversed,
-            valid: validLeadOneNPath,
-            name: 'npath_leadingOne')
-        .out;
+    final leadOneEncoderNPath = RecursiveModulePriorityEncoder(
+        significandNPath.reversed,
+        outputValid: true,
+        name: 'npath_leadingOne');
+    final leadOneNPathPre = leadOneEncoderNPath.out;
+    final validLeadOneNPath = leadOneEncoderNPath.valid!;
     // Limit leadOne to exponent range and match widths
     final leadOneNPath = ((leadOneNPathPre.width > exponentWidth)
             ? mux(

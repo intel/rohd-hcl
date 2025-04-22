@@ -130,8 +130,8 @@ class CarrySelectCompoundAdder extends CompoundAdder {
     final sumList1 = <Logic>[];
     // carryout of previous adder block
     // for sum and sum+1
-    Logic? carry0;
-    Logic? carry1;
+    Logic carry0 = Const(0);
+    Logic carry1 = Const(0);
     // Get size of each adder block
     final adderSplit = widthGen(a.width);
     // 1st output bit index of each block
@@ -164,9 +164,9 @@ class CarrySelectCompoundAdder extends CompoundAdder {
           final bitOut1 = Logic(name: 'bit1_${blockStartIdx + bitIdx}');
           // select adder output from adder matching carryin value
           bitOut0 <=
-              mux(carry0!, fullAdder1.sum[bitIdx], fullAdder0.sum[bitIdx]);
+              mux(carry0, fullAdder1.sum[bitIdx], fullAdder0.sum[bitIdx]);
           bitOut1 <=
-              mux(carry1!, fullAdder1.sum[bitIdx], fullAdder0.sum[bitIdx]);
+              mux(carry1, fullAdder1.sum[bitIdx], fullAdder0.sum[bitIdx]);
           sumList0.add(bitOut0);
           sumList1.add(bitOut1);
         }
@@ -177,17 +177,17 @@ class CarrySelectCompoundAdder extends CompoundAdder {
         carry1 = fullAdder1.sum[blockWidth];
       } else {
         // select carryout depending on carryin (carryout of the previous block)
-        carry0 = mux(
-            carry0!, fullAdder1.sum[blockWidth], fullAdder0.sum[blockWidth]);
-        carry1 = mux(
-            carry1!, fullAdder1.sum[blockWidth], fullAdder0.sum[blockWidth]);
+        carry0 =
+            mux(carry0, fullAdder1.sum[blockWidth], fullAdder0.sum[blockWidth]);
+        carry1 =
+            mux(carry1, fullAdder1.sum[blockWidth], fullAdder0.sum[blockWidth]);
       }
       blockStartIdx += blockWidth;
     }
 
     // Append carryout bit
-    sumList0.add(carry0!);
-    sumList1.add(carry1!);
+    sumList0.add(carry0);
+    sumList1.add(carry1);
 
     sum <= sumList0.rswizzle();
     sumP1 <= sumList1.rswizzle();
@@ -227,10 +227,10 @@ class CarrySelectOnesComplementCompoundAdder extends CompoundAdder {
   /// [CarrySelectCompoundAdder.splitSelectAdderAlgorithmSingleBlock],
   CarrySelectOnesComplementCompoundAdder(super.a, super.b,
       {Adder Function(Logic, Logic, {Logic? carryIn}) adderGen =
-          ParallelPrefixAdder.new,
+          NativeAdder.new,
       Logic? subtractIn,
-      Logic? carryOut,
-      Logic? carryOutP1,
+      bool outputCarryOut = false,
+      bool outputCarryOutP1 = false,
       bool subtract = false,
       List<int> Function(int) widthGen =
           CarrySelectCompoundAdder.splitSelectAdderAlgorithmSingleBlock,
@@ -242,13 +242,11 @@ class CarrySelectOnesComplementCompoundAdder extends CompoundAdder {
         ? addInput('subtractIn', subtractIn, width: subtractIn.width)
         : null;
 
-    if (carryOut != null) {
+    if (outputCarryOut) {
       addOutput('carryOut');
-      carryOut <= this.carryOut!;
     }
-    if (carryOutP1 != null) {
+    if (outputCarryOutP1) {
       addOutput('carryOutP1');
-      carryOutP1 <= this.carryOutP1!;
     }
 
     final doSubtract = subtractIn ?? (subtract ? Const(subtract) : Const(0));
@@ -260,7 +258,7 @@ class CarrySelectOnesComplementCompoundAdder extends CompoundAdder {
             OnesComplementAdder(a, b,
                 adderGen: adderGen,
                 carryIn: carryIn,
-                endAroundCarry: Logic(),
+                outputEndAroundCarry: true,
                 subtract: subtract,
                 chainable: true,
                 subtractIn: subtractIn));
@@ -269,19 +267,19 @@ class CarrySelectOnesComplementCompoundAdder extends CompoundAdder {
     addOutput('signP1') <= mux(doSubtract, ~csadder.sumP1[-1], Const(0));
     final sumPlus1 =
         mux(doSubtract & csadder.sumP1[-1], ~csadder.sumP1, csadder.sumP1);
-    if (carryOutP1 != null) {
+    if (outputCarryOutP1) {
       sumP1 <= sumPlus1;
-
-      this.carryOutP1! <= csadder.sumP1[-1];
+      output('carryOutP1') <= csadder.sumP1[-1];
     } else {
       final incrementer = ParallelPrefixIncr(sumPlus1);
-      sumP1 <= incrementer.out.named('sum_plus2');
+      sumP1 <=
+          mux(csadder.sumP1[-1], incrementer.out.named('sum_plus2'), sumPlus1);
     }
-    if (carryOut != null) {
+    if (outputCarryOut) {
       sum <= mux(doSubtract & csadder.sum[-1], ~csadder.sum, csadder.sum);
-      this.carryOut! <= csadder.sum[-1];
+      output('carryOut') <= csadder.sum[-1];
     } else {
-      sum <= sumPlus1;
+      sum <= mux(doSubtract & csadder.sum[-1], sumPlus1, csadder.sum);
     }
   }
 }

@@ -11,7 +11,7 @@ ROHD-HCL provides a set of adder modules to get the sum from a pair of Logic. So
 
 ## Ripple Carry Adder
 
-A ripple carry adder is a digital circuit used for binary addition. It consists of a series of  [FullAdder](https://intel.github.io/rohd-hcl/rohd_hcl/FullAdder-class.html)s connected in a chain, with the carry output of each adder linked to the carry input of the next one. Starting from the least significant bit (LSB) to most significant bit (MSB), the adder sequentially adds corresponding bits of two binary numbers.
+A ripple carry adder is a digital circuit used for binary addition. It consists of a series of [FullAdder](https://intel.github.io/rohd-hcl/rohd_hcl/FullAdder-class.html)s connected in a chain, with the carry output of each adder linked to the carry input of the next one. Starting from the least significant bit (LSB) to most significant bit (MSB), the adder sequentially adds corresponding bits of two binary numbers.
 
 The [adder](https://intel.github.io/rohd-hcl/rohd_hcl/Adder-class.html) module in ROHD-HCL accept input `Logic`s a and b as the input pin and the name of the module `name`. Note that the width of the inputs must be the same or a [RohdHclException](https://intel.github.io/rohd-hcl/rohd_hcl/RohdHclException-class.html) will be thrown.
 
@@ -54,11 +54,11 @@ Here is an example of instantiating a [ParallelPrefixAdder](https://intel.github
 A ones'-complement adder (and subtractor) is useful in efficient arithmetic operations as the
 end-around carry can be bypassed and used later.
 
-The [OnesComplementAdder](https://intel.github.io/rohd-hcl/rohd_hcl/OnesComplementAdder-class.html) can take a subtraction command as either a `Logic` `subtractIn` or a boolean `subtract` (the Logic overrides the boolean).  If Logic `carry` is provided, the end-around carry is output on `carry` and the value will be one less than expected when `carry` is high.  An `adderGen` adder function can be provided that generates your favorite internal adder (such as a parallel prefix adder).
+The [OnesComplementAdder](https://intel.github.io/rohd-hcl/rohd_hcl/OnesComplementAdder-class.html) can take a subtraction command as either a `Logic` `subtractIn` or a boolean `subtract` (the Logic overrides the boolean).  If `outputEndAroundCarry` is true, the end-around carry is output on `endAroundCarry` and the value will be one less than expected when `endAroundCarry` is high.  An `adderGen` adder function can be provided that generates your favorite internal adder (such as a parallel prefix adder).
 
-The output of  [OnesComplementAdder](https://intel.github.io/rohd-hcl/rohd_hcl/OnesComplementAdder-class.html) is a `sum` which is the magnitude and a `sign`.
+The output of [OnesComplementAdder](https://intel.github.io/rohd-hcl/rohd_hcl/OnesComplementAdder-class.html) is a `sum` which is the magnitude, an optional `endAroundCarry` and a `sign`.
 
-Here is an example of instantiating a  [OnesComplementAdder](https://intel.github.io/rohd-hcl/rohd_hcl/OnesComplementAdder-class.html) as a subtractor, but saving the `carry`:
+Here is an example of instantiating a [OnesComplementAdder](https://intel.github.io/rohd-hcl/rohd_hcl/OnesComplementAdder-class.html) as a subtractor, but saving the `endAroundCarry`:
 
 ```dart
     const width = 4;
@@ -69,8 +69,9 @@ Here is an example of instantiating a  [OnesComplementAdder](https://intel.githu
     b.put(bv);
     final carry = Logic();
     final adder = OnesComplementAdder(
-        a, b, carryOut: carry, adderGen: adder.new,
+        a, b, outputEndAroundCarry: true, adderGen: adder.new,
         subtract: true);
+    final carry = adder.endAroundCarry
     final mag = adder.sum.value.toInt() + (carry.value.isZero ? 0 : 1));
     final out = (adder.sign.value.toInt() == 1 ? -mag : mag);
 ```
@@ -79,7 +80,7 @@ Here is an example of instantiating a  [OnesComplementAdder](https://intel.githu
 
 A sign magnitude adder is useful in situations where the sign of the addends is separated from their magnitude (e.g., not twos' complement), such as in floating point multipliers.  The [SignMagnitudeAdder](https://intel.github.io/rohd-hcl/rohd_hcl/SignMagnitudeAdder-class.html) inherits from `Adder` but adds the `Logic` inputs for the two operands.
 
-If you can supply the largest magnitude number first, then you can disable a comparator generation inside by declaring the `largestMagnitudeFirst` option as true.
+If you can supply the largest magnitude number first, then you can disable a comparator generation inside by declaring the `largestMagnitudeFirst` option as true. Otherwise, the component will first sort the inputs.
 
 The [SignMagnitudeAdder](https://intel.github.io/rohd-hcl/rohd_hcl/SignMagnitudeAdder-class.html) uses a [OnesComplementAdder](https://intel.github.io/rohd-hcl/rohd_hcl/OnesComplementAdder-class.html) internally.
 
@@ -105,6 +106,8 @@ Here is an example of instantiating a [SignMagnitudeAdder](https://intel.github.
     print('${sum.value.toBigInt()}');
 ```
 
+A variant provided is `SignMagnitudeDualAdder` which does not require sorting and simply runs two subtractions in parallel, choosing the one that yields the magnitude and correct sign.
+
 ## Compound Adder
 
 A compound carry adder is a digital circuit used for binary addition. It efficiently produces both sum and sum+1 outputs.
@@ -120,10 +123,6 @@ The compound adder forms a select chain around a set of adders specified by:
 
 ```dart
 (Logic a, Logic b, {Logic? carryIn, Logic? subtractIn, String name = ''})=> Adder
-```
-
-```dart
-(Logic a, Logic b, {Logic? carryIn, Logic? subtractIn, String name = ''}) => Adder
 ```
 
 - `splitSelectAdderAlgorithmSingleBlock:
@@ -151,37 +150,20 @@ final adder4BitBlock = CarrySelectCompoundAdder(a, b,
 
 ROHD-HCL has an implementation of a `CompoundAdder` that uses a `OnesComplement` adder to produce sum and sum plus one including for subtraction using ones-complement.
 
-By providing optional outputs `carryOut` and `carryOutP1`, the user can ensure the adder does not convert to 2s complement but instead does the efficient 1s complement add (or subtract) and provides the end-around carry as an output.  Otherwise, the adder will add back the end-around carry to the result to convert back to 2s complement.  A sign is also output for the result.
+By providing `outputCarryOut` and/or `outputCarryOutP1` settings, the outputs `carryOut` and `carryOutP1` are provided which also ensures the adder does not convert to 2s complement but instead does the efficient 1s complement subtract (or add) and provides the end-around carry as an output.  Otherwise, the adder will add back the end-around carry to the result to convert back to 2s complement.  A `sign` and `signP1` is also output for the result.
 
-Both Logic control and boolean control are provided for enabling subtraction.
-
-```dart
-    final carryOut = Logic();
-    final carryOutP1 = Logic();
-    final adder = CarrySelectOnesComplementCompoundAdder(a, b,
-          subtract: doSubtract,
-          carryOut: carryOut,
-          carryOutP1: carryOutP1,
-          widthGen: CarrySelectCompoundAdder.splitSelectAdderAlgorithmNBit(4));
-        widthGen: CarrySelectCompoundAdder.splitSelectAdderAlgorithmNBit(4));
-```
-
-## Compound Ones Complement Adder
-
-ROHD-HCL has an implementation of a `CompoundAdder` that uses a `OnesComplement` adder to produce sum and sum plus one including for subtraction using ones-complement.
-
-By providing optional outputs `carryOut` and `carryOutP1`, the user can ensure the adder does not convert to 2s complement but instead does the efficient 1s complement add (or subtract) and provides the end-around carry as an output.  Otherwise, the adder will add back the end-around carry to the result to convert back to 2s complement.  A sign is also output for the result.
-
-Both Logic control and boolean control are provided for enabling subtraction.
+Both Logic control `subtractIn` and boolean control `subtract` are provided for enabling subtraction either by control signal or by a hard configuration (no signal control).
 
 ```dart
-    final carryOut = Logic();
-    final carryOutP1 = Logic();
     final adder = CarrySelectOnesComplementCompoundAdder(a, b,
           subtract: doSubtract,
-          carryOut: carryOut,
-          carryOutP1: carryOutP1,
+          outputCarryOut: true,
+          outputCarryOutP1: true,
           widthGen: CarrySelectCompoundAdder.splitSelectAdderAlgorithmNBit(4));
+    final carryOut = adder.carryOut;
+    final carryOutP1 = adder.carryOutP1
+    final sum = adder.sum;
+    final sumP1 = adder.sumP1;
 ```
 
 ## Native Adder
@@ -189,17 +171,19 @@ Both Logic control and boolean control are provided for enabling subtraction.
 As logic synthesis can replace a '+' in RTL with a wide variety of adder architectures on its own, we have a `NativeAdder` wrapper class that allows you to use the native '+' with any component that exposes an `Adder` functor as a parameter:
 
 ```dart
-// API definition: FloatingPointAdderRound(super.a, super.b,
+// API definition: FloatingPointAdderSimple(super.a, super.b,
 //       {Logic? subtract,
 //       super.clk,
 //       super.reset,
 //       super.enable,
 //       Adder Function(Logic, Logic, {Logic? carryIn}) adderGen =
 //           ParallelPrefixAdder.new,
-//       ParallelPrefix Function(List<Logic>, Logic Function(Logic, Logic))
-//           ppTree = KoggeStone.new,
-//       super.name = 'floating_point_adder_round'})
+//      List<int> Function(int) widthGen =
+//          CarrySelectCompoundAdder.splitSelectAdderAlgorithmSingleBlock,
+//       super.name = 'floating_point_adder_simple'})
 
 // Instantiate with a NativeAdder as the internal adder
-final adder = FloatingPointAdderRound(a, b, adderGen: NativeAdder.new);
+final adder = FloatingPointAdderSimple(a, b, adderGen: NativeAdder.new);
 ```
+
+Note that there is a `CarrySelectCompoundAdder` used in the `FloatingPointAdderSimple`, (note that we are also passing in a width generator for the sub-adder splitting), and so the Adder functor is used inside that Compound Adder.  So here we are telling the `FloatingPointAdderSimple` to use a native '+' adder inside its compound adder for the mantissa.

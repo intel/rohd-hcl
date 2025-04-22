@@ -12,7 +12,7 @@ import 'package:rohd_hcl/src/arithmetic/arithmetic.dart';
 
 /// Debug routines for printing out ColumnCompressor during
 /// simulation with live logic values
-extension EvaluateLiveColumnCompressor on ColumnCompressor {
+extension EvaluateLiveColumnCompressor on ColumnCompressorModule {
   /// Evaluate the (un)compressed partial product array
   /// [logic] =true will read the logic gate outputs at each level
   /// [printOut]=true will print out the array in the StringBuffer
@@ -27,7 +27,7 @@ extension EvaluateLiveColumnCompressor on ColumnCompressor {
       int extraSpace = 5}) {
     final ts = StringBuffer();
     final rows = longestColumn();
-    final width = pp.maxWidth();
+    final width = maxWidth();
     var accum = BigInt.zero;
 
     for (var row = 0; row < rows; row++) {
@@ -40,7 +40,7 @@ extension EvaluateLiveColumnCompressor on ColumnCompressor {
       }
       final rowBits = [for (final c in rowLogic) c.value].reversed.toList();
       // ignore: cascade_invocations
-      rowBits.addAll(List.filled(pp.rowShift[row], LogicValue.zero));
+      rowBits.addAll(List.filled(rowShift[row], LogicValue.zero));
       final rowBitsExtend = rowBits.length < width
           ? rowBits.swizzle().zeroExtend(width)
           : rowBits.swizzle();
@@ -53,7 +53,7 @@ extension EvaluateLiveColumnCompressor on ColumnCompressor {
             prefix: prefix,
             extraSpace: extraSpace,
             intValue: true,
-            shift: pp.rowShift[row]))
+            shift: rowShift[row]))
         ..write('\n');
     }
 
