@@ -71,14 +71,13 @@ Here is an example of instantiating a [OnesComplementAdder](https://intel.github
     final adder = OnesComplementAdder(
         a, b, outputEndAroundCarry: true, adderGen: adder.new,
         subtract: true);
-    final carry = adder.endAroundCarry
-    final mag = adder.sum.value.toInt() + (carry.value.isZero ? 0 : 1));
+    final mag = adder.sum.value.toInt() + (adder.endAroundCarry!.value.isZero ? 0 : 1));
     final out = (adder.sign.value.toInt() == 1 ? -mag : mag);
 ```
 
 ## Sign Magnitude Adder
 
-A sign magnitude adder is useful in situations where the sign of the addends is separated from their magnitude (e.g., not twos' complement), such as in floating point multipliers.  The [SignMagnitudeAdder](https://intel.github.io/rohd-hcl/rohd_hcl/SignMagnitudeAdder-class.html) inherits from `Adder` but adds the `Logic` inputs for the two operands.
+A sign magnitude adder is useful in situations where the sign of the addends is separated from their magnitude (e.g., not twos' complement), such as in floating point adders.  The [SignMagnitudeAdder](https://intel.github.io/rohd-hcl/rohd_hcl/SignMagnitudeAdder-class.html) inherits from `Adder` but adds the `Logic` inputs for the two operands.
 
 If you can supply the largest magnitude number first, then you can disable a comparator generation inside by declaring the `largestMagnitudeFirst` option as true. Otherwise, the component will first sort the inputs.
 

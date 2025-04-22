@@ -130,9 +130,6 @@ class RecursiveModulePriorityEncoderNode extends Module {
   RecursiveModulePriorityEncoderNode(Logic seq, {super.name, int depth = 0})
       : super(definitionName: 'PriorityEncodeNode_W${seq.width}') {
     seq = addInput('seq', seq, width: seq.width);
-    // for (var i = 0; i < seq.length; i++)
-    // addInput('seq$i', seq[i], width: seq[i].width)
-    // ];
     if (seq.width == 1) {
       addOutput('ret') <= ~seq[0];
     } else if (seq.width == 2) {

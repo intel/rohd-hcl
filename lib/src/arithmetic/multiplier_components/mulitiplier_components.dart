@@ -1,4 +1,4 @@
-// Copyright (C) 2024 Intel Corporation
+// Copyright (C) 2024-2025 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 //
 // multiplier_components.dart
@@ -7,8 +7,6 @@
 //
 // 2024 August 9
 // Author: Desmond Kirkpatrick <desmond.a.kirkpatrick@intel.com>
-//
-//
 
 export './column_compressor.dart';
 export './multiplicand_selector.dart';

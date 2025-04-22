@@ -71,7 +71,7 @@ class FullAdder extends Adder {
 
 /// A class which wraps the native '+' operator so that it can be passed
 /// into other modules as a parameter for using the native operation.
-/// Note that all this Adder is unsigned.
+/// Note that [NativeAdder] is unsigned.
 class NativeAdder extends Adder {
   /// The width of input [a] and [b] must be the same.
   NativeAdder(super.a, super.b, {super.carryIn, super.name = 'native_adder'})

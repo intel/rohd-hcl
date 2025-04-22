@@ -139,13 +139,9 @@ void main() {
       final bv = LogicValue.ofInt(bi, width);
       a.put(av);
       b.put(bv);
-      // final carryOut = Logic();
-      // final carryOutP1 = Logic();
       final adder = CarrySelectOnesComplementCompoundAdder(a, b,
           subtract: doSubtract,
-          // carryOut: carryOut,
           outputCarryOut: true,
-          // carryOutP1: carryOutP1,
           outputCarryOutP1: true,
           widthGen: CarrySelectCompoundAdder.splitSelectAdderAlgorithmNBit(4));
 

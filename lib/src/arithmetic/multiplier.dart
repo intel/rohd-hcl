@@ -112,9 +112,8 @@ abstract class Multiplier extends Module {
     selectSignedMultiplier = (selectSignedMultiplier != null)
         ? addInput('selectSignedMultiplier', selectSignedMultiplier)
         : null;
-    // Should be done in base TODO(desmonddak):
-    addOutput('product', width: a.width + b.width);
 
+    addOutput('product', width: a.width + b.width);
     addOutput('isProductSigned') <=
         (signedMultiplicand | signedMultiplier ? Const(1) : Const(0)) |
             ((selectSignedMultiplicand != null)

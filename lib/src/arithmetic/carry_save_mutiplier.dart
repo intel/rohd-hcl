@@ -53,8 +53,6 @@ class CarrySaveMultiplier extends Multiplier {
     clk = addInput('clk', clk);
     reset = addInput('reset', reset);
 
-    // final product = addOutput('product', width: a.width + b.width + 1);
-
     _sum = List.generate(a.width * 2, (index) => Logic(name: 'sum_$index'));
     _carry = List.generate(a.width * 2, (index) => Logic(name: 'carry_$index'));
 

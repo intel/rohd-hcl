@@ -1,8 +1,8 @@
 // Copyright (C) 2024-2025 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 //
-// leading_zero_anticipate.dart
-// Implementation of LeadingZeroAnticipate Module.
+// leading_digit_anticipate.dart
+// Implementation of LeadingZeroAnticipate and LeadingDigitAnticipate Modules.
 //
 // 2025 April 10
 // Author: Desmond Kirkpatrick <desmond.a.kirkpatrick@intel.com>
