@@ -113,6 +113,22 @@ class Csr extends LogicStructure {
     _config.validate();
   }
 
+  /// Creates a clone of this CSR.
+  ///
+  /// The CSR is not allowed to be renamed, so [name] must be null.
+  @override
+  Csr clone({String? name}) {
+    if (name != null) {
+      throw RohdHclException('Cannot rename a CSR');
+    }
+
+    return Csr._(
+      config: config,
+      rsvdIndices: rsvdIndices,
+      fields: elements,
+    );
+  }
+
   /// Accessor to the bits of a particular field
   /// within the CSR by name [name].
   Logic getField(String name) =>

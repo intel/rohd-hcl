@@ -127,6 +127,8 @@ class CsrFieldConfig {
     }
   }
 
+  //TODO: hashcode?
+
   /// Deep clone method.
   CsrFieldConfig clone() => CsrFieldConfig(
         start: start,

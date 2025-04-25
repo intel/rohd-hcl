@@ -120,10 +120,10 @@ class CsrBlock extends Module {
   late final Logic _reset;
 
   /// Interface for frontdoor writes to CSRs.
-  late final DataPortInterface _frontWrite;
+  late final DataPortInterface? _frontWrite;
 
   /// Interface for frontdoor reads to CSRs.
-  late final DataPortInterface _frontRead;
+  late final DataPortInterface? _frontRead;
 
   /// Getter for block's base address
   int get baseAddr => config.baseAddr;
@@ -131,16 +131,25 @@ class CsrBlock extends Module {
   /// Getter for the CSR configurations.
   List<CsrInstanceConfig> get registers => config.registers;
 
+  final int addrWidth;
+
+  final int dataWidth;
+
   /// Create the CsrBlock from a configuration.
   factory CsrBlock(
     CsrBlockConfig config,
     Logic clk,
-    Logic reset,
-    DataPortInterface fdw,
-    DataPortInterface fdr, {
+    Logic reset, {
+    DataPortInterface? frontWrite,
+    DataPortInterface? frontRead,
     bool allowLargerRegisters = false,
     int logicalRegisterIncrement = 1,
   }) {
+    if (frontWrite == null && frontRead == null) {
+      throw CsrValidationException(
+          'At least one of `frontWrite` or `frontRead` must be provided.');
+    }
+
     final csrs = <Csr>[];
     for (final reg in config.registers) {
       csrs.add(Csr(reg));
@@ -150,8 +159,8 @@ class CsrBlock extends Module {
       csrs: csrs,
       clk: clk,
       reset: reset,
-      fdw: fdw,
-      fdr: fdr,
+      frontWrite: frontWrite,
+      frontRead: frontRead,
       allowLargerRegisters: allowLargerRegisters,
       logicalRegisterIncrement: logicalRegisterIncrement,
     );
@@ -163,27 +172,34 @@ class CsrBlock extends Module {
     required this.csrs,
     required Logic clk,
     required Logic reset,
-    required DataPortInterface fdw,
-    required DataPortInterface fdr,
+    required DataPortInterface? frontWrite,
+    required DataPortInterface? frontRead,
     this.allowLargerRegisters = false,
     this.logicalRegisterIncrement = 1,
   })  : _config = config.clone(),
+        addrWidth = frontWrite?.addrWidth ?? frontRead!.addrWidth,
+        dataWidth = frontWrite?.dataWidth ?? frontRead!.dataWidth,
         super(name: config.name) {
     _config.validate();
 
     _clk = addInput('${name}_clk', clk);
     _reset = addInput('${name}_reset', reset);
 
-    _frontWrite = fdw.clone()
-      ..connectIO(this, fdw,
-          inputTags: {DataPortGroup.control, DataPortGroup.data},
-          outputTags: {},
-          uniquify: (original) => 'frontWrite_$original');
-    _frontRead = fdr.clone()
-      ..connectIO(this, fdr,
-          inputTags: {DataPortGroup.control},
-          outputTags: {DataPortGroup.data},
-          uniquify: (original) => 'frontRead_$original');
+    _frontWrite = frontWrite == null
+        ? null
+        : (frontWrite.clone()
+          ..connectIO(this, frontWrite,
+              inputTags: {DataPortGroup.control, DataPortGroup.data},
+              outputTags: {},
+              uniquify: (original) => 'frontWrite_$original'));
+
+    _frontRead = frontRead == null
+        ? null
+        : (_frontRead = frontRead.clone()
+          ..connectIO(this, frontRead,
+              inputTags: {DataPortGroup.control},
+              outputTags: {DataPortGroup.data},
+              uniquify: (original) => 'frontRead_$original'));
 
     _validate();
 
@@ -242,13 +258,13 @@ class CsrBlock extends Module {
     // data width must be at least as wide as the biggest register in the block
     // address width must be at least wide enough
     // to address all registers in the block
-    if (_frontRead.dataWidth < _config.maxRegWidth()) {
+    if (_frontRead != null && _frontRead!.dataWidth < _config.maxRegWidth()) {
       if (allowLargerRegisters) {
         // must check for collisions in logical register addresses
         final regCheck = <int>[];
         for (final csr in csrs) {
-          if (csr.config.width > _frontRead.dataWidth) {
-            final targ = (csr.width / _frontRead.dataWidth).ceil();
+          if (csr.config.width > _frontRead!.dataWidth) {
+            final targ = (csr.width / _frontRead!.dataWidth).ceil();
 
             for (var j = 0; j < targ; j++) {
               regCheck.add(csr.addr + j * logicalRegisterIncrement);
@@ -271,18 +287,19 @@ class CsrBlock extends Module {
             'at least ${_config.maxRegWidth()}.');
       }
     }
-    if (_frontWrite.dataWidth < _config.maxRegWidth() &&
+    if (_frontWrite != null &&
+        _frontWrite!.dataWidth < _config.maxRegWidth() &&
         !allowLargerRegisters) {
       throw CsrValidationException(
           'Frontdoor write interface data width must be '
           'at least ${_config.maxRegWidth()}.');
     }
-    if (_frontRead.addrWidth < _config.minAddrBits()) {
+    if (_frontRead != null && _frontRead!.addrWidth < _config.minAddrBits()) {
       throw CsrValidationException(
           'Frontdoor read interface address width must be '
           'at least ${_config.minAddrBits()}.');
     }
-    if (_frontWrite.addrWidth < _config.minAddrBits()) {
+    if (_frontWrite != null && _frontWrite!.addrWidth < _config.minAddrBits()) {
       throw CsrValidationException(
           'Frontdoor write interface address width must be '
           'at least ${_config.minAddrBits()}.');
@@ -290,9 +307,6 @@ class CsrBlock extends Module {
   }
 
   void _buildLogic() {
-    final addrWidth = _frontWrite.addrWidth;
-    final dataWidth = _frontWrite.dataWidth;
-
     // individual CSR write logic
     for (var i = 0; i < csrs.length; i++) {
       // this block of code mostly handles the case where
