@@ -92,8 +92,7 @@ class FixedToFloat extends Module {
       // ahead of, matching or one behindthe actual jBit after absolute value.
       final fSign = fixed[-1].zeroExtend(leadingDigitPredict.width);
 
-      // If the lead is 1, and a negative number,
-      //     start at leadingDigitPredict - 1
+      // If the lead is 1 for a negative, start at leadingDigitPredict - 1
       estimatedJBit = mux(
           _float.sign.eq(fixed[-1]),
           mux(leadingDigitPredict.gte(fSign), leadingDigitPredict - fSign,
@@ -169,7 +168,7 @@ class FixedToFloat extends Module {
             Const(0, width: iWidth))
         .named('eRaw');
 
-    // TODO(desmonddak): potential optimiziation --
+    // TODO(desmonddak): potential optimization --
     //  we may be able to predict this from absValue instead of after
     //  mantissa increment.
     final eRawRne =

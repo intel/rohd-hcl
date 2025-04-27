@@ -21,13 +21,13 @@ final sumShiftFinal = mux(sumshift[-1], sumShift, sumShift << 1);
 
 ## LeadingZeroAnticipate
 
-ROHD-HCL also comes with a leading-zero anticipate component which predicts the leading-1 position (or the number of leading zeros) of a future ones-complement addition of two inputs. This can be used in parallel to avoid having to do a leading-1 detect after the addition and save delay.
+ROHD-HCL also comes with a leading-zero anticipate component which predicts the leading-1 position (or the number of leading zeros) of a future ones-complement addition of two inputs. This can be used in parallel to avoid having to do a leading-1 detect after the addition and save delay. These anticipators guarantee a prediction of the anticipated digit at either p or p+1 where p is the predicted position.
 
 `LeadingZeroAnticipate` assumes a sign-magnitude representation of the inputs.  If you supply the carry from an adder you are using on the same inputs then it will provide a single set of outputs `leadingOne`, the position of the first `1` (or number of leading zeros), as well as `validLeadOne` which indicates that a `1` was found.  
 
 If you do not provide a carry, then the component outputs a pair of outputs (`leadingOneA`, `validLeadOneA`) and (`leadingOneB`, `validLeadOneB`) which you can then use to select the first set if your carry happens.
 
-The computation presume ones-complement subtraction on the inputs and if first operand is positive and is larger than the second, then a carry from that is `1`, so the first leading one computation `leadingOneA` is the correct one, and in all other cases use the `leadingOneB`.
+The computation presume ones-complement subtraction on the inputs and if the first operand is positive and is larger than the second, then an end-around-carry from that is `1`, so the first leading one computation `leadingOneA` is the correct one, and in all other cases the `leadingOneB` is correct.
 
 If you need to compute the number of leading 1s (say in a negative twos complement number), you can use a `LeadingZeroAnticipate` circuit by inverting the input.
 
