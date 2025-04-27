@@ -8,6 +8,7 @@
 // Author: Desmond A Kirkpatrick <desmond.a.kirkpatrick@intel.com
 
 import 'dart:async';
+import 'dart:io';
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
 import 'package:rohd_vf/rohd_vf.dart';
@@ -82,8 +83,13 @@ void main() {
       vec.add(Const(i, width: width));
     }
     const radix = 4;
-    final prefixAdd =
-        ReductionTree(vec, radix: radix, addReduce, clk: clk, depthToFlop: 1);
+    final prefixAdd = ReductionTree(
+        vec,
+        radix: radix,
+        addReduce,
+        clk: clk,
+        depthToFlop: 1,
+        name: 'prefix_reduction');
 
     await prefixAdd.build();
     unawaited(Simulator.run());
