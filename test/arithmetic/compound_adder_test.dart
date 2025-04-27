@@ -305,8 +305,7 @@ void main() {
       final adder = CarrySelectOnesComplementCompoundAdder(a, b,
           subtractIn: t.subtractIn,
           generateCarryOut: t.carry,
-          generateCarryOutP1: t.carryP1,
-          adderGen: NativeAdder.new);
+          generateCarryOutP1: t.carryP1);
 
       expect(adder.sign.value, equals(t.sign), reason: 'sign mismatch');
       expect(adder.sum.value, equals(t.mag), reason: 'mag mismatch');
