@@ -8,7 +8,8 @@ ROHD-HCL comes with a leading-digit anticipate component which predicts the numb
 
 `LeadingDigitAnticipate` assumes a twos-complement representation of the inputs. It will provide a single set of outputs `leadingDigit`, the position of the first `1` for a positive sum and the first '0' for a negative sum, as well as `validLeadDigit` which indicates that a digit change was predicted.  
 
-Here is a sample usage:
+Here is a sample usage where we are trying to 'normalize' a number by finding its leading digit and shifting left to the leading
+digit:
 
 ```dart
 final predictor = LeadingDigitAnticipate(a, b);
@@ -26,16 +27,16 @@ ROHD-HCL also comes with a leading-zero anticipate component which predicts the 
 
 If you do not provide a carry, then the component outputs a pair of outputs (`leadingOneA`, `validLeadOneA`) and (`leadingOneB`, `validLeadOneB`) which you can then use to select the first set if your carry happens.
 
-The computation presume ones-complement subtraction on the inputs and if the carry from that is `1`, then that means the first operand was larger than the second, which means the first leading one computation `leadingOneA` is the correct one, otherwise use the `leadingOneB`.
+The computation presume ones-complement subtraction on the inputs and if first operand is positive and is larger than the second, then a carry from that is `1`, so the first leading one computation `leadingOneA` is the correct one, and in all other cases use the `leadingOneB`.
 
 If you need to compute the number of leading 1s (say in a negative twos complement number), you can use a `LeadingZeroAnticipate` circuit by inverting the input.
 
 Here is a sample usage:
 
 ```dart
-final predictor = LeadingZeroAnticipate(Const(0), a, aSign ^ bSign, b);
+final predictor = LeadingZeroAnticipate(aSign, a, bSign, b);
 
 final adder = OnesComplementAdder(a, b, subtractIn: aSign ^ bSign, outputEndAroundCarry: true);
 
-final leadingZeros = mux(adder.carry, predictor.leadingOneA!, predictor.leadingOneB!);
+final leadingZeros = mux(adder.carry | aSign, predictor.leadingOneA!, predictor.leadingOneB!);
 ```

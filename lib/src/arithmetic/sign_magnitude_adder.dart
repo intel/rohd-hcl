@@ -69,7 +69,11 @@ class SignMagnitudeAdder extends Adder {
   /// in [a], then they can set [largestMagnitudeFirst] too 'true' to avoid
   /// adding a comparator. Without the comparator, the [sign] may be wrong, but
   /// magnitude will be correct.
-  /// - [endAroundCarry] avoids extra hardware to add the final '1' in an
+  /// - If [generateEndAroundCarry] is true, then the end-around
+  /// carry is not performed and is provided as output [endAroundCarry]. If
+  /// [generateEndAroundCarry] is false, extra hardware takes care of adding the
+  /// end-around carry to [sum].
+  /// - [generateEndAroundCarry] avoids extra hardware to add the '1' in an
   /// end-around carry during subtraction. For subtractions that remain positive
   /// the [endAroundCarry] will hold that final +1 that needs to be added.
   /// For subtractions that go negative, the [endAroundCarry] will be '0'.
@@ -78,7 +82,7 @@ class SignMagnitudeAdder extends Adder {
       {Adder Function(Logic a, Logic b, {Logic? carryIn}) adderGen =
           NativeAdder.new,
       this.largestMagnitudeFirst = false,
-      bool outputEndAroundCarry = false,
+      bool generateEndAroundCarry = false,
       super.name = 'sign_magnitude_adder',
       String? definitionName})
       : super(
@@ -88,7 +92,7 @@ class SignMagnitudeAdder extends Adder {
     bSign = addInput('bSign', bSign);
     _sign = addOutput('sign');
 
-    if (outputEndAroundCarry) {
+    if (generateEndAroundCarry) {
       addOutput('endAroundCarry');
     }
 
@@ -103,12 +107,12 @@ class SignMagnitudeAdder extends Adder {
 
     final adder = OnesComplementAdder(
         mux(_sign & sub, ~a, a), mux(_sign & sub, ~b, b),
-        outputEndAroundCarry: largestMagnitudeFirst & outputEndAroundCarry,
+        generateEndAroundCarry: largestMagnitudeFirst & generateEndAroundCarry,
         subtractIn: sub,
         adderGen: adderGen);
     sum <= adder.sum;
-    if (outputEndAroundCarry) {
-      output('endAroundCarry') <=
+    if (generateEndAroundCarry) {
+      endAroundCarry! <=
           (largestMagnitudeFirst ? adder.endAroundCarry! : Const(0));
     }
   }
@@ -131,13 +135,13 @@ class SignMagnitudeDualAdder extends SignMagnitudeAdderBase {
       : super(definitionName: 'SignMagnitudeAdder_W${a.width}') {
     // final carryForward = Logic();
     final adderForward = SignMagnitudeAdder(Const(0), a, aSign ^ bSign, b,
-        outputEndAroundCarry: true,
+        generateEndAroundCarry: true,
         largestMagnitudeFirst: true,
         adderGen: adderGen);
 
     // final carryReverse = Logic();
     final adderReverse = SignMagnitudeAdder(Const(0), b, aSign ^ bSign, a,
-        outputEndAroundCarry: true,
+        generateEndAroundCarry: true,
         largestMagnitudeFirst: true,
         adderGen: adderGen);
 
@@ -145,6 +149,6 @@ class SignMagnitudeDualAdder extends SignMagnitudeAdderBase {
     // and that is also indicates the correct sign to choose.
     sum <=
         mux(adderForward.endAroundCarry!, adderReverse.sum, adderForward.sum);
-    output('sign') <= mux(adderForward.endAroundCarry!, aSign, bSign);
+    sign <= mux(adderForward.endAroundCarry!, aSign, bSign);
   }
 }

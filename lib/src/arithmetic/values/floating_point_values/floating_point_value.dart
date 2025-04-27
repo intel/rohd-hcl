@@ -49,9 +49,6 @@ class FloatingPointValue implements Comparable<FloatingPointValue> {
   @protected
   late final int storedMantissaWidth;
 
-  /// Return true if the JBit is implicitly represented.
-  bool get implicitJBit => true;
-
   /// Return true if the JBit is explicitly representedin the mantissa.
   bool get explicitJBit => false;
 

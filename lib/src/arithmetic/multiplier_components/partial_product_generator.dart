@@ -302,6 +302,9 @@ abstract class PartialProductMatrix extends Module {
   /// Store the [PartialProductGeneratorBase]
   late final PartialProductGeneratorBase _array;
 
+  /// Base constructor for the matrix
+  PartialProductMatrix({super.name = 'partial_product_matrix'});
+
   /// Generate the output vectors from the array
   void generateOutputs() {
     for (var row = 0; row < _array.rows; row++) {
@@ -311,6 +314,9 @@ abstract class PartialProductMatrix extends Module {
     _outputsGenerated = true;
   }
 }
+
+// TODO(desmonddak): why does PartialProduct instantiation result in
+//  unnamed_module.
 
 /// A PartialProduct Module
 class PartialProduct extends PartialProductMatrix {
@@ -328,7 +334,9 @@ class PartialProduct extends PartialProductMatrix {
               bool signedMultiplier,
               Logic? selectSignedMultiplicand,
               Logic? selectSignedMultiplier})
-          genPPG = PartialProductGenerator.new}) {
+          genPPG = PartialProductGenerator.new,
+      super.name = 'partial_product'})
+      : super() {
     final selectSignedMultiplicandInternal = selectSignedMultiplicand != null
         ? addInput(selectSignedMultiplicand.name, selectSignedMultiplicand)
         : null;

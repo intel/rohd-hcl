@@ -58,11 +58,8 @@ class FloatingPointAdderDualPath<FpType extends FloatingPoint>
     // Seidel: (sl, el, fl) = larger; (ss, es, fs) = smaller
     final (larger, smaller) = FloatingPointUtilities.swap(signDelta, (a, b));
 
-    final largeImplicit = ~larger.explicitJBit;
-    final smallImplicit = ~smaller.explicitJBit;
-
     final fl = mux(
-            larger.isNormal ^ largeImplicit,
+            ~larger.isNormal ^ Const(larger.explicitJBit),
             [larger.mantissa, Const(0)].swizzle(),
             mux(
                 larger.isNormal,
@@ -73,7 +70,7 @@ class FloatingPointAdderDualPath<FpType extends FloatingPoint>
                 ].swizzle()))
         .named('fullLarger');
     final fs = mux(
-            smaller.isNormal ^ smallImplicit,
+            ~smaller.isNormal ^ Const(smaller.explicitJBit),
             [smaller.mantissa, Const(0)].swizzle(),
             mux(
                 smaller.isNormal,
@@ -127,8 +124,8 @@ class FloatingPointAdderDualPath<FpType extends FloatingPoint>
     final significandAdderRPath = CarrySelectOnesComplementCompoundAdder(
         largeOperandFlopped, smallerOperandRPathFlopped,
         subtractIn: effectiveSubtractionFlopped,
-        outputCarryOut: true,
-        outputCarryOutP1: true,
+        generateCarryOut: true,
+        generateCarryOutP1: true,
         adderGen: adderGen,
         name: 'rpath_significand_adder');
     final carryRPath = significandAdderRPath.carryOut!;

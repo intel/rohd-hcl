@@ -322,7 +322,7 @@ class ColumnCompressorModule extends Module {
         break;
       }
     }
-    output('add0') <= _extractRow(0);
-    output('add1') <= _extractRow(1);
+    add0 <= _extractRow(0);
+    add1 <= _extractRow(1);
   }
 }

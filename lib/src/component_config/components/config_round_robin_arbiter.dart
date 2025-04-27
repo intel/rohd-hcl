@@ -15,7 +15,7 @@ import 'package:rohd_hcl/rohd_hcl.dart';
 /// A [Configurator] for [PriorityArbiter].
 class RoundRobinArbiterConfigurator extends Configurator {
   /// A knob controlling the number of requests and grants.
-  final IntConfigKnob numRequestKnob = IntConfigKnob(value: 8);
+  final IntConfigKnob numRequestKnob = IntConfigKnob(value: 4);
 
   /// A knob controlling the implementation.
   final ChoiceConfigKnob<Type> implementationKnob = ChoiceConfigKnob(

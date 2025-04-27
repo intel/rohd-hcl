@@ -15,7 +15,7 @@ import 'package:test/test.dart';
 void main() async {
   test('FixedToFloat: singleton', () async {
     final fixed = FixedPoint(signed: true, m: 34, n: 33);
-    const inDouble = 1.5;
+    const inDouble = -2.0;
     fixed.put(FixedPointValue.ofDouble(inDouble,
         signed: fixed.signed, m: fixed.m, n: fixed.n));
     final dut = FixedToFloat(fixed, exponentWidth: 8, mantissaWidth: 23);
@@ -63,38 +63,149 @@ void main() async {
     }
   });
 
+  test('FixedToFloat addition with Anticipate: signed singleton', () async {
+    const width = 8;
+    final val1 = LogicValue.ofInt(0, width);
+    final val2 = LogicValue.ofInt(192, width);
+
+    final a = Logic(width: width);
+    final b = Logic(width: width);
+    a.put(val1);
+    b.put(val2);
+
+    final fixed = FixedPoint(signed: true, m: width ~/ 2 - 1, n: width ~/ 2);
+    final val = NativeAdder(a, b).sum.slice(width - 1, 0).value;
+    final fixedValue =
+        FixedPointValue(signed: true, value: val, m: fixed.m, n: fixed.n);
+    fixed.put(fixedValue);
+    final anticipator = LeadingDigitAnticipate(a, b);
+    final dut = FixedToFloat(
+      fixed,
+      exponentWidth: 8,
+      mantissaWidth: 16,
+      leadingDigitPredict: anticipator.leadingDigit,
+    );
+    final fpv = dut.float.floatingPointValue;
+    final roundTripFixed = FixedPointValue.ofDouble(fpv.toDouble(),
+        signed: true, m: fixed.m, n: fixed.n);
+    expect(roundTripFixed, equals(fixedValue), reason: '''
+          val1=$val1\t ${a.value.bitString}
+          val2=$val2\t ${b.value.bitString}
+          val =$val\t${fixedValue.value.bitString}
+          fpvdbl=${fpv.toDouble()} $fpv
+          ${roundTripFixed.toDouble()} $roundTripFixed
+          ${fixedValue.toDouble()} $fixedValue
+          ${fixed.fixedPointValue.toDouble()}  ${fixed.fixedPointValue}
+''');
+  });
+
+  test('FixedToFloat: Add with Anticipate: exhaustive', () async {
+    const width = 8;
+    final a = Logic(width: width)..put(0);
+    final b = Logic(width: width)..put(0);
+    final anticipator = LeadingDigitAnticipate(a, b);
+    final val = NativeAdder(a, b).sum.slice(width - 1, 0).value;
+    for (final signed in [false, true]) {
+      final fixed = FixedPoint(
+          signed: signed, m: width ~/ 2 - (signed ? 1 : 0), n: width ~/ 2);
+      final fixedValue = FixedPointValue(
+          value: LogicValue.zero.zeroExtend(fixed.width),
+          signed: signed,
+          m: fixed.m,
+          n: fixed.n);
+      fixed.put(fixedValue);
+
+      final dut = FixedToFloat(
+        fixed,
+        signed: signed,
+        exponentWidth: 8,
+        mantissaWidth: 16,
+        leadingDigitPredict: anticipator.leadingDigit.zeroExtend(9),
+      );
+      for (var val1 = 0; val1 < pow(2, fixed.width); val1++) {
+        for (var val2 = 0; val2 < pow(2, fixed.width); val2++) {
+          final lVal1 = LogicValue.ofInt(val1, width);
+          final lVal2 = LogicValue.ofInt(val2, width);
+          a.put(lVal1);
+          b.put(lVal2);
+
+          final fixedValue = FixedPointValue(
+              value: val, signed: signed, m: fixed.m, n: fixed.n);
+          fixed.put(fixedValue);
+          final fpv = dut.float.floatingPointValue;
+          final roundTripFixed = FixedPointValue.ofDouble(fpv.toDouble(),
+              signed: signed, m: fixed.m, n: fixed.n);
+          expect(roundTripFixed, equals(fixedValue), reason: '''
+          signed = $signed
+          val1  = $val1
+          val2  = $val2
+          fpvdbl=${fpv.toDouble()} $fpv
+          ${roundTripFixed.toDouble()} $roundTripFixed
+          ${fixedValue.toDouble()} $fixedValue
+          ${fixed.fixedPointValue.toDouble()}  ${fixed.fixedPointValue}
+''');
+        }
+      }
+    }
+  });
+
   test('FixedToFloat: leadingDigit smoke test', () async {
+    const width = 68;
+    final a = Logic(name: 'a', width: width);
+    final b = Logic(name: 'b', width: width);
+    final ba = BigInt.from(0xFFFFFFE800000000).toSigned(width);
+    final bb = BigInt.from(0x0000000800000000).toSigned(width);
+    final av = LogicValue.ofBigInt(ba, width);
+    final bv = LogicValue.ofBigInt(bb, width);
+    a.put(av);
+    b.put(bv);
+    final tsum = a + b;
+
     final fixed = FixedPoint(signed: true, m: 34, n: 33);
-    const inDouble = 1.5;
-    fixed.put(FixedPointValue.ofDouble(inDouble,
-        signed: fixed.signed, m: fixed.m, n: fixed.n));
-    final leadingDigit = Const(33, width: log2Ceil(68) + 2);
-    final dut = FixedToFloat(fixed,
-        exponentWidth: 8, mantissaWidth: 23, leadingDigitPredict: leadingDigit);
+    final fixedValue = FixedPointValue(
+        value: tsum.value, signed: true, m: fixed.m, n: fixed.n);
+    fixed.put(fixedValue);
+    final leadingDigit = Const(32, width: log2Ceil(68) + 2);
+    final dut = FixedToFloat(
+      fixed,
+      exponentWidth: 8,
+      mantissaWidth: 23,
+    );
+    final dut2 = FixedToFloat(
+      fixed,
+      exponentWidth: 8,
+      mantissaWidth: 23,
+      leadingDigitPredict: leadingDigit,
+    );
 
     final fpv = dut.float.floatingPointValue;
-    final fpvExpected = FloatingPointValue.populator(
-            exponentWidth: dut.exponentWidth, mantissaWidth: dut.mantissaWidth)
-        .ofDoubleUnrounded(inDouble);
-    expect(fpv.sign, fpvExpected.sign);
-    expect(fpv.exponent.bitString, fpvExpected.exponent.bitString,
-        reason: 'exponent mismatch');
-    expect(fpv.mantissa.bitString, fpvExpected.mantissa.bitString,
-        reason: 'mantissa mismatch');
+    final fpv2 = dut2.float.floatingPointValue;
+    expect(fpv2, equals(fpv));
   });
 
   test('FixedToFloat: leadingDigit exhaustive', () async {
     const width = 16;
 
-    final fixedIn = Logic(width: width);
+    final leadPredictIn = Logic(width: width);
     // ignore: cascade_invocations
-    fixedIn.put(0);
-    final leadZeroCounter = RecursiveModulePriorityEncoder(fixedIn.reversed);
-    final leadZeroMin1Counter =
-        RecursiveModulePriorityEncoder(fixedIn.reversed);
+    leadPredictIn.put(0);
+    final leadZeroCounter = RecursiveModulePriorityEncoder(
+        leadPredictIn.reversed,
+        outputValid: true);
+    final leadZeroMin1Counter = RecursiveModulePriorityEncoder(
+        leadPredictIn.reversed,
+        outputValid: true);
 
     for (final signed in [true]) {
       final fixed = FixedPoint(signed: signed, m: 8, n: 8);
+      final fixedValue = FixedPointValue(
+          value: LogicValue.zero.zeroExtend(width + 1),
+          signed: signed,
+          m: fixed.m,
+          n: fixed.n);
+      fixed.put(fixedValue);
+      final golden = FixedToFloat(fixed,
+          signed: signed, exponentWidth: 8, mantissaWidth: 16);
       final dut = FixedToFloat(fixed,
           signed: signed,
           exponentWidth: 8,
@@ -108,38 +219,33 @@ void main() async {
       for (var val = 0; val < pow(2, fixed.width); val++) {
         final lVal = LogicValue.ofInt(val, fixed.width);
         // Use a leading one detector on both positive and negative numbers
-        fixedIn.put(signed & !lVal[-1].isZero ? ~val : val);
+        leadPredictIn.put(signed & !lVal[-1].isZero ? ~val : val);
+
         final fixedValue = FixedPointValue(
             value: lVal, signed: signed, m: fixed.m, n: fixed.n);
         fixed.put(fixedValue);
+
+        final fpvGolden = golden.float.floatingPointValue;
         final fpv = dut.float.floatingPointValue;
-        final fpvExpected = FloatingPointValue.populator(
-                exponentWidth: dut.exponentWidth,
-                mantissaWidth: dut.mantissaWidth)
-            .ofDouble(fixedValue.toDouble());
         final fpv2 = dutMin1.float.floatingPointValue;
-        final newFixed = FixedPointValue.ofDouble(fpv.toDouble(),
-            signed: true, m: fixed.m, n: fixed.n);
-        final newFixed2 = FixedPointValue.ofDouble(fpv2.toDouble(),
-            signed: true, m: fixed.m, n: fixed.n);
-        expect(newFixed, equals(fixedValue), reason: '''
-          fpvdbl=${fpv.toDouble()} $fpv
-          ${newFixed.toDouble()} $newFixed
-          ${fixedValue.toDouble()} $fixedValue
-          ${fixed.fixedPointValue.toDouble()}  ${fixed.fixedPointValue}
+
+        expect(fpv, equals(fpv2), reason: '''
+          val:   $val
+          lead:  ${leadZeroCounter.out.value.toInt()}
+          leadV: ${leadZeroCounter.valid!.value.toBool()}
+          leadM1:  ${leadZeroMin1Counter.out.value.toInt()}
+          leadVM1: ${leadZeroMin1Counter.valid!.value.toBool()}
+          fpv:   $fpv
+          fpv2:  $fpv2
 ''');
-        expect(fpv.sign, fpvExpected.sign);
-        expect(fpv.exponent, fpvExpected.exponent, reason: 'exponent');
-        expect(fpv.mantissa, fpvExpected.mantissa, reason: 'mantissa');
-        expect(newFixed2, equals(fixedValue), reason: '''
-          fpvdbl=${fpv.toDouble()} $fpv
-          ${newFixed.toDouble()} $newFixed
-          ${fixedValue.toDouble()} $fixedValue
-          ${fixed.fixedPointValue.toDouble()}  ${fixed.fixedPointValue}
+        expect(fpv, equals(fpvGolden), reason: '''
+          val:   $val
+          lead:  ${leadZeroCounter.out.value.toInt()}
+          leadV: ${leadZeroCounter.valid!.value.toBool()}
+          golden:  $fpvGolden
+          fpv:   $fpv
+          fpv2:  $fpv2
 ''');
-        expect(fpv2.sign, fpvExpected.sign);
-        expect(fpv2.exponent, fpvExpected.exponent, reason: 'exponent');
-        expect(fpv2.mantissa, fpvExpected.mantissa, reason: 'mantissa');
       }
     }
   });

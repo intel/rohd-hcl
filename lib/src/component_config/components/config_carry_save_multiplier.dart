@@ -14,7 +14,7 @@ import 'package:rohd_hcl/rohd_hcl.dart';
 /// A [Configurator] for [CarrySaveMultiplier].
 class CarrySaveMultiplierConfigurator extends Configurator {
   /// A knob controlling the width of the inputs to a [CarrySaveMultiplier].
-  final IntConfigKnob logicWidthKnob = IntConfigKnob(value: 8);
+  final IntConfigKnob logicWidthKnob = IntConfigKnob(value: 4);
 
   @override
   final String name = 'Carry Save Multiplier';

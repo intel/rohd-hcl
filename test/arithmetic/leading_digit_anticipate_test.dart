@@ -17,6 +17,45 @@ void main() {
     await Simulator.reset();
   });
 
+  test('LeadingDigitAnticipate: singleton', () {
+    const width = 68;
+    final a = Logic(name: 'a', width: width);
+    final b = Logic(name: 'b', width: width);
+    a.put(0);
+    b.put(0);
+    final sum = a + b;
+    final lzp = RecursiveModulePriorityEncoder(sum.reversed).out;
+    final lza = LeadingDigitAnticipate(a, b);
+    final invSum = mux(sum[-1], ~sum, sum);
+    final lzpInv = RecursiveModulePriorityEncoder(invSum.reversed).out;
+
+    final ba = BigInt.from(0xFFFFFFE800000000).toSigned(68);
+    final bb = BigInt.from(0x0000000800000000).toSigned(68);
+    final av = LogicValue.ofBigInt(ba, width);
+    final bv = LogicValue.ofBigInt(bb, width);
+    a.put(av);
+    b.put(bv);
+
+    final Logic lz;
+    if (sum[-1].value.isZero) {
+      lz = lzp;
+    } else {
+      lz = lzpInv;
+    }
+    expect(
+        lza.leadingDigit.value.toInt(),
+        predicate(
+            (c) => (c == lz.value.toInt()) || c == (lz.value.toInt() - 1)),
+        reason: '''
+            expected: ${lz.value.toInt()}
+            computed: ${lza.leadingDigit.value.toInt()}
+            av=${av.toBigInt()}
+            bv=${bv.toBigInt()}
+            sum=\t${sum.value.bitString}
+            invSum=\t${invSum.value.bitString}
+''');
+  });
+
   test('LeadingDigitAnticipator: exhaustive', () {
     const width = 5;
     final a = Logic(name: 'a', width: width);
@@ -101,8 +140,8 @@ void main() {
 
   test('LeadingZeroAnticipate: singleton', () {
     const width = 4;
-    const i = -4;
-    const j = 1;
+    const i = 1;
+    const j = -8;
     final bI = BigInt.from(i).toSigned(width);
     final bJ = BigInt.from(j).toSigned(width);
     final bigger = bI.abs() > bJ.abs() ? bI : bJ;
@@ -125,9 +164,9 @@ void main() {
     a.put(av);
     b.put(bv);
 
-    final adder = SignMagnitudeAdder(Const(0), a, aSign ^ bSign, b,
-        largestMagnitudeFirst: true, outputEndAroundCarry: true);
-    final predictor = LeadingZeroAnticipate(Const(0), a, aSign ^ bSign, b);
+    final adder = SignMagnitudeAdder(aSign, a, bSign, b,
+        largestMagnitudeFirst: true, generateEndAroundCarry: true);
+    final predictor = LeadingZeroAnticipate(aSign, a, bSign, b);
 
     final lz = RecursiveModulePriorityEncoder(adder.sum.reversed).out;
 
@@ -135,7 +174,7 @@ void main() {
     final leadingOneA = predictor.leadingOneA;
     final leadingOneB = predictor.leadingOneB;
 
-    final lza = mux(endAroundCarry, leadingOneA!, leadingOneB!);
+    final lza = mux(endAroundCarry | aSign, leadingOneA!, leadingOneB!);
 
     final lzv = lz.value.toInt();
     final lzav = lza.value.toInt();
@@ -148,9 +187,6 @@ void main() {
           sum:\t${adder.sum.value.bitString}
 ''');
   });
-
-  // TODO(desmonddak): figure out why we can't use a negative first input
-  // in the adder and still predict its result.
 
   test('LeadingZeroAnticipate: exhaustive', () {
     const width = 4;
@@ -178,9 +214,10 @@ void main() {
         a.put(av);
         b.put(bv);
 
-        final adder = SignMagnitudeAdder(Const(0), a, aSign ^ bSign, b,
-            largestMagnitudeFirst: true, outputEndAroundCarry: true);
-        final predictor = LeadingZeroAnticipate(Const(0), a, aSign ^ bSign, b);
+        // final adder = SignMagnitudeAdder(Const(0), a, aSign ^ bSign, b,
+        final adder = SignMagnitudeAdder(aSign, a, bSign, b,
+            largestMagnitudeFirst: true, generateEndAroundCarry: true);
+        final predictor = LeadingZeroAnticipate(aSign, a, bSign, b);
 
         final lz = RecursiveModulePriorityEncoder(adder.sum.reversed).out;
 
@@ -188,13 +225,17 @@ void main() {
         final leadingOneA = predictor.leadingOneA;
         final leadingOneB = predictor.leadingOneB;
 
-        final lza = mux(endAroundCarry, leadingOneA!, leadingOneB!);
+        final lza = mux(endAroundCarry | aSign, leadingOneA!, leadingOneB!);
 
         final lzv = lz.value.toInt();
         final lzav = lza.value.toInt();
         expect(lzav, predicate((i) => (i == lzv) | (i == (lzv - 1))),
             reason: '''
           lzav $lzav does not estimate leading zero value $lzv
+          aSign ${aSign.value.bitString}
+          a     ${a.value.bitString}
+          bSign ${bSign.value.bitString}
+          b     ${b.value.bitString}
 ''');
       }
     }
@@ -229,7 +270,7 @@ void main() {
       b.put(bv);
 
       final adder = SignMagnitudeAdder(Const(0), a, aSign ^ bSign, b,
-          largestMagnitudeFirst: true, outputEndAroundCarry: true);
+          largestMagnitudeFirst: true, generateEndAroundCarry: true);
       final predictor = LeadingZeroAnticipate(Const(0), a, aSign ^ bSign, b);
 
       final lz = RecursiveModulePriorityEncoder(adder.sum.reversed).out;
@@ -275,7 +316,7 @@ void main() {
         b.put(bv);
 
         final adder = SignMagnitudeAdder(Const(0), a, aSign ^ bSign, b,
-            largestMagnitudeFirst: true, outputEndAroundCarry: true);
+            largestMagnitudeFirst: true, generateEndAroundCarry: true);
         final predictor = LeadingZeroAnticipate(Const(0), a, aSign ^ bSign, b);
 
         final sum = adder.sum + Const(1, width: adder.sum.width);
@@ -329,7 +370,7 @@ void main() {
       b.put(bv);
 
       final adder = SignMagnitudeAdder(Const(0), a, aSign ^ bSign, b,
-          largestMagnitudeFirst: true, outputEndAroundCarry: true);
+          largestMagnitudeFirst: true, generateEndAroundCarry: true);
       final predictor = LeadingZeroAnticipate(Const(0), a, aSign ^ bSign, b);
 
       final sum = adder.sum + Const(1, width: adder.sum.width);

@@ -73,9 +73,10 @@ class FloatingPointConverter<FpTypeIn extends FloatingPoint,
     final sBias = source.bias.zeroExtend(maxExpWidth).named('sourceBias');
     final dBias = destination.bias.zeroExtend(maxExpWidth).named('destBias');
     final se = source.exponent.zeroExtend(maxExpWidth).named('sourceExp');
-    final mantissa = [source.isNormal & ~source.explicitJBit, source.mantissa]
-        .swizzle()
-        .named('mantissa');
+    final mantissa = [
+      source.isNormal & ~Const(source.explicitJBit),
+      source.mantissa
+    ].swizzle().named('mantissa');
 
     final nan = source.isNaN;
     final Logic infinity;
@@ -103,10 +104,10 @@ class FloatingPointConverter<FpTypeIn extends FloatingPoint,
                 .named('leadOne');
 
         fullDiff = mux(
-            source.explicitJBit,
+            Const(source.explicitJBit),
             biasDiff +
                 source.exponent.zeroExtend(biasDiff.width) +
-                mux(~source.isNormal & source.explicitJBit,
+                mux(~source.isNormal & Const(source.explicitJBit),
                     Const(1, width: maxExpWidth), Const(0, width: maxExpWidth)),
             biasDiff);
         shift = mux(fullDiff.gte(leadOne) & leadOneValid, leadOne, fullDiff)
@@ -120,8 +121,12 @@ class FloatingPointConverter<FpTypeIn extends FloatingPoint,
       }
 
       final trueShift = shift +
-          mux(destination.explicitJBit & source.isNormal & ~source.explicitJBit,
-              Const(-1, width: maxExpWidth), Const(0, width: maxExpWidth));
+          mux(
+              Const(destination.explicitJBit) &
+                  source.isNormal &
+                  ~Const(source.explicitJBit),
+              Const(-1, width: maxExpWidth),
+              Const(0, width: maxExpWidth));
 
       final newMantissa = mux(trueShift[-1], mantissa >> (~trueShift + 1),
               mantissa << trueShift)
@@ -145,7 +150,8 @@ class FloatingPointConverter<FpTypeIn extends FloatingPoint,
         roundIncExp = Const(0);
       }
       final sliceMantissa = mux(
-          (source.explicitJBit | ~source.isNormal) & destination.explicitJBit,
+          (Const(source.explicitJBit) | ~source.isNormal) &
+              Const(destination.explicitJBit),
           newMantissa.slice(-1, 1),
           newMantissa.slice(-2, 0));
 
@@ -188,7 +194,7 @@ class FloatingPointConverter<FpTypeIn extends FloatingPoint,
 
       final seW = se.zeroExtend(maxExpWidth);
       final newSe = mux(
-          leadOneValid & source.explicitJBit & source.isNormal,
+          leadOneValid & Const(source.explicitJBit) & source.isNormal,
           mux(seW.gte(leadOne), seW - (leadOne - Const(1, width: maxExpWidth)),
               Const(0, width: maxExpWidth)),
           seW);
@@ -202,9 +208,9 @@ class FloatingPointConverter<FpTypeIn extends FloatingPoint,
 
       final tns = nextShift -
           (se - newSe) +
-          mux(source.explicitJBit, Const(-1, width: maxExpWidth),
+          mux(Const(source.explicitJBit), Const(-1, width: maxExpWidth),
               Const(0, width: maxExpWidth)) +
-          mux(destination.explicitJBit, Const(1, width: maxExpWidth),
+          mux(Const(destination.explicitJBit), Const(1, width: maxExpWidth),
               Const(0, width: maxExpWidth));
 
       final fullMantissa = [mantissa, Const(0, width: destMantissaWidth + 2)]
@@ -230,7 +236,7 @@ class FloatingPointConverter<FpTypeIn extends FloatingPoint,
       final roundIncExp = roundAdder.sum[-1];
       final rawMantissa = roundAdder.sum;
 
-      final newSlice = roundIncExp & destination.explicitJBit;
+      final newSlice = roundIncExp & Const(destination.explicitJBit);
 
       final sliceMantissa =
           mux(newSlice, rawMantissa.slice(-1, 1), rawMantissa.slice(-2, 0));

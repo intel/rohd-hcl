@@ -17,6 +17,10 @@ class FixedToFloatConfigurator extends Configurator {
   /// A knob controlling the input sign.
   final ToggleConfigKnob signKnob = ToggleConfigKnob(value: true);
 
+  /// A knob controlling leading digit prediction.
+  final ToggleConfigKnob leadingDigitPredictionKnob =
+      ToggleConfigKnob(value: false);
+
   /// Width of integer part.
   final IntConfigKnob mKnob = IntConfigKnob(value: 8);
 
@@ -34,7 +38,8 @@ class FixedToFloatConfigurator extends Configurator {
 
   @override
   late final Map<String, ConfigKnob<dynamic>> knobs = UnmodifiableMapView({
-    'Is input signed?': signKnob,
+    'Signed Input': signKnob,
+    'Leading Digit Prediction Input': leadingDigitPredictionKnob,
     'Input integer width': mKnob,
     'Input fraction width': nKnob,
     'Output exponent width': exponentWidthKnob,
@@ -45,5 +50,6 @@ class FixedToFloatConfigurator extends Configurator {
   Module createModule() => FixedToFloat(
       FixedPoint(signed: signKnob.value, m: mKnob.value, n: nKnob.value),
       exponentWidth: exponentWidthKnob.value,
-      mantissaWidth: mantissaWidthKnob.value);
+      mantissaWidth: mantissaWidthKnob.value,
+      leadingDigitPredict: leadingDigitPredictionKnob.value ? Logic() : null);
 }

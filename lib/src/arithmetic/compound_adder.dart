@@ -144,36 +144,31 @@ class CarrySelectCompoundAdder extends CompoundAdder {
       if (blockWidth <= 0) {
         throw RohdHclException('non-positive adder block size.');
       }
-      if (blockWidth + blockStartIdx > a.width) {
+      final blockEnd = blockStartIdx + blockWidth;
+      if (blockEnd > a.width) {
         throw RohdHclException('oversized adders sequence.');
       }
-      // Build sub adders for 0 and 1 carryin values
-      final fullAdder0 = adderGen(
-          a.getRange(blockStartIdx, blockStartIdx + blockWidth),
-          b.getRange(blockStartIdx, blockStartIdx + blockWidth),
-          subtractIn: subtractIn,
-          carryIn: Const(0),
-          name: 'block0_$i');
-      final fullAdder1 = adderGen(
-          a.getRange(blockStartIdx, blockStartIdx + blockWidth),
-          b.getRange(blockStartIdx, blockStartIdx + blockWidth),
-          subtractIn: subtractIn,
-          carryIn: Const(1),
-          name: 'block1_$i');
+      // Build sub adders for carryIn=0 and carryIn=1
+      final fullAdder0 = adderGen(a.getRange(blockStartIdx, blockEnd),
+          b.getRange(blockStartIdx, blockEnd),
+          subtractIn: subtractIn, carryIn: Const(0), name: 'block0_$i');
+      final fullAdder1 = adderGen(a.getRange(blockStartIdx, blockEnd),
+          b.getRange(blockStartIdx, blockEnd),
+          subtractIn: subtractIn, carryIn: Const(1), name: 'block1_$i');
       sum0Ary <=
-          [
-            for (var bitIdx = 0; bitIdx < blockWidth; ++bitIdx)
-              (i == 0)
-                  ? fullAdder0.sum[bitIdx]
-                  : mux(carry0, fullAdder1.sum[bitIdx], fullAdder0.sum[bitIdx])
-          ].swizzle().named('block_${i}_sum0Ary');
+          ((i == 0)
+                  ? fullAdder0.sum
+                  : mux(carry0, fullAdder1.sum, fullAdder0.sum))
+              .slice(0, blockWidth - 1)
+              .named('block_${i}_sum0Ary');
+
       sum1Ary <=
-          [
-            for (var bitIdx = 0; bitIdx < blockWidth; ++bitIdx)
-              (i == 0)
-                  ? fullAdder1.sum[bitIdx]
-                  : mux(carry1, fullAdder1.sum[bitIdx], fullAdder0.sum[bitIdx])
-          ].swizzle().named('block_${i}_sum1Ary');
+          ((i == 0)
+                  ? fullAdder1.sum
+                  : mux(carry1, fullAdder1.sum, fullAdder0.sum))
+              .slice(0, blockWidth - 1)
+              .named('block_${i}_sum1Ary');
+
       sumList0F.add(sum0Ary);
       sumList1F.add(sum1Ary);
       if (i == 0) {
@@ -227,6 +222,12 @@ class CarrySelectOnesComplementCompoundAdder extends CompoundAdder {
   /// - [subtractIn] is an optional Logic control for subtraction.
   /// - [subtract] is a boolean control for subtraction. It must be
   /// false(default) if a [subtractIn] Logic is provided.
+  /// - [generateCarryOut] set to true will create output[carryOut] and employ
+  /// the ones-complement optimization of not adding '1' to convert back to 2s
+  /// complement during subtraction on the [sum].
+  /// - [generateCarryOutP1] set to true will create output[carryOutP!] and
+  /// employ the ones-complement optimization of not adding '1' to convert
+  /// back to 2s complement during subtraction on the [sumP1].
   /// - [widthGen] is a function which produces a list for splitting
   /// the adder for the carry-select chain.  The default is
   /// [CarrySelectCompoundAdder.splitSelectAdderAlgorithmSingleBlock],
@@ -234,8 +235,8 @@ class CarrySelectOnesComplementCompoundAdder extends CompoundAdder {
       {Adder Function(Logic, Logic, {Logic? carryIn}) adderGen =
           NativeAdder.new,
       Logic? subtractIn,
-      bool outputCarryOut = false,
-      bool outputCarryOutP1 = false,
+      bool generateCarryOut = false,
+      bool generateCarryOutP1 = false,
       bool subtract = false,
       List<int> Function(int) widthGen =
           CarrySelectCompoundAdder.splitSelectAdderAlgorithmSingleBlock,
@@ -247,10 +248,10 @@ class CarrySelectOnesComplementCompoundAdder extends CompoundAdder {
         ? addInput('subtractIn', subtractIn, width: subtractIn.width)
         : null;
 
-    if (outputCarryOut) {
+    if (generateCarryOut) {
       addOutput('carryOut');
     }
-    if (outputCarryOutP1) {
+    if (generateCarryOutP1) {
       addOutput('carryOutP1');
     }
 
@@ -263,7 +264,7 @@ class CarrySelectOnesComplementCompoundAdder extends CompoundAdder {
             OnesComplementAdder(a, b,
                 adderGen: adderGen,
                 carryIn: carryIn,
-                outputEndAroundCarry: true,
+                generateEndAroundCarry: true,
                 subtract: subtract,
                 chainable: true,
                 subtractIn: subtractIn));
@@ -272,17 +273,17 @@ class CarrySelectOnesComplementCompoundAdder extends CompoundAdder {
     addOutput('signP1') <= mux(doSubtract, ~csadder.sumP1[-1], Const(0));
     final sumPlus1 =
         mux(doSubtract & csadder.sumP1[-1], ~csadder.sumP1, csadder.sumP1);
-    if (outputCarryOutP1) {
+    if (generateCarryOutP1) {
       sumP1 <= sumPlus1;
-      output('carryOutP1') <= csadder.sumP1[-1];
+      carryOutP1! <= csadder.sumP1[-1];
     } else {
       final incrementer = ParallelPrefixIncr(sumPlus1);
       sumP1 <=
           mux(csadder.sumP1[-1], incrementer.out.named('sum_plus2'), sumPlus1);
     }
-    if (outputCarryOut) {
+    if (generateCarryOut) {
       sum <= mux(doSubtract & csadder.sum[-1], ~csadder.sum, csadder.sum);
-      output('carryOut') <= csadder.sum[-1];
+      carryOut! <= csadder.sum[-1];
     } else {
       sum <= mux(doSubtract & csadder.sum[-1], sumPlus1, csadder.sum);
     }

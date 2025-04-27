@@ -141,12 +141,12 @@ void main() {
       b.put(bv);
       final adder = CarrySelectOnesComplementCompoundAdder(a, b,
           subtract: doSubtract,
-          outputCarryOut: true,
-          outputCarryOutP1: true,
+          generateCarryOut: true,
+          generateCarryOutP1: true,
           widthGen: CarrySelectCompoundAdder.splitSelectAdderAlgorithmNBit(4));
 
       final refAdder = OnesComplementAdder(a, b,
-          outputEndAroundCarry: true,
+          generateEndAroundCarry: true,
           subtractIn: doSubtract ? Const(1) : Const(0));
 
       final expectedVal = doSubtract ? ai - bi : ai + bi;
@@ -185,12 +185,12 @@ void main() {
         final adder = CarrySelectOnesComplementCompoundAdder(a, b,
             subtractIn: useLogic,
             subtract: subtract,
-            outputCarryOut: true,
-            outputCarryOutP1: true,
+            generateCarryOut: true,
+            generateCarryOutP1: true,
             widthGen:
                 CarrySelectCompoundAdder.splitSelectAdderAlgorithmNBit(4));
         final refAdder = OnesComplementAdder(a, b,
-            outputEndAroundCarry: true,
+            generateEndAroundCarry: true,
             subtractIn: useLogic,
             subtract: subtract);
         for (var ai = 0; ai < pow(2, width); ai++) {
@@ -304,8 +304,9 @@ void main() {
 
       final adder = CarrySelectOnesComplementCompoundAdder(a, b,
           subtractIn: t.subtractIn,
-          outputCarryOut: t.carry,
-          outputCarryOutP1: t.carryP1);
+          generateCarryOut: t.carry,
+          generateCarryOutP1: t.carryP1,
+          adderGen: NativeAdder.new);
 
       expect(adder.sign.value, equals(t.sign), reason: 'sign mismatch');
       expect(adder.sum.value, equals(t.mag), reason: 'mag mismatch');

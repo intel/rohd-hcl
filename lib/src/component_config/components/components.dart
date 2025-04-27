@@ -3,7 +3,6 @@
 
 export 'config_carry_save_multiplier.dart';
 export 'config_compound_adder.dart';
-export 'config_compression_tree_multiplier.dart';
 export 'config_ecc.dart';
 export 'config_edge_detector.dart';
 export 'config_extrema.dart';
@@ -12,9 +11,10 @@ export 'config_find.dart';
 export 'config_fixed_to_float.dart';
 export 'config_float8_to_fixed.dart';
 export 'config_float_to_fixed.dart';
-export 'config_floating_point_adder_dualpath.dart';
-export 'config_floating_point_adder_simple.dart';
-export 'config_floating_point_multiplier_simple.dart';
+export 'config_floating_point_adder.dart';
+export 'config_floating_point_multiplier.dart';
+export 'config_leading_digit_anticipate.dart';
+export 'config_multiplier.dart';
 export 'config_one_hot.dart';
 export 'config_parallel_prefix_adder.dart';
 export 'config_priority_arbiter.dart';

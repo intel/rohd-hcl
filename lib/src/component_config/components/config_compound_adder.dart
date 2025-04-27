@@ -10,63 +10,37 @@ import 'dart:collection';
 
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
+import 'package:rohd_hcl/src/component_config/config_knobs/adder_select_knob.dart';
 
 /// A [Configurator] for [CompoundAdder].
 class CompoundAdderConfigurator extends Configurator {
-  /// Map from Type to Function for Adder generator
-  static Map<
-      Type,
-      Adder Function(Logic, Logic,
-          {Logic? carryIn,
-          Logic? subtractIn,
-          String? name})> adderGeneratorMap = {
-    Ripple: (a, b, {carryIn, subtractIn, name}) =>
-        ParallelPrefixAdder(a, b, ppGen: Ripple.new, name: name!),
-    Sklansky: (a, b, {carryIn, subtractIn, name}) =>
-        ParallelPrefixAdder(a, b, ppGen: Sklansky.new, name: name!),
-    KoggeStone: (a, b, {carryIn, subtractIn, name}) =>
-        ParallelPrefixAdder(a, b, name: name!),
-    BrentKung: (a, b, {carryIn, subtractIn, name}) =>
-        ParallelPrefixAdder(a, b, ppGen: BrentKung.new, name: name!),
-    NativeAdder: (a, b, {carryIn, subtractIn, name}) =>
-        NativeAdder(a, b, carryIn: carryIn, name: name ?? '')
-  };
-
-  /// Controls the type of [Adder] used for internal adders.
-  static final adderTypeKnob =
-      ChoiceConfigKnob(adderGeneratorMap.keys.toList(), value: NativeAdder);
-
-  /// Map from Type to Adder generator
-  static Map<Type, CompoundAdder Function(Logic a, Logic b)> generatorMap = {
-    TrivialCompoundAdder: TrivialCompoundAdder.new,
-    CarrySelectCompoundAdder: (a, b, {Logic? carryIn}) =>
-        CarrySelectCompoundAdder(
-          a,
-          b,
-          carryIn: carryIn,
-          adderGen: adderGeneratorMap[adderTypeKnob.value]!,
-        )
-  };
+  /// Adder selection control.
+  final adderSelectionKnob = AdderSelectKnob();
 
   /// A knob controlling the width of the inputs to the adder.
-  final IntConfigKnob logicWidthKnob = IntConfigKnob(value: 16);
+  final IntConfigKnob logicWidthKnob = IntConfigKnob(value: 8);
 
-  /// Controls the type of [CompoundAdder].
-  final moduleTypeKnob = ChoiceConfigKnob(generatorMap.keys.toList(),
-      value: CarrySelectCompoundAdder);
-  @override
-  final String name = 'Compound Adder';
+  /// A knob controlling the sub-adder block width.
+  final IntConfigKnob blockWidthKnob = IntConfigKnob(value: 4);
 
   @override
   late final Map<String, ConfigKnob<dynamic>> knobs = UnmodifiableMapView({
+    'Select Internal Adder': adderSelectionKnob,
     'Width': logicWidthKnob,
-    'Compound Adder Type': moduleTypeKnob,
-    'Internal Adder Type': adderTypeKnob,
+    'Block Width': blockWidthKnob,
   });
 
   @override
-  Module createModule() => generatorMap[moduleTypeKnob.value]!(
-        Logic(width: logicWidthKnob.value),
-        Logic(width: logicWidthKnob.value),
-      );
+  Module createModule() => CarrySelectCompoundAdder(
+      Logic(width: logicWidthKnob.value), Logic(width: logicWidthKnob.value),
+      widthGen: blockWidthKnob.value > 0
+          ? CarrySelectCompoundAdder.splitSelectAdderAlgorithmNBit(
+              blockWidthKnob.value)
+          : CarrySelectCompoundAdder.splitSelectAdderAlgorithmSingleBlock,
+      adderGen: (a, b, {carryIn, subtractIn, name = 'default_adder'}) =>
+          adderSelectionKnob.selectedAdder()(a, b,
+              carryIn: carryIn, name: name));
+
+  @override
+  final String name = 'Compound Adder';
 }

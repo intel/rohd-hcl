@@ -14,7 +14,7 @@ import 'package:rohd_hcl/rohd_hcl.dart';
 /// A [Configurator] for [RippleCarryAdder].
 class RippleCarryAdderConfigurator extends Configurator {
   /// A knob controlling the width of the inputs to the adder.
-  final IntConfigKnob logicWidthKnob = IntConfigKnob(value: 16);
+  final IntConfigKnob logicWidthKnob = IntConfigKnob(value: 8);
 
   @override
   final String name = 'Ripple Carry Adder';

@@ -52,10 +52,10 @@ class RecursivePriorityEncoder extends PriorityEncoder {
       : super(definitionName: 'RecursivePriorityEncoder_W${inp.width}') {
     final lo = recurseFinder(inp.elements);
     if (valid != null) {
-      output('valid') <= lo.lt(inp.width);
+      valid! <= lo.lt(inp.width);
     }
     final sz = output('out').width;
-    output('out') <= ((lo.width < sz) ? lo.zeroExtend(sz) : lo.getRange(0, sz));
+    out <= ((lo.width < sz) ? lo.zeroExtend(sz) : lo.getRange(0, sz));
   }
 
   /// Recursively find the trailing 1
@@ -110,7 +110,7 @@ class RecursivePriorityEncoder extends PriorityEncoder {
           ElseIf(~l, [
             ret < [Const(0), left.slice(-1, 0)].swizzle().named('zl_d$depth'),
           ]),
-          ElseIf(l, [
+          Else([
             ret < rhs,
           ]),
         ]),
@@ -127,7 +127,8 @@ class RecursiveModulePriorityEncoderNode extends Module {
   Logic get ret => output('ret');
 
   /// Construct the Node for a Recursive Priority Tree
-  RecursiveModulePriorityEncoderNode(Logic seq, {super.name, int depth = 0})
+  RecursiveModulePriorityEncoderNode(Logic seq,
+      {super.name = 'priority_encode_node', int depth = 0})
       : super(definitionName: 'PriorityEncodeNode_W${seq.width}') {
     seq = addInput('seq', seq, width: seq.width);
     if (seq.width == 1) {
@@ -182,7 +183,7 @@ class RecursiveModulePriorityEncoderNode extends Module {
           ElseIf(~l, [
             ret < [Const(0), left.slice(-1, 0)].swizzle().named('zl'),
           ]),
-          ElseIf(l, [
+          Else([
             ret < rhs,
           ]),
         ]),
@@ -205,7 +206,7 @@ class RecursiveModulePriorityEncoder extends PriorityEncoder {
       valid! <= topNode.ret.lt(inp.width);
     }
     final sz = output('out').width;
-    output('out') <= ((lo.width < sz) ? lo.zeroExtend(sz) : lo.getRange(0, sz));
+    out <= ((lo.width < sz) ? lo.zeroExtend(sz) : lo.getRange(0, sz));
   }
 }
 

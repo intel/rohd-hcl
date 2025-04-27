@@ -231,7 +231,7 @@ void main() {
       b.put(t.bMag);
 
       final adder = SignMagnitudeAdder(aSign, a, bSign, b,
-          largestMagnitudeFirst: t.sorted, outputEndAroundCarry: t.carry);
+          largestMagnitudeFirst: t.sorted, generateEndAroundCarry: t.carry);
       expect(adder.sign.value, equals(t.sign), reason: 'sign mismatch');
       expect(adder.sum.value, equals(t.mag), reason: 'mag mismatch');
       expect(adder.endAroundCarry == null, equals(t.endAroundCarry == null),

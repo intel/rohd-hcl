@@ -19,6 +19,6 @@ void main() async {
   for (final configurator in componentRegistry) {
     final sv = await configurator.generateSV();
     final name = configurator.createModule().definitionName;
-    File('build/$name.v').writeAsStringSync(sv);
+    File('build/$name.sv').writeAsStringSync(sv);
   }
 }

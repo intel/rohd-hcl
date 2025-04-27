@@ -13,9 +13,9 @@ dart gen/generate.dart
 mkdir -p build
 
 # Convert Verilog into an HTML-based schematic for each
-for i in build/*.v
+for i in build/*.sv
 do
-    example=`basename $i .v`
+    example=`basename $i .sv`
     ./tool/converters/verilog_html.sh $example
     cp build/$example.html doc/api/$example.html
 done

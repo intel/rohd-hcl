@@ -17,11 +17,13 @@ class FloatingPointAdderSimple<FpType extends FloatingPoint>
   /// Add two floating point numbers [a] and [b], returning result in [sum].
   /// - [adderGen] is an adder generator to be used in the primary adder
   /// functions.
+  /// - [widthGen] is the splitting function for creating the different adder
+  /// blocks within the internal [CompoundAdder] used for mantissa addition.
   FloatingPointAdderSimple(super.a, super.b,
       {super.clk,
       super.reset,
       super.enable,
-      Adder Function(Logic a, Logic b, {Logic? carryIn}) adderGen =
+      Adder Function(Logic a, Logic b, {Logic? carryIn, String name}) adderGen =
           NativeAdder.new,
       List<int> Function(int) widthGen =
           CarrySelectCompoundAdder.splitSelectAdderAlgorithmSingleBlock,
@@ -29,14 +31,16 @@ class FloatingPointAdderSimple<FpType extends FloatingPoint>
       : super(
             definitionName: 'FloatingPointAdderSimple_'
                 'E${a.exponent.width}M${a.mantissa.width}') {
-    if (a.runtimeType != b.runtimeType) {
+    if (a.explicitJBit != b.explicitJBit) {
       throw RohdHclException('Floating point adder does not support '
-          'inputs of different types.');
+          'inputs of different jBit types.');
     }
     final outputSum = FloatingPoint(
         exponentWidth: exponentWidth,
         mantissaWidth: mantissaWidth,
         name: 'sum');
+    // Would prefer to use getter here for setting, but the getter
+    // translates the type from Logic to FloatingPoint.
     output('sum') <= outputSum;
 
     final (larger, smaller) = FloatingPointUtilities.sortByExp((a, b));
@@ -51,12 +55,9 @@ class FloatingPointAdderSimple<FpType extends FloatingPoint>
                 (larger.sign ^ smaller.sign)))
         .named('isNaN');
 
-    final largeImplicit = ~larger.explicitJBit;
-    final smallImplicit = ~smaller.explicitJBit;
-
     final expDiff = (larger.exponent - smaller.exponent).named('expDiff');
     final largeMantissa = mux(
-            larger.isNormal ^ largeImplicit,
+            ~larger.isNormal ^ Const(larger.explicitJBit),
             [larger.mantissa, Const(0)].swizzle(),
             mux(
                 larger.isNormal,
@@ -68,7 +69,7 @@ class FloatingPointAdderSimple<FpType extends FloatingPoint>
         .named('largeMantissa');
 
     final smallMantissa = mux(
-            smaller.isNormal ^ smallImplicit,
+            ~smaller.isNormal ^ Const(smaller.explicitJBit),
             [smaller.mantissa, Const(0)].swizzle(),
             mux(
                 smaller.isNormal,
@@ -109,16 +110,16 @@ class FloatingPointAdderSimple<FpType extends FloatingPoint>
 
     final highBitsAdder = CarrySelectOnesComplementCompoundAdder(
         largeNarrowMantissa, smallNarrowMantissa,
-        outputCarryOut: true,
-        outputCarryOutP1: true,
+        generateCarryOut: true,
+        generateCarryOutP1: true,
         subtractIn: effectiveSubtraction,
         widthGen: widthGen,
         adderGen: adderGen);
 
     final carry = highBitsAdder.carryOut!;
 
-    final sum = highBitsAdder.sum.named('highBitsSum');
-    final sumP1 = highBitsAdder.sumP1.named('highBitsSumP1');
+    final hSum = highBitsAdder.sum.named('highBitsSum');
+    final hSumP1 = highBitsAdder.sumP1.named('highBitsSumP1');
 
     final lowerBits =
         smallShiftedMantissa.getRange(0, extendedWidth).named('lowerBits');
@@ -154,8 +155,8 @@ class FloatingPointAdderSimple<FpType extends FloatingPoint>
     final trueSignFlopped = localFlop(trueSign).named('trueSignFlopped');
     final largerExpFlopped =
         localFlop(larger.exponent).named('largerExpFlopped');
-    final sumFlopped = localFlop(sum).named('sumFlopped');
-    final sumP1Flopped = localFlop(sumP1).named('sumP1Flopped');
+    final sumFlopped = localFlop(hSum).named('sumFlopped');
+    final sumP1Flopped = localFlop(hSumP1).named('sumP1Flopped');
     final carryFlopped = localFlop(carry).named('carryFlopped');
     final isInfFlopped = localFlop(isInf).named('isInfFlopped');
     final isNaNFlopped = localFlop(isNaN).named('isNaNFlopped');

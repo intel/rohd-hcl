@@ -193,7 +193,7 @@ void main() {
           a.put(av);
           b.put(bv);
           final adder = OnesComplementAdder(a, b,
-              outputEndAroundCarry: true, subtract: subtract);
+              generateEndAroundCarry: true, subtract: subtract);
 
           final carry = adder.endAroundCarry!;
           final mag = adder.sum.value.toInt() +
@@ -221,7 +221,7 @@ void main() {
         a.put(av);
         b.put(bv);
         final adder = CarrySelectOnesComplementCompoundAdder(a, b,
-            subtract: subtract, outputCarryOut: true);
+            subtract: subtract, generateCarryOut: true);
         final carry = adder.carryOut!;
         final mag = adder.sum.value.toInt() +
             (subtract ? (carry.value.isZero ? 0 : 1) : 0);
@@ -271,7 +271,7 @@ void main() {
           final adder = OnesComplementAdder(a, b,
               subtractIn: subtractIn,
               // endAroundCarry: carry,
-              outputEndAroundCarry: true,
+              generateEndAroundCarry: true,
               adderGen: RippleCarryAdder.new);
           final carry = adder.endAroundCarry!;
           final mag = adder.sum.value.toInt() +

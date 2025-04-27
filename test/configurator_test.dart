@@ -115,7 +115,7 @@ void main() {
       final multiplierDefault = RippleCarryAdderConfigurator();
 
       final multiplierCustom = RippleCarryAdderConfigurator();
-      multiplierCustom.knobs.values.toList()[0].value = 10;
+      multiplierCustom.knobs.values.toList()[0].value = 4;
 
       final multiplierDefaultRTL = await multiplierDefault.generateSV();
       final multiplierCustomRTL = await multiplierCustom.generateSV();
@@ -156,39 +156,31 @@ void main() {
     });
   });
 
-  group('compression_tree_multiplier', () {
+  group('multiplier', () {
     test('should return Compression Tree Multiplier for component name', () {
-      final multiplier = CompressionTreeMultiplierConfigurator();
-      expect(multiplier.name, 'Comp. Tree Multiplier');
+      final multiplier = MultiplierConfigurator();
+      expect(multiplier.name, 'Multiplier');
+      multiplier.createModule();
     });
 
-    test('should return both Int knobs to be configured', () {
-      final multiplier = CompressionTreeMultiplierConfigurator();
-      expect(multiplier.knobs.values.whereType<IntConfigKnob>().length, 2);
-      expect(
-          multiplier.knobs.values.whereType<ChoiceConfigKnob<dynamic>>().length,
-          4);
-      expect(multiplier.knobs.values.whereType<ToggleConfigKnob>().length, 1);
-    });
+    test(
+        'should return correct rtl code when invoking generate() with '
+        'different multiplier selections', () async {
+      final cfg = MultiplierConfigurator();
+      final svDefault = await cfg.generateSV();
+      expect(svDefault, contains('NativeMultiplier'));
+      cfg.multiplierSelectKnob.compressionTreeMultiplierKnob.value = true;
 
-    test('should return rtl code when invoke generate() with default value',
-        () async {
-      final multiplier = CompressionTreeMultiplierConfigurator();
-      expect(
-          await multiplier.generateSV(), contains('CompressionTreeMultiplier'));
-    });
-
-    test('should return rtl code when invoke generate() with custom value',
-        () async {
-      final multiplierDefault = CompressionTreeMultiplierConfigurator();
-      final multiplierCustom = CompressionTreeMultiplierConfigurator();
-      multiplierCustom.knobs.values.toList()[1].value = 4;
-
-      final multiplierDefaultRTL = await multiplierDefault.generateSV();
-      final multiplierCustomRTL = await multiplierCustom.generateSV();
-
-      expect(multiplierDefaultRTL.length > multiplierCustomRTL.length,
-          equals(false));
+      var sv = await cfg.generateSV();
+      expect(sv, contains('CompressionTreeMultiplier'));
+      cfg.multiplierSelectKnob.adderSelectionKnob.parallelPrefixAdderKnob
+          .value = true;
+      sv = await cfg.generateSV();
+      expect(sv, contains('ParallelPrefix'));
+      cfg.multiplierSelectKnob.adderSelectionKnob.parallelPrefixTypeKnob.value =
+          KoggeStone;
+      sv = await cfg.generateSV();
+      expect(sv, contains('kogge_stone'));
     });
   });
 
@@ -208,6 +200,26 @@ void main() {
       expect(sv, contains('error'));
       expect(sv, contains('input logic [5:0] writeData'));
       expect(sv, contains("(wrPointer == 3'h6"));
+    });
+  });
+
+  group('leading-digit-anticipate configurator', () {
+    test('leading-digit-anticipate', () async {
+      final cfg = LeadingDigitAnticipateConfigurator()
+        ..anticipator.value = LeadingDigitAnticipate;
+
+      final sv = await cfg.generateSV();
+
+      expect(sv, contains('LeadingDigitAnticipate'));
+    });
+
+    test('leading-zero-anticipate', () async {
+      final cfg = LeadingDigitAnticipateConfigurator()
+        ..anticipator.value = LeadingZeroAnticipate;
+
+      final sv = await cfg.generateSV();
+
+      expect(sv, contains('LeadingZeroAnticipate'));
     });
   });
 
@@ -310,6 +322,45 @@ void main() {
 
   test('prefix tree adder configurator', () async {
     final cfg = ParallelPrefixAdderConfigurator();
+
+    final sv = await cfg.generateSV();
+    expect(sv, contains('swizzle'));
+  });
+
+  test('compound adder configurator', () async {
+    final cfg = CompoundAdderConfigurator();
+    final svDefault = await cfg.generateSV();
+    expect(svDefault, contains('swizzle'));
+
+    cfg.adderSelectionKnob.parallelPrefixAdderKnob.value = true;
+    final sv = await cfg.generateSV();
+    expect(sv, contains('swizzle'));
+  });
+
+  test('floating point simple adder configurator', () async {
+    final cfg = FloatingPointAdderConfigurator();
+
+    final svDefault = await cfg.generateSV();
+    expect(svDefault, contains('swizzle'));
+
+    cfg.adderSelectionKnob.parallelPrefixAdderKnob.value = true;
+
+    var sv = await cfg.generateSV();
+    expect(sv, contains('swizzle'));
+
+    cfg.adderSelectionKnob.parallelPrefixTypeKnob.value = Sklansky;
+    sv = await cfg.generateSV();
+    expect(sv, contains('swizzle'));
+
+    cfg.pipelinedKnob.value = true;
+    sv = await cfg.generateSV();
+    expect(sv, contains('swizzle'));
+  });
+
+  test('floating point multiplier configurator', () async {
+    final cfg = FloatingPointMultiplierSimpleConfigurator();
+    cfg.multiplierSelectKnob.adderSelectionKnob.parallelPrefixAdderKnob.value =
+        true;
 
     final sv = await cfg.generateSV();
     expect(sv, contains('swizzle'));

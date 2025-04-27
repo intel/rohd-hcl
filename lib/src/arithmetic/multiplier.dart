@@ -230,16 +230,13 @@ class CompressionTreeMultiplier extends Multiplier {
                 '${signedMultiplier ? 'SM_' : ''}'
                 '${selectSignedMultiplicand != null ? 'SSD_' : ''}'
                 '${selectSignedMultiplier != null ? 'SSM_' : ''}'
-                'with${adderGen(a, b).definitionName}') {
-    final pp = PartialProduct(
-      a,
-      b,
-      RadixEncoder(radix),
-      selectSignedMultiplicand: selectSignedMultiplicand,
-      signedMultiplicand: signedMultiplicand,
-      selectSignedMultiplier: selectSignedMultiplier,
-      signedMultiplier: signedMultiplier,
-    );
+                'with${adderGen(a, a).definitionName}') {
+    final pp = PartialProduct(a, b, RadixEncoder(radix),
+        selectSignedMultiplicand: selectSignedMultiplicand,
+        signedMultiplicand: signedMultiplicand,
+        selectSignedMultiplier: selectSignedMultiplier,
+        signedMultiplier: signedMultiplier,
+        name: 'comp_partial_product');
 
     seGen(pp.array).signExtend();
 

@@ -19,6 +19,6 @@ if !(test 1 -eq $#); then
 fi;
 
 cd build/
-module=`basename $1 .v`
+module=`basename $1 .sv`
 ../tool/converters/verilog_json.sh $1
 ../tool/converters/json_html.sh ${module}.json > ${module}.html

@@ -30,11 +30,17 @@ class FixedToFloat extends Module {
   late final FloatingPoint float = _float.clone()..gets(output('float'));
 
   /// Constructor for fixed to floating-point conversion.
-  /// - [fixed] point num ber to convert
-  /// - [exponentWidth] desired exponent width of output
-  /// - [mantissaWidth] desired mantissa width of output
-  /// - [signed] optional, if set to false (default true)
-  /// treat input as unsigned.
+  /// - [fixed] point number to convert.
+  /// - [exponentWidth] desired exponent width of output.
+  /// - [mantissaWidth] desired mantissa width of output.
+  /// - [signed]=true default, treat input as signed.
+  /// - [leadingDigitPredict] This input can optionally be provided which
+  /// avoids having to do a full leading-digit scan for conversion. This
+  /// provided value must be within 1 of the actual final leading one
+  /// (after absolute value) of the input fixed-point number.
+  /// A [LeadingDigitAnticipate] can be used to provide this value from two
+  /// inputs to an adder producing the fixed-point value input to this
+  /// converter.
   FixedToFloat(FixedPoint fixed,
       {required this.exponentWidth,
       required this.mantissaWidth,
@@ -47,7 +53,7 @@ class FixedToFloat extends Module {
     fixed = fixed.clone()..gets(addInput('fixed', fixed, width: fixed.width));
     addOutput('float', width: _float.width) <= _float;
 
-    final localLeadingDigitPredict = (leadingDigitPredict != null)
+    leadingDigitPredict = (leadingDigitPredict != null)
         ? addInput('leadingDigitPredict', leadingDigitPredict,
             width: leadingDigitPredict.width)
         : null;
@@ -77,50 +83,67 @@ class FixedToFloat extends Module {
     }
 
     final maxShift = fixed.width - fixed.n + bias - 2;
-    final absValueShifted = Logic(
-        width: max(absValue.width, mantissaWidth + 2), name: 'absValueShifted');
 
-    final j = Logic(name: 'j', width: iWidth);
-    if (localLeadingDigitPredict != null) {
-      // Under construction
-      final absValueShiftedPre = Logic(
-          width: max(absValue.width, mantissaWidth + 2),
-          name: 'absValueShiftedPre');
+    final jBit = Logic(name: 'jBit', width: iWidth);
+    Logic estimatedJBit;
+    Logic absValueShifted;
+    if (leadingDigitPredict != null) {
+      // 3 positions are possible:  The leadingDigitPredict can be one
+      // ahead of, matching or one behindthe actual jBit after absolute value.
+      final fSign = fixed[-1].zeroExtend(leadingDigitPredict.width);
 
+      // If the lead is 1, and a negative number,
+      //     start at leadingDigitPredict - 1
+      estimatedJBit = mux(
+          _float.sign.eq(fixed[-1]),
+          mux(leadingDigitPredict.gte(fSign), leadingDigitPredict - fSign,
+              leadingDigitPredict),
+          Const(0, width: leadingDigitPredict.width));
+      // Shift by current preJ to inspect leading bit
       if (absValue.width < mantissaWidth + 2) {
-        final zeros = Const(0, width: mantissaWidth + 2 - absValue.width);
-        absValueShiftedPre <=
-            [absValue, zeros].swizzle() << localLeadingDigitPredict;
+        absValueShifted = [
+              absValue,
+              Const(0, width: mantissaWidth + 2 - absValue.width)
+            ].swizzle() <<
+            estimatedJBit;
       } else {
-        // print('here ${absValueShifted.width} $mantissaWidth');
-        absValueShiftedPre <= absValue << localLeadingDigitPredict;
+        absValueShifted = absValue << estimatedJBit;
       }
-      absValueShifted <=
-          mux(absValueShiftedPre[-1], absValueShiftedPre,
-              absValueShiftedPre << 1);
-      j <=
-          mux(absValueShiftedPre[-1], localLeadingDigitPredict,
-              localLeadingDigitPredict + 1);
+      // Shift by one more if leading digit is not '1'.
+      estimatedJBit =
+          mux(absValueShifted[-1], estimatedJBit, estimatedJBit + 1);
+      absValueShifted =
+          mux(absValueShifted[-1], absValueShifted, absValueShifted << 1);
+
+      // Final shift by one more if leading digit is not '1'.
+      jBit <=
+          mux(absValueShifted[-1], estimatedJBit, estimatedJBit + 1)
+              .zeroExtend(iWidth);
+      absValueShifted =
+          mux(absValueShifted[-1], absValueShifted, absValueShifted << 1);
     } else {
-      final Logic jBit;
-      jBit = RecursiveModulePriorityEncoder(absValue.reversed)
+      // No prediction given:  go find the leading digit
+      final exactJBit = RecursiveModulePriorityEncoder(absValue.reversed)
           .out
           .zeroExtend(iWidth)
-          .named('jBit');
+          .named('predictedjBit');
       // Limit to minimum exponent
       if (maxShift > 0) {
-        j <= mux(jBit.gt(maxShift), Const(maxShift, width: iWidth), jBit);
+        jBit <=
+            mux(exactJBit.gt(maxShift), Const(maxShift, width: iWidth),
+                exactJBit);
       } else {
-        j <= jBit;
+        jBit <= exactJBit;
       }
-
       // Align mantissa
       if (absValue.width < mantissaWidth + 2) {
-        final zeros = Const(0, width: mantissaWidth + 2 - absValue.width);
-        absValueShifted <= [absValue, zeros].swizzle() << j;
+        absValueShifted = [
+              absValue,
+              Const(0, width: mantissaWidth + 2 - absValue.width)
+            ].swizzle() <<
+            jBit;
       } else {
-        // print('here ${absValueShifted.width} $mantissaWidth');
-        absValueShifted <= absValue << j;
+        absValueShifted = absValue << jBit;
       }
     }
     // TODO(desmonddak): refactor to use the roundRNE component
@@ -129,7 +152,6 @@ class FixedToFloat extends Module {
     final mantissa = Logic(name: 'mantissa', width: mantissaWidth);
     final guard = Logic(name: 'guardBit');
     final sticky = Logic(name: 'stickBit');
-
     mantissa <= absValueShifted.getRange(-mantissaWidth - 1, -1);
     guard <= absValueShifted.getRange(-mantissaWidth - 2, -mantissaWidth - 1);
     sticky <= absValueShifted.getRange(0, -mantissaWidth - 2).or();
@@ -142,13 +164,14 @@ class FixedToFloat extends Module {
     // Calculate biased exponent
     final eRaw = mux(
             absValueShifted[-1],
-            (Const(bias + fixed.width - fixed.n - 1, width: iWidth) - j)
+            (Const(bias + fixed.width - fixed.n - 1, width: iWidth) - jBit)
                 .named('eShift'),
             Const(0, width: iWidth))
         .named('eRaw');
 
-    // TODO(desmonddak): this should be mantissa, but we could figure it out
-    // from absValue as only the zeros case would cause the and to fail.
+    // TODO(desmonddak): potential optimiziation --
+    //  we may be able to predict this from absValue instead of after
+    //  mantissa increment.
     final eRawRne =
         mux(roundUp & ~mantissaRounded.or(), eRaw + 1, eRaw).named('eRawRNE');
 

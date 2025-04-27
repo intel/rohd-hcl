@@ -67,13 +67,8 @@ class FloatingPoint extends LogicStructure {
   FloatingPointValuePopulator valuePopulator() => FloatingPointValue.populator(
       exponentWidth: exponent.width, mantissaWidth: mantissa.width);
 
-  /// Return true if the J-bit is not explicitly represented in the mantissa
-  /// when in normal form.
-  Const get implicitJBit => Const(1);
-
-  /// Return true if the J-bit is explicitly represented in the mantissa
-  /// when in normal form.
-  Const get explicitJBit => Const(0);
+  /// Return true if the J-bit is explicitly represented in the mantissa.
+  bool get explicitJBit => false;
 
   // TODO(desmonddak): this will work incorrectly and must be fixed.
   // The issue is that it should return the EJ version of this or
@@ -154,7 +149,7 @@ class FloatingPoint extends LogicStructure {
           (val.mantissaWidth != mantissa.width)) {
         throw RohdHclException('FloatingPoint width does not match');
       }
-      if (val.explicitJBit != explicitJBit.value.toBool()) {
+      if (val.explicitJBit != explicitJBit) {
         throw RohdHclException('FloatingPoint explicit jbit does not match');
       }
       put(val.value);
@@ -220,13 +215,7 @@ class FloatingPointExplicitJBit extends FloatingPoint {
       FloatingPointExplicitJBitValue.populator(
           exponentWidth: exponent.width, mantissaWidth: mantissa.width);
 
-  /// Return true if the J-bit is not explicitly represented in the mantissa
-  /// when in normal form.
+  /// Return true if the J-bit is explicitly represented in the mantissa.
   @override
-  Const get implicitJBit => Const(0);
-
-  /// Return true if the J-bit is explicitly represented in the mantissa
-  /// when in normal form.
-  @override
-  Const get explicitJBit => Const(1);
+  bool get explicitJBit => true;
 }
