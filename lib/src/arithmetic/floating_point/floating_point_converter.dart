@@ -49,7 +49,7 @@ class FloatingPointConverter<FpTypeIn extends FloatingPoint,
           priorityGen = RecursiveModulePriorityEncoder.new,
       Adder Function(Logic a, Logic b, {Logic? carryIn}) adderGen =
           NativeAdder.new,
-      super.name})
+      super.name = 'floating_point_converter'})
       : sourceExponentWidth = source.exponent.width,
         sourceMantissaWidth = source.mantissa.width,
         super(

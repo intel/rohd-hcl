@@ -32,7 +32,9 @@ abstract class PriorityEncoder extends Module {
   /// there are no bits set in [inp].
   /// - Optional [valid] output is set if the output position is valid
   PriorityEncoder(Logic inp,
-      {bool outputValid = false, super.name, String? definitionName})
+      {bool outputValid = false,
+      super.name = 'priority_encoder',
+      String? definitionName})
       : super(
             definitionName: definitionName ?? 'PriorityEncoder_W${inp.width}') {
     inp = addInput('inp', inp, width: inp.width);

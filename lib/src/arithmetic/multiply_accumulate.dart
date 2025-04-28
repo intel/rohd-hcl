@@ -101,7 +101,7 @@ abstract class MultiplyAccumulate extends Module {
       Logic? selectSignedMultiplicand,
       Logic? selectSignedMultiplier,
       Logic? selectSignedAddend,
-      super.name,
+      super.name = 'multiply_accumulate',
       String? definitionName})
       : super(
             definitionName: definitionName ??

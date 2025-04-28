@@ -34,7 +34,8 @@ abstract class Adder extends Module {
 
   /// Takes in input [a] and input [b] and return the [sum] of the addition
   /// result. The width of input [a] and [b] must be the same.
-  Adder(Logic a, Logic b, {Logic? carryIn, super.name, String? definitionName})
+  Adder(Logic a, Logic b,
+      {Logic? carryIn, super.name = 'adder', String? definitionName})
       : super(definitionName: definitionName ?? 'Adder_W${a.width}') {
     if (a.width != b.width) {
       throw RohdHclException('inputs of a and b should have same width.');

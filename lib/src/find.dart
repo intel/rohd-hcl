@@ -36,7 +36,11 @@ class Find extends Module {
   /// [n] starts from `0` as first find.
   ///
   /// Outputs pin `index` contains position. position starts from `1` based.
-  Find(Logic bus, {bool countOne = true, Logic? n, this.generateError = false})
+  Find(Logic bus,
+      {bool countOne = true,
+      Logic? n,
+      this.generateError = false,
+      super.name = 'find'})
       : super(definitionName: 'Find_W${bus.width}') {
     bus = addInput('bus', bus, width: bus.width);
     final oneHotList = <Logic>[];
