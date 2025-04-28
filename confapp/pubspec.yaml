@@ -12,9 +12,6 @@ dependencies:
     sdk: flutter
   rohd: ^0.6.1
   rohd_hcl:
-    # git: 
-    #   url: https://github.com/intel/rohd-hcl
-    #   ref: main
     path: ../
 
   sidebarx: ^0.16.0

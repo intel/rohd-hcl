@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Copyright (C) 2022-2024 Intel Corporation
+# Copyright (C) 2022-2025 Intel Corporation
 # SPDX-License-Identifier: BSD-3-Clause
 
 # Scavenged from Nic30:d3-hwschematic

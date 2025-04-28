@@ -1,8 +1,8 @@
 // Copyright (C) 2025 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 //
-// adder_select_knob.dart
-// An adder selection knob for use in arithmetic component configuration.
+// multiplier_select_knob.dart
+// An multipler selection knob for use in arithmetic component configuration.
 //
 // 2025 April 27
 // Author: Desmond Kirkpatrick <desmond.a.kirkpatrick@intel.com>
