@@ -108,13 +108,13 @@ class FixedToFloat extends Module {
       } else {
         absValueShifted = absValue << estimatedJBit;
       }
-      // Shift by one more if leading digit is not '1'.
+      // Second Shift by one if leading digit is not '1'.
       estimatedJBit =
           mux(absValueShifted[-1], estimatedJBit, estimatedJBit + 1);
       absValueShifted =
           mux(absValueShifted[-1], absValueShifted, absValueShifted << 1);
 
-      // Final shift by one more if leading digit is not '1'.
+      // Third and final shift by one if leading digit is not '1'.
       jBit <=
           mux(absValueShifted[-1], estimatedJBit, estimatedJBit + 1)
               .zeroExtend(iWidth);

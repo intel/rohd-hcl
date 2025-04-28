@@ -23,6 +23,9 @@ abstract class SignMagnitudeAdderBase extends Adder {
   /// The sign of the result
   Logic get sign => output('sign');
 
+  @protected
+  Logic _sign = Logic();
+
   /// [SignMagnitudeAdder] constructor.
   ///
   /// Inputs are (sign, magnitude) pairs: ([aSign], [a]) and ([bSign], [b]). If
@@ -34,29 +37,17 @@ abstract class SignMagnitudeAdderBase extends Adder {
                 definitionName ?? 'SignMagnitudeAdder_W${a.width}') {
     aSign = addInput('aSign', aSign);
     bSign = addInput('bSign', bSign);
-    addOutput('sign');
+    _sign = addOutput('sign');
   }
 }
 
 /// A [SignMagnitudeAdder] performs addition on values in sign/magnitude
 /// format.
-class SignMagnitudeAdder extends Adder {
-  /// The sign of the first input
-  Logic aSign;
-
-  /// The sign of the second input
-  Logic bSign;
-
-  /// The sign of the result
-  Logic get sign => output('sign');
-
+class SignMagnitudeAdder extends SignMagnitudeAdderBase {
   /// The end-around carry which should be added to the resulting [sum]
   /// If the input [endAroundCarry] is not null, this value is stored there.
   ///  Otherwise, the end-around carry is internally added to [sum]
   Logic? get endAroundCarry => tryOutput('endAroundCarry');
-
-  @protected
-  Logic _sign = Logic();
 
   /// Largest magnitude argument is provided in [a] or if equal
   /// the argument with a negative sign.
@@ -78,20 +69,12 @@ class SignMagnitudeAdder extends Adder {
   /// the [endAroundCarry] will hold that final +1 that needs to be added.
   /// For subtractions that go negative, the [endAroundCarry] will be '0'.
   // TODO(desmonddak): this adder may need a carry-in for rounding
-  SignMagnitudeAdder(this.aSign, super.a, this.bSign, super.b,
+  SignMagnitudeAdder(super.aSign, super.a, super.bSign, super.b,
       {Adder Function(Logic a, Logic b, {Logic? carryIn}) adderGen =
           NativeAdder.new,
       this.largestMagnitudeFirst = false,
       bool generateEndAroundCarry = false,
-      super.name = 'sign_magnitude_adder',
-      String? definitionName})
-      : super(
-            definitionName:
-                definitionName ?? 'SignMagnitudeAdder_W${a.width}') {
-    aSign = addInput('aSign', aSign);
-    bSign = addInput('bSign', bSign);
-    _sign = addOutput('sign');
-
+      super.name = 'sign_magnitude_adder'}) {
     if (generateEndAroundCarry) {
       addOutput('endAroundCarry');
     }
@@ -133,13 +116,11 @@ class SignMagnitudeDualAdder extends SignMagnitudeAdderBase {
           NativeAdder.new,
       super.name = 'sign_magnitude_dualadder'})
       : super(definitionName: 'SignMagnitudeAdder_W${a.width}') {
-    // final carryForward = Logic();
     final adderForward = SignMagnitudeAdder(Const(0), a, aSign ^ bSign, b,
         generateEndAroundCarry: true,
         largestMagnitudeFirst: true,
         adderGen: adderGen);
 
-    // final carryReverse = Logic();
     final adderReverse = SignMagnitudeAdder(Const(0), b, aSign ^ bSign, a,
         generateEndAroundCarry: true,
         largestMagnitudeFirst: true,

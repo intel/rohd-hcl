@@ -47,7 +47,6 @@ class LeadingZeroAnticipate extends Module {
   /// - Outputs [leadingOneA] which should be used if [a] > [b] (e.g., there
   /// is a carry output from a ones-complement subtraction of [a] and [b].
   /// - [leadingOneB] should be used if [b] >= [a].
-
   LeadingZeroAnticipate(Logic aSign, Logic a, Logic bSign, Logic b,
       {Logic? endAroundCarry, super.name = 'leading_zero_anticipate'}) {
     aSign = addInput('aSign', aSign);
@@ -109,7 +108,6 @@ class LeadingDigitAnticipate extends Module {
   /// - Outputs [leadingDigit] which is the position of the first digit
   /// change (leading 1 position for positive sum, leading 0 position for
   /// negative sum).
-
   LeadingDigitAnticipate(Logic a, Logic b,
       {super.name = 'leading_digit_anticipate'}) {
     a = addInput('a', a, width: a.width);

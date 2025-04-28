@@ -57,7 +57,6 @@ class OnesComplementAdder extends Adder {
       : super(
             definitionName:
                 definitionName ?? 'OnesComplementAdder_W${a.width}') {
-    // if (endAroundCarry != null) {
     if (generateEndAroundCarry) {
       addOutput('endAroundCarry');
     }
