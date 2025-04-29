@@ -394,6 +394,16 @@ void main() {
     await mod.build();
   });
 
+  test('serialization configurator', () async {
+    final cfg = SerializationConfigurator();
+    final svDefault = await cfg.generateSV();
+    expect(svDefault, contains('Serializer'));
+
+    cfg.directionKnob.value = Deserializer;
+    final sv = await cfg.generateSV();
+    expect(sv, contains('Deserializer'));
+  });
+
   group('configurator builds', () {
     for (final componentConfigurator in componentRegistry) {
       test(componentConfigurator.name, () async {

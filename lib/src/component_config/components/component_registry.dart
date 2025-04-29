@@ -34,5 +34,6 @@ List<Configurator> get componentRegistry => [
       FixedToFloatConfigurator(),
       FloatToFixedConfigurator(),
       Float8ToFixedConfigurator(),
-      LeadingDigitAnticipateConfigurator()
+      LeadingDigitAnticipateConfigurator(),
+      SerializationConfigurator()
     ];
