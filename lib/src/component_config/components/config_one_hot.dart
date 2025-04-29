@@ -1,7 +1,7 @@
 // Copyright (C) 2023-2025 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 //
-// confg_one_hot.dart
+// config_one_hot.dart
 // Configurator for a BinaryToOneHot and OneHotToBinary.
 //
 // 2023 December 5
