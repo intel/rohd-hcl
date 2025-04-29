@@ -1,8 +1,8 @@
 // Copyright (C) 2024-2025 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 //
-// partial_product_generator.dart
-// Partial Product matrix generation from Booth recoded multiplicand
+// evaluate_partial_product.dart
+// Pretty printer for Partial Product matrix generation.
 //
 // 2024 May 15
 // Author: Desmond Kirkpatrick <desmond.a.kirkpatrick@intel.com>

@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: BSD-3-Clause
 //
 // config_round_robin_arbiter.dart
-// Configurator for a PriorityArbiter.
+// Configurator for a round-robin arbiter.
 //
 // 2023 December 26
 // Author: Max Korbel <max.korbel@intel.com>

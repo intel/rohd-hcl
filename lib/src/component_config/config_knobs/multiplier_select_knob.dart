@@ -9,7 +9,6 @@
 
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
-import 'package:rohd_hcl/src/component_config/config_knobs/adder_select_knob.dart';
 
 /// A knob for selecting a multiplier to use in a component.
 class MultiplierSelectKnob extends GroupOfKnobs {

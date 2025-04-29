@@ -1,8 +1,8 @@
 // Copyright (C) 2024 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 //
-// config_priority_arbiter.dart
-// Configurator for a PriorityArbiter.
+// config_find.dart
+// Configurator for a Find module.
 //
 // 2024 February 7
 // Author: Max Korbel <max.korbel@intel.com>

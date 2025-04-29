@@ -11,7 +11,6 @@ import 'dart:collection';
 
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
-import 'package:rohd_hcl/src/component_config/config_knobs/multiplier_select_knob.dart';
 
 /// A knob for selecting a different width output.
 class OutputWidthSelectKnob extends GroupOfKnobs {

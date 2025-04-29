@@ -1,8 +1,8 @@
 // Copyright (C) 2023-2024 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 //
-// config_priority_arbiter.dart
-// Configurator for a PriorityArbiter.
+// config_fifo.dart
+// Configurator for a FIFO module.
 //
 // 2023 December 6
 // Author: Max Korbel <max.korbel@intel.com>

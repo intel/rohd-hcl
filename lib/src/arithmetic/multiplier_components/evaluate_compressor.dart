@@ -1,8 +1,8 @@
 // Copyright (C) 2024-2025 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 //
-// addend_compressor.dart
-// Column compression of partial prodcuts
+// evaluate_compressor.dart
+// Pretty printing to help debug ColumnCompressorModule.
 //
 // 2024 June 04
 // Author: Desmond Kirkpatrick <desmond.a.kirkpatrick@intel.com>

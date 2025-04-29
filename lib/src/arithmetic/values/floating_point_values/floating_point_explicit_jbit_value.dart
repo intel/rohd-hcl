@@ -1,8 +1,8 @@
 // Copyright (C) 2025 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 //
-// floating_point_value.dart
-// Implementation of Floating-Point value representations.
+// floating_point_explicit_jbit_value.dart
+// Implementation of Floating-Point value representation for explicit jbit.
 //
 // 2025 February 20
 // Author:

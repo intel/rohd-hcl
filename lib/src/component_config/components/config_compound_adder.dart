@@ -1,7 +1,7 @@
 // Copyright (C) 2023-2025 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 //
-// compound_adder.dart
+// config_compound_adder.dart
 // Configurator for a CompoundAdder.
 //
 // 2024 Cotober 1
@@ -10,7 +10,6 @@ import 'dart:collection';
 
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
-import 'package:rohd_hcl/src/component_config/config_knobs/adder_select_knob.dart';
 
 /// A [Configurator] for [CompoundAdder].
 class CompoundAdderConfigurator extends Configurator {
