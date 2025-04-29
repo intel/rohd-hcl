@@ -32,14 +32,14 @@ abstract class PriorityEncoder extends Module {
   /// there are no bits set in [inp].
   /// - Optional [valid] output is set if the output position is valid
   PriorityEncoder(Logic inp,
-      {bool outputValid = false,
+      {bool generateValid = false,
       super.name = 'priority_encoder',
       String? definitionName})
       : super(
             definitionName: definitionName ?? 'PriorityEncoder_W${inp.width}') {
     inp = addInput('inp', inp, width: inp.width);
 
-    if (outputValid) {
+    if (generateValid) {
       addOutput('valid');
     }
     addOutput('out', width: log2Ceil(inp.width + 1));
@@ -50,7 +50,7 @@ abstract class PriorityEncoder extends Module {
 class RecursivePriorityEncoder extends PriorityEncoder {
   /// [RecursivePriorityEncoder] constructor
   RecursivePriorityEncoder(super.inp,
-      {super.outputValid, super.name = 'recursive_priority_encoder'})
+      {super.generateValid, super.name = 'recursive_priority_encoder'})
       : super(definitionName: 'RecursivePriorityEncoder_W${inp.width}') {
     final lo = recurseFinder(inp.elements);
     if (valid != null) {
@@ -200,7 +200,7 @@ class RecursiveModulePriorityEncoder extends PriorityEncoder {
   /// of [RecursiveModulePriorityEncoderNode]s to compute the position
   /// of the trailing 1 from the LSB of [inp].
   RecursiveModulePriorityEncoder(super.inp,
-      {super.outputValid, super.name = 'recursive_module_priority_encoder'})
+      {super.generateValid, super.name = 'recursive_module_priority_encoder'})
       : super(definitionName: 'RecursiveModulePriorityEncoder_W${inp.width}') {
     final topNode = RecursiveModulePriorityEncoderNode(inp);
     final lo = topNode.ret;
@@ -220,7 +220,7 @@ class ParallelPrefixPriorityEncoder extends PriorityEncoder {
       {ParallelPrefix Function(
               List<Logic> inps, Logic Function(Logic term1, Logic term2) op)
           ppGen = KoggeStone.new,
-      super.outputValid,
+      super.generateValid,
       super.name = 'parallel_prefix_encoder'})
       : super(definitionName: 'ParallelPrefixPriorityEncoder_W${inp.width}') {
     final sz = log2Ceil(inp.width + 1);

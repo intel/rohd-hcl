@@ -191,10 +191,10 @@ void main() async {
     leadPredictIn.put(0);
     final leadZeroCounter = RecursiveModulePriorityEncoder(
         leadPredictIn.reversed,
-        outputValid: true);
+        generateValid: true);
     final leadZeroMin1Counter = RecursiveModulePriorityEncoder(
         leadPredictIn.reversed,
-        outputValid: true);
+        generateValid: true);
 
     for (final signed in [true]) {
       final fixed = FixedPoint(signed: signed, m: 8, n: 8);

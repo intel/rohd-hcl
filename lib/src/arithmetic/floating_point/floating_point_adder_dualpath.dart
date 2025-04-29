@@ -253,7 +253,7 @@ class FloatingPointAdderDualPath<FpType extends FloatingPoint>
 
     final leadOneEncoderNPath = RecursiveModulePriorityEncoder(
         significandNPath.reversed,
-        outputValid: true,
+        generateValid: true,
         name: 'npath_leadingOne');
     final leadOneNPathPre = leadOneEncoderNPath.out;
     final validLeadOneNPath = leadOneEncoderNPath.valid!;

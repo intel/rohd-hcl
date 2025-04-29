@@ -68,14 +68,15 @@ class LeadingZeroAnticipate extends Module {
     fReverse <= t ^ (~zReverse << 1 | Const(1, width: t.width));
 
     final leadOneEncoderA = RecursiveModulePriorityEncoder(fForward.reversed,
-        outputValid: true, name: 'leadone_forward');
+        generateValid: true, name: 'leadone_forward');
     final leadingOneA = leadOneEncoderA.out;
-
     final validLeadOneA = leadOneEncoderA.valid!;
+
     final leadOneEncoderB = RecursiveModulePriorityEncoder(fReverse.reversed,
-        outputValid: true, name: 'leadone_reverse');
+        generateValid: true, name: 'leadone_reverse');
     final leadingOneB = leadOneEncoderB.out;
     final validLeadOneB = leadOneEncoderB.valid!;
+
     if (this.endAroundCarry == null) {
       addOutput('leadingOneA', width: log2Ceil(fForward.width + 1)) <=
           leadingOneA;
@@ -126,7 +127,7 @@ class LeadingDigitAnticipate extends Module {
     findFromMSB <= [lowBits, ~t[0] & t[1]].swizzle();
 
     final leadingEncoder = RecursiveModulePriorityEncoder(findFromMSB,
-        outputValid: true, name: 'leading-pos');
+        generateValid: true, name: 'leading-pos');
     final leadingPos = leadingEncoder.out;
     final validLead = leadingEncoder.valid!;
 

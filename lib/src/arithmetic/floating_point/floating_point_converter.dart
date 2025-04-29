@@ -45,7 +45,7 @@ class FloatingPointConverter<FpTypeIn extends FloatingPoint,
   /// - [adderGen] can specify the [Adder] to use for exponent calculations.
   FloatingPointConverter(FpTypeIn source, this.destination,
       {PriorityEncoder Function(Logic bitVector,
-              {bool outputValid, String name})
+              {bool generateValid, String name})
           priorityGen = RecursiveModulePriorityEncoder.new,
       Adder Function(Logic a, Logic b, {Logic? carryIn}) adderGen =
           NativeAdder.new,
@@ -96,7 +96,7 @@ class FloatingPointConverter<FpTypeIn extends FloatingPoint,
         biasDiff = (dBias - sBias).named('biasDiff');
 
         final leadOneEncoder = priorityGen(mantissa.reversed,
-            outputValid: true, name: 'lead_one_encoder');
+            generateValid: true, name: 'lead_one_encoder');
         final leadOnePre = leadOneEncoder.out;
         leadOneValid = leadOneEncoder.valid!;
         leadOne =
@@ -185,7 +185,7 @@ class FloatingPointConverter<FpTypeIn extends FloatingPoint,
       final biasDiff = (sBias - dBias).named('biasDiff');
 
       final leadOneEncoder = priorityGen(mantissa.reversed,
-          outputValid: true, name: 'lead_one_encoder');
+          generateValid: true, name: 'lead_one_encoder');
       final leadOnePre = leadOneEncoder.out;
       final leadOneValid = leadOneEncoder.valid!;
       final leadOne =

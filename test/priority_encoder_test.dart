@@ -45,14 +45,14 @@ void main() {
   final generators = [Ripple.new, Sklansky.new, KoggeStone.new, BrentKung.new];
   test('RecursivePriorityEncoder quick test', () {
     final inp = Logic(width: 4)..put(8);
-    final dut = RecursivePriorityEncoder(inp, outputValid: true);
+    final dut = RecursivePriorityEncoder(inp, generateValid: true);
     expect(dut.out.value.toInt(), equals(3));
     expect(dut.valid!.value.toBool(), equals(true));
   });
 
   test('RecursivePriorityModuleEncoder quick test', () async {
     final inp = Logic(width: 87)..put(8);
-    final dut = RecursiveModulePriorityEncoder(inp, outputValid: true);
+    final dut = RecursiveModulePriorityEncoder(inp, generateValid: true);
     await dut.build();
     File('recur.sv').writeAsStringSync(dut.generateSynth());
     expect(dut.out.value.toInt(), equals(3));
@@ -83,7 +83,7 @@ void main() {
     expect(ParallelPrefixPriorityEncoder(val.reversed).out.value.toInt(),
         equals(3));
 
-    final dut = ParallelPrefixPriorityEncoder(val, outputValid: true);
+    final dut = ParallelPrefixPriorityEncoder(val, generateValid: true);
     expect(dut.valid!.value.toBool(), equals(true));
   });
 
@@ -92,7 +92,7 @@ void main() {
     // ignore: cascade_invocations
     bitVector.put(8);
     final encoder = ParallelPrefixPriorityEncoder(bitVector,
-        ppGen: BrentKung.new, outputValid: true);
+        ppGen: BrentKung.new, generateValid: true);
 
     expect(encoder.out.value.toInt(), equals(3));
   });
@@ -105,7 +105,7 @@ void main() {
         equals(val.width + 1));
     expect(ParallelPrefixPriorityEncoder(val.reversed).out.value.toInt(),
         equals(val.width + 1));
-    final dut = ParallelPrefixPriorityEncoder(val, outputValid: true);
+    final dut = ParallelPrefixPriorityEncoder(val, generateValid: true);
     expect(dut.valid!.value.toBool(), equals(false));
   });
 }
