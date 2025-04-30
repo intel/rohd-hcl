@@ -69,8 +69,10 @@ class FloatingPointSqrtSimple<FpType extends FloatingPoint>
           .named('sqrtMux'));
 
     // convert back to floating point representation
-    final fpSqrt = FixedToFloat(fixedSqrt,
-        exponentWidth: a.exponent.width, mantissaWidth: a.mantissa.width);
+    final fpSqrt = FixedToFloat(
+        fixedSqrt,
+        FloatingPoint(
+            exponentWidth: a.exponent.width, mantissaWidth: a.mantissa.width));
 
     // final calculation results
     Combinational([
