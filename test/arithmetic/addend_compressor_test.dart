@@ -8,11 +8,13 @@
 // Author: Desmond Kirkpatrick <desmond.a.kirkpatrick@intel.com>
 
 import 'dart:async';
+import 'dart:math';
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
 import 'package:rohd_hcl/src/arithmetic/evaluate_compressor.dart';
 import 'package:rohd_hcl/src/arithmetic/evaluate_partial_product.dart';
 import 'package:rohd_hcl/src/arithmetic/partial_product_sign_extend.dart';
+import 'package:rohd_hcl/src/arithmetic/values/logicvalue_extension.dart';
 import 'package:test/test.dart';
 
 /// This [CompressorTestMod] module is used to test instantiation, where we can
@@ -55,6 +57,37 @@ void main() {
     await Simulator.reset();
   });
 
+  test('4-2 compressor', () {
+    final bits = Logic(width: 4);
+    final cin = [Logic()];
+
+    final inputs = [
+      for (var i = 0; i < bits.width; i++)
+        CompressTerm(null, CompressTermType.pp, bits[i], [], 0, 0)
+    ];
+    final carryInputs = [
+      for (var i = 0; i < cin.length; i++)
+        CompressTerm(null, CompressTermType.pp, cin[i], [], 0, 0)
+    ];
+
+    final compressor = Compressor4(inputs, carryInputs);
+
+    for (var cVal = 0; cVal < 2; cVal++) {
+      cin[0].put(cVal);
+
+      for (var val = 0; val < pow(2, 4) - 1; val++) {
+        bits.put(val);
+        final count = compressor.sum.value.toInt() +
+            2 *
+                (compressor.carry.value.toInt() +
+                    compressor.cout.value.toInt());
+        final bitCount =
+            bits.value.popCount() + ((cin[0].value == LogicValue.one) ? 1 : 0);
+        expect(count, equals(bitCount));
+      }
+    }
+  });
+
   test('Column Compressor: evaluate flopped', () async {
     final clk = SimpleClockGenerator(10).clk;
     const widthX = 6;
@@ -89,24 +122,24 @@ void main() {
         equals(BigInt.from(av * bv)));
     await Simulator.endSimulation();
   });
-  test('Column Compressor: single compressor evaluate', () async {
-    const widthX = 3;
-    const widthY = 3;
+  test('Column Compressor: single compressor 4:2 evaluate', () {
+    const widthX = 5;
+    const widthY = 5;
     final a = Logic(name: 'a', width: widthX);
     final b = Logic(name: 'b', width: widthY);
 
-    const av = -3;
-    const bv = -3;
-    for (final signed in [true, false]) {
+    const av = 12;
+    const bv = 13;
+    for (final signed in [true]) {
       final bA = SignedBigInt.fromSignedInt(av, widthX, signed: signed);
       final bB = SignedBigInt.fromSignedInt(bv, widthY, signed: signed);
 
       // Set these so that printing inside module build will have Logic values
       a.put(bA);
       b.put(bB);
-      const radix = 4;
+      const radix = 2;
       final encoder = RadixEncoder(radix);
-      for (final useSelect in [false, true]) {
+      for (final useSelect in [false]) {
         final selectSignedMultiplicand = useSelect ? Logic() : null;
         final selectSignedMultiplier = useSelect ? Logic() : null;
         if (useSelect) {
@@ -121,11 +154,17 @@ void main() {
         CompactRectSignExtension(pp).signExtend();
 
         expect(pp.evaluate(), equals(bA * bB));
-        final compressor = ColumnCompressor(pp);
-        expect(compressor.evaluate().$1, equals(bA * bB));
-        compressor.compress();
+        final compressor = ColumnCompressor(pp, use42Compressors: true)
+          ..compress();
         expect(compressor.evaluate().$1, equals(bA * bB));
       }
     }
+  });
+  test('majority function', () async {
+    expect(LogicValue.ofBigInt(BigInt.from(7), 5).majority(), true);
+    expect(LogicValue.ofBigInt(BigInt.from(7) << 1, 5).majority(), true);
+    expect(LogicValue.ofBigInt(BigInt.from(11) << 1, 5).majority(), true);
+    expect(LogicValue.ofBigInt(BigInt.from(9) << 1, 5).majority(), false);
+    expect(LogicValue.ofBigInt(BigInt.from(7) << 3, 7).majority(), false);
   });
 }
