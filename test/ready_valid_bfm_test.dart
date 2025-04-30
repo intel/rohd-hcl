@@ -1,8 +1,8 @@
 // Copyright (C) 2023-2024 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 //
-// rotate_test.dart
-// Tests for rotating
+// ready_valid_bfm_test.dart
+// Tests for ready-valid bus functional model.
 //
 // 2023 February 17
 // Author: Max Korbel <max.korbel@intel.com>

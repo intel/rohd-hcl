@@ -18,10 +18,11 @@ void main() async {
     const inDouble = -2.0;
     fixed.put(FixedPointValue.ofDouble(inDouble,
         signed: fixed.signed, m: fixed.m, n: fixed.n));
-    final dut = FixedToFloat(fixed, exponentWidth: 8, mantissaWidth: 23);
+    final fp = FloatingPoint(exponentWidth: 8, mantissaWidth: 23);
+    final dut = FixedToFloat(fixed, fp);
     final fpv = dut.float.floatingPointValue;
     final fpvExpected = FloatingPointValue.populator(
-            exponentWidth: dut.exponentWidth, mantissaWidth: dut.mantissaWidth)
+            exponentWidth: fp.exponent.width, mantissaWidth: fp.mantissa.width)
         .ofDoubleUnrounded(inDouble);
     expect(fpv.sign, fpvExpected.sign);
     expect(fpv.exponent.bitString, fpvExpected.exponent.bitString,
@@ -33,8 +34,10 @@ void main() async {
   test('FixedToFloat: exhaustive', () async {
     for (final signed in [false, true]) {
       final fixed = FixedPoint(signed: signed, m: 8, n: 8);
-      final dut = FixedToFloat(fixed,
-          signed: signed, exponentWidth: 8, mantissaWidth: 16);
+      final dut = FixedToFloat(
+          fixed,
+          signed: signed,
+          FloatingPoint(exponentWidth: 8, mantissaWidth: 16));
       await dut.build();
       for (var val = 0; val < pow(2, fixed.width); val++) {
         final fixedValue = FixedPointValue(
@@ -45,8 +48,8 @@ void main() async {
         fixed.put(fixedValue);
         final fpv = dut.float.floatingPointValue;
         final fpvExpected = FloatingPointValue.populator(
-                exponentWidth: dut.exponentWidth,
-                mantissaWidth: dut.mantissaWidth)
+                exponentWidth: dut.float.exponent.width,
+                mantissaWidth: dut.float.mantissa.width)
             .ofDouble(fixedValue.toDouble());
         final newFixed = FixedPointValue.ofDouble(fpv.toDouble(),
             signed: true, m: fixed.m, n: fixed.n);
@@ -81,8 +84,7 @@ void main() async {
     final anticipator = LeadingDigitAnticipate(a, b);
     final dut = FixedToFloat(
       fixed,
-      exponentWidth: 8,
-      mantissaWidth: 16,
+      FloatingPoint(exponentWidth: 8, mantissaWidth: 16),
       leadingDigitPredict: anticipator.leadingDigit,
     );
     final fpv = dut.float.floatingPointValue;
@@ -118,8 +120,7 @@ void main() async {
       final dut = FixedToFloat(
         fixed,
         signed: signed,
-        exponentWidth: 8,
-        mantissaWidth: 16,
+        FloatingPoint(exponentWidth: 8, mantissaWidth: 16),
         leadingDigitPredict: anticipator.leadingDigit.zeroExtend(9),
       );
       for (var val1 = 0; val1 < pow(2, fixed.width); val1++) {
@@ -168,13 +169,11 @@ void main() async {
     final leadingDigit = Const(32, width: log2Ceil(68) + 2);
     final dut = FixedToFloat(
       fixed,
-      exponentWidth: 8,
-      mantissaWidth: 23,
+      FloatingPoint(exponentWidth: 8, mantissaWidth: 23),
     );
     final dut2 = FixedToFloat(
       fixed,
-      exponentWidth: 8,
-      mantissaWidth: 23,
+      FloatingPoint(exponentWidth: 8, mantissaWidth: 23),
       leadingDigitPredict: leadingDigit,
     );
 
@@ -204,17 +203,19 @@ void main() async {
           m: fixed.m,
           n: fixed.n);
       fixed.put(fixedValue);
-      final golden = FixedToFloat(fixed,
-          signed: signed, exponentWidth: 8, mantissaWidth: 16);
-      final dut = FixedToFloat(fixed,
+      final golden = FixedToFloat(
+          fixed,
           signed: signed,
-          exponentWidth: 8,
-          mantissaWidth: 16,
+          FloatingPoint(exponentWidth: 8, mantissaWidth: 16));
+      final dut = FixedToFloat(
+          fixed,
+          signed: signed,
+          FloatingPoint(exponentWidth: 8, mantissaWidth: 16),
           leadingDigitPredict: leadZeroCounter.out.zeroExtend(9));
-      final dutMin1 = FixedToFloat(fixed,
+      final dutMin1 = FixedToFloat(
+          fixed,
           signed: signed,
-          exponentWidth: 8,
-          mantissaWidth: 16,
+          FloatingPoint(exponentWidth: 8, mantissaWidth: 16),
           leadingDigitPredict: leadZeroMin1Counter.out.zeroExtend(9));
       for (var val = 0; val < pow(2, fixed.width); val++) {
         final lVal = LogicValue.ofInt(val, fixed.width);
@@ -252,7 +253,8 @@ void main() async {
 
   test('Q16.16 to E5M2 < pow(2,14)', () async {
     final fixed = FixedPoint(signed: true, m: 16, n: 16);
-    final dut = FixedToFloat(fixed, exponentWidth: 5, mantissaWidth: 2);
+    final dut =
+        FixedToFloat(fixed, FloatingPoint(exponentWidth: 5, mantissaWidth: 2));
     await dut.build();
     for (var val = 0; val < pow(2, 14); val++) {
       final fixedValue = FixedPointValue(
@@ -263,8 +265,8 @@ void main() async {
       fixed.put(fixedValue);
       final fpv = dut.float.floatingPointValue;
       final fpvExpected = FloatingPointValue.populator(
-              exponentWidth: dut.exponentWidth,
-              mantissaWidth: dut.mantissaWidth)
+              exponentWidth: dut.float.exponent.width,
+              mantissaWidth: dut.float.mantissa.width)
           .ofDouble(fixedValue.toDouble());
       expect(fpv.sign, fpvExpected.sign);
       expect(fpv.exponent.bitString, fpvExpected.exponent.bitString,
@@ -276,7 +278,8 @@ void main() async {
 
   test('Signed Q4.4 to E3M2', () async {
     final fixed = FixedPoint(signed: true, m: 4, n: 4);
-    final dut = FixedToFloat(fixed, exponentWidth: 3, mantissaWidth: 2);
+    final dut =
+        FixedToFloat(fixed, FloatingPoint(exponentWidth: 3, mantissaWidth: 2));
     await dut.build();
     for (var val = 0; val < pow(2, fixed.width); val++) {
       final fixedValue = FixedPointValue(
@@ -287,8 +290,8 @@ void main() async {
       fixed.put(fixedValue);
       final fpv = dut.float.floatingPointValue;
       final fpvExpected = FloatingPointValue.populator(
-              exponentWidth: dut.exponentWidth,
-              mantissaWidth: dut.mantissaWidth)
+              exponentWidth: dut.float.exponent.width,
+              mantissaWidth: dut.float.mantissa.width)
           .ofDouble(fixedValue.toDouble());
       expect(fpv.sign, fpvExpected.sign);
       expect(fpv.exponent.bitString, fpvExpected.exponent.bitString,
@@ -300,7 +303,8 @@ void main() async {
 
   test('Unsigned Q4.4 to E3M2', () async {
     final fixed = FixedPoint(signed: false, m: 4, n: 4);
-    final dut = FixedToFloat(fixed, exponentWidth: 3, mantissaWidth: 2);
+    final dut =
+        FixedToFloat(fixed, FloatingPoint(exponentWidth: 3, mantissaWidth: 2));
     await dut.build();
     for (var val = 0; val < pow(2, fixed.width); val++) {
       final fixedValue = FixedPointValue(
@@ -311,8 +315,8 @@ void main() async {
       fixed.put(fixedValue);
       final fpv = dut.float.floatingPointValue;
       final fpvExpected = FloatingPointValue.populator(
-              exponentWidth: dut.exponentWidth,
-              mantissaWidth: dut.mantissaWidth)
+              exponentWidth: dut.float.exponent.width,
+              mantissaWidth: dut.float.mantissa.width)
           .ofDouble(fixedValue.toDouble());
       expect(fpv.sign, fpvExpected.sign);
       expect(fpv.exponent.bitString, fpvExpected.exponent.bitString,
@@ -324,7 +328,8 @@ void main() async {
 
   test('Signed Q0.8 to E3M2 shrink', () async {
     final fixed = FixedPoint(signed: true, m: 0, n: 7);
-    final dut = FixedToFloat(fixed, exponentWidth: 3, mantissaWidth: 2);
+    final dut =
+        FixedToFloat(fixed, FloatingPoint(exponentWidth: 3, mantissaWidth: 2));
     await dut.build();
     for (var val = 0; val < pow(2, fixed.width); val++) {
       final fixedValue = FixedPointValue(
@@ -335,8 +340,8 @@ void main() async {
       fixed.put(fixedValue);
       final fpv = dut.float.floatingPointValue;
       final fpvExpected = FloatingPointValue.populator(
-              exponentWidth: dut.exponentWidth,
-              mantissaWidth: dut.mantissaWidth)
+              exponentWidth: dut.float.exponent.width,
+              mantissaWidth: dut.float.mantissa.width)
           .ofDouble(fixedValue.toDouble());
       expect(fpv.sign, fpvExpected.sign);
       expect(fpv.exponent.bitString, fpvExpected.exponent.bitString,
@@ -348,7 +353,8 @@ void main() async {
 
   test('Signed Q0.3 to E5M6 expand', () async {
     final fixed = FixedPoint(signed: true, m: 0, n: 3);
-    final dut = FixedToFloat(fixed, exponentWidth: 5, mantissaWidth: 6);
+    final dut =
+        FixedToFloat(fixed, FloatingPoint(exponentWidth: 5, mantissaWidth: 6));
     await dut.build();
     for (var val = 0; val < pow(2, fixed.width); val++) {
       final fixedValue = FixedPointValue(
@@ -359,8 +365,8 @@ void main() async {
       fixed.put(fixedValue);
       final fpv = dut.float.floatingPointValue;
       final fpvExpected = FloatingPointValue.populator(
-              exponentWidth: dut.exponentWidth,
-              mantissaWidth: dut.mantissaWidth)
+              exponentWidth: dut.float.exponent.width,
+              mantissaWidth: dut.float.mantissa.width)
           .ofDouble(fixedValue.toDouble());
       expect(fpv.sign, fpvExpected.sign);
       expect(fpv.exponent.bitString, fpvExpected.exponent.bitString,
@@ -372,7 +378,8 @@ void main() async {
 
   test('Signed Q7.0 to E3M2', () async {
     final fixed = FixedPoint(signed: true, m: 7, n: 0);
-    final dut = FixedToFloat(fixed, exponentWidth: 3, mantissaWidth: 2);
+    final dut =
+        FixedToFloat(fixed, FloatingPoint(exponentWidth: 3, mantissaWidth: 2));
     await dut.build();
     for (var val = 0; val < pow(2, fixed.width); val++) {
       final fixedValue = FixedPointValue(
@@ -383,8 +390,8 @@ void main() async {
       fixed.put(fixedValue);
       final fpv = dut.float.floatingPointValue;
       final fpvExpected = FloatingPointValue.populator(
-              exponentWidth: dut.exponentWidth,
-              mantissaWidth: dut.mantissaWidth)
+              exponentWidth: dut.float.exponent.width,
+              mantissaWidth: dut.float.mantissa.width)
           .ofDouble(fixedValue.toDouble());
       expect(fpv.sign, fpvExpected.sign);
       expect(fpv.exponent.bitString, fpvExpected.exponent.bitString,

@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: BSD-3-Clause
 //
 // leading_zero_anticipate_test.dart
-// Tests for the LeadingZeroAnticipate.
+// Tests for the LeadingZeroAnticipate and LeadingDigitAnticipate.
 //
 // 2025 April 14
 // Author: Desmond Kirkpatrick <desmond.a.kirkpatrick@intel.com>

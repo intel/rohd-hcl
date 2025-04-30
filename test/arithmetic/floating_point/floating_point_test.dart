@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: BSD-3-Clause
 //
 // floating_point_test.dart
-// Tests of Floating Point  stuff
+// Tests of Floating Point basic types
 //
 // 2024 April 1
 // Authors:

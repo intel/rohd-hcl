@@ -1,8 +1,8 @@
 // Copyright (C) 2024-2025 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 //
-// floating_point_rnd_test.dart
-// Tests of FloatingPointAdderRound -- a rounding FP Adder.
+// floating_point_dualpath_test.dart
+// Tests of FloatingPointAdderDualPath-- a dual-path FP Adder.
 //
 // 2024 August 30
 // Author: Desmond A Kirkpatrick <desmond.a.kirkpatrick@intel.com
