@@ -1,7 +1,7 @@
 // Copyright (C) 2024-2025 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 //
-// fixed_to_convertedFloat.dart
+// fixed_to_float.dart
 // Transform fixed point signals to floating point signals.
 //
 // 2024 October 24
