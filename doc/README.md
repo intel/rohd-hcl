@@ -27,6 +27,7 @@ Some in-development items will have opened issues, as well. Feel free to create 
   - [Find Pattern](./components/find_pattern.md)
     - [Find Pattern from Start/End](./components/find_pattern.md#find-pattern-from-startend)
     - [Find N'th Pattern from Start/End](./components/find_pattern.md#find-nth-pattern-from-startend)
+    - [Leading Digit Anticipate](./components/leading_digit_anticipate.md)
 - Count
   - [Count bit occurrence](./components/count.md)
   - Count pattern occurrence
@@ -48,7 +49,6 @@ Some in-development items will have opened issues, as well. Feel free to create 
     - [Native Adder](./components/adder.md#native-adder)
   - Subtractors
     - [Ones' Complement Adder Subtractor](./components/adder.md#ones-complement-adder-subtractor)
-    - [Leading Digit Anticipate](./components/leading_digit_anticipate.md)
   - Multipliers
     - [Pipelined Integer Multiplier](./components/multiplier.md#carry-save-multiplier)
     - [Compression Tree Multiplier](./components/multiplier.md#compression-tree-multiplier)
@@ -58,6 +58,8 @@ Some in-development items will have opened issues, as well. Feel free to create 
     - [Multi Cycle Integer Divider](./components/divider.md)
   - Log
   - Square root
+    - [Fixed-Point Square Root](./components/fixed_point.md#fixedpointsqrt)
+    - [Floating-Point Square Root](./components/floating_point.md#floatingpointsqrt)
   - Inverse square root
   - Floating point
     - [Floating-Point Value Types](./components/floating_point.md#floatingpointvalue)

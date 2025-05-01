@@ -9,6 +9,7 @@
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
 import 'package:rohd_hcl/src/component_config/components/component_registry.dart';
+import 'package:rohd_hcl/src/component_config/components/config_fixed_sqrt.dart';
 import 'package:test/test.dart';
 
 import '../confapp/test/example_component.dart';
@@ -200,6 +201,26 @@ void main() {
       expect(sv, contains('error'));
       expect(sv, contains('input logic [5:0] writeData'));
       expect(sv, contains("(wrPointer == 3'h6"));
+    });
+  });
+
+  group('fixed-point sqrt configurator', () {
+    test('fixed-point sqrt', () async {
+      final cfg = FixedPointSqrtConfigurator();
+
+      final sv = await cfg.generateSV();
+
+      expect(sv, contains('FixedPointSquareRoot'));
+    });
+  });
+
+  group('floating-point sqrt configurator', () {
+    test('floating-point sqrt', () async {
+      final cfg = FloatingPointSqrtConfigurator();
+
+      final sv = await cfg.generateSV();
+
+      expect(sv, contains('FloatingPointSquareRoot'));
     });
   });
 

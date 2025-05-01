@@ -15,6 +15,7 @@ void main() {
   tearDown(() async {
     await Simulator.reset();
   });
+
   test('FP: adder basic interesting extreme corners', () {
     const exponentWidth = 4;
     const mantissaWidth = 4;

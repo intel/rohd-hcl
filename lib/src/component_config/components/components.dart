@@ -13,6 +13,7 @@ export 'config_float8_to_fixed.dart';
 export 'config_float_to_fixed.dart';
 export 'config_floating_point_adder.dart';
 export 'config_floating_point_multiplier.dart';
+export 'config_floating_point_sqrt.dart';
 export 'config_leading_digit_anticipate.dart';
 export 'config_multiplier.dart';
 export 'config_one_hot.dart';
