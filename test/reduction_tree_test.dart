@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: BSD-3-Clause
 //
 // reduction_tree_test.dart
-// Tests of the ReductionTreeNode generator.
+// Tests of the ReductionTree generator.
 //
 // 2025 January 8
 // Author: Desmond A Kirkpatrick <desmond.a.kirkpatrick@intel.com

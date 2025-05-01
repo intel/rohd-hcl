@@ -49,4 +49,22 @@ abstract class FloatingPointUtilities {
 
     return (larger, smaller);
   }
+
+  /// Sort two [FloatingPoint]s and swap them if necessary so that the one
+  /// the larger exponent is the first element in the returned tuple.
+  static (FpType larger, FpType smaller)
+      sortByExp<FpType extends FloatingPoint>((FpType, FpType) toSort) {
+    final ae = toSort.$1.exponent;
+    final be = toSort.$2.exponent;
+    final doSwap = (ae.lt(be) | ((ae.eq(be)) & toSort.$1.sign)).named('doSwap');
+
+    final swapped = swap(doSwap, toSort);
+
+    FpType clone({String? name}) => toSort.$1.clone(name: name) as FpType;
+
+    final larger = clone(name: 'larger')..gets(swapped.$1);
+    final smaller = clone(name: 'smaller')..gets(swapped.$2);
+
+    return (larger, smaller);
+  }
 }

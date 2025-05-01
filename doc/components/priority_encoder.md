@@ -1,6 +1,6 @@
 # Priority Encoder
 
-A priority encoder is used to find the trailing `1` in a Logic (or, equivalently, count the number of trailing 0s). In ROHD HCL, our `PriorityEncoder` abstract class searches from the LSB to find the leading-1, returning the index of its position from the LSB. If there is no `1` in the Logic, it returns 1 past the width of the Logic.  Additionally, if a Logic `valid` output is provided, it will set that to `1` if a trailing-1 is found, otherwise `0`.
+A priority encoder is used to find the trailing `1` in a Logic (or, equivalently, count the number of trailing 0s). In ROHD HCL, our `PriorityEncoder` abstract class searches from the LSB to find the leading-1, returning the index of its position from the LSB. If there is no `1` in the Logic, it returns 1 past the width of the Logic.  Additionally, if `outputValid` is set to true, then a `valid` output is produced and will be set to `1` if a trailing-1 is found, otherwise `0`.
 
 ## Parallel-Prefix Priority Encoder
 
@@ -10,10 +10,10 @@ We provide one implementation based on `ParallelPrefix` trees, which finds the t
     final bitVector = Logic(width: 5);
     // ignore: cascade_invocations
     bitVector.put(8);
-    final valid = Logic();
     final encoder = ParallelPrefixPriorityEncoder(bitVector,
-        ppGen: BrentKung.new, valid: valid);
-    // encoder.out.value.toInt() will be 3 and valid.out.toBool() will be true
+        ppGen: BrentKung.new, outputValid: true);
+    final valid = encoder.valid!;
+    // encoder.out.value.toInt() will be 3 and valid.value.toBool() will be true
 ```
 
 ## Recursive Priority Encoder
@@ -24,7 +24,7 @@ We provide a more direct encoding implementation that builds up the trailing-1 p
     final bitVector = Logic(width: 5);
     // ignore: cascade_invocations
     bitVector.put(8);
-    final valid = Logic();
-    final encoder = RecursiveModulePriorityEncoder(bitVector, valid: valid);
-    // encoder.out.value.toInt() will be 3 and valid.out.toBool() will be true
+    final encoder = RecursiveModulePriorityEncoder(bitVector, outputValid: true);
+    final valid = encoder.valid!;
+    // encoder.out.value.toInt() will be 3 and valid.value.toBool() will be true
   ```

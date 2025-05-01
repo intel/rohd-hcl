@@ -8,6 +8,7 @@
 // Author: Max Korbel <max.korbel@intel.com>
 
 import 'package:rohd_hcl/rohd_hcl.dart';
+import 'package:rohd_hcl/src/component_config/components/config_fixed_sqrt.dart';
 
 /// A list of [Configurator]s for ROHD-HCL components.
 List<Configurator> get componentRegistry => [
@@ -25,14 +26,17 @@ List<Configurator> get componentRegistry => [
       RegisterFileConfigurator(),
       EdgeDetectorConfigurator(),
       FindConfigurator(),
-      FloatingPointAdderRoundConfigurator(),
-      FloatingPointAdderSimpleConfigurator(),
+      FloatingPointAdderConfigurator(),
       FloatingPointMultiplierSimpleConfigurator(),
       ParallelPrefixAdderConfigurator(),
-      CompressionTreeMultiplierConfigurator(),
+      MultiplierConfigurator(),
       ExtremaConfigurator(),
       CompoundAdderConfigurator(),
       FixedToFloatConfigurator(),
       FloatToFixedConfigurator(),
-      Float8ToFixedConfigurator()
+      Float8ToFixedConfigurator(),
+      LeadingDigitAnticipateConfigurator(),
+      SerializationConfigurator(),
+      FixedPointSqrtConfigurator(),
+      FloatingPointSqrtConfigurator()
     ];

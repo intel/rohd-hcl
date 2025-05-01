@@ -14,18 +14,20 @@ enum FloatingPointRoundingMode {
   /// Truncate the result, no rounding.
   truncate,
 
-  /// Round to nearest, ties to even.
+  /// Round to nearest, ties to even.  Round to the nearest value with an even
+  /// LSB.
   roundNearestEven,
 
-  /// Round to nearest, tieas away from zero.
+  /// Round to nearest, tieas away from zero.  Round up for positive numbers,
+  /// round down for negative numbers.
   roundNearestTiesAway,
 
-  /// Round toward zero.
+  /// Round toward zero. Truncate.
   roundTowardsZero,
 
-  /// Round toward +infinity.
+  /// Round toward +infinity. Round up.
   roundTowardsInfinity,
 
-  /// Round toward -infinity.
+  /// Round toward -infinity.  Round down.
   roundTowardsNegativeInfinity
 }

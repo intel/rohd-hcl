@@ -39,6 +39,9 @@ class FloatingPointValuePopulator<FpvType extends FloatingPointValue> {
   /// The maximum exponent value.
   int get maxExponent => _unpopulated.maxExponent;
 
+  /// True if the format stores the Jbit explicitly.
+  bool get explicitJBit => _unpopulated.explicitJBit;
+
   /// Whether or not this populator has already populated values.
   bool _hasPopulated = false;
 
@@ -231,10 +234,16 @@ class FloatingPointValuePopulator<FpvType extends FloatingPointValue> {
     var expVal = (exponent64.toInt() - fp64.bias) + bias;
     final mantissa64n = ((expVal <= 0)
         ? [LogicValue.one, fp64.mantissa].swizzle() >>>
-            (-expVal + (fp64.exponent.toInt() > 0 ? 1 : 0))
+            (-expVal +
+                (!explicitJBit & (fp64.exponent.toInt() > 0)
+                    ? 1
+                    : explicitJBit
+                        ? 1
+                        : 0))
         : [LogicValue.one, fp64.mantissa].swizzle());
 
-    var mantissa = mantissa64n.slice(fp64Mw - 1, fp64Mw - mantissaWidth);
+    var mantissa = mantissa64n.slice(fp64Mw - (explicitJBit ? 0 : 1),
+        fp64Mw - mantissaWidth + (explicitJBit ? 1 : 0));
 
     // TODO(desmonddak): this should be in a separate function to use
     //  with a FloatingPointValue converter we need.
@@ -257,6 +266,12 @@ class FloatingPointValuePopulator<FpvType extends FloatingPointValue> {
           mantissa += 1;
           if (mantissa == LogicValue.zero.zeroExtend(mantissa.width)) {
             expVal += 1;
+            if (explicitJBit) {
+              mantissa = [
+                LogicValue.one,
+                LogicValue.zero.zeroExtend(mantissa.width - 1)
+              ].swizzle();
+            }
           }
         }
       }
@@ -399,4 +414,52 @@ class FloatingPointValuePopulator<FpvType extends FloatingPointValue> {
 
     return populate(sign: sign, exponent: exponent, mantissa: mantissa);
   }
+}
+
+/// A populator for [FloatingPointExplicitJBitValue]s, a utility that can
+/// populate various forms of [FloatingPointExplicitJBitValue]s.
+class FloatingPointExplicitJBitPopulator
+    extends FloatingPointValuePopulator<FloatingPointExplicitJBitValue> {
+  /// Creates a [FloatingPointValuePopulator] for the given [_unpopulated]
+  /// [FloatingPointExplicitJBitValue].
+  FloatingPointExplicitJBitPopulator(super._unpopulated);
+
+  /// Construct a [FloatingPointExplicitJBitValue] from a
+  /// [FloatingPointValue] with a mantissa that is one smaller (implicit jbit)
+  FloatingPointExplicitJBitValue ofFloatingPointValue(FloatingPointValue fpv) =>
+      populate(
+          sign: fpv.sign,
+          exponent: fpv.exponent,
+          mantissa: fpv.mantissa.zeroExtend(fpv.mantissa.width + 1) |
+              (fpv.isNormal() & !fpv.isAnInfinity & !fpv.isNaN
+                  ? (LogicValue.of(1, width: fpv.mantissa.width + 1) <<
+                      fpv.mantissa.width)
+                  : LogicValue.of(0, width: fpv.mantissa.width + 1)));
+
+  @override
+  FloatingPointExplicitJBitValue ofConstant(
+          FloatingPointConstants constantFloatingPoint) =>
+      ofFloatingPointValue(FloatingPointValue.populator(
+              exponentWidth: exponentWidth, mantissaWidth: mantissaWidth - 1)
+          .ofConstant(constantFloatingPoint));
+  @override
+  FloatingPointExplicitJBitValue ofDouble(double inDouble,
+          {FloatingPointRoundingMode roundingMode =
+              FloatingPointRoundingMode.roundNearestEven}) =>
+      ofFloatingPointValue(FloatingPointValue.populator(
+              exponentWidth: exponentWidth, mantissaWidth: mantissaWidth - 1)
+          .ofDouble(inDouble, roundingMode: roundingMode));
+
+  @override
+  @internal
+  FloatingPointExplicitJBitValue ofDoubleUnrounded(double inDouble) =>
+      ofFloatingPointValue(FloatingPointValue.populator(
+              exponentWidth: exponentWidth, mantissaWidth: mantissaWidth - 1)
+          .ofDoubleUnrounded(inDouble));
+
+  @override
+  FloatingPointExplicitJBitValue random(Random rv, {bool normal = false}) =>
+      ofFloatingPointValue(FloatingPointValue.populator(
+              exponentWidth: exponentWidth, mantissaWidth: mantissaWidth - 1)
+          .random(rv, normal: normal));
 }
