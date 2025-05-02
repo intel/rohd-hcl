@@ -34,6 +34,7 @@ class SpiSub extends Module {
       {required SpiInterface intf,
       Logic? busIn,
       Logic? reset,
+      bool triStateOutput = false,
       super.name = 'spiSub'}) {
     // SPI Interface
     intf = SpiInterface.clone(intf)
@@ -50,10 +51,10 @@ class SpiSub extends Module {
 
       addOutput('done');
 
-      // Counter to track of the number of bits shifted out.
+      // Counter to track the number of bits shifted out.
       final count = Counter.simple(
           clk: intf.sclk,
-          enable: ~intf.csb,
+          enable: ~intf.csb[0],
           reset: reset,
           asyncReset: true,
           resetValue: intf.dataLength - 1,
@@ -70,7 +71,7 @@ class SpiSub extends Module {
     // NOTE: Reset values are set to busIn values.
     final shiftReg = ShiftRegister(
       intf.mosi,
-      enable: ~intf.csb,
+      enable: ~intf.csb[0],
       clk: intf.sclk,
       depth: intf.dataLength,
       reset: reset,
@@ -82,12 +83,18 @@ class SpiSub extends Module {
     // NOTE: dataStage0 corresponds to the last bit shifted in.
     busOut <= shiftReg.stages.rswizzle();
 
-    // MISO is connected to shift register dataOut.
-    intf.miso <=
-        flop(~intf.sclk, shiftReg.dataOut,
-            en: ~intf.csb,
-            reset: reset,
-            asyncReset: true,
-            resetValue: busIn?[-1]);
+    // flop data from shift register dataOut.
+    final flopDataOut = FlipFlop(~intf.sclk, shiftReg.dataOut,
+        en: ~intf.csb[0],
+        reset: reset,
+        asyncReset: true,
+        resetValue: busIn?[-1]);
+
+    // Connect flopDataOut to MISO via tri-state buffer if enabled.
+    if (triStateOutput) {
+      intf.miso <= TriStateBuffer(flopDataOut.q, enable: ~intf.csb[0]).out;
+    } else {
+      intf.miso <= flopDataOut.q;
+    }
   }
 }

@@ -243,6 +243,167 @@ class SpiPairTest extends Test {
   }
 }
 
+class SpiMultiSubTest extends Test {
+  late final SpiInterface intfMain;
+  late final SpiInterface intfSubA;
+  late final SpiInterface intfSubB;
+  late final SpiInterface intfSubC;
+  late final SpiInterface intfSubD;
+  late final SpiMonitor monitor;
+  late final SpiMain main;
+  late final SpiSub subA;
+  late final SpiSub subB;
+  late final SpiSub subC;
+  late final SpiSub subD;
+  late final Logic clk;
+  late final Logic resetMain;
+  late final Logic busInMain;
+  late final Logic resetSubA;
+  late final Logic resetSubB;
+  late final Logic resetSubC;
+  late final Logic resetSubD;
+  late final Logic resetSubAll;
+  late final Logic busInSubA;
+  late final Logic busInSubB;
+  late final Logic busInSubC;
+  late final Logic busInSubD;
+  late final Logic css;
+
+  late final Logic starts;
+
+  String get outFolder => 'tmp_test/spiMultiSub/$name/';
+
+  final Future<void> Function(SpiMultiSubTest test) stimulus;
+
+  SpiMultiSubTest(this.stimulus, super.name) : super() {
+    intfMain = SpiInterface(dataLength: 8, multiChipSelects: 4);
+    intfSubA = SpiInterface(dataLength: intfMain.dataLength);
+    intfSubB = SpiInterface(dataLength: intfMain.dataLength);
+    intfSubC = SpiInterface(dataLength: intfMain.dataLength);
+    intfSubD = SpiInterface(dataLength: intfMain.dataLength);
+
+    monitor = SpiMonitor(intf: intfMain, parent: this);
+
+    Directory(outFolder).createSync(recursive: true);
+
+    final tracker =
+        SpiTracker(intf: intfMain, dumpTable: false, outputFolder: outFolder);
+
+    SpiChecker(intfMain, parent: this);
+
+    clk = SimpleClockGenerator(10).clk;
+
+    // initialize main
+    resetMain = Logic();
+    busInMain = Logic(width: intfMain.dataLength);
+    starts = Logic();
+    css = Logic(width: intfMain.multiChipSelects);
+
+    main = SpiMain(intfMain,
+        busIn: busInMain, clk: clk, reset: resetMain, start: starts, css: css);
+
+    //init sub
+    resetSubA = Logic();
+    resetSubB = Logic();
+    resetSubC = Logic();
+    resetSubD = Logic();
+    resetSubAll = Logic();
+
+    resetSubA <= resetSubAll;
+    resetSubB <= resetSubAll;
+    resetSubC <= resetSubAll;
+    resetSubD <= resetSubAll;
+
+    busInSubA = Logic(width: intfMain.dataLength);
+    busInSubB = Logic(width: intfMain.dataLength);
+    busInSubC = Logic(width: intfMain.dataLength);
+    busInSubD = Logic(width: intfMain.dataLength);
+
+    subA = SpiSub(
+        intf: intfSubA,
+        busIn: busInSubA,
+        reset: resetSubA,
+        triStateOutput: true);
+    subB = SpiSub(
+        intf: intfSubB,
+        busIn: busInSubB,
+        reset: resetSubB,
+        triStateOutput: true);
+    subC = SpiSub(
+        intf: intfSubC,
+        busIn: busInSubC,
+        reset: resetSubC,
+        triStateOutput: true);
+    subD = SpiSub(
+        intf: intfSubD,
+        busIn: busInSubD,
+        reset: resetSubD,
+        triStateOutput: true);
+
+    //connect interfaces
+    intfSubA.sclk <= intfMain.sclk;
+    intfSubB.sclk <= intfMain.sclk;
+    intfSubC.sclk <= intfMain.sclk;
+    intfSubD.sclk <= intfMain.sclk;
+
+    intfSubA.mosi <= intfMain.mosi;
+    intfSubB.mosi <= intfMain.mosi;
+    intfSubC.mosi <= intfMain.mosi;
+    intfSubD.mosi <= intfMain.mosi;
+
+    intfSubA.miso <= intfMain.miso;
+    intfSubB.miso <= intfMain.miso;
+    intfSubC.miso <= intfMain.miso;
+    intfSubD.miso <= intfMain.miso;
+
+    intfSubA.csb[0] <= intfMain.csb[0];
+    intfSubB.csb[0] <= intfMain.csb[1];
+    intfSubC.csb[0] <= intfMain.csb[2];
+    intfSubD.csb[0] <= intfMain.csb[3];
+
+    Simulator.registerEndOfSimulationAction(() async {
+      await tracker.terminate();
+      Directory(outFolder).deleteSync(recursive: true);
+    });
+
+    monitor.stream.listen(tracker.record);
+  }
+
+  @override
+  Future<void> run(Phase phase) async {
+    unawaited(super.run(phase));
+
+    final obj = phase.raiseObjection('SpiPairTestObj');
+
+    // Initialize all inputs to initial state.
+    // Just for waveform clarity.
+    await clk.waitCycles(1);
+
+    busInMain.inject(00);
+    busInSubA.inject(00);
+    busInSubB.inject(00);
+    busInSubC.inject(00);
+    busInSubD.inject(00);
+    css.inject(0xF); // 1111 all cs are active low
+    starts.inject(false);
+    resetMain.inject(false);
+    resetSubAll.inject(false);
+
+    await clk.waitCycles(1);
+    resetMain.inject(true);
+    resetSubAll.inject(true);
+
+    await clk.waitCycles(1);
+    resetMain.inject(false);
+    resetSubAll.inject(false);
+
+    await clk.waitCycles(1);
+    await stimulus(this);
+
+    obj.drop();
+  }
+}
+
 class SpiCheckerTest extends Test {
   late final SpiInterface intf;
   late final Logic clk;
@@ -253,7 +414,7 @@ class SpiCheckerTest extends Test {
 
     SpiChecker(intf, parent: this);
 
-    intf.csb <= Const(0);
+    intf.csb[0] <= Const(0);
     intf.sclk <= clk;
     intf.mosi <= ~clk;
     intf.miso <= clk;
@@ -653,8 +814,6 @@ void main() {
     test('main and sub busIn, both busOut checks', () async {
       await runPairTest(SpiPairTest((test) async {
         // Send regular main data.
-        // var mainData = Random().nextInt(256);
-        // var subData = Random().nextInt(256);
         await sendBothData(test, mainData: 0x73, subData: 0x00); // 0111 0011
         checkSubBusOut(test, 0x73);
         checkMainBusOut(test, 0x00);
@@ -683,6 +842,112 @@ void main() {
     });
   });
 
+  group('multi sub tests', () {
+    Future<void> runMultiSubTest(SpiMultiSubTest spiMultiSubTest,
+        {bool dumpWaves = false}) async {
+      Simulator.setMaxSimTime(3000);
+      final mod = SpiTop(spiMultiSubTest.intfMain, null);
+      if (dumpWaves) {
+        await mod.build();
+        WaveDumper(mod, outputPath: '${spiMultiSubTest.outFolder}/waves.vcd');
+      }
+      await spiMultiSubTest.start();
+    }
+
+    Future<void> sendMainData(SpiMultiSubTest test, int data, int css) async {
+      test.busInMain.inject(LogicValue.ofInt(data, test.intfMain.dataLength));
+      test.css.inject(LogicValue.ofInt(css, test.intfMain.multiChipSelects));
+      await test.clk.nextNegedge;
+      test.resetMain.inject(true);
+      await test.clk.nextPosedge;
+      test.resetMain.inject(false);
+      test.starts.inject(true);
+      await test.clk.waitCycles(1);
+      test.starts.inject(false);
+      await test.clk.waitCycles(7);
+    }
+
+    void checkMainBusOut(SpiMultiSubTest test, int data) {
+      if (test.main.busOut.value.toInt() != data) {
+        test.logger.severe('main busOut: ${test.main.busOut.value}');
+      }
+    }
+
+    void checkSubBusOut(SpiMultiSubTest test, int data, int subX) {
+      final subMap = {
+        0: test.subA,
+        1: test.subB,
+        2: test.subC,
+        3: test.subD,
+      };
+      final sub = subMap[subX];
+      if (sub != null && sub.busOut.value.toInt() != data) {
+        test.logger.severe('sub busOut: ${sub.busOut.value}');
+      }
+    }
+
+    test('Main injects, all busOut checks', () async {
+      await runMultiSubTest(SpiMultiSubTest((test) async {
+        // Send new main data to sub0
+        await sendMainData(test, 0x73, 0xE);
+        // Main busOut should read 00 after writing to all subs first time.
+        checkMainBusOut(test, 0);
+        await test.clk.waitCycles(2);
+        // Send new main data to sub1.
+        await sendMainData(test, 0xCD, 0xD);
+        checkMainBusOut(test, 0);
+        await test.clk.waitCycles(2);
+        // Send new main data to sub2.
+        await sendMainData(test, 0xE2, 0xB);
+        checkMainBusOut(test, 0);
+        await test.clk.waitCycles(2);
+        // Send new main data to sub3.
+        await sendMainData(test, 0xB3, 0x7);
+        checkMainBusOut(test, 0);
+        await test.clk.waitCycles(2);
+        // Check all subs
+        checkSubBusOut(test, 0x73, 0);
+        checkSubBusOut(test, 0xCD, 1);
+        checkSubBusOut(test, 0xE2, 2);
+        checkSubBusOut(test, 0xB3, 3);
+
+        // Send new main data to sub0 and 1 at the same time 0b1100
+        await sendMainData(test, 0x4C, 0xC);
+        // main busOut should be 'x' due to multi subs writing at the same time
+        expect(test.main.busOut.value.isValid, false);
+        await test.clk.waitCycles(2);
+
+        // Send new main data to sub2 and 3 at the same time 0b0011
+        await sendMainData(test, 0x27, 0x3);
+        expect(test.main.busOut.value.isValid, false);
+        await test.clk.waitCycles(2);
+
+        // Check all
+        checkSubBusOut(test, 0x4C, 0);
+        checkSubBusOut(test, 0x4C, 1);
+        checkSubBusOut(test, 0x27, 2);
+        checkSubBusOut(test, 0x27, 3);
+
+        await test.clk.waitCycles(2);
+
+        // repeat first no gaps.
+        await sendMainData(test, 0x14, 0xE);
+
+        await sendMainData(test, 0x6C, 0xD);
+
+        await sendMainData(test, 0x93, 0xB);
+
+        await sendMainData(test, 0xDF, 0x7);
+        // Check all
+        checkSubBusOut(test, 0x14, 0);
+        checkSubBusOut(test, 0x6C, 1);
+        checkSubBusOut(test, 0x93, 2);
+        checkSubBusOut(test, 0xDF, 3);
+
+        await test.clk.waitCycles(2);
+      }, 'testMultiSub'));
+    });
+  });
   test('SpiChecker test', () async {
     final checkerTest = SpiCheckerTest('checkerTest');
     var sawError = false;
