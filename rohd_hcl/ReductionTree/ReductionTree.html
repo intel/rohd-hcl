@@ -79,12 +79,12 @@ on each segment.</p>
 <li><code>sequence</code> is the input sequence to be reduced using the tree of
 operations.</li>
 <li>Logic Function(List<logic> inputs, {String name}) <code>operation</code>
-is the operation to be
-performed at each node. Note that <code>operation</code> can widen the output. The
-logic function must support the operation for 2 to radix inputs.</logic></li>
+is the operation to be performed at each node. Note that <code>operation</code>
+can widen the output. The logic function must support the operation for
+(2 to <code>radix</code>) inputs.</logic></li>
 <li><code>radix</code> is the width of reduction at each node in the tree (e.g.,
 binary: radix=2).</li>
-<li><code>signExtend</code> if true, use sign-extension to widen <a href="https://pub.dev/documentation/rohd/0.6.3/rohd/Logic-class.html">Logic</a> values as
+<li><code>signExtend</code> if true, use sign-extension to widen Logic values as
 needed in the tree, otherwise use zero-extension (default).</li>
 </ul>
 <p>Optional parameters to be used for creating a pipelined computation tree:</p>
@@ -106,21 +106,21 @@ needed in the tree, otherwise use zero-extension (default).</li>
     Logic? enable,
     Logic? reset,
     super.name = &#39;reduction_tree&#39;})
-    : super(definitionName: &#39;ReductionTree_R${radix}_L${sequence.length}}&#39;) {
+    : super(
+          definitionName: &#39;ReductionTreeNode_R${radix}_L${sequence.length}&#39;) {
   if (sequence.isEmpty) {
     throw RohdHclException(&quot;Don&#39;t use ReductionTree &quot;
         &#39;with an empty sequence&#39;);
   }
-  sequence = [
+  _sequence = [
     for (var i = 0; i &lt; sequence.length; i++)
       addInput(&#39;seq$i&#39;, sequence[i], width: sequence[i].width)
   ];
-  this.clk = (clk != null) ? addInput(&#39;clk&#39;, clk) : null;
-  this.enable = (enable != null) ? addInput(&#39;enable&#39;, enable) : null;
-  this.reset = (reset != null) ? addInput(&#39;reset&#39;, reset) : null;
+  _clk = (clk != null) ? addInput(&#39;clk&#39;, clk) : null;
+  _enable = (enable != null) ? addInput(&#39;enable&#39;, enable) : null;
+  _reset = (reset != null) ? addInput(&#39;reset&#39;, reset) : null;
 
-  _computed = reductionTreeRecurse(sequence);
-  addOutput(&#39;out&#39;, width: _computed.value.width) &lt;= _computed.value;
+  _buildLogic();
 }</code></pre>
 </section>
 

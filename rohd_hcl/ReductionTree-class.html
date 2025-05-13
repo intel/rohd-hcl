@@ -57,7 +57,7 @@
 
     
 <section class="desc markdown">
-  <p>A generator which constructs a tree of radix-input / 1-output modules.</p>
+  <p>Recursive Node for Reduction Tree</p>
 </section>
 
 
@@ -104,18 +104,6 @@ on each segment.
       id="instance-properties">
     <h2>Properties</h2>
     <dl class="properties">
-        <dt id="clk" class="property">
-  <span class="name"><a href="../rohd_hcl/ReductionTree/clk.html">clk</a></span>
-  <span class="signature">&#8596; <a href="https://pub.dev/documentation/rohd/0.6.3/rohd/Logic-class.html">Logic</a>?</span>
-  
-
-</dt>
-<dd>
-  Optional <a href="../rohd_hcl/ReductionTree/clk.html">clk</a> input to create pipeline.
-  <div class="features"><span class="feature">late</span><span class="feature">final</span></div>
-
-</dd>
-
         <dt id="definitionName" class="property inherited">
   <span class="name"><a href="https://pub.dev/documentation/rohd/0.6.3/rohd/Module/definitionName.html">definitionName</a></span>
   <span class="signature">&#8594; <a href="https://api.dart.dev/stable/3.7.3/dart-core/String-class.html">String</a></span>
@@ -136,33 +124,20 @@ generated code.
 
 </dt>
 <dd>
-  The combinational depth since the last flop. The total compute depth of
-the tree is: depth + flopDepth * depthToflop;
+  The combinational depth since the last flop.
   <div class="features"><span class="feature">no setter</span></div>
 
 </dd>
 
         <dt id="depthToFlop" class="property">
   <span class="name"><a href="../rohd_hcl/ReductionTree/depthToFlop.html">depthToFlop</a></span>
-  <span class="signature">&#8596; <a href="https://api.dart.dev/stable/3.7.3/dart-core/int-class.html">int</a>?</span>
+  <span class="signature">&#8594; <a href="https://api.dart.dev/stable/3.7.3/dart-core/int-class.html">int</a>?</span>
   
 
 </dt>
 <dd>
-  Specified depth of nodes at which to flop (requires <a href="../rohd_hcl/ReductionTree/clk.html">clk</a>).
-  <div class="features"><span class="feature">late</span><span class="feature">final</span></div>
-
-</dd>
-
-        <dt id="enable" class="property">
-  <span class="name"><a href="../rohd_hcl/ReductionTree/enable.html">enable</a></span>
-  <span class="signature">&#8596; <a href="https://pub.dev/documentation/rohd/0.6.3/rohd/Logic-class.html">Logic</a>?</span>
-  
-
-</dt>
-<dd>
-  Optional <a href="../rohd_hcl/ReductionTree/enable.html">enable</a> input to enable pipeline.
-  <div class="features"><span class="feature">late</span><span class="feature">final</span></div>
+  Specified depth of nodes at which to flop (requires <code>_clk</code>).
+  <div class="features"><span class="feature">final</span></div>
 
 </dd>
 
@@ -260,7 +235,9 @@ signals.
 
 </dt>
 <dd>
-  The radix-sized input operation to be performed at each node.
+  Operation to be performed at each node. Note that <a href="../rohd_hcl/ReductionTree/operation.html">operation</a> can widen
+the output. The logic function must support the operation for 2 and up to
+<a href="../rohd_hcl/ReductionTree/radix.html">radix</a> inputs.
   <div class="features"><span class="feature">final</span></div>
 
 </dd>
@@ -304,13 +281,13 @@ signals.
 
         <dt id="radix" class="property">
   <span class="name"><a href="../rohd_hcl/ReductionTree/radix.html">radix</a></span>
-  <span class="signature">&#8596; <a href="https://api.dart.dev/stable/3.7.3/dart-core/int-class.html">int</a></span>
+  <span class="signature">&#8594; <a href="https://api.dart.dev/stable/3.7.3/dart-core/int-class.html">int</a></span>
   
 
 </dt>
 <dd>
   Specified width of input to each reduction node (e.g., binary: radix=2)
-  <div class="features"><span class="feature">late</span><span class="feature">final</span></div>
+  <div class="features"><span class="feature">final</span></div>
 
 </dd>
 
@@ -337,18 +314,6 @@ or else it will fail.
   If true, guarantees <a href="https://pub.dev/documentation/rohd/0.6.3/rohd/Module/uniqueInstanceName.html">uniqueInstanceName</a> matches <a href="https://pub.dev/documentation/rohd/0.6.3/rohd/Module/name.html">name</a> or else the
 <a href="https://pub.dev/documentation/rohd/0.6.3/rohd/Module/build.html">build</a> will fail.
   <div class="features"><span class="feature">final</span><span class="feature">inherited</span></div>
-
-</dd>
-
-        <dt id="reset" class="property">
-  <span class="name"><a href="../rohd_hcl/ReductionTree/reset.html">reset</a></span>
-  <span class="signature">&#8596; <a href="https://pub.dev/documentation/rohd/0.6.3/rohd/Logic-class.html">Logic</a>?</span>
-  
-
-</dt>
-<dd>
-  Optional <a href="../rohd_hcl/ReductionTree/reset.html">reset</a> input to reset pipeline.
-  <div class="features"><span class="feature">late</span><span class="feature">final</span></div>
 
 </dd>
 
@@ -379,14 +344,14 @@ inputs, outputs, and internal signals of this <a href="https://pub.dev/documenta
 
         <dt id="signExtend" class="property">
   <span class="name"><a href="../rohd_hcl/ReductionTree/signExtend.html">signExtend</a></span>
-  <span class="signature">&#8596; <a href="https://api.dart.dev/stable/3.7.3/dart-core/bool-class.html">bool</a></span>
+  <span class="signature">&#8594; <a href="https://api.dart.dev/stable/3.7.3/dart-core/bool-class.html">bool</a></span>
   
 
 </dt>
 <dd>
   When <a href="../rohd_hcl/ReductionTree/signExtend.html">signExtend</a> is true, use sign-extension on values,
 otherwise use zero-extension.
-  <div class="features"><span class="feature">late</span><span class="feature">final</span></div>
+  <div class="features"><span class="feature">final</span></div>
 
 </dd>
 
@@ -677,19 +642,6 @@ via <a href="https://pub.dev/documentation/rohd/0.6.3/rohd/Module/addInput.html"
 
 </dd>
 
-        <dt id="localFlop" class="callable">
-  <span class="name"><a href="../rohd_hcl/ReductionTree/localFlop.html">localFlop</a></span><span class="signature">(<wbr><span class="parameter" id="localFlop-param-d"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.3/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">d</span>, {</span><span class="parameter" id="localFlop-param-doFlop"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.7.3/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">doFlop</span> = <span class="default-value">false</span></span>})
-    <span class="returntype parameter">&#8594; <a href="https://pub.dev/documentation/rohd/0.6.3/rohd/Logic-class.html">Logic</a></span>
-  </span>
-  
-
-</dt>
-<dd>
-  Local conditional flop using module reset/enable
-  
-
-</dd>
-
         <dt id="noSuchMethod" class="callable inherited">
   <span class="name"><a href="https://api.dart.dev/stable/3.7.3/dart-core/Object/noSuchMethod.html">noSuchMethod</a></span><span class="signature">(<wbr><span class="parameter" id="noSuchMethod-param-invocation"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.7.3/dart-core/Invocation-class.html">Invocation</a></span> <span class="parameter-name">invocation</span></span>)
     <span class="returntype parameter">&#8594; dynamic</span>
@@ -714,19 +666,6 @@ via <a href="https://pub.dev/documentation/rohd/0.6.3/rohd/Module/addInput.html"
   Accesses the <a href="https://pub.dev/documentation/rohd/0.6.3/rohd/Logic-class.html">Logic</a> associated with this <a href="https://pub.dev/documentation/rohd/0.6.3/rohd/Module-class.html">Module</a>s output port
 named <code>name</code>.
   <div class="features"><span class="feature">inherited</span></div>
-
-</dd>
-
-        <dt id="reductionTreeRecurse" class="callable">
-  <span class="name"><a href="../rohd_hcl/ReductionTree/reductionTreeRecurse.html">reductionTreeRecurse</a></span><span class="signature">(<wbr><span class="parameter" id="reductionTreeRecurse-param-seq"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.7.3/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://pub.dev/documentation/rohd/0.6.3/rohd/Logic-class.html">Logic</a></span>&gt;</span></span> <span class="parameter-name">seq</span></span>)
-    <span class="returntype parameter">&#8594; (<span class="field">{<span class="type-annotation"><a href="https://api.dart.dev/stable/3.7.3/dart-core/int-class.html">int</a></span> <span class="field-name">depth</span>, </span><span class="field"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.7.3/dart-core/int-class.html">int</a></span> <span class="field-name">flopDepth</span>, </span><span class="field"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.3/rohd/Logic-class.html">Logic</a></span> <span class="field-name">value</span>}</span>)</span>
-  </span>
-  
-
-</dt>
-<dd>
-  Recursively construct the computation tree
-  
 
 </dd>
 
