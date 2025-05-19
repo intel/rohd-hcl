@@ -191,6 +191,7 @@ void main() {
       {SignExtensionFunction seGen = CompactRectSignExtension.new,
       Adder Function(Logic a, Logic b, {Logic? carryIn, String name}) adderGen =
           NativeAdder.new,
+      bool use42Compressors = false,
       bool signedMultiplicand = false,
       bool signedMultiplier = false,
       Logic? selectSignedMultiplicand,
@@ -209,6 +210,7 @@ void main() {
             selectSignedMultiplicand: selectSignedMultiplicand,
             selectSignedMultiplier: selectSignedMultiplier,
             seGen: seGen,
+            use42Compressors: use42Compressors,
             adderGen: adderGen,
             name: 'Compression Tree Multiplier: '
                 '${adderName(a, b)}'
@@ -219,6 +221,7 @@ void main() {
           {SignExtensionFunction seGen = CompactRectSignExtension.new,
           Adder Function(Logic a, Logic b, {Logic? carryIn, String name})
               adderGen = NativeAdder.new,
+          bool use42Compressors = false,
           bool signedMultiplicand = false,
           bool signedMultiplier = false,
           Logic? selectSignedMultiplicand,
@@ -233,8 +236,7 @@ void main() {
           selectSignedMultiplier: selectSignedMultiplier,
           curryCompressionTreeMultiplier(
             radix,
-            adderGen: adderGen,
-            seGen: seGen,
+            use42Compressors: use42Compressors,
             signedMultiplicand: signedMultiplicand,
             signedMultiplier: signedMultiplier,
             selectSignedMultiplicand: selectSignedMultiplicand,
@@ -246,6 +248,7 @@ void main() {
     Adder Function(Logic a, Logic b, {Logic? carryIn, String name}) adderGen =
         NativeAdder.new,
     SignExtensionFunction seGen = CompactRectSignExtension.new,
+    bool use42Compressors = false,
     bool signedMultiplicand = false,
     bool signedMultiplier = false,
     bool signedAddend = false,
@@ -263,6 +266,7 @@ void main() {
     return (a, b, c) => CompressionTreeMultiplyAccumulate(a, b, c, radix,
         adderGen: adderGen,
         seGen: seGen,
+        use42Compressors: use42Compressors,
         signedMultiplicand: signedMultiplicand,
         signedMultiplier: signedMultiplier,
         signedAddend: signedAddend,
@@ -354,6 +358,23 @@ void main() {
               ParallelPrefixAdder(a, b, carryIn: carryIn, ppGen: ppTree);
           testMultiplyAccumulateRandom(width, 10,
               curryMultiplierAsMultiplyAccumulate(radix, adderGen: adderFn));
+        }
+      }
+    }
+  });
+  group('Compression Tree Multiplier: curried 4:2 random radix/ptree/width',
+      () {
+    for (final radix in [2, 4]) {
+      for (final width in [8, 10]) {
+        for (final ppTree in [KoggeStone.new]) {
+          Adder adderFn(Logic a, Logic b, {Logic? carryIn, String? name}) =>
+              ParallelPrefixAdder(a, b, carryIn: carryIn, ppGen: ppTree);
+          testMultiplyAccumulateRandom(
+              // testMultiplyAccumulateExhaustive(
+              width,
+              10,
+              curryMultiplierAsMultiplyAccumulate(radix,
+                  adderGen: adderFn, use42Compressors: true));
         }
       }
     }
@@ -500,7 +521,7 @@ void main() {
   });
 
   test('single multiplier', () async {
-    const width = 8;
+    const width = 16;
     final a = Logic(name: 'a', width: width);
     final b = Logic(name: 'b', width: width);
     const av = 12;
@@ -523,12 +544,50 @@ void main() {
         b.put(bB);
 
         final mod = CompressionTreeMultiplier(a, b, 4,
+            use42Compressors: true,
             adderGen: ParallelPrefixAdder.new,
             seGen: StopBitsSignExtension.new,
             signedMultiplier: !useSignedLogic && signed,
             selectSignedMultiplicand: signedSelect,
             selectSignedMultiplier: signedSelect);
         await mod.build();
+        final golden = bA * bB;
+        final result = mod.isSignedResult()
+            ? mod.product.value.toBigInt().toSigned(mod.product.width)
+            : mod.product.value.toBigInt().toUnsigned(mod.product.width);
+        expect(result, equals(golden));
+      }
+    }
+  });
+  test('single 4:2 multiplier', () {
+    const width = 8;
+    final a = Logic(name: 'a', width: width);
+    final b = Logic(name: 'b', width: width);
+    const av = 0;
+    const bv = 0;
+    for (final signed in [false, true]) {
+      for (final useSignedLogic in [false, true]) {
+        final bA = SignedBigInt.fromSignedInt(av, width, signed: signed);
+        final bB = SignedBigInt.fromSignedInt(bv, width, signed: signed);
+
+        final Logic? signedSelect;
+
+        if (useSignedLogic) {
+          signedSelect = Logic()..put(signed ? 1 : 0);
+        } else {
+          signedSelect = null;
+        }
+
+        // Set these so that printing inside module build will have Logic values
+        a.put(bA);
+        b.put(bB);
+
+        final mod = CompressionTreeMultiplier(a, b, 4,
+            signedMultiplicand: !useSignedLogic && signed,
+            signedMultiplier: !useSignedLogic && signed,
+            use42Compressors: true,
+            selectSignedMultiplicand: signedSelect,
+            selectSignedMultiplier: signedSelect);
         final golden = bA * bB;
         final result = mod.isSignedResult()
             ? mod.product.value.toBigInt().toSigned(mod.product.width)
@@ -637,7 +696,7 @@ void main() {
     c.put(5);
 
     final multiplier = CompressionTreeMultiplyAccumulate(a, b, c, radix,
-        signedMultiplier: true);
+        signedMultiplicand: true, signedMultiplier: true, signedAddend: true);
     final accumulate = multiplier.accumulate;
     expect(accumulate.value.toBigInt(), equals(BigInt.from(15 * 3 + 5)));
   });
@@ -719,6 +778,7 @@ void main() {
     expect(ppG0.getAbsolute(1, 10).value, equals(Const(0).value));
 
     final cc = ColumnCompressor(ppG0);
+
     const expectedRep = '''
 	pp3,15	pp3,14	pp3,13	pp3,12	pp3,11	pp3,10	pp3,9	pp3,8	pp3,7	pp3,6	pp3,5	pp2,4	pp2,3	pp1,2	pp1,1	pp0,0
 			pp2,13	pp2,12	pp1,11	pp2,10	pp2,9	pp2,8	pp2,7	pp2,6	pp2,5	pp0,4	pp0,3	pp0,2	pp0,1	
@@ -727,7 +787,7 @@ void main() {
 ''';
     expect(cc.representation(), equals(expectedRep));
 
-    final (v, ts) = cc.evaluate(printOut: true);
+    final (v, ts) = cc.evaluate(printOut: true, extraSpace: 5);
 
     const expectedEval = '''
        15      14      13      12      11      10       9       8       7       6       5       4       3       2       1       0

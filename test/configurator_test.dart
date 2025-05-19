@@ -170,7 +170,7 @@ void main() {
       expect(
           multiplier.knobs.values.whereType<ChoiceConfigKnob<dynamic>>().length,
           4);
-      expect(multiplier.knobs.values.whereType<ToggleConfigKnob>().length, 1);
+      expect(multiplier.knobs.values.whereType<ToggleConfigKnob>().length, 2);
     });
 
     test('should return rtl code when invoke generate() with default value',
