@@ -373,7 +373,9 @@ class CsrBlock extends Module {
             if (_backdoorIndexMap.containsKey(i) &&
                 _backdoorInterfaces[_backdoorIndexMap[i]!].hasWrite)
               ElseIf(_backdoorInterfaces[_backdoorIndexMap[i]!].wrEn!, [
-                csrs[i] < dataToWrite,
+                csrs[i] <
+                    csrs[i].getWriteData(
+                        _backdoorInterfaces[_backdoorIndexMap[i]!].wrData!),
               ]),
             // nothing to write this cycle
             Else([

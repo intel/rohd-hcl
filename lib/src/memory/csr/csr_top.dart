@@ -238,7 +238,7 @@ class CsrTop extends Module {
               maskedFrontWrAddr
                   .eq(Const(_blocks[i].baseAddr, width: addrWidth));
       _fdReads[i].en <=
-          _frontWrite.en &
+          _frontRead.en &
               maskedFrontRdAddr
                   .eq(Const(_blocks[i].baseAddr, width: addrWidth));
 
