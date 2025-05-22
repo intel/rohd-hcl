@@ -76,7 +76,6 @@ void main() {
         ReductionTree(vec, muxReduce, control: control, name: 'mux');
     await muxTree.build();
     File('mux_tree.sv').writeAsStringSync(muxTree.generateSynth());
-    print(muxTree.out.value.toInt());
   });
 
   test('reduction tree of muxes -- large flopped', () async {
