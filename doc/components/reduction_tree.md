@@ -12,13 +12,14 @@ The input sequence is provided in the form 'List\<Logic\>'.  The operation must 
 
 The resulting tree can be pipelined by specifying the depth of nodes before a pipestage is added.  Since the input can be of arbitrary length, paths in the tree may not be balanced, and extra pipestages will be added in shorter sections of the tree to align the computation.
 
+An optional `control` Logic can be passed in to provide control at each level of the reduction tree.
+
 Here is an example radix-4 computation tree using native addition on 79 13-bit inputs, pipelining every 2 operations deep, and producing a single 13-bit result.
 
 ```dart
-  Logic addReduce(List<Logic> inputs, {String name = 'native'}) {
-    final a = inputs.reduce((v, e) => v + e);
-    return a;
-  }
+  Logic addReduce(List<Logic> inputs,
+          {int? trueDepth, Logic? control, String name = ''}) =>
+      inputs.reduce((v, e) => v + e);
   /// Tree reduction using addReduce
     const width = 13;
     const length = 79;
@@ -52,3 +53,21 @@ Logic addReduceAdders(List<Logic> inputs, {String name = 'prefix'}) {
     final reductionTree = ReductionTree(
         vec, radix: 4, addReduceWithAdders, clk: clk, depthToFlop; 2, signExtend: true);
   ```
+
+## ReductionTree with control  
+
+  Here is an example using a radix-2 computation tree with muxes and a selection control signal.
+
+```dart
+    const length = 1024;
+    final width = log2Ceil(length);
+    final vec = <Logic>[];
+    final control = Logic(width: log2Ceil(vec.length)));
+
+    Logic muxReduce(List<Logic> inputs,
+        {int? trueDepth, Logic? control, String name = 'mux'}) =>
+      mux(control![trueDepth!], inputs[1], inputs[0]);
+
+    final muxTree = ReductionTree(vec, muxReduce,
+        clk: clk, depthToFlop: 2, control: control, name: 'mux');
+```
