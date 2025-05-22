@@ -28,10 +28,6 @@ class CarrySaveMultiplier extends Multiplier {
   /// The list pf carry from every pipeline stages.
   late final List<Logic> _carry;
 
-  /// The final product of the multiplier module.
-  @override
-  Logic get product => output('product');
-
   /// The [latency] of the carry save multiplier.
   int get latency => super.a.width + 1;
 
@@ -40,8 +36,9 @@ class CarrySaveMultiplier extends Multiplier {
 
   /// Construct a [CarrySaveMultiplier] that multiply input [a] and input [b].
   CarrySaveMultiplier(super.a, super.b,
-      {required Logic clk,
-      required Logic reset,
+      {required super.clk,
+      required super.reset,
+      super.enable,
       super.name = 'carry_save_multiplier'})
       : super(
             signedMultiplicand: false,
@@ -50,10 +47,6 @@ class CarrySaveMultiplier extends Multiplier {
     if (a.width != b.width) {
       throw RohdHclException('inputs of a and b should have same width.');
     }
-    clk = addInput('clk', clk);
-    reset = addInput('reset', reset);
-
-    final product = addOutput('product', width: a.width + b.width + 1);
 
     _sum = List.generate(a.width * 2, (index) => Logic(name: 'sum_$index'));
     _carry = List.generate(a.width * 2, (index) => Logic(name: 'carry_$index'));
@@ -62,7 +55,7 @@ class CarrySaveMultiplier extends Multiplier {
     final rCarryB = Logic(name: 'rcarry_b', width: b.width);
 
     _pipeline = Pipeline(
-      clk,
+      clk!,
       stages: [
         ...List.generate(
           b.width,
@@ -120,6 +113,6 @@ class CarrySaveMultiplier extends Multiplier {
             a.width,
             (index) => _pipeline.get(_sum[a.width - index - 1]),
           )
-        ].swizzle();
+        ].swizzle().slice(product.width - 1, 0);
   }
 }

@@ -88,8 +88,8 @@ abstract class FloatingPointMultiplier<FpInType extends FloatingPoint>
         exponentWidth: exponentWidth,
         mantissaWidth: mantissaWidth,
         name: 'product');
-    addOutput('product', width: exponentWidth + mantissaWidth + 1);
-    output('product') <= internalProduct;
+    addOutput('product', width: exponentWidth + mantissaWidth + 1) <=
+        internalProduct;
 
     if (outProduct != null) {
       outProduct <= output('product');

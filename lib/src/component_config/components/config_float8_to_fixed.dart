@@ -1,7 +1,7 @@
 // Copyright (C) 2024 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 //
-// config_float_to_fixed.dart
+// config_float8_to_fixed.dart
 // Configurator for a Float8ToFixed converter.
 //
 // 2024 November 1

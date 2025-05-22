@@ -67,6 +67,12 @@ class FloatingPoint extends LogicStructure {
   FloatingPointValuePopulator valuePopulator() => FloatingPointValue.populator(
       exponentWidth: exponent.width, mantissaWidth: mantissa.width);
 
+  /// Return true if the J-bit is explicitly represented in the mantissa.
+  bool get explicitJBit => false;
+
+  // TODO(desmonddak): this will work incorrectly and must be fixed.
+  // The issue is that it should return the EJ version of this or
+  // convert to the original (we may need both routines here)
   /// Return the [FloatingPointValue] of the current [value].
   FloatingPointValue get floatingPointValue =>
       valuePopulator().ofFloatingPoint(this);
@@ -139,6 +145,13 @@ class FloatingPoint extends LogicStructure {
   @override
   void put(dynamic val, {bool fill = false}) {
     if (val is FloatingPointValue) {
+      if ((val.exponentWidth != exponent.width) ||
+          (val.mantissaWidth != mantissa.width)) {
+        throw RohdHclException('FloatingPoint width does not match');
+      }
+      if (val.explicitJBit != explicitJBit) {
+        throw RohdHclException('FloatingPoint explicit jbit does not match');
+      }
       put(val.value);
     } else {
       super.put(val, fill: fill);
@@ -165,4 +178,44 @@ class FloatingPoint extends LogicStructure {
     final mantissa = Const(1, width: mantissaWidth);
     return FloatingPoint._(signLogic, exponent, mantissa);
   }
+}
+
+/// A floating-point Logic signal with an explicit J-bit in the mantissa
+class FloatingPointExplicitJBit extends FloatingPoint {
+  /// Construct an explicit J-bit floating-point Logic
+  FloatingPointExplicitJBit(
+      {required super.exponentWidth, required super.mantissaWidth, super.name})
+      : super();
+
+  // FloatingPointExplicitJBit._(Logic sign, Logic exponent, Logic mantissa,
+  //     {String name = 'floatingPointEJ'})
+  //     : super._(sign, exponent, mantissa, name: name);
+
+  @override
+  FloatingPointExplicitJBit clone({String? name}) => FloatingPointExplicitJBit(
+        exponentWidth: exponent.width,
+        mantissaWidth: mantissa.width,
+        name: name,
+      );
+
+  @override
+  FloatingPointValue get floatingPointValue => FloatingPointValue(
+      sign: sign.value, exponent: exponent.value, mantissa: mantissa.value);
+
+  /// Return the [FloatingPointExplicitJBitValue] of the current [value].
+  FloatingPointExplicitJBitValue get floatingPointExplicitJBitValue =>
+      FloatingPointExplicitJBitValue.populator(
+              exponentWidth: exponent.width, mantissaWidth: mantissa.width)
+          .ofLogicValue(value);
+
+  /// A [FloatingPointValuePopulator] for values associated with this
+  /// [FloatingPoint] type.
+  @override
+  FloatingPointValuePopulator valuePopulator() =>
+      FloatingPointExplicitJBitValue.populator(
+          exponentWidth: exponent.width, mantissaWidth: mantissa.width);
+
+  /// Return true if the J-bit is explicitly represented in the mantissa.
+  @override
+  bool get explicitJBit => true;
 }

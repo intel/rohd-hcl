@@ -27,7 +27,7 @@ abstract class Sort extends Module {
   Sort(
       {required this.toSort,
       this.isAscending = true,
-      super.name,
+      super.name = 'sort',
       super.definitionName});
 }
 
@@ -211,7 +211,7 @@ class BitonicSort extends Sort {
   /// await sortMod.build();
   /// ```
   BitonicSort(Logic clk, Logic reset,
-      {required super.toSort, super.isAscending, super.name})
+      {required super.toSort, super.isAscending, super.name = 'bitonic_sort'})
       : super(definitionName: 'BitonicSort_W${toSort.length}') {
     clk = addInput('clk', clk);
     reset = addInput('reset', reset);

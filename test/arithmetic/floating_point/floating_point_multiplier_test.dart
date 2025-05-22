@@ -287,6 +287,7 @@ void main() {
       $expected (${expected.toDouble()})\texpected
 ''');
     });
+
     test('FP: simple multiplier specify wider output', () async {
       const exponentWidth = 4;
       const mantissaWidth = 4;
@@ -301,7 +302,7 @@ void main() {
       final doubleProduct = fv1.toDouble() * fv2.toDouble();
 
       final fpout =
-          FloatingPoint(exponentWidth: 4, mantissaWidth: mantissaWidth * 5);
+          FloatingPoint(exponentWidth: 5, mantissaWidth: mantissaWidth * 5);
 
       final expected = FloatingPointValue.populator(
               exponentWidth: fpout.exponent.width,
@@ -419,7 +420,6 @@ void main() {
                 mantissaWidth: fpout.mantissa.width)
             .ofDoubleUnrounded(fv1.toDouble() * fv2.toDouble());
         final computed = multiplier.product.floatingPointValue;
-        // print('c=$computed e=$expected');
         expect(computed.withinRounding(expected), true, reason: '''
       $fv1 (${fv1.toDouble()})\t*
       $fv2 (${fv2.toDouble()})\t=
