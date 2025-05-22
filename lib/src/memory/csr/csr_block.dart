@@ -122,8 +122,14 @@ class CsrBlock extends Module {
   /// Interface for frontdoor writes to CSRs.
   late final DataPortInterface? _frontWrite;
 
+  /// Indicates whether there is a front-door write interface.
+  bool get _frontWritePresent => _frontWrite != null;
+
   /// Interface for frontdoor reads to CSRs.
   late final DataPortInterface? _frontRead;
+
+  /// Indicates whether there is a front-door read interface.
+  bool get _frontReadPresent => _frontRead != null;
 
   /// Getter for block's base address
   int get baseAddr => config.baseAddr;
@@ -312,62 +318,71 @@ class CsrBlock extends Module {
       // this block of code mostly handles the case where
       // the register is wider than the data width of the frontdoor
       // which is only permissible if [allowLargerRegisters] is true.
-      Logic addrCheck;
-      Logic dataToWrite;
-      if (dataWidth < csrs[i].config.width) {
-        final rem = csrs[i].config.width % dataWidth;
-        final targ = (csrs[i].config.width / dataWidth).ceil();
+      Logic? addrCheck;
+      Logic? dataToWrite;
+      if (_frontWritePresent) {
+        if (dataWidth < csrs[i].config.width) {
+          final rem = csrs[i].config.width % dataWidth;
+          final targ = (csrs[i].config.width / dataWidth).ceil();
 
-        // must logically separate the register out across multiple addresses
-        final addrs = List.generate(
-            targ,
-            (j) => Const(csrs[i].addr + j * logicalRegisterIncrement,
-                width: addrWidth));
-        addrCheck = _frontWrite.addr.isIn(addrs);
+          // must logically separate the register out across multiple addresses
+          final addrs = List.generate(
+              targ,
+              (j) => Const(csrs[i].addr + j * logicalRegisterIncrement,
+                  width: addrWidth));
+          addrCheck = _frontWrite!.addr.isIn(addrs);
 
-        // we write the portion of the register that
-        // corresponds to this logical address
-        final wrCases = <Logic, Logic>{};
-        for (var j = 0; j < targ; j++) {
-          final key = Const(csrs[i].addr + j * logicalRegisterIncrement,
-              width: addrWidth);
-          if (j == targ - 1) {
-            // might need to truncate the data on the interface
-            // for the last chunk depending on divisibility
-            wrCases[key] = csrs[i].withSet(
-                j * dataWidth,
-                csrs[i]
-                    .getWriteData([
-                      if (j * dataWidth > 0) csrs[i].getRange(0, j * dataWidth),
-                      _frontWrite.data.getRange(0, rem == 0 ? dataWidth : rem)
-                    ].rswizzle())
-                    .getRange(j * dataWidth,
-                        rem == 0 ? (j + 1) * dataWidth : j * dataWidth + rem));
-          } else {
-            // no truncation needed
-            wrCases[key] = csrs[i].withSet(
-                j * dataWidth,
-                csrs[i]
-                    .getWriteData([
-                      if (j * dataWidth > 0) csrs[i].getRange(0, j * dataWidth),
-                      _frontWrite.data,
-                      if ((j + 1) * dataWidth < csrs[i].config.width)
-                        csrs[i].getRange((j + 1) * dataWidth),
-                    ].rswizzle())
-                    .getRange(j * dataWidth, (j + 1) * dataWidth));
+          // we write the portion of the register that
+          // corresponds to this logical address
+          final wrCases = <Logic, Logic>{};
+          for (var j = 0; j < targ; j++) {
+            final key = Const(csrs[i].addr + j * logicalRegisterIncrement,
+                width: addrWidth);
+            if (j == targ - 1) {
+              // might need to truncate the data on the interface
+              // for the last chunk depending on divisibility
+              wrCases[key] = csrs[i].withSet(
+                  j * dataWidth,
+                  csrs[i]
+                      .getWriteData([
+                        if (j * dataWidth > 0)
+                          csrs[i].getRange(0, j * dataWidth),
+                        _frontWrite!.data
+                            .getRange(0, rem == 0 ? dataWidth : rem)
+                      ].rswizzle())
+                      .getRange(
+                          j * dataWidth,
+                          rem == 0
+                              ? (j + 1) * dataWidth
+                              : j * dataWidth + rem));
+            } else {
+              // no truncation needed
+              wrCases[key] = csrs[i].withSet(
+                  j * dataWidth,
+                  csrs[i]
+                      .getWriteData([
+                        if (j * dataWidth > 0)
+                          csrs[i].getRange(0, j * dataWidth),
+                        _frontWrite!.data,
+                        if ((j + 1) * dataWidth < csrs[i].config.width)
+                          csrs[i].getRange((j + 1) * dataWidth),
+                      ].rswizzle())
+                      .getRange(j * dataWidth, (j + 1) * dataWidth));
+            }
           }
+          dataToWrite = cases(
+              _frontWrite!.addr,
+              conditionalType: ConditionalType.unique,
+              wrCases,
+              defaultValue: csrs[i]);
+        } else {
+          // direct address check
+          // direct application of write data
+          addrCheck =
+              _frontWrite!.addr.eq(Const(csrs[i].addr, width: addrWidth));
+          dataToWrite = csrs[i].getWriteData(
+              _frontWrite!.data.getRange(0, csrs[i].config.width));
         }
-        dataToWrite = cases(
-            _frontWrite.addr,
-            conditionalType: ConditionalType.unique,
-            wrCases,
-            defaultValue: csrs[i]);
-      } else {
-        // direct address check
-        // direct application of write data
-        addrCheck = _frontWrite.addr.eq(Const(csrs[i].addr, width: addrWidth));
-        dataToWrite = csrs[i]
-            .getWriteData(_frontWrite.data.getRange(0, csrs[i].config.width));
       }
 
       Sequential(
@@ -379,15 +394,17 @@ class CsrBlock extends Module {
         [
           If.block([
             // frontdoor write takes highest priority
-            if (_config.registers[i].isFrontdoorWritable)
-              ElseIf(_frontWrite.en & addrCheck, [
+            if (_frontWritePresent && _config.registers[i].isFrontdoorWritable)
+              ElseIf(_frontWrite!.en & addrCheck!, [
                 csrs[i] < dataToWrite,
               ]),
             // backdoor write takes next priority
             if (_backdoorIndexMap.containsKey(i) &&
                 _backdoorInterfaces[_backdoorIndexMap[i]!].hasWrite)
               ElseIf(_backdoorInterfaces[_backdoorIndexMap[i]!].wrEn!, [
-                csrs[i] < dataToWrite,
+                csrs[i] <
+                    csrs[i].getWriteData(
+                        _backdoorInterfaces[_backdoorIndexMap[i]!].wrData!),
               ]),
             // nothing to write this cycle
             Else([
@@ -398,53 +415,56 @@ class CsrBlock extends Module {
       );
     }
 
-    // individual CSR read logic
-    final rdData = Logic(name: 'internalRdData', width: _frontRead.dataWidth);
-    final rdCases = <CaseItem>[];
-    for (final csr in csrs) {
-      if (csr.isFrontdoorReadable) {
-        if (dataWidth < csr.config.width) {
-          final rem = csr.width % dataWidth;
-          final targ = (csr.width / dataWidth).ceil();
+    if (_frontReadPresent) {
+      // individual CSR read logic
+      final rdData =
+          Logic(name: 'internalRdData', width: _frontRead!.dataWidth);
+      final rdCases = <CaseItem>[];
+      for (final csr in csrs) {
+        if (csr.isFrontdoorReadable) {
+          if (dataWidth < csr.config.width) {
+            final rem = csr.width % dataWidth;
+            final targ = (csr.width / dataWidth).ceil();
 
-          // must further examine logical registers
-          // and capture the correct logical chunk
-          for (var j = 0; j < targ; j++) {
-            final rngEnd = j == targ - 1
-                ? rem == 0
-                    ? _frontRead.dataWidth
-                    : rem
-                : _frontRead.dataWidth;
-            rdCases.add(CaseItem(
-                Const(csr.addr + j * logicalRegisterIncrement,
-                    width: addrWidth),
-                [
-                  rdData <
-                      csr
-                          .getRange(_frontRead.dataWidth * j,
-                              _frontRead.dataWidth * j + rngEnd)
-                          .zeroExtend(_frontRead.dataWidth),
-                ]));
+            // must further examine logical registers
+            // and capture the correct logical chunk
+            for (var j = 0; j < targ; j++) {
+              final rngEnd = j == targ - 1
+                  ? rem == 0
+                      ? _frontRead!.dataWidth
+                      : rem
+                  : _frontRead!.dataWidth;
+              rdCases.add(CaseItem(
+                  Const(csr.addr + j * logicalRegisterIncrement,
+                      width: addrWidth),
+                  [
+                    rdData <
+                        csr
+                            .getRange(_frontRead!.dataWidth * j,
+                                _frontRead!.dataWidth * j + rngEnd)
+                            .zeroExtend(_frontRead!.dataWidth),
+                  ]));
+            }
+          } else {
+            // normal capture of the register data
+            rdCases.add(CaseItem(Const(csr.addr, width: addrWidth), [
+              rdData < csr.zeroExtend(_frontRead!.dataWidth),
+            ]));
           }
-        } else {
-          // normal capture of the register data
-          rdCases.add(CaseItem(Const(csr.addr, width: addrWidth), [
-            rdData < csr.zeroExtend(_frontRead.dataWidth),
-          ]));
         }
       }
-    }
 
-    Combinational([
-      Case(
-          _frontRead.addr,
-          conditionalType: ConditionalType.unique,
-          rdCases,
-          defaultItem: [
-            rdData < Const(0, width: _frontRead.dataWidth),
-          ]),
-    ]);
-    _frontRead.data <= rdData;
+      Combinational([
+        Case(
+            _frontRead!.addr,
+            conditionalType: ConditionalType.unique,
+            rdCases,
+            defaultItem: [
+              rdData < Const(0, width: _frontRead!.dataWidth),
+            ]),
+      ]);
+      _frontRead!.data <= rdData;
+    }
 
     // driving of backdoor read outputs
     for (var i = 0; i < csrs.length; i++) {

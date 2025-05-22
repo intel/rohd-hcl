@@ -46,10 +46,10 @@ class CsrTop extends Module {
   late final Logic _reset;
 
   /// Interface for frontdoor writes to CSRs.
-  late final DataPortInterface _frontWrite;
+  late final DataPortInterface? _frontWrite;
 
   /// Interface for frontdoor reads to CSRs.
-  late final DataPortInterface _frontRead;
+  late final DataPortInterface? _frontRead;
 
   // individual sub interfaces to blocks
   final List<DataPortInterface> _fdWrites = [];
@@ -106,16 +106,21 @@ class CsrTop extends Module {
   }
 
   /// create the CsrBlock from a configuration
-  factory CsrTop(CsrTopConfig config, Logic clk, Logic reset,
-          DataPortInterface fdw, DataPortInterface fdr,
-          {bool allowLargerRegisters = false,
-          int logicalRegisterIncrement = 1}) =>
+  factory CsrTop(
+    CsrTopConfig config,
+    Logic clk,
+    Logic reset, {
+    DataPortInterface? frontWrite,
+    DataPortInterface? frontRead,
+    bool allowLargerRegisters = false,
+    int logicalRegisterIncrement = 1,
+  }) =>
       CsrTop._(
         config: config,
         clk: clk,
         reset: reset,
-        fdw: fdw,
-        fdr: fdr,
+        frontWrite: frontWrite,
+        frontRead: frontRead,
         allowLargerRegisters: allowLargerRegisters,
         logicalRegisterIncrement: logicalRegisterIncrement,
       );
@@ -124,33 +129,37 @@ class CsrTop extends Module {
     required CsrTopConfig config,
     required Logic clk,
     required Logic reset,
-    required DataPortInterface fdw,
-    required DataPortInterface fdr,
+    required DataPortInterface? frontWrite,
+    required DataPortInterface? frontRead,
     this.allowLargerRegisters = false,
     this.logicalRegisterIncrement = 1,
   })  : _config = config.clone(),
         super(name: config.name) {
     _config.validate();
 
-    _clk = addInput('${name}_clk', clk);
-    _reset = addInput('${name}_reset', reset);
+    _clk = addInput('clk', clk);
+    _reset = addInput('reset', reset);
 
-    _frontWrite = fdw.clone()
-      ..connectIO(this, fdw,
-          inputTags: {DataPortGroup.control, DataPortGroup.data},
-          outputTags: {},
-          uniquify: (original) => '${name}_frontWrite_$original');
-    _frontRead = fdr.clone()
-      ..connectIO(this, fdr,
-          inputTags: {DataPortGroup.control},
-          outputTags: {DataPortGroup.data},
-          uniquify: (original) => '${name}_frontRead_$original');
+    _frontWrite = frontWrite == null
+        ? null
+        : (frontWrite.clone()
+          ..connectIO(this, frontWrite,
+              inputTags: {DataPortGroup.control, DataPortGroup.data},
+              outputTags: {},
+              uniquify: (original) => 'frontWrite_$original'));
+    _frontRead = frontRead == null
+        ? null
+        : (frontRead.clone()
+          ..connectIO(this, frontRead,
+              inputTags: {DataPortGroup.control},
+              outputTags: {DataPortGroup.data},
+              uniquify: (original) => 'frontRead_$original'));
 
     _validate();
 
     for (final block in _config.blocks) {
-      _fdWrites.add(DataPortInterface(fdw.dataWidth, blockOffsetWidth));
-      _fdReads.add(DataPortInterface(fdr.dataWidth, blockOffsetWidth));
+      _fdWrites.add(DataPortInterface(frontWrite.dataWidth, blockOffsetWidth));
+      _fdReads.add(DataPortInterface(frontRead.dataWidth, blockOffsetWidth));
       _blocks.add(CsrBlock(block, _clk, _reset, _fdWrites.last, _fdReads.last,
           allowLargerRegisters: allowLargerRegisters));
     }
