@@ -78,10 +78,10 @@ class ReductionTree extends Module {
   /// segment.
   /// - [sequence] is the input sequence to be reduced using the tree of
   ///   operations.
-  /// - Logic Function(List<Logic> inputs, {String name}) [operation] is the
-  ///   operation to be performed at each node. Note that [operation] can widen
-  ///   the output. The logic function must support the operation for (2 to
-  ///   [radix]) inputs.
+  /// - Logic Function(List<Logic> inputs, {int? trueDepth, String name})
+  ///   [operation] is the operation to be performed at each node. Note that
+  ///   [operation] can widen the output. The logic function must support the
+  ///   operation for (2 to [radix]) inputs.
   /// - [radix] is the width of reduction at each node in the tree (e.g.,
   ///   binary: radix=2).
   /// - [signExtend] if true, use sign-extension to widen Logic values as needed
