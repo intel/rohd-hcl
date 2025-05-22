@@ -39,6 +39,7 @@ void main() {
     const width = 13;
     const length = 79;
     final vec = <Logic>[];
+
     // First sum will be length *(length-1) /2
     var count = 0;
     for (var i = 0; i < length; i++) {
@@ -50,12 +51,14 @@ void main() {
       expect(prefixAdd.out.value.toInt(), equals(count));
     }
   });
+
   test('reduction tree of adders -- large', () async {
     final clk = SimpleClockGenerator(10).clk;
 
     const width = 17;
     const length = 290;
     final vec = <Logic>[];
+
     // First sum will be length *(length-1) /2
     var count = 0;
     for (var i = 0; i < length; i++) {
@@ -79,8 +82,13 @@ void main() {
       vec.add(Const(i, width: width));
     }
     const radix = 4;
-    final prefixAdd =
-        ReductionTree(vec, radix: radix, addReduce, clk: clk, depthToFlop: 1);
+    final prefixAdd = ReductionTree(
+        vec,
+        radix: radix,
+        addReduce,
+        clk: clk,
+        depthToFlop: 1,
+        name: 'prefix_reduction');
 
     await prefixAdd.build();
     unawaited(Simulator.run());
