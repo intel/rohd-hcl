@@ -98,7 +98,6 @@ void main() {
 
     await muxTree.build();
     final latency = muxTree.latency;
-    WaveDumper(muxTree);
     unawaited(Simulator.run());
     for (var clkCnt = 0; clkCnt < positions.length + latency; clkCnt++) {
       await clk.nextNegedge;
