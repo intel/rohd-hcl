@@ -145,7 +145,8 @@ class DummyCsrTopModule extends Module {
     _reset = addInput('reset', reset);
     _fdr = DataPortInterface(32, 32);
     _fdw = DataPortInterface(32, 32);
-    _top = CsrTop(config, _clk, _reset, _fdw, _fdr, allowLargerRegisters: true);
+    _top = CsrTop(config, _clk, _reset,
+        frontWrite: _fdw, frontRead: _fdr, allowLargerRegisters: true);
   }
 }
 
@@ -216,8 +217,8 @@ void main() {
     final reset = Logic()..put(0);
     final wIntf = DataPortInterface(csrWidth, 8);
     final rIntf = DataPortInterface(csrWidth, 8);
-    final csrBlock = CsrBlock(csrBlockCfg, clk, reset, wIntf, rIntf,
-        allowLargerRegisters: true);
+    final csrBlock = CsrBlock(csrBlockCfg, clk, reset,
+        frontWrite: wIntf, frontRead: rIntf, allowLargerRegisters: true);
 
     wIntf.en.put(0);
     wIntf.addr.put(0);
@@ -358,8 +359,8 @@ void main() {
     final reset = Logic()..inject(0);
     final wIntf = DataPortInterface(csrWidth, 32);
     final rIntf = DataPortInterface(csrWidth, 32);
-    final csrTop =
-        CsrTop(csrTopCfg, clk, reset, wIntf, rIntf, allowLargerRegisters: true);
+    final csrTop = CsrTop(csrTopCfg, clk, reset,
+        frontWrite: wIntf, frontRead: rIntf, allowLargerRegisters: true);
 
     wIntf.en.inject(0);
     wIntf.addr.inject(0);

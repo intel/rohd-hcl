@@ -90,7 +90,6 @@ abstract class CsrContainer extends Module {
   })  : _config = config.clone(),
         super(name: config.name) {
     config.validate();
-    _validate();
 
     this.clk = addInput('clk', clk);
     this.reset = addInput('reset', reset);
@@ -110,6 +109,8 @@ abstract class CsrContainer extends Module {
               inputTags: {DataPortGroup.control},
               outputTags: {DataPortGroup.data},
               uniquify: (original) => 'frontRead_$original'));
+
+    _validate();
   }
 
   /// Validates the construction of the container.
