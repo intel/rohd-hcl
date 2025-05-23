@@ -7,6 +7,8 @@
 // 2024 December
 // Author: Josh Kimmel <joshua1.kimmel@intel.com>
 
+import 'package:rohd_hcl/src/memory/csr/csr_container.dart';
+
 /// Targeted Exception type for Csr valiation.
 class CsrValidationException implements Exception {
   /// Message associated with the Exception.
@@ -380,10 +382,7 @@ class CsrInstanceConfig {
 /// hence require CsrInstanceConfig objects.
 /// This class is also where the choice to instantiate
 /// any conditional registers should take place.
-class CsrBlockConfig {
-  /// Name for the block.
-  final String name;
-
+class CsrBlockConfig extends CsrContainerConfig {
   /// Address off of which all register addresses are offset.
   final int baseAddr;
 
@@ -392,7 +391,7 @@ class CsrBlockConfig {
 
   /// Construct a new block configuration.
   CsrBlockConfig({
-    required this.name,
+    required super.name,
     required this.baseAddr,
   });
 
@@ -412,6 +411,7 @@ class CsrBlockConfig {
   /// Note that this method does not call the validate method of
   /// the individual registers in the block. It is assumed that
   /// register validation is called separately (i.e., in Csr HW construction).
+  @override
   void validate() {
     // at least 1 register
     if (registers.isEmpty) {
@@ -439,6 +439,7 @@ class CsrBlockConfig {
   /// Method to determine the minimum number of address bits
   /// needed to address all registers in the block. This is
   /// based on the maximum register address offset.
+  @override
   int minAddrBits() {
     var maxAddr = 0;
     for (final reg in registers) {
@@ -451,6 +452,7 @@ class CsrBlockConfig {
 
   /// Method to determine the maximum register size.
   /// This is important for interface data width validation.
+  @override
   int maxRegWidth() {
     var maxWidth = 0;
     for (final reg in registers) {
@@ -462,6 +464,7 @@ class CsrBlockConfig {
   }
 
   /// Deep clone method.
+  @override
   CsrBlockConfig clone() => CsrBlockConfig(
         name: name,
         baseAddr: baseAddr,
@@ -472,10 +475,7 @@ class CsrBlockConfig {
 ///
 /// This class is also where the choice to instantiate
 /// any conditional blocks should take place.
-class CsrTopConfig {
-  /// Name for the top module.
-  final String name;
-
+class CsrTopConfig extends CsrContainerConfig {
   /// Address bits dedicated to the individual registers.
   ///
   /// This is effectively the number of LSBs in an incoming address
@@ -487,7 +487,7 @@ class CsrTopConfig {
 
   /// Construct a new top level configuration.
   CsrTopConfig({
-    required this.name,
+    required super.name,
     required this.blockOffsetWidth,
   });
 
@@ -507,6 +507,7 @@ class CsrTopConfig {
   /// Note that this method does not call the validate method of
   /// the individual blocks. It is assumed that
   /// block validation is called separately (i.e., in CsrBlock HW construction).
+  @override
   void validate() {
     // at least 1 block
     if (blocks.isEmpty) {
@@ -560,6 +561,7 @@ class CsrTopConfig {
   /// based on the maximum block base address. Note that we independently
   /// validate the block offset width relative to the base addresses
   /// so we can trust the simpler analysis here.
+  @override
   int minAddrBits() {
     var maxAddr = 0;
     for (final block in blocks) {
@@ -572,6 +574,7 @@ class CsrTopConfig {
 
   /// Method to determine the maximum register size.
   /// This is important for interface data width validation.
+  @override
   int maxRegWidth() {
     var maxWidth = 0;
     for (final block in blocks) {

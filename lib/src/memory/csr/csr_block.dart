@@ -9,6 +9,7 @@
 
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
+import 'package:rohd_hcl/src/memory/csr/csr_container.dart';
 
 /// A grouping for interface signals of [CsrBackdoorInterface]s.
 enum CsrBackdoorPortGroup {
@@ -83,12 +84,10 @@ class CsrBackdoorInterface extends Interface<CsrBackdoorPortGroup> {
 /// A block is just a collection of registers that are
 /// readable and writable through an addressing scheme
 /// that is relative (offset from) the base address of the block.
-class CsrBlock extends Module {
-  // private config object
-  final CsrBlockConfig _config;
-
+class CsrBlock extends CsrContainer {
   /// Configuration for the CSR block.
-  CsrBlockConfig get config => _config.clone();
+  @override
+  CsrBlockConfig get config => super.config as CsrBlockConfig;
 
   /// CSRs in this block.
   final List<Csr> csrs;
@@ -113,33 +112,11 @@ class CsrBlock extends Module {
   final List<CsrBackdoorInterface> _backdoorInterfaces = [];
   final Map<int, int> _backdoorIndexMap = {};
 
-  /// Clock for the module.
-  late final Logic _clk;
-
-  /// Reset for the module.
-  late final Logic _reset;
-
-  /// Interface for frontdoor writes to CSRs.
-  late final DataPortInterface? _frontWrite;
-
-  /// Indicates whether there is a front-door write interface.
-  bool get _frontWritePresent => _frontWrite != null;
-
-  /// Interface for frontdoor reads to CSRs.
-  late final DataPortInterface? _frontRead;
-
-  /// Indicates whether there is a front-door read interface.
-  bool get _frontReadPresent => _frontRead != null;
-
   /// Getter for block's base address
   int get baseAddr => config.baseAddr;
 
   /// Getter for the CSR configurations.
   List<CsrInstanceConfig> get registers => config.registers;
-
-  final int addrWidth;
-
-  final int dataWidth;
 
   /// Create the CsrBlock from a configuration.
   factory CsrBlock(
@@ -174,39 +151,15 @@ class CsrBlock extends Module {
 
   /// Constructor for a CSR block.
   CsrBlock._({
-    required CsrBlockConfig config,
+    required CsrBlockConfig super.config,
     required this.csrs,
-    required Logic clk,
-    required Logic reset,
-    required DataPortInterface? frontWrite,
-    required DataPortInterface? frontRead,
+    required super.clk,
+    required super.reset,
+    required super.frontWrite,
+    required super.frontRead,
     this.allowLargerRegisters = false,
     this.logicalRegisterIncrement = 1,
-  })  : _config = config.clone(),
-        addrWidth = frontWrite?.addrWidth ?? frontRead!.addrWidth,
-        dataWidth = frontWrite?.dataWidth ?? frontRead!.dataWidth,
-        super(name: config.name) {
-    _config.validate();
-
-    _clk = addInput('${name}_clk', clk);
-    _reset = addInput('${name}_reset', reset);
-
-    _frontWrite = frontWrite == null
-        ? null
-        : (frontWrite.clone()
-          ..connectIO(this, frontWrite,
-              inputTags: {DataPortGroup.control, DataPortGroup.data},
-              outputTags: {},
-              uniquify: (original) => 'frontWrite_$original'));
-
-    _frontRead = frontRead == null
-        ? null
-        : (_frontRead = frontRead.clone()
-          ..connectIO(this, frontRead,
-              inputTags: {DataPortGroup.control},
-              outputTags: {DataPortGroup.data},
-              uniquify: (original) => 'frontRead_$original'));
-
+  }) {
     _validate();
 
     for (var i = 0; i < csrs.length; i++) {
@@ -238,23 +191,23 @@ class CsrBlock extends Module {
   /// Accessor to the backdoor ports of a particular register
   /// within the block by name [name].
   CsrBackdoorInterface getBackdoorPortsByName(String name) {
-    final idx = _config.registers.indexOf(_config.getRegisterByName(name));
+    final idx = config.registers.indexOf(config.getRegisterByName(name));
     if (_backdoorIndexMap.containsKey(idx)) {
       return backdoorInterfaces[_backdoorIndexMap[idx]!];
     } else {
-      throw Exception('Register $name not found in block ${_config.name}');
+      throw Exception('Register $name not found in block ${config.name}');
     }
   }
 
   /// Accessor to the backdoor ports of a particular register
   /// within the block by relative address [addr].
   CsrBackdoorInterface getBackdoorPortsByAddr(int addr) {
-    final idx = _config.registers.indexOf(_config.getRegisterByAddr(addr));
+    final idx = config.registers.indexOf(config.getRegisterByAddr(addr));
     if (_backdoorIndexMap.containsKey(idx)) {
       return backdoorInterfaces[_backdoorIndexMap[idx]!];
     } else {
       throw Exception(
-          'Register address $addr not found in block ${_config.name}');
+          'Register address $addr not found in block ${config.name}');
     }
   }
 
@@ -264,13 +217,13 @@ class CsrBlock extends Module {
     // data width must be at least as wide as the biggest register in the block
     // address width must be at least wide enough
     // to address all registers in the block
-    if (_frontRead != null && _frontRead!.dataWidth < _config.maxRegWidth()) {
+    if (frontRead != null && frontRead!.dataWidth < config.maxRegWidth()) {
       if (allowLargerRegisters) {
         // must check for collisions in logical register addresses
         final regCheck = <int>[];
         for (final csr in csrs) {
-          if (csr.config.width > _frontRead!.dataWidth) {
-            final targ = (csr.width / _frontRead!.dataWidth).ceil();
+          if (csr.config.width > frontRead!.dataWidth) {
+            final targ = (csr.width / frontRead!.dataWidth).ceil();
 
             for (var j = 0; j < targ; j++) {
               regCheck.add(csr.addr + j * logicalRegisterIncrement);
@@ -287,28 +240,7 @@ class CsrBlock extends Module {
               'has a +$logicalRegisterIncrement increment to '
               'the original address.');
         }
-      } else {
-        throw CsrValidationException(
-            'Frontdoor read interface data width must be '
-            'at least ${_config.maxRegWidth()}.');
       }
-    }
-    if (_frontWrite != null &&
-        _frontWrite!.dataWidth < _config.maxRegWidth() &&
-        !allowLargerRegisters) {
-      throw CsrValidationException(
-          'Frontdoor write interface data width must be '
-          'at least ${_config.maxRegWidth()}.');
-    }
-    if (_frontRead != null && _frontRead!.addrWidth < _config.minAddrBits()) {
-      throw CsrValidationException(
-          'Frontdoor read interface address width must be '
-          'at least ${_config.minAddrBits()}.');
-    }
-    if (_frontWrite != null && _frontWrite!.addrWidth < _config.minAddrBits()) {
-      throw CsrValidationException(
-          'Frontdoor write interface address width must be '
-          'at least ${_config.minAddrBits()}.');
     }
   }
 
@@ -320,7 +252,8 @@ class CsrBlock extends Module {
       // which is only permissible if [allowLargerRegisters] is true.
       Logic? addrCheck;
       Logic? dataToWrite;
-      if (_frontWritePresent) {
+      if (frontWritePresent) {
+        final dataWidth = frontWrite!.dataWidth;
         if (dataWidth < csrs[i].config.width) {
           final rem = csrs[i].config.width % dataWidth;
           final targ = (csrs[i].config.width / dataWidth).ceil();
@@ -330,7 +263,7 @@ class CsrBlock extends Module {
               targ,
               (j) => Const(csrs[i].addr + j * logicalRegisterIncrement,
                   width: addrWidth));
-          addrCheck = _frontWrite!.addr.isIn(addrs);
+          addrCheck = frontWrite!.addr.isIn(addrs);
 
           // we write the portion of the register that
           // corresponds to this logical address
@@ -347,8 +280,7 @@ class CsrBlock extends Module {
                       .getWriteData([
                         if (j * dataWidth > 0)
                           csrs[i].getRange(0, j * dataWidth),
-                        _frontWrite!.data
-                            .getRange(0, rem == 0 ? dataWidth : rem)
+                        frontWrite!.data.getRange(0, rem == 0 ? dataWidth : rem)
                       ].rswizzle())
                       .getRange(
                           j * dataWidth,
@@ -363,7 +295,7 @@ class CsrBlock extends Module {
                       .getWriteData([
                         if (j * dataWidth > 0)
                           csrs[i].getRange(0, j * dataWidth),
-                        _frontWrite!.data,
+                        frontWrite!.data,
                         if ((j + 1) * dataWidth < csrs[i].config.width)
                           csrs[i].getRange((j + 1) * dataWidth),
                       ].rswizzle())
@@ -371,7 +303,7 @@ class CsrBlock extends Module {
             }
           }
           dataToWrite = cases(
-              _frontWrite!.addr,
+              frontWrite!.addr,
               conditionalType: ConditionalType.unique,
               wrCases,
               defaultValue: csrs[i]);
@@ -379,23 +311,23 @@ class CsrBlock extends Module {
           // direct address check
           // direct application of write data
           addrCheck =
-              _frontWrite!.addr.eq(Const(csrs[i].addr, width: addrWidth));
-          dataToWrite = csrs[i].getWriteData(
-              _frontWrite!.data.getRange(0, csrs[i].config.width));
+              frontWrite!.addr.eq(Const(csrs[i].addr, width: addrWidth));
+          dataToWrite = csrs[i]
+              .getWriteData(frontWrite!.data.getRange(0, csrs[i].config.width));
         }
       }
 
       Sequential(
-        _clk,
-        reset: _reset,
+        clk,
+        reset: reset,
         resetValues: {
           csrs[i]: csrs[i].resetValue,
         },
         [
           If.block([
             // frontdoor write takes highest priority
-            if (_frontWritePresent && _config.registers[i].isFrontdoorWritable)
-              ElseIf(_frontWrite!.en & addrCheck!, [
+            if (frontWritePresent && config.registers[i].isFrontdoorWritable)
+              ElseIf(frontWrite!.en & addrCheck!, [
                 csrs[i] < dataToWrite,
               ]),
             // backdoor write takes next priority
@@ -415,10 +347,11 @@ class CsrBlock extends Module {
       );
     }
 
-    if (_frontReadPresent) {
+    if (frontReadPresent) {
+      final dataWidth = frontRead!.dataWidth;
+
       // individual CSR read logic
-      final rdData =
-          Logic(name: 'internalRdData', width: _frontRead!.dataWidth);
+      final rdData = Logic(name: 'internalRdData', width: frontRead!.dataWidth);
       final rdCases = <CaseItem>[];
       for (final csr in csrs) {
         if (csr.isFrontdoorReadable) {
@@ -431,24 +364,24 @@ class CsrBlock extends Module {
             for (var j = 0; j < targ; j++) {
               final rngEnd = j == targ - 1
                   ? rem == 0
-                      ? _frontRead!.dataWidth
+                      ? frontRead!.dataWidth
                       : rem
-                  : _frontRead!.dataWidth;
+                  : frontRead!.dataWidth;
               rdCases.add(CaseItem(
                   Const(csr.addr + j * logicalRegisterIncrement,
                       width: addrWidth),
                   [
                     rdData <
                         csr
-                            .getRange(_frontRead!.dataWidth * j,
-                                _frontRead!.dataWidth * j + rngEnd)
-                            .zeroExtend(_frontRead!.dataWidth),
+                            .getRange(frontRead!.dataWidth * j,
+                                frontRead!.dataWidth * j + rngEnd)
+                            .zeroExtend(frontRead!.dataWidth),
                   ]));
             }
           } else {
             // normal capture of the register data
             rdCases.add(CaseItem(Const(csr.addr, width: addrWidth), [
-              rdData < csr.zeroExtend(_frontRead!.dataWidth),
+              rdData < csr.zeroExtend(frontRead!.dataWidth),
             ]));
           }
         }
@@ -456,14 +389,14 @@ class CsrBlock extends Module {
 
       Combinational([
         Case(
-            _frontRead!.addr,
+            frontRead!.addr,
             conditionalType: ConditionalType.unique,
             rdCases,
             defaultItem: [
-              rdData < Const(0, width: _frontRead!.dataWidth),
+              rdData < Const(0, width: frontRead!.dataWidth),
             ]),
       ]);
-      _frontRead!.data <= rdData;
+      frontRead!.data <= rdData;
     }
 
     // driving of backdoor read outputs
