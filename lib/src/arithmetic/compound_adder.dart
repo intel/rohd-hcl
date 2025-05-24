@@ -35,9 +35,6 @@ abstract class CompoundAdder extends Adder {
   }
 }
 
-/// Splitting algorithm Function
-typedef Splitter = List<int> Function(int adderWidth);
-
 /// A trivial compound adder.
 class TrivialCompoundAdder extends CompoundAdder {
   /// Constructs a [CompoundAdder].
@@ -101,13 +98,13 @@ class CarrySelectCompoundAdder extends CompoundAdder {
   /// Constructs a [CarrySelectCompoundAdder].
   /// - [carryIn] is a carry Logic into the [CarrySelectCompoundAdder]
   /// - [adderGen] provides an adder Function which must supply optional
-  /// [carryIn] and [subtractIn] Logic controls.
-  /// - [subtractIn]  This
-  /// option is used by the [CarrySelectOnesComplementCompoundAdder] and should
-  /// not be used directly as it requires ones-complement behavior from
-  /// [adderGen].
+  ///   [carryIn] and [subtractIn] Logic controls.
+  /// - [subtractIn]  This option is used by the
+  ///   [CarrySelectOnesComplementCompoundAdder] and should not be used directly
+  ///   as it requires ones-complement behavior from [adderGen].
   /// - [widthGen] is the splitting function for creating the different adder
-  /// blocks.
+  ///   blocks. Decreasing the split width will increase speed but also increase
+  ///   area.
   CarrySelectCompoundAdder(
     super.a,
     super.b, {

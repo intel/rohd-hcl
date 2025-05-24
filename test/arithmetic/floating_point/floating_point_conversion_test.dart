@@ -358,7 +358,7 @@ void main() {
         final computed = fp.floatingPointValue;
         expect(computed, equals(expected), reason: '''
 input:      $fvj  ${fvj.toDouble()}
-normalized: ${fvj.normalized()} ${fvj.normalized().toDouble()}
+normalized: ${fvj.canonicalize()} ${fvj.canonicalize().toDouble()}
 computed:   $computed ${computed.toDouble()}
 expected:   $expected ${expected.toDouble()}
 ''');
@@ -401,7 +401,7 @@ expected:   $expected ${expected.toDouble()}
                             : FloatingPointRoundingMode.truncate);
                 expect(computed, equals(expected), reason: '''
 input:      $fpev  ${fpev.toDouble()}
-normalized: ${fpev.normalized()} ${fpev.normalized().toDouble()}
+normalized: ${fpev.canonicalize()} ${fpev.canonicalize().toDouble()}
 computed:   $computed ${computed.toDouble()}
 expected:   $expected ${expected.toDouble()}
 ''');
@@ -436,10 +436,10 @@ expected:   $expected ${expected.toDouble()}
 
       FloatingPointConverter(fpj, fp);
       final computed = fp.floatingPointExplicitJBitValue;
-      expect(computed.normalized(), equals(expected), reason: '''
+      expect(computed.canonicalize(), equals(expected), reason: '''
 input:      $fvj
 computed:   $computed
-normalized: ${computed.normalized()}
+normalized: ${computed.canonicalize()}
 expected:   $expected
 ''');
     });
@@ -477,10 +477,10 @@ expected:   $expected
                       roundingMode: delta < 0
                           ? FloatingPointRoundingMode.roundNearestEven
                           : FloatingPointRoundingMode.truncate);
-              expect(computed.normalized(), equals(fpv), reason: '''
+              expect(computed.canonicalize(), equals(fpv), reason: '''
 input:      $fpev
 computed:   $computed
-normalized: ${computed.normalized()}
+normalized: ${computed.canonicalize()}
 expected:   $fpv
 ''');
             }
@@ -514,7 +514,7 @@ expected:   $fpv
 
         FloatingPointConverter(fpj, fp);
         final computed = fp.floatingPointExplicitJBitValue;
-        expect(computed.normalized(), equals(expected), reason: '''
+        expect(computed.canonicalize(), equals(expected), reason: '''
 input:    $fvj
 computed: $computed
 expected: $expected
@@ -558,9 +558,9 @@ expected: $expected
                         roundingMode: delta < 0
                             ? FloatingPointRoundingMode.roundNearestEven
                             : FloatingPointRoundingMode.truncate);
-                expect(computed.normalized(), equals(fpv), reason: '''
+                expect(computed.canonicalize(), equals(fpv), reason: '''
 input:    $fpev
-normalized: ${fpev.normalized()}
+normalized: ${fpev.canonicalize()}
 computed: $computed
 expected: $fpv
 ''');

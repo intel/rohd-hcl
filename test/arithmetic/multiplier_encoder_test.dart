@@ -444,14 +444,12 @@ void main() {
     CompactSignExtension(ppm.array).signExtend();
 
     ppm.generateOutputs();
-    final compress = ColumnCompressorModule(ppm.rows, ppm.rowShift)..compress();
+    final compress = ColumnCompressor(ppm.rows, ppm.rowShift);
     await ppm.build();
     await compress.build();
 
     File('ppg.sv').writeAsStringSync(ppm.generateSynth());
     File('compress.sv').writeAsStringSync(compress.generateSynth());
-
-    // CompactSignExtension(ppg).signExtend();
   });
 
   test('single MAC partial product test', () async {

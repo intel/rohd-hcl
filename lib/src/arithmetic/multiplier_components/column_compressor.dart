@@ -161,11 +161,11 @@ class CompressTerm implements Comparable<CompressTerm> {
 typedef ColumnQueue = PriorityQueue<CompressTerm>;
 
 /// A column compressor module
-class ColumnCompressorModule extends Module {
-  /// After [compress] is invoked, this is the first of two output rows.
+class ColumnCompressor extends Module {
+  /// The first of two output rows.
   Logic get add0 => output('add0');
 
-  /// After [compress] is invoked, this is the second of two output rows.
+  /// The second of two output rows.
   Logic get add1 => output('add1');
 
   /// Columns of partial product CompressTerms
@@ -195,12 +195,13 @@ class ColumnCompressorModule extends Module {
   /// If [clk] is not null then a set of flops are used to latch the output
   /// after compression (see [_extractRow]).  [reset] and [enable] are optional
   /// inputs to control these flops when [clk] is provided. If [clk] is null,
-  /// the [ColumnCompressorModule] is built as a combinational tree of
+  /// the [ColumnCompressor] is built as a combinational tree of
   /// compressors.
-  ColumnCompressorModule(List<Logic> inRows, this._rowShift,
+  ColumnCompressor(List<Logic> inRows, this._rowShift,
       {Logic? clk,
       Logic? reset,
       Logic? enable,
+      @visibleForTesting bool dontCompress = false,
       super.name = 'column_compressor'}) {
     this.clk = (clk != null) ? addInput('clk', clk) : null;
     this.reset = (reset != null) ? addInput('reset', reset) : null;
@@ -226,6 +227,9 @@ class ColumnCompressorModule extends Module {
     }
     addOutput('add0', width: maxWidth());
     addOutput('add1', width: maxWidth());
+    if (!dontCompress) {
+      compress();
+    }
   }
 
   /// Return the longest column length
@@ -313,6 +317,7 @@ class ColumnCompressorModule extends Module {
   }
 
   /// Compress the partial products array to two addends
+  @visibleForTesting
   void compress() {
     final terms = <CompressTerm>[];
     var iterations = longestColumn();

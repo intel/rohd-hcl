@@ -11,7 +11,6 @@
 import 'package:meta/meta.dart';
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
-export 'floating_point_value.dart';
 
 /// A flexible representation of floating point values. A
 /// [FloatingPointExplicitJBitValue]is an explicit j-bit form of
@@ -41,7 +40,7 @@ class FloatingPointExplicitJBitValue extends FloatingPointValue {
 
   /// Creates an unpopulated version of a [FloatingPointExplicitJBitValue],
   /// intended to be called with the [populator].
-  // @protected
+  @protected
   FloatingPointExplicitJBitValue.uninitialized() : super.uninitialized();
 
   /// Creates a [FloatingPointExplicitJBitPopulator] with the provided
@@ -75,9 +74,10 @@ class FloatingPointExplicitJBitValue extends FloatingPointValue {
   @override
   bool get explicitJBit => true;
 
-  /// Return the normalized form of [FloatingPointExplicitJBitValue] which has
-  /// the leading 1 at the front of the mantissa, or further right if subnormal.
-  FloatingPointExplicitJBitValue normalized() {
+  /// Return the cananocalized form of [FloatingPointExplicitJBitValue] which
+  /// has the leading 1 at the front of the mantissa, or further right if
+  /// subnormal.
+  FloatingPointExplicitJBitValue canonicalize() {
     var expVal = exponent.toInt();
     var mant = mantissa;
     if (!isAnInfinity) {
@@ -111,7 +111,7 @@ class FloatingPointExplicitJBitValue extends FloatingPointValue {
   /// Convert to a [FloatingPointValue] with a mantissa that is one smaller
   /// due to the implicit J-bit.
   FloatingPointValue toFloatingPointValue() {
-    final norm = normalized();
+    final norm = canonicalize();
     return FloatingPointValue(
         sign: norm.sign,
         exponent: norm.exponent,
@@ -135,16 +135,10 @@ class FloatingPointExplicitJBitValue extends FloatingPointValue {
   bool isLegalValue() {
     final e = exponent.toInt();
     final m = mantissa.toInt();
-    // final int normMantissa;
-    // if (e < mantissa.width) {
-    //   normMantissa = 1 << (mantissa.width - e - 1);
-    // } else {
-    //   normMantissa = 1;
-    // }
-
-    // TODO(desmonddak): This is too restrictive
-    // if e == 2 then normMantissa can be shifted over by 1
-    // so the rule is mantissa.width - e
+    // TODO(desmonddak): We need to check this with bit-pattern testing
+    // of legal mantissas and that exponents are compatible with those.
+    // Basically, if e > 0 then we expect a 1 somewhere.  If e == 0 then
+    // we expect anything except a leading 1 in the mantissas.
     final normMantissa = 1 << (mantissa.width - 1);
 
     return ((e == 0) && (m < normMantissa)) || ((e > 0) && (m >= 1));

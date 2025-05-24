@@ -12,3 +12,4 @@ export './column_compressor.dart';
 export './multiplicand_selector.dart';
 export './multiplier_encoder.dart';
 export './partial_product_generator.dart';
+export './partial_product_sign_extend.dart';

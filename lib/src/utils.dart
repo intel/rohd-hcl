@@ -8,7 +8,8 @@ import 'dart:math';
 import 'package:rohd/rohd.dart';
 
 /// Computes the bit width needed to store [w] addresses.
-int log2Ceil(int w) => (w > 0) ? (log(w) / log(2)).ceil() : 1;
+// int log2Ceil(int w) => (w > 0) ? (log(w) / log(2)).ceil() : 1;
+int log2Ceil(int w) => (log(w) / log(2)).ceil();
 
 /// This extension will eventually move to ROHD once it is proven useful
 extension LogicValueBitString on LogicValue {

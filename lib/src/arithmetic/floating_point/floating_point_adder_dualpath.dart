@@ -16,10 +16,13 @@ import 'package:rohd_hcl/rohd_hcl.dart';
 class FloatingPointAdderDualPath<FpType extends FloatingPoint>
     extends FloatingPointAdder<FpType> {
   /// Add two floating point numbers [a] and [b], returning result in [sum].
-  /// [subtract] is an optional Logic input to do subtraction
-  /// [adderGen] is an adder generator to be used in the primary adder
+  /// - [subtract] is an optional Logic input to do subtraction
+  /// - [adderGen] is an adder generator to be used in the primary adder
   /// functions.
-  /// [ppTree] is an ParallelPrefix generator for use in increment /decrement
+  /// - [widthGen] is the splitting function for creating the different adder
+  /// blocks within the internal [CompoundAdder] used for mantissa addition.
+  ///   Decreasing the split width will increase speed but also increase area.
+  /// - [ppTree] is an ParallelPrefix generator for use in increment /decrement
   ///  functions.
   FloatingPointAdderDualPath(super.a, super.b,
       {Logic? subtract,
@@ -28,12 +31,14 @@ class FloatingPointAdderDualPath<FpType extends FloatingPoint>
       super.enable,
       Adder Function(Logic a, Logic b, {Logic? carryIn, String name}) adderGen =
           NativeAdder.new,
+      List<int> Function(int) widthGen =
+          CarrySelectCompoundAdder.splitSelectAdderAlgorithmSingleBlock,
       ParallelPrefix Function(
               List<Logic> inps, Logic Function(Logic term1, Logic term2) op)
           ppTree = KoggeStone.new,
-      super.name = 'floating_point_adder_round'})
+      super.name = 'floating_point_adder_dualpath'})
       : super(
-            definitionName: 'FloatingPointAdderRound_'
+            definitionName: 'FloatingPointAdderDualPath_'
                 'E${a.exponent.width}M${a.mantissa.width}') {
     final outputSum = FloatingPoint(
         exponentWidth: exponentWidth, mantissaWidth: mantissaWidth);
@@ -127,6 +132,7 @@ class FloatingPointAdderDualPath<FpType extends FloatingPoint>
         generateCarryOut: true,
         generateCarryOutP1: true,
         adderGen: adderGen,
+        widthGen: widthGen,
         name: 'rpath_significand_adder');
     final carryRPath = significandAdderRPath.carryOut!;
 
@@ -241,6 +247,10 @@ class FloatingPointAdderDualPath<FpType extends FloatingPoint>
     final smallOperandNPath =
         (smallShift >>> (a.exponent[0] ^ b.exponent[0])).named('smallOperand');
 
+    // TODO(desmonddak): could we avoid the end-around-carry here or will that
+    // cause too much to do for the leadingOne calculation. Could we reverse the
+    // operands or is there no guarantee?  If so, would a dual-adder make sense
+    // here?
     final significandSubtractorNPath = OnesComplementAdder(
         largeOperand, smallOperandNPath,
         subtractIn: effectiveSubtraction,

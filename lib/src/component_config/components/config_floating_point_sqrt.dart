@@ -28,8 +28,8 @@ class FloatingPointSqrtConfigurator extends Configurator {
 
   @override
   Map<String, ConfigKnob<dynamic>> get knobs => {
-        'exponent width': exponentWidthKnob,
-        'mantissa width': mantissaWidthKnob,
+        'Exponent Width': exponentWidthKnob,
+        'Mantissa Width': mantissaWidthKnob,
       };
 
   @override

@@ -1,8 +1,8 @@
 // Copyright (C) 2023-2025 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 //
-// addend_compressor_test.dart
-// Tests for the select interface of Booth encoding
+// column_compressor_test.dart
+// Tests for the column compressor.
 //
 // 2024 June 04
 // Author: Desmond Kirkpatrick <desmond.a.kirkpatrick@intel.com>
@@ -20,7 +20,7 @@ import 'package:test/test.dart';
 class CompressorTestMod extends Module {
   late final PartialProductGeneratorBase pp;
 
-  late final ColumnCompressorModule compressor;
+  late final ColumnCompressor compressor;
 
   Logic get r0 => output('r0');
 
@@ -42,8 +42,7 @@ class CompressorTestMod extends Module {
 
     pp.generateOutputs();
 
-    compressor = ColumnCompressorModule(pp.rows, pp.rowShift, clk: clk);
-    compressor.compress();
+    compressor = ColumnCompressor(pp.rows, pp.rowShift, clk: clk);
     final r0 = addOutput('r0', width: compressor.columns.length);
     final r1 = addOutput('r1', width: compressor.columns.length);
 
@@ -126,7 +125,8 @@ void main() {
 
         pp.generateOutputs();
         expect(pp.array.evaluate(), equals(bA * bB));
-        final compressor = ColumnCompressorModule(pp.rows, pp.rowShift);
+        final compressor =
+            ColumnCompressor(pp.rows, pp.rowShift, dontCompress: true);
         expect(compressor.evaluate().$1, equals(bA * bB));
         compressor.compress();
         expect(compressor.evaluate().$1, equals(bA * bB));

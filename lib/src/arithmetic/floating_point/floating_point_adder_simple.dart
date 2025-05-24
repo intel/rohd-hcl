@@ -16,9 +16,10 @@ class FloatingPointAdderSimple<FpType extends FloatingPoint>
     extends FloatingPointAdder<FpType> {
   /// Add two floating point numbers [a] and [b], returning result in [sum].
   /// - [adderGen] is an adder generator to be used in the primary adder
-  /// functions.
+  ///   functions.
   /// - [widthGen] is the splitting function for creating the different adder
-  /// blocks within the internal [CompoundAdder] used for mantissa addition.
+  ///   blocks within the internal [CompoundAdder] used for mantissa addition.
+  ///   Decreasing the split width will increase speed but also increase area.
   FloatingPointAdderSimple(super.a, super.b,
       {super.clk,
       super.reset,
@@ -152,27 +153,22 @@ class FloatingPointAdderSimple<FpType extends FloatingPoint>
     final lead1PredictionValid =
         predictor.validLeadOne!.named('lead1PredictionValid');
 
-    final trueSignFlopped = localFlop(trueSign).named('trueSignFlopped');
-    final largerExpFlopped =
-        localFlop(larger.exponent).named('largerExpFlopped');
-    final sumFlopped = localFlop(hSum).named('sumFlopped');
-    final sumP1Flopped = localFlop(hSumP1).named('sumP1Flopped');
-    final carryFlopped = localFlop(carry).named('carryFlopped');
-    final isInfFlopped = localFlop(isInf).named('isInfFlopped');
-    final isNaNFlopped = localFlop(isNaN).named('isNaNFlopped');
-    final highBitsLSBFlopped = localFlop(highBitsLSB).named('msbFlopped');
-    final lowerBitsFlopped = localFlop(lowerBits).named('lowerBitsFlopped');
-    final lowBitsOrFlopped = localFlop(stickyBitsOr).named('lowBitsOrFlopped');
-    final lowInvertFlopped =
-        localFlop(lowBitsIncrement).named('lowInvertFlopped');
+    final trueSignFlopped = localFlop(trueSign);
+    final largerExpFlopped = localFlop(larger.exponent);
+    final sumFlopped = localFlop(hSum);
+    final sumP1Flopped = localFlop(hSumP1);
+    final carryFlopped = localFlop(carry);
+    final isInfFlopped = localFlop(isInf);
+    final isNaNFlopped = localFlop(isNaN);
+    final highBitsLSBFlopped = localFlop(highBitsLSB);
+    final lowerBitsFlopped = localFlop(lowerBits);
+    final lowBitsOrFlopped = localFlop(stickyBitsOr);
+    final lowInvertFlopped = localFlop(lowBitsIncrement);
 
-    final effectiveSubtractionFlopped =
-        localFlop(effectiveSubtraction).named('effectiveSubtractionFlopped');
-    final leadingZerosPredictionValidFlopped =
-        localFlop(lead1PredictionValid).named('l1PredictionValidflopped');
-    final leadingZerosPredictionFlopped =
-        localFlop(lead1Prediction).named('l1PredictionFlopped');
-    final expDiffFlopped = localFlop(expDiff).named('expDiffFlopped');
+    final effectiveSubtractionFlopped = localFlop(effectiveSubtraction);
+    final leadingZerosPredictionValidFlopped = localFlop(lead1PredictionValid);
+    final leadingZerosPredictionFlopped = localFlop(lead1Prediction);
+    final expDiffFlopped = localFlop(expDiff);
 
     var incrementHighLSB = (sumFlopped +
             ((highBitsLSBFlopped | expDiffFlopped.eq(0)) &
@@ -265,7 +261,6 @@ class FloatingPointAdderSimple<FpType extends FloatingPoint>
 
     final exponentRound = (exponent +
             (doRound & mantissaTrimmed.and()).zeroExtend(exponent.width))
-        .named('exponentRoundIncr')
         .named('exponentRound');
 
     final realIsInf =

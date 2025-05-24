@@ -12,8 +12,6 @@ import 'dart:math';
 import 'package:meta/meta.dart';
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
-// ignore: always_use_package_imports
-import './partial_product_sign_extend.dart';
 
 /// Store a Signbit as Logic
 class SignBit extends Logic {
@@ -280,7 +278,8 @@ abstract class PartialProductGeneratorBase extends PartialProductArray {
   }
 }
 
-/// An Array outputer
+/// An module API that represents a set of partial products rows including
+/// their shifts. This is a base class for the [PartialProduct] module.
 abstract class PartialProductMatrix extends Module {
   /// Give access for things like Column Compression
   /// This is an output, but not yet generated?
@@ -315,9 +314,6 @@ abstract class PartialProductMatrix extends Module {
   }
 }
 
-// TODO(desmonddak): why does PartialProduct instantiation result in
-//  unnamed_module.
-
 /// A PartialProduct Module
 class PartialProduct extends PartialProductMatrix {
   /// create a PartialProduct Module which manages a
@@ -335,8 +331,7 @@ class PartialProduct extends PartialProductMatrix {
               Logic? selectSignedMultiplicand,
               Logic? selectSignedMultiplier})
           genPPG = PartialProductGenerator.new,
-      super.name = 'partial_product'})
-      : super() {
+      super.name = 'partial_product'}) {
     final selectSignedMultiplicandInternal = selectSignedMultiplicand != null
         ? addInput(selectSignedMultiplicand.name, selectSignedMultiplicand)
         : null;

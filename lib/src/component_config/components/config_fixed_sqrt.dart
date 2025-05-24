@@ -5,7 +5,7 @@
 // Configurator for a fixed-point square root module.
 //
 // 2025 April 29
-// Author: desmond Kirkpatrick <desmond.a.kirkpatrick@intel.com>
+// Author: Desmond Kirkpatrick <desmond.a.kirkpatrick@intel.com>
 
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';

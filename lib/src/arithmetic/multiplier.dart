@@ -242,9 +242,8 @@ class CompressionTreeMultiplier extends Multiplier {
 
     pp.generateOutputs();
 
-    final compressor = ColumnCompressorModule(pp.rows, pp.rowShift,
-        clk: clk, reset: reset, enable: enable)
-      ..compress();
+    final compressor = ColumnCompressor(pp.rows, pp.rowShift,
+        clk: clk, reset: reset, enable: enable);
     final adder = adderGen(compressor.add0, compressor.add1);
     product <= adder.sum.slice(a.width + b.width - 1, 0);
   }

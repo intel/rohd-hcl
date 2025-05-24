@@ -94,7 +94,7 @@ class LeadingZeroAnticipate extends Module {
 }
 
 /// Module for predicting the number of leading digits (position of first
-/// digit change) beffor the sum of the two 2s-complement numbers.
+/// digit change) before the sum of the two 2s-complement numbers.
 /// The leading digit position is either [leadingDigit] or [leadingDigit] + 1.
 class LeadingDigitAnticipate extends Module {
   /// The number of digits or position of first digit change.

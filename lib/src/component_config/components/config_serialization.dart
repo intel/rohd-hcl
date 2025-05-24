@@ -41,8 +41,8 @@ class SerializationConfigurator extends Configurator {
   @override
   Map<String, ConfigKnob<dynamic>> get knobs => {
         'Serialize/Deserialize': directionKnob,
-        if (directionKnob.value == Serializer) 'Input length': inputLengthKnob,
-        'Input width': inputWidthKnob,
+        'Input Length': inputLengthKnob,
+        if (directionKnob.value == Serializer) 'Input Width': inputWidthKnob,
         'enable': enableKnob,
       };
 

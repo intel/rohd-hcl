@@ -493,7 +493,7 @@ void main() {
       final fp2 = FloatingPointExplicitJBitValue.populator(
               exponentWidth: exponentWidth, mantissaWidth: mantissaWidth)
           .ofDouble(dbl, roundingMode: FloatingPointRoundingMode.truncate);
-      expect(fp.normalized(), equals(fp2));
+      expect(fp.canonicalize(), equals(fp2));
       final fpOrig = FloatingPointValue.populator(
               exponentWidth: exponentWidth, mantissaWidth: mantissaWidth - 1)
           .ofDouble(dbl, roundingMode: FloatingPointRoundingMode.truncate);
@@ -522,7 +522,7 @@ void main() {
                     exponentWidth: exponentWidth, mantissaWidth: mantissaWidth)
                 .ofDouble(dbl,
                     roundingMode: FloatingPointRoundingMode.truncate);
-            expect(efp.normalized(), equals(efp2));
+            expect(efp.canonicalize(), equals(efp2));
             final fp = FloatingPointValue.populator(
                     exponentWidth: exponentWidth,
                     mantissaWidth: mantissaWidth - 1)

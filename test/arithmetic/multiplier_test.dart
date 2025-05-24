@@ -718,7 +718,7 @@ void main() {
 
     ppG0.generateOutputs();
 
-    final cc = ColumnCompressorModule(ppG0.rows, ppG0.rowShift);
+    final cc = ColumnCompressor(ppG0.rows, ppG0.rowShift, dontCompress: true);
     const expectedRep = '''
 	pp3,15	pp3,14	pp3,13	pp3,12	pp3,11	pp3,10	pp3,9	pp3,8	pp3,7	pp3,6	pp3,5	pp2,4	pp2,3	pp1,2	pp1,1	pp0,0
 			pp2,13	pp2,12	pp1,11	pp2,10	pp2,9	pp2,8	pp2,7	pp2,6	pp2,5	pp0,4	pp0,3	pp0,2	pp0,1	

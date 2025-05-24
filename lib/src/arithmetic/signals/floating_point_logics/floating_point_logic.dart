@@ -187,10 +187,6 @@ class FloatingPointExplicitJBit extends FloatingPoint {
       {required super.exponentWidth, required super.mantissaWidth, super.name})
       : super();
 
-  // FloatingPointExplicitJBit._(Logic sign, Logic exponent, Logic mantissa,
-  //     {String name = 'floatingPointEJ'})
-  //     : super._(sign, exponent, mantissa, name: name);
-
   @override
   FloatingPointExplicitJBit clone({String? name}) => FloatingPointExplicitJBit(
         exponentWidth: exponent.width,

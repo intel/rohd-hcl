@@ -11,7 +11,6 @@
 import 'package:meta/meta.dart';
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
-import 'package:rohd_hcl/src/arithmetic/multiplier_components/partial_product_sign_extend.dart';
 
 // TODO(desmonddak): add a multiply generator option to MAC
 // TODO(desmonddak): add a variable width output as we did with fp multiply
@@ -228,16 +227,16 @@ class CompressionTreeMultiplyAccumulate extends MultiplyAccumulate {
 
     pp.generateOutputs();
 
-    final compressor = ColumnCompressorModule(pp.rows, pp.rowShift,
-        clk: clk, reset: reset, enable: enable)
-      ..compress();
+    final compressor = ColumnCompressor(pp.rows, pp.rowShift,
+        clk: clk, reset: reset, enable: enable);
     final adder = adderGen(compressor.add0, compressor.add1);
     accumulate <= adder.sum.slice(a.width + b.width - 1 + 1, 0);
   }
 }
 
-/// A MultiplyAccumulate which ignores the [c] term and applies the
-/// multiplier function
+/// A subclass of [MultiplyAccumulate] which ignores the third ([c]) accumulate
+/// term and applies the multiplier function.
+@visibleForTesting
 class MultiplyOnly extends MultiplyAccumulate {
   static String _genName(
           Multiplier Function(Logic a, Logic b,

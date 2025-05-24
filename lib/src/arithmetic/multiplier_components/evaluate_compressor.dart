@@ -12,7 +12,7 @@ import 'package:rohd_hcl/src/arithmetic/arithmetic.dart';
 
 /// Debug routines for printing out ColumnCompressor during
 /// simulation with live logic values
-extension EvaluateLiveColumnCompressor on ColumnCompressorModule {
+extension EvaluateLiveColumnCompressor on ColumnCompressor {
   /// Evaluate the (un)compressed partial product array
   /// [logic] =true will read the logic gate outputs at each level
   /// [printOut]=true will print out the array in the StringBuffer

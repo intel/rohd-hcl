@@ -53,9 +53,7 @@ class RecursivePriorityEncoder extends PriorityEncoder {
       {super.generateValid, super.name = 'recursive_priority_encoder'})
       : super(definitionName: 'RecursivePriorityEncoder_W${inp.width}') {
     final lo = recurseFinder(inp.elements);
-    if (valid != null) {
-      valid! <= lo.lt(inp.width);
-    }
+    valid?.gets(lo.lt(inp.width));
     final sz = output('out').width;
     out <= ((lo.width < sz) ? lo.zeroExtend(sz) : lo.getRange(0, sz));
   }

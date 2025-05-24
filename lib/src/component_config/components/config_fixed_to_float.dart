@@ -52,5 +52,7 @@ class FixedToFloatConfigurator extends Configurator {
       FloatingPoint(
           exponentWidth: exponentWidthKnob.value,
           mantissaWidth: mantissaWidthKnob.value),
-      leadingDigitPredict: leadingDigitPredictionKnob.value ? Logic() : null);
+      leadingDigitPredict: leadingDigitPredictionKnob.value
+          ? Logic(width: log2Ceil(mKnob.value))
+          : null);
 }

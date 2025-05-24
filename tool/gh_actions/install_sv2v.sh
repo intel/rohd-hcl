@@ -15,5 +15,3 @@ git clone https://github.com/zachjs/sv2v.git
 cd sv2v
 make
 cp ./bin/sv2v  /usr/local/bin
-
-# Trim if needed
