@@ -7,6 +7,7 @@
 // 2024 December
 // Author: Josh Kimmel <joshua1.kimmel@intel.com>
 
+import 'package:collection/collection.dart';
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
 
@@ -65,27 +66,24 @@ class Csr extends LogicStructure {
     // semantically a register with no fields means that
     // there is one read/write field that is the entire register
     if (config.fields.isEmpty) {
-      fields.add(Logic(name: '${config.name}_data', width: config.width));
+      fields.add(Logic(name: 'data', width: config.width));
     }
     // there is at least one field explicitly defined so
     // process them individually
     else {
       for (final field in config.fields) {
         if (field.start > currIdx) {
-          fields.add(Logic(
-              name: '${config.name}_rsvd_$rsvdCount',
-              width: field.start - currIdx));
+          fields.add(
+              Logic(name: 'rsvd_$rsvdCount', width: field.start - currIdx));
           rsvds.add(fields.length - 1);
           rsvdCount++;
         }
-        fields.add(
-            Logic(name: '${config.name}_${field.name}', width: field.width));
+        fields.add(Logic(name: field.name, width: field.width));
         currIdx = field.start + field.width;
       }
       if (currIdx < config.width) {
-        fields.add(Logic(
-            name: '${config.name}_rsvd_$rsvdCount',
-            width: config.width - currIdx));
+        fields
+            .add(Logic(name: 'rsvd_$rsvdCount', width: config.width - currIdx));
         rsvds.add(fields.length - 1);
       }
     }
@@ -126,7 +124,9 @@ class Csr extends LogicStructure {
   /// Accessor to the bits of a particular field
   /// within the CSR by name [name].
   Logic getField(String name) =>
-      elements.firstWhere((element) => element.name == '${this.name}_$name');
+      elements.firstWhereOrNull((element) => element.name == name) ??
+      (throw RohdHclException(
+          'Field with name $name not found in CSR ${config.name}.'));
 
   /// Accessor to the config of a particular field
   /// within the CSR by name [name].
