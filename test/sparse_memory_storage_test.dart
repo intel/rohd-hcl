@@ -42,6 +42,67 @@ void main() {
           equals(0x1ff50513));
     });
 
+    test('double load', () {
+      const hex = '''
+@1000
+12 34 56 78
+''';
+      final storage = SparseMemoryStorage(addrWidth: 32, dataWidth: 32)
+        ..loadMemString(hex)
+        ..loadMemString(hex);
+
+      const expected = 0x78563412;
+
+      final addr = LogicValue.ofInt(0x1000, 32);
+      final expectedData = LogicValue.ofInt(expected, 32);
+
+      expect(storage.getData(addr)!.toInt(), equals(expectedData.toInt()),
+          reason: 'Data at address $addr '
+              'should be $expectedData but was '
+              '${storage.getData(addr)!}');
+    });
+
+    test('example simple memory load with double load', () {
+      const hex = '''
+@80000000
+6F 00 80 04 73 2F 20 34 25 0F 80 00 63 08 AB 03
+25 0F 90 00 63 04 AB 03 25 0F B0 00 63 00 AB 03
+13 0F 00 00 63 04 0F 00 67 00 0F 00 73 2F 20 34
+63 54 0F 00 6F 00 40 00 25 E1 91 53 17 1F 00 00
+''';
+
+      final storage = SparseMemoryStorage(addrWidth: 32, dataWidth: 32)
+        ..loadMemString(hex)
+        ..loadMemString(hex);
+
+      final expected = [
+        0x0480006f,
+        0x34202f73,
+        0x00800f25,
+        0x03ab0863,
+        0x00900f25,
+        0x03ab0463,
+        0x00b00f25,
+        0x03ab0063,
+        0x00000f13,
+        0x000f0463,
+        0x000f0067,
+        0x34202f73,
+        0x000f5463,
+        0x0040006f,
+        0x5391e125,
+      ];
+
+      for (var i = 0; i < expected.length; i++) {
+        final addr = LogicValue.ofInt(0x80000000 + i * 4, 32);
+        final expectedData = LogicValue.ofInt(expected[i], 32);
+        expect(storage.getData(addr)!.toInt(), equals(expectedData.toInt()),
+            reason: 'Data at address $addr '
+                'should be $expectedData but was '
+                '${storage.getData(addr)!}');
+      }
+    });
+
     test('store 32-bit 1-per-addr data', () {
       final storage = SparseMemoryStorage(addrWidth: 8, dataWidth: 32);
       for (var i = 0; i < 10; i++) {

@@ -113,9 +113,10 @@ class MultiCycleDividerDriver extends Driver<MultiCycleDividerInputSeqItem> {
     unawaited(super.run(phase));
 
     // Listen to new items coming from the sequencer, and add them to a queue
-    sequencer.stream.listen((newItem) {
-      _driverObjection ??= phase.raiseObjection('div_driver')
-        ..dropped.then((value) => logger.fine('Driver objection dropped'));
+    sequencer.stream.listen((newItem) async {
+      _driverObjection ??= phase.raiseObjection('div_driver');
+      unawaited(_driverObjection!.dropped
+          .then((value) => logger.fine('Driver objection dropped')));
       _pendingItems.add(newItem);
     });
 

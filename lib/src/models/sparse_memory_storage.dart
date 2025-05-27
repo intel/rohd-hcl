@@ -181,12 +181,14 @@ abstract class MemoryStorage {
           // must reconstruct the bytes array ending at the provided address
           final endOff = lineAddr % addrIncrPerLine;
           final origData = getData(lineAddrLv);
-          chunks
-            ..clear()
-            ..add(origData!
+          chunks.clear();
+
+          if (endOff != 0) {
+            chunks.add(origData!
                 .getRange(0, endOff * bitsPerAddress)
                 .toInt()
                 .toRadixString(radix));
+          }
         }
 
         address = lineAddrLv.toInt();

@@ -83,6 +83,17 @@ Currently, the [FloatingPointAdderSimple](https://intel.github.io/rohd-hcl/rohd_
 
 A second [FloatingPointAdderRound](https://intel.github.io/rohd-hcl/rohd_hcl/FloatingPointAdderRound-class.html) component is available which does perform rounding.  It is based on "Delay-Optimized Implementation of IEEE Floating-Point Addition", by Peter-Michael Seidel and Guy Even, using an R-path and an N-path to process far-apart exponents and use rounding and an N-path for exponents within 2 and subtraction, which is exact.  If you pass in an optional clock, a pipe stage will be added to help optimize frequency; an optional reset and enable are can control the pipe stage.
 
+## FloatingPointSqrt
+
+A very basic [FloatingPointSqrtSimple] component is available which does not perform any
+rounding and does not support DeNorm numbers. It also only operates on variable mantissas of an odd value (1,3,5,etc) but these odd mantissas can be of variable length up to 51. It takes one
+[FloatingPoint](https://intel.github.io/rohd-hcl/rohd_hcl/FloatingPoint-class.html) [LogicStructure](https://intel.github.io/rohd/rohd/LogicStructure-class.html) and
+performs a square root on it, returning the [FloatingPoint](https://intel.github.io/rohd-hcl/rohd_hcl/FloatingPoint-class.html) value on the output.
+
+Currently, the [FloatingPointSqrtSimple](https://intel.github.io/rohd-hcl/rohd_hcl/FloatingPointSqrtSimple-class.html) is close in accuracy (as it has no rounding) and is not
+optimized for circuit performance, but provides the key functionalities of floating-point square root. Still, this component is a starting point for more realistic
+floating-point components that leverage the the logical [FloatingPoint](https://intel.github.io/rohd-hcl/rohd_hcl/FloatingPoint-class.html) and literal [FloatingPointValue](https://intel.github.io/rohd-hcl/rohd_hcl/FloatingPointValue-class.html) type abstractions.
+
 ## FloatingPointMultiplier
 
 A very basic [FloatingPointMultiplierSimple] component is available which does not perform any rounding. It takes two [FloatingPoint](https://intel.github.io/rohd-hcl/rohd_hcl/FloatingPoint-class.html) [LogicStructure](https://intel.github.io/rohd/rohd/LogicStructure-class.html)s and multiplies them, returning a normalized [FloatingPoint](https://intel.github.io/rohd-hcl/rohd_hcl/FloatingPoint-class.html) on the output 'product'.  
