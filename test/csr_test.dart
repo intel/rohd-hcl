@@ -340,10 +340,10 @@ void main() {
     // perform a backdoor write and then a backdoor read of csr1
     await clk.nextNegedge;
     back1.wrEn!.inject(1);
-    back1.wrData!.inject(0xdeadbeef);
+    back1.wrData!.inject(0xbeefdead);
     await clk.nextNegedge;
     back1.wrData!.inject(0);
-    expect(back1.rdData!.value, LogicValue.ofInt(0xad00f3, rIntf.dataWidth));
+    expect(back1.rdData!.value, LogicValue.ofInt(0xef00f3, rIntf.dataWidth));
 
     await Simulator.endSimulation();
     await Simulator.simulationEnded;
@@ -411,14 +411,14 @@ void main() {
     await clk.nextNegedge;
     wIntf.en.inject(1);
     wIntf.addr.inject(addr2.value);
-    wIntf.data.inject(0xdeadbeef);
+    wIntf.data.inject(0xbeefdead);
     await clk.nextNegedge;
     wIntf.en.inject(0);
     rIntf.en.inject(1);
     rIntf.addr.inject(addr2.value);
     await clk.nextNegedge;
     rIntf.en.inject(0);
-    expect(rIntf.data.value, LogicValue.ofInt(0xad00f3, rIntf.dataWidth));
+    expect(rIntf.data.value, LogicValue.ofInt(0xef00f3, rIntf.dataWidth));
     await clk.waitCycles(10);
 
     // perform a read to an invalid block
