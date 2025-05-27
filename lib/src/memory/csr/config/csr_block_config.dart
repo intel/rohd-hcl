@@ -43,7 +43,6 @@ class CsrBlockConfig extends CsrContainerConfig {
   /// Note that this method does not call the validate method of
   /// the individual registers in the block. It is assumed that
   /// register validation is called separately (i.e., in Csr HW construction).
-
   void _validate() {
     // at least 1 register
     if (registers.isEmpty) {
@@ -100,7 +99,8 @@ class CsrBlockConfig extends CsrContainerConfig {
   CsrBlockConfig clone() => CsrBlockConfig(
         name: name,
         baseAddr: baseAddr,
-      )..registers.addAll(registers.map((e) => e.clone()));
+        registers: registers,
+      );
 
   @override
   bool operator ==(Object other) {
@@ -116,7 +116,6 @@ class CsrBlockConfig extends CsrContainerConfig {
   }
 
   @override
-  // TODO: implement hashCode
   int get hashCode =>
       super.hashCode ^
       baseAddr.hashCode ^
