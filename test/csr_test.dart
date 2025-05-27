@@ -476,6 +476,35 @@ void main() {
     await mod.build();
   });
 
+  group('omitted front-door interfaces', () {
+    test('no front write', () {
+      CsrTop(
+          config: MyCsrModule(),
+          clk: Logic(),
+          reset: Logic(),
+          frontWrite: null,
+          frontRead: DataPortInterface(64, 32));
+    });
+
+    test('no front read', () {
+      CsrTop(
+          config: MyCsrModule(),
+          clk: Logic(),
+          reset: Logic(),
+          frontWrite: DataPortInterface(64, 32),
+          frontRead: null);
+    });
+
+    test('no front door at all', () {
+      CsrTop(
+          config: MyCsrModule(),
+          clk: Logic(),
+          reset: Logic(),
+          frontWrite: null,
+          frontRead: null);
+    });
+  });
+
   test('CSR validation failures', () async {
     // illegal individual field - no legal values
     expect(

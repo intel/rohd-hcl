@@ -210,6 +210,22 @@ class CsrBlock extends CsrContainer {
         }
       }
 
+      final seqConditions = [
+        // frontdoor write takes highest priority
+        if (frontWritePresent && config.registers[i].isFrontdoorWritable)
+          ElseIf(frontWrite!.en & addrCheck!, [
+            csrs[i] < dataToWrite,
+          ]),
+        // backdoor write takes next priority
+        if (_backdoorIndexMap.containsKey(i) &&
+            _backdoorInterfaces[_backdoorIndexMap[i]!].hasWrite)
+          ElseIf(_backdoorInterfaces[_backdoorIndexMap[i]!].wrEn!, [
+            csrs[i] <
+                csrs[i].getWriteData(
+                    _backdoorInterfaces[_backdoorIndexMap[i]!].wrData!),
+          ]),
+      ];
+
       Sequential(
         clk,
         reset: reset,
@@ -217,25 +233,16 @@ class CsrBlock extends CsrContainer {
           csrs[i]: csrs[i].resetValue,
         },
         [
-          If.block([
-            // frontdoor write takes highest priority
-            if (frontWritePresent && config.registers[i].isFrontdoorWritable)
-              ElseIf(frontWrite!.en & addrCheck!, [
-                csrs[i] < dataToWrite,
+          if (seqConditions.isNotEmpty)
+            If.block([
+              ...seqConditions,
+              // nothing to write this cycle
+              Else([
+                csrs[i] < csrs[i],
               ]),
-            // backdoor write takes next priority
-            if (_backdoorIndexMap.containsKey(i) &&
-                _backdoorInterfaces[_backdoorIndexMap[i]!].hasWrite)
-              ElseIf(_backdoorInterfaces[_backdoorIndexMap[i]!].wrEn!, [
-                csrs[i] <
-                    csrs[i].getWriteData(
-                        _backdoorInterfaces[_backdoorIndexMap[i]!].wrData!),
-              ]),
-            // nothing to write this cycle
-            Else([
-              csrs[i] < csrs[i],
-            ]),
-          ])
+            ])
+          else
+            csrs[i] < csrs[i],
         ],
       );
     }

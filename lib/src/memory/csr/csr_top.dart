@@ -208,7 +208,7 @@ class CsrTop extends CsrContainer {
       // drive frontdoor write and read inputs
       for (var i = 0; i < _blocks.length; i++) {
         _fdReads[i].en <=
-            frontWrite!.en &
+            frontRead!.en &
                 maskedFrontRdAddr
                     .eq(Const(_blocks[i].baseAddr, width: addrWidth));
 
