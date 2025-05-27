@@ -82,9 +82,7 @@ class FloatingPointAdderSimple<FpType extends FloatingPoint>
         .named('smallMantissa');
 
     final extendedWidth = min(
-        1 +
-            (mantissaWidth + 1) +
-            (a.runtimeType == FloatingPointExplicitJBit ? 2 : 0),
+        1 + (mantissaWidth + 1) + ((a.explicitJBit) ? 2 : 0),
         pow(2, exponentWidth).toInt() - 2);
 
     final largeFinalMantissa = largeMantissa;
@@ -121,6 +119,8 @@ class FloatingPointAdderSimple<FpType extends FloatingPoint>
 
     final hSum = highBitsAdder.sum.named('highBitsSum');
     final hSumP1 = highBitsAdder.sumP1.named('highBitsSumP1');
+
+    print('hSum: ${hSum.value.bitString}');
 
     final lowerBits =
         smallShiftedMantissa.getRange(0, extendedWidth).named('lowerBits');

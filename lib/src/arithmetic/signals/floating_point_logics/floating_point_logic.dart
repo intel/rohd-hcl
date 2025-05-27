@@ -36,7 +36,10 @@ class FloatingPoint extends LogicStructure {
   /// [FloatingPoint] constructor for a variable size binary
   /// floating point number
   FloatingPoint(
-      {required int exponentWidth, required int mantissaWidth, String? name})
+      {required int exponentWidth,
+      required int mantissaWidth,
+      bool explicitJBit = false,
+      String? name})
       : this._(
             Logic(name: _nameJoin(name, 'sign'), naming: Naming.mergeable),
             Logic(
@@ -47,17 +50,21 @@ class FloatingPoint extends LogicStructure {
                 width: mantissaWidth,
                 name: _nameJoin(name, 'mantissa'),
                 naming: Naming.mergeable),
+            explicitJBit,
             name: name);
 
   /// [FloatingPoint] internal constructor.
-  FloatingPoint._(this.sign, this.exponent, this.mantissa, {super.name})
+  FloatingPoint._(this.sign, this.exponent, this.mantissa, this._explicitJBit,
+      {super.name})
       : super([mantissa, exponent, sign]);
 
   @mustBeOverridden
   @override
-  FloatingPoint clone({String? name}) => FloatingPoint(
+  FloatingPoint clone({String? name, bool explicitJBit = false}) =>
+      FloatingPoint(
         exponentWidth: exponent.width,
         mantissaWidth: mantissa.width,
+        explicitJBit: explicitJBit,
         name: name,
       );
 
@@ -68,7 +75,7 @@ class FloatingPoint extends LogicStructure {
       exponentWidth: exponent.width, mantissaWidth: mantissa.width);
 
   /// Return true if the J-bit is explicitly represented in the mantissa.
-  bool get explicitJBit => false;
+  bool get explicitJBit => _explicitJBit;
 
   // TODO(desmonddak): this will work incorrectly and must be fixed.
   // The issue is that it should return the EJ version of this or
@@ -80,6 +87,12 @@ class FloatingPoint extends LogicStructure {
   /// Return the [FloatingPointValue] of the [previousValue].
   FloatingPointValue? get previousFloatingPointValue =>
       valuePopulator().ofFloatingPointPrevious(this);
+
+  /// Return the [FloatingPointExplicitJBitValue] of the current [value].
+  FloatingPointExplicitJBitValue get floatingPointExplicitJBitValue =>
+      FloatingPointExplicitJBitValue.populator(
+              exponentWidth: exponent.width, mantissaWidth: mantissa.width)
+          .ofLogicValue(value);
 
   /// Return a Logic true if this FloatingPoint contains a normal number,
   /// defined as having mantissa in the range [1,2)
@@ -142,6 +155,8 @@ class FloatingPoint extends LogicStructure {
   late final nan = FloatingPoint.nan(
       exponentWidth: exponent.width, mantissaWidth: mantissa.width);
 
+  late final bool _explicitJBit;
+
   @override
   void put(dynamic val, {bool fill = false}) {
     if (val is FloatingPointValue) {
@@ -163,20 +178,23 @@ class FloatingPoint extends LogicStructure {
       {required int exponentWidth,
       required int mantissaWidth,
       Logic? sign,
-      bool negative = false}) {
+      bool negative = false,
+      bool explicitJBit = false}) {
     final signLogic = Logic()..gets(sign ?? Const(negative));
     final exponent = Const(1, width: exponentWidth, fill: true);
     final mantissa = Const(0, width: mantissaWidth, fill: true);
-    return FloatingPoint._(signLogic, exponent, mantissa);
+    return FloatingPoint._(signLogic, exponent, mantissa, explicitJBit);
   }
 
   /// Construct a FloatingPoint that represents NaN.
   factory FloatingPoint.nan(
-      {required int exponentWidth, required int mantissaWidth}) {
+      {required int exponentWidth,
+      required int mantissaWidth,
+      bool explicitJBit = false}) {
     final signLogic = Const(0);
     final exponent = Const(1, width: exponentWidth, fill: true);
     final mantissa = Const(1, width: mantissaWidth);
-    return FloatingPoint._(signLogic, exponent, mantissa);
+    return FloatingPoint._(signLogic, exponent, mantissa, explicitJBit);
   }
 }
 
@@ -188,7 +206,8 @@ class FloatingPointExplicitJBit extends FloatingPoint {
       : super();
 
   @override
-  FloatingPointExplicitJBit clone({String? name}) => FloatingPointExplicitJBit(
+  FloatingPointExplicitJBit clone({String? name, bool explicitJBit = false}) =>
+      FloatingPointExplicitJBit(
         exponentWidth: exponent.width,
         mantissaWidth: mantissa.width,
         name: name,

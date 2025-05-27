@@ -30,6 +30,8 @@ class FloatingPointValuePopulator<FpvType extends FloatingPointValue> {
   /// The width of the mantissa field.
   int get mantissaWidth => _unpopulated.mantissaWidth;
 
+  // bool explicitJBit() => _unpopulated.explicitJBit;
+
   /// The bias of floating point value.
   int get bias => _unpopulated.bias;
 
@@ -59,6 +61,7 @@ class FloatingPointValuePopulator<FpvType extends FloatingPointValue> {
     required LogicValue sign,
     required LogicValue exponent,
     required LogicValue mantissa,
+    bool explicitJBit = false,
   }) {
     if (_hasPopulated) {
       throw RohdHclException('FloatingPointPopulator: already populated');

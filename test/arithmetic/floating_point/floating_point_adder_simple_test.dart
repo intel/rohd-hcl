@@ -456,11 +456,18 @@ void main() {
     const mantissaWidth = 24;
     FloatingPointExplicitJBitValue ofString(String s) =>
         FloatingPointExplicitJBitValue.ofSpacedBinaryString(s);
-
-    final fp1 = FloatingPointExplicitJBit(
-        exponentWidth: exponentWidth, mantissaWidth: mantissaWidth);
-    final fp2 = FloatingPointExplicitJBit(
-        exponentWidth: exponentWidth, mantissaWidth: mantissaWidth);
+    // final fp1 = FloatingPointExplicitJBit(
+    //     exponentWidth: exponentWidth, mantissaWidth: mantissaWidth);
+    // final fp2 = FloatingPointExplicitJBit(
+    //     exponentWidth: exponentWidth, mantissaWidth: mantissaWidth);
+    final fp1 = FloatingPoint(
+        exponentWidth: exponentWidth,
+        mantissaWidth: mantissaWidth,
+        explicitJBit: true);
+    final fp2 = FloatingPoint(
+        exponentWidth: exponentWidth,
+        mantissaWidth: mantissaWidth,
+        explicitJBit: true);
     final fv1 = ofString('0 10000010 100100000000000000000000');
     final fv2 = ofString('0 00000000 000000000000000000000000');
 
@@ -490,10 +497,14 @@ void main() {
   test('FP: simple adder with explicit j-bit exhaustive', () {
     const exponentWidth = 4;
     const mantissaWidth = 4;
-    final fp1 = FloatingPointExplicitJBit(
-        exponentWidth: exponentWidth, mantissaWidth: mantissaWidth);
-    final fp2 = FloatingPointExplicitJBit(
-        exponentWidth: exponentWidth, mantissaWidth: mantissaWidth);
+    final fp1 = FloatingPoint(
+        exponentWidth: exponentWidth,
+        mantissaWidth: mantissaWidth,
+        explicitJBit: true);
+    final fp2 = FloatingPoint(
+        exponentWidth: exponentWidth,
+        mantissaWidth: mantissaWidth,
+        explicitJBit: true);
     fp1.put(0);
     fp2.put(0);
     final adder = FloatingPointAdderSimple(fp1, fp2);
@@ -557,10 +568,14 @@ void main() {
     const exponentWidth = 8;
     const mantissaWidth = 25;
 
-    final fp1 = FloatingPointExplicitJBit(
-        exponentWidth: exponentWidth, mantissaWidth: mantissaWidth);
-    final fp2 = FloatingPointExplicitJBit(
-        exponentWidth: exponentWidth, mantissaWidth: mantissaWidth);
+    final fp1 = FloatingPoint(
+        exponentWidth: exponentWidth,
+        mantissaWidth: mantissaWidth,
+        explicitJBit: true);
+    final fp2 = FloatingPoint(
+        exponentWidth: exponentWidth,
+        mantissaWidth: mantissaWidth,
+        explicitJBit: true);
     fp1.put(0);
     fp2.put(0);
     final adder = FloatingPointAdderSimple(fp1, fp2);
@@ -600,10 +615,19 @@ void main() {
     const exponentWidth = 6;
     const mantissaWidth = 4;
 
-    final fp1 = FloatingPointExplicitJBit(
-        exponentWidth: exponentWidth, mantissaWidth: mantissaWidth);
-    final fp2 = FloatingPointExplicitJBit(
-        exponentWidth: exponentWidth, mantissaWidth: mantissaWidth);
+    // final fp1 = FloatingPointExplicitJBit(
+    //     exponentWidth: exponentWidth, mantissaWidth: mantissaWidth);
+    // final fp2 = FloatingPointExplicitJBit(
+    //     exponentWidth: exponentWidth, mantissaWidth: mantissaWidth);
+
+    final fp1 = FloatingPoint(
+        exponentWidth: exponentWidth,
+        mantissaWidth: mantissaWidth,
+        explicitJBit: true);
+    final fp2 = FloatingPoint(
+        exponentWidth: exponentWidth,
+        mantissaWidth: mantissaWidth,
+        explicitJBit: true);
     fp1.put(0);
     fp2.put(0);
     final adder = FloatingPointAdderSimple(fp1, fp2);

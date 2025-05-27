@@ -10,6 +10,7 @@
 import 'package:collection/collection.dart';
 import 'package:meta/meta.dart';
 import 'package:rohd/rohd.dart';
+import 'package:rohd_hcl/rohd_hcl.dart';
 
 /// Base class for bit-level column compressor function
 abstract class BitCompressor extends Module {
@@ -171,9 +172,6 @@ class ColumnCompressor extends Module {
   /// Columns of partial product CompressTerms
   late final List<ColumnQueue> columns;
 
-  /// The partial product array to be compressed
-  // late final PartialProductMatrixStore pp;
-
   /// The clk for the pipelined version of column compression.
   Logic? clk;
 
@@ -190,6 +188,9 @@ class ColumnCompressor extends Module {
 
   final List<int> _rowShift;
 
+  /// Track if the rows have been compressed.
+  bool _compressed = false;
+
   /// Initialize a ColumnCompressor for a set of partial products
   ///
   /// If [clk] is not null then a set of flops are used to latch the output
@@ -202,7 +203,10 @@ class ColumnCompressor extends Module {
       Logic? reset,
       Logic? enable,
       @visibleForTesting bool dontCompress = false,
-      super.name = 'column_compressor'}) {
+      super.name = 'column_compressor'})
+      : super(
+            definitionName:
+                'ColumnCompressor_L${inRows.length}_W${inRows[0].width}') {
     this.clk = (clk != null) ? addInput('clk', clk) : null;
     this.reset = (reset != null) ? addInput('reset', reset) : null;
     this.enable = (enable != null) ? addInput('enable', enable) : null;
@@ -319,15 +323,21 @@ class ColumnCompressor extends Module {
   /// Compress the partial products array to two addends
   @visibleForTesting
   void compress() {
-    final terms = <CompressTerm>[];
-    var iterations = longestColumn();
-    while (iterations > 0) {
-      terms.addAll(_compressIter(iterations--));
-      if (longestColumn() <= 2) {
-        break;
+    if (!_compressed) {
+      final terms = <CompressTerm>[];
+      var iterations = longestColumn();
+      while (iterations > 0) {
+        terms.addAll(_compressIter(iterations--));
+        if (longestColumn() <= 2) {
+          break;
+        }
       }
+      add0 <= _extractRow(0);
+      add1 <= _extractRow(1);
+      _compressed = true;
+    } else {
+      throw RohdHclException(
+          'ColumnCompressor.compress() called multiple times');
     }
-    add0 <= _extractRow(0);
-    add1 <= _extractRow(1);
   }
 }

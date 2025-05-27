@@ -251,18 +251,30 @@ class FloatingPointAdderDualPath<FpType extends FloatingPoint>
     // cause too much to do for the leadingOne calculation. Could we reverse the
     // operands or is there no guarantee?  If so, would a dual-adder make sense
     // here?
-    final significandSubtractorNPath = OnesComplementAdder(
-        largeOperand, smallOperandNPath,
-        subtractIn: effectiveSubtraction,
-        adderGen: adderGen,
-        name: 'npath_significand_sub');
+    // final significandSubtractorNPath = OnesComplementAdder(
+    //     largeOperand, smallOperandNPath,
+    //     subtractIn: effectiveSubtraction,
+    //     adderGen: adderGen,
+    //     name: 'npath_significand_sub');
+    final significandSubtractorNPath = SignMagnitudeDualAdder(
+        Const(0), largeOperand, effectiveSubtraction, smallOperandNPath,
+        adderGen: adderGen, name: 'npath_significand_sub');
 
     final significandNPath = significandSubtractorNPath.sum
         .slice(smallOperandNPath.width - 1, 0)
         .named('significandNpath');
 
+    // N pipestage here:
+    final significandNPathFlopped = localFlop(significandNPath);
+    final significandSubtractorNPathSignFlopped =
+        localFlop(significandSubtractorNPath.sign);
+    // final leadOneNPathFlopped = localFlop(leadOneNPath);
+    // final validLeadOneNPathFlopped = localFlop(validLeadOneNPath);
+    final largerSignFlopped = localFlop(larger.sign);
+    final smallerSignFlopped = localFlop(smaller.sign);
+
     final leadOneEncoderNPath = RecursiveModulePriorityEncoder(
-        significandNPath.reversed,
+        significandNPathFlopped.reversed,
         generateValid: true,
         name: 'npath_leadingOne');
     final leadOneNPathPre = leadOneEncoderNPath.out;
@@ -277,35 +289,25 @@ class FloatingPointAdderDualPath<FpType extends FloatingPoint>
             : leadOneNPathPre.zeroExtend(exponentWidth))
         .named('leadOneNpath');
 
-    // N pipestage here:
-    final significandNPathFlopped = localFlop(significandNPath);
-    final significandSubtractorNPathSignFlopped =
-        localFlop(significandSubtractorNPath.sign);
-    final leadOneNPathFlopped = localFlop(leadOneNPath);
-    final validLeadOneNPathFlopped = localFlop(validLeadOneNPath);
-    final largerSignFlopped = localFlop(larger.sign);
-    final smallerSignFlopped = localFlop(smaller.sign);
-
     final expCalcNPath = OnesComplementAdder(
-        largerExpFlopped, leadOneNPathFlopped.zeroExtend(exponentWidth),
+        largerExpFlopped, leadOneNPath.zeroExtend(exponentWidth),
         subtractIn: Const(1), adderGen: adderGen, name: 'npath_expcalc');
 
     final preExpNPath =
         expCalcNPath.sum.slice(exponentWidth - 1, 0).named('preExpNpath');
 
     final posExpNPath =
-        (preExpNPath.or() & ~expCalcNPath.sign & validLeadOneNPathFlopped)
+        (preExpNPath.or() & ~expCalcNPath.sign & validLeadOneNPath)
             .named('posExpNpath');
 
     final exponentNPath =
         mux(posExpNPath, preExpNPath, zeroExp).named('exponentNpath');
 
     final preMinShiftNPath =
-        (~leadOneNPathFlopped.or() | ~largerExpFlopped.or())
-            .named('preMinShiftNpath');
+        (~leadOneNPath.or() | ~largerExpFlopped.or()).named('preMinShiftNpath');
 
     final minShiftNPath =
-        mux(posExpNPath | preMinShiftNPath, leadOneNPathFlopped, expDecr.out)
+        mux(posExpNPath | preMinShiftNPath, leadOneNPath, expDecr.out)
             .named('minShiftNpath');
     final notSubnormalNPath = aIsNormalFlopped | bIsNormalFlopped;
 
