@@ -12,7 +12,6 @@
 import 'package:meta/meta.dart';
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
-import 'package:rohd_hcl/src/arithmetic/multiplier_components/partial_product_sign_extend.dart';
 
 /// An abstract class for all multiplier implementations.
 abstract class Multiplier extends Module {

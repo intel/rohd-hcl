@@ -120,8 +120,6 @@ class FloatingPointAdderSimple<FpType extends FloatingPoint>
     final hSum = highBitsAdder.sum.named('highBitsSum');
     final hSumP1 = highBitsAdder.sumP1.named('highBitsSumP1');
 
-    print('hSum: ${hSum.value.bitString}');
-
     final lowerBits =
         smallShiftedMantissa.getRange(0, extendedWidth).named('lowerBits');
 

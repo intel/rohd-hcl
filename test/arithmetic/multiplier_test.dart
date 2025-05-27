@@ -14,7 +14,6 @@ import 'dart:math';
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
 import 'package:rohd_hcl/src/arithmetic/multiplier_components/evaluate_compressor.dart';
-import 'package:rohd_hcl/src/arithmetic/multiplier_components/partial_product_sign_extend.dart';
 import 'package:test/test.dart';
 
 /// The following routines are useful only during testing

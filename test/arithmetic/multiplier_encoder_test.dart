@@ -13,7 +13,6 @@ import 'dart:math';
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
 import 'package:rohd_hcl/src/arithmetic/multiplier_components/evaluate_partial_product.dart';
-import 'package:rohd_hcl/src/arithmetic/multiplier_components/partial_product_sign_extend.dart';
 import 'package:test/test.dart';
 
 // Here are the variations needed testing:
