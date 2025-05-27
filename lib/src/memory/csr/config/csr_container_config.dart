@@ -1,3 +1,12 @@
+// Copyright (C) 2024-2025 Intel Corporation
+// SPDX-License-Identifier: BSD-3-Clause
+//
+// csr_container_config.dart
+// Configuration for a container of control and status registers (CSRs).
+//
+// 2025 May
+// Author: Max Korbel <max.korbel@intel.com>
+
 import 'package:meta/meta.dart';
 import 'package:rohd_hcl/src/memory/csr/csr_container.dart';
 

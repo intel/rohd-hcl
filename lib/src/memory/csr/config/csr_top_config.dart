@@ -1,3 +1,12 @@
+// Copyright (C) 2024-2025 Intel Corporation
+// SPDX-License-Identifier: BSD-3-Clause
+//
+// csr_top_config.dart
+// Configuration for a top-level control and status register (CSR) module.
+//
+// 2024 December
+// Author: Josh Kimmel <joshua1.kimmel@intel.com>
+
 import 'package:collection/collection.dart';
 import 'package:meta/meta.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';

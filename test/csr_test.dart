@@ -34,7 +34,7 @@ class MyNoFieldCsrInstance extends CsrInstanceConfig {
 }
 
 class MyFieldCsr extends CsrConfig {
-  MyFieldCsr({super.name = 'myFieldCsr', required int width})
+  MyFieldCsr({required int width, super.name = 'myFieldCsr'})
       : super(access: CsrAccess.readWrite, fields: [
           // example of a static field
           CsrFieldConfig(
