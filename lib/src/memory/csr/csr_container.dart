@@ -41,9 +41,8 @@ abstract class CsrContainer extends Module {
   bool get frontReadPresent => frontRead != null;
 
   /// The width for addresses.
-  late final int addrWidth = frontWrite?.addrWidth ??
-      frontRead?.addrWidth ??
-      config.minAddrBits(); // TODO: test no read or write intf
+  late final int addrWidth =
+      frontWrite?.addrWidth ?? frontRead?.addrWidth ?? config.minAddrBits();
 
   /// Configuration for the container.
   final CsrContainerConfig config;
