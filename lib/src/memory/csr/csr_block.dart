@@ -11,74 +11,6 @@ import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
 import 'package:rohd_hcl/src/memory/csr/csr_container.dart';
 
-/// A grouping for interface signals of [CsrBackdoorInterface]s.
-enum CsrBackdoorPortGroup {
-  /// For HW reads of CSRs.
-  read,
-
-  /// For HW writes to CSRs.
-  write
-}
-
-/// An interface to interact very simply with a CSR.
-///
-/// Can be used for either read, write or both directions.
-class CsrBackdoorInterface extends Interface<CsrBackdoorPortGroup> {
-  // private config object
-  final CsrInstanceConfig _config;
-
-  /// Configuration for the associated CSR.
-  CsrInstanceConfig get config => _config.clone();
-
-  /// Should this CSR be readable by the HW.
-  final bool hasRead;
-
-  /// Should this CSR be writable by the HW.
-  final bool hasWrite;
-
-  /// The width of data in the CSR.
-  final int dataWidth;
-
-  /// The read data from the CSR.
-  Csr? get rdData => tryPort(_config.name) as Csr?;
-
-  /// Write the CSR in this cycle.
-  Logic? get wrEn => tryPort('${_config.name}_wrEn');
-
-  /// Data to write to the CSR in this cycle.
-  Logic? get wrData => tryPort('${_config.name}_wrData');
-
-  /// Constructs a new interface of specified [dataWidth]
-  /// and conditionally instantiates read and writes ports based on
-  /// [hasRead] and [hasWrite].
-  CsrBackdoorInterface({
-    required CsrInstanceConfig config,
-  })  : _config = config.clone(),
-        dataWidth = config.width,
-        hasRead = config.isBackdoorReadable,
-        hasWrite = config.isBackdoorWritable {
-    if (hasRead) {
-      setPorts([
-        Csr(_config),
-      ], [
-        CsrBackdoorPortGroup.read,
-      ]);
-    }
-
-    if (hasWrite) {
-      setPorts([
-        Port('${_config.name}_wrEn'),
-        Port('${_config.name}_wrData', dataWidth),
-      ], [
-        CsrBackdoorPortGroup.write,
-      ]);
-    }
-  }
-
-  /// Makes a copy of this [Interface] with matching configuration.
-  CsrBackdoorInterface clone() => CsrBackdoorInterface(config: _config.clone());
-}
-
 /// Logic representation of a block of registers.
 ///
 /// A block is just a collection of registers that are
@@ -91,13 +23,6 @@ class CsrBlock extends CsrContainer {
 
   /// CSRs in this block.
   final List<Csr> csrs;
-
-  /// Is it legal for the largest register width to be
-  /// greater than the data width of the frontdoor interfaces.
-  ///
-  /// If this is true, HW generation must assign multiple addresses
-  /// to any register that exceeds the data width of the frontdoor.
-  final bool allowLargerRegisters;
 
   /// What increment value to use when deriving logical addresses
   /// for registers that are wider than the frontdoor data width.
@@ -118,48 +43,16 @@ class CsrBlock extends CsrContainer {
   /// Getter for the CSR configurations.
   List<CsrInstanceConfig> get registers => config.registers;
 
-  /// Create the CsrBlock from a configuration.
-  factory CsrBlock(
-    CsrBlockConfig config,
-    Logic clk,
-    Logic reset, {
-    DataPortInterface? frontWrite,
-    DataPortInterface? frontRead,
-    bool allowLargerRegisters = false,
-    int logicalRegisterIncrement = 1,
-  }) {
-    if (frontWrite == null && frontRead == null) {
-      throw CsrValidationException(
-          'At least one of `frontWrite` or `frontRead` must be provided.');
-    }
-
-    final csrs = <Csr>[];
-    for (final reg in config.registers) {
-      csrs.add(Csr(reg));
-    }
-    return CsrBlock._(
-      config: config,
-      csrs: csrs,
-      clk: clk,
-      reset: reset,
-      frontWrite: frontWrite,
-      frontRead: frontRead,
-      allowLargerRegisters: allowLargerRegisters,
-      logicalRegisterIncrement: logicalRegisterIncrement,
-    );
-  }
-
   /// Constructor for a CSR block.
-  CsrBlock._({
+  CsrBlock({
     required CsrBlockConfig super.config,
-    required this.csrs,
     required super.clk,
     required super.reset,
     required super.frontWrite,
     required super.frontRead,
-    this.allowLargerRegisters = false,
+    super.allowLargerRegisters,
     this.logicalRegisterIncrement = 1,
-  }) {
+  }) : csrs = List.unmodifiable(config.registers.map(Csr.new)) {
     _validate();
 
     for (var i = 0; i < csrs.length; i++) {

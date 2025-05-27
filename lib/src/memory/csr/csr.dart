@@ -16,11 +16,8 @@ import 'package:rohd_hcl/rohd_hcl.dart';
 /// In this case, a single implicit field is created that is
 /// read/write and the entire width of the register.
 class Csr extends LogicStructure {
-  // internal config object which is private
-  final CsrInstanceConfig _config;
-
   /// Configuration for the CSR.
-  CsrInstanceConfig get config => _config.clone();
+  final CsrInstanceConfig config;
 
   /// A list of indices of all of the reserved fields in the CSR.
   /// This is necessary because the configuration does not explicitly
@@ -105,13 +102,10 @@ class Csr extends LogicStructure {
   /// Instead, the factory constructor [Csr] should be used.
   /// This facilitates proper calling of the super constructor.
   Csr._({
-    required CsrInstanceConfig config,
+    required this.config,
     required this.rsvdIndices,
     required List<Logic> fields,
-  })  : _config = config.clone(),
-        super(fields, name: config.name) {
-    _config.validate();
-  }
+  }) : super(fields, name: config.name);
 
   /// Creates a clone of this CSR.
   ///
@@ -125,7 +119,7 @@ class Csr extends LogicStructure {
     return Csr._(
       config: config,
       rsvdIndices: rsvdIndices,
-      fields: elements,
+      fields: elements.map((e) => e.clone()).toList(),
     );
   }
 

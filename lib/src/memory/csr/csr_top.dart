@@ -83,27 +83,8 @@ class CsrTop extends CsrContainer {
     }
   }
 
-  /// create the CsrBlock from a configuration
-  factory CsrTop(
-    CsrTopConfig config,
-    Logic clk,
-    Logic reset, {
-    DataPortInterface? frontWrite,
-    DataPortInterface? frontRead,
-    bool allowLargerRegisters = false,
-    int logicalRegisterIncrement = 1,
-  }) =>
-      CsrTop._(
-        config: config,
-        clk: clk,
-        reset: reset,
-        frontWrite: frontWrite,
-        frontRead: frontRead,
-        allowLargerRegisters: allowLargerRegisters,
-        logicalRegisterIncrement: logicalRegisterIncrement,
-      );
-
-  CsrTop._({
+  /// Create the CsrBlock from a configuration
+  CsrTop({
     required CsrTopConfig super.config,
     required super.clk,
     required super.reset,
@@ -129,7 +110,10 @@ class CsrTop extends CsrContainer {
         _fdReads.add(blockFdRead);
       }
 
-      _blocks.add(CsrBlock(block, clk, reset,
+      _blocks.add(CsrBlock(
+          config: block,
+          clk: clk,
+          reset: reset,
           frontWrite: blockFdWrite,
           frontRead: blockFdRead,
           allowLargerRegisters: allowLargerRegisters));

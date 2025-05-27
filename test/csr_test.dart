@@ -18,7 +18,7 @@ import 'package:test/test.dart';
 
 class MyNoFieldCsr extends CsrConfig {
   MyNoFieldCsr({super.name = 'myNoFieldCsr'})
-      : super(access: CsrAccess.readOnly);
+      : super(access: CsrAccess.readOnly, fields: []);
 }
 
 class MyNoFieldCsrInstance extends CsrInstanceConfig {
@@ -34,7 +34,36 @@ class MyNoFieldCsrInstance extends CsrInstanceConfig {
 }
 
 class MyFieldCsr extends CsrConfig {
-  MyFieldCsr({super.name = 'myFieldCsr'}) : super(access: CsrAccess.readWrite);
+  MyFieldCsr({super.name = 'myFieldCsr', required int width})
+      : super(access: CsrAccess.readWrite, fields: [
+          // example of a static field
+          CsrFieldConfig(
+              start: 0,
+              width: 2,
+              name: 'field1',
+              access: CsrFieldAccess.readOnly),
+          CsrFieldConfig(
+              start: 2,
+              width: 2,
+              name: 'field2',
+              access: CsrFieldAccess.readWriteLegal,
+              legalValues: const [0x0, 0x1]),
+
+          // example of a field with dynamic start and width
+          CsrFieldConfig(
+              start: width ~/ 2,
+              width: width ~/ 4,
+              name: 'field3',
+              access: CsrFieldAccess.readWrite),
+
+          // example of field duplication
+          for (var i = 0; i < width ~/ 4; i++)
+            CsrFieldConfig(
+                start: (3 * width ~/ 4) + i,
+                width: 1,
+                name: 'field4_$i',
+                access: CsrFieldAccess.writeOnesClear)
+        ]);
 }
 
 class MyFieldCsrInstance extends CsrInstanceConfig {
@@ -43,33 +72,9 @@ class MyFieldCsrInstance extends CsrInstanceConfig {
     required super.width,
     super.resetValue = 0xff,
     String name = 'myFieldCsrInstance',
-  }) : super(arch: MyFieldCsr(name: name), isBackdoorWritable: true) {
-    // example of a static field
-    fields
-      ..add(CsrFieldConfig(
-          start: 0, width: 2, name: 'field1', access: CsrFieldAccess.readOnly))
-      ..add(CsrFieldConfig(
-          start: 2,
-          width: 2,
-          name: 'field2',
-          access: CsrFieldAccess.readWriteLegal)
-        ..addLegalValue(0x0)
-        ..addLegalValue(0x1))
-      // example of a field with dynamic start and width
-      ..add(CsrFieldConfig(
-          start: width ~/ 2,
-          width: width ~/ 4,
-          name: 'field3',
-          access: CsrFieldAccess.readWrite));
-    // example of field duplication
-    for (var i = 0; i < width ~/ 4; i++) {
-      fields.add(CsrFieldConfig(
-          start: (3 * width ~/ 4) + i,
-          width: 1,
-          name: 'field4_$i',
-          access: CsrFieldAccess.writeOnesClear));
-    }
-  }
+  }) : super(
+            arch: MyFieldCsr(name: name, width: width),
+            isBackdoorWritable: true);
 }
 
 class MyRegisterBlock extends CsrBlockConfig {

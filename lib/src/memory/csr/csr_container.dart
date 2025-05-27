@@ -12,28 +12,7 @@
 import 'package:meta/meta.dart';
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
-
-/// A base class for configs for [CsrContainer]s.
-abstract class CsrContainerConfig {
-  /// Creates a clone of the configuration.
-  CsrContainerConfig clone();
-
-  /// Validates the configuration.
-  void validate();
-
-  /// Determines the minimum number of address bits needed to address all
-  /// registers.
-  int minAddrBits();
-
-  /// Determines the maximum register size.
-  int maxRegWidth();
-
-  /// Name of the configuration.
-  final String name;
-
-  /// Creates a config for containers.
-  CsrContainerConfig({required this.name});
-}
+import 'package:rohd_hcl/src/memory/csr/config/csr_container_config.dart';
 
 /// A base class for things that a bunch of CSRs inside.
 abstract class CsrContainer extends Module {
@@ -66,11 +45,8 @@ abstract class CsrContainer extends Module {
       frontRead?.addrWidth ??
       config.minAddrBits(); // TODO: test no read or write intf
 
-  /// Internal copy of the original config.
-  final CsrContainerConfig _config;
-
   /// Configuration for the container.
-  CsrContainerConfig get config => _config.clone();
+  final CsrContainerConfig config;
 
   /// Is it legal for the largest register width to be
   /// greater than the data width of the frontdoor interfaces.
@@ -85,12 +61,9 @@ abstract class CsrContainer extends Module {
     required Logic reset,
     required DataPortInterface? frontWrite,
     required DataPortInterface? frontRead,
-    required CsrContainerConfig config,
+    required this.config,
     this.allowLargerRegisters = false,
-  })  : _config = config.clone(),
-        super(name: config.name) {
-    config.validate();
-
+  }) : super(name: config.name) {
     this.clk = addInput('clk', clk);
     this.reset = addInput('reset', reset);
 
@@ -116,32 +89,32 @@ abstract class CsrContainer extends Module {
   /// Validates the construction of the container.
   void _validate() {
     if (frontReadPresent) {
-      if (frontRead!.dataWidth < _config.maxRegWidth() &&
+      if (frontRead!.dataWidth < config.maxRegWidth() &&
           !allowLargerRegisters) {
         throw CsrValidationException(
             'Frontdoor read interface data width must be '
-            'at least ${_config.maxRegWidth()}.');
+            'at least ${config.maxRegWidth()}.');
       }
 
-      if (frontRead!.addrWidth < _config.minAddrBits()) {
+      if (frontRead!.addrWidth < config.minAddrBits()) {
         throw CsrValidationException(
             'Frontdoor read interface address width must be '
-            'at least ${_config.minAddrBits()}.');
+            'at least ${config.minAddrBits()}.');
       }
     }
 
     if (frontWritePresent) {
-      if (frontWrite!.dataWidth < _config.maxRegWidth() &&
+      if (frontWrite!.dataWidth < config.maxRegWidth() &&
           !allowLargerRegisters) {
         throw CsrValidationException(
             'Frontdoor write interface data width must be '
-            'at least ${_config.maxRegWidth()}.');
+            'at least ${config.maxRegWidth()}.');
       }
 
-      if (frontWrite!.addrWidth < _config.minAddrBits()) {
+      if (frontWrite!.addrWidth < config.minAddrBits()) {
         throw CsrValidationException(
             'Frontdoor write interface address width must be '
-            'at least ${_config.minAddrBits()}.');
+            'at least ${config.minAddrBits()}.');
       }
     }
 
