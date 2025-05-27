@@ -218,6 +218,7 @@ class FloatingPointExplicitJBit extends FloatingPoint {
       sign: sign.value, exponent: exponent.value, mantissa: mantissa.value);
 
   /// Return the [FloatingPointExplicitJBitValue] of the current [value].
+  @override
   FloatingPointExplicitJBitValue get floatingPointExplicitJBitValue =>
       FloatingPointExplicitJBitValue.populator(
               exponentWidth: exponent.width, mantissaWidth: mantissa.width)

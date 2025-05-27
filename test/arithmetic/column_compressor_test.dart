@@ -12,7 +12,6 @@ import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
 import 'package:rohd_hcl/src/arithmetic/multiplier_components/evaluate_compressor.dart';
 import 'package:rohd_hcl/src/arithmetic/multiplier_components/evaluate_partial_product.dart';
-import 'package:rohd_hcl/src/arithmetic/multiplier_components/partial_product_sign_extend.dart';
 import 'package:test/test.dart';
 
 /// This [CompressorTestMod] module is used to test instantiation, where we can
