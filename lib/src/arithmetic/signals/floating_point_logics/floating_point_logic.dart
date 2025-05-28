@@ -58,6 +58,10 @@ class FloatingPoint extends LogicStructure {
       {super.name})
       : super([mantissa, exponent, sign]);
 
+  // TODO(desmonddak): we are temporarily allowing the override of explicitJBit.
+  // Eventually, all components will pass in the destination with its own
+  // explicitJBit bool and this clone will be a straight clone.
+
   @mustBeOverridden
   @override
   FloatingPoint clone({String? name, bool explicitJBit = false}) =>
@@ -196,42 +200,4 @@ class FloatingPoint extends LogicStructure {
     final mantissa = Const(1, width: mantissaWidth);
     return FloatingPoint._(signLogic, exponent, mantissa, explicitJBit);
   }
-}
-
-/// A floating-point Logic signal with an explicit J-bit in the mantissa
-class FloatingPointExplicitJBit extends FloatingPoint {
-  /// Construct an explicit J-bit floating-point Logic
-  FloatingPointExplicitJBit(
-      {required super.exponentWidth, required super.mantissaWidth, super.name})
-      : super();
-
-  @override
-  FloatingPointExplicitJBit clone({String? name, bool explicitJBit = false}) =>
-      FloatingPointExplicitJBit(
-        exponentWidth: exponent.width,
-        mantissaWidth: mantissa.width,
-        name: name,
-      );
-
-  @override
-  FloatingPointValue get floatingPointValue => FloatingPointValue(
-      sign: sign.value, exponent: exponent.value, mantissa: mantissa.value);
-
-  /// Return the [FloatingPointExplicitJBitValue] of the current [value].
-  @override
-  FloatingPointExplicitJBitValue get floatingPointExplicitJBitValue =>
-      FloatingPointExplicitJBitValue.populator(
-              exponentWidth: exponent.width, mantissaWidth: mantissa.width)
-          .ofLogicValue(value);
-
-  /// A [FloatingPointValuePopulator] for values associated with this
-  /// [FloatingPoint] type.
-  @override
-  FloatingPointValuePopulator valuePopulator() =>
-      FloatingPointExplicitJBitValue.populator(
-          exponentWidth: exponent.width, mantissaWidth: mantissa.width);
-
-  /// Return true if the J-bit is explicitly represented in the mantissa.
-  @override
-  bool get explicitJBit => true;
 }

@@ -31,12 +31,50 @@ The computation presume ones-complement subtraction on the inputs and if the fir
 
 If you need to compute the number of leading 1s (say in a negative twos complement number), you can use a `LeadingZeroAnticipate` circuit by inverting the input.
 
-Here is a sample usage:
+Here is a sample usage in floating point addition: here we want to add two mantissas and then use the number of leading zeros in the sum to adjust the exponent (this simple example ignores the possibility of underflowing the exponent field).  Normally one would use a priority encoder to find the leading 1 in the sum:
 
 ```dart
-final predictor = LeadingZeroAnticipate(aSign, a, bSign, b);
+final adder = OnesComplementAdder(aMantissa, bMantissa, subtractIn: aSign ^ bSign);
 
-final adder = OnesComplementAdder(a, b, subtractIn: aSign ^ bSign, outputEndAroundCarry: true);
+// Look at the output sum and find the leading 1
+final predictedPos = RecursivePriorityEncoder(adder.sum.reversed).out;
 
-final leadingZeros = mux(adder.carry | aSign, predictor.leadingOneA!, predictor.leadingOneB!);
+// Shift the sum to have no leading zeros
+final mantissa = adder.sum << predictedPos;
+
+// Adjust the exponent by the number of shifts
+final exponent = alignedExponent - predictedPos;
 ```
+
+But you can see this stacks the computation of priority encoding on top of the adder computation (especially the final carry in the adder).  But we can 'anticipate' the number of leading zeros instead of counting them:
+
+```dart
+// Look at the inputs of the adder to anticipate what the sum will look like.
+final predictor = LeadingZeroAnticipate(aSign, aMantissa, bSign, bMantissa);
+
+// Do the add in parallel
+final adder = OnesComplementAdder(aMantissa, bMantissa, subtractIn: aSign ^ bSign);
+
+final leadingZerosEstimate = predictor.leadingOne;
+
+// Shift the mantissa partially into place (could have a single leading 0)
+var trueMantissa = adder.sum << leadingZerosEstimate;
+
+// The estimate can be perfect or off by one to the left.
+final leadingZeros = mux(trueMantissa[-1], leadingZerosEstimate, leadingZerosEstimate + 1);
+trueMantissa = mux(trueMantissa[-1], trueMantissa, trueMantissa << 1);
+
+// Ajust the exponent by the actual number of leading 0s found
+final exponent = alignedExponent - leadingZeros;
+```
+
+## Leading Digit Anticipate
+
+For the case of signed operands, we also have a `LeadingDigitAnticipate` module.
+
+```dart
+
+final leadingDigitAnticipate = LeadingDigitAnticipate(twosComplementA, twosComplementB);
+```
+
+The same issue of anticipation arises that the leading digit could be one more position higher than anticipated.

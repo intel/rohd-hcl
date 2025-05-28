@@ -339,8 +339,10 @@ void main() {
       FloatingPointExplicitJBitValue ofExplicitString(String s) =>
           FloatingPointExplicitJBitValue.ofSpacedBinaryString(s);
 
-      final fpj = FloatingPointExplicitJBit(
-          exponentWidth: exponentWidth, mantissaWidth: mantissaWidth);
+      final fpj = FloatingPoint(
+          exponentWidth: exponentWidth,
+          mantissaWidth: mantissaWidth,
+          explicitJBit: true);
 
       final fvj = ofExplicitString('0 1011 0001'); //trueS = 3 ok
       if (fvj.isLegalValue()) {
@@ -372,8 +374,10 @@ expected:   $expected ${expected.toDouble()}
       const mantissaWidth = 4;
       var cnt = 0;
 
-      final fpj = FloatingPointExplicitJBit(
-          exponentWidth: exponentWidth, mantissaWidth: mantissaWidth);
+      final fpj = FloatingPoint(
+          exponentWidth: exponentWidth,
+          mantissaWidth: mantissaWidth,
+          explicitJBit: true);
       for (final delta in [-2, 2]) {
         final fp = FloatingPoint(
             exponentWidth: exponentWidth + delta, mantissaWidth: mantissaWidth);
@@ -425,8 +429,10 @@ expected:   $expected ${expected.toDouble()}
           exponentWidth: exponentWidth, mantissaWidth: mantissaWidth);
 
       final fvj = ofString('0 0111 111111');
-      final fp = FloatingPointExplicitJBit(
-          exponentWidth: exponentWidth + delta, mantissaWidth: mantissaWidth);
+      final fp = FloatingPoint(
+          exponentWidth: exponentWidth + delta,
+          mantissaWidth: mantissaWidth,
+          explicitJBit: true);
 
       fpj.put(fvj);
       final expected = FloatingPointExplicitJBitValue.populator(
@@ -452,8 +458,10 @@ expected:   $expected
       final fp = FloatingPoint(
           exponentWidth: exponentWidth, mantissaWidth: mantissaWidth);
       for (final delta in [-2, 2]) {
-        final fpj = FloatingPointExplicitJBit(
-            exponentWidth: exponentWidth + delta, mantissaWidth: mantissaWidth);
+        final fpj = FloatingPoint(
+            exponentWidth: exponentWidth + delta,
+            mantissaWidth: mantissaWidth,
+            explicitJBit: true);
         fp.put(0);
         final converter = FloatingPointConverter(fp, fpj);
 
@@ -498,13 +506,17 @@ expected:   $fpv
       FloatingPointExplicitJBitValue ofExplicitString(String s) =>
           FloatingPointExplicitJBitValue.ofSpacedBinaryString(s);
 
-      final fpj = FloatingPointExplicitJBit(
-          exponentWidth: exponentWidth, mantissaWidth: mantissaWidth);
+      final fpj = FloatingPoint(
+          exponentWidth: exponentWidth,
+          mantissaWidth: mantissaWidth,
+          explicitJBit: true);
 
       final fvj = ofExplicitString('0 0000 0001');
       if (fvj.isLegalValue()) {
-        final fp = FloatingPointExplicitJBit(
-            exponentWidth: exponentWidth + delta, mantissaWidth: mantissaWidth);
+        final fp = FloatingPoint(
+            exponentWidth: exponentWidth + delta,
+            mantissaWidth: mantissaWidth,
+            explicitJBit: true);
 
         fpj.put(fvj);
         final dbl = fvj.toDouble();
@@ -529,14 +541,18 @@ expected: $expected
       const mantissaWidth = 4;
       var cnt = 0;
 
-      final fp = FloatingPointExplicitJBit(
-          exponentWidth: exponentWidth, mantissaWidth: mantissaWidth);
+      final fp = FloatingPoint(
+          exponentWidth: exponentWidth,
+          mantissaWidth: mantissaWidth,
+          explicitJBit: true);
       // ignore: cascade_invocations
       fp.put(0);
 
       for (final delta in [-2, 2]) {
-        final fpj = FloatingPointExplicitJBit(
-            exponentWidth: exponentWidth + delta, mantissaWidth: mantissaWidth);
+        final fpj = FloatingPoint(
+            exponentWidth: exponentWidth + delta,
+            mantissaWidth: mantissaWidth,
+            explicitJBit: true);
         final converter = FloatingPointConverter(fp, fpj);
         for (final signVal in [false, true]) {
           for (var e = 0; e < pow(2.0, exponentWidth).toInt(); e++) {
