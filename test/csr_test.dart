@@ -18,7 +18,7 @@ import 'package:test/test.dart';
 
 class MyNoFieldCsr extends CsrConfig {
   MyNoFieldCsr({super.name = 'myNoFieldCsr'})
-      : super(access: CsrAccess.readOnly);
+      : super(access: CsrAccess.readOnly, fields: []);
 }
 
 class MyNoFieldCsrInstance extends CsrInstanceConfig {
@@ -34,7 +34,36 @@ class MyNoFieldCsrInstance extends CsrInstanceConfig {
 }
 
 class MyFieldCsr extends CsrConfig {
-  MyFieldCsr({super.name = 'myFieldCsr'}) : super(access: CsrAccess.readWrite);
+  MyFieldCsr({required int width, super.name = 'myFieldCsr'})
+      : super(access: CsrAccess.readWrite, fields: [
+          // example of a static field
+          CsrFieldConfig(
+              start: 0,
+              width: 2,
+              name: 'field1',
+              access: CsrFieldAccess.readOnly),
+          CsrFieldConfig(
+              start: 2,
+              width: 2,
+              name: 'field2',
+              access: CsrFieldAccess.readWriteLegal,
+              legalValues: const [0x0, 0x1]),
+
+          // example of a field with dynamic start and width
+          CsrFieldConfig(
+              start: width ~/ 2,
+              width: width ~/ 4,
+              name: 'field3',
+              access: CsrFieldAccess.readWrite),
+
+          // example of field duplication
+          for (var i = 0; i < width ~/ 4; i++)
+            CsrFieldConfig(
+                start: (3 * width ~/ 4) + i,
+                width: 1,
+                name: 'field4_$i',
+                access: CsrFieldAccess.writeOnesClear)
+        ]);
 }
 
 class MyFieldCsrInstance extends CsrInstanceConfig {
@@ -43,33 +72,9 @@ class MyFieldCsrInstance extends CsrInstanceConfig {
     required super.width,
     super.resetValue = 0xff,
     String name = 'myFieldCsrInstance',
-  }) : super(arch: MyFieldCsr(name: name), isBackdoorWritable: true) {
-    // example of a static field
-    fields
-      ..add(CsrFieldConfig(
-          start: 0, width: 2, name: 'field1', access: CsrFieldAccess.readOnly))
-      ..add(CsrFieldConfig(
-          start: 2,
-          width: 2,
-          name: 'field2',
-          access: CsrFieldAccess.readWriteLegal)
-        ..addLegalValue(0x0)
-        ..addLegalValue(0x1))
-      // example of a field with dynamic start and width
-      ..add(CsrFieldConfig(
-          start: width ~/ 2,
-          width: width ~/ 4,
-          name: 'field3',
-          access: CsrFieldAccess.readWrite));
-    // example of field duplication
-    for (var i = 0; i < width ~/ 4; i++) {
-      fields.add(CsrFieldConfig(
-          start: (3 * width ~/ 4) + i,
-          width: 1,
-          name: 'field4_$i',
-          access: CsrFieldAccess.writeOnesClear));
-    }
-  }
+  }) : super(
+            arch: MyFieldCsr(name: name, width: width),
+            isBackdoorWritable: true);
 }
 
 class MyRegisterBlock extends CsrBlockConfig {
@@ -83,46 +88,44 @@ class MyRegisterBlock extends CsrBlockConfig {
     this.csrWidth = 32,
     this.numNoFieldCsrs = 1,
     this.evensOnly = false,
-  }) {
-    // static register instance
-    registers.add(MyFieldCsrInstance(addr: 0x0, width: csrWidth, name: 'csr1'));
+  }) : super(registers: [
+          // static register instance
+          MyFieldCsrInstance(addr: 0x0, width: csrWidth, name: 'csr1'),
 
-    // dynamic register instances
-    for (var i = 0; i < numNoFieldCsrs; i++) {
-      final chk = i.isEven || !evensOnly;
-      if (chk) {
-        registers.add(MyNoFieldCsrInstance(
-            addr: i + 1, width: csrWidth, name: 'csr2_$i'));
-      }
-    }
+          // dynamic register instances
+          for (var i = 0; i < numNoFieldCsrs; i++)
+            if (i.isEven || !evensOnly)
+              MyNoFieldCsrInstance(
+                  addr: i + 1, width: csrWidth, name: 'csr2_$i'),
 
-    // adding a register on the fly
-    // with a larger width for potential frontdoor excess
-    registers.add(CsrInstanceConfig(
-        arch: CsrConfig(name: 'csr3', access: CsrAccess.readWrite),
-        addr: numNoFieldCsrs + 2,
-        width: csrWidth * 2));
-  }
+          // adding a register on the fly
+          // with a larger width for potential frontdoor excess
+          CsrInstanceConfig(
+              arch: CsrConfig(
+                  name: 'csr3', access: CsrAccess.readWrite, fields: const []),
+              addr: numNoFieldCsrs + 2,
+              width: csrWidth * 2)
+        ]);
 }
 
 class MyCsrModule extends CsrTopConfig {
   final int numBlocks;
 
+  static const _baseAddr = 0x0;
+
   MyCsrModule({
     this.numBlocks = 1,
     super.name = 'myCsrModule',
     super.blockOffsetWidth = 8,
-  }) {
-    // example of dynamic block instantiation
-    const baseAddr = 0x0;
-    for (var i = 0; i < numBlocks; i++) {
-      blocks.add(MyRegisterBlock(
-          baseAddr: baseAddr + (i * 0x100),
-          numNoFieldCsrs: i + 1,
-          evensOnly: i.isEven,
-          name: 'block_$i'));
-    }
-  }
+  }) : super(blocks: [
+          // example of dynamic block instantiation
+          for (var i = 0; i < numBlocks; i++)
+            MyRegisterBlock(
+                baseAddr: _baseAddr + (i * 0x100),
+                numNoFieldCsrs: i + 1,
+                evensOnly: i.isEven,
+                name: 'block_$i'),
+        ]);
 }
 
 // to test potentially issues with CsrTop port propagation
@@ -145,7 +148,13 @@ class DummyCsrTopModule extends Module {
     _reset = addInput('reset', reset);
     _fdr = DataPortInterface(32, 32);
     _fdw = DataPortInterface(32, 32);
-    _top = CsrTop(config, _clk, _reset, _fdw, _fdr, allowLargerRegisters: true);
+    _top = CsrTop(
+        config: config,
+        clk: _clk,
+        reset: _reset,
+        frontWrite: _fdw,
+        frontRead: _fdr,
+        allowLargerRegisters: true);
   }
 }
 
@@ -216,7 +225,12 @@ void main() {
     final reset = Logic()..put(0);
     final wIntf = DataPortInterface(csrWidth, 8);
     final rIntf = DataPortInterface(csrWidth, 8);
-    final csrBlock = CsrBlock(csrBlockCfg, clk, reset, wIntf, rIntf,
+    final csrBlock = CsrBlock(
+        config: csrBlockCfg,
+        clk: clk,
+        reset: reset,
+        frontWrite: wIntf,
+        frontRead: rIntf,
         allowLargerRegisters: true);
 
     wIntf.en.put(0);
@@ -358,8 +372,13 @@ void main() {
     final reset = Logic()..inject(0);
     final wIntf = DataPortInterface(csrWidth, 32);
     final rIntf = DataPortInterface(csrWidth, 32);
-    final csrTop =
-        CsrTop(csrTopCfg, clk, reset, wIntf, rIntf, allowLargerRegisters: true);
+    final csrTop = CsrTop(
+        config: csrTopCfg,
+        clk: clk,
+        reset: reset,
+        frontWrite: wIntf,
+        frontRead: rIntf,
+        allowLargerRegisters: true);
 
     wIntf.en.inject(0);
     wIntf.addr.inject(0);
@@ -457,135 +476,188 @@ void main() {
     await mod.build();
   });
 
+  group('omitted front-door interfaces', () {
+    test('no front write', () {
+      CsrTop(
+          config: MyCsrModule(),
+          clk: Logic(),
+          reset: Logic(),
+          frontWrite: null,
+          frontRead: DataPortInterface(64, 32));
+    });
+
+    test('no front read', () {
+      CsrTop(
+          config: MyCsrModule(),
+          clk: Logic(),
+          reset: Logic(),
+          frontWrite: DataPortInterface(64, 32),
+          frontRead: null);
+    });
+
+    test('no front door at all', () {
+      CsrTop(
+          config: MyCsrModule(),
+          clk: Logic(),
+          reset: Logic(),
+          frontWrite: null,
+          frontRead: null);
+    });
+  });
+
   test('CSR validation failures', () async {
     // illegal individual field - no legal values
-    final badFieldCfg1 = CsrFieldConfig(
-        start: 0,
-        width: 1,
-        name: 'badFieldCfg',
-        access: CsrFieldAccess.readWriteLegal);
-    expect(badFieldCfg1.validate,
-        throwsA(predicate((f) => f is CsrValidationException)));
+    expect(
+        () => CsrFieldConfig(
+            start: 0,
+            width: 1,
+            name: 'badFieldCfg',
+            access: CsrFieldAccess.readWriteLegal),
+        throwsA(isA<CsrValidationException>()));
 
     // illegal individual field - reset value doesn't fit
-    final badFieldCfg2 = CsrFieldConfig(
-        start: 0,
-        width: 1,
-        name: 'badFieldCfg',
-        access: CsrFieldAccess.readWrite,
-        resetValue: 0xfff);
-    expect(badFieldCfg2.validate,
-        throwsA(predicate((f) => f is CsrValidationException)));
+    expect(
+        () => CsrFieldConfig(
+            start: 0,
+            width: 1,
+            name: 'badFieldCfg',
+            access: CsrFieldAccess.readWrite,
+            resetValue: 0xfff),
+        throwsA(isA<CsrValidationException>()));
 
     // illegal individual field - legal value doesn't fit
-    final badFieldCfg3 = CsrFieldConfig(
-        start: 0,
-        width: 1,
-        name: 'badFieldCfg',
-        access: CsrFieldAccess.readWriteLegal)
-      ..addLegalValue(0x0)
-      ..addLegalValue(0xfff);
-    expect(badFieldCfg3.validate,
-        throwsA(predicate((f) => f is CsrValidationException)));
+    expect(
+        () => CsrFieldConfig(
+            start: 0,
+            width: 1,
+            name: 'badFieldCfg',
+            access: CsrFieldAccess.readWriteLegal,
+            legalValues: const [0x0, 0xfff]),
+        throwsA(isA<CsrValidationException>()));
 
     // illegal architectural register
-    final badArchRegCfg =
-        CsrConfig(access: CsrAccess.readWrite, name: 'badArchRegCfg')
-          ..fields.add(CsrFieldConfig(
-              start: 0,
-              width: 8,
-              name: 'field',
-              access: CsrFieldAccess.readWrite))
-          ..fields.add(CsrFieldConfig(
-              start: 3,
-              width: 4,
-              name: 'field',
-              access: CsrFieldAccess.readWrite))
-          ..fields.add(CsrFieldConfig(
-              start: 3,
-              width: 10,
-              name: 'field1',
-              access: CsrFieldAccess.readWrite))
-          ..fields.add(CsrFieldConfig(
-              start: 9,
-              width: 11,
-              name: 'field2',
-              access: CsrFieldAccess.readWrite));
-    expect(badArchRegCfg.validate,
-        throwsA(predicate((f) => f is CsrValidationException)));
+    expect(
+        () => CsrConfig(
+                access: CsrAccess.readWrite,
+                name: 'badArchRegCfg',
+                fields: [
+                  CsrFieldConfig(
+                    start: 0,
+                    width: 1,
+                    name: 'field',
+                    access: CsrFieldAccess.readWrite,
+                  ),
+                  CsrFieldConfig(
+                    start: 3,
+                    width: 4,
+                    name: 'field',
+                    access: CsrFieldAccess.readWrite,
+                  ),
+                  CsrFieldConfig(
+                    start: 3,
+                    width: 10,
+                    name: 'field1',
+                    access: CsrFieldAccess.readWrite,
+                  ),
+                  CsrFieldConfig(
+                    start: 9,
+                    width: 11,
+                    name: 'field2',
+                    access: CsrFieldAccess.readWrite,
+                  )
+                ]),
+        throwsA(isA<CsrValidationException>()));
 
     // illegal register instance - field surpasses reg width
-    final badRegInstCfg1 = CsrInstanceConfig(
-        arch: CsrConfig(access: CsrAccess.readWrite, name: 'reg')
-          ..fields.add(CsrFieldConfig(
-              start: 0,
-              width: 32,
-              name: 'field',
-              access: CsrFieldAccess.readWrite)),
-        addr: 0x0,
-        width: 4);
-    expect(badRegInstCfg1.validate,
-        throwsA(predicate((f) => f is CsrValidationException)));
+    expect(
+        () => CsrInstanceConfig(
+            arch: CsrConfig(access: CsrAccess.readWrite, name: 'reg', fields: [
+              CsrFieldConfig(
+                  start: 0,
+                  width: 32,
+                  name: 'field',
+                  access: CsrFieldAccess.readWrite)
+            ]),
+            addr: 0x0,
+            width: 4),
+        throwsA(isA<CsrValidationException>()));
 
     // illegal register instance - reset value surpasses reg width
-    final badRegInstCfg2 = CsrInstanceConfig(
-        arch: CsrConfig(access: CsrAccess.readWrite, name: 'reg')
-          ..fields.add(CsrFieldConfig(
-              start: 0,
-              width: 4,
-              name: 'field',
-              access: CsrFieldAccess.readWrite)),
-        addr: 0x0,
-        width: 4,
-        resetValue: 0xfff);
-    expect(badRegInstCfg2.validate,
-        throwsA(predicate((f) => f is CsrValidationException)));
+    expect(
+        () => CsrInstanceConfig(
+            arch: CsrConfig(access: CsrAccess.readWrite, name: 'reg', fields: [
+              CsrFieldConfig(
+                  start: 0,
+                  width: 4,
+                  name: 'field',
+                  access: CsrFieldAccess.readWrite)
+            ]),
+            addr: 0x0,
+            width: 4,
+            resetValue: 0xfff),
+        throwsA(isA<CsrValidationException>()));
   });
 
   test('CSR block and top validation failures', () async {
     // illegal block - empty
-    final badBlockCfg1 = CsrBlockConfig(name: 'block', baseAddr: 0x0);
-    expect(badBlockCfg1.validate,
-        throwsA(predicate((f) => f is CsrValidationException)));
+    expect(
+        () => CsrBlockConfig(name: 'block', baseAddr: 0x0, registers: const []),
+        throwsA(isA<CsrValidationException>()));
 
     // illegal block - duplication
-    final badBlockCfg2 = CsrBlockConfig(name: 'block', baseAddr: 0x0)
-      ..registers.add(CsrInstanceConfig(
-          arch: CsrConfig(access: CsrAccess.readWrite, name: 'reg'),
-          addr: 0x0,
-          width: 4))
-      ..registers.add(CsrInstanceConfig(
-          arch: CsrConfig(access: CsrAccess.readWrite, name: 'reg'),
-          addr: 0x1,
-          width: 4))
-      ..registers.add(CsrInstanceConfig(
-          arch: CsrConfig(access: CsrAccess.readWrite, name: 'reg1'),
-          addr: 0x1,
-          width: 4));
-    expect(badBlockCfg2.validate,
-        throwsA(predicate((f) => f is CsrValidationException)));
+    expect(
+        () => CsrBlockConfig(name: 'block', baseAddr: 0x0, registers: [
+              CsrInstanceConfig(
+                  arch: CsrConfig(
+                      access: CsrAccess.readWrite,
+                      name: 'reg',
+                      fields: const []),
+                  addr: 0x0,
+                  width: 4),
+              CsrInstanceConfig(
+                  arch: CsrConfig(
+                      access: CsrAccess.readWrite,
+                      name: 'reg',
+                      fields: const []),
+                  addr: 0x1,
+                  width: 4),
+              CsrInstanceConfig(
+                  arch: CsrConfig(
+                      access: CsrAccess.readWrite,
+                      name: 'reg1',
+                      fields: const []),
+                  addr: 0x1,
+                  width: 4)
+            ]),
+        throwsA(isA<CsrValidationException>()));
 
     // illegal top - empty
-    final badTopCfg1 = CsrTopConfig(name: 'top', blockOffsetWidth: 8);
-    expect(badTopCfg1.validate,
-        throwsA(predicate((f) => f is CsrValidationException)));
+    expect(
+        () => CsrTopConfig(name: 'top', blockOffsetWidth: 8, blocks: const []),
+        throwsA(isA<CsrValidationException>()));
 
     // illegal top - duplication and closeness
-    final badTopCfg2 = CsrTopConfig(name: 'top', blockOffsetWidth: 8)
-      ..blocks.add(CsrBlockConfig(name: 'block', baseAddr: 0x0))
-      ..blocks.add(CsrBlockConfig(name: 'block', baseAddr: 0x1))
-      ..blocks.add(CsrBlockConfig(name: 'block1', baseAddr: 0x1));
-    expect(badTopCfg2.validate,
-        throwsA(predicate((f) => f is CsrValidationException)));
+    expect(
+        () => CsrTopConfig(name: 'top', blockOffsetWidth: 8, blocks: [
+              CsrBlockConfig(name: 'block', baseAddr: 0x0, registers: const []),
+              CsrBlockConfig(name: 'block', baseAddr: 0x1, registers: const []),
+              CsrBlockConfig(name: 'block1', baseAddr: 0x1, registers: const [])
+            ]),
+        throwsA(isA<CsrValidationException>()));
 
     // illegal top - bad block offset width
-    final badTopCfg3 = CsrTopConfig(name: 'top', blockOffsetWidth: 1)
-      ..blocks.add(CsrBlockConfig(name: 'block', baseAddr: 0x0)
-        ..registers.add(CsrInstanceConfig(
-            arch: CsrConfig(access: CsrAccess.readWrite, name: 'reg'),
-            addr: 0x4,
-            width: 4)));
-    expect(badTopCfg3.validate,
-        throwsA(predicate((f) => f is CsrValidationException)));
+    expect(
+        () => CsrTopConfig(name: 'top', blockOffsetWidth: 1, blocks: [
+              CsrBlockConfig(name: 'block', baseAddr: 0x0, registers: [
+                CsrInstanceConfig(
+                    arch: CsrConfig(
+                        access: CsrAccess.readWrite,
+                        name: 'reg',
+                        fields: const []),
+                    addr: 0x4,
+                    width: 4)
+              ])
+            ]),
+        throwsA(isA<CsrValidationException>()));
   });
 }
