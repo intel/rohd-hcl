@@ -55,29 +55,48 @@
     <section class="multi-line-signature">
       
 <span class="returntype"><a href="../../rohd_hcl/CsrConfig-class.html">CsrConfig</a></span>
-<span class="name ">clone</span>(<wbr>)
+<span class="name ">clone</span>(<wbr>{<ol class="parameter-list"> <li><span class="parameter" id="clone-param-name"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.8.1/dart-core/String-class.html">String</a>?</span> <span class="parameter-name">name</span>, </span></li>
+<li><span class="parameter" id="clone-param-access"><span class="type-annotation"><a href="../../rohd_hcl/CsrAccess.html">CsrAccess</a>?</span> <span class="parameter-name">access</span>, </span></li>
+<li><span class="parameter" id="clone-param-resetValue"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.8.1/dart-core/int-class.html">int</a>?</span> <span class="parameter-name">resetValue</span>, </span></li>
+<li><span class="parameter" id="clone-param-fields"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.8.1/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../../rohd_hcl/CsrFieldConfig-class.html">CsrFieldConfig</a></span>&gt;</span>?</span> <span class="parameter-name">fields</span>, </span></li>
+<li><span class="parameter" id="clone-param-isFrontdoorReadable"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.8.1/dart-core/bool-class.html">bool</a>?</span> <span class="parameter-name">isFrontdoorReadable</span>, </span></li>
+<li><span class="parameter" id="clone-param-isFrontdoorWritable"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.8.1/dart-core/bool-class.html">bool</a>?</span> <span class="parameter-name">isFrontdoorWritable</span>, </span></li>
+<li><span class="parameter" id="clone-param-isBackdoorReadable"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.8.1/dart-core/bool-class.html">bool</a>?</span> <span class="parameter-name">isBackdoorReadable</span>, </span></li>
+<li><span class="parameter" id="clone-param-isBackdoorWritable"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.8.1/dart-core/bool-class.html">bool</a>?</span> <span class="parameter-name">isBackdoorWritable</span>, </span></li>
+</ol>})
 
       
 
     </section>
     
 <section class="desc markdown">
-  <p>Deep clone method.</p>
+  <p>Clones this configuration with the provided overrides.</p>
 </section>
 
 
     
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
-  <pre class="language-dart"><code class="language-dart">CsrConfig clone() =&gt; CsrConfig(
-      name: name,
-      access: access,
-      resetValue: resetValue,
-      isFrontdoorReadable: isFrontdoorReadable,
-      isFrontdoorWritable: isFrontdoorWritable,
-      isBackdoorReadable: isBackdoorReadable,
-      isBackdoorWritable: isBackdoorWritable,
-    )..fields.addAll(fields.map((e) =&gt; e.clone()));</code></pre>
+  <pre class="language-dart"><code class="language-dart">CsrConfig clone({
+  String? name,
+  CsrAccess? access,
+  int? resetValue,
+  List&lt;CsrFieldConfig&gt;? fields,
+  bool? isFrontdoorReadable,
+  bool? isFrontdoorWritable,
+  bool? isBackdoorReadable,
+  bool? isBackdoorWritable,
+}) =&gt;
+    CsrConfig(
+      name: name ?? this.name,
+      access: access ?? this.access,
+      resetValue: resetValue ?? _resetValue,
+      fields: fields ?? this.fields,
+      isFrontdoorReadable: isFrontdoorReadable ?? this.isFrontdoorReadable,
+      isFrontdoorWritable: isFrontdoorWritable ?? this.isFrontdoorWritable,
+      isBackdoorReadable: isBackdoorReadable ?? this.isBackdoorReadable,
+      isBackdoorWritable: isBackdoorWritable ?? this.isBackdoorWritable,
+    );</code></pre>
 </section>
 
 

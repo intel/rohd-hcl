@@ -59,6 +59,11 @@
   <section id="getter">
     <section class="multi-line-signature">
       
+  <div>
+    <ol class="annotation-list">
+        <li>@<a href="https://api.dart.dev/stable/3.8.1/dart-core/override-constant.html">override</a></li>
+    </ol>
+  </div>
       <span class="returntype"><a href="../../rohd_hcl/CsrTopConfig-class.html">CsrTopConfig</a></span>
       get
       <span class="name ">config</span>
@@ -73,7 +78,8 @@
     
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
-  <pre class="language-dart"><code class="language-dart">CsrTopConfig get config =&gt; _config.clone();</code></pre>
+  <pre class="language-dart"><code class="language-dart">@override
+CsrTopConfig get config =&gt; super.config as CsrTopConfig;</code></pre>
 </section>
 
   </section>

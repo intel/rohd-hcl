@@ -54,6 +54,11 @@
 
     <section class="multi-line-signature">
       
+  <div>
+    <ol class="annotation-list">
+        <li>@<a href="https://api.dart.dev/stable/3.8.1/dart-core/override-constant.html">override</a></li>
+    </ol>
+  </div>
 <span class="returntype"><a href="../../rohd_hcl/CsrBlockConfig-class.html">CsrBlockConfig</a></span>
 <span class="name ">clone</span>(<wbr>)
 
@@ -69,10 +74,12 @@
     
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
-  <pre class="language-dart"><code class="language-dart">CsrBlockConfig clone() =&gt; CsrBlockConfig(
+  <pre class="language-dart"><code class="language-dart">@override
+CsrBlockConfig clone() =&gt; CsrBlockConfig(
       name: name,
       baseAddr: baseAddr,
-    )..registers.addAll(registers.map((e) =&gt; e.clone()));</code></pre>
+      registers: registers,
+    );</code></pre>
 </section>
 
 

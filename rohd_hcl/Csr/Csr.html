@@ -80,27 +80,24 @@ the LogicStructure constructor is called.</logic></p>
   &#47;&#47; semantically a register with no fields means that
   &#47;&#47; there is one read&#47;write field that is the entire register
   if (config.fields.isEmpty) {
-    fields.add(Logic(name: &#39;${config.name}_data&#39;, width: config.width));
+    fields.add(Logic(name: &#39;data&#39;, width: config.width));
   }
   &#47;&#47; there is at least one field explicitly defined so
   &#47;&#47; process them individually
   else {
     for (final field in config.fields) {
       if (field.start &gt; currIdx) {
-        fields.add(Logic(
-            name: &#39;${config.name}_rsvd_$rsvdCount&#39;,
-            width: field.start - currIdx));
+        fields.add(
+            Logic(name: &#39;rsvd_$rsvdCount&#39;, width: field.start - currIdx));
         rsvds.add(fields.length - 1);
         rsvdCount++;
       }
-      fields.add(
-          Logic(name: &#39;${config.name}_${field.name}&#39;, width: field.width));
+      fields.add(Logic(name: field.name, width: field.width));
       currIdx = field.start + field.width;
     }
     if (currIdx &lt; config.width) {
-      fields.add(Logic(
-          name: &#39;${config.name}_rsvd_$rsvdCount&#39;,
-          width: config.width - currIdx));
+      fields
+          .add(Logic(name: &#39;rsvd_$rsvdCount&#39;, width: config.width - currIdx));
       rsvds.add(fields.length - 1);
     }
   }

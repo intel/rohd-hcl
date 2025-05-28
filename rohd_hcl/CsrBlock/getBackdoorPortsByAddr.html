@@ -55,7 +55,7 @@
     <section class="multi-line-signature">
       
 <span class="returntype"><a href="../../rohd_hcl/CsrBackdoorInterface-class.html">CsrBackdoorInterface</a></span>
-<span class="name ">getBackdoorPortsByAddr</span>(<wbr><ol class="parameter-list single-line"> <li><span class="parameter" id="getBackdoorPortsByAddr-param-addr"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.8.0/dart-core/int-class.html">int</a></span> <span class="parameter-name">addr</span></span></li>
+<span class="name ">getBackdoorPortsByAddr</span>(<wbr><ol class="parameter-list single-line"> <li><span class="parameter" id="getBackdoorPortsByAddr-param-addr"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.8.1/dart-core/int-class.html">int</a></span> <span class="parameter-name">addr</span></span></li>
 </ol>)
 
       
@@ -72,12 +72,12 @@ within the block by relative address <code>addr</code>.</p>
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">CsrBackdoorInterface getBackdoorPortsByAddr(int addr) {
-  final idx = _config.registers.indexOf(_config.getRegisterByAddr(addr));
+  final idx = config.registers.indexOf(config.getRegisterByAddr(addr));
   if (_backdoorIndexMap.containsKey(idx)) {
     return backdoorInterfaces[_backdoorIndexMap[idx]!];
   } else {
     throw Exception(
-        &#39;Register address $addr not found in block ${_config.name}&#39;);
+        &#39;Register address $addr not found in block ${config.name}&#39;);
   }
 }</code></pre>
 </section>

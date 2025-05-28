@@ -54,7 +54,12 @@
 
     <section class="multi-line-signature">
       
-<span class="returntype"><a href="https://api.dart.dev/stable/3.8.0/dart-core/int-class.html">int</a></span>
+  <div>
+    <ol class="annotation-list">
+        <li>@<a href="https://api.dart.dev/stable/3.8.1/dart-core/override-constant.html">override</a></li>
+    </ol>
+  </div>
+<span class="returntype"><a href="https://api.dart.dev/stable/3.8.1/dart-core/int-class.html">int</a></span>
 <span class="name ">minAddrBits</span>(<wbr>)
 
       
@@ -73,7 +78,8 @@ so we can trust the simpler analysis here.</p>
     
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
-  <pre class="language-dart"><code class="language-dart">int minAddrBits() {
+  <pre class="language-dart"><code class="language-dart">@override
+int minAddrBits() {
   var maxAddr = 0;
   for (final block in blocks) {
     if (block.baseAddr &gt; maxAddr) {

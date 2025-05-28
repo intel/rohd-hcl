@@ -27,7 +27,7 @@
     <li><a href="../../index.html">rohd_hcl</a></li>
     <li><a href="../../rohd_hcl/">rohd_hcl.dart</a></li>
     <li><a href="../../rohd_hcl/CsrBlock-class.html">CsrBlock</a></li>
-    <li class="self-crumb">CsrBlock.new factory constructor</li>
+    <li class="self-crumb">CsrBlock.new constructor</li>
   </ol>
   <div class="self-name">CsrBlock.new</div>
   <form class="search navbar-right" role="search">
@@ -54,47 +54,49 @@
 
     <section class="multi-line-signature">
       
-      <span class="name ">CsrBlock</span>(<wbr><ol class="parameter-list"> <li><span class="parameter" id="-param-config"><span class="type-annotation"><a href="../../rohd_hcl/CsrBlockConfig-class.html">CsrBlockConfig</a></span> <span class="parameter-name">config</span>, </span></li>
-<li><span class="parameter" id="-param-clk"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.3/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">clk</span>, </span></li>
-<li><span class="parameter" id="-param-reset"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.3/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">reset</span>, </span></li>
-<li><span class="parameter" id="-param-fdw"><span class="type-annotation"><a href="../../rohd_hcl/DataPortInterface-class.html">DataPortInterface</a></span> <span class="parameter-name">fdw</span>, </span></li>
-<li><span class="parameter" id="-param-fdr"><span class="type-annotation"><a href="../../rohd_hcl/DataPortInterface-class.html">DataPortInterface</a></span> <span class="parameter-name">fdr</span>, {</span></li>
-<li><span class="parameter" id="-param-allowLargerRegisters"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.8.0/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">allowLargerRegisters</span> = <span class="default-value">false</span>, </span></li>
-<li><span class="parameter" id="-param-logicalRegisterIncrement"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.8.0/dart-core/int-class.html">int</a></span> <span class="parameter-name">logicalRegisterIncrement</span> = <span class="default-value">1</span>, </span></li>
+      <span class="name ">CsrBlock</span>(<wbr>{<ol class="parameter-list"> <li><span class="parameter" id="-param-config"><span>required</span> <span class="type-annotation"><a href="../../rohd_hcl/CsrBlockConfig-class.html">CsrBlockConfig</a></span> <span class="parameter-name">config</span>, </span></li>
+<li><span class="parameter" id="-param-clk"><span>required</span> <span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.3/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">clk</span>, </span></li>
+<li><span class="parameter" id="-param-reset"><span>required</span> <span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.3/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">reset</span>, </span></li>
+<li><span class="parameter" id="-param-frontWrite"><span>required</span> <span class="type-annotation"><a href="../../rohd_hcl/DataPortInterface-class.html">DataPortInterface</a>?</span> <span class="parameter-name">frontWrite</span>, </span></li>
+<li><span class="parameter" id="-param-frontRead"><span>required</span> <span class="type-annotation"><a href="../../rohd_hcl/DataPortInterface-class.html">DataPortInterface</a>?</span> <span class="parameter-name">frontRead</span>, </span></li>
+<li><span class="parameter" id="-param-allowLargerRegisters"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.8.1/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">allowLargerRegisters</span> = <span class="default-value">false</span>, </span></li>
+<li><span class="parameter" id="-param-logicalRegisterIncrement"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.8.1/dart-core/int-class.html">int</a></span> <span class="parameter-name">logicalRegisterIncrement</span> = <span class="default-value">1</span>, </span></li>
 </ol>})
     </section>
     
 <section class="desc markdown">
-  <p>Create the CsrBlock from a configuration.</p>
+  <p>Constructor for a CSR block.</p>
 </section>
 
 
     
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
-  <pre class="language-dart"><code class="language-dart">factory CsrBlock(
-  CsrBlockConfig config,
-  Logic clk,
-  Logic reset,
-  DataPortInterface fdw,
-  DataPortInterface fdr, {
-  bool allowLargerRegisters = false,
-  int logicalRegisterIncrement = 1,
-}) {
-  final csrs = &lt;Csr&gt;[];
-  for (final reg in config.registers) {
-    csrs.add(Csr(reg));
+  <pre class="language-dart"><code class="language-dart">CsrBlock({
+  required CsrBlockConfig super.config,
+  required super.clk,
+  required super.reset,
+  required super.frontWrite,
+  required super.frontRead,
+  super.allowLargerRegisters,
+  this.logicalRegisterIncrement = 1,
+}) : csrs = List.unmodifiable(config.registers.map(Csr.new)) {
+  _validate();
+
+  for (var i = 0; i &lt; csrs.length; i++) {
+    if (csrs[i].config.backdoorAccessible) {
+      _backdoorInterfaces.add(CsrBackdoorInterface(config: csrs[i].config));
+      backdoorInterfaces.add(CsrBackdoorInterface(config: csrs[i].config));
+      _backdoorInterfaces.last.connectIO(this, backdoorInterfaces.last,
+          outputTags: {CsrBackdoorPortGroup.read},
+          inputTags: {CsrBackdoorPortGroup.write},
+          uniquify: (original) =&gt;
+              &#39;${name}_${csrs[i].config.name}_backdoor_$original&#39;);
+      _backdoorIndexMap[i] = _backdoorInterfaces.length - 1;
+    }
   }
-  return CsrBlock._(
-    config: config,
-    csrs: csrs,
-    clk: clk,
-    reset: reset,
-    fdw: fdw,
-    fdr: fdr,
-    allowLargerRegisters: allowLargerRegisters,
-    logicalRegisterIncrement: logicalRegisterIncrement,
-  );
+
+  _buildLogic();
 }</code></pre>
 </section>
 
@@ -111,7 +113,7 @@
     <li><a href="../../index.html">rohd_hcl</a></li>
     <li><a href="../../rohd_hcl/">rohd_hcl</a></li>
     <li><a href="../../rohd_hcl/CsrBlock-class.html">CsrBlock</a></li>
-    <li class="self-crumb">CsrBlock.new factory constructor</li>
+    <li class="self-crumb">CsrBlock.new constructor</li>
 </ol>
 
     <h5>CsrBlock class</h5>

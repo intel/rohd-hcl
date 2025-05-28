@@ -55,24 +55,46 @@
     <section class="multi-line-signature">
       
 <span class="returntype"><a href="../../rohd_hcl/CsrInstanceConfig-class.html">CsrInstanceConfig</a></span>
-<span class="name ">clone</span>(<wbr>)
+<span class="name ">clone</span>(<wbr>{<ol class="parameter-list"> <li><span class="parameter" id="clone-param-arch"><span class="type-annotation"><a href="../../rohd_hcl/CsrConfig-class.html">CsrConfig</a>?</span> <span class="parameter-name">arch</span>, </span></li>
+<li><span class="parameter" id="clone-param-addr"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.8.1/dart-core/int-class.html">int</a>?</span> <span class="parameter-name">addr</span>, </span></li>
+<li><span class="parameter" id="clone-param-width"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.8.1/dart-core/int-class.html">int</a>?</span> <span class="parameter-name">width</span>, </span></li>
+<li><span class="parameter" id="clone-param-resetValue"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.8.1/dart-core/int-class.html">int</a>?</span> <span class="parameter-name">resetValue</span>, </span></li>
+<li><span class="parameter" id="clone-param-isFrontdoorReadable"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.8.1/dart-core/bool-class.html">bool</a>?</span> <span class="parameter-name">isFrontdoorReadable</span>, </span></li>
+<li><span class="parameter" id="clone-param-isFrontdoorWritable"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.8.1/dart-core/bool-class.html">bool</a>?</span> <span class="parameter-name">isFrontdoorWritable</span>, </span></li>
+<li><span class="parameter" id="clone-param-isBackdoorReadable"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.8.1/dart-core/bool-class.html">bool</a>?</span> <span class="parameter-name">isBackdoorReadable</span>, </span></li>
+<li><span class="parameter" id="clone-param-isBackdoorWritable"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.8.1/dart-core/bool-class.html">bool</a>?</span> <span class="parameter-name">isBackdoorWritable</span>, </span></li>
+</ol>})
 
       
 
     </section>
     
 <section class="desc markdown">
-  <p>Deep clone method.</p>
+  <p>Clone the register configuration with optional overrides.</p>
 </section>
 
 
     
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
-  <pre class="language-dart"><code class="language-dart">CsrInstanceConfig clone() =&gt; CsrInstanceConfig(
-      arch: arch.clone(),
-      addr: addr,
-      width: width,
+  <pre class="language-dart"><code class="language-dart">CsrInstanceConfig clone(
+        {CsrConfig? arch,
+        int? addr,
+        int? width,
+        int? resetValue,
+        bool? isFrontdoorReadable,
+        bool? isFrontdoorWritable,
+        bool? isBackdoorReadable,
+        bool? isBackdoorWritable}) =&gt;
+    CsrInstanceConfig(
+      arch: arch ?? this.arch,
+      addr: addr ?? this.addr,
+      width: width ?? this.width,
+      resetValue: resetValue ?? this.resetValue,
+      isFrontdoorReadable: isFrontdoorReadable ?? this.isFrontdoorReadable,
+      isFrontdoorWritable: isFrontdoorWritable ?? this.isFrontdoorWritable,
+      isBackdoorReadable: isBackdoorReadable ?? this.isBackdoorReadable,
+      isBackdoorWritable: isBackdoorWritable ?? this.isBackdoorWritable,
     );</code></pre>
 </section>
 

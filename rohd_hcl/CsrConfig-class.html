@@ -61,13 +61,33 @@ left until the instantiation of the register.</p>
 </section>
 
 
+    <section>
+      <dl class="dl-horizontal">
+        
+
+        
+        
+
+
+        
+        
+  <dt>Annotations</dt>
+  <dd>
+    <ul class="annotation-list clazz-relationships">
+        <li>@<a href="https://pub.dev/documentation/meta/1.17.0/meta/immutable-constant.html">immutable</a></li>
+    </ul>
+  </dd>
+
+
+      </dl>
+    </section>
 
     
   <section class="summary offset-anchor" id="constructors">
     <h2>Constructors</h2>
     <dl class="constructor-summary-list">
         <dt id="CsrConfig.new" class="callable">
-          <span class="name"><a href="../rohd_hcl/CsrConfig/CsrConfig.html">CsrConfig.new</a></span><span class="signature">({<span class="parameter" id="-param-name"><span>required</span> <span class="type-annotation"><a href="https://api.dart.dev/stable/3.8.0/dart-core/String-class.html">String</a></span> <span class="parameter-name">name</span>, </span><span class="parameter" id="-param-access"><span>required</span> <span class="type-annotation"><a href="../rohd_hcl/CsrAccess.html">CsrAccess</a></span> <span class="parameter-name">access</span>, </span><span class="parameter" id="-param-resetValue"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.8.0/dart-core/int-class.html">int</a>?</span> <span class="parameter-name">resetValue</span>, </span><span class="parameter" id="-param-isFrontdoorReadable"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.8.0/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">isFrontdoorReadable</span> = <span class="default-value">true</span>, </span><span class="parameter" id="-param-isFrontdoorWritable"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.8.0/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">isFrontdoorWritable</span> = <span class="default-value">true</span>, </span><span class="parameter" id="-param-isBackdoorReadable"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.8.0/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">isBackdoorReadable</span> = <span class="default-value">true</span>, </span><span class="parameter" id="-param-isBackdoorWritable"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.8.0/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">isBackdoorWritable</span> = <span class="default-value">true</span></span>})</span>
+          <span class="name"><a href="../rohd_hcl/CsrConfig/CsrConfig.html">CsrConfig.new</a></span><span class="signature">({<span class="parameter" id="-param-name"><span>required</span> <span class="type-annotation"><a href="https://api.dart.dev/stable/3.8.1/dart-core/String-class.html">String</a></span> <span class="parameter-name">name</span>, </span><span class="parameter" id="-param-access"><span>required</span> <span class="type-annotation"><a href="../rohd_hcl/CsrAccess.html">CsrAccess</a></span> <span class="parameter-name">access</span>, </span><span class="parameter" id="-param-fields"><span>required</span> <span class="type-annotation"><a href="https://api.dart.dev/stable/3.8.1/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../rohd_hcl/CsrFieldConfig-class.html">CsrFieldConfig</a></span>&gt;</span></span> <span class="parameter-name">fields</span>, </span><span class="parameter" id="-param-resetValue"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.8.1/dart-core/int-class.html">int</a>?</span> <span class="parameter-name">resetValue</span>, </span><span class="parameter" id="-param-isFrontdoorReadable"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.8.1/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">isFrontdoorReadable</span> = <span class="default-value">true</span>, </span><span class="parameter" id="-param-isFrontdoorWritable"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.8.1/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">isFrontdoorWritable</span> = <span class="default-value">true</span>, </span><span class="parameter" id="-param-isBackdoorReadable"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.8.1/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">isBackdoorReadable</span> = <span class="default-value">true</span>, </span><span class="parameter" id="-param-isBackdoorWritable"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.8.1/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">isBackdoorWritable</span> = <span class="default-value">true</span></span>})</span>
         </dt>
         <dd>
           Construct a new register configuration.
@@ -94,79 +114,79 @@ left until the instantiation of the register.</p>
 
         <dt id="fields" class="property">
   <span class="name"><a href="../rohd_hcl/CsrConfig/fields.html">fields</a></span>
-  <span class="signature">&#8594; <a href="https://api.dart.dev/stable/3.8.0/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../rohd_hcl/CsrFieldConfig-class.html">CsrFieldConfig</a></span>&gt;</span></span>
+  <span class="signature">&#8596; <a href="https://api.dart.dev/stable/3.8.1/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../rohd_hcl/CsrFieldConfig-class.html">CsrFieldConfig</a></span>&gt;</span></span>
   
 
 </dt>
 <dd>
   Fields in this register.
-  <div class="features"><span class="feature">final</span></div>
+  <div class="features"><span class="feature">late</span><span class="feature">final</span></div>
 
 </dd>
 
-        <dt id="hashCode" class="property inherited">
-  <span class="name"><a href="https://api.dart.dev/stable/3.8.0/dart-core/Object/hashCode.html">hashCode</a></span>
-  <span class="signature">&#8594; <a href="https://api.dart.dev/stable/3.8.0/dart-core/int-class.html">int</a></span>
+        <dt id="hashCode" class="property">
+  <span class="name"><a href="../rohd_hcl/CsrConfig/hashCode.html">hashCode</a></span>
+  <span class="signature">&#8594; <a href="https://api.dart.dev/stable/3.8.1/dart-core/int-class.html">int</a></span>
   
 
 </dt>
-<dd class="inherited">
+<dd>
   The hash code for this object.
-  <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
+  <div class="features"><span class="feature">no setter</span><span class="feature">override</span></div>
 
 </dd>
 
         <dt id="isBackdoorReadable" class="property">
   <span class="name"><a href="../rohd_hcl/CsrConfig/isBackdoorReadable.html">isBackdoorReadable</a></span>
-  <span class="signature">&#8596; <a href="https://api.dart.dev/stable/3.8.0/dart-core/bool-class.html">bool</a></span>
+  <span class="signature">&#8594; <a href="https://api.dart.dev/stable/3.8.1/dart-core/bool-class.html">bool</a></span>
   
 
 </dt>
 <dd>
   Architectural property in which the register can be backdoor read.
-  <div class="features"><span class="feature">getter/setter pair</span></div>
+  <div class="features"><span class="feature">final</span></div>
 
 </dd>
 
         <dt id="isBackdoorWritable" class="property">
   <span class="name"><a href="../rohd_hcl/CsrConfig/isBackdoorWritable.html">isBackdoorWritable</a></span>
-  <span class="signature">&#8596; <a href="https://api.dart.dev/stable/3.8.0/dart-core/bool-class.html">bool</a></span>
+  <span class="signature">&#8594; <a href="https://api.dart.dev/stable/3.8.1/dart-core/bool-class.html">bool</a></span>
   
 
 </dt>
 <dd>
   Architectural property in which the register can be backdoor written.
-  <div class="features"><span class="feature">getter/setter pair</span></div>
+  <div class="features"><span class="feature">final</span></div>
 
 </dd>
 
         <dt id="isFrontdoorReadable" class="property">
   <span class="name"><a href="../rohd_hcl/CsrConfig/isFrontdoorReadable.html">isFrontdoorReadable</a></span>
-  <span class="signature">&#8596; <a href="https://api.dart.dev/stable/3.8.0/dart-core/bool-class.html">bool</a></span>
+  <span class="signature">&#8594; <a href="https://api.dart.dev/stable/3.8.1/dart-core/bool-class.html">bool</a></span>
   
 
 </dt>
 <dd>
   Architectural property in which the register can be frontdoor read.
-  <div class="features"><span class="feature">getter/setter pair</span></div>
+  <div class="features"><span class="feature">final</span></div>
 
 </dd>
 
         <dt id="isFrontdoorWritable" class="property">
   <span class="name"><a href="../rohd_hcl/CsrConfig/isFrontdoorWritable.html">isFrontdoorWritable</a></span>
-  <span class="signature">&#8596; <a href="https://api.dart.dev/stable/3.8.0/dart-core/bool-class.html">bool</a></span>
+  <span class="signature">&#8594; <a href="https://api.dart.dev/stable/3.8.1/dart-core/bool-class.html">bool</a></span>
   
 
 </dt>
 <dd>
   Architectural property in which the register can be frontdoor written.
-  <div class="features"><span class="feature">getter/setter pair</span></div>
+  <div class="features"><span class="feature">final</span></div>
 
 </dd>
 
         <dt id="name" class="property">
   <span class="name"><a href="../rohd_hcl/CsrConfig/name.html">name</a></span>
-  <span class="signature">&#8594; <a href="https://api.dart.dev/stable/3.8.0/dart-core/String-class.html">String</a></span>
+  <span class="signature">&#8594; <a href="https://api.dart.dev/stable/3.8.1/dart-core/String-class.html">String</a></span>
   
 
 </dt>
@@ -178,19 +198,19 @@ left until the instantiation of the register.</p>
 
         <dt id="resetValue" class="property">
   <span class="name"><a href="../rohd_hcl/CsrConfig/resetValue.html">resetValue</a></span>
-  <span class="signature">&#8596; <a href="https://api.dart.dev/stable/3.8.0/dart-core/int-class.html">int</a>?</span>
+  <span class="signature">&#8594; <a href="https://api.dart.dev/stable/3.8.1/dart-core/int-class.html">int</a></span>
   
 
 </dt>
 <dd>
   Architectural reset value for the register.
-  <div class="features"><span class="feature">getter/setter pair</span></div>
+  <div class="features"><span class="feature">late</span><span class="feature">final</span></div>
 
 </dd>
 
         <dt id="runtimeType" class="property inherited">
-  <span class="name"><a href="https://api.dart.dev/stable/3.8.0/dart-core/Object/runtimeType.html">runtimeType</a></span>
-  <span class="signature">&#8594; <a href="https://api.dart.dev/stable/3.8.0/dart-core/Type-class.html">Type</a></span>
+  <span class="name"><a href="https://api.dart.dev/stable/3.8.1/dart-core/Object/runtimeType.html">runtimeType</a></span>
+  <span class="signature">&#8594; <a href="https://api.dart.dev/stable/3.8.1/dart-core/Type-class.html">Type</a></span>
   
 
 </dt>
@@ -210,20 +230,20 @@ left until the instantiation of the register.</p>
     <h2>Methods</h2>
     <dl class="callables">
         <dt id="clone" class="callable">
-  <span class="name"><a href="../rohd_hcl/CsrConfig/clone.html">clone</a></span><span class="signature">(<wbr>)
+  <span class="name"><a href="../rohd_hcl/CsrConfig/clone.html">clone</a></span><span class="signature">(<wbr>{<span class="parameter" id="clone-param-name"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.8.1/dart-core/String-class.html">String</a>?</span> <span class="parameter-name">name</span>, </span><span class="parameter" id="clone-param-access"><span class="type-annotation"><a href="../rohd_hcl/CsrAccess.html">CsrAccess</a>?</span> <span class="parameter-name">access</span>, </span><span class="parameter" id="clone-param-resetValue"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.8.1/dart-core/int-class.html">int</a>?</span> <span class="parameter-name">resetValue</span>, </span><span class="parameter" id="clone-param-fields"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.8.1/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../rohd_hcl/CsrFieldConfig-class.html">CsrFieldConfig</a></span>&gt;</span>?</span> <span class="parameter-name">fields</span>, </span><span class="parameter" id="clone-param-isFrontdoorReadable"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.8.1/dart-core/bool-class.html">bool</a>?</span> <span class="parameter-name">isFrontdoorReadable</span>, </span><span class="parameter" id="clone-param-isFrontdoorWritable"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.8.1/dart-core/bool-class.html">bool</a>?</span> <span class="parameter-name">isFrontdoorWritable</span>, </span><span class="parameter" id="clone-param-isBackdoorReadable"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.8.1/dart-core/bool-class.html">bool</a>?</span> <span class="parameter-name">isBackdoorReadable</span>, </span><span class="parameter" id="clone-param-isBackdoorWritable"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.8.1/dart-core/bool-class.html">bool</a>?</span> <span class="parameter-name">isBackdoorWritable</span></span>})
     <span class="returntype parameter">&#8594; <a href="../rohd_hcl/CsrConfig-class.html">CsrConfig</a></span>
   </span>
   
 
 </dt>
 <dd>
-  Deep clone method.
+  Clones this configuration with the provided overrides.
   
 
 </dd>
 
         <dt id="getFieldByName" class="callable">
-  <span class="name"><a href="../rohd_hcl/CsrConfig/getFieldByName.html">getFieldByName</a></span><span class="signature">(<wbr><span class="parameter" id="getFieldByName-param-name"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.8.0/dart-core/String-class.html">String</a></span> <span class="parameter-name">name</span></span>)
+  <span class="name"><a href="../rohd_hcl/CsrConfig/getFieldByName.html">getFieldByName</a></span><span class="signature">(<wbr><span class="parameter" id="getFieldByName-param-name"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.8.1/dart-core/String-class.html">String</a></span> <span class="parameter-name">name</span></span>)
     <span class="returntype parameter">&#8594; <a href="../rohd_hcl/CsrFieldConfig-class.html">CsrFieldConfig</a></span>
   </span>
   
@@ -237,7 +257,7 @@ within the register by name <code>name</code>.
 </dd>
 
         <dt id="noSuchMethod" class="callable inherited">
-  <span class="name"><a href="https://api.dart.dev/stable/3.8.0/dart-core/Object/noSuchMethod.html">noSuchMethod</a></span><span class="signature">(<wbr><span class="parameter" id="noSuchMethod-param-invocation"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.8.0/dart-core/Invocation-class.html">Invocation</a></span> <span class="parameter-name">invocation</span></span>)
+  <span class="name"><a href="https://api.dart.dev/stable/3.8.1/dart-core/Object/noSuchMethod.html">noSuchMethod</a></span><span class="signature">(<wbr><span class="parameter" id="noSuchMethod-param-invocation"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.8.1/dart-core/Invocation-class.html">Invocation</a></span> <span class="parameter-name">invocation</span></span>)
     <span class="returntype parameter">&#8594; dynamic</span>
   </span>
   
@@ -250,8 +270,8 @@ within the register by name <code>name</code>.
 </dd>
 
         <dt id="toString" class="callable inherited">
-  <span class="name"><a href="https://api.dart.dev/stable/3.8.0/dart-core/Object/toString.html">toString</a></span><span class="signature">(<wbr>)
-    <span class="returntype parameter">&#8594; <a href="https://api.dart.dev/stable/3.8.0/dart-core/String-class.html">String</a></span>
+  <span class="name"><a href="https://api.dart.dev/stable/3.8.1/dart-core/Object/toString.html">toString</a></span><span class="signature">(<wbr>)
+    <span class="returntype parameter">&#8594; <a href="https://api.dart.dev/stable/3.8.1/dart-core/String-class.html">String</a></span>
   </span>
   
 
@@ -262,37 +282,24 @@ within the register by name <code>name</code>.
 
 </dd>
 
-        <dt id="validate" class="callable">
-  <span class="name"><a href="../rohd_hcl/CsrConfig/validate.html">validate</a></span><span class="signature">(<wbr>)
-    <span class="returntype parameter">&#8594; void</span>
+    </dl>
+  </section>
+    
+  <section
+      class="summary offset-anchor"
+      id="operators">
+    <h2>Operators</h2>
+    <dl class="callables">
+        <dt id="operator ==" class="callable">
+  <span class="name"><a href="../rohd_hcl/CsrConfig/operator_equals.html">operator ==</a></span><span class="signature">(<wbr><span class="parameter" id="==-param-other"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.8.1/dart-core/Object-class.html">Object</a></span> <span class="parameter-name">other</span></span>)
+    <span class="returntype parameter">&#8594; <a href="https://api.dart.dev/stable/3.8.1/dart-core/bool-class.html">bool</a></span>
   </span>
   
 
 </dt>
 <dd>
-  Method to validate the configuration of a single register.
-  
-
-</dd>
-
-    </dl>
-  </section>
-    
-  <section
-      class="summary offset-anchor inherited"
-      id="operators">
-    <h2>Operators</h2>
-    <dl class="callables">
-        <dt id="operator ==" class="callable inherited">
-  <span class="name"><a href="https://api.dart.dev/stable/3.8.0/dart-core/Object/operator_equals.html">operator ==</a></span><span class="signature">(<wbr><span class="parameter" id="==-param-other"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.8.0/dart-core/Object-class.html">Object</a></span> <span class="parameter-name">other</span></span>)
-    <span class="returntype parameter">&#8594; <a href="https://api.dart.dev/stable/3.8.0/dart-core/bool-class.html">bool</a></span>
-  </span>
-  
-
-</dt>
-<dd class="inherited">
   The equality operator.
-  <div class="features"><span class="feature">inherited</span></div>
+  <div class="features"><span class="feature">override</span></div>
 
 </dd>
 

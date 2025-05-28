@@ -54,7 +54,12 @@
 
     <section class="multi-line-signature">
       
-<span class="returntype"><a href="https://api.dart.dev/stable/3.8.0/dart-core/int-class.html">int</a></span>
+  <div>
+    <ol class="annotation-list">
+        <li>@<a href="https://api.dart.dev/stable/3.8.1/dart-core/override-constant.html">override</a></li>
+    </ol>
+  </div>
+<span class="returntype"><a href="https://api.dart.dev/stable/3.8.1/dart-core/int-class.html">int</a></span>
 <span class="name ">maxRegWidth</span>(<wbr>)
 
       
@@ -70,7 +75,8 @@ This is important for interface data width validation.</p>
     
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
-  <pre class="language-dart"><code class="language-dart">int maxRegWidth() {
+  <pre class="language-dart"><code class="language-dart">@override
+int maxRegWidth() {
   var maxWidth = 0;
   for (final reg in registers) {
     if (reg.width &gt; maxWidth) {

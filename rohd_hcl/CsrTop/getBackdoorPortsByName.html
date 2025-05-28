@@ -55,8 +55,8 @@
     <section class="multi-line-signature">
       
 <span class="returntype"><a href="../../rohd_hcl/CsrBackdoorInterface-class.html">CsrBackdoorInterface</a></span>
-<span class="name ">getBackdoorPortsByName</span>(<wbr><ol class="parameter-list single-line"> <li><span class="parameter" id="getBackdoorPortsByName-param-block"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.8.0/dart-core/String-class.html">String</a></span> <span class="parameter-name">block</span>, </span></li>
-<li><span class="parameter" id="getBackdoorPortsByName-param-reg"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.8.0/dart-core/String-class.html">String</a></span> <span class="parameter-name">reg</span></span></li>
+<span class="name ">getBackdoorPortsByName</span>(<wbr><ol class="parameter-list single-line"> <li><span class="parameter" id="getBackdoorPortsByName-param-block"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.8.1/dart-core/String-class.html">String</a></span> <span class="parameter-name">block</span>, </span></li>
+<li><span class="parameter" id="getBackdoorPortsByName-param-reg"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.8.1/dart-core/String-class.html">String</a></span> <span class="parameter-name">reg</span></span></li>
 </ol>)
 
       
@@ -73,10 +73,10 @@ within the block <code>block</code>.</p>
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">CsrBackdoorInterface getBackdoorPortsByName(String block, String reg) {
-  final idx = _config.blocks.indexOf(_config.getBlockByName(block));
+  final idx = config.blocks.indexOf(config.getBlockByName(block));
   if (idx &gt;= 0 &amp;&amp; idx &lt; backdoorInterfaces.length) {
-    final idx1 = _config.blocks[idx].registers
-        .indexOf(_config.blocks[idx].getRegisterByName(reg));
+    final idx1 = config.blocks[idx].registers
+        .indexOf(config.blocks[idx].getRegisterByName(reg));
     if (_backdoorIndexMaps[idx].containsKey(idx1)) {
       return backdoorInterfaces[idx][_backdoorIndexMaps[idx][idx1]!];
     } else {
