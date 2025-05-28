@@ -251,14 +251,11 @@ class FloatingPointAdderDualPath<FpType extends FloatingPoint>
     // cause too much to do for the leadingOne calculation. Could we reverse the
     // operands or is there no guarantee?  If so, would a dual-adder make sense
     // here?
-    // final significandSubtractorNPath = OnesComplementAdder(
-    //     largeOperand, smallOperandNPath,
-    //     subtractIn: effectiveSubtraction,
-    //     adderGen: adderGen,
-    //     name: 'npath_significand_sub');
-    final significandSubtractorNPath = SignMagnitudeDualAdder(
-        Const(0), largeOperand, effectiveSubtraction, smallOperandNPath,
-        adderGen: adderGen, name: 'npath_significand_sub');
+    final significandSubtractorNPath = OnesComplementAdder(
+        largeOperand, smallOperandNPath,
+        subtractIn: effectiveSubtraction,
+        adderGen: adderGen,
+        name: 'npath_significand_sub');
 
     final significandNPath = significandSubtractorNPath.sum
         .slice(smallOperandNPath.width - 1, 0)
@@ -268,8 +265,6 @@ class FloatingPointAdderDualPath<FpType extends FloatingPoint>
     final significandNPathFlopped = localFlop(significandNPath);
     final significandSubtractorNPathSignFlopped =
         localFlop(significandSubtractorNPath.sign);
-    // final leadOneNPathFlopped = localFlop(leadOneNPath);
-    // final validLeadOneNPathFlopped = localFlop(validLeadOneNPath);
     final largerSignFlopped = localFlop(larger.sign);
     final smallerSignFlopped = localFlop(smaller.sign);
 
