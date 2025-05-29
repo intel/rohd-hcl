@@ -15,13 +15,15 @@ import 'package:rohd_hcl/rohd_hcl.dart';
 class FloatingPointAdderSimple<FpType extends FloatingPoint>
     extends FloatingPointAdder<FpType> {
   /// Add two floating point numbers [a] and [b], returning result in [sum].
+  /// If a different output type is needed, you can provide that in [outSum].
   /// - [adderGen] is an adder generator to be used in the primary adder
   ///   functions.
   /// - [widthGen] is the splitting function for creating the different adder
   ///   blocks within the internal [CompoundAdder] used for mantissa addition.
   ///   Decreasing the split width will increase speed but also increase area.
   FloatingPointAdderSimple(super.a, super.b,
-      {super.clk,
+      {super.outSum,
+      super.clk,
       super.reset,
       super.enable,
       Adder Function(Logic a, Logic b, {Logic? carryIn, String name}) adderGen =
@@ -36,10 +38,6 @@ class FloatingPointAdderSimple<FpType extends FloatingPoint>
       throw RohdHclException('Floating point adder does not support '
           'inputs of different jBit types.');
     }
-    final outputSum = FloatingPoint(
-        exponentWidth: exponentWidth,
-        mantissaWidth: mantissaWidth,
-        name: 'sum');
     // Would prefer to use getter here for setting, but the getter
     // translates the type from Logic to FloatingPoint.
     output('sum') <= outputSum;

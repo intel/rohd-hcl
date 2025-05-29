@@ -494,6 +494,93 @@ void main() {
 ''');
   });
 
+  test('FP: simple adder with explicit j-bit input, implicit output singleton',
+      () {
+    const exponentWidth = 8;
+    const mantissaWidth = 24;
+    FloatingPointExplicitJBitValue ofString(String s) =>
+        FloatingPointExplicitJBitValue.ofSpacedBinaryString(s);
+    final fp1 = FloatingPoint(
+        exponentWidth: exponentWidth,
+        mantissaWidth: mantissaWidth,
+        explicitJBit: true);
+    final fp2 = FloatingPoint(
+        exponentWidth: exponentWidth,
+        mantissaWidth: mantissaWidth,
+        explicitJBit: true);
+    final fpout = FloatingPoint(
+        exponentWidth: exponentWidth, mantissaWidth: mantissaWidth);
+    final fv1 = ofString('0 10000010 100100000000000000000000');
+    final fv2 = ofString('0 00000000 000000000000000000000000');
+
+    fp1.put(fv1);
+    fp2.put(fv2);
+    final adder = FloatingPointAdderSimple(fp1, fp2, outSum: fpout);
+    final computed = adder.sum.floatingPointValue;
+
+    final expectedDouble = fv1.toDouble() + fv2.toDouble();
+
+    final expectedRound = FloatingPointValue.populator(
+            exponentWidth: exponentWidth, mantissaWidth: mantissaWidth)
+        .ofDouble(expectedDouble);
+    final expectedNoRound = FloatingPointValue.populator(
+            exponentWidth: exponentWidth, mantissaWidth: mantissaWidth)
+        .ofDoubleUnrounded(expectedDouble);
+
+    expect(computed, equals(expectedRound), reason: '''
+      $fv1 (${fv1.toDouble()})\t+
+      $fv2 (${fv2.toDouble()})\t=
+      $computed (${computed.toDouble()})\tcomputed
+      $expectedRound (${expectedRound.toDouble()})\texpectedRound
+      $expectedNoRound (${expectedNoRound.toDouble()})\texpectedRoundNo
+''');
+  });
+
+  test('FP: simple adder with explicit j-bit input, explicit output singleton',
+      () {
+    /// TODO(desmonddak): This should fail
+    const exponentWidth = 8;
+    const mantissaWidth = 24;
+    FloatingPointExplicitJBitValue ofString(String s) =>
+        FloatingPointExplicitJBitValue.ofSpacedBinaryString(s);
+    final fp1 = FloatingPoint(
+        exponentWidth: exponentWidth,
+        mantissaWidth: mantissaWidth,
+        explicitJBit: true);
+    final fp2 = FloatingPoint(
+        exponentWidth: exponentWidth,
+        mantissaWidth: mantissaWidth,
+        explicitJBit: true);
+    final fpout = FloatingPoint(
+        exponentWidth: exponentWidth,
+        mantissaWidth: mantissaWidth,
+        explicitJBit: true);
+    final fv1 = ofString('0 10000010 100100000000000000000000');
+    final fv2 = ofString('0 00000000 000000000000000000000000');
+
+    fp1.put(fv1);
+    fp2.put(fv2);
+    final adder = FloatingPointAdderSimple(fp1, fp2, outSum: fpout);
+    final computed = adder.sum.floatingPointValue;
+
+    final expectedDouble = fv1.toDouble() + fv2.toDouble();
+
+    final expectedRound = FloatingPointValue.populator(
+            exponentWidth: exponentWidth, mantissaWidth: mantissaWidth)
+        .ofDouble(expectedDouble);
+    final expectedNoRound = FloatingPointValue.populator(
+            exponentWidth: exponentWidth, mantissaWidth: mantissaWidth)
+        .ofDoubleUnrounded(expectedDouble);
+
+    expect(computed, equals(expectedRound), reason: '''
+      $fv1 (${fv1.toDouble()})\t+
+      $fv2 (${fv2.toDouble()})\t=
+      $computed (${computed.toDouble()})\tcomputed
+      $expectedRound (${expectedRound.toDouble()})\texpectedRound
+      $expectedNoRound (${expectedNoRound.toDouble()})\texpectedRoundNo
+''');
+  });
+
   test('FP: simple adder with explicit j-bit exhaustive', () {
     const exponentWidth = 4;
     const mantissaWidth = 4;
