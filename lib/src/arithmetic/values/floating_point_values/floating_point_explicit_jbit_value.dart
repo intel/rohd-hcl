@@ -111,6 +111,7 @@ class FloatingPointExplicitJBitValue extends FloatingPointValue {
 
   /// Convert to a [FloatingPointValue] with a mantissa that is one smaller
   /// due to the implicit J-bit.
+  @override
   FloatingPointValue toFloatingPointValue() {
     final norm = canonicalize();
     return FloatingPointValue(

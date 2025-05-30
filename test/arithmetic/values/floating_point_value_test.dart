@@ -485,13 +485,17 @@ void main() {
     const exponentWidth = 4;
     const mantissaWidth = 4;
 
-    final fp = FloatingPointExplicitJBitValue.populator(
-            exponentWidth: exponentWidth, mantissaWidth: mantissaWidth)
+    final fp = FloatingPointValue.populator(
+            exponentWidth: exponentWidth,
+            mantissaWidth: mantissaWidth,
+            explicitJBit: true)
         .ofSpacedBinaryString('0 0001 0111');
     if (fp.isLegalValue()) {
       final dbl = fp.toDouble();
-      final fp2 = FloatingPointExplicitJBitValue.populator(
-              exponentWidth: exponentWidth, mantissaWidth: mantissaWidth)
+      final fp2 = FloatingPointValue.populator(
+              exponentWidth: exponentWidth,
+              mantissaWidth: mantissaWidth,
+              explicitJBit: true)
           .ofDouble(dbl, roundingMode: FloatingPointRoundingMode.truncate);
       expect(fp.canonicalize(), equals(fp2));
       final fpOrig = FloatingPointValue.populator(
@@ -514,12 +518,15 @@ void main() {
         for (var m = 0; m < pow(2.0, mantissaWidth).toInt(); m++) {
           final mantStr = mantissa.bitString;
 
-          final efp = FloatingPointExplicitJBitValue.ofBinaryStrings(
-              signStr, expStr, mantStr);
+          final efp = FloatingPointValue.ofBinaryStrings(
+              signStr, expStr, mantStr,
+              explicitJBit: true);
           if (efp.isLegalValue()) {
             final dbl = efp.toDouble();
-            final efp2 = FloatingPointExplicitJBitValue.populator(
-                    exponentWidth: exponentWidth, mantissaWidth: mantissaWidth)
+            final efp2 = FloatingPointValue.populator(
+                    exponentWidth: exponentWidth,
+                    mantissaWidth: mantissaWidth,
+                    explicitJBit: true)
                 .ofDouble(dbl,
                     roundingMode: FloatingPointRoundingMode.truncate);
             expect(efp.canonicalize(), equals(efp2));

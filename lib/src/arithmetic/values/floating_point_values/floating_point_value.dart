@@ -350,6 +350,16 @@ class FloatingPointValue implements Comparable<FloatingPointValue> {
     return doubleVal;
   }
 
+  /// Convert to a [FloatingPointValue] with a mantissa that is one smaller
+  /// due to the implicit J-bit.
+  FloatingPointValue toFloatingPointValue() {
+    final norm = canonicalize();
+    return FloatingPointValue(
+        sign: norm.sign,
+        exponent: norm.exponent,
+        mantissa: norm.mantissa.getRange(0, norm.mantissa.width - 1));
+  }
+
   /// Return a Logic true if this FloatingPointVa;ie contains a normal number,
   /// defined as having mantissa in the range `[1,2)`.
   bool isNormal() {
