@@ -60,9 +60,7 @@ abstract class FloatingPointUtilities {
 
     final swapped = swap(doSwap, toSort);
 
-    FpType clone({String? name}) =>
-        toSort.$1.clone(name: name, explicitJBit: toSort.$1.explicitJBit)
-            as FpType;
+    FpType clone({String? name}) => toSort.$1.clone(name: name) as FpType;
 
     final larger = clone(name: 'larger')..gets(swapped.$1);
     final smaller = clone(name: 'smaller')..gets(swapped.$2);

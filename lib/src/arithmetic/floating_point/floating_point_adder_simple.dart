@@ -212,7 +212,8 @@ class FloatingPointAdderSimple<FpType extends FloatingPoint>
 
     final shiftL1Final =
         mux(shiftedPrediction[-1], shiftedPrediction, shiftedPrediction << 1)
-            .slice(shiftedPrediction.width - 2, 0)
+            .slice(shiftedPrediction.width - (outputSum.explicitJBit ? 1 : 2),
+                (outputSum.explicitJBit ? 1 : 0))
             .named('shiftL1Final');
 
     final lead1Valid = leadingZerosPredictionValidFlopped;
@@ -248,16 +249,24 @@ class FloatingPointAdderSimple<FpType extends FloatingPoint>
     final mantissaTrimmed =
         mantissa.getRange(extendedWidth + 1).named('mantissaTrimmed');
 
-    final mantissaRound = mux(
-            doRound,
-            (mantissaTrimmed + Const(1, width: mantissaWidth))
-                .named('mantissaTrimmedP1'),
-            mantissaTrimmed)
-        .named('mantissaRound');
+    final rndAdder =
+        adderGen(mantissaTrimmed, doRound.zeroExtend(mantissaWidth));
 
-    final exponentRound = (exponent +
-            (doRound & mantissaTrimmed.and()).zeroExtend(exponent.width))
-        .named('exponentRound');
+    final newRnd = rndAdder.sum;
+
+    var mantissaRound = newRnd.slice(outputSum.explicitJBit ? -1 : -2,
+        -mantissaWidth - (outputSum.explicitJBit ? 0 : 1));
+
+    final altmantissaRound = newRnd.slice(-2, -mantissaWidth - 1);
+
+    mantissaRound = mux(
+            exponent.gt(Const(0, width: exponent.width)) & ~mantissaRound[-1],
+            altmantissaRound,
+            mantissaRound)
+        .named('mantissaRoundFinal');
+
+    final exponentRound =
+        exponent + rndAdder.sum[-1].zeroExtend(exponent.width);
 
     final realIsInf =
         (isInfFlopped | exponent.eq(infExponent)).named('realIsInf');

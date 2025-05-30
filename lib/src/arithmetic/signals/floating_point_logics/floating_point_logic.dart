@@ -64,8 +64,7 @@ class FloatingPoint extends LogicStructure {
 
   @mustBeOverridden
   @override
-  FloatingPoint clone({String? name, bool explicitJBit = false}) =>
-      FloatingPoint(
+  FloatingPoint clone({String? name}) => FloatingPoint(
         exponentWidth: exponent.width,
         mantissaWidth: mantissa.width,
         explicitJBit: explicitJBit,

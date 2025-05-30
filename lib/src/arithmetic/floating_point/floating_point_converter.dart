@@ -33,8 +33,8 @@ class FloatingPointConverter<FpTypeIn extends FloatingPoint,
 
   /// The result of [FloatingPoint] conversion
   @protected
-  late final FpTypeOut _destination = destination.clone(
-      name: 'destination', explicitJBit: destination.explicitJBit) as FpTypeOut;
+  late final FpTypeOut _destination =
+      destination.clone(name: 'destination') as FpTypeOut;
 
   /// Convert a [FloatingPoint] logic structure from one format to another.
   /// - [source] is the source format [FloatingPoint] logic structure.
@@ -57,8 +57,7 @@ class FloatingPointConverter<FpTypeIn extends FloatingPoint,
                 '${destination.runtimeType}') {
     destExponentWidth = destination.exponent.width;
     destMantissaWidth = destination.mantissa.width;
-    source = (source.clone(name: 'source', explicitJBit: source.explicitJBit)
-        as FpTypeIn)
+    source = (source.clone(name: 'source') as FpTypeIn)
       ..gets(addInput('source', source, width: source.width));
     addOutput('destination', width: _destination.width) <= _destination;
     destination <= output('destination');
