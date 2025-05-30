@@ -7,55 +7,54 @@
 // 2025 April 10
 // Author: Desmond Kirkpatrick <desmond.a.kirkpatrick@intel.com>
 
+import 'package:meta/meta.dart';
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
 
-/// Module for predicting the number of leading zeros (position of leading 1)
-/// before an addition or subtraction.
-class LeadingZeroAnticipate extends Module {
+/// Base class for leading-zero anticipate modules.
+abstract class LeadingZeroAnticipateBase extends Module {
   /// The number of zeros or position of leading 1.
-  Logic? get leadingOne => output('leadingOne');
+  Logic get leadingOne => output('leadingOne');
 
   /// If the [leadingOne] output is valid.
-  Logic? get validLeadOne => output('validLeadOne');
+  Logic get validLeadOne => output('validLeadOne');
 
-  /// The number of zeros for the forward case (subtract)
-  Logic? get leadingOneA => tryOutput('leadingOneA');
+  /// The sign of input [a].
+  @protected
+  Logic get aSign => input('aSign');
 
-  /// If the forward case is valid.
-  Logic? get validLeadOneA => tryOutput('validLeadOneA');
+  /// The value of input [a].
+  @protected
+  Logic get a => input('a');
 
-  /// The number of zeros for the reverse case (subtract)
-  Logic? get leadingOneB => output('leadingOneB');
+  /// The sign of input [b].
+  @protected
+  Logic get bSign => input('bSign');
 
-  /// If the reverse case is valid.
-  Logic? get validLeadOneB => output('validLeadOneB');
+  /// The value of input [b].
+  @protected
+  Logic get b => input('b');
 
-  /// Input for telling LZA that a carry was seen on the add of inputs.
-  late final Logic? endAroundCarry;
+  /// The predictor used for the computation of [a] operation with [b].
+  @protected
+  late final RecursiveModulePriorityEncoder leadOneEncoder;
 
-  /// Construct a leading-zero anticipate module that
-  /// predicts the number of leading zeros in the sum of
-  /// [a] and [b].
-  /// - if [endAroundCarry] is provided as input, then only the
-  /// [leadingOne] and [validLeadOne] outputs are set.  Otherwise,
-  /// the pairs of outputs for the [a] and [b] inputs are set. [endAroundCarry]
-  /// tells the LZA that a carry occurred when
-  /// subtracting [b] from [a], which means we know [a] was larger and
-  /// so we can simply pass out a computed [leadingOne] with its
-  /// corresponding [validLeadOne].
-  /// - Outputs [leadingOneA] which should be used if [a] > [b] (e.g., there
-  /// is a carry output from a ones-complement subtraction of [a] and [b].
-  /// - [leadingOneB] should be used if [b] >= [a].
-  LeadingZeroAnticipate(Logic aSign, Logic a, Logic bSign, Logic b,
-      {Logic? endAroundCarry, super.name = 'leading_zero_anticipate'}) {
+  /// The predictor used for the computation of [b] operation with [a].
+  @protected
+  late final RecursiveModulePriorityEncoder leadOneEncoderConverse;
+
+  /// Construct a leading-zero anticipate module that predicts the number of
+  /// leading zeros in the sum of [a] and [b].  The output [leadingOne] holds
+  /// the position of the leading '1' (or, equivalently, the number of leading
+  /// zeros) that are predicted.  This prediction can be exact or 1 position
+  /// less than the leading zero of the sum or subtraction of [a] and [b].
+  /// [validLeadOne] indicates a leading one was found.
+  LeadingZeroAnticipateBase(Logic aSign, Logic a, Logic bSign, Logic b,
+      {super.name = 'leading_zero_anticipate'}) {
     aSign = addInput('aSign', aSign);
     a = addInput('a', a, width: a.width);
     bSign = addInput('bSign', bSign);
     b = addInput('b', b, width: b.width);
-    this.endAroundCarry = (endAroundCarry != null)
-        ? addInput('endAroundCarry', endAroundCarry)
-        : null;
 
     final aX = a.zeroExtend(a.width + 1).named('aX');
     final bX = b.zeroExtend(b.width + 1).named('bX');
@@ -67,29 +66,64 @@ class LeadingZeroAnticipate extends Module {
     fForward <= t ^ (~zForward << 1 | Const(1, width: t.width));
     fReverse <= t ^ (~zReverse << 1 | Const(1, width: t.width));
 
-    final leadOneEncoderA = RecursiveModulePriorityEncoder(fForward.reversed,
-        generateValid: true, name: 'leadone_forward');
-    final leadingOneA = leadOneEncoderA.out;
-    final validLeadOneA = leadOneEncoderA.valid!;
+    leadOneEncoder = RecursiveModulePriorityEncoder(fForward.reversed,
+        generateValid: true, name: 'leadone_detect');
 
-    final leadOneEncoderB = RecursiveModulePriorityEncoder(fReverse.reversed,
-        generateValid: true, name: 'leadone_reverse');
-    final leadingOneB = leadOneEncoderB.out;
-    final validLeadOneB = leadOneEncoderB.valid!;
+    leadOneEncoderConverse = RecursiveModulePriorityEncoder(fReverse.reversed,
+        generateValid: true, name: 'leadone_detect_converse');
 
-    if (this.endAroundCarry == null) {
-      addOutput('leadingOneA', width: log2Ceil(fForward.width + 1)) <=
-          leadingOneA;
-      addOutput('leadingOneB', width: log2Ceil(fReverse.width + 1)) <=
-          leadingOneB;
-      addOutput('validLeadOneA') <= validLeadOneA;
-      addOutput('validLeadOneB') <= validLeadOneB;
-    } else {
-      addOutput('leadingOne', width: log2Ceil(fForward.width + 1)) <=
-          mux(this.endAroundCarry!, leadingOneA, leadingOneB);
-      addOutput('validLeadOne') <=
-          mux(this.endAroundCarry!, validLeadOneA, validLeadOneB);
-    }
+    addOutput('leadingOne', width: log2Ceil(fForward.width + 1));
+    addOutput('validLeadOne');
+  }
+}
+
+/// Module for predicting the number of leading zeros (position of leading 1)
+/// before an addition or subtraction.
+class LeadingZeroAnticipate extends LeadingZeroAnticipateBase {
+  /// The number of zeros for the converse case (when subtracting)
+  Logic get leadingOneConverse => output('leadingOneConverse');
+
+  /// If the converse case is valid.
+  Logic get validLeadOneConverse => output('validLeadOneConverse');
+
+  /// Construct a leading-zero anticipate module that predicts the number of
+  /// leading zeros in the operation on [a] and [b] (ones-complement addition or
+  /// subtraction). Pairs of prediction outputs ([leadingOne]/[validLeadOne] and
+  /// [leadingOneConverse]/[validLeadOneConverse]) for the operation on [a] and
+  /// [b] inputs are produced. These appropriate prediction pair can be selected
+  /// outside the module by looking at the end-around-carry of a
+  /// ones-complement: Essentially, [leadingOne] should be used if [a]
+  /// > [b] (e.g., there is a carry output from a ones-complement subtraction of
+  /// [a] and [b]. [leadingOneConverse] should be used if [b] >= [a] during
+  /// subtraction.
+  LeadingZeroAnticipate(super.aSign, super.a, super.bSign, super.b,
+      {super.name = 'leading_zero_anticipate'}) {
+    leadingOne <= leadOneEncoder.out;
+    validLeadOne <= leadOneEncoder.valid!;
+    addOutput('leadingOneConverse', width: leadOneEncoderConverse.out.width);
+    leadingOneConverse <= leadOneEncoderConverse.out;
+    addOutput('validLeadOneConverse');
+    validLeadOneConverse <= leadOneEncoderConverse.valid!;
+  }
+}
+
+/// Module for predicting the number of leading zeros (position of leading 1)
+/// before an addition or subtraction.
+class LeadingZeroAnticipateCarry extends LeadingZeroAnticipateBase {
+  /// Construct a leading-zero anticipate module that predicts the number of
+  /// leading zeros in the addition or subtraction of [a] and [b].  Provide the
+  /// [endAroundCarry] from the ones-complement operation to select the proper
+  /// prediction pair. and output as [leadingOne] and [validLeadOne].
+  LeadingZeroAnticipateCarry(super.aSign, super.a, super.bSign, super.b,
+      {required Logic endAroundCarry,
+      super.name = 'leading_zero_anticipate_carry'}) {
+    endAroundCarry = addInput('endAroundCarry', endAroundCarry);
+
+    leadingOne <=
+        mux(endAroundCarry, leadOneEncoder.out, leadOneEncoderConverse.out);
+    validLeadOne <=
+        mux(endAroundCarry, leadOneEncoder.valid!,
+            leadOneEncoderConverse.valid!);
   }
 }
 

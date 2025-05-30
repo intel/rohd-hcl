@@ -135,7 +135,7 @@ class FloatingPointAdderSimple<FpType extends FloatingPoint>
     // We could optimize by splitting the search across the pipestage for
     // high and low bits (low only matter for explicit-jbit)
     final limitSize = smallShiftedMantissa.width;
-    final predictor = LeadingZeroAnticipate(
+    final predictor = LeadingZeroAnticipateCarry(
         Const(0),
         [largeFinalMantissa, Const(0, width: extendedWidth)]
             .swizzle()
@@ -144,10 +144,10 @@ class FloatingPointAdderSimple<FpType extends FloatingPoint>
         smallShiftedMantissa.slice(limitSize - 1, 0),
         endAroundCarry: carry);
 
-    final lead1Prediction = predictor.leadingOne!.named('lead1Prediction');
+    final lead1Prediction = predictor.leadingOne.named('lead1Prediction');
 
     final lead1PredictionValid =
-        predictor.validLeadOne!.named('lead1PredictionValid');
+        predictor.validLeadOne.named('lead1PredictionValid');
 
     final trueSignFlopped = localFlop(trueSign);
     final largerExpFlopped = localFlop(larger.exponent);

@@ -171,19 +171,19 @@ void main() {
     final lz = RecursiveModulePriorityEncoder(adder.sum.reversed).out;
 
     final endAroundCarry = adder.endAroundCarry!;
-    final leadingOneA = predictor.leadingOneA;
-    final leadingOneB = predictor.leadingOneB;
+    final leadingOneA = predictor.leadingOne;
+    final leadingOneB = predictor.leadingOneConverse;
 
-    final lza = mux(endAroundCarry | aSign, leadingOneA!, leadingOneB!);
+    final lza = mux(endAroundCarry | aSign, leadingOneA, leadingOneB);
 
     final lzv = lz.value.toInt();
     final lzav = lza.value.toInt();
 
     expect(lzav, predicate((i) => (i == lzv) | (i == (lzv - 1))), reason: '''
           lzav $lzav does not estimate leading zero value $lzv
-          lca=${predictor.leadingOneA!.value.toInt()}
+          lca=${predictor.leadingOne.value.toInt()}
           eac=${adder.endAroundCarry!.value.toBool()}
-          lcb=${predictor.leadingOneB!.value.toInt()}
+          lcb=${predictor.leadingOneConverse.value.toInt()}
           sum:\t${adder.sum.value.bitString}
 ''');
   });
@@ -222,10 +222,10 @@ void main() {
         final lz = RecursiveModulePriorityEncoder(adder.sum.reversed).out;
 
         final endAroundCarry = adder.endAroundCarry!;
-        final leadingOneA = predictor.leadingOneA;
-        final leadingOneB = predictor.leadingOneB;
+        final leadingOneA = predictor.leadingOne;
+        final leadingOneB = predictor.leadingOneConverse;
 
-        final lza = mux(endAroundCarry | aSign, leadingOneA!, leadingOneB!);
+        final lza = mux(endAroundCarry | aSign, leadingOneA, leadingOneB);
 
         final lzv = lz.value.toInt();
         final lzav = lza.value.toInt();
@@ -276,10 +276,10 @@ void main() {
       final lz = RecursiveModulePriorityEncoder(adder.sum.reversed).out;
 
       final endAroundCarry = adder.endAroundCarry!;
-      final leadingOneA = predictor.leadingOneA;
-      final leadingOneB = predictor.leadingOneB;
+      final leadingOneA = predictor.leadingOne;
+      final leadingOneB = predictor.leadingOneConverse;
 
-      final lza = mux(endAroundCarry, leadingOneA!, leadingOneB!);
+      final lza = mux(endAroundCarry, leadingOneA, leadingOneB);
 
       final lzv = lz.value.toInt();
       final lzav = lza.value.toInt();
@@ -324,10 +324,10 @@ void main() {
         final lz = RecursiveModulePriorityEncoder(sum.reversed).out;
 
         final endAroundCarry = adder.endAroundCarry!;
-        final leadingOneA = predictor.leadingOneA;
-        final leadingOneB = predictor.leadingOneB;
+        final leadingOneA = predictor.leadingOne;
+        final leadingOneB = predictor.leadingOneConverse;
 
-        final lza = mux(endAroundCarry, leadingOneA!, leadingOneB!);
+        final lza = mux(endAroundCarry, leadingOneA, leadingOneB);
 
         final lzv = lz.value.toInt();
         final lzav = lza.value.toInt();
@@ -378,10 +378,10 @@ void main() {
       final lz = RecursiveModulePriorityEncoder(sum.reversed).out;
 
       final endAroundCarry = adder.endAroundCarry!;
-      final leadingOneA = predictor.leadingOneA;
-      final leadingOneB = predictor.leadingOneB;
+      final leadingOneA = predictor.leadingOne;
+      final leadingOneB = predictor.leadingOneConverse;
 
-      final lza = mux(endAroundCarry, leadingOneA!, leadingOneB!);
+      final lza = mux(endAroundCarry, leadingOneA, leadingOneB);
 
       final lzv = lz.value.toInt();
       final lzav = lza.value.toInt();
