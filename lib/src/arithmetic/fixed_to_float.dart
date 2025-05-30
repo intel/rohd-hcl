@@ -27,17 +27,15 @@ class FixedToFloat extends Module {
   /// The internal FloatingPoint logic to set
   late final FloatingPoint _convertedFloat;
 
-  /// Constructor for fixed to floating-point conversion.
-  /// - [fixed] input fixed-point number to convert.
-  /// - [signed]=true default, treat input as signed.
-  /// - [float] floating point output
-  /// - [leadingDigitPredict] This input can optionally be provided which
-  /// avoids having to do a full leading-digit scan for conversion. This
-  /// provided value must be within 1 of the actual final leading one
-  /// (after absolute value) of the input fixed-point number.
-  /// A [LeadingDigitAnticipate] can be used to provide this value from two
-  /// inputs to an adder producing the fixed-point value input to this
-  /// converter.
+  /// Constructor for fixed to floating-point conversion. This component takes
+  /// a [fixed] point input number to convert, producing a floating-point output
+  /// [float].  The number can be specified as [signed] (true by default). The
+  /// [leadingDigitPredict] pposition can optionally be provided which avoids
+  /// having to do a full leading-digit scan for conversion. This provided value
+  /// must be within 1 of the actual final leading one (after absolute value) of
+  /// the input fixed-point number. A [LeadingDigitAnticipate] module can be
+  /// used to provide this value from two inputs to an adder producing the
+  /// fixed-point value input to this converter.
   FixedToFloat(FixedPoint fixed, this.outFloat,
       {bool signed = true,
       Logic? leadingDigitPredict,

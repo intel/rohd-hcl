@@ -9,7 +9,6 @@ export 'floating_point_8_e5m2_value.dart';
 export 'floating_point_bf16_value.dart';
 export 'floating_point_constants.dart';
 export 'floating_point_exceptions.dart';
-export 'floating_point_explicit_jbit_value.dart';
 export 'floating_point_rounding_mode.dart';
 export 'floating_point_tf32_value.dart';
 export 'floating_point_value.dart';

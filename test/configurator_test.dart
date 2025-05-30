@@ -9,7 +9,6 @@
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
 import 'package:rohd_hcl/src/component_config/components/component_registry.dart';
-import 'package:rohd_hcl/src/component_config/components/config_fixed_sqrt.dart';
 import 'package:test/test.dart';
 
 import '../confapp/test/example_component.dart';
