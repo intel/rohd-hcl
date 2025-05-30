@@ -77,6 +77,7 @@ class FloatingPointExplicitJBitValue extends FloatingPointValue {
   /// Return the cananocalized form of [FloatingPointExplicitJBitValue] which
   /// has the leading 1 at the front of the mantissa, or further right if
   /// subnormal.
+  @override
   FloatingPointExplicitJBitValue canonicalize() {
     var expVal = exponent.toInt();
     var mant = mantissa;
@@ -131,7 +132,8 @@ class FloatingPointExplicitJBitValue extends FloatingPointValue {
     return (e > 0) && (m >= normMantissa);
   }
 
-  /// Check if the mantissa and exponent stored are compatible
+  /// Check if the mantissa and exponent stored are compatible.
+  @override
   bool isLegalValue() {
     final e = exponent.toInt();
     final m = mantissa.toInt();

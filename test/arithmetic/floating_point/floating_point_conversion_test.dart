@@ -336,8 +336,8 @@ void main() {
       const mantissaWidth = 4;
       const delta = -1;
 
-      FloatingPointExplicitJBitValue ofExplicitString(String s) =>
-          FloatingPointExplicitJBitValue.ofSpacedBinaryString(s);
+      FloatingPointValue ofExplicitString(String s) =>
+          FloatingPointValue.ofSpacedBinaryString(s, explicitJBit: true);
 
       final fpj = FloatingPoint(
           exponentWidth: exponentWidth,
@@ -372,7 +372,6 @@ expected:   $expected ${expected.toDouble()}
     test('FP: conversion explicit to implicit j-bit exhaustive round-trip', () {
       const exponentWidth = 6;
       const mantissaWidth = 4;
-      var cnt = 0;
 
       final fpj = FloatingPoint(
           exponentWidth: exponentWidth,
@@ -387,13 +386,13 @@ expected:   $expected ${expected.toDouble()}
         for (final signVal in [false, true]) {
           for (var e = 0; e < pow(2.0, exponentWidth).toInt(); e++) {
             for (var m = 0; m < pow(2.0, mantissaWidth).toInt(); m++) {
-              final fpev = FloatingPointExplicitJBitValue.populator(
+              final fpev = FloatingPointValue.populator(
                       exponentWidth: exponentWidth,
-                      mantissaWidth: mantissaWidth)
+                      mantissaWidth: mantissaWidth,
+                      explicitJBit: true)
                   .ofInts(e, m, sign: signVal);
               if (fpev.isLegalValue()) {
                 fpj.put(fpev);
-                cnt++;
                 final computed = converter.destination.floatingPointValue;
                 final dbl = fpev.toDouble();
                 final expected = FloatingPointValue.populator(
@@ -414,7 +413,6 @@ expected:   $expected ${expected.toDouble()}
           }
         }
       }
-      stdout.write('cnt=$cnt');
     });
 
     test('FP: narrowing conversion implicit to explicit jbit', () {
@@ -435,13 +433,14 @@ expected:   $expected ${expected.toDouble()}
           explicitJBit: true);
 
       fpj.put(fvj);
-      final expected = FloatingPointExplicitJBitValue.populator(
+      final expected = FloatingPointValue.populator(
               exponentWidth: exponentWidth + delta,
-              mantissaWidth: mantissaWidth)
+              mantissaWidth: mantissaWidth,
+              explicitJBit: true)
           .ofDouble(fvj.toDouble());
 
       FloatingPointConverter(fpj, fp);
-      final computed = fp.floatingPointExplicitJBitValue;
+      final computed = fp.floatingPointValue;
       expect(computed.canonicalize(), equals(expected), reason: '''
 input:      $fvj
 computed:   $computed
@@ -453,7 +452,6 @@ expected:   $expected
     test('FP: conversion implicit to explicit j-bit exhaustive round-trip', () {
       const exponentWidth = 4;
       const mantissaWidth = 6;
-      var cnt = 0;
 
       final fp = FloatingPoint(
           exponentWidth: exponentWidth, mantissaWidth: mantissaWidth);
@@ -474,13 +472,12 @@ expected:   $expected
                   .ofInts(e, m, sign: signVal);
               final nfpev = fpev;
               fp.put(nfpev);
-              cnt++;
-              final computed =
-                  converter.destination.floatingPointExplicitJBitValue;
+              final computed = converter.destination.floatingPointValue;
               final dbl = fpev.toDouble();
-              final fpv = FloatingPointExplicitJBitValue.populator(
+              final fpv = FloatingPointValue.populator(
                       exponentWidth: exponentWidth + delta,
-                      mantissaWidth: mantissaWidth)
+                      mantissaWidth: mantissaWidth,
+                      explicitJBit: true)
                   .ofDouble(dbl,
                       roundingMode: delta < 0
                           ? FloatingPointRoundingMode.roundNearestEven
@@ -495,7 +492,6 @@ expected:   $fpv
           }
         }
       }
-      stdout.write('cnt=$cnt');
     });
 
     test('FP: singleton conversion explicit to explicit jbit', () {
@@ -503,8 +499,8 @@ expected:   $fpv
       const mantissaWidth = 4;
       const delta = -2;
 
-      FloatingPointExplicitJBitValue ofExplicitString(String s) =>
-          FloatingPointExplicitJBitValue.ofSpacedBinaryString(s);
+      FloatingPointValue ofExplicitString(String s) =>
+          FloatingPointValue.ofSpacedBinaryString(s, explicitJBit: true);
 
       final fpj = FloatingPoint(
           exponentWidth: exponentWidth,
@@ -520,12 +516,14 @@ expected:   $fpv
 
         fpj.put(fvj);
         final dbl = fvj.toDouble();
-        final expectedPartial = FloatingPointExplicitJBitValue.populator(
-            exponentWidth: exponentWidth + delta, mantissaWidth: mantissaWidth);
+        final expectedPartial = FloatingPointValue.populator(
+            exponentWidth: exponentWidth + delta,
+            mantissaWidth: mantissaWidth,
+            explicitJBit: true);
         final expected = expectedPartial.ofDouble(dbl);
 
         FloatingPointConverter(fpj, fp);
-        final computed = fp.floatingPointExplicitJBitValue;
+        final computed = fp.floatingPointValue;
         expect(computed.canonicalize(), equals(expected), reason: '''
 input:    $fvj
 computed: $computed
@@ -539,7 +537,6 @@ expected: $expected
     test('FP: conversion explicit to explicit j-bit exhaustive round-trip', () {
       const exponentWidth = 6;
       const mantissaWidth = 4;
-      var cnt = 0;
 
       final fp = FloatingPoint(
           exponentWidth: exponentWidth,
@@ -557,19 +554,19 @@ expected: $expected
         for (final signVal in [false, true]) {
           for (var e = 0; e < pow(2.0, exponentWidth).toInt(); e++) {
             for (var m = 0; m < pow(2.0, mantissaWidth).toInt(); m++) {
-              final fpev = FloatingPointExplicitJBitValue.populator(
+              final fpev = FloatingPointValue.populator(
                       exponentWidth: exponentWidth,
-                      mantissaWidth: mantissaWidth)
+                      mantissaWidth: mantissaWidth,
+                      explicitJBit: true)
                   .ofInts(e, m, sign: signVal);
               if (fpev.isLegalValue()) {
-                cnt++;
                 fp.put(fpev);
-                final computed =
-                    converter.destination.floatingPointExplicitJBitValue;
+                final computed = converter.destination.floatingPointValue;
                 final dbl = fpev.toDouble();
-                final fpv = FloatingPointExplicitJBitValue.populator(
+                final fpv = FloatingPointValue.populator(
                         exponentWidth: exponentWidth + delta,
-                        mantissaWidth: mantissaWidth)
+                        mantissaWidth: mantissaWidth,
+                        explicitJBit: true)
                     .ofDouble(dbl,
                         roundingMode: delta < 0
                             ? FloatingPointRoundingMode.roundNearestEven
@@ -585,7 +582,6 @@ expected: $fpv
           }
         }
       }
-      stdout.write('cnt=$cnt');
     });
   });
 }

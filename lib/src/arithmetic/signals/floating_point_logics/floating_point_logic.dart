@@ -75,7 +75,9 @@ class FloatingPoint extends LogicStructure {
   /// [FloatingPoint] type.
   @mustBeOverridden
   FloatingPointValuePopulator valuePopulator() => FloatingPointValue.populator(
-      exponentWidth: exponent.width, mantissaWidth: mantissa.width);
+      exponentWidth: exponent.width,
+      mantissaWidth: mantissa.width,
+      explicitJBit: explicitJBit);
 
   /// Return true if the J-bit is explicitly represented in the mantissa.
   bool get explicitJBit => _explicitJBit;
@@ -90,12 +92,6 @@ class FloatingPoint extends LogicStructure {
   /// Return the [FloatingPointValue] of the [previousValue].
   FloatingPointValue? get previousFloatingPointValue =>
       valuePopulator().ofFloatingPointPrevious(this);
-
-  /// Return the [FloatingPointExplicitJBitValue] of the current [value].
-  FloatingPointExplicitJBitValue get floatingPointExplicitJBitValue =>
-      FloatingPointExplicitJBitValue.populator(
-              exponentWidth: exponent.width, mantissaWidth: mantissa.width)
-          .ofLogicValue(value);
 
   /// Return a Logic true if this FloatingPoint contains a normal number,
   /// defined as having mantissa in the range [1,2)
