@@ -12,8 +12,9 @@ import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
 
 /// An adder module for FloatingPoint values
-class FloatingPointAdderSimple<FpType extends FloatingPoint>
-    extends FloatingPointAdder<FpType> {
+class FloatingPointAdderSimple<FpTypeIn extends FloatingPoint,
+        FpTypeOut extends FloatingPoint>
+    extends FloatingPointAdder<FpTypeIn, FpTypeOut> {
   /// Add two floating point numbers [a] and [b], returning result in [sum].
   /// If a different output type is needed, you can provide that in [outSum].
   /// - [adderGen] is an adder generator to be used in the primary adder
@@ -38,11 +39,21 @@ class FloatingPointAdderSimple<FpType extends FloatingPoint>
       throw RohdHclException('Floating point adder does not support '
           'inputs of different jBit types.');
     }
+    if (outputSum.exponent.width != a.exponent.width) {
+      throw RohdHclException('This adder currently only supports '
+          'output exponent width equal to input exponent width.');
+    }
+    if (outputSum.mantissa.width != a.mantissa.width) {
+      throw RohdHclException('This adder currently only supports '
+          'output mantissa width equal to input mantissa width.');
+    }
     // Would prefer to use getter here for setting, but the getter
     // translates the type from Logic to FloatingPoint.
     output('sum') <= outputSum;
 
-    final (larger, smaller) = FloatingPointUtilities.sortByExp((a, b));
+    final swapper = FloatingPointSortByExp(a, b);
+    final larger = swapper.outA;
+    final smaller = swapper.outB;
 
     final effectiveSubtraction = (a.sign ^ b.sign).named('effSubtraction');
 

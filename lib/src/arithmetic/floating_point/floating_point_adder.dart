@@ -12,7 +12,8 @@ import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
 
 /// An abstract API for floating point adders.
-abstract class FloatingPointAdder<FpType extends FloatingPoint> extends Module {
+abstract class FloatingPointAdder<FpTypeIn extends FloatingPoint,
+    FpTypeOut extends FloatingPoint> extends Module {
   /// Width of the output exponent field.
   late final int exponentWidth;
 
@@ -36,25 +37,25 @@ abstract class FloatingPointAdder<FpType extends FloatingPoint> extends Module {
 
   /// The first addend [a], named this way to allow for a local variable 'a'.
   @protected
-  late final FpType a;
+  late final FpTypeIn a;
 
   /// The second addend [b], named this way to allow for a local variable 'b'.
   @protected
-  late final FpType b;
+  late final FpTypeIn b;
 
-  /// getter for the computed [FloatingPoint] output.
-  late final FloatingPoint sum = outputSum.clone(name: 'sum')
+  /// getter for the computed [FpTypeOut] output.
+  late final FpTypeOut sum = (outputSum.clone(name: 'int_sum') as FpTypeOut)
     ..gets(output('sum'));
 
   /// The conditional output FloatingPoint Logic to set
-  late final FpType outputSum;
+  late final FpTypeOut outputSum;
 
   /// Add two floating point numbers [a] and [b], returning result in [sum].
   /// If a different output type is needed, you can provide that in [outSum].
   /// - [clk], [reset], [enable] are optional inputs to control a pipestage
   /// (only inserted if [clk] is provided).
-  FloatingPointAdder(FpType a, FpType b,
-      {FpType? outSum,
+  FloatingPointAdder(FpTypeIn a, FpTypeIn b,
+      {FpTypeOut? outSum,
       Logic? clk,
       Logic? reset,
       Logic? enable,
@@ -71,12 +72,12 @@ abstract class FloatingPointAdder<FpType extends FloatingPoint> extends Module {
     this.clk = (clk != null) ? addInput('clk', clk) : null;
     this.reset = (reset != null) ? addInput('reset', reset) : null;
     this.enable = (enable != null) ? addInput('enable', enable) : null;
-    this.a = (a.clone(name: 'a') as FpType)
+    this.a = (a.clone(name: 'a') as FpTypeIn)
       ..gets(addInput('a', a, width: a.width));
-    this.b = (b.clone(name: 'b') as FpType)
+    this.b = (b.clone(name: 'b') as FpTypeIn)
       ..gets(addInput('b', b, width: b.width));
 
-    outputSum = (outSum ?? a).clone(name: 'outSum') as FpType;
+    outputSum = (outSum ?? a).clone(name: 'outSum') as FpTypeOut;
 
     exponentWidth = (outSum == null) ? a.exponent.width : outSum.exponent.width;
     mantissaWidth = (outSum == null) ? a.mantissa.width : outSum.mantissa.width;

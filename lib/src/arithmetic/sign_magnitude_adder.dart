@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: BSD-3-Clause
 //
 // sign_magnitude_adder.dart
-// Implementation of a One's Complement Adder
+// Implementation of sign-magnitude representation adders.
 //
 // 2024 August 8
 // Author: Desmond Kirkpatrick <desmond.a.kirkpatrick@intel.com>
@@ -101,9 +101,12 @@ class SignMagnitudeAdder extends SignMagnitudeAdderBase {
   }
 }
 
-/// A sign-magnitude adder implementation that uses two ones-complement
-/// adders wired in opposition to compute the magnitude and sign without
-/// using internal twos-complement addition.
+/// A sign-magnitude adder implementation that uses two ones-complement adders
+/// wired in opposition to compute the magnitude and sign without using internal
+/// twos-complement addition. This will cost more area than a
+/// [SignMagnitudeAdder] but will not require the caller to guarantee the order
+/// of inputs or deal with the end-around carry and will be faster than adding
+/// the end-around carry to get the correct sum.
 class SignMagnitudeDualAdder extends SignMagnitudeAdderBase {
   ////// [SignMagnitudeDualAdder] constructor with an adder functor [adderGen].
   ///

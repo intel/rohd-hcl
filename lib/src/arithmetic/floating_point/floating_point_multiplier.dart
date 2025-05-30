@@ -12,8 +12,8 @@ import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
 
 /// An abstract API for floating-point multipliers.
-abstract class FloatingPointMultiplier<FpInType extends FloatingPoint>
-    extends Module {
+abstract class FloatingPointMultiplier<FpTypeIn extends FloatingPoint,
+    FpTypeOut extends FloatingPoint> extends Module {
   /// Width of the output exponent field.
   late final int exponentWidth;
 
@@ -37,19 +37,19 @@ abstract class FloatingPointMultiplier<FpInType extends FloatingPoint>
 
   /// The multiplicand [a].
   @protected
-  late final FpInType a;
+  late final FpTypeIn a;
 
   /// The multiplier [b].
   @protected
-  late final FpInType b;
+  late final FpTypeIn b;
 
-  /// The computed [FloatingPoint] product of [a] * [b].
-  late final FloatingPoint product =
-      FloatingPoint(exponentWidth: exponentWidth, mantissaWidth: mantissaWidth)
-        ..gets(output('product'));
+  /// The computed [FpTypeOut] product of [a] * [b].
+  late final FpTypeOut product = (internalProduct.clone(name: 'int_product')
+      as FpTypeOut)
+    ..gets(output('product'));
 
   /// The internal FloatingPoint logic to set
-  late final FloatingPoint internalProduct;
+  late final FpTypeOut internalProduct;
 
   /// Multiply two floating point numbers [a] and [b], returning result in
   /// [product].
@@ -61,11 +61,11 @@ abstract class FloatingPointMultiplier<FpInType extends FloatingPoint>
   /// (only inserted if [clk] is provided).
   /// - [ppGen] is the type of [ParallelPrefix] used in internal adder
   /// generation.
-  FloatingPointMultiplier(FpInType a, FpInType b,
+  FloatingPointMultiplier(FpTypeIn a, FpTypeIn b,
       {Logic? clk,
       Logic? reset,
       Logic? enable,
-      FloatingPoint? outProduct,
+      FpTypeOut? outProduct,
       // ignore: avoid_unused_constructor_parameters
       ParallelPrefix Function(List<Logic>, Logic Function(Logic, Logic)) ppGen =
           KoggeStone.new,
@@ -84,10 +84,7 @@ abstract class FloatingPointMultiplier<FpInType extends FloatingPoint>
     mantissaWidth =
         (outProduct == null) ? a.mantissa.width : outProduct.mantissa.width;
 
-    internalProduct = FloatingPoint(
-        exponentWidth: exponentWidth,
-        mantissaWidth: mantissaWidth,
-        name: 'product');
+    internalProduct = (outProduct ?? a).clone(name: 'outSum') as FpTypeOut;
     addOutput('product', width: exponentWidth + mantissaWidth + 1) <=
         internalProduct;
 
@@ -99,9 +96,9 @@ abstract class FloatingPointMultiplier<FpInType extends FloatingPoint>
     this.enable = (enable != null) ? addInput('enable', enable) : enable;
     this.reset = (reset != null) ? addInput('clk', reset) : reset;
 
-    this.a = (a.clone(name: 'a') as FpInType)
+    this.a = (a.clone(name: 'a') as FpTypeIn)
       ..gets(addInput('a', a, width: a.width));
-    this.b = (b.clone(name: 'b') as FpInType)
+    this.b = (b.clone(name: 'b') as FpTypeIn)
       ..gets(addInput('b', b, width: b.width));
   }
 

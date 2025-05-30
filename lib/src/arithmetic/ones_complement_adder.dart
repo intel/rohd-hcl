@@ -31,6 +31,10 @@ class OnesComplementAdder extends Adder {
   @protected
   late final Logic? subtractIn;
 
+  /// Generate an endAroundCarry signal instead of adding it to the
+  /// [sum].
+  final bool generateEndAroundCarry;
+
   /// [OnesComplementAdder] constructor with an adder functor [adderGen].
   /// - A subtractor is created if [subtract] is set to true.  Alternatively,
   /// if [subtract] configuration is false, and a Lgic control signal
@@ -48,7 +52,7 @@ class OnesComplementAdder extends Adder {
       {Adder Function(Logic, Logic, {Logic? carryIn}) adderGen =
           NativeAdder.new,
       Logic? subtractIn,
-      bool generateEndAroundCarry = false,
+      this.generateEndAroundCarry = false,
       super.carryIn,
       bool subtract = false,
       bool chainable = false,

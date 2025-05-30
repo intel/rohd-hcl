@@ -13,8 +13,9 @@ import 'package:rohd_hcl/rohd_hcl.dart';
 
 /// An adder module for variable FloatingPoint type.
 // This is a Seidel/Even adder, dual-path implementation.
-class FloatingPointAdderDualPath<FpType extends FloatingPoint>
-    extends FloatingPointAdder<FpType> {
+class FloatingPointAdderDualPath<FpTypeIn extends FloatingPoint,
+        FpTypeOut extends FloatingPoint>
+    extends FloatingPointAdder<FpTypeIn, FpTypeOut> {
   /// Add two floating point numbers [a] and [b], returning result in [sum].
   /// - [subtract] is an optional Logic input to do subtraction
   /// - [adderGen] is an adder generator to be used in the primary adder
@@ -61,7 +62,9 @@ class FloatingPointAdderDualPath<FpType extends FloatingPoint>
     final delta = exponentSubtractor.sum.named('expDelta');
 
     // Seidel: (sl, el, fl) = larger; (ss, es, fs) = smaller
-    final (larger, smaller) = FloatingPointUtilities.swap(signDelta, (a, b));
+    final swapper = FloatingPointConditionalSwap(a, b, signDelta);
+    final larger = swapper.outA;
+    final smaller = swapper.outB;
 
     final fl = mux(
             ~larger.isNormal ^ Const(larger.explicitJBit),
