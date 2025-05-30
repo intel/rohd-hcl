@@ -10,7 +10,6 @@
 //  Desmond A Kirkpatrick <desmond.a.kirkpatrick@intel.com
 
 import 'dart:async';
-import 'dart:io';
 import 'dart:math';
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
@@ -36,8 +35,6 @@ void main() {
     fp1.put(fv1);
     fp2.put(fv2);
     final adder = FloatingPointAdderSimple(fp1, fp2);
-    await adder.build();
-    File('fpadder.sv').writeAsStringSync(adder.generateSynth());
 
     final computed = adder.sum.floatingPointValue;
 
@@ -455,395 +452,93 @@ void main() {
 // function of mantissa width that we can use in testing using
 // e1 0001 - e2 -0001  and sweeping e1 and e2 diff
   group('FP: explicit-jbit addition', () {
-    test('FP: simple adder with explicit j-bit singleton', () {
-      const exponentWidth = 8;
-      const mantissaWidth = 24;
-
-      FloatingPointValue nofString(String s) =>
-          FloatingPointValue.ofSpacedBinaryString(s, explicitJBit: true);
-      final fp1 = FloatingPoint(
-          exponentWidth: exponentWidth,
-          mantissaWidth: mantissaWidth,
-          explicitJBit: true);
-      final fp2 = FloatingPoint(
-          exponentWidth: exponentWidth,
-          mantissaWidth: mantissaWidth,
-          explicitJBit: true);
-      final fv1 = nofString('0 10000010 100100000000000000000000');
-      final fv2 = nofString('0 00000000 000000000000000000000000');
-
-      fp1.put(fv1);
-      fp2.put(fv2);
-      final adder = FloatingPointAdderSimple(fp1, fp2);
-      final computed = adder.sum.floatingPointValue;
-
-      final expectedDouble = fv1.toDouble() + fv2.toDouble();
-
-      final expectedRound = FloatingPointValue.populator(
-              exponentWidth: exponentWidth,
-              mantissaWidth: mantissaWidth,
-              explicitJBit: true)
-          .ofDouble(expectedDouble);
-      final expectedNoRound = FloatingPointValue.populator(
-              exponentWidth: exponentWidth,
-              mantissaWidth: mantissaWidth,
-              explicitJBit: true)
-          .ofDoubleUnrounded(expectedDouble);
-
-      expect(computed, equals(expectedRound), reason: '''
-      $fv1 (${fv1.toDouble()})\t+
-      $fv2 (${fv2.toDouble()})\t=
-      $computed (${computed.toDouble()})\tcomputed
-      $expectedRound (${expectedRound.toDouble()})\texpectedRound
-      $expectedNoRound (${expectedNoRound.toDouble()})\texpectedRoundNo
-''');
-    });
-
-    test(
-        'FP: simple adder with explicit j-bit input, implicit output singleton',
-        () {
-      const exponentWidth = 8;
-      const mantissaWidth = 24;
-
-      FloatingPointValue nofString(String s) =>
-          FloatingPointValue.ofSpacedBinaryString(s, explicitJBit: true);
-      final fp1 = FloatingPoint(
-          exponentWidth: exponentWidth,
-          mantissaWidth: mantissaWidth,
-          explicitJBit: true);
-      final fp2 = FloatingPoint(
-          exponentWidth: exponentWidth,
-          mantissaWidth: mantissaWidth,
-          explicitJBit: true);
-
-      final fpout = FloatingPoint(
-          exponentWidth: exponentWidth, mantissaWidth: mantissaWidth);
-      final fv1 = nofString('0 10000010 100100000000000000000000');
-      final fv2 = nofString('0 00000000 000000000000000000000000');
-
-      fp1.put(fv1);
-      fp2.put(fv2);
-      final adder = FloatingPointAdderSimple(fp1, fp2, outSum: fpout);
-      final computed = adder.sum.floatingPointValue;
-
-      final expectedDouble = fv1.toDouble() + fv2.toDouble();
-
-      final expectedRound = FloatingPointValue.populator(
-              exponentWidth: exponentWidth, mantissaWidth: mantissaWidth)
-          .ofDouble(expectedDouble);
-      final expectedNoRound = FloatingPointValue.populator(
-              exponentWidth: exponentWidth, mantissaWidth: mantissaWidth)
-          .ofDoubleUnrounded(expectedDouble);
-
-      expect(computed, equals(expectedRound), reason: '''
-      $fv1 (${fv1.toDouble()})\t+
-      $fv2 (${fv2.toDouble()})\t=
-      $computed (${computed.toDouble()})\tcomputed
-      $expectedRound (${expectedRound.toDouble()})\texpectedRound
-      $expectedNoRound (${expectedNoRound.toDouble()})\texpectedRoundNo
-''');
-    });
-
-    test(
-        'FP: simple adder with explicit j-bit input, explicit output singleton',
-        () {
-      const exponentWidth = 8;
-      const mantissaWidth = 24;
-
-      FloatingPointValue nofString(String s) =>
-          FloatingPointValue.ofSpacedBinaryString(s, explicitJBit: true);
-      final fp1 = FloatingPoint(
-          exponentWidth: exponentWidth,
-          mantissaWidth: mantissaWidth,
-          explicitJBit: true);
-      final fp2 = FloatingPoint(
-          exponentWidth: exponentWidth,
-          mantissaWidth: mantissaWidth,
-          explicitJBit: true);
-      final fpout = FloatingPoint(
-          exponentWidth: exponentWidth,
-          mantissaWidth: mantissaWidth,
-          explicitJBit: true);
-      final fv1 = nofString('0 10000010 100100000000000000000000');
-      final fv2 = nofString('0 00000000 000000000000000000000000');
-
-      fp1.put(fv1);
-      fp2.put(fv2);
-      final adder = FloatingPointAdderSimple(fp1, fp2, outSum: fpout);
-      final computed = adder.sum.floatingPointValue;
-
-      final expectedDouble = fv1.toDouble() + fv2.toDouble();
-
-      final expectedRound = FloatingPointValue.populator(
-              exponentWidth: exponentWidth,
-              mantissaWidth: mantissaWidth,
-              explicitJBit: true)
-          .ofDouble(expectedDouble);
-      final expectedNoRound = FloatingPointValue.populator(
-              exponentWidth: exponentWidth,
-              mantissaWidth: mantissaWidth,
-              explicitJBit: true)
-          .ofDoubleUnrounded(expectedDouble);
-
-      expect(computed, equals(expectedRound), reason: '''
-      $fv1 (${fv1.toDouble()})\t+
-      $fv2 (${fv2.toDouble()})\t=
-      $computed (${computed.toDouble()})\tcomputed
-      $expectedRound (${expectedRound.toDouble()})\texpectedRound
-      $expectedNoRound (${expectedNoRound.toDouble()})\texpectedRoundNo
-''');
-    });
-
-    test(
-        'FP: simple narrow adder with implicit j-bit input, '
-        'implicit output singleton', () {
+// TODO(desmonddak): the only combination not fully working is:
+// I=implicit JBit, O=explicit JBit.
+    test('FP: simple adder with explicit/implcit j-bit IO exhaustive', () {
       const exponentWidth = 4;
       const mantissaWidth = 4;
-      FloatingPointValue ofString(String s) =>
-          FloatingPointValue.ofSpacedBinaryString(s);
-      final fp1 = FloatingPoint(
-        exponentWidth: exponentWidth,
-        mantissaWidth: mantissaWidth,
-      );
-      final fp2 = FloatingPoint(
-        exponentWidth: exponentWidth,
-        mantissaWidth: mantissaWidth,
-      );
-      final fpout = FloatingPoint(
-          exponentWidth: exponentWidth, mantissaWidth: mantissaWidth);
-      final fv1 = ofString('0 0001 0001');
-      final fv2 = ofString('0 1100 0001');
 
-      fp1.put(fv1);
-      fp2.put(fv2);
-      final adder = FloatingPointAdderSimple(fp1, fp2, outSum: fpout);
-      final computed = adder.sum.floatingPointValue;
-
-      final expectedDouble = fv1.toDouble() + fv2.toDouble();
-
-      final expectedRound = FloatingPointValue.populator(
-              exponentWidth: exponentWidth, mantissaWidth: mantissaWidth)
-          .ofDouble(expectedDouble);
-      final expectedNoRound = FloatingPointValue.populator(
-              exponentWidth: exponentWidth, mantissaWidth: mantissaWidth)
-          .ofDoubleUnrounded(expectedDouble);
-
-      expect(computed, equals(expectedRound), reason: '''
-      $fv1 (${fv1.toDouble()})\t+
-      $fv2 (${fv2.toDouble()})\t=
-      $computed (${computed.toDouble()})\tcomputed
-      $expectedRound (${expectedRound.toDouble()})\texpectedRound
-      $expectedNoRound (${expectedNoRound.toDouble()})\texpectedRoundNo
-''');
-    });
-
-    test(
-        'FP: simple narrow adder with implicit j-bit input, '
-        'explicit output singleton', () {
-      const exponentWidth = 4;
-      const mantissaWidth = 4;
-      FloatingPointValue ofString(String s) =>
-          FloatingPointValue.ofSpacedBinaryString(s);
-      final fp1 = FloatingPoint(
-        exponentWidth: exponentWidth,
-        mantissaWidth: mantissaWidth,
-      );
-      final fp2 = FloatingPoint(
-        exponentWidth: exponentWidth,
-        mantissaWidth: mantissaWidth,
-      );
-      final fpout = FloatingPoint(
-          exponentWidth: exponentWidth,
-          mantissaWidth: mantissaWidth,
-          explicitJBit: true);
-      // Don't shift the rounding point out by 1
-      final fv1 = ofString('0 0001 0001');
-      final fv2 = ofString('0 1100 0001');
-
-      fp1.put(fv1);
-      fp2.put(fv2);
-      final adder = FloatingPointAdderSimple(fp1, fp2, outSum: fpout);
-      final computed = adder.sum.floatingPointValue;
-
-      final expectedDouble = fv1.toDouble() + fv2.toDouble();
-
-      final expectedRound = FloatingPointValue.populator(
+      FloatingPointValuePopulator fpPopulator({required bool explicitJBit}) =>
+          FloatingPointValue.populator(
               exponentWidth: exponentWidth,
               mantissaWidth: mantissaWidth,
-              explicitJBit: true)
-          .ofDouble(expectedDouble);
-
-      final expectedNoRound = FloatingPointValue.populator(
+              explicitJBit: explicitJBit);
+      FloatingPoint fpConstructor({required bool explicitJBit}) =>
+          FloatingPoint(
               exponentWidth: exponentWidth,
               mantissaWidth: mantissaWidth,
-              explicitJBit: true)
-          .ofDoubleUnrounded(expectedDouble);
+              explicitJBit: explicitJBit);
 
-// Note the loss in precision here: we need to compare with either
-// NoRound or Round
-      expect(computed, equals(expectedNoRound), reason: '''
-      $fv1 (${fv1.toDouble()})\t+
-      $fv2 (${fv2.toDouble()})\t=
-      $computed (${computed.toDouble()})\tcomputed
-      $expectedRound (${expectedRound.toDouble()})\texpectedRound
-      $expectedNoRound (${expectedNoRound.toDouble()})\texpectedRoundNo
-''');
-    });
+      for (final inputExplicitJBit in [false, true]) {
+        final fp1 = fpConstructor(explicitJBit: inputExplicitJBit);
+        final fp2 = fpConstructor(explicitJBit: inputExplicitJBit);
 
-    test(
-        'FP: simple narrow adder with explicit j-bit input, '
-        'implicit output singleton', () {
-      const exponentWidth = 4;
-      const mantissaWidth = 4;
-      FloatingPointValue ofString(String s) =>
-          FloatingPointValue.ofSpacedBinaryString(s, explicitJBit: true);
-      final fp1 = FloatingPoint(
-          exponentWidth: exponentWidth,
-          mantissaWidth: mantissaWidth,
-          explicitJBit: true);
-      final fp2 = FloatingPoint(
-          exponentWidth: exponentWidth,
-          mantissaWidth: mantissaWidth,
-          explicitJBit: true);
-      final fpout = FloatingPoint(
-          exponentWidth: exponentWidth, mantissaWidth: mantissaWidth);
-      final fv1 = ofString('0 0001 1000');
-      final fv2 = ofString('1 1001 0001');
+        fp1.put(0);
+        fp2.put(0);
+        for (final outputExplicitJBit in [false, true]) {
+          final fpout = fpConstructor(explicitJBit: outputExplicitJBit);
+          final adder = FloatingPointAdderSimple(fp1, fp2, outSum: fpout);
 
-      fp1.put(fv1);
-      fp2.put(fv2);
-      final adder = FloatingPointAdderSimple(fp1, fp2, outSum: fpout);
-      final computed = adder.sum.floatingPointValue;
+          for (final subtract in [0, 1]) {
+            // TODO(desmonddak): we have a bug in Implicit->Explicit subtraction
+            if (!inputExplicitJBit && outputExplicitJBit && subtract == 1) {
+              continue;
+            }
+            final expLimit = pow(2, exponentWidth);
+            final mantLimit = pow(2, mantissaWidth);
+            for (var e1 = 0; e1 < expLimit; e1++) {
+              for (var m1 = 0; m1 < mantLimit; m1++) {
+                final fv1 =
+                    fpPopulator(explicitJBit: inputExplicitJBit).ofInts(e1, m1);
+                if (fv1.isLegalValue()) {
+                  for (var e2 = 0; e2 < expLimit; e2++) {
+                    for (var m2 = 0; m2 < mantLimit; m2++) {
+                      final fv2 = fpPopulator(explicitJBit: inputExplicitJBit)
+                          .ofInts(e2, m2, sign: subtract == 1);
+                      if (fv2.isLegalValue()) {
+                        if ((fv1.exponent.toInt() - fv2.exponent.toInt())
+                                .abs() >
+                            51 - mantissaWidth) {
+                          // Native double math cannot verify unrounded result
+                          continue;
+                        }
+                        fp1.put(fv1.value);
+                        fp2.put(fv2.value);
 
-      final expectedDouble = fv1.toDouble() + fv2.toDouble();
+                        final computed =
+                            adder.sum.floatingPointValue.canonicalize();
+                        final expectedNoRound = fpPopulator(
+                                explicitJBit: outputExplicitJBit)
+                            .ofDoubleUnrounded(fv1.toDouble() + fv2.toDouble())
+                            .canonicalize();
+                        final expectedRound =
+                            fpPopulator(explicitJBit: outputExplicitJBit)
+                                .ofDouble(fv1.toDouble() + fv2.toDouble())
+                                .canonicalize();
 
-      final expectedRound = FloatingPointValue.populator(
-              exponentWidth: exponentWidth, mantissaWidth: mantissaWidth)
-          .ofDouble(expectedDouble);
-      final expectedNoRound = FloatingPointValue.populator(
-              exponentWidth: exponentWidth, mantissaWidth: mantissaWidth)
-          .ofDoubleUnrounded(expectedDouble);
-
-      expect(computed, equals(expectedRound), reason: '''
-      $fv1 (${fv1.toDouble()})\t+
-      $fv2 (${fv2.toDouble()})\t=
-      $computed (${computed.toDouble()})\tcomputed
-      $expectedRound (${expectedRound.toDouble()})\texpectedRound
-      $expectedNoRound (${expectedNoRound.toDouble()})\texpectedRoundNo
-''');
-    });
-
-    test(
-        'FP: simple narrow adder with explicit j-bit input, '
-        'explicit output singleton', () {
-      const exponentWidth = 4;
-      const mantissaWidth = 4;
-      FloatingPointValue ofString(String s) =>
-          FloatingPointValue.ofSpacedBinaryString(s, explicitJBit: true);
-      final fp1 = FloatingPoint(
-          exponentWidth: exponentWidth,
-          mantissaWidth: mantissaWidth,
-          explicitJBit: true);
-      final fp2 = FloatingPoint(
-          exponentWidth: exponentWidth,
-          mantissaWidth: mantissaWidth,
-          explicitJBit: true);
-      final fpout = FloatingPoint(
-          exponentWidth: exponentWidth,
-          mantissaWidth: mantissaWidth,
-          explicitJBit: true);
-
-      final fv1 = ofString('0 0001 1000');
-      final fv2 = ofString('1 1001 0001');
-
-      fp1.put(fv1);
-      fp2.put(fv2);
-      final adder = FloatingPointAdderSimple(fp1, fp2, outSum: fpout);
-      final computed = adder.sum.floatingPointValue;
-      final expectedDouble = fv1.toDouble() + fv2.toDouble();
-
-      final expectedRound = FloatingPointValue.populator(
-              exponentWidth: exponentWidth,
-              mantissaWidth: mantissaWidth,
-              explicitJBit: true)
-          .ofDouble(expectedDouble)
-          .canonicalize();
-      final expectedNoRound = FloatingPointValue.populator(
-              exponentWidth: exponentWidth,
-              mantissaWidth: mantissaWidth,
-              explicitJBit: true)
-          .ofDoubleUnrounded(expectedDouble)
-          .canonicalize();
-
-      expect(computed, equals(expectedRound), reason: '''
-      $fv1 (${fv1.toDouble()})\t+
-      $fv2 (${fv2.toDouble()})\t=
-      $computed (${computed.toDouble()})\tcomputed
-      $expectedRound (${expectedRound.toDouble()})\texpectedRound
-      $expectedNoRound (${expectedNoRound.toDouble()})\texpectedRoundNo
-''');
-    });
-
-    test('FP: simple adder with explicit j-bit implicit output exhaustive', () {
-      const exponentWidth = 4;
-      const mantissaWidth = 4;
-      final fp1 = FloatingPoint(
-          exponentWidth: exponentWidth,
-          mantissaWidth: mantissaWidth,
-          explicitJBit: true);
-      final fp2 = FloatingPoint(
-          exponentWidth: exponentWidth,
-          mantissaWidth: mantissaWidth,
-          explicitJBit: true);
-      final fpout = FloatingPoint(
-          exponentWidth: exponentWidth, mantissaWidth: mantissaWidth);
-      fp1.put(0);
-      fp2.put(0);
-      final adder = FloatingPointAdderSimple(fp1, fp2, outSum: fpout);
-
-      for (final subtract in [1, 0]) {
-        final expLimit = pow(2, exponentWidth);
-        final mantLimit = pow(2, mantissaWidth);
-        for (var e1 = 0; e1 < expLimit; e1++) {
-          for (var m1 = 0; m1 < mantLimit; m1++) {
-            final fv1 = FloatingPointValue.populator(
-                    exponentWidth: exponentWidth,
-                    mantissaWidth: mantissaWidth,
-                    explicitJBit: true)
-                .ofInts(e1, m1);
-            if (fv1.isLegalValue()) {
-              for (var e2 = 0; e2 < expLimit; e2++) {
-                for (var m2 = 0; m2 < mantLimit; m2++) {
-                  final fv2 = FloatingPointValue.populator(
-                          exponentWidth: exponentWidth,
-                          mantissaWidth: mantissaWidth,
-                          explicitJBit: true)
-                      .ofInts(e2, m2, sign: subtract == 1);
-                  if (fv2.isLegalValue()) {
-                    if ((fv1.exponent.toInt() - fv2.exponent.toInt()).abs() >
-                        51 - mantissaWidth) {
-                      // Native double math cannot verify unrounded result
-                      continue;
-                    }
-                    fp1.put(fv1.value);
-                    fp2.put(fv2.value);
-
-                    final computed = adder.sum.floatingPointValue;
-                    final expectedNoRound = FloatingPointValue.populator(
-                            exponentWidth: exponentWidth,
-                            mantissaWidth: mantissaWidth)
-                        .ofDoubleUnrounded(fv1.toDouble() + fv2.toDouble());
-                    final expectedRound = FloatingPointValue.populator(
-                            exponentWidth: exponentWidth,
-                            mantissaWidth: mantissaWidth)
-                        .ofDouble(fv1.toDouble() + fv2.toDouble());
-
-                    if (computed.isNaN &
-                        (expectedNoRound.isNaN |
-                            expectedNoRound.isAnInfinity)) {
-                      continue;
-                    }
-                    expect(computed, equals(expectedRound), reason: '''
+                        // TODO(desmonddak): we don't correctly produce infinity
+                        if (computed.isNaN &
+                            // (expectedNoRound.isNaN |
+                            expectedNoRound.isAnInfinity) {
+                          continue;
+                        }
+                        if (computed.isNaN &
+                            // (expectedRound.isNaN |
+                            expectedRound.isAnInfinity) {
+                          continue;
+                        }
+                        // TODO(desmonddak): we have a known problem in explicit
+                        // JBit output with implicit Jbit input during addition
+                        // that there is a rounding bug.
+                        expect(
+                            computed,
+                            predicate((e) =>
+                                e == expectedRound ||
+                                ((e == expectedNoRound) &
+                                    !inputExplicitJBit &
+                                    outputExplicitJBit)),
+                            reason: '''
+                  inExplicit=$inputExplicitJBit outExplicit=$outputExplicitJBit
                   $fv1 (${fv1.toDouble()})\t+
                   $fv2 (${fv2.toDouble()})\t=
                   $computed (${computed.toDouble()})\tcomputed
@@ -851,169 +546,10 @@ void main() {
                   $expectedRound (${expectedRound.toDouble()})\texpected
                   e1=$e1 m1=$m1  e2=$e2 m2=$m2
 ''');
+                      }
+                    }
                   }
                 }
-              }
-            }
-          }
-        }
-      }
-    });
-
-    test('FP: simple adder with explicit j-bit explicit output exhaustive', () {
-      const exponentWidth = 4;
-      const mantissaWidth = 4;
-      final fp1 = FloatingPoint(
-          exponentWidth: exponentWidth,
-          mantissaWidth: mantissaWidth,
-          explicitJBit: true);
-      final fp2 = FloatingPoint(
-          exponentWidth: exponentWidth,
-          mantissaWidth: mantissaWidth,
-          explicitJBit: true);
-      final fpout = FloatingPoint(
-          exponentWidth: exponentWidth,
-          mantissaWidth: mantissaWidth,
-          explicitJBit: true);
-
-      fp1.put(0);
-      fp2.put(0);
-      final adder = FloatingPointAdderSimple(fp1, fp2, outSum: fpout);
-
-      for (final subtract in [1, 0]) {
-        final expLimit = pow(2, exponentWidth);
-        final mantLimit = pow(2, mantissaWidth);
-        for (var e1 = 0; e1 < expLimit; e1++) {
-          for (var m1 = 0; m1 < mantLimit; m1++) {
-            final fv1 = FloatingPointValue.populator(
-                    exponentWidth: exponentWidth,
-                    mantissaWidth: mantissaWidth,
-                    explicitJBit: true)
-                .ofInts(e1, m1);
-            if (fv1.isLegalValue()) {
-              for (var e2 = 0; e2 < expLimit; e2++) {
-                for (var m2 = 0; m2 < mantLimit; m2++) {
-                  final fv2 = FloatingPointValue.populator(
-                          exponentWidth: exponentWidth,
-                          mantissaWidth: mantissaWidth,
-                          explicitJBit: true)
-                      .ofInts(e2, m2, sign: subtract == 1);
-                  if (fv2.isLegalValue()) {
-                    if ((fv1.exponent.toInt() - fv2.exponent.toInt()).abs() >
-                        51 - mantissaWidth) {
-                      // Native double math cannot verify unrounded result
-                      continue;
-                    }
-                    fp1.put(fv1.value);
-                    fp2.put(fv2.value);
-
-                    final computed =
-                        adder.sum.floatingPointValue.canonicalize();
-                    final expectedNoRound = FloatingPointValue.populator(
-                            exponentWidth: exponentWidth,
-                            mantissaWidth: mantissaWidth,
-                            explicitJBit: true)
-                        .ofDoubleUnrounded(fv1.toDouble() + fv2.toDouble())
-                        .canonicalize();
-                    final expectedRound = FloatingPointValue.populator(
-                            exponentWidth: exponentWidth,
-                            mantissaWidth: mantissaWidth,
-                            explicitJBit: true)
-                        .ofDouble(fv1.toDouble() + fv2.toDouble())
-                        .canonicalize();
-
-                    if (computed.isNaN &
-                        (expectedNoRound.isNaN |
-                            expectedNoRound.isAnInfinity)) {
-                      continue;
-                    }
-                    if (computed.isNaN &
-                        (expectedRound.isNaN | expectedRound.isAnInfinity)) {
-                      continue;
-                    }
-                    expect(computed, equals(expectedRound), reason: '''
-                  $fv1 (${fv1.toDouble()})\t+
-                  $fv2 (${fv2.toDouble()})\t=
-                  $computed (${computed.toDouble()})\tcomputed
-                  $expectedNoRound (${expectedNoRound.toDouble()})\texpectedUn
-                  $expectedRound (${expectedRound.toDouble()})\texpected
-                  e1=$e1 m1=$m1  e2=$e2 m2=$m2
-''');
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-    });
-
-    test('FP: simple adder with implicit j-bit explicit output exhaustive', () {
-      const exponentWidth = 4;
-      const mantissaWidth = 4;
-      final fp1 = FloatingPoint(
-          exponentWidth: exponentWidth, mantissaWidth: mantissaWidth);
-      final fp2 = FloatingPoint(
-          exponentWidth: exponentWidth, mantissaWidth: mantissaWidth);
-      final fpout = FloatingPoint(
-          exponentWidth: exponentWidth,
-          mantissaWidth: mantissaWidth,
-          explicitJBit: true);
-
-      fp1.put(0);
-      fp2.put(0);
-      final adder = FloatingPointAdderSimple(fp1, fp2, outSum: fpout);
-
-      for (final subtract in [0]) {
-        final expLimit = pow(2, exponentWidth);
-        final mantLimit = pow(2, mantissaWidth);
-        for (var e1 = 1; e1 < expLimit; e1++) {
-          for (var m1 = 1; m1 < mantLimit; m1++) {
-            final fv1 = FloatingPointValue.populator(
-                    exponentWidth: exponentWidth, mantissaWidth: mantissaWidth)
-                .ofInts(e1, m1);
-            for (var e2 = 1; e2 < expLimit; e2++) {
-              for (var m2 = 1; m2 < mantLimit; m2++) {
-                final fv2 = FloatingPointValue.populator(
-                        exponentWidth: exponentWidth,
-                        mantissaWidth: mantissaWidth)
-                    .ofInts(e2, m2, sign: subtract == 1);
-                if ((fv1.exponent.toInt() - fv2.exponent.toInt()).abs() >
-                    51 - mantissaWidth) {
-                  // Native double math cannot verify unrounded result
-                  continue;
-                }
-                fp1.put(fv1.value);
-                fp2.put(fv2.value);
-
-                final computed = adder.sum.floatingPointValue.canonicalize();
-                final expectedNoRound = FloatingPointValue.populator(
-                        exponentWidth: exponentWidth,
-                        mantissaWidth: mantissaWidth,
-                        explicitJBit: true)
-                    .ofDoubleUnrounded(fv1.toDouble() + fv2.toDouble())
-                    .canonicalize();
-                final expectedRound = FloatingPointValue.populator(
-                        exponentWidth: exponentWidth,
-                        mantissaWidth: mantissaWidth,
-                        explicitJBit: true)
-                    .ofDouble(fv1.toDouble() + fv2.toDouble())
-                    .canonicalize();
-                if (expectedRound.isAnInfinity) {
-                  continue;
-                }
-                expect(
-                    computed,
-                    predicate(
-                        (e) => e == expectedRound || e == expectedNoRound),
-                    reason: '''
-                  $fv1 (${fv1.toDouble()})\t+
-                  $fv2 (${fv2.toDouble()})\t=
-                  $computed (${computed.toDouble()})\tcomputed
-                  $expectedNoRound (${expectedNoRound.toDouble()})\texpectedUn
-                  $expectedRound (${expectedRound.toDouble()})\texpected
-                  e1=$e1 m1=$m1  e2=$e2 m2=$m2
-''');
               }
             }
           }

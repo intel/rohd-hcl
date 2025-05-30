@@ -134,8 +134,10 @@ class FloatingPointConditionalSwap<FpType extends FloatingPoint>
         FloatingPointUtilities.swap(this.swap, (super.a, super.b));
     outputA <= swapA;
     outputB <= swapB;
-    output('outA') <= outputA;
-    output('outB') <= outputB;
+    // TODO(desmonddak): Why are these needed?
+    output('outA') <= swapA;
+    output('outB') <= swapB;
+    ;
   }
 }
 
