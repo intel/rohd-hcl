@@ -137,7 +137,6 @@ class FloatingPointConditionalSwap<FpType extends FloatingPoint>
     // TODO(desmonddak): Why are these needed?
     output('outA') <= swapA;
     output('outB') <= swapB;
-    ;
   }
 }
 
