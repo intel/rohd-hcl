@@ -246,6 +246,7 @@ class ColumnCompressor extends Module {
       columns.reduce((a, b) => a.length > b.length ? a : b).length;
 
   /// Compute the maximum length of the rows
+  @internal
   int maxWidth() {
     var maxW = 0;
     for (var row = 0; row < _rows.length; row++) {
