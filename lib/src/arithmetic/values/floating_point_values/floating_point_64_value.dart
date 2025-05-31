@@ -44,8 +44,7 @@ class FloatingPoint64Value extends FloatingPointValue {
   /// Creates a [FloatingPointValuePopulator], which can then be used to
   /// complete construction using population functions.
   static FloatingPointValuePopulator<FloatingPoint64Value> populator() =>
-      FloatingPoint64ValuePopulator(
-          FloatingPoint64Value.uninitialized()..storedExplicitJBit = false);
+      FloatingPoint64ValuePopulator(FloatingPoint64Value.uninitialized());
 
   @override
   FloatingPointValuePopulator clonePopulator() => populator();

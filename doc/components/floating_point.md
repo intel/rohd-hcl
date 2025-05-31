@@ -20,6 +20,14 @@ Conversions from the native `double` are supported, both in rounded and unrounde
 
 Appropriate string representations, comparison operations, and operators are available.  The usefulness of [FloatingPointValue](https://intel.github.io/rohd-hcl/rohd_hcl/FloatingPointValue-class.html) is in the testing of [FloatingPoint](https://intel.github.io/rohd-hcl/rohd_hcl/FloatingPoint-class.html) components, where we can leverage the abstraction of a floating-point value type to drive and compare floating-point values operated upon by floating-point components.
 
+### Explicit J-Bit
+
+In intermediate floating-point computations, it may be necessary to avoid normalization and simply store the current mantissa without shifting it left to move its leading 1 into the implicit j-bit location (no zeros before) and adjust the exponent.  We allow this by representing the j-bit explicitly in the mantissa a  leading '1', even when the floating-point is 'normal', or has a positive exponent field.  Typically, only sub-normals can have the leading j-bit stored in the mantissa.  While, in general, this can create a loss in accuracy, in some specific cases we can leverage avoiding normalization without loss of accuracy if we tailor our components to carry more precision and save the latency of normalization.
+
+Our `FloatingPointAdderSimple` and `FloatingPointConverter` modules currently support operations with either input or output explicit j-bit representations.
+
+Explicit J-bit computations are enabled by an `explicitJBit` constructor flag for `FloatingPoint` as well as `FloatingPointValue`.
+
 ### Floating Point Constants
 
 The various IEEE constants representing corner cases of the field of floating-point values for a given size of [FloatingPointValue](https://intel.github.io/rohd-hcl/rohd_hcl/FloatingPointValue-class.html): infinities, zeros, limits for normal (e.g. mantissa in the range of $[1,2)$) and sub-normal numbers (zero exponent, and mantissa <1).

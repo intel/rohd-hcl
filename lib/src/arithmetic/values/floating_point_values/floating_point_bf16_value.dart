@@ -40,8 +40,7 @@ class FloatingPointBF16Value extends FloatingPointValue {
   /// Creates a [FloatingPointValuePopulator], which can then be used to
   /// complete construction using population functions.
   static FloatingPointValuePopulator<FloatingPointBF16Value> populator() =>
-      FloatingPointValuePopulator(
-          FloatingPointBF16Value.uninitialized()..storedExplicitJBit = false);
+      FloatingPointValuePopulator(FloatingPointBF16Value.uninitialized());
 
   @override
   FloatingPointValuePopulator clonePopulator() => populator();

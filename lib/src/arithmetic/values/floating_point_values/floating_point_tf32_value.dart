@@ -40,8 +40,7 @@ class FloatingPointTF32Value extends FloatingPointValue {
   /// Creates a [FloatingPointValuePopulator], which can then be used to
   /// complete construction using population functions.
   static FloatingPointValuePopulator<FloatingPointTF32Value> populator() =>
-      FloatingPointValuePopulator(
-          FloatingPointTF32Value.uninitialized()..storedExplicitJBit = false);
+      FloatingPointValuePopulator(FloatingPointTF32Value.uninitialized());
 
   @override
   FloatingPointValuePopulator clonePopulator() => populator();

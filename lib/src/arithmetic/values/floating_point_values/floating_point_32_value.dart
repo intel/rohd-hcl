@@ -41,8 +41,7 @@ class FloatingPoint32Value extends FloatingPointValue {
   /// Creates a [FloatingPointValuePopulator], which can then be used to
   /// complete construction using population functions.
   static FloatingPointValuePopulator<FloatingPoint32Value> populator() =>
-      FloatingPoint32ValuePopulator(
-          FloatingPoint32Value.uninitialized()..storedExplicitJBit = false);
+      FloatingPoint32ValuePopulator(FloatingPoint32Value.uninitialized());
 
   @override
   FloatingPointValuePopulator clonePopulator() => populator();

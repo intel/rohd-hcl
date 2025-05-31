@@ -33,28 +33,28 @@ class FloatingPointValue implements Comparable<FloatingPointValue> {
   late final LogicValue exponent;
 
   /// The [exponent] width.
-  int get exponentWidth => storedExponentWidth;
+  int get exponentWidth => _exponentWidth;
 
   /// The stored exponent width.
   @protected
-  late final int storedExponentWidth;
+  late final int _exponentWidth;
 
   /// The mantissa of the floating point.
   late final LogicValue mantissa;
 
   /// The [mantissa] width.
-  int get mantissaWidth => storedMantissaWidth;
+  int get mantissaWidth => _mantissaWidth;
 
   /// The stored mantissa width.
   @protected
-  late final int storedMantissaWidth;
+  late final int _mantissaWidth;
 
   /// The stored explicit JBit flag.
   @protected
-  late final bool storedExplicitJBit;
+  late final bool _explicitJBit;
 
   /// Return true if the JBit is explicitly representedin the mantissa.
-  bool get explicitJBit => storedExplicitJBit;
+  bool get explicitJBit => _explicitJBit;
 
   /// Return the bias of this [FloatingPointValue].
   ///
@@ -88,7 +88,8 @@ class FloatingPointValue implements Comparable<FloatingPointValue> {
   /// Creates an unpopulated version of a [FloatingPointValue], intended to be
   /// called with the [populator].
   @protected
-  FloatingPointValue.uninitialized();
+  FloatingPointValue.uninitialized({bool explicitJBit = false})
+      : _explicitJBit = explicitJBit;
 
   /// Creates a [FloatingPointValuePopulator] with the provided [exponentWidth]
   /// and [mantissaWidth], which can then be used to complete construction of
@@ -98,9 +99,9 @@ class FloatingPointValue implements Comparable<FloatingPointValue> {
           required int mantissaWidth,
           bool explicitJBit = false}) =>
       FloatingPointValuePopulator(FloatingPointValue.uninitialized()
-        ..storedExponentWidth = exponentWidth
-        ..storedMantissaWidth = mantissaWidth
-        ..storedExplicitJBit = explicitJBit);
+        .._exponentWidth = exponentWidth
+        .._mantissaWidth = mantissaWidth
+        .._explicitJBit = explicitJBit);
 
   /// Creates a [FloatingPointValuePopulator] for the same type as `this` and
   /// with the same widths.
@@ -111,9 +112,9 @@ class FloatingPointValue implements Comparable<FloatingPointValue> {
   @mustBeOverridden
   FloatingPointValuePopulator clonePopulator() =>
       FloatingPointValuePopulator(FloatingPointValue.uninitialized()
-        ..storedExponentWidth = exponentWidth
-        ..storedMantissaWidth = mantissaWidth
-        ..storedExplicitJBit = explicitJBit);
+        .._exponentWidth = exponentWidth
+        .._mantissaWidth = mantissaWidth
+        .._explicitJBit = explicitJBit);
 
   /// A wrapper around [FloatingPointValuePopulator.ofString] that computes the
   /// widths of the exponent and mantissa from the input string.

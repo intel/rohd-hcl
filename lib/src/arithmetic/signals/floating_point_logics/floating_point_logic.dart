@@ -82,6 +82,8 @@ class FloatingPoint extends LogicStructure {
   /// Return true if the J-bit is explicitly represented in the mantissa.
   bool get explicitJBit => _explicitJBit;
 
+  late final bool _explicitJBit;
+
   // TODO(desmonddak): this will work incorrectly and must be fixed.
   // The issue is that it should return the EJ version of this or
   // convert to the original (we may need both routines here)
@@ -153,8 +155,6 @@ class FloatingPoint extends LogicStructure {
   /// Construct a FloatingPoint that represents NaN for this FP type.
   late final nan = FloatingPoint.nan(
       exponentWidth: exponent.width, mantissaWidth: mantissa.width);
-
-  late final bool _explicitJBit;
 
   @override
   void put(dynamic val, {bool fill = false}) {

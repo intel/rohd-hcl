@@ -11,6 +11,8 @@
 
 set -euo pipefail
 
+curl -sSL https://get.haskellstack.org/ | sh 
+
 cd /tmp/
 git clone https://github.com/zachjs/sv2v.git
 cd sv2v

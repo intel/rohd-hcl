@@ -170,15 +170,19 @@ class ColumnCompressor extends Module {
   Logic get add1 => output('add1');
 
   /// Columns of partial product CompressTerms
+  @internal
   late final List<ColumnQueue> columns;
 
   /// The clk for the pipelined version of column compression.
+  @protected
   Logic? clk;
 
   /// Optional reset for configurable pipestage
+  @protected
   Logic? reset;
 
   /// Optional enable for configurable pipestage.
+  @protected
   Logic? enable;
 
   late final List<Logic> _rows;
@@ -237,6 +241,7 @@ class ColumnCompressor extends Module {
   }
 
   /// Return the longest column length
+  @internal
   int longestColumn() =>
       columns.reduce((a, b) => a.length > b.length ? a : b).length;
 
