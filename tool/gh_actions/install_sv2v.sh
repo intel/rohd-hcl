@@ -11,6 +11,7 @@
 
 set -euo pipefail
 
+cd /tmp/
 git clone https://github.com/zachjs/sv2v.git
 cd sv2v
 make
