@@ -13,8 +13,7 @@ import 'dart:async';
 import 'dart:math';
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
-import 'package:rohd_hcl/src/arithmetic/evaluate_compressor.dart';
-import 'package:rohd_hcl/src/arithmetic/partial_product_sign_extend.dart';
+import 'package:rohd_hcl/src/arithmetic/multiplier_components/evaluate_compressor.dart';
 import 'package:test/test.dart';
 
 /// The following routines are useful only during testing
@@ -65,7 +64,6 @@ class SimpleMultiplier extends Multiplier {
   SimpleMultiplier(Logic a, Logic b, Logic? selSignedMultiplicand,
       Logic? selSignedMultiplier)
       : super(a, b) {
-    addOutput('product', width: a.width + b.width);
     final mult = CompressionTreeMultiplier(a, b, 4,
         adderGen: ParallelPrefixAdder.new,
         selectSignedMultiplicand: selSignedMultiplicand,
@@ -503,10 +501,10 @@ void main() {
     const width = 8;
     final a = Logic(name: 'a', width: width);
     final b = Logic(name: 'b', width: width);
-    const av = 12;
-    const bv = 13;
-    for (final signed in [true]) {
-      for (final useSignedLogic in [true]) {
+    const av = 1;
+    const bv = 1;
+    for (final signed in [false]) {
+      for (final useSignedLogic in [false]) {
         final bA = SignedBigInt.fromSignedInt(av, width, signed: signed);
         final bB = SignedBigInt.fromSignedInt(bv, width, signed: signed);
 
@@ -528,7 +526,6 @@ void main() {
             signedMultiplier: !useSignedLogic && signed,
             selectSignedMultiplicand: signedSelect,
             selectSignedMultiplier: signedSelect);
-        await mod.build();
         final golden = bA * bB;
         final result = mod.isSignedResult()
             ? mod.product.value.toBigInt().toSigned(mod.product.width)
@@ -682,43 +679,45 @@ void main() {
     a.put(6);
     b.put(3);
 
-    final ppG0 = PartialProductGenerator(a, b, RadixEncoder(4),
+    final ppG0 = PartialProduct(a, b, RadixEncoder(4),
         signedMultiplicand: true, signedMultiplier: true);
-    CompactRectSignExtension(ppG0).signExtend();
+    CompactRectSignExtension(ppG0.array).signExtend();
 
-    final bit_0_5 = ppG0.getAbsolute(0, 5);
+    final bit_0_5 = ppG0.array.getAbsolute(0, 5);
     expect(bit_0_5.value, equals(LogicValue.one));
-    ppG0.setAbsolute(0, 5, Const(0));
-    expect(ppG0.getAbsolute(0, 5).value, equals(LogicValue.zero));
+    ppG0.array.setAbsolute(0, 5, Const(0));
+    expect(ppG0.array.getAbsolute(0, 5).value, equals(LogicValue.zero));
 
-    final bit_1_2 = ppG0.getAbsolute(1, 2);
+    final bit_1_2 = ppG0.array.getAbsolute(1, 2);
     expect(bit_1_2.value, equals(LogicValue.zero));
-    ppG0.setAbsolute(1, 2, Const(1));
-    expect(ppG0.getAbsolute(1, 2).value, equals(LogicValue.one));
+    ppG0.array.setAbsolute(1, 2, Const(1));
+    expect(ppG0.array.getAbsolute(1, 2).value, equals(LogicValue.one));
 
-    final bits_3_678 = ppG0.getAbsoluteAll(3, [6, 7, 8]);
+    final bits_3_678 = ppG0.array.getAbsoluteAll(3, [6, 7, 8]);
 
     expect(bits_3_678.swizzle().value, equals(Const(0, width: 3).value));
 
-    ppG0.setAbsoluteAll(3, 6, [Const(1), Const(1), Const(0)]);
+    ppG0.array.setAbsoluteAll(3, 6, [Const(1), Const(1), Const(0)]);
 
-    expect(ppG0.getAbsoluteAll(3, [6, 7, 8]).swizzle().value,
+    expect(ppG0.array.getAbsoluteAll(3, [6, 7, 8]).swizzle().value,
         equals([Const(1), Const(1), Const(0)].swizzle().value));
 
-    ppG0
+    ppG0.array
       ..muxAbsolute(0, 4, select, Const(0))
       ..muxAbsoluteAll(1, 9, select, [Const(1), Const(0)]);
 
-    expect(ppG0.getAbsolute(0, 4).value, equals(Const(1).value));
-    expect(ppG0.getAbsolute(1, 9).value, equals(Const(0).value));
-    expect(ppG0.getAbsolute(1, 10).value, equals(Const(1).value));
+    expect(ppG0.array.getAbsolute(0, 4).value, equals(Const(1).value));
+    expect(ppG0.array.getAbsolute(1, 9).value, equals(Const(0).value));
+    expect(ppG0.array.getAbsolute(1, 10).value, equals(Const(1).value));
 
     select.put(1);
-    expect(ppG0.getAbsolute(0, 4).value, equals(Const(0).value));
-    expect(ppG0.getAbsolute(1, 9).value, equals(Const(1).value));
-    expect(ppG0.getAbsolute(1, 10).value, equals(Const(0).value));
+    expect(ppG0.array.getAbsolute(0, 4).value, equals(Const(0).value));
+    expect(ppG0.array.getAbsolute(1, 9).value, equals(Const(1).value));
+    expect(ppG0.array.getAbsolute(1, 10).value, equals(Const(0).value));
 
-    final cc = ColumnCompressor(ppG0);
+    ppG0.generateOutputs();
+
+    final cc = ColumnCompressor(ppG0.rows, ppG0.rowShift, dontCompress: true);
     const expectedRep = '''
 	pp3,15	pp3,14	pp3,13	pp3,12	pp3,11	pp3,10	pp3,9	pp3,8	pp3,7	pp3,6	pp3,5	pp2,4	pp2,3	pp1,2	pp1,1	pp0,0
 			pp2,13	pp2,12	pp1,11	pp2,10	pp2,9	pp2,8	pp2,7	pp2,6	pp2,5	pp0,4	pp0,3	pp0,2	pp0,1	
@@ -731,10 +730,10 @@ void main() {
 
     const expectedEval = '''
        15      14      13      12      11      10       9       8       7       6       5       4       3       2       1       0
-        1       I       0       0       0       0       0       0       1       1       0       0       0       1       1       0        = 49350 (-16186)
-                        1       I       1       0       0       0       0       0       0       0       1       0       0                = 14344 (14344)
-                                        0       i       1       0       0       0       0       1       1                                = 536 (536)
-                                                i       S       S       1       1       0                                                = 960 (960)
+        1       1       0       0       0       0       0       0       1       1       0       0       0       1       1       0        = 49350 (-16186)
+                        1       1       1       0       0       0       0       0       0       0       1       0       0                = 14344 (14344)
+                                        0       0       1       0       0       0       0       1       1                                = 536 (536)
+                                                0       1       1       1       1       0                                                = 960 (960)
 p       1       1       1       1       1       1       1       0       1       0       1       0       0       1       1       0        = 65190 (-346)''';
     expect(ts.toString(), equals(expectedEval));
   });

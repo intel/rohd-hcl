@@ -27,6 +27,7 @@ Some in-development items will have opened issues, as well. Feel free to create 
   - [Find Pattern](./components/find_pattern.md)
     - [Find Pattern from Start/End](./components/find_pattern.md#find-pattern-from-startend)
     - [Find N'th Pattern from Start/End](./components/find_pattern.md#find-nth-pattern-from-startend)
+    - [Leading Digit Anticipate](./components/leading_digit_anticipate.md)
 - Count
   - [Count bit occurrence](./components/count.md)
   - Count pattern occurrence
@@ -57,6 +58,8 @@ Some in-development items will have opened issues, as well. Feel free to create 
     - [Multi Cycle Integer Divider](./components/divider.md)
   - Log
   - Square root
+    - [Fixed-Point Square Root](./components/fixed_point.md#fixedpointsqrt)
+    - [Floating-Point Square Root](./components/floating_point.md#floatingpointsqrt)
   - Inverse square root
   - Floating point
     - [Floating-Point Value Types](./components/floating_point.md#floatingpointvalue)
@@ -66,7 +69,7 @@ Some in-development items will have opened issues, as well. Feel free to create 
       - TensorFloat32 (19-bit)
       - 8-bit E4/M3 and E5/M2
     - [Simple Floating-Point Adder](./components/floating_point.md#floatingpointadder)
-    - [Rounding Floating-Point Adder](./components/floating_point.md#floatingpointadder)
+    - [Dual Path Floating-Point Adder](./components/floating_point.md#floatingpointadder)
     - [Simple Floating-Point Multiplier](./components/floating_point.md#floatingpointmultiplier)
     - [Floating-Point Converter](./components/floating_point.md#floatingpointconverter)
   - [Fixed point](./components/fixed_point.md)

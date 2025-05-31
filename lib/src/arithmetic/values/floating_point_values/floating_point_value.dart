@@ -34,6 +34,9 @@ class FloatingPointValue implements Comparable<FloatingPointValue> {
 
   /// The [exponent] width.
   int get exponentWidth => _exponentWidth;
+
+  /// The stored exponent width.
+  @protected
   late final int _exponentWidth;
 
   /// The mantissa of the floating point.
@@ -41,7 +44,17 @@ class FloatingPointValue implements Comparable<FloatingPointValue> {
 
   /// The [mantissa] width.
   int get mantissaWidth => _mantissaWidth;
+
+  /// The stored mantissa width.
+  @protected
   late final int _mantissaWidth;
+
+  /// The stored explicit JBit flag.
+  @protected
+  late final bool _explicitJBit;
+
+  /// Return true if the JBit is explicitly representedin the mantissa.
+  bool get explicitJBit => _explicitJBit;
 
   /// Return the bias of this [FloatingPointValue].
   ///
@@ -64,23 +77,31 @@ class FloatingPointValue implements Comparable<FloatingPointValue> {
   factory FloatingPointValue(
           {required LogicValue sign,
           required LogicValue exponent,
-          required LogicValue mantissa}) =>
-      populator(exponentWidth: exponent.width, mantissaWidth: mantissa.width)
+          required LogicValue mantissa,
+          bool explicitjBit = false}) =>
+      populator(
+              exponentWidth: exponent.width,
+              mantissaWidth: mantissa.width,
+              explicitJBit: explicitjBit)
           .populate(sign: sign, exponent: exponent, mantissa: mantissa);
 
   /// Creates an unpopulated version of a [FloatingPointValue], intended to be
   /// called with the [populator].
   @protected
-  FloatingPointValue.uninitialized();
+  FloatingPointValue.uninitialized({bool explicitJBit = false})
+      : _explicitJBit = explicitJBit;
 
   /// Creates a [FloatingPointValuePopulator] with the provided [exponentWidth]
   /// and [mantissaWidth], which can then be used to complete construction of
   /// a [FloatingPointValue] using population functions.
   static FloatingPointValuePopulator populator(
-          {required int exponentWidth, required int mantissaWidth}) =>
-      FloatingPointValuePopulator(FloatingPointValue.uninitialized()
-        .._exponentWidth = exponentWidth
-        .._mantissaWidth = mantissaWidth);
+          {required int exponentWidth,
+          required int mantissaWidth,
+          bool explicitJBit = false}) =>
+      FloatingPointValuePopulator(
+          FloatingPointValue.uninitialized(explicitJBit: explicitJBit)
+            .._exponentWidth = exponentWidth
+            .._mantissaWidth = mantissaWidth);
 
   /// Creates a [FloatingPointValuePopulator] for the same type as `this` and
   /// with the same widths.
@@ -89,25 +110,32 @@ class FloatingPointValue implements Comparable<FloatingPointValue> {
   /// [FloatingPointValuePopulator] is returned for generating equivalent types
   /// of [FloatingPointValue]s.
   @mustBeOverridden
-  FloatingPointValuePopulator clonePopulator() =>
-      FloatingPointValuePopulator(FloatingPointValue.uninitialized()
+  FloatingPointValuePopulator clonePopulator() => FloatingPointValuePopulator(
+      FloatingPointValue.uninitialized(explicitJBit: explicitJBit)
         .._exponentWidth = exponentWidth
         .._mantissaWidth = mantissaWidth);
 
   /// A wrapper around [FloatingPointValuePopulator.ofString] that computes the
   /// widths of the exponent and mantissa from the input string.
   factory FloatingPointValue.ofBinaryStrings(
-          String sign, String exponent, String mantissa) =>
-      populator(exponentWidth: exponent.length, mantissaWidth: mantissa.length)
+          String sign, String exponent, String mantissa,
+          {bool explicitJBit = false}) =>
+      populator(
+              exponentWidth: exponent.length,
+              mantissaWidth: mantissa.length,
+              explicitJBit: explicitJBit)
           .ofBinaryStrings(sign, exponent, mantissa);
 
   /// A wrapper around [FloatingPointValuePopulator.ofSpacedBinaryString] that
   /// computes the widths of the exponent and mantissa from the input string.
-  factory FloatingPointValue.ofSpacedBinaryString(String fp) {
+  factory FloatingPointValue.ofSpacedBinaryString(String fp,
+      {bool explicitJBit = false}) {
     final split = fp.split(' ');
     return populator(
-            exponentWidth: split[1].length, mantissaWidth: split[2].length)
-        .ofSpacedBinaryString(fp);
+            exponentWidth: split[1].length,
+            mantissaWidth: split[2].length,
+            explicitJBit: explicitJBit)
+        .ofSpacedBinaryString(fp, explicitJBit: explicitJBit);
   }
 
   /// Validate the [FloatingPointValue] to ensure widths and other
@@ -310,19 +338,101 @@ class FloatingPointValue implements Comparable<FloatingPointValue> {
         doubleVal = (sign.toBool() ? -1.0 : 1.0) *
             pow(2.0, minExponent) *
             mantissa.toBigInt().toDouble() /
-            pow(2.0, mantissa.width);
+            pow(2.0, mantissa.width - (explicitJBit ? 1 : 0));
       } else if (!isNaN) {
         doubleVal = (sign.toBool() ? -1.0 : 1.0) *
-            (1.0 + mantissa.toBigInt().toDouble() / pow(2.0, mantissa.width)) *
+            ((explicitJBit ? 0.0 : 1.0) +
+                mantissa.toBigInt().toDouble() /
+                    pow(2.0, mantissa.width - (explicitJBit ? 1 : 0))) *
             pow(2.0, exponent.toInt() - bias);
       }
     }
     return doubleVal;
   }
 
+  /// Convert to a [FloatingPointValue] with a mantissa that is one smaller
+  /// due to the implicit J-bit.
+  FloatingPointValue toFloatingPointValue() {
+    final norm = canonicalize();
+    return FloatingPointValue(
+        sign: norm.sign,
+        exponent: norm.exponent,
+        mantissa: norm.mantissa.getRange(0, norm.mantissa.width - 1));
+  }
+
   /// Return a Logic true if this FloatingPointVa;ie contains a normal number,
   /// defined as having mantissa in the range `[1,2)`.
-  bool isNormal() => exponent != LogicValue.ofInt(0, exponent.width);
+  bool isNormal() {
+    if (explicitJBit) {
+      final e = exponent.toInt();
+      final m = mantissa.toInt();
+      final int normMantissa;
+      if (e < mantissa.width) {
+        normMantissa = 1 << (mantissa.width - e - 1);
+      } else {
+        normMantissa = 1;
+      }
+      return (e > 0) && (m >= normMantissa);
+    } else {
+      return exponent != LogicValue.ofInt(0, exponent.width);
+    }
+  }
+
+  /// Check if the mantissa and exponent stored are compatible
+  bool isLegalValue() {
+    if (explicitJBit) {
+      final e = exponent.toInt();
+      final m = mantissa.toInt();
+      // TODO(desmonddak): We need to check this with bit-pattern testing
+      // of legal mantissas and that exponents are compatible with those.
+      // Basically, if e > 0 then we expect a 1 somewhere.  If e == 0 then
+      // we expect anything except a leading 1 in the mantissas.
+      final normMantissa = 1 << (mantissa.width - 1);
+
+      return ((e == 0) && (m < normMantissa)) || ((e > 0) && (m >= 1));
+    }
+    return true;
+  }
+
+  /// Return the cananocalized form of [FloatingPointValue] which
+  /// has the leading 1 at the front of the mantissa, or further right if
+  /// subnormal.
+  FloatingPointValue canonicalize() {
+    if (explicitJBit) {
+      var expVal = exponent.toInt();
+      var mant = mantissa;
+      if (!isAnInfinity) {
+        if (!isNaN) {
+          if (mant.or() == LogicValue.one) {
+            while ((mant[-1] == LogicValue.zero) & (expVal > 1)) {
+              expVal--;
+              mant = mant << 1;
+            }
+            if ((mant[-1] == LogicValue.zero) & (expVal == 1)) {
+              // Make canonical: if it cannot be made normal, it is subnormal
+              expVal = 0;
+            } else if ((mant[-1] == LogicValue.one) & (expVal == 0)) {
+              expVal = 1;
+            }
+          } else {
+            expVal = 0;
+          }
+        } else {
+          return populator(
+                  exponentWidth: exponentWidth,
+                  mantissaWidth: mantissaWidth,
+                  explicitJBit: explicitJBit)
+              .nan;
+        }
+      }
+      return FloatingPointValue(
+          sign: sign,
+          exponent: LogicValue.ofInt(expVal, exponentWidth),
+          mantissa: mant,
+          explicitjBit: explicitJBit);
+    }
+    return this;
+  }
 
   /// Return a string representation of FloatingPointValue.
   ///
@@ -457,6 +567,8 @@ class FloatingPointValue implements Comparable<FloatingPointValue> {
     }
     return true;
   }
+
+  // TODO(desmonddak): but when subnormal this fails to be accurate
 
   /// Compute the unit in the last place for the given [FloatingPointValue].
   FloatingPointValue ulp() {

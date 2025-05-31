@@ -1,8 +1,8 @@
 // Copyright (C) 2023-2025 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 //
-// addend_compressor_test.dart
-// Tests for the select interface of Booth encoding
+// column_compressor_test.dart
+// Tests for the column compressor.
 //
 // 2024 June 04
 // Author: Desmond Kirkpatrick <desmond.a.kirkpatrick@intel.com>
@@ -10,9 +10,8 @@
 import 'dart:async';
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
-import 'package:rohd_hcl/src/arithmetic/evaluate_compressor.dart';
-import 'package:rohd_hcl/src/arithmetic/evaluate_partial_product.dart';
-import 'package:rohd_hcl/src/arithmetic/partial_product_sign_extend.dart';
+import 'package:rohd_hcl/src/arithmetic/multiplier_components/evaluate_compressor.dart';
+import 'package:rohd_hcl/src/arithmetic/multiplier_components/evaluate_partial_product.dart';
 import 'package:test/test.dart';
 
 /// This [CompressorTestMod] module is used to test instantiation, where we can
@@ -36,17 +35,18 @@ class CompressorTestMod extends Module {
       clk = addInput('clk', iclk);
     }
 
-    final pp = PartialProductGenerator(a, b, encoder,
+    final pp = PartialProduct(a, b, encoder,
         signedMultiplicand: signed, signedMultiplier: signed);
-    CompactRectSignExtension(pp).signExtend();
+    CompactRectSignExtension(pp.array).signExtend();
 
-    compressor = ColumnCompressor(pp, clk: clk);
-    compressor.compress();
+    pp.generateOutputs();
+
+    compressor = ColumnCompressor(pp.rows, pp.rowShift, clk: clk);
     final r0 = addOutput('r0', width: compressor.columns.length);
     final r1 = addOutput('r1', width: compressor.columns.length);
 
-    r0 <= compressor.extractRow(0);
-    r1 <= compressor.extractRow(1);
+    r0 <= compressor.add0;
+    r1 <= compressor.add1;
   }
 }
 
@@ -89,6 +89,7 @@ void main() {
         equals(BigInt.from(av * bv)));
     await Simulator.endSimulation();
   });
+
   test('Column Compressor: single compressor evaluate', () async {
     const widthX = 3;
     const widthY = 3;
@@ -107,21 +108,24 @@ void main() {
       const radix = 4;
       final encoder = RadixEncoder(radix);
       for (final useSelect in [false, true]) {
-        final selectSignedMultiplicand = useSelect ? Logic() : null;
-        final selectSignedMultiplier = useSelect ? Logic() : null;
+        final selectSignedMultiplicand =
+            useSelect ? Logic(name: 'mcand') : null;
+        final selectSignedMultiplier = useSelect ? Logic(name: 'mult') : null;
         if (useSelect) {
           selectSignedMultiplicand!.put(signed ? 1 : 0);
           selectSignedMultiplier!.put(signed ? 1 : 0);
         }
-        final pp = PartialProductGenerator(a, b, encoder,
+        final pp = PartialProduct(a, b, encoder,
             signedMultiplicand: !useSelect & signed,
             signedMultiplier: !useSelect & signed,
             selectSignedMultiplicand: selectSignedMultiplicand,
             selectSignedMultiplier: selectSignedMultiplier);
-        CompactRectSignExtension(pp).signExtend();
+        CompactRectSignExtension(pp.array).signExtend();
 
-        expect(pp.evaluate(), equals(bA * bB));
-        final compressor = ColumnCompressor(pp);
+        pp.generateOutputs();
+        expect(pp.array.evaluate(), equals(bA * bB));
+        final compressor =
+            ColumnCompressor(pp.rows, pp.rowShift, dontCompress: true);
         expect(compressor.evaluate().$1, equals(bA * bB));
         compressor.compress();
         expect(compressor.evaluate().$1, equals(bA * bB));

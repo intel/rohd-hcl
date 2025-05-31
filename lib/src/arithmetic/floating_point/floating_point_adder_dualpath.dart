@@ -1,8 +1,8 @@
 // Copyright (C) 2024-2025 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 //
-// floating_point_adder_round.dart
-// A variable-width floating point adder with rounding
+// floating_point_adder_dualpath.dart
+// A variable-width floating point adder using a dual path computation.
 //
 // 2024 August 30
 // Author: Desmond A Kirkpatrick <desmond.a.kirkpatrick@intel.com
@@ -11,29 +11,35 @@ import 'dart:math';
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
 
-/// An adder module for variable FloatingPoint type with rounding.
+/// An adder module for variable FloatingPoint type.
 // This is a Seidel/Even adder, dual-path implementation.
-class FloatingPointAdderRound<FpType extends FloatingPoint>
-    extends FloatingPointAdder<FpType> {
+class FloatingPointAdderDualPath<FpTypeIn extends FloatingPoint,
+        FpTypeOut extends FloatingPoint>
+    extends FloatingPointAdder<FpTypeIn, FpTypeOut> {
   /// Add two floating point numbers [a] and [b], returning result in [sum].
-  /// [subtract] is an optional Logic input to do subtraction
-  /// [adderGen] is an adder generator to be used in the primary adder
+  /// - [subtract] is an optional Logic input to do subtraction
+  /// - [adderGen] is an adder generator to be used in the primary adder
   /// functions.
-  /// [ppTree] is an ParallelPrefix generator for use in increment /decrement
+  /// - [widthGen] is the splitting function for creating the different adder
+  /// blocks within the internal [CompoundAdder] used for mantissa addition.
+  ///   Decreasing the split width will increase speed but also increase area.
+  /// - [ppTree] is an ParallelPrefix generator for use in increment /decrement
   ///  functions.
-  FloatingPointAdderRound(super.a, super.b,
+  FloatingPointAdderDualPath(super.a, super.b,
       {Logic? subtract,
       super.clk,
       super.reset,
       super.enable,
       Adder Function(Logic a, Logic b, {Logic? carryIn, String name}) adderGen =
           NativeAdder.new,
+      List<int> Function(int) widthGen =
+          CarrySelectCompoundAdder.splitSelectAdderAlgorithmSingleBlock,
       ParallelPrefix Function(
               List<Logic> inps, Logic Function(Logic term1, Logic term2) op)
           ppTree = KoggeStone.new,
-      super.name = 'floating_point_adder_round'})
+      super.name = 'floating_point_adder_dualpath'})
       : super(
-            definitionName: 'FloatingPointAdderRound_'
+            definitionName: 'FloatingPointAdderDualPath_'
                 'E${a.exponent.width}M${a.mantissa.width}') {
     final outputSum = FloatingPoint(
         exponentWidth: exponentWidth, mantissaWidth: mantissaWidth);
@@ -56,18 +62,32 @@ class FloatingPointAdderRound<FpType extends FloatingPoint>
     final delta = exponentSubtractor.sum.named('expDelta');
 
     // Seidel: (sl, el, fl) = larger; (ss, es, fs) = smaller
-    final (larger, smaller) = FloatingPointUtilities.swap(signDelta, (a, b));
+    final swapper = FloatingPointConditionalSwap(a, b, signDelta);
+    final larger = swapper.outA;
+    final smaller = swapper.outB;
 
     final fl = mux(
-      larger.isNormal,
-      [larger.isNormal, larger.mantissa].swizzle(),
-      [larger.mantissa, Const(0)].swizzle(),
-    ).named('fullLarger');
+            ~larger.isNormal ^ Const(larger.explicitJBit),
+            [larger.mantissa, Const(0)].swizzle(),
+            mux(
+                larger.isNormal,
+                [Const(1), larger.mantissa].swizzle(),
+                [
+                  larger.mantissa.getRange(0, mantissaWidth - 1),
+                  Const(0, width: 2)
+                ].swizzle()))
+        .named('fullLarger');
     final fs = mux(
-      smaller.isNormal,
-      [smaller.isNormal, smaller.mantissa].swizzle(),
-      [smaller.mantissa, Const(0)].swizzle(),
-    ).named('fullSmaller');
+            ~smaller.isNormal ^ Const(smaller.explicitJBit),
+            [smaller.mantissa, Const(0)].swizzle(),
+            mux(
+                smaller.isNormal,
+                [Const(1), smaller.mantissa].swizzle(),
+                [
+                  smaller.mantissa.getRange(0, mantissaWidth - 1),
+                  Const(0, width: 2)
+                ].swizzle()))
+        .named('fullSmaller');
 
     // Seidel: flp  larger preshift, normally in [2,4)
     final sigWidth = fl.width + 1;
@@ -78,7 +98,7 @@ class FloatingPointAdderRound<FpType extends FloatingPoint>
             fs.zeroExtend(sigWidth))
         .named('smallShift');
 
-    final zeroExp = a.zeroExponent;
+    final zeroExp = outputSum.zeroExponent;
     final largeOperand = largeShift;
     //
     // R Datapath:  Far exponents or addition
@@ -109,15 +129,15 @@ class FloatingPointAdderRound<FpType extends FloatingPoint>
     final isInfFlopped = localFlop(isInf);
     final isNaNFlopped = localFlop(isNaN);
 
-    final carryRPath = Logic(name: 'carryRpath');
-    final carryP1RPath = Logic(name: 'carryRpath');
     final significandAdderRPath = CarrySelectOnesComplementCompoundAdder(
         largeOperandFlopped, smallerOperandRPathFlopped,
         subtractIn: effectiveSubtractionFlopped,
-        carryOut: carryRPath,
-        carryOutP1: carryP1RPath,
+        generateCarryOut: true,
+        generateCarryOutP1: true,
         adderGen: adderGen,
+        widthGen: widthGen,
         name: 'rpath_significand_adder');
+    final carryRPath = significandAdderRPath.carryOut!;
 
     final lowBitsRPath = smallerAlignRPathFlopped
         .slice(extendWidthRPath - 1, 0)
@@ -217,7 +237,6 @@ class FloatingPointAdderRound<FpType extends FloatingPoint>
 
     final sumMantissaRPath =
         mux(selectRPath, sumP1RPath, sumRPath).named('selectSumMantissa_rpath');
-    // TODO(desmonddak):  the '+' operator fails to pick up names directly
     final sumMantissaRPathRnd = (sumMantissaRPath +
             rndRPath.zeroExtend(sumRPath.width).named('rndExtend_rpath'))
         .named('sumMantissaRndRpath');
@@ -231,6 +250,10 @@ class FloatingPointAdderRound<FpType extends FloatingPoint>
     final smallOperandNPath =
         (smallShift >>> (a.exponent[0] ^ b.exponent[0])).named('smallOperand');
 
+    // TODO(desmonddak): could we avoid the end-around-carry here or will that
+    // cause too much to do for the leadingOne calculation. Could we reverse the
+    // operands or is there no guarantee?  If so, would a dual-adder make sense
+    // here?
     final significandSubtractorNPath = OnesComplementAdder(
         largeOperand, smallOperandNPath,
         subtractIn: effectiveSubtraction,
@@ -241,12 +264,19 @@ class FloatingPointAdderRound<FpType extends FloatingPoint>
         .slice(smallOperandNPath.width - 1, 0)
         .named('significandNpath');
 
-    final validLeadOneNPath = Logic(name: 'validLead1Npath');
-    final leadOneNPathPre = RecursiveModulePriorityEncoder(
-            significandNPath.reversed,
-            valid: validLeadOneNPath,
-            name: 'npath_leadingOne')
-        .out;
+    // N pipestage here:
+    final significandNPathFlopped = localFlop(significandNPath);
+    final significandSubtractorNPathSignFlopped =
+        localFlop(significandSubtractorNPath.sign);
+    final largerSignFlopped = localFlop(larger.sign);
+    final smallerSignFlopped = localFlop(smaller.sign);
+
+    final leadOneEncoderNPath = RecursiveModulePriorityEncoder(
+        significandNPathFlopped.reversed,
+        generateValid: true,
+        name: 'npath_leadingOne');
+    final leadOneNPathPre = leadOneEncoderNPath.out;
+    final validLeadOneNPath = leadOneEncoderNPath.valid!;
     // Limit leadOne to exponent range and match widths
     final leadOneNPath = ((leadOneNPathPre.width > exponentWidth)
             ? mux(
@@ -257,37 +287,25 @@ class FloatingPointAdderRound<FpType extends FloatingPoint>
             : leadOneNPathPre.zeroExtend(exponentWidth))
         .named('leadOneNpath');
 
-    // N pipestage here:
-    final significandNPathFlopped = localFlop(significandNPath);
-    final significandSubtractorNPathSignFlopped =
-        localFlop(significandSubtractorNPath.sign);
-    final leadOneNPathFlopped = localFlop(leadOneNPath);
-    final validLeadOneNPathFlopped = localFlop(validLeadOneNPath);
-    final largerSignFlopped = localFlop(larger.sign);
-    final smallerSignFlopped = localFlop(smaller.sign);
-
     final expCalcNPath = OnesComplementAdder(
-        largerExpFlopped, leadOneNPathFlopped.zeroExtend(exponentWidth),
-        subtractIn: effectiveSubtractionFlopped,
-        adderGen: adderGen,
-        name: 'npath_expcalc');
+        largerExpFlopped, leadOneNPath.zeroExtend(exponentWidth),
+        subtractIn: Const(1), adderGen: adderGen, name: 'npath_expcalc');
 
     final preExpNPath =
         expCalcNPath.sum.slice(exponentWidth - 1, 0).named('preExpNpath');
 
     final posExpNPath =
-        (preExpNPath.or() & ~expCalcNPath.sign & validLeadOneNPathFlopped)
+        (preExpNPath.or() & ~expCalcNPath.sign & validLeadOneNPath)
             .named('posExpNpath');
 
     final exponentNPath =
         mux(posExpNPath, preExpNPath, zeroExp).named('exponentNpath');
 
     final preMinShiftNPath =
-        (~leadOneNPathFlopped.or() | ~largerExpFlopped.or())
-            .named('preMinShiftNpath');
+        (~leadOneNPath.or() | ~largerExpFlopped.or()).named('preMinShiftNpath');
 
     final minShiftNPath =
-        mux(posExpNPath | preMinShiftNPath, leadOneNPathFlopped, expDecr.out)
+        mux(posExpNPath | preMinShiftNPath, leadOneNPath, expDecr.out)
             .named('minShiftNpath');
     final notSubnormalNPath = aIsNormalFlopped | bIsNormalFlopped;
 

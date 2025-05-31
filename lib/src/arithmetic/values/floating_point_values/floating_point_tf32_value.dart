@@ -26,7 +26,11 @@ class FloatingPointTF32Value extends FloatingPointValue {
           {required LogicValue sign,
           required LogicValue exponent,
           required LogicValue mantissa}) =>
-      populator().populate(sign: sign, exponent: exponent, mantissa: mantissa);
+      populator().populate(
+          sign: sign,
+          exponent: exponent,
+          mantissa: mantissa,
+          explicitJBit: false);
 
   /// Creates an unpopulated version, intended to be called with the
   /// [populator].

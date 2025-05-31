@@ -20,7 +20,8 @@ class FloatingPointTF32 extends FloatingPoint {
             exponentWidth: FloatingPointTF32Value.populator().exponentWidth);
 
   @override
-  FloatingPointTF32 clone({String? name}) => FloatingPointTF32(name: name);
+  FloatingPointTF32 clone({String? name, bool explicitJBit = false}) =>
+      FloatingPointTF32(name: name);
 
   @override
   FloatingPointValuePopulator<FloatingPointTF32Value> valuePopulator() =>

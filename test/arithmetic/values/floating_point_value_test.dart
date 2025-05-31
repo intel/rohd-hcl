@@ -480,4 +480,67 @@ void main() {
     expect(fpv1.withinRounding(fpv1), true);
     expect(fpv1.withinRounding(fpv3), true);
   });
+
+  test('FPV: j-bit conversion singleton', () {
+    const exponentWidth = 4;
+    const mantissaWidth = 4;
+
+    final fp = FloatingPointValue.populator(
+            exponentWidth: exponentWidth,
+            mantissaWidth: mantissaWidth,
+            explicitJBit: true)
+        .ofSpacedBinaryString('0 0001 0111');
+    if (fp.isLegalValue()) {
+      final dbl = fp.toDouble();
+      final fp2 = FloatingPointValue.populator(
+              exponentWidth: exponentWidth,
+              mantissaWidth: mantissaWidth,
+              explicitJBit: true)
+          .ofDouble(dbl, roundingMode: FloatingPointRoundingMode.truncate);
+      expect(fp.canonicalize(), equals(fp2));
+      final fpOrig = FloatingPointValue.populator(
+              exponentWidth: exponentWidth, mantissaWidth: mantissaWidth - 1)
+          .ofDouble(dbl, roundingMode: FloatingPointRoundingMode.truncate);
+      expect(fp.toFloatingPointValue(), equals(fpOrig));
+    }
+  });
+
+  // TODO(desmonddak):  is this exhaustive enough: should we do EFP to FP rt
+  // as well as FP to EFP rt?
+  test('FPV: explicit EFP-FP j-bit exhaustive round-trip', () {
+    const exponentWidth = 4;
+    const mantissaWidth = 4;
+    for (final signStr in ['0', '1']) {
+      var exponent = LogicValue.zero.zeroExtend(exponentWidth);
+      for (var e = 0; e < pow(2.0, exponentWidth).toInt(); e++) {
+        final expStr = exponent.bitString;
+        var mantissa = LogicValue.zero.zeroExtend(mantissaWidth);
+        for (var m = 0; m < pow(2.0, mantissaWidth).toInt(); m++) {
+          final mantStr = mantissa.bitString;
+
+          final efp = FloatingPointValue.ofBinaryStrings(
+              signStr, expStr, mantStr,
+              explicitJBit: true);
+          if (efp.isLegalValue()) {
+            final dbl = efp.toDouble();
+            final efp2 = FloatingPointValue.populator(
+                    exponentWidth: exponentWidth,
+                    mantissaWidth: mantissaWidth,
+                    explicitJBit: true)
+                .ofDouble(dbl,
+                    roundingMode: FloatingPointRoundingMode.truncate);
+            expect(efp.canonicalize(), equals(efp2));
+            final fp = FloatingPointValue.populator(
+                    exponentWidth: exponentWidth,
+                    mantissaWidth: mantissaWidth - 1)
+                .ofDouble(dbl,
+                    roundingMode: FloatingPointRoundingMode.truncate);
+            expect(efp.toFloatingPointValue(), equals(fp));
+          }
+          mantissa = mantissa + 1;
+        }
+        exponent = exponent + 1;
+      }
+    }
+  });
 }

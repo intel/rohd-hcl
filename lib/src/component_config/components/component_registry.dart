@@ -25,14 +25,16 @@ List<Configurator> get componentRegistry => [
       RegisterFileConfigurator(),
       EdgeDetectorConfigurator(),
       FindConfigurator(),
-      FloatingPointAdderRoundConfigurator(),
-      FloatingPointAdderSimpleConfigurator(),
+      FloatingPointAdderConfigurator(),
       FloatingPointMultiplierSimpleConfigurator(),
       ParallelPrefixAdderConfigurator(),
-      CompressionTreeMultiplierConfigurator(),
+      MultiplierConfigurator(),
       ExtremaConfigurator(),
       CompoundAdderConfigurator(),
       FixedToFloatConfigurator(),
       FloatToFixedConfigurator(),
-      Float8ToFixedConfigurator()
+      LeadingDigitAnticipateConfigurator(),
+      SerializationConfigurator(),
+      FixedPointSqrtConfigurator(),
+      FloatingPointSqrtConfigurator()
     ];

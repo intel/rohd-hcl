@@ -1,4 +1,4 @@
-// Copyright (C) 2023-2024 Intel Corporation
+// Copyright (C) 2023-2025 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 //
 // config_fixed_to_float.dart
@@ -17,6 +17,10 @@ class FixedToFloatConfigurator extends Configurator {
   /// A knob controlling the input sign.
   final ToggleConfigKnob signKnob = ToggleConfigKnob(value: true);
 
+  /// A knob controlling leading digit prediction.
+  final ToggleConfigKnob leadingDigitPredictionKnob =
+      ToggleConfigKnob(value: false);
+
   /// Width of integer part.
   final IntConfigKnob mKnob = IntConfigKnob(value: 8);
 
@@ -34,7 +38,8 @@ class FixedToFloatConfigurator extends Configurator {
 
   @override
   late final Map<String, ConfigKnob<dynamic>> knobs = UnmodifiableMapView({
-    'Is input signed?': signKnob,
+    'Signed Input': signKnob,
+    'Leading Digit Prediction Input': leadingDigitPredictionKnob,
     'Input integer width': mKnob,
     'Input fraction width': nKnob,
     'Output exponent width': exponentWidthKnob,
@@ -44,6 +49,10 @@ class FixedToFloatConfigurator extends Configurator {
   @override
   Module createModule() => FixedToFloat(
       FixedPoint(signed: signKnob.value, m: mKnob.value, n: nKnob.value),
-      exponentWidth: exponentWidthKnob.value,
-      mantissaWidth: mantissaWidthKnob.value);
+      FloatingPoint(
+          exponentWidth: exponentWidthKnob.value,
+          mantissaWidth: mantissaWidthKnob.value),
+      leadingDigitPredict: leadingDigitPredictionKnob.value
+          ? Logic(width: log2Ceil(mKnob.value))
+          : null);
 }

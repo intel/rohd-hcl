@@ -11,8 +11,9 @@ import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
 
 /// A multiplier module for FloatingPoint logic.
-class FloatingPointMultiplierSimple<FpInType extends FloatingPoint>
-    extends FloatingPointMultiplier<FpInType> {
+class FloatingPointMultiplierSimple<FpTypeIn extends FloatingPoint,
+        FpTypeOut extends FloatingPoint>
+    extends FloatingPointMultiplier<FpTypeIn, FpTypeOut> {
   /// Multiply two FloatingPoint numbers [a] and [b], returning result
   /// in [product] FloatingPoint.
   /// - [multGen] is a multiplier generator to be used in the mantissa
@@ -30,7 +31,8 @@ class FloatingPointMultiplierSimple<FpInType extends FloatingPoint>
       Multiplier Function(Logic a, Logic b,
               {Logic? clk, Logic? reset, Logic? enable, String name})
           multGen = NativeMultiplier.new,
-      PriorityEncoder Function(Logic bitVector, {Logic? valid, String name})
+      PriorityEncoder Function(Logic bitVector,
+              {bool generateValid, String name})
           priorityGen = RecursiveModulePriorityEncoder.new,
       super.name})
       : super(

@@ -9,6 +9,9 @@
 
 import 'package:rohd/rohd.dart';
 
+// TODO(desmonddak): this can be made a module with other rounding
+// algorithms.
+
 /// A rounding class that performs rounding-nearest-even
 class RoundRNE {
   /// Return whether to round the input or not.

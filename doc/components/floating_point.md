@@ -20,6 +20,14 @@ Conversions from the native `double` are supported, both in rounded and unrounde
 
 Appropriate string representations, comparison operations, and operators are available.  The usefulness of [FloatingPointValue](https://intel.github.io/rohd-hcl/rohd_hcl/FloatingPointValue-class.html) is in the testing of [FloatingPoint](https://intel.github.io/rohd-hcl/rohd_hcl/FloatingPoint-class.html) components, where we can leverage the abstraction of a floating-point value type to drive and compare floating-point values operated upon by floating-point components.
 
+### Explicit J-Bit
+
+In intermediate floating-point computations, it may be necessary to avoid normalization and simply store the current mantissa without shifting it left to move its leading 1 into the implicit j-bit location (no zeros before) and adjust the exponent.  We allow this by representing the j-bit explicitly in the mantissa a  leading '1', even when the floating-point is 'normal', or has a positive exponent field.  Typically, only sub-normals can have the leading j-bit stored in the mantissa.  While, in general, this can create a loss in accuracy, in some specific cases we can leverage avoiding normalization without loss of accuracy if we tailor our components to carry more precision and save the latency of normalization.
+
+Our `FloatingPointAdderSimple` and `FloatingPointConverter` modules currently support operations with either input or output explicit j-bit representations.
+
+Explicit J-bit computations are enabled by an `explicitJBit` constructor flag for `FloatingPoint` as well as `FloatingPointValue`.
+
 ### Floating Point Constants
 
 The various IEEE constants representing corner cases of the field of floating-point values for a given size of [FloatingPointValue](https://intel.github.io/rohd-hcl/rohd_hcl/FloatingPointValue-class.html): infinities, zeros, limits for normal (e.g. mantissa in the range of $[1,2)$) and sub-normal numbers (zero exponent, and mantissa <1).
@@ -79,9 +87,9 @@ Again, like [FloatingPointValue](https://intel.github.io/rohd-hcl/rohd_hcl/Float
 
 A very basic [FloatingPointAdderSimple](https://intel.github.io/rohd-hcl/rohd_hcl/FloatingPointAdderSimple-class.html) component is available which does not perform any rounding. It takes two [FloatingPoint](https://intel.github.io/rohd-hcl/rohd_hcl/FloatingPoint-class.html) [LogicStructure](https://intel.github.io/rohd/rohd/LogicStructure-class.html)s and adds them, returning a normalized [FloatingPoint](https://intel.github.io/rohd-hcl/rohd_hcl/FloatingPoint-class.html) on the output.  An option on input is the type of ['ParallelPrefix'](https://intel.github.io/rohd-hcl/rohd_hcl/ParallelPrefix-class.html) used in the critical internal addition of the mantissas.
 
-Currently, the [FloatingPointAdderSimple](https://intel.github.io/rohd-hcl/rohd_hcl/FloatingPointAdderSimple-class.html) is close in accuracy (as it has no rounding) and is not optimized for circuit performance, but only provides the key functionalities of alignment, addition, and normalization.  Still, this component is a starting point for more realistic floating-point components that leverage the logical [FloatingPoint](https://intel.github.io/rohd-hcl/rohd_hcl/FloatingPoint-class.html) and literal [FloatingPointValue](https://intel.github.io/rohd-hcl/rohd_hcl/FloatingPointValue-class.html) type abstractions.
+Currently, the [FloatingPointAdderSimple](https://intel.github.io/rohd-hcl/rohd_hcl/FloatingPointAdderSimple-class.html) is close in accuracy (as it has no rounding) and is not fully optimized for circuit performance, but provides the key functionalities of alignment, addition, normalization, and rounding.  Still, this component is a starting point for more realistic floating-point components that leverage the logical [FloatingPoint](https://intel.github.io/rohd-hcl/rohd_hcl/FloatingPoint-class.html) and literal [FloatingPointValue](https://intel.github.io/rohd-hcl/rohd_hcl/FloatingPointValue-class.html) type abstractions.
 
-A second [FloatingPointAdderRound](https://intel.github.io/rohd-hcl/rohd_hcl/FloatingPointAdderRound-class.html) component is available which does perform rounding.  It is based on "Delay-Optimized Implementation of IEEE Floating-Point Addition", by Peter-Michael Seidel and Guy Even, using an R-path and an N-path to process far-apart exponents and use rounding and an N-path for exponents within 2 and subtraction, which is exact.  If you pass in an optional clock, a pipe stage will be added to help optimize frequency; an optional reset and enable are can control the pipe stage.
+A second `FloatingPointAdderDualPath` component is available which does perform rounding.  It is based on "Delay-Optimized Implementation of IEEE Floating-Point Addition", by Peter-Michael Seidel and Guy Even, using an R-path and an N-path to process far-apart exponents and use rounding and an N-path for exponents within 2 and subtraction, which is exact.  If you pass in an optional clock, a pipe stage will be added to help optimize frequency; an optional reset and enable are can control the pipe stage.
 
 ## FloatingPointSqrt
 
