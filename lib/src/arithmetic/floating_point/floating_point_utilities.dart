@@ -90,7 +90,7 @@ abstract class FloatingPointSwap<FpType extends FloatingPoint> extends Module {
   @protected
   late final FpType outputA;
 
-  /// Internal storage of the scond swapped output.
+  /// Internal storage of the second swapped output.
   @protected
   late final FpType outputB;
 
@@ -111,14 +111,14 @@ abstract class FloatingPointSwap<FpType extends FloatingPoint> extends Module {
     outputA = a.clone(name: 'outputA') as FpType;
     outputB = b.clone(name: 'outputB') as FpType;
 
-    addOutput('outA', width: a.width) << outputA;
-    addOutput('outB', width: b.width) << outputB;
+    addOutput('outA', width: a.width) <= outputA;
+    addOutput('outB', width: b.width) <= outputB;
   }
 }
 
 /// A module that swaps two floating point values based on a condition.
 class FloatingPointConditionalSwap<FpType extends FloatingPoint>
-    extends FloatingPointSwap {
+    extends FloatingPointSwap<FpType> {
   /// The swap condition.
   @protected
   late final Logic swap;
@@ -134,16 +134,13 @@ class FloatingPointConditionalSwap<FpType extends FloatingPoint>
         FloatingPointUtilities.swap(this.swap, (super.a, super.b));
     outputA <= swapA;
     outputB <= swapB;
-    // TODO(desmonddak): Why are these needed?
-    output('outA') <= swapA;
-    output('outB') <= swapB;
   }
 }
 
 /// A module that sorts two floating point values, output the larger one
 /// first.
 class FloatingPointSort<FpType extends FloatingPoint>
-    extends FloatingPointSwap {
+    extends FloatingPointSwap<FpType> {
   /// Constructs a [FloatingPointSort] module that sorts two floating point
   /// values so that the larger one is first.
   FloatingPointSort(super.a, super.b, {super.name = 'floating_point_sort'})
@@ -151,15 +148,13 @@ class FloatingPointSort<FpType extends FloatingPoint>
     final (larger, smaller) = FloatingPointUtilities.sort((super.a, super.b));
     outputA <= larger;
     outputB <= smaller;
-    output('outA') <= larger;
-    output('outB') <= smaller;
   }
 }
 
 /// A module that sorts two floating point values by exponent output the one
 /// with the larger exponent first.
 class FloatingPointSortByExp<FpType extends FloatingPoint>
-    extends FloatingPointSwap {
+    extends FloatingPointSwap<FpType> {
   /// Constructs a [FloatingPointSortByExp] module that sorts two floating point
   /// values so that the one with the larger exponent is first.
   FloatingPointSortByExp(super.a, super.b,
@@ -169,7 +164,5 @@ class FloatingPointSortByExp<FpType extends FloatingPoint>
         FloatingPointUtilities.sortByExp((super.a, super.b));
     outputA <= larger;
     outputB <= smaller;
-    output('outA') <= larger;
-    output('outB') <= smaller;
   }
 }
