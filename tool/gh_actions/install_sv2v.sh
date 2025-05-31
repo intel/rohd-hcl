@@ -11,11 +11,11 @@
 
 set -euo pipefail
 
-curl -sSL https://get.haskellstack.org/ | sh -s - -d /opt/stack/bin
+sudo curl -sSL https://get.haskellstack.org/ | sh -s - -d /opt/stack/bin
 export PATH=$PATH:/opt/stack/bin
 
 cd /tmp/
 git clone https://github.com/zachjs/sv2v.git
 cd sv2v
 make
-cp ./bin/sv2v  /usr/local/bin
+sudo cp ./bin/sv2v  /usr/local/bin
