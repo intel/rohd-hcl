@@ -35,10 +35,10 @@ class FloatingPointAdderSimple<FpTypeIn extends FloatingPoint,
       : super(
             definitionName: 'FloatingPointAdderSimple_'
                 'E${a.exponent.width}M${a.mantissa.width}') {
-    if (a.explicitJBit != b.explicitJBit) {
-      throw RohdHclException('Floating point adder does not support '
-          'inputs of different jBit types.');
-    }
+    // if (a.explicitJBit != b.explicitJBit) {
+    //   throw RohdHclException('Floating point adder does not support '
+    //       'inputs of different jBit types.');
+    // }
     if (outputSum.exponent.width != a.exponent.width) {
       throw RohdHclException('This adder currently only supports '
           'output exponent width equal to input exponent width.');
@@ -54,6 +54,20 @@ class FloatingPointAdderSimple<FpTypeIn extends FloatingPoint,
     final swapper = FloatingPointSortByExp(a, b);
     final larger = swapper.outA;
     final smaller = swapper.outB;
+    // Would like to use this to swap within this component
+    // but it doesn't work. TODO(desmonddak): Fix this.
+    // final newSwapper = FloatingPointSortByExp(
+    // FloatingPointWithJBit(a), FloatingPointWithJBit(b));
+    // Need to swap the explicit JBit if necessary.
+    final ae = a.exponent;
+    final be = b.exponent;
+    final sgn = a.sign;
+    final aExplicit = Const(a.explicitJBit);
+    final bExplicit = Const(b.explicitJBit);
+    final doSwap = (ae.lt(be) | (ae.eq(be) & sgn)).named('doSwap');
+    final largerExplicit = mux(doSwap, bExplicit, aExplicit);
+    final smallerExplicit = mux(doSwap, aExplicit, bExplicit);
+    // end of swap explicit JBit (newSwapper should handle.)
 
     final effectiveSubtraction = (a.sign ^ b.sign).named('effSubtraction');
 
@@ -67,7 +81,7 @@ class FloatingPointAdderSimple<FpTypeIn extends FloatingPoint,
 
     final expDiff = (larger.exponent - smaller.exponent).named('expDiff');
     final largeMantissa = mux(
-            ~larger.isNormal ^ Const(larger.explicitJBit),
+            ~larger.isNormal ^ largerExplicit,
             [larger.mantissa, Const(0)].swizzle(),
             mux(
                 larger.isNormal,
@@ -79,7 +93,7 @@ class FloatingPointAdderSimple<FpTypeIn extends FloatingPoint,
         .named('largeMantissa');
 
     final smallMantissa = mux(
-            ~smaller.isNormal ^ Const(smaller.explicitJBit),
+            ~smaller.isNormal ^ smallerExplicit,
             [smaller.mantissa, Const(0)].swizzle(),
             mux(
                 smaller.isNormal,
@@ -91,7 +105,10 @@ class FloatingPointAdderSimple<FpTypeIn extends FloatingPoint,
         .named('smallMantissa');
 
     final extendedWidth = min(
-        1 + (mantissaWidth + 1) + ((a.explicitJBit) ? 2 : 0),
+        1 +
+            (mantissaWidth + 1) +
+            (a.explicitJBit ? 1 : 0) +
+            (b.explicitJBit ? 1 : 0),
         pow(2, exponentWidth).toInt() - 2);
 
     final largeFinalMantissa = largeMantissa;
@@ -103,14 +120,19 @@ class FloatingPointAdderSimple<FpTypeIn extends FloatingPoint,
         (smallExtendedMantissa >>> expDiff).named('smallShiftedMantissa');
 
     // Compute sticky bits past extendedWidth: expDiff - extendedWidth
-    final eW = Const(extendedWidth, width: expDiff.width).named('eW');
+    final int posWidth = max(expDiff.width, log2Ceil(smallMantissa.width));
+    final eD = expDiff.zeroExtend(posWidth).named('eD');
+    final eW = Const(extendedWidth, width: posWidth).named('eW');
     final rem =
-        mux(expDiff.gt(eW), expDiff - eW, Const(0, width: expDiff.width))
-            .named('rem');
+        mux(eD.gte(eW), eD - eW, Const(0, width: posWidth)).named('rem');
 
-    final stickyBits =
-        (smallMantissa << Const(smallMantissa.width, width: rem.width) - rem)
-            .named('stickyBits');
+    final chop = mux(
+        rem.lt(Const(smallMantissa.width, width: rem.width)),
+        Const(smallMantissa.width, width: rem.width) - rem,
+        Const(0, width: rem.width));
+
+    final stickyBits = (smallMantissa << chop).named('stickyBits');
+
     final stickyBitsOr = stickyBits.or();
 
     final largeNarrowMantissa = largeFinalMantissa;
@@ -171,6 +193,7 @@ class FloatingPointAdderSimple<FpTypeIn extends FloatingPoint,
     final lowerBitsFlopped = localFlop(lowerBits);
     final lowBitsOrFlopped = localFlop(stickyBitsOr);
     final lowInvertFlopped = localFlop(lowBitsIncrement);
+    final stickyBitsOrFlopped = localFlop(stickyBitsOr);
 
     final effectiveSubtractionFlopped = localFlop(effectiveSubtraction);
     final leadingZerosPredictionValidFlopped = localFlop(lead1PredictionValid);
@@ -203,10 +226,13 @@ class FloatingPointAdderSimple<FpTypeIn extends FloatingPoint,
         .sum
         .named('lowBitsSum');
 
-    final fullSumWithIncrement = [
-      incrementHighLSB,
-      lowBitsSum.slice(lowBitsSum.width - 2, 0)
-    ].swizzle().named('fullMantissaWithIncr');
+    final trueLowBits = lowBitsSum.slice(lowBitsSum.width - 2, 0) |
+        stickyBitsOrFlopped
+            .zeroExtend(lowBitsSum.width - 1)
+            .named('trueLowBits');
+
+    final fullSumWithIncrement =
+        [incrementHighLSB, trueLowBits].swizzle().named('fullMantissaWithIncr');
 
     final fullMantissa = fullSumWithIncrement
         .slice(fullSumWithIncrement.width - 2, 0)
@@ -254,26 +280,33 @@ class FloatingPointAdderSimple<FpTypeIn extends FloatingPoint,
     final mantissa =
         mux(lead1Dominates, shiftMantissaByExp, shiftL1Final).named('mantissa');
 
-    final doRound =
-        RoundRNE(mantissa, extendedWidth + 1).doRound.named('doRound');
+    final rndPos = extendedWidth + 1;
+    final doRound = RoundRNE(
+            mux(exponent.or(), mantissa,
+                mantissa >> (outputSum.explicitJBit ? 1 : 0)),
+            rndPos)
+        .doRound
+        .named('doRound');
 
     final mantissaTrimmed =
         mantissa.getRange(extendedWidth + 1).named('mantissaTrimmed');
 
     final rndAdder =
-        adderGen(mantissaTrimmed, doRound.zeroExtend(mantissaWidth));
+        adderGen(mantissaTrimmed, doRound.zeroExtend(mantissaTrimmed.width));
 
     final newRnd = rndAdder.sum;
 
     var mantissaRound = newRnd.slice(outputSum.explicitJBit ? -1 : -2,
-        -mantissaWidth - (outputSum.explicitJBit ? 0 : 1));
+        -mantissaTrimmed.width - (outputSum.explicitJBit ? 0 : 1));
 
-    final altmantissaRound = newRnd.slice(-2, -mantissaWidth - 1);
+    final altmantissaRound = newRnd.slice(
+        -2, -mantissaTrimmed.width - (outputSum.explicitJBit ? 1 : 1));
 
     mantissaRound = mux(
             exponent.gt(Const(0, width: exponent.width)) & ~mantissaRound[-1],
             altmantissaRound,
             mantissaRound)
+        .slice(-1, -mantissaWidth)
         .named('mantissaRoundFinal');
 
     final exponentRound =

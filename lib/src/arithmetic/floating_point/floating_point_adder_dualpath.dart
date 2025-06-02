@@ -41,6 +41,10 @@ class FloatingPointAdderDualPath<FpTypeIn extends FloatingPoint,
       : super(
             definitionName: 'FloatingPointAdderDualPath_'
                 'E${a.exponent.width}M${a.mantissa.width}') {
+    if (a.explicitJBit || b.explicitJBit) {
+      throw ArgumentError(
+          'FloatingPointAdderDualPath does not support explicit J bit.');
+    }
     final outputSum = FloatingPoint(
         exponentWidth: exponentWidth, mantissaWidth: mantissaWidth);
     output('sum') <= outputSum;

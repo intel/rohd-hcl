@@ -19,12 +19,14 @@ abstract class FloatingPointUtilities {
     final in1 = toSwap.$1.named('swapIn1_${toSwap.$1.name}');
     final in2 = toSwap.$2.named('swapIn2_${toSwap.$2.name}');
 
-    FpType clone({String? name}) => toSwap.$1.clone(name: name) as FpType;
+    FpType clone1({String? name}) => toSwap.$1.clone(name: name) as FpType;
+    FpType clone2({String? name}) => toSwap.$2.clone(name: name) as FpType;
 
     final out1 = mux(swap, in2, in1).named('swapOut1');
     final out2 = mux(swap, in1, in2).named('swapOut2');
-    final first = clone(name: 'swapOut1')..gets(out1);
-    final second = clone(name: 'swapOut2')..gets(out2);
+    final first = clone2(name: 'swapOut1')..gets(out1);
+    final second = clone1(name: 'swapOut2')..gets(out2);
+
     return (first, second);
   }
 
@@ -42,11 +44,10 @@ abstract class FloatingPointUtilities {
         .named('doSwap');
 
     final swapped = swap(doSwap, toSort);
-
-    FpType clone({String? name}) => toSort.$1.clone(name: name) as FpType;
-
-    final larger = clone(name: 'larger')..gets(swapped.$1);
-    final smaller = clone(name: 'smaller')..gets(swapped.$2);
+    final larger =
+        (swapped.$1.clone(name: 'larger')..gets(swapped.$1)) as FpType;
+    final smaller =
+        (swapped.$2.clone(name: 'smaller')..gets(swapped.$2)) as FpType;
 
     return (larger, smaller);
   }
@@ -61,11 +62,10 @@ abstract class FloatingPointUtilities {
 
     final swapped = swap(doSwap, toSort);
 
-    FpType clone({String? name}) => toSort.$1.clone(name: name) as FpType;
-
-    final larger = clone(name: 'larger')..gets(swapped.$1);
-    final smaller = clone(name: 'smaller')..gets(swapped.$2);
-
+    final larger =
+        (swapped.$1.clone(name: 'larger')..gets(swapped.$1)) as FpType;
+    final smaller =
+        (swapped.$2.clone(name: 'smaller')..gets(swapped.$2)) as FpType;
     return (larger, smaller);
   }
 }
@@ -108,11 +108,8 @@ abstract class FloatingPointSwap<FpType extends FloatingPoint> extends Module {
       ..gets(addInput('a', a, width: a.width));
     this.b = (b.clone(name: 'b') as FpType)
       ..gets(addInput('b', b, width: b.width));
-    outputA = a.clone(name: 'outputA') as FpType;
-    outputB = b.clone(name: 'outputB') as FpType;
-
-    addOutput('outA', width: a.width) <= outputA;
-    addOutput('outB', width: b.width) <= outputB;
+    addOutput('outA', width: a.width);
+    addOutput('outB', width: b.width);
   }
 }
 
@@ -132,8 +129,8 @@ class FloatingPointConditionalSwap<FpType extends FloatingPoint>
 
     final (swapA, swapB) =
         FloatingPointUtilities.swap(this.swap, (super.a, super.b));
-    outputA <= swapA;
-    outputB <= swapB;
+    output('outA') <= swapA;
+    output('outB') <= swapB;
   }
 }
 
@@ -146,8 +143,8 @@ class FloatingPointSort<FpType extends FloatingPoint>
   FloatingPointSort(super.a, super.b, {super.name = 'floating_point_sort'})
       : super(definitionName: 'FloatingPointSort_W${a.width}') {
     final (larger, smaller) = FloatingPointUtilities.sort((super.a, super.b));
-    outputA <= larger;
-    outputB <= smaller;
+    output('outA') <= larger;
+    output('outB') <= smaller;
   }
 }
 
@@ -162,7 +159,38 @@ class FloatingPointSortByExp<FpType extends FloatingPoint>
       : super(definitionName: 'FloatingPointSortByExp_W${a.width}') {
     final (larger, smaller) =
         FloatingPointUtilities.sortByExp((super.a, super.b));
-    outputA <= larger;
-    outputB <= smaller;
+    // TODO(desmonddak): I know I can assign to a field instead, but I'm
+    // struggling getting it to work with explicit
+    output('outA') <= larger;
+    output('outB') <= smaller;
   }
+}
+
+/// [FloatingPoint] class which wraps in a Logic for the JBit.
+class FloatingPointWithJBit extends FloatingPoint {
+  /// Return the explicitJBit as a Logic signal.
+  Logic get explicit => explicitJBitLogic;
+
+  /// Store the explicitness of the J bit.
+  late final Logic explicitJBitLogic;
+
+  /// Construct a [FloatingPointWithJBit] from a [FloatingPoint] instance.
+  FloatingPointWithJBit(FloatingPoint fp, {super.name})
+      : super(
+            mantissaWidth: fp.mantissa.width,
+            exponentWidth: fp.exponent.width,
+            explicitJBit: fp.explicitJBit) {
+    explicitJBitLogic = Const(fp.explicitJBit ? 1 : 0);
+    // gets(fp);
+  }
+
+  @override
+  FloatingPointWithJBit clone({String? name, bool explicitJBit = false}) =>
+      FloatingPointWithJBit(this);
+  @override
+  FloatingPointValuePopulator<FloatingPointValue> valuePopulator() =>
+      FloatingPointValue.populator(
+          mantissaWidth: mantissa.width,
+          exponentWidth: exponent.width,
+          explicitJBit: explicitJBit);
 }
