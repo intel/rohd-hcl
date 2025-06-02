@@ -109,7 +109,7 @@ class Axi4ReadMainDriver extends PendingClockedDriver<Axi4ReadRequestPacket> {
 
     // need to hold the request until receiver is ready
     await sIntf.clk.nextPosedge;
-    if (!rIntf.arReady.value.toBool()) {
+    if (!rIntf.arReady.previousValue!.toBool()) {
       await rIntf.arReady.nextPosedge;
     }
 

@@ -113,7 +113,7 @@ class Axi4WriteMainDriver extends PendingClockedDriver<Axi4WriteRequestPacket> {
 
     // need to hold the request until receiver is ready
     await sIntf.clk.nextPosedge;
-    if (!wIntf.awReady.value.toBool()) {
+    if (!wIntf.awReady.previousValue!.toBool()) {
       await wIntf.awReady.nextPosedge;
     }
 
@@ -124,7 +124,7 @@ class Axi4WriteMainDriver extends PendingClockedDriver<Axi4WriteRequestPacket> {
 
     // next send the data for the write
     for (var i = 0; i < packet.data.length; i++) {
-      if (!wIntf.wReady.value.toBool()) {
+      if (!wIntf.wReady.previousValue!.toBool()) {
         await wIntf.wReady.nextPosedge;
       }
       Simulator.injectAction(() {
