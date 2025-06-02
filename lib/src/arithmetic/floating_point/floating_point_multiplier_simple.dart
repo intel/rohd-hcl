@@ -48,6 +48,10 @@ class FloatingPointMultiplierSimple<FpTypeIn extends FloatingPoint,
       throw RohdHclException('product mantissa width must be >= '
           ' input mantissa width');
     }
+    if (roundingMode != FloatingPointRoundingMode.roundNearestEven) {
+      throw RohdHclException('FloatingPointMultiplierSimple does not support '
+          'rounding modes other than roundNearestEven.');
+    }
     final aMantissa = mux(a.isNormal, [a.isNormal, a.mantissa].swizzle(),
             [a.mantissa, Const(0)].swizzle())
         .named('aMantissa');

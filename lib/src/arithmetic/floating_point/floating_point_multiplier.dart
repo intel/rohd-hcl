@@ -48,6 +48,9 @@ abstract class FloatingPointMultiplier<FpTypeIn extends FloatingPoint,
       as FpTypeOut)
     ..gets(output('product'));
 
+  /// The rounding mode to use for the multiplier.
+  late final FloatingPointRoundingMode roundingMode;
+
   /// The internal FloatingPoint logic to set
   late final FpTypeOut internalProduct;
 
@@ -66,6 +69,7 @@ abstract class FloatingPointMultiplier<FpTypeIn extends FloatingPoint,
       Logic? reset,
       Logic? enable,
       FpTypeOut? outProduct,
+      this.roundingMode = FloatingPointRoundingMode.roundNearestEven,
       // ignore: avoid_unused_constructor_parameters
       ParallelPrefix Function(List<Logic>, Logic Function(Logic, Logic)) ppGen =
           KoggeStone.new,

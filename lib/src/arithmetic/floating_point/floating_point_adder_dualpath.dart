@@ -45,6 +45,10 @@ class FloatingPointAdderDualPath<FpTypeIn extends FloatingPoint,
       throw ArgumentError(
           'FloatingPointAdderDualPath does not support explicit J bit.');
     }
+    if (roundingMode != FloatingPointRoundingMode.roundNearestEven) {
+      throw RohdHclException('FloatingPointAdderDualPath does not support '
+          'rounding modes other than roundNearestEven.');
+    }
     final outputSum = FloatingPoint(
         exponentWidth: exponentWidth, mantissaWidth: mantissaWidth);
     output('sum') <= outputSum;

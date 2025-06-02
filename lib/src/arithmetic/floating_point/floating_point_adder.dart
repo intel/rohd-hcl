@@ -50,15 +50,19 @@ abstract class FloatingPointAdder<FpTypeIn extends FloatingPoint,
   /// The conditional output FloatingPoint Logic to set
   late final FpTypeOut outputSum;
 
+  /// The rounding mode to use for the adder.
+  late final FloatingPointRoundingMode roundingMode;
+
   /// Add two floating point numbers [a] and [b], returning result in [sum].
   /// If a different output type is needed, you can provide that in [outSum].
   /// - [clk], [reset], [enable] are optional inputs to control a pipestage
   /// (only inserted if [clk] is provided).
   FloatingPointAdder(FpTypeIn a, FpTypeIn b,
-      {FpTypeOut? outSum,
-      Logic? clk,
+      {Logic? clk,
       Logic? reset,
       Logic? enable,
+      FpTypeOut? outSum,
+      this.roundingMode = FloatingPointRoundingMode.roundNearestEven,
       super.name = 'floating_point_adder',
       String? definitionName})
       : super(
@@ -81,12 +85,6 @@ abstract class FloatingPointAdder<FpTypeIn extends FloatingPoint,
 
     exponentWidth = (outSum == null) ? a.exponent.width : outSum.exponent.width;
     mantissaWidth = (outSum == null) ? a.mantissa.width : outSum.mantissa.width;
-
-    // if (b.exponent.width != exponentWidth ||
-    //     b.mantissa.width != mantissaWidth) {
-    //   throw RohdHclException('FloatingPoint output is currently '
-    //       'required to match input widths');
-    // }
 
     addOutput('sum', width: outputSum.width);
 

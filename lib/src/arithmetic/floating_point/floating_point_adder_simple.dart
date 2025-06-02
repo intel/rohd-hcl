@@ -44,6 +44,10 @@ class FloatingPointAdderSimple<FpTypeIn extends FloatingPoint,
           'output mantissa width greater than or equal '
           'to input mantissa width.');
     }
+    if (roundingMode != FloatingPointRoundingMode.roundNearestEven) {
+      throw RohdHclException('FloatingPointAdderSimple does not support '
+          'rounding modes other than roundNearestEven.');
+    }
     // Would prefer to use getter here for setting, but the getter
     // translates the type from Logic to FloatingPoint.
     output('sum') <= outputSum;
@@ -315,6 +319,8 @@ class FloatingPointAdderSimple<FpTypeIn extends FloatingPoint,
     } else {
       // No rounding needed, just use the mantissa as is.
       // But we extend to mimic the rounding adder for now.
+      // This is assuming a wide output, but we could use this to handle
+      // the truncate rounding mode as well.
       mantissaRound = mantissaTrimmed
           .zeroExtend(mantissaTrimmed.width + 1)
           .slice(outputSum.explicitJBit ? -1 : -2,
