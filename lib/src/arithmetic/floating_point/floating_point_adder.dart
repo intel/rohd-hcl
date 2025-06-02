@@ -82,13 +82,13 @@ abstract class FloatingPointAdder<FpTypeIn extends FloatingPoint,
     exponentWidth = (outSum == null) ? a.exponent.width : outSum.exponent.width;
     mantissaWidth = (outSum == null) ? a.mantissa.width : outSum.mantissa.width;
 
-    if (b.exponent.width != exponentWidth ||
-        b.mantissa.width != mantissaWidth) {
-      throw RohdHclException('FloatingPoint output is currently '
-          'required to match input widths');
-    }
+    // if (b.exponent.width != exponentWidth ||
+    //     b.mantissa.width != mantissaWidth) {
+    //   throw RohdHclException('FloatingPoint output is currently '
+    //       'required to match input widths');
+    // }
 
-    addOutput('sum', width: exponentWidth + mantissaWidth + 1);
+    addOutput('sum', width: outputSum.width);
 
     if (outSum != null) {
       outSum <= output('sum');

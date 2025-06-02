@@ -35,17 +35,14 @@ class FloatingPointAdderSimple<FpTypeIn extends FloatingPoint,
       : super(
             definitionName: 'FloatingPointAdderSimple_'
                 'E${a.exponent.width}M${a.mantissa.width}') {
-    // if (a.explicitJBit != b.explicitJBit) {
-    //   throw RohdHclException('Floating point adder does not support '
-    //       'inputs of different jBit types.');
-    // }
     if (outputSum.exponent.width != a.exponent.width) {
       throw RohdHclException('This adder currently only supports '
           'output exponent width equal to input exponent width.');
     }
-    if (outputSum.mantissa.width != a.mantissa.width) {
+    if (outputSum.mantissa.width < a.mantissa.width) {
       throw RohdHclException('This adder currently only supports '
-          'output mantissa width equal to input mantissa width.');
+          'output mantissa width greater than or equal '
+          'to input mantissa width.');
     }
     // Would prefer to use getter here for setting, but the getter
     // translates the type from Logic to FloatingPoint.
@@ -87,7 +84,7 @@ class FloatingPointAdderSimple<FpTypeIn extends FloatingPoint,
                 larger.isNormal,
                 [Const(1), larger.mantissa].swizzle(),
                 [
-                  larger.mantissa.getRange(0, mantissaWidth - 1),
+                  larger.mantissa.getRange(0, larger.mantissa.width - 1),
                   Const(0, width: 2)
                 ].swizzle()))
         .named('largeMantissa');
@@ -99,7 +96,7 @@ class FloatingPointAdderSimple<FpTypeIn extends FloatingPoint,
                 smaller.isNormal,
                 [Const(1), smaller.mantissa].swizzle(),
                 [
-                  smaller.mantissa.getRange(0, mantissaWidth - 1),
+                  smaller.mantissa.getRange(0, smaller.mantissa.width - 1),
                   Const(0, width: 2)
                 ].swizzle()))
         .named('smallMantissa');
@@ -280,37 +277,64 @@ class FloatingPointAdderSimple<FpTypeIn extends FloatingPoint,
     final mantissa =
         mux(lead1Dominates, shiftMantissaByExp, shiftL1Final).named('mantissa');
 
-    final rndPos = extendedWidth + 1;
-    final doRound = RoundRNE(
-            mux(exponent.or(), mantissa,
-                mantissa >> (outputSum.explicitJBit ? 1 : 0)),
-            rndPos)
-        .doRound
-        .named('doRound');
+    final outExtendedWidth =
+        max(0, extendedWidth - (mantissaWidth - larger.mantissa.width));
 
     final mantissaTrimmed =
-        mantissa.getRange(extendedWidth + 1).named('mantissaTrimmed');
+        mantissa.getRange(outExtendedWidth + 1).named('mantissaTrimmed');
 
-    final rndAdder =
-        adderGen(mantissaTrimmed, doRound.zeroExtend(mantissaTrimmed.width));
+    Logic mantissaRound;
+    Logic exponentRound;
+    // if rndPos < 2, there is no point in rounding
+    final rndPos = outExtendedWidth + 1;
+    if (rndPos >= 2) {
+      final doRound = RoundRNE(
+              mux(exponent.or(), mantissa,
+                  mantissa >> (outputSum.explicitJBit ? 1 : 0)),
+              rndPos)
+          .doRound
+          .named('doRound');
 
-    final newRnd = rndAdder.sum;
+      final rndAdder =
+          adderGen(mantissaTrimmed, doRound.zeroExtend(mantissaTrimmed.width));
 
-    var mantissaRound = newRnd.slice(outputSum.explicitJBit ? -1 : -2,
-        -mantissaTrimmed.width - (outputSum.explicitJBit ? 0 : 1));
+      final newRnd = rndAdder.sum;
 
-    final altmantissaRound = newRnd.slice(
-        -2, -mantissaTrimmed.width - (outputSum.explicitJBit ? 1 : 1));
+      mantissaRound = newRnd.slice(outputSum.explicitJBit ? -1 : -2,
+          -mantissaTrimmed.width - (outputSum.explicitJBit ? 0 : 1));
 
-    mantissaRound = mux(
-            exponent.gt(Const(0, width: exponent.width)) & ~mantissaRound[-1],
-            altmantissaRound,
-            mantissaRound)
-        .slice(-1, -mantissaWidth)
-        .named('mantissaRoundFinal');
+      final altmantissaRound = newRnd.slice(-2, -mantissaTrimmed.width - 1);
 
-    final exponentRound =
-        exponent + rndAdder.sum[-1].zeroExtend(exponent.width);
+      mantissaRound = mux(
+              exponent.gt(Const(0, width: exponent.width)) & ~mantissaRound[-1],
+              altmantissaRound,
+              mantissaRound)
+          .slice(-1, -mantissaWidth)
+          .named('mantissaRoundFinal');
+      exponentRound = exponent + rndAdder.sum[-1].zeroExtend(exponent.width);
+    } else {
+      // No rounding needed, just use the mantissa as is.
+      // But we extend to mimic the rounding adder for now.
+      mantissaRound = mantissaTrimmed
+          .zeroExtend(mantissaTrimmed.width + 1)
+          .slice(outputSum.explicitJBit ? -1 : -2,
+              -mantissaTrimmed.width - (outputSum.explicitJBit ? 0 : 1));
+      final altmantissaRound = mantissaTrimmed
+          .zeroExtend(mantissaTrimmed.width + 1)
+          .slice(-2, -mantissaTrimmed.width - 1);
+      mantissaRound = mux(
+              exponent.gt(Const(0, width: exponent.width)) & ~mantissaRound[-1],
+              altmantissaRound,
+              mantissaRound)
+          .named('mantissaRoundPreFinal');
+      if (mantissaRound.width < mantissaWidth) {
+        mantissaRound = [
+          mantissaRound,
+          Const(0, width: mantissaWidth - mantissaRound.width)
+        ].swizzle().named('mantissaRoundFinal');
+      }
+      exponentRound = exponent;
+    }
 
     final realIsInf =
         (isInfFlopped | exponent.eq(infExponent)).named('realIsInf');
