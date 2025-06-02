@@ -20,13 +20,12 @@ The `CsrInstanceConfig` is associated with a particular instantiation of an arch
 - A bit width for this CSR instance (called `width`).
 - The ability to override the architectural reset value for this CSR upon construction.
 - The ability to override the architectural readability and writability of this CSR (frontdoor, backdoor).
-- A `validate()` method to check for configuration correctness and consistency.
+- Validation to check for configuration correctness and consistency.
 
 #### Validation of CsrInstanceConfig
 
 The following checks are run:
 
-- Call the architectural configuration's `validate()` method.
 - The `resetValue` for this CSR must fit within its `width`.
 - Every field of this CSR must fit within its `width`.
 
@@ -38,7 +37,7 @@ The `CsrConfig` contains the architectural definition of a CSR (i.e., applies to
 - An access mode for the CSR (called `access`).
 - An optional architectural reset value for the CSR (called `resetValue`).
 - Configuration for the readability and writeability of the CSR (Booleans called `isFrontdoorReadable`, `isFrontdoorWriteable`, `isBackdoorReadable`, `isBackdoorWriteable`). All of these values default to `true` if not provided.
-- A `validate()` method to check for configuration correctness and consistency.
+- Validation to check for configuration correctness and consistency.
 - A method `resetValueFromFields()` that computes an implicit reset value for the CSR based on the reset values for its individual fields.
 
 #### CSR Access Modes
@@ -67,7 +66,6 @@ There are certain special cases that are worth addressing regarding the fields o
 
 The following checks are run:
 
-- Call every field configuration's `validate()` method.
 - No two fields in the register have the same `name`.
 - No field overlaps with another field in the register.
 
@@ -81,7 +79,7 @@ The `CsrFieldConfig` contains the architectural definition of an individual fiel
 - An access mode for the field (called `access`).
 - An optional reset value for the field (called `resetValue`). If not provided, the reset value defaults to 0.
 - An optional list of legal values for the field (called `legalValues`).
-- A `validate()` method to check for configuration correctness and consistency.
+- Validation to check for configuration correctness and consistency.
 - A method `transformIllegalValue()` to map illegal field values to some legal one. The default implementation statically maps to the first legal value in the `legalValues` list.
 
 #### CSR Field Access Modes
@@ -127,7 +125,7 @@ The `CsrBlockConfig` defines the contents of a register block. As such, it is co
 - A name for the block (called `name`).
 - A base address or unique ID for the block (called `baseAddr`).
 - Methods to retrieve a given register instance's configuration by name or address (`getRegisterByName` and `getRegisterByAddr`).
-- A `validate()` method to check for configuration correctness and consistency.
+- Validation to check for configuration correctness and consistency.
 - A method `minAddrBits()` that returns the minimum number of address bits required to uniquely address every register instance in the given block. The return value is based on the largest `addr` across all register instances.
 - A method `maxRegWidth()` that returns the number of bits in the largest register instance within the block.
 
@@ -210,7 +208,7 @@ The `CsrTopConfig` defines the contents of the top module. As such, it is constr
 - A name for the module (called `name`).
 - An offset width that is used to slice the main address signal to address registers within a given block (called `blockOffsetWidth`).
 - Methods to retrieve a given register block's configuration by name or base address (`getBlockByName` and `getBlockByAddr`).
-- A `validate()` method to check for configuration correctness and consistency.
+- Validation to check for configuration correctness and consistency.
 - A method `minAddrBits()` that returns the minimum number of address bits required to uniquely address every register instance in every block. The return value is based on both the largest block `baseAddr` and its largest `minAddrBits`.
 - A method `maxRegWidth()` that returns the number of bits in the largest register instance across all blocks.
 
@@ -226,7 +224,7 @@ The following checks are run:
 
 ### Frontdoor CSR Access - Top
 
-Similar to `CsrBlock`, the `CsrTop` module provides frontdoor read/write access to its blocks/registers through a read `DataPortInterface` and a write `DataPortInterface`. These are passed to the module in its constructor.
+Similar to `CsrBlock`, the `CsrTop` module provides frontdoor read/write access to its blocks/registers through a read `DataPortInterface` and a write `DataPortInterface`. Each of these arguments are optional. These are passed to the module in its constructor.
 
 To access a particular register in a particular block, drive the address of the appropriate `DataPortInterface` to the block's `baseAddr` + the register's `addr`.
 
