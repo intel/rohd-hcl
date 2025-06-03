@@ -33,7 +33,7 @@ void main() {
     fp2.put(fv);
 
     for (final adder in [
-      FloatingPointAdderSimple(fp1, fp2),
+      FloatingPointAdderSinglePath(fp1, fp2),
       FloatingPointAdderDualPath(fp1, fp2)
     ]) {
       final testCases = [

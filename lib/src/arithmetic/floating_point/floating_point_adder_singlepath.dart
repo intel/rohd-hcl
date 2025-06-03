@@ -1,8 +1,8 @@
 // Copyright (C) 2024-2025 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 //
-// floating_point_adder_simple.dart
-// A very basic Floating-point adder component.
+// floating_point_adder_singlepath.dart
+// A single-path Floating-point adder component.
 //
 // 2024 August 30
 // Author: Desmond A Kirkpatrick <desmond.a.kirkpatrick@intel.com
@@ -12,7 +12,7 @@ import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
 
 /// An adder module for FloatingPoint values
-class FloatingPointAdderSimple<FpTypeIn extends FloatingPoint,
+class FloatingPointAdderSinglePath<FpTypeIn extends FloatingPoint,
         FpTypeOut extends FloatingPoint>
     extends FloatingPointAdder<FpTypeIn, FpTypeOut> {
   /// Add two floating point numbers [a] and [b], returning result in [sum]. If
@@ -28,7 +28,7 @@ class FloatingPointAdderSimple<FpTypeIn extends FloatingPoint,
   ///   blocks within the internal [CompoundAdder] used for mantissa addition.
   ///   Decreasing the split width will increase speed but also increase area.
   ///
-  FloatingPointAdderSimple(super.a, super.b,
+  FloatingPointAdderSinglePath(super.a, super.b,
       {super.outSum,
       super.clk,
       super.reset,
@@ -39,9 +39,9 @@ class FloatingPointAdderSimple<FpTypeIn extends FloatingPoint,
           NativeAdder.new,
       List<int> Function(int) widthGen =
           CarrySelectCompoundAdder.splitSelectAdderAlgorithmSingleBlock,
-      super.name = 'floatingpoint_adder_simple'})
+      super.name = 'floatingpoint_adder_singlepath'})
       : super(
-            definitionName: 'FloatingPointAdderSimple_'
+            definitionName: 'FloatingPointAdderSinglePath_'
                 'E${a.exponent.width}M${a.mantissa.width}') {
     if (internalSum.exponent.width != a.exponent.width) {
       throw RohdHclException('This adder currently only supports '
@@ -58,7 +58,7 @@ class FloatingPointAdderSimple<FpTypeIn extends FloatingPoint,
     }
     if ((roundingMode != FloatingPointRoundingMode.roundNearestEven) &&
         (roundingMode != FloatingPointRoundingMode.truncate)) {
-      throw RohdHclException('FloatingPointAdderSimple only supports '
+      throw RohdHclException('FloatingPointAdderSinglePath only supports '
           'roundNearestEven (default) and truncate).');
     }
     // Would prefer to use getter here for setting, but the getter

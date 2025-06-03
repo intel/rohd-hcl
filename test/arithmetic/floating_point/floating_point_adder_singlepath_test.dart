@@ -1,8 +1,8 @@
 // Copyright (C) 2024-2025 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 //
-// floating_point_simple test.dart
-// Tests of FloatingPointAdderSinglePath -- a simple FP adder.
+// floating_point_singlepath_test.dart
+// Tests of FloatingPointAdderSinglePath -- a single path FP adder.
 //
 // 2024 April 1
 // Authors:

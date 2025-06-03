@@ -47,7 +47,7 @@ class FloatingPointAdderDualPath<FpTypeIn extends FloatingPoint,
           'FloatingPointAdderDualPath does not support explicit J bit.');
     }
     if (roundingMode != FloatingPointRoundingMode.roundNearestEven) {
-      throw RohdHclException('FloatingPointAdderSimple only supports '
+      throw RohdHclException('FloatingPointAdderDualPath only supports '
           'roundNearestEven.');
     }
 

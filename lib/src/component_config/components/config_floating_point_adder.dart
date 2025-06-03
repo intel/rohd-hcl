@@ -58,7 +58,7 @@ class FloatingPointAdderConfigurator extends Configurator {
               mantissaWidth: mantissaWidthKnob.value),
           adderGen: adderSelectionKnob.selectedAdder(),
           ppTree: treeGeneratorMap[prefixTreeKnob.value]!)
-      : FloatingPointAdderSimple(
+      : FloatingPointAdderSinglePath(
           clk: pipelinedKnob.value ? Logic() : null,
           FloatingPoint(
             exponentWidth: exponentWidthKnob.value,
