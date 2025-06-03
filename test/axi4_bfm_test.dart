@@ -250,7 +250,7 @@ class Axi4BfmTest extends Test {
       await tracker.terminate();
 
       final jsonStr =
-          File('$outFolder/axi4Tracker.tracker.json').readAsStringSync();
+          File('$outFolder/Axi4Tracker.tracker.json').readAsStringSync();
       json.decode(jsonStr);
 
       // Here can do any checking against the tracker contents...
@@ -1143,7 +1143,7 @@ void main() {
 
   setUp(() async {
     // Set the logger level
-    Logger.root.level = Level.SEVERE;
+    // Logger.root.level = Level.SEVERE;
   });
 
   Future<void> runTest(Axi4BfmTest axi4BfmTest,
