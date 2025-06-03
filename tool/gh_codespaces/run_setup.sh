@@ -24,7 +24,6 @@ tool/gh_actions/install_dependencies.sh
 tool/gh_actions/install_opencadsuite.sh
 
 # Install SystemVerilog to Verilog converter
-#  TODO:  Why does this fail -- devcontainer build says sv2v directory already exists!
 tool/gh_actions/install_sv2v.sh
 
 # Install D3 Schematic viewer

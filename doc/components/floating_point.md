@@ -22,7 +22,7 @@ Appropriate string representations, comparison operations, and operators are ava
 
 ### Explicit J-Bit
 
-In intermediate floating-point computations, it may be necessary to avoid normalization and simply store the current mantissa without shifting it left to move its leading 1 into the implicit j-bit location (no zeros before) and adjust the exponent.  We allow this by representing the j-bit explicitly in the mantissa a  leading '1', even when the floating-point is 'normal', or has a positive exponent field.  Typically, only sub-normals can have the leading j-bit stored in the mantissa.  While, in general, this can create a loss in accuracy, in some specific cases we can leverage avoiding normalization without loss of accuracy if we tailor our components to carry more precision and save the latency of normalization.
+In intermediate floating-point computations, it may be necessary to avoid normalization and simply store the current mantissa without shifting it left to move its leading 1 into the implicit j-bit location (no zeros before) and adjust the exponent.  We allow this by representing the j-bit explicitly in the mantissa as a leading '1', even when the floating-point is 'normal', or has a positive exponent field.  Typically, only sub-normals can have the leading j-bit stored in the mantissa.  While, in general, this can create a loss in accuracy, in some specific cases we can leverage avoiding normalization without loss of accuracy if we tailor our components to carry more precision and save the latency of normalization.
 
 Our `FloatingPointAdderSimple` and `FloatingPointConverter` modules currently support operations with either input or output explicit j-bit representations.
 

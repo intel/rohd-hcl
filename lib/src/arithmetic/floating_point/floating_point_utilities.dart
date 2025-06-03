@@ -32,8 +32,8 @@ abstract class FloatingPointUtilities {
 
   /// Sort two [FloatingPoint]s and swap them if necessary so that the larger
   /// of the two is the first element in the returned tuple.
-  static (FpType larger, FpType smaller) sort<FpType extends FloatingPoint>(
-      (FpType, FpType) toSort) {
+  static ({(FpType larger, FpType smaller) sorted, Logic didSwap})
+      sort<FpType extends FloatingPoint>((FpType, FpType) toSort) {
     final ae = toSort.$1.exponent;
     final be = toSort.$2.exponent;
     final am = toSort.$1.mantissa;
@@ -49,12 +49,12 @@ abstract class FloatingPointUtilities {
     final smaller =
         (swapped.$2.clone(name: 'smaller')..gets(swapped.$2)) as FpType;
 
-    return (larger, smaller);
+    return (sorted: (larger, smaller), didSwap: doSwap);
   }
 
   /// Sort two [FloatingPoint]s and swap them if necessary so that the one
   /// the larger exponent is the first element in the returned tuple.
-  static (FpType larger, FpType smaller)
+  static ({(FpType larger, FpType smaller) sorted, Logic didSwap})
       sortByExp<FpType extends FloatingPoint>((FpType, FpType) toSort) {
     final ae = toSort.$1.exponent;
     final be = toSort.$2.exponent;
@@ -66,7 +66,7 @@ abstract class FloatingPointUtilities {
         (swapped.$1.clone(name: 'larger')..gets(swapped.$1)) as FpType;
     final smaller =
         (swapped.$2.clone(name: 'smaller')..gets(swapped.$2)) as FpType;
-    return (larger, smaller);
+    return (sorted: (larger, smaller), didSwap: doSwap);
   }
 }
 
@@ -78,36 +78,64 @@ abstract class FloatingPointSwap<FpType extends FloatingPoint> extends Module {
   /// The second output floating point values after the swap.
   FpType get outB => (b.clone(name: 'outB') as FpType)..gets(output('outB'));
 
+  /// The first output metadata value after the swap.
+  Logic? get outMetaA => tryOutput('outMetaA');
+
+  /// The second output metadata value after the swap.
+  Logic? get outMetaB => tryOutput('outMetaB');
+
   /// The first floating point value to swap.
   @protected
   late final FpType a;
+
+  /// The first metadata value to swap.
+  @protected
+  late final Logic? metaA;
 
   /// The second floating point value to swap.
   @protected
   late final FpType b;
 
-  /// Internal storage of the first swapped output.
+  /// The second  metadata value to swap.
   @protected
-  late final FpType outputA;
-
-  /// Internal storage of the second swapped output.
-  @protected
-  late final FpType outputB;
+  late final Logic? metaB;
 
   /// Constructs a [FloatingPointSwap] module that swaps two floating point
   /// values.
   FloatingPointSwap(FpType a, FpType b,
-      {super.name = 'floating_point_swap',
+      {Logic? metaA,
+      Logic? metaB,
+      super.name = 'floating_point_swap',
       String definitionName = 'floating_point_swap'})
       : super(definitionName: definitionName) {
     if (a.width != b.width) {
       throw RohdHclException(
           'FloatingPointSwap requires inputs a and b to have the same width.');
     }
+    if ((metaA == null) != (metaB == null)) {
+      throw RohdHclException(
+          'FloatingPointSwap requires both metaA and metaB to be either '
+          'both null or both non-null.');
+    }
+    this.metaA =
+        (metaA != null) ? addInput('inMetaA', metaA, width: metaA.width) : null;
+    this.metaB =
+        (metaB != null) ? addInput('inMetaB', metaB, width: metaB.width) : null;
+
+    if (metaA != null && metaB != null) {
+      // We have metadata to swap.
+      if (metaA.width != metaB.width) {
+        throw RohdHclException('FloatingPointSwap requires metaA and metaB to '
+            'have the same width.');
+      }
+      addOutput('outMetaA', width: metaA.width);
+      addOutput('outMetaB', width: metaB.width);
+    }
     this.a = (a.clone(name: 'a') as FpType)
       ..gets(addInput('a', a, width: a.width));
     this.b = (b.clone(name: 'b') as FpType)
       ..gets(addInput('b', b, width: b.width));
+
     addOutput('outA', width: a.width);
     addOutput('outB', width: b.width);
   }
@@ -123,9 +151,15 @@ class FloatingPointConditionalSwap<FpType extends FloatingPoint>
   /// Constructs a [FloatingPointConditionalSwap] module that swaps two floating
   /// point values based on the [swap] condition.
   FloatingPointConditionalSwap(super.a, super.b, Logic swap,
-      {super.name = 'floating_point_conditional_swap'})
+      {super.metaA,
+      super.metaB,
+      super.name = 'floating_point_conditional_swap'})
       : super(definitionName: 'FloatingPointSwap_W${a.width}') {
     this.swap = addInput('swap', swap);
+    if ((metaA != null) & (metaB != null)) {
+      output('outMetaA') <= mux(swap, metaB!, metaA!).named('outMetaA');
+      output('outMetaB') <= mux(swap, metaA!, metaB!).named('outMetaB');
+    }
 
     final (swapA, swapB) =
         FloatingPointUtilities.swap(this.swap, (super.a, super.b));
@@ -140,9 +174,16 @@ class FloatingPointSort<FpType extends FloatingPoint>
     extends FloatingPointSwap<FpType> {
   /// Constructs a [FloatingPointSort] module that sorts two floating point
   /// values so that the larger one is first.
-  FloatingPointSort(super.a, super.b, {super.name = 'floating_point_sort'})
+  FloatingPointSort(super.a, super.b,
+      {super.metaA, super.metaB, super.name = 'floating_point_sort'})
       : super(definitionName: 'FloatingPointSort_W${a.width}') {
-    final (larger, smaller) = FloatingPointUtilities.sort((super.a, super.b));
+    final (sorted: (larger, smaller), didSwap: doSwap) =
+        FloatingPointUtilities.sort((super.a, super.b));
+    if ((metaA != null) & (metaB != null)) {
+      output('outMetaA') <= mux(doSwap, metaB!, metaA!).named('outMetaA');
+      output('outMetaB') <= mux(doSwap, metaA!, metaB!).named('outMetaB');
+    }
+
     output('outA') <= larger;
     output('outB') <= smaller;
   }
@@ -155,42 +196,16 @@ class FloatingPointSortByExp<FpType extends FloatingPoint>
   /// Constructs a [FloatingPointSortByExp] module that sorts two floating point
   /// values so that the one with the larger exponent is first.
   FloatingPointSortByExp(super.a, super.b,
-      {super.name = 'floating_point_sort_by_exp'})
+      {super.metaA, super.metaB, super.name = 'floating_point_sort_by_exp'})
       : super(definitionName: 'FloatingPointSortByExp_W${a.width}') {
-    final (larger, smaller) =
+    final (sorted: (larger, smaller), didSwap: doSwap) =
         FloatingPointUtilities.sortByExp((super.a, super.b));
-    // TODO(desmonddak): I know I can assign to a field instead, but I'm
-    // struggling getting it to work with explicit
+    if ((metaA != null) & (metaB != null)) {
+      output('outMetaA') <= mux(doSwap, metaB!, metaA!).named('outMetaA');
+      output('outMetaB') <= mux(doSwap, metaA!, metaB!).named('outMetaB');
+    }
+
     output('outA') <= larger;
     output('outB') <= smaller;
   }
-}
-
-/// [FloatingPoint] class which wraps in a Logic for the JBit.
-class FloatingPointWithJBit extends FloatingPoint {
-  /// Return the explicitJBit as a Logic signal.
-  Logic get explicit => explicitJBitLogic;
-
-  /// Store the explicitness of the J bit.
-  late final Logic explicitJBitLogic;
-
-  /// Construct a [FloatingPointWithJBit] from a [FloatingPoint] instance.
-  FloatingPointWithJBit(FloatingPoint fp, {super.name})
-      : super(
-            mantissaWidth: fp.mantissa.width,
-            exponentWidth: fp.exponent.width,
-            explicitJBit: fp.explicitJBit) {
-    explicitJBitLogic = Const(fp.explicitJBit ? 1 : 0);
-    // gets(fp);
-  }
-
-  @override
-  FloatingPointWithJBit clone({String? name, bool explicitJBit = false}) =>
-      FloatingPointWithJBit(this);
-  @override
-  FloatingPointValuePopulator<FloatingPointValue> valuePopulator() =>
-      FloatingPointValue.populator(
-          mantissaWidth: mantissa.width,
-          exponentWidth: exponent.width,
-          explicitJBit: explicitJBit);
 }

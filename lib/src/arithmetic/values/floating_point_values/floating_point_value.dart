@@ -53,7 +53,7 @@ class FloatingPointValue implements Comparable<FloatingPointValue> {
   @protected
   late final bool _explicitJBit;
 
-  /// Return true if the JBit is explicitly representedin the mantissa.
+  /// Return true if the JBit is explicitly represented in the mantissa.
   bool get explicitJBit => _explicitJBit;
 
   /// Return the bias of this [FloatingPointValue].

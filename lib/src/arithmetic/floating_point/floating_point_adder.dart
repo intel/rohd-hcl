@@ -44,11 +44,12 @@ abstract class FloatingPointAdder<FpTypeIn extends FloatingPoint,
   late final FpTypeIn b;
 
   /// getter for the computed [FpTypeOut] output.
-  late final FpTypeOut sum = (outputSum.clone(name: 'int_sum') as FpTypeOut)
+  late final FpTypeOut sum = (internalSum.clone(name: 'int_sum') as FpTypeOut)
     ..gets(output('sum'));
 
   /// The conditional output FloatingPoint Logic to set
-  late final FpTypeOut outputSum;
+  @protected
+  late final FpTypeOut internalSum;
 
   /// The rounding mode to use for the adder.
   late final FloatingPointRoundingMode roundingMode;
@@ -81,12 +82,12 @@ abstract class FloatingPointAdder<FpTypeIn extends FloatingPoint,
     this.b = (b.clone(name: 'b') as FpTypeIn)
       ..gets(addInput('b', b, width: b.width));
 
-    outputSum = (outSum ?? a).clone(name: 'outSum') as FpTypeOut;
+    internalSum = (outSum ?? a).clone(name: 'outSum') as FpTypeOut;
 
     exponentWidth = (outSum == null) ? a.exponent.width : outSum.exponent.width;
     mantissaWidth = (outSum == null) ? a.mantissa.width : outSum.mantissa.width;
 
-    addOutput('sum', width: outputSum.width);
+    addOutput('sum', width: internalSum.width);
 
     if (outSum != null) {
       outSum <= output('sum');

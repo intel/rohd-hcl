@@ -219,10 +219,10 @@ class CarrySelectOnesComplementCompoundAdder extends CompoundAdder {
   /// - [subtractIn] is an optional Logic control for subtraction.
   /// - [subtract] is a boolean control for subtraction. It must be
   /// false(default) if a [subtractIn] Logic is provided.
-  /// - [generateCarryOut] set to true will create output[carryOut] and employ
+  /// - [generateCarryOut] set to true will create output [carryOut] and employ
   /// the ones-complement optimization of not adding '1' to convert back to 2s
   /// complement during subtraction on the [sum].
-  /// - [generateCarryOutP1] set to true will create output[carryOutP!] and
+  /// - [generateCarryOutP1] set to true will create output [carryOutP1] and
   /// employ the ones-complement optimization of not adding '1' to convert
   /// back to 2s complement during subtraction on the [sumP1].
   /// - [widthGen] is a function which produces a list for splitting

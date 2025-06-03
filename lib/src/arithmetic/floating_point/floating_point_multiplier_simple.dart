@@ -28,6 +28,7 @@ class FloatingPointMultiplierSimple<FpTypeIn extends FloatingPoint,
       super.reset,
       super.enable,
       super.outProduct,
+      super.roundingMode = FloatingPointRoundingMode.truncate,
       Multiplier Function(Logic a, Logic b,
               {Logic? clk, Logic? reset, Logic? enable, String name})
           multGen = NativeMultiplier.new,
@@ -48,9 +49,9 @@ class FloatingPointMultiplierSimple<FpTypeIn extends FloatingPoint,
       throw RohdHclException('product mantissa width must be >= '
           ' input mantissa width');
     }
-    if (roundingMode != FloatingPointRoundingMode.roundNearestEven) {
+    if (roundingMode != FloatingPointRoundingMode.truncate) {
       throw RohdHclException('FloatingPointMultiplierSimple does not support '
-          'rounding modes other than roundNearestEven.');
+          'rounding modes other than truncate (for now).');
     }
     final aMantissa = mux(a.isNormal, [a.isNormal, a.mantissa].swizzle(),
             [a.mantissa, Const(0)].swizzle())

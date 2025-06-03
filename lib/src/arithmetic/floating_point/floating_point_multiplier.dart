@@ -52,6 +52,7 @@ abstract class FloatingPointMultiplier<FpTypeIn extends FloatingPoint,
   late final FloatingPointRoundingMode roundingMode;
 
   /// The internal FloatingPoint logic to set
+  @protected
   late final FpTypeOut internalProduct;
 
   /// Multiply two floating point numbers [a] and [b], returning result in

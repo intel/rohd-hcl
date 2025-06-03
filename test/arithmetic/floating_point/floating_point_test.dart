@@ -30,8 +30,8 @@ void main() {
 
     final swapped = FloatingPointUtilities.sort((fp1, fp2));
 
-    expect(swapped.$1.floatingPointValue, val2);
-    expect(swapped.$2.floatingPointValue, val1);
+    expect(swapped.sorted.$1.floatingPointValue, val2);
+    expect(swapped.sorted.$2.floatingPointValue, val1);
 
     final sorter = FloatingPointSort(fp1, fp2);
     expect(sorter.outA.floatingPointValue, val2);

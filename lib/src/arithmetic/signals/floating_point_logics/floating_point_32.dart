@@ -20,8 +20,7 @@ class FloatingPoint32 extends FloatingPoint {
             mantissaWidth: FloatingPoint32Value.populator().mantissaWidth);
 
   @override
-  FloatingPoint32 clone({String? name, bool explicitJBit = false}) =>
-      FloatingPoint32(name: name);
+  FloatingPoint32 clone({String? name}) => FloatingPoint32(name: name);
 
   @override
   FloatingPointValuePopulator<FloatingPoint32Value> valuePopulator() =>

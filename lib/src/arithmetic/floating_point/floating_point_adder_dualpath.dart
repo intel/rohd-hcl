@@ -30,6 +30,7 @@ class FloatingPointAdderDualPath<FpTypeIn extends FloatingPoint,
       super.clk,
       super.reset,
       super.enable,
+      super.roundingMode = FloatingPointRoundingMode.roundNearestEven,
       Adder Function(Logic a, Logic b, {Logic? carryIn, String name}) adderGen =
           NativeAdder.new,
       List<int> Function(int) widthGen =
@@ -46,12 +47,11 @@ class FloatingPointAdderDualPath<FpTypeIn extends FloatingPoint,
           'FloatingPointAdderDualPath does not support explicit J bit.');
     }
     if (roundingMode != FloatingPointRoundingMode.roundNearestEven) {
-      throw RohdHclException('FloatingPointAdderDualPath does not support '
-          'rounding modes other than roundNearestEven.');
+      throw RohdHclException('FloatingPointAdderSimple only supports '
+          'roundNearestEven.');
     }
-    final outputSum = FloatingPoint(
-        exponentWidth: exponentWidth, mantissaWidth: mantissaWidth);
-    output('sum') <= outputSum;
+
+    output('sum') <= internalSum;
 
     // Seidel: S.EFF = effectiveSubtraction
     final effectiveSubtraction =
@@ -106,7 +106,7 @@ class FloatingPointAdderDualPath<FpTypeIn extends FloatingPoint,
             fs.zeroExtend(sigWidth))
         .named('smallShift');
 
-    final zeroExp = outputSum.zeroExponent;
+    final zeroExp = internalSum.zeroExponent;
     final largeOperand = largeShift;
     //
     // R Datapath:  Far exponents or addition
@@ -183,7 +183,22 @@ class FloatingPointAdderDualPath<FpTypeIn extends FloatingPoint,
         (~sumP1RPath[-1] & (aIsNormalFlopped | bIsNormalFlopped))
             .named('sumP1lead0Rpath');
 
-    final selectRPath = lowAdderRPathSum[-1].named('selectRpath');
+    final Logic selectRPath;
+    if (roundingMode == FloatingPointRoundingMode.roundNearestEven) {
+      selectRPath = lowAdderRPathSum[-1].named('selectRpath');
+    } else {
+      // TODO(desmonddak): This is an attempt to get the truncation working
+      // but it is not correct, so we disable this mode for now.
+      // The issue is that we need to handle both the carry from lower
+      // bits as well as the additional rounding bit and this logic
+      // is turning off both.
+      // This case fails to truncate:  0 0000 0000,   1 0010 0000
+      // selectRPath = Const(0).named('selectRpath');
+      // This case fails to truncate:  0 0000 0000,   1 1010 0000
+      selectRPath = lowAdderRPathSum[-1].named('selectRpath');
+    }
+    // R pipestage here:
+
     final shiftGRSRPath =
         [earlyGRSRPath[2], stickyBitRPath].swizzle().named('shiftGRSRpath');
     final mergedSumRPath = mux(
@@ -214,9 +229,14 @@ class FloatingPointAdderDualPath<FpTypeIn extends FloatingPoint,
         .named('rndRpath');
 
     // Rounding from 1111 to 0000.
-    final incExpRPath =
-        (rndRPath & sumLeadZeroRPath.eq(Const(1)) & sumP1LeadZeroRPath.eq(0))
-            .named('incExpRrpath');
+    final Logic incExpRPath;
+    if (roundingMode == FloatingPointRoundingMode.roundNearestEven) {
+      incExpRPath =
+          (rndRPath & sumLeadZeroRPath.eq(Const(1)) & sumP1LeadZeroRPath.eq(0))
+              .named('incExpRrpath');
+    } else {
+      incExpRPath = Const(0).named('incExpRrpath');
+    }
 
     final firstZeroRPath = mux(selectRPath, ~sumP1RPath[-1], ~sumRPath[-1])
         .named('firstZero_rpath');
@@ -226,6 +246,7 @@ class FloatingPointAdderDualPath<FpTypeIn extends FloatingPoint,
     final expIncr = ParallelPrefixIncr(largerExpFlopped,
         ppGen: ppTree, name: 'expIncrement');
     final exponentRPath = Logic(width: exponentWidth);
+
     Combinational([
       If.block([
         // Subtract 1 from exponent
@@ -243,14 +264,20 @@ class FloatingPointAdderDualPath<FpTypeIn extends FloatingPoint,
       ])
     ]);
 
+    final Logic mantissaRPath;
     final sumMantissaRPath =
         mux(selectRPath, sumP1RPath, sumRPath).named('selectSumMantissa_rpath');
-    final sumMantissaRPathRnd = (sumMantissaRPath +
-            rndRPath.zeroExtend(sumRPath.width).named('rndExtend_rpath'))
-        .named('sumMantissaRndRpath');
-    final mantissaRPath = (sumMantissaRPathRnd <<
-            mux(selectRPath, sumP1LeadZeroRPath, sumLeadZeroRPath))
-        .named('mantissaRpath');
+    if (roundingMode == FloatingPointRoundingMode.roundNearestEven) {
+      final sumMantissaRPathRnd = (sumMantissaRPath +
+              rndRPath.zeroExtend(sumRPath.width).named('rndExtend_rpath'))
+          .named('sumMantissaRndRpath');
+      mantissaRPath = (sumMantissaRPathRnd <<
+              mux(selectRPath, sumP1LeadZeroRPath, sumLeadZeroRPath))
+          .named('mantissaRpath');
+    } else {
+      mantissaRPath =
+          (sumMantissaRPath << sumLeadZeroRPath).named('mantissaRpath');
+    }
 
     //
     //  N Datapath here:  close exponents, subtraction
@@ -334,9 +361,9 @@ class FloatingPointAdderDualPath<FpTypeIn extends FloatingPoint,
     final isR = (deltaFlopped.gte(Const(2, width: delta.width)) |
             ~effectiveSubtractionFlopped)
         .named('isR');
-    final infExponent = outputSum.inf(sign: largerSignFlopped).exponent;
+    final infExponent = internalSum.inf(sign: largerSignFlopped).exponent;
 
-    final inf = outputSum.inf(sign: largerSignFlopped);
+    final inf = internalSum.inf(sign: largerSignFlopped);
 
     final realIsInfRPath =
         exponentRPath.eq(infExponent).named('realIsInfRPath');
@@ -346,27 +373,27 @@ class FloatingPointAdderDualPath<FpTypeIn extends FloatingPoint,
 
     Combinational([
       If(isNaNFlopped, then: [
-        outputSum < outputSum.nan,
+        internalSum < internalSum.nan,
       ], orElse: [
         If(isInfFlopped, then: [
-          outputSum < outputSum.inf(sign: largerSignFlopped),
+          internalSum < internalSum.inf(sign: largerSignFlopped),
         ], orElse: [
           If(isR, then: [
             If(realIsInfRPath, then: [
-              outputSum < inf,
+              internalSum < inf,
             ], orElse: [
-              outputSum.sign < largerSignFlopped,
-              outputSum.exponent < exponentRPath,
-              outputSum.mantissa <
+              internalSum.sign < largerSignFlopped,
+              internalSum.exponent < exponentRPath,
+              internalSum.mantissa <
                   mantissaRPath.slice(mantissaRPath.width - 2, 1),
             ]),
           ], orElse: [
             If(realIsInfNPath, then: [
-              outputSum < inf,
+              internalSum < inf,
             ], orElse: [
-              outputSum.sign < signNPath,
-              outputSum.exponent < exponentNPath,
-              outputSum.mantissa < finalSignificandNPath,
+              internalSum.sign < signNPath,
+              internalSum.exponent < exponentNPath,
+              internalSum.mantissa < finalSignificandNPath,
             ]),
           ])
         ])

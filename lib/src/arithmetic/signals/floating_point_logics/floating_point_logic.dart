@@ -58,10 +58,6 @@ class FloatingPoint extends LogicStructure {
       {super.name})
       : super([mantissa, exponent, sign]);
 
-  // TODO(desmonddak): we are temporarily allowing the override of explicitJBit.
-  // Eventually, all components will pass in the destination with its own
-  // explicitJBit bool and this clone will be a straight clone.
-
   @mustBeOverridden
   @override
   FloatingPoint clone({String? name}) => FloatingPoint(

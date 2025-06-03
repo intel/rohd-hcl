@@ -18,9 +18,10 @@ class OnesComplementAdder extends Adder {
   Logic get sign => output('sign');
 
   /// The end-around carry which should be added to the resulting [sum].
-  /// If the input `generateEndAroundCarry` is true, this value is stored there.
+  /// If the input [generateEndAroundCarry] is true, this value is stored as
+  /// the output [endAroundCarry].
   /// Otherwise, the end-around carry is internally added to [sum]. This
-  /// happens when subtracting a smaller number from a larger oneusing
+  /// happens when subtracting a smaller number from a larger one using
   /// ones complement arithmetic.
   Logic? get endAroundCarry => tryOutput('endAroundCarry');
 

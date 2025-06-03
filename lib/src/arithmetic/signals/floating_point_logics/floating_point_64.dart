@@ -20,8 +20,7 @@ class FloatingPoint64 extends FloatingPoint {
             mantissaWidth: FloatingPoint64Value.populator().mantissaWidth);
 
   @override
-  FloatingPoint64 clone({String? name, bool explicitJBit = false}) =>
-      FloatingPoint64(name: name);
+  FloatingPoint64 clone({String? name}) => FloatingPoint64(name: name);
 
   @override
   FloatingPointValuePopulator<FloatingPoint64Value> valuePopulator() =>

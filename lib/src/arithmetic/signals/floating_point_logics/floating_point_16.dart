@@ -20,8 +20,7 @@ class FloatingPoint16 extends FloatingPoint {
             exponentWidth: FloatingPoint16Value.populator().exponentWidth);
 
   @override
-  FloatingPoint16 clone({String? name, bool explicitJBit = false}) =>
-      FloatingPoint16(name: name);
+  FloatingPoint16 clone({String? name}) => FloatingPoint16(name: name);
 
   @override
   FloatingPointValuePopulator<FloatingPoint16Value> valuePopulator() =>

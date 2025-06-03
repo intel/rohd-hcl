@@ -20,8 +20,7 @@ class FloatingPoint8E4M3 extends FloatingPoint {
             exponentWidth: FloatingPoint8E4M3Value.populator().exponentWidth);
 
   @override
-  FloatingPoint8E4M3 clone({String? name, bool explicitJBit = false}) =>
-      FloatingPoint8E4M3(name: name);
+  FloatingPoint8E4M3 clone({String? name}) => FloatingPoint8E4M3(name: name);
 
   @override
   FloatingPointValuePopulator<FloatingPoint8E4M3Value> valuePopulator() =>
