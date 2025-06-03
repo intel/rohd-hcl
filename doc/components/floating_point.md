@@ -26,6 +26,8 @@ In intermediate floating-point computations, it may be necessary to avoid normal
 
 Our `FloatingPointAdderSimple` and `FloatingPointConverter` modules currently support operations with either input or output explicit j-bit representations.
 
+`FloatingPointAdderSimple` can be specified to produce an explicit j-bit output by providing an output of that type.  If an output is not provided, then the adder will produce an output of implicit-j-type unless both inputs are explicit-jbit.  
+
 Explicit J-bit computations are enabled by an `explicitJBit` constructor flag for `FloatingPoint` as well as `FloatingPointValue`.
 
 ### Floating Point Constants
@@ -130,3 +132,11 @@ Here is an example using the converter to translate from 32-bit single-precision
     FloatingPointConverter(fp32, bf16);
     expect(bf16.floatingPointValue.toDouble(), equals(1.0));
 ```
+
+## Wider Outputs
+
+`FloatingPointAdderSimple` provides for wider mantissa output currently, but the exponent must match.
+
+`FloatingPointMultiplierSimple` provides for wider exponents and wider mantissas on output.
+
+Eventually, these components will provide for arbitrary output widths.

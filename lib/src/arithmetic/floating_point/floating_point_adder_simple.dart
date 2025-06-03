@@ -109,6 +109,17 @@ class FloatingPointAdderSimple<FpTypeIn extends FloatingPoint,
                 ].swizzle()))
         .named('smallMantissa');
 
+    // TODO(desmonddak): Check:  mantissaWidth should be the same as the
+    // output mantissa width.  How are we able to limit
+    // the rounding position?
+    // final outExtendedWidth =
+    // max(0, extendedWidth - (mantissaWidth - larger.mantissa.width));
+    // extended Width is this output mantissa over the larger width.
+    // outExtended seems to be back to just the width of larger.
+    // like we are not allowed to round past 2 mantissa widths.
+    // that seems quite restrictive:
+    //   xxxxxx     yyyyy|yy
+    // This should be rounding y to fit into the output mantissa
     final extendedWidth = min(
         1 +
             (mantissaWidth + 1) +

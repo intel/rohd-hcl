@@ -82,7 +82,8 @@ abstract class FloatingPointAdder<FpTypeIn extends FloatingPoint,
     this.b = (b.clone(name: 'b') as FpTypeIn)
       ..gets(addInput('b', b, width: b.width));
 
-    internalSum = (outSum ?? a).clone(name: 'outSum') as FpTypeOut;
+    internalSum =
+        (outSum ?? (a.explicitJBit ? b : a)).clone(name: 'outSum') as FpTypeOut;
 
     exponentWidth = (outSum == null) ? a.exponent.width : outSum.exponent.width;
     mantissaWidth = (outSum == null) ? a.mantissa.width : outSum.mantissa.width;
