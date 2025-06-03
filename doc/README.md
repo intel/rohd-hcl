@@ -44,11 +44,11 @@ Some in-development items will have opened issues, as well. Feel free to create 
   - [Adders](./components/adder.md)
     - [Ripple Carry Adder](./components/adder.md#ripple-carry-adder)
     - [Parallel Prefix Adder](./components/parallel_prefix_operations.md)
-    - [Sign Magnitude Adder](./components/adder.md#sign-magnitude-adder)
     - [Compound Adder](./components/adder.md#compound-adder)
     - [Native Adder](./components/adder.md#native-adder)
   - Subtractors
     - [Ones' Complement Adder Subtractor](./components/adder.md#ones-complement-adder-subtractor)
+    - [Sign Magnitude Adder](./components/adder.md#sign-magnitude-adder)
   - Multipliers
     - [Pipelined Integer Multiplier](./components/multiplier.md#carry-save-multiplier)
     - [Compression Tree Multiplier](./components/multiplier.md#compression-tree-multiplier)
@@ -68,10 +68,11 @@ Some in-development items will have opened issues, as well. Feel free to create 
       - BFloat16 (16-bit)
       - TensorFloat32 (19-bit)
       - 8-bit E4/M3 and E5/M2
-    - [Simple Floating-Point Adder](./components/floating_point.md#floatingpointadder)
+    - [Single Path Floating-Point Adder](./components/floating_point.md#floatingpointadder)
     - [Dual Path Floating-Point Adder](./components/floating_point.md#floatingpointadder)
     - [Simple Floating-Point Multiplier](./components/floating_point.md#floatingpointmultiplier)
     - [Floating-Point Converter](./components/floating_point.md#floatingpointconverter)
+    - [Leading Digit Anticipate](./components/leading_digit_anticipate.md)
   - [Fixed point](./components/fixed_point.md)
     - [FloatToFixed](./components/fixed_point.md#floattofixed)
     - [FixedToFloat](./components/fixed_point.md#fixedtofloat)
