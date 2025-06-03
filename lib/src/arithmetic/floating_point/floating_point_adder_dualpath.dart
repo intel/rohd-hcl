@@ -51,8 +51,6 @@ class FloatingPointAdderDualPath<FpTypeIn extends FloatingPoint,
           'roundNearestEven.');
     }
 
-    output('sum') <= internalSum;
-
     // Seidel: S.EFF = effectiveSubtraction
     final effectiveSubtraction =
         (a.sign ^ b.sign ^ (subtract ?? Const(0))).named('effSubtraction');

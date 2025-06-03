@@ -93,6 +93,7 @@ abstract class FloatingPointAdder<FpTypeIn extends FloatingPoint,
     if (outSum != null) {
       outSum <= output('sum');
     }
+    output('sum') <= internalSum;
   }
 
   /// Pipelining helper that uses the context for signals clk/enable/reset

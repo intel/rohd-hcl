@@ -710,18 +710,18 @@ void main() {
 
     test('FP: simple adder mixed explicit/implicit j-bit IO singleton', () {
       const input1ExplicitJBit = false;
-      const input2ExplicitJBit = false;
+      const input2ExplicitJBit = true;
       const outputExplicitJBit = true;
       final fp1 = fpConstructor(explicitJBit: input1ExplicitJBit);
       final fp2 = fpConstructor(explicitJBit: input2ExplicitJBit);
       final fpout = fpConstructor(explicitJBit: outputExplicitJBit);
 
       // Subtraction fails from i to e should not round
-      final fv1 = ofString('0 000 001');
-      final fv2 = ofString('1 110 011');
+      var fv1 = ofString('0 000 001');
+      var fv2 = ofString('1 110 011');
       // // I/E->I  fails here both unrounded and rounded
-      // fv1 = ofString('0 000 000');
-      // fv2 = ofString('0 001 001', explicitJBit: input2ExplicitJBit);
+      fv1 = ofString('0 000 000');
+      fv2 = ofString('0 001 001', explicitJBit: input2ExplicitJBit);
       // // I/E->E fails to compute Infinity
       // fv1 = ofString('0 110 111');
       // fv2 = ofString('0 110 111', explicitJBit: input2ExplicitJBit);

@@ -55,12 +55,10 @@ class FloatingPointValuePopulator<FpvType extends FloatingPointValue> {
 
   /// Populates the [FloatingPointValue] with the given [sign], [exponent], and
   /// [mantissa], then performs additional validation.
-  FpvType populate({
-    required LogicValue sign,
-    required LogicValue exponent,
-    required LogicValue mantissa,
-    bool explicitJBit = false,
-  }) {
+  FpvType populate(
+      {required LogicValue sign,
+      required LogicValue exponent,
+      required LogicValue mantissa}) {
     if (_hasPopulated) {
       throw RohdHclException('FloatingPointPopulator: already populated');
     }
@@ -125,8 +123,7 @@ class FloatingPointValuePopulator<FpvType extends FloatingPointValue> {
       populate(
           sign: LogicValue.of(sign),
           exponent: LogicValue.of(exponent),
-          mantissa: LogicValue.of(mantissa),
-          explicitJBit: explicitJBit);
+          mantissa: LogicValue.of(mantissa));
 
   /// [FloatingPointValue] constructor from a single binary string representing
   /// space-separated bitfields in the order of sign, exponent, mantissa.
@@ -136,10 +133,9 @@ class FloatingPointValuePopulator<FpvType extends FloatingPointValue> {
   /// //                    s e        m
   /// ofSpacedBinaryString('0 00000000 00000000000000000000000')
   /// ```
-  FpvType ofSpacedBinaryString(String fp, {bool explicitJBit = false}) {
+  FpvType ofSpacedBinaryString(String fp) {
     final split = fp.split(' ');
-    return ofBinaryStrings(split[0], split[1], split[2],
-        explicitJBit: explicitJBit);
+    return ofBinaryStrings(split[0], split[1], split[2]);
   }
 
   /// Helper function for extracting binary strings from a longer

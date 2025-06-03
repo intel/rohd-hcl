@@ -61,9 +61,6 @@ class FloatingPointAdderSinglePath<FpTypeIn extends FloatingPoint,
       throw RohdHclException('FloatingPointAdderSinglePath only supports '
           'roundNearestEven (default) and truncate).');
     }
-    // Would prefer to use getter here for setting, but the getter
-    // translates the type from Logic to FloatingPoint.
-    output('sum') <= internalSum;
 
     final aExplicit = Const(a.explicitJBit);
     final bExplicit = Const(b.explicitJBit);

@@ -50,7 +50,7 @@ class FloatingPointValue implements Comparable<FloatingPointValue> {
   late final int _mantissaWidth;
 
   /// The stored explicit JBit flag.
-  @protected
+  // @protected
   late final bool _explicitJBit;
 
   /// Return true if the JBit is explicitly represented in the mantissa.
@@ -135,7 +135,7 @@ class FloatingPointValue implements Comparable<FloatingPointValue> {
             exponentWidth: split[1].length,
             mantissaWidth: split[2].length,
             explicitJBit: explicitJBit)
-        .ofSpacedBinaryString(fp, explicitJBit: explicitJBit);
+        .ofSpacedBinaryString(fp);
   }
 
   /// Validate the [FloatingPointValue] to ensure widths and other
@@ -401,6 +401,10 @@ class FloatingPointValue implements Comparable<FloatingPointValue> {
     if (explicitJBit) {
       var expVal = exponent.toInt();
       var mant = mantissa;
+      final toPopulate = populator(
+          exponentWidth: exponentWidth,
+          mantissaWidth: mantissaWidth,
+          explicitJBit: explicitJBit);
       if (!isAnInfinity) {
         if (!isNaN) {
           if (mant.or() == LogicValue.one) {
@@ -418,18 +422,13 @@ class FloatingPointValue implements Comparable<FloatingPointValue> {
             expVal = 0;
           }
         } else {
-          return populator(
-                  exponentWidth: exponentWidth,
-                  mantissaWidth: mantissaWidth,
-                  explicitJBit: explicitJBit)
-              .nan;
+          return toPopulate.nan;
         }
       }
-      return FloatingPointValue(
+      return toPopulate.populate(
           sign: sign,
           exponent: LogicValue.ofInt(expVal, exponentWidth),
-          mantissa: mant,
-          explicitjBit: explicitJBit);
+          mantissa: mant);
     }
     return this;
   }
