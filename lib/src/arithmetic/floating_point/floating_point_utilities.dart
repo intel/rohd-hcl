@@ -13,23 +13,6 @@ import 'package:rohd_hcl/rohd_hcl.dart';
 
 /// A utility class for floating point operations.
 abstract class FloatingPointUtilities {
-  /// Swap two [FloatingPoint] structures based on a conditional [swap].
-  static (FpType, FpType) swap<FpType extends FloatingPoint>(
-      Logic swap, (FpType, FpType) toSwap) {
-    final in1 = toSwap.$1.named('swapIn1_${toSwap.$1.name}');
-    final in2 = toSwap.$2.named('swapIn2_${toSwap.$2.name}');
-
-    FpType clone1({String? name}) => toSwap.$1.clone(name: name) as FpType;
-    FpType clone2({String? name}) => toSwap.$2.clone(name: name) as FpType;
-
-    final out1 = mux(swap, in2, in1).named('swapOut1');
-    final out2 = mux(swap, in1, in2).named('swapOut2');
-    final first = clone2(name: 'swapOut1')..gets(out1);
-    final second = clone1(name: 'swapOut2')..gets(out2);
-
-    return (first, second);
-  }
-
   /// Sort two [FloatingPoint]s and swap them if necessary so that the larger
   /// of the two is the first element in the returned tuple.
   static ({(FpType larger, FpType smaller) sorted, Logic didSwap})
@@ -43,7 +26,7 @@ abstract class FloatingPointUtilities {
             ((ae.eq(be) & am.eq(bm)) & toSort.$1.sign))
         .named('doSwap');
 
-    final swapped = swap(doSwap, toSort);
+    final swapped = logicSwap(doSwap, toSort);
     final larger =
         (swapped.$1.clone(name: 'larger')..gets(swapped.$1)) as FpType;
     final smaller =
@@ -60,7 +43,7 @@ abstract class FloatingPointUtilities {
     final be = toSort.$2.exponent;
     final doSwap = (ae.lt(be) | ((ae.eq(be)) & toSort.$1.sign)).named('doSwap');
 
-    final swapped = swap(doSwap, toSort);
+    final swapped = logicSwap(doSwap, toSort);
 
     final larger =
         (swapped.$1.clone(name: 'larger')..gets(swapped.$1)) as FpType;
@@ -156,15 +139,16 @@ class FloatingPointConditionalSwap<FpType extends FloatingPoint>
       super.name = 'floating_point_conditional_swap'})
       : super(definitionName: 'FloatingPointSwap_W${a.width}') {
     this.swap = addInput('swap', swap);
-    if ((metaA != null) & (metaB != null)) {
-      output('outMetaA') <= mux(swap, metaB!, metaA!).named('outMetaA');
-      output('outMetaB') <= mux(swap, metaA!, metaB!).named('outMetaB');
-    }
 
-    final (swapA, swapB) =
-        FloatingPointUtilities.swap(this.swap, (super.a, super.b));
+    final (swapA, swapB) = logicSwap(this.swap, (super.a, super.b));
     output('outA') <= swapA;
     output('outB') <= swapB;
+    if ((metaA != null) & (metaB != null)) {
+      final (swapMetaA, swapMetaB) =
+          logicSwap(this.swap, (super.metaA!, super.metaB!));
+      output('outMetaA') <= swapMetaA;
+      output('outMetaB') <= swapMetaB;
+    }
   }
 }
 
@@ -179,13 +163,14 @@ class FloatingPointSort<FpType extends FloatingPoint>
       : super(definitionName: 'FloatingPointSort_W${a.width}') {
     final (sorted: (larger, smaller), didSwap: doSwap) =
         FloatingPointUtilities.sort((super.a, super.b));
-    if ((metaA != null) & (metaB != null)) {
-      output('outMetaA') <= mux(doSwap, metaB!, metaA!).named('outMetaA');
-      output('outMetaB') <= mux(doSwap, metaA!, metaB!).named('outMetaB');
-    }
-
     output('outA') <= larger;
     output('outB') <= smaller;
+    if ((metaA != null) & (metaB != null)) {
+      final (swapMetaA, swapMetaB) =
+          logicSwap(doSwap, (super.metaA!, super.metaB!));
+      output('outMetaA') <= swapMetaA;
+      output('outMetaB') <= swapMetaB;
+    }
   }
 }
 
@@ -200,12 +185,14 @@ class FloatingPointSortByExp<FpType extends FloatingPoint>
       : super(definitionName: 'FloatingPointSortByExp_W${a.width}') {
     final (sorted: (larger, smaller), didSwap: doSwap) =
         FloatingPointUtilities.sortByExp((super.a, super.b));
-    if ((metaA != null) & (metaB != null)) {
-      output('outMetaA') <= mux(doSwap, metaB!, metaA!).named('outMetaA');
-      output('outMetaB') <= mux(doSwap, metaA!, metaB!).named('outMetaB');
-    }
 
     output('outA') <= larger;
     output('outB') <= smaller;
+    if ((metaA != null) & (metaB != null)) {
+      final (swapMetaA, swapMetaB) =
+          logicSwap(doSwap, (super.metaA!, super.metaB!));
+      output('outMetaA') <= swapMetaA;
+      output('outMetaB') <= swapMetaB;
+    }
   }
 }

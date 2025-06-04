@@ -710,18 +710,23 @@ void main() {
 
     test('FP: simple adder mixed explicit/implicit j-bit IO singleton', () {
       const input1ExplicitJBit = false;
-      const input2ExplicitJBit = true;
+      const input2ExplicitJBit = false;
       const outputExplicitJBit = true;
       final fp1 = fpConstructor(explicitJBit: input1ExplicitJBit);
       final fp2 = fpConstructor(explicitJBit: input2ExplicitJBit);
       final fpout = fpConstructor(explicitJBit: outputExplicitJBit);
 
-      // Subtraction fails from i to e should not round
+      // Subtraction fails from i to e should not round.
       var fv1 = ofString('0 000 001');
       var fv2 = ofString('1 110 011');
+      // These allow to keep as var instead of final.
+      fv1 = ofString('0 000 001');
+      fv2 = ofString('1 110 011');
       // // I/E->I  fails here both unrounded and rounded
-      fv1 = ofString('0 000 000');
-      fv2 = ofString('0 001 001', explicitJBit: input2ExplicitJBit);
+      // fv1 = ofString('0 000 000');
+      // fv2 = ofString('0 001 001', explicitJBit: input2ExplicitJBit);
+      // fv1 = ofString('0 000 000');
+      // fv2 = ofString('0 110 111');
       // // I/E->E fails to compute Infinity
       // fv1 = ofString('0 110 111');
       // fv2 = ofString('0 110 111', explicitJBit: input2ExplicitJBit);
@@ -729,13 +734,12 @@ void main() {
       fp1.put(fv1);
       fp2.put(fv2);
       final adder = FloatingPointAdderSinglePath(fp1, fp2, outSum: fpout);
-      final computed = adder.sum.floatingPointValue.canonicalize();
+      final computed = fpPopulator(explicitJBit: outputExplicitJBit)
+          .ofFloatingPointValue(adder.sum.floatingPointValue);
       final expectedNoRound = fpPopulator(explicitJBit: outputExplicitJBit)
-          .ofDoubleUnrounded(fv1.toDouble() + fv2.toDouble())
-          .canonicalize();
+          .ofDoubleUnrounded(fv1.toDouble() + fv2.toDouble());
       final expectedRound = fpPopulator(explicitJBit: outputExplicitJBit)
-          .ofDouble(fv1.toDouble() + fv2.toDouble())
-          .canonicalize();
+          .ofDouble(fv1.toDouble() + fv2.toDouble());
 
       expect(computed, predicate((e) => e == expectedRound), reason: '''
                   in1Explicit=$input1ExplicitJBit 
@@ -786,7 +790,10 @@ void main() {
                           fp2.put(fv2.value);
 
                           final computed =
-                              adder.sum.floatingPointValue.canonicalize();
+                              fpPopulator(explicitJBit: outputExplicitJBit)
+                                  .ofFloatingPointValue(
+                                      adder.sum.floatingPointValue,
+                                      canonicalizeExplicit: true);
                           final expectedNoRound =
                               fpPopulator(explicitJBit: outputExplicitJBit)
                                   .ofDoubleUnrounded(
@@ -839,7 +846,9 @@ void main() {
       fp1.put(fv1);
       fp2.put(fv2);
       final adder = FloatingPointAdderSinglePath(fp1, fp2, outSum: fpout);
-      final computed = adder.sum.floatingPointValue.canonicalize();
+      final computed = fpPopulator(explicitJBit: outputExplicitJBit)
+          .ofFloatingPointValue(adder.sum.floatingPointValue,
+              canonicalizeExplicit: true);
       final expectedNoRound = fpPopulator(explicitJBit: outputExplicitJBit)
           .ofDoubleUnrounded(fv1.toDouble() + fv2.toDouble())
           .canonicalize();
@@ -912,7 +921,10 @@ void main() {
                             fp2.put(fv2.value);
 
                             final computed =
-                                adder.sum.floatingPointValue.canonicalize();
+                                fpOutPopulator(explicitJBit: outputExplicitJBit)
+                                    .ofFloatingPointValue(
+                                        adder.sum.floatingPointValue,
+                                        canonicalizeExplicit: true);
                             final expectedNoRound =
                                 fpOutPopulator(explicitJBit: outputExplicitJBit)
                                     .ofDoubleUnrounded(

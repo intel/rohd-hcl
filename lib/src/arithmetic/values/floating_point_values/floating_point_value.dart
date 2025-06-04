@@ -36,7 +36,6 @@ class FloatingPointValue implements Comparable<FloatingPointValue> {
   int get exponentWidth => _exponentWidth;
 
   /// The stored exponent width.
-  @protected
   late final int _exponentWidth;
 
   /// The mantissa of the floating point.
@@ -46,11 +45,9 @@ class FloatingPointValue implements Comparable<FloatingPointValue> {
   int get mantissaWidth => _mantissaWidth;
 
   /// The stored mantissa width.
-  @protected
   late final int _mantissaWidth;
 
   /// The stored explicit JBit flag.
-  // @protected
   late final bool _explicitJBit;
 
   /// Return true if the JBit is explicitly represented in the mantissa.
@@ -350,16 +347,6 @@ class FloatingPointValue implements Comparable<FloatingPointValue> {
     return doubleVal;
   }
 
-  /// Convert to a [FloatingPointValue] with a mantissa that is one smaller
-  /// due to the implicit J-bit.
-  FloatingPointValue toFloatingPointValue() {
-    final norm = canonicalize();
-    return FloatingPointValue(
-        sign: norm.sign,
-        exponent: norm.exponent,
-        mantissa: norm.mantissa.getRange(0, norm.mantissa.width - 1));
-  }
-
   /// Return a Logic true if this FloatingPointVa;ie contains a normal number,
   /// defined as having mantissa in the range `[1,2)`.
   bool isNormal() {
@@ -397,41 +384,8 @@ class FloatingPointValue implements Comparable<FloatingPointValue> {
   /// Return the cananocalized form of [FloatingPointValue] which
   /// has the leading 1 at the front of the mantissa, or further right if
   /// subnormal.
-  FloatingPointValue canonicalize() {
-    if (explicitJBit) {
-      var expVal = exponent.toInt();
-      var mant = mantissa;
-      final toPopulate = populator(
-          exponentWidth: exponentWidth,
-          mantissaWidth: mantissaWidth,
-          explicitJBit: explicitJBit);
-      if (!isAnInfinity) {
-        if (!isNaN) {
-          if (mant.or() == LogicValue.one) {
-            while ((mant[-1] == LogicValue.zero) & (expVal > 1)) {
-              expVal--;
-              mant = mant << 1;
-            }
-            if ((mant[-1] == LogicValue.zero) & (expVal == 1)) {
-              // Make canonical: if it cannot be made normal, it is subnormal
-              expVal = 0;
-            } else if ((mant[-1] == LogicValue.one) & (expVal == 0)) {
-              expVal = 1;
-            }
-          } else {
-            expVal = 0;
-          }
-        } else {
-          return toPopulate.nan;
-        }
-      }
-      return toPopulate.populate(
-          sign: sign,
-          exponent: LogicValue.ofInt(expVal, exponentWidth),
-          mantissa: mant);
-    }
-    return this;
-  }
+  FloatingPointValue canonicalize() =>
+      clonePopulator().ofFloatingPointValue(this, canonicalizeExplicit: true);
 
   /// Return a string representation of FloatingPointValue.
   ///
@@ -567,7 +521,7 @@ class FloatingPointValue implements Comparable<FloatingPointValue> {
     return true;
   }
 
-  // TODO(desmonddak): but when subnormal this fails to be accurate
+  // TODO(desmonddak): but when subnormal this fails to be accurate, bug filed.
 
   /// Compute the unit in the last place for the given [FloatingPointValue].
   FloatingPointValue ulp() {

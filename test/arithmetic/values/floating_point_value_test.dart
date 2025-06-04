@@ -481,66 +481,72 @@ void main() {
     expect(fpv1.withinRounding(fpv3), true);
   });
 
-  test('FPV: j-bit conversion singleton', () {
+  group('FPV: j-bit conversion', () {
     const exponentWidth = 4;
     const mantissaWidth = 4;
 
-    final fp = FloatingPointValue.populator(
+    FloatingPointValuePopulator explicitPopulator() =>
+        FloatingPointValue.populator(
             exponentWidth: exponentWidth,
             mantissaWidth: mantissaWidth,
-            explicitJBit: true)
-        .ofSpacedBinaryString('0 0001 0111');
-    if (fp.isLegalValue()) {
-      final dbl = fp.toDouble();
-      final fp2 = FloatingPointValue.populator(
-              exponentWidth: exponentWidth,
-              mantissaWidth: mantissaWidth,
-              explicitJBit: true)
-          .ofDouble(dbl, roundingMode: FloatingPointRoundingMode.truncate);
-      expect(fp.canonicalize(), equals(fp2));
-      final fpOrig = FloatingPointValue.populator(
-              exponentWidth: exponentWidth, mantissaWidth: mantissaWidth - 1)
-          .ofDouble(dbl, roundingMode: FloatingPointRoundingMode.truncate);
-      expect(fp.toFloatingPointValue(), equals(fpOrig));
-    }
-  });
+            explicitJBit: true);
+    FloatingPointValuePopulator implicitPopulator() =>
+        FloatingPointValue.populator(
+            exponentWidth: exponentWidth, mantissaWidth: mantissaWidth - 1);
 
-  // TODO(desmonddak):  is this exhaustive enough: should we do EFP to FP rt
-  // as well as FP to EFP rt?
-  test('FPV: explicit EFP-FP j-bit exhaustive round-trip', () {
-    const exponentWidth = 4;
-    const mantissaWidth = 4;
-    for (final signStr in ['0', '1']) {
-      var exponent = LogicValue.zero.zeroExtend(exponentWidth);
-      for (var e = 0; e < pow(2.0, exponentWidth).toInt(); e++) {
-        final expStr = exponent.bitString;
-        var mantissa = LogicValue.zero.zeroExtend(mantissaWidth);
-        for (var m = 0; m < pow(2.0, mantissaWidth).toInt(); m++) {
-          final mantStr = mantissa.bitString;
-
-          final efp = FloatingPointValue.ofBinaryStrings(
-              signStr, expStr, mantStr,
-              explicitJBit: true);
-          if (efp.isLegalValue()) {
-            final dbl = efp.toDouble();
-            final efp2 = FloatingPointValue.populator(
-                    exponentWidth: exponentWidth,
-                    mantissaWidth: mantissaWidth,
-                    explicitJBit: true)
-                .ofDouble(dbl,
-                    roundingMode: FloatingPointRoundingMode.truncate);
-            expect(efp.canonicalize(), equals(efp2));
-            final fp = FloatingPointValue.populator(
-                    exponentWidth: exponentWidth,
-                    mantissaWidth: mantissaWidth - 1)
-                .ofDouble(dbl,
-                    roundingMode: FloatingPointRoundingMode.truncate);
-            expect(efp.toFloatingPointValue(), equals(fp));
-          }
-          mantissa = mantissa + 1;
-        }
-        exponent = exponent + 1;
+    test('FPV: j-bit conversion singleton', () {
+      // wants us to +eJ and - fpv.Ej in converter
+      // final fp = explicitPopulator().ofSpacedBinaryString('0 0000 0000');
+      final fp = explicitPopulator().ofSpacedBinaryString('0 1111 0001');
+      if (fp.isLegalValue()) {
+        final dbl = fp.toDouble();
+        final fp2 = explicitPopulator()
+            .ofDouble(dbl, roundingMode: FloatingPointRoundingMode.truncate);
+        expect(
+            explicitPopulator()
+                .ofFloatingPointValue(fp, canonicalizeExplicit: true),
+            equals(fp2));
+        final fpOrig = implicitPopulator()
+            .ofDouble(dbl, roundingMode: FloatingPointRoundingMode.truncate);
+        expect(implicitPopulator().ofFloatingPointValue(fp), equals(fpOrig));
+        final ifp = implicitPopulator().ofFloatingPointValue(fp);
+        expect(ifp, equals(fpOrig));
       }
-    }
+    });
+
+    // TODO(desmonddak):  is this exhaustive enough: should we do EFP to FP rt
+    // as well as FP to EFP rt?
+    test('FPV: explicit EFP-FP j-bit exhaustive round-trip', () {
+      const exponentWidth = 4;
+      const mantissaWidth = 4;
+      for (final signStr in ['0', '1']) {
+        var exponent = LogicValue.zero.zeroExtend(exponentWidth);
+        for (var e = 0; e < pow(2.0, exponentWidth).toInt(); e++) {
+          final expStr = exponent.bitString;
+          var mantissa = LogicValue.zero.zeroExtend(mantissaWidth);
+          for (var m = 0; m < pow(2.0, mantissaWidth).toInt(); m++) {
+            final mantStr = mantissa.bitString;
+
+            final efp = FloatingPointValue.ofBinaryStrings(
+                signStr, expStr, mantStr,
+                explicitJBit: true);
+            if (efp.isLegalValue()) {
+              final dbl = efp.toDouble();
+              final efp2 = explicitPopulator().ofDouble(dbl,
+                  roundingMode: FloatingPointRoundingMode.truncate);
+              expect(
+                  explicitPopulator()
+                      .ofFloatingPointValue(efp, canonicalizeExplicit: true),
+                  equals(efp2));
+              final fp = implicitPopulator().ofDouble(dbl,
+                  roundingMode: FloatingPointRoundingMode.truncate);
+              expect(implicitPopulator().ofFloatingPointValue(efp), equals(fp));
+            }
+            mantissa = mantissa + 1;
+          }
+          exponent = exponent + 1;
+        }
+      }
+    });
   });
 }

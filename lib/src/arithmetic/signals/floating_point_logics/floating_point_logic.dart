@@ -80,9 +80,6 @@ class FloatingPoint extends LogicStructure {
 
   late final bool _explicitJBit;
 
-  // TODO(desmonddak): this will work incorrectly and must be fixed.
-  // The issue is that it should return the EJ version of this or
-  // convert to the original (we may need both routines here)
   /// Return the [FloatingPointValue] of the current [value].
   FloatingPointValue get floatingPointValue =>
       valuePopulator().ofFloatingPoint(this);
