@@ -83,6 +83,7 @@ class FloatingPointMultiplierSimple<FpTypeIn extends FloatingPoint,
     // TODO(desmonddak): This is where we need to either truncate or round to
     // the product mantissa width.  Today it simply is expanded only, but
     // upon narrowing, it will need to truncate for simple multiplication.
+    // Issue #194:  narrower multiplier.
 
     final isInf = (a.isAnInfinity | b.isAnInfinity).named('isInf');
     final isNaN = (a.isNaN |

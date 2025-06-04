@@ -99,7 +99,7 @@ abstract class FloatingPointMultiplier<FpTypeIn extends FloatingPoint,
 
     this.clk = (clk != null) ? addInput('clk', clk) : clk;
     this.enable = (enable != null) ? addInput('enable', enable) : enable;
-    this.reset = (reset != null) ? addInput('clk', reset) : reset;
+    this.reset = (reset != null) ? addInput('reset', reset) : reset;
 
     this.a = (a.clone(name: 'a') as FpTypeIn)
       ..gets(addInput('a', a, width: a.width));

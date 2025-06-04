@@ -129,6 +129,25 @@ void main() {
     expect(fp.toDouble(), 5.0625);
   });
 
+  test('FloatingPointValue infinity check', () {
+    final populator64 = FloatingPoint64Value.populator();
+    final expWidth64 = populator64.exponentWidth;
+    final mantissaWidth64 = populator64.mantissaWidth;
+    final str64 = '0 ${'1' * expWidth64} ${'0' * mantissaWidth64}'; // infinity
+    final fp = populator64.ofDouble(double.infinity);
+    expect(fp.toDouble(), double.infinity);
+    expect(fp.toString(), str64);
+
+    final populator32 = FloatingPoint32Value.populator();
+    final expWidth32 = populator32.exponentWidth;
+    final mantissaWidth32 = populator32.mantissaWidth;
+    final str32 = '0 ${'1' * expWidth32} ${'0' * mantissaWidth32}'; // infinity
+
+    final fp2 = populator32.ofDouble(double.infinity);
+    expect(fp2.toDouble(), double.infinity);
+    expect(fp2.toString(), str32);
+  });
+
   test('FPV: simple 32', () {
     final values = [0.15625, 12.375, -1.0, 0.25, 0.375];
     for (final val in values) {

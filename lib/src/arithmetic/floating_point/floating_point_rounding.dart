@@ -10,7 +10,11 @@
 import 'package:rohd/rohd.dart';
 
 // TODO(desmonddak): this can be made a module with other rounding
-// algorithms.
+// algorithms.  Issue #191.
+
+// Issue #190:  This does not check for evenness of the input which requires an
+// API change to provide the final mantissa length as the entire mantissa
+// may not be provided.
 
 /// A rounding class that performs rounding-nearest-even
 class RoundRNE {
@@ -32,3 +36,6 @@ class RoundRNE {
   }
 }
 // TODO(desmondak): investigate how to implement other forms of rounding.
+// Issue 173:  unify rounding modes. Here is what CoPilot says:
+// We can have a full Rounding class that takes FloatingPointRoundingMode
+// and does the appropriate rounding based on the mode.
