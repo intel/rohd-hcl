@@ -96,16 +96,16 @@ Logic condFlop(
                 asyncReset: asyncReset)
             .named('${d.name}_flopped');
 
-/// Swap two [Logic] structures based on a conditional [swap].
-(LogicType, LogicType) logicSwap<LogicType extends Logic>(
-    Logic swap, (LogicType, LogicType) toSwap) {
+/// Swap two [Logic] structures based on a conditional [doSwap].
+(LogicType, LogicType) swap<LogicType extends Logic>(
+    Logic doSwap, (LogicType, LogicType) toSwap) {
   final in1 = toSwap.$1.named('swapIn1_${toSwap.$1.name}');
   final in2 = toSwap.$2.named('swapIn2_${toSwap.$2.name}');
 
   LogicType clone({String? name}) => toSwap.$1.clone(name: name) as LogicType;
 
-  final out1 = mux(swap, in2, in1).named('swapOut1');
-  final out2 = mux(swap, in1, in2).named('swapOut2');
+  final out1 = mux(doSwap, in2, in1).named('swapOut1');
+  final out2 = mux(doSwap, in1, in2).named('swapOut2');
   final first = clone(name: 'swapOut1')..gets(out1);
   final second = clone(name: 'swapOut2')..gets(out2);
 

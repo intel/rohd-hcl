@@ -26,7 +26,7 @@ abstract class FloatingPointUtilities {
             ((ae.eq(be) & am.eq(bm)) & toSort.$1.sign))
         .named('doSwap');
 
-    final swapped = logicSwap(doSwap, toSort);
+    final swapped = swap(doSwap, toSort);
     final larger =
         (swapped.$1.clone(name: 'larger')..gets(swapped.$1)) as FpType;
     final smaller =
@@ -43,7 +43,7 @@ abstract class FloatingPointUtilities {
     final be = toSort.$2.exponent;
     final doSwap = (ae.lt(be) | ((ae.eq(be)) & toSort.$1.sign)).named('doSwap');
 
-    final swapped = logicSwap(doSwap, toSort);
+    final swapped = swap(doSwap, toSort);
 
     final larger =
         (swapped.$1.clone(name: 'larger')..gets(swapped.$1)) as FpType;
@@ -129,23 +129,23 @@ class FloatingPointConditionalSwap<FpType extends FloatingPoint>
     extends FloatingPointSwap<FpType> {
   /// The swap condition.
   @protected
-  late final Logic swap;
+  late final Logic doSwap;
 
   /// Constructs a [FloatingPointConditionalSwap] module that swaps two floating
-  /// point values based on the [swap] condition.
-  FloatingPointConditionalSwap(super.a, super.b, Logic swap,
+  /// point values based on the [doSwap] condition.
+  FloatingPointConditionalSwap(super.a, super.b, Logic doSwap,
       {super.metaA,
       super.metaB,
       super.name = 'floating_point_conditional_swap'})
       : super(definitionName: 'FloatingPointSwap_W${a.width}') {
-    this.swap = addInput('swap', swap);
+    this.doSwap = addInput('swap', doSwap);
 
-    final (swapA, swapB) = logicSwap(this.swap, (super.a, super.b));
+    final (swapA, swapB) = swap(this.doSwap, (super.a, super.b));
     output('outA') <= swapA;
     output('outB') <= swapB;
     if ((metaA != null) & (metaB != null)) {
       final (swapMetaA, swapMetaB) =
-          logicSwap(this.swap, (super.metaA!, super.metaB!));
+          swap(this.doSwap, (super.metaA!, super.metaB!));
       output('outMetaA') <= swapMetaA;
       output('outMetaB') <= swapMetaB;
     }
@@ -166,8 +166,7 @@ class FloatingPointSort<FpType extends FloatingPoint>
     output('outA') <= larger;
     output('outB') <= smaller;
     if ((metaA != null) & (metaB != null)) {
-      final (swapMetaA, swapMetaB) =
-          logicSwap(doSwap, (super.metaA!, super.metaB!));
+      final (swapMetaA, swapMetaB) = swap(doSwap, (super.metaA!, super.metaB!));
       output('outMetaA') <= swapMetaA;
       output('outMetaB') <= swapMetaB;
     }
@@ -189,8 +188,7 @@ class FloatingPointSortByExp<FpType extends FloatingPoint>
     output('outA') <= larger;
     output('outB') <= smaller;
     if ((metaA != null) & (metaB != null)) {
-      final (swapMetaA, swapMetaB) =
-          logicSwap(doSwap, (super.metaA!, super.metaB!));
+      final (swapMetaA, swapMetaB) = swap(doSwap, (super.metaA!, super.metaB!));
       output('outMetaA') <= swapMetaA;
       output('outMetaB') <= swapMetaB;
     }
