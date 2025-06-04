@@ -521,7 +521,8 @@ class FloatingPointValue implements Comparable<FloatingPointValue> {
     return true;
   }
 
-  // TODO(desmonddak): issue#203 subnormal is inaccurate.
+  // TODO(desmonddak): https://github.com/intel/rohd-hcl/issues/206 subnormal is
+  // inaccurate.
 
   /// Compute the unit in the last place for the given [FloatingPointValue].
   FloatingPointValue ulp() {

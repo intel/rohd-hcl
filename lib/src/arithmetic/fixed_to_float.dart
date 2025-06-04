@@ -145,7 +145,8 @@ class FixedToFloat extends Module {
         absValueShifted = absValue << jBit;
       }
     }
-    // TODO(desmonddak): refactor to use the roundRNE component
+    // TODO(desmonddak): refactor to use the roundRNE component.  Also:
+    // https://github.com/intel/rohd-hcl/issues/191
 
     // Extract mantissa
     final mantissa = Logic(name: 'mantissa', width: float.mantissa.width);
