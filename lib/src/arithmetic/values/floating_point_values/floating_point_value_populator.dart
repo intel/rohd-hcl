@@ -72,11 +72,15 @@ class FloatingPointValuePopulator<FpvType extends FloatingPointValue> {
       ..validate();
   }
 
-  /// This is a helper function to canonicalize the sign, exponent, and
-  /// mantissa values for the FloatingPointValue.
-  ({LogicValue sign, LogicValue exponent, LogicValue mantissa}) _components(
-      FloatingPointValue fpv,
-      {required bool canonicalizeExplicit}) {
+  /// This is a helper function to canonicalize the sign, exponent, and mantissa
+  /// values for the [FloatingPointValue]. In the case of explicit j-bit, a
+  /// normal number would have a leading one in the mantissa whereas for implict
+  /// j-bit, no change would be needed.
+  static ({
+    LogicValue sign,
+    LogicValue exponent,
+    LogicValue mantissa
+  }) _components(FloatingPointValue fpv, {required bool canonicalizeExplicit}) {
     var exponent = fpv.exponent;
     var mantissa = fpv.mantissa;
     var sign = fpv.sign;
@@ -96,7 +100,7 @@ class FloatingPointValuePopulator<FpvType extends FloatingPointValue> {
               expVal = 1;
             }
           }
-          exponent = LogicValue.ofInt(expVal, exponentWidth);
+          exponent = LogicValue.ofInt(expVal, fpv.exponentWidth);
         } else {
           sign = LogicValue.zero;
           mantissa = LogicValue.ofInt(1, fpv.mantissa.width);
