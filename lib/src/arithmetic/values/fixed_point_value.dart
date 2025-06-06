@@ -1,4 +1,4 @@
-// Copyright (C) 2024 Intel Corporation
+// Copyright (C) 2024-2025 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 //
 // fixed_point_value.dart
@@ -176,9 +176,9 @@ class FixedPointValue implements Comparable<FixedPointValue> {
       throw RohdHclException('Double is too long to store in '
           'FixedPointValue: $m, $n');
     }
-    final integerValue = (val * pow(2, n)).toInt();
+    final integerValue = BigInt.from(val * pow(2, n));
     final w = signed ? 1 + m + n : m + n;
-    final v = LogicValue.ofInt(integerValue, w);
+    final v = LogicValue.ofBigInt(integerValue, w);
     return FixedPointValue(value: v, signed: signed, m: m, n: n);
   }
 
@@ -188,9 +188,9 @@ class FixedPointValue implements Comparable<FixedPointValue> {
     if (!signed & (val < 0)) {
       throw RohdHclException('Negative input not allowed with unsigned');
     }
-    final integerValue = (val * pow(2, n + 1)).toInt();
+    final integerValue = BigInt.from(val * pow(2, n + 1));
     final w = signed ? 1 + m + n : m + n;
-    final v = LogicValue.ofInt(integerValue >> 1, w);
+    final v = LogicValue.ofBigInt(integerValue >> 1, w);
     return FixedPointValue(value: v, signed: signed, m: m, n: n);
   }
 

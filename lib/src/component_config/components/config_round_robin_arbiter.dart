@@ -1,8 +1,8 @@
-// Copyright (C) 2023-2024 Intel Corporation
+// Copyright (C) 2023-2025 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 //
 // config_round_robin_arbiter.dart
-// Configurator for a PriorityArbiter.
+// Configurator for a round-robin arbiter.
 //
 // 2023 December 26
 // Author: Max Korbel <max.korbel@intel.com>
@@ -15,7 +15,7 @@ import 'package:rohd_hcl/rohd_hcl.dart';
 /// A [Configurator] for [PriorityArbiter].
 class RoundRobinArbiterConfigurator extends Configurator {
   /// A knob controlling the number of requests and grants.
-  final IntConfigKnob numRequestKnob = IntConfigKnob(value: 8);
+  final IntConfigKnob numRequestKnob = IntConfigKnob(value: 4);
 
   /// A knob controlling the implementation.
   final ChoiceConfigKnob<Type> implementationKnob = ChoiceConfigKnob(

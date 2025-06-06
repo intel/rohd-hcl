@@ -15,6 +15,7 @@ void main() {
   tearDown(() async {
     await Simulator.reset();
   });
+
   test('FP: adder basic interesting extreme corners', () {
     const exponentWidth = 4;
     const mantissaWidth = 4;
@@ -32,8 +33,8 @@ void main() {
     fp2.put(fv);
 
     for (final adder in [
-      FloatingPointAdderSimple(fp1, fp2),
-      FloatingPointAdderRound(fp1, fp2)
+      FloatingPointAdderSinglePath(fp1, fp2),
+      FloatingPointAdderDualPath(fp1, fp2)
     ]) {
       final testCases = [
         (

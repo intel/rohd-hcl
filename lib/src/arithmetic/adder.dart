@@ -34,7 +34,8 @@ abstract class Adder extends Module {
 
   /// Takes in input [a] and input [b] and return the [sum] of the addition
   /// result. The width of input [a] and [b] must be the same.
-  Adder(Logic a, Logic b, {Logic? carryIn, super.name, String? definitionName})
+  Adder(Logic a, Logic b,
+      {Logic? carryIn, super.name = 'adder', String? definitionName})
       : super(definitionName: definitionName ?? 'Adder_W${a.width}') {
     if (a.width != b.width) {
       throw RohdHclException('inputs of a and b should have same width.');
@@ -71,6 +72,7 @@ class FullAdder extends Adder {
 
 /// A class which wraps the native '+' operator so that it can be passed
 /// into other modules as a parameter for using the native operation.
+/// Note that [NativeAdder] is unsigned.
 class NativeAdder extends Adder {
   /// The width of input [a] and [b] must be the same.
   NativeAdder(super.a, super.b, {super.carryIn, super.name = 'native_adder'})
@@ -82,6 +84,7 @@ class NativeAdder extends Adder {
         a.zeroExtend(a.width + 1).named('aExtended', naming: Naming.mergeable);
     final bExtended =
         b.zeroExtend(a.width + 1).named('bExtended', naming: Naming.mergeable);
+
     final aPlusb = (aExtended + bExtended)
         .named('aExtended_plus_bExtended', naming: Naming.mergeable);
     if (carryIn == null) {

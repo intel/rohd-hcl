@@ -1,8 +1,8 @@
-// Copyright (C) 2024 Intel Corporation
+// Copyright (C) 2024-2025 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 //
-//vec_string_test.dart
-// Tests of Floating Point stuff
+// arithmetic_utils_test.dart
+// Tests arithmetic_utils listString
 //
 // 2024 October 7
 // Author: Desmond A Kirkpatrick <desmond.a.kirkpatrick@intel.com

@@ -1,8 +1,8 @@
 // Copyright (C) 2024-2025 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 //
-// floating_point_rnd_test.dart
-// Tests of FloatingPointAdderRound -- a rounding FP Adder.
+// floating_point_dualpath_test.dart
+// Tests of FloatingPointAdderDualPath-- a dual-path FP Adder.
 //
 // 2024 August 30
 // Author: Desmond A Kirkpatrick <desmond.a.kirkpatrick@intel.com
@@ -27,10 +27,10 @@ void main() {
 
     final fv1 = FloatingPointValue.populator(
             exponentWidth: exponentWidth, mantissaWidth: mantissaWidth)
-        .ofInts(14, 31);
+        .ofInts(0, 0);
     final fv2 = FloatingPointValue.populator(
             exponentWidth: exponentWidth, mantissaWidth: mantissaWidth)
-        .ofInts(13, 7, sign: true);
+        .ofInts(0, 1, sign: true);
 
     fp1.put(fv1);
     fp2.put(fv2);
@@ -40,7 +40,7 @@ void main() {
         .ofDoubleUnrounded(fv1.toDouble() + fv2.toDouble());
     final expected = expectedNoRound;
 
-    final adder = FloatingPointAdderRound(fp1, fp2);
+    final adder = FloatingPointAdderDualPath(fp1, fp2);
 
     unawaited(Simulator.run());
 
@@ -48,6 +48,9 @@ void main() {
     expect(computed, equals(expected));
     await Simulator.endSimulation();
   });
+
+  // isR is Addition or exponent delta >= 2
+  // N path is Subtraction & exponent delta < 2
 
   test('FP: rounding adder N path, subtraction, delta < 2', () async {
     const exponentWidth = 3;
@@ -62,7 +65,7 @@ void main() {
         exponentWidth: exponentWidth, mantissaWidth: mantissaWidth);
     fp1.put(one);
     fp2.put(one);
-    final adder = FloatingPointAdderRound(fp1, fp2);
+    final adder = FloatingPointAdderDualPath(fp1, fp2);
     await adder.build();
     unawaited(Simulator.run());
 
@@ -125,7 +128,7 @@ void main() {
     fp2.put(fv2);
 
     final expected = fv1 + fv2;
-    final adder = FloatingPointAdderRound(clk: clk, fp1, fp2);
+    final adder = FloatingPointAdderDualPath(clk: clk, fp1, fp2);
     await adder.build();
     unawaited(Simulator.run());
     await clk.nextNegedge;
@@ -148,7 +151,7 @@ void main() {
         exponentWidth: exponentWidth, mantissaWidth: mantissaWidth);
     fp1.put(0);
     fp2.put(0);
-    final adder = FloatingPointAdderRound(fp1, fp2);
+    final adder = FloatingPointAdderDualPath(fp1, fp2);
     await adder.build();
     unawaited(Simulator.run());
 
@@ -199,7 +202,7 @@ void main() {
         exponentWidth: exponentWidth, mantissaWidth: mantissaWidth);
     fp1.put(0);
     fp2.put(0);
-    final adder = FloatingPointAdderRound(clk: clk, fp1, fp2);
+    final adder = FloatingPointAdderDualPath(clk: clk, fp1, fp2);
     await adder.build();
     unawaited(Simulator.run());
     final rand = Random(47);
@@ -264,7 +267,7 @@ void main() {
     } else {
       expected = expectedRound;
     }
-    final adder = FloatingPointAdderRound(clk: clk, fp1, fp2);
+    final adder = FloatingPointAdderDualPath(clk: clk, fp1, fp2);
     await adder.build();
     unawaited(Simulator.run());
     await clk.nextNegedge;
@@ -291,7 +294,7 @@ void main() {
         exponentWidth: exponentWidth, mantissaWidth: mantissaWidth);
     fp1.put(0);
     fp2.put(0);
-    final adder = FloatingPointAdderRound(fp1, fp2);
+    final adder = FloatingPointAdderDualPath(fp1, fp2);
     await adder.build();
     unawaited(Simulator.run());
     final rand = Random(51);
@@ -350,7 +353,7 @@ void main() {
     } else {
       expected = expectedRound;
     }
-    final adder = FloatingPointAdderRound(fp1, fp2);
+    final adder = FloatingPointAdderDualPath(fp1, fp2);
 
     final computed = adder.sum.floatingPointValue;
     expect(computed, equals(expected), reason: '''
@@ -363,15 +366,16 @@ void main() {
 
   test('FP: rounding adder singleton', () async {
     const exponentWidth = 4;
-    const mantissaWidth = 4;
+    const mantissaWidth = 5;
     final fp1 = FloatingPoint(
         exponentWidth: exponentWidth, mantissaWidth: mantissaWidth);
     final fp2 = FloatingPoint(
         exponentWidth: exponentWidth, mantissaWidth: mantissaWidth);
     fp1.put(0);
     fp2.put(0);
-    final fv1 = FloatingPointValue.ofBinaryStrings('0', '1110', '1111');
-    final fv2 = FloatingPointValue.ofBinaryStrings('0', '1110', '0000');
+    // rounding error
+    final fv1 = FloatingPointValue.ofBinaryStrings('1', '0110', '00101');
+    final fv2 = FloatingPointValue.ofBinaryStrings('0', '0111', '11110');
 
     fp1.put(fv1);
     fp2.put(fv2);
@@ -388,7 +392,7 @@ void main() {
     } else {
       expected = expectedRound;
     }
-    final adder = FloatingPointAdderRound(fp1, fp2);
+    final adder = FloatingPointAdderDualPath(fp1, fp2);
 
     final computed = adder.sum.floatingPointValue;
     expect(computed, equals(expected), reason: '''
@@ -407,7 +411,9 @@ void main() {
         exponentWidth: exponentWidth, mantissaWidth: mantissaWidth);
     final fp2 = FloatingPoint(
         exponentWidth: exponentWidth, mantissaWidth: mantissaWidth);
-    final adder = FloatingPointAdderRound(fp1, fp2);
+    fp1.put(0);
+    fp2.put(0);
+    final adder = FloatingPointAdderDualPath(fp1, fp2);
 
     final expLimit = pow(2, exponentWidth);
     final mantLimit = pow(2, mantissaWidth);
@@ -468,7 +474,7 @@ void main() {
         exponentWidth: fv2.exponent.width, mantissaWidth: fv2.mantissa.width);
     fp1.put(fv1);
     fp2.put(fv2);
-    final adder = FloatingPointAdderRound(fp1, fp2);
+    final adder = FloatingPointAdderDualPath(fp1, fp2);
     final exponentWidth = adder.sum.exponent.width;
     final mantissaWidth = adder.sum.mantissa.width;
 
@@ -480,6 +486,7 @@ void main() {
         .ofDoubleUnrounded(expectedDouble);
     expect(adder.sum.floatingPointValue, equals(expectedNoRound));
   });
+
   test('FP: rounding with prefix adder', () async {
     final clk = SimpleClockGenerator(10).clk;
 
@@ -510,7 +517,7 @@ void main() {
     } else {
       expected = expectedRound;
     }
-    final adder = FloatingPointAdderRound(
+    final adder = FloatingPointAdderDualPath(
         clk: clk, fa, fb, adderGen: ParallelPrefixAdder.new);
     await adder.build();
     unawaited(Simulator.run());

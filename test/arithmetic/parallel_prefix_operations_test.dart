@@ -31,13 +31,10 @@ void testOrScan(int n, ParallelPrefixOrScan Function(Logic a) fn) {
       return result;
     }
 
-    // put/expect testing
-
     for (var j = 0; j < (1 << n); ++j) {
       final golden = computeOrScan(j);
       inp.put(j);
       final result = mod.out.value.toInt();
-      //print("$j ${result} ${golden}");
       expect(result, equals(golden));
     }
   });
@@ -65,7 +62,6 @@ void testPriorityFinder(
       final golden = computePriorityLocation(j);
       inp.put(j);
       final result = mod.out.value.toInt();
-      // print('priority_encoder: $j $result $golden');
       expect(result, equals(golden));
     }
   });
@@ -85,7 +81,6 @@ void testIncr(int n, ParallelPrefixIncr Function(Logic a) fn) {
       final golden = computeIncr(aa);
       inp.put(aa);
       final result = mod.out.value.toInt();
-      //print("incr: $aa $result $golden");
       expect(result, equals(golden));
     }
   });
@@ -105,7 +100,6 @@ void testDecr(int n, ParallelPrefixDecr Function(Logic a) fn) {
       final golden = computeDecr(aa);
       inp.put(aa);
       final result = mod.out.value.toInt();
-      //print("decr: $aa $result $golden");
       expect(result, equals(golden));
     }
   });

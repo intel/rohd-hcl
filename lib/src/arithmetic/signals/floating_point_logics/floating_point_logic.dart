@@ -36,7 +36,10 @@ class FloatingPoint extends LogicStructure {
   /// [FloatingPoint] constructor for a variable size binary
   /// floating point number
   FloatingPoint(
-      {required int exponentWidth, required int mantissaWidth, String? name})
+      {required int exponentWidth,
+      required int mantissaWidth,
+      bool explicitJBit = false,
+      String? name})
       : this._(
             Logic(name: _nameJoin(name, 'sign'), naming: Naming.mergeable),
             Logic(
@@ -47,10 +50,12 @@ class FloatingPoint extends LogicStructure {
                 width: mantissaWidth,
                 name: _nameJoin(name, 'mantissa'),
                 naming: Naming.mergeable),
+            explicitJBit,
             name: name);
 
   /// [FloatingPoint] internal constructor.
-  FloatingPoint._(this.sign, this.exponent, this.mantissa, {super.name})
+  FloatingPoint._(this.sign, this.exponent, this.mantissa, this._explicitJBit,
+      {super.name})
       : super([mantissa, exponent, sign]);
 
   @mustBeOverridden
@@ -58,6 +63,7 @@ class FloatingPoint extends LogicStructure {
   FloatingPoint clone({String? name}) => FloatingPoint(
         exponentWidth: exponent.width,
         mantissaWidth: mantissa.width,
+        explicitJBit: explicitJBit,
         name: name,
       );
 
@@ -65,7 +71,14 @@ class FloatingPoint extends LogicStructure {
   /// [FloatingPoint] type.
   @mustBeOverridden
   FloatingPointValuePopulator valuePopulator() => FloatingPointValue.populator(
-      exponentWidth: exponent.width, mantissaWidth: mantissa.width);
+      exponentWidth: exponent.width,
+      mantissaWidth: mantissa.width,
+      explicitJBit: explicitJBit);
+
+  /// Return true if the J-bit is explicitly represented in the mantissa.
+  bool get explicitJBit => _explicitJBit;
+
+  late final bool _explicitJBit;
 
   /// Return the [FloatingPointValue] of the current [value].
   FloatingPointValue get floatingPointValue =>
@@ -139,6 +152,13 @@ class FloatingPoint extends LogicStructure {
   @override
   void put(dynamic val, {bool fill = false}) {
     if (val is FloatingPointValue) {
+      if ((val.exponentWidth != exponent.width) ||
+          (val.mantissaWidth != mantissa.width)) {
+        throw RohdHclException('FloatingPoint width does not match');
+      }
+      if (val.explicitJBit != explicitJBit) {
+        throw RohdHclException('FloatingPoint explicit jbit does not match');
+      }
       put(val.value);
     } else {
       super.put(val, fill: fill);
@@ -150,19 +170,22 @@ class FloatingPoint extends LogicStructure {
       {required int exponentWidth,
       required int mantissaWidth,
       Logic? sign,
-      bool negative = false}) {
+      bool negative = false,
+      bool explicitJBit = false}) {
     final signLogic = Logic()..gets(sign ?? Const(negative));
     final exponent = Const(1, width: exponentWidth, fill: true);
     final mantissa = Const(0, width: mantissaWidth, fill: true);
-    return FloatingPoint._(signLogic, exponent, mantissa);
+    return FloatingPoint._(signLogic, exponent, mantissa, explicitJBit);
   }
 
   /// Construct a FloatingPoint that represents NaN.
   factory FloatingPoint.nan(
-      {required int exponentWidth, required int mantissaWidth}) {
+      {required int exponentWidth,
+      required int mantissaWidth,
+      bool explicitJBit = false}) {
     final signLogic = Const(0);
     final exponent = Const(1, width: exponentWidth, fill: true);
     final mantissa = Const(1, width: mantissaWidth);
-    return FloatingPoint._(signLogic, exponent, mantissa);
+    return FloatingPoint._(signLogic, exponent, mantissa, explicitJBit);
   }
 }

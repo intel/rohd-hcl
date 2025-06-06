@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: BSD-3-Clause
 //
 // floating_point_test.dart
-// Tests of Floating Point  stuff
+// Tests of Floating Point basic types
 //
 // 2024 April 1
 // Authors:
@@ -16,6 +16,26 @@ import 'package:test/test.dart';
 void main() {
   tearDown(() async {
     await Simulator.reset();
+  });
+
+  test('floating point swap', () {
+    final fp1 = FloatingPoint64();
+    final fp2 = FloatingPoint64();
+
+    final val1 = FloatingPoint64Value.populator().ofDouble(1.23);
+    final val2 = FloatingPoint64Value.populator().ofDouble(3.45);
+
+    fp1.put(val1);
+    fp2.put(val2);
+
+    final swapped = FloatingPointUtilities.sort((fp1, fp2));
+
+    expect(swapped.sorted.$1.floatingPointValue, val2);
+    expect(swapped.sorted.$2.floatingPointValue, val1);
+
+    final sorter = FloatingPointSort(fp1, fp2);
+    expect(sorter.outA.floatingPointValue, val2);
+    expect(sorter.outB.floatingPointValue, val1);
   });
 
   test('e4m3 isAnInfinity always 0', () {

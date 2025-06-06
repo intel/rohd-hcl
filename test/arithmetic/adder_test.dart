@@ -90,6 +90,23 @@ void main() {
     NativeAdder.new,
   ];
 
+  test('singleton', () {
+    const width = 8;
+    final av = LogicValue.ofInt(-6, width);
+    final bv = LogicValue.ofInt(12, width);
+
+    final cv = LogicValue.ofInt(0, width);
+    final a = Logic(width: width);
+    final b = Logic(width: width);
+    final c = Logic(width: width);
+    a.put(av);
+    b.put(bv);
+    c.put(cv);
+
+    final adder = RippleCarryAdder(a, b);
+    checkAdder(adder, av, bv, cv);
+  });
+
   group('adder random', () {
     for (final n in [63, 64, 65]) {
       for (final testCin in [false, true]) {
@@ -109,9 +126,12 @@ void main() {
           n, 30, (a, b, {carryIn}) => CarrySelectCompoundAdder(a, b));
     }
   });
+
   group('adder exhaustive', () {
     for (final testCin in [false, true]) {
-      testAdderExhaustive(4, RippleCarryAdder.new, testCarryIn: testCin);
+      for (final adder in adders) {
+        testAdderExhaustive(4, adder, testCarryIn: testCin);
+      }
       for (final ppGen in generators) {
         testAdderExhaustive(
             4,
@@ -135,5 +155,156 @@ void main() {
 
     final sum = adder.sum;
     expect(sum.value.toBigInt(), equals(BigInt.from(18 + 24)));
+  });
+
+  test('trivial sign magnitude adder test', () async {
+    const width = 6;
+    final aSign = Logic(name: 'aSign');
+    final a = Logic(name: 'a', width: width);
+    final bSign = Logic(name: 'bSign');
+    final b = Logic(name: 'b', width: width);
+
+    aSign.put(0);
+    a.put(24);
+    bSign.put(1);
+    b.put(18);
+
+    final adder =
+        SignMagnitudeAdder(aSign, a, bSign, b, largestMagnitudeFirst: true);
+
+    final sum = adder.sum;
+    expect(sum.value.toBigInt(), equals(BigInt.from(24 - 18)));
+    aSign.put(1);
+    a.put(24);
+    bSign.put(0);
+    b.put(18);
+
+    expect(-sum.value.toBigInt(), equals(BigInt.from(18 - 24)));
+  });
+
+  test('ones complement adder: exhaustive with boolean subtract', () {
+    const width = 2;
+    final a = Logic(width: width);
+    final b = Logic(width: width);
+
+    for (final subtract in [false, true]) {
+      for (var av = 0; av < pow(2, width); av++) {
+        for (var bv = 0; bv < pow(2, width); bv++) {
+          a.put(av);
+          b.put(bv);
+          final adder = OnesComplementAdder(a, b,
+              generateEndAroundCarry: true, subtract: subtract);
+
+          final carry = adder.endAroundCarry!;
+          final mag = adder.sum.value.toInt() +
+              (subtract ? (carry.value.isZero ? 0 : 1) : 0);
+          final out = (adder.sign.value.toInt() == 1 ? -mag : mag);
+
+          final expected = [if (subtract) av - bv else av + bv].first;
+          expect(out, equals(expected));
+        }
+      }
+    }
+  });
+
+  test('ones complement adder: random with boolean subtract', () {
+    const width = 4;
+    final a = Logic(width: width);
+    final b = Logic(width: width);
+    const nSamples = 100;
+
+    for (var i = 0; i < nSamples; i++) {
+      final av = Random().nextLogicValue(width: width);
+      final bv = Random().nextLogicValue(width: width);
+
+      for (final subtract in [true]) {
+        a.put(av);
+        b.put(bv);
+        final adder = CarrySelectOnesComplementCompoundAdder(a, b,
+            subtract: subtract, generateCarryOut: true);
+        final carry = adder.carryOut!;
+        final mag = adder.sum.value.toInt() +
+            (subtract ? (carry.value.isZero ? 0 : 1) : 0);
+        final out = (adder.sign.value.toBool() ? -mag : mag);
+
+        // Use integer math to avoid twos-complement of av+bv
+        final expected = [
+          if (subtract) av.toInt() - bv.toInt() else av.toInt() + bv.toInt()
+        ].first;
+        expect(out, equals(expected), reason: '''
+      a=$av ${av.toInt()}
+      b=$bv ${bv.toInt()}
+      sum: 2s= ${(av + bv).toInt()} 1s=${av.toInt() + bv.toInt()}
+      output=$out
+      expected=$expected
+      ''');
+      }
+    }
+  });
+
+  test('ones complement subtractor', () {
+    const width = 5;
+    final a = Logic(width: width);
+    final b = Logic(width: width);
+
+    const subtract = true;
+    const av = 1;
+    const bv = 6;
+
+    a.put(av);
+    b.put(bv);
+    final adder = OnesComplementAdder(a, b, subtract: subtract);
+    expect(adder.sum.value.toInt(), equals(bv - av));
+    expect(adder.sign.value, LogicValue.one);
+  });
+
+  test('ones complement with Logic subtract', () {
+    const width = 2;
+    final a = Logic(width: width);
+    final b = Logic(width: width);
+
+    for (final subtractIn in [Const(0), Const(1)]) {
+      for (var av = 0; av < pow(2, width); av++) {
+        for (var bv = 0; bv < pow(2, width); bv++) {
+          a.put(av);
+          b.put(bv);
+          final adder = OnesComplementAdder(a, b,
+              subtractIn: subtractIn,
+              // endAroundCarry: carry,
+              generateEndAroundCarry: true,
+              adderGen: RippleCarryAdder.new);
+          final carry = adder.endAroundCarry!;
+          final mag = adder.sum.value.toInt() +
+              (subtractIn.value == LogicValue.one
+                  ? (carry.value.isZero ? 0 : 1)
+                  : 0);
+          final out = (adder.sign.value.toInt() == 1 ? -mag : mag);
+
+          final expected = [
+            if (subtractIn.value == LogicValue.one) av - bv else av + bv
+          ].first;
+          expect(out, equals(expected));
+        }
+      }
+    }
+  });
+
+  test('trivial sign magnitude with onescomplement adder test', () async {
+    const width = 8;
+    final aSign = Logic(name: 'aSign');
+    final a = Logic(name: 'a', width: width);
+    final bSign = Logic(name: 'bSign');
+    final b = Logic(name: 'b', width: width);
+
+    aSign.put(1);
+    a.put(24);
+    b.put(6);
+    bSign.put(0);
+
+    final adder = OnesComplementAdder(a, b,
+        adderGen: RippleCarryAdder.new, subtract: true);
+
+    final sum = adder.sum;
+    expect(-sum.value.toBigInt(), equals(BigInt.from(6 - 24)));
   });
 }

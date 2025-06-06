@@ -132,16 +132,16 @@ multiplier, but it inserts an additional addend into the compression
 tree to allow for accumulation into this third input.
 
 The additional parameters of the
-[CompressionTreeMultiplyAccumulate](https://intel.github.io/rohd-hcl/rohd_hcl/CompressionTreeMultiplyAccumulate-class.html)  over the [CompressionTreeMltiplier](#compression-tree-multiplier) are:
+[CompressionTreeMultiplyAccumulate](https://intel.github.io/rohd-hcl/rohd_hcl/CompressionTreeMultiplyAccumulate-class.html) over the [CompressionTreeMltiplier](#compression-tree-multiplier) are:
 
 - The accumulate input term `c` which must have width as sum of the two operand widths + 1.
 - Addend signage:
-  - `signedAddend` parameter: whether the addend (third arg) should be treated as signed (twos' complement) or unsigned
+  - `signedAddend` parameter: whether the addend (third argument) should be treated as signed (twos' complement) or unsigned
 OR
   - An optional `selectSignedAddend` control signal allows for runtime control of signed or unsigned operation with the same hardware. `signedAddend` must be false if using this control signal.
 - An optional `clk`, as well as `enable` and `reset` that are used to add a pipestage in the `ColumnCompressor` to allow for pipelined operation.
 
-The output width of the `CompressionTreeMultiplier` is the sum of the product term widths plus one to accomodate the additional acccumulate term.
+The output width of the `CompressionTreeMultiplier` is the sum of the product term widths plus one to accommodate the additional accumulate term.
 
 Here is an example of using the `CompressionTreeMultiplyAccumulate` with all inputs as signed:
 

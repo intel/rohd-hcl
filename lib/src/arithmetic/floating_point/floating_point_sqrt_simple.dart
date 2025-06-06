@@ -36,7 +36,7 @@ class FloatingPointSqrtSimple<FpType extends FloatingPoint>
     final isInf = a.isAnInfinity.named('isInf');
     final isNaN = a.isNaN.named('isNan');
     final isZero = a.isAZero.named('isZero');
-    final isDeNormal = ~a.isNormal.named('isDenorm');
+    final isDeNormal = (~a.isNormal).named('isDenorm');
     final enableSqrt =
         ~((isInf | isNaN | isZero | isDeNormal) | a.sign).named('enableSqrt');
 
@@ -44,7 +44,7 @@ class FloatingPointSqrtSimple<FpType extends FloatingPoint>
     final deBiasAmt = (1 << a.exponent.width - 1) - 1;
 
     // deBias math
-    final deBiasExp = a.exponent - deBiasAmt;
+    final deBiasExp = (a.exponent - deBiasAmt).named('deBiasExp');
 
     // shift exponent
     final shiftedExp = [deBiasExp[-1], deBiasExp.slice(a.exponent.width - 1, 1)]
@@ -56,7 +56,8 @@ class FloatingPointSqrtSimple<FpType extends FloatingPoint>
 
     // use fixed sqrt unit
     final aFixed = FixedPoint(signed: false, m: 3, n: a.mantissa.width);
-    aFixed <= [Const(1, width: 3), a.mantissa.getRange(0)].swizzle();
+    aFixed <=
+        [Const(1, width: 3), a.mantissa.getRange(0)].swizzle().named('aFixed');
 
     // mux if we shift left by 1 if exponent was odd
     final aFixedAdj = aFixed.clone()
@@ -69,8 +70,10 @@ class FloatingPointSqrtSimple<FpType extends FloatingPoint>
           .named('sqrtMux'));
 
     // convert back to floating point representation
-    final fpSqrt = FixedToFloat(fixedSqrt,
-        exponentWidth: a.exponent.width, mantissaWidth: a.mantissa.width);
+    final fpSqrt = FixedToFloat(
+        fixedSqrt,
+        FloatingPoint(
+            exponentWidth: a.exponent.width, mantissaWidth: a.mantissa.width));
 
     // final calculation results
     Combinational([

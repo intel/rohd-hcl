@@ -39,6 +39,9 @@ class FloatingPointValuePopulator<FpvType extends FloatingPointValue> {
   /// The maximum exponent value.
   int get maxExponent => _unpopulated.maxExponent;
 
+  /// True if the format stores the Jbit explicitly.
+  bool get explicitJBit => _unpopulated.explicitJBit;
+
   /// Whether or not this populator has already populated values.
   bool _hasPopulated = false;
 
@@ -52,11 +55,10 @@ class FloatingPointValuePopulator<FpvType extends FloatingPointValue> {
 
   /// Populates the [FloatingPointValue] with the given [sign], [exponent], and
   /// [mantissa], then performs additional validation.
-  FpvType populate({
-    required LogicValue sign,
-    required LogicValue exponent,
-    required LogicValue mantissa,
-  }) {
+  FpvType populate(
+      {required LogicValue sign,
+      required LogicValue exponent,
+      required LogicValue mantissa}) {
     if (_hasPopulated) {
       throw RohdHclException('FloatingPointPopulator: already populated');
     }
@@ -68,6 +70,84 @@ class FloatingPointValuePopulator<FpvType extends FloatingPointValue> {
       ..mantissa = mantissa
       // ignore: invalid_use_of_protected_member, invalid_use_of_visible_for_overriding_member
       ..validate();
+  }
+
+  /// This is a helper function to canonicalize the sign, exponent, and mantissa
+  /// values for the [FloatingPointValue]. In the case of explicit j-bit, a
+  /// normal number would have a leading one in the mantissa whereas for implict
+  /// j-bit, no change would be needed.
+  static ({
+    LogicValue sign,
+    LogicValue exponent,
+    LogicValue mantissa
+  }) _components(FloatingPointValue fpv, {required bool canonicalizeExplicit}) {
+    var exponent = fpv.exponent;
+    var mantissa = fpv.mantissa;
+    var sign = fpv.sign;
+    if (canonicalizeExplicit & (fpv.explicitJBit)) {
+      var expVal = fpv.exponent.toInt();
+      if (!fpv.isAnInfinity) {
+        if (!fpv.isNaN) {
+          if (mantissa.or() == LogicValue.one) {
+            while ((mantissa[-1] == LogicValue.zero) & (expVal > 1)) {
+              expVal--;
+              mantissa = mantissa << 1;
+            }
+            if ((mantissa[-1] == LogicValue.zero) & (expVal == 1)) {
+              // Make canonical: if it cannot be made normal, it is subnormal
+              expVal = 0;
+            } else if ((mantissa[-1] == LogicValue.one) & (expVal == 0)) {
+              expVal = 1;
+            }
+          }
+          exponent = LogicValue.ofInt(expVal, fpv.exponentWidth);
+        } else {
+          sign = LogicValue.zero;
+          mantissa = LogicValue.ofInt(1, fpv.mantissa.width);
+        }
+      }
+    }
+    return (sign: sign, exponent: exponent, mantissa: mantissa);
+  }
+
+  /// Convert to from one [FloatingPointValue] to another, canonicalizing
+  /// the mantissa as requested if the output [FloatingPointValue] has
+  /// an explicit J bit.
+  FloatingPointValue ofFloatingPointValue(FloatingPointValue fpv,
+      {bool canonicalizeExplicit = false}) {
+    final components = _components(fpv,
+        canonicalizeExplicit:
+            fpv.explicitJBit & (canonicalizeExplicit | !explicitJBit));
+    if (exponentWidth != fpv.exponentWidth) {
+      throw RohdHclException(
+          'Cannot convert FloatingPointValue with exponent width '
+          '${fpv.exponentWidth} to one with width $exponentWidth');
+    }
+    if (mantissaWidth - (explicitJBit ? 1 : 0) !=
+        fpv.mantissaWidth - (fpv.explicitJBit ? 1 : 0)) {
+      throw RohdHclException(
+          'Cannot convert FloatingPointValue with mantissa width '
+          '${fpv.mantissaWidth} to one with width $mantissaWidth');
+    }
+
+    final extendedMantissa = [
+      if (fpv.isNormal() & !(fpv.isAnInfinity | fpv.isNaN))
+        LogicValue.one
+      else
+        LogicValue.zero,
+      components.mantissa
+    ].swizzle();
+    return FloatingPointValue(
+        sign: components.sign,
+        exponent: components.exponent,
+        mantissa: (explicitJBit != fpv.explicitJBit)
+            ? extendedMantissa.getRange(
+                0,
+                components.mantissa.width +
+                    (explicitJBit ? 1 : 0) -
+                    (fpv.explicitJBit ? 1 : 0))
+            : components.mantissa,
+        explicitjBit: explicitJBit);
   }
 
   /// Extracts a [FloatingPointValue] from a [FloatingPoint]'s current `value`.
@@ -159,6 +239,11 @@ class FloatingPointValuePopulator<FpvType extends FloatingPointValue> {
   /// Creates a new [FloatingPointValue] represented by the given
   /// [constantFloatingPoint].
   FpvType ofConstant(FloatingPointConstants constantFloatingPoint) {
+    if (explicitJBit) {
+      return ofFloatingPointValue(FloatingPointValue.populator(
+              exponentWidth: exponentWidth, mantissaWidth: mantissaWidth - 1)
+          .ofConstant(constantFloatingPoint)) as FpvType;
+    }
     final components =
         // ignore: invalid_use_of_protected_member
         _unpopulated.getConstantComponents(constantFloatingPoint);
@@ -206,6 +291,11 @@ class FloatingPointValuePopulator<FpvType extends FloatingPointValue> {
   FpvType ofDouble(double inDouble,
       {FloatingPointRoundingMode roundingMode =
           FloatingPointRoundingMode.roundNearestEven}) {
+    if (explicitJBit) {
+      return ofFloatingPointValue(FloatingPointValue.populator(
+              exponentWidth: exponentWidth, mantissaWidth: mantissaWidth - 1)
+          .ofDouble(inDouble, roundingMode: roundingMode)) as FpvType;
+    }
     if (inDouble.isNaN) {
       return nan;
     }
@@ -231,10 +321,16 @@ class FloatingPointValuePopulator<FpvType extends FloatingPointValue> {
     var expVal = (exponent64.toInt() - fp64.bias) + bias;
     final mantissa64n = ((expVal <= 0)
         ? [LogicValue.one, fp64.mantissa].swizzle() >>>
-            (-expVal + (fp64.exponent.toInt() > 0 ? 1 : 0))
+            (-expVal +
+                (!explicitJBit & (fp64.exponent.toInt() > 0)
+                    ? 1
+                    : explicitJBit
+                        ? 1
+                        : 0))
         : [LogicValue.one, fp64.mantissa].swizzle());
 
-    var mantissa = mantissa64n.slice(fp64Mw - 1, fp64Mw - mantissaWidth);
+    var mantissa = mantissa64n.slice(fp64Mw - (explicitJBit ? 0 : 1),
+        fp64Mw - mantissaWidth + (explicitJBit ? 1 : 0));
 
     // TODO(desmonddak): this should be in a separate function to use
     //  with a FloatingPointValue converter we need.
@@ -257,6 +353,12 @@ class FloatingPointValuePopulator<FpvType extends FloatingPointValue> {
           mantissa += 1;
           if (mantissa == LogicValue.zero.zeroExtend(mantissa.width)) {
             expVal += 1;
+            if (explicitJBit) {
+              mantissa = [
+                LogicValue.one,
+                LogicValue.zero.zeroExtend(mantissa.width - 1)
+              ].swizzle();
+            }
           }
         }
       }
@@ -286,6 +388,11 @@ class FloatingPointValuePopulator<FpvType extends FloatingPointValue> {
   /// representation. This form performs NO ROUNDING.
   @internal
   FpvType ofDoubleUnrounded(double inDouble) {
+    if (explicitJBit) {
+      return ofFloatingPointValue(FloatingPointValue.populator(
+              exponentWidth: exponentWidth, mantissaWidth: mantissaWidth - 1)
+          .ofDoubleUnrounded(inDouble)) as FpvType;
+    }
     if (inDouble.isNaN) {
       return ofConstant(FloatingPointConstants.nan);
     }
@@ -383,6 +490,11 @@ class FloatingPointValuePopulator<FpvType extends FloatingPointValue> {
   /// If [normal] is true, This routine will only generate mantissas in the
   /// range of `[1,2)` and `minExponent() <= exponent <= maxExponent().`
   FpvType random(Random rv, {bool normal = false}) {
+    if (explicitJBit) {
+      return ofFloatingPointValue(FloatingPointValue.populator(
+              exponentWidth: exponentWidth, mantissaWidth: mantissaWidth - 1)
+          .random(rv, normal: normal)) as FpvType;
+    }
     final sign = rv.nextLogicValue(width: 1);
 
     final mantissa = rv.nextLogicValue(width: mantissaWidth);

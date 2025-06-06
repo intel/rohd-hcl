@@ -19,7 +19,7 @@ To find the first occurrence just pass in the `bus` without mentioning any value
 ### Find First One
 
 To find the first occurrence just pass in `bus` without mentioning any value for `n`. In addition to finding first occurrence of One (`1`), set the argument `countOne` to `true`.
-By default `countOne` is already set to `true`.
+By default, `countOne` is already set to `true`.
 
 ### Find First Zero
 

@@ -129,6 +129,25 @@ void main() {
     expect(fp.toDouble(), 5.0625);
   });
 
+  test('FloatingPointValue infinity check', () {
+    final populator64 = FloatingPoint64Value.populator();
+    final expWidth64 = populator64.exponentWidth;
+    final mantissaWidth64 = populator64.mantissaWidth;
+    final str64 = '0 ${'1' * expWidth64} ${'0' * mantissaWidth64}'; // infinity
+    final fp = populator64.ofDouble(double.infinity);
+    expect(fp.toDouble(), double.infinity);
+    expect(fp.toString(), str64);
+
+    final populator32 = FloatingPoint32Value.populator();
+    final expWidth32 = populator32.exponentWidth;
+    final mantissaWidth32 = populator32.mantissaWidth;
+    final str32 = '0 ${'1' * expWidth32} ${'0' * mantissaWidth32}'; // infinity
+
+    final fp2 = populator32.ofDouble(double.infinity);
+    expect(fp2.toDouble(), double.infinity);
+    expect(fp2.toString(), str32);
+  });
+
   test('FPV: simple 32', () {
     final values = [0.15625, 12.375, -1.0, 0.25, 0.375];
     for (final val in values) {
@@ -479,5 +498,74 @@ void main() {
     expect(fpv1.withinRounding(fpv2), false);
     expect(fpv1.withinRounding(fpv1), true);
     expect(fpv1.withinRounding(fpv3), true);
+  });
+
+  group('FPV: j-bit conversion', () {
+    const exponentWidth = 4;
+    const mantissaWidth = 4;
+
+    FloatingPointValuePopulator explicitPopulator() =>
+        FloatingPointValue.populator(
+            exponentWidth: exponentWidth,
+            mantissaWidth: mantissaWidth,
+            explicitJBit: true);
+    FloatingPointValuePopulator implicitPopulator() =>
+        FloatingPointValue.populator(
+            exponentWidth: exponentWidth, mantissaWidth: mantissaWidth - 1);
+
+    test('FPV: j-bit conversion singleton', () {
+      // wants us to +eJ and - fpv.Ej in converter
+      // final fp = explicitPopulator().ofSpacedBinaryString('0 0000 0000');
+      final fp = explicitPopulator().ofSpacedBinaryString('0 1111 0001');
+      if (fp.isLegalValue()) {
+        final dbl = fp.toDouble();
+        final fp2 = explicitPopulator()
+            .ofDouble(dbl, roundingMode: FloatingPointRoundingMode.truncate);
+        expect(
+            explicitPopulator()
+                .ofFloatingPointValue(fp, canonicalizeExplicit: true),
+            equals(fp2));
+        final fpOrig = implicitPopulator()
+            .ofDouble(dbl, roundingMode: FloatingPointRoundingMode.truncate);
+        expect(implicitPopulator().ofFloatingPointValue(fp), equals(fpOrig));
+        final ifp = implicitPopulator().ofFloatingPointValue(fp);
+        expect(ifp, equals(fpOrig));
+      }
+    });
+
+    // TODO(desmonddak):  is this exhaustive enough: should we do EFP to FP rt
+    // as well as FP to EFP rt?
+    test('FPV: explicit EFP-FP j-bit exhaustive round-trip', () {
+      const exponentWidth = 4;
+      const mantissaWidth = 4;
+      for (final signStr in ['0', '1']) {
+        var exponent = LogicValue.zero.zeroExtend(exponentWidth);
+        for (var e = 0; e < pow(2.0, exponentWidth).toInt(); e++) {
+          final expStr = exponent.bitString;
+          var mantissa = LogicValue.zero.zeroExtend(mantissaWidth);
+          for (var m = 0; m < pow(2.0, mantissaWidth).toInt(); m++) {
+            final mantStr = mantissa.bitString;
+
+            final efp = FloatingPointValue.ofBinaryStrings(
+                signStr, expStr, mantStr,
+                explicitJBit: true);
+            if (efp.isLegalValue()) {
+              final dbl = efp.toDouble();
+              final efp2 = explicitPopulator().ofDouble(dbl,
+                  roundingMode: FloatingPointRoundingMode.truncate);
+              expect(
+                  explicitPopulator()
+                      .ofFloatingPointValue(efp, canonicalizeExplicit: true),
+                  equals(efp2));
+              final fp = implicitPopulator().ofDouble(dbl,
+                  roundingMode: FloatingPointRoundingMode.truncate);
+              expect(implicitPopulator().ofFloatingPointValue(efp), equals(fp));
+            }
+            mantissa = mantissa + 1;
+          }
+          exponent = exponent + 1;
+        }
+      }
+    });
   });
 }

@@ -1,8 +1,8 @@
-// Copyright (C) 2024 Intel Corporation
+// Copyright (C) 2024-2025 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 //
-// addend_compressor.dart
-// Column compression of partial prodcuts
+// evaluate_compressor.dart
+// Pretty printing to help debug ColumnCompressorModule.
 //
 // 2024 June 04
 // Author: Desmond Kirkpatrick <desmond.a.kirkpatrick@intel.com>
@@ -27,7 +27,7 @@ extension EvaluateLiveColumnCompressor on ColumnCompressor {
       int extraSpace = 5}) {
     final ts = StringBuffer();
     final rows = longestColumn();
-    final width = pp.maxWidth();
+    final width = maxWidth();
     var accum = BigInt.zero;
 
     for (var row = 0; row < rows; row++) {
@@ -40,7 +40,7 @@ extension EvaluateLiveColumnCompressor on ColumnCompressor {
       }
       final rowBits = [for (final c in rowLogic) c.value].reversed.toList();
       // ignore: cascade_invocations
-      rowBits.addAll(List.filled(pp.rowShift[row], LogicValue.zero));
+      rowBits.addAll(List.filled(rowShift[row], LogicValue.zero));
       final rowBitsExtend = rowBits.length < width
           ? rowBits.swizzle().zeroExtend(width)
           : rowBits.swizzle();
@@ -53,7 +53,7 @@ extension EvaluateLiveColumnCompressor on ColumnCompressor {
             prefix: prefix,
             extraSpace: extraSpace,
             intValue: true,
-            shift: pp.rowShift[row]))
+            shift: rowShift[row]))
         ..write('\n');
     }
 

@@ -26,7 +26,7 @@ class SignBit extends Logic {
 }
 
 /// A [PartialProductArray] is a class that holds a set of partial products
-/// for manipulation by [PartialProductGeneratorBase] and [ColumnCompressor].
+/// for manipulation by [PartialProductGeneratorBase] and column compressor.
 abstract class PartialProductArray {
   /// name used for PartialProductGenerators
   final String name;
@@ -275,5 +275,78 @@ abstract class PartialProductGeneratorBase extends PartialProductArray {
     for (var row = 0; row < rows; row++) {
       rowShift.add(row * shift);
     }
+  }
+}
+
+/// An module API that represents a set of partial products rows including
+/// their shifts. This is a base class for the [PartialProduct] module.
+abstract class PartialProductMatrix extends Module {
+  /// Give access for things like Column Compression
+  /// This is an output, but not yet generated?
+  List<Logic> get rows {
+    if (!_outputsGenerated) {
+      throw RohdHclException('generate outputs before accessing rows');
+    }
+    return [for (var row = 0; row < _array.rows; row++) output('row_$row')];
+  }
+
+  /// Give access to the _array for Sign Extension classes to operate.
+  PartialProductGeneratorBase get array => _array;
+
+  /// Give access to the _array for Sign Extension classes to operate.
+  List<int> get rowShift => _array.rowShift;
+
+  bool _outputsGenerated = false;
+
+  /// Store the [PartialProductGeneratorBase]
+  late final PartialProductGeneratorBase _array;
+
+  /// Base constructor for the matrix
+  PartialProductMatrix({super.name = 'partial_product_matrix'});
+
+  /// Generate the output vectors from the array
+  void generateOutputs() {
+    for (var row = 0; row < _array.rows; row++) {
+      addOutput('row_$row', width: _array.partialProducts[row].length) <=
+          _array.partialProducts[row].rswizzle();
+    }
+    _outputsGenerated = true;
+  }
+}
+
+/// A PartialProduct Module
+class PartialProduct extends PartialProductMatrix {
+  /// create a PartialProduct Module which manages a
+  /// [PartialProductArray]
+  PartialProduct(
+      Logic multiplicand, Logic multiplier, RadixEncoder radixEncoder,
+      {bool signedMultiplicand = false,
+      bool signedMultiplier = false,
+      Logic? selectSignedMultiplicand,
+      Logic? selectSignedMultiplier,
+      PartialProductGeneratorBase Function(
+              Logic multiplicand, Logic multiplier, RadixEncoder radixEncoder,
+              {bool signedMultiplicand,
+              bool signedMultiplier,
+              Logic? selectSignedMultiplicand,
+              Logic? selectSignedMultiplier})
+          genPPG = PartialProductGenerator.new,
+      super.name = 'partial_product'}) {
+    final selectSignedMultiplicandInternal = selectSignedMultiplicand != null
+        ? addInput(selectSignedMultiplicand.name, selectSignedMultiplicand)
+        : null;
+    final selectSignedMultiplierInternal = selectSignedMultiplier != null
+        ? addInput(selectSignedMultiplier.name, selectSignedMultiplier)
+        : null;
+
+    final localMultiplicand =
+        addInput('multiplicand', multiplicand, width: multiplicand.width);
+    final localMultiplier =
+        addInput('multiplier', multiplier, width: multiplier.width);
+    _array = genPPG(localMultiplicand, localMultiplier, radixEncoder,
+        signedMultiplicand: signedMultiplicand,
+        signedMultiplier: signedMultiplier,
+        selectSignedMultiplicand: selectSignedMultiplicandInternal,
+        selectSignedMultiplier: selectSignedMultiplierInternal);
   }
 }

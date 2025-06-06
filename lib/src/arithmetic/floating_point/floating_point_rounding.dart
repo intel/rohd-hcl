@@ -9,6 +9,13 @@
 
 import 'package:rohd/rohd.dart';
 
+// TODO(desmonddak): https://github.com/intel/rohd-hcl/issues/191 This can be
+// made a module with other rounding algorithms.
+
+// TODO(desmonddak): https://github.com/intel/rohd-hcl/issues/190 This does not
+// check for evenness of the input which requires an API change to provide the
+// final mantissa length as the entire mantissa may not be provided.
+
 /// A rounding class that performs rounding-nearest-even
 class RoundRNE {
   /// Return whether to round the input or not.
@@ -28,4 +35,8 @@ class RoundRNE {
     _doRound = guard & (last | round | sticky);
   }
 }
-// TODO(desmondak): investigate how to implement other forms of rounding.
+// TODO(desmondak): https://github.com/intel/rohd-hcl/issues/173 investigate how
+// to implement other forms of rounding. Unify rounding modes. Here is what
+// CoPilot says: We can have a full Rounding class that takes
+// FloatingPointRoundingMode and does the appropriate rounding based on the
+// mode.

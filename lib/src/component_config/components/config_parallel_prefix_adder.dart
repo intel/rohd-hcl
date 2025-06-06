@@ -1,7 +1,7 @@
 // Copyright (C) 2023-2025 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 //
-// config_parallel-prefix_adder.dart
+// config_parallel_prefix_adder.dart
 // Configurator for a Parallel Prefix Adder.
 //
 // 2024 February 5
