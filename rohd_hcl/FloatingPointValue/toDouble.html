@@ -82,10 +82,12 @@
       doubleVal = (sign.toBool() ? -1.0 : 1.0) *
           pow(2.0, minExponent) *
           mantissa.toBigInt().toDouble() &#47;
-          pow(2.0, mantissa.width);
+          pow(2.0, mantissa.width - (explicitJBit ? 1 : 0));
     } else if (!isNaN) {
       doubleVal = (sign.toBool() ? -1.0 : 1.0) *
-          (1.0 + mantissa.toBigInt().toDouble() &#47; pow(2.0, mantissa.width)) *
+          ((explicitJBit ? 0.0 : 1.0) +
+              mantissa.toBigInt().toDouble() &#47;
+                  pow(2.0, mantissa.width - (explicitJBit ? 1 : 0))) *
           pow(2.0, exponent.toInt() - bias);
     }
   }

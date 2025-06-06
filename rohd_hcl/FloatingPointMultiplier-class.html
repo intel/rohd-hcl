@@ -26,7 +26,7 @@
   <ol class="breadcrumbs gt-separated dark hidden-xs">
     <li><a href="../index.html">rohd_hcl</a></li>
     <li><a href="../rohd_hcl/">rohd_hcl.dart</a></li>
-    <li class="self-crumb">FloatingPointMultiplier<span class="signature">&lt;<wbr><span class="type-parameter">FpInType extends <a href="../rohd_hcl/FloatingPoint-class.html">FloatingPoint</a></span>&gt;</span> class</li>
+    <li class="self-crumb">FloatingPointMultiplier<span class="signature">&lt;<wbr><span class="type-parameter">FpTypeIn extends <a href="../rohd_hcl/FloatingPoint-class.html">FloatingPoint</a></span>, <span class="type-parameter">FpTypeOut extends <a href="../rohd_hcl/FloatingPoint-class.html">FloatingPoint</a></span>&gt;</span> class</li>
   </ol>
   <div class="self-name">FloatingPointMultiplier</div>
   <form class="search navbar-right" role="search">
@@ -48,7 +48,7 @@
     data-above-sidebar="rohd_hcl&#47;rohd_hcl-library-sidebar.html"
     data-below-sidebar="rohd_hcl&#47;FloatingPointMultiplier-class-sidebar.html">
     <div>
-<h1><span class="kind-class">FloatingPointMultiplier&lt;<wbr><span class="type-parameter">FpInType extends FloatingPoint</span>&gt;</span> class 
+<h1><span class="kind-class">FloatingPointMultiplier&lt;<wbr><span class="type-parameter">FpTypeIn extends FloatingPoint</span>, <span class="type-parameter">FpTypeOut extends FloatingPoint</span>&gt;</span> class 
     <a href="https://dart.dev/language/class-modifiers#abstract" class="feature feature-abstract" title="This type can not be directly constructed.">abstract</a>
  
 </h1></div>
@@ -91,7 +91,7 @@
     <h2>Constructors</h2>
     <dl class="constructor-summary-list">
         <dt id="FloatingPointMultiplier.new" class="callable">
-          <span class="name"><a href="../rohd_hcl/FloatingPointMultiplier/FloatingPointMultiplier.html">FloatingPointMultiplier.new</a></span><span class="signature">(<span class="parameter" id="-param-a"><span class="type-annotation">FpInType</span> <span class="parameter-name">a</span>, </span><span class="parameter" id="-param-b"><span class="type-annotation">FpInType</span> <span class="parameter-name">b</span>, {</span><span class="parameter" id="-param-clk"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.3/rohd/Logic-class.html">Logic</a>?</span> <span class="parameter-name">clk</span>, </span><span class="parameter" id="-param-reset"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.3/rohd/Logic-class.html">Logic</a>?</span> <span class="parameter-name">reset</span>, </span><span class="parameter" id="-param-enable"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.3/rohd/Logic-class.html">Logic</a>?</span> <span class="parameter-name">enable</span>, </span><span class="parameter" id="-param-outProduct"><span class="type-annotation"><a href="../rohd_hcl/FloatingPoint-class.html">FloatingPoint</a>?</span> <span class="parameter-name">outProduct</span>, </span><span class="parameter" id="-param-ppGen"><span class="type-annotation"><a href="../rohd_hcl/ParallelPrefix-class.html">ParallelPrefix</a></span> <span class="parameter-name">ppGen</span>(<span class="parameter" id="param-"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.8.1/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://pub.dev/documentation/rohd/0.6.3/rohd/Logic-class.html">Logic</a></span>&gt;</span></span>, </span><span class="parameter" id="param-"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.3/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name"></span>(<span class="parameter" id="param-"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.3/rohd/Logic-class.html">Logic</a></span>, </span><span class="parameter" id="param-"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.3/rohd/Logic-class.html">Logic</a></span></span>)</span>) = <span class="default-value">KoggeStone.new</span>, </span><span class="parameter" id="-param-name"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.8.1/dart-core/String-class.html">String</a></span> <span class="parameter-name">name</span> = <span class="default-value">&#39;floating_point_multiplier&#39;</span>, </span><span class="parameter" id="-param-definitionName"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.8.1/dart-core/String-class.html">String</a>?</span> <span class="parameter-name">definitionName</span></span>})</span>
+          <span class="name"><a href="../rohd_hcl/FloatingPointMultiplier/FloatingPointMultiplier.html">FloatingPointMultiplier.new</a></span><span class="signature">(<span class="parameter" id="-param-a"><span class="type-annotation">FpTypeIn</span> <span class="parameter-name">a</span>, </span><span class="parameter" id="-param-b"><span class="type-annotation">FpTypeIn</span> <span class="parameter-name">b</span>, {</span><span class="parameter" id="-param-clk"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.3/rohd/Logic-class.html">Logic</a>?</span> <span class="parameter-name">clk</span>, </span><span class="parameter" id="-param-reset"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.3/rohd/Logic-class.html">Logic</a>?</span> <span class="parameter-name">reset</span>, </span><span class="parameter" id="-param-enable"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.3/rohd/Logic-class.html">Logic</a>?</span> <span class="parameter-name">enable</span>, </span><span class="parameter" id="-param-outProduct"><span class="type-annotation">FpTypeOut?</span> <span class="parameter-name">outProduct</span>, </span><span class="parameter" id="-param-roundingMode"><span class="type-annotation"><a href="../rohd_hcl/FloatingPointRoundingMode.html">FloatingPointRoundingMode</a></span> <span class="parameter-name">roundingMode</span> = <span class="default-value">FloatingPointRoundingMode.roundNearestEven</span>, </span><span class="parameter" id="-param-ppGen"><span class="type-annotation"><a href="../rohd_hcl/ParallelPrefix-class.html">ParallelPrefix</a></span> <span class="parameter-name">ppGen</span>(<span class="parameter" id="param-"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.8.1/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://pub.dev/documentation/rohd/0.6.3/rohd/Logic-class.html">Logic</a></span>&gt;</span></span>, </span><span class="parameter" id="param-"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.3/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name"></span>(<span class="parameter" id="param-"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.3/rohd/Logic-class.html">Logic</a></span>, </span><span class="parameter" id="param-"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.3/rohd/Logic-class.html">Logic</a></span></span>)</span>) = <span class="default-value">KoggeStone.new</span>, </span><span class="parameter" id="-param-name"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.8.1/dart-core/String-class.html">String</a></span> <span class="parameter-name">name</span> = <span class="default-value">&#39;floating_point_multiplier&#39;</span>, </span><span class="parameter" id="-param-definitionName"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.8.1/dart-core/String-class.html">String</a>?</span> <span class="parameter-name">definitionName</span></span>})</span>
         </dt>
         <dd>
           Multiply two floating point numbers <code>a</code> and <code>b</code>, returning result in
@@ -107,7 +107,7 @@
     <dl class="properties">
         <dt id="a" class="property">
   <span class="name"><a href="../rohd_hcl/FloatingPointMultiplier/a.html">a</a></span>
-  <span class="signature">&#8596; FpInType</span>
+  <span class="signature">&#8596; FpTypeIn</span>
   
 
 </dt>
@@ -119,7 +119,7 @@
 
         <dt id="b" class="property">
   <span class="name"><a href="../rohd_hcl/FloatingPointMultiplier/b.html">b</a></span>
-  <span class="signature">&#8596; FpInType</span>
+  <span class="signature">&#8596; FpTypeIn</span>
   
 
 </dt>
@@ -232,7 +232,7 @@ signals.
 
         <dt id="internalProduct" class="property">
   <span class="name"><a href="../rohd_hcl/FloatingPointMultiplier/internalProduct.html">internalProduct</a></span>
-  <span class="signature">&#8596; <a href="../rohd_hcl/FloatingPoint-class.html">FloatingPoint</a></span>
+  <span class="signature">&#8596; FpTypeOut</span>
   
 
 </dt>
@@ -306,12 +306,12 @@ signals.
 
         <dt id="product" class="property">
   <span class="name"><a href="../rohd_hcl/FloatingPointMultiplier/product.html">product</a></span>
-  <span class="signature">&#8594; <a href="../rohd_hcl/FloatingPoint-class.html">FloatingPoint</a></span>
+  <span class="signature">&#8594; FpTypeOut</span>
   
 
 </dt>
 <dd>
-  The computed <a href="../rohd_hcl/FloatingPoint-class.html">FloatingPoint</a> product of <a href="../rohd_hcl/FloatingPointMultiplier/a.html">a</a> * <a href="../rohd_hcl/FloatingPointMultiplier/b.html">b</a>.
+  The computed <code>FpTypeOut</code> product of <a href="../rohd_hcl/FloatingPointMultiplier/a.html">a</a> * <a href="../rohd_hcl/FloatingPointMultiplier/b.html">b</a>.
   <div class="features"><span class="feature">late</span><span class="feature">final</span></div>
 
 </dd>
@@ -351,6 +351,18 @@ or else it will fail.
 <dd>
   Optional <a href="../rohd_hcl/FloatingPointMultiplier/reset.html">reset</a>, used only if a <a href="../rohd_hcl/FloatingPointMultiplier/clk.html">clk</a> is not null to reset the pipeline
 flops.
+  <div class="features"><span class="feature">late</span><span class="feature">final</span></div>
+
+</dd>
+
+        <dt id="roundingMode" class="property">
+  <span class="name"><a href="../rohd_hcl/FloatingPointMultiplier/roundingMode.html">roundingMode</a></span>
+  <span class="signature">&#8596; <a href="../rohd_hcl/FloatingPointRoundingMode.html">FloatingPointRoundingMode</a></span>
+  
+
+</dt>
+<dd>
+  The rounding mode to use for the multiplier.
   <div class="features"><span class="feature">late</span><span class="feature">final</span></div>
 
 </dd>
@@ -797,7 +809,7 @@ named <code>name</code>.
 <ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
     <li><a href="../index.html">rohd_hcl</a></li>
     <li><a href="../rohd_hcl/">rohd_hcl</a></li>
-    <li class="self-crumb">FloatingPointMultiplier<span class="signature">&lt;<wbr><span class="type-parameter">FpInType extends <a href="../rohd_hcl/FloatingPoint-class.html">FloatingPoint</a></span>&gt;</span> class</li>
+    <li class="self-crumb">FloatingPointMultiplier<span class="signature">&lt;<wbr><span class="type-parameter">FpTypeIn extends <a href="../rohd_hcl/FloatingPoint-class.html">FloatingPoint</a></span>, <span class="type-parameter">FpTypeOut extends <a href="../rohd_hcl/FloatingPoint-class.html">FloatingPoint</a></span>&gt;</span> class</li>
 </ol>
 
     <h5>rohd_hcl library</h5>

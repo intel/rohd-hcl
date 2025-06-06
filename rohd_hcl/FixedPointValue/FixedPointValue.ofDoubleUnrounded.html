@@ -74,9 +74,9 @@
   if (!signed &amp; (val &lt; 0)) {
     throw RohdHclException(&#39;Negative input not allowed with unsigned&#39;);
   }
-  final integerValue = (val * pow(2, n + 1)).toInt();
+  final integerValue = BigInt.from(val * pow(2, n + 1));
   final w = signed ? 1 + m + n : m + n;
-  final v = LogicValue.ofInt(integerValue &gt;&gt; 1, w);
+  final v = LogicValue.ofBigInt(integerValue &gt;&gt; 1, w);
   return FixedPointValue(value: v, signed: signed, m: m, n: n);
 }</code></pre>
 </section>

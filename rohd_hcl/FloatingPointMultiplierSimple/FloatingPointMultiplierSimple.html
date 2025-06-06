@@ -26,7 +26,7 @@
   <ol class="breadcrumbs gt-separated dark hidden-xs">
     <li><a href="../../index.html">rohd_hcl</a></li>
     <li><a href="../../rohd_hcl/">rohd_hcl.dart</a></li>
-    <li><a href="../../rohd_hcl/FloatingPointMultiplierSimple-class.html">FloatingPointMultiplierSimple<span class="signature">&lt;<wbr><span class="type-parameter">FpInType extends FloatingPoint</span>&gt;</span></a></li>
+    <li><a href="../../rohd_hcl/FloatingPointMultiplierSimple-class.html">FloatingPointMultiplierSimple<span class="signature">&lt;<wbr><span class="type-parameter">FpTypeIn extends FloatingPoint</span>, <span class="type-parameter">FpTypeOut extends FloatingPoint</span>&gt;</span></a></li>
     <li class="self-crumb">FloatingPointMultiplierSimple.new constructor</li>
   </ol>
   <div class="self-name">FloatingPointMultiplierSimple.new</div>
@@ -49,17 +49,18 @@
       data-above-sidebar="rohd_hcl&#47;FloatingPointMultiplierSimple-class-sidebar.html"
       data-below-sidebar="">
       <div>
-<h1><span class="kind-constructor">FloatingPointMultiplierSimple&lt;<wbr><span class="type-parameter">FpInType extends FloatingPoint</span>&gt;</span> constructor 
+<h1><span class="kind-constructor">FloatingPointMultiplierSimple&lt;<wbr><span class="type-parameter">FpTypeIn extends FloatingPoint</span>, <span class="type-parameter">FpTypeOut extends FloatingPoint</span>&gt;</span> constructor 
 </h1></div>
 
     <section class="multi-line-signature">
       
-      <span class="name ">FloatingPointMultiplierSimple&lt;<wbr><span class="type-parameter">FpInType extends FloatingPoint</span>&gt;</span>(<wbr><ol class="parameter-list"> <li><span class="parameter" id="-param-a"><span class="type-annotation">FpInType</span> <span class="parameter-name">a</span>, </span></li>
-<li><span class="parameter" id="-param-b"><span class="type-annotation">FpInType</span> <span class="parameter-name">b</span>, {</span></li>
+      <span class="name ">FloatingPointMultiplierSimple&lt;<wbr><span class="type-parameter">FpTypeIn extends FloatingPoint</span>, <span class="type-parameter">FpTypeOut extends FloatingPoint</span>&gt;</span>(<wbr><ol class="parameter-list"> <li><span class="parameter" id="-param-a"><span class="type-annotation">FpTypeIn</span> <span class="parameter-name">a</span>, </span></li>
+<li><span class="parameter" id="-param-b"><span class="type-annotation">FpTypeIn</span> <span class="parameter-name">b</span>, {</span></li>
 <li><span class="parameter" id="-param-clk"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.3/rohd/Logic-class.html">Logic</a>?</span> <span class="parameter-name">clk</span>, </span></li>
 <li><span class="parameter" id="-param-reset"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.3/rohd/Logic-class.html">Logic</a>?</span> <span class="parameter-name">reset</span>, </span></li>
 <li><span class="parameter" id="-param-enable"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.3/rohd/Logic-class.html">Logic</a>?</span> <span class="parameter-name">enable</span>, </span></li>
-<li><span class="parameter" id="-param-outProduct"><span class="type-annotation"><a href="../../rohd_hcl/FloatingPoint-class.html">FloatingPoint</a>?</span> <span class="parameter-name">outProduct</span>, </span></li>
+<li><span class="parameter" id="-param-outProduct"><span class="type-annotation">FpTypeOut?</span> <span class="parameter-name">outProduct</span>, </span></li>
+<li><span class="parameter" id="-param-roundingMode"><span class="type-annotation"><a href="../../rohd_hcl/FloatingPointRoundingMode.html">FloatingPointRoundingMode</a></span> <span class="parameter-name">roundingMode</span> = <span class="default-value">FloatingPointRoundingMode.truncate</span>, </span></li>
 <li><span class="parameter" id="-param-multGen"><span class="type-annotation"><a href="../../rohd_hcl/Multiplier-class.html">Multiplier</a></span> <span class="parameter-name">multGen</span>(<ol class="parameter-list"> <li><span class="parameter" id="param-a"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.3/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">a</span>, </span></li>
 <li><span class="parameter" id="param-b"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.3/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">b</span>, {</span></li>
 <li><span class="parameter" id="param-clk"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.3/rohd/Logic-class.html">Logic</a>?</span> <span class="parameter-name">clk</span>, </span></li>
@@ -68,8 +69,8 @@
 <li><span class="parameter" id="param-reset"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.3/rohd/Logic-class.html">Logic</a>?</span> <span class="parameter-name">reset</span>, </span></li>
 </ol>}) = <span class="default-value">NativeMultiplier.new</span>, </span></li>
 <li><span class="parameter" id="-param-priorityGen"><span class="type-annotation"><a href="../../rohd_hcl/PriorityEncoder-class.html">PriorityEncoder</a></span> <span class="parameter-name">priorityGen</span>(<ol class="parameter-list"> <li><span class="parameter" id="param-bitVector"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.3/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">bitVector</span>, {</span></li>
+<li><span class="parameter" id="param-generateValid"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.8.1/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">generateValid</span>, </span></li>
 <li><span class="parameter" id="param-name"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.8.1/dart-core/String-class.html">String</a></span> <span class="parameter-name">name</span>, </span></li>
-<li><span class="parameter" id="param-valid"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.3/rohd/Logic-class.html">Logic</a>?</span> <span class="parameter-name">valid</span>, </span></li>
 </ol>}) = <span class="default-value">RecursiveModulePriorityEncoder.new</span>, </span></li>
 <li><span class="parameter" id="-param-name"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.8.1/dart-core/String-class.html">String</a></span> <span class="parameter-name">name</span> = <span class="default-value">&#39;floating_point_multiplier&#39;</span>, </span></li>
 </ol>})
@@ -97,10 +98,12 @@ exponent or mantissa fields and will throw an exception.</p>
     super.reset,
     super.enable,
     super.outProduct,
+    super.roundingMode = FloatingPointRoundingMode.truncate,
     Multiplier Function(Logic a, Logic b,
             {Logic? clk, Logic? reset, Logic? enable, String name})
         multGen = NativeMultiplier.new,
-    PriorityEncoder Function(Logic bitVector, {Logic? valid, String name})
+    PriorityEncoder Function(Logic bitVector,
+            {bool generateValid, String name})
         priorityGen = RecursiveModulePriorityEncoder.new,
     super.name})
     : super(
@@ -115,6 +118,10 @@ exponent or mantissa fields and will throw an exception.</p>
   if (mantissaWidth &lt; a.mantissa.width) {
     throw RohdHclException(&#39;product mantissa width must be &gt;= &#39;
         &#39; input mantissa width&#39;);
+  }
+  if (roundingMode != FloatingPointRoundingMode.truncate) {
+    throw RohdHclException(&#39;FloatingPointMultiplierSimple does not support &#39;
+        &#39;rounding modes other than truncate (for now).&#39;);
   }
   final aMantissa = mux(a.isNormal, [a.isNormal, a.mantissa].swizzle(),
           [a.mantissa, Const(0)].swizzle())
@@ -143,9 +150,11 @@ exponent or mantissa fields and will throw an exception.</p>
       .getRange(0, (a.mantissa.width + 1) * 2)
       .named(&#39;mantissa&#39;);
 
-  &#47;&#47; TODO(desmonddak): This is where we need to either truncate or round to
-  &#47;&#47; the product mantissa width.  Today it simply is expanded only, but
-  &#47;&#47; upon narrowing, it will need to truncate for simple multiplication.
+  &#47;&#47; TODO(desmonddak): https:&#47;&#47;github.com&#47;intel&#47;rohd-hcl&#47;issues&#47;194 narrower
+  &#47;&#47; multiplier. This is where we need to either truncate or round to the
+  &#47;&#47; product mantissa width.  Today it simply is expanded only, but upon
+  &#47;&#47; narrowing, it will need to truncate for simple multiplication.
+  &#47;&#47;
 
   final isInf = (a.isAnInfinity | b.isAnInfinity).named(&#39;isInf&#39;);
   final isNaN = (a.isNaN |
@@ -236,7 +245,7 @@ exponent or mantissa fields and will throw an exception.</p>
 <ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
     <li><a href="../../index.html">rohd_hcl</a></li>
     <li><a href="../../rohd_hcl/">rohd_hcl</a></li>
-    <li><a href="../../rohd_hcl/FloatingPointMultiplierSimple-class.html">FloatingPointMultiplierSimple<span class="signature">&lt;<wbr><span class="type-parameter">FpInType extends FloatingPoint</span>&gt;</span></a></li>
+    <li><a href="../../rohd_hcl/FloatingPointMultiplierSimple-class.html">FloatingPointMultiplierSimple<span class="signature">&lt;<wbr><span class="type-parameter">FpTypeIn extends FloatingPoint</span>, <span class="type-parameter">FpTypeOut extends FloatingPoint</span>&gt;</span></a></li>
     <li class="self-crumb">FloatingPointMultiplierSimple.new constructor</li>
 </ol>
 

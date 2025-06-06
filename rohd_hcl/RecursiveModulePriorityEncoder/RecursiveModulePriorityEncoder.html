@@ -55,7 +55,7 @@
     <section class="multi-line-signature">
       
       <span class="name ">RecursiveModulePriorityEncoder</span>(<wbr><ol class="parameter-list"> <li><span class="parameter" id="-param-inp"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.3/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">inp</span>, {</span></li>
-<li><span class="parameter" id="-param-valid"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.3/rohd/Logic-class.html">Logic</a>?</span> <span class="parameter-name">valid</span>, </span></li>
+<li><span class="parameter" id="-param-generateValid"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.8.1/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">generateValid</span> = <span class="default-value">false</span>, </span></li>
 <li><span class="parameter" id="-param-name"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.8.1/dart-core/String-class.html">String</a></span> <span class="parameter-name">name</span> = <span class="default-value">&#39;recursive_module_priority_encoder&#39;</span>, </span></li>
 </ol>})
     </section>
@@ -71,15 +71,15 @@ of the trailing 1 from the LSB of <code>inp</code>.</p>
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">RecursiveModulePriorityEncoder(super.inp,
-    {super.valid, super.name = &#39;recursive_module_priority_encoder&#39;})
+    {super.generateValid, super.name = &#39;recursive_module_priority_encoder&#39;})
     : super(definitionName: &#39;RecursiveModulePriorityEncoder_W${inp.width}&#39;) {
-  final topNode = RecursiveModulePriorityEncoderNode(inp.elements);
+  final topNode = RecursiveModulePriorityEncoderNode(inp);
   final lo = topNode.ret;
   if (valid != null) {
     valid! &lt;= topNode.ret.lt(inp.width);
   }
   final sz = output(&#39;out&#39;).width;
-  output(&#39;out&#39;) &lt;= ((lo.width &lt; sz) ? lo.zeroExtend(sz) : lo.getRange(0, sz));
+  out &lt;= ((lo.width &lt; sz) ? lo.zeroExtend(sz) : lo.getRange(0, sz));
 }</code></pre>
 </section>
 

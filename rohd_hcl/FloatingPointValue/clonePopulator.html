@@ -79,8 +79,8 @@ of <a href="../../rohd_hcl/FloatingPointValue-class.html">FloatingPointValue</a>
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">@mustBeOverridden
-FloatingPointValuePopulator clonePopulator() =&gt;
-    FloatingPointValuePopulator(FloatingPointValue.uninitialized()
+FloatingPointValuePopulator clonePopulator() =&gt; FloatingPointValuePopulator(
+    FloatingPointValue.uninitialized(explicitJBit: explicitJBit)
       .._exponentWidth = exponentWidth
       .._mantissaWidth = mantissaWidth);</code></pre>
 </section>

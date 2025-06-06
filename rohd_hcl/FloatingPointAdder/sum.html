@@ -26,7 +26,7 @@
   <ol class="breadcrumbs gt-separated dark hidden-xs">
     <li><a href="../../index.html">rohd_hcl</a></li>
     <li><a href="../../rohd_hcl/">rohd_hcl.dart</a></li>
-    <li><a href="../../rohd_hcl/FloatingPointAdder-class.html">FloatingPointAdder<span class="signature">&lt;<wbr><span class="type-parameter">FpType extends FloatingPoint</span>&gt;</span></a></li>
+    <li><a href="../../rohd_hcl/FloatingPointAdder-class.html">FloatingPointAdder<span class="signature">&lt;<wbr><span class="type-parameter">FpTypeIn extends FloatingPoint</span>, <span class="type-parameter">FpTypeOut extends FloatingPoint</span>&gt;</span></a></li>
     <li class="self-crumb">sum property</li>
   </ol>
   <div class="self-name">sum</div>
@@ -55,20 +55,20 @@
     
       <section class="multi-line-signature">
         
-        <a href="../../rohd_hcl/FloatingPoint-class.html">FloatingPoint</a>
+        FpTypeOut
         <span class="name ">sum</span>
         <div class="features"><span class="feature">late</span><span class="feature">final</span></div>
 
       </section>
       
 <section class="desc markdown">
-  <p>getter for the computed <a href="../../rohd_hcl/FloatingPoint-class.html">FloatingPoint</a> output.</p>
+  <p>getter for the computed <code>FpTypeOut</code> output.</p>
 </section>
 
       
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
-  <pre class="language-dart"><code class="language-dart">late final FloatingPoint sum = (a.clone(name: &#39;sum&#39;) as FpType)
+  <pre class="language-dart"><code class="language-dart">late final FpTypeOut sum = (internalSum.clone(name: &#39;int_sum&#39;) as FpTypeOut)
   ..gets(output(&#39;sum&#39;));</code></pre>
 </section>
 
@@ -85,7 +85,7 @@
 <ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
     <li><a href="../../index.html">rohd_hcl</a></li>
     <li><a href="../../rohd_hcl/">rohd_hcl</a></li>
-    <li><a href="../../rohd_hcl/FloatingPointAdder-class.html">FloatingPointAdder<span class="signature">&lt;<wbr><span class="type-parameter">FpType extends FloatingPoint</span>&gt;</span></a></li>
+    <li><a href="../../rohd_hcl/FloatingPointAdder-class.html">FloatingPointAdder<span class="signature">&lt;<wbr><span class="type-parameter">FpTypeIn extends FloatingPoint</span>, <span class="type-parameter">FpTypeOut extends FloatingPoint</span>&gt;</span></a></li>
     <li class="self-crumb">sum property</li>
 </ol>
 

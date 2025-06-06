@@ -54,6 +54,11 @@
 
     <section class="multi-line-signature">
       
+  <div>
+    <ol class="annotation-list">
+        <li>@<a href="https://pub.dev/documentation/meta/1.17.0/meta/visibleForTesting-constant.html">visibleForTesting</a></li>
+    </ol>
+  </div>
 <span class="returntype">void</span>
 <span class="name ">compress</span>(<wbr>)
 
@@ -69,14 +74,23 @@
     
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
-  <pre class="language-dart"><code class="language-dart">void compress() {
-  final terms = &lt;CompressTerm&gt;[];
-  var iterations = longestColumn();
-  while (iterations &gt; 0) {
-    terms.addAll(_compressIter(iterations--));
-    if (longestColumn() &lt;= 2) {
-      break;
+  <pre class="language-dart"><code class="language-dart">@visibleForTesting
+void compress() {
+  if (!_compressed) {
+    final terms = &lt;CompressTerm&gt;[];
+    var iterations = longestColumn();
+    while (iterations &gt; 0) {
+      terms.addAll(_compressIter(iterations--));
+      if (longestColumn() &lt;= 2) {
+        break;
+      }
     }
+    add0 &lt;= _extractRow(0);
+    add1 &lt;= _extractRow(1);
+    _compressed = true;
+  } else {
+    throw RohdHclException(
+        &#39;ColumnCompressor.compress() called multiple times&#39;);
   }
 }</code></pre>
 </section>

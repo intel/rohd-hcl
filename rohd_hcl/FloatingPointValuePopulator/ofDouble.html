@@ -74,6 +74,11 @@
   <pre class="language-dart"><code class="language-dart">FpvType ofDouble(double inDouble,
     {FloatingPointRoundingMode roundingMode =
         FloatingPointRoundingMode.roundNearestEven}) {
+  if (explicitJBit) {
+    return ofFloatingPointValue(FloatingPointValue.populator(
+            exponentWidth: exponentWidth, mantissaWidth: mantissaWidth - 1)
+        .ofDouble(inDouble, roundingMode: roundingMode)) as FpvType;
+  }
   if (inDouble.isNaN) {
     return nan;
   }
@@ -99,10 +104,16 @@
   var expVal = (exponent64.toInt() - fp64.bias) + bias;
   final mantissa64n = ((expVal &lt;= 0)
       ? [LogicValue.one, fp64.mantissa].swizzle() &gt;&gt;&gt;
-          (-expVal + (fp64.exponent.toInt() &gt; 0 ? 1 : 0))
+          (-expVal +
+              (!explicitJBit &amp; (fp64.exponent.toInt() &gt; 0)
+                  ? 1
+                  : explicitJBit
+                      ? 1
+                      : 0))
       : [LogicValue.one, fp64.mantissa].swizzle());
 
-  var mantissa = mantissa64n.slice(fp64Mw - 1, fp64Mw - mantissaWidth);
+  var mantissa = mantissa64n.slice(fp64Mw - (explicitJBit ? 0 : 1),
+      fp64Mw - mantissaWidth + (explicitJBit ? 1 : 0));
 
   &#47;&#47; TODO(desmonddak): this should be in a separate function to use
   &#47;&#47;  with a FloatingPointValue converter we need.
@@ -125,6 +136,12 @@
         mantissa += 1;
         if (mantissa == LogicValue.zero.zeroExtend(mantissa.width)) {
           expVal += 1;
+          if (explicitJBit) {
+            mantissa = [
+              LogicValue.one,
+              LogicValue.zero.zeroExtend(mantissa.width - 1)
+            ].swizzle();
+          }
         }
       }
     }

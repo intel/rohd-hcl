@@ -60,7 +60,7 @@
 <li><span class="parameter" id="param-term2"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.3/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">term2</span></span></li>
 </ol>)</span></li>
 </ol>) = <span class="default-value">KoggeStone.new</span>, </span></li>
-<li><span class="parameter" id="-param-valid"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.3/rohd/Logic-class.html">Logic</a>?</span> <span class="parameter-name">valid</span>, </span></li>
+<li><span class="parameter" id="-param-generateValid"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.8.1/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">generateValid</span> = <span class="default-value">false</span>, </span></li>
 <li><span class="parameter" id="-param-name"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.8.1/dart-core/String-class.html">String</a></span> <span class="parameter-name">name</span> = <span class="default-value">&#39;parallel_prefix_encoder&#39;</span>, </span></li>
 </ol>})
     </section>
@@ -80,7 +80,7 @@
     {ParallelPrefix Function(
             List&lt;Logic&gt; inps, Logic Function(Logic term1, Logic term2) op)
         ppGen = KoggeStone.new,
-    super.valid,
+    super.generateValid,
     super.name = &#39;parallel_prefix_encoder&#39;})
     : super(definitionName: &#39;ParallelPrefixPriorityEncoder_W${inp.width}&#39;) {
   final sz = log2Ceil(inp.width + 1);

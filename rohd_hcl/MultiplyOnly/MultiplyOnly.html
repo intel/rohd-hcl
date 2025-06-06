@@ -99,14 +99,13 @@ using the same tester with zero accumulate addend <code>c</code>.</p>
           name: &#39;Multiply Only: &#39; +
               _genName(mulGen, a, b, selectSignedMultiplicand,
                   selectSignedMultiplier)) {
-  final accumulate = addOutput(&#39;accumulate&#39;, width: a.width + b.width + 1);
-
   final multiply = mulGen(a, b,
       selectSignedMultiplicand: selectSignedMultiplicand,
       selectSignedMultiplier: selectSignedMultiplier);
 
   accumulate &lt;=
       mux(
+          &#47;&#47; ignore: invalid_use_of_protected_member
           multiply.isProductSigned,
           multiply.product.signExtend(accumulate.width),
           multiply.product.zeroExtend(accumulate.width));

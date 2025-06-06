@@ -72,6 +72,11 @@
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">FpvType ofConstant(FloatingPointConstants constantFloatingPoint) {
+  if (explicitJBit) {
+    return ofFloatingPointValue(FloatingPointValue.populator(
+            exponentWidth: exponentWidth, mantissaWidth: mantissaWidth - 1)
+        .ofConstant(constantFloatingPoint)) as FpvType;
+  }
   final components =
       &#47;&#47; ignore: invalid_use_of_protected_member
       _unpopulated.getConstantComponents(constantFloatingPoint);

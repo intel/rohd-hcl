@@ -68,7 +68,7 @@
 <li><span class="parameter" id="param-b"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.3/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">b</span>, {</span></li>
 <li><span class="parameter" id="param-carryIn"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.3/rohd/Logic-class.html">Logic</a>?</span> <span class="parameter-name">carryIn</span>, </span></li>
 </ol>}) = <span class="default-value">NativeAdder.new</span>, </span></li>
-<li><span class="parameter" id="-param-seGen"><span class="type-annotation">PartialProductSignExtension</span> <span class="parameter-name">seGen</span>(<ol class="parameter-list"> <li><span class="parameter" id="param-pp"><span class="type-annotation"><a href="../../rohd_hcl/PartialProductGeneratorBase-class.html">PartialProductGeneratorBase</a></span> <span class="parameter-name">pp</span>, {</span></li>
+<li><span class="parameter" id="-param-seGen"><span class="type-annotation"><a href="../../rohd_hcl/PartialProductSignExtension-class.html">PartialProductSignExtension</a></span> <span class="parameter-name">seGen</span>(<ol class="parameter-list"> <li><span class="parameter" id="param-pp"><span class="type-annotation"><a href="../../rohd_hcl/PartialProductGeneratorBase-class.html">PartialProductGeneratorBase</a></span> <span class="parameter-name">pp</span>, {</span></li>
 <li><span class="parameter" id="param-name"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.8.1/dart-core/String-class.html">String</a></span> <span class="parameter-name">name</span>, </span></li>
 </ol>}) = <span class="default-value">CompactRectSignExtension.new</span>, </span></li>
 <li><span class="parameter" id="-param-name"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.8.1/dart-core/String-class.html">String</a></span> <span class="parameter-name">name</span> = <span class="default-value">&#39;compression_tree_multiplier&#39;</span>, </span></li>
@@ -95,7 +95,7 @@ configuration.</p>
 <p>If <code>clk</code> is not null then a set of flops are used to latch the output
 after compression.  <code>reset</code> and <code>enable</code> are optional
 inputs to control these flops when <code>clk</code> is provided. If <code>clk</code> is null,
-the <a href="../../rohd_hcl/ColumnCompressor-class.html">ColumnCompressor</a> is built as a combinational tree of compressors.</p>
+the Column Compressor is built as a combinational tree of compressors.</p>
 </section>
 
 
@@ -123,25 +123,21 @@ the <a href="../../rohd_hcl/ColumnCompressor-class.html">ColumnCompressor</a> is
               &#39;${signedMultiplier ? &#39;SM_&#39; : &#39;&#39;}&#39;
               &#39;${selectSignedMultiplicand != null ? &#39;SSD_&#39; : &#39;&#39;}&#39;
               &#39;${selectSignedMultiplier != null ? &#39;SSM_&#39; : &#39;&#39;}&#39;
-              &#39;with${adderGen(a, b).definitionName}&#39;) {
-&#47;&#47; Should be done in base TODO(desmonddak):
-  final product = addOutput(&#39;product&#39;, width: a.width + b.width);
-  final pp = PartialProductGenerator(
-    a,
-    b,
-    RadixEncoder(radix),
-    selectSignedMultiplicand: selectSignedMultiplicand,
-    signedMultiplicand: signedMultiplicand,
-    selectSignedMultiplier: selectSignedMultiplier,
-    signedMultiplier: signedMultiplier,
-  );
+              &#39;with${adderGen(a, a).definitionName}&#39;) {
+  final pp = PartialProduct(a, b, RadixEncoder(radix),
+      selectSignedMultiplicand: selectSignedMultiplicand,
+      signedMultiplicand: signedMultiplicand,
+      selectSignedMultiplier: selectSignedMultiplier,
+      signedMultiplier: signedMultiplier,
+      name: &#39;comp_partial_product&#39;);
 
-  seGen(pp).signExtend();
+  seGen(pp.array).signExtend();
 
-  final compressor =
-      ColumnCompressor(clk: clk, reset: reset, enable: enable, pp)
-        ..compress();
-  final adder = adderGen(compressor.extractRow(0), compressor.extractRow(1));
+  pp.generateOutputs();
+
+  final compressor = ColumnCompressor(pp.rows, pp.rowShift,
+      clk: clk, reset: reset, enable: enable);
+  final adder = adderGen(compressor.add0, compressor.add1);
   product &lt;= adder.sum.slice(a.width + b.width - 1, 0);
 }</code></pre>
 </section>

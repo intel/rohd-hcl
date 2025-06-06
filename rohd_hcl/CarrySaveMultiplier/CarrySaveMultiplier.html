@@ -56,8 +56,9 @@
       
       <span class="name ">CarrySaveMultiplier</span>(<wbr><ol class="parameter-list"> <li><span class="parameter" id="-param-a"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.3/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">a</span>, </span></li>
 <li><span class="parameter" id="-param-b"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.3/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">b</span>, {</span></li>
-<li><span class="parameter" id="-param-clk"><span>required</span> <span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.3/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">clk</span>, </span></li>
-<li><span class="parameter" id="-param-reset"><span>required</span> <span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.3/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">reset</span>, </span></li>
+<li><span class="parameter" id="-param-clk"><span>required</span> <span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.3/rohd/Logic-class.html">Logic</a>?</span> <span class="parameter-name">clk</span>, </span></li>
+<li><span class="parameter" id="-param-reset"><span>required</span> <span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.3/rohd/Logic-class.html">Logic</a>?</span> <span class="parameter-name">reset</span>, </span></li>
+<li><span class="parameter" id="-param-enable"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.3/rohd/Logic-class.html">Logic</a>?</span> <span class="parameter-name">enable</span>, </span></li>
 <li><span class="parameter" id="-param-name"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.8.1/dart-core/String-class.html">String</a></span> <span class="parameter-name">name</span> = <span class="default-value">&#39;carry_save_multiplier&#39;</span>, </span></li>
 </ol>})
     </section>
@@ -71,8 +72,9 @@
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">CarrySaveMultiplier(super.a, super.b,
-    {required Logic clk,
-    required Logic reset,
+    {required super.clk,
+    required super.reset,
+    super.enable,
     super.name = &#39;carry_save_multiplier&#39;})
     : super(
           signedMultiplicand: false,
@@ -81,10 +83,6 @@
   if (a.width != b.width) {
     throw RohdHclException(&#39;inputs of a and b should have same width.&#39;);
   }
-  clk = addInput(&#39;clk&#39;, clk);
-  reset = addInput(&#39;reset&#39;, reset);
-
-  final product = addOutput(&#39;product&#39;, width: a.width + b.width + 1);
 
   _sum = List.generate(a.width * 2, (index) =&gt; Logic(name: &#39;sum_$index&#39;));
   _carry = List.generate(a.width * 2, (index) =&gt; Logic(name: &#39;carry_$index&#39;));
@@ -93,7 +91,7 @@
   final rCarryB = Logic(name: &#39;rcarry_b&#39;, width: b.width);
 
   _pipeline = Pipeline(
-    clk,
+    clk!,
     stages: [
       ...List.generate(
         b.width,
@@ -151,7 +149,7 @@
           a.width,
           (index) =&gt; _pipeline.get(_sum[a.width - index - 1]),
         )
-      ].swizzle();
+      ].swizzle().slice(product.width - 1, 0);
 }</code></pre>
 </section>
 

@@ -85,6 +85,13 @@ to <code>'</code> in SystemVerilog.</p>
   <pre class="language-dart"><code class="language-dart">@override
 void put(dynamic val, {bool fill = false}) {
   if (val is FloatingPointValue) {
+    if ((val.exponentWidth != exponent.width) ||
+        (val.mantissaWidth != mantissa.width)) {
+      throw RohdHclException(&#39;FloatingPoint width does not match&#39;);
+    }
+    if (val.explicitJBit != explicitJBit) {
+      throw RohdHclException(&#39;FloatingPoint explicit jbit does not match&#39;);
+    }
     put(val.value);
   } else {
     super.put(val, fill: fill);

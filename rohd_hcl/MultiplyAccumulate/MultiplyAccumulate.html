@@ -66,7 +66,7 @@
 <li><span class="parameter" id="-param-selectSignedMultiplicand"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.3/rohd/Logic-class.html">Logic</a>?</span> <span class="parameter-name">selectSignedMultiplicand</span>, </span></li>
 <li><span class="parameter" id="-param-selectSignedMultiplier"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.3/rohd/Logic-class.html">Logic</a>?</span> <span class="parameter-name">selectSignedMultiplier</span>, </span></li>
 <li><span class="parameter" id="-param-selectSignedAddend"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.3/rohd/Logic-class.html">Logic</a>?</span> <span class="parameter-name">selectSignedAddend</span>, </span></li>
-<li><span class="parameter" id="-param-name"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.8.1/dart-core/String-class.html">String</a></span> <span class="parameter-name">name</span> = <span class="default-value">&#39;unnamed_module&#39;</span>, </span></li>
+<li><span class="parameter" id="-param-name"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.8.1/dart-core/String-class.html">String</a></span> <span class="parameter-name">name</span> = <span class="default-value">&#39;multiply_accumulate&#39;</span>, </span></li>
 <li><span class="parameter" id="-param-definitionName"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.8.1/dart-core/String-class.html">String</a>?</span> <span class="parameter-name">definitionName</span>, </span></li>
 </ol>})
     </section>
@@ -99,7 +99,7 @@ configuration.</p>
     Logic? selectSignedMultiplicand,
     Logic? selectSignedMultiplier,
     Logic? selectSignedAddend,
-    super.name,
+    super.name = &#39;multiply_accumulate&#39;,
     String? definitionName})
     : super(
           definitionName: definitionName ??
@@ -120,6 +120,8 @@ configuration.</p>
   selectSignedAddend = (selectSignedAddend != null)
       ? addInput(&#39;selectSignedAddend&#39;, selectSignedAddend)
       : null;
+  addOutput(&#39;accumulate&#39;, width: a.width + b.width + 1);
+
   addOutput(&#39;isAccumulateSigned&#39;) &lt;=
       (signedMultiplicand | signedMultiplier | signedAddend
               ? Const(1)

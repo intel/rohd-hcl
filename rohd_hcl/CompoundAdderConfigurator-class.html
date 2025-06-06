@@ -99,6 +99,30 @@
       id="instance-properties">
     <h2>Properties</h2>
     <dl class="properties">
+        <dt id="adderSelectionKnob" class="property">
+  <span class="name"><a href="../rohd_hcl/CompoundAdderConfigurator/adderSelectionKnob.html">adderSelectionKnob</a></span>
+  <span class="signature">&#8594; <a href="../rohd_hcl/AdderSelectKnob-class.html">AdderSelectKnob</a></span>
+  
+
+</dt>
+<dd>
+  Adder selection control.
+  <div class="features"><span class="feature">final</span></div>
+
+</dd>
+
+        <dt id="blockWidthKnob" class="property">
+  <span class="name"><a href="../rohd_hcl/CompoundAdderConfigurator/blockWidthKnob.html">blockWidthKnob</a></span>
+  <span class="signature">&#8594; <a href="../rohd_hcl/IntConfigKnob-class.html">IntConfigKnob</a></span>
+  
+
+</dt>
+<dd>
+  A knob controlling the sub-adder block width.
+  <div class="features"><span class="feature">final</span></div>
+
+</dd>
+
         <dt id="hashCode" class="property inherited">
   <span class="name"><a href="https://api.dart.dev/stable/3.8.1/dart-core/Object/hashCode.html">hashCode</a></span>
   <span class="signature">&#8594; <a href="https://api.dart.dev/stable/3.8.1/dart-core/int-class.html">int</a></span>
@@ -132,18 +156,6 @@ to configure this component.
 </dt>
 <dd>
   A knob controlling the width of the inputs to the adder.
-  <div class="features"><span class="feature">final</span></div>
-
-</dd>
-
-        <dt id="moduleTypeKnob" class="property">
-  <span class="name"><a href="../rohd_hcl/CompoundAdderConfigurator/moduleTypeKnob.html">moduleTypeKnob</a></span>
-  <span class="signature">&#8594; <a href="../rohd_hcl/ChoiceConfigKnob-class.html">ChoiceConfigKnob</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.dart.dev/stable/3.8.1/dart-core/Type-class.html">Type</a></span>&gt;</span></span>
-  
-
-</dt>
-<dd>
-  Controls the type of <a href="../rohd_hcl/CompoundAdder-class.html">CompoundAdder</a>.
   <div class="features"><span class="feature">final</span></div>
 
 </dd>
@@ -296,47 +308,6 @@ variable naming requirements.
     </dl>
   </section>
     
-  <section class="summary offset-anchor" id="static-properties">
-    <h2>Static Properties</h2>
-    <dl class="properties">
-        <dt id="adderGeneratorMap" class="property">
-  <span class="name"><a href="../rohd_hcl/CompoundAdderConfigurator/adderGeneratorMap.html">adderGeneratorMap</a></span>
-  <span class="signature">&#8596; <a href="https://api.dart.dev/stable/3.8.1/dart-core/Map-class.html">Map</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.dart.dev/stable/3.8.1/dart-core/Type-class.html">Type</a></span>, <span class="type-parameter"><a href="../rohd_hcl/Adder-class.html">Adder</a> Function<span class="signature">(<span class="parameter" id="param-"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.3/rohd/Logic-class.html">Logic</a></span>, </span><span class="parameter" id="param-"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.3/rohd/Logic-class.html">Logic</a></span>, {</span><span class="parameter" id="param-carryIn"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.3/rohd/Logic-class.html">Logic</a>?</span> <span class="parameter-name">carryIn</span>, </span><span class="parameter" id="param-name"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.8.1/dart-core/String-class.html">String</a>?</span> <span class="parameter-name">name</span>, </span><span class="parameter" id="param-subtractIn"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.3/rohd/Logic-class.html">Logic</a>?</span> <span class="parameter-name">subtractIn</span></span>})</span></span>&gt;</span></span>
-  
-
-</dt>
-<dd>
-  Map from Type to Function for Adder generator
-  <div class="features"><span class="feature">getter/setter pair</span></div>
-
-</dd>
-
-        <dt id="adderTypeKnob" class="property">
-  <span class="name"><a href="../rohd_hcl/CompoundAdderConfigurator/adderTypeKnob.html">adderTypeKnob</a></span>
-  <span class="signature">&#8594; <a href="../rohd_hcl/ChoiceConfigKnob-class.html">ChoiceConfigKnob</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.dart.dev/stable/3.8.1/dart-core/Type-class.html">Type</a></span>&gt;</span></span>
-  
-
-</dt>
-<dd>
-  Controls the type of <a href="../rohd_hcl/Adder-class.html">Adder</a> used for internal adders.
-  <div class="features"><span class="feature">final</span></div>
-
-</dd>
-
-        <dt id="generatorMap" class="property">
-  <span class="name"><a href="../rohd_hcl/CompoundAdderConfigurator/generatorMap.html">generatorMap</a></span>
-  <span class="signature">&#8596; <a href="https://api.dart.dev/stable/3.8.1/dart-core/Map-class.html">Map</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.dart.dev/stable/3.8.1/dart-core/Type-class.html">Type</a></span>, <span class="type-parameter"><a href="../rohd_hcl/CompoundAdder-class.html">CompoundAdder</a> Function<span class="signature">(<span class="parameter" id="param-a"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.3/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">a</span>, </span><span class="parameter" id="param-b"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.3/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">b</span></span>)</span></span>&gt;</span></span>
-  
-
-</dt>
-<dd>
-  Map from Type to Adder generator
-  <div class="features"><span class="feature">getter/setter pair</span></div>
-
-</dd>
-
-    </dl>
-  </section>
     
     
 

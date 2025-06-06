@@ -77,12 +77,12 @@
 <li><code>carryIn</code> is a carry Logic into the <a href="../../rohd_hcl/CarrySelectCompoundAdder-class.html">CarrySelectCompoundAdder</a></li>
 <li><code>adderGen</code> provides an adder Function which must supply optional
 <code>carryIn</code> and <code>subtractIn</code> Logic controls.</li>
-<li><code>subtractIn</code>  This
-option is used by the <a href="../../rohd_hcl/CarrySelectOnesComplementCompoundAdder-class.html">CarrySelectOnesComplementCompoundAdder</a> and should
-not be used directly as it requires ones-complement behavior from
-<code>adderGen</code>.</li>
+<li><code>subtractIn</code>  This option is used by the
+<a href="../../rohd_hcl/CarrySelectOnesComplementCompoundAdder-class.html">CarrySelectOnesComplementCompoundAdder</a> and should not be used directly
+as it requires ones-complement behavior from <code>adderGen</code>.</li>
 <li><code>widthGen</code> is the splitting function for creating the different adder
-blocks.</li>
+blocks. Decreasing the split width will increase speed but also increase
+area.</li>
 </ul>
 </section>
 
@@ -108,12 +108,12 @@ blocks.</li>
       ? addInput(&#39;subtractIn&#39;, subtractIn, width: subtractIn.width)
       : null;
   &#47;&#47; output bits lists
-  final sumList0 = &lt;Logic&gt;[];
-  final sumList1 = &lt;Logic&gt;[];
+  final sumList0F = &lt;Logic&gt;[];
+  final sumList1F = &lt;Logic&gt;[];
   &#47;&#47; carryout of previous adder block
   &#47;&#47; for sum and sum+1
-  Logic? carry0;
-  Logic? carry1;
+  Logic carry0 = Const(0);
+  Logic carry1 = Const(0);
   &#47;&#47; Get size of each adder block
   final adderSplit = widthGen(a.width);
   &#47;&#47; 1st output bit index of each block
@@ -121,58 +121,58 @@ blocks.</li>
   for (var i = 0; i &lt; adderSplit.length; ++i) {
     &#47;&#47; input width of current adder block
     final blockWidth = adderSplit[i];
+    final sum0Ary = Logic(width: blockWidth);
+    final sum1Ary = Logic(width: blockWidth);
     if (blockWidth &lt;= 0) {
       throw RohdHclException(&#39;non-positive adder block size.&#39;);
     }
-    if (blockWidth + blockStartIdx &gt; a.width) {
+    final blockEnd = blockStartIdx + blockWidth;
+    if (blockEnd &gt; a.width) {
       throw RohdHclException(&#39;oversized adders sequence.&#39;);
     }
-    final blockA = Logic(name: &#39;block_${i}_a&#39;, width: blockWidth);
-    final blockB = Logic(name: &#39;block_${i}_b&#39;, width: blockWidth);
-    blockA &lt;= a.getRange(blockStartIdx, blockStartIdx + blockWidth);
-    blockB &lt;= b.getRange(blockStartIdx, blockStartIdx + blockWidth);
-    &#47;&#47; Build sub adders for 0 and 1 carryin values
-    final fullAdder0 = adderGen(blockA, blockB,
+    &#47;&#47; Build sub adders for carryIn=0 and carryIn=1
+    final fullAdder0 = adderGen(a.getRange(blockStartIdx, blockEnd),
+        b.getRange(blockStartIdx, blockEnd),
         subtractIn: subtractIn, carryIn: Const(0), name: &#39;block0_$i&#39;);
-    final fullAdder1 = adderGen(blockA, blockB,
+    final fullAdder1 = adderGen(a.getRange(blockStartIdx, blockEnd),
+        b.getRange(blockStartIdx, blockEnd),
         subtractIn: subtractIn, carryIn: Const(1), name: &#39;block1_$i&#39;);
-    for (var bitIdx = 0; bitIdx &lt; blockWidth; ++bitIdx) {
-      if (i == 0) {
-        &#47;&#47; connect directly to respective sum output bit
-        sumList0.add(fullAdder0.sum[bitIdx]);
-        sumList1.add(fullAdder1.sum[bitIdx]);
-      } else {
-        final bitOut0 = Logic(name: &#39;bit0_${blockStartIdx + bitIdx}&#39;);
-        final bitOut1 = Logic(name: &#39;bit1_${blockStartIdx + bitIdx}&#39;);
-        &#47;&#47; select adder output from adder matching carryin value
-        bitOut0 &lt;=
-            mux(carry0!, fullAdder1.sum[bitIdx], fullAdder0.sum[bitIdx]);
-        bitOut1 &lt;=
-            mux(carry1!, fullAdder1.sum[bitIdx], fullAdder0.sum[bitIdx]);
-        sumList0.add(bitOut0);
-        sumList1.add(bitOut1);
-      }
-    }
+    sum0Ary &lt;=
+        ((i == 0)
+                ? fullAdder0.sum
+                : mux(carry0, fullAdder1.sum, fullAdder0.sum))
+            .slice(0, blockWidth - 1)
+            .named(&#39;block_${i}_sum0Ary&#39;);
+
+    sum1Ary &lt;=
+        ((i == 0)
+                ? fullAdder1.sum
+                : mux(carry1, fullAdder1.sum, fullAdder0.sum))
+            .slice(0, blockWidth - 1)
+            .named(&#39;block_${i}_sum1Ary&#39;);
+
+    sumList0F.add(sum0Ary);
+    sumList1F.add(sum1Ary);
     if (i == 0) {
       &#47;&#47; select carryout as a last bit of the adder
-      carry0 = fullAdder0.sum[blockWidth];
-      carry1 = fullAdder1.sum[blockWidth];
+      carry0 = fullAdder0.sum[blockWidth].named(&#39;block_${i}_adder0Msb&#39;);
+      carry1 = fullAdder1.sum[blockWidth].named(&#39;block_${i}_adder1Msb&#39;);
     } else {
       &#47;&#47; select carryout depending on carryin (carryout of the previous block)
-      carry0 = mux(
-          carry0!, fullAdder1.sum[blockWidth], fullAdder0.sum[blockWidth]);
-      carry1 = mux(
-          carry1!, fullAdder1.sum[blockWidth], fullAdder0.sum[blockWidth]);
+      carry0 =
+          mux(carry0, fullAdder1.sum[blockWidth], fullAdder0.sum[blockWidth])
+              .named(&#39;block_${i}_carry0&#39;);
+      carry1 =
+          mux(carry1, fullAdder1.sum[blockWidth], fullAdder0.sum[blockWidth])
+              .named(&#39;block_${i}_carry1&#39;);
     }
+
     blockStartIdx += blockWidth;
   }
 
-  &#47;&#47; Append carryout bit
-  sumList0.add(carry0!);
-  sumList1.add(carry1!);
-
-  sum &lt;= sumList0.rswizzle();
-  sumP1 &lt;= sumList1.rswizzle();
+  sum &lt;= [sumList0F.swizzle(), carry0].swizzle().named(&#39;sum_inner&#39;).reversed;
+  sumP1 &lt;=
+      [sumList1F.swizzle(), carry1].swizzle().named(&#39;sumP1_inner&#39;).reversed;
 }</code></pre>
 </section>
 

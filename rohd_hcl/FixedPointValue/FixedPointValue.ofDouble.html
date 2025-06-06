@@ -78,9 +78,9 @@
     throw RohdHclException(&#39;Double is too long to store in &#39;
         &#39;FixedPointValue: $m, $n&#39;);
   }
-  final integerValue = (val * pow(2, n)).toInt();
+  final integerValue = BigInt.from(val * pow(2, n));
   final w = signed ? 1 + m + n : m + n;
-  final v = LogicValue.ofInt(integerValue, w);
+  final v = LogicValue.ofBigInt(integerValue, w);
   return FixedPointValue(value: v, signed: signed, m: m, n: n);
 }</code></pre>
 </section>

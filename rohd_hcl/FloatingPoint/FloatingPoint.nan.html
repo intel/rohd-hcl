@@ -56,6 +56,7 @@
       
       <span class="name ">FloatingPoint.nan</span>(<wbr>{<ol class="parameter-list"> <li><span class="parameter" id="nan-param-exponentWidth"><span>required</span> <span class="type-annotation"><a href="https://api.dart.dev/stable/3.8.1/dart-core/int-class.html">int</a></span> <span class="parameter-name">exponentWidth</span>, </span></li>
 <li><span class="parameter" id="nan-param-mantissaWidth"><span>required</span> <span class="type-annotation"><a href="https://api.dart.dev/stable/3.8.1/dart-core/int-class.html">int</a></span> <span class="parameter-name">mantissaWidth</span>, </span></li>
+<li><span class="parameter" id="nan-param-explicitJBit"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.8.1/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">explicitJBit</span> = <span class="default-value">false</span>, </span></li>
 </ol>})
     </section>
     
@@ -68,11 +69,13 @@
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">factory FloatingPoint.nan(
-    {required int exponentWidth, required int mantissaWidth}) {
+    {required int exponentWidth,
+    required int mantissaWidth,
+    bool explicitJBit = false}) {
   final signLogic = Const(0);
   final exponent = Const(1, width: exponentWidth, fill: true);
   final mantissa = Const(1, width: mantissaWidth);
-  return FloatingPoint._(signLogic, exponent, mantissa);
+  return FloatingPoint._(signLogic, exponent, mantissa, explicitJBit);
 }</code></pre>
 </section>
 

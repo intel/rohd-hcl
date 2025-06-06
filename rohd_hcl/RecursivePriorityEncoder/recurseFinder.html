@@ -122,7 +122,7 @@
         ElseIf(~l, [
           ret &lt; [Const(0), left.slice(-1, 0)].swizzle().named(&#39;zl_d$depth&#39;),
         ]),
-        ElseIf(l, [
+        Else([
           ret &lt; rhs,
         ]),
       ]),

@@ -70,7 +70,21 @@ defined as having mantissa in the range <code>[1,2)</code>.</p>
     
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
-  <pre class="language-dart"><code class="language-dart">bool isNormal() =&gt; exponent != LogicValue.ofInt(0, exponent.width);</code></pre>
+  <pre class="language-dart"><code class="language-dart">bool isNormal() {
+  if (explicitJBit) {
+    final e = exponent.toInt();
+    final m = mantissa.toInt();
+    final int normMantissa;
+    if (e &lt; mantissa.width) {
+      normMantissa = 1 &lt;&lt; (mantissa.width - e - 1);
+    } else {
+      normMantissa = 1;
+    }
+    return (e &gt; 0) &amp;&amp; (m &gt;= normMantissa);
+  } else {
+    return exponent != LogicValue.ofInt(0, exponent.width);
+  }
+}</code></pre>
 </section>
 
 

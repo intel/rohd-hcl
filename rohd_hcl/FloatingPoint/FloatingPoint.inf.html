@@ -58,6 +58,7 @@
 <li><span class="parameter" id="inf-param-mantissaWidth"><span>required</span> <span class="type-annotation"><a href="https://api.dart.dev/stable/3.8.1/dart-core/int-class.html">int</a></span> <span class="parameter-name">mantissaWidth</span>, </span></li>
 <li><span class="parameter" id="inf-param-sign"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.3/rohd/Logic-class.html">Logic</a>?</span> <span class="parameter-name">sign</span>, </span></li>
 <li><span class="parameter" id="inf-param-negative"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.8.1/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">negative</span> = <span class="default-value">false</span>, </span></li>
+<li><span class="parameter" id="inf-param-explicitJBit"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.8.1/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">explicitJBit</span> = <span class="default-value">false</span>, </span></li>
 </ol>})
     </section>
     
@@ -73,11 +74,12 @@
     {required int exponentWidth,
     required int mantissaWidth,
     Logic? sign,
-    bool negative = false}) {
+    bool negative = false,
+    bool explicitJBit = false}) {
   final signLogic = Logic()..gets(sign ?? Const(negative));
   final exponent = Const(1, width: exponentWidth, fill: true);
   final mantissa = Const(0, width: mantissaWidth, fill: true);
-  return FloatingPoint._(signLogic, exponent, mantissa);
+  return FloatingPoint._(signLogic, exponent, mantissa, explicitJBit);
 }</code></pre>
 </section>
 

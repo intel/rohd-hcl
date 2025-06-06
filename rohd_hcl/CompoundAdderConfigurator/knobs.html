@@ -76,9 +76,9 @@ to configure this component.</p>
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">@override
 late final Map&lt;String, ConfigKnob&lt;dynamic&gt;&gt; knobs = UnmodifiableMapView({
+  &#39;Select Internal Adder&#39;: adderSelectionKnob,
   &#39;Width&#39;: logicWidthKnob,
-  &#39;Compound Adder Type&#39;: moduleTypeKnob,
-  &#39;Internal Adder Type&#39;: adderTypeKnob,
+  &#39;Block Width&#39;: blockWidthKnob,
 });</code></pre>
 </section>
 

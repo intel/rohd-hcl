@@ -59,9 +59,9 @@
 <li><span class="parameter" id="-param-adderGen"><span class="type-annotation"><a href="../../rohd_hcl/Adder-class.html">Adder</a></span> <span class="parameter-name">adderGen</span>(<ol class="parameter-list"> <li><span class="parameter" id="param-"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.3/rohd/Logic-class.html">Logic</a></span>, </span></li>
 <li><span class="parameter" id="param-"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.3/rohd/Logic-class.html">Logic</a></span>, {</span></li>
 <li><span class="parameter" id="param-carryIn"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.3/rohd/Logic-class.html">Logic</a>?</span> <span class="parameter-name">carryIn</span>, </span></li>
-</ol>}) = <span class="default-value">ParallelPrefixAdder.new</span>, </span></li>
+</ol>}) = <span class="default-value">NativeAdder.new</span>, </span></li>
 <li><span class="parameter" id="-param-subtractIn"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.3/rohd/Logic-class.html">Logic</a>?</span> <span class="parameter-name">subtractIn</span>, </span></li>
-<li><span class="parameter" id="-param-endAroundCarry"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.3/rohd/Logic-class.html">Logic</a>?</span> <span class="parameter-name">endAroundCarry</span>, </span></li>
+<li><span class="parameter" id="-param-generateEndAroundCarry"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.8.1/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">generateEndAroundCarry</span> = <span class="default-value">false</span>, </span></li>
 <li><span class="parameter" id="-param-carryIn"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.3/rohd/Logic-class.html">Logic</a>?</span> <span class="parameter-name">carryIn</span>, </span></li>
 <li><span class="parameter" id="-param-subtract"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.8.1/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">subtract</span> = <span class="default-value">false</span>, </span></li>
 <li><span class="parameter" id="-param-chainable"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.8.1/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">chainable</span> = <span class="default-value">false</span>, </span></li>
@@ -77,12 +77,12 @@
 if <code>subtract</code> configuration is false, and a Lgic control signal
 <code>subtractIn</code> is provided, then subtraction can be dynamically selected.
 Otherwise an adder is constructed.</li>
-<li>If Logic <code>endAroundCarry</code> is provided, then the end-around
-carry is not performed and is provided as value on <code>endAroundCarry</code>. If
-<code>endAroundCarry</code> is null, extra hardware takes care of adding the
+<li>If <code>generateEndAroundCarry</code> is true, then the end-around
+carry is not performed and is provided as output <a href="../../rohd_hcl/OnesComplementAdder/endAroundCarry.html">endAroundCarry</a>. If
+<code>generateEndAroundCarry</code> is false, extra hardware takes care of adding the
 end-around carry to <a href="../../rohd_hcl/Adder/sum.html">sum</a>.</li>
 <li><code>carryIn</code> allows for another adder to chain into this one.</li>
-<li><code>chainable</code> tells this adder to not store the <code>endAroundCarry</code> in the
+<li><code>chainable</code> tells this adder to not store the <a href="../../rohd_hcl/OnesComplementAdder/endAroundCarry.html">endAroundCarry</a> in the
 sign bit as well, but to zero that to allow adders to be chained such as
 for use in the <a href="../../rohd_hcl/CarrySelectCompoundAdder-class.html">CarrySelectCompoundAdder</a>.</li>
 </ul>
@@ -94,9 +94,9 @@ for use in the <a href="../../rohd_hcl/CarrySelectCompoundAdder-class.html">Carr
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">OnesComplementAdder(super.a, super.b,
     {Adder Function(Logic, Logic, {Logic? carryIn}) adderGen =
-        ParallelPrefixAdder.new,
+        NativeAdder.new,
     Logic? subtractIn,
-    Logic? endAroundCarry,
+    this.generateEndAroundCarry = false,
     super.carryIn,
     bool subtract = false,
     bool chainable = false,
@@ -105,9 +105,8 @@ for use in the <a href="../../rohd_hcl/CarrySelectCompoundAdder-class.html">Carr
     : super(
           definitionName:
               definitionName ?? &#39;OnesComplementAdder_W${a.width}&#39;) {
-  if (endAroundCarry != null) {
+  if (generateEndAroundCarry) {
     addOutput(&#39;endAroundCarry&#39;);
-    endAroundCarry &lt;= this.endAroundCarry!;
   }
   if ((subtractIn != null) &amp; subtract) {
     throw RohdHclException(
@@ -128,13 +127,13 @@ for use in the <a href="../../rohd_hcl/CarrySelectCompoundAdder-class.html">Carr
           .sum
           .named(&#39;adderSum&#39;, naming: Naming.mergeable);
 
-  if (this.endAroundCarry != null) {
-    this.endAroundCarry! &lt;= adderSum[-1];
+  if (generateEndAroundCarry) {
+    endAroundCarry! &lt;= adderSum[-1];
   }
   final endAround = adderSum[-1].named(&#39;endaround&#39;);
   final magnitude = adderSum.slice(a.width - 1, 0).named(&#39;magnitude&#39;);
   final Logic magnitudep1;
-  if (this.endAroundCarry == null) {
+  if (!generateEndAroundCarry) {
     final incrementer = ParallelPrefixIncr(magnitude);
     magnitudep1 = incrementer.out.named(&#39;magnitude_plus1&#39;);
   } else {
@@ -147,7 +146,7 @@ for use in the <a href="../../rohd_hcl/CarrySelectCompoundAdder-class.html">Carr
             if (chainable) endAround else Const(0),
             mux(
                 [if (chainable) Const(0) else endAround].first,
-                [if (this.endAroundCarry != null) magnitude else magnitudep1]
+                [if (generateEndAroundCarry) magnitude else magnitudep1]
                     .first,
                 ~magnitude)
           ].swizzle(),

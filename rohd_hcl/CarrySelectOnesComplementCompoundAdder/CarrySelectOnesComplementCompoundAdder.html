@@ -59,10 +59,10 @@
 <li><span class="parameter" id="-param-adderGen"><span class="type-annotation"><a href="../../rohd_hcl/Adder-class.html">Adder</a></span> <span class="parameter-name">adderGen</span>(<ol class="parameter-list"> <li><span class="parameter" id="param-"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.3/rohd/Logic-class.html">Logic</a></span>, </span></li>
 <li><span class="parameter" id="param-"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.3/rohd/Logic-class.html">Logic</a></span>, {</span></li>
 <li><span class="parameter" id="param-carryIn"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.3/rohd/Logic-class.html">Logic</a>?</span> <span class="parameter-name">carryIn</span>, </span></li>
-</ol>}) = <span class="default-value">ParallelPrefixAdder.new</span>, </span></li>
+</ol>}) = <span class="default-value">NativeAdder.new</span>, </span></li>
 <li><span class="parameter" id="-param-subtractIn"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.3/rohd/Logic-class.html">Logic</a>?</span> <span class="parameter-name">subtractIn</span>, </span></li>
-<li><span class="parameter" id="-param-carryOut"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.3/rohd/Logic-class.html">Logic</a>?</span> <span class="parameter-name">carryOut</span>, </span></li>
-<li><span class="parameter" id="-param-carryOutP1"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.3/rohd/Logic-class.html">Logic</a>?</span> <span class="parameter-name">carryOutP1</span>, </span></li>
+<li><span class="parameter" id="-param-generateCarryOut"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.8.1/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">generateCarryOut</span> = <span class="default-value">false</span>, </span></li>
+<li><span class="parameter" id="-param-generateCarryOutP1"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.8.1/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">generateCarryOutP1</span> = <span class="default-value">false</span>, </span></li>
 <li><span class="parameter" id="-param-subtract"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.8.1/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">subtract</span> = <span class="default-value">false</span>, </span></li>
 <li><span class="parameter" id="-param-widthGen"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.8.1/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.dart.dev/stable/3.8.1/dart-core/int-class.html">int</a></span>&gt;</span></span> <span class="parameter-name">widthGen</span>(<ol class="parameter-list single-line"> <li><span class="parameter" id="param-"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.8.1/dart-core/int-class.html">int</a></span></span></li>
 </ol>) = <span class="default-value">CarrySelectCompoundAdder.splitSelectAdderAlgorithmSingleBlock</span>, </span></li>
@@ -80,6 +80,12 @@ plus 1).</p>
 <li><code>subtractIn</code> is an optional Logic control for subtraction.</li>
 <li><code>subtract</code> is a boolean control for subtraction. It must be
 false(default) if a <code>subtractIn</code> Logic is provided.</li>
+<li><code>generateCarryOut</code> set to true will create output <a href="../../rohd_hcl/CarrySelectOnesComplementCompoundAdder/carryOut.html">carryOut</a> and employ
+the ones-complement optimization of not adding '1' to convert back to 2s
+complement during subtraction on the <a href="../../rohd_hcl/Adder/sum.html">sum</a>.</li>
+<li><code>generateCarryOutP1</code> set to true will create output <a href="../../rohd_hcl/CarrySelectOnesComplementCompoundAdder/carryOutP1.html">carryOutP1</a> and
+employ the ones-complement optimization of not adding '1' to convert
+back to 2s complement during subtraction on the <a href="../../rohd_hcl/CompoundAdder/sumP1.html">sumP1</a>.</li>
 <li><code>widthGen</code> is a function which produces a list for splitting
 the adder for the carry-select chain.  The default is
 <a href="../../rohd_hcl/CarrySelectCompoundAdder/splitSelectAdderAlgorithmSingleBlock.html">CarrySelectCompoundAdder.splitSelectAdderAlgorithmSingleBlock</a>,</li>
@@ -92,10 +98,10 @@ the adder for the carry-select chain.  The default is
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">CarrySelectOnesComplementCompoundAdder(super.a, super.b,
     {Adder Function(Logic, Logic, {Logic? carryIn}) adderGen =
-        ParallelPrefixAdder.new,
+        NativeAdder.new,
     Logic? subtractIn,
-    Logic? carryOut,
-    Logic? carryOutP1,
+    bool generateCarryOut = false,
+    bool generateCarryOutP1 = false,
     bool subtract = false,
     List&lt;int&gt; Function(int) widthGen =
         CarrySelectCompoundAdder.splitSelectAdderAlgorithmSingleBlock,
@@ -107,13 +113,11 @@ the adder for the carry-select chain.  The default is
       ? addInput(&#39;subtractIn&#39;, subtractIn, width: subtractIn.width)
       : null;
 
-  if (carryOut != null) {
+  if (generateCarryOut) {
     addOutput(&#39;carryOut&#39;);
-    carryOut &lt;= this.carryOut!;
   }
-  if (carryOutP1 != null) {
+  if (generateCarryOutP1) {
     addOutput(&#39;carryOutP1&#39;);
-    carryOutP1 &lt;= this.carryOutP1!;
   }
 
   final doSubtract = subtractIn ?? (subtract ? Const(subtract) : Const(0));
@@ -125,7 +129,7 @@ the adder for the carry-select chain.  The default is
           OnesComplementAdder(a, b,
               adderGen: adderGen,
               carryIn: carryIn,
-              endAroundCarry: Logic(),
+              generateEndAroundCarry: true,
               subtract: subtract,
               chainable: true,
               subtractIn: subtractIn));
@@ -134,19 +138,19 @@ the adder for the carry-select chain.  The default is
   addOutput(&#39;signP1&#39;) &lt;= mux(doSubtract, ~csadder.sumP1[-1], Const(0));
   final sumPlus1 =
       mux(doSubtract &amp; csadder.sumP1[-1], ~csadder.sumP1, csadder.sumP1);
-  if (carryOutP1 != null) {
+  if (generateCarryOutP1) {
     sumP1 &lt;= sumPlus1;
-
-    this.carryOutP1! &lt;= csadder.sumP1[-1];
+    carryOutP1! &lt;= csadder.sumP1[-1];
   } else {
     final incrementer = ParallelPrefixIncr(sumPlus1);
-    sumP1 &lt;= incrementer.out.named(&#39;sum_plus2&#39;);
+    sumP1 &lt;=
+        mux(csadder.sumP1[-1], incrementer.out.named(&#39;sum_plus2&#39;), sumPlus1);
   }
-  if (carryOut != null) {
+  if (generateCarryOut) {
     sum &lt;= mux(doSubtract &amp; csadder.sum[-1], ~csadder.sum, csadder.sum);
-    this.carryOut! &lt;= csadder.sum[-1];
+    carryOut! &lt;= csadder.sum[-1];
   } else {
-    sum &lt;= sumPlus1;
+    sum &lt;= mux(doSubtract &amp; csadder.sum[-1], sumPlus1, csadder.sum);
   }
 }</code></pre>
 </section>

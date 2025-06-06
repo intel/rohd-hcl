@@ -54,6 +54,11 @@
 
     <section class="multi-line-signature">
       
+  <div>
+    <ol class="annotation-list">
+        <li>@<a href="https://pub.dev/documentation/meta/1.17.0/meta/internal-constant.html">internal</a></li>
+    </ol>
+  </div>
 <span class="returntype"><a href="https://api.dart.dev/stable/3.8.1/dart-core/int-class.html">int</a></span>
 <span class="name ">longestColumn</span>(<wbr>)
 
@@ -69,7 +74,8 @@
     
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
-  <pre class="language-dart"><code class="language-dart">int longestColumn() =&gt;
+  <pre class="language-dart"><code class="language-dart">@internal
+int longestColumn() =&gt;
     columns.reduce((a, b) =&gt; a.length &gt; b.length ? a : b).length;</code></pre>
 </section>
 

@@ -89,10 +89,18 @@ support infinity.</p>
     <h2>Constructors</h2>
     <dl class="constructor-summary-list">
         <dt id="FixedToFloat.new" class="callable">
-          <span class="name"><a href="../rohd_hcl/FixedToFloat/FixedToFloat.html">FixedToFloat.new</a></span><span class="signature">(<span class="parameter" id="-param-fixed"><span class="type-annotation"><a href="../rohd_hcl/FixedPoint-class.html">FixedPoint</a></span> <span class="parameter-name">fixed</span>, {</span><span class="parameter" id="-param-exponentWidth"><span>required</span> <span class="type-annotation"><a href="https://api.dart.dev/stable/3.8.1/dart-core/int-class.html">int</a></span> <span class="parameter-name">exponentWidth</span>, </span><span class="parameter" id="-param-mantissaWidth"><span>required</span> <span class="type-annotation"><a href="https://api.dart.dev/stable/3.8.1/dart-core/int-class.html">int</a></span> <span class="parameter-name">mantissaWidth</span>, </span><span class="parameter" id="-param-name"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.8.1/dart-core/String-class.html">String</a></span> <span class="parameter-name">name</span> = <span class="default-value">&#39;FixedToFloat&#39;</span></span>})</span>
+          <span class="name"><a href="../rohd_hcl/FixedToFloat/FixedToFloat.html">FixedToFloat.new</a></span><span class="signature">(<span class="parameter" id="-param-fixed"><span class="type-annotation"><a href="../rohd_hcl/FixedPoint-class.html">FixedPoint</a></span> <span class="parameter-name">fixed</span>, </span><span class="parameter" id="-param-outFloat"><span class="type-annotation"><a href="../rohd_hcl/FloatingPoint-class.html">FloatingPoint</a></span> <span class="parameter-name">outFloat</span>, {</span><span class="parameter" id="-param-signed"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.8.1/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">signed</span> = <span class="default-value">true</span>, </span><span class="parameter" id="-param-leadingDigitPredict"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.3/rohd/Logic-class.html">Logic</a>?</span> <span class="parameter-name">leadingDigitPredict</span>, </span><span class="parameter" id="-param-name"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.8.1/dart-core/String-class.html">String</a></span> <span class="parameter-name">name</span> = <span class="default-value">&#39;FixedToFloat&#39;</span></span>})</span>
         </dt>
         <dd>
-          Constructor
+          Constructor for fixed to floating-point conversion. This component takes
+a <code>fixed</code> point input number to convert, producing a floating-point output
+<a href="../rohd_hcl/FixedToFloat/float.html">float</a>.  The number can be specified as <code>signed</code> (true by default). The
+<code>leadingDigitPredict</code> pposition can optionally be provided which avoids
+having to do a full leading-digit scan for conversion. This provided value
+must be within 1 of the actual final leading one (after absolute value) of
+the input fixed-point number. A <a href="../rohd_hcl/LeadingDigitAnticipate-class.html">LeadingDigitAnticipate</a> module can be
+used to provide this value from two inputs to an adder producing the
+fixed-point value input to this converter.
         </dd>
     </dl>
   </section>
@@ -112,18 +120,6 @@ support infinity.</p>
   The definition name of this <a href="https://pub.dev/documentation/rohd/0.6.3/rohd/Module-class.html">Module</a> used when instantiating instances in
 generated code.
   <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
-
-</dd>
-
-        <dt id="exponentWidth" class="property">
-  <span class="name"><a href="../rohd_hcl/FixedToFloat/exponentWidth.html">exponentWidth</a></span>
-  <span class="signature">&#8594; <a href="https://api.dart.dev/stable/3.8.1/dart-core/int-class.html">int</a></span>
-  
-
-</dt>
-<dd>
-  Width of exponent, must be greater than 0.
-  <div class="features"><span class="feature">final</span></div>
 
 </dd>
 
@@ -202,18 +198,6 @@ signals.
 
 </dd>
 
-        <dt id="mantissaWidth" class="property">
-  <span class="name"><a href="../rohd_hcl/FixedToFloat/mantissaWidth.html">mantissaWidth</a></span>
-  <span class="signature">&#8594; <a href="https://api.dart.dev/stable/3.8.1/dart-core/int-class.html">int</a></span>
-  
-
-</dt>
-<dd>
-  Width of mantissa, must be greater than 0.
-  <div class="features"><span class="feature">final</span></div>
-
-</dd>
-
         <dt id="name" class="property inherited">
   <span class="name"><a href="https://pub.dev/documentation/rohd/0.6.3/rohd/Module/name.html">name</a></span>
   <span class="signature">&#8594; <a href="https://api.dart.dev/stable/3.8.1/dart-core/String-class.html">String</a></span>
@@ -223,6 +207,18 @@ signals.
 <dd class="inherited">
   The name of this <a href="https://pub.dev/documentation/rohd/0.6.3/rohd/Module-class.html">Module</a>.
   <div class="features"><span class="feature">final</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="outFloat" class="property">
+  <span class="name"><a href="../rohd_hcl/FixedToFloat/outFloat.html">outFloat</a></span>
+  <span class="signature">&#8596; <a href="../rohd_hcl/FloatingPoint-class.html">FloatingPoint</a></span>
+  
+
+</dt>
+<dd>
+  Internal representation of the output port.
+  <div class="features"><span class="feature">late</span><span class="feature">final</span></div>
 
 </dd>
 

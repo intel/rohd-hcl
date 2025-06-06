@@ -54,8 +54,9 @@
 
     <section class="multi-line-signature">
       
-      <span class="name ">FloatingPointValue.ofSpacedBinaryString</span>(<wbr><ol class="parameter-list single-line"> <li><span class="parameter" id="ofSpacedBinaryString-param-fp"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.8.1/dart-core/String-class.html">String</a></span> <span class="parameter-name">fp</span></span></li>
-</ol>)
+      <span class="name ">FloatingPointValue.ofSpacedBinaryString</span>(<wbr><ol class="parameter-list"> <li><span class="parameter" id="ofSpacedBinaryString-param-fp"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.8.1/dart-core/String-class.html">String</a></span> <span class="parameter-name">fp</span>, {</span></li>
+<li><span class="parameter" id="ofSpacedBinaryString-param-explicitJBit"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.8.1/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">explicitJBit</span> = <span class="default-value">false</span>, </span></li>
+</ol>})
     </section>
     
 <section class="desc markdown">
@@ -67,10 +68,13 @@ computes the widths of the exponent and mantissa from the input string.</p>
     
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
-  <pre class="language-dart"><code class="language-dart">factory FloatingPointValue.ofSpacedBinaryString(String fp) {
+  <pre class="language-dart"><code class="language-dart">factory FloatingPointValue.ofSpacedBinaryString(String fp,
+    {bool explicitJBit = false}) {
   final split = fp.split(&#39; &#39;);
   return populator(
-          exponentWidth: split[1].length, mantissaWidth: split[2].length)
+          exponentWidth: split[1].length,
+          mantissaWidth: split[2].length,
+          explicitJBit: explicitJBit)
       .ofSpacedBinaryString(fp);
 }</code></pre>
 </section>

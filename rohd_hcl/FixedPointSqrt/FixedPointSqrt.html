@@ -80,10 +80,10 @@
   Logic aLoc =
       FixedPoint(signed: a.signed, name: &#39;aLoc&#39;, m: a.m + 1, n: a.n + 1);
 
-  solution = Const(0, width: aLoc.width);
-  remainder = Const(0, width: aLoc.width);
-  subtractionValue = Const(0, width: aLoc.width);
-  aLoc = [Const(0), a, Const(0)].swizzle();
+  solution = Const(0, width: aLoc.width).named(&#39;solution&#39;);
+  remainder = Const(0, width: aLoc.width).named(&#39;remainder&#39;);
+  subtractionValue = Const(0, width: aLoc.width).named(&#39;subtraction&#39;);
+  aLoc = [Const(0), a, Const(0)].swizzle().named(&#39;a_loc&#39;);
 
   final outputSqrt = a.clone(name: &#39;sqrt&#39;);
   output(&#39;sqrt&#39;) &lt;= outputSqrt;
@@ -94,32 +94,37 @@
     remainder = [
       remainder.slice(width + 2 - 3, 0),
       aLoc.slice(aLoc.width - 1 - (i * 2), aLoc.width - 2 - (i * 2))
-    ].swizzle();
-    subtractionValue =
-        [solution.slice(width + 2 - 3, 0), Const(1, width: 2)].swizzle();
+    ].swizzle().named(&#39;remainder_iter$i&#39;);
+    subtractionValue = [solution.slice(width + 2 - 3, 0), Const(1, width: 2)]
+        .swizzle()
+        .named(&#39;subtraction_value_iter$i&#39;);
     solution = [
       solution.slice(width + 2 - 2, 0),
       subtractionValue.lte(remainder)
-    ].swizzle();
+    ].swizzle().named(&#39;solution_iter$i&#39;);
     remainder = mux(subtractionValue.lte(remainder),
-        remainder - subtractionValue, remainder);
+            remainder - subtractionValue, remainder)
+        .named(&#39;remainder_mux_iter$i&#39;);
   }
 
   &#47;&#47; loop again to finish remainder
   for (var i = 0; i &lt; ((width + 2) &gt;&gt; 1) - 1; i++) {
     &#47;&#47; don&#39;t try to append bits from a, they are done
-    remainder =
-        [remainder.slice(width + 2 - 3, 0), Const(0, width: 2)].swizzle();
-    subtractionValue =
-        [solution.slice(width + 2 - 3, 0), Const(1, width: 2)].swizzle();
+    remainder = [remainder.slice(width + 2 - 3, 0), Const(0, width: 2)]
+        .swizzle()
+        .named(&#39;remainder_final_iter$i&#39;);
+    subtractionValue = [solution.slice(width + 2 - 3, 0), Const(1, width: 2)]
+        .swizzle()
+        .named(&#39;subtraction_value_final_iter$i&#39;);
     solution = [
       solution.slice(width + 2 - 2, 0),
       subtractionValue.lte(remainder)
-    ].swizzle();
+    ].swizzle().named(&#39;solution_final_iter$i&#39;);
     remainder = mux(subtractionValue.lte(remainder),
-        remainder - subtractionValue, remainder);
+            remainder - subtractionValue, remainder)
+        .named(&#39;remainder_finalmux_iter$i&#39;);
   }
-  solution = solution + 1;
+  solution = (solution + 1).named(&#39;solution&#39;);
   outputSqrt &lt;= solution.slice(aLoc.width - 1, aLoc.width - a.width);
 }</code></pre>
 </section>

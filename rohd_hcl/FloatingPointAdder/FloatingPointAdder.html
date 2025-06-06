@@ -26,7 +26,7 @@
   <ol class="breadcrumbs gt-separated dark hidden-xs">
     <li><a href="../../index.html">rohd_hcl</a></li>
     <li><a href="../../rohd_hcl/">rohd_hcl.dart</a></li>
-    <li><a href="../../rohd_hcl/FloatingPointAdder-class.html">FloatingPointAdder<span class="signature">&lt;<wbr><span class="type-parameter">FpType extends FloatingPoint</span>&gt;</span></a></li>
+    <li><a href="../../rohd_hcl/FloatingPointAdder-class.html">FloatingPointAdder<span class="signature">&lt;<wbr><span class="type-parameter">FpTypeIn extends FloatingPoint</span>, <span class="type-parameter">FpTypeOut extends FloatingPoint</span>&gt;</span></a></li>
     <li class="self-crumb">FloatingPointAdder.new constructor</li>
   </ol>
   <div class="self-name">FloatingPointAdder.new</div>
@@ -49,23 +49,26 @@
       data-above-sidebar="rohd_hcl&#47;FloatingPointAdder-class-sidebar.html"
       data-below-sidebar="">
       <div>
-<h1><span class="kind-constructor">FloatingPointAdder&lt;<wbr><span class="type-parameter">FpType extends FloatingPoint</span>&gt;</span> constructor 
+<h1><span class="kind-constructor">FloatingPointAdder&lt;<wbr><span class="type-parameter">FpTypeIn extends FloatingPoint</span>, <span class="type-parameter">FpTypeOut extends FloatingPoint</span>&gt;</span> constructor 
 </h1></div>
 
     <section class="multi-line-signature">
       
-      <span class="name ">FloatingPointAdder&lt;<wbr><span class="type-parameter">FpType extends FloatingPoint</span>&gt;</span>(<wbr><ol class="parameter-list"> <li><span class="parameter" id="-param-a"><span class="type-annotation">FpType</span> <span class="parameter-name">a</span>, </span></li>
-<li><span class="parameter" id="-param-b"><span class="type-annotation">FpType</span> <span class="parameter-name">b</span>, {</span></li>
+      <span class="name ">FloatingPointAdder&lt;<wbr><span class="type-parameter">FpTypeIn extends FloatingPoint</span>, <span class="type-parameter">FpTypeOut extends FloatingPoint</span>&gt;</span>(<wbr><ol class="parameter-list"> <li><span class="parameter" id="-param-a"><span class="type-annotation">FpTypeIn</span> <span class="parameter-name">a</span>, </span></li>
+<li><span class="parameter" id="-param-b"><span class="type-annotation">FpTypeIn</span> <span class="parameter-name">b</span>, {</span></li>
 <li><span class="parameter" id="-param-clk"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.3/rohd/Logic-class.html">Logic</a>?</span> <span class="parameter-name">clk</span>, </span></li>
 <li><span class="parameter" id="-param-reset"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.3/rohd/Logic-class.html">Logic</a>?</span> <span class="parameter-name">reset</span>, </span></li>
 <li><span class="parameter" id="-param-enable"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.3/rohd/Logic-class.html">Logic</a>?</span> <span class="parameter-name">enable</span>, </span></li>
+<li><span class="parameter" id="-param-outSum"><span class="type-annotation">FpTypeOut?</span> <span class="parameter-name">outSum</span>, </span></li>
+<li><span class="parameter" id="-param-roundingMode"><span class="type-annotation"><a href="../../rohd_hcl/FloatingPointRoundingMode.html">FloatingPointRoundingMode</a></span> <span class="parameter-name">roundingMode</span> = <span class="default-value">FloatingPointRoundingMode.roundNearestEven</span>, </span></li>
 <li><span class="parameter" id="-param-name"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.8.1/dart-core/String-class.html">String</a></span> <span class="parameter-name">name</span> = <span class="default-value">&#39;floating_point_adder&#39;</span>, </span></li>
 <li><span class="parameter" id="-param-definitionName"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.8.1/dart-core/String-class.html">String</a>?</span> <span class="parameter-name">definitionName</span>, </span></li>
 </ol>})
     </section>
     
 <section class="desc markdown">
-  <p>Add two floating point numbers <code>a</code> and <code>b</code>, returning result in <a href="../../rohd_hcl/FloatingPointAdder/sum.html">sum</a>.</p>
+  <p>Add two floating point numbers <code>a</code> and <code>b</code>, returning result in <a href="../../rohd_hcl/FloatingPointAdder/sum.html">sum</a>.
+If a different output type is needed, you can provide that in <code>outSum</code>.</p>
 <ul>
 <li><code>clk</code>, <code>reset</code>, <code>enable</code> are optional inputs to control a pipestage
 (only inserted if <code>clk</code> is provided).</li>
@@ -76,31 +79,42 @@
     
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
-  <pre class="language-dart"><code class="language-dart">FloatingPointAdder(FpType a, FpType b,
+  <pre class="language-dart"><code class="language-dart">FloatingPointAdder(FpTypeIn a, FpTypeIn b,
     {Logic? clk,
     Logic? reset,
     Logic? enable,
+    FpTypeOut? outSum,
+    this.roundingMode = FloatingPointRoundingMode.roundNearestEven,
     super.name = &#39;floating_point_adder&#39;,
     String? definitionName})
-    : exponentWidth = a.exponent.width,
-      mantissaWidth = a.mantissa.width,
-      super(
+    : super(
           definitionName: definitionName ??
               &#39;FloatingPointAdder_E${a.exponent.width}&#39;
                   &#39;M${a.mantissa.width}&#39;) {
-  if (b.exponent.width != exponentWidth ||
-      b.mantissa.width != mantissaWidth) {
-    throw RohdHclException(&#39;FloatingPoint widths must match&#39;);
+  if (b.exponent.width != a.exponent.width ||
+      b.mantissa.width != a.mantissa.width) {
+    throw RohdHclException(&#39;FloatingPoint input widths must match&#39;);
   }
   this.clk = (clk != null) ? addInput(&#39;clk&#39;, clk) : null;
   this.reset = (reset != null) ? addInput(&#39;reset&#39;, reset) : null;
   this.enable = (enable != null) ? addInput(&#39;enable&#39;, enable) : null;
-  this.a = (a.clone(name: &#39;a&#39;) as FpType)
+  this.a = (a.clone(name: &#39;a&#39;) as FpTypeIn)
     ..gets(addInput(&#39;a&#39;, a, width: a.width));
-  this.b = (b.clone(name: &#39;b&#39;) as FpType)
+  this.b = (b.clone(name: &#39;b&#39;) as FpTypeIn)
     ..gets(addInput(&#39;b&#39;, b, width: b.width));
 
-  addOutput(&#39;sum&#39;, width: exponentWidth + mantissaWidth + 1);
+  internalSum =
+      (outSum ?? (a.explicitJBit ? b : a)).clone(name: &#39;outSum&#39;) as FpTypeOut;
+
+  exponentWidth = (outSum == null) ? a.exponent.width : outSum.exponent.width;
+  mantissaWidth = (outSum == null) ? a.mantissa.width : outSum.mantissa.width;
+
+  addOutput(&#39;sum&#39;, width: internalSum.width);
+
+  if (outSum != null) {
+    outSum &lt;= output(&#39;sum&#39;);
+  }
+  output(&#39;sum&#39;) &lt;= internalSum;
 }</code></pre>
 </section>
 
@@ -116,7 +130,7 @@
 <ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
     <li><a href="../../index.html">rohd_hcl</a></li>
     <li><a href="../../rohd_hcl/">rohd_hcl</a></li>
-    <li><a href="../../rohd_hcl/FloatingPointAdder-class.html">FloatingPointAdder<span class="signature">&lt;<wbr><span class="type-parameter">FpType extends FloatingPoint</span>&gt;</span></a></li>
+    <li><a href="../../rohd_hcl/FloatingPointAdder-class.html">FloatingPointAdder<span class="signature">&lt;<wbr><span class="type-parameter">FpTypeIn extends FloatingPoint</span>, <span class="type-parameter">FpTypeOut extends FloatingPoint</span>&gt;</span></a></li>
     <li class="self-crumb">FloatingPointAdder.new constructor</li>
 </ol>
 

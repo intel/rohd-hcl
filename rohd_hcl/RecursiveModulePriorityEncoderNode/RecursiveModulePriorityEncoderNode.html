@@ -54,8 +54,8 @@
 
     <section class="multi-line-signature">
       
-      <span class="name ">RecursiveModulePriorityEncoderNode</span>(<wbr><ol class="parameter-list"> <li><span class="parameter" id="-param-seq"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.8.1/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://pub.dev/documentation/rohd/0.6.3/rohd/Logic-class.html">Logic</a></span>&gt;</span></span> <span class="parameter-name">seq</span>, {</span></li>
-<li><span class="parameter" id="-param-name"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.8.1/dart-core/String-class.html">String</a></span> <span class="parameter-name">name</span> = <span class="default-value">&#39;unnamed_module&#39;</span>, </span></li>
+      <span class="name ">RecursiveModulePriorityEncoderNode</span>(<wbr><ol class="parameter-list"> <li><span class="parameter" id="-param-seq"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.3/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">seq</span>, {</span></li>
+<li><span class="parameter" id="-param-name"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.8.1/dart-core/String-class.html">String</a></span> <span class="parameter-name">name</span> = <span class="default-value">&#39;priority_encode_node&#39;</span>, </span></li>
 <li><span class="parameter" id="-param-depth"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.8.1/dart-core/int-class.html">int</a></span> <span class="parameter-name">depth</span> = <span class="default-value">0</span>, </span></li>
 </ol>})
     </section>
@@ -68,18 +68,15 @@
     
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
-  <pre class="language-dart"><code class="language-dart">RecursiveModulePriorityEncoderNode(List&lt;Logic&gt; seq,
-    {super.name, int depth = 0})
-    : super(definitionName: &#39;PriorityEncodeNode_W${seq.length}&#39;) {
-  seq = [
-    for (var i = 0; i &lt; seq.length; i++)
-      addInput(&#39;seq$i&#39;, seq[i], width: seq[i].width)
-  ];
-  if (seq.length == 1) {
+  <pre class="language-dart"><code class="language-dart">RecursiveModulePriorityEncoderNode(Logic seq,
+    {super.name = &#39;priority_encode_node&#39;, int depth = 0})
+    : super(definitionName: &#39;PriorityEncodeNode_W${seq.width}&#39;) {
+  seq = addInput(&#39;seq&#39;, seq, width: seq.width);
+  if (seq.width == 1) {
     addOutput(&#39;ret&#39;) &lt;= ~seq[0];
-  } else if (seq.length == 2) {
-    final l = seq[0].named(&#39;leftLeafLead_d$depth&#39;);
-    final r = seq[1].named(&#39;rightLeafLead_d$depth&#39;);
+  } else if (seq.width == 2) {
+    final l = seq[0].named(&#39;leftLeafLead&#39;);
+    final r = seq[1].named(&#39;rightLeafLead&#39;);
     addOutput(&#39;ret&#39;, width: 2);
     Combinational([
       If.block([
@@ -95,43 +92,39 @@
       ]),
     ]);
   } else {
-    final divisor = (log(seq.length - 1) &#47; log(2)).floor();
+    final divisor = (log(seq.width - 1) &#47; log(2)).floor();
     final split = pow(2.0, divisor).toInt();
 
-    final left = RecursiveModulePriorityEncoderNode(
-            seq.getRange(0, split).toList(),
-            name: &#39;left_d$depth&#39;,
-            depth: depth + 1)
+    final left = RecursiveModulePriorityEncoderNode(seq.getRange(0, split),
+            name: &#39;left&#39;, depth: depth + 1)
         .ret;
     var right = RecursiveModulePriorityEncoderNode(
-            seq.getRange(split, seq.length).toList(),
-            name: &#39;right_d$depth&#39;,
+            seq.getRange(split, seq.width),
+            name: &#39;right&#39;,
             depth: depth + 1)
         .ret;
     if (right.width &lt; left.width) {
       right = right.zeroExtend(left.width);
     }
-    final l = left[-1].named(&#39;leftLead_d$depth&#39;);
-    final r = right[-1].named(&#39;rightLead_d$depth&#39;);
+    final l = left[-1].named(&#39;leftLead&#39;);
+    final r = right[-1].named(&#39;rightLead&#39;);
     addOutput(&#39;ret&#39;, width: right.width + 1);
     final rhs = ((right.width &gt; 1)
             ? [Const(0), Const(1), right.slice(-2, 0)]
                 .swizzle()
-                .named(&#39;zo_right_d$depth&#39;)
-            : [Const(0), Const(1)].swizzle().named(&#39;zo_d$depth&#39;))
-        .named(&#39;right_d$depth&#39;);
+                .named(&#39;zo_right&#39;)
+            : [Const(0), Const(1)].swizzle().named(&#39;zo&#39;))
+        .named(&#39;rhs&#39;);
     Combinational([
       If.block([
         Iff(l &amp; r, [
           ret &lt;
-              [Const(1), Const(0, width: right.width)]
-                  .swizzle()
-                  .named(&#39;lr_d$depth&#39;),
+              [Const(1), Const(0, width: right.width)].swizzle().named(&#39;lr&#39;),
         ]),
         ElseIf(~l, [
-          ret &lt; [Const(0), left.slice(-1, 0)].swizzle().named(&#39;zl_d$depth&#39;),
+          ret &lt; [Const(0), left.slice(-1, 0)].swizzle().named(&#39;zl&#39;),
         ]),
-        ElseIf(l, [
+        Else([
           ret &lt; rhs,
         ]),
       ]),

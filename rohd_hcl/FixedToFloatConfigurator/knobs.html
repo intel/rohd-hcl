@@ -76,7 +76,8 @@ to configure this component.</p>
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">@override
 late final Map&lt;String, ConfigKnob&lt;dynamic&gt;&gt; knobs = UnmodifiableMapView({
-  &#39;Is input signed?&#39;: signKnob,
+  &#39;Signed Input&#39;: signKnob,
+  &#39;Leading Digit Prediction Input&#39;: leadingDigitPredictionKnob,
   &#39;Input integer width&#39;: mKnob,
   &#39;Input fraction width&#39;: nKnob,
   &#39;Output exponent width&#39;: exponentWidthKnob,

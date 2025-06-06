@@ -78,6 +78,7 @@
       a.zeroExtend(a.width + 1).named(&#39;aExtended&#39;, naming: Naming.mergeable);
   final bExtended =
       b.zeroExtend(a.width + 1).named(&#39;bExtended&#39;, naming: Naming.mergeable);
+
   final aPlusb = (aExtended + bExtended)
       .named(&#39;aExtended_plus_bExtended&#39;, naming: Naming.mergeable);
   if (carryIn == null) {

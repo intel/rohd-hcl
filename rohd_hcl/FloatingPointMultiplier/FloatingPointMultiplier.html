@@ -26,7 +26,7 @@
   <ol class="breadcrumbs gt-separated dark hidden-xs">
     <li><a href="../../index.html">rohd_hcl</a></li>
     <li><a href="../../rohd_hcl/">rohd_hcl.dart</a></li>
-    <li><a href="../../rohd_hcl/FloatingPointMultiplier-class.html">FloatingPointMultiplier<span class="signature">&lt;<wbr><span class="type-parameter">FpInType extends FloatingPoint</span>&gt;</span></a></li>
+    <li><a href="../../rohd_hcl/FloatingPointMultiplier-class.html">FloatingPointMultiplier<span class="signature">&lt;<wbr><span class="type-parameter">FpTypeIn extends FloatingPoint</span>, <span class="type-parameter">FpTypeOut extends FloatingPoint</span>&gt;</span></a></li>
     <li class="self-crumb">FloatingPointMultiplier.new constructor</li>
   </ol>
   <div class="self-name">FloatingPointMultiplier.new</div>
@@ -49,17 +49,18 @@
       data-above-sidebar="rohd_hcl&#47;FloatingPointMultiplier-class-sidebar.html"
       data-below-sidebar="">
       <div>
-<h1><span class="kind-constructor">FloatingPointMultiplier&lt;<wbr><span class="type-parameter">FpInType extends FloatingPoint</span>&gt;</span> constructor 
+<h1><span class="kind-constructor">FloatingPointMultiplier&lt;<wbr><span class="type-parameter">FpTypeIn extends FloatingPoint</span>, <span class="type-parameter">FpTypeOut extends FloatingPoint</span>&gt;</span> constructor 
 </h1></div>
 
     <section class="multi-line-signature">
       
-      <span class="name ">FloatingPointMultiplier&lt;<wbr><span class="type-parameter">FpInType extends FloatingPoint</span>&gt;</span>(<wbr><ol class="parameter-list"> <li><span class="parameter" id="-param-a"><span class="type-annotation">FpInType</span> <span class="parameter-name">a</span>, </span></li>
-<li><span class="parameter" id="-param-b"><span class="type-annotation">FpInType</span> <span class="parameter-name">b</span>, {</span></li>
+      <span class="name ">FloatingPointMultiplier&lt;<wbr><span class="type-parameter">FpTypeIn extends FloatingPoint</span>, <span class="type-parameter">FpTypeOut extends FloatingPoint</span>&gt;</span>(<wbr><ol class="parameter-list"> <li><span class="parameter" id="-param-a"><span class="type-annotation">FpTypeIn</span> <span class="parameter-name">a</span>, </span></li>
+<li><span class="parameter" id="-param-b"><span class="type-annotation">FpTypeIn</span> <span class="parameter-name">b</span>, {</span></li>
 <li><span class="parameter" id="-param-clk"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.3/rohd/Logic-class.html">Logic</a>?</span> <span class="parameter-name">clk</span>, </span></li>
 <li><span class="parameter" id="-param-reset"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.3/rohd/Logic-class.html">Logic</a>?</span> <span class="parameter-name">reset</span>, </span></li>
 <li><span class="parameter" id="-param-enable"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.3/rohd/Logic-class.html">Logic</a>?</span> <span class="parameter-name">enable</span>, </span></li>
-<li><span class="parameter" id="-param-outProduct"><span class="type-annotation"><a href="../../rohd_hcl/FloatingPoint-class.html">FloatingPoint</a>?</span> <span class="parameter-name">outProduct</span>, </span></li>
+<li><span class="parameter" id="-param-outProduct"><span class="type-annotation">FpTypeOut?</span> <span class="parameter-name">outProduct</span>, </span></li>
+<li><span class="parameter" id="-param-roundingMode"><span class="type-annotation"><a href="../../rohd_hcl/FloatingPointRoundingMode.html">FloatingPointRoundingMode</a></span> <span class="parameter-name">roundingMode</span> = <span class="default-value">FloatingPointRoundingMode.roundNearestEven</span>, </span></li>
 <li><span class="parameter" id="-param-ppGen"><span class="type-annotation"><a href="../../rohd_hcl/ParallelPrefix-class.html">ParallelPrefix</a></span> <span class="parameter-name">ppGen</span>(<ol class="parameter-list single-line"> <li><span class="parameter" id="param-"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.8.1/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://pub.dev/documentation/rohd/0.6.3/rohd/Logic-class.html">Logic</a></span>&gt;</span></span>, </span></li>
 <li><span class="parameter" id="param-"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.3/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name"></span>(<ol class="parameter-list single-line"> <li><span class="parameter" id="param-"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.3/rohd/Logic-class.html">Logic</a></span>, </span></li>
 <li><span class="parameter" id="param-"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.3/rohd/Logic-class.html">Logic</a></span></span></li>
@@ -87,11 +88,12 @@ generation.</li>
     
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
-  <pre class="language-dart"><code class="language-dart">FloatingPointMultiplier(FpInType a, FpInType b,
+  <pre class="language-dart"><code class="language-dart">FloatingPointMultiplier(FpTypeIn a, FpTypeIn b,
     {Logic? clk,
     Logic? reset,
     Logic? enable,
-    FloatingPoint? outProduct,
+    FpTypeOut? outProduct,
+    this.roundingMode = FloatingPointRoundingMode.roundNearestEven,
     &#47;&#47; ignore: avoid_unused_constructor_parameters
     ParallelPrefix Function(List&lt;Logic&gt;, Logic Function(Logic, Logic)) ppGen =
         KoggeStone.new,
@@ -110,12 +112,9 @@ generation.</li>
   mantissaWidth =
       (outProduct == null) ? a.mantissa.width : outProduct.mantissa.width;
 
-  internalProduct = FloatingPoint(
-      exponentWidth: exponentWidth,
-      mantissaWidth: mantissaWidth,
-      name: &#39;product&#39;);
-  addOutput(&#39;product&#39;, width: exponentWidth + mantissaWidth + 1);
-  output(&#39;product&#39;) &lt;= internalProduct;
+  internalProduct = (outProduct ?? a).clone(name: &#39;outSum&#39;) as FpTypeOut;
+  addOutput(&#39;product&#39;, width: exponentWidth + mantissaWidth + 1) &lt;=
+      internalProduct;
 
   if (outProduct != null) {
     outProduct &lt;= output(&#39;product&#39;);
@@ -123,11 +122,11 @@ generation.</li>
 
   this.clk = (clk != null) ? addInput(&#39;clk&#39;, clk) : clk;
   this.enable = (enable != null) ? addInput(&#39;enable&#39;, enable) : enable;
-  this.reset = (reset != null) ? addInput(&#39;clk&#39;, reset) : reset;
+  this.reset = (reset != null) ? addInput(&#39;reset&#39;, reset) : reset;
 
-  this.a = (a.clone(name: &#39;a&#39;) as FpInType)
+  this.a = (a.clone(name: &#39;a&#39;) as FpTypeIn)
     ..gets(addInput(&#39;a&#39;, a, width: a.width));
-  this.b = (b.clone(name: &#39;b&#39;) as FpInType)
+  this.b = (b.clone(name: &#39;b&#39;) as FpTypeIn)
     ..gets(addInput(&#39;b&#39;, b, width: b.width));
 }</code></pre>
 </section>
@@ -144,7 +143,7 @@ generation.</li>
 <ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
     <li><a href="../../index.html">rohd_hcl</a></li>
     <li><a href="../../rohd_hcl/">rohd_hcl</a></li>
-    <li><a href="../../rohd_hcl/FloatingPointMultiplier-class.html">FloatingPointMultiplier<span class="signature">&lt;<wbr><span class="type-parameter">FpInType extends FloatingPoint</span>&gt;</span></a></li>
+    <li><a href="../../rohd_hcl/FloatingPointMultiplier-class.html">FloatingPointMultiplier<span class="signature">&lt;<wbr><span class="type-parameter">FpTypeIn extends FloatingPoint</span>, <span class="type-parameter">FpTypeOut extends FloatingPoint</span>&gt;</span></a></li>
     <li class="self-crumb">FloatingPointMultiplier.new constructor</li>
 </ol>
 

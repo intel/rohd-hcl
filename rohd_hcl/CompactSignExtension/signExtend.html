@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="API docs for the signExtend method from the CompactSignExtension class, for the Dart programming language.">
+  <title>signExtend method - CompactSignExtension class - rohd_hcl library - Dart API</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../../static-assets/github.css?v1">
+  <link rel="stylesheet" href="../../static-assets/styles.css?v1">
+  <link rel="icon" href="../../static-assets/favicon.png?v1">
+  
+</head>
+
+<body data-base-href="../../" data-using-base-href="false" class="light-theme">
+<div id="overlay-under-drawer"></div>
+<header id="title">
+  <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="../../index.html">rohd_hcl</a></li>
+    <li><a href="../../rohd_hcl/">rohd_hcl.dart</a></li>
+    <li><a href="../../rohd_hcl/CompactSignExtension-class.html">CompactSignExtension</a></li>
+    <li class="self-crumb">signExtend method</li>
+  </ol>
+  <div class="self-name">signExtend</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+  <button class="toggle" id="theme-button" title="Toggle between light and dark mode" aria-label="Light and dark mode toggle">
+    <span id="dark-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      dark_mode
+    </span>
+    <span id="light-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      light_mode
+    </span>
+  </button>
+</header>
+<main>
+<div
+    id="dartdoc-main-content"
+    class="main-content"
+    data-above-sidebar="rohd_hcl&#47;CompactSignExtension-class-sidebar.html"
+    data-below-sidebar="">
+    <div>
+<h1><span class="kind-method">signExtend</span> method 
+</h1></div>
+
+    <section class="multi-line-signature">
+      
+  <div>
+    <ol class="annotation-list">
+        <li>@<a href="https://api.dart.dev/stable/3.8.1/dart-core/override-constant.html">override</a></li>
+    </ol>
+  </div>
+<span class="returntype">void</span>
+<span class="name ">signExtend</span>(<wbr>)
+
+      <div class="features"><span class="feature">override</span></div>
+
+    </section>
+    
+<section class="desc markdown">
+  <p>Execute the sign extension, overridden to specialize.</p>
+</section>
+
+
+    
+<section class="summary source-code" id="source">
+  <h2><span>Implementation</span></h2>
+  <pre class="language-dart"><code class="language-dart">@override
+void signExtend() {
+  &#47;&#47; An implementation of
+  &#47;&#47; Mohanty, B.K., Choubey, A. Efficient Design for Radix-8 Booth Multiplier
+  &#47;&#47; and Its Application in Lifting 2-D DWT. Circuits Syst Signal Process 36,
+  &#47;&#47; 1129–1149 (2017). https:&#47;&#47;doi.org&#47;10.1007&#47;s00034-016-0349-9
+  if (signedMultiplicand &amp;&amp; (selectSignedMultiplicand != null)) {
+    throw RohdHclException(&#39;multiplicand sign reconfiguration requires &#39;
+        &#39;signedMultiplicand=false&#39;);
+  }
+  if (isSignExtended) {
+    throw RohdHclException(&#39;Partial Product array already sign-extended&#39;);
+  }
+  isSignExtended = true;
+
+  final lastRow = rows - 1;
+  final firstAddend = partialProducts[0];
+  final lastAddend = partialProducts[lastRow];
+
+  final firstRowQStart = selector.width - (signedMultiplicand ? 1 : 0);
+  final lastRowSignPos = shift * lastRow;
+  final alignRow0Sign = firstRowQStart - lastRowSignPos;
+
+  final signs = [
+    for (var r = 0; r &lt; rows; r++)
+      encoder
+          .fetchEncoding(r)
+          .sign
+          .named(&#39;sign_r$r&#39;, naming: Naming.mergeable)
+  ];
+
+  final propagate =
+      List.generate(rows, (i) =&gt; List.filled(0, Logic(), growable: true));
+
+  for (var row = 0; row &lt; rows; row++) {
+    propagate[row].add(signs[row]);
+    for (var col = 0; col &lt; 2 * (shift - 1); col++) {
+      propagate[row].add(partialProducts[row][col]
+          .named(&#39;propagate_r${row}_c$col&#39;, naming: Naming.mergeable));
+    }
+    &#47;&#47; Last row has extend sign propagation to Q start
+    if (row == lastRow) {
+      var col = 2 * (shift - 1);
+      while (propagate[lastRow].length &lt;= alignRow0Sign) {
+        propagate[lastRow].add(SignBit(partialProducts[row][col++]));
+      }
+    }
+    for (var col = 1; col &lt; propagate[row].length; col++) {
+      propagate[row][col] = (propagate[row][col] &amp; propagate[row][col - 1])
+          .named(&#39;propagate_r${row}_c$col&#39;, naming: Naming.mergeable);
+    }
+  }
+  final m =
+      List.generate(rows, (i) =&gt; List.filled(0, Logic(), growable: true));
+  for (var row = 0; row &lt; rows; row++) {
+    for (var c = 0; c &lt; shift - 1; c++) {
+      m[row].add((partialProducts[row][c] ^ propagate[row][c])
+          .named(&#39;m_r${row}_c$c&#39;, naming: Naming.mergeable));
+    }
+    m[row].addAll(List.filled(shift - 1, Logic()));
+  }
+  while (m[lastRow].length &lt; alignRow0Sign) {
+    m[lastRow].add(Logic());
+  }
+  &#47;&#47; TODO(desmonddak): this seems unused when looking at Verilog output
+  for (var i = shift - 1; i &lt; m[lastRow].length; i++) {
+    m[lastRow][i] = (lastAddend[i] ^
+            (i &lt; alignRow0Sign ? propagate[lastRow][i] : Const(0)))
+        .named(&#39;m_lastr_c$i&#39;, naming: Naming.mergeable);
+  }
+
+  final remainders = List.filled(rows, Logic());
+  for (var row = 0; row &lt; lastRow; row++) {
+    remainders[row] = propagate[row][shift - 1]
+        .named(&#39;remainders_r$row&#39;, naming: Naming.mergeable);
+  }
+  remainders[lastRow] &lt;=
+      propagate[lastRow][max(alignRow0Sign, 0)]
+          .named(&#39;remainders_lastrow&#39;, naming: Naming.mergeable);
+
+  &#47;&#47; Compute Sign extension for row==0
+  final firstSign = Logic(name: &#39;firstsign&#39;, naming: Naming.mergeable);
+  if (selectSignedMultiplicand == null) {
+    firstSign &lt;=
+        (signedMultiplicand ? SignBit(firstAddend.last) : SignBit(signs[0]));
+  } else {
+    firstSign &lt;=
+        SignBit(mux(selectSignedMultiplicand!, firstAddend.last, signs[0]));
+  }
+  final q = [
+    (firstSign ^ remainders[lastRow])
+        .named(&#39;qfirst&#39;, naming: Naming.mergeable),
+    (~(firstSign &amp; ~remainders[lastRow]))
+        .named(&#39;q_last&#39;, naming: Naming.mergeable),
+  ];
+  q.insertAll(1, List.filled(shift - 1, ~q[1]));
+
+  for (var row = 0; row &lt; rows; row++) {
+    final addend = partialProducts[row];
+    if (row &gt; 0) {
+      final mLimit = (row == lastRow) ? alignRow0Sign : shift - 1;
+      for (var i = 0; i &lt; mLimit; i++) {
+        addend[i] = m[row][i];
+      }
+      addStopSignFlip(addend, SignBit(~signs[row], inverted: true));
+      addend
+        ..insert(0, remainders[row - 1])
+        ..addAll(List.filled(shift - 1, Const(1)));
+      rowShift[row] -= 1;
+    } else {
+      for (var i = 0; i &lt; shift - 1; i++) {
+        firstAddend[i] = m[0][i];
+      }
+      if (!signedMultiplicand) {
+        firstAddend.add(q[0]);
+      } else {
+        firstAddend.last = q[0];
+      }
+      firstAddend.addAll(q.getRange(1, q.length));
+    }
+  }
+  if (shift == 1) {
+    lastAddend.add(Const(1));
+  }
+}</code></pre>
+</section>
+
+
+  </div> <!-- /.main-content -->
+  <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+    <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
+<header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+    <li><a href="../../index.html">rohd_hcl</a></li>
+    <li><a href="../../rohd_hcl/">rohd_hcl</a></li>
+    <li><a href="../../rohd_hcl/CompactSignExtension-class.html">CompactSignExtension</a></li>
+    <li class="self-crumb">signExtend method</li>
+</ol>
+
+    <h5>CompactSignExtension class</h5>
+    <div id="dartdoc-sidebar-left-content"></div>
+  </div><!--/.sidebar-offcanvas-->
+  <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+</div><!--/.sidebar-offcanvas-->
+</main>
+<footer>
+  <span class="no-break">
+    rohd_hcl
+      0.1.0
+  </span>
+  
+</footer>
+
+
+<script src="../../static-assets/highlight.pack.js?v1"></script>
+<script src="../../static-assets/docs.dart.js"></script>
+
+</body>
+</html>
+

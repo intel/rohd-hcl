@@ -75,10 +75,15 @@
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">@override
-Module createModule() =&gt; generatorMap[moduleTypeKnob.value]!(
-      Logic(width: logicWidthKnob.value),
-      Logic(width: logicWidthKnob.value),
-    );</code></pre>
+Module createModule() =&gt; CarrySelectCompoundAdder(
+    Logic(width: logicWidthKnob.value), Logic(width: logicWidthKnob.value),
+    widthGen: blockWidthKnob.value &gt; 0
+        ? CarrySelectCompoundAdder.splitSelectAdderAlgorithmNBit(
+            blockWidthKnob.value)
+        : CarrySelectCompoundAdder.splitSelectAdderAlgorithmSingleBlock,
+    adderGen: (a, b, {carryIn, subtractIn, name = &#39;default_adder&#39;}) =&gt;
+        adderSelectionKnob.selectedAdder()(a, b,
+            carryIn: carryIn, name: name));</code></pre>
 </section>
 
 

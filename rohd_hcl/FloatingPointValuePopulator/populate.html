@@ -73,11 +73,10 @@
     
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
-  <pre class="language-dart"><code class="language-dart">FpvType populate({
-  required LogicValue sign,
-  required LogicValue exponent,
-  required LogicValue mantissa,
-}) {
+  <pre class="language-dart"><code class="language-dart">FpvType populate(
+    {required LogicValue sign,
+    required LogicValue exponent,
+    required LogicValue mantissa}) {
   if (_hasPopulated) {
     throw RohdHclException(&#39;FloatingPointPopulator: already populated&#39;);
   }

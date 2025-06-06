@@ -78,6 +78,11 @@ representation. This form performs NO ROUNDING.</p>
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">@internal
 FpvType ofDoubleUnrounded(double inDouble) {
+  if (explicitJBit) {
+    return ofFloatingPointValue(FloatingPointValue.populator(
+            exponentWidth: exponentWidth, mantissaWidth: mantissaWidth - 1)
+        .ofDoubleUnrounded(inDouble)) as FpvType;
+  }
   if (inDouble.isNaN) {
     return ofConstant(FloatingPointConstants.nan);
   }

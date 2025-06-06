@@ -112,6 +112,18 @@
 
 </dd>
 
+        <dt id="explicitJBit" class="property inherited">
+  <span class="name"><a href="../rohd_hcl/FloatingPointValuePopulator/explicitJBit.html">explicitJBit</a></span>
+  <span class="signature">&#8594; <a href="https://api.dart.dev/stable/3.8.1/dart-core/bool-class.html">bool</a></span>
+  
+
+</dt>
+<dd class="inherited">
+  True if the format stores the Jbit explicitly.
+  <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
+
+</dd>
+
         <dt id="exponentWidth" class="property inherited">
   <span class="name"><a href="../rohd_hcl/FloatingPointValuePopulator/exponentWidth.html">exponentWidth</a></span>
   <span class="signature">&#8594; <a href="https://api.dart.dev/stable/3.8.1/dart-core/int-class.html">int</a></span>
@@ -375,6 +387,21 @@ representation. This form performs NO ROUNDING.
 </dt>
 <dd class="inherited">
   Extracts a <a href="../rohd_hcl/FloatingPointValue-class.html">FloatingPointValue</a> from a <a href="../rohd_hcl/FloatingPoint-class.html">FloatingPoint</a>'s <code>previousValue</code>.
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="ofFloatingPointValue" class="callable inherited">
+  <span class="name"><a href="../rohd_hcl/FloatingPointValuePopulator/ofFloatingPointValue.html">ofFloatingPointValue</a></span><span class="signature">(<wbr><span class="parameter" id="ofFloatingPointValue-param-fpv"><span class="type-annotation"><a href="../rohd_hcl/FloatingPointValue-class.html">FloatingPointValue</a></span> <span class="parameter-name">fpv</span>, {</span><span class="parameter" id="ofFloatingPointValue-param-canonicalizeExplicit"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.8.1/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">canonicalizeExplicit</span> = <span class="default-value">false</span></span>})
+    <span class="returntype parameter">&#8594; <a href="../rohd_hcl/FloatingPointValue-class.html">FloatingPointValue</a></span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Convert to from one <a href="../rohd_hcl/FloatingPointValue-class.html">FloatingPointValue</a> to another, canonicalizing
+the mantissa as requested if the output <a href="../rohd_hcl/FloatingPointValue-class.html">FloatingPointValue</a> has
+an explicit J bit.
   <div class="features"><span class="feature">inherited</span></div>
 
 </dd>

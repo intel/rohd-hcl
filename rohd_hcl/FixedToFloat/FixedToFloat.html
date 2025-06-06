@@ -54,85 +54,151 @@
 
     <section class="multi-line-signature">
       
-      <span class="name ">FixedToFloat</span>(<wbr><ol class="parameter-list"> <li><span class="parameter" id="-param-fixed"><span class="type-annotation"><a href="../../rohd_hcl/FixedPoint-class.html">FixedPoint</a></span> <span class="parameter-name">fixed</span>, {</span></li>
-<li><span class="parameter" id="-param-exponentWidth"><span>required</span> <span class="type-annotation"><a href="https://api.dart.dev/stable/3.8.1/dart-core/int-class.html">int</a></span> <span class="parameter-name">exponentWidth</span>, </span></li>
-<li><span class="parameter" id="-param-mantissaWidth"><span>required</span> <span class="type-annotation"><a href="https://api.dart.dev/stable/3.8.1/dart-core/int-class.html">int</a></span> <span class="parameter-name">mantissaWidth</span>, </span></li>
+      <span class="name ">FixedToFloat</span>(<wbr><ol class="parameter-list"> <li><span class="parameter" id="-param-fixed"><span class="type-annotation"><a href="../../rohd_hcl/FixedPoint-class.html">FixedPoint</a></span> <span class="parameter-name">fixed</span>, </span></li>
+<li><span class="parameter" id="-param-outFloat"><span class="type-annotation"><a href="../../rohd_hcl/FloatingPoint-class.html">FloatingPoint</a></span> <span class="parameter-name">outFloat</span>, {</span></li>
+<li><span class="parameter" id="-param-signed"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.8.1/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">signed</span> = <span class="default-value">true</span>, </span></li>
+<li><span class="parameter" id="-param-leadingDigitPredict"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.3/rohd/Logic-class.html">Logic</a>?</span> <span class="parameter-name">leadingDigitPredict</span>, </span></li>
 <li><span class="parameter" id="-param-name"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.8.1/dart-core/String-class.html">String</a></span> <span class="parameter-name">name</span> = <span class="default-value">&#39;FixedToFloat&#39;</span>, </span></li>
 </ol>})
     </section>
     
 <section class="desc markdown">
-  <p>Constructor</p>
+  <p>Constructor for fixed to floating-point conversion. This component takes
+a <code>fixed</code> point input number to convert, producing a floating-point output
+<a href="../../rohd_hcl/FixedToFloat/float.html">float</a>.  The number can be specified as <code>signed</code> (true by default). The
+<code>leadingDigitPredict</code> pposition can optionally be provided which avoids
+having to do a full leading-digit scan for conversion. This provided value
+must be within 1 of the actual final leading one (after absolute value) of
+the input fixed-point number. A <a href="../../rohd_hcl/LeadingDigitAnticipate-class.html">LeadingDigitAnticipate</a> module can be
+used to provide this value from two inputs to an adder producing the
+fixed-point value input to this converter.</p>
 </section>
 
 
     
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
-  <pre class="language-dart"><code class="language-dart">FixedToFloat(FixedPoint fixed,
-    {required this.exponentWidth,
-    required this.mantissaWidth,
+  <pre class="language-dart"><code class="language-dart">FixedToFloat(FixedPoint fixed, this.outFloat,
+    {bool signed = true,
+    Logic? leadingDigitPredict,
     super.name = &#39;FixedToFloat&#39;})
     : super(
           definitionName:
-              &#39;Fixed${fixed.width}ToFloatE${exponentWidth}M$mantissaWidth&#39;) {
+              &#39;Fixed${fixed.width}ToFloatE${outFloat.exponent.width}&#39;
+              &#39;M$outFloat.mantissa.width&#39;) {
   fixed = fixed.clone()..gets(addInput(&#39;fixed&#39;, fixed, width: fixed.width));
-  addOutput(&#39;float&#39;, width: _float.width) &lt;= _float;
+  final exponentWidth = outFloat.exponent.width;
+  final mantissaWidth = outFloat.mantissa.width;
+  _convertedFloat = FloatingPoint(
+      exponentWidth: exponentWidth, mantissaWidth: mantissaWidth);
+  addOutput(&#39;float&#39;, width: outFloat.width) &lt;= _convertedFloat;
+  outFloat &lt;= output(&#39;float&#39;);
+
+  leadingDigitPredict = (leadingDigitPredict != null)
+      ? addInput(&#39;leadingDigitPredict&#39;, leadingDigitPredict,
+          width: leadingDigitPredict.width)
+      : null;
 
   final bias = float.floatingPointValue.bias;
-  final eMax = pow(2, exponentWidth) - 2;
-  final iWidth =
-      (2 + max(fixed.n, max(log2Ceil(fixed.width), exponentWidth))).toInt();
+  final eMax = pow(2, float.exponent.width) - 2;
+  final iWidth = (1 +
+          max(log2Ceil(fixed.n),
+              max(log2Ceil(fixed.width), float.exponent.width)))
+      .toInt();
 
   &#47;&#47; Special handling needed for E4M3 as it does not support inf
   if ((exponentWidth == 4) &amp;&amp; (mantissaWidth == 3)) {
     UnimplementedError(&#39;E4M3 is not supported.&#39;);
   }
 
-  &#47;&#47; Extract sign bit
-  if (fixed.signed) {
-    _float.sign &lt;= fixed[-1];
+  final Logic absValue;
+  if (signed) {
+    &#47;&#47; Extract sign bit
+    _convertedFloat.sign &lt;= (fixed.signed ? fixed[-1] : Const(0));
+
+    absValue = Logic(name: &#39;absValue&#39;, width: fixed.width)
+      ..gets(mux(_convertedFloat.sign, ~(fixed - 1), fixed));
   } else {
-    _float.sign &lt;= Const(0);
+    _convertedFloat.sign &lt;= Const(0);
+    absValue = Logic(name: &#39;absValue&#39;, width: fixed.width)
+      ..gets(mux(_convertedFloat.sign, fixed, fixed));
   }
 
-  final absValue = Logic(name: &#39;absValue&#39;, width: fixed.width)
-    ..gets(mux(_float.sign, ~(fixed - 1), fixed));
-
-  final jBit = RecursiveModulePriorityEncoder(absValue.reversed)
-      .out
-      .zeroExtend(iWidth)
-      .named(&#39;jBit&#39;);
-
-  &#47;&#47; TODO(desmonddak): refactor to use the roundRNE component
-
-  &#47;&#47; Extract mantissa
-  final mantissa = Logic(name: &#39;mantissa&#39;, width: mantissaWidth);
-  final guard = Logic(name: &#39;guardBit&#39;);
-  final sticky = Logic(name: &#39;stickBit&#39;);
-  final j = Logic(name: &#39;j&#39;, width: iWidth);
   final maxShift = fixed.width - fixed.n + bias - 2;
 
-  &#47;&#47; Limit to minimum exponent
-  if (maxShift &gt; 0) {
-    j &lt;= mux(jBit.gt(maxShift), Const(maxShift, width: iWidth), jBit);
-  } else {
-    j &lt;= jBit;
-  }
+  final jBit = Logic(name: &#39;jBit&#39;, width: iWidth);
+  Logic estimatedJBit;
+  Logic absValueShifted;
+  if (leadingDigitPredict != null) {
+    &#47;&#47; 3 positions are possible:  The leadingDigitPredict can be one
+    &#47;&#47; ahead of, matching or one behindthe actual jBit after absolute value.
+    final fSign = fixed[-1].zeroExtend(leadingDigitPredict.width);
 
-  &#47;&#47; Align mantissa
-  final absValueShifted = Logic(
-      width: max(absValue.width, mantissaWidth + 2), name: &#39;absValueShifted&#39;);
-  if (absValue.width &lt; mantissaWidth + 2) {
-    final zeros = Const(0, width: mantissaWidth + 2 - absValue.width);
-    absValueShifted &lt;= [absValue, zeros].swizzle() &lt;&lt; j;
-  } else {
-    absValueShifted &lt;= absValue &lt;&lt; j;
-  }
+    &#47;&#47; If the lead is 1 for a negative, start at leadingDigitPredict - 1
+    estimatedJBit = mux(
+        _convertedFloat.sign.eq(fixed[-1]),
+        mux(leadingDigitPredict.gte(fSign), leadingDigitPredict - fSign,
+            leadingDigitPredict),
+        Const(0, width: leadingDigitPredict.width));
+    &#47;&#47; Shift by current preJ to inspect leading bit
+    if (absValue.width &lt; float.mantissa.width + 2) {
+      absValueShifted = [
+            absValue,
+            Const(0, width: float.mantissa.width + 2 - absValue.width)
+          ].swizzle() &lt;&lt;
+          estimatedJBit;
+    } else {
+      absValueShifted = absValue &lt;&lt; estimatedJBit;
+    }
+    &#47;&#47; Second Shift by one if leading digit is not &#39;1&#39;.
+    estimatedJBit =
+        mux(absValueShifted[-1], estimatedJBit, estimatedJBit + 1);
+    absValueShifted =
+        mux(absValueShifted[-1], absValueShifted, absValueShifted &lt;&lt; 1);
 
-  mantissa &lt;= absValueShifted.getRange(-mantissaWidth - 1, -1);
-  guard &lt;= absValueShifted.getRange(-mantissaWidth - 2, -mantissaWidth - 1);
-  sticky &lt;= absValueShifted.getRange(0, -mantissaWidth - 2).or();
+    &#47;&#47; Third and final shift by one if leading digit is not &#39;1&#39;.
+    jBit &lt;=
+        mux(absValueShifted[-1], estimatedJBit, estimatedJBit + 1)
+            .zeroExtend(iWidth);
+    absValueShifted =
+        mux(absValueShifted[-1], absValueShifted, absValueShifted &lt;&lt; 1);
+  } else {
+    &#47;&#47; No prediction given:  go find the leading digit
+    final exactJBit = RecursiveModulePriorityEncoder(absValue.reversed)
+        .out
+        .zeroExtend(iWidth)
+        .named(&#39;predictedjBit&#39;);
+    &#47;&#47; Limit to minimum exponent
+    if (maxShift &gt; 0) {
+      jBit &lt;=
+          mux(exactJBit.gt(maxShift), Const(maxShift, width: iWidth),
+              exactJBit);
+    } else {
+      jBit &lt;= exactJBit;
+    }
+    &#47;&#47; Align mantissa
+    if (absValue.width &lt; float.mantissa.width + 2) {
+      absValueShifted = [
+            absValue,
+            Const(0, width: float.mantissa.width + 2 - absValue.width)
+          ].swizzle() &lt;&lt;
+          jBit;
+    } else {
+      absValueShifted = absValue &lt;&lt; jBit;
+    }
+  }
+  &#47;&#47; TODO(desmonddak): refactor to use the roundRNE component.  Also:
+  &#47;&#47; https:&#47;&#47;github.com&#47;intel&#47;rohd-hcl&#47;issues&#47;191
+
+  &#47;&#47; Extract mantissa
+  final mantissa = Logic(name: &#39;mantissa&#39;, width: float.mantissa.width);
+  final guard = Logic(name: &#39;guardBit&#39;);
+  final sticky = Logic(name: &#39;stickBit&#39;);
+  mantissa &lt;= absValueShifted.getRange(-float.mantissa.width - 1, -1);
+  guard &lt;=
+      absValueShifted.getRange(
+          -float.mantissa.width - 2, -float.mantissa.width - 1);
+  sticky &lt;= absValueShifted.getRange(0, -float.mantissa.width - 2).or();
 
   &#47;&#47;&#47; Round to nearest even: mantissa | guard sticky
   final roundUp = (guard &amp; (sticky | mantissa[0])).named(&#39;roundUp&#39;);
@@ -142,10 +208,14 @@
   &#47;&#47; Calculate biased exponent
   final eRaw = mux(
           absValueShifted[-1],
-          (Const(bias + fixed.width - fixed.n - 1, width: iWidth) - j)
+          (Const(bias + fixed.width - fixed.n - 1, width: iWidth) - jBit)
               .named(&#39;eShift&#39;),
           Const(0, width: iWidth))
       .named(&#39;eRaw&#39;);
+
+  &#47;&#47; TODO(desmonddak): potential optimization --
+  &#47;&#47;  we may be able to predict this from absValue instead of after
+  &#47;&#47;  mantissa increment.
   final eRawRne =
       mux(roundUp &amp; ~mantissaRounded.or(), eRaw + 1, eRaw).named(&#39;eRawRNE&#39;);
 
@@ -158,23 +228,24 @@
     If.block([
       Iff(~absValue.or(), [
         &#47;&#47; Zero
-        _float.exponent &lt; Const(0, width: exponentWidth),
-        _float.mantissa &lt; Const(0, width: mantissaWidth),
+        _convertedFloat.exponent &lt; Const(0, width: exponentWidth),
+        _convertedFloat.mantissa &lt; Const(0, width: float.mantissa.width),
       ]),
       ElseIf(expoMoreThanMax, [
         &#47;&#47; Infinity
-        _float.exponent &lt; LogicValue.filled(exponentWidth, LogicValue.one),
-        _float.mantissa &lt; Const(0, width: mantissaWidth),
+        _convertedFloat.exponent &lt;
+            LogicValue.filled(exponentWidth, LogicValue.one),
+        _convertedFloat.mantissa &lt; Const(0, width: float.mantissa.width),
       ]),
       ElseIf(expoLessThanOne, [
         &#47;&#47; Subnormal
-        _float.exponent &lt; Const(0, width: exponentWidth),
-        _float.mantissa &lt; mantissaRounded
+        _convertedFloat.exponent &lt; Const(0, width: exponentWidth),
+        _convertedFloat.mantissa &lt; mantissaRounded
       ]),
       Else([
         &#47;&#47; Normal
-        _float.exponent &lt; eRawRne.slice(exponentWidth - 1, 0),
-        _float.mantissa &lt; mantissaRounded
+        _convertedFloat.exponent &lt; eRawRne.slice(exponentWidth - 1, 0),
+        _convertedFloat.mantissa &lt; mantissaRounded
       ])
     ])
   ]);

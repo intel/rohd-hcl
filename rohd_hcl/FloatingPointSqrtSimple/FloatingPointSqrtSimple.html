@@ -90,7 +90,7 @@
   final isInf = a.isAnInfinity.named(&#39;isInf&#39;);
   final isNaN = a.isNaN.named(&#39;isNan&#39;);
   final isZero = a.isAZero.named(&#39;isZero&#39;);
-  final isDeNormal = ~a.isNormal.named(&#39;isDenorm&#39;);
+  final isDeNormal = (~a.isNormal).named(&#39;isDenorm&#39;);
   final enableSqrt =
       ~((isInf | isNaN | isZero | isDeNormal) | a.sign).named(&#39;enableSqrt&#39;);
 
@@ -98,7 +98,7 @@
   final deBiasAmt = (1 &lt;&lt; a.exponent.width - 1) - 1;
 
   &#47;&#47; deBias math
-  final deBiasExp = a.exponent - deBiasAmt;
+  final deBiasExp = (a.exponent - deBiasAmt).named(&#39;deBiasExp&#39;);
 
   &#47;&#47; shift exponent
   final shiftedExp = [deBiasExp[-1], deBiasExp.slice(a.exponent.width - 1, 1)]
@@ -110,7 +110,8 @@
 
   &#47;&#47; use fixed sqrt unit
   final aFixed = FixedPoint(signed: false, m: 3, n: a.mantissa.width);
-  aFixed &lt;= [Const(1, width: 3), a.mantissa.getRange(0)].swizzle();
+  aFixed &lt;=
+      [Const(1, width: 3), a.mantissa.getRange(0)].swizzle().named(&#39;aFixed&#39;);
 
   &#47;&#47; mux if we shift left by 1 if exponent was odd
   final aFixedAdj = aFixed.clone()
@@ -123,8 +124,10 @@
         .named(&#39;sqrtMux&#39;));
 
   &#47;&#47; convert back to floating point representation
-  final fpSqrt = FixedToFloat(fixedSqrt,
-      exponentWidth: a.exponent.width, mantissaWidth: a.mantissa.width);
+  final fpSqrt = FixedToFloat(
+      fixedSqrt,
+      FloatingPoint(
+          exponentWidth: a.exponent.width, mantissaWidth: a.mantissa.width));
 
   &#47;&#47; final calculation results
   Combinational([

@@ -1,0 +1,484 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="API docs for the FloatingPointAdderSinglePath.new constructor from Class FloatingPointAdderSinglePath from the rohd_hcl library, for the Dart programming language.">
+  <title>FloatingPointAdderSinglePath.new constructor - FloatingPointAdderSinglePath - rohd_hcl library - Dart API</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../../static-assets/github.css?v1">
+  <link rel="stylesheet" href="../../static-assets/styles.css?v1">
+  <link rel="icon" href="../../static-assets/favicon.png?v1">
+  
+</head>
+
+<body data-base-href="../../" data-using-base-href="false" class="light-theme">
+<div id="overlay-under-drawer"></div>
+<header id="title">
+  <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="../../index.html">rohd_hcl</a></li>
+    <li><a href="../../rohd_hcl/">rohd_hcl.dart</a></li>
+    <li><a href="../../rohd_hcl/FloatingPointAdderSinglePath-class.html">FloatingPointAdderSinglePath<span class="signature">&lt;<wbr><span class="type-parameter">FpTypeIn extends FloatingPoint</span>, <span class="type-parameter">FpTypeOut extends FloatingPoint</span>&gt;</span></a></li>
+    <li class="self-crumb">FloatingPointAdderSinglePath.new constructor</li>
+  </ol>
+  <div class="self-name">FloatingPointAdderSinglePath.new</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+  <button class="toggle" id="theme-button" title="Toggle between light and dark mode" aria-label="Light and dark mode toggle">
+    <span id="dark-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      dark_mode
+    </span>
+    <span id="light-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      light_mode
+    </span>
+  </button>
+</header>
+<main>
+  <div
+      id="dartdoc-main-content"
+      class="main-content"
+      data-above-sidebar="rohd_hcl&#47;FloatingPointAdderSinglePath-class-sidebar.html"
+      data-below-sidebar="">
+      <div>
+<h1><span class="kind-constructor">FloatingPointAdderSinglePath&lt;<wbr><span class="type-parameter">FpTypeIn extends FloatingPoint</span>, <span class="type-parameter">FpTypeOut extends FloatingPoint</span>&gt;</span> constructor 
+</h1></div>
+
+    <section class="multi-line-signature">
+      
+      <span class="name ">FloatingPointAdderSinglePath&lt;<wbr><span class="type-parameter">FpTypeIn extends FloatingPoint</span>, <span class="type-parameter">FpTypeOut extends FloatingPoint</span>&gt;</span>(<wbr><ol class="parameter-list"> <li><span class="parameter" id="-param-a"><span class="type-annotation">FpTypeIn</span> <span class="parameter-name">a</span>, </span></li>
+<li><span class="parameter" id="-param-b"><span class="type-annotation">FpTypeIn</span> <span class="parameter-name">b</span>, {</span></li>
+<li><span class="parameter" id="-param-outSum"><span class="type-annotation">FpTypeOut?</span> <span class="parameter-name">outSum</span>, </span></li>
+<li><span class="parameter" id="-param-clk"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.3/rohd/Logic-class.html">Logic</a>?</span> <span class="parameter-name">clk</span>, </span></li>
+<li><span class="parameter" id="-param-reset"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.3/rohd/Logic-class.html">Logic</a>?</span> <span class="parameter-name">reset</span>, </span></li>
+<li><span class="parameter" id="-param-enable"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.3/rohd/Logic-class.html">Logic</a>?</span> <span class="parameter-name">enable</span>, </span></li>
+<li><span class="parameter" id="-param-roundingMode"><span class="type-annotation"><a href="../../rohd_hcl/FloatingPointRoundingMode.html">FloatingPointRoundingMode</a></span> <span class="parameter-name">roundingMode</span> = <span class="default-value">FloatingPointRoundingMode.roundNearestEven</span>, </span></li>
+<li><span class="parameter" id="-param-normalizeOutput"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.8.1/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">normalizeOutput</span> = <span class="default-value">true</span>, </span></li>
+<li><span class="parameter" id="-param-adderGen"><span class="type-annotation"><a href="../../rohd_hcl/Adder-class.html">Adder</a></span> <span class="parameter-name">adderGen</span>(<ol class="parameter-list"> <li><span class="parameter" id="param-a"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.3/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">a</span>, </span></li>
+<li><span class="parameter" id="param-b"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.3/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">b</span>, {</span></li>
+<li><span class="parameter" id="param-carryIn"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.3/rohd/Logic-class.html">Logic</a>?</span> <span class="parameter-name">carryIn</span>, </span></li>
+<li><span class="parameter" id="param-name"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.8.1/dart-core/String-class.html">String</a></span> <span class="parameter-name">name</span>, </span></li>
+</ol>}) = <span class="default-value">NativeAdder.new</span>, </span></li>
+<li><span class="parameter" id="-param-widthGen"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.8.1/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.dart.dev/stable/3.8.1/dart-core/int-class.html">int</a></span>&gt;</span></span> <span class="parameter-name">widthGen</span>(<ol class="parameter-list single-line"> <li><span class="parameter" id="param-"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.8.1/dart-core/int-class.html">int</a></span></span></li>
+</ol>) = <span class="default-value">CarrySelectCompoundAdder.splitSelectAdderAlgorithmSingleBlock</span>, </span></li>
+<li><span class="parameter" id="-param-name"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.8.1/dart-core/String-class.html">String</a></span> <span class="parameter-name">name</span> = <span class="default-value">&#39;floatingpoint_adder_singlepath&#39;</span>, </span></li>
+</ol>})
+    </section>
+    
+<section class="desc markdown">
+  <p>Add two floating point numbers <code>a</code> and <code>b</code>, returning result in <a href="../../rohd_hcl/FloatingPointAdder/sum.html">sum</a>. If
+a different output type is needed, you can provide that in <code>outSum</code>.</p>
+<p>If the output is an explicit Jbit type, the option <code>normalizeOutput</code> can
+be turned off which allows for saving latency by not normalizing. This
+will lose accuracy unless the output is wide enough to not truncate or
+round the shifted output.</p>
+<ul>
+<li><code>adderGen</code> is an adder generator to be used in the primary adder
+functions.</li>
+<li><code>widthGen</code> is the splitting function for creating the different adder
+blocks within the internal <a href="../../rohd_hcl/CompoundAdder-class.html">CompoundAdder</a> used for mantissa addition.
+Decreasing the split width will increase speed but also increase area.</li>
+</ul>
+</section>
+
+
+    
+<section class="summary source-code" id="source">
+  <h2><span>Implementation</span></h2>
+  <pre class="language-dart"><code class="language-dart">FloatingPointAdderSinglePath(super.a, super.b,
+    {super.outSum,
+    super.clk,
+    super.reset,
+    super.enable,
+    super.roundingMode = FloatingPointRoundingMode.roundNearestEven,
+    bool normalizeOutput = true,
+    Adder Function(Logic a, Logic b, {Logic? carryIn, String name}) adderGen =
+        NativeAdder.new,
+    List&lt;int&gt; Function(int) widthGen =
+        CarrySelectCompoundAdder.splitSelectAdderAlgorithmSingleBlock,
+    super.name = &#39;floatingpoint_adder_singlepath&#39;})
+    : super(
+          definitionName: &#39;FloatingPointAdderSinglePath_&#39;
+              &#39;E${a.exponent.width}M${a.mantissa.width}&#39;) {
+  if (internalSum.exponent.width != a.exponent.width) {
+    throw RohdHclException(&#39;This adder currently only supports &#39;
+        &#39;output exponent width equal to input exponent width.&#39;);
+  }
+  if (internalSum.mantissa.width &lt; a.mantissa.width) {
+    throw RohdHclException(&#39;This adder currently only supports &#39;
+        &#39;output mantissa width greater than or equal &#39;
+        &#39;to input mantissa width.&#39;);
+  }
+  if (!normalizeOutput &amp; !internalSum.explicitJBit) {
+    throw RohdHclException(&#39;This adder only supports &#39;
+        &#39;not normalizing anexplicit JBit output.&#39;);
+  }
+  if ((roundingMode != FloatingPointRoundingMode.roundNearestEven) &amp;&amp;
+      (roundingMode != FloatingPointRoundingMode.truncate)) {
+    throw RohdHclException(&#39;FloatingPointAdderSinglePath only supports &#39;
+        &#39;roundNearestEven (default) and truncate).&#39;);
+  }
+
+  final aExplicit = Const(a.explicitJBit);
+  final bExplicit = Const(b.explicitJBit);
+  final swapper = FloatingPointSortByExp(a, b,
+      metaA: aExplicit, metaB: bExplicit, name: &#39;sorter_${a.name}_${b.name}&#39;);
+  final larger = swapper.outA;
+  final smaller = swapper.outB;
+  final largerExplicit = swapper.outMetaA!;
+  final smallerExplicit = swapper.outMetaB!;
+
+  final effectiveSubtraction = (a.sign ^ b.sign).named(&#39;effSubtraction&#39;);
+
+  final isInf = (larger.isAnInfinity | smaller.isAnInfinity).named(&#39;isInf&#39;);
+  final isNaN = (larger.isNaN |
+          smaller.isNaN |
+          (larger.isAnInfinity &amp;
+              smaller.isAnInfinity &amp;
+              (larger.sign ^ smaller.sign)))
+      .named(&#39;isNaN&#39;);
+
+  final expDiff = (larger.exponent - smaller.exponent).named(&#39;expDiff&#39;);
+  final largeMantissa = mux(
+          ~larger.isNormal ^ largerExplicit,
+          [larger.mantissa, Const(0)].swizzle(),
+          mux(
+              larger.isNormal,
+              [Const(1), larger.mantissa].swizzle(),
+              [
+                larger.mantissa.getRange(0, larger.mantissa.width - 1),
+                Const(0, width: 2)
+              ].swizzle()))
+      .named(&#39;largeMantissa&#39;);
+
+  final smallMantissa = mux(
+          ~smaller.isNormal ^ smallerExplicit,
+          [smaller.mantissa, Const(0)].swizzle(),
+          mux(
+              smaller.isNormal,
+              [Const(1), smaller.mantissa].swizzle(),
+              [
+                smaller.mantissa.getRange(0, smaller.mantissa.width - 1),
+                Const(0, width: 2)
+              ].swizzle()))
+      .named(&#39;smallMantissa&#39;);
+
+  &#47;&#47; TODO(desmonddak): Check:  mantissaWidth should be the same as the
+  &#47;&#47; output mantissa width.  How are we able to limit
+  &#47;&#47; the rounding position?
+  &#47;&#47; final outExtendedWidth =
+  &#47;&#47; max(0, extendedWidth - (mantissaWidth - larger.mantissa.width));
+  &#47;&#47; extended Width is this output mantissa over the larger width.
+  &#47;&#47; outExtended seems to be back to just the width of larger.
+  &#47;&#47; like we are not allowed to round past 2 mantissa widths.
+  &#47;&#47; that seems quite restrictive:
+  &#47;&#47;   xxxxxx     yyyyy|yy
+  &#47;&#47; This should be rounding y to fit into the output mantissa
+  final extendedWidth = min(
+      1 +
+          (mantissaWidth + 1) +
+          (a.explicitJBit ? 1 : 0) +
+          (b.explicitJBit ? 1 : 0),
+      pow(2, exponentWidth).toInt() - 2);
+
+  final largeFinalMantissa = largeMantissa;
+  final smallExtendedMantissa = [
+    smallMantissa,
+    Const(0, width: extendedWidth)
+  ].swizzle().named(&#39;smallExtendedMantissa&#39;);
+  final smallShiftedMantissa =
+      (smallExtendedMantissa &gt;&gt;&gt; expDiff).named(&#39;smallShiftedMantissa&#39;);
+
+  &#47;&#47; Compute sticky bits past extendedWidth: expDiff - extendedWidth
+  final int posWidth = max(expDiff.width, log2Ceil(smallMantissa.width));
+  final eD = expDiff.zeroExtend(posWidth).named(&#39;eD&#39;);
+  final eW = Const(extendedWidth, width: posWidth).named(&#39;eW&#39;);
+  final rem =
+      mux(eD.gte(eW), eD - eW, Const(0, width: posWidth)).named(&#39;rem&#39;);
+
+  final chop = mux(
+      rem.lt(Const(smallMantissa.width, width: rem.width)),
+      Const(smallMantissa.width, width: rem.width) - rem,
+      Const(0, width: rem.width));
+
+  final stickyBits = (smallMantissa &lt;&lt; chop).named(&#39;stickyBits&#39;);
+
+  final stickyBitsOr = stickyBits.or();
+
+  final largeNarrowMantissa = largeFinalMantissa;
+  final smallNarrowMantissa = smallShiftedMantissa.getRange(extendedWidth);
+
+  final highBitsAdder = CarrySelectOnesComplementCompoundAdder(
+      largeNarrowMantissa, smallNarrowMantissa,
+      generateCarryOut: true,
+      generateCarryOutP1: true,
+      subtractIn: effectiveSubtraction,
+      widthGen: widthGen,
+      adderGen: adderGen);
+
+  final carry = highBitsAdder.carryOut!;
+
+  final hSum = highBitsAdder.sum.named(&#39;highBitsSum&#39;);
+  final hSumP1 = highBitsAdder.sumP1.named(&#39;highBitsSumP1&#39;);
+
+  final lowerBits =
+      smallShiftedMantissa.getRange(0, extendedWidth).named(&#39;lowerBits&#39;);
+
+  final trueSign = mux(carry, larger.sign, smaller.sign).named(&#39;trueSign&#39;);
+
+  final lowBitsIncrement = (effectiveSubtraction &amp; carry &amp; expDiff.neq(0))
+      .named(&#39;lowBitsIncrement&#39;);
+
+  final carryBits = ~lowerBits.or();
+
+  final highBitsLSB =
+      (carryBits &amp; (~stickyBitsOr &amp; lowBitsIncrement)).named(&#39;highBitsLSB&#39;);
+
+  &#47;&#47; TODO(desmonddak): This can work on narrow if not explicit-jbit
+  &#47;&#47; We could optimize by splitting the search across the pipestage for
+  &#47;&#47; high and low bits (low only matter for explicit-jbit)
+  final limitSize = smallShiftedMantissa.width;
+  final predictor = LeadingZeroAnticipateCarry(
+      Const(0),
+      [largeFinalMantissa, Const(0, width: extendedWidth)]
+          .swizzle()
+          .slice(limitSize - 1, 0),
+      effectiveSubtraction,
+      smallShiftedMantissa.slice(limitSize - 1, 0),
+      endAroundCarry: carry);
+
+  final lead1Prediction = predictor.leadingOne.named(&#39;lead1Prediction&#39;);
+
+  final lead1PredictionValid =
+      predictor.validLeadOne.named(&#39;lead1PredictionValid&#39;);
+
+  final trueSignFlopped = localFlop(trueSign);
+  final largerExpFlopped = localFlop(larger.exponent);
+  final sumFlopped = localFlop(hSum);
+  final sumP1Flopped = localFlop(hSumP1);
+  final carryFlopped = localFlop(carry);
+  final isInfFlopped = localFlop(isInf);
+  final isNaNFlopped = localFlop(isNaN);
+  final highBitsLSBFlopped = localFlop(highBitsLSB);
+  final lowerBitsFlopped = localFlop(lowerBits);
+  final lowBitsOrFlopped = localFlop(stickyBitsOr);
+  final lowInvertFlopped = localFlop(lowBitsIncrement);
+  final stickyBitsOrFlopped = localFlop(stickyBitsOr);
+
+  final effectiveSubtractionFlopped = localFlop(effectiveSubtraction);
+  final leadingZerosPredictionValidFlopped = localFlop(lead1PredictionValid);
+  final lead1PredictionFlopped = localFlop(lead1Prediction);
+  final expDiffFlopped = localFlop(expDiff);
+
+  var incrementHighLSB = (sumFlopped +
+          ((highBitsLSBFlopped | expDiffFlopped.eq(0)) &amp;
+                  effectiveSubtractionFlopped &amp;
+                  carryFlopped)
+              .zeroExtend(sumFlopped.width))
+      .named(&#39;incrementHighLSB&#39;);
+
+  final incrementHighLSBN = mux(
+          (highBitsLSBFlopped | expDiffFlopped.eq(0)) &amp;
+              effectiveSubtractionFlopped &amp;
+              carryFlopped,
+          sumP1Flopped,
+          sumFlopped)
+      .named(&#39;incrementHighLSB&#39;);
+  incrementHighLSB = incrementHighLSBN;
+
+  final lowerBitsPolarity =
+      mux(lowInvertFlopped, ~lowerBitsFlopped, lowerBitsFlopped)
+          .named(&#39;lowerBitsPolarity&#39;);
+
+  final lowBitsSum = adderGen(
+          (~lowBitsOrFlopped &amp; lowInvertFlopped).zeroExtend(lowerBits.width),
+          lowerBitsPolarity)
+      .sum
+      .named(&#39;lowBitsSum&#39;);
+
+  final trueLowBits = lowBitsSum.slice(lowBitsSum.width - 2, 0) |
+      stickyBitsOrFlopped
+          .zeroExtend(lowBitsSum.width - 1)
+          .named(&#39;trueLowBits&#39;);
+
+  final fullSumWithIncrement =
+      [incrementHighLSB, trueLowBits].swizzle().named(&#39;fullMantissaWithIncr&#39;);
+
+  final fullMantissa = fullSumWithIncrement
+      .slice(fullSumWithIncrement.width - 2, 0)
+      .named(&#39;fullMantissa&#39;);
+
+  final shiftedPrediction = (fullSumWithIncrement &lt;&lt; lead1PredictionFlopped)
+      .named(&#39;shiftedPrediction&#39;);
+
+  final lead1Final = mux(shiftedPrediction[-1], lead1PredictionFlopped,
+          lead1PredictionFlopped + 1)
+      .named(&#39;lead1Final&#39;);
+
+  final shiftL1Final =
+      mux(shiftedPrediction[-1], shiftedPrediction, shiftedPrediction &lt;&lt; 1)
+          .slice(shiftedPrediction.width - (internalSum.explicitJBit ? 1 : 2),
+              (internalSum.explicitJBit ? 1 : 0))
+          .named(&#39;shiftL1Final&#39;);
+
+  final lead1Valid = leadingZerosPredictionValidFlopped;
+
+  final infExponent =
+      internalSum.inf(sign: trueSignFlopped).exponent.named(&#39;infExponent&#39;);
+
+  final lead1 = ((lead1Final.width &gt; exponentWidth)
+          ? mux(lead1Final.gte(infExponent.zeroExtend(lead1Final.width)),
+              infExponent, lead1Final.getRange(0, exponentWidth))
+          : lead1Final.zeroExtend(exponentWidth))
+      .named(&#39;lead1&#39;);
+
+  final lead1Dominates =
+      (lead1.gt(largerExpFlopped) | ~lead1Valid).named(&#39;lead1Dominates&#39;);
+
+  final exponent = mux(
+          lead1Dominates,
+          internalSum.zeroExponent,
+          (largerExpFlopped - lead1 + Const(1, width: lead1.width))
+              .named(&#39;expMinusLead1&#39;))
+      .named(&#39;outExponent&#39;);
+
+  final shiftMantissaByExp =
+      (fullMantissa &lt;&lt; largerExpFlopped).named(&#39;shiftMantissaByExp&#39;);
+
+  final mantissa =
+      mux(lead1Dominates, shiftMantissaByExp, shiftL1Final).named(&#39;mantissa&#39;);
+
+  final outExtendedWidth =
+      max(0, extendedWidth - (mantissaWidth - larger.mantissa.width));
+
+  final mantissaTrimmed =
+      mantissa.getRange(outExtendedWidth + 1).named(&#39;mantissaTrimmed&#39;);
+
+  Logic mantissaRound;
+  Logic exponentRound;
+  &#47;&#47; if rndPos &lt; 2, there is no point in rounding
+  final rndPos = outExtendedWidth + 1;
+  if (roundingMode == FloatingPointRoundingMode.roundNearestEven &amp;&amp;
+      (rndPos &gt;= 2)) {
+    final doRound = RoundRNE(
+            mux(exponent.or(), mantissa,
+                mantissa &gt;&gt; (internalSum.explicitJBit ? 1 : 0)),
+            rndPos)
+        .doRound
+        .named(&#39;doRound&#39;);
+
+    final rndAdder =
+        adderGen(mantissaTrimmed, doRound.zeroExtend(mantissaTrimmed.width));
+
+    final newRnd = rndAdder.sum;
+
+    mantissaRound = newRnd.slice(internalSum.explicitJBit ? -1 : -2,
+        -mantissaTrimmed.width - (internalSum.explicitJBit ? 0 : 1));
+
+    final altmantissaRound = newRnd.slice(-2, -mantissaTrimmed.width - 1);
+
+    mantissaRound = mux(
+            exponent.gt(Const(0, width: exponent.width)) &amp; ~mantissaRound[-1],
+            altmantissaRound,
+            mantissaRound)
+        .slice(-1, -mantissaWidth)
+        .named(&#39;mantissaRoundFinal&#39;);
+
+    exponentRound = mux(exponent.lt(infExponent),
+        exponent + rndAdder.sum[-1].zeroExtend(exponent.width), exponent);
+  } else {
+    &#47;&#47; No rounding needed, just use the mantissa as is. But mimic how the
+    &#47;&#47; rounding adder extends by one to keep the exact same computation
+    &#47;&#47; as above for now.
+    mantissaRound = mantissaTrimmed
+        .zeroExtend(mantissaTrimmed.width + 1)
+        .slice(internalSum.explicitJBit ? -1 : -2,
+            -mantissaTrimmed.width - (internalSum.explicitJBit ? 0 : 1));
+    final altMantissaRound = mantissaTrimmed
+        .zeroExtend(mantissaTrimmed.width + 1)
+        .slice(-2, -mantissaTrimmed.width - 1);
+    mantissaRound = mux(
+            exponent.gt(Const(0, width: exponent.width)) &amp; ~mantissaRound[-1],
+            altMantissaRound,
+            mantissaRound)
+        .named(&#39;mantissaRoundPreFinal&#39;);
+    if (mantissaRound.width &lt; mantissaWidth) {
+      mantissaRound = [
+        mantissaRound,
+        Const(0, width: mantissaWidth - mantissaRound.width)
+      ].swizzle().named(&#39;mantissaRoundFinal&#39;);
+    }
+    exponentRound = exponent;
+  }
+
+  final realIsInf =
+      (isInfFlopped | exponentRound.eq(infExponent)).named(&#39;realIsInf&#39;);
+
+  Combinational([
+    If.block([
+      Iff(isNaNFlopped, [
+        internalSum &lt; internalSum.nan,
+      ]),
+      ElseIf(realIsInf, [
+        internalSum &lt; internalSum.inf(sign: trueSignFlopped),
+      ]),
+      ElseIf(lead1Dominates, [
+        internalSum.sign &lt; trueSignFlopped,
+        internalSum.exponent &lt; internalSum.zeroExponent,
+        internalSum.mantissa &lt; mantissaRound,
+      ]),
+      Else([
+        internalSum.sign &lt; trueSignFlopped,
+        internalSum.exponent &lt; exponentRound,
+        internalSum.mantissa &lt; mantissaRound,
+      ])
+    ])
+  ]);
+}</code></pre>
+</section>
+
+
+  </div> <!-- /.main-content -->
+  <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+    <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
+<header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+    <li><a href="../../index.html">rohd_hcl</a></li>
+    <li><a href="../../rohd_hcl/">rohd_hcl</a></li>
+    <li><a href="../../rohd_hcl/FloatingPointAdderSinglePath-class.html">FloatingPointAdderSinglePath<span class="signature">&lt;<wbr><span class="type-parameter">FpTypeIn extends FloatingPoint</span>, <span class="type-parameter">FpTypeOut extends FloatingPoint</span>&gt;</span></a></li>
+    <li class="self-crumb">FloatingPointAdderSinglePath.new constructor</li>
+</ol>
+
+    <h5>FloatingPointAdderSinglePath class</h5>
+    <div id="dartdoc-sidebar-left-content"></div>
+  </div><!--/.sidebar-offcanvas-left-->
+  <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+  </div><!--/.sidebar-offcanvas-->
+</main>
+<footer>
+  <span class="no-break">
+    rohd_hcl
+      0.1.0
+  </span>
+  
+</footer>
+
+
+<script src="../../static-assets/highlight.pack.js?v1"></script>
+<script src="../../static-assets/docs.dart.js"></script>
+
+</body>
+</html>
+

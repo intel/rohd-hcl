@@ -119,6 +119,18 @@
 
 </dd>
 
+        <dt id="explicitJBit" class="property inherited">
+  <span class="name"><a href="../rohd_hcl/FloatingPointValue/explicitJBit.html">explicitJBit</a></span>
+  <span class="signature">&#8594; <a href="https://api.dart.dev/stable/3.8.1/dart-core/bool-class.html">bool</a></span>
+  
+
+</dt>
+<dd class="inherited">
+  Return true if the JBit is explicitly represented in the mantissa.
+  <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
+
+</dd>
+
         <dt id="exponent" class="property inherited">
   <span class="name"><a href="../rohd_hcl/FloatingPointValue/exponent.html">exponent</a></span>
   <span class="signature">&#8596; <a href="https://pub.dev/documentation/rohd/0.6.3/rohd/LogicValue-class.html">LogicValue</a></span>
@@ -352,6 +364,21 @@ NaN or "Not a Number".
 
 </dd>
 
+        <dt id="canonicalize" class="callable inherited">
+  <span class="name"><a href="../rohd_hcl/FloatingPointValue/canonicalize.html">canonicalize</a></span><span class="signature">(<wbr>)
+    <span class="returntype parameter">&#8594; <a href="../rohd_hcl/FloatingPointValue-class.html">FloatingPointValue</a></span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Return the cananocalized form of <a href="../rohd_hcl/FloatingPointValue-class.html">FloatingPointValue</a> which
+has the leading 1 at the front of the mantissa, or further right if
+subnormal.
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
         <dt id="clonePopulator" class="callable">
   <span class="name"><a href="../rohd_hcl/FloatingPointBF16Value/clonePopulator.html">clonePopulator</a></span><span class="signature">(<wbr>)
     <span class="returntype parameter">&#8594; <a href="../rohd_hcl/FloatingPointValuePopulator-class.html">FloatingPointValuePopulator</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../rohd_hcl/FloatingPointValue-class.html">FloatingPointValue</a></span>&gt;</span></span>
@@ -389,6 +416,19 @@ with the same widths.
 <dd class="inherited">
   Return the set of <a href="https://pub.dev/documentation/rohd/0.6.3/rohd/LogicValue-class.html">LogicValue</a>s for a given <a href="../rohd_hcl/FloatingPointConstants.html">FloatingPointConstants</a> at a
 given <a href="../rohd_hcl/FloatingPointValue/exponentWidth.html">exponentWidth</a> and <a href="../rohd_hcl/FloatingPointValue/mantissaWidth.html">mantissaWidth</a>.
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="isLegalValue" class="callable inherited">
+  <span class="name"><a href="../rohd_hcl/FloatingPointValue/isLegalValue.html">isLegalValue</a></span><span class="signature">(<wbr>)
+    <span class="returntype parameter">&#8594; <a href="https://api.dart.dev/stable/3.8.1/dart-core/bool-class.html">bool</a></span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Check if the mantissa and exponent stored are compatible
   <div class="features"><span class="feature">inherited</span></div>
 
 </dd>

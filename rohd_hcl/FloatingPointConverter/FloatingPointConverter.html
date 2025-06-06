@@ -26,7 +26,7 @@
   <ol class="breadcrumbs gt-separated dark hidden-xs">
     <li><a href="../../index.html">rohd_hcl</a></li>
     <li><a href="../../rohd_hcl/">rohd_hcl.dart</a></li>
-    <li><a href="../../rohd_hcl/FloatingPointConverter-class.html">FloatingPointConverter</a></li>
+    <li><a href="../../rohd_hcl/FloatingPointConverter-class.html">FloatingPointConverter<span class="signature">&lt;<wbr><span class="type-parameter">FpTypeIn extends FloatingPoint</span>, <span class="type-parameter">FpTypeOut extends FloatingPoint</span>&gt;</span></a></li>
     <li class="self-crumb">FloatingPointConverter.new constructor</li>
   </ol>
   <div class="self-name">FloatingPointConverter.new</div>
@@ -49,22 +49,22 @@
       data-above-sidebar="rohd_hcl&#47;FloatingPointConverter-class-sidebar.html"
       data-below-sidebar="">
       <div>
-<h1><span class="kind-constructor">FloatingPointConverter</span> constructor 
+<h1><span class="kind-constructor">FloatingPointConverter&lt;<wbr><span class="type-parameter">FpTypeIn extends FloatingPoint</span>, <span class="type-parameter">FpTypeOut extends FloatingPoint</span>&gt;</span> constructor 
 </h1></div>
 
     <section class="multi-line-signature">
       
-      <span class="name ">FloatingPointConverter</span>(<wbr><ol class="parameter-list"> <li><span class="parameter" id="-param-source"><span class="type-annotation"><a href="../../rohd_hcl/FloatingPoint-class.html">FloatingPoint</a></span> <span class="parameter-name">source</span>, </span></li>
-<li><span class="parameter" id="-param-destination"><span class="type-annotation"><a href="../../rohd_hcl/FloatingPoint-class.html">FloatingPoint</a></span> <span class="parameter-name">destination</span>, {</span></li>
+      <span class="name ">FloatingPointConverter&lt;<wbr><span class="type-parameter">FpTypeIn extends FloatingPoint</span>, <span class="type-parameter">FpTypeOut extends FloatingPoint</span>&gt;</span>(<wbr><ol class="parameter-list"> <li><span class="parameter" id="-param-source"><span class="type-annotation">FpTypeIn</span> <span class="parameter-name">source</span>, </span></li>
+<li><span class="parameter" id="-param-destination"><span class="type-annotation">FpTypeOut</span> <span class="parameter-name">destination</span>, {</span></li>
 <li><span class="parameter" id="-param-priorityGen"><span class="type-annotation"><a href="../../rohd_hcl/PriorityEncoder-class.html">PriorityEncoder</a></span> <span class="parameter-name">priorityGen</span>(<ol class="parameter-list"> <li><span class="parameter" id="param-bitVector"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.3/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">bitVector</span>, {</span></li>
+<li><span class="parameter" id="param-generateValid"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.8.1/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">generateValid</span>, </span></li>
 <li><span class="parameter" id="param-name"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.8.1/dart-core/String-class.html">String</a></span> <span class="parameter-name">name</span>, </span></li>
-<li><span class="parameter" id="param-valid"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.3/rohd/Logic-class.html">Logic</a>?</span> <span class="parameter-name">valid</span>, </span></li>
 </ol>}) = <span class="default-value">RecursiveModulePriorityEncoder.new</span>, </span></li>
 <li><span class="parameter" id="-param-adderGen"><span class="type-annotation"><a href="../../rohd_hcl/Adder-class.html">Adder</a></span> <span class="parameter-name">adderGen</span>(<ol class="parameter-list"> <li><span class="parameter" id="param-a"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.3/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">a</span>, </span></li>
 <li><span class="parameter" id="param-b"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.3/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">b</span>, {</span></li>
 <li><span class="parameter" id="param-carryIn"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.3/rohd/Logic-class.html">Logic</a>?</span> <span class="parameter-name">carryIn</span>, </span></li>
 </ol>}) = <span class="default-value">NativeAdder.new</span>, </span></li>
-<li><span class="parameter" id="-param-name"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.8.1/dart-core/String-class.html">String</a></span> <span class="parameter-name">name</span> = <span class="default-value">&#39;unnamed_module&#39;</span>, </span></li>
+<li><span class="parameter" id="-param-name"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.8.1/dart-core/String-class.html">String</a></span> <span class="parameter-name">name</span> = <span class="default-value">&#39;floating_point_converter&#39;</span>, </span></li>
 </ol>})
     </section>
     
@@ -84,12 +84,13 @@ leading one detection (default <a href="../../rohd_hcl/RecursiveModulePriorityEn
     
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
-  <pre class="language-dart"><code class="language-dart">FloatingPointConverter(FloatingPoint source, FloatingPoint destination,
-    {PriorityEncoder Function(Logic bitVector, {Logic? valid, String name})
+  <pre class="language-dart"><code class="language-dart">FloatingPointConverter(FpTypeIn source, this.destination,
+    {PriorityEncoder Function(Logic bitVector,
+            {bool generateValid, String name})
         priorityGen = RecursiveModulePriorityEncoder.new,
     Adder Function(Logic a, Logic b, {Logic? carryIn}) adderGen =
         NativeAdder.new,
-    super.name})
+    super.name = &#39;floating_point_converter&#39;})
     : sourceExponentWidth = source.exponent.width,
       sourceMantissaWidth = source.mantissa.width,
       super(
@@ -97,7 +98,7 @@ leading one detection (default <a href="../../rohd_hcl/RecursiveModulePriorityEn
               &#39;${destination.runtimeType}&#39;) {
   destExponentWidth = destination.exponent.width;
   destMantissaWidth = destination.mantissa.width;
-  source = source.clone(name: &#39;source&#39;)
+  source = (source.clone(name: &#39;source&#39;) as FpTypeIn)
     ..gets(addInput(&#39;source&#39;, source, width: source.width));
   addOutput(&#39;destination&#39;, width: _destination.width) &lt;= _destination;
   destination &lt;= output(&#39;destination&#39;);
@@ -113,37 +114,64 @@ leading one detection (default <a href="../../rohd_hcl/RecursiveModulePriorityEn
   final sBias = source.bias.zeroExtend(maxExpWidth).named(&#39;sourceBias&#39;);
   final dBias = destination.bias.zeroExtend(maxExpWidth).named(&#39;destBias&#39;);
   final se = source.exponent.zeroExtend(maxExpWidth).named(&#39;sourceExp&#39;);
-  final mantissa =
-      [source.isNormal, source.mantissa].swizzle().named(&#39;mantissa&#39;);
+  final mantissa = [
+    source.isNormal &amp; ~Const(source.explicitJBit),
+    source.mantissa
+  ].swizzle().named(&#39;mantissa&#39;);
 
   final nan = source.isNaN;
   final Logic infinity;
   final Logic destExponent;
   final Logic destMantissa;
+  final Logic biasDiff;
+  final Logic fullDiff;
+  final Logic leadOne;
+  final Logic leadOneValid;
+  final Logic shift;
+
   if (destExponentWidth &gt;= source.exponent.width) {
     &#47;&#47; Narrow to Wide
     infinity = source.isAnInfinity;
-    final biasDiff = (dBias - sBias).named(&#39;biasDiff&#39;);
-    final predictExp = (se + biasDiff).named(&#39;predictExp&#39;);
 
-    final leadOneValid = Logic(name: &#39;leadOne_valid&#39;);
-    final leadOnePre = priorityGen(mantissa.reversed,
-            valid: leadOneValid, name: &#39;lead_one_encoder&#39;)
-        .out;
-    final leadOne =
-        mux(leadOneValid, leadOnePre.zeroExtend(biasDiff.width), biasDiff)
-            .named(&#39;leadOne&#39;);
+    if (destExponentWidth &gt; source.exponent.width) {
+      biasDiff = (dBias - sBias).named(&#39;biasDiff&#39;);
 
-    final predictSub = mux(
-            biasDiff.gte(leadOne) &amp; leadOneValid,
-            biasDiff - (leadOne - Const(1, width: leadOne.width)),
-            Const(0, width: biasDiff.width))
-        .named(&#39;predictSubExp&#39;);
+      final leadOneEncoder = priorityGen(mantissa.reversed,
+          generateValid: true, name: &#39;lead_one_encoder&#39;);
+      final leadOnePre = leadOneEncoder.out;
+      leadOneValid = leadOneEncoder.valid!;
+      leadOne =
+          mux(leadOneValid, leadOnePre.zeroExtend(maxExpWidth), biasDiff)
+              .named(&#39;leadOne&#39;);
 
-    final shift =
-        mux(biasDiff.gte(leadOne), leadOne, biasDiff).named(&#39;shift&#39;);
+      fullDiff = mux(
+          Const(source.explicitJBit),
+          biasDiff +
+              source.exponent.zeroExtend(biasDiff.width) +
+              mux(~source.isNormal &amp; Const(source.explicitJBit),
+                  Const(1, width: maxExpWidth), Const(0, width: maxExpWidth)),
+          biasDiff);
+      shift = mux(fullDiff.gte(leadOne) &amp; leadOneValid, leadOne, fullDiff)
+          .named(&#39;shift&#39;);
+    } else {
+      biasDiff = Const(0, width: maxExpWidth);
+      fullDiff = Const(0, width: maxExpWidth);
+      leadOne = Const(0, width: maxExpWidth);
+      leadOneValid = Const(0);
+      shift = Const(0, width: maxExpWidth);
+    }
 
-    final newMantissa = (mantissa &lt;&lt; shift).named(&#39;mantissaShift&#39;);
+    final trueShift = shift +
+        mux(
+            Const(destination.explicitJBit) &amp;
+                source.isNormal &amp;
+                ~Const(source.explicitJBit),
+            Const(-1, width: maxExpWidth),
+            Const(0, width: maxExpWidth));
+
+    final newMantissa = mux(trueShift[-1], mantissa &gt;&gt; (~trueShift + 1),
+            mantissa &lt;&lt; trueShift)
+        .named(&#39;mantissaShift&#39;);
 
     final Logic roundedMantissa;
     final Logic roundIncExp;
@@ -162,40 +190,78 @@ leading one detection (default <a href="../../rohd_hcl/RecursiveModulePriorityEn
       roundedMantissa = newMantissa;
       roundIncExp = Const(0);
     }
+    final sliceMantissa = mux(
+        (Const(source.explicitJBit) | ~source.isNormal) &amp;
+            Const(destination.explicitJBit),
+        newMantissa.slice(-1, 1),
+        newMantissa.slice(-2, 0));
 
     destMantissa = ((destMantissaWidth &gt;= source.mantissa.width)
             ? [
-                newMantissa.slice(-2, 0),
+                sliceMantissa,
                 Const(0, width: destMantissaWidth - newMantissa.width + 1)
               ].swizzle().named(&#39;clippedMantissa&#39;)
             : roundedMantissa)
         .named(&#39;destMantissa&#39;);
 
-    final preExponent =
-        mux(shift.gt(Const(0, width: shift.width)), predictSub, predictExp)
-                .named(&#39;unRndDestExponent&#39;) +
-            roundIncExp.zeroExtend(predictSub.width).named(&#39;rndIncExp&#39;);
+    final Logic preExponent;
+    if (destExponentWidth &gt; source.exponent.width) {
+      final predictExp = (se + biasDiff).named(&#39;predictExp&#39;);
+      final predictSub = mux(
+              fullDiff.gte(leadOne) &amp; leadOneValid,
+              fullDiff - (leadOne - Const(1, width: leadOne.width)),
+              fullDiff - shift)
+          .named(&#39;predictSubExp&#39;);
+      preExponent =
+          mux(shift.gt(Const(0, width: shift.width)), predictSub, predictExp)
+                  .named(&#39;unRndDestExponent&#39;) +
+              roundIncExp.zeroExtend(predictSub.width).named(&#39;rndIncExp&#39;);
+    } else {
+      preExponent = se + roundIncExp.zeroExtend(se.width).named(&#39;rndIncExp&#39;);
+    }
     destExponent =
         preExponent.getRange(0, destExponentWidth).named(&#39;destExponent&#39;);
   } else {
     &#47;&#47; Wide to Narrow exponent
     final biasDiff = (sBias - dBias).named(&#39;biasDiff&#39;);
-    final predictE = mux(biasDiff.gte(se), Const(0, width: biasDiff.width),
-            (se - biasDiff).named(&#39;sourceRebiased&#39;))
-        .named(&#39;predictExponent&#39;);
 
-    final shift = mux(
-        biasDiff.gte(se),
-        (source.isNormal.zeroExtend(biasDiff.width).named(&#39;srcIsNormal&#39;) +
-                (biasDiff - se).named(&#39;negSourceRebiased&#39;))
+    final leadOneEncoder = priorityGen(mantissa.reversed,
+        generateValid: true, name: &#39;lead_one_encoder&#39;);
+    final leadOnePre = leadOneEncoder.out;
+    final leadOneValid = leadOneEncoder.valid!;
+    final leadOne =
+        mux(leadOneValid, leadOnePre.zeroExtend(maxExpWidth), biasDiff)
+            .named(&#39;leadOne&#39;);
+
+    final seW = se.zeroExtend(maxExpWidth);
+    final newSe = mux(
+        leadOneValid &amp; Const(source.explicitJBit) &amp; source.isNormal,
+        mux(seW.gte(leadOne), seW - (leadOne - Const(1, width: maxExpWidth)),
+            Const(0, width: maxExpWidth)),
+        seW);
+
+    final nextShift = mux(
+        biasDiff.gte(newSe),
+        (source.isNormal.zeroExtend(maxExpWidth).named(&#39;srcIsNormal&#39;) +
+                (biasDiff - newSe).named(&#39;negSourceRebiased&#39;))
             .named(&#39;shiftSubnormal&#39;),
-        Const(0, width: biasDiff.width));
+        Const(0, width: maxExpWidth));
+
+    final tns = nextShift -
+        (se - newSe) +
+        mux(Const(source.explicitJBit), Const(-1, width: maxExpWidth),
+            Const(0, width: maxExpWidth)) +
+        mux(Const(destination.explicitJBit), Const(1, width: maxExpWidth),
+            Const(0, width: maxExpWidth));
 
     final fullMantissa = [mantissa, Const(0, width: destMantissaWidth + 2)]
         .swizzle()
         .named(&#39;fullMantissa&#39;);
 
-    final shiftMantissa = (fullMantissa &gt;&gt;&gt; shift).named(&#39;shiftMantissa&#39;);
+    final shiftMantissa =
+        mux(tns[-1], fullMantissa &lt;&lt; ~tns + 1, fullMantissa &gt;&gt;&gt; tns)
+            .named(&#39;shiftMantissa&#39;);
+
     final rounder =
         RoundRNE(shiftMantissa, fullMantissa.width - destMantissaWidth - 1);
 
@@ -209,13 +275,22 @@ leading one detection (default <a href="../../rohd_hcl/RecursiveModulePriorityEn
             .swizzle()
             .named(&#39;rndIncrement&#39;));
     final roundIncExp = roundAdder.sum[-1];
-    final roundedMantissa = roundAdder.sum.getRange(0, destMantissaWidth);
+    final rawMantissa = roundAdder.sum;
 
-    destExponent = (predictE + roundIncExp.zeroExtend(predictE.width))
+    final newSlice = roundIncExp &amp; Const(destination.explicitJBit);
+
+    final sliceMantissa =
+        mux(newSlice, rawMantissa.slice(-1, 1), rawMantissa.slice(-2, 0));
+
+    destMantissa = sliceMantissa.getRange(0, destMantissaWidth);
+
+    final predictEN = mux(biasDiff.gte(newSe), Const(0, width: maxExpWidth),
+            (newSe - biasDiff).named(&#39;sourceRebiased&#39;))
+        .named(&#39;predictExponent&#39;);
+
+    destExponent = (predictEN + roundIncExp.zeroExtend(predictEN.width))
         .named(&#39;predictExpRounded&#39;)
         .getRange(0, destExponentWidth);
-    destMantissa =
-        roundedMantissa.getRange(0, destMantissaWidth).named(&#39;destMantissa&#39;);
 
     final maxDestExp = Const(
         destination.floatingPointValue.maxExponent +
@@ -223,7 +298,8 @@ leading one detection (default <a href="../../rohd_hcl/RecursiveModulePriorityEn
         width: maxExpWidth);
 
     infinity = source.isAnInfinity |
-        (se.gt(biasDiff) &amp; (se - biasDiff).gt(maxDestExp));
+        (newSe.gt(biasDiff) &amp; (newSe - biasDiff).gt(maxDestExp)) |
+        destExponent.zeroExtend(maxDestExp.width).gt(maxDestExp);
   }
   Combinational([
     If.block([
@@ -241,7 +317,7 @@ leading one detection (default <a href="../../rohd_hcl/RecursiveModulePriorityEn
                     mantissaWidth: destMantissaWidth)
                 .inf(sign: source.sign),
       ]),
-      ElseIf(Const(1), [
+      Else([
         _destination.sign &lt; source.sign,
         _destination.exponent &lt; destExponent,
         _destination.mantissa &lt; destMantissa,
@@ -263,7 +339,7 @@ leading one detection (default <a href="../../rohd_hcl/RecursiveModulePriorityEn
 <ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
     <li><a href="../../index.html">rohd_hcl</a></li>
     <li><a href="../../rohd_hcl/">rohd_hcl</a></li>
-    <li><a href="../../rohd_hcl/FloatingPointConverter-class.html">FloatingPointConverter</a></li>
+    <li><a href="../../rohd_hcl/FloatingPointConverter-class.html">FloatingPointConverter<span class="signature">&lt;<wbr><span class="type-parameter">FpTypeIn extends FloatingPoint</span>, <span class="type-parameter">FpTypeOut extends FloatingPoint</span>&gt;</span></a></li>
     <li class="self-crumb">FloatingPointConverter.new constructor</li>
 </ol>
 

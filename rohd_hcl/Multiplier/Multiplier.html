@@ -123,6 +123,7 @@ inputs to control these flops when <code>clk</code> is provided.</p>
       ? addInput(&#39;selectSignedMultiplier&#39;, selectSignedMultiplier)
       : null;
 
+  addOutput(&#39;product&#39;, width: a.width + b.width);
   addOutput(&#39;isProductSigned&#39;) &lt;=
       (signedMultiplicand | signedMultiplier ? Const(1) : Const(0)) |
           ((selectSignedMultiplicand != null)

@@ -1,0 +1,509 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="API docs for the FloatingPointAdderDualPath.new constructor from Class FloatingPointAdderDualPath from the rohd_hcl library, for the Dart programming language.">
+  <title>FloatingPointAdderDualPath.new constructor - FloatingPointAdderDualPath - rohd_hcl library - Dart API</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../../static-assets/github.css?v1">
+  <link rel="stylesheet" href="../../static-assets/styles.css?v1">
+  <link rel="icon" href="../../static-assets/favicon.png?v1">
+  
+</head>
+
+<body data-base-href="../../" data-using-base-href="false" class="light-theme">
+<div id="overlay-under-drawer"></div>
+<header id="title">
+  <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="../../index.html">rohd_hcl</a></li>
+    <li><a href="../../rohd_hcl/">rohd_hcl.dart</a></li>
+    <li><a href="../../rohd_hcl/FloatingPointAdderDualPath-class.html">FloatingPointAdderDualPath<span class="signature">&lt;<wbr><span class="type-parameter">FpTypeIn extends FloatingPoint</span>, <span class="type-parameter">FpTypeOut extends FloatingPoint</span>&gt;</span></a></li>
+    <li class="self-crumb">FloatingPointAdderDualPath.new constructor</li>
+  </ol>
+  <div class="self-name">FloatingPointAdderDualPath.new</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+  <button class="toggle" id="theme-button" title="Toggle between light and dark mode" aria-label="Light and dark mode toggle">
+    <span id="dark-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      dark_mode
+    </span>
+    <span id="light-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      light_mode
+    </span>
+  </button>
+</header>
+<main>
+  <div
+      id="dartdoc-main-content"
+      class="main-content"
+      data-above-sidebar="rohd_hcl&#47;FloatingPointAdderDualPath-class-sidebar.html"
+      data-below-sidebar="">
+      <div>
+<h1><span class="kind-constructor">FloatingPointAdderDualPath&lt;<wbr><span class="type-parameter">FpTypeIn extends FloatingPoint</span>, <span class="type-parameter">FpTypeOut extends FloatingPoint</span>&gt;</span> constructor 
+</h1></div>
+
+    <section class="multi-line-signature">
+      
+      <span class="name ">FloatingPointAdderDualPath&lt;<wbr><span class="type-parameter">FpTypeIn extends FloatingPoint</span>, <span class="type-parameter">FpTypeOut extends FloatingPoint</span>&gt;</span>(<wbr><ol class="parameter-list"> <li><span class="parameter" id="-param-a"><span class="type-annotation">FpTypeIn</span> <span class="parameter-name">a</span>, </span></li>
+<li><span class="parameter" id="-param-b"><span class="type-annotation">FpTypeIn</span> <span class="parameter-name">b</span>, {</span></li>
+<li><span class="parameter" id="-param-subtract"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.3/rohd/Logic-class.html">Logic</a>?</span> <span class="parameter-name">subtract</span>, </span></li>
+<li><span class="parameter" id="-param-clk"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.3/rohd/Logic-class.html">Logic</a>?</span> <span class="parameter-name">clk</span>, </span></li>
+<li><span class="parameter" id="-param-reset"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.3/rohd/Logic-class.html">Logic</a>?</span> <span class="parameter-name">reset</span>, </span></li>
+<li><span class="parameter" id="-param-enable"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.3/rohd/Logic-class.html">Logic</a>?</span> <span class="parameter-name">enable</span>, </span></li>
+<li><span class="parameter" id="-param-roundingMode"><span class="type-annotation"><a href="../../rohd_hcl/FloatingPointRoundingMode.html">FloatingPointRoundingMode</a></span> <span class="parameter-name">roundingMode</span> = <span class="default-value">FloatingPointRoundingMode.roundNearestEven</span>, </span></li>
+<li><span class="parameter" id="-param-adderGen"><span class="type-annotation"><a href="../../rohd_hcl/Adder-class.html">Adder</a></span> <span class="parameter-name">adderGen</span>(<ol class="parameter-list"> <li><span class="parameter" id="param-a"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.3/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">a</span>, </span></li>
+<li><span class="parameter" id="param-b"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.3/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">b</span>, {</span></li>
+<li><span class="parameter" id="param-carryIn"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.3/rohd/Logic-class.html">Logic</a>?</span> <span class="parameter-name">carryIn</span>, </span></li>
+<li><span class="parameter" id="param-name"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.8.1/dart-core/String-class.html">String</a></span> <span class="parameter-name">name</span>, </span></li>
+</ol>}) = <span class="default-value">NativeAdder.new</span>, </span></li>
+<li><span class="parameter" id="-param-widthGen"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.8.1/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.dart.dev/stable/3.8.1/dart-core/int-class.html">int</a></span>&gt;</span></span> <span class="parameter-name">widthGen</span>(<ol class="parameter-list single-line"> <li><span class="parameter" id="param-"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.8.1/dart-core/int-class.html">int</a></span></span></li>
+</ol>) = <span class="default-value">CarrySelectCompoundAdder.splitSelectAdderAlgorithmSingleBlock</span>, </span></li>
+<li><span class="parameter" id="-param-ppTree"><span class="type-annotation"><a href="../../rohd_hcl/ParallelPrefix-class.html">ParallelPrefix</a></span> <span class="parameter-name">ppTree</span>(<ol class="parameter-list single-line"> <li><span class="parameter" id="param-inps"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.8.1/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://pub.dev/documentation/rohd/0.6.3/rohd/Logic-class.html">Logic</a></span>&gt;</span></span> <span class="parameter-name">inps</span>, </span></li>
+<li><span class="parameter" id="param-op"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.3/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">op</span>(<ol class="parameter-list single-line"> <li><span class="parameter" id="param-term1"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.3/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">term1</span>, </span></li>
+<li><span class="parameter" id="param-term2"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.3/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">term2</span></span></li>
+</ol>)</span></li>
+</ol>) = <span class="default-value">KoggeStone.new</span>, </span></li>
+<li><span class="parameter" id="-param-name"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.8.1/dart-core/String-class.html">String</a></span> <span class="parameter-name">name</span> = <span class="default-value">&#39;floating_point_adder_dualpath&#39;</span>, </span></li>
+</ol>})
+    </section>
+    
+<section class="desc markdown">
+  <p>Add two floating point numbers <code>a</code> and <code>b</code>, returning result in <a href="../../rohd_hcl/FloatingPointAdder/sum.html">sum</a>.</p>
+<ul>
+<li><code>subtract</code> is an optional Logic input to do subtraction</li>
+<li><code>adderGen</code> is an adder generator to be used in the primary adder
+functions.</li>
+<li><code>widthGen</code> is the splitting function for creating the different adder
+blocks within the internal <a href="../../rohd_hcl/CompoundAdder-class.html">CompoundAdder</a> used for mantissa addition.
+Decreasing the split width will increase speed but also increase area.</li>
+<li><code>ppTree</code> is an ParallelPrefix generator for use in increment /decrement
+ functions.</li>
+</ul>
+</section>
+
+
+    
+<section class="summary source-code" id="source">
+  <h2><span>Implementation</span></h2>
+  <pre class="language-dart"><code class="language-dart">FloatingPointAdderDualPath(super.a, super.b,
+    {Logic? subtract,
+    super.clk,
+    super.reset,
+    super.enable,
+    super.roundingMode = FloatingPointRoundingMode.roundNearestEven,
+    Adder Function(Logic a, Logic b, {Logic? carryIn, String name}) adderGen =
+        NativeAdder.new,
+    List&lt;int&gt; Function(int) widthGen =
+        CarrySelectCompoundAdder.splitSelectAdderAlgorithmSingleBlock,
+    ParallelPrefix Function(
+            List&lt;Logic&gt; inps, Logic Function(Logic term1, Logic term2) op)
+        ppTree = KoggeStone.new,
+    super.name = &#39;floating_point_adder_dualpath&#39;})
+    : super(
+          definitionName: &#39;FloatingPointAdderDualPath_&#39;
+              &#39;E${a.exponent.width}M${a.mantissa.width}&#39;) {
+  if (a.explicitJBit || b.explicitJBit) {
+    throw ArgumentError(
+        &#39;FloatingPointAdderDualPath does not support explicit J bit.&#39;);
+  }
+  if (roundingMode != FloatingPointRoundingMode.roundNearestEven) {
+    throw RohdHclException(&#39;FloatingPointAdderDualPath only supports &#39;
+        &#39;roundNearestEven.&#39;);
+  }
+
+  &#47;&#47; Seidel: S.EFF = effectiveSubtraction
+  final effectiveSubtraction =
+      (a.sign ^ b.sign ^ (subtract ?? Const(0))).named(&#39;effSubtraction&#39;);
+  final isNaN = (a.isNaN |
+          b.isNaN |
+          (a.isAnInfinity &amp; b.isAnInfinity &amp; effectiveSubtraction))
+      .named(&#39;isNaN&#39;);
+  final isInf = (a.isAnInfinity | b.isAnInfinity).named(&#39;isInf&#39;);
+
+  final exponentSubtractor = OnesComplementAdder(
+      super.a.exponent, super.b.exponent,
+      subtract: true, adderGen: adderGen, name: &#39;exponent_sub&#39;);
+  final signDelta = exponentSubtractor.sign.named(&#39;signDelta&#39;);
+
+  final delta = exponentSubtractor.sum.named(&#39;expDelta&#39;);
+
+  &#47;&#47; Seidel: (sl, el, fl) = larger; (ss, es, fs) = smaller
+  final swapper = FloatingPointConditionalSwap(a, b, signDelta);
+  final larger = swapper.outA;
+  final smaller = swapper.outB;
+
+  final fl = mux(
+          ~larger.isNormal ^ Const(larger.explicitJBit),
+          [larger.mantissa, Const(0)].swizzle(),
+          mux(
+              larger.isNormal,
+              [Const(1), larger.mantissa].swizzle(),
+              [
+                larger.mantissa.getRange(0, mantissaWidth - 1),
+                Const(0, width: 2)
+              ].swizzle()))
+      .named(&#39;fullLarger&#39;);
+  final fs = mux(
+          ~smaller.isNormal ^ Const(smaller.explicitJBit),
+          [smaller.mantissa, Const(0)].swizzle(),
+          mux(
+              smaller.isNormal,
+              [Const(1), smaller.mantissa].swizzle(),
+              [
+                smaller.mantissa.getRange(0, mantissaWidth - 1),
+                Const(0, width: 2)
+              ].swizzle()))
+      .named(&#39;fullSmaller&#39;);
+
+  &#47;&#47; Seidel: flp  larger preshift, normally in [2,4)
+  final sigWidth = fl.width + 1;
+  final largeShift = mux(effectiveSubtraction, fl.zeroExtend(sigWidth) &lt;&lt; 1,
+          fl.zeroExtend(sigWidth))
+      .named(&#39;largeShift&#39;);
+  final smallShift = mux(effectiveSubtraction, fs.zeroExtend(sigWidth) &lt;&lt; 1,
+          fs.zeroExtend(sigWidth))
+      .named(&#39;smallShift&#39;);
+
+  final zeroExp = internalSum.zeroExponent;
+  final largeOperand = largeShift;
+  &#47;&#47;
+  &#47;&#47; R Datapath:  Far exponents or addition
+  &#47;&#47;
+  final extendWidthRPath =
+      min(mantissaWidth + 3, pow(2, exponentWidth).toInt() - 3);
+
+  final smallerFullRPath = [smallShift, Const(0, width: extendWidthRPath)]
+      .swizzle()
+      .named(&#39;smallerFullRpath&#39;);
+
+  final smallerAlignRPath = (smallerFullRPath &gt;&gt;&gt; exponentSubtractor.sum)
+      .named(&#39;smallerAlignedRpath&#39;);
+  final smallerOperandRPath = smallerAlignRPath
+      .slice(smallerAlignRPath.width - 1,
+          smallerAlignRPath.width - largeOperand.width)
+      .named(&#39;smallerOperandRpath&#39;);
+
+  &#47;&#47;&#47; R Pipestage here:
+  final aIsNormalFlopped = localFlop(a.isNormal);
+  final bIsNormalFlopped = localFlop(b.isNormal);
+  final effectiveSubtractionFlopped = localFlop(effectiveSubtraction);
+  final largeOperandFlopped = localFlop(largeOperand);
+  final smallerOperandRPathFlopped = localFlop(smallerOperandRPath);
+  final smallerAlignRPathFlopped = localFlop(smallerAlignRPath);
+  final largerExpFlopped = localFlop(larger.exponent);
+  final deltaFlopped = localFlop(delta);
+  final isInfFlopped = localFlop(isInf);
+  final isNaNFlopped = localFlop(isNaN);
+
+  final significandAdderRPath = CarrySelectOnesComplementCompoundAdder(
+      largeOperandFlopped, smallerOperandRPathFlopped,
+      subtractIn: effectiveSubtractionFlopped,
+      generateCarryOut: true,
+      generateCarryOutP1: true,
+      adderGen: adderGen,
+      widthGen: widthGen,
+      name: &#39;rpath_significand_adder&#39;);
+  final carryRPath = significandAdderRPath.carryOut!;
+
+  final lowBitsRPath = smallerAlignRPathFlopped
+      .slice(extendWidthRPath - 1, 0)
+      .named(&#39;lowbitsRpath&#39;);
+
+  final lowAdderRPathSum = adderGen(carryRPath.zeroExtend(extendWidthRPath),
+          mux(effectiveSubtractionFlopped, ~lowBitsRPath, lowBitsRPath),
+          name: &#39;rpath_lowadder&#39;)
+      .sum
+      .named(&#39;lowAdderSumRpath&#39;);
+
+  final preStickyRPath = lowAdderRPathSum
+      .slice(lowAdderRPathSum.width - 4, 0)
+      .or()
+      .named(&#39;preStickyRpath&#39;);
+  final stickyBitRPath =
+      (lowAdderRPathSum[-3] | preStickyRPath).named(&#39;stickyBitRpath&#39;);
+
+  final earlyGRSRPath = [
+    lowAdderRPathSum.slice(
+        lowAdderRPathSum.width - 2, lowAdderRPathSum.width - 3),
+    preStickyRPath
+  ].swizzle().named(&#39;earlyGRSRpath&#39;);
+
+  final sumRPath =
+      significandAdderRPath.sum.slice(mantissaWidth + 1, 0).named(&#39;sumRpath&#39;);
+  final sumP1RPath = significandAdderRPath.sumP1
+      .named(&#39;sumPlusOneRpath&#39;)
+      .slice(mantissaWidth + 1, 0);
+
+  final sumLeadZeroRPath =
+      (~sumRPath[-1] &amp; (aIsNormalFlopped | bIsNormalFlopped))
+          .named(&#39;sumlead0Rpath&#39;);
+  final sumP1LeadZeroRPath =
+      (~sumP1RPath[-1] &amp; (aIsNormalFlopped | bIsNormalFlopped))
+          .named(&#39;sumP1lead0Rpath&#39;);
+
+  final Logic selectRPath;
+  if (roundingMode == FloatingPointRoundingMode.roundNearestEven) {
+    selectRPath = lowAdderRPathSum[-1].named(&#39;selectRpath&#39;);
+  } else {
+    &#47;&#47; TODO(desmonddak): This is an attempt to get the truncation working
+    &#47;&#47; but it is not correct, so we disable this mode for now.
+    &#47;&#47; The issue is that we need to handle both the carry from lower
+    &#47;&#47; bits as well as the additional rounding bit and this logic
+    &#47;&#47; is turning off both.
+    &#47;&#47; This case fails to truncate:  0 0000 0000,   1 0010 0000
+    &#47;&#47; selectRPath = Const(0).named(&#39;selectRpath&#39;);
+    &#47;&#47; This case fails to truncate:  0 0000 0000,   1 1010 0000
+    selectRPath = lowAdderRPathSum[-1].named(&#39;selectRpath&#39;);
+  }
+  &#47;&#47; R pipestage here:
+
+  final shiftGRSRPath =
+      [earlyGRSRPath[2], stickyBitRPath].swizzle().named(&#39;shiftGRSRpath&#39;);
+  final mergedSumRPath = mux(
+          sumLeadZeroRPath,
+          [sumRPath, earlyGRSRPath]
+              .swizzle()
+              .named(&#39;sumEarlyGRSRpath&#39;)
+              .slice(sumRPath.width + 1, 0),
+          [sumRPath, shiftGRSRPath].swizzle())
+      .named(&#39;mergedSumRpath&#39;);
+
+  final mergedSumP1RPath = mux(
+          sumP1LeadZeroRPath,
+          [sumP1RPath, earlyGRSRPath]
+              .swizzle()
+              .named(&#39;sump1EarlyGRSRPath&#39;)
+              .slice(sumRPath.width + 1, 0),
+          [sumP1RPath, shiftGRSRPath].swizzle())
+      .named(&#39;mergedSumP1RPath&#39;);
+
+  final finalSumLGRSRPath = mux(selectRPath, mergedSumP1RPath, mergedSumRPath)
+      .named(&#39;finalSumLGRSRpath&#39;);
+  &#47;&#47; RNE: guard &amp; (lsb | round | sticky)
+  final rndRPath = (finalSumLGRSRPath[2] &amp;
+          (finalSumLGRSRPath[3] |
+              finalSumLGRSRPath[1] |
+              finalSumLGRSRPath[0]))
+      .named(&#39;rndRpath&#39;);
+
+  &#47;&#47; Rounding from 1111 to 0000.
+  final Logic incExpRPath;
+  if (roundingMode == FloatingPointRoundingMode.roundNearestEven) {
+    incExpRPath =
+        (rndRPath &amp; sumLeadZeroRPath.eq(Const(1)) &amp; sumP1LeadZeroRPath.eq(0))
+            .named(&#39;incExpRrpath&#39;);
+  } else {
+    incExpRPath = Const(0).named(&#39;incExpRrpath&#39;);
+  }
+
+  final firstZeroRPath = mux(selectRPath, ~sumP1RPath[-1], ~sumRPath[-1])
+      .named(&#39;firstZero_rpath&#39;);
+
+  final expDecr = ParallelPrefixDecr(largerExpFlopped,
+      ppGen: ppTree, name: &#39;expDecrement&#39;);
+  final expIncr = ParallelPrefixIncr(largerExpFlopped,
+      ppGen: ppTree, name: &#39;expIncrement&#39;);
+  final exponentRPath = Logic(width: exponentWidth);
+
+  Combinational([
+    If.block([
+      &#47;&#47; Subtract 1 from exponent
+      Iff(~incExpRPath &amp; effectiveSubtractionFlopped &amp; firstZeroRPath,
+          [exponentRPath &lt; expDecr.out]),
+      &#47;&#47; Add 1 to exponent
+      ElseIf(
+          ~effectiveSubtractionFlopped &amp;
+              (incExpRPath &amp; firstZeroRPath | ~incExpRPath &amp; ~firstZeroRPath),
+          [exponentRPath &lt; expIncr.out]),
+      &#47;&#47; Add 2 to exponent
+      ElseIf(incExpRPath &amp; effectiveSubtractionFlopped &amp; ~firstZeroRPath,
+          [exponentRPath &lt; largerExpFlopped &lt;&lt; 1]),
+      Else([exponentRPath &lt; largerExpFlopped])
+    ])
+  ]);
+
+  final Logic mantissaRPath;
+  final sumMantissaRPath =
+      mux(selectRPath, sumP1RPath, sumRPath).named(&#39;selectSumMantissa_rpath&#39;);
+  if (roundingMode == FloatingPointRoundingMode.roundNearestEven) {
+    final sumMantissaRPathRnd = (sumMantissaRPath +
+            rndRPath.zeroExtend(sumRPath.width).named(&#39;rndExtend_rpath&#39;))
+        .named(&#39;sumMantissaRndRpath&#39;);
+    mantissaRPath = (sumMantissaRPathRnd &lt;&lt;
+            mux(selectRPath, sumP1LeadZeroRPath, sumLeadZeroRPath))
+        .named(&#39;mantissaRpath&#39;);
+  } else {
+    mantissaRPath =
+        (sumMantissaRPath &lt;&lt; sumLeadZeroRPath).named(&#39;mantissaRpath&#39;);
+  }
+
+  &#47;&#47;
+  &#47;&#47;  N Datapath here:  close exponents, subtraction
+  &#47;&#47;
+  final smallOperandNPath =
+      (smallShift &gt;&gt;&gt; (a.exponent[0] ^ b.exponent[0])).named(&#39;smallOperand&#39;);
+
+  &#47;&#47; TODO(desmonddak): could we avoid the end-around-carry here or will that
+  &#47;&#47; cause too much to do for the leadingOne calculation. Could we reverse the
+  &#47;&#47; operands or is there no guarantee?  If so, would a dual-adder make sense
+  &#47;&#47; here?
+  final significandSubtractorNPath = OnesComplementAdder(
+      largeOperand, smallOperandNPath,
+      subtractIn: effectiveSubtraction,
+      adderGen: adderGen,
+      name: &#39;npath_significand_sub&#39;);
+
+  final significandNPath = significandSubtractorNPath.sum
+      .slice(smallOperandNPath.width - 1, 0)
+      .named(&#39;significandNpath&#39;);
+
+  &#47;&#47; N pipestage here:
+  final significandNPathFlopped = localFlop(significandNPath);
+  final significandSubtractorNPathSignFlopped =
+      localFlop(significandSubtractorNPath.sign);
+  final largerSignFlopped = localFlop(larger.sign);
+  final smallerSignFlopped = localFlop(smaller.sign);
+
+  final leadOneEncoderNPath = RecursiveModulePriorityEncoder(
+      significandNPathFlopped.reversed,
+      generateValid: true,
+      name: &#39;npath_leadingOne&#39;);
+  final leadOneNPathPre = leadOneEncoderNPath.out;
+  final validLeadOneNPath = leadOneEncoderNPath.valid!;
+  &#47;&#47; Limit leadOne to exponent range and match widths
+  final leadOneNPath = ((leadOneNPathPre.width &gt; exponentWidth)
+          ? mux(
+              leadOneNPathPre
+                  .gte(a.inf().exponent.zeroExtend(leadOneNPathPre.width)),
+              a.inf().exponent,
+              leadOneNPathPre.getRange(0, exponentWidth))
+          : leadOneNPathPre.zeroExtend(exponentWidth))
+      .named(&#39;leadOneNpath&#39;);
+
+  final expCalcNPath = OnesComplementAdder(
+      largerExpFlopped, leadOneNPath.zeroExtend(exponentWidth),
+      subtractIn: Const(1), adderGen: adderGen, name: &#39;npath_expcalc&#39;);
+
+  final preExpNPath =
+      expCalcNPath.sum.slice(exponentWidth - 1, 0).named(&#39;preExpNpath&#39;);
+
+  final posExpNPath =
+      (preExpNPath.or() &amp; ~expCalcNPath.sign &amp; validLeadOneNPath)
+          .named(&#39;posExpNpath&#39;);
+
+  final exponentNPath =
+      mux(posExpNPath, preExpNPath, zeroExp).named(&#39;exponentNpath&#39;);
+
+  final preMinShiftNPath =
+      (~leadOneNPath.or() | ~largerExpFlopped.or()).named(&#39;preMinShiftNpath&#39;);
+
+  final minShiftNPath =
+      mux(posExpNPath | preMinShiftNPath, leadOneNPath, expDecr.out)
+          .named(&#39;minShiftNpath&#39;);
+  final notSubnormalNPath = aIsNormalFlopped | bIsNormalFlopped;
+
+  final shiftedSignificandNPath = (significandNPathFlopped &lt;&lt; minShiftNPath)
+      .named(&#39;shiftedSignificandNpath&#39;)
+      .slice(mantissaWidth, 1);
+
+  final finalSignificandNPath = mux(
+          notSubnormalNPath,
+          shiftedSignificandNPath,
+          significandNPathFlopped.slice(significandNPathFlopped.width - 1, 2))
+      .named(&#39;finalSignificandNpath&#39;);
+
+  final signNPath = mux(significandSubtractorNPathSignFlopped,
+          smallerSignFlopped, largerSignFlopped)
+      .named(&#39;signNpath&#39;);
+
+  final isR = (deltaFlopped.gte(Const(2, width: delta.width)) |
+          ~effectiveSubtractionFlopped)
+      .named(&#39;isR&#39;);
+  final infExponent = internalSum.inf(sign: largerSignFlopped).exponent;
+
+  final inf = internalSum.inf(sign: largerSignFlopped);
+
+  final realIsInfRPath =
+      exponentRPath.eq(infExponent).named(&#39;realIsInfRPath&#39;);
+
+  final realIsInfNPath =
+      exponentNPath.eq(infExponent).named(&#39;realIsInfNPath&#39;);
+
+  Combinational([
+    If(isNaNFlopped, then: [
+      internalSum &lt; internalSum.nan,
+    ], orElse: [
+      If(isInfFlopped, then: [
+        internalSum &lt; internalSum.inf(sign: largerSignFlopped),
+      ], orElse: [
+        If(isR, then: [
+          If(realIsInfRPath, then: [
+            internalSum &lt; inf,
+          ], orElse: [
+            internalSum.sign &lt; largerSignFlopped,
+            internalSum.exponent &lt; exponentRPath,
+            internalSum.mantissa &lt;
+                mantissaRPath.slice(mantissaRPath.width - 2, 1),
+          ]),
+        ], orElse: [
+          If(realIsInfNPath, then: [
+            internalSum &lt; inf,
+          ], orElse: [
+            internalSum.sign &lt; signNPath,
+            internalSum.exponent &lt; exponentNPath,
+            internalSum.mantissa &lt; finalSignificandNPath,
+          ]),
+        ])
+      ])
+    ])
+  ]);
+}</code></pre>
+</section>
+
+
+  </div> <!-- /.main-content -->
+  <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+    <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
+<header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+    <li><a href="../../index.html">rohd_hcl</a></li>
+    <li><a href="../../rohd_hcl/">rohd_hcl</a></li>
+    <li><a href="../../rohd_hcl/FloatingPointAdderDualPath-class.html">FloatingPointAdderDualPath<span class="signature">&lt;<wbr><span class="type-parameter">FpTypeIn extends FloatingPoint</span>, <span class="type-parameter">FpTypeOut extends FloatingPoint</span>&gt;</span></a></li>
+    <li class="self-crumb">FloatingPointAdderDualPath.new constructor</li>
+</ol>
+
+    <h5>FloatingPointAdderDualPath class</h5>
+    <div id="dartdoc-sidebar-left-content"></div>
+  </div><!--/.sidebar-offcanvas-left-->
+  <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+  </div><!--/.sidebar-offcanvas-->
+</main>
+<footer>
+  <span class="no-break">
+    rohd_hcl
+      0.1.0
+  </span>
+  
+</footer>
+
+
+<script src="../../static-assets/highlight.pack.js?v1"></script>
+<script src="../../static-assets/docs.dart.js"></script>
+
+</body>
+</html>
+

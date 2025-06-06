@@ -76,6 +76,11 @@ range of <code>[1,2)</code> and <code>minExponent() &lt;= exponent &lt;= maxExpo
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">FpvType random(Random rv, {bool normal = false}) {
+  if (explicitJBit) {
+    return ofFloatingPointValue(FloatingPointValue.populator(
+            exponentWidth: exponentWidth, mantissaWidth: mantissaWidth - 1)
+        .random(rv, normal: normal)) as FpvType;
+  }
   final sign = rv.nextLogicValue(width: 1);
 
   final mantissa = rv.nextLogicValue(width: mantissaWidth);

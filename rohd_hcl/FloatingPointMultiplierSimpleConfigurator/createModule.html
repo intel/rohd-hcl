@@ -76,7 +76,7 @@
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">@override
 Module createModule() =&gt; FloatingPointMultiplierSimple(
-    clk: pipelinedKnob.value ? Logic() : null,
+    clk: multiplierSelectKnob.pipelinedKnob.value ? Logic() : null,
     FloatingPoint(
       exponentWidth: exponentWidthKnob.value,
       mantissaWidth: mantissaWidthKnob.value,
@@ -84,7 +84,7 @@ Module createModule() =&gt; FloatingPointMultiplierSimple(
     FloatingPoint(
         exponentWidth: exponentWidthKnob.value,
         mantissaWidth: mantissaWidthKnob.value),
-    multGen: multGeneratorMap[multTypeKnob.value]!);</code></pre>
+    multGen: multiplierSelectKnob.selectedMultiplier());</code></pre>
 </section>
 
 
