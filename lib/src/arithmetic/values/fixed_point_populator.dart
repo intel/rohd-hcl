@@ -1,10 +1,10 @@
 // Copyright (C) 2025 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 //
-// floating_point_value_populator.dart
-// Populator for Floating Point Values
+// fixed_point_value_populator.dart
+// Populator for Fixed Point Values
 //
-// 2025 june 8, 2025
+// 2025 June 8, 2025
 // Author: Desmond A Kirkpatrick <desmond.a.kirkpatrick@intel.com>
 
 import 'dart:math';
@@ -133,32 +133,4 @@ class FixedPointValuePopulator<FpvType extends FixedPointValue> {
         fpv.fraction.reversed.zeroExtend(fractionWidth).reversed;
     return populate(integer: newInteger, fraction: newFraction);
   }
-
-  //   LogicValue expandWidth({required bool sign, int m = 0, int n = 0}) {
-  //   if ((m < 0) | (n < 0)) {
-  //     throw RohdHclException('Input width must be non-negative.');
-  //   }
-  //   if ((m > 0) & (m < mWidth)) {
-  //     throw RohdHclException('Integer width is larger than input.');
-  //   }
-  //   if ((n > 0) & (n < nWidth)) {
-  //     throw RohdHclException('Fraction width is larger than input.');
-  //   }
-  //   var newValue = value;
-  //   if (m >= mWidth) {
-  //     if (signed) {
-  //       newValue = newValue.signExtend(newValue.width + m - mWidth);
-  //     } else {
-  //       newValue = newValue.zeroExtend(newValue.width + m - mWidth);
-  //       if (sign) {
-  //         newValue = newValue.zeroExtend(newValue.width + 1);
-  //       }
-  //     }
-  //   }
-  //   if (n > nWidth) {
-  //     newValue =
-  //         newValue.reversed.zeroExtend(newValue.width + n - nWidth).reversed;
-  //   }
-  //   return newValue;
-  // }
 }

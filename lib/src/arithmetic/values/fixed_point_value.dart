@@ -77,35 +77,6 @@ class FixedPointValue implements Comparable<FixedPointValue> {
         ..mWidth = mWidth
         ..nWidth = nWidth);
 
-  // /// Expands the bit width of integer and fractional parts.
-  // LogicValue expandWidth({required bool sign, int m = 0, int n = 0}) {
-  //   if ((m < 0) | (n < 0)) {
-  //     throw RohdHclException('Input width must be non-negative.');
-  //   }
-  //   if ((m > 0) & (m < mWidth)) {
-  //     throw RohdHclException('Integer width is larger than input.');
-  //   }
-  //   if ((n > 0) & (n < nWidth)) {
-  //     throw RohdHclException('Fraction width is larger than input.');
-  //   }
-  //   var newValue = value;
-  //   if (m >= mWidth) {
-  //     if (signed) {
-  //       newValue = newValue.signExtend(newValue.width + m - mWidth);
-  //     } else {
-  //       newValue = newValue.zeroExtend(newValue.width + m - mWidth);
-  //       if (sign) {
-  //         newValue = newValue.zeroExtend(newValue.width + 1);
-  //       }
-  //     }
-  //   }
-  //   if (n > nWidth) {
-  //     newValue =
-  //         newValue.reversed.zeroExtend(newValue.width + n - nWidth).reversed;
-  //   }
-  //   return newValue;
-  // }
-
   /// Returns a negative integer if `this` less than [other],
   /// a positive integer if `this` greater than [other],
   /// and zero if `this` and [other] are equal.
@@ -123,12 +94,9 @@ class FixedPointValue implements Comparable<FixedPointValue> {
     final val1 = FixedPointValue.populator(mWidth: m, nWidth: n, signed: s)
         .widen(this)
         .value;
-
-    // (sign: s, m: m, n: n);
     final val2 = FixedPointValue.populator(mWidth: m, nWidth: n, signed: s)
         .widen(other)
         .value;
-    // other.expandWidth(sign: s, m: m, n: n);
     final comp = val1.compareTo(val2);
     if (comp == 0) {
       return comp;
@@ -218,11 +186,9 @@ class FixedPointValue implements Comparable<FixedPointValue> {
     final val1 = FixedPointValue.populator(mWidth: mr, nWidth: nr, signed: s)
         .widen(this)
         .value;
-    //  expandWidth(sign: s, m: mr, n: nr);
     final val2 = FixedPointValue.populator(mWidth: mr, nWidth: nr, signed: s)
         .widen(other)
         .value;
-    // .value;other.expandWidth(sign: s, m: mr, n: nr);
     return FixedPointValue.populator(mWidth: mr, nWidth: nr, signed: s)
         .ofLogicValue(val1 + val2);
   }
@@ -241,11 +207,9 @@ class FixedPointValue implements Comparable<FixedPointValue> {
     final val1 = FixedPointValue.populator(mWidth: mr, nWidth: nr, signed: s)
         .widen(this)
         .value;
-    // expandWidth(sign: s, m: mr, n: nr);
     final val2 = FixedPointValue.populator(mWidth: mr, nWidth: nr, signed: s)
         .widen(other)
         .value;
-    // other.expandWidth(sign: s, m: mr, n: nr);
     return FixedPointValue.populator(mWidth: mr, nWidth: nr, signed: s)
         .ofLogicValue(val1 - val2);
   }
@@ -269,8 +233,6 @@ class FixedPointValue implements Comparable<FixedPointValue> {
             mWidth: tr - other.nWidth, nWidth: other.nWidth, signed: s)
         .widen(other)
         .value;
-    // final val1 = expandWidth(sign: s, m: tr - nWidth);
-    // final val2 = other.expandWidth(sign: s, m: tr - other.nWidth);
     return FixedPointValue.populator(mWidth: mr, nWidth: nr, signed: s)
         .ofLogicValue(val1 * val2);
   }
@@ -298,8 +260,6 @@ class FixedPointValue implements Comparable<FixedPointValue> {
             mWidth: tr - other.nWidth, nWidth: other.nWidth, signed: s)
         .widen(other)
         .value;
-    // var val1 = expandWidth(sign: s, m: m1, n: tr - m1);
-    // var val2 = other.expandWidth(sign: s, m: tr - other.nWidth);
     // Convert to positive as needed
     if (s) {
       if (val1[-1] == LogicValue.one) {
