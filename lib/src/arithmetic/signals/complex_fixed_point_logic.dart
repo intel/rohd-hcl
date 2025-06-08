@@ -42,6 +42,16 @@ class ComplexFixedPoint extends Logic {
           width: _complexFixedPointWidth(signed, integerBits, fractionalBits),
         ) {}
 
+  ComplexFixedPoint.of(Logic signal,
+      {required this.signed,
+      required this.integerBits,
+      required this.fractionalBits})
+      : super(
+            width:
+                _complexFixedPointWidth(signed, integerBits, fractionalBits)) {
+    this <= signal;
+  }
+
   static ComplexFixedPoint fromPartsUnsafe(Logic realPart, Logic imaginaryPart,
       bool signed, int integerBits, int fractionalBits) {
     final result = ComplexFixedPoint(
@@ -101,8 +111,8 @@ class ComplexFixedPoint extends Logic {
         throw RohdHclException('Value is not compatible with signal.');
       }
 
-      _realPart().put(val.realPart);
-      _imaginaryPart().put(val.imaginaryPart);
+      realPart().put(val.realPart);
+      imaginaryPart().put(val.imaginaryPart);
     } else {
       throw RohdHclException('Only ComplexFixedPointValue is allowed');
     }
@@ -166,13 +176,21 @@ class ComplexFixedPoint extends Logic {
       throw RohdHclException('Input must be complex fixed point signal.');
     }
     _verifyCompatible(other);
+
+    // assert((realPart() + imaginaryPart()).width ==
+    //     (other.realPart() + other.imaginaryPart()).width);
+
     // use only 3 multipliers: https://mathworld.wolfram.com/ComplexMultiplication.html
-    final ac = realPart() * other.realPart();
-    final bd = imaginaryPart() * other.imaginaryPart();
-    final abcd = (realPart() + imaginaryPart()) *
-        (other.realPart() + other.imaginaryPart());
-    return fromPartsUnsafe(
-        ac - bd, abcd - ac - bd, signed, integerBits * 2, fractionalBits * 2);
+    // final abcd = (realPart() + imaginaryPart()) *
+    //     (other.realPart() + other.imaginaryPart());
+    final ri = realPart() + imaginaryPart();
+    final ri2 = other.realPart() + other.imaginaryPart();
+
+    final abcd = ri * ri2;
+    final ac = (realPart() * other.realPart()).signExtend(abcd.width);
+    final bd = (imaginaryPart() * other.imaginaryPart()).signExtend(abcd.width);
+    return fromPartsUnsafe((ac - bd).signExtend(abcd.width + 2), abcd - ac - bd,
+        signed, 2 * (integerBits + 1) + 3, fractionalBits * 2);
   }
 
   @override

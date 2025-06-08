@@ -125,8 +125,21 @@ class FixedPoint extends Logic {
 
   Logic _add(dynamic other) {
     _verifyCompatible(other);
-    final sum = this + other;
-    return FixedPoint.of(sum, signed: signed, m: m + 1, n: n);
+    if (signed) {
+      final sum = Add(getRange(0, width - 1), other.getRange(0, width - 1)).sum;
+      final difference =
+          Subtract(getRange(0, width - 1), other.getRange(0, width - 1)).sum;
+
+      condition[0] <= this[-1];
+      condition[1] <= other[-1];
+
+// mux(this[-1], mux(other[-1], ), mux())
+
+      FixedPoint.of(sum, signed: signed, m: m + 1, n: n);
+    } else {
+      final sum = Add(this, other).sum;
+      return FixedPoint.of(sum, signed: signed, m: m + 1, n: n);
+    }
   }
 
   /// Multiply
