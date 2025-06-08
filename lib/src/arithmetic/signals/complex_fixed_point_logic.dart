@@ -5,6 +5,7 @@ import 'dart:math';
 
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/src/arithmetic/signals/signals.dart';
+import 'package:rohd_hcl/src/arithmetic/values/complex_fixed_point_value.dart';
 import 'package:rohd_hcl/src/exceptions.dart';
 
 class ComplexFixedPoint extends Logic {
@@ -90,6 +91,22 @@ class ComplexFixedPoint extends Logic {
 
   FixedPoint imaginaryPart() => FixedPoint.of(_imaginaryPart(),
       signed: signed, m: integerBits, n: fractionalBits);
+
+  @override
+  void put(dynamic val, {bool fill = false}) {
+    if (val is ComplexFixedPointValue) {
+      if ((signed != val.realPart.signed) |
+          (integerBits != val.realPart.m) |
+          (fractionalBits != val.realPart.n)) {
+        throw RohdHclException('Value is not compatible with signal.');
+      }
+
+      _realPart().put(val.realPart);
+      _imaginaryPart().put(val.imaginaryPart);
+    } else {
+      throw RohdHclException('Only ComplexFixedPointValue is allowed');
+    }
+  }
 
   @override
   Logic lt(dynamic other) {
