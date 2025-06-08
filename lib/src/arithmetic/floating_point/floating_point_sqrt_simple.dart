@@ -55,7 +55,8 @@ class FloatingPointSqrtSimple<FpType extends FloatingPoint>
     final isExpOdd = deBiasExp[0];
 
     // use fixed sqrt unit
-    final aFixed = FixedPoint(signed: false, m: 3, n: a.mantissa.width);
+    final aFixed =
+        FixedPoint(signed: false, mWidth: 3, nWidth: a.mantissa.width);
     aFixed <=
         [Const(1, width: 3), a.mantissa.getRange(0)].swizzle().named('aFixed');
 

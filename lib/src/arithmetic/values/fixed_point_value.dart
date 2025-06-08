@@ -12,6 +12,7 @@ import 'dart:math';
 import 'package:meta/meta.dart';
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
+export 'fixed_point_populator.dart';
 
 /// An immutable representation of (un)signed fixed-point values following
 /// Q notation (Qm.n format) as introduced by
@@ -19,63 +20,91 @@ import 'package:rohd_hcl/rohd_hcl.dart';
 @immutable
 class FixedPointValue implements Comparable<FixedPointValue> {
   /// The fixed point value bit storage in two's complement.
-  late final LogicValue value;
+  late final LogicValue value = [integer, fraction].swizzle();
+
+  /// The integer valuue portion.
+  late final LogicValue integer;
+
+  /// The fractional value portion.
+  late final LogicValue fraction;
+
+  /// [mWidth] is the number of bits reserved for the integer part.
+  late final int mWidth;
+
+  /// [nWidth] is the number of bits reserved for the fractional part.
+  late final int nWidth;
 
   /// [signed] indicates whether the representation is signed.
-  final bool signed;
+  bool get signed => _signed;
 
-  /// [m] is the number of bits reserved for the integer part.
-  final int m;
-
-  /// [n] is the number of bits reserved for the fractional part.
-  final int n;
+  late final bool _signed;
 
   /// Returns true if the number is negative.
   bool isNegative() => signed & (value[-1] == LogicValue.one);
 
   /// Constructs [FixedPointValue] from sign, integer and fraction values.
-  FixedPointValue(
-      {required this.value,
-      required this.signed,
-      required this.m,
-      required this.n}) {
-    if (value == LogicValue.empty) {
-      throw RohdHclException('Zero width is not allowed.');
-    }
-    final w = signed ? m + n + 1 : m + n;
-    if (w != value.width) {
-      throw RohdHclException('Width must be (sign) + m + n.');
-    }
-  }
+  factory FixedPointValue(
+          {required LogicValue integer,
+          required LogicValue fraction,
+          bool signed = false}) =>
+      populator(
+              mWidth: integer.width - (signed ? 1 : 0), nWidth: fraction.width)
+          .populate(integer: integer, fraction: fraction);
 
-  /// Expands the bit width of integer and fractional parts.
-  LogicValue expandWidth({required bool sign, int m = 0, int n = 0}) {
-    if ((m < 0) | (n < 0)) {
-      throw RohdHclException('Input width must be non-negative.');
-    }
-    if ((m > 0) & (m < this.m)) {
-      throw RohdHclException('Integer width is larger than input.');
-    }
-    if ((n > 0) & (n < this.n)) {
-      throw RohdHclException('Fraction width is larger than input.');
-    }
-    var newValue = value;
-    if (m >= this.m) {
-      if (signed) {
-        newValue = newValue.signExtend(newValue.width + m - this.m);
-      } else {
-        newValue = newValue.zeroExtend(newValue.width + m - this.m);
-        if (sign) {
-          newValue = newValue.zeroExtend(newValue.width + 1);
-        }
-      }
-    }
-    if (n > this.n) {
-      newValue =
-          newValue.reversed.zeroExtend(newValue.width + n - this.n).reversed;
-    }
-    return newValue;
-  }
+  /// Creates an unpopulated version of a [FixedPointValue], intended to be
+  /// called with the [populator].
+  @protected
+  FixedPointValue.uninitialized({bool signed = false}) : _signed = signed;
+
+  /// Creates a [FixedPointValuePopulator] with the provided [mWidth]
+  /// and [nWidth], which can then be used to complete construction of
+  /// a [FixedPointValue] using population functions.
+  static FixedPointValuePopulator populator(
+          {required int mWidth, required int nWidth, bool signed = false}) =>
+      FixedPointValuePopulator(FixedPointValue.uninitialized(signed: signed)
+        ..mWidth = mWidth
+        ..nWidth = nWidth);
+
+  /// Creates a [FixedPointValuePopulator] for the same type as `this` and
+  /// with the same widths.
+  ///
+  /// This must be overridden in subclasses so that the correct type of
+  /// [FixedPointValuePopulator] is returned for generating equivalent types
+  /// of [FixedPointValue]s.
+  @mustBeOverridden
+  FixedPointValuePopulator clonePopulator() =>
+      FixedPointValuePopulator(FixedPointValue.uninitialized(signed: signed)
+        ..mWidth = mWidth
+        ..nWidth = nWidth);
+
+  // /// Expands the bit width of integer and fractional parts.
+  // LogicValue expandWidth({required bool sign, int m = 0, int n = 0}) {
+  //   if ((m < 0) | (n < 0)) {
+  //     throw RohdHclException('Input width must be non-negative.');
+  //   }
+  //   if ((m > 0) & (m < mWidth)) {
+  //     throw RohdHclException('Integer width is larger than input.');
+  //   }
+  //   if ((n > 0) & (n < nWidth)) {
+  //     throw RohdHclException('Fraction width is larger than input.');
+  //   }
+  //   var newValue = value;
+  //   if (m >= mWidth) {
+  //     if (signed) {
+  //       newValue = newValue.signExtend(newValue.width + m - mWidth);
+  //     } else {
+  //       newValue = newValue.zeroExtend(newValue.width + m - mWidth);
+  //       if (sign) {
+  //         newValue = newValue.zeroExtend(newValue.width + 1);
+  //       }
+  //     }
+  //   }
+  //   if (n > nWidth) {
+  //     newValue =
+  //         newValue.reversed.zeroExtend(newValue.width + n - nWidth).reversed;
+  //   }
+  //   return newValue;
+  // }
 
   /// Returns a negative integer if `this` less than [other],
   /// a positive integer if `this` greater than [other],
@@ -89,10 +118,17 @@ class FixedPointValue implements Comparable<FixedPointValue> {
       throw RohdHclException('Inputs must be valid.');
     }
     final s = signed | other.signed;
-    final m = max(this.m, other.m);
-    final n = max(this.n, other.n);
-    final val1 = expandWidth(sign: s, m: m, n: n);
-    final val2 = other.expandWidth(sign: s, m: m, n: n);
+    final m = max(mWidth, other.mWidth);
+    final n = max(nWidth, other.nWidth);
+    final val1 = FixedPointValue.populator(mWidth: m, nWidth: n, signed: s)
+        .widen(this)
+        .value;
+
+    // (sign: s, m: m, n: n);
+    final val2 = FixedPointValue.populator(mWidth: m, nWidth: n, signed: s)
+        .widen(other)
+        .value;
+    // other.expandWidth(sign: s, m: m, n: n);
     final comp = val1.compareTo(val2);
     if (comp == 0) {
       return comp;
@@ -133,7 +169,7 @@ class FixedPointValue implements Comparable<FixedPointValue> {
 
   @override
   int get hashCode =>
-      value.hashCode ^ signed.hashCode ^ m.hashCode ^ n.hashCode;
+      value.hashCode ^ signed.hashCode ^ mWidth.hashCode ^ nWidth.hashCode;
 
   @override
   bool operator ==(Object other) {
@@ -143,60 +179,16 @@ class FixedPointValue implements Comparable<FixedPointValue> {
     return compareTo(other) == 0;
   }
 
-  /// Return a string representation of FloatingPointValue.
-  ///  return sign, exponent, mantissa as binary strings.
+  /// Return a string representation of [FixedPointValue].
+  ///  return sign, integer, fraction as binary strings.
   @override
   String toString() => "(${signed ? '${value[-1].bitString} ' : ''}"
-      "${(m > 0) ? '${value.slice(m + n - 1, n).bitString} ' : ''}"
-      '${value.slice(n - 1, 0).bitString})';
-
-  /// Return true if double [val] to be stored in [FixedPointValue]
-  /// with [m] and [n] lengths without overflowing.
-  static bool canStore(double val,
-      {required bool signed, required int m, required int n}) {
-    final w = signed ? 1 + m + n : m + n;
-    if (val.isFinite) {
-      final bigIntegerValue = BigInt.from(val * pow(2, n));
-      final negBigIntegerValue = BigInt.from(-val * pow(2, n));
-      final l = (val < 0.0)
-          ? max(bigIntegerValue.bitLength, negBigIntegerValue.bitLength)
-          : bigIntegerValue.bitLength;
-      return l <= w;
-    }
-    return false;
-  }
-
-  /// Constructs [FixedPointValue] from a Dart [double] rounding away from zero.
-  factory FixedPointValue.ofDouble(double val,
-      {required bool signed, required int m, required int n}) {
-    if (!signed & (val < 0)) {
-      throw RohdHclException('Negative input not allowed with unsigned');
-    }
-    if (!canStore(val, signed: signed, m: m, n: n)) {
-      throw RohdHclException('Double is too long to store in '
-          'FixedPointValue: $m, $n');
-    }
-    final integerValue = BigInt.from(val * pow(2, n));
-    final w = signed ? 1 + m + n : m + n;
-    final v = LogicValue.ofBigInt(integerValue, w);
-    return FixedPointValue(value: v, signed: signed, m: m, n: n);
-  }
-
-  /// Constructs [FixedPointValue] from a Dart [double] without rounding.
-  factory FixedPointValue.ofDoubleUnrounded(double val,
-      {required bool signed, required int m, required int n}) {
-    if (!signed & (val < 0)) {
-      throw RohdHclException('Negative input not allowed with unsigned');
-    }
-    final integerValue = BigInt.from(val * pow(2, n + 1));
-    final w = signed ? 1 + m + n : m + n;
-    final v = LogicValue.ofBigInt(integerValue >> 1, w);
-    return FixedPointValue(value: v, signed: signed, m: m, n: n);
-  }
+      "${(mWidth > 0) ? '${value.getRange(nWidth).bitString} ' : ''}"
+      '${value.slice(nWidth - 1, 0).bitString})';
 
   /// Converts a fixed-point value to a Dart [double].
   double toDouble() {
-    if (m + n > 52) {
+    if (mWidth + nWidth > 52) {
       throw RohdHclException('Fixed-point value is too wide to convert.');
     }
     if (!this.value.isValid) {
@@ -208,7 +200,7 @@ class FixedPointValue implements Comparable<FixedPointValue> {
     } else {
       number = this.value.toBigInt();
     }
-    final value = number.toDouble() / pow(2, n).toDouble();
+    final value = number.toDouble() / pow(2, nWidth).toDouble();
     return isNegative() ? -value : value;
   }
 
@@ -221,11 +213,18 @@ class FixedPointValue implements Comparable<FixedPointValue> {
       throw RohdHclException('Inputs must be valid.');
     }
     final s = signed | other.signed;
-    final nr = max(n, other.n);
-    final mr = max(m, other.m) + 1;
-    final val1 = expandWidth(sign: s, m: mr, n: nr);
-    final val2 = other.expandWidth(sign: s, m: mr, n: nr);
-    return FixedPointValue(value: val1 + val2, signed: s, m: mr, n: nr);
+    final nr = max(nWidth, other.nWidth);
+    final mr = max(mWidth, other.mWidth) + 1;
+    final val1 = FixedPointValue.populator(mWidth: mr, nWidth: nr, signed: s)
+        .widen(this)
+        .value;
+    //  expandWidth(sign: s, m: mr, n: nr);
+    final val2 = FixedPointValue.populator(mWidth: mr, nWidth: nr, signed: s)
+        .widen(other)
+        .value;
+    // .value;other.expandWidth(sign: s, m: mr, n: nr);
+    return FixedPointValue.populator(mWidth: mr, nWidth: nr, signed: s)
+        .ofLogicValue(val1 + val2);
   }
 
   /// Subtraction operation that returns a FixedPointValue.
@@ -237,11 +236,18 @@ class FixedPointValue implements Comparable<FixedPointValue> {
       throw RohdHclException('Inputs must be valid.');
     }
     const s = true;
-    final nr = max(n, other.n);
-    final mr = max(m, other.m) + 1;
-    final val1 = expandWidth(sign: s, m: mr, n: nr);
-    final val2 = other.expandWidth(sign: s, m: mr, n: nr);
-    return FixedPointValue(value: val1 - val2, signed: s, m: mr, n: nr);
+    final nr = max(nWidth, other.nWidth);
+    final mr = max(mWidth, other.mWidth) + 1;
+    final val1 = FixedPointValue.populator(mWidth: mr, nWidth: nr, signed: s)
+        .widen(this)
+        .value;
+    // expandWidth(sign: s, m: mr, n: nr);
+    final val2 = FixedPointValue.populator(mWidth: mr, nWidth: nr, signed: s)
+        .widen(other)
+        .value;
+    // other.expandWidth(sign: s, m: mr, n: nr);
+    return FixedPointValue.populator(mWidth: mr, nWidth: nr, signed: s)
+        .ofLogicValue(val1 - val2);
   }
 
   /// Multiplication operation that returns a FixedPointValue.
@@ -252,12 +258,21 @@ class FixedPointValue implements Comparable<FixedPointValue> {
       throw RohdHclException('Inputs must be valid.');
     }
     final s = signed | other.signed;
-    final mr = s ? m + other.m + 1 : m + other.m;
-    final nr = n + other.n;
+    final mr = s ? mWidth + other.mWidth + 1 : mWidth + other.mWidth;
+    final nr = nWidth + other.nWidth;
     final tr = mr + nr;
-    final val1 = expandWidth(sign: s, m: tr - n);
-    final val2 = other.expandWidth(sign: s, m: tr - other.n);
-    return FixedPointValue(value: val1 * val2, signed: s, m: mr, n: nr);
+    final val1 = FixedPointValue.populator(
+            mWidth: tr - nWidth, nWidth: nWidth, signed: s)
+        .widen(this)
+        .value;
+    final val2 = FixedPointValue.populator(
+            mWidth: tr - other.nWidth, nWidth: other.nWidth, signed: s)
+        .widen(other)
+        .value;
+    // final val1 = expandWidth(sign: s, m: tr - nWidth);
+    // final val2 = other.expandWidth(sign: s, m: tr - other.nWidth);
+    return FixedPointValue.populator(mWidth: mr, nWidth: nr, signed: s)
+        .ofLogicValue(val1 * val2);
   }
 
   /// Division operation that returns a FixedPointValue.
@@ -271,13 +286,20 @@ class FixedPointValue implements Comparable<FixedPointValue> {
     }
     final s = signed | other.signed;
     // extend integer width for max negative number
-    final m1 = s ? m + 1 : m;
-    final m2 = s ? other.m + 1 : other.m;
-    final mr = m1 + other.n;
-    final nr = n + m2;
+    final m1 = s ? mWidth + 1 : mWidth;
+    final m2 = s ? other.mWidth + 1 : other.mWidth;
+    final mr = m1 + other.nWidth;
+    final nr = nWidth + m2;
     final tr = mr + nr;
-    var val1 = expandWidth(sign: s, m: m1, n: tr - m1);
-    var val2 = other.expandWidth(sign: s, m: tr - other.n);
+    var val1 = FixedPointValue.populator(mWidth: m1, nWidth: tr - m1, signed: s)
+        .widen(this)
+        .value;
+    var val2 = FixedPointValue.populator(
+            mWidth: tr - other.nWidth, nWidth: other.nWidth, signed: s)
+        .widen(other)
+        .value;
+    // var val1 = expandWidth(sign: s, m: m1, n: tr - m1);
+    // var val2 = other.expandWidth(sign: s, m: tr - other.nWidth);
     // Convert to positive as needed
     if (s) {
       if (val1[-1] == LogicValue.one) {
@@ -292,6 +314,7 @@ class FixedPointValue implements Comparable<FixedPointValue> {
     if (isNegative() != other.isNegative()) {
       val = (~val) + 1;
     }
-    return FixedPointValue(value: val, signed: s, m: mr, n: nr);
+    return FixedPointValue.populator(mWidth: mr, nWidth: nr, signed: s)
+        .ofLogicValue(val);
   }
 }

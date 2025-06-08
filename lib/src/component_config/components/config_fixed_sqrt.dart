@@ -20,8 +20,8 @@ class FixedPointSqrtConfigurator extends Configurator {
 
   @override
   Module createModule() {
-    final inp =
-        FixedPoint(signed: false, m: mWidthKnob.value, n: nWidthKnob.value);
+    final inp = FixedPoint(
+        signed: false, mWidth: mWidthKnob.value, nWidth: nWidthKnob.value);
     return FixedPointSqrt(inp);
   }
 

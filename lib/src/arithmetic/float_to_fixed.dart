@@ -35,7 +35,7 @@ class FloatToFixed extends Module {
   Logic? get overflow => tryOutput('overflow');
 
   /// Internal representation of the output port
-  late final FixedPoint _fixed = FixedPoint(signed: true, m: m, n: n);
+  late final FixedPoint _fixed = FixedPoint(mWidth: m, nWidth: n);
 
   /// Output fixed point port
   late final FixedPoint fixed = _fixed.clone()..gets(output('fixed'));
@@ -151,10 +151,10 @@ class Float8ToFixed extends Module {
   Logic get fixed => output('fixed');
 
   /// Getter for Q23.9
-  FixedPoint get q23p9 => FixedPoint.of(fixed, signed: true, m: 23, n: 9);
+  FixedPoint get q23p9 => FixedPoint.of(fixed, mWidth: 23, nWidth: 9);
 
   /// Getter for Q16.16
-  FixedPoint get q16p16 => FixedPoint.of(fixed, signed: true, m: 16, n: 16);
+  FixedPoint get q16p16 => FixedPoint.of(fixed, mWidth: 16, nWidth: 16);
 
   /// Constructor
   Float8ToFixed(Logic float, Logic mode, {super.name = 'Float8ToFixed'}) {

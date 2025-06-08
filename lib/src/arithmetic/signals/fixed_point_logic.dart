@@ -7,61 +7,93 @@
 // 2024 October 24
 // Author: Soner Yaldiz <soner.yaldiz@intel.com>
 
-import 'dart:math';
+import 'package:meta/meta.dart';
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
 
 /// A representation of (un)signed fixed-point logic following
 /// Q notation (Qm.n format) as introduced by
 /// (Texas Instruments)[https://www.ti.com/lit/ug/spru565b/spru565b.pdf].
-class FixedPoint extends Logic {
-  /// [signed] indicates whether the representation is signed.
-  final bool signed;
+class FixedPoint extends LogicStructure {
+  /// The integer part of the fixed-point number.
+  Logic integer;
 
-  /// [m] is the number of bits reserved for the integer part.
-  final int m;
+  /// The fractional part of the fixed-point number.
+  Logic fraction;
 
-  /// [n] is the number of bits reserved for the fractional part.
-  final int n;
+  /// Return true if signed
+  bool get signed => _signed;
 
-  static int _fixedPointWidth(bool s, int a, int b) => s ? 1 + a + b : a + b;
+  late final bool _signed;
+
+  /// [mWidth] is the number of bits reserved for the integer part.
+  int get mWidth => integer.width - (signed ? 1 : 0);
+
+  /// [nWidth] is the number of bits reserved for the fractional part.
+  int get nWidth => fraction.width;
+
+  /// Utility to keep track of the Logic structure name by attaching it
+  /// to the Logic signal name in the output Verilog.
+  static String _nameJoin(String? structName, String signalName) {
+    if (structName == null) {
+      return signalName;
+    }
+    return '${structName}_$signalName';
+  }
 
   /// Constructs a [FixedPoint] signal.
   FixedPoint(
-      {required this.signed,
-      required this.m,
-      required this.n,
-      super.name,
-      super.naming})
-      : super(width: _fixedPointWidth(signed, m, n)) {
-    if ((m < 0) | (n < 0)) {
-      throw RohdHclException('m and n must be non-negative');
-    }
-    if (max(m, n) == 0) {
-      throw RohdHclException('either m or n must be greater than zero');
-    }
-  }
+      {required int mWidth,
+      required int nWidth,
+      bool signed = true,
+      String? name})
+      : this._(
+            Logic(
+                width: mWidth + (signed ? 1 : 0),
+                name: _nameJoin(name, 'integer'),
+                naming: Naming.mergeable),
+            Logic(
+                width: nWidth,
+                name: _nameJoin(name, 'fraction'),
+                naming: Naming.mergeable),
+            signed,
+            name: name);
+
+  /// [FixedPoint] internal constructor.
+  FixedPoint._(this.integer, this.fraction, this._signed, {super.name})
+      : super([fraction, integer]);
 
   /// Retrieve the [FixedPointValue] of this [FixedPoint] logical signal.
-  FixedPointValue get fixedPointValue =>
-      FixedPointValue(value: value, signed: signed, m: m, n: n);
+  FixedPointValue get fixedPointValue => valuePopulator().ofFixedPoint(this);
+
+  /// A [FixedPointValuePopulator] for values associated with this
+  /// [FloatingPoint] type.
+  @mustBeOverridden
+  FixedPointValuePopulator valuePopulator() =>
+      FixedPointValue.populator(mWidth: mWidth, nWidth: nWidth, signed: signed);
 
   /// Clone for I/O ports.
   @override
-  FixedPoint clone({String? name}) => FixedPoint(signed: signed, m: m, n: n);
+  FixedPoint clone({String? name}) =>
+      FixedPoint(signed: signed, mWidth: mWidth, nWidth: nWidth);
 
   /// Cast logic to fixed point
   FixedPoint.of(Logic signal,
-      {required this.signed, required this.m, required this.n})
-      : super(width: _fixedPointWidth(signed, m, n)) {
-    this <= signal;
-  }
+      {required int mWidth, required int nWidth, bool signed = true})
+      : this._(signal.slice(nWidth + (signed ? mWidth : mWidth - 1), nWidth),
+            signal.slice(nWidth - 1, 0), signed,
+            name: signal.name);
 
   @override
   void put(dynamic val, {bool fill = false}) {
     if (val is FixedPointValue) {
-      if ((signed != val.signed) | (m != val.m) | (n != val.n)) {
-        throw RohdHclException('Value is not compatible with signal.');
+      if ((signed != val.signed) |
+          (mWidth != val.mWidth) |
+          (nWidth != val.nWidth)) {
+        throw RohdHclException('Value is not compatible with signal. '
+            'Expected: signed=$signed, mWidth=$mWidth, nWidth=$nWidth. '
+            'Got: signed=${val.signed}, mWidth=${val.mWidth}, '
+            'nWidth=${val.nWidth}.');
       }
       super.put(val.value);
     } else {
@@ -74,7 +106,9 @@ class FixedPoint extends Logic {
     if (other is! FixedPoint) {
       throw RohdHclException('Input must be fixed point signal.');
     }
-    if ((signed != other.signed) | (m != other.m) | (n != other.n)) {
+    if ((signed != other.signed) |
+        (mWidth != other.mWidth) |
+        (nWidth != other.nWidth)) {
       throw RohdHclException('Inputs are not comparable.');
     }
   }
@@ -124,11 +158,12 @@ class FixedPoint extends Logic {
   }
 
   /// Multiply
-  Logic _multiply(dynamic other) {
-    _verifyCompatible(other);
-    final product = Multiply(this, other).out;
-    return FixedPoint.of(product, signed: false, m: 2 * m, n: 2 * n);
-  }
+  // Logic _multiply(dynamic other) {
+  //   _verifyCompatible(other);
+  //   final product = Multiply(this, other).out;
+  //   return FixedPoint.of(product,
+  //       signed: false, mWidth: 2 * mWidth, nWidth: 2 * nWidth);
+  // }
 
   /// Greater-than.
   @override
@@ -140,7 +175,7 @@ class FixedPoint extends Logic {
 
   /// multiply
   @override
-  Logic operator *(dynamic other) => _multiply(other);
+  // Logic operator *(dynamic other) => _multiply(other);
 
   @override
   Logic eq(dynamic other) {
