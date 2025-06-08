@@ -123,6 +123,12 @@ class FixedPoint extends Logic {
     }
   }
 
+  Logic _add(dynamic other) {
+    _verifyCompatible(other);
+    final sum = this + other;
+    return FixedPoint.of(sum, signed: signed, m: m + 1, n: n);
+  }
+
   /// Multiply
   Logic _multiply(dynamic other) {
     _verifyCompatible(other);
@@ -137,6 +143,9 @@ class FixedPoint extends Logic {
   /// Greater-than-or-equal-to.
   @override
   Logic operator >=(dynamic other) => gte(other);
+
+  @override
+  Logic operator +(dynamic other) => _add(other);
 
   /// multiply
   @override
