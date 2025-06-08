@@ -158,12 +158,12 @@ class FixedPoint extends LogicStructure {
   }
 
   /// Multiply
-  // Logic _multiply(dynamic other) {
-  //   _verifyCompatible(other);
-  //   final product = Multiply(this, other).out;
-  //   return FixedPoint.of(product,
-  //       signed: false, mWidth: 2 * mWidth, nWidth: 2 * nWidth);
-  // }
+  Logic _multiply(dynamic other) {
+    _verifyCompatible(other);
+    final product = Multiply(this, other).out;
+    return FixedPoint.of(product,
+        signed: false, mWidth: 2 * mWidth, nWidth: 2 * nWidth);
+  }
 
   /// Greater-than.
   @override
@@ -173,9 +173,9 @@ class FixedPoint extends LogicStructure {
   @override
   Logic operator >=(dynamic other) => gte(other);
 
-  /// multiply
+  /// multiply: TODO(desmonddak): this needs tests
   @override
-  // Logic operator *(dynamic other) => _multiply(other);
+  Logic operator *(dynamic other) => _multiply(other);
 
   @override
   Logic eq(dynamic other) {
