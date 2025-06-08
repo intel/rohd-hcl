@@ -4,11 +4,11 @@ Fixed-point binary representation of numbers is useful several applications incl
 
 ## FixedPointValue
 
-A [FixedPointValue](https://intel.github.io/rohd-hcl/rohd_hcl/FixedPointValue-class.html) represents a signed or unsigned fixed-point value following the Q notation (Qm.n format) as introduced by [Texas Instruments](https://www.ti.com/lit/ug/spru565b/spru565b.pdf). It comprises an optional sign, integer part and/or a fractional part. [FixedPointValue](https://intel.github.io/rohd-hcl/rohd_hcl/FixedPointValue-class.html)s can be constructed from individual fields or from a Dart [double](https://api.dart.dev/stable/3.6.0/dart-core/double-class.html), converted to Dart [double](https://api.dart.dev/stable/3.6.0/dart-core/double-class.html), can be compared and can be operated on (+, -, *, /).
+A [FixedPointValue](https://intel.github.io/rohd-hcl/rohd_hcl/FixedPointValue-class.html) represents a signed or unsigned fixed-point value following the Q notation (Qm.n format) as introduced by [Texas Instruments](https://www.ti.com/lit/ug/spru565b/spru565b.pdf). It comprises an optional sign, integer part and/or a fractional part. [FixedPointValue](https://intel.github.io/rohd-hcl/rohd_hcl/FixedPointValue-class.html)s can be constructed from individual fields or from a Dart [double](https://api.dart.dev/stable/3.6.0/dart-core/double-class.html), converted to Dart [double](https://api.dart.dev/stable/3.6.0/dart-core/double-class.html), can be compared and can be operated on (+, -, *, /). A `FixedPointValuePopulator` can be used to construct `FixedPointValue` using different kinds of converters.
 
 ## FixedPoint
 
-The [FixedPoint](https://intel.github.io/rohd-hcl/rohd_hcl/FixedPoint-class.html) type is an extension of [Logic](https://intel.github.io/rohd/rohd/Logic-class.html) with additional attributes (signed or unsigned, integer width and fraction width). This type is provided to simplify the design of fixed-point arithmetic blocks.
+The [FixedPoint](https://intel.github.io/rohd-hcl/rohd_hcl/FixedPoint-class.html) type is an extension of [LogicStructure](https://intel.github.io/rohd/rohd/LogicStructure-class.html) with additional attributes (signed or unsigned, integer width and fraction width). This type is provided to simplify the design of fixed-point arithmetic blocks.  
 
 ## FixedToFloat
 
