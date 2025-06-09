@@ -35,6 +35,11 @@ class ComplexFloatingPoint extends LogicStructure {
           name: name,
         );
 
+  ComplexFloatingPoint.of(Logic input,
+      {required int exponentWidth, required int mantissaWidth, super.name}) {
+    this <= input;
+  }
+
   ComplexFloatingPoint._internal(
       {required this.realPart, required this.imaginaryPart, super.name})
       : assert(realPart.exponent.width == imaginaryPart.exponent.width),
