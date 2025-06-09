@@ -76,7 +76,7 @@ class ComplexFloatingPoint extends LogicStructure {
         name: _nameJoin(name, "multiplier"));
   }
 
-  ComplexFloatingPoint negated() => ComplexFloatingPoint._internal(
+  late final ComplexFloatingPoint negated = ComplexFloatingPoint._internal(
       realPart: realPart.negated(),
       imaginaryPart: imaginaryPart.negated(),
       name: _nameJoin(name, "negated"));

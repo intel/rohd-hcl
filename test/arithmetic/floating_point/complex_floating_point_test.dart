@@ -1,13 +1,5 @@
 // Copyright (C) 2025 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
-//
-// floating_point_test.dart
-// Tests of Floating Point basic types
-//
-// 2024 April 1
-// Authors:
-//  Max Korbel <max.korbel@intel.com>
-//  Desmond A Kirkpatrick <desmond.a.kirkpatrick@intel.com
 
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
