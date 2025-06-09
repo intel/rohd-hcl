@@ -165,6 +165,12 @@ class FloatingPoint extends LogicStructure {
     }
   }
 
+  FloatingPoint negated() => FloatingPoint._(
+      ~sign,
+      exponent.clone()..gets(exponent),
+      mantissa.clone()..gets(mantissa),
+      _explicitJBit);
+
   /// Construct a FloatingPoint that represents infinity.
   factory FloatingPoint.inf(
       {required int exponentWidth,
