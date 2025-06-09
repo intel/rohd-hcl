@@ -9,6 +9,8 @@
 //  Max Korbel <max.korbel@intel.com>
 //  Desmond A Kirkpatrick <desmond.a.kirkpatrick@intel.com
 
+import 'dart:math';
+
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
 import 'package:test/test.dart';
@@ -109,5 +111,73 @@ void main() {
     await Simulator.run();
 
     expect(checkRan, isTrue);
+  });
+
+  test('floating point comparison operators', () async {
+    const exponentWidth = 4;
+    const mantissaWidth = 4;
+    final fp1 = FloatingPoint(
+        exponentWidth: exponentWidth, mantissaWidth: mantissaWidth);
+
+    final val1 = FloatingPointValue.populator(
+            exponentWidth: exponentWidth, mantissaWidth: mantissaWidth)
+        .ofDouble(-1.23);
+    fp1.put(val1);
+    final val2 = FloatingPointValue.populator(
+            exponentWidth: exponentWidth, mantissaWidth: mantissaWidth)
+        .ofDouble(1.23);
+    expect((~fp1).floatingPointValue, equals(val2));
+  });
+
+  test('floating point comparison operators', () async {
+    const exponentWidth = 4;
+    const mantissaWidth = 4;
+    final fp1 = FloatingPoint(
+        exponentWidth: exponentWidth, mantissaWidth: mantissaWidth);
+    final fp2 = FloatingPoint(
+        exponentWidth: exponentWidth, mantissaWidth: mantissaWidth);
+
+    final val1 = FloatingPointValue.populator(
+            exponentWidth: exponentWidth, mantissaWidth: mantissaWidth)
+        .ofDouble(-1.23);
+    final val2 = FloatingPointValue.populator(
+            exponentWidth: exponentWidth, mantissaWidth: mantissaWidth)
+        .ofDouble(-3.45);
+
+    fp1.put(val1);
+    fp2.put(val2);
+
+    final rv = Random(71);
+
+    for (var iter = 0; iter < 500; iter++) {
+      final val1 = FloatingPointValue.populator(
+              exponentWidth: exponentWidth, mantissaWidth: mantissaWidth)
+          .random(rv);
+      final val2 = FloatingPointValue.populator(
+              exponentWidth: exponentWidth, mantissaWidth: mantissaWidth)
+          .random(rv);
+      fp1.put(val1);
+      fp2.put(val1);
+      final compareEq = fp1.eq(fp2); // This will use Logic.eq()
+      expect(compareEq.value.toBool(), isTrue);
+      final compareLte = fp1.lte(fp2);
+      expect(compareLte.value.toBool(), isTrue);
+
+      fp2.put(val2);
+      if (val1.toDouble() < val2.toDouble()) {
+        expect(fp1.lt(fp2).value.toBool(), isTrue);
+        expect(fp1.lte(fp2).value.toBool(), isTrue);
+        expect(
+            fp1.neq(fp2).value.toBool(), isTrue); // This will use Logic.neq()
+      } else if (val1.toDouble() > val2.toDouble()) {
+        expect(fp2.lt(fp1).value.toBool(), isTrue);
+        expect(fp1.gte(fp2).value.toBool(), isTrue);
+        expect(
+            fp1.neq(fp2).value.toBool(), isTrue); // This will use Logic.neq()
+      } else {
+        // rare that the two numbers would collide but just to be safe
+        expect(fp1.eq(fp2).value.toBool(), isTrue);
+      }
+    }
   });
 }

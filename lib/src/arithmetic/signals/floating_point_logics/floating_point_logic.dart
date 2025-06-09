@@ -188,4 +188,91 @@ class FloatingPoint extends LogicStructure {
     final mantissa = Const(1, width: mantissaWidth);
     return FloatingPoint._(signLogic, exponent, mantissa, explicitJBit);
   }
+
+  /// Negate the [FloatingPoint].
+  factory FloatingPoint.negate(FloatingPoint input) {
+    final exponent = Logic(width: input.exponent.width)..gets(input.exponent);
+    final mantissa = Logic(width: input.mantissa.width)..gets(input.mantissa);
+    final sign = Logic()..gets(~input.sign);
+    return FloatingPoint._(
+      sign,
+      exponent,
+      mantissa,
+      input.explicitJBit,
+      name: input.name,
+    );
+  }
+
+  @override
+  FloatingPoint operator ~() => FloatingPoint.negate(this);
+
+  /// Equal
+  @override
+  Logic eq(dynamic other) {
+    if (other is! FloatingPoint) {
+      throw RohdHclException('Input must be floating point signal.');
+    }
+    return mux(isNaN | other.isNaN, Const(0), super.eq(other));
+  }
+
+  /// Not Equal
+  @override
+  Logic neq(dynamic other) {
+    if (other is! FloatingPoint) {
+      throw RohdHclException('Input must be floating point signal.');
+    }
+    return mux(isNaN | other.isNaN, Const(1), super.neq(other));
+  }
+
+  /// Less-than.
+  @override
+  Logic lt(dynamic other) {
+    if (other is! FloatingPoint) {
+      throw RohdHclException('Input must be floating point signal.');
+    }
+    if (explicitJBit || other.explicitJBit) {
+      throw RohdHclException(
+          'FloatingPoint with explicit J-bit cannot be compared.');
+    }
+    return mux(
+        isNaN | other.isNaN,
+        Const(0),
+        mux(this[-1], mux(other[-1], super.gt(other), Const(1)),
+            mux(other[-1], Const(0), super.lt(other))));
+  }
+
+  @override
+  Logic lte(dynamic other) {
+    if (other is! FloatingPoint) {
+      throw RohdHclException('Input must be floating point signal.');
+    }
+    if (explicitJBit || other.explicitJBit) {
+      throw RohdHclException(
+          'FloatingPoint with explicit J-bit cannot be compared.');
+    }
+    return mux(
+        isNaN | other.isNaN,
+        Const(0),
+        mux(this[-1], mux(other[-1], super.gte(other), Const(1)),
+            mux(other[-1], Const(0), super.lte(other))));
+  }
+
+  // For Greather-than operators, reverse the operands
+  /// Greater-than.
+  @override
+  Logic gt(dynamic other) {
+    if (other is! FloatingPoint) {
+      throw RohdHclException('Input must be floating point signal.');
+    }
+    return other.lt(this);
+  }
+
+  /// Greater-than-or-equal-to.
+  @override
+  Logic gte(dynamic other) {
+    if (other is! FloatingPoint) {
+      throw RohdHclException('Input must be floating point signal.');
+    }
+    return other.lte(this);
+  }
 }
