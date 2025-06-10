@@ -199,7 +199,6 @@ class FloatingPoint extends LogicStructure {
       );
 
   /// Negate the [FloatingPoint].
-  @override
   FloatingPoint operator -() => negate();
 
   @override
