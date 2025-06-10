@@ -191,6 +191,8 @@ void main() {
     }
   });
 
+  /// TODO(desmonddak): convert these tests to methods
+
   BigInt toBigInt(FloatingPointValue fpv) {
     final mantissa = [
       if (fpv.isNormal()) LogicValue.one else LogicValue.zero,
@@ -200,8 +202,10 @@ void main() {
     return bigIntRepr;
   }
 
-  FloatingPointValue fromBigInt(
-      BigInt bigIntRepr, bool sign, int exponentWidth, int mantissaWidth) {
+  FloatingPointValue fromBigInt(BigInt bigIntRepr,
+      {required int exponentWidth,
+      required int mantissaWidth,
+      bool sign = false}) {
     final vec = LogicValue.ofBigInt(
         bigIntRepr, max(bigIntRepr.bitLength, mantissaWidth));
     final predExp = vec.width - mantissaWidth - 1;
@@ -227,8 +231,10 @@ void main() {
 
       final bigInt = toBigInt(val1);
 
-      final fpv =
-          fromBigInt(bigInt, val1.sign.toBool(), exponentWidth, mantissaWidth);
+      final fpv = fromBigInt(bigInt,
+          sign: val1.sign.toBool(),
+          exponentWidth: exponentWidth,
+          mantissaWidth: mantissaWidth);
 
       expect(fpv, equals(val1));
     }
