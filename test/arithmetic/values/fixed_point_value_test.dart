@@ -192,7 +192,7 @@ void main() {
           .ofLogicValue(LogicValue.ofInt(i, width));
       final dbl = fxv.toDouble();
       if (!FixedPointValuePopulator.canStore(dbl,
-          signed: fxv.signed, m: fxv.mWidth, n: fxv.nWidth)) {
+          signed: fxv.signed, m: fxv.integerWidth, n: fxv.fractionWidth)) {
         throw RohdHclException('generated a value that we cannot store');
       }
       final fxv2 = FixedPointValue.populator(mWidth: m, nWidth: n, signed: true)
@@ -227,22 +227,22 @@ void main() {
                 fxp = fxp1 + fxp2;
                 expect(fxp.toDouble(), fxp1.toDouble() + fxp2.toDouble(),
                     reason: '+');
-                expect(fxp.nWidth, max(n1, n2));
-                expect(fxp.mWidth, max(m1, m2) + 1);
+                expect(fxp.fractionWidth, max(n1, n2));
+                expect(fxp.integerWidth, max(m1, m2) + 1);
 
                 // subtract
                 fxp = fxp1 - fxp2;
                 expect(fxp.toDouble(), fxp1.toDouble() - fxp2.toDouble(),
                     reason: '-');
-                expect(fxp.nWidth, max(n1, n2));
-                expect(fxp.mWidth, max(m1, m2) + 1);
+                expect(fxp.fractionWidth, max(n1, n2));
+                expect(fxp.integerWidth, max(m1, m2) + 1);
 
                 // multiply
                 fxp = fxp1 * fxp2;
                 expect(fxp.toDouble(), fxp1.toDouble() * fxp2.toDouble(),
                     reason: '${fxp1.toDouble()}*${fxp2.toDouble()}');
-                expect(fxp.nWidth, n1 + n2);
-                expect(fxp.mWidth, s1 + s2 == 2 ? m1 + m2 : m1 + m2 + 1);
+                expect(fxp.fractionWidth, n1 + n2);
+                expect(fxp.integerWidth, s1 + s2 == 2 ? m1 + m2 : m1 + m2 + 1);
 
                 // divide
                 fxp = fxp1 / fxp2;

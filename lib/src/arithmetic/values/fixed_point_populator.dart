@@ -9,6 +9,7 @@
 
 import 'dart:math';
 
+import 'package:meta/meta.dart';
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
 
@@ -22,10 +23,10 @@ class FixedPointValuePopulator<FpvType extends FixedPointValue> {
   final FpvType _unpopulated;
 
   /// The width of the exponent field.
-  int get integerWidth => _unpopulated.mWidth;
+  int get integerWidth => _unpopulated.integerWidth;
 
   /// The width of the mantissa field.
-  int get fractionWidth => _unpopulated.nWidth;
+  int get fractionWidth => _unpopulated.fractionWidth;
 
   /// Return whether the [FixedPointValue] is signed.
   bool get signed => _unpopulated.signed;
@@ -102,6 +103,7 @@ class FixedPointValuePopulator<FpvType extends FixedPointValue> {
   }
 
   /// Constructs [FixedPointValue] from a Dart [double] without rounding.
+  @internal
   FpvType ofDoubleUnrounded(double val) {
     final m = integerWidth;
     final n = fractionWidth;
@@ -118,13 +120,16 @@ class FixedPointValuePopulator<FpvType extends FixedPointValue> {
   /// Constructs a [FixedPointValue] from another [FixedPointValue] with
   /// by widening the integer and/or fraction widths.
   FpvType widen(FpvType fpv) {
-    if ((fpv.mWidth > integerWidth) || (fpv.nWidth > fractionWidth)) {
+    if ((fpv.integerWidth > integerWidth) ||
+        (fpv.fractionWidth > fractionWidth)) {
       throw RohdHclException('Cannot expand from $fpv to $_unpopulated');
     }
 
     var newInteger = fpv.signed
-        ? fpv.integer.signExtend(fpv.integer.width + integerWidth - fpv.mWidth)
-        : fpv.integer.zeroExtend(fpv.integer.width + integerWidth - fpv.mWidth);
+        ? fpv.integer
+            .signExtend(fpv.integer.width + integerWidth - fpv.integerWidth)
+        : fpv.integer
+            .zeroExtend(fpv.integer.width + integerWidth - fpv.integerWidth);
     if (signed & !fpv.signed) {
       newInteger = newInteger.zeroExtend(newInteger.width + 1);
     }

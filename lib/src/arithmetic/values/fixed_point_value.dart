@@ -28,11 +28,11 @@ class FixedPointValue implements Comparable<FixedPointValue> {
   /// The fractional value portion.
   late final LogicValue fraction;
 
-  /// [mWidth] is the number of bits reserved for the integer part.
-  late final int mWidth;
+  /// [integerWidth] is the number of bits reserved for the integer part.
+  late final int integerWidth;
 
-  /// [nWidth] is the number of bits reserved for the fractional part.
-  late final int nWidth;
+  /// [fractionWidth] is the number of bits reserved for the fractional part.
+  late final int fractionWidth;
 
   /// [signed] indicates whether the representation is signed.
   bool get signed => _signed;
@@ -62,8 +62,8 @@ class FixedPointValue implements Comparable<FixedPointValue> {
   static FixedPointValuePopulator populator(
           {required int mWidth, required int nWidth, bool signed = false}) =>
       FixedPointValuePopulator(FixedPointValue.uninitialized(signed: signed)
-        ..mWidth = mWidth
-        ..nWidth = nWidth);
+        ..integerWidth = mWidth
+        ..fractionWidth = nWidth);
 
   /// Creates a [FixedPointValuePopulator] for the same type as `this` and
   /// with the same widths.
@@ -74,8 +74,8 @@ class FixedPointValue implements Comparable<FixedPointValue> {
   @mustBeOverridden
   FixedPointValuePopulator clonePopulator() =>
       FixedPointValuePopulator(FixedPointValue.uninitialized(signed: signed)
-        ..mWidth = mWidth
-        ..nWidth = nWidth);
+        ..integerWidth = integerWidth
+        ..fractionWidth = fractionWidth);
 
   /// Returns a negative integer if `this` less than [other],
   /// a positive integer if `this` greater than [other],
@@ -89,8 +89,8 @@ class FixedPointValue implements Comparable<FixedPointValue> {
       throw RohdHclException('Inputs must be valid.');
     }
     final s = signed | other.signed;
-    final m = max(mWidth, other.mWidth);
-    final n = max(nWidth, other.nWidth);
+    final m = max(integerWidth, other.integerWidth);
+    final n = max(fractionWidth, other.fractionWidth);
     final val1 = FixedPointValue.populator(mWidth: m, nWidth: n, signed: s)
         .widen(this)
         .value;
@@ -137,7 +137,10 @@ class FixedPointValue implements Comparable<FixedPointValue> {
 
   @override
   int get hashCode =>
-      value.hashCode ^ signed.hashCode ^ mWidth.hashCode ^ nWidth.hashCode;
+      value.hashCode ^
+      signed.hashCode ^
+      integerWidth.hashCode ^
+      fractionWidth.hashCode;
 
   @override
   bool operator ==(Object other) {
@@ -151,12 +154,12 @@ class FixedPointValue implements Comparable<FixedPointValue> {
   ///  return sign, integer, fraction as binary strings.
   @override
   String toString() => "(${signed ? '${value[-1].bitString} ' : ''}"
-      "${(mWidth > 0) ? '${value.getRange(nWidth).bitString} ' : ''}"
-      '${value.slice(nWidth - 1, 0).bitString})';
+      "${integerWidth > 0 ? '${value.getRange(fractionWidth).bitString} ' : ''}"
+      '${value.slice(fractionWidth - 1, 0).bitString})';
 
   /// Converts a fixed-point value to a Dart [double].
   double toDouble() {
-    if (mWidth + nWidth > 52) {
+    if (integerWidth + fractionWidth > 52) {
       throw RohdHclException('Fixed-point value is too wide to convert.');
     }
     if (!this.value.isValid) {
@@ -168,7 +171,7 @@ class FixedPointValue implements Comparable<FixedPointValue> {
     } else {
       number = this.value.toBigInt();
     }
-    final value = number.toDouble() / pow(2, nWidth).toDouble();
+    final value = number.toDouble() / pow(2, fractionWidth).toDouble();
     return isNegative() ? -value : value;
   }
 
@@ -181,8 +184,8 @@ class FixedPointValue implements Comparable<FixedPointValue> {
       throw RohdHclException('Inputs must be valid.');
     }
     final s = signed | other.signed;
-    final nr = max(nWidth, other.nWidth);
-    final mr = max(mWidth, other.mWidth) + 1;
+    final nr = max(fractionWidth, other.fractionWidth);
+    final mr = max(integerWidth, other.integerWidth) + 1;
     final val1 = FixedPointValue.populator(mWidth: mr, nWidth: nr, signed: s)
         .widen(this)
         .value;
@@ -202,8 +205,8 @@ class FixedPointValue implements Comparable<FixedPointValue> {
       throw RohdHclException('Inputs must be valid.');
     }
     const s = true;
-    final nr = max(nWidth, other.nWidth);
-    final mr = max(mWidth, other.mWidth) + 1;
+    final nr = max(fractionWidth, other.fractionWidth);
+    final mr = max(integerWidth, other.integerWidth) + 1;
     final val1 = FixedPointValue.populator(mWidth: mr, nWidth: nr, signed: s)
         .widen(this)
         .value;
@@ -222,15 +225,19 @@ class FixedPointValue implements Comparable<FixedPointValue> {
       throw RohdHclException('Inputs must be valid.');
     }
     final s = signed | other.signed;
-    final mr = s ? mWidth + other.mWidth + 1 : mWidth + other.mWidth;
-    final nr = nWidth + other.nWidth;
+    final mr = s
+        ? integerWidth + other.integerWidth + 1
+        : integerWidth + other.integerWidth;
+    final nr = fractionWidth + other.fractionWidth;
     final tr = mr + nr;
     final val1 = FixedPointValue.populator(
-            mWidth: tr - nWidth, nWidth: nWidth, signed: s)
+            mWidth: tr - fractionWidth, nWidth: fractionWidth, signed: s)
         .widen(this)
         .value;
     final val2 = FixedPointValue.populator(
-            mWidth: tr - other.nWidth, nWidth: other.nWidth, signed: s)
+            mWidth: tr - other.fractionWidth,
+            nWidth: other.fractionWidth,
+            signed: s)
         .widen(other)
         .value;
     return FixedPointValue.populator(mWidth: mr, nWidth: nr, signed: s)
@@ -248,16 +255,18 @@ class FixedPointValue implements Comparable<FixedPointValue> {
     }
     final s = signed | other.signed;
     // extend integer width for max negative number
-    final m1 = s ? mWidth + 1 : mWidth;
-    final m2 = s ? other.mWidth + 1 : other.mWidth;
-    final mr = m1 + other.nWidth;
-    final nr = nWidth + m2;
+    final m1 = s ? integerWidth + 1 : integerWidth;
+    final m2 = s ? other.integerWidth + 1 : other.integerWidth;
+    final mr = m1 + other.fractionWidth;
+    final nr = fractionWidth + m2;
     final tr = mr + nr;
     var val1 = FixedPointValue.populator(mWidth: m1, nWidth: tr - m1, signed: s)
         .widen(this)
         .value;
     var val2 = FixedPointValue.populator(
-            mWidth: tr - other.nWidth, nWidth: other.nWidth, signed: s)
+            mWidth: tr - other.fractionWidth,
+            nWidth: other.fractionWidth,
+            signed: s)
         .widen(other)
         .value;
     // Convert to positive as needed

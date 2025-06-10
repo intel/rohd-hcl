@@ -22,15 +22,13 @@ class FixedPoint extends LogicStructure {
   Logic fraction;
 
   /// Return true if signed
-  bool get signed => _signed;
+  final bool signed;
 
-  late final bool _signed;
+  /// [integerWidth] is the number of bits reserved for the integer part.
+  int get integerWidth => integer.width - (signed ? 1 : 0);
 
-  /// [mWidth] is the number of bits reserved for the integer part.
-  int get mWidth => integer.width - (signed ? 1 : 0);
-
-  /// [nWidth] is the number of bits reserved for the fractional part.
-  int get nWidth => fraction.width;
+  /// [fractionWidth] is the number of bits reserved for the fractional part.
+  int get fractionWidth => fraction.width;
 
   /// Utility to keep track of the Logic structure name by attaching it
   /// to the Logic signal name in the output Verilog.
@@ -60,7 +58,7 @@ class FixedPoint extends LogicStructure {
             name: name);
 
   /// [FixedPoint] internal constructor.
-  FixedPoint._(this.integer, this.fraction, this._signed, {super.name})
+  FixedPoint._(this.integer, this.fraction, this.signed, {super.name})
       : super([fraction, integer]);
 
   /// Retrieve the [FixedPointValue] of this [FixedPoint] logical signal.
@@ -69,13 +67,13 @@ class FixedPoint extends LogicStructure {
   /// A [FixedPointValuePopulator] for values associated with this
   /// [FloatingPoint] type.
   @mustBeOverridden
-  FixedPointValuePopulator valuePopulator() =>
-      FixedPointValue.populator(mWidth: mWidth, nWidth: nWidth, signed: signed);
+  FixedPointValuePopulator valuePopulator() => FixedPointValue.populator(
+      mWidth: integerWidth, nWidth: fractionWidth, signed: signed);
 
   /// Clone for I/O ports.
   @override
   FixedPoint clone({String? name}) =>
-      FixedPoint(signed: signed, mWidth: mWidth, nWidth: nWidth);
+      FixedPoint(signed: signed, mWidth: integerWidth, nWidth: fractionWidth);
 
   /// Cast logic to fixed point
   FixedPoint.of(Logic signal,
@@ -88,12 +86,13 @@ class FixedPoint extends LogicStructure {
   void put(dynamic val, {bool fill = false}) {
     if (val is FixedPointValue) {
       if ((signed != val.signed) |
-          (mWidth != val.mWidth) |
-          (nWidth != val.nWidth)) {
+          (integerWidth != val.integerWidth) |
+          (fractionWidth != val.fractionWidth)) {
         throw RohdHclException('Value is not compatible with signal. '
-            'Expected: signed=$signed, mWidth=$mWidth, nWidth=$nWidth. '
-            'Got: signed=${val.signed}, mWidth=${val.mWidth}, '
-            'nWidth=${val.nWidth}.');
+            'Expected: signed=$signed, mWidth=$integerWidth, '
+            'nWidth=$fractionWidth. '
+            'Got: signed=${val.signed}, mWidth=${val.integerWidth}, '
+            'nWidth=${val.fractionWidth}.');
       }
       super.put(val.value);
     } else {
@@ -107,8 +106,8 @@ class FixedPoint extends LogicStructure {
       throw RohdHclException('Input must be fixed point signal.');
     }
     if ((signed != other.signed) |
-        (mWidth != other.mWidth) |
-        (nWidth != other.nWidth)) {
+        (integerWidth != other.integerWidth) |
+        (fractionWidth != other.fractionWidth)) {
       throw RohdHclException('Inputs are not comparable.');
     }
   }
@@ -162,7 +161,7 @@ class FixedPoint extends LogicStructure {
     _verifyCompatible(other);
     final product = Multiply(this, other).out;
     return FixedPoint.of(product,
-        signed: false, mWidth: 2 * mWidth, nWidth: 2 * nWidth);
+        signed: false, mWidth: 2 * integerWidth, nWidth: 2 * fractionWidth);
   }
 
   /// Greater-than.
