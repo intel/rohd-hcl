@@ -32,14 +32,11 @@ abstract class OneHotToBinary extends Module {
       {bool generateError = false, String name = 'one_hot_to_binary'}) {
     final isSmall = onehot.width <= 8;
 
-    if (!isSmall && generateError) {
-      throw RohdHclException(
-          'Tree implementation does not generate error signal.');
-    }
-
-    return isSmall
-        ? CaseOneHotToBinary(onehot, generateError: generateError, name: name)
-        : TreeOneHotToBinary(onehot, name: name);
+    return (isSmall ? CaseOneHotToBinary.new : TreeOneHotToBinary.new)(
+      onehot,
+      generateError: generateError,
+      name: name,
+    );
   }
 
   /// The [input] of this instance.
@@ -50,6 +47,7 @@ abstract class OneHotToBinary extends Module {
 
   /// Constructs a [Module] which decodes a one-hot number [onehot] into a 2s
   /// complement number [binary] by encoding the position of the '1'.
+  @protected
   OneHotToBinary.base(Logic onehot,
       {this.generateError = false,
       super.name = 'one_hot_to_binary',

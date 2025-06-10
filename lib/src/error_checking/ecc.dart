@@ -44,9 +44,6 @@ enum HammingType {
   int get _extraParityBits => hasExtraParityBit ? 1 : 0;
 }
 
-/// Returns whether [n] is a power of two.
-bool _isPowerOfTwo(int n) => n != 0 && (n & (n - 1) == 0);
-
 /// A transmitter for data which generates a Hamming code for error detection
 /// and possibly correction.
 class HammingEccTransmitter extends ErrorCheckingTransmitter {
@@ -87,7 +84,7 @@ class HammingEccTransmitter extends ErrorCheckingTransmitter {
     for (var i = 1;
         i <= transmission.width - hammingType._extraParityBits;
         i++) {
-      if (!_isPowerOfTwo(i)) {
+      if (!isPowerOfTwo(i)) {
         final ilv = LogicValue.ofInt(i, hammingCodeWidth);
 
         for (var p = 0; p < hammingCodeWidth; p++) {
@@ -214,7 +211,7 @@ class HammingEccReceiver extends ErrorCheckingReceiver {
     final mapping = <int, int>{};
     var dataIdx = 0;
     for (var encodedIdx = 1; encodedIdx <= transmission.width; encodedIdx++) {
-      if (!_isPowerOfTwo(encodedIdx)) {
+      if (!isPowerOfTwo(encodedIdx)) {
         mapping[encodedIdx] = dataIdx++;
       }
     }
