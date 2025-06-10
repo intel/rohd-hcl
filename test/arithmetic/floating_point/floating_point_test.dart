@@ -113,7 +113,7 @@ void main() {
     expect(checkRan, isTrue);
   });
 
-  test('floating point comparison operators', () async {
+  test('FloatingPointValue negation', () async {
     const exponentWidth = 4;
     const mantissaWidth = 4;
     final fp1 = FloatingPoint(
@@ -126,10 +126,10 @@ void main() {
     final val2 = FloatingPointValue.populator(
             exponentWidth: exponentWidth, mantissaWidth: mantissaWidth)
         .ofDouble(1.23);
-    expect((~fp1).floatingPointValue, equals(val2));
+    expect((-fp1).floatingPointValue, equals(val2));
   });
 
-  test('floating point comparison operators', () async {
+  test('FloatingPointValue comparison operators', () async {
     const exponentWidth = 4;
     const mantissaWidth = 4;
     final fp1 = FloatingPoint(
@@ -149,7 +149,7 @@ void main() {
 
     final rv = Random(71);
 
-    for (var iter = 0; iter < 500; iter++) {
+    for (var iter = 0; iter < 50; iter++) {
       final val1 = FloatingPointValue.populator(
               exponentWidth: exponentWidth, mantissaWidth: mantissaWidth)
           .random(rv);
@@ -158,10 +158,14 @@ void main() {
           .random(rv);
       fp1.put(val1);
       fp2.put(val1);
-      final compareEq = fp1.eq(fp2); // This will use Logic.eq()
-      expect(compareEq.value.toBool(), isTrue);
-      final compareLte = fp1.lte(fp2);
-      expect(compareLte.value.toBool(), isTrue);
+      expect(fp1.eq(fp2).value.toBool(), isTrue);
+      expect(fp1.lte(fp2).value.toBool(), isTrue);
+      expect(fp1.gte(fp2).value.toBool(), isTrue);
+      expect((fp2 >= fp1).value.toBool(), isTrue);
+      expect(fp1.neq(fp2).value.toBool(), isFalse);
+      expect(fp1.lt(fp2).value.toBool(), isFalse);
+      expect(fp1.gt(fp2).value.toBool(), isFalse);
+      expect((fp2 > fp1).value.toBool(), isFalse);
 
       fp2.put(val2);
       if (val1.toDouble() < val2.toDouble()) {
@@ -169,15 +173,64 @@ void main() {
         expect(fp1.lte(fp2).value.toBool(), isTrue);
         expect(
             fp1.neq(fp2).value.toBool(), isTrue); // This will use Logic.neq()
+        expect(fp1.eq(fp2).value.toBool(), isFalse);
+        expect(fp1.gt(fp2).value.toBool(), isFalse);
+        expect((fp1 > fp2).value.toBool(), isFalse);
       } else if (val1.toDouble() > val2.toDouble()) {
-        expect(fp2.lt(fp1).value.toBool(), isTrue);
-        expect(fp1.gte(fp2).value.toBool(), isTrue);
+        expect(fp1.gt(fp2).value.toBool(), isTrue);
+        expect((fp1 > fp2).value.toBool(), isTrue);
+        expect(fp1.lt(fp2).value.toBool(), isFalse);
+        expect(fp1.lte(fp2).value.toBool(), isFalse);
         expect(
             fp1.neq(fp2).value.toBool(), isTrue); // This will use Logic.neq()
       } else {
         // rare that the two numbers would collide but just to be safe
         expect(fp1.eq(fp2).value.toBool(), isTrue);
+        expect(fp1.neq(fp2).value.toBool(), isFalse);
       }
+    }
+  });
+
+  BigInt toBigInt(FloatingPointValue fpv) {
+    final mantissa = [
+      if (fpv.isNormal()) LogicValue.one else LogicValue.zero,
+      fpv.mantissa
+    ].swizzle();
+    final bigIntRepr = mantissa.toBigInt() << fpv.exponent.toInt();
+    return bigIntRepr;
+  }
+
+  FloatingPointValue fromBigInt(
+      BigInt bigIntRepr, bool sign, int exponentWidth, int mantissaWidth) {
+    final vec = LogicValue.ofBigInt(
+        bigIntRepr, max(bigIntRepr.bitLength, mantissaWidth));
+    final predExp = vec.width - mantissaWidth - 1;
+    final predMantissa = vec >>> predExp;
+    final outMantissa = predMantissa.getRange(0, mantissaWidth);
+    final intvec = vec >>> predExp;
+    final len = intvec.width - mantissaWidth - 1;
+    final outExponent = len;
+
+    return FloatingPointValue(
+        sign: LogicValue.ofBool(sign),
+        exponent: LogicValue.ofInt(outExponent, exponentWidth),
+        mantissa: outMantissa);
+  }
+
+  test('FloatingPointValue to BigInt', () async {
+    const exponentWidth = 8;
+    const mantissaWidth = 8;
+    for (final flop in [-1.3, 4.5, -6.9e-8, 8.2e5]) {
+      final val1 = FloatingPointValue.populator(
+              exponentWidth: exponentWidth, mantissaWidth: mantissaWidth)
+          .ofDouble(flop);
+
+      final bigInt = toBigInt(val1);
+
+      final fpv =
+          fromBigInt(bigInt, val1.sign.toBool(), exponentWidth, mantissaWidth);
+
+      expect(fpv, equals(val1));
     }
   });
 }

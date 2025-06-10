@@ -78,7 +78,7 @@ class FloatingPoint extends LogicStructure {
   /// Return true if the J-bit is explicitly represented in the mantissa.
   bool get explicitJBit => _explicitJBit;
 
-  late final bool _explicitJBit;
+  final bool _explicitJBit;
 
   /// Return the [FloatingPointValue] of the current [value].
   FloatingPointValue get floatingPointValue =>
@@ -190,21 +190,23 @@ class FloatingPoint extends LogicStructure {
   }
 
   /// Negate the [FloatingPoint].
-  factory FloatingPoint.negate(FloatingPoint input) {
-    final exponent = Logic(width: input.exponent.width)..gets(input.exponent);
-    final mantissa = Logic(width: input.mantissa.width)..gets(input.mantissa);
-    final sign = Logic()..gets(~input.sign);
-    return FloatingPoint._(
-      sign,
-      exponent,
-      mantissa,
-      input.explicitJBit,
-      name: input.name,
-    );
-  }
+  FloatingPoint negate() => FloatingPoint._(
+        Logic()..gets(~sign),
+        Logic(width: exponent.width)..gets(exponent),
+        Logic(width: mantissa.width)..gets(mantissa),
+        explicitJBit,
+        name: name,
+      );
+
+  /// Negate the [FloatingPoint].
+  @override
+  FloatingPoint operator -() => negate();
 
   @override
-  FloatingPoint operator ~() => FloatingPoint.negate(this);
+  Logic operator >(dynamic other) => gt(other);
+  @override
+  Logic operator >=(dynamic other) => gte(other);
+  @override
 
   /// Equal
   @override
@@ -212,17 +214,18 @@ class FloatingPoint extends LogicStructure {
     if (other is! FloatingPoint) {
       throw RohdHclException('Input must be floating point signal.');
     }
+    if (other.exponent.width != exponent.width ||
+        other.mantissa.width != mantissa.width ||
+        other.explicitJBit ||
+        explicitJBit) {
+      throw RohdHclException('FloatingPoint width or J-bit does not match');
+    }
     return mux(isNaN | other.isNaN, Const(0), super.eq(other));
   }
 
   /// Not Equal
   @override
-  Logic neq(dynamic other) {
-    if (other is! FloatingPoint) {
-      throw RohdHclException('Input must be floating point signal.');
-    }
-    return mux(isNaN | other.isNaN, Const(1), super.neq(other));
-  }
+  Logic neq(dynamic other) => ~eq(other);
 
   /// Less-than.
   @override
@@ -230,49 +233,28 @@ class FloatingPoint extends LogicStructure {
     if (other is! FloatingPoint) {
       throw RohdHclException('Input must be floating point signal.');
     }
-    if (explicitJBit || other.explicitJBit) {
-      throw RohdHclException(
-          'FloatingPoint with explicit J-bit cannot be compared.');
+    if (other.exponent.width != exponent.width ||
+        other.mantissa.width != mantissa.width ||
+        other.explicitJBit ||
+        explicitJBit) {
+      throw RohdHclException('FloatingPoint width or J-bit does not match');
     }
     return mux(
         isNaN | other.isNaN,
         Const(0),
-        mux(this[-1], mux(other[-1], super.gt(other), Const(1)),
-            mux(other[-1], Const(0), super.lt(other))));
+        mux(sign, mux(other.sign, super.gt(other), Const(1)),
+            mux(other.sign, Const(0), super.lt(other))));
   }
 
   @override
-  Logic lte(dynamic other) {
-    if (other is! FloatingPoint) {
-      throw RohdHclException('Input must be floating point signal.');
-    }
-    if (explicitJBit || other.explicitJBit) {
-      throw RohdHclException(
-          'FloatingPoint with explicit J-bit cannot be compared.');
-    }
-    return mux(
-        isNaN | other.isNaN,
-        Const(0),
-        mux(this[-1], mux(other[-1], super.gte(other), Const(1)),
-            mux(other[-1], Const(0), super.lte(other))));
-  }
+  Logic lte(dynamic other) => lt(other) | eq(other);
 
   // For Greather-than operators, reverse the operands
   /// Greater-than.
   @override
-  Logic gt(dynamic other) {
-    if (other is! FloatingPoint) {
-      throw RohdHclException('Input must be floating point signal.');
-    }
-    return other.lt(this);
-  }
+  Logic gt(dynamic other) => ~lte(other);
 
   /// Greater-than-or-equal-to.
   @override
-  Logic gte(dynamic other) {
-    if (other is! FloatingPoint) {
-      throw RohdHclException('Input must be floating point signal.');
-    }
-    return other.lte(this);
-  }
+  Logic gte(dynamic other) => gt(other) | eq(other);
 }
