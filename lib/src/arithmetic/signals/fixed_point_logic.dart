@@ -68,7 +68,7 @@ class FixedPoint extends LogicStructure {
   /// [FloatingPoint] type.
   @mustBeOverridden
   FixedPointValuePopulator valuePopulator() => FixedPointValue.populator(
-      mWidth: integerWidth, nWidth: fractionWidth, signed: signed);
+      integerWidth: integerWidth, fractionWidth: fractionWidth, signed: signed);
 
   /// Clone for I/O ports.
   @override

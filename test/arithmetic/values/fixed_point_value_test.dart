@@ -24,7 +24,9 @@ void main() {
     ];
     for (var c = 0; c < corners.length; c++) {
       final pop = FixedPointValue.populator(
-          mWidth: corners[c].$3, nWidth: corners[c].$4, signed: corners[c].$2);
+          integerWidth: corners[c].$3,
+          fractionWidth: corners[c].$4,
+          signed: corners[c].$2);
       final fxp = pop.ofLogicValue(corners[c].$1);
       expect(fxp.value.width, corners[c].$5);
       expect(corners[c].$1, fxp.value);
@@ -50,14 +52,14 @@ void main() {
     ];
     for (var c = 0; c < corners.length; c++) {
       final fxp = FixedPointValue.populator(
-              mWidth: corners[c].$3,
-              nWidth: corners[c].$4,
+              integerWidth: corners[c].$3,
+              fractionWidth: corners[c].$4,
               signed: corners[c].$2)
           .ofLogicValue(LogicValue.ofString(corners[c].$1));
 
       final value = FixedPointValue.populator(
-              mWidth: corners[c].$6,
-              nWidth: corners[c].$7,
+              integerWidth: corners[c].$6,
+              fractionWidth: corners[c].$7,
               signed: corners[c].$5)
           .widen(fxp)
           .value;
@@ -84,13 +86,13 @@ void main() {
     ];
     for (var c = 0; c < corners.length; c++) {
       final fxp1 = FixedPointValue.populator(
-              mWidth: corners[c].$3,
-              nWidth: corners[c].$4,
+              integerWidth: corners[c].$3,
+              fractionWidth: corners[c].$4,
               signed: corners[c].$2)
           .ofLogicValue(LogicValue.ofString(corners[c].$1));
       final fxp2 = FixedPointValue.populator(
-              mWidth: corners[c].$7,
-              nWidth: corners[c].$8,
+              integerWidth: corners[c].$7,
+              fractionWidth: corners[c].$8,
               signed: corners[c].$6)
           .ofLogicValue(LogicValue.ofString(corners[c].$5));
       expect(fxp1.compareTo(fxp2), corners[c].$9);
@@ -111,7 +113,9 @@ void main() {
     for (var c = 0; c < corners.length; c++) {
       final number = corners[c].$4;
       final fxp = FixedPointValue.populator(
-              mWidth: corners[c].$2, nWidth: corners[c].$3, signed: true)
+              integerWidth: corners[c].$2,
+              fractionWidth: corners[c].$3,
+              signed: true)
           .ofDouble(number);
 
       expect(fxp.value.bitString, corners[c].$1);
@@ -129,7 +133,7 @@ void main() {
     for (var c = 0; c < corners.length; c++) {
       final number = corners[c].$4;
       final fxp = FixedPointValue.populator(
-              mWidth: corners[c].$2, nWidth: corners[c].$3)
+              integerWidth: corners[c].$2, fractionWidth: corners[c].$3)
           .ofDouble(number);
       expect(fxp.value.bitString, corners[c].$1);
       expect(fxp.toDouble(), number);
@@ -138,7 +142,7 @@ void main() {
     for (var i = 0; i < pow(2, 4); i++) {
       for (var m = 0; m < 5; m++) {
         final n = 4 - m;
-        final fxp = FixedPointValue.populator(mWidth: m, nWidth: n)
+        final fxp = FixedPointValue.populator(integerWidth: m, fractionWidth: n)
             .ofLogicValue(LogicValue.ofInt(i, 4));
         expect(fxp.value.width, 4);
         expect(fxp.toDouble(), i / pow(2, n));
@@ -148,38 +152,53 @@ void main() {
 
   test('Comparison operators', () {
     expect(
-        FixedPointValue.populator(mWidth: 4, nWidth: 2, signed: true)
+        FixedPointValue.populator(
+                integerWidth: 4, fractionWidth: 2, signed: true)
             .ofDouble(14.432)
-            .eq(FixedPointValue.populator(mWidth: 4, nWidth: 2)
+            .eq(FixedPointValue.populator(integerWidth: 4, fractionWidth: 2)
                 .ofDouble(14.432)),
         LogicValue.one);
     expect(
-        FixedPointValue.populator(mWidth: 4, nWidth: 2).ofDouble(14.432).neq(
-            FixedPointValue.populator(mWidth: 4, nWidth: 2).ofDouble(14.432)),
+        FixedPointValue.populator(integerWidth: 4, fractionWidth: 2)
+            .ofDouble(14.432)
+            .neq(FixedPointValue.populator(integerWidth: 4, fractionWidth: 2)
+                .ofDouble(14.432)),
         LogicValue.zero);
     expect(
-        FixedPointValue.populator(mWidth: 4, nWidth: 2).ofDouble(13.454) >
-            FixedPointValue.populator(mWidth: 4, nWidth: 2).ofDouble(14),
+        FixedPointValue.populator(integerWidth: 4, fractionWidth: 2)
+                .ofDouble(13.454) >
+            FixedPointValue.populator(integerWidth: 4, fractionWidth: 2)
+                .ofDouble(14),
         LogicValue.zero);
     expect(
-        FixedPointValue.populator(mWidth: 4, nWidth: 2).ofDouble(13.454) >=
-            FixedPointValue.populator(mWidth: 4, nWidth: 2).ofDouble(14),
+        FixedPointValue.populator(integerWidth: 4, fractionWidth: 2)
+                .ofDouble(13.454) >=
+            FixedPointValue.populator(integerWidth: 4, fractionWidth: 2)
+                .ofDouble(14),
         LogicValue.zero);
     expect(
-        FixedPointValue.populator(mWidth: 4, nWidth: 2).ofDouble(13.454) <
-            FixedPointValue.populator(mWidth: 4, nWidth: 2).ofDouble(14),
+        FixedPointValue.populator(integerWidth: 4, fractionWidth: 2)
+                .ofDouble(13.454) <
+            FixedPointValue.populator(integerWidth: 4, fractionWidth: 2)
+                .ofDouble(14),
         LogicValue.one);
     expect(
-        FixedPointValue.populator(mWidth: 4, nWidth: 2).ofDouble(13.454) <=
-            FixedPointValue.populator(mWidth: 4, nWidth: 2).ofDouble(14),
+        FixedPointValue.populator(integerWidth: 4, fractionWidth: 2)
+                .ofDouble(13.454) <=
+            FixedPointValue.populator(integerWidth: 4, fractionWidth: 2)
+                .ofDouble(14),
         LogicValue.one);
     expect(
-        FixedPointValue.populator(mWidth: 4, nWidth: 2).ofDouble(14) <=
-            FixedPointValue.populator(mWidth: 4, nWidth: 2).ofDouble(14),
+        FixedPointValue.populator(integerWidth: 4, fractionWidth: 2)
+                .ofDouble(14) <=
+            FixedPointValue.populator(integerWidth: 4, fractionWidth: 2)
+                .ofDouble(14),
         LogicValue.one);
     expect(
-        FixedPointValue.populator(mWidth: 4, nWidth: 2).ofDouble(14) >=
-            FixedPointValue.populator(mWidth: 4, nWidth: 2).ofDouble(14),
+        FixedPointValue.populator(integerWidth: 4, fractionWidth: 2)
+                .ofDouble(14) >=
+            FixedPointValue.populator(integerWidth: 4, fractionWidth: 2)
+                .ofDouble(14),
         LogicValue.one);
   });
 
@@ -188,14 +207,15 @@ void main() {
     const m = 3;
     const n = 4;
     for (var i = 0; i < pow(2, width); i++) {
-      final fxv = FixedPointValue.populator(mWidth: m, nWidth: n)
+      final fxv = FixedPointValue.populator(integerWidth: m, fractionWidth: n)
           .ofLogicValue(LogicValue.ofInt(i, width));
       final dbl = fxv.toDouble();
       if (!FixedPointValuePopulator.canStore(dbl,
           signed: fxv.signed, m: fxv.integerWidth, n: fxv.fractionWidth)) {
         throw RohdHclException('generated a value that we cannot store');
       }
-      final fxv2 = FixedPointValue.populator(mWidth: m, nWidth: n, signed: true)
+      final fxv2 = FixedPointValue.populator(
+              integerWidth: m, fractionWidth: n, signed: true)
           .ofDouble(dbl);
 
       expect(fxv, equals(fxv2));
@@ -216,11 +236,11 @@ void main() {
                 final n1 = s1 == 0 ? w - m1 - 1 : w - m1;
                 final n2 = s2 == 0 ? w - m2 - 1 : w - m2;
                 fxp1 = FixedPointValue.populator(
-                        mWidth: m1, nWidth: n1, signed: s1 == 0)
+                        integerWidth: m1, fractionWidth: n1, signed: s1 == 0)
                     .ofLogicValue(LogicValue.ofInt(i1, w));
 
                 fxp2 = FixedPointValue.populator(
-                        mWidth: m2, nWidth: n2, signed: s2 == 0)
+                        integerWidth: m2, fractionWidth: n2, signed: s2 == 0)
                     .ofLogicValue(LogicValue.ofInt(i2, w));
 
                 // add

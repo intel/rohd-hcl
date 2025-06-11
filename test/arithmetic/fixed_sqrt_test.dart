@@ -43,16 +43,16 @@ void main() {
 
       for (final test in testCases) {
         fixed.put(FixedPointValue.populator(
-                mWidth: fixed.integerWidth,
-                nWidth: fixed.fractionWidth,
+                integerWidth: fixed.integerWidth,
+                fractionWidth: fixed.fractionWidth,
                 signed: fixed.signed)
             .ofDouble(test));
 
         final fpvResult = dut.sqrt.fixedPointValue;
 
         final fpvExpected = FixedPointValue.populator(
-                mWidth: fixed.integerWidth,
-                nWidth: fixed.fractionWidth,
+                integerWidth: fixed.integerWidth,
+                fractionWidth: fixed.fractionWidth,
                 signed: fixed.signed)
             .ofDouble(sqrt(test));
         expect(fpvResult, fpvExpected);

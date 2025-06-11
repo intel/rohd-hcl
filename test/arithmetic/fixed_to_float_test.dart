@@ -17,8 +17,8 @@ void main() async {
     final fixed = FixedPoint(mWidth: 34, nWidth: 33);
     const inDouble = -2.0;
     fixed.put(FixedPointValue.populator(
-            mWidth: fixed.integerWidth,
-            nWidth: fixed.fractionWidth,
+            integerWidth: fixed.integerWidth,
+            fractionWidth: fixed.fractionWidth,
             signed: fixed.signed)
         .ofDouble(inDouble));
     final fp = FloatingPoint(exponentWidth: 8, mantissaWidth: 23);
@@ -44,8 +44,8 @@ void main() async {
       await dut.build();
       for (var val = 0; val < pow(2, fixed.width); val++) {
         final fixedValue = FixedPointValue.populator(
-                mWidth: fixed.integerWidth,
-                nWidth: fixed.fractionWidth,
+                integerWidth: fixed.integerWidth,
+                fractionWidth: fixed.fractionWidth,
                 signed: signed)
             .ofLogicValue(LogicValue.ofInt(val, fixed.width));
         fixed.put(fixedValue);
@@ -55,8 +55,8 @@ void main() async {
                 mantissaWidth: dut.float.mantissa.width)
             .ofDouble(fixedValue.toDouble());
         final newFixed = FixedPointValue.populator(
-                mWidth: fixed.integerWidth,
-                nWidth: fixed.fractionWidth,
+                integerWidth: fixed.integerWidth,
+                fractionWidth: fixed.fractionWidth,
                 signed: fixed.signed)
             .ofDouble(fpv.toDouble());
         expect(newFixed, equals(fixedValue), reason: '''
@@ -85,8 +85,8 @@ void main() async {
     final fixed = FixedPoint(mWidth: width ~/ 2 - 1, nWidth: width ~/ 2);
     final val = NativeAdder(a, b).sum.slice(width - 1, 0).value;
     final fixedValue = FixedPointValue.populator(
-            mWidth: fixed.integerWidth,
-            nWidth: fixed.fractionWidth,
+            integerWidth: fixed.integerWidth,
+            fractionWidth: fixed.fractionWidth,
             signed: true)
         .ofLogicValue(val);
     fixed.put(fixedValue);
@@ -98,8 +98,8 @@ void main() async {
     );
     final fpv = dut.float.floatingPointValue;
     final roundTripFixed = FixedPointValue.populator(
-            mWidth: fixed.integerWidth,
-            nWidth: fixed.fractionWidth,
+            integerWidth: fixed.integerWidth,
+            fractionWidth: fixed.fractionWidth,
             signed: fixed.signed)
         .ofDouble(fpv.toDouble());
     expect(roundTripFixed, equals(fixedValue), reason: '''
@@ -125,8 +125,8 @@ void main() async {
           mWidth: width ~/ 2 - (signed ? 1 : 0),
           nWidth: width ~/ 2);
       final fixedValue = FixedPointValue.populator(
-              mWidth: fixed.integerWidth,
-              nWidth: fixed.fractionWidth,
+              integerWidth: fixed.integerWidth,
+              fractionWidth: fixed.fractionWidth,
               signed: signed)
           .ofLogicValue(LogicValue.zero.zeroExtend(fixed.width));
       fixed.put(fixedValue);
@@ -144,15 +144,15 @@ void main() async {
           a.put(lVal1);
           b.put(lVal2);
           final fixedValue = FixedPointValue.populator(
-                  mWidth: fixed.integerWidth,
-                  nWidth: fixed.fractionWidth,
+                  integerWidth: fixed.integerWidth,
+                  fractionWidth: fixed.fractionWidth,
                   signed: signed)
               .ofLogicValue(val);
           fixed.put(fixedValue);
           final fpv = dut.float.floatingPointValue;
           final roundTripFixed = FixedPointValue.populator(
-                  mWidth: fixed.integerWidth,
-                  nWidth: fixed.fractionWidth,
+                  integerWidth: fixed.integerWidth,
+                  fractionWidth: fixed.fractionWidth,
                   signed: fixed.signed)
               .ofDouble(fpv.toDouble());
           expect(roundTripFixed, equals(fixedValue), reason: '''
@@ -183,8 +183,8 @@ void main() async {
 
     final fixed = FixedPoint(mWidth: 34, nWidth: 33);
     final fixedValue = FixedPointValue.populator(
-            mWidth: fixed.integerWidth,
-            nWidth: fixed.fractionWidth,
+            integerWidth: fixed.integerWidth,
+            fractionWidth: fixed.fractionWidth,
             signed: true)
         .ofLogicValue(tsum.value);
     fixed.put(fixedValue);
@@ -220,8 +220,8 @@ void main() async {
     for (final signed in [true]) {
       final fixed = FixedPoint(signed: signed, mWidth: 8, nWidth: 8);
       final fixedValue = FixedPointValue.populator(
-              mWidth: fixed.integerWidth,
-              nWidth: fixed.fractionWidth,
+              integerWidth: fixed.integerWidth,
+              fractionWidth: fixed.fractionWidth,
               signed: signed)
           .ofLogicValue(LogicValue.zero.zeroExtend(width + 1));
       fixed.put(fixedValue);
@@ -244,8 +244,8 @@ void main() async {
         // Use a leading one detector on both positive and negative numbers
         leadPredictIn.put(signed & !lVal[-1].isZero ? ~val : val);
         final fixedValue = FixedPointValue.populator(
-                mWidth: fixed.integerWidth,
-                nWidth: fixed.fractionWidth,
+                integerWidth: fixed.integerWidth,
+                fractionWidth: fixed.fractionWidth,
                 signed: signed)
             .ofLogicValue(lVal);
         fixed.put(fixedValue);
@@ -282,8 +282,8 @@ void main() async {
     await dut.build();
     for (var val = 0; val < pow(2, 14); val++) {
       final fixedValue = FixedPointValue.populator(
-              mWidth: fixed.integerWidth,
-              nWidth: fixed.fractionWidth,
+              integerWidth: fixed.integerWidth,
+              fractionWidth: fixed.fractionWidth,
               signed: true)
           .ofLogicValue(LogicValue.ofInt(val, fixed.width));
       fixed.put(fixedValue);
@@ -307,8 +307,8 @@ void main() async {
     await dut.build();
     for (var val = 0; val < pow(2, fixed.width); val++) {
       final fixedValue = FixedPointValue.populator(
-              mWidth: fixed.integerWidth,
-              nWidth: fixed.fractionWidth,
+              integerWidth: fixed.integerWidth,
+              fractionWidth: fixed.fractionWidth,
               signed: true)
           .ofLogicValue(LogicValue.ofInt(val, fixed.width));
       fixed.put(fixedValue);
@@ -332,7 +332,8 @@ void main() async {
     await dut.build();
     for (var val = 0; val < pow(2, fixed.width); val++) {
       final fixedValue = FixedPointValue.populator(
-              mWidth: fixed.integerWidth, nWidth: fixed.fractionWidth)
+              integerWidth: fixed.integerWidth,
+              fractionWidth: fixed.fractionWidth)
           .ofLogicValue(LogicValue.ofInt(val, fixed.width));
       fixed.put(fixedValue);
       final fpv = dut.float.floatingPointValue;
@@ -355,8 +356,8 @@ void main() async {
     await dut.build();
     for (var val = 0; val < pow(2, fixed.width); val++) {
       final fixedValue = FixedPointValue.populator(
-              mWidth: fixed.integerWidth,
-              nWidth: fixed.fractionWidth,
+              integerWidth: fixed.integerWidth,
+              fractionWidth: fixed.fractionWidth,
               signed: true)
           .ofLogicValue(LogicValue.ofInt(val, fixed.width));
       fixed.put(fixedValue);
@@ -380,8 +381,8 @@ void main() async {
     await dut.build();
     for (var val = 0; val < pow(2, fixed.width); val++) {
       final fixedValue = FixedPointValue.populator(
-              mWidth: fixed.integerWidth,
-              nWidth: fixed.fractionWidth,
+              integerWidth: fixed.integerWidth,
+              fractionWidth: fixed.fractionWidth,
               signed: true)
           .ofLogicValue(LogicValue.ofInt(val, fixed.width));
       fixed.put(fixedValue);
@@ -405,8 +406,8 @@ void main() async {
     await dut.build();
     for (var val = 0; val < pow(2, fixed.width); val++) {
       final fixedValue = FixedPointValue.populator(
-              mWidth: fixed.integerWidth,
-              nWidth: fixed.fractionWidth,
+              integerWidth: fixed.integerWidth,
+              fractionWidth: fixed.fractionWidth,
               signed: true)
           .ofLogicValue(LogicValue.ofInt(val, fixed.width));
 

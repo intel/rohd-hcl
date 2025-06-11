@@ -25,7 +25,7 @@ void main() async {
         float.put(fpv);
         final fxp = dut.fixed;
         final fxpExp = FixedPointValue.populator(
-                mWidth: dut.m, nWidth: dut.n, signed: true)
+                integerWidth: dut.m, fractionWidth: dut.n, signed: true)
             .ofDouble(fpv.toDouble());
         expect(fxp.value.bitString, fxpExp.value.bitString);
       }
@@ -80,7 +80,7 @@ void main() async {
                   if (FixedPointValuePopulator.canStore(val,
                       signed: true, m: tM, n: tN)) {
                     final fx = FixedPointValue.populator(
-                            mWidth: tM, nWidth: tN, signed: true)
+                            integerWidth: tM, fractionWidth: tN, signed: true)
                         .ofDouble(fv1.toDouble());
 
                     expect(fxc.fixedPointValue, equals(fx), reason: '''
@@ -128,7 +128,7 @@ void main() async {
                 fp1.put(fv1.value);
                 final fxc = convert.fixed;
                 final fx = FixedPointValue.populator(
-                        mWidth: tM, nWidth: tN, signed: true)
+                        integerWidth: tM, fractionWidth: tN, signed: true)
                     .ofDouble(fv1.toDouble());
 
                 expect(fxc.fixedPointValue, equals(fx), reason: '''
@@ -222,9 +222,9 @@ void main() async {
               .ofLogicValue(LogicValue.ofInt(val, float.width));
       if (!fp8.isNaN & !fp8.isAnInfinity) {
         float.put(fp8.value);
-        final fx8 =
-            FixedPointValue.populator(mWidth: 23, nWidth: 9, signed: true)
-                .ofDouble(fp8.toDouble());
+        final fx8 = FixedPointValue.populator(
+                integerWidth: 23, fractionWidth: 9, signed: true)
+            .ofDouble(fp8.toDouble());
         expect(dut.fixed.value.bitString, fx8.value.bitString);
         expect(dut.q23p9.value, fx8.value);
       }
@@ -238,9 +238,9 @@ void main() async {
               .ofLogicValue(LogicValue.ofInt(val, float.width));
       if (!fp8.isNaN & !fp8.isAnInfinity) {
         float.put(fp8.value);
-        final fx8 =
-            FixedPointValue.populator(mWidth: 16, nWidth: 16, signed: true)
-                .ofDouble(fp8.toDouble());
+        final fx8 = FixedPointValue.populator(
+                integerWidth: 16, fractionWidth: 16, signed: true)
+            .ofDouble(fp8.toDouble());
         expect(dut.fixed.value.bitString, fx8.value.bitString);
         expect(dut.q16p16.value, fx8.value);
       }
@@ -258,14 +258,14 @@ void main() async {
 
     if (FixedPointValuePopulator.canStore(expectedDbl,
         signed: true, m: convert.m, n: convert.n)) {
-      final expected =
-          FixedPointValue.populator(mWidth: m, nWidth: n, signed: true)
-              .ofDouble(expectedDbl);
+      final expected = FixedPointValue.populator(
+              integerWidth: m, fractionWidth: n, signed: true)
+          .ofDouble(expectedDbl);
       final fixedVal = convert.fixed;
       final computedDbl = fixedVal.fixedPointValue.toDouble();
-      final computed =
-          FixedPointValue.populator(mWidth: m, nWidth: n, signed: true)
-              .ofDouble(computedDbl);
+      final computed = FixedPointValue.populator(
+              integerWidth: m, fractionWidth: n, signed: true)
+          .ofDouble(computedDbl);
       expect(expected, equals(computed), reason: '''
           expected=$expected ($expectedDbl)
           computed=$computed ($computedDbl)
@@ -285,14 +285,14 @@ void main() async {
 
       if (FixedPointValuePopulator.canStore(expectedDbl,
           signed: true, m: convert.m, n: convert.n)) {
-        final expected =
-            FixedPointValue.populator(mWidth: m, nWidth: n, signed: true)
-                .ofDouble(expectedDbl);
+        final expected = FixedPointValue.populator(
+                integerWidth: m, fractionWidth: n, signed: true)
+            .ofDouble(expectedDbl);
         final fixedVal = convert.fixed;
         final computedDbl = fixedVal.fixedPointValue.toDouble();
-        final computed =
-            FixedPointValue.populator(mWidth: m, nWidth: n, signed: true)
-                .ofDouble(computedDbl);
+        final computed = FixedPointValue.populator(
+                integerWidth: m, fractionWidth: n, signed: true)
+            .ofDouble(computedDbl);
         expect(expected, equals(computed), reason: '''
           expected=$expected ($expectedDbl)
           computed=$computed ($computedDbl)

@@ -61,6 +61,8 @@ class FloatToFixed extends Module {
         : bias + 1; // accomodate the jbit
     final noLossN = bias + float.mantissa.width - 1;
 
+    // TODO(desmonddak): Check what happens with an explicitJBit FP
+
     this.m = m ?? noLossM;
     this.n = n ?? noLossN;
     final outputWidth = this.m + this.n + 1;
