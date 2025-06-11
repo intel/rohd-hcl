@@ -200,12 +200,12 @@ class FloatingPoint extends LogicStructure {
 
   /// Negate the [FloatingPoint].
   FloatingPoint operator -() => negate();
+  // ignore the lint warning about overriding the '-' operator.
 
   @override
   Logic operator >(dynamic other) => gt(other);
   @override
   Logic operator >=(dynamic other) => gte(other);
-  @override
 
   /// Equal
   @override

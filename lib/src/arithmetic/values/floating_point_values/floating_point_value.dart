@@ -492,7 +492,7 @@ class FloatingPointValue implements Comparable<FloatingPointValue> {
         return this;
       }
     } else if (subend.isAnInfinity) {
-      return subend.negate();
+      return subend.negated();
     } else if (isAnInfinity) {
       return this;
     }
@@ -500,10 +500,36 @@ class FloatingPointValue implements Comparable<FloatingPointValue> {
   }
 
   /// Negate operation for [FloatingPointValue].
-  FloatingPointValue negate() => clonePopulator().populate(
+  FloatingPointValue negated() => clonePopulator().populate(
       sign: sign.isZero ? LogicValue.one : LogicValue.zero,
       exponent: exponent,
       mantissa: mantissa);
+
+  // Move this to FixedPointValuePopulator.ofFloatingPointValue.
+  // The question is how to make FixedPoint a flexible output size?
+
+  // There could be two forms:  one that is value dependent widths
+  // and one that is fixed width to match the FPV capacity.
+
+  /// Losslessly convert a [FloatingPointValue] to a [FixedPointValue].
+  FixedPointValue toFixedPointValue() {
+    // space for full shift (bias*2), mantissa, sign and jbit
+    var fxdMantissa = [
+      if (isNormal()) LogicValue.one else LogicValue.zero,
+      mantissa
+    ].swizzle().zeroExtend(bias * 2 + mantissaWidth + 2);
+    fxdMantissa = sign == LogicValue.one
+        ? ~fxdMantissa + 1
+        : fxdMantissa; // make sure the sign is correct
+    final shift = exponent.toInt() - 1;
+    final shiftedFxdMantissa =
+        exponent.toInt() > 0 ? fxdMantissa << shift : fxdMantissa;
+
+    final fxpN = mantissaWidth + 2;
+    final fxpM = fxdMantissa.width - fxpN - 1;
+    return FixedPointValue(
+        value: shiftedFxdMantissa, m: fxpM, n: fxpN, signed: true);
+  }
 
   /// Absolute value operation for [FloatingPointValue].
   FloatingPointValue abs() => clonePopulator()

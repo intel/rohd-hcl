@@ -167,7 +167,7 @@ class FloatingPointValuePopulator<FpvType extends FloatingPointValue> {
     return ofLogicValue(prevVal);
   }
 
-  /// [FloatingPointValue] constructor from a binary string representation of
+  /// [FloatingPointValue] populator from a binary string representation of
   /// individual bitfields
   FpvType ofBinaryStrings(String sign, String exponent, String mantissa) =>
       populate(
@@ -175,7 +175,7 @@ class FloatingPointValuePopulator<FpvType extends FloatingPointValue> {
           exponent: LogicValue.of(exponent),
           mantissa: LogicValue.of(mantissa));
 
-  /// [FloatingPointValue] constructor from a single binary string representing
+  /// [FloatingPointValue] populator from a single binary string representing
   /// space-separated bitfields in the order of sign, exponent, mantissa.
   ///
   /// For example:
@@ -205,8 +205,8 @@ class FloatingPointValuePopulator<FpvType extends FloatingPointValue> {
     );
   }
 
-  /// [FloatingPointValue] constructor from a radix-encoded string
-  /// representation and the size of the exponent and mantissa
+  /// [FloatingPointValue] populator from a radix-encoded string
+  /// representation of the concatenated exponent and mantissa.
   FpvType ofString(String fp, {int radix = 2}) {
     final extracted =
         _extractBinaryStrings(fp, exponentWidth, mantissaWidth, radix);
@@ -214,16 +214,47 @@ class FloatingPointValuePopulator<FpvType extends FloatingPointValue> {
         extracted.sign, extracted.exponent, extracted.mantissa);
   }
 
-  /// [FloatingPointValue] constructor from a set of [BigInt]s of the binary
-  /// representation and the size of the exponent and mantissa
+  /// [FloatingPointValue] populator from a set of [BigInt]s of the binary
+  /// representation of [exponent] and [mantissa] along with a [sign].
+  ///
+  /// To convert from a single [BigInt] use [ofLogicValue] instead.
   FpvType ofBigInts(BigInt exponent, BigInt mantissa, {bool sign = false}) =>
       populate(
           sign: LogicValue.ofBigInt(sign ? BigInt.one : BigInt.zero, 1),
           exponent: LogicValue.ofBigInt(exponent, exponentWidth),
           mantissa: LogicValue.ofBigInt(mantissa, mantissaWidth));
 
-  /// [FloatingPointValue] constructor from a set of [int]s of the binary
-  /// representation and the size of the exponent and mantissa
+  /// [FloatingPointValue] populator from a [FixedPointValue],
+  FpvType ofFixedPointValue(FixedPointValue fxv,
+      {FloatingPointRoundingMode mode =
+          FloatingPointRoundingMode.roundNearestEven}) {
+    final val = fxv.value.abs();
+    final lead = leadingOnePosition(val.reversed.toBigInt());
+    final pos = fxv.value.width - lead;
+
+    if (pos > pow(2, exponentWidth) + mantissaWidth) {
+      // TODO(desmonddak): we will eventually use rounding in this case.
+      throw RohdHclException('FixedPointValue $fxv is too big for the given '
+          'exponent and mantissa widths');
+    }
+
+    final nPos = fxv.value.width - fxv.n - 2;
+    final fpExponent = pos > nPos ? pos - nPos : 0;
+    var fpMantissa = fpExponent > 0 ? val >>> (fpExponent - 1) : fxv.value;
+    fpMantissa = fpMantissa.getRange(0, mantissaWidth);
+
+    return populate(
+        sign: LogicValue.ofBigInt(
+            (fxv.value[-1] == LogicValue.one) & fxv.signed
+                ? BigInt.one
+                : BigInt.zero,
+            1),
+        exponent: LogicValue.ofInt(fpExponent, exponentWidth),
+        mantissa: LogicValue.ofBigInt(fpMantissa.toBigInt(), mantissaWidth));
+  }
+
+  /// [FloatingPointValue] populator from a set of [int]s of the binary
+  /// representation of [exponent] and [mantissa] along with a [sign].
   FpvType ofInts(int exponent, int mantissa, {bool sign = false}) => populate(
       sign: LogicValue.ofBigInt(sign ? BigInt.one : BigInt.zero, 1),
       exponent: LogicValue.ofBigInt(BigInt.from(exponent), exponentWidth),

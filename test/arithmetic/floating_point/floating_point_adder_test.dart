@@ -59,10 +59,10 @@ void main() {
         ),
         (fv.clonePopulator().positiveInfinity, fv.clonePopulator().one),
         (fv.clonePopulator().negativeInfinity, fv.clonePopulator().one),
-        (fv.clonePopulator().one.negate(), fv.clonePopulator().one),
+        (fv.clonePopulator().one.negated(), fv.clonePopulator().one),
         (fv.clonePopulator().positiveZero, fv.clonePopulator().positiveZero),
         (
-          fv.clonePopulator().positiveZero.negate(),
+          fv.clonePopulator().positiveZero.negated(),
           fv.clonePopulator().positiveZero
         ),
       ];

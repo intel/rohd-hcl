@@ -331,7 +331,7 @@ void main() {
           'sub': (FloatingPointValue a) => a - a,
           'mul': (FloatingPointValue a) => a * a,
           'div': (FloatingPointValue a) => a / a,
-          'neg': (FloatingPointValue a) => a.negate(),
+          'neg': (FloatingPointValue a) => a.negated(),
           'abs': (FloatingPointValue a) => a.abs(),
           'ulp': (FloatingPointValue a) => a.ulp(),
         };
@@ -391,7 +391,8 @@ void main() {
 
     expect(tooLargeNumber.toDouble(), equals(double.infinity));
 
-    expect(tooLargeNumber.negate().toDouble(), equals(double.negativeInfinity));
+    expect(
+        tooLargeNumber.negated().toDouble(), equals(double.negativeInfinity));
 
     expect(
         FloatingPointValue.populator(
@@ -419,7 +420,8 @@ void main() {
         .ofDouble(557);
     expect(tooLargeNumberRnded.toDouble(), equals(double.infinity));
     expect(infinity.toDouble(), equals(double.infinity));
-    expect(tooLargeNumber.negate().toDouble(), equals(double.negativeInfinity));
+    expect(
+        tooLargeNumber.negated().toDouble(), equals(double.negativeInfinity));
     expect(negativeInfinity.toDouble(), equals(double.negativeInfinity));
   });
 
@@ -567,5 +569,206 @@ void main() {
         }
       }
     });
+  });
+
+  test('FloatingPointValue to FixedPointValue and via Double singleton',
+      () async {
+    const exponentWidth = 3;
+    const mantissaWidth = 4;
+
+    const e1 = 1;
+    const m1 = 0;
+    final fpv = FloatingPointValue.populator(
+            exponentWidth: exponentWidth, mantissaWidth: mantissaWidth)
+        .ofBigInts(BigInt.from(e1), BigInt.from(m1), sign: true);
+
+    final fxp = fpv.toFixedPointValue();
+    final fixed = FixedPointValue.ofDouble(fpv.toDouble(),
+        m: fxp.m, n: fxp.n, signed: true);
+
+    expect(fixed, equals(fxp));
+  });
+
+  test('FloatingPointValue negation', () async {
+    const exponentWidth = 4;
+    const mantissaWidth = 4;
+    final fp1 = FloatingPoint(
+        exponentWidth: exponentWidth, mantissaWidth: mantissaWidth);
+
+    final val1 = FloatingPointValue.populator(
+            exponentWidth: exponentWidth, mantissaWidth: mantissaWidth)
+        .ofDouble(-1.23);
+    fp1.put(val1);
+    final val2 = FloatingPointValue.populator(
+            exponentWidth: exponentWidth, mantissaWidth: mantissaWidth)
+        .ofDouble(1.23);
+    expect((-fp1).floatingPointValue, equals(val2));
+  });
+
+  test('FloatingPointValue comparison operators', () async {
+    const exponentWidth = 4;
+    const mantissaWidth = 4;
+    final fp1 = FloatingPoint(
+        exponentWidth: exponentWidth, mantissaWidth: mantissaWidth);
+    final fp2 = FloatingPoint(
+        exponentWidth: exponentWidth, mantissaWidth: mantissaWidth);
+
+    final val1 = FloatingPointValue.populator(
+            exponentWidth: exponentWidth, mantissaWidth: mantissaWidth)
+        .ofDouble(-1.23);
+    final val2 = FloatingPointValue.populator(
+            exponentWidth: exponentWidth, mantissaWidth: mantissaWidth)
+        .ofDouble(-3.45);
+
+    fp1.put(val1);
+    fp2.put(val2);
+
+    final rv = Random(71);
+
+    for (var iter = 0; iter < 50; iter++) {
+      final val1 = FloatingPointValue.populator(
+              exponentWidth: exponentWidth, mantissaWidth: mantissaWidth)
+          .random(rv);
+      final val2 = FloatingPointValue.populator(
+              exponentWidth: exponentWidth, mantissaWidth: mantissaWidth)
+          .random(rv);
+      fp1.put(val1);
+      fp2.put(val1);
+      expect(fp1.eq(fp2).value.toBool(), isTrue);
+      expect(fp1.lte(fp2).value.toBool(), isTrue);
+      expect(fp1.gte(fp2).value.toBool(), isTrue);
+      expect((fp2 >= fp1).value.toBool(), isTrue);
+      expect(fp1.neq(fp2).value.toBool(), isFalse);
+      expect(fp1.lt(fp2).value.toBool(), isFalse);
+      expect(fp1.gt(fp2).value.toBool(), isFalse);
+      expect((fp2 > fp1).value.toBool(), isFalse);
+
+      fp2.put(val2);
+      if (val1.toDouble() < val2.toDouble()) {
+        expect(fp1.lt(fp2).value.toBool(), isTrue);
+        expect(fp1.lte(fp2).value.toBool(), isTrue);
+        expect(
+            fp1.neq(fp2).value.toBool(), isTrue); // This will use Logic.neq()
+        expect(fp1.eq(fp2).value.toBool(), isFalse);
+        expect(fp1.gt(fp2).value.toBool(), isFalse);
+        expect((fp1 > fp2).value.toBool(), isFalse);
+      } else if (val1.toDouble() > val2.toDouble()) {
+        expect(fp1.gt(fp2).value.toBool(), isTrue);
+        expect((fp1 > fp2).value.toBool(), isTrue);
+        expect(fp1.lt(fp2).value.toBool(), isFalse);
+        expect(fp1.lte(fp2).value.toBool(), isFalse);
+        expect(
+            fp1.neq(fp2).value.toBool(), isTrue); // This will use Logic.neq()
+      } else {
+        // rare that the two numbers would collide but just to be safe
+        expect(fp1.eq(fp2).value.toBool(), isTrue);
+        expect(fp1.neq(fp2).value.toBool(), isFalse);
+      }
+    }
+  });
+
+  test('FloatingPointValue corner case comparisons', () async {
+    const exponentWidth = 4;
+    const mantissaWidth = 4;
+    final fp1 = FloatingPoint(
+        exponentWidth: exponentWidth, mantissaWidth: mantissaWidth);
+    final fp2 = FloatingPoint(
+        exponentWidth: exponentWidth, mantissaWidth: mantissaWidth);
+
+    final fpv = FloatingPointValue.populator(
+            exponentWidth: exponentWidth, mantissaWidth: mantissaWidth)
+        .nan;
+    fp1.put(fpv);
+    fp2.put(fpv);
+    expect(fp1.eq(fp2).value.toBool(), isFalse);
+  });
+
+  test('FloatingPointValue to FixedPointValue compared to ofDouble exhaustive',
+      () async {
+    const exponentWidth = 3;
+    const mantissaWidth = 4;
+
+    for (final negative in [0, 1]) {
+      final expLimit = pow(2, exponentWidth);
+      final mantLimit = pow(2, mantissaWidth);
+      // Skip infinity
+      for (var e1 = 0; e1 < expLimit - 1; e1++) {
+        for (var m1 = 0; m1 < mantLimit; m1++) {
+          final fpv = FloatingPointValue.populator(
+                  exponentWidth: exponentWidth, mantissaWidth: mantissaWidth)
+              .ofBigInts(BigInt.from(e1), BigInt.from(m1), sign: negative == 1);
+
+          final fxp = fpv.toFixedPointValue();
+
+          final fixed = FixedPointValue.ofDouble(fpv.toDouble(),
+              m: fxp.m, n: fxp.n, signed: true);
+
+          expect(fixed, equals(fxp), reason: '''
+            FloatingPointValue: $fpv
+            Converted FixedPointValue: $fxp
+            FixedPointValue via Double: $fixed
+            ''');
+        }
+      }
+    }
+  });
+
+  test('FloatingPointValue to FixedPointValue roundtrip singleton', () async {
+    const exponentWidth = 3;
+    const mantissaWidth = 4;
+
+    // TODO(desmonddak): why does 2, 3 fail
+
+    // Skip infinity
+    const negative = 1;
+    const e1 = 1;
+    const m1 = 1;
+    final fpv = FloatingPointValue.populator(
+            exponentWidth: exponentWidth, mantissaWidth: mantissaWidth)
+        .ofBigInts(BigInt.from(e1), BigInt.from(m1), sign: negative == 1);
+
+    final fxv = fpv.toFixedPointValue();
+
+    final fpvReturn = FloatingPointValue.populator(
+            exponentWidth: exponentWidth, mantissaWidth: mantissaWidth)
+        .ofFixedPointValue(fxv);
+
+    expect(fpvReturn, equals(fpv), reason: '''
+            e1=$e1, m1=$m1, negative=$negative
+            FloatingPointValue: $fpv
+            FixedPointValue: $fxv
+            Returned FloatingPointValue: $fpvReturn
+            ''');
+  });
+
+  test('FloatingPointValue to FixedPointValue roundtrip exhaustive', () async {
+    const exponentWidth = 3;
+    const mantissaWidth = 4;
+
+    for (final negative in [0, 1]) {
+      final expLimit = pow(2, exponentWidth);
+      final mantLimit = pow(2, mantissaWidth);
+      // Skip infinity
+      for (var e1 = 1; e1 < expLimit - 1; e1++) {
+        for (var m1 = 0; m1 < mantLimit; m1++) {
+          final fpv = FloatingPointValue.populator(
+                  exponentWidth: exponentWidth, mantissaWidth: mantissaWidth)
+              .ofBigInts(BigInt.from(e1), BigInt.from(m1), sign: negative == 1);
+
+          final fxp = fpv.toFixedPointValue();
+
+          final fpvReturn = FloatingPointValue.populator(
+                  exponentWidth: exponentWidth, mantissaWidth: mantissaWidth)
+              .ofFixedPointValue(fxp);
+
+          expect(fpvReturn, equals(fpv), reason: '''
+            e1=$e1, m1=$m1, negative=$negative
+            FloatingPointValue: $fpv
+            FixedPointValue: $fxp
+            Returned FloatingPointValue: $fpvReturn
+            ''');
+        }
+      }
+    }
   });
 }
