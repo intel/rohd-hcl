@@ -675,12 +675,37 @@ void main() {
     final fp2 = FloatingPoint(
         exponentWidth: exponentWidth, mantissaWidth: mantissaWidth);
 
-    final fpv = FloatingPointValue.populator(
+    final nan = FloatingPointValue.populator(
             exponentWidth: exponentWidth, mantissaWidth: mantissaWidth)
         .nan;
-    fp1.put(fpv);
-    fp2.put(fpv);
+    final posInfinity = FloatingPointValue.populator(
+            exponentWidth: exponentWidth, mantissaWidth: mantissaWidth)
+        .ofConstant(FloatingPointConstants.positiveInfinity);
+    final negInfinity = FloatingPointValue.populator(
+            exponentWidth: exponentWidth, mantissaWidth: mantissaWidth)
+        .ofConstant(FloatingPointConstants.negativeInfinity);
+    fp1.put(nan);
+    fp2.put(nan);
     expect(fp1.eq(fp2).value.toBool(), isFalse);
+    expect(fp1.lt(fp2).value.toBool(), isFalse);
+    expect(fp1.gt(fp2).value.toBool(), isFalse);
+
+    fp1.put(posInfinity);
+    expect(fp1.eq(fp2).value.toBool(), isFalse);
+    fp2.put(posInfinity);
+    expect(fp1.eq(fp2).value.toBool(), isTrue);
+    expect(fp1.lt(fp2).value.toBool(), isFalse);
+    expect(fp1.gt(fp2).value.toBool(), isFalse);
+    fp2.put(negInfinity);
+    expect(fp1.eq(fp2).value.toBool(), isFalse);
+    fp1.put(negInfinity);
+    expect(fp1.eq(fp2).value.toBool(), isTrue);
+    expect(fp1.lt(fp2).value.toBool(), isFalse);
+    expect(fp1.gt(fp2).value.toBool(), isFalse);
+    fp2.put(posInfinity);
+    expect((-fp1).eq(fp2).value.toBool(), isTrue);
+    expect((-fp1).lt(fp2).value.toBool(), isFalse);
+    expect((-fp1).gt(fp2).value.toBool(), isFalse);
   });
 
   test('FloatingPointValue to FixedPointValue compared to ofDouble exhaustive',

@@ -251,7 +251,12 @@ class FloatingPoint extends LogicStructure {
   // For Greather-than operators, reverse the operands
   /// Greater-than.
   @override
-  Logic gt(dynamic other) => ~lte(other);
+  Logic gt(dynamic other) {
+    if (other is! FloatingPoint) {
+      throw RohdHclException('Input must be floating point signal.');
+    }
+    return mux(isNaN | other.isNaN, Const(0), ~lte(other));
+  }
 
   /// Greater-than-or-equal-to.
   @override
