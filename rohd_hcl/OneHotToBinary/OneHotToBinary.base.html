@@ -54,6 +54,11 @@
 
     <section class="multi-line-signature">
       
+  <div>
+    <ol class="annotation-list">
+        <li>@<a href="https://pub.dev/documentation/meta/1.17.0/meta/protected-constant.html">protected</a></li>
+    </ol>
+  </div>
       <span class="name ">OneHotToBinary.base</span>(<wbr><ol class="parameter-list"> <li><span class="parameter" id="base-param-onehot"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.3/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">onehot</span>, {</span></li>
 <li><span class="parameter" id="base-param-generateError"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.8.1/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">generateError</span> = <span class="default-value">false</span>, </span></li>
 <li><span class="parameter" id="base-param-name"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.8.1/dart-core/String-class.html">String</a></span> <span class="parameter-name">name</span> = <span class="default-value">&#39;one_hot_to_binary&#39;</span>, </span></li>
@@ -70,7 +75,8 @@ complement number <a href="../../rohd_hcl/OneHotToBinary/binary.html">binary</a>
     
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
-  <pre class="language-dart"><code class="language-dart">OneHotToBinary.base(Logic onehot,
+  <pre class="language-dart"><code class="language-dart">@protected
+OneHotToBinary.base(Logic onehot,
     {this.generateError = false,
     super.name = &#39;one_hot_to_binary&#39;,
     String? definitionName})

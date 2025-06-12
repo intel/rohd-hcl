@@ -73,14 +73,11 @@ widths and a <a href="../../rohd_hcl/TreeOneHotToBinary-class.html">TreeOneHotTo
     {bool generateError = false, String name = &#39;one_hot_to_binary&#39;}) {
   final isSmall = onehot.width &lt;= 8;
 
-  if (!isSmall &amp;&amp; generateError) {
-    throw RohdHclException(
-        &#39;Tree implementation does not generate error signal.&#39;);
-  }
-
-  return isSmall
-      ? CaseOneHotToBinary(onehot, generateError: generateError, name: name)
-      : TreeOneHotToBinary(onehot, name: name);
+  return (isSmall ? CaseOneHotToBinary.new : TreeOneHotToBinary.new)(
+    onehot,
+    generateError: generateError,
+    name: name,
+  );
 }</code></pre>
 </section>
 

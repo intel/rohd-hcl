@@ -89,7 +89,7 @@ Logic calculateCode() {
   for (var i = 1;
       i &lt;= transmission.width - hammingType._extraParityBits;
       i++) {
-    if (!_isPowerOfTwo(i)) {
+    if (!isPowerOfTwo(i)) {
       final ilv = LogicValue.ofInt(i, hammingCodeWidth);
 
       for (var p = 0; p &lt; hammingCodeWidth; p++) {
