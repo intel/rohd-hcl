@@ -48,10 +48,10 @@ class FloatingPointValue implements Comparable<FloatingPointValue> {
   late final int _mantissaWidth;
 
   /// The stored explicit JBit flag.
-  late final bool _explicitJBit;
+  late final bool explicitJBit;
 
   /// Return true if the JBit is explicitly represented in the mantissa.
-  bool get explicitJBit => _explicitJBit;
+  // bool get explicitJBit => _explicitJBit;
 
   /// Return the bias of this [FloatingPointValue].
   ///
@@ -85,8 +85,7 @@ class FloatingPointValue implements Comparable<FloatingPointValue> {
   /// Creates an unpopulated version of a [FloatingPointValue], intended to be
   /// called with the [populator].
   @protected
-  FloatingPointValue.uninitialized({bool explicitJBit = false})
-      : _explicitJBit = explicitJBit;
+  FloatingPointValue.uninitialized({this.explicitJBit = false});
 
   /// Creates a [FloatingPointValuePopulator] with the provided [exponentWidth]
   /// and [mantissaWidth], which can then be used to complete construction of

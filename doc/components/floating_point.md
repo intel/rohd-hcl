@@ -49,7 +49,7 @@ For any basic arbitrary width `FloatingPointValue` ROHD-HCL supports the followi
 - `largestNormal`: Largest positive number, most positive exponent, full mantissa
 - `nan`: Not a Number, designated by all 1s in exponent and any 1 in mantissa (we use the LSB)
 
-### Special subtypes
+### Special FloatingPointValue subtypes
 
 As 64-bit double-precision and 32-bit single-precision floating-point types are most common, we have [FloatingPoint32Value](https://intel.github.io/rohd-hcl/rohd_hcl/FloatingPoint32Value-class.html) and [FloatingPoint64Value](https://intel.github.io/rohd-hcl/rohd_hcl/FloatingPoint64Value-class.html) subclasses with direct converters from Dart native [Double](https://api.dart.dev/stable/3.6.0/dart-core/double-class.html).
 
@@ -83,11 +83,19 @@ FloatingPointValue.populator(exponentWidth: 5, mantissaWidth: 6)
 
 The [FloatingPoint](https://intel.github.io/rohd-hcl/rohd_hcl/FloatingPoint-class.html) type is a [LogicStructure](https://intel.github.io/rohd/rohd/LogicStructure-class.html) which comprises the [Logic](https://intel.github.io/rohd/rohd/Logic-class.html) bits for the sign, exponent, and mantissa used in hardware floating-point.  This type is provided to simplify and abstract the declaration and manipulation of floating-point bits in hardware.  This type is parameterized like [FloatingPointValue](https://intel.github.io/rohd-hcl/rohd_hcl/FloatingPointValue-class.html), for exponent and mantissa width.
 
-Again, like [FloatingPointValue](https://intel.github.io/rohd-hcl/rohd_hcl/FloatingPointValue-class.html), [FloatingPoint64](https://intel.github.io/rohd-hcl/rohd_hcl/FloatingPoint64-class.html) and [FloatingPoint32](https://intel.github.io/rohd-hcl/rohd_hcl/FloatingPoint32-class.html) subclasses are provided as these are the most common floating-point number types.
+Again, like [FloatingPointValue](https://intel.github.io/rohd-hcl/rohd_hcl/FloatingPointValue-class.html), we support specialized Logic subtypes:
+
+### Special FloatingPoint subtypes
+
+- [FloatingPoint16](https://intel.github.io/rohd-hcl/rohd_hcl/FloatingPoint16-class.html)
+- [FloatingPoint8E4M3](https://intel.github.io/rohd-hcl/rohd_hcl/FloatingPoint8E4M3-class.html)
+- [FloatingPoint8E5M2](https://intel.github.io/rohd-hcl/rohd_hcl/FloatingPoint8E5M2-class.html)
+- [FloatingPointBF16](https://intel.github.io/rohd-hcl/rohd_hcl/FloatingPointBF16-class.html)
+- [FloatingPointTF32](https://intel.github.io/rohd-hcl/rohd_hcl/FloatingPointTF32-class.html)
 
 ## FloatingPointAdder
 
-A single path [FloatingPointAdderSinglePath](https://intel.github.io/rohd-hcl/rohd_hcl/FloatingPointAdderSinglePath-class.html) component is available which performs a straightforward processing of adding, normalizing, and rounding, but includes implicit and explicit j-bit handling. It takes two [FloatingPoint](https://intel.github.io/rohd-hcl/rohd_hcl/FloatingPoint-class.html) [LogicStructure](https://intel.github.io/rohd/rohd/LogicStructure-class.html)s and adds them, returning a normalized [FloatingPoint](https://intel.github.io/rohd-hcl/rohd_hcl/FloatingPoint-class.html) on the output.  An option on input is the type of ['ParallelPrefix'](https://intel.github.io/rohd-hcl/rohd_hcl/ParallelPrefix-class.html) used in the critical internal addition of the mantissas.  Another is to use a width generator for partitioning the internal compound adder to tradeoff area for reduced latency in producing the mantissa and mantissa + 1 for rounding. If you pass in an optional clock, a pipe stage will be added to help optimize frequency; an optional reset and enable are can control the pipe stage.
+A single path [FloatingPointAdderSinglePath](https://intel.github.io/rohd-hcl/rohd_hcl/FloatingPointAdderSinglePath-class.html) component is available which performs a straightforward processing of adding, normalizing, and rounding, but includes implicit and explicit j-bit handling. It takes two [FloatingPoint](https://intel.github.io/rohd-hcl/rohd_hcl/FloatingPoint-class.html) [LogicStructure](https://intel.github.io/rohd/rohd/LogicStructure-class.html)s and adds them, returning a normalized [FloatingPoint](https://intel.github.io/rohd-hcl/rohd_hcl/FloatingPoint-class.html) on the output.  An option on input is the type of ['ParallelPrefix'](https://intel.github.io/rohd-hcl/rohd_hcl/ParallelPrefix-class.html) used in the critical internal addition of the mantissas.  Another is to use a width generator for partitioning the internal compound adder to tradeoff area for reduced latency in producing the mantissa and mantissa + 1 for rounding. If you pass in an optional clock, a pipe stage will be added to help optimize frequency; an optional reset and enable are available to control the pipe stage.
 
 A second `FloatingPointAdderDualPath` component is available which is optimized for latency.  It is based on "Delay-Optimized Implementation of IEEE Floating-Point Addition", by Peter-Michael Seidel and Guy Even, using an R-path and an N-path to process far-apart exponents and use rounding and an N-path for exponents within 2 and subtraction, which is exact.  If you pass in an optional clock, a pipe stage will be added to help optimize frequency; an optional reset and enable are can control the pipe stage.
 
