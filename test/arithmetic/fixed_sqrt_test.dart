@@ -19,14 +19,15 @@ void main() {
     await Simulator.reset();
   });
   test('sqrt(negative number)', () async {
-    final fixed = FixedPoint(mWidth: 3, nWidth: 23);
+    final fixed = FixedPoint(integerWidth: 3, fractionWidth: 23);
     expect(() => FixedPointSqrt(fixed), throwsException);
   });
 
   test('Fixed Point: expected correct sqrt', () {
     const mantissaWidth = 23;
 
-    final fixed = FixedPoint(signed: false, mWidth: 3, nWidth: mantissaWidth);
+    final fixed = FixedPoint(
+        signed: false, integerWidth: 3, fractionWidth: mantissaWidth);
 
     for (final dut in [
       FixedPointSqrt(fixed),

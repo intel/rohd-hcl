@@ -30,29 +30,20 @@ class FixedPoint extends LogicStructure {
   /// [fractionWidth] is the number of bits reserved for the fractional part.
   int get fractionWidth => fraction.width;
 
-  /// Utility to keep track of the Logic structure name by attaching it
-  /// to the Logic signal name in the output Verilog.
-  static String _nameJoin(String? structName, String signalName) {
-    if (structName == null) {
-      return signalName;
-    }
-    return '${structName}_$signalName';
-  }
-
   /// Constructs a [FixedPoint] signal.
   FixedPoint(
-      {required int mWidth,
-      required int nWidth,
+      {required int integerWidth,
+      required int fractionWidth,
       bool signed = true,
       String? name})
       : this._(
             Logic(
-                width: mWidth + (signed ? 1 : 0),
-                name: _nameJoin(name, 'integer'),
+                width: integerWidth + (signed ? 1 : 0),
+                name: 'integer',
                 naming: Naming.mergeable),
             Logic(
-                width: nWidth,
-                name: _nameJoin(name, 'fraction'),
+                width: fractionWidth,
+                name: 'fraction',
                 naming: Naming.mergeable),
             signed,
             name: name);
@@ -72,14 +63,20 @@ class FixedPoint extends LogicStructure {
 
   /// Clone for I/O ports.
   @override
-  FixedPoint clone({String? name}) =>
-      FixedPoint(signed: signed, mWidth: integerWidth, nWidth: fractionWidth);
+  FixedPoint clone({String? name}) => FixedPoint(
+      signed: signed, integerWidth: integerWidth, fractionWidth: fractionWidth);
 
   /// Cast logic to fixed point
   FixedPoint.of(Logic signal,
-      {required int mWidth, required int nWidth, bool signed = true})
-      : this._(signal.slice(nWidth + (signed ? mWidth : mWidth - 1), nWidth),
-            signal.slice(nWidth - 1, 0), signed,
+      {required int integerWidth,
+      required int fractionWidth,
+      bool signed = true})
+      : this._(
+            signal.slice(
+                fractionWidth + (signed ? integerWidth : integerWidth - 1),
+                fractionWidth),
+            signal.slice(fractionWidth - 1, 0),
+            signed,
             name: signal.name);
 
   @override
@@ -89,9 +86,9 @@ class FixedPoint extends LogicStructure {
           (integerWidth != val.integerWidth) |
           (fractionWidth != val.fractionWidth)) {
         throw RohdHclException('Value is not compatible with signal. '
-            'Expected: signed=$signed, mWidth=$integerWidth, '
+            'Expected: signed=$signed, integerWidth=$integerWidth, '
             'nWidth=$fractionWidth. '
-            'Got: signed=${val.signed}, mWidth=${val.integerWidth}, '
+            'Got: signed=${val.signed}, fractionWidth=${val.integerWidth}, '
             'nWidth=${val.fractionWidth}.');
       }
       super.put(val.value);
@@ -161,7 +158,9 @@ class FixedPoint extends LogicStructure {
     _verifyCompatible(other);
     final product = Multiply(this, other).out;
     return FixedPoint.of(product,
-        signed: false, mWidth: 2 * integerWidth, nWidth: 2 * fractionWidth);
+        signed: false,
+        integerWidth: 2 * integerWidth,
+        fractionWidth: 2 * fractionWidth);
   }
 
   /// Greater-than.

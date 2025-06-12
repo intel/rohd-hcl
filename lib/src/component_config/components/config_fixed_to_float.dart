@@ -49,7 +49,9 @@ class FixedToFloatConfigurator extends Configurator {
   @override
   Module createModule() => FixedToFloat(
       FixedPoint(
-          signed: signKnob.value, mWidth: mKnob.value, nWidth: nKnob.value),
+          signed: signKnob.value,
+          integerWidth: mKnob.value,
+          fractionWidth: nKnob.value),
       FloatingPoint(
           exponentWidth: exponentWidthKnob.value,
           mantissaWidth: mantissaWidthKnob.value),

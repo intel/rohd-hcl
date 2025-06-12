@@ -51,23 +51,23 @@ class FixedPointSqrt extends FixedPointSqrtBase {
     Logic solution = FixedPoint(
         signed: a.signed,
         name: 'solution',
-        mWidth: a.integerWidth + 1,
-        nWidth: a.fractionWidth + 1);
+        integerWidth: a.integerWidth + 1,
+        fractionWidth: a.fractionWidth + 1);
     Logic remainder = FixedPoint(
         signed: a.signed,
         name: 'remainder',
-        mWidth: a.integerWidth + 1,
-        nWidth: a.fractionWidth + 1);
+        integerWidth: a.integerWidth + 1,
+        fractionWidth: a.fractionWidth + 1);
     Logic subtractionValue = FixedPoint(
         signed: a.signed,
         name: 'subValue',
-        mWidth: a.integerWidth + 1,
-        nWidth: a.fractionWidth + 1);
+        integerWidth: a.integerWidth + 1,
+        fractionWidth: a.fractionWidth + 1);
     Logic aLoc = FixedPoint(
         signed: a.signed,
         name: 'aLoc',
-        mWidth: a.integerWidth + 1,
-        nWidth: a.fractionWidth + 1);
+        integerWidth: a.integerWidth + 1,
+        fractionWidth: a.fractionWidth + 1);
 
     solution = Const(0, width: aLoc.width).named('solution');
     remainder = Const(0, width: aLoc.width).named('remainder');

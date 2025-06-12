@@ -41,14 +41,14 @@ class FloatingPoint extends LogicStructure {
       bool explicitJBit = false,
       String? name})
       : this._(
-            Logic(name: _nameJoin(name, 'sign'), naming: Naming.mergeable),
+            Logic(name: 'sign', naming: Naming.mergeable),
             Logic(
                 width: exponentWidth,
-                name: _nameJoin(name, 'exponent'),
+                name: 'exponent',
                 naming: Naming.mergeable),
             Logic(
                 width: mantissaWidth,
-                name: _nameJoin(name, 'mantissa'),
+                name: 'mantissa',
                 naming: Naming.mergeable),
             explicitJBit,
             name: name);

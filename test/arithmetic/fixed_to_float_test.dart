@@ -14,7 +14,7 @@ import 'package:test/test.dart';
 
 void main() async {
   test('FixedToFloat: singleton', () async {
-    final fixed = FixedPoint(mWidth: 34, nWidth: 33);
+    final fixed = FixedPoint(integerWidth: 34, fractionWidth: 33);
     const inDouble = -2.0;
     fixed.put(FixedPointValue.populator(
             integerWidth: fixed.integerWidth,
@@ -36,7 +36,8 @@ void main() async {
 
   test('FixedToFloat: exhaustive', () async {
     for (final signed in [false, true]) {
-      final fixed = FixedPoint(signed: signed, mWidth: 8, nWidth: 8);
+      final fixed =
+          FixedPoint(signed: signed, integerWidth: 8, fractionWidth: 8);
       final dut = FixedToFloat(
           fixed,
           signed: signed,
@@ -82,7 +83,8 @@ void main() async {
     a.put(val1);
     b.put(val2);
 
-    final fixed = FixedPoint(mWidth: width ~/ 2 - 1, nWidth: width ~/ 2);
+    final fixed =
+        FixedPoint(integerWidth: width ~/ 2 - 1, fractionWidth: width ~/ 2);
     final val = NativeAdder(a, b).sum.slice(width - 1, 0).value;
     final fixedValue = FixedPointValue.populator(
             integerWidth: fixed.integerWidth,
@@ -122,8 +124,8 @@ void main() async {
     for (final signed in [false, true]) {
       final fixed = FixedPoint(
           signed: signed,
-          mWidth: width ~/ 2 - (signed ? 1 : 0),
-          nWidth: width ~/ 2);
+          integerWidth: width ~/ 2 - (signed ? 1 : 0),
+          fractionWidth: width ~/ 2);
       final fixedValue = FixedPointValue.populator(
               integerWidth: fixed.integerWidth,
               fractionWidth: fixed.fractionWidth,
@@ -181,7 +183,7 @@ void main() async {
     b.put(bv);
     final tsum = a + b;
 
-    final fixed = FixedPoint(mWidth: 34, nWidth: 33);
+    final fixed = FixedPoint(integerWidth: 34, fractionWidth: 33);
     final fixedValue = FixedPointValue.populator(
             integerWidth: fixed.integerWidth,
             fractionWidth: fixed.fractionWidth,
@@ -218,7 +220,8 @@ void main() async {
         generateValid: true);
 
     for (final signed in [true]) {
-      final fixed = FixedPoint(signed: signed, mWidth: 8, nWidth: 8);
+      final fixed =
+          FixedPoint(signed: signed, integerWidth: 8, fractionWidth: 8);
       final fixedValue = FixedPointValue.populator(
               integerWidth: fixed.integerWidth,
               fractionWidth: fixed.fractionWidth,
@@ -276,7 +279,7 @@ void main() async {
   });
 
   test('Q16.16 to E5M2 < pow(2,14)', () async {
-    final fixed = FixedPoint(mWidth: 16, nWidth: 16);
+    final fixed = FixedPoint(integerWidth: 16, fractionWidth: 16);
     final dut =
         FixedToFloat(fixed, FloatingPoint(exponentWidth: 5, mantissaWidth: 2));
     await dut.build();
@@ -301,7 +304,7 @@ void main() async {
   });
 
   test('Signed Q4.4 to E3M2', () async {
-    final fixed = FixedPoint(mWidth: 4, nWidth: 4);
+    final fixed = FixedPoint(integerWidth: 4, fractionWidth: 4);
     final dut =
         FixedToFloat(fixed, FloatingPoint(exponentWidth: 3, mantissaWidth: 2));
     await dut.build();
@@ -326,7 +329,7 @@ void main() async {
   });
 
   test('Unsigned Q4.4 to E3M2', () async {
-    final fixed = FixedPoint(signed: false, mWidth: 4, nWidth: 4);
+    final fixed = FixedPoint(signed: false, integerWidth: 4, fractionWidth: 4);
     final dut =
         FixedToFloat(fixed, FloatingPoint(exponentWidth: 3, mantissaWidth: 2));
     await dut.build();
@@ -350,7 +353,7 @@ void main() async {
   });
 
   test('Signed Q0.8 to E3M2 shrink', () async {
-    final fixed = FixedPoint(mWidth: 0, nWidth: 7);
+    final fixed = FixedPoint(integerWidth: 0, fractionWidth: 7);
     final dut =
         FixedToFloat(fixed, FloatingPoint(exponentWidth: 3, mantissaWidth: 2));
     await dut.build();
@@ -375,7 +378,7 @@ void main() async {
   });
 
   test('Signed Q0.3 to E5M6 expand', () async {
-    final fixed = FixedPoint(mWidth: 0, nWidth: 3);
+    final fixed = FixedPoint(integerWidth: 0, fractionWidth: 3);
     final dut =
         FixedToFloat(fixed, FloatingPoint(exponentWidth: 5, mantissaWidth: 6));
     await dut.build();
@@ -400,7 +403,7 @@ void main() async {
   });
 
   test('Signed Q7.0 to E3M2', () async {
-    final fixed = FixedPoint(mWidth: 7, nWidth: 0);
+    final fixed = FixedPoint(integerWidth: 7, fractionWidth: 0);
     final dut =
         FixedToFloat(fixed, FloatingPoint(exponentWidth: 3, mantissaWidth: 2));
     await dut.build();
