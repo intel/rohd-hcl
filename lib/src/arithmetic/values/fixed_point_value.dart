@@ -197,7 +197,10 @@ class FixedPointValue implements Comparable<FixedPointValue> {
   /// Converts a fixed-point value to a Dart [double].
   double toDouble() {
     if (m + n > 52) {
-      throw RohdHclException('Fixed-point value is too wide to convert.');
+      // TODO(desmonddak): clearly wrong, a fixed-point value
+      // will be very wide but can reduce to a much smaller double based on
+      // the position of the leading 1 and the integer/fraction widths.
+      // throw RohdHclException('Fixed-point value is too wide to convert.');
     }
     if (!this.value.isValid) {
       throw RohdHclException('Inputs must be valid.');

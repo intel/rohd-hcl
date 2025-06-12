@@ -48,10 +48,10 @@ class FloatingPointValue implements Comparable<FloatingPointValue> {
   late final int _mantissaWidth;
 
   /// The stored explicit JBit flag.
-  late final bool _explicitJBit;
+  late final bool explicitJBit;
 
   /// Return true if the JBit is explicitly represented in the mantissa.
-  bool get explicitJBit => _explicitJBit;
+  // bool get explicitJBit => _explicitJBit;
 
   /// Return the bias of this [FloatingPointValue].
   ///
@@ -85,8 +85,7 @@ class FloatingPointValue implements Comparable<FloatingPointValue> {
   /// Creates an unpopulated version of a [FloatingPointValue], intended to be
   /// called with the [populator].
   @protected
-  FloatingPointValue.uninitialized({bool explicitJBit = false})
-      : _explicitJBit = explicitJBit;
+  FloatingPointValue.uninitialized({this.explicitJBit = false});
 
   /// Creates a [FloatingPointValuePopulator] with the provided [exponentWidth]
   /// and [mantissaWidth], which can then be used to complete construction of
@@ -492,7 +491,7 @@ class FloatingPointValue implements Comparable<FloatingPointValue> {
         return this;
       }
     } else if (subend.isAnInfinity) {
-      return subend.negate();
+      return subend.negated();
     } else if (isAnInfinity) {
       return this;
     }
@@ -500,10 +499,30 @@ class FloatingPointValue implements Comparable<FloatingPointValue> {
   }
 
   /// Negate operation for [FloatingPointValue].
-  FloatingPointValue negate() => clonePopulator().populate(
+  FloatingPointValue negated() => clonePopulator().populate(
       sign: sign.isZero ? LogicValue.one : LogicValue.zero,
       exponent: exponent,
       mantissa: mantissa);
+
+  /// Losslessly convert a [FloatingPointValue] to a [FixedPointValue].
+  FixedPointValue toFixedPointValue() {
+    // space for full shift (bias*2), mantissa, sign and jbit
+    var fxdMantissa = [
+      if (isNormal()) LogicValue.one else LogicValue.zero,
+      mantissa
+    ].swizzle().zeroExtend(bias * 2 + mantissaWidth + 2);
+    fxdMantissa = sign == LogicValue.one
+        ? ~fxdMantissa + 1
+        : fxdMantissa; // make sure the sign is correct
+    final shift = exponent.toInt() - 1;
+    final shiftedFxdMantissa =
+        exponent.toInt() > 0 ? fxdMantissa << shift : fxdMantissa;
+
+    final fxpN = mantissaWidth + 2;
+    final fxpM = fxdMantissa.width - fxpN - 1;
+    return FixedPointValue(
+        value: shiftedFxdMantissa, m: fxpM, n: fxpN, signed: true);
+  }
 
   /// Absolute value operation for [FloatingPointValue].
   FloatingPointValue abs() => clonePopulator()

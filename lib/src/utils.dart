@@ -10,6 +10,22 @@ import 'package:rohd/rohd.dart';
 /// Computes the bit width needed to store [w] addresses.
 int log2Ceil(int w) => (log(w) / log(2)).ceil();
 
+/// Finds the index of the first set bit in a [BigInt] number.
+/// Returns length + 1 if there are no set bits (i.e., the number is zero).
+int leadingOnePosition(BigInt inNumber) {
+  var number = inNumber;
+  if (number == BigInt.zero) {
+    return number.bitLength; // No set bits, return end of number
+  }
+
+  var index = 0;
+  while ((number & BigInt.one) == BigInt.zero) {
+    number = number >> 1; // Right shift to check the next bit
+    index++;
+  }
+  return index;
+}
+
 /// This extension will eventually move to ROHD once it is proven useful
 extension LogicValueBitString on LogicValue {
   /// Simplest version of bit string representation as shorthand

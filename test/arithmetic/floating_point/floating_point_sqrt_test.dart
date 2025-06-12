@@ -38,7 +38,7 @@ void main() {
         fv.clonePopulator().nan,
         fv.clonePopulator().positiveInfinity,
         fv.clonePopulator().positiveZero,
-        fv.clonePopulator().positiveZero.negate(),
+        fv.clonePopulator().positiveZero.negated(),
       ];
 
       for (final test in testCases) {
@@ -83,8 +83,8 @@ error =
       FloatingPointSqrtSimple(fp),
     ]) {
       final testCases = [
-        fv.clonePopulator().positiveInfinity.negate(),
-        fv.clonePopulator().one.negate(),
+        fv.clonePopulator().positiveInfinity.negated(),
+        fv.clonePopulator().one.negated(),
       ];
 
       for (final test in testCases) {
