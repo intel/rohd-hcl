@@ -226,11 +226,15 @@ class FloatingPointValuePopulator<FpvType extends FloatingPointValue> {
 
   /// [FloatingPointValue] populator from a [FixedPointValue],
   FpvType ofFixedPointValue(FixedPointValue fxv,
-      {FloatingPointRoundingMode mode =
-          FloatingPointRoundingMode.roundNearestEven}) {
+      {FloatingPointRoundingMode mode = FloatingPointRoundingMode.truncate}) {
     final val = fxv.value.abs();
     final lead = leadingOnePosition(val.reversed.toBigInt());
     final pos = fxv.value.width - lead;
+
+    if (mode != FloatingPointRoundingMode.truncate) {
+      throw UnimplementedError(
+          'Only truncate is supported for FixedPointValue to FloatingPointValue');
+    }
 
     if (pos > pow(2, exponentWidth) + mantissaWidth) {
       // TODO(desmonddak): we will eventually use rounding in this case.

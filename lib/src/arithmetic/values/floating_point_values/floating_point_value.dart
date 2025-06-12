@@ -504,12 +504,6 @@ class FloatingPointValue implements Comparable<FloatingPointValue> {
       exponent: exponent,
       mantissa: mantissa);
 
-  // Move this to FixedPointValuePopulator.ofFloatingPointValue.
-  // The question is how to make FixedPoint a flexible output size?
-
-  // There could be two forms:  one that is value dependent widths
-  // and one that is fixed width to match the FPV capacity.
-
   /// Losslessly convert a [FloatingPointValue] to a [FixedPointValue].
   FixedPointValue toFixedPointValue() {
     // space for full shift (bias*2), mantissa, sign and jbit

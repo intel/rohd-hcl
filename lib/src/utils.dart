@@ -14,6 +14,9 @@ int log2Ceil(int w) => (log(w) / log(2)).ceil();
 /// Returns length + 1 if there are no set bits (i.e., the number is zero).
 int leadingOnePosition(BigInt inNumber) {
   var number = inNumber;
+  if (number == BigInt.zero) {
+    return number.bitLength; // No set bits, return end of number
+  }
 
   var index = 0;
   while ((number & BigInt.one) == BigInt.zero) {
