@@ -15,12 +15,12 @@ import 'package:rohd_hcl/rohd_hcl.dart';
 
 /// A populator for [FixedPointValue]s, a utility that can populate various
 /// forms of [FixedPointValue]s.
-class FixedPointValuePopulator<FpvType extends FixedPointValue> {
+class FixedPointValuePopulator<FxvType extends FixedPointValue> {
   /// An unpopulated [FixedPointValue] that this populator will populate.
   ///
   /// The `late final` variables will not yet be initialized until after this
   /// populator is used to [populate] it.
-  final FpvType _unpopulated;
+  final FxvType _unpopulated;
 
   /// The width of the exponent field.
   int get integerWidth => _unpopulated.integerWidth;
@@ -39,7 +39,7 @@ class FixedPointValuePopulator<FpvType extends FixedPointValue> {
   FixedPointValuePopulator(this._unpopulated);
 
   /// Extracts a [FixedPointValue] from a [FixedPoint]'s current `value`.
-  FpvType ofFixedPoint(FixedPoint fp) => populate(
+  FxvType ofFixedPoint(FixedPoint fp) => populate(
         integer: fp.integer.value,
         fraction: fp.fraction.value,
       );
@@ -49,7 +49,7 @@ class FixedPointValuePopulator<FpvType extends FixedPointValue> {
 
   /// Populates the [FixedPointValue] with the given [integer] and
   /// [fraction], then performs additional validation.
-  FpvType populate(
+  FxvType populate(
       {required LogicValue integer, required LogicValue fraction}) {
     if (_hasPopulated) {
       throw RohdHclException('FixedPointPopulator: already populated');
@@ -62,7 +62,7 @@ class FixedPointValuePopulator<FpvType extends FixedPointValue> {
   }
 
   /// Construct a [FixedPointValue] from a [LogicValue]
-  FpvType ofLogicValue(LogicValue val) => populate(
+  FxvType ofLogicValue(LogicValue val) => populate(
         integer: val.getRange(
             fractionWidth, integerWidth + fractionWidth + (signed ? 1 : 0)),
         fraction: val.getRange(0, fractionWidth),
@@ -85,7 +85,7 @@ class FixedPointValuePopulator<FpvType extends FixedPointValue> {
   }
 
   /// Constructs [FixedPointValue] from a Dart [double] rounding away from zero.
-  FpvType ofDouble(double val) {
+  FxvType ofDouble(double val) {
     final m = integerWidth;
     final n = fractionWidth;
     final signed = _unpopulated.signed;
@@ -104,7 +104,7 @@ class FixedPointValuePopulator<FpvType extends FixedPointValue> {
 
   /// Constructs [FixedPointValue] from a Dart [double] without rounding.
   @internal
-  FpvType ofDoubleUnrounded(double val) {
+  FxvType ofDoubleUnrounded(double val) {
     final m = integerWidth;
     final n = fractionWidth;
     final signed = _unpopulated.signed;
@@ -119,23 +119,23 @@ class FixedPointValuePopulator<FpvType extends FixedPointValue> {
 
   /// Constructs a [FixedPointValue] from another [FixedPointValue] with
   /// by widening the integer and/or fraction widths.
-  FpvType widen(FpvType fpv) {
-    if ((fpv.integerWidth > integerWidth) ||
-        (fpv.fractionWidth > fractionWidth)) {
-      throw RohdHclException('Cannot expand from $fpv to $_unpopulated');
+  FxvType widen(FxvType fxv) {
+    if ((fxv.integerWidth > integerWidth) ||
+        (fxv.fractionWidth > fractionWidth)) {
+      throw RohdHclException('Cannot expand from $fxv to $_unpopulated');
     }
 
-    var newInteger = fpv.signed
-        ? fpv.integer
-            .signExtend(fpv.integer.width + integerWidth - fpv.integerWidth)
-        : fpv.integer
-            .zeroExtend(fpv.integer.width + integerWidth - fpv.integerWidth);
-    if (signed & !fpv.signed) {
+    var newInteger = fxv.signed
+        ? fxv.integer
+            .signExtend(fxv.integer.width + integerWidth - fxv.integerWidth)
+        : fxv.integer
+            .zeroExtend(fxv.integer.width + integerWidth - fxv.integerWidth);
+    if (signed & !fxv.signed) {
       newInteger = newInteger.zeroExtend(newInteger.width + 1);
     }
 
     final newFraction =
-        fpv.fraction.reversed.zeroExtend(fractionWidth).reversed;
+        fxv.fraction.reversed.zeroExtend(fractionWidth).reversed;
     return populate(integer: newInteger, fraction: newFraction);
   }
 }
