@@ -199,9 +199,9 @@ class FloatingPoint extends LogicStructure {
       );
 
   /// Negate the [FloatingPoint].
-  @override
   FloatingPoint operator -() => negate();
   // ignore the lint warning about overriding the '-' operator.
+  // Adding that override will fail CI analyze_source.sh.
 
   @override
   Logic operator >(dynamic other) => gt(other);
