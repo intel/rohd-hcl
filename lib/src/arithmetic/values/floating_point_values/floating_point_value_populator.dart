@@ -233,7 +233,8 @@ class FloatingPointValuePopulator<FpvType extends FloatingPointValue> {
 
     if (mode != FloatingPointRoundingMode.truncate) {
       throw UnimplementedError(
-          'Only truncate is supported for FixedPointValue to FloatingPointValue');
+          'Only truncate is supported for FixedPointValue to '
+          'FloatingPointValue');
     }
 
     if (pos > pow(2, exponentWidth) + mantissaWidth) {
