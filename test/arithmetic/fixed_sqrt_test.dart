@@ -19,14 +19,15 @@ void main() {
     await Simulator.reset();
   });
   test('sqrt(negative number)', () async {
-    final fixed = FixedPoint(signed: true, m: 3, n: 23);
+    final fixed = FixedPoint(integerWidth: 3, fractionWidth: 23);
     expect(() => FixedPointSqrt(fixed), throwsException);
   });
 
   test('Fixed Point: expected correct sqrt', () {
     const mantissaWidth = 23;
 
-    final fixed = FixedPoint(signed: false, m: 3, n: mantissaWidth);
+    final fixed = FixedPoint(
+        signed: false, integerWidth: 3, fractionWidth: mantissaWidth);
 
     for (final dut in [
       FixedPointSqrt(fixed),
@@ -42,13 +43,19 @@ void main() {
       ];
 
       for (final test in testCases) {
-        fixed.put(FixedPointValue.ofDouble(test,
-            signed: fixed.signed, m: fixed.m, n: fixed.n));
+        fixed.put(FixedPointValue.populator(
+                integerWidth: fixed.integerWidth,
+                fractionWidth: fixed.fractionWidth,
+                signed: fixed.signed)
+            .ofDouble(test));
 
         final fpvResult = dut.sqrt.fixedPointValue;
 
-        final fpvExpected = FixedPointValue.ofDouble(sqrt(test),
-            signed: fixed.signed, m: fixed.m, n: fixed.n);
+        final fpvExpected = FixedPointValue.populator(
+                integerWidth: fixed.integerWidth,
+                fractionWidth: fixed.fractionWidth,
+                signed: fixed.signed)
+            .ofDouble(sqrt(test));
         expect(fpvResult, fpvExpected);
       }
     }
