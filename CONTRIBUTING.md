@@ -64,6 +64,13 @@ The below button will allow you to create a GitHub Codespace with ROHD-HCL alrea
 
 [![Open in GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://github.com/codespaces/new?hide_repo_select=true&ref=main&repo=621521356)
 
+To run the component Configurator, especially useful for visualizing the RTL output of your component using different parameters:
+
+```shell
+cd confapp
+flutter run --profile -d web-server --web-hostname=0.0.0.0 --web-port=3000
+```
+
 ### Cloning and Running the Tests
 
 Once requirements are installed, you can clone and run the test suite:
@@ -133,6 +140,21 @@ Here is an example of a recommended file header template:
 // 2021 September 17
 // Author: Max Korbel <max.korbel@intel.com>
 ```
+
+#### Adding a New Component
+
+To add a new component to the library, you can follow the steps below, referencing other components as examples.
+
+1. Create the dart code for constructing the module in `lib/src`.
+1. Create unit tests in `test/`.
+1. Create a `Configurator` for the component (enabling things like schematic generation, web-app generation, etc.).
+   1. Create a new config in `lib/src/component_config/commponents`.
+   1. Update the component registry in `lib/src/component_config/components/component_registry.dart`.
+1. Add documentation to `doc/components/name.md`.
+
+If you would like to generate and view schematics locally, you'll need to have access to some tools.  You can either use the dev container (via Codespaces or VS Code) or install the software from `tool/gh_actions/install_opencadsuite.sh` and `tool/gh_actions/install_d3_hwschematic.sh`.  Then you can just run `tool/gh_actions/create_htmls.sh`, which will generate component schematic HTML documents in the `build/` directory.
+
+The `confapp/` directory contains the source code for the Flutter configuration app, if you would like to run that locally.
 
 ### Creating a New Package
 

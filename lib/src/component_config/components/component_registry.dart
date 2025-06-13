@@ -1,4 +1,4 @@
-// Copyright (C) 2023 Intel Corporation
+// Copyright (C) 2023-2024 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 //
 // component_registry.dart
@@ -13,10 +13,15 @@ import 'package:rohd_hcl/rohd_hcl.dart';
 List<Configurator> get componentRegistry => [
       RotateConfigurator(),
       FifoConfigurator(),
+      EccConfigurator(),
+      RoundRobinArbiterConfigurator(),
       PriorityArbiterConfigurator(),
       RippleCarryAdderConfigurator(),
       CarrySaveMultiplierConfigurator(),
       BitonicSortConfigurator(),
       OneHotConfigurator(),
       RegisterFileConfigurator(),
+      EdgeDetectorConfigurator(),
+      FindConfigurator(),
+      ParallelPrefixAdderConfigurator(),
     ];

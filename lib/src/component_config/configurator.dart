@@ -11,8 +11,6 @@ import 'dart:convert';
 import 'package:rohd/rohd.dart';
 // ignore: implementation_imports
 import 'package:rohd/src/utilities/sanitizer.dart';
-// ignore: implementation_imports
-import 'package:rohd/src/utilities/simcompare.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
 
 /// An object that enables a consisten API for configuring a [Module] and
@@ -41,13 +39,6 @@ abstract class Configurator {
   /// Creates a [Module] instance as configured.
   Module createModule();
 
-  /// A collection of test vectors, one per cycle, that can be used to generate
-  /// a simple test and waveform as an example for this component.
-  List<Vector> get exampleTestVectors => throw UnimplementedError();
-
-  /// Runs the [exampleTestVectors] in simulation.
-  void runExampleTest() => UnimplementedError();
-
   /// Serializes the configuration information into a JSON structure.
   String toJson({bool pretty = false}) =>
       JsonEncoder.withIndent(pretty ? '  ' : null).convert({
@@ -63,6 +54,9 @@ abstract class Configurator {
     assert(decoded['name'] == name, 'Expect name to be the same.');
 
     for (final decodedKnob in (decoded['knobs'] as Map).entries) {
+      assert(knobs.containsKey(decodedKnob.key),
+          'Expect knobs in JSON to exist in configurator.');
+
       knobs[decodedKnob.key]!
           .loadJson(decodedKnob.value as Map<String, dynamic>);
     }

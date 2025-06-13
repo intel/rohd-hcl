@@ -11,6 +11,9 @@
 
 set -euo pipefail
 
+# Initialize submodules
+git submodule update --init --recursive
+
 # Install Dart SDK.
 tool/gh_codespaces/install_dart.sh
 
@@ -22,3 +25,6 @@ tool/gh_actions/install_opencadsuite.sh
 
 # Install D3 Schematic viewer
 tool/gh_actions/install_d3_hwschematic.sh
+
+# Install Flutter
+tool/gh_codespaces/install_flutter.sh

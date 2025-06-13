@@ -14,24 +14,26 @@ Some in-development items will have opened issues, as well. Feel free to create 
   - PLAs
 - Arbiters
   - [Priority Arbiter](./components/arbiter.md#priority-arbiter)
-  - Round-robin Arbiter
+  - [Round-robin Arbiter](./components/arbiter.md#round-robin-arbiter)
 - FIFOs & Queues
   - [Synchronous FIFO](./components/fifo.md)
   - Asynchronous / clock-crossing FIFO
   - [Shift register](./components/shift_register.md)
 - Find
-  - Find N'th bit (0 or 1) from the start/end
+  - [Find N'th bit (0 or 1) from the start/end](./components/find.md#find-nth)
   - Find minimum
   - Find maximum
   - Find N'th pattern from the start/end
 - Count
-  - Count bit occurence
+  - [Count bit occurence](./components/count.md)
   - Count pattern occurence
+- Detection
+  - [Edge detection](./components/edge_detector.md)
 - Sort
   - [Bitonic sort](./components/sort.md#bitonic-sort)
 - Arithmetic
-  - Prefix Trees
-  - Adders
+  - [Prefix Trees](./components/parallel_prefix_operations.md)
+  - [Adders](./components/adder.md)
   - Subtractors
   - Multipliers
     - [Pipelined Integer Multiplier](./components/multiplier.md#carry-save-multiplier)
@@ -45,6 +47,8 @@ Some in-development items will have opened issues, as well. Feel free to create 
     - BFloat16 (16-bit)
     - BFloat8 (8-bit)
     - BFloat4 (4-bit)
+  - Fixed point
+  - Binary-Coded Decimal (BCD)
 - [Rotate](./components/rotate.md)
 - Counters
   - Binary counter
@@ -52,9 +56,10 @@ Some in-development items will have opened issues, as well. Feel free to create 
 - Pseudorandom
   - LFSR
 - Error checking & correction
-  - ECC
+  - [ECC](./components/ecc.md)
   - CRC
-  - Parity
+  - [Parity](./components/parity.md)
+  - Interleaving
 - Data flow
   - Ready/Valid
   - Connect/Disconnect
@@ -84,8 +89,11 @@ Some in-development items will have opened issues, as well. Feel free to create 
   - HBM
 - Models
   - [APB](./components/apb_bfm.md)
+  - [Ready/Valid](./components/ready_valid_bfm.md)
+  - SPI
+  - CXL
 
 ----------------
 
-Copyright (C) 2023 Intel Corporation  
+Copyright (C) 2023-2024 Intel Corporation  
 SPDX-License-Identifier: BSD-3-Clause

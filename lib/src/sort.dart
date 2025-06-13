@@ -187,8 +187,11 @@ class BitonicSort extends Sort {
   /// The sorting module will recursively split inputs into a bitonic sequence
   /// perform sorting based on [isAscending] flag given to the module.
   ///
-  /// The below example shows a simple use case to sort four inputs
-  /// in ascending order:
+  /// All elements of [toSort] must be the same width, and the length must be a
+  /// power of two.
+  ///
+  /// The below example shows a simple use case to sort four inputs in ascending
+  /// order:
   /// ```dart
   /// final toSort = <Logic>[
   ///   Const(0, width: 8);
