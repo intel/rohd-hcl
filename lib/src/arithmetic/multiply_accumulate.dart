@@ -45,32 +45,45 @@ abstract class MultiplyAccumulate extends Module {
   /// The multiplication and addition or [accumulate] result.
   Logic get accumulate => output('accumulate');
 
+  /// Configuration for signed multiplicand [a].
+  @protected
+  final Config? signedMultiplicandConfig;
+
+  /// Configuration for signed multiplier [b].
+  @protected
+  final Config? signedMultiplierConfig;
+
+  /// Configuration for signed addend [c].
+  @protected
+  final Config? signedAddendConfig;
+
   /// The MAC treats multiplicand [a] as always signed.
   @protected
-  final bool signedMultiplicand;
+  late bool signedMultiplicand;
 
   /// The MAC treats multiplier [b] as always signed.
   @protected
-  final bool signedMultiplier;
+  late bool signedMultiplier;
 
   /// The MAC treats addend [c] as always signed.
   @protected
-  final bool signedAddend;
+  late bool signedAddend;
 
   /// If not null, use this signal to select between signed and unsigned
   /// multiplicand [a].
   @protected
-  Logic? get selectSignedMultiplicand => tryInput('selectSignedMultiplicand');
+  Logic? get selectSignedMultiplicand =>
+      signedMultiplicandConfig?.tryInput(this);
 
   /// If not null, use this signal to select between signed and unsigned
   /// multiplier [b]
   @protected
-  Logic? get selectSignedMultiplier => tryInput('selectSignedMultiplier');
+  Logic? get selectSignedMultiplier => signedMultiplierConfig?.tryInput(this);
 
   /// If not null, use this signal to select between signed and unsigned
-  /// addend [c]
+  /// multiplier [b]
   @protected
-  Logic? get selectSignedAddend => tryInput('selectSignedAddend');
+  Logic? get selectSignedAddend => signedAddendConfig?.tryInput(this);
 
   /// Logic that tells us [accumulate] is signed.
   @protected
@@ -94,12 +107,15 @@ abstract class MultiplyAccumulate extends Module {
       {Logic? clk,
       Logic? reset,
       Logic? enable,
-      this.signedMultiplicand = false,
-      this.signedMultiplier = false,
-      this.signedAddend = false,
-      Logic? selectSignedMultiplicand,
-      Logic? selectSignedMultiplier,
-      Logic? selectSignedAddend,
+      this.signedMultiplicandConfig,
+      this.signedMultiplierConfig,
+      this.signedAddendConfig,
+      // this.signedMultiplicand = false,
+      // this.signedMultiplier = false,
+      // this.signedAddend = false,
+      // Logic? selectSignedMultiplicand,
+      // Logic? selectSignedMultiplier,
+      // Logic? selectSignedAddend,
       super.name = 'multiply_accumulate',
       String? definitionName})
       : super(
@@ -112,28 +128,37 @@ abstract class MultiplyAccumulate extends Module {
     a = addInput('a', a, width: a.width);
     b = addInput('b', b, width: b.width);
     c = addInput('c', c, width: c.width);
-    selectSignedMultiplicand = (selectSignedMultiplicand != null)
-        ? addInput('selectSignedMultiplicand', selectSignedMultiplicand)
-        : null;
-    selectSignedMultiplier = (selectSignedMultiplier != null)
-        ? addInput('selectSignedMultiplier', selectSignedMultiplier)
-        : null;
-    selectSignedAddend = (selectSignedAddend != null)
-        ? addInput('selectSignedAddend', selectSignedAddend)
-        : null;
+
+    signedMultiplicandConfig?.runtime(this);
+    signedMultiplicand = signedMultiplicandConfig?.staticConfig ?? false;
+
+    signedMultiplierConfig?.runtime(this);
+    signedMultiplier = signedMultiplierConfig?.staticConfig ?? false;
+
+    signedAddendConfig?.runtime(this);
+    signedAddend = signedAddendConfig?.staticConfig ?? false;
+
+    // selectSignedMultiplicand = (selectSignedMultiplicand != null)
+    //     ? addInput('selectSignedMultiplicand', selectSignedMultiplicand)
+    //     : null;
+    // selectSignedMultiplier = (selectSignedMultiplier != null)
+    //     ? addInput('selectSignedMultiplier', selectSignedMultiplier)
+    //     : null;
+    // selectSignedAddend = (selectSignedAddend != null)
+    //     ? addInput('selectSignedAddend', selectSignedAddend)
+    //     : null;
     addOutput('accumulate', width: a.width + b.width + 1);
 
     addOutput('isAccumulateSigned') <=
-        (signedMultiplicand | signedMultiplier | signedAddend
-                ? Const(1)
+        ((signedMultiplicandConfig != null
+                ? signedMultiplicandConfig!.logic(this)
                 : Const(0)) |
-            ((selectSignedMultiplicand != null)
-                ? selectSignedMultiplicand
+            (signedMultiplierConfig != null
+                ? signedMultiplierConfig!.logic(this)
                 : Const(0)) |
-            ((selectSignedMultiplier != null)
-                ? selectSignedMultiplier
-                : Const(0)) |
-            ((selectSignedAddend != null) ? selectSignedAddend : Const(0));
+            (signedAddendConfig != null
+                ? signedAddendConfig!.logic(this)
+                : Const(0)));
   }
 }
 
@@ -177,12 +202,9 @@ class CompressionTreeMultiplyAccumulate extends MultiplyAccumulate {
       {Logic? clk,
       Logic? reset,
       Logic? enable,
-      super.signedMultiplicand = false,
-      super.signedMultiplier = false,
-      super.signedAddend = false,
-      super.selectSignedMultiplicand,
-      super.selectSignedMultiplier,
-      super.selectSignedAddend,
+      super.signedMultiplicandConfig,
+      super.signedMultiplierConfig,
+      super.signedAddendConfig,
       Adder Function(Logic a, Logic b, {Logic? carryIn}) adderGen =
           NativeAdder.new,
       PartialProductSignExtension Function(PartialProductGeneratorBase pp,
@@ -238,19 +260,19 @@ class CompressionTreeMultiplyAccumulate extends MultiplyAccumulate {
 /// term and applies the multiplier function.
 @visibleForTesting
 class MultiplyOnly extends MultiplyAccumulate {
-  static String _genName(
-          Multiplier Function(Logic a, Logic b,
-                  {Logic? selectSignedMultiplicand,
-                  Logic? selectSignedMultiplier})
-              fn,
-          Logic a,
-          Logic b,
-          Logic? selectSignedMultiplicand,
-          Logic? selectSignedMultiplier) =>
-      fn(a, b,
-              selectSignedMultiplicand: selectSignedMultiplicand,
-              selectSignedMultiplier: selectSignedMultiplier)
-          .name;
+  // static String _genName(
+  //         Multiplier Function(Logic a, Logic b,
+  //                 {Config? selectSignedMultiplicandConfig,
+  //                 Config? selectSignedMultiplierConfig})
+  //             fn,
+  //         Logic a,
+  //         Logic b,
+  //         Config? selectSignedMultiplicandConfig,
+  //         Config? selectSignedMultiplierConfig) =>
+  //     fn(a, b,
+  //             selectSignedMultiplicandConfig: selectSignedMultiplicandConfig,
+  //             selectSignedMultiplierConfig: selectSignedMultiplierConfig)
+  //         .name;
 
   /// Construct a MultiplyAccumulate that only multiplies to enable
   /// using the same tester with zero accumulate addend [c].
@@ -261,21 +283,87 @@ class MultiplyOnly extends MultiplyAccumulate {
     Multiplier Function(Logic a, Logic b,
             {Logic? selectSignedMultiplicand, Logic? selectSignedMultiplier})
         mulGen, {
-    super.signedMultiplicand = false,
-    super.signedMultiplier = false,
-    super.signedAddend = false,
-    super.selectSignedMultiplicand,
-    super.selectSignedMultiplier,
-    super.selectSignedAddend,
+    super.signedMultiplicandConfig,
+    super.signedMultiplierConfig,
+    super.signedAddendConfig,
   }) // Will be overrwridden by multiplyGenerator
   : super(
             // ignore: prefer_interpolation_to_compose_strings
-            name: 'Multiply Only: ' +
-                _genName(mulGen, a, b, selectSignedMultiplicand,
-                    selectSignedMultiplier)) {
+            name: 'Multiply Only: '
+            // +
+            //     _genName(mulGen, a, b, selectSignedMultiplicandConfig,
+            //         selectSignedMultiplier)
+            ) {
     final multiply = mulGen(a, b,
         selectSignedMultiplicand: selectSignedMultiplicand,
         selectSignedMultiplier: selectSignedMultiplier);
+
+    accumulate <=
+        mux(
+            // ignore: invalid_use_of_protected_member
+            multiply.isProductSigned,
+            multiply.product.signExtend(accumulate.width),
+            multiply.product.zeroExtend(accumulate.width));
+  }
+}
+
+/// A subclass of [MultiplyAccumulate] which ignores the third ([c]) accumulate
+/// term and applies the multiplier function.
+@visibleForTesting
+class MultiplyOnly2 extends MultiplyAccumulate {
+  // static String _genName(
+  //         Multiplier Function(Logic a, Logic b,
+  //                 {Logic? selectSignedMultiplicand,
+  //                 Logic? selectSignedMultiplier})
+  //             fn,
+  //         Logic a,
+  //         Logic b,
+  //         Logic? selectSignedMultiplicand,
+  //         Logic? selectSignedMultiplier) =>
+  //     fn(a, b,
+  //             selectSignedMultiplicand: selectSignedMultiplicand,
+  //             selectSignedMultiplier: selectSignedMultiplier)
+  //         .name;
+
+  /// Construct a MultiplyAccumulate that only multiplies to enable
+  /// using the same tester with zero accumulate addend [c].
+  MultiplyOnly2(
+    super.a,
+    super.b,
+    super.c,
+    Multiplier Function(Logic a, Logic b,
+            {Config? signedMultiplicandConfig, Config? signedMultiplierConfig})
+        mulGen, {
+    super.signedMultiplicandConfig,
+    super.signedMultiplierConfig,
+    super.signedAddendConfig,
+  }) // Will be overrwridden by multiplyGenerator
+  : super(
+            // ignore: prefer_interpolation_to_compose_strings
+            name: 'Multiply Only2: '
+            // +
+            //     _genName(mulGen, a, b, selectSignedMultiplicand,
+            //         selectSignedMultiplier)
+            ) {
+    // Here we need to copy the Config and make sure we access our module's
+    // input by calling .logic(this) on the runtimeConfig.
+    final multiply = mulGen(a, b,
+        signedMultiplicandConfig: Config(
+            name: 'selectSignedMultiplicand',
+            runtimeConfig: signedMultiplicandConfig?.runtimeConfig != null
+                ? signedMultiplicandConfig?.logic(this)
+                : null,
+            staticConfig: signedMultiplicandConfig?.runtimeConfig == null
+                ? signedMultiplicandConfig?.staticConfig
+                : null),
+        signedMultiplierConfig: Config(
+            name: 'selectSignedMultiplier',
+            runtimeConfig: signedMultiplierConfig?.runtimeConfig != null
+                ? signedMultiplierConfig?.logic(this)
+                : null,
+            staticConfig: signedMultiplierConfig?.runtimeConfig == null
+                ? signedMultiplierConfig?.staticConfig
+                : null));
 
     accumulate <=
         mux(
