@@ -178,7 +178,78 @@ class FixedPointValue implements Comparable<FixedPointValue> {
     return isNegative() ? -value : value;
   }
 
+<<<<<<< HEAD
   /// Addition operation that returns a [FixedPointValue].
+=======
+  /// Converts a [FixedPointValue] to a [FloatingPointValue].
+  FloatingPointValue toFloat() {
+    if (!value.isValid) {
+      throw RohdHclException('Inputs must be valid.');
+    }
+
+    // Qm.n need to conver so we have in some form (1.<MANTISSA>)
+    const minmialExponentWidth = 4;
+    var sign = value[-1];
+    if (!signed) {
+      sign = LogicValue.zero; // if not signed, we set sign to zero
+    }
+    // need to verify if we have a signed representation or not
+    final fixedNum = sign.toBool() ? ~value + 1 : value;
+
+    var firstOneIndex = 0;
+    final LogicValue mantissaVal;
+    final LogicValue exponentVal;
+
+    // if we have a zero value, we can return a zero floating point value
+    if (fixedNum.isZero) {
+      return FloatingPointValue(
+          sign: LogicValue.zero,
+          exponent: LogicValue.zero,
+          mantissa: LogicValue.zero);
+    }
+
+    // FOR loop to find first one to figure out correct exponent value and width
+    for (var i = fixedNum.width - 1; i > 0; i--) {
+      if (fixedNum[i] == LogicValue.one) {
+        firstOneIndex = i;
+        break;
+      }
+    }
+
+    // shift our mantissa to (1.<MANTISSA>) format
+    if (firstOneIndex == 0) {
+      mantissaVal =
+          LogicValue.filled(integerWidth + fractionWidth, LogicValue.zero);
+    } else {
+      mantissaVal = fixedNum.slice(firstOneIndex - 1, 0);
+    }
+    // now we have (1.<MANTISSA>) so we can calculate the exponent
+    final radix = (fixedNum.width - 1) - integerWidth;
+    var shiftAmnt = firstOneIndex - radix;
+    if (!signed) {
+      shiftAmnt -= 1; // shiftAmnt is reduced by one for unsigned
+    }
+    var expWidth = 0;
+    if (shiftAmnt != 0) {
+      // if shiftAmnt is not zero, we need to calculate the exponent width
+      expWidth = log2Ceil(shiftAmnt.abs()) << 1;
+    }
+    if (expWidth < minmialExponentWidth) {
+      expWidth = minmialExponentWidth; // minimum exponent width needed
+    }
+
+    // set the bias amount which is 2^(expWidth - 1) - 1
+    final bias =
+        LogicValue.ofInt((pow(2, expWidth).toInt() >> 1) - 1, expWidth);
+    // bias our exponent value
+    exponentVal = LogicValue.ofInt(shiftAmnt, expWidth) + bias;
+
+    return FloatingPointValue(
+        sign: sign, exponent: exponentVal, mantissa: mantissaVal);
+  }
+
+  /// Addition operation that returns a FixedPointValue.
+>>>>>>> 4b46fcb (Updating simple fixed-to-float and float-to-fixed functionality to ROHD)
   /// The result is signed if one of the operands is signed.
   /// The result integer has the max integer width of the operands plus one.
   /// The result fraction has the max fractional width of the operands.

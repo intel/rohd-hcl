@@ -459,4 +459,40 @@ class FloatingPointValue implements Comparable<FloatingPointValue> {
           sign.bitString, exponent.bitString, '${'0' * (mantissa.width - 1)}1');
     }
   }
+
+  /// Losslessly convert a [FloatingPointValue] to a [FixedPointValue].
+  /// TODO(jcfarwe):
+  ///   Add ability to delete unneccessary LSB's from mantissa
+  ///   Add support for fixed m and n values, and rounding mode:
+  ///     FixedPointValue toFixedPointValue(int m, int n,
+  ///         FloatingPointRoundingMode mode){}
+  FixedPointValue toFixedPointValue() {
+    // check for 'special value'
+    if (isNaN) {
+      throw RohdHclException('FloatingPointValue: Not a Number');
+    }
+    if (isAnInfinity) {
+      throw RohdHclException('FloatingPointValue: Infinity');
+    }
+    // space for full shift (bias + mantissa + sign)
+    final shift = exponent.toInt() - bias;
+
+    var fxdMantissa = [
+      if (isNormal()) LogicValue.one else LogicValue.zero,
+      mantissa
+    ].swizzle().zeroExtend(shift.abs() + mantissaWidth + 3);
+
+    fxdMantissa = sign == LogicValue.one ? ~fxdMantissa + 1 : fxdMantissa;
+
+    // convert mantissa into 'value'
+    final shiftedFxdMantissa =
+        shift.isNegative ? fxdMantissa : fxdMantissa << shift;
+
+    final fxpN = shift.isNegative ? mantissaWidth - shift : mantissaWidth;
+    final fxpM = shiftedFxdMantissa.width - fxpN - 1;
+
+    return FixedPointValue.populator(
+            integerWidth: fxpM, fractionWidth: fxpN, signed: true)
+        .ofLogicValue(shiftedFxdMantissa);
+  }
 }
