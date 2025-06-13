@@ -3,14 +3,16 @@
 
 Below is a list of components grouped by category. Ones with links are documented and completed, while others are still in planning or development stages.
 
-Some in-development items will have opened issues, as well. Feel free to create a pull request or file issues to add more ideas to this list. If you plan to develop and contribute a component, please be sure to open an issue so that there's not multiple people working on the same thing. Make sure to check if someone else has an open issue for a certain component before starting.
+Some in-development items will have opened issues, as well. Feel free to create a pull request or file issues to add more ideas to this list. If you plan to develop and contribute a component, please be sure to open an issue so that there are not multiple people working on the same thing. Make sure to check if someone else has an open issue for a certain component before starting.
 
 - Encoders & Decoders
   - [1-hot to Binary](./components/onehot.md)
   - [Binary to 1-hot](./components/onehot.md)
-  - Gray to Binary
-  - Binary to Gray
-  - Priority
+  - [Binary to Gray](./components/binary_gray.md#binary-to-gray)
+  - [Gray to Binary](./components/binary_gray.md#gray-to-binary)
+  - Priority Encoders
+    - [Prefix-tree based Priority Encoder](./components/priority_encoder.md#parallel-prefix-priority-encoder)
+    - [Recursive Priority Encoder](./components/priority_encoder.md#recursive-priority-encoder)
   - PLAs
 - Arbiters
   - [Priority Arbiter](./components/arbiter.md#priority-arbiter)
@@ -19,39 +21,68 @@ Some in-development items will have opened issues, as well. Feel free to create 
   - [Synchronous FIFO](./components/fifo.md)
   - Asynchronous / clock-crossing FIFO
   - [Shift register](./components/shift_register.md)
-- Find
+- [Find](./components/find.md)
   - [Find N'th bit (0 or 1) from the start/end](./components/find.md#find-nth)
-  - Find minimum
-  - Find maximum
-  - Find N'th pattern from the start/end
+  - [Extrema](./components/extrema.md)
+  - [Find Pattern](./components/find_pattern.md)
+    - [Find Pattern from Start/End](./components/find_pattern.md#find-pattern-from-startend)
+    - [Find N'th Pattern from Start/End](./components/find_pattern.md#find-nth-pattern-from-startend)
+    - [Leading Digit Anticipate](./components/leading_digit_anticipate.md)
 - Count
-  - [Count bit occurence](./components/count.md)
-  - Count pattern occurence
+  - [Count bit occurrence](./components/count.md)
+  - Count pattern occurrence
 - Detection
   - [Edge detection](./components/edge_detector.md)
 - Sort
   - [Bitonic sort](./components/sort.md#bitonic-sort)
 - Arithmetic
-  - [Prefix Trees](./components/parallel_prefix_operations.md)
+  - [Prefix Trees](./components/parallel_prefix_operations.md) Several efficient components that leverage a variety of parallel prefix trees such as Ripple, Kogge-Stone, Sklansky, and Brent-Kung tree types.
+    - [Priority Encoder](./components/parallel_prefix_operations.md)
+    - [Or-scan](./components/parallel_prefix_operations.md)
+    - [Incrementer](./components/parallel_prefix_operations.md)
+    - [Decrementer](./components/parallel_prefix_operations.md)
   - [Adders](./components/adder.md)
+    - [Ripple Carry Adder](./components/adder.md#ripple-carry-adder)
+    - [Parallel Prefix Adder](./components/parallel_prefix_operations.md)
+    - [Compound Adder](./components/adder.md#compound-adder)
+    - [Native Adder](./components/adder.md#native-adder)
   - Subtractors
+    - [Ones' Complement Adder Subtractor](./components/adder.md#ones-complement-adder-subtractor)
+    - [Sign Magnitude Adder](./components/adder.md#sign-magnitude-adder)
   - Multipliers
     - [Pipelined Integer Multiplier](./components/multiplier.md#carry-save-multiplier)
+    - [Compression Tree Multiplier](./components/multiplier.md#compression-tree-multiplier)
+    - [Compression Tree Multiply-Accumulate](./components/multiplier.md#compression-tree-multiply-accumulate)
+    - [Booth Encoding and Compression Components](./components/multiplier_components.md)
   - Dividers
+    - [Multi Cycle Integer Divider](./components/divider.md)
   - Log
   - Square root
+    - [Fixed-Point Square Root](./components/fixed_point.md#fixedpointsqrt)
+    - [Floating-Point Square Root](./components/floating_point.md#floatingpointsqrt)
   - Inverse square root
   - Floating point
-    - Double (64-bit)
-    - Float (32-bit)
-    - BFloat16 (16-bit)
-    - BFloat8 (8-bit)
-    - BFloat4 (4-bit)
-  - Fixed point
+    - [Floating-Point Value Types](./components/floating_point.md#floatingpointvalue)
+      - Double (64-bit)
+      - Float (32-bit)
+      - BFloat16 (16-bit)
+      - TensorFloat32 (19-bit)
+      - 8-bit E4/M3 and E5/M2
+    - [Single Path Floating-Point Adder](./components/floating_point.md#floatingpointadder)
+    - [Dual Path Floating-Point Adder](./components/floating_point.md#floatingpointadder)
+    - [Simple Floating-Point Multiplier](./components/floating_point.md#floatingpointmultiplier)
+    - [Floating-Point Converter](./components/floating_point.md#floatingpointconverter)
+    - [Leading Digit Anticipate](./components/leading_digit_anticipate.md)
+  - [Fixed point](./components/fixed_point.md)
+    - [FloatToFixed](./components/fixed_point.md#floattofixed)
+    - [FixedToFloat](./components/fixed_point.md#fixedtofloat)
   - Binary-Coded Decimal (BCD)
 - [Rotate](./components/rotate.md)
+- [SignedShifter](./components/shifter.md)
 - Counters
-  - Binary counter
+  - [Summation](./components/summation.md#sum)
+  - [Binary counter](./components/summation.md#counter)
+  - [Gated counter](./components/summation.md#gated-counter)
   - Gray counter
 - Pseudorandom
   - LFSR
@@ -60,6 +91,9 @@ Some in-development items will have opened issues, as well. Feel free to create 
   - CRC
   - [Parity](./components/parity.md)
   - Interleaving
+- Gating
+  - [Clock gating](./components/clock_gating.md)
+  - [Toggle gating](./components/toggle_gate.md)
 - Data flow
   - Ready/Valid
   - Connect/Disconnect
@@ -69,12 +103,14 @@ Some in-development items will have opened issues, as well. Feel free to create 
   - NoC's
     - Coherent
     - Non-Coherent
+  - [Reduction Tree](./components/reduction_tree.md)
 - Memory
   - [Register File](./components/memory.md#register-files)
   - [Masking](./components/memory.md#masks)
   - Replacement Policies
     - LRU
   - [Memory Model](./components/memory.md#memory-models)
+  - [Control/Status Registers (CSRs)](./components/csr.md)
 - Standard interfaces
   - AXI
   - [APB](./components/standard_interfaces.md#apb)
@@ -83,17 +119,19 @@ Some in-development items will have opened issues, as well. Feel free to create 
   - PCIe
   - UCIe
   - JTAG
-  - SPI
+  - [SPI](./components/standard_interfaces.md#spi)
   - UART
   - DDR
   - HBM
 - Models
   - [APB](./components/apb_bfm.md)
   - [Ready/Valid](./components/ready_valid_bfm.md)
-  - SPI
+  - [SPI](./components/spi_bfm.md)
   - CXL
+- Gaskets
+  - [SPI](./components/spi_gaskets.md)
 
 ----------------
 
-Copyright (C) 2023-2024 Intel Corporation  
+Copyright (C) 2023-2025 Intel Corporation  
 SPDX-License-Identifier: BSD-3-Clause

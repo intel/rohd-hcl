@@ -1,7 +1,7 @@
-// Copyright (C) 2023-24 Intel Corporation
+// Copyright (C) 2023-2025 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 //
-// config_parallel-prefix_adder.dart
+// config_parallel_prefix_adder.dart
 // Configurator for a Parallel Prefix Adder.
 //
 // 2024 February 5
@@ -15,8 +15,10 @@ import 'package:rohd_hcl/rohd_hcl.dart';
 /// A [Configurator] for [ParallelPrefixAdder]s.
 class ParallelPrefixAdderConfigurator extends Configurator {
   /// Map from Type to Function for Parallel Prefix generator
-  static Map<Type,
-          ParallelPrefix Function(List<Logic>, Logic Function(Logic, Logic))>
+  static Map<
+          Type,
+          ParallelPrefix Function(
+              List<Logic> inps, Logic Function(Logic term1, Logic term2) op)>
       generatorMap = {
     Ripple: Ripple.new,
     Sklansky: Sklansky.new,
@@ -35,7 +37,8 @@ class ParallelPrefixAdderConfigurator extends Configurator {
   Module createModule() => ParallelPrefixAdder(
       Logic(name: 'a', width: dataWidthKnob.value),
       Logic(name: 'b', width: dataWidthKnob.value),
-      generatorMap[prefixTreeKnob.value]!);
+      carryIn: Logic(name: 'carryIn'),
+      ppGen: generatorMap[prefixTreeKnob.value]!);
 
   @override
   late final Map<String, ConfigKnob<dynamic>> knobs = UnmodifiableMapView({

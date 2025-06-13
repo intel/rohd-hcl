@@ -1,4 +1,4 @@
-// Copyright (C) 2023 Intel Corporation
+// Copyright (C) 2023-2025 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 //
 // find.dart
@@ -37,7 +37,11 @@ class Find extends Module {
   ///
   /// Outputs pin `index` contains position. position starts from `1` based.
   Find(Logic bus,
-      {bool countOne = true, Logic? n, this.generateError = false}) {
+      {bool countOne = true,
+      Logic? n,
+      this.generateError = false,
+      super.name = 'find'})
+      : super(definitionName: 'Find_W${bus.width}') {
     bus = addInput('bus', bus, width: bus.width);
     final oneHotList = <Logic>[];
 
@@ -52,7 +56,7 @@ class Find extends Module {
       final count = Count(bus.getRange(0, i + 1), countOne: countOne);
 
       // Below code will make `n` comparable to `count`
-      var paddedCountValue = count.index;
+      var paddedCountValue = count.count;
       var paddedNValue = (n ?? Const(0)) + 1;
 
       if (paddedNValue.width < paddedCountValue.width) {

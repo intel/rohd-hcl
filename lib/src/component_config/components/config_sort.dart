@@ -1,4 +1,4 @@
-// Copyright (C) 2023 Intel Corporation
+// Copyright (C) 2023-2024 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 //
 // config_sort.dart
@@ -17,7 +17,7 @@ class BitonicSortConfigurator extends Configurator {
   final IntConfigKnob lengthOfListKnob = IntConfigKnob(value: 4);
 
   /// A knob controlling the width of each element to sort.
-  final IntConfigKnob logicWidthKnob = IntConfigKnob(value: 16);
+  final IntConfigKnob logicWidthKnob = IntConfigKnob(value: 4);
 
   /// A knob controlling whether to sort in ascending (or descending) order.
   final ToggleConfigKnob isAscendingKnob = ToggleConfigKnob(value: true);

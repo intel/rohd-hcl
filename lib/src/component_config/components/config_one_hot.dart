@@ -1,8 +1,8 @@
-// Copyright (C) 2023 Intel Corporation
+// Copyright (C) 2023-2025 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 //
-// config_rotate.dart
-// Configurator for a RippleCarryAdder.
+// config_one_hot.dart
+// Configurator for a BinaryToOneHot and OneHotToBinary.
 //
 // 2023 December 5
 // Author: Max Korbel <max.korbel@intel.com>
@@ -18,7 +18,7 @@ class OneHotConfigurator extends Configurator {
       ChoiceConfigKnob([BinaryToOneHot, OneHotToBinary], value: OneHotToBinary);
 
   /// Controls the width of the input.
-  final IntConfigKnob inputWidthKnob = IntConfigKnob(value: 4);
+  final IntConfigKnob inputWidthKnob = IntConfigKnob(value: 8);
 
   /// When available, controls whether to generate an error signal.
   final ToggleConfigKnob generateErrorKnob = ToggleConfigKnob(value: false);

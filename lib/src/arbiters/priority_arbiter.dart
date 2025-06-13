@@ -1,4 +1,4 @@
-// Copyright (C) 2023 Intel Corporation
+// Copyright (C) 2023-2025 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 //
 // priority_arbiter.dart
@@ -14,7 +14,8 @@ import 'package:rohd_hcl/rohd_hcl.dart';
 class PriorityArbiter extends Arbiter {
   /// Constructs an arbiter where the grant is given to the lowest-indexed
   /// request.
-  PriorityArbiter(super.requests, {super.name = 'priority_arbiter'}) {
+  PriorityArbiter(super.requests, {super.name = 'priority_arbiter'})
+      : super(definitionName: 'PriorityArbiter_W${requests.length}') {
     Combinational([
       CaseZ(requests.rswizzle(), conditionalType: ConditionalType.priority, [
         for (var i = 0; i < count; i++)

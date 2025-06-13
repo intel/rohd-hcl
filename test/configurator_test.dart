@@ -1,4 +1,4 @@
-// Copyright (C) 2023-2024 Intel Corporation
+// Copyright (C) 2023-2025 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 //
 // configurator_test.dart
@@ -6,10 +6,20 @@
 //
 // 2023 December 6
 
+import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
+import 'package:rohd_hcl/src/component_config/components/component_registry.dart';
 import 'package:test/test.dart';
 
 import '../confapp/test/example_component.dart';
+
+/// A module that just wraps a hierarchy around a given module.
+class Wrapper extends Module {
+  Wrapper(Module m) {
+    final mOut = m.outputs.values.first;
+    addOutput('dummy', width: mOut.width) <= mOut;
+  }
+}
 
 void main() {
   test('to and from json', () {
@@ -31,8 +41,6 @@ void main() {
     });
 
     final json = cfg.toJson(pretty: true);
-
-    // print(json);
 
     final cfgLoaded = ExampleConfigurator()..loadJson(json);
 
@@ -63,7 +71,7 @@ void main() {
     test('should return RotateRight module when generate() with default value',
         () async {
       final rotate = RotateConfigurator();
-      expect(await rotate.generateSV(), contains('RotateRight'));
+      expect(await rotate.generateSV(), contains('Rotate_right'));
     });
 
     test('should return RotateLeft when invoke generate() with default value',
@@ -77,7 +85,7 @@ void main() {
       rotate.rotateWidthKnob.value = rotateAmountWidth;
 
       final sv = await rotate.generateSV();
-      expect(sv, contains('RotateLeft'));
+      expect(sv, contains('Rotate_left'));
       expect(sv, contains('input logic [9:0] original'));
       expect(sv, contains('input logic [4:0] rotate_amount'));
     });
@@ -107,7 +115,7 @@ void main() {
       final multiplierDefault = RippleCarryAdderConfigurator();
 
       final multiplierCustom = RippleCarryAdderConfigurator();
-      multiplierCustom.knobs.values.toList()[0].value = 10;
+      multiplierCustom.knobs.values.toList()[0].value = 4;
 
       final multiplierDefaultRTL = await multiplierDefault.generateSV();
       final multiplierCustomRTL = await multiplierCustom.generateSV();
@@ -125,9 +133,7 @@ void main() {
 
     test('should return both Int knobs to be configured', () {
       final multiplier = CarrySaveMultiplierConfigurator();
-      for (final element in multiplier.knobs.values.toList()) {
-        expect(element, isA<IntConfigKnob>());
-      }
+      expect(multiplier.knobs.values.whereType<IntConfigKnob>().length, 1);
     });
 
     test('should return rtl code when invoke generate() with default value',
@@ -150,6 +156,34 @@ void main() {
     });
   });
 
+  group('multiplier', () {
+    test('should return Compression Tree Multiplier for component name', () {
+      final multiplier = MultiplierConfigurator();
+      expect(multiplier.name, 'Multiplier');
+      multiplier.createModule();
+    });
+
+    test(
+        'should return correct rtl code when invoking generate() with '
+        'different multiplier selections', () async {
+      final cfg = MultiplierConfigurator();
+      final svDefault = await cfg.generateSV();
+      expect(svDefault, contains('NativeMultiplier'));
+      cfg.multiplierSelectKnob.compressionTreeMultiplierKnob.value = true;
+
+      var sv = await cfg.generateSV();
+      expect(sv, contains('CompressionTreeMultiplier'));
+      cfg.multiplierSelectKnob.adderSelectionKnob.parallelPrefixAdderKnob
+          .value = true;
+      sv = await cfg.generateSV();
+      expect(sv, contains('ParallelPrefix'));
+      cfg.multiplierSelectKnob.adderSelectionKnob.parallelPrefixTypeKnob.value =
+          KoggeStone;
+      sv = await cfg.generateSV();
+      expect(sv, contains('kogge_stone'));
+    });
+  });
+
   group('fifo configurator', () {
     test('should generate FIFO', () async {
       final cfg = FifoConfigurator()
@@ -166,6 +200,46 @@ void main() {
       expect(sv, contains('error'));
       expect(sv, contains('input logic [5:0] writeData'));
       expect(sv, contains("(wrPointer == 3'h6"));
+    });
+  });
+
+  group('fixed-point sqrt configurator', () {
+    test('fixed-point sqrt', () async {
+      final cfg = FixedPointSqrtConfigurator();
+
+      final sv = await cfg.generateSV();
+
+      expect(sv, contains('FixedPointSquareRoot'));
+    });
+  });
+
+  group('floating-point sqrt configurator', () {
+    test('floating-point sqrt', () async {
+      final cfg = FloatingPointSqrtConfigurator();
+
+      final sv = await cfg.generateSV();
+
+      expect(sv, contains('FloatingPointSquareRoot'));
+    });
+  });
+
+  group('leading-digit-anticipate configurator', () {
+    test('leading-digit-anticipate', () async {
+      final cfg = LeadingDigitAnticipateConfigurator()
+        ..anticipator.value = LeadingDigitAnticipate;
+
+      final sv = await cfg.generateSV();
+
+      expect(sv, contains('LeadingDigitAnticipate'));
+    });
+
+    test('leading-zero-anticipate', () async {
+      final cfg = LeadingDigitAnticipateConfigurator()
+        ..anticipator.value = LeadingZeroAnticipate;
+
+      final sv = await cfg.generateSV();
+
+      expect(sv, contains('LeadingZeroAnticipate'));
     });
   });
 
@@ -227,7 +301,7 @@ void main() {
       final sv = await bitonicSortGenerator.generateSV();
 
       expect(sv, contains('input logic [7:0]'));
-      expect(sv, contains('BitonicSort_2'));
+      expect(sv, contains('BitonicSort_W2'));
       expect(sv, contains('if((toSort1 > toSort3)) begin'));
     });
 
@@ -245,7 +319,7 @@ void main() {
       final sv = await bitonicSortGenerator.generateSV();
 
       expect(sv, contains('input logic [7:0]'));
-      expect(sv, contains('BitonicSort_2'));
+      expect(sv, contains('BitonicSort_W2'));
       expect(sv, contains('if((toSort1 < toSort3)) begin'));
     });
   });
@@ -268,10 +342,99 @@ void main() {
 
   test('prefix tree adder configurator', () async {
     final cfg = ParallelPrefixAdderConfigurator();
-    // final json = cfg.toJson(pretty: true);
-    // print(json);
 
     final sv = await cfg.generateSV();
     expect(sv, contains('swizzle'));
+  });
+
+  test('compound adder configurator', () async {
+    final cfg = CompoundAdderConfigurator();
+    final svDefault = await cfg.generateSV();
+    expect(svDefault, contains('swizzle'));
+
+    cfg.adderSelectionKnob.parallelPrefixAdderKnob.value = true;
+    final sv = await cfg.generateSV();
+    expect(sv, contains('swizzle'));
+  });
+
+  test('floating point simple adder configurator', () async {
+    final cfg = FloatingPointAdderConfigurator();
+
+    final svDefault = await cfg.generateSV();
+    expect(svDefault, contains('swizzle'));
+
+    cfg.adderSelectionKnob.parallelPrefixAdderKnob.value = true;
+
+    var sv = await cfg.generateSV();
+    expect(sv, contains('swizzle'));
+
+    cfg.adderSelectionKnob.parallelPrefixTypeKnob.value = Sklansky;
+    sv = await cfg.generateSV();
+    expect(sv, contains('swizzle'));
+
+    cfg.pipelinedKnob.value = true;
+    sv = await cfg.generateSV();
+    expect(sv, contains('swizzle'));
+  });
+
+  test('floating point multiplier configurator', () async {
+    final cfg = FloatingPointMultiplierSimpleConfigurator();
+    cfg.multiplierSelectKnob.adderSelectionKnob.parallelPrefixAdderKnob.value =
+        true;
+
+    final sv = await cfg.generateSV();
+    expect(sv, contains('swizzle'));
+  });
+
+  test('sum configurator', () async {
+    final cfg = SumConfigurator();
+    cfg.initialValueKnob.value = 6;
+    cfg.widthKnob.value = 10;
+    cfg.minValueKnob.value = 5;
+    cfg.maxValueKnob.value = 25;
+    cfg.saturatesKnob.value = true;
+
+    final mod = cfg.createModule() as Sum;
+
+    // ignore: invalid_use_of_protected_member
+    expect(mod.initialValueLogic.value.toInt(), 6);
+    expect(mod.width, 10);
+    // ignore: invalid_use_of_protected_member
+    expect(mod.minValueLogic.value.toInt(), 5);
+    // ignore: invalid_use_of_protected_member
+    expect(mod.maxValueLogic.value.toInt(), 25);
+    expect(mod.saturates, true);
+  });
+
+  test('gated counter configurator', () async {
+    final cfg = CounterConfigurator();
+    cfg.clockGatingKnob.value = true;
+
+    final mod = cfg.createModule() as GatedCounter;
+    await mod.build();
+  });
+
+  test('serialization configurator', () async {
+    final cfg = SerializationConfigurator();
+    final svDefault = await cfg.generateSV();
+    expect(svDefault, contains('Serializer'));
+
+    cfg.directionKnob.value = Deserializer;
+    final sv = await cfg.generateSV();
+    expect(sv, contains('Deserializer'));
+  });
+
+  group('configurator builds', () {
+    for (final componentConfigurator in componentRegistry) {
+      test(componentConfigurator.name, () async {
+        // generates verilog stand-alone
+        await componentConfigurator.generateSV();
+
+        // generates within a wrapping module (check for input/output rules)
+        final mod = Wrapper(componentConfigurator.createModule());
+        await mod.build();
+        mod.generateSynth();
+      });
+    }
   });
 }

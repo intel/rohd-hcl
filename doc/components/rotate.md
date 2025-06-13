@@ -1,6 +1,6 @@
 # Rotate
 
-ROHD HCL comes with a variety of utilities for performing rotations across
+ROHD-HCL comes with a variety of utilities for performing rotations across
 
 - Direction (Left and Right)
 - Amount (Dynamic and Fixed), and
@@ -38,7 +38,7 @@ A "non-fixed" version is implemented as a case statement with a static swizzle p
 
 ### Module Types
 
-Rotations is also accessible via `Module` construction instead of `extension`s, if preferred.
+Rotations are also accessible via `Module` construction instead of `extension`s, if preferred.
 
 If you want to rotate a signal by a fixed amount, you can use the "fixed" rotation modules: [`RotateLeftFixed`](https://intel.github.io/rohd-hcl/rohd_hcl/RotateLeftFixed-class.html) and [`RotateRightFixed`](https://intel.github.io/rohd-hcl/rohd_hcl/RotateRightFixed-class.html).
 
@@ -61,4 +61,4 @@ Also included are `extension`s for `LogicValue` with a similar rotation API for 
 LogicValue.ofInt(0xf000, 16).rotateLeft(8); // results in 0x00f0
 ```
 
-[Rotate Right Schematic](https://intel.github.io/rohd-hcl/RotateRight.html)
+[Rotate Right Schematic](https://intel.github.io/rohd-hcl/Rotate_right_W16.html)

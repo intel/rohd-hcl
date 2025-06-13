@@ -1,3 +1,12 @@
+// Copyright (C) 2023-2025 Intel Corporation
+// SPDX-License-Identifier: BSD-3-Clause
+//
+// ready_valid_bfm_test.dart
+// Tests for ready-valid bus functional model.
+//
+// 2023 February 17
+// Author: Max Korbel <max.korbel@intel.com>
+
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';

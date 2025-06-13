@@ -1,4 +1,4 @@
-// Copyright (C) 2023-2024 Intel Corporation
+// Copyright (C) 2023-2025 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 //
 // memory.dart
@@ -27,8 +27,10 @@ class MaskedDataPortInterface extends DataPortInterface {
   Logic get mask => port('mask');
 
   /// Constructs a [DataPortInterface] with mask.
-  MaskedDataPortInterface(super.dataWidth, super.addrWidth)
-      : assert(dataWidth % 8 == 0, 'The data width must be byte-granularity') {
+  MaskedDataPortInterface(super.dataWidth, super.addrWidth) {
+    if (dataWidth % 8 != 0) {
+      throw RohdHclException('The data width must be byte-granularity');
+    }
     setPorts([
       Port('mask', dataWidth ~/ 8),
     ], [
@@ -121,18 +123,26 @@ abstract class Memory extends Module {
   /// Must provide at least one port (read or write).
   Memory(Logic clk, Logic reset, List<DataPortInterface> writePorts,
       List<DataPortInterface> readPorts,
-      {super.name = 'memory'})
-      : assert(!(writePorts.isEmpty && readPorts.isEmpty),
-            'Must specify at least one read port or one write port.'),
-        numWrites = writePorts.length,
+      {super.name = 'memory', String? definitionName})
+      : numWrites = writePorts.length,
         numReads = readPorts.length,
         dataWidth = (writePorts.isNotEmpty)
             ? writePorts[0].dataWidth
-            : readPorts[0].dataWidth, // at least one of these must exist
+            : (readPorts.isNotEmpty)
+                ? readPorts[0].dataWidth
+                : 0, // at least one of these must exist
         addrWidth = (writePorts.isNotEmpty)
             ? writePorts[0].addrWidth
-            : readPorts[0].addrWidth // at least one of these must exist
-  {
+            : (readPorts.isNotEmpty)
+                ? readPorts[0].addrWidth
+                : 0, // at least one of these must exist
+        super(
+            definitionName: definitionName ??
+                'Memory_WP${writePorts.length}_RP${readPorts.length}') {
+    if (writePorts.isEmpty && readPorts.isEmpty) {
+      throw RohdHclException(
+          'Must specify at least one read port or one write port.');
+    }
     if (readLatency < 0) {
       throw RohdHclException('Read latency must be non-negative.');
     }

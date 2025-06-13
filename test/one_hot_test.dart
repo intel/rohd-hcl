@@ -1,4 +1,4 @@
-// Copyright (C) 2023 Intel Corporation
+// Copyright (C) 2023-2024 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 //
 // one_hot_test.dart
@@ -45,6 +45,19 @@ void main() {
       expect(err.value.toBool(), isTrue);
     });
 
+    test('tree error on decode', () {
+      final onehot = Logic(width: 13);
+      final bin = TreeOneHotToBinary(onehot, generateError: true);
+      onehot.put(3);
+      expect(bin.error!.value.toBool(), isTrue);
+
+      onehot.put(0);
+      expect(bin.error!.value.toBool(), isTrue);
+
+      onehot.put(2);
+      expect(bin.error!.value.toBool(), isFalse);
+    });
+
     final ohToBTypes = [
       (name: 'case', constructor: CaseOneHotToBinary.new, max: 8),
       (name: 'tree', constructor: TreeOneHotToBinary.new, max: 100),
@@ -59,6 +72,22 @@ void main() {
               ohToBType.constructor(Const(val, width: pos + 1)).binary;
           final expected = LogicValue.ofInt(pos, computed.width);
           expect(computed.value, equals(expected));
+        }
+      });
+
+      test('error detection ${ohToBType.name}', () {
+        for (final width in [7, 8, 9, 10]) {
+          final onehot = Logic(width: width);
+          final dut = ohToBType.constructor(onehot, generateError: true);
+
+          for (var i = 0; i < 1 << width; i++) {
+            onehot.put(i);
+            if (i == 0 || !isPowerOfTwo(i)) {
+              expect(dut.error!.value.toBool(), isTrue, reason: '$i');
+            } else {
+              expect(dut.error!.value.toBool(), isFalse, reason: '$i');
+            }
+          }
         }
       });
     }

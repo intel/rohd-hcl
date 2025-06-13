@@ -1,26 +1,32 @@
-// Copyright (C) 2023-2024 Intel Corporation
+// Copyright (C) 2023-2025 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 
-export 'src/adder.dart';
 export 'src/arbiters/arbiters.dart';
+export 'src/arithmetic/arithmetic.dart';
 export 'src/binary_gray.dart';
-export 'src/carry_save_mutiplier.dart';
+export 'src/clock_gating.dart';
 export 'src/component_config/component_config.dart';
 export 'src/count.dart';
 export 'src/edge_detector.dart';
 export 'src/encodings/encodings.dart';
 export 'src/error_checking/error_checking.dart';
 export 'src/exceptions.dart';
+export 'src/extrema.dart';
 export 'src/fifo.dart';
 export 'src/find.dart';
+export 'src/find_pattern.dart';
+export 'src/gaskets/spi/spi_gaskets.dart';
 export 'src/interfaces/interfaces.dart';
 export 'src/memory/memories.dart';
 export 'src/models/models.dart';
-export 'src/multiplier.dart';
-export 'src/parallel_prefix_operations.dart';
+export 'src/priority_encoder.dart';
 export 'src/ready_valid.dart';
-export 'src/ripple_carry_adder.dart';
+export 'src/reduction_tree.dart';
 export 'src/rotate.dart';
+export 'src/serialization/serialization.dart';
 export 'src/shift_register.dart';
+export 'src/signed_shifter.dart';
 export 'src/sort.dart';
+export 'src/summation/summation.dart';
+export 'src/toggle_gate.dart';
 export 'src/utils.dart';

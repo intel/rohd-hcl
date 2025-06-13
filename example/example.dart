@@ -1,4 +1,4 @@
-// Copyright (C) 2023 Intel Corporation
+// Copyright (C) 2023-2024 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 //
 // example.dart
@@ -12,7 +12,7 @@
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
 
-Future<void> main() async {
+Future<void> main({bool noPrint = false}) async {
   // Build a module that rotates a 16-bit signal by an 8-bit signal, which
   // we guarantee will never see more than 10 as the rotate amount.
   final original = Logic(width: 16);
@@ -23,11 +23,15 @@ Future<void> main() async {
   // Do a quick little simulation with some inputs
   original.put(0x4321);
   rotateAmount.put(4);
-  print('Shifting ${original.value} by ${rotateAmount.value} '
-      'yields ${rotated.value}');
+  if (!noPrint) {
+    print('Shifting ${original.value} by ${rotateAmount.value} '
+        'yields ${rotated.value}');
+  }
 
   // Generate verilog for it and print it out
   await mod.build();
-  print('Generating verilog...');
-  print(mod.generateSynth());
+  final sv = mod.generateSynth();
+  if (!noPrint) {
+    print(sv);
+  }
 }

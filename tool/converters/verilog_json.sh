@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Copyright (C) 2023 Intel Corporation
+# Copyright (C) 2023-2025 Intel Corporation
 # SPDX-License-Identifier: BSD-3-Clause
 #
 # verilogToJSON.sh
@@ -19,7 +19,9 @@ if !(test 1 -eq $#); then
 fi;
 
 yosys_bin=/oss-cad-suite/bin/yosys
-module=`basename $1 .v`
+sv2v=/usr/local/bin/sv2v
+module=`basename $1 .sv`
+$sv2v $module.sv > $module.v
 $yosys_bin -Q -T -q <<EOF
 read_verilog -sv $module.v
 hierarchy -top $module

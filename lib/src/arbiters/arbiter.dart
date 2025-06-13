@@ -1,4 +1,4 @@
-// Copyright (C) 2023 Intel Corporation
+// Copyright (C) 2023-2025 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 //
 // arbiter.dart
@@ -32,7 +32,9 @@ abstract class Arbiter extends Module {
 
   /// Constructs an arbiter where each element in [requests] is a one-bit signal
   /// requesting a corresponding bit from [grants].
-  Arbiter(List<Logic> requests, {super.name = 'arbiter'}) {
+  Arbiter(List<Logic> requests,
+      {super.name = 'arbiter', String? definitionName})
+      : super(definitionName: definitionName ?? 'Arbiter_W${requests.length}') {
     for (var i = 0; i < requests.length; i++) {
       if (requests[i].width != 1) {
         throw RohdHclException('Each request must be 1 bit,'

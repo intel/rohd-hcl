@@ -1,4 +1,4 @@
-// Copyright (C) 2023-2024 Intel Corporation
+// Copyright (C) 2023-2025 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 //
 // count.dart
@@ -18,15 +18,20 @@ class Count extends Module {
   late Logic _output;
 
   /// [index] is an getter for output of Count
+  @Deprecated('Use `count` instead')
   Logic get index => _output;
+
+  /// The resulting count.
+  Logic get count => _output;
 
   /// [Count] `1` or `0`.
   ///
   /// Takes in [bus] of type [Logic]. by default performs [countOne] (`1`)
   /// if [countOne] is `false` will count `0`
-  Count(Logic bus, {bool countOne = true}) {
+  Count(Logic bus, {bool countOne = true, super.name = 'count'})
+      : super(definitionName: 'Count_W${bus.width}') {
     bus = addInput('bus', bus, width: bus.width);
-    Logic count = Const(0, width: max(1, log2Ceil(bus.width) + 1));
+    Logic count = Const(0, width: max(1, log2Ceil(bus.width + 1)));
     for (var i = 0; i < bus.width; i++) {
       count += (countOne ? bus[i] : ~bus[i]).zeroExtend(count.width);
     }

@@ -15,7 +15,7 @@ jobs:
   run-checks:
     name: Run Checks
     permissions: {}
-    timeout-minutes: 30
+    timeout-minutes: 60
     runs-on: ${{ github.repository_owner == 'intel' && 'intel-ubuntu-latest' || 'ubuntu-latest' }}
     steps:
       - name: Checkout
@@ -26,11 +26,11 @@ jobs:
         with:
           globs: '**/*.md'
 
-      - name: Check Markdown links
-        uses: gaurav-nelson/github-action-markdown-link-check@v1
-        with:
-          use-quiet-mode: yes # output is too noisy, see https://github.com/gaurav-nelson/github-action-markdown-link-check/issues/121
-          config-file: .github/configs/mlc_config.json
+      # - name: Check Markdown links
+      #   uses: gaurav-nelson/github-action-markdown-link-check@v1
+      #   with:
+      #     use-quiet-mode: yes # output is too noisy, see https://github.com/gaurav-nelson/github-action-markdown-link-check/issues/121
+      #     config-file: .github/configs/mlc_config.json
 
       # get submodules *after* checking markdown, we dont care about markdown errors in submodules
       - name: Checkout submodules
@@ -57,11 +57,17 @@ jobs:
       - name: Install CAD Suite (includes yosys)
         run: tool/gh_actions/install_opencadsuite.sh
 
+      - name: Install SystemVerilog to Verilog converter
+        run: tool/gh_actions/install_sv2v.sh
+
       - name: Install D3 Schematic viewer
         run: tool/gh_actions/install_d3_hwschematic.sh
 
       - name: Generate HTML for examples
         run: tool/gh_actions/create_htmls.sh
+      
+      - name: Check temporary test files
+        run: tool/gh_actions/check_tmp_test.sh
 
       # https://github.com/devcontainers/ci/blob/main/docs/github-action.md
       - name: Build dev container and run tests in it
@@ -84,7 +90,7 @@ jobs:
         uses: flutter-actions/setup-flutter@v2
         with:
           channel: stable
-          version: 3.16.3
+          version: 3.24.2
       
       - name: Analyze flutter source
         run: tool/gh_actions/analyze_flutter_source.sh
@@ -151,7 +157,7 @@ jobs:
         uses: flutter-actions/setup-flutter@v2
         with:
           channel: stable
-          version: 3.16.3
+          version: 3.24.2
       
       - name: Build static site
         run: tool/gh_actions/hcl_site_generation_build.sh

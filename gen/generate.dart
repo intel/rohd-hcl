@@ -1,4 +1,4 @@
-// Copyright (C) 2023 Intel Corporation
+// Copyright (C) 2023-2025 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 //
 // generate.dart
@@ -19,6 +19,6 @@ void main() async {
   for (final configurator in componentRegistry) {
     final sv = await configurator.generateSV();
     final name = configurator.createModule().definitionName;
-    File('build/$name.v').writeAsStringSync(sv);
+    File('build/$name.sv').writeAsStringSync(sv);
   }
 }

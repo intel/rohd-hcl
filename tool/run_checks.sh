@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Copyright (C) 2022-2023 Intel Corporation
+# Copyright (C) 2022-2024 Intel Corporation
 # SPDX-License-Identifier: BSD-3-Clause
 #
 # run_checks.sh
@@ -49,6 +49,10 @@ tool/gh_actions/generate_documentation.sh
 # Run project tests
 print_step 'Run project tests'
 tool/gh_actions/run_tests.sh
+
+# Check temporary test files
+print_step 'Check temporary test files'
+tool/gh_actions/check_tmp_test.sh
 
 # Successful script execution notification
 printf '\n%s\n\n' "${form_bold}${color_yellow}Result: ${color_green}SUCCESS${text_reset}"

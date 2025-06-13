@@ -1,4 +1,4 @@
-// Copyright (C) 2023 Intel Corporation
+// Copyright (C) 2023-2025 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 //
 // shift_register.dart
@@ -10,6 +10,7 @@
 import 'dart:collection';
 
 import 'package:rohd/rohd.dart';
+import 'package:rohd_hcl/rohd_hcl.dart';
 
 /// A shift register with configurable width and depth and optional enable and
 /// reset.
@@ -37,24 +38,33 @@ class ShiftRegister extends Module {
   final String dataName;
 
   /// Creates a new shift register with specified [depth] which is only active
-  /// when [enable]d. If [reset] is provided, it will reset to a default of `0`
-  /// at all stages synchronously with [clk] or to the provided [resetValue].
+  /// when [enable]d.
+  ///
+  /// If [reset] is provided, it will reset synchronously with [clk] or
+  /// aynchronously if [asyncReset] is true. The [reset] will reset all  stages
+  /// to a default of `0` or to the provided [resetValue]. If [resetValue] is
+  /// a [List] the stages will reset to the corresponding value in the list.
   ShiftRegister(
     Logic dataIn, {
     required Logic clk,
     required this.depth,
     Logic? enable,
     Logic? reset,
+    bool asyncReset = false,
     dynamic resetValue,
     this.dataName = 'data',
   })  : width = dataIn.width,
-        super(name: '${dataName}_shift_register') {
+        super(
+            name: '${dataName}_shift_register',
+            definitionName: 'ShiftRegister_W${dataIn.width}'
+                '_D$depth') {
     dataIn = addInput('${dataName}_in', dataIn, width: width);
     clk = addInput('clk', clk);
 
     addOutput('${dataName}_out', width: width);
 
     Map<Logic, dynamic>? resetValues;
+
     if (reset != null) {
       reset = addInput('reset', reset);
 
@@ -63,6 +73,25 @@ class ShiftRegister extends Module {
           resetValue =
               addInput('resetValue', resetValue, width: resetValue.width);
         }
+
+        if (resetValue is List) {
+          // Check if list length is equal to depth
+          if (resetValue.length != depth) {
+            throw RohdHclException(
+                'ResetValue list length must equal shift register depth.');
+          }
+
+          resetValue = List.of(resetValue);
+
+          for (var i = 0; i < resetValue.length; i++) {
+            final element = resetValue[i];
+            if (element is Logic) {
+              resetValue[i] =
+                  addInput('resetValue$i', element, width: element.width);
+            }
+          }
+        }
+
         resetValues = {};
       }
     }
@@ -73,7 +102,8 @@ class ShiftRegister extends Module {
     for (var i = 0; i < depth; i++) {
       final stageI = addOutput(_stageName(i), width: width);
       conds.add(stageI < dataStage);
-      resetValues?[stageI] = resetValue;
+
+      resetValues?[stageI] = resetValue is List ? resetValue[i] : resetValue;
       dataStage = stageI;
     }
 
@@ -83,10 +113,11 @@ class ShiftRegister extends Module {
       conds = [If(enable, then: conds)];
     }
 
-    Sequential(
-      clk,
+    Sequential.multi(
+      [clk],
       reset: reset,
       resetValues: resetValues,
+      asyncReset: asyncReset,
       conds,
     );
 

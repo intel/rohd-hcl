@@ -1,4 +1,4 @@
-// Copyright (C) 2023 Intel Corporation
+// Copyright (C) 2023-2024 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 //
 // exceptions.dart
@@ -14,4 +14,7 @@ class RohdHclException implements Exception {
 
   /// Creates an [Exception] for the ROHD Hardware Component Library.
   RohdHclException(this.message);
+
+  @override
+  String toString() => 'RohdHclException($message)';
 }
