@@ -132,46 +132,31 @@ abstract class Multiplier extends Module {
   @protected
   Logic get isProductSigned => output('isProductSigned');
 
-  /// Take input [a] and input [b] and return the
-  /// [product] of the multiplication result.
+  /// Take input [a] and input [b] and return the [product] of the
+  /// multiplication result.
   ///
-  /// [signedMultiplicand] parameter configures the multiplicand [a] as a signed
-  /// multiplier (default is unsigned).
+  /// [signedMultiplicandConfig] parameter configures the multiplicand [a] as a
+  /// signed multiplicand (default is unsigned) or a runtime configurable
+  /// [selectSignedMultiplicand] input.
   ///
-  /// [signedMultiplier] parameter configures the multiplier [b] as a signed
-  /// multiplier (default is unsigned).
+  /// [signedMultiplierConfig] parameter configures the multiplier [b] as a
+  /// signed multiplier (default is unsigned) or a runtime configurable
+  /// [selectSignedMultiplier] input.
   ///
-  /// Optional [selectSignedMultiplicand] allows for runtime configuration of
-  /// signed or unsigned operation, overriding the [signedMultiplicand] static
-  /// configuration.
-  ///
-  /// Optional [selectSignedMultiplier] allows for runtime configuration of
-  /// signed or unsigned operation, overriding the [signedMultiplier] static
-  /// configuration.
-  /// If [clk] is not null then a set of flops are used to make the multiply
-  /// a 2-cycle latency operation. [reset] and [enable] are optional
-  /// inputs to control these flops when [clk] is provided.
+  /// If [clk] is not null then a set of flops are used to make the multiply a
+  /// 2-cycle latency operation. [reset] and [enable] are optional inputs to
+  /// control these flops when [clk] is provided.
   Multiplier(Logic a, Logic b,
       {Logic? clk,
       Logic? reset,
       Logic? enable,
       this.signedMultiplicandConfig,
       this.signedMultiplierConfig,
-      // this.signedMultiplicand = false,
-      // this.signedMultiplier = false,
-      // Logic? selectSignedMultiplier,
       super.name = 'multiplier',
       String? definitionName})
       : super(
             definitionName:
                 definitionName ?? 'Multiplier_W${a.width}x${b.width}') {
-    // if (signedMultiplicand && (selectSignedMultiplicand != null)) {
-    //   throw RohdHclException('multiplicand sign reconfiguration requires '
-    //       'signedMultiplicand=false');
-    // }
-    // if (signedMultiplier && (selectSignedMultiplier != null)) {
-    //   throw RohdHclException('sign reconfiguration requires signed=false');
-    // }
     this.clk = (clk != null) ? addInput('clk', clk) : null;
     this.reset = (reset != null) ? addInput('reset', reset) : null;
     this.enable = (enable != null) ? addInput('enable', enable) : null;
@@ -254,24 +239,7 @@ class CompressionTreeMultiplier extends Multiplier {
   /// and an [Adder] generator functor [adderGen] for the final adder.
   ///
   /// Sign extension methodology is defined by the partial product generator
-  /// supplied via [seGen].
-  ///
-  /// [a] multiplicand and [b] multiplier are the product terms and they can
-  /// be different widths allowing for rectangular multiplication.
-  ///
-  /// [signedMultiplicand] parameter configures the multiplicand [a] as a signed
-  /// multiplier (default is unsigned).
-  ///
-  /// [signedMultiplier] parameter configures the multiplier [b] as a signed
-  /// multiplier (default is unsigned).
-  ///
-  /// Optional [selectSignedMultiplicand] allows for runtime configuration of
-  /// signed or unsigned operation, overriding the [signedMultiplicand] static
-  /// configuration.
-  ///
-  /// Optional [selectSignedMultiplier] allows for runtime configuration of
-  /// signed or unsigned operation, overriding the [signedMultiplier] static
-  /// configuration.
+  /// supplied via [signExtensionGen].
   ///
   /// If [clk] is not null then a set of flops are used to latch the output
   /// after compression.  [reset] and [enable] are optional
@@ -287,15 +255,12 @@ class CompressionTreeMultiplier extends Multiplier {
           NativeAdder.new,
       PartialProductSignExtension Function(PartialProductGeneratorBase pp,
               {String name})
-          seGen = CompactRectSignExtension.new,
+          signExtensionGen = CompactRectSignExtension.new,
       super.name = 'compression_tree_multiplier'})
       : super(
             definitionName: 'CompressionTreeMultiplier_W${a.width}x'
-                // '${b.width}_'
-                // '${signedMultiplicand ? 'SD_' : ''}'
-                // '${signedMultiplier ? 'SM_' : ''}'
-                // '${selectSignedMultiplicand != null ? 'SSD_' : ''}'
-                // '${selectSignedMultiplier != null ? 'SSM_' : ''}'
+                '${b.width}_$_signedMD(signedMultiplicandConfig)}'
+                '$_signedML(signedMultiplicandConfig)}'
                 'with${adderGen(a, a).definitionName}') {
     final pp = PartialProduct(a, b, RadixEncoder(radix),
         selectSignedMultiplicand: selectSignedMultiplicand,
@@ -304,7 +269,7 @@ class CompressionTreeMultiplier extends Multiplier {
         signedMultiplier: signedMultiplier,
         name: 'comp_partial_product');
 
-    seGen(pp.array).signExtend();
+    signExtensionGen(pp.array).signExtend();
 
     pp.generateOutputs();
 
@@ -313,4 +278,15 @@ class CompressionTreeMultiplier extends Multiplier {
     final adder = adderGen(compressor.add0, compressor.add1);
     product <= adder.sum.slice(a.width + b.width - 1, 0);
   }
+  static String _signedMD(Config? mdConfig) => (mdConfig == null)
+      ? ''
+      : (mdConfig.runtimeConfig != null)
+          ? 'SSD_'
+          : 'SD_';
+
+  static String _signedML(Config? mlConfig) => (mlConfig == null)
+      ? ''
+      : mlConfig.runtimeConfig != null
+          ? 'SSM_'
+          : 'SM_';
 }
