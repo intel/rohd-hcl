@@ -258,59 +258,59 @@ class CompressionTreeMultiplyAccumulate extends MultiplyAccumulate {
 
 /// A subclass of [MultiplyAccumulate] which ignores the third ([c]) accumulate
 /// term and applies the multiplier function.
-@visibleForTesting
-class MultiplyOnly extends MultiplyAccumulate {
-  // static String _genName(
-  //         Multiplier Function(Logic a, Logic b,
-  //                 {Config? selectSignedMultiplicandConfig,
-  //                 Config? selectSignedMultiplierConfig})
-  //             fn,
-  //         Logic a,
-  //         Logic b,
-  //         Config? selectSignedMultiplicandConfig,
-  //         Config? selectSignedMultiplierConfig) =>
-  //     fn(a, b,
-  //             selectSignedMultiplicandConfig: selectSignedMultiplicandConfig,
-  //             selectSignedMultiplierConfig: selectSignedMultiplierConfig)
-  //         .name;
+// @visibleForTesting
+// class MultiplyOnly extends MultiplyAccumulate {
+//   // static String _genName(
+//   //         Multiplier Function(Logic a, Logic b,
+//   //                 {Config? selectSignedMultiplicandConfig,
+//   //                 Config? selectSignedMultiplierConfig})
+//   //             fn,
+//   //         Logic a,
+//   //         Logic b,
+//   //         Config? selectSignedMultiplicandConfig,
+//   //         Config? selectSignedMultiplierConfig) =>
+//   //     fn(a, b,
+//   //             selectSignedMultiplicandConfig: selectSignedMultiplicandConfig,
+//   //             selectSignedMultiplierConfig: selectSignedMultiplierConfig)
+//   //         .name;
 
-  /// Construct a MultiplyAccumulate that only multiplies to enable
-  /// using the same tester with zero accumulate addend [c].
-  MultiplyOnly(
-    super.a,
-    super.b,
-    super.c,
-    Multiplier Function(Logic a, Logic b,
-            {Logic? selectSignedMultiplicand, Logic? selectSignedMultiplier})
-        mulGen, {
-    super.signedMultiplicandConfig,
-    super.signedMultiplierConfig,
-    super.signedAddendConfig,
-  }) // Will be overrwridden by multiplyGenerator
-  : super(
-            // ignore: prefer_interpolation_to_compose_strings
-            name: 'Multiply Only: '
-            // +
-            //     _genName(mulGen, a, b, selectSignedMultiplicandConfig,
-            //         selectSignedMultiplier)
-            ) {
-    final multiply = mulGen(a, b,
-        selectSignedMultiplicand: selectSignedMultiplicand,
-        selectSignedMultiplier: selectSignedMultiplier);
+//   /// Construct a MultiplyAccumulate that only multiplies to enable
+//   /// using the same tester with zero accumulate addend [c].
+//   MultiplyOnly(
+//     super.a,
+//     super.b,
+//     super.c,
+//     Multiplier Function(Logic a, Logic b,
+//             {Logic? selectSignedMultiplicand, Logic? selectSignedMultiplier})
+//         mulGen, {
+//     super.signedMultiplicandConfig,
+//     super.signedMultiplierConfig,
+//     super.signedAddendConfig,
+//   }) // Will be overrwridden by multiplyGenerator
+//   : super(
+//             // ignore: prefer_interpolation_to_compose_strings
+//             name: 'Multiply Only: '
+//             // +
+//             //     _genName(mulGen, a, b, selectSignedMultiplicandConfig,
+//             //         selectSignedMultiplier)
+//             ) {
+//     final multiply = mulGen(a, b,
+//         selectSignedMultiplicand: selectSignedMultiplicand,
+//         selectSignedMultiplier: selectSignedMultiplier);
 
-    accumulate <=
-        mux(
-            // ignore: invalid_use_of_protected_member
-            multiply.isProductSigned,
-            multiply.product.signExtend(accumulate.width),
-            multiply.product.zeroExtend(accumulate.width));
-  }
-}
+//     accumulate <=
+//         mux(
+//             // ignore: invalid_use_of_protected_member
+//             multiply.isProductSigned,
+//             multiply.product.signExtend(accumulate.width),
+//             multiply.product.zeroExtend(accumulate.width));
+//   }
+// }
 
 /// A subclass of [MultiplyAccumulate] which ignores the third ([c]) accumulate
 /// term and applies the multiplier function.
 @visibleForTesting
-class MultiplyOnly2 extends MultiplyAccumulate {
+class MultiplyOnly extends MultiplyAccumulate {
   // static String _genName(
   //         Multiplier Function(Logic a, Logic b,
   //                 {Logic? selectSignedMultiplicand,
@@ -327,7 +327,7 @@ class MultiplyOnly2 extends MultiplyAccumulate {
 
   /// Construct a MultiplyAccumulate that only multiplies to enable
   /// using the same tester with zero accumulate addend [c].
-  MultiplyOnly2(
+  MultiplyOnly(
     super.a,
     super.b,
     super.c,
