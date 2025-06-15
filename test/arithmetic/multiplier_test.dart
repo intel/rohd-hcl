@@ -55,13 +55,13 @@ extension TestMultiplierAccumulateSignage on MultiplyAccumulate {
 }
 
 /// Simple multiplier to demonstrate instantiation of CompressionTreeMultiplier.
-class SimpleMultiplier2 extends Multiplier {
+class SimpleMultiplier extends Multiplier {
   /// The output of the simple multiplier
   @override
   Logic get product => output('product');
 
   /// Construct a simple multiplier with runtime sign operation
-  SimpleMultiplier2(Logic a, Logic b, Config? signedMultiplicandConfig,
+  SimpleMultiplier(Logic a, Logic b, Config? signedMultiplicandConfig,
       Config? signedMultiplierConfig)
       : super(a, b) {
     final mult = CompressionTreeMultiplier(a, b, 4,
@@ -178,84 +178,91 @@ typedef MultiplyAccumulateCallback = MultiplyAccumulate Function(
     Logic a, Logic b, Logic c);
 
 typedef MultiplierCallback = Multiplier Function(Logic a, Logic b,
-    {Logic? selectSignedMultiplicand, Logic? selectSignedMultiplier});
-
-typedef MultiplierCallback2 = Multiplier Function(Logic a, Logic b,
     {Config? signedMultiplicandConfig, Config? signedMultiplierConfig});
+
+String _signedMD(Config? mdConfig) => (mdConfig == null)
+    ? ''
+    : (mdConfig.runtimeConfig != null)
+        ? 'SSD_'
+        : mdConfig.staticConfig!
+            ? 'SD_'
+            : 'UD_';
+String _signedML(Config? mlConfig) => (mlConfig == null)
+    ? ''
+    : mlConfig.runtimeConfig != null
+        ? 'SSM_'
+        : mlConfig.staticConfig
+            ? 'SM_'
+            : 'UM_';
+
+MultiplierCallback curryCompressionTreeMultiplier(int radix,
+    {SignExtensionFunction seGen = CompactRectSignExtension.new,
+    Adder Function(Logic a, Logic b, {Logic? carryIn, String name}) adderGen =
+        NativeAdder.new,
+    Config? signedMultiplicandConfig,
+    Config? signedMultiplierConfig}) {
+  String adderName(Logic a, Logic b) => '${adderGen(a, b).name}_W${a.width}';
+  String genName(Logic a, Logic b) =>
+      seGen(PartialProductGenerator(a, b, RadixEncoder(radix))).name;
+  final signage = '${_signedMD(signedMultiplicandConfig)}'
+      '${_signedML(signedMultiplierConfig)}';
+  return (a, b, {signedMultiplicandConfig, signedMultiplierConfig}) =>
+      CompressionTreeMultiplier(a, b, radix,
+          signedMultiplicandConfig: signedMultiplicandConfig,
+          signedMultiplierConfig: signedMultiplierConfig,
+          signExtensionGen: seGen,
+          adderGen: adderGen,
+          name: 'compression_tree_multiplier_'
+              '${adderName(a, b)}_'
+              '${signage}_R${radix}_E${genName(a, b)}');
+}
+
+MultiplyAccumulateCallback curryMultiplierAsMultiplyAccumulate(int radix,
+        {SignExtensionFunction seGen = CompactRectSignExtension.new,
+        Adder Function(Logic a, Logic b, {Logic? carryIn, String name})
+            adderGen = NativeAdder.new,
+        Config? signedMultiplicandConfig,
+        Config? signedMultiplierConfig}) =>
+    (a, b, c) => MultiplyOnly(
+        a,
+        b,
+        c,
+        signedMultiplicandConfig: signedMultiplicandConfig,
+        signedMultiplierConfig: signedMultiplierConfig,
+        curryCompressionTreeMultiplier(
+          radix,
+          adderGen: adderGen,
+          seGen: seGen,
+          signedMultiplicandConfig: signedMultiplicandConfig,
+          signedMultiplierConfig: signedMultiplierConfig,
+        ));
+
+MultiplyAccumulateCallback curryMultiplyAccumulate(int radix,
+    {Adder Function(Logic a, Logic b, {Logic? carryIn, String name}) adderGen =
+        NativeAdder.new,
+    SignExtensionFunction seGen = CompactRectSignExtension.new,
+    Config? signedMultiplicandConfig,
+    Config? signedMultiplierConfig,
+    Config? signedAddendConfig}) {
+  String genName(Logic a, Logic b) =>
+      seGen(PartialProductGenerator(a, b, RadixEncoder(radix))).name;
+  final signage = '${_signedMD(signedMultiplicandConfig)}'
+      '${_signedML(signedMultiplierConfig)}';
+
+  return (a, b, c) => CompressionTreeMultiplyAccumulate(a, b, c, radix,
+      adderGen: adderGen,
+      seGen: seGen,
+      signedMultiplicandConfig: signedMultiplicandConfig,
+      signedMultiplierConfig: signedMultiplierConfig,
+      signedAddendConfig: signedAddendConfig,
+      name: 'compression_tree_mac_'
+          '${signage}_R${radix}_E${genName(a, b)}');
+}
 
 void main() {
   tearDown(() async {
     await Simulator.reset();
   });
-
-  MultiplierCallback2 curryCompressionTreeMultiplier2(int radix,
-      {SignExtensionFunction seGen = CompactRectSignExtension.new,
-      Adder Function(Logic a, Logic b, {Logic? carryIn, String name}) adderGen =
-          NativeAdder.new,
-      Config? signedMultiplicandConfig,
-      Config? signedMultiplierConfig}) {
-    String adderName(Logic a, Logic b) => adderGen(a, b).name;
-    String genName(Logic a, Logic b) =>
-        seGen(PartialProductGenerator(a, b, RadixEncoder(radix))).name;
-    // final signage = ' SD=${signedMultiplicand ? 1 : 0}'
-    //     ' SM=${signedMultiplier ? 1 : 0}'
-    //     ' SelD=${(selectSignedMultiplicand != null) ? 1 : 0}'
-    //     ' SelM=${(selectSignedMultiplier != null) ? 1 : 0}';
-    return (a, b, {signedMultiplicandConfig, signedMultiplierConfig}) =>
-        CompressionTreeMultiplier(a, b, radix,
-            signedMultiplicandConfig: signedMultiplicandConfig,
-            signedMultiplierConfig: signedMultiplierConfig,
-            signExtensionGen: seGen,
-            adderGen: adderGen,
-            name: 'Compression Tree Multiplier: '
-                '${adderName(a, b)}'
-                // '$signage R${radix}_E${genName(a, b)}');
-                'R${radix}_E${genName(a, b)}');
-  }
-
-  MultiplyAccumulateCallback curryMultiplierAsMultiplyAccumulate(int radix,
-          {SignExtensionFunction seGen = CompactRectSignExtension.new,
-          Adder Function(Logic a, Logic b, {Logic? carryIn, String name})
-              adderGen = NativeAdder.new,
-          Config? signedMultiplicandConfig,
-          Config? signedMultiplierConfig}) =>
-      (a, b, c) => MultiplyOnly(
-          a,
-          b,
-          c,
-          signedMultiplicandConfig: signedMultiplicandConfig,
-          signedMultiplierConfig: signedMultiplierConfig,
-          curryCompressionTreeMultiplier2(
-            radix,
-            adderGen: adderGen,
-            seGen: seGen,
-            signedMultiplicandConfig: signedMultiplicandConfig,
-            signedMultiplierConfig: signedMultiplierConfig,
-          ));
-
-  MultiplyAccumulateCallback curryMultiplyAccumulate2(int radix,
-      {Adder Function(Logic a, Logic b, {Logic? carryIn, String name})
-          adderGen = NativeAdder.new,
-      SignExtensionFunction seGen = CompactRectSignExtension.new,
-      Config? signedMultiplicandConfig,
-      Config? signedMultiplierConfig,
-      Config? signedAddendConfig}) {
-    String genName(Logic a, Logic b) =>
-        seGen(PartialProductGenerator(a, b, RadixEncoder(radix))).name;
-    // final signage = ' SD=${signedMultiplicand ? 1 : 0}'
-    //     ' SM=${signedMultiplier ? 1 : 0}'
-    //     ' SelD=${(selectSignedMultiplicand != null) ? 1 : 0}'
-    //     ' SelM=${(selectSignedMultiplier != null) ? 1 : 0}';
-
-    return (a, b, c) => CompressionTreeMultiplyAccumulate(a, b, c, radix,
-        adderGen: adderGen,
-        seGen: seGen,
-        signedMultiplicandConfig: signedMultiplicandConfig,
-        signedMultiplierConfig: signedMultiplierConfig,
-        signedAddendConfig: signedAddendConfig,
-        name: 'Compression Tree MAC: '
-            ' R$radix E${genName(a, b)}');
-  }
 
   test('Native multiplier sweep with signage test', () async {
     const width = 5;
@@ -281,7 +288,10 @@ void main() {
                     selectSignedMultiplier != null ? null : signedMultiplier);
             final mod = NativeMultiplier(a, b,
                 signedMultiplicandConfig: signedMultiplicandConfig,
-                signedMultiplierConfig: signedMultiplierConfig);
+                signedMultiplierConfig: signedMultiplierConfig,
+                name: 'NativeMultiplier_W${a.width}x'
+                    '${b.width}_${_signedMD(signedMultiplicandConfig)}'
+                    '${_signedML(signedMultiplierConfig)}');
 
             for (var i = 0; i < pow(2, width); i++) {
               for (var j = 0; j < pow(2, width); j++) {
@@ -306,11 +316,10 @@ void main() {
     }
   });
 
-  // TODO(desmonddak): must set variables in the enclosing
-// module, so we can't really curry
-// unless the enclosing module reads them off
-// // the passed in multiplier.
-  group('Native multiplier check2', () {
+  // TODO(desmonddak): must set variables in the enclosing module, so we can't
+  // really curry unless the enclosing module reads them off the passed in
+  // multiplier.
+  group('Native multiplier check', () {
     for (final selectSignedMultiplicand in [null, Const(0), Const(1)]) {
       // for (final selectSignedMultiplicand in [null]) {
       for (final signedMultiplicand
@@ -338,7 +347,10 @@ void main() {
                             signedMultiplierConfig}) =>
                         NativeMultiplier(a, b,
                             signedMultiplicandConfig: signedMultiplicandConfig,
-                            signedMultiplierConfig: signedMultiplierConfig)));
+                            signedMultiplierConfig: signedMultiplierConfig,
+                            name: 'NativeMultiplier_W${a.width}x${b.width}'
+                                '_${_signedMD(signedMultiplicandConfig)}'
+                                '${_signedML(signedMultiplierConfig)}')));
           }
         }
       }
@@ -444,7 +456,7 @@ void main() {
                     testMultiplyAccumulateRandom(
                         width,
                         10,
-                        curryMultiplyAccumulate2(
+                        curryMultiplyAccumulate(
                           radix,
                           adderGen: ParallelPrefixAdder.new,
                           signedMultiplicandConfig: signedMultiplicandConfig,
@@ -577,7 +589,7 @@ void main() {
     }
   });
 
-  test('trivial instantiated multiplier2', () async {
+  test('trivial instantiated multiplier', () async {
     // Using this to find trace errors when instantiating multipliers
     const dataWidth = 5;
     final av = BigInt.from(-16).toSigned(dataWidth);
@@ -597,7 +609,7 @@ void main() {
         multB,
         Logic(),
         (a, b, {signedMultiplicandConfig, signedMultiplierConfig}) =>
-            SimpleMultiplier2(
+            SimpleMultiplier(
                 a, b, signedMultiplicandConfig, signedMultiplierConfig),
         signedMultiplicandConfig:
             RuntimeConfig(signedOperands, name: 'selectSignedMultiplicand'),

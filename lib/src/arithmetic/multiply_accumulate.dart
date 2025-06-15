@@ -258,72 +258,21 @@ class CompressionTreeMultiplyAccumulate extends MultiplyAccumulate {
 
 /// A subclass of [MultiplyAccumulate] which ignores the third ([c]) accumulate
 /// term and applies the multiplier function.
-// @visibleForTesting
-// class MultiplyOnly extends MultiplyAccumulate {
-//   // static String _genName(
-//   //         Multiplier Function(Logic a, Logic b,
-//   //                 {Config? selectSignedMultiplicandConfig,
-//   //                 Config? selectSignedMultiplierConfig})
-//   //             fn,
-//   //         Logic a,
-//   //         Logic b,
-//   //         Config? selectSignedMultiplicandConfig,
-//   //         Config? selectSignedMultiplierConfig) =>
-//   //     fn(a, b,
-//   //             selectSignedMultiplicandConfig: selectSignedMultiplicandConfig,
-//   //             selectSignedMultiplierConfig: selectSignedMultiplierConfig)
-//   //         .name;
-
-//   /// Construct a MultiplyAccumulate that only multiplies to enable
-//   /// using the same tester with zero accumulate addend [c].
-//   MultiplyOnly(
-//     super.a,
-//     super.b,
-//     super.c,
-//     Multiplier Function(Logic a, Logic b,
-//             {Logic? selectSignedMultiplicand, Logic? selectSignedMultiplier})
-//         mulGen, {
-//     super.signedMultiplicandConfig,
-//     super.signedMultiplierConfig,
-//     super.signedAddendConfig,
-//   }) // Will be overrwridden by multiplyGenerator
-//   : super(
-//             // ignore: prefer_interpolation_to_compose_strings
-//             name: 'Multiply Only: '
-//             // +
-//             //     _genName(mulGen, a, b, selectSignedMultiplicandConfig,
-//             //         selectSignedMultiplier)
-//             ) {
-//     final multiply = mulGen(a, b,
-//         selectSignedMultiplicand: selectSignedMultiplicand,
-//         selectSignedMultiplier: selectSignedMultiplier);
-
-//     accumulate <=
-//         mux(
-//             // ignore: invalid_use_of_protected_member
-//             multiply.isProductSigned,
-//             multiply.product.signExtend(accumulate.width),
-//             multiply.product.zeroExtend(accumulate.width));
-//   }
-// }
-
-/// A subclass of [MultiplyAccumulate] which ignores the third ([c]) accumulate
-/// term and applies the multiplier function.
 @visibleForTesting
 class MultiplyOnly extends MultiplyAccumulate {
-  // static String _genName(
-  //         Multiplier Function(Logic a, Logic b,
-  //                 {Logic? selectSignedMultiplicand,
-  //                 Logic? selectSignedMultiplier})
-  //             fn,
-  //         Logic a,
-  //         Logic b,
-  //         Logic? selectSignedMultiplicand,
-  //         Logic? selectSignedMultiplier) =>
-  //     fn(a, b,
-  //             selectSignedMultiplicand: selectSignedMultiplicand,
-  //             selectSignedMultiplier: selectSignedMultiplier)
-  //         .name;
+  static String _genName(
+          Multiplier Function(Logic a, Logic b,
+                  {Config? signedMultiplicandConfig,
+                  Config? signedMultiplierConfig})
+              fn,
+          Logic a,
+          Logic b,
+          Config? signedMultiplicandConfig,
+          Config? signedMultiplierConfig) =>
+      fn(a, b,
+              signedMultiplicandConfig: signedMultiplicandConfig,
+              signedMultiplierConfig: signedMultiplierConfig)
+          .name;
 
   /// Construct a MultiplyAccumulate that only multiplies to enable
   /// using the same tester with zero accumulate addend [c].
@@ -340,11 +289,9 @@ class MultiplyOnly extends MultiplyAccumulate {
   }) // Will be overrwridden by multiplyGenerator
   : super(
             // ignore: prefer_interpolation_to_compose_strings
-            name: 'Multiply Only2: '
-            // +
-            //     _genName(mulGen, a, b, selectSignedMultiplicand,
-            //         selectSignedMultiplier)
-            ) {
+            name: 'multiply_only_' +
+                _genName(mulGen, a, b, signedMultiplicandConfig,
+                    signedMultiplierConfig)) {
     // Here we need to copy the Config and make sure we access our module's
     // input by calling .logic(this) on the runtimeConfig.
     final multiply = mulGen(a, b,

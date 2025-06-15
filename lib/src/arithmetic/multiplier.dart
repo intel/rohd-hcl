@@ -76,6 +76,18 @@ class RuntimeConfig extends Config {
       : super(runtimeConfig: runtimeConfig, staticConfig: null);
 }
 
+String _signedMD(Config? mdConfig) => (mdConfig == null)
+    ? ''
+    : (mdConfig.runtimeConfig != null)
+        ? 'SSD_'
+        : 'SD_';
+
+String _signedML(Config? mlConfig) => (mlConfig == null)
+    ? ''
+    : mlConfig.runtimeConfig != null
+        ? 'SSM_'
+        : 'SM_';
+
 /// An abstract class for all multiplier implementations.
 abstract class Multiplier extends Module {
   /// The clk for pipelining the multiplication.
@@ -155,8 +167,9 @@ abstract class Multiplier extends Module {
       super.name = 'multiplier',
       String? definitionName})
       : super(
-            definitionName:
-                definitionName ?? 'Multiplier_W${a.width}x${b.width}') {
+            definitionName: definitionName ??
+                '${b.width}_$_signedMD(signedMultiplicandConfig)}'
+                    '$_signedML(signedMultiplicandConfig)}') {
     this.clk = (clk != null) ? addInput('clk', clk) : null;
     this.reset = (reset != null) ? addInput('reset', reset) : null;
     this.enable = (enable != null) ? addInput('enable', enable) : null;
@@ -191,7 +204,10 @@ class NativeMultiplier extends Multiplier {
       super.signedMultiplicandConfig,
       super.signedMultiplierConfig,
       super.name = 'native_multiplier'})
-      : super(definitionName: 'NativeMultiplier_W${a.width}') {
+      : super(
+            definitionName: 'NativeMultiplier_W${a.width}x'
+                '${b.width}_$_signedMD(signedMultiplicandConfig)}'
+                '$_signedML(signedMultiplicandConfig)}') {
     if (a.width != b.width) {
       throw RohdHclException('inputs of a and b should have same width.');
     }
@@ -260,7 +276,7 @@ class CompressionTreeMultiplier extends Multiplier {
       : super(
             definitionName: 'CompressionTreeMultiplier_W${a.width}x'
                 '${b.width}_$_signedMD(signedMultiplicandConfig)}'
-                '$_signedML(signedMultiplicandConfig)}'
+                '$_signedML(signedMultiplicandConfig)}_'
                 'with${adderGen(a, a).definitionName}') {
     final pp = PartialProduct(a, b, RadixEncoder(radix),
         selectSignedMultiplicand: selectSignedMultiplicand,
@@ -278,15 +294,4 @@ class CompressionTreeMultiplier extends Multiplier {
     final adder = adderGen(compressor.add0, compressor.add1);
     product <= adder.sum.slice(a.width + b.width - 1, 0);
   }
-  static String _signedMD(Config? mdConfig) => (mdConfig == null)
-      ? ''
-      : (mdConfig.runtimeConfig != null)
-          ? 'SSD_'
-          : 'SD_';
-
-  static String _signedML(Config? mlConfig) => (mlConfig == null)
-      ? ''
-      : mlConfig.runtimeConfig != null
-          ? 'SSM_'
-          : 'SM_';
 }
