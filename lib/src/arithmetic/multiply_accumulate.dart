@@ -110,12 +110,6 @@ abstract class MultiplyAccumulate extends Module {
       this.signedMultiplicandConfig,
       this.signedMultiplierConfig,
       this.signedAddendConfig,
-      // this.signedMultiplicand = false,
-      // this.signedMultiplier = false,
-      // this.signedAddend = false,
-      // Logic? selectSignedMultiplicand,
-      // Logic? selectSignedMultiplier,
-      // Logic? selectSignedAddend,
       super.name = 'multiply_accumulate',
       String? definitionName})
       : super(
@@ -137,16 +131,6 @@ abstract class MultiplyAccumulate extends Module {
 
     signedAddendConfig?.runtime(this);
     signedAddend = signedAddendConfig?.staticConfig ?? false;
-
-    // selectSignedMultiplicand = (selectSignedMultiplicand != null)
-    //     ? addInput('selectSignedMultiplicand', selectSignedMultiplicand)
-    //     : null;
-    // selectSignedMultiplier = (selectSignedMultiplier != null)
-    //     ? addInput('selectSignedMultiplier', selectSignedMultiplier)
-    //     : null;
-    // selectSignedAddend = (selectSignedAddend != null)
-    //     ? addInput('selectSignedAddend', selectSignedAddend)
-    //     : null;
     addOutput('accumulate', width: a.width + b.width + 1);
 
     addOutput('isAccumulateSigned') <=

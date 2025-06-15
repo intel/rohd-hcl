@@ -40,6 +40,18 @@ class Config {
     }
   }
 
+  /// Factory constructor to create a [Config] instance from a dynamic.
+  factory Config.ofDynamic(dynamic config) {
+    if (config is Logic) {
+      return RuntimeConfig(config, name: config.name);
+    } else if (config is bool) {
+      return BooleanConfig(staticConfig: config);
+    } else {
+      throw RohdHclException(
+          'Unsupported configuration type: ${config.runtimeType}');
+    }
+  }
+
   /// Return a bool representing the value of the configuration.
   @visibleForTesting
   bool get value =>
