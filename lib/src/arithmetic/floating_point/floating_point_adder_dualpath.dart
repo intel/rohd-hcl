@@ -30,6 +30,7 @@ class FloatingPointAdderDualPath<FpTypeIn extends FloatingPoint,
       super.clk,
       super.reset,
       super.enable,
+      super.outSum,
       super.roundingMode = FloatingPointRoundingMode.roundNearestEven,
       Adder Function(Logic a, Logic b, {Logic? carryIn, String name}) adderGen =
           NativeAdder.new,
