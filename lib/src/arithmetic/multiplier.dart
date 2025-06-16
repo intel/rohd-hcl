@@ -42,10 +42,14 @@ class Config {
 
   /// Factory constructor to create a [Config] instance from a dynamic.
   factory Config.ofDynamic(dynamic config) {
-    if (config is Logic) {
-      return RuntimeConfig(config, name: config.name);
+    if (config is Config) {
+      return config;
     } else if (config is bool) {
       return BooleanConfig(staticConfig: config);
+    } else if (config == null) {
+      return BooleanConfig(staticConfig: null);
+    } else if (config is Logic) {
+      return RuntimeConfig(config, name: config.name);
     } else {
       throw RohdHclException(
           'Unsupported configuration type: ${config.runtimeType}');
@@ -60,16 +64,17 @@ class Config {
 
   /// Return the internal [Logic] signal that represents the configuration,
   /// either static or runtime.
-  Logic logic(Module module) =>
-      staticConfig ? Const(1) : (tryInput(module) ?? Const(0));
+  Logic getLogic(Module module) =>
+      staticConfig ? Const(1) : (tryRuntimeInput(module) ?? Const(0));
 
   /// Construct and return a [Logic]? that is a true input to the [module]
   /// if this is a runtime configuration signal.
-  Logic? runtime(Module module) =>
-      (runtimeConfig != null) ? module.addInput(name, runtimeConfig!) : null;
+  Logic? getRuntimeInput(Module module) => (runtimeConfig != null)
+      ? tryRuntimeInput(module) ?? module.addInput(name, runtimeConfig!)
+      : null;
 
   /// Returns a [Logic]? that represents the module internalruntime input.
-  Logic? tryInput(Module module) =>
+  Logic? tryRuntimeInput(Module module) =>
       runtimeConfig != null ? module.tryInput(name) : null;
 }
 
@@ -127,11 +132,11 @@ abstract class Multiplier extends Module {
 
   /// Configuration for signed multiplicand [a].
   @protected
-  final Config? signedMultiplicandConfig;
+  late final Config? signedMultiplicandConfig;
 
   /// Configuration for signed multiplier [b].
   @protected
-  final Config? signedMultiplierConfig;
+  late final Config? signedMultiplierConfig;
 
   /// The multiplier treats input [a] always as a signed input.
   @protected
@@ -145,12 +150,13 @@ abstract class Multiplier extends Module {
   /// multiplicand [a].
   @protected
   Logic? get selectSignedMultiplicand =>
-      signedMultiplicandConfig?.tryInput(this);
+      signedMultiplicandConfig?.tryRuntimeInput(this);
 
   /// If not null, use this signal to select between signed and unsigned
   /// multiplier [b]
   @protected
-  Logic? get selectSignedMultiplier => signedMultiplierConfig?.tryInput(this);
+  Logic? get selectSignedMultiplier =>
+      signedMultiplierConfig?.tryRuntimeInput(this);
 
   /// Logic that tells us [product] is signed.
   @protected
@@ -159,13 +165,13 @@ abstract class Multiplier extends Module {
   /// Take input [a] and input [b] and return the [product] of the
   /// multiplication result.
   ///
-  /// [signedMultiplicandConfig] parameter configures the multiplicand [a] as a
-  /// signed multiplicand (default is unsigned) or a runtime configurable
-  /// [selectSignedMultiplicand] input.
+  /// The optional [signedMultiplicandParam] parameter configures the
+  /// multiplicand [a] as a signed multiplicand (default is unsigned) or with a
+  /// runtime configurable [selectSignedMultiplicand] input.
   ///
-  /// [signedMultiplierConfig] parameter configures the multiplier [b] as a
-  /// signed multiplier (default is unsigned) or a runtime configurable
-  /// [selectSignedMultiplier] input.
+  /// The optional [signedMultiplierParam] parameter configures the multiplier
+  /// [b] as a signed multiplier (default is unsigned) or with a runtime
+  /// configurable [selectSignedMultiplier] input.
   ///
   /// If [clk] is not null then a set of flops are used to make the multiply a
   /// 2-cycle latency operation. [reset] and [enable] are optional inputs to
@@ -174,8 +180,8 @@ abstract class Multiplier extends Module {
       {Logic? clk,
       Logic? reset,
       Logic? enable,
-      this.signedMultiplicandConfig,
-      this.signedMultiplierConfig,
+      dynamic signedMultiplicandParam,
+      dynamic signedMultiplierParam,
       super.name = 'multiplier',
       String? definitionName})
       : super(
@@ -188,19 +194,22 @@ abstract class Multiplier extends Module {
     a = addInput('a', a, width: a.width);
     b = addInput('b', b, width: b.width);
 
-    signedMultiplicandConfig?.runtime(this);
+    signedMultiplicandConfig = Config.ofDynamic(signedMultiplicandParam);
+    signedMultiplierConfig = Config.ofDynamic(signedMultiplierParam);
+
+    signedMultiplicandConfig?.getRuntimeInput(this);
     signedMultiplicand = signedMultiplicandConfig?.staticConfig ?? false;
 
-    signedMultiplierConfig?.runtime(this);
+    signedMultiplierConfig?.getRuntimeInput(this);
     signedMultiplier = signedMultiplierConfig?.staticConfig ?? false;
 
     addOutput('product', width: a.width + b.width);
     addOutput('isProductSigned') <=
         ((signedMultiplicandConfig != null
-                ? signedMultiplicandConfig!.logic(this)
+                ? signedMultiplicandConfig!.getLogic(this)
                 : Const(0)) |
             (signedMultiplierConfig != null
-                ? signedMultiplierConfig!.logic(this)
+                ? signedMultiplierConfig!.getLogic(this)
                 : Const(0)));
   }
 }
@@ -213,8 +222,8 @@ class NativeMultiplier extends Multiplier {
       {super.clk,
       super.reset,
       super.enable,
-      super.signedMultiplicandConfig,
-      super.signedMultiplierConfig,
+      super.signedMultiplicandParam,
+      super.signedMultiplierParam,
       super.name = 'native_multiplier'})
       : super(
             definitionName: 'NativeMultiplier_W${a.width}x'
@@ -277,8 +286,8 @@ class CompressionTreeMultiplier extends Multiplier {
       {super.clk,
       super.reset,
       super.enable,
-      super.signedMultiplicandConfig,
-      super.signedMultiplierConfig,
+      super.signedMultiplicandParam,
+      super.signedMultiplierParam,
       Adder Function(Logic a, Logic b, {Logic? carryIn}) adderGen =
           NativeAdder.new,
       PartialProductSignExtension Function(PartialProductGeneratorBase pp,

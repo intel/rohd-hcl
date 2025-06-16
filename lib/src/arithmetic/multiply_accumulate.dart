@@ -47,15 +47,15 @@ abstract class MultiplyAccumulate extends Module {
 
   /// Configuration for signed multiplicand [a].
   @protected
-  final Config? signedMultiplicandConfig;
+  late final Config? signedMultiplicandConfig;
 
   /// Configuration for signed multiplier [b].
   @protected
-  final Config? signedMultiplierConfig;
+  late final Config? signedMultiplierConfig;
 
   /// Configuration for signed addend [c].
   @protected
-  final Config? signedAddendConfig;
+  late final Config? signedAddendConfig;
 
   /// The MAC treats multiplicand [a] as always signed.
   @protected
@@ -73,43 +73,44 @@ abstract class MultiplyAccumulate extends Module {
   /// multiplicand [a].
   @protected
   Logic? get selectSignedMultiplicand =>
-      signedMultiplicandConfig?.tryInput(this);
+      signedMultiplicandConfig?.tryRuntimeInput(this);
 
   /// If not null, use this signal to select between signed and unsigned
   /// multiplier [b]
   @protected
-  Logic? get selectSignedMultiplier => signedMultiplierConfig?.tryInput(this);
+  Logic? get selectSignedMultiplier =>
+      signedMultiplierConfig?.tryRuntimeInput(this);
 
   /// If not null, use this signal to select between signed and unsigned
   /// multiplier [b]
   @protected
-  Logic? get selectSignedAddend => signedAddendConfig?.tryInput(this);
+  Logic? get selectSignedAddend => signedAddendConfig?.tryRuntimeInput(this);
 
   /// Logic that tells us [accumulate] is signed.
   @protected
   Logic get isAccumulateSigned => output('isAccumulateSigned');
 
-  /// Take input [a] and input [b], compute their
-  /// product, add input [c] to produce the [accumulate] result.
+  /// Take input [a] and input [b], compute their product, add input [c] to
+  /// produce the [accumulate] result.
   ///
-  /// Optional [selectSignedMultiplicand] allows for runtime configuration of
-  /// signed or unsigned operation, overriding the [signedMultiplicand] static
-  /// configuration.
+  /// The optional [signedMultiplicandParam] parameter configures the
+  /// multiplicand [a] as a signed multiplicand (default is unsigned) or with a
+  /// runtime configurable [selectSignedMultiplicand] input.
   ///
-  /// Optional [selectSignedMultiplier] allows for runtime configuration of
-  /// signed or unsigned operation, overriding the [signedMultiplier] static
-  /// configuration.
+  /// The optional [signedMultiplierParam] parameter configures the multiplier
+  /// [b] as a signed multiplier (default is unsigned) or with a runtime
+  /// configurable [selectSignedMultiplier] input.
   ///
-  /// Optional [selectSignedAddend] allows for runtime configuration of
-  /// signed or unsigned operation, overriding the [signedAddend] static
-  /// configuration.
+  /// The optional [signedAddendParam] parameter configures the addend [c] as a
+  /// signed addend (default is unsigned) or with a runtime configurable
+  /// [selectSignedAddend] input.
   MultiplyAccumulate(Logic a, Logic b, Logic c,
       {Logic? clk,
       Logic? reset,
       Logic? enable,
-      this.signedMultiplicandConfig,
-      this.signedMultiplierConfig,
-      this.signedAddendConfig,
+      dynamic signedMultiplicandParam,
+      dynamic signedMultiplierParam,
+      dynamic signedAddendParam,
       super.name = 'multiply_accumulate',
       String? definitionName})
       : super(
@@ -123,25 +124,29 @@ abstract class MultiplyAccumulate extends Module {
     b = addInput('b', b, width: b.width);
     c = addInput('c', c, width: c.width);
 
-    signedMultiplicandConfig?.runtime(this);
+    signedMultiplicandConfig = Config.ofDynamic(signedMultiplicandParam);
+    signedMultiplierConfig = Config.ofDynamic(signedMultiplierParam);
+    signedAddendConfig = Config.ofDynamic(signedAddendParam);
+
+    signedMultiplicandConfig?.getRuntimeInput(this);
     signedMultiplicand = signedMultiplicandConfig?.staticConfig ?? false;
 
-    signedMultiplierConfig?.runtime(this);
+    signedMultiplierConfig?.getRuntimeInput(this);
     signedMultiplier = signedMultiplierConfig?.staticConfig ?? false;
 
-    signedAddendConfig?.runtime(this);
+    signedAddendConfig?.getRuntimeInput(this);
     signedAddend = signedAddendConfig?.staticConfig ?? false;
     addOutput('accumulate', width: a.width + b.width + 1);
 
     addOutput('isAccumulateSigned') <=
         ((signedMultiplicandConfig != null
-                ? signedMultiplicandConfig!.logic(this)
+                ? signedMultiplicandConfig!.getLogic(this)
                 : Const(0)) |
             (signedMultiplierConfig != null
-                ? signedMultiplierConfig!.logic(this)
+                ? signedMultiplierConfig!.getLogic(this)
                 : Const(0)) |
             (signedAddendConfig != null
-                ? signedAddendConfig!.logic(this)
+                ? signedAddendConfig!.getLogic(this)
                 : Const(0)));
   }
 }
@@ -154,29 +159,8 @@ class CompressionTreeMultiplyAccumulate extends MultiplyAccumulate {
   /// [a] and [b] are the product terms, [c] is the accumulate term which
   /// must be the sum of the widths plus 1.
   ///
-  /// [signedMultiplicand] parameter configures the multiplicand [a] as
-  /// always signed (default is unsigned).
-  ///
-  /// [signedMultiplier] parameter configures the multiplier [b] as
-  /// always signed (default is unsigned).
-  ///
-  /// [signedAddend] parameter configures the addend [c] as
-  /// always signed (default is unsigned).
-  ///
   /// Sign extension methodology is defined by the partial product generator
   /// supplied via [seGen].
-  ///
-  /// Optional [selectSignedMultiplicand] allows for runtime configuration of
-  /// signed or unsigned operation, overriding the [signedMultiplicand] static
-  /// configuration.
-  ///
-  /// Optional [selectSignedMultiplier] allows for runtime configuration of
-  /// signed or unsigned operation, overriding the [signedMultiplier] static
-  /// configuration.
-  ///
-  /// Optional [selectSignedAddend] allows for runtime configuration of
-  /// signed or unsigned operation, overriding the [signedAddend] static
-  /// configuration.
   ///
   /// If [clk] is not null then a set of flops are used to latch the output
   /// after compression.  [reset] and [enable] are optional
@@ -186,9 +170,9 @@ class CompressionTreeMultiplyAccumulate extends MultiplyAccumulate {
       {Logic? clk,
       Logic? reset,
       Logic? enable,
-      super.signedMultiplicandConfig,
-      super.signedMultiplierConfig,
-      super.signedAddendConfig,
+      super.signedMultiplicandParam,
+      super.signedMultiplierParam,
+      super.signedAddendParam,
       Adder Function(Logic a, Logic b, {Logic? carryIn}) adderGen =
           NativeAdder.new,
       PartialProductSignExtension Function(PartialProductGeneratorBase pp,
@@ -246,16 +230,16 @@ class CompressionTreeMultiplyAccumulate extends MultiplyAccumulate {
 class MultiplyOnly extends MultiplyAccumulate {
   static String _genName(
           Multiplier Function(Logic a, Logic b,
-                  {Config? signedMultiplicandConfig,
-                  Config? signedMultiplierConfig})
+                  {dynamic signedMultiplicandParam,
+                  dynamic signedMultiplierParam})
               fn,
           Logic a,
           Logic b,
-          Config? signedMultiplicandConfig,
-          Config? signedMultiplierConfig) =>
+          dynamic signedMultiplicandParam,
+          dynamic signedMultiplierParam) =>
       fn(a, b,
-              signedMultiplicandConfig: signedMultiplicandConfig,
-              signedMultiplierConfig: signedMultiplierConfig)
+              signedMultiplicandParam: signedMultiplicandParam,
+              signedMultiplierParam: signedMultiplierParam)
           .name;
 
   /// Construct a MultiplyAccumulate that only multiplies to enable
@@ -265,32 +249,32 @@ class MultiplyOnly extends MultiplyAccumulate {
     super.b,
     super.c,
     Multiplier Function(Logic a, Logic b,
-            {Config? signedMultiplicandConfig, Config? signedMultiplierConfig})
+            {dynamic signedMultiplicandParam, dynamic signedMultiplierParam})
         mulGen, {
-    super.signedMultiplicandConfig,
-    super.signedMultiplierConfig,
-    super.signedAddendConfig,
+    super.signedMultiplicandParam,
+    super.signedMultiplierParam,
+    super.signedAddendParam,
   }) // Will be overrwridden by multiplyGenerator
   : super(
             // ignore: prefer_interpolation_to_compose_strings
             name: 'multiply_only_' +
-                _genName(mulGen, a, b, signedMultiplicandConfig,
-                    signedMultiplierConfig)) {
+                _genName(mulGen, a, b, signedMultiplicandParam,
+                    signedMultiplierParam)) {
     // Here we need to copy the Config and make sure we access our module's
     // input by calling .logic(this) on the runtimeConfig.
     final multiply = mulGen(a, b,
-        signedMultiplicandConfig: Config(
+        signedMultiplicandParam: Config(
             name: 'selectSignedMultiplicand',
             runtimeConfig: signedMultiplicandConfig?.runtimeConfig != null
-                ? signedMultiplicandConfig?.logic(this)
+                ? signedMultiplicandConfig?.getLogic(this)
                 : null,
             staticConfig: signedMultiplicandConfig?.runtimeConfig == null
                 ? signedMultiplicandConfig?.staticConfig
                 : null),
-        signedMultiplierConfig: Config(
+        signedMultiplierParam: Config(
             name: 'selectSignedMultiplier',
             runtimeConfig: signedMultiplierConfig?.runtimeConfig != null
-                ? signedMultiplierConfig?.logic(this)
+                ? signedMultiplierConfig?.getLogic(this)
                 : null,
             staticConfig: signedMultiplierConfig?.runtimeConfig == null
                 ? signedMultiplierConfig?.staticConfig
