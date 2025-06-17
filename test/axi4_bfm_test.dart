@@ -1189,15 +1189,13 @@ void main() {
   });
 
   test('protection writes and read', () async {
-    await runTest(
-        Axi4BfmProtWriteReadTest('prot', ranges: [
-          AxiAddressRange(
-              start: LogicValue.ofInt(0x0, 32),
-              end: LogicValue.ofInt(0x1000, 32),
-              isPrivileged: true,
-              isSecure: true)
-        ]),
-        dumpWaves: true);
+    await runTest(Axi4BfmProtWriteReadTest('prot', ranges: [
+      AxiAddressRange(
+          start: LogicValue.ofInt(0x0, 32),
+          end: LogicValue.ofInt(0x1000, 32),
+          isPrivileged: true,
+          isSecure: true)
+    ]));
   });
 
   test('read-modify-write flow', () async {
