@@ -1143,7 +1143,7 @@ void main() {
 
   setUp(() async {
     // Set the logger level
-    // Logger.root.level = Level.SEVERE;
+    Logger.root.level = Level.OFF;
   });
 
   Future<void> runTest(Axi4BfmTest axi4BfmTest,
