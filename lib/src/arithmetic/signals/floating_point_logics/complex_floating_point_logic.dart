@@ -35,10 +35,24 @@ class ComplexFloatingPoint extends LogicStructure {
           name: name,
         );
 
-  ComplexFloatingPoint.of(Logic input,
-      {required int exponentWidth, required int mantissaWidth, super.name}) {
-    this <= input;
-  }
+  ComplexFloatingPoint.of(
+    Logic input, {
+    required int exponentWidth,
+    required int mantissaWidth,
+    String? name,
+  }) : this._internal(
+            realPart: FloatingPoint(
+              exponentWidth: exponentWidth,
+              mantissaWidth: mantissaWidth,
+              name: _nameJoin(name, 're'),
+            )..gets(input.getRange(0, 1 + exponentWidth + mantissaWidth)),
+            imaginaryPart: FloatingPoint(
+              exponentWidth: exponentWidth,
+              mantissaWidth: mantissaWidth,
+              name: _nameJoin(name, 'im'),
+            )..gets(
+                input.getRange(1 + exponentWidth + mantissaWidth, input.width)),
+            name: name);
 
   ComplexFloatingPoint._internal(
       {required this.realPart, required this.imaginaryPart, super.name})

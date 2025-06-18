@@ -9,8 +9,8 @@ class Butterfly extends Module {
   final ComplexFloatingPoint inB;
   final ComplexFloatingPoint twiddleFactor;
 
-  late final outA = inA.clone()..gets(output('outA'));
-  late final outB = inA.clone()..gets(output('outB'));
+  final outA;
+  final outB;
 
   Butterfly(
       {required this.inA,
