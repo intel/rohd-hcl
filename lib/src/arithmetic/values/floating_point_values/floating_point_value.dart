@@ -447,6 +447,9 @@ class FloatingPointValue implements Comparable<FloatingPointValue> {
 
   /// Addition operation for [FloatingPointValue].
   FloatingPointValue operator +(FloatingPointValue addend) {
+    if (isNaN | addend.isNaN) {
+      return clonePopulator().nan;
+    }
     if (isAnInfinity) {
       if (addend.isAnInfinity) {
         if (sign != addend.sign) {

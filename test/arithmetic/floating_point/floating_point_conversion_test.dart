@@ -17,6 +17,7 @@ void main() {
     final fv1 = FloatingPointValue.ofBinaryStrings('0', '010', '1111');
     final exponentWidth = fv1.exponent.width;
     final mantissaWidth = fv1.mantissa.width;
+
     final fp1 = FloatingPoint(
         exponentWidth: exponentWidth, mantissaWidth: mantissaWidth);
 
@@ -282,7 +283,6 @@ void main() {
       final computed = convert.destination.floatingPointValue;
 
       expect(computed, equals(fp2.floatingPointValue));
-
       expect(computed, equals(expected), reason: '''
                               $fv1 (${fv1.toDouble()})\t=>
                               $computed (${computed.toDouble()})\tcomputed
@@ -308,7 +308,6 @@ void main() {
       final computed = convert.destination.floatingPointValue;
 
       expect(computed, equals(fp2.floatingPointValue));
-
       expect(computed, equals(expected), reason: '''
                               $fv1 (${fv1.toDouble()})\t=>
                               $computed (${computed.toDouble()})\tcomputed
