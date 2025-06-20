@@ -553,8 +553,9 @@ void main() {
         exponentWidth: exponentWidth, mantissaWidth: mantissaWidth);
     FloatingPointValue ofString(String s) =>
         FloatingPointValue.ofSpacedBinaryString(s);
-    FloatingPointValuePopulator fpvPopulator() => FloatingPointValue.populator(
-        exponentWidth: exponentWidth, mantissaWidth: mantissaWidth);
+    FloatingPointValuePopulator fpvOutPopulator() =>
+        FloatingPointValue.populator(
+            exponentWidth: exponentWidth, mantissaWidth: outMantissaWidth);
 
     final fp1 = fpConstructor();
     final fp2 = fpConstructor();
@@ -563,6 +564,7 @@ void main() {
 
     final fpout = FloatingPoint(
         exponentWidth: exponentWidth, mantissaWidth: outMantissaWidth);
+
     fp1.put(fv1);
     fp2.put(fv2);
     final adder = FloatingPointAdderSinglePath(fp1, fp2, outSum: fpout);
@@ -570,8 +572,8 @@ void main() {
 
     final expectedDouble = fv1.toDouble() + fv2.toDouble();
 
-    final expectedRound = fpvPopulator().ofDouble(expectedDouble);
-    final expectedNoRound = fpvPopulator().ofDoubleUnrounded(expectedDouble);
+    final expectedRound = fpvOutPopulator().ofDouble(expectedDouble);
+    final expectedNoRound = fpvOutPopulator().ofDoubleUnrounded(expectedDouble);
 
     expect(computed, equals(expectedRound), reason: '''
       $fv1 (${fv1.toDouble()})\t+
@@ -595,6 +597,9 @@ void main() {
     for (final outMantissaWidth in [6, 7, 8, 9, 15]) {
       final fpout = FloatingPoint(
           exponentWidth: exponentWidth, mantissaWidth: outMantissaWidth);
+      FloatingPointValuePopulator fpvOutPopulator() =>
+          FloatingPointValue.populator(
+              exponentWidth: exponentWidth, mantissaWidth: outMantissaWidth);
       fp1.put(0);
       fp2.put(0);
       final adder = FloatingPointAdderSinglePath(fp1, fp2, outSum: fpout);
@@ -613,8 +618,9 @@ void main() {
 
                 final computed = adder.sum.floatingPointValue;
                 final dbl = fv1.toDouble() + fv2.toDouble();
-                final expectedNoRound = fpvPopulator().ofDoubleUnrounded(dbl);
-                final expectedRound = fpvPopulator().ofDouble(dbl);
+                final expectedNoRound =
+                    fpvOutPopulator().ofDoubleUnrounded(dbl);
+                final expectedRound = fpvOutPopulator().ofDouble(dbl);
                 expect(computed, equals(expectedRound), reason: '''
       $fv1 (${fv1.toDouble()})\t+
       $fv2 (${fv2.toDouble()})\t=
