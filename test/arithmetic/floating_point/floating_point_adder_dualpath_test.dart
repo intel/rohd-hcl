@@ -212,14 +212,12 @@ void main() {
       final expectedNoRound =
           fpvPopulator().ofDoubleUnrounded(fv1.toDouble() + fv2.toDouble());
 
-      final FloatingPointValue expected;
       final expectedRound = fv1 + fv2;
-      if (((fv1.exponent.toInt() - fv2.exponent.toInt()).abs() < 2) &
-          (fv1.sign.toInt() != fv2.sign.toInt())) {
-        expected = expectedNoRound;
-      } else {
-        expected = expectedRound;
-      }
+      final expected =
+          (((fv1.exponent.toInt() - fv2.exponent.toInt()).abs() < 2) &
+                  (fv1.sign.toInt() != fv2.sign.toInt()))
+              ? expectedNoRound
+              : expectedRound;
       final adder = FloatingPointAdderDualPath(fp1, fp2);
 
       final computed = adder.sum.floatingPointValue;
@@ -244,14 +242,12 @@ void main() {
       final expectedNoRound =
           fpvPopulator().ofDoubleUnrounded(fv1.toDouble() + fv2.toDouble());
 
-      final FloatingPointValue expected;
       final expectedRound = fv1 + fv2;
-      if (((fv1.exponent.toInt() - fv2.exponent.toInt()).abs() < 2) &
-          (fv1.sign.toInt() != fv2.sign.toInt())) {
-        expected = expectedNoRound;
-      } else {
-        expected = expectedRound;
-      }
+      final expected =
+          (((fv1.exponent.toInt() - fv2.exponent.toInt()).abs() < 2) &
+                  (fv1.sign.toInt() != fv2.sign.toInt()))
+              ? expectedNoRound
+              : expectedRound;
       final adder = FloatingPointAdderDualPath(clk: clk, fp1, fp2);
       await adder.build();
       unawaited(Simulator.run());
@@ -287,13 +283,11 @@ void main() {
                 final computed = adder.sum.floatingPointValue;
                 final dbl = fv1.toDouble() + fv2.toDouble();
 
-                final FloatingPointValue expected;
-                if ((subtract == 1) &
-                    ((fv1.exponent.toInt() - fv2.exponent.toInt()).abs() < 2)) {
-                  expected = fpvPopulator().ofDoubleUnrounded(dbl);
-                } else {
-                  expected = fpvPopulator().ofDouble(dbl);
-                }
+                final expected =
+                    (((fv1.exponent.toInt() - fv2.exponent.toInt()).abs() < 2) &
+                            (fv1.sign.toInt() != fv2.sign.toInt()))
+                        ? fpvPopulator().ofDoubleUnrounded(dbl)
+                        : fv1 + fv2;
 
                 expect(computed, equals(expected), reason: '''
       $fv1 (${fv1.toDouble()})\t+
@@ -361,15 +355,13 @@ void main() {
     final expectedNoRound = FloatingPointValue.populator(
             exponentWidth: eWidth, mantissaWidth: mWidth)
         .ofDoubleUnrounded(fv1.toDouble() + fv2.toDouble());
-
-    final FloatingPointValue expected;
     final expectedRound = fv1 + fv2;
-    if (((fv1.exponent.toInt() - fv2.exponent.toInt()).abs() < 2) &
-        (fv1.sign.toInt() != fv2.sign.toInt())) {
-      expected = expectedNoRound;
-    } else {
-      expected = expectedRound;
-    }
+
+    final expected =
+        (((fv1.exponent.toInt() - fv2.exponent.toInt()).abs() < 2) &
+                (fv1.sign.toInt() != fv2.sign.toInt()))
+            ? expectedNoRound
+            : expectedRound;
     final adder = FloatingPointAdderDualPath(
         clk: clk, fa, fb, adderGen: ParallelPrefixAdder.new);
     await adder.build();
