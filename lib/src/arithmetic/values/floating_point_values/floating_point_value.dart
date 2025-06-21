@@ -153,88 +153,16 @@ class FloatingPointValue implements Comparable<FloatingPointValue> {
     }
   }
 
-  // TODO(desmonddak): toRadixString() would be useful, not limited to binary
-
-  /// Return the set of [LogicValue]s for a given [FloatingPointConstants] at a
-  /// given [exponentWidth] and [mantissaWidth].
-  ///
-  /// This is a good function to override if constants behave specially in
-  /// subclases.
+  /// Returns a tuple of [LogicValue]s for the sign, exponent, and mantissa
+  /// components of a special constant, or `null` if the constant does not have
+  /// special components.This is useful for constants like NaN, Infinity, etc in
+  /// certain types of floating point representations.
   @protected
-  ({LogicValue sign, LogicValue exponent, LogicValue mantissa})
-      getConstantComponents(FloatingPointConstants constantFloatingPoint) {
-    final (
-      String signStr,
-      String exponentStr,
-      String mantissaStr
-    ) stringComponents;
-
-    switch (constantFloatingPoint) {
-      // smallest possible number
-      case FloatingPointConstants.negativeInfinity:
-        stringComponents = ('1', '1' * exponentWidth, '0' * mantissaWidth);
-
-      // -0.0
-      case FloatingPointConstants.negativeZero:
-        stringComponents = ('1', '0' * exponentWidth, '0' * mantissaWidth);
-
-      // 0.0
-      case FloatingPointConstants.positiveZero:
-        stringComponents = ('0', '0' * exponentWidth, '0' * mantissaWidth);
-
-      // Smallest possible number, most exponent negative, LSB set in mantissa
-      case FloatingPointConstants.smallestPositiveSubnormal:
-        stringComponents =
-            ('0', '0' * exponentWidth, '${'0' * (mantissaWidth - 1)}1');
-
-      // Largest possible subnormal, most negative exponent, mantissa all 1s
-      case FloatingPointConstants.largestPositiveSubnormal:
-        stringComponents = ('0', '0' * exponentWidth, '1' * mantissaWidth);
-
-      // Smallest possible positive number, most negative exponent, mantissa 0
-      case FloatingPointConstants.smallestPositiveNormal:
-        stringComponents =
-            ('0', '${'0' * (exponentWidth - 1)}1', '0' * mantissaWidth);
-
-      // Largest number smaller than one
-      case FloatingPointConstants.largestLessThanOne:
-        stringComponents =
-            ('0', '0${'1' * (exponentWidth - 2)}0', '1' * mantissaWidth);
-
-      // The number '1.0'
-      case FloatingPointConstants.one:
-        stringComponents =
-            ('0', '0${'1' * (exponentWidth - 1)}', '0' * mantissaWidth);
-
-      // Smallest number greater than one
-      case FloatingPointConstants.smallestLargerThanOne:
-        stringComponents = (
-          '0',
-          '0${'1' * (exponentWidth - 2)}0',
-          '${'0' * (mantissaWidth - 1)}1'
-        );
-
-      // Largest positive number, most positive exponent, full mantissa
-      case FloatingPointConstants.largestNormal:
-        stringComponents =
-            ('0', '${'1' * (exponentWidth - 1)}0', '1' * mantissaWidth);
-
-      // Largest possible number
-      case FloatingPointConstants.positiveInfinity:
-        stringComponents = ('0', '1' * exponentWidth, '0' * mantissaWidth);
-
-      // Not a Number (NaN)
-      case FloatingPointConstants.nan:
-        stringComponents =
-            ('0', '1' * exponentWidth, '${'0' * (mantissaWidth - 1)}1');
-    }
-
-    return (
-      sign: LogicValue.of(stringComponents.$1),
-      exponent: LogicValue.of(stringComponents.$2),
-      mantissa: LogicValue.of(stringComponents.$3)
-    );
-  }
+  @visibleForOverriding
+  ({LogicValue sign, LogicValue exponent, LogicValue mantissa})?
+      getSpecialConstantComponents(
+              FloatingPointConstants constantFloatingPoint) =>
+          null;
 
   @override
   int get hashCode => sign.hashCode ^ exponent.hashCode ^ mantissa.hashCode;

@@ -14,9 +14,12 @@ import 'package:test/test.dart';
 
 void main() {
   test('FP: singleton conversion wide to narrow exponent', () async {
-    final fv1 = FloatingPointValue.ofBinaryStrings('0', '010', '1111');
-    final exponentWidth = fv1.exponent.width;
-    final mantissaWidth = fv1.mantissa.width;
+    const exponentWidth = 3;
+    const mantissaWidth = 4;
+
+    final fv1 = FloatingPointValue.populator(
+            exponentWidth: exponentWidth, mantissaWidth: mantissaWidth)
+        .ofBinaryStrings('0', '010', '1111');
 
     final fp1 = FloatingPoint(
         exponentWidth: exponentWidth, mantissaWidth: mantissaWidth);
@@ -52,9 +55,12 @@ void main() {
   });
 
   test('FP: singleton conversion narrow to wide exponent', () {
-    final fv1 = FloatingPointValue.ofBinaryStrings('0', '010', '1111');
-    final exponentWidth = fv1.exponent.width;
-    final mantissaWidth = fv1.mantissa.width;
+    const exponentWidth = 3;
+    const mantissaWidth = 4;
+
+    final fv1 = FloatingPointValue.populator(
+            exponentWidth: exponentWidth, mantissaWidth: mantissaWidth)
+        .ofBinaryStrings('0', '010', '1111');
     final fp1 = FloatingPoint(
         exponentWidth: exponentWidth, mantissaWidth: mantissaWidth);
 
@@ -336,7 +342,11 @@ void main() {
       const delta = -1;
 
       FloatingPointValue ofExplicitString(String s) =>
-          FloatingPointValue.ofSpacedBinaryString(s, explicitJBit: true);
+          FloatingPointValue.populator(
+                  exponentWidth: exponentWidth,
+                  mantissaWidth: mantissaWidth,
+                  explicitJBit: true)
+              .ofSpacedBinaryString(s);
 
       final fpj = FloatingPoint(
           exponentWidth: exponentWidth,
@@ -419,8 +429,9 @@ expected:   $expected ${expected.toDouble()}
       const mantissaWidth = 6;
       const delta = -2;
 
-      FloatingPointValue ofString(String s) =>
-          FloatingPointValue.ofSpacedBinaryString(s);
+      FloatingPointValue ofString(String s) => FloatingPointValue.populator(
+              exponentWidth: exponentWidth, mantissaWidth: mantissaWidth)
+          .ofSpacedBinaryString(s);
 
       final fpj = FloatingPoint(
           exponentWidth: exponentWidth, mantissaWidth: mantissaWidth);
@@ -499,7 +510,11 @@ expected:   $fpv
       const delta = -2;
 
       FloatingPointValue ofExplicitString(String s) =>
-          FloatingPointValue.ofSpacedBinaryString(s, explicitJBit: true);
+          FloatingPointValue.populator(
+                  exponentWidth: exponentWidth,
+                  mantissaWidth: mantissaWidth,
+                  explicitJBit: true)
+              .ofSpacedBinaryString(s);
 
       final fpj = FloatingPoint(
           exponentWidth: exponentWidth,

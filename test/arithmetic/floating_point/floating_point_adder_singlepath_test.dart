@@ -25,10 +25,10 @@ void main() {
     const mantissaWidth = 18;
     FloatingPoint fpConstructor() => FloatingPoint(
         exponentWidth: exponentWidth, mantissaWidth: mantissaWidth);
-    FloatingPointValue ofString(String s) =>
-        FloatingPointValue.ofSpacedBinaryString(s);
     FloatingPointValuePopulator fpvPopulator() => FloatingPointValue.populator(
         exponentWidth: exponentWidth, mantissaWidth: mantissaWidth);
+    FloatingPointValue ofString(String s) =>
+        fpvPopulator().ofSpacedBinaryString(s);
 
     final fv1 = ofString('0 0000 101011100101000000');
     final fv2 = ofString('1 0001 100100101111011100');
@@ -151,8 +151,8 @@ void main() {
 
     FloatingPointValuePopulator fpvPopulator() => FloatingPointValue.populator(
         exponentWidth: exponentWidth, mantissaWidth: mantissaWidth);
-    final fv1 = FloatingPointValue.ofSpacedBinaryString('0 0000 0001');
-    final fv2 = FloatingPointValue.ofSpacedBinaryString('1 0000 0000');
+    final fv1 = fpvPopulator().ofSpacedBinaryString('0 0000 0001');
+    final fv2 = fpvPopulator().ofSpacedBinaryString('1 0000 0000');
 
     fp1.put(fv1);
     fp2.put(fv2);
@@ -272,10 +272,10 @@ void main() {
     final fp1 = fpConstructor();
     final fp2 = fpConstructor();
 
-    FloatingPointValue ofString(String s) =>
-        FloatingPointValue.ofSpacedBinaryString(s);
     FloatingPointValuePopulator fpvPopulator() => FloatingPointValue.populator(
         exponentWidth: exponentWidth, mantissaWidth: mantissaWidth);
+    FloatingPointValue ofString(String s) =>
+        fpvPopulator().ofSpacedBinaryString(s);
 
     fp1.put(0);
     fp2.put(0);
@@ -551,8 +551,10 @@ void main() {
     const outMantissaWidth = 20;
     FloatingPoint fpConstructor() => FloatingPoint(
         exponentWidth: exponentWidth, mantissaWidth: mantissaWidth);
+    FloatingPointValuePopulator fpvPopulator() => FloatingPointValue.populator(
+        exponentWidth: exponentWidth, mantissaWidth: mantissaWidth);
     FloatingPointValue ofString(String s) =>
-        FloatingPointValue.ofSpacedBinaryString(s);
+        fpvPopulator().ofSpacedBinaryString(s);
     FloatingPointValuePopulator fpvOutPopulator() =>
         FloatingPointValue.populator(
             exponentWidth: exponentWidth, mantissaWidth: outMantissaWidth);
@@ -645,13 +647,12 @@ void main() {
             exponentWidth: exponentWidth,
             mantissaWidth: mantissaWidth,
             explicitJBit: explicitJBit);
+    FloatingPointValue ofString(String s, {bool explicitJBit = false}) =>
+        fpvPopulator(explicitJBit: explicitJBit).ofSpacedBinaryString(s);
     FloatingPoint fpConstructor({required bool explicitJBit}) => FloatingPoint(
         exponentWidth: exponentWidth,
         mantissaWidth: mantissaWidth,
         explicitJBit: explicitJBit);
-
-    FloatingPointValue ofString(String s, {bool explicitJBit = false}) =>
-        FloatingPointValue.ofSpacedBinaryString(s, explicitJBit: explicitJBit);
 
     test('FP: simple adder mixed explicit/implicit j-bit IO singleton', () {
       const input1ExplicitJBit = false;
