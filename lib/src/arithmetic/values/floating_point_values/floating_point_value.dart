@@ -112,29 +112,6 @@ class FloatingPointValue implements Comparable<FloatingPointValue> {
         .._exponentWidth = exponentWidth
         .._mantissaWidth = mantissaWidth);
 
-  /// A wrapper around [FloatingPointValuePopulator.ofString] that computes the
-  /// widths of the exponent and mantissa from the input string.
-  factory FloatingPointValue.ofBinaryStrings(
-          String sign, String exponent, String mantissa,
-          {bool explicitJBit = false}) =>
-      populator(
-              exponentWidth: exponent.length,
-              mantissaWidth: mantissa.length,
-              explicitJBit: explicitJBit)
-          .ofBinaryStrings(sign, exponent, mantissa);
-
-  /// A wrapper around [FloatingPointValuePopulator.ofSpacedBinaryString] that
-  /// computes the widths of the exponent and mantissa from the input string.
-  factory FloatingPointValue.ofSpacedBinaryString(String fp,
-      {bool explicitJBit = false}) {
-    final split = fp.split(' ');
-    return populator(
-            exponentWidth: split[1].length,
-            mantissaWidth: split[2].length,
-            explicitJBit: explicitJBit)
-        .ofSpacedBinaryString(fp);
-  }
-
   /// Validate the [FloatingPointValue] to ensure widths and other
   /// characteristics are legal.
   @protected
