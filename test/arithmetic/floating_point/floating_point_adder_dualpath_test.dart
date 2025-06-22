@@ -303,6 +303,139 @@ void main() {
     });
   });
 
+  group('FP: dual-path adder DAZ/FTZ tests', () {
+    const exponentWidth = 3;
+    const mantissaWidth = 3;
+    final expLimit = pow(2, exponentWidth).toInt();
+    final mantLimit = pow(2, mantissaWidth).toInt();
+    FloatingPoint fpConstructor({bool subNormalAsZero = false}) =>
+        FloatingPoint(
+            exponentWidth: exponentWidth,
+            mantissaWidth: mantissaWidth,
+            subNormalAsZero: subNormalAsZero);
+    FloatingPointValuePopulator fpvPopulator({bool subNormalAsZero = false}) =>
+        FloatingPointValue.populator(
+            exponentWidth: exponentWidth,
+            mantissaWidth: mantissaWidth,
+            subNormalAsZero: subNormalAsZero);
+
+    test('FP: dual-path adder DAZ/FTZ test singleton', () {
+      for (final subtract in [0, 1]) {
+        for (final daz1 in [false, true]) {
+          for (final daz2 in [false, true]) {
+            for (final ftz in [false, true]) {
+              final fp1 = fpConstructor(subNormalAsZero: daz1);
+              final fp2 = fpConstructor(subNormalAsZero: daz2);
+              final fpOut = fpConstructor(subNormalAsZero: ftz);
+
+              fp1.put(0);
+              fp2.put(0);
+              final adder = FloatingPointAdderDualPath(fp1, fp2, outSum: fpOut);
+              const e1 = 0;
+              const m1 = 6;
+              const e2 = 0;
+              const m2 = 7;
+
+              final fv1 = fpvPopulator(subNormalAsZero: daz1).ofInts(e1, m1);
+              final fv2 = fpvPopulator(subNormalAsZero: daz2)
+                  .ofInts(e2, m2, sign: subtract == 1);
+
+              fp1.put(fv1.value);
+              fp2.put(fv2.value);
+              // This will interpret the adder.sum value as
+              // a FloatingPointValue without the sumNormalAsZero
+              // property set, so we can validate it is indeed zero.
+              final computed = fpvPopulator()
+                  .ofFloatingPointValue(adder.sum.floatingPointValue);
+
+              final dbl = fv1.toDouble() + fv2.toDouble();
+
+              final expectedNoRound =
+                  fpvPopulator(subNormalAsZero: ftz).ofDoubleUnrounded(dbl);
+              final expectedRound =
+                  fpvPopulator(subNormalAsZero: ftz).ofDouble(dbl);
+
+              final expected =
+                  (((fv1.exponent.toInt() - fv2.exponent.toInt()).abs() < 2) &
+                          (fv1.sign.toInt() != fv2.sign.toInt()))
+                      ? expectedNoRound
+                      : expectedRound;
+              expect(computed.isNaN, equals(expected.isNaN));
+              expect(computed, equals(expected), reason: '''
+      daz1: $daz1, daz2: $daz2    ftz: $ftz
+      $fv1 (${fv1.toDouble()})\t+
+      $fv2 (${fv2.toDouble()})\t=
+      $computed (${computed.toDouble()})\tcomputed
+      $expected (${expected.toDouble()})\texpected
+''');
+            }
+          }
+        }
+      }
+    });
+
+    test('FP: dual-path adder DAZ/FTZ test exhaustive', () {
+      for (final subtract in [0, 1]) {
+        for (final daz1 in [false, true]) {
+          for (final daz2 in [false, true]) {
+            for (final ftz in [false, true]) {
+              final fp1 = fpConstructor(subNormalAsZero: daz1);
+              final fp2 = fpConstructor(subNormalAsZero: daz2);
+              final fpOut = fpConstructor(subNormalAsZero: ftz);
+
+              fp1.put(0);
+              fp2.put(0);
+              final adder = FloatingPointAdderDualPath(fp1, fp2, outSum: fpOut);
+              for (var e1 = 0; e1 < expLimit; e1++) {
+                for (var m1 = 0; m1 < mantLimit; m1++) {
+                  final fv1 =
+                      fpvPopulator(subNormalAsZero: daz1).ofInts(e1, m1);
+                  for (var e2 = 0; e2 < expLimit; e2++) {
+                    for (var m2 = 0; m2 < mantLimit; m2++) {
+                      final fv2 = fpvPopulator(subNormalAsZero: daz2)
+                          .ofInts(e2, m2, sign: subtract == 1);
+
+                      fp1.put(fv1.value);
+                      fp2.put(fv2.value);
+                      // This will interpret the adder.sum value as
+                      // a FloatingPointValue without the sumNormalAsZero
+                      // property set, so we can validate it is indeed zero.
+                      final computed = fpvPopulator()
+                          .ofFloatingPointValue(adder.sum.floatingPointValue);
+
+                      final dbl = fv1.toDouble() + fv2.toDouble();
+
+                      final expectedNoRound = fpvPopulator(subNormalAsZero: ftz)
+                          .ofDoubleUnrounded(dbl);
+                      final expectedRound =
+                          fpvPopulator(subNormalAsZero: ftz).ofDouble(dbl);
+
+                      final expected =
+                          (((fv1.exponent.toInt() - fv2.exponent.toInt())
+                                          .abs() <
+                                      2) &
+                                  (fv1.sign.toInt() != fv2.sign.toInt()))
+                              ? expectedNoRound
+                              : expectedRound;
+                      expect(computed.isNaN, equals(expected.isNaN));
+                      expect(computed, equals(expected), reason: '''
+      daz1: $daz1, daz2: $daz2, ftz: $ftz
+      $fv1 (${fv1.toDouble()})\t+
+      $fv2 (${fv2.toDouble()})\t=
+      $computed (${computed.toDouble()})\tcomputed
+      $expected (${expected.toDouble()})\texpected
+''');
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    });
+  });
+
   test('FP: dual-path adder full random wide', () async {
     const exponentWidth = 11;
     const mantissaWidth = 52;

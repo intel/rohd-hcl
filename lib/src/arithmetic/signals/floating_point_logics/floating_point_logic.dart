@@ -39,6 +39,7 @@ class FloatingPoint extends LogicStructure {
       {required int exponentWidth,
       required int mantissaWidth,
       bool explicitJBit = false,
+      bool subNormalAsZero = false,
       String? name})
       : this._(
             Logic(name: _nameJoin(name, 'sign'), naming: Naming.mergeable),
@@ -51,10 +52,12 @@ class FloatingPoint extends LogicStructure {
                 name: _nameJoin(name, 'mantissa'),
                 naming: Naming.mergeable),
             explicitJBit,
+            subNormalAsZero,
             name: name);
 
   /// [FloatingPoint] internal constructor.
   FloatingPoint._(this.sign, this.exponent, this.mantissa, this._explicitJBit,
+      this._subNormalAsZero,
       {super.name})
       : super([mantissa, exponent, sign]);
 
@@ -64,6 +67,7 @@ class FloatingPoint extends LogicStructure {
         exponentWidth: exponent.width,
         mantissaWidth: mantissa.width,
         explicitJBit: explicitJBit,
+        subNormalAsZero: subNormalAsZero,
         name: name,
       );
 
@@ -73,12 +77,16 @@ class FloatingPoint extends LogicStructure {
   FloatingPointValuePopulator valuePopulator() => FloatingPointValue.populator(
       exponentWidth: exponent.width,
       mantissaWidth: mantissa.width,
-      explicitJBit: explicitJBit);
+      explicitJBit: explicitJBit,
+      subNormalAsZero: subNormalAsZero);
 
   /// Return true if the J-bit is explicitly represented in the mantissa.
   bool get explicitJBit => _explicitJBit;
-
   late final bool _explicitJBit;
+
+  /// Return true if subnormal numbers are represented as zero.
+  bool get subNormalAsZero => _subNormalAsZero;
+  late final bool _subNormalAsZero;
 
   /// Return the [FloatingPointValue] of the current [value].
   FloatingPointValue get floatingPointValue =>
@@ -159,6 +167,10 @@ class FloatingPoint extends LogicStructure {
       if (val.explicitJBit != explicitJBit) {
         throw RohdHclException('FloatingPoint explicit jbit does not match');
       }
+      if (val.subNormalAsZero != subNormalAsZero) {
+        throw RohdHclException(
+            'FloatingPoint subnormal as zero does not match');
+      }
       put(val.value);
     } else {
       super.put(val, fill: fill);
@@ -171,21 +183,25 @@ class FloatingPoint extends LogicStructure {
       required int mantissaWidth,
       Logic? sign,
       bool negative = false,
-      bool explicitJBit = false}) {
+      bool explicitJBit = false,
+      bool subNormalAsZero = false}) {
     final signLogic = Logic()..gets(sign ?? Const(negative));
     final exponent = Const(1, width: exponentWidth, fill: true);
     final mantissa = Const(0, width: mantissaWidth, fill: true);
-    return FloatingPoint._(signLogic, exponent, mantissa, explicitJBit);
+    return FloatingPoint._(
+        signLogic, exponent, mantissa, explicitJBit, subNormalAsZero);
   }
 
   /// Construct a FloatingPoint that represents NaN.
   factory FloatingPoint.nan(
       {required int exponentWidth,
       required int mantissaWidth,
-      bool explicitJBit = false}) {
+      bool explicitJBit = false,
+      bool subNormalAsZero = false}) {
     final signLogic = Const(0);
     final exponent = Const(1, width: exponentWidth, fill: true);
     final mantissa = Const(1, width: mantissaWidth);
-    return FloatingPoint._(signLogic, exponent, mantissa, explicitJBit);
+    return FloatingPoint._(
+        signLogic, exponent, mantissa, explicitJBit, subNormalAsZero);
   }
 }

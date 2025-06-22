@@ -53,6 +53,12 @@ class FloatingPointValue implements Comparable<FloatingPointValue> {
   /// Return true if the JBit is explicitly represented in the mantissa.
   bool get explicitJBit => _explicitJBit;
 
+  /// Treat subnormal numbers as zero.
+  late final bool _subNormalAsZero;
+
+  /// Return true if subnormal numbers are treated as zero.
+  bool get subNormalAsZero => _subNormalAsZero;
+
   /// Return the bias of this [FloatingPointValue].
   ///
   /// Representing the true zero exponent `2^0 = 1`, often termed the offset of
@@ -75,18 +81,22 @@ class FloatingPointValue implements Comparable<FloatingPointValue> {
           {required LogicValue sign,
           required LogicValue exponent,
           required LogicValue mantissa,
-          bool explicitjBit = false}) =>
+          bool explicitjBit = false,
+          bool subNormalAsZero = false}) =>
       populator(
               exponentWidth: exponent.width,
               mantissaWidth: mantissa.width,
-              explicitJBit: explicitjBit)
+              explicitJBit: explicitjBit,
+              subNormalAsZero: subNormalAsZero)
           .populate(sign: sign, exponent: exponent, mantissa: mantissa);
 
   /// Creates an unpopulated version of a [FloatingPointValue], intended to be
   /// called with the [populator].
   @protected
-  FloatingPointValue.uninitialized({bool explicitJBit = false})
-      : _explicitJBit = explicitJBit;
+  FloatingPointValue.uninitialized(
+      {bool explicitJBit = false, bool subNormalAsZero = false})
+      : _explicitJBit = explicitJBit,
+        _subNormalAsZero = subNormalAsZero;
 
   /// Creates a [FloatingPointValuePopulator] with the provided [exponentWidth]
   /// and [mantissaWidth], which can then be used to complete construction of
@@ -94,11 +104,12 @@ class FloatingPointValue implements Comparable<FloatingPointValue> {
   static FloatingPointValuePopulator populator(
           {required int exponentWidth,
           required int mantissaWidth,
-          bool explicitJBit = false}) =>
-      FloatingPointValuePopulator(
-          FloatingPointValue.uninitialized(explicitJBit: explicitJBit)
-            .._exponentWidth = exponentWidth
-            .._mantissaWidth = mantissaWidth);
+          bool explicitJBit = false,
+          bool subNormalAsZero = false}) =>
+      FloatingPointValuePopulator(FloatingPointValue.uninitialized(
+          explicitJBit: explicitJBit, subNormalAsZero: subNormalAsZero)
+        .._exponentWidth = exponentWidth
+        .._mantissaWidth = mantissaWidth);
 
   /// Creates a [FloatingPointValuePopulator] for the same type as `this` and
   /// with the same widths.
@@ -107,8 +118,9 @@ class FloatingPointValue implements Comparable<FloatingPointValue> {
   /// [FloatingPointValuePopulator] is returned for generating equivalent types
   /// of [FloatingPointValue]s.
   @mustBeOverridden
-  FloatingPointValuePopulator clonePopulator() => FloatingPointValuePopulator(
-      FloatingPointValue.uninitialized(explicitJBit: explicitJBit)
+  FloatingPointValuePopulator clonePopulator() =>
+      FloatingPointValuePopulator(FloatingPointValue.uninitialized(
+          explicitJBit: explicitJBit, subNormalAsZero: subNormalAsZero)
         .._exponentWidth = exponentWidth
         .._mantissaWidth = mantissaWidth);
 
@@ -224,7 +236,8 @@ class FloatingPointValue implements Comparable<FloatingPointValue> {
   /// and [FloatingPointConstants.negativeZero] as equal.
   bool get isAZero =>
       this == clonePopulator().positiveZero ||
-      this == clonePopulator().negativeZero;
+      this == clonePopulator().negativeZero ||
+      (subNormalAsZero && isSubnormal());
 
   /// Return the value of the floating point number in a Dart [double] type.
   double toDouble() {
@@ -237,10 +250,14 @@ class FloatingPointValue implements Comparable<FloatingPointValue> {
     var doubleVal = double.nan;
     if (value.isValid) {
       if (exponent.toInt() == 0) {
-        doubleVal = (sign.toBool() ? -1.0 : 1.0) *
-            pow(2.0, minExponent) *
-            mantissa.toBigInt().toDouble() /
-            pow(2.0, mantissa.width - (explicitJBit ? 1 : 0));
+        if (subNormalAsZero) {
+          doubleVal = 0.0;
+        } else {
+          doubleVal = (sign.toBool() ? -1.0 : 1.0) *
+              pow(2.0, minExponent) *
+              mantissa.toBigInt().toDouble() /
+              pow(2.0, mantissa.width - (explicitJBit ? 1 : 0));
+        }
       } else if (!isNaN) {
         doubleVal = (sign.toBool() ? -1.0 : 1.0) *
             ((explicitJBit ? 0.0 : 1.0) +

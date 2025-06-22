@@ -42,6 +42,9 @@ class FloatingPointValuePopulator<FpvType extends FloatingPointValue> {
   /// True if the format stores the Jbit explicitly.
   bool get explicitJBit => _unpopulated.explicitJBit;
 
+  /// True if subnormal numbers are treated as zero.
+  bool get subNormalAsZero => _unpopulated.subNormalAsZero;
+
   /// Whether or not this populator has already populated values.
   bool _hasPopulated = false;
 
@@ -457,6 +460,11 @@ class FloatingPointValuePopulator<FpvType extends FloatingPointValue> {
     final exponent =
         LogicValue.ofBigInt(BigInt.from(max(expVal, 0)), exponentWidth);
 
+    if (subNormalAsZero && expVal <= 0) {
+      // If we are subnormal, we return zero
+      mantissa = LogicValue.zero.zeroExtend(mantissaWidth);
+    }
+
     final sign = fp64.sign;
 
     return populate(
@@ -552,8 +560,9 @@ class FloatingPointValuePopulator<FpvType extends FloatingPointValue> {
     // The conversion fills leftward.
     // We reverse again after conversion.
     final exponent = LogicValue.ofInt(e + bias, exponentWidth);
-    final mantissa =
-        LogicValue.ofBigInt(fullValue.reversed.toBigInt(), mantissaWidth)
+    final mantissa = (subNormalAsZero && e + bias <= 0)
+        ? LogicValue.zero.zeroExtend(mantissaWidth)
+        : LogicValue.ofBigInt(fullValue.reversed.toBigInt(), mantissaWidth)
             .reversed;
 
     return populate(
@@ -579,8 +588,6 @@ class FloatingPointValuePopulator<FpvType extends FloatingPointValue> {
     }
     final sign = rv.nextLogicValue(width: 1);
 
-    final mantissa = rv.nextLogicValue(width: mantissaWidth);
-
     final largestExponent = bias + maxExponent;
     final LogicValue exponent;
     if (normal) {
@@ -590,6 +597,9 @@ class FloatingPointValuePopulator<FpvType extends FloatingPointValue> {
     } else {
       exponent = rv.nextLogicValue(width: exponentWidth, max: largestExponent);
     }
+    final mantissa = (subNormalAsZero & (exponent == LogicValue.zero))
+        ? LogicValue.zero.zeroExtend(mantissaWidth)
+        : rv.nextLogicValue(width: mantissaWidth);
 
     return populate(sign: sign, exponent: exponent, mantissa: mantissa);
   }

@@ -15,6 +15,40 @@ import 'package:rohd_hcl/rohd_hcl.dart';
 import 'package:test/test.dart';
 
 void main() {
+  group('FPV: subNormalAsZero', () {
+    const exponentWidth = 4;
+    const mantissaWidth = 4;
+    final expLimit = pow(2.0, exponentWidth).toInt();
+    final mantLimit = pow(2.0, mantissaWidth).toInt();
+    FloatingPointValuePopulator fpvPopulator(
+            {int exponentWidth = exponentWidth,
+            int mantissaWidth = mantissaWidth,
+            bool subNormalAsZero = false}) =>
+        FloatingPointValue.populator(
+            exponentWidth: exponentWidth,
+            mantissaWidth: mantissaWidth,
+            subNormalAsZero: subNormalAsZero);
+
+    test('FPV: subNormalAsZero exhaustive', () {
+      for (final negate in [0, 1]) {
+        for (var e1 = 0; e1 < expLimit; e1++) {
+          for (var m1 = 0; m1 < mantLimit; m1++) {
+            final fpv = fpvPopulator().ofInts(e1, m1, sign: negate == 1);
+            final fpvSaZ = fpvPopulator(subNormalAsZero: true)
+                .ofInts(e1, m1, sign: negate == 1);
+            expect(fpv.toString(), equals(fpvSaZ.toString()));
+            if (fpv.isSubnormal()) {
+              expect(fpvSaZ.toDouble(), equals(0.0));
+              expect(fpvSaZ.isAZero, true);
+            } else if (!fpv.isNaN) {
+              expect(fpvSaZ.toDouble(), equals(fpv.toDouble()));
+            }
+          }
+        }
+      }
+    });
+  });
+
   test('FPV: exhaustive round-trip', () {
     const exponentWidth = 4;
     const mantissaWidth = 4;
