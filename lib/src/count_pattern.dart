@@ -40,8 +40,8 @@ class CountPattern extends Module {
   ///
   /// Takes in [bus] of type [Logic].
   /// [pattern] is the pattern to be counted in the bus.
-  /// If [fromStart] is `true`, the search starts from the beginning of the bus.
-  /// If [fromStart] is `false`, the search starts from the end of the bus.
+  /// If [fromStart] is `true`, the count starts from the beginning of the bus.
+  /// If [fromStart] is `false`, the count starts from the end of the bus.
   CountPattern(Logic bus, Logic pattern,
       {bool fromStart = true, this.generateError = false})
       : super(definitionName: 'CountPattern_W${bus.width}_P${pattern.width}') {
