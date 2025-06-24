@@ -90,7 +90,7 @@ jobs:
         uses: flutter-actions/setup-flutter@v2
         with:
           channel: stable
-          version: 3.32.0
+          version: 3.27.0
       
       - name: Analyze flutter source
         run: tool/gh_actions/analyze_flutter_source.sh
