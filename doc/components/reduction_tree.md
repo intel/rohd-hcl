@@ -5,20 +5,20 @@ The `ReductionTree` component is a general tree generator that allows for arbitr
 The input sequence is provided in the form 'List\<Logic\>'.  The operation must be provided in the form:
 
  ```dart
- Logic Function(List<Logic> operands, {String name})
+ Logic Function(List<Logic> operands, {int? fullDepth, Logic? control, String name})
  ```
 
  This function should support operand lengths between $[2,radix]$ if the tree is to support an arbitrary length sequence: Note that the `ReductionTree` itself does not require the sequence length to be a power of the radix; it will use shorter operations to balance the tree when the sequence length is not a power of the radix.
 
 The resulting tree can be pipelined by specifying the depth of nodes before a pipestage is added.  Since the input can be of arbitrary length, paths in the tree may not be balanced, and extra pipestages will be added in shorter sections of the tree to align the computation.
 
-An optional `control` Logic can be passed in to provide control at each level of the reduction tree.
+An optional `control` Logic can be passed in to provide control at each level of the reduction tree. The optional `fullDepth` input informs this function what the depth of the tree is, which can be used to access the control.
 
 Here is an example radix-4 computation tree using native addition on 79 13-bit inputs, pipelining every 2 operations deep, and producing a single 13-bit result.
 
 ```dart
   Logic addReduce(List<Logic> inputs,
-          {int? trueDepth, Logic? control, String name = ''}) =>
+          {int? fullDepth, Logic? control, String name = ''}) =>
       inputs.reduce((v, e) => v + e);
   /// Tree reduction using addReduce
     const width = 13;
@@ -32,7 +32,7 @@ Here is an example radix-4 computation tree using native addition on 79 13-bit i
 Here is the same example radix-4 computation tree but using prefix adders on 79 13-bit inputs, pipelining every 2 operations deep, and producing a single 21-bit result, due to width-extension of the prefix adder, adding 1 bit for each addition in 7 levels of the tree.
 
   ```dart
-Logic addReduceAdders(List<Logic> inputs, {String name = 'prefix'}) {
+Logic addReduceAdders(List<Logic> inputs, {int? fullDepth, Logic? control, String name = 'prefix'}) {
   if (inputs.length < 4) {
     return inputs.reduce((v, e) => v + e);
   } else {
@@ -65,8 +65,8 @@ Logic addReduceAdders(List<Logic> inputs, {String name = 'prefix'}) {
     final control = Logic(width: log2Ceil(vec.length)));
 
     Logic muxReduce(List<Logic> inputs,
-        {int? trueDepth, Logic? control, String name = 'mux'}) =>
-      mux(control![trueDepth!], inputs[1], inputs[0]);
+        {int? fullDepth, Logic? control, String name = 'mux'}) =>
+      mux(control![fullDepth!], inputs[1], inputs[0]);
 
     final muxTree = ReductionTree(vec, muxReduce,
         clk: clk, depthToFlop: 2, control: control, name: 'mux');
