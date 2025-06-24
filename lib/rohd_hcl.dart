@@ -7,6 +7,7 @@ export 'src/binary_gray.dart';
 export 'src/clock_gating.dart';
 export 'src/component_config/component_config.dart';
 export 'src/count.dart';
+export 'src/count_pattern.dart';
 export 'src/edge_detector.dart';
 export 'src/encodings/encodings.dart';
 export 'src/error_checking/error_checking.dart';
