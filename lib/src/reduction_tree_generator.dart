@@ -1,10 +1,10 @@
 // Copyright (C) 2025 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 //
-// reduction_tree.dart
+// reduction_tree_generator.dart
 // A generator for creating tree reduction computations.
 //
-// 2025 January 10
+// 2025 June 23
 // Author: Desmond A Kirkpatrick <desmond.a.kirkpatrick@intel.com
 
 import 'dart:math';
@@ -12,13 +12,21 @@ import 'dart:math';
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
 
-/// Recursive Node for Reduction Tree
-class ReductionTree extends Module {
+/// Reduction Tree Generator that produces a recursive tree computation
+/// inline so that the [operation] can access global signals.
+class ReductionTreeGenerator {
   /// The final output of the tree computation.
-  Logic get out => output('out');
+  Logic get out => _out;
+
+  late final Logic _out;
 
   /// The control  output of the tree computation.
-  Logic? get controlOut => tryOutput('controlOut');
+  Logic? get controlOut => _controlOut;
+
+  late final Logic? _controlOut;
+
+  /// Optional [control] input to input to operation.
+  final Logic? control;
 
   /// The combinational depth since the last flop.
   int get depth => _computed.depth;
@@ -39,26 +47,20 @@ class ReductionTree extends Module {
   /// otherwise use zero-extension.
   final bool signExtend;
 
-  /// Specified depth of nodes at which to flop (requires [_clk]).
+  /// Specified depth of nodes at which to flop (requires [clk]).
   final int? depthToFlop;
 
-  /// Optional [_control] input to input to operation.
-  late final Logic? _control;
+  /// Optional [clk] input to create pipeline.
+  final Logic? clk;
 
-  /// Optional [_controlOut] output tfor propagating pipelined control.
-  late final Logic? _controlOut;
+  /// Optional [reset] input to reset pipeline.
+  final Logic? reset;
 
-  /// Optional [_clk] input to create pipeline.
-  late final Logic? _clk;
-
-  /// Optional [_reset] input to reset pipeline.
-  late final Logic? _reset;
-
-  /// Optional [_enable] input to enable pipeline.
-  late final Logic? _enable;
+  /// Optional [enable] input to enable pipeline.
+  final Logic? enable;
 
   /// The input sequence
-  late final List<Logic> _sequence;
+  late final List<Logic> sequence;
 
   /// Capture the record of compute: the final value, its depth (from last
   /// flop or input), and its flopDepth if pipelined.
@@ -66,12 +68,13 @@ class ReductionTree extends Module {
     Logic value,
     int depth,
     int fullDepth,
+    Logic? controlOut,
     int flopDepth,
   }) _computed;
 
   /// Local conditional flop using module reset/enable
   Logic _localFlop(Logic d, {bool doFlop = false}) =>
-      condFlop(doFlop ? _clk : null, reset: _reset, en: _enable, d);
+      condFlop(doFlop ? clk : null, reset: reset, en: enable, d);
 
   /// Generate a tree based on dividing the input [sequence] of a node into
   /// segments, recursively constructing [radix] child nodes to operate on each
@@ -88,41 +91,29 @@ class ReductionTree extends Module {
   ///   in the tree, otherwise use zero-extension (default).
   /// - [control] is an optional input that is passed along with the data being
   ///   reduced and passed into the operation.
-  ///
   /// Optional parameters to be used for creating a pipelined computation tree:
   /// - [clk], [reset], [enable] are optionally provided to allow for flopping.
   /// - [depthToFlop] specifies how many nodes deep separate flops.
-  ReductionTree(List<Logic> sequence, this.operation,
-      {this.radix = 2,
-      this.signExtend = false,
-      this.depthToFlop,
-      Logic? control,
-      Logic? clk,
-      Logic? enable,
-      Logic? reset,
-      super.name = 'reduction_tree'})
-      : super(
-            definitionName: 'ReductionTreeNode_R${radix}_L${sequence.length}') {
+  ReductionTreeGenerator(
+    this.sequence,
+    this.operation, {
+    this.radix = 2,
+    this.signExtend = false,
+    this.depthToFlop,
+    this.control,
+    this.clk,
+    this.enable,
+    this.reset,
+  }) {
     if (sequence.isEmpty) {
-      throw RohdHclException("Don't use ReductionTree "
+      throw RohdHclException("Don't use ReductionTreeGenerator "
           'with an empty sequence');
     }
-    _sequence = [
-      for (var i = 0; i < sequence.length; i++)
-        addInput('seq$i', sequence[i], width: sequence[i].width)
-    ];
-    _control = (control != null
-        ? addInput('control', control, width: control.width)
-        : null);
-    _clk = (clk != null) ? addInput('clk', clk) : null;
-    _enable = (enable != null) ? addInput('enable', enable) : null;
-    _reset = (reset != null) ? addInput('reset', reset) : null;
-
-    _controlOut = (control != null
-        ? addOutput('controlOut', width: control.width)
-        : null);
-
-    _buildLogic();
+    // _buildLogic();
+    _controlOut = control != null ? Logic(width: control!.width) : null;
+    _computed = reductionTreeRecurse(sequence);
+    _out = Logic(width: _computed.value.width);
+    _out <= _computed.value;
   }
 
   /// Compute the next splitting point taking into account trying to get
@@ -143,75 +134,74 @@ class ReductionTree extends Module {
   }
 
   /// Build out the recursive tree
-  void _buildLogic() {
-    if (_sequence.length <= radix) {
+  ({Logic value, int depth, int fullDepth, int flopDepth, Logic? controlOut})
+      reductionTreeRecurse(List<Logic> seq) {
+    if (seq.length <= radix) {
+      Logic? controlOut;
       if (_controlOut != null) {
-        controlOut! <= _control!;
+        controlOut = Logic(width: _controlOut!.width);
+        controlOut <= control!;
+      } else {
+        controlOut = null;
       }
-      final value =
-          operation(_sequence, fullDepth: 0, control: _control, name: 'leaf');
-      addOutput('out', width: value.width) <= value;
-      _computed = (
-        value: output('out'),
+      final value = operation(seq, fullDepth: 0, control: control);
+      return (
+        value: value,
         depth: 0,
         fullDepth: 0,
         flopDepth: 0,
+        controlOut: controlOut
       );
     } else {
-      final results = <ReductionTree>[];
+      final results = <({
+        Logic value,
+        int depth,
+        int fullDepth,
+        int flopDepth,
+        Logic? controlOut
+      })>[];
       var pos = 0;
       for (var i = 0; i < radix; i++) {
         final end1 =
-            _nextSplitDistance(_sequence.length - pos, radix, radix - i) + pos;
-        final tree = ReductionTree(
-            _sequence.getRange(pos, end1).toList(), operation,
-            radix: radix,
-            signExtend: signExtend,
-            depthToFlop: depthToFlop,
-            clk: _clk,
-            enable: _enable,
-            control: _control,
-            reset: _reset,
-            name: 'reduction_$i');
-        results.add(tree);
+            _nextSplitDistance(seq.length - pos, radix, radix - i) + pos;
+        final c = reductionTreeRecurse(seq.getRange(pos, end1).toList());
+
+        results.add(c);
         pos = end1;
       }
-      final flopDepth = results.map((c) => c._computed.flopDepth).reduce(max);
+      final flopDepth = results.map((c) => c.flopDepth).reduce(max);
       final treeDepth = results.map((c) => c.depth).reduce(max);
-      final fullDepth = results.map((c) => c._computed.fullDepth).reduce(max);
+      final fullDepth = results.map((c) => c.fullDepth).reduce(max);
 
-      final alignedResults = results.map((c) => _localFlop(c._computed.value,
-          doFlop: c._computed.flopDepth < flopDepth));
+      final alignedResults = results
+          .map((c) => _localFlop(c.value, doFlop: c.flopDepth < flopDepth));
 
       final depthFlop = (depthToFlop != null) &&
           (treeDepth > 0) & (treeDepth % depthToFlop! == 0);
-
       final resultsFlop =
           alignedResults.map((r) => _localFlop(r, doFlop: depthFlop));
 
+      Logic? controlOut;
       if (_controlOut != null) {
-        controlOut! <= _localFlop(results[0].controlOut!, doFlop: depthFlop);
+        controlOut = Logic(width: results[0].controlOut!.width);
+        controlOut <= _localFlop(results[0].controlOut!, doFlop: depthFlop);
+      } else {
+        controlOut = null;
       }
 
-      final alignWidth =
-          results.map((c) => c._computed.value.width).reduce(max);
+      final alignWidth = results.map((c) => c.value.width).reduce(max);
       final resultsExtend = resultsFlop.map((r) =>
           signExtend ? r.signExtend(alignWidth) : r.zeroExtend(alignWidth));
 
-      final thisFlopDepth = flopDepth + (depthFlop ? 1 : 0);
-      treeDepth + (depthFlop ? 1 : 0) + thisFlopDepth * (depthToFlop ?? 0);
-
       final value = operation(resultsExtend.toList(),
-          control: controlOut,
-          fullDepth: fullDepth + 1,
-          name: 'reduce_d$fullDepth');
+          control: controlOut, fullDepth: fullDepth + 1);
 
-      addOutput('out', width: value.width) <= value;
-      _computed = (
-        value: output('out'),
+      return (
+        value: value,
         depth: depthFlop ? 0 : treeDepth + 1,
         fullDepth: fullDepth + 1,
-        flopDepth: flopDepth + (depthFlop ? 1 : 0),
+        controlOut: controlOut,
+        flopDepth: flopDepth + (depthFlop ? 1 : 0)
       );
     }
   }
