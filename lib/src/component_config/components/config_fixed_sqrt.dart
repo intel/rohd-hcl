@@ -29,8 +29,8 @@ class FixedPointSqrtConfigurator extends Configurator {
 
   @override
   Map<String, ConfigKnob<dynamic>> get knobs => {
-        'm width': integerWidthKnob,
-        'n width': fractionWidthKnob,
+        'Integer Width': integerWidthKnob,
+        'Fraction Width': fractionWidthKnob,
       };
 
   @override
