@@ -31,7 +31,7 @@ class SpiSubDriver extends PendingDriver<SpiPacket> {
 
     intf.miso.inject(0);
 
-    intf.csb.negedge.listen((_) {
+    intf.csb[0].negedge.listen((_) {
       _packetHandler(loadOnly: true);
     });
 
