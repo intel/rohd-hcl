@@ -53,6 +53,15 @@ class FloatingPointMultiplierSimple<FpTypeIn extends FloatingPoint,
       throw RohdHclException('FloatingPointMultiplierSimple does not support '
           'rounding modes other than truncate (for now).');
     }
+    if (a.subNormalAsZero | b.subNormalAsZero) {
+      throw ArgumentError('FloatingPointMultiplierSimple does not '
+          'support denormal as zero (DAZ)');
+    }
+    if (internalProduct.subNormalAsZero) {
+      throw ArgumentError('FloatingPointMultiplierSimple does not '
+          'support flush to zero (FTZ)');
+    }
+
     final aMantissa = mux(a.isNormal, [a.isNormal, a.mantissa].swizzle(),
             [a.mantissa, Const(0)].swizzle())
         .named('aMantissa');
