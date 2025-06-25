@@ -100,7 +100,7 @@ class _ComponentsSidebarState extends State<ComponentsSidebar> {
             ),
           ),
           extendedTheme: const SidebarXTheme(
-            width: 200,
+            width: 250,
             decoration: BoxDecoration(
               color: canvasColor,
             ),
