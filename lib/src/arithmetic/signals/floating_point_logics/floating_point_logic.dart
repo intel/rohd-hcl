@@ -56,8 +56,8 @@ class FloatingPoint extends LogicStructure {
             name: name);
 
   /// [FloatingPoint] internal constructor.
-  FloatingPoint._(this.sign, this.exponent, this.mantissa, this._explicitJBit,
-      this._subNormalAsZero,
+  FloatingPoint._(this.sign, this.exponent, this.mantissa, this.explicitJBit,
+      this.subNormalAsZero,
       {super.name})
       : super([mantissa, exponent, sign]);
 
@@ -81,12 +81,10 @@ class FloatingPoint extends LogicStructure {
       subNormalAsZero: subNormalAsZero);
 
   /// Return true if the J-bit is explicitly represented in the mantissa.
-  bool get explicitJBit => _explicitJBit;
-  late final bool _explicitJBit;
+  final bool explicitJBit;
 
   /// Return true if subnormal numbers are represented as zero.
-  bool get subNormalAsZero => _subNormalAsZero;
-  late final bool _subNormalAsZero;
+  final bool subNormalAsZero;
 
   /// Return the [FloatingPointValue] of the current [value].
   FloatingPointValue get floatingPointValue =>

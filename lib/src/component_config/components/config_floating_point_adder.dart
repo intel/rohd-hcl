@@ -21,7 +21,7 @@ class SubNormalAsZeroSelecKnob extends GroupOfKnobs {
   final ToggleConfigKnob denormalAsZeroB = ToggleConfigKnob(value: false);
 
   /// If addition output is subnormal, flush to zero.
-  final ToggleConfigKnob flushTozero = ToggleConfigKnob(value: false);
+  final ToggleConfigKnob flushToZero = ToggleConfigKnob(value: false);
 
   /// Creates a new knob for setting up subnormal treatment.
   SubNormalAsZeroSelecKnob({super.name = 'DAZ/FTZ Selection'}) : super({});
@@ -31,7 +31,7 @@ class SubNormalAsZeroSelecKnob extends GroupOfKnobs {
   Map<String, ConfigKnob<dynamic>> get subKnobs => {
         'A DenormalAsZero': denormalAsZeroA,
         'B DenormalAsZero': denormalAsZeroB,
-        'OUT FlushToZero': flushTozero,
+        'OUT FlushToZero': flushToZero,
       };
 }
 
@@ -94,7 +94,7 @@ class FloatingPointAdderConfigurator extends Configurator {
           FloatingPoint(
               exponentWidth: exponentWidthKnob.value,
               mantissaWidth: mantissaWidthKnob.value,
-              subNormalAsZero: subNormalAsZeroSelecKnob.flushTozero.value),
+              subNormalAsZero: subNormalAsZeroSelecKnob.flushToZero.value),
           adderGen: adderSelectionKnob.selectedAdder());
 
   @override
