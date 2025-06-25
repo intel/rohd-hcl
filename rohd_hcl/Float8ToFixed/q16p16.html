@@ -73,7 +73,8 @@
     
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
-  <pre class="language-dart"><code class="language-dart">FixedPoint get q16p16 =&gt; FixedPoint.of(fixed, signed: true, m: 16, n: 16);</code></pre>
+  <pre class="language-dart"><code class="language-dart">FixedPoint get q16p16 =&gt;
+    FixedPoint.of(fixed, integerWidth: 16, fractionWidth: 16);</code></pre>
 </section>
 
   </section>

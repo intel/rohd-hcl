@@ -71,14 +71,26 @@
     throw RohdHclException(&#39;Signed values not supported&#39;);
   }
 
-  Logic solution =
-      FixedPoint(signed: a.signed, name: &#39;solution&#39;, m: a.m + 1, n: a.n + 1);
-  Logic remainder =
-      FixedPoint(signed: a.signed, name: &#39;remainder&#39;, m: a.m + 1, n: a.n + 1);
-  Logic subtractionValue =
-      FixedPoint(signed: a.signed, name: &#39;subValue&#39;, m: a.m + 1, n: a.n + 1);
-  Logic aLoc =
-      FixedPoint(signed: a.signed, name: &#39;aLoc&#39;, m: a.m + 1, n: a.n + 1);
+  Logic solution = FixedPoint(
+      signed: a.signed,
+      name: &#39;solution&#39;,
+      integerWidth: a.integerWidth + 1,
+      fractionWidth: a.fractionWidth + 1);
+  Logic remainder = FixedPoint(
+      signed: a.signed,
+      name: &#39;remainder&#39;,
+      integerWidth: a.integerWidth + 1,
+      fractionWidth: a.fractionWidth + 1);
+  Logic subtractionValue = FixedPoint(
+      signed: a.signed,
+      name: &#39;subValue&#39;,
+      integerWidth: a.integerWidth + 1,
+      fractionWidth: a.fractionWidth + 1);
+  Logic aLoc = FixedPoint(
+      signed: a.signed,
+      name: &#39;aLoc&#39;,
+      integerWidth: a.integerWidth + 1,
+      fractionWidth: a.fractionWidth + 1);
 
   solution = Const(0, width: aLoc.width).named(&#39;solution&#39;);
   remainder = Const(0, width: aLoc.width).named(&#39;remainder&#39;);

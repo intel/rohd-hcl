@@ -76,8 +76,10 @@
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">@override
 Module createModule() {
-  final inp =
-      FixedPoint(signed: false, m: mWidthKnob.value, n: nWidthKnob.value);
+  final inp = FixedPoint(
+      signed: false,
+      integerWidth: integerWidthKnob.value,
+      fractionWidth: fractionWidthKnob.value);
   return FixedPointSqrt(inp);
 }</code></pre>
 </section>

@@ -86,10 +86,16 @@ int compareTo(Object other) {
     throw RohdHclException(&#39;Inputs must be valid.&#39;);
   }
   final s = signed | other.signed;
-  final m = max(this.m, other.m);
-  final n = max(this.n, other.n);
-  final val1 = expandWidth(sign: s, m: m, n: n);
-  final val2 = other.expandWidth(sign: s, m: m, n: n);
+  final m = max(integerWidth, other.integerWidth);
+  final n = max(fractionWidth, other.fractionWidth);
+  final val1 =
+      FixedPointValue.populator(integerWidth: m, fractionWidth: n, signed: s)
+          .widen(this)
+          .value;
+  final val2 =
+      FixedPointValue.populator(integerWidth: m, fractionWidth: n, signed: s)
+          .widen(other)
+          .value;
   final comp = val1.compareTo(val2);
   if (comp == 0) {
     return comp;

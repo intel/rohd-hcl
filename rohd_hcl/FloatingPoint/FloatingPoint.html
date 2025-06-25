@@ -76,14 +76,14 @@ floating point number</p>
     bool explicitJBit = false,
     String? name})
     : this._(
-          Logic(name: _nameJoin(name, &#39;sign&#39;), naming: Naming.mergeable),
+          Logic(name: &#39;sign&#39;, naming: Naming.mergeable),
           Logic(
               width: exponentWidth,
-              name: _nameJoin(name, &#39;exponent&#39;),
+              name: &#39;exponent&#39;,
               naming: Naming.mergeable),
           Logic(
               width: mantissaWidth,
-              name: _nameJoin(name, &#39;mantissa&#39;),
+              name: &#39;mantissa&#39;,
               naming: Naming.mergeable),
           explicitJBit,
           name: name);</code></pre>

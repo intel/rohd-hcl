@@ -70,7 +70,7 @@
     
 <section class="desc markdown">
   <p>Puts a value <code>val</code> onto this signal, which may or may not be picked up
-for <a href="https://pub.dev/documentation/rohd/0.6.3/rohd/Logic/changed.html">changed</a> in this <a href="https://pub.dev/documentation/rohd/0.6.3/rohd/Simulator-class.html">Simulator</a> tick.</p>
+for <a href="https://pub.dev/documentation/rohd/0.6.3/rohd/LogicStructure/changed.html">changed</a> in this <a href="https://pub.dev/documentation/rohd/0.6.3/rohd/Simulator-class.html">Simulator</a> tick.</p>
 <p>The type of <code>val</code> should be an <code>int</code>, <a href="https://api.dart.dev/stable/3.8.1/dart-core/BigInt-class.html">BigInt</a>, <code>bool</code>, or <a href="https://pub.dev/documentation/rohd/0.6.3/rohd/LogicValue-class.html">LogicValue</a>.</p>
 <p>This function is used for propogating glitches through connected signals.
 Use this function for custom definitions of <a href="https://pub.dev/documentation/rohd/0.6.3/rohd/Module-class.html">Module</a> behavior.</p>
@@ -85,8 +85,14 @@ to <code>'</code> in SystemVerilog.</p>
   <pre class="language-dart"><code class="language-dart">@override
 void put(dynamic val, {bool fill = false}) {
   if (val is FixedPointValue) {
-    if ((signed != val.signed) | (m != val.m) | (n != val.n)) {
-      throw RohdHclException(&#39;Value is not compatible with signal.&#39;);
+    if ((signed != val.signed) |
+        (integerWidth != val.integerWidth) |
+        (fractionWidth != val.fractionWidth)) {
+      throw RohdHclException(&#39;Value is not compatible with signal. &#39;
+          &#39;Expected: signed=$signed, integerWidth=$integerWidth, &#39;
+          &#39;nWidth=$fractionWidth. &#39;
+          &#39;Got: signed=${val.signed}, fractionWidth=${val.integerWidth}, &#39;
+          &#39;nWidth=${val.fractionWidth}.&#39;);
     }
     super.put(val.value);
   } else {

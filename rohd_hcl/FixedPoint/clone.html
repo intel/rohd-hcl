@@ -76,7 +76,8 @@
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">@override
-FixedPoint clone({String? name}) =&gt; FixedPoint(signed: signed, m: m, n: n);</code></pre>
+FixedPoint clone({String? name}) =&gt; FixedPoint(
+    signed: signed, integerWidth: integerWidth, fractionWidth: fractionWidth);</code></pre>
 </section>
 
 

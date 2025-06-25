@@ -78,11 +78,19 @@ The result fraction has the max fractional width of the operands.</p>
     throw RohdHclException(&#39;Inputs must be valid.&#39;);
   }
   final s = signed | other.signed;
-  final nr = max(n, other.n);
-  final mr = max(m, other.m) + 1;
-  final val1 = expandWidth(sign: s, m: mr, n: nr);
-  final val2 = other.expandWidth(sign: s, m: mr, n: nr);
-  return FixedPointValue(value: val1 + val2, signed: s, m: mr, n: nr);
+  final nr = max(fractionWidth, other.fractionWidth);
+  final mr = max(integerWidth, other.integerWidth) + 1;
+  final val1 = FixedPointValue.populator(
+          integerWidth: mr, fractionWidth: nr, signed: s)
+      .widen(this)
+      .value;
+  final val2 = FixedPointValue.populator(
+          integerWidth: mr, fractionWidth: nr, signed: s)
+      .widen(other)
+      .value;
+  return FixedPointValue.populator(
+          integerWidth: mr, fractionWidth: nr, signed: s)
+      .ofLogicValue(val1 + val2);
 }</code></pre>
 </section>
 

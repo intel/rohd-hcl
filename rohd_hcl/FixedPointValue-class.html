@@ -92,24 +92,18 @@ Q notation (Qm.n format) as introduced by
     <h2>Constructors</h2>
     <dl class="constructor-summary-list">
         <dt id="FixedPointValue.new" class="callable">
-          <span class="name"><a href="../rohd_hcl/FixedPointValue/FixedPointValue.html">FixedPointValue.new</a></span><span class="signature">({<span class="parameter" id="-param-value"><span>required</span> <span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.3/rohd/LogicValue-class.html">LogicValue</a></span> <span class="parameter-name">value</span>, </span><span class="parameter" id="-param-signed"><span>required</span> <span class="type-annotation"><a href="https://api.dart.dev/stable/3.8.1/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">signed</span>, </span><span class="parameter" id="-param-m"><span>required</span> <span class="type-annotation"><a href="https://api.dart.dev/stable/3.8.1/dart-core/int-class.html">int</a></span> <span class="parameter-name">m</span>, </span><span class="parameter" id="-param-n"><span>required</span> <span class="type-annotation"><a href="https://api.dart.dev/stable/3.8.1/dart-core/int-class.html">int</a></span> <span class="parameter-name">n</span></span>})</span>
+          <span class="name"><a href="../rohd_hcl/FixedPointValue/FixedPointValue.html">FixedPointValue.new</a></span><span class="signature">({<span class="parameter" id="-param-integer"><span>required</span> <span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.3/rohd/LogicValue-class.html">LogicValue</a></span> <span class="parameter-name">integer</span>, </span><span class="parameter" id="-param-fraction"><span>required</span> <span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.3/rohd/LogicValue-class.html">LogicValue</a></span> <span class="parameter-name">fraction</span>, </span><span class="parameter" id="-param-signed"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.8.1/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">signed</span> = <span class="default-value">false</span></span>})</span>
         </dt>
         <dd>
           Constructs <a href="../rohd_hcl/FixedPointValue-class.html">FixedPointValue</a> from sign, integer and fraction values.
-        </dd>
-        <dt id="FixedPointValue.ofDouble" class="callable">
-          <span class="name"><a href="../rohd_hcl/FixedPointValue/FixedPointValue.ofDouble.html">FixedPointValue.ofDouble</a></span><span class="signature">(<span class="parameter" id="ofDouble-param-val"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.8.1/dart-core/double-class.html">double</a></span> <span class="parameter-name">val</span>, {</span><span class="parameter" id="ofDouble-param-signed"><span>required</span> <span class="type-annotation"><a href="https://api.dart.dev/stable/3.8.1/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">signed</span>, </span><span class="parameter" id="ofDouble-param-m"><span>required</span> <span class="type-annotation"><a href="https://api.dart.dev/stable/3.8.1/dart-core/int-class.html">int</a></span> <span class="parameter-name">m</span>, </span><span class="parameter" id="ofDouble-param-n"><span>required</span> <span class="type-annotation"><a href="https://api.dart.dev/stable/3.8.1/dart-core/int-class.html">int</a></span> <span class="parameter-name">n</span></span>})</span>
-        </dt>
-        <dd>
-          Constructs <a href="../rohd_hcl/FixedPointValue-class.html">FixedPointValue</a> from a Dart <a href="https://api.dart.dev/stable/3.8.1/dart-core/double-class.html">double</a> rounding away from zero.
             <div class="constructor-modifier features">factory</div>
         </dd>
-        <dt id="FixedPointValue.ofDoubleUnrounded" class="callable">
-          <span class="name"><a href="../rohd_hcl/FixedPointValue/FixedPointValue.ofDoubleUnrounded.html">FixedPointValue.ofDoubleUnrounded</a></span><span class="signature">(<span class="parameter" id="ofDoubleUnrounded-param-val"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.8.1/dart-core/double-class.html">double</a></span> <span class="parameter-name">val</span>, {</span><span class="parameter" id="ofDoubleUnrounded-param-signed"><span>required</span> <span class="type-annotation"><a href="https://api.dart.dev/stable/3.8.1/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">signed</span>, </span><span class="parameter" id="ofDoubleUnrounded-param-m"><span>required</span> <span class="type-annotation"><a href="https://api.dart.dev/stable/3.8.1/dart-core/int-class.html">int</a></span> <span class="parameter-name">m</span>, </span><span class="parameter" id="ofDoubleUnrounded-param-n"><span>required</span> <span class="type-annotation"><a href="https://api.dart.dev/stable/3.8.1/dart-core/int-class.html">int</a></span> <span class="parameter-name">n</span></span>})</span>
+        <dt id="FixedPointValue.uninitialized" class="callable">
+          <span class="name"><a href="../rohd_hcl/FixedPointValue/FixedPointValue.uninitialized.html">FixedPointValue.uninitialized</a></span><span class="signature">({<span class="parameter" id="uninitialized-param-signed"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.8.1/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">signed</span> = <span class="default-value">false</span></span>})</span>
         </dt>
         <dd>
-          Constructs <a href="../rohd_hcl/FixedPointValue-class.html">FixedPointValue</a> from a Dart <a href="https://api.dart.dev/stable/3.8.1/dart-core/double-class.html">double</a> without rounding.
-            <div class="constructor-modifier features">factory</div>
+          Creates an unpopulated version of a <a href="../rohd_hcl/FixedPointValue-class.html">FixedPointValue</a>, intended to be
+called with the <a href="../rohd_hcl/FixedPointValue/populator.html">populator</a>.
         </dd>
     </dl>
   </section>
@@ -119,6 +113,30 @@ Q notation (Qm.n format) as introduced by
       id="instance-properties">
     <h2>Properties</h2>
     <dl class="properties">
+        <dt id="fraction" class="property">
+  <span class="name"><a href="../rohd_hcl/FixedPointValue/fraction.html">fraction</a></span>
+  <span class="signature">&#8596; <a href="https://pub.dev/documentation/rohd/0.6.3/rohd/LogicValue-class.html">LogicValue</a></span>
+  
+
+</dt>
+<dd>
+  The fractional value portion.
+  <div class="features"><span class="feature">late</span><span class="feature">final</span></div>
+
+</dd>
+
+        <dt id="fractionWidth" class="property">
+  <span class="name"><a href="../rohd_hcl/FixedPointValue/fractionWidth.html">fractionWidth</a></span>
+  <span class="signature">&#8596; <a href="https://api.dart.dev/stable/3.8.1/dart-core/int-class.html">int</a></span>
+  
+
+</dt>
+<dd>
+  <a href="../rohd_hcl/FixedPointValue/fractionWidth.html">fractionWidth</a> is the number of bits reserved for the fractional part.
+  <div class="features"><span class="feature">late</span><span class="feature">final</span></div>
+
+</dd>
+
         <dt id="hashCode" class="property">
   <span class="name"><a href="../rohd_hcl/FixedPointValue/hashCode.html">hashCode</a></span>
   <span class="signature">&#8594; <a href="https://api.dart.dev/stable/3.8.1/dart-core/int-class.html">int</a></span>
@@ -131,27 +149,27 @@ Q notation (Qm.n format) as introduced by
 
 </dd>
 
-        <dt id="m" class="property">
-  <span class="name"><a href="../rohd_hcl/FixedPointValue/m.html">m</a></span>
-  <span class="signature">&#8594; <a href="https://api.dart.dev/stable/3.8.1/dart-core/int-class.html">int</a></span>
+        <dt id="integer" class="property">
+  <span class="name"><a href="../rohd_hcl/FixedPointValue/integer.html">integer</a></span>
+  <span class="signature">&#8596; <a href="https://pub.dev/documentation/rohd/0.6.3/rohd/LogicValue-class.html">LogicValue</a></span>
   
 
 </dt>
 <dd>
-  <a href="../rohd_hcl/FixedPointValue/m.html">m</a> is the number of bits reserved for the integer part.
-  <div class="features"><span class="feature">final</span></div>
+  The integer valuue portion.
+  <div class="features"><span class="feature">late</span><span class="feature">final</span></div>
 
 </dd>
 
-        <dt id="n" class="property">
-  <span class="name"><a href="../rohd_hcl/FixedPointValue/n.html">n</a></span>
-  <span class="signature">&#8594; <a href="https://api.dart.dev/stable/3.8.1/dart-core/int-class.html">int</a></span>
+        <dt id="integerWidth" class="property">
+  <span class="name"><a href="../rohd_hcl/FixedPointValue/integerWidth.html">integerWidth</a></span>
+  <span class="signature">&#8596; <a href="https://api.dart.dev/stable/3.8.1/dart-core/int-class.html">int</a></span>
   
 
 </dt>
 <dd>
-  <a href="../rohd_hcl/FixedPointValue/n.html">n</a> is the number of bits reserved for the fractional part.
-  <div class="features"><span class="feature">final</span></div>
+  <a href="../rohd_hcl/FixedPointValue/integerWidth.html">integerWidth</a> is the number of bits reserved for the integer part.
+  <div class="features"><span class="feature">late</span><span class="feature">final</span></div>
 
 </dd>
 
@@ -169,19 +187,19 @@ Q notation (Qm.n format) as introduced by
 
         <dt id="signed" class="property">
   <span class="name"><a href="../rohd_hcl/FixedPointValue/signed.html">signed</a></span>
-  <span class="signature">&#8594; <a href="https://api.dart.dev/stable/3.8.1/dart-core/bool-class.html">bool</a></span>
+  <span class="signature">&#8596; <a href="https://api.dart.dev/stable/3.8.1/dart-core/bool-class.html">bool</a></span>
   
 
 </dt>
 <dd>
   <a href="../rohd_hcl/FixedPointValue/signed.html">signed</a> indicates whether the representation is signed.
-  <div class="features"><span class="feature">final</span></div>
+  <div class="features"><span class="feature">late</span><span class="feature">final</span></div>
 
 </dd>
 
         <dt id="value" class="property">
   <span class="name"><a href="../rohd_hcl/FixedPointValue/value.html">value</a></span>
-  <span class="signature">&#8596; <a href="https://pub.dev/documentation/rohd/0.6.3/rohd/LogicValue-class.html">LogicValue</a></span>
+  <span class="signature">&#8594; <a href="https://pub.dev/documentation/rohd/0.6.3/rohd/LogicValue-class.html">LogicValue</a></span>
   
 
 </dt>
@@ -200,6 +218,20 @@ Q notation (Qm.n format) as introduced by
       id="instance-methods">
     <h2>Methods</h2>
     <dl class="callables">
+        <dt id="clonePopulator" class="callable">
+  <span class="name"><a href="../rohd_hcl/FixedPointValue/clonePopulator.html">clonePopulator</a></span><span class="signature">(<wbr>)
+    <span class="returntype parameter">&#8594; <a href="../rohd_hcl/FixedPointValuePopulator-class.html">FixedPointValuePopulator</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../rohd_hcl/FixedPointValue-class.html">FixedPointValue</a></span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Creates a <a href="../rohd_hcl/FixedPointValuePopulator-class.html">FixedPointValuePopulator</a> for the same type as <code>this</code> and
+with the same widths.
+  
+
+</dd>
+
         <dt id="compareTo" class="callable">
   <span class="name"><a href="../rohd_hcl/FixedPointValue/compareTo.html">compareTo</a></span><span class="signature">(<wbr><span class="parameter" id="compareTo-param-other"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.8.1/dart-core/Object-class.html">Object</a></span> <span class="parameter-name">other</span></span>)
     <span class="returntype parameter">&#8594; <a href="https://api.dart.dev/stable/3.8.1/dart-core/int-class.html">int</a></span>
@@ -224,19 +256,6 @@ and zero if <code>this</code> and <code>other</code> are equal.
 </dt>
 <dd>
   Equal-to operation that returns a LogicValue.
-  
-
-</dd>
-
-        <dt id="expandWidth" class="callable">
-  <span class="name"><a href="../rohd_hcl/FixedPointValue/expandWidth.html">expandWidth</a></span><span class="signature">(<wbr>{<span class="parameter" id="expandWidth-param-sign"><span>required</span> <span class="type-annotation"><a href="https://api.dart.dev/stable/3.8.1/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">sign</span>, </span><span class="parameter" id="expandWidth-param-m"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.8.1/dart-core/int-class.html">int</a></span> <span class="parameter-name">m</span> = <span class="default-value">0</span>, </span><span class="parameter" id="expandWidth-param-n"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.8.1/dart-core/int-class.html">int</a></span> <span class="parameter-name">n</span> = <span class="default-value">0</span></span>})
-    <span class="returntype parameter">&#8594; <a href="https://pub.dev/documentation/rohd/0.6.3/rohd/LogicValue-class.html">LogicValue</a></span>
-  </span>
-  
-
-</dt>
-<dd>
-  Expands the bit width of integer and fractional parts.
   
 
 </dd>
@@ -301,8 +320,8 @@ and zero if <code>this</code> and <code>other</code> are equal.
 
 </dt>
 <dd>
-  Return a string representation of FloatingPointValue.
-return sign, exponent, mantissa as binary strings.
+  Return a string representation of <a href="../rohd_hcl/FixedPointValue-class.html">FixedPointValue</a>.
+ return sign, integer, fraction as binary strings.
   <div class="features"><span class="feature">override</span></div>
 
 </dd>
@@ -451,16 +470,17 @@ width and divisor integer width.
   <section class="summary offset-anchor" id="static-methods">
     <h2>Static Methods</h2>
     <dl class="callables">
-        <dt id="canStore" class="callable">
-  <span class="name"><a href="../rohd_hcl/FixedPointValue/canStore.html">canStore</a></span><span class="signature">(<wbr><span class="parameter" id="canStore-param-val"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.8.1/dart-core/double-class.html">double</a></span> <span class="parameter-name">val</span>, {</span><span class="parameter" id="canStore-param-signed"><span>required</span> <span class="type-annotation"><a href="https://api.dart.dev/stable/3.8.1/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">signed</span>, </span><span class="parameter" id="canStore-param-m"><span>required</span> <span class="type-annotation"><a href="https://api.dart.dev/stable/3.8.1/dart-core/int-class.html">int</a></span> <span class="parameter-name">m</span>, </span><span class="parameter" id="canStore-param-n"><span>required</span> <span class="type-annotation"><a href="https://api.dart.dev/stable/3.8.1/dart-core/int-class.html">int</a></span> <span class="parameter-name">n</span></span>})
-    <span class="returntype parameter">&#8594; <a href="https://api.dart.dev/stable/3.8.1/dart-core/bool-class.html">bool</a></span>
+        <dt id="populator" class="callable">
+  <span class="name"><a href="../rohd_hcl/FixedPointValue/populator.html">populator</a></span><span class="signature">(<wbr>{<span class="parameter" id="populator-param-integerWidth"><span>required</span> <span class="type-annotation"><a href="https://api.dart.dev/stable/3.8.1/dart-core/int-class.html">int</a></span> <span class="parameter-name">integerWidth</span>, </span><span class="parameter" id="populator-param-fractionWidth"><span>required</span> <span class="type-annotation"><a href="https://api.dart.dev/stable/3.8.1/dart-core/int-class.html">int</a></span> <span class="parameter-name">fractionWidth</span>, </span><span class="parameter" id="populator-param-signed"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.8.1/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">signed</span> = <span class="default-value">false</span></span>})
+    <span class="returntype parameter">&#8594; <a href="../rohd_hcl/FixedPointValuePopulator-class.html">FixedPointValuePopulator</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../rohd_hcl/FixedPointValue-class.html">FixedPointValue</a></span>&gt;</span></span>
   </span>
   
 
 </dt>
 <dd>
-  Return true if double <code>val</code> to be stored in <a href="../rohd_hcl/FixedPointValue-class.html">FixedPointValue</a>
-with <code>m</code> and <code>n</code> lengths without overflowing.
+  Creates a <a href="../rohd_hcl/FixedPointValuePopulator-class.html">FixedPointValuePopulator</a> with the provided <code>integerWidth</code>
+and <code>fractionWidth</code>, which can then be used to complete construction of
+a <a href="../rohd_hcl/FixedPointValue-class.html">FixedPointValue</a> using population functions.
   
 
 </dd>

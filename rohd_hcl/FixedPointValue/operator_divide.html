@@ -80,13 +80,21 @@ width and divisor integer width.</p>
   }
   final s = signed | other.signed;
   &#47;&#47; extend integer width for max negative number
-  final m1 = s ? m + 1 : m;
-  final m2 = s ? other.m + 1 : other.m;
-  final mr = m1 + other.n;
-  final nr = n + m2;
+  final m1 = s ? integerWidth + 1 : integerWidth;
+  final m2 = s ? other.integerWidth + 1 : other.integerWidth;
+  final mr = m1 + other.fractionWidth;
+  final nr = fractionWidth + m2;
   final tr = mr + nr;
-  var val1 = expandWidth(sign: s, m: m1, n: tr - m1);
-  var val2 = other.expandWidth(sign: s, m: tr - other.n);
+  var val1 = FixedPointValue.populator(
+          integerWidth: m1, fractionWidth: tr - m1, signed: s)
+      .widen(this)
+      .value;
+  var val2 = FixedPointValue.populator(
+          integerWidth: tr - other.fractionWidth,
+          fractionWidth: other.fractionWidth,
+          signed: s)
+      .widen(other)
+      .value;
   &#47;&#47; Convert to positive as needed
   if (s) {
     if (val1[-1] == LogicValue.one) {
@@ -101,7 +109,9 @@ width and divisor integer width.</p>
   if (isNegative() != other.isNegative()) {
     val = (~val) + 1;
   }
-  return FixedPointValue(value: val, signed: s, m: mr, n: nr);
+  return FixedPointValue.populator(
+          integerWidth: mr, fractionWidth: nr, signed: s)
+      .ofLogicValue(val);
 }</code></pre>
 </section>
 

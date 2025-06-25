@@ -67,8 +67,8 @@
     </section>
     
 <section class="desc markdown">
-  <p>Return a string representation of FloatingPointValue.
-return sign, exponent, mantissa as binary strings.</p>
+  <p>Return a string representation of <a href="../../rohd_hcl/FixedPointValue-class.html">FixedPointValue</a>.
+ return sign, integer, fraction as binary strings.</p>
 </section>
 
 
@@ -77,8 +77,8 @@ return sign, exponent, mantissa as binary strings.</p>
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">@override
 String toString() =&gt; &quot;(${signed ? &#39;${value[-1].bitString} &#39; : &#39;&#39;}&quot;
-    &quot;${(m &gt; 0) ? &#39;${value.slice(m + n - 1, n).bitString} &#39; : &#39;&#39;}&quot;
-    &#39;${value.slice(n - 1, 0).bitString})&#39;;</code></pre>
+    &quot;${integerWidth &gt; 0 ? &#39;${value.getRange(fractionWidth).bitString} &#39; : &#39;&#39;}&quot;
+    &#39;${value.slice(fractionWidth - 1, 0).bitString})&#39;;</code></pre>
 </section>
 
 

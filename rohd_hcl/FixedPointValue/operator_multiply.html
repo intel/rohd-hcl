@@ -77,12 +77,26 @@ The result fraction width is the sum of fraction widths of operands.</p>
     throw RohdHclException(&#39;Inputs must be valid.&#39;);
   }
   final s = signed | other.signed;
-  final mr = s ? m + other.m + 1 : m + other.m;
-  final nr = n + other.n;
+  final mr = s
+      ? integerWidth + other.integerWidth + 1
+      : integerWidth + other.integerWidth;
+  final nr = fractionWidth + other.fractionWidth;
   final tr = mr + nr;
-  final val1 = expandWidth(sign: s, m: tr - n);
-  final val2 = other.expandWidth(sign: s, m: tr - other.n);
-  return FixedPointValue(value: val1 * val2, signed: s, m: mr, n: nr);
+  final val1 = FixedPointValue.populator(
+          integerWidth: tr - fractionWidth,
+          fractionWidth: fractionWidth,
+          signed: s)
+      .widen(this)
+      .value;
+  final val2 = FixedPointValue.populator(
+          integerWidth: tr - other.fractionWidth,
+          fractionWidth: other.fractionWidth,
+          signed: s)
+      .widen(other)
+      .value;
+  return FixedPointValue.populator(
+          integerWidth: mr, fractionWidth: nr, signed: s)
+      .ofLogicValue(val1 * val2);
 }</code></pre>
 </section>
 

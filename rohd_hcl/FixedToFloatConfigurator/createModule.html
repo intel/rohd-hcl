@@ -76,12 +76,15 @@
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">@override
 Module createModule() =&gt; FixedToFloat(
-    FixedPoint(signed: signKnob.value, m: mKnob.value, n: nKnob.value),
+    FixedPoint(
+        signed: signKnob.value,
+        integerWidth: integerWidthKnob.value,
+        fractionWidth: fractionWidthKnob.value),
     FloatingPoint(
         exponentWidth: exponentWidthKnob.value,
         mantissaWidth: mantissaWidthKnob.value),
     leadingDigitPredict: leadingDigitPredictionKnob.value
-        ? Logic(width: log2Ceil(mKnob.value))
+        ? Logic(width: log2Ceil(integerWidthKnob.value))
         : null);</code></pre>
 </section>
 

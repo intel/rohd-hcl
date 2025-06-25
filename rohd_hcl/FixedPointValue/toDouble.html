@@ -70,7 +70,7 @@
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">double toDouble() {
-  if (m + n &gt; 52) {
+  if (integerWidth + fractionWidth &gt; 52) {
     throw RohdHclException(&#39;Fixed-point value is too wide to convert.&#39;);
   }
   if (!this.value.isValid) {
@@ -82,7 +82,7 @@
   } else {
     number = this.value.toBigInt();
   }
-  final value = number.toDouble() &#47; pow(2, n).toDouble();
+  final value = number.toDouble() &#47; pow(2, fractionWidth).toDouble();
   return isNegative() ? -value : value;
 }</code></pre>
 </section>

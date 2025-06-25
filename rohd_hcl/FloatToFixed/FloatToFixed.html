@@ -56,8 +56,8 @@
       
       <span class="name ">FloatToFixed</span>(<wbr><ol class="parameter-list"> <li><span class="parameter" id="-param-float"><span class="type-annotation"><a href="../../rohd_hcl/FloatingPoint-class.html">FloatingPoint</a></span> <span class="parameter-name">float</span>, {</span></li>
 <li><span class="parameter" id="-param-name"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.8.1/dart-core/String-class.html">String</a></span> <span class="parameter-name">name</span> = <span class="default-value">&#39;FloatToFixed&#39;</span>, </span></li>
-<li><span class="parameter" id="-param-m"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.8.1/dart-core/int-class.html">int</a>?</span> <span class="parameter-name">m</span>, </span></li>
-<li><span class="parameter" id="-param-n"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.8.1/dart-core/int-class.html">int</a>?</span> <span class="parameter-name">n</span>, </span></li>
+<li><span class="parameter" id="-param-integerWidth"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.8.1/dart-core/int-class.html">int</a>?</span> <span class="parameter-name">integerWidth</span>, </span></li>
+<li><span class="parameter" id="-param-fractionWidth"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.8.1/dart-core/int-class.html">int</a>?</span> <span class="parameter-name">fractionWidth</span>, </span></li>
 <li><span class="parameter" id="-param-checkOverflow"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.8.1/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">checkOverflow</span> = <span class="default-value">false</span>, </span></li>
 </ol>})
     </section>
@@ -65,12 +65,13 @@
 <section class="desc markdown">
   <p>Build a <a href="../../rohd_hcl/FloatingPoint-class.html">FloatingPoint</a> to <a href="../../rohd_hcl/FixedPoint-class.html">FixedPoint</a> converter.</p>
 <ul>
-<li>if <code>m</code> and <code>n</code> are supplied, an m.n fixed-point output will be produced.
-Otherwise, the converter will compute a lossless size for <code>m</code> and <code>n</code> for
-outputing the floating-point value into a fixed-point value.</li>
+<li>if <code>integerWidth</code> and <code>fractionWidth</code> are supplied, an m.n fixed-point
+output will be produced. Otherwise, the converter will compute a
+lossless size for <code>integerWidth</code> and <code>fractionWidth</code> for outputing the
+floating-point value into a fixed-point value.</li>
 <li><code>checkOverflow</code> set to true will cause overflow detection to happen in
 case that loss can occur and an optional output <a href="../../rohd_hcl/FloatToFixed/overflow.html">overflow</a> will be
- produced that returns true when overflow occurs.</li>
+produced that returns true when overflow occurs.</li>
 </ul>
 </section>
 
@@ -79,7 +80,10 @@ case that loss can occur and an optional output <a href="../../rohd_hcl/FloatToF
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">FloatToFixed(FloatingPoint float,
-    {super.name = &#39;FloatToFixed&#39;, int? m, int? n, this.checkOverflow = false})
+    {super.name = &#39;FloatToFixed&#39;,
+    int? integerWidth,
+    int? fractionWidth,
+    this.checkOverflow = false})
     : super(
           definitionName: &#39;FloatE${float.exponent.width}&#39;
               &#39;M${float.mantissa.width}ToFixed&#39;) {
@@ -92,27 +96,33 @@ case that loss can occur and an optional output <a href="../../rohd_hcl/FloatToF
       : bias + 1; &#47;&#47; accomodate the jbit
   final noLossN = bias + float.mantissa.width - 1;
 
-  this.m = m ?? noLossM;
-  this.n = n ?? noLossN;
-  final outputWidth = this.m + this.n + 1;
+  &#47;&#47; TODO(desmonddak): Check what happens with an explicitJBit FP
+
+  this.integerWidth = integerWidth ?? noLossM;
+  this.fractionWidth = fractionWidth ?? noLossN;
+  final outputWidth = this.integerWidth + this.fractionWidth + 1;
 
   final jBit = Logic(name: &#39;jBit&#39;)..gets(float.isNormal);
   final fullMantissa = [jBit, float.mantissa].swizzle().named(&#39;fullMantissa&#39;);
 
-  final eWidth = max(log2Ceil(this.n + this.m), float.exponent.width) + 2;
+  final eWidth = max(log2Ceil(this.fractionWidth + this.integerWidth),
+          float.exponent.width) +
+      2;
   final shift = Logic(name: &#39;shift&#39;, width: eWidth);
   final exp = (float.exponent - 1).zeroExtend(eWidth).named(&#39;expMinus1&#39;);
 
-  if (this.n &gt; noLossN) {
+  if (this.fractionWidth &gt; noLossN) {
     shift &lt;=
         mux(jBit, exp, Const(0, width: eWidth)) +
-            Const(this.n - noLossN, width: eWidth).named(&#39;deltaN&#39;);
-  } else if (this.n == noLossN) {
+            Const(this.fractionWidth - noLossN, width: eWidth)
+                .named(&#39;deltaN&#39;);
+  } else if (this.fractionWidth == noLossN) {
     shift &lt;= mux(jBit, exp, Const(0, width: eWidth));
   } else {
     shift &lt;=
         mux(jBit, exp, Const(0, width: eWidth)) -
-            Const(noLossN - this.n, width: eWidth).named(&#39;deltaN&#39;);
+            Const(noLossN - this.fractionWidth, width: eWidth)
+                .named(&#39;deltaN&#39;);
   }
   &#47;&#47; TODO(desmonddak): Could use signed shifter if we unified shift math
   final shiftRight = ((fullMantissa.width &gt; outputWidth)
@@ -120,7 +130,8 @@ case that loss can occur and an optional output <a href="../../rohd_hcl/FloatToF
           : (~shift + 1))
       .named(&#39;shiftRight&#39;);
 
-  if (checkOverflow &amp; ((this.m &lt; noLossM) | (this.n &lt; noLossN))) {
+  if (checkOverflow &amp;
+      ((this.integerWidth &lt; noLossM) | (this.fractionWidth &lt; noLossN))) {
     final overflow = Logic(name: &#39;overflow&#39;);
     final leadDetect = RecursiveModulePriorityEncoder(fullMantissa.reversed,
         name: &#39;leadone_detector&#39;);
