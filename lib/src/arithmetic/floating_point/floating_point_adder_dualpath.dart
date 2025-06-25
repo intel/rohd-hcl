@@ -68,12 +68,8 @@ class FloatingPointAdderDualPath<FpTypeIn extends FloatingPoint,
 
     final delta = exponentSubtractor.sum.named('expDelta');
 
-    final fa = a.subNormalAsZero
-        ? (a.clone()..gets(mux(a.isNormal, a, Const(0, width: a.width))))
-        : a;
-    final fb = b.subNormalAsZero
-        ? (b.clone()..gets(mux(b.isNormal, b, Const(0, width: b.width))))
-        : b;
+    final fa = a.resolveSubNormalAsZero();
+    final fb = b.resolveSubNormalAsZero();
 
     // Seidel: (sl, el, fl) = larger; (ss, es, fs) = smaller
     final swapper = FloatingPointConditionalSwap(fa, fb, signDelta);

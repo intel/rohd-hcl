@@ -62,12 +62,8 @@ class FloatingPointAdderSinglePath<FpTypeIn extends FloatingPoint,
           'roundNearestEven (default) and truncate).');
     }
 
-    final fa = a.subNormalAsZero
-        ? (a.clone()..gets(mux(a.isNormal, a, Const(0, width: a.width))))
-        : a;
-    final fb = b.subNormalAsZero
-        ? (b.clone()..gets(mux(b.isNormal, b, Const(0, width: b.width))))
-        : b;
+    final fa = a.resolveSubNormalAsZero();
+    final fb = b.resolveSubNormalAsZero();
 
     final aExplicit = Const(a.explicitJBit);
     final bExplicit = Const(b.explicitJBit);

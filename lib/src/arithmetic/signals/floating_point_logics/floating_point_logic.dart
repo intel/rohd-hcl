@@ -86,6 +86,24 @@ class FloatingPoint extends LogicStructure {
   /// Return true if subnormal numbers are represented as zero.
   final bool subNormalAsZero;
 
+  /// Convert the current [FloatingPoint] to a new [FloatingPoint] but with the
+  /// mantissa resolved if subnormal and subNormalAsZero is true.
+  FloatingPoint resolveSubNormalAsZero() {
+    if (subNormalAsZero) {
+      return clone()
+        ..gets(mux(
+            isNormal,
+            this,
+            FloatingPoint.zero(
+                exponentWidth: exponent.width,
+                mantissaWidth: mantissa.width,
+                explicitJBit: explicitJBit,
+                subNormalAsZero: subNormalAsZero)));
+    } else {
+      return this;
+    }
+  }
+
   /// Return the [FloatingPointValue] of the current [value].
   FloatingPointValue get floatingPointValue =>
       valuePopulator().ofFloatingPoint(this);
@@ -199,6 +217,19 @@ class FloatingPoint extends LogicStructure {
     final signLogic = Const(0);
     final exponent = Const(1, width: exponentWidth, fill: true);
     final mantissa = Const(1, width: mantissaWidth);
+    return FloatingPoint._(
+        signLogic, exponent, mantissa, explicitJBit, subNormalAsZero);
+  }
+
+  /// Construct a FloatingPoint that represents zero.
+  factory FloatingPoint.zero(
+      {required int exponentWidth,
+      required int mantissaWidth,
+      bool explicitJBit = false,
+      bool subNormalAsZero = false}) {
+    final signLogic = Const(0);
+    final exponent = Const(0, width: exponentWidth, fill: true);
+    final mantissa = Const(0, width: mantissaWidth);
     return FloatingPoint._(
         signLogic, exponent, mantissa, explicitJBit, subNormalAsZero);
   }
