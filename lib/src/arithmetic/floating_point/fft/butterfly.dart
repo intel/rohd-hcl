@@ -5,27 +5,31 @@ import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/src/arithmetic/signals/floating_point_logics/complex_floating_point_logic.dart';
 
 class Butterfly extends Module {
-  final ComplexFloatingPoint inA;
-  final ComplexFloatingPoint inB;
-  final ComplexFloatingPoint twiddleFactor;
+  late final ComplexFloatingPoint _inA;
+  late final ComplexFloatingPoint _inB;
+  late final ComplexFloatingPoint _twiddleFactor;
 
-  final outA;
-  final outB;
+  late final ComplexFloatingPoint outA;
+  late final ComplexFloatingPoint outB;
 
   Butterfly(
-      {required this.inA,
-      required this.inB,
-      required this.twiddleFactor,
+      {required ComplexFloatingPoint inA,
+      required ComplexFloatingPoint inB,
+      required ComplexFloatingPoint twiddleFactor,
       super.name = 'butterfly'}) {
-    addInput('inA', inA, width: inA.width);
-    addInput('inB', inB, width: inA.width);
+    _inA = inA.clone()..gets(addInput('inA', inA, width: inA.width));
+    _inB = inA.clone()..gets(addInput('inB', inB, width: inA.width));
+    _twiddleFactor = inA.clone()..gets(addInput('twiddleFactor', twiddleFactor, width: twiddleFactor.width));
 
-    final outA = addOutput('outA', width: inA.width);
-    final outB = addOutput('outB', width: inA.width);
+    final outALogic = addOutput('outA', width: inA.width);
+    final outBLogic = addOutput('outB', width: inA.width);
 
-    final temp = twiddleFactor.multiplier(inB);
+    final temp = twiddleFactor.multiplier(_inB);
 
-    outB <= inA.adder(temp.negated);
-    outA <= inA.adder(temp);
+    outALogic <= _inA.adder(temp.negated);
+    outBLogic <= _inA.adder(temp);
+
+    outA = inA.clone()..gets(outALogic);
+    outB = inA.clone()..gets(outBLogic);
   }
 }
