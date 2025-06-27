@@ -181,7 +181,7 @@ typedef MultiplierCallback = Multiplier Function(Logic a, Logic b,
     {dynamic signedMultiplicandParam, dynamic signedMultiplierParam});
 
 String _signedMD(dynamic mdConfig) {
-  if (mdConfig is Config) {
+  if (mdConfig is StaticOrRuntimeParameter) {
     if (mdConfig.runtimeConfig != null) {
       return 'SSD_';
     }
@@ -191,7 +191,7 @@ String _signedMD(dynamic mdConfig) {
 }
 
 String _signedML(dynamic mdConfig) {
-  if (mdConfig is Config) {
+  if (mdConfig is StaticOrRuntimeParameter) {
     if (mdConfig.runtimeConfig != null) {
       return 'SSL_';
     }
@@ -280,30 +280,30 @@ void main() {
         for (final selectSignedMultiplier in [null, Const(0), Const(1)]) {
           for (final signedMultiplier
               in (selectSignedMultiplier == null) ? [false, true] : [false]) {
-            final signedMultiplicandParam = Config(
+            final signedMultiplicandConfig = StaticOrRuntimeParameter(
                 name: 'signedMultiplicand',
                 runtimeConfig: selectSignedMultiplicand,
                 staticConfig: selectSignedMultiplicand != null
                     ? null
                     : signedMultiplicand);
-            final signedMultiplierParam = Config(
+            final signedMultiplierConfig = StaticOrRuntimeParameter(
                 name: 'signedMultiplier',
                 runtimeConfig: selectSignedMultiplier,
                 staticConfig:
                     selectSignedMultiplier != null ? null : signedMultiplier);
             final mod = NativeMultiplier(a, b,
-                signedMultiplicandParam: signedMultiplicandParam,
-                signedMultiplierParam: signedMultiplierParam,
+                signedMultiplicandParam: signedMultiplicandConfig,
+                signedMultiplierParam: signedMultiplierConfig,
                 name: 'NativeMultiplier_W${a.width}x'
-                    '${b.width}_${_signedMD(signedMultiplicandParam)}'
-                    '${_signedML(signedMultiplierParam)}');
+                    '${b.width}_${_signedMD(signedMultiplicandConfig)}'
+                    '${_signedML(signedMultiplierConfig)}');
 
             for (var i = 0; i < pow(2, width); i++) {
               for (var j = 0; j < pow(2, width); j++) {
-                final ai = signedMultiplicandParam.value
+                final ai = signedMultiplicandConfig.value
                     ? BigInt.from(i).toSigned(width)
                     : BigInt.from(i).toUnsigned(width);
-                final bi = signedMultiplierParam.value
+                final bi = signedMultiplierConfig.value
                     ? BigInt.from(j).toSigned(width)
                     : BigInt.from(j).toUnsigned(width);
                 a.put(ai);
@@ -399,13 +399,13 @@ void main() {
               in (selectSignedMultiplier == null) ? [false, true] : [false]) {
             for (final radix in [4]) {
               for (final width in [1 + log2Ceil(radix)]) {
-                final signedMultiplicandParam = Config(
+                final signedMultiplicandConfig = StaticOrRuntimeParameter(
                     name: 'signedMultiplicand',
                     runtimeConfig: selectSignedMultiplicand,
                     staticConfig: selectSignedMultiplicand != null
                         ? null
                         : signedMultiplicand);
-                final signedMultiplierParam = Config(
+                final signedMultiplierConfig = StaticOrRuntimeParameter(
                     name: 'signedMultiplier',
                     runtimeConfig: selectSignedMultiplier,
                     staticConfig: selectSignedMultiplier != null
@@ -416,8 +416,8 @@ void main() {
                     10,
                     curryMultiplierAsMultiplyAccumulate(radix,
                         adderGen: ParallelPrefixAdder.new,
-                        signedMultiplicandParam: signedMultiplicandParam,
-                        signedMultiplierParam: signedMultiplierParam));
+                        signedMultiplicandParam: signedMultiplicandConfig,
+                        signedMultiplierParam: signedMultiplierConfig));
               }
             }
           }
@@ -438,20 +438,20 @@ void main() {
                   in (selectSignedAddend == null) ? [false, true] : [false]) {
                 for (final radix in [4]) {
                   for (final width in [1 + log2Ceil(radix)]) {
-                    final signedMultiplicandParam = Config(
+                    final signedMultiplicandConfig = StaticOrRuntimeParameter(
                         name: 'signedMultiplicand',
                         runtimeConfig: selectSignedMultiplicand,
                         staticConfig: selectSignedMultiplicand != null
                             ? null
                             : signedMultiplicand);
-                    final signedMultiplierParam = Config(
+                    final signedMultiplierConfig = StaticOrRuntimeParameter(
                         name: 'signedMultiplier',
                         runtimeConfig: selectSignedMultiplier,
                         staticConfig: selectSignedMultiplier != null
                             ? null
                             : signedMultiplier);
 
-                    final signedAddendConfig = Config(
+                    final signedAddendConfig = StaticOrRuntimeParameter(
                         name: 'signedAddend',
                         runtimeConfig: selectSignedAddend,
                         staticConfig:
@@ -462,8 +462,8 @@ void main() {
                         curryMultiplyAccumulate(
                           radix,
                           adderGen: ParallelPrefixAdder.new,
-                          signedMultiplicandParam: signedMultiplicandParam,
-                          signedMultiplierParam: signedMultiplierParam,
+                          signedMultiplicandParam: signedMultiplicandConfig,
+                          signedMultiplierParam: signedMultiplierConfig,
                           signedAddendParam: signedAddendConfig,
                         ));
                   }

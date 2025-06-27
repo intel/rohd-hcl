@@ -47,15 +47,15 @@ abstract class MultiplyAccumulate extends Module {
 
   /// Configuration for signed multiplicand [a].
   @protected
-  late final Config? signedMultiplicandConfig;
+  late final StaticOrRuntimeParameter? signedMultiplicandConfig;
 
   /// Configuration for signed multiplier [b].
   @protected
-  late final Config? signedMultiplierConfig;
+  late final StaticOrRuntimeParameter? signedMultiplierConfig;
 
   /// Configuration for signed addend [c].
   @protected
-  late final Config? signedAddendConfig;
+  late final StaticOrRuntimeParameter? signedAddendConfig;
 
   /// The MAC treats multiplicand [a] as always signed.
   @protected
@@ -124,9 +124,11 @@ abstract class MultiplyAccumulate extends Module {
     b = addInput('b', b, width: b.width);
     c = addInput('c', c, width: c.width);
 
-    signedMultiplicandConfig = Config.ofDynamic(signedMultiplicandParam);
-    signedMultiplierConfig = Config.ofDynamic(signedMultiplierParam);
-    signedAddendConfig = Config.ofDynamic(signedAddendParam);
+    signedMultiplicandConfig =
+        StaticOrRuntimeParameter.ofDynamic(signedMultiplicandParam);
+    signedMultiplierConfig =
+        StaticOrRuntimeParameter.ofDynamic(signedMultiplierParam);
+    signedAddendConfig = StaticOrRuntimeParameter.ofDynamic(signedAddendParam);
 
     signedMultiplicandConfig?.getRuntimeInput(this);
     signedMultiplicand = signedMultiplicandConfig?.staticConfig ?? false;
@@ -263,7 +265,7 @@ class MultiplyOnly extends MultiplyAccumulate {
     // Here we need to copy the Config and make sure we access our module's
     // input by calling .logic(this) on the runtimeConfig.
     final multiply = mulGen(a, b,
-        signedMultiplicandParam: Config(
+        signedMultiplicandParam: StaticOrRuntimeParameter(
             name: 'selectSignedMultiplicand',
             runtimeConfig: signedMultiplicandConfig?.runtimeConfig != null
                 ? signedMultiplicandConfig?.getLogic(this)
@@ -271,7 +273,7 @@ class MultiplyOnly extends MultiplyAccumulate {
             staticConfig: signedMultiplicandConfig?.runtimeConfig == null
                 ? signedMultiplicandConfig?.staticConfig
                 : null),
-        signedMultiplierParam: Config(
+        signedMultiplierParam: StaticOrRuntimeParameter(
             name: 'selectSignedMultiplier',
             runtimeConfig: signedMultiplierConfig?.runtimeConfig != null
                 ? signedMultiplierConfig?.getLogic(this)

@@ -13,93 +13,13 @@ import 'package:meta/meta.dart';
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
 
-/// A general configuration class for specifying parameters that are
-/// for both static or runtime configurations of a component feature.
-class Config {
-  /// The runtime configuration logic that can be used to configure the
-  /// component at runtime
-  final Logic? runtimeConfig;
-
-  /// The static configuration flag that indicates whether the
-  /// feature is statically configured or not.
-  late final bool staticConfig;
-
-  /// The name of the configuration, especially needed for runtime to add as
-  /// a module input.
-  final String name;
-
-  /// Creates a new [Config] instance.
-  Config({required this.name, this.runtimeConfig, bool? staticConfig = false}) {
-    if (runtimeConfig != null && staticConfig != null) {
-      throw RohdHclException(
-          'Only provide either runtimeConfig or staticConfig, not both.');
-    } else if (staticConfig != null) {
-      this.staticConfig = staticConfig;
-    } else {
-      this.staticConfig = false;
-    }
-  }
-
-  /// Factory constructor to create a [Config] instance from a dynamic.
-  factory Config.ofDynamic(dynamic config) {
-    if (config is Config) {
-      return config;
-    } else if (config is bool) {
-      return BooleanConfig(staticConfig: config);
-    } else if (config == null) {
-      return BooleanConfig(staticConfig: null);
-    } else if (config is Logic) {
-      return RuntimeConfig(config, name: config.name);
-    } else {
-      throw RohdHclException(
-          'Unsupported configuration type: ${config.runtimeType}');
-    }
-  }
-
-  /// Return a bool representing the value of the configuration.
-  @visibleForTesting
-  bool get value =>
-      staticConfig ||
-      (runtimeConfig != null && runtimeConfig!.value == LogicValue.one);
-
-  /// Return the internal [Logic] signal that represents the configuration,
-  /// either static or runtime.
-  Logic getLogic(Module module) =>
-      staticConfig ? Const(1) : (tryRuntimeInput(module) ?? Const(0));
-
-  /// Construct and return a [Logic]? that is a true input to the [module]
-  /// if this is a runtime configuration signal.
-  Logic? getRuntimeInput(Module module) => (runtimeConfig != null)
-      ? tryRuntimeInput(module) ?? module.addInput(name, runtimeConfig!)
-      : null;
-
-  /// Returns a [Logic]? that represents the module internalruntime input.
-  Logic? tryRuntimeInput(Module module) =>
-      runtimeConfig != null ? module.tryInput(name) : null;
-}
-
-/// A configuration class for boolean configurations, which can be used to
-/// statically enable or disable features in a component.
-class BooleanConfig extends Config {
-  /// Creates a new [BooleanConfig] instance.
-  BooleanConfig({super.staticConfig}) : super(name: 'boolean_config');
-}
-
-/// A configuration class for runtime configurations, which can be used to
-/// dynamically configure a component at runtime.
-class RuntimeConfig extends Config {
-  /// Creates a new [RuntimeConfig] instance.
-  RuntimeConfig(Logic runtimeConfig, {required super.name})
-      : super(runtimeConfig: runtimeConfig, staticConfig: null);
-}
-
-String _signedMD(Config? mdConfig) => (mdConfig == null)
+String _signedMD(StaticOrRuntimeParameter? mdConfig) => (mdConfig == null)
     ? ''
     : (mdConfig.runtimeConfig != null)
         ? 'SSD_'
         : 'SD_';
 
-String _signedML(Config? mlConfig) => (mlConfig == null)
+String _signedML(StaticOrRuntimeParameter? mlConfig) => (mlConfig == null)
     ? ''
     : mlConfig.runtimeConfig != null
         ? 'SSM_'
@@ -132,11 +52,11 @@ abstract class Multiplier extends Module {
 
   /// Configuration for signed multiplicand [a].
   @protected
-  late final Config? signedMultiplicandConfig;
+  late final StaticOrRuntimeParameter? signedMultiplicandConfig;
 
   /// Configuration for signed multiplier [b].
   @protected
-  late final Config? signedMultiplierConfig;
+  late final StaticOrRuntimeParameter? signedMultiplierConfig;
 
   /// The multiplier treats input [a] always as a signed input.
   @protected
@@ -194,8 +114,10 @@ abstract class Multiplier extends Module {
     a = addInput('a', a, width: a.width);
     b = addInput('b', b, width: b.width);
 
-    signedMultiplicandConfig = Config.ofDynamic(signedMultiplicandParam);
-    signedMultiplierConfig = Config.ofDynamic(signedMultiplierParam);
+    signedMultiplicandConfig =
+        StaticOrRuntimeParameter.ofDynamic(signedMultiplicandParam);
+    signedMultiplierConfig =
+        StaticOrRuntimeParameter.ofDynamic(signedMultiplierParam);
 
     signedMultiplicandConfig?.getRuntimeInput(this);
     signedMultiplicand = signedMultiplicandConfig?.staticConfig ?? false;
