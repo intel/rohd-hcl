@@ -28,9 +28,13 @@ class ReductionTree extends Module {
 
   /// Operation to be performed at each node. Note that [operation] can widen
   /// the output. The logic function must support the operation for 2 and up to
-  /// [radix] inputs.
+  /// [radix] inputs. The [depth] input is the depth of the current node in the
+  /// tree to the leaves.  For sequences that are not powers of [radix], the
+  /// depth is the maximum depth to the leaves from this node in the tree.  The
+  /// [depth] can be used to index the control Logic to change behavior at each
+  /// depth of the tree.
   final Logic Function(List<Logic> inputs,
-      {int? depth, Logic? control, String name}) operation;
+      {int depth, Logic? control, String name}) operation;
 
   /// Specified width of input to each reduction node (e.g., binary: radix=2)
   final int radix;
@@ -81,8 +85,7 @@ class ReductionTree extends Module {
   /// segment.
   /// - [sequence] is the input sequence to be reduced using the tree of
   ///   operations.
-  /// - Logic Function(List<Logic> inputs, {int? depth, String name})
-  ///   [operation] is the operation to be performed at each node. Note that
+  /// - [operation] is the operation to be performed at each node. Note that
   ///   [operation] can widen the output. The logic function must support the
   ///   operation for (2 to [radix]) inputs.
   /// - [radix] is the width of reduction at each node in the tree (e.g.,
@@ -109,6 +112,9 @@ class ReductionTree extends Module {
     if (sequence.isEmpty) {
       throw RohdHclException("Don't use ReductionTree "
           'with an empty sequence');
+    }
+    if (radix < 2) {
+      throw RohdHclException('Radix must be at least 2, got $radix');
     }
     _sequence = [
       for (var i = 0; i < sequence.length; i++)
