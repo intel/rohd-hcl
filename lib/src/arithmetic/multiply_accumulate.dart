@@ -94,16 +94,30 @@ abstract class MultiplyAccumulate extends Module {
   /// produce the [accumulate] result.
   ///
   /// The optional [signedMultiplicand] parameter configures the
-  /// multiplicand [a] as a signed multiplicand (default is unsigned) or with a
-  /// runtime configurable [selectSignedMultiplicand] input.
+  /// The optional [signedMultiplicand] parameter configures the multiplicand
+  /// [a] statically using a bool as a signed multiplicand (default is false, or
+  /// unsigned) or dynamically with a 1-bit Logic [selectSignedMultiplicand]
+  /// input. You can pass either a bool (for static configuration) or a Logic
+  /// (dynamically configuring the type handled) with a signal to this
+  /// parameter, otherwise this constructor will throw.
   ///
-  /// The optional [signedMultiplier] parameter configures the multiplier
-  /// [b] as a signed multiplier (default is unsigned) or with a runtime
-  /// configurable [selectSignedMultiplier] input.
+  /// The optional [signedMultiplier] parameter configures the multiplier [b]
+  /// statically using a bool as a signed multiplier (default is false, or
+  /// unsigned) or dynamically with a 1-bit Logic [selectSignedMultiplier]
+  /// input. You can pass either a bool (for static configuration) or a Logic
+  /// (dynamically configuring the type handled with a signal) to this
+  /// parameter, otherwise this constructor will throw.
   ///
   /// The optional [signedAddend] parameter configures the addend [c] as a
   /// signed addend (default is unsigned) or with a runtime configurable
   /// [selectSignedAddend] input.
+  ///
+  /// The optional [signedAddend] parameter configures the multiplicand
+  /// [c] statically using a bool as a signed multiplicand (default is false, or
+  /// unsigned) or dynamically with a 1-bit Logic [selectSignedAddend]
+  /// input. You can pass either a bool (for static configuration) or a Logic
+  /// (dynamically configuring the type handled) with a signal to this
+  /// parameter, otherwise this constructor will throw.
   MultiplyAccumulate(Logic a, Logic b, Logic c,
       {Logic? clk,
       Logic? reset,
@@ -126,18 +140,13 @@ abstract class MultiplyAccumulate extends Module {
 
     signedMultiplicandParameter =
         StaticOrRuntimeParameter.ofDynamic(signedMultiplicand);
+    this.signedMultiplicand = signedMultiplicandParameter.staticConfig;
     signedMultiplierParameter =
         StaticOrRuntimeParameter.ofDynamic(signedMultiplier);
-    signedAddendParameter = StaticOrRuntimeParameter.ofDynamic(signedAddend);
-
-    signedMultiplicandParameter.getRuntimeInput(this);
-    this.signedMultiplicand = signedMultiplicandParameter.staticConfig;
-
-    signedMultiplierParameter.getRuntimeInput(this);
     this.signedMultiplier = signedMultiplierParameter.staticConfig;
-
-    signedAddendParameter.getRuntimeInput(this);
+    signedAddendParameter = StaticOrRuntimeParameter.ofDynamic(signedAddend);
     this.signedAddend = signedAddendParameter.staticConfig;
+
     addOutput('accumulate', width: a.width + b.width + 1);
 
     addOutput('isAccumulateSigned') <=

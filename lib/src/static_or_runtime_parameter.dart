@@ -5,7 +5,8 @@
 // Configuration classes for managing parameters that can be set statically or
 // at runtime.
 //
-// 2025 June 27 Author: Desmond Kirkpatrick <desmond.a.kirkpatrick@intel.com>
+// 2025 June 27
+// Author: Desmond Kirkpatrick <desmond.a.kirkpatrick@intel.com>
 
 import 'package:meta/meta.dart';
 import 'package:rohd/rohd.dart';
