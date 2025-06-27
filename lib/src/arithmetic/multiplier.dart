@@ -52,11 +52,11 @@ abstract class Multiplier extends Module {
 
   /// Configuration for signed multiplicand [a].
   @protected
-  late final StaticOrRuntimeParameter? signedMultiplicandConfig;
+  late final StaticOrRuntimeParameter? signedMultiplicandParameter;
 
   /// Configuration for signed multiplier [b].
   @protected
-  late final StaticOrRuntimeParameter? signedMultiplierConfig;
+  late final StaticOrRuntimeParameter? signedMultiplierParameter;
 
   /// The multiplier treats input [a] always as a signed input.
   @protected
@@ -70,13 +70,13 @@ abstract class Multiplier extends Module {
   /// multiplicand [a].
   @protected
   Logic? get selectSignedMultiplicand =>
-      signedMultiplicandConfig?.tryRuntimeInput(this);
+      signedMultiplicandParameter?.tryRuntimeInput(this);
 
   /// If not null, use this signal to select between signed and unsigned
   /// multiplier [b]
   @protected
   Logic? get selectSignedMultiplier =>
-      signedMultiplierConfig?.tryRuntimeInput(this);
+      signedMultiplierParameter?.tryRuntimeInput(this);
 
   /// Logic that tells us [product] is signed.
   @protected
@@ -85,11 +85,11 @@ abstract class Multiplier extends Module {
   /// Take input [a] and input [b] and return the [product] of the
   /// multiplication result.
   ///
-  /// The optional [signedMultiplicandParam] parameter configures the
+  /// The optional [signedMultiplicand] parameter configures the
   /// multiplicand [a] as a signed multiplicand (default is unsigned) or with a
   /// runtime configurable [selectSignedMultiplicand] input.
   ///
-  /// The optional [signedMultiplierParam] parameter configures the multiplier
+  /// The optional [signedMultiplier] parameter configures the multiplier
   /// [b] as a signed multiplier (default is unsigned) or with a runtime
   /// configurable [selectSignedMultiplier] input.
   ///
@@ -100,38 +100,39 @@ abstract class Multiplier extends Module {
       {Logic? clk,
       Logic? reset,
       Logic? enable,
-      dynamic signedMultiplicandParam,
-      dynamic signedMultiplierParam,
+      dynamic signedMultiplicand,
+      dynamic signedMultiplier,
       super.name = 'multiplier',
       String? definitionName})
       : super(
             definitionName: definitionName ??
-                '${b.width}_$_signedMD(signedMultiplicandConfig)}'
-                    '$_signedML(signedMultiplicandConfig)}') {
+                '${b.width}_$_signedMD(signedMultiplicand)}'
+                    '$_signedML(signedMultiplier)}') {
     this.clk = (clk != null) ? addInput('clk', clk) : null;
     this.reset = (reset != null) ? addInput('reset', reset) : null;
     this.enable = (enable != null) ? addInput('enable', enable) : null;
     a = addInput('a', a, width: a.width);
     b = addInput('b', b, width: b.width);
 
-    signedMultiplicandConfig =
-        StaticOrRuntimeParameter.ofDynamic(signedMultiplicandParam);
-    signedMultiplierConfig =
-        StaticOrRuntimeParameter.ofDynamic(signedMultiplierParam);
+    signedMultiplicandParameter =
+        StaticOrRuntimeParameter.ofDynamic(signedMultiplicand);
+    signedMultiplierParameter =
+        StaticOrRuntimeParameter.ofDynamic(signedMultiplier);
 
-    signedMultiplicandConfig?.getRuntimeInput(this);
-    signedMultiplicand = signedMultiplicandConfig?.staticConfig ?? false;
+    signedMultiplicandParameter?.getRuntimeInput(this);
+    this.signedMultiplicand =
+        signedMultiplicandParameter?.staticConfig ?? false;
 
-    signedMultiplierConfig?.getRuntimeInput(this);
-    signedMultiplier = signedMultiplierConfig?.staticConfig ?? false;
+    signedMultiplierParameter?.getRuntimeInput(this);
+    this.signedMultiplier = signedMultiplierParameter?.staticConfig ?? false;
 
     addOutput('product', width: a.width + b.width);
     addOutput('isProductSigned') <=
-        ((signedMultiplicandConfig != null
-                ? signedMultiplicandConfig!.getLogic(this)
+        ((signedMultiplicandParameter != null
+                ? signedMultiplicandParameter!.getLogic(this)
                 : Const(0)) |
-            (signedMultiplierConfig != null
-                ? signedMultiplierConfig!.getLogic(this)
+            (signedMultiplierParameter != null
+                ? signedMultiplierParameter!.getLogic(this)
                 : Const(0)));
   }
 }
@@ -144,13 +145,13 @@ class NativeMultiplier extends Multiplier {
       {super.clk,
       super.reset,
       super.enable,
-      super.signedMultiplicandParam,
-      super.signedMultiplierParam,
+      super.signedMultiplicand,
+      super.signedMultiplier,
       super.name = 'native_multiplier'})
       : super(
             definitionName: 'NativeMultiplier_W${a.width}x'
-                '${b.width}_$_signedMD(signedMultiplicandConfig)}'
-                '$_signedML(signedMultiplicandConfig)}') {
+                '${b.width}_$_signedMD(signedMultiplicand)}'
+                '$_signedML(signedMultiplier)}') {
     if (a.width != b.width) {
       throw RohdHclException('inputs of a and b should have same width.');
     }
@@ -208,8 +209,8 @@ class CompressionTreeMultiplier extends Multiplier {
       {super.clk,
       super.reset,
       super.enable,
-      super.signedMultiplicandParam,
-      super.signedMultiplierParam,
+      super.signedMultiplicand,
+      super.signedMultiplier,
       Adder Function(Logic a, Logic b, {Logic? carryIn}) adderGen =
           NativeAdder.new,
       PartialProductSignExtension Function(PartialProductGeneratorBase pp,
@@ -218,8 +219,8 @@ class CompressionTreeMultiplier extends Multiplier {
       super.name = 'compression_tree_multiplier'})
       : super(
             definitionName: 'CompressionTreeMultiplier_W${a.width}x'
-                '${b.width}_$_signedMD(signedMultiplicandConfig)}'
-                '$_signedML(signedMultiplicandConfig)}_'
+                '${b.width}_$_signedMD(signedMultiplicand)}'
+                '$_signedML(signedMultiplier)}_'
                 'with${adderGen(a, a).definitionName}') {
     final pp = PartialProduct(a, b, RadixEncoder(radix),
         selectSignedMultiplicand: selectSignedMultiplicand,

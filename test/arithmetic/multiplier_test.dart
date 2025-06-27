@@ -66,8 +66,8 @@ class SimpleMultiplier extends Multiplier {
       : super(a, b) {
     final mult = CompressionTreeMultiplier(a, b, 4,
         adderGen: ParallelPrefixAdder.new,
-        signedMultiplicandParam: signedMultiplicandParam,
-        signedMultiplierParam: signedMultiplierParam);
+        signedMultiplicand: signedMultiplicandParam,
+        signedMultiplier: signedMultiplierParam);
     product <= mult.product;
   }
 }
@@ -213,8 +213,8 @@ MultiplierCallback curryCompressionTreeMultiplier(int radix,
       '${_signedML(signedMultiplierParam)}';
   return (a, b, {signedMultiplicandParam, signedMultiplierParam}) =>
       CompressionTreeMultiplier(a, b, radix,
-          signedMultiplicandParam: signedMultiplicandParam,
-          signedMultiplierParam: signedMultiplierParam,
+          signedMultiplicand: signedMultiplicandParam,
+          signedMultiplier: signedMultiplierParam,
           signExtensionGen: seGen,
           adderGen: adderGen,
           name: 'compression_tree_multiplier_'
@@ -292,8 +292,8 @@ void main() {
                 staticConfig:
                     selectSignedMultiplier != null ? null : signedMultiplier);
             final mod = NativeMultiplier(a, b,
-                signedMultiplicandParam: signedMultiplicandConfig,
-                signedMultiplierParam: signedMultiplierConfig,
+                signedMultiplicand: signedMultiplicandConfig,
+                signedMultiplier: signedMultiplierConfig,
                 name: 'NativeMultiplier_W${a.width}x'
                     '${b.width}_${_signedMD(signedMultiplicandConfig)}'
                     '${_signedML(signedMultiplierConfig)}');
@@ -349,8 +349,8 @@ void main() {
                         : BooleanConfig(staticConfig: signedMultiplier),
                     (a, b, {signedMultiplicandParam, signedMultiplierParam}) =>
                         NativeMultiplier(a, b,
-                            signedMultiplicandParam: signedMultiplicandParam,
-                            signedMultiplierParam: signedMultiplierParam,
+                            signedMultiplicand: signedMultiplicandParam,
+                            signedMultiplier: signedMultiplierParam,
                             name: 'NativeMultiplier_W${a.width}x${b.width}'
                                 '_${_signedMD(signedMultiplicandParam)}'
                                 '${_signedML(signedMultiplierParam)}')));
@@ -488,9 +488,9 @@ void main() {
     final mod = CompressionTreeMultiplier(a, b, 4,
         clk: clk,
         adderGen: ParallelPrefixAdder.new,
-        signedMultiplicandParam:
+        signedMultiplicand:
             RuntimeConfig(signedSelect, name: 'selectSignedMultiplicand'),
-        signedMultiplierParam:
+        signedMultiplier:
             RuntimeConfig(signedSelect, name: 'selectSignedMultiplier'));
     unawaited(Simulator.run());
     a.put(bA);
@@ -576,10 +576,10 @@ void main() {
           4,
           adderGen: ParallelPrefixAdder.new,
           signExtensionGen: StopBitsSignExtension.new,
-          signedMultiplicandParam: signedSelect != null
+          signedMultiplicand: signedSelect != null
               ? RuntimeConfig(signedSelect, name: 'selectSignedMultiplicand')
               : null,
-          signedMultiplierParam: signedSelect != null
+          signedMultiplier: signedSelect != null
               ? RuntimeConfig(signedSelect, name: 'selectSignedMultiplier')
               : BooleanConfig(staticConfig: !useSignedLogic && signed),
         );

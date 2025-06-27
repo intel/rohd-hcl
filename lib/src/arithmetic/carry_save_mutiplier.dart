@@ -39,8 +39,8 @@ class CarrySaveMultiplier extends Multiplier {
       {required super.clk,
       required super.reset,
       super.enable,
-      super.signedMultiplicandParam,
-      super.signedMultiplierParam,
+      super.signedMultiplicand,
+      super.signedMultiplier,
       super.name = 'carry_save_multiplier'})
       : super(definitionName: 'CarrySaveMultiplier_W${a.width}') {
     if (a.width != b.width) {
