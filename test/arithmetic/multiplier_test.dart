@@ -152,7 +152,7 @@ void testMultiplyAccumulateExhaustive(
   b.put(0);
   c.put(0);
   final mod = fn(a, b, c);
-  test('exhaustive_W${width}_${mod.name}', () async {
+  test('Multiplier exhaustive_W${width}_${mod.name}', () async {
     await mod.build();
     final multiplyOnly = mod is MultiplyOnly;
 
@@ -180,25 +180,25 @@ typedef MultiplyAccumulateCallback = MultiplyAccumulate Function(
 typedef MultiplierCallback = Multiplier Function(Logic a, Logic b,
     {dynamic signedMultiplicandParam, dynamic signedMultiplierParam});
 
-String _signedMD(dynamic mdConfig) {
-  if (mdConfig is StaticOrRuntimeParameter) {
-    if (mdConfig.runtimeConfig != null) {
-      return 'SSD_';
-    }
-    return mdConfig.staticConfig ? 'SD_' : 'UD_';
-  }
-  return '';
-}
+// String Multiplier.signedMD(dynamic mdConfig) {
+//   if (mdConfig is StaticOrRuntimeParameter) {
+//     if (mdConfig.runtimeConfig != null) {
+//       return 'SSD_';
+//     }
+//     return mdConfig.staticConfig ? 'SD_' : 'UD_';
+//   }
+//   return '';
+// }
 
-String _signedML(dynamic mdConfig) {
-  if (mdConfig is StaticOrRuntimeParameter) {
-    if (mdConfig.runtimeConfig != null) {
-      return 'SSL_';
-    }
-    return mdConfig.staticConfig ? 'SL_' : 'UL_';
-  }
-  return '';
-}
+// String Multiplier.signedML(dynamic mdConfig) {
+//   if (mdConfig is StaticOrRuntimeParameter) {
+//     if (mdConfig.runtimeConfig != null) {
+//       return 'SSL';
+//     }
+//     return mdConfig.staticConfig ? 'SL' : 'UL';
+//   }
+//   return '';
+// }
 
 MultiplierCallback curryCompressionTreeMultiplier(int radix,
     {SignExtensionFunction seGen = CompactRectSignExtension.new,
@@ -209,8 +209,8 @@ MultiplierCallback curryCompressionTreeMultiplier(int radix,
   String adderName(Logic a, Logic b) => '${adderGen(a, b).name}_W${a.width}';
   String genName(Logic a, Logic b) =>
       seGen(PartialProductGenerator(a, b, RadixEncoder(radix))).name;
-  final signage = '${_signedMD(signedMultiplicandParam)}'
-      '${_signedML(signedMultiplierParam)}';
+  final signage = '${Multiplier.signedMD(signedMultiplicandParam)}_'
+      '${Multiplier.signedML(signedMultiplierParam)}';
   return (a, b, {signedMultiplicandParam, signedMultiplierParam}) =>
       CompressionTreeMultiplier(a, b, radix,
           signedMultiplicand: signedMultiplicandParam,
@@ -251,8 +251,8 @@ MultiplyAccumulateCallback curryMultiplyAccumulate(int radix,
     dynamic signedAddendParam}) {
   String genName(Logic a, Logic b) =>
       seGen(PartialProductGenerator(a, b, RadixEncoder(radix))).name;
-  final signage = '${_signedMD(signedMultiplicandParam)}'
-      '${_signedML(signedMultiplierParam)}';
+  final signage = '${Multiplier.signedMD(signedMultiplicandParam)}_'
+      '${Multiplier.signedML(signedMultiplierParam)}';
 
   return (a, b, c) => CompressionTreeMultiplyAccumulate(a, b, c, radix,
       adderGen: adderGen,
@@ -294,9 +294,9 @@ void main() {
             final mod = NativeMultiplier(a, b,
                 signedMultiplicand: signedMultiplicandConfig,
                 signedMultiplier: signedMultiplierConfig,
-                name: 'NativeMultiplier_W${a.width}x'
-                    '${b.width}_${_signedMD(signedMultiplicandConfig)}'
-                    '${_signedML(signedMultiplierConfig)}');
+                name: 'NativeMultiplier_W${a.width}x${b.width}'
+                    '_${Multiplier.signedMD(signedMultiplicandConfig)}_'
+                    '${Multiplier.signedML(signedMultiplierConfig)}');
 
             for (var i = 0; i < pow(2, width); i++) {
               for (var j = 0; j < pow(2, width); j++) {
@@ -352,8 +352,8 @@ void main() {
                             signedMultiplicand: signedMultiplicandParam,
                             signedMultiplier: signedMultiplierParam,
                             name: 'NativeMultiplier_W${a.width}x${b.width}'
-                                '_${_signedMD(signedMultiplicandParam)}'
-                                '${_signedML(signedMultiplierParam)}')));
+                                '_${Multiplier.signedMD(signedMultiplicandParam)}_'
+                                '${Multiplier.signedML(signedMultiplierParam)}')));
           }
         }
       }

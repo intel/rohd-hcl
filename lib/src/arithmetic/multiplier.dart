@@ -13,18 +13,6 @@ import 'package:meta/meta.dart';
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
 
-String _signedMD(StaticOrRuntimeParameter? mdConfig) => (mdConfig == null)
-    ? ''
-    : (mdConfig.runtimeConfig != null)
-        ? 'SSD_'
-        : 'SD_';
-
-String _signedML(StaticOrRuntimeParameter? mlConfig) => (mlConfig == null)
-    ? ''
-    : mlConfig.runtimeConfig != null
-        ? 'SSM_'
-        : 'SM_';
-
 /// An abstract class for all multiplier implementations.
 abstract class Multiplier extends Module {
   /// The clk for pipelining the multiplication.
@@ -52,11 +40,11 @@ abstract class Multiplier extends Module {
 
   /// Configuration for signed multiplicand [a].
   @protected
-  late final StaticOrRuntimeParameter? signedMultiplicandParameter;
+  late final StaticOrRuntimeParameter signedMultiplicandParameter;
 
   /// Configuration for signed multiplier [b].
   @protected
-  late final StaticOrRuntimeParameter? signedMultiplierParameter;
+  late final StaticOrRuntimeParameter signedMultiplierParameter;
 
   /// The multiplier treats input [a] always as a signed input.
   @protected
@@ -70,13 +58,13 @@ abstract class Multiplier extends Module {
   /// multiplicand [a].
   @protected
   Logic? get selectSignedMultiplicand =>
-      signedMultiplicandParameter?.tryRuntimeInput(this);
+      signedMultiplicandParameter.tryRuntimeInput(this);
 
   /// If not null, use this signal to select between signed and unsigned
   /// multiplier [b]
   @protected
   Logic? get selectSignedMultiplier =>
-      signedMultiplierParameter?.tryRuntimeInput(this);
+      signedMultiplierParameter.tryRuntimeInput(this);
 
   /// Logic that tells us [product] is signed.
   @protected
@@ -85,13 +73,13 @@ abstract class Multiplier extends Module {
   /// Take input [a] and input [b] and return the [product] of the
   /// multiplication result.
   ///
-  /// The optional [signedMultiplicand] parameter configures the
-  /// multiplicand [a] as a signed multiplicand (default is unsigned) or with a
-  /// runtime configurable [selectSignedMultiplicand] input.
+  /// The optional [signedMultiplicand] parameter configures the multiplicand
+  /// [a] statically as a signed multiplicand (default is unsigned) or
+  /// dynamically with a 1-bit Logic [selectSignedMultiplicand] input.
   ///
-  /// The optional [signedMultiplier] parameter configures the multiplier
-  /// [b] as a signed multiplier (default is unsigned) or with a runtime
-  /// configurable [selectSignedMultiplier] input.
+  /// The optional [signedMultiplier] parameter configures the multiplier [b]
+  /// statically as a signed multiplier (default is unsigned) or dynamically
+  /// with a 1-bit Logic [selectSignedMultiplier] input.
   ///
   /// If [clk] is not null then a set of flops are used to make the multiply a
   /// 2-cycle latency operation. [reset] and [enable] are optional inputs to
@@ -106,8 +94,8 @@ abstract class Multiplier extends Module {
       String? definitionName})
       : super(
             definitionName: definitionName ??
-                '${b.width}_$_signedMD(signedMultiplicand)}'
-                    '$_signedML(signedMultiplier)}') {
+                '${b.width}_$signedMD(signedMultiplicand)}_'
+                    '$signedML(signedMultiplier)}') {
     this.clk = (clk != null) ? addInput('clk', clk) : null;
     this.reset = (reset != null) ? addInput('reset', reset) : null;
     this.enable = (enable != null) ? addInput('enable', enable) : null;
@@ -119,22 +107,45 @@ abstract class Multiplier extends Module {
     signedMultiplierParameter =
         StaticOrRuntimeParameter.ofDynamic(signedMultiplier);
 
-    signedMultiplicandParameter?.getRuntimeInput(this);
-    this.signedMultiplicand =
-        signedMultiplicandParameter?.staticConfig ?? false;
+    signedMultiplicandParameter.getRuntimeInput(this);
+    this.signedMultiplicand = signedMultiplicandParameter.staticConfig;
 
-    signedMultiplierParameter?.getRuntimeInput(this);
-    this.signedMultiplier = signedMultiplierParameter?.staticConfig ?? false;
+    signedMultiplierParameter.getRuntimeInput(this);
+    this.signedMultiplier = signedMultiplierParameter.staticConfig;
 
     addOutput('product', width: a.width + b.width);
     addOutput('isProductSigned') <=
-        ((signedMultiplicandParameter != null
-                ? signedMultiplicandParameter!.getLogic(this)
-                : Const(0)) |
-            (signedMultiplierParameter != null
-                ? signedMultiplierParameter!.getLogic(this)
-                : Const(0)));
+        signedMultiplicandParameter.getLogic(this) |
+            signedMultiplierParameter.getLogic(this);
   }
+
+  /// This is a helper function that prints out the kind of multiplicand
+  /// (selected by a Logic or set statically).
+  /// - UD: unsigned multiplicand
+  /// - SD: signed multiplicand
+  /// - SSD: signed multiplicand with dynamic selection.
+  static String signedMD(dynamic mdConfig) =>
+      ((mdConfig is! StaticOrRuntimeParameter) | (mdConfig == null))
+          ? 'UD'
+          : ((mdConfig as StaticOrRuntimeParameter).runtimeConfig != null)
+              ? 'SSD'
+              : mdConfig.staticConfig
+                  ? 'SD'
+                  : 'UD';
+
+  /// This is a helper function that prints out the kind of multiplier (selected
+  /// by a Logic or set statically).)
+  /// - UM: unsigned multiplier
+  /// - SM: signed multiplier
+  /// - SSM: signed multiplier with dynamic selection.
+  static String signedML(dynamic mlConfig) =>
+      ((mlConfig is! StaticOrRuntimeParameter) | (mlConfig == null))
+          ? 'UM'
+          : (mlConfig as StaticOrRuntimeParameter).runtimeConfig != null
+              ? 'SSM'
+              : mlConfig.staticConfig
+                  ? 'SM'
+                  : 'UM';
 }
 
 /// A class which wraps the native '*' operator so that it can be passed
@@ -150,8 +161,8 @@ class NativeMultiplier extends Multiplier {
       super.name = 'native_multiplier'})
       : super(
             definitionName: 'NativeMultiplier_W${a.width}x'
-                '${b.width}_$_signedMD(signedMultiplicand)}'
-                '$_signedML(signedMultiplier)}') {
+                '${b.width}_${Multiplier.signedMD(signedMultiplicand)}_'
+                '${Multiplier.signedML(signedMultiplier)}') {
     if (a.width != b.width) {
       throw RohdHclException('inputs of a and b should have same width.');
     }
@@ -219,8 +230,8 @@ class CompressionTreeMultiplier extends Multiplier {
       super.name = 'compression_tree_multiplier'})
       : super(
             definitionName: 'CompressionTreeMultiplier_W${a.width}x'
-                '${b.width}_$_signedMD(signedMultiplicand)}'
-                '$_signedML(signedMultiplier)}_'
+                '${b.width}_${Multiplier.signedMD(signedMultiplicand)}_'
+                '${Multiplier.signedML(signedMultiplier)}_'
                 'with${adderGen(a, a).definitionName}') {
     final pp = PartialProduct(a, b, RadixEncoder(radix),
         selectSignedMultiplicand: selectSignedMultiplicand,

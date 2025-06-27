@@ -65,7 +65,7 @@ class StaticOrRuntimeParameter {
   /// Return the internal [Logic] signal that represents the configuration,
   /// either static or runtime.
   Logic getLogic(Module module) =>
-      staticConfig ? Const(1) : (tryRuntimeInput(module) ?? Const(0));
+      staticConfig ? Const(1) : (getRuntimeInput(module) ?? Const(0));
 
   /// Construct and return a [Logic]? that is a true input to the [module]
   /// if this is a runtime configuration signal.
