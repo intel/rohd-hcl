@@ -26,13 +26,12 @@ class StaticOrRuntimeParameter {
   /// a module input.
   final String name;
 
-  /// Creates a new [StaticOrRuntimeParameter] instance.
+  /// Creates a new [StaticOrRuntimeParameter] instance. Note that
+  /// [runtimeConfig] overrides [staticConfig].  Also, it is presumed that
+  /// [staticConfig] has a default value of `false` if not provided.
   StaticOrRuntimeParameter(
       {required this.name, this.runtimeConfig, bool? staticConfig = false}) {
-    if (runtimeConfig != null && staticConfig != null) {
-      throw RohdHclException(
-          'Only provide either runtimeConfig or staticConfig, not both.');
-    } else if (staticConfig != null) {
+    if (runtimeConfig == null && staticConfig != null) {
       this.staticConfig = staticConfig;
     } else {
       this.staticConfig = false;
@@ -55,6 +54,11 @@ class StaticOrRuntimeParameter {
           'Unsupported configuration type: ${config.runtimeType}');
     }
   }
+
+  /// Return a string representation of the configuration, including its name.
+  @override
+  String toString() => 'StaticOrRuntimeParameter_${name}_static_$staticConfig'
+      '_runtime_${runtimeConfig?.name ?? 'null'}';
 
   /// Return a bool representing the value of the configuration.
   @visibleForTesting

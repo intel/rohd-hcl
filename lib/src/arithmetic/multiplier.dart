@@ -121,9 +121,9 @@ abstract class Multiplier extends Module {
 
   /// This is a helper function that prints out the kind of multiplicand
   /// (selected by a Logic or set statically).
-  /// - UD: unsigned multiplicand
-  /// - SD: signed multiplicand
-  /// - SSD: signed multiplicand with dynamic selection.
+  /// - UD: unsigned multiplicand.
+  /// - SD: signed multiplicand.
+  /// - SSD: dynamic selection of signed multiplicand.
   static String signedMD(dynamic mdConfig) =>
       ((mdConfig is! StaticOrRuntimeParameter) | (mdConfig == null))
           ? 'UD'
@@ -135,9 +135,9 @@ abstract class Multiplier extends Module {
 
   /// This is a helper function that prints out the kind of multiplier (selected
   /// by a Logic or set statically).)
-  /// - UM: unsigned multiplier
-  /// - SM: signed multiplier
-  /// - SSM: signed multiplier with dynamic selection.
+  /// - UM: unsigned multiplier.
+  /// - SM: signed multiplier.
+  /// - SSM: dynamic selection of signed multiplier.
   static String signedML(dynamic mlConfig) =>
       ((mlConfig is! StaticOrRuntimeParameter) | (mlConfig == null))
           ? 'UM'
