@@ -16,7 +16,7 @@ import 'package:test/test.dart';
 
 // Only for radix>=4
 Logic addReduceAdders(List<Logic> inputs,
-    {int? fullDepth, Logic? control, String name = 'prefix'}) {
+    {int? depth, Logic? control, String name = 'prefix'}) {
   if (inputs.length < 4) {
     return inputs.reduce((v, e) => v + e);
   } else {
@@ -25,21 +25,21 @@ Logic addReduceAdders(List<Logic> inputs,
     final add1 =
         ParallelPrefixAdder(inputs[2], inputs[3], name: '${name}_add1');
     final addf = ParallelPrefixAdder(add0.sum, add1.sum,
-        name: '${name}_addf_${fullDepth ?? 0}');
+        name: '${name}_addf_${depth ?? 0}');
     return addf.sum;
   }
 }
 
 Logic muxReduce(List<Logic> inputs,
-        {int? fullDepth, Logic? control, String name = 'mux'}) =>
-    mux(control![fullDepth!], inputs[1], inputs[0]);
+        {int? depth, Logic? control, String name = 'mux'}) =>
+    mux(control![depth!], inputs[1], inputs[0]);
 
 void main() {
   tearDown(() async {
     await Simulator.reset();
   });
   Logic addReduce(List<Logic> inputs,
-          {int? fullDepth, Logic? control, String name = ''}) =>
+          {int? depth, Logic? control, String name = ''}) =>
       inputs.reduce((v, e) => v + e);
 
   test('reduction tree of add operations -- quick test', () async {
@@ -92,7 +92,7 @@ void main() {
     }
     final control = Logic(width: log2Ceil(vec.length))..put(0);
     final muxTree = ReductionTree(vec, muxReduce,
-        clk: clk, depthToFlop: 2, control: control, name: 'mux');
+        clk: clk, depthBetweenFlops: 2, control: control, name: 'mux');
 
     final positions = [7, 4, 5, 6, 12, 0, 1010, 511, 212, 0, 789];
 
@@ -146,7 +146,7 @@ void main() {
         radix: radix,
         addReduce,
         clk: clk,
-        depthToFlop: 1,
+        depthBetweenFlops: 1,
         name: 'prefix_reduction');
 
     await prefixAdd.build();
@@ -192,7 +192,7 @@ void main() {
     }
     const reduce = 4;
     final prefixAdd = ReductionTree(
-        vec, radix: reduce, addReduceAdders, clk: clk, depthToFlop: 1);
+        vec, radix: reduce, addReduceAdders, clk: clk, depthBetweenFlops: 1);
 
     await prefixAdd.build();
     unawaited(Simulator.run());

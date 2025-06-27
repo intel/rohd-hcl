@@ -14,7 +14,7 @@ import 'package:rohd_vf/rohd_vf.dart';
 import 'package:test/test.dart';
 
 Logic addReduceAdders(List<Logic> inputs,
-    {int? fullDepth, Logic? control, String name = 'prefix'}) {
+    {int? depth, Logic? control, String name = 'prefix'}) {
   if (inputs.length < 4) {
     return inputs.reduce((v, e) => v + e);
   } else {
@@ -32,7 +32,7 @@ void main() {
     await Simulator.reset();
   });
   Logic addReduce(List<Logic> inputs,
-      {int? fullDepth, Logic? control, String name = ''}) {
+      {int? depth, Logic? control, String name = ''}) {
     final a = inputs.reduce((v, e) => v + e);
     return a;
   }
@@ -86,7 +86,7 @@ void main() {
     }
     const radix = 4;
     final prefixAdd = ReductionTreeGenerator(
-        vec, radix: radix, addReduce, clk: clk, depthToFlop: 1);
+        vec, radix: radix, addReduce, clk: clk, depthBetweenFlops: 1);
 
     unawaited(Simulator.run());
     var cycles = 0;
@@ -118,8 +118,8 @@ void main() {
   });
 
   Logic muxReduce(List<Logic> inputs,
-          {int? fullDepth, Logic? control, String name = 'mux'}) =>
-      mux(control![fullDepth!], inputs[1], inputs[0]);
+          {int? depth, Logic? control, String name = 'mux'}) =>
+      mux(control![depth!], inputs[1], inputs[0]);
 
   test('reduction tree of muxes -- large flopped', () async {
     final clk = SimpleClockGenerator(10).clk;
@@ -135,7 +135,7 @@ void main() {
     }
     final control = Logic(width: log2Ceil(vec.length))..put(0);
     final muxTree = ReductionTreeGenerator(vec, muxReduce,
-        clk: clk, depthToFlop: 2, control: control);
+        clk: clk, depthBetweenFlops: 2, control: control);
 
     final positions = [7, 4, 5, 6, 12, 0, 1010, 511, 212, 0, 789];
 
@@ -166,7 +166,7 @@ void main() {
     }
     const reduce = 4;
     final prefixAdd = ReductionTreeGenerator(
-        vec, radix: reduce, addReduceAdders, clk: clk, depthToFlop: 1);
+        vec, radix: reduce, addReduceAdders, clk: clk, depthBetweenFlops: 1);
 
     unawaited(Simulator.run());
     var cycles = 0;

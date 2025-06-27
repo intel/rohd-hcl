@@ -16,29 +16,25 @@ import 'package:rohd_hcl/rohd_hcl.dart';
 /// inline so that the [operation] can access global signals.
 class ReductionTreeGenerator {
   /// The final output of the tree computation.
-  Logic get out => _out;
+  late final Logic out;
 
-  late final Logic _out;
-
-  /// The control  output of the tree computation.
-  Logic? get controlOut => _controlOut;
-
-  late final Logic? _controlOut;
+  /// The control output of the tree computation.
+  late final Logic? controlOut;
 
   /// Optional [control] input to input to operation.
   final Logic? control;
 
-  /// The combinational depth since the last flop.
+  /// The depth of the tree from the output to the leaves.
   int get depth => _computed.depth;
 
-  /// The flop depth of the tree from the output to the leaves.
+  /// The number of flops from the output to the leaves.
   int get latency => _computed.flopDepth;
 
   /// Operation to be performed at each node. Note that [operation] can widen
   /// the output. The logic function must support the operation for 2 and up to
   /// [radix] inputs.
   final Logic Function(List<Logic> inputs,
-      {int? fullDepth, Logic? control, String name}) operation;
+      {int? depth, Logic? control, String name}) operation;
 
   /// Specified width of input to each reduction node (e.g., binary: radix=2)
   final int radix;
@@ -48,7 +44,7 @@ class ReductionTreeGenerator {
   final bool signExtend;
 
   /// Specified depth of nodes at which to flop (requires [clk]).
-  final int? depthToFlop;
+  final int? depthBetweenFlops;
 
   /// Optional [clk] input to create pipeline.
   final Logic? clk;
@@ -66,8 +62,8 @@ class ReductionTreeGenerator {
   /// flop or input), and its flopDepth if pipelined.
   late final ({
     Logic value,
+    int depthFromLastFlop,
     int depth,
-    int fullDepth,
     Logic? controlOut,
     int flopDepth,
   }) _computed;
@@ -81,7 +77,7 @@ class ReductionTreeGenerator {
   /// segment.
   /// - [sequence] is the input sequence to be reduced using the tree of
   ///   operations.
-  /// - Logic Function(List<Logic> inputs, {int? fullDepth, String name})
+  /// - Logic Function(List<Logic> inputs, {int? depth, String name})
   ///   [operation] is the operation to be performed at each node. Note that
   ///   [operation] can widen the output. The logic function must support the
   ///   operation for (2 to [radix]) inputs.
@@ -93,13 +89,13 @@ class ReductionTreeGenerator {
   ///   reduced and passed into the operation.
   /// Optional parameters to be used for creating a pipelined computation tree:
   /// - [clk], [reset], [enable] are optionally provided to allow for flopping.
-  /// - [depthToFlop] specifies how many nodes deep separate flops.
+  /// - [depthBetweenFlops] specifies how many nodes deep separate flops.
   ReductionTreeGenerator(
     this.sequence,
     this.operation, {
     this.radix = 2,
     this.signExtend = false,
-    this.depthToFlop,
+    this.depthBetweenFlops,
     this.control,
     this.clk,
     this.enable,
@@ -109,11 +105,13 @@ class ReductionTreeGenerator {
       throw RohdHclException("Don't use ReductionTreeGenerator "
           'with an empty sequence');
     }
-    // _buildLogic();
-    _controlOut = control != null ? Logic(width: control!.width) : null;
-    _computed = reductionTreeRecurse(sequence);
-    _out = Logic(width: _computed.value.width);
-    _out <= _computed.value;
+    controlOut = control != null ? Logic(width: control!.width) : null;
+    _computed = _reductionTreeRecurse(sequence);
+    out = Logic(width: _computed.value.width);
+    out <= _computed.value;
+    if (controlOut != null) {
+      controlOut! <= _computed.controlOut!;
+    }
   }
 
   /// Compute the next splitting point taking into account trying to get
@@ -134,29 +132,34 @@ class ReductionTreeGenerator {
   }
 
   /// Build out the recursive tree
-  ({Logic value, int depth, int fullDepth, int flopDepth, Logic? controlOut})
-      reductionTreeRecurse(List<Logic> seq) {
+  ({
+    Logic value,
+    int depthFromLastFlop,
+    int depth,
+    int flopDepth,
+    Logic? controlOut
+  }) _reductionTreeRecurse(List<Logic> seq) {
     if (seq.length <= radix) {
-      Logic? controlOut;
-      if (_controlOut != null) {
-        controlOut = Logic(width: _controlOut!.width);
-        controlOut <= control!;
+      Logic? stageControlOut;
+      if (control != null) {
+        stageControlOut = Logic(width: controlOut!.width);
+        stageControlOut <= control!;
       } else {
-        controlOut = null;
+        stageControlOut = null;
       }
-      final value = operation(seq, fullDepth: 0, control: control);
+      final value = operation(seq, depth: 0, control: control);
       return (
         value: value,
+        depthFromLastFlop: 0,
         depth: 0,
-        fullDepth: 0,
         flopDepth: 0,
-        controlOut: controlOut
+        controlOut: stageControlOut
       );
     } else {
       final results = <({
         Logic value,
+        int depthFromLastFlop,
         int depth,
-        int fullDepth,
         int flopDepth,
         Logic? controlOut
       })>[];
@@ -164,44 +167,44 @@ class ReductionTreeGenerator {
       for (var i = 0; i < radix; i++) {
         final end1 =
             _nextSplitDistance(seq.length - pos, radix, radix - i) + pos;
-        final c = reductionTreeRecurse(seq.getRange(pos, end1).toList());
+        final c = _reductionTreeRecurse(seq.getRange(pos, end1).toList());
 
         results.add(c);
         pos = end1;
       }
       final flopDepth = results.map((c) => c.flopDepth).reduce(max);
-      final treeDepth = results.map((c) => c.depth).reduce(max);
-      final fullDepth = results.map((c) => c.fullDepth).reduce(max);
+      final combDepth = results.map((c) => c.depthFromLastFlop).reduce(max);
+      final depth = results.map((c) => c.depth).reduce(max);
 
       final alignedResults = results
           .map((c) => _localFlop(c.value, doFlop: c.flopDepth < flopDepth));
 
-      final depthFlop = (depthToFlop != null) &&
-          (treeDepth > 0) & (treeDepth % depthToFlop! == 0);
-      final resultsFlop =
-          alignedResults.map((r) => _localFlop(r, doFlop: depthFlop));
+      final flopHere = (depthBetweenFlops != null) &&
+          (combDepth > 0) & (combDepth % depthBetweenFlops! == 0);
+      final floppedResults =
+          alignedResults.map((r) => _localFlop(r, doFlop: flopHere));
 
-      Logic? controlOut;
-      if (_controlOut != null) {
-        controlOut = Logic(width: results[0].controlOut!.width);
-        controlOut <= _localFlop(results[0].controlOut!, doFlop: depthFlop);
+      Logic? stageControlOut;
+      if (control != null) {
+        stageControlOut = Logic(width: results[0].controlOut!.width);
+        stageControlOut <= _localFlop(results[0].controlOut!, doFlop: flopHere);
       } else {
-        controlOut = null;
+        stageControlOut = null;
       }
 
       final alignWidth = results.map((c) => c.value.width).reduce(max);
-      final resultsExtend = resultsFlop.map((r) =>
+      final resultsExtend = floppedResults.map((r) =>
           signExtend ? r.signExtend(alignWidth) : r.zeroExtend(alignWidth));
 
       final value = operation(resultsExtend.toList(),
-          control: controlOut, fullDepth: fullDepth + 1);
+          control: stageControlOut, depth: depth + 1);
 
       return (
         value: value,
-        depth: depthFlop ? 0 : treeDepth + 1,
-        fullDepth: fullDepth + 1,
-        controlOut: controlOut,
-        flopDepth: flopDepth + (depthFlop ? 1 : 0)
+        depthFromLastFlop: flopHere ? 0 : combDepth + 1,
+        depth: depth + 1,
+        controlOut: stageControlOut,
+        flopDepth: flopDepth + (flopHere ? 1 : 0)
       );
     }
   }
