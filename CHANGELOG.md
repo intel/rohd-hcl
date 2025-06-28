@@ -5,11 +5,12 @@
 - Added `FloatingPointConverter` component (<https://github.com/intel/rohd-hcl/pull/123>), (<https://github.com/intel/rohd-hcl/pull/161>).
 - Added `FloatingPointMultiplierSimple` component (<https://github.com/intel/rohd-hcl/pull/152>), (<https://github.com/intel/rohd-hcl/pull/160>)
 - Added explicit J-Bit form of `FloatingPointAdder` (<https://github.com/intel/rohd-hcl/pull/193>).
+- Added AXI4 interface with functional model (<https://github.com/intel/rohd-hcl/pull/159>).
 - Added `CompoundAdder` component (<https://github.com/intel/rohd-hcl/pull/98>), (<https://github.com/intel/rohd-hcl/pull/178>)
 - Added clock gating components (<https://github.com/intel/rohd-hcl/pull/96>).
 - Added `ReductionTree` module and `ReductionTreeGenerator` component (<https://github.com/intel/rohd-hcl/pull/155>), (<https://github.com/intel/rohd-hcl/pull/180>), (<https://github.com/intel/rohd-hcl/pull/204>)
 - Added square root components for floating-point (<https://github.com/intel/rohd-hcl/pull/188>).
-- Added CSR capabilities (<https://github.com/intel/rohd-hcl/pull/151>), (<https://github.com/intel/rohd-hcl/pull/205>), (<https://github.com/intel/rohd-hcl/pull/197>).
+- Added Control Status Register capabilities (<https://github.com/intel/rohd-hcl/pull/151>), (<https://github.com/intel/rohd-hcl/pull/205>), (<https://github.com/intel/rohd-hcl/pull/197>).
 - Added `Sum` and `Counter`(<https://github.com/intel/rohd-hcl/pull/89>).
 - Added Integer Divider (<https://github.com/intel/rohd-hcl/pull/87>), (<https://github.com/intel/rohd-hcl/pull/117>), (<https://github.com/intel/rohd-hcl/pull/129>), (<https://github.com/intel/rohd-hcl/pull/141>)
 - Added `Serializer` and `Deserializer` (<https://github.com/intel/rohd-hcl/pull/92>).
