@@ -52,7 +52,7 @@ abstract class FloatingPointAdder<FpTypeIn extends FloatingPoint,
   late final FpTypeOut internalSum;
 
   /// The rounding mode to use for the adder.
-  late final FloatingPointRoundingMode roundingMode;
+  final FloatingPointRoundingMode roundingMode;
 
   /// Add two floating point numbers [a] and [b], returning result in [sum].
   /// If a different output type is needed, you can provide that in [outSum].
