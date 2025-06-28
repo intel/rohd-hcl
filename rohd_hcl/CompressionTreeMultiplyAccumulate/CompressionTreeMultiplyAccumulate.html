@@ -61,12 +61,9 @@
 <li><span class="parameter" id="-param-clk"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.3/rohd/Logic-class.html">Logic</a>?</span> <span class="parameter-name">clk</span>, </span></li>
 <li><span class="parameter" id="-param-reset"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.3/rohd/Logic-class.html">Logic</a>?</span> <span class="parameter-name">reset</span>, </span></li>
 <li><span class="parameter" id="-param-enable"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.3/rohd/Logic-class.html">Logic</a>?</span> <span class="parameter-name">enable</span>, </span></li>
-<li><span class="parameter" id="-param-signedMultiplicand"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.8.1/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">signedMultiplicand</span> = <span class="default-value">false</span>, </span></li>
-<li><span class="parameter" id="-param-signedMultiplier"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.8.1/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">signedMultiplier</span> = <span class="default-value">false</span>, </span></li>
-<li><span class="parameter" id="-param-signedAddend"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.8.1/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">signedAddend</span> = <span class="default-value">false</span>, </span></li>
-<li><span class="parameter" id="-param-selectSignedMultiplicand"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.3/rohd/Logic-class.html">Logic</a>?</span> <span class="parameter-name">selectSignedMultiplicand</span>, </span></li>
-<li><span class="parameter" id="-param-selectSignedMultiplier"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.3/rohd/Logic-class.html">Logic</a>?</span> <span class="parameter-name">selectSignedMultiplier</span>, </span></li>
-<li><span class="parameter" id="-param-selectSignedAddend"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.3/rohd/Logic-class.html">Logic</a>?</span> <span class="parameter-name">selectSignedAddend</span>, </span></li>
+<li><span class="parameter" id="-param-signedMultiplicand"><span class="type-annotation">dynamic</span> <span class="parameter-name">signedMultiplicand</span>, </span></li>
+<li><span class="parameter" id="-param-signedMultiplier"><span class="type-annotation">dynamic</span> <span class="parameter-name">signedMultiplier</span>, </span></li>
+<li><span class="parameter" id="-param-signedAddend"><span class="type-annotation">dynamic</span> <span class="parameter-name">signedAddend</span>, </span></li>
 <li><span class="parameter" id="-param-adderGen"><span class="type-annotation"><a href="../../rohd_hcl/Adder-class.html">Adder</a></span> <span class="parameter-name">adderGen</span>(<ol class="parameter-list"> <li><span class="parameter" id="param-a"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.3/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">a</span>, </span></li>
 <li><span class="parameter" id="param-b"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.3/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">b</span>, {</span></li>
 <li><span class="parameter" id="param-carryIn"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.3/rohd/Logic-class.html">Logic</a>?</span> <span class="parameter-name">carryIn</span>, </span></li>
@@ -83,23 +80,8 @@
 and an <a href="../../rohd_hcl/Adder-class.html">Adder</a> generator functor <code>adderGen</code> for the final adder.</p>
 <p><code>a</code> and <code>b</code> are the product terms, <code>c</code> is the accumulate term which
 must be the sum of the widths plus 1.</p>
-<p><code>signedMultiplicand</code> parameter configures the multiplicand <code>a</code> as
-always signed (default is unsigned).</p>
-<p><code>signedMultiplier</code> parameter configures the multiplier <code>b</code> as
-always signed (default is unsigned).</p>
-<p><code>signedAddend</code> parameter configures the addend <code>c</code> as
-always signed (default is unsigned).</p>
 <p>Sign extension methodology is defined by the partial product generator
 supplied via <code>seGen</code>.</p>
-<p>Optional <code>selectSignedMultiplicand</code> allows for runtime configuration of
-signed or unsigned operation, overriding the <code>signedMultiplicand</code> static
-configuration.</p>
-<p>Optional <code>selectSignedMultiplier</code> allows for runtime configuration of
-signed or unsigned operation, overriding the <code>signedMultiplier</code> static
-configuration.</p>
-<p>Optional <code>selectSignedAddend</code> allows for runtime configuration of
-signed or unsigned operation, overriding the <code>signedAddend</code> static
-configuration.</p>
 <p>If <code>clk</code> is not null then a set of flops are used to latch the output
 after compression.  <code>reset</code> and <code>enable</code> are optional
 inputs to control these flops when <code>clk</code> is provided. If <code>clk</code> is null,
@@ -114,12 +96,9 @@ the Column Compressor is built as a combinational tree of compressors.</p>
     {Logic? clk,
     Logic? reset,
     Logic? enable,
-    super.signedMultiplicand = false,
-    super.signedMultiplier = false,
-    super.signedAddend = false,
-    super.selectSignedMultiplicand,
-    super.selectSignedMultiplier,
-    super.selectSignedAddend,
+    super.signedMultiplicand,
+    super.signedMultiplier,
+    super.signedAddend,
     Adder Function(Logic a, Logic b, {Logic? carryIn}) adderGen =
         NativeAdder.new,
     PartialProductSignExtension Function(PartialProductGeneratorBase pp,

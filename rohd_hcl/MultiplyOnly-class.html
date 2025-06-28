@@ -94,7 +94,7 @@ term and applies the multiplier function.</p>
     <h2>Constructors</h2>
     <dl class="constructor-summary-list">
         <dt id="MultiplyOnly.new" class="callable">
-          <span class="name"><a href="../rohd_hcl/MultiplyOnly/MultiplyOnly.html">MultiplyOnly.new</a></span><span class="signature">(<span class="parameter" id="-param-a"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.3/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">a</span>, </span><span class="parameter" id="-param-b"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.3/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">b</span>, </span><span class="parameter" id="-param-c"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.3/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">c</span>, </span><span class="parameter" id="-param-mulGen"><span class="type-annotation"><a href="../rohd_hcl/Multiplier-class.html">Multiplier</a></span> <span class="parameter-name">mulGen</span>(<span class="parameter" id="param-a"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.3/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">a</span>, </span><span class="parameter" id="param-b"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.3/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">b</span>, {</span><span class="parameter" id="param-selectSignedMultiplicand"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.3/rohd/Logic-class.html">Logic</a>?</span> <span class="parameter-name">selectSignedMultiplicand</span>, </span><span class="parameter" id="param-selectSignedMultiplier"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.3/rohd/Logic-class.html">Logic</a>?</span> <span class="parameter-name">selectSignedMultiplier</span></span>}), {</span><span class="parameter" id="-param-signedMultiplicand"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.8.1/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">signedMultiplicand</span> = <span class="default-value">false</span>, </span><span class="parameter" id="-param-signedMultiplier"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.8.1/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">signedMultiplier</span> = <span class="default-value">false</span>, </span><span class="parameter" id="-param-signedAddend"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.8.1/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">signedAddend</span> = <span class="default-value">false</span>, </span><span class="parameter" id="-param-selectSignedMultiplicand"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.3/rohd/Logic-class.html">Logic</a>?</span> <span class="parameter-name">selectSignedMultiplicand</span>, </span><span class="parameter" id="-param-selectSignedMultiplier"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.3/rohd/Logic-class.html">Logic</a>?</span> <span class="parameter-name">selectSignedMultiplier</span>, </span><span class="parameter" id="-param-selectSignedAddend"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.3/rohd/Logic-class.html">Logic</a>?</span> <span class="parameter-name">selectSignedAddend</span></span>})</span>
+          <span class="name"><a href="../rohd_hcl/MultiplyOnly/MultiplyOnly.html">MultiplyOnly.new</a></span><span class="signature">(<span class="parameter" id="-param-a"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.3/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">a</span>, </span><span class="parameter" id="-param-b"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.3/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">b</span>, </span><span class="parameter" id="-param-c"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.3/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">c</span>, </span><span class="parameter" id="-param-mulGen"><span class="type-annotation"><a href="../rohd_hcl/Multiplier-class.html">Multiplier</a></span> <span class="parameter-name">mulGen</span>(<span class="parameter" id="param-a"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.3/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">a</span>, </span><span class="parameter" id="param-b"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.3/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">b</span>, {</span><span class="parameter" id="param-signedMultiplicand"><span class="type-annotation">dynamic</span> <span class="parameter-name">signedMultiplicand</span>, </span><span class="parameter" id="param-signedMultiplier"><span class="type-annotation">dynamic</span> <span class="parameter-name">signedMultiplier</span></span>}), {</span><span class="parameter" id="-param-signedMultiplicand"><span class="type-annotation">dynamic</span> <span class="parameter-name">signedMultiplicand</span>, </span><span class="parameter" id="-param-signedMultiplier"><span class="type-annotation">dynamic</span> <span class="parameter-name">signedMultiplier</span>, </span><span class="parameter" id="-param-signedAddend"><span class="type-annotation">dynamic</span> <span class="parameter-name">signedAddend</span></span>})</span>
         </dt>
         <dd>
           Construct a MultiplyAccumulate that only multiplies to enable
@@ -363,7 +363,7 @@ or else it will fail.
 </dt>
 <dd class="inherited">
   If not null, use this signal to select between signed and unsigned
-addend <a href="../rohd_hcl/MultiplyAccumulate/c.html">c</a>
+multiplier <a href="../rohd_hcl/MultiplyAccumulate/b.html">b</a>
   <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
 
 </dd>
@@ -409,37 +409,73 @@ inputs, outputs, and internal signals of this <a href="https://pub.dev/documenta
 
         <dt id="signedAddend" class="property inherited">
   <span class="name"><a href="../rohd_hcl/MultiplyAccumulate/signedAddend.html">signedAddend</a></span>
-  <span class="signature">&#8594; <a href="https://api.dart.dev/stable/3.8.1/dart-core/bool-class.html">bool</a></span>
+  <span class="signature">&#8596; <a href="https://api.dart.dev/stable/3.8.1/dart-core/bool-class.html">bool</a></span>
   
 
 </dt>
 <dd class="inherited">
   The MAC treats addend <a href="../rohd_hcl/MultiplyAccumulate/c.html">c</a> as always signed.
-  <div class="features"><span class="feature">final</span><span class="feature">inherited</span></div>
+  <div class="features"><span class="feature">getter/setter pair</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="signedAddendParameter" class="property inherited">
+  <span class="name"><a href="../rohd_hcl/MultiplyAccumulate/signedAddendParameter.html">signedAddendParameter</a></span>
+  <span class="signature">&#8596; <a href="../rohd_hcl/StaticOrRuntimeParameter-class.html">StaticOrRuntimeParameter</a></span>
+  
+
+</dt>
+<dd class="inherited">
+  Configuration for signed addend <a href="../rohd_hcl/MultiplyAccumulate/c.html">c</a>.
+  <div class="features"><span class="feature">late</span><span class="feature">final</span><span class="feature">inherited</span></div>
 
 </dd>
 
         <dt id="signedMultiplicand" class="property inherited">
   <span class="name"><a href="../rohd_hcl/MultiplyAccumulate/signedMultiplicand.html">signedMultiplicand</a></span>
-  <span class="signature">&#8594; <a href="https://api.dart.dev/stable/3.8.1/dart-core/bool-class.html">bool</a></span>
+  <span class="signature">&#8596; <a href="https://api.dart.dev/stable/3.8.1/dart-core/bool-class.html">bool</a></span>
   
 
 </dt>
 <dd class="inherited">
   The MAC treats multiplicand <a href="../rohd_hcl/MultiplyAccumulate/a.html">a</a> as always signed.
-  <div class="features"><span class="feature">final</span><span class="feature">inherited</span></div>
+  <div class="features"><span class="feature">getter/setter pair</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="signedMultiplicandParameter" class="property inherited">
+  <span class="name"><a href="../rohd_hcl/MultiplyAccumulate/signedMultiplicandParameter.html">signedMultiplicandParameter</a></span>
+  <span class="signature">&#8596; <a href="../rohd_hcl/StaticOrRuntimeParameter-class.html">StaticOrRuntimeParameter</a></span>
+  
+
+</dt>
+<dd class="inherited">
+  Configuration for signed multiplicand <a href="../rohd_hcl/MultiplyAccumulate/a.html">a</a>.
+  <div class="features"><span class="feature">late</span><span class="feature">final</span><span class="feature">inherited</span></div>
 
 </dd>
 
         <dt id="signedMultiplier" class="property inherited">
   <span class="name"><a href="../rohd_hcl/MultiplyAccumulate/signedMultiplier.html">signedMultiplier</a></span>
-  <span class="signature">&#8594; <a href="https://api.dart.dev/stable/3.8.1/dart-core/bool-class.html">bool</a></span>
+  <span class="signature">&#8596; <a href="https://api.dart.dev/stable/3.8.1/dart-core/bool-class.html">bool</a></span>
   
 
 </dt>
 <dd class="inherited">
   The MAC treats multiplier <a href="../rohd_hcl/MultiplyAccumulate/b.html">b</a> as always signed.
-  <div class="features"><span class="feature">final</span><span class="feature">inherited</span></div>
+  <div class="features"><span class="feature">getter/setter pair</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="signedMultiplierParameter" class="property inherited">
+  <span class="name"><a href="../rohd_hcl/MultiplyAccumulate/signedMultiplierParameter.html">signedMultiplierParameter</a></span>
+  <span class="signature">&#8596; <a href="../rohd_hcl/StaticOrRuntimeParameter-class.html">StaticOrRuntimeParameter</a></span>
+  
+
+</dt>
+<dd class="inherited">
+  Configuration for signed multiplier <a href="../rohd_hcl/MultiplyAccumulate/b.html">b</a>.
+  <div class="features"><span class="feature">late</span><span class="feature">final</span><span class="feature">inherited</span></div>
 
 </dd>
 

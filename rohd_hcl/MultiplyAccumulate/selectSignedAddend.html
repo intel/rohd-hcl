@@ -73,14 +73,14 @@
     
 <section class="desc markdown">
   <p>If not null, use this signal to select between signed and unsigned
-addend <a href="../../rohd_hcl/MultiplyAccumulate/c.html">c</a></p>
+multiplier <a href="../../rohd_hcl/MultiplyAccumulate/b.html">b</a></p>
 </section>
 
     
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">@protected
-Logic? get selectSignedAddend =&gt; tryInput(&#39;selectSignedAddend&#39;);</code></pre>
+Logic? get selectSignedAddend =&gt; signedAddendParameter.tryRuntimeInput(this);</code></pre>
 </section>
 
   </section>

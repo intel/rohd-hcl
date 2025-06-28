@@ -59,6 +59,8 @@
 <li><span class="parameter" id="-param-clk"><span>required</span> <span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.3/rohd/Logic-class.html">Logic</a>?</span> <span class="parameter-name">clk</span>, </span></li>
 <li><span class="parameter" id="-param-reset"><span>required</span> <span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.3/rohd/Logic-class.html">Logic</a>?</span> <span class="parameter-name">reset</span>, </span></li>
 <li><span class="parameter" id="-param-enable"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.3/rohd/Logic-class.html">Logic</a>?</span> <span class="parameter-name">enable</span>, </span></li>
+<li><span class="parameter" id="-param-signedMultiplicand"><span class="type-annotation">dynamic</span> <span class="parameter-name">signedMultiplicand</span>, </span></li>
+<li><span class="parameter" id="-param-signedMultiplier"><span class="type-annotation">dynamic</span> <span class="parameter-name">signedMultiplier</span>, </span></li>
 <li><span class="parameter" id="-param-name"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.8.1/dart-core/String-class.html">String</a></span> <span class="parameter-name">name</span> = <span class="default-value">&#39;carry_save_multiplier&#39;</span>, </span></li>
 </ol>})
     </section>
@@ -75,11 +77,10 @@
     {required super.clk,
     required super.reset,
     super.enable,
+    super.signedMultiplicand,
+    super.signedMultiplier,
     super.name = &#39;carry_save_multiplier&#39;})
-    : super(
-          signedMultiplicand: false,
-          signedMultiplier: false,
-          definitionName: &#39;CarrySaveMultiplier_W${a.width}&#39;) {
+    : super(definitionName: &#39;CarrySaveMultiplier_W${a.width}&#39;) {
   if (a.width != b.width) {
     throw RohdHclException(&#39;inputs of a and b should have same width.&#39;);
   }

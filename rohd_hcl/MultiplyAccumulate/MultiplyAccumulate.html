@@ -60,29 +60,39 @@
 <li><span class="parameter" id="-param-clk"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.3/rohd/Logic-class.html">Logic</a>?</span> <span class="parameter-name">clk</span>, </span></li>
 <li><span class="parameter" id="-param-reset"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.3/rohd/Logic-class.html">Logic</a>?</span> <span class="parameter-name">reset</span>, </span></li>
 <li><span class="parameter" id="-param-enable"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.3/rohd/Logic-class.html">Logic</a>?</span> <span class="parameter-name">enable</span>, </span></li>
-<li><span class="parameter" id="-param-signedMultiplicand"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.8.1/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">signedMultiplicand</span> = <span class="default-value">false</span>, </span></li>
-<li><span class="parameter" id="-param-signedMultiplier"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.8.1/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">signedMultiplier</span> = <span class="default-value">false</span>, </span></li>
-<li><span class="parameter" id="-param-signedAddend"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.8.1/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">signedAddend</span> = <span class="default-value">false</span>, </span></li>
-<li><span class="parameter" id="-param-selectSignedMultiplicand"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.3/rohd/Logic-class.html">Logic</a>?</span> <span class="parameter-name">selectSignedMultiplicand</span>, </span></li>
-<li><span class="parameter" id="-param-selectSignedMultiplier"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.3/rohd/Logic-class.html">Logic</a>?</span> <span class="parameter-name">selectSignedMultiplier</span>, </span></li>
-<li><span class="parameter" id="-param-selectSignedAddend"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.3/rohd/Logic-class.html">Logic</a>?</span> <span class="parameter-name">selectSignedAddend</span>, </span></li>
+<li><span class="parameter" id="-param-signedMultiplicand"><span class="type-annotation">dynamic</span> <span class="parameter-name">signedMultiplicand</span>, </span></li>
+<li><span class="parameter" id="-param-signedMultiplier"><span class="type-annotation">dynamic</span> <span class="parameter-name">signedMultiplier</span>, </span></li>
+<li><span class="parameter" id="-param-signedAddend"><span class="type-annotation">dynamic</span> <span class="parameter-name">signedAddend</span>, </span></li>
 <li><span class="parameter" id="-param-name"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.8.1/dart-core/String-class.html">String</a></span> <span class="parameter-name">name</span> = <span class="default-value">&#39;multiply_accumulate&#39;</span>, </span></li>
 <li><span class="parameter" id="-param-definitionName"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.8.1/dart-core/String-class.html">String</a>?</span> <span class="parameter-name">definitionName</span>, </span></li>
 </ol>})
     </section>
     
 <section class="desc markdown">
-  <p>Take input <code>a</code> and input <code>b</code>, compute their
-product, add input <code>c</code> to produce the <a href="../../rohd_hcl/MultiplyAccumulate/accumulate.html">accumulate</a> result.</p>
-<p>Optional <code>selectSignedMultiplicand</code> allows for runtime configuration of
-signed or unsigned operation, overriding the <code>signedMultiplicand</code> static
-configuration.</p>
-<p>Optional <code>selectSignedMultiplier</code> allows for runtime configuration of
-signed or unsigned operation, overriding the <code>signedMultiplier</code> static
-configuration.</p>
-<p>Optional <code>selectSignedAddend</code> allows for runtime configuration of
-signed or unsigned operation, overriding the <code>signedAddend</code> static
-configuration.</p>
+  <p>Take input <code>a</code> and input <code>b</code>, compute their product, add input <code>c</code> to
+produce the <a href="../../rohd_hcl/MultiplyAccumulate/accumulate.html">accumulate</a> result.</p>
+<p>The optional <code>signedMultiplicand</code> parameter configures the
+The optional <code>signedMultiplicand</code> parameter configures the multiplicand
+<code>a</code> statically using a bool as a signed multiplicand (default is false, or
+unsigned) or dynamically with a 1-bit Logic <a href="../../rohd_hcl/MultiplyAccumulate/selectSignedMultiplicand.html">selectSignedMultiplicand</a>
+input. You can pass either a bool (for static configuration) or a Logic
+(dynamically configuring the type handled) with a signal to this
+parameter, otherwise this constructor will throw.</p>
+<p>The optional <code>signedMultiplier</code> parameter configures the multiplier <code>b</code>
+statically using a bool as a signed multiplier (default is false, or
+unsigned) or dynamically with a 1-bit Logic <a href="../../rohd_hcl/MultiplyAccumulate/selectSignedMultiplier.html">selectSignedMultiplier</a>
+input. You can pass either a bool (for static configuration) or a Logic
+(dynamically configuring the type handled with a signal) to this
+parameter, otherwise this constructor will throw.</p>
+<p>The optional <code>signedAddend</code> parameter configures the addend <code>c</code> as a
+signed addend (default is unsigned) or with a runtime configurable
+<a href="../../rohd_hcl/MultiplyAccumulate/selectSignedAddend.html">selectSignedAddend</a> input.</p>
+<p>The optional <code>signedAddend</code> parameter configures the multiplicand
+<code>c</code> statically using a bool as a signed multiplicand (default is false, or
+unsigned) or dynamically with a 1-bit Logic <a href="../../rohd_hcl/MultiplyAccumulate/selectSignedAddend.html">selectSignedAddend</a>
+input. You can pass either a bool (for static configuration) or a Logic
+(dynamically configuring the type handled) with a signal to this
+parameter, otherwise this constructor will throw.</p>
 </section>
 
 
@@ -93,12 +103,9 @@ configuration.</p>
     {Logic? clk,
     Logic? reset,
     Logic? enable,
-    this.signedMultiplicand = false,
-    this.signedMultiplier = false,
-    this.signedAddend = false,
-    Logic? selectSignedMultiplicand,
-    Logic? selectSignedMultiplier,
-    Logic? selectSignedAddend,
+    dynamic signedMultiplicand,
+    dynamic signedMultiplier,
+    dynamic signedAddend,
     super.name = &#39;multiply_accumulate&#39;,
     String? definitionName})
     : super(
@@ -111,28 +118,22 @@ configuration.</p>
   a = addInput(&#39;a&#39;, a, width: a.width);
   b = addInput(&#39;b&#39;, b, width: b.width);
   c = addInput(&#39;c&#39;, c, width: c.width);
-  selectSignedMultiplicand = (selectSignedMultiplicand != null)
-      ? addInput(&#39;selectSignedMultiplicand&#39;, selectSignedMultiplicand)
-      : null;
-  selectSignedMultiplier = (selectSignedMultiplier != null)
-      ? addInput(&#39;selectSignedMultiplier&#39;, selectSignedMultiplier)
-      : null;
-  selectSignedAddend = (selectSignedAddend != null)
-      ? addInput(&#39;selectSignedAddend&#39;, selectSignedAddend)
-      : null;
+
+  signedMultiplicandParameter =
+      StaticOrRuntimeParameter.ofDynamic(signedMultiplicand);
+  this.signedMultiplicand = signedMultiplicandParameter.staticConfig;
+  signedMultiplierParameter =
+      StaticOrRuntimeParameter.ofDynamic(signedMultiplier);
+  this.signedMultiplier = signedMultiplierParameter.staticConfig;
+  signedAddendParameter = StaticOrRuntimeParameter.ofDynamic(signedAddend);
+  this.signedAddend = signedAddendParameter.staticConfig;
+
   addOutput(&#39;accumulate&#39;, width: a.width + b.width + 1);
 
   addOutput(&#39;isAccumulateSigned&#39;) &lt;=
-      (signedMultiplicand | signedMultiplier | signedAddend
-              ? Const(1)
-              : Const(0)) |
-          ((selectSignedMultiplicand != null)
-              ? selectSignedMultiplicand
-              : Const(0)) |
-          ((selectSignedMultiplier != null)
-              ? selectSignedMultiplier
-              : Const(0)) |
-          ((selectSignedAddend != null) ? selectSignedAddend : Const(0));
+      signedMultiplicandParameter.getLogic(this) |
+          signedMultiplierParameter.getLogic(this) |
+          signedAddendParameter.getLogic(this);
 }</code></pre>
 </section>
 
