@@ -178,16 +178,19 @@ class Axi4SubordinateAgent extends Agent {
     while (!Simulator.simulationHasEnded) {
       await sIntf.clk.nextNegedge;
       for (var i = 0; i < channels.length; i++) {
-        if (channels[i].hasRead) {
-          _driveReadReadys(index: i);
-          _respondRead(index: i);
-          _receiveRead(index: i);
-        }
+        // write handling should come before reads for the edge case in which a
+        // read happens in the cycle after the final WVALID for the same
+        // channel/address
         if (channels[i].hasWrite) {
           _driveWriteReadys(index: i);
           _respondWrite(index: i);
           _captureWriteData(index: i);
           _receiveWrite(index: i);
+        }
+        if (channels[i].hasRead) {
+          _driveReadReadys(index: i);
+          _respondRead(index: i);
+          _receiveRead(index: i);
         }
       }
     }
