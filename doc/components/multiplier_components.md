@@ -93,7 +93,9 @@ Note that radix-4 shifts by 2 positions each row, but with only two rows and wit
 The base class of `PartialProductGenerator` is [PartialProductArray](https://intel.github.io/rohd-hcl/rohd_hcl/PartialProductArray-class.html) which is simply a `List<List<Logic>>` to represent addends and a `rowShift[row]` to represent the shifts in the partial product matrix. If customization is needed beyond sign extension options, routines are provided that allow for fixed customization of bit positions or conditional (mux based on a Logic) form in the `PartialProductArray`.
 
 ```dart
+final ppg = PartialProductGenerator(a, b, RadixEncoder(4));
 final ppa = ppg as PartialProductArray;
+// Base class API calls, accessible from ppg, but highlighting that they belong to ppa.
 ppa.setAbsolute(row, col, logic);
 ppa.setAbsoluteAll(row, col, List<Logic>);
 ppa.muxAbsolute(row, col, condition, logic);
