@@ -14,6 +14,7 @@ import 'dart:math';
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
 import 'package:rohd_hcl/src/arithmetic/multiplier_components/evaluate_compressor.dart';
+import 'package:rohd_hcl/src/arithmetic/multiplier_components/evaluate_partial_product.dart';
 import 'package:test/test.dart';
 
 /// The following routines are useful only during testing
@@ -64,7 +65,7 @@ class SimpleMultiplier extends Multiplier {
   SimpleMultiplier(Logic a, Logic b, Logic? selSignedMultiplicand,
       Logic? selSignedMultiplier)
       : super(a, b) {
-    final mult = CompressionTreeMultiplier(a, b, 4,
+    final mult = CompressionTreeMultiplier(a, b,
         adderGen: ParallelPrefixAdder.new,
         selectSignedMultiplicand: selSignedMultiplicand,
         selectSignedMultiplier: selSignedMultiplier);
@@ -201,7 +202,8 @@ void main() {
         ' SelD=${(selectSignedMultiplicand != null) ? 1 : 0}'
         ' SelM=${(selectSignedMultiplier != null) ? 1 : 0}';
     return (a, b, {selectSignedMultiplicand, selectSignedMultiplier}) =>
-        CompressionTreeMultiplier(a, b, radix,
+        CompressionTreeMultiplier(a, b,
+            radix: radix,
             signedMultiplicand: signedMultiplicand,
             signedMultiplier: signedMultiplier,
             selectSignedMultiplicand: selectSignedMultiplicand,
@@ -258,7 +260,8 @@ void main() {
         ' SelD=${(selectSignedMultiplicand != null) ? 1 : 0}'
         ' SelM=${(selectSignedMultiplier != null) ? 1 : 0}';
 
-    return (a, b, c) => CompressionTreeMultiplyAccumulate(a, b, c, radix,
+    return (a, b, c) => CompressionTreeMultiplyAccumulate(a, b, c,
+        radix: radix,
         adderGen: adderGen,
         seGen: seGen,
         signedMultiplicand: signedMultiplicand,
@@ -441,7 +444,7 @@ void main() {
     final b = Logic(name: 'b', width: width);
     final bA = BigInt.from(-10).toSigned(width);
     final bB = BigInt.from(-10).toSigned(width);
-    final mod = CompressionTreeMultiplier(a, b, 4,
+    final mod = CompressionTreeMultiplier(a, b,
         clk: clk,
         adderGen: ParallelPrefixAdder.new,
         selectSignedMultiplicand: signedSelect,
@@ -474,7 +477,7 @@ void main() {
     b.put(0);
     c.put(0);
 
-    final mod = CompressionTreeMultiplyAccumulate(a, b, c, 4,
+    final mod = CompressionTreeMultiplyAccumulate(a, b, c,
         clk: clk,
         adderGen: ParallelPrefixAdder.new,
         selectSignedMultiplicand: signedSelect,
@@ -520,7 +523,7 @@ void main() {
         a.put(bA);
         b.put(bB);
 
-        final mod = CompressionTreeMultiplier(a, b, 4,
+        final mod = CompressionTreeMultiplier(a, b,
             adderGen: ParallelPrefixAdder.new,
             seGen: StopBitsSignExtension.new,
             signedMultiplier: !useSignedLogic && signed,
@@ -585,7 +588,7 @@ void main() {
       b.put(bB);
       c.put(bC);
 
-      final mod = CompressionTreeMultiplyAccumulate(a, b, c, 4,
+      final mod = CompressionTreeMultiplyAccumulate(a, b, c,
           selectSignedMultiplicand: signedOperands,
           selectSignedMultiplier: signedOperands,
           selectSignedAddend: signedOperands);
@@ -614,7 +617,7 @@ void main() {
       b.put(bB);
       c.put(bC);
 
-      final mod = CompressionTreeMultiplyAccumulate(a, b, c, 4,
+      final mod = CompressionTreeMultiplyAccumulate(a, b, c,
           signedMultiplicand: signed,
           signedMultiplier: signed,
           signedAddend: signed);
@@ -633,8 +636,8 @@ void main() {
     b.put(3);
     c.put(5);
 
-    final multiplier = CompressionTreeMultiplyAccumulate(a, b, c, radix,
-        signedMultiplier: true);
+    final multiplier = CompressionTreeMultiplyAccumulate(a, b, c,
+        radix: radix, signedMultiplier: true);
     final accumulate = multiplier.accumulate;
     expect(accumulate.value.toBigInt(), equals(BigInt.from(15 * 3 + 5)));
   });
@@ -643,7 +646,6 @@ void main() {
     const widthA = 6;
     const widthB = 6;
     const widthC = widthA + widthB;
-    const radix = 4;
     final a = Logic(name: 'a', width: widthA);
     final b = Logic(name: 'b', width: widthB);
     final c = Logic(name: 'c', width: widthC);
@@ -662,10 +664,43 @@ void main() {
       b.put(bB);
       c.put(bC);
 
-      final multiplier = CompressionTreeMultiplyAccumulate(a, b, c, radix,
+      final multiplier = CompressionTreeMultiplyAccumulate(a, b, c,
           signedMultiplicand: signed, signedMultiplier: signed);
       final accumulate = multiplier.accumulate;
       expect(accumulate.value.toBigInt(), equals(golden));
+    }
+  });
+
+  test('Multiplier Components exhaustive', () async {
+    const width = 4;
+    final a = Logic(name: 'a', width: width);
+    final b = Logic(name: 'b', width: width);
+    final ppG0 = PartialProductGenerator(a, b, RadixEncoder(4));
+    CompactRectSignExtension(ppG0).signExtend();
+
+    final vec = <Logic>[];
+    for (var row = 0; row < ppG0.rows; row++) {
+      vec.add(ppG0.partialProducts[row].rswizzle());
+    }
+    final cc = ColumnCompressor(vec, ppG0.rowShift);
+    final multiplier0 = CompressionTreeMultiplier(a, b);
+    final adder = ParallelPrefixAdder(cc.add0, cc.add1);
+    final product = adder.sum.slice(a.width + b.width - 1, 0);
+    const limit = 1 << width;
+    for (var ai = 0; ai < limit; ai++) {
+      for (var bi = 0; bi < limit; bi++) {
+        final aVal = SignedBigInt.fromSignedInt(ai, width);
+        final bVal = SignedBigInt.fromSignedInt(bi, width);
+
+        a.put(aVal);
+        b.put(bVal);
+        final computed = EvaluateLivePartialProduct(ppG0).evaluate();
+
+        final adderVal = product.value.toBigInt();
+        final expected = multiplier0.product.value.toBigInt();
+        expect(computed, equals(expected));
+        expect(adderVal, equals(expected));
+      }
     }
   });
 

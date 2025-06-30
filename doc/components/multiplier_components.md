@@ -93,7 +93,7 @@ Note that radix-4 shifts by 2 positions each row, but with only two rows and wit
 The base class of `PartialProductGenerator` is [PartialProductArray](https://intel.github.io/rohd-hcl/rohd_hcl/PartialProductArray-class.html) which is simply a `List<List<Logic>>` to represent addends and a `rowShift[row]` to represent the shifts in the partial product matrix. If customization is needed beyond sign extension options, routines are provided that allow for fixed customization of bit positions or conditional (mux based on a Logic) form in the `PartialProductArray`.
 
 ```dart
-final ppa = PartialProductArray(a,b);
+final ppa = ppg as PartialProductArray;
 ppa.setAbsolute(row, col, logic);
 ppa.setAbsoluteAll(row, col, List<Logic>);
 ppa.muxAbsolute(row, col, condition, logic);
@@ -134,17 +134,23 @@ Our `RadixEncoder` module is general, creating selection tables for arbitrary Bo
 
 ### Sign Extension Option
 
-The `PartialProductSignExtension` defines the API for doing different kinds of sign extension on the `PartialProductArray`, from very simplistic for helping design new arithmetics to fairly standard to even compact, rectangular forms.
+The `PartialProductSignExtension` defines the abstract API for doing different kinds of sign extension on the `PartialProductArray`, from very simplistic for helping design new arithmetics to fairly standard to even compact, rectangular forms. The following derived sub-classes do different kinds of sign extension:
 
-- `None`: no sign extension.
-- `Brute`: full width extension which is robust but costly.
-- `StopBit`: A standard form which has the inverse-sign and a '1' stop-bit in each row
-- `Compact`: A form that eliminates a final sign in an otherwise empty final row.
-- `CompactRect`: An enhanced form of compact that can handle rectangular multiplications.
+- `NoneSignExtension`: no sign extension.
+- `BruteSignExtension`: full width extension which is robust but costly.
+- `StopBitsSignExtension`: A standard form which has the inverse-sign and a '1' stop-bit in each row
+- `CompactSignExtension`: A form that eliminates a final sign in an otherwise empty final row.
+- `CompactRectSignExtension`: An enhanced form of compact that can handle rectangular multiplications.
+
+You can perform sign extension by constructing a sign extender with the `PartialProductArray` as an argument and then calling `signExtend()`.
+
+```dart
+CompactSignExtension(ppg).signExtend();
+```
 
 ### Partial Product Visualization
 
-Creating new arithmetic building blocks from these components is tricky and visualizing intermediate results really helps.  To that end, our `PartialProductGenerator` class has visualization extension `EvaluatePartialProduct` which help evaluate the current `Logic` values in array form during simulation to help with debug.  The evaluation routine with the extension also adds the addends for you to help sanity check the partial product generation.  The routine is `EvaluateLivePartialProduct.representation`.  Here 'S' or 's' represent a sign bit extension (positive polarity) with 'S' representing '1', 's' representing 0.  'I' and 'i' represent an inverted sign bit.
+Creating new arithmetic building blocks from these components is tricky and visualizing intermediate results really helps.  To that end, our `PartialProductGenerator` class has visualization extension `EvaluateLivePartialProduct` which help evaluate the current `Logic` values in array form during simulation to help with debug.  The evaluation routine with the extension also adds the addends for you to help sanity check the partial product generation.  The routine is `EvaluateLivePartialProduct.representation`.  Here 'S' or 's' represent a sign bit extension (positive polarity) with 'S' representing '1', 's' representing 0.  'I' and 'i' represent an inverted sign bit.
 
 ```text
             18 17 16 15 14 13 12 11 10 9  8  7  6  5  4  3  2  1  0  
@@ -175,7 +181,7 @@ You can also generate a Markdown form of the same matrix:
 
 Once you have a partial product matrix, you would like to add up the addends.  Traditionally this is done using compression trees which instantiate 2:1 and 3:2 column compressors (or carry-save adders) to reduce the matrix to two addends.  The final two addends are often added with an efficient final adder.
 
-Our [ColumnCompressor](https://intel.github.io/rohd-hcl/rohd_hcl/ColumnCompressor-class.html) class uses a delay-driven approach to efficiently compress the rows of the partial product matrix.  Its only argument is a `PartialProductArray` (base class of `PartialProductGenerator`), and it creates a list of `ColumnQueue`s containing the final two addends stored by column after compression. An `extractRow`routine can be used to extract the columns.  `ColumnCompressor` currently has an extension `EvaluateColumnCompressor` which can be used to print out the compression progress. Here is the legend for these printouts.
+Our [ColumnCompressor](https://intel.github.io/rohd-hcl/rohd_hcl/ColumnCompressor-class.html) class uses a delay-driven approach to efficiently compress the rows of the partial product matrix.  Its only argument is a `PartialProductArray` (base class of `PartialProductGenerator`), and it creates a list of `ColumnQueue`s containing the final two addends stored by column after compression. An `extractRow`routine can be used to extract the columns.  `ColumnCompressor` currently has an extension `EvaluateLiveColumnCompressor` which can be used to print out the compression progress. Here is the legend for these printouts.
 
 - `ppR,C` = partial product entry at row R, column C
 - `sR,C` = sum term coming last from row R, column C
