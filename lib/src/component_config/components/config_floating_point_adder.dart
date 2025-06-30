@@ -12,6 +12,29 @@ import 'dart:collection';
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
 
+/// Set of knobs for subnormal treatment.
+class SubNormalAsZeroSelecKnob extends GroupOfKnobs {
+  /// Treat input 'a' as zero when subnormal.
+  final ToggleConfigKnob denormalAsZeroA = ToggleConfigKnob(value: false);
+
+  /// Treat input 'b' as zero when subnormal.
+  final ToggleConfigKnob denormalAsZeroB = ToggleConfigKnob(value: false);
+
+  /// If addition output is subnormal, flush to zero.
+  final ToggleConfigKnob flushToZero = ToggleConfigKnob(value: false);
+
+  /// Creates a new knob for setting up subnormal treatment.
+  SubNormalAsZeroSelecKnob({super.name = 'DAZ/FTZ Selection'}) : super({});
+
+  /// Create the knobs for adder selection.
+  @override
+  Map<String, ConfigKnob<dynamic>> get subKnobs => {
+        'A DenormalAsZero': denormalAsZeroA,
+        'B DenormalAsZero': denormalAsZeroB,
+        'OUT FlushToZero': flushToZero,
+      };
+}
+
 /// A [Configurator] for [FloatingPointAdder]s.
 class FloatingPointAdderConfigurator extends Configurator {
   /// Controls whether to select the simple adder or the dual path.
@@ -19,6 +42,9 @@ class FloatingPointAdderConfigurator extends Configurator {
 
   /// Adder selection control.
   final adderSelectionKnob = AdderSelectKnob();
+
+  /// Subnormal treatment of inputs and outputs.
+  final subNormalAsZeroSelecKnob = SubNormalAsZeroSelecKnob();
 
   /// Map from Type to Function for Parallel Prefix generator
   static Map<
@@ -50,12 +76,13 @@ class FloatingPointAdderConfigurator extends Configurator {
       ? FloatingPointAdderDualPath(
           clk: pipelinedKnob.value ? Logic() : null,
           FloatingPoint(
-            exponentWidth: exponentWidthKnob.value,
-            mantissaWidth: mantissaWidthKnob.value,
-          ),
+              exponentWidth: exponentWidthKnob.value,
+              mantissaWidth: mantissaWidthKnob.value,
+              subNormalAsZero: subNormalAsZeroSelecKnob.denormalAsZeroA.value),
           FloatingPoint(
               exponentWidth: exponentWidthKnob.value,
-              mantissaWidth: mantissaWidthKnob.value),
+              mantissaWidth: mantissaWidthKnob.value,
+              subNormalAsZero: subNormalAsZeroSelecKnob.denormalAsZeroB.value),
           adderGen: adderSelectionKnob.selectedAdder(),
           ppTree: treeGeneratorMap[prefixTreeKnob.value]!)
       : FloatingPointAdderSinglePath(
@@ -66,12 +93,14 @@ class FloatingPointAdderConfigurator extends Configurator {
           ),
           FloatingPoint(
               exponentWidth: exponentWidthKnob.value,
-              mantissaWidth: mantissaWidthKnob.value),
+              mantissaWidth: mantissaWidthKnob.value,
+              subNormalAsZero: subNormalAsZeroSelecKnob.flushToZero.value),
           adderGen: adderSelectionKnob.selectedAdder());
 
   @override
   late final Map<String, ConfigKnob<dynamic>> knobs = UnmodifiableMapView({
     'Dual Path Adder': dualPathAdderKnob,
+    'DAZ/FTZ Selection': subNormalAsZeroSelecKnob,
     'Select Internal Adder': adderSelectionKnob,
     'Prefix tree type for incrementers': prefixTreeKnob,
     'Exponent width': exponentWidthKnob,

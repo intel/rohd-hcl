@@ -20,6 +20,10 @@ Conversions from the native `double` are supported, both in rounded and unrounde
 
 Appropriate string representations, comparison operations, and operators are available.  The usefulness of [FloatingPointValue](https://intel.github.io/rohd-hcl/rohd_hcl/FloatingPointValue-class.html) is in the testing of [FloatingPoint](https://intel.github.io/rohd-hcl/rohd_hcl/FloatingPoint-class.html) components, where we can leverage the abstraction of a floating-point value type to drive and compare floating-point values operated upon by floating-point components.
 
+### Subnormals As Zero
+
+Both for compatibility and for optimization we provide an option to flag floating-point numbers to be treated as zero when they become subnormal.  On input to a component, this is commonly known as Denormal-as-Zero (or DAZ).  On output from a component this is commonly known as Flush-to-Zero (FTZ).  By setting the boolean on the input `FloatingPoint` called `subNormalAsZero` you indicate DAZ for components that support this mode (our floating-point adders, currently).  By setting the same flag on the output `FloatingPoint`, you indicate FTZ.
+
 ### Explicit J-Bit
 
 In intermediate floating-point computations, it may be necessary to avoid normalization and simply store the current mantissa without shifting it left to move its leading 1 into the implicit j-bit location (no zeros before) and adjust the exponent.  We allow this by representing the j-bit explicitly in the mantissa as a leading '1', even when the floating-point is 'normal', or has a positive exponent field.  Typically, only sub-normals can have the leading j-bit stored in the mantissa.  While, in general, this can create a loss in accuracy, in some specific cases we can leverage avoiding normalization without loss of accuracy if we tailor our components to carry more precision and save the latency of normalization.

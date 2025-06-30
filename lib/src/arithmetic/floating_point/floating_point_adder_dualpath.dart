@@ -68,8 +68,11 @@ class FloatingPointAdderDualPath<FpTypeIn extends FloatingPoint,
 
     final delta = exponentSubtractor.sum.named('expDelta');
 
+    final fa = a.resolveSubNormalAsZero();
+    final fb = b.resolveSubNormalAsZero();
+
     // Seidel: (sl, el, fl) = larger; (ss, es, fs) = smaller
-    final swapper = FloatingPointConditionalSwap(a, b, signDelta);
+    final swapper = FloatingPointConditionalSwap(fa, fb, signDelta);
     final larger = swapper.outA;
     final smaller = swapper.outB;
 
@@ -370,6 +373,9 @@ class FloatingPointAdderDualPath<FpTypeIn extends FloatingPoint,
     final realIsInfNPath =
         exponentNPath.eq(infExponent).named('realIsInfNPath');
 
+    final outSubNormalAsZero =
+        internalSum.subNormalAsZero ? Const(1) : Const(0);
+
     Combinational([
       If(isNaNFlopped, then: [
         internalSum < internalSum.nan,
@@ -384,7 +390,10 @@ class FloatingPointAdderDualPath<FpTypeIn extends FloatingPoint,
               internalSum.sign < largerSignFlopped,
               internalSum.exponent < exponentRPath,
               internalSum.mantissa <
-                  mantissaRPath.slice(mantissaRPath.width - 2, 1),
+                  mux(
+                      outSubNormalAsZero & ~exponentRPath.or(),
+                      Const(0, width: internalSum.mantissa.width),
+                      mantissaRPath.slice(mantissaRPath.width - 2, 1)),
             ]),
           ], orElse: [
             If(realIsInfNPath, then: [
@@ -392,7 +401,11 @@ class FloatingPointAdderDualPath<FpTypeIn extends FloatingPoint,
             ], orElse: [
               internalSum.sign < signNPath,
               internalSum.exponent < exponentNPath,
-              internalSum.mantissa < finalSignificandNPath,
+              internalSum.mantissa <
+                  mux(
+                      outSubNormalAsZero & ~exponentNPath.or(),
+                      Const(0, width: finalSignificandNPath.width),
+                      finalSignificandNPath),
             ]),
           ])
         ])

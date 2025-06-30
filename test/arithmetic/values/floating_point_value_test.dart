@@ -15,6 +15,40 @@ import 'package:rohd_hcl/rohd_hcl.dart';
 import 'package:test/test.dart';
 
 void main() {
+  group('FPV: subNormalAsZero', () {
+    const exponentWidth = 4;
+    const mantissaWidth = 4;
+    final expLimit = pow(2.0, exponentWidth).toInt();
+    final mantLimit = pow(2.0, mantissaWidth).toInt();
+    FloatingPointValuePopulator fpvPopulator(
+            {int exponentWidth = exponentWidth,
+            int mantissaWidth = mantissaWidth,
+            bool subNormalAsZero = false}) =>
+        FloatingPointValue.populator(
+            exponentWidth: exponentWidth,
+            mantissaWidth: mantissaWidth,
+            subNormalAsZero: subNormalAsZero);
+
+    test('FPV: subNormalAsZero exhaustive', () {
+      for (final negate in [0, 1]) {
+        for (var e1 = 0; e1 < expLimit; e1++) {
+          for (var m1 = 0; m1 < mantLimit; m1++) {
+            final fpv = fpvPopulator().ofInts(e1, m1, sign: negate == 1);
+            final fpvSaZ = fpvPopulator(subNormalAsZero: true)
+                .ofInts(e1, m1, sign: negate == 1);
+            expect(fpv.toString(), equals(fpvSaZ.toString()));
+            if (fpv.isSubnormal()) {
+              expect(fpvSaZ.toDouble(), equals(0.0));
+              expect(fpvSaZ.isAZero, true);
+            } else if (!fpv.isNaN) {
+              expect(fpvSaZ.toDouble(), equals(fpv.toDouble()));
+            }
+          }
+        }
+      }
+    });
+  });
+
   test('FPV: exhaustive round-trip', () {
     const exponentWidth = 4;
     const mantissaWidth = 4;
@@ -25,8 +59,9 @@ void main() {
         final expStr = exponent.bitString;
         for (var i = 0; i < pow(2.0, mantissaWidth).toInt(); i++) {
           final mantStr = mantissa.bitString;
-          final fp =
-              FloatingPointValue.ofBinaryStrings(signStr, expStr, mantStr);
+          final fp = FloatingPointValue.populator(
+                  exponentWidth: exponentWidth, mantissaWidth: mantissaWidth)
+              .ofBinaryStrings(signStr, expStr, mantStr);
           final dbl = fp.toDouble();
           final fp2 = FloatingPointValue.populator(
                   exponentWidth: exponentWidth, mantissaWidth: mantissaWidth)
@@ -46,7 +81,9 @@ void main() {
       final mantissa = LogicValue.one.zeroExtend(mantissaWidth);
       for (var i = 0; i < mantissaWidth; i++) {
         final mantStr = (mantissa << i).bitString;
-        final fp = FloatingPointValue.ofBinaryStrings(signStr, expStr, mantStr);
+        final fp = FloatingPointValue.populator(
+                exponentWidth: exponentWidth, mantissaWidth: mantissaWidth)
+            .ofBinaryStrings(signStr, expStr, mantStr);
         expect(fp.toString(), '$signStr $expStr $mantStr');
         final fp2 = FloatingPointValue.populator(
                 exponentWidth: exponentWidth, mantissaWidth: mantissaWidth)
@@ -66,8 +103,9 @@ void main() {
         final mantissa = LogicValue.one.zeroExtend(mantissaWidth);
         for (var i = 0; i < mantissaWidth; i++) {
           final mantStr = (mantissa << i).bitString;
-          final fp =
-              FloatingPointValue.ofBinaryStrings(signStr, expStr, mantStr);
+          final fp = FloatingPointValue.populator(
+                  exponentWidth: exponentWidth, mantissaWidth: mantissaWidth)
+              .ofBinaryStrings(signStr, expStr, mantStr);
           expect(fp.toString(), '$signStr $expStr $mantStr');
           final fp2 = FloatingPointValue.populator(
                   exponentWidth: exponentWidth, mantissaWidth: mantissaWidth)
@@ -235,7 +273,9 @@ void main() {
     final fp64 = FloatingPoint64Value.populator().ofBinaryStrings('0',
         '10000000000', '0000100000000000000000000000000000000000000000000001');
 
-    final fpRound = FloatingPointValue.ofBinaryStrings('0', '1000', '0001');
+    final fpRound =
+        FloatingPointValue.populator(exponentWidth: 4, mantissaWidth: 4)
+            .ofBinaryStrings('0', '1000', '0001');
     final val = fp64.toDouble();
     final fpConvert =
         FloatingPointValue.populator(exponentWidth: 4, mantissaWidth: 4)
@@ -247,7 +287,9 @@ void main() {
     final fp64 = FloatingPoint64Value.populator().ofBinaryStrings('0',
         '10000000000', '0000110000000000000000000000000000000000000000000000');
 
-    final fpRound = FloatingPointValue.ofBinaryStrings('0', '1000', '0001');
+    final fpRound =
+        FloatingPointValue.populator(exponentWidth: 4, mantissaWidth: 4)
+            .ofBinaryStrings('0', '1000', '0001');
     final val = fp64.toDouble();
 
     final fpConvert =
@@ -260,7 +302,9 @@ void main() {
     final fp64 = FloatingPoint64Value.populator().ofBinaryStrings('0',
         '10000000000', '0001100000000000000000000000000000000000000000000000');
 
-    final fpRound = FloatingPointValue.ofBinaryStrings('0', '1000', '0010');
+    final fpRound =
+        FloatingPointValue.populator(exponentWidth: 4, mantissaWidth: 4)
+            .ofBinaryStrings('0', '1000', '0010');
     final val = fp64.toDouble();
     final fpConvert =
         FloatingPointValue.populator(exponentWidth: 4, mantissaWidth: 4)
@@ -272,7 +316,9 @@ void main() {
     final fp64 = FloatingPoint64Value.populator().ofBinaryStrings('0',
         '10000000000', '1111100000000000000000000000000000000000000000000000');
 
-    final fpRound = FloatingPointValue.ofBinaryStrings('0', '1001', '0000');
+    final fpRound =
+        FloatingPointValue.populator(exponentWidth: 4, mantissaWidth: 4)
+            .ofBinaryStrings('0', '1001', '0000');
     final val = fp64.toDouble();
     final fpConvert =
         FloatingPointValue.populator(exponentWidth: 4, mantissaWidth: 4)
@@ -284,7 +330,9 @@ void main() {
     final fp64 = FloatingPoint64Value.populator().ofBinaryStrings('0',
         '10000000000', '0010100000000000000000000000000000000000000000000000');
 
-    final fpTrunc = FloatingPointValue.ofBinaryStrings('0', '1000', '0010');
+    final fpTrunc =
+        FloatingPointValue.populator(exponentWidth: 4, mantissaWidth: 4)
+            .ofBinaryStrings('0', '1000', '0010');
     final val = fp64.toDouble();
     final fpConvert =
         FloatingPointValue.populator(exponentWidth: 4, mantissaWidth: 4)
@@ -359,17 +407,30 @@ void main() {
     expect(fp, equals(fp2));
   });
   test('FPV Value comparison', () {
-    final fp = FloatingPointValue.ofSpacedBinaryString('1 0101 0101');
-    expect(fp.compareTo(FloatingPointValue.ofSpacedBinaryString('1 0101 0101')),
+    final fp = FloatingPointValue.populator(exponentWidth: 4, mantissaWidth: 4)
+        .ofSpacedBinaryString('1 0101 0101');
+    expect(
+        fp.compareTo(
+            FloatingPointValue.populator(exponentWidth: 4, mantissaWidth: 4)
+                .ofSpacedBinaryString('1 0101 0101')),
         0);
-    expect(fp.compareTo(FloatingPointValue.ofSpacedBinaryString('1 0100 0101')),
+    expect(
+        fp.compareTo(
+            FloatingPointValue.populator(exponentWidth: 4, mantissaWidth: 4)
+                .ofSpacedBinaryString('1 0100 0101')),
         lessThan(0));
-    expect(fp.compareTo(FloatingPointValue.ofSpacedBinaryString('1 0101 0100')),
+    expect(
+        fp.compareTo(
+            FloatingPointValue.populator(exponentWidth: 4, mantissaWidth: 4)
+                .ofSpacedBinaryString('1 0101 0100')),
         lessThan(0));
 
-    final fp2 = FloatingPointValue.ofSpacedBinaryString('1 0000 0000');
+    final fp2 = FloatingPointValue.populator(exponentWidth: 4, mantissaWidth: 4)
+        .ofSpacedBinaryString('1 0000 0000');
     expect(
-        fp2.compareTo(FloatingPointValue.ofSpacedBinaryString('0 0000 0000')),
+        fp2.compareTo(
+            FloatingPointValue.populator(exponentWidth: 4, mantissaWidth: 4)
+                .ofSpacedBinaryString('0 0000 0000')),
         equals(0));
   });
   test('FPV: infinity/NaN conversion tests', () async {
@@ -546,9 +607,11 @@ void main() {
           for (var m = 0; m < pow(2.0, mantissaWidth).toInt(); m++) {
             final mantStr = mantissa.bitString;
 
-            final efp = FloatingPointValue.ofBinaryStrings(
-                signStr, expStr, mantStr,
-                explicitJBit: true);
+            final efp = FloatingPointValue.populator(
+                    exponentWidth: exponentWidth,
+                    mantissaWidth: mantissaWidth,
+                    explicitJBit: true)
+                .ofBinaryStrings(signStr, expStr, mantStr);
             if (efp.isLegalValue()) {
               final dbl = efp.toDouble();
               final efp2 = explicitPopulator().ofDouble(dbl,
