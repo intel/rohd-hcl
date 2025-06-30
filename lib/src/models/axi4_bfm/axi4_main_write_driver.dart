@@ -128,11 +128,15 @@ class Axi4WriteMainDriver extends PendingClockedDriver<Axi4WriteRequestPacket> {
         await wIntf.wReady.nextPosedge;
       }
       Simulator.injectAction(() {
+        final isLast = i == packet.data.length - 1;
         wIntf.wValid.put(1);
         wIntf.wData.put(packet.data[i]);
         wIntf.wStrb.put(packet.strobe[i]);
-        wIntf.wLast.put(i == packet.data.length - 1 ? 1 : 0);
+        wIntf.wLast.put(isLast ? 1 : 0);
         wIntf.wUser?.put(packet.wUser);
+        if (isLast) {
+          packet.complete();
+        }
       });
       await sIntf.clk.nextPosedge;
     }
@@ -141,7 +145,6 @@ class Axi4WriteMainDriver extends PendingClockedDriver<Axi4WriteRequestPacket> {
     // in the future, we may want to wait for the response to complete
     Simulator.injectAction(() {
       wIntf.wValid.put(0);
-      packet.complete();
     });
   }
 }
