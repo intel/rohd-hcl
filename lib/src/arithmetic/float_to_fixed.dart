@@ -23,10 +23,10 @@ import 'package:rohd_hcl/rohd_hcl.dart';
 /// ```
 class FloatToFixed extends Module {
   /// Width of output integer part.
-  late final int m;
+  late final int integerWidth;
 
   /// Width of output fractional part.
-  late final int n;
+  late final int fractionWidth;
 
   /// Add overflow checking logic
   final bool checkOverflow;
@@ -35,20 +35,25 @@ class FloatToFixed extends Module {
   Logic? get overflow => tryOutput('overflow');
 
   /// Internal representation of the output port
-  late final FixedPoint _fixed = FixedPoint(signed: true, m: m, n: n);
+  late final FixedPoint _fixed =
+      FixedPoint(integerWidth: integerWidth, fractionWidth: fractionWidth);
 
   /// Output fixed point port
   late final FixedPoint fixed = _fixed.clone()..gets(output('fixed'));
 
   /// Build a [FloatingPoint] to [FixedPoint] converter.
-  /// - if [m] and [n] are supplied, an m.n fixed-point output will be produced.
-  /// Otherwise, the converter will compute a lossless size for [m] and [n] for
-  /// outputing the floating-point value into a fixed-point value.
+  /// - if [integerWidth] and [fractionWidth] are supplied, an m.n fixed-point
+  ///   output will be produced. Otherwise, the converter will compute a
+  ///   lossless size for [integerWidth] and [fractionWidth] for outputing the
+  ///   floating-point value into a fixed-point value.
   /// - [checkOverflow] set to true will cause overflow detection to happen in
-  /// case that loss can occur and an optional output [overflow] will be
-  ///  produced that returns true when overflow occurs.
+  ///   case that loss can occur and an optional output [overflow] will be
+  ///   produced that returns true when overflow occurs.
   FloatToFixed(FloatingPoint float,
-      {super.name = 'FloatToFixed', int? m, int? n, this.checkOverflow = false})
+      {super.name = 'FloatToFixed',
+      int? integerWidth,
+      int? fractionWidth,
+      this.checkOverflow = false})
       : super(
             definitionName: 'FloatE${float.exponent.width}'
                 'M${float.mantissa.width}ToFixed') {
@@ -61,27 +66,33 @@ class FloatToFixed extends Module {
         : bias + 1; // accomodate the jbit
     final noLossN = bias + float.mantissa.width - 1;
 
-    this.m = m ?? noLossM;
-    this.n = n ?? noLossN;
-    final outputWidth = this.m + this.n + 1;
+    // TODO(desmonddak): Check what happens with an explicitJBit FP
+
+    this.integerWidth = integerWidth ?? noLossM;
+    this.fractionWidth = fractionWidth ?? noLossN;
+    final outputWidth = this.integerWidth + this.fractionWidth + 1;
 
     final jBit = Logic(name: 'jBit')..gets(float.isNormal);
     final fullMantissa = [jBit, float.mantissa].swizzle().named('fullMantissa');
 
-    final eWidth = max(log2Ceil(this.n + this.m), float.exponent.width) + 2;
+    final eWidth = max(log2Ceil(this.fractionWidth + this.integerWidth),
+            float.exponent.width) +
+        2;
     final shift = Logic(name: 'shift', width: eWidth);
     final exp = (float.exponent - 1).zeroExtend(eWidth).named('expMinus1');
 
-    if (this.n > noLossN) {
+    if (this.fractionWidth > noLossN) {
       shift <=
           mux(jBit, exp, Const(0, width: eWidth)) +
-              Const(this.n - noLossN, width: eWidth).named('deltaN');
-    } else if (this.n == noLossN) {
+              Const(this.fractionWidth - noLossN, width: eWidth)
+                  .named('deltaN');
+    } else if (this.fractionWidth == noLossN) {
       shift <= mux(jBit, exp, Const(0, width: eWidth));
     } else {
       shift <=
           mux(jBit, exp, Const(0, width: eWidth)) -
-              Const(noLossN - this.n, width: eWidth).named('deltaN');
+              Const(noLossN - this.fractionWidth, width: eWidth)
+                  .named('deltaN');
     }
     // TODO(desmonddak): Could use signed shifter if we unified shift math
     final shiftRight = ((fullMantissa.width > outputWidth)
@@ -89,7 +100,8 @@ class FloatToFixed extends Module {
             : (~shift + 1))
         .named('shiftRight');
 
-    if (checkOverflow & ((this.m < noLossM) | (this.n < noLossN))) {
+    if (checkOverflow &
+        ((this.integerWidth < noLossM) | (this.fractionWidth < noLossN))) {
       final overflow = Logic(name: 'overflow');
       final leadDetect = RecursiveModulePriorityEncoder(fullMantissa.reversed,
           name: 'leadone_detector');
@@ -151,10 +163,12 @@ class Float8ToFixed extends Module {
   Logic get fixed => output('fixed');
 
   /// Getter for Q23.9
-  FixedPoint get q23p9 => FixedPoint.of(fixed, signed: true, m: 23, n: 9);
+  FixedPoint get q23p9 =>
+      FixedPoint.of(fixed, integerWidth: 23, fractionWidth: 9);
 
   /// Getter for Q16.16
-  FixedPoint get q16p16 => FixedPoint.of(fixed, signed: true, m: 16, n: 16);
+  FixedPoint get q16p16 =>
+      FixedPoint.of(fixed, integerWidth: 16, fractionWidth: 16);
 
   /// Constructor
   Float8ToFixed(Logic float, Logic mode, {super.name = 'Float8ToFixed'}) {

@@ -90,7 +90,7 @@ jobs:
         uses: flutter-actions/setup-flutter@v2
         with:
           channel: stable
-          version: 3.24.2
+          version: 3.27.0
       
       - name: Analyze flutter source
         run: tool/gh_actions/analyze_flutter_source.sh
@@ -157,7 +157,7 @@ jobs:
         uses: flutter-actions/setup-flutter@v2
         with:
           channel: stable
-          version: 3.24.2
+          version: 3.27.0
       
       - name: Build static site
         run: tool/gh_actions/hcl_site_generation_build.sh

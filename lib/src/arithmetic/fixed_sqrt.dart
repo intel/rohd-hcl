@@ -48,14 +48,26 @@ class FixedPointSqrt extends FixedPointSqrtBase {
       throw RohdHclException('Signed values not supported');
     }
 
-    Logic solution =
-        FixedPoint(signed: a.signed, name: 'solution', m: a.m + 1, n: a.n + 1);
-    Logic remainder =
-        FixedPoint(signed: a.signed, name: 'remainder', m: a.m + 1, n: a.n + 1);
-    Logic subtractionValue =
-        FixedPoint(signed: a.signed, name: 'subValue', m: a.m + 1, n: a.n + 1);
-    Logic aLoc =
-        FixedPoint(signed: a.signed, name: 'aLoc', m: a.m + 1, n: a.n + 1);
+    Logic solution = FixedPoint(
+        signed: a.signed,
+        name: 'solution',
+        integerWidth: a.integerWidth + 1,
+        fractionWidth: a.fractionWidth + 1);
+    Logic remainder = FixedPoint(
+        signed: a.signed,
+        name: 'remainder',
+        integerWidth: a.integerWidth + 1,
+        fractionWidth: a.fractionWidth + 1);
+    Logic subtractionValue = FixedPoint(
+        signed: a.signed,
+        name: 'subValue',
+        integerWidth: a.integerWidth + 1,
+        fractionWidth: a.fractionWidth + 1);
+    Logic aLoc = FixedPoint(
+        signed: a.signed,
+        name: 'aLoc',
+        integerWidth: a.integerWidth + 1,
+        fractionWidth: a.fractionWidth + 1);
 
     solution = Const(0, width: aLoc.width).named('solution');
     remainder = Const(0, width: aLoc.width).named('remainder');

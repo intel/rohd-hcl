@@ -14,10 +14,13 @@ import 'package:test/test.dart';
 
 void main() async {
   test('FixedToFloat: singleton', () async {
-    final fixed = FixedPoint(signed: true, m: 34, n: 33);
+    final fixed = FixedPoint(integerWidth: 34, fractionWidth: 33);
     const inDouble = -2.0;
-    fixed.put(FixedPointValue.ofDouble(inDouble,
-        signed: fixed.signed, m: fixed.m, n: fixed.n));
+    fixed.put(FixedPointValue.populator(
+            integerWidth: fixed.integerWidth,
+            fractionWidth: fixed.fractionWidth,
+            signed: fixed.signed)
+        .ofDouble(inDouble));
     final fp = FloatingPoint(exponentWidth: 8, mantissaWidth: 23);
     final dut = FixedToFloat(fixed, fp);
     final fpv = dut.float.floatingPointValue;
@@ -33,26 +36,30 @@ void main() async {
 
   test('FixedToFloat: exhaustive', () async {
     for (final signed in [false, true]) {
-      final fixed = FixedPoint(signed: signed, m: 8, n: 8);
+      final fixed =
+          FixedPoint(signed: signed, integerWidth: 8, fractionWidth: 8);
       final dut = FixedToFloat(
           fixed,
           signed: signed,
           FloatingPoint(exponentWidth: 8, mantissaWidth: 16));
       await dut.build();
       for (var val = 0; val < pow(2, fixed.width); val++) {
-        final fixedValue = FixedPointValue(
-            value: LogicValue.ofInt(val, fixed.width),
-            signed: signed,
-            m: fixed.m,
-            n: fixed.n);
+        final fixedValue = FixedPointValue.populator(
+                integerWidth: fixed.integerWidth,
+                fractionWidth: fixed.fractionWidth,
+                signed: signed)
+            .ofLogicValue(LogicValue.ofInt(val, fixed.width));
         fixed.put(fixedValue);
         final fpv = dut.float.floatingPointValue;
         final fpvExpected = FloatingPointValue.populator(
                 exponentWidth: dut.float.exponent.width,
                 mantissaWidth: dut.float.mantissa.width)
             .ofDouble(fixedValue.toDouble());
-        final newFixed = FixedPointValue.ofDouble(fpv.toDouble(),
-            signed: true, m: fixed.m, n: fixed.n);
+        final newFixed = FixedPointValue.populator(
+                integerWidth: fixed.integerWidth,
+                fractionWidth: fixed.fractionWidth,
+                signed: fixed.signed)
+            .ofDouble(fpv.toDouble());
         expect(newFixed, equals(fixedValue), reason: '''
           fpvdbl=${fpv.toDouble()} $fpv
           ${newFixed.toDouble()} $newFixed
@@ -76,10 +83,14 @@ void main() async {
     a.put(val1);
     b.put(val2);
 
-    final fixed = FixedPoint(signed: true, m: width ~/ 2 - 1, n: width ~/ 2);
+    final fixed =
+        FixedPoint(integerWidth: width ~/ 2 - 1, fractionWidth: width ~/ 2);
     final val = NativeAdder(a, b).sum.slice(width - 1, 0).value;
-    final fixedValue =
-        FixedPointValue(signed: true, value: val, m: fixed.m, n: fixed.n);
+    final fixedValue = FixedPointValue.populator(
+            integerWidth: fixed.integerWidth,
+            fractionWidth: fixed.fractionWidth,
+            signed: true)
+        .ofLogicValue(val);
     fixed.put(fixedValue);
     final anticipator = LeadingDigitAnticipate(a, b);
     final dut = FixedToFloat(
@@ -88,8 +99,11 @@ void main() async {
       leadingDigitPredict: anticipator.leadingDigit,
     );
     final fpv = dut.float.floatingPointValue;
-    final roundTripFixed = FixedPointValue.ofDouble(fpv.toDouble(),
-        signed: true, m: fixed.m, n: fixed.n);
+    final roundTripFixed = FixedPointValue.populator(
+            integerWidth: fixed.integerWidth,
+            fractionWidth: fixed.fractionWidth,
+            signed: fixed.signed)
+        .ofDouble(fpv.toDouble());
     expect(roundTripFixed, equals(fixedValue), reason: '''
           val1=$val1\t ${a.value.bitString}
           val2=$val2\t ${b.value.bitString}
@@ -109,12 +123,14 @@ void main() async {
     final val = NativeAdder(a, b).sum.slice(width - 1, 0).value;
     for (final signed in [false, true]) {
       final fixed = FixedPoint(
-          signed: signed, m: width ~/ 2 - (signed ? 1 : 0), n: width ~/ 2);
-      final fixedValue = FixedPointValue(
-          value: LogicValue.zero.zeroExtend(fixed.width),
           signed: signed,
-          m: fixed.m,
-          n: fixed.n);
+          integerWidth: width ~/ 2 - (signed ? 1 : 0),
+          fractionWidth: width ~/ 2);
+      final fixedValue = FixedPointValue.populator(
+              integerWidth: fixed.integerWidth,
+              fractionWidth: fixed.fractionWidth,
+              signed: signed)
+          .ofLogicValue(LogicValue.zero.zeroExtend(fixed.width));
       fixed.put(fixedValue);
 
       final dut = FixedToFloat(
@@ -129,13 +145,18 @@ void main() async {
           final lVal2 = LogicValue.ofInt(val2, width);
           a.put(lVal1);
           b.put(lVal2);
-
-          final fixedValue = FixedPointValue(
-              value: val, signed: signed, m: fixed.m, n: fixed.n);
+          final fixedValue = FixedPointValue.populator(
+                  integerWidth: fixed.integerWidth,
+                  fractionWidth: fixed.fractionWidth,
+                  signed: signed)
+              .ofLogicValue(val);
           fixed.put(fixedValue);
           final fpv = dut.float.floatingPointValue;
-          final roundTripFixed = FixedPointValue.ofDouble(fpv.toDouble(),
-              signed: signed, m: fixed.m, n: fixed.n);
+          final roundTripFixed = FixedPointValue.populator(
+                  integerWidth: fixed.integerWidth,
+                  fractionWidth: fixed.fractionWidth,
+                  signed: fixed.signed)
+              .ofDouble(fpv.toDouble());
           expect(roundTripFixed, equals(fixedValue), reason: '''
           signed = $signed
           val1  = $val1
@@ -162,9 +183,12 @@ void main() async {
     b.put(bv);
     final tsum = a + b;
 
-    final fixed = FixedPoint(signed: true, m: 34, n: 33);
-    final fixedValue = FixedPointValue(
-        value: tsum.value, signed: true, m: fixed.m, n: fixed.n);
+    final fixed = FixedPoint(integerWidth: 34, fractionWidth: 33);
+    final fixedValue = FixedPointValue.populator(
+            integerWidth: fixed.integerWidth,
+            fractionWidth: fixed.fractionWidth,
+            signed: true)
+        .ofLogicValue(tsum.value);
     fixed.put(fixedValue);
     final leadingDigit = Const(32, width: log2Ceil(68) + 2);
     final dut = FixedToFloat(
@@ -196,12 +220,13 @@ void main() async {
         generateValid: true);
 
     for (final signed in [true]) {
-      final fixed = FixedPoint(signed: signed, m: 8, n: 8);
-      final fixedValue = FixedPointValue(
-          value: LogicValue.zero.zeroExtend(width + 1),
-          signed: signed,
-          m: fixed.m,
-          n: fixed.n);
+      final fixed =
+          FixedPoint(signed: signed, integerWidth: 8, fractionWidth: 8);
+      final fixedValue = FixedPointValue.populator(
+              integerWidth: fixed.integerWidth,
+              fractionWidth: fixed.fractionWidth,
+              signed: signed)
+          .ofLogicValue(LogicValue.zero.zeroExtend(width + 1));
       fixed.put(fixedValue);
       final golden = FixedToFloat(
           fixed,
@@ -221,9 +246,11 @@ void main() async {
         final lVal = LogicValue.ofInt(val, fixed.width);
         // Use a leading one detector on both positive and negative numbers
         leadPredictIn.put(signed & !lVal[-1].isZero ? ~val : val);
-
-        final fixedValue = FixedPointValue(
-            value: lVal, signed: signed, m: fixed.m, n: fixed.n);
+        final fixedValue = FixedPointValue.populator(
+                integerWidth: fixed.integerWidth,
+                fractionWidth: fixed.fractionWidth,
+                signed: signed)
+            .ofLogicValue(lVal);
         fixed.put(fixedValue);
 
         final fpvGolden = golden.float.floatingPointValue;
@@ -252,16 +279,16 @@ void main() async {
   });
 
   test('Q16.16 to E5M2 < pow(2,14)', () async {
-    final fixed = FixedPoint(signed: true, m: 16, n: 16);
+    final fixed = FixedPoint(integerWidth: 16, fractionWidth: 16);
     final dut =
         FixedToFloat(fixed, FloatingPoint(exponentWidth: 5, mantissaWidth: 2));
     await dut.build();
     for (var val = 0; val < pow(2, 14); val++) {
-      final fixedValue = FixedPointValue(
-          value: LogicValue.ofInt(val, fixed.width),
-          signed: true,
-          m: fixed.m,
-          n: fixed.n);
+      final fixedValue = FixedPointValue.populator(
+              integerWidth: fixed.integerWidth,
+              fractionWidth: fixed.fractionWidth,
+              signed: true)
+          .ofLogicValue(LogicValue.ofInt(val, fixed.width));
       fixed.put(fixedValue);
       final fpv = dut.float.floatingPointValue;
       final fpvExpected = FloatingPointValue.populator(
@@ -277,16 +304,16 @@ void main() async {
   });
 
   test('Signed Q4.4 to E3M2', () async {
-    final fixed = FixedPoint(signed: true, m: 4, n: 4);
+    final fixed = FixedPoint(integerWidth: 4, fractionWidth: 4);
     final dut =
         FixedToFloat(fixed, FloatingPoint(exponentWidth: 3, mantissaWidth: 2));
     await dut.build();
     for (var val = 0; val < pow(2, fixed.width); val++) {
-      final fixedValue = FixedPointValue(
-          value: LogicValue.ofInt(val, fixed.width),
-          signed: fixed.signed,
-          m: fixed.m,
-          n: fixed.n);
+      final fixedValue = FixedPointValue.populator(
+              integerWidth: fixed.integerWidth,
+              fractionWidth: fixed.fractionWidth,
+              signed: true)
+          .ofLogicValue(LogicValue.ofInt(val, fixed.width));
       fixed.put(fixedValue);
       final fpv = dut.float.floatingPointValue;
       final fpvExpected = FloatingPointValue.populator(
@@ -302,16 +329,15 @@ void main() async {
   });
 
   test('Unsigned Q4.4 to E3M2', () async {
-    final fixed = FixedPoint(signed: false, m: 4, n: 4);
+    final fixed = FixedPoint(signed: false, integerWidth: 4, fractionWidth: 4);
     final dut =
         FixedToFloat(fixed, FloatingPoint(exponentWidth: 3, mantissaWidth: 2));
     await dut.build();
     for (var val = 0; val < pow(2, fixed.width); val++) {
-      final fixedValue = FixedPointValue(
-          value: LogicValue.ofInt(val, fixed.width),
-          signed: fixed.signed,
-          m: fixed.m,
-          n: fixed.n);
+      final fixedValue = FixedPointValue.populator(
+              integerWidth: fixed.integerWidth,
+              fractionWidth: fixed.fractionWidth)
+          .ofLogicValue(LogicValue.ofInt(val, fixed.width));
       fixed.put(fixedValue);
       final fpv = dut.float.floatingPointValue;
       final fpvExpected = FloatingPointValue.populator(
@@ -327,16 +353,16 @@ void main() async {
   });
 
   test('Signed Q0.8 to E3M2 shrink', () async {
-    final fixed = FixedPoint(signed: true, m: 0, n: 7);
+    final fixed = FixedPoint(integerWidth: 0, fractionWidth: 7);
     final dut =
         FixedToFloat(fixed, FloatingPoint(exponentWidth: 3, mantissaWidth: 2));
     await dut.build();
     for (var val = 0; val < pow(2, fixed.width); val++) {
-      final fixedValue = FixedPointValue(
-          value: LogicValue.ofInt(val, fixed.width),
-          signed: fixed.signed,
-          m: fixed.m,
-          n: fixed.n);
+      final fixedValue = FixedPointValue.populator(
+              integerWidth: fixed.integerWidth,
+              fractionWidth: fixed.fractionWidth,
+              signed: true)
+          .ofLogicValue(LogicValue.ofInt(val, fixed.width));
       fixed.put(fixedValue);
       final fpv = dut.float.floatingPointValue;
       final fpvExpected = FloatingPointValue.populator(
@@ -352,16 +378,16 @@ void main() async {
   });
 
   test('Signed Q0.3 to E5M6 expand', () async {
-    final fixed = FixedPoint(signed: true, m: 0, n: 3);
+    final fixed = FixedPoint(integerWidth: 0, fractionWidth: 3);
     final dut =
         FixedToFloat(fixed, FloatingPoint(exponentWidth: 5, mantissaWidth: 6));
     await dut.build();
     for (var val = 0; val < pow(2, fixed.width); val++) {
-      final fixedValue = FixedPointValue(
-          value: LogicValue.ofInt(val, fixed.width),
-          signed: fixed.signed,
-          m: fixed.m,
-          n: fixed.n);
+      final fixedValue = FixedPointValue.populator(
+              integerWidth: fixed.integerWidth,
+              fractionWidth: fixed.fractionWidth,
+              signed: true)
+          .ofLogicValue(LogicValue.ofInt(val, fixed.width));
       fixed.put(fixedValue);
       final fpv = dut.float.floatingPointValue;
       final fpvExpected = FloatingPointValue.populator(
@@ -377,16 +403,17 @@ void main() async {
   });
 
   test('Signed Q7.0 to E3M2', () async {
-    final fixed = FixedPoint(signed: true, m: 7, n: 0);
+    final fixed = FixedPoint(integerWidth: 7, fractionWidth: 0);
     final dut =
         FixedToFloat(fixed, FloatingPoint(exponentWidth: 3, mantissaWidth: 2));
     await dut.build();
     for (var val = 0; val < pow(2, fixed.width); val++) {
-      final fixedValue = FixedPointValue(
-          value: LogicValue.ofInt(val, fixed.width),
-          signed: fixed.signed,
-          m: fixed.m,
-          n: fixed.n);
+      final fixedValue = FixedPointValue.populator(
+              integerWidth: fixed.integerWidth,
+              fractionWidth: fixed.fractionWidth,
+              signed: true)
+          .ofLogicValue(LogicValue.ofInt(val, fixed.width));
+
       fixed.put(fixedValue);
       final fpv = dut.float.floatingPointValue;
       final fpvExpected = FloatingPointValue.populator(
