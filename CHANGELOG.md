@@ -1,4 +1,4 @@
-## TBD
+## 0.2.0
 
 - Added extensive variable-width floating-point support:
   - Added support classes `FloatingPointLogic` and `FloatingPointValue` (<https://github.com/intel/rohd-hcl/pull/97>), (<https://github.com/intel/rohd-hcl/pull/110>), (<https://github.com/intel/rohd-hcl/pull/131>), (<https://github.com/intel/rohd-hcl/pull/156>), (<https://github.com/intel/rohd-hcl/pull/175>), (<https://github.com/intel/rohd-hcl/pull/134>).
