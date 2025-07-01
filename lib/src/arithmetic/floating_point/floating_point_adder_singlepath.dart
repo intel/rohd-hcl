@@ -62,9 +62,12 @@ class FloatingPointAdderSinglePath<FpTypeIn extends FloatingPoint,
           'roundNearestEven (default) and truncate).');
     }
 
+    final fa = a.resolveSubNormalAsZero();
+    final fb = b.resolveSubNormalAsZero();
+
     final aExplicit = Const(a.explicitJBit);
     final bExplicit = Const(b.explicitJBit);
-    final swapper = FloatingPointSortByExp(a, b,
+    final swapper = FloatingPointSortByExp(fa, fb,
         metaA: aExplicit, metaB: bExplicit, name: 'sorter_${a.name}_${b.name}');
     final larger = swapper.outA;
     final smaller = swapper.outB;
@@ -353,6 +356,11 @@ class FloatingPointAdderSinglePath<FpTypeIn extends FloatingPoint,
       }
       exponentRound = exponent;
     }
+    // Handle Flush to Zero subnormal case
+    mantissaRound = (internalSum.subNormalAsZero
+        ? mux(lead1Dominates | ~exponentRound.or(),
+            Const(0, width: mantissaRound.width), mantissaRound)
+        : mantissaRound);
 
     final realIsInf =
         (isInfFlopped | exponentRound.eq(infExponent)).named('realIsInf');

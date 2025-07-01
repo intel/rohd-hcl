@@ -19,12 +19,16 @@ class FloatingPointAdderDualPath<FpTypeIn extends FloatingPoint,
   /// Add two floating point numbers [a] and [b], returning result in [sum].
   /// - [subtract] is an optional Logic input to do subtraction
   /// - [adderGen] is an adder generator to be used in the primary adder
-  /// functions.
+  ///   functions.
   /// - [widthGen] is the splitting function for creating the different adder
-  /// blocks within the internal [CompoundAdder] used for mantissa addition.
+  ///   blocks within the internal [CompoundAdder] used for mantissa addition.
   ///   Decreasing the split width will increase speed but also increase area.
   /// - [ppTree] is an ParallelPrefix generator for use in increment /decrement
-  ///  functions.
+  ///   functions.
+  ///
+  ///  If [outSum] is provided, it will be used as the output type, otherwise
+  /// the output type will be the same as the input type [a]. Note that
+  /// [FloatingPointAdderDualPath] does not support explicit j-bit types.
   FloatingPointAdderDualPath(super.a, super.b,
       {Logic? subtract,
       super.clk,
@@ -47,6 +51,11 @@ class FloatingPointAdderDualPath<FpTypeIn extends FloatingPoint,
       throw ArgumentError(
           'FloatingPointAdderDualPath does not support explicit J bit.');
     }
+
+    if (internalSum.explicitJBit) {
+      throw ArgumentError(
+          'FloatingPointAdderDualPath does not support explicit J bit output.');
+    }
     if (roundingMode != FloatingPointRoundingMode.roundNearestEven) {
       throw RohdHclException('FloatingPointAdderDualPath only supports '
           'roundNearestEven.');
@@ -68,8 +77,11 @@ class FloatingPointAdderDualPath<FpTypeIn extends FloatingPoint,
 
     final delta = exponentSubtractor.sum.named('expDelta');
 
+    final fa = a.resolveSubNormalAsZero();
+    final fb = b.resolveSubNormalAsZero();
+
     // Seidel: (sl, el, fl) = larger; (ss, es, fs) = smaller
-    final swapper = FloatingPointConditionalSwap(a, b, signDelta);
+    final swapper = FloatingPointConditionalSwap(fa, fb, signDelta);
     final larger = swapper.outA;
     final smaller = swapper.outB;
 
@@ -370,6 +382,9 @@ class FloatingPointAdderDualPath<FpTypeIn extends FloatingPoint,
     final realIsInfNPath =
         exponentNPath.eq(infExponent).named('realIsInfNPath');
 
+    final outSubNormalAsZero =
+        internalSum.subNormalAsZero ? Const(1) : Const(0);
+
     Combinational([
       If(isNaNFlopped, then: [
         internalSum < internalSum.nan,
@@ -384,7 +399,10 @@ class FloatingPointAdderDualPath<FpTypeIn extends FloatingPoint,
               internalSum.sign < largerSignFlopped,
               internalSum.exponent < exponentRPath,
               internalSum.mantissa <
-                  mantissaRPath.slice(mantissaRPath.width - 2, 1),
+                  mux(
+                      outSubNormalAsZero & ~exponentRPath.or(),
+                      Const(0, width: internalSum.mantissa.width),
+                      mantissaRPath.slice(mantissaRPath.width - 2, 1)),
             ]),
           ], orElse: [
             If(realIsInfNPath, then: [
@@ -392,7 +410,11 @@ class FloatingPointAdderDualPath<FpTypeIn extends FloatingPoint,
             ], orElse: [
               internalSum.sign < signNPath,
               internalSum.exponent < exponentNPath,
-              internalSum.mantissa < finalSignificandNPath,
+              internalSum.mantissa <
+                  mux(
+                      outSubNormalAsZero & ~exponentNPath.or(),
+                      Const(0, width: finalSignificandNPath.width),
+                      finalSignificandNPath),
             ]),
           ])
         ])

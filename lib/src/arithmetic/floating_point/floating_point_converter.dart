@@ -55,6 +55,14 @@ class FloatingPointConverter<FpTypeIn extends FloatingPoint,
         super(
             definitionName: 'FloatingPointConverter_${source.runtimeType}_'
                 '${destination.runtimeType}') {
+    if (source.subNormalAsZero) {
+      throw ArgumentError(
+          'FloatingPointConverter does not support denormal as zero (DAZ)');
+    }
+    if (destination.subNormalAsZero) {
+      throw ArgumentError(
+          'FloatingPointConverter does not support flush to zero (FTZ)');
+    }
     destExponentWidth = destination.exponent.width;
     destMantissaWidth = destination.mantissa.width;
     source = (source.clone(name: 'source') as FpTypeIn)
