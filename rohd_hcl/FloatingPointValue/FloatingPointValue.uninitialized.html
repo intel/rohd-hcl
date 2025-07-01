@@ -60,6 +60,7 @@
     </ol>
   </div>
       <span class="name ">FloatingPointValue.uninitialized</span>(<wbr>{<ol class="parameter-list"> <li><span class="parameter" id="uninitialized-param-explicitJBit"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.8.1/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">explicitJBit</span> = <span class="default-value">false</span>, </span></li>
+<li><span class="parameter" id="uninitialized-param-subNormalAsZero"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.8.1/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">subNormalAsZero</span> = <span class="default-value">false</span>, </span></li>
 </ol>})
     </section>
     
@@ -73,8 +74,10 @@ called with the <a href="../../rohd_hcl/FloatingPointValue/populator.html">popul
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">@protected
-FloatingPointValue.uninitialized({bool explicitJBit = false})
-    : _explicitJBit = explicitJBit;</code></pre>
+FloatingPointValue.uninitialized(
+    {bool explicitJBit = false, bool subNormalAsZero = false})
+    : _explicitJBit = explicitJBit,
+      _subNormalAsZero = subNormalAsZero;</code></pre>
 </section>
 
 

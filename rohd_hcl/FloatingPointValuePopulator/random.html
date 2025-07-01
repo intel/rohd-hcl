@@ -83,8 +83,6 @@ range of <code>[1,2)</code> and <code>minExponent() &lt;= exponent &lt;= maxExpo
   }
   final sign = rv.nextLogicValue(width: 1);
 
-  final mantissa = rv.nextLogicValue(width: mantissaWidth);
-
   final largestExponent = bias + maxExponent;
   final LogicValue exponent;
   if (normal) {
@@ -94,6 +92,9 @@ range of <code>[1,2)</code> and <code>minExponent() &lt;= exponent &lt;= maxExpo
   } else {
     exponent = rv.nextLogicValue(width: exponentWidth, max: largestExponent);
   }
+  final mantissa = (subNormalAsZero &amp; (exponent == LogicValue.zero))
+      ? LogicValue.zero.zeroExtend(mantissaWidth)
+      : rv.nextLogicValue(width: mantissaWidth);
 
   return populate(sign: sign, exponent: exponent, mantissa: mantissa);
 }</code></pre>

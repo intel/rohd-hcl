@@ -101,24 +101,31 @@
     <h2>Constructors</h2>
     <dl class="constructor-summary-list">
         <dt id="FloatingPoint.new" class="callable">
-          <span class="name"><a href="../rohd_hcl/FloatingPoint/FloatingPoint.html">FloatingPoint.new</a></span><span class="signature">({<span class="parameter" id="-param-exponentWidth"><span>required</span> <span class="type-annotation"><a href="https://api.dart.dev/stable/3.8.1/dart-core/int-class.html">int</a></span> <span class="parameter-name">exponentWidth</span>, </span><span class="parameter" id="-param-mantissaWidth"><span>required</span> <span class="type-annotation"><a href="https://api.dart.dev/stable/3.8.1/dart-core/int-class.html">int</a></span> <span class="parameter-name">mantissaWidth</span>, </span><span class="parameter" id="-param-explicitJBit"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.8.1/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">explicitJBit</span> = <span class="default-value">false</span>, </span><span class="parameter" id="-param-name"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.8.1/dart-core/String-class.html">String</a>?</span> <span class="parameter-name">name</span></span>})</span>
+          <span class="name"><a href="../rohd_hcl/FloatingPoint/FloatingPoint.html">FloatingPoint.new</a></span><span class="signature">({<span class="parameter" id="-param-exponentWidth"><span>required</span> <span class="type-annotation"><a href="https://api.dart.dev/stable/3.8.1/dart-core/int-class.html">int</a></span> <span class="parameter-name">exponentWidth</span>, </span><span class="parameter" id="-param-mantissaWidth"><span>required</span> <span class="type-annotation"><a href="https://api.dart.dev/stable/3.8.1/dart-core/int-class.html">int</a></span> <span class="parameter-name">mantissaWidth</span>, </span><span class="parameter" id="-param-explicitJBit"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.8.1/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">explicitJBit</span> = <span class="default-value">false</span>, </span><span class="parameter" id="-param-subNormalAsZero"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.8.1/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">subNormalAsZero</span> = <span class="default-value">false</span>, </span><span class="parameter" id="-param-name"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.8.1/dart-core/String-class.html">String</a>?</span> <span class="parameter-name">name</span></span>})</span>
         </dt>
         <dd>
           <a href="../rohd_hcl/FloatingPoint-class.html">FloatingPoint</a> constructor for a variable size binary
 floating point number
         </dd>
         <dt id="FloatingPoint.inf" class="callable">
-          <span class="name"><a href="../rohd_hcl/FloatingPoint/FloatingPoint.inf.html">FloatingPoint.inf</a></span><span class="signature">({<span class="parameter" id="inf-param-exponentWidth"><span>required</span> <span class="type-annotation"><a href="https://api.dart.dev/stable/3.8.1/dart-core/int-class.html">int</a></span> <span class="parameter-name">exponentWidth</span>, </span><span class="parameter" id="inf-param-mantissaWidth"><span>required</span> <span class="type-annotation"><a href="https://api.dart.dev/stable/3.8.1/dart-core/int-class.html">int</a></span> <span class="parameter-name">mantissaWidth</span>, </span><span class="parameter" id="inf-param-sign"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.3/rohd/Logic-class.html">Logic</a>?</span> <span class="parameter-name">sign</span>, </span><span class="parameter" id="inf-param-negative"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.8.1/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">negative</span> = <span class="default-value">false</span>, </span><span class="parameter" id="inf-param-explicitJBit"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.8.1/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">explicitJBit</span> = <span class="default-value">false</span></span>})</span>
+          <span class="name"><a href="../rohd_hcl/FloatingPoint/FloatingPoint.inf.html">FloatingPoint.inf</a></span><span class="signature">({<span class="parameter" id="inf-param-exponentWidth"><span>required</span> <span class="type-annotation"><a href="https://api.dart.dev/stable/3.8.1/dart-core/int-class.html">int</a></span> <span class="parameter-name">exponentWidth</span>, </span><span class="parameter" id="inf-param-mantissaWidth"><span>required</span> <span class="type-annotation"><a href="https://api.dart.dev/stable/3.8.1/dart-core/int-class.html">int</a></span> <span class="parameter-name">mantissaWidth</span>, </span><span class="parameter" id="inf-param-sign"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.3/rohd/Logic-class.html">Logic</a>?</span> <span class="parameter-name">sign</span>, </span><span class="parameter" id="inf-param-negative"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.8.1/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">negative</span> = <span class="default-value">false</span>, </span><span class="parameter" id="inf-param-explicitJBit"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.8.1/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">explicitJBit</span> = <span class="default-value">false</span>, </span><span class="parameter" id="inf-param-subNormalAsZero"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.8.1/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">subNormalAsZero</span> = <span class="default-value">false</span></span>})</span>
         </dt>
         <dd>
           Construct a FloatingPoint that represents infinity.
             <div class="constructor-modifier features">factory</div>
         </dd>
         <dt id="FloatingPoint.nan" class="callable">
-          <span class="name"><a href="../rohd_hcl/FloatingPoint/FloatingPoint.nan.html">FloatingPoint.nan</a></span><span class="signature">({<span class="parameter" id="nan-param-exponentWidth"><span>required</span> <span class="type-annotation"><a href="https://api.dart.dev/stable/3.8.1/dart-core/int-class.html">int</a></span> <span class="parameter-name">exponentWidth</span>, </span><span class="parameter" id="nan-param-mantissaWidth"><span>required</span> <span class="type-annotation"><a href="https://api.dart.dev/stable/3.8.1/dart-core/int-class.html">int</a></span> <span class="parameter-name">mantissaWidth</span>, </span><span class="parameter" id="nan-param-explicitJBit"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.8.1/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">explicitJBit</span> = <span class="default-value">false</span></span>})</span>
+          <span class="name"><a href="../rohd_hcl/FloatingPoint/FloatingPoint.nan.html">FloatingPoint.nan</a></span><span class="signature">({<span class="parameter" id="nan-param-exponentWidth"><span>required</span> <span class="type-annotation"><a href="https://api.dart.dev/stable/3.8.1/dart-core/int-class.html">int</a></span> <span class="parameter-name">exponentWidth</span>, </span><span class="parameter" id="nan-param-mantissaWidth"><span>required</span> <span class="type-annotation"><a href="https://api.dart.dev/stable/3.8.1/dart-core/int-class.html">int</a></span> <span class="parameter-name">mantissaWidth</span>, </span><span class="parameter" id="nan-param-explicitJBit"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.8.1/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">explicitJBit</span> = <span class="default-value">false</span>, </span><span class="parameter" id="nan-param-subNormalAsZero"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.8.1/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">subNormalAsZero</span> = <span class="default-value">false</span></span>})</span>
         </dt>
         <dd>
           Construct a FloatingPoint that represents NaN.
+            <div class="constructor-modifier features">factory</div>
+        </dd>
+        <dt id="FloatingPoint.zero" class="callable">
+          <span class="name"><a href="../rohd_hcl/FloatingPoint/FloatingPoint.zero.html">FloatingPoint.zero</a></span><span class="signature">({<span class="parameter" id="zero-param-exponentWidth"><span>required</span> <span class="type-annotation"><a href="https://api.dart.dev/stable/3.8.1/dart-core/int-class.html">int</a></span> <span class="parameter-name">exponentWidth</span>, </span><span class="parameter" id="zero-param-mantissaWidth"><span>required</span> <span class="type-annotation"><a href="https://api.dart.dev/stable/3.8.1/dart-core/int-class.html">int</a></span> <span class="parameter-name">mantissaWidth</span>, </span><span class="parameter" id="zero-param-explicitJBit"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.8.1/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">explicitJBit</span> = <span class="default-value">false</span>, </span><span class="parameter" id="zero-param-subNormalAsZero"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.8.1/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">subNormalAsZero</span> = <span class="default-value">false</span></span>})</span>
+        </dt>
+        <dd>
+          Construct a FloatingPoint that represents zero.
             <div class="constructor-modifier features">factory</div>
         </dd>
     </dl>
@@ -213,7 +220,7 @@ per <a href="https://pub.dev/documentation/rohd/0.6.3/rohd/Simulator-class.html"
 </dt>
 <dd>
   Return true if the J-bit is explicitly represented in the mantissa.
-  <div class="features"><span class="feature">no setter</span></div>
+  <div class="features"><span class="feature">final</span></div>
 
 </dd>
 
@@ -673,6 +680,18 @@ one exists.  Otherwise, this is the same as <a href="https://pub.dev/documentati
 
 </dd>
 
+        <dt id="subNormalAsZero" class="property">
+  <span class="name"><a href="../rohd_hcl/FloatingPoint/subNormalAsZero.html">subNormalAsZero</a></span>
+  <span class="signature">&#8594; <a href="https://api.dart.dev/stable/3.8.1/dart-core/bool-class.html">bool</a></span>
+  
+
+</dt>
+<dd>
+  Return true if subnormal numbers are represented as zero.
+  <div class="features"><span class="feature">final</span></div>
+
+</dd>
+
         <dt id="value" class="property inherited">
   <span class="name"><a href="https://pub.dev/documentation/rohd/0.6.3/rohd/LogicStructure/value.html">value</a></span>
   <span class="signature">&#8594; <a href="https://pub.dev/documentation/rohd/0.6.3/rohd/LogicValue-class.html">LogicValue</a></span>
@@ -1113,6 +1132,20 @@ for <a href="https://pub.dev/documentation/rohd/0.6.3/rohd/LogicStructure/change
   Returns a replicated signal using <a href="https://pub.dev/documentation/rohd/0.6.3/rohd/ReplicationOp-class.html">ReplicationOp</a> with new width =
 this.width * <code>multiplier</code>
   <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="resolveSubNormalAsZero" class="callable">
+  <span class="name"><a href="../rohd_hcl/FloatingPoint/resolveSubNormalAsZero.html">resolveSubNormalAsZero</a></span><span class="signature">(<wbr>)
+    <span class="returntype parameter">&#8594; <a href="../rohd_hcl/FloatingPoint-class.html">FloatingPoint</a></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Convert the current <a href="../rohd_hcl/FloatingPoint-class.html">FloatingPoint</a> to a new <a href="../rohd_hcl/FloatingPoint-class.html">FloatingPoint</a> but with the
+mantissa resolved if subnormal and subNormalAsZero is true.
+  
 
 </dd>
 

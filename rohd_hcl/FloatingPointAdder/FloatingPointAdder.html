@@ -67,12 +67,16 @@
     </section>
     
 <section class="desc markdown">
-  <p>Add two floating point numbers <code>a</code> and <code>b</code>, returning result in <a href="../../rohd_hcl/FloatingPointAdder/sum.html">sum</a>.
-If a different output type is needed, you can provide that in <code>outSum</code>.</p>
+  <p>Add two floating point numbers <code>a</code> and <code>b</code>, returning result in <a href="../../rohd_hcl/FloatingPointAdder/sum.html">sum</a>. If
+a different output type is needed, you can provide that in <code>outSum</code>.</p>
 <ul>
 <li><code>clk</code>, <code>reset</code>, <code>enable</code> are optional inputs to control a pipestage
 (only inserted if <code>clk</code> is provided).</li>
 </ul>
+<p>If <code>outSum</code> is provided, it will be used as the output type, otherwise the
+output type will be the same as the input type <code>a</code> expect: if <code>a</code> and <code>b</code>
+don't match on explicit j-bit type then the output is the type of the
+input that does NOT have explicit j-bit set.</p>
 </section>
 
 

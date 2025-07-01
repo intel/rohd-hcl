@@ -158,6 +158,11 @@
   final exponent =
       LogicValue.ofBigInt(BigInt.from(max(expVal, 0)), exponentWidth);
 
+  if (subNormalAsZero &amp;&amp; expVal &lt;= 0) {
+    &#47;&#47; If we are subnormal, we return zero
+    mantissa = LogicValue.zero.zeroExtend(mantissaWidth);
+  }
+
   final sign = fp64.sign;
 
   return populate(

@@ -58,6 +58,7 @@
 <span class="name ">populator</span>(<wbr>{<ol class="parameter-list"> <li><span class="parameter" id="populator-param-exponentWidth"><span>required</span> <span class="type-annotation"><a href="https://api.dart.dev/stable/3.8.1/dart-core/int-class.html">int</a></span> <span class="parameter-name">exponentWidth</span>, </span></li>
 <li><span class="parameter" id="populator-param-mantissaWidth"><span>required</span> <span class="type-annotation"><a href="https://api.dart.dev/stable/3.8.1/dart-core/int-class.html">int</a></span> <span class="parameter-name">mantissaWidth</span>, </span></li>
 <li><span class="parameter" id="populator-param-explicitJBit"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.8.1/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">explicitJBit</span> = <span class="default-value">false</span>, </span></li>
+<li><span class="parameter" id="populator-param-subNormalAsZero"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.8.1/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">subNormalAsZero</span> = <span class="default-value">false</span>, </span></li>
 </ol>})
 
       
@@ -77,11 +78,12 @@ a <a href="../../rohd_hcl/FloatingPointValue-class.html">FloatingPointValue</a> 
   <pre class="language-dart"><code class="language-dart">static FloatingPointValuePopulator populator(
         {required int exponentWidth,
         required int mantissaWidth,
-        bool explicitJBit = false}) =&gt;
-    FloatingPointValuePopulator(
-        FloatingPointValue.uninitialized(explicitJBit: explicitJBit)
-          .._exponentWidth = exponentWidth
-          .._mantissaWidth = mantissaWidth);</code></pre>
+        bool explicitJBit = false,
+        bool subNormalAsZero = false}) =&gt;
+    FloatingPointValuePopulator(FloatingPointValue.uninitialized(
+        explicitJBit: explicitJBit, subNormalAsZero: subNormalAsZero)
+      .._exponentWidth = exponentWidth
+      .._mantissaWidth = mantissaWidth);</code></pre>
 </section>
 
 

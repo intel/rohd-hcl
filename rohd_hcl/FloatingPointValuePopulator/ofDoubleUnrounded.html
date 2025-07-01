@@ -160,8 +160,9 @@ FpvType ofDoubleUnrounded(double inDouble) {
   &#47;&#47; The conversion fills leftward.
   &#47;&#47; We reverse again after conversion.
   final exponent = LogicValue.ofInt(e + bias, exponentWidth);
-  final mantissa =
-      LogicValue.ofBigInt(fullValue.reversed.toBigInt(), mantissaWidth)
+  final mantissa = (subNormalAsZero &amp;&amp; e + bias &lt;= 0)
+      ? LogicValue.zero.zeroExtend(mantissaWidth)
+      : LogicValue.ofBigInt(fullValue.reversed.toBigInt(), mantissaWidth)
           .reversed;
 
   return populate(

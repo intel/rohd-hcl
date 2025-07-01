@@ -58,6 +58,7 @@
 <li><span class="parameter" id="-param-exponent"><span>required</span> <span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.3/rohd/LogicValue-class.html">LogicValue</a></span> <span class="parameter-name">exponent</span>, </span></li>
 <li><span class="parameter" id="-param-mantissa"><span>required</span> <span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.3/rohd/LogicValue-class.html">LogicValue</a></span> <span class="parameter-name">mantissa</span>, </span></li>
 <li><span class="parameter" id="-param-explicitjBit"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.8.1/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">explicitjBit</span> = <span class="default-value">false</span>, </span></li>
+<li><span class="parameter" id="-param-subNormalAsZero"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.8.1/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">subNormalAsZero</span> = <span class="default-value">false</span>, </span></li>
 </ol>})
     </section>
     
@@ -74,11 +75,13 @@
         {required LogicValue sign,
         required LogicValue exponent,
         required LogicValue mantissa,
-        bool explicitjBit = false}) =&gt;
+        bool explicitjBit = false,
+        bool subNormalAsZero = false}) =&gt;
     populator(
             exponentWidth: exponent.width,
             mantissaWidth: mantissa.width,
-            explicitJBit: explicitjBit)
+            explicitJBit: explicitjBit,
+            subNormalAsZero: subNormalAsZero)
         .populate(sign: sign, exponent: exponent, mantissa: mantissa);</code></pre>
 </section>
 

@@ -79,10 +79,14 @@
   var doubleVal = double.nan;
   if (value.isValid) {
     if (exponent.toInt() == 0) {
-      doubleVal = (sign.toBool() ? -1.0 : 1.0) *
-          pow(2.0, minExponent) *
-          mantissa.toBigInt().toDouble() &#47;
-          pow(2.0, mantissa.width - (explicitJBit ? 1 : 0));
+      if (subNormalAsZero) {
+        doubleVal = 0.0;
+      } else {
+        doubleVal = (sign.toBool() ? -1.0 : 1.0) *
+            pow(2.0, minExponent) *
+            mantissa.toBigInt().toDouble() &#47;
+            pow(2.0, mantissa.width - (explicitJBit ? 1 : 0));
+      }
     } else if (!isNaN) {
       doubleVal = (sign.toBool() ? -1.0 : 1.0) *
           ((explicitJBit ? 0.0 : 1.0) +

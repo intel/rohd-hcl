@@ -88,8 +88,11 @@ functions.</li>
 blocks within the internal <a href="../../rohd_hcl/CompoundAdder-class.html">CompoundAdder</a> used for mantissa addition.
 Decreasing the split width will increase speed but also increase area.</li>
 <li><code>ppTree</code> is an ParallelPrefix generator for use in increment /decrement
- functions.</li>
+functions.</li>
 </ul>
+<p>If <code>outSum</code> is provided, it will be used as the output type, otherwise
+the output type will be the same as the input type <code>a</code>. Note that
+<a href="../../rohd_hcl/FloatingPointAdderDualPath-class.html">FloatingPointAdderDualPath</a> does not support explicit j-bit types.</p>
 </section>
 
 
@@ -118,6 +121,11 @@ Decreasing the split width will increase speed but also increase area.</li>
     throw ArgumentError(
         &#39;FloatingPointAdderDualPath does not support explicit J bit.&#39;);
   }
+
+  if (internalSum.explicitJBit) {
+    throw ArgumentError(
+        &#39;FloatingPointAdderDualPath does not support explicit J bit output.&#39;);
+  }
   if (roundingMode != FloatingPointRoundingMode.roundNearestEven) {
     throw RohdHclException(&#39;FloatingPointAdderDualPath only supports &#39;
         &#39;roundNearestEven.&#39;);
@@ -139,8 +147,11 @@ Decreasing the split width will increase speed but also increase area.</li>
 
   final delta = exponentSubtractor.sum.named(&#39;expDelta&#39;);
 
+  final fa = a.resolveSubNormalAsZero();
+  final fb = b.resolveSubNormalAsZero();
+
   &#47;&#47; Seidel: (sl, el, fl) = larger; (ss, es, fs) = smaller
-  final swapper = FloatingPointConditionalSwap(a, b, signDelta);
+  final swapper = FloatingPointConditionalSwap(fa, fb, signDelta);
   final larger = swapper.outA;
   final smaller = swapper.outB;
 
@@ -441,6 +452,9 @@ Decreasing the split width will increase speed but also increase area.</li>
   final realIsInfNPath =
       exponentNPath.eq(infExponent).named(&#39;realIsInfNPath&#39;);
 
+  final outSubNormalAsZero =
+      internalSum.subNormalAsZero ? Const(1) : Const(0);
+
   Combinational([
     If(isNaNFlopped, then: [
       internalSum &lt; internalSum.nan,
@@ -455,7 +469,10 @@ Decreasing the split width will increase speed but also increase area.</li>
             internalSum.sign &lt; largerSignFlopped,
             internalSum.exponent &lt; exponentRPath,
             internalSum.mantissa &lt;
-                mantissaRPath.slice(mantissaRPath.width - 2, 1),
+                mux(
+                    outSubNormalAsZero &amp; ~exponentRPath.or(),
+                    Const(0, width: internalSum.mantissa.width),
+                    mantissaRPath.slice(mantissaRPath.width - 2, 1)),
           ]),
         ], orElse: [
           If(realIsInfNPath, then: [
@@ -463,7 +480,11 @@ Decreasing the split width will increase speed but also increase area.</li>
           ], orElse: [
             internalSum.sign &lt; signNPath,
             internalSum.exponent &lt; exponentNPath,
-            internalSum.mantissa &lt; finalSignificandNPath,
+            internalSum.mantissa &lt;
+                mux(
+                    outSubNormalAsZero &amp; ~exponentNPath.or(),
+                    Const(0, width: finalSignificandNPath.width),
+                    finalSignificandNPath),
           ]),
         ])
       ])

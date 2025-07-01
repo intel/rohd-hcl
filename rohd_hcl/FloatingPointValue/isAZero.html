@@ -78,7 +78,8 @@ and <a href="../../rohd_hcl/FloatingPointConstants.html">FloatingPointConstants.
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">bool get isAZero =&gt;
     this == clonePopulator().positiveZero ||
-    this == clonePopulator().negativeZero;</code></pre>
+    this == clonePopulator().negativeZero ||
+    (subNormalAsZero &amp;&amp; isSubnormal());</code></pre>
 </section>
 
   </section>

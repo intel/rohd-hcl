@@ -57,6 +57,7 @@
       <span class="name ">FloatingPoint</span>(<wbr>{<ol class="parameter-list"> <li><span class="parameter" id="-param-exponentWidth"><span>required</span> <span class="type-annotation"><a href="https://api.dart.dev/stable/3.8.1/dart-core/int-class.html">int</a></span> <span class="parameter-name">exponentWidth</span>, </span></li>
 <li><span class="parameter" id="-param-mantissaWidth"><span>required</span> <span class="type-annotation"><a href="https://api.dart.dev/stable/3.8.1/dart-core/int-class.html">int</a></span> <span class="parameter-name">mantissaWidth</span>, </span></li>
 <li><span class="parameter" id="-param-explicitJBit"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.8.1/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">explicitJBit</span> = <span class="default-value">false</span>, </span></li>
+<li><span class="parameter" id="-param-subNormalAsZero"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.8.1/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">subNormalAsZero</span> = <span class="default-value">false</span>, </span></li>
 <li><span class="parameter" id="-param-name"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.8.1/dart-core/String-class.html">String</a>?</span> <span class="parameter-name">name</span>, </span></li>
 </ol>})
     </section>
@@ -74,6 +75,7 @@ floating point number</p>
     {required int exponentWidth,
     required int mantissaWidth,
     bool explicitJBit = false,
+    bool subNormalAsZero = false,
     String? name})
     : this._(
           Logic(name: &#39;sign&#39;, naming: Naming.mergeable),
@@ -86,6 +88,7 @@ floating point number</p>
               name: &#39;mantissa&#39;,
               naming: Naming.mergeable),
           explicitJBit,
+          subNormalAsZero,
           name: name);</code></pre>
 </section>
 

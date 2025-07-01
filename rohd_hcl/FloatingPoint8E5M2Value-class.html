@@ -318,6 +318,18 @@ NaN or "Not a Number".
 
 </dd>
 
+        <dt id="subNormalAsZero" class="property inherited">
+  <span class="name"><a href="../rohd_hcl/FloatingPointValue/subNormalAsZero.html">subNormalAsZero</a></span>
+  <span class="signature">&#8594; <a href="https://api.dart.dev/stable/3.8.1/dart-core/bool-class.html">bool</a></span>
+  
+
+</dt>
+<dd class="inherited">
+  Return true if subnormal numbers are treated as zero.
+  <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
+
+</dd>
+
         <dt id="supportsInfinities" class="property inherited">
   <span class="name"><a href="../rohd_hcl/FloatingPointValue/supportsInfinities.html">supportsInfinities</a></span>
   <span class="signature">&#8594; <a href="https://api.dart.dev/stable/3.8.1/dart-core/bool-class.html">bool</a></span>
@@ -407,16 +419,18 @@ with the same widths.
 
 </dd>
 
-        <dt id="getConstantComponents" class="callable inherited">
-  <span class="name"><a href="../rohd_hcl/FloatingPointValue/getConstantComponents.html">getConstantComponents</a></span><span class="signature">(<wbr><span class="parameter" id="getConstantComponents-param-constantFloatingPoint"><span class="type-annotation"><a href="../rohd_hcl/FloatingPointConstants.html">FloatingPointConstants</a></span> <span class="parameter-name">constantFloatingPoint</span></span>)
-    <span class="returntype parameter">&#8594; (<span class="field">{<span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.3/rohd/LogicValue-class.html">LogicValue</a></span> <span class="field-name">exponent</span>, </span><span class="field"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.3/rohd/LogicValue-class.html">LogicValue</a></span> <span class="field-name">mantissa</span>, </span><span class="field"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.3/rohd/LogicValue-class.html">LogicValue</a></span> <span class="field-name">sign</span>}</span>)</span>
+        <dt id="getSpecialConstantComponents" class="callable inherited">
+  <span class="name"><a href="../rohd_hcl/FloatingPointValue/getSpecialConstantComponents.html">getSpecialConstantComponents</a></span><span class="signature">(<wbr><span class="parameter" id="getSpecialConstantComponents-param-constantFloatingPoint"><span class="type-annotation"><a href="../rohd_hcl/FloatingPointConstants.html">FloatingPointConstants</a></span> <span class="parameter-name">constantFloatingPoint</span></span>)
+    <span class="returntype parameter">&#8594; (<span class="field">{<span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.3/rohd/LogicValue-class.html">LogicValue</a></span> <span class="field-name">exponent</span>, </span><span class="field"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.3/rohd/LogicValue-class.html">LogicValue</a></span> <span class="field-name">mantissa</span>, </span><span class="field"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.3/rohd/LogicValue-class.html">LogicValue</a></span> <span class="field-name">sign</span>}</span>)?</span>
   </span>
   
 
 </dt>
 <dd class="inherited">
-  Return the set of <a href="https://pub.dev/documentation/rohd/0.6.3/rohd/LogicValue-class.html">LogicValue</a>s for a given <a href="../rohd_hcl/FloatingPointConstants.html">FloatingPointConstants</a> at a
-given <a href="../rohd_hcl/FloatingPointValue/exponentWidth.html">exponentWidth</a> and <a href="../rohd_hcl/FloatingPointValue/mantissaWidth.html">mantissaWidth</a>.
+  Returns a tuple of <a href="https://pub.dev/documentation/rohd/0.6.3/rohd/LogicValue-class.html">LogicValue</a>s for the sign, exponent, and mantissa
+components of a special constant, or <code>null</code> if the constant does not have
+special components.This is useful for constants like NaN, Infinity, etc in
+certain types of floating point representations.
   <div class="features"><span class="feature">inherited</span></div>
 
 </dd>

@@ -96,6 +96,14 @@ leading one detection (default <a href="../../rohd_hcl/RecursiveModulePriorityEn
       super(
           definitionName: &#39;FloatingPointConverter_${source.runtimeType}_&#39;
               &#39;${destination.runtimeType}&#39;) {
+  if (source.subNormalAsZero) {
+    throw ArgumentError(
+        &#39;FloatingPointConverter does not support denormal as zero (DAZ)&#39;);
+  }
+  if (destination.subNormalAsZero) {
+    throw ArgumentError(
+        &#39;FloatingPointConverter does not support flush to zero (FTZ)&#39;);
+  }
   destExponentWidth = destination.exponent.width;
   destMantissaWidth = destination.mantissa.width;
   source = (source.clone(name: &#39;source&#39;) as FpTypeIn)

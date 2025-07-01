@@ -92,6 +92,10 @@ void put(dynamic val, {bool fill = false}) {
     if (val.explicitJBit != explicitJBit) {
       throw RohdHclException(&#39;FloatingPoint explicit jbit does not match&#39;);
     }
+    if (val.subNormalAsZero != subNormalAsZero) {
+      throw RohdHclException(
+          &#39;FloatingPoint subnormal as zero does not match&#39;);
+    }
     put(val.value);
   } else {
     super.put(val, fill: fill);

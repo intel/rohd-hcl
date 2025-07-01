@@ -71,6 +71,9 @@
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">FloatingPointValue operator +(FloatingPointValue addend) {
+  if (isNaN | addend.isNaN) {
+    return clonePopulator().nan;
+  }
   if (isAnInfinity) {
     if (addend.isAnInfinity) {
       if (sign != addend.sign) {
