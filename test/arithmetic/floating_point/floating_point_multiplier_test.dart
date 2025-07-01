@@ -229,7 +229,7 @@ void main() {
       fp2.put(0);
       final multiplier = FloatingPointMultiplierSimple(fp1, fp2,
           multGen: (a, b, {clk, reset, enable, name = 'multiplier'}) =>
-              CompressionTreeMultiplier(a, b, 4, name: name));
+              CompressionTreeMultiplier(a, b, name: name));
       final rand = Random(51);
 
       var cnt = 1000;
@@ -589,7 +589,7 @@ void main() {
     final multiply = FloatingPointMultiplierSimple(fp1, fp2,
         clk: clk,
         multGen: (a, b, {clk, reset, enable, name = 'multiplier'}) =>
-            CompressionTreeMultiplier(a, b, 4,
+            CompressionTreeMultiplier(a, b,
                 clk: clk, reset: reset, enable: enable, name: name));
 
     unawaited(Simulator.run());

@@ -187,8 +187,9 @@ class CompressionTreeMultiplyAccumulate extends MultiplyAccumulate {
   /// after compression.  [reset] and [enable] are optional
   /// inputs to control these flops when [clk] is provided. If [clk] is null,
   /// the Column Compressor is built as a combinational tree of compressors.
-  CompressionTreeMultiplyAccumulate(super.a, super.b, super.c, int radix,
-      {Logic? clk,
+  CompressionTreeMultiplyAccumulate(super.a, super.b, super.c,
+      {int radix = 4,
+      Logic? clk,
       Logic? reset,
       Logic? enable,
       super.signedMultiplicand,
