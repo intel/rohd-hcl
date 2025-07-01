@@ -52,12 +52,17 @@ abstract class FloatingPointAdder<FpTypeIn extends FloatingPoint,
   late final FpTypeOut internalSum;
 
   /// The rounding mode to use for the adder.
-  late final FloatingPointRoundingMode roundingMode;
+  final FloatingPointRoundingMode roundingMode;
 
-  /// Add two floating point numbers [a] and [b], returning result in [sum].
-  /// If a different output type is needed, you can provide that in [outSum].
+  /// Add two floating point numbers [a] and [b], returning result in [sum]. If
+  /// a different output type is needed, you can provide that in [outSum].
   /// - [clk], [reset], [enable] are optional inputs to control a pipestage
-  /// (only inserted if [clk] is provided).
+  ///   (only inserted if [clk] is provided).
+  ///
+  /// If [outSum] is provided, it will be used as the output type, otherwise the
+  /// output type will be the same as the input type [a] expect: if [a] and [b]
+  /// don't match on explicit j-bit type then the output is the type of the
+  /// input that does NOT have explicit j-bit set.
   FloatingPointAdder(FpTypeIn a, FpTypeIn b,
       {Logic? clk,
       Logic? reset,

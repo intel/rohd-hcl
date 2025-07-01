@@ -69,8 +69,9 @@ class FloatingPoint8E4M3Value extends FloatingPointValue {
 
   @override
   @protected
-  ({LogicValue sign, LogicValue exponent, LogicValue mantissa})
-      getConstantComponents(FloatingPointConstants constantFloatingPoint) {
+  ({LogicValue sign, LogicValue exponent, LogicValue mantissa})?
+      getSpecialConstantComponents(
+          FloatingPointConstants constantFloatingPoint) {
     final (
       String signStr,
       String exponentStr,
@@ -90,7 +91,7 @@ class FloatingPoint8E4M3Value extends FloatingPointValue {
         throw InfinityNotSupportedException(
             'Infinity is not representable in E4M3 format');
       case _:
-        return super.getConstantComponents(constantFloatingPoint);
+        return null;
     }
 
     return (

@@ -39,11 +39,10 @@ class CarrySaveMultiplier extends Multiplier {
       {required super.clk,
       required super.reset,
       super.enable,
+      super.signedMultiplicand,
+      super.signedMultiplier,
       super.name = 'carry_save_multiplier'})
-      : super(
-            signedMultiplicand: false,
-            signedMultiplier: false,
-            definitionName: 'CarrySaveMultiplier_W${a.width}') {
+      : super(definitionName: 'CarrySaveMultiplier_W${a.width}') {
     if (a.width != b.width) {
       throw RohdHclException('inputs of a and b should have same width.');
     }

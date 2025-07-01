@@ -118,7 +118,7 @@ Here is an example of use of the `CompressionTreeMultiplier` with one signed inp
     b.put(3);
 
     final multiplier =
-        CompressionTreeMultiplier(a, b, radix, signedMultiplicand: true);
+        CompressionTreeMultiplier(a, b, radix: radix, signedMultiplicand: true);
 
     final product = multiplier.product;
 
@@ -153,13 +153,14 @@ Here is an example of using the `CompressionTreeMultiplyAccumulate` with all inp
     final b = Logic(name: 'b', width: widthB);
     final c = Logic(name: 'c', width: widthA + widthB);
 
-    a.put(15);
+    a.put(-15);
     b.put(3);
-    c.put(5);
+    c.put(-5);
 
-    final multiplier = CompressionTreeMultiplyAccumulate(a, b, c, radix, signedMultiplicand: true, signedMultiplier: true, signedAddend: true);
+
+    final multiplier = CompressionTreeMultiplyAccumulate(a, b, c, radix: radix, signedMultiplicand: true, signedMultiplier: true, signedAddend: true);
 
     final accumulate = multiplier.accumulate;
-    
-    print('${accumulate.value.toBigInt()}');
+
+    print('${accumulate.value.toBigInt().toSigned(widthA + widthB)}');
 ```

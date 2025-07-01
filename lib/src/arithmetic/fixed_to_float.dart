@@ -60,7 +60,7 @@ class FixedToFloat extends Module {
     final bias = float.floatingPointValue.bias;
     final eMax = pow(2, float.exponent.width) - 2;
     final iWidth = (1 +
-            max(log2Ceil(fixed.n),
+            max(log2Ceil(fixed.fractionWidth),
                 max(log2Ceil(fixed.width), float.exponent.width)))
         .toInt();
 
@@ -82,7 +82,7 @@ class FixedToFloat extends Module {
         ..gets(mux(_convertedFloat.sign, fixed, fixed));
     }
 
-    final maxShift = fixed.width - fixed.n + bias - 2;
+    final maxShift = fixed.width - fixed.fractionWidth + bias - 2;
 
     final jBit = Logic(name: 'jBit', width: iWidth);
     Logic estimatedJBit;
@@ -166,7 +166,9 @@ class FixedToFloat extends Module {
     // Calculate biased exponent
     final eRaw = mux(
             absValueShifted[-1],
-            (Const(bias + fixed.width - fixed.n - 1, width: iWidth) - jBit)
+            (Const(bias + fixed.width - fixed.fractionWidth - 1,
+                        width: iWidth) -
+                    jBit)
                 .named('eShift'),
             Const(0, width: iWidth))
         .named('eRaw');

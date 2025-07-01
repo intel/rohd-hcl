@@ -85,7 +85,8 @@ class MultiplierSelectKnob extends GroupOfKnobs {
               Logic? reset,
               Logic? enable,
               String name = 'comp_tree_multiplier'}) =>
-          CompressionTreeMultiplier(term1, term2, radixKnob.value,
+          CompressionTreeMultiplier(term1, term2,
+              radix: radixKnob.value,
               adderGen: adderSelectionKnob.selectedAdder(),
               clk: clk,
               reset: reset,

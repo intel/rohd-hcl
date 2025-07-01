@@ -74,8 +74,9 @@ void main() {
           exponentWidth: exponentWidth, mantissaWidth: mantissaWidth);
       fp1.put(fv);
       fp2.put(fv);
-      FloatingPointValue ofString(String s) =>
-          FloatingPointValue.ofSpacedBinaryString(s);
+      FloatingPointValue ofString(String s) => FloatingPointValue.populator(
+              exponentWidth: exponentWidth, mantissaWidth: mantissaWidth)
+          .ofSpacedBinaryString(s);
       final testCases = [
         (ofString('0 0001 0000'), ofString('0 0000 0000')),
         (ofString('0 0111 0010'), ofString('0 1110 1111')),
@@ -228,7 +229,7 @@ void main() {
       fp2.put(0);
       final multiplier = FloatingPointMultiplierSimple(fp1, fp2,
           multGen: (a, b, {clk, reset, enable, name = 'multiplier'}) =>
-              CompressionTreeMultiplier(a, b, 4, name: name));
+              CompressionTreeMultiplier(a, b, name: name));
       final rand = Random(51);
 
       var cnt = 1000;
@@ -262,11 +263,15 @@ void main() {
       const mantissaWidth = 4;
       final fp1 = FloatingPoint(
           exponentWidth: exponentWidth, mantissaWidth: mantissaWidth);
-      final fv1 = FloatingPointValue.ofBinaryStrings('1', '1100', '0111');
+      final fv1 = FloatingPointValue.populator(
+              exponentWidth: exponentWidth, mantissaWidth: mantissaWidth)
+          .ofBinaryStrings('1', '1100', '0111');
 
       final fp2 = FloatingPoint(
           exponentWidth: exponentWidth, mantissaWidth: mantissaWidth);
-      final fv2 = FloatingPointValue.ofBinaryStrings('1', '1100', '0000');
+      final fv2 = FloatingPointValue.populator(
+              exponentWidth: exponentWidth, mantissaWidth: mantissaWidth)
+          .ofBinaryStrings('1', '1100', '0000');
 
       final doubleProduct = fv1.toDouble() * fv2.toDouble();
       final expected = FloatingPointValue.populator(
@@ -293,11 +298,15 @@ void main() {
       const mantissaWidth = 4;
       final fp1 = FloatingPoint(
           exponentWidth: exponentWidth, mantissaWidth: mantissaWidth);
-      final fv1 = FloatingPointValue.ofBinaryStrings('1', '1000', '0011');
+      final fv1 = FloatingPointValue.populator(
+              exponentWidth: exponentWidth, mantissaWidth: mantissaWidth)
+          .ofBinaryStrings('1', '1000', '0011');
 
       final fp2 = FloatingPoint(
           exponentWidth: exponentWidth, mantissaWidth: mantissaWidth);
-      final fv2 = FloatingPointValue.ofBinaryStrings('1', '0001', '0001');
+      final fv2 = FloatingPointValue.populator(
+              exponentWidth: exponentWidth, mantissaWidth: mantissaWidth)
+          .ofBinaryStrings('1', '0001', '0001');
 
       final doubleProduct = fv1.toDouble() * fv2.toDouble();
 
@@ -330,13 +339,15 @@ void main() {
       const mantissaWidth = 7;
       final fp1 = FloatingPoint(
           exponentWidth: exponentWidth, mantissaWidth: mantissaWidth);
-      final fv1 =
-          FloatingPointValue.ofBinaryStrings('0', '00000110', '1010000');
+      final fv1 = FloatingPointValue.populator(
+              exponentWidth: exponentWidth, mantissaWidth: mantissaWidth)
+          .ofBinaryStrings('0', '00000110', '1010000');
 
       final fp2 = FloatingPoint(
           exponentWidth: exponentWidth, mantissaWidth: mantissaWidth);
-      final fv2 =
-          FloatingPointValue.ofBinaryStrings('1', '01100010', '1110000');
+      final fv2 = FloatingPointValue.populator(
+              exponentWidth: exponentWidth, mantissaWidth: mantissaWidth)
+          .ofBinaryStrings('1', '01100010', '1110000');
 
       final doubleProduct = fv1.toDouble() * fv2.toDouble();
 
@@ -487,11 +498,15 @@ void main() {
       const mantissaWidth = 4;
       final fp1 = FloatingPoint(
           exponentWidth: exponentWidth, mantissaWidth: mantissaWidth);
-      final fv1 = FloatingPointValue.ofBinaryStrings('0', '0111', '0000');
+      final fv1 = FloatingPointValue.populator(
+              exponentWidth: exponentWidth, mantissaWidth: mantissaWidth)
+          .ofBinaryStrings('0', '0111', '0000');
 
       final fp2 = FloatingPoint(
           exponentWidth: exponentWidth, mantissaWidth: mantissaWidth);
-      final fv2 = FloatingPointValue.ofBinaryStrings('0', '1101', '0101');
+      final fv2 = FloatingPointValue.populator(
+              exponentWidth: exponentWidth, mantissaWidth: mantissaWidth)
+          .ofBinaryStrings('0', '1101', '0101');
 
       final expected = FloatingPointValue.populator(
               exponentWidth: exponentWidth, mantissaWidth: mantissaWidth)
@@ -554,11 +569,15 @@ void main() {
     const mantissaWidth = 4;
     final fp1 = FloatingPoint(
         exponentWidth: exponentWidth, mantissaWidth: mantissaWidth);
-    final fv1 = FloatingPointValue.ofBinaryStrings('0', '0111', '0000');
+    final fv1 = FloatingPointValue.populator(
+            exponentWidth: exponentWidth, mantissaWidth: mantissaWidth)
+        .ofBinaryStrings('0', '0111', '0000');
 
     final fp2 = FloatingPoint(
         exponentWidth: exponentWidth, mantissaWidth: mantissaWidth);
-    final fv2 = FloatingPointValue.ofBinaryStrings('0', '1101', '0101');
+    final fv2 = FloatingPointValue.populator(
+            exponentWidth: exponentWidth, mantissaWidth: mantissaWidth)
+        .ofBinaryStrings('0', '1101', '0101');
 
     final expected = FloatingPointValue.populator(
             exponentWidth: exponentWidth, mantissaWidth: mantissaWidth)
@@ -570,7 +589,7 @@ void main() {
     final multiply = FloatingPointMultiplierSimple(fp1, fp2,
         clk: clk,
         multGen: (a, b, {clk, reset, enable, name = 'multiplier'}) =>
-            CompressionTreeMultiplier(a, b, 4,
+            CompressionTreeMultiplier(a, b,
                 clk: clk, reset: reset, enable: enable, name: name));
 
     unawaited(Simulator.run());
