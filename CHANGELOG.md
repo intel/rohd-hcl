@@ -15,13 +15,13 @@
 - Added `Sum` and `Counter` components (<https://github.com/intel/rohd-hcl/pull/89>) which are fully-featured capabilities to track counters with multiple inputs and various options to handle overflow.
 - Added `Serializer` and `Deserializer` components (<https://github.com/intel/rohd-hcl/pull/92>) which handle marshalling and unmarshalling of data onto wider or narrower interfaces.
 - Added `ReductionTree` module and `ReductionTreeGenerator` component (<https://github.com/intel/rohd-hcl/pull/155>), (<https://github.com/intel/rohd-hcl/pull/180>), (<https://github.com/intel/rohd-hcl/pull/204>) which allow generalized reduction operations of arbitrary radix with pipelining.
-- Added `Extremma` component (<https://github.com/intel/rohd-hcl/pull/93>).
+- Added `Extrema` component (<https://github.com/intel/rohd-hcl/pull/93>).
 - Added clock gating componentry (<https://github.com/intel/rohd-hcl/pull/96>), (<https://github.com/intel/rohd-hcl/pull/111>).
 - Added fast `RecursiveModulePriorityEncoder` (<https://github.com/intel/rohd-hcl/pull/178>) to complement `ParallelPrefixPriorityEncoder`.
 - Added `OnesComplementAdder` component (<https://github.com/intel/rohd-hcl/pull/85>).
 - Added `CompoundAdder` and `CarrySelectOnesComplement` adder components (<https://github.com/intel/rohd-hcl/pull/98>), (<https://github.com/intel/rohd-hcl/pull/178>).
 - Added extensive integer multiplication support:
-  - Added multiplier componentry such as parameterizable Booth-encoders, different kinds of sign extension on a partial-product array, delay-driven Wallace tree compression, and selection of differnt kinds fo final adders (<https://github.com/intel/rohd-hcl/pull/85>).
+  - Added multiplier componentry such as parameterizable Booth-encoders, different kinds of sign extension on a partial-product array, delay-driven Wallace tree compression, and selection of differnt kinds for final adders (<https://github.com/intel/rohd-hcl/pull/85>).
     - Added special visualization of partial-product arrays for debug (<https://github.com/intel/rohd-hcl/pull/102>),  (<https://github.com/intel/rohd-hcl/pull/107>).
     - Added support for pipelining (<https://github.com/intel/rohd-hcl/pull/118>), (<https://github.com/intel/rohd-hcl/pull/137>), (<https://github.com/intel/rohd-hcl/pull/138>).
     - Added support for rectangular multiplication and multiple kinds of sign extension (<https://github.com/intel/rohd-hcl/pull/154>).
