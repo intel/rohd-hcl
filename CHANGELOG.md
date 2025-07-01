@@ -39,6 +39,7 @@
 - Modified tree form of `OneHotToBinary` to add error generation (<https://github.com/intel/rohd-hcl/pull/211>).
 - Fixed bugs in `FifoChecker` sampling at clock edges that caused failures. (<https://github.com/intel/rohd-hcl/pull/70>).
 - Updated `ApbTracker` for configurable widths and data (<https://github.com/intel/rohd-hcl/pull/71>).
+- Breaking:  `ParityTransmitter` deprecates `parity` for `code`,`checkError` for `error` and `originalData` for `data`.
 - Fixed memory model for read-after-write or read on non-zero latency (<https://github.com/intel/rohd-hcl/pull/72>).
 - Fixed bug in `SparseMemoryStorage` (<https://github.com/intel/rohd-hcl/pull/195>).
 - Improved `MemoryStorage` read (<https://github.com/intel/rohd-hcl/pull/176>).
