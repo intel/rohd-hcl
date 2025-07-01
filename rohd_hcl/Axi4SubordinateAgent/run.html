@@ -109,16 +109,19 @@ Future&lt;void&gt; run(Phase phase) async {
   while (!Simulator.simulationHasEnded) {
     await sIntf.clk.nextNegedge;
     for (var i = 0; i &lt; channels.length; i++) {
-      if (channels[i].hasRead) {
-        _driveReadReadys(index: i);
-        _respondRead(index: i);
-        _receiveRead(index: i);
-      }
+      &#47;&#47; write handling should come before reads for the edge case in which a
+      &#47;&#47; read happens in the cycle after the final WVALID for the same
+      &#47;&#47; channel&#47;address
       if (channels[i].hasWrite) {
         _driveWriteReadys(index: i);
         _respondWrite(index: i);
         _captureWriteData(index: i);
         _receiveWrite(index: i);
+      }
+      if (channels[i].hasRead) {
+        _driveReadReadys(index: i);
+        _respondRead(index: i);
+        _receiveRead(index: i);
       }
     }
   }
