@@ -3,7 +3,7 @@
 //
 // static_or_dynamic_parameter.dart
 // Configuration classes for managing parameters that can be set statically or
-// at runtime.
+// dynamically at hardware runtime using a [Logic] control signal.
 //
 // 2025 June 27
 // Author: Desmond Kirkpatrick <desmond.a.kirkpatrick@intel.com>
@@ -12,18 +12,18 @@ import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
 
 /// A general configuration class for specifying parameters that are
-/// for both static or runtime configurations of a component feature.
+/// for both static or dynamic configurations of a component feature.
 class StaticOrDynamicParameter {
-  /// The runtime configuration logic that can be used to configure the
-  /// component at runtime
+  /// The dynamic configuration logic that can be used to configure the
+  /// component at runtime.
   final Logic? dynamicConfig;
 
   /// The static configuration flag that indicates whether the
   /// feature is statically configured or not.
   late final bool staticConfig;
 
-  /// The name of the configuration, especially needed for runtime to add as
-  /// a module input.
+  /// The name of the configuration, especially needed to add a [Logic]
+  /// configuration control signal as a module input.
   final String name;
 
   /// Creates a new [StaticOrDynamicParameter] instance. Note that
@@ -66,8 +66,8 @@ class StaticOrDynamicParameter {
 
   /// Return a string representation of the configuration, including its name.
   @override
-  String toString() => 'StaticOrRuntimeParameter_${name}_static_$staticConfig'
-      '_runtime_${dynamicConfig?.name ?? 'null'}';
+  String toString() => 'StaticOrDynamicParameter_${name}_static_$staticConfig'
+      '_dynamic_${dynamicConfig?.name ?? 'null'}';
 
   /// Return a bool representing the value of the configuration.
   // @visibleForTesting
@@ -76,18 +76,18 @@ class StaticOrDynamicParameter {
       (dynamicConfig != null && dynamicConfig!.value == LogicValue.one);
 
   /// Return the internal [Logic] signal that represents the configuration,
-  /// either static or runtime.
+  /// either static or dynamically.
   Logic getLogic(Module module) =>
-      staticConfig ? Const(1) : (getRuntimeInput(module) ?? Const(0));
+      staticConfig ? Const(1) : (getDynamicInput(module) ?? Const(0));
 
   /// Construct and return a [Logic]? that is a true input to the [module]
   /// if this is a runtime configuration signal.
-  Logic? getRuntimeInput(Module module) => (dynamicConfig != null)
-      ? tryRuntimeInput(module) ?? module.addInput(name, dynamicConfig!)
+  Logic? getDynamicInput(Module module) => (dynamicConfig != null)
+      ? tryDynamicInput(module) ?? module.addInput(name, dynamicConfig!)
       : null;
 
-  /// Returns a [Logic]? that represents the module internalruntime input.
-  Logic? tryRuntimeInput(Module module) =>
+  /// Returns a [Logic]? that represents the module internal control input.
+  Logic? tryDynamicInput(Module module) =>
       dynamicConfig != null ? module.tryInput(name) : null;
 }
 
@@ -98,10 +98,10 @@ class BooleanConfig extends StaticOrDynamicParameter {
   BooleanConfig({super.staticConfig}) : super(name: 'boolean_config');
 }
 
-/// A configuration class for runtime configurations, which can be used to
-/// dynamically configure a component at runtime.
+/// A configuration class for dynamic configurations, which can be used to
+/// dynamically configure a component at runtime with a [Logic] signal.
 class DynamicConfig extends StaticOrDynamicParameter {
   /// Creates a new [DynamicConfig] instance.
-  DynamicConfig(Logic runtimeConfig, {required super.name})
-      : super(dynamicConfig: runtimeConfig, staticConfig: null);
+  DynamicConfig(Logic dynamicConfig, {required super.name})
+      : super(dynamicConfig: dynamicConfig, staticConfig: null);
 }
