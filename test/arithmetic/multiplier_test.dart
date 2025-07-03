@@ -255,13 +255,13 @@ void main() {
         for (final selectSignedMultiplier in [null, Const(0), Const(1)]) {
           for (final signedMultiplier
               in (selectSignedMultiplier == null) ? [false, true] : [false]) {
-            final signedMultiplicandConfig = StaticOrRuntimeParameter(
+            final signedMultiplicandConfig = StaticOrDynamicParameter(
                 name: 'signedMultiplicand',
-                runtimeConfig: selectSignedMultiplicand,
+                dynamicConfig: selectSignedMultiplicand,
                 staticConfig: signedMultiplicand);
-            final signedMultiplierConfig = StaticOrRuntimeParameter(
+            final signedMultiplierConfig = StaticOrDynamicParameter(
                 name: 'signedMultiplier',
-                runtimeConfig: selectSignedMultiplier,
+                dynamicConfig: selectSignedMultiplier,
                 staticConfig: signedMultiplier);
             final mod = NativeMultiplier(a, b,
                 signedMultiplicand: signedMultiplicandConfig,
@@ -300,13 +300,13 @@ void main() {
         for (final selectSignedMultiplier in [null, Const(0), Const(1)]) {
           for (final signedMultiplier
               in (selectSignedMultiplier == null) ? [false, true] : [false]) {
-            final signedMultiplicandConfig = StaticOrRuntimeParameter(
+            final signedMultiplicandConfig = StaticOrDynamicParameter(
                 name: 'signedMultiplicand',
-                runtimeConfig: selectSignedMultiplicand,
+                dynamicConfig: selectSignedMultiplicand,
                 staticConfig: signedMultiplicand);
-            final signedMultiplierConfig = StaticOrRuntimeParameter(
+            final signedMultiplierConfig = StaticOrDynamicParameter(
                 name: 'signedMultiplier',
-                runtimeConfig: selectSignedMultiplier,
+                dynamicConfig: selectSignedMultiplier,
                 staticConfig: signedMultiplier);
             // Make sure multiplier generator lambda function passes the correct
             // signage as these may contain Logic signals that may have been
@@ -371,13 +371,13 @@ void main() {
               in (selectSignedMultiplier == null) ? [false, true] : [false]) {
             for (final radix in [4]) {
               for (final width in [1 + log2Ceil(radix)]) {
-                final signedMultiplicandConfig = StaticOrRuntimeParameter(
+                final signedMultiplicandConfig = StaticOrDynamicParameter(
                     name: 'signedMultiplicand',
-                    runtimeConfig: selectSignedMultiplicand,
+                    dynamicConfig: selectSignedMultiplicand,
                     staticConfig: signedMultiplicand);
-                final signedMultiplierConfig = StaticOrRuntimeParameter(
+                final signedMultiplierConfig = StaticOrDynamicParameter(
                     name: 'signedMultiplier',
-                    runtimeConfig: selectSignedMultiplier,
+                    dynamicConfig: selectSignedMultiplier,
                     staticConfig: signedMultiplier);
                 testMultiplyAccumulateRandom(
                     width,
@@ -400,12 +400,12 @@ void main() {
     const signedAddend = true;
     for (final radix in [4]) {
       for (final width in [1 + log2Ceil(radix)]) {
-        final signedMultiplicandConfig = StaticOrRuntimeParameter(
+        final signedMultiplicandConfig = StaticOrDynamicParameter(
             name: 'signedMultiplicand', staticConfig: signedMultiplicand);
-        final signedMultiplierConfig = StaticOrRuntimeParameter(
+        final signedMultiplierConfig = StaticOrDynamicParameter(
             name: 'signedMultiplier', staticConfig: signedMultiplier);
 
-        final signedAddendConfig = StaticOrRuntimeParameter(
+        final signedAddendConfig = StaticOrDynamicParameter(
             name: 'signedAddend', staticConfig: signedAddend);
 
         final fn = curryMultiplyAccumulate(
@@ -445,18 +445,18 @@ void main() {
                   in (selectSignedAddend == null) ? [false, true] : [false]) {
                 for (final radix in [4]) {
                   for (final width in [1 + log2Ceil(radix)]) {
-                    final signedMultiplicandConfig = StaticOrRuntimeParameter(
+                    final signedMultiplicandConfig = StaticOrDynamicParameter(
                         name: 'signedMultiplicand',
-                        runtimeConfig: selectSignedMultiplicand,
+                        dynamicConfig: selectSignedMultiplicand,
                         staticConfig: signedMultiplicand);
-                    final signedMultiplierConfig = StaticOrRuntimeParameter(
+                    final signedMultiplierConfig = StaticOrDynamicParameter(
                         name: 'signedMultiplier',
-                        runtimeConfig: selectSignedMultiplier,
+                        dynamicConfig: selectSignedMultiplier,
                         staticConfig: signedMultiplier);
 
-                    final signedAddendConfig = StaticOrRuntimeParameter(
+                    final signedAddendConfig = StaticOrDynamicParameter(
                         name: 'signedAddend',
-                        runtimeConfig: selectSignedAddend,
+                        dynamicConfig: selectSignedAddend,
                         staticConfig: signedAddend);
                     testMultiplyAccumulateRandom(
                         width,
@@ -491,9 +491,9 @@ void main() {
         clk: clk,
         adderGen: ParallelPrefixAdder.new,
         signedMultiplicand:
-            RuntimeConfig(signedSelect, name: 'selectSignedMultiplicand'),
+            DynamicConfig(signedSelect, name: 'selectSignedMultiplicand'),
         signedMultiplier:
-            RuntimeConfig(signedSelect, name: 'selectSignedMultiplier'));
+            DynamicConfig(signedSelect, name: 'selectSignedMultiplier'));
     unawaited(Simulator.run());
     a.put(bA);
     b.put(bB);
@@ -572,13 +572,13 @@ void main() {
         final mod = CompressionTreeMultiplier(a, b,
             adderGen: ParallelPrefixAdder.new,
             signExtensionGen: StopBitsSignExtension.new,
-            signedMultiplicand: StaticOrRuntimeParameter(
+            signedMultiplicand: StaticOrDynamicParameter(
                 name: 'signedMultiplicand',
-                runtimeConfig: signedSelect,
+                dynamicConfig: signedSelect,
                 staticConfig: signed),
-            signedMultiplier: StaticOrRuntimeParameter(
+            signedMultiplier: StaticOrDynamicParameter(
                 name: 'signedMultiplicand',
-                runtimeConfig: signedSelect,
+                dynamicConfig: signedSelect,
                 staticConfig: signed));
         final golden = bA * bB;
         final result = mod.isSignedResult()

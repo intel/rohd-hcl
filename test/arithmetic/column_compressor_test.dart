@@ -120,14 +120,14 @@ void main() {
           a,
           b,
           encoder,
-          signedMultiplicand: StaticOrRuntimeParameter(
+          signedMultiplicand: StaticOrDynamicParameter(
               name: 'signedMultiplicand',
               staticConfig: !useSelect & signed,
-              runtimeConfig: selectSignedMultiplicand),
-          signedMultiplier: StaticOrRuntimeParameter(
+              dynamicConfig: selectSignedMultiplicand),
+          signedMultiplier: StaticOrDynamicParameter(
               name: 'signedMultiplier',
               staticConfig: !useSelect & signed,
-              runtimeConfig: selectSignedMultiplier),
+              dynamicConfig: selectSignedMultiplier),
         );
         CompactRectSignExtension(pp.array).signExtend();
 

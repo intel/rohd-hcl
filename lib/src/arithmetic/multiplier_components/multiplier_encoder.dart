@@ -127,9 +127,9 @@ class MultiplierEncoder {
     dynamic signedMultiplier,
   }) : _encoder = radixEncoder {
     final signedMultiplierParameter =
-        StaticOrRuntimeParameter.ofDynamic(signedMultiplier);
+        StaticOrDynamicParameter.ofDynamic(signedMultiplier);
     // Unsigned encoding wants to overlap past the multipler
-    if (signedMultiplierParameter.runtimeConfig == null) {
+    if (signedMultiplierParameter.dynamicConfig == null) {
       rows = ((multiplier.width +
                   (signedMultiplierParameter.staticConfig ? 0 : 1)) /
               log2Ceil(radixEncoder.radix))
@@ -141,7 +141,7 @@ class MultiplierEncoder {
           ((multiplier.width + 1) ~/ log2Ceil(radixEncoder.radix));
     }
     // slices overlap by 1 and start at -1a
-    if (signedMultiplierParameter.runtimeConfig == null) {
+    if (signedMultiplierParameter.dynamicConfig == null) {
       _extendedMultiplier = (signedMultiplierParameter.staticConfig
               ? multiplier.signExtend(rows * (log2Ceil(radixEncoder.radix)))
               : multiplier.zeroExtend(rows * (log2Ceil(radixEncoder.radix))))
@@ -151,7 +151,7 @@ class MultiplierEncoder {
       final sign = multiplier[len - 1];
       final extension = [
         for (var i = len; i < (rows * (log2Ceil(radixEncoder.radix))); i++)
-          mux(signedMultiplierParameter.runtimeConfig!, sign, Const(0))
+          mux(signedMultiplierParameter.dynamicConfig!, sign, Const(0))
       ];
       _extendedMultiplier = (multiplier.elements + extension)
           .rswizzle()

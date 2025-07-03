@@ -43,7 +43,7 @@ class MultiplicandSelector {
     dynamic signedMultiplicand,
   }) : shift = log2Ceil(radix) {
     final signedMultiplicandParameter =
-        StaticOrRuntimeParameter.ofDynamic(signedMultiplicand);
+        StaticOrDynamicParameter.ofDynamic(signedMultiplicand);
     if (radix > 16) {
       throw RohdHclException('Radices beyond 16 are not yet supported');
     }
@@ -52,7 +52,7 @@ class MultiplicandSelector {
     multiples = LogicArray([numMultiples], width, name: 'multiples');
 
     final Logic extendedMultiplicand;
-    if (signedMultiplicandParameter.runtimeConfig == null) {
+    if (signedMultiplicandParameter.dynamicConfig == null) {
       extendedMultiplicand = signedMultiplicandParameter.staticConfig
           ? multiplicand.signExtend(width)
           : multiplicand.zeroExtend(width);
@@ -61,7 +61,7 @@ class MultiplicandSelector {
       final sign = multiplicand[len - 1];
       final extension = [
         for (var i = len; i < width; i++)
-          mux(signedMultiplicandParameter.runtimeConfig!, sign, Const(0))
+          mux(signedMultiplicandParameter.dynamicConfig!, sign, Const(0))
       ];
       extendedMultiplicand = (multiplicand.elements + extension).rswizzle();
     }

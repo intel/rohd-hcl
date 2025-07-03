@@ -47,15 +47,15 @@ abstract class MultiplyAccumulate extends Module {
 
   /// Configuration for signed multiplicand [a].
   @protected
-  late final StaticOrRuntimeParameter signedMultiplicandParameter;
+  late final StaticOrDynamicParameter signedMultiplicandParameter;
 
   /// Configuration for signed multiplier [b].
   @protected
-  late final StaticOrRuntimeParameter signedMultiplierParameter;
+  late final StaticOrDynamicParameter signedMultiplierParameter;
 
   /// Configuration for signed addend [c].
   @protected
-  late final StaticOrRuntimeParameter signedAddendParameter;
+  late final StaticOrDynamicParameter signedAddendParameter;
 
   /// Logic that tells us [accumulate] is signed.
   @protected
@@ -99,10 +99,10 @@ abstract class MultiplyAccumulate extends Module {
     c = addInput('c', c, width: c.width);
 
     signedMultiplicandParameter =
-        StaticOrRuntimeParameter.ofDynamic(signedMultiplicand);
+        StaticOrDynamicParameter.ofDynamic(signedMultiplicand);
     signedMultiplierParameter =
-        StaticOrRuntimeParameter.ofDynamic(signedMultiplier);
-    signedAddendParameter = StaticOrRuntimeParameter.ofDynamic(signedAddend);
+        StaticOrDynamicParameter.ofDynamic(signedMultiplier);
+    signedAddendParameter = StaticOrDynamicParameter.ofDynamic(signedAddend);
 
     addOutput('accumulate', width: a.width + b.width + 1);
 
@@ -120,9 +120,9 @@ abstract class MultiplyAccumulate extends Module {
   /// - SA: signed addend.
   /// - SSA: dynamic selection of signed addend.
   static String signedAD(dynamic adConfig) =>
-      ((adConfig is! StaticOrRuntimeParameter) | (adConfig == null))
+      ((adConfig is! StaticOrDynamicParameter) | (adConfig == null))
           ? 'UA'
-          : (adConfig as StaticOrRuntimeParameter).runtimeConfig != null
+          : (adConfig as StaticOrDynamicParameter).dynamicConfig != null
               ? 'SSA'
               : adConfig.staticConfig
                   ? 'SA'
@@ -170,8 +170,8 @@ class CompressionTreeMultiplyAccumulate extends MultiplyAccumulate {
             pp.rowShift[pp.array.partialProducts.length - 1];
 
     final additionalRowSign = mux(
-        (signedAddendParameter.runtimeConfig != null)
-            ? signedAddendParameter.runtimeConfig!
+        (signedAddendParameter.dynamicConfig != null)
+            ? signedAddendParameter.dynamicConfig!
             : (signedAddendParameter.staticConfig ? Const(1) : Const(0)),
         c[c.width - 1],
         Const(0));

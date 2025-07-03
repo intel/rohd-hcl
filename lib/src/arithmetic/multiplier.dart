@@ -40,11 +40,11 @@ abstract class Multiplier extends Module {
 
   /// Configuration for signed multiplicand [a].
   @protected
-  late final StaticOrRuntimeParameter signedMultiplicandParameter;
+  late final StaticOrDynamicParameter signedMultiplicandParameter;
 
   /// Configuration for signed multiplier [b].
   @protected
-  late final StaticOrRuntimeParameter signedMultiplierParameter;
+  late final StaticOrDynamicParameter signedMultiplierParameter;
 
   /// Logic that tells us [product] is signed.
   @protected
@@ -88,9 +88,9 @@ abstract class Multiplier extends Module {
     // We clone parameters in case they contain [Logic] signals that must be
     // added as inputs to the current module.
     signedMultiplicandParameter =
-        StaticOrRuntimeParameter.ofDynamic(signedMultiplicand).clone(this);
+        StaticOrDynamicParameter.ofDynamic(signedMultiplicand).clone(this);
     signedMultiplierParameter =
-        StaticOrRuntimeParameter.ofDynamic(signedMultiplier).clone(this);
+        StaticOrDynamicParameter.ofDynamic(signedMultiplier).clone(this);
 
     addOutput('product', width: a.width + b.width);
     addOutput('isProductSigned') <=
@@ -104,9 +104,9 @@ abstract class Multiplier extends Module {
   /// - SD: signed multiplicand.
   /// - SSD: dynamic selection of signed multiplicand.
   static String signedMD(dynamic mdConfig) =>
-      ((mdConfig is! StaticOrRuntimeParameter) | (mdConfig == null))
+      ((mdConfig is! StaticOrDynamicParameter) | (mdConfig == null))
           ? 'UD'
-          : ((mdConfig as StaticOrRuntimeParameter).runtimeConfig != null)
+          : ((mdConfig as StaticOrDynamicParameter).dynamicConfig != null)
               ? 'SSD'
               : mdConfig.staticConfig
                   ? 'SD'
@@ -118,9 +118,9 @@ abstract class Multiplier extends Module {
   /// - SM: signed multiplier.
   /// - SSM: dynamic selection of signed multiplier.
   static String signedML(dynamic mlConfig) =>
-      ((mlConfig is! StaticOrRuntimeParameter) | (mlConfig == null))
+      ((mlConfig is! StaticOrDynamicParameter) | (mlConfig == null))
           ? 'UM'
-          : (mlConfig as StaticOrRuntimeParameter).runtimeConfig != null
+          : (mlConfig as StaticOrDynamicParameter).dynamicConfig != null
               ? 'SSM'
               : mlConfig.staticConfig
                   ? 'SM'
@@ -150,7 +150,7 @@ class NativeMultiplier extends Multiplier {
 
     final Logic extendedMultiplicand;
     final Logic extendedMultiplier;
-    if (signedMultiplicandParameter.runtimeConfig == null) {
+    if (signedMultiplicandParameter.dynamicConfig == null) {
       extendedMultiplicand = signedMultiplicandParameter.staticConfig
           ? a.signExtend(pW)
           : a.zeroExtend(pW);
@@ -159,11 +159,11 @@ class NativeMultiplier extends Multiplier {
       final sign = a[len - 1];
       final extension = [
         for (var i = len; i < pW; i++)
-          mux(signedMultiplicandParameter.runtimeConfig!, sign, Const(0))
+          mux(signedMultiplicandParameter.dynamicConfig!, sign, Const(0))
       ];
       extendedMultiplicand = (a.elements + extension).rswizzle();
     }
-    if (signedMultiplierParameter.runtimeConfig == null) {
+    if (signedMultiplierParameter.dynamicConfig == null) {
       extendedMultiplier = (signedMultiplierParameter.staticConfig
               ? b.signExtend(pW)
               : b.zeroExtend(pW))
@@ -173,7 +173,7 @@ class NativeMultiplier extends Multiplier {
       final sign = b[len - 1];
       final extension = [
         for (var i = len; i < pW; i++)
-          mux(signedMultiplierParameter.runtimeConfig!, sign, Const(0))
+          mux(signedMultiplierParameter.dynamicConfig!, sign, Const(0))
       ];
       extendedMultiplier = (b.elements + extension)
           .rswizzle()

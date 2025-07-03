@@ -14,11 +14,11 @@ import 'package:rohd_hcl/rohd_hcl.dart';
 extension TestPartialProductSignage on PartialProductGeneratorBase {
   /// Return true if multiplicand is truly signed (fixed or runtime)
   bool isSignedMultiplicand() =>
-      StaticOrRuntimeParameter.ofDynamic(signedMultiplicand).value;
+      StaticOrDynamicParameter.ofDynamic(signedMultiplicand).value;
 
   /// Return true if multiplier is truly signed (fixed or runtime)
   bool isSignedMultiplier() =>
-      StaticOrRuntimeParameter.ofDynamic(signedMultiplier).value;
+      StaticOrDynamicParameter.ofDynamic(signedMultiplier).value;
 
   /// Return true if accumulate result is truly signed (fixed or runtime)
   bool isSignedResult() => isSignedMultiplicand() | isSignedMultiplier();

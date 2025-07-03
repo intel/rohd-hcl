@@ -83,7 +83,7 @@ abstract class PartialProductSignExtension {
   /// Helper function for sign extension routines:
   /// For signed operands, set the MSB to [sign], otherwise add this [sign] bit.
   void addStopSign(List<Logic> addend, SignBit sign) {
-    if (!StaticOrRuntimeParameter.ofDynamic(signedMultiplicand).staticConfig) {
+    if (!StaticOrDynamicParameter.ofDynamic(signedMultiplicand).staticConfig) {
       addend.add(sign);
     } else {
       addend.last = sign;
@@ -94,14 +94,14 @@ abstract class PartialProductSignExtension {
   /// For signed operands, flip the MSB, otherwise add this [sign] bit.
   void addStopSignFlip(List<Logic> addend, SignBit sign) {
     final signedMultiplicandParameter =
-        StaticOrRuntimeParameter.ofDynamic(signedMultiplicand);
+        StaticOrDynamicParameter.ofDynamic(signedMultiplicand);
     if (!signedMultiplicandParameter.staticConfig) {
-      if (signedMultiplicandParameter.runtimeConfig == null) {
+      if (signedMultiplicandParameter.dynamicConfig == null) {
         addend.add(sign);
       } else {
         addend.add(SignBit(
-            mux(signedMultiplicandParameter.runtimeConfig!, ~addend.last, sign),
-            inverted: signedMultiplicandParameter.runtimeConfig != null));
+            mux(signedMultiplicandParameter.dynamicConfig!, ~addend.last, sign),
+            inverted: signedMultiplicandParameter.dynamicConfig != null));
       }
     } else {
       addend.last = SignBit(~addend.last, inverted: true);
@@ -167,7 +167,7 @@ class BruteSignExtension extends PartialProductSignExtension {
   @override
   void signExtend() {
     final signedMultiplicandParameter =
-        StaticOrRuntimeParameter.ofDynamic(signedMultiplicand);
+        StaticOrDynamicParameter.ofDynamic(signedMultiplicand);
     if (isSignExtended) {
       throw RohdHclException('Partial Product array already sign-extended');
     }
@@ -182,8 +182,8 @@ class BruteSignExtension extends PartialProductSignExtension {
     for (var row = 0; row < rows; row++) {
       final addend = partialProducts[row];
       final Logic sign;
-      if (signedMultiplicandParameter.runtimeConfig != null) {
-        sign = mux(signedMultiplicandParameter.runtimeConfig!, addend.last,
+      if (signedMultiplicandParameter.dynamicConfig != null) {
+        sign = mux(signedMultiplicandParameter.dynamicConfig!, addend.last,
             signs[row]);
       } else {
         sign =
@@ -250,7 +250,7 @@ class CompactSignExtension extends PartialProductSignExtension {
     isSignExtended = true;
 
     final signedMultiplicandParameter =
-        StaticOrRuntimeParameter.ofDynamic(signedMultiplicand);
+        StaticOrDynamicParameter.ofDynamic(signedMultiplicand);
 
     final lastRow = rows - 1;
     final firstAddend = partialProducts[0];
@@ -320,14 +320,14 @@ class CompactSignExtension extends PartialProductSignExtension {
 
     // Compute Sign extension for row==0
     final firstSign = Logic(name: 'firstsign', naming: Naming.mergeable);
-    if (signedMultiplicandParameter.runtimeConfig == null) {
+    if (signedMultiplicandParameter.dynamicConfig == null) {
       firstSign <=
           (signedMultiplicandParameter.staticConfig
               ? SignBit(firstAddend.last)
               : SignBit(signs[0]));
     } else {
       firstSign <=
-          SignBit(mux(signedMultiplicandParameter.runtimeConfig!,
+          SignBit(mux(signedMultiplicandParameter.dynamicConfig!,
               firstAddend.last, signs[0]));
     }
     final q = [
@@ -416,7 +416,7 @@ class StopBitsSignExtension extends PartialProductSignExtension {
     }
     isSignExtended = true;
     final signedMultiplicandParameter =
-        StaticOrRuntimeParameter.ofDynamic(signedMultiplicand);
+        StaticOrDynamicParameter.ofDynamic(signedMultiplicand);
 
     final finalCarryPos = shift * (rows - 1);
     final finalCarryRelPos = finalCarryPos - selector.width - shift;
@@ -437,8 +437,8 @@ class StopBitsSignExtension extends PartialProductSignExtension {
     for (var row = 0; row < rows; row++) {
       final addend = partialProducts[row];
       final Logic sign;
-      if (signedMultiplicandParameter.runtimeConfig != null) {
-        sign = mux(signedMultiplicandParameter.runtimeConfig!, addend.last,
+      if (signedMultiplicandParameter.dynamicConfig != null) {
+        sign = mux(signedMultiplicandParameter.dynamicConfig!, addend.last,
             signs[row]);
       } else {
         sign =
@@ -463,7 +463,7 @@ class StopBitsSignExtension extends PartialProductSignExtension {
     }
 
     final signedMultiplierParameter =
-        StaticOrRuntimeParameter.ofDynamic(signedMultiplier);
+        StaticOrDynamicParameter.ofDynamic(signedMultiplier);
     if (finalCarryRow > 0) {
       final extensionRow = partialProducts[finalCarryRow];
       extensionRow
@@ -472,7 +472,7 @@ class StopBitsSignExtension extends PartialProductSignExtension {
             Const(0)))
         ..add(SignBit(signs[rows - 1]));
     } else if (signedMultiplierParameter.staticConfig |
-        (signedMultiplierParameter.runtimeConfig != null)) {
+        (signedMultiplierParameter.dynamicConfig != null)) {
       // Create an extra row to hold the final carry bit
       partialProducts
           .add(List.filled(selector.width, Const(0), growable: true));
@@ -557,7 +557,7 @@ class CompactRectSignExtension extends PartialProductSignExtension {
     }
     isSignExtended = true;
     final signedMultiplicandParameter =
-        StaticOrRuntimeParameter.ofDynamic(signedMultiplicand);
+        StaticOrDynamicParameter.ofDynamic(signedMultiplicand);
 
     final lastRow = rows - 1;
     final firstAddend = partialProducts[0];
@@ -654,14 +654,14 @@ class CompactRectSignExtension extends PartialProductSignExtension {
     // Insert the lastRow sign:  Either in firstRow's Q if there is a
     // collision or in another row if it lands beyond the Q sign extension
     final firstSign = Logic(name: 'firstsign', naming: Naming.mergeable);
-    if (signedMultiplicandParameter.runtimeConfig == null) {
+    if (signedMultiplicandParameter.dynamicConfig == null) {
       firstSign <=
           (signedMultiplicandParameter.staticConfig
               ? SignBit(firstAddend.last)
               : SignBit(signs[0]));
     } else {
       firstSign <=
-          (SignBit(mux(signedMultiplicandParameter.runtimeConfig!,
+          (SignBit(mux(signedMultiplicandParameter.dynamicConfig!,
               firstAddend.last, signs[0])));
     }
     final lastSign = SignBit(remainders[lastRow]);

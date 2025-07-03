@@ -229,7 +229,7 @@ abstract class PartialProductGeneratorBase extends PartialProductArray {
       Logic multiplicand, Logic multiplier, RadixEncoder radixEncoder,
       {this.signedMultiplicand, this.signedMultiplier, super.name = 'ppg'}) {
     final multiplierParameter =
-        StaticOrRuntimeParameter.ofDynamic(signedMultiplier);
+        StaticOrDynamicParameter.ofDynamic(signedMultiplier);
     selector = MultiplicandSelector(radixEncoder.radix, multiplicand,
         signedMultiplicand: signedMultiplicand);
     encoder = MultiplierEncoder(multiplier, radixEncoder,
@@ -334,10 +334,10 @@ class PartialProduct extends PartialProductMatrix {
           genPPG = PartialProductGenerator.new,
       super.name = 'partial_product'}) {
     final signedMultiplicandParameter =
-        StaticOrRuntimeParameter.ofDynamic(signedMultiplicand);
+        StaticOrDynamicParameter.ofDynamic(signedMultiplicand);
 
     final signedMultiplierParameter =
-        StaticOrRuntimeParameter.ofDynamic(signedMultiplier);
+        StaticOrDynamicParameter.ofDynamic(signedMultiplier);
 
     final localMultiplicand =
         addInput('multiplicand', multiplicand, width: multiplicand.width);

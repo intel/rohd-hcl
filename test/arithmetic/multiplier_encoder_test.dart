@@ -33,14 +33,14 @@ void testPartialProductExhaustive(PartialProductGeneratorBase pp) {
   final limitY = pow(2, widthY);
 
   final signedMultiplicandParameter =
-      StaticOrRuntimeParameter.ofDynamic(pp.signedMultiplicand);
+      StaticOrDynamicParameter.ofDynamic(pp.signedMultiplicand);
   final signedMultiplierParameter =
-      StaticOrRuntimeParameter.ofDynamic(pp.signedMultiplier);
+      StaticOrDynamicParameter.ofDynamic(pp.signedMultiplier);
 
-  final multiplicandSigns = signedMultiplicandParameter.runtimeConfig != null
+  final multiplicandSigns = signedMultiplicandParameter.dynamicConfig != null
       ? [false, true]
       : [signedMultiplicandParameter.staticConfig];
-  final multiplierSigns = signedMultiplierParameter.runtimeConfig != null
+  final multiplierSigns = signedMultiplierParameter.dynamicConfig != null
       ? [false, true]
       : [signedMultiplierParameter.staticConfig];
 
@@ -55,15 +55,15 @@ void testPartialProductExhaustive(PartialProductGeneratorBase pp) {
           final X =
               SignedBigInt.fromSignedInt(i, widthX, signed: multiplicandSign);
 
-          if (signedMultiplicandParameter.runtimeConfig != null) {
-            signedMultiplicandParameter.runtimeConfig!
+          if (signedMultiplicandParameter.dynamicConfig != null) {
+            signedMultiplicandParameter.dynamicConfig!
                 .put(multiplicandSign ? 1 : 0);
           }
           for (final multiplierSign in multiplierSigns) {
             final Y =
                 SignedBigInt.fromSignedInt(j, widthY, signed: multiplierSign);
-            if (signedMultiplierParameter.runtimeConfig != null) {
-              signedMultiplierParameter.runtimeConfig!
+            if (signedMultiplierParameter.dynamicConfig != null) {
+              signedMultiplierParameter.dynamicConfig!
                   .put(multiplierSign ? 1 : 0);
             }
             checkPartialProduct(pp, X, Y);
@@ -79,14 +79,14 @@ void testPartialProductRandom(PartialProductGeneratorBase pp, int iterations) {
   final widthY = pp.encoder.multiplier.width;
 
   final signedMultiplicandParameter =
-      StaticOrRuntimeParameter.ofDynamic(pp.signedMultiplicand);
+      StaticOrDynamicParameter.ofDynamic(pp.signedMultiplicand);
   final signedMultiplierParameter =
-      StaticOrRuntimeParameter.ofDynamic(pp.signedMultiplier);
+      StaticOrDynamicParameter.ofDynamic(pp.signedMultiplier);
 
-  final multiplicandSigns = signedMultiplicandParameter.runtimeConfig != null
+  final multiplicandSigns = signedMultiplicandParameter.dynamicConfig != null
       ? [false, true]
       : [signedMultiplicandParameter.staticConfig];
-  final multiplierSigns = signedMultiplierParameter.runtimeConfig != null
+  final multiplierSigns = signedMultiplierParameter.dynamicConfig != null
       ? [false, true]
       : [signedMultiplierParameter.staticConfig];
 
@@ -103,8 +103,8 @@ void testPartialProductRandom(PartialProductGeneratorBase pp, int iterations) {
             .toBigInt()
             .toCondSigned(widthX, signed: multiplicandSign);
 
-        if (signedMultiplicandParameter.runtimeConfig != null) {
-          signedMultiplicandParameter.runtimeConfig!
+        if (signedMultiplicandParameter.dynamicConfig != null) {
+          signedMultiplicandParameter.dynamicConfig!
               .put(multiplicandSign ? 1 : 0);
         }
         for (final multiplierSign in multiplierSigns) {
@@ -112,8 +112,8 @@ void testPartialProductRandom(PartialProductGeneratorBase pp, int iterations) {
               .nextLogicValue(width: widthY)
               .toBigInt()
               .toCondSigned(widthY, signed: multiplierSign);
-          if (signedMultiplierParameter.runtimeConfig != null) {
-            signedMultiplierParameter.runtimeConfig!
+          if (signedMultiplierParameter.dynamicConfig != null) {
+            signedMultiplierParameter.dynamicConfig!
                 .put(multiplierSign ? 1 : 0);
           }
           checkPartialProduct(pp, X, Y);
@@ -131,14 +131,14 @@ void testPartialProductSingle(
       'MD=${Multiplier.signedMD(pp.signedMultiplicand)} '
       'ML=${Multiplier.signedML(pp.signedMultiplicand)}', () async {
     final signedMultiplicandParameter =
-        StaticOrRuntimeParameter.ofDynamic(pp.signedMultiplicand);
-    if (signedMultiplicandParameter.runtimeConfig != null) {
-      signedMultiplicandParameter.runtimeConfig!.put(X.isNegative ? 1 : 0);
+        StaticOrDynamicParameter.ofDynamic(pp.signedMultiplicand);
+    if (signedMultiplicandParameter.dynamicConfig != null) {
+      signedMultiplicandParameter.dynamicConfig!.put(X.isNegative ? 1 : 0);
     }
     final signedMultiplierParameter =
-        StaticOrRuntimeParameter.ofDynamic(pp.signedMultiplier);
-    if (signedMultiplierParameter.runtimeConfig != null) {
-      signedMultiplierParameter.runtimeConfig!.put(Y.isNegative ? 1 : 0);
+        StaticOrDynamicParameter.ofDynamic(pp.signedMultiplier);
+    if (signedMultiplierParameter.dynamicConfig != null) {
+      signedMultiplierParameter.dynamicConfig!.put(Y.isNegative ? 1 : 0);
     }
     checkPartialProduct(pp, X, Y);
   });
@@ -233,14 +233,14 @@ void main() {
                 final PartialProductGeneratorBase pp;
                 pp = PartialProductGenerator(Logic(name: 'X', width: width),
                     Logic(name: 'Y', width: width), encoder,
-                    signedMultiplicand: StaticOrRuntimeParameter(
+                    signedMultiplicand: StaticOrDynamicParameter(
                         name: 'cand',
-                        runtimeConfig:
+                        dynamicConfig:
                             selectMultiplicand ? selectSignMultiplicand : null,
                         staticConfig: signMultiplicand),
-                    signedMultiplier: StaticOrRuntimeParameter(
+                    signedMultiplier: StaticOrDynamicParameter(
                         name: 'mult',
-                        runtimeConfig:
+                        dynamicConfig:
                             selectMultiplier ? selectSignMultiplier : null,
                         staticConfig: signMultiplier));
                 currySignExtensionFunction(signExtension)(pp).signExtend();
@@ -273,14 +273,14 @@ void main() {
                 final PartialProductGeneratorBase pp;
                 pp = PartialProductGenerator(Logic(name: 'X', width: width),
                     Logic(name: 'Y', width: width), encoder,
-                    signedMultiplicand: StaticOrRuntimeParameter(
+                    signedMultiplicand: StaticOrDynamicParameter(
                         name: 'cand',
-                        runtimeConfig:
+                        dynamicConfig:
                             selectMultiplicand ? selectSignMultiplicand : null,
                         staticConfig: signMultiplicand),
-                    signedMultiplier: StaticOrRuntimeParameter(
+                    signedMultiplier: StaticOrDynamicParameter(
                         name: 'mult',
-                        runtimeConfig:
+                        dynamicConfig:
                             selectMultiplier ? selectSignMultiplier : null,
                         staticConfig: signMultiplier));
                 currySignExtensionFunction(signExtension)(pp).signExtend();
@@ -309,14 +309,14 @@ void main() {
         final PartialProductGeneratorBase pp;
         pp = PartialProductGenerator(Logic(name: 'X', width: width),
             Logic(name: 'Y', width: width), encoder,
-            signedMultiplicand: StaticOrRuntimeParameter(
+            signedMultiplicand: StaticOrDynamicParameter(
                 name: 'cand',
-                runtimeConfig:
+                dynamicConfig:
                     selectMultiplicand ? selectSignMultiplicand : null,
                 staticConfig: selectMultiplicand),
-            signedMultiplier: StaticOrRuntimeParameter(
+            signedMultiplier: StaticOrDynamicParameter(
                 name: 'mult',
-                runtimeConfig: selectMultiplier ? selectSignMultiplier : null,
+                dynamicConfig: selectMultiplier ? selectSignMultiplier : null,
                 staticConfig: selectMultiplier));
 
         CompactRectSignExtension(pp).signExtend();
