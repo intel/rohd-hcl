@@ -30,30 +30,30 @@ class MultiplicandSelector {
   /// Multiples sliced into columns for select to access
   late final multiplesSlice = <Logic>[];
 
-  /// Build a [MultiplicandSelector] generationg required [multiples] of
-  /// [multiplicand] to [select] using a [RadixEncoder] argument.
+  /// Build a [MultiplicandSelector] generating required [multiples] of
+  /// [multiplicand] to [select] using a [RadixEncoder] output.
   ///
-  /// [multiplicand] is base multiplicand multiplied by Booth encodings of
-  /// the [RadixEncoder] during [select].
-  ///
-  /// [signedMultiplicand] generates a fixed signed selector versus using
-  /// [selectSignedMultiplicand] which is a runtime sign selection [Logic]
-  /// in which case [signedMultiplicand] must be false.
-  MultiplicandSelector(this.radix, this.multiplicand,
-      {Logic? selectSignedMultiplicand, bool signedMultiplicand = false})
-      : shift = log2Ceil(radix) {
-    if (signedMultiplicand && (selectSignedMultiplicand != null)) {
-      throw RohdHclException('sign reconfiguration requires signed=false');
-    }
+  /// The optional [signedMultiplicand] parameter configures the [multiplicand]
+  /// statically using a bool to indicate a signed multiplicand (default is
+  /// false, or unsigned) or dynamically with a 1-bit [Logic] input. Passing
+  /// something other null, bool, or [Logic] will result in a throw.
+  MultiplicandSelector(
+    this.radix,
+    this.multiplicand, {
+    dynamic signedMultiplicand,
+  }) : shift = log2Ceil(radix) {
+    final signedMultiplicandParameter =
+        StaticOrRuntimeParameter.ofDynamic(signedMultiplicand);
     if (radix > 16) {
       throw RohdHclException('Radices beyond 16 are not yet supported');
     }
     final width = multiplicand.width + shift;
     final numMultiples = radix ~/ 2;
     multiples = LogicArray([numMultiples], width, name: 'multiples');
+
     final Logic extendedMultiplicand;
-    if (selectSignedMultiplicand == null) {
-      extendedMultiplicand = signedMultiplicand
+    if (signedMultiplicandParameter.runtimeConfig == null) {
+      extendedMultiplicand = signedMultiplicandParameter.staticConfig
           ? multiplicand.signExtend(width)
           : multiplicand.zeroExtend(width);
     } else {
@@ -61,7 +61,7 @@ class MultiplicandSelector {
       final sign = multiplicand[len - 1];
       final extension = [
         for (var i = len; i < width; i++)
-          mux(selectSignedMultiplicand, sign, Const(0))
+          mux(signedMultiplicandParameter.runtimeConfig!, sign, Const(0))
       ];
       extendedMultiplicand = (multiplicand.elements + extension).rswizzle();
     }

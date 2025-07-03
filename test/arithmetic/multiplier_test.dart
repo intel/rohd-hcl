@@ -20,14 +20,10 @@ import 'package:test/test.dart';
 /// The following routines are useful only during testing
 extension TestMultiplierSignage on Multiplier {
   /// Return true if multiplicand [a] is truly signed (fixed or runtime)
-  bool isSignedMultiplicand() => (selectSignedMultiplicand == null)
-      ? signedMultiplicand
-      : !selectSignedMultiplicand!.value.isZero;
+  bool isSignedMultiplicand() => signedMultiplicandParameter.value;
 
   /// Return true if multiplier [b] is truly signed (fixed or runtime)
-  bool isSignedMultiplier() => (selectSignedMultiplier == null)
-      ? signedMultiplier
-      : !selectSignedMultiplier!.value.isZero;
+  bool isSignedMultiplier() => signedMultiplierParameter.value;
 
   /// Return true if accumulate result is truly signed (fixed or runtime)
   bool isSignedResult() => isSignedMultiplicand() | isSignedMultiplier();
@@ -36,19 +32,13 @@ extension TestMultiplierSignage on Multiplier {
 /// The following routines are useful only during testing
 extension TestMultiplierAccumulateSignage on MultiplyAccumulate {
   /// Return true if multiplicand [a] is truly signed (fixed or runtime)
-  bool isSignedMultiplicand() => (selectSignedMultiplicand == null)
-      ? signedMultiplicand
-      : !selectSignedMultiplicand!.value.isZero;
+  bool isSignedMultiplicand() => signedMultiplicandParameter.value;
 
   /// Return true if multiplier [b] is truly signed (fixed or runtime)
-  bool isSignedMultiplier() => (selectSignedMultiplier == null)
-      ? signedMultiplier
-      : !selectSignedMultiplier!.value.isZero;
+  bool isSignedMultiplier() => signedMultiplierParameter.value;
 
   /// Return true if addend [c] is truly signed (fixed or runtime)
-  bool isSignedAddend() => (selectSignedAddend == null)
-      ? signedAddend
-      : !selectSignedAddend!.value.isZero;
+  bool isSignedAddend() => signedAddendParameter.value;
 
   /// Return true if accumulate result is truly signed (fixed or runtime)
   bool isSignedResult() =>
@@ -84,7 +74,8 @@ void checkMultiplyAccumulate(
   final result = mod.accumulate.value
       .toBigInt()
       .toCondSigned(mod.accumulate.width, signed: mod.isSignedResult());
-  expect(result, equals(golden));
+  expect(result, equals(golden),
+      reason: '${mod.name} failed for A=$bA, B=$bB, C=$bC');
 }
 
 void testMultiplyAccumulateSingle(int width, BigInt ibA, BigInt ibB, BigInt ibC,
@@ -302,32 +293,32 @@ void main() {
     }
   });
 
-  // TODO(desmonddak): must set variables in the enclosing module, so we can't
-  // really curry unless the enclosing module reads them off the passed in
-  // multiplier.
   group('Native multiplier check', () {
     for (final selectSignedMultiplicand in [null, Const(0), Const(1)]) {
-      // for (final selectSignedMultiplicand in [null]) {
       for (final signedMultiplicand
           in (selectSignedMultiplicand == null) ? [false, true] : [false]) {
         for (final selectSignedMultiplier in [null, Const(0), Const(1)]) {
-          // for (final selectSignedMultiplier in [null]) {
           for (final signedMultiplier
               in (selectSignedMultiplier == null) ? [false, true] : [false]) {
+            final signedMultiplicandConfig = StaticOrRuntimeParameter(
+                name: 'signedMultiplicand',
+                runtimeConfig: selectSignedMultiplicand,
+                staticConfig: signedMultiplicand);
+            final signedMultiplierConfig = StaticOrRuntimeParameter(
+                name: 'signedMultiplier',
+                runtimeConfig: selectSignedMultiplier,
+                staticConfig: signedMultiplier);
+            // Make sure multiplier generator lambda function passes the correct
+            // signage as these may contain Logic signals that may have been
+            // added to the enclosing module via [StaticOrRuntimeParameter].
             testMultiplyAccumulateExhaustive(
                 5,
                 (a, b, c) => MultiplyOnly(
                     a,
                     b,
                     c,
-                    signedMultiplicand: selectSignedMultiplicand != null
-                        ? RuntimeConfig(selectSignedMultiplicand,
-                            name: 'selectSignedMultiplicand')
-                        : BooleanConfig(staticConfig: signedMultiplicand),
-                    signedMultiplier: selectSignedMultiplier != null
-                        ? RuntimeConfig(selectSignedMultiplier,
-                            name: 'selectSignedMultiplier')
-                        : BooleanConfig(staticConfig: signedMultiplier),
+                    signedMultiplicand: signedMultiplicandConfig,
+                    signedMultiplier: signedMultiplierConfig,
                     (a, b, {signedMultiplicand, signedMultiplier}) =>
                         NativeMultiplier(a, b,
                             signedMultiplicand: signedMultiplicand,
@@ -399,6 +390,45 @@ void main() {
             }
           }
         }
+      }
+    }
+  });
+
+  test('Compression Tree MAC: curried random sign/select singleton', () {
+    const signedMultiplicand = true;
+    const signedMultiplier = true;
+    const signedAddend = true;
+    for (final radix in [4]) {
+      for (final width in [1 + log2Ceil(radix)]) {
+        final signedMultiplicandConfig = StaticOrRuntimeParameter(
+            name: 'signedMultiplicand', staticConfig: signedMultiplicand);
+        final signedMultiplierConfig = StaticOrRuntimeParameter(
+            name: 'signedMultiplier', staticConfig: signedMultiplier);
+
+        final signedAddendConfig = StaticOrRuntimeParameter(
+            name: 'signedAddend', staticConfig: signedAddend);
+
+        final fn = curryMultiplyAccumulate(
+          radix,
+          adderGen: ParallelPrefixAdder.new,
+          signedMultiplicand: signedMultiplicandConfig,
+          signedMultiplier: signedMultiplierConfig,
+          signedAddend: signedAddendConfig,
+        );
+
+        final a = Logic(name: 'a', width: width);
+        final b = Logic(name: 'b', width: width);
+        final c = Logic(name: 'c', width: width * 2);
+
+        final bA = BigInt.from(2).toCondSigned(width, signed: true);
+        final bB = BigInt.from(-2).toCondSigned(width, signed: true);
+        final bC = BigInt.from(-2).toCondSigned(width, signed: true);
+
+        a.put(bA);
+        b.put(bB);
+        c.put(bC);
+        final mod = fn(a, b, c);
+        checkMultiplyAccumulate(mod, bA, bB, bC);
       }
     }
   });
@@ -496,11 +526,9 @@ void main() {
     final mod = CompressionTreeMultiplyAccumulate(a, b, c,
         clk: clk,
         adderGen: ParallelPrefixAdder.new,
-        signedMultiplicand:
-            RuntimeConfig(signedSelect, name: 'selectSignedMultiplicand'),
-        signedMultiplier:
-            RuntimeConfig(signedSelect, name: 'selectSignedMultiplier'),
-        signedAddend: RuntimeConfig(signedSelect, name: 'selectSignedAddend'));
+        signedMultiplicand: signedSelect,
+        signedMultiplier: signedSelect,
+        signedAddend: signedSelect);
     unawaited(Simulator.run());
     a.put(bA);
     b.put(bB);
@@ -582,10 +610,8 @@ void main() {
         Logic(),
         (a, b, {signedMultiplicand, signedMultiplier}) =>
             SimpleMultiplier(a, b, signedMultiplicand, signedMultiplier),
-        signedMultiplicand:
-            RuntimeConfig(signedOperands, name: 'selectSignedMultiplicand'),
-        signedMultiplier:
-            RuntimeConfig(signedOperands, name: 'selectSignedMultiplier'));
+        signedMultiplicand: signedOperands,
+        signedMultiplier: signedOperands);
 
     checkMultiplyAccumulate(mod, av, bv, BigInt.zero);
   });
@@ -613,12 +639,9 @@ void main() {
       c.put(bC);
 
       final mod = CompressionTreeMultiplyAccumulate(a, b, c,
-          signedMultiplicand:
-              RuntimeConfig(signedOperands, name: 'selectSignedMultiplicand'),
-          signedMultiplier:
-              RuntimeConfig(signedOperands, name: 'selectSignedMultiplier'),
-          signedAddend:
-              RuntimeConfig(signedOperands, name: 'selectSignedAddend'));
+          signedMultiplicand: signedOperands,
+          signedMultiplier: signedOperands,
+          signedAddend: signedOperands);
 
       checkMultiplyAccumulate(mod, bA, bB, bC);
     }
@@ -646,9 +669,9 @@ void main() {
       c.put(bC);
 
       final mod = CompressionTreeMultiplyAccumulate(a, b, c,
-          signedMultiplicand: BooleanConfig(staticConfig: signed),
-          signedMultiplier: BooleanConfig(staticConfig: signed),
-          signedAddend: BooleanConfig(staticConfig: signed));
+          signedMultiplicand: signed,
+          signedMultiplier: signed,
+          signedAddend: signed);
       checkMultiplyAccumulate(mod, bA, bB, bC);
     }
   });
@@ -694,8 +717,7 @@ void main() {
       c.put(bC);
 
       final multiplier = CompressionTreeMultiplyAccumulate(a, b, c,
-          signedMultiplicand: BooleanConfig(staticConfig: signed),
-          signedMultiplier: BooleanConfig(staticConfig: signed));
+          signedMultiplicand: signed, signedMultiplier: signed);
 
       final accumulate = multiplier.accumulate;
       expect(accumulate.value.toBigInt(), equals(golden));
@@ -731,6 +753,64 @@ void main() {
         final expected = multiplier0.product.value.toBigInt();
         expect(computed, equals(expected));
         expect(adderVal, equals(expected));
+      }
+    }
+  });
+
+  test('dot product select signed exhaustive', () async {
+    const width = 3;
+    final a = Logic(name: 'a', width: width);
+    final b = Logic(name: 'b', width: width);
+    final c = Logic(name: 'c', width: width);
+    final d = Logic(name: 'd', width: width);
+
+    for (final mdSigned in [Const(0), Const(1)]) {
+      for (final mlSigned in [Const(0), Const(1)]) {
+        final ppG0 = PartialProductGenerator(a, b, RadixEncoder(4),
+            signedMultiplicand: mdSigned, signedMultiplier: mlSigned);
+        StopBitsSignExtension(ppG0).signExtend();
+        final ppG1 = PartialProductGenerator(c, d, RadixEncoder(4),
+            signedMultiplicand: mdSigned, signedMultiplier: mlSigned);
+        StopBitsSignExtension(ppG1).signExtend();
+
+        ppG0.partialProducts.addAll(ppG1.partialProducts);
+        ppG0.rowShift.addAll(ppG1.rowShift);
+        final vec = <Logic>[];
+        for (var row = 0; row < ppG0.rows; row++) {
+          vec.add(ppG0.partialProducts[row].rswizzle());
+        }
+        final cc = ColumnCompressor(vec, ppG0.rowShift);
+        final sum = cc.add0 + cc.add1;
+        const limit = 1 << width;
+        for (var ai = 0; ai < limit; ai++) {
+          for (var bi = 0; bi < limit; bi++) {
+            for (var ci = 0; ci < limit; ci++) {
+              for (var di = 0; di < limit; di++) {
+                // By default these are unsigned
+                final aVal = SignedBigInt.fromSignedInt(ai, a.width,
+                    signed: mdSigned.value.toBool());
+                final bVal = SignedBigInt.fromSignedInt(bi, b.width,
+                    signed: mlSigned.value.toBool());
+                final cVal = SignedBigInt.fromSignedInt(ci, c.width,
+                    signed: mdSigned.value.toBool());
+                final dVal = SignedBigInt.fromSignedInt(di, d.width,
+                    signed: mlSigned.value.toBool());
+
+                a.put(aVal);
+                b.put(bVal);
+                c.put(cVal);
+                d.put(dVal);
+                final expected = aVal * bVal + cVal * dVal;
+                final computed = sum.value.toBigInt().toCondSigned(sum.width,
+                    signed: mdSigned.value.toBool() | mlSigned.value.toBool());
+                expect(computed, equals(expected), reason: '''
+                aVal=$aVal, bVal=$bVal, cVal=$cVal, dVal=$dVal
+                computed=$computed, expected=$expected
+ ''');
+              }
+            }
+          }
+        }
       }
     }
   });

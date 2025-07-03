@@ -8,7 +8,6 @@
 // 2025 June 27
 // Author: Desmond Kirkpatrick <desmond.a.kirkpatrick@intel.com>
 
-import 'package:meta/meta.dart';
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
 
@@ -56,13 +55,22 @@ class StaticOrRuntimeParameter {
     }
   }
 
+  /// Clone the parameter for use in submodules.
+  StaticOrRuntimeParameter clone(Module module) {
+    if (runtimeConfig != null) {
+      return RuntimeConfig(getLogic(module), name: name);
+    } else {
+      return this;
+    }
+  }
+
   /// Return a string representation of the configuration, including its name.
   @override
   String toString() => 'StaticOrRuntimeParameter_${name}_static_$staticConfig'
       '_runtime_${runtimeConfig?.name ?? 'null'}';
 
   /// Return a bool representing the value of the configuration.
-  @visibleForTesting
+  // @visibleForTesting
   bool get value =>
       staticConfig ||
       (runtimeConfig != null && runtimeConfig!.value == LogicValue.one);

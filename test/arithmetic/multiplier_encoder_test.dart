@@ -32,36 +32,39 @@ void testPartialProductExhaustive(PartialProductGeneratorBase pp) {
   final limitX = pow(2, widthX);
   final limitY = pow(2, widthY);
 
-  final multiplicandSigns = pp.signedMultiplicand
-      ? [true]
-      : (pp.selectSignedMultiplicand != null)
-          ? [false, true]
-          : [false];
-  final multiplierSigns = pp.signedMultiplier
-      ? [true]
-      : (pp.selectSignedMultiplier != null)
-          ? [false, true]
-          : [false];
+  final signedMultiplicandParameter =
+      StaticOrRuntimeParameter.ofDynamic(pp.signedMultiplicand);
+  final signedMultiplierParameter =
+      StaticOrRuntimeParameter.ofDynamic(pp.signedMultiplier);
+
+  final multiplicandSigns = signedMultiplicandParameter.runtimeConfig != null
+      ? [false, true]
+      : [signedMultiplicandParameter.staticConfig];
+  final multiplierSigns = signedMultiplierParameter.runtimeConfig != null
+      ? [false, true]
+      : [signedMultiplierParameter.staticConfig];
+
   test(
       'exhaustive: ${pp.name} R${pp.selector.radix} '
       'WD=${pp.multiplicand.width} WM=${pp.multiplier.width} '
-      'SD=${pp.signedMultiplicand ? 1 : 0} '
-      'SM=${pp.signedMultiplier ? 1 : 0} '
-      'SelD=${pp.selectSignedMultiplicand != null ? 1 : 0} '
-      'SelM=${pp.selectSignedMultiplier != null ? 1 : 0}', () async {
+      'MD=${Multiplier.signedMD(pp.signedMultiplicand)} '
+      'ML=${Multiplier.signedML(pp.signedMultiplicand)}', () async {
     for (var i = 0; i < limitX; i++) {
       for (var j = 0; j < limitY; j++) {
         for (final multiplicandSign in multiplicandSigns) {
           final X =
               SignedBigInt.fromSignedInt(i, widthX, signed: multiplicandSign);
-          if (pp.selectSignedMultiplicand != null) {
-            pp.selectSignedMultiplicand!.put(multiplicandSign ? 1 : 0);
+
+          if (signedMultiplicandParameter.runtimeConfig != null) {
+            signedMultiplicandParameter.runtimeConfig!
+                .put(multiplicandSign ? 1 : 0);
           }
           for (final multiplierSign in multiplierSigns) {
             final Y =
                 SignedBigInt.fromSignedInt(j, widthY, signed: multiplierSign);
-            if (pp.selectSignedMultiplier != null) {
-              pp.selectSignedMultiplier!.put(multiplierSign ? 1 : 0);
+            if (signedMultiplierParameter.runtimeConfig != null) {
+              signedMultiplierParameter.runtimeConfig!
+                  .put(multiplierSign ? 1 : 0);
             }
             checkPartialProduct(pp, X, Y);
           }
@@ -75,24 +78,23 @@ void testPartialProductRandom(PartialProductGeneratorBase pp, int iterations) {
   final widthX = pp.selector.multiplicand.width;
   final widthY = pp.encoder.multiplier.width;
 
-  final multiplicandSigns = pp.signedMultiplicand
-      ? [true]
-      : (pp.selectSignedMultiplicand != null)
-          ? [false, true]
-          : [false];
-  final multiplierSigns = pp.signedMultiplier
-      ? [true]
-      : (pp.selectSignedMultiplier != null)
-          ? [false, true]
-          : [false];
+  final signedMultiplicandParameter =
+      StaticOrRuntimeParameter.ofDynamic(pp.signedMultiplicand);
+  final signedMultiplierParameter =
+      StaticOrRuntimeParameter.ofDynamic(pp.signedMultiplier);
+
+  final multiplicandSigns = signedMultiplicandParameter.runtimeConfig != null
+      ? [false, true]
+      : [signedMultiplicandParameter.staticConfig];
+  final multiplierSigns = signedMultiplierParameter.runtimeConfig != null
+      ? [false, true]
+      : [signedMultiplierParameter.staticConfig];
 
   test(
       'random: ${pp.name} R${pp.selector.radix} '
       'WD=${pp.multiplicand.width} WM=${pp.multiplier.width} '
-      'SD=${pp.signedMultiplicand ? 1 : 0} '
-      'SM=${pp.signedMultiplier ? 1 : 0} '
-      'SelD=${pp.selectSignedMultiplicand != null ? 1 : 0} '
-      'SelM=${pp.selectSignedMultiplier != null ? 1 : 0}', () async {
+      'MD=${Multiplier.signedMD(pp.signedMultiplicand)} '
+      'ML=${Multiplier.signedML(pp.signedMultiplicand)}', () async {
     final rand = Random(47);
     for (var i = 0; i < iterations; i++) {
       for (final multiplicandSign in multiplicandSigns) {
@@ -100,16 +102,19 @@ void testPartialProductRandom(PartialProductGeneratorBase pp, int iterations) {
             .nextLogicValue(width: widthX)
             .toBigInt()
             .toCondSigned(widthX, signed: multiplicandSign);
-        if (pp.selectSignedMultiplicand != null) {
-          pp.selectSignedMultiplicand!.put(multiplicandSign ? 1 : 0);
+
+        if (signedMultiplicandParameter.runtimeConfig != null) {
+          signedMultiplicandParameter.runtimeConfig!
+              .put(multiplicandSign ? 1 : 0);
         }
         for (final multiplierSign in multiplierSigns) {
           final Y = rand
               .nextLogicValue(width: widthY)
               .toBigInt()
               .toCondSigned(widthY, signed: multiplierSign);
-          if (pp.selectSignedMultiplier != null) {
-            pp.selectSignedMultiplier!.put(multiplierSign ? 1 : 0);
+          if (signedMultiplierParameter.runtimeConfig != null) {
+            signedMultiplierParameter.runtimeConfig!
+                .put(multiplierSign ? 1 : 0);
           }
           checkPartialProduct(pp, X, Y);
         }
@@ -123,15 +128,17 @@ void testPartialProductSingle(
   test(
       'single: ${pp.name} R${pp.selector.radix} '
       'WD=${pp.multiplicand.width} WM=${pp.multiplier.width} '
-      'SD=${pp.signedMultiplicand ? 1 : 0} '
-      'SM=${pp.signedMultiplier ? 1 : 0} '
-      'SelD=${pp.selectSignedMultiplicand != null ? 1 : 0} '
-      'SelM=${pp.selectSignedMultiplier != null ? 1 : 0}', () async {
-    if (pp.selectSignedMultiplicand != null) {
-      pp.selectSignedMultiplicand!.put(X.isNegative ? 1 : 0);
+      'MD=${Multiplier.signedMD(pp.signedMultiplicand)} '
+      'ML=${Multiplier.signedML(pp.signedMultiplicand)}', () async {
+    final signedMultiplicandParameter =
+        StaticOrRuntimeParameter.ofDynamic(pp.signedMultiplicand);
+    if (signedMultiplicandParameter.runtimeConfig != null) {
+      signedMultiplicandParameter.runtimeConfig!.put(X.isNegative ? 1 : 0);
     }
-    if (pp.selectSignedMultiplier != null) {
-      pp.selectSignedMultiplier!.put(Y.isNegative ? 1 : 0);
+    final signedMultiplierParameter =
+        StaticOrRuntimeParameter.ofDynamic(pp.signedMultiplier);
+    if (signedMultiplierParameter.runtimeConfig != null) {
+      signedMultiplierParameter.runtimeConfig!.put(Y.isNegative ? 1 : 0);
     }
     checkPartialProduct(pp, X, Y);
   });
@@ -178,6 +185,7 @@ void main() {
       }
     }
   });
+
   group('PartialProduct: singleton fixed sign variants', () {
     const radix = 16;
     final encoder = RadixEncoder(radix);
@@ -206,7 +214,7 @@ void main() {
     }
   });
 
-  group('PartialProduct: fixed/select sign variants', () {
+  group('PartialProduct: fixed/select sign variants exhaustive', () {
     final selectSignMultiplicand = Logic();
     final selectSignMultiplier = Logic();
     for (final radix in [2, 4]) {
@@ -225,15 +233,59 @@ void main() {
                 final PartialProductGeneratorBase pp;
                 pp = PartialProductGenerator(Logic(name: 'X', width: width),
                     Logic(name: 'Y', width: width), encoder,
-                    signedMultiplicand: signMultiplicand,
-                    signedMultiplier: signMultiplier,
-                    selectSignedMultiplicand:
-                        selectMultiplicand ? selectSignMultiplicand : null,
-                    selectSignedMultiplier:
-                        selectMultiplier ? selectSignMultiplier : null);
+                    signedMultiplicand: StaticOrRuntimeParameter(
+                        name: 'cand',
+                        runtimeConfig:
+                            selectMultiplicand ? selectSignMultiplicand : null,
+                        staticConfig: signMultiplicand),
+                    signedMultiplier: StaticOrRuntimeParameter(
+                        name: 'mult',
+                        runtimeConfig:
+                            selectMultiplier ? selectSignMultiplier : null,
+                        staticConfig: signMultiplier));
                 currySignExtensionFunction(signExtension)(pp).signExtend();
 
                 testPartialProductExhaustive(pp);
+              }
+            }
+          }
+        }
+      }
+    }
+  });
+
+  group('PartialProduct: fixed/select sign variants random', () {
+    final selectSignMultiplicand = Logic();
+    final selectSignMultiplier = Logic();
+    for (final radix in [2, 4]) {
+      final encoder = RadixEncoder(radix);
+      for (final selectMultiplicand in [false, true]) {
+        for (final signMultiplicand
+            in (!selectMultiplicand ? [false, true] : [false])) {
+          for (final selectMultiplier in [false, true]) {
+            for (final signMultiplier
+                in (!selectMultiplier ? [false, true] : [false])) {
+              selectSignMultiplicand.put(selectMultiplicand ? 1 : 0);
+              selectSignMultiplier.put(selectMultiplier ? 1 : 0);
+              for (final signExtension in SignExtension.values
+                  .where((e) => e != SignExtension.none)) {
+                final width = log2Ceil(radix) + (signMultiplier ? 1 : 0);
+                final PartialProductGeneratorBase pp;
+                pp = PartialProductGenerator(Logic(name: 'X', width: width),
+                    Logic(name: 'Y', width: width), encoder,
+                    signedMultiplicand: StaticOrRuntimeParameter(
+                        name: 'cand',
+                        runtimeConfig:
+                            selectMultiplicand ? selectSignMultiplicand : null,
+                        staticConfig: signMultiplicand),
+                    signedMultiplier: StaticOrRuntimeParameter(
+                        name: 'mult',
+                        runtimeConfig:
+                            selectMultiplier ? selectSignMultiplier : null,
+                        staticConfig: signMultiplier));
+                currySignExtensionFunction(signExtension)(pp).signExtend();
+
+                testPartialProductRandom(pp, 10);
               }
             }
           }
@@ -257,12 +309,15 @@ void main() {
         final PartialProductGeneratorBase pp;
         pp = PartialProductGenerator(Logic(name: 'X', width: width),
             Logic(name: 'Y', width: width), encoder,
-            signedMultiplicand: !selectMultiplicand,
-            signedMultiplier: !selectMultiplier,
-            selectSignedMultiplicand:
-                selectMultiplicand ? selectSignMultiplicand : null,
-            selectSignedMultiplier:
-                selectMultiplier ? selectSignMultiplier : null);
+            signedMultiplicand: StaticOrRuntimeParameter(
+                name: 'cand',
+                runtimeConfig:
+                    selectMultiplicand ? selectSignMultiplicand : null,
+                staticConfig: selectMultiplicand),
+            signedMultiplier: StaticOrRuntimeParameter(
+                name: 'mult',
+                runtimeConfig: selectMultiplier ? selectSignMultiplier : null,
+                staticConfig: selectMultiplier));
 
         CompactRectSignExtension(pp).signExtend();
 
@@ -285,7 +340,6 @@ void main() {
       for (var width = shift; width < min(5, 2 * shift); width++) {
         for (final signExtension
             in SignExtension.values.where((e) => e != SignExtension.none)) {
-          // final ppg = curryPartialProductGenerator(signExtension);
           final pp = PartialProductGenerator(Logic(name: 'X', width: width),
               Logic(name: 'Y', width: width), encoder);
           currySignExtensionFunction(signExtension)(pp).signExtend();
@@ -295,6 +349,7 @@ void main() {
       }
     }
   });
+
   group('PartialProduct: rectangle/radix/extension sweep', () {
     for (var radix = 2; radix < 8; radix *= 2) {
       final encoder = RadixEncoder(radix);
@@ -446,9 +501,6 @@ void main() {
     final compress = ColumnCompressor(ppm.rows, ppm.rowShift);
     await ppm.build();
     await compress.build();
-
-    File('ppg.sv').writeAsStringSync(ppm.generateSynth());
-    File('compress.sv').writeAsStringSync(compress.generateSynth());
   });
 
   test('single MAC partial product test', () async {

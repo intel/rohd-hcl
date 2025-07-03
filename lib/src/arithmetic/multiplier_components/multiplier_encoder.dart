@@ -113,21 +113,25 @@ class MultiplierEncoder {
 
   late final _encodings = <RadixEncode>[];
 
-  /// Generate the Booth encoding of an input [multiplier] using
-  /// [radixEncoder].
+  /// Generate the Booth encoding of an input [multiplier] using [radixEncoder].
   ///
-  /// [signedMultiplier] generates a fixed signed encoder versus using
-  /// [selectSignedMultiplier] which is a runtime sign selection [Logic]
-  /// in which case [signedMultiplier] must be false.
-  MultiplierEncoder(this.multiplier, RadixEncoder radixEncoder,
-      {Logic? selectSignedMultiplier, bool signedMultiplier = false})
-      : _encoder = radixEncoder {
-    if (signedMultiplier && (selectSignedMultiplier != null)) {
-      throw RohdHclException('sign reconfiguration requires signed=false');
-    }
+  /// When using signed multipliers, the [signedMultiplier] option
+  /// configures sign extension of the multiplier and additional rows needed for
+  /// encoding. This optional  parameter configures the [multiplier]
+  /// statically using a bool to indicate a signed multiplier (default is false,
+  /// or unsigned) or dynamically with a 1-bit [Logic] input.  Passing
+  /// something other null, bool, or [Logic] will result in a throw.
+  MultiplierEncoder(
+    this.multiplier,
+    RadixEncoder radixEncoder, {
+    dynamic signedMultiplier,
+  }) : _encoder = radixEncoder {
+    final signedMultiplierParameter =
+        StaticOrRuntimeParameter.ofDynamic(signedMultiplier);
     // Unsigned encoding wants to overlap past the multipler
-    if (signedMultiplier) {
-      rows = ((multiplier.width + (signedMultiplier ? 0 : 1)) /
+    if (signedMultiplierParameter.runtimeConfig == null) {
+      rows = ((multiplier.width +
+                  (signedMultiplierParameter.staticConfig ? 0 : 1)) /
               log2Ceil(radixEncoder.radix))
           .ceil();
     } else {
@@ -137,8 +141,8 @@ class MultiplierEncoder {
           ((multiplier.width + 1) ~/ log2Ceil(radixEncoder.radix));
     }
     // slices overlap by 1 and start at -1a
-    if (selectSignedMultiplier == null) {
-      _extendedMultiplier = (signedMultiplier
+    if (signedMultiplierParameter.runtimeConfig == null) {
+      _extendedMultiplier = (signedMultiplierParameter.staticConfig
               ? multiplier.signExtend(rows * (log2Ceil(radixEncoder.radix)))
               : multiplier.zeroExtend(rows * (log2Ceil(radixEncoder.radix))))
           .named('extended_multiplier', naming: Naming.mergeable);
@@ -147,7 +151,7 @@ class MultiplierEncoder {
       final sign = multiplier[len - 1];
       final extension = [
         for (var i = len; i < (rows * (log2Ceil(radixEncoder.radix))); i++)
-          mux(selectSignedMultiplier, sign, Const(0))
+          mux(signedMultiplierParameter.runtimeConfig!, sign, Const(0))
       ];
       _extendedMultiplier = (multiplier.elements + extension)
           .rswizzle()
