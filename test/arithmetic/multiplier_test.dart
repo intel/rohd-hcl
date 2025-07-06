@@ -11,7 +11,6 @@
 
 import 'dart:async';
 import 'dart:math';
-import 'package:meta/meta.dart';
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
 import 'package:rohd_hcl/src/arithmetic/multiplier_components/evaluate_compressor.dart';
