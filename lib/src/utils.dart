@@ -56,11 +56,11 @@ extension LogicValueMajority on LogicValue {
 
 /// This extension will provide conversion to Signed or Unsigned BigInt
 extension SignedBigInt on BigInt {
-  /// Convert a BigInt to Signed when [signed] is true
+  /// Convert a BigInt to Signed when [signed] is `true`.
   BigInt toCondSigned(int width, {bool signed = false}) =>
       signed ? toSigned(width) : toUnsigned(width);
 
-  /// Construct a Signed BigInt from an int when [signed] is true
+  /// Construct a Signed BigInt from an int when [signed] is `true`.
   static BigInt fromSignedInt(int value, int width, {bool signed = false}) =>
       signed
           ? BigInt.from(value).toSigned(width)
@@ -76,12 +76,12 @@ extension SignedBigInt on BigInt {
 /// input[d]. For low [en], output remains frozen irrespective of input [d].
 ///
 /// - When the optional [reset] is provided, the condFlop will be reset
-/// (active-high).
+///   (active-high).
 /// - If no [resetValue] is provided, the reset value is always `0`. Otherwise,
-/// it will reset to the provided [resetValue].
-/// - If [asyncReset] is true, the [reset] signal (if provided) will be treated
-/// as an async reset. If [asyncReset] is false, the reset signal will be
-/// treated as synchronous.
+///   it will reset to the provided [resetValue].
+/// - If [asyncReset] is `true`, the [reset] signal (if provided) will be
+///   treated as an async reset. If [asyncReset] is `false`, the reset signal
+///   will be treated as synchronous.
 Logic condFlop(
   Logic? clk,
   Logic d, {

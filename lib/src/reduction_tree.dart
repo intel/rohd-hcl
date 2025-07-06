@@ -39,7 +39,7 @@ class ReductionTree extends Module {
   /// Specified width of input to each reduction node (e.g., binary: radix=2)
   final int radix;
 
-  /// When [signExtend] is true, use sign-extension on values,
+  /// When [signExtend] is `true`, use sign-extension on values,
   /// otherwise use zero-extension.
   final bool signExtend;
 
@@ -90,8 +90,8 @@ class ReductionTree extends Module {
   ///   operation for (2 to [radix]) inputs.
   /// - [radix] is the width of reduction at each node in the tree (e.g.,
   ///   binary: radix=2).
-  /// - [signExtend] if true, use sign-extension to widen Logic values as needed
-  ///   in the tree, otherwise use zero-extension (default).
+  /// - [signExtend] if `true`, use sign-extension to widen Logic values as
+  ///   needed in the tree, otherwise use zero-extension (default).
   /// - [control] is an optional input that is passed along with the data being
   ///   reduced and passed into the operation.
   ///

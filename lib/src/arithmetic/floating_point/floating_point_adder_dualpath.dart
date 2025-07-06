@@ -11,7 +11,7 @@ import 'dart:math';
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
 
-/// An adder module for variable FloatingPoint type.
+/// A fast adder module for variable width [FloatingPoint] logic signals.
 // This is a Seidel/Even adder, dual-path implementation.
 class FloatingPointAdderDualPath<FpTypeIn extends FloatingPoint,
         FpTypeOut extends FloatingPoint>
@@ -23,7 +23,7 @@ class FloatingPointAdderDualPath<FpTypeIn extends FloatingPoint,
   /// - [widthGen] is the splitting function for creating the different adder
   ///   blocks within the internal [CompoundAdder] used for mantissa addition.
   ///   Decreasing the split width will increase speed but also increase area.
-  /// - [ppTree] is an ParallelPrefix generator for use in increment /decrement
+  /// - [ppTree] is a [ParallelPrefix] generator for use in increment /decrement
   ///   functions.
   ///
   ///  If [outSum] is provided, it will be used as the output type, otherwise

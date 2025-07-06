@@ -13,7 +13,7 @@ import 'package:meta/meta.dart';
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
 
-/// A converter module for FloatingPoint values
+/// A converter module bwtween different [FloatingPoint] logic signals.
 class FloatingPointConverter<FpTypeIn extends FloatingPoint,
     FpTypeOut extends FloatingPoint> extends Module {
   /// Source exponent width

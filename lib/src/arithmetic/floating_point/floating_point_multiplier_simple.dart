@@ -10,12 +10,12 @@
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
 
-/// A multiplier module for FloatingPoint logic.
+/// A multiplier module for [FloatingPoint] logic.
 class FloatingPointMultiplierSimple<FpTypeIn extends FloatingPoint,
         FpTypeOut extends FloatingPoint>
     extends FloatingPointMultiplier<FpTypeIn, FpTypeOut> {
-  /// Multiply two FloatingPoint numbers [a] and [b], returning result
-  /// in [product] FloatingPoint.
+  /// Multiply two [FloatingPoint] numbers [a] and [b], returning result
+  /// in [product] [FloatingPoint].
   /// - [multGen] is a multiplier generator to be used in the mantissa
   /// multiplication.
   /// - [priorityGen] is a [PriorityEncoder] generator to be used in the

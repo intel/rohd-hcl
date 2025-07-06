@@ -37,7 +37,7 @@ class FixedPointValue implements Comparable<FixedPointValue> {
   /// [signed] indicates whether the representation is signed.
   late final bool signed;
 
-  /// Returns true if the number is negative.
+  /// Returns `true` if the number is negative.
   bool isNegative() => signed & (value[-1] == LogicValue.one);
 
   /// Constructs [FixedPointValue] from sign, integer and fraction values.
@@ -178,7 +178,7 @@ class FixedPointValue implements Comparable<FixedPointValue> {
     return isNegative() ? -value : value;
   }
 
-  /// Addition operation that returns a FixedPointValue.
+  /// Addition operation that returns a [FixedPointValue].
   /// The result is signed if one of the operands is signed.
   /// The result integer has the max integer width of the operands plus one.
   /// The result fraction has the max fractional width of the operands.
@@ -202,7 +202,7 @@ class FixedPointValue implements Comparable<FixedPointValue> {
         .ofLogicValue(val1 + val2);
   }
 
-  /// Subtraction operation that returns a FixedPointValue.
+  /// Subtraction operation that returns a [FixedPointValue].
   /// The result is always signed.
   /// The result integer has the max integer width of the operands plus one.
   /// The result fraction has the max fractional width of the operands.
@@ -226,7 +226,7 @@ class FixedPointValue implements Comparable<FixedPointValue> {
         .ofLogicValue(val1 - val2);
   }
 
-  /// Multiplication operation that returns a FixedPointValue.
+  /// Multiplication operation that returns a [FixedPointValue].
   /// The result is signed if one of the operands is signed.
   /// The result fraction width is the sum of fraction widths of operands.
   FixedPointValue operator *(FixedPointValue other) {
@@ -256,7 +256,7 @@ class FixedPointValue implements Comparable<FixedPointValue> {
         .ofLogicValue(val1 * val2);
   }
 
-  /// Division operation that returns a FixedPointValue.
+  /// Division operation that returns a [FixedPointValue].
   /// The result is signed if one of the operands is signed.
   /// The result integer width is the sum of dividend integer width and divisor
   /// fraction width. The result fraction width is the sum of dividend fraction

@@ -96,7 +96,7 @@ class MultiCycleDividerInterface extends PairInterface {
       : this(dataWidth: other.dataWidth);
 }
 
-/// The Divider module definition
+/// The Divider module definition.
 class MultiCycleDivider extends Module {
   /// The Divider's interface declaration.
   @protected
@@ -124,7 +124,7 @@ class MultiCycleDivider extends Module {
   /// the number of bits required to store that number.
   late final int logDataWidth;
 
-  /// The Divider module's constructor
+  /// The Divider module's constructor.
   MultiCycleDivider(MultiCycleDividerInterface interface)
       : dataWidth = interface.dataWidth,
         logDataWidth = log2Ceil(interface.dataWidth),
@@ -142,8 +142,8 @@ class MultiCycleDivider extends Module {
     _build();
   }
 
-  /// Factory method to create a MultiCycleDivider
-  /// from explicit Logic signals instead of an interface
+  /// Factory method to create a [MultiCycleDivider]
+  /// from explicit Logic signals instead of an interface.
   factory MultiCycleDivider.ofLogics({
     required Logic clk,
     required Logic reset,
@@ -168,8 +168,8 @@ class MultiCycleDivider extends Module {
   }
 
   void _build() {
-    // to capture current inputs
-    // as this operation takes multiple cycles
+    // To capture current inputs
+    // as this operation takes multiple cycles.
     final aBuf = Logic(name: 'aBuf', width: dataWidth + 1);
     final rBuf = Logic(name: 'rBuf', width: dataWidth + 1);
     final bBuf = Logic(name: 'bBuf', width: dataWidth + 1);

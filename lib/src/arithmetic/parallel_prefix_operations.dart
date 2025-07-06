@@ -18,7 +18,7 @@ import 'package:rohd_hcl/rohd_hcl.dart';
 int largestPow2LessThan(int x) => pow(2, log2Ceil(x) - 1).toInt();
 
 /// [ParallelPrefix] is the core parallel prefix tree structure node
-/// The output is a List of multi-bit Logic vectors (typically 2-bit) that
+/// The output is a [List] of multi-bit Logic vectors (typically 2-bit) that
 /// represent things like carry-save or generate-propagate signaling in adder
 /// networks.  Each node in a parallel prefix tree transforms a row of inputs
 /// to an equal length row of outputs of these multi-bit Logic values.
@@ -39,9 +39,9 @@ class ParallelPrefix extends Module {
   }
 }
 
-/// Ripple shaped ParallelPrefix tree
+/// A ripple shaped [ParallelPrefix] tree.
 class Ripple extends ParallelPrefix {
-  /// Ripple constructor
+  /// [Ripple] constructor.
   Ripple(List<Logic> inps, Logic Function(Logic, Logic) op)
       : super(inps, 'ripple') {
     final iseq = <Logic>[];
@@ -61,9 +61,9 @@ class Ripple extends ParallelPrefix {
   }
 }
 
-/// Sklansky shaped ParallelPrefix tree
+/// Sklansky-shaped [ParallelPrefix] tree.
 class Sklansky extends ParallelPrefix {
-  /// Sklansky constructor
+  /// [Sklansky] constructor.
   Sklansky(List<Logic> inps, Logic Function(Logic term1, Logic term2) op)
       : super(inps, 'sklansky') {
     final iseq = <Logic>[];
@@ -90,9 +90,9 @@ class Sklansky extends ParallelPrefix {
   }
 }
 
-/// KoggeStone shaped ParallelPrefix tree
+/// Kogge-Stone shaped [ParallelPrefix] tree.
 class KoggeStone extends ParallelPrefix {
-  /// KoggeStone constructor
+  /// [KoggeStone] constructor.
   KoggeStone(List<Logic> inps, Logic Function(Logic term1, Logic term2) op)
       : super(inps, 'kogge_stone') {
     final iseq = <Logic>[];
@@ -118,9 +118,9 @@ class KoggeStone extends ParallelPrefix {
   }
 }
 
-/// BrentKung shaped ParallelPrefix tree
+/// Brent-Kung shaped ParallelPrefix tree.
 class BrentKung extends ParallelPrefix {
-  /// BrentKung constructor
+  /// [BrentKung] constructor.
   BrentKung(List<Logic> inps, Logic Function(Logic term1, Logic term2) op)
       : super(inps, 'brent_kung') {
     final iseq = <Logic>[];
@@ -162,12 +162,12 @@ class BrentKung extends ParallelPrefix {
   }
 }
 
-/// Or scan based on ParallelPrefix tree
+/// Or scan based on [ParallelPrefix] tree.
 class ParallelPrefixOrScan extends Module {
-  /// Output [out] is the or of bits of the input
+  /// Output [out] is the or of bits of the input.
   Logic get out => output('out');
 
-  /// OrScan constructor
+  /// OrScan constructor.
   ParallelPrefixOrScan(Logic inp,
       {ParallelPrefix Function(
               List<Logic> inps, Logic Function(Logic term1, Logic term2) op)
@@ -180,13 +180,13 @@ class ParallelPrefixOrScan extends Module {
   }
 }
 
-/// Priority Finder based on ParallelPrefix tree
+/// Priority Finder based on [ParallelPrefix] tree.
 class ParallelPrefixPriorityFinder extends Module {
   /// Output [out] is the one-hot reduction to the first '1' in the Logic input
   /// Search is from the LSB
   Logic get out => output('out');
 
-  /// Priority Finder constructor
+  /// Priority Finder constructor.
   ParallelPrefixPriorityFinder(Logic inp,
       {ParallelPrefix Function(
               List<Logic> inps, Logic Function(Logic term1, Logic term2) op)
@@ -200,7 +200,7 @@ class ParallelPrefixPriorityFinder extends Module {
   }
 }
 
-/// Adder based on ParallelPrefix tree
+/// [Adder] based on [ParallelPrefix] tree.
 class ParallelPrefixAdder extends Adder {
   /// Adder constructor
   ParallelPrefixAdder(super.a, super.b,
@@ -236,12 +236,12 @@ class ParallelPrefixAdder extends Adder {
   }
 }
 
-/// Incrementer based on ParallelPrefix tree
+/// Incrementer based on [ParallelPrefix] tree.
 class ParallelPrefixIncr extends Module {
-  /// Output is '1' added to the Logic input
+  /// Output is '1' added to the Logic input.
   Logic get out => output('out');
 
-  /// Increment constructor
+  /// Increment constructor.
   ParallelPrefixIncr(Logic inp,
       {ParallelPrefix Function(
               List<Logic> inps, Logic Function(Logic term1, Logic term2) op)
@@ -259,12 +259,12 @@ class ParallelPrefixIncr extends Module {
   }
 }
 
-/// Decrementer based on ParallelPrefix tree
+/// Decrementer based on [ParallelPrefix] tree.
 class ParallelPrefixDecr extends Module {
-  /// Output is '1' subtracted from the Logic input
+  /// Output is '1' subtracted from the Logic input.
   Logic get out => output('out');
 
-  /// Decrement constructor
+  /// Decrement constructor.
   ParallelPrefixDecr(Logic inp,
       {ParallelPrefix Function(
               List<Logic> inps, Logic Function(Logic term1, Logic term2) op)

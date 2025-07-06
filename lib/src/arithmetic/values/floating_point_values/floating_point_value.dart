@@ -25,11 +25,11 @@ class FloatingPointValue implements Comparable<FloatingPointValue> {
   /// The full floating point value concatenated as a [LogicValue].
   late final LogicValue value = [sign, exponent, mantissa].swizzle();
 
-  /// The sign of the value: 1 means a negative value.
+  /// The sign of the [FloatingPointValue]: 1 means a negative value.
   late final LogicValue sign;
 
-  /// The exponent of the floating point: this is biased about a midpoint for
-  /// positive and negative exponents.
+  /// The exponent of the [FloatingPointValue]: this is biased about a midpoint
+  /// for positive and negative exponents.
   late final LogicValue exponent;
 
   /// The [exponent] width.
@@ -50,19 +50,17 @@ class FloatingPointValue implements Comparable<FloatingPointValue> {
   /// The stored explicit JBit flag.
   late final bool _explicitJBit;
 
-  /// Return true if the JBit is explicitly represented in the mantissa.
+  /// Return `true` if the JBit is explicitly represented in the mantissa.
   bool get explicitJBit => _explicitJBit;
 
   /// Treat subnormal numbers as zero.
   late final bool _subNormalAsZero;
 
-  /// Return true if subnormal numbers are treated as zero.
+  /// Return `true` if subnormal numbers are treated as zero.
   bool get subNormalAsZero => _subNormalAsZero;
 
-  /// Return the bias of this [FloatingPointValue].
-  ///
-  /// Representing the true zero exponent `2^0 = 1`, often termed the offset of
-  /// the exponent.
+  /// Return the bias of this [FloatingPointValue], the offset of the
+  /// exponent, also representing the zero exponent `2^0 = 1`.
   int get bias => pow(2, exponentWidth - 1).toInt() - 1;
 
   /// Return the maximum exponent of this [FloatingPointValue].
@@ -142,10 +140,10 @@ class FloatingPointValue implements Comparable<FloatingPointValue> {
     }
   }
 
-  /// Returns a tuple of [LogicValue]s for the sign, exponent, and mantissa
-  /// components of a special constant, or `null` if the constant does not have
-  /// special components.This is useful for constants like NaN, Infinity, etc in
-  /// certain types of floating point representations.
+  /// Returns a tuple of `LogicValue`s for the [sign], [exponent], and
+  /// [mantissa] components of a special constant, or `null` if the constant
+  /// does not have special components.This is useful for constants like NaN,
+  /// Infinity, etc in certain types of floating point representations.
   @protected
   @visibleForOverriding
   ({LogicValue sign, LogicValue exponent, LogicValue mantissa})?
@@ -156,7 +154,7 @@ class FloatingPointValue implements Comparable<FloatingPointValue> {
   @override
   int get hashCode => sign.hashCode ^ exponent.hashCode ^ mantissa.hashCode;
 
-  /// Floating point comparison to implement Comparable<>
+  /// Floating point comparison to implement `Comparable<>`.
   @override
   int compareTo(Object other) {
     if (other is! FloatingPointValue) {
@@ -217,20 +215,20 @@ class FloatingPointValue implements Comparable<FloatingPointValue> {
   /// Test if mantissa is all '0's.
   bool get isMantissaAllZeroes => mantissa.or() == LogicValue.zero;
 
-  /// Return true if the represented floating point number is considered
+  /// Return `true` if the represented floating point number is considered
   /// NaN or "Not a Number".
   bool get isNaN => isExponentAllOnes && !isMantissaAllZeroes;
 
-  /// Return true if the represented floating point number is considered
+  /// Return `true` if the represented floating point number is considered
   /// "subnormal", including [isAZero].
   bool isSubnormal() => isExponentAllZeros;
 
-  /// Return true if the represented floating point number is considered
-  ///  infinity or negative infinity
+  /// Return `true` if the represented floating point number is considered
+  ///  infinity or negative infinity.
   bool get isAnInfinity =>
       supportsInfinities && isExponentAllOnes && isMantissaAllZeroes;
 
-  /// Return true if the represented floating point number is zero. Note
+  /// Return `true` if the represented floating point number is zero. Note
   /// that the equality operator will treat
   /// [FloatingPointConstants.positiveZero]
   /// and [FloatingPointConstants.negativeZero] as equal.
@@ -269,8 +267,8 @@ class FloatingPointValue implements Comparable<FloatingPointValue> {
     return doubleVal;
   }
 
-  /// Return a Logic true if this FloatingPointVa;ie contains a normal number,
-  /// defined as having mantissa in the range `[1,2)`.
+  /// Return a `Logic` `1` if this [FloatingPointValue] contains a normal
+  /// number, defined as having mantissa in the range `[1,2)`.
   bool isNormal() {
     if (explicitJBit) {
       final e = exponent.toInt();
@@ -287,7 +285,7 @@ class FloatingPointValue implements Comparable<FloatingPointValue> {
     }
   }
 
-  /// Check if the mantissa and exponent stored are compatible
+  /// Check if the mantissa and exponent stored are compatible.
   bool isLegalValue() {
     if (explicitJBit) {
       final e = exponent.toInt();
@@ -309,7 +307,7 @@ class FloatingPointValue implements Comparable<FloatingPointValue> {
   FloatingPointValue canonicalize() =>
       clonePopulator().ofFloatingPointValue(this, canonicalizeExplicit: true);
 
-  /// Return a string representation of FloatingPointValue.
+  /// Return a string representation of [FloatingPointValue].
   ///
   /// If [integer] is `true`, returns sign, exponent, mantissa as integers. If
   /// [integer] is `false`, returns sign, exponent, mantissa as binary strings.
@@ -434,7 +432,7 @@ class FloatingPointValue implements Comparable<FloatingPointValue> {
   FloatingPointValue abs() => clonePopulator()
       .populate(sign: LogicValue.zero, exponent: exponent, mantissa: mantissa);
 
-  /// Return true if the other [FloatingPointValue] is within a rounding error
+  /// Return `true` if the other [FloatingPointValue] is within a rounding error
   /// of this value.
   bool withinRounding(FloatingPointValue other) {
     if (this != other) {

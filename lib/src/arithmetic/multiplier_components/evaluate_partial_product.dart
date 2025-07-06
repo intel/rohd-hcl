@@ -7,27 +7,28 @@
 // 2024 May 15
 // Author: Desmond Kirkpatrick <desmond.a.kirkpatrick@intel.com>
 
+import 'package:meta/meta.dart';
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
 
-/// The following routines are useful only during testing
+/// The following routines are useful only during testing.
 extension TestPartialProductSignage on PartialProductGeneratorBase {
-  /// Return true if multiplicand is truly signed (fixed or runtime)
+  /// Return `true` if multiplicand is truly signed (fixed or runtime).
   bool isSignedMultiplicand() => (selectSignedMultiplicand == null)
       ? signedMultiplicand
       : !selectSignedMultiplicand!.value.isZero;
 
-  /// Return true if multiplier is truly signed (fixed or runtime)
+  /// Return `true` if multiplier is truly signed (fixed or runtime).
   bool isSignedMultiplier() => (selectSignedMultiplier == null)
       ? signedMultiplier
       : !selectSignedMultiplier!.value.isZero;
 
-  /// Return true if accumulate result is truly signed (fixed or runtime)
+  /// Return `true` if accumulate result is truly signed (fixed or runtime).
   bool isSignedResult() => isSignedMultiplicand() | isSignedMultiplier();
 }
 
 /// Debug routines for printing out partial product matrix during
-/// simulation with live logic values
+/// simulation with live logic values.
 extension EvaluateLivePartialProduct on PartialProductGeneratorBase {
   /// Accumulate the partial products and return as BigInt
   BigInt evaluate() {
@@ -46,20 +47,20 @@ extension EvaluateLivePartialProduct on PartialProductGeneratorBase {
         : sum;
   }
 
-  /// Print out the partial product matrix
-  /// [bitvector] = true will print out a compact bitvector to the right
-  /// [value] = true will print out the value of each row as 'unsigned (signed)'
+  /// Print out the partial product matrix. [bitvector] = `true` will print out
+  /// a compact bitvector to the right. [value] = `true` will print out the
+  /// value of each row as 'unsigned (signed)'.
   String markdown({bool bitvector = false, bool value = true}) =>
       representation(markDown: true, bitvector: bitvector, value: value);
 
   /// Return a string representation of the partial product array.
-  ///   S = Sign bit positive polarity = 1 final value)
-  ///   s = Sign bit positive polarity = 0 final value)
-  ///   I = Sign bit negative polarity = 1 final value)
-  ///   i = Sign bit negative polarity = 0 (final value)
-  ///   [bitvector] = true will print out a compact final bitvector array
-  ///   [value] = true will print out the numerical value of the bitvector as
-  ///  'unsigned (signed)
+  ///   S = Sign bit positive polarity = 1 final value).
+  ///   s = Sign bit positive polarity = 0 final value).
+  ///   I = Sign bit negative polarity = 1 final value).
+  ///   i = Sign bit negative polarity = 0 (final value).
+  ///   [bitvector] == `true` will print out a compact final bitvector array.
+  ///   [value] == `true` will print out the numerical value of the bitvector as
+  ///  'unsigned (signed).
   String representation(
       {bool markDown = false, bool bitvector = false, bool value = true}) {
     final str = StringBuffer();
@@ -92,7 +93,7 @@ extension EvaluateLivePartialProduct on PartialProductGeneratorBase {
             intValue: true))
         ..write('\n');
     }
-    // Need to be consistent with colWidth in LogicValueList.listString
+    // Need to be consistent with colWidth in LogicValueList.listString.
     if (!markDown) {
       const extraSpace = 0;
       final colWidth =

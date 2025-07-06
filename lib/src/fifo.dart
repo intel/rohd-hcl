@@ -240,13 +240,13 @@ class FifoChecker extends Component {
   /// The [Fifo] being checked.
   final Fifo fifo;
 
-  /// If true, will check that [fifo] is empty at the end of the test.
+  /// If `true`, will check that [fifo] is empty at the end of the test.
   final bool enableEndOfTestEmptyCheck;
 
-  /// If true, will flag an error if there is an underflow in the [fifo].
+  /// If `true`, will flag an error if there is an underflow in the [fifo].
   final bool enableUnderflowCheck;
 
-  /// If true, will flag an error if there is an overflow in the [fifo].
+  /// If `true`, will flag an error if there is an overflow in the [fifo].
   final bool enableOverflowCheck;
 
   /// Builds a checker for a [fifo].
@@ -324,7 +324,7 @@ class FifoChecker extends Component {
 
 /// A tracker for a [Fifo] which can generate logs.
 class FifoTracker extends Tracker {
-  /// Internal tracking of occupancy in case the Fifo didn't generate it.
+  /// Internal tracking of occupancy in case the FIFO didn't generate it.
   int _occupancy = 0;
 
   /// Constructs a new tracker for [fifo].

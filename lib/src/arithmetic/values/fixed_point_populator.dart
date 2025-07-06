@@ -68,14 +68,18 @@ class FixedPointValuePopulator<FxvType extends FixedPointValue> {
         fraction: val.getRange(0, fractionWidth),
       );
 
-  /// Return true if double [val] to be stored in [FixedPointValue]
-  /// with [m] and [n] lengths without overflowing.
+  /// Return `true` if double [val] to be stored in [FixedPointValue]
+  /// with [integerWidth] and [fractionWidth] lengths without overflowing.
   static bool canStore(double val,
-      {required bool signed, required int m, required int n}) {
-    final w = signed ? 1 + m + n : m + n;
+      {required bool signed,
+      required int integerWidth,
+      required int fractionWidth}) {
+    final w = signed
+        ? 1 + integerWidth + fractionWidth
+        : integerWidth + fractionWidth;
     if (val.isFinite) {
-      final bigIntegerValue = BigInt.from(val * pow(2, n));
-      final negBigIntegerValue = BigInt.from(-val * pow(2, n));
+      final bigIntegerValue = BigInt.from(val * pow(2, fractionWidth));
+      final negBigIntegerValue = BigInt.from(-val * pow(2, fractionWidth));
       final l = (val < 0.0)
           ? max(bigIntegerValue.bitLength, negBigIntegerValue.bitLength)
           : bigIntegerValue.bitLength;
@@ -86,18 +90,21 @@ class FixedPointValuePopulator<FxvType extends FixedPointValue> {
 
   /// Constructs [FixedPointValue] from a Dart [double] rounding away from zero.
   FxvType ofDouble(double val) {
-    final m = integerWidth;
-    final n = fractionWidth;
     final signed = _unpopulated.signed;
     if (!signed & (val < 0)) {
       throw RohdHclException('Negative input not allowed with unsigned');
     }
-    if (!canStore(val, signed: signed, m: m, n: n)) {
+    if (!canStore(val,
+        signed: signed,
+        integerWidth: integerWidth,
+        fractionWidth: fractionWidth)) {
       throw RohdHclException('Double is too long to store in '
-          'FixedPointValue: $m, $n');
+          'FixedPointValue: $integerWidth, $fractionWidth');
     }
-    final integerValue = BigInt.from(val * pow(2, n));
-    final w = signed ? 1 + m + n : m + n;
+    final integerValue = BigInt.from(val * pow(2, fractionWidth));
+    final w = signed
+        ? 1 + integerWidth + fractionWidth
+        : integerWidth + fractionWidth;
     final v = LogicValue.ofBigInt(integerValue, w);
     return ofLogicValue(v);
   }
@@ -105,14 +112,14 @@ class FixedPointValuePopulator<FxvType extends FixedPointValue> {
   /// Constructs [FixedPointValue] from a Dart [double] without rounding.
   @internal
   FxvType ofDoubleUnrounded(double val) {
-    final m = integerWidth;
-    final n = fractionWidth;
     final signed = _unpopulated.signed;
     if (!signed & (val < 0)) {
       throw RohdHclException('Negative input not allowed with unsigned');
     }
-    final integerValue = BigInt.from(val * pow(2, n + 1));
-    final w = signed ? 1 + m + n : m + n;
+    final integerValue = BigInt.from(val * pow(2, fractionWidth + 1));
+    final w = signed
+        ? 1 + integerWidth + fractionWidth
+        : integerWidth + fractionWidth;
     final v = LogicValue.ofBigInt(integerValue >> 1, w);
     return ofLogicValue(v);
   }
