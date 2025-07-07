@@ -31,8 +31,8 @@ class ReductionTree extends Module {
   /// [radix] inputs. The [depth] input is the depth of the current node in the
   /// tree to the leaves.  For sequences that are not powers of [radix], the
   /// depth is the maximum depth to the leaves from this node in the tree.  The
-  /// [depth] can be used to index the control Logic to change behavior at each
-  /// depth of the tree.
+  /// [depth] can be used to index the [control] [Logic] to change behavior at
+  /// each depth of the tree.
   final Logic Function(List<Logic> inputs,
       {int depth, Logic? control, String name}) operation;
 
@@ -90,7 +90,7 @@ class ReductionTree extends Module {
   ///   operation for (2 to [radix]) inputs.
   /// - [radix] is the width of reduction at each node in the tree (e.g.,
   ///   binary: radix=2).
-  /// - [signExtend] if `true`, use sign-extension to widen Logic values as
+  /// - [signExtend] if `true`, use sign-extension to widen [Logic] values as
   ///   needed in the tree, otherwise use zero-extension (default).
   /// - [control] is an optional input that is passed along with the data being
   ///   reduced and passed into the operation.

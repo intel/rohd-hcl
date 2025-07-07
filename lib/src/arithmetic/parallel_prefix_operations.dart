@@ -18,10 +18,10 @@ import 'package:rohd_hcl/rohd_hcl.dart';
 int largestPow2LessThan(int x) => pow(2, log2Ceil(x) - 1).toInt();
 
 /// [ParallelPrefix] is the core parallel prefix tree structure node
-/// The output is a [List] of multi-bit Logic vectors (typically 2-bit) that
+/// The output is a [List] of multi-bit [Logic] vectors (typically 2-bit) that
 /// represent things like carry-save or generate-propagate signaling in adder
 /// networks.  Each node in a parallel prefix tree transforms a row of inputs
-/// to an equal length row of outputs of these multi-bit Logic values.
+/// to an equal length row of outputs of these multi-bit [Logic] values.
 class ParallelPrefix extends Module {
   final List<Logic> _oseq = [];
 
@@ -182,7 +182,8 @@ class ParallelPrefixOrScan extends Module {
 
 /// Priority Finder based on [ParallelPrefix] tree.
 class ParallelPrefixPriorityFinder extends Module {
-  /// Output [out] is the one-hot reduction to the first '1' in the Logic input
+  /// Output [out] is the one-hot reduction to the first '1' in the [Logic]
+  /// input.
   /// Search is from the LSB
   Logic get out => output('out');
 
@@ -238,7 +239,7 @@ class ParallelPrefixAdder extends Adder {
 
 /// Incrementer based on [ParallelPrefix] tree.
 class ParallelPrefixIncr extends Module {
-  /// Output is '1' added to the Logic input.
+  /// Output is '1' added to the [Logic] input.
   Logic get out => output('out');
 
   /// Increment constructor.
@@ -261,7 +262,7 @@ class ParallelPrefixIncr extends Module {
 
 /// Decrementer based on [ParallelPrefix] tree.
 class ParallelPrefixDecr extends Module {
-  /// Output is '1' subtracted from the Logic input.
+  /// Output is '1' subtracted from the [Logic] input.
   Logic get out => output('out');
 
   /// Decrement constructor.

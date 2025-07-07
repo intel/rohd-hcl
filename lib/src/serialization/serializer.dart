@@ -31,7 +31,7 @@ class Serializer extends Module {
   /// Delivers one element per clock while [enable]
   /// is high (if connected). If [flopInput] is `true`, the
   /// [Serializer] is configured to latch the input data and hold it until
-  /// [done] is asserted after the full `LogicArray` [deserialized] is
+  /// [done] is asserted after the full [LogicArray] [deserialized] is
   /// transferred. This will delay the serialized output by one cycle.
   Serializer(LogicArray deserialized,
       {required Logic clk,

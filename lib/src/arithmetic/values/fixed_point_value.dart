@@ -114,27 +114,27 @@ class FixedPointValue implements Comparable<FixedPointValue> {
     }
   }
 
-  /// Equal-to operation that returns a LogicValue.
+  /// Equal-to operation that returns a [LogicValue].
   LogicValue eq(FixedPointValue other) =>
       compareTo(other) == 0 ? LogicValue.one : LogicValue.zero;
 
-  /// Not equal-to operation that returns a LogicValue.
+  /// Not equal-to operation that returns a [LogicValue].
   LogicValue neq(FixedPointValue other) =>
       compareTo(other) != 0 ? LogicValue.one : LogicValue.zero;
 
-  /// Less-than operation that returns a LogicValue.
+  /// Less-than operation that returns a [LogicValue].
   LogicValue operator <(FixedPointValue other) =>
       compareTo(other) < 0 ? LogicValue.one : LogicValue.zero;
 
-  /// Less-than operation that returns a LogicValue.
+  /// Less-than operation that returns a [LogicValue].
   LogicValue operator <=(FixedPointValue other) =>
       compareTo(other) <= 0 ? LogicValue.one : LogicValue.zero;
 
-  /// Less-than operation that returns a LogicValue.
+  /// Less-than operation that returns a [LogicValue].
   LogicValue operator >(FixedPointValue other) =>
       compareTo(other) > 0 ? LogicValue.one : LogicValue.zero;
 
-  /// Less-than operation that returns a LogicValue.
+  /// Less-than operation that returns a [LogicValue].
   LogicValue operator >=(FixedPointValue other) =>
       compareTo(other) >= 0 ? LogicValue.one : LogicValue.zero;
 
@@ -154,7 +154,7 @@ class FixedPointValue implements Comparable<FixedPointValue> {
   }
 
   /// Return a string representation of [FixedPointValue].
-  ///  return sign, integer, fraction as binary strings.
+  /// Return sign, integer, fraction as binary strings.
   @override
   String toString() => "(${signed ? '${value[-1].bitString} ' : ''}"
       "${integerWidth > 0 ? '${value.getRange(fractionWidth).bitString} ' : ''}"

@@ -47,7 +47,7 @@ abstract class FloatingPointAdder<FpTypeIn extends FloatingPoint,
   late final FpTypeOut sum = (internalSum.clone(name: 'int_sum') as FpTypeOut)
     ..gets(output('sum'));
 
-  /// The conditional output [FloatingPoint] Logic in which to store the
+  /// The conditional output [FloatingPoint] signal in which to store the
   /// result of the addition.
   @protected
   late final FpTypeOut internalSum;

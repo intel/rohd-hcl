@@ -16,13 +16,13 @@ import 'package:rohd_hcl/src/utils.dart';
 
 /// An abstract class for all sort algorithm.
 abstract class Sort extends Module {
-  /// The list of Logic to sort.
+  /// The list of [Logic] to sort.
   final Iterable<Logic> toSort;
 
   /// Whether the sort [isAscending] order.
   final bool isAscending;
 
-  /// Sort algorithm MUST have List of [toSort], direction of
+  /// Sort algorithm MUST have a list of [toSort], direction of
   /// sort [isAscending] and a name for the sorting module.
   Sort(
       {required this.toSort,
@@ -31,11 +31,11 @@ abstract class Sort extends Module {
       super.definitionName});
 }
 
-/// Compare and Swap `Logic` to the specified order.
+/// Compare and Swap [Logic] to the specified order.
 class _CompareSwap extends Module {
   final List<Logic> _inputs = [];
 
-  /// The list of sorted `Logic` result.
+  /// The [List] of sorted [Logic] result.
   final List<Logic> _outputs = [];
 
   /// The [swapped] list of result.
@@ -97,7 +97,7 @@ class _CompareSwap extends Module {
 ///
 /// Returns a single sorted sequence.
 class _BitonicMerge extends Module {
-  /// A list of `Logic` that hold the final outputs of List of result.
+  /// A [List] of [Logic] that hold the final outputs of the result.
   final List<Logic> _outputs = [];
 
   /// The [sorted] result.
@@ -105,7 +105,7 @@ class _BitonicMerge extends Module {
 
   /// Merge and sort [bitonicSequence] based on [isAscending] given.
   ///
-  /// List of `Logic` will compare and swap `Logic` position based on the
+  /// [List] of [Logic] will compare and swap [Logic] position based on the
   /// [isAscending] given by [BitonicSort] to first created a bitonic sequence.
   /// The final stage will sort the bitonic sequence into sorted order
   /// of [isAscending].
@@ -175,10 +175,10 @@ class _BitonicMerge extends Module {
 /// from 1 to the log2 of the number of inputs. The details information on
 /// bitonic sort can be check on https://en.wikipedia.org/wiki/Bitonic_sorter.
 class BitonicSort extends Sort {
-  /// The list of inputs port.
+  /// The [List] of inputs port.
   final List<Logic> _inputs = [];
 
-  /// The list of outputs port.
+  /// The [List] of outputs port.
   final List<Logic> _outputs = [];
 
   /// The [sorted] result.
@@ -188,7 +188,7 @@ class BitonicSort extends Sort {
   int get latency => List.generate(log2Ceil(_inputs.length) + 1, (i) => i)
       .reduce((a, b) => a + b);
 
-  /// Constructs a [Module] to sort list of `Logic`.
+  /// Constructs a [Module] to sort list of [Logic].
   ///
   /// The sorting module will recursively split inputs into a bitonic sequence
   /// perform sorting based on [isAscending] flag given to the module.

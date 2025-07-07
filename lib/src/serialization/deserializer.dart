@@ -30,7 +30,7 @@ class Deserializer extends Module {
   /// and aggregates it into one wide output [deserialized] of length [length].
   ///
   /// Updates one element per clock while [enable] (if connected) is high,
-  /// emitting [done] when completing the filling of wide output `LogicArray`
+  /// emitting [done] when completing the filling of wide output [LogicArray]
   /// [deserialized].
   Deserializer(Logic serialized, this.length,
       {required Logic clk,

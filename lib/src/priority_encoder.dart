@@ -19,7 +19,7 @@ abstract class PriorityEncoder extends Module {
   @protected
   Logic get inp => input('inp');
 
-  /// Output [out] is the bit position of the first '1' in the Logic input.
+  /// Output [out] is the bit position of the first '1' in the [Logic] input.
   /// Search starts from the LSB.
   Logic get out => output('out');
 
@@ -28,7 +28,7 @@ abstract class PriorityEncoder extends Module {
 
   /// Construct a [PriorityEncoder].
   /// - [out] is the number of trailing zeros or the position of first trailing
-  /// one.  Will be set to one past the length of the input [inp] if
+  /// one. Will be set to one past the length of the input [inp] if
   /// there are no bits set in [inp].
   /// - Optional [valid] output is set if the output position is valid.
   PriorityEncoder(Logic inp,

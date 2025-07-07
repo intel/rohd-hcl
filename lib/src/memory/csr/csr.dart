@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: BSD-3-Clause
 //
 // csr.dart
-// A flexible definition of CSRs.
+// A flexible definition of Control and Status Regisers (CSR)s.
 //
 // 2024 December
 // Author: Josh Kimmel <joshua1.kimmel@intel.com>
@@ -11,7 +11,7 @@ import 'package:collection/collection.dart';
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
 
-/// Logic representation of a CSR.
+/// [Logic] representation of a Control and Status Register (CSR).
 ///
 /// Semantically, a register can be created with no fields.
 /// In this case, a single implicit field is created that is
@@ -52,9 +52,9 @@ class Csr extends LogicStructure {
 
   /// Factory constructor for [Csr].
   ///
-  /// Because LogicStructure requires a [List<Logic>] upon construction,
+  /// Because [LogicStructure] requires a [List<Logic>] upon construction,
   /// the factory method assists in creating the [List] upfront before
-  /// the LogicStructure constructor is called.
+  /// the [LogicStructure] constructor is called.
   factory Csr(
     CsrInstanceConfig config,
   ) {

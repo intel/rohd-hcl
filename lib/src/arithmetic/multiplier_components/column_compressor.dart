@@ -82,7 +82,7 @@ class CompressTerm implements Comparable<CompressTerm> {
   /// The column position.
   final int col;
 
-  /// The Logic wire of the [CompressTerm].
+  /// The [Logic] wire of the [CompressTerm].
   final Logic logic;
 
   /// Estimated delay of the output.
@@ -258,7 +258,7 @@ class ColumnCompressor extends Module {
     return maxW;
   }
 
-  /// Convert a row to a Logic bitvector
+  /// Convert a row to a [Logic] bitvector
   Logic _extractRow(int row) {
     final width = maxWidth();
 

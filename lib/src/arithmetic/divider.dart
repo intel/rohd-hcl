@@ -143,7 +143,7 @@ class MultiCycleDivider extends Module {
   }
 
   /// Factory method to create a [MultiCycleDivider]
-  /// from explicit Logic signals instead of an interface.
+  /// from explicit [Logic] signals instead of an interface.
   factory MultiCycleDivider.ofLogics({
     required Logic clk,
     required Logic reset,

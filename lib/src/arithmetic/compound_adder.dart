@@ -96,13 +96,13 @@ class CarrySelectCompoundAdder extends CompoundAdder {
       ParallelPrefixAdder(a, b, carryIn: carryIn, name: name);
 
   /// Constructs a [CarrySelectCompoundAdder].
-  /// - [carryIn] is a carry Logic into the [CarrySelectCompoundAdder]
-  /// - [adderGen] provides an adder Function which must supply optional
-  ///   [carryIn] and [subtractIn] Logic controls.
+  /// - [carryIn] is a carry [Logic] into the [CarrySelectCompoundAdder]
+  /// - [adderGen] provides an adder [Function] which must supply optional
+  ///   [carryIn] and [subtractIn] [Logic] controls.
   /// - [subtractIn]  This option is used by the
   ///   [CarrySelectOnesComplementCompoundAdder] and should not be used directly
   ///   as it requires ones-complement behavior from [adderGen].
-  /// - [widthGen] is the splitting function for creating the different adder
+  /// - [widthGen] is the splitting [Function] for creating the different adder
   ///   blocks. Decreasing the split width will increase speed but also increase
   ///   area.
   CarrySelectCompoundAdder(
@@ -214,17 +214,18 @@ class CarrySelectOnesComplementCompoundAdder extends CompoundAdder {
   /// Constructs a [CarrySelectCompoundAdder] using a set of
   /// [OnesComplementAdder] in a carry-select configuration. Adds (or subtracts)
   /// [a] and [b] to produce [sum] and [sumP1] (sum plus 1).
-  /// - [adderGen] is the adder used inside the [OnesComplementAdder].
-  /// - [subtractIn] is an optional Logic control for subtraction.
+  /// - [adderGen] is the adder generator [Function] inside the
+  ///   [OnesComplementAdder].
+  /// - [subtractIn] is an optional [Logic] control for subtraction.
   /// - [subtract] is a boolean control for subtraction. It must be
-  ///   `false`(default) if a [subtractIn] Logic is provided.
+  ///   `false`(default) if a [subtractIn] [Logic] is provided.
   /// - [generateCarryOut] set to `true` will create output [carryOut] and
   ///   employ the ones-complement optimization of not adding '1' to convert
   ///   back to 2s complement during subtraction on the [sum].
   /// - [generateCarryOutP1] set to `true` will create output [carryOutP1] and
   ///   employ the ones-complement optimization of not adding '1' to convert
   ///   back to 2s complement during subtraction on the [sumP1].
-  /// - [widthGen] is a function which produces a list for splitting the adder
+  /// - [widthGen] is a [Function] which produces a list for splitting the adder
   ///   for the carry-select chain.  The default is
   ///   [CarrySelectCompoundAdder.splitSelectAdderAlgorithmSingleBlock],
   CarrySelectOnesComplementCompoundAdder(super.a, super.b,

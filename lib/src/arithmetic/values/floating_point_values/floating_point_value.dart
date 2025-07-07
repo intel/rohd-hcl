@@ -140,10 +140,10 @@ class FloatingPointValue implements Comparable<FloatingPointValue> {
     }
   }
 
-  /// Returns a tuple of `LogicValue`s for the [sign], [exponent], and
+  /// Returns a tuple of [LogicValue]s for the [sign], [exponent], and
   /// [mantissa] components of a special constant, or `null` if the constant
   /// does not have special components.This is useful for constants like NaN,
-  /// Infinity, etc in certain types of floating point representations.
+  /// infinity, etc., in certain types of floating point representations.
   @protected
   @visibleForOverriding
   ({LogicValue sign, LogicValue exponent, LogicValue mantissa})?
@@ -267,7 +267,7 @@ class FloatingPointValue implements Comparable<FloatingPointValue> {
     return doubleVal;
   }
 
-  /// Return a `Logic` `1` if this [FloatingPointValue] contains a normal
+  /// Return `true` if this [FloatingPointValue] contains a normal
   /// number, defined as having mantissa in the range `[1,2)`.
   bool isNormal() {
     if (explicitJBit) {
