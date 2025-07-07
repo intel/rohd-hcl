@@ -61,7 +61,7 @@ class Ripple extends ParallelPrefix {
   }
 }
 
-/// Sklansky-shaped [ParallelPrefix] tree.
+/// [Sklansky] implements the Sklansky-shaped [ParallelPrefix] tree pattern.
 class Sklansky extends ParallelPrefix {
   /// [Sklansky] constructor.
   Sklansky(List<Logic> inps, Logic Function(Logic term1, Logic term2) op)
@@ -90,7 +90,8 @@ class Sklansky extends ParallelPrefix {
   }
 }
 
-/// Kogge-Stone shaped [ParallelPrefix] tree.
+/// [KoggeStone] implements the Kogge-Stone shaped [ParallelPrefix] tree
+/// pattern.
 class KoggeStone extends ParallelPrefix {
   /// [KoggeStone] constructor.
   KoggeStone(List<Logic> inps, Logic Function(Logic term1, Logic term2) op)
@@ -118,7 +119,7 @@ class KoggeStone extends ParallelPrefix {
   }
 }
 
-/// Brent-Kung shaped ParallelPrefix tree.
+/// [BrentKung] implements the Brent-Kung shaped [ParallelPrefix] tree pattern.
 class BrentKung extends ParallelPrefix {
   /// [BrentKung] constructor.
   BrentKung(List<Logic> inps, Logic Function(Logic term1, Logic term2) op)

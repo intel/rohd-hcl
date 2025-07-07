@@ -192,7 +192,7 @@ class RecursiveModulePriorityEncoderNode extends Module {
   }
 }
 
-/// Priority finder based on or() operations, using a tree of modules.
+/// Priority finder based on bitwise OR operations, using a tree of modules.
 class RecursiveModulePriorityEncoder extends PriorityEncoder {
   /// [RecursiveModulePriorityEncoder] constructor builds a tree
   /// of [RecursiveModulePriorityEncoderNode]s to compute the position
