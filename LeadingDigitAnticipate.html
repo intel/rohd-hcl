@@ -36,7 +36,1526 @@
       var exmpl = `{
   "creator": "Yosys 0.29+11 (git sha1 d82bae32b, clang 10.0.0-4ubuntu1 -fPIC -Os)",
   "modules": {
-
+    "LeadingDigitAnticipate": {
+      "attributes": {
+        "top": 1,
+        "src": "LeadingDigitAnticipate.v:173.1-206.10"
+      },
+      "ports": {
+        "a": {
+          "direction": "input",
+          "bits": [ 2, 3, 4, 5, 6, 7, 8, 9 ]
+        },
+        "b": {
+          "direction": "input",
+          "bits": [ 10, 11, 12, 13, 14, 15, 16, 17 ]
+        },
+        "leadingDigit": {
+          "direction": "output",
+          "bits": [ 18, 19, 20 ]
+        },
+        "validLeadDigit": {
+          "direction": "output",
+          "bits": [ 21 ]
+        }
+      },
+      "cells": {
+        "$and$LeadingDigitAnticipate.v:199$18": {
+          "hide_name": 1,
+          "type": "$and",
+          "parameters": {
+            "A_SIGNED": 0,
+            "A_WIDTH": 1,
+            "B_SIGNED": 0,
+            "B_WIDTH": 1,
+            "Y_WIDTH": 1
+          },
+          "attributes": {
+            "src": "LeadingDigitAnticipate.v:199.281-199.293"
+          },
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [ 22 ],
+            "B": [ 23 ],
+            "Y": [ 24 ]
+          }
+        },
+        "$and$LeadingDigitAnticipate.v:200$22": {
+          "hide_name": 1,
+          "type": "$and",
+          "parameters": {
+            "A_SIGNED": 0,
+            "A_WIDTH": 8,
+            "B_SIGNED": 0,
+            "B_WIDTH": 8,
+            "Y_WIDTH": 8
+          },
+          "attributes": {
+            "src": "LeadingDigitAnticipate.v:200.298-200.335"
+          },
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [ 25, 26, 27, 28, 29, 30, 31, 32 ],
+            "B": [ 33, 34, 35, 36, 37, 38, 39, "0" ],
+            "Y": [ 40, 41, 42, 43, 44, 45, 46, 47 ]
+          }
+        },
+        "$and$LeadingDigitAnticipate.v:200$25": {
+          "hide_name": 1,
+          "type": "$and",
+          "parameters": {
+            "A_SIGNED": 0,
+            "A_WIDTH": 8,
+            "B_SIGNED": 0,
+            "B_WIDTH": 8,
+            "Y_WIDTH": 8
+          },
+          "attributes": {
+            "src": "LeadingDigitAnticipate.v:200.340-200.377"
+          },
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [ 48, 49, 50, 51, 52, 53, 54, 55 ],
+            "B": [ 56, 57, 58, 59, 60, 61, 62, "0" ],
+            "Y": [ 63, 64, 65, 66, 67, 68, 69, 70 ]
+          }
+        },
+        "$and$LeadingDigitAnticipate.v:200$27": {
+          "hide_name": 1,
+          "type": "$and",
+          "parameters": {
+            "A_SIGNED": 0,
+            "A_WIDTH": 8,
+            "B_SIGNED": 0,
+            "B_WIDTH": 8,
+            "Y_WIDTH": 8
+          },
+          "attributes": {
+            "src": "LeadingDigitAnticipate.v:200.263-200.379"
+          },
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [ "0", 71, 23, 72, 73, 74, 75, 76 ],
+            "B": [ 77, 78, 79, 80, 81, 82, 83, 84 ],
+            "Y": [ 85, 86, 87, 88, 89, 90, 91, 92 ]
+          }
+        },
+        "$and$LeadingDigitAnticipate.v:200$32": {
+          "hide_name": 1,
+          "type": "$and",
+          "parameters": {
+            "A_SIGNED": 0,
+            "A_WIDTH": 8,
+            "B_SIGNED": 0,
+            "B_WIDTH": 8,
+            "Y_WIDTH": 8
+          },
+          "attributes": {
+            "src": "LeadingDigitAnticipate.v:200.422-200.438"
+          },
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [ 48, 49, 50, 51, 52, 53, 54, 55 ],
+            "B": [ 33, 34, 35, 36, 37, 38, 39, "0" ],
+            "Y": [ 93, 94, 95, 96, 97, 98, 99, 100 ]
+          }
+        },
+        "$and$LeadingDigitAnticipate.v:200$35": {
+          "hide_name": 1,
+          "type": "$and",
+          "parameters": {
+            "A_SIGNED": 0,
+            "A_WIDTH": 8,
+            "B_SIGNED": 0,
+            "B_WIDTH": 8,
+            "Y_WIDTH": 8
+          },
+          "attributes": {
+            "src": "LeadingDigitAnticipate.v:200.443-200.501"
+          },
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [ 25, 26, 27, 28, 29, 30, 31, 32 ],
+            "B": [ 56, 57, 58, 59, 60, 61, 62, "0" ],
+            "Y": [ 101, 102, 103, 104, 105, 106, 107, 108 ]
+          }
+        },
+        "$and$LeadingDigitAnticipate.v:200$37": {
+          "hide_name": 1,
+          "type": "$and",
+          "parameters": {
+            "A_SIGNED": 0,
+            "A_WIDTH": 8,
+            "B_SIGNED": 0,
+            "B_WIDTH": 8,
+            "Y_WIDTH": 8
+          },
+          "attributes": {
+            "src": "LeadingDigitAnticipate.v:200.384-200.503"
+          },
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [ "0", 109, 110, 111, 112, 113, 114, 115 ],
+            "B": [ 116, 117, 118, 119, 120, 121, 122, 123 ],
+            "Y": [ 124, 125, 126, 127, 128, 129, 130, 131 ]
+          }
+        },
+        "$and$LeadingDigitAnticipate.v:201$39": {
+          "hide_name": 1,
+          "type": "$and",
+          "parameters": {
+            "A_SIGNED": 0,
+            "A_WIDTH": 8,
+            "B_SIGNED": 0,
+            "B_WIDTH": 8,
+            "Y_WIDTH": 8
+          },
+          "attributes": {
+            "src": "LeadingDigitAnticipate.v:201.34-201.49"
+          },
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [ 9, 8, 7, 6, 5, 4, 3, 2 ],
+            "B": [ 17, 16, 15, 14, 13, 12, 11, 10 ],
+            "Y": [ 25, 26, 27, 28, 29, 30, 31, 32 ]
+          }
+        },
+        "$and$LeadingDigitAnticipate.v:203$43": {
+          "hide_name": 1,
+          "type": "$and",
+          "parameters": {
+            "A_SIGNED": 0,
+            "A_WIDTH": 8,
+            "B_SIGNED": 0,
+            "B_WIDTH": 8,
+            "Y_WIDTH": 8
+          },
+          "attributes": {
+            "src": "LeadingDigitAnticipate.v:203.13-203.30"
+          },
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [ 132, 133, 134, 135, 136, 137, 138, 139 ],
+            "B": [ 140, 141, 142, 143, 144, 145, 146, 147 ],
+            "Y": [ 48, 49, 50, 51, 52, 53, 54, 55 ]
+          }
+        },
+        "$not$LeadingDigitAnticipate.v:199$17": {
+          "hide_name": 1,
+          "type": "$not",
+          "parameters": {
+            "A_SIGNED": 0,
+            "A_WIDTH": 1,
+            "Y_WIDTH": 1
+          },
+          "attributes": {
+            "src": "LeadingDigitAnticipate.v:199.281-199.286"
+          },
+          "port_directions": {
+            "A": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [ 71 ],
+            "Y": [ 22 ]
+          }
+        },
+        "$not$LeadingDigitAnticipate.v:200$28": {
+          "hide_name": 1,
+          "type": "$not",
+          "parameters": {
+            "A_SIGNED": 0,
+            "A_WIDTH": 8,
+            "Y_WIDTH": 8
+          },
+          "attributes": {
+            "src": "LeadingDigitAnticipate.v:200.385-200.387"
+          },
+          "port_directions": {
+            "A": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [ 71, 23, 72, 73, 74, 75, 76, 148 ],
+            "Y": [ 109, 110, 111, 112, 113, 114, 115, 149 ]
+          }
+        },
+        "$not$LeadingDigitAnticipate.v:200$30": {
+          "hide_name": 1,
+          "type": "$not",
+          "parameters": {
+            "A_SIGNED": 0,
+            "A_WIDTH": 8,
+            "Y_WIDTH": 8
+          },
+          "attributes": {
+            "src": "LeadingDigitAnticipate.v:200.427-200.429"
+          },
+          "port_directions": {
+            "A": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [ 48, 49, 50, 51, 52, 53, 54, 55 ],
+            "Y": [ 150, 33, 34, 35, 36, 37, 38, 39 ]
+          }
+        },
+        "$not$LeadingDigitAnticipate.v:200$33": {
+          "hide_name": 1,
+          "type": "$not",
+          "parameters": {
+            "A_SIGNED": 0,
+            "A_WIDTH": 8,
+            "Y_WIDTH": 8
+          },
+          "attributes": {
+            "src": "LeadingDigitAnticipate.v:200.469-200.492"
+          },
+          "port_directions": {
+            "A": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [ 25, 26, 27, 28, 29, 30, 31, 32 ],
+            "Y": [ 151, 56, 57, 58, 59, 60, 61, 62 ]
+          }
+        },
+        "$not$LeadingDigitAnticipate.v:203$41": {
+          "hide_name": 1,
+          "type": "$not",
+          "parameters": {
+            "A_SIGNED": 0,
+            "A_WIDTH": 8,
+            "Y_WIDTH": 8
+          },
+          "attributes": {
+            "src": "LeadingDigitAnticipate.v:203.13-203.25"
+          },
+          "port_directions": {
+            "A": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [ 9, 8, 7, 6, 5, 4, 3, 2 ],
+            "Y": [ 132, 133, 134, 135, 136, 137, 138, 139 ]
+          }
+        },
+        "$not$LeadingDigitAnticipate.v:203$42": {
+          "hide_name": 1,
+          "type": "$not",
+          "parameters": {
+            "A_SIGNED": 0,
+            "A_WIDTH": 8,
+            "Y_WIDTH": 8
+          },
+          "attributes": {
+            "src": "LeadingDigitAnticipate.v:203.28-203.30"
+          },
+          "port_directions": {
+            "A": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [ 17, 16, 15, 14, 13, 12, 11, 10 ],
+            "Y": [ 140, 141, 142, 143, 144, 145, 146, 147 ]
+          }
+        },
+        "$or$LeadingDigitAnticipate.v:200$26": {
+          "hide_name": 1,
+          "type": "$or",
+          "parameters": {
+            "A_SIGNED": 0,
+            "A_WIDTH": 8,
+            "B_SIGNED": 0,
+            "B_WIDTH": 8,
+            "Y_WIDTH": 8
+          },
+          "attributes": {
+            "src": "LeadingDigitAnticipate.v:200.297-200.378"
+          },
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [ 40, 41, 42, 43, 44, 45, 46, 47 ],
+            "B": [ 63, 64, 65, 66, 67, 68, 69, 70 ],
+            "Y": [ 77, 78, 79, 80, 81, 82, 83, 84 ]
+          }
+        },
+        "$or$LeadingDigitAnticipate.v:200$36": {
+          "hide_name": 1,
+          "type": "$or",
+          "parameters": {
+            "A_SIGNED": 0,
+            "A_WIDTH": 8,
+            "B_SIGNED": 0,
+            "B_WIDTH": 8,
+            "Y_WIDTH": 8
+          },
+          "attributes": {
+            "src": "LeadingDigitAnticipate.v:200.421-200.502"
+          },
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [ 93, 94, 95, 96, 97, 98, 99, 100 ],
+            "B": [ 101, 102, 103, 104, 105, 106, 107, 108 ],
+            "Y": [ 116, 117, 118, 119, 120, 121, 122, 123 ]
+          }
+        },
+        "$or$LeadingDigitAnticipate.v:200$38": {
+          "hide_name": 1,
+          "type": "$or",
+          "parameters": {
+            "A_SIGNED": 0,
+            "A_WIDTH": 8,
+            "B_SIGNED": 0,
+            "B_WIDTH": 8,
+            "Y_WIDTH": 8
+          },
+          "attributes": {
+            "src": "LeadingDigitAnticipate.v:200.262-200.504"
+          },
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [ 85, 86, 87, 88, 89, 90, 91, 92 ],
+            "B": [ 124, 125, 126, 127, 128, 129, 130, 131 ],
+            "Y": [ 152, 153, 154, 155, 156, 157, 158, 159 ]
+          }
+        },
+        "$xor$LeadingDigitAnticipate.v:202$40": {
+          "hide_name": 1,
+          "type": "$xor",
+          "parameters": {
+            "A_SIGNED": 0,
+            "A_WIDTH": 8,
+            "B_SIGNED": 0,
+            "B_WIDTH": 8,
+            "Y_WIDTH": 8
+          },
+          "attributes": {
+            "src": "LeadingDigitAnticipate.v:202.13-202.28"
+          },
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [ 9, 8, 7, 6, 5, 4, 3, 2 ],
+            "B": [ 17, 16, 15, 14, 13, 12, 11, 10 ],
+            "Y": [ 71, 23, 72, 73, 74, 75, 76, 148 ]
+          }
+        },
+        "leading_pos": {
+          "hide_name": 0,
+          "type": "RecursiveModulePriorityEncoder_W7",
+          "parameters": {
+          },
+          "attributes": {
+            "module_not_derived": 1,
+            "src": "LeadingDigitAnticipate.v:194.36-198.3"
+          },
+          "port_directions": {
+            "inp": "input",
+            "out": "output",
+            "valid": "output"
+          },
+          "connections": {
+            "inp": [ 24, 153, 154, 155, 156, 157, 158 ],
+            "out": [ 18, 19, 20 ],
+            "valid": [ 21 ]
+          }
+        }
+      },
+      "netnames": {
+        "$and$LeadingDigitAnticipate.v:200$22_Y": {
+          "hide_name": 1,
+          "bits": [ 40, 41, 42, 43, 44, 45, 46, 47 ],
+          "attributes": {
+            "src": "LeadingDigitAnticipate.v:200.298-200.335"
+          }
+        },
+        "$and$LeadingDigitAnticipate.v:200$25_Y": {
+          "hide_name": 1,
+          "bits": [ 63, 64, 65, 66, 67, 68, 69, 70 ],
+          "attributes": {
+            "src": "LeadingDigitAnticipate.v:200.340-200.377"
+          }
+        },
+        "$and$LeadingDigitAnticipate.v:200$27_Y": {
+          "hide_name": 1,
+          "bits": [ 85, 86, 87, 88, 89, 90, 91, 92 ],
+          "attributes": {
+            "src": "LeadingDigitAnticipate.v:200.263-200.379"
+          }
+        },
+        "$and$LeadingDigitAnticipate.v:200$32_Y": {
+          "hide_name": 1,
+          "bits": [ 93, 94, 95, 96, 97, 98, 99, 100 ],
+          "attributes": {
+            "src": "LeadingDigitAnticipate.v:200.422-200.438"
+          }
+        },
+        "$and$LeadingDigitAnticipate.v:200$35_Y": {
+          "hide_name": 1,
+          "bits": [ 101, 102, 103, 104, 105, 106, 107, 108 ],
+          "attributes": {
+            "src": "LeadingDigitAnticipate.v:200.443-200.501"
+          }
+        },
+        "$and$LeadingDigitAnticipate.v:200$37_Y": {
+          "hide_name": 1,
+          "bits": [ 124, 125, 126, 127, 128, 129, 130, 131 ],
+          "attributes": {
+            "src": "LeadingDigitAnticipate.v:200.384-200.503"
+          }
+        },
+        "$not$LeadingDigitAnticipate.v:199$17_Y": {
+          "hide_name": 1,
+          "bits": [ 22 ],
+          "attributes": {
+            "src": "LeadingDigitAnticipate.v:199.281-199.286"
+          }
+        },
+        "$not$LeadingDigitAnticipate.v:200$20_Y": {
+          "hide_name": 1,
+          "bits": [ 150, 33, 34, 35, 36, 37, 38, 39 ],
+          "attributes": {
+            "src": "LeadingDigitAnticipate.v:200.324-200.326",
+            "unused_bits": "0 "
+          }
+        },
+        "$not$LeadingDigitAnticipate.v:200$23_Y": {
+          "hide_name": 1,
+          "bits": [ 151, 56, 57, 58, 59, 60, 61, 62 ],
+          "attributes": {
+            "src": "LeadingDigitAnticipate.v:200.345-200.368",
+            "unused_bits": "0 "
+          }
+        },
+        "$not$LeadingDigitAnticipate.v:200$28_Y": {
+          "hide_name": 1,
+          "bits": [ 109, 110, 111, 112, 113, 114, 115, 149 ],
+          "attributes": {
+            "src": "LeadingDigitAnticipate.v:200.385-200.387",
+            "unused_bits": "7"
+          }
+        },
+        "$not$LeadingDigitAnticipate.v:203$41_Y": {
+          "hide_name": 1,
+          "bits": [ 132, 133, 134, 135, 136, 137, 138, 139 ],
+          "attributes": {
+            "src": "LeadingDigitAnticipate.v:203.13-203.25"
+          }
+        },
+        "$not$LeadingDigitAnticipate.v:203$42_Y": {
+          "hide_name": 1,
+          "bits": [ 140, 141, 142, 143, 144, 145, 146, 147 ],
+          "attributes": {
+            "src": "LeadingDigitAnticipate.v:203.28-203.30"
+          }
+        },
+        "$or$LeadingDigitAnticipate.v:200$26_Y": {
+          "hide_name": 1,
+          "bits": [ 77, 78, 79, 80, 81, 82, 83, 84 ],
+          "attributes": {
+            "src": "LeadingDigitAnticipate.v:200.297-200.378"
+          }
+        },
+        "$or$LeadingDigitAnticipate.v:200$36_Y": {
+          "hide_name": 1,
+          "bits": [ 116, 117, 118, 119, 120, 121, 122, 123 ],
+          "attributes": {
+            "src": "LeadingDigitAnticipate.v:200.421-200.502"
+          }
+        },
+        "_in0__reversed_a_and_g": {
+          "hide_name": 0,
+          "bits": [ 25, 26, 27, 28, 29, 30, 31, 32 ],
+          "attributes": {
+            "src": "LeadingDigitAnticipate.v:183.13-183.35"
+          }
+        },
+        "_original__t_lshift_const_8_h1_and__reversed_a_and_g_and__z_b_rshift_const_1_h1_or__z_and__reversed_a_and_g_b_rshift_const_1_h1_or__t_b_lshift_const_8_h1_and__z_and__z_b_rshift_const_1_h1_or__reversed_a_and_g_and__reversed_a_and_g_b_rshift_const_1_h1": {
+          "hide_name": 0,
+          "bits": [ 152, 153, 154, 155, 156, 157, 158, 159 ],
+          "attributes": {
+            "src": "LeadingDigitAnticipate.v:184.13-184.263",
+            "unused_bits": "0 7"
+          }
+        },
+        "_reversed_a": {
+          "hide_name": 0,
+          "bits": [ 9, 8, 7, 6, 5, 4, 3, 2 ],
+          "attributes": {
+            "src": "LeadingDigitAnticipate.v:185.13-185.24"
+          }
+        },
+        "_shiftAmount_const_8_h1": {
+          "hide_name": 0,
+          "bits": [ "1", "0", "0", "0", "0", "0", "0", "0" ],
+          "attributes": {
+            "src": "LeadingDigitAnticipate.v:186.13-186.36"
+          }
+        },
+        "_shiftAmount_const_8_h1_0": {
+          "hide_name": 0,
+          "bits": [ "1", "0", "0", "0", "0", "0", "0", "0" ],
+          "attributes": {
+            "src": "LeadingDigitAnticipate.v:187.13-187.38"
+          }
+        },
+        "a": {
+          "hide_name": 0,
+          "bits": [ 2, 3, 4, 5, 6, 7, 8, 9 ],
+          "attributes": {
+            "src": "LeadingDigitAnticipate.v:179.19-179.20"
+          }
+        },
+        "b": {
+          "hide_name": 0,
+          "bits": [ 10, 11, 12, 13, 14, 15, 16, 17 ],
+          "attributes": {
+            "src": "LeadingDigitAnticipate.v:180.19-180.20"
+          }
+        },
+        "findFromMSB": {
+          "hide_name": 0,
+          "bits": [ 24, 153, 154, 155, 156, 157, 158 ],
+          "attributes": {
+            "src": "LeadingDigitAnticipate.v:188.13-188.24"
+          }
+        },
+        "g": {
+          "hide_name": 0,
+          "bits": [ 17, 16, 15, 14, 13, 12, 11, 10 ],
+          "attributes": {
+            "src": "LeadingDigitAnticipate.v:189.13-189.14"
+          }
+        },
+        "leadingDigit": {
+          "hide_name": 0,
+          "bits": [ 18, 19, 20 ],
+          "attributes": {
+            "src": "LeadingDigitAnticipate.v:181.20-181.32"
+          }
+        },
+        "t": {
+          "hide_name": 0,
+          "bits": [ 71, 23, 72, 73, 74, 75, 76, 148 ],
+          "attributes": {
+            "src": "LeadingDigitAnticipate.v:190.13-190.14"
+          }
+        },
+        "validLeadDigit": {
+          "hide_name": 0,
+          "bits": [ 21 ],
+          "attributes": {
+            "src": "LeadingDigitAnticipate.v:182.14-182.28"
+          }
+        },
+        "z": {
+          "hide_name": 0,
+          "bits": [ 48, 49, 50, 51, 52, 53, 54, 55 ],
+          "attributes": {
+            "src": "LeadingDigitAnticipate.v:191.13-191.14"
+          }
+        }
+      }
+    },
+    "PriorityEncodeNode_W1": {
+      "attributes": {
+        "src": "LeadingDigitAnticipate.v:1.1-8.10"
+      },
+      "ports": {
+        "seq": {
+          "direction": "input",
+          "bits": [ 2 ]
+        },
+        "ret": {
+          "direction": "output",
+          "bits": [ 3 ]
+        }
+      },
+      "cells": {
+        "$not$LeadingDigitAnticipate.v:7$1": {
+          "hide_name": 1,
+          "type": "$not",
+          "parameters": {
+            "A_SIGNED": 0,
+            "A_WIDTH": 1,
+            "Y_WIDTH": 1
+          },
+          "attributes": {
+            "src": "LeadingDigitAnticipate.v:7.15-7.19"
+          },
+          "port_directions": {
+            "A": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [ 2 ],
+            "Y": [ 3 ]
+          }
+        }
+      },
+      "netnames": {
+        "ret": {
+          "hide_name": 0,
+          "bits": [ 3 ],
+          "attributes": {
+            "src": "LeadingDigitAnticipate.v:6.14-6.17"
+          }
+        },
+        "seq": {
+          "hide_name": 0,
+          "bits": [ 2 ],
+          "attributes": {
+            "src": "LeadingDigitAnticipate.v:5.13-5.16"
+          }
+        }
+      }
+    },
+    "PriorityEncodeNode_W2": {
+      "attributes": {
+        "src": "LeadingDigitAnticipate.v:9.1-31.10"
+      },
+      "ports": {
+        "seq": {
+          "direction": "input",
+          "bits": [ 2, 3 ]
+        },
+        "ret": {
+          "direction": "output",
+          "bits": [ 4, 5 ]
+        }
+      },
+      "cells": {
+        "$procmux$72": {
+          "hide_name": 1,
+          "type": "$mux",
+          "parameters": {
+            "WIDTH": 2
+          },
+          "attributes": {
+            "full_case": 1,
+            "src": "LeadingDigitAnticipate.v:23.12-23.25|LeadingDigitAnticipate.v:23.8-26.15"
+          },
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "S": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [ "0", "1" ],
+            "B": [ "1", "0" ],
+            "S": [ 3 ],
+            "Y": [ 6, 7 ]
+          }
+        },
+        "$procmux$78": {
+          "hide_name": 1,
+          "type": "$mux",
+          "parameters": {
+            "WIDTH": 2
+          },
+          "attributes": {
+            "full_case": 1,
+            "src": "LeadingDigitAnticipate.v:21.7-21.19|LeadingDigitAnticipate.v:21.3-26.15"
+          },
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "S": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [ 6, 7 ],
+            "B": [ "0", "0" ],
+            "S": [ 2 ],
+            "Y": [ 4, 5 ]
+          }
+        }
+      },
+      "netnames": {
+        "$2__ret[1:0]": {
+          "hide_name": 1,
+          "bits": [ 6, 7 ],
+          "attributes": {
+            "src": "LeadingDigitAnticipate.v:18.2-27.5"
+          }
+        },
+        "_sv2v_0": {
+          "hide_name": 0,
+          "bits": [ "0" ],
+          "attributes": {
+            "src": "LeadingDigitAnticipate.v:13.6-13.13"
+          }
+        },
+        "leftLeafLead": {
+          "hide_name": 0,
+          "bits": [ 2 ],
+          "attributes": {
+            "src": "LeadingDigitAnticipate.v:16.7-16.19"
+          }
+        },
+        "ret": {
+          "hide_name": 0,
+          "bits": [ 4, 5 ],
+          "attributes": {
+            "src": "LeadingDigitAnticipate.v:15.19-15.22"
+          }
+        },
+        "rightLeafLead": {
+          "hide_name": 0,
+          "bits": [ 3 ],
+          "attributes": {
+            "src": "LeadingDigitAnticipate.v:17.7-17.20"
+          }
+        },
+        "seq": {
+          "hide_name": 0,
+          "bits": [ 2, 3 ],
+          "attributes": {
+            "src": "LeadingDigitAnticipate.v:14.19-14.22"
+          }
+        }
+      }
+    },
+    "PriorityEncodeNode_W3": {
+      "attributes": {
+        "src": "LeadingDigitAnticipate.v:32.1-74.10"
+      },
+      "ports": {
+        "seq": {
+          "direction": "input",
+          "bits": [ 2, 3, 4 ]
+        },
+        "ret": {
+          "direction": "output",
+          "bits": [ 5, 6, 7 ]
+        }
+      },
+      "cells": {
+        "$procmux$63": {
+          "hide_name": 1,
+          "type": "$mux",
+          "parameters": {
+            "WIDTH": 3
+          },
+          "attributes": {
+            "full_case": 1,
+            "src": "LeadingDigitAnticipate.v:54.12-54.21|LeadingDigitAnticipate.v:54.8-57.14"
+          },
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "S": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [ 8, "0", "0" ],
+            "B": [ 9, "1", "0" ],
+            "S": [ 10 ],
+            "Y": [ 5, 6, 7 ]
+          }
+        },
+        "left": {
+          "hide_name": 0,
+          "type": "PriorityEncodeNode_W2",
+          "parameters": {
+          },
+          "attributes": {
+            "module_not_derived": 1,
+            "src": "LeadingDigitAnticipate.v:60.24-63.3"
+          },
+          "port_directions": {
+            "ret": "output",
+            "seq": "input"
+          },
+          "connections": {
+            "ret": [ 8, 10 ],
+            "seq": [ 2, 3 ]
+          }
+        },
+        "right": {
+          "hide_name": 0,
+          "type": "PriorityEncodeNode_W1",
+          "parameters": {
+          },
+          "attributes": {
+            "module_not_derived": 1,
+            "src": "LeadingDigitAnticipate.v:67.24-70.3"
+          },
+          "port_directions": {
+            "ret": "output",
+            "seq": "input"
+          },
+          "connections": {
+            "ret": [ 9 ],
+            "seq": [ 4 ]
+          }
+        }
+      },
+      "netnames": {
+        "_original__swizzled": {
+          "hide_name": 0,
+          "bits": [ 9, "0" ],
+          "attributes": {
+            "src": "LeadingDigitAnticipate.v:39.13-39.32"
+          }
+        },
+        "_sv2v_0": {
+          "hide_name": 0,
+          "bits": [ "0" ],
+          "attributes": {
+            "src": "LeadingDigitAnticipate.v:36.6-36.13"
+          }
+        },
+        "leftLead": {
+          "hide_name": 0,
+          "bits": [ 10 ],
+          "attributes": {
+            "src": "LeadingDigitAnticipate.v:40.7-40.15"
+          }
+        },
+        "lr": {
+          "hide_name": 0,
+          "bits": [ "0", "0", "1" ],
+          "attributes": {
+            "src": "LeadingDigitAnticipate.v:41.13-41.15"
+          }
+        },
+        "ret": {
+          "hide_name": 0,
+          "bits": [ 5, 6, 7 ],
+          "attributes": {
+            "src": "LeadingDigitAnticipate.v:38.19-38.22"
+          }
+        },
+        "ret_0": {
+          "hide_name": 0,
+          "bits": [ 8, 10 ],
+          "attributes": {
+            "src": "LeadingDigitAnticipate.v:42.13-42.18"
+          }
+        },
+        "ret_1": {
+          "hide_name": 0,
+          "bits": [ 9 ],
+          "attributes": {
+            "src": "LeadingDigitAnticipate.v:43.7-43.12"
+          }
+        },
+        "rhs": {
+          "hide_name": 0,
+          "bits": [ 9, "1", "0" ],
+          "attributes": {
+            "src": "LeadingDigitAnticipate.v:44.13-44.16"
+          }
+        },
+        "rightLead": {
+          "hide_name": 0,
+          "bits": [ "0" ],
+          "attributes": {
+            "src": "LeadingDigitAnticipate.v:45.7-45.16"
+          }
+        },
+        "seq": {
+          "hide_name": 0,
+          "bits": [ 2, 3, 4 ],
+          "attributes": {
+            "src": "LeadingDigitAnticipate.v:37.19-37.22"
+          }
+        },
+        "zl": {
+          "hide_name": 0,
+          "bits": [ 8, 10, "0" ],
+          "attributes": {
+            "src": "LeadingDigitAnticipate.v:46.13-46.15"
+          }
+        },
+        "zo_right": {
+          "hide_name": 0,
+          "bits": [ 9, "1", "0" ],
+          "attributes": {
+            "src": "LeadingDigitAnticipate.v:47.13-47.21"
+          }
+        }
+      }
+    },
+    "PriorityEncodeNode_W4": {
+      "attributes": {
+        "src": "LeadingDigitAnticipate.v:75.1-115.10"
+      },
+      "ports": {
+        "seq": {
+          "direction": "input",
+          "bits": [ 2, 3, 4, 5 ]
+        },
+        "ret": {
+          "direction": "output",
+          "bits": [ 6, 7, 8 ]
+        }
+      },
+      "cells": {
+        "$and$LeadingDigitAnticipate.v:94$9": {
+          "hide_name": 1,
+          "type": "$and",
+          "parameters": {
+            "A_SIGNED": 0,
+            "A_WIDTH": 1,
+            "B_SIGNED": 0,
+            "B_WIDTH": 1,
+            "Y_WIDTH": 1
+          },
+          "attributes": {
+            "src": "LeadingDigitAnticipate.v:94.7-94.27"
+          },
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [ 9 ],
+            "B": [ 10 ],
+            "Y": [ 11 ]
+          }
+        },
+        "$procmux$54": {
+          "hide_name": 1,
+          "type": "$mux",
+          "parameters": {
+            "WIDTH": 3
+          },
+          "attributes": {
+            "full_case": 1,
+            "src": "LeadingDigitAnticipate.v:96.12-96.21|LeadingDigitAnticipate.v:96.8-99.14"
+          },
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "S": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [ 12, "0", "0" ],
+            "B": [ 13, "1", "0" ],
+            "S": [ 9 ],
+            "Y": [ 14, 15, 16 ]
+          }
+        },
+        "$procmux$60": {
+          "hide_name": 1,
+          "type": "$mux",
+          "parameters": {
+            "WIDTH": 3
+          },
+          "attributes": {
+            "full_case": 1,
+            "src": "LeadingDigitAnticipate.v:94.7-94.27|LeadingDigitAnticipate.v:94.3-99.14"
+          },
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "S": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [ 14, 15, 16 ],
+            "B": [ "0", "0", "1" ],
+            "S": [ 11 ],
+            "Y": [ 6, 7, 8 ]
+          }
+        },
+        "left": {
+          "hide_name": 0,
+          "type": "PriorityEncodeNode_W2",
+          "parameters": {
+          },
+          "attributes": {
+            "module_not_derived": 1,
+            "src": "LeadingDigitAnticipate.v:102.24-105.3"
+          },
+          "port_directions": {
+            "ret": "output",
+            "seq": "input"
+          },
+          "connections": {
+            "ret": [ 12, 9 ],
+            "seq": [ 2, 3 ]
+          }
+        },
+        "right": {
+          "hide_name": 0,
+          "type": "PriorityEncodeNode_W2",
+          "parameters": {
+          },
+          "attributes": {
+            "module_not_derived": 1,
+            "src": "LeadingDigitAnticipate.v:108.24-111.3"
+          },
+          "port_directions": {
+            "ret": "output",
+            "seq": "input"
+          },
+          "connections": {
+            "ret": [ 13, 10 ],
+            "seq": [ 4, 5 ]
+          }
+        }
+      },
+      "netnames": {
+        "$2__ret[2:0]": {
+          "hide_name": 1,
+          "bits": [ 14, 15, 16 ],
+          "attributes": {
+            "src": "LeadingDigitAnticipate.v:91.2-100.5"
+          }
+        },
+        "$and$LeadingDigitAnticipate.v:94$9_Y": {
+          "hide_name": 1,
+          "bits": [ 11 ],
+          "attributes": {
+            "src": "LeadingDigitAnticipate.v:94.7-94.27"
+          }
+        },
+        "_sv2v_0": {
+          "hide_name": 0,
+          "bits": [ "0" ],
+          "attributes": {
+            "src": "LeadingDigitAnticipate.v:79.6-79.13"
+          }
+        },
+        "leftLead": {
+          "hide_name": 0,
+          "bits": [ 9 ],
+          "attributes": {
+            "src": "LeadingDigitAnticipate.v:82.7-82.15"
+          }
+        },
+        "lr": {
+          "hide_name": 0,
+          "bits": [ "0", "0", "1" ],
+          "attributes": {
+            "src": "LeadingDigitAnticipate.v:83.13-83.15"
+          }
+        },
+        "ret": {
+          "hide_name": 0,
+          "bits": [ 6, 7, 8 ],
+          "attributes": {
+            "src": "LeadingDigitAnticipate.v:81.19-81.22"
+          }
+        },
+        "ret_0": {
+          "hide_name": 0,
+          "bits": [ 12, 9 ],
+          "attributes": {
+            "src": "LeadingDigitAnticipate.v:84.13-84.18"
+          }
+        },
+        "ret_1": {
+          "hide_name": 0,
+          "bits": [ 13, 10 ],
+          "attributes": {
+            "src": "LeadingDigitAnticipate.v:85.13-85.18"
+          }
+        },
+        "rhs": {
+          "hide_name": 0,
+          "bits": [ 13, "1", "0" ],
+          "attributes": {
+            "src": "LeadingDigitAnticipate.v:86.13-86.16"
+          }
+        },
+        "rightLead": {
+          "hide_name": 0,
+          "bits": [ 10 ],
+          "attributes": {
+            "src": "LeadingDigitAnticipate.v:87.7-87.16"
+          }
+        },
+        "seq": {
+          "hide_name": 0,
+          "bits": [ 2, 3, 4, 5 ],
+          "attributes": {
+            "src": "LeadingDigitAnticipate.v:80.19-80.22"
+          }
+        },
+        "zl": {
+          "hide_name": 0,
+          "bits": [ 12, 9, "0" ],
+          "attributes": {
+            "src": "LeadingDigitAnticipate.v:88.13-88.15"
+          }
+        },
+        "zo_right": {
+          "hide_name": 0,
+          "bits": [ 13, "1", "0" ],
+          "attributes": {
+            "src": "LeadingDigitAnticipate.v:89.13-89.21"
+          }
+        }
+      }
+    },
+    "PriorityEncodeNode_W7": {
+      "attributes": {
+        "src": "LeadingDigitAnticipate.v:116.1-156.10"
+      },
+      "ports": {
+        "seq": {
+          "direction": "input",
+          "bits": [ 2, 3, 4, 5, 6, 7, 8 ]
+        },
+        "ret": {
+          "direction": "output",
+          "bits": [ 9, 10, 11, 12 ]
+        }
+      },
+      "cells": {
+        "$and$LeadingDigitAnticipate.v:135$13": {
+          "hide_name": 1,
+          "type": "$and",
+          "parameters": {
+            "A_SIGNED": 0,
+            "A_WIDTH": 1,
+            "B_SIGNED": 0,
+            "B_WIDTH": 1,
+            "Y_WIDTH": 1
+          },
+          "attributes": {
+            "src": "LeadingDigitAnticipate.v:135.7-135.27"
+          },
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [ 13 ],
+            "B": [ 14 ],
+            "Y": [ 15 ]
+          }
+        },
+        "$procmux$45": {
+          "hide_name": 1,
+          "type": "$mux",
+          "parameters": {
+            "WIDTH": 4
+          },
+          "attributes": {
+            "full_case": 1,
+            "src": "LeadingDigitAnticipate.v:137.12-137.21|LeadingDigitAnticipate.v:137.8-140.14"
+          },
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "S": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [ 16, 17, "0", "0" ],
+            "B": [ 18, 19, "1", "0" ],
+            "S": [ 13 ],
+            "Y": [ 20, 21, 22, 23 ]
+          }
+        },
+        "$procmux$51": {
+          "hide_name": 1,
+          "type": "$mux",
+          "parameters": {
+            "WIDTH": 4
+          },
+          "attributes": {
+            "full_case": 1,
+            "src": "LeadingDigitAnticipate.v:135.7-135.27|LeadingDigitAnticipate.v:135.3-140.14"
+          },
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "S": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [ 20, 21, 22, 23 ],
+            "B": [ "0", "0", "0", "1" ],
+            "S": [ 15 ],
+            "Y": [ 9, 10, 11, 12 ]
+          }
+        },
+        "left": {
+          "hide_name": 0,
+          "type": "PriorityEncodeNode_W4",
+          "parameters": {
+          },
+          "attributes": {
+            "module_not_derived": 1,
+            "src": "LeadingDigitAnticipate.v:143.24-146.3"
+          },
+          "port_directions": {
+            "ret": "output",
+            "seq": "input"
+          },
+          "connections": {
+            "ret": [ 16, 17, 13 ],
+            "seq": [ 2, 3, 4, 5 ]
+          }
+        },
+        "right": {
+          "hide_name": 0,
+          "type": "PriorityEncodeNode_W3",
+          "parameters": {
+          },
+          "attributes": {
+            "module_not_derived": 1,
+            "src": "LeadingDigitAnticipate.v:149.24-152.3"
+          },
+          "port_directions": {
+            "ret": "output",
+            "seq": "input"
+          },
+          "connections": {
+            "ret": [ 18, 19, 14 ],
+            "seq": [ 6, 7, 8 ]
+          }
+        }
+      },
+      "netnames": {
+        "$2__ret[3:0]": {
+          "hide_name": 1,
+          "bits": [ 20, 21, 22, 23 ],
+          "attributes": {
+            "src": "LeadingDigitAnticipate.v:132.2-141.5"
+          }
+        },
+        "$and$LeadingDigitAnticipate.v:135$13_Y": {
+          "hide_name": 1,
+          "bits": [ 15 ],
+          "attributes": {
+            "src": "LeadingDigitAnticipate.v:135.7-135.27"
+          }
+        },
+        "_sv2v_0": {
+          "hide_name": 0,
+          "bits": [ "0" ],
+          "attributes": {
+            "src": "LeadingDigitAnticipate.v:120.6-120.13"
+          }
+        },
+        "leftLead": {
+          "hide_name": 0,
+          "bits": [ 13 ],
+          "attributes": {
+            "src": "LeadingDigitAnticipate.v:123.7-123.15"
+          }
+        },
+        "lr": {
+          "hide_name": 0,
+          "bits": [ "0", "0", "0", "1" ],
+          "attributes": {
+            "src": "LeadingDigitAnticipate.v:124.13-124.15"
+          }
+        },
+        "ret": {
+          "hide_name": 0,
+          "bits": [ 9, 10, 11, 12 ],
+          "attributes": {
+            "src": "LeadingDigitAnticipate.v:122.19-122.22"
+          }
+        },
+        "ret_0": {
+          "hide_name": 0,
+          "bits": [ 16, 17, 13 ],
+          "attributes": {
+            "src": "LeadingDigitAnticipate.v:125.13-125.18"
+          }
+        },
+        "ret_1": {
+          "hide_name": 0,
+          "bits": [ 18, 19, 14 ],
+          "attributes": {
+            "src": "LeadingDigitAnticipate.v:126.13-126.18"
+          }
+        },
+        "rhs": {
+          "hide_name": 0,
+          "bits": [ 18, 19, "1", "0" ],
+          "attributes": {
+            "src": "LeadingDigitAnticipate.v:127.13-127.16"
+          }
+        },
+        "rightLead": {
+          "hide_name": 0,
+          "bits": [ 14 ],
+          "attributes": {
+            "src": "LeadingDigitAnticipate.v:128.7-128.16"
+          }
+        },
+        "seq": {
+          "hide_name": 0,
+          "bits": [ 2, 3, 4, 5, 6, 7, 8 ],
+          "attributes": {
+            "src": "LeadingDigitAnticipate.v:121.19-121.22"
+          }
+        },
+        "zl": {
+          "hide_name": 0,
+          "bits": [ 16, 17, 13, "0" ],
+          "attributes": {
+            "src": "LeadingDigitAnticipate.v:129.13-129.15"
+          }
+        },
+        "zo_right": {
+          "hide_name": 0,
+          "bits": [ 18, 19, "1", "0" ],
+          "attributes": {
+            "src": "LeadingDigitAnticipate.v:130.13-130.21"
+          }
+        }
+      }
+    },
+    "RecursiveModulePriorityEncoder_W7": {
+      "attributes": {
+        "src": "LeadingDigitAnticipate.v:157.1-172.10"
+      },
+      "ports": {
+        "inp": {
+          "direction": "input",
+          "bits": [ 2, 3, 4, 5, 6, 7, 8 ]
+        },
+        "valid": {
+          "direction": "output",
+          "bits": [ 9 ]
+        },
+        "out": {
+          "direction": "output",
+          "bits": [ 10, 11, 12 ]
+        }
+      },
+      "cells": {
+        "$lt$LeadingDigitAnticipate.v:166$16": {
+          "hide_name": 1,
+          "type": "$lt",
+          "parameters": {
+            "A_SIGNED": 0,
+            "A_WIDTH": 4,
+            "B_SIGNED": 0,
+            "B_WIDTH": 4,
+            "Y_WIDTH": 1
+          },
+          "attributes": {
+            "src": "LeadingDigitAnticipate.v:166.17-166.27"
+          },
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [ 10, 11, 12, 13 ],
+            "B": [ "1", "1", "1", "0" ],
+            "Y": [ 9 ]
+          }
+        },
+        "priority_encode_node": {
+          "hide_name": 0,
+          "type": "PriorityEncodeNode_W7",
+          "parameters": {
+          },
+          "attributes": {
+            "module_not_derived": 1,
+            "src": "LeadingDigitAnticipate.v:167.24-170.3"
+          },
+          "port_directions": {
+            "ret": "output",
+            "seq": "input"
+          },
+          "connections": {
+            "ret": [ 10, 11, 12, 13 ],
+            "seq": [ 2, 3, 4, 5, 6, 7, 8 ]
+          }
+        }
+      },
+      "netnames": {
+        "inp": {
+          "hide_name": 0,
+          "bits": [ 2, 3, 4, 5, 6, 7, 8 ],
+          "attributes": {
+            "src": "LeadingDigitAnticipate.v:162.19-162.22"
+          }
+        },
+        "out": {
+          "hide_name": 0,
+          "bits": [ 10, 11, 12 ],
+          "attributes": {
+            "src": "LeadingDigitAnticipate.v:164.20-164.23"
+          }
+        },
+        "ret": {
+          "hide_name": 0,
+          "bits": [ 10, 11, 12, 13 ],
+          "attributes": {
+            "src": "LeadingDigitAnticipate.v:165.13-165.16"
+          }
+        },
+        "valid": {
+          "hide_name": 0,
+          "bits": [ 9 ],
+          "attributes": {
+            "src": "LeadingDigitAnticipate.v:163.14-163.19"
+          }
+        }
+      }
+    }
   }
 }`;
         var width = viewport().width,

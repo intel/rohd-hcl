@@ -36,7 +36,93 @@
       var exmpl = `{
   "creator": "Yosys 0.29+11 (git sha1 d82bae32b, clang 10.0.0-4ubuntu1 -fPIC -Os)",
   "modules": {
-
+    "NativeMultiplier_W4x4_UD_UM": {
+      "attributes": {
+        "top": 1,
+        "src": "NativeMultiplier_W4x4_UD_UM.v:1.1-15.10"
+      },
+      "ports": {
+        "a": {
+          "direction": "input",
+          "bits": [ 2, 3, 4, 5 ]
+        },
+        "b": {
+          "direction": "input",
+          "bits": [ 6, 7, 8, 9 ]
+        },
+        "product": {
+          "direction": "output",
+          "bits": [ 10, 11, 12, 13, 14, 15, 16, 17 ]
+        },
+        "isProductSigned": {
+          "direction": "output",
+          "bits": [ "0" ]
+        }
+      },
+      "cells": {
+        "$mul$NativeMultiplier_W4x4_UD_UM.v:13$1": {
+          "hide_name": 1,
+          "type": "$mul",
+          "parameters": {
+            "A_SIGNED": 0,
+            "A_WIDTH": 8,
+            "B_SIGNED": 0,
+            "B_WIDTH": 8,
+            "Y_WIDTH": 8
+          },
+          "attributes": {
+            "src": "NativeMultiplier_W4x4_UD_UM.v:13.28-13.49"
+          },
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [ 2, 3, 4, 5, "0", "0", "0", "0" ],
+            "B": [ 6, 7, 8, 9, "0", "0", "0", "0" ],
+            "Y": [ 10, 11, 12, 13, 14, 15, 16, 17 ]
+          }
+        }
+      },
+      "netnames": {
+        "a": {
+          "hide_name": 0,
+          "bits": [ 2, 3, 4, 5 ],
+          "attributes": {
+            "src": "NativeMultiplier_W4x4_UD_UM.v:7.19-7.20"
+          }
+        },
+        "b": {
+          "hide_name": 0,
+          "bits": [ 6, 7, 8, 9 ],
+          "attributes": {
+            "src": "NativeMultiplier_W4x4_UD_UM.v:8.19-8.20"
+          }
+        },
+        "internalProduct": {
+          "hide_name": 0,
+          "bits": [ 10, 11, 12, 13, 14, 15, 16, 17 ],
+          "attributes": {
+            "src": "NativeMultiplier_W4x4_UD_UM.v:11.13-11.28"
+          }
+        },
+        "isProductSigned": {
+          "hide_name": 0,
+          "bits": [ "0" ],
+          "attributes": {
+            "src": "NativeMultiplier_W4x4_UD_UM.v:10.14-10.29"
+          }
+        },
+        "product": {
+          "hide_name": 0,
+          "bits": [ 10, 11, 12, 13, 14, 15, 16, 17 ],
+          "attributes": {
+            "src": "NativeMultiplier_W4x4_UD_UM.v:9.20-9.27"
+          }
+        }
+      }
+    }
   }
 }`;
         var width = viewport().width,

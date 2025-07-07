@@ -36,7 +36,490 @@
       var exmpl = `{
   "creator": "Yosys 0.29+11 (git sha1 d82bae32b, clang 10.0.0-4ubuntu1 -fPIC -Os)",
   "modules": {
-
+    "Adder_W1": {
+      "attributes": {
+        "src": "RippleCarryAdder_W8.v:1.1-12.10"
+      },
+      "ports": {
+        "a": {
+          "direction": "input",
+          "bits": [ 2 ]
+        },
+        "b": {
+          "direction": "input",
+          "bits": [ 3 ]
+        },
+        "carryIn": {
+          "direction": "input",
+          "bits": [ 4 ]
+        },
+        "sum": {
+          "direction": "output",
+          "bits": [ 5, 6 ]
+        }
+      },
+      "cells": {
+        "$and$RippleCarryAdder_W8.v:11$4": {
+          "hide_name": 1,
+          "type": "$and",
+          "parameters": {
+            "A_SIGNED": 0,
+            "A_WIDTH": 1,
+            "B_SIGNED": 0,
+            "B_WIDTH": 1,
+            "Y_WIDTH": 1
+          },
+          "attributes": {
+            "src": "RippleCarryAdder_W8.v:11.17-11.34"
+          },
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [ 4 ],
+            "B": [ 7 ],
+            "Y": [ 8 ]
+          }
+        },
+        "$and$RippleCarryAdder_W8.v:11$5": {
+          "hide_name": 1,
+          "type": "$and",
+          "parameters": {
+            "A_SIGNED": 0,
+            "A_WIDTH": 1,
+            "B_SIGNED": 0,
+            "B_WIDTH": 1,
+            "Y_WIDTH": 1
+          },
+          "attributes": {
+            "src": "RippleCarryAdder_W8.v:11.39-11.44"
+          },
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [ 2 ],
+            "B": [ 3 ],
+            "Y": [ 9 ]
+          }
+        },
+        "$or$RippleCarryAdder_W8.v:11$6": {
+          "hide_name": 1,
+          "type": "$or",
+          "parameters": {
+            "A_SIGNED": 0,
+            "A_WIDTH": 1,
+            "B_SIGNED": 0,
+            "B_WIDTH": 1,
+            "Y_WIDTH": 1
+          },
+          "attributes": {
+            "src": "RippleCarryAdder_W8.v:11.16-11.45"
+          },
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [ 8 ],
+            "B": [ 9 ],
+            "Y": [ 6 ]
+          }
+        },
+        "$xor$RippleCarryAdder_W8.v:11$2": {
+          "hide_name": 1,
+          "type": "$xor",
+          "parameters": {
+            "A_SIGNED": 0,
+            "A_WIDTH": 1,
+            "B_SIGNED": 0,
+            "B_WIDTH": 1,
+            "Y_WIDTH": 1
+          },
+          "attributes": {
+            "src": "RippleCarryAdder_W8.v:11.47-11.64"
+          },
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [ 7 ],
+            "B": [ 4 ],
+            "Y": [ 5 ]
+          }
+        },
+        "$xor$RippleCarryAdder_W8.v:11$3": {
+          "hide_name": 1,
+          "type": "$xor",
+          "parameters": {
+            "A_SIGNED": 0,
+            "A_WIDTH": 1,
+            "B_SIGNED": 0,
+            "B_WIDTH": 1,
+            "Y_WIDTH": 1
+          },
+          "attributes": {
+            "src": "RippleCarryAdder_W8.v:11.28-11.33"
+          },
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [ 2 ],
+            "B": [ 3 ],
+            "Y": [ 7 ]
+          }
+        }
+      },
+      "netnames": {
+        "$and$RippleCarryAdder_W8.v:11$4_Y": {
+          "hide_name": 1,
+          "bits": [ 8 ],
+          "attributes": {
+            "src": "RippleCarryAdder_W8.v:11.17-11.34"
+          }
+        },
+        "$and$RippleCarryAdder_W8.v:11$5_Y": {
+          "hide_name": 1,
+          "bits": [ 9 ],
+          "attributes": {
+            "src": "RippleCarryAdder_W8.v:11.39-11.44"
+          }
+        },
+        "$xor$RippleCarryAdder_W8.v:11$1_Y": {
+          "hide_name": 1,
+          "bits": [ 7 ],
+          "attributes": {
+            "src": "RippleCarryAdder_W8.v:11.48-11.53"
+          }
+        },
+        "a": {
+          "hide_name": 0,
+          "bits": [ 2 ],
+          "attributes": {
+            "src": "RippleCarryAdder_W8.v:7.13-7.14"
+          }
+        },
+        "b": {
+          "hide_name": 0,
+          "bits": [ 3 ],
+          "attributes": {
+            "src": "RippleCarryAdder_W8.v:8.13-8.14"
+          }
+        },
+        "carryIn": {
+          "hide_name": 0,
+          "bits": [ 4 ],
+          "attributes": {
+            "src": "RippleCarryAdder_W8.v:9.13-9.20"
+          }
+        },
+        "sum": {
+          "hide_name": 0,
+          "bits": [ 5, 6 ],
+          "attributes": {
+            "src": "RippleCarryAdder_W8.v:10.20-10.23"
+          }
+        }
+      }
+    },
+    "RippleCarryAdder_W8": {
+      "attributes": {
+        "top": 1,
+        "src": "RippleCarryAdder_W8.v:13.1-80.10"
+      },
+      "ports": {
+        "a": {
+          "direction": "input",
+          "bits": [ 2, 3, 4, 5, 6, 7, 8, 9 ]
+        },
+        "b": {
+          "direction": "input",
+          "bits": [ 10, 11, 12, 13, 14, 15, 16, 17 ]
+        },
+        "carryIn": {
+          "direction": "input",
+          "bits": [ 18 ]
+        },
+        "sum": {
+          "direction": "output",
+          "bits": [ 19, 20, 21, 22, 23, 24, 25, 26, 27 ]
+        }
+      },
+      "cells": {
+        "full_adder": {
+          "hide_name": 0,
+          "type": "Adder_W1",
+          "parameters": {
+          },
+          "attributes": {
+            "module_not_derived": 1,
+            "src": "RippleCarryAdder_W8.v:32.11-37.3"
+          },
+          "port_directions": {
+            "a": "input",
+            "b": "input",
+            "carryIn": "input",
+            "sum": "output"
+          },
+          "connections": {
+            "a": [ 2 ],
+            "b": [ 10 ],
+            "carryIn": [ 18 ],
+            "sum": [ 19, 28 ]
+          }
+        },
+        "full_adder_0": {
+          "hide_name": 0,
+          "type": "Adder_W1",
+          "parameters": {
+          },
+          "attributes": {
+            "module_not_derived": 1,
+            "src": "RippleCarryAdder_W8.v:38.11-43.3"
+          },
+          "port_directions": {
+            "a": "input",
+            "b": "input",
+            "carryIn": "input",
+            "sum": "output"
+          },
+          "connections": {
+            "a": [ 3 ],
+            "b": [ 11 ],
+            "carryIn": [ 28 ],
+            "sum": [ 20, 29 ]
+          }
+        },
+        "full_adder_1": {
+          "hide_name": 0,
+          "type": "Adder_W1",
+          "parameters": {
+          },
+          "attributes": {
+            "module_not_derived": 1,
+            "src": "RippleCarryAdder_W8.v:44.11-49.3"
+          },
+          "port_directions": {
+            "a": "input",
+            "b": "input",
+            "carryIn": "input",
+            "sum": "output"
+          },
+          "connections": {
+            "a": [ 4 ],
+            "b": [ 12 ],
+            "carryIn": [ 29 ],
+            "sum": [ 21, 30 ]
+          }
+        },
+        "full_adder_2": {
+          "hide_name": 0,
+          "type": "Adder_W1",
+          "parameters": {
+          },
+          "attributes": {
+            "module_not_derived": 1,
+            "src": "RippleCarryAdder_W8.v:50.11-55.3"
+          },
+          "port_directions": {
+            "a": "input",
+            "b": "input",
+            "carryIn": "input",
+            "sum": "output"
+          },
+          "connections": {
+            "a": [ 5 ],
+            "b": [ 13 ],
+            "carryIn": [ 30 ],
+            "sum": [ 22, 31 ]
+          }
+        },
+        "full_adder_3": {
+          "hide_name": 0,
+          "type": "Adder_W1",
+          "parameters": {
+          },
+          "attributes": {
+            "module_not_derived": 1,
+            "src": "RippleCarryAdder_W8.v:56.11-61.3"
+          },
+          "port_directions": {
+            "a": "input",
+            "b": "input",
+            "carryIn": "input",
+            "sum": "output"
+          },
+          "connections": {
+            "a": [ 6 ],
+            "b": [ 14 ],
+            "carryIn": [ 31 ],
+            "sum": [ 23, 32 ]
+          }
+        },
+        "full_adder_4": {
+          "hide_name": 0,
+          "type": "Adder_W1",
+          "parameters": {
+          },
+          "attributes": {
+            "module_not_derived": 1,
+            "src": "RippleCarryAdder_W8.v:62.11-67.3"
+          },
+          "port_directions": {
+            "a": "input",
+            "b": "input",
+            "carryIn": "input",
+            "sum": "output"
+          },
+          "connections": {
+            "a": [ 7 ],
+            "b": [ 15 ],
+            "carryIn": [ 32 ],
+            "sum": [ 24, 33 ]
+          }
+        },
+        "full_adder_5": {
+          "hide_name": 0,
+          "type": "Adder_W1",
+          "parameters": {
+          },
+          "attributes": {
+            "module_not_derived": 1,
+            "src": "RippleCarryAdder_W8.v:68.11-73.3"
+          },
+          "port_directions": {
+            "a": "input",
+            "b": "input",
+            "carryIn": "input",
+            "sum": "output"
+          },
+          "connections": {
+            "a": [ 8 ],
+            "b": [ 16 ],
+            "carryIn": [ 33 ],
+            "sum": [ 25, 34 ]
+          }
+        },
+        "full_adder_6": {
+          "hide_name": 0,
+          "type": "Adder_W1",
+          "parameters": {
+          },
+          "attributes": {
+            "module_not_derived": 1,
+            "src": "RippleCarryAdder_W8.v:74.11-79.3"
+          },
+          "port_directions": {
+            "a": "input",
+            "b": "input",
+            "carryIn": "input",
+            "sum": "output"
+          },
+          "connections": {
+            "a": [ 9 ],
+            "b": [ 17 ],
+            "carryIn": [ 34 ],
+            "sum": [ 26, 27 ]
+          }
+        }
+      },
+      "netnames": {
+        "a": {
+          "hide_name": 0,
+          "bits": [ 2, 3, 4, 5, 6, 7, 8, 9 ],
+          "attributes": {
+            "src": "RippleCarryAdder_W8.v:19.19-19.20"
+          }
+        },
+        "b": {
+          "hide_name": 0,
+          "bits": [ 10, 11, 12, 13, 14, 15, 16, 17 ],
+          "attributes": {
+            "src": "RippleCarryAdder_W8.v:20.19-20.20"
+          }
+        },
+        "carryIn": {
+          "hide_name": 0,
+          "bits": [ 18 ],
+          "attributes": {
+            "src": "RippleCarryAdder_W8.v:21.13-21.20"
+          }
+        },
+        "sum": {
+          "hide_name": 0,
+          "bits": [ 19, 20, 21, 22, 23, 24, 25, 26, 27 ],
+          "attributes": {
+            "src": "RippleCarryAdder_W8.v:22.20-22.23"
+          }
+        },
+        "sum_0": {
+          "hide_name": 0,
+          "bits": [ 19, 28 ],
+          "attributes": {
+            "src": "RippleCarryAdder_W8.v:23.13-23.18"
+          }
+        },
+        "sum_1": {
+          "hide_name": 0,
+          "bits": [ 26, 27 ],
+          "attributes": {
+            "src": "RippleCarryAdder_W8.v:24.13-24.18"
+          }
+        },
+        "sum_2": {
+          "hide_name": 0,
+          "bits": [ 25, 34 ],
+          "attributes": {
+            "src": "RippleCarryAdder_W8.v:25.13-25.18"
+          }
+        },
+        "sum_3": {
+          "hide_name": 0,
+          "bits": [ 24, 33 ],
+          "attributes": {
+            "src": "RippleCarryAdder_W8.v:26.13-26.18"
+          }
+        },
+        "sum_4": {
+          "hide_name": 0,
+          "bits": [ 23, 32 ],
+          "attributes": {
+            "src": "RippleCarryAdder_W8.v:27.13-27.18"
+          }
+        },
+        "sum_5": {
+          "hide_name": 0,
+          "bits": [ 22, 31 ],
+          "attributes": {
+            "src": "RippleCarryAdder_W8.v:28.13-28.18"
+          }
+        },
+        "sum_6": {
+          "hide_name": 0,
+          "bits": [ 21, 30 ],
+          "attributes": {
+            "src": "RippleCarryAdder_W8.v:29.13-29.18"
+          }
+        },
+        "sum_7": {
+          "hide_name": 0,
+          "bits": [ 20, 29 ],
+          "attributes": {
+            "src": "RippleCarryAdder_W8.v:30.13-30.18"
+          }
+        }
+      }
+    }
   }
 }`;
         var width = viewport().width,

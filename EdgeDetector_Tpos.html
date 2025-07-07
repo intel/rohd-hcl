@@ -36,7 +36,145 @@
       var exmpl = `{
   "creator": "Yosys 0.29+11 (git sha1 d82bae32b, clang 10.0.0-4ubuntu1 -fPIC -Os)",
   "modules": {
-
+    "EdgeDetector_Tpos": {
+      "attributes": {
+        "top": 1,
+        "src": "EdgeDetector_Tpos.v:1.1-18.10"
+      },
+      "ports": {
+        "clk": {
+          "direction": "input",
+          "bits": [ 2 ]
+        },
+        "signal": {
+          "direction": "input",
+          "bits": [ 3 ]
+        },
+        "reset": {
+          "direction": "input",
+          "bits": [ 4 ]
+        },
+        "pos_edge": {
+          "direction": "output",
+          "bits": [ 5 ]
+        }
+      },
+      "cells": {
+        "$and$EdgeDetector_Tpos.v:12$2": {
+          "hide_name": 1,
+          "type": "$and",
+          "parameters": {
+            "A_SIGNED": 0,
+            "A_WIDTH": 1,
+            "B_SIGNED": 0,
+            "B_WIDTH": 1,
+            "Y_WIDTH": 1
+          },
+          "attributes": {
+            "src": "EdgeDetector_Tpos.v:12.22-12.45"
+          },
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [ 6 ],
+            "B": [ 3 ],
+            "Y": [ 5 ]
+          }
+        },
+        "$auto$ff.cc:266:slice$9": {
+          "hide_name": 1,
+          "type": "$sdff",
+          "parameters": {
+            "CLK_POLARITY": 1,
+            "SRST_POLARITY": 1,
+            "SRST_VALUE": 0,
+            "WIDTH": 1
+          },
+          "attributes": {
+            "src": "EdgeDetector_Tpos.v:13.2-17.28"
+          },
+          "port_directions": {
+            "CLK": "input",
+            "D": "input",
+            "Q": "output",
+            "SRST": "input"
+          },
+          "connections": {
+            "CLK": [ 2 ],
+            "D": [ 3 ],
+            "Q": [ 7 ],
+            "SRST": [ 4 ]
+          }
+        },
+        "$not$EdgeDetector_Tpos.v:12$1": {
+          "hide_name": 1,
+          "type": "$not",
+          "parameters": {
+            "A_SIGNED": 0,
+            "A_WIDTH": 1,
+            "Y_WIDTH": 1
+          },
+          "attributes": {
+            "src": "EdgeDetector_Tpos.v:12.22-12.36"
+          },
+          "port_directions": {
+            "A": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [ 7 ],
+            "Y": [ 6 ]
+          }
+        }
+      },
+      "netnames": {
+        "$not$EdgeDetector_Tpos.v:12$1_Y": {
+          "hide_name": 1,
+          "bits": [ 6 ],
+          "attributes": {
+            "src": "EdgeDetector_Tpos.v:12.22-12.36"
+          }
+        },
+        "clk": {
+          "hide_name": 0,
+          "bits": [ 2 ],
+          "attributes": {
+            "src": "EdgeDetector_Tpos.v:7.13-7.16"
+          }
+        },
+        "pos_edge": {
+          "hide_name": 0,
+          "bits": [ 5 ],
+          "attributes": {
+            "src": "EdgeDetector_Tpos.v:10.14-10.22"
+          }
+        },
+        "previousValue": {
+          "hide_name": 0,
+          "bits": [ 7 ],
+          "attributes": {
+            "src": "EdgeDetector_Tpos.v:11.6-11.19"
+          }
+        },
+        "reset": {
+          "hide_name": 0,
+          "bits": [ 4 ],
+          "attributes": {
+            "src": "EdgeDetector_Tpos.v:9.13-9.18"
+          }
+        },
+        "signal": {
+          "hide_name": 0,
+          "bits": [ 3 ],
+          "attributes": {
+            "src": "EdgeDetector_Tpos.v:8.13-8.19"
+          }
+        }
+      }
+    }
   }
 }`;
         var width = viewport().width,

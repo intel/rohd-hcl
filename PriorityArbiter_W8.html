@@ -36,7 +36,1197 @@
       var exmpl = `{
   "creator": "Yosys 0.29+11 (git sha1 d82bae32b, clang 10.0.0-4ubuntu1 -fPIC -Os)",
   "modules": {
-
+    "PriorityArbiter_W8": {
+      "attributes": {
+        "top": 1,
+        "src": "PriorityArbiter_W8.v:1.1-134.10"
+      },
+      "ports": {
+        "request_0": {
+          "direction": "input",
+          "bits": [ 2 ]
+        },
+        "request_1": {
+          "direction": "input",
+          "bits": [ 3 ]
+        },
+        "request_2": {
+          "direction": "input",
+          "bits": [ 4 ]
+        },
+        "request_3": {
+          "direction": "input",
+          "bits": [ 5 ]
+        },
+        "request_4": {
+          "direction": "input",
+          "bits": [ 6 ]
+        },
+        "request_5": {
+          "direction": "input",
+          "bits": [ 7 ]
+        },
+        "request_6": {
+          "direction": "input",
+          "bits": [ 8 ]
+        },
+        "request_7": {
+          "direction": "input",
+          "bits": [ 9 ]
+        },
+        "grant_0": {
+          "direction": "output",
+          "bits": [ 10 ]
+        },
+        "grant_1": {
+          "direction": "output",
+          "bits": [ 11 ]
+        },
+        "grant_2": {
+          "direction": "output",
+          "bits": [ 12 ]
+        },
+        "grant_3": {
+          "direction": "output",
+          "bits": [ 13 ]
+        },
+        "grant_4": {
+          "direction": "output",
+          "bits": [ 14 ]
+        },
+        "grant_5": {
+          "direction": "output",
+          "bits": [ 15 ]
+        },
+        "grant_6": {
+          "direction": "output",
+          "bits": [ 16 ]
+        },
+        "grant_7": {
+          "direction": "output",
+          "bits": [ 17 ]
+        }
+      },
+      "cells": {
+        "$procmux$10": {
+          "hide_name": 1,
+          "type": "$mux",
+          "parameters": {
+            "WIDTH": 1
+          },
+          "attributes": {
+            "full_case": 1,
+            "src": "PriorityArbiter_W8.v:0.0-0.0|PriorityArbiter_W8.v:40.3-131.10"
+          },
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "S": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [ 18 ],
+            "B": [ "0" ],
+            "S": [ 6 ],
+            "Y": [ 19 ]
+          }
+        },
+        "$procmux$109": {
+          "hide_name": 1,
+          "type": "$mux",
+          "parameters": {
+            "WIDTH": 1
+          },
+          "attributes": {
+            "full_case": 1,
+            "src": "PriorityArbiter_W8.v:0.0-0.0|PriorityArbiter_W8.v:40.3-131.10"
+          },
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "S": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [ "0" ],
+            "B": [ "1" ],
+            "S": [ 2 ],
+            "Y": [ 10 ]
+          }
+        },
+        "$procmux$12": {
+          "hide_name": 1,
+          "type": "$mux",
+          "parameters": {
+            "WIDTH": 1
+          },
+          "attributes": {
+            "full_case": 1,
+            "src": "PriorityArbiter_W8.v:0.0-0.0|PriorityArbiter_W8.v:40.3-131.10"
+          },
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "S": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [ 19 ],
+            "B": [ "0" ],
+            "S": [ 5 ],
+            "Y": [ 20 ]
+          }
+        },
+        "$procmux$14": {
+          "hide_name": 1,
+          "type": "$mux",
+          "parameters": {
+            "WIDTH": 1
+          },
+          "attributes": {
+            "full_case": 1,
+            "src": "PriorityArbiter_W8.v:0.0-0.0|PriorityArbiter_W8.v:40.3-131.10"
+          },
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "S": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [ 20 ],
+            "B": [ "0" ],
+            "S": [ 4 ],
+            "Y": [ 21 ]
+          }
+        },
+        "$procmux$16": {
+          "hide_name": 1,
+          "type": "$mux",
+          "parameters": {
+            "WIDTH": 1
+          },
+          "attributes": {
+            "full_case": 1,
+            "src": "PriorityArbiter_W8.v:0.0-0.0|PriorityArbiter_W8.v:40.3-131.10"
+          },
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "S": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [ 21 ],
+            "B": [ "0" ],
+            "S": [ 3 ],
+            "Y": [ 22 ]
+          }
+        },
+        "$procmux$18": {
+          "hide_name": 1,
+          "type": "$mux",
+          "parameters": {
+            "WIDTH": 1
+          },
+          "attributes": {
+            "full_case": 1,
+            "src": "PriorityArbiter_W8.v:0.0-0.0|PriorityArbiter_W8.v:40.3-131.10"
+          },
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "S": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [ 22 ],
+            "B": [ "0" ],
+            "S": [ 2 ],
+            "Y": [ 17 ]
+          }
+        },
+        "$procmux$22": {
+          "hide_name": 1,
+          "type": "$mux",
+          "parameters": {
+            "WIDTH": 1
+          },
+          "attributes": {
+            "full_case": 1,
+            "src": "PriorityArbiter_W8.v:0.0-0.0|PriorityArbiter_W8.v:40.3-131.10"
+          },
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "S": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [ "0" ],
+            "B": [ "1" ],
+            "S": [ 8 ],
+            "Y": [ 23 ]
+          }
+        },
+        "$procmux$24": {
+          "hide_name": 1,
+          "type": "$mux",
+          "parameters": {
+            "WIDTH": 1
+          },
+          "attributes": {
+            "full_case": 1,
+            "src": "PriorityArbiter_W8.v:0.0-0.0|PriorityArbiter_W8.v:40.3-131.10"
+          },
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "S": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [ 23 ],
+            "B": [ "0" ],
+            "S": [ 7 ],
+            "Y": [ 24 ]
+          }
+        },
+        "$procmux$26": {
+          "hide_name": 1,
+          "type": "$mux",
+          "parameters": {
+            "WIDTH": 1
+          },
+          "attributes": {
+            "full_case": 1,
+            "src": "PriorityArbiter_W8.v:0.0-0.0|PriorityArbiter_W8.v:40.3-131.10"
+          },
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "S": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [ 24 ],
+            "B": [ "0" ],
+            "S": [ 6 ],
+            "Y": [ 25 ]
+          }
+        },
+        "$procmux$28": {
+          "hide_name": 1,
+          "type": "$mux",
+          "parameters": {
+            "WIDTH": 1
+          },
+          "attributes": {
+            "full_case": 1,
+            "src": "PriorityArbiter_W8.v:0.0-0.0|PriorityArbiter_W8.v:40.3-131.10"
+          },
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "S": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [ 25 ],
+            "B": [ "0" ],
+            "S": [ 5 ],
+            "Y": [ 26 ]
+          }
+        },
+        "$procmux$30": {
+          "hide_name": 1,
+          "type": "$mux",
+          "parameters": {
+            "WIDTH": 1
+          },
+          "attributes": {
+            "full_case": 1,
+            "src": "PriorityArbiter_W8.v:0.0-0.0|PriorityArbiter_W8.v:40.3-131.10"
+          },
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "S": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [ 26 ],
+            "B": [ "0" ],
+            "S": [ 4 ],
+            "Y": [ 27 ]
+          }
+        },
+        "$procmux$32": {
+          "hide_name": 1,
+          "type": "$mux",
+          "parameters": {
+            "WIDTH": 1
+          },
+          "attributes": {
+            "full_case": 1,
+            "src": "PriorityArbiter_W8.v:0.0-0.0|PriorityArbiter_W8.v:40.3-131.10"
+          },
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "S": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [ 27 ],
+            "B": [ "0" ],
+            "S": [ 3 ],
+            "Y": [ 28 ]
+          }
+        },
+        "$procmux$34": {
+          "hide_name": 1,
+          "type": "$mux",
+          "parameters": {
+            "WIDTH": 1
+          },
+          "attributes": {
+            "full_case": 1,
+            "src": "PriorityArbiter_W8.v:0.0-0.0|PriorityArbiter_W8.v:40.3-131.10"
+          },
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "S": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [ 28 ],
+            "B": [ "0" ],
+            "S": [ 2 ],
+            "Y": [ 16 ]
+          }
+        },
+        "$procmux$39": {
+          "hide_name": 1,
+          "type": "$mux",
+          "parameters": {
+            "WIDTH": 1
+          },
+          "attributes": {
+            "full_case": 1,
+            "src": "PriorityArbiter_W8.v:0.0-0.0|PriorityArbiter_W8.v:40.3-131.10"
+          },
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "S": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [ "0" ],
+            "B": [ "1" ],
+            "S": [ 7 ],
+            "Y": [ 29 ]
+          }
+        },
+        "$procmux$4": {
+          "hide_name": 1,
+          "type": "$mux",
+          "parameters": {
+            "WIDTH": 1
+          },
+          "attributes": {
+            "full_case": 1,
+            "src": "PriorityArbiter_W8.v:0.0-0.0|PriorityArbiter_W8.v:40.3-131.10"
+          },
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "S": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [ "0" ],
+            "B": [ "1" ],
+            "S": [ 9 ],
+            "Y": [ 30 ]
+          }
+        },
+        "$procmux$41": {
+          "hide_name": 1,
+          "type": "$mux",
+          "parameters": {
+            "WIDTH": 1
+          },
+          "attributes": {
+            "full_case": 1,
+            "src": "PriorityArbiter_W8.v:0.0-0.0|PriorityArbiter_W8.v:40.3-131.10"
+          },
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "S": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [ 29 ],
+            "B": [ "0" ],
+            "S": [ 6 ],
+            "Y": [ 31 ]
+          }
+        },
+        "$procmux$43": {
+          "hide_name": 1,
+          "type": "$mux",
+          "parameters": {
+            "WIDTH": 1
+          },
+          "attributes": {
+            "full_case": 1,
+            "src": "PriorityArbiter_W8.v:0.0-0.0|PriorityArbiter_W8.v:40.3-131.10"
+          },
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "S": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [ 31 ],
+            "B": [ "0" ],
+            "S": [ 5 ],
+            "Y": [ 32 ]
+          }
+        },
+        "$procmux$45": {
+          "hide_name": 1,
+          "type": "$mux",
+          "parameters": {
+            "WIDTH": 1
+          },
+          "attributes": {
+            "full_case": 1,
+            "src": "PriorityArbiter_W8.v:0.0-0.0|PriorityArbiter_W8.v:40.3-131.10"
+          },
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "S": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [ 32 ],
+            "B": [ "0" ],
+            "S": [ 4 ],
+            "Y": [ 33 ]
+          }
+        },
+        "$procmux$47": {
+          "hide_name": 1,
+          "type": "$mux",
+          "parameters": {
+            "WIDTH": 1
+          },
+          "attributes": {
+            "full_case": 1,
+            "src": "PriorityArbiter_W8.v:0.0-0.0|PriorityArbiter_W8.v:40.3-131.10"
+          },
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "S": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [ 33 ],
+            "B": [ "0" ],
+            "S": [ 3 ],
+            "Y": [ 34 ]
+          }
+        },
+        "$procmux$49": {
+          "hide_name": 1,
+          "type": "$mux",
+          "parameters": {
+            "WIDTH": 1
+          },
+          "attributes": {
+            "full_case": 1,
+            "src": "PriorityArbiter_W8.v:0.0-0.0|PriorityArbiter_W8.v:40.3-131.10"
+          },
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "S": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [ 34 ],
+            "B": [ "0" ],
+            "S": [ 2 ],
+            "Y": [ 15 ]
+          }
+        },
+        "$procmux$55": {
+          "hide_name": 1,
+          "type": "$mux",
+          "parameters": {
+            "WIDTH": 1
+          },
+          "attributes": {
+            "full_case": 1,
+            "src": "PriorityArbiter_W8.v:0.0-0.0|PriorityArbiter_W8.v:40.3-131.10"
+          },
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "S": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [ "0" ],
+            "B": [ "1" ],
+            "S": [ 6 ],
+            "Y": [ 35 ]
+          }
+        },
+        "$procmux$57": {
+          "hide_name": 1,
+          "type": "$mux",
+          "parameters": {
+            "WIDTH": 1
+          },
+          "attributes": {
+            "full_case": 1,
+            "src": "PriorityArbiter_W8.v:0.0-0.0|PriorityArbiter_W8.v:40.3-131.10"
+          },
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "S": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [ 35 ],
+            "B": [ "0" ],
+            "S": [ 5 ],
+            "Y": [ 36 ]
+          }
+        },
+        "$procmux$59": {
+          "hide_name": 1,
+          "type": "$mux",
+          "parameters": {
+            "WIDTH": 1
+          },
+          "attributes": {
+            "full_case": 1,
+            "src": "PriorityArbiter_W8.v:0.0-0.0|PriorityArbiter_W8.v:40.3-131.10"
+          },
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "S": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [ 36 ],
+            "B": [ "0" ],
+            "S": [ 4 ],
+            "Y": [ 37 ]
+          }
+        },
+        "$procmux$6": {
+          "hide_name": 1,
+          "type": "$mux",
+          "parameters": {
+            "WIDTH": 1
+          },
+          "attributes": {
+            "full_case": 1,
+            "src": "PriorityArbiter_W8.v:0.0-0.0|PriorityArbiter_W8.v:40.3-131.10"
+          },
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "S": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [ 30 ],
+            "B": [ "0" ],
+            "S": [ 8 ],
+            "Y": [ 38 ]
+          }
+        },
+        "$procmux$61": {
+          "hide_name": 1,
+          "type": "$mux",
+          "parameters": {
+            "WIDTH": 1
+          },
+          "attributes": {
+            "full_case": 1,
+            "src": "PriorityArbiter_W8.v:0.0-0.0|PriorityArbiter_W8.v:40.3-131.10"
+          },
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "S": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [ 37 ],
+            "B": [ "0" ],
+            "S": [ 3 ],
+            "Y": [ 39 ]
+          }
+        },
+        "$procmux$63": {
+          "hide_name": 1,
+          "type": "$mux",
+          "parameters": {
+            "WIDTH": 1
+          },
+          "attributes": {
+            "full_case": 1,
+            "src": "PriorityArbiter_W8.v:0.0-0.0|PriorityArbiter_W8.v:40.3-131.10"
+          },
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "S": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [ 39 ],
+            "B": [ "0" ],
+            "S": [ 2 ],
+            "Y": [ 14 ]
+          }
+        },
+        "$procmux$70": {
+          "hide_name": 1,
+          "type": "$mux",
+          "parameters": {
+            "WIDTH": 1
+          },
+          "attributes": {
+            "full_case": 1,
+            "src": "PriorityArbiter_W8.v:0.0-0.0|PriorityArbiter_W8.v:40.3-131.10"
+          },
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "S": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [ "0" ],
+            "B": [ "1" ],
+            "S": [ 5 ],
+            "Y": [ 40 ]
+          }
+        },
+        "$procmux$72": {
+          "hide_name": 1,
+          "type": "$mux",
+          "parameters": {
+            "WIDTH": 1
+          },
+          "attributes": {
+            "full_case": 1,
+            "src": "PriorityArbiter_W8.v:0.0-0.0|PriorityArbiter_W8.v:40.3-131.10"
+          },
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "S": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [ 40 ],
+            "B": [ "0" ],
+            "S": [ 4 ],
+            "Y": [ 41 ]
+          }
+        },
+        "$procmux$74": {
+          "hide_name": 1,
+          "type": "$mux",
+          "parameters": {
+            "WIDTH": 1
+          },
+          "attributes": {
+            "full_case": 1,
+            "src": "PriorityArbiter_W8.v:0.0-0.0|PriorityArbiter_W8.v:40.3-131.10"
+          },
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "S": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [ 41 ],
+            "B": [ "0" ],
+            "S": [ 3 ],
+            "Y": [ 42 ]
+          }
+        },
+        "$procmux$76": {
+          "hide_name": 1,
+          "type": "$mux",
+          "parameters": {
+            "WIDTH": 1
+          },
+          "attributes": {
+            "full_case": 1,
+            "src": "PriorityArbiter_W8.v:0.0-0.0|PriorityArbiter_W8.v:40.3-131.10"
+          },
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "S": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [ 42 ],
+            "B": [ "0" ],
+            "S": [ 2 ],
+            "Y": [ 13 ]
+          }
+        },
+        "$procmux$8": {
+          "hide_name": 1,
+          "type": "$mux",
+          "parameters": {
+            "WIDTH": 1
+          },
+          "attributes": {
+            "full_case": 1,
+            "src": "PriorityArbiter_W8.v:0.0-0.0|PriorityArbiter_W8.v:40.3-131.10"
+          },
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "S": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [ 38 ],
+            "B": [ "0" ],
+            "S": [ 7 ],
+            "Y": [ 18 ]
+          }
+        },
+        "$procmux$84": {
+          "hide_name": 1,
+          "type": "$mux",
+          "parameters": {
+            "WIDTH": 1
+          },
+          "attributes": {
+            "full_case": 1,
+            "src": "PriorityArbiter_W8.v:0.0-0.0|PriorityArbiter_W8.v:40.3-131.10"
+          },
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "S": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [ "0" ],
+            "B": [ "1" ],
+            "S": [ 4 ],
+            "Y": [ 43 ]
+          }
+        },
+        "$procmux$86": {
+          "hide_name": 1,
+          "type": "$mux",
+          "parameters": {
+            "WIDTH": 1
+          },
+          "attributes": {
+            "full_case": 1,
+            "src": "PriorityArbiter_W8.v:0.0-0.0|PriorityArbiter_W8.v:40.3-131.10"
+          },
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "S": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [ 43 ],
+            "B": [ "0" ],
+            "S": [ 3 ],
+            "Y": [ 44 ]
+          }
+        },
+        "$procmux$88": {
+          "hide_name": 1,
+          "type": "$mux",
+          "parameters": {
+            "WIDTH": 1
+          },
+          "attributes": {
+            "full_case": 1,
+            "src": "PriorityArbiter_W8.v:0.0-0.0|PriorityArbiter_W8.v:40.3-131.10"
+          },
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "S": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [ 44 ],
+            "B": [ "0" ],
+            "S": [ 2 ],
+            "Y": [ 12 ]
+          }
+        },
+        "$procmux$97": {
+          "hide_name": 1,
+          "type": "$mux",
+          "parameters": {
+            "WIDTH": 1
+          },
+          "attributes": {
+            "full_case": 1,
+            "src": "PriorityArbiter_W8.v:0.0-0.0|PriorityArbiter_W8.v:40.3-131.10"
+          },
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "S": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [ "0" ],
+            "B": [ "1" ],
+            "S": [ 3 ],
+            "Y": [ 45 ]
+          }
+        },
+        "$procmux$99": {
+          "hide_name": 1,
+          "type": "$mux",
+          "parameters": {
+            "WIDTH": 1
+          },
+          "attributes": {
+            "full_case": 1,
+            "src": "PriorityArbiter_W8.v:0.0-0.0|PriorityArbiter_W8.v:40.3-131.10"
+          },
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "S": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [ 45 ],
+            "B": [ "0" ],
+            "S": [ 2 ],
+            "Y": [ 11 ]
+          }
+        }
+      },
+      "netnames": {
+        "$procmux$10_Y": {
+          "hide_name": 1,
+          "bits": [ 19 ],
+          "attributes": {
+          }
+        },
+        "$procmux$12_Y": {
+          "hide_name": 1,
+          "bits": [ 20 ],
+          "attributes": {
+          }
+        },
+        "$procmux$14_Y": {
+          "hide_name": 1,
+          "bits": [ 21 ],
+          "attributes": {
+          }
+        },
+        "$procmux$16_Y": {
+          "hide_name": 1,
+          "bits": [ 22 ],
+          "attributes": {
+          }
+        },
+        "$procmux$22_Y": {
+          "hide_name": 1,
+          "bits": [ 23 ],
+          "attributes": {
+          }
+        },
+        "$procmux$24_Y": {
+          "hide_name": 1,
+          "bits": [ 24 ],
+          "attributes": {
+          }
+        },
+        "$procmux$26_Y": {
+          "hide_name": 1,
+          "bits": [ 25 ],
+          "attributes": {
+          }
+        },
+        "$procmux$28_Y": {
+          "hide_name": 1,
+          "bits": [ 26 ],
+          "attributes": {
+          }
+        },
+        "$procmux$30_Y": {
+          "hide_name": 1,
+          "bits": [ 27 ],
+          "attributes": {
+          }
+        },
+        "$procmux$32_Y": {
+          "hide_name": 1,
+          "bits": [ 28 ],
+          "attributes": {
+          }
+        },
+        "$procmux$39_Y": {
+          "hide_name": 1,
+          "bits": [ 29 ],
+          "attributes": {
+          }
+        },
+        "$procmux$41_Y": {
+          "hide_name": 1,
+          "bits": [ 31 ],
+          "attributes": {
+          }
+        },
+        "$procmux$43_Y": {
+          "hide_name": 1,
+          "bits": [ 32 ],
+          "attributes": {
+          }
+        },
+        "$procmux$45_Y": {
+          "hide_name": 1,
+          "bits": [ 33 ],
+          "attributes": {
+          }
+        },
+        "$procmux$47_Y": {
+          "hide_name": 1,
+          "bits": [ 34 ],
+          "attributes": {
+          }
+        },
+        "$procmux$4_Y": {
+          "hide_name": 1,
+          "bits": [ 30 ],
+          "attributes": {
+          }
+        },
+        "$procmux$55_Y": {
+          "hide_name": 1,
+          "bits": [ 35 ],
+          "attributes": {
+          }
+        },
+        "$procmux$57_Y": {
+          "hide_name": 1,
+          "bits": [ 36 ],
+          "attributes": {
+          }
+        },
+        "$procmux$59_Y": {
+          "hide_name": 1,
+          "bits": [ 37 ],
+          "attributes": {
+          }
+        },
+        "$procmux$61_Y": {
+          "hide_name": 1,
+          "bits": [ 39 ],
+          "attributes": {
+          }
+        },
+        "$procmux$6_Y": {
+          "hide_name": 1,
+          "bits": [ 38 ],
+          "attributes": {
+          }
+        },
+        "$procmux$70_Y": {
+          "hide_name": 1,
+          "bits": [ 40 ],
+          "attributes": {
+          }
+        },
+        "$procmux$72_Y": {
+          "hide_name": 1,
+          "bits": [ 41 ],
+          "attributes": {
+          }
+        },
+        "$procmux$74_Y": {
+          "hide_name": 1,
+          "bits": [ 42 ],
+          "attributes": {
+          }
+        },
+        "$procmux$84_Y": {
+          "hide_name": 1,
+          "bits": [ 43 ],
+          "attributes": {
+          }
+        },
+        "$procmux$86_Y": {
+          "hide_name": 1,
+          "bits": [ 44 ],
+          "attributes": {
+          }
+        },
+        "$procmux$8_Y": {
+          "hide_name": 1,
+          "bits": [ 18 ],
+          "attributes": {
+          }
+        },
+        "$procmux$97_Y": {
+          "hide_name": 1,
+          "bits": [ 45 ],
+          "attributes": {
+          }
+        },
+        "_sv2v_0": {
+          "hide_name": 0,
+          "bits": [ "0" ],
+          "attributes": {
+            "src": "PriorityArbiter_W8.v:19.6-19.13"
+          }
+        },
+        "grant_0": {
+          "hide_name": 0,
+          "bits": [ 10 ],
+          "attributes": {
+            "src": "PriorityArbiter_W8.v:28.13-28.20"
+          }
+        },
+        "grant_1": {
+          "hide_name": 0,
+          "bits": [ 11 ],
+          "attributes": {
+            "src": "PriorityArbiter_W8.v:29.13-29.20"
+          }
+        },
+        "grant_2": {
+          "hide_name": 0,
+          "bits": [ 12 ],
+          "attributes": {
+            "src": "PriorityArbiter_W8.v:30.13-30.20"
+          }
+        },
+        "grant_3": {
+          "hide_name": 0,
+          "bits": [ 13 ],
+          "attributes": {
+            "src": "PriorityArbiter_W8.v:31.13-31.20"
+          }
+        },
+        "grant_4": {
+          "hide_name": 0,
+          "bits": [ 14 ],
+          "attributes": {
+            "src": "PriorityArbiter_W8.v:32.13-32.20"
+          }
+        },
+        "grant_5": {
+          "hide_name": 0,
+          "bits": [ 15 ],
+          "attributes": {
+            "src": "PriorityArbiter_W8.v:33.13-33.20"
+          }
+        },
+        "grant_6": {
+          "hide_name": 0,
+          "bits": [ 16 ],
+          "attributes": {
+            "src": "PriorityArbiter_W8.v:34.13-34.20"
+          }
+        },
+        "grant_7": {
+          "hide_name": 0,
+          "bits": [ 17 ],
+          "attributes": {
+            "src": "PriorityArbiter_W8.v:35.13-35.20"
+          }
+        },
+        "request_0": {
+          "hide_name": 0,
+          "bits": [ 2 ],
+          "attributes": {
+            "src": "PriorityArbiter_W8.v:20.13-20.22"
+          }
+        },
+        "request_1": {
+          "hide_name": 0,
+          "bits": [ 3 ],
+          "attributes": {
+            "src": "PriorityArbiter_W8.v:21.13-21.22"
+          }
+        },
+        "request_2": {
+          "hide_name": 0,
+          "bits": [ 4 ],
+          "attributes": {
+            "src": "PriorityArbiter_W8.v:22.13-22.22"
+          }
+        },
+        "request_3": {
+          "hide_name": 0,
+          "bits": [ 5 ],
+          "attributes": {
+            "src": "PriorityArbiter_W8.v:23.13-23.22"
+          }
+        },
+        "request_4": {
+          "hide_name": 0,
+          "bits": [ 6 ],
+          "attributes": {
+            "src": "PriorityArbiter_W8.v:24.13-24.22"
+          }
+        },
+        "request_5": {
+          "hide_name": 0,
+          "bits": [ 7 ],
+          "attributes": {
+            "src": "PriorityArbiter_W8.v:25.13-25.22"
+          }
+        },
+        "request_6": {
+          "hide_name": 0,
+          "bits": [ 8 ],
+          "attributes": {
+            "src": "PriorityArbiter_W8.v:26.13-26.22"
+          }
+        },
+        "request_7": {
+          "hide_name": 0,
+          "bits": [ 9 ],
+          "attributes": {
+            "src": "PriorityArbiter_W8.v:27.13-27.22"
+          }
+        }
+      }
+    }
   }
 }`;
         var width = viewport().width,

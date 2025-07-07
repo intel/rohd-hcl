@@ -36,7 +36,339 @@
       var exmpl = `{
   "creator": "Yosys 0.29+11 (git sha1 d82bae32b, clang 10.0.0-4ubuntu1 -fPIC -Os)",
   "modules": {
-
+    "Rotate_right_W16": {
+      "attributes": {
+        "top": 1,
+        "src": "Rotate_right_W16.v:1.1-27.10"
+      },
+      "ports": {
+        "original": {
+          "direction": "input",
+          "bits": [ 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17 ]
+        },
+        "rotate_amount": {
+          "direction": "input",
+          "bits": [ 18, 19, 20, 21, 22, 23, 24, 25 ]
+        },
+        "rotated": {
+          "direction": "output",
+          "bits": [ 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41 ]
+        }
+      },
+      "cells": {
+        "$procmux$10_CMP0": {
+          "hide_name": 1,
+          "type": "$eq",
+          "parameters": {
+            "A_SIGNED": 0,
+            "A_WIDTH": 8,
+            "B_SIGNED": 0,
+            "B_WIDTH": 8,
+            "Y_WIDTH": 1
+          },
+          "attributes": {
+            "full_case": 1,
+            "parallel_case": 1,
+            "src": "Rotate_right_W16.v:0.0-0.0|Rotate_right_W16.v:14.3-24.10"
+          },
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [ 18, 19, 20, 21, 22, 23, 24, 25 ],
+            "B": [ "1", "1", "0", "0", "0", "0", "0", "0" ],
+            "Y": [ 42 ]
+          }
+        },
+        "$procmux$11_CMP0": {
+          "hide_name": 1,
+          "type": "$eq",
+          "parameters": {
+            "A_SIGNED": 0,
+            "A_WIDTH": 8,
+            "B_SIGNED": 0,
+            "B_WIDTH": 8,
+            "Y_WIDTH": 1
+          },
+          "attributes": {
+            "full_case": 1,
+            "parallel_case": 1,
+            "src": "Rotate_right_W16.v:0.0-0.0|Rotate_right_W16.v:14.3-24.10"
+          },
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [ 18, 19, 20, 21, 22, 23, 24, 25 ],
+            "B": [ "0", "1", "0", "0", "0", "0", "0", "0" ],
+            "Y": [ 43 ]
+          }
+        },
+        "$procmux$12_CMP0": {
+          "hide_name": 1,
+          "type": "$eq",
+          "parameters": {
+            "A_SIGNED": 0,
+            "A_WIDTH": 8,
+            "B_SIGNED": 0,
+            "B_WIDTH": 8,
+            "Y_WIDTH": 1
+          },
+          "attributes": {
+            "full_case": 1,
+            "parallel_case": 1,
+            "src": "Rotate_right_W16.v:0.0-0.0|Rotate_right_W16.v:14.3-24.10"
+          },
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [ 18, 19, 20, 21, 22, 23, 24, 25 ],
+            "B": [ "1", "0", "0", "0", "0", "0", "0", "0" ],
+            "Y": [ 44 ]
+          }
+        },
+        "$procmux$4": {
+          "hide_name": 1,
+          "type": "$pmux",
+          "parameters": {
+            "S_WIDTH": 8,
+            "WIDTH": 16
+          },
+          "attributes": {
+            "full_case": 1,
+            "parallel_case": 1,
+            "src": "Rotate_right_W16.v:0.0-0.0|Rotate_right_W16.v:14.3-24.10"
+          },
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "S": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [ 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17 ],
+            "B": [ 10, 11, 12, 13, 14, 15, 16, 17, 2, 3, 4, 5, 6, 7, 8, 9, 9, 10, 11, 12, 13, 14, 15, 16, 17, 2, 3, 4, 5, 6, 7, 8, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 2, 3, 4, 5, 6, 7, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 2, 3, 4, 5, 6, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 2, 3, 4, 5, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 2, 3, 4, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 2, 3, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 2 ],
+            "S": [ 45, 46, 47, 48, 49, 42, 43, 44 ],
+            "Y": [ 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41 ]
+          }
+        },
+        "$procmux$5_CMP0": {
+          "hide_name": 1,
+          "type": "$eq",
+          "parameters": {
+            "A_SIGNED": 0,
+            "A_WIDTH": 8,
+            "B_SIGNED": 0,
+            "B_WIDTH": 8,
+            "Y_WIDTH": 1
+          },
+          "attributes": {
+            "full_case": 1,
+            "parallel_case": 1,
+            "src": "Rotate_right_W16.v:0.0-0.0|Rotate_right_W16.v:14.3-24.10"
+          },
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [ 18, 19, 20, 21, 22, 23, 24, 25 ],
+            "B": [ "0", "0", "0", "1", "0", "0", "0", "0" ],
+            "Y": [ 45 ]
+          }
+        },
+        "$procmux$6_CMP0": {
+          "hide_name": 1,
+          "type": "$eq",
+          "parameters": {
+            "A_SIGNED": 0,
+            "A_WIDTH": 8,
+            "B_SIGNED": 0,
+            "B_WIDTH": 8,
+            "Y_WIDTH": 1
+          },
+          "attributes": {
+            "full_case": 1,
+            "parallel_case": 1,
+            "src": "Rotate_right_W16.v:0.0-0.0|Rotate_right_W16.v:14.3-24.10"
+          },
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [ 18, 19, 20, 21, 22, 23, 24, 25 ],
+            "B": [ "1", "1", "1", "0", "0", "0", "0", "0" ],
+            "Y": [ 46 ]
+          }
+        },
+        "$procmux$7_CMP0": {
+          "hide_name": 1,
+          "type": "$eq",
+          "parameters": {
+            "A_SIGNED": 0,
+            "A_WIDTH": 8,
+            "B_SIGNED": 0,
+            "B_WIDTH": 8,
+            "Y_WIDTH": 1
+          },
+          "attributes": {
+            "full_case": 1,
+            "parallel_case": 1,
+            "src": "Rotate_right_W16.v:0.0-0.0|Rotate_right_W16.v:14.3-24.10"
+          },
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [ 18, 19, 20, 21, 22, 23, 24, 25 ],
+            "B": [ "0", "1", "1", "0", "0", "0", "0", "0" ],
+            "Y": [ 47 ]
+          }
+        },
+        "$procmux$8_CMP0": {
+          "hide_name": 1,
+          "type": "$eq",
+          "parameters": {
+            "A_SIGNED": 0,
+            "A_WIDTH": 8,
+            "B_SIGNED": 0,
+            "B_WIDTH": 8,
+            "Y_WIDTH": 1
+          },
+          "attributes": {
+            "full_case": 1,
+            "parallel_case": 1,
+            "src": "Rotate_right_W16.v:0.0-0.0|Rotate_right_W16.v:14.3-24.10"
+          },
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [ 18, 19, 20, 21, 22, 23, 24, 25 ],
+            "B": [ "1", "0", "1", "0", "0", "0", "0", "0" ],
+            "Y": [ 48 ]
+          }
+        },
+        "$procmux$9_CMP0": {
+          "hide_name": 1,
+          "type": "$eq",
+          "parameters": {
+            "A_SIGNED": 0,
+            "A_WIDTH": 8,
+            "B_SIGNED": 0,
+            "B_WIDTH": 8,
+            "Y_WIDTH": 1
+          },
+          "attributes": {
+            "full_case": 1,
+            "parallel_case": 1,
+            "src": "Rotate_right_W16.v:0.0-0.0|Rotate_right_W16.v:14.3-24.10"
+          },
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [ 18, 19, 20, 21, 22, 23, 24, 25 ],
+            "B": [ "0", "0", "1", "0", "0", "0", "0", "0" ],
+            "Y": [ 49 ]
+          }
+        }
+      },
+      "netnames": {
+        "$procmux$10_CMP": {
+          "hide_name": 1,
+          "bits": [ 42 ],
+          "attributes": {
+          }
+        },
+        "$procmux$11_CMP": {
+          "hide_name": 1,
+          "bits": [ 43 ],
+          "attributes": {
+          }
+        },
+        "$procmux$12_CMP": {
+          "hide_name": 1,
+          "bits": [ 44 ],
+          "attributes": {
+          }
+        },
+        "$procmux$5_CMP": {
+          "hide_name": 1,
+          "bits": [ 45 ],
+          "attributes": {
+          }
+        },
+        "$procmux$6_CMP": {
+          "hide_name": 1,
+          "bits": [ 46 ],
+          "attributes": {
+          }
+        },
+        "$procmux$7_CMP": {
+          "hide_name": 1,
+          "bits": [ 47 ],
+          "attributes": {
+          }
+        },
+        "$procmux$8_CMP": {
+          "hide_name": 1,
+          "bits": [ 48 ],
+          "attributes": {
+          }
+        },
+        "$procmux$9_CMP": {
+          "hide_name": 1,
+          "bits": [ 49 ],
+          "attributes": {
+          }
+        },
+        "_sv2v_0": {
+          "hide_name": 0,
+          "bits": [ "0" ],
+          "attributes": {
+            "src": "Rotate_right_W16.v:6.6-6.13"
+          }
+        },
+        "original": {
+          "hide_name": 0,
+          "bits": [ 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17 ],
+          "attributes": {
+            "src": "Rotate_right_W16.v:7.20-7.28"
+          }
+        },
+        "rotate_amount": {
+          "hide_name": 0,
+          "bits": [ 18, 19, 20, 21, 22, 23, 24, 25 ],
+          "attributes": {
+            "src": "Rotate_right_W16.v:8.19-8.32"
+          }
+        },
+        "rotated": {
+          "hide_name": 0,
+          "bits": [ 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41 ],
+          "attributes": {
+            "src": "Rotate_right_W16.v:9.20-9.27"
+          }
+        }
+      }
+    }
   }
 }`;
         var width = viewport().width,
