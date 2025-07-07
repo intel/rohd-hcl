@@ -124,6 +124,9 @@ jobs:
       - name: Install CAD Suite (includes yosys)
         run: tool/gh_actions/install_opencadsuite.sh
 
+      - name: Install SystemVerilog to Verilog converter
+        run: tool/gh_actions/install_sv2v.sh
+
       - name: Install D3 Schematic viewer
         run: tool/gh_actions/install_d3_hwschematic.sh
 
