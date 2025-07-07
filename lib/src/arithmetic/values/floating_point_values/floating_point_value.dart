@@ -154,7 +154,7 @@ class FloatingPointValue implements Comparable<FloatingPointValue> {
   @override
   int get hashCode => sign.hashCode ^ exponent.hashCode ^ mantissa.hashCode;
 
-  /// Floating point comparison to implement `Comparable<>`.
+  /// Floating point comparison to implement [Comparable].
   @override
   int compareTo(Object other) {
     if (other is! FloatingPointValue) {

@@ -52,8 +52,8 @@ class Csr extends LogicStructure {
 
   /// Factory constructor for [Csr].
   ///
-  /// Because LogicStructure requires a `List<Logic>` upon construction,
-  /// the factory method assists in creating the List upfront before
+  /// Because LogicStructure requires a [List<Logic>] upon construction,
+  /// the factory method assists in creating the [List] upfront before
   /// the LogicStructure constructor is called.
   factory Csr(
     CsrInstanceConfig config,

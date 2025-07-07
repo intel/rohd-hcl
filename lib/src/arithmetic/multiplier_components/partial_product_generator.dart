@@ -31,7 +31,7 @@ abstract class PartialProductArray {
   /// Name used for [PartialProductArray] instances.
   final String name;
 
-  /// Construct a basic `List<List<Logic>` to hold an array of partial products
+  /// Construct a basic [List<List<Logic>] to hold an array of partial products
   /// as well as a rowShift array to hold the row shifts.
   PartialProductArray({this.name = 'ppa'});
 
@@ -68,7 +68,7 @@ abstract class PartialProductArray {
     return partialProducts[row][col - rowShift[row]];
   }
 
-  /// Return the `List<Logic>` at the absolute position ([row], `List<int>`
+  /// Return the [List<Logic>] at the absolute position ([row], [List<int>]
   /// [columns].
   List<Logic> getAbsoluteAll(int row, List<int> columns) {
     final product = partialProducts[row];

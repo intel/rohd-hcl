@@ -16,7 +16,7 @@ import 'package:rohd_hcl/rohd_hcl.dart';
 
 /// Helper evaluation methods for printing aligned arithmetic bitvectors.
 extension LogicList on List<Logic> {
-  /// Print aligned bitvector with an optional header from `List<Logic>`.
+  /// Print aligned bitvector with an optional header from [List<Logic>].
   /// [name] is printed at the LHS of the line, trimmed by [prefix].
   /// [prefix] is the distance from the margin bebore the vector is printed.
   /// [alignHigh] is highest column (MSB) to which to align

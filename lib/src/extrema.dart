@@ -11,7 +11,7 @@
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
 
-/// Determines the extremas (maximum or minimum) of a `List<Logic>`.
+/// Determines the extremas (maximum or minimum) of a [List<Logic>].
 class Extrema extends Module {
   /// The [index] of the extrema.
   Logic get index => output('index');
@@ -19,7 +19,7 @@ class Extrema extends Module {
   /// The [val] of the extrema.
   Logic get val => output('val');
 
-  /// Finds an extrema of `List<Logic>` [signals]. Inputs need not be the same
+  /// Finds an extrema of [List<Logic>] [signals]. Inputs need not be the same
   /// width, and will all be considered positive unsigned numbers.
   ///
   /// If [max] is `true`, will find maximum value, else will find minimum.
