@@ -72,7 +72,7 @@ void main() {
     // wait for widget to rebuild by pump
     await tester.pumpAndSettle();
 
-    expect(observeOutput(tester)?.contains('Rotate_left_W16'), true);
+    expect(observeOutput(tester)?.contains('RotateLeft'), true);
   });
 
   testWidgets('should transit to another component when clicked on sidebar',
@@ -87,7 +87,7 @@ void main() {
 
     await tester.pumpAndSettle();
 
-    final sidebarPriorityArbiter = find.text('Priority Arbiter');
+    final sidebarPriorityArbiter = find.text('PriorityArbiter');
     final btnGenerateRTL = find.byKey(const Key('generateRTL'));
 
     // tap on the priority Arbiter located in the sidebar
@@ -101,6 +101,6 @@ void main() {
     // wait for changes
     await tester.pumpAndSettle();
 
-    expect(observeOutput(tester)?.contains('PriorityArbiter_W8'), true);
+    expect(observeOutput(tester)?.contains('PriorityArbiter'), true);
   });
 }
