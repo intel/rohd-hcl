@@ -17,3 +17,5 @@ To count all ones just pass in the `bus` with `countOne` as `true`. By default, 
 ## Count Zero
 
 To count all zeros just pass in the `bus` with `countOne` as `false`.
+
+
