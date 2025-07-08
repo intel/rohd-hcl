@@ -27,7 +27,7 @@ abstract class BitCompressor extends Module {
   /// Construct a column compressor
   BitCompressor(Logic compressBits,
       {super.name = 'bit_compressor', String? definitionName})
-      : super(definitionName: definitionName ?? 'bit_compressor') {
+      : super(definitionName: definitionName ?? 'BitCompressor') {
     this.compressBits = addInput(
       'compressBits',
       compressBits,
@@ -43,7 +43,7 @@ class Compressor2 extends BitCompressor {
   /// Construct a 2-input compressor (half-adder)
   Compressor2(super.compressBits,
       {super.name = 'compressor_2', String? definitionName})
-      : super(definitionName: definitionName ?? 'compressor_2') {
+      : super(definitionName: definitionName ?? 'Compressor2') {
     sum <= compressBits.xor();
     carry <= compressBits.and();
   }
@@ -54,7 +54,7 @@ class Compressor3 extends BitCompressor {
   /// Construct a 3-input column compressor (full-adder)
   Compressor3(super.compressBits,
       {super.name = 'compressor_3', String? definitionName})
-      : super(definitionName: definitionName ?? 'compressor_3') {
+      : super(definitionName: definitionName ?? 'Compressor3') {
     sum <= compressBits.xor();
     carry <=
         mux(compressBits[0], compressBits.slice(2, 1).or(),

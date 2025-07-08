@@ -81,7 +81,9 @@ abstract class SummationBase extends Module {
       String? definitionName})
       : width =
             _inferWidth([initialValue, maxValue, minValue], width, interfaces),
-        super(definitionName: definitionName ?? 'SummationBase_') {
+        super(
+            definitionName: definitionName ??
+                'SummationBase_L${interfaces.length}_W$width') {
     if (interfaces.isEmpty) {
       throw RohdHclException('At least one interface must be provided.');
     }

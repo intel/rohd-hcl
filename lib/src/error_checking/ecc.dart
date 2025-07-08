@@ -55,7 +55,7 @@ class HammingEccTransmitter extends ErrorCheckingTransmitter {
   HammingEccTransmitter(super.data,
       {super.name = 'hamming_ecc_tx', this.hammingType = HammingType.sec})
       : super(
-            definitionName: 'hamming_ecc_transmitter_${hammingType.name}',
+            definitionName: 'HammingEccTransmitter_${hammingType.name}',
             codeWidth:
                 _parityBitsRequired(data.width) + hammingType._extraParityBits);
 

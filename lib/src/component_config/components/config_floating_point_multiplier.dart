@@ -66,7 +66,7 @@ class FloatingPointMultiplierSimpleConfigurator extends Configurator {
           exponentWidth: exponentWidthKnob.value,
           mantissaWidth: mantissaWidthKnob.value),
       multGen: multiplierSelectKnob.selectedMultiplier(),
-      definitionName: 'FlatingPointMultiplierSimple');
+      definitionName: 'FloatingPointMultiplierSimple');
 
   @override
   late final Map<String, ConfigKnob<dynamic>> knobs = UnmodifiableMapView({

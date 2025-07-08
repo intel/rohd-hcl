@@ -88,11 +88,14 @@ class GatedCounter extends Counter {
       ClockGateControlInterface? clockGateControlInterface,
       int? clkGatePartitionIndex,
       super.name,
-      super.definitionName})
+      String? definitionName})
       : _providedClkGateParitionIndex = clkGatePartitionIndex,
         _clockGateControlInterface = clockGateControlInterface == null
             ? null
-            : ClockGateControlInterface.clone(clockGateControlInterface) {
+            : ClockGateControlInterface.clone(clockGateControlInterface),
+        super(
+            definitionName: definitionName ??
+                'GatedCounter_W${width}_m${minValue}_M$maxValue') {
     _clockGateControlInterface?.pairConnectIO(
         this, clockGateControlInterface!, PairRole.consumer);
   }
