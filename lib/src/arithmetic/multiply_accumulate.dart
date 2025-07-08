@@ -200,7 +200,12 @@ class CompressionTreeMultiplyAccumulate extends MultiplyAccumulate {
       PartialProductSignExtension Function(PartialProductGeneratorBase pp,
               {String name})
           seGen = CompactRectSignExtension.new,
-      super.name = 'compression_tree_mac'}) {
+      super.name = 'compression_tree_mac',
+      String? definitionName})
+      : super(
+            definitionName: definitionName ??
+                'CompressionTreeMAC_W${a.width}x${b.width}_Acc${c.width}_'
+                    '${MultiplyAccumulate.signedAD(signedAddend)}') {
     final pp = PartialProduct(
       a,
       b,

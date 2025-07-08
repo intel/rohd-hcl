@@ -33,7 +33,13 @@ class SpiMain extends Module {
       required Logic reset,
       required Logic start,
       required Logic busIn,
-      super.name = 'spiMain'}) {
+      super.name = 'spiMain',
+      String? definitionName})
+      : super(
+            definitionName: definitionName ??
+                'SpiMain_W${busIn.width}_'
+                    '${intf.dataLength}_'
+                    '${intf.sclk.width}') {
     busIn = addInput('busIn', busIn, width: busIn.width);
 
     clk = addInput('clk', clk);

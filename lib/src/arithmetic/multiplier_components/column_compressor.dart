@@ -25,7 +25,9 @@ abstract class BitCompressor extends Module {
   Logic get carry => output('carry');
 
   /// Construct a column compressor
-  BitCompressor(Logic compressBits, {super.name = 'bit_compressor'}) {
+  BitCompressor(Logic compressBits,
+      {super.name = 'bit_compressor', String? definitionName})
+      : super(definitionName: definitionName ?? 'bit_compressor') {
     this.compressBits = addInput(
       'compressBits',
       compressBits,
@@ -39,7 +41,9 @@ abstract class BitCompressor extends Module {
 /// 2-input column compressor (half-adder)
 class Compressor2 extends BitCompressor {
   /// Construct a 2-input compressor (half-adder)
-  Compressor2(super.compressBits, {super.name = 'compressor_2'}) {
+  Compressor2(super.compressBits,
+      {super.name = 'compressor_2', String? definitionName})
+      : super(definitionName: definitionName ?? 'compressor_2') {
     sum <= compressBits.xor();
     carry <= compressBits.and();
   }
@@ -48,7 +52,9 @@ class Compressor2 extends BitCompressor {
 /// 3-input column compressor (full-adder)
 class Compressor3 extends BitCompressor {
   /// Construct a 3-input column compressor (full-adder)
-  Compressor3(super.compressBits, {super.name = 'compressor_3'}) {
+  Compressor3(super.compressBits,
+      {super.name = 'compressor_3', String? definitionName})
+      : super(definitionName: definitionName ?? 'compressor_3') {
     sum <= compressBits.xor();
     carry <=
         mux(compressBits[0], compressBits.slice(2, 1).or(),
@@ -207,9 +213,10 @@ class ColumnCompressor extends Module {
       Logic? reset,
       Logic? enable,
       @visibleForTesting bool dontCompress = false,
-      super.name = 'column_compressor'})
+      super.name = 'column_compressor',
+      String? definitionName})
       : super(
-            definitionName:
+            definitionName: definitionName ??
                 'ColumnCompressor_L${inRows.length}_W${inRows[0].width}') {
     this.clk = (clk != null) ? addInput('clk', clk) : null;
     this.reset = (reset != null) ? addInput('reset', reset) : null;

@@ -237,9 +237,10 @@ class CarrySelectOnesComplementCompoundAdder extends CompoundAdder {
       bool subtract = false,
       List<int> Function(int) widthGen =
           CarrySelectCompoundAdder.splitSelectAdderAlgorithmSingleBlock,
-      super.name})
+      super.name,
+      String? definitionName})
       : super(
-            definitionName:
+            definitionName: definitionName ??
                 'CarrySelectOnesComplementCompoundAdder_W${a.width}') {
     subtractIn = (subtractIn != null)
         ? addInput('subtractIn', subtractIn, width: subtractIn.width)

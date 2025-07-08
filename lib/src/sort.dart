@@ -54,10 +54,11 @@ class _CompareSwap extends Module {
   /// be increased by 1 cycle if the signals for [i] and [j] are considered for
   /// swapping.
   _CompareSwap(Logic clk, Logic reset, List<Logic> toSort, int i, int j,
-      {required this.isAscending})
+      {required this.isAscending, String? definitionName})
       : super(
             name: 'compare_swap_${i}_$j',
-            definitionName: '_CompareSwap_W${toSort.length}') {
+            definitionName:
+                definitionName ?? '_CompareSwap_W${toSort.length}') {
     clk = addInput('clk', clk);
     reset = addInput('reset', reset);
 
@@ -109,13 +110,14 @@ class _BitonicMerge extends Module {
   /// [isAscending] given by [BitonicSort] to first created a bitonic sequence.
   /// The final stage will sort the bitonic sequence into sorted order
   /// of [isAscending].
-  _BitonicMerge(
-    Logic clk,
-    Logic reset, {
-    required bool isAscending,
-    required Iterable<Logic> bitonicSequence,
-    super.name = 'bitonic_merge',
-  }) : super(definitionName: '_BitonicMerge_W${bitonicSequence.length}') {
+  _BitonicMerge(Logic clk, Logic reset,
+      {required bool isAscending,
+      required Iterable<Logic> bitonicSequence,
+      super.name = 'bitonic_merge',
+      String? definitionName})
+      : super(
+            definitionName:
+                definitionName ?? '_BitonicMerge_W${bitonicSequence.length}') {
     clk = addInput('clk', clk);
     reset = addInput('reset', reset);
 
@@ -211,8 +213,12 @@ class BitonicSort extends Sort {
   /// await sortMod.build();
   /// ```
   BitonicSort(Logic clk, Logic reset,
-      {required super.toSort, super.isAscending, super.name = 'bitonic_sort'})
-      : super(definitionName: 'BitonicSort_W${toSort.length}') {
+      {required super.toSort,
+      super.isAscending,
+      super.name = 'bitonic_sort',
+      String? definitionName})
+      : super(
+            definitionName: definitionName ?? 'BitonicSort_W${toSort.length}') {
     clk = addInput('clk', clk);
     reset = addInput('reset', reset);
 

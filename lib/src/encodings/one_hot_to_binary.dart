@@ -29,14 +29,15 @@ abstract class OneHotToBinary extends Module {
   /// By default, creates an instance of a [CaseOneHotToBinary] for smaller
   /// widths and a [TreeOneHotToBinary] for larger widths.
   factory OneHotToBinary(Logic onehot,
-      {bool generateError = false, String name = 'one_hot_to_binary'}) {
+      {bool generateError = false,
+      String name = 'one_hot_to_binary',
+      String? definitionName}) {
     final isSmall = onehot.width <= 8;
 
-    return (isSmall ? CaseOneHotToBinary.new : TreeOneHotToBinary.new)(
-      onehot,
-      generateError: generateError,
-      name: name,
-    );
+    return (isSmall ? CaseOneHotToBinary.new : TreeOneHotToBinary.new)(onehot,
+        generateError: generateError,
+        name: name,
+        definitionName: definitionName);
   }
 
   /// The [input] of this instance.

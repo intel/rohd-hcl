@@ -39,11 +39,12 @@ class FixedToFloat extends Module {
   FixedToFloat(FixedPoint fixed, this.outFloat,
       {bool signed = true,
       Logic? leadingDigitPredict,
-      super.name = 'FixedToFloat'})
+      super.name = 'FixedToFloat',
+      String? definitionName})
       : super(
-            definitionName:
+            definitionName: definitionName ??
                 'Fixed${fixed.width}ToFloatE${outFloat.exponent.width}'
-                'M$outFloat.mantissa.width') {
+                    'M$outFloat.mantissa.width') {
     fixed = fixed.clone()..gets(addInput('fixed', fixed, width: fixed.width));
     final exponentWidth = outFloat.exponent.width;
     final mantissaWidth = outFloat.mantissa.width;

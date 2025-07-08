@@ -36,8 +36,11 @@ class Deserializer extends Module {
       {required Logic clk,
       required Logic reset,
       Logic? enable,
-      super.name = 'deserializer'})
-      : super(definitionName: 'Deserializer_W${serialized.width}_L$length') {
+      super.name = 'deserializer',
+      String? definitionName})
+      : super(
+            definitionName: definitionName ??
+                'Deserializer_W${serialized.width}_L$length') {
     clk = addInput('clk', clk);
     reset = addInput('reset', reset);
     if (enable != null) {

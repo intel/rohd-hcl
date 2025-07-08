@@ -40,8 +40,9 @@ class Find extends Module {
       {bool countOne = true,
       Logic? n,
       this.generateError = false,
-      super.name = 'find'})
-      : super(definitionName: 'Find_W${bus.width}') {
+      super.name = 'find',
+      String? definitionName})
+      : super(definitionName: definitionName ?? 'Find_W${bus.width}') {
     bus = addInput('bus', bus, width: bus.width);
     final oneHotList = <Logic>[];
 

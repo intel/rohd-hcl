@@ -302,7 +302,9 @@ abstract class PartialProductMatrix extends Module {
   late final PartialProductGeneratorBase _array;
 
   /// Base constructor for the matrix
-  PartialProductMatrix({super.name = 'partial_product_matrix'});
+  PartialProductMatrix(
+      {super.name = 'partial_product_matrix', String? definitionName})
+      : super(definitionName: definitionName ?? 'partial_product_matrix');
 
   /// Generate the output vectors from the array
   void generateOutputs() {
@@ -331,7 +333,9 @@ class PartialProduct extends PartialProductMatrix {
               Logic? selectSignedMultiplicand,
               Logic? selectSignedMultiplier})
           genPPG = PartialProductGenerator.new,
-      super.name = 'partial_product'}) {
+      super.name = 'partial_product',
+      String? definitionName})
+      : super(definitionName: definitionName ?? 'partial_product') {
     final selectSignedMultiplicandInternal = selectSignedMultiplicand != null
         ? addInput(selectSignedMultiplicand.name, selectSignedMultiplicand)
         : null;

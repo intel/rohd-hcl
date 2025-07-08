@@ -39,10 +39,12 @@ class FloatingPointAdderSinglePath<FpTypeIn extends FloatingPoint,
           NativeAdder.new,
       List<int> Function(int) widthGen =
           CarrySelectCompoundAdder.splitSelectAdderAlgorithmSingleBlock,
-      super.name = 'floatingpoint_adder_singlepath'})
+      super.name = 'floatingpoint_adder_singlepath',
+      String? definitionName})
       : super(
-            definitionName: 'FloatingPointAdderSinglePath_'
-                'E${a.exponent.width}M${a.mantissa.width}') {
+            definitionName: definitionName ??
+                'FloatingPointAdderSinglePath_'
+                    'E${a.exponent.width}M${a.mantissa.width}') {
     if (internalSum.exponent.width != a.exponent.width) {
       throw RohdHclException('This adder currently only supports '
           'output exponent width equal to input exponent width.');

@@ -125,12 +125,14 @@ class MultiCycleDivider extends Module {
   late final int logDataWidth;
 
   /// The Divider module's constructor
-  MultiCycleDivider(MultiCycleDividerInterface interface)
+  MultiCycleDivider(MultiCycleDividerInterface interface,
+      {String? definitionName})
       : dataWidth = interface.dataWidth,
         logDataWidth = log2Ceil(interface.dataWidth),
         super(
             name: 'divider',
-            definitionName: 'MultiCycleDivider_W${interface.dataWidth}') {
+            definitionName:
+                definitionName ?? 'MultiCycleDivider_W${interface.dataWidth}') {
     intf = MultiCycleDividerInterface.match(interface)
       ..pairConnectIO(
         this,
@@ -152,6 +154,7 @@ class MultiCycleDivider extends Module {
     required Logic divisor,
     required Logic isSigned,
     required Logic readyOut,
+    String? definitionName,
   }) {
     assert(dividend.width == divisor.width,
         'Widths of all data signals do not match!');
@@ -164,7 +167,9 @@ class MultiCycleDivider extends Module {
     intf.divisor <= divisor;
     intf.isSigned <= isSigned;
     intf.readyOut <= readyOut;
-    return MultiCycleDivider(intf);
+    return MultiCycleDivider(intf,
+        definitionName:
+            definitionName ?? 'MultiCycleDivider_W${intf.dataWidth}');
   }
 
   void _build() {
