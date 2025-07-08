@@ -39,17 +39,15 @@ class FifoConfigurator extends Configurator {
   });
 
   @override
-  Module createModule() => Fifo(
-        Logic(),
-        Logic(),
-        writeEnable: Logic(),
-        writeData: Logic(width: dataWidthKnob.value),
-        readEnable: Logic(),
-        depth: depthKnob.value,
-        generateBypass: generateBypassKnob.value,
-        generateError: generateErrorKnob.value,
-        generateOccupancy: generateOccupancyKnob.value,
-      );
+  Module createModule() => Fifo(Logic(), Logic(),
+      writeEnable: Logic(),
+      writeData: Logic(width: dataWidthKnob.value),
+      readEnable: Logic(),
+      depth: depthKnob.value,
+      generateBypass: generateBypassKnob.value,
+      generateError: generateErrorKnob.value,
+      generateOccupancy: generateOccupancyKnob.value,
+      definitionName: 'Fifo');
 
   @override
   final String name = 'FIFO';
