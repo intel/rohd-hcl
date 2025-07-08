@@ -87,7 +87,6 @@ void main() {
 
     await tester.pumpAndSettle();
 
-    final sidebarPriorityArbiter = find.text('PriorityArbiter');
     final btnGenerateRTL = find.byKey(const Key('generateRTL'));
 
     // tap on the priority Arbiter located in the sidebar
