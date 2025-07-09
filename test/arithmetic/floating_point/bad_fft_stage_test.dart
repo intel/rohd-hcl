@@ -22,8 +22,9 @@ ComplexFloatingPoint newComplex(double real, double imaginary) {
   imaginaryFP.put(imaginaryFPValue);
 
   final complex = ComplexFloatingPoint(
-      exponentWidth: realFP.exponent.width,
-      mantissaWidth: realFP.mantissa.width);
+    exponentWidth: realFP.exponent.width,
+    mantissaWidth: realFP.mantissa.width,
+  );
   complex.realPart <= realFP;
   complex.imaginaryPart <= imaginaryFP;
 
@@ -57,24 +58,31 @@ void main() {
     final twiddleFactorROMReadPort = DataPortInterface(dataWidth, addrWidth);
 
     await MemoryModel(
-            clk, reset, [twiddleFactorROMWritePort], [twiddleFactorROMReadPort],
-            readLatency: 0)
-        .build();
-    await MemoryModel(clk, reset, [tempMemoryWritePort],
-            [tempMemoryReadPortA, tempMemoryReadPortB],
-            readLatency: 0)
-        .build();
+      clk,
+      reset,
+      [twiddleFactorROMWritePort],
+      [twiddleFactorROMReadPort],
+      readLatency: 0,
+    ).build();
+    await MemoryModel(
+      clk,
+      reset,
+      [tempMemoryWritePort],
+      [tempMemoryReadPortA, tempMemoryReadPortB],
+      readLatency: 0,
+    ).build();
 
     final stage = BadFFTStage(
-        logStage: 1,
-        exponentWidth: exponentWidth,
-        mantissaWidth: mantissaWidth,
-        clk: clk,
-        reset: reset,
-        ready: ready,
-        inputSamplesA: tempMemoryReadPortA,
-        inputSamplesB: tempMemoryReadPortB,
-        twiddleFactorROM: twiddleFactorROMReadPort);
+      logStage: 1,
+      exponentWidth: exponentWidth,
+      mantissaWidth: mantissaWidth,
+      clk: clk,
+      reset: reset,
+      ready: ready,
+      inputSamplesA: tempMemoryReadPortA,
+      inputSamplesB: tempMemoryReadPortB,
+      twiddleFactorROM: twiddleFactorROMReadPort,
+    );
 
     await stage.build();
 
@@ -85,5 +93,7 @@ void main() {
     await clk.waitCycles(10);
     reset.inject(0);
     await clk.waitCycles(10);
+
+    await Simulator.endSimulation();
   });
 }

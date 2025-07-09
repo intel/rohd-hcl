@@ -22,62 +22,93 @@ class BadFFTStage extends Module {
   late final Logic valid;
   late final DataPortInterface outputSamples;
 
-  BadFFTStage(
-      {required this.logStage,
-      required this.exponentWidth,
-      required this.mantissaWidth,
-      required this.clk,
-      required this.reset,
-      required this.ready,
-      required this.inputSamplesA,
-      required this.inputSamplesB,
-      required this.twiddleFactorROM,
-      super.name = 'badfftstage'})
-      : assert(ready.width == 1),
-        assert(
-            inputSamplesA.dataWidth == 2 * (1 + exponentWidth + mantissaWidth)),
-        assert(inputSamplesB.dataWidth ==
-            2 * (1 + exponentWidth + mantissaWidth)) {
+  BadFFTStage({
+    required this.logStage,
+    required this.exponentWidth,
+    required this.mantissaWidth,
+    required this.clk,
+    required this.reset,
+    required this.ready,
+    required this.inputSamplesA,
+    required this.inputSamplesB,
+    required this.twiddleFactorROM,
+    super.name = 'badfftstage',
+  }) : assert(ready.width == 1),
+       assert(
+         inputSamplesA.dataWidth == 2 * (1 + exponentWidth + mantissaWidth),
+       ),
+       assert(
+         inputSamplesB.dataWidth == 2 * (1 + exponentWidth + mantissaWidth),
+       ) {
     clk = addInput('clk', clk);
     reset = addInput('reset', reset);
     ready = addInput('ready', ready);
     final _valid = Logic();
     valid = addOutput('valid')..gets(_valid);
 
-    inputSamplesA = inputSamplesA.clone()..connectIO(this, inputSamplesA);
-    inputSamplesB = inputSamplesB.clone()..connectIO(this, inputSamplesB);
+    inputSamplesA = inputSamplesA.clone()
+      ..connectIO(
+        this,
+        inputSamplesA,
+        inputTags: [DataPortGroup.data, DataPortGroup.control],
+      );
+    inputSamplesB = inputSamplesB.clone()
+      ..connectIO(
+        this,
+        inputSamplesB,
+        inputTags: [DataPortGroup.data, DataPortGroup.control],
+      );
     twiddleFactorROM = twiddleFactorROM.clone()
-      ..connectIO(this, twiddleFactorROM);
+      ..connectIO(
+        this,
+        twiddleFactorROM,
+        inputTags: [DataPortGroup.data, DataPortGroup.control],
+      );
 
-    outputSamples =
-        DataPortInterface(inputSamplesA.dataWidth, inputSamplesA.addrWidth)
-            .clone();
-    outputSamples.connectIO(this, outputSamples);
+    outputSamples = DataPortInterface(
+      inputSamplesA.dataWidth,
+      inputSamplesA.addrWidth,
+    ).clone();
+    outputSamples.connectIO(
+      this,
+      outputSamples,
+      outputTags: [DataPortGroup.data, DataPortGroup.control],
+    );
 
-    final outputSamplesWritePortATemp =
-        DataPortInterface(inputSamplesA.dataWidth, inputSamplesA.addrWidth);
-    final outputSamplesWritePortBTemp =
-        DataPortInterface(inputSamplesA.dataWidth, inputSamplesA.addrWidth);
+    final outputSamplesWritePortATemp = DataPortInterface(
+      inputSamplesA.dataWidth,
+      inputSamplesA.addrWidth,
+    );
+    final outputSamplesWritePortBTemp = DataPortInterface(
+      inputSamplesA.dataWidth,
+      inputSamplesA.addrWidth,
+    );
 
     final outputSamplesWritePortA = outputSamplesWritePortATemp.clone();
     outputSamplesWritePortA.connectIO(this, outputSamplesWritePortATemp);
     final outputSamplesWritePortB = outputSamplesWritePortBTemp.clone();
     outputSamplesWritePortB.connectIO(this, outputSamplesWritePortBTemp);
 
-    MemoryModel(clk, reset, [outputSamplesWritePortA, outputSamplesWritePortB],
-        [outputSamples],
-        readLatency: 0);
+    MemoryModel(
+      clk,
+      reset,
+      [outputSamplesWritePortA, outputSamplesWritePortB],
+      [outputSamples],
+      readLatency: 0,
+    );
     final n = 1 << inputSamplesA.addrWidth;
     final log2Length = inputSamplesA.addrWidth;
     final m = 1 << logStage;
     final mShift = log2Ceil(m);
 
-    final i = Counter.ofLogics([~_valid],
-        clk: clk,
-        reset: reset,
-        restart: this.ready & _valid,
-        width: max(log2Length - 1, 1),
-        maxValue: n ~/ 2 - 1);
+    final i = Counter.ofLogics(
+      [~_valid],
+      clk: clk,
+      reset: reset,
+      restart: this.ready & _valid,
+      width: max(log2Length - 1, 1),
+      maxValue: n ~/ 2 - 1,
+    );
     _valid <= i.equalsMax;
 
     final k = (i.count >> (mShift - 1)) << mShift;
@@ -101,24 +132,31 @@ class BadFFTStage extends Module {
     twiddleFactorROM.en <= ~_valid;
 
     final butterfly = Butterfly(
-        inA: ComplexFloatingPoint.of(inputSamplesA.data,
-            exponentWidth: exponentWidth, mantissaWidth: mantissaWidth),
-        inB: ComplexFloatingPoint.of(inputSamplesB.data,
-            exponentWidth: exponentWidth, mantissaWidth: mantissaWidth),
-        twiddleFactor: ComplexFloatingPoint.of(twiddleFactorROM.data,
-            exponentWidth: exponentWidth, mantissaWidth: mantissaWidth));
+      inA2: ComplexFloatingPoint.of(
+        inputSamplesA.data,
+        exponentWidth: exponentWidth,
+        mantissaWidth: mantissaWidth,
+      ),
+      inB: ComplexFloatingPoint.of(
+        inputSamplesB.data,
+        exponentWidth: exponentWidth,
+        mantissaWidth: mantissaWidth,
+      ),
+      twiddleFactor: ComplexFloatingPoint.of(
+        twiddleFactorROM.data,
+        exponentWidth: exponentWidth,
+        mantissaWidth: mantissaWidth,
+      ),
+    );
 
     outputSamplesWritePortA.addr <= addressA;
     outputSamplesWritePortA.en <= ~_valid;
     outputSamplesWritePortB.addr <= addressB;
     outputSamplesWritePortB.en <= ~_valid;
 
-    Sequential(
-        clk,
-        [
-          outputSamplesWritePortA.data < butterfly.outA,
-          outputSamplesWritePortB.data < butterfly.outB
-        ],
-        reset: reset);
+    Sequential(clk, [
+      outputSamplesWritePortA.data < butterfly.outA,
+      outputSamplesWritePortB.data < butterfly.outB,
+    ], reset: reset);
   }
 }
