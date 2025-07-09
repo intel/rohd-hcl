@@ -51,18 +51,21 @@ class BadFFTStage extends Module {
         this,
         inputSamplesA,
         inputTags: [DataPortGroup.data, DataPortGroup.control],
+        uniquify: (name) => "inputSamplesA${name}",
       );
     inputSamplesB = inputSamplesB.clone()
       ..connectIO(
         this,
         inputSamplesB,
         inputTags: [DataPortGroup.data, DataPortGroup.control],
+        uniquify: (name) => "inputSamplesB${name}",
       );
     twiddleFactorROM = twiddleFactorROM.clone()
       ..connectIO(
         this,
         twiddleFactorROM,
         inputTags: [DataPortGroup.data, DataPortGroup.control],
+        uniquify: (name) => "twiddleFactorROM${name}",
       );
 
     outputSamples = DataPortInterface(
@@ -73,6 +76,7 @@ class BadFFTStage extends Module {
       this,
       outputSamples,
       outputTags: [DataPortGroup.data, DataPortGroup.control],
+      uniquify: (name) => "outputSamples${name}",
     );
 
     final outputSamplesWritePortATemp = DataPortInterface(
@@ -85,9 +89,19 @@ class BadFFTStage extends Module {
     );
 
     final outputSamplesWritePortA = outputSamplesWritePortATemp.clone();
-    outputSamplesWritePortA.connectIO(this, outputSamplesWritePortATemp);
+    outputSamplesWritePortA.connectIO(
+      this,
+      outputSamplesWritePortATemp,
+      inputTags: [DataPortGroup.data, DataPortGroup.control],
+      uniquify: (name) => "outputSamplesWritePortA${name}",
+    );
     final outputSamplesWritePortB = outputSamplesWritePortBTemp.clone();
-    outputSamplesWritePortB.connectIO(this, outputSamplesWritePortBTemp);
+    outputSamplesWritePortB.connectIO(
+      this,
+      outputSamplesWritePortBTemp,
+      inputTags: [DataPortGroup.data, DataPortGroup.control],
+      uniquify: (name) => "outputSamplesWritePortB${name}",
+    );
 
     MemoryModel(
       clk,
@@ -132,7 +146,7 @@ class BadFFTStage extends Module {
     twiddleFactorROM.en <= ~_valid;
 
     final butterfly = Butterfly(
-      inA2: ComplexFloatingPoint.of(
+      inA: ComplexFloatingPoint.of(
         inputSamplesA.data,
         exponentWidth: exponentWidth,
         mantissaWidth: mantissaWidth,

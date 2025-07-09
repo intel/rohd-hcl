@@ -57,20 +57,20 @@ void main() {
     final twiddleFactorROMWritePort = DataPortInterface(dataWidth, addrWidth);
     final twiddleFactorROMReadPort = DataPortInterface(dataWidth, addrWidth);
 
-    await MemoryModel(
+    MemoryModel(
       clk,
       reset,
       [twiddleFactorROMWritePort],
       [twiddleFactorROMReadPort],
       readLatency: 0,
-    ).build();
-    await MemoryModel(
+    );
+    MemoryModel(
       clk,
       reset,
       [tempMemoryWritePort],
       [tempMemoryReadPortA, tempMemoryReadPortB],
       readLatency: 0,
-    ).build();
+    );
 
     final stage = BadFFTStage(
       logStage: 1,
@@ -85,6 +85,8 @@ void main() {
     );
 
     await stage.build();
+
+    print(stage.generateSynth());
 
     Simulator.setMaxSimTime(10000);
     unawaited(Simulator.run());
