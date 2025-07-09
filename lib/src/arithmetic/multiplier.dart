@@ -66,7 +66,7 @@ abstract class Multiplier extends Module {
   Logic? get selectSignedMultiplier =>
       signedMultiplierParameter.tryRuntimeInput(this);
 
-  /// Logic that tells us [product] is signed.
+  /// [Logic] that tells us [product] is signed.
   @protected
   Logic get isProductSigned => output('isProductSigned');
 
@@ -74,17 +74,17 @@ abstract class Multiplier extends Module {
   /// multiplication result.
   ///
   /// The optional [signedMultiplicand] parameter configures the multiplicand
-  /// [a] statically using a bool as a signed multiplicand (default is false, or
-  /// unsigned) or dynamically with a 1-bit Logic [selectSignedMultiplicand]
-  /// input. You can pass either a bool (for static configuration) or a Logic
-  /// (dynamically configuring the type handled) with a signal to this
-  /// parameter, otherwise this constructor will throw.
+  /// [a] statically using a [bool] as a signed multiplicand (default is
+  /// `false`, or unsigned) or dynamically with a 1-bit [Logic]
+  /// [selectSignedMultiplicand] input. You can pass either a [bool] (for static
+  /// configuration) or a [Logic] (dynamically configuring the type handled)
+  /// with a signal to this parameter, otherwise this constructor will throw.
   ///
   /// The optional [signedMultiplier] parameter configures the multiplier [b]
-  /// statically using a bool as a signed multiplier (default is false, or
-  /// unsigned) or dynamically with a 1-bit Logic [selectSignedMultiplier]
-  /// input. You can pass either a bool (for static configuration) or a Logic
-  /// (dynamically configuring the type handled with a signal) to this
+  /// statically using a [bool] as a signed multiplier (default is `false`, or
+  /// unsigned) or dynamically with a 1-bit [Logic] [selectSignedMultiplier]
+  /// input. You can pass either a [bool] (for static configuration) or a
+  /// [Logic] (dynamically configuring the type handled with a signal) to this
   /// parameter, otherwise this constructor will throw.
   ///
   /// If [clk] is not null then a set of flops are used to make the multiply a
@@ -122,7 +122,7 @@ abstract class Multiplier extends Module {
   }
 
   /// This is a helper function that prints out the kind of multiplicand
-  /// (selected by a Logic or set statically).
+  /// (selected by a [Logic] or set statically via [bool]).
   /// - UD: unsigned multiplicand.
   /// - SD: signed multiplicand.
   /// - SSD: dynamic selection of signed multiplicand.
@@ -136,7 +136,7 @@ abstract class Multiplier extends Module {
                   : 'UD';
 
   /// This is a helper function that prints out the kind of multiplier (selected
-  /// by a Logic or set statically).)
+  /// by a [Logic] or set statically via [bool]).)
   /// - UM: unsigned multiplier.
   /// - SM: signed multiplier.
   /// - SSM: dynamic selection of signed multiplier.

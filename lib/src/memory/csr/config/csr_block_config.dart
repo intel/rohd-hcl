@@ -15,7 +15,7 @@ import 'package:rohd_hcl/src/memory/csr/config/csr_container_config.dart';
 /// Definition for a coherent block of registers.
 ///
 /// Blocks by definition are instantiations of registers and
-/// hence require CsrInstanceConfig objects.
+/// hence require [CsrInstanceConfig] objects.
 /// This class is also where the choice to instantiate
 /// any conditional registers should take place.
 @immutable

@@ -294,7 +294,7 @@ abstract class MemoryStorage {
   /// Returns the data at [addr], or `null` if it is not present.
   LogicValue? getData(LogicValue addr);
 
-  /// Returns true if there is no data stored in this memory.
+  /// Returns `true` if there is no data stored in this memory.
   bool get isEmpty;
 
   /// A list of [addresses] which have data stored in this memory.

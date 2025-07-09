@@ -24,12 +24,12 @@ class FixedToFloat extends Module {
   @protected
   late final FloatingPoint outFloat;
 
-  /// The internal FloatingPoint logic to set
+  /// The internal [FloatingPoint] logic to set
   late final FloatingPoint _convertedFloat;
 
   /// Constructor for fixed to floating-point conversion. This component takes
   /// a [fixed] point input number to convert, producing a floating-point output
-  /// [float].  The number can be specified as [signed] (true by default). The
+  /// [float].  The number can be specified as [signed] (`true` by default). The
   /// [leadingDigitPredict] pposition can optionally be provided which avoids
   /// having to do a full leading-digit scan for conversion. This provided value
   /// must be within 1 of the actual final leading one (after absolute value) of

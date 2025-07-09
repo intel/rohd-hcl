@@ -22,7 +22,7 @@ class MemoryModel extends Memory {
   /// The memory storage underlying this model.
   late final MemoryStorage storage;
 
-  /// If true, a positive edge on reset will reset the memory asynchronously.
+  /// If `true`, a positive edge on reset will reset the memory asynchronously.
   final bool asyncReset;
 
   @override

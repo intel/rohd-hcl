@@ -81,7 +81,7 @@ void main() async {
                   fp1.put(fv1.value);
                   final val = fv1.toDouble();
                   if (FixedPointValuePopulator.canStore(val,
-                      signed: true, m: tM, n: tN)) {
+                      signed: true, integerWidth: tM, fractionWidth: tN)) {
                     final fx = FixedPointValue.populator(
                             integerWidth: tM, fractionWidth: tN, signed: true)
                         .ofDouble(fv1.toDouble());
@@ -265,7 +265,9 @@ void main() async {
     final expectedDbl = bf16Val.toDouble();
 
     if (FixedPointValuePopulator.canStore(expectedDbl,
-        signed: true, m: convert.integerWidth, n: convert.fractionWidth)) {
+        signed: true,
+        integerWidth: convert.integerWidth,
+        fractionWidth: convert.fractionWidth)) {
       final expected = FixedPointValue.populator(
               integerWidth: m, fractionWidth: n, signed: true)
           .ofDouble(expectedDbl);
@@ -292,7 +294,9 @@ void main() async {
       final expectedDbl = bf16Val.toDouble();
 
       if (FixedPointValuePopulator.canStore(expectedDbl,
-          signed: true, m: convert.integerWidth, n: convert.fractionWidth)) {
+          signed: true,
+          integerWidth: convert.integerWidth,
+          fractionWidth: convert.fractionWidth)) {
         final expected = FixedPointValue.populator(
                 integerWidth: m, fractionWidth: n, signed: true)
             .ofDouble(expectedDbl);

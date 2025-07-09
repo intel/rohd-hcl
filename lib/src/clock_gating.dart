@@ -52,10 +52,10 @@ class ClockGateControlInterface extends PairInterface {
 
   /// Constructs a [ClockGateControlInterface] with the provided arguments.
   ///
-  /// If [isPresent] is false, then no clock gating will occur and no clock
+  /// If [isPresent] is `false`, then no clock gating will occur and no clock
   /// gating logic will be generated.
   ///
-  /// If [hasEnableOverride] is true, then an additional [enableOverride] port
+  /// If [hasEnableOverride] is `true`, then an additional [enableOverride] port
   /// will be generated.
   ///
   /// [additionalPorts] can optionally be added to this interface, which can be
@@ -104,8 +104,8 @@ class ClockGate extends Module {
   final Map<Logic, Logic> _controlledCache = {};
 
   /// Returns a (potentially) delayed (by one cycle) version of [original] if
-  /// [delayControlledSignals] is true and the clock gating [isPresent]. This is
-  /// the signal that should be used as inputs to logic depending on the
+  /// [delayControlledSignals] is `true` and the clock gating [isPresent]. This
+  /// is the signal that should be used as inputs to logic depending on the
   /// [gatedClk].
   ///
   /// If a [resetValue] is provided, then the signal will be reset to that value
@@ -178,11 +178,12 @@ class ClockGate extends Module {
   bool get isPresent =>
       _controlIntf?.isPresent ??
       // if no interface is provided, then _controlInterface is initialized with
-      // `isPresent` as true, so if this is null then there is no clock gating
+      // `isPresent` as `true`, so if this is null then there is no clock
+      // gating.
       false;
 
   /// Indicates whether the controlled signals are delayed by 1 cycle. If this
-  /// is false, or clock gating is not [isPresent], then the [controlled]
+  /// is `false`, or clock gating is not [isPresent], then the [controlled]
   /// signals are not delayed.
   final bool delayControlledSignals;
 
@@ -194,7 +195,7 @@ class ClockGate extends Module {
   /// override signal to force clocks enabled). If [controlIntf] is not
   /// provided, then the clock gating is always present.
   ///
-  /// If [delayControlledSignals] is true, then any signals that are
+  /// If [delayControlledSignals] is `true`, then any signals that are
   /// [controlled] by the clock gating will be delayed by 1 cycle. This can be
   /// helpful for timing purposes to avoid ungating the clock on the same cycle
   /// as the signal is used. Using the [controlled] signals helps turn on or off

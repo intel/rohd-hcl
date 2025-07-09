@@ -51,7 +51,8 @@ class CsrTopConfig extends CsrContainerConfig {
   /// Must check that its blocks are mutually valid.
   /// Note that this method does not call the validate method of
   /// the individual blocks. It is assumed that
-  /// block validation is called separately (i.e., in CsrBlock HW construction).
+  /// block validation is called separately (i.e., in [CsrBlock] HW
+  /// construction).
   void _validate() {
     // at least 1 block
     if (blocks.isEmpty) {

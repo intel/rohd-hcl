@@ -20,7 +20,7 @@ class SumInterfaceKnob extends GroupOfKnobs {
   ToggleConfigKnob isFixedValueKnob = ToggleConfigKnob(value: false);
 
   /// The fixed value of the sum interface, only present when [isFixedValueKnob]
-  /// is true.
+  /// is `true`.
   IntConfigKnob fixedValueKnob = IntConfigKnob(value: 1);
 
   /// The width of the sum interface.

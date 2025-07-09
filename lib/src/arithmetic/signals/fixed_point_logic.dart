@@ -21,7 +21,7 @@ class FixedPoint extends LogicStructure {
   /// The fractional part of the fixed-point number.
   Logic fraction;
 
-  /// Return true if signed
+  /// Return `true` if signed.
   final bool signed;
 
   /// [integerWidth] is the number of bits reserved for the integer part.

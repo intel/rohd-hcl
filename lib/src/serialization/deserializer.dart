@@ -26,11 +26,11 @@ class Deserializer extends Module {
   /// Return the current count of elements that have been serialized out.
   Logic get count => output('count');
 
-  /// Build a Deserializer that takes serialized input [serialized]
+  /// Build a [Deserializer] that takes serialized input [serialized]
   /// and aggregates it into one wide output [deserialized] of length [length].
   ///
   /// Updates one element per clock while [enable] (if connected) is high,
-  /// emitting [done] when completing the filling of wide output `LogicArray`
+  /// emitting [done] when completing the filling of wide output [LogicArray]
   /// [deserialized].
   Deserializer(Logic serialized, this.length,
       {required Logic clk,

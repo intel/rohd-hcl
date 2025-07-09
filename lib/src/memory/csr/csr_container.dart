@@ -50,7 +50,7 @@ abstract class CsrContainer extends Module {
   /// Is it legal for the largest register width to be
   /// greater than the data width of the frontdoor interfaces.
   ///
-  /// If this is true, HW generation must assign multiple addresses
+  /// If this is `true`, HW generation must assign multiple addresses
   /// to any register that exceeds the data width of the frontdoor.
   final bool allowLargerRegisters;
 

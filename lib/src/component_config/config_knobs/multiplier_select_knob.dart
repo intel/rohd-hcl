@@ -62,10 +62,10 @@ class MultiplierSelectKnob extends GroupOfKnobs {
           'Pipelined': pipelinedKnob,
       };
 
-  /// Constructor for MultiplierSelectKnob allows for exposing or hiding
+  /// Constructor for [MultiplierSelectKnob] allows for exposing or hiding
   /// some of the configuration knobs.
-  /// - [allowSigned] is false by default, making the multiplier unsigned.
-  /// - [allowPipelining] is false by default, making the multiplier
+  /// - [allowSigned] is `false` by default, making the multiplier unsigned.
+  /// - [allowPipelining] is `false` by default, making the multiplier
   /// combinational.
   MultiplierSelectKnob(
       {required this.allowSigned,

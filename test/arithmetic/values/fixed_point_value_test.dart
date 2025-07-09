@@ -211,7 +211,9 @@ void main() {
           .ofLogicValue(LogicValue.ofInt(i, width));
       final dbl = fxv.toDouble();
       if (!FixedPointValuePopulator.canStore(dbl,
-          signed: fxv.signed, m: fxv.integerWidth, n: fxv.fractionWidth)) {
+          signed: fxv.signed,
+          integerWidth: fxv.integerWidth,
+          fractionWidth: fxv.fractionWidth)) {
         throw RohdHclException('generated a value that we cannot store');
       }
       final fxv2 = FixedPointValue.populator(

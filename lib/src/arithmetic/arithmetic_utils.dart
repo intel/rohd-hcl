@@ -1,4 +1,4 @@
-// Copyright (C) 2024 Intel Corporation
+// Copyright (C) 2024-2025 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 //
 // arithmetic_utils.dart
@@ -16,17 +16,17 @@ import 'package:rohd_hcl/rohd_hcl.dart';
 
 /// Helper evaluation methods for printing aligned arithmetic bitvectors.
 extension LogicList on List<Logic> {
-  /// Print aligned bitvector with an optional header from List<Logic>.
+  /// Print aligned bitvector with an optional header from [List<Logic>].
   /// [name] is printed at the LHS of the line, trimmed by [prefix].
   /// [prefix] is the distance from the margin bebore the vector is printed.
   /// [alignHigh] is highest column (MSB) to which to align
   /// [alignLow] will trim the vector below this bit position (LSB).
   /// [shift] will allow you to shift your list positions
   /// You can insert a separator [sepChar] at position [sepPos].
-  /// A header can be printed by setting [header] to true.
-  /// Markdown format can be produced by setting [markDown] to true.
+  /// A header can be printed by setting [header] to `true`.
+  /// Markdown format can be produced by setting [markDown] to `true`.
   /// The output can have space by setting [extraSpace]
-  /// if [intValue] is true, then the integer value (signed version in parens)
+  /// if [intValue] is `true`, then the integer value (signed version in parens)
   /// will be printed at the end of the vector.
   String listString(String name,
       {int prefix = 10,

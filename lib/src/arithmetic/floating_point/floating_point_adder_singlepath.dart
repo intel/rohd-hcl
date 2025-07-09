@@ -11,7 +11,7 @@ import 'dart:math';
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
 
-/// An adder module for FloatingPoint values
+/// A single-path adder implementation for [FloatingPoint] values.
 class FloatingPointAdderSinglePath<FpTypeIn extends FloatingPoint,
         FpTypeOut extends FloatingPoint>
     extends FloatingPointAdder<FpTypeIn, FpTypeOut> {

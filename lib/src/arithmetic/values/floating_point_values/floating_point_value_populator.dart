@@ -39,10 +39,10 @@ class FloatingPointValuePopulator<FpvType extends FloatingPointValue> {
   /// The maximum exponent value.
   int get maxExponent => _unpopulated.maxExponent;
 
-  /// True if the format stores the Jbit explicitly.
+  /// `true` if the format stores the Jbit explicitly.
   bool get explicitJBit => _unpopulated.explicitJBit;
 
-  /// True if subnormal numbers are treated as zero.
+  /// `true` if subnormal numbers are treated as zero.
   bool get subNormalAsZero => _unpopulated.subNormalAsZero;
 
   /// Whether or not this populator has already populated values.
@@ -246,14 +246,14 @@ class FloatingPointValuePopulator<FpvType extends FloatingPointValue> {
   /// subclases.
   @protected
   ({LogicValue sign, LogicValue exponent, LogicValue mantissa})
-      getConstantComponents(FloatingPointConstants constantFloatingPoint) {
+      getConstantComponents(FloatingPointConstants constant) {
     final (
       String signStr,
       String exponentStr,
       String mantissaStr
     ) stringComponents;
 
-    switch (constantFloatingPoint) {
+    switch (constant) {
       // smallest possible number
       case FloatingPointConstants.negativeInfinity:
         stringComponents = ('1', '1' * exponentWidth, '0' * mantissaWidth);
@@ -578,7 +578,7 @@ class FloatingPointValuePopulator<FpvType extends FloatingPointValue> {
   /// represent:a general [FloatingPointValue] has a mantissa in `[0,2)` with `0
   /// <= exponent <= maxExponent()`.
   ///
-  /// If [normal] is true, This routine will only generate mantissas in the
+  /// If [normal] is `true`, This routine will only generate mantissas in the
   /// range of `[1,2)` and `minExponent() <= exponent <= maxExponent().`
   FpvType random(Random rv, {bool normal = false}) {
     if (explicitJBit) {
