@@ -76,19 +76,19 @@ class MultiCycleDividerInterface extends PairInterface {
   /// A constructor for the divider interface.
   MultiCycleDividerInterface({this.dataWidth = 32})
       : super(portsFromProvider: [
-          Port('clk'),
-          Port('reset'),
-          Port('dividend', dataWidth),
-          Port('divisor', dataWidth),
-          Port('isSigned'),
-          Port('validIn'),
-          Port('readyOut'),
+          Logic.port('clk'),
+          Logic.port('reset'),
+          Logic.port('dividend', dataWidth),
+          Logic.port('divisor', dataWidth),
+          Logic.port('isSigned'),
+          Logic.port('validIn'),
+          Logic.port('readyOut'),
         ], portsFromConsumer: [
-          Port('quotient', dataWidth),
-          Port('remainder', dataWidth),
-          Port('divZero'),
-          Port('validOut'),
-          Port('readyIn'),
+          Logic.port('quotient', dataWidth),
+          Logic.port('remainder', dataWidth),
+          Logic.port('divZero'),
+          Logic.port('validOut'),
+          Logic.port('readyIn'),
         ]);
 
   /// A match constructor for the divider interface.

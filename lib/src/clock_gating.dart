@@ -66,10 +66,10 @@ class ClockGateControlInterface extends PairInterface {
   ClockGateControlInterface({
     this.isPresent = true,
     this.hasEnableOverride = false,
-    List<Port>? additionalPorts,
+    List<Logic>? additionalPorts,
     this.gatedClockGenerator = defaultGenerateGatedClock,
   }) : super(portsFromProvider: [
-          if (hasEnableOverride) Port('en_override'),
+          if (hasEnableOverride) Logic.port('en_override'),
           ...?additionalPorts,
         ]);
 
