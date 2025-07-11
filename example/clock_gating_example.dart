@@ -102,7 +102,7 @@ Future<void> main({bool noPrint = false}) async {
     additionalPorts: [
       // we add an additional override port, for example, which is passed
       // automatically down the hierarchy
-      Port('anotherOverride'),
+      Logic.port('anotherOverride'),
     ],
     gatedClockGenerator: (intf, clk, enable) => CustomClockGateMacro(
       clk: clk,
