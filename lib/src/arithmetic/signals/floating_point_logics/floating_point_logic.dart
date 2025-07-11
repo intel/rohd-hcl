@@ -233,4 +233,79 @@ class FloatingPoint extends LogicStructure {
     return FloatingPoint._(
         signLogic, exponent, mantissa, explicitJBit, subNormalAsZero);
   }
+
+  /// Negate the [FloatingPoint].
+  FloatingPoint negate() => FloatingPoint._(
+        Logic()..gets(~sign),
+        Logic(width: exponent.width)..gets(exponent),
+        Logic(width: mantissa.width)..gets(mantissa),
+        explicitJBit,
+        subNormalAsZero,
+        name: name,
+      );
+
+  /// Negate the [FloatingPoint].
+  FloatingPoint operator -() => negate();
+  // ignore the lint warning about overriding the '-' operator.
+  // Adding that override will fail CI analyze_source.sh.
+
+  @override
+  Logic operator >(dynamic other) => gt(other);
+  @override
+  Logic operator >=(dynamic other) => gte(other);
+
+  /// Equal
+  @override
+  Logic eq(dynamic other) {
+    if (other is! FloatingPoint) {
+      throw RohdHclException('Input must be floating point signal.');
+    }
+    if (other.exponent.width != exponent.width ||
+        other.mantissa.width != mantissa.width ||
+        other.explicitJBit ||
+        explicitJBit) {
+      throw RohdHclException('FloatingPoint width or J-bit does not match');
+    }
+    return mux(isNaN | other.isNaN, Const(0), super.eq(other));
+  }
+
+  /// Not Equal
+  @override
+  Logic neq(dynamic other) => ~eq(other);
+
+  /// Less-than.
+  @override
+  Logic lt(dynamic other) {
+    if (other is! FloatingPoint) {
+      throw RohdHclException('Input must be floating point signal.');
+    }
+    if (other.exponent.width != exponent.width ||
+        other.mantissa.width != mantissa.width ||
+        other.explicitJBit ||
+        explicitJBit) {
+      throw RohdHclException('FloatingPoint width or J-bit does not match');
+    }
+    return mux(
+        isNaN | other.isNaN,
+        Const(0),
+        mux(sign, mux(other.sign, super.gt(other), Const(1)),
+            mux(other.sign, Const(0), super.lt(other))));
+  }
+
+  @override
+  Logic lte(dynamic other) => lt(other) | eq(other);
+
+  // For Greather-than operators, reverse the operands
+  /// Greater-than.
+  @override
+  Logic gt(dynamic other) {
+    if (other is! FloatingPoint) {
+      throw RohdHclException('Input must be floating point signal.');
+    }
+    return mux(isNaN | other.isNaN, Const(0), ~lte(other));
+  }
+
+  /// Greater-than-or-equal-to.
+  @override
+  Logic gte(dynamic other) => gt(other) | eq(other);
 }

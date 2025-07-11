@@ -631,4 +631,122 @@ void main() {
       }
     });
   });
+
+  test('FloatingPointValue negation', () async {
+    const exponentWidth = 4;
+    const mantissaWidth = 4;
+    final fp1 = FloatingPoint(
+        exponentWidth: exponentWidth, mantissaWidth: mantissaWidth);
+
+    final val1 = FloatingPointValue.populator(
+            exponentWidth: exponentWidth, mantissaWidth: mantissaWidth)
+        .ofDouble(-1.23);
+    fp1.put(val1);
+    final val2 = FloatingPointValue.populator(
+            exponentWidth: exponentWidth, mantissaWidth: mantissaWidth)
+        .ofDouble(1.23);
+    expect((-fp1).floatingPointValue, equals(val2));
+  });
+
+  test('FloatingPointValue comparison operators', () async {
+    const exponentWidth = 4;
+    const mantissaWidth = 4;
+    final fp1 = FloatingPoint(
+        exponentWidth: exponentWidth, mantissaWidth: mantissaWidth);
+    final fp2 = FloatingPoint(
+        exponentWidth: exponentWidth, mantissaWidth: mantissaWidth);
+
+    final val1 = FloatingPointValue.populator(
+            exponentWidth: exponentWidth, mantissaWidth: mantissaWidth)
+        .ofDouble(-1.23);
+    final val2 = FloatingPointValue.populator(
+            exponentWidth: exponentWidth, mantissaWidth: mantissaWidth)
+        .ofDouble(-3.45);
+
+    fp1.put(val1);
+    fp2.put(val2);
+
+    final rv = Random(71);
+
+    for (var iter = 0; iter < 50; iter++) {
+      final val1 = FloatingPointValue.populator(
+              exponentWidth: exponentWidth, mantissaWidth: mantissaWidth)
+          .random(rv);
+      final val2 = FloatingPointValue.populator(
+              exponentWidth: exponentWidth, mantissaWidth: mantissaWidth)
+          .random(rv);
+      fp1.put(val1);
+      fp2.put(val1);
+      expect(fp1.eq(fp2).value.toBool(), isTrue);
+      expect(fp1.lte(fp2).value.toBool(), isTrue);
+      expect(fp1.gte(fp2).value.toBool(), isTrue);
+      expect((fp2 >= fp1).value.toBool(), isTrue);
+      expect(fp1.neq(fp2).value.toBool(), isFalse);
+      expect(fp1.lt(fp2).value.toBool(), isFalse);
+      expect(fp1.gt(fp2).value.toBool(), isFalse);
+      expect((fp2 > fp1).value.toBool(), isFalse);
+
+      fp2.put(val2);
+      if (val1.toDouble() < val2.toDouble()) {
+        expect(fp1.lt(fp2).value.toBool(), isTrue);
+        expect(fp1.lte(fp2).value.toBool(), isTrue);
+        expect(
+            fp1.neq(fp2).value.toBool(), isTrue); // This will use Logic.neq()
+        expect(fp1.eq(fp2).value.toBool(), isFalse);
+        expect(fp1.gt(fp2).value.toBool(), isFalse);
+        expect((fp1 > fp2).value.toBool(), isFalse);
+      } else if (val1.toDouble() > val2.toDouble()) {
+        expect(fp1.gt(fp2).value.toBool(), isTrue);
+        expect((fp1 > fp2).value.toBool(), isTrue);
+        expect(fp1.lt(fp2).value.toBool(), isFalse);
+        expect(fp1.lte(fp2).value.toBool(), isFalse);
+        expect(
+            fp1.neq(fp2).value.toBool(), isTrue); // This will use Logic.neq()
+      } else {
+        // rare that the two numbers would collide but just to be safe
+        expect(fp1.eq(fp2).value.toBool(), isTrue);
+        expect(fp1.neq(fp2).value.toBool(), isFalse);
+      }
+    }
+  });
+
+  test('FloatingPointValue corner case comparisons', () async {
+    const exponentWidth = 4;
+    const mantissaWidth = 4;
+    final fp1 = FloatingPoint(
+        exponentWidth: exponentWidth, mantissaWidth: mantissaWidth);
+    final fp2 = FloatingPoint(
+        exponentWidth: exponentWidth, mantissaWidth: mantissaWidth);
+    final nan = FloatingPointValue.populator(
+            exponentWidth: exponentWidth, mantissaWidth: mantissaWidth)
+        .nan;
+    final posInfinity = FloatingPointValue.populator(
+            exponentWidth: exponentWidth, mantissaWidth: mantissaWidth)
+        .ofConstant(FloatingPointConstants.positiveInfinity);
+    final negInfinity = FloatingPointValue.populator(
+            exponentWidth: exponentWidth, mantissaWidth: mantissaWidth)
+        .ofConstant(FloatingPointConstants.negativeInfinity);
+    fp1.put(nan);
+    fp2.put(nan);
+    expect(fp1.eq(fp2).value.toBool(), isFalse);
+    expect(fp1.lt(fp2).value.toBool(), isFalse);
+    expect(fp1.gt(fp2).value.toBool(), isFalse);
+
+    fp1.put(posInfinity);
+    expect(fp1.eq(fp2).value.toBool(), isFalse);
+    fp2.put(posInfinity);
+    expect(fp1.eq(fp2).value.toBool(), isTrue);
+    expect(fp1.lt(fp2).value.toBool(), isFalse);
+    expect(fp1.gt(fp2).value.toBool(), isFalse);
+    fp2.put(negInfinity);
+    expect(fp1.eq(fp2).value.toBool(), isFalse);
+    fp1.put(negInfinity);
+    expect(fp1.eq(fp2).value.toBool(), isTrue);
+    expect(fp1.lt(fp2).value.toBool(), isFalse);
+    expect(fp1.gt(fp2).value.toBool(), isFalse);
+    fp2.put(posInfinity);
+    expect((-fp1).eq(fp2).value.toBool(), isTrue);
+    expect((-fp1).lt(fp2).value.toBool(), isFalse);
+    expect((-fp1).gt(fp2).value.toBool(), isFalse);
+  });
 }
