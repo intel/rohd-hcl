@@ -44,7 +44,7 @@ class FixedToFloat extends Module {
       : super(
             definitionName: definitionName ??
                 'Fixed${fixed.width}ToFloatE${outFloat.exponent.width}'
-                    'M$outFloat.mantissa.width') {
+                    'M${outFloat.mantissa.width}') {
     fixed = fixed.clone()..gets(addInput('fixed', fixed, width: fixed.width));
     final exponentWidth = outFloat.exponent.width;
     final mantissaWidth = outFloat.mantissa.width;
