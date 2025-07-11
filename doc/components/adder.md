@@ -121,8 +121,10 @@ The compound adder forms a select chain around a set of adders specified by:
 - `adderGen`: an adder generator functor option to build the block adders with the default being a closure returning a functor returning `ParallelPrefixAdder`.  This functor has the signature: This functor has the signature:  
 
 ```dart
-(Logic a, Logic b, {Logic? carryIn, Logic? subtractIn, String name = ''})=> Adder
+(Logic a, Logic b, {Logic? carryIn, dynamic subtract, String name = ''})=> Adder
 ```
+
+Note that the subtract input can either be a `bool` or a `Logic` signal to enable static subtraction or dynamic control of subtraction.
 
 - `splitSelectAdderAlgorithmSingleBlock:
   - The `CarrySelectCompoundAdder.splitSelectAdderAlgorithmNBit` algorithm splits the adder into blocks of n-bit adders with the first one width adjusted down.
@@ -151,7 +153,7 @@ ROHD-HCL has an implementation of a `CompoundAdder` that uses a `OnesComplement`
 
 By providing `outputCarryOut` and/or `outputCarryOutP1` settings, the outputs `carryOut` and `carryOutP1` are provided which also ensures the adder does not convert to 2s complement but instead does the efficient 1s complement subtract (or add) and provides the end-around carry as an output.  Otherwise, the adder will add back the end-around carry to the result to convert back to 2s complement.  A `sign` and `signP1` is also output for the result.
 
-Both Logic control `subtractIn` and boolean control `subtract` are provided for enabling subtraction either by control signal or by a hard configuration (no signal control).
+Both `Logic` control and boolean control are provided via the  `subtract` option for enabling subtraction.
 
 ```dart
     final adder = CarrySelectOnesComplementCompoundAdder(a, b,
