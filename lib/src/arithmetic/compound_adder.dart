@@ -92,7 +92,7 @@ class CarrySelectCompoundAdder extends CompoundAdder {
 
   /// Default adder functor to use.
   static Adder _defaultBlockAdder(Logic a, Logic b,
-          {Logic? carryIn, Logic? subtractIn, String name = ''}) =>
+          {Logic? carryIn, dynamic subtract, String name = ''}) =>
       ParallelPrefixAdder(a, b, carryIn: carryIn, name: name);
 
   /// Constructs a [CarrySelectCompoundAdder].
@@ -111,7 +111,7 @@ class CarrySelectCompoundAdder extends CompoundAdder {
     Logic? subtractIn,
     super.carryIn,
     Adder Function(Logic a, Logic b,
-            {Logic? carryIn, Logic? subtractIn, String name})
+            {Logic? carryIn, dynamic subtract, String name})
         adderGen = _defaultBlockAdder,
     List<int> Function(int) widthGen = splitSelectAdderAlgorithmSingleBlock,
     String? definitionName,
@@ -148,10 +148,10 @@ class CarrySelectCompoundAdder extends CompoundAdder {
       // Build sub adders for carryIn=0 and carryIn=1
       final fullAdder0 = adderGen(a.getRange(blockStartIdx, blockEnd),
           b.getRange(blockStartIdx, blockEnd),
-          subtractIn: subtractIn, carryIn: Const(0), name: 'block0_$i');
+          subtract: subtractIn, carryIn: Const(0), name: 'block0_$i');
       final fullAdder1 = adderGen(a.getRange(blockStartIdx, blockEnd),
           b.getRange(blockStartIdx, blockEnd),
-          subtractIn: subtractIn, carryIn: Const(1), name: 'block1_$i');
+          subtract: subtractIn, carryIn: Const(1), name: 'block1_$i');
       sum0Ary <=
           ((i == 0)
                   ? fullAdder0.sum
@@ -209,16 +209,17 @@ class CarrySelectOnesComplementCompoundAdder extends CompoundAdder {
 
   /// Subtraction controlled by an optional logic [subtractIn]
   @protected
-  late final Logic? subtractIn;
+  late final StaticOrDynamicParameter subtractIn;
 
   /// Constructs a [CarrySelectCompoundAdder] using a set of
   /// [OnesComplementAdder] in a carry-select configuration.
   /// Adds (or subtracts) [a] and [b] to produce [sum] and [sumP1] (sum
   /// plus 1).
   /// - [adderGen] is the adder used inside the [OnesComplementAdder].
-  /// - [subtractIn] is an optional Logic control for subtraction.
-  /// - [subtract] is a boolean control for subtraction. It must be
-  /// false(default) if a [subtractIn] Logic is provided.
+  /// - The optional [subtract] parameter configures the adder to subtract [b]
+  ///   from [a] statically using a bool to indicate a ssubtraction (default is
+  ///   false, or addition) or dynamically with a 1-bit [Logic] input. Passing
+  ///   something other null, bool, or [Logic] will result in a throw.
   /// - [generateCarryOut] set to true will create output [carryOut] and employ
   /// the ones-complement optimization of not adding '1' to convert back to 2s
   /// complement during subtraction on the [sum].
@@ -231,19 +232,16 @@ class CarrySelectOnesComplementCompoundAdder extends CompoundAdder {
   CarrySelectOnesComplementCompoundAdder(super.a, super.b,
       {Adder Function(Logic, Logic, {Logic? carryIn}) adderGen =
           NativeAdder.new,
-      Logic? subtractIn,
       bool generateCarryOut = false,
       bool generateCarryOutP1 = false,
-      bool subtract = false,
+      dynamic subtract,
       List<int> Function(int) widthGen =
           CarrySelectCompoundAdder.splitSelectAdderAlgorithmSingleBlock,
       super.name})
       : super(
             definitionName:
                 'CarrySelectOnesComplementCompoundAdder_W${a.width}') {
-    subtractIn = (subtractIn != null)
-        ? addInput('subtractIn', subtractIn, width: subtractIn.width)
-        : null;
+    subtractIn = StaticOrDynamicParameter.ofDynamic(subtract).clone(this);
 
     if (generateCarryOut) {
       addOutput('carryOut');
@@ -252,19 +250,18 @@ class CarrySelectOnesComplementCompoundAdder extends CompoundAdder {
       addOutput('carryOutP1');
     }
 
-    final doSubtract = subtractIn ?? (subtract ? Const(subtract) : Const(0));
+    final doSubtract = subtractIn.getLogic(this);
 
     final csadder = CarrySelectCompoundAdder(a, b,
         widthGen: widthGen,
-        subtractIn: subtractIn,
-        adderGen: (a, b, {carryIn, subtractIn, name = 'ones_complement'}) =>
+        subtractIn: doSubtract,
+        adderGen: (a, b, {carryIn, subtract, name = 'ones_complement'}) =>
             OnesComplementAdder(a, b,
                 adderGen: adderGen,
                 carryIn: carryIn,
                 generateEndAroundCarry: true,
-                subtract: subtract,
                 chainable: true,
-                subtractIn: subtractIn));
+                subtract: subtract));
 
     addOutput('sign') <= mux(doSubtract, ~csadder.sum[-1], Const(0));
     addOutput('signP1') <= mux(doSubtract, ~csadder.sumP1[-1], Const(0));

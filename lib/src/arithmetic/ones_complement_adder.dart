@@ -30,32 +30,33 @@ class OnesComplementAdder extends Adder {
 
   /// Subtraction is happening
   @protected
-  late final Logic? subtractIn;
+  late final StaticOrDynamicParameter subtractIn;
 
   /// Generate an endAroundCarry signal instead of adding it to the
   /// [sum].
   final bool generateEndAroundCarry;
 
   /// [OnesComplementAdder] constructor with an adder functor [adderGen].
-  /// - A subtractor is created if [subtract] is set to true.  Alternatively,
-  /// if [subtract] configuration is false, and a Lgic control signal
-  /// [subtractIn] is provided, then subtraction can be dynamically selected.
   /// Otherwise an adder is constructed.
-  /// - If [generateEndAroundCarry] is true, then the end-around
-  /// carry is not performed and is provided as output [endAroundCarry]. If
-  /// [generateEndAroundCarry] is false, extra hardware takes care of adding the
-  /// end-around carry to [sum].
+  ///
+  /// - The optional [subtract] parameter configures the adder to subtract [b]
+  ///   from [a] statically using a bool to indicate a ssubtraction (default is
+  ///   false, or addition) or dynamically with a 1-bit [Logic] input. Passing
+  ///   something other null, bool, or [Logic] will result in a throw.
+  /// - If [generateEndAroundCarry] is true, then the end-around carry is not
+  ///   performed and is provided as output [endAroundCarry]. If
+  ///   [generateEndAroundCarry] is false, extra hardware takes care of adding
+  ///   the end-around carry to [sum].
   /// - [carryIn] allows for another adder to chain into this one.
   /// - [chainable] tells this adder to not store the [endAroundCarry] in the
-  /// sign bit as well, but to zero that to allow adders to be chained such as
-  /// for use in the [CarrySelectCompoundAdder].
+  ///   sign bit as well, but to zero that to allow adders to be chained such as
+  ///   for use in the [CarrySelectCompoundAdder].
   OnesComplementAdder(super.a, super.b,
       {Adder Function(Logic, Logic, {Logic? carryIn}) adderGen =
           NativeAdder.new,
-      Logic? subtractIn,
       this.generateEndAroundCarry = false,
       super.carryIn,
-      bool subtract = false,
+      dynamic subtract,
       bool chainable = false,
       String? definitionName,
       super.name = 'ones_complement_adder'})
@@ -65,19 +66,10 @@ class OnesComplementAdder extends Adder {
     if (generateEndAroundCarry) {
       addOutput('endAroundCarry');
     }
-    if ((subtractIn != null) & subtract) {
-      throw RohdHclException(
-          "either provide a Logic signal 'subtractIn' for runtime "
-          " configuration, or a boolean parameter 'subtract' for "
-          'generation time configuration, but not both.');
-    }
-    this.subtractIn =
-        (subtractIn != null) ? addInput('subtractIn', subtractIn) : null;
+    subtractIn = StaticOrDynamicParameter.ofDynamic(subtract).clone(this);
     _sign = addOutput('sign');
 
-    final doSubtract =
-        (this.subtractIn ?? (subtract ? Const(subtract) : Const(0)))
-            .named('dosubtract', naming: Naming.mergeable);
+    final doSubtract = subtractIn.getLogic(this);
 
     final adderSum =
         adderGen(a, mux(doSubtract, ~b, b), carryIn: carryIn ?? Const(0))

@@ -158,7 +158,7 @@ class FloatingPointAdderSinglePath<FpTypeIn extends FloatingPoint,
         largeNarrowMantissa, smallNarrowMantissa,
         generateCarryOut: true,
         generateCarryOutP1: true,
-        subtractIn: effectiveSubtraction,
+        subtract: effectiveSubtraction,
         widthGen: widthGen,
         adderGen: adderGen);
 

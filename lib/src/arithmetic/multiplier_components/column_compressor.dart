@@ -218,7 +218,6 @@ class ColumnCompressor extends Module {
       for (var row = 0; row < inRows.length; row++)
         addInput('row_$row', inRows[row], width: inRows[row].width)
     ];
-    // pp = PartialProductMatrixStore(inputRows, rowShift);
     columns = List.generate(maxWidth(), (i) => ColumnQueue());
 
     for (var row = 0; row < _rows.length; row++) {
