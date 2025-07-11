@@ -104,6 +104,7 @@ Some in-development items will have opened issues, as well. Feel free to create 
     - Coherent
     - Non-Coherent
   - [Reduction Tree](./components/reduction_tree.md)
+  - [Serialization](./components/serialization.md)
 - Memory
   - [Register File](./components/memory.md#register-files)
   - [Masking](./components/memory.md#masks)
