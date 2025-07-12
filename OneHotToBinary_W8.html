@@ -34,12 +34,12 @@
           }
         }
       var exmpl = `{
-  "creator": "Yosys 0.29+11 (git sha1 d82bae32b, clang 10.0.0-4ubuntu1 -fPIC -Os)",
+  "creator": "Yosys 0.55+8 (git sha1 9334a5c27, clang++ 18.1.8 -fPIC -O3)",
   "modules": {
     "OneHotToBinary_W8": {
       "attributes": {
         "top": 1,
-        "src": "OneHotToBinary_W8.v:1.1-25.10"
+        "src": "OneHotToBinary_W8.sv:7.1-45.30"
       },
       "ports": {
         "onehot": {
@@ -65,7 +65,7 @@
           "attributes": {
             "full_case": 1,
             "parallel_case": 1,
-            "src": "OneHotToBinary_W8.v:0.0-0.0|OneHotToBinary_W8.v:12.3-22.10"
+            "src": "OneHotToBinary_W8.sv:0.0-0.0|OneHotToBinary_W8.sv:13.10-41.10"
           },
           "port_directions": {
             "A": "input",
@@ -74,11 +74,36 @@
           },
           "connections": {
             "A": [ 2, 3, 4, 5, 6, 7, 8, 9 ],
-            "B": [ "0", "0", "1", "0", "0", "0", "0", "0" ],
+            "B": [ "0", "1", "0", "0", "0", "0", "0", "0" ],
             "Y": [ 13 ]
           }
         },
-        "$procmux$11_CMP0": {
+        "$procmux$3": {
+          "hide_name": 1,
+          "type": "$pmux",
+          "parameters": {
+            "S_WIDTH": 7,
+            "WIDTH": 3
+          },
+          "attributes": {
+            "full_case": 1,
+            "parallel_case": 1,
+            "src": "OneHotToBinary_W8.sv:0.0-0.0|OneHotToBinary_W8.sv:13.10-41.10"
+          },
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "S": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [ "0", "0", "0" ],
+            "B": [ "1", "1", "1", "0", "1", "1", "1", "0", "1", "0", "0", "1", "1", "1", "0", "0", "1", "0", "1", "0", "0" ],
+            "S": [ 14, 15, 16, 17, 18, 19, 13 ],
+            "Y": [ 10, 11, 12 ]
+          }
+        },
+        "$procmux$4_CMP0": {
           "hide_name": 1,
           "type": "$eq",
           "parameters": {
@@ -91,7 +116,7 @@
           "attributes": {
             "full_case": 1,
             "parallel_case": 1,
-            "src": "OneHotToBinary_W8.v:0.0-0.0|OneHotToBinary_W8.v:12.3-22.10"
+            "src": "OneHotToBinary_W8.sv:0.0-0.0|OneHotToBinary_W8.sv:13.10-41.10"
           },
           "port_directions": {
             "A": "input",
@@ -100,33 +125,8 @@
           },
           "connections": {
             "A": [ 2, 3, 4, 5, 6, 7, 8, 9 ],
-            "B": [ "0", "1", "0", "0", "0", "0", "0", "0" ],
+            "B": [ "0", "0", "0", "0", "0", "0", "0", "1" ],
             "Y": [ 14 ]
-          }
-        },
-        "$procmux$4": {
-          "hide_name": 1,
-          "type": "$pmux",
-          "parameters": {
-            "S_WIDTH": 7,
-            "WIDTH": 3
-          },
-          "attributes": {
-            "full_case": 1,
-            "parallel_case": 1,
-            "src": "OneHotToBinary_W8.v:0.0-0.0|OneHotToBinary_W8.v:12.3-22.10"
-          },
-          "port_directions": {
-            "A": "input",
-            "B": "input",
-            "S": "input",
-            "Y": "output"
-          },
-          "connections": {
-            "A": [ "0", "0", "0" ],
-            "B": [ "1", "1", "1", "0", "1", "1", "1", "0", "1", "0", "0", "1", "1", "1", "0", "0", "1", "0", "1", "0", "0" ],
-            "S": [ 15, 16, 17, 18, 19, 13, 14 ],
-            "Y": [ 10, 11, 12 ]
           }
         },
         "$procmux$5_CMP0": {
@@ -142,7 +142,7 @@
           "attributes": {
             "full_case": 1,
             "parallel_case": 1,
-            "src": "OneHotToBinary_W8.v:0.0-0.0|OneHotToBinary_W8.v:12.3-22.10"
+            "src": "OneHotToBinary_W8.sv:0.0-0.0|OneHotToBinary_W8.sv:13.10-41.10"
           },
           "port_directions": {
             "A": "input",
@@ -151,7 +151,7 @@
           },
           "connections": {
             "A": [ 2, 3, 4, 5, 6, 7, 8, 9 ],
-            "B": [ "0", "0", "0", "0", "0", "0", "0", "1" ],
+            "B": [ "0", "0", "0", "0", "0", "0", "1", "0" ],
             "Y": [ 15 ]
           }
         },
@@ -168,7 +168,7 @@
           "attributes": {
             "full_case": 1,
             "parallel_case": 1,
-            "src": "OneHotToBinary_W8.v:0.0-0.0|OneHotToBinary_W8.v:12.3-22.10"
+            "src": "OneHotToBinary_W8.sv:0.0-0.0|OneHotToBinary_W8.sv:13.10-41.10"
           },
           "port_directions": {
             "A": "input",
@@ -177,7 +177,7 @@
           },
           "connections": {
             "A": [ 2, 3, 4, 5, 6, 7, 8, 9 ],
-            "B": [ "0", "0", "0", "0", "0", "0", "1", "0" ],
+            "B": [ "0", "0", "0", "0", "0", "1", "0", "0" ],
             "Y": [ 16 ]
           }
         },
@@ -194,7 +194,7 @@
           "attributes": {
             "full_case": 1,
             "parallel_case": 1,
-            "src": "OneHotToBinary_W8.v:0.0-0.0|OneHotToBinary_W8.v:12.3-22.10"
+            "src": "OneHotToBinary_W8.sv:0.0-0.0|OneHotToBinary_W8.sv:13.10-41.10"
           },
           "port_directions": {
             "A": "input",
@@ -203,7 +203,7 @@
           },
           "connections": {
             "A": [ 2, 3, 4, 5, 6, 7, 8, 9 ],
-            "B": [ "0", "0", "0", "0", "0", "1", "0", "0" ],
+            "B": [ "0", "0", "0", "0", "1", "0", "0", "0" ],
             "Y": [ 17 ]
           }
         },
@@ -220,7 +220,7 @@
           "attributes": {
             "full_case": 1,
             "parallel_case": 1,
-            "src": "OneHotToBinary_W8.v:0.0-0.0|OneHotToBinary_W8.v:12.3-22.10"
+            "src": "OneHotToBinary_W8.sv:0.0-0.0|OneHotToBinary_W8.sv:13.10-41.10"
           },
           "port_directions": {
             "A": "input",
@@ -229,7 +229,7 @@
           },
           "connections": {
             "A": [ 2, 3, 4, 5, 6, 7, 8, 9 ],
-            "B": [ "0", "0", "0", "0", "1", "0", "0", "0" ],
+            "B": [ "0", "0", "0", "1", "0", "0", "0", "0" ],
             "Y": [ 18 ]
           }
         },
@@ -246,7 +246,7 @@
           "attributes": {
             "full_case": 1,
             "parallel_case": 1,
-            "src": "OneHotToBinary_W8.v:0.0-0.0|OneHotToBinary_W8.v:12.3-22.10"
+            "src": "OneHotToBinary_W8.sv:0.0-0.0|OneHotToBinary_W8.sv:13.10-41.10"
           },
           "port_directions": {
             "A": "input",
@@ -255,7 +255,7 @@
           },
           "connections": {
             "A": [ 2, 3, 4, 5, 6, 7, 8, 9 ],
-            "B": [ "0", "0", "0", "1", "0", "0", "0", "0" ],
+            "B": [ "0", "0", "1", "0", "0", "0", "0", "0" ],
             "Y": [ 19 ]
           }
         }
@@ -267,7 +267,7 @@
           "attributes": {
           }
         },
-        "$procmux$11_CMP": {
+        "$procmux$4_CMP": {
           "hide_name": 1,
           "bits": [ 14 ],
           "attributes": {
@@ -303,25 +303,18 @@
           "attributes": {
           }
         },
-        "_sv2v_0": {
-          "hide_name": 0,
-          "bits": [ "0" ],
-          "attributes": {
-            "src": "OneHotToBinary_W8.v:5.6-5.13"
-          }
-        },
         "binary": {
           "hide_name": 0,
           "bits": [ 10, 11, 12 ],
           "attributes": {
-            "src": "OneHotToBinary_W8.v:7.19-7.25"
+            "src": "OneHotToBinary_W8.sv:9.20-9.26"
           }
         },
         "onehot": {
           "hide_name": 0,
           "bits": [ 2, 3, 4, 5, 6, 7, 8, 9 ],
           "attributes": {
-            "src": "OneHotToBinary_W8.v:6.19-6.25"
+            "src": "OneHotToBinary_W8.sv:8.19-8.25"
           }
         }
       }

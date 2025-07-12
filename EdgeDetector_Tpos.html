@@ -34,12 +34,12 @@
           }
         }
       var exmpl = `{
-  "creator": "Yosys 0.29+11 (git sha1 d82bae32b, clang 10.0.0-4ubuntu1 -fPIC -Os)",
+  "creator": "Yosys 0.55+8 (git sha1 9334a5c27, clang++ 18.1.8 -fPIC -O3)",
   "modules": {
     "EdgeDetector_Tpos": {
       "attributes": {
         "top": 1,
-        "src": "EdgeDetector_Tpos.v:1.1-18.10"
+        "src": "EdgeDetector_Tpos.sv:7.1-16.30"
       },
       "ports": {
         "clk": {
@@ -60,7 +60,7 @@
         }
       },
       "cells": {
-        "$and$EdgeDetector_Tpos.v:12$2": {
+        "$and$EdgeDetector_Tpos.sv:14$2": {
           "hide_name": 1,
           "type": "$and",
           "parameters": {
@@ -71,7 +71,7 @@
             "Y_WIDTH": 1
           },
           "attributes": {
-            "src": "EdgeDetector_Tpos.v:12.22-12.45"
+            "src": "EdgeDetector_Tpos.sv:14.21-14.46"
           },
           "port_directions": {
             "A": "input",
@@ -94,7 +94,8 @@
             "WIDTH": 1
           },
           "attributes": {
-            "src": "EdgeDetector_Tpos.v:13.2-17.28"
+            "always_ff": 1,
+            "src": "EdgeDetector_Tpos.sv:15.1-15.88"
           },
           "port_directions": {
             "CLK": "input",
@@ -109,7 +110,7 @@
             "SRST": [ 4 ]
           }
         },
-        "$not$EdgeDetector_Tpos.v:12$1": {
+        "$not$EdgeDetector_Tpos.sv:14$1": {
           "hide_name": 1,
           "type": "$not",
           "parameters": {
@@ -118,7 +119,7 @@
             "Y_WIDTH": 1
           },
           "attributes": {
-            "src": "EdgeDetector_Tpos.v:12.22-12.36"
+            "src": "EdgeDetector_Tpos.sv:14.22-14.36"
           },
           "port_directions": {
             "A": "input",
@@ -131,46 +132,46 @@
         }
       },
       "netnames": {
-        "$not$EdgeDetector_Tpos.v:12$1_Y": {
+        "$not$EdgeDetector_Tpos.sv:14$1_Y": {
           "hide_name": 1,
           "bits": [ 6 ],
           "attributes": {
-            "src": "EdgeDetector_Tpos.v:12.22-12.36"
+            "src": "EdgeDetector_Tpos.sv:14.22-14.36"
           }
         },
         "clk": {
           "hide_name": 0,
           "bits": [ 2 ],
           "attributes": {
-            "src": "EdgeDetector_Tpos.v:7.13-7.16"
+            "src": "EdgeDetector_Tpos.sv:8.13-8.16"
           }
         },
         "pos_edge": {
           "hide_name": 0,
           "bits": [ 5 ],
           "attributes": {
-            "src": "EdgeDetector_Tpos.v:10.14-10.22"
+            "src": "EdgeDetector_Tpos.sv:11.14-11.22"
           }
         },
         "previousValue": {
           "hide_name": 0,
           "bits": [ 7 ],
           "attributes": {
-            "src": "EdgeDetector_Tpos.v:11.6-11.19"
+            "src": "EdgeDetector_Tpos.sv:13.7-13.20"
           }
         },
         "reset": {
           "hide_name": 0,
           "bits": [ 4 ],
           "attributes": {
-            "src": "EdgeDetector_Tpos.v:9.13-9.18"
+            "src": "EdgeDetector_Tpos.sv:10.13-10.18"
           }
         },
         "signal": {
           "hide_name": 0,
           "bits": [ 3 ],
           "attributes": {
-            "src": "EdgeDetector_Tpos.v:8.13-8.19"
+            "src": "EdgeDetector_Tpos.sv:9.13-9.19"
           }
         }
       }

@@ -34,12 +34,12 @@
           }
         }
       var exmpl = `{
-  "creator": "Yosys 0.29+11 (git sha1 d82bae32b, clang 10.0.0-4ubuntu1 -fPIC -Os)",
+  "creator": "Yosys 0.55+8 (git sha1 9334a5c27, clang++ 18.1.8 -fPIC -O3)",
   "modules": {
     "Counter": {
       "attributes": {
         "top": 1,
-        "src": "Counter.v:83.1-140.10"
+        "src": "Counter.sv:80.1-107.20"
       },
       "ports": {
         "amount_0": {
@@ -76,7 +76,7 @@
         }
       },
       "cells": {
-        "$auto$ff.cc:266:slice$65": {
+        "$auto$ff.cc:266:slice$64": {
           "hide_name": 1,
           "type": "$sdff",
           "parameters": {
@@ -86,7 +86,8 @@
             "WIDTH": 1
           },
           "attributes": {
-            "src": "Counter.v:135.2-139.33"
+            "always_ff": 1,
+            "src": "Counter.sv:106.1-106.91"
           },
           "port_directions": {
             "CLK": "input",
@@ -101,7 +102,7 @@
             "SRST": [ 11 ]
           }
         },
-        "$auto$ff.cc:266:slice$66": {
+        "$auto$ff.cc:266:slice$65": {
           "hide_name": 1,
           "type": "$sdff",
           "parameters": {
@@ -111,7 +112,8 @@
             "WIDTH": 8
           },
           "attributes": {
-            "src": "Counter.v:128.2-132.19"
+            "always_ff": 1,
+            "src": "Counter.sv:103.1-103.79"
           },
           "port_directions": {
             "CLK": "input",
@@ -126,7 +128,7 @@
             "SRST": [ 11 ]
           }
         },
-        "$auto$ff.cc:266:slice$67": {
+        "$auto$ff.cc:266:slice$66": {
           "hide_name": 1,
           "type": "$sdff",
           "parameters": {
@@ -136,7 +138,8 @@
             "WIDTH": 1
           },
           "attributes": {
-            "src": "Counter.v:112.2-116.31"
+            "always_ff": 1,
+            "src": "Counter.sv:101.1-101.88"
           },
           "port_directions": {
             "CLK": "input",
@@ -151,7 +154,7 @@
             "SRST": [ 11 ]
           }
         },
-        "$eq$Counter.v:133$24": {
+        "$eq$Counter.sv:104$23": {
           "hide_name": 1,
           "type": "$logic_not",
           "parameters": {
@@ -160,7 +163,7 @@
             "Y_WIDTH": 1
           },
           "attributes": {
-            "src": "Counter.v:133.21-133.38"
+            "src": "Counter.sv:104.20-104.37"
           },
           "port_directions": {
             "A": "input",
@@ -171,7 +174,7 @@
             "Y": [ 15 ]
           }
         },
-        "$eq$Counter.v:134$25": {
+        "$eq$Counter.sv:105$24": {
           "hide_name": 1,
           "type": "$eq",
           "parameters": {
@@ -182,7 +185,7 @@
             "Y_WIDTH": 1
           },
           "attributes": {
-            "src": "Counter.v:134.21-134.38"
+            "src": "Counter.sv:105.20-105.37"
           },
           "port_directions": {
             "A": "input",
@@ -202,7 +205,7 @@
           },
           "attributes": {
             "module_not_derived": 1,
-            "src": "Counter.v:117.6-127.3"
+            "src": "Counter.sv:102.6-102.217"
           },
           "port_directions": {
             "amount_0": "input",
@@ -233,35 +236,35 @@
           "hide_name": 0,
           "bits": [ 2, 3, 4, 5, 6, 7, 8, 9 ],
           "attributes": {
-            "src": "Counter.v:93.19-93.27"
+            "src": "Counter.sv:81.19-81.27"
           }
         },
         "clk": {
           "hide_name": 0,
           "bits": [ 10 ],
           "attributes": {
-            "src": "Counter.v:94.13-94.16"
+            "src": "Counter.sv:82.13-82.16"
           }
         },
         "count": {
           "hide_name": 0,
           "bits": [ 16, 17, 18, 19, 20, 21, 22, 23 ],
           "attributes": {
-            "src": "Counter.v:100.19-100.24"
+            "src": "Counter.sv:88.20-88.25"
           }
         },
         "equalsMax": {
           "hide_name": 0,
           "bits": [ 14 ],
           "attributes": {
-            "src": "Counter.v:98.14-98.23"
+            "src": "Counter.sv:86.14-86.23"
           }
         },
         "equalsMax_0": {
           "hide_name": 0,
           "bits": [ 34 ],
           "attributes": {
-            "src": "Counter.v:101.7-101.18",
+            "src": "Counter.sv:90.7-90.18",
             "unused_bits": "0 "
           }
         },
@@ -269,14 +272,14 @@
           "hide_name": 0,
           "bits": [ 15 ],
           "attributes": {
-            "src": "Counter.v:99.14-99.23"
+            "src": "Counter.sv:87.14-87.23"
           }
         },
         "equalsMin_0": {
           "hide_name": 0,
           "bits": [ 35 ],
           "attributes": {
-            "src": "Counter.v:102.7-102.18",
+            "src": "Counter.sv:91.7-91.18",
             "unused_bits": "0 "
           }
         },
@@ -284,70 +287,70 @@
           "hide_name": 0,
           "bits": [ "0", "0", "0", "0", "0", "0", "0", "0" ],
           "attributes": {
-            "src": "Counter.v:103.13-103.25"
+            "src": "Counter.sv:92.13-92.25"
           }
         },
         "maxValue": {
           "hide_name": 0,
           "bits": [ "1", "1", "1", "1", "1", "1", "1", "1" ],
           "attributes": {
-            "src": "Counter.v:104.13-104.21"
+            "src": "Counter.sv:93.13-93.21"
           }
         },
         "minValue": {
           "hide_name": 0,
           "bits": [ "0", "0", "0", "0", "0", "0", "0", "0" ],
           "attributes": {
-            "src": "Counter.v:105.13-105.21"
+            "src": "Counter.sv:94.13-94.21"
           }
         },
         "overflowed": {
           "hide_name": 0,
           "bits": [ 12 ],
           "attributes": {
-            "src": "Counter.v:96.13-96.23"
+            "src": "Counter.sv:84.14-84.24"
           }
         },
         "overflowed_0": {
           "hide_name": 0,
           "bits": [ 33 ],
           "attributes": {
-            "src": "Counter.v:106.7-106.19"
+            "src": "Counter.sv:95.7-95.19"
           }
         },
         "reset": {
           "hide_name": 0,
           "bits": [ 11 ],
           "attributes": {
-            "src": "Counter.v:95.13-95.18"
+            "src": "Counter.sv:83.13-83.18"
           }
         },
         "sum_0": {
           "hide_name": 0,
           "bits": [ 25, 26, 27, 28, 29, 30, 31, 32 ],
           "attributes": {
-            "src": "Counter.v:107.13-107.18"
+            "src": "Counter.sv:96.13-96.18"
           }
         },
         "underflowed": {
           "hide_name": 0,
           "bits": [ 13 ],
           "attributes": {
-            "src": "Counter.v:97.13-97.24"
+            "src": "Counter.sv:85.14-85.25"
           }
         },
         "underflowed_0": {
           "hide_name": 0,
           "bits": [ 24 ],
           "attributes": {
-            "src": "Counter.v:108.7-108.20"
+            "src": "Counter.sv:97.7-97.20"
           }
         }
       }
     },
     "Sum": {
       "attributes": {
-        "src": "Counter.v:1.1-82.10"
+        "src": "Counter.sv:7.1-76.16"
       },
       "ports": {
         "amount_0": {
@@ -388,7 +391,7 @@
         }
       },
       "cells": {
-        "$add$Counter.v:69$8": {
+        "$add$Counter.sv:64$8": {
           "hide_name": 1,
           "type": "$add",
           "parameters": {
@@ -399,7 +402,7 @@
             "Y_WIDTH": 11
           },
           "attributes": {
-            "src": "Counter.v:69.73-69.105"
+            "src": "Counter.sv:64.72-64.105"
           },
           "port_directions": {
             "A": "input",
@@ -412,7 +415,7 @@
             "Y": [ 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56 ]
           }
         },
-        "$add$Counter.v:70$9": {
+        "$add$Counter.sv:65$9": {
           "hide_name": 1,
           "type": "$add",
           "parameters": {
@@ -423,7 +426,7 @@
             "Y_WIDTH": 11
           },
           "attributes": {
-            "src": "Counter.v:70.62-70.88"
+            "src": "Counter.sv:65.61-65.87"
           },
           "port_directions": {
             "A": "input",
@@ -436,7 +439,7 @@
             "Y": [ 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67 ]
           }
         },
-        "$add$Counter.v:71$13": {
+        "$add$Counter.sv:66$13": {
           "hide_name": 1,
           "type": "$add",
           "parameters": {
@@ -447,7 +450,7 @@
             "Y_WIDTH": 11
           },
           "attributes": {
-            "src": "Counter.v:71.206-71.281"
+            "src": "Counter.sv:66.205-66.278"
           },
           "port_directions": {
             "A": "input",
@@ -460,7 +463,7 @@
             "Y": [ 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99 ]
           }
         },
-        "$add$Counter.v:72$15": {
+        "$add$Counter.sv:67$15": {
           "hide_name": 1,
           "type": "$add",
           "parameters": {
@@ -471,7 +474,7 @@
             "Y_WIDTH": 11
           },
           "attributes": {
-            "src": "Counter.v:72.67-72.110"
+            "src": "Counter.sv:67.66-67.107"
           },
           "port_directions": {
             "A": "input",
@@ -484,7 +487,7 @@
             "Y": [ 111, 112, 113, 114, 115, 116, 117, 118, 119, 120, 121 ]
           }
         },
-        "$add$Counter.v:75$16": {
+        "$add$Counter.sv:70$16": {
           "hide_name": 1,
           "type": "$add",
           "parameters": {
@@ -495,7 +498,7 @@
             "Y_WIDTH": 11
           },
           "attributes": {
-            "src": "Counter.v:75.62-75.88"
+            "src": "Counter.sv:70.61-70.87"
           },
           "port_directions": {
             "A": "input",
@@ -508,7 +511,7 @@
             "Y": [ 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 122 ]
           }
         },
-        "$add$Counter.v:80$20": {
+        "$add$Counter.sv:75$20": {
           "hide_name": 1,
           "type": "$add",
           "parameters": {
@@ -519,7 +522,7 @@
             "Y_WIDTH": 11
           },
           "attributes": {
-            "src": "Counter.v:80.83-80.117"
+            "src": "Counter.sv:75.82-75.117"
           },
           "port_directions": {
             "A": "input",
@@ -532,7 +535,7 @@
             "Y": [ 123, 124, 125, 126, 127, 128, 129, 130, 131, 132, 133 ]
           }
         },
-        "$eq$Counter.v:76$17": {
+        "$eq$Counter.sv:71$17": {
           "hide_name": 1,
           "type": "$eq",
           "parameters": {
@@ -543,7 +546,7 @@
             "Y_WIDTH": 1
           },
           "attributes": {
-            "src": "Counter.v:76.21-76.53"
+            "src": "Counter.sv:71.20-71.52"
           },
           "port_directions": {
             "A": "input",
@@ -556,7 +559,7 @@
             "Y": [ 37 ]
           }
         },
-        "$eq$Counter.v:79$19": {
+        "$eq$Counter.sv:74$19": {
           "hide_name": 1,
           "type": "$eq",
           "parameters": {
@@ -567,7 +570,7 @@
             "Y_WIDTH": 1
           },
           "attributes": {
-            "src": "Counter.v:79.21-79.53"
+            "src": "Counter.sv:74.20-74.52"
           },
           "port_directions": {
             "A": "input",
@@ -580,7 +583,7 @@
             "Y": [ 36 ]
           }
         },
-        "$gt$Counter.v:50$2": {
+        "$gt$Counter.sv:45$2": {
           "hide_name": 1,
           "type": "$gt",
           "parameters": {
@@ -591,7 +594,7 @@
             "Y_WIDTH": 1
           },
           "attributes": {
-            "src": "Counter.v:50.16-50.49"
+            "src": "Counter.sv:45.17-45.50"
           },
           "port_directions": {
             "A": "input",
@@ -604,7 +607,7 @@
             "Y": [ 34 ]
           }
         },
-        "$lt$Counter.v:51$3": {
+        "$lt$Counter.sv:46$3": {
           "hide_name": 1,
           "type": "$lt",
           "parameters": {
@@ -615,7 +618,7 @@
             "Y_WIDTH": 1
           },
           "attributes": {
-            "src": "Counter.v:51.17-51.50"
+            "src": "Counter.sv:46.18-46.51"
           },
           "port_directions": {
             "A": "input",
@@ -628,7 +631,7 @@
             "Y": [ 35 ]
           }
         },
-        "$mod$Counter.v:59$6": {
+        "$mod$Counter.sv:53$6": {
           "hide_name": 1,
           "type": "$mod",
           "parameters": {
@@ -639,7 +642,7 @@
             "Y_WIDTH": 10
           },
           "attributes": {
-            "src": "Counter.v:59.41-59.96"
+            "src": "Counter.sv:53.45-53.98"
           },
           "port_directions": {
             "A": "input",
@@ -652,7 +655,7 @@
             "Y": [ 154, 155, 156, 157, 158, 159, 160, 161, 162, 163 ]
           }
         },
-        "$mod$Counter.v:71$12": {
+        "$mod$Counter.sv:66$12": {
           "hide_name": 1,
           "type": "$mod",
           "parameters": {
@@ -663,7 +666,7 @@
             "Y_WIDTH": 11
           },
           "attributes": {
-            "src": "Counter.v:71.207-71.262"
+            "src": "Counter.sv:66.206-66.259"
           },
           "port_directions": {
             "A": "input",
@@ -676,7 +679,7 @@
             "Y": [ 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78 ]
           }
         },
-        "$procmux$42": {
+        "$procmux$41": {
           "hide_name": 1,
           "type": "$mux",
           "parameters": {
@@ -684,7 +687,7 @@
           },
           "attributes": {
             "full_case": 1,
-            "src": "Counter.v:58.12-58.23|Counter.v:58.8-67.6"
+            "src": "Counter.sv:52.17-52.28|Counter.sv:52.14-60.6"
           },
           "port_directions": {
             "A": "input",
@@ -699,7 +702,7 @@
             "Y": [ 185, 186, 187, 188, 189, 190, 191, 192, 193, 194 ]
           }
         },
-        "$procmux$57": {
+        "$procmux$56": {
           "hide_name": 1,
           "type": "$mux",
           "parameters": {
@@ -707,7 +710,7 @@
           },
           "attributes": {
             "full_case": 1,
-            "src": "Counter.v:53.7-53.17|Counter.v:53.3-67.6"
+            "src": "Counter.sv:48.6-48.16|Counter.sv:48.3-60.6"
           },
           "port_directions": {
             "A": "input",
@@ -722,7 +725,7 @@
             "Y": [ 134, 135, 136, 137, 138, 139, 140, 141, 142, 143 ]
           }
         },
-        "$sub$Counter.v:59$4": {
+        "$sub$Counter.sv:53$4": {
           "hide_name": 1,
           "type": "$sub",
           "parameters": {
@@ -733,7 +736,7 @@
             "Y_WIDTH": 10
           },
           "attributes": {
-            "src": "Counter.v:59.43-59.76"
+            "src": "Counter.sv:53.47-53.80"
           },
           "port_directions": {
             "A": "input",
@@ -746,7 +749,7 @@
             "Y": [ 195, 196, 197, 198, 199, 200, 201, 202, 203, 204 ]
           }
         },
-        "$sub$Counter.v:59$5": {
+        "$sub$Counter.sv:53$5": {
           "hide_name": 1,
           "type": "$sub",
           "parameters": {
@@ -757,7 +760,7 @@
             "Y_WIDTH": 10
           },
           "attributes": {
-            "src": "Counter.v:59.42-59.87"
+            "src": "Counter.sv:53.46-53.89"
           },
           "port_directions": {
             "A": "input",
@@ -770,7 +773,7 @@
             "Y": [ 144, 145, 146, 147, 148, 149, 150, 151, 152, 153 ]
           }
         },
-        "$sub$Counter.v:59$7": {
+        "$sub$Counter.sv:53$7": {
           "hide_name": 1,
           "type": "$sub",
           "parameters": {
@@ -781,7 +784,7 @@
             "Y_WIDTH": 10
           },
           "attributes": {
-            "src": "Counter.v:59.22-59.97"
+            "src": "Counter.sv:53.26-53.99"
           },
           "port_directions": {
             "A": "input",
@@ -794,7 +797,7 @@
             "Y": [ 175, 176, 177, 178, 179, 180, 181, 182, 183, 184 ]
           }
         },
-        "$sub$Counter.v:71$10": {
+        "$sub$Counter.sv:66$10": {
           "hide_name": 1,
           "type": "$sub",
           "parameters": {
@@ -805,7 +808,7 @@
             "Y_WIDTH": 11
           },
           "attributes": {
-            "src": "Counter.v:71.209-71.242"
+            "src": "Counter.sv:66.208-66.241"
           },
           "port_directions": {
             "A": "input",
@@ -818,7 +821,7 @@
             "Y": [ 205, 206, 207, 208, 209, 210, 211, 212, 213, 214, 215 ]
           }
         },
-        "$sub$Counter.v:71$11": {
+        "$sub$Counter.sv:66$11": {
           "hide_name": 1,
           "type": "$sub",
           "parameters": {
@@ -829,7 +832,7 @@
             "Y_WIDTH": 11
           },
           "attributes": {
-            "src": "Counter.v:71.208-71.253"
+            "src": "Counter.sv:66.207-66.250"
           },
           "port_directions": {
             "A": "input",
@@ -842,7 +845,7 @@
             "Y": [ 164, 165, 166, 167, 168, 169, 170, 171, 172, 173, 174 ]
           }
         },
-        "$sub$Counter.v:72$14": {
+        "$sub$Counter.sv:67$14": {
           "hide_name": 1,
           "type": "$sub",
           "parameters": {
@@ -853,7 +856,7 @@
             "Y_WIDTH": 11
           },
           "attributes": {
-            "src": "Counter.v:72.68-72.99"
+            "src": "Counter.sv:67.67-67.98"
           },
           "port_directions": {
             "A": "input",
@@ -866,7 +869,7 @@
             "Y": [ 100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110 ]
           }
         },
-        "$sub$Counter.v:77$18": {
+        "$sub$Counter.sv:72$18": {
           "hide_name": 1,
           "type": "$sub",
           "parameters": {
@@ -877,7 +880,7 @@
             "Y_WIDTH": 10
           },
           "attributes": {
-            "src": "Counter.v:77.55-77.80"
+            "src": "Counter.sv:72.54-72.79"
           },
           "port_directions": {
             "A": "input",
@@ -896,105 +899,105 @@
           "hide_name": 1,
           "bits": [ 185, 186, 187, 188, 189, 190, 191, 192, 193, 194 ],
           "attributes": {
-            "src": "Counter.v:45.2-68.5"
+            "src": "Counter.sv:0.0-0.0"
           }
         },
-        "$mod$Counter.v:59$6_Y": {
+        "$mod$Counter.sv:53$6_Y": {
           "hide_name": 1,
           "bits": [ 154, 155, 156, 157, 158, 159, 160, 161, 162, 163 ],
           "attributes": {
-            "src": "Counter.v:59.41-59.96"
+            "src": "Counter.sv:53.45-53.98"
           }
         },
-        "$mod$Counter.v:71$12_Y": {
+        "$mod$Counter.sv:66$12_Y": {
           "hide_name": 1,
           "bits": [ 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78 ],
           "attributes": {
-            "src": "Counter.v:71.207-71.262"
+            "src": "Counter.sv:66.206-66.259"
           }
         },
-        "$sub$Counter.v:59$4_Y": {
+        "$sub$Counter.sv:53$4_Y": {
           "hide_name": 1,
           "bits": [ 195, 196, 197, 198, 199, 200, 201, 202, 203, 204 ],
           "attributes": {
-            "src": "Counter.v:59.43-59.76"
+            "src": "Counter.sv:53.47-53.80"
           }
         },
-        "$sub$Counter.v:59$5_Y": {
+        "$sub$Counter.sv:53$5_Y": {
           "hide_name": 1,
           "bits": [ 144, 145, 146, 147, 148, 149, 150, 151, 152, 153 ],
           "attributes": {
-            "src": "Counter.v:59.42-59.87"
+            "src": "Counter.sv:53.46-53.89"
           }
         },
-        "$sub$Counter.v:59$7_Y": {
+        "$sub$Counter.sv:53$7_Y": {
           "hide_name": 1,
           "bits": [ 175, 176, 177, 178, 179, 180, 181, 182, 183, 184 ],
           "attributes": {
-            "src": "Counter.v:59.22-59.97"
+            "src": "Counter.sv:53.26-53.99"
           }
         },
-        "$sub$Counter.v:71$10_Y": {
+        "$sub$Counter.sv:66$10_Y": {
           "hide_name": 1,
           "bits": [ 205, 206, 207, 208, 209, 210, 211, 212, 213, 214, 215 ],
           "attributes": {
-            "src": "Counter.v:71.209-71.242"
+            "src": "Counter.sv:66.208-66.241"
           }
         },
-        "$sub$Counter.v:71$11_Y": {
+        "$sub$Counter.sv:66$11_Y": {
           "hide_name": 1,
           "bits": [ 164, 165, 166, 167, 168, 169, 170, 171, 172, 173, 174 ],
           "attributes": {
-            "src": "Counter.v:71.208-71.253"
+            "src": "Counter.sv:66.207-66.250"
           }
         },
-        "$sub$Counter.v:72$14_Y": {
+        "$sub$Counter.sv:67$14_Y": {
           "hide_name": 1,
           "bits": [ 100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110 ],
           "attributes": {
-            "src": "Counter.v:72.68-72.99"
+            "src": "Counter.sv:67.67-67.98"
           }
         },
         "_in0__swizzled": {
           "hide_name": 0,
           "bits": [ 26, 27, 28, 29, 30, 31, 32, 33, "0", "0" ],
           "attributes": {
-            "src": "Counter.v:22.13-22.27"
+            "src": "Counter.sv:18.13-18.27"
           }
         },
         "_in0__swizzled_add_zeroPoint": {
           "hide_name": 0,
           "bits": [ 46, 47, 48, 49, 50, 51, 52, 53, 54, 55 ],
           "attributes": {
-            "src": "Counter.v:23.13-23.41"
+            "src": "Counter.sv:19.13-19.41"
           }
         },
         "_in11__internalValue_subtract_upperSaturation_subtract_const_1_modulo_range_add_lowerSaturation": {
           "hide_name": 0,
           "bits": [ 89, 90, 91, 92, 93, 94, 95, 96, 97, 98 ],
           "attributes": {
-            "src": "Counter.v:24.13-24.108"
+            "src": "Counter.sv:20.13-20.108"
           }
         },
         "_in1__swizzled": {
           "hide_name": 0,
           "bits": [ 18, 19, 20, 21, 22, 23, 24, 25, "0", "0" ],
           "attributes": {
-            "src": "Counter.v:25.13-25.27"
+            "src": "Counter.sv:21.13-21.27"
           }
         },
         "_in2__internalValue_add__swizzled": {
           "hide_name": 0,
           "bits": [ 123, 124, 125, 126, 127, 128, 129, 130, 131, 132 ],
           "attributes": {
-            "src": "Counter.v:26.13-26.46"
+            "src": "Counter.sv:22.13-22.46"
           }
         },
         "_internalValue_add__swizzled_carry": {
           "hide_name": 0,
           "bits": [ 133 ],
           "attributes": {
-            "src": "Counter.v:27.7-27.41",
+            "src": "Counter.sv:23.7-23.41",
             "unused_bits": "0 "
           }
         },
@@ -1002,7 +1005,7 @@
           "hide_name": 0,
           "bits": [ 99 ],
           "attributes": {
-            "src": "Counter.v:28.7-28.102",
+            "src": "Counter.sv:24.7-24.102",
             "unused_bits": "0 "
           }
         },
@@ -1010,22 +1013,15 @@
           "hide_name": 0,
           "bits": [ 38, 39, 40, 41, 42, 43, 44, 45, 216, 217 ],
           "attributes": {
-            "src": "Counter.v:29.13-29.56",
+            "src": "Counter.sv:25.13-25.56",
             "unused_bits": "8 9"
-          }
-        },
-        "_sv2v_0": {
-          "hide_name": 0,
-          "bits": [ "0" ],
-          "attributes": {
-            "src": "Counter.v:12.6-12.13"
           }
         },
         "_swizzled_add_zeroPoint_carry": {
           "hide_name": 0,
           "bits": [ 56 ],
           "attributes": {
-            "src": "Counter.v:30.7-30.36",
+            "src": "Counter.sv:26.7-26.36",
             "unused_bits": "0 "
           }
         },
@@ -1033,7 +1029,7 @@
           "hide_name": 0,
           "bits": [ 67 ],
           "attributes": {
-            "src": "Counter.v:31.7-31.38",
+            "src": "Counter.sv:27.7-27.38",
             "unused_bits": "0 "
           }
         },
@@ -1041,7 +1037,7 @@
           "hide_name": 0,
           "bits": [ 122 ],
           "attributes": {
-            "src": "Counter.v:32.7-32.38",
+            "src": "Counter.sv:28.7-28.38",
             "unused_bits": "0 "
           }
         },
@@ -1049,7 +1045,7 @@
           "hide_name": 0,
           "bits": [ 121 ],
           "attributes": {
-            "src": "Counter.v:33.7-33.53",
+            "src": "Counter.sv:29.7-29.53",
             "unused_bits": "0 "
           }
         },
@@ -1057,119 +1053,119 @@
           "hide_name": 0,
           "bits": [ 2, 3, 4, 5, 6, 7, 8, 9 ],
           "attributes": {
-            "src": "Counter.v:13.19-13.27"
+            "src": "Counter.sv:8.19-8.27"
           }
         },
         "equalsMax": {
           "hide_name": 0,
           "bits": [ 36 ],
           "attributes": {
-            "src": "Counter.v:19.14-19.23"
+            "src": "Counter.sv:14.14-14.23"
           }
         },
         "equalsMin": {
           "hide_name": 0,
           "bits": [ 37 ],
           "attributes": {
-            "src": "Counter.v:20.14-20.23"
+            "src": "Counter.sv:15.14-15.23"
           }
         },
         "initialValue": {
           "hide_name": 0,
           "bits": [ 10, 11, 12, 13, 14, 15, 16, 17 ],
           "attributes": {
-            "src": "Counter.v:14.19-14.31"
+            "src": "Counter.sv:9.19-9.31"
           }
         },
         "internalValue": {
           "hide_name": 0,
           "bits": [ 134, 135, 136, 137, 138, 139, 140, 141, 142, 143 ],
           "attributes": {
-            "src": "Counter.v:34.12-34.25"
+            "src": "Counter.sv:30.13-30.26"
           }
         },
         "internalValue_2": {
           "hide_name": 0,
           "bits": [ 123, 124, 125, 126, 127, 128, 129, 130, 131, 132 ],
           "attributes": {
-            "src": "Counter.v:37.12-37.27"
+            "src": "Counter.sv:33.13-33.28"
           }
         },
         "internalValue_3": {
           "hide_name": 0,
           "bits": [ 46, 47, 48, 49, 50, 51, 52, 53, 54, 55 ],
           "attributes": {
-            "src": "Counter.v:38.12-38.27"
+            "src": "Counter.sv:34.13-34.28"
           }
         },
         "lowerSaturation": {
           "hide_name": 0,
           "bits": [ 79, 80, 81, 82, 83, 84, 85, 86, 87, 88 ],
           "attributes": {
-            "src": "Counter.v:39.13-39.28"
+            "src": "Counter.sv:35.13-35.28"
           }
         },
         "maxValue": {
           "hide_name": 0,
           "bits": [ 26, 27, 28, 29, 30, 31, 32, 33 ],
           "attributes": {
-            "src": "Counter.v:16.19-16.27"
+            "src": "Counter.sv:11.19-11.27"
           }
         },
         "minValue": {
           "hide_name": 0,
           "bits": [ 18, 19, 20, 21, 22, 23, 24, 25 ],
           "attributes": {
-            "src": "Counter.v:15.19-15.27"
+            "src": "Counter.sv:10.19-10.27"
           }
         },
         "overflowed": {
           "hide_name": 0,
           "bits": [ 34 ],
           "attributes": {
-            "src": "Counter.v:17.13-17.23"
+            "src": "Counter.sv:12.14-12.24"
           }
         },
         "preAdjustmentValue": {
           "hide_name": 0,
           "bits": [ 123, 124, 125, 126, 127, 128, 129, 130, 131, 132 ],
           "attributes": {
-            "src": "Counter.v:40.12-40.30"
+            "src": "Counter.sv:36.13-36.31"
           }
         },
         "range": {
           "hide_name": 0,
           "bits": [ 111, 112, 113, 114, 115, 116, 117, 118, 119, 120 ],
           "attributes": {
-            "src": "Counter.v:41.13-41.18"
+            "src": "Counter.sv:37.13-37.18"
           }
         },
         "sum": {
           "hide_name": 0,
           "bits": [ 38, 39, 40, 41, 42, 43, 44, 45 ],
           "attributes": {
-            "src": "Counter.v:21.20-21.23"
+            "src": "Counter.sv:16.20-16.23"
           }
         },
         "underflowed": {
           "hide_name": 0,
           "bits": [ 35 ],
           "attributes": {
-            "src": "Counter.v:18.13-18.24"
+            "src": "Counter.sv:13.14-13.25"
           }
         },
         "upperSaturation": {
           "hide_name": 0,
           "bits": [ 57, 58, 59, 60, 61, 62, 63, 64, 65, 66 ],
           "attributes": {
-            "src": "Counter.v:42.13-42.28"
+            "src": "Counter.sv:38.13-38.28"
           }
         },
         "zeroPoint": {
           "hide_name": 0,
           "bits": [ "1", "1", "1", "1", "1", "1", "1", "1", "0", "0" ],
           "attributes": {
-            "src": "Counter.v:43.13-43.22"
+            "src": "Counter.sv:39.13-39.22"
           }
         }
       }
