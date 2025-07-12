@@ -39,11 +39,9 @@ class BitonicSortConfigurator extends Configurator {
       (index) => Logic(width: logicWidthKnob.value),
     );
 
-    return BitonicSort(
-      Logic(),
-      Logic(),
-      isAscending: isAscendingKnob.value,
-      toSort: listToSort,
-    );
+    return BitonicSort(Logic(), Logic(),
+        isAscending: isAscendingKnob.value,
+        toSort: listToSort,
+        definitionName: 'BitonicSort');
   }
 }

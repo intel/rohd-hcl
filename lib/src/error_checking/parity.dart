@@ -32,11 +32,13 @@ class ParityReceiver extends ErrorCheckingReceiver {
   /// correct parity. This will split the transmitted data in [transmission]
   /// into 2 parts: the [originalData], and the error bit upon which [error] is
   /// calculated for parity error checking.
-  ParityReceiver(super.transmission, {super.name = 'parity_rx'})
+  ParityReceiver(super.transmission,
+      {super.name = 'parity_rx', String? definitionName})
       : super(
             codeWidth: 1,
             supportsErrorCorrection: false,
-            definitionName: 'ParityReceiver_W${transmission.width}');
+            definitionName:
+                definitionName ?? 'ParityReceiver_W${transmission.width}');
 
   @override
   @protected

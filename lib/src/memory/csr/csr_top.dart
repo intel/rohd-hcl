@@ -84,15 +84,15 @@ class CsrTop extends CsrContainer {
   }
 
   /// Create the CsrBlock from a configuration
-  CsrTop({
-    required CsrTopConfig super.config,
-    required super.clk,
-    required super.reset,
-    required super.frontWrite,
-    required super.frontRead,
-    super.allowLargerRegisters,
-    this.logicalRegisterIncrement = 1,
-  }) {
+  CsrTop(
+      {required CsrTopConfig super.config,
+      required super.clk,
+      required super.reset,
+      required super.frontWrite,
+      required super.frontRead,
+      super.allowLargerRegisters,
+      this.logicalRegisterIncrement = 1,
+      super.definitionName}) {
     _validate();
 
     for (final block in config.blocks) {

@@ -21,7 +21,9 @@ class CaseOneHotToBinary extends OneHotToBinary {
   /// [TreeOneHotToBinary]. The implementation does not support widths exceeding
   /// the maximum width of an `int`.
   CaseOneHotToBinary(super.onehot,
-      {super.generateError = false, super.name = 'one_hot_to_binary'})
+      {super.generateError = false,
+      super.name = 'one_hot_to_binary',
+      super.definitionName})
       : super.base() {
     if (onehot.width >= 32) {
       throw RohdHclException('Should not be used for large widths.');

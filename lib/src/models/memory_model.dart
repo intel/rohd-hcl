@@ -39,6 +39,7 @@ class MemoryModel extends Memory {
     this.readLatency = 1,
     this.asyncReset = true,
     MemoryStorage? storage,
+    super.definitionName,
   }) {
     this.storage = storage ??
         SparseMemoryStorage(addrWidth: addrWidth, dataWidth: dataWidth);

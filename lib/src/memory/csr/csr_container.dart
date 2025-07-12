@@ -55,14 +55,20 @@ abstract class CsrContainer extends Module {
   final bool allowLargerRegisters;
 
   /// Constructs a base container.
-  CsrContainer({
-    required Logic clk,
-    required Logic reset,
-    required DataPortInterface? frontWrite,
-    required DataPortInterface? frontRead,
-    required this.config,
-    this.allowLargerRegisters = false,
-  }) : super(name: config.name) {
+  CsrContainer(
+      {required Logic clk,
+      required Logic reset,
+      required DataPortInterface? frontWrite,
+      required DataPortInterface? frontRead,
+      required this.config,
+      this.allowLargerRegisters = false,
+      String? definitionName})
+      : super(
+            definitionName: definitionName ??
+                'CsrContainer_W${clk.width}_'
+                    '${frontWrite?.dataWidth ?? 0}_'
+                    '${frontRead?.dataWidth ?? 0}',
+            name: config.name) {
     this.clk = addInput('clk', clk);
     this.reset = addInput('reset', reset);
 

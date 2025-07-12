@@ -18,11 +18,10 @@ class MultiplierConfigurator extends Configurator {
 
   @override
   Module createModule() => multiplierSelectKnob.selectedMultiplier()(
-        clk: multiplierSelectKnob.pipelinedKnob.value ? Logic() : null,
-        Logic(
-            name: 'a', width: multiplierSelectKnob.multiplicandWidthKnob.value),
-        Logic(name: 'b', width: multiplierSelectKnob.multiplierWidthKnob.value),
-      );
+      clk: multiplierSelectKnob.pipelinedKnob.value ? Logic() : null,
+      Logic(name: 'a', width: multiplierSelectKnob.multiplicandWidthKnob.value),
+      Logic(name: 'b', width: multiplierSelectKnob.multiplierWidthKnob.value),
+      definitionName: 'Multiplier');
 
   @override
   Map<String, ConfigKnob<dynamic>> get knobs => {

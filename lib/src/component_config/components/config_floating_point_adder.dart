@@ -84,7 +84,8 @@ class FloatingPointAdderConfigurator extends Configurator {
               mantissaWidth: mantissaWidthKnob.value,
               subNormalAsZero: subNormalAsZeroSelecKnob.denormalAsZeroB.value),
           adderGen: adderSelectionKnob.selectedAdder(),
-          ppTree: treeGeneratorMap[prefixTreeKnob.value]!)
+          ppTree: treeGeneratorMap[prefixTreeKnob.value]!,
+          definitionName: 'FloatingPointAdderDualPath')
       : FloatingPointAdderSinglePath(
           clk: pipelinedKnob.value ? Logic() : null,
           FloatingPoint(
@@ -95,7 +96,9 @@ class FloatingPointAdderConfigurator extends Configurator {
               exponentWidth: exponentWidthKnob.value,
               mantissaWidth: mantissaWidthKnob.value,
               subNormalAsZero: subNormalAsZeroSelecKnob.flushToZero.value),
-          adderGen: adderSelectionKnob.selectedAdder());
+          adderGen: adderSelectionKnob.selectedAdder(),
+          definitionName: 'FloatingPointAdderSinglePath',
+        );
 
   @override
   late final Map<String, ConfigKnob<dynamic>> knobs = UnmodifiableMapView({

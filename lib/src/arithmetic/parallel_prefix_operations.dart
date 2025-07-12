@@ -29,10 +29,11 @@ class ParallelPrefix extends Module {
   List<Logic> get val => UnmodifiableListView(_oseq);
 
   /// ParallePrefix recursion
-  ParallelPrefix(List<Logic> inps, String name)
+  ParallelPrefix(List<Logic> inps, String name, {String? definitionName})
       : super(
             name: name,
-            definitionName: 'ParallelPrefix_${name}_W${inps.length}') {
+            definitionName:
+                definitionName ?? 'ParallelPrefix_${name}_W${inps.length}') {
     if (inps.isEmpty) {
       throw Exception("Don't use {name} with an empty sequence");
     }
@@ -172,8 +173,11 @@ class ParallelPrefixOrScan extends Module {
       {ParallelPrefix Function(
               List<Logic> inps, Logic Function(Logic term1, Logic term2) op)
           ppGen = KoggeStone.new,
-      super.name = 'parallel_prefix_orscan'})
-      : super(definitionName: 'ParallelPrefixOrScan_W${inp.width}') {
+      super.name = 'parallel_prefix_orscan',
+      String? definitionName})
+      : super(
+            definitionName:
+                definitionName ?? 'ParallelPrefixOrScan_W${inp.width}') {
     inp = addInput('inp', inp, width: inp.width);
     final u = ppGen(inp.elements, (a, b) => a | b);
     addOutput('out', width: inp.width) <= u.val.rswizzle();
@@ -191,8 +195,11 @@ class ParallelPrefixPriorityFinder extends Module {
       {ParallelPrefix Function(
               List<Logic> inps, Logic Function(Logic term1, Logic term2) op)
           ppGen = KoggeStone.new,
-      super.name = 'parallel_prefix_finder'})
-      : super(definitionName: 'ParallelPrefixPriorityFinder_W${inp.width}') {
+      super.name = 'parallel_prefix_finder',
+      String? definitionName})
+      : super(
+            definitionName: definitionName ??
+                'ParallelPrefixPriorityFinder_W${inp.width}') {
     inp = addInput('inp', inp, width: inp.width);
     final u = ParallelPrefixOrScan(inp, ppGen: ppGen);
     addOutput('out', width: inp.width) <=
@@ -208,8 +215,11 @@ class ParallelPrefixAdder extends Adder {
       ParallelPrefix Function(
               List<Logic> inps, Logic Function(Logic term1, Logic term2) op)
           ppGen = KoggeStone.new,
-      super.name = 'parallel_prefix_adder'})
-      : super(definitionName: 'ParallelPrefixAdder_W${a.width}') {
+      super.name = 'parallel_prefix_adder',
+      String? definitionName})
+      : super(
+            definitionName:
+                definitionName ?? 'ParallelPrefixAdder_W${a.width}') {
     final l = List<Logic>.generate(a.width - 1,
         (i) => [a[i + 1] & b[i + 1], a[i + 1] | b[i + 1]].swizzle());
     final cin = carryIn ?? Const(0);
@@ -246,8 +256,11 @@ class ParallelPrefixIncr extends Module {
       {ParallelPrefix Function(
               List<Logic> inps, Logic Function(Logic term1, Logic term2) op)
           ppGen = KoggeStone.new,
-      super.name = 'parallel_prefix_incr'})
-      : super(definitionName: 'ParallelPrefixIncr_W${inp.width}') {
+      super.name = 'parallel_prefix_incr',
+      String? definitionName})
+      : super(
+            definitionName:
+                definitionName ?? 'ParallelPrefixIncr_W${inp.width}') {
     inp = addInput('inp', inp, width: inp.width);
     final u = ppGen(inp.elements, (lhs, rhs) => rhs & lhs);
     addOutput('out', width: inp.width) <=
@@ -269,8 +282,11 @@ class ParallelPrefixDecr extends Module {
       {ParallelPrefix Function(
               List<Logic> inps, Logic Function(Logic term1, Logic term2) op)
           ppGen = KoggeStone.new,
-      super.name = 'parallel_prefix_decr'})
-      : super(definitionName: 'ParallelPrefixDecr_W${inp.width}') {
+      super.name = 'parallel_prefix_decr',
+      String? definitionName})
+      : super(
+            definitionName:
+                definitionName ?? 'ParallelPrefixDecr_W${inp.width}') {
     inp = addInput('inp', inp, width: inp.width);
     final u = ppGen((~inp).elements, (lhs, rhs) => rhs & lhs);
     addOutput('out', width: inp.width) <=
