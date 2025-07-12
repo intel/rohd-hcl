@@ -68,19 +68,19 @@
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">MultiCycleDividerInterface({this.dataWidth = 32})
     : super(portsFromProvider: [
-        Port(&#39;clk&#39;),
-        Port(&#39;reset&#39;),
-        Port(&#39;dividend&#39;, dataWidth),
-        Port(&#39;divisor&#39;, dataWidth),
-        Port(&#39;isSigned&#39;),
-        Port(&#39;validIn&#39;),
-        Port(&#39;readyOut&#39;),
+        Logic.port(&#39;clk&#39;),
+        Logic.port(&#39;reset&#39;),
+        Logic.port(&#39;dividend&#39;, dataWidth),
+        Logic.port(&#39;divisor&#39;, dataWidth),
+        Logic.port(&#39;isSigned&#39;),
+        Logic.port(&#39;validIn&#39;),
+        Logic.port(&#39;readyOut&#39;),
       ], portsFromConsumer: [
-        Port(&#39;quotient&#39;, dataWidth),
-        Port(&#39;remainder&#39;, dataWidth),
-        Port(&#39;divZero&#39;),
-        Port(&#39;validOut&#39;),
-        Port(&#39;readyIn&#39;),
+        Logic.port(&#39;quotient&#39;, dataWidth),
+        Logic.port(&#39;remainder&#39;, dataWidth),
+        Logic.port(&#39;divZero&#39;),
+        Logic.port(&#39;validOut&#39;),
+        Logic.port(&#39;readyIn&#39;),
       ]);</code></pre>
 </section>
 

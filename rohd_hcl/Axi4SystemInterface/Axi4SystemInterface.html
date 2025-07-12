@@ -67,8 +67,8 @@
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">Axi4SystemInterface() {
   setPorts([
-    Port(&#39;ACLK&#39;),
-    Port(&#39;ARESETn&#39;),
+    Logic.port(&#39;ACLK&#39;),
+    Logic.port(&#39;ARESETn&#39;),
   ], [
     Axi4Direction.misc,
   ]);

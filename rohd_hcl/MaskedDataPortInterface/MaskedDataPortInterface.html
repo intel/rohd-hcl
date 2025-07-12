@@ -72,7 +72,7 @@
     throw RohdHclException(&#39;The data width must be byte-granularity&#39;);
   }
   setPorts([
-    Port(&#39;mask&#39;, dataWidth ~&#47; 8),
+    Logic.port(&#39;mask&#39;, dataWidth ~&#47; 8),
   ], [
     DataPortGroup.control
   ]);

@@ -67,9 +67,13 @@
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">SpiInterface({this.dataLength = 1})
-    : super(
-          portsFromConsumer: [Port(&#39;MISO&#39;)],
-          portsFromProvider: [Port(&#39;MOSI&#39;), Port(&#39;CSB&#39;), Port(&#39;SCLK&#39;)]);</code></pre>
+    : super(portsFromConsumer: [
+        Logic.port(&#39;MISO&#39;)
+      ], portsFromProvider: [
+        Logic.port(&#39;MOSI&#39;),
+        Logic.port(&#39;CSB&#39;),
+        Logic.port(&#39;SCLK&#39;)
+      ]);</code></pre>
 </section>
 
 

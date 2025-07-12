@@ -70,14 +70,14 @@ interacting with a memory in either the read or write direction.</p>
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">DataPortInterface(this.dataWidth, this.addrWidth) {
   setPorts([
-    Port(&#39;en&#39;),
-    Port(&#39;addr&#39;, addrWidth),
+    Logic.port(&#39;en&#39;),
+    Logic.port(&#39;addr&#39;, addrWidth),
   ], [
     DataPortGroup.control
   ]);
 
   setPorts([
-    Port(&#39;data&#39;, dataWidth),
+    Logic.port(&#39;data&#39;, dataWidth),
   ], [
     DataPortGroup.data
   ]);

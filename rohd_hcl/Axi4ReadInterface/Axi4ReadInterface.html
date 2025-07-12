@@ -87,31 +87,31 @@
   _validateParameters();
 
   setPorts([
-    if (idWidth &gt; 0) Port(&#39;ARID&#39;, idWidth),
-    Port(&#39;ARADDR&#39;, addrWidth),
-    if (lenWidth &gt; 0) Port(&#39;ARLEN&#39;, lenWidth),
-    if (sizeWidth &gt; 0) Port(&#39;ARSIZE&#39;, sizeWidth),
-    if (burstWidth &gt; 0) Port(&#39;ARBURST&#39;, burstWidth),
-    if (useLock) Port(&#39;ARLOCK&#39;),
-    if (cacheWidth &gt; 0) Port(&#39;ARCACHE&#39;, cacheWidth),
-    Port(&#39;ARPROT&#39;, protWidth),
-    if (qosWidth &gt; 0) Port(&#39;ARQOS&#39;, qosWidth),
-    if (regionWidth &gt; 0) Port(&#39;ARREGION&#39;, regionWidth),
-    if (aruserWidth &gt; 0) Port(&#39;ARUSER&#39;, aruserWidth),
-    Port(&#39;ARVALID&#39;),
-    Port(&#39;RREADY&#39;),
+    if (idWidth &gt; 0) Logic.port(&#39;ARID&#39;, idWidth),
+    Logic.port(&#39;ARADDR&#39;, addrWidth),
+    if (lenWidth &gt; 0) Logic.port(&#39;ARLEN&#39;, lenWidth),
+    if (sizeWidth &gt; 0) Logic.port(&#39;ARSIZE&#39;, sizeWidth),
+    if (burstWidth &gt; 0) Logic.port(&#39;ARBURST&#39;, burstWidth),
+    if (useLock) Logic.port(&#39;ARLOCK&#39;),
+    if (cacheWidth &gt; 0) Logic.port(&#39;ARCACHE&#39;, cacheWidth),
+    Logic.port(&#39;ARPROT&#39;, protWidth),
+    if (qosWidth &gt; 0) Logic.port(&#39;ARQOS&#39;, qosWidth),
+    if (regionWidth &gt; 0) Logic.port(&#39;ARREGION&#39;, regionWidth),
+    if (aruserWidth &gt; 0) Logic.port(&#39;ARUSER&#39;, aruserWidth),
+    Logic.port(&#39;ARVALID&#39;),
+    Logic.port(&#39;RREADY&#39;),
   ], [
     Axi4Direction.fromMain,
   ]);
 
   setPorts([
-    if (idWidth &gt; 0) Port(&#39;RID&#39;, idWidth),
-    Port(&#39;RDATA&#39;, dataWidth),
-    if (rrespWidth &gt; 0) Port(&#39;RRESP&#39;, rrespWidth),
-    if (useLast) Port(&#39;RLAST&#39;),
-    if (ruserWidth &gt; 0) Port(&#39;RUSER&#39;, ruserWidth),
-    Port(&#39;RVALID&#39;),
-    Port(&#39;ARREADY&#39;),
+    if (idWidth &gt; 0) Logic.port(&#39;RID&#39;, idWidth),
+    Logic.port(&#39;RDATA&#39;, dataWidth),
+    if (rrespWidth &gt; 0) Logic.port(&#39;RRESP&#39;, rrespWidth),
+    if (useLast) Logic.port(&#39;RLAST&#39;),
+    if (ruserWidth &gt; 0) Logic.port(&#39;RUSER&#39;, ruserWidth),
+    Logic.port(&#39;RVALID&#39;),
+    Logic.port(&#39;ARREADY&#39;),
   ], [
     Axi4Direction.fromSubordinate,
   ]);

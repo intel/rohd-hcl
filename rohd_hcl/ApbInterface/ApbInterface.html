@@ -86,40 +86,40 @@
   _validateParameters();
 
   setPorts([
-    Port(&#39;PCLK&#39;),
-    Port(&#39;PRESETn&#39;),
+    Logic.port(&#39;PCLK&#39;),
+    Logic.port(&#39;PRESETn&#39;),
   ], [
     ApbDirection.misc
   ]);
 
   setPorts([
-    Port(&#39;PADDR&#39;, addrWidth),
-    Port(&#39;PPROT&#39;, 3),
-    Port(&#39;PNSE&#39;),
-    Port(&#39;PENABLE&#39;),
-    Port(&#39;PWRITE&#39;),
-    Port(&#39;PWDATA&#39;, dataWidth),
-    Port(&#39;PSTRB&#39;, dataWidth ~&#47; 8),
-    if (userReqWidth != 0) Port(&#39;PAUSER&#39;, userReqWidth),
-    if (userDataWidth != 0) Port(&#39;PWUSER&#39;, userDataWidth),
+    Logic.port(&#39;PADDR&#39;, addrWidth),
+    Logic.port(&#39;PPROT&#39;, 3),
+    Logic.port(&#39;PNSE&#39;),
+    Logic.port(&#39;PENABLE&#39;),
+    Logic.port(&#39;PWRITE&#39;),
+    Logic.port(&#39;PWDATA&#39;, dataWidth),
+    Logic.port(&#39;PSTRB&#39;, dataWidth ~&#47; 8),
+    if (userReqWidth != 0) Logic.port(&#39;PAUSER&#39;, userReqWidth),
+    if (userDataWidth != 0) Logic.port(&#39;PWUSER&#39;, userDataWidth),
   ], [
     ApbDirection.fromRequester,
     ApbDirection.fromRequesterExceptSelect,
   ]);
 
   setPorts([
-    for (var i = 0; i &lt; numSelects; i++) Port(&#39;PSEL$i&#39;),
+    for (var i = 0; i &lt; numSelects; i++) Logic.port(&#39;PSEL$i&#39;),
   ], [
     ApbDirection.fromRequester,
   ]);
 
   setPorts([
-    Port(&#39;PREADY&#39;),
-    Port(&#39;PRDATA&#39;, dataWidth),
-    if (includeSlvErr) Port(&#39;PSLVERR&#39;),
-    Port(&#39;PWAKEUP&#39;),
-    if (userDataWidth != 0) Port(&#39;PRUSER&#39;, userDataWidth),
-    if (userRespWidth != 0) Port(&#39;PBUSER&#39;, userRespWidth),
+    Logic.port(&#39;PREADY&#39;),
+    Logic.port(&#39;PRDATA&#39;, dataWidth),
+    if (includeSlvErr) Logic.port(&#39;PSLVERR&#39;),
+    Logic.port(&#39;PWAKEUP&#39;),
+    if (userDataWidth != 0) Logic.port(&#39;PRUSER&#39;, userDataWidth),
+    if (userRespWidth != 0) Logic.port(&#39;PBUSER&#39;, userRespWidth),
   ], [
     ApbDirection.fromCompleter
   ]);

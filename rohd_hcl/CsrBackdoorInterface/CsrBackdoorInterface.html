@@ -83,8 +83,8 @@ and conditionally instantiates read and writes ports based on
 
   if (hasWrite) {
     setPorts([
-      Port(&#39;${config.name}_wrEn&#39;),
-      Port(&#39;${config.name}_wrData&#39;, dataWidth),
+      Logic.port(&#39;${config.name}_wrEn&#39;),
+      Logic.port(&#39;${config.name}_wrData&#39;, dataWidth),
     ], [
       CsrBackdoorPortGroup.write,
     ]);
