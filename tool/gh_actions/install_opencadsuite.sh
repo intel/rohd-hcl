@@ -18,7 +18,7 @@ sudo apt-get install -y \
 	python3-pip
 
 cd /
-sudo  wget -O oss-cad-suite-build.tgz https://github.com/YosysHQ/oss-cad-suite-build/releases/download/2023-05-12/oss-cad-suite-linux-x64-20230512.tgz
+sudo  wget -O oss-cad-suite-build.tgz https://github.com/YosysHQ/oss-cad-suite-build/releases/download/2025-07-10/oss-cad-suite-linux-x64-20250710.tgz
 
 sudo tar -xzf oss-cad-suite-build.tgz
 
