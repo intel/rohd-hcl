@@ -143,9 +143,10 @@ class FloatingPointAdderSinglePath<FpTypeIn extends FloatingPoint,
         mux(eD.gte(eW), eD - eW, Const(0, width: posWidth)).named('rem');
 
     final chop = mux(
-        rem.lt(Const(smallMantissa.width, width: rem.width)),
-        Const(smallMantissa.width, width: rem.width) - rem,
-        Const(0, width: rem.width));
+            rem.lt(Const(smallMantissa.width, width: rem.width)),
+            Const(smallMantissa.width, width: rem.width) - rem,
+            Const(0, width: rem.width))
+        .named('chopMantissa');
 
     final stickyBits = (smallMantissa << chop).named('stickyBits');
 
@@ -258,14 +259,15 @@ class FloatingPointAdderSinglePath<FpTypeIn extends FloatingPoint,
         .named('shiftedPrediction');
 
     final lead1Final = mux(shiftedPrediction[-1], lead1PredictionFlopped,
-            lead1PredictionFlopped + 1)
+            (lead1PredictionFlopped + 1).named('lead1PredictionPlusOne'))
         .named('lead1Final');
 
-    final shiftL1Final =
-        mux(shiftedPrediction[-1], shiftedPrediction, shiftedPrediction << 1)
-            .slice(shiftedPrediction.width - (internalSum.explicitJBit ? 1 : 2),
-                (internalSum.explicitJBit ? 1 : 0))
-            .named('shiftL1Final');
+    final shiftL1Final = mux(shiftedPrediction[-1], shiftedPrediction,
+            (shiftedPrediction << 1).named('shiftedPredictionTimesTwo'))
+        .named('shiftL1FinalWide')
+        .slice(shiftedPrediction.width - (internalSum.explicitJBit ? 1 : 2),
+            (internalSum.explicitJBit ? 1 : 0))
+        .named('shiftL1Final');
 
     final lead1Valid = leadingZerosPredictionValidFlopped;
 
@@ -308,7 +310,8 @@ class FloatingPointAdderSinglePath<FpTypeIn extends FloatingPoint,
         (rndPos >= 2)) {
       final doRound = RoundRNE(
               mux(exponent.or(), mantissa,
-                  mantissa >> (internalSum.explicitJBit ? 1 : 0)),
+                      (mantissa >> (internalSum.explicitJBit ? 1 : 0)))
+                  .named('mantissaRightShift'),
               rndPos)
           .doRound
           .named('doRound');
@@ -318,10 +321,14 @@ class FloatingPointAdderSinglePath<FpTypeIn extends FloatingPoint,
 
       final newRnd = rndAdder.sum;
 
-      mantissaRound = newRnd.slice(internalSum.explicitJBit ? -1 : -2,
-          -mantissaTrimmed.width - (internalSum.explicitJBit ? 0 : 1));
+      mantissaRound = newRnd
+          .slice(internalSum.explicitJBit ? -1 : -2,
+              -mantissaTrimmed.width - (internalSum.explicitJBit ? 0 : 1))
+          .named('mantissaRound');
 
-      final altmantissaRound = newRnd.slice(-2, -mantissaTrimmed.width - 1);
+      final altmantissaRound = newRnd
+          .slice(-2, -mantissaTrimmed.width - 1)
+          .named('altMantissaRound');
 
       mantissaRound = mux(
               exponent.gt(Const(0, width: exponent.width)) & ~mantissaRound[-1],
@@ -330,8 +337,15 @@ class FloatingPointAdderSinglePath<FpTypeIn extends FloatingPoint,
           .slice(-1, -mantissaWidth)
           .named('mantissaRoundFinal');
 
-      exponentRound = mux(exponent.lt(infExponent),
-          exponent + rndAdder.sum[-1].zeroExtend(exponent.width), exponent);
+      exponentRound = mux(
+              exponent.lt(infExponent),
+              (exponent +
+                      rndAdder.sum[-1]
+                          .zeroExtend(exponent.width)
+                          .named('exponentRndAdjust'))
+                  .named('exponentRounded'),
+              exponent)
+          .named('exponentRound');
     } else {
       // No rounding needed, just use the mantissa as is. But mimic how the
       // rounding adder extends by one to keep the exact same computation

@@ -155,15 +155,17 @@ class RecursiveModulePriorityEncoderNode extends Module {
       final split = pow(2.0, divisor).toInt();
 
       final left = RecursiveModulePriorityEncoderNode(seq.getRange(0, split),
-              name: 'left', depth: depth + 1)
-          .ret;
+              name: 'left_recurse', depth: depth + 1)
+          .ret
+          .named('left');
       var right = RecursiveModulePriorityEncoderNode(
               seq.getRange(split, seq.width),
-              name: 'right',
+              name: 'right_recurse',
               depth: depth + 1)
-          .ret;
+          .ret
+          .named('right');
       if (right.width < left.width) {
-        right = right.zeroExtend(left.width);
+        right = right.zeroExtend(left.width).named('right');
       }
       final l = left[-1].named('leftLead');
       final r = right[-1].named('rightLead');

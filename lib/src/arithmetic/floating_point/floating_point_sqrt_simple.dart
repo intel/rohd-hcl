@@ -56,17 +56,20 @@ class FloatingPointSqrtSimple<FpType extends FloatingPoint>
 
     // use fixed sqrt unit
     final aFixed = FixedPoint(
-        signed: false, integerWidth: 3, fractionWidth: a.mantissa.width);
+        signed: false,
+        integerWidth: 3,
+        fractionWidth: a.mantissa.width,
+        name: 'aFixed');
     aFixed <=
         [Const(1, width: 3), a.mantissa.getRange(0)].swizzle().named('aFixed');
 
     // mux if we shift left by 1 if exponent was odd
-    final aFixedAdj = aFixed.clone()
+    final aFixedAdj = aFixed.clone(name: 'aFixedAdj')
       ..gets(mux(isExpOdd, [aFixed.slice(-2, 0), Const(0)].swizzle(), aFixed)
           .named('oddMantissaMux'));
 
     // mux to choose if we do square root or not
-    final fixedSqrt = aFixedAdj.clone()
+    final fixedSqrt = aFixedAdj.clone(name: 'aFixedIn')
       ..gets(mux(enableSqrt, FixedPointSqrt(aFixedAdj).sqrt, aFixedAdj)
           .named('sqrtMux'));
 
@@ -107,7 +110,8 @@ class FloatingPointSqrtSimple<FpType extends FloatingPoint>
         ]),
         Else([
           outputSqrt.sign < a.sign,
-          outputSqrt.exponent < (shiftedExp + deBiasAmt),
+          outputSqrt.exponent <
+              (shiftedExp + deBiasAmt).named('debiasedShiftExp'),
           outputSqrt.mantissa < fpSqrt.float.mantissa,
         ])
       ])

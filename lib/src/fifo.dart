@@ -224,7 +224,11 @@ class Fifo extends Module {
   Logic _incrWithWrap(Logic original, [Logic? condition]) {
     final maxValue = depth - 1;
     final wrapped = mux(
-        original.eq(maxValue), Const(0, width: original.width), original + 1);
+            original.eq(maxValue),
+            Const(0, width: original.width),
+            (original + 1)
+                .named('${original.name}Inc', naming: Naming.mergeable))
+        .named('${original.name}IncWrap', naming: Naming.mergeable);
     return condition != null ? mux(condition, wrapped, original) : wrapped;
   }
 }

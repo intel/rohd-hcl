@@ -70,7 +70,8 @@ class Serializer extends Module {
         enable: enable,
         maxValue: deserialized.elements.length - 1);
 
-    final latchInput = (enable ?? Const(1)) & ~cnt.count.or();
+    final latchInput = ((enable ?? Const(1)).named('enable') & ~cnt.count.or())
+        .named('latchTheInput');
     count <=
         (flopInput
             ? flop(clk, reset: reset, en: enable, cnt.count)
