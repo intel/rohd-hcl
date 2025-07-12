@@ -76,19 +76,19 @@ class MultiCycleDividerInterface extends PairInterface {
   /// A constructor for the divider interface.
   MultiCycleDividerInterface({this.dataWidth = 32})
       : super(portsFromProvider: [
-          Port('clk'),
-          Port('reset'),
-          Port('dividend', dataWidth),
-          Port('divisor', dataWidth),
-          Port('isSigned'),
-          Port('validIn'),
-          Port('readyOut'),
+          Logic.port('clk'),
+          Logic.port('reset'),
+          Logic.port('dividend', dataWidth),
+          Logic.port('divisor', dataWidth),
+          Logic.port('isSigned'),
+          Logic.port('validIn'),
+          Logic.port('readyOut'),
         ], portsFromConsumer: [
-          Port('quotient', dataWidth),
-          Port('remainder', dataWidth),
-          Port('divZero'),
-          Port('validOut'),
-          Port('readyIn'),
+          Logic.port('quotient', dataWidth),
+          Logic.port('remainder', dataWidth),
+          Logic.port('divZero'),
+          Logic.port('validOut'),
+          Logic.port('readyIn'),
         ]);
 
   /// A match constructor for the divider interface.
@@ -125,12 +125,14 @@ class MultiCycleDivider extends Module {
   late final int logDataWidth;
 
   /// The Divider module's constructor
-  MultiCycleDivider(MultiCycleDividerInterface interface)
+  MultiCycleDivider(MultiCycleDividerInterface interface,
+      {String? definitionName})
       : dataWidth = interface.dataWidth,
         logDataWidth = log2Ceil(interface.dataWidth),
         super(
             name: 'divider',
-            definitionName: 'MultiCycleDivider_W${interface.dataWidth}') {
+            definitionName:
+                definitionName ?? 'MultiCycleDivider_W${interface.dataWidth}') {
     intf = MultiCycleDividerInterface.match(interface)
       ..pairConnectIO(
         this,
@@ -152,6 +154,7 @@ class MultiCycleDivider extends Module {
     required Logic divisor,
     required Logic isSigned,
     required Logic readyOut,
+    String? definitionName,
   }) {
     assert(dividend.width == divisor.width,
         'Widths of all data signals do not match!');
@@ -164,7 +167,9 @@ class MultiCycleDivider extends Module {
     intf.divisor <= divisor;
     intf.isSigned <= isSigned;
     intf.readyOut <= readyOut;
-    return MultiCycleDivider(intf);
+    return MultiCycleDivider(intf,
+        definitionName:
+            definitionName ?? 'MultiCycleDivider_W${intf.dataWidth}');
   }
 
   void _build() {

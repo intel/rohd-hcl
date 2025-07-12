@@ -66,8 +66,8 @@ class SumInterface extends PairInterface {
       throw RohdHclException('Width must be positive.');
     }
     setPorts([
-      if (fixedAmount == null) Port('amount', this.width),
-      if (hasEnable) Port('enable'),
+      if (fixedAmount == null) Logic.port('amount', this.width),
+      if (hasEnable) Logic.port('enable'),
     ], [
       PairDirection.fromProvider
     ]);
