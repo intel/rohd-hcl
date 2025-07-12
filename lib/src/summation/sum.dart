@@ -22,9 +22,9 @@ extension on SumInterface {
   List<Conditional> _combAdjustments(Logic Function(Logic) s, Logic nextVal) {
     final conds = <Conditional>[
       if (increments)
-        nextVal.incr(s: s, val: amount.zeroExtend(nextVal.width))
+        nextVal.incr(s: s, val: amount.zeroExtend(nextVal.width).named('incr'))
       else
-        nextVal.decr(s: s, val: amount.zeroExtend(nextVal.width)),
+        nextVal.decr(s: s, val: amount.zeroExtend(nextVal.width).named('decr')),
     ];
 
     if (hasEnable) {
@@ -98,8 +98,10 @@ class Sum extends SummationBase {
         (maxPosMagnitude + maxNegMagnitude + BigInt.one).bitLength, width + 1);
 
     final initialValueLogicExt = initialValueLogic.zeroExtend(internalWidth);
-    final minValueLogicExt = minValueLogic.zeroExtend(internalWidth);
-    final maxValueLogicExt = maxValueLogic.zeroExtend(internalWidth);
+    final minValueLogicExt =
+        minValueLogic.zeroExtend(internalWidth).named('minValueLogicExt');
+    final maxValueLogicExt =
+        maxValueLogic.zeroExtend(internalWidth).named('maxValueLogicExt');
 
     // lazy range so that it's not generated if not necessary
     late final range = Logic(name: 'range', width: internalWidth)
@@ -114,7 +116,7 @@ class Sum extends SummationBase {
       ..gets(minValueLogicExt + zeroPoint);
 
     final internalValue = Logic(name: 'internalValue', width: internalWidth);
-    sum <= (internalValue - zeroPoint).getRange(0, width);
+    sum <= (internalValue - zeroPoint).named('sum').getRange(0, width);
 
     final preAdjustmentValue =
         Logic(name: 'preAdjustmentValue', width: internalWidth);
@@ -127,7 +129,8 @@ class Sum extends SummationBase {
     // https://intel.github.io/rohd-website/blog/combinational-ssa/
     Combinational.ssa((s) => [
           // initialize
-          s(internalValue) < initialValueLogicExt + zeroPoint,
+          s(internalValue) <
+              (initialValueLogicExt + zeroPoint).named('initialPlusZero'),
 
           // perform increments and decrements per-interface
           ...interfaces
@@ -148,8 +151,12 @@ class Sum extends SummationBase {
               s(internalValue) <
                   (saturates
                       ? upperSaturation
-                      : ((s(internalValue) - upperSaturation - 1) % range +
-                          lowerSaturation)),
+                      : (((s(internalValue) - upperSaturation - 1)
+                                          .named('internalOverSat') %
+                                      range)
+                                  .named('internalOverSatModRange') +
+                              lowerSaturation)
+                          .named('internalSaturation')),
             ),
             ElseIf.s(
               underflowed,
@@ -157,7 +164,10 @@ class Sum extends SummationBase {
                   (saturates
                       ? lowerSaturation
                       : (upperSaturation -
-                          ((lowerSaturation - s(internalValue) - 1) % range))),
+                          ((lowerSaturation - s(internalValue) - 1)
+                                      .named('lowerOverSat') %
+                                  range)
+                              .named('lowerOverSatModRange'))),
             )
           ]),
         ]);
