@@ -62,8 +62,8 @@ class CsrBackdoorInterface extends Interface<CsrBackdoorPortGroup> {
 
     if (hasWrite) {
       setPorts([
-        Port('${config.name}_wrEn'),
-        Port('${config.name}_wrData', dataWidth),
+        Logic.port('${config.name}_wrEn'),
+        Logic.port('${config.name}_wrData', dataWidth),
       ], [
         CsrBackdoorPortGroup.write,
       ]);
