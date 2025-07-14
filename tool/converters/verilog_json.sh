@@ -19,11 +19,9 @@ if !(test 1 -eq $#); then
 fi;
 
 yosys_bin=/oss-cad-suite/bin/yosys
-sv2v=/usr/local/bin/sv2v
 module=`basename $1 .sv`
-$sv2v $module.sv > $module.v
 $yosys_bin -Q -T -q <<EOF
-read_verilog -sv $module.v
+read_verilog -sv $module.sv
 hierarchy -top $module
 proc; opt
 write_json -compat-int $module.json
