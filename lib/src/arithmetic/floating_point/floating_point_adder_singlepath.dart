@@ -310,7 +310,7 @@ class FloatingPointAdderSinglePath<FpTypeIn extends FloatingPoint,
         (rndPos >= 2)) {
       final doRound = RoundRNE(
               mux(exponent.or(), mantissa,
-                      (mantissa >> (internalSum.explicitJBit ? 1 : 0)))
+                      mantissa >> (internalSum.explicitJBit ? 1 : 0))
                   .named('mantissaRightShift'),
               rndPos)
           .doRound

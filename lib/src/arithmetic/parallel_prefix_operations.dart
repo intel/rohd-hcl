@@ -272,12 +272,12 @@ class ParallelPrefixDecr extends Module {
       super.name = 'parallel_prefix_decr'})
       : super(definitionName: 'ParallelPrefixDecr_W${inp.width}') {
     inp = addInput('inp', inp, width: inp.width);
-    final u = ppGen((~inp).elements, (lhs, rhs) => rhs & lhs);
+    final complement = (~inp).named('complement');
+    final u = ppGen(complement.elements, (lhs, rhs) => rhs & lhs);
     addOutput('out', width: inp.width) <=
         (List<Logic>.generate(
-                inp.width,
-                (i) =>
-                    ((i == 0) ? ~inp[i] : inp[i] ^ u.val[i - 1]).named('o_$i'))
-            .rswizzle());
+            inp.width,
+            (i) => ((i == 0) ? complement[i] : inp[i] ^ u.val[i - 1])
+                .named('o_$i')).rswizzle());
   }
 }

@@ -35,11 +35,12 @@ class FloatToFixed extends Module {
   Logic? get overflow => tryOutput('overflow');
 
   /// Internal representation of the output port
-  late final FixedPoint _fixed =
-      FixedPoint(integerWidth: integerWidth, fractionWidth: fractionWidth);
+  late final FixedPoint _fixed = FixedPoint(
+      integerWidth: integerWidth, fractionWidth: fractionWidth, name: '_fixed');
 
   /// Output fixed point port
-  late final FixedPoint fixed = _fixed.clone()..gets(output('fixed'));
+  late final FixedPoint fixed = _fixed.clone(name: 'fixed')
+    ..gets(output('fixed'));
 
   /// Build a [FloatingPoint] to [FixedPoint] converter.
   /// - if [integerWidth] and [fractionWidth] are supplied, an m.n fixed-point
@@ -57,7 +58,8 @@ class FloatToFixed extends Module {
       : super(
             definitionName: 'FloatE${float.exponent.width}'
                 'M${float.mantissa.width}ToFixed') {
-    float = float.clone()..gets(addInput('float', float, width: float.width));
+    float = float.clone(name: 'float')
+      ..gets(addInput('float', float, width: float.width));
 
     final bias = float.floatingPointValue.bias;
     // E4M3 expands the max exponent by 1.
@@ -136,7 +138,9 @@ class FloatToFixed extends Module {
     final number = mux(shift[-1], preNumber >>> shiftRight, preNumber << shift)
         .named('number');
 
-    _fixed <= mux(float.sign, (~number + 1).named('negNumber'), number);
+    _fixed <=
+        mux(float.sign, (~number + 1).named('negNumber'), number)
+            .named('computeFixed');
     addOutput('fixed', width: outputWidth) <= _fixed;
   }
 }

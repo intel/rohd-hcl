@@ -30,7 +30,9 @@ class RotateRoundRobinArbiter extends StatefulArbiter
 
     Sequential(clk, reset: reset, [
       If(unRotatedGrants.or(), then: [
-        preference < TreeOneHotToBinary(unRotatedGrants).binary + 1,
+        preference <
+            (TreeOneHotToBinary(unRotatedGrants).binary + 1)
+                .named('nextPreference'),
       ]),
     ]);
 

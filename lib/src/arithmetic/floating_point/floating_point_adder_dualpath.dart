@@ -184,14 +184,16 @@ class FloatingPointAdderDualPath<FpTypeIn extends FloatingPoint,
     final sumRPath =
         significandAdderRPath.sum.slice(mantissaWidth + 1, 0).named('sumRpath');
     final sumP1RPath = significandAdderRPath.sumP1
-        .named('sumPlusOneRpath')
-        .slice(mantissaWidth + 1, 0);
+        .slice(mantissaWidth + 1, 0)
+        .named('sumPlusOneRPath');
 
     final sumLeadZeroRPath =
-        (~sumRPath[-1] & (aIsNormalFlopped | bIsNormalFlopped))
+        ((~sumRPath[-1].named('sumMSB')).named('sumMSBIsZero') &
+                (aIsNormalFlopped | bIsNormalFlopped))
             .named('sumlead0Rpath');
     final sumP1LeadZeroRPath =
-        (~sumP1RPath[-1] & (aIsNormalFlopped | bIsNormalFlopped))
+        ((~sumP1RPath[-1].named('sumP1MSB')).named('sumP1MSBIsZero') &
+                (aIsNormalFlopped | bIsNormalFlopped))
             .named('sumP1lead0Rpath');
 
     final Logic selectRPath;
@@ -227,7 +229,7 @@ class FloatingPointAdderDualPath<FpTypeIn extends FloatingPoint,
                 .swizzle()
                 .named('sump1EarlyGRSRPath')
                 .slice(sumRPath.width + 1, 0),
-            [sumP1RPath, shiftGRSRPath].swizzle())
+            [sumP1RPath, shiftGRSRPath].swizzle().named('sumP1ShiftGRSRPath'))
         .named('mergedSumP1RPath');
 
     final finalSumLGRSRPath = mux(selectRPath, mergedSumP1RPath, mergedSumRPath)
@@ -283,7 +285,8 @@ class FloatingPointAdderDualPath<FpTypeIn extends FloatingPoint,
               rndRPath.zeroExtend(sumRPath.width).named('rndExtend_rpath'))
           .named('sumMantissaRndRpath');
       mantissaRPath = (sumMantissaRPathRnd <<
-              mux(selectRPath, sumP1LeadZeroRPath, sumLeadZeroRPath))
+              mux(selectRPath, sumP1LeadZeroRPath, sumLeadZeroRPath)
+                  .named('shiftRPath'))
           .named('mantissaRpath');
     } else {
       mantissaRPath =
