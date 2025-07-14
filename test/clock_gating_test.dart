@@ -53,7 +53,7 @@ class CustomClockGateControlInterface extends ClockGateControlInterface {
       : super(
             hasEnableOverride: true,
             additionalPorts: [
-              Port('anotherOverride'),
+              Logic.port('anotherOverride'),
             ],
             gatedClockGenerator: (intf, clk, enable) => CustomClockGateMacro(
                   clk: clk,

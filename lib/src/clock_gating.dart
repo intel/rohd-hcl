@@ -66,10 +66,10 @@ class ClockGateControlInterface extends PairInterface {
   ClockGateControlInterface({
     this.isPresent = true,
     this.hasEnableOverride = false,
-    List<Port>? additionalPorts,
+    List<Logic>? additionalPorts,
     this.gatedClockGenerator = defaultGenerateGatedClock,
   }) : super(portsFromProvider: [
-          if (hasEnableOverride) Port('en_override'),
+          if (hasEnableOverride) Logic.port('en_override'),
           ...?additionalPorts,
         ]);
 
@@ -205,14 +205,13 @@ class ClockGate extends Module {
   /// that synchronous resets work properly, and the [enable] is extended for an
   /// appropriate duration (if [delayControlledSignals]) to ensure proper
   /// capture of data.
-  ClockGate(
-    Logic freeClk, {
-    required Logic enable,
-    Logic? reset,
-    ClockGateControlInterface? controlIntf,
-    this.delayControlledSignals = false,
-    super.name = 'clock_gate',
-  }) {
+  ClockGate(Logic freeClk,
+      {required Logic enable,
+      Logic? reset,
+      ClockGateControlInterface? controlIntf,
+      this.delayControlledSignals = false,
+      super.name = 'clock_gate',
+      super.definitionName}) {
     // if this clock gating is not intended to be present, then just do nothing
     if (!(controlIntf?.isPresent ?? true)) {
       _controlIntf = null;
