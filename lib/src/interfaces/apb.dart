@@ -208,40 +208,40 @@ class ApbInterface extends Interface<ApbDirection> {
     _validateParameters();
 
     setPorts([
-      Port('PCLK'),
-      Port('PRESETn'),
+      Logic.port('PCLK'),
+      Logic.port('PRESETn'),
     ], [
       ApbDirection.misc
     ]);
 
     setPorts([
-      Port('PADDR', addrWidth),
-      Port('PPROT', 3),
-      Port('PNSE'),
-      Port('PENABLE'),
-      Port('PWRITE'),
-      Port('PWDATA', dataWidth),
-      Port('PSTRB', dataWidth ~/ 8),
-      if (userReqWidth != 0) Port('PAUSER', userReqWidth),
-      if (userDataWidth != 0) Port('PWUSER', userDataWidth),
+      Logic.port('PADDR', addrWidth),
+      Logic.port('PPROT', 3),
+      Logic.port('PNSE'),
+      Logic.port('PENABLE'),
+      Logic.port('PWRITE'),
+      Logic.port('PWDATA', dataWidth),
+      Logic.port('PSTRB', dataWidth ~/ 8),
+      if (userReqWidth != 0) Logic.port('PAUSER', userReqWidth),
+      if (userDataWidth != 0) Logic.port('PWUSER', userDataWidth),
     ], [
       ApbDirection.fromRequester,
       ApbDirection.fromRequesterExceptSelect,
     ]);
 
     setPorts([
-      for (var i = 0; i < numSelects; i++) Port('PSEL$i'),
+      for (var i = 0; i < numSelects; i++) Logic.port('PSEL$i'),
     ], [
       ApbDirection.fromRequester,
     ]);
 
     setPorts([
-      Port('PREADY'),
-      Port('PRDATA', dataWidth),
-      if (includeSlvErr) Port('PSLVERR'),
-      Port('PWAKEUP'),
-      if (userDataWidth != 0) Port('PRUSER', userDataWidth),
-      if (userRespWidth != 0) Port('PBUSER', userRespWidth),
+      Logic.port('PREADY'),
+      Logic.port('PRDATA', dataWidth),
+      if (includeSlvErr) Logic.port('PSLVERR'),
+      Logic.port('PWAKEUP'),
+      if (userDataWidth != 0) Logic.port('PRUSER', userDataWidth),
+      if (userRespWidth != 0) Logic.port('PBUSER', userRespWidth),
     ], [
       ApbDirection.fromCompleter
     ]);

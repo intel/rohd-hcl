@@ -40,8 +40,8 @@ class Axi4SystemInterface extends Interface<Axi4Direction> {
   /// Construct a new instance of an AXI4 interface.
   Axi4SystemInterface() {
     setPorts([
-      Port('ACLK'),
-      Port('ARESETn'),
+      Logic.port('ACLK'),
+      Logic.port('ARESETn'),
     ], [
       Axi4Direction.misc,
     ]);
@@ -212,31 +212,31 @@ class Axi4ReadInterface extends Interface<Axi4Direction> {
     _validateParameters();
 
     setPorts([
-      if (idWidth > 0) Port('ARID', idWidth),
-      Port('ARADDR', addrWidth),
-      if (lenWidth > 0) Port('ARLEN', lenWidth),
-      if (sizeWidth > 0) Port('ARSIZE', sizeWidth),
-      if (burstWidth > 0) Port('ARBURST', burstWidth),
-      if (useLock) Port('ARLOCK'),
-      if (cacheWidth > 0) Port('ARCACHE', cacheWidth),
-      Port('ARPROT', protWidth),
-      if (qosWidth > 0) Port('ARQOS', qosWidth),
-      if (regionWidth > 0) Port('ARREGION', regionWidth),
-      if (aruserWidth > 0) Port('ARUSER', aruserWidth),
-      Port('ARVALID'),
-      Port('RREADY'),
+      if (idWidth > 0) Logic.port('ARID', idWidth),
+      Logic.port('ARADDR', addrWidth),
+      if (lenWidth > 0) Logic.port('ARLEN', lenWidth),
+      if (sizeWidth > 0) Logic.port('ARSIZE', sizeWidth),
+      if (burstWidth > 0) Logic.port('ARBURST', burstWidth),
+      if (useLock) Logic.port('ARLOCK'),
+      if (cacheWidth > 0) Logic.port('ARCACHE', cacheWidth),
+      Logic.port('ARPROT', protWidth),
+      if (qosWidth > 0) Logic.port('ARQOS', qosWidth),
+      if (regionWidth > 0) Logic.port('ARREGION', regionWidth),
+      if (aruserWidth > 0) Logic.port('ARUSER', aruserWidth),
+      Logic.port('ARVALID'),
+      Logic.port('RREADY'),
     ], [
       Axi4Direction.fromMain,
     ]);
 
     setPorts([
-      if (idWidth > 0) Port('RID', idWidth),
-      Port('RDATA', dataWidth),
-      if (rrespWidth > 0) Port('RRESP', rrespWidth),
-      if (useLast) Port('RLAST'),
-      if (ruserWidth > 0) Port('RUSER', ruserWidth),
-      Port('RVALID'),
-      Port('ARREADY'),
+      if (idWidth > 0) Logic.port('RID', idWidth),
+      Logic.port('RDATA', dataWidth),
+      if (rrespWidth > 0) Logic.port('RRESP', rrespWidth),
+      if (useLast) Logic.port('RLAST'),
+      if (ruserWidth > 0) Logic.port('RUSER', ruserWidth),
+      Logic.port('RVALID'),
+      Logic.port('ARREADY'),
     ], [
       Axi4Direction.fromSubordinate,
     ]);
@@ -472,35 +472,35 @@ class Axi4WriteInterface extends Interface<Axi4Direction> {
     _validateParameters();
 
     setPorts([
-      if (idWidth > 0) Port('AWID', idWidth),
-      Port('AWADDR', addrWidth),
-      if (lenWidth > 0) Port('AWLEN', lenWidth),
-      if (sizeWidth > 0) Port('AWSIZE', sizeWidth),
-      if (burstWidth > 0) Port('AWBURST', burstWidth),
-      if (useLock) Port('AWLOCK'),
-      if (cacheWidth > 0) Port('AWCACHE', cacheWidth),
-      Port('AWPROT', protWidth),
-      if (qosWidth > 0) Port('AWQOS', qosWidth),
-      if (regionWidth > 0) Port('AWREGION', regionWidth),
-      if (awuserWidth > 0) Port('AWUSER', awuserWidth),
-      Port('AWVALID'),
-      Port('WDATA', dataWidth),
-      Port('WSTRB', strbWidth),
-      Port('WLAST'),
-      if (wuserWidth > 0) Port('WUSER', wuserWidth),
-      Port('WVALID'),
-      Port('BREADY'),
+      if (idWidth > 0) Logic.port('AWID', idWidth),
+      Logic.port('AWADDR', addrWidth),
+      if (lenWidth > 0) Logic.port('AWLEN', lenWidth),
+      if (sizeWidth > 0) Logic.port('AWSIZE', sizeWidth),
+      if (burstWidth > 0) Logic.port('AWBURST', burstWidth),
+      if (useLock) Logic.port('AWLOCK'),
+      if (cacheWidth > 0) Logic.port('AWCACHE', cacheWidth),
+      Logic.port('AWPROT', protWidth),
+      if (qosWidth > 0) Logic.port('AWQOS', qosWidth),
+      if (regionWidth > 0) Logic.port('AWREGION', regionWidth),
+      if (awuserWidth > 0) Logic.port('AWUSER', awuserWidth),
+      Logic.port('AWVALID'),
+      Logic.port('WDATA', dataWidth),
+      Logic.port('WSTRB', strbWidth),
+      Logic.port('WLAST'),
+      if (wuserWidth > 0) Logic.port('WUSER', wuserWidth),
+      Logic.port('WVALID'),
+      Logic.port('BREADY'),
     ], [
       Axi4Direction.fromMain,
     ]);
 
     setPorts([
-      if (idWidth > 0) Port('BID', idWidth),
-      if (brespWidth > 0) Port('BRESP', brespWidth),
-      if (buserWidth > 0) Port('BUSER', buserWidth),
-      Port('BVALID'),
-      Port('AWREADY'),
-      Port('WREADY'),
+      if (idWidth > 0) Logic.port('BID', idWidth),
+      if (brespWidth > 0) Logic.port('BRESP', brespWidth),
+      if (buserWidth > 0) Logic.port('BUSER', buserWidth),
+      Logic.port('BVALID'),
+      Logic.port('AWREADY'),
+      Logic.port('WREADY'),
     ], [
       Axi4Direction.fromSubordinate,
     ]);

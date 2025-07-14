@@ -28,9 +28,13 @@ class SpiInterface extends PairInterface {
 
   /// Creates a new [SpiInterface].
   SpiInterface({this.dataLength = 1})
-      : super(
-            portsFromConsumer: [Port('MISO')],
-            portsFromProvider: [Port('MOSI'), Port('CSB'), Port('SCLK')]);
+      : super(portsFromConsumer: [
+          Logic.port('MISO')
+        ], portsFromProvider: [
+          Logic.port('MOSI'),
+          Logic.port('CSB'),
+          Logic.port('SCLK')
+        ]);
 
   /// Clones this [SpiInterface].
   SpiInterface.clone(SpiInterface super.otherInterface)
