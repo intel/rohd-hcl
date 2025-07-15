@@ -54,7 +54,9 @@
 
     
 <section class="desc markdown">
-  <p>A PartialProduct Module</p>
+  <p>A <a href="../rohd_hcl/PartialProduct-class.html">PartialProduct</a> module wrapping partial product array manipulation
+and generation of outputs in an actual module as opposed to an inline
+generator class.</p>
 </section>
 
 
@@ -90,8 +92,8 @@
           <span class="name"><a href="../rohd_hcl/PartialProduct/PartialProduct.html">PartialProduct.new</a></span><span class="signature">(<span class="parameter" id="-param-multiplicand"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.5/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">multiplicand</span>, </span><span class="parameter" id="-param-multiplier"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.5/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">multiplier</span>, </span><span class="parameter" id="-param-radixEncoder"><span class="type-annotation"><a href="../rohd_hcl/RadixEncoder-class.html">RadixEncoder</a></span> <span class="parameter-name">radixEncoder</span>, {</span><span class="parameter" id="-param-signedMultiplicand"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.8.1/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">signedMultiplicand</span> = <span class="default-value">false</span>, </span><span class="parameter" id="-param-signedMultiplier"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.8.1/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">signedMultiplier</span> = <span class="default-value">false</span>, </span><span class="parameter" id="-param-selectSignedMultiplicand"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.5/rohd/Logic-class.html">Logic</a>?</span> <span class="parameter-name">selectSignedMultiplicand</span>, </span><span class="parameter" id="-param-selectSignedMultiplier"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.5/rohd/Logic-class.html">Logic</a>?</span> <span class="parameter-name">selectSignedMultiplier</span>, </span><span class="parameter" id="-param-genPPG"><span class="type-annotation"><a href="../rohd_hcl/PartialProductGeneratorBase-class.html">PartialProductGeneratorBase</a></span> <span class="parameter-name">genPPG</span>(<span class="parameter" id="param-multiplicand"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.5/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">multiplicand</span>, </span><span class="parameter" id="param-multiplier"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.5/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">multiplier</span>, </span><span class="parameter" id="param-radixEncoder"><span class="type-annotation"><a href="../rohd_hcl/RadixEncoder-class.html">RadixEncoder</a></span> <span class="parameter-name">radixEncoder</span>, {</span><span class="parameter" id="param-selectSignedMultiplicand"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.5/rohd/Logic-class.html">Logic</a>?</span> <span class="parameter-name">selectSignedMultiplicand</span>, </span><span class="parameter" id="param-selectSignedMultiplier"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.5/rohd/Logic-class.html">Logic</a>?</span> <span class="parameter-name">selectSignedMultiplier</span>, </span><span class="parameter" id="param-signedMultiplicand"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.8.1/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">signedMultiplicand</span>, </span><span class="parameter" id="param-signedMultiplier"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.8.1/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">signedMultiplier</span></span>}) = <span class="default-value">PartialProductGenerator.new</span>, </span><span class="parameter" id="-param-name"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.8.1/dart-core/String-class.html">String</a></span> <span class="parameter-name">name</span> = <span class="default-value">&#39;partial_product&#39;</span></span>})</span>
         </dt>
         <dd>
-          create a PartialProduct Module which manages a
-<a href="../rohd_hcl/PartialProductArray-class.html">PartialProductArray</a>
+          Create a <a href="../rohd_hcl/PartialProduct-class.html">PartialProduct</a> <a href="https://pub.dev/documentation/rohd/0.6.5/rohd/Module-class.html">Module</a> which manages a
+<a href="../rohd_hcl/PartialProductArray-class.html">PartialProductArray</a>.
         </dd>
     </dl>
   </section>
@@ -108,7 +110,7 @@
 
 </dt>
 <dd class="inherited">
-  Give access to the _array for Sign Extension classes to operate.
+  Give access to the _array for <a href="../rohd_hcl/PartialProductSignExtension-class.html">PartialProductSignExtension</a> to operate.
   <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
 
 </dd>
@@ -259,7 +261,7 @@ or else it will fail.
 
 </dt>
 <dd class="inherited">
-  Give access for things like Column Compression
+  Give access for things like <a href="../rohd_hcl/ColumnCompressor-class.html">ColumnCompressor</a>.
 This is an output, but not yet generated?
   <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
 
@@ -272,7 +274,7 @@ This is an output, but not yet generated?
 
 </dt>
 <dd class="inherited">
-  Give access to the _array for Sign Extension classes to operate.
+  Give access to the _array for <a href="../rohd_hcl/PartialProductSignExtension-class.html">PartialProductSignExtension</a> to operate.
   <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
 
 </dd>

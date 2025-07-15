@@ -249,8 +249,8 @@ the output. The logic function must support the operation for 2 and up to
 <a href="../rohd_hcl/ReductionTree/radix.html">radix</a> inputs. The <a href="../rohd_hcl/ReductionTree/depth.html">depth</a> input is the depth of the current node in the
 tree to the leaves.  For sequences that are not powers of <a href="../rohd_hcl/ReductionTree/radix.html">radix</a>, the
 depth is the maximum depth to the leaves from this node in the tree.  The
-<a href="../rohd_hcl/ReductionTree/depth.html">depth</a> can be used to index the control Logic to change behavior at each
-depth of the tree.
+<a href="../rohd_hcl/ReductionTree/depth.html">depth</a> can be used to index the <code>control</code> <a href="https://pub.dev/documentation/rohd/0.6.5/rohd/Logic-class.html">Logic</a> to change behavior at
+each depth of the tree.
   <div class="features"><span class="feature">final</span></div>
 
 </dd>
@@ -362,7 +362,7 @@ inputs, outputs, and internal signals of this <a href="https://pub.dev/documenta
 
 </dt>
 <dd>
-  When <a href="../rohd_hcl/ReductionTree/signExtend.html">signExtend</a> is true, use sign-extension on values,
+  When <a href="../rohd_hcl/ReductionTree/signExtend.html">signExtend</a> is <code>true</code>, use sign-extension on values,
 otherwise use zero-extension.
   <div class="features"><span class="feature">final</span></div>
 

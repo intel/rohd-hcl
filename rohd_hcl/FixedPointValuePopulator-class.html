@@ -283,15 +283,15 @@ by widening the integer and/or fraction widths.
     <h2>Static Methods</h2>
     <dl class="callables">
         <dt id="canStore" class="callable">
-  <span class="name"><a href="../rohd_hcl/FixedPointValuePopulator/canStore.html">canStore</a></span><span class="signature">(<wbr><span class="parameter" id="canStore-param-val"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.8.1/dart-core/double-class.html">double</a></span> <span class="parameter-name">val</span>, {</span><span class="parameter" id="canStore-param-signed"><span>required</span> <span class="type-annotation"><a href="https://api.dart.dev/stable/3.8.1/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">signed</span>, </span><span class="parameter" id="canStore-param-m"><span>required</span> <span class="type-annotation"><a href="https://api.dart.dev/stable/3.8.1/dart-core/int-class.html">int</a></span> <span class="parameter-name">m</span>, </span><span class="parameter" id="canStore-param-n"><span>required</span> <span class="type-annotation"><a href="https://api.dart.dev/stable/3.8.1/dart-core/int-class.html">int</a></span> <span class="parameter-name">n</span></span>})
+  <span class="name"><a href="../rohd_hcl/FixedPointValuePopulator/canStore.html">canStore</a></span><span class="signature">(<wbr><span class="parameter" id="canStore-param-val"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.8.1/dart-core/double-class.html">double</a></span> <span class="parameter-name">val</span>, {</span><span class="parameter" id="canStore-param-signed"><span>required</span> <span class="type-annotation"><a href="https://api.dart.dev/stable/3.8.1/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">signed</span>, </span><span class="parameter" id="canStore-param-integerWidth"><span>required</span> <span class="type-annotation"><a href="https://api.dart.dev/stable/3.8.1/dart-core/int-class.html">int</a></span> <span class="parameter-name">integerWidth</span>, </span><span class="parameter" id="canStore-param-fractionWidth"><span>required</span> <span class="type-annotation"><a href="https://api.dart.dev/stable/3.8.1/dart-core/int-class.html">int</a></span> <span class="parameter-name">fractionWidth</span></span>})
     <span class="returntype parameter">&#8594; <a href="https://api.dart.dev/stable/3.8.1/dart-core/bool-class.html">bool</a></span>
   </span>
   
 
 </dt>
 <dd>
-  Return true if double <code>val</code> to be stored in <a href="../rohd_hcl/FixedPointValue-class.html">FixedPointValue</a>
-with <code>m</code> and <code>n</code> lengths without overflowing.
+  Return <code>true</code> if double <code>val</code> to be stored in <a href="../rohd_hcl/FixedPointValue-class.html">FixedPointValue</a>
+with <code>integerWidth</code> and <code>fractionWidth</code> lengths without overflowing.
   
 
 </dd>

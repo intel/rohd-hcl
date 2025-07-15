@@ -125,8 +125,9 @@ Othwerise, returns <code>null</code>.
 
 </dt>
 <dd class="inherited">
-  Return the exponent Logic value representing the true zero exponent
-2^0 = 1 often termed <a href="../rohd_hcl/FloatingPoint/bias.html">bias</a> or the offset of the stored exponent.
+  Return the exponent <a href="https://pub.dev/documentation/rohd/0.6.5/rohd/Logic-class.html">Logic</a> representing the <a href="../rohd_hcl/FloatingPoint/bias.html">bias</a> of this
+<a href="../rohd_hcl/FloatingPoint-class.html">FloatingPoint</a> signal, the offset of the exponent, also representing the
+zero exponent <code>2^0 = 1</code>.
   <div class="features"><span class="feature">late</span><span class="feature">final</span><span class="feature">inherited</span></div>
 
 </dd>
@@ -188,7 +189,7 @@ per <a href="https://pub.dev/documentation/rohd/0.6.5/rohd/Simulator-class.html"
 
 </dt>
 <dd class="inherited">
-  Return true if the J-bit is explicitly represented in the mantissa.
+  Return <code>true</code> if the J-bit is explicitly represented in the mantissa.
   <div class="features"><span class="feature">final</span><span class="feature">inherited</span></div>
 
 </dd>
@@ -200,7 +201,7 @@ per <a href="https://pub.dev/documentation/rohd/0.6.5/rohd/Simulator-class.html"
 
 </dt>
 <dd class="inherited">
-  unsigned, biased binary <a href="../rohd_hcl/FloatingPoint/exponent.html">exponent</a>
+  unsigned, biased binary <a href="../rohd_hcl/FloatingPoint/exponent.html">exponent</a>.
   <div class="features"><span class="feature">final</span><span class="feature">inherited</span></div>
 
 </dd>
@@ -249,7 +250,7 @@ transitions at any time during a <a href="https://pub.dev/documentation/rohd/0.6
 
 </dt>
 <dd class="inherited">
-  Return a Logic true if this FloatingPoint is an infinity
+  Return a <a href="https://pub.dev/documentation/rohd/0.6.5/rohd/Logic-class.html">Logic</a> <code>1</code> if this <a href="../rohd_hcl/FloatingPoint-class.html">FloatingPoint</a> is an infinity
 by having its exponent field set to the NaN value (typically all
 ones) and a zero mantissa.
   <div class="features"><span class="feature">late</span><span class="feature">final</span><span class="feature">inherited</span></div>
@@ -275,7 +276,7 @@ ones) and a zero mantissa.
 
 </dt>
 <dd class="inherited">
-  Return a Logic true if this FloatingPoint is an zero
+  Return a <a href="https://pub.dev/documentation/rohd/0.6.5/rohd/Logic-class.html">Logic</a> <code>1</code> if this <a href="../rohd_hcl/FloatingPoint-class.html">FloatingPoint</a> is a zero
 by having its exponent field set to the NaN value (typically all
 ones) and a zero mantissa.
   <div class="features"><span class="feature">late</span><span class="feature">final</span><span class="feature">inherited</span></div>
@@ -313,7 +314,7 @@ ones) and a zero mantissa.
 
 </dt>
 <dd class="inherited">
-  Return a Logic true if this FloatingPoint is Not a Number (NaN)
+  Return a <a href="https://pub.dev/documentation/rohd/0.6.5/rohd/Logic-class.html">Logic</a> <code>1</code>if this <a href="../rohd_hcl/FloatingPoint-class.html">FloatingPoint</a> is Not a Number (NaN)
 by having its exponent field set to the NaN value (typically all
 ones) and a non-zero mantissa.
   <div class="features"><span class="feature">late</span><span class="feature">final</span><span class="feature">inherited</span></div>
@@ -340,8 +341,8 @@ drivers.
 
 </dt>
 <dd class="inherited">
-  Return a Logic true if this FloatingPoint contains a normal number,
-defined as having mantissa in the range [1,2)
+  Return a <a href="https://pub.dev/documentation/rohd/0.6.5/rohd/Logic-class.html">Logic</a> <code>1</code> if this <a href="../rohd_hcl/FloatingPoint-class.html">FloatingPoint</a> contains a normal number,
+defined as having mantissa in the range <code>[1,2)</code>.
   <div class="features"><span class="feature">late</span><span class="feature">final</span><span class="feature">inherited</span></div>
 
 </dd>
@@ -391,7 +392,7 @@ structure provided in index order.
 
 </dt>
 <dd class="inherited">
-  unsigned binary <a href="../rohd_hcl/FloatingPoint/mantissa.html">mantissa</a>
+  unsigned binary <a href="../rohd_hcl/FloatingPoint/mantissa.html">mantissa</a>.
   <div class="features"><span class="feature">final</span><span class="feature">inherited</span></div>
 
 </dd>
@@ -428,7 +429,7 @@ outputs.
 
 </dt>
 <dd class="inherited">
-  Construct a FloatingPoint that represents NaN for this FP type.
+  Construct a <a href="../rohd_hcl/FloatingPoint-class.html">FloatingPoint</a> that represents NaN for this FP type.
   <div class="features"><span class="feature">late</span><span class="feature">final</span><span class="feature">inherited</span></div>
 
 </dd>
@@ -493,7 +494,7 @@ value at the end of a <a href="https://pub.dev/documentation/rohd/0.6.5/rohd/Sim
 
 </dt>
 <dd class="inherited">
-  Return the one exponent representation for this type of FloatingPoint
+  Return the one exponent representation for this type of <a href="../rohd_hcl/FloatingPoint-class.html">FloatingPoint</a>.
   <div class="features"><span class="feature">late</span><span class="feature">final</span><span class="feature">inherited</span></div>
 
 </dd>
@@ -606,7 +607,7 @@ created.
 
 </dt>
 <dd class="inherited">
-  <a href="../rohd_hcl/FloatingPoint/sign.html">sign</a> bit with '1' representing a negative number
+  <a href="../rohd_hcl/FloatingPoint/sign.html">sign</a> bit with '1' representing a negative number.
   <div class="features"><span class="feature">final</span><span class="feature">inherited</span></div>
 
 </dd>
@@ -656,7 +657,7 @@ one exists.  Otherwise, this is the same as <a href="https://pub.dev/documentati
 
 </dt>
 <dd class="inherited">
-  Return true if subnormal numbers are represented as zero.
+  Return <code>true</code> if subnormal numbers are represented as zero.
   <div class="features"><span class="feature">final</span><span class="feature">inherited</span></div>
 
 </dd>
@@ -716,7 +717,7 @@ one exists.  Otherwise, this is the same as <a href="https://pub.dev/documentati
 
 </dt>
 <dd class="inherited">
-  Return the zero exponent representation for this type of FloatingPoint
+  Return the zero exponent representation for this type of <a href="../rohd_hcl/FloatingPoint-class.html">FloatingPoint</a>.
   <div class="features"><span class="feature">late</span><span class="feature">final</span><span class="feature">inherited</span></div>
 
 </dd>
@@ -912,7 +913,7 @@ the corresponding index, plus <code>start</code>, of this signal.
 
 </dt>
 <dd class="inherited">
-  Construct a FloatingPoint that represents infinity for this FP type.
+  Construct a <a href="../rohd_hcl/FloatingPoint-class.html">FloatingPoint</a> that represents infinity for this FP type.
   <div class="features"><span class="feature">inherited</span></div>
 
 </dd>
@@ -1113,7 +1114,7 @@ this.width * <code>multiplier</code>
 </dt>
 <dd class="inherited">
   Convert the current <a href="../rohd_hcl/FloatingPoint-class.html">FloatingPoint</a> to a new <a href="../rohd_hcl/FloatingPoint-class.html">FloatingPoint</a> but with the
-mantissa resolved if subnormal and subNormalAsZero is true.
+mantissa resolved if not <a href="../rohd_hcl/FloatingPoint/isNormal.html">isNormal</a> and <a href="../rohd_hcl/FloatingPoint/subNormalAsZero.html">subNormalAsZero</a> is <code>true</code>.
   <div class="features"><span class="feature">inherited</span></div>
 
 </dd>

@@ -63,7 +63,7 @@ This component offers re-using the same hardware for both FP8 formats.
 Infinities and NaN's are not supported.
 The output is of type <a href="https://pub.dev/documentation/rohd/0.6.5/rohd/Logic-class.html">Logic</a> and in two's complement.
 It can be cast to a <a href="../rohd_hcl/FixedPoint-class.html">FixedPoint</a> by the consumer based on the mode.
-if <code>mode</code> is true:
+if <code>mode</code> is <code>true</code>:
   Input is treated as E4M3 and converted to Q9.9
   <code>fixed[17:9] contains integer part   </code>fixed<code>8:0</code> contains fractional part
 else:

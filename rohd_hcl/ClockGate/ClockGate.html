@@ -71,7 +71,7 @@
 externally (for example whether the clock gating <a href="../../rohd_hcl/ClockGate/isPresent.html">isPresent</a> or using an
 override signal to force clocks enabled). If <code>controlIntf</code> is not
 provided, then the clock gating is always present.</p>
-<p>If <code>delayControlledSignals</code> is true, then any signals that are
+<p>If <code>delayControlledSignals</code> is <code>true</code>, then any signals that are
 <a href="../../rohd_hcl/ClockGate/controlled.html">controlled</a> by the clock gating will be delayed by 1 cycle. This can be
 helpful for timing purposes to avoid ungating the clock on the same cycle
 as the signal is used. Using the <a href="../../rohd_hcl/ClockGate/controlled.html">controlled</a> signals helps turn on or off

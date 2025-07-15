@@ -379,7 +379,7 @@ statically enable or disable features in a component.
 
 </dt>
 <dd>
-  BrentKung shaped ParallelPrefix tree
+  <a href="../rohd_hcl/BrentKung-class.html">BrentKung</a> implements the Brent-Kung shaped <a href="../rohd_hcl/ParallelPrefix-class.html">ParallelPrefix</a> tree pattern.
 </dd>
 
           <dt id="BruteSignExtension">
@@ -531,7 +531,7 @@ statically enable or disable features in a component.
 
 </dt>
 <dd>
-  A compression term
+  A compression term.
 </dd>
 
           <dt id="ConfigKnob">
@@ -581,7 +581,7 @@ configuration for widths, saturation behavior, and restarting.
 
 </dt>
 <dd>
-  Logic representation of a CSR.
+  <a href="https://pub.dev/documentation/rohd/0.6.5/rohd/Logic-class.html">Logic</a> representation of a Control and Status Register (CSR).
 </dd>
 
           <dt id="CsrBackdoorInterface">
@@ -597,7 +597,7 @@ configuration for widths, saturation behavior, and restarting.
 
 </dt>
 <dd>
-  Logic representation of a block of registers.
+  <a href="https://pub.dev/documentation/rohd/0.6.5/rohd/Logic-class.html">Logic</a> representation of a block of registers.
 </dd>
 
           <dt id="CsrBlockConfig">
@@ -712,7 +712,7 @@ correcting data at the receiving end.
 
 </dt>
 <dd>
-  Determines the extremas (maximum or minimum) of a List&lt;<a href="https://pub.dev/documentation/rohd/0.6.5/rohd/Logic-class.html">Logic</a>&gt;.
+  Determines the extremas (maximum or minimum) of a <a href="https://api.dart.dev/stable/3.8.1/dart-core/List-class.html">List&lt;Logic&gt;</a>.
 </dd>
 
           <dt id="ExtremaConfigurator">
@@ -728,7 +728,7 @@ correcting data at the receiving end.
 
 </dt>
 <dd>
-  A simple FIFO (First In, First Out).
+  A module <a href="../rohd_hcl/Fifo-class.html">Fifo</a> implementing a simple FIFO (First In, First Out) buffer.
 </dd>
 
           <dt id="FifoChecker">
@@ -868,7 +868,7 @@ This component offers re-using the same hardware for both FP8 formats.
 Infinities and NaN's are not supported.
 The output is of type <a href="https://pub.dev/documentation/rohd/0.6.5/rohd/Logic-class.html">Logic</a> and in two's complement.
 It can be cast to a <a href="../rohd_hcl/FixedPoint-class.html">FixedPoint</a> by the consumer based on the mode.
-if <code>mode</code> is true:
+if <code>mode</code> is <code>true</code>:
   Input is treated as E4M3 and converted to Q9.9
   <code>fixed[17:9] contains integer part   </code>fixed<code>8:0</code> contains fractional part
 else:
@@ -1005,7 +1005,7 @@ else:
 
 </dt>
 <dd>
-  An adder module for variable FloatingPoint type.
+  A fast adder module for variable width <a href="../rohd_hcl/FloatingPoint-class.html">FloatingPoint</a> logic signals.
 </dd>
 
           <dt id="FloatingPointAdderSinglePath">
@@ -1013,7 +1013,7 @@ else:
 
 </dt>
 <dd>
-  An adder module for FloatingPoint values
+  A single-path adder implementation for <a href="../rohd_hcl/FloatingPoint-class.html">FloatingPoint</a> values.
 </dd>
 
           <dt id="FloatingPointBF16">
@@ -1045,7 +1045,7 @@ else:
 
 </dt>
 <dd>
-  A converter module for FloatingPoint values
+  A converter module between different <a href="../rohd_hcl/FloatingPoint-class.html">FloatingPoint</a> logic signals.
 </dd>
 
           <dt id="FloatingPointMultiplier">
@@ -1061,7 +1061,7 @@ else:
 
 </dt>
 <dd>
-  A multiplier module for FloatingPoint logic.
+  A multiplier module for <a href="../rohd_hcl/FloatingPoint-class.html">FloatingPoint</a> logic.
 </dd>
 
           <dt id="FloatingPointMultiplierSimpleConfigurator">
@@ -1111,7 +1111,7 @@ with the larger exponent first.
 
 </dt>
 <dd>
-  An square root module for FloatingPoint values
+  An square root module for <a href="../rohd_hcl/FloatingPoint-class.html">FloatingPoint</a> logic signals.
 </dd>
 
           <dt id="FloatingPointSwap">
@@ -1260,7 +1260,8 @@ and possibly correction.
 
 </dt>
 <dd>
-  KoggeStone shaped ParallelPrefix tree
+  <a href="../rohd_hcl/KoggeStone-class.html">KoggeStone</a> implements the Kogge-Stone shaped <a href="../rohd_hcl/ParallelPrefix-class.html">ParallelPrefix</a> tree
+pattern.
 </dd>
 
           <dt id="LeadingDigitAnticipate">
@@ -1361,7 +1362,7 @@ store data.
 
 </dt>
 <dd>
-  The Divider module definition
+  The Divider module definition.
 </dd>
 
           <dt id="MultiCycleDividerInterface">
@@ -1377,7 +1378,7 @@ store data.
 
 </dt>
 <dd>
-  A class accessing the multiples of the multiplicand at a position
+  A class accessing the multiples of the multiplicand at a position.
 </dd>
 
           <dt id="Multiplier">
@@ -1498,10 +1499,10 @@ ones-complement values, producing a magnitude and sign.
 </dt>
 <dd>
   <a href="../rohd_hcl/ParallelPrefix-class.html">ParallelPrefix</a> is the core parallel prefix tree structure node
-The output is a List of multi-bit Logic vectors (typically 2-bit) that
+The output is a <a href="https://api.dart.dev/stable/3.8.1/dart-core/List-class.html">List</a> of multi-bit <a href="https://pub.dev/documentation/rohd/0.6.5/rohd/Logic-class.html">Logic</a> vectors (typically 2-bit) that
 represent things like carry-save or generate-propagate signaling in adder
 networks.  Each node in a parallel prefix tree transforms a row of inputs
-to an equal length row of outputs of these multi-bit Logic values.
+to an equal length row of outputs of these multi-bit <a href="https://pub.dev/documentation/rohd/0.6.5/rohd/Logic-class.html">Logic</a> values.
 </dd>
 
           <dt id="ParallelPrefixAdder">
@@ -1509,7 +1510,7 @@ to an equal length row of outputs of these multi-bit Logic values.
 
 </dt>
 <dd>
-  Adder based on ParallelPrefix tree
+  <a href="../rohd_hcl/Adder-class.html">Adder</a> based on <a href="../rohd_hcl/ParallelPrefix-class.html">ParallelPrefix</a> tree.
 </dd>
 
           <dt id="ParallelPrefixAdderConfigurator">
@@ -1525,7 +1526,7 @@ to an equal length row of outputs of these multi-bit Logic values.
 
 </dt>
 <dd>
-  Decrementer based on ParallelPrefix tree
+  Decrementer based on <a href="../rohd_hcl/ParallelPrefix-class.html">ParallelPrefix</a> tree.
 </dd>
 
           <dt id="ParallelPrefixIncr">
@@ -1533,7 +1534,7 @@ to an equal length row of outputs of these multi-bit Logic values.
 
 </dt>
 <dd>
-  Incrementer based on ParallelPrefix tree
+  Incrementer based on <a href="../rohd_hcl/ParallelPrefix-class.html">ParallelPrefix</a> tree.
 </dd>
 
           <dt id="ParallelPrefixOrScan">
@@ -1541,7 +1542,7 @@ to an equal length row of outputs of these multi-bit Logic values.
 
 </dt>
 <dd>
-  Or scan based on ParallelPrefix tree
+  Or scan based on <a href="../rohd_hcl/ParallelPrefix-class.html">ParallelPrefix</a> tree.
 </dd>
 
           <dt id="ParallelPrefixPriorityEncoder">
@@ -1549,7 +1550,7 @@ to an equal length row of outputs of these multi-bit Logic values.
 
 </dt>
 <dd>
-  Priority Encoder based on ParallelPrefix tree
+  Priority Encoder based on <a href="../rohd_hcl/ParallelPrefix-class.html">ParallelPrefix</a> tree.
 </dd>
 
           <dt id="ParallelPrefixPriorityFinder">
@@ -1557,7 +1558,7 @@ to an equal length row of outputs of these multi-bit Logic values.
 
 </dt>
 <dd>
-  Priority Finder based on ParallelPrefix tree
+  Priority Finder based on <a href="../rohd_hcl/ParallelPrefix-class.html">ParallelPrefix</a> tree.
 </dd>
 
           <dt id="ParityReceiver">
@@ -1581,7 +1582,9 @@ to an equal length row of outputs of these multi-bit Logic values.
 
 </dt>
 <dd>
-  A PartialProduct Module
+  A <a href="../rohd_hcl/PartialProduct-class.html">PartialProduct</a> module wrapping partial product array manipulation
+and generation of outputs in an actual module as opposed to an inline
+generator class.
 </dd>
 
           <dt id="PartialProductArray">
@@ -1660,7 +1663,7 @@ their shifts. This is a base class for the <a href="../rohd_hcl/PartialProduct-c
 
 </dt>
 <dd>
-  API for sign extension classes
+  API for sign extension classes.
 </dd>
 
           <dt id="PriorityArbiter">
@@ -1693,7 +1696,7 @@ their shifts. This is a base class for the <a href="../rohd_hcl/PartialProduct-c
 </dt>
 <dd>
   A bundle for the leaf radix compute nodes. This holds the multiples
-of the multiplicand that are needed for encoding
+of the multiplicand that are needed for encoding.
 </dd>
 
           <dt id="RadixEncoder">
@@ -1765,7 +1768,7 @@ of the multiplicand that are needed for encoding
 
 </dt>
 <dd>
-  Priority finder based on or() operations, using a tree of modules.
+  Priority finder based on bitwise OR operations, using a tree of modules.
 </dd>
 
           <dt id="RecursiveModulePriorityEncoderNode">
@@ -1781,7 +1784,7 @@ of the multiplicand that are needed for encoding
 
 </dt>
 <dd>
-  Priority finder based on or() operations
+  Priority finder based on or() operations.
 </dd>
 
           <dt id="ReductionTree">
@@ -1822,7 +1825,7 @@ inline so that the <a href="../rohd_hcl/ReductionTreeGenerator/operation.html">o
 
 </dt>
 <dd>
-  Ripple shaped ParallelPrefix tree
+  A ripple shaped <a href="../rohd_hcl/ParallelPrefix-class.html">ParallelPrefix</a> tree.
 </dd>
 
           <dt id="RippleCarryAdder">
@@ -1956,7 +1959,7 @@ reset.
 
 </dt>
 <dd>
-  Store a Signbit as Logic
+  Store a Signbit as <a href="https://pub.dev/documentation/rohd/0.6.5/rohd/Logic-class.html">Logic</a>
 </dd>
 
           <dt id="SignedShifter">
@@ -2003,7 +2006,7 @@ the end-around carry to get the correct sum.
 
 </dt>
 <dd>
-  Sklansky shaped ParallelPrefix tree
+  <a href="../rohd_hcl/Sklansky-class.html">Sklansky</a> implements the Sklansky-shaped <a href="../rohd_hcl/ParallelPrefix-class.html">ParallelPrefix</a> tree pattern.
 </dd>
 
           <dt id="Sort">
@@ -2411,7 +2414,7 @@ error detection, and number of check bits required.
 
 </dt>
 <dd>
-  This extension will eventually move to ROHD once it is proven useful
+  This extension will eventually move to ROHD once it is proven useful.
 </dd>
 
           <dt id="LogicValueMajority">
@@ -2421,7 +2424,7 @@ error detection, and number of check bits required.
 
 </dt>
 <dd>
-  This extension will eventually move to ROHD once it is proven useful
+  This extension will eventually move to ROHD once it is proven useful.
 </dd>
 
           <dt id="RotateLogic">
@@ -2570,7 +2573,7 @@ error detection, and number of check bits required.
 
   </dt>
   <dd>
-    Used to test different sign extension methods
+    Used to test different sign extension methods.
     
 
   </dd>
@@ -2600,7 +2603,7 @@ error detection, and number of check bits required.
 
 </dt>
 <dd>
-  Targeted Exception type for Csr valiation.
+  Targeted Exception type for control status register validation.
 </dd>
 
           <dt id="InfinityNotSupportedException">

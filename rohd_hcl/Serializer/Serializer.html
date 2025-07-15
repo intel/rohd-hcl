@@ -64,12 +64,12 @@
     </section>
     
 <section class="desc markdown">
-  <p>Build a Serializer that takes the array <code>deserialized</code> and sequences it
+  <p>Build a <a href="../../rohd_hcl/Serializer-class.html">Serializer</a> that takes the array <code>deserialized</code> and sequences it
 onto the <a href="../../rohd_hcl/Serializer/serialized.html">serialized</a> output.</p>
 <p>Delivers one element per clock while <code>enable</code>
-is high (if connected). If <code>flopInput</code> is true, the
+is high (if connected). If <code>flopInput</code> is <code>true</code>, the
 <a href="../../rohd_hcl/Serializer-class.html">Serializer</a> is configured to latch the input data and hold it until
-<a href="../../rohd_hcl/Serializer/done.html">done</a> is asserted after the full <code>LogicArray</code> <code>deserialized</code> is
+<a href="../../rohd_hcl/Serializer/done.html">done</a> is asserted after the full <a href="https://pub.dev/documentation/rohd/0.6.5/rohd/LogicArray-class.html">LogicArray</a> <code>deserialized</code> is
 transferred. This will delay the serialized output by one cycle.</p>
 </section>
 

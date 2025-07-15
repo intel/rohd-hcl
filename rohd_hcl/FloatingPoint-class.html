@@ -105,27 +105,27 @@
         </dt>
         <dd>
           <a href="../rohd_hcl/FloatingPoint-class.html">FloatingPoint</a> constructor for a variable size binary
-floating point number
+floating point number.
         </dd>
         <dt id="FloatingPoint.inf" class="callable">
           <span class="name"><a href="../rohd_hcl/FloatingPoint/FloatingPoint.inf.html">FloatingPoint.inf</a></span><span class="signature">({<span class="parameter" id="inf-param-exponentWidth"><span>required</span> <span class="type-annotation"><a href="https://api.dart.dev/stable/3.8.1/dart-core/int-class.html">int</a></span> <span class="parameter-name">exponentWidth</span>, </span><span class="parameter" id="inf-param-mantissaWidth"><span>required</span> <span class="type-annotation"><a href="https://api.dart.dev/stable/3.8.1/dart-core/int-class.html">int</a></span> <span class="parameter-name">mantissaWidth</span>, </span><span class="parameter" id="inf-param-sign"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.5/rohd/Logic-class.html">Logic</a>?</span> <span class="parameter-name">sign</span>, </span><span class="parameter" id="inf-param-negative"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.8.1/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">negative</span> = <span class="default-value">false</span>, </span><span class="parameter" id="inf-param-explicitJBit"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.8.1/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">explicitJBit</span> = <span class="default-value">false</span>, </span><span class="parameter" id="inf-param-subNormalAsZero"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.8.1/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">subNormalAsZero</span> = <span class="default-value">false</span></span>})</span>
         </dt>
         <dd>
-          Construct a FloatingPoint that represents infinity.
+          Construct a <a href="../rohd_hcl/FloatingPoint-class.html">FloatingPoint</a> that represents infinity.
             <div class="constructor-modifier features">factory</div>
         </dd>
         <dt id="FloatingPoint.nan" class="callable">
           <span class="name"><a href="../rohd_hcl/FloatingPoint/FloatingPoint.nan.html">FloatingPoint.nan</a></span><span class="signature">({<span class="parameter" id="nan-param-exponentWidth"><span>required</span> <span class="type-annotation"><a href="https://api.dart.dev/stable/3.8.1/dart-core/int-class.html">int</a></span> <span class="parameter-name">exponentWidth</span>, </span><span class="parameter" id="nan-param-mantissaWidth"><span>required</span> <span class="type-annotation"><a href="https://api.dart.dev/stable/3.8.1/dart-core/int-class.html">int</a></span> <span class="parameter-name">mantissaWidth</span>, </span><span class="parameter" id="nan-param-explicitJBit"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.8.1/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">explicitJBit</span> = <span class="default-value">false</span>, </span><span class="parameter" id="nan-param-subNormalAsZero"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.8.1/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">subNormalAsZero</span> = <span class="default-value">false</span></span>})</span>
         </dt>
         <dd>
-          Construct a FloatingPoint that represents NaN.
+          Construct a <a href="../rohd_hcl/FloatingPoint-class.html">FloatingPoint</a> that represents NaN.
             <div class="constructor-modifier features">factory</div>
         </dd>
         <dt id="FloatingPoint.zero" class="callable">
           <span class="name"><a href="../rohd_hcl/FloatingPoint/FloatingPoint.zero.html">FloatingPoint.zero</a></span><span class="signature">({<span class="parameter" id="zero-param-exponentWidth"><span>required</span> <span class="type-annotation"><a href="https://api.dart.dev/stable/3.8.1/dart-core/int-class.html">int</a></span> <span class="parameter-name">exponentWidth</span>, </span><span class="parameter" id="zero-param-mantissaWidth"><span>required</span> <span class="type-annotation"><a href="https://api.dart.dev/stable/3.8.1/dart-core/int-class.html">int</a></span> <span class="parameter-name">mantissaWidth</span>, </span><span class="parameter" id="zero-param-explicitJBit"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.8.1/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">explicitJBit</span> = <span class="default-value">false</span>, </span><span class="parameter" id="zero-param-subNormalAsZero"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.8.1/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">subNormalAsZero</span> = <span class="default-value">false</span></span>})</span>
         </dt>
         <dd>
-          Construct a FloatingPoint that represents zero.
+          Construct a <a href="../rohd_hcl/FloatingPoint-class.html">FloatingPoint</a> that represents zero.
             <div class="constructor-modifier features">factory</div>
         </dd>
     </dl>
@@ -156,8 +156,9 @@ Othwerise, returns <code>null</code>.
 
 </dt>
 <dd>
-  Return the exponent Logic value representing the true zero exponent
-2^0 = 1 often termed <a href="../rohd_hcl/FloatingPoint/bias.html">bias</a> or the offset of the stored exponent.
+  Return the exponent <a href="https://pub.dev/documentation/rohd/0.6.5/rohd/Logic-class.html">Logic</a> representing the <a href="../rohd_hcl/FloatingPoint/bias.html">bias</a> of this
+<a href="../rohd_hcl/FloatingPoint-class.html">FloatingPoint</a> signal, the offset of the exponent, also representing the
+zero exponent <code>2^0 = 1</code>.
   <div class="features"><span class="feature">late</span><span class="feature">final</span></div>
 
 </dd>
@@ -219,7 +220,7 @@ per <a href="https://pub.dev/documentation/rohd/0.6.5/rohd/Simulator-class.html"
 
 </dt>
 <dd>
-  Return true if the J-bit is explicitly represented in the mantissa.
+  Return <code>true</code> if the J-bit is explicitly represented in the mantissa.
   <div class="features"><span class="feature">final</span></div>
 
 </dd>
@@ -231,7 +232,7 @@ per <a href="https://pub.dev/documentation/rohd/0.6.5/rohd/Simulator-class.html"
 
 </dt>
 <dd>
-  unsigned, biased binary <a href="../rohd_hcl/FloatingPoint/exponent.html">exponent</a>
+  unsigned, biased binary <a href="../rohd_hcl/FloatingPoint/exponent.html">exponent</a>.
   <div class="features"><span class="feature">final</span></div>
 
 </dd>
@@ -280,7 +281,7 @@ transitions at any time during a <a href="https://pub.dev/documentation/rohd/0.6
 
 </dt>
 <dd>
-  Return a Logic true if this FloatingPoint is an infinity
+  Return a <a href="https://pub.dev/documentation/rohd/0.6.5/rohd/Logic-class.html">Logic</a> <code>1</code> if this <a href="../rohd_hcl/FloatingPoint-class.html">FloatingPoint</a> is an infinity
 by having its exponent field set to the NaN value (typically all
 ones) and a zero mantissa.
   <div class="features"><span class="feature">late</span><span class="feature">final</span></div>
@@ -306,7 +307,7 @@ ones) and a zero mantissa.
 
 </dt>
 <dd>
-  Return a Logic true if this FloatingPoint is an zero
+  Return a <a href="https://pub.dev/documentation/rohd/0.6.5/rohd/Logic-class.html">Logic</a> <code>1</code> if this <a href="../rohd_hcl/FloatingPoint-class.html">FloatingPoint</a> is a zero
 by having its exponent field set to the NaN value (typically all
 ones) and a zero mantissa.
   <div class="features"><span class="feature">late</span><span class="feature">final</span></div>
@@ -344,7 +345,7 @@ ones) and a zero mantissa.
 
 </dt>
 <dd>
-  Return a Logic true if this FloatingPoint is Not a Number (NaN)
+  Return a <a href="https://pub.dev/documentation/rohd/0.6.5/rohd/Logic-class.html">Logic</a> <code>1</code>if this <a href="../rohd_hcl/FloatingPoint-class.html">FloatingPoint</a> is Not a Number (NaN)
 by having its exponent field set to the NaN value (typically all
 ones) and a non-zero mantissa.
   <div class="features"><span class="feature">late</span><span class="feature">final</span></div>
@@ -371,8 +372,8 @@ drivers.
 
 </dt>
 <dd>
-  Return a Logic true if this FloatingPoint contains a normal number,
-defined as having mantissa in the range [1,2)
+  Return a <a href="https://pub.dev/documentation/rohd/0.6.5/rohd/Logic-class.html">Logic</a> <code>1</code> if this <a href="../rohd_hcl/FloatingPoint-class.html">FloatingPoint</a> contains a normal number,
+defined as having mantissa in the range <code>[1,2)</code>.
   <div class="features"><span class="feature">late</span><span class="feature">final</span></div>
 
 </dd>
@@ -422,7 +423,7 @@ structure provided in index order.
 
 </dt>
 <dd>
-  unsigned binary <a href="../rohd_hcl/FloatingPoint/mantissa.html">mantissa</a>
+  unsigned binary <a href="../rohd_hcl/FloatingPoint/mantissa.html">mantissa</a>.
   <div class="features"><span class="feature">final</span></div>
 
 </dd>
@@ -459,7 +460,7 @@ outputs.
 
 </dt>
 <dd>
-  Construct a FloatingPoint that represents NaN for this FP type.
+  Construct a <a href="../rohd_hcl/FloatingPoint-class.html">FloatingPoint</a> that represents NaN for this FP type.
   <div class="features"><span class="feature">late</span><span class="feature">final</span></div>
 
 </dd>
@@ -524,7 +525,7 @@ value at the end of a <a href="https://pub.dev/documentation/rohd/0.6.5/rohd/Sim
 
 </dt>
 <dd>
-  Return the one exponent representation for this type of FloatingPoint
+  Return the one exponent representation for this type of <a href="../rohd_hcl/FloatingPoint-class.html">FloatingPoint</a>.
   <div class="features"><span class="feature">late</span><span class="feature">final</span></div>
 
 </dd>
@@ -637,7 +638,7 @@ created.
 
 </dt>
 <dd>
-  <a href="../rohd_hcl/FloatingPoint/sign.html">sign</a> bit with '1' representing a negative number
+  <a href="../rohd_hcl/FloatingPoint/sign.html">sign</a> bit with '1' representing a negative number.
   <div class="features"><span class="feature">final</span></div>
 
 </dd>
@@ -687,7 +688,7 @@ one exists.  Otherwise, this is the same as <a href="https://pub.dev/documentati
 
 </dt>
 <dd>
-  Return true if subnormal numbers are represented as zero.
+  Return <code>true</code> if subnormal numbers are represented as zero.
   <div class="features"><span class="feature">final</span></div>
 
 </dd>
@@ -747,7 +748,7 @@ one exists.  Otherwise, this is the same as <a href="https://pub.dev/documentati
 
 </dt>
 <dd>
-  Return the zero exponent representation for this type of FloatingPoint
+  Return the zero exponent representation for this type of <a href="../rohd_hcl/FloatingPoint-class.html">FloatingPoint</a>.
   <div class="features"><span class="feature">late</span><span class="feature">final</span></div>
 
 </dd>
@@ -943,7 +944,7 @@ the corresponding index, plus <code>start</code>, of this signal.
 
 </dt>
 <dd>
-  Construct a FloatingPoint that represents infinity for this FP type.
+  Construct a <a href="../rohd_hcl/FloatingPoint-class.html">FloatingPoint</a> that represents infinity for this FP type.
   
 
 </dd>
@@ -1144,7 +1145,7 @@ this.width * <code>multiplier</code>
 </dt>
 <dd>
   Convert the current <a href="../rohd_hcl/FloatingPoint-class.html">FloatingPoint</a> to a new <a href="../rohd_hcl/FloatingPoint-class.html">FloatingPoint</a> but with the
-mantissa resolved if subnormal and subNormalAsZero is true.
+mantissa resolved if not <a href="../rohd_hcl/FloatingPoint/isNormal.html">isNormal</a> and <a href="../rohd_hcl/FloatingPoint/subNormalAsZero.html">subNormalAsZero</a> is <code>true</code>.
   
 
 </dd>

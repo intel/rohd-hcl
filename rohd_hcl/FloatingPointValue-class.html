@@ -133,7 +133,8 @@ called with the <a href="../rohd_hcl/FloatingPointValue/populator.html">populato
 
 </dt>
 <dd>
-  Return the bias of this <a href="../rohd_hcl/FloatingPointValue-class.html">FloatingPointValue</a>.
+  Return the bias of this <a href="../rohd_hcl/FloatingPointValue-class.html">FloatingPointValue</a>, the offset of the
+exponent, also representing the zero exponent <code>2^0 = 1</code>.
   <div class="features"><span class="feature">no setter</span></div>
 
 </dd>
@@ -145,7 +146,7 @@ called with the <a href="../rohd_hcl/FloatingPointValue/populator.html">populato
 
 </dt>
 <dd>
-  Return true if the JBit is explicitly represented in the mantissa.
+  Return <code>true</code> if the JBit is explicitly represented in the mantissa.
   <div class="features"><span class="feature">no setter</span></div>
 
 </dd>
@@ -157,8 +158,8 @@ called with the <a href="../rohd_hcl/FloatingPointValue/populator.html">populato
 
 </dt>
 <dd>
-  The exponent of the floating point: this is biased about a midpoint for
-positive and negative exponents.
+  The exponent of the <a href="../rohd_hcl/FloatingPointValue-class.html">FloatingPointValue</a>: this is biased about a midpoint
+for positive and negative exponents.
   <div class="features"><span class="feature">late</span><span class="feature">final</span></div>
 
 </dd>
@@ -194,8 +195,8 @@ positive and negative exponents.
 
 </dt>
 <dd>
-  Return true if the represented floating point number is considered
-infinity or negative infinity
+  Return <code>true</code> if the represented floating point number is considered
+ infinity or negative infinity.
   <div class="features"><span class="feature">no setter</span></div>
 
 </dd>
@@ -207,7 +208,7 @@ infinity or negative infinity
 
 </dt>
 <dd>
-  Return true if the represented floating point number is zero. Note
+  Return <code>true</code> if the represented floating point number is zero. Note
 that the equality operator will treat
 <a href="../rohd_hcl/FloatingPointConstants.html">FloatingPointConstants.positiveZero</a>
 and <a href="../rohd_hcl/FloatingPointConstants.html">FloatingPointConstants.negativeZero</a> as equal.
@@ -258,7 +259,7 @@ and <a href="../rohd_hcl/FloatingPointConstants.html">FloatingPointConstants.neg
 
 </dt>
 <dd>
-  Return true if the represented floating point number is considered
+  Return <code>true</code> if the represented floating point number is considered
 NaN or "Not a Number".
   <div class="features"><span class="feature">no setter</span></div>
 
@@ -331,7 +332,7 @@ NaN or "Not a Number".
 
 </dt>
 <dd>
-  The sign of the value: 1 means a negative value.
+  The sign of the <a href="../rohd_hcl/FloatingPointValue-class.html">FloatingPointValue</a>: 1 means a negative value.
   <div class="features"><span class="feature">late</span><span class="feature">final</span></div>
 
 </dd>
@@ -343,7 +344,7 @@ NaN or "Not a Number".
 
 </dt>
 <dd>
-  Return true if subnormal numbers are treated as zero.
+  Return <code>true</code> if subnormal numbers are treated as zero.
   <div class="features"><span class="feature">no setter</span></div>
 
 </dd>
@@ -432,7 +433,7 @@ with the same widths.
 
 </dt>
 <dd>
-  Floating point comparison to implement Comparable&lt;&gt;
+  Floating point comparison to implement <a href="https://api.dart.dev/stable/3.8.1/dart-core/Comparable-class.html">Comparable</a>.
   <div class="features"><span class="feature">override</span></div>
 
 </dd>
@@ -445,10 +446,10 @@ with the same widths.
 
 </dt>
 <dd>
-  Returns a tuple of <a href="https://pub.dev/documentation/rohd/0.6.5/rohd/LogicValue-class.html">LogicValue</a>s for the sign, exponent, and mantissa
-components of a special constant, or <code>null</code> if the constant does not have
-special components.This is useful for constants like NaN, Infinity, etc in
-certain types of floating point representations.
+  Returns a tuple of <a href="https://pub.dev/documentation/rohd/0.6.5/rohd/LogicValue-class.html">LogicValue</a>s for the <a href="../rohd_hcl/FloatingPointValue/sign.html">sign</a>, <a href="../rohd_hcl/FloatingPointValue/exponent.html">exponent</a>, and
+<a href="../rohd_hcl/FloatingPointValue/mantissa.html">mantissa</a> components of a special constant, or <code>null</code> if the constant
+does not have special components.This is useful for constants like NaN,
+infinity, etc., in certain types of floating point representations.
   
 
 </dd>
@@ -461,7 +462,7 @@ certain types of floating point representations.
 
 </dt>
 <dd>
-  Check if the mantissa and exponent stored are compatible
+  Check if the mantissa and exponent stored are compatible.
   
 
 </dd>
@@ -474,8 +475,8 @@ certain types of floating point representations.
 
 </dt>
 <dd>
-  Return a Logic true if this FloatingPointVa;ie contains a normal number,
-defined as having mantissa in the range <code>[1,2)</code>.
+  Return <code>true</code> if this <a href="../rohd_hcl/FloatingPointValue-class.html">FloatingPointValue</a> contains a normal
+number, defined as having mantissa in the range <code>[1,2)</code>.
   
 
 </dd>
@@ -488,7 +489,7 @@ defined as having mantissa in the range <code>[1,2)</code>.
 
 </dt>
 <dd>
-  Return true if the represented floating point number is considered
+  Return <code>true</code> if the represented floating point number is considered
 "subnormal", including <a href="../rohd_hcl/FloatingPointValue/isAZero.html">isAZero</a>.
   
 
@@ -541,7 +542,7 @@ defined as having mantissa in the range <code>[1,2)</code>.
 
 </dt>
 <dd>
-  Return a string representation of FloatingPointValue.
+  Return a string representation of <a href="../rohd_hcl/FloatingPointValue-class.html">FloatingPointValue</a>.
   <div class="features"><span class="feature">override</span></div>
 
 </dd>
@@ -581,7 +582,7 @@ characteristics are legal.
 
 </dt>
 <dd>
-  Return true if the other <a href="../rohd_hcl/FloatingPointValue-class.html">FloatingPointValue</a> is within a rounding error
+  Return <code>true</code> if the other <a href="../rohd_hcl/FloatingPointValue-class.html">FloatingPointValue</a> is within a rounding error
 of this value.
   
 

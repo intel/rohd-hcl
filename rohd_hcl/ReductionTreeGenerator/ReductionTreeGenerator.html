@@ -77,16 +77,16 @@ segment.</p>
 <ul>
 <li><code>sequence</code> is the input sequence to be reduced using the tree of
 operations.</li>
-<li><code>operation</code> is the operation to be performed at each node. Note that
-<code>operation</code> can widen the output. The logic function must support the
-operation for (2 to <code>radix</code>) inputs.</li>
+<li><code>operation</code> is the <a href="https://api.dart.dev/stable/3.8.1/dart-core/Function-class.html">Function</a> to be performed at each node. Note that
+<code>operation</code> can widen the output. The <a href="https://pub.dev/documentation/rohd/0.6.5/rohd/Logic-class.html">Logic</a> <a href="https://api.dart.dev/stable/3.8.1/dart-core/Function-class.html">Function</a> must support
+the operation for (2 to <code>radix</code>) inputs.</li>
 <li><code>radix</code> is the width of reduction at each node in the tree (e.g.,
 binary: radix=2).</li>
-<li><code>signExtend</code> if true, use sign-extension to widen Logic values as needed
-in the tree, otherwise use zero-extension (default).</li>
-<li><code>control</code> is an optional input that is passed along with the data being
-reduced and passed into the operation.
-Optional parameters to be used for creating a pipelined computation tree:</li>
+<li><code>signExtend</code> if <code>true</code>, use sign-extension to widen <a href="https://pub.dev/documentation/rohd/0.6.5/rohd/Logic-class.html">Logic</a> values as
+needed. in the tree, otherwise use zero-extension (default).</li>
+<li><code>control</code> is an optional <a href="https://pub.dev/documentation/rohd/0.6.5/rohd/Logic-class.html">Logic</a> input that is passed along with the
+data being reduced and passed into the operation. Optional parameters to
+be used for creating a pipelined computation tree:</li>
 <li><code>clk</code>, <code>reset</code>, <code>enable</code> are optionally provided to allow for flopping.</li>
 <li><code>depthBetweenFlops</code> specifies how many nodes deep separate flops.</li>
 </ul>

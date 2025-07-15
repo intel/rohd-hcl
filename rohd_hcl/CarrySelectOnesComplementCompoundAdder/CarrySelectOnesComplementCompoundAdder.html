@@ -72,22 +72,22 @@
     
 <section class="desc markdown">
   <p>Constructs a <a href="../../rohd_hcl/CarrySelectCompoundAdder-class.html">CarrySelectCompoundAdder</a> using a set of
-<a href="../../rohd_hcl/OnesComplementAdder-class.html">OnesComplementAdder</a> in a carry-select configuration.
-Adds (or subtracts) <code>a</code> and <code>b</code> to produce <a href="../../rohd_hcl/Adder/sum.html">sum</a> and <a href="../../rohd_hcl/CompoundAdder/sumP1.html">sumP1</a> (sum
-plus 1).</p>
+<a href="../../rohd_hcl/OnesComplementAdder-class.html">OnesComplementAdder</a> in a carry-select configuration. Adds (or subtracts)
+<code>a</code> and <code>b</code> to produce <a href="../../rohd_hcl/Adder/sum.html">sum</a> and <a href="../../rohd_hcl/CompoundAdder/sumP1.html">sumP1</a> (sum plus 1).</p>
 <ul>
-<li><code>adderGen</code> is the adder used inside the <a href="../../rohd_hcl/OnesComplementAdder-class.html">OnesComplementAdder</a>.</li>
-<li><code>subtractIn</code> is an optional Logic control for subtraction.</li>
+<li><code>adderGen</code> is the adder generator <a href="https://api.dart.dev/stable/3.8.1/dart-core/Function-class.html">Function</a> inside the
+<a href="../../rohd_hcl/OnesComplementAdder-class.html">OnesComplementAdder</a>.</li>
+<li><code>subtractIn</code> is an optional <a href="https://pub.dev/documentation/rohd/0.6.5/rohd/Logic-class.html">Logic</a> control for subtraction.</li>
 <li><code>subtract</code> is a boolean control for subtraction. It must be
-false(default) if a <code>subtractIn</code> Logic is provided.</li>
-<li><code>generateCarryOut</code> set to true will create output <a href="../../rohd_hcl/CarrySelectOnesComplementCompoundAdder/carryOut.html">carryOut</a> and employ
-the ones-complement optimization of not adding '1' to convert back to 2s
-complement during subtraction on the <a href="../../rohd_hcl/Adder/sum.html">sum</a>.</li>
-<li><code>generateCarryOutP1</code> set to true will create output <a href="../../rohd_hcl/CarrySelectOnesComplementCompoundAdder/carryOutP1.html">carryOutP1</a> and
+<code>false</code>(default) if a <code>subtractIn</code> <a href="https://pub.dev/documentation/rohd/0.6.5/rohd/Logic-class.html">Logic</a> is provided.</li>
+<li><code>generateCarryOut</code> set to <code>true</code> will create output <a href="../../rohd_hcl/CarrySelectOnesComplementCompoundAdder/carryOut.html">carryOut</a> and
+employ the ones-complement optimization of not adding '1' to convert
+back to 2s complement during subtraction on the <a href="../../rohd_hcl/Adder/sum.html">sum</a>.</li>
+<li><code>generateCarryOutP1</code> set to <code>true</code> will create output <a href="../../rohd_hcl/CarrySelectOnesComplementCompoundAdder/carryOutP1.html">carryOutP1</a> and
 employ the ones-complement optimization of not adding '1' to convert
 back to 2s complement during subtraction on the <a href="../../rohd_hcl/CompoundAdder/sumP1.html">sumP1</a>.</li>
-<li><code>widthGen</code> is a function which produces a list for splitting
-the adder for the carry-select chain.  The default is
+<li><code>widthGen</code> is a <a href="https://api.dart.dev/stable/3.8.1/dart-core/Function-class.html">Function</a> which produces a list for splitting the adder
+for the carry-select chain.  The default is
 <a href="../../rohd_hcl/CarrySelectCompoundAdder/splitSelectAdderAlgorithmSingleBlock.html">CarrySelectCompoundAdder.splitSelectAdderAlgorithmSingleBlock</a>,</li>
 </ul>
 </section>

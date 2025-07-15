@@ -72,18 +72,19 @@
   <p><a href="../../rohd_hcl/SignMagnitudeAdder-class.html">SignMagnitudeAdder</a> constructor with an adder functor <code>adderGen</code>.</p>
 <p>Inputs are (sign, magnitude) pairs: (<code>aSign</code>, <code>a</code>) and (<code>bSign</code>, <code>b</code>). If
 the caller can guarantee that the larger magnitude value is provided first
-in <code>a</code>, then they can set <code>largestMagnitudeFirst</code> too 'true' to avoid
+in <code>a</code>, then they can set <code>largestMagnitudeFirst</code> to 'true' to avoid
 adding a comparator. Without the comparator, the <a href="../../rohd_hcl/SignMagnitudeAdderBase/sign.html">sign</a> may be wrong, but
 magnitude will be correct.</p>
 <ul>
-<li>If <code>generateEndAroundCarry</code> is true, then the end-around
-carry is not performed and is provided as output <a href="../../rohd_hcl/SignMagnitudeAdder/endAroundCarry.html">endAroundCarry</a>. If
-<code>generateEndAroundCarry</code> is false, extra hardware takes care of adding the
-end-around carry to <a href="../../rohd_hcl/Adder/sum.html">sum</a>.</li>
+<li>If <code>generateEndAroundCarry</code> is <code>true</code>, then the end-around carry is not
+performed and is provided as output <a href="../../rohd_hcl/SignMagnitudeAdder/endAroundCarry.html">endAroundCarry</a>. If
+<code>generateEndAroundCarry</code> is <code>false</code>, extra hardware takes care of adding
+the end-around carry to <a href="../../rohd_hcl/Adder/sum.html">sum</a>.</li>
 <li><code>generateEndAroundCarry</code> avoids extra hardware to add the '1' in an
-end-around carry during subtraction. For subtractions that remain positive
-the <a href="../../rohd_hcl/SignMagnitudeAdder/endAroundCarry.html">endAroundCarry</a> will hold that final +1 that needs to be added.
-For subtractions that go negative, the <a href="../../rohd_hcl/SignMagnitudeAdder/endAroundCarry.html">endAroundCarry</a> will be '0'.</li>
+end-around carry during subtraction. For subtractions that remain
+positive the <a href="../../rohd_hcl/SignMagnitudeAdder/endAroundCarry.html">endAroundCarry</a> will hold that final +1 that needs to be
+added. For subtractions that go negative, the <a href="../../rohd_hcl/SignMagnitudeAdder/endAroundCarry.html">endAroundCarry</a> will be
+'0'.</li>
 </ul>
 </section>
 

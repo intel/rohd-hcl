@@ -71,18 +71,21 @@
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">FxvType ofDouble(double val) {
-  final m = integerWidth;
-  final n = fractionWidth;
   final signed = _unpopulated.signed;
   if (!signed &amp; (val &lt; 0)) {
     throw RohdHclException(&#39;Negative input not allowed with unsigned&#39;);
   }
-  if (!canStore(val, signed: signed, m: m, n: n)) {
+  if (!canStore(val,
+      signed: signed,
+      integerWidth: integerWidth,
+      fractionWidth: fractionWidth)) {
     throw RohdHclException(&#39;Double is too long to store in &#39;
-        &#39;FixedPointValue: $m, $n&#39;);
+        &#39;FixedPointValue: $integerWidth, $fractionWidth&#39;);
   }
-  final integerValue = BigInt.from(val * pow(2, n));
-  final w = signed ? 1 + m + n : m + n;
+  final integerValue = BigInt.from(val * pow(2, fractionWidth));
+  final w = signed
+      ? 1 + integerWidth + fractionWidth
+      : integerWidth + fractionWidth;
   final v = LogicValue.ofBigInt(integerValue, w);
   return ofLogicValue(v);
 }</code></pre>

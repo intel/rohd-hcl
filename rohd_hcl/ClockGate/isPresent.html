@@ -78,7 +78,8 @@ the <a href="../../rohd_hcl/ClockGate/gatedClk.html">gatedClk</a> is directly co
   <pre class="language-dart"><code class="language-dart">bool get isPresent =&gt;
     _controlIntf?.isPresent ??
     &#47;&#47; if no interface is provided, then _controlInterface is initialized with
-    &#47;&#47; `isPresent` as true, so if this is null then there is no clock gating
+    &#47;&#47; `isPresent` as `true`, so if this is null then there is no clock
+    &#47;&#47; gating.
     false;</code></pre>
 </section>
 

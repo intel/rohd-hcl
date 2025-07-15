@@ -74,13 +74,13 @@
 <section class="desc markdown">
   <p>Constructs a <a href="../../rohd_hcl/CarrySelectCompoundAdder-class.html">CarrySelectCompoundAdder</a>.</p>
 <ul>
-<li><code>carryIn</code> is a carry Logic into the <a href="../../rohd_hcl/CarrySelectCompoundAdder-class.html">CarrySelectCompoundAdder</a></li>
-<li><code>adderGen</code> provides an adder Function which must supply optional
-<code>carryIn</code> and <code>subtractIn</code> Logic controls.</li>
+<li><code>carryIn</code> is a carry <a href="https://pub.dev/documentation/rohd/0.6.5/rohd/Logic-class.html">Logic</a> into the <a href="../../rohd_hcl/CarrySelectCompoundAdder-class.html">CarrySelectCompoundAdder</a></li>
+<li><code>adderGen</code> provides an adder <a href="https://api.dart.dev/stable/3.8.1/dart-core/Function-class.html">Function</a> which must supply optional
+<code>carryIn</code> and <code>subtractIn</code> <a href="https://pub.dev/documentation/rohd/0.6.5/rohd/Logic-class.html">Logic</a> controls.</li>
 <li><code>subtractIn</code>  This option is used by the
 <a href="../../rohd_hcl/CarrySelectOnesComplementCompoundAdder-class.html">CarrySelectOnesComplementCompoundAdder</a> and should not be used directly
 as it requires ones-complement behavior from <code>adderGen</code>.</li>
-<li><code>widthGen</code> is the splitting function for creating the different adder
+<li><code>widthGen</code> is the splitting <a href="https://api.dart.dev/stable/3.8.1/dart-core/Function-class.html">Function</a> for creating the different adder
 blocks. Decreasing the split width will increase speed but also increase
 area.</li>
 </ul>

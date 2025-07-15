@@ -60,7 +60,7 @@
     </ol>
   </div>
 <span class="returntype">(<span class="field">{<span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.5/rohd/LogicValue-class.html">LogicValue</a></span> <span class="field-name">exponent</span>, </span><span class="field"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.5/rohd/LogicValue-class.html">LogicValue</a></span> <span class="field-name">mantissa</span>, </span><span class="field"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.5/rohd/LogicValue-class.html">LogicValue</a></span> <span class="field-name">sign</span>}</span>)</span>
-<span class="name ">getConstantComponents</span>(<wbr><ol class="parameter-list single-line"> <li><span class="parameter" id="getConstantComponents-param-constantFloatingPoint"><span class="type-annotation"><a href="../../rohd_hcl/FloatingPointConstants.html">FloatingPointConstants</a></span> <span class="parameter-name">constantFloatingPoint</span></span></li>
+<span class="name ">getConstantComponents</span>(<wbr><ol class="parameter-list single-line"> <li><span class="parameter" id="getConstantComponents-param-constant"><span class="type-annotation"><a href="../../rohd_hcl/FloatingPointConstants.html">FloatingPointConstants</a></span> <span class="parameter-name">constant</span></span></li>
 </ol>)
 
       
@@ -80,14 +80,14 @@ subclases.</p>
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">@protected
 ({LogicValue sign, LogicValue exponent, LogicValue mantissa})
-    getConstantComponents(FloatingPointConstants constantFloatingPoint) {
+    getConstantComponents(FloatingPointConstants constant) {
   final (
     String signStr,
     String exponentStr,
     String mantissaStr
   ) stringComponents;
 
-  switch (constantFloatingPoint) {
+  switch (constant) {
     &#47;&#47; smallest possible number
     case FloatingPointConstants.negativeInfinity:
       stringComponents = (&#39;1&#39;, &#39;1&#39; * exponentWidth, &#39;0&#39; * mantissaWidth);

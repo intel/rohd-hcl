@@ -121,7 +121,7 @@ generated code.
 </dt>
 <dd>
   Indicates whether the controlled signals are delayed by 1 cycle. If this
-is false, or clock gating is not <a href="../rohd_hcl/ClockGate/isPresent.html">isPresent</a>, then the <a href="../rohd_hcl/ClockGate/controlled.html">controlled</a>
+is <code>false</code>, or clock gating is not <a href="../rohd_hcl/ClockGate/isPresent.html">isPresent</a>, then the <a href="../rohd_hcl/ClockGate/controlled.html">controlled</a>
 signals are not delayed.
   <div class="features"><span class="feature">final</span></div>
 
@@ -447,8 +447,8 @@ named <code>name</code>.
 </dt>
 <dd>
   Returns a (potentially) delayed (by one cycle) version of <code>original</code> if
-<a href="../rohd_hcl/ClockGate/delayControlledSignals.html">delayControlledSignals</a> is true and the clock gating <a href="../rohd_hcl/ClockGate/isPresent.html">isPresent</a>. This is
-the signal that should be used as inputs to logic depending on the
+<a href="../rohd_hcl/ClockGate/delayControlledSignals.html">delayControlledSignals</a> is <code>true</code> and the clock gating <a href="../rohd_hcl/ClockGate/isPresent.html">isPresent</a>. This
+is the signal that should be used as inputs to logic depending on the
 <a href="../rohd_hcl/ClockGate/gatedClk.html">gatedClk</a>.
   
 

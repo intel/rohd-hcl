@@ -54,8 +54,8 @@
 
     
 <section class="desc markdown">
-  <p>A simple FIFO (First In, First Out).</p>
-<p>Supports a bypass if the FIFO is empty and written &amp; read at the same time.</p>
+  <p>A module <a href="../rohd_hcl/Fifo-class.html">Fifo</a> implementing a simple FIFO (First In, First Out) buffer.</p>
+<p>Supports a bypass if <a href="../rohd_hcl/Fifo-class.html">Fifo</a> is empty and written &amp; read at the same time.</p>
 </section>
 
 
@@ -90,7 +90,7 @@
           <span class="name"><a href="../rohd_hcl/Fifo/Fifo.html">Fifo.new</a></span><span class="signature">(<span class="parameter" id="-param-clk"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.5/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">clk</span>, </span><span class="parameter" id="-param-reset"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.5/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">reset</span>, {</span><span class="parameter" id="-param-writeEnable"><span>required</span> <span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.5/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">writeEnable</span>, </span><span class="parameter" id="-param-writeData"><span>required</span> <span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.5/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">writeData</span>, </span><span class="parameter" id="-param-readEnable"><span>required</span> <span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.5/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">readEnable</span>, </span><span class="parameter" id="-param-depth"><span>required</span> <span class="type-annotation"><a href="https://api.dart.dev/stable/3.8.1/dart-core/int-class.html">int</a></span> <span class="parameter-name">depth</span>, </span><span class="parameter" id="-param-generateError"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.8.1/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">generateError</span> = <span class="default-value">false</span>, </span><span class="parameter" id="-param-generateOccupancy"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.8.1/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">generateOccupancy</span> = <span class="default-value">false</span>, </span><span class="parameter" id="-param-generateBypass"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.8.1/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">generateBypass</span> = <span class="default-value">false</span>, </span><span class="parameter" id="-param-name"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.8.1/dart-core/String-class.html">String</a></span> <span class="parameter-name">name</span> = <span class="default-value">&#39;fifo&#39;</span></span>})</span>
         </dt>
         <dd>
-          Constructs a FIFO with RF-based storage.
+          Constructs a <a href="../rohd_hcl/Fifo-class.html">Fifo</a> with <a href="../rohd_hcl/RegisterFile-class.html">RegisterFile</a>-based storage.
         </dd>
     </dl>
   </section>
@@ -107,7 +107,7 @@
 
 </dt>
 <dd>
-  The width of the data transmitted through this FIFO.
+  The width of the data transmitted through this <a href="../rohd_hcl/Fifo-class.html">Fifo</a>.
   <div class="features"><span class="feature">final</span></div>
 
 </dd>
@@ -132,7 +132,7 @@ generated code.
 
 </dt>
 <dd>
-  The depth of this FIFO.
+  The depth of <a href="../rohd_hcl/Fifo-class.html">Fifo</a>.
   <div class="features"><span class="feature">final</span></div>
 
 </dd>
@@ -144,7 +144,7 @@ generated code.
 
 </dt>
 <dd>
-  High if there is nothing in the FIFO.
+  High if there is nothing in <a href="../rohd_hcl/Fifo-class.html">Fifo</a>.
   <div class="features"><span class="feature">no setter</span></div>
 
 </dd>
@@ -180,7 +180,7 @@ generated code.
 
 </dt>
 <dd>
-  If <code>true</code>, then it is possible to bypass through the FIFO by writing
+  If <code>true</code>, then it is possible to bypass through <a href="../rohd_hcl/Fifo-class.html">Fifo</a> by writing
 and reading at the same time while <a href="../rohd_hcl/Fifo/empty.html">empty</a>.
   <div class="features"><span class="feature">final</span></div>
 
@@ -292,7 +292,7 @@ signals.
 
 </dt>
 <dd>
-  The number of items in the FIFO.
+  The number of items in <a href="../rohd_hcl/Fifo-class.html">Fifo</a>.
   <div class="features"><span class="feature">no setter</span></div>
 
 </dd>
@@ -329,7 +329,7 @@ signals.
 
 </dt>
 <dd>
-  Read data for the next item in the FIFO.
+  Read data for the next item in <a href="../rohd_hcl/Fifo-class.html">Fifo</a>
   <div class="features"><span class="feature">no setter</span></div>
 
 </dd>

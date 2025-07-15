@@ -89,16 +89,15 @@
 
   fifo._clk.posedge.listen((event) {
     if (!fifo._reset.previousValue!.isValid) {
-      &#47;&#47; reset is invalid, bad state
+      &#47;&#47; reset is invalid, bad state.
       hasReset = false;
       return;
     } else if (fifo._reset.previousValue!.toBool()) {
-      &#47;&#47; reset is high, track that and move on
+      &#47;&#47; reset is high, track that and move on.
       hasReset = true;
       return;
     } else if (hasReset) {
-      &#47;&#47; reset is low, and we&#39;ve previously reset, should be good to check
-
+      &#47;&#47; reset is low, and we&#39;ve previously reset, should be good to check.
       if (!fifoPortSignals
           .map((e) =&gt; e.previousValue!.isValid)
           .reduce((a, b) =&gt; a &amp;&amp; b)) {

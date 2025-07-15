@@ -73,13 +73,14 @@
 <section class="desc markdown">
   <p><a href="../../rohd_hcl/OnesComplementAdder-class.html">OnesComplementAdder</a> constructor with an adder functor <code>adderGen</code>.</p>
 <ul>
-<li>A subtractor is created if <code>subtract</code> is set to true.  Alternatively,
-if <code>subtract</code> configuration is false, and a Lgic control signal
+<li>A subtractor is created if <code>subtract</code> is set to <code>true</code>.  Alternatively,
+if <code>subtract</code> configuration is <code>false</code>, and a Lgic control signal
 <code>subtractIn</code> is provided, then subtraction can be dynamically selected.
 Otherwise an adder is constructed.</li>
-<li>If <code>generateEndAroundCarry</code> is true, then the end-around
+<li>If <code>generateEndAroundCarry</code> is <code>true</code>, then the end-around
 carry is not performed and is provided as output <a href="../../rohd_hcl/OnesComplementAdder/endAroundCarry.html">endAroundCarry</a>. If
-<code>generateEndAroundCarry</code> is false, extra hardware takes care of adding the
+<code>generateEndAroundCarry</code> is <code>false</code>, extra hardware takes care of adding
+the
 end-around carry to <a href="../../rohd_hcl/Adder/sum.html">sum</a>.</li>
 <li><code>carryIn</code> allows for another adder to chain into this one.</li>
 <li><code>chainable</code> tells this adder to not store the <a href="../../rohd_hcl/OnesComplementAdder/endAroundCarry.html">endAroundCarry</a> in the
