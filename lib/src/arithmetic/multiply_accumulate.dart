@@ -86,36 +86,36 @@ abstract class MultiplyAccumulate extends Module {
   @protected
   Logic? get selectSignedAddend => signedAddendParameter.tryRuntimeInput(this);
 
-  /// Logic that tells us [accumulate] is signed.
+  /// [Logic] that tells us [accumulate] is signed.
   @protected
   Logic get isAccumulateSigned => output('isAccumulateSigned');
 
   /// Take input [a] and input [b], compute their product, add input [c] to
   /// produce the [accumulate] result.
   ///
-  /// The optional [signedMultiplicand] parameter configures the
-  /// The optional [signedMultiplicand] parameter configures the multiplicand
-  /// [a] statically using a bool as a signed multiplicand (default is false, or
-  /// unsigned) or dynamically with a 1-bit Logic [selectSignedMultiplicand]
-  /// input. You can pass either a bool (for static configuration) or a Logic
+  /// The optional [signedMultiplicand] parameter configures the The optional
+  /// [signedMultiplicand] parameter configures the multiplicand [a] statically
+  /// using a [bool] as a signed multiplicand (default is `false`, or unsigned)
+  /// or dynamically with a 1-bit [Logic] [selectSignedMultiplicand] input. You
+  /// can pass either a [bool] (for static configuration) or a [Logic]
   /// (dynamically configuring the type handled) with a signal to this
   /// parameter, otherwise this constructor will throw.
   ///
   /// The optional [signedMultiplier] parameter configures the multiplier [b]
-  /// statically using a bool as a signed multiplier (default is false, or
-  /// unsigned) or dynamically with a 1-bit Logic [selectSignedMultiplier]
-  /// input. You can pass either a bool (for static configuration) or a Logic
-  /// (dynamically configuring the type handled with a signal) to this
+  /// statically using a [bool] as a signed multiplier (default is `false`, or
+  /// unsigned) or dynamically with a 1-bit [Logic] [selectSignedMultiplier]
+  /// input. You can pass either a [bool] (for static configuration) or a
+  /// [Logic] (dynamically configuring the type handled with a signal) to this
   /// parameter, otherwise this constructor will throw.
   ///
   /// The optional [signedAddend] parameter configures the addend [c] as a
   /// signed addend (default is unsigned) or with a runtime configurable
   /// [selectSignedAddend] input.
   ///
-  /// The optional [signedAddend] parameter configures the multiplicand
-  /// [c] statically using a bool as a signed multiplicand (default is false, or
-  /// unsigned) or dynamically with a 1-bit Logic [selectSignedAddend]
-  /// input. You can pass either a bool (for static configuration) or a Logic
+  /// The optional [signedAddend] parameter configures the multiplicand [c]
+  /// statically using a [bool] as a signed multiplicand (default is `false`, or
+  /// unsigned) or dynamically with a 1-bit [Logic] [selectSignedAddend] input.
+  /// You can pass either a [bool] (for static configuration) or a [Logic]
   /// (dynamically configuring the type handled) with a signal to this
   /// parameter, otherwise this constructor will throw.
   MultiplyAccumulate(Logic a, Logic b, Logic c,
@@ -155,10 +155,10 @@ abstract class MultiplyAccumulate extends Module {
             signedAddendParameter.getLogic(this);
   }
 
-  /// This is a helper function that prints out the kind of addend (selected
-  /// by a Logic or set statically).) This supplements the Multiplier functions
-  /// that can be used for Multiplicand and Multiplier as they are statics:
-  /// [Multiplier.signedMD] and [Multiplier.signedML].
+  /// This is a helper function that prints out the kind of addend (selected by
+  /// a [Logic] or set statically by a [bool]).) This supplements the
+  /// [Multiplier] functions that can be used for multiplicand and multiplier as
+  /// they are statics: [Multiplier.signedMD] and [Multiplier.signedML].
   /// - UA: unsigned addend.
   /// - SA: signed addend.
   /// - SSA: dynamic selection of signed addend.
@@ -263,7 +263,7 @@ class MultiplyOnly extends MultiplyAccumulate {
               signedMultiplier: signedMultiplier)
           .name;
 
-  /// Construct a MultiplyAccumulate that only multiplies to enable
+  /// Construct a [MultiplyAccumulate] that only multiplies to enable
   /// using the same tester with zero accumulate addend [c].
   MultiplyOnly(
     super.a,
