@@ -62,12 +62,6 @@ class FloatingPointAdderDualPath<FpTypeIn extends FloatingPoint,
     }
 
     // Seidel: S.EFF = effectiveSubtraction.
-    final effectiveSubtraction =
-        (a.sign ^ b.sign ^ (subtract ?? Const(0))).named('effSubtraction');
-    final isNaN = (a.isNaN |
-            b.isNaN |
-            (a.isAnInfinity & b.isAnInfinity & effectiveSubtraction))
-        .named('isNaN');
     final isInf = (a.isAnInfinity | b.isAnInfinity).named('isInf');
 
     final exponentSubtractor = OnesComplementAdder(
@@ -80,6 +74,12 @@ class FloatingPointAdderDualPath<FpTypeIn extends FloatingPoint,
     final fa = a.resolveSubNormalAsZero();
     final fb = b.resolveSubNormalAsZero();
 
+    final effectiveSubtraction =
+        (fa.sign ^ fb.sign ^ (subtract ?? Const(0))).named('effSubtraction');
+    final isNaN = (a.isNaN |
+            b.isNaN |
+            (a.isAnInfinity & b.isAnInfinity & effectiveSubtraction))
+        .named('isNaN');
     // Seidel: (sl, el, fl) = larger; (ss, es, fs) = smaller.
     final swapper = FloatingPointConditionalSwap(fa, fb, signDelta);
     final larger = swapper.outA;
