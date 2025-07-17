@@ -139,7 +139,7 @@ Decreasing the split width will increase speed but also increase area.</li>
   final largerExplicit = swapper.outMetaA!;
   final smallerExplicit = swapper.outMetaB!;
 
-  final effectiveSubtraction = (a.sign ^ b.sign).named(&#39;effSubtraction&#39;);
+  final effectiveSubtraction = (fa.sign ^ fb.sign).named(&#39;effSubtraction&#39;);
 
   final isInf = (larger.isAnInfinity | smaller.isAnInfinity).named(&#39;isInf&#39;);
   final isNaN = (larger.isNaN |

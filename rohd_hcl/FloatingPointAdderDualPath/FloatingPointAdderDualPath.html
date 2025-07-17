@@ -132,12 +132,6 @@ the output type will be the same as the input type <code>a</code>. Note that
   }
 
   &#47;&#47; Seidel: S.EFF = effectiveSubtraction.
-  final effectiveSubtraction =
-      (a.sign ^ b.sign ^ (subtract ?? Const(0))).named(&#39;effSubtraction&#39;);
-  final isNaN = (a.isNaN |
-          b.isNaN |
-          (a.isAnInfinity &amp; b.isAnInfinity &amp; effectiveSubtraction))
-      .named(&#39;isNaN&#39;);
   final isInf = (a.isAnInfinity | b.isAnInfinity).named(&#39;isInf&#39;);
 
   final exponentSubtractor = OnesComplementAdder(
@@ -150,6 +144,12 @@ the output type will be the same as the input type <code>a</code>. Note that
   final fa = a.resolveSubNormalAsZero();
   final fb = b.resolveSubNormalAsZero();
 
+  final effectiveSubtraction =
+      (fa.sign ^ fb.sign ^ (subtract ?? Const(0))).named(&#39;effSubtraction&#39;);
+  final isNaN = (a.isNaN |
+          b.isNaN |
+          (a.isAnInfinity &amp; b.isAnInfinity &amp; effectiveSubtraction))
+      .named(&#39;isNaN&#39;);
   &#47;&#47; Seidel: (sl, el, fl) = larger; (ss, es, fs) = smaller.
   final swapper = FloatingPointConditionalSwap(fa, fb, signDelta);
   final larger = swapper.outA;
