@@ -159,15 +159,16 @@ class CompressionTreeMultiplyAccumulate extends MultiplyAccumulate {
           seGen = CompactRectSignExtension.new,
       super.name = 'compression_tree_mac'}) {
     // Build the partial product generator.
-    final pp = PartialProduct(a, b, RadixEncoder(radix),
-        signedMultiplicand: super.signedMultiplicandParameter.clone(this),
-        signedMultiplier: super.signedMultiplierParameter.clone(this));
 
-    seGen(pp.array).signExtend();
+    final ppg = PartialProductGenerator(a, b, RadixEncoder(radix),
+        signedMultiplicand: super.signedMultiplicandParameter,
+        signedMultiplier: super.signedMultiplierParameter);
+
+    seGen(ppg).signExtend();
 
     final lastRowLen =
-        pp.array.partialProducts[pp.array.partialProducts.length - 1].length +
-            pp.rowShift[pp.array.partialProducts.length - 1];
+        ppg.partialProducts[ppg.partialProducts.length - 1].length +
+            ppg.rowShift[ppg.partialProducts.length - 1];
 
     final additionalRowSign = mux(
         (signedAddendParameter.dynamicConfig != null)
@@ -182,16 +183,20 @@ class CompressionTreeMultiplyAccumulate extends MultiplyAccumulate {
     }
     additionalRow
       ..add(~additionalRowSign)
+      ..add(~additionalRowSign)
       ..add(Const(1));
 
     // For online evaluate in _ColumnCompressor to work, we need to
     // insert the row rather than append it.
-    pp.array.partialProducts.insert(0, additionalRow);
-    pp.rowShift.insert(0, 0);
+    ppg.partialProducts.insert(0, additionalRow);
+    ppg.rowShift.insert(0, 0);
 
-    pp.generateOutputs();
+    final ppgRows = [
+      for (var row = 0; row < ppg.partialProducts.length; row++)
+        ppg.partialProducts[row].rswizzle()
+    ];
 
-    final compressor = ColumnCompressor(pp.rows, pp.rowShift,
+    final compressor = ColumnCompressor(ppgRows, ppg.rowShift,
         clk: clk, reset: reset, enable: enable);
     final adder = adderGen(compressor.add0, compressor.add1);
     accumulate <= adder.sum.slice(a.width + b.width - 1 + 1, 0);

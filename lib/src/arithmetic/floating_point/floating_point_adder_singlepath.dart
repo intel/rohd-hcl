@@ -74,7 +74,7 @@ class FloatingPointAdderSinglePath<FpTypeIn extends FloatingPoint,
     final largerExplicit = swapper.outMetaA!;
     final smallerExplicit = swapper.outMetaB!;
 
-    final effectiveSubtraction = (a.sign ^ b.sign).named('effSubtraction');
+    final effectiveSubtraction = (fa.sign ^ fb.sign).named('effSubtraction');
 
     final isInf = (larger.isAnInfinity | smaller.isAnInfinity).named('isInf');
     final isNaN = (larger.isNaN |
