@@ -178,9 +178,6 @@ class FixedPointValue implements Comparable<FixedPointValue> {
     return isNegative() ? -value : value;
   }
 
-<<<<<<< HEAD
-  /// Addition operation that returns a [FixedPointValue].
-=======
   /// Converts a [FixedPointValue] to a [FloatingPointValue].
   FloatingPointValue toFloat() {
     if (!value.isValid) {
@@ -249,7 +246,6 @@ class FixedPointValue implements Comparable<FixedPointValue> {
   }
 
   /// Addition operation that returns a FixedPointValue.
->>>>>>> 4b46fcb (Updating simple fixed-to-float and float-to-fixed functionality to ROHD)
   /// The result is signed if one of the operands is signed.
   /// The result integer has the max integer width of the operands plus one.
   /// The result fraction has the max fractional width of the operands.
