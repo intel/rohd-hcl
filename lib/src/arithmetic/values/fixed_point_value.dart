@@ -245,6 +245,7 @@ class FixedPointValue implements Comparable<FixedPointValue> {
         sign: sign, exponent: exponentVal, mantissa: mantissaVal);
   }
 
+  /// Addition operation that returns a [FixedPointValue].
   /// Addition operation that returns a FixedPointValue.
   /// The result is signed if one of the operands is signed.
   /// The result integer has the max integer width of the operands plus one.
