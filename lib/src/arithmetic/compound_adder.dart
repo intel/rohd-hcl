@@ -39,8 +39,12 @@ abstract class CompoundAdder extends Adder {
 class TrivialCompoundAdder extends CompoundAdder {
   /// Constructs a [CompoundAdder].
   TrivialCompoundAdder(super.a, super.b,
-      {super.carryIn, super.name = 'trivial_compound_adder'})
-      : super(definitionName: 'trival_compound_adder') {
+      {super.carryIn,
+      super.name = 'trivial_compound_adder',
+      String? definitionName})
+      : super(
+            definitionName:
+                definitionName ?? 'TrivialCompoundAdder_W${a.width}') {
     sum <= a.zeroExtend(a.width + 1) + b.zeroExtend(b.width + 1);
     sumP1 <= sum + 1;
   }

@@ -65,9 +65,11 @@ abstract class CsrContainer extends Module {
       String? definitionName})
       : super(
             definitionName: definitionName ??
-                'CsrContainer_W${clk.width}_'
-                    '${frontWrite?.dataWidth ?? 0}_'
-                    '${frontRead?.dataWidth ?? 0}',
+                'CsrContainer_A${config.minAddrBits()}_'
+                    'W${config.maxRegWidth()}_'
+                    'FW${frontWrite?.dataWidth ?? 0}_'
+                    'fR${frontRead?.dataWidth ?? 0}_'
+                    'LR=${allowLargerRegisters}_',
             name: config.name) {
     this.clk = addInput('clk', clk);
     this.reset = addInput('reset', reset);

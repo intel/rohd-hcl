@@ -92,7 +92,14 @@ class CsrTop extends CsrContainer {
       required super.frontRead,
       super.allowLargerRegisters,
       this.logicalRegisterIncrement = 1,
-      super.definitionName}) {
+      String? definitionName})
+      : super(
+            definitionName: definitionName ??
+                'CsrTop_A${config.minAddrBits()}_'
+                    'W${config.maxRegWidth()}_'
+                    'BO${config.blockOffsetWidth}_'
+                    'LR=${allowLargerRegisters}_'
+                    'RI=$logicalRegisterIncrement') {
     _validate();
 
     for (final block in config.blocks) {
