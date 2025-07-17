@@ -164,7 +164,7 @@ void main() {
           a.put(av);
           b.put(bv);
           final adder = OnesComplementAdder(a, b,
-              subtractIn: subtractIn,
+              subtract: subtractIn,
               generateEndAroundCarry: true,
               adderGen: RippleCarryAdder.new);
           final carry = adder.endAroundCarry!;

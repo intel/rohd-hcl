@@ -36,7 +36,7 @@ class CompoundAdderConfigurator extends Configurator {
           ? CarrySelectCompoundAdder.splitSelectAdderAlgorithmNBit(
               blockWidthKnob.value)
           : CarrySelectCompoundAdder.splitSelectAdderAlgorithmSingleBlock,
-      adderGen: (a, b, {carryIn, subtractIn, name = 'default_adder'}) =>
+      adderGen: (a, b, {carryIn, subtract, name = 'default_adder'}) =>
           adderSelectionKnob.selectedAdder()(a, b,
               carryIn: carryIn, name: name));
 

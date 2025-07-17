@@ -100,7 +100,10 @@ The parameters of the
 - Signed or unsigned operands:
   - `signedMultiplicand` parameter: whether the multiplicand (first arg) should be treated as signed (twos' complement) or unsigned.
   - `signedMultiplier` parameter: whether the multiplier (second arg) should be treated as signed (twos' complement) or unsigned.
-- As booleans, these parameters satically configure the multiplier to support signed opernads.  Alternatively the multiplier supports runtime control of signage by passing a `Logic` signal instead and control logic will be added to support signed or unsigned operands.
+  - Note that these parameters are optional and can be specified as:
+    - `null`:  default behavior is unsigned.
+    - `bool`:  statically configure the component to treat operand as unsigned.
+    - `Logic`: specify a `Logic` control signal to dynamically treat operand as signed or unsigned.
 - An optional `clk`, as well as `enable` and `reset` that are used to add a pipestage in the `ColumnCompressor` to allow for pipelined operation, making the multiplier operate in 2 cycles.
 
 Here is an example of use of the `CompressionTreeMultiplier` with one signed input:
@@ -135,8 +138,6 @@ The additional parameters of the
 - The accumulate input term `c` which must have width as sum of the two operand widths + 1.
 - Addend signage:
   - `signedAddend` parameter: whether the addend (third argument) should be treated as signed (twos' complement) or unsigned
-OR
-  - An optional `selectSignedAddend` control signal allows for runtime control of signed or unsigned operation with the same hardware. `signedAddend` must be false if using this control signal.
 - An optional `clk`, as well as `enable` and `reset` that are used to add a pipestage in the `ColumnCompressor` to allow for pipelined operation.
 
 The output width of the `CompressionTreeMultiplier` is the sum of the product term widths plus one to accommodate the additional accumulate term.
