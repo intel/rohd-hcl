@@ -221,7 +221,8 @@ class FloatingPointAdderSinglePath<FpTypeIn extends FloatingPoint,
             ((highBitsLSBFlopped | expDiffFlopped.eq(0)) &
                     effectiveSubtractionFlopped &
                     carryFlopped)
-                .zeroExtend(sumFlopped.width))
+                .zeroExtend(sumFlopped.width)
+                .named('lsbIncrement'))
         .named('incrementHighLSB');
 
     final incrementHighLSBN = mux(

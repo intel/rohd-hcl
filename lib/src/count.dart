@@ -33,7 +33,10 @@ class Count extends Module {
     bus = addInput('bus', bus, width: bus.width);
     Logic count = Const(0, width: max(1, log2Ceil(bus.width + 1)));
     for (var i = 0; i < bus.width; i++) {
-      count = (count + (countOne ? bus[i] : ~bus[i]).zeroExtend(count.width))
+      count = (count +
+              (countOne ? bus[i] : ~bus[i])
+                  .zeroExtend(count.width)
+                  .named('increment'))
           .named('count_$i');
     }
     _output =

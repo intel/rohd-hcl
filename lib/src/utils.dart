@@ -4,6 +4,7 @@
 // utils.dart
 // Various utilities helpful for working with the component library
 
+import 'dart:io';
 import 'dart:math';
 import 'package:rohd/rohd.dart';
 
@@ -113,4 +114,47 @@ Logic condFlop(
   final second = clone(name: 'swapOut2')..gets(out2);
 
   return (first, second);
+}
+
+/// This class is used to check the SystemVerilog output of a module for
+/// poor naming conventions, such as names with `__` in them. It can also
+/// generate a SystemVerilog file for the module if requested.
+class CheckModuleNaming {
+  /// We use this to make sure output SystemVerilog filenames are unique.
+  static int globalDefinitionNum = 0;
+
+  /// Return true if the module has clean SystemVerilog.
+  Future<bool> checkModuleSystemVerilog(Module mod,
+      {bool generateFile = false,
+      bool outputPoorLogicNames = false,
+      bool includeSubModules = false}) async {
+    await mod.build();
+
+    final systemVerilogString = includeSubModules
+        ? mod.generateSynth()
+        : SynthBuilder(mod, SystemVerilogSynthesizer())
+            .synthesisResults
+            .where((e) => e.module == mod)
+            .toList()[0]
+            .toSynthFileContents()
+            .join('\n');
+
+    /// Check for poor signal names which are those that have a `__` in them,
+    /// e.g., one that comprises multiple input signal names and an operation.
+    final poorSignalName = RegExp(r'\w+__[^(\d+)$]\w+');
+    final matches = poorSignalName.allMatches(systemVerilogString);
+    if (generateFile) {
+      File('${mod.definitionName}_$globalDefinitionNum.sv')
+          .writeAsStringSync(systemVerilogString);
+      globalDefinitionNum++;
+    }
+
+    if (matches.isNotEmpty) {
+      stdout.writeln('${mod.definitionName}: Poor Logic names:');
+      for (final m in matches) {
+        stdout.writeln('\t${m[0]}');
+      }
+    }
+    return matches.isEmpty;
+  }
 }

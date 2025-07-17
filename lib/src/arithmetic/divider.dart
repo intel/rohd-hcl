@@ -304,11 +304,13 @@ class MultiCycleDivider extends Module {
           // conditionally convert negative inputs to positive
           // and compute the output sign
           aBuf <
-              mux(extDividendIn[dataWidth - 1] & intf.isSigned,
-                  ~extDividendIn + 1, extDividendIn),
+              mux(
+                  extDividendIn[dataWidth - 1] & intf.isSigned,
+                  (~extDividendIn + 1).named('negExtDividendIn'),
+                  extDividendIn),
           bBuf <
               mux(extDivisorIn[dataWidth - 1] & intf.isSigned,
-                  ~extDivisorIn + 1, extDivisorIn),
+                  (~extDividendIn + 1).named('negExtDividendIn'), extDivisorIn),
           signOut <
               (intf.dividend[dataWidth - 1] ^ intf.divisor[dataWidth - 1]) &
                   intf.isSigned,
@@ -332,7 +334,7 @@ class MultiCycleDivider extends Module {
     ]);
 
     // handle updates of remainder buffer
-    final aBufConv = mux(signNum, ~aBuf + 1, aBuf);
+    final aBufConv = mux(signNum, (~aBuf + 1).named('negABuf'), aBuf);
     Sequential(intf.clk, [
       If.block([
         Iff(intf.reset, [rBuf < Const(0, width: dataWidth + 1)]),
@@ -354,7 +356,11 @@ class MultiCycleDivider extends Module {
         ElseIf(
           currentState.eq(_MultiCycleDividerState
               .process), // increment current index each PROCESS cycle
-          [currIndex < (currIndex + Const(1, width: logDataWidth))],
+          [
+            currIndex <
+                (currIndex + Const(1, width: logDataWidth))
+                    .named('currIndexInc')
+          ], // increment curr_index
         ),
         Else(
           [currIndex < Const(0, width: logDataWidth)], // reset curr_index
@@ -372,8 +378,10 @@ class MultiCycleDivider extends Module {
         ElseIf(currentState.eq(_MultiCycleDividerState.ready) & intf.validIn, [
           lastSuccess < 0,
           lastDifference <
-              mux(extDividendIn[dataWidth - 1] & intf.isSigned,
-                  ~extDividendIn + 1, extDividendIn), // start by matching aBuf
+              mux(
+                  extDividendIn[dataWidth - 1] & intf.isSigned,
+                  (~extDividendIn + 1).named('negExtDividendIn'),
+                  extDividendIn), // start by matching aBuf
         ]),
         ElseIf(
             currentState.eq(_MultiCycleDividerState
@@ -409,10 +417,11 @@ class MultiCycleDivider extends Module {
               mux(intf.readyOut, Const(0, width: dataWidth + 1), outBuffer),
         ]), // reset buffer if consumed result
         ElseIf(currentState.eq(_MultiCycleDividerState.convert), [
-          outBuffer < mux(signOut, ~outBuffer + 1, outBuffer),
+          outBuffer <
+              mux(signOut, (~outBuffer + 1).named('negOutBuffer'), outBuffer),
         ]), // conditionally convert the result to the correct sign
         ElseIf(currentState.eq(_MultiCycleDividerState.accumulate), [
-          outBuffer < (outBuffer + lastSuccess)
+          outBuffer < (outBuffer + lastSuccess).named('outBufferAccumulate')
         ]), // accumulate last_success into buffer
         Else([outBuffer < outBuffer]), // maintain buffer
       ])

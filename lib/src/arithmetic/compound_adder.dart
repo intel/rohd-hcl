@@ -41,7 +41,10 @@ class TrivialCompoundAdder extends CompoundAdder {
   TrivialCompoundAdder(super.a, super.b,
       {super.carryIn, super.name = 'trivial_compound_adder'})
       : super(definitionName: 'trival_compound_adder') {
-    sum <= a.zeroExtend(a.width + 1) + b.zeroExtend(b.width + 1);
+    sum <=
+        (a.zeroExtend(a.width + 1).named('aExt') +
+                b.zeroExtend(b.width + 1).named('bExt'))
+            .named('computedSum');
     sumP1 <= sum + 1;
   }
 }
