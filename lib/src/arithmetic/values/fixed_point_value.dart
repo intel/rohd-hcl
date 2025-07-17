@@ -179,7 +179,7 @@ class FixedPointValue implements Comparable<FixedPointValue> {
   }
 
   /// Converts a [FixedPointValue] to a [FloatingPointValue].
-  FloatingPointValue toFloat() {
+  FloatingPointValue toFloatingPointValue() {
     if (!value.isValid) {
       throw RohdHclException('Inputs must be valid.');
     }

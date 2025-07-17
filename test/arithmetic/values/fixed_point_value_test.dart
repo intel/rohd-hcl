@@ -300,7 +300,7 @@ void main() {
       final fxv = FixedPointValue.populator(
               integerWidth: m, fractionWidth: n, signed: true)
           .ofLogicValue(LogicValue.ofInt(i, width));
-      final fpv = fxv.toFloat();
+      final fpv = fxv.toFloatingPointValue();
       expect(fpv.toDouble(), fxv.toDouble(),
           reason: 'toFloatingPointValue failed for $i');
     }
@@ -313,7 +313,7 @@ void main() {
     for (var i = 0; i < pow(2, width); i++) {
       final fxv = FixedPointValue.populator(integerWidth: m, fractionWidth: n)
           .ofLogicValue(LogicValue.ofInt(i, width));
-      final fpv = fxv.toFloat();
+      final fpv = fxv.toFloatingPointValue();
       expect(fpv.toDouble(), fxv.toDouble(),
           reason: 'toFloatingPointValue failed for $i');
     }
