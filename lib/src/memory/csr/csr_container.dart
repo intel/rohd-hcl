@@ -68,7 +68,7 @@ abstract class CsrContainer extends Module {
                 'CsrContainer_A${config.minAddrBits()}_'
                     'W${config.maxRegWidth()}_'
                     'FW${frontWrite?.dataWidth ?? 0}_'
-                    'fR${frontRead?.dataWidth ?? 0}_'
+                    'FR${frontRead?.dataWidth ?? 0}_'
                     'LR=${allowLargerRegisters}_',
             name: config.name) {
     this.clk = addInput('clk', clk);
