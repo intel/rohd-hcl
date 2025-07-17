@@ -4,9 +4,8 @@ Fixed-point binary representation of numbers is useful several applications incl
 
 ## FixedPointValue
 
-A [FixedPointValue](https://intel.github.io/rohd-hcl/rohd_hcl/FixedPointValue-class.html) represents a signed or unsigned fixed-point value following the Q notation (Qm.n format) as introduced by [Texas Instruments](https://www.ti.com/lit/ug/spru565b/spru565b.pdf). It comprises an optional sign, integer part and/or a fractional part. [FixedPointValue](https://intel.github.io/rohd-hcl/rohd_hcl/FixedPointValue-class.html)s can be constructed from individual fields or from a Dart [double](https://api.dart.dev/stable/3.6.0/dart-core/double-class.html), converted to Dart [double](https://api.dart.dev/stable/3.6.0/dart-core/double-class.html), can be compared and can be operated on (+, -, *, /). [FixedPointValue] can now call toFloat method to switch from a fixed
-point value to a floating point value representation. This will convert to the minimal floating point representation for what is
-the fixed point value to maintain accuracy.
+A [FixedPointValue](https://intel.github.io/rohd-hcl/rohd_hcl/FixedPointValue-class.html) represents a signed or unsigned fixed-point value following the Q notation (Qm.n format) as introduced by [Texas Instruments](https://www.ti.com/lit/ug/spru565b/spru565b.pdf). It comprises an optional sign, integer part and/or a fractional part. [FixedPointValue](https://intel.github.io/rohd-hcl/rohd_hcl/FixedPointValue-class.html)s can be constructed from individual fields or from a Dart [double](https://api.dart.dev/stable/3.6.0/dart-core/double-class.html), converted to Dart [double](https://api.dart.dev/stable/3.6.0/dart-core/double-class.html), can be compared and can be operated on (+, -, *, /). [FixedPointValue] call toFloat method to switch from a fixed
+point value to a floating point value representation. This will convert to the minimal floating point representation for what is the fixed point value to maintain accuracy.
 
 ## FixedPoint
 
