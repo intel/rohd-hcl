@@ -96,6 +96,8 @@ void main() {
     reset.inject(0);
     await clk.waitCycles(10);
 
+    assert(false);
+
     await Simulator.endSimulation();
   });
 }
