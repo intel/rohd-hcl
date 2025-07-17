@@ -83,7 +83,7 @@ class CsrTop extends CsrContainer {
     }
   }
 
-  /// Create the CsrBlock from a configuration
+  /// Create the [CsrBlock] from a configuration.
   CsrTop({
     required CsrTopConfig super.config,
     required super.clk,

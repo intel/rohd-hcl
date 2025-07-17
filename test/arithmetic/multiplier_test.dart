@@ -17,7 +17,7 @@ import 'package:rohd_hcl/src/arithmetic/multiplier_components/evaluate_compresso
 import 'package:rohd_hcl/src/arithmetic/multiplier_components/evaluate_partial_product.dart';
 import 'package:test/test.dart';
 
-/// The following routines are useful only during testing
+/// The following routines are useful only during testing.
 extension TestMultiplierSignage on Multiplier {
   /// Return true if multiplicand [a] is truly signed (fixed or runtime)
   bool isSignedMultiplicand() => signedMultiplicandParameter.value;
@@ -25,11 +25,11 @@ extension TestMultiplierSignage on Multiplier {
   /// Return true if multiplier [b] is truly signed (fixed or runtime)
   bool isSignedMultiplier() => signedMultiplierParameter.value;
 
-  /// Return true if accumulate result is truly signed (fixed or runtime)
+  /// Return `true` if accumulate result is truly signed (fixed or runtime).
   bool isSignedResult() => isSignedMultiplicand() | isSignedMultiplier();
 }
 
-/// The following routines are useful only during testing
+/// The following routines are useful only during testing.
 extension TestMultiplierAccumulateSignage on MultiplyAccumulate {
   /// Return true if multiplicand [a] is truly signed (fixed or runtime)
   bool isSignedMultiplicand() => signedMultiplicandParameter.value;
@@ -40,12 +40,13 @@ extension TestMultiplierAccumulateSignage on MultiplyAccumulate {
   /// Return true if addend [c] is truly signed (fixed or runtime)
   bool isSignedAddend() => signedAddendParameter.value;
 
-  /// Return true if accumulate result is truly signed (fixed or runtime)
+  /// Return `true` if accumulate result is truly signed (fixed or runtime).
   bool isSignedResult() =>
       isSignedAddend() | isSignedMultiplicand() | isSignedMultiplier();
 }
 
-/// Simple multiplier to demonstrate instantiation of CompressionTreeMultiplier.
+/// Simple multiplier to demonstrate instantiation of
+/// [CompressionTreeMultiplier].
 class SimpleMultiplier extends Multiplier {
   /// The output of the simple multiplier
   @override

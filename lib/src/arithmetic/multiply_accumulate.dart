@@ -57,7 +57,7 @@ abstract class MultiplyAccumulate extends Module {
   @protected
   late final StaticOrDynamicParameter signedAddendParameter;
 
-  /// Logic that tells us [accumulate] is signed.
+  /// [Logic] that tells us [accumulate] is signed.
   @protected
   Logic get isAccumulateSigned => output('isAccumulateSigned');
 
@@ -112,10 +112,10 @@ abstract class MultiplyAccumulate extends Module {
             signedAddendParameter.getLogic(this);
   }
 
-  /// This is a helper function that prints out the kind of addend (selected
-  /// by a Logic or set statically).) This supplements the Multiplier functions
-  /// that can be used for Multiplicand and Multiplier as they are statics:
-  /// [Multiplier.signedMD] and [Multiplier.signedML].
+  /// This is a helper function that prints out the kind of addend (selected by
+  /// a [Logic] or set statically by a [bool]).) This supplements the
+  /// [Multiplier] functions that can be used for multiplicand and multiplier as
+  /// they are statics: [Multiplier.signedMD] and [Multiplier.signedML].
   /// - UA: unsigned addend.
   /// - SA: signed addend.
   /// - SSA: dynamic selection of signed addend.
@@ -215,7 +215,7 @@ class MultiplyOnly extends MultiplyAccumulate {
               signedMultiplier: signedMultiplier)
           .name;
 
-  /// Construct a MultiplyAccumulate that only multiplies to enable
+  /// Construct a [MultiplyAccumulate] that only multiplies to enable
   /// using the same tester with zero accumulate addend [c].
   MultiplyOnly(
     super.a,

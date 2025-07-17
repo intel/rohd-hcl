@@ -10,24 +10,25 @@
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
 
-/// A class accessing the multiples of the multiplicand at a position
+/// A class accessing the multiples of the multiplicand at a position.
 class MultiplicandSelector {
-  /// The radix of the selector
+  /// The radix of the selector.
   int radix;
 
-  /// The bit shift of the selector (typically overlaps 1)
+  /// The bit shift of the selector (typically overlaps 1).
   int shift;
 
-  /// New width of partial products generated from the multiplicand
+  /// New width of partial products generated from the [multiplicand].
   int get width => multiplicand.width + shift - 1;
 
-  /// The base multiplicand from which to generate multiples to select.
+  /// The base [multiplicand] from which to generate multiples to select.
   Logic multiplicand = Logic();
 
-  /// Place to store [multiples] of the [multiplicand] (e.g. *1, *2, *-1, *-2..)
+  /// Place to store [multiples] of the [multiplicand] (e.g. *1, *2, *-1,
+  /// *-2..).
   late LogicArray multiples;
 
-  /// Multiples sliced into columns for select to access
+  /// Multiples sliced into columns for select to access.
   late final multiplesSlice = <Logic>[];
 
   /// Build a [MultiplicandSelector] generating required [multiples] of
@@ -85,7 +86,7 @@ class MultiplicandSelector {
     }
   }
 
-  /// Compute the multiples of the multiplicand at current bit position
+  /// Compute the multiples of the [multiplicand] at current bit position.
   Logic getMultiples(int col) {
     final columnMultiples = [
       for (var i = 0; i < multiples.elements.length; i++)
@@ -94,10 +95,10 @@ class MultiplicandSelector {
     return columnMultiples.reversed;
   }
 
-  /// Retrieve the multiples of the multiplicand at current bit position
+  /// Retrieve the multiples of the [multiplicand] at current bit position.
   Logic fetchMultiples(int col) => multiplesSlice[col];
 
-  // _select attempts to name signals that RadixEncode cannot due to trace
+  // _select attempts to name signals that [RadixEncode] cannot due to trace.
   Logic _select(Logic multiples, RadixEncode encode) {
     final eMultiples = encode.multiples
         .named('encoded_multiple_r${encode.row}', naming: Naming.mergeable);
@@ -106,7 +107,7 @@ class MultiplicandSelector {
     return (eMultiples & multiples).or() ^ eSign;
   }
 
-  /// Select the partial product term from the multiples using a RadixEncode
+  /// Select the partial product term from the multiples using a [RadixEncode].
   Logic select(int col, RadixEncode encode) {
     final mults = fetchMultiples(col)
         .named('select_r${encode.row}_c$col', naming: Naming.mergeable);

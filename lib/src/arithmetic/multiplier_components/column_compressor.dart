@@ -68,33 +68,34 @@ enum CompressTermType {
   pp
 }
 
-/// A compression term
+/// A compression term.
 class CompressTerm implements Comparable<CompressTerm> {
-  /// The type of term we have
+  /// The type of term we have.
   late final CompressTermType type;
 
-  /// The inputs that drove this Term
+  /// The inputs that drove this [CompressTerm].
   late final List<CompressTerm> inputs;
 
-  /// The row of the terminal
+  /// The row position.
   final int row;
 
-  /// The column of the term
+  /// The column position.
   final int col;
 
-  /// The Logic wire of the term
+  /// The [Logic] wire of the [CompressTerm].
   final Logic logic;
 
-  /// Estimated delay of the output of this CompessTerm
+  /// Estimated delay of the output.
   late double delay;
 
-  /// Estimated delay of a Sum term
+  /// Estimated delay of a sum [CompressTerm].
   static const sumDelay = 1.0;
 
-  /// Estimated delay of a Carry term
+  /// Estimated delay of a carry [CompressTerm].
   static const carryDelay = 0.75;
 
-  /// CompressTerm constructor
+  /// [CompressTerm] constructor creating a compressor based on the number of
+  /// [inputs] and the [CompressTermType] of term.
   CompressTerm(this.type, this.logic, this.inputs, this.row, this.col) {
     delay = 0.0;
     final deltaDelay = switch (type) {
@@ -169,7 +170,7 @@ class ColumnCompressor extends Module {
   /// The second of two output rows.
   Logic get add1 => output('add1');
 
-  /// Columns of partial product CompressTerms
+  /// Columns of partial product [CompressTerm]s.
   @internal
   late final List<ColumnQueue> columns;
 
@@ -195,7 +196,7 @@ class ColumnCompressor extends Module {
   /// Track if the rows have been compressed.
   bool _compressed = false;
 
-  /// Initialize a ColumnCompressor for a set of partial products
+  /// Initialize a [ColumnCompressor] for a set of partial products.
   ///
   /// If [clk] is not null then a set of flops are used to latch the output
   /// after compression (see [_extractRow]).  [reset] and [enable] are optional
@@ -256,7 +257,7 @@ class ColumnCompressor extends Module {
     return maxW;
   }
 
-  /// Convert a row to a Logic bitvector
+  /// Convert a row to a [Logic] bitvector
   Logic _extractRow(int row) {
     final width = maxWidth();
 

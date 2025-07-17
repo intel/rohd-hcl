@@ -13,7 +13,7 @@ import 'package:meta/meta.dart';
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
 
-/// Store a Signbit as Logic
+/// Store a Signbit as [Logic]
 class SignBit extends Logic {
   /// This is an inverted sign bit
   bool inverted = false;
@@ -28,15 +28,16 @@ class SignBit extends Logic {
 /// A [PartialProductArray] is a class that holds a set of partial products
 /// for manipulation by [PartialProductGeneratorBase] and column compressor.
 abstract class PartialProductArray {
-  /// name used for PartialProductGenerators
+  /// Name used for [PartialProductArray] instances.
   final String name;
 
-  /// Construct a basic List<List<Logic> to hold an array of partial products
+  /// Construct a basic [List<List<Logic>] to hold an array of partial products
   /// as well as a rowShift array to hold the row shifts.
   PartialProductArray({this.name = 'ppa'});
 
   /// The actual shift in each row. This value will be modified by the
   /// sign extension routine used when folding in a sign bit from another
+  /// row.
   /// row.
   final rowShift = <int>[];
 
@@ -59,7 +60,7 @@ abstract class PartialProductArray {
     return maxW;
   }
 
-  /// Return the Logic at the absolute position ([row], [col]).
+  /// Return the [Logic] at the absolute position ([row], [col]).
   Logic getAbsolute(int row, int col) {
     final product = partialProducts[row];
     while (product.length <= col) {
@@ -68,8 +69,8 @@ abstract class PartialProductArray {
     return partialProducts[row][col - rowShift[row]];
   }
 
-  /// Return the List<Logic> at the
-  /// absolute position ([row], List<int> [columns].
+  /// Return the [List<Logic>] at the absolute position ([row], [List<int>]
+  /// [columns].
   List<Logic> getAbsoluteAll(int row, List<int> columns) {
     final product = partialProducts[row];
     final relMax = columns.reduce(max);
@@ -80,7 +81,7 @@ abstract class PartialProductArray {
     return [for (final c in columns) partialProducts[row][c - rowShift[row]]];
   }
 
-  /// Set the Logic at absolute position ([row], [col]) to [val].
+  /// Set the [Logic] at absolute position ([row], [col]) to [val].
   void setAbsolute(int row, int col, Logic val) {
     final product = partialProducts[row];
     final i = col - rowShift[row];
@@ -94,7 +95,7 @@ abstract class PartialProductArray {
     }
   }
 
-  /// Mux the Logic at absolute position ([row], [col]) conditionally by
+  /// Mux the `[Logic] at absolute position ([row], [col]) conditionally by
   /// [condition] to [val].
   void muxAbsolute(int row, int col, Logic condition, Logic val) {
     final product = partialProducts[row];
@@ -138,7 +139,7 @@ abstract class PartialProductArray {
   }
 
   /// Mux the range of values into the row starting at absolute position
-  ///  ([row], [col]) using [condition] to select the new value
+  ///  ([row], [col]) using [condition] to select the new value.
   void muxAbsoluteAll(int row, int col, Logic condition, List<Logic> list) {
     var i = col - rowShift[row];
     final product = partialProducts[row];
@@ -172,7 +173,7 @@ abstract class PartialProductArray {
     }
   }
 
-  /// Set a Logic [val] at the absolute position ([row], [col])
+  /// Set a [Logic] [val] at the absolute position ([row], [col]).
   void insertAbsolute(int row, int col, Logic val) =>
       partialProducts[row].insert(col - rowShift[row], val);
 
@@ -248,13 +249,13 @@ abstract class PartialProductGeneratorBase extends PartialProductArray {
     _build();
   }
 
-  /// Perform sign extension (defined in child classes)
+  /// Perform sign extension (defined in child classes).
   @Deprecated('Replace this call with a construction of a '
       '[PartialProductSignExtension] class')
   @protected
   void signExtend();
 
-  /// Setup the partial products array (partialProducts and rowShift)
+  /// Setup the partial products array ([partialProducts] and [rowShift]).
   void _build() {
     partialProducts = <List<Logic>>[];
     for (var row = 0; row < encoder.rows; row++) {
@@ -273,7 +274,7 @@ abstract class PartialProductGeneratorBase extends PartialProductArray {
 /// An module API that represents a set of partial products rows including
 /// their shifts. This is a base class for the [PartialProduct] module.
 abstract class PartialProductMatrix extends Module {
-  /// Give access for things like Column Compression
+  /// Give access for things like [ColumnCompressor].
   /// This is an output, but not yet generated?
   List<Logic> get rows {
     if (!_outputsGenerated) {
@@ -282,10 +283,10 @@ abstract class PartialProductMatrix extends Module {
     return [for (var row = 0; row < _array.rows; row++) output('row_$row')];
   }
 
-  /// Give access to the _array for Sign Extension classes to operate.
+  /// Give access to the _array for [PartialProductSignExtension] to operate.
   PartialProductGeneratorBase get array => _array;
 
-  /// Give access to the _array for Sign Extension classes to operate.
+  /// Give access to the _array for [PartialProductSignExtension] to operate.
   List<int> get rowShift => _array.rowShift;
 
   bool _outputsGenerated = false;
@@ -293,7 +294,7 @@ abstract class PartialProductMatrix extends Module {
   /// Store the [PartialProductGeneratorBase]
   late final PartialProductGeneratorBase _array;
 
-  /// Base constructor for the matrix
+  /// Base constructor for the matrix.
   PartialProductMatrix({super.name = 'partial_product_matrix'});
 
   /// Generate the output vectors from the array
@@ -306,7 +307,9 @@ abstract class PartialProductMatrix extends Module {
   }
 }
 
-/// A PartialProduct Module
+/// A [PartialProduct] module wrapping partial product array manipulation
+/// and generation of outputs in an actual module as opposed to an inline
+/// generator class.
 class PartialProduct extends PartialProductMatrix {
   /// Construct a [PartialProduct] module which constructs a
   /// [PartialProductArray] by using [radixEncoder] to Booth-encode the

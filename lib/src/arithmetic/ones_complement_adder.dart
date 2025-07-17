@@ -18,7 +18,7 @@ class OnesComplementAdder extends Adder {
   Logic get sign => output('sign');
 
   /// The end-around carry which should be added to the resulting [sum].
-  /// If the input [generateEndAroundCarry] is true, this value is stored as
+  /// If the input [generateEndAroundCarry] is `true`, this value is stored as
   /// the output [endAroundCarry].
   /// Otherwise, the end-around carry is internally added to [sum]. This
   /// happens when subtracting a smaller number from a larger one using
@@ -37,6 +37,9 @@ class OnesComplementAdder extends Adder {
   final bool generateEndAroundCarry;
 
   /// [OnesComplementAdder] constructor with an adder functor [adderGen].
+  /// - A subtractor is created if [subtract] is set to true.  Alternatively,
+  /// if [subtract] configuration is false, and a Lgic control signal
+  /// [subtractIn] is provided, then subtraction can be dynamically selected.
   /// Otherwise an adder is constructed.
   ///
   /// - The optional [subtract] parameter configures the adder to subtract [b]

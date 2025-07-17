@@ -46,7 +46,7 @@ abstract class Multiplier extends Module {
   @protected
   late final StaticOrDynamicParameter signedMultiplierParameter;
 
-  /// Logic that tells us [product] is signed.
+  /// [Logic] that tells us [product] is signed.
   @protected
   Logic get isProductSigned => output('isProductSigned');
 
@@ -99,7 +99,7 @@ abstract class Multiplier extends Module {
   }
 
   /// This is a helper function that prints out the kind of multiplicand
-  /// (selected by a Logic or set statically).
+  /// (selected by a [Logic] or set statically via [bool]).
   /// - UD: unsigned multiplicand.
   /// - SD: signed multiplicand.
   /// - SSD: dynamic selection of signed multiplicand.
@@ -113,7 +113,7 @@ abstract class Multiplier extends Module {
                   : 'UD';
 
   /// This is a helper function that prints out the kind of multiplier (selected
-  /// by a Logic or set statically).)
+  /// by a [Logic] or set statically via [bool]).)
   /// - UM: unsigned multiplier.
   /// - SM: signed multiplier.
   /// - SSM: dynamic selection of signed multiplier.

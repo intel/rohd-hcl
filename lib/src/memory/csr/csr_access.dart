@@ -7,7 +7,7 @@
 // 2024 December
 // Author: Josh Kimmel <joshua1.kimmel@intel.com>
 
-/// Targeted Exception type for Csr valiation.
+/// Targeted Exception type for control status register validation.
 class CsrValidationException implements Exception {
   /// Message associated with the Exception.
   final String message;

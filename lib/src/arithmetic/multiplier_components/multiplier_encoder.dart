@@ -13,15 +13,15 @@ import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
 
 /// A bundle for the leaf radix compute nodes. This holds the multiples
-/// of the multiplicand that are needed for encoding
+/// of the multiplicand that are needed for encoding.
 class RadixEncode extends LogicStructure {
-  /// Which multiples need to be selected
+  /// Which multiples need to be selected.
   final Logic multiples;
 
   /// 'sign' of multiple.
   final Logic sign;
 
-  /// The [row] that is encoded by this RadixEncode (encoding an
+  /// The [row] that is encoded by this [RadixEncode] (encoding an
   /// overlapping segment of the multiplier).
   late final int row;
 
@@ -105,7 +105,7 @@ class MultiplierEncoder {
   late final int rows;
 
   /// The multiplier value, sign extended as appropriate to be divisible
-  /// by the RadixEncoder width using overlapping (by one) bitslices.
+  /// by the [RadixEncoder] width using overlapping (by one) bitslices.
   Logic _extendedMultiplier = Logic();
 
   /// Store the [RadixEncoder] used.

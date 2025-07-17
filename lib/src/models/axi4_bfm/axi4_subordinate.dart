@@ -69,10 +69,10 @@ class Axi4SubordinateAgent extends Agent {
   /// If none is provided, it will always respond with no error.
   final bool Function(Axi4RequestPacket request)? respondWithError;
 
-  /// If true, then returned data on an error will be `x`.
+  /// If `true`, then returned data on an error will be `x`.
   final bool invalidReadDataOnError;
 
-  /// If true, then writes that respond with an error will not store into the
+  /// If `true`, then writes that respond with an error will not store into the
   /// [storage].
   final bool dropWriteDataOnError;
 

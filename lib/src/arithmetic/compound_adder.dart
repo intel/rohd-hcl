@@ -96,13 +96,13 @@ class CarrySelectCompoundAdder extends CompoundAdder {
       ParallelPrefixAdder(a, b, carryIn: carryIn, name: name);
 
   /// Constructs a [CarrySelectCompoundAdder].
-  /// - [carryIn] is a carry Logic into the [CarrySelectCompoundAdder]
-  /// - [adderGen] provides an adder Function which must supply optional
-  ///   [carryIn] and [subtractIn] Logic controls.
+  /// - [carryIn] is a carry [Logic] into the [CarrySelectCompoundAdder]
+  /// - [adderGen] provides an adder [Function] which must supply optional
+  ///   [carryIn] and [subtractIn] [Logic] controls.
   /// - [subtractIn]  This option is used by the
   ///   [CarrySelectOnesComplementCompoundAdder] and should not be used directly
   ///   as it requires ones-complement behavior from [adderGen].
-  /// - [widthGen] is the splitting function for creating the different adder
+  /// - [widthGen] is the splitting [Function] for creating the different adder
   ///   blocks. Decreasing the split width will increase speed but also increase
   ///   area.
   CarrySelectCompoundAdder(

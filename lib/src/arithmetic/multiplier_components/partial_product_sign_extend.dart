@@ -30,9 +30,17 @@ enum SignExtension {
   compactRect
 }
 
-/// API for sign extension classes
+/// Used to test different sign extension methods.
+typedef PPGFunction = PartialProductGeneratorBase Function(
+    Logic a, Logic b, RadixEncoder radixEncoder,
+    {bool signedMultiplicand,
+    Logic? selectSignedMultiplicand,
+    bool signedMultiplier,
+    Logic? selectSignedMultiplier});
+
+/// API for sign extension classes.
 abstract class PartialProductSignExtension {
-  /// name used for PartialProductSignExtension
+  /// name used for [PartialProductSignExtension] instances.
   final String name;
 
   /// The partial product generator we are sign extending.
