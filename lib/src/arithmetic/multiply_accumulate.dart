@@ -86,36 +86,36 @@ abstract class MultiplyAccumulate extends Module {
   @protected
   Logic? get selectSignedAddend => signedAddendParameter.tryRuntimeInput(this);
 
-  /// Logic that tells us [accumulate] is signed.
+  /// [Logic] that tells us [accumulate] is signed.
   @protected
   Logic get isAccumulateSigned => output('isAccumulateSigned');
 
   /// Take input [a] and input [b], compute their product, add input [c] to
   /// produce the [accumulate] result.
   ///
-  /// The optional [signedMultiplicand] parameter configures the
-  /// The optional [signedMultiplicand] parameter configures the multiplicand
-  /// [a] statically using a bool as a signed multiplicand (default is false, or
-  /// unsigned) or dynamically with a 1-bit Logic [selectSignedMultiplicand]
-  /// input. You can pass either a bool (for static configuration) or a Logic
+  /// The optional [signedMultiplicand] parameter configures the The optional
+  /// [signedMultiplicand] parameter configures the multiplicand [a] statically
+  /// using a [bool] as a signed multiplicand (default is `false`, or unsigned)
+  /// or dynamically with a 1-bit [Logic] [selectSignedMultiplicand] input. You
+  /// can pass either a [bool] (for static configuration) or a [Logic]
   /// (dynamically configuring the type handled) with a signal to this
   /// parameter, otherwise this constructor will throw.
   ///
   /// The optional [signedMultiplier] parameter configures the multiplier [b]
-  /// statically using a bool as a signed multiplier (default is false, or
-  /// unsigned) or dynamically with a 1-bit Logic [selectSignedMultiplier]
-  /// input. You can pass either a bool (for static configuration) or a Logic
-  /// (dynamically configuring the type handled with a signal) to this
+  /// statically using a [bool] as a signed multiplier (default is `false`, or
+  /// unsigned) or dynamically with a 1-bit [Logic] [selectSignedMultiplier]
+  /// input. You can pass either a [bool] (for static configuration) or a
+  /// [Logic] (dynamically configuring the type handled with a signal) to this
   /// parameter, otherwise this constructor will throw.
   ///
   /// The optional [signedAddend] parameter configures the addend [c] as a
   /// signed addend (default is unsigned) or with a runtime configurable
   /// [selectSignedAddend] input.
   ///
-  /// The optional [signedAddend] parameter configures the multiplicand
-  /// [c] statically using a bool as a signed multiplicand (default is false, or
-  /// unsigned) or dynamically with a 1-bit Logic [selectSignedAddend]
-  /// input. You can pass either a bool (for static configuration) or a Logic
+  /// The optional [signedAddend] parameter configures the multiplicand [c]
+  /// statically using a [bool] as a signed multiplicand (default is `false`, or
+  /// unsigned) or dynamically with a 1-bit [Logic] [selectSignedAddend] input.
+  /// You can pass either a [bool] (for static configuration) or a [Logic]
   /// (dynamically configuring the type handled) with a signal to this
   /// parameter, otherwise this constructor will throw.
   MultiplyAccumulate(Logic a, Logic b, Logic c,
@@ -155,10 +155,10 @@ abstract class MultiplyAccumulate extends Module {
             signedAddendParameter.getLogic(this);
   }
 
-  /// This is a helper function that prints out the kind of addend (selected
-  /// by a Logic or set statically).) This supplements the Multiplier functions
-  /// that can be used for Multiplicand and Multiplier as they are statics:
-  /// [Multiplier.signedMD] and [Multiplier.signedML].
+  /// This is a helper function that prints out the kind of addend (selected by
+  /// a [Logic] or set statically by a [bool]).) This supplements the
+  /// [Multiplier] functions that can be used for multiplicand and multiplier as
+  /// they are statics: [Multiplier.signedMD] and [Multiplier.signedML].
   /// - UA: unsigned addend.
   /// - SA: signed addend.
   /// - SSA: dynamic selection of signed addend.
@@ -206,7 +206,7 @@ class CompressionTreeMultiplyAccumulate extends MultiplyAccumulate {
             definitionName: definitionName ??
                 'CompressionTreeMAC_W${a.width}x${b.width}_Acc${c.width}_'
                     '${MultiplyAccumulate.signedAD(signedAddend)}') {
-    final pp = PartialProduct(
+    final ppg = PartialProductGenerator(
       a,
       b,
       RadixEncoder(radix),
@@ -216,13 +216,13 @@ class CompressionTreeMultiplyAccumulate extends MultiplyAccumulate {
       signedMultiplier: signedMultiplier,
     );
 
-    seGen(pp.array).signExtend();
+    seGen(ppg).signExtend();
 
     final lastRowLen =
-        pp.array.partialProducts[pp.array.partialProducts.length - 1].length +
-            pp.rowShift[pp.array.partialProducts.length - 1];
+        ppg.partialProducts[ppg.partialProducts.length - 1].length +
+            ppg.rowShift[ppg.partialProducts.length - 1];
 
-    final additinoalRowSign = mux(
+    final additionalRowSign = mux(
         (selectSignedAddend != null)
             ? selectSignedAddend!
             : (signedAddend ? Const(1) : Const(0)),
@@ -231,20 +231,23 @@ class CompressionTreeMultiplyAccumulate extends MultiplyAccumulate {
 
     final additionalRow = [for (var i = 0; i < c.width; i++) c[i]];
     while (additionalRow.length < lastRowLen) {
-      additionalRow.add(additinoalRowSign);
+      additionalRow.add(additionalRowSign);
     }
     additionalRow
-      ..add(~additinoalRowSign)
+      ..add(~additionalRowSign)
       ..add(Const(1));
 
     // For online evaluate in _ColumnCompressor to work, we need to
     // insert the row rather than append it.
-    pp.array.partialProducts.insert(0, additionalRow);
-    pp.rowShift.insert(0, 0);
+    ppg.partialProducts.insert(0, additionalRow);
+    ppg.rowShift.insert(0, 0);
 
-    pp.generateOutputs();
+    final ppgRows = [
+      for (var row = 0; row < ppg.partialProducts.length; row++)
+        ppg.partialProducts[row].rswizzle()
+    ];
 
-    final compressor = ColumnCompressor(pp.rows, pp.rowShift,
+    final compressor = ColumnCompressor(ppgRows, ppg.rowShift,
         clk: clk, reset: reset, enable: enable);
     final adder = adderGen(compressor.add0, compressor.add1);
     accumulate <= adder.sum.slice(a.width + b.width - 1 + 1, 0);
@@ -268,7 +271,7 @@ class MultiplyOnly extends MultiplyAccumulate {
               signedMultiplier: signedMultiplier)
           .name;
 
-  /// Construct a MultiplyAccumulate that only multiplies to enable
+  /// Construct a [MultiplyAccumulate] that only multiplies to enable
   /// using the same tester with zero accumulate addend [c].
   MultiplyOnly(
     super.a,

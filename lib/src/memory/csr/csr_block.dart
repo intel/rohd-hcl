@@ -11,7 +11,7 @@ import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
 import 'package:rohd_hcl/src/memory/csr/csr_container.dart';
 
-/// Logic representation of a block of registers.
+/// [Logic] representation of a block of registers.
 ///
 /// A block is just a collection of registers that are
 /// readable and writable through an addressing scheme

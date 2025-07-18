@@ -100,9 +100,7 @@ The parameters of the
 - Signed or unsigned operands:
   - `signedMultiplicand` parameter: whether the multiplicand (first arg) should be treated as signed (twos' complement) or unsigned.
   - `signedMultiplier` parameter: whether the multiplier (second arg) should be treated as signed (twos' complement) or unsigned.
-- Alternatively, it supports runtime control of signage:
-  - An optional `selectSignedMultiplicand` control signal which allows for runtime control of signed or unsigned operation with the same hardware. `signedMultiplicand` must be false if using this control signal.
-  - An optional `selectSignedMultiplier` control signal which allows for runtime control of signed or unsigned operation with the same hardware. `signedMultiplier` must be false if using this control signal.
+- As booleans, these parameters satically configure the multiplier to support signed opernads.  Alternatively the multiplier supports runtime control of signage by passing a `Logic` signal instead and control logic will be added to support signed or unsigned operands.
 - An optional `clk`, as well as `enable` and `reset` that are used to add a pipestage in the `ColumnCompressor` to allow for pipelined operation, making the multiplier operate in 2 cycles.
 
 Here is an example of use of the `CompressionTreeMultiplier` with one signed input:

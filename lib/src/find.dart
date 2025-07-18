@@ -16,10 +16,10 @@ import 'package:rohd_hcl/rohd_hcl.dart';
 /// Takes in a [Logic] to find location of `1`s or `0`s.
 /// Outputs pin `index` contains position.
 class Find extends Module {
-  /// [index] is an getter for output of Find
+  /// [index] is an getter for output of [Find].
   Logic get index => output('index');
 
-  /// [error] is an getter for error in Find
+  /// [error] is an getter for error in [Find].
   /// When your find is not found it will result in error `1`
   Logic? get error => tryOutput('error');
 

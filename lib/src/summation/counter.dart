@@ -70,7 +70,7 @@ class Counter extends SummationBase {
     String? definitionName,
   }) : super(
             initialValue: resetValue,
-            definitionName: definitionName ?? 'Counter_W${width}') {
+            definitionName: definitionName ?? 'Counter_W$width') {
     this.clk = addInput('clk', clk);
     this.reset = addInput('reset', reset);
     if (restart != null) {

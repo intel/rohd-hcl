@@ -28,10 +28,10 @@ class FloatToFixed extends Module {
   /// Width of output fractional part.
   late final int fractionWidth;
 
-  /// Add overflow checking logic
+  /// Add overflow checking logic.
   final bool checkOverflow;
 
-  /// Return true if the conversion overflowed.
+  /// Return `true` if the conversion overflowed.
   Logic? get overflow => tryOutput('overflow');
 
   /// Internal representation of the output port
@@ -46,9 +46,9 @@ class FloatToFixed extends Module {
   ///   output will be produced. Otherwise, the converter will compute a
   ///   lossless size for [integerWidth] and [fractionWidth] for outputing the
   ///   floating-point value into a fixed-point value.
-  /// - [checkOverflow] set to true will cause overflow detection to happen in
+  /// - [checkOverflow] set to `true` will cause overflow detection to happen in
   ///   case that loss can occur and an optional output [overflow] will be
-  ///   produced that returns true when overflow occurs.
+  ///   produced that returns `true` when overflow occurs.
   FloatToFixed(FloatingPoint float,
       {super.name = 'FloatToFixed',
       int? integerWidth,
@@ -152,7 +152,7 @@ class FloatToFixed extends Module {
 /// Infinities and NaN's are not supported.
 /// The output is of type [Logic] and in two's complement.
 /// It can be cast to a [FixedPoint] by the consumer based on the mode.
-/// if `mode` is true:
+/// if `mode` is `true`:
 ///   Input is treated as E4M3 and converted to Q9.9
 ///   `fixed[17:9] contains integer part
 ///   `fixed[8:0] contains fractional part
