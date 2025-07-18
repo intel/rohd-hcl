@@ -386,9 +386,10 @@ expected:   $expected ${expected.toDouble()}
           exponentWidth: exponentWidth,
           mantissaWidth: mantissaWidth,
           explicitJBit: true);
-      for (final delta in [-2, 2]) {
+      for (final expDelta in [-2, 2]) {
         final fp = FloatingPoint(
-            exponentWidth: exponentWidth + delta, mantissaWidth: mantissaWidth);
+            exponentWidth: exponentWidth + expDelta,
+            mantissaWidth: mantissaWidth);
         fpj.put(0);
         final converter = FloatingPointConverter(fpj, fp);
 
@@ -405,10 +406,10 @@ expected:   $expected ${expected.toDouble()}
                 final computed = converter.destination.floatingPointValue;
                 final dbl = fpev.toDouble();
                 final expected = FloatingPointValue.populator(
-                        exponentWidth: exponentWidth + delta,
+                        exponentWidth: exponentWidth + expDelta,
                         mantissaWidth: mantissaWidth)
                     .ofDouble(dbl,
-                        roundingMode: delta < 0
+                        roundingMode: expDelta < 0
                             ? FloatingPointRoundingMode.roundNearestEven
                             : FloatingPointRoundingMode.truncate);
                 expect(computed, equals(expected), reason: '''
@@ -465,9 +466,9 @@ expected:   $expected
 
       final fp = FloatingPoint(
           exponentWidth: exponentWidth, mantissaWidth: mantissaWidth);
-      for (final delta in [-2, 2]) {
+      for (final expDelta in [-2, 2]) {
         final fpj = FloatingPoint(
-            exponentWidth: exponentWidth + delta,
+            exponentWidth: exponentWidth + expDelta,
             mantissaWidth: mantissaWidth,
             explicitJBit: true);
         fp.put(0);
@@ -485,11 +486,11 @@ expected:   $expected
               final computed = converter.destination.floatingPointValue;
               final dbl = fpev.toDouble();
               final fpv = FloatingPointValue.populator(
-                      exponentWidth: exponentWidth + delta,
+                      exponentWidth: exponentWidth + expDelta,
                       mantissaWidth: mantissaWidth,
                       explicitJBit: true)
                   .ofDouble(dbl,
-                      roundingMode: delta < 0
+                      roundingMode: expDelta < 0
                           ? FloatingPointRoundingMode.roundNearestEven
                           : FloatingPointRoundingMode.truncate);
               expect(computed.canonicalize(), equals(fpv), reason: '''
@@ -550,7 +551,7 @@ expected: $expected
 
     test('FP: conversion explicit to explicit j-bit exhaustive round-trip', () {
       const exponentWidth = 6;
-      const mantissaWidth = 4;
+      const mantissaWidth = 6;
 
       final fp = FloatingPoint(
           exponentWidth: exponentWidth,
@@ -559,38 +560,43 @@ expected: $expected
       // ignore: cascade_invocations
       fp.put(0);
 
-      for (final delta in [-2, 2]) {
-        final fpj = FloatingPoint(
-            exponentWidth: exponentWidth + delta,
-            mantissaWidth: mantissaWidth,
-            explicitJBit: true);
-        final converter = FloatingPointConverter(fp, fpj);
-        for (final signVal in [false, true]) {
-          for (var e = 0; e < pow(2.0, exponentWidth).toInt(); e++) {
-            for (var m = 0; m < pow(2.0, mantissaWidth).toInt(); m++) {
-              final fpev = FloatingPointValue.populator(
-                      exponentWidth: exponentWidth,
-                      mantissaWidth: mantissaWidth,
-                      explicitJBit: true)
-                  .ofInts(e, m, sign: signVal);
-              if (fpev.isLegalValue()) {
-                fp.put(fpev);
-                final computed = converter.destination.floatingPointValue;
-                final dbl = fpev.toDouble();
-                final fpv = FloatingPointValue.populator(
-                        exponentWidth: exponentWidth + delta,
+      for (final expDelta in [-2, 2]) {
+        // TODO(desmonddak): fix narrowing bug and improve this test
+        for (final mantDelta in [0]) {
+          final fpj = FloatingPoint(
+              exponentWidth: exponentWidth + expDelta,
+              mantissaWidth: mantissaWidth + mantDelta,
+              explicitJBit: true);
+          final converter = FloatingPointConverter(fp, fpj);
+          for (final signVal in [false, true]) {
+            for (var e = 0; e < pow(2.0, exponentWidth).toInt(); e++) {
+              for (var m = 0; m < pow(2.0, mantissaWidth).toInt(); m++) {
+                final fpev = FloatingPointValue.populator(
+                        exponentWidth: exponentWidth,
                         mantissaWidth: mantissaWidth,
                         explicitJBit: true)
-                    .ofDouble(dbl,
-                        roundingMode: delta < 0
-                            ? FloatingPointRoundingMode.roundNearestEven
-                            : FloatingPointRoundingMode.truncate);
-                expect(computed.canonicalize(), equals(fpv), reason: '''
+                    .ofInts(e, m, sign: signVal);
+                if (fpev.isLegalValue()) {
+                  fp.put(fpev);
+                  final computed = converter.destination.floatingPointValue;
+                  final dbl = fpev.toDouble();
+                  // TODO(desmonddak): it would be nice to construct a new
+                  // populator from a FloatingPoint itself.
+                  final fpv = FloatingPointValue.populator(
+                          exponentWidth: exponentWidth + expDelta,
+                          mantissaWidth: mantissaWidth + mantDelta,
+                          explicitJBit: true)
+                      .ofDouble(dbl,
+                          roundingMode: expDelta < 0
+                              ? FloatingPointRoundingMode.roundNearestEven
+                              : FloatingPointRoundingMode.truncate);
+                  expect(computed.canonicalize(), equals(fpv), reason: '''
 input:    $fpev
 normalized: ${fpev.canonicalize()}
 computed: $computed
 expected: $fpv
 ''');
+                }
               }
             }
           }

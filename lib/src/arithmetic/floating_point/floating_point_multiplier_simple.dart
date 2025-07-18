@@ -72,13 +72,15 @@ class FloatingPointMultiplierSimple<FpTypeIn extends FloatingPoint,
     // TODO(desmonddak): do this calculation using the maximum exponent width
     // Then adapt to the product exponent width.
     final expCalcWidth = exponentWidth + 2;
-    final addBias =
-        (a.bias.zeroExtend(expCalcWidth) + b.bias.zeroExtend(expCalcWidth))
-            .named('addBias');
+    final addBias = (a.bias.zeroExtend(expCalcWidth).named('aBiasExt') +
+            b.bias.zeroExtend(expCalcWidth).named('bBiasExt'))
+        .named('addBias');
     final deltaBias =
-        (product.bias.zeroExtend(expCalcWidth) - addBias).named('rebias');
-    final addExp = (a.exponent.zeroExtend(expCalcWidth) +
-            b.exponent.zeroExtend(expCalcWidth))
+        (product.bias.zeroExtend(expCalcWidth).named('productBiasExt') -
+                addBias)
+            .named('rebias');
+    final addExp = (a.exponent.zeroExtend(expCalcWidth).named('aExpExt') +
+            b.exponent.zeroExtend(expCalcWidth).named('bExpExt'))
         .named('addExp');
     final productExp = (addExp + deltaBias).named('productExp');
 

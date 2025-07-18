@@ -23,6 +23,16 @@ class SignedShifter extends Module {
     shift = addInput('shift', shift, width: shift.width);
 
     addOutput('shifted', width: bits.width);
-    shifted <= mux(shift[-1], bits >>> shift.abs(), bits << shift);
+    shifted <=
+        mux(shift[-1], bits >>> _abs(shift).named('shiftAbs'), bits << shift);
+  }
+
+  // TODO(desmonddak): replace with Logic.abs() when naming there is more clean.
+
+  static Logic _abs(Logic inp) {
+    if (inp.width == 0) {
+      return inp;
+    }
+    return mux(inp[-1], (~inp + 1).named('${inp.name}TwosComplement'), inp);
   }
 }

@@ -65,8 +65,11 @@ class FindPattern extends Module {
     }
 
     // Initialize counter pattern occurrence to 0
-    Logic count = Const(0, width: log2Ceil(bus.width + 1));
-    final nVal = ((n ?? Const(0)) + 1).zeroExtend(count.width);
+    var count = Const(0, width: log2Ceil(bus.width + 1)).named('count');
+    final nVal = ((n ?? Const(0)) + 1)
+        .named('nVal')
+        .zeroExtend(count.width)
+        .named('nValX');
 
     for (var i = 0; i <= bus.width - pattern.width; i = i + 1) {
       int minBit;
@@ -83,7 +86,8 @@ class FindPattern extends Module {
 
       // Check if pattern matches, add to count
       final valCheck = bus.getRange(minBit, maxBit).eq(pattern);
-      count += valCheck.zeroExtend(count.width);
+      count = (count + valCheck.zeroExtend(count.width).named('valCheck_$i'))
+          .named('count_$i');
       // Append result to the index list
       indexList.add(valCheck & nVal.eq(count));
     }

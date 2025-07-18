@@ -113,7 +113,8 @@ class FixedPointSqrt extends FixedPointSqrtBase {
               remainder - subtractionValue, remainder)
           .named('remainder_finalmux_iter$i');
     }
-    solution = (solution + 1).named('solution');
-    outputSqrt <= solution.slice(aLoc.width - 1, aLoc.width - a.width);
+    solution = (solution + 1).named('solutionPlusOne');
+    outputSqrt <=
+        solution.slice(aLoc.width - 1, aLoc.width - a.width).named('solutionF');
   }
 }

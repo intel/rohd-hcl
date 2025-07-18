@@ -57,7 +57,7 @@ class Find extends Module {
 
       // Below code will make `n` comparable to `count`
       var paddedCountValue = count.count;
-      var paddedNValue = (n ?? Const(0)) + 1;
+      var paddedNValue = ((n ?? Const(0)) + 1).named('paddedNValue_$i');
 
       if (paddedNValue.width < paddedCountValue.width) {
         paddedNValue = paddedNValue.zeroExtend(paddedCountValue.width);

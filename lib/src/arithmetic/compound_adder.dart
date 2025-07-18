@@ -41,7 +41,10 @@ class TrivialCompoundAdder extends CompoundAdder {
   TrivialCompoundAdder(super.a, super.b,
       {super.carryIn, super.name = 'trivial_compound_adder'})
       : super(definitionName: 'trival_compound_adder') {
-    sum <= a.zeroExtend(a.width + 1) + b.zeroExtend(b.width + 1);
+    sum <=
+        (a.zeroExtend(a.width + 1).named('aExt') +
+                b.zeroExtend(b.width + 1).named('bExt'))
+            .named('computedSum');
     sumP1 <= sum + 1;
   }
 }
@@ -156,6 +159,7 @@ class CarrySelectCompoundAdder extends CompoundAdder {
           ((i == 0)
                   ? fullAdder0.sum
                   : mux(carry0, fullAdder1.sum, fullAdder0.sum))
+              .named('block_${i}_pre0')
               .slice(0, blockWidth - 1)
               .named('block_${i}_sum0Ary');
 
@@ -163,6 +167,7 @@ class CarrySelectCompoundAdder extends CompoundAdder {
           ((i == 0)
                   ? fullAdder1.sum
                   : mux(carry1, fullAdder1.sum, fullAdder0.sum))
+              .named('block_${i}_pre1')
               .slice(0, blockWidth - 1)
               .named('block_${i}_sum1Ary');
 

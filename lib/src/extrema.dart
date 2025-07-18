@@ -63,10 +63,12 @@ class Extrema extends Module {
     // If max is true, find max value. Else, find min value.
     for (var i = 1; i < logics.length; i++) {
       final compareVal =
-          max ? logics[i].gt(extremaVal) : logics[i].lt(extremaVal);
+          (max ? logics[i].gt(extremaVal) : logics[i].lt(extremaVal))
+              .named('compareVal_$i');
       extremaVal = Logic(name: 'muxOut$i', width: maxWidth)
-        ..gets(mux(compareVal, logics[i], extremaVal));
-      extremaIndex = mux(compareVal, Const(i, width: indexWidth), extremaIndex);
+        ..gets(mux(compareVal, logics[i], extremaVal).named('extremaVal_$i'));
+      extremaIndex = mux(compareVal, Const(i, width: indexWidth), extremaIndex)
+          .named('extremaIndex_$i');
     }
 
     // Generate outputs here.
