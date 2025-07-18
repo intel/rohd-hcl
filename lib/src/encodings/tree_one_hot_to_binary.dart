@@ -14,7 +14,9 @@ import 'package:rohd_hcl/rohd_hcl.dart';
 class TreeOneHotToBinary extends OneHotToBinary {
   /// Top level module for computing binary to one-hot using recursion
   TreeOneHotToBinary(super.onehot,
-      {super.generateError, super.name = 'tree_one_hot_to_binary'})
+      {super.generateError,
+      super.name = 'tree_one_hot_to_binary',
+      super.definitionName})
       : super.base() {
     final node = _NodeOneHotToBinary(onehot, generateMultiple: generateError);
     binary <= node.binary;

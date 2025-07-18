@@ -57,5 +57,6 @@ class FixedToFloatConfigurator extends Configurator {
           mantissaWidth: mantissaWidthKnob.value),
       leadingDigitPredict: leadingDigitPredictionKnob.value
           ? Logic(width: log2Ceil(integerWidthKnob.value))
-          : null);
+          : null,
+      definitionName: 'FixedToFloat');
 }

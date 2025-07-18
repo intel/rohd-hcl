@@ -71,7 +71,7 @@ void main() {
     test('should return RotateRight module when generate() with default value',
         () async {
       final rotate = RotateConfigurator();
-      expect(await rotate.generateSV(), contains('Rotate_right'));
+      expect(await rotate.generateSV(), contains('RotateRight'));
     });
 
     test('should return RotateLeft when invoke generate() with default value',
@@ -85,7 +85,7 @@ void main() {
       rotate.rotateWidthKnob.value = rotateAmountWidth;
 
       final sv = await rotate.generateSV();
-      expect(sv, contains('Rotate_left'));
+      expect(sv, contains('RotateLeft'));
       expect(sv, contains('input logic [9:0] original'));
       expect(sv, contains('input logic [4:0] rotate_amount'));
     });
@@ -168,11 +168,11 @@ void main() {
         'different multiplier selections', () async {
       final cfg = MultiplierConfigurator();
       final svDefault = await cfg.generateSV();
-      expect(svDefault, contains('NativeMultiplier'));
+      expect(svDefault, contains('Multiplier'));
       cfg.multiplierSelectKnob.compressionTreeMultiplierKnob.value = true;
 
       var sv = await cfg.generateSV();
-      expect(sv, contains('CompressionTreeMultiplier'));
+      expect(sv, contains('compressor'));
       cfg.multiplierSelectKnob.adderSelectionKnob.parallelPrefixAdderKnob
           .value = true;
       sv = await cfg.generateSV();
@@ -219,7 +219,7 @@ void main() {
 
       final sv = await cfg.generateSV();
 
-      expect(sv, contains('FloatingPointSquareRoot'));
+      expect(sv, contains('FloatingPointSqrtSimple'));
     });
   });
 

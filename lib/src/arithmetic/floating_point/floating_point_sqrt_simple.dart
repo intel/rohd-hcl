@@ -21,10 +21,12 @@ class FloatingPointSqrtSimple<FpType extends FloatingPoint>
       {super.clk,
       super.reset,
       super.enable,
-      super.name = 'floatingpoint_square_root_simple'})
+      super.name = 'floatingpoint_square_root_simple',
+      String? definitionName})
       : super(
-            definitionName: 'FloatingPointSquareRootSimple_'
-                'E${a.exponent.width}M${a.mantissa.width}') {
+            definitionName: definitionName ??
+                'FloatingPointSquareRootSimple_'
+                    'E${a.exponent.width}M${a.mantissa.width}') {
     final outputSqrt = FloatingPoint(
         exponentWidth: exponentWidth,
         mantissaWidth: mantissaWidth,
