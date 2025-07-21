@@ -296,13 +296,15 @@ void main() {
     const m = 10;
     const n = 12;
     const width = m + n + 1; // 1 for sign bit
-    for (var i = 0; i < pow(2, width); i++) {
-      final fxv = FixedPointValue.populator(
-              integerWidth: m, fractionWidth: n, signed: true)
-          .ofLogicValue(LogicValue.ofInt(i, width));
-      final fpv = fxv.toFloatingPointValue();
-      expect(fpv.toDouble(), fxv.toDouble(),
-          reason: 'toFloatingPointValue failed for $i');
+    for (final explicitJBit in [true, false]) {
+      for (var i = 0; i < pow(2, width); i++) {
+        final fxv = FixedPointValue.populator(
+                integerWidth: m, fractionWidth: n, signed: true)
+            .ofLogicValue(LogicValue.ofInt(i, width));
+        final fpv = fxv.toFloatingPointValue(explicitJBit);
+        expect(fpv.toDouble(), fxv.toDouble(),
+            reason: 'toFloatingPointValue failed for $i');
+      }
     }
   });
 
@@ -310,12 +312,14 @@ void main() {
     const m = 10;
     const n = 12;
     const width = m + n; // no signe bit for unsigned
-    for (var i = 0; i < pow(2, width); i++) {
-      final fxv = FixedPointValue.populator(integerWidth: m, fractionWidth: n)
-          .ofLogicValue(LogicValue.ofInt(i, width));
-      final fpv = fxv.toFloatingPointValue();
-      expect(fpv.toDouble(), fxv.toDouble(),
-          reason: 'toFloatingPointValue failed for $i');
+    for (final explicitJBit in [true, false]) {
+      for (var i = 0; i < pow(2, width); i++) {
+        final fxv = FixedPointValue.populator(integerWidth: m, fractionWidth: n)
+            .ofLogicValue(LogicValue.ofInt(i, width));
+        final fpv = fxv.toFloatingPointValue(explicitJBit);
+        expect(fpv.toDouble(), fxv.toDouble(),
+            reason: 'toFloatingPointValue failed for $i');
+      }
     }
   });
 }

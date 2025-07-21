@@ -179,7 +179,7 @@ class FixedPointValue implements Comparable<FixedPointValue> {
   }
 
   /// Converts a [FixedPointValue] to a [FloatingPointValue].
-  FloatingPointValue toFloatingPointValue() {
+  FloatingPointValue toFloatingPointValue(bool explicitJBit) {
     if (!value.isValid) {
       throw RohdHclException('Inputs must be valid.');
     }
@@ -202,7 +202,8 @@ class FixedPointValue implements Comparable<FixedPointValue> {
       return FloatingPointValue(
           sign: LogicValue.zero,
           exponent: LogicValue.zero,
-          mantissa: LogicValue.zero);
+          mantissa: LogicValue.zero,
+          explicitjBit: true);
     }
 
     // FOR loop to find first one to figure out correct exponent value and width
