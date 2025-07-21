@@ -631,64 +631,131 @@ void main() {
       }
     });
   });
-  test('FPV: toFixedPointValue', () async {
-    //
-    // TODO(jcfarwe): Find all corner cases, automate test cases.
-    //[exp, expSize, sign (0 == +), mant, mantSize]
-    final testCases = [
-      [0, 8, 0, 0x000000, 23], // 1.0
-      [0, 8, 0, 0x000001, 23], // 1.0000001
-      [1, 8, 0, 0x000001, 23], // 2.0000002
-      [8, 8, 0, 0x000001, 23], // 256.00003
-      [0, 8, 0, 0x400000, 23], // 1.5
-      [-1, 8, 0, 0x400000, 23], // 0.75
-      [1, 8, 0, 0x400000, 23], // 3.0
-      [2, 8, 0, 0x400000, 23], // 6.0
-      [0, 8, 1, 0x000000, 23], // -1.0
-      [0, 8, 1, 0x400000, 23], // -1.5
-      [0, 5, 0, 0x000, 10], // 1.0, 16-bit float
-      [-127, 8, 0, 0x000001, 23], // 1e-45
-      [-127, 8, 0, 0x000000, 23], // 0
-      [-127, 8, 1, 0x000000, 23], // -0
-    ];
-
-    for (final testCase in testCases) {
-      final bias = (pow(2, testCase[1] - 1) - 1).toInt();
-      final exp = testCase[0];
-      final fpv1 = FloatingPointValue(
-          exponent: LogicValue.ofInt(exp + bias, testCase[1]),
-          sign: LogicValue.ofInt(testCase[2], 1),
-          mantissa: LogicValue.ofInt(testCase[3], testCase[4]));
-      final fxv = fpv1.toFixedPointValue();
-
+  group('FPV: toFixedPointValue', () {
+    // generate expected result of float2fixed conversion
+    FixedPointValue expectedResult(
+      int exp,
+      int expSize,
+      int sign,
+      int mant,
+      int mantSize,
+      LogicValue exponent,
+    ) {
       // generate expected result
       final expAbs = exp.abs();
       final shift =
-          expAbs + 3; // add two bit for integral part, one bit for sign
+          expAbs + 3; // add two bits for integral part, one bit for sign
 
-      final mantissa = fpv1.exponent != LogicValue.ofInt(0, testCase[1])
-          ? LogicValue.ofInt(
-              1 << testCase[4] | testCase[3], testCase[4] + shift)
-          : LogicValue.ofInt(testCase[3], testCase[4] + shift);
+      final mantissa = exponent != LogicValue.ofInt(0, expSize)
+          ? LogicValue.ofInt(1 << mantSize | mant, mantSize + shift)
+          : LogicValue.ofInt(mant, mantSize + shift);
       final shiftedMantissa = exp < 0 ? mantissa : mantissa << expAbs;
-      final finalMantissa =
-          testCase[2] == 0 ? shiftedMantissa : ~shiftedMantissa + 1;
+      final finalMantissa = sign == 0 ? shiftedMantissa : ~shiftedMantissa + 1;
 
-      final nLen = exp.isNegative ? testCase[4] - exp : testCase[4];
+      final nLen = exp.isNegative ? mantSize - exp : mantSize;
       final mLen = finalMantissa.width - nLen - 1; // one bit for sign
-      final expected = FixedPointValue.populator(
-              integerWidth: mLen, fractionWidth: nLen, signed: true)
-          .ofLogicValue(finalMantissa);
-      // end expected result
-
-      expect(fxv == expected, true, reason: 'Got $fxv expected $expected');
+      return FixedPointValue.populator(
+        integerWidth: mLen,
+        fractionWidth: nLen,
+        signed: true,
+      ).ofLogicValue(finalMantissa);
     }
+
+    test('FPV: toFixedPointValue exhaustive', () async {
+      // bit widths to be tested
+      // 6, 7, 8-bit exponent
+      // 8, 10, 12-bit mantissa
+      final expWidths = [5, 6, 7, 8];
+      final mantWidths = [10, 12, 17, 23];
+
+      for (final expWidth in expWidths) {
+        for (final mantWidth in mantWidths) {
+          final minExp = -1 << (expWidth - 1);
+          final maxExp = (1 << (expWidth - 1)) - 1;
+          for (int testExp = minExp; testExp < maxExp; testExp++) {
+            final bias = (pow(2, expWidth - 1) - 1).toInt();
+            final exp = LogicValue.ofInt(testExp, expWidth);
+            final sign = LogicValue.ofInt(0, 1);
+            final mant = LogicValue.ofInt(testExp, mantWidth);
+
+            final fpv1 = FloatingPointValue(
+              exponent: exp + bias,
+              sign: sign,
+              mantissa: mant,
+            );
+            if (fpv1.isNaN || fpv1.isAnInfinity) {
+              continue;
+            }
+
+            final fxv = fpv1.toFixedPointValue();
+
+            final expected = expectedResult(
+              testExp,
+              expWidth,
+              sign.toInt(),
+              mant.toInt(),
+              mantWidth,
+              fpv1.exponent,
+            );
+
+            expect(
+              fxv == expected,
+              true,
+              reason: 'Got $fxv expected $expected',
+            );
+          }
+        }
+      }
+    });
+    test('FPV: toFixedPointValue simplified', () async {
+      //
+      //[exp, expSize, sign (0 == +), mant, mantSize]
+      final testCases = [
+        [0, 8, 0, 0x000000, 23], // 1.0
+        [0, 8, 0, 0x000001, 23], // 1.0000001
+        [1, 8, 0, 0x000001, 23], // 2.0000002
+        [8, 8, 0, 0x000001, 23], // 256.00003
+        [0, 8, 0, 0x400000, 23], // 1.5
+        [-1, 8, 0, 0x400000, 23], // 0.75
+        [1, 8, 0, 0x400000, 23], // 3.0
+        [2, 8, 0, 0x400000, 23], // 6.0
+        [0, 8, 1, 0x000000, 23], // -1.0
+        [0, 8, 1, 0x400000, 23], // -1.5
+        [0, 5, 0, 0x000, 10], // 1.0, 16-bit float
+        [-127, 8, 0, 0x000001, 23], // 1e-45
+        [-127, 8, 0, 0x000000, 23], // 0
+        [-127, 8, 1, 0x000000, 23], // -0
+      ];
+
+      for (final testCase in testCases) {
+        final bias = (pow(2, testCase[1] - 1) - 1).toInt();
+        final exp = testCase[0];
+        final fpv1 = FloatingPointValue(
+          exponent: LogicValue.ofInt(exp + bias, testCase[1]),
+          sign: LogicValue.ofInt(testCase[2], 1),
+          mantissa: LogicValue.ofInt(testCase[3], testCase[4]),
+        );
+        final fxv = fpv1.toFixedPointValue();
+
+        // generate expected result
+        final expected = expectedResult(
+          exp,
+          testCase[1],
+          testCase[2],
+          testCase[3],
+          testCase[4],
+          fpv1.exponent,
+        );
+
+        expect(fxv == expected, true, reason: 'Got $fxv expected $expected');
+      }
+    });
   });
   test('FPV: toFixedPointValue, Special values', () async {
     //
     //[exp, expSize, sign (0 == +), mant, mantSize]
     final testCases = [
-      [128, 8, 0, 0x400000, 23], // NaN -- how to handle?
+      [128, 8, 0, 0x400000, 23], // NaN
       [128, 8, 1, 0x000000, 23], // -Inf
       [128, 8, 0, 0x400000, 23], // Inf
     ];
