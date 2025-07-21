@@ -178,9 +178,8 @@ class FixedToFloat extends Module {
     // Calculate biased exponent
     final eRaw = mux(
             absValueShifted[-1],
-            (Const(bias + fixed.width - fixed.fractionWidth - 1,
-                    width: iWidth) -
-                jBit),
+            Const(bias + fixed.width - fixed.fractionWidth - 1, width: iWidth) -
+                jBit,
             Const(0, width: iWidth))
         .named('eRaw');
 
