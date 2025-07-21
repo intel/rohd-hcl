@@ -50,6 +50,8 @@ class FloatingPointConverter<FpTypeIn extends FloatingPoint,
       Adder Function(Logic a, Logic b, {Logic? carryIn}) adderGen =
           NativeAdder.new,
       super.name = 'floating_point_converter',
+      super.reserveName,
+      super.reserveDefinitionName,
       String? definitionName})
       : sourceExponentWidth = source.exponent.width,
         sourceMantissaWidth = source.mantissa.width,

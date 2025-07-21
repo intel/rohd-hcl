@@ -26,7 +26,10 @@ abstract class BitCompressor extends Module {
 
   /// Construct a column compressor
   BitCompressor(Logic compressBits,
-      {super.name = 'bit_compressor', String? definitionName})
+      {super.name = 'bit_compressor',
+      super.reserveName,
+      super.reserveDefinitionName,
+      String? definitionName})
       : super(definitionName: definitionName ?? 'BitCompressor') {
     this.compressBits = addInput(
       'compressBits',
@@ -215,6 +218,8 @@ class ColumnCompressor extends Module {
       Logic? enable,
       @visibleForTesting bool dontCompress = false,
       super.name = 'column_compressor',
+      super.reserveName,
+      super.reserveDefinitionName,
       String? definitionName})
       : super(
             definitionName: definitionName ??

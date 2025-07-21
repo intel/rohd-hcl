@@ -23,7 +23,11 @@ class RegisterFile extends Memory {
   /// [MaskedDataPortInterface]s are supported on `writePorts`, but not on
   /// `readPorts`.
   RegisterFile(super.clk, super.reset, super.writePorts, super.readPorts,
-      {this.numEntries = 8, super.name = 'rf', String? definitionName})
+      {this.numEntries = 8,
+      super.name = 'rf',
+      super.reserveName,
+      super.reserveDefinitionName,
+      String? definitionName})
       : super(
             definitionName: definitionName ??
                 'RegisterFile_WP${writePorts.length}'

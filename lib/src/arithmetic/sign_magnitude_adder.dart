@@ -31,7 +31,10 @@ abstract class SignMagnitudeAdderBase extends Adder {
   /// Inputs are (sign, magnitude) pairs: ([aSign], [a]) and ([bSign], [b]). If
   /// the caller can guarantee that the larger magnitude value is provided first
   SignMagnitudeAdderBase(this.aSign, super.a, this.bSign, super.b,
-      {String? definitionName, super.name = 'sign_magnitude_adder'})
+      {super.reserveName,
+      super.reserveDefinitionName,
+      String? definitionName,
+      super.name = 'sign_magnitude_adder'})
       : super(
             definitionName:
                 definitionName ?? 'SignMagnitudeAdder_W${a.width}') {
@@ -75,7 +78,13 @@ class SignMagnitudeAdder extends SignMagnitudeAdderBase {
           NativeAdder.new,
       this.largestMagnitudeFirst = false,
       bool generateEndAroundCarry = false,
-      super.name = 'sign_magnitude_adder'}) {
+      super.name = 'sign_magnitude_adder',
+      super.reserveName,
+      super.reserveDefinitionName,
+      String? definitionName})
+      : super(
+            definitionName:
+                definitionName ?? 'SignMagnitudeAdder_W${a.width}') {
     if (generateEndAroundCarry) {
       addOutput('endAroundCarry');
     }
@@ -118,8 +127,13 @@ class SignMagnitudeDualAdder extends SignMagnitudeAdderBase {
   SignMagnitudeDualAdder(super.aSign, super.a, super.bSign, super.b,
       {Adder Function(Logic a, Logic b, {Logic? carryIn}) adderGen =
           NativeAdder.new,
-      super.name = 'sign_magnitude_dualadder'})
-      : super(definitionName: 'SignMagnitudeAdder_W${a.width}') {
+      super.name = 'sign_magnitude_dualadder',
+      super.reserveName,
+      super.reserveDefinitionName,
+      String? definitionName})
+      : super(
+            definitionName:
+                definitionName ?? 'SignMagnitudeAdder_W${a.width}') {
     final adderForward = SignMagnitudeAdder(Const(0), a, aSign ^ bSign, b,
         generateEndAroundCarry: true,
         largestMagnitudeFirst: true,

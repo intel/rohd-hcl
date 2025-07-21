@@ -18,7 +18,10 @@ class BinaryToOneHot extends Module {
   /// Constructs a [Module] which encodes a 2's complement number [binary]
   /// into a one-hot, or thermometer code
   BinaryToOneHot(Logic binary,
-      {super.name = 'binary_to_one_hot', String? definitionName})
+      {super.name = 'binary_to_one_hot',
+      super.reserveName,
+      super.reserveDefinitionName,
+      String? definitionName})
       : super(
             definitionName:
                 definitionName ?? 'BinaryToOneHot_W${binary.width}') {

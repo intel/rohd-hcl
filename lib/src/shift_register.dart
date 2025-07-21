@@ -53,6 +53,8 @@ class ShiftRegister extends Module {
     bool asyncReset = false,
     dynamic resetValue,
     this.dataName = 'data',
+    super.reserveName,
+    super.reserveDefinitionName,
     String? definitionName,
   })  : width = dataIn.width,
         super(

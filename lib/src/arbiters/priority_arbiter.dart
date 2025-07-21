@@ -15,7 +15,10 @@ class PriorityArbiter extends Arbiter {
   /// Constructs an arbiter where the grant is given to the lowest-indexed
   /// request.
   PriorityArbiter(super.requests,
-      {super.name = 'priority_arbiter', String? definitionName})
+      {super.name = 'priority_arbiter',
+      super.reserveName,
+      super.reserveDefinitionName,
+      String? definitionName})
       : super(
             definitionName:
                 definitionName ?? 'PriorityArbiter_W${requests.length}') {

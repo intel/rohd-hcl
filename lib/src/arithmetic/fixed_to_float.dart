@@ -40,6 +40,8 @@ class FixedToFloat extends Module {
       {bool signed = true,
       Logic? leadingDigitPredict,
       super.name = 'FixedToFloat',
+      super.reserveName,
+      super.reserveDefinitionName,
       String? definitionName})
       : super(
             definitionName: definitionName ??

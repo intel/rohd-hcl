@@ -24,7 +24,10 @@ abstract class CompoundAdder extends Adder {
   CompoundAdder(super.a, super.b,
       {Logic? carryIn,
       super.name = 'compound_adder',
-      super.definitionName = 'compound_adder'}) {
+      super.reserveName,
+      super.reserveDefinitionName,
+      String? definitionName})
+      : super(definitionName: definitionName ?? 'CompoundAdder_W${a.width}') {
     if (a.width != b.width) {
       throw RohdHclException('inputs of a and b should have same width.');
     }
@@ -41,6 +44,8 @@ class TrivialCompoundAdder extends CompoundAdder {
   TrivialCompoundAdder(super.a, super.b,
       {super.carryIn,
       super.name = 'trivial_compound_adder',
+      super.reserveName,
+      super.reserveDefinitionName,
       String? definitionName})
       : super(
             definitionName:
@@ -118,8 +123,10 @@ class CarrySelectCompoundAdder extends CompoundAdder {
             {Logic? carryIn, Logic? subtractIn, String name})
         adderGen = _defaultBlockAdder,
     List<int> Function(int) widthGen = splitSelectAdderAlgorithmSingleBlock,
-    String? definitionName,
     super.name = 'cs_compound_adder',
+    super.reserveName,
+    super.reserveDefinitionName,
+    String? definitionName,
   }) : super(
             definitionName: definitionName ??
                 'CarrySelectCompoundAdder_${adderGen(a, b).definitionName}') {
@@ -242,6 +249,8 @@ class CarrySelectOnesComplementCompoundAdder extends CompoundAdder {
       List<int> Function(int) widthGen =
           CarrySelectCompoundAdder.splitSelectAdderAlgorithmSingleBlock,
       super.name,
+      super.reserveName,
+      super.reserveDefinitionName,
       String? definitionName})
       : super(
             definitionName: definitionName ??

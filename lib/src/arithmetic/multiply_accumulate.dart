@@ -126,6 +126,8 @@ abstract class MultiplyAccumulate extends Module {
       dynamic signedMultiplier,
       dynamic signedAddend,
       super.name = 'multiply_accumulate',
+      super.reserveName,
+      super.reserveDefinitionName,
       String? definitionName})
       : super(
             definitionName: definitionName ??
@@ -201,6 +203,8 @@ class CompressionTreeMultiplyAccumulate extends MultiplyAccumulate {
               {String name})
           seGen = CompactRectSignExtension.new,
       super.name = 'compression_tree_mac',
+      super.reserveName,
+      super.reserveDefinitionName,
       String? definitionName})
       : super(
             definitionName: definitionName ??

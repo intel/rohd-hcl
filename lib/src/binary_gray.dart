@@ -30,7 +30,8 @@ class BinaryToGrayConverter extends Module {
   /// The [binary] parameter is the binary input that you want to convert
   /// to Gray code. The width of the input [binary] determines the width
   /// of the Gray code output.
-  BinaryToGrayConverter(Logic binary, {String? definitionName})
+  BinaryToGrayConverter(Logic binary,
+      {super.reserveName, super.reserveDefinitionName, String? definitionName})
       : super(
             definitionName:
                 definitionName ?? 'BinaryToGrayConverter_W${binary.width}') {
@@ -100,7 +101,8 @@ class GrayToBinaryConverter extends Module {
   /// The [gray] parameter is the Gray code input that you want to convert to
   /// binary. The width of the input [gray] determines the width of the binary
   /// output.
-  GrayToBinaryConverter(Logic gray, {String? definitionName})
+  GrayToBinaryConverter(Logic gray,
+      {super.reserveName, super.reserveDefinitionName, String? definitionName})
       : super(
             definitionName:
                 definitionName ?? 'GrayToBinaryConverter_W${gray.width}') {

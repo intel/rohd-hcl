@@ -42,6 +42,8 @@ class CarrySaveMultiplier extends Multiplier {
       super.signedMultiplicand,
       super.signedMultiplier,
       super.name = 'carry_save_multiplier',
+      super.reserveName,
+      super.reserveDefinitionName,
       String? definitionName})
       : super(
             definitionName:

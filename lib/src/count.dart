@@ -30,7 +30,11 @@ class Count extends Module {
   /// Takes in [bus] of type [Logic]. by default performs [countOne] (`1`)
   /// if [countOne] is `false` will count `0`
   Count(Logic bus,
-      {bool countOne = true, super.name = 'count', String? definitionName})
+      {bool countOne = true,
+      super.name = 'count',
+      super.reserveName,
+      super.reserveDefinitionName,
+      String? definitionName})
       : super(definitionName: definitionName ?? 'Count_W${bus.width}') {
     bus = addInput('bus', bus, width: bus.width);
     Logic count = Const(0, width: max(1, log2Ceil(bus.width + 1)));

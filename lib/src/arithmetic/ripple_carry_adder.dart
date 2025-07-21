@@ -21,6 +21,8 @@ class RippleCarryAdder extends Adder {
   RippleCarryAdder(super.a, super.b,
       {super.carryIn,
       super.name = 'ripple_carry_adder_carry_in',
+      super.reserveName,
+      super.reserveDefinitionName,
       String? definitionName})
       : super(
             definitionName: definitionName ?? 'RippleCarryAdder_W${a.width}') {

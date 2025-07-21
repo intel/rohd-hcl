@@ -34,7 +34,11 @@ class MaskRoundRobinArbiter extends StatefulArbiter
   /// and keeping record of requests already granted, in order to mask it until
   /// granting the turn of each request to start again
   MaskRoundRobinArbiter(super.requests,
-      {required super.clk, required super.reset, String? definitionName})
+      {required super.clk,
+      required super.reset,
+      super.reserveName,
+      super.reserveDefinitionName,
+      String? definitionName})
       : super(
             definitionName:
                 definitionName ?? 'MaskRoundRobinArbiter_W${requests.length}') {

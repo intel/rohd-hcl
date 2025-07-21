@@ -92,6 +92,8 @@ class CsrTop extends CsrContainer {
       required super.frontRead,
       super.allowLargerRegisters,
       this.logicalRegisterIncrement = 1,
+      super.reserveName,
+      super.reserveDefinitionName,
       String? definitionName})
       : super(
             definitionName: definitionName ??

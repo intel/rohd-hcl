@@ -71,6 +71,8 @@ abstract class FloatingPointAdder<FpTypeIn extends FloatingPoint,
       FpTypeOut? outSum,
       this.roundingMode = FloatingPointRoundingMode.roundNearestEven,
       super.name = 'floating_point_adder',
+      super.reserveName,
+      super.reserveDefinitionName,
       String? definitionName})
       : super(
             definitionName: definitionName ??

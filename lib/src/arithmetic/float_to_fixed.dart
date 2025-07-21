@@ -54,6 +54,8 @@ class FloatToFixed extends Module {
       int? integerWidth,
       int? fractionWidth,
       this.checkOverflow = false,
+      super.reserveName,
+      super.reserveDefinitionName,
       String? definitionName})
       : super(
             definitionName: definitionName ??

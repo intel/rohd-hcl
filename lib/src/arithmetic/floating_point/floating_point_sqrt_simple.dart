@@ -22,6 +22,8 @@ class FloatingPointSqrtSimple<FpType extends FloatingPoint>
       super.reset,
       super.enable,
       super.name = 'floatingpoint_square_root_simple',
+      super.reserveName,
+      super.reserveDefinitionName,
       String? definitionName})
       : super(
             definitionName: definitionName ??

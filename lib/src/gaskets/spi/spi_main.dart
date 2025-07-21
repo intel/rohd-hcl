@@ -34,6 +34,8 @@ class SpiMain extends Module {
       required Logic start,
       required Logic busIn,
       super.name = 'spiMain',
+      super.reserveName,
+      super.reserveDefinitionName,
       String? definitionName})
       : super(
             definitionName: definitionName ??

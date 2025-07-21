@@ -58,6 +58,8 @@ class OnesComplementAdder extends Adder {
       super.carryIn,
       bool subtract = false,
       bool chainable = false,
+      super.reserveName,
+      super.reserveDefinitionName,
       String? definitionName,
       super.name = 'ones_complement_adder'})
       : super(

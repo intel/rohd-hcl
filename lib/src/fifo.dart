@@ -87,6 +87,8 @@ class Fifo extends Module {
       this.generateOccupancy = false,
       this.generateBypass = false,
       super.name = 'fifo',
+      super.reserveName,
+      super.reserveDefinitionName,
       String? definitionName})
       : dataWidth = writeData.width,
         _addrWidth = max(1, log2Ceil(depth)),

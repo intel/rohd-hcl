@@ -52,10 +52,16 @@ class HammingEccTransmitter extends ErrorCheckingTransmitter {
 
   /// Creates a [transmission] which includes a [code] that protects [data] with
   /// the specified [hammingType].
-  HammingEccTransmitter(super.data,
-      {super.name = 'hamming_ecc_tx', this.hammingType = HammingType.sec})
-      : super(
-            definitionName: 'HammingEccTransmitter_${hammingType.name}',
+  HammingEccTransmitter(
+    super.data, {
+    super.name = 'hamming_ecc_tx',
+    this.hammingType = HammingType.sec,
+    super.reserveName,
+    super.reserveDefinitionName,
+    String? definitionName,
+  }) : super(
+            definitionName:
+                definitionName ?? 'HammingEccTransmitter_${hammingType.name}',
             codeWidth:
                 _parityBitsRequired(data.width) + hammingType._extraParityBits);
 
@@ -129,6 +135,8 @@ class HammingEccReceiver extends ErrorCheckingReceiver {
   HammingEccReceiver(super.transmission,
       {super.name = 'hamming_ecc_rx',
       this.hammingType = HammingType.sec,
+      super.reserveName,
+      super.reserveDefinitionName,
       String? definitionName})
       : super(
           codeWidth: _codeWidthFromTransmissionWidth(

@@ -29,7 +29,8 @@ class ParallelPrefix extends Module {
   List<Logic> get val => UnmodifiableListView(_oseq);
 
   /// ParallePrefix recursion
-  ParallelPrefix(List<Logic> inps, String name, {String? definitionName})
+  ParallelPrefix(List<Logic> inps, String name,
+      {super.reserveName, super.reserveDefinitionName, String? definitionName})
       : super(
             name: name,
             definitionName:
@@ -43,8 +44,9 @@ class ParallelPrefix extends Module {
 /// A ripple shaped [ParallelPrefix] tree.
 class Ripple extends ParallelPrefix {
   /// [Ripple] constructor.
-  Ripple(List<Logic> inps, Logic Function(Logic, Logic) op)
-      : super(inps, 'ripple') {
+  Ripple(List<Logic> inps, Logic Function(Logic, Logic) op,
+      {super.reserveName, super.reserveDefinitionName, String? definitionName})
+      : super(definitionName: definitionName ?? 'Ripple', inps, 'ripple') {
     final iseq = <Logic>[];
 
     inps.forEachIndexed((i, el) {
@@ -65,8 +67,9 @@ class Ripple extends ParallelPrefix {
 /// [Sklansky] implements the Sklansky-shaped [ParallelPrefix] tree pattern.
 class Sklansky extends ParallelPrefix {
   /// [Sklansky] constructor.
-  Sklansky(List<Logic> inps, Logic Function(Logic term1, Logic term2) op)
-      : super(inps, 'sklansky') {
+  Sklansky(List<Logic> inps, Logic Function(Logic term1, Logic term2) op,
+      {super.reserveName, super.reserveDefinitionName, String? definitionName})
+      : super(definitionName: definitionName ?? 'Skanskly', inps, 'sklansky') {
     final iseq = <Logic>[];
 
     inps.forEachIndexed((i, el) {
@@ -95,8 +98,12 @@ class Sklansky extends ParallelPrefix {
 /// pattern.
 class KoggeStone extends ParallelPrefix {
   /// [KoggeStone] constructor.
-  KoggeStone(List<Logic> inps, Logic Function(Logic term1, Logic term2) op)
-      : super(inps, 'kogge_stone') {
+  KoggeStone(List<Logic> inps, Logic Function(Logic term1, Logic term2) op,
+      {super.reserveName, super.reserveDefinitionName, String? definitionName})
+      : super(
+            definitionName: definitionName ?? 'KoggeStone',
+            inps,
+            'kogge_stone') {
     final iseq = <Logic>[];
 
     inps.forEachIndexed((i, el) {
@@ -123,8 +130,10 @@ class KoggeStone extends ParallelPrefix {
 /// [BrentKung] implements the Brent-Kung shaped [ParallelPrefix] tree pattern.
 class BrentKung extends ParallelPrefix {
   /// [BrentKung] constructor.
-  BrentKung(List<Logic> inps, Logic Function(Logic term1, Logic term2) op)
-      : super(inps, 'brent_kung') {
+  BrentKung(List<Logic> inps, Logic Function(Logic term1, Logic term2) op,
+      {super.reserveName, super.reserveDefinitionName, String? definitionName})
+      : super(
+            definitionName: definitionName ?? 'BrentKung', inps, 'brent_kung') {
     final iseq = <Logic>[];
 
     inps.forEachIndexed((i, el) {
@@ -175,6 +184,8 @@ class ParallelPrefixOrScan extends Module {
               List<Logic> inps, Logic Function(Logic term1, Logic term2) op)
           ppGen = KoggeStone.new,
       super.name = 'parallel_prefix_orscan',
+      super.reserveName,
+      super.reserveDefinitionName,
       String? definitionName})
       : super(
             definitionName:
@@ -198,6 +209,8 @@ class ParallelPrefixPriorityFinder extends Module {
               List<Logic> inps, Logic Function(Logic term1, Logic term2) op)
           ppGen = KoggeStone.new,
       super.name = 'parallel_prefix_finder',
+      super.reserveName,
+      super.reserveDefinitionName,
       String? definitionName})
       : super(
             definitionName: definitionName ??
@@ -218,6 +231,8 @@ class ParallelPrefixAdder extends Adder {
               List<Logic> inps, Logic Function(Logic term1, Logic term2) op)
           ppGen = KoggeStone.new,
       super.name = 'parallel_prefix_adder',
+      super.reserveName,
+      super.reserveDefinitionName,
       String? definitionName})
       : super(
             definitionName:
@@ -259,6 +274,8 @@ class ParallelPrefixIncr extends Module {
               List<Logic> inps, Logic Function(Logic term1, Logic term2) op)
           ppGen = KoggeStone.new,
       super.name = 'parallel_prefix_incr',
+      super.reserveName,
+      super.reserveDefinitionName,
       String? definitionName})
       : super(
             definitionName:
@@ -285,6 +302,8 @@ class ParallelPrefixDecr extends Module {
               List<Logic> inps, Logic Function(Logic term1, Logic term2) op)
           ppGen = KoggeStone.new,
       super.name = 'parallel_prefix_decr',
+      super.reserveName,
+      super.reserveDefinitionName,
       String? definitionName})
       : super(
             definitionName:

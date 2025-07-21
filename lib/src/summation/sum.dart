@@ -68,8 +68,13 @@ class Sum extends SummationBase {
       super.width,
       super.saturates,
       super.name = 'sum',
-      super.definitionName})
-      : super(initialValue: initialValue) {
+      super.reserveName,
+      super.reserveDefinitionName,
+      String? definitionName})
+      : super(
+            definitionName:
+                definitionName ?? 'Sum_${interfaces.length}_W$width',
+            initialValue: initialValue) {
     addOutput('sum', width: width);
 
     var maxPosMagnitude = SummationBase.biggestVal(width);

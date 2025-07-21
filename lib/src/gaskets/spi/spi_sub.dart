@@ -35,6 +35,8 @@ class SpiSub extends Module {
       Logic? busIn,
       Logic? reset,
       super.name = 'spiSub',
+      super.reserveName,
+      super.reserveDefinitionName,
       String? definitionName})
       : super(
             definitionName: definitionName ??

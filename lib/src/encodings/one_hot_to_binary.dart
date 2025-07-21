@@ -31,13 +31,17 @@ abstract class OneHotToBinary extends Module {
   factory OneHotToBinary(Logic onehot,
       {bool generateError = false,
       String name = 'one_hot_to_binary',
+      bool reserveName = false,
+      bool reserveDefinitionName = false,
       String? definitionName}) {
     final isSmall = onehot.width <= 8;
 
     return (isSmall ? CaseOneHotToBinary.new : TreeOneHotToBinary.new)(onehot,
         generateError: generateError,
+        reserveName: reserveName,
+        reserveDefinitionName: reserveDefinitionName,
         name: name,
-        definitionName: definitionName);
+        definitionName: definitionName ?? 'OneHotToBinary_W${onehot.width}');
   }
 
   /// The [input] of this instance.
@@ -52,6 +56,8 @@ abstract class OneHotToBinary extends Module {
   OneHotToBinary.base(Logic onehot,
       {this.generateError = false,
       super.name = 'one_hot_to_binary',
+      super.reserveName,
+      super.reserveDefinitionName,
       String? definitionName})
       : super(
             definitionName:

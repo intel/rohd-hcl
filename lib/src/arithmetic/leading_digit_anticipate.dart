@@ -50,7 +50,10 @@ abstract class LeadingZeroAnticipateBase extends Module {
   /// less than the leading zero of the sum or subtraction of [a] and [b].
   /// [validLeadOne] indicates a leading one was found.
   LeadingZeroAnticipateBase(Logic aSign, Logic a, Logic bSign, Logic b,
-      {super.name = 'leading_zero_anticipate', String? definitionName})
+      {super.name = 'leading_zero_anticipate',
+      super.reserveName,
+      super.reserveDefinitionName,
+      String? definitionName})
       : super(definitionName: definitionName ?? 'LeadingZeroAnticipate') {
     aSign = addInput('aSign', aSign);
     a = addInput('a', a, width: a.width);
@@ -98,7 +101,10 @@ class LeadingZeroAnticipate extends LeadingZeroAnticipateBase {
   /// [a] and [b]. [leadingOneConverse] should be used if [b] >= [a] during
   /// subtraction.
   LeadingZeroAnticipate(super.aSign, super.a, super.bSign, super.b,
-      {super.name = 'leading_zero_anticipate', String? definitionName})
+      {super.name = 'leading_zero_anticipate',
+      super.reserveName,
+      super.reserveDefinitionName,
+      String? definitionName})
       : super(definitionName: definitionName ?? 'LeadingDigitAnticipate') {
     leadingOne <= leadOneEncoder.out;
     validLeadOne <= leadOneEncoder.valid!;

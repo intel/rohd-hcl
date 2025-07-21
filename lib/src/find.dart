@@ -41,6 +41,8 @@ class Find extends Module {
       Logic? n,
       this.generateError = false,
       super.name = 'find',
+      super.reserveName,
+      super.reserveDefinitionName,
       String? definitionName})
       : super(definitionName: definitionName ?? 'Find_W${bus.width}') {
     bus = addInput('bus', bus, width: bus.width);

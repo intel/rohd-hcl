@@ -36,6 +36,8 @@ class FloatingPointMultiplierSimple<FpTypeIn extends FloatingPoint,
               {bool generateValid, String name})
           priorityGen = RecursiveModulePriorityEncoder.new,
       super.name,
+      super.reserveName,
+      super.reserveDefinitionName,
       String? definitionName})
       : super(
             definitionName: definitionName ??

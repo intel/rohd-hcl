@@ -44,6 +44,8 @@ class FloatingPointAdderDualPath<FpTypeIn extends FloatingPoint,
               List<Logic> inps, Logic Function(Logic term1, Logic term2) op)
           ppTree = KoggeStone.new,
       super.name = 'floating_point_adder_dualpath',
+      super.reserveName,
+      super.reserveDefinitionName,
       String? definitionName})
       : super(
             definitionName: definitionName ??

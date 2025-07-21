@@ -62,6 +62,8 @@ abstract class CsrContainer extends Module {
       required DataPortInterface? frontRead,
       required this.config,
       this.allowLargerRegisters = false,
+      super.reserveName,
+      super.reserveDefinitionName,
       String? definitionName})
       : super(
             definitionName: definitionName ??

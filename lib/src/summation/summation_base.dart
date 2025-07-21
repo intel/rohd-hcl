@@ -78,6 +78,8 @@ abstract class SummationBase extends Module {
       this.saturates = false,
       int? width,
       super.name,
+      super.reserveName,
+      super.reserveDefinitionName,
       String? definitionName})
       : width =
             _inferWidth([initialValue, maxValue, minValue], width, interfaces),

@@ -97,6 +97,8 @@ abstract class Multiplier extends Module {
       dynamic signedMultiplicand,
       dynamic signedMultiplier,
       super.name = 'multiplier',
+      super.reserveName,
+      super.reserveDefinitionName,
       String? definitionName})
       : super(
             definitionName: definitionName ??
@@ -161,6 +163,8 @@ class NativeMultiplier extends Multiplier {
       super.signedMultiplicand,
       super.signedMultiplier,
       super.name = 'native_multiplier',
+      super.reserveName,
+      super.reserveDefinitionName,
       String? definitionName})
       : super(
             definitionName: definitionName ??
@@ -235,6 +239,8 @@ class CompressionTreeMultiplier extends Multiplier {
             {String name})
         signExtensionGen = CompactRectSignExtension.new,
     super.name = 'compression_tree_multiplier',
+    super.reserveName,
+    super.reserveDefinitionName,
     String? definitionName,
   }) : super(
             definitionName: definitionName ??

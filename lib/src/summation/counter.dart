@@ -67,6 +67,8 @@ class Counter extends SummationBase {
     super.width,
     super.saturates,
     super.name = 'counter',
+    super.reserveName,
+    super.reserveDefinitionName,
     String? definitionName,
   }) : super(
             initialValue: resetValue,

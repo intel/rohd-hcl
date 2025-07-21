@@ -39,6 +39,8 @@ class Serializer extends Module {
       Logic? enable,
       bool flopInput = false,
       super.name = 'serializer',
+      super.reserveName,
+      super.reserveDefinitionName,
       String? definitionName})
       : super(
             definitionName: definitionName ??

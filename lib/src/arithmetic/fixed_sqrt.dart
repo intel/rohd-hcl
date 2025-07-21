@@ -27,7 +27,10 @@ abstract class FixedPointSqrtBase extends Module {
 
   /// Square root a fixed point number [a], returning result in [sqrt].
   FixedPointSqrtBase(FixedPoint a,
-      {super.name = 'fixed_point_square_root', String? definitionName})
+      {super.name = 'fixed_point_square_root',
+      super.reserveName,
+      super.reserveDefinitionName,
+      String? definitionName})
       : width = a.width,
         super(
             definitionName:

@@ -55,6 +55,8 @@ class FindPattern extends Module {
       {bool fromStart = true,
       Logic? n,
       this.generateError = false,
+      super.reserveName,
+      super.reserveDefinitionName,
       String? definitionName})
       : super(
             definitionName: definitionName ??

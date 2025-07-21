@@ -15,7 +15,11 @@ class RotateRoundRobinArbiter extends StatefulArbiter
     implements RoundRobinArbiter {
   /// Creates an [Arbiter] that fairly takes turns between [requests].
   RotateRoundRobinArbiter(super.requests,
-      {required super.clk, required super.reset, String? definitionName})
+      {required super.clk,
+      required super.reset,
+      super.reserveName,
+      super.reserveDefinitionName,
+      String? definitionName})
       : super(
             definitionName: definitionName ??
                 'RotateRoundRobinArbiter_W${requests.length}') {

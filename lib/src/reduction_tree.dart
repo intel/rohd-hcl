@@ -107,6 +107,8 @@ class ReductionTree extends Module {
       Logic? enable,
       Logic? reset,
       super.name = 'reduction_tree',
+      super.reserveName,
+      super.reserveDefinitionName,
       String? definitionName})
       : super(
             definitionName: definitionName ??

@@ -16,9 +16,16 @@ class TreeOneHotToBinary extends OneHotToBinary {
   TreeOneHotToBinary(super.onehot,
       {super.generateError,
       super.name = 'tree_one_hot_to_binary',
-      super.definitionName})
-      : super.base() {
-    final node = _NodeOneHotToBinary(onehot, generateMultiple: generateError);
+      super.reserveName,
+      super.reserveDefinitionName,
+      String? definitionName})
+      : super.base(
+            definitionName:
+                definitionName ?? 'TreeOneHotToBinary_W${onehot.width}') {
+    final node = _NodeOneHotToBinary(onehot,
+        generateMultiple: generateError,
+        reserveName: reserveName,
+        reserveDefinitionName: reserveDefinitionName);
     binary <= node.binary;
 
     if (generateError) {
@@ -40,10 +47,15 @@ class _NodeOneHotToBinary extends Module {
 
   /// Build a shorter-input module for recursion
   /// (borrowed from Chisel OHToUInt)
-  _NodeOneHotToBinary(Logic onehot, {this.generateMultiple = false})
+  _NodeOneHotToBinary(Logic onehot,
+      {this.generateMultiple = false,
+      super.reserveName,
+      super.reserveDefinitionName,
+      String? definitionName})
       : super(
             name: 'node_one_hot_to_binary',
-            definitionName: 'NodeOneHotToBinary_W${onehot.width}') {
+            definitionName:
+                definitionName ?? 'NodeOneHotToBinary_W${onehot.width}') {
     final wid = onehot.width;
     onehot = addInput('onehot', onehot, width: wid);
 
@@ -74,8 +86,10 @@ class _NodeOneHotToBinary extends Module {
       final lo = onehot.getRange(0, mid).zeroExtend(mid).named('lo');
       final recurse = lo | hi;
       final anyHi = hi.or().named('any_hi');
-      final subNode =
-          _NodeOneHotToBinary(recurse, generateMultiple: generateMultiple);
+      final subNode = _NodeOneHotToBinary(recurse,
+          generateMultiple: generateMultiple,
+          reserveName: reserveName,
+          reserveDefinitionName: reserveDefinitionName);
       final response = subNode.binary;
       binary <= [anyHi, response].swizzle();
 

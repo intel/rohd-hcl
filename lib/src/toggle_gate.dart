@@ -37,6 +37,8 @@ class ToggleGate extends Module {
       dynamic resetValue,
       ClockGateControlInterface? clockGateControlIntf,
       super.name = 'toggle_gate',
+      super.reserveName,
+      super.reserveDefinitionName,
       String? definitionName})
       : super(definitionName: definitionName ?? 'ToggleGate_W${data.width}') {
     enable = addInput('enable', enable);

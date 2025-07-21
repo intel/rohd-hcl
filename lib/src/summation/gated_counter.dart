@@ -88,6 +88,8 @@ class GatedCounter extends Counter {
       ClockGateControlInterface? clockGateControlInterface,
       int? clkGatePartitionIndex,
       super.name,
+      super.reserveName,
+      super.reserveDefinitionName,
       String? definitionName})
       : _providedClkGateParitionIndex = clkGatePartitionIndex,
         _clockGateControlInterface = clockGateControlInterface == null

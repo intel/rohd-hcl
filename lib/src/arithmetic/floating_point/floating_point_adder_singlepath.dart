@@ -40,6 +40,8 @@ class FloatingPointAdderSinglePath<FpTypeIn extends FloatingPoint,
       List<int> Function(int) widthGen =
           CarrySelectCompoundAdder.splitSelectAdderAlgorithmSingleBlock,
       super.name = 'floatingpoint_adder_singlepath',
+      super.reserveName,
+      super.reserveDefinitionName,
       String? definitionName})
       : super(
             definitionName: definitionName ??

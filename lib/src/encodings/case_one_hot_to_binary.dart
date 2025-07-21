@@ -23,8 +23,12 @@ class CaseOneHotToBinary extends OneHotToBinary {
   CaseOneHotToBinary(super.onehot,
       {super.generateError = false,
       super.name = 'one_hot_to_binary',
-      super.definitionName})
-      : super.base() {
+      super.reserveName,
+      super.reserveDefinitionName,
+      String? definitionName})
+      : super.base(
+            definitionName:
+                definitionName ?? 'CaseOneHotToBinary_W${onehot.width}') {
     if (onehot.width >= 32) {
       throw RohdHclException('Should not be used for large widths.');
     }

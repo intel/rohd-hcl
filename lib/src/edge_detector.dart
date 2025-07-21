@@ -37,6 +37,8 @@ class EdgeDetector extends Module {
       dynamic resetValue,
       this.edgeType = Edge.pos,
       String? name,
+      super.reserveName,
+      super.reserveDefinitionName,
       String? definitionName})
       : super(
             name: name ?? '${edgeType.name}_edge_detector',

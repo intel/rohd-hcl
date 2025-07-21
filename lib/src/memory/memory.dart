@@ -123,7 +123,10 @@ abstract class Memory extends Module {
   /// Must provide at least one port (read or write).
   Memory(Logic clk, Logic reset, List<DataPortInterface> writePorts,
       List<DataPortInterface> readPorts,
-      {super.name = 'memory', String? definitionName})
+      {super.name = 'memory',
+      super.reserveName,
+      super.reserveDefinitionName,
+      String? definitionName})
       : numWrites = writePorts.length,
         numReads = readPorts.length,
         dataWidth = (writePorts.isNotEmpty)

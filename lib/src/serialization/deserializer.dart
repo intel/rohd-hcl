@@ -37,6 +37,8 @@ class Deserializer extends Module {
       required Logic reset,
       Logic? enable,
       super.name = 'deserializer',
+      super.reserveName,
+      super.reserveDefinitionName,
       String? definitionName})
       : super(
             definitionName: definitionName ??
