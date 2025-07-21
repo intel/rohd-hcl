@@ -184,7 +184,6 @@ class FloatingPointAdderDualPath<FpTypeIn extends FloatingPoint,
     final sumRPath =
         significandAdderRPath.sum.slice(mantissaWidth + 1, 0).named('sumRpath');
     final sumP1RPath = significandAdderRPath.sumP1
-        .named('sumPlusOneRpath')
         .slice(mantissaWidth + 1, 0)
         .named('sumPlusOneRpath');
 

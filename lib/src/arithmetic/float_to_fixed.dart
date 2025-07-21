@@ -108,10 +108,7 @@ class FloatToFixed extends Module {
 
       final sWidth = max(eWidth, leadDetect.out.width);
       final fShift = shift.zeroExtend(sWidth).named('wideShift');
-      final leadOne = leadDetect.out
-          .named('leadOneRaw')
-          .zeroExtend(sWidth)
-          .named('leadOne');
+      final leadOne = leadDetect.out.zeroExtend(sWidth).named('leadOne');
 
       Combinational([
         If(jBit, then: [
@@ -136,9 +133,7 @@ class FloatToFixed extends Module {
     final number = mux(shift[-1], preNumber >>> shiftRight, preNumber << shift)
         .named('number');
 
-    _fixed <=
-        mux(float.sign, (~number + 1).named('negNumber'), number)
-            .named('signedNumber');
+    _fixed <= mux(float.sign, ~number + 1, number).named('signedNumber');
     addOutput('fixed', width: outputWidth) <= _fixed;
   }
 }

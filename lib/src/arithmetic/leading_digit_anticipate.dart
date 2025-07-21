@@ -162,8 +162,7 @@ class LeadingDigitAnticipate extends Module {
     final lowBits = (tShift & ((g & zBarShift) | (z & gBarShift)) |
             tBarShift & ((z & zBarShift) | (g & gBarShift)))
         .named('lowBitsWide')
-        .slice(t.width - 2, 1)
-        .named('lowBits');
+        .slice(t.width - 2, 1);
 
     findFromMSB <= [lowBits, ~t[0] & t[1]].swizzle();
 

@@ -12,7 +12,7 @@
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
 
-/// An square root module for [FloatingPoint] logic signals.
+/// A square root module for [FloatingPoint] logic signals.
 class FloatingPointSqrtSimple<FpType extends FloatingPoint>
     extends FloatingPointSqrt<FpType> {
   /// Square root one floating point number [a], returning results

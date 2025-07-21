@@ -155,8 +155,8 @@ class FloatingPointConverter<FpTypeIn extends FloatingPoint,
                 newMantissa.width - destMantissaWidth - 1),
             rounder.doRound.zeroExtend(destMantissaWidth));
         roundedMantissa = roundAdder.sum
-            .named('roundedMantissa')
-            .getRange(0, destMantissaWidth);
+            .getRange(0, destMantissaWidth)
+            .named('roundedMantissa');
         roundIncExp = roundAdder.sum[-1];
       } else {
         roundedMantissa = newMantissa;
@@ -172,7 +172,7 @@ class FloatingPointConverter<FpTypeIn extends FloatingPoint,
               ? [
                   sliceMantissa,
                   Const(0, width: destMantissaWidth - newMantissa.width + 1)
-                ].swizzle().named('clippedMantissa')
+                ].swizzle()
               : roundedMantissa)
           .named('destMantissa');
 
@@ -184,10 +184,9 @@ class FloatingPointConverter<FpTypeIn extends FloatingPoint,
                 fullDiff - (leadOne - Const(1, width: leadOne.width)),
                 fullDiff - shift)
             .named('predictSubExp');
-        preExponent =
-            mux(shift.gt(Const(0, width: shift.width)), predictSub, predictExp)
-                    .named('unRndDestExponent') +
-                roundIncExp.zeroExtend(predictSub.width).named('rndIncExp');
+        preExponent = mux(shift.gt(Const(0, width: shift.width)), predictSub,
+                predictExp) +
+            roundIncExp.zeroExtend(predictSub.width);
       } else {
         preExponent = se + roundIncExp.zeroExtend(se.width).named('rndIncExp');
       }
@@ -216,20 +215,14 @@ class FloatingPointConverter<FpTypeIn extends FloatingPoint,
 
       final nextShift = mux(
               biasDiff.gte(newSe),
-              (source.isNormal.zeroExtend(maxExpWidth).named('srcIsNormal') +
-                      (biasDiff - newSe).named('negSourceRebiased'))
-                  .named('shiftSubnormal'),
+              source.isNormal.zeroExtend(maxExpWidth) + (biasDiff - newSe),
               Const(0, width: maxExpWidth))
           .named('nextShift');
 
-      final jBitAdjust = (mux(
-                      Const(source.explicitJBit),
-                      Const(-1, width: maxExpWidth),
-                      Const(0, width: maxExpWidth))
-                  .named('sourceExpJBitAdjust') +
+      final jBitAdjust = (mux(Const(source.explicitJBit),
+                  Const(-1, width: maxExpWidth), Const(0, width: maxExpWidth)) +
               mux(Const(destination.explicitJBit), Const(1, width: maxExpWidth),
-                      Const(0, width: maxExpWidth))
-                  .named('destExpJBitAdjust'))
+                  Const(0, width: maxExpWidth)))
           .named('jBitAdjust');
 
       final tns = (nextShift - (se - newSe) + jBitAdjust).named('tns');
@@ -238,9 +231,9 @@ class FloatingPointConverter<FpTypeIn extends FloatingPoint,
           .swizzle()
           .named('fullMantissa');
 
-      final shiftMantissa = mux(tns[-1],
-              fullMantissa << (~tns + 1).named('negTns'), fullMantissa >>> tns)
-          .named('shiftMantissa');
+      final shiftMantissa =
+          mux(tns[-1], fullMantissa << (~tns + 1), fullMantissa >>> tns)
+              .named('shiftMantissa');
 
       final rounder =
           RoundRNE(shiftMantissa, fullMantissa.width - destMantissaWidth - 1);
@@ -265,11 +258,10 @@ class FloatingPointConverter<FpTypeIn extends FloatingPoint,
       destMantissa = sliceMantissa.getRange(0, destMantissaWidth);
 
       final predictEN = mux(biasDiff.gte(newSe), Const(0, width: maxExpWidth),
-              (newSe - biasDiff).named('sourceRebiased'))
+              newSe - biasDiff)
           .named('predictExponent');
 
       destExponent = (predictEN + roundIncExp.zeroExtend(predictEN.width))
-          .named('predictExpRounded')
           .getRange(0, destExponentWidth)
           .named('destExponent');
 

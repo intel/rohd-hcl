@@ -80,8 +80,7 @@ class FixedToFloat extends Module {
       _convertedFloat.sign <= (fixed.signed ? fixedAsLogic[-1] : Const(0));
 
       absValue = Logic(name: 'absValue', width: fixed.width)
-        ..gets(mux(_convertedFloat.sign,
-            (~(fixedAsLogic - 1)).named('twosComplementValue'), fixedAsLogic));
+        ..gets(mux(_convertedFloat.sign, ~(fixedAsLogic - 1), fixedAsLogic));
     } else {
       _convertedFloat.sign <= Const(0);
       absValue = fixedAsLogic;

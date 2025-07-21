@@ -274,9 +274,9 @@ class CarrySelectOnesComplementCompoundAdder extends CompoundAdder {
       sumP1 <= sumPlus1;
       carryOutP1! <= csadder.sumP1[-1];
     } else {
-      final incrementer = ParallelPrefixIncr(sumPlus1);
       sumP1 <=
-          mux(csadder.sumP1[-1], incrementer.out.named('sum_plus2'), sumPlus1);
+          mux(csadder.sumP1[-1],
+              ParallelPrefixIncr(sumPlus1).out.named('sumPlus2'), sumPlus1);
     }
     if (generateCarryOut) {
       sum <= mux(doSubtract & csadder.sum[-1], ~csadder.sum, csadder.sum);
