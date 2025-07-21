@@ -151,7 +151,6 @@ class FloatingPointConverter<FpTypeIn extends FloatingPoint,
             RoundRNE(newMantissa, source.mantissa.width - destMantissaWidth);
 
         final roundAdder = adderGen(
-            // newMantissa.reversed.getRange(1, destMantissaWidth + 1).reversed,
             newMantissa.slice(newMantissa.width - 2,
                 newMantissa.width - destMantissaWidth - 1),
             rounder.doRound.zeroExtend(destMantissaWidth));
