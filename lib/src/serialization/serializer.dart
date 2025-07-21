@@ -15,7 +15,7 @@ class Serializer extends Module {
   /// Serialized output, one data item per clock.
   Logic get serialized => output('serialized');
 
-  /// Return [done] = true when we have processed `deserialized`completely.
+  /// Return [done] = `true` when we have processed `deserialized`completely.
   /// [done] is asserted with the final element being serialized so that
   /// at the next clock edge, you have [done] with the last element latched at
   /// the same time.
@@ -25,13 +25,13 @@ class Serializer extends Module {
   /// transfer is [count].
   Logic get count => output('count');
 
-  /// Build a Serializer that takes the array [deserialized] and sequences it
+  /// Build a [Serializer] that takes the array [deserialized] and sequences it
   /// onto the [serialized] output.
   ///
   /// Delivers one element per clock while [enable]
-  /// is high (if connected). If [flopInput] is true, the
+  /// is high (if connected). If [flopInput] is `true`, the
   /// [Serializer] is configured to latch the input data and hold it until
-  /// [done] is asserted after the full `LogicArray` [deserialized] is
+  /// [done] is asserted after the full [LogicArray] [deserialized] is
   /// transferred. This will delay the serialized output by one cycle.
   Serializer(LogicArray deserialized,
       {required Logic clk,
@@ -70,8 +70,8 @@ class Serializer extends Module {
         enable: enable,
         maxValue: deserialized.elements.length - 1);
 
-    final latchInput = ((enable ?? Const(1)).named('enable') & ~cnt.count.or())
-        .named('latchTheInput');
+    final latchTheInput =
+        ((enable ?? Const(1)) & ~cnt.count.or()).named('latchTheInput');
     count <=
         (flopInput
             ? flop(clk, reset: reset, en: enable, cnt.count)
@@ -83,7 +83,10 @@ class Serializer extends Module {
       dataOutput.elements[i] <=
           (flopInput
               ? flop(
-                  clk, reset: reset, en: latchInput, deserialized.elements[i])
+                  clk,
+                  reset: reset,
+                  en: latchTheInput,
+                  deserialized.elements[i])
               : deserialized.elements[i]);
     }
     serialized <= dataOutput.elements.selectIndex(count);

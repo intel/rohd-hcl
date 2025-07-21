@@ -14,10 +14,11 @@ import 'package:rohd_hcl/src/utils.dart';
 
 /// [Count] `1` or `0`.
 class Count extends Module {
-  /// [_output] is output of Count (use index for accessing from outside Module)
+  /// [_output] is output of [Count] (use index for accessing from outside
+  /// Module).
   late Logic _output;
 
-  /// [index] is an getter for output of Count
+  /// [index] is an getter for output of [Count].
   @Deprecated('Use `count` instead')
   Logic get index => _output;
 
@@ -33,11 +34,7 @@ class Count extends Module {
     bus = addInput('bus', bus, width: bus.width);
     Logic count = Const(0, width: max(1, log2Ceil(bus.width + 1)));
     for (var i = 0; i < bus.width; i++) {
-      count = (count +
-              (countOne ? bus[i] : ~bus[i])
-                  .zeroExtend(count.width)
-                  .named('increment'))
-          .named('count_$i');
+      count += (countOne ? bus[i] : ~bus[i]).zeroExtend(count.width);
     }
     _output =
         addOutput('count${countOne ? "One" : "Zero"}', width: count.width);

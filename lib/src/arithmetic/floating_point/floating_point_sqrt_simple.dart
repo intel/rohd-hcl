@@ -12,7 +12,7 @@
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
 
-/// An square root module for FloatingPoint values
+/// An square root module for [FloatingPoint] logic signals.
 class FloatingPointSqrtSimple<FpType extends FloatingPoint>
     extends FloatingPointSqrt<FpType> {
   /// Square root one floating point number [a], returning results
@@ -56,10 +56,7 @@ class FloatingPointSqrtSimple<FpType extends FloatingPoint>
 
     // use fixed sqrt unit
     final aFixed = FixedPoint(
-        signed: false,
-        integerWidth: 3,
-        fractionWidth: a.mantissa.width,
-        name: 'aFixed');
+        signed: false, integerWidth: 3, fractionWidth: a.mantissa.width);
     aFixed <=
         [Const(1, width: 3), a.mantissa.getRange(0)].swizzle().named('aFixed');
 
@@ -69,7 +66,7 @@ class FloatingPointSqrtSimple<FpType extends FloatingPoint>
           .named('oddMantissaMux'));
 
     // mux to choose if we do square root or not
-    final fixedSqrt = aFixedAdj.clone(name: 'aFixedIn')
+    final fixedSqrt = aFixedAdj.clone(name: 'fixedSqrt')
       ..gets(mux(enableSqrt, FixedPointSqrt(aFixedAdj).sqrt, aFixedAdj)
           .named('sqrtMux'));
 
@@ -110,8 +107,7 @@ class FloatingPointSqrtSimple<FpType extends FloatingPoint>
         ]),
         Else([
           outputSqrt.sign < a.sign,
-          outputSqrt.exponent <
-              (shiftedExp + deBiasAmt).named('debiasedShiftExp'),
+          outputSqrt.exponent < (shiftedExp + deBiasAmt),
           outputSqrt.mantissa < fpSqrt.float.mantissa,
         ])
       ])

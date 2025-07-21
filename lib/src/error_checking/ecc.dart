@@ -152,7 +152,6 @@ class HammingEccReceiver extends ErrorCheckingReceiver {
           Logic(name: 'correction', width: hammingTransmissionWidth)
             ..gets(
               (Const(1, width: hammingTransmissionWidth + 1) << _syndrome)
-                  .named('syndromeShift')
                   .getRange(1),
             );
 

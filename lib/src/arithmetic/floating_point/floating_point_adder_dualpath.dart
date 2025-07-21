@@ -11,19 +11,19 @@ import 'dart:math';
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
 
-/// An adder module for variable FloatingPoint type.
+/// A fast adder module for variable width [FloatingPoint] logic signals.
 // This is a Seidel/Even adder, dual-path implementation.
 class FloatingPointAdderDualPath<FpTypeIn extends FloatingPoint,
         FpTypeOut extends FloatingPoint>
     extends FloatingPointAdder<FpTypeIn, FpTypeOut> {
   /// Add two floating point numbers [a] and [b], returning result in [sum].
-  /// - [subtract] is an optional Logic input to do subtraction
+  /// - [subtract] is an optional [Logic] input to do subtraction.
   /// - [adderGen] is an adder generator to be used in the primary adder
   ///   functions.
-  /// - [widthGen] is the splitting function for creating the different adder
+  /// - [widthGen] is the splitting function for creating the different adder.
   ///   blocks within the internal [CompoundAdder] used for mantissa addition.
   ///   Decreasing the split width will increase speed but also increase area.
-  /// - [ppTree] is an ParallelPrefix generator for use in increment /decrement
+  /// - [ppTree] is a [ParallelPrefix] generator for use in increment /decrement
   ///   functions.
   ///
   ///  If [outSum] is provided, it will be used as the output type, otherwise
@@ -61,13 +61,7 @@ class FloatingPointAdderDualPath<FpTypeIn extends FloatingPoint,
           'roundNearestEven.');
     }
 
-    // Seidel: S.EFF = effectiveSubtraction
-    final effectiveSubtraction =
-        (a.sign ^ b.sign ^ (subtract ?? Const(0))).named('effSubtraction');
-    final isNaN = (a.isNaN |
-            b.isNaN |
-            (a.isAnInfinity & b.isAnInfinity & effectiveSubtraction))
-        .named('isNaN');
+    // Seidel: S.EFF = effectiveSubtraction.
     final isInf = (a.isAnInfinity | b.isAnInfinity).named('isInf');
 
     final exponentSubtractor = OnesComplementAdder(
@@ -80,7 +74,13 @@ class FloatingPointAdderDualPath<FpTypeIn extends FloatingPoint,
     final fa = a.resolveSubNormalAsZero();
     final fb = b.resolveSubNormalAsZero();
 
-    // Seidel: (sl, el, fl) = larger; (ss, es, fs) = smaller
+    final effectiveSubtraction =
+        (fa.sign ^ fb.sign ^ (subtract ?? Const(0))).named('effSubtraction');
+    final isNaN = (a.isNaN |
+            b.isNaN |
+            (a.isAnInfinity & b.isAnInfinity & effectiveSubtraction))
+        .named('isNaN');
+    // Seidel: (sl, el, fl) = larger; (ss, es, fs) = smaller.
     final swapper = FloatingPointConditionalSwap(fa, fb, signDelta);
     final larger = swapper.outA;
     final smaller = swapper.outB;
@@ -108,7 +108,7 @@ class FloatingPointAdderDualPath<FpTypeIn extends FloatingPoint,
                 ].swizzle()))
         .named('fullSmaller');
 
-    // Seidel: flp  larger preshift, normally in [2,4)
+    // Seidel: flp  larger preshift, normally in [2,4).
     final sigWidth = fl.width + 1;
     final largeShift = mux(effectiveSubtraction, fl.zeroExtend(sigWidth) << 1,
             fl.zeroExtend(sigWidth))
@@ -120,7 +120,7 @@ class FloatingPointAdderDualPath<FpTypeIn extends FloatingPoint,
     final zeroExp = internalSum.zeroExponent;
     final largeOperand = largeShift;
     //
-    // R Datapath:  Far exponents or addition
+    // R Datapath:  Far exponents or addition.
     //
     final extendWidthRPath =
         min(mantissaWidth + 3, pow(2, exponentWidth).toInt() - 3);
@@ -184,16 +184,15 @@ class FloatingPointAdderDualPath<FpTypeIn extends FloatingPoint,
     final sumRPath =
         significandAdderRPath.sum.slice(mantissaWidth + 1, 0).named('sumRpath');
     final sumP1RPath = significandAdderRPath.sumP1
+        .named('sumPlusOneRpath')
         .slice(mantissaWidth + 1, 0)
-        .named('sumPlusOneRPath');
+        .named('sumPlusOneRpath');
 
     final sumLeadZeroRPath =
-        ((~sumRPath[-1].named('sumMSB')).named('sumMSBIsZero') &
-                (aIsNormalFlopped | bIsNormalFlopped))
+        (~sumRPath[-1] & (aIsNormalFlopped | bIsNormalFlopped))
             .named('sumlead0Rpath');
     final sumP1LeadZeroRPath =
-        ((~sumP1RPath[-1].named('sumP1MSB')).named('sumP1MSBIsZero') &
-                (aIsNormalFlopped | bIsNormalFlopped))
+        (~sumP1RPath[-1] & (aIsNormalFlopped | bIsNormalFlopped))
             .named('sumP1lead0Rpath');
 
     final Logic selectRPath;
@@ -227,14 +226,14 @@ class FloatingPointAdderDualPath<FpTypeIn extends FloatingPoint,
             sumP1LeadZeroRPath,
             [sumP1RPath, earlyGRSRPath]
                 .swizzle()
-                .named('sump1EarlyGRSRPath')
+                .named('sumP1EarlyGRSRPath')
                 .slice(sumRPath.width + 1, 0),
             [sumP1RPath, shiftGRSRPath].swizzle().named('sumP1ShiftGRSRPath'))
         .named('mergedSumP1RPath');
 
     final finalSumLGRSRPath = mux(selectRPath, mergedSumP1RPath, mergedSumRPath)
         .named('finalSumLGRSRpath');
-    // RNE: guard & (lsb | round | sticky)
+    // RNE: guard & (lsb | round | sticky).
     final rndRPath = (finalSumLGRSRPath[2] &
             (finalSumLGRSRPath[3] |
                 finalSumLGRSRPath[1] |
@@ -262,15 +261,15 @@ class FloatingPointAdderDualPath<FpTypeIn extends FloatingPoint,
 
     Combinational([
       If.block([
-        // Subtract 1 from exponent
+        // Subtract 1 from exponent.
         Iff(~incExpRPath & effectiveSubtractionFlopped & firstZeroRPath,
             [exponentRPath < expDecr.out]),
-        // Add 1 to exponent
+        // Add 1 to exponent.
         ElseIf(
             ~effectiveSubtractionFlopped &
                 (incExpRPath & firstZeroRPath | ~incExpRPath & ~firstZeroRPath),
             [exponentRPath < expIncr.out]),
-        // Add 2 to exponent
+        // Add 2 to exponent.
         ElseIf(incExpRPath & effectiveSubtractionFlopped & ~firstZeroRPath,
             [exponentRPath < largerExpFlopped << 1]),
         Else([exponentRPath < largerExpFlopped])
@@ -286,15 +285,15 @@ class FloatingPointAdderDualPath<FpTypeIn extends FloatingPoint,
           .named('sumMantissaRndRpath');
       mantissaRPath = (sumMantissaRPathRnd <<
               mux(selectRPath, sumP1LeadZeroRPath, sumLeadZeroRPath)
-                  .named('shiftRPath'))
-          .named('mantissaRpath');
+                  .named('shiftRpath'))
+          .named('mantissaRpath1');
     } else {
       mantissaRPath =
-          (sumMantissaRPath << sumLeadZeroRPath).named('mantissaRpath');
+          (sumMantissaRPath << sumLeadZeroRPath).named('mantissaRpath2');
     }
 
     //
-    //  N Datapath here:  close exponents, subtraction
+    //  N Datapath here:  close exponents, subtraction.
     //
     final smallOperandNPath =
         (smallShift >>> (a.exponent[0] ^ b.exponent[0])).named('smallOperand');
@@ -326,7 +325,7 @@ class FloatingPointAdderDualPath<FpTypeIn extends FloatingPoint,
         name: 'npath_leadingOne');
     final leadOneNPathPre = leadOneEncoderNPath.out;
     final validLeadOneNPath = leadOneEncoderNPath.valid!;
-    // Limit leadOne to exponent range and match widths
+    // Limit leadOne to exponent range and match widths.
     final leadOneNPath = ((leadOneNPathPre.width > exponentWidth)
             ? mux(
                 leadOneNPathPre

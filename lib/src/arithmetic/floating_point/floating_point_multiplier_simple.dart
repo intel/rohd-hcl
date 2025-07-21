@@ -10,12 +10,12 @@
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
 
-/// A multiplier module for FloatingPoint logic.
+/// A multiplier module for [FloatingPoint] logic.
 class FloatingPointMultiplierSimple<FpTypeIn extends FloatingPoint,
         FpTypeOut extends FloatingPoint>
     extends FloatingPointMultiplier<FpTypeIn, FpTypeOut> {
-  /// Multiply two FloatingPoint numbers [a] and [b], returning result
-  /// in [product] FloatingPoint.
+  /// Multiply two [FloatingPoint] numbers [a] and [b], returning result
+  /// in [product] [FloatingPoint].
   /// - [multGen] is a multiplier generator to be used in the mantissa
   /// multiplication.
   /// - [priorityGen] is a [PriorityEncoder] generator to be used in the
@@ -72,15 +72,13 @@ class FloatingPointMultiplierSimple<FpTypeIn extends FloatingPoint,
     // TODO(desmonddak): do this calculation using the maximum exponent width
     // Then adapt to the product exponent width.
     final expCalcWidth = exponentWidth + 2;
-    final addBias = (a.bias.zeroExtend(expCalcWidth).named('aBiasExt') +
-            b.bias.zeroExtend(expCalcWidth).named('bBiasExt'))
-        .named('addBias');
+    final addBias =
+        (a.bias.zeroExtend(expCalcWidth) + b.bias.zeroExtend(expCalcWidth))
+            .named('addBias');
     final deltaBias =
-        (product.bias.zeroExtend(expCalcWidth).named('productBiasExt') -
-                addBias)
-            .named('rebias');
-    final addExp = (a.exponent.zeroExtend(expCalcWidth).named('aExpExt') +
-            b.exponent.zeroExtend(expCalcWidth).named('bExpExt'))
+        (product.bias.zeroExtend(expCalcWidth) - addBias).named('rebias');
+    final addExp = (a.exponent.zeroExtend(expCalcWidth) +
+            b.exponent.zeroExtend(expCalcWidth))
         .named('addExp');
     final productExp = (addExp + deltaBias).named('productExp');
 

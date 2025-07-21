@@ -118,8 +118,7 @@ class FixedToFloat extends Module {
         absValueShifted = (absValue << estimatedJBit).named('absValueShifted');
       }
       // Second Shift by one if leading digit is not '1'.
-      estimatedJBit = mux(absValueShifted[-1], estimatedJBit,
-              (estimatedJBit + 1).named('estimatedJBitPlusOne'))
+      estimatedJBit = mux(absValueShifted[-1], estimatedJBit, estimatedJBit + 1)
           .named('estimatedJBit2');
       absValueShifted =
           mux(absValueShifted[-1], absValueShifted, absValueShifted << 1)
@@ -127,8 +126,7 @@ class FixedToFloat extends Module {
 
       // Third and final shift by one if leading digit is not '1'.
       jBit <=
-          mux(absValueShifted[-1], estimatedJBit,
-                  (estimatedJBit + 1).named('estimatedJBit2PlusOne'))
+          mux(absValueShifted[-1], estimatedJBit, estimatedJBit + 1)
               .zeroExtend(iWidth);
       absValueShifted =
           mux(absValueShifted[-1], absValueShifted, absValueShifted << 1)
@@ -175,25 +173,22 @@ class FixedToFloat extends Module {
     /// Round to nearest even: mantissa | guard sticky
     final roundUp = (guard & (sticky | mantissa[0])).named('roundUp');
     final mantissaRounded =
-        mux(roundUp, (mantissa + 1).named('mantissaPlusOne'), mantissa)
-            .named('roundedMantissa');
+        mux(roundUp, mantissa + 1, mantissa).named('roundedMantissa');
 
     // Calculate biased exponent
     final eRaw = mux(
             absValueShifted[-1],
             (Const(bias + fixed.width - fixed.fractionWidth - 1,
-                        width: iWidth) -
-                    jBit)
-                .named('eShift'),
+                    width: iWidth) -
+                jBit),
             Const(0, width: iWidth))
         .named('eRaw');
 
     // TODO(desmonddak): potential optimization --
     //  we may be able to predict this from absValue instead of after
     //  mantissa increment.
-    final eRawRne = mux(roundUp & ~mantissaRounded.or(),
-            (eRaw + 1).named('eRawPlusOne'), eRaw)
-        .named('eRawRNE');
+    final eRawRne =
+        mux(roundUp & ~mantissaRounded.or(), eRaw + 1, eRaw).named('eRawRNE');
 
     // Select output handling corner cases
     final expoLessThanOne =

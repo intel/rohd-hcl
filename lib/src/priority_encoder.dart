@@ -19,7 +19,7 @@ abstract class PriorityEncoder extends Module {
   @protected
   Logic get inp => input('inp');
 
-  /// Output [out] is the bit position of the first '1' in the Logic input.
+  /// Output [out] is the bit position of the first '1' in the [Logic] input.
   /// Search starts from the LSB.
   Logic get out => output('out');
 
@@ -28,9 +28,9 @@ abstract class PriorityEncoder extends Module {
 
   /// Construct a [PriorityEncoder].
   /// - [out] is the number of trailing zeros or the position of first trailing
-  /// one.  Will be set to one past the length of the input [inp] if
+  /// one. Will be set to one past the length of the input [inp] if
   /// there are no bits set in [inp].
-  /// - Optional [valid] output is set if the output position is valid
+  /// - Optional [valid] output is set if the output position is valid.
   PriorityEncoder(Logic inp,
       {bool generateValid = false,
       super.name = 'priority_encoder',
@@ -46,7 +46,7 @@ abstract class PriorityEncoder extends Module {
   }
 }
 
-/// Priority finder based on or() operations
+/// Priority finder based on or() operations.
 class RecursivePriorityEncoder extends PriorityEncoder {
   /// [RecursivePriorityEncoder] constructor
   RecursivePriorityEncoder(super.inp,
@@ -58,7 +58,7 @@ class RecursivePriorityEncoder extends PriorityEncoder {
     out <= ((lo.width < sz) ? lo.zeroExtend(sz) : lo.getRange(0, sz));
   }
 
-  /// Recursively find the trailing 1
+  /// Recursively find the trailing 1.
   Logic recurseFinder(List<Logic> seq, [int depth = 0]) {
     if (seq.length == 1) {
       return ~seq[0];
@@ -126,7 +126,7 @@ class RecursiveModulePriorityEncoderNode extends Module {
   /// at this node.
   Logic get ret => output('ret');
 
-  /// Construct the Node for a Recursive Priority Tree
+  /// Construct the Node for a Recursive Priority Tree.
   RecursiveModulePriorityEncoderNode(Logic seq,
       {super.name = 'priority_encode_node', int depth = 0})
       : super(definitionName: 'PriorityEncodeNode_W${seq.width}') {
@@ -155,17 +155,15 @@ class RecursiveModulePriorityEncoderNode extends Module {
       final split = pow(2.0, divisor).toInt();
 
       final left = RecursiveModulePriorityEncoderNode(seq.getRange(0, split),
-              name: 'left_recurse', depth: depth + 1)
-          .ret
-          .named('left');
+              name: 'left', depth: depth + 1)
+          .ret;
       var right = RecursiveModulePriorityEncoderNode(
               seq.getRange(split, seq.width),
-              name: 'right_recurse',
+              name: 'right',
               depth: depth + 1)
-          .ret
-          .named('right');
+          .ret;
       if (right.width < left.width) {
-        right = right.zeroExtend(left.width).named('right');
+        right = right.zeroExtend(left.width);
       }
       final l = left[-1].named('leftLead');
       final r = right[-1].named('rightLead');
@@ -194,7 +192,7 @@ class RecursiveModulePriorityEncoderNode extends Module {
   }
 }
 
-/// Priority finder based on or() operations, using a tree of modules.
+/// Priority finder based on bitwise OR operations, using a tree of modules.
 class RecursiveModulePriorityEncoder extends PriorityEncoder {
   /// [RecursiveModulePriorityEncoder] constructor builds a tree
   /// of [RecursiveModulePriorityEncoderNode]s to compute the position
@@ -212,10 +210,10 @@ class RecursiveModulePriorityEncoder extends PriorityEncoder {
   }
 }
 
-/// Priority Encoder based on ParallelPrefix tree
+/// Priority Encoder based on [ParallelPrefix] tree.
 class ParallelPrefixPriorityEncoder extends PriorityEncoder {
   /// Build a [PriorityEncoder] using a [ParallelPrefix] tree.
-  /// - [ppGen] is the type of [ParallelPrefix] tree to use
+  /// - [ppGen] is the type of [ParallelPrefix] tree to use.
   ParallelPrefixPriorityEncoder(super.inp,
       {ParallelPrefix Function(
               List<Logic> inps, Logic Function(Logic term1, Logic term2) op)

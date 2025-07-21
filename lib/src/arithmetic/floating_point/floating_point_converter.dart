@@ -13,7 +13,7 @@ import 'package:meta/meta.dart';
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
 
-/// A converter module for FloatingPoint values
+/// A converter module between different [FloatingPoint] logic signals.
 class FloatingPointConverter<FpTypeIn extends FloatingPoint,
     FpTypeOut extends FloatingPoint> extends Module {
   /// Source exponent width
@@ -113,19 +113,14 @@ class FloatingPointConverter<FpTypeIn extends FloatingPoint,
 
         fullDiff = mux(
                 Const(source.explicitJBit),
-                ((biasDiff +
-                                source.exponent
-                                    .zeroExtend(biasDiff.width)
-                                    .named('sourceExpExt'))
-                            .named('biasedSourceExp') +
-                        mux(
-                                ~source.isNormal & Const(source.explicitJBit),
-                                Const(1, width: maxExpWidth),
-                                Const(0, width: maxExpWidth))
-                            .named('sourceExpAdJBit'))
-                    .named('sourceAdjFullDiff'),
+                biasDiff +
+                    source.exponent.zeroExtend(biasDiff.width) +
+                    mux(
+                        ~source.isNormal & Const(source.explicitJBit),
+                        Const(1, width: maxExpWidth),
+                        Const(0, width: maxExpWidth)),
                 biasDiff)
-            .named('fullExpDiff');
+            .named('fullDiff');
         shift = mux(fullDiff.gte(leadOne) & leadOneValid, leadOne, fullDiff)
             .named('shift');
       } else {
@@ -133,22 +128,19 @@ class FloatingPointConverter<FpTypeIn extends FloatingPoint,
         fullDiff = Const(0, width: maxExpWidth);
         leadOne = Const(0, width: maxExpWidth);
         leadOneValid = Const(0);
-        shift = Const(0, width: maxExpWidth).named('shift');
+        shift = Const(0, width: maxExpWidth);
       }
 
       final trueShift = (shift +
               mux(
-                      Const(destination.explicitJBit) &
-                          source.isNormal &
-                          ~Const(source.explicitJBit),
-                      Const(-1, width: maxExpWidth),
-                      Const(0, width: maxExpWidth))
-                  .named('adjustForJBit'))
+                  Const(destination.explicitJBit) &
+                      source.isNormal &
+                      ~Const(source.explicitJBit),
+                  Const(-1, width: maxExpWidth),
+                  Const(0, width: maxExpWidth)))
           .named('trueShift');
 
-      final newMantissa = mux(
-              trueShift[-1],
-              mantissa >> (~trueShift + 1).named('negTrueShift'),
+      final newMantissa = mux(trueShift[-1], mantissa >> (~trueShift + 1),
               mantissa << trueShift)
           .named('mantissaShift');
 
@@ -159,7 +151,9 @@ class FloatingPointConverter<FpTypeIn extends FloatingPoint,
             RoundRNE(newMantissa, source.mantissa.width - destMantissaWidth);
 
         final roundAdder = adderGen(
-            newMantissa.reversed.getRange(1, destMantissaWidth + 1).reversed,
+            // newMantissa.reversed.getRange(1, destMantissaWidth + 1).reversed,
+            newMantissa.slice(newMantissa.width - 2,
+                newMantissa.width - destMantissaWidth - 1),
             rounder.doRound.zeroExtend(destMantissaWidth));
         roundedMantissa = roundAdder.sum
             .named('roundedMantissa')
@@ -212,37 +206,34 @@ class FloatingPointConverter<FpTypeIn extends FloatingPoint,
           mux(leadOneValid, leadOnePre.zeroExtend(maxExpWidth), biasDiff)
               .named('leadOne');
 
-      final seW = se.zeroExtend(maxExpWidth).named('sourceExpExt');
-      final computedExpFull = mux(
+      final newSe = mux(
               leadOneValid & Const(source.explicitJBit) & source.isNormal,
               mux(
-                      seW.gte(leadOne),
-                      seW - (leadOne - Const(1, width: maxExpWidth)),
-                      Const(0, width: maxExpWidth))
-                  .named('computedExp'),
-              seW)
-          .named('computedExpFull');
+                  se.gte(leadOne),
+                  se - (leadOne - Const(1, width: maxExpWidth)),
+                  Const(0, width: maxExpWidth)),
+              se)
+          .named('newExponent');
 
       final nextShift = mux(
-              biasDiff.gte(computedExpFull),
+              biasDiff.gte(newSe),
               (source.isNormal.zeroExtend(maxExpWidth).named('srcIsNormal') +
-                      (biasDiff - computedExpFull).named('negSourceRebiased'))
+                      (biasDiff - newSe).named('negSourceRebiased'))
                   .named('shiftSubnormal'),
               Const(0, width: maxExpWidth))
           .named('nextShift');
 
-      final tns = (((nextShift - (se - computedExpFull).named('sourceExpAdj'))
-                          .named('nextMinusSourceExpAdj') +
-                      mux(
-                              Const(source.explicitJBit),
-                              Const(-1, width: maxExpWidth),
-                              Const(0, width: maxExpWidth))
-                          .named('sourceJBitAdj'))
-                  .named('fullSourceExpAdj') +
+      final jBitAdjust = (mux(
+                      Const(source.explicitJBit),
+                      Const(-1, width: maxExpWidth),
+                      Const(0, width: maxExpWidth))
+                  .named('sourceExpJBitAdjust') +
               mux(Const(destination.explicitJBit), Const(1, width: maxExpWidth),
                       Const(0, width: maxExpWidth))
-                  .named('destJBitAdj'))
-          .named('tns');
+                  .named('destExpJBitAdjust'))
+          .named('jBitAdjust');
+
+      final tns = (nextShift - (se - newSe) + jBitAdjust).named('tns');
 
       final fullMantissa = [mantissa, Const(0, width: destMantissaWidth + 2)]
           .swizzle()
@@ -274,17 +265,14 @@ class FloatingPointConverter<FpTypeIn extends FloatingPoint,
 
       destMantissa = sliceMantissa.getRange(0, destMantissaWidth);
 
-      final predictEN = mux(
-              biasDiff.gte(computedExpFull),
-              Const(0, width: maxExpWidth),
-              (computedExpFull - biasDiff).named('sourceRebiased'))
+      final predictEN = mux(biasDiff.gte(newSe), Const(0, width: maxExpWidth),
+              (newSe - biasDiff).named('sourceRebiased'))
           .named('predictExponent');
 
-      destExponent = (predictEN +
-              roundIncExp.zeroExtend(predictEN.width).named('rndIncExp'))
+      destExponent = (predictEN + roundIncExp.zeroExtend(predictEN.width))
           .named('predictExpRounded')
           .getRange(0, destExponentWidth)
-          .named('predictExpRoundedExt');
+          .named('destExponent');
 
       final maxDestExp = Const(
           destination.floatingPointValue.maxExponent +
@@ -292,8 +280,7 @@ class FloatingPointConverter<FpTypeIn extends FloatingPoint,
           width: maxExpWidth);
 
       infinity = source.isAnInfinity |
-          (computedExpFull.gt(biasDiff) &
-              (computedExpFull - biasDiff).gt(maxDestExp)) |
+          (newSe.gt(biasDiff) & (newSe - biasDiff).gt(maxDestExp)) |
           destExponent.zeroExtend(maxDestExp.width).gt(maxDestExp);
     }
     Combinational([

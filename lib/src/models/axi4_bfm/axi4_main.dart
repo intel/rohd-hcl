@@ -19,12 +19,12 @@ class Axi4Channel {
 
   /// Does this channel support read transactions.
   ///
-  /// If false, the [rIntf] field should be null.
+  /// If `false`, the [rIntf] field should be null.
   final bool hasRead;
 
   /// Does this channel support write transactions.
   ///
-  /// If false, the [wIntf] field should be null.
+  /// If `false`, the [wIntf] field should be null.
   final bool hasWrite;
 
   /// Read interface.

@@ -142,15 +142,16 @@ class CheckModuleNaming {
     /// Check for poor signal names which are those that have a `__` in them,
     /// e.g., one that comprises multiple input signal names and an operation.
     final poorSignalName = RegExp(r'\w+__[^(\d+)$]\w+');
+    final verilogFileName = '${mod.definitionName}_$globalDefinitionNum.sv';
     final matches = poorSignalName.allMatches(systemVerilogString);
     if (generateFile) {
-      File('${mod.definitionName}_$globalDefinitionNum.sv')
-          .writeAsStringSync(systemVerilogString);
+      File(verilogFileName).writeAsStringSync(systemVerilogString);
       globalDefinitionNum++;
     }
 
     if (matches.isNotEmpty) {
-      stdout.writeln('${mod.definitionName}: Poor Logic names:');
+      final inFile = generateFile ? ' in $verilogFileName' : '';
+      stdout.writeln('${mod.definitionName} $inFile: Poor Logic names:');
       for (final m in matches) {
         stdout.writeln('\t${m[0]}');
       }

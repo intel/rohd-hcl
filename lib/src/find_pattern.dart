@@ -16,13 +16,13 @@ import 'package:rohd_hcl/rohd_hcl.dart';
 /// Takes in a [Logic] `bus` to find location of a fixed-width pattern.
 /// Outputs pin `index` contains position of the pattern in the bus.
 class FindPattern extends Module {
-  /// [index] is a getter for output of FindPattern.
+  /// [index] is a getter for output of [FindPattern].
   /// It contains the position of the pattern in the bus depending on the
   /// search direction defined.
   /// [index] starts from `0` based and is `0` if pattern is not found.
   Logic get index => output('index');
 
-  /// [error] is a getter for error in FindPattern and is generated when
+  /// [error] is a getter for error in [FindPattern] and is generated when
   /// [generateError] is `true`.
   /// When pattern is not found it will result in error `1`.
   Logic? get error => tryOutput('error');
@@ -65,11 +65,8 @@ class FindPattern extends Module {
     }
 
     // Initialize counter pattern occurrence to 0
-    var count = Const(0, width: log2Ceil(bus.width + 1)).named('count');
-    final nVal = ((n ?? Const(0)) + 1)
-        .named('nVal')
-        .zeroExtend(count.width)
-        .named('nValX');
+    Logic count = Const(0, width: log2Ceil(bus.width + 1));
+    final nVal = ((n ?? Const(0)) + 1).zeroExtend(count.width);
 
     for (var i = 0; i <= bus.width - pattern.width; i = i + 1) {
       int minBit;
@@ -86,8 +83,7 @@ class FindPattern extends Module {
 
       // Check if pattern matches, add to count
       final valCheck = bus.getRange(minBit, maxBit).eq(pattern);
-      count = (count + valCheck.zeroExtend(count.width).named('valCheck_$i'))
-          .named('count_$i');
+      count += valCheck.zeroExtend(count.width);
       // Append result to the index list
       indexList.add(valCheck & nVal.eq(count));
     }

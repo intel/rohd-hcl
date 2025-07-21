@@ -83,7 +83,7 @@ class CsrTop extends CsrContainer {
     }
   }
 
-  /// Create the CsrBlock from a configuration
+  /// Create the [CsrBlock] from a configuration.
   CsrTop({
     required CsrTopConfig super.config,
     required super.clk,
@@ -201,7 +201,7 @@ class CsrTop extends CsrContainer {
       // mask out LSBs to perform a match on block
       final maskedFrontRdAddr = (frontRead!.addr &
               ~Const((1 << blockOffsetWidth) - 1, width: addrWidth))
-          .named('maskedFrontRdAddr');
+          .named('maskFrontRdAddr');
 
       // shift out MSBs to pass the appropriate address into the blocks
       final shiftedFrontRdAddr = frontRead!.addr.getRange(0, blockOffsetWidth);

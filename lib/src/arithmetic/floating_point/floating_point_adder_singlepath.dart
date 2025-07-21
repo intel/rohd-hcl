@@ -11,7 +11,7 @@ import 'dart:math';
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
 
-/// An adder module for FloatingPoint values
+/// A single-path adder implementation for [FloatingPoint] values.
 class FloatingPointAdderSinglePath<FpTypeIn extends FloatingPoint,
         FpTypeOut extends FloatingPoint>
     extends FloatingPointAdder<FpTypeIn, FpTypeOut> {
@@ -74,7 +74,7 @@ class FloatingPointAdderSinglePath<FpTypeIn extends FloatingPoint,
     final largerExplicit = swapper.outMetaA!;
     final smallerExplicit = swapper.outMetaB!;
 
-    final effectiveSubtraction = (a.sign ^ b.sign).named('effSubtraction');
+    final effectiveSubtraction = (fa.sign ^ fb.sign).named('effSubtraction');
 
     final isInf = (larger.isAnInfinity | smaller.isAnInfinity).named('isInf');
     final isNaN = (larger.isNaN |
@@ -146,7 +146,7 @@ class FloatingPointAdderSinglePath<FpTypeIn extends FloatingPoint,
             rem.lt(Const(smallMantissa.width, width: rem.width)),
             Const(smallMantissa.width, width: rem.width) - rem,
             Const(0, width: rem.width))
-        .named('chopMantissa');
+        .named('chop');
 
     final stickyBits = (smallMantissa << chop).named('stickyBits');
 
@@ -221,8 +221,7 @@ class FloatingPointAdderSinglePath<FpTypeIn extends FloatingPoint,
             ((highBitsLSBFlopped | expDiffFlopped.eq(0)) &
                     effectiveSubtractionFlopped &
                     carryFlopped)
-                .zeroExtend(sumFlopped.width)
-                .named('lsbIncrement'))
+                .zeroExtend(sumFlopped.width))
         .named('incrementHighLSB');
 
     final incrementHighLSBN = mux(
@@ -260,15 +259,14 @@ class FloatingPointAdderSinglePath<FpTypeIn extends FloatingPoint,
         .named('shiftedPrediction');
 
     final lead1Final = mux(shiftedPrediction[-1], lead1PredictionFlopped,
-            (lead1PredictionFlopped + 1).named('lead1PredictionPlusOne'))
+            lead1PredictionFlopped + 1)
         .named('lead1Final');
 
-    final shiftL1Final = mux(shiftedPrediction[-1], shiftedPrediction,
-            (shiftedPrediction << 1).named('shiftedPredictionTimesTwo'))
-        .named('shiftL1FinalWide')
-        .slice(shiftedPrediction.width - (internalSum.explicitJBit ? 1 : 2),
-            (internalSum.explicitJBit ? 1 : 0))
-        .named('shiftL1Final');
+    final shiftL1Final =
+        mux(shiftedPrediction[-1], shiftedPrediction, shiftedPrediction << 1)
+            .named('shiftL1Final')
+            .slice(shiftedPrediction.width - (internalSum.explicitJBit ? 1 : 2),
+                (internalSum.explicitJBit ? 1 : 0));
 
     final lead1Valid = leadingZerosPredictionValidFlopped;
 
@@ -312,24 +310,23 @@ class FloatingPointAdderSinglePath<FpTypeIn extends FloatingPoint,
       final doRound = RoundRNE(
               mux(exponent.or(), mantissa,
                       mantissa >> (internalSum.explicitJBit ? 1 : 0))
-                  .named('mantissaRightShift'),
+                  .named('mantissaJBitShift'),
               rndPos)
           .doRound
           .named('doRound');
 
-      final rndAdder =
-          adderGen(mantissaTrimmed, doRound.zeroExtend(mantissaTrimmed.width));
+      final rndAdder = adderGen(
+          mantissaTrimmed, doRound.zeroExtend(mantissaTrimmed.width),
+          name: 'rndAdder');
 
-      final newRnd = rndAdder.sum;
+      final newRnd = rndAdder.sum.named('newRnd');
 
       mantissaRound = newRnd
           .slice(internalSum.explicitJBit ? -1 : -2,
               -mantissaTrimmed.width - (internalSum.explicitJBit ? 0 : 1))
           .named('mantissaRound');
 
-      final altmantissaRound = newRnd
-          .slice(-2, -mantissaTrimmed.width - 1)
-          .named('altMantissaRound');
+      final altmantissaRound = newRnd.slice(-2, -mantissaTrimmed.width - 1);
 
       mantissaRound = mux(
               exponent.gt(Const(0, width: exponent.width)) & ~mantissaRound[-1],
@@ -338,14 +335,8 @@ class FloatingPointAdderSinglePath<FpTypeIn extends FloatingPoint,
           .slice(-1, -mantissaWidth)
           .named('mantissaRoundFinal');
 
-      exponentRound = mux(
-              exponent.lt(infExponent),
-              (exponent +
-                      rndAdder.sum[-1]
-                          .zeroExtend(exponent.width)
-                          .named('exponentRndAdjust'))
-                  .named('exponentRounded'),
-              exponent)
+      exponentRound = mux(exponent.lt(infExponent),
+              exponent + rndAdder.sum[-1].zeroExtend(exponent.width), exponent)
           .named('exponentRound');
     } else {
       // No rounding needed, just use the mantissa as is. But mimic how the
