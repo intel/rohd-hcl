@@ -20,7 +20,6 @@ class BadFFTStage extends Module {
   DataPortInterface twiddleFactorROM;
 
   late final Logic valid;
-  late final DataPortInterface outputSamples;
 
   BadFFTStage({
     required this.logStage,
@@ -32,6 +31,8 @@ class BadFFTStage extends Module {
     required this.inputSamplesA,
     required this.inputSamplesB,
     required this.twiddleFactorROM,
+    required DataPortInterface outputSamplesA,
+    required DataPortInterface outputSamplesB,
     super.name = 'badfftstage',
   }) : assert(ready.width == 1),
        assert(
@@ -68,13 +69,9 @@ class BadFFTStage extends Module {
         uniquify: (name) => "twiddleFactorROM${name}",
       );
 
-    outputSamples = DataPortInterface(
-      inputSamplesA.dataWidth,
-      inputSamplesA.addrWidth,
-    ).clone();
-    outputSamples.connectIO(
+    outputSamples = outputSamplesA.clone()..connectIO(
       this,
-      outputSamples,
+      outputSamplesA,
       outputTags: [DataPortGroup.data, DataPortGroup.control],
       uniquify: (name) => "outputSamples${name}",
     );
@@ -107,7 +104,7 @@ class BadFFTStage extends Module {
       clk,
       reset,
       [outputSamplesWritePortA, outputSamplesWritePortB],
-      [outputSamples],
+      [outputSamplesA],
       readLatency: 0,
     );
     final n = 1 << inputSamplesA.addrWidth;
