@@ -41,13 +41,13 @@ class RotateConfigurator extends Configurator {
 
   @override
   Module createModule() {
-    final rotateConstructor = directionKnob.value == RotateDirection.left
-        ? RotateLeft.new
-        : RotateRight.new;
-    return rotateConstructor(
-      Logic(width: originalWidthKnob.value),
-      Logic(width: rotateWidthKnob.value),
-      maxAmount: maxAmountKnob.value,
-    );
+    final val = directionKnob.value;
+    final rotateConstructor =
+        val == RotateDirection.left ? RotateLeft.new : RotateRight.new;
+    return rotateConstructor(Logic(width: originalWidthKnob.value),
+        Logic(width: rotateWidthKnob.value),
+        maxAmount: maxAmountKnob.value,
+        definitionName:
+            'Rotate${val == RotateDirection.left ? "Left" : "Right"}');
   }
 }

@@ -38,10 +38,14 @@ class Serializer extends Module {
       required Logic reset,
       Logic? enable,
       bool flopInput = false,
-      super.name = 'serializer'})
+      super.name = 'serializer',
+      super.reserveName,
+      super.reserveDefinitionName,
+      String? definitionName})
       : super(
-            definitionName: 'Serializer_W${deserialized.width}_'
-                '${deserialized.elementWidth}') {
+            definitionName: definitionName ??
+                'Serializer_W${deserialized.width}_'
+                    '${deserialized.elementWidth}') {
     clk = addInput('clk', clk);
     reset = addInput('reset', reset);
     if (enable != null) {

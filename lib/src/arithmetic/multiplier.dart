@@ -97,6 +97,8 @@ abstract class Multiplier extends Module {
       dynamic signedMultiplicand,
       dynamic signedMultiplier,
       super.name = 'multiplier',
+      super.reserveName,
+      super.reserveDefinitionName,
       String? definitionName})
       : super(
             definitionName: definitionName ??
@@ -160,11 +162,15 @@ class NativeMultiplier extends Multiplier {
       super.enable,
       super.signedMultiplicand,
       super.signedMultiplier,
-      super.name = 'native_multiplier'})
+      super.name = 'native_multiplier',
+      super.reserveName,
+      super.reserveDefinitionName,
+      String? definitionName})
       : super(
-            definitionName: 'NativeMultiplier_W${a.width}x'
-                '${b.width}_${Multiplier.signedMD(signedMultiplicand)}_'
-                '${Multiplier.signedML(signedMultiplier)}') {
+            definitionName: definitionName ??
+                'NativeMultiplier_W${a.width}x'
+                    '${b.width}_${Multiplier.signedMD(signedMultiplicand)}_'
+                    '${Multiplier.signedML(signedMultiplier)}') {
     if (a.width != b.width) {
       throw RohdHclException('inputs of a and b should have same width.');
     }
@@ -218,24 +224,30 @@ class CompressionTreeMultiplier extends Multiplier {
   /// after compression.  [reset] and [enable] are optional
   /// inputs to control these flops when [clk] is provided. If [clk] is null,
   /// the Column Compressor is built as a combinational tree of compressors.
-  CompressionTreeMultiplier(super.a, super.b,
-      {int radix = 4,
-      super.clk,
-      super.reset,
-      super.enable,
-      super.signedMultiplicand,
-      super.signedMultiplier,
-      Adder Function(Logic a, Logic b, {Logic? carryIn}) adderGen =
-          NativeAdder.new,
-      PartialProductSignExtension Function(PartialProductGeneratorBase pp,
-              {String name})
-          signExtensionGen = CompactRectSignExtension.new,
-      super.name = 'compression_tree_multiplier'})
-      : super(
-            definitionName: 'CompressionTreeMultiplier_W${a.width}x'
-                '${b.width}_${Multiplier.signedMD(signedMultiplicand)}_'
-                '${Multiplier.signedML(signedMultiplier)}_'
-                'with${adderGen(a, a).definitionName}') {
+  CompressionTreeMultiplier(
+    super.a,
+    super.b, {
+    int radix = 4,
+    super.clk,
+    super.reset,
+    super.enable,
+    super.signedMultiplicand,
+    super.signedMultiplier,
+    Adder Function(Logic a, Logic b, {Logic? carryIn}) adderGen =
+        NativeAdder.new,
+    PartialProductSignExtension Function(PartialProductGeneratorBase pp,
+            {String name})
+        signExtensionGen = CompactRectSignExtension.new,
+    super.name = 'compression_tree_multiplier',
+    super.reserveName,
+    super.reserveDefinitionName,
+    String? definitionName,
+  }) : super(
+            definitionName: definitionName ??
+                'CompressionTreeMultiplier_W${a.width}x'
+                    '${b.width}_${Multiplier.signedMD(signedMultiplicand)}_'
+                    '${Multiplier.signedML(signedMultiplier)}_'
+                    'with${adderGen(a, a).definitionName}') {
     final pp = PartialProduct(a, b, RadixEncoder(radix),
         selectSignedMultiplicand: selectSignedMultiplicand,
         signedMultiplicand: signedMultiplicand,

@@ -14,6 +14,15 @@ import 'package:rohd_hcl/rohd_hcl.dart';
 abstract class RoundRobinArbiter extends StatefulArbiter {
   /// By default, creates an instance of a [MaskRoundRobinArbiter].
   factory RoundRobinArbiter(List<Logic> requests,
-          {required Logic clk, required Logic reset}) =>
-      MaskRoundRobinArbiter(requests, clk: clk, reset: reset);
+          {required Logic clk,
+          required Logic reset,
+          bool reserveName = false,
+          bool reserveDefinitionName = false,
+          String? definitionName}) =>
+      MaskRoundRobinArbiter(requests,
+          clk: clk,
+          reset: reset,
+          reserveName: reserveName,
+          reserveDefinitionName: reserveDefinitionName,
+          definitionName: definitionName);
 }

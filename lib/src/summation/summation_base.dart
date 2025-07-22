@@ -71,16 +71,21 @@ abstract class SummationBase extends Module {
   /// Sums the values across the provided [interfaces] within the bounds of the
   /// [saturates] behavior, [initialValue], [maxValue], and [minValue], with the
   /// specified [width], if provided.
-  SummationBase(
-    List<SumInterface> interfaces, {
-    dynamic initialValue = 0,
-    dynamic maxValue,
-    dynamic minValue = 0,
-    this.saturates = false,
-    int? width,
-    super.name,
-  }) : width =
-            _inferWidth([initialValue, maxValue, minValue], width, interfaces) {
+  SummationBase(List<SumInterface> interfaces,
+      {dynamic initialValue = 0,
+      dynamic maxValue,
+      dynamic minValue = 0,
+      this.saturates = false,
+      int? width,
+      super.name,
+      super.reserveName,
+      super.reserveDefinitionName,
+      String? definitionName})
+      : width =
+            _inferWidth([initialValue, maxValue, minValue], width, interfaces),
+        super(
+            definitionName: definitionName ??
+                'SummationBase_L${interfaces.length}_W$width') {
     if (interfaces.isEmpty) {
       throw RohdHclException('At least one interface must be provided.');
     }

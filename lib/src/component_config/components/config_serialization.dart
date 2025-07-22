@@ -33,9 +33,15 @@ class SerializationConfigurator extends Configurator {
     final enable = Logic(name: 'enable');
     return directionKnob.value == Serializer
         ? Serializer(LogicArray([inputLengthKnob.value], inputWidthKnob.value),
-            enable: enableKnob.value ? enable : null, clk: clk, reset: reset)
+            enable: enableKnob.value ? enable : null,
+            clk: clk,
+            reset: reset,
+            definitionName: 'Serializer')
         : Deserializer(deserializeIn, inputLengthKnob.value,
-            enable: enableKnob.value ? enable : null, clk: clk, reset: reset);
+            enable: enableKnob.value ? enable : null,
+            clk: clk,
+            reset: reset,
+            definitionName: 'Deserializer');
   }
 
   @override

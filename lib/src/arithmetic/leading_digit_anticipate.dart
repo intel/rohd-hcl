@@ -50,7 +50,11 @@ abstract class LeadingZeroAnticipateBase extends Module {
   /// less than the leading zero of the sum or subtraction of [a] and [b].
   /// [validLeadOne] indicates a leading one was found.
   LeadingZeroAnticipateBase(Logic aSign, Logic a, Logic bSign, Logic b,
-      {super.name = 'leading_zero_anticipate'}) {
+      {super.name = 'leading_zero_anticipate',
+      super.reserveName,
+      super.reserveDefinitionName,
+      String? definitionName})
+      : super(definitionName: definitionName ?? 'LeadingZeroAnticipate') {
     aSign = addInput('aSign', aSign);
     a = addInput('a', a, width: a.width);
     bSign = addInput('bSign', bSign);
@@ -97,7 +101,11 @@ class LeadingZeroAnticipate extends LeadingZeroAnticipateBase {
   /// [a] and [b]. [leadingOneConverse] should be used if [b] >= [a] during
   /// subtraction.
   LeadingZeroAnticipate(super.aSign, super.a, super.bSign, super.b,
-      {super.name = 'leading_zero_anticipate'}) {
+      {super.name = 'leading_zero_anticipate',
+      super.reserveName,
+      super.reserveDefinitionName,
+      String? definitionName})
+      : super(definitionName: definitionName ?? 'LeadingDigitAnticipate') {
     leadingOne <= leadOneEncoder.out;
     validLeadOne <= leadOneEncoder.valid!;
     addOutput('leadingOneConverse', width: leadOneEncoderConverse.out.width);
@@ -116,7 +124,9 @@ class LeadingZeroAnticipateCarry extends LeadingZeroAnticipateBase {
   /// prediction pair. and output as [leadingOne] and [validLeadOne].
   LeadingZeroAnticipateCarry(super.aSign, super.a, super.bSign, super.b,
       {required Logic endAroundCarry,
-      super.name = 'leading_zero_anticipate_carry'}) {
+      super.name = 'leading_zero_anticipate_carry',
+      String? definitionName})
+      : super(definitionName: definitionName ?? 'LeadingDigitAnticipate') {
     endAroundCarry = addInput('endAroundCarry', endAroundCarry);
 
     leadingOne <=
@@ -144,7 +154,8 @@ class LeadingDigitAnticipate extends Module {
   /// change (leading 1 position for positive sum, leading 0 position for
   /// negative sum).
   LeadingDigitAnticipate(Logic a, Logic b,
-      {super.name = 'leading_digit_anticipate'}) {
+      {super.name = 'leading_digit_anticipate', String? definitionName})
+      : super(definitionName: definitionName ?? 'LeadingDigitAnticipate') {
     a = addInput('a', a, width: a.width);
     b = addInput('b', b, width: b.width);
     final pA = a.reversed.named('revA');

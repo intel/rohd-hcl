@@ -53,11 +53,15 @@ class ShiftRegister extends Module {
     bool asyncReset = false,
     dynamic resetValue,
     this.dataName = 'data',
+    super.reserveName,
+    super.reserveDefinitionName,
+    String? definitionName,
   })  : width = dataIn.width,
         super(
             name: '${dataName}_shift_register',
-            definitionName: 'ShiftRegister_W${dataIn.width}'
-                '_D$depth') {
+            definitionName: definitionName ??
+                'ShiftRegister_W${dataIn.width}'
+                    '_D$depth') {
     dataIn = addInput('${dataName}_in', dataIn, width: width);
     clk = addInput('clk', clk);
 

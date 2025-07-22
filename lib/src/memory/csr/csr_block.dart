@@ -52,7 +52,12 @@ class CsrBlock extends CsrContainer {
     required super.frontRead,
     super.allowLargerRegisters,
     this.logicalRegisterIncrement = 1,
-  }) : csrs = List.unmodifiable(config.registers.map(Csr.new)) {
+    super.reserveName,
+    super.reserveDefinitionName,
+    String? definitionName,
+  })  : csrs = List.unmodifiable(config.registers.map(Csr.new)),
+        super(
+            definitionName: definitionName ?? 'CsrBlock_${config.name}_block') {
     _validate();
 
     for (var i = 0; i < csrs.length; i++) {

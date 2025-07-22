@@ -52,8 +52,15 @@ class FindPattern extends Module {
   ///
   /// [index] will be `0` when pattern is not found.
   FindPattern(Logic bus, Logic pattern,
-      {bool fromStart = true, Logic? n, this.generateError = false})
-      : super(definitionName: 'FindPattern_W${bus.width}_P${pattern.width}') {
+      {bool fromStart = true,
+      Logic? n,
+      this.generateError = false,
+      super.reserveName,
+      super.reserveDefinitionName,
+      String? definitionName})
+      : super(
+            definitionName: definitionName ??
+                'FindPattern_W${bus.width}_P${pattern.width}') {
     bus = addInput('bus', bus, width: bus.width);
     pattern = addInput('pattern', pattern, width: pattern.width);
 

@@ -78,19 +78,22 @@ class MultiplierSelectKnob extends GroupOfKnobs {
       {Logic? clk,
       Logic? reset,
       Logic? enable,
-      String name}) selectedMultiplier() {
+      String name,
+      String? definitionName}) selectedMultiplier() {
     if (compressionTreeMultiplierKnob.value) {
       return (Logic term1, Logic term2,
               {Logic? clk,
               Logic? reset,
               Logic? enable,
-              String name = 'comp_tree_multiplier'}) =>
+              String name = 'comp_tree_multiplier',
+              String? definitionName}) =>
           CompressionTreeMultiplier(term1, term2,
               radix: radixKnob.value,
               adderGen: adderSelectionKnob.selectedAdder(),
               clk: clk,
               reset: reset,
-              enable: enable);
+              enable: enable,
+              definitionName: definitionName);
     }
     return NativeMultiplier.new;
   }

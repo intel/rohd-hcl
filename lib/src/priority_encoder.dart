@@ -34,6 +34,8 @@ abstract class PriorityEncoder extends Module {
   PriorityEncoder(Logic inp,
       {bool generateValid = false,
       super.name = 'priority_encoder',
+      super.reserveName,
+      super.reserveDefinitionName,
       String? definitionName})
       : super(
             definitionName: definitionName ?? 'PriorityEncoder_W${inp.width}') {
@@ -49,9 +51,16 @@ abstract class PriorityEncoder extends Module {
 /// Priority finder based on or() operations.
 class RecursivePriorityEncoder extends PriorityEncoder {
   /// [RecursivePriorityEncoder] constructor
-  RecursivePriorityEncoder(super.inp,
-      {super.generateValid, super.name = 'recursive_priority_encoder'})
-      : super(definitionName: 'RecursivePriorityEncoder_W${inp.width}') {
+  RecursivePriorityEncoder(
+    super.inp, {
+    super.generateValid,
+    super.name = 'recursive_priority_encoder',
+    super.reserveName,
+    super.reserveDefinitionName,
+    String? definitionName,
+  }) : super(
+            definitionName:
+                definitionName ?? 'RecursivePriorityEncoder_W${inp.width}') {
     final lo = recurseFinder(inp.elements);
     valid?.gets(lo.lt(inp.width));
     final sz = output('out').width;
@@ -127,9 +136,16 @@ class RecursiveModulePriorityEncoderNode extends Module {
   Logic get ret => output('ret');
 
   /// Construct the Node for a Recursive Priority Tree.
-  RecursiveModulePriorityEncoderNode(Logic seq,
-      {super.name = 'priority_encode_node', int depth = 0})
-      : super(definitionName: 'PriorityEncodeNode_W${seq.width}') {
+  RecursiveModulePriorityEncoderNode(
+    Logic seq, {
+    super.name = 'priority_encode_node',
+    int depth = 0,
+    super.reserveName,
+    super.reserveDefinitionName,
+    String? definitionName,
+  }) : super(
+            definitionName:
+                definitionName ?? 'PriorityEncodeNode_W${seq.width}') {
     seq = addInput('seq', seq, width: seq.width);
     if (seq.width == 1) {
       addOutput('ret') <= ~seq[0];
@@ -197,9 +213,16 @@ class RecursiveModulePriorityEncoder extends PriorityEncoder {
   /// [RecursiveModulePriorityEncoder] constructor builds a tree
   /// of [RecursiveModulePriorityEncoderNode]s to compute the position
   /// of the trailing 1 from the LSB of [inp].
-  RecursiveModulePriorityEncoder(super.inp,
-      {super.generateValid, super.name = 'recursive_module_priority_encoder'})
-      : super(definitionName: 'RecursiveModulePriorityEncoder_W${inp.width}') {
+  RecursiveModulePriorityEncoder(
+    super.inp, {
+    super.generateValid,
+    super.name = 'recursive_module_priority_encoder',
+    super.reserveName,
+    super.reserveDefinitionName,
+    String? definitionName,
+  }) : super(
+            definitionName: definitionName ??
+                'RecursiveModulePriorityEncoder_W${inp.width}') {
     final topNode = RecursiveModulePriorityEncoderNode(inp);
     final lo = topNode.ret;
     if (valid != null) {
@@ -219,8 +242,13 @@ class ParallelPrefixPriorityEncoder extends PriorityEncoder {
               List<Logic> inps, Logic Function(Logic term1, Logic term2) op)
           ppGen = KoggeStone.new,
       super.generateValid,
-      super.name = 'parallel_prefix_encoder'})
-      : super(definitionName: 'ParallelPrefixPriorityEncoder_W${inp.width}') {
+      super.name = 'parallel_prefix_encoder',
+      super.reserveName,
+      super.reserveDefinitionName,
+      String? definitionName})
+      : super(
+            definitionName: definitionName ??
+                'ParallelPrefixPriorityEncoder_W${inp.width}') {
     final sz = log2Ceil(inp.width + 1);
     final u = ParallelPrefixPriorityFinder(inp, ppGen: ppGen);
     final pos = OneHotToBinary(u.out)

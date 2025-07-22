@@ -29,15 +29,18 @@ class ToggleGate extends Module {
   /// If no [clockGateControlIntf] is provided (left `null`), then a default
   /// clock gating implementation will be included for the internal sequential
   /// elements.
-  ToggleGate({
-    required Logic enable,
-    required Logic data,
-    required Logic clk,
-    required Logic reset,
-    dynamic resetValue,
-    ClockGateControlInterface? clockGateControlIntf,
-    super.name = 'toggle_gate',
-  }) : super(definitionName: 'ToggleGate_W${data.width}') {
+  ToggleGate(
+      {required Logic enable,
+      required Logic data,
+      required Logic clk,
+      required Logic reset,
+      dynamic resetValue,
+      ClockGateControlInterface? clockGateControlIntf,
+      super.name = 'toggle_gate',
+      super.reserveName,
+      super.reserveDefinitionName,
+      String? definitionName})
+      : super(definitionName: definitionName ?? 'ToggleGate_W${data.width}') {
     enable = addInput('enable', enable);
     data = addInput('data', data, width: data.width);
     clk = addInput('clk', clk);

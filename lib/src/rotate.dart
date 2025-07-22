@@ -39,10 +39,16 @@ abstract class _Rotate extends Module {
   /// [original].  The [maxAmount] will be not be larger than what could be
   /// represented by the maximum value of [rotateAmount].
   _Rotate(this._direction, Logic original, Logic rotateAmount,
-      {int? maxAmount, super.name = 'rotate'})
+      {int? maxAmount,
+      super.name = 'rotate',
+      super.reserveName,
+      super.reserveDefinitionName,
+      String? definitionName})
       : maxAmount = min(maxAmount ?? original.width,
             pow(2, rotateAmount.width).toInt() - 1),
-        super(definitionName: 'Rotate_${_direction.name}_W${original.width}') {
+        super(
+            definitionName: definitionName ??
+                'Rotate_${_direction.name}_W${original.width}') {
     original = addInput('original', original, width: original.width);
     rotateAmount =
         addInput('rotate_amount', rotateAmount, width: rotateAmount.width);
@@ -75,8 +81,17 @@ class RotateLeft extends _Rotate {
   /// If no [maxAmount] is provided, it will default to the `width` of
   /// [original].  The [maxAmount] will be not be larger than what could be
   /// represented by the maximum value of [rotateAmount].
-  RotateLeft(Logic original, Logic rotateAmount, {super.maxAmount, super.name})
-      : super(RotateDirection.left, original, rotateAmount);
+  RotateLeft(Logic original, Logic rotateAmount,
+      {super.maxAmount,
+      super.name,
+      super.reserveName,
+      super.reserveDefinitionName,
+      String? definitionName})
+      : super(
+            definitionName: definitionName ?? 'RotateLeft_W${original.width}',
+            RotateDirection.left,
+            original,
+            rotateAmount);
 }
 
 /// Rotates a [Logic] to the right.
@@ -91,8 +106,17 @@ class RotateRight extends _Rotate {
   /// If no [maxAmount] is provided, it will default to the `width` of
   /// [original].  The [maxAmount] will be not be larger than what could be
   /// represented by the maximum value of [rotateAmount].
-  RotateRight(Logic original, Logic rotateAmount, {super.maxAmount, super.name})
-      : super(RotateDirection.right, original, rotateAmount);
+  RotateRight(Logic original, Logic rotateAmount,
+      {super.maxAmount,
+      super.name,
+      super.reserveName,
+      super.reserveDefinitionName,
+      String? definitionName})
+      : super(
+            definitionName: definitionName ?? 'RotateRight_W${original.width}',
+            RotateDirection.right,
+            original,
+            rotateAmount);
 }
 
 /// Rotates by a fixed amount.
@@ -107,10 +131,14 @@ class _RotateFixed extends Module {
 
   /// Rotates [original] by [rotateAmount] to the [_direction].
   _RotateFixed(this._direction, Logic original, this.rotateAmount,
-      {super.name = 'rotate_fixed'})
+      {super.name = 'rotate_fixed',
+      super.reserveName,
+      super.reserveDefinitionName,
+      String? definitionName})
       : super(
-            definitionName: 'RotateFixed_${_direction.name}_'
-                'by_$rotateAmount') {
+            definitionName: definitionName ??
+                'RotateFixed_${_direction.name}_'
+                    'by_$rotateAmount') {
     original = addInput('original', original, width: original.width);
     addOutput('rotated', width: original.width);
 
@@ -138,15 +166,33 @@ class _RotateFixed extends Module {
 /// Rotates left by a fixed amount.
 class RotateLeftFixed extends _RotateFixed {
   /// Rotates [original] by [rotateAmount] to the left.
-  RotateLeftFixed(Logic original, int rotateAmount, {super.name})
-      : super(RotateDirection.left, original, rotateAmount);
+  RotateLeftFixed(Logic original, int rotateAmount,
+      {super.name,
+      super.reserveName,
+      super.reserveDefinitionName,
+      String? definitionName})
+      : super(
+            definitionName:
+                definitionName ?? 'RotateLeftFixed_W${original.width}',
+            RotateDirection.left,
+            original,
+            rotateAmount);
 }
 
 /// Rotates right by a fixed amount.
 class RotateRightFixed extends _RotateFixed {
   /// Rotates [original] by [rotateAmount] to the right.
-  RotateRightFixed(Logic original, int rotateAmount, {super.name})
-      : super(RotateDirection.right, original, rotateAmount);
+  RotateRightFixed(Logic original, int rotateAmount,
+      {super.name,
+      super.reserveName,
+      super.reserveDefinitionName,
+      String? definitionName})
+      : super(
+            definitionName:
+                definitionName ?? 'RotateRightFixed_W${original.width}',
+            RotateDirection.right,
+            original,
+            rotateAmount);
 }
 
 /// Adds rotation functions to [Logic].

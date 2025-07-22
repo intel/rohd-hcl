@@ -86,10 +86,15 @@ class Fifo extends Module {
       this.generateError = false,
       this.generateOccupancy = false,
       this.generateBypass = false,
-      super.name = 'fifo'})
+      super.name = 'fifo',
+      super.reserveName,
+      super.reserveDefinitionName,
+      String? definitionName})
       : dataWidth = writeData.width,
         _addrWidth = max(1, log2Ceil(depth)),
-        super(definitionName: 'Fifo_D${depth}_W${writeData.width}') {
+        super(
+            definitionName:
+                definitionName ?? 'Fifo_D${depth}_W${writeData.width}') {
     if (depth <= 0) {
       throw RohdHclException('Depth must be at least 1.');
     }

@@ -17,8 +17,13 @@ class SignedShifter extends Module {
   /// Create a [SignedShifter] that treats shift as signed
   /// - [bits] is the input to be shifted
   /// - [shift] is the signed amount to be shifted
-  SignedShifter(Logic bits, Logic shift, {super.name = 'shifter'})
-      : super(definitionName: 'SignedShifter_W${bits.width}') {
+  SignedShifter(Logic bits, Logic shift,
+      {super.name = 'shifter',
+      super.reserveName,
+      super.reserveDefinitionName,
+      String? definitionName})
+      : super(
+            definitionName: definitionName ?? 'SignedShifter_W${bits.width}') {
     bits = addInput('bits', bits, width: bits.width);
     shift = addInput('shift', shift, width: shift.width);
 

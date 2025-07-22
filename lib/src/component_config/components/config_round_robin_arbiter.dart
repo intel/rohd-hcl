@@ -36,9 +36,15 @@ class RoundRobinArbiterConfigurator extends Configurator {
     final reqs = List.generate(numRequestKnob.value, (i) => Logic());
 
     if (implementationKnob.value == MaskRoundRobinArbiter) {
-      return MaskRoundRobinArbiter(reqs, clk: Logic(), reset: Logic());
+      return MaskRoundRobinArbiter(reqs,
+          clk: Logic(),
+          reset: Logic(),
+          definitionName: 'MaskRoundRobinArbiter');
     } else if (implementationKnob.value == RotateRoundRobinArbiter) {
-      return RotateRoundRobinArbiter(reqs, clk: Logic(), reset: Logic());
+      return RotateRoundRobinArbiter(reqs,
+          clk: Logic(),
+          reset: Logic(),
+          definitionName: 'RotateRoundRobinArbiter');
     }
 
     throw RohdHclException('Unknown round robin type.');
