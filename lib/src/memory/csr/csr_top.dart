@@ -100,8 +100,8 @@ class CsrTop extends CsrContainer {
                 'CsrTop_A${config.minAddrBits()}_'
                     'W${config.maxRegWidth()}_'
                     'BO${config.blockOffsetWidth}_'
-                    'LR=${allowLargerRegisters}_'
-                    'RI=$logicalRegisterIncrement') {
+                    'LR${allowLargerRegisters}_'
+                    'RI$logicalRegisterIncrement') {
     _validate();
 
     for (final block in config.blocks) {

@@ -71,7 +71,7 @@ abstract class CsrContainer extends Module {
                     'W${config.maxRegWidth()}_'
                     'FW${frontWrite?.dataWidth ?? 0}_'
                     'FR${frontRead?.dataWidth ?? 0}_'
-                    'LR=${allowLargerRegisters}_',
+                    'LR${allowLargerRegisters}_',
             name: config.name) {
     this.clk = addInput('clk', clk);
     this.reset = addInput('reset', reset);
