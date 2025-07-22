@@ -117,6 +117,6 @@ class CarrySaveMultiplier extends Multiplier {
             a.width,
             (index) => _pipeline.get(_sum[a.width - index - 1]),
           )
-        ].swizzle().slice(product.width - 1, 0);
+        ].swizzle().named('productWide').slice(product.width - 1, 0);
   }
 }
