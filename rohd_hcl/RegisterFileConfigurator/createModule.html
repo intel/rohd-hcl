@@ -76,20 +76,20 @@
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">@override
 Module createModule() =&gt; RegisterFile(
-      Logic(),
-      Logic(),
-      List.generate(
-          numWritePortsKnobs.value,
-          (index) =&gt; maskedWritesKnob.value
-              ? MaskedDataPortInterface(
-                  dataWidthKnob.value, addrWidthKnob.value)
-              : DataPortInterface(dataWidthKnob.value, addrWidthKnob.value)),
-      List.generate(
-          numReadPortsKnobs.value,
-          (index) =&gt;
-              DataPortInterface(dataWidthKnob.value, addrWidthKnob.value)),
-      numEntries: numEntriesKnob.value,
-    );</code></pre>
+    Logic(),
+    Logic(),
+    List.generate(
+        numWritePortsKnobs.value,
+        (index) =&gt; maskedWritesKnob.value
+            ? MaskedDataPortInterface(
+                dataWidthKnob.value, addrWidthKnob.value)
+            : DataPortInterface(dataWidthKnob.value, addrWidthKnob.value)),
+    List.generate(
+        numReadPortsKnobs.value,
+        (index) =&gt;
+            DataPortInterface(dataWidthKnob.value, addrWidthKnob.value)),
+    numEntries: numEntriesKnob.value,
+    definitionName: &#39;RegisterFile&#39;);</code></pre>
 </section>
 
 

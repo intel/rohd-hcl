@@ -87,7 +87,8 @@ Module createModule() =&gt; dualPathAdderKnob.value
             mantissaWidth: mantissaWidthKnob.value,
             subNormalAsZero: subNormalAsZeroSelecKnob.denormalAsZeroB.value),
         adderGen: adderSelectionKnob.selectedAdder(),
-        ppTree: treeGeneratorMap[prefixTreeKnob.value]!)
+        ppTree: treeGeneratorMap[prefixTreeKnob.value]!,
+        definitionName: &#39;FloatingPointAdderDualPath&#39;)
     : FloatingPointAdderSinglePath(
         clk: pipelinedKnob.value ? Logic() : null,
         FloatingPoint(
@@ -98,7 +99,9 @@ Module createModule() =&gt; dualPathAdderKnob.value
             exponentWidth: exponentWidthKnob.value,
             mantissaWidth: mantissaWidthKnob.value,
             subNormalAsZero: subNormalAsZeroSelecKnob.flushToZero.value),
-        adderGen: adderSelectionKnob.selectedAdder());</code></pre>
+        adderGen: adderSelectionKnob.selectedAdder(),
+        definitionName: &#39;FloatingPointAdderSinglePath&#39;,
+      );</code></pre>
 </section>
 
 

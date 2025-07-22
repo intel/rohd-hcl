@@ -70,6 +70,9 @@
 <li><span class="parameter" id="param-signedMultiplier"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.8.2/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">signedMultiplier</span>, </span></li>
 </ol>}) = <span class="default-value">PartialProductGenerator.new</span>, </span></li>
 <li><span class="parameter" id="-param-name"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.8.2/dart-core/String-class.html">String</a></span> <span class="parameter-name">name</span> = <span class="default-value">&#39;partial_product&#39;</span>, </span></li>
+<li><span class="parameter" id="-param-reserveName"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.8.2/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">reserveName</span> = <span class="default-value">false</span>, </span></li>
+<li><span class="parameter" id="-param-reserveDefinitionName"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.8.2/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">reserveDefinitionName</span> = <span class="default-value">false</span>, </span></li>
+<li><span class="parameter" id="-param-definitionName"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.8.2/dart-core/String-class.html">String</a>?</span> <span class="parameter-name">definitionName</span>, </span></li>
 </ol>})
     </section>
     
@@ -95,7 +98,15 @@
             Logic? selectSignedMultiplicand,
             Logic? selectSignedMultiplier})
         genPPG = PartialProductGenerator.new,
-    super.name = &#39;partial_product&#39;}) {
+    super.name = &#39;partial_product&#39;,
+    super.reserveName,
+    super.reserveDefinitionName,
+    String? definitionName})
+    : super(
+          definitionName: definitionName ??
+              &#39;PartialProduct_W${multiplicand.width}x${multiplier.width}&#39;
+                  &#39;_${Multiplier.signedMD(signedMultiplicand)}_&#39;
+                  &#39;${Multiplier.signedML(signedMultiplier)}&#39;) {
   final selectSignedMultiplicandInternal = selectSignedMultiplicand != null
       ? addInput(selectSignedMultiplicand.name, selectSignedMultiplicand)
       : null;

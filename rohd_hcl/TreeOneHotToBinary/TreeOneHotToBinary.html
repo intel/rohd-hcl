@@ -57,6 +57,9 @@
       <span class="name ">TreeOneHotToBinary</span>(<wbr><ol class="parameter-list"> <li><span class="parameter" id="-param-onehot"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.5/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">onehot</span>, {</span></li>
 <li><span class="parameter" id="-param-generateError"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.8.2/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">generateError</span> = <span class="default-value">false</span>, </span></li>
 <li><span class="parameter" id="-param-name"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.8.2/dart-core/String-class.html">String</a></span> <span class="parameter-name">name</span> = <span class="default-value">&#39;tree_one_hot_to_binary&#39;</span>, </span></li>
+<li><span class="parameter" id="-param-reserveName"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.8.2/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">reserveName</span> = <span class="default-value">false</span>, </span></li>
+<li><span class="parameter" id="-param-reserveDefinitionName"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.8.2/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">reserveDefinitionName</span> = <span class="default-value">false</span>, </span></li>
+<li><span class="parameter" id="-param-definitionName"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.8.2/dart-core/String-class.html">String</a>?</span> <span class="parameter-name">definitionName</span>, </span></li>
 </ol>})
     </section>
     
@@ -69,9 +72,18 @@
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">TreeOneHotToBinary(super.onehot,
-    {super.generateError, super.name = &#39;tree_one_hot_to_binary&#39;})
-    : super.base() {
-  final node = _NodeOneHotToBinary(onehot, generateMultiple: generateError);
+    {super.generateError,
+    super.name = &#39;tree_one_hot_to_binary&#39;,
+    super.reserveName,
+    super.reserveDefinitionName,
+    String? definitionName})
+    : super.base(
+          definitionName:
+              definitionName ?? &#39;TreeOneHotToBinary_W${onehot.width}&#39;) {
+  final node = _NodeOneHotToBinary(onehot,
+      generateMultiple: generateError,
+      reserveName: reserveName,
+      reserveDefinitionName: reserveDefinitionName);
   binary &lt;= node.binary;
 
   if (generateError) {

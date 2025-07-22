@@ -58,6 +58,9 @@
 <li><span class="parameter" id="-param-b"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.5/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">b</span>, {</span></li>
 <li><span class="parameter" id="-param-carryIn"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.5/rohd/Logic-class.html">Logic</a>?</span> <span class="parameter-name">carryIn</span>, </span></li>
 <li><span class="parameter" id="-param-name"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.8.2/dart-core/String-class.html">String</a></span> <span class="parameter-name">name</span> = <span class="default-value">&#39;ripple_carry_adder_carry_in&#39;</span>, </span></li>
+<li><span class="parameter" id="-param-reserveName"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.8.2/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">reserveName</span> = <span class="default-value">false</span>, </span></li>
+<li><span class="parameter" id="-param-reserveDefinitionName"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.8.2/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">reserveDefinitionName</span> = <span class="default-value">false</span>, </span></li>
+<li><span class="parameter" id="-param-definitionName"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.8.2/dart-core/String-class.html">String</a>?</span> <span class="parameter-name">definitionName</span>, </span></li>
 </ol>})
     </section>
     
@@ -70,8 +73,13 @@
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">RippleCarryAdder(super.a, super.b,
-    {super.carryIn, super.name = &#39;ripple_carry_adder_carry_in&#39;})
-    : super(definitionName: &#39;RippleCarryAdder_W${a.width}&#39;) {
+    {super.carryIn,
+    super.name = &#39;ripple_carry_adder_carry_in&#39;,
+    super.reserveName,
+    super.reserveDefinitionName,
+    String? definitionName})
+    : super(
+          definitionName: definitionName ?? &#39;RippleCarryAdder_W${a.width}&#39;) {
   Logic? carry;
   final sumList = &lt;Logic&gt;[];
   for (var i = 0; i &lt; a.width; i++) {

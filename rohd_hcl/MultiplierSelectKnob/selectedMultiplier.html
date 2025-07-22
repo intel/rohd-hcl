@@ -54,7 +54,7 @@
 
     <section class="multi-line-signature">
       
-<span class="returntype"><a href="../../rohd_hcl/Multiplier-class.html">Multiplier</a> Function<span class="signature">(<span class="parameter" id="param-term1"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.5/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">term1</span>, </span><span class="parameter" id="param-term2"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.5/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">term2</span>, {</span><span class="parameter" id="param-clk"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.5/rohd/Logic-class.html">Logic</a>?</span> <span class="parameter-name">clk</span>, </span><span class="parameter" id="param-enable"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.5/rohd/Logic-class.html">Logic</a>?</span> <span class="parameter-name">enable</span>, </span><span class="parameter" id="param-name"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.8.2/dart-core/String-class.html">String</a></span> <span class="parameter-name">name</span>, </span><span class="parameter" id="param-reset"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.5/rohd/Logic-class.html">Logic</a>?</span> <span class="parameter-name">reset</span></span>})</span></span>
+<span class="returntype"><a href="../../rohd_hcl/Multiplier-class.html">Multiplier</a> Function<span class="signature">(<span class="parameter" id="param-term1"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.5/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">term1</span>, </span><span class="parameter" id="param-term2"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.5/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">term2</span>, {</span><span class="parameter" id="param-clk"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.5/rohd/Logic-class.html">Logic</a>?</span> <span class="parameter-name">clk</span>, </span><span class="parameter" id="param-definitionName"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.8.2/dart-core/String-class.html">String</a>?</span> <span class="parameter-name">definitionName</span>, </span><span class="parameter" id="param-enable"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.5/rohd/Logic-class.html">Logic</a>?</span> <span class="parameter-name">enable</span>, </span><span class="parameter" id="param-name"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.8.2/dart-core/String-class.html">String</a></span> <span class="parameter-name">name</span>, </span><span class="parameter" id="param-reset"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.5/rohd/Logic-class.html">Logic</a>?</span> <span class="parameter-name">reset</span></span>})</span></span>
 <span class="name ">selectedMultiplier</span>(<wbr>)
 
       
@@ -73,19 +73,22 @@
     {Logic? clk,
     Logic? reset,
     Logic? enable,
-    String name}) selectedMultiplier() {
+    String name,
+    String? definitionName}) selectedMultiplier() {
   if (compressionTreeMultiplierKnob.value) {
     return (Logic term1, Logic term2,
             {Logic? clk,
             Logic? reset,
             Logic? enable,
-            String name = &#39;comp_tree_multiplier&#39;}) =&gt;
+            String name = &#39;comp_tree_multiplier&#39;,
+            String? definitionName}) =&gt;
         CompressionTreeMultiplier(term1, term2,
             radix: radixKnob.value,
             adderGen: adderSelectionKnob.selectedAdder(),
             clk: clk,
             reset: reset,
-            enable: enable);
+            enable: enable,
+            definitionName: definitionName);
   }
   return NativeMultiplier.new;
 }</code></pre>

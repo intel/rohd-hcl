@@ -1,0 +1,1580 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>d3-hwschematic</title>
+</head>
+<body>
+  </script>
+  <script type="text/javascript" src="d3-hwschematic-assets/d3/dist/d3.js"></script>
+  <!-- <script type="text/javascript" src="d3-hwschematic-assets/d3/dist/d3.min.js"></script>  -->
+  <script type="text/javascript" src="d3-hwschematic-assets/elkjs/lib/elk.bundled.js"></script>
+  <script type="text/javascript" src="d3-hwschematic-assets/d3-hwschematic.js"></script>
+  <link href="d3-hwschematic-assets/d3-hwschematic.css" rel="stylesheet">
+  <style>
+  	body {
+	   margin: 0;
+    }
+  </style>
+</head>
+<body>
+    <svg id="scheme-placeholder"></svg>
+    <script>
+        // schematic rendering script
+        function viewport() {
+          var e = window,
+            a = 'inner';
+          if (!(innerWidth in window)) {
+            a = 'client';
+            e = document.documentElement || document.body;
+          }
+          return {
+            width: e[a + 'Width'],
+            height: e[a + 'Height']
+          }
+        }
+      var exmpl = `{
+  "creator": "Yosys 0.55+8 (git sha1 9334a5c27, clang++ 18.1.8 -fPIC -O3)",
+  "modules": {
+    "MaskRoundRobinArbiter": {
+      "attributes": {
+        "top": 1,
+        "src": "MaskRoundRobinArbiter.sv:7.1-116.34"
+      },
+      "ports": {
+        "request_0": {
+          "direction": "input",
+          "bits": [ 2 ]
+        },
+        "request_1": {
+          "direction": "input",
+          "bits": [ 3 ]
+        },
+        "request_2": {
+          "direction": "input",
+          "bits": [ 4 ]
+        },
+        "request_3": {
+          "direction": "input",
+          "bits": [ 5 ]
+        },
+        "clk": {
+          "direction": "input",
+          "bits": [ 6 ]
+        },
+        "reset": {
+          "direction": "input",
+          "bits": [ 7 ]
+        },
+        "grant_0": {
+          "direction": "output",
+          "bits": [ 8 ]
+        },
+        "grant_1": {
+          "direction": "output",
+          "bits": [ 9 ]
+        },
+        "grant_2": {
+          "direction": "output",
+          "bits": [ 10 ]
+        },
+        "grant_3": {
+          "direction": "output",
+          "bits": [ 11 ]
+        }
+      },
+      "cells": {
+        "$and$MaskRoundRobinArbiter.sv:32$2": {
+          "hide_name": 1,
+          "type": "$and",
+          "parameters": {
+            "A_SIGNED": 0,
+            "A_WIDTH": 1,
+            "B_SIGNED": 0,
+            "B_WIDTH": 1,
+            "Y_WIDTH": 1
+          },
+          "attributes": {
+            "src": "MaskRoundRobinArbiter.sv:32.17-32.41"
+          },
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [ 12 ],
+            "B": [ 2 ],
+            "Y": [ 13 ]
+          }
+        },
+        "$and$MaskRoundRobinArbiter.sv:33$3": {
+          "hide_name": 1,
+          "type": "$and",
+          "parameters": {
+            "A_SIGNED": 0,
+            "A_WIDTH": 1,
+            "B_SIGNED": 0,
+            "B_WIDTH": 1,
+            "Y_WIDTH": 1
+          },
+          "attributes": {
+            "src": "MaskRoundRobinArbiter.sv:33.17-33.41"
+          },
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [ 14 ],
+            "B": [ 3 ],
+            "Y": [ 15 ]
+          }
+        },
+        "$and$MaskRoundRobinArbiter.sv:34$4": {
+          "hide_name": 1,
+          "type": "$and",
+          "parameters": {
+            "A_SIGNED": 0,
+            "A_WIDTH": 1,
+            "B_SIGNED": 0,
+            "B_WIDTH": 1,
+            "Y_WIDTH": 1
+          },
+          "attributes": {
+            "src": "MaskRoundRobinArbiter.sv:34.17-34.41"
+          },
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [ 16 ],
+            "B": [ 4 ],
+            "Y": [ 17 ]
+          }
+        },
+        "$and$MaskRoundRobinArbiter.sv:35$5": {
+          "hide_name": 1,
+          "type": "$and",
+          "parameters": {
+            "A_SIGNED": 0,
+            "A_WIDTH": 1,
+            "B_SIGNED": 0,
+            "B_WIDTH": 1,
+            "Y_WIDTH": 1
+          },
+          "attributes": {
+            "src": "MaskRoundRobinArbiter.sv:35.17-35.41"
+          },
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [ 18 ],
+            "B": [ 5 ],
+            "Y": [ 19 ]
+          }
+        },
+        "$and$MaskRoundRobinArbiter.sv:63$8": {
+          "hide_name": 1,
+          "type": "$and",
+          "parameters": {
+            "A_SIGNED": 0,
+            "A_WIDTH": 1,
+            "B_SIGNED": 0,
+            "B_WIDTH": 1,
+            "Y_WIDTH": 1
+          },
+          "attributes": {
+            "src": "MaskRoundRobinArbiter.sv:63.22-63.64"
+          },
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [ 20 ],
+            "B": [ 3 ],
+            "Y": [ 21 ]
+          }
+        },
+        "$and$MaskRoundRobinArbiter.sv:64$11": {
+          "hide_name": 1,
+          "type": "$and",
+          "parameters": {
+            "A_SIGNED": 0,
+            "A_WIDTH": 1,
+            "B_SIGNED": 0,
+            "B_WIDTH": 1,
+            "Y_WIDTH": 1
+          },
+          "attributes": {
+            "src": "MaskRoundRobinArbiter.sv:64.22-64.56"
+          },
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [ 22 ],
+            "B": [ 4 ],
+            "Y": [ 23 ]
+          }
+        },
+        "$and$MaskRoundRobinArbiter.sv:65$14": {
+          "hide_name": 1,
+          "type": "$and",
+          "parameters": {
+            "A_SIGNED": 0,
+            "A_WIDTH": 1,
+            "B_SIGNED": 0,
+            "B_WIDTH": 1,
+            "Y_WIDTH": 1
+          },
+          "attributes": {
+            "src": "MaskRoundRobinArbiter.sv:65.22-65.68"
+          },
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [ 24 ],
+            "B": [ 5 ],
+            "Y": [ 25 ]
+          }
+        },
+        "$auto$ff.cc:266:slice$103": {
+          "hide_name": 1,
+          "type": "$sdffe",
+          "parameters": {
+            "CLK_POLARITY": 1,
+            "EN_POLARITY": 1,
+            "SRST_POLARITY": 1,
+            "SRST_VALUE": 1,
+            "WIDTH": 1
+          },
+          "attributes": {
+            "always_ff": 1,
+            "src": "MaskRoundRobinArbiter.sv:72.1-111.4"
+          },
+          "port_directions": {
+            "CLK": "input",
+            "D": "input",
+            "EN": "input",
+            "Q": "output",
+            "SRST": "input"
+          },
+          "connections": {
+            "CLK": [ 6 ],
+            "D": [ 26 ],
+            "EN": [ 27 ],
+            "Q": [ 18 ],
+            "SRST": [ 7 ]
+          }
+        },
+        "$auto$ff.cc:266:slice$107": {
+          "hide_name": 1,
+          "type": "$sdffe",
+          "parameters": {
+            "CLK_POLARITY": 1,
+            "EN_POLARITY": 1,
+            "SRST_POLARITY": 1,
+            "SRST_VALUE": 1,
+            "WIDTH": 1
+          },
+          "attributes": {
+            "always_ff": 1,
+            "src": "MaskRoundRobinArbiter.sv:72.1-111.4"
+          },
+          "port_directions": {
+            "CLK": "input",
+            "D": "input",
+            "EN": "input",
+            "Q": "output",
+            "SRST": "input"
+          },
+          "connections": {
+            "CLK": [ 6 ],
+            "D": [ "0" ],
+            "EN": [ 28 ],
+            "Q": [ 12 ],
+            "SRST": [ 7 ]
+          }
+        },
+        "$auto$ff.cc:266:slice$109": {
+          "hide_name": 1,
+          "type": "$sdffe",
+          "parameters": {
+            "CLK_POLARITY": 1,
+            "EN_POLARITY": 1,
+            "SRST_POLARITY": 1,
+            "SRST_VALUE": 1,
+            "WIDTH": 1
+          },
+          "attributes": {
+            "always_ff": 1,
+            "src": "MaskRoundRobinArbiter.sv:72.1-111.4"
+          },
+          "port_directions": {
+            "CLK": "input",
+            "D": "input",
+            "EN": "input",
+            "Q": "output",
+            "SRST": "input"
+          },
+          "connections": {
+            "CLK": [ 6 ],
+            "D": [ 29 ],
+            "EN": [ 30 ],
+            "Q": [ 14 ],
+            "SRST": [ 7 ]
+          }
+        },
+        "$auto$ff.cc:266:slice$113": {
+          "hide_name": 1,
+          "type": "$sdffe",
+          "parameters": {
+            "CLK_POLARITY": 1,
+            "EN_POLARITY": 1,
+            "SRST_POLARITY": 1,
+            "SRST_VALUE": 1,
+            "WIDTH": 1
+          },
+          "attributes": {
+            "always_ff": 1,
+            "src": "MaskRoundRobinArbiter.sv:72.1-111.4"
+          },
+          "port_directions": {
+            "CLK": "input",
+            "D": "input",
+            "EN": "input",
+            "Q": "output",
+            "SRST": "input"
+          },
+          "connections": {
+            "CLK": [ 6 ],
+            "D": [ 31 ],
+            "EN": [ 32 ],
+            "Q": [ 16 ],
+            "SRST": [ 7 ]
+          }
+        },
+        "$auto$opt_dff.cc:195:make_patterns_logic$105": {
+          "hide_name": 1,
+          "type": "$reduce_bool",
+          "parameters": {
+            "A_SIGNED": 0,
+            "A_WIDTH": 2,
+            "Y_WIDTH": 1
+          },
+          "attributes": {
+          },
+          "port_directions": {
+            "A": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [ 33, 34 ],
+            "Y": [ 27 ]
+          }
+        },
+        "$auto$opt_dff.cc:195:make_patterns_logic$111": {
+          "hide_name": 1,
+          "type": "$reduce_bool",
+          "parameters": {
+            "A_SIGNED": 0,
+            "A_WIDTH": 2,
+            "Y_WIDTH": 1
+          },
+          "attributes": {
+          },
+          "port_directions": {
+            "A": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [ 35, 36 ],
+            "Y": [ 30 ]
+          }
+        },
+        "$auto$opt_dff.cc:195:make_patterns_logic$115": {
+          "hide_name": 1,
+          "type": "$reduce_bool",
+          "parameters": {
+            "A_SIGNED": 0,
+            "A_WIDTH": 2,
+            "Y_WIDTH": 1
+          },
+          "attributes": {
+          },
+          "port_directions": {
+            "A": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [ 37, 38 ],
+            "Y": [ 32 ]
+          }
+        },
+        "$auto$opt_reduce.cc:131:opt_pmux$100": {
+          "hide_name": 1,
+          "type": "$reduce_or",
+          "parameters": {
+            "A_SIGNED": 0,
+            "A_WIDTH": 3,
+            "Y_WIDTH": 1
+          },
+          "attributes": {
+          },
+          "port_directions": {
+            "A": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [ 39, 40, 36 ],
+            "Y": [ 33 ]
+          }
+        },
+        "$auto$opt_reduce.cc:131:opt_pmux$92": {
+          "hide_name": 1,
+          "type": "$reduce_or",
+          "parameters": {
+            "A_SIGNED": 0,
+            "A_WIDTH": 4,
+            "Y_WIDTH": 1
+          },
+          "attributes": {
+          },
+          "port_directions": {
+            "A": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [ 34, 39, 40, 36 ],
+            "Y": [ 28 ]
+          }
+        },
+        "$auto$opt_reduce.cc:131:opt_pmux$94": {
+          "hide_name": 1,
+          "type": "$reduce_or",
+          "parameters": {
+            "A_SIGNED": 0,
+            "A_WIDTH": 3,
+            "Y_WIDTH": 1
+          },
+          "attributes": {
+          },
+          "port_directions": {
+            "A": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [ 34, 39, 40 ],
+            "Y": [ 35 ]
+          }
+        },
+        "$auto$opt_reduce.cc:131:opt_pmux$96": {
+          "hide_name": 1,
+          "type": "$reduce_or",
+          "parameters": {
+            "A_SIGNED": 0,
+            "A_WIDTH": 2,
+            "Y_WIDTH": 1
+          },
+          "attributes": {
+          },
+          "port_directions": {
+            "A": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [ 34, 39 ],
+            "Y": [ 37 ]
+          }
+        },
+        "$auto$opt_reduce.cc:131:opt_pmux$98": {
+          "hide_name": 1,
+          "type": "$reduce_or",
+          "parameters": {
+            "A_SIGNED": 0,
+            "A_WIDTH": 2,
+            "Y_WIDTH": 1
+          },
+          "attributes": {
+          },
+          "port_directions": {
+            "A": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [ 40, 36 ],
+            "Y": [ 38 ]
+          }
+        },
+        "$not$MaskRoundRobinArbiter.sv:63$7": {
+          "hide_name": 1,
+          "type": "$not",
+          "parameters": {
+            "A_SIGNED": 0,
+            "A_WIDTH": 1,
+            "Y_WIDTH": 1
+          },
+          "attributes": {
+            "src": "MaskRoundRobinArbiter.sv:63.23-63.51"
+          },
+          "port_directions": {
+            "A": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [ 2 ],
+            "Y": [ 20 ]
+          }
+        },
+        "$not$MaskRoundRobinArbiter.sv:64$10": {
+          "hide_name": 1,
+          "type": "$not",
+          "parameters": {
+            "A_SIGNED": 0,
+            "A_WIDTH": 1,
+            "Y_WIDTH": 1
+          },
+          "attributes": {
+            "src": "MaskRoundRobinArbiter.sv:64.23-64.43"
+          },
+          "port_directions": {
+            "A": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [ 41 ],
+            "Y": [ 22 ]
+          }
+        },
+        "$not$MaskRoundRobinArbiter.sv:65$13": {
+          "hide_name": 1,
+          "type": "$not",
+          "parameters": {
+            "A_SIGNED": 0,
+            "A_WIDTH": 1,
+            "Y_WIDTH": 1
+          },
+          "attributes": {
+            "src": "MaskRoundRobinArbiter.sv:65.23-65.55"
+          },
+          "port_directions": {
+            "A": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [ 42 ],
+            "Y": [ 24 ]
+          }
+        },
+        "$procmux$17": {
+          "hide_name": 1,
+          "type": "$pmux",
+          "parameters": {
+            "S_WIDTH": 2,
+            "WIDTH": 1
+          },
+          "attributes": {
+            "full_case": 1,
+            "parallel_case": 1,
+            "src": "MaskRoundRobinArbiter.sv:0.0-0.0|MaskRoundRobinArbiter.sv:79.14-107.14"
+          },
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "S": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [ "x" ],
+            "B": [ "0", "1" ],
+            "S": [ 34, 33 ],
+            "Y": [ 26 ]
+          }
+        },
+        "$procmux$26": {
+          "hide_name": 1,
+          "type": "$pmux",
+          "parameters": {
+            "S_WIDTH": 2,
+            "WIDTH": 1
+          },
+          "attributes": {
+            "full_case": 1,
+            "parallel_case": 1,
+            "src": "MaskRoundRobinArbiter.sv:0.0-0.0|MaskRoundRobinArbiter.sv:79.14-107.14"
+          },
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "S": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [ "x" ],
+            "B": [ "0", "1" ],
+            "S": [ 37, 38 ],
+            "Y": [ 31 ]
+          }
+        },
+        "$procmux$35": {
+          "hide_name": 1,
+          "type": "$pmux",
+          "parameters": {
+            "S_WIDTH": 2,
+            "WIDTH": 1
+          },
+          "attributes": {
+            "full_case": 1,
+            "parallel_case": 1,
+            "src": "MaskRoundRobinArbiter.sv:0.0-0.0|MaskRoundRobinArbiter.sv:79.14-107.14"
+          },
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "S": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [ "x" ],
+            "B": [ "0", "1" ],
+            "S": [ 35, 36 ],
+            "Y": [ 29 ]
+          }
+        },
+        "$procmux$45_CMP0": {
+          "hide_name": 1,
+          "type": "$eq",
+          "parameters": {
+            "A_SIGNED": 0,
+            "A_WIDTH": 4,
+            "B_SIGNED": 0,
+            "B_WIDTH": 4,
+            "Y_WIDTH": 1
+          },
+          "attributes": {
+            "full_case": 1,
+            "parallel_case": 1,
+            "src": "MaskRoundRobinArbiter.sv:0.0-0.0|MaskRoundRobinArbiter.sv:79.14-107.14"
+          },
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [ 8, 9, 10, 11 ],
+            "B": [ "0", "0", "0", "1" ],
+            "Y": [ 34 ]
+          }
+        },
+        "$procmux$46_CMP0": {
+          "hide_name": 1,
+          "type": "$eq",
+          "parameters": {
+            "A_SIGNED": 0,
+            "A_WIDTH": 4,
+            "B_SIGNED": 0,
+            "B_WIDTH": 4,
+            "Y_WIDTH": 1
+          },
+          "attributes": {
+            "full_case": 1,
+            "parallel_case": 1,
+            "src": "MaskRoundRobinArbiter.sv:0.0-0.0|MaskRoundRobinArbiter.sv:79.14-107.14"
+          },
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [ 8, 9, 10, 11 ],
+            "B": [ "0", "0", "1", "0" ],
+            "Y": [ 39 ]
+          }
+        },
+        "$procmux$47_CMP0": {
+          "hide_name": 1,
+          "type": "$eq",
+          "parameters": {
+            "A_SIGNED": 0,
+            "A_WIDTH": 4,
+            "B_SIGNED": 0,
+            "B_WIDTH": 4,
+            "Y_WIDTH": 1
+          },
+          "attributes": {
+            "full_case": 1,
+            "parallel_case": 1,
+            "src": "MaskRoundRobinArbiter.sv:0.0-0.0|MaskRoundRobinArbiter.sv:79.14-107.14"
+          },
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [ 8, 9, 10, 11 ],
+            "B": [ "0", "1", "0", "0" ],
+            "Y": [ 40 ]
+          }
+        },
+        "$procmux$48_CMP0": {
+          "hide_name": 1,
+          "type": "$eq",
+          "parameters": {
+            "A_SIGNED": 0,
+            "A_WIDTH": 4,
+            "B_SIGNED": 0,
+            "B_WIDTH": 4,
+            "Y_WIDTH": 1
+          },
+          "attributes": {
+            "full_case": 1,
+            "parallel_case": 1,
+            "src": "MaskRoundRobinArbiter.sv:0.0-0.0|MaskRoundRobinArbiter.sv:79.14-107.14"
+          },
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [ 8, 9, 10, 11 ],
+            "B": [ "1", "0", "0", "0" ],
+            "Y": [ 36 ]
+          }
+        },
+        "$procmux$53": {
+          "hide_name": 1,
+          "type": "$mux",
+          "parameters": {
+            "WIDTH": 1
+          },
+          "attributes": {
+            "full_case": 1,
+            "src": "MaskRoundRobinArbiter.sv:0.0-0.0|MaskRoundRobinArbiter.sv:36.12-67.10"
+          },
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "S": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [ 25 ],
+            "B": [ "1" ],
+            "S": [ 19 ],
+            "Y": [ 43 ]
+          }
+        },
+        "$procmux$55": {
+          "hide_name": 1,
+          "type": "$mux",
+          "parameters": {
+            "WIDTH": 1
+          },
+          "attributes": {
+            "full_case": 1,
+            "src": "MaskRoundRobinArbiter.sv:0.0-0.0|MaskRoundRobinArbiter.sv:36.12-67.10"
+          },
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "S": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [ 43 ],
+            "B": [ "0" ],
+            "S": [ 17 ],
+            "Y": [ 44 ]
+          }
+        },
+        "$procmux$57": {
+          "hide_name": 1,
+          "type": "$mux",
+          "parameters": {
+            "WIDTH": 1
+          },
+          "attributes": {
+            "full_case": 1,
+            "src": "MaskRoundRobinArbiter.sv:0.0-0.0|MaskRoundRobinArbiter.sv:36.12-67.10"
+          },
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "S": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [ 44 ],
+            "B": [ "0" ],
+            "S": [ 15 ],
+            "Y": [ 45 ]
+          }
+        },
+        "$procmux$59": {
+          "hide_name": 1,
+          "type": "$mux",
+          "parameters": {
+            "WIDTH": 1
+          },
+          "attributes": {
+            "full_case": 1,
+            "src": "MaskRoundRobinArbiter.sv:0.0-0.0|MaskRoundRobinArbiter.sv:36.12-67.10"
+          },
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "S": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [ 45 ],
+            "B": [ "0" ],
+            "S": [ 13 ],
+            "Y": [ 11 ]
+          }
+        },
+        "$procmux$62": {
+          "hide_name": 1,
+          "type": "$mux",
+          "parameters": {
+            "WIDTH": 1
+          },
+          "attributes": {
+            "full_case": 1,
+            "src": "MaskRoundRobinArbiter.sv:0.0-0.0|MaskRoundRobinArbiter.sv:36.12-67.10"
+          },
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "S": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [ 23 ],
+            "B": [ "0" ],
+            "S": [ 19 ],
+            "Y": [ 46 ]
+          }
+        },
+        "$procmux$64": {
+          "hide_name": 1,
+          "type": "$mux",
+          "parameters": {
+            "WIDTH": 1
+          },
+          "attributes": {
+            "full_case": 1,
+            "src": "MaskRoundRobinArbiter.sv:0.0-0.0|MaskRoundRobinArbiter.sv:36.12-67.10"
+          },
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "S": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [ 46 ],
+            "B": [ "1" ],
+            "S": [ 17 ],
+            "Y": [ 47 ]
+          }
+        },
+        "$procmux$66": {
+          "hide_name": 1,
+          "type": "$mux",
+          "parameters": {
+            "WIDTH": 1
+          },
+          "attributes": {
+            "full_case": 1,
+            "src": "MaskRoundRobinArbiter.sv:0.0-0.0|MaskRoundRobinArbiter.sv:36.12-67.10"
+          },
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "S": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [ 47 ],
+            "B": [ "0" ],
+            "S": [ 15 ],
+            "Y": [ 48 ]
+          }
+        },
+        "$procmux$68": {
+          "hide_name": 1,
+          "type": "$mux",
+          "parameters": {
+            "WIDTH": 1
+          },
+          "attributes": {
+            "full_case": 1,
+            "src": "MaskRoundRobinArbiter.sv:0.0-0.0|MaskRoundRobinArbiter.sv:36.12-67.10"
+          },
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "S": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [ 48 ],
+            "B": [ "0" ],
+            "S": [ 13 ],
+            "Y": [ 10 ]
+          }
+        },
+        "$procmux$71": {
+          "hide_name": 1,
+          "type": "$mux",
+          "parameters": {
+            "WIDTH": 1
+          },
+          "attributes": {
+            "full_case": 1,
+            "src": "MaskRoundRobinArbiter.sv:0.0-0.0|MaskRoundRobinArbiter.sv:36.12-67.10"
+          },
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "S": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [ 21 ],
+            "B": [ "0" ],
+            "S": [ 19 ],
+            "Y": [ 49 ]
+          }
+        },
+        "$procmux$73": {
+          "hide_name": 1,
+          "type": "$mux",
+          "parameters": {
+            "WIDTH": 1
+          },
+          "attributes": {
+            "full_case": 1,
+            "src": "MaskRoundRobinArbiter.sv:0.0-0.0|MaskRoundRobinArbiter.sv:36.12-67.10"
+          },
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "S": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [ 49 ],
+            "B": [ "0" ],
+            "S": [ 17 ],
+            "Y": [ 50 ]
+          }
+        },
+        "$procmux$75": {
+          "hide_name": 1,
+          "type": "$mux",
+          "parameters": {
+            "WIDTH": 1
+          },
+          "attributes": {
+            "full_case": 1,
+            "src": "MaskRoundRobinArbiter.sv:0.0-0.0|MaskRoundRobinArbiter.sv:36.12-67.10"
+          },
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "S": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [ 50 ],
+            "B": [ "1" ],
+            "S": [ 15 ],
+            "Y": [ 51 ]
+          }
+        },
+        "$procmux$77": {
+          "hide_name": 1,
+          "type": "$mux",
+          "parameters": {
+            "WIDTH": 1
+          },
+          "attributes": {
+            "full_case": 1,
+            "src": "MaskRoundRobinArbiter.sv:0.0-0.0|MaskRoundRobinArbiter.sv:36.12-67.10"
+          },
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "S": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [ 51 ],
+            "B": [ "0" ],
+            "S": [ 13 ],
+            "Y": [ 9 ]
+          }
+        },
+        "$procmux$80": {
+          "hide_name": 1,
+          "type": "$mux",
+          "parameters": {
+            "WIDTH": 1
+          },
+          "attributes": {
+            "full_case": 1,
+            "src": "MaskRoundRobinArbiter.sv:0.0-0.0|MaskRoundRobinArbiter.sv:36.12-67.10"
+          },
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "S": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [ 2 ],
+            "B": [ "0" ],
+            "S": [ 19 ],
+            "Y": [ 52 ]
+          }
+        },
+        "$procmux$82": {
+          "hide_name": 1,
+          "type": "$mux",
+          "parameters": {
+            "WIDTH": 1
+          },
+          "attributes": {
+            "full_case": 1,
+            "src": "MaskRoundRobinArbiter.sv:0.0-0.0|MaskRoundRobinArbiter.sv:36.12-67.10"
+          },
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "S": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [ 52 ],
+            "B": [ "0" ],
+            "S": [ 17 ],
+            "Y": [ 53 ]
+          }
+        },
+        "$procmux$84": {
+          "hide_name": 1,
+          "type": "$mux",
+          "parameters": {
+            "WIDTH": 1
+          },
+          "attributes": {
+            "full_case": 1,
+            "src": "MaskRoundRobinArbiter.sv:0.0-0.0|MaskRoundRobinArbiter.sv:36.12-67.10"
+          },
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "S": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [ 53 ],
+            "B": [ "0" ],
+            "S": [ 15 ],
+            "Y": [ 54 ]
+          }
+        },
+        "$procmux$86": {
+          "hide_name": 1,
+          "type": "$mux",
+          "parameters": {
+            "WIDTH": 1
+          },
+          "attributes": {
+            "full_case": 1,
+            "src": "MaskRoundRobinArbiter.sv:0.0-0.0|MaskRoundRobinArbiter.sv:36.12-67.10"
+          },
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "S": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [ 54 ],
+            "B": [ "1" ],
+            "S": [ 13 ],
+            "Y": [ 8 ]
+          }
+        },
+        "$reduce_or$MaskRoundRobinArbiter.sv:64$9": {
+          "hide_name": 1,
+          "type": "$reduce_or",
+          "parameters": {
+            "A_SIGNED": 0,
+            "A_WIDTH": 2,
+            "Y_WIDTH": 1
+          },
+          "attributes": {
+            "src": "MaskRoundRobinArbiter.sv:64.25-64.42"
+          },
+          "port_directions": {
+            "A": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [ 2, 3 ],
+            "Y": [ 41 ]
+          }
+        },
+        "$reduce_or$MaskRoundRobinArbiter.sv:65$12": {
+          "hide_name": 1,
+          "type": "$reduce_or",
+          "parameters": {
+            "A_SIGNED": 0,
+            "A_WIDTH": 3,
+            "Y_WIDTH": 1
+          },
+          "attributes": {
+            "src": "MaskRoundRobinArbiter.sv:65.25-65.54"
+          },
+          "port_directions": {
+            "A": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [ 2, 3, 4 ],
+            "Y": [ 42 ]
+          }
+        }
+      },
+      "netnames": {
+        "$and$MaskRoundRobinArbiter.sv:63$8_Y": {
+          "hide_name": 1,
+          "bits": [ 21 ],
+          "attributes": {
+            "src": "MaskRoundRobinArbiter.sv:63.22-63.64"
+          }
+        },
+        "$and$MaskRoundRobinArbiter.sv:64$11_Y": {
+          "hide_name": 1,
+          "bits": [ 23 ],
+          "attributes": {
+            "src": "MaskRoundRobinArbiter.sv:64.22-64.56"
+          }
+        },
+        "$and$MaskRoundRobinArbiter.sv:65$14_Y": {
+          "hide_name": 1,
+          "bits": [ 25 ],
+          "attributes": {
+            "src": "MaskRoundRobinArbiter.sv:65.22-65.68"
+          }
+        },
+        "$auto$opt_dff.cc:194:make_patterns_logic$104": {
+          "hide_name": 1,
+          "bits": [ 27 ],
+          "attributes": {
+          }
+        },
+        "$auto$opt_dff.cc:194:make_patterns_logic$110": {
+          "hide_name": 1,
+          "bits": [ 30 ],
+          "attributes": {
+          }
+        },
+        "$auto$opt_dff.cc:194:make_patterns_logic$114": {
+          "hide_name": 1,
+          "bits": [ 32 ],
+          "attributes": {
+          }
+        },
+        "$auto$opt_reduce.cc:137:opt_pmux$101": {
+          "hide_name": 1,
+          "bits": [ 33 ],
+          "attributes": {
+          }
+        },
+        "$auto$opt_reduce.cc:137:opt_pmux$93": {
+          "hide_name": 1,
+          "bits": [ 28 ],
+          "attributes": {
+          }
+        },
+        "$auto$opt_reduce.cc:137:opt_pmux$95": {
+          "hide_name": 1,
+          "bits": [ 35 ],
+          "attributes": {
+          }
+        },
+        "$auto$opt_reduce.cc:137:opt_pmux$97": {
+          "hide_name": 1,
+          "bits": [ 37 ],
+          "attributes": {
+          }
+        },
+        "$auto$opt_reduce.cc:137:opt_pmux$99": {
+          "hide_name": 1,
+          "bits": [ 38 ],
+          "attributes": {
+          }
+        },
+        "$not$MaskRoundRobinArbiter.sv:63$7_Y": {
+          "hide_name": 1,
+          "bits": [ 20 ],
+          "attributes": {
+            "src": "MaskRoundRobinArbiter.sv:63.23-63.51"
+          }
+        },
+        "$not$MaskRoundRobinArbiter.sv:64$10_Y": {
+          "hide_name": 1,
+          "bits": [ 22 ],
+          "attributes": {
+            "src": "MaskRoundRobinArbiter.sv:64.23-64.43"
+          }
+        },
+        "$not$MaskRoundRobinArbiter.sv:65$13_Y": {
+          "hide_name": 1,
+          "bits": [ 24 ],
+          "attributes": {
+            "src": "MaskRoundRobinArbiter.sv:65.23-65.55"
+          }
+        },
+        "$procmux$17_Y": {
+          "hide_name": 1,
+          "bits": [ 26 ],
+          "attributes": {
+          }
+        },
+        "$procmux$18_CMP": {
+          "hide_name": 1,
+          "bits": [ 34 ],
+          "attributes": {
+          }
+        },
+        "$procmux$19_CMP": {
+          "hide_name": 1,
+          "bits": [ 39 ],
+          "attributes": {
+          }
+        },
+        "$procmux$20_CMP": {
+          "hide_name": 1,
+          "bits": [ 40 ],
+          "attributes": {
+          }
+        },
+        "$procmux$21_CMP": {
+          "hide_name": 1,
+          "bits": [ 36 ],
+          "attributes": {
+          }
+        },
+        "$procmux$26_Y": {
+          "hide_name": 1,
+          "bits": [ 31 ],
+          "attributes": {
+          }
+        },
+        "$procmux$35_Y": {
+          "hide_name": 1,
+          "bits": [ 29 ],
+          "attributes": {
+          }
+        },
+        "$procmux$53_Y": {
+          "hide_name": 1,
+          "bits": [ 43 ],
+          "attributes": {
+          }
+        },
+        "$procmux$55_Y": {
+          "hide_name": 1,
+          "bits": [ 44 ],
+          "attributes": {
+          }
+        },
+        "$procmux$57_Y": {
+          "hide_name": 1,
+          "bits": [ 45 ],
+          "attributes": {
+          }
+        },
+        "$procmux$62_Y": {
+          "hide_name": 1,
+          "bits": [ 46 ],
+          "attributes": {
+          }
+        },
+        "$procmux$64_Y": {
+          "hide_name": 1,
+          "bits": [ 47 ],
+          "attributes": {
+          }
+        },
+        "$procmux$66_Y": {
+          "hide_name": 1,
+          "bits": [ 48 ],
+          "attributes": {
+          }
+        },
+        "$procmux$71_Y": {
+          "hide_name": 1,
+          "bits": [ 49 ],
+          "attributes": {
+          }
+        },
+        "$procmux$73_Y": {
+          "hide_name": 1,
+          "bits": [ 50 ],
+          "attributes": {
+          }
+        },
+        "$procmux$75_Y": {
+          "hide_name": 1,
+          "bits": [ 51 ],
+          "attributes": {
+          }
+        },
+        "$procmux$80_Y": {
+          "hide_name": 1,
+          "bits": [ 52 ],
+          "attributes": {
+          }
+        },
+        "$procmux$82_Y": {
+          "hide_name": 1,
+          "bits": [ 53 ],
+          "attributes": {
+          }
+        },
+        "$procmux$84_Y": {
+          "hide_name": 1,
+          "bits": [ 54 ],
+          "attributes": {
+          }
+        },
+        "$reduce_or$MaskRoundRobinArbiter.sv:64$9_Y": {
+          "hide_name": 1,
+          "bits": [ 41 ],
+          "attributes": {
+            "src": "MaskRoundRobinArbiter.sv:64.25-64.42"
+          }
+        },
+        "$reduce_or$MaskRoundRobinArbiter.sv:65$12_Y": {
+          "hide_name": 1,
+          "bits": [ 42 ],
+          "attributes": {
+            "src": "MaskRoundRobinArbiter.sv:65.25-65.54"
+          }
+        },
+        "_original__swizzled": {
+          "hide_name": 0,
+          "bits": [ 2, 3, 4, 5 ],
+          "attributes": {
+            "src": "MaskRoundRobinArbiter.sv:19.13-19.32"
+          }
+        },
+        "_original__swizzled_0": {
+          "hide_name": 0,
+          "bits": [ 2, 3, 4, 5 ],
+          "attributes": {
+            "src": "MaskRoundRobinArbiter.sv:20.13-20.34"
+          }
+        },
+        "_swizzled": {
+          "hide_name": 0,
+          "bits": [ 2, 3, 4, 5 ],
+          "attributes": {
+            "src": "MaskRoundRobinArbiter.sv:21.13-21.22"
+          }
+        },
+        "clk": {
+          "hide_name": 0,
+          "bits": [ 6 ],
+          "attributes": {
+            "src": "MaskRoundRobinArbiter.sv:12.13-12.16"
+          }
+        },
+        "grantMask0": {
+          "hide_name": 0,
+          "bits": [ 13 ],
+          "attributes": {
+            "src": "MaskRoundRobinArbiter.sv:22.7-22.17"
+          }
+        },
+        "grantMask1": {
+          "hide_name": 0,
+          "bits": [ 15 ],
+          "attributes": {
+            "src": "MaskRoundRobinArbiter.sv:23.7-23.17"
+          }
+        },
+        "grantMask2": {
+          "hide_name": 0,
+          "bits": [ 17 ],
+          "attributes": {
+            "src": "MaskRoundRobinArbiter.sv:24.7-24.17"
+          }
+        },
+        "grantMask3": {
+          "hide_name": 0,
+          "bits": [ 19 ],
+          "attributes": {
+            "src": "MaskRoundRobinArbiter.sv:25.7-25.17"
+          }
+        },
+        "grant_0": {
+          "hide_name": 0,
+          "bits": [ 8 ],
+          "attributes": {
+            "src": "MaskRoundRobinArbiter.sv:14.14-14.21"
+          }
+        },
+        "grant_1": {
+          "hide_name": 0,
+          "bits": [ 9 ],
+          "attributes": {
+            "src": "MaskRoundRobinArbiter.sv:15.14-15.21"
+          }
+        },
+        "grant_2": {
+          "hide_name": 0,
+          "bits": [ 10 ],
+          "attributes": {
+            "src": "MaskRoundRobinArbiter.sv:16.14-16.21"
+          }
+        },
+        "grant_3": {
+          "hide_name": 0,
+          "bits": [ 11 ],
+          "attributes": {
+            "src": "MaskRoundRobinArbiter.sv:17.14-17.21"
+          }
+        },
+        "requestMask0": {
+          "hide_name": 0,
+          "bits": [ 12 ],
+          "attributes": {
+            "src": "MaskRoundRobinArbiter.sv:26.7-26.19"
+          }
+        },
+        "requestMask1": {
+          "hide_name": 0,
+          "bits": [ 14 ],
+          "attributes": {
+            "src": "MaskRoundRobinArbiter.sv:27.7-27.19"
+          }
+        },
+        "requestMask2": {
+          "hide_name": 0,
+          "bits": [ 16 ],
+          "attributes": {
+            "src": "MaskRoundRobinArbiter.sv:28.7-28.19"
+          }
+        },
+        "requestMask3": {
+          "hide_name": 0,
+          "bits": [ 18 ],
+          "attributes": {
+            "src": "MaskRoundRobinArbiter.sv:29.7-29.19"
+          }
+        },
+        "request_0": {
+          "hide_name": 0,
+          "bits": [ 2 ],
+          "attributes": {
+            "src": "MaskRoundRobinArbiter.sv:8.13-8.22"
+          }
+        },
+        "request_1": {
+          "hide_name": 0,
+          "bits": [ 3 ],
+          "attributes": {
+            "src": "MaskRoundRobinArbiter.sv:9.13-9.22"
+          }
+        },
+        "request_2": {
+          "hide_name": 0,
+          "bits": [ 4 ],
+          "attributes": {
+            "src": "MaskRoundRobinArbiter.sv:10.13-10.22"
+          }
+        },
+        "request_3": {
+          "hide_name": 0,
+          "bits": [ 5 ],
+          "attributes": {
+            "src": "MaskRoundRobinArbiter.sv:11.13-11.22"
+          }
+        },
+        "reset": {
+          "hide_name": 0,
+          "bits": [ 7 ],
+          "attributes": {
+            "src": "MaskRoundRobinArbiter.sv:13.13-13.18"
+          }
+        }
+      }
+    }
+  }
+}`;
+        var width = viewport().width,
+            height = viewport().height;
+
+        var svg = d3.select("#scheme-placeholder")
+            .attr("width", width)
+            .attr("height", height);
+
+        var orig = document.body.onresize;
+        document.body.onresize = function(ev) {
+            if (orig)
+        	    orig(ev);
+
+            var w = viewport();
+            svg.attr("width", w.width);
+			svg.attr("height", w.height);
+        }
+
+        var hwSchematic = new d3.HwSchematic(svg);
+        var zoom = d3.zoom();
+        zoom.on("zoom", function applyTransform(ev) {
+        	hwSchematic.root.attr("transform", ev.transform)
+        });
+
+        // disable zoom on doubleclick
+        // because it interferes with component expanding/collapsing
+        svg.call(zoom)
+           .on("dblclick.zoom", null)
+
+      graph = JSON.parse(exmpl);
+      if ("creator" in graph) {
+	  graph = d3.HwSchematic.fromYosys(graph);
+      }
+      if (graph.hwMeta && graph.hwMeta.name) {
+          document.title = graph.hwMeta.name;
+	  hwSchematic.bindData(graph);
+      }
+    </script>
+</body>
+</html>
+

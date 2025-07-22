@@ -60,6 +60,8 @@
 <li><span class="parameter" id="-param-controlIntf"><span class="type-annotation"><a href="../../rohd_hcl/ClockGateControlInterface-class.html">ClockGateControlInterface</a>?</span> <span class="parameter-name">controlIntf</span>, </span></li>
 <li><span class="parameter" id="-param-delayControlledSignals"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.8.2/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">delayControlledSignals</span> = <span class="default-value">false</span>, </span></li>
 <li><span class="parameter" id="-param-name"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.8.2/dart-core/String-class.html">String</a></span> <span class="parameter-name">name</span> = <span class="default-value">&#39;clock_gate&#39;</span>, </span></li>
+<li><span class="parameter" id="-param-reserveName"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.8.2/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">reserveName</span> = <span class="default-value">false</span>, </span></li>
+<li><span class="parameter" id="-param-reserveDefinitionName"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.8.2/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">reserveDefinitionName</span> = <span class="default-value">false</span>, </span></li>
 <li><span class="parameter" id="-param-definitionName"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.8.2/dart-core/String-class.html">String</a>?</span> <span class="parameter-name">definitionName</span>, </span></li>
 </ol>})
     </section>
@@ -93,7 +95,10 @@ capture of data.</p>
     ClockGateControlInterface? controlIntf,
     this.delayControlledSignals = false,
     super.name = &#39;clock_gate&#39;,
-    super.definitionName}) {
+    super.reserveName,
+    super.reserveDefinitionName,
+    String? definitionName})
+    : super(definitionName: definitionName ?? &#39;ClockGate&#39;) {
   &#47;&#47; if this clock gating is not intended to be present, then just do nothing
   if (!(controlIntf?.isPresent ?? true)) {
     _controlIntf = null;

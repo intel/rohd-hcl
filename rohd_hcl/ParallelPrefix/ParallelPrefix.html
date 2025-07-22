@@ -54,9 +54,12 @@
 
     <section class="multi-line-signature">
       
-      <span class="name ">ParallelPrefix</span>(<wbr><ol class="parameter-list single-line"> <li><span class="parameter" id="-param-inps"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.8.2/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://pub.dev/documentation/rohd/0.6.5/rohd/Logic-class.html">Logic</a></span>&gt;</span></span> <span class="parameter-name">inps</span>, </span></li>
-<li><span class="parameter" id="-param-name"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.8.2/dart-core/String-class.html">String</a></span> <span class="parameter-name">name</span></span></li>
-</ol>)
+      <span class="name ">ParallelPrefix</span>(<wbr><ol class="parameter-list"> <li><span class="parameter" id="-param-inps"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.8.2/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://pub.dev/documentation/rohd/0.6.5/rohd/Logic-class.html">Logic</a></span>&gt;</span></span> <span class="parameter-name">inps</span>, </span></li>
+<li><span class="parameter" id="-param-name"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.8.2/dart-core/String-class.html">String</a></span> <span class="parameter-name">name</span>, {</span></li>
+<li><span class="parameter" id="-param-reserveName"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.8.2/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">reserveName</span> = <span class="default-value">false</span>, </span></li>
+<li><span class="parameter" id="-param-reserveDefinitionName"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.8.2/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">reserveDefinitionName</span> = <span class="default-value">false</span>, </span></li>
+<li><span class="parameter" id="-param-definitionName"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.8.2/dart-core/String-class.html">String</a>?</span> <span class="parameter-name">definitionName</span>, </span></li>
+</ol>})
     </section>
     
 <section class="desc markdown">
@@ -67,10 +70,12 @@
     
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
-  <pre class="language-dart"><code class="language-dart">ParallelPrefix(List&lt;Logic&gt; inps, String name)
+  <pre class="language-dart"><code class="language-dart">ParallelPrefix(List&lt;Logic&gt; inps, String name,
+    {super.reserveName, super.reserveDefinitionName, String? definitionName})
     : super(
           name: name,
-          definitionName: &#39;ParallelPrefix_${name}_W${inps.length}&#39;) {
+          definitionName:
+              definitionName ?? &#39;ParallelPrefix_${name}_W${inps.length}&#39;) {
   if (inps.isEmpty) {
     throw Exception(&quot;Don&#39;t use {name} with an empty sequence&quot;);
   }

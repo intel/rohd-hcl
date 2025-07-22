@@ -76,22 +76,22 @@
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">@override
 Module createModule() =&gt; Sum(
-      sumInterfaceKnobs.knobs
-          .map((e) =&gt; e as SumInterfaceKnob)
-          .map((e) =&gt; SumInterface(
-                hasEnable: e.hasEnableKnob.value,
-                fixedAmount:
-                    e.isFixedValueKnob.value ? e.fixedValueKnob.value : null,
-                width: e.widthKnob.value,
-                increments: e.incrementsKnob.value,
-              ))
-          .toList(),
-      initialValue: initialValueKnob.value,
-      width: widthKnob.value,
-      minValue: minValueKnob.value,
-      maxValue: maxValueKnob.value,
-      saturates: saturatesKnob.value,
-    );</code></pre>
+    sumInterfaceKnobs.knobs
+        .map((e) =&gt; e as SumInterfaceKnob)
+        .map((e) =&gt; SumInterface(
+              hasEnable: e.hasEnableKnob.value,
+              fixedAmount:
+                  e.isFixedValueKnob.value ? e.fixedValueKnob.value : null,
+              width: e.widthKnob.value,
+              increments: e.incrementsKnob.value,
+            ))
+        .toList(),
+    initialValue: initialValueKnob.value,
+    width: widthKnob.value,
+    minValue: minValueKnob.value,
+    maxValue: maxValueKnob.value,
+    saturates: saturatesKnob.value,
+    definitionName: &#39;Sum&#39;);</code></pre>
 </section>
 
 

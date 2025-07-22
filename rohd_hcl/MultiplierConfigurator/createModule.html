@@ -76,11 +76,10 @@
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">@override
 Module createModule() =&gt; multiplierSelectKnob.selectedMultiplier()(
-      clk: multiplierSelectKnob.pipelinedKnob.value ? Logic() : null,
-      Logic(
-          name: &#39;a&#39;, width: multiplierSelectKnob.multiplicandWidthKnob.value),
-      Logic(name: &#39;b&#39;, width: multiplierSelectKnob.multiplierWidthKnob.value),
-    );</code></pre>
+    clk: multiplierSelectKnob.pipelinedKnob.value ? Logic() : null,
+    Logic(name: &#39;a&#39;, width: multiplierSelectKnob.multiplicandWidthKnob.value),
+    Logic(name: &#39;b&#39;, width: multiplierSelectKnob.multiplierWidthKnob.value),
+    definitionName: &#39;Multiplier&#39;);</code></pre>
 </section>
 
 

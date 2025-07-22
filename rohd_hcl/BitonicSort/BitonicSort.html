@@ -59,6 +59,9 @@
 <li><span class="parameter" id="-param-toSort"><span>required</span> <span class="type-annotation"><a href="https://api.dart.dev/stable/3.8.2/dart-core/Iterable-class.html">Iterable</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://pub.dev/documentation/rohd/0.6.5/rohd/Logic-class.html">Logic</a></span>&gt;</span></span> <span class="parameter-name">toSort</span>, </span></li>
 <li><span class="parameter" id="-param-isAscending"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.8.2/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">isAscending</span> = <span class="default-value">true</span>, </span></li>
 <li><span class="parameter" id="-param-name"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.8.2/dart-core/String-class.html">String</a></span> <span class="parameter-name">name</span> = <span class="default-value">&#39;bitonic_sort&#39;</span>, </span></li>
+<li><span class="parameter" id="-param-reserveName"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.8.2/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">reserveName</span> = <span class="default-value">false</span>, </span></li>
+<li><span class="parameter" id="-param-reserveDefinitionName"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.8.2/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">reserveDefinitionName</span> = <span class="default-value">false</span>, </span></li>
+<li><span class="parameter" id="-param-definitionName"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.8.2/dart-core/String-class.html">String</a>?</span> <span class="parameter-name">definitionName</span>, </span></li>
 </ol>})
     </section>
     
@@ -88,8 +91,14 @@ await sortMod.build();
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">BitonicSort(Logic clk, Logic reset,
-    {required super.toSort, super.isAscending, super.name = &#39;bitonic_sort&#39;})
-    : super(definitionName: &#39;BitonicSort_W${toSort.length}&#39;) {
+    {required super.toSort,
+    super.isAscending,
+    super.name = &#39;bitonic_sort&#39;,
+    super.reserveName,
+    super.reserveDefinitionName,
+    String? definitionName})
+    : super(
+          definitionName: definitionName ?? &#39;BitonicSort_W${toSort.length}&#39;) {
   clk = addInput(&#39;clk&#39;, clk);
   reset = addInput(&#39;reset&#39;, reset);
 
@@ -119,16 +128,23 @@ await sortMod.build();
   if (_inputs.length &gt; 1) {
     final sortLeft = BitonicSort(clk, reset,
         toSort: _inputs.getRange(0, _inputs.length ~&#47; 2),
-        name: &#39;sort_left_${_inputs.length ~&#47; 2}&#39;);
+        name: &#39;sort_left_${_inputs.length ~&#47; 2}&#39;,
+        reserveName: reserveName,
+        reserveDefinitionName: reserveDefinitionName);
 
     final sortRight = BitonicSort(clk, reset,
         toSort: _inputs.getRange(_inputs.length ~&#47; 2, _inputs.length),
         isAscending: false,
-        name: &#39;sort_right_${_inputs.length ~&#47; 2}&#39;);
+        name: &#39;sort_right_${_inputs.length ~&#47; 2}&#39;,
+        reserveName: reserveName,
+        reserveDefinitionName: reserveDefinitionName);
 
     final bitonicSequence = sortLeft.sorted + sortRight.sorted;
     final mergeResult = _BitonicMerge(clk, reset,
-            bitonicSequence: bitonicSequence, isAscending: isAscending)
+            bitonicSequence: bitonicSequence,
+            isAscending: isAscending,
+            reserveName: reserveName,
+            reserveDefinitionName: reserveDefinitionName)
         .sorted;
     for (var i = 0; i &lt; mergeResult.length; i++) {
       _outputs.add(addOutput(&#39;sorted_$i&#39;, width: _inputs[i].width));

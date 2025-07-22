@@ -57,6 +57,9 @@
       <span class="name ">RecursiveModulePriorityEncoderNode</span>(<wbr><ol class="parameter-list"> <li><span class="parameter" id="-param-seq"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.5/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">seq</span>, {</span></li>
 <li><span class="parameter" id="-param-name"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.8.2/dart-core/String-class.html">String</a></span> <span class="parameter-name">name</span> = <span class="default-value">&#39;priority_encode_node&#39;</span>, </span></li>
 <li><span class="parameter" id="-param-depth"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.8.2/dart-core/int-class.html">int</a></span> <span class="parameter-name">depth</span> = <span class="default-value">0</span>, </span></li>
+<li><span class="parameter" id="-param-reserveName"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.8.2/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">reserveName</span> = <span class="default-value">false</span>, </span></li>
+<li><span class="parameter" id="-param-reserveDefinitionName"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.8.2/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">reserveDefinitionName</span> = <span class="default-value">false</span>, </span></li>
+<li><span class="parameter" id="-param-definitionName"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.8.2/dart-core/String-class.html">String</a>?</span> <span class="parameter-name">definitionName</span>, </span></li>
 </ol>})
     </section>
     
@@ -68,9 +71,16 @@
     
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
-  <pre class="language-dart"><code class="language-dart">RecursiveModulePriorityEncoderNode(Logic seq,
-    {super.name = &#39;priority_encode_node&#39;, int depth = 0})
-    : super(definitionName: &#39;PriorityEncodeNode_W${seq.width}&#39;) {
+  <pre class="language-dart"><code class="language-dart">RecursiveModulePriorityEncoderNode(
+  Logic seq, {
+  super.name = &#39;priority_encode_node&#39;,
+  int depth = 0,
+  super.reserveName,
+  super.reserveDefinitionName,
+  String? definitionName,
+}) : super(
+          definitionName:
+              definitionName ?? &#39;PriorityEncodeNode_W${seq.width}&#39;) {
   seq = addInput(&#39;seq&#39;, seq, width: seq.width);
   if (seq.width == 1) {
     addOutput(&#39;ret&#39;) &lt;= ~seq[0];

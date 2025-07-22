@@ -76,14 +76,14 @@
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">@override
 Module createModule() {
-  final rotateConstructor = directionKnob.value == RotateDirection.left
-      ? RotateLeft.new
-      : RotateRight.new;
-  return rotateConstructor(
-    Logic(width: originalWidthKnob.value),
-    Logic(width: rotateWidthKnob.value),
-    maxAmount: maxAmountKnob.value,
-  );
+  final val = directionKnob.value;
+  final rotateConstructor =
+      val == RotateDirection.left ? RotateLeft.new : RotateRight.new;
+  return rotateConstructor(Logic(width: originalWidthKnob.value),
+      Logic(width: rotateWidthKnob.value),
+      maxAmount: maxAmountKnob.value,
+      definitionName:
+          &#39;Rotate${val == RotateDirection.left ? &quot;Left&quot; : &quot;Right&quot;}&#39;);
 }</code></pre>
 </section>
 

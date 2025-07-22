@@ -70,6 +70,9 @@
 <li><span class="parameter" id="-param-widthGen"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.8.2/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.dart.dev/stable/3.8.2/dart-core/int-class.html">int</a></span>&gt;</span></span> <span class="parameter-name">widthGen</span>(<ol class="parameter-list single-line"> <li><span class="parameter" id="param-"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.8.2/dart-core/int-class.html">int</a></span></span></li>
 </ol>) = <span class="default-value">CarrySelectCompoundAdder.splitSelectAdderAlgorithmSingleBlock</span>, </span></li>
 <li><span class="parameter" id="-param-name"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.8.2/dart-core/String-class.html">String</a></span> <span class="parameter-name">name</span> = <span class="default-value">&#39;floatingpoint_adder_singlepath&#39;</span>, </span></li>
+<li><span class="parameter" id="-param-reserveName"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.8.2/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">reserveName</span> = <span class="default-value">false</span>, </span></li>
+<li><span class="parameter" id="-param-reserveDefinitionName"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.8.2/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">reserveDefinitionName</span> = <span class="default-value">false</span>, </span></li>
+<li><span class="parameter" id="-param-definitionName"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.8.2/dart-core/String-class.html">String</a>?</span> <span class="parameter-name">definitionName</span>, </span></li>
 </ol>})
     </section>
     
@@ -104,10 +107,14 @@ Decreasing the split width will increase speed but also increase area.</li>
         NativeAdder.new,
     List&lt;int&gt; Function(int) widthGen =
         CarrySelectCompoundAdder.splitSelectAdderAlgorithmSingleBlock,
-    super.name = &#39;floatingpoint_adder_singlepath&#39;})
+    super.name = &#39;floatingpoint_adder_singlepath&#39;,
+    super.reserveName,
+    super.reserveDefinitionName,
+    String? definitionName})
     : super(
-          definitionName: &#39;FloatingPointAdderSinglePath_&#39;
-              &#39;E${a.exponent.width}M${a.mantissa.width}&#39;) {
+          definitionName: definitionName ??
+              &#39;FloatingPointAdderSinglePath_&#39;
+                  &#39;E${a.exponent.width}M${a.mantissa.width}&#39;) {
   if (internalSum.exponent.width != a.exponent.width) {
     throw RohdHclException(&#39;This adder currently only supports &#39;
         &#39;output exponent width equal to input exponent width.&#39;);

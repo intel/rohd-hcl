@@ -57,6 +57,8 @@
       <span class="name ">PriorityEncoder</span>(<wbr><ol class="parameter-list"> <li><span class="parameter" id="-param-inp"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.5/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">inp</span>, {</span></li>
 <li><span class="parameter" id="-param-generateValid"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.8.2/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">generateValid</span> = <span class="default-value">false</span>, </span></li>
 <li><span class="parameter" id="-param-name"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.8.2/dart-core/String-class.html">String</a></span> <span class="parameter-name">name</span> = <span class="default-value">&#39;priority_encoder&#39;</span>, </span></li>
+<li><span class="parameter" id="-param-reserveName"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.8.2/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">reserveName</span> = <span class="default-value">false</span>, </span></li>
+<li><span class="parameter" id="-param-reserveDefinitionName"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.8.2/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">reserveDefinitionName</span> = <span class="default-value">false</span>, </span></li>
 <li><span class="parameter" id="-param-definitionName"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.8.2/dart-core/String-class.html">String</a>?</span> <span class="parameter-name">definitionName</span>, </span></li>
 </ol>})
     </section>
@@ -78,6 +80,8 @@ there are no bits set in <code>inp</code>.</li>
   <pre class="language-dart"><code class="language-dart">PriorityEncoder(Logic inp,
     {bool generateValid = false,
     super.name = &#39;priority_encoder&#39;,
+    super.reserveName,
+    super.reserveDefinitionName,
     String? definitionName})
     : super(
           definitionName: definitionName ?? &#39;PriorityEncoder_W${inp.width}&#39;) {

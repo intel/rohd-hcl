@@ -57,6 +57,8 @@
       <span class="name ">Sort</span>(<wbr>{<ol class="parameter-list"> <li><span class="parameter" id="-param-toSort"><span>required</span> <span class="type-annotation"><a href="https://api.dart.dev/stable/3.8.2/dart-core/Iterable-class.html">Iterable</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://pub.dev/documentation/rohd/0.6.5/rohd/Logic-class.html">Logic</a></span>&gt;</span></span> <span class="parameter-name">toSort</span>, </span></li>
 <li><span class="parameter" id="-param-isAscending"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.8.2/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">isAscending</span> = <span class="default-value">true</span>, </span></li>
 <li><span class="parameter" id="-param-name"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.8.2/dart-core/String-class.html">String</a></span> <span class="parameter-name">name</span> = <span class="default-value">&#39;sort&#39;</span>, </span></li>
+<li><span class="parameter" id="-param-reserveName"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.8.2/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">reserveName</span> = <span class="default-value">false</span>, </span></li>
+<li><span class="parameter" id="-param-reserveDefinitionName"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.8.2/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">reserveDefinitionName</span> = <span class="default-value">false</span>, </span></li>
 <li><span class="parameter" id="-param-definitionName"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.8.2/dart-core/String-class.html">String</a>?</span> <span class="parameter-name">definitionName</span>, </span></li>
 </ol>})
     </section>
@@ -74,7 +76,10 @@ sort <code>isAscending</code> and a name for the sorting module.</p>
     {required this.toSort,
     this.isAscending = true,
     super.name = &#39;sort&#39;,
-    super.definitionName});</code></pre>
+    super.reserveName,
+    super.reserveDefinitionName,
+    String? definitionName})
+    : super(definitionName: definitionName ?? &#39;Sort_W${toSort.length}&#39;);</code></pre>
 </section>
 
 

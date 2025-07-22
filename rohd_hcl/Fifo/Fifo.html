@@ -64,6 +64,9 @@
 <li><span class="parameter" id="-param-generateOccupancy"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.8.2/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">generateOccupancy</span> = <span class="default-value">false</span>, </span></li>
 <li><span class="parameter" id="-param-generateBypass"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.8.2/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">generateBypass</span> = <span class="default-value">false</span>, </span></li>
 <li><span class="parameter" id="-param-name"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.8.2/dart-core/String-class.html">String</a></span> <span class="parameter-name">name</span> = <span class="default-value">&#39;fifo&#39;</span>, </span></li>
+<li><span class="parameter" id="-param-reserveName"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.8.2/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">reserveName</span> = <span class="default-value">false</span>, </span></li>
+<li><span class="parameter" id="-param-reserveDefinitionName"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.8.2/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">reserveDefinitionName</span> = <span class="default-value">false</span>, </span></li>
+<li><span class="parameter" id="-param-definitionName"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.8.2/dart-core/String-class.html">String</a>?</span> <span class="parameter-name">definitionName</span>, </span></li>
 </ol>})
     </section>
     
@@ -83,10 +86,15 @@
     this.generateError = false,
     this.generateOccupancy = false,
     this.generateBypass = false,
-    super.name = &#39;fifo&#39;})
+    super.name = &#39;fifo&#39;,
+    super.reserveName,
+    super.reserveDefinitionName,
+    String? definitionName})
     : dataWidth = writeData.width,
       _addrWidth = max(1, log2Ceil(depth)),
-      super(definitionName: &#39;Fifo_D${depth}_W${writeData.width}&#39;) {
+      super(
+          definitionName:
+              definitionName ?? &#39;Fifo_D${depth}_W${writeData.width}&#39;) {
   if (depth &lt;= 0) {
     throw RohdHclException(&#39;Depth must be at least 1.&#39;);
   }

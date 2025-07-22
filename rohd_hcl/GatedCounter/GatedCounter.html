@@ -67,6 +67,9 @@
 <li><span class="parameter" id="-param-clockGateControlInterface"><span class="type-annotation"><a href="../../rohd_hcl/ClockGateControlInterface-class.html">ClockGateControlInterface</a>?</span> <span class="parameter-name">clockGateControlInterface</span>, </span></li>
 <li><span class="parameter" id="-param-clkGatePartitionIndex"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.8.2/dart-core/int-class.html">int</a>?</span> <span class="parameter-name">clkGatePartitionIndex</span>, </span></li>
 <li><span class="parameter" id="-param-name"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.8.2/dart-core/String-class.html">String</a></span> <span class="parameter-name">name</span> = <span class="default-value">&#39;counter&#39;</span>, </span></li>
+<li><span class="parameter" id="-param-reserveName"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.8.2/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">reserveName</span> = <span class="default-value">false</span>, </span></li>
+<li><span class="parameter" id="-param-reserveDefinitionName"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.8.2/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">reserveDefinitionName</span> = <span class="default-value">false</span>, </span></li>
+<li><span class="parameter" id="-param-definitionName"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.8.2/dart-core/String-class.html">String</a>?</span> <span class="parameter-name">definitionName</span>, </span></li>
 </ol>})
     </section>
     
@@ -89,24 +92,29 @@ provided.</p>
     
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
-  <pre class="language-dart"><code class="language-dart">GatedCounter(
-  super.interfaces, {
-  required super.clk,
-  required super.reset,
-  super.restart,
-  super.resetValue,
-  super.maxValue,
-  super.minValue,
-  super.width,
-  super.saturates,
-  this.gateToggles = true,
-  ClockGateControlInterface? clockGateControlInterface,
-  int? clkGatePartitionIndex,
-  super.name,
-})  : _providedClkGateParitionIndex = clkGatePartitionIndex,
+  <pre class="language-dart"><code class="language-dart">GatedCounter(super.interfaces,
+    {required super.clk,
+    required super.reset,
+    super.restart,
+    super.resetValue,
+    super.maxValue,
+    super.minValue,
+    super.width,
+    super.saturates,
+    this.gateToggles = true,
+    ClockGateControlInterface? clockGateControlInterface,
+    int? clkGatePartitionIndex,
+    super.name,
+    super.reserveName,
+    super.reserveDefinitionName,
+    String? definitionName})
+    : _providedClkGateParitionIndex = clkGatePartitionIndex,
       _clockGateControlInterface = clockGateControlInterface == null
           ? null
-          : ClockGateControlInterface.clone(clockGateControlInterface) {
+          : ClockGateControlInterface.clone(clockGateControlInterface),
+      super(
+          definitionName: definitionName ??
+              &#39;GatedCounter_W${width}_m${minValue}_M$maxValue&#39;) {
   _clockGateControlInterface?.pairConnectIO(
       this, clockGateControlInterface!, PairRole.consumer);
 }</code></pre>

@@ -75,9 +75,12 @@
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">@override
-Module createModule() =&gt; FloatToFixed(FloatingPoint(
-    exponentWidth: exponentWidthKnob.value,
-    mantissaWidth: mantissaWidthKnob.value));</code></pre>
+Module createModule() =&gt; FloatToFixed(
+      FloatingPoint(
+          exponentWidth: exponentWidthKnob.value,
+          mantissaWidth: mantissaWidthKnob.value),
+      definitionName: &#39;FloatToFixed&#39;,
+    );</code></pre>
 </section>
 
 

@@ -75,6 +75,9 @@
 </ol>)</span></li>
 </ol>) = <span class="default-value">KoggeStone.new</span>, </span></li>
 <li><span class="parameter" id="-param-name"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.8.2/dart-core/String-class.html">String</a></span> <span class="parameter-name">name</span> = <span class="default-value">&#39;floating_point_adder_dualpath&#39;</span>, </span></li>
+<li><span class="parameter" id="-param-reserveName"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.8.2/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">reserveName</span> = <span class="default-value">false</span>, </span></li>
+<li><span class="parameter" id="-param-reserveDefinitionName"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.8.2/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">reserveDefinitionName</span> = <span class="default-value">false</span>, </span></li>
+<li><span class="parameter" id="-param-definitionName"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.8.2/dart-core/String-class.html">String</a>?</span> <span class="parameter-name">definitionName</span>, </span></li>
 </ol>})
     </section>
     
@@ -113,10 +116,14 @@ the output type will be the same as the input type <code>a</code>. Note that
     ParallelPrefix Function(
             List&lt;Logic&gt; inps, Logic Function(Logic term1, Logic term2) op)
         ppTree = KoggeStone.new,
-    super.name = &#39;floating_point_adder_dualpath&#39;})
+    super.name = &#39;floating_point_adder_dualpath&#39;,
+    super.reserveName,
+    super.reserveDefinitionName,
+    String? definitionName})
     : super(
-          definitionName: &#39;FloatingPointAdderDualPath_&#39;
-              &#39;E${a.exponent.width}M${a.mantissa.width}&#39;) {
+          definitionName: definitionName ??
+              &#39;FloatingPointAdderDualPath_&#39;
+                  &#39;E${a.exponent.width}M${a.mantissa.width}&#39;) {
   if (a.explicitJBit || b.explicitJBit) {
     throw ArgumentError(
         &#39;FloatingPointAdderDualPath does not support explicit J bit.&#39;);

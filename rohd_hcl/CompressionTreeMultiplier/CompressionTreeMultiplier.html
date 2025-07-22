@@ -70,6 +70,9 @@
 <li><span class="parameter" id="param-name"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.8.2/dart-core/String-class.html">String</a></span> <span class="parameter-name">name</span>, </span></li>
 </ol>}) = <span class="default-value">CompactRectSignExtension.new</span>, </span></li>
 <li><span class="parameter" id="-param-name"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.8.2/dart-core/String-class.html">String</a></span> <span class="parameter-name">name</span> = <span class="default-value">&#39;compression_tree_multiplier&#39;</span>, </span></li>
+<li><span class="parameter" id="-param-reserveName"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.8.2/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">reserveName</span> = <span class="default-value">false</span>, </span></li>
+<li><span class="parameter" id="-param-reserveDefinitionName"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.8.2/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">reserveDefinitionName</span> = <span class="default-value">false</span>, </span></li>
+<li><span class="parameter" id="-param-definitionName"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.8.2/dart-core/String-class.html">String</a>?</span> <span class="parameter-name">definitionName</span>, </span></li>
 </ol>})
     </section>
     
@@ -88,24 +91,30 @@ the Column Compressor is built as a combinational tree of compressors.</p>
     
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
-  <pre class="language-dart"><code class="language-dart">CompressionTreeMultiplier(super.a, super.b,
-    {int radix = 4,
-    super.clk,
-    super.reset,
-    super.enable,
-    super.signedMultiplicand,
-    super.signedMultiplier,
-    Adder Function(Logic a, Logic b, {Logic? carryIn}) adderGen =
-        NativeAdder.new,
-    PartialProductSignExtension Function(PartialProductGeneratorBase pp,
-            {String name})
-        signExtensionGen = CompactRectSignExtension.new,
-    super.name = &#39;compression_tree_multiplier&#39;})
-    : super(
-          definitionName: &#39;CompressionTreeMultiplier_W${a.width}x&#39;
-              &#39;${b.width}_${Multiplier.signedMD(signedMultiplicand)}_&#39;
-              &#39;${Multiplier.signedML(signedMultiplier)}_&#39;
-              &#39;with${adderGen(a, a).definitionName}&#39;) {
+  <pre class="language-dart"><code class="language-dart">CompressionTreeMultiplier(
+  super.a,
+  super.b, {
+  int radix = 4,
+  super.clk,
+  super.reset,
+  super.enable,
+  super.signedMultiplicand,
+  super.signedMultiplier,
+  Adder Function(Logic a, Logic b, {Logic? carryIn}) adderGen =
+      NativeAdder.new,
+  PartialProductSignExtension Function(PartialProductGeneratorBase pp,
+          {String name})
+      signExtensionGen = CompactRectSignExtension.new,
+  super.name = &#39;compression_tree_multiplier&#39;,
+  super.reserveName,
+  super.reserveDefinitionName,
+  String? definitionName,
+}) : super(
+          definitionName: definitionName ??
+              &#39;CompressionTreeMultiplier_W${a.width}x&#39;
+                  &#39;${b.width}_${Multiplier.signedMD(signedMultiplicand)}_&#39;
+                  &#39;${Multiplier.signedML(signedMultiplier)}_&#39;
+                  &#39;with${adderGen(a, a).definitionName}&#39;) {
   final pp = PartialProduct(a, b, RadixEncoder(radix),
       selectSignedMultiplicand: selectSignedMultiplicand,
       signedMultiplicand: signedMultiplicand,

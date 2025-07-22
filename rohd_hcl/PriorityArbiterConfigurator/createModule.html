@@ -77,7 +77,7 @@
   <pre class="language-dart"><code class="language-dart">@override
 Module createModule() {
   final reqs = List.generate(numRequestKnob.value, (i) =&gt; Logic());
-  return PriorityArbiter(reqs);
+  return PriorityArbiter(reqs, definitionName: &#39;PriorityArbiter&#39;);
 }</code></pre>
 </section>
 

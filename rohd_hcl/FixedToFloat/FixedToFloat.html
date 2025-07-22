@@ -59,6 +59,9 @@
 <li><span class="parameter" id="-param-signed"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.8.2/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">signed</span> = <span class="default-value">true</span>, </span></li>
 <li><span class="parameter" id="-param-leadingDigitPredict"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.5/rohd/Logic-class.html">Logic</a>?</span> <span class="parameter-name">leadingDigitPredict</span>, </span></li>
 <li><span class="parameter" id="-param-name"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.8.2/dart-core/String-class.html">String</a></span> <span class="parameter-name">name</span> = <span class="default-value">&#39;FixedToFloat&#39;</span>, </span></li>
+<li><span class="parameter" id="-param-reserveName"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.8.2/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">reserveName</span> = <span class="default-value">false</span>, </span></li>
+<li><span class="parameter" id="-param-reserveDefinitionName"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.8.2/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">reserveDefinitionName</span> = <span class="default-value">false</span>, </span></li>
+<li><span class="parameter" id="-param-definitionName"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.8.2/dart-core/String-class.html">String</a>?</span> <span class="parameter-name">definitionName</span>, </span></li>
 </ol>})
     </section>
     
@@ -81,11 +84,14 @@ fixed-point value input to this converter.</p>
   <pre class="language-dart"><code class="language-dart">FixedToFloat(FixedPoint fixed, this.outFloat,
     {bool signed = true,
     Logic? leadingDigitPredict,
-    super.name = &#39;FixedToFloat&#39;})
+    super.name = &#39;FixedToFloat&#39;,
+    super.reserveName,
+    super.reserveDefinitionName,
+    String? definitionName})
     : super(
-          definitionName:
+          definitionName: definitionName ??
               &#39;Fixed${fixed.width}ToFloatE${outFloat.exponent.width}&#39;
-              &#39;M$outFloat.mantissa.width&#39;) {
+                  &#39;M${outFloat.mantissa.width}&#39;) {
   fixed = fixed.clone()..gets(addInput(&#39;fixed&#39;, fixed, width: fixed.width));
   final exponentWidth = outFloat.exponent.width;
   final mantissaWidth = outFloat.mantissa.width;

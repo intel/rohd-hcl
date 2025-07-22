@@ -79,9 +79,15 @@ Module createModule() {
   final reqs = List.generate(numRequestKnob.value, (i) =&gt; Logic());
 
   if (implementationKnob.value == MaskRoundRobinArbiter) {
-    return MaskRoundRobinArbiter(reqs, clk: Logic(), reset: Logic());
+    return MaskRoundRobinArbiter(reqs,
+        clk: Logic(),
+        reset: Logic(),
+        definitionName: &#39;MaskRoundRobinArbiter&#39;);
   } else if (implementationKnob.value == RotateRoundRobinArbiter) {
-    return RotateRoundRobinArbiter(reqs, clk: Logic(), reset: Logic());
+    return RotateRoundRobinArbiter(reqs,
+        clk: Logic(),
+        reset: Logic(),
+        definitionName: &#39;RotateRoundRobinArbiter&#39;);
   }
 
   throw RohdHclException(&#39;Unknown round robin type.&#39;);

@@ -73,6 +73,9 @@
 <li><span class="parameter" id="param-name"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.8.2/dart-core/String-class.html">String</a></span> <span class="parameter-name">name</span>, </span></li>
 </ol>}) = <span class="default-value">RecursiveModulePriorityEncoder.new</span>, </span></li>
 <li><span class="parameter" id="-param-name"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.8.2/dart-core/String-class.html">String</a></span> <span class="parameter-name">name</span> = <span class="default-value">&#39;floating_point_multiplier&#39;</span>, </span></li>
+<li><span class="parameter" id="-param-reserveName"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.8.2/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">reserveName</span> = <span class="default-value">false</span>, </span></li>
+<li><span class="parameter" id="-param-reserveDefinitionName"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.8.2/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">reserveDefinitionName</span> = <span class="default-value">false</span>, </span></li>
+<li><span class="parameter" id="-param-definitionName"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.8.2/dart-core/String-class.html">String</a>?</span> <span class="parameter-name">definitionName</span>, </span></li>
 </ol>})
     </section>
     
@@ -105,12 +108,16 @@ exponent or mantissa fields and will throw an exception.</p>
     PriorityEncoder Function(Logic bitVector,
             {bool generateValid, String name})
         priorityGen = RecursiveModulePriorityEncoder.new,
-    super.name})
+    super.name,
+    super.reserveName,
+    super.reserveDefinitionName,
+    String? definitionName})
     : super(
-          definitionName: &#39;FloatingPointMultiplierSimple_&#39;
-              &#39;E${a.exponent.width}M${a.mantissa.width}&#39;
-              &#39;${outProduct != null ? &#39;_OE${outProduct.exponent.width}_&#39;
-                  &#39;OM${outProduct.mantissa.width}&#39; : &#39;&#39;}&#39;) {
+          definitionName: definitionName ??
+              &#39;FloatingPointMultiplierSimple_&#39;
+                  &#39;E${a.exponent.width}M${a.mantissa.width}&#39;
+                  &#39;${outProduct != null ? &#39;_OE${outProduct.exponent.width}_&#39;
+                      &#39;OM${outProduct.mantissa.width}&#39; : &#39;&#39;}&#39;) {
   if (exponentWidth &lt; a.exponent.width) {
     throw RohdHclException(&#39;product exponent width must be &gt;= &#39;
         &#39; input exponent width&#39;);

@@ -78,8 +78,10 @@
 Module createModule() {
   final inp = Logic(width: inputWidthKnob.value);
   return directionKnob.value == BinaryToOneHot
-      ? BinaryToOneHot(inp)
-      : OneHotToBinary(inp, generateError: generateErrorKnob.value);
+      ? BinaryToOneHot(inp, definitionName: &#39;BinaryToOneHot&#39;)
+      : OneHotToBinary(inp,
+          generateError: generateErrorKnob.value,
+          definitionName: &#39;OneHotToBinary&#39;);
 }</code></pre>
 </section>
 

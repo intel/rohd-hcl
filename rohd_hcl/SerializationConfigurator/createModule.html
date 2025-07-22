@@ -82,9 +82,15 @@ Module createModule() {
   final enable = Logic(name: &#39;enable&#39;);
   return directionKnob.value == Serializer
       ? Serializer(LogicArray([inputLengthKnob.value], inputWidthKnob.value),
-          enable: enableKnob.value ? enable : null, clk: clk, reset: reset)
+          enable: enableKnob.value ? enable : null,
+          clk: clk,
+          reset: reset,
+          definitionName: &#39;Serializer&#39;)
       : Deserializer(deserializeIn, inputLengthKnob.value,
-          enable: enableKnob.value ? enable : null, clk: clk, reset: reset);
+          enable: enableKnob.value ? enable : null,
+          clk: clk,
+          reset: reset,
+          definitionName: &#39;Deserializer&#39;);
 }</code></pre>
 </section>
 

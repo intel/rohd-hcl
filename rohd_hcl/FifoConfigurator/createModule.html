@@ -75,17 +75,15 @@
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">@override
-Module createModule() =&gt; Fifo(
-      Logic(),
-      Logic(),
-      writeEnable: Logic(),
-      writeData: Logic(width: dataWidthKnob.value),
-      readEnable: Logic(),
-      depth: depthKnob.value,
-      generateBypass: generateBypassKnob.value,
-      generateError: generateErrorKnob.value,
-      generateOccupancy: generateOccupancyKnob.value,
-    );</code></pre>
+Module createModule() =&gt; Fifo(Logic(), Logic(),
+    writeEnable: Logic(),
+    writeData: Logic(width: dataWidthKnob.value),
+    readEnable: Logic(),
+    depth: depthKnob.value,
+    generateBypass: generateBypassKnob.value,
+    generateError: generateErrorKnob.value,
+    generateOccupancy: generateOccupancyKnob.value,
+    definitionName: &#39;Fifo&#39;);</code></pre>
 </section>
 
 

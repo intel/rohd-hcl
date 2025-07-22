@@ -36,202 +36,6 @@
       var exmpl = `{
   "creator": "Yosys 0.55+8 (git sha1 9334a5c27, clang++ 18.1.8 -fPIC -O3)",
   "modules": {
-    "Adder_W1": {
-      "attributes": {
-        "src": "CarrySaveMultiplier_W4.sv:7.1-14.21"
-      },
-      "ports": {
-        "a": {
-          "direction": "input",
-          "bits": [ 2 ]
-        },
-        "b": {
-          "direction": "input",
-          "bits": [ 3 ]
-        },
-        "carryIn": {
-          "direction": "input",
-          "bits": [ 4 ]
-        },
-        "sum": {
-          "direction": "output",
-          "bits": [ 5, 6 ]
-        }
-      },
-      "cells": {
-        "$and$CarrySaveMultiplier_W4.sv:13$4": {
-          "hide_name": 1,
-          "type": "$and",
-          "parameters": {
-            "A_SIGNED": 0,
-            "A_WIDTH": 1,
-            "B_SIGNED": 0,
-            "B_WIDTH": 1,
-            "Y_WIDTH": 1
-          },
-          "attributes": {
-            "src": "CarrySaveMultiplier_W4.sv:13.17-13.34"
-          },
-          "port_directions": {
-            "A": "input",
-            "B": "input",
-            "Y": "output"
-          },
-          "connections": {
-            "A": [ 4 ],
-            "B": [ 7 ],
-            "Y": [ 8 ]
-          }
-        },
-        "$and$CarrySaveMultiplier_W4.sv:13$5": {
-          "hide_name": 1,
-          "type": "$and",
-          "parameters": {
-            "A_SIGNED": 0,
-            "A_WIDTH": 1,
-            "B_SIGNED": 0,
-            "B_WIDTH": 1,
-            "Y_WIDTH": 1
-          },
-          "attributes": {
-            "src": "CarrySaveMultiplier_W4.sv:13.39-13.44"
-          },
-          "port_directions": {
-            "A": "input",
-            "B": "input",
-            "Y": "output"
-          },
-          "connections": {
-            "A": [ 2 ],
-            "B": [ 3 ],
-            "Y": [ 9 ]
-          }
-        },
-        "$or$CarrySaveMultiplier_W4.sv:13$6": {
-          "hide_name": 1,
-          "type": "$or",
-          "parameters": {
-            "A_SIGNED": 0,
-            "A_WIDTH": 1,
-            "B_SIGNED": 0,
-            "B_WIDTH": 1,
-            "Y_WIDTH": 1
-          },
-          "attributes": {
-            "src": "CarrySaveMultiplier_W4.sv:13.16-13.45"
-          },
-          "port_directions": {
-            "A": "input",
-            "B": "input",
-            "Y": "output"
-          },
-          "connections": {
-            "A": [ 8 ],
-            "B": [ 9 ],
-            "Y": [ 6 ]
-          }
-        },
-        "$xor$CarrySaveMultiplier_W4.sv:13$2": {
-          "hide_name": 1,
-          "type": "$xor",
-          "parameters": {
-            "A_SIGNED": 0,
-            "A_WIDTH": 1,
-            "B_SIGNED": 0,
-            "B_WIDTH": 1,
-            "Y_WIDTH": 1
-          },
-          "attributes": {
-            "src": "CarrySaveMultiplier_W4.sv:13.48-13.65"
-          },
-          "port_directions": {
-            "A": "input",
-            "B": "input",
-            "Y": "output"
-          },
-          "connections": {
-            "A": [ 7 ],
-            "B": [ 4 ],
-            "Y": [ 5 ]
-          }
-        },
-        "$xor$CarrySaveMultiplier_W4.sv:13$3": {
-          "hide_name": 1,
-          "type": "$xor",
-          "parameters": {
-            "A_SIGNED": 0,
-            "A_WIDTH": 1,
-            "B_SIGNED": 0,
-            "B_WIDTH": 1,
-            "Y_WIDTH": 1
-          },
-          "attributes": {
-            "src": "CarrySaveMultiplier_W4.sv:13.28-13.33"
-          },
-          "port_directions": {
-            "A": "input",
-            "B": "input",
-            "Y": "output"
-          },
-          "connections": {
-            "A": [ 2 ],
-            "B": [ 3 ],
-            "Y": [ 7 ]
-          }
-        }
-      },
-      "netnames": {
-        "$and$CarrySaveMultiplier_W4.sv:13$4_Y": {
-          "hide_name": 1,
-          "bits": [ 8 ],
-          "attributes": {
-            "src": "CarrySaveMultiplier_W4.sv:13.17-13.34"
-          }
-        },
-        "$and$CarrySaveMultiplier_W4.sv:13$5_Y": {
-          "hide_name": 1,
-          "bits": [ 9 ],
-          "attributes": {
-            "src": "CarrySaveMultiplier_W4.sv:13.39-13.44"
-          }
-        },
-        "$xor$CarrySaveMultiplier_W4.sv:13$1_Y": {
-          "hide_name": 1,
-          "bits": [ 7 ],
-          "attributes": {
-            "src": "CarrySaveMultiplier_W4.sv:13.49-13.54"
-          }
-        },
-        "a": {
-          "hide_name": 0,
-          "bits": [ 2 ],
-          "attributes": {
-            "src": "CarrySaveMultiplier_W4.sv:8.13-8.14"
-          }
-        },
-        "b": {
-          "hide_name": 0,
-          "bits": [ 3 ],
-          "attributes": {
-            "src": "CarrySaveMultiplier_W4.sv:9.13-9.14"
-          }
-        },
-        "carryIn": {
-          "hide_name": 0,
-          "bits": [ 4 ],
-          "attributes": {
-            "src": "CarrySaveMultiplier_W4.sv:10.13-10.20"
-          }
-        },
-        "sum": {
-          "hide_name": 0,
-          "bits": [ 5, 6 ],
-          "attributes": {
-            "src": "CarrySaveMultiplier_W4.sv:11.20-11.23"
-          }
-        }
-      }
-    },
     "CarrySaveMultiplier_W4": {
       "attributes": {
         "top": 1,
@@ -275,7 +79,7 @@
             "Y_WIDTH": 1
           },
           "attributes": {
-            "src": "CarrySaveMultiplier_W4.sv:332.35-332.66"
+            "src": "CarrySaveMultiplier_W4.sv:332.39-332.70"
           },
           "port_directions": {
             "A": "input",
@@ -299,7 +103,7 @@
             "Y_WIDTH": 1
           },
           "attributes": {
-            "src": "CarrySaveMultiplier_W4.sv:355.37-355.68"
+            "src": "CarrySaveMultiplier_W4.sv:355.41-355.72"
           },
           "port_directions": {
             "A": "input",
@@ -323,7 +127,7 @@
             "Y_WIDTH": 1
           },
           "attributes": {
-            "src": "CarrySaveMultiplier_W4.sv:356.37-356.68"
+            "src": "CarrySaveMultiplier_W4.sv:356.41-356.72"
           },
           "port_directions": {
             "A": "input",
@@ -347,7 +151,7 @@
             "Y_WIDTH": 1
           },
           "attributes": {
-            "src": "CarrySaveMultiplier_W4.sv:357.37-357.68"
+            "src": "CarrySaveMultiplier_W4.sv:357.41-357.72"
           },
           "port_directions": {
             "A": "input",
@@ -371,7 +175,7 @@
             "Y_WIDTH": 1
           },
           "attributes": {
-            "src": "CarrySaveMultiplier_W4.sv:400.37-400.70"
+            "src": "CarrySaveMultiplier_W4.sv:400.41-400.74"
           },
           "port_directions": {
             "A": "input",
@@ -395,7 +199,7 @@
             "Y_WIDTH": 1
           },
           "attributes": {
-            "src": "CarrySaveMultiplier_W4.sv:401.45-401.78"
+            "src": "CarrySaveMultiplier_W4.sv:401.49-401.82"
           },
           "port_directions": {
             "A": "input",
@@ -419,7 +223,7 @@
             "Y_WIDTH": 1
           },
           "attributes": {
-            "src": "CarrySaveMultiplier_W4.sv:402.45-402.78"
+            "src": "CarrySaveMultiplier_W4.sv:402.49-402.82"
           },
           "port_directions": {
             "A": "input",
@@ -443,7 +247,7 @@
             "Y_WIDTH": 1
           },
           "attributes": {
-            "src": "CarrySaveMultiplier_W4.sv:403.45-403.78"
+            "src": "CarrySaveMultiplier_W4.sv:403.49-403.82"
           },
           "port_directions": {
             "A": "input",
@@ -467,7 +271,7 @@
             "Y_WIDTH": 1
           },
           "attributes": {
-            "src": "CarrySaveMultiplier_W4.sv:448.37-448.70"
+            "src": "CarrySaveMultiplier_W4.sv:448.41-448.74"
           },
           "port_directions": {
             "A": "input",
@@ -491,7 +295,7 @@
             "Y_WIDTH": 1
           },
           "attributes": {
-            "src": "CarrySaveMultiplier_W4.sv:449.45-449.78"
+            "src": "CarrySaveMultiplier_W4.sv:449.49-449.82"
           },
           "port_directions": {
             "A": "input",
@@ -515,7 +319,7 @@
             "Y_WIDTH": 1
           },
           "attributes": {
-            "src": "CarrySaveMultiplier_W4.sv:450.45-450.78"
+            "src": "CarrySaveMultiplier_W4.sv:450.49-450.82"
           },
           "port_directions": {
             "A": "input",
@@ -539,7 +343,7 @@
             "Y_WIDTH": 1
           },
           "attributes": {
-            "src": "CarrySaveMultiplier_W4.sv:451.46-451.79"
+            "src": "CarrySaveMultiplier_W4.sv:451.50-451.83"
           },
           "port_directions": {
             "A": "input",
@@ -563,7 +367,7 @@
             "Y_WIDTH": 1
           },
           "attributes": {
-            "src": "CarrySaveMultiplier_W4.sv:498.38-498.71"
+            "src": "CarrySaveMultiplier_W4.sv:498.42-498.75"
           },
           "port_directions": {
             "A": "input",
@@ -587,7 +391,7 @@
             "Y_WIDTH": 1
           },
           "attributes": {
-            "src": "CarrySaveMultiplier_W4.sv:499.46-499.79"
+            "src": "CarrySaveMultiplier_W4.sv:499.50-499.83"
           },
           "port_directions": {
             "A": "input",
@@ -611,7 +415,7 @@
             "Y_WIDTH": 1
           },
           "attributes": {
-            "src": "CarrySaveMultiplier_W4.sv:500.46-500.79"
+            "src": "CarrySaveMultiplier_W4.sv:500.50-500.83"
           },
           "port_directions": {
             "A": "input",
@@ -635,7 +439,7 @@
             "Y_WIDTH": 1
           },
           "attributes": {
-            "src": "CarrySaveMultiplier_W4.sv:501.46-501.79"
+            "src": "CarrySaveMultiplier_W4.sv:501.50-501.83"
           },
           "port_directions": {
             "A": "input",
@@ -1950,12 +1754,12 @@
         },
         "full_adder": {
           "hide_name": 0,
-          "type": "Adder_W1",
+          "type": "FullAdder_W1",
           "parameters": {
           },
           "attributes": {
             "module_not_derived": 1,
-            "src": "CarrySaveMultiplier_W4.sv:332.11-332.97"
+            "src": "CarrySaveMultiplier_W4.sv:332.15-332.101"
           },
           "port_directions": {
             "a": "input",
@@ -1972,12 +1776,12 @@
         },
         "full_adder_0": {
           "hide_name": 0,
-          "type": "Adder_W1",
+          "type": "FullAdder_W1",
           "parameters": {
           },
           "attributes": {
             "module_not_derived": 1,
-            "src": "CarrySaveMultiplier_W4.sv:355.11-355.96"
+            "src": "CarrySaveMultiplier_W4.sv:355.15-355.100"
           },
           "port_directions": {
             "a": "input",
@@ -1994,12 +1798,12 @@
         },
         "full_adder_1": {
           "hide_name": 0,
-          "type": "Adder_W1",
+          "type": "FullAdder_W1",
           "parameters": {
           },
           "attributes": {
             "module_not_derived": 1,
-            "src": "CarrySaveMultiplier_W4.sv:356.11-356.98"
+            "src": "CarrySaveMultiplier_W4.sv:356.15-356.102"
           },
           "port_directions": {
             "a": "input",
@@ -2016,12 +1820,12 @@
         },
         "full_adder_10": {
           "hide_name": 0,
-          "type": "Adder_W1",
+          "type": "FullAdder_W1",
           "parameters": {
           },
           "attributes": {
             "module_not_derived": 1,
-            "src": "CarrySaveMultiplier_W4.sv:451.11-451.122"
+            "src": "CarrySaveMultiplier_W4.sv:451.15-451.126"
           },
           "port_directions": {
             "a": "input",
@@ -2038,12 +1842,12 @@
         },
         "full_adder_11": {
           "hide_name": 0,
-          "type": "Adder_W1",
+          "type": "FullAdder_W1",
           "parameters": {
           },
           "attributes": {
             "module_not_derived": 1,
-            "src": "CarrySaveMultiplier_W4.sv:498.11-498.112"
+            "src": "CarrySaveMultiplier_W4.sv:498.15-498.116"
           },
           "port_directions": {
             "a": "input",
@@ -2060,12 +1864,12 @@
         },
         "full_adder_12": {
           "hide_name": 0,
-          "type": "Adder_W1",
+          "type": "FullAdder_W1",
           "parameters": {
           },
           "attributes": {
             "module_not_derived": 1,
-            "src": "CarrySaveMultiplier_W4.sv:499.11-499.120"
+            "src": "CarrySaveMultiplier_W4.sv:499.15-499.124"
           },
           "port_directions": {
             "a": "input",
@@ -2082,12 +1886,12 @@
         },
         "full_adder_13": {
           "hide_name": 0,
-          "type": "Adder_W1",
+          "type": "FullAdder_W1",
           "parameters": {
           },
           "attributes": {
             "module_not_derived": 1,
-            "src": "CarrySaveMultiplier_W4.sv:500.11-500.120"
+            "src": "CarrySaveMultiplier_W4.sv:500.15-500.124"
           },
           "port_directions": {
             "a": "input",
@@ -2104,12 +1908,12 @@
         },
         "full_adder_14": {
           "hide_name": 0,
-          "type": "Adder_W1",
+          "type": "FullAdder_W1",
           "parameters": {
           },
           "attributes": {
             "module_not_derived": 1,
-            "src": "CarrySaveMultiplier_W4.sv:501.11-501.122"
+            "src": "CarrySaveMultiplier_W4.sv:501.15-501.126"
           },
           "port_directions": {
             "a": "input",
@@ -2126,12 +1930,12 @@
         },
         "full_adder_2": {
           "hide_name": 0,
-          "type": "Adder_W1",
+          "type": "FullAdder_W1",
           "parameters": {
           },
           "attributes": {
             "module_not_derived": 1,
-            "src": "CarrySaveMultiplier_W4.sv:357.11-357.98"
+            "src": "CarrySaveMultiplier_W4.sv:357.15-357.102"
           },
           "port_directions": {
             "a": "input",
@@ -2148,12 +1952,12 @@
         },
         "full_adder_3": {
           "hide_name": 0,
-          "type": "Adder_W1",
+          "type": "FullAdder_W1",
           "parameters": {
           },
           "attributes": {
             "module_not_derived": 1,
-            "src": "CarrySaveMultiplier_W4.sv:400.11-400.103"
+            "src": "CarrySaveMultiplier_W4.sv:400.15-400.107"
           },
           "port_directions": {
             "a": "input",
@@ -2170,12 +1974,12 @@
         },
         "full_adder_4": {
           "hide_name": 0,
-          "type": "Adder_W1",
+          "type": "FullAdder_W1",
           "parameters": {
           },
           "attributes": {
             "module_not_derived": 1,
-            "src": "CarrySaveMultiplier_W4.sv:401.11-401.119"
+            "src": "CarrySaveMultiplier_W4.sv:401.15-401.123"
           },
           "port_directions": {
             "a": "input",
@@ -2192,12 +1996,12 @@
         },
         "full_adder_5": {
           "hide_name": 0,
-          "type": "Adder_W1",
+          "type": "FullAdder_W1",
           "parameters": {
           },
           "attributes": {
             "module_not_derived": 1,
-            "src": "CarrySaveMultiplier_W4.sv:402.11-402.119"
+            "src": "CarrySaveMultiplier_W4.sv:402.15-402.123"
           },
           "port_directions": {
             "a": "input",
@@ -2214,12 +2018,12 @@
         },
         "full_adder_6": {
           "hide_name": 0,
-          "type": "Adder_W1",
+          "type": "FullAdder_W1",
           "parameters": {
           },
           "attributes": {
             "module_not_derived": 1,
-            "src": "CarrySaveMultiplier_W4.sv:403.11-403.121"
+            "src": "CarrySaveMultiplier_W4.sv:403.15-403.125"
           },
           "port_directions": {
             "a": "input",
@@ -2236,12 +2040,12 @@
         },
         "full_adder_7": {
           "hide_name": 0,
-          "type": "Adder_W1",
+          "type": "FullAdder_W1",
           "parameters": {
           },
           "attributes": {
             "module_not_derived": 1,
-            "src": "CarrySaveMultiplier_W4.sv:448.11-448.111"
+            "src": "CarrySaveMultiplier_W4.sv:448.15-448.115"
           },
           "port_directions": {
             "a": "input",
@@ -2258,12 +2062,12 @@
         },
         "full_adder_8": {
           "hide_name": 0,
-          "type": "Adder_W1",
+          "type": "FullAdder_W1",
           "parameters": {
           },
           "attributes": {
             "module_not_derived": 1,
-            "src": "CarrySaveMultiplier_W4.sv:449.11-449.119"
+            "src": "CarrySaveMultiplier_W4.sv:449.15-449.123"
           },
           "port_directions": {
             "a": "input",
@@ -2280,12 +2084,12 @@
         },
         "full_adder_9": {
           "hide_name": 0,
-          "type": "Adder_W1",
+          "type": "FullAdder_W1",
           "parameters": {
           },
           "attributes": {
             "module_not_derived": 1,
-            "src": "CarrySaveMultiplier_W4.sv:450.11-450.119"
+            "src": "CarrySaveMultiplier_W4.sv:450.15-450.123"
           },
           "port_directions": {
             "a": "input",
@@ -2326,112 +2130,112 @@
           "hide_name": 1,
           "bits": [ 20 ],
           "attributes": {
-            "src": "CarrySaveMultiplier_W4.sv:332.35-332.66"
+            "src": "CarrySaveMultiplier_W4.sv:332.39-332.70"
           }
         },
         "$and$CarrySaveMultiplier_W4.sv:355$11_Y": {
           "hide_name": 1,
           "bits": [ 21 ],
           "attributes": {
-            "src": "CarrySaveMultiplier_W4.sv:355.37-355.68"
+            "src": "CarrySaveMultiplier_W4.sv:355.41-355.72"
           }
         },
         "$and$CarrySaveMultiplier_W4.sv:356$12_Y": {
           "hide_name": 1,
           "bits": [ 22 ],
           "attributes": {
-            "src": "CarrySaveMultiplier_W4.sv:356.37-356.68"
+            "src": "CarrySaveMultiplier_W4.sv:356.41-356.72"
           }
         },
         "$and$CarrySaveMultiplier_W4.sv:357$13_Y": {
           "hide_name": 1,
           "bits": [ 23 ],
           "attributes": {
-            "src": "CarrySaveMultiplier_W4.sv:357.37-357.68"
+            "src": "CarrySaveMultiplier_W4.sv:357.41-357.72"
           }
         },
         "$and$CarrySaveMultiplier_W4.sv:400$16_Y": {
           "hide_name": 1,
           "bits": [ 26 ],
           "attributes": {
-            "src": "CarrySaveMultiplier_W4.sv:400.37-400.70"
+            "src": "CarrySaveMultiplier_W4.sv:400.41-400.74"
           }
         },
         "$and$CarrySaveMultiplier_W4.sv:401$17_Y": {
           "hide_name": 1,
           "bits": [ 28 ],
           "attributes": {
-            "src": "CarrySaveMultiplier_W4.sv:401.45-401.78"
+            "src": "CarrySaveMultiplier_W4.sv:401.49-401.82"
           }
         },
         "$and$CarrySaveMultiplier_W4.sv:402$18_Y": {
           "hide_name": 1,
           "bits": [ 30 ],
           "attributes": {
-            "src": "CarrySaveMultiplier_W4.sv:402.45-402.78"
+            "src": "CarrySaveMultiplier_W4.sv:402.49-402.82"
           }
         },
         "$and$CarrySaveMultiplier_W4.sv:403$19_Y": {
           "hide_name": 1,
           "bits": [ 32 ],
           "attributes": {
-            "src": "CarrySaveMultiplier_W4.sv:403.45-403.78"
+            "src": "CarrySaveMultiplier_W4.sv:403.49-403.82"
           }
         },
         "$and$CarrySaveMultiplier_W4.sv:448$22_Y": {
           "hide_name": 1,
           "bits": [ 35 ],
           "attributes": {
-            "src": "CarrySaveMultiplier_W4.sv:448.37-448.70"
+            "src": "CarrySaveMultiplier_W4.sv:448.41-448.74"
           }
         },
         "$and$CarrySaveMultiplier_W4.sv:449$23_Y": {
           "hide_name": 1,
           "bits": [ 37 ],
           "attributes": {
-            "src": "CarrySaveMultiplier_W4.sv:449.45-449.78"
+            "src": "CarrySaveMultiplier_W4.sv:449.49-449.82"
           }
         },
         "$and$CarrySaveMultiplier_W4.sv:450$24_Y": {
           "hide_name": 1,
           "bits": [ 39 ],
           "attributes": {
-            "src": "CarrySaveMultiplier_W4.sv:450.45-450.78"
+            "src": "CarrySaveMultiplier_W4.sv:450.49-450.82"
           }
         },
         "$and$CarrySaveMultiplier_W4.sv:451$25_Y": {
           "hide_name": 1,
           "bits": [ 41 ],
           "attributes": {
-            "src": "CarrySaveMultiplier_W4.sv:451.46-451.79"
+            "src": "CarrySaveMultiplier_W4.sv:451.50-451.83"
           }
         },
         "$and$CarrySaveMultiplier_W4.sv:498$28_Y": {
           "hide_name": 1,
           "bits": [ 44 ],
           "attributes": {
-            "src": "CarrySaveMultiplier_W4.sv:498.38-498.71"
+            "src": "CarrySaveMultiplier_W4.sv:498.42-498.75"
           }
         },
         "$and$CarrySaveMultiplier_W4.sv:499$29_Y": {
           "hide_name": 1,
           "bits": [ 46 ],
           "attributes": {
-            "src": "CarrySaveMultiplier_W4.sv:499.46-499.79"
+            "src": "CarrySaveMultiplier_W4.sv:499.50-499.83"
           }
         },
         "$and$CarrySaveMultiplier_W4.sv:500$30_Y": {
           "hide_name": 1,
           "bits": [ 48 ],
           "attributes": {
-            "src": "CarrySaveMultiplier_W4.sv:500.46-500.79"
+            "src": "CarrySaveMultiplier_W4.sv:500.50-500.83"
           }
         },
         "$and$CarrySaveMultiplier_W4.sv:501$31_Y": {
           "hide_name": 1,
           "bits": [ 50 ],
           "attributes": {
-            "src": "CarrySaveMultiplier_W4.sv:501.46-501.79"
+            "src": "CarrySaveMultiplier_W4.sv:501.50-501.83"
           }
         },
         "_original__swizzled": {
@@ -3560,6 +3364,202 @@
         }
       }
     },
+    "FullAdder_W1": {
+      "attributes": {
+        "src": "CarrySaveMultiplier_W4.sv:7.1-14.25"
+      },
+      "ports": {
+        "a": {
+          "direction": "input",
+          "bits": [ 2 ]
+        },
+        "b": {
+          "direction": "input",
+          "bits": [ 3 ]
+        },
+        "carryIn": {
+          "direction": "input",
+          "bits": [ 4 ]
+        },
+        "sum": {
+          "direction": "output",
+          "bits": [ 5, 6 ]
+        }
+      },
+      "cells": {
+        "$and$CarrySaveMultiplier_W4.sv:13$4": {
+          "hide_name": 1,
+          "type": "$and",
+          "parameters": {
+            "A_SIGNED": 0,
+            "A_WIDTH": 1,
+            "B_SIGNED": 0,
+            "B_WIDTH": 1,
+            "Y_WIDTH": 1
+          },
+          "attributes": {
+            "src": "CarrySaveMultiplier_W4.sv:13.17-13.34"
+          },
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [ 4 ],
+            "B": [ 7 ],
+            "Y": [ 8 ]
+          }
+        },
+        "$and$CarrySaveMultiplier_W4.sv:13$5": {
+          "hide_name": 1,
+          "type": "$and",
+          "parameters": {
+            "A_SIGNED": 0,
+            "A_WIDTH": 1,
+            "B_SIGNED": 0,
+            "B_WIDTH": 1,
+            "Y_WIDTH": 1
+          },
+          "attributes": {
+            "src": "CarrySaveMultiplier_W4.sv:13.39-13.44"
+          },
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [ 2 ],
+            "B": [ 3 ],
+            "Y": [ 9 ]
+          }
+        },
+        "$or$CarrySaveMultiplier_W4.sv:13$6": {
+          "hide_name": 1,
+          "type": "$or",
+          "parameters": {
+            "A_SIGNED": 0,
+            "A_WIDTH": 1,
+            "B_SIGNED": 0,
+            "B_WIDTH": 1,
+            "Y_WIDTH": 1
+          },
+          "attributes": {
+            "src": "CarrySaveMultiplier_W4.sv:13.16-13.45"
+          },
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [ 8 ],
+            "B": [ 9 ],
+            "Y": [ 6 ]
+          }
+        },
+        "$xor$CarrySaveMultiplier_W4.sv:13$2": {
+          "hide_name": 1,
+          "type": "$xor",
+          "parameters": {
+            "A_SIGNED": 0,
+            "A_WIDTH": 1,
+            "B_SIGNED": 0,
+            "B_WIDTH": 1,
+            "Y_WIDTH": 1
+          },
+          "attributes": {
+            "src": "CarrySaveMultiplier_W4.sv:13.48-13.65"
+          },
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [ 7 ],
+            "B": [ 4 ],
+            "Y": [ 5 ]
+          }
+        },
+        "$xor$CarrySaveMultiplier_W4.sv:13$3": {
+          "hide_name": 1,
+          "type": "$xor",
+          "parameters": {
+            "A_SIGNED": 0,
+            "A_WIDTH": 1,
+            "B_SIGNED": 0,
+            "B_WIDTH": 1,
+            "Y_WIDTH": 1
+          },
+          "attributes": {
+            "src": "CarrySaveMultiplier_W4.sv:13.28-13.33"
+          },
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [ 2 ],
+            "B": [ 3 ],
+            "Y": [ 7 ]
+          }
+        }
+      },
+      "netnames": {
+        "$and$CarrySaveMultiplier_W4.sv:13$4_Y": {
+          "hide_name": 1,
+          "bits": [ 8 ],
+          "attributes": {
+            "src": "CarrySaveMultiplier_W4.sv:13.17-13.34"
+          }
+        },
+        "$and$CarrySaveMultiplier_W4.sv:13$5_Y": {
+          "hide_name": 1,
+          "bits": [ 9 ],
+          "attributes": {
+            "src": "CarrySaveMultiplier_W4.sv:13.39-13.44"
+          }
+        },
+        "$xor$CarrySaveMultiplier_W4.sv:13$1_Y": {
+          "hide_name": 1,
+          "bits": [ 7 ],
+          "attributes": {
+            "src": "CarrySaveMultiplier_W4.sv:13.49-13.54"
+          }
+        },
+        "a": {
+          "hide_name": 0,
+          "bits": [ 2 ],
+          "attributes": {
+            "src": "CarrySaveMultiplier_W4.sv:8.13-8.14"
+          }
+        },
+        "b": {
+          "hide_name": 0,
+          "bits": [ 3 ],
+          "attributes": {
+            "src": "CarrySaveMultiplier_W4.sv:9.13-9.14"
+          }
+        },
+        "carryIn": {
+          "hide_name": 0,
+          "bits": [ 4 ],
+          "attributes": {
+            "src": "CarrySaveMultiplier_W4.sv:10.13-10.20"
+          }
+        },
+        "sum": {
+          "hide_name": 0,
+          "bits": [ 5, 6 ],
+          "attributes": {
+            "src": "CarrySaveMultiplier_W4.sv:11.20-11.23"
+          }
+        }
+      }
+    },
     "RippleCarryAdder_W4": {
       "attributes": {
         "src": "CarrySaveMultiplier_W4.sv:18.1-32.32"
@@ -3581,12 +3581,12 @@
       "cells": {
         "full_adder": {
           "hide_name": 0,
-          "type": "Adder_W1",
+          "type": "FullAdder_W1",
           "parameters": {
           },
           "attributes": {
             "module_not_derived": 1,
-            "src": "CarrySaveMultiplier_W4.sv:28.11-28.71"
+            "src": "CarrySaveMultiplier_W4.sv:28.15-28.75"
           },
           "port_directions": {
             "a": "input",
@@ -3603,12 +3603,12 @@
         },
         "full_adder_0": {
           "hide_name": 0,
-          "type": "Adder_W1",
+          "type": "FullAdder_W1",
           "parameters": {
           },
           "attributes": {
             "module_not_derived": 1,
-            "src": "CarrySaveMultiplier_W4.sv:29.11-29.79"
+            "src": "CarrySaveMultiplier_W4.sv:29.15-29.83"
           },
           "port_directions": {
             "a": "input",
@@ -3625,12 +3625,12 @@
         },
         "full_adder_1": {
           "hide_name": 0,
-          "type": "Adder_W1",
+          "type": "FullAdder_W1",
           "parameters": {
           },
           "attributes": {
             "module_not_derived": 1,
-            "src": "CarrySaveMultiplier_W4.sv:30.11-30.79"
+            "src": "CarrySaveMultiplier_W4.sv:30.15-30.83"
           },
           "port_directions": {
             "a": "input",
@@ -3647,12 +3647,12 @@
         },
         "full_adder_2": {
           "hide_name": 0,
-          "type": "Adder_W1",
+          "type": "FullAdder_W1",
           "parameters": {
           },
           "attributes": {
             "module_not_derived": 1,
-            "src": "CarrySaveMultiplier_W4.sv:31.11-31.79"
+            "src": "CarrySaveMultiplier_W4.sv:31.15-31.83"
           },
           "port_directions": {
             "a": "input",

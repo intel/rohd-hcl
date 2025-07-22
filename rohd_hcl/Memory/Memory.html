@@ -59,6 +59,8 @@
 <li><span class="parameter" id="-param-writePorts"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.8.2/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../../rohd_hcl/DataPortInterface-class.html">DataPortInterface</a></span>&gt;</span></span> <span class="parameter-name">writePorts</span>, </span></li>
 <li><span class="parameter" id="-param-readPorts"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.8.2/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../../rohd_hcl/DataPortInterface-class.html">DataPortInterface</a></span>&gt;</span></span> <span class="parameter-name">readPorts</span>, {</span></li>
 <li><span class="parameter" id="-param-name"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.8.2/dart-core/String-class.html">String</a></span> <span class="parameter-name">name</span> = <span class="default-value">&#39;memory&#39;</span>, </span></li>
+<li><span class="parameter" id="-param-reserveName"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.8.2/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">reserveName</span> = <span class="default-value">false</span>, </span></li>
+<li><span class="parameter" id="-param-reserveDefinitionName"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.8.2/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">reserveDefinitionName</span> = <span class="default-value">false</span>, </span></li>
 <li><span class="parameter" id="-param-definitionName"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.8.2/dart-core/String-class.html">String</a>?</span> <span class="parameter-name">definitionName</span>, </span></li>
 </ol>})
     </section>
@@ -74,7 +76,10 @@
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">Memory(Logic clk, Logic reset, List&lt;DataPortInterface&gt; writePorts,
     List&lt;DataPortInterface&gt; readPorts,
-    {super.name = &#39;memory&#39;, String? definitionName})
+    {super.name = &#39;memory&#39;,
+    super.reserveName,
+    super.reserveDefinitionName,
+    String? definitionName})
     : numWrites = writePorts.length,
       numReads = readPorts.length,
       dataWidth = (writePorts.isNotEmpty)
