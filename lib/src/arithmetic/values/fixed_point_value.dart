@@ -213,19 +213,22 @@ class FixedPointValue implements Comparable<FixedPointValue> {
         break;
       }
     }
-
-    // shift our mantissa to (1.<MANTISSA>) format
-    if (firstOneIndex == 0) {
-      mantissaVal =
-          LogicValue.filled(integerWidth + fractionWidth, LogicValue.zero);
-    } else {
-      mantissaVal = fixedNum.slice(firstOneIndex - 1, 0);
-    }
+    mantissaVal = explicitJBit
+        ? fixedNum
+            .slice(firstOneIndex, 0)
+            .extend(firstOneIndex + 1, LogicValue.zero)
+        : firstOneIndex == 0
+            ? LogicValue.filled(integerWidth + fractionWidth, LogicValue.zero)
+            : fixedNum.slice(firstOneIndex - 1, 0);
     // now we have (1.<MANTISSA>) so we can calculate the exponent
     final radix = (fixedNum.width - 1) - integerWidth;
-    var shiftAmnt = firstOneIndex - radix;
+    var shiftAmnt =
+        explicitJBit ? firstOneIndex - radix : firstOneIndex - radix;
     if (!signed) {
       shiftAmnt -= 1; // shiftAmnt is reduced by one for unsigned
+    }
+    if (explicitJBit && mantissaVal[mantissaVal.width - 1] == LogicValue.zero) {
+      shiftAmnt += 1;
     }
     var expWidth = 0;
     if (shiftAmnt != 0) {
@@ -235,15 +238,16 @@ class FixedPointValue implements Comparable<FixedPointValue> {
     if (expWidth < minmialExponentWidth) {
       expWidth = minmialExponentWidth; // minimum exponent width needed
     }
-
     // set the bias amount which is 2^(expWidth - 1) - 1
-    final bias =
-        LogicValue.ofInt((pow(2, expWidth).toInt() >> 1) - 1, expWidth);
+    final bias = LogicValue.ofInt((pow(2, expWidth - 1) - 1).toInt(), expWidth);
     // bias our exponent value
     exponentVal = LogicValue.ofInt(shiftAmnt, expWidth) + bias;
 
     return FloatingPointValue(
-        sign: sign, exponent: exponentVal, mantissa: mantissaVal);
+        sign: sign,
+        exponent: exponentVal,
+        mantissa: mantissaVal,
+        explicitjBit: explicitJBit);
   }
 
   /// Addition operation that returns a [FixedPointValue].
