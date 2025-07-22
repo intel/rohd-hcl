@@ -184,6 +184,12 @@ class FixedPointValue implements Comparable<FixedPointValue> {
       throw RohdHclException('Inputs must be valid.');
     }
 
+    // throw an error if widths are both zero.
+    if (integerWidth == 0 && fractionWidth == 0) {
+      throw RohdHclException('Cannot convert fixed-point value with zero '
+          'widths to floating-point value.');
+    }
+
     // Qm.n need to be converted so we have it in the form (1.<MANTISSA>).
     const minmialExponentWidth = 4;
     var sign = value[-1];
