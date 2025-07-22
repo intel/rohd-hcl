@@ -179,7 +179,7 @@ class FixedPointValue implements Comparable<FixedPointValue> {
   }
 
   /// Converts a [FixedPointValue] to a [FloatingPointValue].
-  FloatingPointValue toFloatingPointValue(bool explicitJBit) {
+  FloatingPointValue toFloatingPointValue({required bool explicitJBit}) {
     if (!value.isValid) {
       throw RohdHclException('Inputs must be valid.');
     }
@@ -222,8 +222,7 @@ class FixedPointValue implements Comparable<FixedPointValue> {
             : fixedNum.slice(firstOneIndex - 1, 0);
     // now we have (1.<MANTISSA>) so we can calculate the exponent
     final radix = (fixedNum.width - 1) - integerWidth;
-    var shiftAmnt =
-        explicitJBit ? firstOneIndex - radix : firstOneIndex - radix;
+    var shiftAmnt = firstOneIndex - radix;
     if (!signed) {
       shiftAmnt -= 1; // shiftAmnt is reduced by one for unsigned
     }
