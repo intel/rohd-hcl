@@ -49,12 +49,16 @@ class FloatingPointConverter<FpTypeIn extends FloatingPoint,
           priorityGen = RecursiveModulePriorityEncoder.new,
       Adder Function(Logic a, Logic b, {Logic? carryIn}) adderGen =
           NativeAdder.new,
-      super.name = 'floating_point_converter'})
+      super.name = 'floating_point_converter',
+      super.reserveName,
+      super.reserveDefinitionName,
+      String? definitionName})
       : sourceExponentWidth = source.exponent.width,
         sourceMantissaWidth = source.mantissa.width,
         super(
-            definitionName: 'FloatingPointConverter_${source.runtimeType}_'
-                '${destination.runtimeType}') {
+            definitionName: definitionName ??
+                'FloatingPointConverter_${source.runtimeType}_'
+                    '${destination.runtimeType}') {
     if (source.subNormalAsZero) {
       throw ArgumentError(
           'FloatingPointConverter does not support denormal as zero (DAZ)');

@@ -23,7 +23,8 @@ class FloatingPointSqrtConfigurator extends Configurator {
     final inp = FloatingPoint(
         exponentWidth: exponentWidthKnob.value,
         mantissaWidth: mantissaWidthKnob.value);
-    return FloatingPointSqrtSimple(inp);
+    return FloatingPointSqrtSimple(inp,
+        definitionName: 'FloatingPointSqrtSimple');
   }
 
   @override

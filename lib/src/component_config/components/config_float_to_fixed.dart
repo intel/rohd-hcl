@@ -30,7 +30,10 @@ class FloatToFixedConfigurator extends Configurator {
   });
 
   @override
-  Module createModule() => FloatToFixed(FloatingPoint(
-      exponentWidth: exponentWidthKnob.value,
-      mantissaWidth: mantissaWidthKnob.value));
+  Module createModule() => FloatToFixed(
+        FloatingPoint(
+            exponentWidth: exponentWidthKnob.value,
+            mantissaWidth: mantissaWidthKnob.value),
+        definitionName: 'FloatToFixed',
+      );
 }

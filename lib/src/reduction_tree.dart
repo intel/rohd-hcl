@@ -106,9 +106,13 @@ class ReductionTree extends Module {
       Logic? clk,
       Logic? enable,
       Logic? reset,
-      super.name = 'reduction_tree'})
+      super.name = 'reduction_tree',
+      super.reserveName,
+      super.reserveDefinitionName,
+      String? definitionName})
       : super(
-            definitionName: 'ReductionTreeNode_R${radix}_L${sequence.length}') {
+            definitionName: definitionName ??
+                'ReductionTreeNode_R${radix}_L${sequence.length}') {
     if (sequence.isEmpty) {
       throw RohdHclException("Don't use ReductionTree "
           'with an empty sequence');

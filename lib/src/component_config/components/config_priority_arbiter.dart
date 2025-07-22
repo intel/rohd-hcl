@@ -27,6 +27,6 @@ class PriorityArbiterConfigurator extends Configurator {
   @override
   Module createModule() {
     final reqs = List.generate(numRequestKnob.value, (i) => Logic());
-    return PriorityArbiter(reqs);
+    return PriorityArbiter(reqs, definitionName: 'PriorityArbiter');
   }
 }

@@ -43,10 +43,14 @@ class FloatingPointAdderDualPath<FpTypeIn extends FloatingPoint,
       ParallelPrefix Function(
               List<Logic> inps, Logic Function(Logic term1, Logic term2) op)
           ppTree = KoggeStone.new,
-      super.name = 'floating_point_adder_dualpath'})
+      super.name = 'floating_point_adder_dualpath',
+      super.reserveName,
+      super.reserveDefinitionName,
+      String? definitionName})
       : super(
-            definitionName: 'FloatingPointAdderDualPath_'
-                'E${a.exponent.width}M${a.mantissa.width}') {
+            definitionName: definitionName ??
+                'FloatingPointAdderDualPath_'
+                    'E${a.exponent.width}M${a.mantissa.width}') {
     if (a.explicitJBit || b.explicitJBit) {
       throw ArgumentError(
           'FloatingPointAdderDualPath does not support explicit J bit.');

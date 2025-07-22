@@ -61,15 +61,20 @@ class Sum extends SummationBase {
   /// and [underflowed] outputs can be used to determine if the sum is at the
   /// maximum, minimum, (would have) overflowed, or  (would have) underflowed,
   /// respectively.
-  Sum(
-    super.interfaces, {
-    dynamic initialValue = 0,
-    super.maxValue,
-    super.minValue,
-    super.width,
-    super.saturates,
-    super.name = 'sum',
-  }) : super(initialValue: initialValue) {
+  Sum(super.interfaces,
+      {dynamic initialValue = 0,
+      super.maxValue,
+      super.minValue,
+      super.width,
+      super.saturates,
+      super.name = 'sum',
+      super.reserveName,
+      super.reserveDefinitionName,
+      String? definitionName})
+      : super(
+            definitionName:
+                definitionName ?? 'Sum_${interfaces.length}_W$width',
+            initialValue: initialValue) {
     addOutput('sum', width: width);
 
     var maxPosMagnitude = SummationBase.biggestVal(width);

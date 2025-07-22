@@ -25,8 +25,12 @@ class Extrema extends Module {
   /// If [max] is `true`, will find maximum value, else will find minimum.
   ///
   /// Outputs the [index] and [val] of the extrema in the list of [signals].
-  Extrema(List<Logic> signals, {bool max = true})
-      : super(definitionName: 'Extrema_L${signals.length}') {
+  Extrema(List<Logic> signals,
+      {bool max = true,
+      super.reserveName,
+      super.reserveDefinitionName,
+      String? definitionName})
+      : super(definitionName: definitionName ?? 'Extrema_L${signals.length}') {
     // List to consume inputs internally.
     final logics = <Logic>[];
 

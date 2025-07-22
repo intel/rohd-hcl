@@ -58,6 +58,8 @@ abstract class FloatingPointSqrt<FpType extends FloatingPoint> extends Module {
       Logic? reset,
       Logic? enable,
       super.name = 'floating_point_square_root',
+      super.reserveName,
+      super.reserveDefinitionName,
       String? definitionName})
       : exponentWidth = a.exponent.width,
         mantissaWidth = a.mantissa.width,

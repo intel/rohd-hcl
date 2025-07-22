@@ -212,7 +212,10 @@ class ClockGate extends Module {
       ClockGateControlInterface? controlIntf,
       this.delayControlledSignals = false,
       super.name = 'clock_gate',
-      super.definitionName}) {
+      super.reserveName,
+      super.reserveDefinitionName,
+      String? definitionName})
+      : super(definitionName: definitionName ?? 'ClockGate') {
     // if this clock gating is not intended to be present, then just do nothing
     if (!(controlIntf?.isPresent ?? true)) {
       _controlIntf = null;

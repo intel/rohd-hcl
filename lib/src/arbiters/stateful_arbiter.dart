@@ -27,7 +27,11 @@ abstract class StatefulArbiter extends Arbiter {
 
   /// Creates a new [StatefulArbiter] with associated [clk] and [reset].
   StatefulArbiter(super.requests,
-      {required Logic clk, required Logic reset, String? definitionName})
+      {required Logic clk,
+      required Logic reset,
+      super.reserveName,
+      super.reserveDefinitionName,
+      String? definitionName})
       : super(
             definitionName:
                 definitionName ?? 'StatefulArbiter_W${requests.length}') {

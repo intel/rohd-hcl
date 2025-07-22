@@ -53,10 +53,14 @@ class FloatToFixed extends Module {
       {super.name = 'FloatToFixed',
       int? integerWidth,
       int? fractionWidth,
-      this.checkOverflow = false})
+      this.checkOverflow = false,
+      super.reserveName,
+      super.reserveDefinitionName,
+      String? definitionName})
       : super(
-            definitionName: 'FloatE${float.exponent.width}'
-                'M${float.mantissa.width}ToFixed') {
+            definitionName: definitionName ??
+                'FloatE${float.exponent.width}'
+                    'M${float.mantissa.width}ToFixed') {
     float = float.clone()..gets(addInput('float', float, width: float.width));
 
     final bias = float.floatingPointValue.bias;

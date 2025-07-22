@@ -35,12 +35,16 @@ class FloatingPointMultiplierSimple<FpTypeIn extends FloatingPoint,
       PriorityEncoder Function(Logic bitVector,
               {bool generateValid, String name})
           priorityGen = RecursiveModulePriorityEncoder.new,
-      super.name})
+      super.name,
+      super.reserveName,
+      super.reserveDefinitionName,
+      String? definitionName})
       : super(
-            definitionName: 'FloatingPointMultiplierSimple_'
-                'E${a.exponent.width}M${a.mantissa.width}'
-                '${outProduct != null ? '_OE${outProduct.exponent.width}_'
-                    'OM${outProduct.mantissa.width}' : ''}') {
+            definitionName: definitionName ??
+                'FloatingPointMultiplierSimple_'
+                    'E${a.exponent.width}M${a.mantissa.width}'
+                    '${outProduct != null ? '_OE${outProduct.exponent.width}_'
+                        'OM${outProduct.mantissa.width}' : ''}') {
     if (exponentWidth < a.exponent.width) {
       throw RohdHclException('product exponent width must be >= '
           ' input exponent width');
