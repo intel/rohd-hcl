@@ -31,6 +31,35 @@ ComplexFloatingPoint newComplex(double real, double imaginary) {
   return complex;
 }
 
+Future<void> write(
+  Logic clk,
+  DataPortInterface writePort,
+  int value,
+  int addr,
+) async {
+  await clk.nextNegedge;
+  writePort.addr.inject(LogicValue.ofInt(addr, writePort.addrWidth));
+  writePort.data.inject(LogicValue.ofInt(value, writePort.dataWidth));
+  writePort.en.inject(1);
+
+  await clk.nextNegedge;
+  writePort.en.inject(0);
+  await clk.nextNegedge;
+}
+
+Future<LogicValue> read(Logic clk, DataPortInterface readPort, int addr) async {
+  readPort.addr.inject(LogicValue.ofInt(addr, readPort.addrWidth));
+  readPort.en.inject(1);
+  await clk.nextPosedge;
+  final value = readPort.data.value;
+
+  await clk.nextNegedge;
+  readPort.en.inject(0);
+  await clk.nextNegedge;
+
+  return value;
+}
+
 void main() {
   tearDown(() async {
     await Simulator.reset();
@@ -59,19 +88,19 @@ void main() {
     final outputSamplesA = DataPortInterface(dataWidth, addrWidth);
     final outputSamplesB = DataPortInterface(dataWidth, addrWidth);
 
-    MemoryModel(
+    final twiddleFactorROM = RegisterFile(
       clk,
       reset,
       [twiddleFactorROMWritePort],
       [twiddleFactorROMReadPort],
-      readLatency: 0,
+      numEntries: n,
     );
-    MemoryModel(
+    final tempMemory = RegisterFile(
       clk,
       reset,
       [tempMemoryWritePort],
       [tempMemoryReadPortA, tempMemoryReadPortB],
-      readLatency: 0,
+      numEntries: n,
     );
 
     final stage = BadFFTStage(
@@ -85,14 +114,11 @@ void main() {
       inputSamplesB: tempMemoryReadPortB,
       twiddleFactorROM: twiddleFactorROMReadPort,
       outputSamplesA: outputSamplesA,
-      outputSamplesB: outputSamplesB
+      outputSamplesB: outputSamplesB,
     );
 
     await stage.build();
 
-    print(stage.generateSynth());
-
-    Simulator.setMaxSimTime(10000);
     unawaited(Simulator.run());
 
     reset.inject(1);
@@ -100,7 +126,8 @@ void main() {
     reset.inject(0);
     await clk.waitCycles(10);
 
-    assert(false);
+    await write(clk, twiddleFactorROMWritePort, 1, 0);
+    expect((await read(clk, twiddleFactorROMReadPort, 0)).toInt(), 1);
 
     await Simulator.endSimulation();
   });

@@ -132,11 +132,12 @@ class BadFFTStage extends Module {
       restart: this.ready & _valid,
       width: max(log2Length - 1, 1),
       maxValue: n ~/ 2 - 1,
+      name: "i",
     );
     _valid <= i.equalsMax;
 
-    final k = (i.count >> (mShift - 1)) << mShift;
-    final j = (i.count & Const((m >> 1) - 1, width: i.width));
+    final k = ((i.count >> (mShift - 1)) << mShift).named("k");
+    final j = (i.count & Const((m >> 1) - 1, width: i.width)).named("j");
 
     //     for k = 0 to n-1 by m do
     //         ω ← 1
