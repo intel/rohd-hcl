@@ -34,12 +34,12 @@ ComplexFloatingPoint newComplex(double real, double imaginary) {
 Future<void> write(
   Logic clk,
   DataPortInterface writePort,
-  int value,
+  LogicValue value,
   int addr,
 ) async {
   await clk.nextNegedge;
   writePort.addr.inject(LogicValue.ofInt(addr, writePort.addrWidth));
-  writePort.data.inject(LogicValue.ofInt(value, writePort.dataWidth));
+  writePort.data.inject(value);
   writePort.en.inject(1);
 
   await clk.nextNegedge;
@@ -71,7 +71,7 @@ void main() {
     final twiddle = newComplex(1.0, 0.0);
     final clk = SimpleClockGenerator(10).clk;
     final reset = Logic()..put(0);
-    final ready = Logic()..put(0);
+    final go = Logic()..put(0);
 
     final n = 2;
 
@@ -109,7 +109,7 @@ void main() {
       mantissaWidth: mantissaWidth,
       clk: clk,
       reset: reset,
-      ready: ready,
+      go: go,
       inputSamplesA: tempMemoryReadPortA,
       inputSamplesB: tempMemoryReadPortB,
       twiddleFactorROM: twiddleFactorROMReadPort,
@@ -119,6 +119,8 @@ void main() {
 
     await stage.build();
 
+    WaveDumper(stage);
+
     unawaited(Simulator.run());
 
     reset.inject(1);
@@ -126,8 +128,16 @@ void main() {
     reset.inject(0);
     await clk.waitCycles(10);
 
-    await write(clk, twiddleFactorROMWritePort, 1, 0);
-    expect((await read(clk, twiddleFactorROMReadPort, 0)).toInt(), 1);
+    await write(clk, tempMemoryWritePort, a.value, 0);
+    await write(clk, tempMemoryWritePort, b.value, 1);
+    await write(clk, twiddleFactorROMWritePort, a.value, 0);
+    await write(clk, twiddleFactorROMWritePort, b.value, 1);
+
+    go.inject(1);
+    stage.done.posedge.listen((_) {
+      go.inject(0);
+    });
+    await clk.waitCycles(5);
 
     await Simulator.endSimulation();
   });

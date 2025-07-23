@@ -14,12 +14,12 @@ class BadFFTStage extends Module {
   final int mantissaWidth;
   Logic clk;
   Logic reset;
-  Logic ready;
+  Logic go;
   DataPortInterface inputSamplesA;
   DataPortInterface inputSamplesB;
   DataPortInterface twiddleFactorROM;
 
-  late final Logic valid;
+  late final Logic done;
 
   BadFFTStage({
     required this.logStage,
@@ -27,14 +27,14 @@ class BadFFTStage extends Module {
     required this.mantissaWidth,
     required this.clk,
     required this.reset,
-    required this.ready,
+    required this.go,
     required this.inputSamplesA,
     required this.inputSamplesB,
     required this.twiddleFactorROM,
     required DataPortInterface outputSamplesA,
     required DataPortInterface outputSamplesB,
     super.name = 'badfftstage',
-  }) : assert(ready.width == 1),
+  }) : assert(go.width == 1),
        assert(
          inputSamplesA.dataWidth == 2 * (1 + exponentWidth + mantissaWidth),
        ),
@@ -43,9 +43,10 @@ class BadFFTStage extends Module {
        ) {
     clk = addInput('clk', clk);
     reset = addInput('reset', reset);
-    ready = addInput('ready', ready);
-    final _valid = Logic(name: "_valid");
-    valid = addOutput('valid')..gets(_valid);
+    go = addInput('go', go);
+    final _done = Logic(name: "_done");
+    done = addOutput('done')..gets(_done);
+    final en = go & ~_done;
 
     inputSamplesA = inputSamplesA.clone()
       ..connectIO(
@@ -124,17 +125,18 @@ class BadFFTStage extends Module {
     final log2Length = inputSamplesA.addrWidth;
     final m = 1 << logStage;
     final mShift = log2Ceil(m);
+    print("m is ${m}");
 
     final i = Counter.ofLogics(
-      [~_valid],
+      [flop(clk, en)],
       clk: clk,
-      reset: reset,
-      restart: this.ready & _valid,
+      reset: reset | (this.go & _done),
+      resetValue: 0,
       width: max(log2Length - 1, 1),
-      maxValue: n ~/ 2 - 1,
+      maxValue: n ~/ 2,
       name: "i",
     );
-    _valid <= i.equalsMax;
+    _done <= i.equalsMax;
 
     final k = ((i.count >> (mShift - 1)) << mShift).named("k");
     final j = (i.count & Const((m >> 1) - 1, width: i.width)).named("j");
@@ -148,13 +150,13 @@ class BadFFTStage extends Module {
     //             A[k + j + m/2] ← u – t
     //             ω ← ω ωm
     Logic addressA = (k + j).named("addressA");
-    Logic addressB = (addressA + n ~/ 2).named("addressB");
+    Logic addressB = (addressA + m ~/ 2).named("addressB");
     inputSamplesA.addr <= addressA;
-    inputSamplesA.en <= ~_valid;
+    inputSamplesA.en <= en;
     inputSamplesB.addr <= addressB;
-    inputSamplesB.en <= ~_valid;
+    inputSamplesB.en <= en;
     twiddleFactorROM.addr <= j;
-    twiddleFactorROM.en <= ~_valid;
+    twiddleFactorROM.en <= en;
 
     final butterfly = Butterfly(
       inA: ComplexFloatingPoint.of(
@@ -175,9 +177,9 @@ class BadFFTStage extends Module {
     );
 
     outputSamplesWritePortA.addr <= addressA;
-    outputSamplesWritePortA.en <= ~_valid;
+    outputSamplesWritePortA.en <= en;
     outputSamplesWritePortB.addr <= addressB;
-    outputSamplesWritePortB.en <= ~_valid;
+    outputSamplesWritePortB.en <= en;
 
     Sequential(clk, [
       outputSamplesWritePortA.data < butterfly.outA.named("butterflyOutA"),
