@@ -709,41 +709,46 @@ void main() {
     });
     test('FPV: toFixedPointValue simplified', () async {
       //
-      //[exp, expSize, sign (0 == +), mant, mantSize]
+      //(exp, expSize, sign (0 == +), mant, mantSize)
       final testCases = [
-        [0, 8, 0, 0x000000, 23], // 1.0
-        [0, 8, 0, 0x000001, 23], // 1.0000001
-        [1, 8, 0, 0x000001, 23], // 2.0000002
-        [8, 8, 0, 0x000001, 23], // 256.00003
-        [0, 8, 0, 0x400000, 23], // 1.5
-        [-1, 8, 0, 0x400000, 23], // 0.75
-        [1, 8, 0, 0x400000, 23], // 3.0
-        [2, 8, 0, 0x400000, 23], // 6.0
-        [0, 8, 1, 0x000000, 23], // -1.0
-        [0, 8, 1, 0x400000, 23], // -1.5
-        [0, 5, 0, 0x000, 10], // 1.0, 16-bit float
-        [-127, 8, 0, 0x000001, 23], // 1e-45
-        [-127, 8, 0, 0x000000, 23], // 0
-        [-127, 8, 1, 0x000000, 23], // -0
+        (0, 8, 0, 0x000000, 23), // 1.0
+        (0, 8, 0, 0x000001, 23), // 1.0000001
+        (1, 8, 0, 0x000001, 23), // 2.0000002
+        (8, 8, 0, 0x000001, 23), // 256.00003
+        (0, 8, 0, 0x400000, 23), // 1.5
+        (-1, 8, 0, 0x400000, 23), // 0.75
+        (1, 8, 0, 0x400000, 23), // 3.0
+        (2, 8, 0, 0x400000, 23), // 6.0
+        (0, 8, 1, 0x000000, 23), // -1.0
+        (0, 8, 1, 0x400000, 23), // -1.5
+        (0, 5, 0, 0x000, 10), // 1.0, 16-bit float
+        (-127, 8, 0, 0x000001, 23), // 1e-45
+        (-127, 8, 0, 0x000000, 23), // 0
+        (-127, 8, 1, 0x000000, 23), // -0
       ];
 
       for (final testCase in testCases) {
-        final bias = (pow(2, testCase[1] - 1) - 1).toInt();
-        final exp = testCase[0];
+        final exp = testCase.$1;
+        final expSize = testCase.$2;
+        final bias = (pow(2, expSize - 1) - 1).toInt();
+        final sign = testCase.$3;
+        final mant = testCase.$4;
+        final mantSize = testCase.$5;
+
         final fpv1 = FloatingPointValue(
-          exponent: LogicValue.ofInt(exp + bias, testCase[1]),
-          sign: LogicValue.ofInt(testCase[2], 1),
-          mantissa: LogicValue.ofInt(testCase[3], testCase[4]),
+          exponent: LogicValue.ofInt(exp + bias, expSize),
+          sign: LogicValue.ofInt(sign, 1),
+          mantissa: LogicValue.ofInt(mant, mantSize),
         );
         final fxv = fpv1.toFixedPointValue();
 
         // generate expected result
         final expected = expectedResult(
           exp,
-          testCase[1],
-          testCase[2],
-          testCase[3],
-          testCase[4],
+          expSize,
+          sign,
+          mant,
+          mantSize,
           fpv1.exponent,
         );
 
