@@ -56,6 +56,8 @@ void main() {
     final tempMemoryReadPortB = DataPortInterface(dataWidth, addrWidth);
     final twiddleFactorROMWritePort = DataPortInterface(dataWidth, addrWidth);
     final twiddleFactorROMReadPort = DataPortInterface(dataWidth, addrWidth);
+    final outputSamplesA = DataPortInterface(dataWidth, addrWidth);
+    final outputSamplesB = DataPortInterface(dataWidth, addrWidth);
 
     MemoryModel(
       clk,
@@ -82,6 +84,8 @@ void main() {
       inputSamplesA: tempMemoryReadPortA,
       inputSamplesB: tempMemoryReadPortB,
       twiddleFactorROM: twiddleFactorROMReadPort,
+      outputSamplesA: outputSamplesA,
+      outputSamplesB: outputSamplesB
     );
 
     await stage.build();

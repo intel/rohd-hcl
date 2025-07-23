@@ -44,70 +44,83 @@ class BadFFTStage extends Module {
     clk = addInput('clk', clk);
     reset = addInput('reset', reset);
     ready = addInput('ready', ready);
-    final _valid = Logic();
+    final _valid = Logic(name: "_valid");
     valid = addOutput('valid')..gets(_valid);
 
     inputSamplesA = inputSamplesA.clone()
       ..connectIO(
         this,
         inputSamplesA,
-        inputTags: [DataPortGroup.data, DataPortGroup.control],
+        inputTags: [DataPortGroup.data],
+        outputTags: [DataPortGroup.control],
         uniquify: (name) => "inputSamplesA${name}",
       );
     inputSamplesB = inputSamplesB.clone()
       ..connectIO(
         this,
         inputSamplesB,
-        inputTags: [DataPortGroup.data, DataPortGroup.control],
+        inputTags: [DataPortGroup.data],
+        outputTags: [DataPortGroup.control],
         uniquify: (name) => "inputSamplesB${name}",
       );
     twiddleFactorROM = twiddleFactorROM.clone()
       ..connectIO(
         this,
         twiddleFactorROM,
-        inputTags: [DataPortGroup.data, DataPortGroup.control],
+        inputTags: [DataPortGroup.data],
+        outputTags: [DataPortGroup.control],
         uniquify: (name) => "twiddleFactorROM${name}",
       );
 
-    outputSamples = outputSamplesA.clone()..connectIO(
-      this,
-      outputSamplesA,
-      outputTags: [DataPortGroup.data, DataPortGroup.control],
-      uniquify: (name) => "outputSamples${name}",
-    );
+    outputSamplesA = outputSamplesA.clone()
+      ..connectIO(
+        this,
+        outputSamplesA,
+        inputTags: [DataPortGroup.control],
+        outputTags: [DataPortGroup.data],
+        uniquify: (name) => "outputSamplesA${name}",
+      );
+    outputSamplesB = outputSamplesB.clone()
+      ..connectIO(
+        this,
+        outputSamplesB,
+        inputTags: [DataPortGroup.control],
+        outputTags: [DataPortGroup.data],
+        uniquify: (name) => "outputSamplesB${name}",
+      );
 
-    final outputSamplesWritePortATemp = DataPortInterface(
+    final outputSamplesWritePortA = DataPortInterface(
       inputSamplesA.dataWidth,
       inputSamplesA.addrWidth,
     );
-    final outputSamplesWritePortBTemp = DataPortInterface(
+    final outputSamplesWritePortB = DataPortInterface(
+      inputSamplesA.dataWidth,
+      inputSamplesA.addrWidth,
+    );
+    final outputSamplesReadPortA = DataPortInterface(
+      inputSamplesA.dataWidth,
+      inputSamplesA.addrWidth,
+    );
+    final outputSamplesReadPortB = DataPortInterface(
       inputSamplesA.dataWidth,
       inputSamplesA.addrWidth,
     );
 
-    final outputSamplesWritePortA = outputSamplesWritePortATemp.clone();
-    outputSamplesWritePortA.connectIO(
-      this,
-      outputSamplesWritePortATemp,
-      inputTags: [DataPortGroup.data, DataPortGroup.control],
-      uniquify: (name) => "outputSamplesWritePortA${name}",
-    );
-    final outputSamplesWritePortB = outputSamplesWritePortBTemp.clone();
-    outputSamplesWritePortB.connectIO(
-      this,
-      outputSamplesWritePortBTemp,
-      inputTags: [DataPortGroup.data, DataPortGroup.control],
-      uniquify: (name) => "outputSamplesWritePortB${name}",
-    );
-
-    MemoryModel(
+    final n = 1 << inputSamplesA.addrWidth;
+    RegisterFile(
       clk,
       reset,
       [outputSamplesWritePortA, outputSamplesWritePortB],
-      [outputSamplesA],
-      readLatency: 0,
+      [outputSamplesReadPortA, outputSamplesReadPortB],
+      numEntries: n,
     );
-    final n = 1 << inputSamplesA.addrWidth;
+    outputSamplesA.data <= outputSamplesReadPortA.data;
+    outputSamplesReadPortA.en <= outputSamplesA.en;
+    outputSamplesReadPortA.addr <= outputSamplesA.addr;
+    outputSamplesB.data <= outputSamplesReadPortB.data;
+    outputSamplesReadPortB.en <= outputSamplesB.en;
+    outputSamplesReadPortB.addr <= outputSamplesB.addr;
+
     final log2Length = inputSamplesA.addrWidth;
     final m = 1 << logStage;
     final mShift = log2Ceil(m);
@@ -133,8 +146,8 @@ class BadFFTStage extends Module {
     //             A[k + j] ← u + t
     //             A[k + j + m/2] ← u – t
     //             ω ← ω ωm
-    Logic addressA = k + j;
-    Logic addressB = addressA + n ~/ 2;
+    Logic addressA = (k + j).named("addressA");
+    Logic addressB = (addressA + n ~/ 2).named("addressB");
     inputSamplesA.addr <= addressA;
     inputSamplesA.en <= ~_valid;
     inputSamplesB.addr <= addressB;
@@ -166,8 +179,8 @@ class BadFFTStage extends Module {
     outputSamplesWritePortB.en <= ~_valid;
 
     Sequential(clk, [
-      outputSamplesWritePortA.data < butterfly.outA,
-      outputSamplesWritePortB.data < butterfly.outB,
+      outputSamplesWritePortA.data < butterfly.outA.named("butterflyOutA"),
+      outputSamplesWritePortB.data < butterfly.outB.named("butterflyOutB"),
     ], reset: reset);
   }
 }
