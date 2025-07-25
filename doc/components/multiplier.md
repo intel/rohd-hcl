@@ -162,3 +162,29 @@ Here is an example of using the `CompressionTreeMultiplyAccumulate` with all inp
 
     print('${accumulate.value.toBigInt().toSigned(widthA + widthB)}');
 ```
+
+## Dot Product
+
+The `DotProduct` component is built from multiplier components but rather than instantiating full multipliers for each product and then adding those, it builds a large compression tree of all products and the uses `CompressionTree` to reduce to a pair of addends, and then does the final addition using a provided `adderGen` function (defaulting to `NativeAdder).
+
+The parameters to the `DotProduct` are two `List<Logic>`s for the multiplicands and multipliers.  The current restriction is that these must all be the same width. The `radix` to encode the partial products is another argument (default = 4).  Finally, two paraameters are available to control whether the multiplicands and the multipliers are signed: these parameters can either be `bool` for static generation of signedness, or `Logic` for runtime control.
+
+Here is an example use of `DotProduct` for a simple depth-2 dot-product computation.
+
+```dart
+    const width = 4;
+    final multiplicands = [Logic(width: width), Logic(width: width)];
+    final multipliers = [Logic(width: width), Logic(width: width)];
+
+    final multiplicandValues = [4, 8];
+    final multiplierValues = [2, 3];
+
+    for (var i = 0; i < multiplicands.length; i++) {
+      multiplicands[i].put(multiplicandValues[i]);
+      multipliers[i].put(multiplierValues[i]);
+    }
+    final dotProduct = DotProduct(multiplicands, multipliers);
+
+    final dotValue = dotProduct.product;
+    // Should be 4*2 + 8*3 = 32
+```

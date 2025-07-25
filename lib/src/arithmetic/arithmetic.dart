@@ -6,6 +6,7 @@ export 'arithmetic_utils.dart';
 export 'carry_save_mutiplier.dart';
 export 'compound_adder.dart';
 export 'divider.dart';
+export 'dotproduct.dart';
 export 'fixed_sqrt.dart';
 export 'fixed_to_float.dart';
 export 'float_to_fixed.dart';
