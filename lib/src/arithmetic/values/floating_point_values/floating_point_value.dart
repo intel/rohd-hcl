@@ -461,11 +461,6 @@ class FloatingPointValue implements Comparable<FloatingPointValue> {
   }
 
   /// Losslessly convert a [FloatingPointValue] to a [FixedPointValue].
-  /// TODO(jcfarwe):
-  ///   Add ability to delete unneccessary LSB's from mantissa
-  ///   Add support for fixed m and n values, and rounding mode:
-  ///     FixedPointValue toFixedPointValue(int m, int n,
-  ///         FloatingPointRoundingMode mode){}
   FixedPointValue toFixedPointValue() {
     // check for 'special value'
     if (isNaN) {

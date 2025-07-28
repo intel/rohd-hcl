@@ -672,7 +672,7 @@ void main() {
         for (final mantWidth in mantWidths) {
           final minExp = -1 << (expWidth - 1);
           final maxExp = (1 << (expWidth - 1)) - 1;
-          for (int testExp = minExp; testExp < maxExp; testExp++) {
+          for (var testExp = minExp; testExp < maxExp; testExp++) {
             final bias = (pow(2, expWidth - 1) - 1).toInt();
             final exp = LogicValue.ofInt(testExp, expWidth);
             final sign = LogicValue.ofInt(0, 1);
@@ -773,7 +773,7 @@ void main() {
           mantissa: LogicValue.ofInt(testCase[3], testCase[4]));
 
       expect(
-        () => fpv1.toFixedPointValue(),
+        fpv1.toFixedPointValue,
         throwsA(isA<RohdHclException>()),
       );
     }
