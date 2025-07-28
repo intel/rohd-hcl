@@ -663,8 +663,8 @@ void main() {
 
     test('FPV: toFixedPointValue exhaustive', () async {
       // bit widths to be tested
-      // 6, 7, 8-bit exponent
-      // 8, 10, 12-bit mantissa
+      // 5, 6, 7, 8-bit exponent
+      // 10, 12, 17, 23-bit mantissa
       final expWidths = [5, 6, 7, 8];
       final mantWidths = [10, 12, 17, 23];
 
@@ -673,36 +673,37 @@ void main() {
           final minExp = -1 << (expWidth - 1);
           final maxExp = (1 << (expWidth - 1)) - 1;
           for (var testExp = minExp; testExp < maxExp; testExp++) {
-            final bias = (pow(2, expWidth - 1) - 1).toInt();
-            final exp = LogicValue.ofInt(testExp, expWidth);
-            final sign = LogicValue.ofInt(0, 1);
-            final mant = LogicValue.ofInt(testExp, mantWidth);
+            for (final sign in [LogicValue.zero, LogicValue.one]) {
+              final bias = (pow(2, expWidth - 1) - 1).toInt();
+              final exp = LogicValue.ofInt(testExp, expWidth);
+              final mant = LogicValue.ofInt(testExp, mantWidth);
 
-            final fpv1 = FloatingPointValue(
-              exponent: exp + bias,
-              sign: sign,
-              mantissa: mant,
-            );
-            if (fpv1.isNaN || fpv1.isAnInfinity) {
-              continue;
+              final fpv1 = FloatingPointValue(
+                exponent: exp + bias,
+                sign: sign,
+                mantissa: mant,
+              );
+              if (fpv1.isNaN || fpv1.isAnInfinity) {
+                continue;
+              }
+
+              final fxv = fpv1.toFixedPointValue();
+
+              final expected = expectedResult(
+                testExp,
+                expWidth,
+                sign.toInt(),
+                mant.toInt(),
+                mantWidth,
+                fpv1.exponent,
+              );
+
+              expect(
+                fxv == expected,
+                true,
+                reason: 'Got $fxv expected $expected',
+              );
             }
-
-            final fxv = fpv1.toFixedPointValue();
-
-            final expected = expectedResult(
-              testExp,
-              expWidth,
-              sign.toInt(),
-              mant.toInt(),
-              mantWidth,
-              fpv1.exponent,
-            );
-
-            expect(
-              fxv == expected,
-              true,
-              reason: 'Got $fxv expected $expected',
-            );
           }
         }
       }
