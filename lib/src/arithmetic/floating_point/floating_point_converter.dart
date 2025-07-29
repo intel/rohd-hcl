@@ -57,8 +57,11 @@ class FloatingPointConverter<FpTypeIn extends FloatingPoint,
         sourceMantissaWidth = source.mantissa.width,
         super(
             definitionName: definitionName ??
-                'FloatingPointConverter_${source.runtimeType}_'
-                    '${destination.runtimeType}') {
+                'FloatingPointConverter_'
+                    'SE${source.exponent.width}_'
+                    'SM${source.exponent.width}_'
+                    'DE${destination.exponent.width}_'
+                    'DM${destination.exponent.width}') {
     if (source.subNormalAsZero) {
       throw ArgumentError(
           'FloatingPointConverter does not support denormal as zero (DAZ)');
