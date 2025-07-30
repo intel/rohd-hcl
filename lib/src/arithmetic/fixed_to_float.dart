@@ -45,14 +45,13 @@ class FixedToFloat extends Module {
       String? definitionName})
       : super(
             definitionName: definitionName ??
-                'Fixed${fixed.width}ToFloatE${outFloat.exponent.width}'
-                    'M$outFloat.mantissa.width') {
+                'Fixed${fixed.width}ToFloat_E${outFloat.exponent.width}'
+                    'M${outFloat.mantissa.width}') {
     fixed = fixed.clone(name: 'fixed')
       ..gets(addInput('fixed', fixed, width: fixed.width));
 
     // TODO(desmonddak): fixed shows up as a swizzle
-    final fixedAsLogic = Logic(width: fixed.width, name: 'fixedAsLogic');
-    fixedAsLogic <= fixed;
+    final fixedAsLogic = fixed.packed;
     final exponentWidth = outFloat.exponent.width;
     final mantissaWidth = outFloat.mantissa.width;
     _convertedFloat = FloatingPoint(

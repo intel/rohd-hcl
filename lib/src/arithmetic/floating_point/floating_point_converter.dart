@@ -122,12 +122,11 @@ class FloatingPointConverter<FpTypeIn extends FloatingPoint,
                 Const(source.explicitJBit),
                 biasDiff +
                     source.exponent.zeroExtend(biasDiff.width) +
-                    mux(
-                        ~source.isNormal & Const(source.explicitJBit),
-                        Const(1, width: maxExpWidth),
-                        Const(0, width: maxExpWidth)),
+                    (~source.isNormal & Const(source.explicitJBit))
+                        .zeroExtend(maxExpWidth),
                 biasDiff)
             .named('fullDiff');
+
         shift = mux(fullDiff.gte(leadOne) & leadOneValid, leadOne, fullDiff)
             .named('shift');
       } else {
@@ -139,12 +138,9 @@ class FloatingPointConverter<FpTypeIn extends FloatingPoint,
       }
 
       final trueShift = (shift +
-              mux(
-                  Const(destination.explicitJBit) &
-                      source.isNormal &
-                      ~Const(source.explicitJBit),
-                  Const(-1, width: maxExpWidth),
-                  Const(0, width: maxExpWidth)))
+              (Const(destination.explicitJBit & !source.explicitJBit) &
+                      source.isNormal)
+                  .replicate(maxExpWidth))
           .named('trueShift');
 
       final newMantissa = mux(trueShift[-1], mantissa >> (~trueShift + 1),
@@ -226,11 +222,10 @@ class FloatingPointConverter<FpTypeIn extends FloatingPoint,
               Const(0, width: maxExpWidth))
           .named('nextShift');
 
-      final jBitAdjust = (mux(Const(source.explicitJBit),
-                  Const(-1, width: maxExpWidth), Const(0, width: maxExpWidth)) +
-              mux(Const(destination.explicitJBit), Const(1, width: maxExpWidth),
-                  Const(0, width: maxExpWidth)))
-          .named('jBitAdjust');
+      final jBitAdjust =
+          (Const((source.explicitJBit ? -1 : 0), width: maxExpWidth) +
+                  Const(destination.explicitJBit ? 1 : 0, width: maxExpWidth))
+              .named('jBitAdjust');
 
       final tns = (nextShift - (se - newSe) + jBitAdjust).named('tns');
 
