@@ -50,7 +50,6 @@ class FixedToFloat extends Module {
     fixed = fixed.clone(name: 'fixed')
       ..gets(addInput('fixed', fixed, width: fixed.width));
 
-    // TODO(desmonddak): fixed shows up as a swizzle
     final fixedAsLogic = fixed.packed;
     final exponentWidth = outFloat.exponent.width;
     final mantissaWidth = outFloat.mantissa.width;

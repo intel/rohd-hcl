@@ -116,33 +116,3 @@ Logic condFlop(
 
   return (first, second);
 }
-
-/// This method is used to check the SystemVerilog output of a module for
-/// poor naming conventions, such as names with `__` in them.
-/// Return true if the module has clean SystemVerilog.
-Future<bool> checkModuleSystemVerilog(Module mod,
-    {bool includeSubModules = false}) async {
-  await mod.build();
-
-  final systemVerilogString = includeSubModules
-      ? mod.generateSynth()
-      : SynthBuilder(mod, SystemVerilogSynthesizer())
-          .synthesisResults
-          .where((e) => e.module == mod)
-          .toList()[0]
-          .toSynthFileContents()
-          .join('\n');
-
-  /// Check for poor signal names which are those that have a `__` in them,
-  /// e.g., one that comprises multiple input signal names and an operation.
-  final poorSignalName = RegExp(r'\w+__[^(\d+)$]\w+');
-  final matches = poorSignalName.allMatches(systemVerilogString);
-
-  if (matches.isNotEmpty) {
-    stdout.writeln('${mod.definitionName} Poor Logic names:');
-    for (final m in matches) {
-      stdout.writeln('\t${m[0]}');
-    }
-  }
-  return matches.isEmpty;
-}
