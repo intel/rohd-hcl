@@ -218,14 +218,14 @@ abstract class PartialProductGeneratorBase extends PartialProductArray {
   /// of the [multiplicand] for each row.
   ///
   /// The optional [signedMultiplicand] parameter configures the [multiplicand]
-  /// statically using a bool to indicate a signed multiplicand (default is
-  /// false, or unsigned) or dynamically with a 1-bit [Logic] input. Passing
-  /// something other null, bool, or [Logic] will result in a throw.
+  /// statically using a `bool` to indicate a signed multiplicand (default is
+  /// `false`, or unsigned) or dynamically with a 1-bit [Logic] input. Passing
+  /// something other null, `bool`, or [Logic] will result in a throw.
   ///
   /// The optional [signedMultiplier] parameter configures the [multiplier]
-  /// statically using a bool to indicate a signed multiplier (default is false,
-  /// or unsigned) or dynamically with a 1-bit [Logic] input.  Passing something
-  /// other null, bool, or [Logic] will result in a throw.
+  /// statically using a `bool` to indicate a signed multiplier (default is
+  /// `false`, or unsigned) or dynamically with a 1-bit [Logic] input.  Passing
+  /// something other null, `bool`, or [Logic] will result in a throw.
   PartialProductGeneratorBase(
       Logic multiplicand, Logic multiplier, RadixEncoder radixEncoder,
       {this.signedMultiplicand, this.signedMultiplier, super.name = 'ppg'}) {
@@ -319,14 +319,14 @@ class PartialProduct extends PartialProductMatrix {
   /// encodings as well as Booth encoding outside the scope of a module.
   ///
   /// The optional [signedMultiplicand] parameter configures the [multiplicand]
-  /// statically using a bool to indicate a signed multiplicand (default is
-  /// false, or unsigned) or dynamically with a 1-bit [Logic] input. Passing
-  /// something other null, bool, or [Logic] will result in a throw.
+  /// statically using a `bool` to indicate a signed multiplicand (default is
+  /// `false`, or unsigned) or dynamically with a 1-bit [Logic] input. Passing
+  /// something other null, `bool`, or [Logic] will result in a throw.
   ///
   /// The optional [signedMultiplier] parameter configures the [multiplier]
-  /// statically using a bool to indicate a signed multiplier (default is false,
-  /// or unsigned) or dynamically with a 1-bit [Logic] input.  Passing something
-  /// other null, bool, or [Logic] will result in a throw.
+  /// statically using a `bool` to indicate a signed multiplier (default is
+  /// `false`, or unsigned) or dynamically with a 1-bit [Logic] input.  Passing
+  /// something other null, `bool`, or [Logic] will result in a throw.
   PartialProduct(
       Logic multiplicand, Logic multiplier, RadixEncoder radixEncoder,
       {dynamic signedMultiplicand,

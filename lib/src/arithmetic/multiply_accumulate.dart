@@ -65,19 +65,20 @@ abstract class MultiplyAccumulate extends Module {
   /// produce the [accumulate] result.
   ///
   /// The optional [signedMultiplicand] parameter configures the multiplicand
-  /// [a] statically using a bool to indicate a signed multiplicand (default is
-  /// false, or unsigned) or dynamically with a 1-bit [Logic] input. Passing
-  /// something other than null, bool, or [Logic] will result in a throw.
+  /// [a] statically using a `bool` to indicate a signed multiplicand (default
+  /// is `false`, or unsigned) or dynamically with a 1-bit [Logic] input.
+  /// Passing something other than null, `bool`, or [Logic] will result in a
+  /// throw.
   ///
   /// The optional [signedMultiplier] parameter configures the multiplier [b]
-  /// statically using a bool to indicate a signed multiplier (default is false,
-  /// or unsigned) or dynamically with a 1-bit [Logic] input.  Passing
-  /// something other than null, bool, or [Logic] will result in a throw.
+  /// statically using a `bool` to indicate a signed multiplier (default is
+  /// `false`, or unsigned) or dynamically with a 1-bit [Logic] input.  Passing
+  /// something other than null, `bool`, or [Logic] will result in a throw.
   ///
   /// The optional [signedAddend] parameter configures the multiplier [c]
-  /// statically using a bool to indicate a signed addend (default is false,
-  /// or unsigned) or dynamically with a 1-bit [Logic] input.  Passing
-  /// something other null, bool, or [Logic] will result in a throw.
+  /// statically using a `bool` to indicate a signed addend (default is `false`,
+  /// or unsigned) or dynamically with a 1-bit [Logic] input.  Passing something
+  /// other null, `bool`, or [Logic] will result in a throw.
   MultiplyAccumulate(Logic a, Logic b, Logic c,
       {Logic? clk,
       Logic? reset,
@@ -113,7 +114,7 @@ abstract class MultiplyAccumulate extends Module {
   }
 
   /// This is a helper function that prints out the kind of addend (selected by
-  /// a [Logic] or set statically by a [bool]).) This supplements the
+  /// a [Logic] or set statically by a `bool`).) This supplements the
   /// [Multiplier] functions that can be used for multiplicand and multiplier as
   /// they are statics: [Multiplier.signedMD] and [Multiplier.signedML].
   /// - UA: unsigned addend.

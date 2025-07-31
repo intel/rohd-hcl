@@ -37,18 +37,18 @@ class OnesComplementAdder extends Adder {
   final bool generateEndAroundCarry;
 
   /// [OnesComplementAdder] constructor with an adder functor [adderGen].
-  /// - A subtractor is created if [subtract] is set to true.  Alternatively,
-  /// if [subtract] configuration is false, and a Lgic control signal
-  /// [subtractIn] is provided, then subtraction can be dynamically selected.
-  /// Otherwise an adder is constructed.
+  /// - A subtractor is created if [subtract] is set to `true`.  Alternatively,
+  ///   if [subtract] configuration is `false`, and a [Logic] control signal
+  ///   [subtractIn] is provided, then subtraction can be dynamically selected.
+  ///   Otherwise an adder is constructed.
   ///
   /// - The optional [subtract] parameter configures the adder to subtract [b]
-  ///   from [a] statically using a bool to indicate a ssubtraction (default is
-  ///   false, or addition) or dynamically with a 1-bit [Logic] input. Passing
-  ///   something other null, bool, or [Logic] will result in a throw.
-  /// - If [generateEndAroundCarry] is true, then the end-around carry is not
+  ///   from [a] statically using a `bool` to indicate a ssubtraction (default
+  ///   is `false`, or addition) or dynamically with a 1-bit [Logic] input.
+  ///   Passing something other null, `bool`, or [Logic] will result in a throw.
+  /// - If [generateEndAroundCarry] is `true`, then the end-around carry is not
   ///   performed and is provided as output [endAroundCarry]. If
-  ///   [generateEndAroundCarry] is false, extra hardware takes care of adding
+  ///   [generateEndAroundCarry] is `false`, extra hardware takes care of adding
   ///   the end-around carry to [sum].
   /// - [carryIn] allows for another adder to chain into this one.
   /// - [chainable] tells this adder to not store the [endAroundCarry] in the

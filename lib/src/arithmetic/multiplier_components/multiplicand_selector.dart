@@ -35,9 +35,9 @@ class MultiplicandSelector {
   /// [multiplicand] to [select] using a [RadixEncoder] output.
   ///
   /// The optional [signedMultiplicand] parameter configures the [multiplicand]
-  /// statically using a bool to indicate a signed multiplicand (default is
-  /// false, or unsigned) or dynamically with a 1-bit [Logic] input. Passing
-  /// something other null, bool, or [Logic] will result in a throw.
+  /// statically using a `bool` to indicate a signed multiplicand (default is
+  /// `false`, or unsigned) or dynamically with a 1-bit [Logic] input. Passing
+  /// something other null, `bool`, or [Logic] will result in a throw.
   MultiplicandSelector(
     this.radix,
     this.multiplicand, {

@@ -69,7 +69,7 @@ class StaticOrDynamicParameter {
   String toString() => 'StaticOrDynamicParameter_${name}_static_$staticConfig'
       '_dynamic_${dynamicConfig?.name ?? 'null'}';
 
-  /// Return a bool representing the value of the configuration.
+  /// Return a `bool` representing the value of the configuration.
   // @visibleForTesting
   bool get value =>
       staticConfig ||

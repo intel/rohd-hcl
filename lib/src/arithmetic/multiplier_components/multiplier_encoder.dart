@@ -115,12 +115,12 @@ class MultiplierEncoder {
 
   /// Generate the Booth encoding of an input [multiplier] using [radixEncoder].
   ///
-  /// When using signed multipliers, the [signedMultiplier] option
-  /// configures sign extension of the multiplier and additional rows needed for
-  /// encoding. This optional  parameter configures the [multiplier]
-  /// statically using a bool to indicate a signed multiplier (default is false,
-  /// or unsigned) or dynamically with a 1-bit [Logic] input.  Passing
-  /// something other null, bool, or [Logic] will result in a throw.
+  /// When using signed multipliers, the [signedMultiplier] option configures
+  /// sign extension of the multiplier and additional rows needed for encoding.
+  /// This optional  parameter configures the [multiplier] statically using a
+  /// `bool` to indicate a signed multiplier (default is `false`, or unsigned)
+  /// or dynamically with a 1-bit [Logic] input.  Passing something other null,
+  /// `bool`, or [Logic] will result in a throw.
   MultiplierEncoder(
     this.multiplier,
     RadixEncoder radixEncoder, {

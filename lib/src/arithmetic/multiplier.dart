@@ -54,15 +54,15 @@ abstract class Multiplier extends Module {
   /// multiplication result.
   ///
   /// The optional [signedMultiplicand] parameter configures the multiplicand
-  /// [a] statically using a bool to indicate a signed multiplicand (default is
-  /// false, or unsigned) or dynamically with a 1-bit [Logic] input. Passing
-  /// something other null, bool, or [Logic] will result in a throw.
+  /// [a] statically using a `bool` to indicate a signed multiplicand (default
+  /// is `false`, or unsigned) or dynamically with a 1-bit [Logic] input.
+  /// Passing something other null, `bool`, or [Logic] will result in a throw.
   ///
   ///
   /// The optional [signedMultiplier] parameter configures the multiplier [b]
-  /// statically using a bool to indicate a signed multiplier (default is false,
-  /// or unsigned) or dynamically with a 1-bit [Logic] input.  Passing
-  /// something other null, bool, or [Logic] will result in a throw.
+  /// statically using a `bool` to indicate a signed multiplier (default is
+  /// `false`, or unsigned) or dynamically with a 1-bit [Logic] input.  Passing
+  /// something other null, `bool` or [Logic] will result in a throw.
   ///
   /// If [clk] is not null then a set of flops are used to make the multiply a
   /// 2-cycle latency operation. [reset] and [enable] are optional inputs to
@@ -99,7 +99,7 @@ abstract class Multiplier extends Module {
   }
 
   /// This is a helper function that prints out the kind of multiplicand
-  /// (selected by a [Logic] or set statically via [bool]).
+  /// (selected by a [Logic] or set statically via `bool`).
   /// - UD: unsigned multiplicand.
   /// - SD: signed multiplicand.
   /// - SSD: dynamic selection of signed multiplicand.
@@ -113,7 +113,7 @@ abstract class Multiplier extends Module {
                   : 'UD';
 
   /// This is a helper function that prints out the kind of multiplier (selected
-  /// by a [Logic] or set statically via [bool]).)
+  /// by a [Logic] or set statically via `bool`).)
   /// - UM: unsigned multiplier.
   /// - SM: signed multiplier.
   /// - SSM: dynamic selection of signed multiplier.
