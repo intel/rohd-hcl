@@ -61,7 +61,7 @@ class StaticOrRuntimeParameter {
   String toString() => 'StaticOrRuntimeParameter_${name}_static_$staticConfig'
       '_runtime_${runtimeConfig?.name ?? 'null'}';
 
-  /// Return a bool representing the value of the configuration.
+  /// Return a `bool` representing the value of the configuration.
   @visibleForTesting
   bool get value =>
       staticConfig ||

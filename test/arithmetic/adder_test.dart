@@ -10,6 +10,7 @@
 // ignore_for_file: invalid_use_of_protected_member
 
 import 'dart:math';
+import 'package:collection/collection.dart';
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
 import 'package:test/test.dart';
@@ -81,6 +82,20 @@ void testAdderExhaustive(
 void main() {
   tearDown(() async {
     await Simulator.reset();
+  });
+
+  test('reduce', () {
+    ///
+    final a = Logic(width: 8);
+    final b = Logic(width: 8);
+    final c = Logic(width: 8);
+    final d = Logic(width: 8);
+    final cand = [a, b];
+    final mult = [c, d];
+    final misMatch = cand.mapIndexed((i, m) => m.width == mult[i].width);
+    // print(misMatch.reduce((value, e) => value || e));
+    print(misMatch.fold(false));
+    print(misMatch.where((e) => e).length);
   });
 
   final generators = [Ripple.new, Sklansky.new, KoggeStone.new, BrentKung.new];

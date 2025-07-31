@@ -7,6 +7,7 @@
 // 2025 July 23
 // Author: Desmond A Kirkpatrick <desmond.a.kirkpatrick@intel.com>
 
+import 'package:collection/collection.dart';
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
 
@@ -16,19 +17,28 @@ class DotProduct extends Module {
   Logic get product => output('product');
 
   /// Creates a new [DotProduct] instance given a [List<Logic>] of
-  /// [multiplicands] and a [List<Logic>] of [multipliers] and computing their
+  /// [multiplicands] and a [List<Logic>] of [multipliers], computing their
   /// dot-product.  Currently widths of all operands must match.
   ///
+  /// The [radix] parameter specifies the radix for use in partial-product
+  /// generation of the multiplies. While a [ColumnCompressor] is used on the
+  /// tall array of partial products, the final addition is accomplished using
+  /// the specified [adderGen] (default is [NativeAdder.new]).
+  ///
   /// The optional [signedMultiplicand] parameter configures the [multiplicands]
-  /// statically using a bool to indicate a signed multiplicand (default is
-  /// false, or unsigned) or dynamically with a 1-bit [Logic] input. Passing
-  /// something other null, bool, or [Logic] will result in a throw.
+  /// statically using a `bool` to indicate a signed multiplicand (default is
+  /// `false`, or unsigned) or dynamically with a 1-bit [Logic] input. Passing
+  /// something other null, `bool`, or [Logic] will result in a throw.
   ///
   ///
   /// The optional [signedMultiplier] parameter configures the [multipliers]
-  /// statically using a bool to indicate a signed multiplier (default is false,
-  /// or unsigned) or dynamically with a 1-bit [Logic] input.  Passing something
-  /// other null, bool, or [Logic] will result in a throw.
+  /// statically using a `bool` to indicate a signed multiplier (default is
+  /// `false`, or unsigned) or dynamically with a 1-bit [Logic] input.  Passing
+  /// something other null, `bool`, or [Logic] will result in a throw.
+  ///
+  /// The output [product] will be [log2Ceil(multiplicands.length)] wider than
+  /// the sum of the widths of one pair of products to accomadate the increasing
+  /// accumulation value.
   DotProduct(List<Logic> multiplicands, List<Logic> multipliers,
       {int radix = 4,
       dynamic signedMultiplicand,
@@ -46,21 +56,26 @@ class DotProduct extends Module {
       throw RohdHclException(
           'Number of multipliers and multiplicands must be equal.');
     }
-    for (var i = 1; i < multipliers.length; i++) {
-      if (multipliers[i - 1].width != multipliers[i].width) {
-        throw RohdHclException('Multipliers must all have the same width: '
-            'index ${i - 1} vs index $i ');
-      }
+    final candWidthMiss = multiplicands
+        .mapIndexed((i, m) => (i > 0) & (m.width == multiplicands[i - 1].width))
+        .where((w) => w)
+        .length;
+    if (candWidthMiss < multiplicands.length) {
+      throw RohdHclException('Multiplicands must all have the same width: '
+          'index ${candWidthMiss - 1} vs index $candWidthMiss ');
     }
     // Enforce square products.
-    for (var i = 0; i < multipliers.length; i++) {
-      if (multipliers[i].width != multiplicands[i].width) {
-        throw RohdHclException('Multiplier and multiplicand at index $i '
-            'must have the same width.');
-      }
+    final operandWidthMiss = multiplicands
+        .mapIndexed((i, m) => m.width == multipliers[i].width)
+        .where((w) => w)
+        .length;
+    if (candWidthMiss < multiplicands.length) {
+      throw RohdHclException('Multiplier and multiplicand at index '
+          '$operandWidthMiss must have the same width.');
     }
-    if (radix != 2 && radix != 4 && radix != 8 && radix != 16) {
-      throw RohdHclException('Radix must be 2, 4, 8, or 16.');
+    if (!MultiplicandSelector.allowedRadices.contains(radix)) {
+      throw RohdHclException(
+          'Radix must be in ${MultiplicandSelector.allowedRadices}.');
     }
 
     final signedMultiplicandParameter =
@@ -68,17 +83,15 @@ class DotProduct extends Module {
     final signedMultiplierParameter =
         StaticOrRuntimeParameter.ofDynamic(signedMultiplier);
 
-    multiplicands = [
-      for (final multiplicand in multiplicands)
-        addInput(
-            'multiplicand_${multiplicands.indexOf(multiplicand)}', multiplicand,
-            width: multiplicand.width)
-    ];
-    multipliers = [
-      for (final multiplier in multipliers)
-        addInput('multiplier_${multipliers.indexOf(multiplier)}', multiplier,
-            width: multiplier.width)
-    ];
+    multiplicands = multiplicands
+        .mapIndexed((i, multiplicand) => addInput(
+            'multiplicand_$i', multiplicand,
+            width: multiplicand.width))
+        .toList();
+    multipliers = multipliers
+        .mapIndexed((i, multiplier) =>
+            addInput('multiplier_$i', multiplier, width: multiplier.width))
+        .toList();
 
     final ppGenerators = [
       for (var i = 0; i < multipliers.length; i++)
@@ -106,6 +119,7 @@ class DotProduct extends Module {
     ];
     final columnCompressor = ColumnCompressor(vec, ppg.rowShift);
     final adder = adderGen(columnCompressor.add0, columnCompressor.add1);
+    // An artifact of sign extension creates 2 extra bits in the sum
     final sum = adder.sum.slice(adder.sum.width - 3, 0);
     addOutput('product', width: sum.width) <= sum;
   }

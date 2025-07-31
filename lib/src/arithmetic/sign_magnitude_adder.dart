@@ -60,7 +60,7 @@ class SignMagnitudeAdder extends SignMagnitudeAdderBase {
   ///
   /// Inputs are (sign, magnitude) pairs: ([aSign], [a]) and ([bSign], [b]). If
   /// the caller can guarantee that the larger magnitude value is provided first
-  /// in [a], then they can set [largestMagnitudeFirst] to 'true' to avoid
+  /// in [a], then they can set [largestMagnitudeFirst] to `true` to avoid
   /// adding a comparator. Without the comparator, the [sign] may be wrong, but
   /// magnitude will be correct.
   /// - If [generateEndAroundCarry] is `true`, then the end-around carry is not

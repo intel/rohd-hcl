@@ -95,16 +95,16 @@ abstract class MultiplyAccumulate extends Module {
   ///
   /// The optional [signedMultiplicand] parameter configures the The optional
   /// [signedMultiplicand] parameter configures the multiplicand [a] statically
-  /// using a [bool] as a signed multiplicand (default is `false`, or unsigned)
+  /// using a `bool` as a signed multiplicand (default is `false`, or unsigned)
   /// or dynamically with a 1-bit [Logic] [selectSignedMultiplicand] input. You
-  /// can pass either a [bool] (for static configuration) or a [Logic]
+  /// can pass either a `bool` (for static configuration) or a [Logic]
   /// (dynamically configuring the type handled) with a signal to this
   /// parameter, otherwise this constructor will throw.
   ///
   /// The optional [signedMultiplier] parameter configures the multiplier [b]
-  /// statically using a [bool] as a signed multiplier (default is `false`, or
+  /// statically using a `bool` as a signed multiplier (default is `false`, or
   /// unsigned) or dynamically with a 1-bit [Logic] [selectSignedMultiplier]
-  /// input. You can pass either a [bool] (for static configuration) or a
+  /// input. You can pass either a `bool` (for static configuration) or a
   /// [Logic] (dynamically configuring the type handled with a signal) to this
   /// parameter, otherwise this constructor will throw.
   ///
@@ -113,9 +113,9 @@ abstract class MultiplyAccumulate extends Module {
   /// [selectSignedAddend] input.
   ///
   /// The optional [signedAddend] parameter configures the multiplicand [c]
-  /// statically using a [bool] as a signed multiplicand (default is `false`, or
+  /// statically using a `bool` as a signed multiplicand (default is `false`, or
   /// unsigned) or dynamically with a 1-bit [Logic] [selectSignedAddend] input.
-  /// You can pass either a [bool] (for static configuration) or a [Logic]
+  /// You can pass either a `bool`(for static configuration) or a [Logic]
   /// (dynamically configuring the type handled) with a signal to this
   /// parameter, otherwise this constructor will throw.
   MultiplyAccumulate(Logic a, Logic b, Logic c,
@@ -158,7 +158,7 @@ abstract class MultiplyAccumulate extends Module {
   }
 
   /// This is a helper function that prints out the kind of addend (selected by
-  /// a [Logic] or set statically by a [bool]).) This supplements the
+  /// a [Logic] or set statically by a `bool`).) This supplements the
   /// [Multiplier] functions that can be used for multiplicand and multiplier as
   /// they are statics: [Multiplier.signedMD] and [Multiplier.signedML].
   /// - UA: unsigned addend.
