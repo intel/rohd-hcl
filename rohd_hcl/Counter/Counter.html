@@ -112,7 +112,8 @@ respectively.</p>
   String? definitionName,
 }) : super(
           initialValue: resetValue,
-          definitionName: definitionName ?? &#39;Counter_W$width&#39;) {
+          definitionName:
+              definitionName ?? &#39;Counter_L${interfaces.length}}&#39;) {
   this.clk = addInput(&#39;clk&#39;, clk);
   this.reset = addInput(&#39;reset&#39;, reset);
   if (restart != null) {

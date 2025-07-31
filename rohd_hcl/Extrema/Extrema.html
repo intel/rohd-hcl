@@ -115,10 +115,12 @@ width, and will all be considered positive unsigned numbers.</p>
   &#47;&#47; If max is true, find max value. Else, find min value.
   for (var i = 1; i &lt; logics.length; i++) {
     final compareVal =
-        max ? logics[i].gt(extremaVal) : logics[i].lt(extremaVal);
+        (max ? logics[i].gt(extremaVal) : logics[i].lt(extremaVal))
+            .named(&#39;compareVal_$i&#39;);
     extremaVal = Logic(name: &#39;muxOut$i&#39;, width: maxWidth)
-      ..gets(mux(compareVal, logics[i], extremaVal));
-    extremaIndex = mux(compareVal, Const(i, width: indexWidth), extremaIndex);
+      ..gets(mux(compareVal, logics[i], extremaVal).named(&#39;extremaVal_$i&#39;));
+    extremaIndex = mux(compareVal, Const(i, width: indexWidth), extremaIndex)
+        .named(&#39;extremaIndex_$i&#39;);
   }
 
   &#47;&#47; Generate outputs here.

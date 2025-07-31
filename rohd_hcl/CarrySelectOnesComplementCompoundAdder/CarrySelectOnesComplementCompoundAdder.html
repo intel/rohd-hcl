@@ -148,9 +148,9 @@ for the carry-select chain.  The default is
     sumP1 &lt;= sumPlus1;
     carryOutP1! &lt;= csadder.sumP1[-1];
   } else {
-    final incrementer = ParallelPrefixIncr(sumPlus1);
     sumP1 &lt;=
-        mux(csadder.sumP1[-1], incrementer.out.named(&#39;sum_plus2&#39;), sumPlus1);
+        mux(csadder.sumP1[-1],
+            ParallelPrefixIncr(sumPlus1).out.named(&#39;sumPlus2&#39;), sumPlus1);
   }
   if (generateCarryOut) {
     sum &lt;= mux(doSubtract &amp; csadder.sum[-1], ~csadder.sum, csadder.sum);

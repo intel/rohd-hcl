@@ -121,7 +121,8 @@ transferred. This will delay the serialized output by one cycle.</p>
       enable: enable,
       maxValue: deserialized.elements.length - 1);
 
-  final latchInput = (enable ?? Const(1)) &amp; ~cnt.count.or();
+  final latchTheInput =
+      ((enable ?? Const(1)) &amp; ~cnt.count.or()).named(&#39;latchTheInput&#39;);
   count &lt;=
       (flopInput
           ? flop(clk, reset: reset, en: enable, cnt.count)
@@ -133,7 +134,10 @@ transferred. This will delay the serialized output by one cycle.</p>
     dataOutput.elements[i] &lt;=
         (flopInput
             ? flop(
-                clk, reset: reset, en: latchInput, deserialized.elements[i])
+                clk,
+                reset: reset,
+                en: latchTheInput,
+                deserialized.elements[i])
             : deserialized.elements[i]);
   }
   serialized &lt;= dataOutput.elements.selectIndex(count);

@@ -145,10 +145,7 @@ produced that returns <code>true</code> when overflow occurs.</li>
 
     final sWidth = max(eWidth, leadDetect.out.width);
     final fShift = shift.zeroExtend(sWidth).named(&#39;wideShift&#39;);
-    final leadOne = leadDetect.out
-        .named(&#39;leadOneRaw&#39;)
-        .zeroExtend(sWidth)
-        .named(&#39;leadOne&#39;);
+    final leadOne = leadDetect.out.zeroExtend(sWidth).named(&#39;leadOne&#39;);
 
     Combinational([
       If(jBit, then: [
@@ -173,7 +170,7 @@ produced that returns <code>true</code> when overflow occurs.</li>
   final number = mux(shift[-1], preNumber &gt;&gt;&gt; shiftRight, preNumber &lt;&lt; shift)
       .named(&#39;number&#39;);
 
-  _fixed &lt;= mux(float.sign, (~number + 1).named(&#39;negNumber&#39;), number);
+  _fixed &lt;= mux(float.sign, ~number + 1, number).named(&#39;signedNumber&#39;);
   addOutput(&#39;fixed&#39;, width: outputWidth) &lt;= _fixed;
 }</code></pre>
 </section>

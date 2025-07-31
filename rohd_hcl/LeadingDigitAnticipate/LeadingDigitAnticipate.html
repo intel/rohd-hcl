@@ -81,15 +81,21 @@ negative sum).</li>
     : super(definitionName: definitionName ?? &#39;LeadingDigitAnticipate&#39;) {
   a = addInput(&#39;a&#39;, a, width: a.width);
   b = addInput(&#39;b&#39;, b, width: b.width);
-  final pA = a.reversed;
-  final pB = b.reversed;
-  final g = pA &amp; pB.named(&#39;g&#39;);
+  final pA = a.reversed.named(&#39;revA&#39;);
+  final pB = b.reversed.named(&#39;revB&#39;);
+  final g = (pA &amp; pB).named(&#39;g&#39;);
   final t = (pA ^ pB).named(&#39;t&#39;);
   final z = (~pA &amp; ~pB).named(&#39;z&#39;);
 
+  final zBarShift = (~z &gt;&gt;&gt; 1).named(&#39;zBarShift&#39;);
+  final gBarShift = (~g &gt;&gt;&gt; 1).named(&#39;gBarShift&#39;);
+  final tShift = (t &lt;&lt; 1).named(&#39;tShift&#39;);
+  final tBarShift = (~t &lt;&lt; 1).named(&#39;tBarShift&#39;);
+
   final findFromMSB = Logic(name: &#39;findFromMSB&#39;, width: t.width - 1);
-  final lowBits = ((t &lt;&lt; 1) &amp; ((g &amp; (~z &gt;&gt;&gt; 1)) | (z &amp; (~g &gt;&gt;&gt; 1))) |
-          (~t &lt;&lt; 1) &amp; ((z &amp; (~z &gt;&gt;&gt; 1)) | (g &amp; (~g &gt;&gt;&gt; 1))))
+  final lowBits = (tShift &amp; ((g &amp; zBarShift) | (z &amp; gBarShift)) |
+          tBarShift &amp; ((z &amp; zBarShift) | (g &amp; gBarShift)))
+      .named(&#39;lowBitsWide&#39;)
       .slice(t.width - 2, 1);
 
   findFromMSB &lt;= [lowBits, ~t[0] &amp; t[1]].swizzle();

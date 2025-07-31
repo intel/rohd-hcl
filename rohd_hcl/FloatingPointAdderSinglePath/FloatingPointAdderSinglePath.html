@@ -215,9 +215,10 @@ Decreasing the split width will increase speed but also increase area.</li>
       mux(eD.gte(eW), eD - eW, Const(0, width: posWidth)).named(&#39;rem&#39;);
 
   final chop = mux(
-      rem.lt(Const(smallMantissa.width, width: rem.width)),
-      Const(smallMantissa.width, width: rem.width) - rem,
-      Const(0, width: rem.width));
+          rem.lt(Const(smallMantissa.width, width: rem.width)),
+          Const(smallMantissa.width, width: rem.width) - rem,
+          Const(0, width: rem.width))
+      .named(&#39;chop&#39;);
 
   final stickyBits = (smallMantissa &lt;&lt; chop).named(&#39;stickyBits&#39;);
 
@@ -335,9 +336,9 @@ Decreasing the split width will increase speed but also increase area.</li>
 
   final shiftL1Final =
       mux(shiftedPrediction[-1], shiftedPrediction, shiftedPrediction &lt;&lt; 1)
+          .named(&#39;shiftL1Final&#39;)
           .slice(shiftedPrediction.width - (internalSum.explicitJBit ? 1 : 2),
-              (internalSum.explicitJBit ? 1 : 0))
-          .named(&#39;shiftL1Final&#39;);
+              (internalSum.explicitJBit ? 1 : 0));
 
   final lead1Valid = leadingZerosPredictionValidFlopped;
 
@@ -380,18 +381,22 @@ Decreasing the split width will increase speed but also increase area.</li>
       (rndPos &gt;= 2)) {
     final doRound = RoundRNE(
             mux(exponent.or(), mantissa,
-                mantissa &gt;&gt; (internalSum.explicitJBit ? 1 : 0)),
+                    mantissa &gt;&gt; (internalSum.explicitJBit ? 1 : 0))
+                .named(&#39;mantissaJBitShift&#39;),
             rndPos)
         .doRound
         .named(&#39;doRound&#39;);
 
-    final rndAdder =
-        adderGen(mantissaTrimmed, doRound.zeroExtend(mantissaTrimmed.width));
+    final rndAdder = adderGen(
+        mantissaTrimmed, doRound.zeroExtend(mantissaTrimmed.width),
+        name: &#39;rndAdder&#39;);
 
-    final newRnd = rndAdder.sum;
+    final newRnd = rndAdder.sum.named(&#39;newRnd&#39;);
 
-    mantissaRound = newRnd.slice(internalSum.explicitJBit ? -1 : -2,
-        -mantissaTrimmed.width - (internalSum.explicitJBit ? 0 : 1));
+    mantissaRound = newRnd
+        .slice(internalSum.explicitJBit ? -1 : -2,
+            -mantissaTrimmed.width - (internalSum.explicitJBit ? 0 : 1))
+        .named(&#39;mantissaRound&#39;);
 
     final altmantissaRound = newRnd.slice(-2, -mantissaTrimmed.width - 1);
 
@@ -403,7 +408,8 @@ Decreasing the split width will increase speed but also increase area.</li>
         .named(&#39;mantissaRoundFinal&#39;);
 
     exponentRound = mux(exponent.lt(infExponent),
-        exponent + rndAdder.sum[-1].zeroExtend(exponent.width), exponent);
+            exponent + rndAdder.sum[-1].zeroExtend(exponent.width), exponent)
+        .named(&#39;exponentRound&#39;);
   } else {
     &#47;&#47; No rounding needed, just use the mantissa as is. But mimic how the
     &#47;&#47; rounding adder extends by one to keep the exact same computation

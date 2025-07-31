@@ -136,8 +136,9 @@
             remainder - subtractionValue, remainder)
         .named(&#39;remainder_finalmux_iter$i&#39;);
   }
-  solution = (solution + 1).named(&#39;solution&#39;);
-  outputSqrt &lt;= solution.slice(aLoc.width - 1, aLoc.width - a.width);
+  solution = (solution + 1).named(&#39;solutionPlusOne&#39;);
+  outputSqrt &lt;=
+      solution.slice(aLoc.width - 1, aLoc.width - a.width).named(&#39;solutionF&#39;);
 }</code></pre>
 </section>
 

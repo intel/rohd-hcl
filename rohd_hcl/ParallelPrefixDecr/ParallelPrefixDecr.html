@@ -87,13 +87,13 @@
           definitionName:
               definitionName ?? &#39;ParallelPrefixDecr_W${inp.width}&#39;) {
   inp = addInput(&#39;inp&#39;, inp, width: inp.width);
-  final u = ppGen((~inp).elements, (lhs, rhs) =&gt; rhs &amp; lhs);
+  final complement = (~inp).named(&#39;complement&#39;);
+  final u = ppGen(complement.elements, (lhs, rhs) =&gt; rhs &amp; lhs);
   addOutput(&#39;out&#39;, width: inp.width) &lt;=
       (List&lt;Logic&gt;.generate(
-              inp.width,
-              (i) =&gt;
-                  ((i == 0) ? ~inp[i] : inp[i] ^ u.val[i - 1]).named(&#39;o_$i&#39;))
-          .rswizzle());
+          inp.width,
+          (i) =&gt; ((i == 0) ? complement[i] : inp[i] ^ u.val[i - 1])
+              .named(&#39;o_$i&#39;)).rswizzle());
 }</code></pre>
 </section>
 

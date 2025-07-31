@@ -101,8 +101,11 @@ leading one detection (default <a href="../../rohd_hcl/RecursiveModulePriorityEn
       sourceMantissaWidth = source.mantissa.width,
       super(
           definitionName: definitionName ??
-              &#39;FloatingPointConverter_${source.runtimeType}_&#39;
-                  &#39;${destination.runtimeType}&#39;) {
+              &#39;FloatingPointConverter_&#39;
+                  &#39;SE${source.exponent.width}_&#39;
+                  &#39;SM${source.exponent.width}_&#39;
+                  &#39;DE${destination.exponent.width}_&#39;
+                  &#39;DM${destination.exponent.width}&#39;) {
   if (source.subNormalAsZero) {
     throw ArgumentError(
         &#39;FloatingPointConverter does not support denormal as zero (DAZ)&#39;);
@@ -160,12 +163,14 @@ leading one detection (default <a href="../../rohd_hcl/RecursiveModulePriorityEn
               .named(&#39;leadOne&#39;);
 
       fullDiff = mux(
-          Const(source.explicitJBit),
-          biasDiff +
-              source.exponent.zeroExtend(biasDiff.width) +
-              mux(~source.isNormal &amp; Const(source.explicitJBit),
-                  Const(1, width: maxExpWidth), Const(0, width: maxExpWidth)),
-          biasDiff);
+              Const(source.explicitJBit),
+              biasDiff +
+                  source.exponent.zeroExtend(biasDiff.width) +
+                  (~source.isNormal &amp; Const(source.explicitJBit))
+                      .zeroExtend(maxExpWidth),
+              biasDiff)
+          .named(&#39;fullDiff&#39;);
+
       shift = mux(fullDiff.gte(leadOne) &amp; leadOneValid, leadOne, fullDiff)
           .named(&#39;shift&#39;);
     } else {
@@ -176,13 +181,11 @@ leading one detection (default <a href="../../rohd_hcl/RecursiveModulePriorityEn
       shift = Const(0, width: maxExpWidth);
     }
 
-    final trueShift = shift +
-        mux(
-            Const(destination.explicitJBit) &amp;
-                source.isNormal &amp;
-                ~Const(source.explicitJBit),
-            Const(-1, width: maxExpWidth),
-            Const(0, width: maxExpWidth));
+    final trueShift = (shift +
+            (Const(destination.explicitJBit &amp; !source.explicitJBit) &amp;
+                    source.isNormal)
+                .replicate(maxExpWidth))
+        .named(&#39;trueShift&#39;);
 
     final newMantissa = mux(trueShift[-1], mantissa &gt;&gt; (~trueShift + 1),
             mantissa &lt;&lt; trueShift)
@@ -195,11 +198,12 @@ leading one detection (default <a href="../../rohd_hcl/RecursiveModulePriorityEn
           RoundRNE(newMantissa, source.mantissa.width - destMantissaWidth);
 
       final roundAdder = adderGen(
-          newMantissa.reversed.getRange(1, destMantissaWidth + 1).reversed,
+          newMantissa.slice(newMantissa.width - 2,
+              newMantissa.width - destMantissaWidth - 1),
           rounder.doRound.zeroExtend(destMantissaWidth));
       roundedMantissa = roundAdder.sum
-          .named(&#39;roundedMantissa&#39;)
-          .getRange(0, destMantissaWidth);
+          .getRange(0, destMantissaWidth)
+          .named(&#39;roundedMantissa&#39;);
       roundIncExp = roundAdder.sum[-1];
     } else {
       roundedMantissa = newMantissa;
@@ -215,7 +219,7 @@ leading one detection (default <a href="../../rohd_hcl/RecursiveModulePriorityEn
             ? [
                 sliceMantissa,
                 Const(0, width: destMantissaWidth - newMantissa.width + 1)
-              ].swizzle().named(&#39;clippedMantissa&#39;)
+              ].swizzle()
             : roundedMantissa)
         .named(&#39;destMantissa&#39;);
 
@@ -227,10 +231,9 @@ leading one detection (default <a href="../../rohd_hcl/RecursiveModulePriorityEn
               fullDiff - (leadOne - Const(1, width: leadOne.width)),
               fullDiff - shift)
           .named(&#39;predictSubExp&#39;);
-      preExponent =
-          mux(shift.gt(Const(0, width: shift.width)), predictSub, predictExp)
-                  .named(&#39;unRndDestExponent&#39;) +
-              roundIncExp.zeroExtend(predictSub.width).named(&#39;rndIncExp&#39;);
+      preExponent = mux(shift.gt(Const(0, width: shift.width)), predictSub,
+              predictExp) +
+          roundIncExp.zeroExtend(predictSub.width);
     } else {
       preExponent = se + roundIncExp.zeroExtend(se.width).named(&#39;rndIncExp&#39;);
     }
@@ -248,33 +251,34 @@ leading one detection (default <a href="../../rohd_hcl/RecursiveModulePriorityEn
         mux(leadOneValid, leadOnePre.zeroExtend(maxExpWidth), biasDiff)
             .named(&#39;leadOne&#39;);
 
-    final seW = se.zeroExtend(maxExpWidth);
     final newSe = mux(
-        leadOneValid &amp; Const(source.explicitJBit) &amp; source.isNormal,
-        mux(seW.gte(leadOne), seW - (leadOne - Const(1, width: maxExpWidth)),
-            Const(0, width: maxExpWidth)),
-        seW);
+            leadOneValid &amp; Const(source.explicitJBit) &amp; source.isNormal,
+            mux(
+                se.gte(leadOne),
+                se - (leadOne - Const(1, width: maxExpWidth)),
+                Const(0, width: maxExpWidth)),
+            se)
+        .named(&#39;newExponent&#39;);
 
     final nextShift = mux(
-        biasDiff.gte(newSe),
-        (source.isNormal.zeroExtend(maxExpWidth).named(&#39;srcIsNormal&#39;) +
-                (biasDiff - newSe).named(&#39;negSourceRebiased&#39;))
-            .named(&#39;shiftSubnormal&#39;),
-        Const(0, width: maxExpWidth));
+            biasDiff.gte(newSe),
+            source.isNormal.zeroExtend(maxExpWidth) + (biasDiff - newSe),
+            Const(0, width: maxExpWidth))
+        .named(&#39;nextShift&#39;);
 
-    final tns = nextShift -
-        (se - newSe) +
-        mux(Const(source.explicitJBit), Const(-1, width: maxExpWidth),
-            Const(0, width: maxExpWidth)) +
-        mux(Const(destination.explicitJBit), Const(1, width: maxExpWidth),
-            Const(0, width: maxExpWidth));
+    final jBitAdjust =
+        (Const((source.explicitJBit ? -1 : 0), width: maxExpWidth) +
+                Const(destination.explicitJBit ? 1 : 0, width: maxExpWidth))
+            .named(&#39;jBitAdjust&#39;);
+
+    final tns = (nextShift - (se - newSe) + jBitAdjust).named(&#39;tns&#39;);
 
     final fullMantissa = [mantissa, Const(0, width: destMantissaWidth + 2)]
         .swizzle()
         .named(&#39;fullMantissa&#39;);
 
     final shiftMantissa =
-        mux(tns[-1], fullMantissa &lt;&lt; ~tns + 1, fullMantissa &gt;&gt;&gt; tns)
+        mux(tns[-1], fullMantissa &lt;&lt; (~tns + 1), fullMantissa &gt;&gt;&gt; tns)
             .named(&#39;shiftMantissa&#39;);
 
     final rounder =
@@ -300,12 +304,12 @@ leading one detection (default <a href="../../rohd_hcl/RecursiveModulePriorityEn
     destMantissa = sliceMantissa.getRange(0, destMantissaWidth);
 
     final predictEN = mux(biasDiff.gte(newSe), Const(0, width: maxExpWidth),
-            (newSe - biasDiff).named(&#39;sourceRebiased&#39;))
+            newSe - biasDiff)
         .named(&#39;predictExponent&#39;);
 
     destExponent = (predictEN + roundIncExp.zeroExtend(predictEN.width))
-        .named(&#39;predictExpRounded&#39;)
-        .getRange(0, destExponentWidth);
+        .getRange(0, destExponentWidth)
+        .named(&#39;destExponent&#39;);
 
     final maxDestExp = Const(
         destination.floatingPointValue.maxExponent +

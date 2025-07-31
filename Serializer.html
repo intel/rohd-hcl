@@ -36,9 +36,9 @@
       var exmpl = `{
   "creator": "Yosys 0.55+8 (git sha1 9334a5c27, clang++ 18.1.8 -fPIC -O3)",
   "modules": {
-    "Counter_Wnull": {
+    "Counter_L1_": {
       "attributes": {
-        "src": "Serializer.sv:79.1-105.26"
+        "src": "Serializer.sv:79.1-105.24"
       },
       "ports": {
         "clk": {
@@ -805,12 +805,12 @@
         },
         "counter": {
           "hide_name": 0,
-          "type": "Counter_Wnull",
+          "type": "Counter_L1_",
           "parameters": {
           },
           "attributes": {
             "module_not_derived": 1,
-            "src": "Serializer.sv:121.16-121.151"
+            "src": "Serializer.sv:121.14-121.149"
           },
           "port_directions": {
             "clk": "input",
@@ -961,7 +961,7 @@
           "hide_name": 0,
           "bits": [ 161 ],
           "attributes": {
-            "src": "Serializer.sv:118.7-118.16",
+            "src": "Serializer.sv:117.7-117.16",
             "unused_bits": "0 "
           }
         },
@@ -1071,7 +1071,7 @@
             "Y_WIDTH": 7
           },
           "attributes": {
-            "src": "Serializer.sv:64.61-64.87"
+            "src": "Serializer.sv:64.62-64.85"
           },
           "port_directions": {
             "A": "input",
@@ -1119,7 +1119,7 @@
             "Y_WIDTH": 7
           },
           "attributes": {
-            "src": "Serializer.sv:66.66-66.106"
+            "src": "Serializer.sv:66.71-66.105"
           },
           "port_directions": {
             "A": "input",
@@ -1132,7 +1132,7 @@
             "Y": [ 63, 64, 65, 66, 67, 68, 69 ]
           }
         },
-        "$add$Serializer.sv:69$16": {
+        "$add$Serializer.sv:68$16": {
           "hide_name": 1,
           "type": "$add",
           "parameters": {
@@ -1143,7 +1143,7 @@
             "Y_WIDTH": 7
           },
           "attributes": {
-            "src": "Serializer.sv:69.61-69.87"
+            "src": "Serializer.sv:68.62-68.85"
           },
           "port_directions": {
             "A": "input",
@@ -1501,7 +1501,7 @@
             "Y_WIDTH": 7
           },
           "attributes": {
-            "src": "Serializer.sv:66.67-66.98"
+            "src": "Serializer.sv:66.72-66.97"
           },
           "port_directions": {
             "A": "input",
@@ -1525,7 +1525,7 @@
             "Y_WIDTH": 6
           },
           "attributes": {
-            "src": "Serializer.sv:71.54-71.79"
+            "src": "Serializer.sv:71.37-71.62"
           },
           "port_directions": {
             "A": "input",
@@ -1600,49 +1600,35 @@
           "hide_name": 1,
           "bits": [ 56, 57, 58, 59, 60, 61, 62 ],
           "attributes": {
-            "src": "Serializer.sv:66.67-66.98"
-          }
-        },
-        "_in0__swizzled": {
-          "hide_name": 0,
-          "bits": [ 10, 11, 12, 13, "0", "0" ],
-          "attributes": {
-            "src": "Serializer.sv:17.13-17.27"
+            "src": "Serializer.sv:66.72-66.97"
           }
         },
         "_in0__swizzled_add_zeroPoint": {
           "hide_name": 0,
           "bits": [ 22, 23, 24, 25, 26, 27 ],
           "attributes": {
-            "src": "Serializer.sv:18.13-18.41"
+            "src": "Serializer.sv:17.13-17.41"
           }
         },
         "_in11__internalValue_subtract_upperSaturation_subtract_const_1_modulo_range_add_lowerSaturation": {
           "hide_name": 0,
           "bits": [ 49, 50, 51, 52, 53, 54 ],
           "attributes": {
-            "src": "Serializer.sv:19.13-19.108"
-          }
-        },
-        "_in1__swizzled": {
-          "hide_name": 0,
-          "bits": [ 6, 7, 8, 9, "0", "0" ],
-          "attributes": {
-            "src": "Serializer.sv:20.13-20.27"
+            "src": "Serializer.sv:18.13-18.108"
           }
         },
         "_in2__internalValue_add__swizzled": {
           "hide_name": 0,
           "bits": [ 71, 72, 73, 74, 75, 76 ],
           "attributes": {
-            "src": "Serializer.sv:21.13-21.46"
+            "src": "Serializer.sv:19.13-19.46"
           }
         },
         "_internalValue_add__swizzled_carry": {
           "hide_name": 0,
           "bits": [ 77 ],
           "attributes": {
-            "src": "Serializer.sv:22.7-22.41",
+            "src": "Serializer.sv:20.7-20.41",
             "unused_bits": "0 "
           }
         },
@@ -1650,16 +1636,32 @@
           "hide_name": 0,
           "bits": [ 55 ],
           "attributes": {
-            "src": "Serializer.sv:23.7-23.102",
+            "src": "Serializer.sv:21.7-21.102",
             "unused_bits": "0 "
           }
         },
-        "_original__internalValue_subtract_zeroPoint": {
+        "_maxValueExt_add_zeroPoint_carry": {
           "hide_name": 0,
-          "bits": [ 18, 19, 20, 21, 128, 129 ],
+          "bits": [ 35 ],
           "attributes": {
-            "src": "Serializer.sv:24.13-24.56",
-            "unused_bits": "4 5"
+            "src": "Serializer.sv:22.7-22.39",
+            "unused_bits": "0 "
+          }
+        },
+        "_maxValueExt_subtract_minValueExt_add_const_1_carry": {
+          "hide_name": 0,
+          "bits": [ 69 ],
+          "attributes": {
+            "src": "Serializer.sv:23.7-23.58",
+            "unused_bits": "0 "
+          }
+        },
+        "_minValueExt_add_zeroPoint_carry": {
+          "hide_name": 0,
+          "bits": [ 70 ],
+          "attributes": {
+            "src": "Serializer.sv:24.7-24.39",
+            "unused_bits": "0 "
           }
         },
         "_swizzled_add_zeroPoint_carry": {
@@ -1667,30 +1669,6 @@
           "bits": [ 28 ],
           "attributes": {
             "src": "Serializer.sv:25.7-25.36",
-            "unused_bits": "0 "
-          }
-        },
-        "_swizzled_add_zeroPoint_carry_0": {
-          "hide_name": 0,
-          "bits": [ 35 ],
-          "attributes": {
-            "src": "Serializer.sv:26.7-26.38",
-            "unused_bits": "0 "
-          }
-        },
-        "_swizzled_add_zeroPoint_carry_1": {
-          "hide_name": 0,
-          "bits": [ 70 ],
-          "attributes": {
-            "src": "Serializer.sv:27.7-27.38",
-            "unused_bits": "0 "
-          }
-        },
-        "_swizzled_subtract__swizzled_add_const_1_carry": {
-          "hide_name": 0,
-          "bits": [ 69 ],
-          "attributes": {
-            "src": "Serializer.sv:28.7-28.53",
             "unused_bits": "0 "
           }
         },
@@ -1719,28 +1697,36 @@
           "hide_name": 0,
           "bits": [ 78, 79, 80, 81, 82, 83 ],
           "attributes": {
-            "src": "Serializer.sv:29.13-29.26"
+            "src": "Serializer.sv:26.13-26.26"
+          }
+        },
+        "internalValueOverZeroPoint": {
+          "hide_name": 0,
+          "bits": [ 18, 19, 20, 21, 128, 129 ],
+          "attributes": {
+            "src": "Serializer.sv:27.13-27.39",
+            "unused_bits": "4 5"
           }
         },
         "internalValue_2": {
           "hide_name": 0,
           "bits": [ 71, 72, 73, 74, 75, 76 ],
           "attributes": {
-            "src": "Serializer.sv:32.13-32.28"
+            "src": "Serializer.sv:30.13-30.28"
           }
         },
         "internalValue_3": {
           "hide_name": 0,
           "bits": [ 22, 23, 24, 25, 26, 27 ],
           "attributes": {
-            "src": "Serializer.sv:33.13-33.28"
+            "src": "Serializer.sv:31.13-31.28"
           }
         },
         "lowerSaturation": {
           "hide_name": 0,
           "bits": [ 43, 44, 45, 46, 47, 48 ],
           "attributes": {
-            "src": "Serializer.sv:34.13-34.28"
+            "src": "Serializer.sv:32.13-32.28"
           }
         },
         "maxValue": {
@@ -1750,11 +1736,25 @@
             "src": "Serializer.sv:10.19-10.27"
           }
         },
+        "maxValueExt": {
+          "hide_name": 0,
+          "bits": [ 10, 11, 12, 13, "0", "0" ],
+          "attributes": {
+            "src": "Serializer.sv:33.13-33.24"
+          }
+        },
         "minValue": {
           "hide_name": 0,
           "bits": [ 6, 7, 8, 9 ],
           "attributes": {
             "src": "Serializer.sv:9.19-9.27"
+          }
+        },
+        "minValueExt": {
+          "hide_name": 0,
+          "bits": [ 6, 7, 8, 9, "0", "0" ],
+          "attributes": {
+            "src": "Serializer.sv:34.13-34.24"
           }
         },
         "overflowed": {

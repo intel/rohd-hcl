@@ -132,8 +132,10 @@ respectively.</p>
       (maxPosMagnitude + maxNegMagnitude + BigInt.one).bitLength, width + 1);
 
   final initialValueLogicExt = initialValueLogic.zeroExtend(internalWidth);
-  final minValueLogicExt = minValueLogic.zeroExtend(internalWidth);
-  final maxValueLogicExt = maxValueLogic.zeroExtend(internalWidth);
+  final minValueLogicExt =
+      minValueLogic.zeroExtend(internalWidth).named(&#39;minValueExt&#39;);
+  final maxValueLogicExt =
+      maxValueLogic.zeroExtend(internalWidth).named(&#39;maxValueExt&#39;);
 
   &#47;&#47; lazy range so that it&#39;s not generated if not necessary
   late final range = Logic(name: &#39;range&#39;, width: internalWidth)
@@ -148,7 +150,10 @@ respectively.</p>
     ..gets(minValueLogicExt + zeroPoint);
 
   final internalValue = Logic(name: &#39;internalValue&#39;, width: internalWidth);
-  sum &lt;= (internalValue - zeroPoint).getRange(0, width);
+  sum &lt;=
+      (internalValue - zeroPoint)
+          .named(&#39;internalValueOverZeroPoint&#39;)
+          .getRange(0, width);
 
   final preAdjustmentValue =
       Logic(name: &#39;preAdjustmentValue&#39;, width: internalWidth);

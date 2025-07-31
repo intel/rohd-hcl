@@ -261,8 +261,8 @@ the output type will be the same as the input type <code>a</code>. Note that
   final sumRPath =
       significandAdderRPath.sum.slice(mantissaWidth + 1, 0).named(&#39;sumRpath&#39;);
   final sumP1RPath = significandAdderRPath.sumP1
-      .named(&#39;sumPlusOneRpath&#39;)
-      .slice(mantissaWidth + 1, 0);
+      .slice(mantissaWidth + 1, 0)
+      .named(&#39;sumPlusOneRpath&#39;);
 
   final sumLeadZeroRPath =
       (~sumRPath[-1] &amp; (aIsNormalFlopped | bIsNormalFlopped))
@@ -302,9 +302,9 @@ the output type will be the same as the input type <code>a</code>. Note that
           sumP1LeadZeroRPath,
           [sumP1RPath, earlyGRSRPath]
               .swizzle()
-              .named(&#39;sump1EarlyGRSRPath&#39;)
+              .named(&#39;sumP1EarlyGRSRPath&#39;)
               .slice(sumRPath.width + 1, 0),
-          [sumP1RPath, shiftGRSRPath].swizzle())
+          [sumP1RPath, shiftGRSRPath].swizzle().named(&#39;sumP1ShiftGRSRPath&#39;))
       .named(&#39;mergedSumP1RPath&#39;);
 
   final finalSumLGRSRPath = mux(selectRPath, mergedSumP1RPath, mergedSumRPath)
@@ -360,11 +360,12 @@ the output type will be the same as the input type <code>a</code>. Note that
             rndRPath.zeroExtend(sumRPath.width).named(&#39;rndExtend_rpath&#39;))
         .named(&#39;sumMantissaRndRpath&#39;);
     mantissaRPath = (sumMantissaRPathRnd &lt;&lt;
-            mux(selectRPath, sumP1LeadZeroRPath, sumLeadZeroRPath))
-        .named(&#39;mantissaRpath&#39;);
+            mux(selectRPath, sumP1LeadZeroRPath, sumLeadZeroRPath)
+                .named(&#39;shiftRpath&#39;))
+        .named(&#39;mantissaRpath1&#39;);
   } else {
     mantissaRPath =
-        (sumMantissaRPath &lt;&lt; sumLeadZeroRPath).named(&#39;mantissaRpath&#39;);
+        (sumMantissaRPath &lt;&lt; sumLeadZeroRPath).named(&#39;mantissaRpath2&#39;);
   }
 
   &#47;&#47;
