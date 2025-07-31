@@ -56,8 +56,9 @@ class DotProduct extends Module {
       throw RohdHclException(
           'Number of multipliers and multiplicands must be equal.');
     }
+
     final candWidthMiss = multiplicands
-        .mapIndexed((i, m) => (i > 0) & (m.width == multiplicands[i - 1].width))
+        .mapIndexed((i, m) => m.width == multiplicands[i > 0 ? i - 1 : 0].width)
         .where((w) => w)
         .length;
     if (candWidthMiss < multiplicands.length) {
@@ -66,8 +67,8 @@ class DotProduct extends Module {
     }
     // Enforce square products.
     final operandWidthMiss = multiplicands
-        .mapIndexed((i, m) => m.width == multipliers[i].width)
-        .where((w) => w)
+        .mapIndexed((i, m) => m.width != multipliers[i].width)
+        .where((w) => !w)
         .length;
     if (candWidthMiss < multiplicands.length) {
       throw RohdHclException('Multiplier and multiplicand at index '
