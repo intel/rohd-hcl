@@ -8,7 +8,7 @@
 
 import 'package:rohd_hcl/rohd_hcl.dart';
 
-/// A knob for holding a [bool].
+/// A knob for holding a `bool`.
 class ToggleConfigKnob extends ConfigKnob<bool> {
   /// Creates a new knob with the specified initial [value].
   ToggleConfigKnob({required super.value});

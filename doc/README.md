@@ -53,6 +53,7 @@ Some in-development items will have opened issues, as well. Feel free to create 
     - [Pipelined Integer Multiplier](./components/multiplier.md#carry-save-multiplier)
     - [Compression Tree Multiplier](./components/multiplier.md#compression-tree-multiplier)
     - [Compression Tree Multiply-Accumulate](./components/multiplier.md#compression-tree-multiply-accumulate)
+    - [Dot Product](./components/multiplier.md#dot-product)
     - [Booth Encoding and Compression Components](./components/multiplier_components.md)
   - Dividers
     - [Multi Cycle Integer Divider](./components/divider.md)
