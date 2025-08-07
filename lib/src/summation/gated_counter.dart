@@ -28,7 +28,7 @@ class GatedCounter extends Counter {
   List<SumInterface> get interfaces => _interfaces;
   late final _interfaces = gateToggles
       ? super.interfaces.map((e) {
-          final intf = SumInterface.clone(e);
+          final intf = e.clone();
 
           intf.enable?.gets(e.enable!);
 
@@ -92,9 +92,7 @@ class GatedCounter extends Counter {
       super.reserveDefinitionName,
       String? definitionName})
       : _providedClkGateParitionIndex = clkGatePartitionIndex,
-        _clockGateControlInterface = clockGateControlInterface == null
-            ? null
-            : ClockGateControlInterface.clone(clockGateControlInterface),
+        _clockGateControlInterface = clockGateControlInterface?.clone(),
         super(
             definitionName: definitionName ??
                 'GatedCounter_W${width}_m${minValue}_M$maxValue') {

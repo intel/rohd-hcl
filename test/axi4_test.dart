@@ -23,13 +23,13 @@ class Axi4Subordinate extends Module {
       channelsL.add(Axi4Channel(
           channelId: channels[i].channelId,
           rIntf: channels[i].hasRead
-              ? (Axi4ReadInterface.clone(channels[i].rIntf!)
+              ? (channels[i].rIntf!.clone()
                 ..connectIO(this, channels[i].rIntf!,
                     inputTags: {Axi4Direction.fromMain},
                     outputTags: {Axi4Direction.fromSubordinate}))
               : null,
           wIntf: channels[i].hasWrite
-              ? (Axi4WriteInterface.clone(channels[i].wIntf!)
+              ? (channels[i].wIntf!.clone()
                 ..connectIO(this, channels[i].wIntf!,
                     inputTags: {Axi4Direction.fromMain},
                     outputTags: {Axi4Direction.fromSubordinate}))
@@ -48,13 +48,13 @@ class Axi4Main extends Module {
       channelsL.add(Axi4Channel(
           channelId: channels[i].channelId,
           rIntf: channels[i].hasRead
-              ? (Axi4ReadInterface.clone(channels[i].rIntf!)
+              ? (channels[i].rIntf!.clone()
                 ..connectIO(this, channels[i].rIntf!,
                     inputTags: {Axi4Direction.fromSubordinate},
                     outputTags: {Axi4Direction.fromMain}))
               : null,
           wIntf: channels[i].hasWrite
-              ? (Axi4WriteInterface.clone(channels[i].wIntf!)
+              ? (channels[i].wIntf!.clone()
                 ..connectIO(this, channels[i].wIntf!,
                     inputTags: {Axi4Direction.fromSubordinate},
                     outputTags: {Axi4Direction.fromMain}))
