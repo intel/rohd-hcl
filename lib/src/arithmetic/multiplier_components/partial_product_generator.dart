@@ -19,12 +19,13 @@ class SignBit extends Logic {
   bool inverted = false;
 
   /// Construct a sign bit to store
-  SignBit(Logic inl, {this.inverted = false})
-      : super(name: '${inl.name}_signbit', naming: Naming.mergeable) {
+  SignBit(Logic inl, {this.inverted = false, String? name})
+      : super(name: name ?? inl.name, naming: Naming.mergeable) {
     this <= inl;
   }
   @override
-  SignBit clone({String? name = 'clone'}) => SignBit(this, inverted: inverted);
+  SignBit clone({String? name}) =>
+      SignBit(this, inverted: inverted, name: name);
 }
 
 /// A [PartialProductArray] is a class that holds a set of partial products

@@ -92,6 +92,7 @@ class MultiCycleDividerInterface extends PairInterface {
         ]);
 
   /// A match constructor for the divider interface.
+  @Deprecated('Use clone() instead.')
   MultiCycleDividerInterface.match(MultiCycleDividerInterface other)
       : this(dataWidth: other.dataWidth);
 
