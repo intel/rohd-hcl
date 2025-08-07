@@ -29,7 +29,6 @@ class ClockGateControlInterface extends PairInterface {
   final bool isPresent;
 
   /// Capture the additional ports that are part of this interface, if any.
-  @protected
   late final List<Logic>? additionalPorts;
 
   /// A default implementation for clock gating, effectively just an AND of the
