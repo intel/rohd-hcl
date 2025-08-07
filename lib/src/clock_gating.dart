@@ -88,7 +88,7 @@ class ClockGateControlInterface extends PairInterface {
   ///
   /// If a [gatedClockGenerator] is provided, then it will override the
   /// [gatedClockGenerator] function from [`otherInterface`].
-  @Deprecated('Use Instance-based `clone({String name = "clone"})` instead.')
+  @Deprecated('Use Instance-based `clone()` instead.')
   ClockGateControlInterface.clone(
     ClockGateControlInterface super.otherInterface, {
     bool? isPresent,
@@ -108,14 +108,13 @@ class ClockGateControlInterface extends PairInterface {
   /// to replicate interface configuration through hierarchies to carry
   /// configuration information.
   @override
-  ClockGateControlInterface clone({String name = 'clone'}) =>
-      ClockGateControlInterface(
-          isPresent: isPresent,
-          hasEnableOverride: hasEnableOverride,
-          additionalPorts: (additionalPorts != null)
-              ? [for (final p in additionalPorts!) p.clone(name: p.name)]
-              : null,
-          gatedClockGenerator: gatedClockGenerator);
+  ClockGateControlInterface clone() => ClockGateControlInterface(
+      isPresent: isPresent,
+      hasEnableOverride: hasEnableOverride,
+      additionalPorts: (additionalPorts != null)
+          ? [for (final p in additionalPorts!) p.clone(name: p.name)]
+          : null,
+      gatedClockGenerator: gatedClockGenerator);
 }
 
 /// A generic and configurable clock gating block.

@@ -141,7 +141,7 @@ class MultiCycleDivider extends Module {
         super(
             definitionName:
                 definitionName ?? 'MultiCycleDivider_W${interface.dataWidth}') {
-    intf = MultiCycleDividerInterface.match(interface)
+    intf = interface.clone()
       ..pairConnectIO(
         this,
         interface,

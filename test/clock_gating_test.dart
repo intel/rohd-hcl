@@ -63,7 +63,7 @@ class CustomClockGateControlInterface extends ClockGateControlInterface {
                 ).gatedClk);
 
   @override
-  CustomClockGateControlInterface clone({String name = 'clone'}) =>
+  CustomClockGateControlInterface clone() =>
       CustomClockGateControlInterface(isPresent: isPresent);
 }
 

@@ -49,7 +49,7 @@ class Axi4SystemInterface extends Interface<Axi4Direction> {
 
   /// Constructs a new [Axi4SystemInterface] with identical parameters.
   @override
-  Axi4SystemInterface clone({String name = 'clone'}) => Axi4SystemInterface();
+  Axi4SystemInterface clone() => Axi4SystemInterface();
 }
 
 /// A standard AXI4 read interface.
