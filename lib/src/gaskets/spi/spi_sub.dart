@@ -44,8 +44,7 @@ class SpiSub extends Module {
                     '${intf.dataLength}_'
                     '${intf.sclk.width}') {
     // SPI Interface
-    intf = SpiInterface.clone(intf)
-      ..pairConnectIO(this, intf, PairRole.consumer);
+    intf = intf.clone()..pairConnectIO(this, intf, PairRole.consumer);
 
     // Bus Input to sub, if provided.
     if (busIn != null) {

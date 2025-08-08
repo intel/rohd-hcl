@@ -37,7 +37,11 @@ class SpiInterface extends PairInterface {
         ]);
 
   /// Clones this [SpiInterface].
+  @Deprecated('Use Instance-based `clone()` instead.')
   SpiInterface.clone(SpiInterface super.otherInterface)
       : dataLength = otherInterface.dataLength,
         super.clone();
+
+  @override
+  SpiInterface clone() => SpiInterface(dataLength: dataLength);
 }
