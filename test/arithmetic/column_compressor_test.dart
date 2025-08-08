@@ -109,17 +109,26 @@ void main() {
       final encoder = RadixEncoder(radix);
       for (final useSelect in [false, true]) {
         final selectSignedMultiplicand =
-            useSelect ? Logic(name: 'mcand') : null;
-        final selectSignedMultiplier = useSelect ? Logic(name: 'mult') : null;
+            useSelect ? Logic(name: 'multiplicand') : null;
+        final selectSignedMultiplier =
+            useSelect ? Logic(name: 'multiplier') : null;
         if (useSelect) {
           selectSignedMultiplicand!.put(signed ? 1 : 0);
           selectSignedMultiplier!.put(signed ? 1 : 0);
         }
-        final pp = PartialProduct(a, b, encoder,
-            signedMultiplicand: !useSelect & signed,
-            signedMultiplier: !useSelect & signed,
-            selectSignedMultiplicand: selectSignedMultiplicand,
-            selectSignedMultiplier: selectSignedMultiplier);
+        final pp = PartialProduct(
+          a,
+          b,
+          encoder,
+          signedMultiplicand: StaticOrDynamicParameter(
+              name: 'signedMultiplicand',
+              staticConfig: !useSelect & signed,
+              dynamicConfig: selectSignedMultiplicand),
+          signedMultiplier: StaticOrDynamicParameter(
+              name: 'signedMultiplier',
+              staticConfig: !useSelect & signed,
+              dynamicConfig: selectSignedMultiplier),
+        );
         CompactRectSignExtension(pp.array).signExtend();
 
         pp.generateOutputs();

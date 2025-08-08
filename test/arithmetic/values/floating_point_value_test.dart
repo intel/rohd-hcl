@@ -406,6 +406,7 @@ void main() {
     final fp2 = FloatingPoint16Value.populator().ofSpacedBinaryString(s);
     expect(fp, equals(fp2));
   });
+
   test('FPV Value comparison', () {
     final fp = FloatingPointValue.populator(exponentWidth: 4, mantissaWidth: 4)
         .ofSpacedBinaryString('1 0101 0101');
@@ -433,6 +434,7 @@ void main() {
                 .ofSpacedBinaryString('0 0000 0000')),
         equals(0));
   });
+
   test('FPV: infinity/NaN conversion tests', () async {
     const exponentWidth = 4;
     const mantissaWidth = 4;
@@ -462,6 +464,7 @@ void main() {
             .isNaN,
         equals(true));
   });
+
   test('FPV: infinity/NaN unrounded conversion tests', () async {
     const exponentWidth = 4;
     const mantissaWidth = 4;

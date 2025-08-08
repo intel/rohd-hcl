@@ -46,19 +46,11 @@ abstract class PartialProductSignExtension {
   /// The partial product generator we are sign extending.
   final PartialProductGeneratorBase ppg;
 
-  /// multiplicand operand is always signed.
-  bool get signedMultiplicand => ppg.signedMultiplicand;
+  /// The parameter controlling whether the multiplicand is signed.
+  dynamic get signedMultiplicand => ppg.signedMultiplicand;
 
-  /// multiplier operand is always signed.
-  bool get signedMultiplier => ppg.signedMultiplier;
-
-  /// If not null, use this signal to select between signed and unsigned
-  /// multiplicand.
-  Logic? get selectSignedMultiplicand => ppg.selectSignedMultiplicand;
-
-  /// If not null, use this signal to select between signed and unsigned
-  /// multiplier.
-  Logic? get selectSignedMultiplier => ppg.selectSignedMultiplier;
+  /// The parameter controlling whether the multiplier is signed.
+  dynamic get signedMultiplier => ppg.signedMultiplier;
 
   /// Number of rows of partial products.
   int get rows => ppg.rows;
@@ -91,15 +83,7 @@ abstract class PartialProductSignExtension {
 
   /// Sign Extension class that operates on a [PartialProductGeneratorBase]
   /// and sign-extends the entries.
-  PartialProductSignExtension(this.ppg, {this.name = 'no_sign_extension'}) {
-    if (signedMultiplier && (selectSignedMultiplier != null)) {
-      throw RohdHclException('sign reconfiguration requires signed=false');
-    }
-    if (signedMultiplicand && (selectSignedMultiplicand != null)) {
-      throw RohdHclException('multiplicand sign reconfiguration requires '
-          'signedMultiplicand=false');
-    }
-  }
+  PartialProductSignExtension(this.ppg, {this.name = 'no_sign_extension'});
 
   /// Execute the sign extension, overridden to specialize.
   void signExtend();
@@ -107,7 +91,7 @@ abstract class PartialProductSignExtension {
   /// Helper function for sign extension routines:
   /// For signed operands, set the MSB to [sign], otherwise add this [sign] bit.
   void addStopSign(List<Logic> addend, SignBit sign) {
-    if (!signedMultiplicand) {
+    if (!StaticOrDynamicParameter.ofDynamic(signedMultiplicand).staticConfig) {
       addend.add(sign);
     } else {
       addend.last = sign;
@@ -117,12 +101,15 @@ abstract class PartialProductSignExtension {
   /// Helper function for sign extension routines:
   /// For signed operands, flip the MSB, otherwise add this [sign] bit.
   void addStopSignFlip(List<Logic> addend, SignBit sign) {
-    if (!signedMultiplicand) {
-      if (selectSignedMultiplicand == null) {
+    final signedMultiplicandParameter =
+        StaticOrDynamicParameter.ofDynamic(signedMultiplicand);
+    if (!signedMultiplicandParameter.staticConfig) {
+      if (signedMultiplicandParameter.dynamicConfig == null) {
         addend.add(sign);
       } else {
-        addend.add(SignBit(mux(selectSignedMultiplicand!, ~addend.last, sign),
-            inverted: selectSignedMultiplicand != null));
+        addend.add(SignBit(
+            mux(signedMultiplicandParameter.dynamicConfig!, ~addend.last, sign),
+            inverted: signedMultiplicandParameter.dynamicConfig != null));
       }
     } else {
       addend.last = SignBit(~addend.last, inverted: true);
@@ -168,9 +155,7 @@ class PartialProductGenerator extends PartialProductGeneratorBase {
       super.multiplicand, super.multiplier, super.radixEncoder,
       {super.signedMultiplicand,
       super.signedMultiplier,
-      super.selectSignedMultiplicand,
-      super.selectSignedMultiplier,
-      super.name = 'none'}) {
+      super.name = 'partial_product_generator'}) {
     extender = NoneSignExtension(this);
     signExtend();
   }
@@ -189,10 +174,8 @@ class BruteSignExtension extends PartialProductSignExtension {
   /// Fully sign extend the PP array: useful for reference only
   @override
   void signExtend() {
-    if (signedMultiplicand && (selectSignedMultiplicand != null)) {
-      throw RohdHclException('multiplicand sign reconfiguration requires '
-          'signedMultiplicand=false');
-    }
+    final signedMultiplicandParameter =
+        StaticOrDynamicParameter.ofDynamic(signedMultiplicand);
     if (isSignExtended) {
       throw RohdHclException('Partial Product array already sign-extended');
     }
@@ -207,10 +190,12 @@ class BruteSignExtension extends PartialProductSignExtension {
     for (var row = 0; row < rows; row++) {
       final addend = partialProducts[row];
       final Logic sign;
-      if (selectSignedMultiplicand != null) {
-        sign = mux(selectSignedMultiplicand!, addend.last, signs[row]);
+      if (signedMultiplicandParameter.dynamicConfig != null) {
+        sign = mux(signedMultiplicandParameter.dynamicConfig!, addend.last,
+            signs[row]);
       } else {
-        sign = signedMultiplicand ? addend.last : signs[row];
+        sign =
+            signedMultiplicandParameter.staticConfig ? addend.last : signs[row];
       }
       addend.addAll(List.filled((rows - row) * shift, SignBit(sign)));
       if (row > 0) {
@@ -241,8 +226,6 @@ class PartialProductGeneratorBruteSignExtension
       super.multiplicand, super.multiplier, super.radixEncoder,
       {super.signedMultiplicand,
       super.signedMultiplier,
-      super.selectSignedMultiplicand,
-      super.selectSignedMultiplier,
       super.name = 'brute'}) {
     extender = BruteSignExtension(this);
     signExtend();
@@ -265,20 +248,24 @@ class CompactSignExtension extends PartialProductSignExtension {
     // Mohanty, B.K., Choubey, A. Efficient Design for Radix-8 Booth Multiplier
     // and Its Application in Lifting 2-D DWT. Circuits Syst Signal Process 36,
     // 1129–1149 (2017). https://doi.org/10.1007/s00034-016-0349-9
-    if (signedMultiplicand && (selectSignedMultiplicand != null)) {
-      throw RohdHclException('multiplicand sign reconfiguration requires '
-          'signedMultiplicand=false');
-    }
+    // if (signedMultiplicand && (selectSignedMultiplicand != null)) {
+    //   throw RohdHclException('multiplicand sign reconfiguration requires '
+    //       'signedMultiplicand=false');
+    // }
     if (isSignExtended) {
       throw RohdHclException('Partial Product array already sign-extended');
     }
     isSignExtended = true;
 
+    final signedMultiplicandParameter =
+        StaticOrDynamicParameter.ofDynamic(signedMultiplicand);
+
     final lastRow = rows - 1;
     final firstAddend = partialProducts[0];
     final lastAddend = partialProducts[lastRow];
 
-    final firstRowQStart = selector.width - (signedMultiplicand ? 1 : 0);
+    final firstRowQStart =
+        selector.width - (signedMultiplicandParameter.staticConfig ? 1 : 0);
     final lastRowSignPos = shift * lastRow;
     final alignRow0Sign = firstRowQStart - lastRowSignPos;
 
@@ -341,12 +328,15 @@ class CompactSignExtension extends PartialProductSignExtension {
 
     // Compute Sign extension for row==0
     final firstSign = Logic(name: 'firstsign', naming: Naming.mergeable);
-    if (selectSignedMultiplicand == null) {
+    if (signedMultiplicandParameter.dynamicConfig == null) {
       firstSign <=
-          (signedMultiplicand ? SignBit(firstAddend.last) : SignBit(signs[0]));
+          (signedMultiplicandParameter.staticConfig
+              ? SignBit(firstAddend.last)
+              : SignBit(signs[0]));
     } else {
       firstSign <=
-          SignBit(mux(selectSignedMultiplicand!, firstAddend.last, signs[0]));
+          SignBit(mux(signedMultiplicandParameter.dynamicConfig!,
+              firstAddend.last, signs[0]));
     }
     final q = [
       (firstSign ^ remainders[lastRow])
@@ -372,7 +362,7 @@ class CompactSignExtension extends PartialProductSignExtension {
         for (var i = 0; i < shift - 1; i++) {
           firstAddend[i] = m[0][i];
         }
-        if (!signedMultiplicand) {
+        if (!signedMultiplicandParameter.staticConfig) {
           firstAddend.add(q[0]);
         } else {
           firstAddend.last = q[0];
@@ -401,8 +391,6 @@ class PartialProductGeneratorCompactSignExtension
       super.multiplicand, super.multiplier, super.radixEncoder,
       {super.signedMultiplicand,
       super.signedMultiplier,
-      super.selectSignedMultiplicand,
-      super.selectSignedMultiplier,
       super.name = 'compact'}) {
     extender = CompactSignExtension(this);
     signExtend();
@@ -427,14 +415,16 @@ class StopBitsSignExtension extends PartialProductSignExtension {
   ///
   @override
   void signExtend() {
-    if (signedMultiplicand && (selectSignedMultiplicand != null)) {
-      throw RohdHclException('multiplicand sign reconfiguration requires '
-          'signedMultiplicand=false');
-    }
+    // if (signedMultiplicand && (selectSignedMultiplicand != null)) {
+    //   throw RohdHclException('multiplicand sign reconfiguration requires '
+    //       'signedMultiplicand=false');
+    // }
     if (isSignExtended) {
       throw RohdHclException('Partial Product array already sign-extended');
     }
     isSignExtended = true;
+    final signedMultiplicandParameter =
+        StaticOrDynamicParameter.ofDynamic(signedMultiplicand);
 
     final finalCarryPos = shift * (rows - 1);
     final finalCarryRelPos = finalCarryPos - selector.width - shift;
@@ -455,13 +445,15 @@ class StopBitsSignExtension extends PartialProductSignExtension {
     for (var row = 0; row < rows; row++) {
       final addend = partialProducts[row];
       final Logic sign;
-      if (selectSignedMultiplicand != null) {
-        sign = mux(selectSignedMultiplicand!, addend.last, signs[row]);
+      if (signedMultiplicandParameter.dynamicConfig != null) {
+        sign = mux(signedMultiplicandParameter.dynamicConfig!, addend.last,
+            signs[row]);
       } else {
-        sign = signedMultiplicand ? addend.last : signs[row];
+        sign =
+            signedMultiplicandParameter.staticConfig ? addend.last : signs[row];
       }
       if (row == 0) {
-        if (!signedMultiplicand) {
+        if (!signedMultiplicandParameter.staticConfig) {
           addend.addAll(List.filled(shift, SignBit(sign)));
         } else {
           // either is signed?
@@ -478,6 +470,8 @@ class StopBitsSignExtension extends PartialProductSignExtension {
       }
     }
 
+    final signedMultiplierParameter =
+        StaticOrDynamicParameter.ofDynamic(signedMultiplier);
     if (finalCarryRow > 0) {
       final extensionRow = partialProducts[finalCarryRow];
       extensionRow
@@ -485,7 +479,8 @@ class StopBitsSignExtension extends PartialProductSignExtension {
             finalCarryPos - (extensionRow.length + rowShift[finalCarryRow]),
             Const(0)))
         ..add(SignBit(signs[rows - 1]));
-    } else if (signedMultiplier | (selectSignedMultiplier != null)) {
+    } else if (signedMultiplierParameter.staticConfig |
+        (signedMultiplierParameter.dynamicConfig != null)) {
       // Create an extra row to hold the final carry bit
       partialProducts
           .add(List.filled(selector.width, Const(0), growable: true));
@@ -516,8 +511,6 @@ class PartialProductGeneratorStopBitsSignExtension
       super.multiplicand, super.multiplier, super.radixEncoder,
       {super.signedMultiplicand,
       super.signedMultiplier,
-      super.selectSignedMultiplicand,
-      super.selectSignedMultiplier,
       super.name = 'stop_bits'}) {
     extender = StopBitsSignExtension(this);
     signExtend();
@@ -545,8 +538,6 @@ class PartialProductGeneratorCompactRectSignExtension
       super.multiplicand, super.multiplier, super.radixEncoder,
       {super.signedMultiplicand,
       super.signedMultiplier,
-      super.selectSignedMultiplicand,
-      super.selectSignedMultiplier,
       super.name = 'compact_rect'}) {
     extender = CompactRectSignExtension(this);
     signExtend();
@@ -573,12 +564,15 @@ class CompactRectSignExtension extends PartialProductSignExtension {
       throw RohdHclException('Partial Product array already sign-extended');
     }
     isSignExtended = true;
+    final signedMultiplicandParameter =
+        StaticOrDynamicParameter.ofDynamic(signedMultiplicand);
 
     final lastRow = rows - 1;
     final firstAddend = partialProducts[0];
     final lastAddend = partialProducts[lastRow];
 
-    final firstRowQStart = selector.width - (signedMultiplicand ? 1 : 0);
+    final firstRowQStart =
+        selector.width - (signedMultiplicandParameter.staticConfig ? 1 : 0);
     final lastRowSignPos = shift * lastRow;
 
     final align = firstRowQStart - lastRowSignPos;
@@ -668,12 +662,15 @@ class CompactRectSignExtension extends PartialProductSignExtension {
     // Insert the lastRow sign:  Either in firstRow's Q if there is a
     // collision or in another row if it lands beyond the Q sign extension
     final firstSign = Logic(name: 'firstsign', naming: Naming.mergeable);
-    if (selectSignedMultiplicand == null) {
+    if (signedMultiplicandParameter.dynamicConfig == null) {
       firstSign <=
-          (signedMultiplicand ? SignBit(firstAddend.last) : SignBit(signs[0]));
+          (signedMultiplicandParameter.staticConfig
+              ? SignBit(firstAddend.last)
+              : SignBit(signs[0]));
     } else {
       firstSign <=
-          (SignBit(mux(selectSignedMultiplicand!, firstAddend.last, signs[0])));
+          (SignBit(mux(signedMultiplicandParameter.dynamicConfig!,
+              firstAddend.last, signs[0])));
     }
     final lastSign = SignBit(remainders[lastRow]);
     // Compute Sign extension MSBs for firstRow
@@ -704,7 +701,7 @@ class CompactRectSignExtension extends PartialProductSignExtension {
       final finalCarryRelPos = lastRowSignPos -
           selector.width -
           shift +
-          (signedMultiplicand ? 1 : 0);
+          (signedMultiplicandParameter.staticConfig ? 1 : 0);
       final finalCarryRow = (finalCarryRelPos / shift).floor();
       final curRowLength =
           partialProducts[finalCarryRow].length + rowShift[finalCarryRow];

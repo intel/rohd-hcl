@@ -12,15 +12,13 @@ import 'package:rohd_hcl/rohd_hcl.dart';
 
 /// The following routines are useful only during testing.
 extension TestPartialProductSignage on PartialProductGeneratorBase {
-  /// Return `true` if multiplicand is truly signed (fixed or runtime).
-  bool isSignedMultiplicand() => (selectSignedMultiplicand == null)
-      ? signedMultiplicand
-      : !selectSignedMultiplicand!.value.isZero;
+  /// Return `true` if multiplicand is truly signed (fixed or runtime)
+  bool isSignedMultiplicand() =>
+      StaticOrDynamicParameter.ofDynamic(signedMultiplicand).value;
 
-  /// Return `true` if multiplier is truly signed (fixed or runtime).
-  bool isSignedMultiplier() => (selectSignedMultiplier == null)
-      ? signedMultiplier
-      : !selectSignedMultiplier!.value.isZero;
+  /// Return `true` if multiplier is truly signed (fixed or runtime)
+  bool isSignedMultiplier() =>
+      StaticOrDynamicParameter.ofDynamic(signedMultiplier).value;
 
   /// Return `true` if accumulate result is truly signed (fixed or runtime).
   bool isSignedResult() => isSignedMultiplicand() | isSignedMultiplier();

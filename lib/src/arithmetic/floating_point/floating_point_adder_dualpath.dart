@@ -154,7 +154,7 @@ class FloatingPointAdderDualPath<FpTypeIn extends FloatingPoint,
 
     final significandAdderRPath = CarrySelectOnesComplementCompoundAdder(
         largeOperandFlopped, smallerOperandRPathFlopped,
-        subtractIn: effectiveSubtractionFlopped,
+        subtract: effectiveSubtractionFlopped,
         generateCarryOut: true,
         generateCarryOutP1: true,
         adderGen: adderGen,
@@ -307,7 +307,7 @@ class FloatingPointAdderDualPath<FpTypeIn extends FloatingPoint,
     // here?
     final significandSubtractorNPath = OnesComplementAdder(
         largeOperand, smallOperandNPath,
-        subtractIn: effectiveSubtraction,
+        subtract: effectiveSubtraction,
         adderGen: adderGen,
         name: 'npath_significand_sub');
 
@@ -340,7 +340,7 @@ class FloatingPointAdderDualPath<FpTypeIn extends FloatingPoint,
 
     final expCalcNPath = OnesComplementAdder(
         largerExpFlopped, leadOneNPath.zeroExtend(exponentWidth),
-        subtractIn: Const(1), adderGen: adderGen, name: 'npath_expcalc');
+        subtract: Const(1), adderGen: adderGen, name: 'npath_expcalc');
 
     final preExpNPath =
         expCalcNPath.sum.slice(exponentWidth - 1, 0).named('preExpNpath');

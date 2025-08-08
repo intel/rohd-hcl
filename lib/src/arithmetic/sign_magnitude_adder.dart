@@ -101,7 +101,7 @@ class SignMagnitudeAdder extends SignMagnitudeAdderBase {
     final adder = OnesComplementAdder(
         mux(_sign & sub, ~a, a), mux(_sign & sub, ~b, b),
         generateEndAroundCarry: largestMagnitudeFirst & generateEndAroundCarry,
-        subtractIn: sub,
+        subtract: sub,
         adderGen: adderGen);
     sum <= adder.sum;
     if (generateEndAroundCarry) {

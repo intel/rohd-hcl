@@ -27,7 +27,7 @@ export 'src/serialization/serialization.dart';
 export 'src/shift_register.dart';
 export 'src/signed_shifter.dart';
 export 'src/sort.dart';
-export 'src/static_or_runtime_parameter.dart';
+export 'src/static_or_dynamic_parameter.dart';
 export 'src/summation/summation.dart';
 export 'src/toggle_gate.dart';
 export 'src/utils.dart';
