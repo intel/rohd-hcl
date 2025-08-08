@@ -9,6 +9,7 @@
 
 import 'dart:math';
 
+import 'package:meta/meta.dart';
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
 
@@ -39,9 +40,9 @@ class ReductionTree extends Module {
   /// Specified width of input to each reduction node (e.g., binary: radix=2)
   final int radix;
 
-  /// When [signExtend] is `true`, use sign-extension on values,
-  /// otherwise use zero-extension.
-  final bool signExtend;
+  /// Configuration for signed extension of values in the tree.
+  @protected
+  late final StaticOrRuntimeParameter signExtensionParameter;
 
   /// Specified depth of nodes at which to flop (requires [_clk]).
   final int? depthBetweenFlops;
@@ -100,7 +101,7 @@ class ReductionTree extends Module {
   /// - [depthBetweenFlops] specifies how many nodes deep separate flops.
   ReductionTree(List<Logic> sequence, this.operation,
       {this.radix = 2,
-      this.signExtend = false,
+      dynamic signExtend,
       this.depthBetweenFlops,
       Logic? control,
       Logic? clk,
@@ -120,6 +121,8 @@ class ReductionTree extends Module {
     if (radix < 2) {
       throw RohdHclException('Radix must be at least 2, got $radix');
     }
+
+    signExtensionParameter = StaticOrRuntimeParameter.ofDynamic(signExtend);
     _sequence = [
       for (var i = 0; i < sequence.length; i++)
         addInput('seq$i', sequence[i], width: sequence[i].width)
@@ -179,7 +182,7 @@ class ReductionTree extends Module {
         final tree = ReductionTree(
             _sequence.getRange(pos, end1).toList(), operation,
             radix: radix,
-            signExtend: signExtend,
+            signExtend: signExtensionParameter,
             depthBetweenFlops: depthBetweenFlops,
             clk: _clk,
             enable: _enable,
@@ -208,8 +211,14 @@ class ReductionTree extends Module {
 
       final alignWidth =
           results.map((c) => c._computed.value.width).reduce(max);
+
       final resultsExtend = floppedResults.map((r) =>
-          signExtend ? r.signExtend(alignWidth) : r.zeroExtend(alignWidth));
+          signExtensionParameter.runtimeConfig == null
+              ? signExtensionParameter.staticConfig
+                  ? r.signExtend(alignWidth)
+                  : r.zeroExtend(alignWidth)
+              : mux(signExtensionParameter.getLogic(this),
+                  r.signExtend(alignWidth), r.zeroExtend(alignWidth)));
 
       final value = operation(resultsExtend.toList(),
           control: controlOut, depth: depth + 1, name: 'reduce_d$depth');
