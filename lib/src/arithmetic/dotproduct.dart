@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: BSD-3-Clause
 //
 // dotproduct.dart
-// An integer dot-product unit.
+// A set of integer dot-product units.
 //
 // 2025 July 23
 // Author: Desmond A Kirkpatrick <desmond.a.kirkpatrick@intel.com>
@@ -12,24 +12,30 @@ import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
 
 /// A dot product module for integers.
-class DotProduct extends Module {
+class DotProductBase extends Module {
   /// The dot-product result [product].
   Logic get product => output('product');
 
-  /// Creates a new [DotProduct] instance given a [List<Logic>] of
-  /// [multiplicands] and a [List<Logic>] of [multipliers], computing their
-  /// dot-product.  Currently widths of all operands must match.
-  ///
-  /// The [radix] parameter specifies the radix for use in partial-product
-  /// generation of the multiplies. While a [ColumnCompressor] is used on the
-  /// tall array of partial products, the final addition is accomplished using
-  /// the specified [adderGen] (default is [NativeAdder.new]).
+  /// The multiplicands input [multiplicands].
+  late final List<Logic> multiplicands;
+
+  /// The multipliers input [multipliers].
+  late final List<Logic> multipliers;
+
+  /// Whether the multiplicands are signed.
+  late final StaticOrRuntimeParameter signedMultiplicandParameter;
+
+  /// Whether the multipliers are signed.
+  late final StaticOrRuntimeParameter signedMultiplierParameter;
+
+  /// Creates a new [DotProductBase] instance given a [List<Logic>] of
+  /// [multiplicands] and a [List<Logic>] of [multipliers].  Currently widths of
+  /// all operands must match.
   ///
   /// The optional [signedMultiplicand] parameter configures the [multiplicands]
   /// statically using a `bool` to indicate a signed multiplicand (default is
   /// `false`, or unsigned) or dynamically with a 1-bit [Logic] input. Passing
   /// something other null, `bool`, or [Logic] will result in a throw.
-  ///
   ///
   /// The optional [signedMultiplier] parameter configures the [multipliers]
   /// statically using a `bool` to indicate a signed multiplier (default is
@@ -39,19 +45,16 @@ class DotProduct extends Module {
   /// The output [product] will be [log2Ceil(multiplicands.length)] wider than
   /// the sum of the widths of one pair of products to accomadate the increasing
   /// accumulation value.
-  DotProduct(List<Logic> multiplicands, List<Logic> multipliers,
-      {int radix = 4,
-      dynamic signedMultiplicand,
+  DotProductBase(List<Logic> multiplicands, List<Logic> multipliers,
+      {dynamic signedMultiplicand,
       dynamic signedMultiplier,
-      Adder Function(Logic a, Logic b, {Logic? carryIn}) adderGen =
-          NativeAdder.new,
       super.name = 'dotproduct',
       super.reserveName = false,
       super.reserveDefinitionName = false,
       String? definitionName})
       : super(
             definitionName:
-                definitionName ?? 'DotProduct_W{$multipliers[0].width}_') {
+                definitionName ?? 'DotProduct_W${multipliers[0].width}_') {
     if (multipliers.length != multiplicands.length) {
       throw RohdHclException(
           'Number of multipliers and multiplicands must be equal.');
@@ -74,30 +77,53 @@ class DotProduct extends Module {
       throw RohdHclException('Multiplier and multiplicand at index '
           '$operandWidthMiss must have the same width.');
     }
-    if (!MultiplicandSelector.allowedRadices.contains(radix)) {
-      throw RohdHclException(
-          'Radix must be in ${MultiplicandSelector.allowedRadices}.');
-    }
 
-    final signedMultiplicandParameter =
+    signedMultiplicandParameter =
         StaticOrRuntimeParameter.ofDynamic(signedMultiplicand);
-    final signedMultiplierParameter =
+    signedMultiplierParameter =
         StaticOrRuntimeParameter.ofDynamic(signedMultiplier);
 
-    multiplicands = multiplicands
+    this.multiplicands = multiplicands
         .mapIndexed((i, multiplicand) => addInput(
             'multiplicand_$i', multiplicand,
             width: multiplicand.width))
         .toList();
-    multipliers = multipliers
+    this.multipliers = multipliers
         .mapIndexed((i, multiplier) =>
             addInput('multiplier_$i', multiplier, width: multiplier.width))
         .toList();
+  }
+}
+
+/// An integer dot product module using a [ColumnCompressor].
+class CompressionTreeDotProduct extends DotProductBase {
+  /// The [productRadix] parameter specifies the radix for use in
+  /// partial-product generation of the multiplies. While a [ColumnCompressor]
+  /// is used on the tall array of partial products, the final addition is
+  /// accomplished using the specified [adderGen] (default is
+  /// [NativeAdder.new]).
+  CompressionTreeDotProduct(super.multiplicands, super.multipliers,
+      {super.signedMultiplicand,
+      super.signedMultiplier,
+      int productRadix = 4,
+      Adder Function(Logic a, Logic b, {Logic? carryIn}) adderGen =
+          NativeAdder.new,
+      super.name = 'compression_tree_dotproduct',
+      super.reserveName = false,
+      super.reserveDefinitionName = false,
+      String? definitionName})
+      : super(
+            definitionName: definitionName ??
+                'CompTreeDotProduct_W${multipliers[0].width}_') {
+    if (!MultiplicandSelector.allowedRadices.contains(productRadix)) {
+      throw RohdHclException(
+          'Radix must be in ${MultiplicandSelector.allowedRadices}.');
+    }
 
     final ppGenerators = [
       for (var i = 0; i < multipliers.length; i++)
         PartialProductGenerator(
-            multiplicands[i], multipliers[i], RadixEncoder(radix),
+            multiplicands[i], multipliers[i], RadixEncoder(productRadix),
             signedMultiplicand: signedMultiplicandParameter.staticConfig,
             signedMultiplier: signedMultiplierParameter.staticConfig,
             selectSignedMultiplicand:
@@ -120,8 +146,77 @@ class DotProduct extends Module {
     ];
     final columnCompressor = ColumnCompressor(vec, ppg.rowShift);
     final adder = adderGen(columnCompressor.add0, columnCompressor.add1);
-    // An artifact of sign extension creates 2 extra bits in the sum
+    // An artifact of sign extension creates 2 extra bits in the sum.
     final sum = adder.sum.slice(adder.sum.width - 3, 0);
     addOutput('product', width: sum.width) <= sum;
   }
 }
+
+/// General version of the [DotProductBase] module that uses provided
+/// [Multiplier] and [Adder] functions to construct the dot product computation.
+class GeneralDotProduct extends DotProductBase {
+  /// Adder generator used in reduction tree for the final addition.
+  final Adder Function(Logic a, Logic b, {Logic? carryIn, String name})
+      adderGen;
+
+  /// Construct a [GeneralDotProduct] with a [List] of [multiplicands] and
+  /// [multipliers], a [multiplierGen] for constructing products, and an
+  /// [adderGen] function to generate [Adder]s for use in a [ReductionTree] for
+  /// the final addition of the products.
+  GeneralDotProduct(super.multiplicands, super.multipliers,
+      {super.signedMultiplicand,
+      super.signedMultiplier,
+      int treeRadix = 2,
+      this.adderGen = NativeAdder.new,
+      Multiplier Function(Logic a, Logic b,
+              {Logic? clk,
+              Logic? reset,
+              Logic? enable,
+              dynamic signedMultiplicand,
+              dynamic signedMultiplier})
+          multiplierGen = NativeMultiplier.new,
+      super.name = 'dotproduct',
+      super.reserveName = false,
+      super.reserveDefinitionName = false,
+      String? definitionName})
+      : super(
+            definitionName: definitionName ??
+                'DotProductNative_W${multipliers[0].width}_') {
+    final dotResults = [
+      for (var i = 0; i < multipliers.length; i++)
+        multiplierGen(multiplicands[i], multipliers[i],
+                signedMultiplicand: signedMultiplicandParameter.getLogic(this),
+                signedMultiplier: signedMultiplierParameter.getLogic(this))
+            .product
+    ];
+
+    // TODO(desmonddak): add sign extension option for use with unsigned
+    // multipliers and multiplicands.
+
+    final prefixAdd = ReductionTree(dotResults, addReduceAdders,
+        signExtend: true,
+        radix: treeRadix,
+        name: 'dotproduct_reduction_tree',
+        definitionName: 'DotProductReductionTree_W${multiplicands[0].width}_'
+            '${multipliers[0].width}_R$treeRadix');
+    addOutput('product', width: prefixAdd.out.width) <= prefixAdd.out;
+  }
+
+  /// Reduction tree adder generator for the final addition.
+  Logic addReduceAdders(List<Logic> inputs,
+      {int? depth, Logic? control, String name = 'prefix'}) {
+    if (inputs.length < 4) {
+      return inputs.reduce((v, e) => v + e);
+    } else {
+      final add0 = adderGen(inputs[0], inputs[1], name: '${name}_add0');
+      final add1 = adderGen(inputs[2], inputs[3], name: '${name}_add1');
+      final addf =
+          adderGen(add0.sum, add1.sum, name: '${name}_addf_${depth ?? 0}');
+      return addf.sum;
+    }
+  }
+}
+
+// TODO(desmonddak): reduction tree needs dynamic sign extension control.
+// TODO(desmonddak):  dynamic parameter:  we should be able to pass the
+// null, bool, Logic() or the parameter itself to the constructor.

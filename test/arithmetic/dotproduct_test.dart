@@ -18,6 +18,11 @@ void main() {
     await Simulator.reset();
   });
 
+  final dotProductModules = [
+    CompressionTreeDotProduct.new,
+    GeneralDotProduct.new
+  ];
+
   test('dotproduct signed-variants exhaustive', () async {
     const widths = [3, 3];
     final depth = widths.length;
@@ -38,51 +43,56 @@ void main() {
 
     for (final signedMultiplicand in [false, true]) {
       for (final signedMultiplier in [false, true]) {
-        final dotProduct = DotProduct(multiplicands, multipliers,
-            signedMultiplicand: signedMultiplicand,
-            signedMultiplier: signedMultiplier);
+        for (final dotProductModule in dotProductModules) {
+          // Create the dot product module with the current parameters.
+          // Note that the `dotProduct` function is a constructor for the
+          // respective dot product module.
+          final dotProduct = dotProductModule(multiplicands, multipliers,
+              signedMultiplicand: signedMultiplicand,
+              signedMultiplier: signedMultiplier);
 
-        for (var candFv = BigInt.zero; candFv < limit; candFv += BigInt.one) {
-          var remCandValue = candFv;
-
-          for (var i = 0; i < depth; i++) {
-            candValues[i] = remCandValue & masks[i];
-            remCandValue >>= widths[i];
-          }
-          for (var mulFv = BigInt.zero; mulFv < limit; mulFv += BigInt.one) {
-            var remMulValue = mulFv;
+          for (var candFv = BigInt.zero; candFv < limit; candFv += BigInt.one) {
+            var remCandValue = candFv;
 
             for (var i = 0; i < depth; i++) {
-              multValues[i] = remMulValue & masks[i];
-              remMulValue >>= widths[i];
+              candValues[i] = remCandValue & masks[i];
+              remCandValue >>= widths[i];
             }
+            for (var mulFv = BigInt.zero; mulFv < limit; mulFv += BigInt.one) {
+              var remMulValue = mulFv;
 
-            for (var m = 0; m < multiplicands.length; m++) {
-              multiplicands[m].put(candValues[m]);
-              multipliers[m].put(multValues[m]);
-            }
-            final expected = List.generate(
-                    candValues.length,
-                    (i) =>
-                        candValues[i].toCondSigned(widths[i],
-                            signed: signedMultiplicand) *
-                        multValues[i]
-                            .toCondSigned(widths[i], signed: signedMultiplier))
-                .reduce((sum, product) => sum + product)
-                .toCondSigned(dotProduct.product.width,
-                    signed: signedMultiplier | signedMultiplicand);
-            final computedLogic = dotProduct.product;
-            final computed = computedLogic.value.toBigInt().toCondSigned(
-                computedLogic.width,
-                signed: signedMultiplier | signedMultiplicand);
+              for (var i = 0; i < depth; i++) {
+                multValues[i] = remMulValue & masks[i];
+                remMulValue >>= widths[i];
+              }
 
-            expect(computed, equals(expected), reason: '''
+              for (var m = 0; m < multiplicands.length; m++) {
+                multiplicands[m].put(candValues[m]);
+                multipliers[m].put(multValues[m]);
+              }
+              final expected = List.generate(
+                      candValues.length,
+                      (i) =>
+                          candValues[i].toCondSigned(widths[i],
+                              signed: signedMultiplicand) *
+                          multValues[i].toCondSigned(widths[i],
+                              signed: signedMultiplier))
+                  .reduce((sum, product) => sum + product)
+                  .toCondSigned(dotProduct.product.width,
+                      signed: signedMultiplier | signedMultiplicand);
+              final computedLogic = dotProduct.product;
+              final computed = computedLogic.value.toBigInt().toCondSigned(
+                  computedLogic.width,
+                  signed: signedMultiplier | signedMultiplicand);
+
+              expect(computed, equals(expected), reason: '''
           multiplicands=$candValues
           multipliers=$multValues
           computed=$computed, expected=$expected
           computedBits=${dotProduct.product.value.bitString}
           expectedBits=${expected.toRadixString(2)}
   ''');
+            }
           }
         }
       }
@@ -104,51 +114,54 @@ void main() {
 
     for (final signedMultiplicand in [false, true]) {
       for (final signedMultiplier in [false, true]) {
-        final dotProduct = DotProduct(multiplicands, multipliers,
-            signedMultiplicand: signedMultiplicand,
-            signedMultiplier: signedMultiplier);
+        for (final dotProductModule in dotProductModules) {
+          final dotProduct = dotProductModule(multiplicands, multipliers,
+              signedMultiplicand: signedMultiplicand,
+              signedMultiplier: signedMultiplier);
 
-        final rv = Random(57);
-        for (var iteration = 0; iteration < iterations; iteration++) {
-          final candValues = [
-            for (var i = 0; i < depth; i++) rv.nextLogicValue(width: widths[i])
-          ];
-          final multValues = [
-            for (var i = 0; i < depth; i++) rv.nextLogicValue(width: widths[i])
-          ];
+          final rv = Random(57);
+          for (var iteration = 0; iteration < iterations; iteration++) {
+            final candValues = [
+              for (var i = 0; i < depth; i++)
+                rv.nextLogicValue(width: widths[i])
+            ];
+            final multValues = [
+              for (var i = 0; i < depth; i++)
+                rv.nextLogicValue(width: widths[i])
+            ];
 
-          for (var i = 0; i < iterations; i++) {
-            for (var m = 0; m < multiplicands.length; m++) {
-              multiplicands[m].put(candValues[m]);
-              multipliers[m].put(multValues[m]);
+            for (var i = 0; i < iterations; i++) {
+              for (var m = 0; m < multiplicands.length; m++) {
+                multiplicands[m].put(candValues[m]);
+                multipliers[m].put(multValues[m]);
+              }
             }
-          }
 
-          final productWidth = dotProduct.product.width;
+            final productWidth = dotProduct.product.width;
 
-          final expected = List.generate(
-                  candValues.length,
-                  (i) =>
-                      candValues[i]
-                          .toBigInt()
-                          .toCondSigned(widths[i], signed: signedMultiplicand) *
-                      multValues[i]
-                          .toBigInt()
-                          .toCondSigned(widths[i], signed: signedMultiplier))
-              .reduce((sum, product) => sum + product)
-              .toCondSigned(productWidth,
-                  signed: signedMultiplier | signedMultiplicand);
-          final computedLogic = dotProduct.product;
-          final computed = computedLogic.value.toBigInt().toCondSigned(
-              computedLogic.width,
-              signed: signedMultiplier | signedMultiplicand);
-          expect(computed, equals(expected), reason: '''
+            final expected = List.generate(
+                    candValues.length,
+                    (i) =>
+                        candValues[i].toBigInt().toCondSigned(widths[i],
+                            signed: signedMultiplicand) *
+                        multValues[i]
+                            .toBigInt()
+                            .toCondSigned(widths[i], signed: signedMultiplier))
+                .reduce((sum, product) => sum + product)
+                .toCondSigned(productWidth,
+                    signed: signedMultiplier | signedMultiplicand);
+            final computedLogic = dotProduct.product;
+            final computed = computedLogic.value.toBigInt().toCondSigned(
+                computedLogic.width,
+                signed: signedMultiplier | signedMultiplicand);
+            expect(computed, equals(expected), reason: '''
           multiplicands=${candValues.map((m) => m.toBigInt())}
           multipliers=${multValues.map((m) => m.toBigInt())}
           computed=$computed, expected=$expected
           computedBits=${dotProduct.product.value.bitString}
           expectedBits=${expected.toCondSigned(productWidth).toRadixString(2)}
   ''');
+          }
         }
       }
     }
@@ -185,7 +198,7 @@ void main() {
       multipliers[m].put(BigInt.from(multValues[m])
           .toCondSigned(widths[m], signed: signedMultiplier));
     }
-    final dotProduct = DotProduct(multiplicands, multipliers,
+    final dotProduct = CompressionTreeDotProduct(multiplicands, multipliers,
         signedMultiplicand: signedMultiplicand,
         signedMultiplier: signedMultiplier);
 
@@ -217,7 +230,7 @@ void main() {
       multiplicands[i].put(multiplicandValues[i]);
       multipliers[i].put(multiplierValues[i]);
     }
-    final dotProduct = DotProduct(multiplicands, multipliers);
+    final dotProduct = GeneralDotProduct(multiplicands, multipliers);
 
     final expected = List.generate(multiplicands.length,
             (i) => multiplicandValues[i] * multiplierValues[i])
@@ -231,5 +244,18 @@ void main() {
           computedBits=${dotProduct.product.value.toRadixString()}
           expectedBits=${expected.toRadixString(2)}
           ''');
+  });
+
+  test('dotproduct synthesis', () async {
+    final multiplicands = <Logic>[];
+    final multipliers = <Logic>[];
+    for (var i = 0; i < 4; i++) {
+      multiplicands.add(Logic(width: 32, name: 'a_$i'));
+      multipliers.add(Logic(width: 32, name: 'b_$i'));
+    }
+    final dotProduct = CompressionTreeDotProduct(multiplicands, multipliers,
+        productRadix: 8, definitionName: 'DotProduct');
+    await dotProduct.build();
+    expect(dotProduct.generateSynth(), isNotEmpty);
   });
 }
