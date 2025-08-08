@@ -9,6 +9,7 @@
 
 import 'dart:math';
 
+import 'package:meta/meta.dart';
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
 
@@ -43,9 +44,9 @@ class ReductionTreeGenerator {
   /// Specified width of input to each reduction node (e.g., binary: radix=2)
   final int radix;
 
-  /// When [signExtend] is `true`, use sign-extension on values,
-  /// otherwise use zero-extension.
-  final bool signExtend;
+  /// Configuration for signed extension of values in the tree.
+  @protected
+  late final StaticOrRuntimeParameter signExtensionParameter;
 
   /// Specified depth of nodes at which to flop (requires [clk]).
   final int? depthBetweenFlops;
@@ -97,7 +98,7 @@ class ReductionTreeGenerator {
     this.sequence,
     this.operation, {
     this.radix = 2,
-    this.signExtend = false,
+    dynamic signExtend,
     this.depthBetweenFlops,
     this.control,
     this.clk,
@@ -111,6 +112,8 @@ class ReductionTreeGenerator {
     if (radix < 2) {
       throw RohdHclException('Radix must be at least 2, got $radix');
     }
+    signExtensionParameter = StaticOrRuntimeParameter.ofDynamic(signExtend);
+
     controlOut = control != null ? Logic(width: control!.width) : null;
     _computed = _reductionTreeRecurse(sequence);
     out = Logic(width: _computed.value.width);
@@ -200,7 +203,12 @@ class ReductionTreeGenerator {
 
       final alignWidth = results.map((c) => c.value.width).reduce(max);
       final resultsExtend = floppedResults.map((r) =>
-          signExtend ? r.signExtend(alignWidth) : r.zeroExtend(alignWidth));
+          signExtensionParameter.runtimeConfig == null
+              ? signExtensionParameter.staticConfig
+                  ? r.signExtend(alignWidth)
+                  : r.zeroExtend(alignWidth)
+              : mux(signExtensionParameter.runtimeConfig!,
+                  r.signExtend(alignWidth), r.zeroExtend(alignWidth)));
 
       final value = operation(resultsExtend.toList(),
           control: stageControlOut, depth: depth + 1);
