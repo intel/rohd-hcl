@@ -25,8 +25,12 @@ class Extrema extends Module {
   /// If [max] is `true`, will find maximum value, else will find minimum.
   ///
   /// Outputs the [index] and [val] of the extrema in the list of [signals].
-  Extrema(List<Logic> signals, {bool max = true})
-      : super(definitionName: 'Extrema_L${signals.length}') {
+  Extrema(List<Logic> signals,
+      {bool max = true,
+      super.reserveName,
+      super.reserveDefinitionName,
+      String? definitionName})
+      : super(definitionName: definitionName ?? 'Extrema_L${signals.length}') {
     // List to consume inputs internally.
     final logics = <Logic>[];
 
@@ -63,10 +67,12 @@ class Extrema extends Module {
     // If max is true, find max value. Else, find min value.
     for (var i = 1; i < logics.length; i++) {
       final compareVal =
-          max ? logics[i].gt(extremaVal) : logics[i].lt(extremaVal);
+          (max ? logics[i].gt(extremaVal) : logics[i].lt(extremaVal))
+              .named('compareVal_$i');
       extremaVal = Logic(name: 'muxOut$i', width: maxWidth)
-        ..gets(mux(compareVal, logics[i], extremaVal));
-      extremaIndex = mux(compareVal, Const(i, width: indexWidth), extremaIndex);
+        ..gets(mux(compareVal, logics[i], extremaVal).named('extremaVal_$i'));
+      extremaIndex = mux(compareVal, Const(i, width: indexWidth), extremaIndex)
+          .named('extremaIndex_$i');
     }
 
     // Generate outputs here.

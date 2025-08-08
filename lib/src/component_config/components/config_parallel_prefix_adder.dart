@@ -38,7 +38,8 @@ class ParallelPrefixAdderConfigurator extends Configurator {
       Logic(name: 'a', width: dataWidthKnob.value),
       Logic(name: 'b', width: dataWidthKnob.value),
       carryIn: Logic(name: 'carryIn'),
-      ppGen: generatorMap[prefixTreeKnob.value]!);
+      ppGen: generatorMap[prefixTreeKnob.value]!,
+      definitionName: 'ParallelPrefixAdder');
 
   @override
   late final Map<String, ConfigKnob<dynamic>> knobs = UnmodifiableMapView({

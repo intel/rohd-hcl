@@ -24,7 +24,10 @@ abstract class CompoundAdder extends Adder {
   CompoundAdder(super.a, super.b,
       {Logic? carryIn,
       super.name = 'compound_adder',
-      super.definitionName = 'compound_adder'}) {
+      super.reserveName,
+      super.reserveDefinitionName,
+      String? definitionName})
+      : super(definitionName: definitionName ?? 'CompoundAdder_W${a.width}') {
     if (a.width != b.width) {
       throw RohdHclException('inputs of a and b should have same width.');
     }
@@ -39,8 +42,14 @@ abstract class CompoundAdder extends Adder {
 class TrivialCompoundAdder extends CompoundAdder {
   /// Constructs a [CompoundAdder].
   TrivialCompoundAdder(super.a, super.b,
-      {super.carryIn, super.name = 'trivial_compound_adder'})
-      : super(definitionName: 'trival_compound_adder') {
+      {super.carryIn,
+      super.name = 'trivial_compound_adder',
+      super.reserveName,
+      super.reserveDefinitionName,
+      String? definitionName})
+      : super(
+            definitionName:
+                definitionName ?? 'TrivialCompoundAdder_W${a.width}') {
     sum <= a.zeroExtend(a.width + 1) + b.zeroExtend(b.width + 1);
     sumP1 <= sum + 1;
   }
@@ -114,8 +123,10 @@ class CarrySelectCompoundAdder extends CompoundAdder {
             {Logic? carryIn, dynamic subtract, String name})
         adderGen = _defaultBlockAdder,
     List<int> Function(int) widthGen = splitSelectAdderAlgorithmSingleBlock,
-    String? definitionName,
     super.name = 'cs_compound_adder',
+    super.reserveName,
+    super.reserveDefinitionName,
+    String? definitionName,
   }) : super(
             definitionName: definitionName ??
                 'CarrySelectCompoundAdder_${adderGen(a, b).definitionName}') {
@@ -236,9 +247,12 @@ class CarrySelectOnesComplementCompoundAdder extends CompoundAdder {
       dynamic subtract,
       List<int> Function(int) widthGen =
           CarrySelectCompoundAdder.splitSelectAdderAlgorithmSingleBlock,
-      super.name})
+      super.name,
+      super.reserveName,
+      super.reserveDefinitionName,
+      String? definitionName})
       : super(
-            definitionName:
+            definitionName: definitionName ??
                 'CarrySelectOnesComplementCompoundAdder_W${a.width}') {
     subtractIn = StaticOrDynamicParameter.ofDynamic(subtract).clone(this);
 
@@ -270,9 +284,9 @@ class CarrySelectOnesComplementCompoundAdder extends CompoundAdder {
       sumP1 <= sumPlus1;
       carryOutP1! <= csadder.sumP1[-1];
     } else {
-      final incrementer = ParallelPrefixIncr(sumPlus1);
       sumP1 <=
-          mux(csadder.sumP1[-1], incrementer.out.named('sum_plus2'), sumPlus1);
+          mux(csadder.sumP1[-1],
+              ParallelPrefixIncr(sumPlus1).out.named('sumPlus2'), sumPlus1);
     }
     if (generateCarryOut) {
       sum <= mux(doSubtract & csadder.sum[-1], ~csadder.sum, csadder.sum);

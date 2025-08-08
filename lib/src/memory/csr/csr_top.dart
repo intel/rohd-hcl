@@ -83,16 +83,25 @@ class CsrTop extends CsrContainer {
     }
   }
 
-  /// Create the [CsrBlock] from a configuration.
-  CsrTop({
-    required CsrTopConfig super.config,
-    required super.clk,
-    required super.reset,
-    required super.frontWrite,
-    required super.frontRead,
-    super.allowLargerRegisters,
-    this.logicalRegisterIncrement = 1,
-  }) {
+  /// Create the CsrBlock from a configuration
+  CsrTop(
+      {required CsrTopConfig super.config,
+      required super.clk,
+      required super.reset,
+      required super.frontWrite,
+      required super.frontRead,
+      super.allowLargerRegisters,
+      this.logicalRegisterIncrement = 1,
+      super.reserveName,
+      super.reserveDefinitionName,
+      String? definitionName})
+      : super(
+            definitionName: definitionName ??
+                'CsrTop_A${config.minAddrBits()}_'
+                    'W${config.maxRegWidth()}_'
+                    'BO${config.blockOffsetWidth}_'
+                    'LR${allowLargerRegisters}_'
+                    'RI$logicalRegisterIncrement') {
     _validate();
 
     for (final block in config.blocks) {
@@ -199,8 +208,9 @@ class CsrTop extends CsrContainer {
 
     if (frontReadPresent) {
       // mask out LSBs to perform a match on block
-      final maskedFrontRdAddr = frontRead!.addr &
-          ~Const((1 << blockOffsetWidth) - 1, width: addrWidth);
+      final maskedFrontRdAddr = (frontRead!.addr &
+              ~Const((1 << blockOffsetWidth) - 1, width: addrWidth))
+          .named('maskFrontRdAddr');
 
       // shift out MSBs to pass the appropriate address into the blocks
       final shiftedFrontRdAddr = frontRead!.addr.getRange(0, blockOffsetWidth);

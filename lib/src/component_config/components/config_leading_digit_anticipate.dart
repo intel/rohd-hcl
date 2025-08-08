@@ -35,10 +35,11 @@ class LeadingDigitAnticipateConfigurator extends Configurator {
       if (anticipator.value == LeadingDigitAnticipate)
         LeadingDigitAnticipate(inp1, inp2)
       else if (anticipator.value == LeadingZeroAnticipate)
-        LeadingZeroAnticipate(sgn1, inp1, sgn2, inp2)
+        LeadingZeroAnticipate(sgn1, inp1, sgn2, inp2,
+            definitionName: 'LeadingZeroAnticipate')
       else
         LeadingZeroAnticipateCarry(sgn1, inp1, sgn2, inp2,
-            endAroundCarry: carry)
+            endAroundCarry: carry, definitionName: 'LeadingZeroAnticipate')
     ].first;
   }
 

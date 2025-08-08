@@ -18,8 +18,15 @@ class ParityTransmitter extends ErrorCheckingTransmitter {
   Logic get parity => code;
 
   /// Creates a transmitter that sends data with a parity bit.
-  ParityTransmitter(super.data, {super.name = 'parity_tx'})
-      : super(codeWidth: 1, definitionName: 'ParityTransmitter_W${data.width}');
+  ParityTransmitter(super.data,
+      {super.name = 'parity_tx',
+      super.reserveName,
+      super.reserveDefinitionName,
+      String? definitionName})
+      : super(
+            codeWidth: 1,
+            definitionName:
+                definitionName ?? 'ParityTransmitter_W${data.width}');
 
   @override
   @protected
@@ -32,11 +39,16 @@ class ParityReceiver extends ErrorCheckingReceiver {
   /// correct parity. This will split the transmitted data in [transmission]
   /// into 2 parts: the [originalData], and the error bit upon which [error] is
   /// calculated for parity error checking.
-  ParityReceiver(super.transmission, {super.name = 'parity_rx'})
+  ParityReceiver(super.transmission,
+      {super.name = 'parity_rx',
+      super.reserveName,
+      super.reserveDefinitionName,
+      String? definitionName})
       : super(
             codeWidth: 1,
             supportsErrorCorrection: false,
-            definitionName: 'ParityReceiver_W${transmission.width}');
+            definitionName:
+                definitionName ?? 'ParityReceiver_W${transmission.width}');
 
   @override
   @protected

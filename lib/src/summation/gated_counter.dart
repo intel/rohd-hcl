@@ -28,7 +28,7 @@ class GatedCounter extends Counter {
   List<SumInterface> get interfaces => _interfaces;
   late final _interfaces = gateToggles
       ? super.interfaces.map((e) {
-          final intf = SumInterface.clone(e);
+          final intf = e.clone();
 
           intf.enable?.gets(e.enable!);
 
@@ -75,24 +75,27 @@ class GatedCounter extends Counter {
   /// than partitioned. If no [clkGatePartitionIndex] is provided, the counter
   /// will attempt to infer a good partition index based on the interfaces
   /// provided.
-  GatedCounter(
-    super.interfaces, {
-    required super.clk,
-    required super.reset,
-    super.restart,
-    super.resetValue,
-    super.maxValue,
-    super.minValue,
-    super.width,
-    super.saturates,
-    this.gateToggles = true,
-    ClockGateControlInterface? clockGateControlInterface,
-    int? clkGatePartitionIndex,
-    super.name,
-  })  : _providedClkGateParitionIndex = clkGatePartitionIndex,
-        _clockGateControlInterface = clockGateControlInterface == null
-            ? null
-            : ClockGateControlInterface.clone(clockGateControlInterface) {
+  GatedCounter(super.interfaces,
+      {required super.clk,
+      required super.reset,
+      super.restart,
+      super.resetValue,
+      super.maxValue,
+      super.minValue,
+      super.width,
+      super.saturates,
+      this.gateToggles = true,
+      ClockGateControlInterface? clockGateControlInterface,
+      int? clkGatePartitionIndex,
+      super.name,
+      super.reserveName,
+      super.reserveDefinitionName,
+      String? definitionName})
+      : _providedClkGateParitionIndex = clkGatePartitionIndex,
+        _clockGateControlInterface = clockGateControlInterface?.clone(),
+        super(
+            definitionName: definitionName ??
+                'GatedCounter_W${width}_m${minValue}_M$maxValue') {
     _clockGateControlInterface?.pairConnectIO(
         this, clockGateControlInterface!, PairRole.consumer);
   }

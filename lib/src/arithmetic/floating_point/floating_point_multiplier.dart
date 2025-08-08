@@ -76,6 +76,8 @@ abstract class FloatingPointMultiplier<FpTypeIn extends FloatingPoint,
       ParallelPrefix Function(List<Logic>, Logic Function(Logic, Logic)) ppGen =
           KoggeStone.new,
       super.name = 'floating_point_multiplier',
+      super.reserveName,
+      super.reserveDefinitionName,
       String? definitionName})
       : super(
             definitionName: definitionName ??

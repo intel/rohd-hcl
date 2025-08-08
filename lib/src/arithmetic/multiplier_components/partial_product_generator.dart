@@ -19,10 +19,13 @@ class SignBit extends Logic {
   bool inverted = false;
 
   /// Construct a sign bit to store
-  SignBit(Logic inl, {this.inverted = false})
-      : super(name: '${inl.name}_signbit', naming: Naming.mergeable) {
+  SignBit(Logic inl, {this.inverted = false, String? name})
+      : super(name: name ?? inl.name, naming: Naming.mergeable) {
     this <= inl;
   }
+  @override
+  SignBit clone({String? name}) =>
+      SignBit(this, inverted: inverted, name: name);
 }
 
 /// A [PartialProductArray] is a class that holds a set of partial products
@@ -294,8 +297,13 @@ abstract class PartialProductMatrix extends Module {
   /// Store the [PartialProductGeneratorBase]
   late final PartialProductGeneratorBase _array;
 
-  /// Base constructor for the matrix.
-  PartialProductMatrix({super.name = 'partial_product_matrix'});
+  /// Base constructor for the matrix
+  PartialProductMatrix(
+      {super.name = 'partial_product_matrix',
+      super.reserveName,
+      super.reserveDefinitionName,
+      String? definitionName})
+      : super(definitionName: definitionName ?? 'PartialProductMatrix');
 
   /// Generate the output vectors from the array
   void generateOutputs() {
@@ -335,7 +343,15 @@ class PartialProduct extends PartialProductMatrix {
               Logic multiplicand, Logic multiplier, RadixEncoder radixEncoder,
               {dynamic signedMultiplicand, dynamic signedMultiplier})
           genPPG = PartialProductGenerator.new,
-      super.name = 'partial_product'}) {
+      super.name = 'partial_product',
+      super.reserveName,
+      super.reserveDefinitionName,
+      String? definitionName})
+      : super(
+            definitionName: definitionName ??
+                'PartialProduct_W${multiplicand.width}x${multiplier.width}'
+                    '_${Multiplier.signedMD(signedMultiplicand)}_'
+                    '${Multiplier.signedML(signedMultiplier)}') {
     final signedMultiplicandParameter =
         StaticOrDynamicParameter.ofDynamic(signedMultiplicand);
 

@@ -43,10 +43,14 @@ class FloatingPointAdderDualPath<FpTypeIn extends FloatingPoint,
       ParallelPrefix Function(
               List<Logic> inps, Logic Function(Logic term1, Logic term2) op)
           ppTree = KoggeStone.new,
-      super.name = 'floating_point_adder_dualpath'})
+      super.name = 'floating_point_adder_dualpath',
+      super.reserveName,
+      super.reserveDefinitionName,
+      String? definitionName})
       : super(
-            definitionName: 'FloatingPointAdderDualPath_'
-                'E${a.exponent.width}M${a.mantissa.width}') {
+            definitionName: definitionName ??
+                'FloatingPointAdderDualPath_'
+                    'E${a.exponent.width}M${a.mantissa.width}') {
     if (a.explicitJBit || b.explicitJBit) {
       throw ArgumentError(
           'FloatingPointAdderDualPath does not support explicit J bit.');
@@ -184,8 +188,8 @@ class FloatingPointAdderDualPath<FpTypeIn extends FloatingPoint,
     final sumRPath =
         significandAdderRPath.sum.slice(mantissaWidth + 1, 0).named('sumRpath');
     final sumP1RPath = significandAdderRPath.sumP1
-        .named('sumPlusOneRpath')
-        .slice(mantissaWidth + 1, 0);
+        .slice(mantissaWidth + 1, 0)
+        .named('sumPlusOneRpath');
 
     final sumLeadZeroRPath =
         (~sumRPath[-1] & (aIsNormalFlopped | bIsNormalFlopped))
@@ -225,9 +229,9 @@ class FloatingPointAdderDualPath<FpTypeIn extends FloatingPoint,
             sumP1LeadZeroRPath,
             [sumP1RPath, earlyGRSRPath]
                 .swizzle()
-                .named('sump1EarlyGRSRPath')
+                .named('sumP1EarlyGRSRPath')
                 .slice(sumRPath.width + 1, 0),
-            [sumP1RPath, shiftGRSRPath].swizzle())
+            [sumP1RPath, shiftGRSRPath].swizzle().named('sumP1ShiftGRSRPath'))
         .named('mergedSumP1RPath');
 
     final finalSumLGRSRPath = mux(selectRPath, mergedSumP1RPath, mergedSumRPath)
@@ -283,11 +287,12 @@ class FloatingPointAdderDualPath<FpTypeIn extends FloatingPoint,
               rndRPath.zeroExtend(sumRPath.width).named('rndExtend_rpath'))
           .named('sumMantissaRndRpath');
       mantissaRPath = (sumMantissaRPathRnd <<
-              mux(selectRPath, sumP1LeadZeroRPath, sumLeadZeroRPath))
-          .named('mantissaRpath');
+              mux(selectRPath, sumP1LeadZeroRPath, sumLeadZeroRPath)
+                  .named('shiftRpath'))
+          .named('mantissaRpath1');
     } else {
       mantissaRPath =
-          (sumMantissaRPath << sumLeadZeroRPath).named('mantissaRpath');
+          (sumMantissaRPath << sumLeadZeroRPath).named('mantissaRpath2');
     }
 
     //

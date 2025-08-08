@@ -41,8 +41,13 @@ class CarrySaveMultiplier extends Multiplier {
       super.enable,
       super.signedMultiplicand,
       super.signedMultiplier,
-      super.name = 'carry_save_multiplier'})
-      : super(definitionName: 'CarrySaveMultiplier_W${a.width}') {
+      super.name = 'carry_save_multiplier',
+      super.reserveName,
+      super.reserveDefinitionName,
+      String? definitionName})
+      : super(
+            definitionName:
+                definitionName ?? 'CarrySaveMultiplier_W${a.width}') {
     if (a.width != b.width) {
       throw RohdHclException('inputs of a and b should have same width.');
     }
@@ -112,6 +117,6 @@ class CarrySaveMultiplier extends Multiplier {
             a.width,
             (index) => _pipeline.get(_sum[a.width - index - 1]),
           )
-        ].swizzle().slice(product.width - 1, 0);
+        ].swizzle().named('productWide').slice(product.width - 1, 0);
   }
 }

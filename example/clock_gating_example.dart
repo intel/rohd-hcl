@@ -30,8 +30,7 @@ class CounterWithSimpleClockGate extends Module {
     reset = addInput('reset', reset);
 
     // We clone the incoming interface, receiving all config information with it
-    cgIntf = ClockGateControlInterface.clone(cgIntf)
-      ..pairConnectIO(this, cgIntf, PairRole.consumer);
+    cgIntf = cgIntf.clone()..pairConnectIO(this, cgIntf, PairRole.consumer);
 
     // In this case, we want to enable the clock any time we're incrementing
     final clkEnable = incr;

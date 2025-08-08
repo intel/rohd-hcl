@@ -44,20 +44,20 @@ class RegisterFileConfigurator extends Configurator {
 
   @override
   Module createModule() => RegisterFile(
-        Logic(),
-        Logic(),
-        List.generate(
-            numWritePortsKnobs.value,
-            (index) => maskedWritesKnob.value
-                ? MaskedDataPortInterface(
-                    dataWidthKnob.value, addrWidthKnob.value)
-                : DataPortInterface(dataWidthKnob.value, addrWidthKnob.value)),
-        List.generate(
-            numReadPortsKnobs.value,
-            (index) =>
-                DataPortInterface(dataWidthKnob.value, addrWidthKnob.value)),
-        numEntries: numEntriesKnob.value,
-      );
+      Logic(),
+      Logic(),
+      List.generate(
+          numWritePortsKnobs.value,
+          (index) => maskedWritesKnob.value
+              ? MaskedDataPortInterface(
+                  dataWidthKnob.value, addrWidthKnob.value)
+              : DataPortInterface(dataWidthKnob.value, addrWidthKnob.value)),
+      List.generate(
+          numReadPortsKnobs.value,
+          (index) =>
+              DataPortInterface(dataWidthKnob.value, addrWidthKnob.value)),
+      numEntries: numEntriesKnob.value,
+      definitionName: 'RegisterFile');
 
   @override
   final String name = 'Register File';

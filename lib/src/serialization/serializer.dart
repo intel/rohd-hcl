@@ -38,10 +38,14 @@ class Serializer extends Module {
       required Logic reset,
       Logic? enable,
       bool flopInput = false,
-      super.name = 'serializer'})
+      super.name = 'serializer',
+      super.reserveName,
+      super.reserveDefinitionName,
+      String? definitionName})
       : super(
-            definitionName: 'Serializer_W${deserialized.width}_'
-                '${deserialized.elementWidth}') {
+            definitionName: definitionName ??
+                'Serializer_W${deserialized.width}_'
+                    '${deserialized.elementWidth}') {
     clk = addInput('clk', clk);
     reset = addInput('reset', reset);
     if (enable != null) {
@@ -70,7 +74,8 @@ class Serializer extends Module {
         enable: enable,
         maxValue: deserialized.elements.length - 1);
 
-    final latchInput = (enable ?? Const(1)) & ~cnt.count.or();
+    final latchTheInput =
+        ((enable ?? Const(1)) & ~cnt.count.or()).named('latchTheInput');
     count <=
         (flopInput
             ? flop(clk, reset: reset, en: enable, cnt.count)
@@ -82,7 +87,10 @@ class Serializer extends Module {
       dataOutput.elements[i] <=
           (flopInput
               ? flop(
-                  clk, reset: reset, en: latchInput, deserialized.elements[i])
+                  clk,
+                  reset: reset,
+                  en: latchTheInput,
+                  deserialized.elements[i])
               : deserialized.elements[i]);
     }
     serialized <= dataOutput.elements.selectIndex(count);

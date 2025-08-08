@@ -87,6 +87,8 @@ abstract class MultiplyAccumulate extends Module {
       dynamic signedMultiplier,
       dynamic signedAddend,
       super.name = 'multiply_accumulate',
+      super.reserveName,
+      super.reserveDefinitionName,
       String? definitionName})
       : super(
             definitionName: definitionName ??
@@ -158,7 +160,14 @@ class CompressionTreeMultiplyAccumulate extends MultiplyAccumulate {
       PartialProductSignExtension Function(PartialProductGeneratorBase pp,
               {String name})
           seGen = CompactRectSignExtension.new,
-      super.name = 'compression_tree_mac'}) {
+      super.name = 'compression_tree_mac',
+      super.reserveName,
+      super.reserveDefinitionName,
+      String? definitionName})
+      : super(
+            definitionName: definitionName ??
+                'CompressionTreeMAC_W${a.width}x${b.width}_Acc${c.width}_'
+                    '${MultiplyAccumulate.signedAD(signedAddend)}') {
     // Build the partial product generator.
 
     final ppg = PartialProductGenerator(a, b, RadixEncoder(radix),

@@ -31,16 +31,19 @@ class EdgeDetector extends Module {
   /// If a [reset] is provided, then the first cycle after [reset] is
   /// deasserted, [signal] will be compared to [resetValue] (or 0, if not
   /// provided).
-  EdgeDetector(
-    Logic signal, {
-    required Logic clk,
-    Logic? reset,
-    dynamic resetValue,
-    this.edgeType = Edge.pos,
-    String? name,
-  }) : super(
+  EdgeDetector(Logic signal,
+      {required Logic clk,
+      Logic? reset,
+      dynamic resetValue,
+      this.edgeType = Edge.pos,
+      String? name,
+      super.reserveName,
+      super.reserveDefinitionName,
+      String? definitionName})
+      : super(
             name: name ?? '${edgeType.name}_edge_detector',
-            definitionName: 'EdgeDetector_T${edgeType.name}') {
+            definitionName:
+                definitionName ?? 'EdgeDetector_T${edgeType.name}') {
     if (signal.width != 1 ||
         (resetValue is Logic && resetValue.width != 1) ||
         (resetValue is LogicValue && resetValue.width != 1)) {

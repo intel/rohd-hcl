@@ -34,10 +34,17 @@ class SpiSub extends Module {
       {required SpiInterface intf,
       Logic? busIn,
       Logic? reset,
-      super.name = 'spiSub'}) {
+      super.name = 'spiSub',
+      super.reserveName,
+      super.reserveDefinitionName,
+      String? definitionName})
+      : super(
+            definitionName: definitionName ??
+                'SpiSub_W${busIn?.width ?? 0}_'
+                    '${intf.dataLength}_'
+                    '${intf.sclk.width}') {
     // SPI Interface
-    intf = SpiInterface.clone(intf)
-      ..pairConnectIO(this, intf, PairRole.consumer);
+    intf = intf.clone()..pairConnectIO(this, intf, PairRole.consumer);
 
     // Bus Input to sub, if provided.
     if (busIn != null) {

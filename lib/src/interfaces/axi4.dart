@@ -46,6 +46,10 @@ class Axi4SystemInterface extends Interface<Axi4Direction> {
       Axi4Direction.misc,
     ]);
   }
+
+  /// Constructs a new [Axi4SystemInterface] with identical parameters.
+  @override
+  Axi4SystemInterface clone() => Axi4SystemInterface();
 }
 
 /// A standard AXI4 read interface.
@@ -243,6 +247,7 @@ class Axi4ReadInterface extends Interface<Axi4Direction> {
   }
 
   /// Constructs a new [Axi4ReadInterface] with identical parameters to [other].
+  @Deprecated('Use Instance-based `clone()` instead.')
   Axi4ReadInterface.clone(Axi4ReadInterface other)
       : this(
           idWidth: other.idWidth,
@@ -254,6 +259,18 @@ class Axi4ReadInterface extends Interface<Axi4Direction> {
           useLock: other.useLock,
           useLast: other.useLast,
         );
+
+  /// Constructs a new [Axi4ReadInterface] with identical parameters.
+  @override
+  Axi4ReadInterface clone() => Axi4ReadInterface(
+      idWidth: idWidth,
+      addrWidth: addrWidth,
+      lenWidth: lenWidth,
+      dataWidth: dataWidth,
+      aruserWidth: aruserWidth,
+      ruserWidth: ruserWidth,
+      useLock: useLock,
+      useLast: useLast);
 
   /// Checks that the values set for parameters follow the specification's
   /// restrictions.
@@ -508,6 +525,7 @@ class Axi4WriteInterface extends Interface<Axi4Direction> {
 
   /// Constructs a new [Axi4WriteInterface] with
   /// identical parameters to [other].
+  @Deprecated('Use Instance-based `clone()` instead.')
   Axi4WriteInterface.clone(Axi4WriteInterface other)
       : this(
           idWidth: other.idWidth,
@@ -519,6 +537,19 @@ class Axi4WriteInterface extends Interface<Axi4Direction> {
           buserWidth: other.buserWidth,
           useLock: other.useLock,
         );
+
+  /// Constructs a new [Axi4WriteInterface] with identical parameters.
+  @override
+  Axi4WriteInterface clone() => Axi4WriteInterface(
+        idWidth: idWidth,
+        addrWidth: addrWidth,
+        lenWidth: lenWidth,
+        dataWidth: dataWidth,
+        awuserWidth: awuserWidth,
+        wuserWidth: wuserWidth,
+        buserWidth: buserWidth,
+        useLock: useLock,
+      );
 
   /// Checks that the values set for parameters follow the specification's
   /// restrictions.
