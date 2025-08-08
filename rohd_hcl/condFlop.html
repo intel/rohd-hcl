@@ -54,13 +54,13 @@
 
     <section class="multi-line-signature">
         
-<span class="returntype"><a href="https://pub.dev/documentation/rohd/0.6.5/rohd/Logic-class.html">Logic</a></span>
-<span class="name ">condFlop</span>(<wbr><ol class="parameter-list"> <li><span class="parameter" id="condFlop-param-clk"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.5/rohd/Logic-class.html">Logic</a>?</span> <span class="parameter-name">clk</span>, </span></li>
-<li><span class="parameter" id="condFlop-param-d"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.5/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">d</span>, {</span></li>
-<li><span class="parameter" id="condFlop-param-en"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.5/rohd/Logic-class.html">Logic</a>?</span> <span class="parameter-name">en</span>, </span></li>
-<li><span class="parameter" id="condFlop-param-reset"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.5/rohd/Logic-class.html">Logic</a>?</span> <span class="parameter-name">reset</span>, </span></li>
+<span class="returntype"><a href="https://pub.dev/documentation/rohd/0.6.6/rohd/Logic-class.html">Logic</a></span>
+<span class="name ">condFlop</span>(<wbr><ol class="parameter-list"> <li><span class="parameter" id="condFlop-param-clk"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.6/rohd/Logic-class.html">Logic</a>?</span> <span class="parameter-name">clk</span>, </span></li>
+<li><span class="parameter" id="condFlop-param-d"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.6/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">d</span>, {</span></li>
+<li><span class="parameter" id="condFlop-param-en"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.6/rohd/Logic-class.html">Logic</a>?</span> <span class="parameter-name">en</span>, </span></li>
+<li><span class="parameter" id="condFlop-param-reset"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.6/rohd/Logic-class.html">Logic</a>?</span> <span class="parameter-name">reset</span>, </span></li>
 <li><span class="parameter" id="condFlop-param-resetValue"><span class="type-annotation">dynamic</span> <span class="parameter-name">resetValue</span>, </span></li>
-<li><span class="parameter" id="condFlop-param-asyncReset"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.8.2/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">asyncReset</span> = <span class="default-value">false</span>, </span></li>
+<li><span class="parameter" id="condFlop-param-asyncReset"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.8.3/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">asyncReset</span> = <span class="default-value">false</span>, </span></li>
 </ol>})
 
         
@@ -69,7 +69,7 @@
     
 <section class="desc markdown">
   <p>Conditionally constructs a positive edge triggered flip condFlop on <code>clk</code>.</p>
-<p>It returns either <a href="https://pub.dev/documentation/rohd/0.6.5/rohd/FlipFlop/q.html">FlipFlop.q</a> if <code>clk</code> is non-null or <code>d</code> if not.</p>
+<p>It returns either <a href="https://pub.dev/documentation/rohd/0.6.6/rohd/FlipFlop/q.html">FlipFlop.q</a> if <code>clk</code> is non-null or <code>d</code> if not.</p>
 <p>When the optional <code>en</code> is provided, an additional input will be created for
 condFlop. If optional <code>en</code> is high or not provided, output will vary as per
 input<code>d</code>. For low <code>en</code>, output remains frozen irrespective of input <code>d</code>.</p>

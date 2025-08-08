@@ -27,7 +27,7 @@
     <li><a href="../../index.html">rohd_hcl</a></li>
     <li><a href="../../rohd_hcl/">rohd_hcl.dart</a></li>
     <li><a href="../../rohd_hcl/SumInterface-class.html">SumInterface</a></li>
-    <li class="self-crumb">SumInterface.clone constructor</li>
+    <li class="self-crumb"><span class="deprecated">SumInterface.clone</span> constructor</li>
   </ol>
   <div class="self-name">SumInterface.clone</div>
   <form class="search navbar-right" role="search">
@@ -54,19 +54,25 @@
 
     <section class="multi-line-signature">
       
-      <span class="name ">SumInterface.clone</span>(<wbr><ol class="parameter-list single-line"> <li><span class="parameter" id="clone-param-other"><span class="type-annotation"><a href="../../rohd_hcl/SumInterface-class.html">SumInterface</a></span> <span class="parameter-name">other</span></span></li>
+  <div>
+    <ol class="annotation-list">
+        <li>@<a href="https://api.dart.dev/stable/3.8.3/dart-core/Deprecated-class.html">Deprecated</a>(&#39;Use Instance-based `clone()` instead.&#39;)</li>
+    </ol>
+  </div>
+      <span class="name deprecated">SumInterface.clone</span>(<wbr><ol class="parameter-list single-line"> <li><span class="parameter" id="clone-param-other"><span class="type-annotation"><a href="../../rohd_hcl/SumInterface-class.html">SumInterface</a></span> <span class="parameter-name">other</span></span></li>
 </ol>)
     </section>
     
 <section class="desc markdown">
-  <p>Creates a clone of this <a href="../../rohd_hcl/SumInterface-class.html">SumInterface</a> for things like <a href="https://pub.dev/documentation/rohd/0.6.5/rohd/PairInterface/pairConnectIO.html">pairConnectIO</a>.</p>
+  <p>Creates a clone of this <a href="../../rohd_hcl/SumInterface-class.html">SumInterface</a> for things like <a href="https://pub.dev/documentation/rohd/0.6.6/rohd/PairInterface/pairConnectIO.html">pairConnectIO</a>.</p>
 </section>
 
 
     
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
-  <pre class="language-dart"><code class="language-dart">SumInterface.clone(SumInterface other)
+  <pre class="language-dart"><code class="language-dart">@Deprecated(&#39;Use Instance-based `clone()` instead.&#39;)
+SumInterface.clone(SumInterface other)
     : this(
         fixedAmount: other.fixedAmount,
         increments: other.increments,
@@ -88,7 +94,7 @@
     <li><a href="../../index.html">rohd_hcl</a></li>
     <li><a href="../../rohd_hcl/">rohd_hcl</a></li>
     <li><a href="../../rohd_hcl/SumInterface-class.html">SumInterface</a></li>
-    <li class="self-crumb">SumInterface.clone constructor</li>
+    <li class="self-crumb"><span class="deprecated">SumInterface.clone</span> constructor</li>
 </ol>
 
     <h5>SumInterface class</h5>

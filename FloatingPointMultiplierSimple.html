@@ -1025,7 +1025,7 @@
             "Y_WIDTH": 1
           },
           "attributes": {
-            "src": "FloatingPointMultiplierSimple.sv:235.19-235.34"
+            "src": "FloatingPointMultiplierSimple.sv:235.26-235.41"
           },
           "port_directions": {
             "A": "input",
@@ -1100,28 +1100,28 @@
         }
       },
       "netnames": {
-        "$2__exponent[3:0]": {
+        "$2__outSum_exponent[3:0]": {
           "hide_name": 1,
           "bits": [ 108, 109, 110, 111 ],
           "attributes": {
             "src": "FloatingPointMultiplierSimple.sv:0.0-0.0"
           }
         },
-        "$2__mantissa_0[4:0]": {
+        "$2__outSum_mantissa[4:0]": {
           "hide_name": 1,
           "bits": [ 102, 103, 104, 105, 106 ],
           "attributes": {
             "src": "FloatingPointMultiplierSimple.sv:0.0-0.0"
           }
         },
-        "$2__sign[0:0]": {
+        "$2__outSum_sign[0:0]": {
           "hide_name": 1,
           "bits": [ 107 ],
           "attributes": {
             "src": "FloatingPointMultiplierSimple.sv:0.0-0.0"
           }
         },
-        "$3__exponent[3:0]": {
+        "$3__outSum_exponent[3:0]": {
           "hide_name": 1,
           "bits": [ 112, 113, 114, 115 ],
           "attributes": {
@@ -1320,25 +1320,39 @@
             "src": "FloatingPointMultiplierSimple.sv:188.13-188.22"
           }
         },
+        "a_exponent": {
+          "hide_name": 0,
+          "bits": [ 7, 8, 9, 10 ],
+          "attributes": {
+            "src": "FloatingPointMultiplierSimple.sv:189.13-189.23"
+          }
+        },
+        "a_mantissa": {
+          "hide_name": 0,
+          "bits": [ 2, 3, 4, 5, 6 ],
+          "attributes": {
+            "src": "FloatingPointMultiplierSimple.sv:190.13-190.23"
+          }
+        },
         "a_sign": {
           "hide_name": 0,
           "bits": [ 11 ],
           "attributes": {
-            "src": "FloatingPointMultiplierSimple.sv:189.7-189.13"
+            "src": "FloatingPointMultiplierSimple.sv:191.7-191.13"
           }
         },
         "addBias": {
           "hide_name": 0,
           "bits": [ "0", "1", "1", "1", "0", "0" ],
           "attributes": {
-            "src": "FloatingPointMultiplierSimple.sv:190.13-190.20"
+            "src": "FloatingPointMultiplierSimple.sv:192.13-192.20"
           }
         },
         "addExp": {
           "hide_name": 0,
           "bits": [ 45, 46, 47, 48, 49, 50 ],
           "attributes": {
-            "src": "FloatingPointMultiplierSimple.sv:191.13-191.19"
+            "src": "FloatingPointMultiplierSimple.sv:193.13-193.19"
           }
         },
         "b": {
@@ -1352,105 +1366,98 @@
           "hide_name": 0,
           "bits": [ 122, 123, 124, 125, 126, 127 ],
           "attributes": {
-            "src": "FloatingPointMultiplierSimple.sv:192.13-192.22"
+            "src": "FloatingPointMultiplierSimple.sv:194.13-194.22"
           }
         },
-        "b_sign": {
-          "hide_name": 0,
-          "bits": [ 21 ],
-          "attributes": {
-            "src": "FloatingPointMultiplierSimple.sv:193.7-193.13"
-          }
-        },
-        "exponent": {
-          "hide_name": 0,
-          "bits": [ 27, 28, 29, 30 ],
-          "attributes": {
-            "src": "FloatingPointMultiplierSimple.sv:194.13-194.21"
-          }
-        },
-        "exponent_0": {
+        "b_exponent": {
           "hide_name": 0,
           "bits": [ 17, 18, 19, 20 ],
           "attributes": {
             "src": "FloatingPointMultiplierSimple.sv:195.13-195.23"
           }
         },
-        "exponent_1": {
+        "b_mantissa": {
           "hide_name": 0,
-          "bits": [ 7, 8, 9, 10 ],
+          "bits": [ 12, 13, 14, 15, 16 ],
           "attributes": {
             "src": "FloatingPointMultiplierSimple.sv:196.13-196.23"
+          }
+        },
+        "b_sign": {
+          "hide_name": 0,
+          "bits": [ 21 ],
+          "attributes": {
+            "src": "FloatingPointMultiplierSimple.sv:197.7-197.13"
           }
         },
         "finalMantissa": {
           "hide_name": 0,
           "bits": [ 97, 98, 99, 100, 101 ],
           "attributes": {
-            "src": "FloatingPointMultiplierSimple.sv:197.13-197.26"
+            "src": "FloatingPointMultiplierSimple.sv:198.13-198.26"
           }
         },
         "fullMantissa": {
           "hide_name": 0,
           "bits": [ 134, 135, 136, 137, 138, 139, 140, 141, 142, 143, 144, 145 ],
           "attributes": {
-            "src": "FloatingPointMultiplierSimple.sv:198.14-198.26"
+            "src": "FloatingPointMultiplierSimple.sv:199.14-199.26"
           }
         },
         "internalOverflow": {
           "hide_name": 0,
           "bits": [ 76 ],
           "attributes": {
-            "src": "FloatingPointMultiplierSimple.sv:199.7-199.23"
+            "src": "FloatingPointMultiplierSimple.sv:200.7-200.23"
           }
         },
         "isAnInfinity_a": {
           "hide_name": 0,
           "bits": [ 78 ],
           "attributes": {
-            "src": "FloatingPointMultiplierSimple.sv:200.7-200.21"
+            "src": "FloatingPointMultiplierSimple.sv:201.7-201.21"
           }
         },
         "isAnInfinity_b": {
           "hide_name": 0,
           "bits": [ 77 ],
           "attributes": {
-            "src": "FloatingPointMultiplierSimple.sv:201.7-201.21"
+            "src": "FloatingPointMultiplierSimple.sv:202.7-202.21"
           }
         },
         "isInf": {
           "hide_name": 0,
           "bits": [ 71 ],
           "attributes": {
-            "src": "FloatingPointMultiplierSimple.sv:202.7-202.12"
+            "src": "FloatingPointMultiplierSimple.sv:203.7-203.12"
           }
         },
         "isNaN": {
           "hide_name": 0,
           "bits": [ 94 ],
           "attributes": {
-            "src": "FloatingPointMultiplierSimple.sv:203.7-203.12"
+            "src": "FloatingPointMultiplierSimple.sv:204.7-204.12"
           }
         },
         "isNormal_a": {
           "hide_name": 0,
           "bits": [ 92 ],
           "attributes": {
-            "src": "FloatingPointMultiplierSimple.sv:204.7-204.17"
+            "src": "FloatingPointMultiplierSimple.sv:205.7-205.17"
           }
         },
         "isNormal_b": {
           "hide_name": 0,
           "bits": [ 91 ],
           "attributes": {
-            "src": "FloatingPointMultiplierSimple.sv:205.7-205.17"
+            "src": "FloatingPointMultiplierSimple.sv:206.7-206.17"
           }
         },
         "isProductSigned": {
           "hide_name": 0,
           "bits": [ 153 ],
           "attributes": {
-            "src": "FloatingPointMultiplierSimple.sv:206.7-206.22",
+            "src": "FloatingPointMultiplierSimple.sv:207.7-207.22",
             "unused_bits": "0 "
           }
         },
@@ -1458,56 +1465,56 @@
           "hide_name": 0,
           "bits": [ 84, 85, 86, 87, 88, 89 ],
           "attributes": {
-            "src": "FloatingPointMultiplierSimple.sv:207.13-207.31"
+            "src": "FloatingPointMultiplierSimple.sv:208.13-208.31"
           }
         },
         "leadingOneRaw": {
           "hide_name": 0,
           "bits": [ 79, 80, 81, 82 ],
           "attributes": {
-            "src": "FloatingPointMultiplierSimple.sv:208.13-208.26"
+            "src": "FloatingPointMultiplierSimple.sv:209.13-209.26"
           }
         },
         "leadingOneRawExtended": {
           "hide_name": 0,
           "bits": [ 79, 80, 81, 82, "0", "0" ],
           "attributes": {
-            "src": "FloatingPointMultiplierSimple.sv:209.13-209.34"
+            "src": "FloatingPointMultiplierSimple.sv:210.13-210.34"
           }
         },
         "mantissa": {
           "hide_name": 0,
           "bits": [ 134, 135, 136, 137, 138, 139, 140, 141, 142, 143, 144, 145 ],
           "attributes": {
-            "src": "FloatingPointMultiplierSimple.sv:210.14-210.22"
+            "src": "FloatingPointMultiplierSimple.sv:211.14-211.22"
           }
         },
-        "mantissa_0": {
+        "outSum_exponent": {
+          "hide_name": 0,
+          "bits": [ 27, 28, 29, 30 ],
+          "attributes": {
+            "src": "FloatingPointMultiplierSimple.sv:212.13-212.28"
+          }
+        },
+        "outSum_mantissa": {
           "hide_name": 0,
           "bits": [ 22, 23, 24, 25, 26 ],
           "attributes": {
-            "src": "FloatingPointMultiplierSimple.sv:211.13-211.23"
+            "src": "FloatingPointMultiplierSimple.sv:213.13-213.28"
           }
         },
-        "mantissa_1": {
+        "outSum_sign": {
           "hide_name": 0,
-          "bits": [ 12, 13, 14, 15, 16 ],
+          "bits": [ 31 ],
           "attributes": {
-            "src": "FloatingPointMultiplierSimple.sv:212.13-212.23"
-          }
-        },
-        "mantissa_2": {
-          "hide_name": 0,
-          "bits": [ 2, 3, 4, 5, 6 ],
-          "attributes": {
-            "src": "FloatingPointMultiplierSimple.sv:213.13-213.23"
+            "src": "FloatingPointMultiplierSimple.sv:214.7-214.18"
           }
         },
         "overflow": {
           "hide_name": 0,
           "bits": [ 95 ],
           "attributes": {
-            "src": "FloatingPointMultiplierSimple.sv:214.7-214.15"
+            "src": "FloatingPointMultiplierSimple.sv:215.7-215.15"
           }
         },
         "product": {
@@ -1521,43 +1528,36 @@
           "hide_name": 0,
           "bits": [ 52, 53, 54, 55, 56, 57 ],
           "attributes": {
-            "src": "FloatingPointMultiplierSimple.sv:215.13-215.23"
+            "src": "FloatingPointMultiplierSimple.sv:216.13-216.23"
           }
         },
         "productExpMinusLeadOne": {
           "hide_name": 0,
           "bits": [ 32, 33, 34, 35, 36, 37 ],
           "attributes": {
-            "src": "FloatingPointMultiplierSimple.sv:216.13-216.35"
+            "src": "FloatingPointMultiplierSimple.sv:217.13-217.35"
           }
         },
         "rebias": {
           "hide_name": 0,
           "bits": [ "1", "0", "0", "1", "1", "1" ],
           "attributes": {
-            "src": "FloatingPointMultiplierSimple.sv:217.13-217.19"
+            "src": "FloatingPointMultiplierSimple.sv:218.13-218.19"
           }
         },
         "remainingExp": {
           "hide_name": 0,
           "bits": [ 38, 39, 40, 41, 42, 43 ],
           "attributes": {
-            "src": "FloatingPointMultiplierSimple.sv:218.13-218.25"
+            "src": "FloatingPointMultiplierSimple.sv:219.13-219.25"
           }
         },
         "shiftMantissa": {
           "hide_name": 0,
           "bits": [ 146, 147, 148, 149, 150, 151, 97, 98, 99, 100, 101, 152 ],
           "attributes": {
-            "src": "FloatingPointMultiplierSimple.sv:219.14-219.27",
+            "src": "FloatingPointMultiplierSimple.sv:220.14-220.27",
             "unused_bits": "0 1 2 3 4 5 11"
-          }
-        },
-        "sign": {
-          "hide_name": 0,
-          "bits": [ 31 ],
-          "attributes": {
-            "src": "FloatingPointMultiplierSimple.sv:220.7-220.11"
           }
         }
       }

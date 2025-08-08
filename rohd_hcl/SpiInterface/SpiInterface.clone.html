@@ -27,7 +27,7 @@
     <li><a href="../../index.html">rohd_hcl</a></li>
     <li><a href="../../rohd_hcl/">rohd_hcl.dart</a></li>
     <li><a href="../../rohd_hcl/SpiInterface-class.html">SpiInterface</a></li>
-    <li class="self-crumb">SpiInterface.clone constructor</li>
+    <li class="self-crumb"><span class="deprecated">SpiInterface.clone</span> constructor</li>
   </ol>
   <div class="self-name">SpiInterface.clone</div>
   <form class="search navbar-right" role="search">
@@ -54,7 +54,12 @@
 
     <section class="multi-line-signature">
       
-      <span class="name ">SpiInterface.clone</span>(<wbr><ol class="parameter-list single-line"> <li><span class="parameter" id="clone-param-otherInterface"><span class="type-annotation"><a href="../../rohd_hcl/SpiInterface-class.html">SpiInterface</a></span> <span class="parameter-name">otherInterface</span></span></li>
+  <div>
+    <ol class="annotation-list">
+        <li>@<a href="https://api.dart.dev/stable/3.8.3/dart-core/Deprecated-class.html">Deprecated</a>(&#39;Use Instance-based `clone()` instead.&#39;)</li>
+    </ol>
+  </div>
+      <span class="name deprecated">SpiInterface.clone</span>(<wbr><ol class="parameter-list single-line"> <li><span class="parameter" id="clone-param-otherInterface"><span class="type-annotation"><a href="../../rohd_hcl/SpiInterface-class.html">SpiInterface</a></span> <span class="parameter-name">otherInterface</span></span></li>
 </ol>)
     </section>
     
@@ -66,7 +71,8 @@
     
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
-  <pre class="language-dart"><code class="language-dart">SpiInterface.clone(SpiInterface super.otherInterface)
+  <pre class="language-dart"><code class="language-dart">@Deprecated(&#39;Use Instance-based `clone()` instead.&#39;)
+SpiInterface.clone(SpiInterface super.otherInterface)
     : dataLength = otherInterface.dataLength,
       super.clone();</code></pre>
 </section>
@@ -84,7 +90,7 @@
     <li><a href="../../index.html">rohd_hcl</a></li>
     <li><a href="../../rohd_hcl/">rohd_hcl</a></li>
     <li><a href="../../rohd_hcl/SpiInterface-class.html">SpiInterface</a></li>
-    <li class="self-crumb">SpiInterface.clone constructor</li>
+    <li class="self-crumb"><span class="deprecated">SpiInterface.clone</span> constructor</li>
 </ol>
 
     <h5>SpiInterface class</h5>

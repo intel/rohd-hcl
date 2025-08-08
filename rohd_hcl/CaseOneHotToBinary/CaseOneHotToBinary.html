@@ -54,21 +54,21 @@
 
     <section class="multi-line-signature">
       
-      <span class="name ">CaseOneHotToBinary</span>(<wbr><ol class="parameter-list"> <li><span class="parameter" id="-param-onehot"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.5/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">onehot</span>, {</span></li>
-<li><span class="parameter" id="-param-generateError"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.8.2/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">generateError</span> = <span class="default-value">false</span>, </span></li>
-<li><span class="parameter" id="-param-name"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.8.2/dart-core/String-class.html">String</a></span> <span class="parameter-name">name</span> = <span class="default-value">&#39;one_hot_to_binary&#39;</span>, </span></li>
-<li><span class="parameter" id="-param-reserveName"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.8.2/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">reserveName</span> = <span class="default-value">false</span>, </span></li>
-<li><span class="parameter" id="-param-reserveDefinitionName"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.8.2/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">reserveDefinitionName</span> = <span class="default-value">false</span>, </span></li>
-<li><span class="parameter" id="-param-definitionName"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.8.2/dart-core/String-class.html">String</a>?</span> <span class="parameter-name">definitionName</span>, </span></li>
+      <span class="name ">CaseOneHotToBinary</span>(<wbr><ol class="parameter-list"> <li><span class="parameter" id="-param-onehot"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.6/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">onehot</span>, {</span></li>
+<li><span class="parameter" id="-param-generateError"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.8.3/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">generateError</span> = <span class="default-value">false</span>, </span></li>
+<li><span class="parameter" id="-param-name"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.8.3/dart-core/String-class.html">String</a></span> <span class="parameter-name">name</span> = <span class="default-value">&#39;one_hot_to_binary&#39;</span>, </span></li>
+<li><span class="parameter" id="-param-reserveName"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.8.3/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">reserveName</span> = <span class="default-value">false</span>, </span></li>
+<li><span class="parameter" id="-param-reserveDefinitionName"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.8.3/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">reserveDefinitionName</span> = <span class="default-value">false</span>, </span></li>
+<li><span class="parameter" id="-param-definitionName"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.8.3/dart-core/String-class.html">String</a>?</span> <span class="parameter-name">definitionName</span>, </span></li>
 </ol>})
     </section>
     
 <section class="desc markdown">
-  <p>Constructs a <a href="https://pub.dev/documentation/rohd/0.6.5/rohd/Module-class.html">Module</a> which decodes a one-hot number <code>onehot</code> into a 2s
+  <p>Constructs a <a href="https://pub.dev/documentation/rohd/0.6.6/rohd/Module-class.html">Module</a> which decodes a one-hot number <code>onehot</code> into a 2s
 complement number <a href="../../rohd_hcl/OneHotToBinary/binary.html">binary</a> by encoding the position of the '1' using a
-<a href="https://pub.dev/documentation/rohd/0.6.5/rohd/Case-class.html">Case</a> block.</p>
+<a href="https://pub.dev/documentation/rohd/0.6.6/rohd/Case-class.html">Case</a> block.</p>
 <p>It is not recommended to use this for very large-width <code>onehot</code>s since it
-will create many <a href="https://pub.dev/documentation/rohd/0.6.5/rohd/CaseItem-class.html">CaseItem</a>s. If the width is more than ~8, try using the
+will create many <a href="https://pub.dev/documentation/rohd/0.6.6/rohd/CaseItem-class.html">CaseItem</a>s. If the width is more than ~8, try using the
 <a href="../../rohd_hcl/TreeOneHotToBinary-class.html">TreeOneHotToBinary</a>. The implementation does not support widths exceeding
 the maximum width of an <code>int</code>.</p>
 </section>

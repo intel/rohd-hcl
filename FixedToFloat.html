@@ -289,7 +289,7 @@
             "Y_WIDTH": 32
           },
           "attributes": {
-            "src": "FixedToFloat.sv:244.27-244.52"
+            "src": "FixedToFloat.sv:244.31-244.50"
           },
           "port_directions": {
             "A": "input",
@@ -602,7 +602,7 @@
             "Y_WIDTH": 32
           },
           "attributes": {
-            "src": "FixedToFloat.sv:244.29-244.51"
+            "src": "FixedToFloat.sv:244.33-244.49"
           },
           "port_directions": {
             "A": "input",
@@ -710,7 +710,7 @@
             "WIDTH": 32
           },
           "attributes": {
-            "src": "FixedToFloat.sv:244.19-244.70"
+            "src": "FixedToFloat.sv:244.19-244.62"
           },
           "port_directions": {
             "A": "input",
@@ -745,21 +745,21 @@
         }
       },
       "netnames": {
-        "$2__exponent[7:0]": {
+        "$2___st_exponent[7:0]": {
           "hide_name": 1,
           "bits": [ 278, 279, 280, 281, 282, 283, 284, 285 ],
           "attributes": {
             "src": "FixedToFloat.sv:0.0-0.0"
           }
         },
-        "$2__mantissa_0[22:0]": {
+        "$2___st_mantissa[22:0]": {
           "hide_name": 1,
           "bits": [ 255, 256, 257, 258, 259, 260, 261, 262, 263, 264, 265, 266, 267, 268, 269, 270, 271, 272, 273, 274, 275, 276, 277 ],
           "attributes": {
             "src": "FixedToFloat.sv:0.0-0.0"
           }
         },
-        "$3__exponent[7:0]": {
+        "$3___st_exponent[7:0]": {
           "hide_name": 1,
           "bits": [ 224, 225, 226, 227, 228, 229, 230, 231 ],
           "attributes": {
@@ -812,7 +812,7 @@
           "hide_name": 1,
           "bits": [ 190, 191, 192, 193, 194, 195, 196, 197, 198, 199, 200, 201, 202, 203, 204, 205, 206, 207, 208, 209, 210, 211, 212, 213, 214, 215, 216, 217, 218, 219, 220, 221 ],
           "attributes": {
-            "src": "FixedToFloat.sv:244.27-244.52"
+            "src": "FixedToFloat.sv:244.31-244.50"
           }
         },
         "$or$FixedToFloat.sv:234$20_Y": {
@@ -854,7 +854,7 @@
           "hide_name": 1,
           "bits": [ 158, 159, 160, 161, 162, 163, 164, 165, 166, 167, 168, 169, 170, 171, 172, 173, 174, 175, 176, 177, 178, 179, 180, 181, 182, 183, 184, 185, 186, 187, 188, 189 ],
           "attributes": {
-            "src": "FixedToFloat.sv:244.29-244.51"
+            "src": "FixedToFloat.sv:244.33-244.49"
           }
         },
         "_d1__eRaw_add_const_1": {
@@ -879,11 +879,11 @@
             "unused_bits": "0 "
           }
         },
-        "_in0__swizzled": {
+        "_in0__st": {
           "hide_name": 0,
           "bits": [ 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33 ],
           "attributes": {
-            "src": "FixedToFloat.sv:191.14-191.28"
+            "src": "FixedToFloat.sv:191.14-191.22"
           }
         },
         "_mantissa_add_const_1_carry": {
@@ -894,53 +894,67 @@
             "unused_bits": "0 "
           }
         },
+        "_st_exponent": {
+          "hide_name": 0,
+          "bits": [ 57, 58, 59, 60, 61, 62, 63, 64 ],
+          "attributes": {
+            "src": "FixedToFloat.sv:193.13-193.25"
+          }
+        },
+        "_st_mantissa": {
+          "hide_name": 0,
+          "bits": [ 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56 ],
+          "attributes": {
+            "src": "FixedToFloat.sv:194.14-194.26"
+          }
+        },
+        "_st_sign": {
+          "hide_name": 0,
+          "bits": [ 33 ],
+          "attributes": {
+            "src": "FixedToFloat.sv:195.7-195.15"
+          }
+        },
         "absValue": {
           "hide_name": 0,
           "bits": [ 287, 288, 289, 290, 291, 292, 293, 294, 295, 296, 297, 298, 299, 300, 301, 302, 303, 304, 305, 306, 307, 308, 309, 310, 311, 312, 313, 314, 315, 316, 317, 318 ],
           "attributes": {
-            "src": "FixedToFloat.sv:193.14-193.22"
+            "src": "FixedToFloat.sv:196.14-196.22"
           }
         },
         "absValueShiftedJ": {
           "hide_name": 0,
           "bits": [ 319, 320, 321, 322, 323, 324, 325, 131, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99, 100, 101, 102, 103, 104, 105, 106, 335 ],
           "attributes": {
-            "src": "FixedToFloat.sv:194.14-194.30"
+            "src": "FixedToFloat.sv:197.14-197.30"
           }
         },
         "eRaw": {
           "hide_name": 0,
           "bits": [ 65, 66, 67, 68, 69, 70, 71, 72, 73 ],
           "attributes": {
-            "src": "FixedToFloat.sv:195.13-195.17"
+            "src": "FixedToFloat.sv:198.13-198.17"
           }
         },
         "eRawRNE": {
           "hide_name": 0,
           "bits": [ 146, 147, 148, 149, 150, 151, 152, 153, 154 ],
           "attributes": {
-            "src": "FixedToFloat.sv:196.13-196.20"
+            "src": "FixedToFloat.sv:199.13-199.20"
           }
         },
         "expLessThanOne": {
           "hide_name": 0,
           "bits": [ 223 ],
           "attributes": {
-            "src": "FixedToFloat.sv:197.7-197.21"
+            "src": "FixedToFloat.sv:200.7-200.21"
           }
         },
         "expMoreThanMax": {
           "hide_name": 0,
           "bits": [ 138 ],
           "attributes": {
-            "src": "FixedToFloat.sv:198.7-198.21"
-          }
-        },
-        "exponent": {
-          "hide_name": 0,
-          "bits": [ 57, 58, 59, 60, 61, 62, 63, 64 ],
-          "attributes": {
-            "src": "FixedToFloat.sv:199.13-199.21"
+            "src": "FixedToFloat.sv:201.7-201.21"
           }
         },
         "fixed": {
@@ -961,63 +975,49 @@
           "hide_name": 0,
           "bits": [ 131 ],
           "attributes": {
-            "src": "FixedToFloat.sv:200.7-200.15"
+            "src": "FixedToFloat.sv:202.7-202.15"
           }
         },
         "jBit": {
           "hide_name": 0,
           "bits": [ 326, 327, 328, 329, 330, 331, 332, 333, 334 ],
           "attributes": {
-            "src": "FixedToFloat.sv:201.13-201.17"
+            "src": "FixedToFloat.sv:203.13-203.17"
           }
         },
         "mantissa": {
           "hide_name": 0,
           "bits": [ 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99, 100, 101, 102, 103, 104, 105, 106 ],
           "attributes": {
-            "src": "FixedToFloat.sv:202.14-202.22"
-          }
-        },
-        "mantissa_0": {
-          "hide_name": 0,
-          "bits": [ 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56 ],
-          "attributes": {
-            "src": "FixedToFloat.sv:203.14-203.24"
+            "src": "FixedToFloat.sv:204.14-204.22"
           }
         },
         "out": {
           "hide_name": 0,
           "bits": [ 139, 140, 141, 142, 143, 144 ],
           "attributes": {
-            "src": "FixedToFloat.sv:204.13-204.16"
+            "src": "FixedToFloat.sv:205.13-205.16"
           }
         },
         "predictedjBit": {
           "hide_name": 0,
           "bits": [ 139, 140, 141, 142, 143, 144, "0", "0", "0" ],
           "attributes": {
-            "src": "FixedToFloat.sv:205.13-205.26"
+            "src": "FixedToFloat.sv:206.13-206.26"
           }
         },
         "roundUp": {
           "hide_name": 0,
           "bits": [ 133 ],
           "attributes": {
-            "src": "FixedToFloat.sv:206.7-206.14"
+            "src": "FixedToFloat.sv:207.7-207.14"
           }
         },
         "roundedMantissa": {
           "hide_name": 0,
           "bits": [ 232, 233, 234, 235, 236, 237, 238, 239, 240, 241, 242, 243, 244, 245, 246, 247, 248, 249, 250, 251, 252, 253, 254 ],
           "attributes": {
-            "src": "FixedToFloat.sv:207.14-207.29"
-          }
-        },
-        "sign": {
-          "hide_name": 0,
-          "bits": [ 33 ],
-          "attributes": {
-            "src": "FixedToFloat.sv:208.7-208.11"
+            "src": "FixedToFloat.sv:208.14-208.29"
           }
         },
         "stickyBit": {

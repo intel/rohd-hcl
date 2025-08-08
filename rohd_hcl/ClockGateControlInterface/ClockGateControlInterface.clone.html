@@ -27,7 +27,7 @@
     <li><a href="../../index.html">rohd_hcl</a></li>
     <li><a href="../../rohd_hcl/">rohd_hcl.dart</a></li>
     <li><a href="../../rohd_hcl/ClockGateControlInterface-class.html">ClockGateControlInterface</a></li>
-    <li class="self-crumb">ClockGateControlInterface.clone constructor</li>
+    <li class="self-crumb"><span class="deprecated">ClockGateControlInterface.clone</span> constructor</li>
   </ol>
   <div class="self-name">ClockGateControlInterface.clone</div>
   <form class="search navbar-right" role="search">
@@ -54,31 +54,38 @@
 
     <section class="multi-line-signature">
       
-      <span class="name ">ClockGateControlInterface.clone</span>(<wbr><ol class="parameter-list"> <li><span class="parameter" id="clone-param-otherInterface"><span class="type-annotation"><a href="../../rohd_hcl/ClockGateControlInterface-class.html">ClockGateControlInterface</a></span> <span class="parameter-name">otherInterface</span>, {</span></li>
-<li><span class="parameter" id="clone-param-isPresent"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.8.2/dart-core/bool-class.html">bool</a>?</span> <span class="parameter-name">isPresent</span>, </span></li>
-<li><span class="parameter" id="clone-param-gatedClockGenerator"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.5/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">gatedClockGenerator</span>(<ol class="parameter-list single-line"> <li><span class="parameter" id="param-intf"><span class="type-annotation"><a href="../../rohd_hcl/ClockGateControlInterface-class.html">ClockGateControlInterface</a></span> <span class="parameter-name">intf</span>, </span></li>
-<li><span class="parameter" id="param-clk"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.5/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">clk</span>, </span></li>
-<li><span class="parameter" id="param-enable"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.5/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">enable</span></span></li>
+  <div>
+    <ol class="annotation-list">
+        <li>@<a href="https://api.dart.dev/stable/3.8.3/dart-core/Deprecated-class.html">Deprecated</a>(&#39;Use Instance-based `clone()` instead.&#39;)</li>
+    </ol>
+  </div>
+      <span class="name deprecated">ClockGateControlInterface.clone</span>(<wbr><ol class="parameter-list"> <li><span class="parameter" id="clone-param-otherInterface"><span class="type-annotation"><a href="../../rohd_hcl/ClockGateControlInterface-class.html">ClockGateControlInterface</a></span> <span class="parameter-name">otherInterface</span>, {</span></li>
+<li><span class="parameter" id="clone-param-isPresent"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.8.3/dart-core/bool-class.html">bool</a>?</span> <span class="parameter-name">isPresent</span>, </span></li>
+<li><span class="parameter" id="clone-param-gatedClockGenerator"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.6/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">gatedClockGenerator</span>(<ol class="parameter-list single-line"> <li><span class="parameter" id="param-intf"><span class="type-annotation"><a href="../../rohd_hcl/ClockGateControlInterface-class.html">ClockGateControlInterface</a></span> <span class="parameter-name">intf</span>, </span></li>
+<li><span class="parameter" id="param-clk"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.6/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">clk</span>, </span></li>
+<li><span class="parameter" id="param-enable"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.6/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">enable</span></span></li>
 </ol>)?, </span></li>
 </ol>})
     </section>
     
 <section class="desc markdown">
-  <p>Creates a clone of <code>otherInterface</code> with the same configuration, including
+  <p>Creates a clone of <code>otherInterface</code> with the same configuration,
+including
 any <code>additionalPorts</code> and <code>gatedClockGenerator</code> function. This should be
 used to replicate interface configuration through hierarchies to carry
 configuration information.</p>
 <p>If <code>isPresent</code> is provided, then it will override the <code>isPresent</code> value
 from <code>otherInterface</code>.</p>
 <p>If a <code>gatedClockGenerator</code> is provided, then it will override the
-<code>gatedClockGenerator</code> function from <code>otherInterface</code>.</p>
+<code>gatedClockGenerator</code> function from <code>`otherInterface`</code>.</p>
 </section>
 
 
     
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
-  <pre class="language-dart"><code class="language-dart">ClockGateControlInterface.clone(
+  <pre class="language-dart"><code class="language-dart">@Deprecated(&#39;Use Instance-based `clone()` instead.&#39;)
+ClockGateControlInterface.clone(
   ClockGateControlInterface super.otherInterface, {
   bool? isPresent,
   Logic Function(
@@ -106,7 +113,7 @@ from <code>otherInterface</code>.</p>
     <li><a href="../../index.html">rohd_hcl</a></li>
     <li><a href="../../rohd_hcl/">rohd_hcl</a></li>
     <li><a href="../../rohd_hcl/ClockGateControlInterface-class.html">ClockGateControlInterface</a></li>
-    <li class="self-crumb">ClockGateControlInterface.clone constructor</li>
+    <li class="self-crumb"><span class="deprecated">ClockGateControlInterface.clone</span> constructor</li>
 </ol>
 
     <h5>ClockGateControlInterface class</h5>

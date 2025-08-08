@@ -55,9 +55,9 @@
     <section class="multi-line-signature">
       
       <span class="name ">SumInterface</span>(<wbr>{<ol class="parameter-list"> <li><span class="parameter" id="-param-fixedAmount"><span class="type-annotation">dynamic</span> <span class="parameter-name">fixedAmount</span>, </span></li>
-<li><span class="parameter" id="-param-increments"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.8.2/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">increments</span> = <span class="default-value">true</span>, </span></li>
-<li><span class="parameter" id="-param-width"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.8.2/dart-core/int-class.html">int</a>?</span> <span class="parameter-name">width</span>, </span></li>
-<li><span class="parameter" id="-param-hasEnable"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.8.2/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">hasEnable</span> = <span class="default-value">false</span>, </span></li>
+<li><span class="parameter" id="-param-increments"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.8.3/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">increments</span> = <span class="default-value">true</span>, </span></li>
+<li><span class="parameter" id="-param-width"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.8.3/dart-core/int-class.html">int</a>?</span> <span class="parameter-name">width</span>, </span></li>
+<li><span class="parameter" id="-param-hasEnable"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.8.3/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">hasEnable</span> = <span class="default-value">false</span>, </span></li>
 </ol>})
     </section>
     
@@ -66,13 +66,13 @@
 with an <a href="../../rohd_hcl/SumInterface/enable.html">enable</a>, in either positive or negative direction based on
 <code>increments</code>.</p>
 <p>If <code>width</code> is <code>null</code>, it can be inferred from <code>fixedAmount</code> if provided
-with a type that contains width information (e.g. a <a href="https://pub.dev/documentation/rohd/0.6.5/rohd/LogicValue-class.html">LogicValue</a>). There
+with a type that contains width information (e.g. a <a href="https://pub.dev/documentation/rohd/0.6.6/rohd/LogicValue-class.html">LogicValue</a>). There
 must be enough information provided to determine the <code>width</code>.</p>
-<p>If a <code>fixedAmount</code> is provided, then <a href="../../rohd_hcl/SumInterface/amount.html">amount</a> will be tied to a <a href="https://pub.dev/documentation/rohd/0.6.5/rohd/Const-class.html">Const</a>. A
-provided <code>fixedAmount</code> must be parseable by <a href="https://pub.dev/documentation/rohd/0.6.5/rohd/LogicValue/of.html">LogicValue.of</a>. Note that the
+<p>If a <code>fixedAmount</code> is provided, then <a href="../../rohd_hcl/SumInterface/amount.html">amount</a> will be tied to a <a href="https://pub.dev/documentation/rohd/0.6.6/rohd/Const-class.html">Const</a>. A
+provided <code>fixedAmount</code> must be parseable by <a href="https://pub.dev/documentation/rohd/0.6.6/rohd/LogicValue/of.html">LogicValue.of</a>. Note that the
 <code>fixedAmount</code> will always be interpreted as a positive value truncated to
 <code>width</code>. If no <code>fixedAmount</code> is provided, then <a href="../../rohd_hcl/SumInterface/amount.html">amount</a> will be a normal
-<a href="https://pub.dev/documentation/rohd/0.6.5/rohd/Interface/port.html">port</a> with <code>width</code> bits.</p>
+<a href="https://pub.dev/documentation/rohd/0.6.6/rohd/Interface/port.html">port</a> with <code>width</code> bits.</p>
 <p>If <code>hasEnable</code> is <code>true</code>, then an <a href="../../rohd_hcl/SumInterface/enable.html">enable</a> port will be added to the
 interface.</p>
 </section>
