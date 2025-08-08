@@ -208,8 +208,9 @@ class CsrTop extends CsrContainer {
 
     if (frontReadPresent) {
       // mask out LSBs to perform a match on block
-      final maskedFrontRdAddr = frontRead!.addr &
-          ~Const((1 << blockOffsetWidth) - 1, width: addrWidth);
+      final maskedFrontRdAddr = (frontRead!.addr &
+              ~Const((1 << blockOffsetWidth) - 1, width: addrWidth))
+          .named('maskFrontRdAddr');
 
       // shift out MSBs to pass the appropriate address into the blocks
       final shiftedFrontRdAddr = frontRead!.addr.getRange(0, blockOffsetWidth);

@@ -74,6 +74,7 @@ class SumInterface extends PairInterface {
   }
 
   /// Creates a clone of this [SumInterface] for things like [pairConnectIO].
+  @Deprecated('Use Instance-based `clone()` instead.')
   SumInterface.clone(SumInterface other)
       : this(
           fixedAmount: other.fixedAmount,
@@ -81,6 +82,16 @@ class SumInterface extends PairInterface {
           width: other.width,
           hasEnable: other.hasEnable,
         );
+
+  /// Create a clone of the [SumInterface] with the same configuration,
+  /// including any `fixedAmount`, `increments`, and `hasEnable` properties.
+  @override
+  SumInterface clone() => SumInterface(
+        fixedAmount: fixedAmount,
+        increments: increments,
+        width: width,
+        hasEnable: hasEnable,
+      );
 
   @override
   String toString() => [

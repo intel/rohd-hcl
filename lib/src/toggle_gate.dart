@@ -51,9 +51,8 @@ class ToggleGate extends Module {
     }
 
     if (clockGateControlIntf != null) {
-      clockGateControlIntf =
-          ClockGateControlInterface.clone(clockGateControlIntf)
-            ..pairConnectIO(this, clockGateControlIntf, PairRole.consumer);
+      clockGateControlIntf = clockGateControlIntf.clone()
+        ..pairConnectIO(this, clockGateControlIntf, PairRole.consumer);
     }
 
     addOutput('gatedData', width: data.width);

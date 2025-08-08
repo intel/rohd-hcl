@@ -91,7 +91,7 @@ abstract class SummationBase extends Module {
     }
 
     this.interfaces = interfaces
-        .mapIndexed((i, e) => SumInterface.clone(e)
+        .mapIndexed((i, e) => e.clone()
           ..pairConnectIO(this, e, PairRole.consumer,
               uniquify: (original) => '${original}_$i'))
         .toList();

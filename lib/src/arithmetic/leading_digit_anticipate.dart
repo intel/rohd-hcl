@@ -158,15 +158,21 @@ class LeadingDigitAnticipate extends Module {
       : super(definitionName: definitionName ?? 'LeadingDigitAnticipate') {
     a = addInput('a', a, width: a.width);
     b = addInput('b', b, width: b.width);
-    final pA = a.reversed;
-    final pB = b.reversed;
-    final g = pA & pB.named('g');
+    final pA = a.reversed.named('revA');
+    final pB = b.reversed.named('revB');
+    final g = (pA & pB).named('g');
     final t = (pA ^ pB).named('t');
     final z = (~pA & ~pB).named('z');
 
+    final zBarShift = (~z >>> 1).named('zBarShift');
+    final gBarShift = (~g >>> 1).named('gBarShift');
+    final tShift = (t << 1).named('tShift');
+    final tBarShift = (~t << 1).named('tBarShift');
+
     final findFromMSB = Logic(name: 'findFromMSB', width: t.width - 1);
-    final lowBits = ((t << 1) & ((g & (~z >>> 1)) | (z & (~g >>> 1))) |
-            (~t << 1) & ((z & (~z >>> 1)) | (g & (~g >>> 1))))
+    final lowBits = (tShift & ((g & zBarShift) | (z & gBarShift)) |
+            tBarShift & ((z & zBarShift) | (g & gBarShift)))
+        .named('lowBitsWide')
         .slice(t.width - 2, 1);
 
     findFromMSB <= [lowBits, ~t[0] & t[1]].swizzle();

@@ -80,6 +80,7 @@ class DataPortInterface extends Interface<DataPortGroup> {
   }
 
   /// Makes a copy of this [Interface] with matching configuration.
+  @override
   DataPortInterface clone() => DataPortInterface(dataWidth, addrWidth);
 }
 

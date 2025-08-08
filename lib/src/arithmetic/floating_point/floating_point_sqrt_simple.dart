@@ -12,7 +12,7 @@
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
 
-/// An square root module for [FloatingPoint] logic signals.
+/// A square root module for [FloatingPoint] logic signals.
 class FloatingPointSqrtSimple<FpType extends FloatingPoint>
     extends FloatingPointSqrt<FpType> {
   /// Square root one floating point number [a], returning results
@@ -65,12 +65,12 @@ class FloatingPointSqrtSimple<FpType extends FloatingPoint>
         [Const(1, width: 3), a.mantissa.getRange(0)].swizzle().named('aFixed');
 
     // mux if we shift left by 1 if exponent was odd
-    final aFixedAdj = aFixed.clone()
+    final aFixedAdj = aFixed.clone(name: 'aFixedAdj')
       ..gets(mux(isExpOdd, [aFixed.slice(-2, 0), Const(0)].swizzle(), aFixed)
           .named('oddMantissaMux'));
 
     // mux to choose if we do square root or not
-    final fixedSqrt = aFixedAdj.clone()
+    final fixedSqrt = aFixedAdj.clone(name: 'fixedSqrt')
       ..gets(mux(enableSqrt, FixedPointSqrt(aFixedAdj).sqrt, aFixedAdj)
           .named('sqrtMux'));
 

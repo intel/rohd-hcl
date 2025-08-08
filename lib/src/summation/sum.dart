@@ -103,8 +103,10 @@ class Sum extends SummationBase {
         (maxPosMagnitude + maxNegMagnitude + BigInt.one).bitLength, width + 1);
 
     final initialValueLogicExt = initialValueLogic.zeroExtend(internalWidth);
-    final minValueLogicExt = minValueLogic.zeroExtend(internalWidth);
-    final maxValueLogicExt = maxValueLogic.zeroExtend(internalWidth);
+    final minValueLogicExt =
+        minValueLogic.zeroExtend(internalWidth).named('minValueExt');
+    final maxValueLogicExt =
+        maxValueLogic.zeroExtend(internalWidth).named('maxValueExt');
 
     // lazy range so that it's not generated if not necessary
     late final range = Logic(name: 'range', width: internalWidth)
@@ -119,7 +121,10 @@ class Sum extends SummationBase {
       ..gets(minValueLogicExt + zeroPoint);
 
     final internalValue = Logic(name: 'internalValue', width: internalWidth);
-    sum <= (internalValue - zeroPoint).getRange(0, width);
+    sum <=
+        (internalValue - zeroPoint)
+            .named('internalValueOverZeroPoint')
+            .getRange(0, width);
 
     final preAdjustmentValue =
         Logic(name: 'preAdjustmentValue', width: internalWidth);
