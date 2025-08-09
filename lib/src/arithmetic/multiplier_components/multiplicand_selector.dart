@@ -15,6 +15,10 @@ class MultiplicandSelector {
   /// The radix of the selector.
   int radix;
 
+  /// The allowed [radix] values for the selector to decode and select from
+  /// [multiples] of the [multiplicand]
+  static const allowedRadices = [2, 4, 8, 16];
+
   /// The bit shift of the selector (typically overlaps 1).
   int shift;
 
@@ -46,8 +50,9 @@ class MultiplicandSelector {
     if (signedMultiplicand && (selectSignedMultiplicand != null)) {
       throw RohdHclException('sign reconfiguration requires signed=false');
     }
-    if (radix > 16) {
-      throw RohdHclException('Radices beyond 16 are not yet supported');
+    if (!allowedRadices.contains(radix)) {
+      throw RohdHclException('Radices outside of $allowedRadices '
+          'are not yet supported');
     }
     final width = multiplicand.width + shift;
     final numMultiples = radix ~/ 2;
