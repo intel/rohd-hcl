@@ -66,16 +66,17 @@ class DotProductBase extends Module {
         .length;
     if (candWidthMiss < multiplicands.length) {
       throw RohdHclException('Multiplicands must all have the same width: '
-          'index ${candWidthMiss - 1} vs index $candWidthMiss ');
+          '${multiplicands.length - candWidthMiss} '
+          "don't match preceding width.");
     }
     // Enforce square products.
     final operandWidthMiss = multiplicands
-        .mapIndexed((i, m) => m.width != multipliers[i].width)
-        .where((w) => !w)
+        .mapIndexed((i, m) => m.width == multipliers[i].width)
+        .where((w) => w)
         .length;
-    if (candWidthMiss < multiplicands.length) {
-      throw RohdHclException('Multiplier and multiplicand at index '
-          '$operandWidthMiss must have the same width.');
+    if (operandWidthMiss < multiplicands.length) {
+      throw RohdHclException('Multiplier and multiplicand have '
+          '${multiplicands.length - operandWidthMiss} width mismatches.');
     }
 
     signedMultiplicandParameter =
@@ -115,11 +116,6 @@ class CompressionTreeDotProduct extends DotProductBase {
       : super(
             definitionName: definitionName ??
                 'CompTreeDotProduct_W${multipliers[0].width}_') {
-    if (!MultiplicandSelector.allowedRadices.contains(productRadix)) {
-      throw RohdHclException(
-          'Radix must be in ${MultiplicandSelector.allowedRadices}.');
-    }
-
     final ppGenerators = [
       for (var i = 0; i < multipliers.length; i++)
         PartialProductGenerator(

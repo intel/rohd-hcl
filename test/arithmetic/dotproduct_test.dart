@@ -23,6 +23,43 @@ void main() {
     GeneralDotProduct.new
   ];
 
+  test('dotproduct width mismatch test', () async {
+    final multiplicands = [
+      Logic(width: 3, name: 'a_0'),
+      Logic(width: 4, name: 'a_1'),
+      Logic(width: 3, name: 'a_2'),
+      Logic(width: 3, name: 'a_3')
+    ];
+    final multipliers = [
+      Logic(width: 3, name: 'b_0'),
+      Logic(width: 3, name: 'b_1'),
+      Logic(width: 3, name: 'b_2'),
+      Logic(width: 3, name: 'b_3')
+    ];
+    final multiplicands2 = [
+      Logic(width: 4, name: 'b_0'),
+      Logic(width: 4, name: 'b_1'),
+      Logic(width: 4, name: 'b_2'),
+      Logic(width: 4, name: 'b_3')
+    ];
+
+    CompressionTreeDotProduct(multipliers, multipliers);
+    try {
+      CompressionTreeDotProduct(multiplicands, multipliers);
+      expect(true, throwsA(isA<RohdHclException>()));
+    } on RohdHclException catch (e) {
+      expect(e.message, contains('Multiplicands must all have the same width'));
+    }
+
+    try {
+      CompressionTreeDotProduct(multiplicands2, multipliers);
+      expect(true, throwsA(isA<RohdHclException>()));
+    } on RohdHclException catch (e) {
+      expect(e.message,
+          contains('Multiplier and multiplicand have 4 width mismatches.'));
+    }
+  });
+
   test('dotproduct signed-variants exhaustive', () async {
     const widths = [3, 3];
     final depth = widths.length;
