@@ -120,6 +120,8 @@ void main() {
     await stage.build();
 
     WaveDumper(stage);
+    
+    print(stage.generateSynth());
 
     unawaited(Simulator.run());
 

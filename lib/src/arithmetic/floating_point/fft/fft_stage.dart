@@ -46,49 +46,39 @@ class BadFFTStage extends Module {
     go = addInput('go', go);
     final _done = Logic(name: "_done");
     done = addOutput('done')..gets(_done);
-    final en = go & ~_done;
+    final en = (go & ~_done).named("enable");
 
-    inputSamplesA = inputSamplesA.clone()
-      ..connectIO(
-        this,
-        inputSamplesA,
-        inputTags: [DataPortGroup.data],
-        outputTags: [DataPortGroup.control],
-        uniquify: (name) => "inputSamplesA${name}",
-      );
-    inputSamplesB = inputSamplesB.clone()
-      ..connectIO(
-        this,
-        inputSamplesB,
-        inputTags: [DataPortGroup.data],
-        outputTags: [DataPortGroup.control],
-        uniquify: (name) => "inputSamplesB${name}",
-      );
-    twiddleFactorROM = twiddleFactorROM.clone()
-      ..connectIO(
-        this,
-        twiddleFactorROM,
-        inputTags: [DataPortGroup.data],
-        outputTags: [DataPortGroup.control],
-        uniquify: (name) => "twiddleFactorROM${name}",
-      );
+    inputSamplesA = connectInterface(
+      inputSamplesA,
+      inputTags: [DataPortGroup.data],
+      outputTags: [DataPortGroup.control],
+      uniquify: (name) => "inputSamplesA${name}",
+    );
+    inputSamplesB = connectInterface(
+      inputSamplesB,
+      inputTags: [DataPortGroup.data],
+      outputTags: [DataPortGroup.control],
+      uniquify: (name) => "inputSamplesB${name}",
+    );
+    twiddleFactorROM = connectInterface(
+      twiddleFactorROM,
+      inputTags: [DataPortGroup.data],
+      outputTags: [DataPortGroup.control],
+      uniquify: (name) => "twiddleFactorROM${name}",
+    );
 
-    outputSamplesA = outputSamplesA.clone()
-      ..connectIO(
-        this,
-        outputSamplesA,
-        inputTags: [DataPortGroup.control],
-        outputTags: [DataPortGroup.data],
-        uniquify: (name) => "outputSamplesA${name}",
-      );
-    outputSamplesB = outputSamplesB.clone()
-      ..connectIO(
-        this,
-        outputSamplesB,
-        inputTags: [DataPortGroup.control],
-        outputTags: [DataPortGroup.data],
-        uniquify: (name) => "outputSamplesB${name}",
-      );
+    outputSamplesA = connectInterface(
+      outputSamplesA,
+      inputTags: [DataPortGroup.control],
+      outputTags: [DataPortGroup.data],
+      uniquify: (name) => "outputSamplesA${name}",
+    );
+    outputSamplesB = connectInterface(
+      outputSamplesB,
+      inputTags: [DataPortGroup.control],
+      outputTags: [DataPortGroup.data],
+      uniquify: (name) => "outputSamplesB${name}",
+    );
 
     final outputSamplesWritePortA = DataPortInterface(
       inputSamplesA.dataWidth,
