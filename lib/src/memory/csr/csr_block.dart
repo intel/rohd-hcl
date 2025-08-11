@@ -24,10 +24,6 @@ class CsrBlock extends CsrContainer {
   /// CSRs in this block.
   final List<Csr> csrs;
 
-  /// What increment value to use when deriving logical addresses
-  /// for registers that are wider than the frontdoor data width.
-  final int logicalRegisterIncrement;
-
   /// Direct access ports for reading and writing individual registers.
   ///
   /// There is a public copy that is exported out of the module
@@ -51,7 +47,7 @@ class CsrBlock extends CsrContainer {
     required super.frontWrite,
     required super.frontRead,
     super.allowLargerRegisters,
-    this.logicalRegisterIncrement = 1,
+    super.logicalRegisterIncrement,
     super.reserveName,
     super.reserveDefinitionName,
     String? definitionName,
