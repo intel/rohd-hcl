@@ -31,6 +31,53 @@ ComplexFloatingPoint newComplex(double real, double imaginary) {
   return complex;
 }
 
+class Complex {
+  double real;
+  double imaginary;
+
+  Complex({required this.real, required this.imaginary});
+
+  Complex add(Complex other) {
+    return Complex(
+      real: this.real + other.real,
+      imaginary: this.imaginary + other.imaginary,
+    );
+  }
+
+  Complex subtract(Complex other) {
+    return Complex(
+      real: this.real - other.real,
+      imaginary: this.imaginary - other.imaginary,
+    );
+  }
+
+  Complex multiply(Complex other) {
+    return Complex(
+      real: (this.real * other.real) - (this.imaginary * other.imaginary),
+      imaginary: (this.real * other.imaginary) + (this.imaginary * other.real),
+    );
+  }
+
+  @override
+  String toString() {
+    return '${real}${imaginary >= 0 ? '+' : ''}${imaginary}i';
+  }
+}
+
+List<Complex> butterfly(Complex inA, Complex inB, Complex twiddleFactor) {
+  final temp = twiddleFactor.multiply(inB);
+  return [inA.subtract(temp), inA.add(temp)];
+}
+
+final epsilon = 1e-15;
+
+void compareDouble(double actual, double expected) {
+  assert(
+    (actual - expected).abs() < epsilon,
+    "actual ${actual}, expected ${expected}",
+  );
+}
+
 Future<void> write(
   Logic clk,
   DataPortInterface writePort,
@@ -66,18 +113,21 @@ void main() {
   });
 
   test('fft stage unit test', () async {
-    final a = newComplex(1.0, 2.0);
-    final b = newComplex(-3.0, -4.0);
-    final twiddle = newComplex(1.0, 0.0);
+    final a = Complex(real: 1.0, imaginary: 2.0);
+    final b = Complex(real: -3.0, imaginary: -4.0);
+    final twiddle = Complex(real: 1.0, imaginary: 0.0);
+    final aLogic = newComplex(a.real, a.imaginary);
+    final bLogic = newComplex(b.real, b.imaginary);
+    final twiddleLogic = newComplex(twiddle.real, twiddle.imaginary);
     final clk = SimpleClockGenerator(10).clk;
     final reset = Logic()..put(0);
     final go = Logic()..put(0);
 
     final n = 2;
 
-    final exponentWidth = a.realPart.exponent.width;
-    final mantissaWidth = a.realPart.mantissa.width;
-    final dataWidth = a.width; //2 * (1 + exponentWidth + mantissaWidth);
+    final exponentWidth = aLogic.realPart.exponent.width;
+    final mantissaWidth = aLogic.realPart.mantissa.width;
+    final dataWidth = aLogic.width; //2 * (1 + exponentWidth + mantissaWidth);
     final addrWidth = log2Ceil(n);
 
     final tempMemoryWritePort = DataPortInterface(dataWidth, addrWidth);
@@ -120,8 +170,8 @@ void main() {
     await stage.build();
 
     WaveDumper(stage);
-    
-    print(stage.generateSynth());
+
+    // print(stage.generateSynth());
 
     unawaited(Simulator.run());
 
@@ -130,16 +180,56 @@ void main() {
     reset.inject(0);
     await clk.waitCycles(10);
 
-    await write(clk, tempMemoryWritePort, a.value, 0);
-    await write(clk, tempMemoryWritePort, b.value, 1);
-    await write(clk, twiddleFactorROMWritePort, a.value, 0);
-    await write(clk, twiddleFactorROMWritePort, b.value, 1);
+    await write(clk, tempMemoryWritePort, aLogic.value, 0);
+    await write(clk, tempMemoryWritePort, bLogic.value, 1);
+    await write(clk, twiddleFactorROMWritePort, twiddleLogic.value, 0);
 
     go.inject(1);
-    stage.done.posedge.listen((_) {
+    flop(clk, stage.done).posedge.listen((_) {
       go.inject(0);
     });
     await clk.waitCycles(5);
+
+    final output1 = await read(clk, outputSamplesA, 0);
+    final output2 = await read(clk, outputSamplesA, 1);
+    final output1float = ComplexFloatingPoint.of(
+      Const(output1),
+      exponentWidth: exponentWidth,
+      mantissaWidth: mantissaWidth,
+    );
+    final output2float = ComplexFloatingPoint.of(
+      Const(output2),
+      exponentWidth: exponentWidth,
+      mantissaWidth: mantissaWidth,
+    );
+    print(output1float.realPart.floatingPointValue.toDouble());
+    print(output1float.imaginaryPart.floatingPointValue.toDouble());
+    print(output2float.realPart.floatingPointValue.toDouble());
+    print(output2float.imaginaryPart.floatingPointValue.toDouble());
+
+    final expected = butterfly(a, b, twiddle);
+
+    print(expected[0].real);
+    print(expected[0].imaginary);
+    print(expected[1].real);
+    print(expected[1].imaginary);
+
+    compareDouble(
+      output1float.realPart.floatingPointValue.toDouble(),
+      expected[0].real,
+    );
+    compareDouble(
+      output1float.imaginaryPart.floatingPointValue.toDouble(),
+      expected[0].imaginary,
+    );
+    compareDouble(
+      output2float.realPart.floatingPointValue.toDouble(),
+      expected[1].real,
+    );
+    compareDouble(
+      output2float.imaginaryPart.floatingPointValue.toDouble(),
+      expected[1].imaginary,
+    );
 
     await Simulator.endSimulation();
   });

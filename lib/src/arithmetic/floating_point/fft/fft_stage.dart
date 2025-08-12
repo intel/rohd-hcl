@@ -104,6 +104,7 @@ class BadFFTStage extends Module {
       [outputSamplesWritePortA, outputSamplesWritePortB],
       [outputSamplesReadPortA, outputSamplesReadPortB],
       numEntries: n,
+      name: 'outputSamplesBuffer',
     );
     outputSamplesA.data <= outputSamplesReadPortA.data;
     outputSamplesReadPortA.en <= outputSamplesA.en;
