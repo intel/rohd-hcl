@@ -30,31 +30,23 @@ class Complex {
 
   Complex({required this.real, required this.imaginary});
 
-  Complex add(Complex other) {
-    return Complex(
-      real: this.real + other.real,
-      imaginary: this.imaginary + other.imaginary,
+  Complex add(Complex other) => Complex(
+      real: real + other.real,
+      imaginary: imaginary + other.imaginary,
     );
-  }
 
-  Complex subtract(Complex other) {
-    return Complex(
-      real: this.real - other.real,
-      imaginary: this.imaginary - other.imaginary,
+  Complex subtract(Complex other) => Complex(
+      real: real - other.real,
+      imaginary: imaginary - other.imaginary,
     );
-  }
 
-  Complex multiply(Complex other) {
-    return Complex(
-      real: (this.real * other.real) - (this.imaginary * other.imaginary),
-      imaginary: (this.real * other.imaginary) + (this.imaginary * other.real),
+  Complex multiply(Complex other) => Complex(
+      real: (real * other.real) - (imaginary * other.imaginary),
+      imaginary: (real * other.imaginary) + (imaginary * other.real),
     );
-  }
 
   @override
-  String toString() {
-    return '${real}${imaginary >= 0 ? '+' : ''}${imaginary}i';
-  }
+  String toString() => '$real${imaginary >= 0 ? '+' : ''}${imaginary}i';
 }
 
 List<Complex> butterfly(Complex inA, Complex inB, Complex twiddleFactor) {
@@ -62,11 +54,11 @@ List<Complex> butterfly(Complex inA, Complex inB, Complex twiddleFactor) {
   return [inA.subtract(temp), inA.add(temp)];
 }
 
-final epsilon = 1e-15;
+const epsilon = 1e-15;
 
 void compareDouble(double actual, double expected) {
   assert(
     (actual - expected).abs() < epsilon,
-    "actual ${actual}, expected ${expected}",
+    'actual $actual, expected $expected',
   );
 }

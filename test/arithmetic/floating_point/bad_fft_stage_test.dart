@@ -5,7 +5,6 @@ import 'dart:async';
 
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
-import 'package:rohd_hcl/src/arithmetic/floating_point/fft/butterfly.dart';
 import 'package:rohd_hcl/src/arithmetic/floating_point/fft/fft_stage.dart';
 import 'package:rohd_hcl/src/arithmetic/signals/floating_point_logics/complex_floating_point_logic.dart';
 import 'package:rohd_vf/rohd_vf.dart';
@@ -47,9 +46,9 @@ void main() {
   });
 
   test('fft stage unit test', () async {
-    final a = Complex(real: 1.0, imaginary: 2.0);
-    final b = Complex(real: -3.0, imaginary: -4.0);
-    final twiddle = Complex(real: 1.0, imaginary: 0.0);
+    final a = Complex(real: 1, imaginary: 2);
+    final b = Complex(real: -3, imaginary: -4);
+    final twiddle = Complex(real: 1, imaginary: 0);
     final aLogic = newComplex(a.real, a.imaginary);
     final bLogic = newComplex(b.real, b.imaginary);
     final twiddleLogic = newComplex(twiddle.real, twiddle.imaginary);
@@ -57,7 +56,7 @@ void main() {
     final reset = Logic()..put(0);
     final go = Logic()..put(0);
 
-    final n = 2;
+    const n = 2;
 
     final exponentWidth = aLogic.realPart.exponent.width;
     final mantissaWidth = aLogic.realPart.mantissa.width;

@@ -34,50 +34,50 @@ class BadFFTStage extends Module {
     required DataPortInterface outputSamplesA,
     required DataPortInterface outputSamplesB,
     super.name = 'badfftstage',
-  })  : assert(go.width == 1),
-        assert(
-          inputSamplesA.dataWidth == 2 * (1 + exponentWidth + mantissaWidth),
-        ),
-        assert(
-          inputSamplesB.dataWidth == 2 * (1 + exponentWidth + mantissaWidth),
-        ) {
+  }) : assert(go.width == 1),
+       assert(
+         inputSamplesA.dataWidth == 2 * (1 + exponentWidth + mantissaWidth),
+       ),
+       assert(
+         inputSamplesB.dataWidth == 2 * (1 + exponentWidth + mantissaWidth),
+       ) {
     clk = addInput('clk', clk);
     reset = addInput('reset', reset);
     go = addInput('go', go);
-    final _done = Logic(name: "_done");
-    done = addOutput('done')..gets(_done);
-    final en = (go & ~_done).named("enable");
+    final doneInner = Logic(name: '_done');
+    done = addOutput('done')..gets(doneInner);
+    final en = (go & ~done).named('enable');
 
     inputSamplesA = connectInterface(
       inputSamplesA,
       inputTags: [DataPortGroup.data],
       outputTags: [DataPortGroup.control],
-      uniquify: (name) => "inputSamplesA${name}",
+      uniquify: (name) => 'inputSamplesA$name',
     );
     inputSamplesB = connectInterface(
       inputSamplesB,
       inputTags: [DataPortGroup.data],
       outputTags: [DataPortGroup.control],
-      uniquify: (name) => "inputSamplesB${name}",
+      uniquify: (name) => 'inputSamplesB$name',
     );
     twiddleFactorROM = connectInterface(
       twiddleFactorROM,
       inputTags: [DataPortGroup.data],
       outputTags: [DataPortGroup.control],
-      uniquify: (name) => "twiddleFactorROM${name}",
+      uniquify: (name) => 'twiddleFactorROM$name',
     );
 
     outputSamplesA = connectInterface(
       outputSamplesA,
       inputTags: [DataPortGroup.control],
       outputTags: [DataPortGroup.data],
-      uniquify: (name) => "outputSamplesA${name}",
+      uniquify: (name) => 'outputSamplesA$name',
     );
     outputSamplesB = connectInterface(
       outputSamplesB,
       inputTags: [DataPortGroup.control],
       outputTags: [DataPortGroup.data],
-      uniquify: (name) => "outputSamplesB${name}",
+      uniquify: (name) => 'outputSamplesB$name',
     );
 
     final outputSamplesWritePortA = DataPortInterface(
@@ -120,16 +120,15 @@ class BadFFTStage extends Module {
     final i = Counter.ofLogics(
       [flop(clk, en)],
       clk: clk,
-      reset: reset | (this.go & _done),
-      resetValue: 0,
+      reset: reset | (go & doneInner),
       width: max(log2Length - 1, 1),
       maxValue: n ~/ 2,
-      name: "i",
+      name: 'i',
     );
-    _done <= i.equalsMax;
+    doneInner <= i.equalsMax;
 
-    final k = ((i.count >> (mShift - 1)) << mShift).named("k");
-    final j = (i.count & Const((m >> 1) - 1, width: i.width)).named("j");
+    final k = ((i.count >> (mShift - 1)) << mShift).named('k');
+    final j = (i.count & Const((m >> 1) - 1, width: i.width)).named('j');
 
     //     for k = 0 to n-1 by m do
     //         ω ← 1
@@ -139,8 +138,8 @@ class BadFFTStage extends Module {
     //             A[k + j] ← u + t
     //             A[k + j + m/2] ← u – t
     //             ω ← ω ωm
-    Logic addressA = (k + j).named("addressA");
-    Logic addressB = (addressA + m ~/ 2).named("addressB");
+    final addressA = (k + j).named('addressA');
+    final addressB = (addressA + m ~/ 2).named('addressB');
     inputSamplesA.addr <= addressA;
     inputSamplesA.en <= en;
     inputSamplesB.addr <= addressB;
@@ -171,12 +170,9 @@ class BadFFTStage extends Module {
     outputSamplesWritePortB.addr <= addressB;
     outputSamplesWritePortB.en <= en;
 
-    Sequential(
-        clk,
-        [
-          outputSamplesWritePortA.data < butterfly.outA.named("butterflyOutA"),
-          outputSamplesWritePortB.data < butterfly.outB.named("butterflyOutB"),
-        ],
-        reset: reset);
+    Sequential(clk, [
+      outputSamplesWritePortA.data < butterfly.outA.named('butterflyOutA'),
+      outputSamplesWritePortB.data < butterfly.outB.named('butterflyOutB'),
+    ], reset: reset);
   }
 }

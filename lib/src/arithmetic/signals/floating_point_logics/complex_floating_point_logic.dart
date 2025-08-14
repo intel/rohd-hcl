@@ -74,7 +74,7 @@ class ComplexFloatingPoint extends LogicStructure {
           imaginaryPart:
               FloatingPointAdderSinglePath(imaginaryPart, other.imaginaryPart)
                   .sum,
-          name: _nameJoin(name, "adder"));
+          name: _nameJoin(name, 'adder'));
 
   ComplexFloatingPoint multiplier(ComplexFloatingPoint other) {
     // use only 3 multipliers: https://mathworld.wolfram.com/ComplexMultiplication.html
@@ -92,11 +92,11 @@ class ComplexFloatingPoint extends LogicStructure {
         imaginaryPart: FloatingPointAdderSinglePath(abcd,
                 FloatingPointAdderSinglePath(ac.negated(), bd.negated()).sum)
             .sum,
-        name: _nameJoin(name, "multiplier"));
+        name: _nameJoin(name, 'multiplier'));
   }
 
   late final ComplexFloatingPoint negated = ComplexFloatingPoint._internal(
       realPart: realPart.negated(),
       imaginaryPart: imaginaryPart.negated(),
-      name: _nameJoin(name, "negated"));
+      name: _nameJoin(name, 'negated'));
 }

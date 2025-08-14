@@ -38,8 +38,8 @@ void main() {
   });
 
   test('complex addition', () {
-    final a = newComplex(1.0, 0.0);
-    final b = newComplex(0.0, -1.0);
+    final a = newComplex(1, 0);
+    final b = newComplex(0, -1);
     final c = a.adder(b);
 
     expect(c.realPart.floatingPointValue.toDouble(), 1.0);
@@ -47,8 +47,8 @@ void main() {
   });
 
   test('complex multiplication', () {
-    final a = newComplex(1.0, 2.0);
-    final b = newComplex(-3.0, -4.0);
+    final a = newComplex(1, 2);
+    final b = newComplex(-3, -4);
     final c = a.multiplier(b);
 
     expect(c.realPart.floatingPointValue.toDouble(), 5.0);
