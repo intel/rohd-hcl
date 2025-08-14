@@ -10,73 +10,7 @@ import 'package:rohd_hcl/src/arithmetic/floating_point/fft/fft_stage.dart';
 import 'package:rohd_hcl/src/arithmetic/signals/floating_point_logics/complex_floating_point_logic.dart';
 import 'package:rohd_vf/rohd_vf.dart';
 import 'package:test/test.dart';
-
-ComplexFloatingPoint newComplex(double real, double imaginary) {
-  final realFP = FloatingPoint64();
-  final imaginaryFP = FloatingPoint64();
-
-  final realFPValue = FloatingPoint64Value.populator().ofDouble(real);
-  final imaginaryFPValue = FloatingPoint64Value.populator().ofDouble(imaginary);
-
-  realFP.put(realFPValue);
-  imaginaryFP.put(imaginaryFPValue);
-
-  final complex = ComplexFloatingPoint(
-    exponentWidth: realFP.exponent.width,
-    mantissaWidth: realFP.mantissa.width,
-  );
-  complex.realPart <= realFP;
-  complex.imaginaryPart <= imaginaryFP;
-
-  return complex;
-}
-
-class Complex {
-  double real;
-  double imaginary;
-
-  Complex({required this.real, required this.imaginary});
-
-  Complex add(Complex other) {
-    return Complex(
-      real: this.real + other.real,
-      imaginary: this.imaginary + other.imaginary,
-    );
-  }
-
-  Complex subtract(Complex other) {
-    return Complex(
-      real: this.real - other.real,
-      imaginary: this.imaginary - other.imaginary,
-    );
-  }
-
-  Complex multiply(Complex other) {
-    return Complex(
-      real: (this.real * other.real) - (this.imaginary * other.imaginary),
-      imaginary: (this.real * other.imaginary) + (this.imaginary * other.real),
-    );
-  }
-
-  @override
-  String toString() {
-    return '${real}${imaginary >= 0 ? '+' : ''}${imaginary}i';
-  }
-}
-
-List<Complex> butterfly(Complex inA, Complex inB, Complex twiddleFactor) {
-  final temp = twiddleFactor.multiply(inB);
-  return [inA.subtract(temp), inA.add(temp)];
-}
-
-final epsilon = 1e-15;
-
-void compareDouble(double actual, double expected) {
-  assert(
-    (actual - expected).abs() < epsilon,
-    "actual ${actual}, expected ${expected}",
-  );
-}
+import 'fft_utils.dart';
 
 Future<void> write(
   Logic clk,
@@ -171,8 +105,6 @@ void main() {
 
     WaveDumper(stage);
 
-    // print(stage.generateSynth());
-
     unawaited(Simulator.run());
 
     reset.inject(1);
@@ -202,17 +134,8 @@ void main() {
       exponentWidth: exponentWidth,
       mantissaWidth: mantissaWidth,
     );
-    print(output1float.realPart.floatingPointValue.toDouble());
-    print(output1float.imaginaryPart.floatingPointValue.toDouble());
-    print(output2float.realPart.floatingPointValue.toDouble());
-    print(output2float.imaginaryPart.floatingPointValue.toDouble());
 
     final expected = butterfly(a, b, twiddle);
-
-    print(expected[0].real);
-    print(expected[0].imaginary);
-    print(expected[1].real);
-    print(expected[1].imaginary);
 
     compareDouble(
       output1float.realPart.floatingPointValue.toDouble(),

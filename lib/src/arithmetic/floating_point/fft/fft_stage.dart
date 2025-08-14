@@ -34,13 +34,13 @@ class BadFFTStage extends Module {
     required DataPortInterface outputSamplesA,
     required DataPortInterface outputSamplesB,
     super.name = 'badfftstage',
-  }) : assert(go.width == 1),
-       assert(
-         inputSamplesA.dataWidth == 2 * (1 + exponentWidth + mantissaWidth),
-       ),
-       assert(
-         inputSamplesB.dataWidth == 2 * (1 + exponentWidth + mantissaWidth),
-       ) {
+  })  : assert(go.width == 1),
+        assert(
+          inputSamplesA.dataWidth == 2 * (1 + exponentWidth + mantissaWidth),
+        ),
+        assert(
+          inputSamplesB.dataWidth == 2 * (1 + exponentWidth + mantissaWidth),
+        ) {
     clk = addInput('clk', clk);
     reset = addInput('reset', reset);
     go = addInput('go', go);
@@ -116,7 +116,6 @@ class BadFFTStage extends Module {
     final log2Length = inputSamplesA.addrWidth;
     final m = 1 << logStage;
     final mShift = log2Ceil(m);
-    print("m is ${m}");
 
     final i = Counter.ofLogics(
       [flop(clk, en)],
@@ -172,9 +171,12 @@ class BadFFTStage extends Module {
     outputSamplesWritePortB.addr <= addressB;
     outputSamplesWritePortB.en <= en;
 
-    Sequential(clk, [
-      outputSamplesWritePortA.data < butterfly.outA.named("butterflyOutA"),
-      outputSamplesWritePortB.data < butterfly.outB.named("butterflyOutB"),
-    ], reset: reset);
+    Sequential(
+        clk,
+        [
+          outputSamplesWritePortA.data < butterfly.outA.named("butterflyOutA"),
+          outputSamplesWritePortB.data < butterfly.outB.named("butterflyOutB"),
+        ],
+        reset: reset);
   }
 }
