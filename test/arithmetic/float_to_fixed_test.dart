@@ -24,8 +24,11 @@ void main() async {
       if (!fpv.isAnInfinity & !fpv.isNaN) {
         float.put(fpv);
         final fxp = dut.fixed;
-        final fxpExp = FixedPointValue.ofDouble(fpv.toDouble(),
-            signed: true, m: dut.m, n: dut.n);
+        final fxpExp = FixedPointValue.populator(
+                integerWidth: dut.integerWidth,
+                fractionWidth: dut.fractionWidth,
+                signed: true)
+            .ofDouble(fpv.toDouble());
         expect(fxp.value.bitString, fxpExp.value.bitString);
       }
     }
@@ -62,11 +65,12 @@ void main() async {
         final fp1 = FloatingPoint(exponentWidth: sEW, mantissaWidth: sMW)
           ..put(0);
         final nominal = FloatToFixed(fp1);
-        for (var i = 0; i < nominal.n - 2; i++) {
-          final tN = nominal.n - i;
-          for (var j = 0; j < nominal.m - 2; j++) {
-            final tM = nominal.m - j;
-            final convert = FloatToFixed(fp1, m: tM, n: tN);
+        for (var i = 0; i < nominal.fractionWidth - 2; i++) {
+          final tN = nominal.fractionWidth - i;
+          for (var j = 0; j < nominal.integerWidth - 2; j++) {
+            final tM = nominal.integerWidth - j;
+            final convert =
+                FloatToFixed(fp1, integerWidth: tM, fractionWidth: tN);
             final fxc = convert.fixed;
             for (final negate in [false, true]) {
               for (var e1 = 0; e1 < pow(2, sEW) - 1; e1++) {
@@ -76,10 +80,11 @@ void main() async {
                       .ofInts(e1, m1, sign: negate);
                   fp1.put(fv1.value);
                   final val = fv1.toDouble();
-                  if (FixedPointValue.canStore(val,
-                      signed: true, m: tM, n: tN)) {
-                    final fx = FixedPointValue.ofDouble(fv1.toDouble(),
-                        signed: true, m: tM, n: tN);
+                  if (FixedPointValuePopulator.canStore(val,
+                      signed: true, integerWidth: tM, fractionWidth: tN)) {
+                    final fx = FixedPointValue.populator(
+                            integerWidth: tM, fractionWidth: tN, signed: true)
+                        .ofDouble(fv1.toDouble());
 
                     expect(fxc.fixedPointValue, equals(fx), reason: '''
                     $fx (${fx.toDouble()})
@@ -113,10 +118,11 @@ void main() async {
         final fp1 = FloatingPoint(exponentWidth: sEW, mantissaWidth: sMW)
           ..put(0);
         final nominal = FloatToFixed(fp1);
-        for (var i = 0; i < nominal.n - 2; i++) {
-          final tN = nominal.n - i;
-          final tM = nominal.m;
-          final convert = FloatToFixed(fp1, m: tM, n: tN);
+        for (var i = 0; i < nominal.fractionWidth - 2; i++) {
+          final tN = nominal.fractionWidth - i;
+          final tM = nominal.integerWidth;
+          final convert =
+              FloatToFixed(fp1, integerWidth: tM, fractionWidth: tN);
           for (final negate in [false, true]) {
             for (var e1 = 0; e1 < pow(2, sEW) - 1; e1++) {
               for (var m1 = 0; m1 < pow(2, sMW); m1++) {
@@ -125,9 +131,9 @@ void main() async {
                     .ofInts(e1, m1, sign: negate);
                 fp1.put(fv1.value);
                 final fxc = convert.fixed;
-
-                final fx = FixedPointValue.ofDouble(fv1.toDouble(),
-                    signed: true, m: tM, n: tN);
+                final fx = FixedPointValue.populator(
+                        integerWidth: tM, fractionWidth: tN, signed: true)
+                    .ofDouble(fv1.toDouble());
 
                 expect(fxc.fixedPointValue, equals(fx), reason: '''
                     $fx (${fx.toDouble()})
@@ -155,10 +161,12 @@ void main() async {
         final fp1 = FloatingPoint(exponentWidth: sEW, mantissaWidth: sMW)
           ..put(0);
         final nominal = FloatToFixed(fp1);
-        for (var i = 0; i < nominal.m - 2; i++) {
-          final tM = nominal.m - i;
-          final convert =
-              FloatToFixed(fp1, m: tM, n: nominal.n, checkOverflow: true);
+        for (var i = 0; i < nominal.integerWidth - 2; i++) {
+          final tM = nominal.integerWidth - i;
+          final convert = FloatToFixed(fp1,
+              integerWidth: tM,
+              fractionWidth: nominal.fractionWidth,
+              checkOverflow: true);
           for (final negate in [false, true]) {
             for (var e1 = 0; e1 < pow(2, sEW) - 1; e1++) {
               for (var m1 = 0; m1 < pow(2, sMW); m1++) {
@@ -187,7 +195,9 @@ void main() async {
         final fp1 = FloatingPoint(exponentWidth: sEW, mantissaWidth: sMW)
           ..put(0);
         final nominal = FloatToFixed(fp1);
-        final convert = FloatToFixed(fp1, m: nominal.m + 4, n: nominal.n + 2);
+        final convert = FloatToFixed(fp1,
+            integerWidth: nominal.integerWidth + 4,
+            fractionWidth: nominal.fractionWidth + 2);
         for (final negate in [false, true]) {
           for (var e1 = 0; e1 < pow(2, sEW) - 1; e1++) {
             for (var m1 = 0; m1 < pow(2, sMW); m1++) {
@@ -220,8 +230,9 @@ void main() async {
               .ofLogicValue(LogicValue.ofInt(val, float.width));
       if (!fp8.isNaN & !fp8.isAnInfinity) {
         float.put(fp8.value);
-        final fx8 =
-            FixedPointValue.ofDouble(fp8.toDouble(), signed: true, m: 23, n: 9);
+        final fx8 = FixedPointValue.populator(
+                integerWidth: 23, fractionWidth: 9, signed: true)
+            .ofDouble(fp8.toDouble());
         expect(dut.fixed.value.bitString, fx8.value.bitString);
         expect(dut.q23p9.value, fx8.value);
       }
@@ -235,8 +246,9 @@ void main() async {
               .ofLogicValue(LogicValue.ofInt(val, float.width));
       if (!fp8.isNaN & !fp8.isAnInfinity) {
         float.put(fp8.value);
-        final fx8 = FixedPointValue.ofDouble(fp8.toDouble(),
-            signed: true, m: 16, n: 16);
+        final fx8 = FixedPointValue.populator(
+                integerWidth: 16, fractionWidth: 16, signed: true)
+            .ofDouble(fp8.toDouble());
         expect(dut.fixed.value.bitString, fx8.value.bitString);
         expect(dut.q16p16.value, fx8.value);
       }
@@ -249,17 +261,21 @@ void main() async {
     bf16.put(bf16Val);
     const m = 18;
     const n = 16;
-    final convert = FloatToFixed(bf16, m: m, n: n);
+    final convert = FloatToFixed(bf16, integerWidth: m, fractionWidth: n);
     final expectedDbl = bf16Val.toDouble();
 
-    if (FixedPointValue.canStore(expectedDbl,
-        signed: true, m: convert.m, n: convert.n)) {
-      final expected =
-          FixedPointValue.ofDouble(expectedDbl, signed: true, m: m, n: n);
+    if (FixedPointValuePopulator.canStore(expectedDbl,
+        signed: true,
+        integerWidth: convert.integerWidth,
+        fractionWidth: convert.fractionWidth)) {
+      final expected = FixedPointValue.populator(
+              integerWidth: m, fractionWidth: n, signed: true)
+          .ofDouble(expectedDbl);
       final fixedVal = convert.fixed;
       final computedDbl = fixedVal.fixedPointValue.toDouble();
-      final computed =
-          FixedPointValue.ofDouble(computedDbl, signed: true, m: m, n: n);
+      final computed = FixedPointValue.populator(
+              integerWidth: m, fractionWidth: n, signed: true)
+          .ofDouble(computedDbl);
       expect(expected, equals(computed), reason: '''
           expected=$expected ($expectedDbl)
           computed=$computed ($computedDbl)
@@ -270,21 +286,25 @@ void main() async {
     final bf16 = FloatingPointBF16()..put(0);
     const m = 18;
     const n = 16;
-    final convert = FloatToFixed(bf16, m: m, n: n);
+    final convert = FloatToFixed(bf16, integerWidth: m, fractionWidth: n);
     for (var i = 0; i < pow(2, 16); i++) {
       final val = LogicValue.ofInt(i, 16);
       final bf16Val = FloatingPointBF16Value.populator().ofLogicValue(val);
       bf16.put(bf16Val);
       final expectedDbl = bf16Val.toDouble();
 
-      if (FixedPointValue.canStore(expectedDbl,
-          signed: true, m: convert.m, n: convert.n)) {
-        final expected =
-            FixedPointValue.ofDouble(expectedDbl, signed: true, m: m, n: n);
+      if (FixedPointValuePopulator.canStore(expectedDbl,
+          signed: true,
+          integerWidth: convert.integerWidth,
+          fractionWidth: convert.fractionWidth)) {
+        final expected = FixedPointValue.populator(
+                integerWidth: m, fractionWidth: n, signed: true)
+            .ofDouble(expectedDbl);
         final fixedVal = convert.fixed;
         final computedDbl = fixedVal.fixedPointValue.toDouble();
-        final computed =
-            FixedPointValue.ofDouble(computedDbl, signed: true, m: m, n: n);
+        final computed = FixedPointValue.populator(
+                integerWidth: m, fractionWidth: n, signed: true)
+            .ofDouble(computedDbl);
         expect(expected, equals(computed), reason: '''
           expected=$expected ($expectedDbl)
           computed=$computed ($computedDbl)

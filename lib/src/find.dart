@@ -16,10 +16,10 @@ import 'package:rohd_hcl/rohd_hcl.dart';
 /// Takes in a [Logic] to find location of `1`s or `0`s.
 /// Outputs pin `index` contains position.
 class Find extends Module {
-  /// [index] is an getter for output of Find
+  /// [index] is an getter for output of [Find].
   Logic get index => output('index');
 
-  /// [error] is an getter for error in Find
+  /// [error] is an getter for error in [Find].
   /// When your find is not found it will result in error `1`
   Logic? get error => tryOutput('error');
 
@@ -40,8 +40,11 @@ class Find extends Module {
       {bool countOne = true,
       Logic? n,
       this.generateError = false,
-      super.name = 'find'})
-      : super(definitionName: 'Find_W${bus.width}') {
+      super.name = 'find',
+      super.reserveName,
+      super.reserveDefinitionName,
+      String? definitionName})
+      : super(definitionName: definitionName ?? 'Find_W${bus.width}') {
     bus = addInput('bus', bus, width: bus.width);
     final oneHotList = <Logic>[];
 

@@ -13,19 +13,19 @@ import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
 import 'package:rohd_vf/rohd_vf.dart';
 
-/// A simple FIFO (First In, First Out).
+/// A module [Fifo] implementing a simple FIFO (First In, First Out) buffer.
 ///
-/// Supports a bypass if the FIFO is empty and written & read at the same time.
+/// Supports a bypass if [Fifo] is empty and written & read at the same time.
 class Fifo extends Module {
   /// High if the entire FIFO is full and it cannot accept any more new items.
   Logic get full => output('full');
 
-  /// High if there is nothing in the FIFO.
+  /// High if there is nothing in [Fifo].
   Logic get empty => output('empty');
 
-  /// Read data for the next item in the FIFO.
+  /// Read data for the next item in [Fifo]
   ///
-  /// This data is visible even when not actively removing from the FIFO.
+  /// This data is visible even when not actively removing from [Fifo].
   Logic get readData => output('readData');
 
   /// High if an error condition is reached.
@@ -36,12 +36,12 @@ class Fifo extends Module {
   /// If [generateError] is `false`, this output will not exist.
   Logic? get error => generateError ? output('error') : null;
 
-  /// The number of items in the FIFO.
+  /// The number of items in [Fifo].
   ///
   /// If [generateOccupancy] is `false`, this output will not exist.
   Logic? get occupancy => generateOccupancy ? output('occupancy') : null;
 
-  /// The depth of this FIFO.
+  /// The depth of [Fifo].
   ///
   /// Must be greater than 0.
   final int depth;
@@ -52,7 +52,7 @@ class Fifo extends Module {
   /// If `true`, then the [error] output will be generated.
   final bool generateError;
 
-  /// If `true`, then it is possible to bypass through the FIFO by writing
+  /// If `true`, then it is possible to bypass through [Fifo] by writing
   /// and reading at the same time while [empty].
   final bool generateBypass;
 
@@ -71,13 +71,13 @@ class Fifo extends Module {
   /// Write data.
   Logic get _writeData => input('writeData');
 
-  /// The width of the data transmitted through this FIFO.
+  /// The width of the data transmitted through this [Fifo].
   final int dataWidth;
 
-  /// The address width for elements in the storage of this FIFO.
+  /// The address width for elements in the storage of this [Fifo].
   final int _addrWidth;
 
-  /// Constructs a FIFO with RF-based storage.
+  /// Constructs a [Fifo] with [RegisterFile]-based storage.
   Fifo(Logic clk, Logic reset,
       {required Logic writeEnable,
       required Logic writeData,
@@ -86,10 +86,15 @@ class Fifo extends Module {
       this.generateError = false,
       this.generateOccupancy = false,
       this.generateBypass = false,
-      super.name = 'fifo'})
+      super.name = 'fifo',
+      super.reserveName,
+      super.reserveDefinitionName,
+      String? definitionName})
       : dataWidth = writeData.width,
         _addrWidth = max(1, log2Ceil(depth)),
-        super(definitionName: 'Fifo_D${depth}_W${writeData.width}') {
+        super(
+            definitionName:
+                definitionName ?? 'Fifo_D${depth}_W${writeData.width}') {
     if (depth <= 0) {
       throw RohdHclException('Depth must be at least 1.');
     }
@@ -122,7 +127,7 @@ class Fifo extends Module {
     _buildLogic();
   }
 
-  /// Builds all the logic for the FIFO.
+  /// Builds all the logic for [Fifo].
   void _buildLogic() {
     // set up the RF storage
     final wrPort = DataPortInterface(dataWidth, _addrWidth);
@@ -170,7 +175,7 @@ class Fifo extends Module {
       ]);
     }
 
-    // bypass means don't write to the FIFO, feed straight through
+    // bypass means don't write to [Fifo], feed straight through
     Logic? bypass;
     if (generateBypass) {
       bypass = Logic(name: 'bypass');
@@ -183,7 +188,7 @@ class Fifo extends Module {
     wrPort.addr <= wrPointer;
     wrPort.data <= _writeData;
 
-    // we can read from the fifo at all times to allow peeking,
+    // we can read from [Fifo] at all times to allow peeking,
     // including a new write if it's empty
     final peekWriteData = Logic(name: 'peekWriteData')
       ..gets(empty & _writeEnable);
@@ -207,9 +212,10 @@ class Fifo extends Module {
         ...pointerIncrements,
 
       // full condition is one of these options:
-      //  - we were already full, and pointers are staying the same
-      //  - wrptr is 1 behind read, and we're writing without reading
-      // otherwise, rdEn has progressed or we're in undefined error territory
+      //  - we were already full, and pointers are staying the same.
+      //  - [wrPointer] is 1 behind read, and we're writing without reading
+      //    otherwise, [_readdEnable] has progressed or we're in undefined error
+      //    territory.
       full <
           (full & (_writeEnable.eq(_readEnable))) |
               (rdPointer.eq(_incrWithWrap(wrPointer)) &
@@ -240,13 +246,13 @@ class FifoChecker extends Component {
   /// The [Fifo] being checked.
   final Fifo fifo;
 
-  /// If true, will check that [fifo] is empty at the end of the test.
+  /// If `true`, will check that [fifo] is empty at the end of the test.
   final bool enableEndOfTestEmptyCheck;
 
-  /// If true, will flag an error if there is an underflow in the [fifo].
+  /// If `true`, will flag an error if there is an underflow in the [fifo].
   final bool enableUnderflowCheck;
 
-  /// If true, will flag an error if there is an overflow in the [fifo].
+  /// If `true`, will flag an error if there is an overflow in the [fifo].
   final bool enableOverflowCheck;
 
   /// Builds a checker for a [fifo].
@@ -269,16 +275,15 @@ class FifoChecker extends Component {
 
     fifo._clk.posedge.listen((event) {
       if (!fifo._reset.previousValue!.isValid) {
-        // reset is invalid, bad state
+        // reset is invalid, bad state.
         hasReset = false;
         return;
       } else if (fifo._reset.previousValue!.toBool()) {
-        // reset is high, track that and move on
+        // reset is high, track that and move on.
         hasReset = true;
         return;
       } else if (hasReset) {
-        // reset is low, and we've previously reset, should be good to check
-
+        // reset is low, and we've previously reset, should be good to check.
         if (!fifoPortSignals
             .map((e) => e.previousValue!.isValid)
             .reduce((a, b) => a && b)) {
@@ -324,7 +329,7 @@ class FifoChecker extends Component {
 
 /// A tracker for a [Fifo] which can generate logs.
 class FifoTracker extends Tracker {
-  /// Internal tracking of occupancy in case the Fifo didn't generate it.
+  /// Internal tracking of occupancy in case the [Fifo] didn't generate it.
   int _occupancy = 0;
 
   /// Constructs a new tracker for [fifo].

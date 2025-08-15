@@ -76,27 +76,33 @@ class MultiCycleDividerInterface extends PairInterface {
   /// A constructor for the divider interface.
   MultiCycleDividerInterface({this.dataWidth = 32})
       : super(portsFromProvider: [
-          Port('clk'),
-          Port('reset'),
-          Port('dividend', dataWidth),
-          Port('divisor', dataWidth),
-          Port('isSigned'),
-          Port('validIn'),
-          Port('readyOut'),
+          Logic.port('clk'),
+          Logic.port('reset'),
+          Logic.port('dividend', dataWidth),
+          Logic.port('divisor', dataWidth),
+          Logic.port('isSigned'),
+          Logic.port('validIn'),
+          Logic.port('readyOut'),
         ], portsFromConsumer: [
-          Port('quotient', dataWidth),
-          Port('remainder', dataWidth),
-          Port('divZero'),
-          Port('validOut'),
-          Port('readyIn'),
+          Logic.port('quotient', dataWidth),
+          Logic.port('remainder', dataWidth),
+          Logic.port('divZero'),
+          Logic.port('validOut'),
+          Logic.port('readyIn'),
         ]);
 
   /// A match constructor for the divider interface.
+  @Deprecated('Use clone() instead.')
   MultiCycleDividerInterface.match(MultiCycleDividerInterface other)
       : this(dataWidth: other.dataWidth);
+
+  /// Clones this [MultiCycleDividerInterface].
+  @override
+  MultiCycleDividerInterface clone() =>
+      MultiCycleDividerInterface(dataWidth: dataWidth);
 }
 
-/// The Divider module definition
+/// The Divider module definition.
 class MultiCycleDivider extends Module {
   /// The Divider's interface declaration.
   @protected
@@ -125,13 +131,17 @@ class MultiCycleDivider extends Module {
   late final int logDataWidth;
 
   /// The Divider module's constructor
-  MultiCycleDivider(MultiCycleDividerInterface interface)
+  MultiCycleDivider(MultiCycleDividerInterface interface,
+      {super.name = 'multi_cycle_divider',
+      super.reserveName,
+      super.reserveDefinitionName,
+      String? definitionName})
       : dataWidth = interface.dataWidth,
         logDataWidth = log2Ceil(interface.dataWidth),
         super(
-            name: 'divider',
-            definitionName: 'MultiCycleDivider_W${interface.dataWidth}') {
-    intf = MultiCycleDividerInterface.match(interface)
+            definitionName:
+                definitionName ?? 'MultiCycleDivider_W${interface.dataWidth}') {
+    intf = interface.clone()
       ..pairConnectIO(
         this,
         interface,
@@ -142,8 +152,8 @@ class MultiCycleDivider extends Module {
     _build();
   }
 
-  /// Factory method to create a MultiCycleDivider
-  /// from explicit Logic signals instead of an interface
+  /// Factory method to create a [MultiCycleDivider]
+  /// from explicit [Logic] signals instead of an interface.
   factory MultiCycleDivider.ofLogics({
     required Logic clk,
     required Logic reset,
@@ -152,6 +162,9 @@ class MultiCycleDivider extends Module {
     required Logic divisor,
     required Logic isSigned,
     required Logic readyOut,
+    bool reserveName = false,
+    bool reserveDefinitionName = false,
+    String? definitionName,
   }) {
     assert(dividend.width == divisor.width,
         'Widths of all data signals do not match!');
@@ -164,12 +177,16 @@ class MultiCycleDivider extends Module {
     intf.divisor <= divisor;
     intf.isSigned <= isSigned;
     intf.readyOut <= readyOut;
-    return MultiCycleDivider(intf);
+    return MultiCycleDivider(intf,
+        reserveName: reserveName,
+        reserveDefinitionName: reserveDefinitionName,
+        definitionName:
+            definitionName ?? 'MultiCycleDivider_W${intf.dataWidth}');
   }
 
   void _build() {
-    // to capture current inputs
-    // as this operation takes multiple cycles
+    // To capture current inputs
+    // as this operation takes multiple cycles.
     final aBuf = Logic(name: 'aBuf', width: dataWidth + 1);
     final rBuf = Logic(name: 'rBuf', width: dataWidth + 1);
     final bBuf = Logic(name: 'bBuf', width: dataWidth + 1);

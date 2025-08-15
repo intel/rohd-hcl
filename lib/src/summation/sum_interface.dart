@@ -66,14 +66,15 @@ class SumInterface extends PairInterface {
       throw RohdHclException('Width must be positive.');
     }
     setPorts([
-      if (fixedAmount == null) Port('amount', this.width),
-      if (hasEnable) Port('enable'),
+      if (fixedAmount == null) Logic.port('amount', this.width),
+      if (hasEnable) Logic.port('enable'),
     ], [
       PairDirection.fromProvider
     ]);
   }
 
   /// Creates a clone of this [SumInterface] for things like [pairConnectIO].
+  @Deprecated('Use Instance-based `clone()` instead.')
   SumInterface.clone(SumInterface other)
       : this(
           fixedAmount: other.fixedAmount,
@@ -81,6 +82,16 @@ class SumInterface extends PairInterface {
           width: other.width,
           hasEnable: other.hasEnable,
         );
+
+  /// Create a clone of the [SumInterface] with the same configuration,
+  /// including any `fixedAmount`, `increments`, and `hasEnable` properties.
+  @override
+  SumInterface clone() => SumInterface(
+        fixedAmount: fixedAmount,
+        increments: increments,
+        width: width,
+        hasEnable: hasEnable,
+      );
 
   @override
   String toString() => [

@@ -44,9 +44,6 @@ enum HammingType {
   int get _extraParityBits => hasExtraParityBit ? 1 : 0;
 }
 
-/// Returns whether [n] is a power of two.
-bool _isPowerOfTwo(int n) => n != 0 && (n & (n - 1) == 0);
-
 /// A transmitter for data which generates a Hamming code for error detection
 /// and possibly correction.
 class HammingEccTransmitter extends ErrorCheckingTransmitter {
@@ -55,10 +52,16 @@ class HammingEccTransmitter extends ErrorCheckingTransmitter {
 
   /// Creates a [transmission] which includes a [code] that protects [data] with
   /// the specified [hammingType].
-  HammingEccTransmitter(super.data,
-      {super.name = 'hamming_ecc_tx', this.hammingType = HammingType.sec})
-      : super(
-            definitionName: 'hamming_ecc_transmitter_${hammingType.name}',
+  HammingEccTransmitter(
+    super.data, {
+    super.name = 'hamming_ecc_tx',
+    this.hammingType = HammingType.sec,
+    super.reserveName,
+    super.reserveDefinitionName,
+    String? definitionName,
+  }) : super(
+            definitionName:
+                definitionName ?? 'HammingEccTransmitter_${hammingType.name}',
             codeWidth:
                 _parityBitsRequired(data.width) + hammingType._extraParityBits);
 
@@ -87,7 +90,7 @@ class HammingEccTransmitter extends ErrorCheckingTransmitter {
     for (var i = 1;
         i <= transmission.width - hammingType._extraParityBits;
         i++) {
-      if (!_isPowerOfTwo(i)) {
+      if (!isPowerOfTwo(i)) {
         final ilv = LogicValue.ofInt(i, hammingCodeWidth);
 
         for (var p = 0; p < hammingCodeWidth; p++) {
@@ -130,12 +133,17 @@ class HammingEccReceiver extends ErrorCheckingReceiver {
   /// the [originalData] contains errors and possibly correct it to
   /// [correctedData], depending on the specified [hammingType].
   HammingEccReceiver(super.transmission,
-      {super.name = 'hamming_ecc_rx', this.hammingType = HammingType.sec})
+      {super.name = 'hamming_ecc_rx',
+      this.hammingType = HammingType.sec,
+      super.reserveName,
+      super.reserveDefinitionName,
+      String? definitionName})
       : super(
           codeWidth: _codeWidthFromTransmissionWidth(
                   transmission.width - hammingType._extraParityBits) +
               hammingType._extraParityBits,
-          definitionName: 'hamming_ecc_receiver_${hammingType.name}',
+          definitionName:
+              definitionName ?? 'hamming_ecc_receiver_${hammingType.name}',
           supportsErrorCorrection: hammingType.hasCorrection,
         ) {
     final tx = HammingEccTransmitter(originalData, hammingType: hammingType);
@@ -214,7 +222,7 @@ class HammingEccReceiver extends ErrorCheckingReceiver {
     final mapping = <int, int>{};
     var dataIdx = 0;
     for (var encodedIdx = 1; encodedIdx <= transmission.width; encodedIdx++) {
-      if (!_isPowerOfTwo(encodedIdx)) {
+      if (!isPowerOfTwo(encodedIdx)) {
         mapping[encodedIdx] = dataIdx++;
       }
     }

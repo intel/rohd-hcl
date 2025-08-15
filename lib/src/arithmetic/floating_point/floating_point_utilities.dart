@@ -89,6 +89,8 @@ abstract class FloatingPointSwap<FpType extends FloatingPoint> extends Module {
       {Logic? metaA,
       Logic? metaB,
       super.name = 'floating_point_swap',
+      super.reserveName,
+      super.reserveDefinitionName,
       String definitionName = 'floating_point_swap'})
       : super(definitionName: definitionName) {
     if (a.width != b.width) {
@@ -133,11 +135,18 @@ class FloatingPointConditionalSwap<FpType extends FloatingPoint>
 
   /// Constructs a [FloatingPointConditionalSwap] module that swaps two floating
   /// point values based on the [doSwap] condition.
-  FloatingPointConditionalSwap(super.a, super.b, Logic doSwap,
-      {super.metaA,
-      super.metaB,
-      super.name = 'floating_point_conditional_swap'})
-      : super(definitionName: 'FloatingPointSwap_W${a.width}') {
+  FloatingPointConditionalSwap(
+    super.a,
+    super.b,
+    Logic doSwap, {
+    super.metaA,
+    super.metaB,
+    super.name = 'floating_point_conditional_swap',
+    super.reserveName,
+    super.reserveDefinitionName,
+    String? definitionName,
+  }) : super(
+            definitionName: definitionName ?? 'FloatingPointSwap_W${a.width}') {
     this.doSwap = addInput('swap', doSwap);
 
     final (swapA, swapB) = swap(this.doSwap, (super.a, super.b));
@@ -159,8 +168,14 @@ class FloatingPointSort<FpType extends FloatingPoint>
   /// Constructs a [FloatingPointSort] module that sorts two floating point
   /// values so that the larger one is first.
   FloatingPointSort(super.a, super.b,
-      {super.metaA, super.metaB, super.name = 'floating_point_sort'})
-      : super(definitionName: 'FloatingPointSort_W${a.width}') {
+      {super.metaA,
+      super.metaB,
+      super.name = 'floating_point_sort',
+      super.reserveName,
+      super.reserveDefinitionName,
+      String? definitionName})
+      : super(
+            definitionName: definitionName ?? 'FloatingPointSort_W${a.width}') {
     final (sorted: (larger, smaller), didSwap: doSwap) =
         FloatingPointUtilities.sort((super.a, super.b));
     output('outA') <= larger;
@@ -179,9 +194,18 @@ class FloatingPointSortByExp<FpType extends FloatingPoint>
     extends FloatingPointSwap<FpType> {
   /// Constructs a [FloatingPointSortByExp] module that sorts two floating point
   /// values so that the one with the larger exponent is first.
-  FloatingPointSortByExp(super.a, super.b,
-      {super.metaA, super.metaB, super.name = 'floating_point_sort_by_exp'})
-      : super(definitionName: 'FloatingPointSortByExp_W${a.width}') {
+  FloatingPointSortByExp(
+    super.a,
+    super.b, {
+    super.metaA,
+    super.metaB,
+    super.name = 'floating_point_sort_by_exp',
+    super.reserveName,
+    super.reserveDefinitionName,
+    String? definitionName,
+  }) : super(
+            definitionName:
+                definitionName ?? 'FloatingPointSortByExp_W${a.width}') {
     final (sorted: (larger, smaller), didSwap: doSwap) =
         FloatingPointUtilities.sortByExp((super.a, super.b));
 

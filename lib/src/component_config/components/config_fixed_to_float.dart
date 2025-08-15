@@ -22,10 +22,10 @@ class FixedToFloatConfigurator extends Configurator {
       ToggleConfigKnob(value: false);
 
   /// Width of integer part.
-  final IntConfigKnob mKnob = IntConfigKnob(value: 8);
+  final IntConfigKnob integerWidthKnob = IntConfigKnob(value: 8);
 
   /// Width of fractional part.
-  final IntConfigKnob nKnob = IntConfigKnob(value: 23);
+  final IntConfigKnob fractionWidthKnob = IntConfigKnob(value: 23);
 
   /// Width of exponent, must be greater than 0.
   final IntConfigKnob exponentWidthKnob = IntConfigKnob(value: 8);
@@ -40,19 +40,23 @@ class FixedToFloatConfigurator extends Configurator {
   late final Map<String, ConfigKnob<dynamic>> knobs = UnmodifiableMapView({
     'Signed Input': signKnob,
     'Leading Digit Prediction Input': leadingDigitPredictionKnob,
-    'Input integer width': mKnob,
-    'Input fraction width': nKnob,
+    'Input integer width': integerWidthKnob,
+    'Input fraction width': fractionWidthKnob,
     'Output exponent width': exponentWidthKnob,
     'Output mantissa width': mantissaWidthKnob,
   });
 
   @override
   Module createModule() => FixedToFloat(
-      FixedPoint(signed: signKnob.value, m: mKnob.value, n: nKnob.value),
+      FixedPoint(
+          signed: signKnob.value,
+          integerWidth: integerWidthKnob.value,
+          fractionWidth: fractionWidthKnob.value),
       FloatingPoint(
           exponentWidth: exponentWidthKnob.value,
           mantissaWidth: mantissaWidthKnob.value),
       leadingDigitPredict: leadingDigitPredictionKnob.value
-          ? Logic(width: log2Ceil(mKnob.value))
-          : null);
+          ? Logic(width: log2Ceil(integerWidthKnob.value))
+          : null,
+      definitionName: 'FixedToFloat');
 }

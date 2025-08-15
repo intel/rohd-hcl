@@ -13,15 +13,13 @@ import 'package:test/test.dart';
 
 class SpiMainIntf extends Module {
   SpiMainIntf(SpiInterface intf, {super.name = 'SpiMainIntf'}) {
-    intf = SpiInterface.clone(intf)
-      ..pairConnectIO(this, intf, PairRole.provider);
+    intf = intf.clone()..pairConnectIO(this, intf, PairRole.provider);
   }
 }
 
 class SpiSubIntf extends Module {
   SpiSubIntf(SpiInterface intf, {super.name = 'SpiSubIntf'}) {
-    intf = SpiInterface.clone(intf)
-      ..pairConnectIO(this, intf, PairRole.consumer);
+    intf = intf.clone()..pairConnectIO(this, intf, PairRole.consumer);
   }
 }
 

@@ -32,7 +32,7 @@ class MaskedDataPortInterface extends DataPortInterface {
       throw RohdHclException('The data width must be byte-granularity');
     }
     setPorts([
-      Port('mask', dataWidth ~/ 8),
+      Logic.port('mask', dataWidth ~/ 8),
     ], [
       DataPortGroup.control
     ]);
@@ -66,14 +66,14 @@ class DataPortInterface extends Interface<DataPortGroup> {
   /// interacting with a memory in either the read or write direction.
   DataPortInterface(this.dataWidth, this.addrWidth) {
     setPorts([
-      Port('en'),
-      Port('addr', addrWidth),
+      Logic.port('en'),
+      Logic.port('addr', addrWidth),
     ], [
       DataPortGroup.control
     ]);
 
     setPorts([
-      Port('data', dataWidth),
+      Logic.port('data', dataWidth),
     ], [
       DataPortGroup.data
     ]);
@@ -124,7 +124,10 @@ abstract class Memory extends Module {
   /// Must provide at least one port (read or write).
   Memory(Logic clk, Logic reset, List<DataPortInterface> writePorts,
       List<DataPortInterface> readPorts,
-      {super.name = 'memory', String? definitionName})
+      {super.name = 'memory',
+      super.reserveName,
+      super.reserveDefinitionName,
+      String? definitionName})
       : numWrites = writePorts.length,
         numReads = readPorts.length,
         dataWidth = (writePorts.isNotEmpty)

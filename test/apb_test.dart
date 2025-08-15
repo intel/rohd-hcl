@@ -13,7 +13,7 @@ import 'package:test/test.dart';
 
 class ApbCompleter extends Module {
   ApbCompleter(ApbInterface intf) {
-    intf = ApbInterface.clone(intf)
+    intf = intf.clone()
       ..connectIO(this, intf,
           inputTags: {ApbDirection.misc, ApbDirection.fromRequester},
           outputTags: {ApbDirection.fromCompleter});
@@ -22,7 +22,7 @@ class ApbCompleter extends Module {
 
 class ApbRequester extends Module {
   ApbRequester(ApbInterface intf) {
-    intf = ApbInterface.clone(intf)
+    intf = intf.clone()
       ..connectIO(this, intf,
           inputTags: {ApbDirection.misc, ApbDirection.fromCompleter},
           outputTags: {ApbDirection.fromRequester});

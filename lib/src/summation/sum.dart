@@ -61,15 +61,20 @@ class Sum extends SummationBase {
   /// and [underflowed] outputs can be used to determine if the sum is at the
   /// maximum, minimum, (would have) overflowed, or  (would have) underflowed,
   /// respectively.
-  Sum(
-    super.interfaces, {
-    dynamic initialValue = 0,
-    super.maxValue,
-    super.minValue,
-    super.width,
-    super.saturates,
-    super.name = 'sum',
-  }) : super(initialValue: initialValue) {
+  Sum(super.interfaces,
+      {dynamic initialValue = 0,
+      super.maxValue,
+      super.minValue,
+      super.width,
+      super.saturates,
+      super.name = 'sum',
+      super.reserveName,
+      super.reserveDefinitionName,
+      String? definitionName})
+      : super(
+            definitionName:
+                definitionName ?? 'Sum_${interfaces.length}_W$width',
+            initialValue: initialValue) {
     addOutput('sum', width: width);
 
     var maxPosMagnitude = SummationBase.biggestVal(width);
@@ -98,8 +103,10 @@ class Sum extends SummationBase {
         (maxPosMagnitude + maxNegMagnitude + BigInt.one).bitLength, width + 1);
 
     final initialValueLogicExt = initialValueLogic.zeroExtend(internalWidth);
-    final minValueLogicExt = minValueLogic.zeroExtend(internalWidth);
-    final maxValueLogicExt = maxValueLogic.zeroExtend(internalWidth);
+    final minValueLogicExt =
+        minValueLogic.zeroExtend(internalWidth).named('minValueExt');
+    final maxValueLogicExt =
+        maxValueLogic.zeroExtend(internalWidth).named('maxValueExt');
 
     // lazy range so that it's not generated if not necessary
     late final range = Logic(name: 'range', width: internalWidth)
@@ -114,7 +121,10 @@ class Sum extends SummationBase {
       ..gets(minValueLogicExt + zeroPoint);
 
     final internalValue = Logic(name: 'internalValue', width: internalWidth);
-    sum <= (internalValue - zeroPoint).getRange(0, width);
+    sum <=
+        (internalValue - zeroPoint)
+            .named('internalValueOverZeroPoint')
+            .getRange(0, width);
 
     final preAdjustmentValue =
         Logic(name: 'preAdjustmentValue', width: internalWidth);

@@ -33,7 +33,15 @@ class SpiMain extends Module {
       required Logic reset,
       required Logic start,
       required Logic busIn,
-      super.name = 'spiMain'}) {
+      super.name = 'spiMain',
+      super.reserveName,
+      super.reserveDefinitionName,
+      String? definitionName})
+      : super(
+            definitionName: definitionName ??
+                'SpiMain_W${busIn.width}_'
+                    '${intf.dataLength}_'
+                    '${intf.sclk.width}') {
     busIn = addInput('busIn', busIn, width: busIn.width);
 
     clk = addInput('clk', clk);
@@ -46,8 +54,7 @@ class SpiMain extends Module {
 
     addOutput('done');
 
-    intf = SpiInterface.clone(intf)
-      ..pairConnectIO(this, intf, PairRole.provider);
+    intf = intf.clone()..pairConnectIO(this, intf, PairRole.provider);
 
     final isRunning = Logic(name: 'isRunning');
 

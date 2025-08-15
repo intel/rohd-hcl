@@ -29,17 +29,19 @@ abstract class OneHotToBinary extends Module {
   /// By default, creates an instance of a [CaseOneHotToBinary] for smaller
   /// widths and a [TreeOneHotToBinary] for larger widths.
   factory OneHotToBinary(Logic onehot,
-      {bool generateError = false, String name = 'one_hot_to_binary'}) {
+      {bool generateError = false,
+      String name = 'one_hot_to_binary',
+      bool reserveName = false,
+      bool reserveDefinitionName = false,
+      String? definitionName}) {
     final isSmall = onehot.width <= 8;
 
-    if (!isSmall && generateError) {
-      throw RohdHclException(
-          'Tree implementation does not generate error signal.');
-    }
-
-    return isSmall
-        ? CaseOneHotToBinary(onehot, generateError: generateError, name: name)
-        : TreeOneHotToBinary(onehot, name: name);
+    return (isSmall ? CaseOneHotToBinary.new : TreeOneHotToBinary.new)(onehot,
+        generateError: generateError,
+        reserveName: reserveName,
+        reserveDefinitionName: reserveDefinitionName,
+        name: name,
+        definitionName: definitionName ?? 'OneHotToBinary_W${onehot.width}');
   }
 
   /// The [input] of this instance.
@@ -50,9 +52,12 @@ abstract class OneHotToBinary extends Module {
 
   /// Constructs a [Module] which decodes a one-hot number [onehot] into a 2s
   /// complement number [binary] by encoding the position of the '1'.
+  @protected
   OneHotToBinary.base(Logic onehot,
       {this.generateError = false,
       super.name = 'one_hot_to_binary',
+      super.reserveName,
+      super.reserveDefinitionName,
       String? definitionName})
       : super(
             definitionName:

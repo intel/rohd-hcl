@@ -62,10 +62,10 @@ class MultiplierSelectKnob extends GroupOfKnobs {
           'Pipelined': pipelinedKnob,
       };
 
-  /// Constructor for MultiplierSelectKnob allows for exposing or hiding
+  /// Constructor for [MultiplierSelectKnob] allows for exposing or hiding
   /// some of the configuration knobs.
-  /// - [allowSigned] is false by default, making the multiplier unsigned.
-  /// - [allowPipelining] is false by default, making the multiplier
+  /// - [allowSigned] is `false` by default, making the multiplier unsigned.
+  /// - [allowPipelining] is `false` by default, making the multiplier
   /// combinational.
   MultiplierSelectKnob(
       {required this.allowSigned,
@@ -78,18 +78,22 @@ class MultiplierSelectKnob extends GroupOfKnobs {
       {Logic? clk,
       Logic? reset,
       Logic? enable,
-      String name}) selectedMultiplier() {
+      String name,
+      String? definitionName}) selectedMultiplier() {
     if (compressionTreeMultiplierKnob.value) {
       return (Logic term1, Logic term2,
               {Logic? clk,
               Logic? reset,
               Logic? enable,
-              String name = 'comp_tree_multiplier'}) =>
-          CompressionTreeMultiplier(term1, term2, radixKnob.value,
+              String name = 'comp_tree_multiplier',
+              String? definitionName}) =>
+          CompressionTreeMultiplier(term1, term2,
+              radix: radixKnob.value,
               adderGen: adderSelectionKnob.selectedAdder(),
               clk: clk,
               reset: reset,
-              enable: enable);
+              enable: enable,
+              definitionName: definitionName);
     }
     return NativeMultiplier.new;
   }

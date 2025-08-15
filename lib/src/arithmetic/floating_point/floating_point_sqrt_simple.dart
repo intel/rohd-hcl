@@ -12,7 +12,7 @@
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
 
-/// An square root module for FloatingPoint values
+/// A square root module for [FloatingPoint] logic signals.
 class FloatingPointSqrtSimple<FpType extends FloatingPoint>
     extends FloatingPointSqrt<FpType> {
   /// Square root one floating point number [a], returning results
@@ -21,10 +21,14 @@ class FloatingPointSqrtSimple<FpType extends FloatingPoint>
       {super.clk,
       super.reset,
       super.enable,
-      super.name = 'floatingpoint_square_root_simple'})
+      super.name = 'floatingpoint_square_root_simple',
+      super.reserveName,
+      super.reserveDefinitionName,
+      String? definitionName})
       : super(
-            definitionName: 'FloatingPointSquareRootSimple_'
-                'E${a.exponent.width}M${a.mantissa.width}') {
+            definitionName: definitionName ??
+                'FloatingPointSquareRootSimple_'
+                    'E${a.exponent.width}M${a.mantissa.width}') {
     final outputSqrt = FloatingPoint(
         exponentWidth: exponentWidth,
         mantissaWidth: mantissaWidth,
@@ -55,17 +59,18 @@ class FloatingPointSqrtSimple<FpType extends FloatingPoint>
     final isExpOdd = deBiasExp[0];
 
     // use fixed sqrt unit
-    final aFixed = FixedPoint(signed: false, m: 3, n: a.mantissa.width);
+    final aFixed = FixedPoint(
+        signed: false, integerWidth: 3, fractionWidth: a.mantissa.width);
     aFixed <=
         [Const(1, width: 3), a.mantissa.getRange(0)].swizzle().named('aFixed');
 
     // mux if we shift left by 1 if exponent was odd
-    final aFixedAdj = aFixed.clone()
+    final aFixedAdj = aFixed.clone(name: 'aFixedAdj')
       ..gets(mux(isExpOdd, [aFixed.slice(-2, 0), Const(0)].swizzle(), aFixed)
           .named('oddMantissaMux'));
 
     // mux to choose if we do square root or not
-    final fixedSqrt = aFixedAdj.clone()
+    final fixedSqrt = aFixedAdj.clone(name: 'fixedSqrt')
       ..gets(mux(enableSqrt, FixedPointSqrt(aFixedAdj).sqrt, aFixedAdj)
           .named('sqrtMux'));
 

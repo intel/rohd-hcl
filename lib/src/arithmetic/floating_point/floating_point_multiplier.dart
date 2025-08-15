@@ -51,7 +51,8 @@ abstract class FloatingPointMultiplier<FpTypeIn extends FloatingPoint,
   /// The rounding mode to use for the multiplier.
   late final FloatingPointRoundingMode roundingMode;
 
-  /// The internal FloatingPoint logic to set
+  /// The internal [FloatingPoint] logic in which to store the product of the
+  /// multiplication.
   @protected
   late final FpTypeOut internalProduct;
 
@@ -75,6 +76,8 @@ abstract class FloatingPointMultiplier<FpTypeIn extends FloatingPoint,
       ParallelPrefix Function(List<Logic>, Logic Function(Logic, Logic)) ppGen =
           KoggeStone.new,
       super.name = 'floating_point_multiplier',
+      super.reserveName,
+      super.reserveDefinitionName,
       String? definitionName})
       : super(
             definitionName: definitionName ??

@@ -8,12 +8,15 @@
 // Author: Desmond A Kirkpatrick <desmond.a.kirkpatrick@intel.com
 
 import 'dart:async';
+import 'dart:io';
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
 import 'package:rohd_vf/rohd_vf.dart';
 import 'package:test/test.dart';
 
-Logic addReduceAdders(List<Logic> inputs, {String name = 'prefix'}) {
+// Only for radix>=4
+Logic addReduceAdders(List<Logic> inputs,
+    {int? depth, Logic? control, String name = 'prefix'}) {
   if (inputs.length < 4) {
     return inputs.reduce((v, e) => v + e);
   } else {
@@ -21,19 +24,23 @@ Logic addReduceAdders(List<Logic> inputs, {String name = 'prefix'}) {
         ParallelPrefixAdder(inputs[0], inputs[1], name: '${name}_add0');
     final add1 =
         ParallelPrefixAdder(inputs[2], inputs[3], name: '${name}_add1');
-    final addf = ParallelPrefixAdder(add0.sum, add1.sum, name: '${name}_addf');
+    final addf = ParallelPrefixAdder(add0.sum, add1.sum,
+        name: '${name}_addf_${depth ?? 0}');
     return addf.sum;
   }
 }
+
+Logic muxReduce(List<Logic> inputs,
+        {int? depth, Logic? control, String name = 'mux'}) =>
+    mux(control![depth!], inputs[1], inputs[0]);
 
 void main() {
   tearDown(() async {
     await Simulator.reset();
   });
-  Logic addReduce(List<Logic> inputs, {String name = ''}) {
-    final a = inputs.reduce((v, e) => v + e);
-    return a;
-  }
+  Logic addReduce(List<Logic> inputs,
+          {int? depth, Logic? control, String name = ''}) =>
+      inputs.reduce((v, e) => v + e);
 
   test('reduction tree of add operations -- quick test', () async {
     const width = 13;
@@ -50,6 +57,58 @@ void main() {
       final prefixAdd = ReductionTree(vec, radix: radix, addReduce);
       expect(prefixAdd.out.value.toInt(), equals(count));
     }
+  });
+
+  test('reduction tree of muxes -- large singleton', () async {
+    const length = 16;
+    final width = log2Ceil(length);
+    final vec = <Logic>[];
+
+    // First sum will be length *(length-1) /2
+    var count = 0;
+    for (var i = 0; i < length; i++) {
+      vec.add(Const(i, width: width));
+      count = count + i;
+    }
+    const controlValue = 14;
+    final control = Const(controlValue, width: log2Ceil(vec.length));
+    final muxTree =
+        ReductionTree(vec, muxReduce, control: control, name: 'mux');
+    await muxTree.build();
+    File('mux_tree.sv').writeAsStringSync(muxTree.generateSynth());
+  });
+
+  test('reduction tree of muxes -- large flopped', () async {
+    final clk = SimpleClockGenerator(10).clk;
+
+    const length = 1024;
+    final width = log2Ceil(length);
+    final vec = <Logic>[];
+
+    var count = 0;
+    for (var i = 0; i < length; i++) {
+      vec.add(Const(i, width: width));
+      count = count + i;
+    }
+    final control = Logic(width: log2Ceil(vec.length))..put(0);
+    final muxTree = ReductionTree(vec, muxReduce,
+        clk: clk, depthBetweenFlops: 2, control: control, name: 'mux');
+
+    final positions = [7, 4, 5, 6, 12, 0, 1010, 511, 212, 0, 789];
+
+    await muxTree.build();
+    final latency = muxTree.latency;
+    unawaited(Simulator.run());
+    for (var clkCnt = 0; clkCnt < positions.length + latency; clkCnt++) {
+      await clk.nextNegedge;
+      if (clkCnt < positions.length) {
+        control.put(positions[clkCnt]);
+      }
+      if (clkCnt >= latency) {
+        expect(muxTree.out.value.toInt(), positions[clkCnt - latency]);
+      }
+    }
+    await Simulator.endSimulation();
   });
 
   test('reduction tree of adders -- large', () async {
@@ -87,7 +146,7 @@ void main() {
         radix: radix,
         addReduce,
         clk: clk,
-        depthToFlop: 1,
+        depthBetweenFlops: 1,
         name: 'prefix_reduction');
 
     await prefixAdd.build();
@@ -133,7 +192,7 @@ void main() {
     }
     const reduce = 4;
     final prefixAdd = ReductionTree(
-        vec, radix: reduce, addReduceAdders, clk: clk, depthToFlop: 1);
+        vec, radix: reduce, addReduceAdders, clk: clk, depthBetweenFlops: 1);
 
     await prefixAdd.build();
     unawaited(Simulator.run());

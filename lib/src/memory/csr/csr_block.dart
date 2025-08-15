@@ -11,7 +11,7 @@ import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
 import 'package:rohd_hcl/src/memory/csr/csr_container.dart';
 
-/// Logic representation of a block of registers.
+/// [Logic] representation of a block of registers.
 ///
 /// A block is just a collection of registers that are
 /// readable and writable through an addressing scheme
@@ -52,7 +52,12 @@ class CsrBlock extends CsrContainer {
     required super.frontRead,
     super.allowLargerRegisters,
     this.logicalRegisterIncrement = 1,
-  }) : csrs = List.unmodifiable(config.registers.map(Csr.new)) {
+    super.reserveName,
+    super.reserveDefinitionName,
+    String? definitionName,
+  })  : csrs = List.unmodifiable(config.registers.map(Csr.new)),
+        super(
+            definitionName: definitionName ?? 'CsrBlock_${config.name}_block') {
     _validate();
 
     for (var i = 0; i < csrs.length; i++) {

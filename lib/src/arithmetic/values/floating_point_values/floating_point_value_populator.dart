@@ -39,8 +39,11 @@ class FloatingPointValuePopulator<FpvType extends FloatingPointValue> {
   /// The maximum exponent value.
   int get maxExponent => _unpopulated.maxExponent;
 
-  /// True if the format stores the Jbit explicitly.
+  /// `true` if the format stores the Jbit explicitly.
   bool get explicitJBit => _unpopulated.explicitJBit;
+
+  /// `true` if subnormal numbers are treated as zero.
+  bool get subNormalAsZero => _unpopulated.subNormalAsZero;
 
   /// Whether or not this populator has already populated values.
   bool _hasPopulated = false;
@@ -236,6 +239,87 @@ class FloatingPointValuePopulator<FpvType extends FloatingPointValue> {
         mantissa: val.getRange(0, mantissaWidth),
       );
 
+  /// Return the set of [LogicValue]s for a given [FloatingPointConstants] at a
+  /// given [exponentWidth] and [mantissaWidth].
+  ///
+  /// This is a good function to override if constants behave specially in
+  /// subclases.
+  @protected
+  ({LogicValue sign, LogicValue exponent, LogicValue mantissa})
+      getConstantComponents(FloatingPointConstants constant) {
+    final (
+      String signStr,
+      String exponentStr,
+      String mantissaStr
+    ) stringComponents;
+
+    switch (constant) {
+      // smallest possible number
+      case FloatingPointConstants.negativeInfinity:
+        stringComponents = ('1', '1' * exponentWidth, '0' * mantissaWidth);
+
+      // -0.0
+      case FloatingPointConstants.negativeZero:
+        stringComponents = ('1', '0' * exponentWidth, '0' * mantissaWidth);
+
+      // 0.0
+      case FloatingPointConstants.positiveZero:
+        stringComponents = ('0', '0' * exponentWidth, '0' * mantissaWidth);
+
+      // Smallest possible number, most exponent negative, LSB set in mantissa
+      case FloatingPointConstants.smallestPositiveSubnormal:
+        stringComponents =
+            ('0', '0' * exponentWidth, '${'0' * (mantissaWidth - 1)}1');
+
+      // Largest possible subnormal, most negative exponent, mantissa all 1s
+      case FloatingPointConstants.largestPositiveSubnormal:
+        stringComponents = ('0', '0' * exponentWidth, '1' * mantissaWidth);
+
+      // Smallest possible positive number, most negative exponent, mantissa 0
+      case FloatingPointConstants.smallestPositiveNormal:
+        stringComponents =
+            ('0', '${'0' * (exponentWidth - 1)}1', '0' * mantissaWidth);
+
+      // Largest number smaller than one
+      case FloatingPointConstants.largestLessThanOne:
+        stringComponents =
+            ('0', '0${'1' * (exponentWidth - 2)}0', '1' * mantissaWidth);
+
+      // The number '1.0'
+      case FloatingPointConstants.one:
+        stringComponents =
+            ('0', '0${'1' * (exponentWidth - 1)}', '0' * mantissaWidth);
+
+      // Smallest number greater than one
+      case FloatingPointConstants.smallestLargerThanOne:
+        stringComponents = (
+          '0',
+          '0${'1' * (exponentWidth - 2)}0',
+          '${'0' * (mantissaWidth - 1)}1'
+        );
+
+      // Largest positive number, most positive exponent, full mantissa
+      case FloatingPointConstants.largestNormal:
+        stringComponents =
+            ('0', '${'1' * (exponentWidth - 1)}0', '1' * mantissaWidth);
+
+      // Largest possible number
+      case FloatingPointConstants.positiveInfinity:
+        stringComponents = ('0', '1' * exponentWidth, '0' * mantissaWidth);
+
+      // Not a Number (NaN)
+      case FloatingPointConstants.nan:
+        stringComponents =
+            ('0', '1' * exponentWidth, '${'0' * (mantissaWidth - 1)}1');
+    }
+
+    return (
+      sign: LogicValue.of(stringComponents.$1),
+      exponent: LogicValue.of(stringComponents.$2),
+      mantissa: LogicValue.of(stringComponents.$3)
+    );
+  }
+
   /// Creates a new [FloatingPointValue] represented by the given
   /// [constantFloatingPoint].
   FpvType ofConstant(FloatingPointConstants constantFloatingPoint) {
@@ -245,8 +329,9 @@ class FloatingPointValuePopulator<FpvType extends FloatingPointValue> {
           .ofConstant(constantFloatingPoint)) as FpvType;
     }
     final components =
-        // ignore: invalid_use_of_protected_member
-        _unpopulated.getConstantComponents(constantFloatingPoint);
+        // ignore: invalid_use_of_visible_for_overriding_member, invalid_use_of_protected_member
+        _unpopulated.getSpecialConstantComponents(constantFloatingPoint) ??
+            getConstantComponents(constantFloatingPoint);
 
     return populate(
         sign: components.sign,
@@ -375,6 +460,11 @@ class FloatingPointValuePopulator<FpvType extends FloatingPointValue> {
     final exponent =
         LogicValue.ofBigInt(BigInt.from(max(expVal, 0)), exponentWidth);
 
+    if (subNormalAsZero && expVal <= 0) {
+      // If we are subnormal, we return zero
+      mantissa = LogicValue.zero.zeroExtend(mantissaWidth);
+    }
+
     final sign = fp64.sign;
 
     return populate(
@@ -470,8 +560,9 @@ class FloatingPointValuePopulator<FpvType extends FloatingPointValue> {
     // The conversion fills leftward.
     // We reverse again after conversion.
     final exponent = LogicValue.ofInt(e + bias, exponentWidth);
-    final mantissa =
-        LogicValue.ofBigInt(fullValue.reversed.toBigInt(), mantissaWidth)
+    final mantissa = (subNormalAsZero && e + bias <= 0)
+        ? LogicValue.zero.zeroExtend(mantissaWidth)
+        : LogicValue.ofBigInt(fullValue.reversed.toBigInt(), mantissaWidth)
             .reversed;
 
     return populate(
@@ -487,7 +578,7 @@ class FloatingPointValuePopulator<FpvType extends FloatingPointValue> {
   /// represent:a general [FloatingPointValue] has a mantissa in `[0,2)` with `0
   /// <= exponent <= maxExponent()`.
   ///
-  /// If [normal] is true, This routine will only generate mantissas in the
+  /// If [normal] is `true`, This routine will only generate mantissas in the
   /// range of `[1,2)` and `minExponent() <= exponent <= maxExponent().`
   FpvType random(Random rv, {bool normal = false}) {
     if (explicitJBit) {
@@ -496,8 +587,6 @@ class FloatingPointValuePopulator<FpvType extends FloatingPointValue> {
           .random(rv, normal: normal)) as FpvType;
     }
     final sign = rv.nextLogicValue(width: 1);
-
-    final mantissa = rv.nextLogicValue(width: mantissaWidth);
 
     final largestExponent = bias + maxExponent;
     final LogicValue exponent;
@@ -508,6 +597,9 @@ class FloatingPointValuePopulator<FpvType extends FloatingPointValue> {
     } else {
       exponent = rv.nextLogicValue(width: exponentWidth, max: largestExponent);
     }
+    final mantissa = (subNormalAsZero & (exponent == LogicValue.zero))
+        ? LogicValue.zero.zeroExtend(mantissaWidth)
+        : rv.nextLogicValue(width: mantissaWidth);
 
     return populate(sign: sign, exponent: exponent, mantissa: mantissa);
   }

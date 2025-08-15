@@ -57,9 +57,6 @@ jobs:
       - name: Install CAD Suite (includes yosys)
         run: tool/gh_actions/install_opencadsuite.sh
 
-      - name: Install SystemVerilog to Verilog converter
-        run: tool/gh_actions/install_sv2v.sh
-
       - name: Install D3 Schematic viewer
         run: tool/gh_actions/install_d3_hwschematic.sh
 
@@ -90,7 +87,7 @@ jobs:
         uses: flutter-actions/setup-flutter@v2
         with:
           channel: stable
-          version: 3.24.2
+          version: 3.27.0
       
       - name: Analyze flutter source
         run: tool/gh_actions/analyze_flutter_source.sh
@@ -157,7 +154,7 @@ jobs:
         uses: flutter-actions/setup-flutter@v2
         with:
           channel: stable
-          version: 3.24.2
+          version: 3.27.0
       
       - name: Build static site
         run: tool/gh_actions/hcl_site_generation_build.sh

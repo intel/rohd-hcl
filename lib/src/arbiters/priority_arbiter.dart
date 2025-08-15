@@ -14,8 +14,14 @@ import 'package:rohd_hcl/rohd_hcl.dart';
 class PriorityArbiter extends Arbiter {
   /// Constructs an arbiter where the grant is given to the lowest-indexed
   /// request.
-  PriorityArbiter(super.requests, {super.name = 'priority_arbiter'})
-      : super(definitionName: 'PriorityArbiter_W${requests.length}') {
+  PriorityArbiter(super.requests,
+      {super.name = 'priority_arbiter',
+      super.reserveName,
+      super.reserveDefinitionName,
+      String? definitionName})
+      : super(
+            definitionName:
+                definitionName ?? 'PriorityArbiter_W${requests.length}') {
     Combinational([
       CaseZ(requests.rswizzle(), conditionalType: ConditionalType.priority, [
         for (var i = 0; i < count; i++)

@@ -24,7 +24,10 @@ abstract class CompoundAdder extends Adder {
   CompoundAdder(super.a, super.b,
       {Logic? carryIn,
       super.name = 'compound_adder',
-      super.definitionName = 'compound_adder'}) {
+      super.reserveName,
+      super.reserveDefinitionName,
+      String? definitionName})
+      : super(definitionName: definitionName ?? 'CompoundAdder_W${a.width}') {
     if (a.width != b.width) {
       throw RohdHclException('inputs of a and b should have same width.');
     }
@@ -39,8 +42,14 @@ abstract class CompoundAdder extends Adder {
 class TrivialCompoundAdder extends CompoundAdder {
   /// Constructs a [CompoundAdder].
   TrivialCompoundAdder(super.a, super.b,
-      {super.carryIn, super.name = 'trivial_compound_adder'})
-      : super(definitionName: 'trival_compound_adder') {
+      {super.carryIn,
+      super.name = 'trivial_compound_adder',
+      super.reserveName,
+      super.reserveDefinitionName,
+      String? definitionName})
+      : super(
+            definitionName:
+                definitionName ?? 'TrivialCompoundAdder_W${a.width}') {
     sum <= a.zeroExtend(a.width + 1) + b.zeroExtend(b.width + 1);
     sumP1 <= sum + 1;
   }
@@ -96,13 +105,13 @@ class CarrySelectCompoundAdder extends CompoundAdder {
       ParallelPrefixAdder(a, b, carryIn: carryIn, name: name);
 
   /// Constructs a [CarrySelectCompoundAdder].
-  /// - [carryIn] is a carry Logic into the [CarrySelectCompoundAdder]
-  /// - [adderGen] provides an adder Function which must supply optional
-  ///   [carryIn] and [subtractIn] Logic controls.
+  /// - [carryIn] is a carry [Logic] into the [CarrySelectCompoundAdder]
+  /// - [adderGen] provides an adder [Function] which must supply optional
+  ///   [carryIn] and [subtractIn] [Logic] controls.
   /// - [subtractIn]  This option is used by the
   ///   [CarrySelectOnesComplementCompoundAdder] and should not be used directly
   ///   as it requires ones-complement behavior from [adderGen].
-  /// - [widthGen] is the splitting function for creating the different adder
+  /// - [widthGen] is the splitting [Function] for creating the different adder
   ///   blocks. Decreasing the split width will increase speed but also increase
   ///   area.
   CarrySelectCompoundAdder(
@@ -114,8 +123,10 @@ class CarrySelectCompoundAdder extends CompoundAdder {
             {Logic? carryIn, Logic? subtractIn, String name})
         adderGen = _defaultBlockAdder,
     List<int> Function(int) widthGen = splitSelectAdderAlgorithmSingleBlock,
-    String? definitionName,
     super.name = 'cs_compound_adder',
+    super.reserveName,
+    super.reserveDefinitionName,
+    String? definitionName,
   }) : super(
             definitionName: definitionName ??
                 'CarrySelectCompoundAdder_${adderGen(a, b).definitionName}') {
@@ -212,22 +223,22 @@ class CarrySelectOnesComplementCompoundAdder extends CompoundAdder {
   late final Logic? subtractIn;
 
   /// Constructs a [CarrySelectCompoundAdder] using a set of
-  /// [OnesComplementAdder] in a carry-select configuration.
-  /// Adds (or subtracts) [a] and [b] to produce [sum] and [sumP1] (sum
-  /// plus 1).
-  /// - [adderGen] is the adder used inside the [OnesComplementAdder].
-  /// - [subtractIn] is an optional Logic control for subtraction.
+  /// [OnesComplementAdder] in a carry-select configuration. Adds (or subtracts)
+  /// [a] and [b] to produce [sum] and [sumP1] (sum plus 1).
+  /// - [adderGen] is the adder generator [Function] inside the
+  ///   [OnesComplementAdder].
+  /// - [subtractIn] is an optional [Logic] control for subtraction.
   /// - [subtract] is a boolean control for subtraction. It must be
-  /// false(default) if a [subtractIn] Logic is provided.
-  /// - [generateCarryOut] set to true will create output [carryOut] and employ
-  /// the ones-complement optimization of not adding '1' to convert back to 2s
-  /// complement during subtraction on the [sum].
-  /// - [generateCarryOutP1] set to true will create output [carryOutP1] and
-  /// employ the ones-complement optimization of not adding '1' to convert
-  /// back to 2s complement during subtraction on the [sumP1].
-  /// - [widthGen] is a function which produces a list for splitting
-  /// the adder for the carry-select chain.  The default is
-  /// [CarrySelectCompoundAdder.splitSelectAdderAlgorithmSingleBlock],
+  ///   `false`(default) if a [subtractIn] [Logic] is provided.
+  /// - [generateCarryOut] set to `true` will create output [carryOut] and
+  ///   employ the ones-complement optimization of not adding '1' to convert
+  ///   back to 2s complement during subtraction on the [sum].
+  /// - [generateCarryOutP1] set to `true` will create output [carryOutP1] and
+  ///   employ the ones-complement optimization of not adding '1' to convert
+  ///   back to 2s complement during subtraction on the [sumP1].
+  /// - [widthGen] is a [Function] which produces a list for splitting the adder
+  ///   for the carry-select chain.  The default is
+  ///   [CarrySelectCompoundAdder.splitSelectAdderAlgorithmSingleBlock],
   CarrySelectOnesComplementCompoundAdder(super.a, super.b,
       {Adder Function(Logic, Logic, {Logic? carryIn}) adderGen =
           NativeAdder.new,
@@ -237,9 +248,12 @@ class CarrySelectOnesComplementCompoundAdder extends CompoundAdder {
       bool subtract = false,
       List<int> Function(int) widthGen =
           CarrySelectCompoundAdder.splitSelectAdderAlgorithmSingleBlock,
-      super.name})
+      super.name,
+      super.reserveName,
+      super.reserveDefinitionName,
+      String? definitionName})
       : super(
-            definitionName:
+            definitionName: definitionName ??
                 'CarrySelectOnesComplementCompoundAdder_W${a.width}') {
     subtractIn = (subtractIn != null)
         ? addInput('subtractIn', subtractIn, width: subtractIn.width)
@@ -274,9 +288,9 @@ class CarrySelectOnesComplementCompoundAdder extends CompoundAdder {
       sumP1 <= sumPlus1;
       carryOutP1! <= csadder.sumP1[-1];
     } else {
-      final incrementer = ParallelPrefixIncr(sumPlus1);
       sumP1 <=
-          mux(csadder.sumP1[-1], incrementer.out.named('sum_plus2'), sumPlus1);
+          mux(csadder.sumP1[-1],
+              ParallelPrefixIncr(sumPlus1).out.named('sumPlus2'), sumPlus1);
     }
     if (generateCarryOut) {
       sum <= mux(doSubtract & csadder.sum[-1], ~csadder.sum, csadder.sum);

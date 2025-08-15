@@ -13,22 +13,24 @@ import 'package:rohd_hcl/rohd_hcl.dart';
 /// A [Configurator] for [FixedPointSqrt].
 class FixedPointSqrtConfigurator extends Configurator {
   /// Controls the size of the integer 'm'.
-  final IntConfigKnob mWidthKnob = IntConfigKnob(value: 8);
+  final IntConfigKnob integerWidthKnob = IntConfigKnob(value: 8);
 
   /// Controls the size of the fraction 'n'.
-  final IntConfigKnob nWidthKnob = IntConfigKnob(value: 4);
+  final IntConfigKnob fractionWidthKnob = IntConfigKnob(value: 4);
 
   @override
   Module createModule() {
-    final inp =
-        FixedPoint(signed: false, m: mWidthKnob.value, n: nWidthKnob.value);
+    final inp = FixedPoint(
+        signed: false,
+        integerWidth: integerWidthKnob.value,
+        fractionWidth: fractionWidthKnob.value);
     return FixedPointSqrt(inp);
   }
 
   @override
   Map<String, ConfigKnob<dynamic>> get knobs => {
-        'm width': mWidthKnob,
-        'n width': nWidthKnob,
+        'Integer Width': integerWidthKnob,
+        'Fraction Width': fractionWidthKnob,
       };
 
   @override

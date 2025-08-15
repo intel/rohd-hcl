@@ -27,8 +27,10 @@ class OneHotConfigurator extends Configurator {
   Module createModule() {
     final inp = Logic(width: inputWidthKnob.value);
     return directionKnob.value == BinaryToOneHot
-        ? BinaryToOneHot(inp)
-        : OneHotToBinary(inp, generateError: generateErrorKnob.value);
+        ? BinaryToOneHot(inp, definitionName: 'BinaryToOneHot')
+        : OneHotToBinary(inp,
+            generateError: generateErrorKnob.value,
+            definitionName: 'OneHotToBinary');
   }
 
   @override
