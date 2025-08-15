@@ -42,21 +42,21 @@ class FloatingPoint extends LogicStructure {
     bool subNormalAsZero = false,
     String? name,
   }) : this._(
-         Logic(name: 'sign', naming: Naming.mergeable),
-         Logic(
-           width: exponentWidth,
-           name: 'exponent',
-           naming: Naming.mergeable,
-         ),
-         Logic(
-           width: mantissaWidth,
-           name: 'mantissa',
-           naming: Naming.mergeable,
-         ),
-         explicitJBit,
-         subNormalAsZero,
-         name: name,
-       );
+          Logic(name: 'sign', naming: Naming.mergeable),
+          Logic(
+            width: exponentWidth,
+            name: 'exponent',
+            naming: Naming.mergeable,
+          ),
+          Logic(
+            width: mantissaWidth,
+            name: 'mantissa',
+            naming: Naming.mergeable,
+          ),
+          explicitJBit,
+          subNormalAsZero,
+          name: name,
+        );
 
   /// [FloatingPoint] internal constructor.
   FloatingPoint._(
@@ -71,22 +71,22 @@ class FloatingPoint extends LogicStructure {
   @mustBeOverridden
   @override
   FloatingPoint clone({String? name}) => FloatingPoint(
-    exponentWidth: exponent.width,
-    mantissaWidth: mantissa.width,
-    explicitJBit: explicitJBit,
-    subNormalAsZero: subNormalAsZero,
-    name: name,
-  );
+        exponentWidth: exponent.width,
+        mantissaWidth: mantissa.width,
+        explicitJBit: explicitJBit,
+        subNormalAsZero: subNormalAsZero,
+        name: name,
+      );
 
   /// A [FloatingPointValuePopulator] for values associated with this
   /// [FloatingPoint] type.
   @mustBeOverridden
   FloatingPointValuePopulator valuePopulator() => FloatingPointValue.populator(
-    exponentWidth: exponent.width,
-    mantissaWidth: mantissa.width,
-    explicitJBit: explicitJBit,
-    subNormalAsZero: subNormalAsZero,
-  );
+        exponentWidth: exponent.width,
+        mantissaWidth: mantissa.width,
+        explicitJBit: explicitJBit,
+        subNormalAsZero: subNormalAsZero,
+      );
 
   /// Return `true` if the J-bit is explicitly represented in the mantissa.
   final bool explicitJBit;
@@ -98,18 +98,19 @@ class FloatingPoint extends LogicStructure {
   /// mantissa resolved if not [isNormal] and [subNormalAsZero] is `true`.
   FloatingPoint resolveSubNormalAsZero() {
     if (subNormalAsZero) {
-      return clone()..gets(
-        mux(
-          isNormal,
-          this,
-          FloatingPoint.zero(
-            exponentWidth: exponent.width,
-            mantissaWidth: mantissa.width,
-            explicitJBit: explicitJBit,
-            subNormalAsZero: subNormalAsZero,
+      return clone()
+        ..gets(
+          mux(
+            isNormal,
+            this,
+            FloatingPoint.zero(
+              exponentWidth: exponent.width,
+              mantissaWidth: mantissa.width,
+              explicitJBit: explicitJBit,
+              subNormalAsZero: subNormalAsZero,
+            ),
           ),
-        ),
-      );
+        );
     } else {
       return this;
     }
@@ -132,33 +133,30 @@ class FloatingPoint extends LogicStructure {
   /// Return a [Logic] `1`if this [FloatingPoint] is Not a Number (NaN)
   /// by having its exponent field set to the NaN value (typically all
   /// ones) and a non-zero mantissa.
-  late final isNaN =
-      exponent.eq(valuePopulator().nan.exponent) &
+  late final isNaN = exponent.eq(valuePopulator().nan.exponent) &
       mantissa.or().named(_nameJoin('isNaN', name), naming: Naming.mergeable);
 
   /// Return a [Logic] `1` if this [FloatingPoint] is an infinity
   /// by having its exponent field set to the NaN value (typically all
   /// ones) and a zero mantissa.
-  late final isAnInfinity =
-      (floatingPointValue.supportsInfinities
-              ? exponent.isIn([
-                      valuePopulator().positiveInfinity.exponent,
-                      valuePopulator().negativeInfinity.exponent,
-                    ]) &
-                    ~mantissa.or()
-              : Const(0))
-          .named(_nameJoin('isAnInfinity', name), naming: Naming.mergeable);
+  late final isAnInfinity = (floatingPointValue.supportsInfinities
+          ? exponent.isIn([
+                valuePopulator().positiveInfinity.exponent,
+                valuePopulator().negativeInfinity.exponent,
+              ]) &
+              ~mantissa.or()
+          : Const(0))
+      .named(_nameJoin('isAnInfinity', name), naming: Naming.mergeable);
 
   /// Return a [Logic] `1` if this [FloatingPoint] is a zero
   /// by having its exponent field set to the NaN value (typically all
   /// ones) and a zero mantissa.
-  late final isAZero =
-      (exponent.isIn([
-                valuePopulator().positiveZero.exponent,
-                valuePopulator().negativeZero.exponent,
-              ]) &
-              ~mantissa.or())
-          .named(_nameJoin('isAZero', name), naming: Naming.mergeable);
+  late final isAZero = (exponent.isIn([
+            valuePopulator().positiveZero.exponent,
+            valuePopulator().negativeZero.exponent,
+          ]) &
+          ~mantissa.or())
+      .named(_nameJoin('isAZero', name), naming: Naming.mergeable);
 
   /// Return the zero exponent representation for this type of [FloatingPoint].
   late final zeroExponent = Const(
@@ -182,11 +180,11 @@ class FloatingPoint extends LogicStructure {
 
   /// Construct a [FloatingPoint] that represents infinity for this FP type.
   FloatingPoint inf({Logic? sign, bool negative = false}) => FloatingPoint.inf(
-    exponentWidth: exponent.width,
-    mantissaWidth: mantissa.width,
-    sign: sign,
-    negative: negative,
-  );
+        exponentWidth: exponent.width,
+        mantissaWidth: mantissa.width,
+        sign: sign,
+        negative: negative,
+      );
 
   /// Construct a [FloatingPoint] that represents NaN for this FP type.
   late final nan = FloatingPoint.nan(
@@ -216,12 +214,12 @@ class FloatingPoint extends LogicStructure {
   }
 
   FloatingPoint negated() => FloatingPoint._(
-    ~sign,
-    exponent.clone()..gets(exponent),
-    mantissa.clone()..gets(mantissa),
-    explicitJBit,
-    subNormalAsZero,
-  );
+        ~sign,
+        exponent.clone()..gets(exponent),
+        mantissa.clone()..gets(mantissa),
+        explicitJBit,
+        subNormalAsZero,
+      );
 
   /// Construct a [FloatingPoint] that represents infinity.
   factory FloatingPoint.inf({

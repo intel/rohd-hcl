@@ -34,13 +34,13 @@ class BadFFTStage extends Module {
     required DataPortInterface outputSamplesA,
     required DataPortInterface outputSamplesB,
     super.name = 'badfftstage',
-  }) : assert(go.width == 1),
-       assert(
-         inputSamplesA.dataWidth == 2 * (1 + exponentWidth + mantissaWidth),
-       ),
-       assert(
-         inputSamplesB.dataWidth == 2 * (1 + exponentWidth + mantissaWidth),
-       ) {
+  })  : assert(go.width == 1),
+        assert(
+          inputSamplesA.dataWidth == 2 * (1 + exponentWidth + mantissaWidth),
+        ),
+        assert(
+          inputSamplesB.dataWidth == 2 * (1 + exponentWidth + mantissaWidth),
+        ) {
     clk = addInput('clk', clk);
     reset = addInput('reset', reset);
     go = addInput('go', go);
@@ -48,32 +48,32 @@ class BadFFTStage extends Module {
     done = addOutput('done')..gets(doneInner);
     final en = (go & ~done).named('enable');
 
-    inputSamplesA = connectInterface(
+    inputSamplesA = addInterfacePorts(
       inputSamplesA,
       inputTags: [DataPortGroup.data],
       outputTags: [DataPortGroup.control],
       uniquify: (name) => 'inputSamplesA$name',
     );
-    inputSamplesB = connectInterface(
+    inputSamplesB = addInterfacePorts(
       inputSamplesB,
       inputTags: [DataPortGroup.data],
       outputTags: [DataPortGroup.control],
       uniquify: (name) => 'inputSamplesB$name',
     );
-    twiddleFactorROM = connectInterface(
+    twiddleFactorROM = addInterfacePorts(
       twiddleFactorROM,
       inputTags: [DataPortGroup.data],
       outputTags: [DataPortGroup.control],
       uniquify: (name) => 'twiddleFactorROM$name',
     );
 
-    outputSamplesA = connectInterface(
+    outputSamplesA = addInterfacePorts(
       outputSamplesA,
       inputTags: [DataPortGroup.control],
       outputTags: [DataPortGroup.data],
       uniquify: (name) => 'outputSamplesA$name',
     );
-    outputSamplesB = connectInterface(
+    outputSamplesB = addInterfacePorts(
       outputSamplesB,
       inputTags: [DataPortGroup.control],
       outputTags: [DataPortGroup.data],
@@ -170,9 +170,12 @@ class BadFFTStage extends Module {
     outputSamplesWritePortB.addr <= addressB;
     outputSamplesWritePortB.en <= en;
 
-    Sequential(clk, [
-      outputSamplesWritePortA.data < butterfly.outA.named('butterflyOutA'),
-      outputSamplesWritePortB.data < butterfly.outB.named('butterflyOutB'),
-    ], reset: reset);
+    Sequential(
+        clk,
+        [
+          outputSamplesWritePortA.data < butterfly.outA.named('butterflyOutA'),
+          outputSamplesWritePortB.data < butterfly.outB.named('butterflyOutB'),
+        ],
+        reset: reset);
   }
 }

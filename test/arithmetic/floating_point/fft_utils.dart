@@ -31,19 +31,19 @@ class Complex {
   Complex({required this.real, required this.imaginary});
 
   Complex add(Complex other) => Complex(
-      real: real + other.real,
-      imaginary: imaginary + other.imaginary,
-    );
+        real: real + other.real,
+        imaginary: imaginary + other.imaginary,
+      );
 
   Complex subtract(Complex other) => Complex(
-      real: real - other.real,
-      imaginary: imaginary - other.imaginary,
-    );
+        real: real - other.real,
+        imaginary: imaginary - other.imaginary,
+      );
 
   Complex multiply(Complex other) => Complex(
-      real: (real * other.real) - (imaginary * other.imaginary),
-      imaginary: (real * other.imaginary) + (imaginary * other.real),
-    );
+        real: (real * other.real) - (imaginary * other.imaginary),
+        imaginary: (real * other.imaginary) + (imaginary * other.real),
+      );
 
   @override
   String toString() => '$real${imaginary >= 0 ? '+' : ''}${imaginary}i';
