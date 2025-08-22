@@ -33,7 +33,10 @@ abstract class Arbiter extends Module {
   /// Constructs an arbiter where each element in [requests] is a one-bit signal
   /// requesting a corresponding bit from [grants].
   Arbiter(List<Logic> requests,
-      {super.name = 'arbiter', String? definitionName})
+      {super.name = 'arbiter',
+      super.reserveName,
+      super.reserveDefinitionName,
+      String? definitionName})
       : super(definitionName: definitionName ?? 'Arbiter_W${requests.length}') {
     for (var i = 0; i < requests.length; i++) {
       if (requests[i].width != 1) {

@@ -31,7 +31,10 @@ abstract class SignMagnitudeAdderBase extends Adder {
   /// Inputs are (sign, magnitude) pairs: ([aSign], [a]) and ([bSign], [b]). If
   /// the caller can guarantee that the larger magnitude value is provided first
   SignMagnitudeAdderBase(this.aSign, super.a, this.bSign, super.b,
-      {String? definitionName, super.name = 'sign_magnitude_adder'})
+      {super.reserveName,
+      super.reserveDefinitionName,
+      String? definitionName,
+      super.name = 'sign_magnitude_adder'})
       : super(
             definitionName:
                 definitionName ?? 'SignMagnitudeAdder_W${a.width}') {
@@ -57,24 +60,31 @@ class SignMagnitudeAdder extends SignMagnitudeAdderBase {
   ///
   /// Inputs are (sign, magnitude) pairs: ([aSign], [a]) and ([bSign], [b]). If
   /// the caller can guarantee that the larger magnitude value is provided first
-  /// in [a], then they can set [largestMagnitudeFirst] too 'true' to avoid
+  /// in [a], then they can set [largestMagnitudeFirst] to 'true' to avoid
   /// adding a comparator. Without the comparator, the [sign] may be wrong, but
   /// magnitude will be correct.
-  /// - If [generateEndAroundCarry] is true, then the end-around
-  /// carry is not performed and is provided as output [endAroundCarry]. If
-  /// [generateEndAroundCarry] is false, extra hardware takes care of adding the
-  /// end-around carry to [sum].
+  /// - If [generateEndAroundCarry] is `true`, then the end-around carry is not
+  ///   performed and is provided as output [endAroundCarry]. If
+  ///   [generateEndAroundCarry] is `false`, extra hardware takes care of adding
+  ///   the end-around carry to [sum].
   /// - [generateEndAroundCarry] avoids extra hardware to add the '1' in an
-  /// end-around carry during subtraction. For subtractions that remain positive
-  /// the [endAroundCarry] will hold that final +1 that needs to be added.
-  /// For subtractions that go negative, the [endAroundCarry] will be '0'.
+  ///   end-around carry during subtraction. For subtractions that remain
+  ///   positive the [endAroundCarry] will hold that final +1 that needs to be
+  ///   added. For subtractions that go negative, the [endAroundCarry] will be
+  ///   '0'.
   // TODO(desmonddak): this adder may need a carry-in for rounding
   SignMagnitudeAdder(super.aSign, super.a, super.bSign, super.b,
       {Adder Function(Logic a, Logic b, {Logic? carryIn}) adderGen =
           NativeAdder.new,
       this.largestMagnitudeFirst = false,
       bool generateEndAroundCarry = false,
-      super.name = 'sign_magnitude_adder'}) {
+      super.name = 'sign_magnitude_adder',
+      super.reserveName,
+      super.reserveDefinitionName,
+      String? definitionName})
+      : super(
+            definitionName:
+                definitionName ?? 'SignMagnitudeAdder_W${a.width}') {
     if (generateEndAroundCarry) {
       addOutput('endAroundCarry');
     }
@@ -117,8 +127,13 @@ class SignMagnitudeDualAdder extends SignMagnitudeAdderBase {
   SignMagnitudeDualAdder(super.aSign, super.a, super.bSign, super.b,
       {Adder Function(Logic a, Logic b, {Logic? carryIn}) adderGen =
           NativeAdder.new,
-      super.name = 'sign_magnitude_dualadder'})
-      : super(definitionName: 'SignMagnitudeAdder_W${a.width}') {
+      super.name = 'sign_magnitude_dualadder',
+      super.reserveName,
+      super.reserveDefinitionName,
+      String? definitionName})
+      : super(
+            definitionName:
+                definitionName ?? 'SignMagnitudeAdder_W${a.width}') {
     final adderForward = SignMagnitudeAdder(Const(0), a, aSign ^ bSign, b,
         generateEndAroundCarry: true,
         largestMagnitudeFirst: true,

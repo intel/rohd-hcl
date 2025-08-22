@@ -35,7 +35,11 @@ abstract class Adder extends Module {
   /// Takes in input [a] and input [b] and return the [sum] of the addition
   /// result. The width of input [a] and [b] must be the same.
   Adder(Logic a, Logic b,
-      {Logic? carryIn, super.name = 'adder', String? definitionName})
+      {Logic? carryIn,
+      super.name = 'adder',
+      super.reserveName,
+      super.reserveDefinitionName,
+      String? definitionName})
       : super(definitionName: definitionName ?? 'Adder_W${a.width}') {
     if (a.width != b.width) {
       throw RohdHclException('inputs of a and b should have same width.');
@@ -54,12 +58,13 @@ abstract class Adder extends Module {
 class FullAdder extends Adder {
   /// Constructs a [FullAdder] with value [a], [b] and [carryIn] based on
   /// full adder truth table.
-  FullAdder(
-    super.a,
-    super.b, {
-    required super.carryIn,
-    super.name = 'full_adder',
-  }) {
+  FullAdder(super.a, super.b,
+      {required super.carryIn,
+      super.name = 'full_adder',
+      super.reserveName,
+      super.reserveDefinitionName,
+      String? definitionName})
+      : super(definitionName: definitionName ?? 'FullAdder_W${a.width}') {
     if ((a.width != 1) | (b.width != 1) | ((carryIn ?? Const(0)).width != 1)) {
       throw RohdHclException('widths must all be one');
     }
@@ -75,8 +80,13 @@ class FullAdder extends Adder {
 /// Note that [NativeAdder] is unsigned.
 class NativeAdder extends Adder {
   /// The width of input [a] and [b] must be the same.
-  NativeAdder(super.a, super.b, {super.carryIn, super.name = 'native_adder'})
-      : super(definitionName: 'NativeAdder_W${a.width}') {
+  NativeAdder(super.a, super.b,
+      {super.carryIn,
+      super.name = 'native_adder',
+      super.reserveName,
+      super.reserveDefinitionName,
+      String? definitionName})
+      : super(definitionName: definitionName ?? 'NativeAdder_W${a.width}') {
     if (a.width != b.width) {
       throw RohdHclException('inputs of a and b should have same width.');
     }

@@ -32,7 +32,14 @@ abstract class ErrorCheckingTransmitter extends Module {
 
   /// Creates a transmitter for [data].
   ErrorCheckingTransmitter(Logic data,
-      {required int codeWidth, required super.name, super.definitionName}) {
+      {required int codeWidth,
+      required super.name,
+      super.reserveName,
+      super.reserveDefinitionName,
+      String? definitionName})
+      : super(
+            definitionName:
+                definitionName ?? 'ErrorCheckingTransmitter_W${data.width}') {
     this.data = addInput('data', data, width: data.width);
 
     addOutput('code', width: codeWidth);
@@ -98,7 +105,12 @@ abstract class ErrorCheckingReceiver extends Module {
       {required int codeWidth,
       required this.supportsErrorCorrection,
       required super.name,
-      super.definitionName}) {
+      super.reserveName,
+      super.reserveDefinitionName,
+      String? definitionName})
+      : super(
+            definitionName: definitionName ??
+                'ErrorCheckingReceiver_W${transmission.width}') {
     if (codeWidth <= 0) {
       throw RohdHclException('Must provide non-empty code.');
     }

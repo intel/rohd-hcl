@@ -41,9 +41,9 @@ class ShiftRegister extends Module {
   /// when [enable]d.
   ///
   /// If [reset] is provided, it will reset synchronously with [clk] or
-  /// aynchronously if [asyncReset] is true. The [reset] will reset all  stages
-  /// to a default of `0` or to the provided [resetValue]. If [resetValue] is
-  /// a [List] the stages will reset to the corresponding value in the list.
+  /// aynchronously if [asyncReset] is `true`. The [reset] will reset all stages
+  /// to a default of `0` or to the provided [resetValue]. If [resetValue] is a
+  /// [List] the stages will reset to the corresponding value in the list.
   ShiftRegister(
     Logic dataIn, {
     required Logic clk,
@@ -53,11 +53,15 @@ class ShiftRegister extends Module {
     bool asyncReset = false,
     dynamic resetValue,
     this.dataName = 'data',
+    super.reserveName,
+    super.reserveDefinitionName,
+    String? definitionName,
   })  : width = dataIn.width,
         super(
             name: '${dataName}_shift_register',
-            definitionName: 'ShiftRegister_W${dataIn.width}'
-                '_D$depth') {
+            definitionName: definitionName ??
+                'ShiftRegister_W${dataIn.width}'
+                    '_D$depth') {
     dataIn = addInput('${dataName}_in', dataIn, width: width);
     clk = addInput('clk', clk);
 

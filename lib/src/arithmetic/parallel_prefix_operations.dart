@@ -18,10 +18,10 @@ import 'package:rohd_hcl/rohd_hcl.dart';
 int largestPow2LessThan(int x) => pow(2, log2Ceil(x) - 1).toInt();
 
 /// [ParallelPrefix] is the core parallel prefix tree structure node
-/// The output is a List of multi-bit Logic vectors (typically 2-bit) that
+/// The output is a [List] of multi-bit [Logic] vectors (typically 2-bit) that
 /// represent things like carry-save or generate-propagate signaling in adder
 /// networks.  Each node in a parallel prefix tree transforms a row of inputs
-/// to an equal length row of outputs of these multi-bit Logic values.
+/// to an equal length row of outputs of these multi-bit [Logic] values.
 class ParallelPrefix extends Module {
   final List<Logic> _oseq = [];
 
@@ -29,21 +29,24 @@ class ParallelPrefix extends Module {
   List<Logic> get val => UnmodifiableListView(_oseq);
 
   /// ParallePrefix recursion
-  ParallelPrefix(List<Logic> inps, String name)
+  ParallelPrefix(List<Logic> inps, String name,
+      {super.reserveName, super.reserveDefinitionName, String? definitionName})
       : super(
             name: name,
-            definitionName: 'ParallelPrefix_${name}_W${inps.length}') {
+            definitionName:
+                definitionName ?? 'ParallelPrefix_${name}_W${inps.length}') {
     if (inps.isEmpty) {
       throw Exception("Don't use {name} with an empty sequence");
     }
   }
 }
 
-/// Ripple shaped ParallelPrefix tree
+/// A ripple shaped [ParallelPrefix] tree.
 class Ripple extends ParallelPrefix {
-  /// Ripple constructor
-  Ripple(List<Logic> inps, Logic Function(Logic, Logic) op)
-      : super(inps, 'ripple') {
+  /// [Ripple] constructor.
+  Ripple(List<Logic> inps, Logic Function(Logic, Logic) op,
+      {super.reserveName, super.reserveDefinitionName, String? definitionName})
+      : super(definitionName: definitionName ?? 'Ripple', inps, 'ripple') {
     final iseq = <Logic>[];
 
     inps.forEachIndexed((i, el) {
@@ -61,11 +64,12 @@ class Ripple extends ParallelPrefix {
   }
 }
 
-/// Sklansky shaped ParallelPrefix tree
+/// [Sklansky] implements the Sklansky-shaped [ParallelPrefix] tree pattern.
 class Sklansky extends ParallelPrefix {
-  /// Sklansky constructor
-  Sklansky(List<Logic> inps, Logic Function(Logic term1, Logic term2) op)
-      : super(inps, 'sklansky') {
+  /// [Sklansky] constructor.
+  Sklansky(List<Logic> inps, Logic Function(Logic term1, Logic term2) op,
+      {super.reserveName, super.reserveDefinitionName, String? definitionName})
+      : super(definitionName: definitionName ?? 'Skanskly', inps, 'sklansky') {
     final iseq = <Logic>[];
 
     inps.forEachIndexed((i, el) {
@@ -90,11 +94,16 @@ class Sklansky extends ParallelPrefix {
   }
 }
 
-/// KoggeStone shaped ParallelPrefix tree
+/// [KoggeStone] implements the Kogge-Stone shaped [ParallelPrefix] tree
+/// pattern.
 class KoggeStone extends ParallelPrefix {
-  /// KoggeStone constructor
-  KoggeStone(List<Logic> inps, Logic Function(Logic term1, Logic term2) op)
-      : super(inps, 'kogge_stone') {
+  /// [KoggeStone] constructor.
+  KoggeStone(List<Logic> inps, Logic Function(Logic term1, Logic term2) op,
+      {super.reserveName, super.reserveDefinitionName, String? definitionName})
+      : super(
+            definitionName: definitionName ?? 'KoggeStone',
+            inps,
+            'kogge_stone') {
     final iseq = <Logic>[];
 
     inps.forEachIndexed((i, el) {
@@ -118,11 +127,13 @@ class KoggeStone extends ParallelPrefix {
   }
 }
 
-/// BrentKung shaped ParallelPrefix tree
+/// [BrentKung] implements the Brent-Kung shaped [ParallelPrefix] tree pattern.
 class BrentKung extends ParallelPrefix {
-  /// BrentKung constructor
-  BrentKung(List<Logic> inps, Logic Function(Logic term1, Logic term2) op)
-      : super(inps, 'brent_kung') {
+  /// [BrentKung] constructor.
+  BrentKung(List<Logic> inps, Logic Function(Logic term1, Logic term2) op,
+      {super.reserveName, super.reserveDefinitionName, String? definitionName})
+      : super(
+            definitionName: definitionName ?? 'BrentKung', inps, 'brent_kung') {
     final iseq = <Logic>[];
 
     inps.forEachIndexed((i, el) {
@@ -162,37 +173,48 @@ class BrentKung extends ParallelPrefix {
   }
 }
 
-/// Or scan based on ParallelPrefix tree
+/// Or scan based on [ParallelPrefix] tree.
 class ParallelPrefixOrScan extends Module {
-  /// Output [out] is the or of bits of the input
+  /// Output [out] is the or of bits of the input.
   Logic get out => output('out');
 
-  /// OrScan constructor
+  /// OrScan constructor.
   ParallelPrefixOrScan(Logic inp,
       {ParallelPrefix Function(
               List<Logic> inps, Logic Function(Logic term1, Logic term2) op)
           ppGen = KoggeStone.new,
-      super.name = 'parallel_prefix_orscan'})
-      : super(definitionName: 'ParallelPrefixOrScan_W${inp.width}') {
+      super.name = 'parallel_prefix_orscan',
+      super.reserveName,
+      super.reserveDefinitionName,
+      String? definitionName})
+      : super(
+            definitionName:
+                definitionName ?? 'ParallelPrefixOrScan_W${inp.width}') {
     inp = addInput('inp', inp, width: inp.width);
     final u = ppGen(inp.elements, (a, b) => a | b);
     addOutput('out', width: inp.width) <= u.val.rswizzle();
   }
 }
 
-/// Priority Finder based on ParallelPrefix tree
+/// Priority Finder based on [ParallelPrefix] tree.
 class ParallelPrefixPriorityFinder extends Module {
-  /// Output [out] is the one-hot reduction to the first '1' in the Logic input
+  /// Output [out] is the one-hot reduction to the first '1' in the [Logic]
+  /// input.
   /// Search is from the LSB
   Logic get out => output('out');
 
-  /// Priority Finder constructor
+  /// Priority Finder constructor.
   ParallelPrefixPriorityFinder(Logic inp,
       {ParallelPrefix Function(
               List<Logic> inps, Logic Function(Logic term1, Logic term2) op)
           ppGen = KoggeStone.new,
-      super.name = 'parallel_prefix_finder'})
-      : super(definitionName: 'ParallelPrefixPriorityFinder_W${inp.width}') {
+      super.name = 'parallel_prefix_finder',
+      super.reserveName,
+      super.reserveDefinitionName,
+      String? definitionName})
+      : super(
+            definitionName: definitionName ??
+                'ParallelPrefixPriorityFinder_W${inp.width}') {
     inp = addInput('inp', inp, width: inp.width);
     final u = ParallelPrefixOrScan(inp, ppGen: ppGen);
     addOutput('out', width: inp.width) <=
@@ -200,7 +222,7 @@ class ParallelPrefixPriorityFinder extends Module {
   }
 }
 
-/// Adder based on ParallelPrefix tree
+/// [Adder] based on [ParallelPrefix] tree.
 class ParallelPrefixAdder extends Adder {
   /// Adder constructor
   ParallelPrefixAdder(super.a, super.b,
@@ -208,8 +230,13 @@ class ParallelPrefixAdder extends Adder {
       ParallelPrefix Function(
               List<Logic> inps, Logic Function(Logic term1, Logic term2) op)
           ppGen = KoggeStone.new,
-      super.name = 'parallel_prefix_adder'})
-      : super(definitionName: 'ParallelPrefixAdder_W${a.width}') {
+      super.name = 'parallel_prefix_adder',
+      super.reserveName,
+      super.reserveDefinitionName,
+      String? definitionName})
+      : super(
+            definitionName:
+                definitionName ?? 'ParallelPrefixAdder_W${a.width}') {
     final l = List<Logic>.generate(a.width - 1,
         (i) => [a[i + 1] & b[i + 1], a[i + 1] | b[i + 1]].swizzle());
     final cin = carryIn ?? Const(0);
@@ -236,18 +263,23 @@ class ParallelPrefixAdder extends Adder {
   }
 }
 
-/// Incrementer based on ParallelPrefix tree
+/// Incrementer based on [ParallelPrefix] tree.
 class ParallelPrefixIncr extends Module {
-  /// Output is '1' added to the Logic input
+  /// Output is '1' added to the [Logic] input.
   Logic get out => output('out');
 
-  /// Increment constructor
+  /// Increment constructor.
   ParallelPrefixIncr(Logic inp,
       {ParallelPrefix Function(
               List<Logic> inps, Logic Function(Logic term1, Logic term2) op)
           ppGen = KoggeStone.new,
-      super.name = 'parallel_prefix_incr'})
-      : super(definitionName: 'ParallelPrefixIncr_W${inp.width}') {
+      super.name = 'parallel_prefix_incr',
+      super.reserveName,
+      super.reserveDefinitionName,
+      String? definitionName})
+      : super(
+            definitionName:
+                definitionName ?? 'ParallelPrefixIncr_W${inp.width}') {
     inp = addInput('inp', inp, width: inp.width);
     final u = ppGen(inp.elements, (lhs, rhs) => rhs & lhs);
     addOutput('out', width: inp.width) <=
@@ -259,25 +291,30 @@ class ParallelPrefixIncr extends Module {
   }
 }
 
-/// Decrementer based on ParallelPrefix tree
+/// Decrementer based on [ParallelPrefix] tree.
 class ParallelPrefixDecr extends Module {
-  /// Output is '1' subtracted from the Logic input
+  /// Output is '1' subtracted from the [Logic] input.
   Logic get out => output('out');
 
-  /// Decrement constructor
+  /// Decrement constructor.
   ParallelPrefixDecr(Logic inp,
       {ParallelPrefix Function(
               List<Logic> inps, Logic Function(Logic term1, Logic term2) op)
           ppGen = KoggeStone.new,
-      super.name = 'parallel_prefix_decr'})
-      : super(definitionName: 'ParallelPrefixDecr_W${inp.width}') {
+      super.name = 'parallel_prefix_decr',
+      super.reserveName,
+      super.reserveDefinitionName,
+      String? definitionName})
+      : super(
+            definitionName:
+                definitionName ?? 'ParallelPrefixDecr_W${inp.width}') {
     inp = addInput('inp', inp, width: inp.width);
-    final u = ppGen((~inp).elements, (lhs, rhs) => rhs & lhs);
+    final complement = (~inp).named('complement');
+    final u = ppGen(complement.elements, (lhs, rhs) => rhs & lhs);
     addOutput('out', width: inp.width) <=
         (List<Logic>.generate(
-                inp.width,
-                (i) =>
-                    ((i == 0) ? ~inp[i] : inp[i] ^ u.val[i - 1]).named('o_$i'))
-            .rswizzle());
+            inp.width,
+            (i) => ((i == 0) ? complement[i] : inp[i] ^ u.val[i - 1])
+                .named('o_$i')).rswizzle());
   }
 }

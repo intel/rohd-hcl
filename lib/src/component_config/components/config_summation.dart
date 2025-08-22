@@ -20,7 +20,7 @@ class SumInterfaceKnob extends GroupOfKnobs {
   ToggleConfigKnob isFixedValueKnob = ToggleConfigKnob(value: false);
 
   /// The fixed value of the sum interface, only present when [isFixedValueKnob]
-  /// is true.
+  /// is `true`.
   IntConfigKnob fixedValueKnob = IntConfigKnob(value: 1);
 
   /// The width of the sum interface.
@@ -86,22 +86,22 @@ class SumConfigurator extends SummationConfigurator {
 
   @override
   Module createModule() => Sum(
-        sumInterfaceKnobs.knobs
-            .map((e) => e as SumInterfaceKnob)
-            .map((e) => SumInterface(
-                  hasEnable: e.hasEnableKnob.value,
-                  fixedAmount:
-                      e.isFixedValueKnob.value ? e.fixedValueKnob.value : null,
-                  width: e.widthKnob.value,
-                  increments: e.incrementsKnob.value,
-                ))
-            .toList(),
-        initialValue: initialValueKnob.value,
-        width: widthKnob.value,
-        minValue: minValueKnob.value,
-        maxValue: maxValueKnob.value,
-        saturates: saturatesKnob.value,
-      );
+      sumInterfaceKnobs.knobs
+          .map((e) => e as SumInterfaceKnob)
+          .map((e) => SumInterface(
+                hasEnable: e.hasEnableKnob.value,
+                fixedAmount:
+                    e.isFixedValueKnob.value ? e.fixedValueKnob.value : null,
+                width: e.widthKnob.value,
+                increments: e.incrementsKnob.value,
+              ))
+          .toList(),
+      initialValue: initialValueKnob.value,
+      width: widthKnob.value,
+      minValue: minValueKnob.value,
+      maxValue: maxValueKnob.value,
+      saturates: saturatesKnob.value,
+      definitionName: 'Sum');
 
   @override
   String get name => 'Sum';

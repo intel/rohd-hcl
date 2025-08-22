@@ -35,15 +35,15 @@ class ReductionTreeGenerator {
   /// [radix] inputs. The [depth] input is the depth of the current node in the
   /// tree to the leaves.  For sequences that are not powers of [radix], the
   /// depth is the maximum depth to the leaves from this node in the tree.  The
-  /// [depth] can be used to index the control Logic to change behavior at each
-  /// depth of the tree.
+  /// [depth] can be used to index the [control] [Logic] to change behavior at
+  /// each depth of the tree.
   final Logic Function(List<Logic> inputs,
       {int depth, Logic? control, String name}) operation;
 
   /// Specified width of input to each reduction node (e.g., binary: radix=2)
   final int radix;
 
-  /// When [signExtend] is true, use sign-extension on values,
+  /// When [signExtend] is `true`, use sign-extension on values,
   /// otherwise use zero-extension.
   final bool signExtend;
 
@@ -81,16 +81,16 @@ class ReductionTreeGenerator {
   /// segment.
   /// - [sequence] is the input sequence to be reduced using the tree of
   ///   operations.
-  /// - [operation] is the operation to be performed at each node. Note that
-  ///   [operation] can widen the output. The logic function must support the
-  ///   operation for (2 to [radix]) inputs.
+  /// - [operation] is the [Function] to be performed at each node. Note that
+  ///   [operation] can widen the output. The [Logic] [Function] must support
+  ///   the operation for (2 to [radix]) inputs.
   /// - [radix] is the width of reduction at each node in the tree (e.g.,
   ///   binary: radix=2).
-  /// - [signExtend] if true, use sign-extension to widen Logic values as needed
-  ///   in the tree, otherwise use zero-extension (default).
-  /// - [control] is an optional input that is passed along with the data being
-  ///   reduced and passed into the operation.
-  /// Optional parameters to be used for creating a pipelined computation tree:
+  /// - [signExtend] if `true`, use sign-extension to widen [Logic] values as
+  ///   needed. in the tree, otherwise use zero-extension (default).
+  /// - [control] is an optional [Logic] input that is passed along with the
+  ///   data being reduced and passed into the operation. Optional parameters to
+  ///   be used for creating a pipelined computation tree:
   /// - [clk], [reset], [enable] are optionally provided to allow for flopping.
   /// - [depthBetweenFlops] specifies how many nodes deep separate flops.
   ReductionTreeGenerator(

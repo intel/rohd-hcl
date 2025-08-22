@@ -15,17 +15,17 @@ import 'package:rohd_hcl/rohd_hcl.dart';
 
 /// Flexible floating point logic representation.
 class FloatingPoint extends LogicStructure {
-  /// unsigned, biased binary [exponent]
+  /// unsigned, biased binary [exponent].
   final Logic exponent;
 
-  /// unsigned binary [mantissa]
+  /// unsigned binary [mantissa].
   final Logic mantissa;
 
-  /// [sign] bit with '1' representing a negative number
+  /// [sign] bit with '1' representing a negative number.
   final Logic sign;
 
-  /// Utility to keep track of the Logic structure name by attaching it
-  /// to the Logic signal name in the output Verilog.
+  /// Utility to keep track of the [LogicStructure] name by attaching it
+  /// to the [Logic] signal name in the output Verilog.
   static String _nameJoin(String? structName, String signalName) {
     if (structName == null) {
       return signalName;
@@ -34,7 +34,7 @@ class FloatingPoint extends LogicStructure {
   }
 
   /// [FloatingPoint] constructor for a variable size binary
-  /// floating point number
+  /// floating point number.
   FloatingPoint(
       {required int exponentWidth,
       required int mantissaWidth,
@@ -80,14 +80,14 @@ class FloatingPoint extends LogicStructure {
       explicitJBit: explicitJBit,
       subNormalAsZero: subNormalAsZero);
 
-  /// Return true if the J-bit is explicitly represented in the mantissa.
+  /// Return `true` if the J-bit is explicitly represented in the mantissa.
   final bool explicitJBit;
 
-  /// Return true if subnormal numbers are represented as zero.
+  /// Return `true` if subnormal numbers are represented as zero.
   final bool subNormalAsZero;
 
   /// Convert the current [FloatingPoint] to a new [FloatingPoint] but with the
-  /// mantissa resolved if subnormal and subNormalAsZero is true.
+  /// mantissa resolved if not [isNormal] and [subNormalAsZero] is `true`.
   FloatingPoint resolveSubNormalAsZero() {
     if (subNormalAsZero) {
       return clone()
@@ -112,13 +112,13 @@ class FloatingPoint extends LogicStructure {
   FloatingPointValue? get previousFloatingPointValue =>
       valuePopulator().ofFloatingPointPrevious(this);
 
-  /// Return a Logic true if this FloatingPoint contains a normal number,
-  /// defined as having mantissa in the range [1,2)
+  /// Return a [Logic] `1` if this [FloatingPoint] contains a normal number,
+  /// defined as having mantissa in the range `[1,2)`.
   late final Logic isNormal = exponent
       .neq(LogicValue.zero.zeroExtend(exponent.width))
       .named(_nameJoin('isNormal', name), naming: Naming.mergeable);
 
-  /// Return a Logic true if this FloatingPoint is Not a Number (NaN)
+  /// Return a [Logic] `1`if this [FloatingPoint] is Not a Number (NaN)
   /// by having its exponent field set to the NaN value (typically all
   /// ones) and a non-zero mantissa.
   late final isNaN = exponent.eq(valuePopulator().nan.exponent) &
@@ -127,7 +127,7 @@ class FloatingPoint extends LogicStructure {
             naming: Naming.mergeable,
           );
 
-  /// Return a Logic true if this FloatingPoint is an infinity
+  /// Return a [Logic] `1` if this [FloatingPoint] is an infinity
   /// by having its exponent field set to the NaN value (typically all
   /// ones) and a zero mantissa.
   late final isAnInfinity = (floatingPointValue.supportsInfinities
@@ -139,7 +139,7 @@ class FloatingPoint extends LogicStructure {
           : Const(0))
       .named(_nameJoin('isAnInfinity', name), naming: Naming.mergeable);
 
-  /// Return a Logic true if this FloatingPoint is an zero
+  /// Return a [Logic] `1` if this [FloatingPoint] is a zero
   /// by having its exponent field set to the NaN value (typically all
   /// ones) and a zero mantissa.
   late final isAZero = (exponent.isIn([
@@ -149,27 +149,28 @@ class FloatingPoint extends LogicStructure {
           ~mantissa.or())
       .named(_nameJoin('isAZero', name), naming: Naming.mergeable);
 
-  /// Return the zero exponent representation for this type of FloatingPoint
+  /// Return the zero exponent representation for this type of [FloatingPoint].
   late final zeroExponent = Const(LogicValue.zero, width: exponent.width)
       .named(_nameJoin('zeroExponent', name), naming: Naming.mergeable);
 
-  /// Return the one exponent representation for this type of FloatingPoint
+  /// Return the one exponent representation for this type of [FloatingPoint].
   late final oneExponent = Const(LogicValue.one, width: exponent.width)
       .named(_nameJoin('oneExponent', name), naming: Naming.mergeable);
 
-  /// Return the exponent Logic value representing the true zero exponent
-  /// 2^0 = 1 often termed [bias] or the offset of the stored exponent.
+  /// Return the exponent [Logic] representing the [bias] of this
+  /// [FloatingPoint] signal, the offset of the exponent, also representing the
+  /// zero exponent `2^0 = 1`.
   late final bias = Const((1 << exponent.width - 1) - 1, width: exponent.width)
       .named(_nameJoin('bias', name), naming: Naming.mergeable);
 
-  /// Construct a FloatingPoint that represents infinity for this FP type.
+  /// Construct a [FloatingPoint] that represents infinity for this FP type.
   FloatingPoint inf({Logic? sign, bool negative = false}) => FloatingPoint.inf(
       exponentWidth: exponent.width,
       mantissaWidth: mantissa.width,
       sign: sign,
       negative: negative);
 
-  /// Construct a FloatingPoint that represents NaN for this FP type.
+  /// Construct a [FloatingPoint] that represents NaN for this FP type.
   late final nan = FloatingPoint.nan(
       exponentWidth: exponent.width, mantissaWidth: mantissa.width);
 
@@ -193,7 +194,7 @@ class FloatingPoint extends LogicStructure {
     }
   }
 
-  /// Construct a FloatingPoint that represents infinity.
+  /// Construct a [FloatingPoint] that represents infinity.
   factory FloatingPoint.inf(
       {required int exponentWidth,
       required int mantissaWidth,
@@ -208,7 +209,7 @@ class FloatingPoint extends LogicStructure {
         signLogic, exponent, mantissa, explicitJBit, subNormalAsZero);
   }
 
-  /// Construct a FloatingPoint that represents NaN.
+  /// Construct a [FloatingPoint] that represents NaN.
   factory FloatingPoint.nan(
       {required int exponentWidth,
       required int mantissaWidth,
@@ -221,7 +222,7 @@ class FloatingPoint extends LogicStructure {
         signLogic, exponent, mantissa, explicitJBit, subNormalAsZero);
   }
 
-  /// Construct a FloatingPoint that represents zero.
+  /// Construct a [FloatingPoint] that represents zero.
   factory FloatingPoint.zero(
       {required int exponentWidth,
       required int mantissaWidth,

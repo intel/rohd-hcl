@@ -22,7 +22,7 @@ class MemoryModel extends Memory {
   /// The memory storage underlying this model.
   late final MemoryStorage storage;
 
-  /// If true, a positive edge on reset will reset the memory asynchronously.
+  /// If `true`, a positive edge on reset will reset the memory asynchronously.
   final bool asyncReset;
 
   @override
@@ -39,7 +39,13 @@ class MemoryModel extends Memory {
     this.readLatency = 1,
     this.asyncReset = true,
     MemoryStorage? storage,
-  }) {
+    super.name = 'memory_model',
+    super.reserveName,
+    super.reserveDefinitionName,
+    String? definitionName,
+  }) : super(
+            definitionName: definitionName ??
+                'MemoryModel_W${writePorts.length}_R${readPorts.length}') {
     this.storage = storage ??
         SparseMemoryStorage(addrWidth: addrWidth, dataWidth: dataWidth);
 

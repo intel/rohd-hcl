@@ -27,7 +27,10 @@ abstract class FixedPointSqrtBase extends Module {
 
   /// Square root a fixed point number [a], returning result in [sqrt].
   FixedPointSqrtBase(FixedPoint a,
-      {super.name = 'fixed_point_square_root', String? definitionName})
+      {super.name = 'fixed_point_square_root',
+      super.reserveName,
+      super.reserveDefinitionName,
+      String? definitionName})
       : width = a.width,
         super(
             definitionName:
@@ -113,7 +116,8 @@ class FixedPointSqrt extends FixedPointSqrtBase {
               remainder - subtractionValue, remainder)
           .named('remainder_finalmux_iter$i');
     }
-    solution = (solution + 1).named('solution');
-    outputSqrt <= solution.slice(aLoc.width - 1, aLoc.width - a.width);
+    solution = (solution + 1).named('solutionPlusOne');
+    outputSqrt <=
+        solution.slice(aLoc.width - 1, aLoc.width - a.width).named('solutionF');
   }
 }

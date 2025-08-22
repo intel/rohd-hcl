@@ -27,6 +27,9 @@ class ClockGateControlInterface extends PairInterface {
   /// generated.
   final bool isPresent;
 
+  /// Capture the additional ports that are part of this interface, if any.
+  late final List<Logic>? additionalPorts;
+
   /// A default implementation for clock gating, effectively just an AND of the
   /// clock and the enable signal, with an optional [enableOverride].
   static Logic defaultGenerateGatedClock(
@@ -52,10 +55,10 @@ class ClockGateControlInterface extends PairInterface {
 
   /// Constructs a [ClockGateControlInterface] with the provided arguments.
   ///
-  /// If [isPresent] is false, then no clock gating will occur and no clock
+  /// If [isPresent] is `false`, then no clock gating will occur and no clock
   /// gating logic will be generated.
   ///
-  /// If [hasEnableOverride] is true, then an additional [enableOverride] port
+  /// If [hasEnableOverride] is `true`, then an additional [enableOverride] port
   /// will be generated.
   ///
   /// [additionalPorts] can optionally be added to this interface, which can be
@@ -66,14 +69,15 @@ class ClockGateControlInterface extends PairInterface {
   ClockGateControlInterface({
     this.isPresent = true,
     this.hasEnableOverride = false,
-    List<Logic>? additionalPorts,
+    this.additionalPorts,
     this.gatedClockGenerator = defaultGenerateGatedClock,
   }) : super(portsFromProvider: [
           if (hasEnableOverride) Logic.port('en_override'),
           ...?additionalPorts,
         ]);
 
-  /// Creates a clone of [otherInterface] with the same configuration, including
+  /// Creates a clone of [otherInterface] with the same configuration,
+  /// including
   /// any `additionalPorts` and `gatedClockGenerator` function. This should be
   /// used to replicate interface configuration through hierarchies to carry
   /// configuration information.
@@ -82,7 +86,8 @@ class ClockGateControlInterface extends PairInterface {
   /// from [otherInterface].
   ///
   /// If a [gatedClockGenerator] is provided, then it will override the
-  /// [gatedClockGenerator] function from [otherInterface].
+  /// [gatedClockGenerator] function from [`otherInterface`].
+  @Deprecated('Use Instance-based `clone()` instead.')
   ClockGateControlInterface.clone(
     ClockGateControlInterface super.otherInterface, {
     bool? isPresent,
@@ -96,6 +101,19 @@ class ClockGateControlInterface extends PairInterface {
         gatedClockGenerator =
             gatedClockGenerator ?? otherInterface.gatedClockGenerator,
         super.clone();
+
+  /// Creates a clone of with the same configuration, including any
+  /// `additionalPorts` and `gatedClockGenerator` function. This should be used
+  /// to replicate interface configuration through hierarchies to carry
+  /// configuration information.
+  @override
+  ClockGateControlInterface clone() => ClockGateControlInterface(
+      isPresent: isPresent,
+      hasEnableOverride: hasEnableOverride,
+      additionalPorts: (additionalPorts != null)
+          ? [for (final p in additionalPorts!) p.clone(name: p.name)]
+          : null,
+      gatedClockGenerator: gatedClockGenerator);
 }
 
 /// A generic and configurable clock gating block.
@@ -104,8 +122,8 @@ class ClockGate extends Module {
   final Map<Logic, Logic> _controlledCache = {};
 
   /// Returns a (potentially) delayed (by one cycle) version of [original] if
-  /// [delayControlledSignals] is true and the clock gating [isPresent]. This is
-  /// the signal that should be used as inputs to logic depending on the
+  /// [delayControlledSignals] is `true` and the clock gating [isPresent]. This
+  /// is the signal that should be used as inputs to logic depending on the
   /// [gatedClk].
   ///
   /// If a [resetValue] is provided, then the signal will be reset to that value
@@ -178,11 +196,12 @@ class ClockGate extends Module {
   bool get isPresent =>
       _controlIntf?.isPresent ??
       // if no interface is provided, then _controlInterface is initialized with
-      // `isPresent` as true, so if this is null then there is no clock gating
+      // `isPresent` as `true`, so if this is null then there is no clock
+      // gating.
       false;
 
   /// Indicates whether the controlled signals are delayed by 1 cycle. If this
-  /// is false, or clock gating is not [isPresent], then the [controlled]
+  /// is `false`, or clock gating is not [isPresent], then the [controlled]
   /// signals are not delayed.
   final bool delayControlledSignals;
 
@@ -194,7 +213,7 @@ class ClockGate extends Module {
   /// override signal to force clocks enabled). If [controlIntf] is not
   /// provided, then the clock gating is always present.
   ///
-  /// If [delayControlledSignals] is true, then any signals that are
+  /// If [delayControlledSignals] is `true`, then any signals that are
   /// [controlled] by the clock gating will be delayed by 1 cycle. This can be
   /// helpful for timing purposes to avoid ungating the clock on the same cycle
   /// as the signal is used. Using the [controlled] signals helps turn on or off
@@ -211,7 +230,10 @@ class ClockGate extends Module {
       ClockGateControlInterface? controlIntf,
       this.delayControlledSignals = false,
       super.name = 'clock_gate',
-      super.definitionName}) {
+      super.reserveName,
+      super.reserveDefinitionName,
+      String? definitionName})
+      : super(definitionName: definitionName ?? 'ClockGate') {
     // if this clock gating is not intended to be present, then just do nothing
     if (!(controlIntf?.isPresent ?? true)) {
       _controlIntf = null;
@@ -233,7 +255,7 @@ class ClockGate extends Module {
       // configuration
       _controlIntf = ClockGateControlInterface();
     } else {
-      _controlIntf = ClockGateControlInterface.clone(controlIntf)
+      _controlIntf = controlIntf.clone()
         ..pairConnectIO(this, controlIntf, PairRole.consumer);
     }
 

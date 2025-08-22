@@ -66,7 +66,7 @@ abstract class Multiplier extends Module {
   Logic? get selectSignedMultiplier =>
       signedMultiplierParameter.tryRuntimeInput(this);
 
-  /// Logic that tells us [product] is signed.
+  /// [Logic] that tells us [product] is signed.
   @protected
   Logic get isProductSigned => output('isProductSigned');
 
@@ -74,17 +74,17 @@ abstract class Multiplier extends Module {
   /// multiplication result.
   ///
   /// The optional [signedMultiplicand] parameter configures the multiplicand
-  /// [a] statically using a bool as a signed multiplicand (default is false, or
-  /// unsigned) or dynamically with a 1-bit Logic [selectSignedMultiplicand]
-  /// input. You can pass either a bool (for static configuration) or a Logic
-  /// (dynamically configuring the type handled) with a signal to this
-  /// parameter, otherwise this constructor will throw.
+  /// [a] statically using a [bool] as a signed multiplicand (default is
+  /// `false`, or unsigned) or dynamically with a 1-bit [Logic]
+  /// [selectSignedMultiplicand] input. You can pass either a [bool] (for static
+  /// configuration) or a [Logic] (dynamically configuring the type handled)
+  /// with a signal to this parameter, otherwise this constructor will throw.
   ///
   /// The optional [signedMultiplier] parameter configures the multiplier [b]
-  /// statically using a bool as a signed multiplier (default is false, or
-  /// unsigned) or dynamically with a 1-bit Logic [selectSignedMultiplier]
-  /// input. You can pass either a bool (for static configuration) or a Logic
-  /// (dynamically configuring the type handled with a signal) to this
+  /// statically using a [bool] as a signed multiplier (default is `false`, or
+  /// unsigned) or dynamically with a 1-bit [Logic] [selectSignedMultiplier]
+  /// input. You can pass either a [bool] (for static configuration) or a
+  /// [Logic] (dynamically configuring the type handled with a signal) to this
   /// parameter, otherwise this constructor will throw.
   ///
   /// If [clk] is not null then a set of flops are used to make the multiply a
@@ -97,6 +97,8 @@ abstract class Multiplier extends Module {
       dynamic signedMultiplicand,
       dynamic signedMultiplier,
       super.name = 'multiplier',
+      super.reserveName,
+      super.reserveDefinitionName,
       String? definitionName})
       : super(
             definitionName: definitionName ??
@@ -122,7 +124,7 @@ abstract class Multiplier extends Module {
   }
 
   /// This is a helper function that prints out the kind of multiplicand
-  /// (selected by a Logic or set statically).
+  /// (selected by a [Logic] or set statically via [bool]).
   /// - UD: unsigned multiplicand.
   /// - SD: signed multiplicand.
   /// - SSD: dynamic selection of signed multiplicand.
@@ -136,7 +138,7 @@ abstract class Multiplier extends Module {
                   : 'UD';
 
   /// This is a helper function that prints out the kind of multiplier (selected
-  /// by a Logic or set statically).)
+  /// by a [Logic] or set statically via [bool]).)
   /// - UM: unsigned multiplier.
   /// - SM: signed multiplier.
   /// - SSM: dynamic selection of signed multiplier.
@@ -160,11 +162,15 @@ class NativeMultiplier extends Multiplier {
       super.enable,
       super.signedMultiplicand,
       super.signedMultiplier,
-      super.name = 'native_multiplier'})
+      super.name = 'native_multiplier',
+      super.reserveName,
+      super.reserveDefinitionName,
+      String? definitionName})
       : super(
-            definitionName: 'NativeMultiplier_W${a.width}x'
-                '${b.width}_${Multiplier.signedMD(signedMultiplicand)}_'
-                '${Multiplier.signedML(signedMultiplier)}') {
+            definitionName: definitionName ??
+                'NativeMultiplier_W${a.width}x'
+                    '${b.width}_${Multiplier.signedMD(signedMultiplicand)}_'
+                    '${Multiplier.signedML(signedMultiplier)}') {
     if (a.width != b.width) {
       throw RohdHclException('inputs of a and b should have same width.');
     }
@@ -218,24 +224,30 @@ class CompressionTreeMultiplier extends Multiplier {
   /// after compression.  [reset] and [enable] are optional
   /// inputs to control these flops when [clk] is provided. If [clk] is null,
   /// the Column Compressor is built as a combinational tree of compressors.
-  CompressionTreeMultiplier(super.a, super.b,
-      {int radix = 4,
-      super.clk,
-      super.reset,
-      super.enable,
-      super.signedMultiplicand,
-      super.signedMultiplier,
-      Adder Function(Logic a, Logic b, {Logic? carryIn}) adderGen =
-          NativeAdder.new,
-      PartialProductSignExtension Function(PartialProductGeneratorBase pp,
-              {String name})
-          signExtensionGen = CompactRectSignExtension.new,
-      super.name = 'compression_tree_multiplier'})
-      : super(
-            definitionName: 'CompressionTreeMultiplier_W${a.width}x'
-                '${b.width}_${Multiplier.signedMD(signedMultiplicand)}_'
-                '${Multiplier.signedML(signedMultiplier)}_'
-                'with${adderGen(a, a).definitionName}') {
+  CompressionTreeMultiplier(
+    super.a,
+    super.b, {
+    int radix = 4,
+    super.clk,
+    super.reset,
+    super.enable,
+    super.signedMultiplicand,
+    super.signedMultiplier,
+    Adder Function(Logic a, Logic b, {Logic? carryIn}) adderGen =
+        NativeAdder.new,
+    PartialProductSignExtension Function(PartialProductGeneratorBase pp,
+            {String name})
+        signExtensionGen = CompactRectSignExtension.new,
+    super.name = 'compression_tree_multiplier',
+    super.reserveName,
+    super.reserveDefinitionName,
+    String? definitionName,
+  }) : super(
+            definitionName: definitionName ??
+                'CompressionTreeMultiplier_W${a.width}x'
+                    '${b.width}_${Multiplier.signedMD(signedMultiplicand)}_'
+                    '${Multiplier.signedML(signedMultiplier)}_'
+                    'with${adderGen(a, a).definitionName}') {
     final pp = PartialProduct(a, b, RadixEncoder(radix),
         selectSignedMultiplicand: selectSignedMultiplicand,
         signedMultiplicand: signedMultiplicand,

@@ -28,10 +28,10 @@ class FloatToFixed extends Module {
   /// Width of output fractional part.
   late final int fractionWidth;
 
-  /// Add overflow checking logic
+  /// Add overflow checking logic.
   final bool checkOverflow;
 
-  /// Return true if the conversion overflowed.
+  /// Return `true` if the conversion overflowed.
   Logic? get overflow => tryOutput('overflow');
 
   /// Internal representation of the output port
@@ -46,17 +46,21 @@ class FloatToFixed extends Module {
   ///   output will be produced. Otherwise, the converter will compute a
   ///   lossless size for [integerWidth] and [fractionWidth] for outputing the
   ///   floating-point value into a fixed-point value.
-  /// - [checkOverflow] set to true will cause overflow detection to happen in
+  /// - [checkOverflow] set to `true` will cause overflow detection to happen in
   ///   case that loss can occur and an optional output [overflow] will be
-  ///   produced that returns true when overflow occurs.
+  ///   produced that returns `true` when overflow occurs.
   FloatToFixed(FloatingPoint float,
       {super.name = 'FloatToFixed',
       int? integerWidth,
       int? fractionWidth,
-      this.checkOverflow = false})
+      this.checkOverflow = false,
+      super.reserveName,
+      super.reserveDefinitionName,
+      String? definitionName})
       : super(
-            definitionName: 'FloatE${float.exponent.width}'
-                'M${float.mantissa.width}ToFixed') {
+            definitionName: definitionName ??
+                'FloatE${float.exponent.width}'
+                    'M${float.mantissa.width}ToFixed') {
     float = float.clone()..gets(addInput('float', float, width: float.width));
 
     final bias = float.floatingPointValue.bias;
@@ -108,10 +112,7 @@ class FloatToFixed extends Module {
 
       final sWidth = max(eWidth, leadDetect.out.width);
       final fShift = shift.zeroExtend(sWidth).named('wideShift');
-      final leadOne = leadDetect.out
-          .named('leadOneRaw')
-          .zeroExtend(sWidth)
-          .named('leadOne');
+      final leadOne = leadDetect.out.zeroExtend(sWidth).named('leadOne');
 
       Combinational([
         If(jBit, then: [
@@ -136,7 +137,7 @@ class FloatToFixed extends Module {
     final number = mux(shift[-1], preNumber >>> shiftRight, preNumber << shift)
         .named('number');
 
-    _fixed <= mux(float.sign, (~number + 1).named('negNumber'), number);
+    _fixed <= mux(float.sign, ~number + 1, number).named('signedNumber');
     addOutput('fixed', width: outputWidth) <= _fixed;
   }
 }
@@ -150,7 +151,7 @@ class FloatToFixed extends Module {
 /// Infinities and NaN's are not supported.
 /// The output is of type [Logic] and in two's complement.
 /// It can be cast to a [FixedPoint] by the consumer based on the mode.
-/// if `mode` is true:
+/// if `mode` is `true`:
 ///   Input is treated as E4M3 and converted to Q9.9
 ///   `fixed[17:9] contains integer part
 ///   `fixed[8:0] contains fractional part

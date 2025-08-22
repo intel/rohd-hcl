@@ -10,12 +10,12 @@
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
 
-/// A multiplier module for FloatingPoint logic.
+/// A multiplier module for [FloatingPoint] logic.
 class FloatingPointMultiplierSimple<FpTypeIn extends FloatingPoint,
         FpTypeOut extends FloatingPoint>
     extends FloatingPointMultiplier<FpTypeIn, FpTypeOut> {
-  /// Multiply two FloatingPoint numbers [a] and [b], returning result
-  /// in [product] FloatingPoint.
+  /// Multiply two [FloatingPoint] numbers [a] and [b], returning result
+  /// in [product] [FloatingPoint].
   /// - [multGen] is a multiplier generator to be used in the mantissa
   /// multiplication.
   /// - [priorityGen] is a [PriorityEncoder] generator to be used in the
@@ -35,12 +35,16 @@ class FloatingPointMultiplierSimple<FpTypeIn extends FloatingPoint,
       PriorityEncoder Function(Logic bitVector,
               {bool generateValid, String name})
           priorityGen = RecursiveModulePriorityEncoder.new,
-      super.name})
+      super.name,
+      super.reserveName,
+      super.reserveDefinitionName,
+      String? definitionName})
       : super(
-            definitionName: 'FloatingPointMultiplierSimple_'
-                'E${a.exponent.width}M${a.mantissa.width}'
-                '${outProduct != null ? '_OE${outProduct.exponent.width}_'
-                    'OM${outProduct.mantissa.width}' : ''}') {
+            definitionName: definitionName ??
+                'FloatingPointMultiplierSimple_'
+                    'E${a.exponent.width}M${a.mantissa.width}'
+                    '${outProduct != null ? '_OE${outProduct.exponent.width}_'
+                        'OM${outProduct.mantissa.width}' : ''}') {
     if (exponentWidth < a.exponent.width) {
       throw RohdHclException('product exponent width must be >= '
           ' input exponent width');

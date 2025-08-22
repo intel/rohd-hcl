@@ -248,6 +248,7 @@ class ApbInterface extends Interface<ApbDirection> {
   }
 
   /// Constructs a new [ApbInterface] with identical parameters to [other].
+  @Deprecated('Use Instance-based `clone()` instead.')
   ApbInterface.clone(ApbInterface other)
       : this(
           addrWidth: other.addrWidth,
@@ -256,6 +257,19 @@ class ApbInterface extends Interface<ApbDirection> {
           userRespWidth: other.userRespWidth,
           includeSlvErr: other.includeSlvErr,
         );
+
+  /// Clone this [ApbInterface].
+  @override
+  ApbInterface clone() => ApbInterface(
+        addrWidth: addrWidth,
+        dataWidth: dataWidth,
+        userReqWidth: userReqWidth,
+        userDataWidth: userDataWidth,
+        userRespWidth: userRespWidth,
+        includeSlvErr: includeSlvErr,
+        includeWakeup: includeWakeup,
+        numSelects: numSelects,
+      );
 
   /// Checks that the values set for parameters follow the specification's
   /// restrictions.
