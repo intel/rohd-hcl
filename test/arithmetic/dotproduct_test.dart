@@ -46,14 +46,14 @@ void main() {
     CompressionTreeDotProduct(multipliers, multipliers);
     try {
       CompressionTreeDotProduct(multiplicands, multipliers);
-      expect(true, throwsA(isA<RohdHclException>()));
+      fail('Should throw on a multiplicand width mismatch');
     } on RohdHclException catch (e) {
       expect(e.message, contains('Multiplicands must all have the same width'));
     }
 
     try {
       CompressionTreeDotProduct(multiplicands2, multipliers);
-      expect(true, throwsA(isA<RohdHclException>()));
+      fail('Should throw on a multiplicand vs multiplier width mismatch');
     } on RohdHclException catch (e) {
       expect(e.message,
           contains('Multiplier and multiplicand have 4 width mismatches.'));
