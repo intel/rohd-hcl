@@ -110,4 +110,57 @@ void main() {
 
     expect(checkRan, isTrue);
   });
+
+  test('FP Comparison', () {
+    final fp1 = FloatingPoint32();
+    final fp2 = FloatingPoint32();
+
+    final val1 = FloatingPoint32Value.populator().ofDouble(1.23);
+    final val2 = FloatingPoint32Value.populator().ofDouble(3.45);
+    final val3 = FloatingPoint32Value.populator().ofDouble(1.23);
+
+    fp1.put(val1);
+    fp2.put(val2);
+
+    expect(fp1.lt(fp2).value.toBool(), isTrue);
+    expect(fp1.lte(fp2).value.toBool(), isTrue);
+    expect(fp1.gt(fp2).value.toBool(), isFalse);
+    expect((fp1 > fp2).value.toBool(), isFalse);
+    expect(fp1.gte(fp2).value.toBool(), isFalse);
+    expect((fp1 >= fp2).value.toBool(), isFalse);
+    expect(fp1.eq(fp2).value.toBool(), isFalse);
+    expect(fp1.neq(fp2).value.toBool(), isTrue);
+
+    fp2.put(val3);
+
+    expect(fp1.lt(fp2).value.toBool(), isFalse);
+    expect(fp1.lte(fp2).value.toBool(), isTrue);
+    expect(fp1.gt(fp2).value.toBool(), isFalse);
+    expect((fp1 > fp2).value.toBool(), isFalse);
+    expect(fp1.gte(fp2).value.toBool(), isTrue);
+    expect((fp1 >= fp2).value.toBool(), isTrue);
+    expect(fp1.eq(fp2).value.toBool(), isTrue);
+    expect(fp1.neq(fp2).value.toBool(), isFalse);
+  });
+
+  test('FP Negate', () {
+    final fp1 = FloatingPoint32();
+    final fp2 = FloatingPoint32();
+
+    final val1 = FloatingPoint32Value.populator().ofDouble(1.23);
+    final val2 = FloatingPoint32Value.populator().ofDouble(-1.23);
+
+    fp1.put(val1);
+    fp2.put(val2);
+    expect(fp1.negate().eq(fp2).value.toBool(), isTrue);
+    expect((-fp1).eq(fp2).value.toBool(), isTrue);
+    expect(fp1.negate().neq(fp2).value.toBool(), isFalse);
+    expect((-fp1).neq(fp2).value.toBool(), isFalse);
+    final val3 = val1.negate();
+    fp2.put(val3);
+    expect(fp1.negate().eq(fp2).value.toBool(), isTrue);
+    expect((-fp1).eq(fp2).value.toBool(), isTrue);
+    expect(fp1.negate().neq(fp2).value.toBool(), isFalse);
+    expect((-fp1).neq(fp2).value.toBool(), isFalse);
+  });
 }

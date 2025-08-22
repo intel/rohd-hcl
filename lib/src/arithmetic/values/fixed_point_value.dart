@@ -178,6 +178,9 @@ class FixedPointValue implements Comparable<FixedPointValue> {
     return isNegative() ? -value : value;
   }
 
+  /// Negate operation for [FixedPointValue].
+  FixedPointValue negate() => clonePopulator().ofLogicValue((~value) + 1);
+
   /// Addition operation that returns a FixedPointValue.
   /// The result is signed if one of the operands is signed.
   /// The result integer has the max integer width of the operands plus one.
