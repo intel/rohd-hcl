@@ -12,3 +12,6 @@
 set -euo pipefail
 
 dart pub get
+
+cd confapp
+dart pub get
