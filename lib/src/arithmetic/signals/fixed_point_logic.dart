@@ -163,6 +163,20 @@ class FixedPoint extends LogicStructure {
         fractionWidth: 2 * fractionWidth);
   }
 
+  /// Negate the [FixedPoint].
+  FixedPoint operator -() => negate();
+  // ignore the lint warning about overriding the '-' operator.
+  // Adding that override will fail CI analyze_source.sh.
+
+  /// Negate the [FixedPoint].
+  FixedPoint negate() {
+    final val = ~this + 1;
+    return FixedPoint._(
+        Logic(width: integer.width)..gets(val.getRange(fractionWidth)),
+        Logic(width: fraction.width)..gets(val.slice(fractionWidth - 1, 0)),
+        signed);
+  }
+
   /// Greater-than.
   @override
   Logic operator >(dynamic other) => gt(other);
