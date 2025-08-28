@@ -48,12 +48,11 @@ class Axi4SystemInterface extends Interface<Axi4Direction> {
   }
 
   /// Constructs a new [Axi4SystemInterface] with identical parameters.
-  @override
   Axi4SystemInterface clone() => Axi4SystemInterface();
 }
 
 /// A standard AXI4 read interface.
-class Axi4ReadInterface extends Interface<Axi4Direction> {
+abstract class Axi4BaseReadInterface extends Interface<Axi4Direction> {
   /// Number of channel ID bits.
   final int idWidth;
 
@@ -73,25 +72,25 @@ class Axi4ReadInterface extends Interface<Axi4Direction> {
   final int ruserWidth;
 
   /// Width of the size field is fixed for AXI4.
-  final int sizeWidth = 3;
+  final int sizeWidth;
 
   /// Width of the burst field is fixed for AXI4.
-  final int burstWidth = 2;
+  final int burstWidth;
 
   /// Width of the cache field is fixed for AXI4.
-  final int cacheWidth = 4;
+  final int cacheWidth;
 
   /// Width of the prot field is fixed for AXI4.
-  final int protWidth = 3;
+  final int protWidth;
 
   /// Width of the QoS field is fixed for AXI4.
-  final int qosWidth = 4;
+  final int qosWidth;
 
   /// Width of the region field is fixed for AXI4.
-  final int regionWidth = 4;
+  final int regionWidth;
 
   /// Width of the RRESP field is fixed for AXI4.
-  final int rrespWidth = 2;
+  final int rrespWidth;
 
   /// Controls the presence of [arLock] which is an optional port.
   final bool useLock;
@@ -203,7 +202,7 @@ class Axi4ReadInterface extends Interface<Axi4Direction> {
   /// Construct a new instance of an AXI4 interface.
   ///
   /// Default values in constructor are from official spec.
-  Axi4ReadInterface({
+  Axi4BaseReadInterface({
     this.idWidth = 4,
     this.addrWidth = 32,
     this.lenWidth = 8,
@@ -212,6 +211,13 @@ class Axi4ReadInterface extends Interface<Axi4Direction> {
     this.ruserWidth = 32,
     this.useLock = true,
     this.useLast = true,
+    this.sizeWidth = 3,
+    this.burstWidth = 2,
+    this.cacheWidth = 4,
+    this.protWidth = 3,
+    this.qosWidth = 4,
+    this.regionWidth = 4,
+    this.rrespWidth = 2,
   }) {
     _validateParameters();
 
@@ -246,32 +252,6 @@ class Axi4ReadInterface extends Interface<Axi4Direction> {
     ]);
   }
 
-  /// Constructs a new [Axi4ReadInterface] with identical parameters to [other].
-  @Deprecated('Use Instance-based `clone()` instead.')
-  Axi4ReadInterface.clone(Axi4ReadInterface other)
-      : this(
-          idWidth: other.idWidth,
-          addrWidth: other.addrWidth,
-          lenWidth: other.lenWidth,
-          dataWidth: other.dataWidth,
-          aruserWidth: other.aruserWidth,
-          ruserWidth: other.ruserWidth,
-          useLock: other.useLock,
-          useLast: other.useLast,
-        );
-
-  /// Constructs a new [Axi4ReadInterface] with identical parameters.
-  @override
-  Axi4ReadInterface clone() => Axi4ReadInterface(
-      idWidth: idWidth,
-      addrWidth: addrWidth,
-      lenWidth: lenWidth,
-      dataWidth: dataWidth,
-      aruserWidth: aruserWidth,
-      ruserWidth: ruserWidth,
-      useLock: useLock,
-      useLast: useLast);
-
   /// Checks that the values set for parameters follow the specification's
   /// restrictions.
   void _validateParameters() {
@@ -303,8 +283,42 @@ class Axi4ReadInterface extends Interface<Axi4Direction> {
   }
 }
 
+/// Thin wrapper around abstract class to enforce certain paramater values.
+class Axi4ReadInterface extends Axi4BaseReadInterface {
+  /// Constructor.
+  Axi4ReadInterface({
+    super.idWidth = 4,
+    super.addrWidth = 32,
+    super.lenWidth = 8,
+    super.dataWidth = 64,
+    super.aruserWidth = 32,
+    super.ruserWidth = 32,
+    super.useLock = true,
+    super.useLast = true,
+  }) : super(
+          sizeWidth: 3,
+          burstWidth: 2,
+          cacheWidth: 4,
+          protWidth: 3,
+          qosWidth: 4,
+          regionWidth: 4,
+          rrespWidth: 2,
+        );
+
+  /// Copy constructor.
+  Axi4ReadInterface clone() => Axi4ReadInterface(
+      idWidth: idWidth,
+      addrWidth: addrWidth,
+      lenWidth: lenWidth,
+      dataWidth: dataWidth,
+      aruserWidth: aruserWidth,
+      ruserWidth: ruserWidth,
+      useLock: useLock,
+      useLast: useLast);
+}
+
 /// A standard AXI4 write interface.
-class Axi4WriteInterface extends Interface<Axi4Direction> {
+abstract class Axi4BaseWriteInterface extends Interface<Axi4Direction> {
   /// Number of channel ID bits.
   final int idWidth;
 
@@ -330,25 +344,25 @@ class Axi4WriteInterface extends Interface<Axi4Direction> {
   final int buserWidth;
 
   /// Width of the size field is fixed for AXI4.
-  final int sizeWidth = 3;
+  final int sizeWidth;
 
   /// Width of the burst field is fixed for AXI4.
-  final int burstWidth = 2;
+  final int burstWidth;
 
   /// Width of the cache field is fixed for AXI4.
-  final int cacheWidth = 4;
+  final int cacheWidth;
 
   /// Width of the prot field is fixed for AXI4.
-  final int protWidth = 3;
+  final int protWidth;
 
   /// Width of the QoS field is fixed for AXI4.
-  final int qosWidth = 4;
+  final int qosWidth;
 
   /// Width of the region field is fixed for AXI4.
-  final int regionWidth = 4;
+  final int regionWidth;
 
   /// Width of the BRESP field is fixed for AXI4.
-  final int brespWidth = 2;
+  final int brespWidth;
 
   /// Controls the presence of [awLock] which is an optional port.
   final bool useLock;
@@ -476,7 +490,7 @@ class Axi4WriteInterface extends Interface<Axi4Direction> {
   /// Construct a new instance of an AXI4 interface.
   ///
   /// Default values in constructor are from official spec.
-  Axi4WriteInterface({
+  Axi4BaseWriteInterface({
     this.idWidth = 4,
     this.addrWidth = 32,
     this.lenWidth = 8,
@@ -485,6 +499,13 @@ class Axi4WriteInterface extends Interface<Axi4Direction> {
     this.wuserWidth = 32,
     this.buserWidth = 16,
     this.useLock = true,
+    this.sizeWidth = 3,
+    this.burstWidth = 2,
+    this.cacheWidth = 4,
+    this.protWidth = 3,
+    this.qosWidth = 4,
+    this.regionWidth = 4,
+    this.brespWidth = 2,
   }) : strbWidth = dataWidth ~/ 8 {
     _validateParameters();
 
@@ -523,34 +544,6 @@ class Axi4WriteInterface extends Interface<Axi4Direction> {
     ]);
   }
 
-  /// Constructs a new [Axi4WriteInterface] with
-  /// identical parameters to [other].
-  @Deprecated('Use Instance-based `clone()` instead.')
-  Axi4WriteInterface.clone(Axi4WriteInterface other)
-      : this(
-          idWidth: other.idWidth,
-          addrWidth: other.addrWidth,
-          lenWidth: other.lenWidth,
-          dataWidth: other.dataWidth,
-          awuserWidth: other.awuserWidth,
-          wuserWidth: other.wuserWidth,
-          buserWidth: other.buserWidth,
-          useLock: other.useLock,
-        );
-
-  /// Constructs a new [Axi4WriteInterface] with identical parameters.
-  @override
-  Axi4WriteInterface clone() => Axi4WriteInterface(
-        idWidth: idWidth,
-        addrWidth: addrWidth,
-        lenWidth: lenWidth,
-        dataWidth: dataWidth,
-        awuserWidth: awuserWidth,
-        wuserWidth: wuserWidth,
-        buserWidth: buserWidth,
-        useLock: useLock,
-      );
-
   /// Checks that the values set for parameters follow the specification's
   /// restrictions.
   void _validateParameters() {
@@ -584,6 +577,41 @@ class Axi4WriteInterface extends Interface<Axi4Direction> {
       throw RohdHclException('buserWidth must be >= 0 and <= 128');
     }
   }
+}
+
+/// Thin wrapper around abstract class to enforce certain paramater values.
+class Axi4WriteInterface extends Axi4BaseWriteInterface {
+  /// Constructor.
+  Axi4WriteInterface({
+    super.idWidth = 4,
+    super.addrWidth = 32,
+    super.lenWidth = 8,
+    super.dataWidth = 64,
+    super.awuserWidth = 32,
+    super.wuserWidth = 32,
+    super.buserWidth = 16,
+    super.useLock = true,
+  }) : super(
+          sizeWidth: 3,
+          burstWidth: 2,
+          cacheWidth: 4,
+          protWidth: 3,
+          qosWidth: 4,
+          regionWidth: 4,
+          brespWidth: 2,
+        );
+
+  /// Copy constructor.
+  Axi4WriteInterface clone() => Axi4WriteInterface(
+        idWidth: idWidth,
+        addrWidth: addrWidth,
+        lenWidth: lenWidth,
+        dataWidth: dataWidth,
+        awuserWidth: awuserWidth,
+        wuserWidth: wuserWidth,
+        buserWidth: buserWidth,
+        useLock: useLock,
+      );
 }
 
 /// Helper to enumerate the encodings of the xBURST signal.
