@@ -12,7 +12,16 @@ import 'package:rohd_hcl/rohd_hcl.dart';
 /// ACE AR interface.
 ///
 /// This is mostly the same as AXI-4 but with some coherency additions.
-class Ace4ArChannelInterface extends Ace4BaseRequestChannelInterface {
+class Ace4ArChannelInterface extends Axi4BaseArChannelInterface
+    with Ace4RequestChannel {
+  /// Width of the coherency domain signal.
+  @override
+  final int domainWidth;
+
+  /// Should the ARBAR signal be present.
+  @override
+  final bool useBar;
+
   /// Constructor.
   ///
   /// Should match regular AXI4 but with DOMAIN and BAR.
@@ -22,11 +31,11 @@ class Ace4ArChannelInterface extends Ace4BaseRequestChannelInterface {
     super.lenWidth = 8,
     super.userWidth = 32,
     super.useLock = true,
-    super.domainWidth = 1,
-    super.useBar = true,
-  }) : super(
-          prefix: 'AR',
-        );
+    this.domainWidth = 1,
+    this.useBar = true,
+  }) {
+    makeAcePorts();
+  }
 
   /// Copy constructor.
   Ace4ArChannelInterface clone() => Ace4ArChannelInterface(
@@ -42,7 +51,16 @@ class Ace4ArChannelInterface extends Ace4BaseRequestChannelInterface {
 /// ACE AW interface.
 ///
 /// This is mostly the same as AXI-4 but with some coherency additions.
-class Ace4AwChannelInterface extends Ace4BaseRequestChannelInterface {
+class Ace4AwChannelInterface extends Axi4BaseAwChannelInterface
+    with Ace4RequestChannel {
+  /// Width of the coherency domain signal.
+  @override
+  final int domainWidth;
+
+  /// Should the ARBAR signal be present.
+  @override
+  final bool useBar;
+
   /// Constructor.
   ///
   /// Should match regular AXI4 but with DOMAIN and BAR.
@@ -52,9 +70,11 @@ class Ace4AwChannelInterface extends Ace4BaseRequestChannelInterface {
     super.lenWidth = 8,
     super.userWidth = 32,
     super.useLock = true,
-    super.domainWidth = 1,
-    super.useBar = true,
-  }) : super(prefix: 'AW');
+    this.domainWidth = 1,
+    this.useBar = true,
+  }) {
+    makeAcePorts();
+  }
 
   /// Copy constructor.
   Ace4AwChannelInterface clone() => Ace4AwChannelInterface(
@@ -133,3 +153,63 @@ class Ace4BChannelInterface extends Axi4BaseBChannelInterface {
 }
 
 // TODO: add Ace4SnoopInterface with the 3 new channels...
+
+/// ACE4 read cluster.
+class Ace4ReadCluster extends Axi4BaseReadCluster {
+  /// Constructor.
+  Ace4ReadCluster({
+    int idWidth = 4,
+    int addrWidth = 32,
+    int lenWidth = 8,
+    int userWidth = 32,
+    bool useLock = false,
+    int dataWidth = 64,
+    bool useLast = true,
+    int domainWidth = 1,
+    bool useBar = true,
+  }) : super(
+            arIntf: Ace4ArChannelInterface(
+                idWidth: idWidth,
+                addrWidth: addrWidth,
+                lenWidth: lenWidth,
+                useLock: useLock,
+                userWidth: userWidth,
+                domainWidth: domainWidth,
+                useBar: useBar),
+            rIntf: Ace4RChannelInterface(
+                idWidth: idWidth,
+                userWidth: userWidth,
+                dataWidth: dataWidth,
+                useLast: useLast));
+}
+
+/// ACE4 write cluster.
+class Ace4WriteCluster extends Axi4BaseWriteCluster {
+  /// Constructor.
+  Ace4WriteCluster({
+    int idWidth = 4,
+    int addrWidth = 32,
+    int lenWidth = 8,
+    int userWidth = 32,
+    bool useLock = false,
+    int dataWidth = 64,
+    bool useLast = true,
+    int domainWidth = 1,
+    bool useBar = true,
+  }) : super(
+            awIntf: Ace4AwChannelInterface(
+                idWidth: idWidth,
+                addrWidth: addrWidth,
+                lenWidth: lenWidth,
+                useLock: useLock,
+                userWidth: userWidth,
+                domainWidth: domainWidth,
+                useBar: useBar),
+            wIntf: Ace4WChannelInterface(
+                idWidth: idWidth,
+                userWidth: userWidth,
+                dataWidth: dataWidth,
+                useLast: useLast),
+            bIntf:
+                Ace4BChannelInterface(idWidth: idWidth, userWidth: userWidth));
+}

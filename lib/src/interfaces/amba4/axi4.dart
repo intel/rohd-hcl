@@ -24,7 +24,7 @@ enum Axi4Direction {
 }
 
 /// AXI4 clock and reset.
-class Axi4SystemInterface extends Interface<Axi4Direction> {
+class Axi4SystemInterface extends PairInterface {
   /// Clock for the interface.
   ///
   /// Global clock signals. Synchronous signals are sampled
@@ -43,7 +43,7 @@ class Axi4SystemInterface extends Interface<Axi4Direction> {
       Logic.port('ACLK'),
       Logic.port('ARESETn'),
     ], [
-      Axi4Direction.misc,
+      PairDirection.sharedInputs,
     ]);
   }
 
@@ -52,7 +52,7 @@ class Axi4SystemInterface extends Interface<Axi4Direction> {
 }
 
 /// Base abstraction that applies to all AXI channels.
-abstract class Axi4ChannelInterface extends Interface<Axi4Direction> {
+abstract class Axi4ChannelInterface extends PairInterface {
   /// Number of channel ID bits.
   final int idWidth;
 
@@ -97,15 +97,15 @@ abstract class Axi4ChannelInterface extends Interface<Axi4Direction> {
       if (userWidth > 0) Logic.port('${prefix}USER', userWidth),
       Logic.port('${prefix}VALID'),
     ], [
-      if (main) Axi4Direction.fromMain,
-      if (!main) Axi4Direction.fromSubordinate,
+      if (main) PairDirection.fromProvider,
+      if (!main) PairDirection.fromConsumer,
     ]);
 
     setPorts([
       Logic.port('${prefix}READY'),
     ], [
-      if (main) Axi4Direction.fromSubordinate,
-      if (!main) Axi4Direction.fromSubordinate,
+      if (main) PairDirection.fromConsumer,
+      if (!main) PairDirection.fromProvider,
     ]);
   }
 }
@@ -213,7 +213,7 @@ abstract class Axi4RequestChannelInterface extends Axi4ChannelInterface {
       if (qosWidth > 0) Logic.port('${prefix}QOS', qosWidth),
       if (regionWidth > 0) Logic.port('${prefix}REGION', regionWidth),
     ], [
-      Axi4Direction.fromMain,
+      PairDirection.fromProvider,
     ]);
   }
 
@@ -360,8 +360,8 @@ abstract class Axi4DataChannelInterface extends Axi4ChannelInterface {
       Logic.port('${prefix}DATA', dataWidth),
       if (useLast) Logic.port('${prefix}LAST'),
     ], [
-      if (main) Axi4Direction.fromMain,
-      if (!main) Axi4Direction.fromSubordinate,
+      if (main) PairDirection.fromProvider,
+      if (!main) PairDirection.fromConsumer,
     ]);
   }
 
@@ -396,7 +396,7 @@ abstract class Axi4BaseRChannelInterface extends Axi4DataChannelInterface {
     setPorts([
       if (respWidth > 0) Logic.port('RRESP', respWidth),
     ], [
-      Axi4Direction.fromSubordinate,
+      PairDirection.fromConsumer,
     ]);
   }
 }
@@ -422,7 +422,7 @@ abstract class Axi4BaseWChannelInterface extends Axi4DataChannelInterface {
     setPorts([
       Logic.port('WSTRB', strbWidth),
     ], [
-      Axi4Direction.fromMain,
+      PairDirection.fromProvider,
     ]);
   }
 }
@@ -486,7 +486,7 @@ abstract class Axi4BaseBChannelInterface extends Axi4ChannelInterface {
     setPorts([
       if (respWidth > 0) Logic.port('BRESP', respWidth),
     ], [
-      Axi4Direction.fromSubordinate,
+      PairDirection.fromConsumer,
     ]);
   }
 }
@@ -508,39 +508,68 @@ class Axi4BChannelInterface extends Axi4BaseBChannelInterface {
       );
 }
 
-abstract class Axi4BaseReadCluster {
+/// A pairing of the AXI read channels (AR, R).
+abstract class Axi4BaseReadCluster extends PairInterface {
+  /// AR channel.
   late final Axi4BaseArChannelInterface arIntf;
+
+  /// R channel.
   late final Axi4BaseRChannelInterface rIntf;
 
+  /// Constructor.
   Axi4BaseReadCluster({
     required this.arIntf,
     required this.rIntf,
-  });
+  }) {
+    addSubInterface('AR', arIntf);
+    addSubInterface('AR', rIntf);
+  }
 }
 
-abstract class Axi4BaseWriteCluster {
+/// A pairing of the AXI write channels (AW, W, B).
+abstract class Axi4BaseWriteCluster extends PairInterface {
+  /// AW channel.
   late final Axi4BaseAwChannelInterface awIntf;
+
+  /// W channel.
   late final Axi4BaseWChannelInterface wIntf;
+
+  /// B channel.
   late final Axi4BaseBChannelInterface bIntf;
 
+  /// Constructor.
   Axi4BaseWriteCluster({
     required this.awIntf,
     required this.wIntf,
     required this.bIntf,
-  });
+  }) {
+    addSubInterface('AW', awIntf);
+    addSubInterface('W', wIntf);
+    addSubInterface('B', bIntf);
+  }
 }
 
-abstract class Axi4BaseCluster {
+/// A pairing of all AXI channels (read + write).
+abstract class Axi4BaseCluster extends PairInterface {
+  /// Read channels.
   late final Axi4BaseReadCluster read;
+
+  /// Write channels.
   late final Axi4BaseWriteCluster write;
 
+  /// Constructor.
   Axi4BaseCluster({
     required this.read,
     required this.write,
-  });
+  }) {
+    addSubInterface('READ', read);
+    addSubInterface('WRITE', write);
+  }
 }
 
+/// AXI4 read cluster.
 class Axi4ReadCluster extends Axi4BaseReadCluster {
+  /// Constructor.
   Axi4ReadCluster({
     int idWidth = 4,
     int addrWidth = 32,
@@ -563,7 +592,9 @@ class Axi4ReadCluster extends Axi4BaseReadCluster {
                 useLast: useLast));
 }
 
+/// AXI4 write cluster.
 class Axi4WriteCluster extends Axi4BaseWriteCluster {
+  /// Constructor.
   Axi4WriteCluster({
     int idWidth = 4,
     int addrWidth = 32,
@@ -588,7 +619,9 @@ class Axi4WriteCluster extends Axi4BaseWriteCluster {
                 Axi4BChannelInterface(idWidth: idWidth, userWidth: userWidth));
 }
 
+/// AXI4 cluster.
 class Axi4Cluster extends Axi4BaseCluster {
+  /// Constructor.
   Axi4Cluster({
     int idWidth = 4,
     int addrWidth = 32,

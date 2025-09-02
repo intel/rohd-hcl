@@ -112,7 +112,9 @@ class Axi4LiteBChannelInterface extends Axi4BaseBChannelInterface {
   Axi4LiteBChannelInterface clone() => Axi4LiteBChannelInterface();
 }
 
+/// AXI4-Lite read cluster.
 class Axi4LiteReadCluster extends Axi4BaseReadCluster {
+  /// Constructor.
   Axi4LiteReadCluster({
     int addrWidth = 32,
     int dataWidth = 64,
@@ -123,7 +125,9 @@ class Axi4LiteReadCluster extends Axi4BaseReadCluster {
                 dataWidth: dataWidth, useLast: useLast));
 }
 
+/// AXI4-Lite write cluster.
 class Axi4LiteWriteCluster extends Axi4BaseWriteCluster {
+  /// Constructor.
   Axi4LiteWriteCluster({
     int addrWidth = 32,
     int dataWidth = 64,
@@ -137,7 +141,9 @@ class Axi4LiteWriteCluster extends Axi4BaseWriteCluster {
             bIntf: Axi4LiteBChannelInterface());
 }
 
+/// AXI4-Lite cluster.
 class Axi4LiteCluster extends Axi4BaseCluster {
+  /// Constructor.
   Axi4LiteCluster({
     int addrWidth = 32,
     int dataWidth = 64,

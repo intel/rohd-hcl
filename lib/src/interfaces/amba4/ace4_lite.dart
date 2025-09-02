@@ -7,19 +7,19 @@
 // 2025 August
 // Author: Josh Kimmel <joshua1.kimmel@intel.com>
 
+import 'package:meta/meta.dart';
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
 
 /// Abstraction on top of the request interface adding coherency signals.
 ///
 /// This is mostly the same as AXI-4 but with some coherency additions.
-abstract class Ace4BaseRequestChannelInterface
-    extends Axi4RequestChannelInterface {
+mixin Ace4RequestChannel on Axi4RequestChannelInterface {
   /// Width of the coherency domain signal.
-  final int domainWidth;
+  int get domainWidth;
 
   /// Should the ARBAR signal be present.
-  final bool useBar;
+  bool get useBar;
 
   /// Coherency domain.
   ///
@@ -31,31 +31,14 @@ abstract class Ace4BaseRequestChannelInterface
   /// Width is always 1.
   Logic? get bar => tryPort('${prefix}BAR');
 
-  /// Constructor.
-  ///
-  /// Should match regular AXI4 but with DOMAIN and BAR.
-  Ace4BaseRequestChannelInterface({
-    required super.prefix,
-    super.idWidth = 4,
-    super.addrWidth = 32,
-    super.lenWidth = 8,
-    super.userWidth = 32,
-    super.useLock = true,
-    this.domainWidth = 1,
-    this.useBar = true,
-  }) : super(
-          sizeWidth: 3,
-          burstWidth: 2,
-          cacheWidth: 4,
-          protWidth: 3,
-          qosWidth: 4,
-          regionWidth: 4,
-        ) {
+  /// Helper to instantiate ACE specific request ports.
+  @protected
+  void makeAcePorts() {
     setPorts([
       if (domainWidth > 0) Logic.port('${prefix}DOMAIN', domainWidth),
       if (useBar) Logic.port('${prefix}BAR'),
     ], [
-      Axi4Direction.fromMain,
+      PairDirection.fromProvider,
     ]);
   }
 }
@@ -63,7 +46,16 @@ abstract class Ace4BaseRequestChannelInterface
 /// ACE-Lite AR interface.
 ///
 /// This is mostly the same as AXI-4 but with some coherency additions.
-class Ace4LiteArChannelInterface extends Ace4BaseRequestChannelInterface {
+class Ace4LiteArChannelInterface extends Axi4BaseArChannelInterface
+    with Ace4RequestChannel {
+  /// Width of the coherency domain signal.
+  @override
+  final int domainWidth;
+
+  /// Should the ARBAR signal be present.
+  @override
+  final bool useBar;
+
   /// Constructor.
   ///
   /// Should match regular AXI4 but with DOMAIN and BAR.
@@ -73,11 +65,11 @@ class Ace4LiteArChannelInterface extends Ace4BaseRequestChannelInterface {
     super.lenWidth = 8,
     super.userWidth = 32,
     super.useLock = true,
-    super.domainWidth = 1,
-    super.useBar = true,
-  }) : super(
-          prefix: 'AR',
-        );
+    this.domainWidth = 1,
+    this.useBar = true,
+  }) {
+    makeAcePorts();
+  }
 
   /// Copy constructor.
   Ace4LiteArChannelInterface clone() => Ace4LiteArChannelInterface(
@@ -93,7 +85,16 @@ class Ace4LiteArChannelInterface extends Ace4BaseRequestChannelInterface {
 /// ACE-Lite AW interface.
 ///
 /// This is mostly the same as AXI-4 but with some coherency additions.
-class Ace4LiteAwChannelInterface extends Ace4BaseRequestChannelInterface {
+class Ace4LiteAwChannelInterface extends Axi4BaseAwChannelInterface
+    with Ace4RequestChannel {
+  /// Width of the coherency domain signal.
+  @override
+  final int domainWidth;
+
+  /// Should the ARBAR signal be present.
+  @override
+  final bool useBar;
+
   /// Constructor.
   ///
   /// Should match regular AXI4 but with DOMAIN and BAR.
@@ -103,9 +104,11 @@ class Ace4LiteAwChannelInterface extends Ace4BaseRequestChannelInterface {
     super.lenWidth = 8,
     super.userWidth = 32,
     super.useLock = true,
-    super.domainWidth = 1,
-    super.useBar = true,
-  }) : super(prefix: 'AW');
+    this.domainWidth = 1,
+    this.useBar = true,
+  }) {
+    makeAcePorts();
+  }
 
   /// Copy constructor.
   Ace4LiteAwChannelInterface clone() => Ace4LiteAwChannelInterface(
@@ -183,8 +186,9 @@ class Ace4LiteBChannelInterface extends Axi4BaseBChannelInterface {
       Ace4LiteBChannelInterface(idWidth: idWidth, userWidth: userWidth);
 }
 
-// TODO
+/// ACE4-Lite read cluster.
 class Ace4LiteReadCluster extends Axi4BaseReadCluster {
+  /// Constructor.
   Ace4LiteReadCluster({
     int idWidth = 4,
     int addrWidth = 32,
@@ -193,16 +197,87 @@ class Ace4LiteReadCluster extends Axi4BaseReadCluster {
     bool useLock = false,
     int dataWidth = 64,
     bool useLast = true,
+    int domainWidth = 1,
+    bool useBar = true,
   }) : super(
             arIntf: Ace4LiteArChannelInterface(
                 idWidth: idWidth,
                 addrWidth: addrWidth,
                 lenWidth: lenWidth,
                 useLock: useLock,
-                userWidth: userWidth),
+                userWidth: userWidth,
+                domainWidth: domainWidth,
+                useBar: useBar),
             rIntf: Ace4LiteRChannelInterface(
                 idWidth: idWidth,
                 userWidth: userWidth,
                 dataWidth: dataWidth,
                 useLast: useLast));
+}
+
+/// ACE4-Lite write cluster.
+class Ace4LiteWriteCluster extends Axi4BaseWriteCluster {
+  /// Constructor.
+  Ace4LiteWriteCluster({
+    int idWidth = 4,
+    int addrWidth = 32,
+    int lenWidth = 8,
+    int userWidth = 32,
+    bool useLock = false,
+    int dataWidth = 64,
+    bool useLast = true,
+    int domainWidth = 1,
+    bool useBar = true,
+  }) : super(
+            awIntf: Ace4LiteAwChannelInterface(
+                idWidth: idWidth,
+                addrWidth: addrWidth,
+                lenWidth: lenWidth,
+                useLock: useLock,
+                userWidth: userWidth,
+                domainWidth: domainWidth,
+                useBar: useBar),
+            wIntf: Ace4LiteWChannelInterface(
+                idWidth: idWidth,
+                userWidth: userWidth,
+                dataWidth: dataWidth,
+                useLast: useLast),
+            bIntf: Ace4LiteBChannelInterface(
+                idWidth: idWidth, userWidth: userWidth));
+}
+
+/// ACE4-Lite cluster.
+class Ace4LiteCluster extends Axi4BaseCluster {
+  /// Constructor.
+  Ace4LiteCluster({
+    int idWidth = 4,
+    int addrWidth = 32,
+    int lenWidth = 8,
+    int userWidth = 32,
+    bool useLock = false,
+    int dataWidth = 64,
+    bool useLast = true,
+    int domainWidth = 1,
+    bool useBar = true,
+  }) : super(
+            read: Ace4LiteReadCluster(
+                idWidth: idWidth,
+                addrWidth: addrWidth,
+                lenWidth: lenWidth,
+                useLock: useLock,
+                userWidth: userWidth,
+                dataWidth: dataWidth,
+                useLast: useLast,
+                domainWidth: domainWidth,
+                useBar: useBar),
+            write: Ace4LiteWriteCluster(
+                idWidth: idWidth,
+                addrWidth: addrWidth,
+                lenWidth: lenWidth,
+                useLock: useLock,
+                userWidth: userWidth,
+                dataWidth: dataWidth,
+                useLast: useLast,
+                domainWidth: domainWidth,
+                useBar: useBar));
 }

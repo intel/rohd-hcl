@@ -38,7 +38,7 @@ class Axi4RequestChannelMonitor extends Monitor<Axi4RequestPacket> {
           rIntf.ready.previousValue!.isValid &&
           rIntf.valid.previousValue!.toBool() &&
           rIntf.ready.previousValue!.toBool()) {
-        final isAce = rIntf is Ace4BaseRequestChannelInterface;
+        final isAce = rIntf is Ace4RequestChannel;
         add(
           Axi4RequestPacket(
             addr: rIntf.addr.previousValue!,
@@ -53,12 +53,10 @@ class Axi4RequestChannelMonitor extends Monitor<Axi4RequestPacket> {
             region: rIntf.region?.previousValue,
             user: rIntf.user?.previousValue,
             domain: (isAce
-                ? (rIntf as Ace4BaseRequestChannelInterface)
-                    .domain
-                    ?.previousValue
+                ? (rIntf as Ace4RequestChannel).domain?.previousValue
                 : null),
             bar: (isAce
-                ? (rIntf as Ace4BaseRequestChannelInterface).bar?.previousValue
+                ? (rIntf as Ace4RequestChannel).bar?.previousValue
                 : null),
           ),
         );

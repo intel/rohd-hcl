@@ -56,9 +56,9 @@ class Axi4RequestChannelDriver extends PendingClockedDriver<Axi4RequestPacket> {
       rIntf.qos?.put(0);
       rIntf.region?.put(0);
       rIntf.user?.put(0);
-      if (rIntf is Ace4BaseRequestChannelInterface) {
-        (rIntf as Ace4BaseRequestChannelInterface).domain?.put(0);
-        (rIntf as Ace4BaseRequestChannelInterface).bar?.put(0);
+      if (rIntf is Ace4RequestChannel) {
+        (rIntf as Ace4RequestChannel).domain?.put(0);
+        (rIntf as Ace4RequestChannel).bar?.put(0);
       }
     });
 
@@ -95,9 +95,9 @@ class Axi4RequestChannelDriver extends PendingClockedDriver<Axi4RequestPacket> {
       rIntf.qos?.put(packet.qos);
       rIntf.region?.put(packet.region);
       rIntf.user?.put(packet.user);
-      if (rIntf is Ace4BaseRequestChannelInterface) {
-        (rIntf as Ace4BaseRequestChannelInterface).domain?.put(packet.domain);
-        (rIntf as Ace4BaseRequestChannelInterface).bar?.put(packet.bar);
+      if (rIntf is Ace4RequestChannel) {
+        (rIntf as Ace4RequestChannel).domain?.put(packet.domain);
+        (rIntf as Ace4RequestChannel).bar?.put(packet.bar);
       }
     });
 
