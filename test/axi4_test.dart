@@ -14,13 +14,14 @@ import 'package:test/test.dart';
 import 'axi4_bfm_test.dart';
 
 class Axi4Subordinate extends Module {
-  Axi4Subordinate(Axi4SystemInterface sIntf, List<Axi4Channel> channels) {
+  Axi4Subordinate(
+      Axi4SystemInterface sIntf, List<Axi4ChannelInterface> channels) {
     sIntf = Axi4SystemInterface()
       ..connectIO(this, sIntf, inputTags: {Axi4Direction.misc});
 
-    final channelsL = <Axi4Channel>[];
+    final channelsL = <Axi4ChannelInterface>[];
     for (var i = 0; i < channels.length; i++) {
-      channelsL.add(Axi4Channel(
+      channelsL.add(Axi4ChannelInterface(
           channelId: channels[i].channelId,
           rIntf: channels[i].hasRead
               ? (channels[i].rIntf!.clone()
@@ -39,13 +40,13 @@ class Axi4Subordinate extends Module {
 }
 
 class Axi4Main extends Module {
-  Axi4Main(Axi4SystemInterface sIntf, List<Axi4Channel> channels) {
+  Axi4Main(Axi4SystemInterface sIntf, List<Axi4ChannelInterface> channels) {
     sIntf = Axi4SystemInterface()
       ..connectIO(this, sIntf, inputTags: {Axi4Direction.misc});
 
-    final channelsL = <Axi4Channel>[];
+    final channelsL = <Axi4ChannelInterface>[];
     for (var i = 0; i < channels.length; i++) {
-      channelsL.add(Axi4Channel(
+      channelsL.add(Axi4ChannelInterface(
           channelId: channels[i].channelId,
           rIntf: channels[i].hasRead
               ? (channels[i].rIntf!.clone()
@@ -76,13 +77,13 @@ class Axi4Pair extends Module {
     sIntf.clk <= clk;
     sIntf.resetN <= ~reset;
 
-    final channels = <Axi4Channel>[];
+    final channels = <Axi4ChannelInterface>[];
     for (var i = 0; i < numChannels; i++) {
       final hasRead = channelConfigs[i] == Axi4BfmTestChannelConfig.read ||
           channelConfigs[i] == Axi4BfmTestChannelConfig.readWrite;
       final hasWrite = channelConfigs[i] == Axi4BfmTestChannelConfig.write ||
           channelConfigs[i] == Axi4BfmTestChannelConfig.readWrite;
-      channels.add(Axi4Channel(
+      channels.add(Axi4ChannelInterface(
           channelId: i,
           rIntf: hasRead ? Axi4ReadInterface() : null,
           wIntf: hasWrite ? Axi4WriteInterface() : null));

@@ -9,52 +9,142 @@
 
 import 'package:rohd_hcl/rohd_hcl.dart';
 
-/// A standard AXI4-Lite read interface.
-class Axi4LiteReadInterface extends Axi4BaseReadInterface {
+/// A standard AXI4-Lite AR interface.
+class Axi4LiteArChannelInterface extends Axi4BaseArChannelInterface {
   /// Construct a new instance of an AXI4 interface.
   ///
   /// Default values in constructor are from official spec.
-  Axi4LiteReadInterface({
+  Axi4LiteArChannelInterface({
     super.addrWidth = 32,
+  }) : super(
+          userWidth: 0,
+          idWidth: 0,
+          lenWidth: 0,
+          useLock: false,
+          sizeWidth: 0,
+          burstWidth: 0,
+          cacheWidth: 0,
+          protWidth: 3,
+          qosWidth: 0,
+          regionWidth: 0,
+        );
+
+  /// Copy constructor.
+  Axi4LiteArChannelInterface clone() =>
+      Axi4LiteArChannelInterface(addrWidth: addrWidth);
+}
+
+/// A standard AXI4-Lite AW interface.
+class Axi4LiteAwChannelInterface extends Axi4BaseAwChannelInterface {
+  /// Construct a new instance of an AXI4 interface.
+  ///
+  /// Default values in constructor are from official spec.
+  Axi4LiteAwChannelInterface({
+    super.addrWidth = 32,
+  }) : super(
+          idWidth: 0,
+          lenWidth: 0,
+          userWidth: 0,
+          useLock: false,
+          sizeWidth: 0,
+          burstWidth: 0,
+          cacheWidth: 0,
+          protWidth: 3,
+          qosWidth: 0,
+          regionWidth: 0,
+        );
+
+  /// Copy constructor.
+  Axi4LiteAwChannelInterface clone() =>
+      Axi4LiteAwChannelInterface(addrWidth: addrWidth);
+}
+
+/// A standard AXI4-Lite R interface.
+class Axi4LiteRChannelInterface extends Axi4BaseRChannelInterface {
+  /// Construct a new instance of an AXI4 interface.
+  ///
+  /// Default values in constructor are from official spec.
+  Axi4LiteRChannelInterface({
     super.dataWidth = 64,
     super.useLast = true,
   }) : super(
-          aruserWidth: 0,
           idWidth: 0,
-          lenWidth: 0,
-          ruserWidth: 0,
-          useLock: false,
-          sizeWidth: 0,
-          burstWidth: 0,
-          cacheWidth: 0,
-          protWidth: 3,
-          qosWidth: 0,
-          regionWidth: 0,
-          rrespWidth: 2,
+          userWidth: 0,
+          respWidth: 2,
         );
+
+  /// Copy constructor.
+  Axi4LiteRChannelInterface clone() =>
+      Axi4LiteRChannelInterface(dataWidth: dataWidth, useLast: useLast);
 }
 
-/// A standard AXI4-Lite read interface.
-class Axi4LiteWriteInterface extends Axi4BaseWriteInterface {
+/// A standard AXI4-Lite W interface.
+class Axi4LiteWChannelInterface extends Axi4BaseWChannelInterface {
   /// Construct a new instance of an AXI4 interface.
   ///
   /// Default values in constructor are from official spec.
-  Axi4LiteWriteInterface({
-    super.addrWidth = 32,
+  Axi4LiteWChannelInterface({
     super.dataWidth = 64,
+    super.useLast = true,
   }) : super(
-          awuserWidth: 0,
           idWidth: 0,
-          lenWidth: 0,
-          wuserWidth: 0,
-          buserWidth: 0,
-          useLock: false,
-          sizeWidth: 0,
-          burstWidth: 0,
-          cacheWidth: 0,
-          protWidth: 3,
-          qosWidth: 0,
-          regionWidth: 0,
-          brespWidth: 2,
+          userWidth: 0,
         );
+
+  /// Copy constructor.
+  Axi4LiteWChannelInterface clone() =>
+      Axi4LiteWChannelInterface(dataWidth: dataWidth, useLast: useLast);
+}
+
+/// A standard AXI4-Lite B interface.
+class Axi4LiteBChannelInterface extends Axi4BaseBChannelInterface {
+  /// Construct a new instance of an AXI4 interface.
+  ///
+  /// Default values in constructor are from official spec.
+  Axi4LiteBChannelInterface()
+      : super(
+          idWidth: 0,
+          userWidth: 0,
+          respWidth: 2,
+        );
+
+  /// Copy constructor.
+  Axi4LiteBChannelInterface clone() => Axi4LiteBChannelInterface();
+}
+
+class Axi4LiteReadCluster extends Axi4BaseReadCluster {
+  Axi4LiteReadCluster({
+    int addrWidth = 32,
+    int dataWidth = 64,
+    bool useLast = true,
+  }) : super(
+            arIntf: Axi4LiteArChannelInterface(addrWidth: addrWidth),
+            rIntf: Axi4LiteRChannelInterface(
+                dataWidth: dataWidth, useLast: useLast));
+}
+
+class Axi4LiteWriteCluster extends Axi4BaseWriteCluster {
+  Axi4LiteWriteCluster({
+    int addrWidth = 32,
+    int dataWidth = 64,
+    bool useLast = true,
+  }) : super(
+            awIntf: Axi4LiteAwChannelInterface(
+              addrWidth: addrWidth,
+            ),
+            wIntf: Axi4LiteWChannelInterface(
+                dataWidth: dataWidth, useLast: useLast),
+            bIntf: Axi4LiteBChannelInterface());
+}
+
+class Axi4LiteCluster extends Axi4BaseCluster {
+  Axi4LiteCluster({
+    int addrWidth = 32,
+    int dataWidth = 64,
+    bool useLast = true,
+  }) : super(
+            read: Axi4LiteReadCluster(
+                addrWidth: addrWidth, dataWidth: dataWidth, useLast: useLast),
+            write: Axi4LiteWriteCluster(
+                addrWidth: addrWidth, dataWidth: dataWidth, useLast: useLast));
 }

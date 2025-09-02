@@ -26,7 +26,7 @@ class Axi4BfmTest extends Test {
 
   final int numChannels;
   final List<Axi4BfmTestChannelConfig> channelConfigs;
-  final List<Axi4Channel> channels = [];
+  final List<Axi4ChannelInterface> channels = [];
 
   late final Axi4MainAgent main;
 
@@ -172,7 +172,7 @@ class Axi4BfmTest extends Test {
     sIntf = Axi4SystemInterface();
     for (var i = 0; i < numChannels; i++) {
       if (channelConfigs[i] == Axi4BfmTestChannelConfig.readWrite) {
-        channels.add(Axi4Channel(
+        channels.add(Axi4ChannelInterface(
           channelId: i,
           rIntf: Axi4ReadInterface(
             addrWidth: addrWidth,
@@ -190,7 +190,7 @@ class Axi4BfmTest extends Test {
         Axi4ReadComplianceChecker(sIntf, channels.last.rIntf!, parent: this);
         Axi4WriteComplianceChecker(sIntf, channels.last.wIntf!, parent: this);
       } else if (channelConfigs[i] == Axi4BfmTestChannelConfig.read) {
-        channels.add(Axi4Channel(
+        channels.add(Axi4ChannelInterface(
           channelId: i,
           rIntf: Axi4ReadInterface(
             addrWidth: addrWidth,
@@ -201,7 +201,7 @@ class Axi4BfmTest extends Test {
         ));
         Axi4ReadComplianceChecker(sIntf, channels.last.rIntf!, parent: this);
       } else if (channelConfigs[i] == Axi4BfmTestChannelConfig.write) {
-        channels.add(Axi4Channel(
+        channels.add(Axi4ChannelInterface(
           channelId: i,
           wIntf: Axi4WriteInterface(
             addrWidth: addrWidth,

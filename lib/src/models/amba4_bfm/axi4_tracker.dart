@@ -10,6 +10,8 @@
 import 'package:rohd_hcl/rohd_hcl.dart';
 import 'package:rohd_vf/rohd_vf.dart';
 
+// TODO: split out???
+
 /// A tracker for the [Axi4ReadInterface] or [Axi4WriteInterface].
 class Axi4Tracker extends Tracker<Axi4RequestPacket> {
   /// Tracker field for simulation time.
@@ -63,6 +65,12 @@ class Axi4Tracker extends Tracker<Axi4RequestPacket> {
   /// Tracker field for STRB.
   static const strbField = 'STRB';
 
+  /// Tracker field for DOMAIN.
+  static const domainField = 'DOMAIN';
+
+  /// Tracker field for BAR.
+  static const barField = 'BAR';
+
   /// Creates a new tracker for [Axi4ReadInterface] and [Axi4WriteInterface].
   Axi4Tracker({
     String name = 'Axi4Tracker',
@@ -85,6 +93,8 @@ class Axi4Tracker extends Tracker<Axi4RequestPacket> {
     int ruserColumnWidth = 0,
     int dataColumnWidth = 64,
     int strbColumnWidth = 0,
+    int domainColumnWidth = 0,
+    int barColumnWidth = 0,
   }) : super(name, [
           TrackerField(timeField, columnWidth: timeColumnWidth),
           const TrackerField(typeField, columnWidth: 1),
@@ -115,5 +125,9 @@ class Axi4Tracker extends Tracker<Axi4RequestPacket> {
           TrackerField(dataField, columnWidth: dataColumnWidth),
           if (strbColumnWidth > 0)
             TrackerField(strbField, columnWidth: strbColumnWidth),
+          if (domainColumnWidth > 0)
+            TrackerField(domainField, columnWidth: domainColumnWidth),
+          if (barColumnWidth > 0)
+            TrackerField(barField, columnWidth: barColumnWidth),
         ]);
 }

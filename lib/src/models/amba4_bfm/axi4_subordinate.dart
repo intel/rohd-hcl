@@ -45,7 +45,7 @@ class Axi4SubordinateAgent extends Agent {
   final Axi4SystemInterface sIntf;
 
   /// Channels that the subordinate manages.
-  final List<Axi4Channel> channels;
+  final List<Axi4ChannelInterface> channels;
 
   /// A place where the subordinate should save and retrieve data.
   ///

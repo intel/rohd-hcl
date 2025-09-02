@@ -51,25 +51,72 @@ class Axi4SystemInterface extends Interface<Axi4Direction> {
   Axi4SystemInterface clone() => Axi4SystemInterface();
 }
 
-/// A standard AXI4 read interface.
-abstract class Axi4BaseReadInterface extends Interface<Axi4Direction> {
+/// Base abstraction that applies to all AXI channels.
+abstract class Axi4ChannelInterface extends Interface<Axi4Direction> {
   /// Number of channel ID bits.
   final int idWidth;
 
+  /// Number of user field bits.
+  final int userWidth;
+
+  /// Prefix string for port declarations
+  final String prefix;
+
+  /// Helper to control which direction the signals should be coming from.
+  final bool main;
+
+  /// User-defined extension for the channel.
+  ///
+  /// Width is equal to [userWidth].
+  Logic? get user => tryPort('${prefix}USER');
+
+  /// Indicates that the channel signals are valid.
+  ///
+  /// Width is always 1.
+  Logic get valid => port('${prefix}VALID');
+
+  /// Indicates that a transfer on the channel can be accepted.
+  ///
+  /// Width is always 1.
+  Logic get ready => port('${prefix}READY');
+
+  /// Identification tag for transaction.
+  ///
+  /// Width is equal to [idWidth].
+  Logic? get id => tryPort('${prefix}ID');
+
+  /// Constructor.
+  Axi4ChannelInterface({
+    required this.prefix,
+    required this.main,
+    this.idWidth = 4,
+    this.userWidth = 32,
+  }) {
+    setPorts([
+      if (idWidth > 0) Logic.port('${prefix}ID', idWidth),
+      if (userWidth > 0) Logic.port('${prefix}USER', userWidth),
+      Logic.port('${prefix}VALID'),
+    ], [
+      if (main) Axi4Direction.fromMain,
+      if (!main) Axi4Direction.fromSubordinate,
+    ]);
+
+    setPorts([
+      Logic.port('${prefix}READY'),
+    ], [
+      if (main) Axi4Direction.fromSubordinate,
+      if (!main) Axi4Direction.fromSubordinate,
+    ]);
+  }
+}
+
+/// Wrapper for commonality in AXI Request channels (AR, AW, etc.).
+abstract class Axi4RequestChannelInterface extends Axi4ChannelInterface {
   /// Width of the address bus.
   final int addrWidth;
 
   /// Width of len field.
   final int lenWidth;
-
-  /// Width of the user AR sideband field.
-  final int aruserWidth;
-
-  /// Width of the system data buses.
-  final int dataWidth;
-
-  /// Width of the user R sideband field.
-  final int ruserWidth;
 
   /// Width of the size field is fixed for AXI4.
   final int sizeWidth;
@@ -89,529 +136,484 @@ abstract class Axi4BaseReadInterface extends Interface<Axi4Direction> {
   /// Width of the region field is fixed for AXI4.
   final int regionWidth;
 
-  /// Width of the RRESP field is fixed for AXI4.
-  final int rrespWidth;
-
-  /// Controls the presence of [arLock] which is an optional port.
+  /// Controls the presence of lock which is an optional port.
   final bool useLock;
 
-  /// Controls the presence of [rLast] which is an optional port.
-  final bool useLast;
-
-  /// Identification tag for a read transaction.
-  ///
-  /// Width is equal to [idWidth].
-  Logic? get arId => tryPort('ARID');
-
-  /// The address of the first transfer in a read transaction.
+  /// The address of the first transfer in a transaction.
   ///
   /// Width is equal to [addrWidth].
-  Logic get arAddr => port('ARADDR');
+  Logic get addr => port('${prefix}ADDR');
 
-  /// Length, the exact number of data transfers in a read transaction.
+  /// Length, the exact number of data transfers in a transaction.
   ///
   /// Width is equal to [lenWidth].
-  Logic? get arLen => tryPort('ARLEN');
+  Logic? get len => tryPort('${prefix}LEN');
 
-  /// Size, the number of bytes in each data transfer in a read transaction.
+  /// Size, the number of bytes in each data transfer in a transaction.
   ///
   /// Width is equal to [sizeWidth].
-  Logic? get arSize => tryPort('ARSIZE');
+  Logic? get size => tryPort('${prefix}SIZE');
 
   /// Burst type, indicates how address changes between
-  /// each transfer in a read transaction.
+  /// each transfer in a transaction.
   ///
   /// Width is equal to [burstWidth].
-  Logic? get arBurst => tryPort('ARBURST');
+  Logic? get burst => tryPort('${prefix}BURST');
 
-  /// Provides information about atomic characteristics of a read transaction.
+  /// Provides information about atomic characteristics of a transaction.
   ///
   /// Width is always 1.
-  Logic? get arLock => tryPort('ARLOCK');
+  Logic? get lock => tryPort('${prefix}LOCK');
 
-  /// Indicates how a read transaction is required to progress through a system.
+  /// Indicates how a transaction is required to progress through a system.
   ///
   /// Width is equal to [cacheWidth].
-  Logic? get arCache => tryPort('ARCACHE');
+  Logic? get cache => tryPort('${prefix}CACHE');
 
-  /// Protection attributes of a read transaction.
+  /// Protection attributes of a transaction.
   ///
   /// Width is equal to [protWidth].
-  Logic get arProt => port('ARPROT');
+  Logic get prot => port('${prefix}PROT');
 
-  /// Quality of service identifier for a read transaction.
+  /// Quality of service identifier for a transaction.
   ///
   /// Width is equal to [qosWidth].
-  Logic? get arQos => tryPort('ARQOS');
+  Logic? get qos => tryPort('${prefix}QOS');
 
-  /// Region indicator for a Read transaction.
+  /// Region indicator for a transaction.
   ///
   /// Width is equal to [regionWidth].
-  Logic? get arRegion => tryPort('ARREGION');
+  Logic? get region => tryPort('${prefix}REGION');
 
-  /// User-defined extension for the read address channel.
-  ///
-  /// Width is equal to [aruserWidth].
-  Logic? get arUser => tryPort('ARUSER');
-
-  /// Indicates that the read address channel signals are valid.
-  ///
-  /// Width is always 1.
-  Logic get arValid => port('ARVALID');
-
-  /// Indicates that a transfer on the read address channel can be accepted.
-  ///
-  /// Width is always 1.
-  Logic get arReady => port('ARREADY');
-
-  /// Identification tag for read data and response.
-  ///
-  /// Width is equal to [idWidth].
-  Logic? get rId => tryPort('RID');
-
-  /// Read data.
-  ///
-  /// Width is equal to [dataWidth].
-  Logic get rData => port('RDATA');
-
-  /// Read response, indicates the status of a read transfer.
-  ///
-  /// Width is equal to [rrespWidth].
-  Logic? get rResp => tryPort('RRESP');
-
-  /// Indicates whether this is the last data transfer in a read transaction.
-  ///
-  /// Width is always 1.
-  Logic? get rLast => tryPort('RLAST');
-
-  /// User-defined extension for the read data channel.
-  ///
-  /// Width is equal to [ruserWidth].
-  Logic? get rUser => tryPort('RUSER');
-
-  /// Indicates that the read data channel signals are valid.
-  ///
-  /// Width is always 1.
-  Logic get rValid => port('RVALID');
-
-  /// Indicates that a transfer on the read data channel can be accepted.
-  ///
-  /// Width is always 1.
-  Logic get rReady => port('RREADY');
-
-  /// Construct a new instance of an AXI4 interface.
-  ///
-  /// Default values in constructor are from official spec.
-  Axi4BaseReadInterface({
-    this.idWidth = 4,
+  /// Constructor.
+  Axi4RequestChannelInterface({
+    required super.prefix,
+    super.idWidth = 4,
+    super.userWidth = 4,
     this.addrWidth = 32,
     this.lenWidth = 8,
-    this.dataWidth = 64,
-    this.aruserWidth = 32,
-    this.ruserWidth = 32,
     this.useLock = true,
-    this.useLast = true,
     this.sizeWidth = 3,
     this.burstWidth = 2,
     this.cacheWidth = 4,
     this.protWidth = 3,
     this.qosWidth = 4,
     this.regionWidth = 4,
-    this.rrespWidth = 2,
+  }) : super(main: true) {
+    _validateParameters();
+
+    setPorts([
+      Logic.port('${prefix}ADDR', addrWidth),
+      if (lenWidth > 0) Logic.port('${prefix}LEN', lenWidth),
+      if (sizeWidth > 0) Logic.port('${prefix}SIZE', sizeWidth),
+      if (burstWidth > 0) Logic.port('${prefix}BURST', burstWidth),
+      if (useLock) Logic.port('${prefix}LOCK'),
+      if (cacheWidth > 0) Logic.port('${prefix}CACHE', cacheWidth),
+      Logic.port('${prefix}PROT', protWidth),
+      if (qosWidth > 0) Logic.port('${prefix}QOS', qosWidth),
+      if (regionWidth > 0) Logic.port('${prefix}REGION', regionWidth),
+    ], [
+      Axi4Direction.fromMain,
+    ]);
+  }
+
+  /// Checks that the values set for parameters follow the specification's
+  /// restrictions.
+  void _validateParameters() {
+    if (addrWidth > 64 || addrWidth < 1) {
+      throw RohdHclException('addrWidth must be >= 1 and <= 64.');
+    }
+
+    if (lenWidth < 0 || lenWidth > 8) {
+      throw RohdHclException('lenWidth must be >= 0 and <= 8');
+    }
+
+    if (idWidth < 0 || idWidth > 32) {
+      throw RohdHclException('idWidth must be >= 0 and <= 32');
+    }
+  }
+}
+
+/// AXI4 AR channel base. Need this to differentiate between AXI and AXI-Lite.
+abstract class Axi4BaseArChannelInterface extends Axi4RequestChannelInterface {
+  /// Constructor..
+  Axi4BaseArChannelInterface({
+    super.idWidth = 4,
+    super.userWidth = 4,
+    super.addrWidth = 32,
+    super.lenWidth = 8,
+    super.useLock = true,
+    super.sizeWidth = 3,
+    super.burstWidth = 2,
+    super.cacheWidth = 4,
+    super.protWidth = 3,
+    super.qosWidth = 4,
+    super.regionWidth = 4,
+  }) : super(prefix: 'AR');
+}
+
+/// AXI4 AW channel base. Need this to differentiate between AXI and AXI-Lite.
+abstract class Axi4BaseAwChannelInterface extends Axi4RequestChannelInterface {
+  /// Constructor..
+  Axi4BaseAwChannelInterface({
+    super.idWidth = 4,
+    super.userWidth = 4,
+    super.addrWidth = 32,
+    super.lenWidth = 8,
+    super.useLock = true,
+    super.sizeWidth = 3,
+    super.burstWidth = 2,
+    super.cacheWidth = 4,
+    super.protWidth = 3,
+    super.qosWidth = 4,
+    super.regionWidth = 4,
+  }) : super(prefix: 'AW');
+}
+
+/// Thin wrapper around abstract class to enforce certain paramater values.
+class Axi4ArChannelInterface extends Axi4BaseArChannelInterface {
+  /// Constructor.
+  Axi4ArChannelInterface({
+    super.idWidth = 4,
+    super.addrWidth = 32,
+    super.lenWidth = 8,
+    super.userWidth = 32,
+    super.useLock = true,
+  }) : super(
+          sizeWidth: 3,
+          burstWidth: 2,
+          cacheWidth: 4,
+          protWidth: 3,
+          qosWidth: 4,
+          regionWidth: 4,
+        );
+
+  /// Copy constructor.
+  Axi4ArChannelInterface clone() => Axi4ArChannelInterface(
+        idWidth: idWidth,
+        addrWidth: addrWidth,
+        lenWidth: lenWidth,
+        userWidth: userWidth,
+        useLock: useLock,
+      );
+}
+
+/// Thin wrapper around abstract class to enforce certain paramater values.
+class Axi4AwChannelInterface extends Axi4BaseAwChannelInterface {
+  /// Constructor.
+  Axi4AwChannelInterface({
+    super.idWidth = 4,
+    super.addrWidth = 32,
+    super.lenWidth = 8,
+    super.userWidth = 32,
+    super.useLock = true,
+  }) : super(
+          sizeWidth: 3,
+          burstWidth: 2,
+          cacheWidth: 4,
+          protWidth: 3,
+          qosWidth: 4,
+          regionWidth: 4,
+        );
+
+  /// Copy constructor.
+  Axi4AwChannelInterface clone() => Axi4AwChannelInterface(
+        idWidth: idWidth,
+        addrWidth: addrWidth,
+        lenWidth: lenWidth,
+        userWidth: userWidth,
+        useLock: useLock,
+      );
+}
+
+/// Wrapper for commonality in AXI Data channels (R, W, etc.).
+abstract class Axi4DataChannelInterface extends Axi4ChannelInterface {
+  /// Width of the transaction data bus.
+  final int dataWidth;
+
+  /// Controls the presence of last which is an optional port
+  /// for multi burst transactions.
+  final bool useLast;
+
+  /// Transaction data.
+  ///
+  /// Width is equal to [dataWidth].
+  Logic get data => port('${prefix}DATA');
+
+  /// Indicates whether this is the last data transfer in a transaction.
+  ///
+  /// Width is always 1.
+  Logic? get last => tryPort('${prefix}LAST');
+
+  /// Constructor.
+  Axi4DataChannelInterface({
+    required super.prefix,
+    required super.main,
+    super.idWidth = 4,
+    super.userWidth = 32,
+    this.dataWidth = 64,
+    this.useLast = true,
   }) {
     _validateParameters();
 
     setPorts([
-      if (idWidth > 0) Logic.port('ARID', idWidth),
-      Logic.port('ARADDR', addrWidth),
-      if (lenWidth > 0) Logic.port('ARLEN', lenWidth),
-      if (sizeWidth > 0) Logic.port('ARSIZE', sizeWidth),
-      if (burstWidth > 0) Logic.port('ARBURST', burstWidth),
-      if (useLock) Logic.port('ARLOCK'),
-      if (cacheWidth > 0) Logic.port('ARCACHE', cacheWidth),
-      Logic.port('ARPROT', protWidth),
-      if (qosWidth > 0) Logic.port('ARQOS', qosWidth),
-      if (regionWidth > 0) Logic.port('ARREGION', regionWidth),
-      if (aruserWidth > 0) Logic.port('ARUSER', aruserWidth),
-      Logic.port('ARVALID'),
-      Logic.port('RREADY'),
+      Logic.port('${prefix}DATA', dataWidth),
+      if (useLast) Logic.port('${prefix}LAST'),
     ], [
-      Axi4Direction.fromMain,
-    ]);
-
-    setPorts([
-      if (idWidth > 0) Logic.port('RID', idWidth),
-      Logic.port('RDATA', dataWidth),
-      if (rrespWidth > 0) Logic.port('RRESP', rrespWidth),
-      if (useLast) Logic.port('RLAST'),
-      if (ruserWidth > 0) Logic.port('RUSER', ruserWidth),
-      Logic.port('RVALID'),
-      Logic.port('ARREADY'),
-    ], [
-      Axi4Direction.fromSubordinate,
+      if (main) Axi4Direction.fromMain,
+      if (!main) Axi4Direction.fromSubordinate,
     ]);
   }
 
   /// Checks that the values set for parameters follow the specification's
   /// restrictions.
   void _validateParameters() {
-    if (addrWidth > 64 || addrWidth < 1) {
-      throw RohdHclException('addrWidth must be >= 1 and <= 64.');
-    }
-
     const legalDataWidths = [8, 16, 32, 64, 128, 256, 512, 1024];
     if (!legalDataWidths.contains(dataWidth)) {
       throw RohdHclException('dataWidth must be one of $legalDataWidths');
     }
-
-    if (lenWidth < 0 || lenWidth > 8) {
-      throw RohdHclException('lenWidth must be >= 0 and <= 8');
-    }
-
-    if (idWidth < 0 || idWidth > 32) {
-      throw RohdHclException('idWidth must be >= 0 and <= 32');
-    }
-
-    if (aruserWidth < 0 || aruserWidth > 128) {
-      throw RohdHclException('aruserWidth must be >= 0 and <= 128');
-    }
-
-    if (ruserWidth < 0 || ruserWidth > (dataWidth ~/ 2)) {
-      throw RohdHclException(
-          'ruserWidth must be >= 0 and <= ${dataWidth ~/ 2}');
-    }
   }
 }
 
-/// Thin wrapper around abstract class to enforce certain paramater values.
-class Axi4ReadInterface extends Axi4BaseReadInterface {
-  /// Constructor.
-  Axi4ReadInterface({
-    super.idWidth = 4,
-    super.addrWidth = 32,
-    super.lenWidth = 8,
-    super.dataWidth = 64,
-    super.aruserWidth = 32,
-    super.ruserWidth = 32,
-    super.useLock = true,
-    super.useLast = true,
-  }) : super(
-          sizeWidth: 3,
-          burstWidth: 2,
-          cacheWidth: 4,
-          protWidth: 3,
-          qosWidth: 4,
-          regionWidth: 4,
-          rrespWidth: 2,
-        );
+/// AXI4 R channel base. Need this to differentiate between AXI and AXI-Lite.
+abstract class Axi4BaseRChannelInterface extends Axi4DataChannelInterface {
+  /// Width of the RRESP field is fixed for AXI4.
+  final int respWidth;
 
-  /// Copy constructor.
-  Axi4ReadInterface clone() => Axi4ReadInterface(
-      idWidth: idWidth,
-      addrWidth: addrWidth,
-      lenWidth: lenWidth,
-      dataWidth: dataWidth,
-      aruserWidth: aruserWidth,
-      ruserWidth: ruserWidth,
-      useLock: useLock,
-      useLast: useLast);
+  /// Read response, indicates the status of a read transfer.
+  ///
+  /// Width is equal to [respWidth].
+  Logic? get resp => tryPort('RRESP');
+
+  /// Constructor.
+  Axi4BaseRChannelInterface({
+    super.idWidth = 4,
+    super.userWidth = 32,
+    super.dataWidth = 64,
+    super.useLast = true,
+    this.respWidth = 2,
+  }) : super(prefix: 'R', main: false) {
+    setPorts([
+      if (respWidth > 0) Logic.port('RRESP', respWidth),
+    ], [
+      Axi4Direction.fromSubordinate,
+    ]);
+  }
 }
 
-/// A standard AXI4 write interface.
-abstract class Axi4BaseWriteInterface extends Interface<Axi4Direction> {
-  /// Number of channel ID bits.
-  final int idWidth;
-
-  /// Width of the address bus.
-  final int addrWidth;
-
-  /// Width of len field.
-  final int lenWidth;
-
-  /// Width of the user AW sideband field.
-  final int awuserWidth;
-
-  /// Width of the system data buses.
-  final int dataWidth;
-
+/// AXI4 W channel base. Need this to differentiate between AXI and AXI-Lite.
+abstract class Axi4BaseWChannelInterface extends Axi4DataChannelInterface {
   /// Width of the write strobe.
   final int strbWidth;
-
-  /// Width of the user W sideband field.
-  final int wuserWidth;
-
-  /// Width of the user B sideband field.
-  final int buserWidth;
-
-  /// Width of the size field is fixed for AXI4.
-  final int sizeWidth;
-
-  /// Width of the burst field is fixed for AXI4.
-  final int burstWidth;
-
-  /// Width of the cache field is fixed for AXI4.
-  final int cacheWidth;
-
-  /// Width of the prot field is fixed for AXI4.
-  final int protWidth;
-
-  /// Width of the QoS field is fixed for AXI4.
-  final int qosWidth;
-
-  /// Width of the region field is fixed for AXI4.
-  final int regionWidth;
-
-  /// Width of the BRESP field is fixed for AXI4.
-  final int brespWidth;
-
-  /// Controls the presence of [awLock] which is an optional port.
-  final bool useLock;
-
-  /// Identification tag for a write transaction.
-  ///
-  /// Width is equal to [idWidth].
-  Logic? get awId => tryPort('AWID');
-
-  /// The address of the first transfer in a write transaction.
-  ///
-  /// Width is equal to [addrWidth].
-  Logic get awAddr => port('AWADDR');
-
-  /// Length, the exact number of data transfers in a write transaction.
-  ///
-  /// Width is equal to [lenWidth].
-  Logic? get awLen => tryPort('AWLEN');
-
-  /// Size, the number of bytes in each data transfer in a write transaction.
-  ///
-  /// Width is equal to [sizeWidth].
-  Logic? get awSize => tryPort('AWSIZE');
-
-  /// Burst type, indicates how address changes between each transfer.
-  ///
-  /// Width is equal to [burstWidth].
-  Logic? get awBurst => tryPort('AWBURST');
-
-  /// Provides information about atomic characteristics of a write transaction.
-  ///
-  /// Width is always 1.
-  Logic? get awLock => tryPort('AWLOCK');
-
-  /// Indicates how a write transaction is required to progress in a system.
-  ///
-  /// Width is equal to [cacheWidth].
-  Logic? get awCache => tryPort('AWCACHE');
-
-  /// Protection attributes of a write transaction.
-  ///
-  /// Width is equal to [protWidth].
-  Logic get awProt => port('AWPROT');
-
-  /// Quality of service identifier for a write transaction.
-  ///
-  /// Width is equal to [qosWidth].
-  Logic? get awQos => tryPort('AWQOS');
-
-  /// Region indicator for a write transaction.
-  ///
-  /// Width is equal to [regionWidth].
-  Logic? get awRegion => tryPort('AWREGION');
-
-  /// User-defined extension for the write address channel.
-  ///
-  /// Width is equal to [awuserWidth].
-  Logic? get awUser => tryPort('AWUSER');
-
-  /// Indicates that the write address channel signals are valid.
-  ///
-  /// Width is always 1.
-  Logic get awValid => port('AWVALID');
-
-  /// Indicates that a transfer on the write address channel can be accepted.
-  ///
-  /// Width is always 1.
-  Logic get awReady => port('AWREADY');
-
-  /// Write data.
-  ///
-  /// Width is equal to [dataWidth].
-  Logic get wData => port('WDATA');
 
   /// Write strobes, indicate which byte lanes hold valid data.
   ///
   /// Width is equal to [strbWidth].
-  Logic get wStrb => port('WSTRB');
+  Logic get strb => port('WSTRB');
 
-  /// Indicates whether this is the last data transfer in a write transaction.
-  ///
-  /// Width is always 1.
-  Logic get wLast => port('WLAST');
-
-  /// User-defined extension for the write data channel.
-  ///
-  /// Width is equal to [wuserWidth].
-  Logic? get wUser => tryPort('WUSER');
-
-  /// Indicates that the write data channel signals are valid.
-  ///
-  /// Width is always 1.
-  Logic get wValid => port('WVALID');
-
-  /// Indicates that a transfer on the write data channel can be accepted.
-  ///
-  /// Width is always 1.
-  Logic get wReady => port('WREADY');
-
-  /// Identification tag for a write response.
-  ///
-  /// Width is equal to [idWidth].
-  Logic? get bId => tryPort('BID');
-
-  /// Write response, indicates the status of a write transaction.
-  ///
-  /// Width is equal to [brespWidth].
-  Logic? get bResp => tryPort('BRESP');
-
-  /// User-defined extension for the write response channel.
-  ///
-  /// Width is equal to [buserWidth].
-  Logic? get bUser => tryPort('BUSER');
-
-  /// Indicates that the write response channel signals are valid.
-  ///
-  /// Width is always 1.
-  Logic get bValid => port('BVALID');
-
-  /// Indicates that a transfer on the write response channel can be accepted.
-  ///
-  /// Width is always 1.
-  Logic get bReady => port('BREADY');
-
-  /// Construct a new instance of an AXI4 interface.
-  ///
-  /// Default values in constructor are from official spec.
-  Axi4BaseWriteInterface({
-    this.idWidth = 4,
-    this.addrWidth = 32,
-    this.lenWidth = 8,
-    this.dataWidth = 64,
-    this.awuserWidth = 32,
-    this.wuserWidth = 32,
-    this.buserWidth = 16,
-    this.useLock = true,
-    this.sizeWidth = 3,
-    this.burstWidth = 2,
-    this.cacheWidth = 4,
-    this.protWidth = 3,
-    this.qosWidth = 4,
-    this.regionWidth = 4,
-    this.brespWidth = 2,
-  }) : strbWidth = dataWidth ~/ 8 {
-    _validateParameters();
-
+  /// Constructor.
+  Axi4BaseWChannelInterface({
+    super.idWidth = 4,
+    super.userWidth = 32,
+    super.dataWidth = 64,
+    super.useLast = true,
+  })  : strbWidth = dataWidth ~/ 8,
+        super(prefix: 'W', main: true) {
     setPorts([
-      if (idWidth > 0) Logic.port('AWID', idWidth),
-      Logic.port('AWADDR', addrWidth),
-      if (lenWidth > 0) Logic.port('AWLEN', lenWidth),
-      if (sizeWidth > 0) Logic.port('AWSIZE', sizeWidth),
-      if (burstWidth > 0) Logic.port('AWBURST', burstWidth),
-      if (useLock) Logic.port('AWLOCK'),
-      if (cacheWidth > 0) Logic.port('AWCACHE', cacheWidth),
-      Logic.port('AWPROT', protWidth),
-      if (qosWidth > 0) Logic.port('AWQOS', qosWidth),
-      if (regionWidth > 0) Logic.port('AWREGION', regionWidth),
-      if (awuserWidth > 0) Logic.port('AWUSER', awuserWidth),
-      Logic.port('AWVALID'),
-      Logic.port('WDATA', dataWidth),
       Logic.port('WSTRB', strbWidth),
-      Logic.port('WLAST'),
-      if (wuserWidth > 0) Logic.port('WUSER', wuserWidth),
-      Logic.port('WVALID'),
-      Logic.port('BREADY'),
     ], [
       Axi4Direction.fromMain,
     ]);
-
-    setPorts([
-      if (idWidth > 0) Logic.port('BID', idWidth),
-      if (brespWidth > 0) Logic.port('BRESP', brespWidth),
-      if (buserWidth > 0) Logic.port('BUSER', buserWidth),
-      Logic.port('BVALID'),
-      Logic.port('AWREADY'),
-      Logic.port('WREADY'),
-    ], [
-      Axi4Direction.fromSubordinate,
-    ]);
-  }
-
-  /// Checks that the values set for parameters follow the specification's
-  /// restrictions.
-  void _validateParameters() {
-    if (addrWidth > 64 || addrWidth < 1) {
-      throw RohdHclException('addrWidth must be >= 1 and <= 64.');
-    }
-
-    const legalDataWidths = [8, 16, 32, 64, 128, 256, 512, 1024];
-    if (!legalDataWidths.contains(dataWidth)) {
-      throw RohdHclException('dataWidth must be one of $legalDataWidths');
-    }
-
-    if (lenWidth < 0 || lenWidth > 8) {
-      throw RohdHclException('lenWidth must be >= 0 and <= 8');
-    }
-
-    if (idWidth < 0 || idWidth > 32) {
-      throw RohdHclException('idWidth must be >= 0 and <= 32');
-    }
-
-    if (awuserWidth < 0 || awuserWidth > 128) {
-      throw RohdHclException('awuserWidth must be >= 0 and <= 128');
-    }
-
-    if (wuserWidth < 0 || wuserWidth > (dataWidth ~/ 2)) {
-      throw RohdHclException(
-          'wuserWidth must be >= 0 and <= ${dataWidth ~/ 2}');
-    }
-
-    if (buserWidth < 0 || buserWidth > 128) {
-      throw RohdHclException('buserWidth must be >= 0 and <= 128');
-    }
   }
 }
 
 /// Thin wrapper around abstract class to enforce certain paramater values.
-class Axi4WriteInterface extends Axi4BaseWriteInterface {
+class Axi4RChannelInterface extends Axi4BaseRChannelInterface {
   /// Constructor.
-  Axi4WriteInterface({
+  Axi4RChannelInterface({
     super.idWidth = 4,
-    super.addrWidth = 32,
-    super.lenWidth = 8,
+    super.userWidth = 32,
     super.dataWidth = 64,
-    super.awuserWidth = 32,
-    super.wuserWidth = 32,
-    super.buserWidth = 16,
-    super.useLock = true,
+    super.useLast = true,
   }) : super(
-          sizeWidth: 3,
-          burstWidth: 2,
-          cacheWidth: 4,
-          protWidth: 3,
-          qosWidth: 4,
-          regionWidth: 4,
-          brespWidth: 2,
+          respWidth: 2,
         );
 
   /// Copy constructor.
-  Axi4WriteInterface clone() => Axi4WriteInterface(
+  Axi4RChannelInterface clone() => Axi4RChannelInterface(
         idWidth: idWidth,
-        addrWidth: addrWidth,
-        lenWidth: lenWidth,
+        userWidth: userWidth,
         dataWidth: dataWidth,
-        awuserWidth: awuserWidth,
-        wuserWidth: wuserWidth,
-        buserWidth: buserWidth,
-        useLock: useLock,
+        useLast: useLast,
       );
+}
+
+/// Thin wrapper around abstract class to enforce certain paramater values.
+class Axi4WChannelInterface extends Axi4BaseWChannelInterface {
+  /// Constructor.
+  Axi4WChannelInterface({
+    super.idWidth = 4,
+    super.userWidth = 32,
+    super.dataWidth = 64,
+    super.useLast = true,
+  });
+
+  /// Copy constructor.
+  Axi4WChannelInterface clone() => Axi4WChannelInterface(
+        idWidth: idWidth,
+        userWidth: userWidth,
+        dataWidth: dataWidth,
+        useLast: useLast,
+      );
+}
+
+/// AXI4 R channel base. Need this to differentiate between AXI and AXI-Lite.
+abstract class Axi4BaseBChannelInterface extends Axi4ChannelInterface {
+  /// Width of the BRESP field is fixed for AXI4.
+  final int respWidth;
+
+  /// Read response, indicates the status of a write transfer.
+  ///
+  /// Width is equal to [respWidth].
+  Logic? get resp => tryPort('BRESP');
+
+  /// Constructor.
+  Axi4BaseBChannelInterface({
+    super.idWidth = 4,
+    super.userWidth = 16,
+    this.respWidth = 2,
+  }) : super(prefix: 'B', main: false) {
+    setPorts([
+      if (respWidth > 0) Logic.port('BRESP', respWidth),
+    ], [
+      Axi4Direction.fromSubordinate,
+    ]);
+  }
+}
+
+/// Thin wrapper around abstract class to enforce certain paramater values.
+class Axi4BChannelInterface extends Axi4BaseBChannelInterface {
+  /// Constructor.
+  Axi4BChannelInterface({
+    super.idWidth = 4,
+    super.userWidth = 16,
+  }) : super(
+          respWidth: 2,
+        );
+
+  /// Copy constructor.
+  Axi4BChannelInterface clone() => Axi4BChannelInterface(
+        idWidth: idWidth,
+        userWidth: userWidth,
+      );
+}
+
+abstract class Axi4BaseReadCluster {
+  late final Axi4BaseArChannelInterface arIntf;
+  late final Axi4BaseRChannelInterface rIntf;
+
+  Axi4BaseReadCluster({
+    required this.arIntf,
+    required this.rIntf,
+  });
+}
+
+abstract class Axi4BaseWriteCluster {
+  late final Axi4BaseAwChannelInterface awIntf;
+  late final Axi4BaseWChannelInterface wIntf;
+  late final Axi4BaseBChannelInterface bIntf;
+
+  Axi4BaseWriteCluster({
+    required this.awIntf,
+    required this.wIntf,
+    required this.bIntf,
+  });
+}
+
+abstract class Axi4BaseCluster {
+  late final Axi4BaseReadCluster read;
+  late final Axi4BaseWriteCluster write;
+
+  Axi4BaseCluster({
+    required this.read,
+    required this.write,
+  });
+}
+
+class Axi4ReadCluster extends Axi4BaseReadCluster {
+  Axi4ReadCluster({
+    int idWidth = 4,
+    int addrWidth = 32,
+    int lenWidth = 8,
+    int userWidth = 32,
+    bool useLock = false,
+    int dataWidth = 64,
+    bool useLast = true,
+  }) : super(
+            arIntf: Axi4ArChannelInterface(
+                idWidth: idWidth,
+                addrWidth: addrWidth,
+                lenWidth: lenWidth,
+                useLock: useLock,
+                userWidth: userWidth),
+            rIntf: Axi4RChannelInterface(
+                idWidth: idWidth,
+                userWidth: userWidth,
+                dataWidth: dataWidth,
+                useLast: useLast));
+}
+
+class Axi4WriteCluster extends Axi4BaseWriteCluster {
+  Axi4WriteCluster({
+    int idWidth = 4,
+    int addrWidth = 32,
+    int lenWidth = 8,
+    int userWidth = 32,
+    bool useLock = false,
+    int dataWidth = 64,
+    bool useLast = true,
+  }) : super(
+            awIntf: Axi4AwChannelInterface(
+                idWidth: idWidth,
+                addrWidth: addrWidth,
+                lenWidth: lenWidth,
+                useLock: useLock,
+                userWidth: userWidth),
+            wIntf: Axi4WChannelInterface(
+                idWidth: idWidth,
+                userWidth: userWidth,
+                dataWidth: dataWidth,
+                useLast: useLast),
+            bIntf:
+                Axi4BChannelInterface(idWidth: idWidth, userWidth: userWidth));
+}
+
+class Axi4Cluster extends Axi4BaseCluster {
+  Axi4Cluster({
+    int idWidth = 4,
+    int addrWidth = 32,
+    int lenWidth = 8,
+    int userWidth = 32,
+    bool useLock = false,
+    int dataWidth = 64,
+    bool useLast = true,
+  }) : super(
+            read: Axi4ReadCluster(
+                idWidth: idWidth,
+                addrWidth: addrWidth,
+                lenWidth: lenWidth,
+                useLock: useLock,
+                userWidth: userWidth,
+                dataWidth: dataWidth,
+                useLast: useLast),
+            write: Axi4WriteCluster(
+                idWidth: idWidth,
+                addrWidth: addrWidth,
+                lenWidth: lenWidth,
+                useLock: useLock,
+                userWidth: userWidth,
+                dataWidth: dataWidth,
+                useLast: useLast));
 }
 
 /// Helper to enumerate the encodings of the xBURST signal.

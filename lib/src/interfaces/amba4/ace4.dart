@@ -7,137 +7,129 @@
 // 2025 August
 // Author: Josh Kimmel <joshua1.kimmel@intel.com>
 
-import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
 
-/// ACE read interface.
+/// ACE AR interface.
 ///
 /// This is mostly the same as AXI-4 but with some coherency additions.
-class Ace4ReadInterface extends Axi4BaseReadInterface {
-  /// Width of the coherency domain signal.
-  final int domainWidth;
-
-  /// Should the ARBAR signal be present.
-  final bool useBar;
-
-  /// Coherency domain.
-  ///
-  /// Width is equal to [domainWidth].
-  Logic? get arDomain => tryPort('ARDOMAIN');
-
-  /// Coherency barrier.
-  ///
-  /// Width is always 1.
-  Logic? get arBar => tryPort('ARBAR');
-
+class Ace4ArChannelInterface extends Ace4BaseRequestChannelInterface {
   /// Constructor.
   ///
   /// Should match regular AXI4 but with DOMAIN and BAR.
-  Ace4ReadInterface({
+  Ace4ArChannelInterface({
     super.idWidth = 4,
     super.addrWidth = 32,
     super.lenWidth = 8,
-    super.dataWidth = 64,
-    super.aruserWidth = 32,
-    super.ruserWidth = 32,
+    super.userWidth = 32,
     super.useLock = true,
-    super.useLast = true,
-    this.domainWidth = 1,
-    this.useBar = true,
+    super.domainWidth = 1,
+    super.useBar = true,
   }) : super(
-          sizeWidth: 3,
-          burstWidth: 2,
-          cacheWidth: 4,
-          protWidth: 3,
-          qosWidth: 4,
-          regionWidth: 4,
-          rrespWidth: 2,
-        ) {
-    setPorts([
-      if (domainWidth > 0) Logic.port('ARDOMAIN', domainWidth),
-      if (useBar) Logic.port('ARBAR'),
-    ], [
-      Axi4Direction.fromMain,
-    ]);
-  }
+          prefix: 'AR',
+        );
 
   /// Copy constructor.
-  Ace4ReadInterface clone() => Ace4ReadInterface(
+  Ace4ArChannelInterface clone() => Ace4ArChannelInterface(
       idWidth: idWidth,
       addrWidth: addrWidth,
       lenWidth: lenWidth,
-      dataWidth: dataWidth,
-      aruserWidth: aruserWidth,
-      ruserWidth: ruserWidth,
+      userWidth: userWidth,
       useLock: useLock,
-      useLast: useLast,
       domainWidth: domainWidth,
       useBar: useBar);
 }
 
-/// ACE write interface.
+/// ACE AW interface.
 ///
 /// This is mostly the same as AXI-4 but with some coherency additions.
-class Ace4WriteInterface extends Axi4BaseWriteInterface {
-  /// Width of the coherency domain signal.
-  final int domainWidth;
-
-  /// Should the ARBAR signal be present.
-  final bool useBar;
-
-  /// Coherency domain.
-  ///
-  /// Width is equal to [domainWidth].
-  Logic? get arDomain => tryPort('AWDOMAIN');
-
-  /// Coherency barrier.
-  ///
-  /// Width is always 1.
-  Logic? get arBar => tryPort('AWBAR');
-
+class Ace4AwChannelInterface extends Ace4BaseRequestChannelInterface {
   /// Constructor.
   ///
   /// Should match regular AXI4 but with DOMAIN and BAR.
-  Ace4WriteInterface({
+  Ace4AwChannelInterface({
     super.idWidth = 4,
     super.addrWidth = 32,
     super.lenWidth = 8,
-    super.dataWidth = 64,
-    super.awuserWidth = 32,
-    super.wuserWidth = 32,
-    super.buserWidth = 16,
+    super.userWidth = 32,
     super.useLock = true,
-    this.domainWidth = 1,
-    this.useBar = true,
-  }) : super(
-          sizeWidth: 3,
-          burstWidth: 2,
-          cacheWidth: 4,
-          protWidth: 3,
-          qosWidth: 4,
-          regionWidth: 4,
-          brespWidth: 2,
-        ) {
-    setPorts([
-      if (domainWidth > 0) Logic.port('AWDOMAIN', domainWidth),
-      if (useBar) Logic.port('AWBAR'),
-    ], [
-      Axi4Direction.fromMain,
-    ]);
-  }
+    super.domainWidth = 1,
+    super.useBar = true,
+  }) : super(prefix: 'AW');
 
   /// Copy constructor.
-  Ace4WriteInterface clone() => Ace4WriteInterface(
+  Ace4AwChannelInterface clone() => Ace4AwChannelInterface(
       idWidth: idWidth,
       addrWidth: addrWidth,
       lenWidth: lenWidth,
-      dataWidth: dataWidth,
-      awuserWidth: awuserWidth,
-      wuserWidth: wuserWidth,
-      buserWidth: buserWidth,
+      userWidth: userWidth,
       useLock: useLock,
       domainWidth: domainWidth,
       useBar: useBar);
+}
+
+/// ACE R interface.
+///
+/// This is mostly the same as AXI-4 but with some coherency additions.
+class Ace4RChannelInterface extends Axi4BaseRChannelInterface {
+  /// Constructor.
+  ///
+  /// Should match regular AXI4 but with DOMAIN and BAR.
+  Ace4RChannelInterface({
+    super.idWidth = 4,
+    super.userWidth = 32,
+    super.useLast = true,
+    super.dataWidth = 64,
+  }) : super(
+          respWidth: 2,
+        );
+
+  /// Copy constructor.
+  Ace4RChannelInterface clone() => Ace4RChannelInterface(
+      idWidth: idWidth,
+      userWidth: userWidth,
+      useLast: useLast,
+      dataWidth: dataWidth);
+}
+
+/// ACE W interface.
+///
+/// This is mostly the same as AXI-4 but with some coherency additions.
+class Ace4WChannelInterface extends Axi4BaseWChannelInterface {
+  /// Constructor.
+  ///
+  /// Should match regular AXI4 but with DOMAIN and BAR.
+  Ace4WChannelInterface({
+    super.idWidth = 4,
+    super.userWidth = 32,
+    super.useLast = true,
+    super.dataWidth = 64,
+  });
+
+  /// Copy constructor.
+  Ace4WChannelInterface clone() => Ace4WChannelInterface(
+      idWidth: idWidth,
+      userWidth: userWidth,
+      useLast: useLast,
+      dataWidth: dataWidth);
+}
+
+/// ACE B interface.
+///
+/// This is mostly the same as AXI-4 but with some coherency additions.
+class Ace4BChannelInterface extends Axi4BaseBChannelInterface {
+  /// Constructor.
+  ///
+  /// Should match regular AXI4 but with DOMAIN and BAR.
+  Ace4BChannelInterface({
+    super.idWidth = 4,
+    super.userWidth = 16,
+  }) : super(
+          respWidth: 2,
+        );
+
+  /// Copy constructor.
+  Ace4BChannelInterface clone() =>
+      Ace4BChannelInterface(idWidth: idWidth, userWidth: userWidth);
 }
 
 // TODO: add Ace4SnoopInterface with the 3 new channels...

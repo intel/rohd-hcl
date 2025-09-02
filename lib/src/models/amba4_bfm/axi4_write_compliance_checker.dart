@@ -19,13 +19,21 @@ class Axi4WriteComplianceChecker extends Component {
   /// AXI4 System Interface.
   final Axi4SystemInterface sIntf;
 
-  /// AXI4 Write Interface.
-  final Axi4WriteInterface wIntf;
+  /// AXI4 AW Channel.
+  final Axi4BaseAwChannelInterface reqIntf;
+
+  /// AXI4 W Channel.
+  final Axi4BaseWChannelInterface dataIntf;
+
+  /// AXI4 B Channel.
+  final Axi4BaseBChannelInterface respIntf;
 
   /// Creates a new compliance checker for AXI4.
   Axi4WriteComplianceChecker(
     this.sIntf,
-    this.wIntf, {
+    this.reqIntf,
+    this.dataIntf,
+    this.respIntf, {
     required Component parent,
     String name = 'axi4WriteComplianceChecker',
   }) : super(name, parent);
@@ -49,30 +57,30 @@ class Axi4WriteComplianceChecker extends Component {
 
     sIntf.clk.posedge.listen((event) {
       // track write requests
-      if (wIntf.awValid.previousValue!.isValid &&
-          wIntf.awValid.previousValue!.toBool()) {
-        final id = wIntf.awId?.previousValue!.toInt() ?? 0;
-        final len = (wIntf.awLen?.previousValue!.toInt() ?? 0) + 1;
+      if (reqIntf.valid.previousValue!.isValid &&
+          reqIntf.valid.previousValue!.toBool()) {
+        final id = reqIntf.id?.previousValue!.toInt() ?? 0;
+        final len = (reqIntf.len?.previousValue!.toInt() ?? 0) + 1;
         if (!writeReqMap.containsKey(id)) {
           writeReqMap[id] = [];
         }
         writeReqMap[id]!.add([len, 0]);
         lastWriteReqId.add(id);
         if (Axi4SizeField.getImpliedSize(
-                Axi4SizeField.fromValue(wIntf.awSize!.value.toInt())) >
-            wIntf.dataWidth) {
+                Axi4SizeField.fromValue(reqIntf.size!.value.toInt())) >
+            dataIntf.dataWidth) {
           logger.severe(
-              'The AWSIZE value of ${wIntf.awSize!.value.toInt()} must be '
+              'The AWSIZE value of ${reqIntf.size!.value.toInt()} must be '
               'less than or equal to '
-              '${Axi4SizeField.fromSize(wIntf.dataWidth).value} '
+              '${Axi4SizeField.fromSize(dataIntf.dataWidth).value} '
               'corresponding to the interface '
-              'data width of ${wIntf.dataWidth}.');
+              'data width of ${dataIntf.dataWidth}.');
         }
       }
 
       // track write data flits
-      if (wIntf.wValid.previousValue!.isValid &&
-          wIntf.wValid.previousValue!.toBool()) {
+      if (dataIntf.valid.previousValue!.isValid &&
+          dataIntf.valid.previousValue!.toBool()) {
         final id = lastWriteReqId.isEmpty ? -1 : lastWriteReqId[0];
         if (!writeReqMap.containsKey(id) || writeReqMap[id]!.isEmpty) {
           logger.severe('There is no pending write request '
@@ -85,11 +93,13 @@ class Axi4WriteComplianceChecker extends Component {
             logger.severe(
                 'Sent more write data flits than indicated by the request '
                 'with ID $id AWLEN. Expected $len but sent $currCount');
-          } else if (currCount == len && !wIntf.wLast.previousValue!.toBool()) {
+          } else if (currCount == len &&
+              !dataIntf.last!.previousValue!.toBool()) {
             logger
                 .severe('Sent the final flit in the write data per the request '
                     'with ID $id AWLEN but WLAST is not asserted.');
-          } else if (currCount == len && wIntf.wLast.previousValue!.toBool()) {
+          } else if (currCount == len &&
+              dataIntf.last!.previousValue!.toBool()) {
             writeReqMap[id]!.removeAt(0);
             lastWriteReqId.removeAt(0);
           }
