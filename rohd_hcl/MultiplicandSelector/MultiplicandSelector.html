@@ -81,9 +81,8 @@ in which case <code>signedMultiplicand</code> must be <code>false</code>.</p>
   if (signedMultiplicand &amp;&amp; (selectSignedMultiplicand != null)) {
     throw RohdHclException(&#39;sign reconfiguration requires signed=false&#39;);
   }
-  if (!allowedRadices.contains(radix)) {
-    throw RohdHclException(&#39;Radices outside of $allowedRadices &#39;
-        &#39;are not yet supported&#39;);
+  if (radix &gt; 16) {
+    throw RohdHclException(&#39;Radices beyond 16 are not yet supported&#39;);
   }
   final width = multiplicand.width + shift;
   final numMultiples = radix ~&#47; 2;
