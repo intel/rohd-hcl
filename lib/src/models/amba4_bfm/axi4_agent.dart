@@ -158,3 +158,178 @@ class Axi4ResponseChannelAgent extends Agent {
         Axi4ResponseChannelMonitor(sIntf: sIntf, rIntf: rIntf, parent: parent);
   }
 }
+
+/// Wrapper agent around the AXI read channels (AR, R).
+class Axi4ReadClusterAgent extends Agent {
+  /// system interface (for clocking).
+  late final Axi4SystemInterface sIntf;
+
+  /// AR interface.
+  late final Axi4BaseArChannelInterface arIntf;
+
+  /// R interface.
+  late final Axi4BaseRChannelInterface rIntf;
+
+  /// AR channel agent.
+  late final Axi4RequestChannelAgent reqAgent;
+
+  /// R channel agent.
+  late final Axi4DataChannelAgent dataAgent;
+
+  /// The number of cycles before timing out if no transactions can be sent.
+  final int timeoutCycles;
+
+  /// The number of cycles before an objection will be dropped when there are
+  /// no pending packets to send.
+  final int dropDelayCycles;
+
+  /// Constructs a new [Axi4ReadClusterAgent].
+  Axi4ReadClusterAgent({
+    required this.sIntf,
+    required this.arIntf,
+    required this.rIntf,
+    required Component parent,
+    String name = 'axi4ReadClusterAgent',
+    this.timeoutCycles = 500,
+    this.dropDelayCycles = 30,
+  }) : super(name, parent) {
+    reqAgent = Axi4RequestChannelAgent(
+        sIntf: sIntf,
+        rIntf: arIntf,
+        parent: parent,
+        timeoutCycles: timeoutCycles,
+        dropDelayCycles: dropDelayCycles);
+    dataAgent = Axi4DataChannelAgent(
+        sIntf: sIntf,
+        rIntf: rIntf,
+        parent: parent,
+        timeoutCycles: timeoutCycles,
+        dropDelayCycles: dropDelayCycles);
+  }
+}
+
+/// Wrapper agent around the AXI write channels (AW, W, B).
+class Axi4WriteClusterAgent extends Agent {
+  /// system interface (for clocking).
+  late final Axi4SystemInterface sIntf;
+
+  /// AW interface.
+  late final Axi4BaseAwChannelInterface awIntf;
+
+  /// W interface.
+  late final Axi4BaseWChannelInterface wIntf;
+
+  /// B interface.
+  late final Axi4BaseBChannelInterface bIntf;
+
+  /// AW channel agent.
+  late final Axi4RequestChannelAgent reqAgent;
+
+  /// W channel agent.
+  late final Axi4DataChannelAgent dataAgent;
+
+  /// B channel agent.
+  late final Axi4ResponseChannelAgent respAgent;
+
+  /// The number of cycles before timing out if no transactions can be sent.
+  final int timeoutCycles;
+
+  /// The number of cycles before an objection will be dropped when there are
+  /// no pending packets to send.
+  final int dropDelayCycles;
+
+  /// Constructs a new [Axi4WriteClusterAgent].
+  Axi4WriteClusterAgent({
+    required this.sIntf,
+    required this.awIntf,
+    required this.wIntf,
+    required this.bIntf,
+    required Component parent,
+    String name = 'axi4WriteClusterAgent',
+    this.timeoutCycles = 500,
+    this.dropDelayCycles = 30,
+  }) : super(name, parent) {
+    reqAgent = Axi4RequestChannelAgent(
+        sIntf: sIntf,
+        rIntf: awIntf,
+        parent: parent,
+        timeoutCycles: timeoutCycles,
+        dropDelayCycles: dropDelayCycles);
+    dataAgent = Axi4DataChannelAgent(
+        sIntf: sIntf,
+        rIntf: wIntf,
+        parent: parent,
+        timeoutCycles: timeoutCycles,
+        dropDelayCycles: dropDelayCycles);
+    respAgent = Axi4ResponseChannelAgent(
+        sIntf: sIntf,
+        rIntf: bIntf,
+        parent: parent,
+        timeoutCycles: timeoutCycles,
+        dropDelayCycles: dropDelayCycles);
+  }
+}
+
+/// Wrapper agent around all AXI channels.
+class Axi4ClusterAgent extends Agent {
+  /// system interface (for clocking).
+  late final Axi4SystemInterface sIntf;
+
+  /// AR interface.
+  late final Axi4BaseArChannelInterface arIntf;
+
+  /// AW interface.
+  late final Axi4BaseAwChannelInterface awIntf;
+
+  /// R interface.
+  late final Axi4BaseRChannelInterface rIntf;
+
+  /// W interface.
+  late final Axi4BaseWChannelInterface wIntf;
+
+  /// B interface.
+  late final Axi4BaseBChannelInterface bIntf;
+
+  /// Read cluster agent.
+  late final Axi4ReadClusterAgent readAgent;
+
+  /// Write cluster agent.
+  late final Axi4WriteClusterAgent writeAgent;
+
+  /// The number of cycles before timing out if no transactions can be sent.
+  final int timeoutCycles;
+
+  /// The number of cycles before an objection will be dropped when there are
+  /// no pending packets to send.
+  final int dropDelayCycles;
+
+  /// Constructs a new [Axi4ClusterAgent].
+  Axi4ClusterAgent({
+    required this.sIntf,
+    required this.arIntf,
+    required this.awIntf,
+    required this.rIntf,
+    required this.wIntf,
+    required this.bIntf,
+    required Component parent,
+    String name = 'axi4ClusterAgent',
+    this.timeoutCycles = 500,
+    this.dropDelayCycles = 30,
+  }) : super(name, parent) {
+    readAgent = Axi4ReadClusterAgent(
+        sIntf: sIntf,
+        arIntf: arIntf,
+        rIntf: rIntf,
+        parent: parent,
+        timeoutCycles: timeoutCycles,
+        dropDelayCycles: dropDelayCycles);
+    writeAgent = Axi4WriteClusterAgent(
+        sIntf: sIntf,
+        awIntf: awIntf,
+        wIntf: wIntf,
+        bIntf: bIntf,
+        parent: parent,
+        timeoutCycles: timeoutCycles,
+        dropDelayCycles: dropDelayCycles);
+  }
+}

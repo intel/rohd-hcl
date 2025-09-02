@@ -522,7 +522,7 @@ abstract class Axi4BaseReadCluster extends PairInterface {
     required this.rIntf,
   }) {
     addSubInterface('AR', arIntf);
-    addSubInterface('AR', rIntf);
+    addSubInterface('R', rIntf);
   }
 }
 
