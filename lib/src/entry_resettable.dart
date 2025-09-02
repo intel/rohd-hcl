@@ -33,7 +33,7 @@ mixin EntryResettable on Module {
   List<Logic> makeResetValues(dynamic resetValue,
       {required int numEntries, required int entryWidth}) {
     if (resetValue == null) {
-      return List.generate(numEntries, (_) => Const(0));
+      return List.generate(numEntries, (_) => Const(0, width: entryWidth));
     } else if (resetValue is Logic) {
       _validateResetValue(resetValue, entryWidth: entryWidth);
       final resetValueInput = addTypedInput('resetValue', resetValue);
@@ -47,6 +47,9 @@ mixin EntryResettable on Module {
       for (final resetVal in resetValue) {
         _validateResetValue(resetVal, entryWidth: entryWidth);
       }
+
+      // TODO(mkorbel1): it would be nice to use the `StaticOrDynamicParameter`
+      //  instead of recreating it for int here, but it needs upgrades
 
       return [
         for (final (i, resetVal) in resetValue.indexed)
@@ -77,7 +80,8 @@ mixin EntryResettable on Module {
             Const(resetValue[i], width: entryWidth)
       ];
     } else {
-      throw RohdHclException('Unknown type for reset value: $resetValue');
+      return List.generate(
+          numEntries, (_) => Const(resetValue, width: entryWidth));
     }
   }
 
