@@ -213,6 +213,19 @@ class Ace4LiteReadCluster extends Axi4BaseReadCluster {
                 userWidth: userWidth,
                 dataWidth: dataWidth,
                 useLast: useLast));
+
+  /// Copy constructor.
+  Ace4LiteReadCluster clone() => Ace4LiteReadCluster(
+        idWidth: arIntf.idWidth,
+        addrWidth: arIntf.addrWidth,
+        lenWidth: arIntf.lenWidth,
+        userWidth: arIntf.userWidth,
+        useLast: rIntf.useLast,
+        useLock: arIntf.useLock,
+        dataWidth: rIntf.dataWidth,
+        domainWidth: (arIntf as Ace4RequestChannel).domainWidth,
+        useBar: (arIntf as Ace4RequestChannel).useBar,
+      );
 }
 
 /// ACE4-Lite write cluster.
@@ -244,6 +257,19 @@ class Ace4LiteWriteCluster extends Axi4BaseWriteCluster {
                 useLast: useLast),
             bIntf: Ace4LiteBChannelInterface(
                 idWidth: idWidth, userWidth: userWidth));
+
+  /// Copy constructor.
+  Ace4LiteWriteCluster clone() => Ace4LiteWriteCluster(
+        idWidth: awIntf.idWidth,
+        addrWidth: awIntf.addrWidth,
+        lenWidth: awIntf.lenWidth,
+        userWidth: awIntf.userWidth,
+        useLast: wIntf.useLast,
+        useLock: awIntf.useLock,
+        dataWidth: wIntf.dataWidth,
+        domainWidth: (awIntf as Ace4RequestChannel).domainWidth,
+        useBar: (awIntf as Ace4RequestChannel).useBar,
+      );
 }
 
 /// ACE4-Lite cluster.
@@ -280,4 +306,17 @@ class Ace4LiteCluster extends Axi4BaseCluster {
                 useLast: useLast,
                 domainWidth: domainWidth,
                 useBar: useBar));
+
+  /// Copy constructor.
+  Ace4LiteCluster clone() => Ace4LiteCluster(
+        idWidth: read.arIntf.idWidth,
+        addrWidth: read.arIntf.addrWidth,
+        lenWidth: read.arIntf.lenWidth,
+        userWidth: read.arIntf.userWidth,
+        useLast: read.rIntf.useLast,
+        useLock: read.arIntf.useLock,
+        dataWidth: read.rIntf.dataWidth,
+        domainWidth: (read.rIntf as Ace4RequestChannel).domainWidth,
+        useBar: (read.rIntf as Ace4RequestChannel).useBar,
+      );
 }

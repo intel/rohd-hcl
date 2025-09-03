@@ -55,6 +55,7 @@ class Axi4RequestPacket extends SequenceItem implements Trackable {
   final LogicValue? bar;
 
   /// Creates a new packet.
+  // TODO: how to capture the type (AR vs. AW)??
   Axi4RequestPacket(
       {required this.addr,
       required this.prot,
@@ -97,37 +98,33 @@ class Axi4RequestPacket extends SequenceItem implements Trackable {
   @override
   String? trackerString(TrackerField field) {
     switch (field.title) {
-      case Axi4Tracker.timeField:
+      case Axi4RequestTracker.timeField:
         return Simulator.time.toString();
-      case Axi4Tracker.idField:
+      case Axi4RequestTracker.idField:
         return id.toString();
-      case Axi4Tracker.addrField:
+      case Axi4RequestTracker.addrField:
         return addr.toString();
-      case Axi4Tracker.lenField:
+      case Axi4RequestTracker.lenField:
         return len.toString();
-      case Axi4Tracker.sizeField:
+      case Axi4RequestTracker.sizeField:
         return size.toString();
-      case Axi4Tracker.burstField:
+      case Axi4RequestTracker.burstField:
         return burst.toString();
-      case Axi4Tracker.lockField:
+      case Axi4RequestTracker.lockField:
         return lock.toString();
-      case Axi4Tracker.cacheField:
+      case Axi4RequestTracker.cacheField:
         return cache.toString();
-      case Axi4Tracker.protField:
+      case Axi4RequestTracker.protField:
         return prot.toString();
-      case Axi4Tracker.qosField:
+      case Axi4RequestTracker.qosField:
         return qos.toString();
-      case Axi4Tracker.regionField:
+      case Axi4RequestTracker.regionField:
         return region.toString();
-      case Axi4Tracker.userField:
+      case Axi4RequestTracker.userField:
         return user.toString();
-      case Axi4Tracker.respField:
-        return returnedResponse.toString();
-      case Axi4Tracker.rUserField:
-        return returnedUserData.toString();
-      case Axi4Tracker.domainField:
+      case Axi4RequestTracker.domainField:
         return domain.toString();
-      case Axi4Tracker.barField:
+      case Axi4RequestTracker.barField:
         return bar.toString();
     }
 
@@ -171,17 +168,19 @@ class Axi4DataPacket extends SequenceItem implements Trackable {
   @override
   String? trackerString(TrackerField field) {
     switch (field.title) {
-      case Axi4Tracker.timeField:
+      case Axi4DataTracker.timeField:
         return Simulator.time.toString();
-      case Axi4Tracker.dataField:
+      case Axi4DataTracker.typeField:
+        return strb != null ? 'W' : 'R';
+      case Axi4DataTracker.dataField:
         return data.toString();
-      case Axi4Tracker.strbField:
+      case Axi4DataTracker.strbField:
         return strb.toString();
-      case Axi4Tracker.userField:
+      case Axi4DataTracker.userField:
         return user.toString();
-      case Axi4Tracker.idField:
+      case Axi4DataTracker.idField:
         return id.toString();
-      case Axi4Tracker.respField:
+      case Axi4DataTracker.respField:
         return resp.toString();
     }
 
@@ -217,13 +216,13 @@ class Axi4ResponsePacket extends SequenceItem implements Trackable {
   @override
   String? trackerString(TrackerField field) {
     switch (field.title) {
-      case Axi4Tracker.timeField:
+      case Axi4ResponseTracker.timeField:
         return Simulator.time.toString();
-      case Axi4Tracker.respField:
+      case Axi4ResponseTracker.respField:
         return resp.toString();
-      case Axi4Tracker.userField:
+      case Axi4ResponseTracker.userField:
         return user.toString();
-      case Axi4Tracker.idField:
+      case Axi4ResponseTracker.idField:
         return id.toString();
     }
 

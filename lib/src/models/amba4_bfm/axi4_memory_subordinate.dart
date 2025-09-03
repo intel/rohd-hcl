@@ -95,6 +95,7 @@ class Axi4SubordinateMemoryAgent extends Agent {
 
   // to handle writes
   final List<List<Axi4RequestPacket>> _writeMetadataQueue = [];
+  final List<List<Axi4DataPacket>> _writeDataQueue = [];
   final List<bool> _writeReadyToOccur = [];
 
   // capture mapping of channel ID to TB object index
@@ -143,6 +144,7 @@ class Axi4SubordinateMemoryAgent extends Agent {
 
       // write side handling
       _writeMetadataQueue.add([]);
+      _writeDataQueue.add([]);
       _writeReadyToOccur.add(false);
       _writeAddrToChannel[i] = _writeMetadataQueue.length - 1;
     }
@@ -163,6 +165,7 @@ class Axi4SubordinateMemoryAgent extends Agent {
 
         // write side reset
         _writeMetadataQueue[_writeAddrToChannel[i]!].clear();
+        _writeDataQueue[_writeAddrToChannel[i]!].clear();
         _writeReadyToOccur[_writeAddrToChannel[i]!] = false;
       }
     });
@@ -422,8 +425,6 @@ class Axi4SubordinateMemoryAgent extends Agent {
     final wIntf = lanes[index].wIntf;
     final mapIdx = _writeAddrToChannel[index]!;
 
-    // TODO: need to track data separate from original request now...
-
     // work to do if main is indicating a valid + ready write
     if (awIntf.valid.value.toBool() && awIntf.ready.value.toBool()) {
       logger.info('Received write request on channel $index.');
@@ -440,15 +441,13 @@ class Axi4SubordinateMemoryAgent extends Agent {
         region: awIntf.region?.value,
         user: awIntf.user?.value,
       );
-      final dataPacket = Axi4DataPacket(data: TODO, strb: TODO);
-      // data: [],
-      // strobe: []);
 
       // might need to capture the first data and strobe simultaneously
       // NOTE: we are dropping wUser on the floor for now...
       if (wIntf.valid.value.toBool() && wIntf.ready.value.toBool()) {
-        dataPacket.data = TODO;
-        dataPacket.strb = TODO;
+        final dataPacket =
+            Axi4DataPacket(data: wIntf.data.value, strb: wIntf.strb.value);
+        _writeDataQueue[mapIdx].add(dataPacket);
         if (wIntf.last!.value.toBool()) {
           _writeReadyToOccur[mapIdx] = true;
         }
@@ -466,15 +465,15 @@ class Axi4SubordinateMemoryAgent extends Agent {
     final wIntf = lanes[index].wIntf;
     final mapIdx = _writeAddrToChannel[index]!;
 
-    // TODO: need to update data capture mechanism...
+    // TODO: what about interleaving data on the same lane but w/ different IDs...
 
     // NOTE: we are dropping wUser on the floor for now...
     if (_writeMetadataQueue[mapIdx].isNotEmpty &&
         wIntf.valid.value.toBool() &&
         wIntf.ready.value.toBool()) {
-      final packet = _writeMetadataQueue[mapIdx][0];
-      packet.data.add(wIntf.data.value);
-      packet.strobe.add(wIntf.strb.value);
+      final dataPacket =
+          Axi4DataPacket(data: wIntf.data.value, strb: wIntf.strb.value);
+      _writeDataQueue[mapIdx].add(dataPacket);
       logger.info('Captured write data on channel $index.');
       if (wIntf.last!.value.toBool()) {
         logger.info('Finished capturing write data on channel $index.');
@@ -524,7 +523,8 @@ class Axi4SubordinateMemoryAgent extends Agent {
         // compute the addresses to write to
         // based on the burst mode, len, and size
         final addrsToWrite = <LogicValue>[];
-        for (var i = 0; i < packet.data.length; i++) {
+        final dataToWrite = _writeDataQueue[mapIdx];
+        for (var i = 0; i < dataToWrite.length; i++) {
           addrsToWrite.add(addrToWrite);
           if (inRegion &&
               (addrToWrite + increment >= ranges[region].end).toBool()) {
@@ -600,6 +600,8 @@ class Axi4SubordinateMemoryAgent extends Agent {
         //  qos
         //  region
         //  user
+        //  domain (even when applicable)
+        //  bar (even when applicable)
         // These can be handled in a derived class of this model if need be.
         // Because they require implementation specific handling.
 
@@ -608,10 +610,10 @@ class Axi4SubordinateMemoryAgent extends Agent {
         // apply the write to storage
         // only if there were no errors
         if (!(error || accessError) || !dropWriteDataOnError) {
-          for (var i = 0; i < packet.data.length; i++) {
+          for (var i = 0; i < dataToWrite.length; i++) {
             final rdData = storage.readData(addrsToWrite[i]);
             final strobedData =
-                _strobeData(rdData, packet.data[i], packet.strobe[i]);
+                _strobeData(rdData, dataToWrite[i].data, dataToWrite[i].strb!);
             final wrData = (dSize < strobedData.width)
                 ? [strobedData.getRange(0, dSize), rdData.getRange(dSize)]
                     .rswizzle()

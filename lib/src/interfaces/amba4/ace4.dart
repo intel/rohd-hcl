@@ -181,6 +181,19 @@ class Ace4ReadCluster extends Axi4BaseReadCluster {
                 userWidth: userWidth,
                 dataWidth: dataWidth,
                 useLast: useLast));
+
+  /// Copy constructor.
+  Ace4ReadCluster clone() => Ace4ReadCluster(
+        idWidth: arIntf.idWidth,
+        addrWidth: arIntf.addrWidth,
+        lenWidth: arIntf.lenWidth,
+        userWidth: arIntf.userWidth,
+        useLast: rIntf.useLast,
+        useLock: arIntf.useLock,
+        dataWidth: rIntf.dataWidth,
+        domainWidth: (arIntf as Ace4RequestChannel).domainWidth,
+        useBar: (arIntf as Ace4RequestChannel).useBar,
+      );
 }
 
 /// ACE4 write cluster.
@@ -212,4 +225,17 @@ class Ace4WriteCluster extends Axi4BaseWriteCluster {
                 useLast: useLast),
             bIntf:
                 Ace4BChannelInterface(idWidth: idWidth, userWidth: userWidth));
+
+  /// Copy constructor.
+  Ace4WriteCluster clone() => Ace4WriteCluster(
+        idWidth: awIntf.idWidth,
+        addrWidth: awIntf.addrWidth,
+        lenWidth: awIntf.lenWidth,
+        userWidth: awIntf.userWidth,
+        useLast: wIntf.useLast,
+        useLock: awIntf.useLock,
+        dataWidth: wIntf.dataWidth,
+        domainWidth: (awIntf as Ace4RequestChannel).domainWidth,
+        useBar: (awIntf as Ace4RequestChannel).useBar,
+      );
 }

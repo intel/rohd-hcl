@@ -571,10 +571,10 @@ abstract class Axi4BaseCluster extends PairInterface {
 class Axi4ReadCluster extends Axi4BaseReadCluster {
   /// Constructor.
   Axi4ReadCluster({
-    int idWidth = 4,
+    int idWidth = 4, // TODO: split??
     int addrWidth = 32,
     int lenWidth = 8,
-    int userWidth = 32,
+    int userWidth = 32, // TODO: split??
     bool useLock = false,
     int dataWidth = 64,
     bool useLast = true,
@@ -590,16 +590,27 @@ class Axi4ReadCluster extends Axi4BaseReadCluster {
                 userWidth: userWidth,
                 dataWidth: dataWidth,
                 useLast: useLast));
+
+  /// Copy constructor.
+  Axi4ReadCluster clone() => Axi4ReadCluster(
+        idWidth: arIntf.idWidth,
+        addrWidth: arIntf.addrWidth,
+        lenWidth: arIntf.lenWidth,
+        userWidth: arIntf.userWidth,
+        useLast: rIntf.useLast,
+        useLock: arIntf.useLock,
+        dataWidth: rIntf.dataWidth,
+      );
 }
 
 /// AXI4 write cluster.
 class Axi4WriteCluster extends Axi4BaseWriteCluster {
   /// Constructor.
   Axi4WriteCluster({
-    int idWidth = 4,
+    int idWidth = 4, // TODO: split??
     int addrWidth = 32,
     int lenWidth = 8,
-    int userWidth = 32,
+    int userWidth = 32, // TODO: split??
     bool useLock = false,
     int dataWidth = 64,
     bool useLast = true,
@@ -617,11 +628,24 @@ class Axi4WriteCluster extends Axi4BaseWriteCluster {
                 useLast: useLast),
             bIntf:
                 Axi4BChannelInterface(idWidth: idWidth, userWidth: userWidth));
+
+  /// Copy constructor.
+  Axi4WriteCluster clone() => Axi4WriteCluster(
+        idWidth: awIntf.idWidth,
+        addrWidth: awIntf.addrWidth,
+        lenWidth: awIntf.lenWidth,
+        userWidth: awIntf.userWidth,
+        useLast: wIntf.useLast,
+        useLock: awIntf.useLock,
+        dataWidth: wIntf.dataWidth,
+      );
 }
 
 /// AXI4 cluster.
 class Axi4Cluster extends Axi4BaseCluster {
   /// Constructor.
+  ///
+  /// TODO: split params??
   Axi4Cluster({
     int idWidth = 4,
     int addrWidth = 32,
@@ -647,6 +671,17 @@ class Axi4Cluster extends Axi4BaseCluster {
                 userWidth: userWidth,
                 dataWidth: dataWidth,
                 useLast: useLast));
+
+  /// Copy constructor.
+  Axi4Cluster clone() => Axi4Cluster(
+        idWidth: read.arIntf.idWidth,
+        addrWidth: read.arIntf.addrWidth,
+        lenWidth: read.arIntf.lenWidth,
+        userWidth: read.arIntf.userWidth,
+        useLast: read.rIntf.useLast,
+        useLock: read.arIntf.useLock,
+        dataWidth: read.rIntf.dataWidth,
+      );
 }
 
 /// Helper to enumerate the encodings of the xBURST signal.

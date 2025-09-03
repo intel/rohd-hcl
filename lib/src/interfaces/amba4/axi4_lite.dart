@@ -123,6 +123,13 @@ class Axi4LiteReadCluster extends Axi4BaseReadCluster {
             arIntf: Axi4LiteArChannelInterface(addrWidth: addrWidth),
             rIntf: Axi4LiteRChannelInterface(
                 dataWidth: dataWidth, useLast: useLast));
+
+  /// Copy constructor.
+  Axi4LiteReadCluster clone() => Axi4LiteReadCluster(
+        addrWidth: arIntf.addrWidth,
+        useLast: rIntf.useLast,
+        dataWidth: rIntf.dataWidth,
+      );
 }
 
 /// AXI4-Lite write cluster.
@@ -139,6 +146,13 @@ class Axi4LiteWriteCluster extends Axi4BaseWriteCluster {
             wIntf: Axi4LiteWChannelInterface(
                 dataWidth: dataWidth, useLast: useLast),
             bIntf: Axi4LiteBChannelInterface());
+
+  /// Copy constructor.
+  Axi4LiteWriteCluster clone() => Axi4LiteWriteCluster(
+        addrWidth: awIntf.addrWidth,
+        useLast: wIntf.useLast,
+        dataWidth: wIntf.dataWidth,
+      );
 }
 
 /// AXI4-Lite cluster.
@@ -153,4 +167,11 @@ class Axi4LiteCluster extends Axi4BaseCluster {
                 addrWidth: addrWidth, dataWidth: dataWidth, useLast: useLast),
             write: Axi4LiteWriteCluster(
                 addrWidth: addrWidth, dataWidth: dataWidth, useLast: useLast));
+
+  /// Copy constructor.
+  Axi4LiteCluster clone() => Axi4LiteCluster(
+        addrWidth: read.arIntf.addrWidth,
+        useLast: read.rIntf.useLast,
+        dataWidth: read.rIntf.dataWidth,
+      );
 }
