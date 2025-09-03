@@ -75,6 +75,9 @@ class Axi4DataChannelMonitor extends Monitor<Axi4DataPacket> {
                     : null)),
           );
           _dataBuf.clear();
+          if (isWr) {
+            _strbBuf.clear();
+          }
         }
       }
     });
