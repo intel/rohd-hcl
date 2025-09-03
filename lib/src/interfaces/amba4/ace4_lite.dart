@@ -316,7 +316,7 @@ class Ace4LiteCluster extends Axi4BaseCluster {
         useLast: read.rIntf.useLast,
         useLock: read.arIntf.useLock,
         dataWidth: read.rIntf.dataWidth,
-        domainWidth: (read.rIntf as Ace4RequestChannel).domainWidth,
-        useBar: (read.rIntf as Ace4RequestChannel).useBar,
+        domainWidth: (read.arIntf as Ace4RequestChannel).domainWidth,
+        useBar: (read.arIntf as Ace4RequestChannel).useBar,
       );
 }

@@ -32,7 +32,7 @@ class Axi4RequestChannelDriver extends PendingClockedDriver<Axi4RequestPacket> {
     required super.sequencer,
     super.timeoutCycles = 500,
     super.dropDelayCycles = 30,
-    String name = 'axi4BaseRequestChannelInterface',
+    String name = 'axi4RequestChannelDriver',
   }) : super(
           name,
           parent,
@@ -113,5 +113,47 @@ class Axi4RequestChannelDriver extends PendingClockedDriver<Axi4RequestPacket> {
       rIntf.valid.put(0);
       packet.complete();
     });
+  }
+}
+
+/// A driver for the ready signal on any [Axi4ChannelInterface] interface.
+class Axi4ReadyDriver extends Component {
+  /// AXI4 System Interface.
+  final Axi4SystemInterface sIntf;
+
+  /// AXI4 Interface.
+  final Axi4ChannelInterface rIntf;
+
+  /// the frequency with which the ready signal should be driven.
+  final num readyFrequency;
+
+  /// Creates a new [Axi4RequestChannelDriver].
+  Axi4ReadyDriver({
+    required Component parent,
+    required this.sIntf,
+    required this.rIntf,
+    this.readyFrequency = 1.0,
+    String name = 'axi4ReadyDriver',
+  }) : super(
+          name,
+          parent,
+        );
+
+  @override
+  Future<void> run(Phase phase) async {
+    unawaited(super.run(phase));
+
+    Simulator.injectAction(() {
+      rIntf.ready.put(0);
+    });
+
+    // wait for reset to complete before driving anything
+    await sIntf.resetN.nextPosedge;
+
+    while (!Simulator.simulationHasEnded) {
+      final next = Test.random!.nextDouble() < readyFrequency;
+      rIntf.ready.put(next);
+      await sIntf.clk.nextPosedge;
+    }
   }
 }

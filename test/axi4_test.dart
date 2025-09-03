@@ -20,16 +20,16 @@ class Axi4Subordinate extends Module {
     for (var i = 0; i < lanes.length; i++) {
       if (lanes[i] is Axi4Cluster) {
         lanesL.add((lanes[i] as Axi4Cluster).clone()
-          ..pairConnectIO(this, lanesL[i], PairRole.consumer));
+          ..pairConnectIO(this, lanes[i], PairRole.consumer));
       } else if (lanes[i] is Axi4LiteCluster) {
         lanesL.add((lanes[i] as Axi4LiteCluster).clone()
-          ..pairConnectIO(this, lanesL[i], PairRole.consumer));
+          ..pairConnectIO(this, lanes[i], PairRole.consumer));
       } else if (lanes[i] is Ace4LiteCluster) {
         lanesL.add((lanes[i] as Ace4LiteCluster).clone()
-          ..pairConnectIO(this, lanesL[i], PairRole.consumer));
+          ..pairConnectIO(this, lanes[i], PairRole.consumer));
       } else {
         // lanesL.add((lanes[i] as Ace4Cluster).clone()
-        //   ..pairConnectIO(this, lanesL[i], PairRole.consumer));
+        //   ..pairConnectIO(this, lanes[i], PairRole.consumer));
       }
     }
   }
@@ -44,16 +44,16 @@ class Axi4Main extends Module {
     for (var i = 0; i < lanes.length; i++) {
       if (lanes[i] is Axi4Cluster) {
         lanesL.add((lanes[i] as Axi4Cluster).clone()
-          ..pairConnectIO(this, lanesL[i], PairRole.provider));
+          ..pairConnectIO(this, lanes[i], PairRole.provider));
       } else if (lanes[i] is Axi4LiteCluster) {
         lanesL.add((lanes[i] as Axi4LiteCluster).clone()
-          ..pairConnectIO(this, lanesL[i], PairRole.provider));
+          ..pairConnectIO(this, lanes[i], PairRole.provider));
       } else if (lanes[i] is Ace4LiteCluster) {
         lanesL.add((lanes[i] as Ace4LiteCluster).clone()
-          ..pairConnectIO(this, lanesL[i], PairRole.provider));
+          ..pairConnectIO(this, lanes[i], PairRole.provider));
       } else {
         // lanesL.add((lanes[i] as Ace4Cluster).clone()
-        //   ..pairConnectIO(this, lanesL[i], PairRole.provider));
+        //   ..pairConnectIO(this, lanes[i], PairRole.provider));
       }
     }
   }
@@ -75,11 +75,11 @@ class Axi4Pair extends Module {
 
     final lanes = <Axi4BaseCluster>[];
     for (var i = 0; i < numLanes; i++) {
-      if (axiType is Axi4Cluster) {
+      if (axiType == Axi4Cluster) {
         lanes.add(Axi4Cluster());
-      } else if (axiType is Axi4LiteCluster) {
+      } else if (axiType == Axi4LiteCluster) {
         lanes.add(Axi4LiteCluster());
-      } else if (axiType is Ace4LiteCluster) {
+      } else if (axiType == Ace4LiteCluster) {
         lanes.add(Ace4LiteCluster());
       } else {
         // lanes.add(Ace4Cluster());

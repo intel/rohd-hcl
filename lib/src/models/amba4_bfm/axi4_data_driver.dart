@@ -39,7 +39,7 @@ class Axi4DataChannelDriver extends PendingClockedDriver<Axi4DataPacket> {
     required super.sequencer,
     super.timeoutCycles = 500,
     super.dropDelayCycles = 30,
-    String name = 'axi4BaseDataChannelInterface',
+    String name = 'axi4DataChannelInterface',
   }) : super(
           name,
           parent,

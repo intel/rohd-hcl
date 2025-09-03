@@ -33,7 +33,7 @@ class Axi4ResponseChannelDriver
     required super.sequencer,
     super.timeoutCycles = 500,
     super.dropDelayCycles = 30,
-    String name = 'axi4BaseResponseChannelInterface',
+    String name = 'axi4ResponseChannelInterface',
   }) : super(
           name,
           parent,

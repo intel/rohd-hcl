@@ -48,7 +48,7 @@ class Axi4SubordinateMemoryAgent extends Agent {
   /// Channels that the subordinate manages.
   ///
   /// TODO: this requires every lane to be read/write...
-  final List<Axi4ClusterAgent> lanes;
+  final List<Axi4SubordinateClusterAgent> lanes;
 
   /// A place where the subordinate should save and retrieve data.
   ///
@@ -517,8 +517,6 @@ class Axi4SubordinateMemoryAgent extends Agent {
             packet.burst!.toInt() == Axi4BurstField.incr.value) {
           increment = dSize ~/ 8;
         }
-
-        // TODO: need to update packet data tracking mechanism...
 
         // compute the addresses to write to
         // based on the burst mode, len, and size

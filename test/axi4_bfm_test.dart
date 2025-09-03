@@ -29,7 +29,8 @@ class Axi4BfmTest extends Test {
   final int numLanes;
   final List<Axi4BaseCluster> lanes = [];
 
-  final List<Axi4ClusterAgent> mainAgents = [];
+  final List<Axi4MainClusterAgent> mainAgents = [];
+  final List<Axi4SubordinateClusterAgent> subAgents = [];
 
   late SparseMemoryStorage storage;
 
@@ -191,7 +192,15 @@ class Axi4BfmTest extends Test {
       Axi4WriteComplianceChecker(sIntf, lanes.last.write.awIntf,
           lanes.last.write.wIntf, lanes.last.write.bIntf,
           parent: this);
-      mainAgents.add(Axi4ClusterAgent(
+      mainAgents.add(Axi4MainClusterAgent(
+          sIntf: sIntf,
+          arIntf: lanes.last.read.arIntf,
+          awIntf: lanes.last.write.awIntf,
+          rIntf: lanes.last.read.rIntf,
+          wIntf: lanes.last.write.wIntf,
+          bIntf: lanes.last.write.bIntf,
+          parent: this));
+      subAgents.add(Axi4SubordinateClusterAgent(
           sIntf: sIntf,
           arIntf: lanes.last.read.arIntf,
           awIntf: lanes.last.write.awIntf,
@@ -212,7 +221,7 @@ class Axi4BfmTest extends Test {
 
     Axi4SubordinateMemoryAgent(
       sIntf: sIntf,
-      lanes: mainAgents,
+      lanes: subAgents,
       parent: this,
       storage: storage,
       readResponseDelay:
@@ -254,20 +263,15 @@ class Axi4BfmTest extends Test {
     });
 
     for (var i = 0; i < numLanes; i++) {
-      mainAgents[i].readAgent.reqAgent.monitor.stream.listen(reqTracker.record);
+      subAgents[i].readAgent.reqAgent.monitor.stream.listen(reqTracker.record);
       mainAgents[i]
           .readAgent
           .dataAgent
-          .monitor
+          .monitor!
           .stream
           .listen(dataTracker.record);
-      mainAgents[i]
-          .writeAgent
-          .reqAgent
-          .monitor
-          .stream
-          .listen(reqTracker.record);
-      mainAgents[i]
+      subAgents[i].writeAgent.reqAgent.monitor.stream.listen(reqTracker.record);
+      subAgents[i]
           .writeAgent
           .dataAgent
           .monitor
@@ -349,7 +353,7 @@ class Axi4BfmSimpleWriteReadTest extends Axi4BfmTest {
       lock: false,
     );
     mainAgents[laneId].writeAgent.reqAgent.sequencer.add(wrPkts.$1);
-    mainAgents[laneId].writeAgent.dataAgent.sequencer.add(wrPkts.$2);
+    mainAgents[laneId].writeAgent.dataAgent.sequencer!.add(wrPkts.$2);
 
     await wrPkts.$1.completed;
     await wrPkts.$2.completed;
@@ -449,7 +453,7 @@ class Axi4BfmWrapWriteReadTest extends Axi4BfmTest {
       lock: false,
     );
     mainAgents[laneId].writeAgent.reqAgent.sequencer.add(wrPkts.$1);
-    mainAgents[laneId].writeAgent.dataAgent.sequencer.add(wrPkts.$2);
+    mainAgents[laneId].writeAgent.dataAgent.sequencer!.add(wrPkts.$2);
 
     await wrPkts.$1.completed;
     await wrPkts.$2.completed;
@@ -554,7 +558,7 @@ class Axi4BfmProtWriteReadTest extends Axi4BfmTest {
       prot: protS.value,
     );
     mainAgents[laneId].writeAgent.reqAgent.sequencer.add(wrPktsBad1.$1);
-    mainAgents[laneId].writeAgent.dataAgent.sequencer.add(wrPktsBad1.$2);
+    mainAgents[laneId].writeAgent.dataAgent.sequencer!.add(wrPktsBad1.$2);
 
     await wrPktsBad1.$1.completed;
     await wrPktsBad1.$2.completed;
@@ -597,7 +601,7 @@ class Axi4BfmProtWriteReadTest extends Axi4BfmTest {
       prot: protB,
     );
     mainAgents[laneId].writeAgent.reqAgent.sequencer.add(wrPktsGood.$1);
-    mainAgents[laneId].writeAgent.dataAgent.sequencer.add(wrPktsGood.$2);
+    mainAgents[laneId].writeAgent.dataAgent.sequencer!.add(wrPktsGood.$2);
 
     await wrPktsGood.$1.completed;
     await wrPktsGood.$2.completed;
@@ -691,7 +695,7 @@ class Axi4BfmReadModifyWriteTest extends Axi4BfmTest {
 
     // must wait for the read data to come back
     final obj = phase.raiseObjection('${name}DataReturnObj');
-    mainAgents[laneId].readAgent.dataAgent.monitor.stream.listen((d) async {
+    mainAgents[laneId].readAgent.dataAgent.monitor!.stream.listen((d) async {
       final pData = List.generate(
           d.data.width ~/ wIntfC.dataWidth,
           (i) => dataModifier!(d.data
@@ -714,7 +718,7 @@ class Axi4BfmReadModifyWriteTest extends Axi4BfmTest {
         lock: true,
       );
       mainAgents[laneId].writeAgent.reqAgent.sequencer.add(wrPkts.$1);
-      mainAgents[laneId].writeAgent.dataAgent.sequencer.add(wrPkts.$2);
+      mainAgents[laneId].writeAgent.dataAgent.sequencer!.add(wrPkts.$2);
 
       await wrPkts.$1.completed;
       await wrPkts.$2.completed;
@@ -813,7 +817,7 @@ class Axi4BfmReadModifyWriteAbortTest extends Axi4BfmTest {
 
     // must wait for the read data to come back
     final obj = phase.raiseObjection('${name}DataReturnObj');
-    mainAgents[laneId1].readAgent.dataAgent.monitor.stream.listen((d) async {
+    mainAgents[laneId1].readAgent.dataAgent.monitor!.stream.listen((d) async {
       final pData = List.generate(
           d.data.width ~/ wIntf1.dataWidth,
           (i) => dataModifier!(d.data
@@ -837,7 +841,7 @@ class Axi4BfmReadModifyWriteAbortTest extends Axi4BfmTest {
         lock: true,
       );
       mainAgents[laneId1].writeAgent.reqAgent.sequencer.add(wrPkts.$1);
-      mainAgents[laneId1].writeAgent.dataAgent.sequencer.add(wrPkts.$2);
+      mainAgents[laneId1].writeAgent.dataAgent.sequencer!.add(wrPkts.$2);
 
       await wrPkts.$1.completed;
       await wrPkts.$2.completed;
@@ -904,7 +908,7 @@ class Axi4BfmRandomAccessTest extends Axi4BfmTest {
       } else {
         final wrPkts = genWrPacket(nextLane);
         mainAgents[nextLane].writeAgent.reqAgent.sequencer.add(wrPkts.$1);
-        mainAgents[nextLane].writeAgent.dataAgent.sequencer.add(wrPkts.$2);
+        mainAgents[nextLane].writeAgent.dataAgent.sequencer!.add(wrPkts.$2);
         await wrPkts.$1.completed;
         await wrPkts.$2.completed;
       }
@@ -1266,7 +1270,8 @@ void main() {
   }
 
   test('simple writes and reads no strobes', () async {
-    await runTest(Axi4BfmSimpleWriteReadTest('simpleNoStrobes'));
+    await runTest(Axi4BfmSimpleWriteReadTest('simpleNoStrobes'),
+        dumpWaves: true);
   });
 
   test('simple writes and reads with strobes', () async {
