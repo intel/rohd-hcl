@@ -173,21 +173,47 @@ class Axi4SubordinateMemoryAgent extends Agent {
     // wait for reset to complete
     await sIntf.resetN.nextPosedge;
 
+    // register listeners on requests
+    //  AR (read request)
+    //  AW (write request)
+    //  W (write request data)
+    for (var i = 0; i < lanes.length; i++) {
+      lanes[i]
+          .writeAgent
+          .reqAgent
+          .monitor
+          .stream
+          .listen((d) => _receiveWrite(packet: d, index: i));
+      lanes[i]
+          .writeAgent
+          .dataAgent
+          .monitor
+          .stream
+          .listen((d) => _captureWriteData(packet: d, index: i));
+      lanes[i]
+          .readAgent
+          .reqAgent
+          .monitor
+          .stream
+          .listen((d) => _receiveRead(packet: d, index: i));
+    }
+
+    // handle responding to requests
     while (!Simulator.simulationHasEnded) {
       await sIntf.clk.nextNegedge;
       for (var i = 0; i < lanes.length; i++) {
         // write handling should come before reads for the edge case in which a
         // read happens in the cycle after the final WVALID for the same
         // channel/address
-        _driveWriteReadys(index: i);
+        // _driveWriteReadys(index: i);
         _respondWrite(index: i);
-        _captureWriteData(index: i);
-        _receiveWrite(index: i);
+        // _captureWriteData(index: i);
+        // _receiveWrite(index: i);
 
         // deal with reads after writes
-        _driveReadReadys(index: i);
+        // _driveReadReadys(index: i);
         _respondRead(index: i);
-        _receiveRead(index: i);
+        // _receiveRead(index: i);
       }
     }
   }
@@ -213,128 +239,105 @@ class Axi4SubordinateMemoryAgent extends Agent {
     return -1;
   }
 
-  // assesses the input ready signals and drives them appropriately
-  void _driveReadReadys({int index = 0}) {
-    // for now, assume we can always handle a new request
-    lanes[index].arIntf.ready.inject(true);
-  }
+  // // assesses the input ready signals and drives them appropriately
+  // void _driveReadReadys({int index = 0}) {
+  //   // for now, assume we can always handle a new request
+  //   lanes[index].arIntf.ready.inject(true);
+  // }
 
-  // assesses the input ready signals and drives them appropriately
-  void _driveWriteReadys({int index = 0}) {
-    // for now, assume we can always handle a new request
-    lanes[index].awIntf.ready.inject(true);
-    lanes[index].awIntf.ready.inject(true);
-  }
+  // // assesses the input ready signals and drives them appropriately
+  // void _driveWriteReadys({int index = 0}) {
+  //   // for now, assume we can always handle a new request
+  //   lanes[index].awIntf.ready.inject(true);
+  //   lanes[index].awIntf.ready.inject(true);
+  // }
 
   /// Receives one packet (or returns if not selected).
-  void _receiveRead({int index = 0}) {
+  void _receiveRead({required Axi4RequestPacket packet, int index = 0}) {
     final rIntf = lanes[index].arIntf;
     final mapIdx = _readAddrToChannel[index]!;
 
-    // work to do if main is indicating a valid read that we are ready to handle
-    if (rIntf.valid.value.toBool() && rIntf.ready.value.toBool()) {
-      logger.info('Received read request on channel $index.');
+    logger.info('Received read request on channel $index.');
 
-      final packet = Axi4RequestPacket(
-          addr: rIntf.addr.value,
-          prot: rIntf.prot.value,
-          id: rIntf.id?.value,
-          len: rIntf.len?.value,
-          size: rIntf.size?.value,
-          burst: rIntf.burst?.value,
-          lock: rIntf.lock?.value,
-          cache: rIntf.cache?.value,
-          qos: rIntf.qos?.value,
-          region: rIntf.region?.value,
-          user: rIntf.user?.value,
-          domain: rIntf is Ace4RequestChannel
-              ? (rIntf as Ace4RequestChannel).domain?.value
-              : null,
-          bar: rIntf is Ace4RequestChannel
-              ? (rIntf as Ace4RequestChannel).bar?.value
-              : null);
+    // generic model does not handle the following read request fields:
+    //  cache
+    //  qos
+    //  region
+    //  user
+    //  domain (even when applicable)
+    //  bar (even when applicable)
+    // These can be handled in a derived class of this model if need be.
+    // Because they require implementation specific handling.
 
-      // generic model does not handle the following read request fields:
-      //  cache
-      //  qos
-      //  region
-      //  user
-      //  domain (even when applicable)
-      //  bar (even when applicable)
-      // These can be handled in a derived class of this model if need be.
-      // Because they require implementation specific handling.
+    // NOTE: generic model doesn't use the instruction/data bit of the prot field.
 
-      // NOTE: generic model doesn't use the instruction/data bit of the prot field.
+    // query storage to retrieve the data
+    final data = <LogicValue>[];
+    var addrToRead = rIntf.addr.value;
+    final endCount = (rIntf.len?.value.toInt() ?? 0) + 1;
+    final dSize = Axi4SizeField.getImpliedSize(
+        Axi4SizeField.fromValue(rIntf.size?.value.toInt() ?? 0));
+    var increment = 0;
+    if (rIntf.burst == null ||
+        rIntf.burst?.value.toInt() == Axi4BurstField.wrap.value ||
+        rIntf.burst?.value.toInt() == Axi4BurstField.incr.value) {
+      increment = dSize ~/ 8;
+    }
 
-      // query storage to retrieve the data
-      final data = <LogicValue>[];
-      var addrToRead = rIntf.addr.value;
-      final endCount = (rIntf.len?.value.toInt() ?? 0) + 1;
-      final dSize = Axi4SizeField.getImpliedSize(
-          Axi4SizeField.fromValue(rIntf.size?.value.toInt() ?? 0));
-      var increment = 0;
-      if (rIntf.burst == null ||
-          rIntf.burst?.value.toInt() == Axi4BurstField.wrap.value ||
-          rIntf.burst?.value.toInt() == Axi4BurstField.incr.value) {
-        increment = dSize ~/ 8;
+    // determine if the address falls in a region
+    final region = _checkRegion(addrToRead);
+    final inRegion = region >= 0;
+
+    // examine locking behavior
+    final isRmw =
+        supportLocking && (rIntf.lock != null && rIntf.lock!.value.toBool());
+
+    for (var i = 0; i < endCount; i++) {
+      var currData = storage.readData(addrToRead);
+      if (dSize > 0) {
+        if (currData.width < dSize) {
+          currData = currData.zeroExtend(dSize);
+        } else if (currData.width > dSize) {
+          currData = currData.getRange(0, dSize);
+        }
+      }
+      data.add(currData);
+
+      // lock handling logic
+      if (supportLocking) {
+        // part of an rmw operation
+        if (isRmw) {
+          // assign the lock to this channel
+          // regardless if it existed before
+          logger.info('RMW locking address $addrToRead on channel $index.');
+          _rmwLocks[addrToRead] = index;
+        } else {
+          // remove the rmw lock if it is there
+          // regardless of what channel we came from
+          if (_rmwLocks.containsKey(addrToRead)) {
+            _rmwLocks.remove(addrToRead);
+          }
+        }
       }
 
-      // determine if the address falls in a region
-      final region = _checkRegion(addrToRead);
-      final inRegion = region >= 0;
-
-      // examine locking behavior
-      final isRmw =
-          supportLocking && (rIntf.lock != null && rIntf.lock!.value.toBool());
-
-      for (var i = 0; i < endCount; i++) {
-        var currData = storage.readData(addrToRead);
-        if (dSize > 0) {
-          if (currData.width < dSize) {
-            currData = currData.zeroExtend(dSize);
-          } else if (currData.width > dSize) {
-            currData = currData.getRange(0, dSize);
-          }
-        }
-        data.add(currData);
-
-        // lock handling logic
-        if (supportLocking) {
-          // part of an rmw operation
-          if (isRmw) {
-            // assign the lock to this channel
-            // regardless if it existed before
-            logger.info('RMW locking address $addrToRead on channel $index.');
-            _rmwLocks[addrToRead] = index;
-          } else {
-            // remove the rmw lock if it is there
-            // regardless of what channel we came from
-            if (_rmwLocks.containsKey(addrToRead)) {
-              _rmwLocks.remove(addrToRead);
-            }
-          }
-        }
-
-        if (inRegion &&
-            (addrToRead + increment >= ranges[region].end).toBool()) {
-          // the original access fell in a region but the next access in
-          // the burst overflows the region
-          if (rIntf.burst?.value.toInt() == Axi4BurstField.wrap.value) {
-            // indication that we should wrap around back to the region start
-            addrToRead = ranges[region].start;
-          } else {
-            // OK to overflow
-            addrToRead = addrToRead + increment;
-          }
+      if (inRegion && (addrToRead + increment >= ranges[region].end).toBool()) {
+        // the original access fell in a region but the next access in
+        // the burst overflows the region
+        if (rIntf.burst?.value.toInt() == Axi4BurstField.wrap.value) {
+          // indication that we should wrap around back to the region start
+          addrToRead = ranges[region].start;
         } else {
-          // no region or overflow
+          // OK to overflow
           addrToRead = addrToRead + increment;
         }
+      } else {
+        // no region or overflow
+        addrToRead = addrToRead + increment;
       }
-
-      _dataReadResponseMetadataQueue[mapIdx].add(packet);
-      _dataReadResponseDataQueue[mapIdx].add(data);
     }
+
+    _dataReadResponseMetadataQueue[mapIdx].add(packet);
+    _dataReadResponseDataQueue[mapIdx].add(data);
   }
 
   // respond to a read request
@@ -345,18 +348,14 @@ class Axi4SubordinateMemoryAgent extends Agent {
     // only respond if there is something to respond to
     // and the main side is indicating that it is ready to receive
     if (_dataReadResponseMetadataQueue[mapIdx].isNotEmpty &&
-        _dataReadResponseDataQueue[mapIdx]
-            .isNotEmpty /*&&
+            _dataReadResponseDataQueue[mapIdx]
+                .isNotEmpty /*&&
         _dataReadResponseErrorQueue[mapIdx].isNotEmpty*/
-        &&
-        rIntf.ready.value.toBool()) {
+        ) {
       final packet = _dataReadResponseMetadataQueue[mapIdx][0];
       // final reqSideError = _dataReadResponseErrorQueue[mapIdx][0];
-      final currData =
-          _dataReadResponseDataQueue[mapIdx][0][_dataReadResponseIndex[mapIdx]];
+      final currData = _dataReadResponseDataQueue[mapIdx][0].rswizzle();
       final error = respondWithError != null && respondWithError!(packet);
-      final last = _dataReadResponseIndex[mapIdx] ==
-          _dataReadResponseDataQueue[mapIdx][0].length - 1;
 
       // check the request's region for legality
       final region = _checkRegion(packet.addr);
@@ -389,96 +388,81 @@ class Axi4SubordinateMemoryAgent extends Agent {
           ? LogicValue.ofInt(0x0, currData.width)
           : currData;
 
-      // for now, only support sending slvErr and okay as responses
-      rIntf.valid.inject(true);
-      rIntf.id?.inject(packet.id);
-      rIntf.data.inject(rdData);
-      rIntf.resp?.inject(error || accessError /*|| reqSideError*/
+      // push the response onto the driver
+      final rVal = error || accessError /*|| reqSideError*/
           ? LogicValue.ofInt(Axi4RespField.slvErr.value, rIntf.resp!.width)
           : LogicValue.ofInt(
               (locked ? Axi4RespField.exOkay.value : Axi4RespField.okay.value),
-              rIntf.resp!.width));
-      rIntf.user?.inject(0); // don't support user field for now
-      rIntf.last?.inject(last);
+              rIntf.resp!.width);
+      lanes[index].readAgent.dataAgent.sequencer.add(Axi4DataPacket(
+          data: rdData,
+          user: LogicValue.ofInt(0, rIntf.userWidth),
+          id: packet.id,
+          resp: rVal));
 
-      if (last) {
-        // pop this read response off the queue
-        _dataReadResponseIndex[mapIdx] = 0;
-        _dataReadResponseMetadataQueue[mapIdx].removeAt(0);
-        _dataReadResponseDataQueue[mapIdx].removeAt(0);
-        // _dataReadResponseErrorQueue[mapIdx].removeAt(0);
+      // pop this read response off the queue
+      _dataReadResponseIndex[mapIdx] = 0;
+      _dataReadResponseMetadataQueue[mapIdx].removeAt(0);
+      _dataReadResponseDataQueue[mapIdx].removeAt(0);
+      // _dataReadResponseErrorQueue[mapIdx].removeAt(0);
 
-        logger.info('Finished sending read response for channel $index.');
-      } else {
-        // move to the next chunk of data
-        _dataReadResponseIndex[mapIdx]++;
-        logger.info('Still sending the read response for channel $index.');
-      }
-    } else {
-      rIntf.valid.inject(false);
+      logger.info('Queued read response for channel $index.');
     }
   }
 
   // handle an incoming write request
-  void _receiveWrite({int index = 0}) {
+  void _receiveWrite({required Axi4RequestPacket packet, int index = 0}) {
     final awIntf = lanes[index].awIntf;
     final wIntf = lanes[index].wIntf;
     final mapIdx = _writeAddrToChannel[index]!;
 
-    // work to do if main is indicating a valid + ready write
-    if (awIntf.valid.value.toBool() && awIntf.ready.value.toBool()) {
-      logger.info('Received write request on channel $index.');
-      final packet = Axi4RequestPacket(
-        addr: awIntf.addr.value,
-        prot: awIntf.prot.value,
-        id: awIntf.id?.value,
-        len: awIntf.len?.value,
-        size: awIntf.size?.value,
-        burst: awIntf.burst?.value,
-        lock: awIntf.lock?.value,
-        cache: awIntf.cache?.value,
-        qos: awIntf.qos?.value,
-        region: awIntf.region?.value,
-        user: awIntf.user?.value,
-      );
+    logger.info('Received write request on channel $index.');
+    final packet = Axi4RequestPacket(
+      addr: awIntf.addr.value,
+      prot: awIntf.prot.value,
+      id: awIntf.id?.value,
+      len: awIntf.len?.value,
+      size: awIntf.size?.value,
+      burst: awIntf.burst?.value,
+      lock: awIntf.lock?.value,
+      cache: awIntf.cache?.value,
+      qos: awIntf.qos?.value,
+      region: awIntf.region?.value,
+      user: awIntf.user?.value,
+    );
 
-      // might need to capture the first data and strobe simultaneously
-      // NOTE: we are dropping wUser on the floor for now...
-      if (wIntf.valid.value.toBool() && wIntf.ready.value.toBool()) {
-        final dataPacket =
-            Axi4DataPacket(data: wIntf.data.value, strb: wIntf.strb.value);
-        _writeDataQueue[mapIdx].add(dataPacket);
-        if (wIntf.last!.value.toBool()) {
-          _writeReadyToOccur[mapIdx] = true;
-        }
+    // might need to capture the first data and strobe simultaneously
+    // NOTE: we are dropping wUser on the floor for now...
+    if (wIntf.valid.value.toBool() && wIntf.ready.value.toBool()) {
+      final dataPacket =
+          Axi4DataPacket(data: wIntf.data.value, strb: wIntf.strb.value);
+      _writeDataQueue[mapIdx].add(dataPacket);
+      if (wIntf.last!.value.toBool()) {
+        _writeReadyToOccur[mapIdx] = true;
       }
-
-      // queue up the packet for further processing
-      _writeMetadataQueue[mapIdx].add(packet);
     }
+
+    // queue up the packet for further processing
+    _writeMetadataQueue[mapIdx].add(packet);
   }
 
   // method to capture incoming write data after the initial request
   // note that this method does not handle the first flit of write data
   // if it is transmitted simultaneously with the write request
-  void _captureWriteData({int index = 0}) {
+  void _captureWriteData({required Axi4DataPacket packet, int index = 0}) {
     final wIntf = lanes[index].wIntf;
     final mapIdx = _writeAddrToChannel[index]!;
 
     // TODO: what about interleaving data on the same lane but w/ different IDs...
 
     // NOTE: we are dropping wUser on the floor for now...
-    if (_writeMetadataQueue[mapIdx].isNotEmpty &&
-        wIntf.valid.value.toBool() &&
-        wIntf.ready.value.toBool()) {
-      final dataPacket =
-          Axi4DataPacket(data: wIntf.data.value, strb: wIntf.strb.value);
-      _writeDataQueue[mapIdx].add(dataPacket);
-      logger.info('Captured write data on channel $index.');
-      if (wIntf.last!.value.toBool()) {
-        logger.info('Finished capturing write data on channel $index.');
-        _writeReadyToOccur[mapIdx] = true;
-      }
+    final dataPacket =
+        Axi4DataPacket(data: wIntf.data.value, strb: wIntf.strb.value);
+    _writeDataQueue[mapIdx].add(dataPacket);
+    logger.info('Captured write data on channel $index.');
+    if (wIntf.last!.value.toBool()) {
+      logger.info('Finished capturing write data on channel $index.');
+      _writeReadyToOccur[mapIdx] = true;
     }
   }
 
@@ -488,146 +472,141 @@ class Axi4SubordinateMemoryAgent extends Agent {
 
     // only work to do if we have received all of the data for our write request
     if (_writeReadyToOccur[mapIdx]) {
-      // only respond if the main is ready
-      if (bIntf.ready.value.toBool()) {
-        final packet = _writeMetadataQueue[mapIdx][0];
+      final packet = _writeMetadataQueue[mapIdx][0];
 
-        // determine if the address falls in a region
-        var addrToWrite = packet.addr;
-        final region = _checkRegion(addrToWrite);
-        final inRegion = region >= 0;
-        final accessError = inRegion &&
-            ((ranges[region].isSecure &&
-                    ((packet.prot.toInt() & Axi4ProtField.secure.value) ==
-                        0)) ||
-                (ranges[region].isPrivileged &&
-                    ((packet.prot.toInt() & Axi4ProtField.privileged.value) ==
-                        0)));
+      // determine if the address falls in a region
+      var addrToWrite = packet.addr;
+      final region = _checkRegion(addrToWrite);
+      final inRegion = region >= 0;
+      final accessError = inRegion &&
+          ((ranges[region].isSecure &&
+                  ((packet.prot.toInt() & Axi4ProtField.secure.value) == 0)) ||
+              (ranges[region].isPrivileged &&
+                  ((packet.prot.toInt() & Axi4ProtField.privileged.value) ==
+                      0)));
 
-        // examine locking behavior
-        final isRmw =
-            supportLocking && (packet.lock != null && packet.lock!.toBool());
+      // examine locking behavior
+      final isRmw =
+          supportLocking && (packet.lock != null && packet.lock!.toBool());
 
-        // compute data size and increment
-        final dSize = Axi4SizeField.getImpliedSize(
-            Axi4SizeField.fromValue(packet.size!.toInt()));
-        var increment = 0;
-        if (packet.burst == null ||
-            packet.burst!.toInt() == Axi4BurstField.wrap.value ||
-            packet.burst!.toInt() == Axi4BurstField.incr.value) {
-          increment = dSize ~/ 8;
-        }
+      // compute data size and increment
+      final dSize = Axi4SizeField.getImpliedSize(
+          Axi4SizeField.fromValue(packet.size!.toInt()));
+      var increment = 0;
+      if (packet.burst == null ||
+          packet.burst!.toInt() == Axi4BurstField.wrap.value ||
+          packet.burst!.toInt() == Axi4BurstField.incr.value) {
+        increment = dSize ~/ 8;
+      }
 
-        // compute the addresses to write to
-        // based on the burst mode, len, and size
-        final addrsToWrite = <LogicValue>[];
-        final dataToWrite = _writeDataQueue[mapIdx];
-        for (var i = 0; i < dataToWrite.length; i++) {
-          addrsToWrite.add(addrToWrite);
-          if (inRegion &&
-              (addrToWrite + increment >= ranges[region].end).toBool()) {
-            // the original access fell in a region but the next access in
-            // the burst overflows the region
-            if (packet.burst!.toInt() == Axi4BurstField.wrap.value) {
-              // indication that we should wrap around back to the region start
-              addrToWrite = ranges[region].start;
-            } else {
-              // OK to overflow
-              addrToWrite = addrToWrite + increment;
-            }
+      // compute the addresses to write to
+      // based on the burst mode, len, and size
+      final addrsToWrite = <LogicValue>[];
+      final dataToWrite = _writeDataQueue[mapIdx];
+      for (var i = 0; i < dataToWrite.length; i++) {
+        addrsToWrite.add(addrToWrite);
+        if (inRegion &&
+            (addrToWrite + increment >= ranges[region].end).toBool()) {
+          // the original access fell in a region but the next access in
+          // the burst overflows the region
+          if (packet.burst!.toInt() == Axi4BurstField.wrap.value) {
+            // indication that we should wrap around back to the region start
+            addrToWrite = ranges[region].start;
           } else {
-            // no region or overflow
+            // OK to overflow
             addrToWrite = addrToWrite + increment;
           }
+        } else {
+          // no region or overflow
+          addrToWrite = addrToWrite + increment;
         }
+      }
 
-        // locking logic for write ops
-        var rmwErr = false;
-        if (supportLocking) {
-          for (final addr in addrsToWrite) {
-            // given write is rmw locked
-            if (isRmw) {
-              // rmw lock must be associated with our channel
-              // if not, must respond with an error
-              // also remove the lock moving forward
-              if (!_rmwLocks.containsKey(addr) || _rmwLocks[addr] != index) {
-                logger.info('Encountered a write on channel $index that is '
-                    'part of an RMW but the lock was either '
-                    'not initiated prior or removed.');
-                rmwErr |= true;
-                if (_rmwLocks.containsKey(addr)) {
-                  _rmwLocks.remove(addr);
-                }
-              }
-            }
-            // given write is not rmw locked
-            else {
-              // remove the rmw lock if it is there
-              // regardless of what channel we came from
+      // locking logic for write ops
+      var rmwErr = false;
+      if (supportLocking) {
+        for (final addr in addrsToWrite) {
+          // given write is rmw locked
+          if (isRmw) {
+            // rmw lock must be associated with our channel
+            // if not, must respond with an error
+            // also remove the lock moving forward
+            if (!_rmwLocks.containsKey(addr) || _rmwLocks[addr] != index) {
+              logger.info('Encountered a write on channel $index that is '
+                  'part of an RMW but the lock was either '
+                  'not initiated prior or removed.');
+              rmwErr |= true;
               if (_rmwLocks.containsKey(addr)) {
                 _rmwLocks.remove(addr);
               }
             }
           }
-        }
-
-        final error = respondWithError != null && respondWithError!(packet);
-
-        // for now, only support sending slvErr and okay as responses
-        bIntf.valid.inject(true);
-        bIntf.id?.inject(packet.id);
-        bIntf.resp?.inject(error || accessError
-            ? LogicValue.ofInt(Axi4RespField.slvErr.value, bIntf.resp!.width)
-            : LogicValue.ofInt(
-                (isRmw && !rmwErr
-                    ? Axi4RespField.exOkay.value
-                    : Axi4RespField.okay.value),
-                bIntf.resp!.width));
-        bIntf.user?.inject(0); // don't support user field for now
-
-        // TODO(kimmeljo): how to deal with delays??
-        // if (readResponseDelay != null) {
-        //   final delayCycles = readResponseDelay!(packet);
-        //   if (delayCycles > 0) {
-        //     await sIntf.clk.waitCycles(delayCycles);
-        //   }
-        // }
-
-        // generic model does not handle the following write request fields:
-        //  cache
-        //  qos
-        //  region
-        //  user
-        //  domain (even when applicable)
-        //  bar (even when applicable)
-        // These can be handled in a derived class of this model if need be.
-        // Because they require implementation specific handling.
-
-        // NOTE: generic model doesn't use the instruction/data bit of the prot field.
-
-        // apply the write to storage
-        // only if there were no errors
-        if (!(error || accessError) || !dropWriteDataOnError) {
-          for (var i = 0; i < dataToWrite.length; i++) {
-            final rdData = storage.readData(addrsToWrite[i]);
-            final strobedData =
-                _strobeData(rdData, dataToWrite[i].data, dataToWrite[i].strb!);
-            final wrData = (dSize < strobedData.width)
-                ? [strobedData.getRange(0, dSize), rdData.getRange(dSize)]
-                    .rswizzle()
-                : strobedData;
-            storage.writeData(addrsToWrite[i], wrData);
+          // given write is not rmw locked
+          else {
+            // remove the rmw lock if it is there
+            // regardless of what channel we came from
+            if (_rmwLocks.containsKey(addr)) {
+              _rmwLocks.remove(addr);
+            }
           }
         }
-
-        // pop this write response off the queue
-        _writeMetadataQueue[mapIdx].removeAt(0);
-        _writeReadyToOccur[mapIdx] = false;
-
-        logger.info('Sent write response on channel $index.');
       }
-    } else {
-      bIntf.valid.inject(false);
+
+      final error = respondWithError != null && respondWithError!(packet);
+
+      // drive the write response
+      final rVal = error || accessError
+          ? LogicValue.ofInt(Axi4RespField.slvErr.value, bIntf.resp!.width)
+          : LogicValue.ofInt(
+              (isRmw && !rmwErr
+                  ? Axi4RespField.exOkay.value
+                  : Axi4RespField.okay.value),
+              bIntf.resp!.width);
+      lanes[index].writeAgent.respAgent.sequencer.add(Axi4ResponsePacket(
+          id: packet.id,
+          resp: rVal,
+          user: LogicValue.ofInt(0, bIntf.userWidth)));
+
+      // TODO(kimmeljo): how to deal with delays??
+      // if (readResponseDelay != null) {
+      //   final delayCycles = readResponseDelay!(packet);
+      //   if (delayCycles > 0) {
+      //     await sIntf.clk.waitCycles(delayCycles);
+      //   }
+      // }
+
+      // generic model does not handle the following write request fields:
+      //  cache
+      //  qos
+      //  region
+      //  user
+      //  domain (even when applicable)
+      //  bar (even when applicable)
+      // These can be handled in a derived class of this model if need be.
+      // Because they require implementation specific handling.
+
+      // NOTE: generic model doesn't use the instruction/data bit of the prot field.
+
+      // apply the write to storage
+      // only if there were no errors
+      if (!(error || accessError) || !dropWriteDataOnError) {
+        for (var i = 0; i < dataToWrite.length; i++) {
+          final rdData = storage.readData(addrsToWrite[i]);
+          final strobedData =
+              _strobeData(rdData, dataToWrite[i].data, dataToWrite[i].strb!);
+          final wrData = (dSize < strobedData.width)
+              ? [strobedData.getRange(0, dSize), rdData.getRange(dSize)]
+                  .rswizzle()
+              : strobedData;
+          storage.writeData(addrsToWrite[i], wrData);
+        }
+      }
+
+      // pop this write response off the queue
+      _writeMetadataQueue[mapIdx].removeAt(0);
+      _writeReadyToOccur[mapIdx] = false;
+
+      logger.info('Sent write response on channel $index.');
     }
   }
 }

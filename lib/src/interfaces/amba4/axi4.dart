@@ -467,28 +467,39 @@ class Axi4WChannelInterface extends Axi4BaseWChannelInterface {
       );
 }
 
-/// AXI4 R channel base. Need this to differentiate between AXI and AXI-Lite.
-abstract class Axi4BaseBChannelInterface extends Axi4ChannelInterface {
+/// AXI4 response channel base functionality.
+abstract class Axi4ResponseChannelInterface extends Axi4ChannelInterface {
   /// Width of the BRESP field is fixed for AXI4.
   final int respWidth;
 
   /// Read response, indicates the status of a write transfer.
   ///
   /// Width is equal to [respWidth].
-  Logic? get resp => tryPort('BRESP');
+  Logic? get resp => tryPort('${prefix}RESP');
 
   /// Constructor.
-  Axi4BaseBChannelInterface({
+  Axi4ResponseChannelInterface({
+    required super.prefix,
     super.idWidth = 4,
     super.userWidth = 16,
     this.respWidth = 2,
-  }) : super(prefix: 'B', main: false) {
+  }) : super(main: false) {
     setPorts([
-      if (respWidth > 0) Logic.port('BRESP', respWidth),
+      if (respWidth > 0) Logic.port('${prefix}RESP', respWidth),
     ], [
       PairDirection.fromConsumer,
     ]);
   }
+}
+
+/// AXI4 R channel base. Need this to differentiate between AXI and AXI-Lite.
+abstract class Axi4BaseBChannelInterface extends Axi4ResponseChannelInterface {
+  /// Constructor.
+  Axi4BaseBChannelInterface({
+    super.idWidth = 4,
+    super.userWidth = 16,
+    super.respWidth = 2,
+  }) : super(prefix: 'B');
 }
 
 /// Thin wrapper around abstract class to enforce certain paramater values.
