@@ -664,6 +664,84 @@ void main() {
 
     File(tracker.jsonFileName).deleteSync();
   });
+
+  group('fifo initial values', () {
+    Future<List<LogicValue>> setupAndDumpFifo(List<dynamic> initialValues,
+        {bool dumpWaves = false}) async {
+      final clk = SimpleClockGenerator(10).clk;
+      final reset = Logic();
+      final readEnable = Logic();
+
+      final fifo = Fifo(
+        clk,
+        reset,
+        writeEnable: Const(0),
+        writeData: Const(0, width: 8),
+        readEnable: readEnable,
+        depth: 4,
+        generateOccupancy: true,
+        generateError: true,
+        initialValues: initialValues,
+      );
+
+      await fifo.build();
+
+      File('tmp.sv').writeAsStringSync(fifo.generateSynth());
+
+      if (dumpWaves) {
+        WaveDumper(fifo);
+      }
+
+      fifo.error!.posedge.listen((event) {
+        fail('error signal detected!');
+      });
+
+      //TODO: add fifo checker?
+
+      unawaited(Simulator.run());
+
+      // reset flow
+      reset.inject(0);
+      readEnable.inject(0);
+      await clk.waitCycles(2);
+      reset.inject(1);
+      await clk.waitCycles(2);
+      reset.inject(0);
+      await clk.waitCycles(2);
+
+      final readValues = <LogicValue>[];
+      readEnable.inject(1);
+      for (var i = 0; i < initialValues.length; i++) {
+        await clk.nextPosedge;
+        expect(fifo.empty.previousValue!.toBool(), false);
+        expect(
+            fifo.occupancy!.previousValue!.toInt(), initialValues.length - i);
+        readValues.add(fifo.readData.previousValue!);
+      }
+      readEnable.inject(0);
+
+      await clk.waitCycles(3);
+
+      await Simulator.endSimulation();
+
+      return readValues;
+    }
+
+    test('full initial values is full, not empty, correct vals, correct occ',
+        () async {
+      final vals = await setupAndDumpFifo([1, 2, 3, 4], dumpWaves: true);
+      // expect(vals.map((e) => e.toInt()).toList(), [1, 2, 3, 4]);
+    });
+
+    test(
+        'partial initial values not full, not empty, correct vals, correct occ',
+        () async {});
+
+    test('too many initial values throws', () async {});
+
+    test(
+        'no initial values is empty, not full, all 0 vals, 0 occ', () async {});
+  });
 }
 
 class FifoTest extends Test {
