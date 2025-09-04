@@ -14,7 +14,7 @@ import 'package:rohd_hcl/rohd_hcl.dart';
 
 /// A shift register with configurable width and depth and optional enable and
 /// reset.
-class ShiftRegister extends Module with EntryResettable {
+class ShiftRegister extends Module with ResettableEntries {
   /// The number of stages in this shift register.
   final int depth;
 

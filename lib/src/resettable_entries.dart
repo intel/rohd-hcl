@@ -13,7 +13,7 @@ import 'package:rohd_hcl/rohd_hcl.dart';
 
 /// Provides functionality for structures with many entries to have various
 /// reset capabilities.
-mixin EntryResettable on Module {
+mixin ResettableEntries on Module {
   /// Accepts multiple types to provide a mapping to reset all entries of a
   /// structure with the same or various reset values.
   ///

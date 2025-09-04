@@ -12,7 +12,7 @@ import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
 
 /// A flop-based [Memory].
-class RegisterFile extends Memory with EntryResettable {
+class RegisterFile extends Memory with ResettableEntries {
   /// Accesses the read data for the provided [index].
   Logic rdData(int index) => rdPorts[index].data;
 
@@ -27,7 +27,7 @@ class RegisterFile extends Memory with EntryResettable {
   /// [MaskedDataPortInterface]s are supported on `writePorts`, but not on
   /// `readPorts`.
   ///
-  /// The [resetValue] follows the semantics of [EntryResettable].
+  /// The [resetValue] follows the semantics of [ResettableEntries].
   RegisterFile(super.clk, super.reset, super.writePorts, super.readPorts,
       {this.numEntries = 8,
       super.name = 'rf',
