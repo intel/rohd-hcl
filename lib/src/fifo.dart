@@ -129,7 +129,7 @@ class Fifo extends Module {
     }
 
     if (generateOccupancy) {
-      addOutput('occupancy', width: log2Ceil(depth));
+      addOutput('occupancy', width: log2Ceil(depth + 1));
     }
 
     if (initialValues == null) {
@@ -249,6 +249,7 @@ class Fifo extends Module {
 
     Sequential(_clk, reset: _reset, resetValues: {
       full: _initialValues.length == depth ? Const(1) : Const(0),
+      wrPointer: Const(_initialValues.length, width: _addrWidth),
     }, [
       if (generateBypass)
         If(~bypass!, then: pointerIncrements)
@@ -316,6 +317,8 @@ class FifoChecker extends Component {
     final fifoPortSignals = [...fifo.inputs.values, ...fifo.outputs.values]
         // data can be invalid since it's not control
         .where((e) => !e.name.contains('Data'));
+
+    //TODO: add check on error signal?
 
     fifo._clk.posedge.listen((event) {
       if (!fifo._reset.previousValue!.isValid) {
