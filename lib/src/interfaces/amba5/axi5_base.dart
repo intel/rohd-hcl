@@ -296,6 +296,9 @@ class Axi5AwChannelInterface extends Axi5TransportInterface
   /// Enable User signal mixin
   final bool userMixInEnable;
 
+  /// Enable Opcode signal mixin
+  final bool opcodeMixInEnable;
+
   @override
   final int userWidth;
   @override
@@ -383,6 +386,7 @@ class Axi5AwChannelInterface extends Axi5TransportInterface
     this.qualMixInEnable = false,
     this.stashMixInEnable = false,
     this.tagMixInEnable = false,
+    this.opcodeMixInEnable = false,
   })  : userWidth = config.userWidth,
         idWidth = config.idWidth,
         useIdUnq = config.useIdUnq,
@@ -446,6 +450,9 @@ class Axi5AwChannelInterface extends Axi5TransportInterface
     }
     if (tagMixInEnable) {
       makeMemPartTagPorts();
+    }
+    if (opcodeMixInEnable) {
+      makeOpcodePorts();
     }
   }
 }

@@ -70,7 +70,8 @@ class Axi5LiteAwChannelInterface extends Axi5AwChannelInterface {
             mmuMixInEnable: false,
             stashMixInEnable: false,
             qualMixInEnable: false,
-            tagMixInEnable: false);
+            tagMixInEnable: false,
+            opcodeMixInEnable: false);
 }
 
 /// A config object for constructing an AXI5 AR channel.

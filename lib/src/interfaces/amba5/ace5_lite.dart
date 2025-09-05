@@ -66,7 +66,8 @@ class Ace5LiteAwChannelInterface extends Axi5AwChannelInterface {
       super.mmuMixInEnable,
       super.stashMixInEnable,
       super.qualMixInEnable,
-      super.tagMixInEnable})
+      super.tagMixInEnable,
+      super.opcodeMixInEnable})
       : super(
           useCrediting: false,
           sharedCredits: false,
