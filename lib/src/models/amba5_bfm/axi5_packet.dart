@@ -78,6 +78,84 @@ class Axi5AwChannelPacket extends SequenceItem implements Trackable {
   @override
   String? trackerString(TrackerField field) {
     switch (field.title) {
+      case Axi5AwChannelTracker.idField:
+        return id?.id?.toRadixString(16) ?? '';
+      case Axi5AwChannelTracker.idUnqField:
+        return id?.idUnq?.toString() ?? '';
+      case Axi5AwChannelTracker.addrField:
+        return request.addr.toRadixString(16);
+      case Axi5AwChannelTracker.lenField:
+        return request.len?.toRadixString(16) ?? '';
+      case Axi5AwChannelTracker.sizeField:
+        return request.size?.toRadixString(16) ?? '';
+      case Axi5AwChannelTracker.burstField:
+        return request.burst?.toRadixString(16) ?? '';
+      case Axi5AwChannelTracker.qosField:
+        return request.qos?.toRadixString(16) ?? '';
+      case Axi5AwChannelTracker.protField:
+        return prot.prot?.toRadixString(16) ?? '';
+      case Axi5AwChannelTracker.nseField:
+        return prot.nse?.toString() ?? '';
+      case Axi5AwChannelTracker.privField:
+        return prot.priv?.toString() ?? '';
+      case Axi5AwChannelTracker.instField:
+        return prot.inst?.toString() ?? '';
+      case Axi5AwChannelTracker.pasField:
+        return prot.pas?.toRadixString(16) ?? '';
+      case Axi5AwChannelTracker.cacheField:
+        return memAttr.cache?.toRadixString(16) ?? '';
+      case Axi5AwChannelTracker.regionField:
+        return memAttr.region?.toRadixString(16) ?? '';
+      case Axi5AwChannelTracker.userField:
+        return user?.user?.toRadixString(16) ?? '';
+      case Axi5AwChannelTracker.domainField:
+        return stash?.domain?.toRadixString(16) ?? '';
+      case Axi5AwChannelTracker.stashNidField:
+        return stash?.stashNid?.toRadixString(16) ?? '';
+      case Axi5AwChannelTracker.stashNidEnField:
+        return stash?.stashNidEn?.toString() ?? '';
+      case Axi5AwChannelTracker.stashLPidField:
+        return stash?.stashLPid?.toRadixString(16) ?? '';
+      case Axi5AwChannelTracker.stashLPidEnField:
+        return stash?.stashLPidEn?.toString() ?? '';
+      case Axi5AwChannelTracker.cmoField:
+        return stash?.cmo?.toRadixString(16) ?? '';
+      case Axi5AwChannelTracker.opcodeField:
+        return opcode?.snoop?.toRadixString(16) ?? '';
+      case Axi5AwChannelTracker.atomicField:
+        return atomic?.toString() ?? '';
+      case Axi5AwChannelTracker.traceField:
+        return debug?.trace?.toString() ?? '';
+      case Axi5AwChannelTracker.loopField:
+        return debug?.loop?.toRadixString(16) ?? '';
+      case Axi5AwChannelTracker.mmuValidField:
+        return mmu?.mmuValid?.toString() ?? '';
+      case Axi5AwChannelTracker.mmuSecSidField:
+        return mmu?.mmuSecSid?.toRadixString(16) ?? '';
+      case Axi5AwChannelTracker.mmuSidField:
+        return mmu?.mmuSid?.toRadixString(16) ?? '';
+      case Axi5AwChannelTracker.mmuSsidVField:
+        return mmu?.mmuSsidV?.toRadixString(16) ?? '';
+      case Axi5AwChannelTracker.mmuSsidField:
+        return mmu?.mmuSsid?.toRadixString(16) ?? '';
+      case Axi5AwChannelTracker.mmuAtStField:
+        return mmu?.mmuAtSt?.toString() ?? '';
+      case Axi5AwChannelTracker.mmuFlowField:
+        return mmu?.mmuFlow?.toRadixString(16) ?? '';
+      case Axi5AwChannelTracker.mmuPasUnknownField:
+        return mmu?.mmuPasUnknown?.toString() ?? '';
+      case Axi5AwChannelTracker.mmuPmField:
+        return mmu?.mmuPm?.toString() ?? '';
+      case Axi5AwChannelTracker.nsaIdField:
+        return qual?.nsaId?.toRadixString(16) ?? '';
+      case Axi5AwChannelTracker.pbhaField:
+        return qual?.pbha?.toRadixString(16) ?? '';
+      case Axi5AwChannelTracker.subSysIdField:
+        return qual?.subSysId?.toRadixString(16) ?? '';
+      case Axi5AwChannelTracker.actVField:
+        return qual?.actV?.toString() ?? '';
+      case Axi5AwChannelTracker.actField:
+        return qual?.act?.toRadixString(16) ?? '';
       default:
         return '';
     }
@@ -150,6 +228,46 @@ class Axi5ArChannelPacket extends SequenceItem implements Trackable {
   @override
   String? trackerString(TrackerField field) {
     switch (field.title) {
+      case Axi5ArChannelTracker.idField:
+        return id?.id?.toRadixString(16) ?? '';
+      case Axi5ArChannelTracker.idUnqField:
+        return id?.idUnq?.toString() ?? '';
+      case Axi5ArChannelTracker.addrField:
+        return request.addr.toRadixString(16);
+      case Axi5ArChannelTracker.lenField:
+        return request.len?.toRadixString(16) ?? '';
+      case Axi5ArChannelTracker.sizeField:
+        return request.size?.toRadixString(16) ?? '';
+      case Axi5ArChannelTracker.burstField:
+        return request.burst?.toRadixString(16) ?? '';
+      case Axi5ArChannelTracker.protField:
+        return prot.prot?.toRadixString(16) ?? '';
+      case Axi5ArChannelTracker.nseField:
+        return prot.nse?.toString() ?? '';
+      case Axi5ArChannelTracker.privField:
+        return prot.priv?.toString() ?? '';
+      case Axi5ArChannelTracker.instField:
+        return prot.inst?.toString() ?? '';
+      case Axi5ArChannelTracker.pasField:
+        return prot.pas?.toRadixString(16) ?? '';
+      case Axi5ArChannelTracker.cacheField:
+        return memAttr.cache?.toRadixString(16) ?? '';
+      case Axi5ArChannelTracker.regionField:
+        return memAttr.region?.toRadixString(16) ?? '';
+      case Axi5ArChannelTracker.mecIdField:
+        return memAttr.mecId?.toRadixString(16) ?? '';
+      case Axi5ArChannelTracker.qosField:
+        return request.qos?.toRadixString(16) ?? '';
+      case Axi5ArChannelTracker.userField:
+        return user?.user?.toRadixString(16) ?? '';
+      case Axi5ArChannelTracker.opcodeField:
+        return opcode?.snoop?.toRadixString(16) ?? '';
+      case Axi5ArChannelTracker.atomicField:
+        return atomic?.toString() ?? '';
+      case Axi5ArChannelTracker.traceField:
+        return debug?.trace?.toString() ?? '';
+      case Axi5ArChannelTracker.loopField:
+        return debug?.loop?.toRadixString(16) ?? '';
       default:
         return '';
     }
@@ -190,6 +308,31 @@ class Axi5WChannelPacket extends SequenceItem implements Trackable {
   @override
   String? trackerString(TrackerField field) {
     switch (field.title) {
+      case Axi5WChannelTracker.dataField:
+        // Returns first data beat's value if available
+        return data.isNotEmpty ? data[0].data.toRadixString(16) : '';
+      case Axi5WChannelTracker.lastField:
+        return data.isNotEmpty ? (data[0].last?.toString() ?? '') : '';
+      case Axi5WChannelTracker.strbField:
+        return data.isNotEmpty ? (data[0].strb?.toRadixString(16) ?? '') : '';
+      case Axi5WChannelTracker.poisonField:
+        return data.isNotEmpty ? (data[0].poison?.toRadixString(16) ?? '') : '';
+      case Axi5WChannelTracker.tagField:
+        return tag?.tag?.toRadixString(16) ?? '';
+      case Axi5WChannelTracker.tagUpdateField:
+        return tag?.tagUpdate?.toRadixString(16) ?? '';
+      case Axi5WChannelTracker.tagMatchField:
+        return tag?.tagMatch?.toRadixString(16) ?? '';
+      case Axi5WChannelTracker.compField:
+        return tag?.comp?.toString() ?? '';
+      case Axi5WChannelTracker.persistField:
+        return tag?.persist?.toString() ?? '';
+      case Axi5WChannelTracker.traceField:
+        return debug?.trace?.toString() ?? '';
+      case Axi5WChannelTracker.loopField:
+        return debug?.loop?.toRadixString(16) ?? '';
+      case Axi5WChannelTracker.userField:
+        return user?.user?.toRadixString(16) ?? '';
       default:
         return '';
     }
@@ -242,6 +385,39 @@ class Axi5RChannelPacket extends SequenceItem implements Trackable {
   @override
   String? trackerString(TrackerField field) {
     switch (field.title) {
+      case Axi5RChannelTracker.userField:
+        return user?.user?.toRadixString(16) ?? '';
+      case Axi5RChannelTracker.dataField:
+        // Returns first data beat's value if available
+        return data.isNotEmpty ? data[0].data.toRadixString(16) : '';
+      case Axi5RChannelTracker.lastField:
+        return data.isNotEmpty ? (data[0].last?.toString() ?? '') : '';
+      case Axi5RChannelTracker.strbField:
+        return data.isNotEmpty ? (data[0].strb?.toRadixString(16) ?? '') : '';
+      case Axi5RChannelTracker.poisonField:
+        return data.isNotEmpty ? (data[0].poison?.toRadixString(16) ?? '') : '';
+      case Axi5RChannelTracker.idField:
+        return id?.id?.toRadixString(16) ?? '';
+      case Axi5RChannelTracker.idUnqField:
+        return id?.idUnq?.toString() ?? '';
+      case Axi5RChannelTracker.tagField:
+        return tag?.tag?.toRadixString(16) ?? '';
+      case Axi5RChannelTracker.tagUpdateField:
+        return tag?.tagUpdate?.toRadixString(16) ?? '';
+      case Axi5RChannelTracker.tagMatchField:
+        return tag?.tagMatch?.toRadixString(16) ?? '';
+      case Axi5RChannelTracker.compField:
+        return tag?.comp?.toString() ?? '';
+      case Axi5RChannelTracker.persistField:
+        return tag?.persist?.toString() ?? '';
+      case Axi5RChannelTracker.traceField:
+        return debug?.trace?.toString() ?? '';
+      case Axi5RChannelTracker.loopField:
+        return debug?.loop?.toRadixString(16) ?? '';
+      case Axi5RChannelTracker.respField:
+        return response?.resp?.toRadixString(16) ?? '';
+      case Axi5RChannelTracker.busyField:
+        return response?.busy?.toString() ?? '';
       default:
         return '';
     }
@@ -286,6 +462,30 @@ class Axi5BChannelPacket extends SequenceItem implements Trackable {
   @override
   String? trackerString(TrackerField field) {
     switch (field.title) {
+      case Axi5BChannelTracker.userField:
+        return user?.user?.toRadixString(16) ?? '';
+      case Axi5BChannelTracker.idField:
+        return id?.id?.toRadixString(16) ?? '';
+      case Axi5BChannelTracker.idUnqField:
+        return id?.idUnq?.toString() ?? '';
+      case Axi5BChannelTracker.tagField:
+        return tag?.tag?.toRadixString(16) ?? '';
+      case Axi5BChannelTracker.tagUpdateField:
+        return tag?.tagUpdate?.toRadixString(16) ?? '';
+      case Axi5BChannelTracker.tagMatchField:
+        return tag?.tagMatch?.toRadixString(16) ?? '';
+      case Axi5BChannelTracker.compField:
+        return tag?.comp?.toString() ?? '';
+      case Axi5BChannelTracker.persistField:
+        return tag?.persist?.toString() ?? '';
+      case Axi5BChannelTracker.traceField:
+        return debug?.trace?.toString() ?? '';
+      case Axi5BChannelTracker.loopField:
+        return debug?.loop?.toRadixString(16) ?? '';
+      case Axi5BChannelTracker.respField:
+        return response.resp?.toRadixString(16) ?? '';
+      case Axi5BChannelTracker.busyField:
+        return response.busy?.toString() ?? '';
       default:
         return '';
     }
@@ -322,6 +522,12 @@ class Axi5AcChannelPacket extends SequenceItem implements Trackable {
   @override
   String? trackerString(TrackerField field) {
     switch (field.title) {
+      case Axi5AcChannelTracker.traceField:
+        // debug.trace
+        return debug?.trace?.toString() ?? '';
+      case Axi5AcChannelTracker.loopField:
+        // debug.loop
+        return debug?.loop?.toRadixString(16) ?? '';
       default:
         return '';
     }
@@ -350,6 +556,12 @@ class Axi5CrChannelPacket extends SequenceItem implements Trackable {
   @override
   String? trackerString(TrackerField field) {
     switch (field.title) {
+      case Axi5CrChannelTracker.traceField:
+        // debug.trace
+        return debug?.trace?.toString() ?? '';
+      case Axi5CrChannelTracker.loopField:
+        // debug.loop
+        return debug?.loop?.toRadixString(16) ?? '';
       default:
         return '';
     }

@@ -3,3 +3,4 @@
 
 export 'axi5_mixin_structures.dart';
 export 'axi5_packet.dart';
+export 'axi5_tracker.dart';
