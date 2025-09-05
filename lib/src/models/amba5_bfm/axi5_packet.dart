@@ -501,12 +501,12 @@ class Axi5AcChannelPacket extends SequenceItem implements Trackable {
   final int addr;
 
   /// MVID extension
-  final int mvidExt;
+  final int vmidExt;
 
   /// Constructor
   Axi5AcChannelPacket({
     required this.addr,
-    required this.mvidExt,
+    required this.vmidExt,
     this.debug,
   });
 
