@@ -135,7 +135,7 @@ class Axi5AwChannelPacket extends SequenceItem implements Trackable {
       case Axi5AwChannelTracker.mmuSidField:
         return mmu?.mmuSid?.toRadixString(16) ?? '';
       case Axi5AwChannelTracker.mmuSsidVField:
-        return mmu?.mmuSsidV?.toRadixString(16) ?? '';
+        return mmu?.mmuSsidV?.toString() ?? '';
       case Axi5AwChannelTracker.mmuSsidField:
         return mmu?.mmuSsid?.toRadixString(16) ?? '';
       case Axi5AwChannelTracker.mmuAtStField:

@@ -273,7 +273,7 @@ class Axi5MmuSignalsStruct {
 
   /// Substream ID valid.
   /// Width is always 1.
-  final int? mmuSsidV;
+  final bool? mmuSsidV;
 
   /// Substream ID.
   /// Width is equal to ssidWidth.
