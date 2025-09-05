@@ -7,6 +7,7 @@
 // 2025 January
 // Author: Josh Kimmel <joshua1.kimmel@intel.com>
 
+import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
 
 /// A config object for constructing an AXI5 AW channel.
@@ -155,4 +156,72 @@ class Axi5BChannelConfig extends Axi5BaseBChannelConfig {
     super.useBusy = false,
     super.respWidth = 4,
   });
+}
+
+/// Grouping of read channels.
+class Axi5ReadCluster extends PairInterface {
+  /// AR channel.
+  late final Axi5ArChannelInterface ar;
+
+  /// R channel.
+  late final Axi5RChannelInterface r;
+
+  /// Constructor.
+  Axi5ReadCluster({required this.ar, required this.r}) {
+    addSubInterface('AR', ar);
+    addSubInterface('R', r);
+  }
+}
+
+/// Grouping of write channels.
+class Axi5WriteCluster extends PairInterface {
+  /// AW channel.
+  late final Axi5AwChannelInterface aw;
+
+  /// W channel.
+  late final Axi5WChannelInterface w;
+
+  /// B channel.
+  late final Axi5BChannelInterface b;
+
+  /// Constructor.
+  Axi5WriteCluster({required this.aw, required this.w, required this.b}) {
+    addSubInterface('AW', aw);
+    addSubInterface('W', w);
+    addSubInterface('B', b);
+  }
+}
+
+/// Grouping of snoop channels.
+class Axi5SnoopCluster extends PairInterface {
+  /// AC channel.
+  late final Axi5AcChannelInterface ac;
+
+  /// CR channel.
+  late final Axi5CrChannelInterface cr;
+
+  /// Constructor.
+  Axi5SnoopCluster({required this.ac, required this.cr}) {
+    addSubInterface('AC', ac);
+    addSubInterface('CR', cr);
+  }
+}
+
+/// Grouping of all channels.
+class Axi5Cluster extends PairInterface {
+  /// Read channels.
+  late final Axi5ReadCluster read;
+
+  /// Write channels.
+  late final Axi5WriteCluster write;
+
+  /// B channel.
+  late final Axi5SnoopCluster snoop;
+
+  /// Constructor.
+  Axi5Cluster({required this.read, required this.write, required this.snoop}) {
+    addSubInterface('READ', read);
+    addSubInterface('WRITE', write);
+    addSubInterface('SNOOP', snoop);
+  }
 }

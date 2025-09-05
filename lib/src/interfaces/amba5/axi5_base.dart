@@ -106,8 +106,6 @@ abstract class Axi5TransportInterface extends Axi5BaseInterface {
   }
 }
 
-// TODO: snoop channels...
-
 /// A config object for constructing an AXI5 AW channel.
 abstract class Axi5BaseAwChannelConfig {
   /// The width of the user-defined signal in bits.
@@ -1284,6 +1282,87 @@ class Axi5BChannelInterface extends Axi5TransportInterface
     if (tagMixInEnable) {
       makeRespDataTagPorts();
     }
+    if (debugMixInEnable) {
+      makeDebugPorts();
+    }
+  }
+}
+
+/// Basis for all possible AC channels.
+class Axi5AcChannelInterface extends Axi5TransportInterface
+    with Axi5DebugSignals {
+  /// Enable Debug signal mixin
+  final bool debugMixInEnable;
+
+  @override
+  final bool tracePresent;
+
+  @override
+  final int loopWidth;
+
+  /// Width of snoop address.
+  final int addrWidth;
+
+  /// Snoop address.
+  ///
+  /// Width is equal to [addrWidth].
+  Logic? get addr => tryPort('${prefix}ADDR');
+
+  /// VMID extension for DVM messages.
+  ///
+  /// Width is equal to 4.
+  Logic? get vmidExt => tryPort('${prefix}VMIDEXT');
+
+  /// Constructor.
+  Axi5AcChannelInterface({
+    this.debugMixInEnable = false,
+    this.tracePresent = false,
+    this.addrWidth = 32,
+  })  : loopWidth = 0,
+        super(
+          prefix: 'AC',
+          main: false,
+          useCrediting: false,
+          sharedCredits: false,
+          numRp: 0,
+        ) {
+    if (debugMixInEnable) {
+      makeDebugPorts();
+    }
+
+    setPorts([
+      Logic.port('${prefix}ADDR', addrWidth),
+      Logic.port('${prefix}VMIDEXT', 4),
+    ], [
+      PairDirection.fromConsumer,
+    ]);
+  }
+}
+
+/// Basis for all possible CR channels.
+class Axi5CrChannelInterface extends Axi5TransportInterface
+    with Axi5DebugSignals {
+  /// Enable Debug signal mixin
+  final bool debugMixInEnable;
+
+  @override
+  final bool tracePresent;
+
+  @override
+  final int loopWidth;
+
+  /// Constructor.
+  Axi5CrChannelInterface({
+    this.debugMixInEnable = false,
+    this.tracePresent = false,
+  })  : loopWidth = 0,
+        super(
+          prefix: 'CR',
+          main: true,
+          useCrediting: false,
+          sharedCredits: false,
+          numRp: 0,
+        ) {
     if (debugMixInEnable) {
       makeDebugPorts();
     }

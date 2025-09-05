@@ -7,6 +7,7 @@
 // 2025 January
 // Author: Josh Kimmel <joshua1.kimmel@intel.com>
 
+import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
 
 /// A config object for constructing an ACE5-Lite5 AW channel.
@@ -243,4 +244,53 @@ class Ace5LiteBChannelInterface extends Axi5BChannelInterface {
           sharedCredits: false,
           numRp: 0,
         );
+}
+
+/// Grouping of read channels.
+class Ace5LiteReadCluster extends PairInterface {
+  /// AR channel.
+  late final Ace5LiteArChannelInterface ar;
+
+  /// R channel.
+  late final Ace5LiteRChannelInterface r;
+
+  /// Constructor.
+  Ace5LiteReadCluster({required this.ar, required this.r}) {
+    addSubInterface('AR', ar);
+    addSubInterface('R', r);
+  }
+}
+
+/// Grouping of write channels.
+class Ace5LiteWriteCluster extends PairInterface {
+  /// AW channel.
+  late final Ace5LiteAwChannelInterface aw;
+
+  /// W channel.
+  late final Ace5LiteWChannelInterface w;
+
+  /// B channel.
+  late final Ace5LiteBChannelInterface b;
+
+  /// Constructor.
+  Ace5LiteWriteCluster({required this.aw, required this.w, required this.b}) {
+    addSubInterface('AW', aw);
+    addSubInterface('W', w);
+    addSubInterface('B', b);
+  }
+}
+
+/// Grouping of all channels.
+class Ace5LiteCluster extends PairInterface {
+  /// Read channels.
+  late final Ace5LiteReadCluster read;
+
+  /// Write channels.
+  late final Ace5LiteWriteCluster write;
+
+  /// Constructor.
+  Ace5LiteCluster({required this.read, required this.write}) {
+    addSubInterface('READ', read);
+    addSubInterface('WRITE', write);
+  }
 }
