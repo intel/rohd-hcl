@@ -309,14 +309,21 @@ class Axi5WChannelPacket extends SequenceItem implements Trackable {
   String? trackerString(TrackerField field) {
     switch (field.title) {
       case Axi5WChannelTracker.dataField:
-        // Returns first data beat's value if available
-        return data.isNotEmpty ? data[0].data.toRadixString(16) : '';
+        return data.isNotEmpty
+            ? data.map((e) => e.data.toRadixString(16)).join(',')
+            : '';
       case Axi5WChannelTracker.lastField:
-        return data.isNotEmpty ? (data[0].last?.toString() ?? '') : '';
+        return data.isNotEmpty
+            ? data.map((e) => e.last?.toString() ?? '1').join(',')
+            : '';
       case Axi5WChannelTracker.strbField:
-        return data.isNotEmpty ? (data[0].strb?.toRadixString(16) ?? '') : '';
+        return data.isNotEmpty
+            ? data.map((e) => e.strb?.toRadixString(16) ?? 'N/A').join(',')
+            : '';
       case Axi5WChannelTracker.poisonField:
-        return data.isNotEmpty ? (data[0].poison?.toRadixString(16) ?? '') : '';
+        return data.isNotEmpty
+            ? data.map((e) => e.poison?.toRadixString(16) ?? 'N/A').join(',')
+            : '';
       case Axi5WChannelTracker.tagField:
         return tag?.tag?.toRadixString(16) ?? '';
       case Axi5WChannelTracker.tagUpdateField:
@@ -388,14 +395,21 @@ class Axi5RChannelPacket extends SequenceItem implements Trackable {
       case Axi5RChannelTracker.userField:
         return user?.user?.toRadixString(16) ?? '';
       case Axi5RChannelTracker.dataField:
-        // Returns first data beat's value if available
-        return data.isNotEmpty ? data[0].data.toRadixString(16) : '';
+        return data.isNotEmpty
+            ? data.map((e) => e.data.toRadixString(16)).join(',')
+            : '';
       case Axi5RChannelTracker.lastField:
-        return data.isNotEmpty ? (data[0].last?.toString() ?? '') : '';
+        return data.isNotEmpty
+            ? data.map((e) => e.last?.toString() ?? '1').join(',')
+            : '';
       case Axi5RChannelTracker.strbField:
-        return data.isNotEmpty ? (data[0].strb?.toRadixString(16) ?? '') : '';
+        return data.isNotEmpty
+            ? data.map((e) => e.strb?.toRadixString(16) ?? 'N/A').join(',')
+            : '';
       case Axi5RChannelTracker.poisonField:
-        return data.isNotEmpty ? (data[0].poison?.toRadixString(16) ?? '') : '';
+        return data.isNotEmpty
+            ? data.map((e) => e.poison?.toRadixString(16) ?? 'N/A').join(',')
+            : '';
       case Axi5RChannelTracker.idField:
         return id?.id?.toRadixString(16) ?? '';
       case Axi5RChannelTracker.idUnqField:

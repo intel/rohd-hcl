@@ -152,46 +152,46 @@ class Axi5ArChannelDriver extends PendingClockedDriver<Axi5ArChannelPacket> {
     Simulator.injectAction(() {
       ar.valid.put(1);
       ar.addr.put(packet.request.addr);
-      ar.len?.put(packet.request.len);
-      ar.size?.put(packet.request.size);
-      ar.burst?.put(packet.request.burst);
-      ar.qos?.put(packet.request.qos);
-      ar.id?.put(packet.id?.id);
-      ar.idUnq?.put(packet.id?.idUnq);
-      ar.prot?.put(packet.prot.prot);
-      ar.nse?.put(packet.prot.nse);
-      ar.priv?.put(packet.prot.priv);
-      ar.inst?.put(packet.prot.inst);
-      ar.pas?.put(packet.prot.pas);
-      ar.cache?.put(packet.memAttr.cache);
-      ar.region?.put(packet.memAttr.region);
-      ar.mecId?.put(packet.memAttr.mecId);
-      ar.trace?.put(packet.debug?.trace);
-      ar.loop?.put(packet.debug?.loop);
-      ar.mmuValid?.put(packet.mmu?.mmuValid);
-      ar.mmuSecSid?.put(packet.mmu?.mmuSecSid);
-      ar.mmuSid?.put(packet.mmu?.mmuSid);
-      ar.mmuSsidV?.put(packet.mmu?.mmuSsidV);
-      ar.mmuSsid?.put(packet.mmu?.mmuSsid);
-      ar.mmuAtSt?.put(packet.mmu?.mmuAtSt);
-      ar.mmuFlow?.put(packet.mmu?.mmuFlow);
-      ar.mmuPasUnknown?.put(packet.mmu?.mmuPasUnknown);
-      ar.mmuPm?.put(packet.mmu?.mmuPm);
-      ar.nsaId?.put(packet.qual?.nsaId);
-      ar.pbha?.put(packet.qual?.pbha);
-      ar.subSysId?.put(packet.qual?.subSysId);
-      ar.actV?.put(packet.qual?.actV);
-      ar.act?.put(packet.qual?.act);
-      ar.lock?.put(packet.atomic?.lock);
-      ar.atOp?.put(packet.atomic?.atOp);
-      ar.mpam?.put(packet.tag?.mpam);
-      ar.tagOp?.put(packet.tag?.tagOp);
-      ar.chunkEn?.put(packet.chunk?.chunkEn);
-      ar.chunkV?.put(packet.chunk?.chunkV);
-      ar.chunkNum?.put(packet.chunk?.chunkNum);
-      ar.chunkStrb?.put(packet.chunk?.chunkStrb);
-      ar.snoop?.put(packet.opcode?.snoop);
-      ar.user?.put(packet.user?.user);
+      ar.len?.put(packet.request.len ?? 0);
+      ar.size?.put(packet.request.size ?? 0);
+      ar.burst?.put(packet.request.burst ?? 0);
+      ar.qos?.put(packet.request.qos ?? 0);
+      ar.id?.put(packet.id?.id ?? 0);
+      ar.idUnq?.put(packet.id?.idUnq ?? 0);
+      ar.prot?.put(packet.prot.prot ?? 0);
+      ar.nse?.put(packet.prot.nse ?? 0);
+      ar.priv?.put(packet.prot.priv ?? 0);
+      ar.inst?.put(packet.prot.inst ?? 0);
+      ar.pas?.put(packet.prot.pas ?? 0);
+      ar.cache?.put(packet.memAttr.cache ?? 0);
+      ar.region?.put(packet.memAttr.region ?? 0);
+      ar.mecId?.put(packet.memAttr.mecId ?? 0);
+      ar.trace?.put(packet.debug?.trace ?? 0);
+      ar.loop?.put(packet.debug?.loop ?? 0);
+      ar.mmuValid?.put(packet.mmu?.mmuValid ?? 0);
+      ar.mmuSecSid?.put(packet.mmu?.mmuSecSid ?? 0);
+      ar.mmuSid?.put(packet.mmu?.mmuSid ?? 0);
+      ar.mmuSsidV?.put(packet.mmu?.mmuSsidV ?? 0);
+      ar.mmuSsid?.put(packet.mmu?.mmuSsid ?? 0);
+      ar.mmuAtSt?.put(packet.mmu?.mmuAtSt ?? 0);
+      ar.mmuFlow?.put(packet.mmu?.mmuFlow ?? 0);
+      ar.mmuPasUnknown?.put(packet.mmu?.mmuPasUnknown ?? 0);
+      ar.mmuPm?.put(packet.mmu?.mmuPm ?? 0);
+      ar.nsaId?.put(packet.qual?.nsaId ?? 0);
+      ar.pbha?.put(packet.qual?.pbha ?? 0);
+      ar.subSysId?.put(packet.qual?.subSysId ?? 0);
+      ar.actV?.put(packet.qual?.actV ?? 0);
+      ar.act?.put(packet.qual?.act ?? 0);
+      ar.lock?.put(packet.atomic?.lock ?? 0);
+      ar.atOp?.put(packet.atomic?.atOp ?? 0);
+      ar.mpam?.put(packet.tag?.mpam ?? 0);
+      ar.tagOp?.put(packet.tag?.tagOp ?? 0);
+      ar.chunkEn?.put(packet.chunk?.chunkEn ?? 0);
+      ar.chunkV?.put(packet.chunk?.chunkV ?? 0);
+      ar.chunkNum?.put(packet.chunk?.chunkNum ?? 0);
+      ar.chunkStrb?.put(packet.chunk?.chunkStrb ?? 0);
+      ar.snoop?.put(packet.opcode?.snoop ?? 0);
+      ar.user?.put(packet.user?.user ?? 0);
     });
 
     // TODO: handle credited!
@@ -310,48 +310,48 @@ class Axi5AwChannelDriver extends PendingClockedDriver<Axi5AwChannelPacket> {
     Simulator.injectAction(() {
       aw.valid.put(1);
       aw.addr.put(packet.request.addr);
-      aw.len?.put(packet.request.len);
-      aw.size?.put(packet.request.size);
-      aw.burst?.put(packet.request.burst);
-      aw.qos?.put(packet.request.qos);
-      aw.id?.put(packet.id?.id);
-      aw.idUnq?.put(packet.id?.idUnq);
-      aw.prot?.put(packet.prot.prot);
-      aw.nse?.put(packet.prot.nse);
-      aw.priv?.put(packet.prot.priv);
-      aw.inst?.put(packet.prot.inst);
-      aw.pas?.put(packet.prot.pas);
-      aw.cache?.put(packet.memAttr.cache);
-      aw.region?.put(packet.memAttr.region);
-      aw.mecId?.put(packet.memAttr.mecId);
-      aw.trace?.put(packet.debug?.trace);
-      aw.loop?.put(packet.debug?.loop);
-      aw.mmuValid?.put(packet.mmu?.mmuValid);
-      aw.mmuSecSid?.put(packet.mmu?.mmuSecSid);
-      aw.mmuSid?.put(packet.mmu?.mmuSid);
-      aw.mmuSsidV?.put(packet.mmu?.mmuSsidV);
-      aw.mmuSsid?.put(packet.mmu?.mmuSsid);
-      aw.mmuAtSt?.put(packet.mmu?.mmuAtSt);
-      aw.mmuFlow?.put(packet.mmu?.mmuFlow);
-      aw.mmuPasUnknown?.put(packet.mmu?.mmuPasUnknown);
-      aw.mmuPm?.put(packet.mmu?.mmuPm);
-      aw.nsaId?.put(packet.qual?.nsaId);
-      aw.pbha?.put(packet.qual?.pbha);
-      aw.subSysId?.put(packet.qual?.subSysId);
-      aw.actV?.put(packet.qual?.actV);
-      aw.act?.put(packet.qual?.act);
-      aw.lock?.put(packet.atomic?.lock);
-      aw.atOp?.put(packet.atomic?.atOp);
-      aw.mpam?.put(packet.tag?.mpam);
-      aw.tagOp?.put(packet.tag?.tagOp);
-      aw.snoop?.put(packet.opcode?.snoop);
-      aw.user?.put(packet.user?.user);
-      aw.domain?.put(packet.stash?.domain);
-      aw.stashNid?.put(packet.stash?.stashNid);
-      aw.stashNidEn?.put(packet.stash?.stashNidEn);
-      aw.stashLPid?.put(packet.stash?.stashLPid);
-      aw.stashLPidEn?.put(packet.stash?.stashLPidEn);
-      aw.cmo?.put(packet.stash?.cmo);
+      aw.len?.put(packet.request.len ?? 0);
+      aw.size?.put(packet.request.size ?? 0);
+      aw.burst?.put(packet.request.burst ?? 0);
+      aw.qos?.put(packet.request.qos ?? 0);
+      aw.id?.put(packet.id?.id ?? 0);
+      aw.idUnq?.put(packet.id?.idUnq ?? 0);
+      aw.prot?.put(packet.prot.prot ?? 0);
+      aw.nse?.put(packet.prot.nse ?? 0);
+      aw.priv?.put(packet.prot.priv ?? 0);
+      aw.inst?.put(packet.prot.inst ?? 0);
+      aw.pas?.put(packet.prot.pas ?? 0);
+      aw.cache?.put(packet.memAttr.cache ?? 0);
+      aw.region?.put(packet.memAttr.region ?? 0);
+      aw.mecId?.put(packet.memAttr.mecId ?? 0);
+      aw.trace?.put(packet.debug?.trace ?? 0);
+      aw.loop?.put(packet.debug?.loop ?? 0);
+      aw.mmuValid?.put(packet.mmu?.mmuValid ?? 0);
+      aw.mmuSecSid?.put(packet.mmu?.mmuSecSid ?? 0);
+      aw.mmuSid?.put(packet.mmu?.mmuSid ?? 0);
+      aw.mmuSsidV?.put(packet.mmu?.mmuSsidV ?? 0);
+      aw.mmuSsid?.put(packet.mmu?.mmuSsid ?? 0);
+      aw.mmuAtSt?.put(packet.mmu?.mmuAtSt ?? 0);
+      aw.mmuFlow?.put(packet.mmu?.mmuFlow ?? 0);
+      aw.mmuPasUnknown?.put(packet.mmu?.mmuPasUnknown ?? 0);
+      aw.mmuPm?.put(packet.mmu?.mmuPm ?? 0);
+      aw.nsaId?.put(packet.qual?.nsaId ?? 0);
+      aw.pbha?.put(packet.qual?.pbha ?? 0);
+      aw.subSysId?.put(packet.qual?.subSysId ?? 0);
+      aw.actV?.put(packet.qual?.actV ?? 0);
+      aw.act?.put(packet.qual?.act ?? 0);
+      aw.lock?.put(packet.atomic?.lock ?? 0);
+      aw.atOp?.put(packet.atomic?.atOp ?? 0);
+      aw.mpam?.put(packet.tag?.mpam ?? 0);
+      aw.tagOp?.put(packet.tag?.tagOp ?? 0);
+      aw.snoop?.put(packet.opcode?.snoop ?? 0);
+      aw.user?.put(packet.user?.user ?? 0);
+      aw.domain?.put(packet.stash?.domain ?? 0);
+      aw.stashNid?.put(packet.stash?.stashNid ?? 0);
+      aw.stashNidEn?.put(packet.stash?.stashNidEn ?? 0);
+      aw.stashLPid?.put(packet.stash?.stashLPid ?? 0);
+      aw.stashLPidEn?.put(packet.stash?.stashLPidEn ?? 0);
+      aw.cmo?.put(packet.stash?.cmo ?? 0);
     });
 
     // TODO: handle credited!
@@ -370,8 +370,6 @@ class Axi5AwChannelDriver extends PendingClockedDriver<Axi5AwChannelPacket> {
     });
   }
 }
-
-// TODO: handle multi beat data return
 
 /// A driver for the [Axi5RChannelInterface] interface.
 ///
@@ -406,7 +404,6 @@ class Axi5RChannelDriver extends PendingClockedDriver<Axi5RChannelPacket> {
       r.valid.put(0);
       r.data.put(0);
       r.last?.put(0);
-      r.strb?.put(0);
       r.poison?.put(0);
       r.id?.put(0);
       r.idUnq?.put(0);
@@ -444,38 +441,39 @@ class Axi5RChannelDriver extends PendingClockedDriver<Axi5RChannelPacket> {
     await _driveRequestPacket(packet);
   }
 
+  // TODO: handle credited!
+
   Future<void> _driveRequestPacket(Axi5RChannelPacket packet) async {
     await sys.clk.nextPosedge;
-    Simulator.injectAction(() {
-      r.valid.put(1);
-      r.data.put(packet.data.isNotEmpty ? packet.data[0].data : null);
-      r.last?.put(packet.data.isNotEmpty ? packet.data[0].last : null);
-      r.strb?.put(packet.data.isNotEmpty ? packet.data[0].strb : null);
-      r.poison?.put(packet.data.isNotEmpty ? packet.data[0].poison : null);
-      r.id?.put(packet.id?.id);
-      r.idUnq?.put(packet.id?.idUnq);
-      r.tag?.put(packet.tag?.tag);
-      r.tagUpdate?.put(packet.tag?.tagUpdate);
-      r.tagMatch?.put(packet.tag?.tagMatch);
-      r.comp?.put(packet.tag?.comp);
-      r.persist?.put(packet.tag?.persist);
-      r.trace?.put(packet.debug?.trace);
-      r.loop?.put(packet.debug?.loop);
-      r.resp?.put(packet.response?.resp);
-      r.busy?.put(packet.response?.busy);
-      r.chunkEn?.put(packet.chunk?.chunkEn);
-      r.chunkV?.put(packet.chunk?.chunkV);
-      r.chunkNum?.put(packet.chunk?.chunkNum);
-      r.chunkStrb?.put(packet.chunk?.chunkStrb);
-      r.user?.put(packet.user?.user);
-    });
+    for (var i = 0; i < packet.data.length; i++) {
+      Simulator.injectAction(() async {
+        r.valid.put(1);
+        r.data.put(packet.data[i].data);
+        r.last?.put(packet.data[i].last ?? 1);
+        r.poison?.put(packet.data[i].poison ?? 0);
+        r.id?.put(packet.id?.id ?? 0);
+        r.idUnq?.put(packet.id?.idUnq ?? 0);
+        r.tag?.put(packet.tag?.tag ?? 0);
+        r.tagUpdate?.put(packet.tag?.tagUpdate ?? 0);
+        r.tagMatch?.put(packet.tag?.tagMatch ?? 0);
+        r.comp?.put(packet.tag?.comp ?? 0);
+        r.persist?.put(packet.tag?.persist ?? 0);
+        r.trace?.put(packet.debug?.trace ?? 0);
+        r.loop?.put(packet.debug?.loop ?? 0);
+        r.resp?.put(packet.response?.resp ?? 0);
+        r.busy?.put(packet.response?.busy ?? 0);
+        r.chunkEn?.put(packet.chunk?.chunkEn ?? 0);
+        r.chunkV?.put(packet.chunk?.chunkV ?? 0);
+        r.chunkNum?.put(packet.chunk?.chunkNum ?? 0);
+        r.chunkStrb?.put(packet.chunk?.chunkStrb ?? 0);
+        r.user?.put(packet.user?.user ?? 0);
+      });
 
-    // TODO: handle credited!
-
-    // need to hold the request until receiver is ready
-    await sys.clk.nextPosedge;
-    if (!r.ready!.previousValue!.toBool()) {
-      await r.ready!.nextPosedge;
+      // need to hold the request until receiver is ready
+      await sys.clk.nextPosedge;
+      if (!r.ready!.previousValue!.toBool()) {
+        await r.ready!.nextPosedge;
+      }
     }
 
     // now we can release the request
@@ -486,8 +484,6 @@ class Axi5RChannelDriver extends PendingClockedDriver<Axi5RChannelPacket> {
     });
   }
 }
-
-// TODO: handle multi beat data return
 
 /// A driver for the [Axi5WChannelInterface] interface.
 ///
@@ -550,28 +546,31 @@ class Axi5WChannelDriver extends PendingClockedDriver<Axi5WChannelPacket> {
     await _driveRequestPacket(packet);
   }
 
+  // TODO: handle credited!
+
   Future<void> _driveRequestPacket(Axi5WChannelPacket packet) async {
     await sys.clk.nextPosedge;
-    Simulator.injectAction(() {
-      w.valid.put(1);
-      w.data.put(packet.data.isNotEmpty ? packet.data[0].data : null);
-      w.last?.put(packet.data.isNotEmpty ? packet.data[0].last : null);
-      w.strb?.put(packet.data.isNotEmpty ? packet.data[0].strb : null);
-      w.poison?.put(packet.data.isNotEmpty ? packet.data[0].poison : null);
-      w.tag?.put(packet.tag?.tag);
-      w.tagUpdate?.put(packet.tag?.tagUpdate);
-      w.tagMatch?.put(packet.tag?.tagMatch);
-      w.trace?.put(packet.debug?.trace);
-      w.loop?.put(packet.debug?.loop);
-      w.user?.put(packet.user?.user);
-    });
+    for (var i = 0; i < packet.data.length; i++) {
+      Simulator.injectAction(() {
+        w.valid.put(1);
+        w.data.put(packet.data[i].data);
+        w.last?.put(packet.data[i].last ?? 1);
+        w.strb?.put(packet.data[i].strb ??
+            LogicValue.filled(w.strbWidth, LogicValue.one));
+        w.poison?.put(packet.data[i].poison ?? 0);
+        w.tag?.put(packet.tag?.tag ?? 0);
+        w.tagUpdate?.put(packet.tag?.tagUpdate ?? 0);
+        w.tagMatch?.put(packet.tag?.tagMatch ?? 0);
+        w.trace?.put(packet.debug?.trace ?? 0);
+        w.loop?.put(packet.debug?.loop ?? 0);
+        w.user?.put(packet.user?.user ?? 0);
+      });
 
-    // TODO: handle credited!
-
-    // need to hold the request until receiver is ready
-    await sys.clk.nextPosedge;
-    if (!w.ready!.previousValue!.toBool()) {
-      await w.ready!.nextPosedge;
+      // need to hold the request until receiver is ready
+      await sys.clk.nextPosedge;
+      if (!w.ready!.previousValue!.toBool()) {
+        await w.ready!.nextPosedge;
+      }
     }
 
     // now we can release the request
@@ -650,18 +649,18 @@ class Axi5BChannelDriver extends PendingClockedDriver<Axi5BChannelPacket> {
     await sys.clk.nextPosedge;
     Simulator.injectAction(() {
       b.valid.put(1);
-      b.id?.put(packet.id?.id);
-      b.idUnq?.put(packet.id?.idUnq);
-      b.tag?.put(packet.tag?.tag);
-      b.tagUpdate?.put(packet.tag?.tagUpdate);
-      b.tagMatch?.put(packet.tag?.tagMatch);
-      b.comp?.put(packet.tag?.comp);
-      b.persist?.put(packet.tag?.persist);
-      b.trace?.put(packet.debug?.trace);
-      b.loop?.put(packet.debug?.loop);
+      b.id?.put(packet.id?.id ?? 0);
+      b.idUnq?.put(packet.id?.idUnq ?? 0);
+      b.tag?.put(packet.tag?.tag ?? 0);
+      b.tagUpdate?.put(packet.tag?.tagUpdate ?? 0);
+      b.tagMatch?.put(packet.tag?.tagMatch ?? 0);
+      b.comp?.put(packet.tag?.comp ?? 0);
+      b.persist?.put(packet.tag?.persist ?? 0);
+      b.trace?.put(packet.debug?.trace ?? 0);
+      b.loop?.put(packet.debug?.loop ?? 0);
       b.resp!.put(packet.response.resp ?? 0);
       b.busy!.put(packet.response.busy ?? 0);
-      b.user?.put(packet.user?.user);
+      b.user?.put(packet.user?.user ?? 0);
     });
 
     // TODO: handle credited!
@@ -742,8 +741,8 @@ class Axi5AcChannelDriver extends PendingClockedDriver<Axi5AcChannelPacket> {
       ac.valid.put(1);
       ac.addr?.put(packet.addr);
       ac.vmidExt?.put(packet.vmidExt);
-      ac.trace?.put(packet.debug?.trace);
-      ac.loop?.put(packet.debug?.loop);
+      ac.trace?.put(packet.debug?.trace ?? 0);
+      ac.loop?.put(packet.debug?.loop ?? 0);
     });
 
     // need to hold the request until receiver is ready
@@ -817,8 +816,8 @@ class Axi5CrChannelDriver extends PendingClockedDriver<Axi5CrChannelPacket> {
     await sys.clk.nextPosedge;
     Simulator.injectAction(() {
       cr.valid.put(1);
-      cr.trace?.put(packet.debug?.trace);
-      cr.loop?.put(packet.debug?.loop);
+      cr.trace?.put(packet.debug?.trace ?? 0);
+      cr.loop?.put(packet.debug?.loop ?? 0);
     });
 
     // need to hold the request until receiver is ready

@@ -8,6 +8,7 @@
 // Author: Josh Kimmel <joshua1.kimmel@intel.com>
 
 import 'dart:async';
+import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
 import 'package:rohd_vf/rohd_vf.dart';
 
@@ -231,8 +232,6 @@ class Axi5AwChannelMonitor extends Monitor<Axi5AwChannelPacket> {
   }
 }
 
-// TODO: handle multi data beats!!
-
 /// A monitor for [Axi5RChannelInterface]s.
 class Axi5RChannelMonitor extends Monitor<Axi5RChannelPacket> {
   /// AXI5 System Interface.
@@ -240,6 +239,10 @@ class Axi5RChannelMonitor extends Monitor<Axi5RChannelPacket> {
 
   /// AXI5 Read Data Interface.
   final Axi5RChannelInterface r;
+
+  // to cache beats of data
+  final List<LogicValue> _dataBuffer = [];
+  final List<LogicValue> _poisonBuffer = [];
 
   /// Creates a new [Axi5RChannelMonitor] on [r].
   Axi5RChannelMonitor(
@@ -255,6 +258,12 @@ class Axi5RChannelMonitor extends Monitor<Axi5RChannelPacket> {
 
     await sys.resetN.nextPosedge;
 
+    // on reset, clear all buffers
+    sys.resetN.negedge.listen((event) {
+      _dataBuffer.clear();
+      _poisonBuffer.clear();
+    });
+
     // TODO: handle credited!!
 
     sys.clk.posedge.listen((event) {
@@ -262,46 +271,59 @@ class Axi5RChannelMonitor extends Monitor<Axi5RChannelPacket> {
           r.ready!.previousValue!.isValid &&
           r.valid.previousValue!.toBool() &&
           r.ready!.previousValue!.toBool()) {
-        add(Axi5RChannelPacket(
-          data: [
-            Axi5DataSignalsStruct(
-              data: r.data.value.toInt(),
-              last: r.last?.value.toBool(),
-              strb: r.strb?.value.toInt(),
-              poison: r.poison?.value.toInt(),
-            ),
-          ],
-          id: r.id != null
-              ? Axi5IdSignalsStruct(
-                  id: r.id?.value.toInt(), idUnq: r.idUnq?.value.toBool())
-              : null,
-          tag: r.tag != null
-              ? Axi5MemRespDataTagSignalsStruct(
-                  tag: r.tag?.value.toInt(),
-                  tagUpdate: r.tagUpdate?.value.toInt(),
-                  tagMatch: r.tagMatch?.value.toInt(),
-                  comp: r.comp?.value.toBool(),
-                  persist: r.persist?.value.toBool(),
-                )
-              : null,
-          debug: Axi5DebugSignalsStruct(
-              trace: r.trace?.value.toBool(), loop: r.loop?.value.toInt()),
-          response: r.resp != null || r.busy != null
-              ? Axi5ResponseSignalsStruct(
-                  resp: r.resp?.value.toInt(), busy: r.busy?.value.toBool())
-              : null,
-          chunk: r.chunkEn != null
-              ? Axi5ChunkSignalsStruct(
-                  chunkEn: r.chunkEn?.value.toBool(),
-                  chunkV: r.chunkV?.value.toBool(),
-                  chunkNum: r.chunkNum?.value.toInt(),
-                  chunkStrb: r.chunkStrb?.value.toInt(),
-                )
-              : null,
-          user: r.user != null
-              ? Axi5UserSignalsStruct(user: r.user?.value.toInt())
-              : null,
-        ));
+        _dataBuffer.add(r.data.value);
+        if (r.poison != null) {
+          _poisonBuffer.add(r.poison!.value);
+        }
+
+        // capture if the last beat in the transfer
+        final lastChk1 = r.last == null;
+        final lastChk2 =
+            !lastChk1 && (r.last!.value.isValid && r.last!.value.toBool());
+        if (lastChk1 || lastChk2) {
+          final dataPkts = <Axi5DataSignalsStruct>[];
+          for (var i = 0; i < _dataBuffer.length; i++) {
+            dataPkts.add(Axi5DataSignalsStruct(
+              data: _dataBuffer[i].toInt(),
+              last: i == dataPkts.length - 1,
+              poison:
+                  i < _poisonBuffer.length ? _poisonBuffer[i].toInt() : null,
+            ));
+          }
+          add(Axi5RChannelPacket(
+            data: dataPkts,
+            id: r.id != null
+                ? Axi5IdSignalsStruct(
+                    id: r.id?.value.toInt(), idUnq: r.idUnq?.value.toBool())
+                : null,
+            tag: r.tag != null
+                ? Axi5MemRespDataTagSignalsStruct(
+                    tag: r.tag?.value.toInt(),
+                    tagUpdate: r.tagUpdate?.value.toInt(),
+                    tagMatch: r.tagMatch?.value.toInt(),
+                    comp: r.comp?.value.toBool(),
+                    persist: r.persist?.value.toBool(),
+                  )
+                : null,
+            debug: Axi5DebugSignalsStruct(
+                trace: r.trace?.value.toBool(), loop: r.loop?.value.toInt()),
+            response: r.resp != null || r.busy != null
+                ? Axi5ResponseSignalsStruct(
+                    resp: r.resp?.value.toInt(), busy: r.busy?.value.toBool())
+                : null,
+            chunk: r.chunkEn != null
+                ? Axi5ChunkSignalsStruct(
+                    chunkEn: r.chunkEn?.value.toBool(),
+                    chunkV: r.chunkV?.value.toBool(),
+                    chunkNum: r.chunkNum?.value.toInt(),
+                    chunkStrb: r.chunkStrb?.value.toInt(),
+                  )
+                : null,
+            user: r.user != null
+                ? Axi5UserSignalsStruct(user: r.user?.value.toInt())
+                : null,
+          ));
+        }
       }
     });
   }
@@ -317,6 +339,11 @@ class Axi5WChannelMonitor extends Monitor<Axi5WChannelPacket> {
   /// AXI5 Write Data Interface.
   final Axi5WChannelInterface w;
 
+  // to cache beats of data
+  final List<LogicValue> _dataBuffer = [];
+  final List<LogicValue> _strbBuffer = [];
+  final List<LogicValue> _poisonBuffer = [];
+
   /// Creates a new [Axi5WChannelMonitor] on [w].
   Axi5WChannelMonitor(
       {required this.sys,
@@ -329,6 +356,13 @@ class Axi5WChannelMonitor extends Monitor<Axi5WChannelPacket> {
   Future<void> run(Phase phase) async {
     unawaited(super.run(phase));
 
+    // on reset, clear all buffers
+    sys.resetN.negedge.listen((event) {
+      _dataBuffer.clear();
+      _strbBuffer.clear();
+      _poisonBuffer.clear();
+    });
+
     await sys.resetN.nextPosedge;
 
     // TODO: handle credited!!
@@ -338,30 +372,48 @@ class Axi5WChannelMonitor extends Monitor<Axi5WChannelPacket> {
           w.ready!.previousValue!.isValid &&
           w.valid.previousValue!.toBool() &&
           w.ready!.previousValue!.toBool()) {
-        add(Axi5WChannelPacket(
-          data: [
-            Axi5DataSignalsStruct(
-              data: w.data.value.toInt(),
-              last: w.last?.value.toBool(),
-              strb: w.strb?.value.toInt(),
-              poison: w.poison?.value.toInt(),
-            ),
-          ],
-          tag: w.tag != null
-              ? Axi5MemRespDataTagSignalsStruct(
-                  tag: w.tag?.value.toInt(),
-                  tagUpdate: w.tagUpdate?.value.toInt(),
-                  tagMatch: w.tagMatch?.value.toInt(),
-                  comp: w.comp?.value.toBool(),
-                  persist: w.persist?.value.toBool(),
-                )
-              : null,
-          debug: Axi5DebugSignalsStruct(
-              trace: w.trace?.value.toBool(), loop: w.loop?.value.toInt()),
-          user: w.user != null
-              ? Axi5UserSignalsStruct(user: w.user?.value.toInt())
-              : null,
-        ));
+        _dataBuffer.add(w.data.value);
+        if (w.strb != null) {
+          _strbBuffer.add(w.strb!.value);
+        }
+        if (w.poison != null) {
+          _poisonBuffer.add(w.poison!.value);
+        }
+
+        // capture if the last beat in the transfer
+        final lastChk1 = w.last == null;
+        final lastChk2 =
+            !lastChk1 && (w.last!.value.isValid && w.last!.value.toBool());
+        if (lastChk1 || lastChk2) {
+          final dataPkts = <Axi5DataSignalsStruct>[];
+          for (var i = 0; i < _dataBuffer.length; i++) {
+            dataPkts.add(Axi5DataSignalsStruct(
+              data: _dataBuffer[i].toInt(),
+              last: i == dataPkts.length - 1,
+              strb: i < _strbBuffer.length ? _strbBuffer[i].toInt() : null,
+              poison:
+                  i < _poisonBuffer.length ? _poisonBuffer[i].toInt() : null,
+            ));
+          }
+
+          add(Axi5WChannelPacket(
+            data: dataPkts,
+            tag: w.tag != null
+                ? Axi5MemRespDataTagSignalsStruct(
+                    tag: w.tag?.value.toInt(),
+                    tagUpdate: w.tagUpdate?.value.toInt(),
+                    tagMatch: w.tagMatch?.value.toInt(),
+                    comp: w.comp?.value.toBool(),
+                    persist: w.persist?.value.toBool(),
+                  )
+                : null,
+            debug: Axi5DebugSignalsStruct(
+                trace: w.trace?.value.toBool(), loop: w.loop?.value.toInt()),
+            user: w.user != null
+                ? Axi5UserSignalsStruct(user: w.user?.value.toInt())
+                : null,
+          ));
+        }
       }
     });
   }
