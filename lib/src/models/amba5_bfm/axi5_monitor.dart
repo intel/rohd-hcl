@@ -13,15 +13,15 @@ import 'package:rohd_hcl/rohd_hcl.dart';
 import 'package:rohd_vf/rohd_vf.dart';
 
 /// A monitor for [Axi5ArChannelInterface]s.
-class Axi5RequestChannelMonitor extends Monitor<Axi5ArChannelPacket> {
+class Axi5ArChannelMonitor extends Monitor<Axi5ArChannelPacket> {
   /// AXI5 System Interface.
   final Axi5SystemInterface sys;
 
   /// AXI5 Read Interface.
   final Axi5ArChannelInterface ar;
 
-  /// Creates a new [Axi5RequestChannelMonitor] on [ar].
-  Axi5RequestChannelMonitor(
+  /// Creates a new [Axi5ArChannelMonitor] on [ar].
+  Axi5ArChannelMonitor(
       {required this.sys,
       required this.ar,
       required Component parent,
@@ -328,8 +328,6 @@ class Axi5RChannelMonitor extends Monitor<Axi5RChannelPacket> {
     });
   }
 }
-
-// TODO: handle multi data beats!!
 
 /// A monitor for [Axi5WChannelInterface]s.
 class Axi5WChannelMonitor extends Monitor<Axi5WChannelPacket> {
