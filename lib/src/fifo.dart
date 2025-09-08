@@ -17,7 +17,7 @@ import 'package:rohd_vf/rohd_vf.dart';
 /// A module [Fifo] implementing a simple FIFO (First In, First Out) buffer.
 ///
 /// Supports a bypass if [Fifo] is empty and written & read at the same time.
-class Fifo extends Module {
+class Fifo<LogicType extends Logic> extends Module {
   /// High if the entire FIFO is full and it cannot accept any more new items.
   Logic get full => output('full');
 
@@ -27,7 +27,7 @@ class Fifo extends Module {
   /// Read data for the next item in [Fifo]
   ///
   /// This data is visible even when not actively removing from [Fifo].
-  Logic get readData => output('readData');
+  late final LogicType readData;
 
   /// High if an error condition is reached.
   ///
@@ -88,7 +88,7 @@ class Fifo extends Module {
   /// may be either [Logic]s or constants compatible with [LogicValue.of].
   Fifo(Logic clk, Logic reset,
       {required Logic writeEnable,
-      required Logic writeData,
+      required LogicType writeData,
       required Logic readEnable,
       required this.depth,
       this.generateError = false,
@@ -117,9 +117,10 @@ class Fifo extends Module {
 
     // set up read/write ports
     addInput('writeEnable', writeEnable);
-    addInput('writeData', writeData, width: dataWidth);
+    addTypedInput('writeData', writeData);
     addInput('readEnable', readEnable);
-    addOutput('readData', width: dataWidth);
+    readData = addTypedOutput(
+        'readData', writeData.clone as LogicType Function({String? name}));
 
     // set up info ports
     addOutput('full');
