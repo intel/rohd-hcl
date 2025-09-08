@@ -24,8 +24,8 @@ mixin ResettableEntries on Module {
   /// - [List]: each entry can have a different reset value, corresponding to
   ///   the index in the list.
   /// - [Map<int, dynamic>]: each entry can have a different reset value,
-  ///   specified by the key-value pairs in the map. Unspecified entries will
-  ///   get the default of `0`.
+  ///   specified by the key-value (key is index) pairs in the map. Unspecified
+  ///   entries will get the default of `0`.
   /// - `null`: all reset values are the same with the default of `0`.
   ///
   /// For types that include a [Logic], proper [input] ports are created.

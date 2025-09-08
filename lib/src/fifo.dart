@@ -78,6 +78,7 @@ class Fifo extends Module {
   /// The address width for elements in the storage of this [Fifo].
   final int _addrWidth;
 
+  /// The first initial values of the [Fifo], if any.
   late final List<Logic> _initialValues;
 
   /// Constructs a [Fifo] with [RegisterFile]-based storage.
