@@ -11,9 +11,9 @@ import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
 
 /// A config object for constructing an ACE5-Lite5 AW channel.
-class Ace5AwChannelConfig extends Axi5BaseAwChannelConfig {
+class Ace5LiteAwChannelConfig extends Axi5BaseAwChannelConfig {
   /// Constructor.
-  Ace5AwChannelConfig({
+  Ace5LiteAwChannelConfig({
     super.userWidth = 32,
     super.idWidth = 4,
     super.useIdUnq = false,
@@ -73,6 +73,46 @@ class Ace5LiteAwChannelInterface extends Axi5AwChannelInterface {
           sharedCredits: false,
           numRp: 0,
         );
+
+  /// Copy Constructor.
+  @override
+  Ace5LiteAwChannelInterface clone() => Ace5LiteAwChannelInterface(
+        config: Ace5LiteAwChannelConfig(
+          userWidth: userWidth,
+          idWidth: idWidth,
+          useIdUnq: useIdUnq,
+          tracePresent: tracePresent,
+          loopWidth: loopWidth,
+          addrWidth: addrWidth,
+          lenWidth: lenWidth,
+          useLock: useLock,
+          snpWidth: snpWidth,
+          rmeSupport: rmeSupport,
+          mecIdWidth: mecIdWidth,
+          mpamWidth: mpamWidth,
+          useTagging: useTagging,
+          secSidWidth: secSidWidth,
+          sidWidth: sidWidth,
+          ssidWidth: ssidWidth,
+          useNsaId: useNsaId,
+          usePbha: usePbha,
+          subSysIdWidth: subSysIdWidth,
+          useFlow: useFlow,
+          domainWidth: domainWidth,
+          stashNidPresent: stashNidPresent,
+          stashLPidPresent: stashLPidPresent,
+          cmoWidth: cmoWidth,
+        ),
+        userMixInEnable: userMixInEnable,
+        idMixInEnable: idMixInEnable,
+        tagMixInEnable: tagMixInEnable,
+        debugMixInEnable: debugMixInEnable,
+        atomicMixInEnable: atomicMixInEnable,
+        mmuMixInEnable: mmuMixInEnable,
+        qualMixInEnable: qualMixInEnable,
+        opcodeMixInEnable: opcodeMixInEnable,
+        stashMixInEnable: stashMixInEnable,
+      );
 }
 
 /// A config object for constructing an ACE5-Lite AR channel.
@@ -139,6 +179,45 @@ class Ace5LiteArChannelInterface extends Axi5ArChannelInterface {
           sharedCredits: false,
           numRp: 0,
         );
+
+  /// Copy Constructor.
+  @override
+  Ace5LiteArChannelInterface clone() => Ace5LiteArChannelInterface(
+        config: Ace5LiteArChannelConfig(
+          userWidth: userWidth,
+          idWidth: idWidth,
+          useIdUnq: useIdUnq,
+          tracePresent: tracePresent,
+          loopWidth: loopWidth,
+          chunkNumWidth: chunkNumWidth,
+          chunkStrbWidth: chunkStrbWidth,
+          addrWidth: addrWidth,
+          lenWidth: lenWidth,
+          useLock: useLock,
+          snpWidth: snpWidth,
+          rmeSupport: rmeSupport,
+          mecIdWidth: mecIdWidth,
+          atopWidth: atOpWidth,
+          mpamWidth: mpamWidth,
+          useTagging: useTagging,
+          secSidWidth: secSidWidth,
+          sidWidth: sidWidth,
+          ssidWidth: ssidWidth,
+          useNsaId: useNsaId,
+          usePbha: usePbha,
+          subSysIdWidth: subSysIdWidth,
+          useFlow: useFlow,
+        ),
+        userMixInEnable: userMixInEnable,
+        idMixInEnable: idMixInEnable,
+        tagMixInEnable: tagMixInEnable,
+        debugMixInEnable: debugMixInEnable,
+        chunkMixInEnable: chunkMixInEnable,
+        atomicMixInEnable: atomicMixInEnable,
+        mmuMixInEnable: mmuMixInEnable,
+        qualMixInEnable: qualMixInEnable,
+        opcodeMixInEnable: opcodeMixInEnable,
+      );
 }
 
 /// A config object for constructing an ACE-5 W channel.
@@ -172,6 +251,26 @@ class Ace5LiteWChannelInterface extends Axi5WChannelInterface {
           sharedCredits: false,
           numRp: 0,
         );
+
+  /// Copy Constructor.
+  @override
+  Ace5LiteWChannelInterface clone() => Ace5LiteWChannelInterface(
+        config: Ace5LiteWChannelConfig(
+            userWidth: userWidth,
+            useTag: useTag,
+            tagDataWidth: tagDataWidth,
+            useTagUpdate: useTagUpdate,
+            useTagMatch: useTagMatch,
+            tracePresent: tracePresent,
+            loopWidth: loopWidth,
+            dataWidth: dataWidth,
+            useLast: useLast,
+            usePoison: usePoison,
+            strbWidth: strbWidth),
+        userMixInEnable: userMixInEnable,
+        tagMixInEnable: tagMixInEnable,
+        debugMixInEnable: debugMixInEnable,
+      );
 }
 
 /// A config object for constructing an ACE5-Lite R channel.
@@ -212,6 +311,32 @@ class Ace5LiteRChannelInterface extends Axi5RChannelInterface {
           sharedCredits: false,
           numRp: 0,
         );
+
+  /// Copy Constructor.
+  @override
+  Ace5LiteRChannelInterface clone() => Ace5LiteRChannelInterface(
+      config: Ace5LiteRChannelConfig(
+          userWidth: userWidth,
+          idWidth: idWidth,
+          useIdUnq: useIdUnq,
+          useTag: useTag,
+          tagDataWidth: tagDataWidth,
+          useTagUpdate: useTagUpdate,
+          useTagMatch: useTagMatch,
+          tracePresent: tracePresent,
+          loopWidth: loopWidth,
+          useBusy: useBusy,
+          respWidth: respWidth,
+          dataWidth: dataWidth,
+          useLast: useLast,
+          chunkNumWidth: chunkNumWidth,
+          chunkStrbWidth: chunkStrbWidth,
+          usePoison: usePoison),
+      userMixInEnable: userMixInEnable,
+      tagMixInEnable: tagMixInEnable,
+      debugMixInEnable: debugMixInEnable,
+      chunkMixInEnable: chunkMixInEnable,
+      responseMixInEnable: responseMixInEnable);
 }
 
 /// A config object for constructor an AXI5 B channel.
@@ -245,6 +370,25 @@ class Ace5LiteBChannelInterface extends Axi5BChannelInterface {
           sharedCredits: false,
           numRp: 0,
         );
+
+  /// Copy Constructor.
+  @override
+  Ace5LiteBChannelInterface clone() => Ace5LiteBChannelInterface(
+      config: Ace5LiteBChannelConfig(
+          userWidth: userWidth,
+          idWidth: idWidth,
+          useIdUnq: useIdUnq,
+          useTag: useTag,
+          tagDataWidth: tagDataWidth,
+          useTagUpdate: useTagUpdate,
+          useTagMatch: useTagMatch,
+          tracePresent: tracePresent,
+          loopWidth: loopWidth,
+          useBusy: useBusy,
+          respWidth: respWidth),
+      userMixInEnable: userMixInEnable,
+      tagMixInEnable: tagMixInEnable,
+      debugMixInEnable: debugMixInEnable);
 }
 
 /// Grouping of read channels.
@@ -260,6 +404,12 @@ class Ace5LiteReadCluster extends PairInterface {
     addSubInterface('AR', ar);
     addSubInterface('R', r);
   }
+
+  /// Copy constructor.
+  Ace5LiteReadCluster clone() => Ace5LiteReadCluster(
+        ar: ar.clone(),
+        r: r.clone(),
+      );
 }
 
 /// Grouping of write channels.
@@ -279,6 +429,13 @@ class Ace5LiteWriteCluster extends PairInterface {
     addSubInterface('W', w);
     addSubInterface('B', b);
   }
+
+  /// Copy constructor.
+  Ace5LiteWriteCluster clone() => Ace5LiteWriteCluster(
+        aw: aw.clone(),
+        w: w.clone(),
+        b: b.clone(),
+      );
 }
 
 /// Grouping of all channels.
@@ -294,4 +451,10 @@ class Ace5LiteCluster extends PairInterface {
     addSubInterface('READ', read);
     addSubInterface('WRITE', write);
   }
+
+  /// Copy constructor.
+  Ace5LiteCluster clone() => Ace5LiteCluster(
+        write: write.clone(),
+        read: read.clone(),
+      );
 }

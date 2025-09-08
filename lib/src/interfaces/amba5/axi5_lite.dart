@@ -72,6 +72,22 @@ class Axi5LiteAwChannelInterface extends Axi5AwChannelInterface {
             qualMixInEnable: false,
             tagMixInEnable: false,
             opcodeMixInEnable: false);
+
+  /// Copy Constructor.
+  @override
+  Axi5LiteAwChannelInterface clone() => Axi5LiteAwChannelInterface(
+        config: Axi5LiteAwChannelConfig(
+          userWidth: userWidth,
+          idWidth: idWidth,
+          useIdUnq: useIdUnq,
+          tracePresent: tracePresent,
+          addrWidth: addrWidth,
+          subSysIdWidth: subSysIdWidth,
+        ),
+        userMixInEnable: userMixInEnable,
+        idMixInEnable: idMixInEnable,
+        debugMixInEnable: debugMixInEnable,
+      );
 }
 
 /// A config object for constructing an AXI5 AR channel.
@@ -132,6 +148,22 @@ class Axi5LiteArChannelInterface extends Axi5ArChannelInterface {
             qualMixInEnable: false,
             tagMixInEnable: false,
             opcodeMixInEnable: false);
+
+  /// Copy Constructor.
+  @override
+  Axi5LiteArChannelInterface clone() => Axi5LiteArChannelInterface(
+        config: Axi5LiteArChannelConfig(
+          userWidth: userWidth,
+          idWidth: idWidth,
+          useIdUnq: useIdUnq,
+          tracePresent: tracePresent,
+          addrWidth: addrWidth,
+          subSysIdWidth: subSysIdWidth,
+        ),
+        userMixInEnable: userMixInEnable,
+        idMixInEnable: idMixInEnable,
+        debugMixInEnable: debugMixInEnable,
+      );
 }
 
 /// A config object for constructing an AXI5 W channel.
@@ -163,6 +195,19 @@ class Axi5LiteWChannelInterface extends Axi5WChannelInterface {
             sharedCredits: false,
             numRp: 0,
             tagMixInEnable: false);
+
+  /// Copy Constructor.
+  @override
+  Axi5LiteWChannelInterface clone() => Axi5LiteWChannelInterface(
+        config: Axi5LiteWChannelConfig(
+          userWidth: userWidth,
+          tracePresent: tracePresent,
+          dataWidth: dataWidth,
+          usePoison: usePoison,
+        ),
+        userMixInEnable: userMixInEnable,
+        debugMixInEnable: debugMixInEnable,
+      );
 }
 
 /// A config object for constructing an AXI5 R channel.
@@ -204,6 +249,21 @@ class Axi5LiteRChannelInterface extends Axi5RChannelInterface {
             numRp: 0,
             tagMixInEnable: false,
             chunkMixInEnable: false);
+
+  /// Copy Constructor.
+  @override
+  Axi5LiteRChannelInterface clone() => Axi5LiteRChannelInterface(
+      config: Axi5LiteRChannelConfig(
+          userWidth: userWidth,
+          idWidth: idWidth,
+          useIdUnq: useIdUnq,
+          tracePresent: tracePresent,
+          respWidth: respWidth,
+          dataWidth: dataWidth,
+          usePoison: usePoison),
+      userMixInEnable: userMixInEnable,
+      debugMixInEnable: debugMixInEnable,
+      responseMixInEnable: responseMixInEnable);
 }
 
 /// A config object for constructor an AXI5 B channel.
@@ -238,6 +298,18 @@ class Axi5LiteBChannelInterface extends Axi5BChannelInterface {
           numRp: 0,
           tagMixInEnable: false,
         );
+
+  /// Copy Constructor.
+  @override
+  Axi5LiteBChannelInterface clone() => Axi5LiteBChannelInterface(
+      config: Axi5LiteBChannelConfig(
+          userWidth: userWidth,
+          idWidth: idWidth,
+          useIdUnq: useIdUnq,
+          tracePresent: tracePresent,
+          respWidth: respWidth),
+      userMixInEnable: userMixInEnable,
+      debugMixInEnable: debugMixInEnable);
 }
 
 /// Grouping of read channels.
@@ -253,6 +325,12 @@ class Axi5LiteReadCluster extends PairInterface {
     addSubInterface('AR', ar);
     addSubInterface('R', r);
   }
+
+  /// Copy constructor.
+  Axi5LiteReadCluster clone() => Axi5LiteReadCluster(
+        ar: ar.clone(),
+        r: r.clone(),
+      );
 }
 
 /// Grouping of write channels.
@@ -272,6 +350,13 @@ class Axi5LiteWriteCluster extends PairInterface {
     addSubInterface('W', w);
     addSubInterface('B', b);
   }
+
+  /// Copy constructor.
+  Axi5LiteWriteCluster clone() => Axi5LiteWriteCluster(
+        aw: aw.clone(),
+        w: w.clone(),
+        b: b.clone(),
+      );
 }
 
 /// Grouping of all channels.
@@ -287,4 +372,10 @@ class Axi5LiteCluster extends PairInterface {
     addSubInterface('READ', read);
     addSubInterface('WRITE', write);
   }
+
+  /// Copy constructor.
+  Axi5LiteCluster clone() => Axi5LiteCluster(
+        write: write.clone(),
+        read: read.clone(),
+      );
 }

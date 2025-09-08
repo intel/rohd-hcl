@@ -171,6 +171,12 @@ class Axi5ReadCluster extends PairInterface {
     addSubInterface('AR', ar);
     addSubInterface('R', r);
   }
+
+  /// Copy constructor.
+  Axi5ReadCluster clone() => Axi5ReadCluster(
+        ar: ar.clone(),
+        r: r.clone(),
+      );
 }
 
 /// Grouping of write channels.
@@ -190,6 +196,13 @@ class Axi5WriteCluster extends PairInterface {
     addSubInterface('W', w);
     addSubInterface('B', b);
   }
+
+  /// Copy constructor.
+  Axi5WriteCluster clone() => Axi5WriteCluster(
+        aw: aw.clone(),
+        w: w.clone(),
+        b: b.clone(),
+      );
 }
 
 /// Grouping of snoop channels.
@@ -205,6 +218,12 @@ class Axi5SnoopCluster extends PairInterface {
     addSubInterface('AC', ac);
     addSubInterface('CR', cr);
   }
+
+  /// Copy constructor.
+  Axi5SnoopCluster clone() => Axi5SnoopCluster(
+        ac: ac.clone(),
+        cr: cr.clone(),
+      );
 }
 
 /// Grouping of all channels.
@@ -224,4 +243,11 @@ class Axi5Cluster extends PairInterface {
     addSubInterface('WRITE', write);
     addSubInterface('SNOOP', snoop);
   }
+
+  /// Copy constructor.
+  Axi5Cluster clone() => Axi5Cluster(
+        write: write.clone(),
+        read: read.clone(),
+        snoop: snoop.clone(),
+      );
 }

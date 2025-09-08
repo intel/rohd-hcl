@@ -455,6 +455,53 @@ class Axi5AwChannelInterface extends Axi5TransportInterface
       makeOpcodePorts();
     }
   }
+
+  /// Copy Constructor.
+  Axi5AwChannelInterface clone() => Axi5AwChannelInterface(
+        config: Axi5AwChannelConfig(
+          userWidth: userWidth,
+          idWidth: idWidth,
+          useIdUnq: useIdUnq,
+          tracePresent: tracePresent,
+          loopWidth: loopWidth,
+          addrWidth: addrWidth,
+          lenWidth: lenWidth,
+          useLock: useLock,
+          snpWidth: snpWidth,
+          rmeSupport: rmeSupport,
+          instPrivPresent: instPrivPresent,
+          pasWidth: pasWidth,
+          mecIdWidth: mecIdWidth,
+          mpamWidth: mpamWidth,
+          useTagging: useTagging,
+          secSidWidth: secSidWidth,
+          sidWidth: sidWidth,
+          ssidWidth: ssidWidth,
+          useNsaId: useNsaId,
+          usePbha: usePbha,
+          actWidth: actWidth,
+          subSysIdWidth: subSysIdWidth,
+          useFlow: useFlow,
+          supportGdi: supportGdi,
+          supportRmeAndPasMmu: supportRmeAndPasMmu,
+          domainWidth: domainWidth,
+          stashNidPresent: stashNidPresent,
+          stashLPidPresent: stashLPidPresent,
+          cmoWidth: cmoWidth,
+        ),
+        useCrediting: useCrediting,
+        sharedCredits: sharedCredits,
+        numRp: numRp,
+        userMixInEnable: userMixInEnable,
+        idMixInEnable: idMixInEnable,
+        tagMixInEnable: tagMixInEnable,
+        debugMixInEnable: debugMixInEnable,
+        atomicMixInEnable: atomicMixInEnable,
+        mmuMixInEnable: mmuMixInEnable,
+        qualMixInEnable: qualMixInEnable,
+        opcodeMixInEnable: opcodeMixInEnable,
+        stashMixInEnable: stashMixInEnable,
+      );
 }
 
 /// A config object for constructing an AXI5 AR channel.
@@ -804,6 +851,52 @@ class Axi5ArChannelInterface extends Axi5TransportInterface
       makeOpcodePorts();
     }
   }
+
+  /// Copy Constructor.
+  Axi5ArChannelInterface clone() => Axi5ArChannelInterface(
+        config: Axi5ArChannelConfig(
+          userWidth: userWidth,
+          idWidth: idWidth,
+          useIdUnq: useIdUnq,
+          tracePresent: tracePresent,
+          loopWidth: loopWidth,
+          chunkNumWidth: chunkNumWidth,
+          chunkStrbWidth: chunkStrbWidth,
+          addrWidth: addrWidth,
+          lenWidth: lenWidth,
+          useLock: useLock,
+          snpWidth: snpWidth,
+          rmeSupport: rmeSupport,
+          instPrivPresent: instPrivPresent,
+          pasWidth: pasWidth,
+          mecIdWidth: mecIdWidth,
+          atopWidth: atOpWidth,
+          mpamWidth: mpamWidth,
+          useTagging: useTagging,
+          secSidWidth: secSidWidth,
+          sidWidth: sidWidth,
+          ssidWidth: ssidWidth,
+          useNsaId: useNsaId,
+          usePbha: usePbha,
+          actWidth: actWidth,
+          subSysIdWidth: subSysIdWidth,
+          useFlow: useFlow,
+          supportGdi: supportGdi,
+          supportRmeAndPasMmu: supportRmeAndPasMmu,
+        ),
+        useCrediting: useCrediting,
+        sharedCredits: sharedCredits,
+        numRp: numRp,
+        userMixInEnable: userMixInEnable,
+        idMixInEnable: idMixInEnable,
+        tagMixInEnable: tagMixInEnable,
+        debugMixInEnable: debugMixInEnable,
+        chunkMixInEnable: chunkMixInEnable,
+        atomicMixInEnable: atomicMixInEnable,
+        mmuMixInEnable: mmuMixInEnable,
+        qualMixInEnable: qualMixInEnable,
+        opcodeMixInEnable: opcodeMixInEnable,
+      );
 }
 
 /// A config object for constructing an AXI5 W channel.
@@ -942,6 +1035,29 @@ class Axi5WChannelInterface extends Axi5TransportInterface
       makeUserPorts();
     }
   }
+
+  /// Copy Constructor.
+  Axi5WChannelInterface clone() => Axi5WChannelInterface(
+        config: Axi5WChannelConfig(
+            userWidth: userWidth,
+            useTag: useTag,
+            tagDataWidth: tagDataWidth,
+            useTagUpdate: useTagUpdate,
+            useTagMatch: useTagMatch,
+            tracePresent: tracePresent,
+            loopWidth: loopWidth,
+            dataWidth: dataWidth,
+            useLast: useLast,
+            usePoison: usePoison,
+            strbWidth: strbWidth),
+        useCrediting: useCrediting,
+        sharedCredits: sharedCredits,
+        numRp: numRp,
+        userMixInEnable: userMixInEnable,
+        tagMixInEnable: tagMixInEnable,
+        debugMixInEnable: debugMixInEnable,
+        dataMixInEnable: dataMixInEnable,
+      );
 }
 
 /// A config object for constructing an AXI5 R channel.
@@ -1129,7 +1245,7 @@ class Axi5RChannelInterface extends Axi5TransportInterface
         useBusy = config.useBusy,
         chunkNumWidth = config.chunkNumWidth,
         chunkStrbWidth = config.chunkStrbWidth,
-        strbWidth = config.strbWidth,
+        strbWidth = 0,
         usePoison = config.usePoison,
         super(prefix: 'R', main: false) {
     makeDataPorts();
@@ -1151,6 +1267,36 @@ class Axi5RChannelInterface extends Axi5TransportInterface
       makeChunkPorts();
     }
   }
+
+  /// Copy Constructor.
+  Axi5RChannelInterface clone() => Axi5RChannelInterface(
+      config: Axi5RChannelConfig(
+          userWidth: userWidth,
+          idWidth: idWidth,
+          useIdUnq: useIdUnq,
+          useTag: useTag,
+          tagDataWidth: tagDataWidth,
+          useTagUpdate: useTagUpdate,
+          useTagMatch: useTagMatch,
+          tracePresent: tracePresent,
+          loopWidth: loopWidth,
+          useBusy: useBusy,
+          respWidth: respWidth,
+          dataWidth: dataWidth,
+          useLast: useLast,
+          chunkNumWidth: chunkNumWidth,
+          chunkStrbWidth: chunkStrbWidth,
+          usePoison: usePoison),
+      useCrediting: useCrediting,
+      sharedCredits: sharedCredits,
+      numRp: numRp,
+      userMixInEnable: userMixInEnable,
+      idMixInEnable: idMixInEnable,
+      tagMixInEnable: tagMixInEnable,
+      debugMixInEnable: debugMixInEnable,
+      dataMixInEnable: dataMixInEnable,
+      chunkMixInEnable: chunkMixInEnable,
+      responseMixInEnable: responseMixInEnable);
 }
 
 /// A config object for constructor an AXI5 B channel.
@@ -1293,6 +1439,28 @@ class Axi5BChannelInterface extends Axi5TransportInterface
       makeDebugPorts();
     }
   }
+
+  /// Copy Constructor.
+  Axi5BChannelInterface clone() => Axi5BChannelInterface(
+      config: Axi5BChannelConfig(
+          userWidth: userWidth,
+          idWidth: idWidth,
+          useIdUnq: useIdUnq,
+          useTag: useTag,
+          tagDataWidth: tagDataWidth,
+          useTagUpdate: useTagUpdate,
+          useTagMatch: useTagMatch,
+          tracePresent: tracePresent,
+          loopWidth: loopWidth,
+          useBusy: useBusy,
+          respWidth: respWidth),
+      useCrediting: useCrediting,
+      sharedCredits: sharedCredits,
+      numRp: numRp,
+      userMixInEnable: userMixInEnable,
+      idMixInEnable: idMixInEnable,
+      tagMixInEnable: tagMixInEnable,
+      debugMixInEnable: debugMixInEnable);
 }
 
 /// Basis for all possible AC channels.
@@ -1344,6 +1512,12 @@ class Axi5AcChannelInterface extends Axi5TransportInterface
       PairDirection.fromConsumer,
     ]);
   }
+
+  /// Copy Constructor.
+  Axi5AcChannelInterface clone() => Axi5AcChannelInterface(
+      debugMixInEnable: debugMixInEnable,
+      tracePresent: tracePresent,
+      addrWidth: addrWidth);
 }
 
 /// Basis for all possible CR channels.
@@ -1374,4 +1548,8 @@ class Axi5CrChannelInterface extends Axi5TransportInterface
       makeDebugPorts();
     }
   }
+
+  /// Copy Constructor.
+  Axi5CrChannelInterface clone() => Axi5CrChannelInterface(
+      debugMixInEnable: debugMixInEnable, tracePresent: tracePresent);
 }
