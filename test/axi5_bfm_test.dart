@@ -54,6 +54,7 @@ class SimpleAxi5MainBfm extends Agent {
         b: b,
         ac: ac,
         cr: cr,
+        useSnoop: ac != null && cr != null,
         parent: this);
   }
 
@@ -95,6 +96,7 @@ class SimpleAxi5MainBfm extends Agent {
             prot: Axi5ProtSignalsStruct(prot: Axi4ProtField.instruction.value),
             memAttr: Axi5MemoryAttributeSignalsStruct(
                 cache: Axi5CacheField.cacheable.value));
+        logger.info('Sending write request with ID ${nextWrite.id?.id ?? 0}');
         main.write.reqAgent.sequencer.add(nextWrite);
         await nextWrite.completed;
 
@@ -122,6 +124,7 @@ class SimpleAxi5MainBfm extends Agent {
             prot: Axi5ProtSignalsStruct(prot: Axi4ProtField.instruction.value),
             memAttr: Axi5MemoryAttributeSignalsStruct(
                 cache: Axi5CacheField.cacheable.value));
+        logger.info('Sending read request with ID ${nextRead.id?.id ?? 0}');
         main.read.reqAgent.sequencer.add(nextRead);
         await nextRead.completed;
       }
@@ -162,6 +165,7 @@ class SimpleAxi5SubordinateBfm extends Agent {
         b: b,
         ac: ac,
         cr: cr,
+        useSnoop: ac != null && cr != null,
         parent: this);
 
     storage = SparseMemoryStorage(
@@ -191,6 +195,11 @@ class SimpleAxi5SubordinateBfm extends Agent {
     await sub.sys.resetN.nextNegedge;
     await sub.sys.clk.waitCycles(10);
 
+    // clear any pending write requests on reset
+    sub.sys.resetN.negedge.listen((e) {
+      _wrReqs.clear();
+    });
+
     // establish a listener for write requests
     // just cache the request until we see its data
     sub.write.reqAgent.monitor.stream.listen((r) {
@@ -217,6 +226,7 @@ class SimpleAxi5SubordinateBfm extends Agent {
                 storage.dataWidth ~/ 8));
         storage.writeData(LogicValue.ofInt(targ, storage.addrWidth), strbData);
       }
+      _wrReqs.removeAt(0);
       final resp = Axi5BChannelPacket(
           response: Axi5ResponseSignalsStruct(resp: Axi5RespField.okay.value));
       sub.write.respAgent.sequencer.add(resp);
@@ -249,4 +259,247 @@ class SimpleAxi5SubordinateBfm extends Agent {
 
 // TODO: add BFMs for Axi5Stream when available
 
-// TODO: create a test that simply instantiates the two BFMs and lets them go...
+/// Test that instantiates simple main and subordinate BFMs
+/// and lets them send transactions back and forth.
+class Axi5BfmTest extends Test {
+  late final Axi5SystemInterface sIntf;
+  late final Type axiType;
+  late final dynamic cluster;
+
+  late final SimpleAxi5MainBfm main;
+  late final SimpleAxi5SubordinateBfm sub;
+
+  Axi5BfmTest(super.name, {this.axiType = Axi5Cluster})
+      : super(randomSeed: 123) {
+    const outFolder = 'gen/axi5_bfm';
+    Directory(outFolder).createSync(recursive: true);
+    sIntf = Axi5SystemInterface();
+    if (axiType == Axi5Cluster) {
+      final ar = Axi5ArChannelInterface(config: Axi5ArChannelConfig());
+      final r = Axi5RChannelInterface(config: Axi5RChannelConfig());
+      final aw = Axi5AwChannelInterface(config: Axi5AwChannelConfig());
+      final w = Axi5WChannelInterface(config: Axi5WChannelConfig());
+      final b = Axi5BChannelInterface(config: Axi5BChannelConfig());
+      final ac = Axi5AcChannelInterface();
+      final cr = Axi5CrChannelInterface();
+      cluster = Axi5Cluster(
+          read: Axi5ReadCluster(ar: ar, r: r),
+          write: Axi5WriteCluster(aw: aw, w: w, b: b),
+          snoop: Axi5SnoopCluster(ac: ac, cr: cr));
+      main = SimpleAxi5MainBfm(
+          sys: sIntf,
+          ar: ar,
+          aw: aw,
+          r: r,
+          w: w,
+          b: b,
+          ac: ac,
+          cr: cr,
+          parent: this);
+      sub = SimpleAxi5SubordinateBfm(
+          sys: sIntf,
+          ar: ar,
+          aw: aw,
+          r: r,
+          w: w,
+          b: b,
+          ac: ac,
+          cr: cr,
+          parent: this);
+
+      // tracker setup
+      final arTracker = Axi5ArChannelTracker(
+        dumpTable: false,
+        outputFolder: outFolder,
+      );
+      final awTracker = Axi5AwChannelTracker(
+        dumpTable: false,
+        outputFolder: outFolder,
+      );
+      final rTracker = Axi5RChannelTracker(
+        dumpTable: false,
+        outputFolder: outFolder,
+      );
+      final wTracker = Axi5WChannelTracker(
+        dumpTable: false,
+        outputFolder: outFolder,
+      );
+      final bTracker = Axi5BChannelTracker(
+        dumpTable: false,
+        outputFolder: outFolder,
+      );
+      final acTracker = Axi5AcChannelTracker(
+        dumpTable: false,
+        outputFolder: outFolder,
+      );
+      final crTracker = Axi5CrChannelTracker(
+        dumpTable: false,
+        outputFolder: outFolder,
+      );
+
+      Simulator.registerEndOfSimulationAction(() async {
+        await arTracker.terminate();
+        await awTracker.terminate();
+        await rTracker.terminate();
+        await wTracker.terminate();
+        await bTracker.terminate();
+        await acTracker.terminate();
+        await crTracker.terminate();
+      });
+
+      sub.sub.read.reqAgent.monitor.stream.listen(arTracker.record);
+      sub.sub.write.reqAgent.monitor.stream.listen(awTracker.record);
+      main.main.read.dataAgent.monitor.stream.listen(rTracker.record);
+      sub.sub.write.dataAgent.monitor.stream.listen(wTracker.record);
+      main.main.write.respAgent.monitor.stream.listen(bTracker.record);
+      main.main.snoop!.reqAgent.monitor.stream.listen(acTracker.record);
+      sub.sub.snoop!.respAgent.monitor.stream.listen(crTracker.record);
+    } else if (axiType == Axi5LiteCluster) {
+      final ar = Axi5LiteArChannelInterface(config: Axi5LiteArChannelConfig());
+      final r = Axi5LiteRChannelInterface(config: Axi5LiteRChannelConfig());
+      final aw = Axi5LiteAwChannelInterface(config: Axi5LiteAwChannelConfig());
+      final w = Axi5LiteWChannelInterface(config: Axi5LiteWChannelConfig());
+      final b = Axi5LiteBChannelInterface(config: Axi5LiteBChannelConfig());
+      cluster = Axi5LiteCluster(
+          read: Axi5LiteReadCluster(ar: ar, r: r),
+          write: Axi5LiteWriteCluster(aw: aw, w: w, b: b));
+      main = SimpleAxi5MainBfm(
+          sys: sIntf, ar: ar, aw: aw, r: r, w: w, b: b, parent: this);
+      sub = SimpleAxi5SubordinateBfm(
+          sys: sIntf, ar: ar, aw: aw, r: r, w: w, b: b, parent: this);
+
+      // tracker setup
+      final arTracker = Axi5ArChannelTracker(
+        dumpTable: false,
+        outputFolder: outFolder,
+      );
+      final awTracker = Axi5AwChannelTracker(
+        dumpTable: false,
+        outputFolder: outFolder,
+      );
+      final rTracker = Axi5RChannelTracker(
+        dumpTable: false,
+        outputFolder: outFolder,
+      );
+      final wTracker = Axi5WChannelTracker(
+        dumpTable: false,
+        outputFolder: outFolder,
+      );
+      final bTracker = Axi5BChannelTracker(
+        dumpTable: false,
+        outputFolder: outFolder,
+      );
+
+      Simulator.registerEndOfSimulationAction(() async {
+        await arTracker.terminate();
+        await awTracker.terminate();
+        await rTracker.terminate();
+        await wTracker.terminate();
+        await bTracker.terminate();
+      });
+
+      sub.sub.read.reqAgent.monitor.stream.listen(arTracker.record);
+      sub.sub.write.reqAgent.monitor.stream.listen(awTracker.record);
+      main.main.read.dataAgent.monitor.stream.listen(rTracker.record);
+      sub.sub.write.dataAgent.monitor.stream.listen(wTracker.record);
+      main.main.write.respAgent.monitor.stream.listen(bTracker.record);
+    } else if (axiType == Ace5LiteCluster) {
+      final ar = Ace5LiteArChannelInterface(config: Ace5LiteArChannelConfig());
+      final r = Ace5LiteRChannelInterface(config: Ace5LiteRChannelConfig());
+      final aw = Ace5LiteAwChannelInterface(config: Ace5LiteAwChannelConfig());
+      final w = Ace5LiteWChannelInterface(config: Ace5LiteWChannelConfig());
+      final b = Ace5LiteBChannelInterface(config: Ace5LiteBChannelConfig());
+      cluster = Ace5LiteCluster(
+          read: Ace5LiteReadCluster(ar: ar, r: r),
+          write: Ace5LiteWriteCluster(aw: aw, w: w, b: b));
+      main = SimpleAxi5MainBfm(
+          sys: sIntf, ar: ar, aw: aw, r: r, w: w, b: b, parent: this);
+      sub = SimpleAxi5SubordinateBfm(
+          sys: sIntf, ar: ar, aw: aw, r: r, w: w, b: b, parent: this);
+
+      // tracker setup
+      final arTracker = Axi5ArChannelTracker(
+        dumpTable: false,
+        outputFolder: outFolder,
+      );
+      final awTracker = Axi5AwChannelTracker(
+        dumpTable: false,
+        outputFolder: outFolder,
+      );
+      final rTracker = Axi5RChannelTracker(
+        dumpTable: false,
+        outputFolder: outFolder,
+      );
+      final wTracker = Axi5WChannelTracker(
+        dumpTable: false,
+        outputFolder: outFolder,
+      );
+      final bTracker = Axi5BChannelTracker(
+        dumpTable: false,
+        outputFolder: outFolder,
+      );
+
+      Simulator.registerEndOfSimulationAction(() async {
+        await arTracker.terminate();
+        await awTracker.terminate();
+        await rTracker.terminate();
+        await wTracker.terminate();
+        await bTracker.terminate();
+      });
+
+      sub.sub.read.reqAgent.monitor.stream.listen(arTracker.record);
+      sub.sub.write.reqAgent.monitor.stream.listen(awTracker.record);
+      main.main.read.dataAgent.monitor.stream.listen(rTracker.record);
+      sub.sub.write.dataAgent.monitor.stream.listen(wTracker.record);
+      main.main.write.respAgent.monitor.stream.listen(bTracker.record);
+    } else {
+      throw Exception('Invalid axiType: $axiType');
+    }
+  }
+
+  // Just run a reset flow to kick things off
+  @override
+  Future<void> run(Phase phase) async {
+    unawaited(super.run(phase));
+
+    final obj = phase.raiseObjection('axi5BfmTestObj');
+    await resetFlow();
+    obj.drop();
+  }
+
+  Future<void> resetFlow() async {
+    await sIntf.clk.waitCycles(2);
+    sIntf.resetN.inject(0);
+    await sIntf.clk.waitCycles(3);
+    sIntf.resetN.inject(1);
+  }
+}
+
+void main() {
+  tearDown(() async {
+    await Test.reset();
+  });
+
+  setUp(() async {
+    // Set the logger level
+    Logger.root.level = Level.INFO;
+  });
+
+  Future<void> runTest(Axi5BfmTest axi5BfmTest,
+      {bool dumpWaves = false}) async {
+    Simulator.setMaxSimTime(30000);
+
+    // TODO: set this up...
+    if (dumpWaves) {
+      // final mod = Axi4Subordinate(axi4BfmTest.sIntf, axi4BfmTest.lanes);
+      // await mod.build();
+      // WaveDumper(mod);
+    }
+
+    await axi5BfmTest.start();
+  }
+
+  test('simple run', () async {
+    await runTest(Axi5BfmTest('simple'), dumpWaves: true);
+  });
+}
