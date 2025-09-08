@@ -12,7 +12,7 @@ environment:
 dependencies:
   collection: ^1.18.0
   meta: ^1.9.1
-  rohd: ^0.6.1
+  rohd: ^0.6.6
   rohd_vf: ^0.6.0
 
 dev_dependencies:
