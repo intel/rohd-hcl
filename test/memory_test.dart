@@ -1,8 +1,8 @@
-// Copyright (C) 2023-2024 Intel Corporation
+// Copyright (C) 2023-2025 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 //
-// rf_test.dart
-// Tests for register file
+// memory_test.dart
+// Tests for memories
 //
 // 2023 March 13
 // Author: Max Korbel <max.korbel@intel.com>
@@ -346,40 +346,5 @@ void main() {
 
   test('non-byte-aligned data widths are legal without masks', () {
     DataPortInterface(1, 1);
-  });
-
-  group('rf exceptions', () {
-    test('mismatch addr width', () {
-      expect(
-          () => RegisterFile(
-                Logic(),
-                Logic(),
-                [DataPortInterface(32, 31)],
-                [DataPortInterface(32, 32)],
-              ),
-          throwsA(const TypeMatcher<RohdHclException>()));
-    });
-
-    test('mismatch data width', () {
-      expect(
-          () => RegisterFile(
-                Logic(),
-                Logic(),
-                [DataPortInterface(64, 32)],
-                [DataPortInterface(32, 32)],
-              ),
-          throwsA(const TypeMatcher<RohdHclException>()));
-    });
-
-    test('required minimum ports', () {
-      RegisterFile(Logic(), Logic(), [], [DataPortInterface(32, 32)]);
-      RegisterFile(Logic(), Logic(), [DataPortInterface(32, 32)], []);
-
-      try {
-        RegisterFile(Logic(), Logic(), [], []);
-        fail('Should have failed');
-        // ignore: avoid_catching_errors
-      } on RohdHclException catch (_) {}
-    });
   });
 }
