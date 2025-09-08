@@ -679,16 +679,14 @@ void main() {
     await fifoTest.start();
 
     final trackerResults =
-        json.decode(File(tracker.jsonFileName).readAsStringSync());
-    // ignore: avoid_dynamic_calls
-    final records = trackerResults['records'];
-    // ignore: avoid_dynamic_calls
+        json.decode(File(tracker.jsonFileName).readAsStringSync())
+            as Map<String, dynamic>;
+    final records =
+        List<Map<String, dynamic>>.from(trackerResults['records'] as List);
+
     expect(records[0]['Time'], '55');
-    // ignore: avoid_dynamic_calls
     expect(records[1]['Occupancy'], '2');
-    // ignore: avoid_dynamic_calls
     expect(records[2]['Data'], "32'h111");
-    // ignore: avoid_dynamic_calls
     expect(records[3]['Command'], 'RD');
 
     File(tracker.jsonFileName).deleteSync();
