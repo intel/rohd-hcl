@@ -4,6 +4,7 @@
 export 'ace5_lite.dart';
 export 'axi5.dart';
 export 'axi5_base.dart';
+export 'axi5_enums.dart';
 export 'axi5_lite.dart';
 export 'axi5_mixins.dart';
 export 'axi5_s.dart';
