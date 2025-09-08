@@ -587,6 +587,35 @@ void main() {
         expect(fifoTest.failureDetected, true);
       }
     });
+
+    test('checker fails on error signal assertion', () async {
+      final fifoTest = FifoTest((clk, reset, wrEn, wrData, rdEn, rdData) async {
+        // Cause underflow error: read when empty
+        rdEn.put(1);
+        await clk.waitCycles(3);
+      });
+
+      FifoChecker(fifoTest.fifo);
+
+      var errorSignalCaught = false;
+      final subscription = Logger.root.onRecord.listen((record) {
+        if (record.level == Level.SEVERE &&
+            record.message.contains('error signal was asserted')) {
+          errorSignalCaught = true;
+        }
+      });
+
+      try {
+        await fifoTest.start();
+        fail('Did not fail.');
+      } on Exception catch (_) {
+        expect(fifoTest.failureDetected, true);
+      }
+
+      expect(errorSignalCaught, isTrue);
+
+      await subscription.cancel();
+    });
   });
 
   test('sampling time', () async {
@@ -672,8 +701,6 @@ void main() {
 
       await fifoTest.fifo.build();
 
-      File('tmp.sv').writeAsStringSync(fifoTest.fifo.generateSynth());
-
       if (dumpWaves) {
         WaveDumper(fifoTest.fifo);
       }
@@ -685,17 +712,30 @@ void main() {
 
     test('full initial values is full, not empty, correct vals, correct occ',
         () async {
-      final vals = await setupAndDumpFifo([1, 2, 3, 4], dumpWaves: true);
+      final vals = await setupAndDumpFifo([1, 2, 3, 4]);
       expect(vals.map((e) => e.toInt()).toList(), [1, 2, 3, 4]);
     });
 
     test(
         'partial initial values not full, not empty, correct vals, correct occ',
-        () async {});
+        () async {
+      final vals = await setupAndDumpFifo([1, 3]);
+      expect(vals.map((e) => e.toInt()).toList(), [1, 3]);
+    });
 
-    test('too many initial values throws', () async {});
+    test('too many initial values throws', () async {
+      try {
+        await setupAndDumpFifo([1, 2, 3, 4, 5]);
+        fail('Did not throw');
+      } on Exception catch (_) {
+        // pass
+      }
+    });
 
-    test('initial values is empty, not full, 0 occ', () async {});
+    test('initial values is empty, not full, 0 occ', () async {
+      final vals = await setupAndDumpFifo([]);
+      expect(vals, isEmpty);
+    });
   });
 }
 
@@ -722,6 +762,7 @@ class FifoTest extends Test {
       writeData: wrData,
       depth: 3,
       generateBypass: generateBypass,
+      generateError: true,
     );
   }
 
@@ -775,7 +816,7 @@ class InitValFifoTest extends Test {
       initialValues: initialValues,
     );
 
-    FifoChecker(fifo);
+    FifoChecker(fifo, parent: this);
   }
 
   @override
