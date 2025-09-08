@@ -589,7 +589,8 @@ void main() {
     });
 
     test('checker fails on error signal assertion', () async {
-      final fifoTest = FifoTest((clk, reset, wrEn, wrData, rdEn, rdData) async {
+      final fifoTest = FifoTest(generateError: true,
+          (clk, reset, wrEn, wrData, rdEn, rdData) async {
         // Cause underflow error: read when empty
         rdEn.put(1);
         await clk.waitCycles(3);
@@ -604,6 +605,8 @@ void main() {
           errorSignalCaught = true;
         }
       });
+
+      fifoTest.printLevel = Level.OFF;
 
       try {
         await fifoTest.start();
@@ -751,6 +754,7 @@ class FifoTest extends Test {
     this.content, {
     String name = 'fifoTest',
     bool generateBypass = false,
+    bool generateError = false,
   }) : super(name) {
     fifo = Fifo(
       clk,
@@ -760,7 +764,7 @@ class FifoTest extends Test {
       writeData: wrData,
       depth: 3,
       generateBypass: generateBypass,
-      generateError: true,
+      generateError: generateError,
     );
   }
 
