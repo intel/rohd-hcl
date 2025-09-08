@@ -26,7 +26,7 @@
   <ol class="breadcrumbs gt-separated dark hidden-xs">
     <li><a href="../../index.html">rohd_hcl</a></li>
     <li><a href="../../rohd_hcl/">rohd_hcl.dart</a></li>
-    <li><a href="../../rohd_hcl/Fifo-class.html">Fifo</a></li>
+    <li><a href="../../rohd_hcl/Fifo-class.html">Fifo<span class="signature">&lt;<wbr><span class="type-parameter">LogicType extends Logic</span>&gt;</span></a></li>
     <li class="self-crumb">Fifo.new constructor</li>
   </ol>
   <div class="self-name">Fifo.new</div>
@@ -49,15 +49,15 @@
       data-above-sidebar="rohd_hcl&#47;Fifo-class-sidebar.html"
       data-below-sidebar="">
       <div>
-<h1><span class="kind-constructor">Fifo</span> constructor 
+<h1><span class="kind-constructor">Fifo&lt;<wbr><span class="type-parameter">LogicType extends Logic</span>&gt;</span> constructor 
 </h1></div>
 
     <section class="multi-line-signature">
       
-      <span class="name ">Fifo</span>(<wbr><ol class="parameter-list"> <li><span class="parameter" id="-param-clk"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.6/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">clk</span>, </span></li>
+      <span class="name ">Fifo&lt;<wbr><span class="type-parameter">LogicType extends Logic</span>&gt;</span>(<wbr><ol class="parameter-list"> <li><span class="parameter" id="-param-clk"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.6/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">clk</span>, </span></li>
 <li><span class="parameter" id="-param-reset"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.6/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">reset</span>, {</span></li>
 <li><span class="parameter" id="-param-writeEnable"><span>required</span> <span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.6/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">writeEnable</span>, </span></li>
-<li><span class="parameter" id="-param-writeData"><span>required</span> <span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.6/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">writeData</span>, </span></li>
+<li><span class="parameter" id="-param-writeData"><span>required</span> <span class="type-annotation">LogicType</span> <span class="parameter-name">writeData</span>, </span></li>
 <li><span class="parameter" id="-param-readEnable"><span>required</span> <span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.6/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">readEnable</span>, </span></li>
 <li><span class="parameter" id="-param-depth"><span>required</span> <span class="type-annotation"><a href="https://api.dart.dev/stable/3.9.2/dart-core/int-class.html">int</a></span> <span class="parameter-name">depth</span>, </span></li>
 <li><span class="parameter" id="-param-generateError"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.9.2/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">generateError</span> = <span class="default-value">false</span>, </span></li>
@@ -84,7 +84,7 @@ may be either <a href="https://pub.dev/documentation/rohd/0.6.6/rohd/Logic-class
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">Fifo(Logic clk, Logic reset,
     {required Logic writeEnable,
-    required Logic writeData,
+    required LogicType writeData,
     required Logic readEnable,
     required this.depth,
     this.generateError = false,
@@ -113,9 +113,10 @@ may be either <a href="https://pub.dev/documentation/rohd/0.6.6/rohd/Logic-class
 
   &#47;&#47; set up read&#47;write ports
   addInput(&#39;writeEnable&#39;, writeEnable);
-  addInput(&#39;writeData&#39;, writeData, width: dataWidth);
+  addTypedInput(&#39;writeData&#39;, writeData);
   addInput(&#39;readEnable&#39;, readEnable);
-  addOutput(&#39;readData&#39;, width: dataWidth);
+  readData = addTypedOutput(
+      &#39;readData&#39;, writeData.clone as LogicType Function({String? name}));
 
   &#47;&#47; set up info ports
   addOutput(&#39;full&#39;);
@@ -166,7 +167,7 @@ may be either <a href="https://pub.dev/documentation/rohd/0.6.6/rohd/Logic-class
 <ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
     <li><a href="../../index.html">rohd_hcl</a></li>
     <li><a href="../../rohd_hcl/">rohd_hcl</a></li>
-    <li><a href="../../rohd_hcl/Fifo-class.html">Fifo</a></li>
+    <li><a href="../../rohd_hcl/Fifo-class.html">Fifo<span class="signature">&lt;<wbr><span class="type-parameter">LogicType extends Logic</span>&gt;</span></a></li>
     <li class="self-crumb">Fifo.new constructor</li>
 </ol>
 
