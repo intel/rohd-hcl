@@ -668,69 +668,25 @@ void main() {
   group('fifo initial values', () {
     Future<List<LogicValue>> setupAndDumpFifo(List<dynamic> initialValues,
         {bool dumpWaves = false}) async {
-      final clk = SimpleClockGenerator(10).clk;
-      final reset = Logic();
-      final readEnable = Logic();
+      final fifoTest = InitValFifoTest(initialValues);
 
-      final fifo = Fifo(
-        clk,
-        reset,
-        writeEnable: Const(0),
-        writeData: Const(0, width: 8),
-        readEnable: readEnable,
-        depth: 4,
-        generateOccupancy: true,
-        generateError: true,
-        initialValues: initialValues,
-      );
+      await fifoTest.fifo.build();
 
-      await fifo.build();
-
-      File('tmp.sv').writeAsStringSync(fifo.generateSynth());
+      File('tmp.sv').writeAsStringSync(fifoTest.fifo.generateSynth());
 
       if (dumpWaves) {
-        WaveDumper(fifo);
+        WaveDumper(fifoTest.fifo);
       }
 
-      fifo.error!.posedge.listen((event) {
-        fail('error signal detected!');
-      });
+      await fifoTest.start();
 
-      //TODO: add fifo checker?
-
-      unawaited(Simulator.run());
-
-      // reset flow
-      reset.inject(0);
-      readEnable.inject(0);
-      await clk.waitCycles(2);
-      reset.inject(1);
-      await clk.waitCycles(2);
-      reset.inject(0);
-      await clk.waitCycles(2);
-
-      final readValues = <LogicValue>[];
-      readEnable.inject(1);
-      for (var i = 0; i < initialValues.length; i++) {
-        await clk.nextPosedge;
-        expect(fifo.empty.previousValue!.toBool(), false);
-        expect(
-            fifo.occupancy!.previousValue!.toInt(), initialValues.length - i);
-        readValues.add(fifo.readData.previousValue!);
-      }
-      readEnable.inject(0);
-
-      await clk.waitCycles(3);
-
-      await Simulator.endSimulation();
-
-      return readValues;
+      return fifoTest.readValues;
     }
 
     test('full initial values is full, not empty, correct vals, correct occ',
         () async {
       final vals = await setupAndDumpFifo([1, 2, 3, 4], dumpWaves: true);
-      // expect(vals.map((e) => e.toInt()).toList(), [1, 2, 3, 4]);
+      expect(vals.map((e) => e.toInt()).toList(), [1, 2, 3, 4]);
     });
 
     test(
@@ -777,7 +733,7 @@ class FifoTest extends Test {
   Future<void> run(Phase phase) async {
     unawaited(super.run(phase));
 
-    final obj = phase.raiseObjection('counter_test');
+    final obj = phase.raiseObjection('fifo_test');
 
     // a little reset flow
     await clk.nextNegedge;
@@ -789,6 +745,72 @@ class FifoTest extends Test {
     await clk.nextNegedge;
 
     await content(clk, reset, wrEn, wrData, rdEn, fifo.readData);
+
+    obj.drop();
+  }
+}
+
+class InitValFifoTest extends Test {
+  late final Fifo fifo;
+
+  final clk = SimpleClockGenerator(10).clk;
+  final reset = Logic();
+  final readEnable = Logic();
+
+  final List<dynamic> initialValues;
+
+  final readValues = <LogicValue>[];
+
+  InitValFifoTest(this.initialValues) : super('simple_fifo_test') {
+    fifo = Fifo(
+      clk,
+      reset,
+      writeEnable: Const(0),
+      writeData: Const(0, width: 8),
+      readEnable: readEnable,
+      depth: 4,
+      generateOccupancy: true,
+      generateError: true,
+      initialValues: initialValues,
+    );
+
+    FifoChecker(fifo);
+  }
+
+  @override
+  Future<void> run(Phase phase) async {
+    unawaited(super.run(phase));
+
+    final obj = phase.raiseObjection('fifo_test');
+
+    reset.inject(0);
+    readEnable.inject(0);
+    await clk.waitCycles(2);
+    reset.inject(1);
+    await clk.waitCycles(2);
+    reset.inject(0);
+    await clk.waitCycles(2);
+
+    readEnable.inject(1);
+    for (var i = 0; i < initialValues.length; i++) {
+      await clk.nextPosedge;
+
+      if (fifo.empty.previousValue!.toBool()) {
+        logger.severe('FIFO was empty unexpectedly!');
+      }
+
+      final expectedOccupancy = initialValues.length - i;
+      final actualOccupancy = fifo.occupancy!.previousValue!.toInt();
+      if (actualOccupancy != expectedOccupancy) {
+        logger.severe('FIFO occupancy was $actualOccupancy'
+            ' but expected $expectedOccupancy');
+      }
+
+      readValues.add(fifo.readData.previousValue!);
+    }
+    readEnable.inject(0);
+
+    await clk.waitCycles(3);
 
     obj.drop();
   }

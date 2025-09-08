@@ -300,6 +300,10 @@ class FifoChecker extends Component {
   /// If `true`, will flag an error if there is an overflow in the [fifo].
   final bool enableOverflowCheck;
 
+  /// If `true`, will flag an error if the [fifo]'s error signal is asserted, if
+  /// it is present.
+  final bool enableErrorCheck;
+
   /// Builds a checker for a [fifo].
   ///
   /// Attaches to the top level [Test.instance] if no parent is provided.
@@ -310,6 +314,7 @@ class FifoChecker extends Component {
     this.enableEndOfTestEmptyCheck = true,
     this.enableUnderflowCheck = true,
     this.enableOverflowCheck = true,
+    this.enableErrorCheck = true,
   }) : super(name, parent ?? Test.instance) {
     var hasReset = false;
 
@@ -317,8 +322,6 @@ class FifoChecker extends Component {
     final fifoPortSignals = [...fifo.inputs.values, ...fifo.outputs.values]
         // data can be invalid since it's not control
         .where((e) => !e.name.contains('Data'));
-
-    //TODO: add check on error signal?
 
     fifo._clk.posedge.listen((event) {
       if (!fifo._reset.previousValue!.isValid) {
@@ -357,6 +360,12 @@ class FifoChecker extends Component {
                   'Fifo $fifo received a read that caused an underflow.');
             }
           }
+        }
+      }
+
+      if (fifo.generateError && enableErrorCheck) {
+        if (fifo.error!.previousValue!.toBool()) {
+          logger.severe('Fifo $fifo error signal was asserted.');
         }
       }
     });
