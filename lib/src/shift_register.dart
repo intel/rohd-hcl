@@ -14,7 +14,7 @@ import 'package:rohd_hcl/rohd_hcl.dart';
 
 /// A shift register with configurable width and depth and optional enable and
 /// reset.
-class ShiftRegister extends Module {
+class ShiftRegister extends Module with ResettableEntries {
   /// The number of stages in this shift register.
   final int depth;
 
@@ -67,37 +67,17 @@ class ShiftRegister extends Module {
 
     addOutput('${dataName}_out', width: width);
 
-    Map<Logic, dynamic>? resetValues;
+    final Map<Logic, dynamic>? resetValues;
+    final List<Logic>? resetValueList;
 
     if (reset != null) {
       reset = addInput('reset', reset);
-
-      if (resetValue != null) {
-        if (resetValue is Logic) {
-          resetValue =
-              addInput('resetValue', resetValue, width: resetValue.width);
-        }
-
-        if (resetValue is List) {
-          // Check if list length is equal to depth
-          if (resetValue.length != depth) {
-            throw RohdHclException(
-                'ResetValue list length must equal shift register depth.');
-          }
-
-          resetValue = List.of(resetValue);
-
-          for (var i = 0; i < resetValue.length; i++) {
-            final element = resetValue[i];
-            if (element is Logic) {
-              resetValue[i] =
-                  addInput('resetValue$i', element, width: element.width);
-            }
-          }
-        }
-
-        resetValues = {};
-      }
+      resetValueList =
+          makeResetValues(resetValue, numEntries: depth, entryWidth: width);
+      resetValues = {};
+    } else {
+      resetValueList = null;
+      resetValues = null;
     }
 
     var dataStage = dataIn;
@@ -107,7 +87,7 @@ class ShiftRegister extends Module {
       final stageI = addOutput(_stageName(i), width: width);
       conds.add(stageI < dataStage);
 
-      resetValues?[stageI] = resetValue is List ? resetValue[i] : resetValue;
+      resetValues?[stageI] = resetValueList![i];
       dataStage = stageI;
     }
 

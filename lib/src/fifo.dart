@@ -9,6 +9,7 @@
 
 import 'dart:math';
 
+import 'package:collection/collection.dart';
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
 import 'package:rohd_vf/rohd_vf.dart';
@@ -77,7 +78,14 @@ class Fifo extends Module {
   /// The address width for elements in the storage of this [Fifo].
   final int _addrWidth;
 
+  /// The first initial values of the [Fifo], if any.
+  late final List<Logic> _initialValues;
+
   /// Constructs a [Fifo] with [RegisterFile]-based storage.
+  ///
+  /// If [initialValues] is provided, the [Fifo] will contain those values after
+  /// [reset]. The length of [initialValues] must fit in the [depth]. The values
+  /// may be either [Logic]s or constants compatible with [LogicValue.of].
   Fifo(Logic clk, Logic reset,
       {required Logic writeEnable,
       required Logic writeData,
@@ -89,7 +97,8 @@ class Fifo extends Module {
       super.name = 'fifo',
       super.reserveName,
       super.reserveDefinitionName,
-      String? definitionName})
+      String? definitionName,
+      List<dynamic>? initialValues})
       : dataWidth = writeData.width,
         _addrWidth = max(1, log2Ceil(depth)),
         super(
@@ -121,7 +130,28 @@ class Fifo extends Module {
     }
 
     if (generateOccupancy) {
-      addOutput('occupancy', width: log2Ceil(depth));
+      addOutput('occupancy', width: log2Ceil(depth + 1));
+    }
+
+    if (initialValues == null) {
+      _initialValues = [];
+    } else {
+      if (initialValues.length > depth) {
+        throw RohdHclException('Initial values length (${initialValues.length})'
+            ' exceeds depth ($depth)');
+      }
+
+      _initialValues = initialValues
+          .mapIndexed((i, e) => e is Logic
+              ? addTypedInput('initialValue_$i', e)
+              : Const(e, width: dataWidth))
+          .toList();
+
+      if (_initialValues.any((e) => e.width != dataWidth)) {
+        throw RohdHclException('All initial values must have width of'
+            ' $dataWidth, but found:'
+            ' ${_initialValues.map((e) => e.width).toList()}');
+      }
     }
 
     _buildLogic();
@@ -132,7 +162,18 @@ class Fifo extends Module {
     // set up the RF storage
     final wrPort = DataPortInterface(dataWidth, _addrWidth);
     final rdPort = DataPortInterface(dataWidth, _addrWidth);
-    RegisterFile(_clk, _reset, [wrPort], [rdPort], numEntries: depth);
+    RegisterFile(
+      _clk,
+      _reset,
+      [wrPort],
+      [rdPort],
+      numEntries: depth,
+      resetValue: List.generate(
+          depth,
+          (i) => i < _initialValues.length
+              ? _initialValues[i]
+              : Const(0, width: dataWidth)), // fill rest with 0s
+    );
 
     final wrPointer = Logic(name: 'wrPointer', width: _addrWidth);
     final rdPointer = Logic(name: 'rdPointer', width: _addrWidth);
@@ -156,7 +197,9 @@ class Fifo extends Module {
 
     // occupancy calculation
     if (generateOccupancy) {
-      Sequential(_clk, reset: _reset, [
+      Sequential(_clk, reset: _reset, resetValues: {
+        occupancy!: _initialValues.length,
+      }, [
         Case(
             conditionalType: ConditionalType.unique,
             [_writeEnable, _readEnable].swizzle(),
@@ -205,7 +248,10 @@ class Fifo extends Module {
       rdPointer < _incrWithWrap(rdPointer, _readEnable),
     ];
 
-    Sequential(_clk, reset: _reset, [
+    Sequential(_clk, reset: _reset, resetValues: {
+      full: _initialValues.length == depth ? Const(1) : Const(0),
+      wrPointer: Const(_initialValues.length, width: _addrWidth),
+    }, [
       if (generateBypass)
         If(~bypass!, then: pointerIncrements)
       else
@@ -255,6 +301,10 @@ class FifoChecker extends Component {
   /// If `true`, will flag an error if there is an overflow in the [fifo].
   final bool enableOverflowCheck;
 
+  /// If `true`, will flag an error if the [fifo]'s error signal is asserted, if
+  /// it is present.
+  final bool enableErrorCheck;
+
   /// Builds a checker for a [fifo].
   ///
   /// Attaches to the top level [Test.instance] if no parent is provided.
@@ -265,6 +315,7 @@ class FifoChecker extends Component {
     this.enableEndOfTestEmptyCheck = true,
     this.enableUnderflowCheck = true,
     this.enableOverflowCheck = true,
+    this.enableErrorCheck = true,
   }) : super(name, parent ?? Test.instance) {
     var hasReset = false;
 
@@ -310,6 +361,12 @@ class FifoChecker extends Component {
                   'Fifo $fifo received a read that caused an underflow.');
             }
           }
+        }
+      }
+
+      if (fifo.generateError && enableErrorCheck) {
+        if (fifo.error!.previousValue!.toBool()) {
+          logger.severe('Fifo $fifo error signal was asserted.');
         }
       }
     });

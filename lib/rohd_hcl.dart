@@ -22,6 +22,7 @@ export 'src/models/models.dart';
 export 'src/priority_encoder.dart';
 export 'src/reduction_tree.dart';
 export 'src/reduction_tree_generator.dart';
+export 'src/resettable_entries.dart';
 export 'src/rotate.dart';
 export 'src/serialization/serialization.dart';
 export 'src/shift_register.dart';

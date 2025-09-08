@@ -587,6 +587,38 @@ void main() {
         expect(fifoTest.failureDetected, true);
       }
     });
+
+    test('checker fails on error signal assertion', () async {
+      final fifoTest = FifoTest(generateError: true,
+          (clk, reset, wrEn, wrData, rdEn, rdData) async {
+        // Cause underflow error: read when empty
+        rdEn.put(1);
+        await clk.waitCycles(3);
+      });
+
+      FifoChecker(fifoTest.fifo);
+
+      var errorSignalCaught = false;
+      final subscription = Logger.root.onRecord.listen((record) {
+        if (record.level == Level.SEVERE &&
+            record.message.contains('error signal was asserted')) {
+          errorSignalCaught = true;
+        }
+      });
+
+      fifoTest.printLevel = Level.OFF;
+
+      try {
+        await fifoTest.start();
+        fail('Did not fail.');
+      } on Exception catch (_) {
+        expect(fifoTest.failureDetected, true);
+      }
+
+      expect(errorSignalCaught, isTrue);
+
+      await subscription.cancel();
+    });
   });
 
   test('sampling time', () async {
@@ -650,19 +682,61 @@ void main() {
     await fifoTest.start();
 
     final trackerResults =
-        json.decode(File(tracker.jsonFileName).readAsStringSync());
-    // ignore: avoid_dynamic_calls
-    final records = trackerResults['records'];
-    // ignore: avoid_dynamic_calls
+        json.decode(File(tracker.jsonFileName).readAsStringSync())
+            as Map<String, dynamic>;
+    final records =
+        List<Map<String, dynamic>>.from(trackerResults['records'] as List);
+
     expect(records[0]['Time'], '55');
-    // ignore: avoid_dynamic_calls
     expect(records[1]['Occupancy'], '2');
-    // ignore: avoid_dynamic_calls
     expect(records[2]['Data'], "32'h111");
-    // ignore: avoid_dynamic_calls
     expect(records[3]['Command'], 'RD');
 
     File(tracker.jsonFileName).deleteSync();
+  });
+
+  group('fifo initial values', () {
+    Future<List<LogicValue>> setupAndDumpFifo(List<dynamic> initialValues,
+        {bool dumpWaves = false}) async {
+      final fifoTest = InitValFifoTest(initialValues);
+
+      await fifoTest.fifo.build();
+
+      if (dumpWaves) {
+        WaveDumper(fifoTest.fifo);
+      }
+
+      await fifoTest.start();
+
+      return fifoTest.readValues;
+    }
+
+    test('full initial values is full, not empty, correct vals, correct occ',
+        () async {
+      final vals = await setupAndDumpFifo([1, 2, 3, 4]);
+      expect(vals.map((e) => e.toInt()).toList(), [1, 2, 3, 4]);
+    });
+
+    test(
+        'partial initial values not full, not empty, correct vals, correct occ',
+        () async {
+      final vals = await setupAndDumpFifo([1, 3]);
+      expect(vals.map((e) => e.toInt()).toList(), [1, 3]);
+    });
+
+    test('too many initial values throws', () async {
+      try {
+        await setupAndDumpFifo([1, 2, 3, 4, 5]);
+        fail('Did not throw');
+      } on Exception catch (_) {
+        // pass
+      }
+    });
+
+    test('initial values is empty, not full, 0 occ', () async {
+      final vals = await setupAndDumpFifo([]);
+      expect(vals, isEmpty);
+    });
   });
 }
 
@@ -680,6 +754,7 @@ class FifoTest extends Test {
     this.content, {
     String name = 'fifoTest',
     bool generateBypass = false,
+    bool generateError = false,
   }) : super(name) {
     fifo = Fifo(
       clk,
@@ -689,6 +764,7 @@ class FifoTest extends Test {
       writeData: wrData,
       depth: 3,
       generateBypass: generateBypass,
+      generateError: generateError,
     );
   }
 
@@ -699,7 +775,7 @@ class FifoTest extends Test {
   Future<void> run(Phase phase) async {
     unawaited(super.run(phase));
 
-    final obj = phase.raiseObjection('counter_test');
+    final obj = phase.raiseObjection('fifo_test');
 
     // a little reset flow
     await clk.nextNegedge;
@@ -711,6 +787,82 @@ class FifoTest extends Test {
     await clk.nextNegedge;
 
     await content(clk, reset, wrEn, wrData, rdEn, fifo.readData);
+
+    obj.drop();
+  }
+}
+
+class InitValFifoTest extends Test {
+  late final Fifo fifo;
+
+  final clk = SimpleClockGenerator(10).clk;
+  final reset = Logic();
+  final readEnable = Logic();
+
+  final List<dynamic> initialValues;
+
+  final readValues = <LogicValue>[];
+
+  late final bool expectFullAfterReset = initialValues.length == fifo.depth;
+
+  InitValFifoTest(this.initialValues) : super('simple_fifo_test') {
+    fifo = Fifo(
+      clk,
+      reset,
+      writeEnable: Const(0),
+      writeData: Const(0, width: 8),
+      readEnable: readEnable,
+      depth: 4,
+      generateOccupancy: true,
+      generateError: true,
+      initialValues: initialValues,
+    );
+
+    FifoChecker(fifo, parent: this);
+  }
+
+  @override
+  Future<void> run(Phase phase) async {
+    unawaited(super.run(phase));
+
+    final obj = phase.raiseObjection('fifo_test');
+
+    reset.inject(0);
+    readEnable.inject(0);
+    await clk.waitCycles(2);
+    reset.inject(1);
+    await clk.waitCycles(2);
+    reset.inject(0);
+    await clk.waitCycles(2);
+
+    if (expectFullAfterReset) {
+      if (!fifo.full.previousValue!.toBool()) {
+        logger.severe('FIFO was not full after reset as expected!');
+      }
+    }
+
+    await clk.waitCycles(1);
+
+    readEnable.inject(1);
+    for (var i = 0; i < initialValues.length; i++) {
+      await clk.nextPosedge;
+
+      if (fifo.empty.previousValue!.toBool()) {
+        logger.severe('FIFO was empty unexpectedly!');
+      }
+
+      final expectedOccupancy = initialValues.length - i;
+      final actualOccupancy = fifo.occupancy!.previousValue!.toInt();
+      if (actualOccupancy != expectedOccupancy) {
+        logger.severe('FIFO occupancy was $actualOccupancy'
+            ' but expected $expectedOccupancy');
+      }
+
+      readValues.add(fifo.readData.previousValue!);
+    }
+    readEnable.inject(0);
+
+    await clk.waitCycles(3);
 
     obj.drop();
   }

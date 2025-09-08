@@ -16,6 +16,8 @@ Currently, `RegisterFile` only generates flop-based memory (no latches).
 
 The read path is combinational, so data is provided immediately according to the control signals.
 
+The `RegisterFile` can be initialized with data on reset using `resetValue` following the conventions of `ResettableEntries`.
+
 [RegisterFile Schematic](https://intel.github.io/rohd-hcl/RegisterFile.html)
 
 ## Memory Models
