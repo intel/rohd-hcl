@@ -28,6 +28,8 @@ import 'package:rohd_hcl/rohd_hcl.dart';
 import 'package:rohd_vf/rohd_vf.dart';
 import 'package:test/test.dart';
 
+import 'axi5_test.dart';
+
 /// Simple main component BFM
 ///
 /// Sends random (simple) read and write requests.
@@ -257,7 +259,108 @@ class SimpleAxi5SubordinateBfm extends Agent {
   }
 }
 
-// TODO: add BFMs for Axi5Stream when available
+/// Simple stream main component BFM
+///
+/// Sends random streams.
+class SimpleAxi5StreamMainBfm extends Agent {
+  late final Axi5StreamMainAgent main;
+  SimpleAxi5StreamMainBfm({
+    required Axi5SystemInterface sys,
+    required Axi5StreamInterface strm,
+    required Component parent,
+    String name = 'simpleAxi5StreamMainBfm',
+  }) : super(name, parent) {
+    main = Axi5StreamMainAgent(sys: sys, stream: strm, parent: this);
+  }
+
+  @override
+  Future<void> run(Phase phase) async {
+    unawaited(super.run(phase));
+
+    final obj = phase.raiseObjection('simpleAxi5StreamMainBfmObj');
+
+    // wait for reset to have occurred
+    await main.sys.resetN.nextNegedge;
+    await main.sys.clk.waitCycles(10);
+
+    // generate n random transactions
+    final numTrans = Test.random!.nextInt(100);
+    for (var i = 0; i < numTrans; i++) {
+      final beats = main.stream.useLast ? Test.random!.nextInt(4) : 1;
+      for (var j = 0; j < beats; j++) {
+        final nextStrm = Axi5StreamPacket(
+            data: Test.random!
+                .nextInt(pow(min(main.stream.dataWidth, 32), 2).toInt()),
+            last: j == beats - 1);
+        logger.info('Sending stream beat with ID ${nextStrm.id ?? 0}');
+        main.sequencer.add(nextStrm);
+        await nextStrm.completed;
+      }
+    }
+
+    obj.drop();
+  }
+}
+
+/// Simple stream subordinate component BFM
+///
+/// Accepts streams and logs them.
+class SimpleAxi5StreamSubordinateBfm extends Agent {
+  late final Axi5StreamSubordinateAgent sub;
+
+  final List<Axi5StreamPacket> _streams = [];
+
+  SimpleAxi5StreamSubordinateBfm({
+    required Axi5SystemInterface sys,
+    required Axi5StreamInterface strm,
+    required Component parent,
+    String name = 'simpleAxi5StreamSubordinateBfm',
+  }) : super(name, parent) {
+    sub = Axi5StreamSubordinateAgent(sys: sys, stream: strm, parent: this);
+  }
+
+  /// Calculates a strobed version of data.
+  static LogicValue _strobeData(
+          LogicValue originalData, LogicValue newData, LogicValue strobe) =>
+      [
+        for (var i = 0; i < strobe.width; i++)
+          (strobe[i].toBool() ? newData : originalData)
+              .getRange(i * 8, i * 8 + 8)
+      ].rswizzle();
+
+  @override
+  Future<void> run(Phase phase) async {
+    unawaited(super.run(phase));
+
+    final obj = phase.raiseObjection('simpleAxi5StreamSubordinateBfmObj');
+
+    // wait for reset to have occurred
+    await sub.sys.resetN.nextNegedge;
+    await sub.sys.clk.waitCycles(10);
+
+    // clear any pending beats on reset
+    sub.sys.resetN.negedge.listen((e) {
+      _streams.clear();
+    });
+
+    // establish a listener for write requests
+    // just cache the request until we see its data
+    sub.monitor.stream.listen((r) {
+      logger.info('Received stream beat with ID ${r.id ?? 0}');
+      _streams.add(r);
+      if (r.last ?? true) {
+        logger.info('Stream with ID ${r.id ?? 0} has completed - dropping.');
+        for (var j = 0; j < _streams.length; j++) {
+          logger.info('Stream beat $j data: '
+              '${_strobeData(LogicValue.filled(sub.stream.dataWidth, LogicValue.zero), LogicValue.ofInt(_streams[j].data, sub.stream.dataWidth), LogicValue.ofInt(_streams[j].strb ?? LogicValue.filled(sub.stream.strbWidth, LogicValue.one).toInt(), sub.stream.strbWidth))}.');
+        }
+        _streams.clear();
+      }
+    });
+
+    obj.drop();
+  }
+}
 
 /// Test that instantiates simple main and subordinate BFMs
 /// and lets them send transactions back and forth.
@@ -477,6 +580,61 @@ class Axi5BfmTest extends Test {
   }
 }
 
+/// Test that instantiates simple main and subordinate BFMs
+/// and lets them send transactions back and forth.
+class Axi5StreamBfmTest extends Test {
+  late final Axi5SystemInterface sIntf;
+  late final Axi5StreamInterface stream;
+
+  late final SimpleAxi5StreamMainBfm main;
+  late final SimpleAxi5StreamSubordinateBfm sub;
+
+  Axi5StreamBfmTest(
+    super.name,
+  ) : super(randomSeed: 123) {
+    const outFolder = 'gen/axi5_s_bfm';
+    Directory(outFolder).createSync(recursive: true);
+    sIntf = Axi5SystemInterface();
+    sIntf.clk <= SimpleClockGenerator(10).clk;
+    sIntf.resetN.put(1);
+
+    stream = Axi5StreamInterface();
+
+    main = SimpleAxi5StreamMainBfm(sys: sIntf, strm: stream, parent: this);
+    sub =
+        SimpleAxi5StreamSubordinateBfm(sys: sIntf, strm: stream, parent: this);
+
+    // tracker setup
+    final strmTracker = Axi5StreamTracker(
+      dumpTable: false,
+      outputFolder: outFolder,
+    );
+
+    Simulator.registerEndOfSimulationAction(() async {
+      await strmTracker.terminate();
+    });
+
+    sub.sub.monitor.stream.listen(strmTracker.record);
+  }
+
+  // Just run a reset flow to kick things off
+  @override
+  Future<void> run(Phase phase) async {
+    unawaited(super.run(phase));
+
+    final obj = phase.raiseObjection('axi5StreamBfmTestObj');
+    await resetFlow();
+    obj.drop();
+  }
+
+  Future<void> resetFlow() async {
+    await sIntf.clk.waitCycles(2);
+    sIntf.resetN.inject(0);
+    await sIntf.clk.waitCycles(3);
+    sIntf.resetN.inject(1);
+  }
+}
+
 void main() {
   tearDown(() async {
     await Test.reset();
@@ -491,17 +649,56 @@ void main() {
       {bool dumpWaves = false}) async {
     Simulator.setMaxSimTime(30000);
 
-    // TODO: set this up...
     if (dumpWaves) {
-      // final mod = Axi4Subordinate(axi4BfmTest.sIntf, axi4BfmTest.lanes);
-      // await mod.build();
-      // WaveDumper(mod);
+      if (axi5BfmTest.axiType == Axi5Cluster) {
+        final mod = Axi5Subordinate(
+            axi5BfmTest.sIntf, [axi5BfmTest.cluster as Axi5Cluster]);
+        await mod.build();
+        WaveDumper(mod);
+      } else if (axi5BfmTest.axiType == Axi5LiteCluster) {
+        final mod = Axi5LiteSubordinate(
+            axi5BfmTest.sIntf, [axi5BfmTest.cluster as Axi5LiteCluster]);
+        await mod.build();
+        WaveDumper(mod);
+      }
+      if (axi5BfmTest.axiType == Ace5LiteCluster) {
+        final mod = Ace5LiteSubordinate(
+            axi5BfmTest.sIntf, [axi5BfmTest.cluster as Ace5LiteCluster]);
+        await mod.build();
+        WaveDumper(mod);
+      }
     }
 
     await axi5BfmTest.start();
   }
 
-  test('simple run', () async {
-    await runTest(Axi5BfmTest('simple'), dumpWaves: true);
+  Future<void> runStreamTest(Axi5StreamBfmTest axi5BfmTest,
+      {bool dumpWaves = false}) async {
+    Simulator.setMaxSimTime(30000);
+
+    if (dumpWaves) {
+      final mod =
+          Axi5StreamSubordinate(axi5BfmTest.sIntf, [axi5BfmTest.stream]);
+      await mod.build();
+      WaveDumper(mod);
+    }
+
+    await axi5BfmTest.start();
+  }
+
+  test('simple run - axi5', () async {
+    await runTest(Axi5BfmTest('simple'));
+  });
+
+  test('simple run - axi5-lite', () async {
+    await runTest(Axi5BfmTest('simple', axiType: Axi5LiteCluster));
+  });
+
+  test('simple run - ace5-lite', () async {
+    await runTest(Axi5BfmTest('simple', axiType: Ace5LiteCluster));
+  });
+
+  test('simple run - axi5-s', () async {
+    await runStreamTest(Axi5StreamBfmTest('simple'));
   });
 }
