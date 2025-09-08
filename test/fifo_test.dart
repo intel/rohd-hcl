@@ -695,8 +695,7 @@ void main() {
 
     test('too many initial values throws', () async {});
 
-    test(
-        'no initial values is empty, not full, all 0 vals, 0 occ', () async {});
+    test('initial values is empty, not full, 0 occ', () async {});
   });
 }
 
@@ -761,6 +760,8 @@ class InitValFifoTest extends Test {
 
   final readValues = <LogicValue>[];
 
+  late final bool expectFullAfterReset = initialValues.length == fifo.depth;
+
   InitValFifoTest(this.initialValues) : super('simple_fifo_test') {
     fifo = Fifo(
       clk,
@@ -790,6 +791,14 @@ class InitValFifoTest extends Test {
     await clk.waitCycles(2);
     reset.inject(0);
     await clk.waitCycles(2);
+
+    if (expectFullAfterReset) {
+      if (!fifo.full.previousValue!.toBool()) {
+        logger.severe('FIFO was not full after reset as expected!');
+      }
+    }
+
+    await clk.waitCycles(1);
 
     readEnable.inject(1);
     for (var i = 0; i < initialValues.length; i++) {
