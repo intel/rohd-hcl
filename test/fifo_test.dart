@@ -738,6 +738,31 @@ void main() {
       expect(vals, isEmpty);
     });
   });
+
+  test('typed fifo', () {
+    final fifo = Fifo(
+      Logic(),
+      Logic(),
+      writeEnable: Logic(),
+      readEnable: Logic(),
+      writeData: ExampleStruct(),
+      depth: 4,
+    );
+
+    expect(fifo.readData, isA<ExampleStruct>());
+  });
+}
+
+class ExampleStruct extends LogicStructure {
+  ExampleStruct({super.name})
+      : super([
+          Logic(name: 'a', width: 8),
+          Logic(name: 'b', width: 16),
+          Logic(name: 'c', width: 32)
+        ]);
+
+  @override
+  ExampleStruct clone({String? name}) => ExampleStruct(name: name);
 }
 
 class FifoTest extends Test {
