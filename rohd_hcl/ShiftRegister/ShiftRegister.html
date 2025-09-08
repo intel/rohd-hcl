@@ -104,37 +104,17 @@ to a default of <code>0</code> or to the provided <code>resetValue</code>. If <c
 
   addOutput(&#39;${dataName}_out&#39;, width: width);
 
-  Map&lt;Logic, dynamic&gt;? resetValues;
+  final Map&lt;Logic, dynamic&gt;? resetValues;
+  final List&lt;Logic&gt;? resetValueList;
 
   if (reset != null) {
     reset = addInput(&#39;reset&#39;, reset);
-
-    if (resetValue != null) {
-      if (resetValue is Logic) {
-        resetValue =
-            addInput(&#39;resetValue&#39;, resetValue, width: resetValue.width);
-      }
-
-      if (resetValue is List) {
-        &#47;&#47; Check if list length is equal to depth
-        if (resetValue.length != depth) {
-          throw RohdHclException(
-              &#39;ResetValue list length must equal shift register depth.&#39;);
-        }
-
-        resetValue = List.of(resetValue);
-
-        for (var i = 0; i &lt; resetValue.length; i++) {
-          final element = resetValue[i];
-          if (element is Logic) {
-            resetValue[i] =
-                addInput(&#39;resetValue$i&#39;, element, width: element.width);
-          }
-        }
-      }
-
-      resetValues = {};
-    }
+    resetValueList =
+        makeResetValues(resetValue, numEntries: depth, entryWidth: width);
+    resetValues = {};
+  } else {
+    resetValueList = null;
+    resetValues = null;
   }
 
   var dataStage = dataIn;
@@ -144,7 +124,7 @@ to a default of <code>0</code> or to the provided <code>resetValue</code>. If <c
     final stageI = addOutput(_stageName(i), width: width);
     conds.add(stageI &lt; dataStage);
 
-    resetValues?[stageI] = resetValue is List ? resetValue[i] : resetValue;
+    resetValues?[stageI] = resetValueList![i];
     dataStage = stageI;
   }
 

@@ -60,6 +60,7 @@
 <li><span class="parameter" id="-param-enableEndOfTestEmptyCheck"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.9.2/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">enableEndOfTestEmptyCheck</span> = <span class="default-value">true</span>, </span></li>
 <li><span class="parameter" id="-param-enableUnderflowCheck"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.9.2/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">enableUnderflowCheck</span> = <span class="default-value">true</span>, </span></li>
 <li><span class="parameter" id="-param-enableOverflowCheck"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.9.2/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">enableOverflowCheck</span> = <span class="default-value">true</span>, </span></li>
+<li><span class="parameter" id="-param-enableErrorCheck"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.9.2/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">enableErrorCheck</span> = <span class="default-value">true</span>, </span></li>
 </ol>})
     </section>
     
@@ -79,6 +80,7 @@
   this.enableEndOfTestEmptyCheck = true,
   this.enableUnderflowCheck = true,
   this.enableOverflowCheck = true,
+  this.enableErrorCheck = true,
 }) : super(name, parent ?? Test.instance) {
   var hasReset = false;
 
@@ -124,6 +126,12 @@
                 &#39;Fifo $fifo received a read that caused an underflow.&#39;);
           }
         }
+      }
+    }
+
+    if (fifo.generateError &amp;&amp; enableErrorCheck) {
+      if (fifo.error!.previousValue!.toBool()) {
+        logger.severe(&#39;Fifo $fifo error signal was asserted.&#39;);
       }
     }
   });

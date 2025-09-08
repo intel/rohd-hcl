@@ -63,6 +63,7 @@
 <li><span class="parameter" id="-param-reserveName"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.9.2/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">reserveName</span> = <span class="default-value">false</span>, </span></li>
 <li><span class="parameter" id="-param-reserveDefinitionName"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.9.2/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">reserveDefinitionName</span> = <span class="default-value">false</span>, </span></li>
 <li><span class="parameter" id="-param-definitionName"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.9.2/dart-core/String-class.html">String</a>?</span> <span class="parameter-name">definitionName</span>, </span></li>
+<li><span class="parameter" id="-param-resetValue"><span class="type-annotation">dynamic</span> <span class="parameter-name">resetValue</span>, </span></li>
 </ol>})
     </section>
     
@@ -70,6 +71,7 @@
   <p>Constructs a new RF.</p>
 <p><a href="../../rohd_hcl/MaskedDataPortInterface-class.html">MaskedDataPortInterface</a>s are supported on <code>writePorts</code>, but not on
 <code>readPorts</code>.</p>
+<p>The <code>resetValue</code> follows the semantics of <a href="../../rohd_hcl/ResettableEntries-mixin.html">ResettableEntries</a>.</p>
 </section>
 
 
@@ -81,11 +83,14 @@
     super.name = &#39;rf&#39;,
     super.reserveName,
     super.reserveDefinitionName,
-    String? definitionName})
+    String? definitionName,
+    dynamic resetValue})
     : super(
           definitionName: definitionName ??
               &#39;RegisterFile_WP${writePorts.length}&#39;
                   &#39;_RP${readPorts.length}_E$numEntries&#39;) {
+  _resetValues = makeResetValues(resetValue,
+      numEntries: numEntries, entryWidth: dataWidth);
   _buildLogic();
 }</code></pre>
 </section>

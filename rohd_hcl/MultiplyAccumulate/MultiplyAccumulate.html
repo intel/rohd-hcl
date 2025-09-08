@@ -75,24 +75,24 @@
 produce the <a href="../../rohd_hcl/MultiplyAccumulate/accumulate.html">accumulate</a> result.</p>
 <p>The optional <code>signedMultiplicand</code> parameter configures the The optional
 <code>signedMultiplicand</code> parameter configures the multiplicand <code>a</code> statically
-using a <a href="https://api.dart.dev/stable/3.9.2/dart-core/bool-class.html">bool</a> as a signed multiplicand (default is <code>false</code>, or unsigned)
+using a <code>bool</code> as a signed multiplicand (default is <code>false</code>, or unsigned)
 or dynamically with a 1-bit <a href="https://pub.dev/documentation/rohd/0.6.6/rohd/Logic-class.html">Logic</a> <a href="../../rohd_hcl/MultiplyAccumulate/selectSignedMultiplicand.html">selectSignedMultiplicand</a> input. You
-can pass either a <a href="https://api.dart.dev/stable/3.9.2/dart-core/bool-class.html">bool</a> (for static configuration) or a <a href="https://pub.dev/documentation/rohd/0.6.6/rohd/Logic-class.html">Logic</a>
+can pass either a <code>bool</code> (for static configuration) or a <a href="https://pub.dev/documentation/rohd/0.6.6/rohd/Logic-class.html">Logic</a>
 (dynamically configuring the type handled) with a signal to this
 parameter, otherwise this constructor will throw.</p>
 <p>The optional <code>signedMultiplier</code> parameter configures the multiplier <code>b</code>
-statically using a <a href="https://api.dart.dev/stable/3.9.2/dart-core/bool-class.html">bool</a> as a signed multiplier (default is <code>false</code>, or
+statically using a <code>bool</code> as a signed multiplier (default is <code>false</code>, or
 unsigned) or dynamically with a 1-bit <a href="https://pub.dev/documentation/rohd/0.6.6/rohd/Logic-class.html">Logic</a> <a href="../../rohd_hcl/MultiplyAccumulate/selectSignedMultiplier.html">selectSignedMultiplier</a>
-input. You can pass either a <a href="https://api.dart.dev/stable/3.9.2/dart-core/bool-class.html">bool</a> (for static configuration) or a
+input. You can pass either a <code>bool</code> (for static configuration) or a
 <a href="https://pub.dev/documentation/rohd/0.6.6/rohd/Logic-class.html">Logic</a> (dynamically configuring the type handled with a signal) to this
 parameter, otherwise this constructor will throw.</p>
 <p>The optional <code>signedAddend</code> parameter configures the addend <code>c</code> as a
 signed addend (default is unsigned) or with a runtime configurable
 <a href="../../rohd_hcl/MultiplyAccumulate/selectSignedAddend.html">selectSignedAddend</a> input.</p>
 <p>The optional <code>signedAddend</code> parameter configures the multiplicand <code>c</code>
-statically using a <a href="https://api.dart.dev/stable/3.9.2/dart-core/bool-class.html">bool</a> as a signed multiplicand (default is <code>false</code>, or
+statically using a <code>bool</code> as a signed multiplicand (default is <code>false</code>, or
 unsigned) or dynamically with a 1-bit <a href="https://pub.dev/documentation/rohd/0.6.6/rohd/Logic-class.html">Logic</a> <a href="../../rohd_hcl/MultiplyAccumulate/selectSignedAddend.html">selectSignedAddend</a> input.
-You can pass either a <a href="https://api.dart.dev/stable/3.9.2/dart-core/bool-class.html">bool</a> (for static configuration) or a <a href="https://pub.dev/documentation/rohd/0.6.6/rohd/Logic-class.html">Logic</a>
+You can pass either a <code>bool</code>(for static configuration) or a <a href="https://pub.dev/documentation/rohd/0.6.6/rohd/Logic-class.html">Logic</a>
 (dynamically configuring the type handled) with a signal to this
 parameter, otherwise this constructor will throw.</p>
 </section>

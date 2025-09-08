@@ -54,7 +54,7 @@
 
     
 <section class="desc markdown">
-  <p>A flop-based memory.</p>
+  <p>A flop-based <a href="../rohd_hcl/Memory-class.html">Memory</a>.</p>
 </section>
 
 
@@ -73,6 +73,12 @@
 
         
         
+  <dt>Mixed-in types</dt>
+  <dd>
+    <ul class="comma-separated clazz-relationships">
+        <li><a href="../rohd_hcl/ResettableEntries-mixin.html">ResettableEntries</a></li>
+    </ul>
+  </dd>
 
 
         
@@ -87,7 +93,7 @@
     <h2>Constructors</h2>
     <dl class="constructor-summary-list">
         <dt id="RegisterFile.new" class="callable">
-          <span class="name"><a href="../rohd_hcl/RegisterFile/RegisterFile.html">RegisterFile.new</a></span><span class="signature">(<span class="parameter" id="-param-clk"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.6/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">clk</span>, </span><span class="parameter" id="-param-reset"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.6/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">reset</span>, </span><span class="parameter" id="-param-writePorts"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.9.2/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../rohd_hcl/DataPortInterface-class.html">DataPortInterface</a></span>&gt;</span></span> <span class="parameter-name">writePorts</span>, </span><span class="parameter" id="-param-readPorts"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.9.2/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../rohd_hcl/DataPortInterface-class.html">DataPortInterface</a></span>&gt;</span></span> <span class="parameter-name">readPorts</span>, {</span><span class="parameter" id="-param-numEntries"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.9.2/dart-core/int-class.html">int</a></span> <span class="parameter-name">numEntries</span> = <span class="default-value">8</span>, </span><span class="parameter" id="-param-name"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.9.2/dart-core/String-class.html">String</a></span> <span class="parameter-name">name</span> = <span class="default-value">&#39;rf&#39;</span>, </span><span class="parameter" id="-param-reserveName"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.9.2/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">reserveName</span> = <span class="default-value">false</span>, </span><span class="parameter" id="-param-reserveDefinitionName"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.9.2/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">reserveDefinitionName</span> = <span class="default-value">false</span>, </span><span class="parameter" id="-param-definitionName"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.9.2/dart-core/String-class.html">String</a>?</span> <span class="parameter-name">definitionName</span></span>})</span>
+          <span class="name"><a href="../rohd_hcl/RegisterFile/RegisterFile.html">RegisterFile.new</a></span><span class="signature">(<span class="parameter" id="-param-clk"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.6/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">clk</span>, </span><span class="parameter" id="-param-reset"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.6/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">reset</span>, </span><span class="parameter" id="-param-writePorts"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.9.2/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../rohd_hcl/DataPortInterface-class.html">DataPortInterface</a></span>&gt;</span></span> <span class="parameter-name">writePorts</span>, </span><span class="parameter" id="-param-readPorts"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.9.2/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../rohd_hcl/DataPortInterface-class.html">DataPortInterface</a></span>&gt;</span></span> <span class="parameter-name">readPorts</span>, {</span><span class="parameter" id="-param-numEntries"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.9.2/dart-core/int-class.html">int</a></span> <span class="parameter-name">numEntries</span> = <span class="default-value">8</span>, </span><span class="parameter" id="-param-name"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.9.2/dart-core/String-class.html">String</a></span> <span class="parameter-name">name</span> = <span class="default-value">&#39;rf&#39;</span>, </span><span class="parameter" id="-param-reserveName"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.9.2/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">reserveName</span> = <span class="default-value">false</span>, </span><span class="parameter" id="-param-reserveDefinitionName"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.9.2/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">reserveDefinitionName</span> = <span class="default-value">false</span>, </span><span class="parameter" id="-param-definitionName"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.9.2/dart-core/String-class.html">String</a>?</span> <span class="parameter-name">definitionName</span>, </span><span class="parameter" id="-param-resetValue"><span class="type-annotation">dynamic</span> <span class="parameter-name">resetValue</span></span>})</span>
         </dt>
         <dd>
           Constructs a new RF.
@@ -758,6 +764,20 @@ via <a href="https://pub.dev/documentation/rohd/0.6.6/rohd/Module/addInput.html"
 <dd class="inherited">
   Returns true iff <code>signal</code> is the same <a href="https://pub.dev/documentation/rohd/0.6.6/rohd/Logic-class.html">Logic</a> as an <a href="https://pub.dev/documentation/rohd/0.6.6/rohd/Module/input.html">input</a>, <a href="https://pub.dev/documentation/rohd/0.6.6/rohd/Module/output.html">output</a>, or
 <a href="https://pub.dev/documentation/rohd/0.6.6/rohd/Module/inOut.html">inOut</a> port of this <a href="https://pub.dev/documentation/rohd/0.6.6/rohd/Module-class.html">Module</a> with the same name.
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="makeResetValues" class="callable inherited">
+  <span class="name"><a href="../rohd_hcl/ResettableEntries/makeResetValues.html">makeResetValues</a></span><span class="signature">(<wbr><span class="parameter" id="makeResetValues-param-resetValue"><span class="type-annotation">dynamic</span> <span class="parameter-name">resetValue</span>, {</span><span class="parameter" id="makeResetValues-param-numEntries"><span>required</span> <span class="type-annotation"><a href="https://api.dart.dev/stable/3.9.2/dart-core/int-class.html">int</a></span> <span class="parameter-name">numEntries</span>, </span><span class="parameter" id="makeResetValues-param-entryWidth"><span>required</span> <span class="type-annotation"><a href="https://api.dart.dev/stable/3.9.2/dart-core/int-class.html">int</a></span> <span class="parameter-name">entryWidth</span></span>})
+    <span class="returntype parameter">&#8594; <a href="https://api.dart.dev/stable/3.9.2/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://pub.dev/documentation/rohd/0.6.6/rohd/Logic-class.html">Logic</a></span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Accepts multiple types to provide a mapping to reset all entries of a
+structure with the same or various reset values.
   <div class="features"><span class="feature">inherited</span></div>
 
 </dd>

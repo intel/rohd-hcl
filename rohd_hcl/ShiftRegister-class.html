@@ -73,6 +73,12 @@ reset.</p>
 
         
         
+  <dt>Mixed-in types</dt>
+  <dd>
+    <ul class="comma-separated clazz-relationships">
+        <li><a href="../rohd_hcl/ResettableEntries-mixin.html">ResettableEntries</a></li>
+    </ul>
+  </dd>
 
 
         
@@ -687,6 +693,20 @@ via <a href="https://pub.dev/documentation/rohd/0.6.6/rohd/Module/addInput.html"
 <dd class="inherited">
   Returns true iff <code>signal</code> is the same <a href="https://pub.dev/documentation/rohd/0.6.6/rohd/Logic-class.html">Logic</a> as an <a href="https://pub.dev/documentation/rohd/0.6.6/rohd/Module/input.html">input</a>, <a href="https://pub.dev/documentation/rohd/0.6.6/rohd/Module/output.html">output</a>, or
 <a href="https://pub.dev/documentation/rohd/0.6.6/rohd/Module/inOut.html">inOut</a> port of this <a href="https://pub.dev/documentation/rohd/0.6.6/rohd/Module-class.html">Module</a> with the same name.
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="makeResetValues" class="callable inherited">
+  <span class="name"><a href="../rohd_hcl/ResettableEntries/makeResetValues.html">makeResetValues</a></span><span class="signature">(<wbr><span class="parameter" id="makeResetValues-param-resetValue"><span class="type-annotation">dynamic</span> <span class="parameter-name">resetValue</span>, {</span><span class="parameter" id="makeResetValues-param-numEntries"><span>required</span> <span class="type-annotation"><a href="https://api.dart.dev/stable/3.9.2/dart-core/int-class.html">int</a></span> <span class="parameter-name">numEntries</span>, </span><span class="parameter" id="makeResetValues-param-entryWidth"><span>required</span> <span class="type-annotation"><a href="https://api.dart.dev/stable/3.9.2/dart-core/int-class.html">int</a></span> <span class="parameter-name">entryWidth</span></span>})
+    <span class="returntype parameter">&#8594; <a href="https://api.dart.dev/stable/3.9.2/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://pub.dev/documentation/rohd/0.6.6/rohd/Logic-class.html">Logic</a></span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Accepts multiple types to provide a mapping to reset all entries of a
+structure with the same or various reset values.
   <div class="features"><span class="feature">inherited</span></div>
 
 </dd>
