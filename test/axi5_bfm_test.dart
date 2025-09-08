@@ -274,6 +274,8 @@ class Axi5BfmTest extends Test {
     const outFolder = 'gen/axi5_bfm';
     Directory(outFolder).createSync(recursive: true);
     sIntf = Axi5SystemInterface();
+    sIntf.clk <= SimpleClockGenerator(10).clk;
+    sIntf.resetN.put(1);
     if (axiType == Axi5Cluster) {
       final ar = Axi5ArChannelInterface(config: Axi5ArChannelConfig());
       final r = Axi5RChannelInterface(config: Axi5RChannelConfig());

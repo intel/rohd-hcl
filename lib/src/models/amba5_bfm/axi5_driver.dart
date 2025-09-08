@@ -658,8 +658,8 @@ class Axi5BChannelDriver extends PendingClockedDriver<Axi5BChannelPacket> {
       b.persist?.put(packet.tag?.persist ?? 0);
       b.trace?.put(packet.debug?.trace ?? 0);
       b.loop?.put(packet.debug?.loop ?? 0);
-      b.resp!.put(packet.response.resp ?? 0);
-      b.busy!.put(packet.response.busy ?? 0);
+      b.resp?.put(packet.response.resp ?? 0);
+      b.busy?.put(packet.response.busy ?? 0);
       b.user?.put(packet.user?.user ?? 0);
     });
 

@@ -323,6 +323,8 @@ class Axi5RChannelMonitor extends Monitor<Axi5RChannelPacket> {
                 ? Axi5UserSignalsStruct(user: r.user?.value.toInt())
                 : null,
           ));
+          _dataBuffer.clear();
+          _poisonBuffer.clear();
         }
       }
     });
@@ -411,6 +413,9 @@ class Axi5WChannelMonitor extends Monitor<Axi5WChannelPacket> {
                 ? Axi5UserSignalsStruct(user: w.user?.value.toInt())
                 : null,
           ));
+          _dataBuffer.clear();
+          _strbBuffer.clear();
+          _poisonBuffer.clear();
         }
       }
     });

@@ -9,6 +9,7 @@
 
 import 'dart:async';
 
+import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
 import 'package:rohd_vf/rohd_vf.dart';
 
@@ -78,6 +79,8 @@ class Axi5AwChannelPacket extends SequenceItem implements Trackable {
   @override
   String? trackerString(TrackerField field) {
     switch (field.title) {
+      case Axi5AwChannelTracker.timeField:
+        return Simulator.time.toString();
       case Axi5AwChannelTracker.idField:
         return id?.id?.toRadixString(16) ?? '';
       case Axi5AwChannelTracker.idUnqField:
@@ -228,6 +231,8 @@ class Axi5ArChannelPacket extends SequenceItem implements Trackable {
   @override
   String? trackerString(TrackerField field) {
     switch (field.title) {
+      case Axi5ArChannelTracker.timeField:
+        return Simulator.time.toString();
       case Axi5ArChannelTracker.idField:
         return id?.id?.toRadixString(16) ?? '';
       case Axi5ArChannelTracker.idUnqField:
@@ -308,6 +313,8 @@ class Axi5WChannelPacket extends SequenceItem implements Trackable {
   @override
   String? trackerString(TrackerField field) {
     switch (field.title) {
+      case Axi5WChannelTracker.timeField:
+        return Simulator.time.toString();
       case Axi5WChannelTracker.dataField:
         return data.isNotEmpty
             ? data.map((e) => e.data.toRadixString(16)).join(',')
@@ -392,6 +399,8 @@ class Axi5RChannelPacket extends SequenceItem implements Trackable {
   @override
   String? trackerString(TrackerField field) {
     switch (field.title) {
+      case Axi5RChannelTracker.timeField:
+        return Simulator.time.toString();
       case Axi5RChannelTracker.userField:
         return user?.user?.toRadixString(16) ?? '';
       case Axi5RChannelTracker.dataField:
@@ -476,6 +485,8 @@ class Axi5BChannelPacket extends SequenceItem implements Trackable {
   @override
   String? trackerString(TrackerField field) {
     switch (field.title) {
+      case Axi5BChannelTracker.timeField:
+        return Simulator.time.toString();
       case Axi5BChannelTracker.userField:
         return user?.user?.toRadixString(16) ?? '';
       case Axi5BChannelTracker.idField:
@@ -536,6 +547,8 @@ class Axi5AcChannelPacket extends SequenceItem implements Trackable {
   @override
   String? trackerString(TrackerField field) {
     switch (field.title) {
+      case Axi5AcChannelTracker.timeField:
+        return Simulator.time.toString();
       case Axi5AcChannelTracker.traceField:
         // debug.trace
         return debug?.trace?.toString() ?? '';
@@ -570,6 +583,8 @@ class Axi5CrChannelPacket extends SequenceItem implements Trackable {
   @override
   String? trackerString(TrackerField field) {
     switch (field.title) {
+      case Axi5CrChannelTracker.timeField:
+        return Simulator.time.toString();
       case Axi5CrChannelTracker.traceField:
         // debug.trace
         return debug?.trace?.toString() ?? '';
