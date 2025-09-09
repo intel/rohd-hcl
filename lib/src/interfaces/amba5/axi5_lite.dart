@@ -242,7 +242,8 @@ class Axi5LiteRChannelInterface extends Axi5RChannelInterface {
       {required super.config,
       super.userMixInEnable,
       super.debugMixInEnable,
-      super.responseMixInEnable})
+      super.responseMixInEnable,
+      super.idMixInEnable})
       : super(
             useCrediting: false,
             sharedCredits: false,
@@ -263,7 +264,8 @@ class Axi5LiteRChannelInterface extends Axi5RChannelInterface {
           usePoison: usePoison),
       userMixInEnable: userMixInEnable,
       debugMixInEnable: debugMixInEnable,
-      responseMixInEnable: responseMixInEnable);
+      responseMixInEnable: responseMixInEnable,
+      idMixInEnable: idMixInEnable);
 }
 
 /// A config object for constructor an AXI5 B channel.

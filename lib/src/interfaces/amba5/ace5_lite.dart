@@ -306,6 +306,7 @@ class Ace5LiteRChannelInterface extends Axi5RChannelInterface {
     super.responseMixInEnable,
     super.tagMixInEnable,
     super.chunkMixInEnable,
+    super.idMixInEnable,
   }) : super(
           useCrediting: false,
           sharedCredits: false,
@@ -336,7 +337,8 @@ class Ace5LiteRChannelInterface extends Axi5RChannelInterface {
       tagMixInEnable: tagMixInEnable,
       debugMixInEnable: debugMixInEnable,
       chunkMixInEnable: chunkMixInEnable,
-      responseMixInEnable: responseMixInEnable);
+      responseMixInEnable: responseMixInEnable,
+      idMixInEnable: idMixInEnable);
 }
 
 /// A config object for constructor an AXI5 B channel.
