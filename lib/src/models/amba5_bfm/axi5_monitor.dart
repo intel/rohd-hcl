@@ -389,7 +389,7 @@ class Axi5WChannelMonitor extends Monitor<Axi5WChannelPacket> {
           for (var i = 0; i < _dataBuffer.length; i++) {
             dataPkts.add(Axi5DataSignalsStruct(
               data: _dataBuffer[i].toInt(),
-              last: i == dataPkts.length - 1,
+              last: i == _dataBuffer.length - 1,
               strb: i < _strbBuffer.length ? _strbBuffer[i].toInt() : null,
               poison:
                   i < _poisonBuffer.length ? _poisonBuffer[i].toInt() : null,
