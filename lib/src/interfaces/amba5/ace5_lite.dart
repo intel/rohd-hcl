@@ -389,7 +389,8 @@ class Ace5LiteBChannelInterface extends Axi5BChannelInterface {
           respWidth: respWidth),
       userMixInEnable: userMixInEnable,
       tagMixInEnable: tagMixInEnable,
-      debugMixInEnable: debugMixInEnable);
+      debugMixInEnable: debugMixInEnable,
+      idMixInEnable: idMixInEnable);
 }
 
 /// Grouping of read channels.

@@ -310,7 +310,8 @@ class Axi5LiteBChannelInterface extends Axi5BChannelInterface {
           tracePresent: tracePresent,
           respWidth: respWidth),
       userMixInEnable: userMixInEnable,
-      debugMixInEnable: debugMixInEnable);
+      debugMixInEnable: debugMixInEnable,
+      idMixInEnable: idMixInEnable);
 }
 
 /// Grouping of read channels.
