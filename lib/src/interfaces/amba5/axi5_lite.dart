@@ -292,6 +292,7 @@ class Axi5LiteBChannelInterface extends Axi5BChannelInterface {
     required super.config,
     super.userMixInEnable,
     super.debugMixInEnable,
+    super.idMixInEnable,
   }) : super(
           useCrediting: false,
           sharedCredits: false,

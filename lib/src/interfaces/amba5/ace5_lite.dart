@@ -365,6 +365,7 @@ class Ace5LiteBChannelInterface extends Axi5BChannelInterface {
     super.userMixInEnable,
     super.debugMixInEnable,
     super.tagMixInEnable,
+    super.idMixInEnable,
   }) : super(
           useCrediting: false,
           sharedCredits: false,
