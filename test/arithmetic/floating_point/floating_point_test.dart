@@ -181,7 +181,7 @@ void main() {
 
       FloatingPointValuePopulator fpvPopulator() => fp1.valuePopulator();
 
-      for (var i = 0; i < 100; i++) {
+      for (var i = 0; i < 300; i++) {
         for (final doNormal in [false, true]) {
           for (final doSubNormal in [false, true]) {
             if (!doNormal && !doSubNormal) {

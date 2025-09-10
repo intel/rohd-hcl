@@ -144,8 +144,11 @@ class SignMagnitudeValuePopulator<SmvType extends SignMagnitudeValue> {
           'generate value');
     }
 
-    magnitude =
-        rv.nextLogicValueNew(width: width, min: lower, max: limit + lower);
+    // magnitude =
+    //     rv.nextLogicValueNew(width: width, min: lower, max: limit + lower);
+
+    magnitude = rv.nextLogicValue(width: width, max: limit) +
+        LogicValue.ofBigInt(lower, width);
 
     return populate(sign: sign, magnitude: magnitude);
   }

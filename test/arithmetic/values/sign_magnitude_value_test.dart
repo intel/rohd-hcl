@@ -94,52 +94,44 @@ void main() {
             // Single-sided greater-than
             final fpvGtE = populator().random(rv, gte: gt);
             final outGtE = fpvGtE.toInt();
-            if (outGtE < gtInt) {
-              throw Exception('Value out of range $gtInt <= $outGtE');
-            }
+            expect(outGtE < gtInt, isFalse,
+                reason: 'Value out of range $gtInt < $outGtE');
             if (gtInt < 15) {
               final fpvGt = populator().random(rv, gt: gt);
               final outGt = fpvGt.toInt();
-              if (outGt <= gtInt) {
-                throw Exception('Value out of range $gtInt < $outGt');
-              }
+              expect(outGt <= gtInt, isFalse,
+                  reason: 'Value out of range $gtInt < $outGt');
             }
             // Single-sided less-than
             final fvpLtE = populator().random(rv, lte: lt);
             final outLtE = fvpLtE.toInt();
-            if (outLtE > ltInt) {
-              throw Exception('Value out of range $ltInt >= $outLtE');
-            }
+            expect(outLtE > ltInt, isFalse,
+                reason: 'Value out of range $ltInt >= $outLtE');
             if (ltInt > -15) {
               final fvpLt = populator().random(rv, lt: lt);
               final outLt = fvpLt.toInt();
-              if (outLt >= ltInt) {
-                throw Exception('Value out of range $ltInt < $outLt');
-              }
+              expect(outLt >= ltInt, isFalse,
+                  reason: 'Value out of range $ltInt >= $outLt');
             }
             // Double-sided
             final rnd = populator().random(rv, gte: gt, lte: lt);
             final out = rnd.toInt();
-            if (out < gtInt || out > ltInt) {
-              throw Exception('Value out of range $gtInt <= $out <= $ltInt');
-            }
+            expect(out < gtInt || out > ltInt, isFalse,
+                reason: 'Value out of range $gtInt <= $out <= $ltInt');
             if (ltInt - gtInt > 1) {
               final fpvLt = populator().random(rv, gt: gt, lte: lt);
               final outLt = fpvLt.toInt();
-              if (outLt <= gtInt || outLt > ltInt) {
-                throw Exception('Value out of range $gtInt < $out <= $ltInt');
-              }
+              expect(outLt <= gtInt || outLt > ltInt, isFalse,
+                  reason: 'Value out of range $gtInt < $out <= $ltInt');
               final fpvGt = populator().random(rv, gte: gt, lt: lt);
               final outGt = fpvGt.toInt();
-              if (outGt < gtInt || outGt >= ltInt) {
-                throw Exception('Value out of range $gtInt <= $out < $ltInt');
-              }
+              expect(outGt < gtInt || outGt >= ltInt, isFalse,
+                  reason: 'Value out of range $gtInt <= $out < $ltInt');
               if (ltInt - gtInt > 2) {
                 final fpvGt = populator().random(rv, gt: gt, lt: lt);
                 final outGt = fpvGt.toInt();
-                if (outGt <= gtInt || outGt >= ltInt) {
-                  throw Exception('Value out of range $gtInt < $out < $ltInt');
-                }
+                expect(outGt <= gtInt || outGt >= ltInt, isFalse,
+                    reason: 'Value out of range $gtInt < $out < $ltInt');
               }
             }
           }

@@ -247,17 +247,15 @@ class FloatingPoint extends LogicStructure {
 
   /// Negate the [FloatingPoint].
   FloatingPoint operator -() => negate();
-  // ignore the lint warning about overriding the '-' operator.
-  // Adding that override will fail CI analyze_source.sh.
 
   @override
   Logic operator >(dynamic other) => gt(other);
   @override
   Logic operator >=(dynamic other) => gte(other);
 
-  /// Equal
-  @override
-  Logic eq(dynamic other) {
+  /// Verify if comparable:  return `1` if comparable, throw exception
+  /// on mismatch.
+  Logic verifyComparable(dynamic other) {
     if (other is! FloatingPoint) {
       throw RohdHclException('Input must be floating point signal.');
     }
@@ -266,8 +264,13 @@ class FloatingPoint extends LogicStructure {
         other.explicitJBit != explicitJBit) {
       throw RohdHclException('FloatingPoint width or J-bit does not match');
     }
-    return mux(isNaN | other.isNaN, Const(0), super.eq(other));
+    return ~(isNaN | other.isNaN);
   }
+
+  /// Equal
+  @override
+  Logic eq(dynamic other) =>
+      mux(verifyComparable(other), super.eq(other), Const(0));
 
   /// Not Equal
   @override
@@ -276,19 +279,12 @@ class FloatingPoint extends LogicStructure {
   /// Less-than.
   @override
   Logic lt(dynamic other) {
-    if (other is! FloatingPoint) {
-      throw RohdHclException('Input must be floating point signal.');
-    }
-    if (other.exponent.width != exponent.width ||
-        other.mantissa.width != mantissa.width ||
-        other.explicitJBit != explicitJBit) {
-      throw RohdHclException('FloatingPoint width or J-bit does not match');
-    }
+    final otherSign = (other as FloatingPoint).sign;
     return mux(
-        isNaN | other.isNaN,
-        Const(0),
-        mux(sign, mux(other.sign, super.gt(other), Const(1)),
-            mux(other.sign, Const(0), super.lt(other))));
+        verifyComparable(other),
+        mux(sign, mux(otherSign, super.gt(other), Const(1)),
+            mux(otherSign, Const(0), super.lt(other))),
+        Const(0));
   }
 
   @override
@@ -297,12 +293,8 @@ class FloatingPoint extends LogicStructure {
   // For Greather-than operators, reverse the operands
   /// Greater-than.
   @override
-  Logic gt(dynamic other) {
-    if (other is! FloatingPoint) {
-      throw RohdHclException('Input must be floating point signal.');
-    }
-    return mux(isNaN | other.isNaN, Const(0), ~lte(other));
-  }
+  Logic gt(dynamic other) =>
+      mux(verifyComparable(other), ~lte(other), Const(0));
 
   /// Greater-than-or-equal-to.
   @override

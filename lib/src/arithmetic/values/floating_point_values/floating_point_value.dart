@@ -177,11 +177,13 @@ class FloatingPointValue implements Comparable<FloatingPointValue> {
     final otherCanonical = other.canonicalize();
 
     final canonicalMantissa = canonical.explicitJBit
-        ? canonical.mantissa.reversed.getRange(1).reversed
+        // ? canonical.mantissa.reversed.getRange(1).reversed
+        ? canonical.mantissa.getRange(0, -1)
         : canonical.mantissa;
 
     final otherCanonicalMantissa = otherCanonical.explicitJBit
-        ? otherCanonical.mantissa.reversed.getRange(1).reversed
+        // ? otherCanonical.mantissa.reversed.getRange(1).reversed
+        ? otherCanonical.mantissa.getRange(0, -1)
         : otherCanonical.mantissa;
 
     final expCompare = canonical.exponent.compareTo(otherCanonical.exponent);
