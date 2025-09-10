@@ -940,12 +940,6 @@ void main() {
         'FP: simple adder with mixed explicit/implicit j-bit IO '
         'widening exhaustive', () {
       for (final outMantissaWidth in [3, 4, 5, 6, 7, 8, 9]) {
-        FloatingPointValuePopulator fpOutPopulator(
-                {required bool explicitJBit}) =>
-            FloatingPointValue.populator(
-                exponentWidth: exponentWidth,
-                mantissaWidth: outMantissaWidth,
-                explicitJBit: explicitJBit);
         FloatingPoint fpOutConstructor({bool explicitJBit = false}) =>
             FloatingPoint(
                 exponentWidth: exponentWidth,

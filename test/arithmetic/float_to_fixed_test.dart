@@ -212,9 +212,7 @@ void main() async {
               .ofLogicValue(LogicValue.ofInt(val, float.width));
       if (!fp8.isNaN & !fp8.isAnInfinity) {
         float.put(fp8.value);
-        final fx8 = FixedPointValue.populator(
-                integerWidth: 23, fractionWidth: 9, signed: true)
-            .ofDouble(fp8.toDouble());
+        final fx8 = dut.q23p9.valuePopulator().ofDouble(fp8.toDouble());
         expect(dut.fixed.value.bitString, fx8.value.bitString);
         expect(dut.q23p9.value, fx8.value);
       }
@@ -228,7 +226,7 @@ void main() async {
               .ofLogicValue(LogicValue.ofInt(val, float.width));
       if (!fp8.isNaN & !fp8.isAnInfinity) {
         float.put(fp8.value);
-        final fx8 = dut.fixed.valuePopulator().ofDouble(fp8.toDouble());
+        final fx8 = dut.q16p16.valuePopulator().ofDouble(fp8.toDouble());
         expect(dut.fixed.value.bitString, fx8.value.bitString);
         expect(dut.q16p16.value, fx8.value);
       }

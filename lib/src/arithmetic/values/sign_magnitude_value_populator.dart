@@ -145,7 +145,7 @@ class SignMagnitudeValuePopulator<SmvType extends SignMagnitudeValue> {
     }
 
     magnitude =
-        rv.nextLogicValueNew(width: this.width, min: lower, max: limit + lower);
+        rv.nextLogicValueNew(width: width, min: lower, max: limit + lower);
 
     return populate(sign: sign, magnitude: magnitude);
   }
