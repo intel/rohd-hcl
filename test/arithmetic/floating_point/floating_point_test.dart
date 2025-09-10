@@ -190,11 +190,14 @@ void main() {
             final separate = fpvPopulator()
                 .random(rv, genNormal: doNormal, genSubNormal: doSubNormal);
             if (!doNormal) {
-              if (separate.eq(fpvPopulator().ofConstant(
-                      FloatingPointConstants.smallestPositiveNormal)) |
-                  separate.eq(fpvPopulator()
-                      .ofConstant(FloatingPointConstants.smallestPositiveNormal)
-                      .negate())) {
+              if (separate ==
+                      (fpvPopulator().ofConstant(
+                          FloatingPointConstants.smallestPositiveNormal)) ||
+                  (separate ==
+                      (fpvPopulator()
+                          .ofConstant(
+                              FloatingPointConstants.smallestPositiveNormal)
+                          .negate()))) {
                 continue;
               }
             }

@@ -37,15 +37,10 @@ void main() {
             sign: LogicValue.ofBool(j < 0),
             magnitude: LogicValue.ofInt(j.abs(), width));
         expect(smv1.compareTo(smv2), i.compareTo(j));
-        expect(smv1.eq(smv2), i == j);
         expect(smv1 == smv2, i == j);
-        expect(smv1.lt(smv2), i < j);
         expect(smv1 < smv2, i < j);
-        expect(smv1.lte(smv2), i <= j);
         expect(smv1 <= smv2, i <= j);
-        expect(smv1.gt(smv2), i > j);
         expect(smv1 > smv2, i > j);
-        expect(smv1.gte(smv2), i >= j);
         expect(smv1 >= smv2, i >= j);
       }
     }

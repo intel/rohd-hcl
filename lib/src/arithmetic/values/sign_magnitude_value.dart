@@ -81,35 +81,17 @@ class SignMagnitudeValue implements Comparable<SignMagnitudeValue> {
     }
   }
 
-  /// Equality function for [SignMagnitudeValue].
-  bool eq(SignMagnitudeValue other) => compareTo(other) == 0;
-
-  /// Inequality function for [SignMagnitudeValue].
-  bool neq(SignMagnitudeValue other) => !eq(other);
-
-  /// Less-than function for [SignMagnitudeValue].
-  bool lt(SignMagnitudeValue other) => compareTo(other) < 0;
-
   /// Less-than operator for [SignMagnitudeValue].
-  bool operator <(SignMagnitudeValue other) => lt(other);
-
-  /// Less-than-or-equal function for [SignMagnitudeValue].
-  bool lte(SignMagnitudeValue other) => compareTo(other) <= 0;
+  bool operator <(SignMagnitudeValue other) => compareTo(other) < 0;
 
   /// Less-than-or-equal operator for [SignMagnitudeValue].
-  bool operator <=(SignMagnitudeValue other) => lte(other);
-
-  /// Greater-than function for [SignMagnitudeValue].
-  bool gt(SignMagnitudeValue other) => compareTo(other) > 0;
+  bool operator <=(SignMagnitudeValue other) => compareTo(other) <= 0;
 
   /// Greater-than operator for [SignMagnitudeValue].
-  bool operator >(SignMagnitudeValue other) => gt(other);
-
-  /// Greater-than-or-equal function for [SignMagnitudeValue].
-  bool gte(SignMagnitudeValue other) => compareTo(other) >= 0;
+  bool operator >(SignMagnitudeValue other) => compareTo(other) > 0;
 
   /// Greater-than-or-equal operator for [SignMagnitudeValue].
-  bool operator >=(SignMagnitudeValue other) => gte(other);
+  bool operator >=(SignMagnitudeValue other) => compareTo(other) >= 0;
 
   @override
   int get hashCode => value.hashCode ^ width.hashCode;

@@ -850,33 +850,29 @@ class FloatingPointValuePopulator<FpvType extends FloatingPointValue> {
     final negNormals = doGenNormal &
         ((trimGt ?? trimGte)!.sign == LogicValue.one) &
         ((trimGt ?? trimGte)!.isNormal()) &
-        (trimGt?.neq(
-                cloneConstant(FloatingPointConstants.smallestPositiveNormal)
-                    .negate()) ??
-            true);
+        (trimGt !=
+            cloneConstant(FloatingPointConstants.smallestPositiveNormal)
+                .negate());
 
     final posNormals = doGenNormal &
         ((trimLt ?? trimLte)!.sign == LogicValue.zero) &
         ((trimLt ?? trimLte)?.isNormal() ?? true) &
-        (trimLt?.neq(
-                cloneConstant(FloatingPointConstants.smallestPositiveNormal)) ??
-            true);
+        (trimLt !=
+            cloneConstant(FloatingPointConstants.smallestPositiveNormal));
 
     final negSubNormals = doGenSubNormal &
         ((trimGt ?? trimGte)!.sign == LogicValue.one) &
         !(trimGt?.isAZero ?? false) &
         !(trimGte?.isAZero ?? false) &
-        (trimGt?.neq(
-                cloneConstant(FloatingPointConstants.smallestPositiveSubnormal)
-                    .negate()) ??
-            true);
+        (trimGt !=
+            cloneConstant(FloatingPointConstants.smallestPositiveSubnormal)
+                .negate());
     final posSubNormals = doGenSubNormal &
         ((trimLt ?? trimLte)!.sign == LogicValue.zero) &
         !(trimLt?.isAZero ?? false) &
         !(trimLte?.isAZero ?? false) &
-        (trimLt?.neq(cloneConstant(
-                FloatingPointConstants.smallestPositiveSubnormal)) ??
-            true);
+        (trimLt !=
+            cloneConstant(FloatingPointConstants.smallestPositiveSubnormal));
 
     if ((!doGenSubNormal & !negNormals & !posNormals) ||
         (!doGenNormal & !negSubNormals & !posSubNormals)) {

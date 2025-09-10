@@ -203,16 +203,8 @@ class FloatingPointValue implements Comparable<FloatingPointValue> {
     return 0;
   }
 
-  /// Equality function for [FloatingPointValue].
-  bool eq(FloatingPointValue other) {
-    if (isNaN | other.isNaN) {
-      return false;
-    }
-    return compareTo(other) == 0;
-  }
-
   /// Inequality function for [FloatingPointValue].
-  bool neq(FloatingPointValue other) => !eq(other);
+  // bool neq(FloatingPointValue other) => !eq(other);
 
   /// Equality operator for [FloatingPointValue].
   @override
@@ -220,32 +212,23 @@ class FloatingPointValue implements Comparable<FloatingPointValue> {
     if (other is! FloatingPointValue) {
       return false;
     }
-    return eq(other);
+    if (isNaN | other.isNaN) {
+      return false;
+    }
+    return compareTo(other) == 0;
   }
 
-  /// Less-than function for [FloatingPointValue].
-  bool lt(FloatingPointValue other) => compareTo(other) < 0;
-
   /// Less-than operator for [FloatingPointValue].
-  bool operator <(FloatingPointValue other) => lt(other);
-
-  /// Less-than-or-equal function for [FloatingPointValue].
-  bool lte(FloatingPointValue other) => compareTo(other) <= 0;
+  bool operator <(FloatingPointValue other) => compareTo(other) < 0;
 
   /// Less-than-or-equal operator for [FloatingPointValue].
-  bool operator <=(FloatingPointValue other) => lte(other);
-
-  /// Greater-than function for [FloatingPointValue].
-  bool gt(FloatingPointValue other) => compareTo(other) > 0;
+  bool operator <=(FloatingPointValue other) => compareTo(other) <= 0;
 
   /// Greater-than operator for [FloatingPointValue].
-  bool operator >(FloatingPointValue other) => gt(other);
-
-  /// Greater-than-or-equal function for [FloatingPointValue].
-  bool gte(FloatingPointValue other) => compareTo(other) >= 0;
+  bool operator >(FloatingPointValue other) => compareTo(other) > 0;
 
   /// Greater-than-or-equal operator for [FloatingPointValue].
-  bool operator >=(FloatingPointValue other) => gte(other);
+  bool operator >=(FloatingPointValue other) => compareTo(other) >= 0;
 
   /// Test if exponent is all '1's.
   bool get isExponentAllOnes => exponent.and() == LogicValue.one;

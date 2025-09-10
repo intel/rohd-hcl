@@ -636,8 +636,8 @@ void main() {
           if ((lb.isNormal() && ub.isNormal()) && (lb.sign == ub.sign)) {
             final fpv = populator().random(rv, gt: lb, lt: ub);
             expect(fpv.isNormal(), isTrue);
-            expect(fpv.gt(lb), isTrue);
-            expect(fpv.lt(ub), isTrue);
+            expect(fpv > lb, isTrue);
+            expect(fpv < ub, isTrue);
             populator().random(rv,
                 gt: lb, lt: ub, genNormal: true, genSubNormal: false);
             try {
@@ -809,14 +809,14 @@ void main() {
     final val2 = FloatingPointValue.populator(
             exponentWidth: exponentWidth, mantissaWidth: mantissaWidth - 1)
         .ofDouble(1.23);
-    expect(val1.eq(val2), isTrue);
-    expect(val1.neq(val2), isFalse);
-    expect(val1.lte(val2), isTrue);
-    expect(val1.gte(val2), isTrue);
-    expect(val1.lt(val2), isFalse);
-    expect(val1.gt(val2), isFalse);
-    expect(val2.lt(val1), isFalse);
-    expect(val2.gt(val1), isFalse);
+    expect(val1 == val2, isTrue);
+    expect(val1 != val2, isFalse);
+    expect(val1 <= val2, isTrue);
+    expect(val1 >= val2, isTrue);
+    expect(val1 < val2, isFalse);
+    expect(val1 > val2, isFalse);
+    expect(val2 < val1, isFalse);
+    expect(val2 > val1, isFalse);
   });
 
   test('FloatingPointValue comparison operators', () async {
@@ -833,32 +833,28 @@ void main() {
               exponentWidth: exponentWidth, mantissaWidth: mantissaWidth)
           .random(rv);
 
-      expect(val1.eq(val1), isTrue);
-      expect(val1.lte(val1), isTrue);
-      expect(val1.gte(val1), isTrue);
+      expect(val1 == val1, isTrue);
+      expect(val1 <= val1, isTrue);
       expect(val1 >= val1, isTrue);
-      expect(val1.neq(val1), isFalse);
-      expect(val1.lt(val1), isFalse);
-      expect(val1.gt(val1), isFalse);
+      expect(val1 != val1, isFalse);
+      expect(val1 < val1, isFalse);
       expect(val1 > val1, isFalse);
 
       if (val1 < val2) {
-        expect(val1.lt(val2), isTrue);
-        expect(val1.lte(val2), isTrue);
-        expect(val1.neq(val2), isTrue); // This will use Logic.neq()
-        expect(val1.eq(val2), isFalse);
-        expect(val1.gt(val2), isFalse);
+        expect(val1 < val2, isTrue);
+        expect(val1 <= val2, isTrue);
+        expect(val1 != val2, isTrue); // This will use Logic.neq()
+        expect(val1 == val2, isFalse);
         expect(val1 > val2, isFalse);
       } else if (val1 > val2) {
-        expect(val1.gt(val2), isTrue);
         expect(val1 > val2, isTrue);
-        expect(val1.lt(val2), isFalse);
-        expect(val1.lte(val2), isFalse);
-        expect(val1.neq(val2), isTrue); // This will use Logic.neq()
+        expect(val1 < val2, isFalse);
+        expect(val1 <= val2, isFalse);
+        expect(val1 != val2, isTrue); // This will use Logic.neq()
       } else {
         // rare that the two numbers would collide but just to be safe
-        expect(val1.eq(val2), isTrue);
-        expect(val1.neq(val2), isFalse);
+        expect(val1 == val2, isTrue);
+        expect(val1 != val2, isFalse);
       }
     }
   });
@@ -876,25 +872,25 @@ void main() {
             exponentWidth: exponentWidth, mantissaWidth: mantissaWidth)
         .ofConstant(FloatingPointConstants.negativeInfinity);
 
-    expect(nan.eq(nan), isFalse);
-    expect(nan.lt(nan), isFalse);
-    expect(nan.gt(nan), isFalse);
+    expect(nan == nan, isFalse);
+    expect(nan < nan, isFalse);
+    expect(nan > nan, isFalse);
 
-    expect(posInfinity.eq(nan), isFalse);
-    expect(posInfinity.eq(posInfinity), isTrue);
-    expect(posInfinity.gte(posInfinity), isTrue);
-    expect(posInfinity.lte(posInfinity), isTrue);
-    expect(posInfinity.lt(posInfinity), isFalse);
-    expect(posInfinity.gt(posInfinity), isFalse);
-    expect(posInfinity.eq(negInfinity), isFalse);
-    expect(posInfinity.gte(negInfinity), isTrue);
-    expect(negInfinity.eq(negInfinity), isTrue);
-    expect(negInfinity.lt(negInfinity), isFalse);
-    expect(negInfinity.lte(negInfinity), isTrue);
-    expect(negInfinity.gt(negInfinity), isFalse);
-    expect(negInfinity.gte(negInfinity), isTrue);
-    expect((-negInfinity).eq(posInfinity), isTrue);
-    expect((-negInfinity).lt(posInfinity), isFalse);
-    expect((-negInfinity).gt(posInfinity), isFalse);
+    expect(posInfinity == nan, isFalse);
+    expect(posInfinity == posInfinity, isTrue);
+    expect(posInfinity >= posInfinity, isTrue);
+    expect(posInfinity <= posInfinity, isTrue);
+    expect(posInfinity < posInfinity, isFalse);
+    expect(posInfinity > posInfinity, isFalse);
+    expect(posInfinity == negInfinity, isFalse);
+    expect(posInfinity >= negInfinity, isTrue);
+    expect(negInfinity == negInfinity, isTrue);
+    expect(negInfinity < negInfinity, isFalse);
+    expect(negInfinity <= negInfinity, isTrue);
+    expect(negInfinity > negInfinity, isFalse);
+    expect(negInfinity >= negInfinity, isTrue);
+    expect((-negInfinity) == posInfinity, isTrue);
+    expect((-negInfinity) < posInfinity, isFalse);
+    expect((-negInfinity) > posInfinity, isFalse);
   });
 }
