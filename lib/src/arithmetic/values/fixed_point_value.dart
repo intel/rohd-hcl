@@ -40,7 +40,9 @@ class FixedPointValue implements Comparable<FixedPointValue> {
   /// Returns `true` if the number is negative.
   bool isNegative() => signed & (value[-1] == LogicValue.one);
 
-  /// Constructs [FixedPointValue] from sign, integer and fraction values.
+  /// Constructs [FixedPointValue] from [integer] and [fraction] values with a
+  /// [signed] option to interpret MSB of [integer] as sign bit with the
+  /// [integer] represented in twos-complement.
   factory FixedPointValue(
           {required LogicValue integer,
           required LogicValue fraction,
@@ -114,29 +116,35 @@ class FixedPointValue implements Comparable<FixedPointValue> {
     }
   }
 
-  /// Equal-to operation that returns a [LogicValue].
-  LogicValue eq(FixedPointValue other) =>
-      compareTo(other) == 0 ? LogicValue.one : LogicValue.zero;
+  /// Equality function for [FixedPointValue].
+  bool eq(FixedPointValue other) => compareTo(other) == 0;
 
-  /// Not equal-to operation that returns a [LogicValue].
-  LogicValue neq(FixedPointValue other) =>
-      compareTo(other) != 0 ? LogicValue.one : LogicValue.zero;
+  /// Inequality function for [FixedPointValue].
+  bool neq(FixedPointValue other) => !eq(other);
 
-  /// Less-than operation that returns a [LogicValue].
-  LogicValue operator <(FixedPointValue other) =>
-      compareTo(other) < 0 ? LogicValue.one : LogicValue.zero;
+  /// Less-than function for [FixedPointValue].
+  bool lt(FixedPointValue other) => compareTo(other) < 0;
 
-  /// Less-than operation that returns a [LogicValue].
-  LogicValue operator <=(FixedPointValue other) =>
-      compareTo(other) <= 0 ? LogicValue.one : LogicValue.zero;
+  /// Less-than operator for [FixedPointValue].
+  bool operator <(FixedPointValue other) => lt(other);
 
-  /// Less-than operation that returns a [LogicValue].
-  LogicValue operator >(FixedPointValue other) =>
-      compareTo(other) > 0 ? LogicValue.one : LogicValue.zero;
+  /// Less-than-or-equal function for [FixedPointValue].
+  bool lte(FixedPointValue other) => compareTo(other) <= 0;
 
-  /// Less-than operation that returns a [LogicValue].
-  LogicValue operator >=(FixedPointValue other) =>
-      compareTo(other) >= 0 ? LogicValue.one : LogicValue.zero;
+  /// Less-than-or-equal operator for [FixedPointValue].
+  bool operator <=(FixedPointValue other) => lte(other);
+
+  /// Greater-than function for [FixedPointValue].
+  bool gt(FixedPointValue other) => compareTo(other) > 0;
+
+  /// Greater-than operator for [FixedPointValue].
+  bool operator >(FixedPointValue other) => gt(other);
+
+  /// Greater-than-or-equal function for [FixedPointValue].
+  bool gte(FixedPointValue other) => compareTo(other) >= 0;
+
+  /// Greater-than-or-equal operator for [FixedPointValue].
+  bool operator >=(FixedPointValue other) => gte(other);
 
   @override
   int get hashCode =>

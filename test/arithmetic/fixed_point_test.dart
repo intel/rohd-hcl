@@ -15,14 +15,10 @@ void main() async {
     final fx1 = FixedPoint(integerWidth: 10, fractionWidth: 10);
     final fx2 = FixedPoint(integerWidth: 10, fractionWidth: 10);
 
-    final val1 = FixedPointValue.populator(
-            integerWidth: 10, fractionWidth: 10, signed: true)
-        .ofDouble(
-      1.23,
-    );
-    final val2 = FixedPointValue.populator(
-            integerWidth: 10, fractionWidth: 10, signed: true)
-        .ofDouble(3.45);
+    final val1 = fx1.valuePopulator().ofDouble(
+          1.23,
+        );
+    final val2 = fx2.valuePopulator().ofDouble(3.45);
     final val3 = FixedPointValue.populator(
             integerWidth: 10, fractionWidth: 10, signed: true)
         .ofDouble(1.23);
@@ -55,16 +51,8 @@ void main() async {
     final fx1 = FixedPoint(integerWidth: 10, fractionWidth: 10);
     final fx2 = FixedPoint(integerWidth: 10, fractionWidth: 10);
 
-    final val1 = FixedPointValue.populator(
-            integerWidth: 10, fractionWidth: 10, signed: true)
-        .ofDouble(
-      1.23,
-    );
-    final val2 = FixedPointValue.populator(
-            integerWidth: 10, fractionWidth: 10, signed: true)
-        .ofDouble(
-      -1.23,
-    );
+    final val1 = fx1.valuePopulator().ofDouble(1.23);
+    final val2 = fx2.valuePopulator().ofDouble(-1.23);
 
     fx1.put(val1);
     fx2.put(val2);

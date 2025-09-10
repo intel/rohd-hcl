@@ -151,55 +151,22 @@ void main() {
   });
 
   test('Comparison operators', () {
-    expect(
+    FixedPointValuePopulator populator({bool signed = false}) =>
         FixedPointValue.populator(
-                integerWidth: 4, fractionWidth: 2, signed: true)
+            integerWidth: 4, fractionWidth: 2, signed: signed);
+    expect(
+        populator(signed: true)
             .ofDouble(14.432)
-            .eq(FixedPointValue.populator(integerWidth: 4, fractionWidth: 2)
-                .ofDouble(14.432)),
-        LogicValue.one);
+            .eq(populator().ofDouble(14.432)),
+        true);
     expect(
-        FixedPointValue.populator(integerWidth: 4, fractionWidth: 2)
-            .ofDouble(14.432)
-            .neq(FixedPointValue.populator(integerWidth: 4, fractionWidth: 2)
-                .ofDouble(14.432)),
-        LogicValue.zero);
-    expect(
-        FixedPointValue.populator(integerWidth: 4, fractionWidth: 2)
-                .ofDouble(13.454) >
-            FixedPointValue.populator(integerWidth: 4, fractionWidth: 2)
-                .ofDouble(14),
-        LogicValue.zero);
-    expect(
-        FixedPointValue.populator(integerWidth: 4, fractionWidth: 2)
-                .ofDouble(13.454) >=
-            FixedPointValue.populator(integerWidth: 4, fractionWidth: 2)
-                .ofDouble(14),
-        LogicValue.zero);
-    expect(
-        FixedPointValue.populator(integerWidth: 4, fractionWidth: 2)
-                .ofDouble(13.454) <
-            FixedPointValue.populator(integerWidth: 4, fractionWidth: 2)
-                .ofDouble(14),
-        LogicValue.one);
-    expect(
-        FixedPointValue.populator(integerWidth: 4, fractionWidth: 2)
-                .ofDouble(13.454) <=
-            FixedPointValue.populator(integerWidth: 4, fractionWidth: 2)
-                .ofDouble(14),
-        LogicValue.one);
-    expect(
-        FixedPointValue.populator(integerWidth: 4, fractionWidth: 2)
-                .ofDouble(14) <=
-            FixedPointValue.populator(integerWidth: 4, fractionWidth: 2)
-                .ofDouble(14),
-        LogicValue.one);
-    expect(
-        FixedPointValue.populator(integerWidth: 4, fractionWidth: 2)
-                .ofDouble(14) >=
-            FixedPointValue.populator(integerWidth: 4, fractionWidth: 2)
-                .ofDouble(14),
-        LogicValue.one);
+        populator().ofDouble(14.432).neq(populator().ofDouble(14.432)), false);
+    expect(populator().ofDouble(13.454) > populator().ofDouble(14), false);
+    expect(populator().ofDouble(13.454) >= populator().ofDouble(14), false);
+    expect(populator().ofDouble(13.454) < populator().ofDouble(14), true);
+    expect(populator().ofDouble(13.454) <= populator().ofDouble(14), true);
+    expect(populator().ofDouble(14) <= populator().ofDouble(14), true);
+    expect(populator().ofDouble(14) >= populator().ofDouble(14), true);
   });
 
   test('FixedPointValue: exhaustive double round-trip', () {
@@ -221,6 +188,35 @@ void main() {
           .ofDouble(dbl);
 
       expect(fxv, equals(fxv2));
+    }
+  });
+
+  test('FixedPointValue: random double round-trip', () {
+    const m = 4;
+    const n = 2;
+    final rv = Random(57);
+    for (final signed in [false, true]) {
+      final lowerBound = FixedPointValue.populator(
+              signed: signed, integerWidth: m, fractionWidth: n)
+          .ofDouble(0);
+      final upperBound = FixedPointValue.populator(
+              signed: signed, integerWidth: m, fractionWidth: n)
+          .ofDouble(0.5);
+      for (var i = 0; i < 1000; i++) {
+        final fxv = FixedPointValue.populator(
+                signed: signed, integerWidth: m, fractionWidth: n)
+            .random(rv, gt: lowerBound, lt: upperBound);
+        final dbl = fxv.toDouble();
+        expect(dbl > lowerBound.toDouble(), isTrue);
+        expect(dbl < upperBound.toDouble(), isTrue);
+      }
+      for (var i = 0; i < 1000; i++) {
+        final fxv = FixedPointValue.populator(
+                signed: signed, integerWidth: m, fractionWidth: n)
+            .random(rv, gte: lowerBound, lte: upperBound);
+        expect(fxv >= lowerBound, isTrue);
+        expect(fxv <= upperBound, isTrue);
+      }
     }
   });
 

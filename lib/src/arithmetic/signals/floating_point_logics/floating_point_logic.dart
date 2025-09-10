@@ -263,8 +263,7 @@ class FloatingPoint extends LogicStructure {
     }
     if (other.exponent.width != exponent.width ||
         other.mantissa.width != mantissa.width ||
-        other.explicitJBit ||
-        explicitJBit) {
+        other.explicitJBit != explicitJBit) {
       throw RohdHclException('FloatingPoint width or J-bit does not match');
     }
     return mux(isNaN | other.isNaN, Const(0), super.eq(other));
@@ -282,8 +281,7 @@ class FloatingPoint extends LogicStructure {
     }
     if (other.exponent.width != exponent.width ||
         other.mantissa.width != mantissa.width ||
-        other.explicitJBit ||
-        explicitJBit) {
+        other.explicitJBit != explicitJBit) {
       throw RohdHclException('FloatingPoint width or J-bit does not match');
     }
     return mux(
