@@ -105,7 +105,7 @@ class Axi5StreamInterface extends Axi5TransportInterface {
       if (useKeep) Logic.port('TKEEP', strbWidth),
       if (useLast) Logic.port('TLAST'),
       if (useWakeup) Logic.port('TWAKEUP'),
-      if (idWidth > 0) Logic.port('TID'),
+      if (idWidth > 0) Logic.port('TID', idWidth),
       if (userWidth > 0) Logic.port('TUSER'),
     ], [
       PairDirection.fromProvider,
