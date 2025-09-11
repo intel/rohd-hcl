@@ -167,32 +167,39 @@ class FixedPoint extends LogicStructure {
   @override
   Logic operator >=(dynamic other) => gte(other);
 
-  /// TODO(desmonddak): These operators below need tests.
+  // TODO(desmonddak): These operators below need tests.
+
+  /// Multiply operator.
   @override
   Logic operator *(dynamic other) => _multiply(other);
 
+  /// Equality operator.
   @override
   Logic eq(dynamic other) {
     _verifyCompatible(other);
     return super.eq(other);
   }
 
+  /// Inequality operator.
   @override
   Logic neq(dynamic other) {
     _verifyCompatible(other);
     return super.neq(other);
   }
 
+  /// Modulo operator. Currently unimplemented
   @override
   Logic operator %(dynamic other) {
     throw UnimplementedError('Operator not implemented.');
   }
 
+  /// Divide operator. Currently unimplemented.
   @override
   Logic operator /(dynamic other) {
     throw UnimplementedError('Operator not implemented.');
   }
 
+  /// Power operator, Currently unimplemented
   @override
   Logic pow(dynamic exponent) {
     throw UnimplementedError('Operator not implemented.');
