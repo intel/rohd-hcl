@@ -155,12 +155,10 @@ void main() {
         FixedPointValue.populator(
             integerWidth: 4, fractionWidth: 2, signed: signed);
     expect(
-        populator(signed: true)
-            .ofDouble(14.432)
-            .eq(populator().ofDouble(14.432)),
+        populator(signed: true).ofDouble(14.432) ==
+            populator().ofDouble(14.432),
         true);
-    expect(
-        populator().ofDouble(14.432).neq(populator().ofDouble(14.432)), false);
+    expect(populator().ofDouble(14.432) != populator().ofDouble(14.432), false);
     expect(populator().ofDouble(13.454) > populator().ofDouble(14), false);
     expect(populator().ofDouble(13.454) >= populator().ofDouble(14), false);
     expect(populator().ofDouble(13.454) < populator().ofDouble(14), true);

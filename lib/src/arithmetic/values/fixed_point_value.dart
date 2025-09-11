@@ -116,35 +116,17 @@ class FixedPointValue implements Comparable<FixedPointValue> {
     }
   }
 
-  /// Equality function for [FixedPointValue].
-  bool eq(FixedPointValue other) => compareTo(other) == 0;
-
-  /// Inequality function for [FixedPointValue].
-  bool neq(FixedPointValue other) => !eq(other);
-
-  /// Less-than function for [FixedPointValue].
-  bool lt(FixedPointValue other) => compareTo(other) < 0;
-
   /// Less-than operator for [FixedPointValue].
-  bool operator <(FixedPointValue other) => lt(other);
-
-  /// Less-than-or-equal function for [FixedPointValue].
-  bool lte(FixedPointValue other) => compareTo(other) <= 0;
+  bool operator <(FixedPointValue other) => compareTo(other) < 0;
 
   /// Less-than-or-equal operator for [FixedPointValue].
-  bool operator <=(FixedPointValue other) => lte(other);
-
-  /// Greater-than function for [FixedPointValue].
-  bool gt(FixedPointValue other) => compareTo(other) > 0;
+  bool operator <=(FixedPointValue other) => compareTo(other) <= 0;
 
   /// Greater-than operator for [FixedPointValue].
-  bool operator >(FixedPointValue other) => gt(other);
-
-  /// Greater-than-or-equal function for [FixedPointValue].
-  bool gte(FixedPointValue other) => compareTo(other) >= 0;
+  bool operator >(FixedPointValue other) => compareTo(other) > 0;
 
   /// Greater-than-or-equal operator for [FixedPointValue].
-  bool operator >=(FixedPointValue other) => gte(other);
+  bool operator >=(FixedPointValue other) => compareTo(other) >= 0;
 
   @override
   int get hashCode =>

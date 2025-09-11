@@ -608,7 +608,7 @@ class FloatingPointValuePopulator<FpvType extends FloatingPointValue> {
   /// [genNormal] and [genSubNormal] instead.
   ///
   /// If [genNormal] is `true`, this method will generate normal numbers, and if
-  /// [genSubNormal  ] is `true`, it will generate subnormal numbers. If both
+  /// [genSubNormal] is `true`, it will generate subnormal numbers. If both
   /// are `false`, an exception will be thrown. Note that the range of numbers
   /// to be generated is respected by these flags, so a range which does not
   /// contain the requested type of number will result in a throw.

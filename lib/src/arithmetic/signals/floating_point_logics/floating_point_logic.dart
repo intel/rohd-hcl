@@ -255,7 +255,7 @@ class FloatingPoint extends LogicStructure {
 
   /// Verify if comparable:  return `1` if comparable, throw exception
   /// on mismatch.
-  Logic verifyComparable(dynamic other) {
+  Logic _verifyComparable(dynamic other) {
     if (other is! FloatingPoint) {
       throw RohdHclException('Input must be floating point signal.');
     }
@@ -270,7 +270,7 @@ class FloatingPoint extends LogicStructure {
   /// Equal
   @override
   Logic eq(dynamic other) =>
-      mux(verifyComparable(other), super.eq(other), Const(0));
+      mux(_verifyComparable(other), super.eq(other), Const(0));
 
   /// Not Equal
   @override
@@ -281,7 +281,7 @@ class FloatingPoint extends LogicStructure {
   Logic lt(dynamic other) {
     final otherSign = (other as FloatingPoint).sign;
     return mux(
-        verifyComparable(other),
+        _verifyComparable(other),
         mux(sign, mux(otherSign, super.gt(other), Const(1)),
             mux(otherSign, Const(0), super.lt(other))),
         Const(0));
@@ -294,7 +294,7 @@ class FloatingPoint extends LogicStructure {
   /// Greater-than.
   @override
   Logic gt(dynamic other) =>
-      mux(verifyComparable(other), ~lte(other), Const(0));
+      mux(_verifyComparable(other), ~lte(other), Const(0));
 
   /// Greater-than-or-equal-to.
   @override
