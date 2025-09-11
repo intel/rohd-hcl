@@ -44,39 +44,36 @@ class RegisterFile extends Memory with ResettableEntries {
     _buildLogic();
   }
 
+  //TODO: test getData
   /// A testbench hook to access data at a given address.
   LogicValue? getData(LogicValue addr) => _storageBank[addr.toInt()].value;
 
   /// Flop-based storage of all memory.
-  late final List<Logic> _storageBank;
+  late final LogicArray _storageBank =
+      LogicArray([numEntries], dataWidth, name: 'storageBank');
 
   void _buildLogic() {
-    // create local storage bank
-    _storageBank = List<Logic>.generate(
-        numEntries, (i) => Logic(name: 'storageBank_$i', width: dataWidth));
-
-    Sequential(clk, [
-      If(reset, then: [
-        ..._storageBank.mapIndexed((i, e) => e < _resetValues[i])
-      ], orElse: [
-        for (var entry = 0; entry < numEntries; entry++)
-          ...wrPorts.map((wrPort) =>
-              // set storage bank if write enable and pointer matches
-              If(wrPort.en & wrPort.addr.eq(entry), then: [
-                _storageBank[entry] <
-                    (wrPort is MaskedDataPortInterface
-                        ? [
-                            for (var index = 0; index < dataWidth ~/ 8; index++)
-                              mux(
-                                  wrPort.mask[index],
-                                  wrPort.data
-                                      .getRange(index * 8, (index + 1) * 8),
-                                  _storageBank[entry]
-                                      .getRange(index * 8, (index + 1) * 8))
-                          ].rswizzle()
-                        : wrPort.data),
-              ])),
-      ]),
+    Sequential(clk, reset: reset, resetValues: {
+      for (var i = 0; i < numEntries; i++)
+        _storageBank.elements[i]: _resetValues[i]
+    }, [
+      for (var entry = 0; entry < numEntries; entry++)
+        ...wrPorts.map((wrPort) =>
+            // set storage bank if write enable and pointer matches
+            If(wrPort.en & wrPort.addr.eq(entry), then: [
+              _storageBank.elements[entry] <
+                  (wrPort is MaskedDataPortInterface
+                      ? [
+                          for (var index = 0; index < dataWidth ~/ 8; index++)
+                            mux(
+                                wrPort.mask[index],
+                                wrPort.data
+                                    .getRange(index * 8, (index + 1) * 8),
+                                _storageBank.elements[entry]
+                                    .getRange(index * 8, (index + 1) * 8))
+                        ].rswizzle()
+                      : wrPort.data),
+            ])),
     ]);
 
     Combinational([
@@ -86,7 +83,7 @@ class RegisterFile extends Memory with ResettableEntries {
             Case(rdPort.addr, [
               for (var entry = 0; entry < numEntries; entry++)
                 CaseItem(Const(LogicValue.ofInt(entry, addrWidth)),
-                    [rdPort.data < _storageBank[entry]])
+                    [rdPort.data < _storageBank.elements[entry]])
             ], defaultItem: [
               rdPort.data < Const(0, width: dataWidth)
             ])
