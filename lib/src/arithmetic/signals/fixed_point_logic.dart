@@ -113,44 +113,28 @@ class FixedPoint extends LogicStructure {
   @override
   Logic lt(dynamic other) {
     _verifyCompatible(other);
-    if (signed) {
-      return mux(this[-1], super.gt(other), super.lt(other));
-    } else {
-      return super.lt(other);
-    }
+    return mux(Const(signed) & this[-1], super.gt(other), super.lt(other));
   }
 
   /// Less-than-or-equal-to.
   @override
   Logic lte(dynamic other) {
     _verifyCompatible(other);
-    if (signed) {
-      return mux(this[-1], super.gte(other), super.lte(other));
-    } else {
-      return super.lte(other);
-    }
+    return mux(Const(signed) & this[-1], super.gte(other), super.lte(other));
   }
 
   /// Greater-than.
   @override
   Logic gt(dynamic other) {
     _verifyCompatible(other);
-    if (signed) {
-      return mux(this[-1], super.lt(other), super.gt(other));
-    } else {
-      return super.gt(other);
-    }
+    return mux(Const(signed) & this[-1], super.lt(other), super.gt(other));
   }
 
   /// Greater-than.
   @override
   Logic gte(dynamic other) {
     _verifyCompatible(other);
-    if (signed) {
-      return mux(this[-1], super.lte(other), super.gte(other));
-    } else {
-      return super.gte(other);
-    }
+    return mux(Const(signed) & this[-1], super.lte(other), super.gte(other));
   }
 
   /// Multiply
@@ -165,8 +149,6 @@ class FixedPoint extends LogicStructure {
 
   /// Negate the [FixedPoint].
   FixedPoint operator -() => negate();
-  // ignore the lint warning about overriding the '-' operator.
-  // Adding that override will fail CI analyze_source.sh.
 
   /// Negate the [FixedPoint].
   FixedPoint negate() {
@@ -185,7 +167,7 @@ class FixedPoint extends LogicStructure {
   @override
   Logic operator >=(dynamic other) => gte(other);
 
-  /// multiply: TODO(desmonddak): this needs tests
+  /// TODO(desmonddak): These operators below need tests.
   @override
   Logic operator *(dynamic other) => _multiply(other);
 
