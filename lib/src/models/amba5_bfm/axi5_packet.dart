@@ -76,6 +76,22 @@ class Axi5AwChannelPacket extends SequenceItem implements Trackable {
     _completer.complete();
   }
 
+  /// Creates a copy of this packet.
+  Axi5AwChannelPacket clone() => Axi5AwChannelPacket(
+        request: request.clone(),
+        prot: prot.clone(),
+        memAttr: memAttr.clone(),
+        user: user?.clone(),
+        id: id?.clone(),
+        stash: stash?.clone(),
+        debug: debug?.clone(),
+        mmu: mmu?.clone(),
+        qual: qual?.clone(),
+        atomic: atomic?.clone(),
+        tag: tag?.clone(),
+        opcode: opcode?.clone(),
+      );
+
   @override
   String? trackerString(TrackerField field) {
     switch (field.title) {
@@ -228,6 +244,22 @@ class Axi5ArChannelPacket extends SequenceItem implements Trackable {
     _completer.complete();
   }
 
+  /// Creates a copy of this packet.
+  Axi5ArChannelPacket clone() => Axi5ArChannelPacket(
+        request: request.clone(),
+        prot: prot.clone(),
+        memAttr: memAttr.clone(),
+        user: user?.clone(),
+        id: id?.clone(),
+        debug: debug?.clone(),
+        mmu: mmu?.clone(),
+        qual: qual?.clone(),
+        atomic: atomic?.clone(),
+        tag: tag?.clone(),
+        chunk: chunk?.clone(),
+        opcode: opcode?.clone(),
+      );
+
   @override
   String? trackerString(TrackerField field) {
     switch (field.title) {
@@ -309,6 +341,14 @@ class Axi5WChannelPacket extends SequenceItem implements Trackable {
   void complete() {
     _completer.complete();
   }
+
+  /// Creates a copy of this packet.
+  Axi5WChannelPacket clone() => Axi5WChannelPacket(
+        data: data.map((e) => e.clone()).toList(),
+        tag: tag?.clone(),
+        debug: debug?.clone(),
+        user: user?.clone(),
+      );
 
   @override
   String? trackerString(TrackerField field) {
@@ -396,6 +436,17 @@ class Axi5RChannelPacket extends SequenceItem implements Trackable {
     _completer.complete();
   }
 
+  /// Creates a copy of this packet.
+  Axi5RChannelPacket clone() => Axi5RChannelPacket(
+        data: data.map((e) => e.clone()).toList(),
+        user: user?.clone(),
+        id: id?.clone(),
+        tag: tag?.clone(),
+        debug: debug?.clone(),
+        chunk: chunk?.clone(),
+        response: response?.clone(),
+      );
+
   @override
   String? trackerString(TrackerField field) {
     switch (field.title) {
@@ -482,6 +533,15 @@ class Axi5BChannelPacket extends SequenceItem implements Trackable {
     _completer.complete();
   }
 
+  /// Creates a copy of this packet.
+  Axi5BChannelPacket clone() => Axi5BChannelPacket(
+        response: response.clone(),
+        user: user?.clone(),
+        id: id?.clone(),
+        tag: tag?.clone(),
+        debug: debug?.clone(),
+      );
+
   @override
   String? trackerString(TrackerField field) {
     switch (field.title) {
@@ -544,6 +604,13 @@ class Axi5AcChannelPacket extends SequenceItem implements Trackable {
     _completer.complete();
   }
 
+  /// Creates a copy of this packet.
+  Axi5AcChannelPacket clone() => Axi5AcChannelPacket(
+        addr: addr,
+        vmidExt: vmidExt,
+        debug: debug?.clone(),
+      );
+
   @override
   String? trackerString(TrackerField field) {
     switch (field.title) {
@@ -579,6 +646,11 @@ class Axi5CrChannelPacket extends SequenceItem implements Trackable {
   void complete() {
     _completer.complete();
   }
+
+  /// Creates a copy of this packet.
+  Axi5CrChannelPacket clone() => Axi5CrChannelPacket(
+        debug: debug?.clone(),
+      );
 
   @override
   String? trackerString(TrackerField field) {

@@ -37,6 +37,15 @@ class Axi5RequestSignalsStruct {
     this.burst,
     this.qos,
   });
+
+  /// Creates a copy of this struct.
+  Axi5RequestSignalsStruct clone() => Axi5RequestSignalsStruct(
+        addr: addr,
+        len: len,
+        size: size,
+        burst: burst,
+        qos: qos,
+      );
 }
 
 /// This corresponds to mixin Axi5DataSignals from axi5_mixins.dart.
@@ -64,6 +73,14 @@ class Axi5DataSignalsStruct {
     this.strb,
     this.poison,
   });
+
+  /// Creates a copy of this struct.
+  Axi5DataSignalsStruct clone() => Axi5DataSignalsStruct(
+        data: data,
+        last: last,
+        strb: strb,
+        poison: poison,
+      );
 }
 
 /// This corresponds to mixin Axi5ResponseSignals from axi5_mixins.dart.
@@ -81,6 +98,12 @@ class Axi5ResponseSignalsStruct {
     this.resp,
     this.busy,
   });
+
+  /// Creates a copy of this struct.
+  Axi5ResponseSignalsStruct clone() => Axi5ResponseSignalsStruct(
+        resp: resp,
+        busy: busy,
+      );
 }
 
 /// This corresponds to mixin Axi5MemoryAttributeSignals from axi5_mixins.dart.
@@ -103,6 +126,13 @@ class Axi5MemoryAttributeSignalsStruct {
     this.region,
     this.mecId,
   });
+
+  /// Creates a copy of this struct.
+  Axi5MemoryAttributeSignalsStruct clone() => Axi5MemoryAttributeSignalsStruct(
+        cache: cache,
+        region: region,
+        mecId: mecId,
+      );
 }
 
 /// This corresponds to mixin Axi5IdSignals from axi5_mixins.dart.
@@ -120,6 +150,12 @@ class Axi5IdSignalsStruct {
     this.id,
     this.idUnq,
   });
+
+  /// Creates a copy of this struct.
+  Axi5IdSignalsStruct clone() => Axi5IdSignalsStruct(
+        id: id,
+        idUnq: idUnq,
+      );
 }
 
 /// This corresponds to mixin Axi5ProtSignals from axi5_mixins.dart.
@@ -152,6 +188,15 @@ class Axi5ProtSignalsStruct {
     this.inst,
     this.pas,
   });
+
+  /// Creates a copy of this struct.
+  Axi5ProtSignalsStruct clone() => Axi5ProtSignalsStruct(
+        prot: prot,
+        nse: nse,
+        priv: priv,
+        inst: inst,
+        pas: pas,
+      );
 }
 
 /// This corresponds to mixin Axi5StashSignals from axi5_mixins.dart.
@@ -189,6 +234,16 @@ class Axi5StashSignalsStruct {
     this.stashLPidEn,
     this.cmo,
   });
+
+  /// Creates a copy of this struct.
+  Axi5StashSignalsStruct clone() => Axi5StashSignalsStruct(
+        domain: domain,
+        stashNid: stashNid,
+        stashNidEn: stashNidEn,
+        stashLPid: stashLPid,
+        stashLPidEn: stashLPidEn,
+        cmo: cmo,
+      );
 }
 
 /// This corresponds to mixin Axi5MemPartTagSignals from axi5_mixins.dart.
@@ -206,6 +261,12 @@ class Axi5MemPartTagSignalsStruct {
     this.mpam,
     this.tagOp,
   });
+
+  /// Creates a copy of this struct.
+  Axi5MemPartTagSignalsStruct clone() => Axi5MemPartTagSignalsStruct(
+        mpam: mpam,
+        tagOp: tagOp,
+      );
 }
 
 /// This corresponds to mixin Axi5MemRespDataTagSignals from axi5_mixins.dart.
@@ -238,6 +299,15 @@ class Axi5MemRespDataTagSignalsStruct {
     this.comp,
     this.persist,
   });
+
+  /// Creates a copy of this struct.
+  Axi5MemRespDataTagSignalsStruct clone() => Axi5MemRespDataTagSignalsStruct(
+        tag: tag,
+        tagUpdate: tagUpdate,
+        tagMatch: tagMatch,
+        comp: comp,
+        persist: persist,
+      );
 }
 
 /// This corresponds to mixin Axi5DebugSignals from axi5_mixins.dart.
@@ -255,6 +325,12 @@ class Axi5DebugSignalsStruct {
     this.trace,
     this.loop,
   });
+
+  /// Creates a copy of this struct.
+  Axi5DebugSignalsStruct clone() => Axi5DebugSignalsStruct(
+        trace: trace,
+        loop: loop,
+      );
 }
 
 /// This corresponds to mixin Axi5MmuSignals from axi5_mixins.dart.
@@ -307,6 +383,19 @@ class Axi5MmuSignalsStruct {
     this.mmuPasUnknown,
     this.mmuPm,
   });
+
+  /// Creates a copy of this struct.
+  Axi5MmuSignalsStruct clone() => Axi5MmuSignalsStruct(
+        mmuValid: mmuValid,
+        mmuSecSid: mmuSecSid,
+        mmuSid: mmuSid,
+        mmuSsidV: mmuSsidV,
+        mmuSsid: mmuSsid,
+        mmuAtSt: mmuAtSt,
+        mmuFlow: mmuFlow,
+        mmuPasUnknown: mmuPasUnknown,
+        mmuPm: mmuPm,
+      );
 }
 
 /// This corresponds to mixin Axi5QualifierSignals from axi5_mixins.dart.
@@ -339,6 +428,15 @@ class Axi5QualifierSignalsStruct {
     this.actV,
     this.act,
   });
+
+  /// Creates a copy of this struct.
+  Axi5QualifierSignalsStruct clone() => Axi5QualifierSignalsStruct(
+        nsaId: nsaId,
+        pbha: pbha,
+        subSysId: subSysId,
+        actV: actV,
+        act: act,
+      );
 }
 
 /// This corresponds to mixin Axi5ChunkSignals from axi5_mixins.dart.
@@ -366,6 +464,14 @@ class Axi5ChunkSignalsStruct {
     this.chunkNum,
     this.chunkStrb,
   });
+
+  /// Creates a copy of this struct.
+  Axi5ChunkSignalsStruct clone() => Axi5ChunkSignalsStruct(
+        chunkEn: chunkEn,
+        chunkV: chunkV,
+        chunkNum: chunkNum,
+        chunkStrb: chunkStrb,
+      );
 }
 
 /// This corresponds to mixin Axi5AtomicSignals from axi5_mixins.dart.
@@ -383,6 +489,12 @@ class Axi5AtomicSignalsStruct {
     this.lock,
     this.atOp,
   });
+
+  /// Creates a copy of this struct.
+  Axi5AtomicSignalsStruct clone() => Axi5AtomicSignalsStruct(
+        lock: lock,
+        atOp: atOp,
+      );
 }
 
 /// This corresponds to mixin Axi5OpcodeSignals from axi5_mixins.dart.
@@ -395,6 +507,11 @@ class Axi5OpcodeSignalsStruct {
   Axi5OpcodeSignalsStruct({
     this.snoop,
   });
+
+  /// Creates a copy of this struct.
+  Axi5OpcodeSignalsStruct clone() => Axi5OpcodeSignalsStruct(
+        snoop: snoop,
+      );
 }
 
 /// This corresponds to mixin Axi5UserSignals from axi5_mixins.dart.
@@ -407,4 +524,9 @@ class Axi5UserSignalsStruct {
   Axi5UserSignalsStruct({
     this.user,
   });
+
+  /// Creates a copy of this struct.
+  Axi5UserSignalsStruct clone() => Axi5UserSignalsStruct(
+        user: user,
+      );
 }
