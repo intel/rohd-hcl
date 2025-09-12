@@ -58,6 +58,18 @@ class Axi5StreamPacket extends SequenceItem implements Trackable {
   /// Called by a completer when a transfer is completed.
   void complete() => _completer.complete();
 
+  /// Copy constructor.
+  Axi5StreamPacket clone() => Axi5StreamPacket(
+        data: data,
+        strb: strb,
+        last: last,
+        keep: keep,
+        user: user,
+        id: id,
+        dest: dest,
+        wakeup: wakeup,
+      );
+
   @override
   String? trackerString(TrackerField field) {
     switch (field.title) {
