@@ -178,6 +178,84 @@ class FixedPointValue implements Comparable<FixedPointValue> {
     return isNegative() ? -value : value;
   }
 
+  /// Converts a [FixedPointValue] to a [FloatingPointValue].
+  FloatingPointValue toFloatingPointValue({required bool explicitJBit}) {
+    if (!value.isValid) {
+      throw RohdHclException('Inputs must be valid.');
+    }
+
+    // throw an error if widths are both zero.
+    if (integerWidth == 0 && fractionWidth == 0) {
+      throw RohdHclException('Cannot convert fixed-point value with zero '
+          'widths to floating-point value.');
+    }
+
+    // Qm.n need to be converted so we have it in the form (1.<MANTISSA>).
+    const minmialExponentWidth = 4;
+    var sign = value[-1];
+    if (!signed) {
+      sign = LogicValue.zero; // if not signed, we set sign to zero.
+    }
+    // need to verify if we have a signed representation or not.
+    final fixedNum = sign.toBool() ? ~value + 1 : value;
+
+    var firstOneIndex = 0;
+    final LogicValue mantissaVal;
+    final LogicValue exponentVal;
+
+    // if we have a zero value, we can return a zero floating point value.
+    if (fixedNum.isZero) {
+      return FloatingPointValue(
+          sign: LogicValue.zero,
+          exponent: LogicValue.zero,
+          mantissa: LogicValue.zero,
+          explicitjBit: true);
+    }
+
+    // Count the leading zeros in order to correct the exponent value.
+    for (var i = fixedNum.width - 1; i > 0; i--) {
+      if (fixedNum[i] == LogicValue.one) {
+        firstOneIndex = i;
+        break;
+      }
+    }
+    mantissaVal = explicitJBit
+        ? fixedNum
+            .slice(firstOneIndex, 0)
+            .extend(firstOneIndex + 1, LogicValue.zero)
+        : firstOneIndex == 0
+            ? LogicValue.filled(integerWidth + fractionWidth, LogicValue.zero)
+            : fixedNum.slice(firstOneIndex - 1, 0);
+
+    // now we have (1.<MANTISSA>) so we can calculate the exponent.
+    final radix = (fixedNum.width - 1) - integerWidth;
+    var shiftAmnt = firstOneIndex - radix;
+    if (!signed) {
+      shiftAmnt -= 1; // shiftAmnt is reduced by one for unsigned.
+    }
+    if (explicitJBit && mantissaVal[mantissaVal.width - 1] == LogicValue.zero) {
+      shiftAmnt += 1;
+    }
+    var expWidth = 0;
+    if (shiftAmnt != 0) {
+      // if shiftAmnt is not zero, we need to calculate the exponent width.
+      expWidth = log2Ceil(shiftAmnt.abs()) << 1;
+    }
+    if (expWidth < minmialExponentWidth) {
+      expWidth = minmialExponentWidth; // minimum exponent width needed.
+    }
+    // set the bias amount which is 2^(expWidth - 1) - 1.
+    final bias = LogicValue.ofInt((pow(2, expWidth - 1) - 1).toInt(), expWidth);
+    // bias our exponent value.
+    exponentVal = LogicValue.ofInt(shiftAmnt, expWidth) + bias;
+
+    return FloatingPointValue(
+        sign: sign,
+        exponent: exponentVal,
+        mantissa: mantissaVal,
+        explicitjBit: explicitJBit);
+  }
+
   /// Addition operation that returns a [FixedPointValue].
   /// The result is signed if one of the operands is signed.
   /// The result integer has the max integer width of the operands plus one.
