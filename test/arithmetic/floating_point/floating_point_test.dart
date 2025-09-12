@@ -180,8 +180,8 @@ void main() {
       final fp2 = fpConstructor();
 
       FloatingPointValuePopulator fpvPopulator() => fp1.valuePopulator();
-
-      for (var i = 0; i < 300; i++) {
+      final compare = fp1.lte(fp2);
+      for (var iter = 0; iter < 4000; iter++) {
         for (final doNormal in [false, true]) {
           for (final doSubNormal in [false, true]) {
             if (!doNormal && !doSubNormal) {
@@ -209,7 +209,7 @@ void main() {
                 genNormal: doNormal, genSubNormal: doSubNormal, gte: separate);
             fp1.put(low);
             fp2.put(high);
-            expect(fp1.lte(fp2).value.toBool(), isTrue);
+            expect(compare.value.toBool(), isTrue);
           }
         }
       }

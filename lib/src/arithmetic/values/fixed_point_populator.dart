@@ -78,9 +78,8 @@ class FixedPointValuePopulator<FxvType extends FixedPointValue> {
         ? 1 + integerWidth + fractionWidth
         : integerWidth + fractionWidth;
     if (val.isFinite) {
-      final bigIntegerValue = BigInt.from(val) * BigInt.two.pow(fractionWidth);
-      final negBigIntegerValue =
-          BigInt.from(-val) * BigInt.two.pow(fractionWidth);
+      final bigIntegerValue = BigInt.from(val * pow(2.0, fractionWidth));
+      final negBigIntegerValue = BigInt.from(-val * pow(2.0, fractionWidth));
       final l = (val < 0.0)
           ? max(bigIntegerValue.bitLength, negBigIntegerValue.bitLength)
           : bigIntegerValue.bitLength;
