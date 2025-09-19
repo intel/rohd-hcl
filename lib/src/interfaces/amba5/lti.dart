@@ -720,3 +720,42 @@ class LtiCluster extends PairInterface {
         lt: lt?.clone(),
       );
 }
+
+/// Helper to enumerate the encodings of the LRRESP signal.
+enum LtiRespField {
+  /// The translation was successful.
+  success(0x0),
+
+  /// The translation was successful but the transaction type must be
+  /// downgraded. The meaning of this for each transaction type is described in
+  /// B5.2.2 Downgrade types.
+  downgrade1(0x1),
+
+  /// The translation was successful but the transaction type must be
+  /// downgraded. The meaning of this for each transaction type is described in
+  /// B5.2.2 Downgrade types.
+  downgrade2(0x2),
+
+  /// The translation was not successful and the transaction must be terminated.
+  /// The Manager should indicate to the upstream device that the transaction
+  /// was not successful.
+  faultAbort(0x4),
+
+  /// The translation was not successful and the transaction must be terminated.
+  /// If possible, the LTI Manager should indicate to the Requester that the
+  /// transaction was successful, by returning 0 if the data was a read, and
+  /// ignoring the transaction if it was a write. Cache maintenance and prefetch
+  /// effects of the transaction are ignored.
+  terminateRazwi(0x5),
+
+  /// The translation was not successful but it might be resolved by issuing a
+  /// PRI request. The Manager should issue a PRI request, and if the response
+  /// from that indicates success, retry the LTI request. For more information,
+  /// see B1.4.4 PRI flow.
+  faultPri(0x6);
+
+  /// Underlying value.
+  final int value;
+
+  const LtiRespField(this.value);
+}
