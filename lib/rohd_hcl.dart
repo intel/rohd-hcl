@@ -17,6 +17,7 @@ export 'src/find.dart';
 export 'src/find_pattern.dart';
 export 'src/gaskets/spi/spi_gaskets.dart';
 export 'src/interfaces/interfaces.dart';
+export 'src/memory/cam.dart';
 export 'src/memory/memories.dart';
 export 'src/models/models.dart';
 export 'src/priority_encoder.dart';
