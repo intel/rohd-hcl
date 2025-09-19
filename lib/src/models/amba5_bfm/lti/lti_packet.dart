@@ -129,6 +129,22 @@ class LtiLaChannelPacket extends SequenceItem implements Trackable {
         return '';
     }
   }
+
+  /// Creates a copy of this packet.
+  LtiLaChannelPacket clone() => LtiLaChannelPacket(
+        addr: addr,
+        trans: trans,
+        attr: attr,
+        ogV: ogV,
+        user: user?.clone(),
+        id: id?.clone(),
+        prot: prot?.clone(),
+        mmu: mmu?.clone(),
+        debug: debug?.clone(),
+        og: og,
+        tlBlock: tlBlock,
+        ident: ident,
+      );
 }
 
 /// A packet for the LTI LR channel interface.
@@ -232,6 +248,22 @@ class LtiLrChannelPacket extends SequenceItem implements Trackable {
         return '';
     }
   }
+
+  /// Creates a copy of this packet.
+  LtiLrChannelPacket clone() => LtiLrChannelPacket(
+        addr: addr,
+        hwattr: hwattr,
+        attr: attr,
+        user: user?.clone(),
+        id: id?.clone(),
+        prot: prot?.clone(),
+        debug: debug?.clone(),
+        response: response?.clone(),
+        mecId: mecId,
+        mpam: mpam,
+        ctag: ctag,
+        size: size,
+      );
 }
 
 /// A packet for the LTI LC channel interface.
@@ -269,6 +301,12 @@ class LtiLcChannelPacket extends SequenceItem implements Trackable {
         return '';
     }
   }
+
+  /// Creates a copy of this packet.
+  LtiLcChannelPacket clone() => LtiLcChannelPacket(
+        tag: tag,
+        user: user?.clone(),
+      );
 }
 
 /// A packet for the LTI LT channel interface.
@@ -306,4 +344,10 @@ class LtiLtChannelPacket extends SequenceItem implements Trackable {
         return '';
     }
   }
+
+  /// Creates a copy of this packet.
+  LtiLtChannelPacket clone() => LtiLtChannelPacket(
+        tag: tag,
+        user: user?.clone(),
+      );
 }
