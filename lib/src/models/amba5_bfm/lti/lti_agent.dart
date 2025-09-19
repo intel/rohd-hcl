@@ -86,10 +86,18 @@ class LtiMainLcChannelAgent extends Agent {
   /// LC interface.
   late final LtiLcChannelInterface lc;
 
-  // TODO: driver for crediting??
+  /// Driver.
+  late final LtiLcChannelDriver driver;
 
-  /// Monitor.
-  late final LtiLcChannelMonitor monitor;
+  /// Sequencer.
+  late final Sequencer<LtiLcChannelPacket> sequencer;
+
+  /// The number of cycles before timing out if no transactions can be sent.
+  final int timeoutCycles;
+
+  /// The number of cycles before an objection will be dropped when there are
+  /// no pending packets to send.
+  final int dropDelayCycles;
 
   /// Constructs a new [LtiMainLcChannelAgent].
   LtiMainLcChannelAgent({
@@ -97,8 +105,20 @@ class LtiMainLcChannelAgent extends Agent {
     required this.lc,
     required Component parent,
     String name = 'ltiMainLcChannelAgent',
+    this.timeoutCycles = 500,
+    this.dropDelayCycles = 30,
   }) : super(name, parent) {
-    monitor = LtiLcChannelMonitor(sys: sys, lc: lc, parent: parent);
+    sequencer =
+        Sequencer<LtiLcChannelPacket>('ltiMainLcChannelAgentSequencer', this);
+
+    driver = LtiLcChannelDriver(
+      parent: this,
+      sys: sys,
+      lc: lc,
+      sequencer: sequencer,
+      timeoutCycles: timeoutCycles,
+      dropDelayCycles: dropDelayCycles,
+    );
   }
 }
 
@@ -181,7 +201,12 @@ class LtiMainClusterAgent extends Agent {
         timeoutCycles: timeoutCycles,
         dropDelayCycles: dropDelayCycles);
     respAgent = LtiMainLrChannelAgent(sys: sys, lr: lr, parent: parent);
-    compAgent = LtiMainLcChannelAgent(sys: sys, lc: lc, parent: parent);
+    compAgent = LtiMainLcChannelAgent(
+        sys: sys,
+        lc: lc,
+        parent: parent,
+        timeoutCycles: timeoutCycles,
+        dropDelayCycles: dropDelayCycles);
     if (lt != null) {
       tagAgent = LtiMainLtChannelAgent(sys: sys, lt: lt!, parent: parent);
     }
@@ -264,18 +289,10 @@ class LtiSubordinateLcChannelAgent extends Agent {
   /// LC interface.
   late final LtiLcChannelInterface lc;
 
-  /// Driver.
-  late final LtiLcChannelDriver driver;
+  // TODO: driver for crediting??
 
-  /// Sequencer.
-  late final Sequencer<LtiLcChannelPacket> sequencer;
-
-  /// The number of cycles before timing out if no transactions can be sent.
-  final int timeoutCycles;
-
-  /// The number of cycles before an objection will be dropped when there are
-  /// no pending packets to send.
-  final int dropDelayCycles;
+  /// Monitor.
+  late final LtiLcChannelMonitor monitor;
 
   /// Constructs a new [LtiSubordinateLcChannelAgent].
   LtiSubordinateLcChannelAgent({
@@ -283,20 +300,8 @@ class LtiSubordinateLcChannelAgent extends Agent {
     required this.lc,
     required Component parent,
     String name = 'ltiSubordinateLcChannelAgent',
-    this.timeoutCycles = 500,
-    this.dropDelayCycles = 30,
   }) : super(name, parent) {
-    sequencer = Sequencer<LtiLcChannelPacket>(
-        'ltiSubordinateLcChannelAgentSequencer', this);
-
-    driver = LtiLcChannelDriver(
-      parent: this,
-      sys: sys,
-      lc: lc,
-      sequencer: sequencer,
-      timeoutCycles: timeoutCycles,
-      dropDelayCycles: dropDelayCycles,
-    );
+    monitor = LtiLcChannelMonitor(sys: sys, lc: lc, parent: parent);
   }
 }
 
@@ -404,11 +409,10 @@ class LtiSubordinateClusterAgent extends Agent {
         timeoutCycles: timeoutCycles,
         dropDelayCycles: dropDelayCycles);
     compAgent = LtiSubordinateLcChannelAgent(
-        sys: sys,
-        lc: lc,
-        parent: parent,
-        timeoutCycles: timeoutCycles,
-        dropDelayCycles: dropDelayCycles);
+      sys: sys,
+      lc: lc,
+      parent: parent,
+    );
     if (lt != null) {
       tagAgent = LtiSubordinateLtChannelAgent(
           sys: sys,

@@ -558,14 +558,14 @@ class LtiLcChannelInterface extends Axi5TransportInterface
         tagWidth = config.tagWidth,
         super(
             prefix: 'LC',
-            main: false,
+            main: true,
             useCrediting: true,
             numRp: 0,
             sharedCredits: false) {
     setPorts([
       Logic.port('${prefix}CTAG', tagWidth),
     ], [
-      PairDirection.fromConsumer,
+      PairDirection.fromProvider,
     ]);
     if (userMixInEnable) {
       makeUserPorts();
