@@ -137,8 +137,8 @@ class MultiPortedCache extends Cache {
     final lineAddrWidth = log2Ceil(lines);
     final tagWidth = reads[0].addrWidth - lineAddrWidth;
 
-    // TODO: We will need to add a valid bit to each tag entry to allow for
-    // tags that are all zeros.
+    // TODO(desmonddak): We will need to add a valid bit to each tag entry to
+    // allow for tags that are all zeros.
 
     final tagRFMatchWr = _genTagRFInterfaces(writes, tagWidth, lineAddrWidth);
     final tagRFMatchRd = _genTagRFInterfaces(reads, tagWidth, lineAddrWidth);
