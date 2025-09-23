@@ -66,6 +66,8 @@ void main() {
     expect(rdPort.idx.value.toInt(), 14);
     expect(rdPort2.hit.value, LogicValue.one);
     expect(rdPort2.idx.value.toInt(), 29);
+    await clk.nextPosedge;
+    await clk.nextPosedge;
 
     await Simulator.endSimulation();
   });

@@ -10,7 +10,7 @@
 import 'dart:async';
 
 import 'package:rohd/rohd.dart';
-import 'package:rohd_hcl/src/memory/replacement.dart';
+import 'package:rohd_hcl/src/memory/replacement_policy.dart';
 import 'package:test/test.dart';
 
 void main() {

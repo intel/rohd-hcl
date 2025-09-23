@@ -106,14 +106,17 @@ class Cam extends Memory {
     // A Cam lookup returns the index.
     for (final lookupPort in lookupPorts) {
       Combinational([
+        lookupPort.hit < Const(0),
+        lookupPort.idx < Const(0, width: lookupPort.idWidth),
         Case(lookupPort.tag, [
           for (var i = 0; i < numEntries; i++)
-            CaseItem(_storageBank[i], [
-              If(lookupPort.en, then: [
+            CaseItem(
+              _storageBank[i],
+              [
                 lookupPort.idx < Const(i, width: lookupPort.idWidth),
-                lookupPort.hit < Const(1)
-              ]),
-            ])
+                If(lookupPort.en, then: [lookupPort.hit < Const(1)])
+              ],
+            )
         ], defaultItem: [
           lookupPort.idx < Const(0, width: lookupPort.idWidth),
           lookupPort.hit < Const(0)

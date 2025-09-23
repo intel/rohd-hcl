@@ -1,7 +1,7 @@
 // Copyright (C) 2024-2025 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 //
-// replacement.dart
+// replacement_policy.dart
 // Cache line replacement policies.
 //
 // 2025 September 12
@@ -13,7 +13,15 @@ import 'package:meta/meta.dart';
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
 
-/// An interface to a replacement policy that tracks a hit on a [way] or
+// Problem:  both reads and writes can hit or miss.
+// Hit is a signal from they way-CAM.  So we are transforming a single interface
+// like the read into two interfaces, one for hits, one for misses.
+// But we need to keep the read and write hits separate, because they in one
+// case we specify the way with the hit. In the other case we are ASKING
+// for the way to evict.
+
+/// An interface to a replacement policy that tracks [way] accesses, either
+/// a hita hit on a [way] or
 /// responds to a miss by choosing the [way] to evict to make room for the new
 /// data.
 ///
@@ -50,10 +58,10 @@ class AccessInterface extends Interface<DataPortGroup> {
   AccessInterface clone() => AccessInterface(numWays);
 }
 
-/// A module [Replacement] for choosing which way to use for a set-associative
-/// cache upon a store miss. It tracks accesses to ways to implement policies
-/// like LRU for choosing the way to return on a miss.
-abstract class Replacement extends Module {
+/// A module [ReplacementPolicy] for choosing which way to use for a
+/// set-associative cache upon a store miss. It tracks accesses to ways to
+/// implement policies like LRU for choosing the way to return on a miss.
+abstract class ReplacementPolicy extends Module {
   /// Number of ways in the cache line.
   late final int ways;
 
@@ -63,7 +71,7 @@ abstract class Replacement extends Module {
 
   /// Miss interfaces to communicate misses and retrieve ways to evict.
   @protected
-  final List<AccessInterface> misses = [];
+  final List<AccessInterface> allocs = [];
 
   /// Clock.
   Logic get clk => input('clk');
@@ -71,14 +79,14 @@ abstract class Replacement extends Module {
   /// Reset.
   Logic get reset => input('reset');
 
-  /// Constructs a [Replacement] policy for a cache line.
+  /// Constructs a [ReplacementPolicy] policy for a cache line.
   ///
   /// The [hits] interfaces are used to mark ways that are recently accessed.
-  /// The [misses] interfaces are used to signal a miss and retrieve a way to
+  /// The [allocs] interfaces are used to signal a miss and retrieve a way to
   /// evict. The [ways] parameter indicates the number of ways in the cache
   /// line.
-  Replacement(Logic clk, Logic reset, List<AccessInterface> hits,
-      List<AccessInterface> misses,
+  ReplacementPolicy(Logic clk, Logic reset, List<AccessInterface> hits,
+      List<AccessInterface> allocs,
       {this.ways = 2,
       super.name = 'replacement',
       super.reserveName,
@@ -86,15 +94,18 @@ abstract class Replacement extends Module {
       String? definitionName})
       : super(
             definitionName: definitionName ??
-                'replacement_H${hits.length}_M${misses.length}_WAYS=$ways') {
+                'replacement_H${hits.length}_M${allocs.length}_WAYS=$ways') {
+    if (ways < 2 || (ways & (ways - 1)) != 0) {
+      throw ArgumentError('ways must be a power of two and at least 2');
+    }
     if (hits.isEmpty) {
       throw ArgumentError('at least one access interface is required');
     }
-    if (misses.isEmpty) {
+    if (allocs.isEmpty) {
       throw ArgumentError('at least one miss interface is required');
     }
-    if (misses.length > ways) {
-      throw ArgumentError('number of miss interfaces (${misses.length}) '
+    if (allocs.length > ways) {
+      throw ArgumentError('number of miss interfaces (${allocs.length}) '
           'cannot exceed number of ways ($ways)');
     }
     addInput('clk', clk);
@@ -106,9 +117,9 @@ abstract class Replacement extends Module {
             inputTags: {DataPortGroup.control, DataPortGroup.data},
             uniquify: (original) => 'hit_${original}_$i'));
     }
-    for (var i = 0; i < misses.length; i++) {
-      this.misses.add(misses[i].clone()
-        ..connectIO(this, misses[i],
+    for (var i = 0; i < allocs.length; i++) {
+      this.allocs.add(allocs[i].clone()
+        ..connectIO(this, allocs[i],
             inputTags: {DataPortGroup.control},
             outputTags: {DataPortGroup.data},
             uniquify: (original) => 'miss_${original}_$i'));
@@ -121,9 +132,9 @@ abstract class Replacement extends Module {
 }
 
 /// A tree-based pseudo-LRU replacement policy.
-class PseudoLRUReplacement extends Replacement {
+class PseudoLRUReplacement extends ReplacementPolicy {
   /// Constructs a pseudo Least-Recently-Used policy for a cache line.
-  PseudoLRUReplacement(super.clk, super.reset, super.hits, super.misses,
+  PseudoLRUReplacement(super.clk, super.reset, super.hits, super.allocs,
       {super.ways,
       super.name = 'plru',
       super.reserveName,
@@ -132,27 +143,23 @@ class PseudoLRUReplacement extends Replacement {
       : super(
             definitionName: definitionName ??
                 'psuedo_lru_replacement_'
-                    '${hits.length}_M${misses.length}_WAYS=$ways') {
-    if (ways < 2 || (ways & (ways - 1)) != 0) {
-      throw ArgumentError('ways must be a power of two and at least 2');
-    }
-  }
+                    'H${hits.length}_A${allocs.length}_WAYS=$ways');
 
   /// Declare a miss and ask for the least-recently-used way.
-  Logic missPLRU(Logic v, {int base = 0, int sz = 0}) {
+  Logic allocPLRU(Logic v, {int base = 0, int sz = 0}) {
     final lsz = sz == 0 ? max(log2Ceil(v.width), 1) : sz;
     final mid = v.width ~/ 2;
     return v.width == 1
         ? mux(v[0], Const(base, width: lsz), Const(base + 1, width: lsz))
         : mux(
             v[mid],
-            missPLRU(
+            allocPLRU(
                 v.slice(mid - 1, 0).named(
                     'miss_${v.name}_${mid + base - 1}_$base',
                     naming: Naming.mergeable),
                 base: base,
                 sz: lsz),
-            missPLRU(
+            allocPLRU(
                 v.getRange(mid + 1).named(
                     'miss_${v.name}_${v.width - 1}_${mid + 1}',
                     naming: Naming.mergeable),
@@ -209,13 +216,13 @@ class PseudoLRUReplacement extends Replacement {
               .named('update_hit$i', naming: Naming.mergeable);
     }
 
-    // Then process misses.
-    for (var i = 0; i < misses.length; i++) {
-      final miss = misses[i];
-      miss.way <= missPLRU(updateTreePLRU);
+    // Then process allocs (miss: evict an old way and return).
+    for (var i = 0; i < allocs.length; i++) {
+      final alloc = allocs[i];
+      alloc.way <= allocPLRU(updateTreePLRU);
       updateTreePLRU =
-          mux(miss.access, hitPLRU(updateTreePLRU, miss.way), updateTreePLRU)
-              .named('update_miss$i', naming: Naming.renameable);
+          mux(alloc.access, hitPLRU(updateTreePLRU, alloc.way), updateTreePLRU)
+              .named('update_alloc$i', naming: Naming.renameable);
     }
     treePLRUIn <= updateTreePLRU;
   }
