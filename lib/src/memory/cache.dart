@@ -12,7 +12,7 @@ import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
 
 /// An interface to a cache memory that supplies enable [en], address [addr],
-/// [valid] for indicated a hit, and [data].
+/// [valid] for indicating a hit, and [data].
 ///
 /// Can be used for either read or write direction by grouping signals using
 /// [DataPortGroup].
