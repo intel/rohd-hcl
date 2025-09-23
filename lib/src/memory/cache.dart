@@ -11,8 +11,8 @@ import 'package:meta/meta.dart';
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
 
-/// An interface to a cache memory that only needs enable, address, valid,
-/// and data.
+/// An interface to a cache memory that supplies enable [en], address [addr],
+/// [valid] for indicated a hit, and [data].
 ///
 /// Can be used for either read or write direction by grouping signals using
 /// [DataPortGroup].
@@ -124,7 +124,7 @@ abstract class Cache extends Module {
   Logic getLine(Logic addr) => addr.slice(log2Ceil(lines) - 1, 0);
 }
 
-/// A simple cache with a single read and write port.
+/// A simple multi-ported cache.
 class MultiPortedCache extends Cache {
   /// Constructs a simple cache with a single read and write port.
   MultiPortedCache(super.clk, super.reset, super.writes, super.reads,
@@ -309,8 +309,8 @@ class MultiPortedCache extends Cache {
                 ])
       ]);
     }
-    // Now generate the data RAMs for each way.
-    // Each way has its own RAM, indexed by line address.
+    // The Data `RegisterFile`.
+    // Each way has its own RF, indexed by line address.
 
     final writeDataPorts = _genDataInterfaces(writes, dataWidth, lineAddrWidth);
     final readDataPorts = _genDataInterfaces(reads, dataWidth, lineAddrWidth);
