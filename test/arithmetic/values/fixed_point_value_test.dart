@@ -8,6 +8,8 @@
 // Authors:
 //  Soner Yaldiz <soner.yaldiz@intel.com>
 
+// ignore_for_file: deprecated_member_use_from_same_package
+
 import 'dart:math';
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
