@@ -27,7 +27,7 @@
     <li><a href="../../index.html">rohd_hcl</a></li>
     <li><a href="../../rohd_hcl/">rohd_hcl.dart</a></li>
     <li><a href="../../rohd_hcl/FixedPointValue-class.html">FixedPointValue</a></li>
-    <li class="self-crumb">operator >= method</li>
+    <li class="self-crumb"><span class="deprecated">operator >=</span> method</li>
   </ol>
   <div class="self-name">operator &gt;=</div>
   <form class="search navbar-right" role="search">
@@ -54,8 +54,13 @@
 
     <section class="multi-line-signature">
       
+  <div>
+    <ol class="annotation-list">
+        <li>@<a href="https://api.dart.dev/stable/3.9.3/dart-core/Deprecated-class.html">Deprecated</a>(&#39;This operator will be replaced with a boolean return in the future. &#39; &#39;Use .gteBool(other) for the time being.&#39;)</li>
+    </ol>
+  </div>
 <span class="returntype"><a href="https://pub.dev/documentation/rohd/0.6.6/rohd/LogicValue-class.html">LogicValue</a></span>
-<span class="name ">operator &gt;=</span>(<wbr><ol class="parameter-list single-line"> <li><span class="parameter" id=">=-param-other"><span class="type-annotation"><a href="../../rohd_hcl/FixedPointValue-class.html">FixedPointValue</a></span> <span class="parameter-name">other</span></span></li>
+<span class="name deprecated">operator &gt;=</span>(<wbr><ol class="parameter-list single-line"> <li><span class="parameter" id=">=-param-other"><span class="type-annotation"><a href="../../rohd_hcl/FixedPointValue-class.html">FixedPointValue</a></span> <span class="parameter-name">other</span></span></li>
 </ol>)
 
       
@@ -70,7 +75,10 @@
     
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
-  <pre class="language-dart"><code class="language-dart">LogicValue operator &gt;=(FixedPointValue other) =&gt;
+  <pre class="language-dart"><code class="language-dart">@Deprecated(
+    &#39;This operator will be replaced with a boolean return in the future. &#39;
+    &#39;Use .gteBool(other) for the time being.&#39;)
+LogicValue operator &gt;=(FixedPointValue other) =&gt;
     compareTo(other) &gt;= 0 ? LogicValue.one : LogicValue.zero;</code></pre>
 </section>
 
@@ -87,7 +95,7 @@
     <li><a href="../../index.html">rohd_hcl</a></li>
     <li><a href="../../rohd_hcl/">rohd_hcl</a></li>
     <li><a href="../../rohd_hcl/FixedPointValue-class.html">FixedPointValue</a></li>
-    <li class="self-crumb">operator >= method</li>
+    <li class="self-crumb"><span class="deprecated">operator >=</span> method</li>
 </ol>
 
     <h5>FixedPointValue class</h5>

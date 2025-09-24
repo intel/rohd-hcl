@@ -55,8 +55,16 @@
     <section class="multi-line-signature">
       
 <span class="returntype">FpvType</span>
-<span class="name ">random</span>(<wbr><ol class="parameter-list"> <li><span class="parameter" id="random-param-rv"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.9.2/dart-math/Random-class.html">Random</a></span> <span class="parameter-name">rv</span>, {</span></li>
-<li><span class="parameter" id="random-param-normal"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.9.2/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">normal</span> = <span class="default-value">false</span>, </span></li>
+<span class="name ">random</span>(<wbr><ol class="parameter-list"> <li><span class="parameter" id="random-param-rv"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.9.3/dart-math/Random-class.html">Random</a></span> <span class="parameter-name">rv</span>, {</span></li>
+<li><span class="parameter" id="random-param-normal"><span>@<a href="https://api.dart.dev/stable/3.9.3/dart-core/Deprecated-class.html">Deprecated</a>(&#39;use genNormal&#47;genSubNormal instead&#39;)</span> <span class="type-annotation"><a href="https://api.dart.dev/stable/3.9.3/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">normal</span> = <span class="default-value">false</span>, </span></li>
+<li><span class="parameter" id="random-param-subNormal"><span>@<a href="https://api.dart.dev/stable/3.9.3/dart-core/Deprecated-class.html">Deprecated</a>(&#39;use genNormal&#47;genSubNormal instead&#39;)</span> <span class="type-annotation"><a href="https://api.dart.dev/stable/3.9.3/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">subNormal</span> = <span class="default-value">false</span>, </span></li>
+<li><span class="parameter" id="random-param-genNormal"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.9.3/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">genNormal</span> = <span class="default-value">true</span>, </span></li>
+<li><span class="parameter" id="random-param-genSubNormal"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.9.3/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">genSubNormal</span> = <span class="default-value">true</span>, </span></li>
+<li><span class="parameter" id="random-param-excludeInfinity"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.9.3/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">excludeInfinity</span> = <span class="default-value">false</span>, </span></li>
+<li><span class="parameter" id="random-param-gt"><span class="type-annotation">FpvType?</span> <span class="parameter-name">gt</span>, </span></li>
+<li><span class="parameter" id="random-param-lt"><span class="type-annotation">FpvType?</span> <span class="parameter-name">lt</span>, </span></li>
+<li><span class="parameter" id="random-param-gte"><span class="type-annotation">FpvType?</span> <span class="parameter-name">gte</span>, </span></li>
+<li><span class="parameter" id="random-param-lte"><span class="type-annotation">FpvType?</span> <span class="parameter-name">lte</span>, </span></li>
 </ol>})
 
       
@@ -64,39 +72,372 @@
     </section>
     
 <section class="desc markdown">
-  <p>Generate a random <a href="../../rohd_hcl/FloatingPointValue-class.html">FloatingPointValue</a>, supplying random seed <code>rv</code>.</p>
+  <p>Generate a random <a href="../../rohd_hcl/FloatingPointValue-class.html">FloatingPointValue</a>, using random seed <code>rv</code> in a given
+range, if provided. The distribution of values is uniform across the
+combined bitfield of exponent and mantissa.</p>
 <p>This generates a valid <a href="../../rohd_hcl/FloatingPointValue-class.html">FloatingPointValue</a> anywhere in the range it can
 represent:a general <a href="../../rohd_hcl/FloatingPointValue-class.html">FloatingPointValue</a> has a mantissa in <code>[0,2)</code> with <code>0 &lt;= exponent &lt;= maxExponent()</code>.</p>
-<p>If <code>normal</code> is <code>true</code>, This routine will only generate mantissas in the
-range of <code>[1,2)</code> and <code>minExponent() &lt;= exponent &lt;= maxExponent().</code></p>
+<p>If <code>normal</code> is <code>true</code>, this method will only generate mantissas in the
+range of <code>[1,2)</code> and <code>minExponent() &lt;= exponent &lt;= maxExponent()</code>,
+otherwise if <code>subNormal</code> is <code>true</code>, it will only generate mantissas in the
+range of <code>[0,1)</code> and <code>exponent == 0</code>. If both are <code>false</code>, it will
+generate mantissas in the range of <code>[0,2)</code> and <code>minExponent() &lt;= exponent &lt;= maxExponent()</code>.</p>
+<p>The <code>normal</code> and <code>subNormal</code> parameters are deprecated, please use
+<code>genNormal</code> and <code>genSubNormal</code> instead.</p>
+<p>If <code>genNormal</code> is <code>true</code>, this method will generate normal numbers, and if
+<code>genSubNormal</code> is <code>true</code>, it will generate subnormal numbers. If both
+are <code>false</code>, an exception will be thrown. Note that the range of numbers
+to be generated is respected by these flags, so a range which does not
+contain the requested type of number will result in a throw.</p>
+<p>You can constrain the range of random numbers generated by using a lower
+bound specified by <code>gt</code> or <code>gte</code> and an upper bound specified by <code>lt</code> or
+<code>lte</code>. If either both lower or both upper bounds are specified, the
+tightest bounds are used.</p>
+<p>If <code>excludeInfinity</code> is <code>true</code>, then infinity values will not be
+generated. NaN values are never generated.</p>
+<p>The range is interpreted as follows:</p>
+<ul>
+<li><code>gt</code>, <code>lt</code>: generate a value in the range <code>([gt], [lt])</code></li>
+<li><code>gte</code>, <code>lt</code>: generate a value in the range <code>[[gte], [lt])</code></li>
+<li><code>gt</code>, <code>lte</code>: generate a value in the range <code>([gt], [lte]]</code></li>
+<li><code>gte</code>, <code>lte</code>: generate a value in the range <code>[[gte], [lte]]</code></li>
+<li><code>gt</code>: generate a value in the range <code>([gt], ∞)</code></li>
+<li><code>gte</code>: generate a value in the range <code>[[gte], ∞)</code></li>
+<li><code>lt</code>: generate a value in the range <code>(-∞, [lt])</code></li>
+<li><code>lte</code>: generate a value in the range <code>(-∞, [lte]]</code></li>
+<li>none: generate a value in the range <code>(-∞, ∞)</code></li>
+</ul>
 </section>
 
 
     
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
-  <pre class="language-dart"><code class="language-dart">FpvType random(Random rv, {bool normal = false}) {
-  if (explicitJBit) {
-    return ofFloatingPointValue(FloatingPointValue.populator(
-            exponentWidth: exponentWidth, mantissaWidth: mantissaWidth - 1)
-        .random(rv, normal: normal)) as FpvType;
+  <pre class="language-dart"><code class="language-dart">FpvType random(Random rv,
+    {@Deprecated(&#39;use genNormal&#47;genSubNormal instead&#39;)
+    bool normal = false, &#47;&#47; if true, generate only normal numbers
+    @Deprecated(&#39;use genNormal&#47;genSubNormal instead&#39;)
+    bool subNormal = false, &#47;&#47; if true generate only subnormal numbers
+    &#47;&#47; These are the new parameters to replace normal&#47;subNormal.
+    bool genNormal = true,
+    bool genSubNormal = true,
+    bool excludeInfinity = false,
+    FpvType? gt,
+    FpvType? lt,
+    FpvType? gte,
+    FpvType? lte}) {
+  FpvType cloneConstant(FloatingPointConstants c) =&gt;
+      _unpopulated.clonePopulator().ofConstant(c) as FpvType;
+  &#47;&#47; DEPRECATION: these checks are for the deprecated parameters.
+  if (normal &amp; subNormal) {
+    throw RohdHclException(
+        &#39;FloatingPointValuePopulator.random: cannot have both normal and &#39;
+        &#39;subNormal be true&#39;);
   }
-  final sign = rv.nextLogicValue(width: 1);
+  if (normal &amp; !genNormal) {
+    throw RohdHclException(
+        &#39;FloatingPointValuePopulator.random: cannot have both normal and &#39;
+        &#39;genNormal be false -- normal will be deprecated, use genNormal&#39;);
+  }
+  if (subNormal &amp; !genSubNormal) {
+    throw RohdHclException(
+        &#39;FloatingPointValuePopulator.random: cannot have both subNormal and &#39;
+        &#39;genSubNormal be false -- subNormal will be deprecated, use &#39;
+        &#39;genSubNormal&#39;);
+  }
+  if (subNormal &amp; subNormalAsZero) {
+    throw RohdHclException(
+        &#39;FloatingPointValuePopulator.random: cannot have both subNormal and &#39;
+        &#39;subNormalAsZero be true&#39;);
+  }
+  &#47;&#47; End DEPRECATION region.
+  _checkMatching(&#39;gt&#39;, gt);
+  _checkMatching(&#39;lt&#39;, lt);
+  _checkMatching(&#39;gte&#39;, gte);
+  _checkMatching(&#39;lte&#39;, lte);
 
-  final largestExponent = bias + maxExponent;
-  final LogicValue exponent;
+  if (gt != null) {
+    if (lt != null) {
+      if (gt.compareTo(lt) &gt;= 0) {
+        throw RohdHclException(
+            &#39;FloatingPointValuePopulator.random: cannot have $gt &gt;= &#39;
+            &#39;$lt&#39;);
+      }
+    } else if (lte != null) {
+      if (gt.compareTo(lte) &gt; 0) {
+        throw RohdHclException(
+            &#39;FloatingPointValuePopulator.random: cannot have $gt &gt; &#39;
+            &#39;$lte&#39;);
+      }
+    }
+  } else if (gte != null) {
+    if (lt != null) {
+      if (gte.compareTo(lt) &gt;= 0) {
+        throw RohdHclException(
+            &#39;FloatingPointValuePopulator.random: cannot have $gte &gt;= &#39;
+            &#39;$lt&#39;);
+      }
+    } else if (lte != null) {
+      if (gte.compareTo(lte) &gt; 0) {
+        throw RohdHclException(
+            &#39;FloatingPointValuePopulator.random: cannot have $gte &gt; &#39;
+            &#39;$lte&#39;);
+      }
+    }
+  }
+
+  &#47;&#47; Manage the old parameters-- this will not be necessary after deprecation.
+  final bool doGenNormal;
+  final bool doGenSubNormal;
   if (normal) {
-    exponent =
-        rv.nextLogicValue(width: exponentWidth, max: largestExponent - 1) +
-            LogicValue.one.zeroExtend(exponentWidth);
+    doGenNormal = true;
+    doGenSubNormal = false;
+  } else if (subNormal) {
+    doGenNormal = false;
+    doGenSubNormal = true;
   } else {
-    exponent = rv.nextLogicValue(width: exponentWidth, max: largestExponent);
+    doGenNormal = genNormal;
+    doGenSubNormal = genSubNormal;
   }
-  final mantissa = (subNormalAsZero &amp; (exponent == LogicValue.zero))
-      ? LogicValue.zero.zeroExtend(mantissaWidth)
-      : rv.nextLogicValue(width: mantissaWidth);
+  &#47;&#47; End Manage the old parameters.
+  if (!doGenNormal &amp; !doGenSubNormal) {
+    throw RohdHclException(
+        &#39;FloatingPointValuePopulator.random: cannot have both genNormal and &#39;
+        &#39;genSubNormal be false&#39;);
+  }
 
-  return populate(sign: sign, exponent: exponent, mantissa: mantissa);
+  if (doGenSubNormal &amp; subNormalAsZero) {
+    throw RohdHclException(
+        &#39;FloatingPointValuePopulator.random: cannot have doGenSubNormal be &#39;
+        &#39;true and subNormalAsZero be true&#39;);
+  }
+
+  if (explicitJBit) {
+    FloatingPointValuePopulator populator() =&gt; FloatingPointValue.populator(
+        exponentWidth: exponentWidth, mantissaWidth: mantissaWidth - 1);
+    return ofFloatingPointValue(populator().random(rv,
+        genNormal: genNormal,
+        genSubNormal: genSubNormal,
+        gt: (gt != null)
+            ? populator().ofFloatingPointValue(gt, canonicalizeExplicit: true)
+            : null,
+        lt: (lt != null)
+            ? populator().ofFloatingPointValue(lt, canonicalizeExplicit: true)
+            : null,
+        gte: (gte != null)
+            ? populator()
+                .ofFloatingPointValue(gte, canonicalizeExplicit: true)
+            : null,
+        lte: (lte != null)
+            ? populator()
+                .ofFloatingPointValue(lte, canonicalizeExplicit: true)
+            : null)) as FpvType;
+  }
+  if ((lt == null) &amp; (lte == null)) {
+    lte = doGenSubNormal &amp; !doGenNormal
+        ? cloneConstant(FloatingPointConstants.largestPositiveSubnormal)
+        : !excludeInfinity
+            ? cloneConstant(FloatingPointConstants.positiveInfinity)
+            : null;
+    lt = (lte == null) &amp; excludeInfinity
+        ? cloneConstant(FloatingPointConstants.positiveInfinity)
+        : null;
+  }
+  if ((gt == null) &amp; (gte == null)) {
+    gte = doGenSubNormal &amp; !doGenNormal
+        ? cloneConstant(FloatingPointConstants.largestPositiveSubnormal)
+            .negate() as FpvType
+        : !excludeInfinity
+            ? cloneConstant(FloatingPointConstants.negativeInfinity)
+            : null;
+    gt = (gte == null) &amp; excludeInfinity
+        ? cloneConstant(FloatingPointConstants.negativeInfinity)
+        : null;
+  }
+
+  &#47;&#47; Take the tightest constraints and assign as local variables.
+  final FpvType? lgte;
+  final FpvType? lgt;
+  final FpvType? llte;
+  final FpvType? llt;
+
+  if ((gt != null) &amp;&amp; (gte != null)) {
+    final gtTighter = (gt.compareTo(gte) != -1);
+    lgte = gtTighter ? null : gte;
+    lgt = gtTighter ? gt : null;
+  } else {
+    lgte = gte;
+    lgt = gt;
+  }
+  if ((lt != null) &amp;&amp; (lte != null)) {
+    final ltTighter = (lt.compareTo(lte) != 1);
+    llte = ltTighter ? null : lte;
+    llt = ltTighter ? lt : null;
+  } else {
+    llte = lte;
+    llt = lt;
+  }
+  &#47;&#47; Trim the limits to skip either normal or subnormal ranges as needed.
+  &#47;&#47; - normal | - subnormal | 0 | + subnormal | + normal
+  final trimGt = (lgt == null)
+      ? null
+      : ((lgt.isNormal() &amp; (lgt.sign == LogicValue.one) &amp; !doGenNormal)
+          ? cloneConstant(FloatingPointConstants.smallestPositiveNormal)
+              .negate() as FpvType
+          : ((!lgt.isNormal() &amp;
+                  (lgt.sign == LogicValue.one) &amp;
+                  !doGenSubNormal)
+              ? cloneConstant(
+                      FloatingPointConstants.smallestPositiveSubnormal)
+                  .negate() as FpvType
+              : (!lgt.isNormal() &amp;
+                      (lgt.sign == LogicValue.zero) &amp;
+                      !doGenSubNormal)
+                  ? cloneConstant(
+                      FloatingPointConstants.largestPositiveSubnormal)
+                  : lgt));
+
+  final trimGte = (lgte == null)
+      ? null
+      : ((lgte.isNormal() &amp; (lgte.sign == LogicValue.one) &amp; !doGenNormal)
+          ? cloneConstant(FloatingPointConstants.largestPositiveSubnormal)
+              .negate() as FpvType
+          : ((!lgte.isNormal() &amp;
+                  (lgte.sign == LogicValue.one) &amp;
+                  !doGenSubNormal)
+              ? cloneConstant(FloatingPointConstants.positiveZero)
+              : (!lgte.isNormal() &amp;
+                      (lgte.sign == LogicValue.zero) &amp;
+                      !doGenSubNormal)
+                  ? cloneConstant(
+                      FloatingPointConstants.smallestPositiveNormal)
+                  : lgte));
+  final trimLt = (llt == null)
+      ? null
+      : ((llt.isNormal() &amp; (llt.sign == LogicValue.zero) &amp; !doGenNormal)
+          ? cloneConstant(FloatingPointConstants.smallestPositiveNormal)
+          : ((!llt.isNormal() &amp; !doGenSubNormal)
+              ? cloneConstant(FloatingPointConstants.largestPositiveSubnormal)
+                  .negate() as FpvType
+              : llt));
+  final trimLte = (llte == null)
+      ? null
+      : ((llte.isNormal() &amp; (llte.sign == LogicValue.zero) &amp; !doGenNormal)
+          ? cloneConstant(FloatingPointConstants.largestPositiveSubnormal)
+          : ((!llte.isNormal() &amp; !doGenSubNormal)
+              ? cloneConstant(FloatingPointConstants.smallestPositiveNormal)
+                  .negate()
+              : llte));
+
+  final negNormals = doGenNormal &amp;
+      ((trimGt ?? trimGte)!.sign == LogicValue.one) &amp;
+      ((trimGt ?? trimGte)!.isNormal()) &amp;
+      (trimGt !=
+          cloneConstant(FloatingPointConstants.smallestPositiveNormal)
+              .negate());
+
+  final posNormals = doGenNormal &amp;
+      ((trimLt ?? trimLte)!.sign == LogicValue.zero) &amp;
+      ((trimLt ?? trimLte)?.isNormal() ?? true) &amp;
+      (trimLt !=
+          cloneConstant(FloatingPointConstants.smallestPositiveNormal));
+
+  final negSubNormals = doGenSubNormal &amp;
+      ((trimGt ?? trimGte)!.sign == LogicValue.one) &amp;
+      !(trimGt?.isAZero ?? false) &amp;
+      !(trimGte?.isAZero ?? false) &amp;
+      (trimGt !=
+          cloneConstant(FloatingPointConstants.smallestPositiveSubnormal)
+              .negate());
+  final posSubNormals = doGenSubNormal &amp;
+      ((trimLt ?? trimLte)!.sign == LogicValue.zero) &amp;
+      !(trimLt?.isAZero ?? false) &amp;
+      !(trimLte?.isAZero ?? false) &amp;
+      (trimLt !=
+          cloneConstant(FloatingPointConstants.smallestPositiveSubnormal));
+
+  if ((!doGenSubNormal &amp; !negNormals &amp; !posNormals) ||
+      (!doGenNormal &amp; !negSubNormals &amp; !posSubNormals)) {
+    throw RohdHclException(
+        &#39;FloatingPointValuePopulator.random: cannot generate value, &#39;
+        &#39;range excludes all normal and subnormal values&#39;);
+  }
+  &#47;&#47; Note that we never have both gt&#47;gte or lt&#47;lte null because of Infinity.
+  var gtSign = (trimGt ?? trimGte)?.sign;
+  var gtMagnitude =
+      (trimGt != null) ? [trimGt.exponent, trimGt.mantissa].swizzle() : null;
+  var gteMagnitude = (trimGte != null)
+      ? [trimGte.exponent, trimGte.mantissa].swizzle()
+      : null;
+
+  var ltSign = (trimLt ?? trimLte)?.sign;
+  var ltMagnitude =
+      (trimLt != null) ? [trimLt.exponent, trimLt.mantissa].swizzle() : null;
+  var lteMagnitude = (trimLte != null)
+      ? [trimLte.exponent, trimLte.mantissa].swizzle()
+      : null;
+  if ((!doGenSubNormal) &amp; negNormals &amp; posNormals) {
+    &#47;&#47; We need to pick a side to generate from.
+    final genSign = rv.nextLogicValue(width: 1);
+    if (genSign == LogicValue.zero) {
+      &#47;&#47; Generate positive normals.
+      gtSign = LogicValue.zero;
+      gtMagnitude = null;
+      final rhGte =
+          cloneConstant(FloatingPointConstants.smallestPositiveNormal);
+      gteMagnitude = [rhGte.exponent, rhGte.mantissa].swizzle();
+    } else {
+      &#47;&#47; Generate negative normals.
+      ltSign = LogicValue.one;
+      ltMagnitude = null;
+      final lhLte =
+          cloneConstant(FloatingPointConstants.smallestPositiveNormal)
+              .negate() as FpvType;
+      lteMagnitude = [lhLte.exponent, lhLte.mantissa].swizzle();
+    }
+    if ((!doGenNormal) &amp; !negSubNormals &amp; !posSubNormals) {
+      throw RohdHclException(
+          &#39;FloatingPointValuePopulator.random: cannot generate value, &#39;
+          &#39;range excludes all normal and subnormal values&#39;);
+    }
+  } else if ((!doGenNormal) &amp; negSubNormals &amp; posSubNormals) {
+    &#47;&#47; We need to pick a side to generate from.
+    final genSign = rv.nextLogicValue(width: 1);
+    if (genSign == LogicValue.zero) {
+      &#47;&#47; Generate positive subnormals.
+      gtSign = LogicValue.zero;
+      gtMagnitude = null;
+      final rhGte = cloneConstant(FloatingPointConstants.positiveZero);
+      gteMagnitude = [rhGte.exponent, rhGte.mantissa].swizzle();
+    } else {
+      &#47;&#47; Generate negative subnormals.
+      ltSign = LogicValue.one;
+      ltMagnitude = null;
+      final lhLte = cloneConstant(FloatingPointConstants.negativeZero);
+      lteMagnitude = [lhLte.exponent, lhLte.mantissa].swizzle();
+    }
+  }
+  final tgt = (gtMagnitude != null)
+      ? SignMagnitudeValue(sign: gtSign!, magnitude: gtMagnitude)
+      : null;
+  final tgte = (gteMagnitude != null)
+      ? SignMagnitudeValue(sign: gtSign!, magnitude: gteMagnitude)
+      : null;
+  final tlt = (ltMagnitude != null)
+      ? SignMagnitudeValue(sign: ltSign!, magnitude: ltMagnitude)
+      : null;
+  final tlte = (lteMagnitude != null)
+      ? SignMagnitudeValue(sign: ltSign!, magnitude: lteMagnitude)
+      : null;
+
+  final smv =
+      SignMagnitudeValue.populator(width: exponentWidth + mantissaWidth)
+          .random(rv, gt: tgt, gte: tgte, lt: tlt, lte: tlte);
+  return populate(
+      sign: smv.sign,
+      exponent: smv.magnitude
+          .slice(exponentWidth + mantissaWidth - 1, mantissaWidth),
+      mantissa: smv.magnitude.slice(mantissaWidth - 1, 0));
 }</code></pre>
 </section>
 

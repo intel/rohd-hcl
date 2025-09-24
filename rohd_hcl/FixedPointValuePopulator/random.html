@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="API docs for the random method from the FixedPointValuePopulator class, for the Dart programming language.">
+  <title>random method - FixedPointValuePopulator class - rohd_hcl library - Dart API</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../../static-assets/github.css?v1">
+  <link rel="stylesheet" href="../../static-assets/styles.css?v1">
+  <link rel="icon" href="../../static-assets/favicon.png?v1">
+  
+</head>
+
+<body data-base-href="../../" data-using-base-href="false" class="light-theme">
+<div id="overlay-under-drawer"></div>
+<header id="title">
+  <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="../../index.html">rohd_hcl</a></li>
+    <li><a href="../../rohd_hcl/">rohd_hcl.dart</a></li>
+    <li><a href="../../rohd_hcl/FixedPointValuePopulator-class.html">FixedPointValuePopulator<span class="signature">&lt;<wbr><span class="type-parameter">FxvType extends FixedPointValue</span>&gt;</span></a></li>
+    <li class="self-crumb">random method</li>
+  </ol>
+  <div class="self-name">random</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+  <button class="toggle" id="theme-button" title="Toggle between light and dark mode" aria-label="Light and dark mode toggle">
+    <span id="dark-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      dark_mode
+    </span>
+    <span id="light-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      light_mode
+    </span>
+  </button>
+</header>
+<main>
+<div
+    id="dartdoc-main-content"
+    class="main-content"
+    data-above-sidebar="rohd_hcl&#47;FixedPointValuePopulator-class-sidebar.html"
+    data-below-sidebar="">
+    <div>
+<h1><span class="kind-method">random</span> method 
+</h1></div>
+
+    <section class="multi-line-signature">
+      
+<span class="returntype">FxvType</span>
+<span class="name ">random</span>(<wbr><ol class="parameter-list"> <li><span class="parameter" id="random-param-rv"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.9.3/dart-math/Random-class.html">Random</a></span> <span class="parameter-name">rv</span>, {</span></li>
+<li><span class="parameter" id="random-param-subNormal"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.9.3/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">subNormal</span> = <span class="default-value">false</span>, </span></li>
+<li><span class="parameter" id="random-param-genNormal"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.9.3/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">genNormal</span> = <span class="default-value">true</span>, </span></li>
+<li><span class="parameter" id="random-param-genSubNormal"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.9.3/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">genSubNormal</span> = <span class="default-value">true</span>, </span></li>
+<li><span class="parameter" id="random-param-gt"><span class="type-annotation">FxvType?</span> <span class="parameter-name">gt</span>, </span></li>
+<li><span class="parameter" id="random-param-lt"><span class="type-annotation">FxvType?</span> <span class="parameter-name">lt</span>, </span></li>
+<li><span class="parameter" id="random-param-gte"><span class="type-annotation">FxvType?</span> <span class="parameter-name">gte</span>, </span></li>
+<li><span class="parameter" id="random-param-lte"><span class="type-annotation">FxvType?</span> <span class="parameter-name">lte</span>, </span></li>
+</ol>})
+
+      
+
+    </section>
+    
+<section class="desc markdown">
+  <p>Generate a random <a href="../../rohd_hcl/FixedPointValue-class.html">FixedPointValue</a>, using random seed <code>rv</code>.</p>
+<p>This generates a valid <a href="../../rohd_hcl/FixedPointValue-class.html">FixedPointValue</a> anywhere in the range specified.
+The range is interpreted as follows:</p>
+<ul>
+<li><code>gt</code>, <code>lt</code>: generate a value in the range <code>([gt], [lt])</code></li>
+<li><code>gte</code>, <code>lt</code>: generate a value in the range <code>[[gte], [lt])</code></li>
+<li><code>gt</code>, <code>lte</code>: generate a value in the range <code>([gt], [lte]]</code></li>
+<li><code>gte</code>, <code>lte</code>: generate a value in the range <code>[[gte], [lte]]</code></li>
+<li><code>gt</code>: generate a value in the range <code>([gt], ∞)</code></li>
+<li><code>gte</code>: generate a value in the range <code>[[gte], ∞)</code></li>
+<li><code>lt</code>: generate a value in the range <code>(-∞, [lt])</code></li>
+<li><code>lte</code>: generate a value in the range <code>(-∞, [lte]]</code></li>
+<li>none: generate a value in the range <code>(-∞, ∞)</code></li>
+</ul>
+</section>
+
+
+    
+<section class="summary source-code" id="source">
+  <h2><span>Implementation</span></h2>
+  <pre class="language-dart"><code class="language-dart">FxvType random(Random rv,
+    {bool subNormal = false, &#47;&#47; if true generate only subnormal numbers
+    bool genNormal = true,
+    bool genSubNormal = true,
+    FxvType? gt,
+    FxvType? lt,
+    FxvType? gte,
+    FxvType? lte}) {
+  _checkMatching(&#39;gt&#39;, gt);
+  _checkMatching(&#39;lt&#39;, lt);
+  _checkMatching(&#39;gte&#39;, gte);
+  _checkMatching(&#39;lte&#39;, lte);
+
+  if (gt != null) {
+    if (lt != null) {
+      if (gt.compareTo(lt) &gt;= 0) {
+        throw RohdHclException(
+            &#39;FloatingPointValuePopulator.random: cannot have $gt &gt;= &#39;
+            &#39;$lt&#39;);
+      }
+    } else if (lte != null) {
+      if (gt.compareTo(lte) &gt; 0) {
+        throw RohdHclException(
+            &#39;FloatingPointValuePopulator.random: cannot have $gt &gt; &#39;
+            &#39;$lte&#39;);
+      }
+    }
+  } else if (gte != null) {
+    if (lt != null) {
+      if (gte.compareTo(lt) &gt;= 0) {
+        throw RohdHclException(
+            &#39;FloatingPointValuePopulator.random: cannot have $gte &gt;= &#39;
+            &#39;$lt&#39;);
+      }
+    } else if (lte != null) {
+      if (gte.compareTo(lte) &gt; 0) {
+        throw RohdHclException(
+            &#39;FloatingPointValuePopulator.random: cannot have $gte &gt; &#39;
+            &#39;$lte&#39;);
+      }
+    }
+  }
+
+  final gtSign =
+      signed ? (gt ?? gte)?.value[-1] ?? LogicValue.one : LogicValue.zero;
+  final ltSign =
+      signed ? (lt ?? lte)?.value[-1] ?? LogicValue.zero : LogicValue.zero;
+
+  final gtMagnitude = gt?.value.abs();
+  final gteMagnitude = gte?.value.abs();
+  final ltMagnitude = lt?.value.abs();
+  final lteMagnitude = lte?.value.abs();
+
+  final tgt = (gtMagnitude == null)
+      ? null
+      : SignMagnitudeValue(sign: gtSign, magnitude: gtMagnitude);
+  final tgte = (gteMagnitude == null)
+      ? null
+      : SignMagnitudeValue(sign: gtSign, magnitude: gteMagnitude);
+  final tlt = (ltMagnitude == null)
+      ? null
+      : SignMagnitudeValue(sign: ltSign, magnitude: ltMagnitude);
+  final tlte = (lteMagnitude == null)
+      ? null
+      : SignMagnitudeValue(sign: ltSign, magnitude: lteMagnitude);
+
+  final smv =
+      SignMagnitudeValue.populator(width: integerWidth + fractionWidth)
+          .random(rv, gt: tgt, gte: tgte, lt: tlt, lte: tlte);
+  final newValue =
+      signed ? [smv.sign, smv.magnitude].swizzle() : smv.magnitude;
+  return ofLogicValue(newValue);
+}</code></pre>
+</section>
+
+
+  </div> <!-- /.main-content -->
+  <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+    <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
+<header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+    <li><a href="../../index.html">rohd_hcl</a></li>
+    <li><a href="../../rohd_hcl/">rohd_hcl</a></li>
+    <li><a href="../../rohd_hcl/FixedPointValuePopulator-class.html">FixedPointValuePopulator<span class="signature">&lt;<wbr><span class="type-parameter">FxvType extends FixedPointValue</span>&gt;</span></a></li>
+    <li class="self-crumb">random method</li>
+</ol>
+
+    <h5>FixedPointValuePopulator class</h5>
+    <div id="dartdoc-sidebar-left-content"></div>
+  </div><!--/.sidebar-offcanvas-->
+  <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+</div><!--/.sidebar-offcanvas-->
+</main>
+<footer>
+  <span class="no-break">
+    rohd_hcl
+      0.2.0
+  </span>
+  
+</footer>
+
+
+<script src="../../static-assets/highlight.pack.js?v1"></script>
+<script src="../../static-assets/docs.dart.js"></script>
+
+</body>
+</html>
+

@@ -27,7 +27,7 @@
     <li><a href="../../index.html">rohd_hcl</a></li>
     <li><a href="../../rohd_hcl/">rohd_hcl.dart</a></li>
     <li><a href="../../rohd_hcl/FixedPointValue-class.html">FixedPointValue</a></li>
-    <li class="self-crumb">neq method</li>
+    <li class="self-crumb"><span class="deprecated">neq</span> method</li>
   </ol>
   <div class="self-name">neq</div>
   <form class="search navbar-right" role="search">
@@ -54,8 +54,13 @@
 
     <section class="multi-line-signature">
       
+  <div>
+    <ol class="annotation-list">
+        <li>@<a href="https://api.dart.dev/stable/3.9.3/dart-core/Deprecated-class.html">Deprecated</a>(&#39;This operator will be removed, please use != instead.&#39;)</li>
+    </ol>
+  </div>
 <span class="returntype"><a href="https://pub.dev/documentation/rohd/0.6.6/rohd/LogicValue-class.html">LogicValue</a></span>
-<span class="name ">neq</span>(<wbr><ol class="parameter-list single-line"> <li><span class="parameter" id="neq-param-other"><span class="type-annotation"><a href="../../rohd_hcl/FixedPointValue-class.html">FixedPointValue</a></span> <span class="parameter-name">other</span></span></li>
+<span class="name deprecated">neq</span>(<wbr><ol class="parameter-list single-line"> <li><span class="parameter" id="neq-param-other"><span class="type-annotation"><a href="../../rohd_hcl/FixedPointValue-class.html">FixedPointValue</a></span> <span class="parameter-name">other</span></span></li>
 </ol>)
 
       
@@ -70,7 +75,8 @@
     
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
-  <pre class="language-dart"><code class="language-dart">LogicValue neq(FixedPointValue other) =&gt;
+  <pre class="language-dart"><code class="language-dart">@Deprecated(&#39;This operator will be removed, please use != instead.&#39;)
+LogicValue neq(FixedPointValue other) =&gt;
     compareTo(other) != 0 ? LogicValue.one : LogicValue.zero;</code></pre>
 </section>
 
@@ -87,7 +93,7 @@
     <li><a href="../../index.html">rohd_hcl</a></li>
     <li><a href="../../rohd_hcl/">rohd_hcl</a></li>
     <li><a href="../../rohd_hcl/FixedPointValue-class.html">FixedPointValue</a></li>
-    <li class="self-crumb">neq method</li>
+    <li class="self-crumb"><span class="deprecated">neq</span> method</li>
 </ol>
 
     <h5>FixedPointValue class</h5>

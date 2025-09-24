@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="API docs for the random method from the SignMagnitudeValuePopulator class, for the Dart programming language.">
+  <title>random method - SignMagnitudeValuePopulator class - rohd_hcl library - Dart API</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../../static-assets/github.css?v1">
+  <link rel="stylesheet" href="../../static-assets/styles.css?v1">
+  <link rel="icon" href="../../static-assets/favicon.png?v1">
+  
+</head>
+
+<body data-base-href="../../" data-using-base-href="false" class="light-theme">
+<div id="overlay-under-drawer"></div>
+<header id="title">
+  <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="../../index.html">rohd_hcl</a></li>
+    <li><a href="../../rohd_hcl/">rohd_hcl.dart</a></li>
+    <li><a href="../../rohd_hcl/SignMagnitudeValuePopulator-class.html">SignMagnitudeValuePopulator<span class="signature">&lt;<wbr><span class="type-parameter">SmvType extends SignMagnitudeValue</span>&gt;</span></a></li>
+    <li class="self-crumb">random method</li>
+  </ol>
+  <div class="self-name">random</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+  <button class="toggle" id="theme-button" title="Toggle between light and dark mode" aria-label="Light and dark mode toggle">
+    <span id="dark-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      dark_mode
+    </span>
+    <span id="light-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      light_mode
+    </span>
+  </button>
+</header>
+<main>
+<div
+    id="dartdoc-main-content"
+    class="main-content"
+    data-above-sidebar="rohd_hcl&#47;SignMagnitudeValuePopulator-class-sidebar.html"
+    data-below-sidebar="">
+    <div>
+<h1><span class="kind-method">random</span> method 
+</h1></div>
+
+    <section class="multi-line-signature">
+      
+<span class="returntype">SmvType</span>
+<span class="name ">random</span>(<wbr><ol class="parameter-list"> <li><span class="parameter" id="random-param-rv"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.9.3/dart-math/Random-class.html">Random</a></span> <span class="parameter-name">rv</span>, {</span></li>
+<li><span class="parameter" id="random-param-gt"><span class="type-annotation"><a href="../../rohd_hcl/SignMagnitudeValue-class.html">SignMagnitudeValue</a>?</span> <span class="parameter-name">gt</span>, </span></li>
+<li><span class="parameter" id="random-param-gte"><span class="type-annotation"><a href="../../rohd_hcl/SignMagnitudeValue-class.html">SignMagnitudeValue</a>?</span> <span class="parameter-name">gte</span>, </span></li>
+<li><span class="parameter" id="random-param-lt"><span class="type-annotation"><a href="../../rohd_hcl/SignMagnitudeValue-class.html">SignMagnitudeValue</a>?</span> <span class="parameter-name">lt</span>, </span></li>
+<li><span class="parameter" id="random-param-lte"><span class="type-annotation"><a href="../../rohd_hcl/SignMagnitudeValue-class.html">SignMagnitudeValue</a>?</span> <span class="parameter-name">lte</span>, </span></li>
+</ol>})
+
+      
+
+    </section>
+    
+<section class="desc markdown">
+  <p>Generate a random <a href="../../rohd_hcl/SignMagnitudeValue-class.html">SignMagnitudeValue</a> in a signed range.</p>
+<p>The range is defined by one of the following combinations of range
+parameters:</p>
+<ul>
+<li><code>gt</code>, <code>lt</code>: generate a value in the range <code>([gt], [lt])</code></li>
+<li><code>gte</code>, <code>lt</code>: generate a value in the range <code>[[gte], [lt])</code></li>
+<li><code>gt</code>, <code>lte</code>: generate a value in the range <code>([gt], [lte]]</code></li>
+<li><code>gte</code>, <code>lte</code>: generate a value in the range <code>[[gte], [lte]]</code></li>
+<li><code>gt</code>: generate a value in the range <code>([gt], ∞)</code></li>
+<li><code>gte</code>: generate a value in the range <code>[[gte], ∞)</code></li>
+<li><code>lt</code>: generate a value in the range <code>(-∞, [lt])</code></li>
+<li><code>lte</code>: generate a value in the range <code>(-∞, [lte]]</code></li>
+<li>none: generate a value in the range <code>(-∞, ∞)</code></li>
+</ul>
+</section>
+
+
+    
+<section class="summary source-code" id="source">
+  <h2><span>Implementation</span></h2>
+  <pre class="language-dart"><code class="language-dart">SmvType random(Random rv,
+    {SignMagnitudeValue? gt,
+    SignMagnitudeValue? gte,
+    SignMagnitudeValue? lt,
+    SignMagnitudeValue? lte}) {
+  if ((gt != null) &amp; (gte != null)) {
+    throw RohdHclException(&#39;randomSignMagnitude: cannot have both &#39;
+        &#39;gt and gte&#39;);
+  }
+  if ((lt != null) &amp; (lte != null)) {
+    throw RohdHclException(&#39;randomSignMagnitude: cannot have both &#39;
+        &#39;lt and lte&#39;);
+  }
+  final lowerLimitSign = (gt ?? gte)?.sign ?? LogicValue.one;
+  final isUpperZero = LogicValue.of((lte ?? lt)?.magnitude.isZero ?? false);
+  final isLowerZero = LogicValue.of((gte ?? gt)?.magnitude.isZero ?? false);
+  final upperLimitSign =
+      ((lt ?? lte)?.sign ?? LogicValue.zero) | (isUpperZero &amp; ~isLowerZero);
+
+  if ((lowerLimitSign == LogicValue.zero) &amp;
+      (upperLimitSign == LogicValue.one)) {
+    throw RohdHclException(&#39;randomSignMagnitude: cannot have positive &#39;
+        &#39;lower limit with negative upper limit&#39;);
+  }
+
+  final one = BigInt.from(1);
+  final zero = BigInt.from(0);
+  final max = BigInt.two.pow(width) - one;
+
+  final posLowerLimit = (lowerLimitSign == LogicValue.zero)
+      ? gte?.magnitude.toBigInt() ?? (gt?.magnitude.toBigInt() ?? -one) + one
+      : zero;
+
+  final posUpperLimit = (upperLimitSign == LogicValue.zero)
+      ? (lte?.magnitude.toBigInt() ??
+          (lt?.magnitude.toBigInt() ?? max + one) - one)
+      : zero;
+
+  final negLowerLimit = (upperLimitSign == LogicValue.one)
+      ? lte?.magnitude.toBigInt() ?? (lt?.magnitude.toBigInt() ?? -one) + one
+      : zero;
+
+  final negUpperLimit = (lowerLimitSign == LogicValue.one)
+      ? gte?.magnitude.toBigInt() ??
+          ((gt?.magnitude.toBigInt() ?? max + one) - one)
+      : zero;
+
+  final sign = (lowerLimitSign == upperLimitSign)
+      ? lowerLimitSign
+      : (negUpperLimit - negLowerLimit) &gt; zero
+          ? (rv.nextBool() ? LogicValue.zero : LogicValue.one)
+          : LogicValue.zero;
+
+  final LogicValue magnitude;
+  final BigInt limit;
+  final BigInt lower;
+  if (sign == LogicValue.zero) {
+    limit = posUpperLimit - posLowerLimit + one;
+    lower = posLowerLimit;
+  } else {
+    limit = negUpperLimit - negLowerLimit + one;
+    lower = negLowerLimit;
+  }
+
+  if (lower &gt; max) {
+    throw RohdHclException(&#39;randomSignMagnitude: invalid range, cannot &#39;
+        &#39;generate value&#39;);
+  }
+  if (limit &lt;= zero) {
+    throw RohdHclException(&#39;randomSignMagnitude: invalid tight range, cannot &#39;
+        &#39;generate value&#39;);
+  }
+
+  magnitude = rv.nextLogicValue(width: width, max: limit) +
+      LogicValue.ofBigInt(lower, width);
+
+  return populate(sign: sign, magnitude: magnitude);
+}</code></pre>
+</section>
+
+
+  </div> <!-- /.main-content -->
+  <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+    <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
+<header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+    <li><a href="../../index.html">rohd_hcl</a></li>
+    <li><a href="../../rohd_hcl/">rohd_hcl</a></li>
+    <li><a href="../../rohd_hcl/SignMagnitudeValuePopulator-class.html">SignMagnitudeValuePopulator<span class="signature">&lt;<wbr><span class="type-parameter">SmvType extends SignMagnitudeValue</span>&gt;</span></a></li>
+    <li class="self-crumb">random method</li>
+</ol>
+
+    <h5>SignMagnitudeValuePopulator class</h5>
+    <div id="dartdoc-sidebar-left-content"></div>
+  </div><!--/.sidebar-offcanvas-->
+  <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+</div><!--/.sidebar-offcanvas-->
+</main>
+<footer>
+  <span class="no-break">
+    rohd_hcl
+      0.2.0
+  </span>
+  
+</footer>
+
+
+<script src="../../static-assets/highlight.pack.js?v1"></script>
+<script src="../../static-assets/docs.dart.js"></script>
+
+</body>
+</html>
+

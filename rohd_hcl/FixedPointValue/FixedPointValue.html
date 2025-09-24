@@ -56,12 +56,14 @@
       
       <span class="name ">FixedPointValue</span>(<wbr>{<ol class="parameter-list"> <li><span class="parameter" id="-param-integer"><span>required</span> <span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.6/rohd/LogicValue-class.html">LogicValue</a></span> <span class="parameter-name">integer</span>, </span></li>
 <li><span class="parameter" id="-param-fraction"><span>required</span> <span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.6/rohd/LogicValue-class.html">LogicValue</a></span> <span class="parameter-name">fraction</span>, </span></li>
-<li><span class="parameter" id="-param-signed"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.9.2/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">signed</span> = <span class="default-value">false</span>, </span></li>
+<li><span class="parameter" id="-param-signed"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.9.3/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">signed</span> = <span class="default-value">false</span>, </span></li>
 </ol>})
     </section>
     
 <section class="desc markdown">
-  <p>Constructs <a href="../../rohd_hcl/FixedPointValue-class.html">FixedPointValue</a> from sign, integer and fraction values.</p>
+  <p>Constructs <a href="../../rohd_hcl/FixedPointValue-class.html">FixedPointValue</a> from <code>integer</code> and <code>fraction</code> values with a
+<code>signed</code> option to interpret MSB of <code>integer</code> as sign bit with the
+<code>integer</code> represented in twos-complement.</p>
 </section>
 
 

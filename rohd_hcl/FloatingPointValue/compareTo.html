@@ -56,11 +56,11 @@
       
   <div>
     <ol class="annotation-list">
-        <li>@<a href="https://api.dart.dev/stable/3.9.2/dart-core/override-constant.html">override</a></li>
+        <li>@<a href="https://api.dart.dev/stable/3.9.3/dart-core/override-constant.html">override</a></li>
     </ol>
   </div>
-<span class="returntype"><a href="https://api.dart.dev/stable/3.9.2/dart-core/int-class.html">int</a></span>
-<span class="name ">compareTo</span>(<wbr><ol class="parameter-list single-line"> <li><span class="parameter" id="compareTo-param-other"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.9.2/dart-core/Object-class.html">Object</a></span> <span class="parameter-name">other</span></span></li>
+<span class="returntype"><a href="https://api.dart.dev/stable/3.9.3/dart-core/int-class.html">int</a></span>
+<span class="name ">compareTo</span>(<wbr><ol class="parameter-list single-line"> <li><span class="parameter" id="compareTo-param-other"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.9.3/dart-core/Object-class.html">Object</a></span> <span class="parameter-name">other</span></span></li>
 </ol>)
 
       <div class="features"><span class="feature">override</span></div>
@@ -68,7 +68,7 @@
     </section>
     
 <section class="desc markdown">
-  <p>Floating point comparison to implement <a href="https://api.dart.dev/stable/3.9.2/dart-core/Comparable-class.html">Comparable</a>.</p>
+  <p>Floating point comparison to implement <a href="https://api.dart.dev/stable/3.9.3/dart-core/Comparable-class.html">Comparable</a>.</p>
 </section>
 
 
@@ -81,14 +81,37 @@ int compareTo(Object other) {
     throw Exception(&#39;Input must be of type FloatingPointValue &#39;);
   }
   if ((exponent.width != other.exponent.width) |
-      (mantissa.width != other.mantissa.width)) {
+      (mantissa.width - (explicitJBit ? 1 : 0) !=
+          other.mantissa.width - (other.explicitJBit ? 1 : 0))) {
     throw Exception(&#39;FloatingPointValue widths must match for comparison&#39;);
   }
-  final signCompare = sign.compareTo(other.sign);
-  final expCompare = exponent.compareTo(other.exponent);
-  final mantCompare = mantissa.compareTo(other.mantissa);
-  if ((signCompare != 0) &amp;&amp; !(exponent.isZero &amp;&amp; mantissa.isZero)) {
-    return signCompare;
+
+  &#47;&#47; IEEE 754: -0 an +0 are considered equal
+  if ((exponent.isZero &amp;&amp; mantissa.isZero) &amp;&amp;
+      (other.exponent.isZero &amp;&amp; other.mantissa.isZero)) {
+    return 0;
+  }
+  final signCompare = -sign.compareTo(other.sign);
+
+  final canonical = canonicalize();
+  final otherCanonical = other.canonicalize();
+
+  final canonicalMantissa = canonical.explicitJBit
+      ? canonical.mantissa.getRange(0, -1)
+      : canonical.mantissa;
+
+  final otherCanonicalMantissa = otherCanonical.explicitJBit
+      ? otherCanonical.mantissa.getRange(0, -1)
+      : otherCanonical.mantissa;
+
+  final expCompare = canonical.exponent.compareTo(otherCanonical.exponent);
+  final mantCompare = canonicalMantissa.compareTo(otherCanonicalMantissa);
+  if ((signCompare != 0) &amp;&amp;
+      !(exponent.isZero &amp;&amp;
+          mantissa.isZero &amp;&amp;
+          other.exponent.isZero &amp;&amp;
+          other.mantissa.isZero)) {
+    return signCompare; &#47;&#47; IEEE 754: -0 and +0 are considered equal.
   }
   if (expCompare != 0) {
     return sign.isZero ? expCompare : -expCompare;

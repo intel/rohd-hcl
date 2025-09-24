@@ -56,7 +56,7 @@
       
   <div>
     <ol class="annotation-list">
-        <li>@<a href="https://api.dart.dev/stable/3.9.2/dart-core/override-constant.html">override</a></li>
+        <li>@<a href="https://api.dart.dev/stable/3.9.3/dart-core/override-constant.html">override</a></li>
     </ol>
   </div>
 <span class="returntype"><a href="https://pub.dev/documentation/rohd/0.6.6/rohd/Logic-class.html">Logic</a></span>
@@ -78,11 +78,7 @@
   <pre class="language-dart"><code class="language-dart">@override
 Logic lt(dynamic other) {
   _verifyCompatible(other);
-  if (signed) {
-    return mux(this[-1], super.gt(other), super.lt(other));
-  } else {
-    return super.lt(other);
-  }
+  return mux(Const(signed) &amp; this[-1], super.gt(other), super.lt(other));
 }</code></pre>
 </section>
 
