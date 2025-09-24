@@ -52,7 +52,7 @@ class Axi5RequestSignalsStruct {
 class Axi5DataSignalsStruct {
   /// Transaction data.
   /// Width is equal to dataWidth.
-  final int data;
+  final BigInt data;
 
   /// Indicates whether this is the last data transfer in a transaction.
   /// Width is always 1.

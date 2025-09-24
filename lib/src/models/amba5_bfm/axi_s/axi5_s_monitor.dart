@@ -40,7 +40,7 @@ class Axi5StreamMonitor extends Monitor<Axi5StreamPacket> {
           strm.ready!.previousValue!.toBool()) {
         add(
           Axi5StreamPacket(
-              data: strm.data?.value.toInt() ?? 0,
+              data: strm.data?.value.toBigInt() ?? BigInt.from(0),
               strb: strm.strb?.value.toInt(),
               keep: strm.keep?.value.toBool(),
               id: strm.id?.value.toInt(),

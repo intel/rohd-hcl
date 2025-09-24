@@ -16,7 +16,7 @@ import 'package:rohd_vf/rohd_vf.dart';
 /// A data packet on an AXI-S interface.
 class Axi5StreamPacket extends SequenceItem implements Trackable {
   /// Data.
-  final int data;
+  final BigInt data;
 
   /// Strobe (optional).
   final int? strb;

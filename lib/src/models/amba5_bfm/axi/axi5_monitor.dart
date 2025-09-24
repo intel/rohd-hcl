@@ -284,7 +284,7 @@ class Axi5RChannelMonitor extends Monitor<Axi5RChannelPacket> {
           final dataPkts = <Axi5DataSignalsStruct>[];
           for (var i = 0; i < _dataBuffer.length; i++) {
             dataPkts.add(Axi5DataSignalsStruct(
-              data: _dataBuffer[i].toInt(),
+              data: _dataBuffer[i].toBigInt(),
               last: i == _dataBuffer.length - 1,
               poison:
                   i < _poisonBuffer.length ? _poisonBuffer[i].toInt() : null,
@@ -388,7 +388,7 @@ class Axi5WChannelMonitor extends Monitor<Axi5WChannelPacket> {
           final dataPkts = <Axi5DataSignalsStruct>[];
           for (var i = 0; i < _dataBuffer.length; i++) {
             dataPkts.add(Axi5DataSignalsStruct(
-              data: _dataBuffer[i].toInt(),
+              data: _dataBuffer[i].toBigInt(),
               last: i == _dataBuffer.length - 1,
               strb: i < _strbBuffer.length ? _strbBuffer[i].toInt() : null,
               poison:
