@@ -1,3 +1,27 @@
+## 0.2.1
+
+- New Components:
+  - Added an integer `DotProduct` component (<https://github.com/intel/rohd-hcl/pull/243>).
+  - Added a `ResettableEntries` capability allowing us to initialize memories (<https://github.com/intel/rohd-hcl/pull/253>).
+  - Added a new value type, `SignMagnitudeValue`, to use in testing (<https://github.com/intel/rohd-hcl/pull/232/>) and potentially for components.
+- Added constraint generation to `random()` for `FixedPointValuePopulator` and `FloatingPointValuePopulator` which allows for generating random values in a fixed range, inclusive or exclusive, and in the case of `FloatingPointValue` normal or subnormal numbers in that range (<https://github.com/intel/rohd-hcl/pull/232/>).
+- Improved SystemVerilog output:
+  - Improved default Module definition and instance naming throughout (<https://github.com/intel/rohd-hcl/pull/227>).
+  - Improved output of SystemVerilog internal signal names throughout (<https://github.com/intel/rohd-hcl/pull/237>).
+- Added `FixedPointValue` and `FloatingPointValue` operators including negation, and comparison.  For `FixedPointValue` this is a breaking change as previous operators returned `LogicValue` and now all operators return `bool` (<https://github.com/intel/rohd-hcl/pull/232/>).
+- Bug fixes:
+  - Fixed bug in CsrTop frontdoor reads (<https://github.com/intel/rohd-hcl/pull/253>).
+  - Fixed bug (<https://github.com/intel/rohd-hcl/issues/238>) in DenormalsAsZero (DAZ) support when computing effective subtraction in floating point addition.
+  - Fixed bug (<https://github.com/intel/rohd-hcl/issues/236>) occuring when instantiating `CompressionTreeMultiplyAccumulate`.
+  - Fixed build failure (<https://github.com/intel/rohd-hcl/issues/203>) in `FloatingPointMultiplier` due to duplicate input.
+- ROHD compatibility: 
+  - Fixed use of deprecated `Port` (<https://github.com/intel/rohd-hcl/pull/231>), which is now `Logic.port` in ROHD. 
+  - Updated use of interface classes to add the required `clone()` method (<https://github.com/intel/rohd-hcl/pull/245>)
+- Removed the sv2v tool as Yosys now handles ROHD SystemVerilog output (<https://github.com/intel/rohd-hcl/pull/229>).
+- Improved internal code documentation to use more references of types.
+
+
+
 ## 0.2.0
 
 - Added extensive variable-width floating-point support:
