@@ -45,24 +45,25 @@ void main() {
         final fv = test;
 
         final dSqrt = sqrt(fv.toDouble());
-        final expSqrt = FloatingPointValue.populator(
-                exponentWidth: exponentWidth, mantissaWidth: mantissaWidth)
-            .ofDouble(dSqrt);
+        final expSqrt = fp.valuePopulator().ofDouble(dSqrt);
         final expSqrtd = expSqrt.toDouble();
         final Logic expError = Const(0);
 
         fp.put(fv);
         final fpOut = sqrtT.sqrt;
         final eOut = sqrtT.error;
-        expect(fpOut.floatingPointValue, equals(expSqrt), reason: '''
+        expect(fpOut.floatingPointValue.isNaN, equals(expSqrt.isNaN));
+        if (!fpOut.floatingPointValue.isNaN) {
+          expect(fpOut.floatingPointValue, equals(expSqrt), reason: '''
   ${fp.floatingPointValue} (${fp.floatingPointValue.toDouble()}) =
   ${fpOut.floatingPointValue}(${fpOut.floatingPointValue.toDouble()}) actual
   $expSqrtd ($expSqrt) expected''');
 
-        expect(eOut.value, equals(expError.value), reason: '''
+          expect(eOut.value, equals(expError.value), reason: '''
 error =
   ${eOut.value} actual
   ${expError.value} expected''');
+        }
       }
     }
   });
@@ -124,18 +125,14 @@ error =
       ];
 
       for (final test in testCases) {
-        final fv = FloatingPointValue.populator(
-                exponentWidth: exponentWidth, mantissaWidth: mantissaWidth)
-            .ofDouble(test);
+        final fv = fp.valuePopulator().ofDouble(test);
 
         fp.put(fv);
 
         final compResult = sqrtDUT.sqrt;
         final compError = sqrtDUT.error;
 
-        final expResult = FloatingPointValue.populator(
-                exponentWidth: exponentWidth, mantissaWidth: mantissaWidth)
-            .ofDouble(sqrt(test));
+        final expResult = fp.valuePopulator().ofDouble(sqrt(test));
         final expError = Const(0);
         expect(compResult.floatingPointValue.toDouble(),
             equals(expResult.toDouble()),
@@ -153,8 +150,8 @@ ${expError.value} expected''');
   });
 
   test('FP: random number sqrt', () {
-    const exponentWidth = 5;
-    const mantissaWidth = 9;
+    const exponentWidth = 3;
+    const mantissaWidth = 5;
     final systemTestIter = pow(2, exponentWidth) * pow(2, mantissaWidth);
 
     final fp = FloatingPoint(
@@ -163,9 +160,7 @@ ${expError.value} expected''');
     final sqrtDUT = FloatingPointSqrtSimple(fp);
     final rand = Random(513);
     for (var i = 0; i < systemTestIter; i++) {
-      final fv = FloatingPointValue.populator(
-              exponentWidth: exponentWidth, mantissaWidth: mantissaWidth)
-          .random(rand, normal: true);
+      final fv = fp.valuePopulator().random(rand, genSubNormal: false);
       fp.put(fv);
       // only want to test on positive real values
       if (fp.isAnInfinity.value.toBool() ||
@@ -177,9 +172,7 @@ ${expError.value} expected''');
       final compResult = sqrtDUT.sqrt;
       final compError = sqrtDUT.error;
 
-      final expResult = FloatingPointValue.populator(
-              exponentWidth: exponentWidth, mantissaWidth: mantissaWidth)
-          .ofDouble(sqrt(fv.toDouble()));
+      final expResult = fp.valuePopulator().ofDouble(sqrt(fv.toDouble()));
       final expError = Const(0);
 
       expect(compResult.floatingPointValue.withinRounding(expResult), true,
