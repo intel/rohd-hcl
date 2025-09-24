@@ -24,6 +24,9 @@ class Axi5ReadyDriver extends Component {
   /// the frequency with which the ready signal should be driven.
   final num readyFrequency;
 
+  /// ready disabled
+  bool _disabled = false;
+
   /// Creates a new [Axi5ReadyDriver].
   Axi5ReadyDriver({
     required Component parent,
@@ -35,6 +38,12 @@ class Axi5ReadyDriver extends Component {
           name,
           parent,
         );
+
+  /// mechanism to turn off the ready.
+  void disable() => _disabled = true;
+
+  /// mechanism to turn on the ready.
+  void enable() => _disabled = false;
 
   @override
   Future<void> run(Phase phase) async {
@@ -48,8 +57,13 @@ class Axi5ReadyDriver extends Component {
     await sys.resetN.nextPosedge;
 
     while (!Simulator.simulationHasEnded) {
-      final next = Test.random!.nextDouble() < readyFrequency;
-      trans.ready!.put(next);
+      if (_disabled) {
+        trans.ready!.put(0);
+      } else {
+        final next = Test.random!.nextDouble() < readyFrequency;
+        trans.ready!.put(next);
+      }
+
       await sys.clk.nextPosedge;
     }
   }

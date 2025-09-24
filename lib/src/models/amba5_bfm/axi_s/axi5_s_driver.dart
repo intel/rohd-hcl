@@ -43,9 +43,9 @@ class Axi5StreamDriver extends PendingClockedDriver<Axi5StreamPacket> {
     Simulator.injectAction(() {
       stream.valid.put(0);
       stream.id?.put(0);
-      stream.data.put(0);
+      stream.data?.put(0);
       stream.user?.put(0);
-      stream.strb.put(0);
+      stream.strb?.put(0);
       stream.keep?.put(0);
       stream.dest?.put(0);
       stream.last?.put(0);
@@ -76,8 +76,8 @@ class Axi5StreamDriver extends PendingClockedDriver<Axi5StreamPacket> {
       stream.valid.put(1);
       stream.id?.put(packet.id ?? 0);
       stream.user?.put(packet.user ?? 0);
-      stream.data.put(packet.data);
-      stream.strb.put(
+      stream.data?.put(packet.data);
+      stream.strb?.put(
           packet.strb ?? LogicValue.filled(stream.strbWidth, LogicValue.one));
       stream.keep?.put(packet.keep ?? 0);
       stream.dest?.put(packet.dest ?? 0);

@@ -35,6 +35,9 @@ class Axi5StreamInterface extends Axi5TransportInterface {
   /// Presence of KEEP signal.
   final bool useKeep;
 
+  /// Presence of STRB signal.
+  final bool useStrb;
+
   /// Presence of WAKEUP signal.
   final bool useWakeup;
 
@@ -46,12 +49,12 @@ class Axi5StreamInterface extends Axi5TransportInterface {
   /// Stream data.
   ///
   /// Width is equal to [dataWidth].
-  Logic get data => port('TDATA');
+  Logic? get data => tryPort('TDATA');
 
   /// Data strobes, indicate which byte lanes hold valid data.
   ///
   /// Width is equal to [strbWidth].
-  Logic get strb => port('TSTRB');
+  Logic? get strb => tryPort('TSTRB');
 
   /// Keeps, which byte lanes of data shouldn't be ignored at the destination.
   ///
@@ -89,6 +92,7 @@ class Axi5StreamInterface extends Axi5TransportInterface {
     this.useKeep = false,
     this.useLast = false,
     this.useWakeup = false,
+    this.useStrb = false,
   })  : strbWidth = dataWidth ~/ 8,
         super(
             main: true,
@@ -100,8 +104,8 @@ class Axi5StreamInterface extends Axi5TransportInterface {
 
     setPorts([
       if (destWidth > 0) Logic.port('TDEST', destWidth),
-      Logic.port('TDATA', dataWidth),
-      Logic.port('TSTRB', strbWidth),
+      if (dataWidth > 0) Logic.port('TDATA', dataWidth),
+      if (useStrb) Logic.port('TSTRB', strbWidth),
       if (useKeep) Logic.port('TKEEP', strbWidth),
       if (useLast) Logic.port('TLAST'),
       if (useWakeup) Logic.port('TWAKEUP'),
@@ -113,6 +117,7 @@ class Axi5StreamInterface extends Axi5TransportInterface {
   }
 
   /// Constructs a new [Axi5StreamInterface] with identical parameters.
+  @override
   Axi5StreamInterface clone() => Axi5StreamInterface(
       idWidth: idWidth,
       dataWidth: dataWidth,
@@ -120,15 +125,16 @@ class Axi5StreamInterface extends Axi5TransportInterface {
       destWidth: destWidth,
       useKeep: useKeep,
       useLast: useLast,
-      useWakeup: useWakeup);
+      useWakeup: useWakeup,
+      useStrb: useStrb);
 
   /// Checks that the values set for parameters follow the specification's
   /// restrictions.
   void _validateParameters() {
-    const legalDataWidths = [8, 16, 32, 64, 128, 256, 512, 1024];
-    if (!legalDataWidths.contains(dataWidth)) {
-      throw RohdHclException('dataWidth must be one of $legalDataWidths');
-    }
+    // const legalDataWidths = [8, 16, 32, 64, 128, 256, 512, 1024];
+    // if (!legalDataWidths.contains(dataWidth)) {
+    //   throw RohdHclException('dataWidth must be one of $legalDataWidths');
+    // }
 
     if (idWidth < 0 || idWidth > 32) {
       throw RohdHclException('idWidth must be >= 0 and <= 32');
