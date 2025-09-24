@@ -116,17 +116,55 @@ class FixedPointValue implements Comparable<FixedPointValue> {
     }
   }
 
-  /// Less-than operator for [FixedPointValue].
-  bool operator <(FixedPointValue other) => compareTo(other) < 0;
+  /// Equal-to operation that returns a [LogicValue].
+  @Deprecated('This operator will be removed, please use == instead.')
+  LogicValue eq(FixedPointValue other) =>
+      compareTo(other) == 0 ? LogicValue.one : LogicValue.zero;
 
-  /// Less-than-or-equal operator for [FixedPointValue].
-  bool operator <=(FixedPointValue other) => compareTo(other) <= 0;
+  /// Not equal-to operation that returns a [LogicValue].
+  @Deprecated('This operator will be removed, please use != instead.')
+  LogicValue neq(FixedPointValue other) =>
+      compareTo(other) != 0 ? LogicValue.one : LogicValue.zero;
 
-  /// Greater-than operator for [FixedPointValue].
-  bool operator >(FixedPointValue other) => compareTo(other) > 0;
+  /// Less-than operation that returns a [LogicValue].
+  @Deprecated(
+      'This operator will be replaced with a boolean return in the future.'
+      ' Use .ltBool(other) for the time being.')
+  LogicValue operator <(FixedPointValue other) =>
+      compareTo(other) < 0 ? LogicValue.one : LogicValue.zero;
 
-  /// Greater-than-or-equal operator for [FixedPointValue].
-  bool operator >=(FixedPointValue other) => compareTo(other) >= 0;
+  /// Less-than operation that returns a [LogicValue].
+  @Deprecated(
+      'This operator will be replaced with a boolean return in the future. '
+      'Use .lteBool(other) for the time being.')
+  LogicValue operator <=(FixedPointValue other) =>
+      compareTo(other) <= 0 ? LogicValue.one : LogicValue.zero;
+
+  /// Less-than operation that returns a [LogicValue].
+  @Deprecated(
+      'This operator will be replaced with a boolean return in the future.'
+      ' Use .gtBool(other) for the time being.')
+  LogicValue operator >(FixedPointValue other) =>
+      compareTo(other) > 0 ? LogicValue.one : LogicValue.zero;
+
+  /// Less-than operation that returns a [LogicValue].
+  @Deprecated(
+      'This operator will be replaced with a boolean return in the future. '
+      'Use .gteBool(other) for the time being.')
+  LogicValue operator >=(FixedPointValue other) =>
+      compareTo(other) >= 0 ? LogicValue.one : LogicValue.zero;
+
+  /// Less-than operation that returns a [bool].
+  bool ltBool(FixedPointValue other) => compareTo(other) < 0;
+
+  /// Less-than-or-equal operation that returns a [bool].
+  bool lteBool(FixedPointValue other) => compareTo(other) <= 0;
+
+  /// Greater-than operation that returns a [bool].
+  bool gtBool(FixedPointValue other) => compareTo(other) > 0;
+
+  /// Greater-than-or-equal operation that returns a [bool].
+  bool gteBool(FixedPointValue other) => compareTo(other) >= 0;
 
   @override
   int get hashCode =>

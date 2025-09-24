@@ -159,12 +159,15 @@ void main() {
             populator().ofDouble(14.432),
         true);
     expect(populator().ofDouble(14.432) != populator().ofDouble(14.432), false);
-    expect(populator().ofDouble(13.454) > populator().ofDouble(14), false);
-    expect(populator().ofDouble(13.454) >= populator().ofDouble(14), false);
-    expect(populator().ofDouble(13.454) < populator().ofDouble(14), true);
-    expect(populator().ofDouble(13.454) <= populator().ofDouble(14), true);
-    expect(populator().ofDouble(14) <= populator().ofDouble(14), true);
-    expect(populator().ofDouble(14) >= populator().ofDouble(14), true);
+    expect(
+        populator().ofDouble(13.454).gtBool(populator().ofDouble(14)), false);
+    expect(
+        populator().ofDouble(13.454).gteBool(populator().ofDouble(14)), false);
+    expect(populator().ofDouble(13.454).ltBool(populator().ofDouble(14)), true);
+    expect(
+        populator().ofDouble(13.454).lteBool(populator().ofDouble(14)), true);
+    expect(populator().ofDouble(14).lteBool(populator().ofDouble(14)), true);
+    expect(populator().ofDouble(14).gteBool(populator().ofDouble(14)), true);
   });
 
   test('FixedPointValue: exhaustive double round-trip', () {
@@ -212,8 +215,8 @@ void main() {
         final fxv = FixedPointValue.populator(
                 signed: signed, integerWidth: m, fractionWidth: n)
             .random(rv, gte: lowerBound, lte: upperBound);
-        expect(fxv >= lowerBound, isTrue);
-        expect(fxv <= upperBound, isTrue);
+        expect(fxv.gteBool(lowerBound), isTrue);
+        expect(fxv.lteBool(upperBound), isTrue);
       }
     }
   });
