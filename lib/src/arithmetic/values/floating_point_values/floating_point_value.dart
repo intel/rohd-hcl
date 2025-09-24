@@ -449,8 +449,6 @@ class FloatingPointValue implements Comparable<FloatingPointValue> {
 
   /// Negate the [FloatingPointValue].
   FloatingPointValue operator -() => negate();
-  // ignore the lint warning about overriding the '-' operator.
-  // Adding that override will fail CI analyze_source.sh.
 
   /// Absolute value operation for [FloatingPointValue].
   FloatingPointValue abs() => clonePopulator()
