@@ -7,20 +7,18 @@
 - Added constraint generation to `random()` for `FixedPointValuePopulator` and `FloatingPointValuePopulator` which allows for generating random values in those types constrained by a fixed range, inclusive or exclusive (`gte`, `gt`, `lt`, `lte`), and in the case of `FloatingPointValue`, normal or subnormal numbers in that range (<https://github.com/intel/rohd-hcl/pull/232/>).
 - Improved SystemVerilog output:
   - Improved default `Module` definition and instance naming throughout (<https://github.com/intel/rohd-hcl/pull/227>).
-  - Improved output of SystemVerilog internal signal names throughout (<https://github.com/intel/rohd-hcl/pull/237>).
+  - Improved output of SystemVerilog internal signal names throughout (<https://github.com/intel/rohd-hcl/pull/237>), (<https://github.com/intel/rohd-hcl/pull/244>).
 - Added `FixedPointValue` and `FloatingPointValue` operators including negation, and comparison.
   - For `FixedPointValue` this is a deprecating change as previous operators returned `LogicValue` and their future operators will return `bool` (<https://github.com/intel/rohd-hcl/pull/232/>).  For now, `bool` return methods are provided for transitioning:  `.ltBool`, `.lteBool`, `.gtBool`, and `.gteBool`.  They will be deprecated in the future for `operator <`, `operatore <=`, `operator >` and `operator >=`, respectively.
 - Added dynamic sign extension capability to `ReductionTree` (<https://github.com/intel/rohd-hcl/pull/246/>).
 - Bug fixes:
-  - Fixed bug in `CsrTop` front-door reads (<https://github.com/intel/rohd-hcl/pull/253>).
-  - Fixed bug (<https://github.com/intel/rohd-hcl/issues/238>) denormals-as-zero (DAZ) support when computing effective subtraction in floating point addition.
-  - Fixed bug (<https://github.com/intel/rohd-hcl/issues/236>) occuring when instantiating `CompressionTreeMultiplyAccumulate`.
-  - Fixed build failure (<https://github.com/intel/rohd-hcl/issues/203>) in `FloatingPointMultiplier` due to duplicate input.
-- ROHD 0.6.6 compatibility:
-  - Fixed use of deprecated `Port` (<https://github.com/intel/rohd-hcl/pull/231>), which is now `Logic.port` in ROHD.
+  - Fixed bug (<https://github.com/intel/rohd-hcl/issues/239>) denormals-as-zero (DAZ) support when computing effective subtraction in floating point addition.
+  - Fixed build failure (<https://github.com/intel/rohd-hcl/issues/240>) in `MultiplyAccumulate`.
+- ROHD 0.6.6 (<https://github.com/intel/rohd/releases/tag/v0.6.6>) compatibility:
+  - Updated `FIFO` to return the `LogicType` instead of just `Logic` (<https://github.com/intel/rohd-hcl/pull/254>), leveraging ROHD 0.6.6's `addTypedInput` and `addTypedOutput` capabilities.
+  Fixed use of deprecated `Port` (<https://github.com/intel/rohd-hcl/pull/231>), which is now `Logic.port` in ROHD.
   - Updated implementations of `Interface` classes to add the required `clone()` method (<https://github.com/intel/rohd-hcl/pull/245>)
-- Removed the sv2v tool as Yosys now handles ROHD SystemVerilog output (<https://github.com/intel/rohd-hcl/pull/229>).
-- Improved internal code documentation to use more references of types.
+- Improved internal code documentation to use more references of types (<https://github.com/intel/rohd-hcl/pull/223>).
 
 ## 0.2.0
 
