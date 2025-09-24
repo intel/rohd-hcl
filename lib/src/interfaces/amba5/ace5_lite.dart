@@ -39,6 +39,7 @@ class Ace5LiteAwChannelConfig extends Axi5BaseAwChannelConfig {
     super.stashLPidPresent = false,
     super.cmoWidth = 0,
     super.useFlow = false,
+    super.untranslatedTransVersion = 4,
   }) : super(
           sizeWidth: 3,
           burstWidth: 2,
@@ -102,6 +103,7 @@ class Ace5LiteAwChannelInterface extends Axi5AwChannelInterface {
           stashNidPresent: stashNidPresent,
           stashLPidPresent: stashLPidPresent,
           cmoWidth: cmoWidth,
+          untranslatedTransVersion: untranslatedTransVersion,
         ),
         userMixInEnable: userMixInEnable,
         idMixInEnable: idMixInEnable,
@@ -145,6 +147,7 @@ class Ace5LiteArChannelConfig extends Axi5BaseArChannelConfig {
     super.usePbha = false,
     super.subSysIdWidth = 0,
     super.useFlow = false,
+    super.untranslatedTransVersion = 4,
   }) : super(
           sizeWidth: 3,
           burstWidth: 2,
@@ -207,6 +210,7 @@ class Ace5LiteArChannelInterface extends Axi5ArChannelInterface {
           usePbha: usePbha,
           subSysIdWidth: subSysIdWidth,
           useFlow: useFlow,
+          untranslatedTransVersion: untranslatedTransVersion,
         ),
         userMixInEnable: userMixInEnable,
         idMixInEnable: idMixInEnable,

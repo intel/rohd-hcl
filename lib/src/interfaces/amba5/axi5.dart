@@ -44,6 +44,7 @@ class Axi5AwChannelConfig extends Axi5BaseAwChannelConfig {
     super.useFlow = false,
     super.supportGdi = false,
     super.supportRmeAndPasMmu = false,
+    super.untranslatedTransVersion = 4,
   }) : super(
           sizeWidth: 3,
           burstWidth: 2,
@@ -89,6 +90,7 @@ class Axi5ArChannelConfig extends Axi5BaseArChannelConfig {
     super.useFlow = false,
     super.supportGdi = false,
     super.supportRmeAndPasMmu = false,
+    super.untranslatedTransVersion = 4,
   }) : super(
           sizeWidth: 3,
           burstWidth: 2,

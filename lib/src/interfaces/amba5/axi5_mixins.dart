@@ -466,6 +466,9 @@ mixin Axi5DebugSignals on Axi5BaseInterface {
 
 /// Mixin for MMU related signaling on AXI-5.
 mixin Axi5MmuSignals on Axi5BaseInterface {
+  /// Version of the untranslated transactions spec (1-4).
+  int get untranslatedTransVersion;
+
   /// Secure stream ID width.
   int get secSidWidth;
 
@@ -533,15 +536,19 @@ mixin Axi5MmuSignals on Axi5BaseInterface {
   @protected
   void makeMmuPorts() {
     setPorts([
-      Logic.port('${prefix}MMUVALID'),
+      if (untranslatedTransVersion >= 3) Logic.port('${prefix}MMUVALID'),
       if (secSidWidth > 0) Logic.port('${prefix}MMUSECSID', secSidWidth),
       if (sidWidth > 0) Logic.port('${prefix}MMUSID'),
       if (ssidWidth > 0) Logic.port('${prefix}MMUSSIDV'),
       if (ssidWidth > 0) Logic.port('${prefix}MMUSSID'),
-      if (useFlow) Logic.port('${prefix}MMUATST'),
-      if (useFlow) Logic.port('${prefix}MMUFLOW', 2),
-      if (supportRmeAndPasMmu) Logic.port('${prefix}MMUPASUNKNOWN'),
-      if (supportGdi) Logic.port('${prefix}MMUPM'),
+      if (untranslatedTransVersion == 1 && useFlow)
+        Logic.port('${prefix}MMUATST'),
+      if (untranslatedTransVersion > 1 && useFlow)
+        Logic.port('${prefix}MMUFLOW', 2),
+      if (untranslatedTransVersion == 4 && supportRmeAndPasMmu)
+        Logic.port('${prefix}MMUPASUNKNOWN'),
+      if (untranslatedTransVersion == 4 && supportGdi)
+        Logic.port('${prefix}MMUPM'),
     ], [
       PairDirection.fromProvider,
     ]);

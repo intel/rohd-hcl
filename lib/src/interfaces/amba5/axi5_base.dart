@@ -174,6 +174,9 @@ abstract class Axi5BaseAwChannelConfig {
   /// Support tagging feature.
   final bool useTagging;
 
+  /// Untranslated transactions version.
+  final int untranslatedTransVersion;
+
   /// Secure stream ID width.
   final int secSidWidth;
 
@@ -254,6 +257,7 @@ abstract class Axi5BaseAwChannelConfig {
     this.useFlow = false,
     this.supportRmeAndPasMmu = false,
     this.supportGdi = false,
+    this.untranslatedTransVersion = 4,
   });
 }
 
@@ -344,6 +348,8 @@ class Axi5AwChannelInterface extends Axi5TransportInterface
   @override
   final bool useTagging;
   @override
+  final int untranslatedTransVersion;
+  @override
   final int secSidWidth;
   @override
   final int sidWidth;
@@ -423,6 +429,7 @@ class Axi5AwChannelInterface extends Axi5TransportInterface
         supportGdi = config.supportGdi,
         useFlow = config.useFlow,
         supportRmeAndPasMmu = config.supportRmeAndPasMmu,
+        untranslatedTransVersion = config.untranslatedTransVersion,
         super(prefix: 'AW', main: true) {
     makeRequestPorts();
     makeProtPorts();
@@ -457,6 +464,7 @@ class Axi5AwChannelInterface extends Axi5TransportInterface
   }
 
   /// Copy Constructor.
+  @override
   Axi5AwChannelInterface clone() => Axi5AwChannelInterface(
         config: Axi5AwChannelConfig(
           userWidth: userWidth,
@@ -488,6 +496,7 @@ class Axi5AwChannelInterface extends Axi5TransportInterface
           stashNidPresent: stashNidPresent,
           stashLPidPresent: stashLPidPresent,
           cmoWidth: cmoWidth,
+          untranslatedTransVersion: untranslatedTransVersion,
         ),
         useCrediting: useCrediting,
         sharedCredits: sharedCredits,
@@ -584,6 +593,9 @@ abstract class Axi5BaseArChannelConfig {
   /// Support tagging feature.
   final bool useTagging;
 
+  /// Untranslated transactions version.
+  final int untranslatedTransVersion;
+
   /// Secure stream ID width.
   final int secSidWidth;
 
@@ -656,6 +668,7 @@ abstract class Axi5BaseArChannelConfig {
     this.useFlow = false,
     this.supportGdi = false,
     this.supportRmeAndPasMmu = false,
+    this.untranslatedTransVersion = 4,
   });
 }
 
@@ -748,6 +761,8 @@ class Axi5ArChannelInterface extends Axi5TransportInterface
   @override
   final bool useTagging;
   @override
+  final int untranslatedTransVersion;
+  @override
   final int secSidWidth;
   @override
   final int sidWidth;
@@ -819,6 +834,7 @@ class Axi5ArChannelInterface extends Axi5TransportInterface
         useFlow = config.useFlow,
         supportGdi = config.supportGdi,
         supportRmeAndPasMmu = config.supportRmeAndPasMmu,
+        untranslatedTransVersion = config.untranslatedTransVersion,
         super(prefix: 'AR', main: true) {
     makeRequestPorts();
     makeProtPorts();
@@ -853,6 +869,7 @@ class Axi5ArChannelInterface extends Axi5TransportInterface
   }
 
   /// Copy Constructor.
+  @override
   Axi5ArChannelInterface clone() => Axi5ArChannelInterface(
         config: Axi5ArChannelConfig(
           userWidth: userWidth,
@@ -883,6 +900,7 @@ class Axi5ArChannelInterface extends Axi5TransportInterface
           useFlow: useFlow,
           supportGdi: supportGdi,
           supportRmeAndPasMmu: supportRmeAndPasMmu,
+          untranslatedTransVersion: untranslatedTransVersion,
         ),
         useCrediting: useCrediting,
         sharedCredits: sharedCredits,

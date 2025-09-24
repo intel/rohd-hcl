@@ -179,6 +179,8 @@ class LtiLaChannelInterface extends LtiTransportInterface
   @override
   final int loopWidth;
   @override
+  final int untranslatedTransVersion;
+  @override
   final int secSidWidth;
   @override
   final int sidWidth;
@@ -265,6 +267,8 @@ class LtiLaChannelInterface extends LtiTransportInterface
         ogWidth = config.ogWidth,
         tlBlockWidth = config.tlBlockWidth,
         useIdent = config.useIdent,
+        untranslatedTransVersion =
+            4, // must have ability to support PM/PASUNKNOWN
         super(
           prefix: 'LA',
           main: true,

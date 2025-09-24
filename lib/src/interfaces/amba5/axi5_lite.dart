@@ -51,6 +51,7 @@ class Axi5LiteAwChannelConfig extends Axi5BaseAwChannelConfig {
           useFlow: false,
           supportGdi: false,
           supportRmeAndPasMmu: false,
+          untranslatedTransVersion: 0,
         );
 }
 
@@ -127,6 +128,7 @@ class Axi5LiteArChannelConfig extends Axi5BaseArChannelConfig {
           useFlow: false,
           supportGdi: false,
           supportRmeAndPasMmu: false,
+          untranslatedTransVersion: 0,
         );
 }
 
