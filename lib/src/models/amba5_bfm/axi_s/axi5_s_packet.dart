@@ -25,7 +25,7 @@ class Axi5StreamPacket extends SequenceItem implements Trackable {
   final bool? last;
 
   /// Keep (optional).
-  final bool? keep;
+  final int? keep;
 
   /// User (optional).
   final int? user;

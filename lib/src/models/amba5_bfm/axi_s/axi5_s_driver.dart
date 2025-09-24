@@ -79,7 +79,8 @@ class Axi5StreamDriver extends PendingClockedDriver<Axi5StreamPacket> {
       stream.data?.put(packet.data);
       stream.strb?.put(
           packet.strb ?? LogicValue.filled(stream.strbWidth, LogicValue.one));
-      stream.keep?.put(packet.keep ?? 0);
+      stream.keep?.put(
+          packet.keep ?? LogicValue.filled(stream.strbWidth, LogicValue.one));
       stream.dest?.put(packet.dest ?? 0);
       stream.last?.put(packet.last ?? 1);
       stream.wakeup?.put(packet.wakeup ?? 0);

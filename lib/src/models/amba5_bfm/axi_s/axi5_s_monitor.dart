@@ -42,7 +42,7 @@ class Axi5StreamMonitor extends Monitor<Axi5StreamPacket> {
           Axi5StreamPacket(
               data: strm.data?.value.toBigInt() ?? BigInt.from(0),
               strb: strm.strb?.value.toInt(),
-              keep: strm.keep?.value.toBool(),
+              keep: strm.keep?.value.toInt(),
               id: strm.id?.value.toInt(),
               user: strm.user?.value.toInt(),
               dest: strm.dest?.value.toInt(),
