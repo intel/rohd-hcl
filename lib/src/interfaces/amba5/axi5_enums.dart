@@ -174,7 +174,27 @@ enum Axi5RespField {
   slvErr(0x2),
 
   /// Subordinate fatal error.
-  decErr(0x3);
+  decErr(0x3),
+
+  /// For writes: Access was unsuccessful because it cannot be serviced at this
+  /// time. The location is not updated. This response is only permitted for a
+  /// WriteDeferrable transaction. For reads: Read data is valid and has been
+  /// sourced from a prefetched value.
+  deferOrPrefetched(0x4),
+
+  /// Access was terminated because of a translation fault which might be
+  /// resolved by a PRI request. Only permitted for requests using the PRI
+  /// flow.
+  transFault(0x5),
+
+  /// Read data is valid and is Dirty with respect to the value in memory. Only
+  /// permitted for a response to a ReadShared request.
+  okayDirty(0x6),
+
+  /// Write was unsuccessful because the transaction type is not supported by
+  /// the target. The location is not updated. This response is only permitted
+  /// for a WriteDeferrable transaction.
+  unsupported(0x7);
 
   /// Underlying value.
   final int value;
