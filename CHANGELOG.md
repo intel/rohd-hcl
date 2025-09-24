@@ -8,7 +8,7 @@
 - Improved SystemVerilog output:
   - Improved default `Module` definition and instance naming throughout (<https://github.com/intel/rohd-hcl/pull/227>).
   - Improved output of SystemVerilog internal signal names throughout (<https://github.com/intel/rohd-hcl/pull/237>).
-- Added `FixedPointValue` and `FloatingPointValue` operators including negation, and comparison. 
+- Added `FixedPointValue` and `FloatingPointValue` operators including negation, and comparison.
   - For `FixedPointValue` this is a deprecating change as previous operators returned `LogicValue` and their future operators will return `bool` (<https://github.com/intel/rohd-hcl/pull/232/>).  For now, `bool` return methods are provided for transitioning:  `.ltBool`, `.lteBool`, `.gtBool`, and `.gteBool`.  They will be deprecated in the future for `operator <`, `operatore <=`, `operator >` and `operator >=`, respectively.
 - Added dynamic sign extension capability to `ReductionTree` (<https://github.com/intel/rohd-hcl/pull/246/>).
 - Bug fixes:
