@@ -42,7 +42,6 @@ class LtiLaChannelDriver extends PendingClockedDriver<LtiLaChannelPacket> {
 
     Simulator.injectAction(() {
       la.valid.put(0);
-      // TODO: credit? vc?
       la.addr.put(0);
       la.trans.put(0);
       la.attr.put(0);
@@ -66,6 +65,7 @@ class LtiLaChannelDriver extends PendingClockedDriver<LtiLaChannelPacket> {
       la.mmuPasUnknown?.put(0);
       la.mmuPm?.put(0);
       la.loop?.put(0);
+      la.vc?.put(0);
     });
 
     // wait for reset to complete before driving anything
@@ -90,7 +90,6 @@ class LtiLaChannelDriver extends PendingClockedDriver<LtiLaChannelPacket> {
     await sys.clk.nextPosedge;
     Simulator.injectAction(() {
       la.valid.put(1);
-      // TODO: credit? vc?
       la.addr.put(packet.addr);
       la.trans.put(packet.trans);
       la.attr.put(packet.attr);
@@ -114,6 +113,7 @@ class LtiLaChannelDriver extends PendingClockedDriver<LtiLaChannelPacket> {
       la.mmuFlow?.put(packet.mmu?.mmuFlow ?? 0);
       la.mmuPasUnknown?.put(packet.mmu?.mmuPasUnknown ?? 0);
       la.mmuPm?.put(packet.mmu?.mmuPm ?? 0);
+      la.vc?.put(packet.vc);
     });
 
     // TODO: anything to wait on???
@@ -157,7 +157,6 @@ class LtiLrChannelDriver extends PendingClockedDriver<LtiLrChannelPacket> {
 
     Simulator.injectAction(() {
       lr.valid.put(0);
-      // TODO: credit? vc?
       lr.addr.put(0);
       lr.hwAttr.put(0);
       lr.attr.put(0);
@@ -175,6 +174,7 @@ class LtiLrChannelDriver extends PendingClockedDriver<LtiLrChannelPacket> {
       lr.mpam?.put(0);
       lr.ctag.put(0);
       lr.size.put(0);
+      lr.vc?.put(0);
     });
 
     // wait for reset to complete before driving anything
@@ -199,7 +199,6 @@ class LtiLrChannelDriver extends PendingClockedDriver<LtiLrChannelPacket> {
     await sys.clk.nextPosedge;
     Simulator.injectAction(() {
       lr.valid.put(1);
-      // TODO: credit? vc?
       lr.addr.put(packet.addr);
       lr.hwAttr.put(packet.hwattr);
       lr.attr.put(packet.attr);
@@ -217,6 +216,7 @@ class LtiLrChannelDriver extends PendingClockedDriver<LtiLrChannelPacket> {
       lr.mpam?.put(packet.mpam ?? 0);
       lr.ctag.put(packet.ctag ?? 0);
       lr.size.put(packet.size);
+      lr.vc?.put(packet.vc);
     });
 
     // TODO: anything to wait on???
@@ -258,7 +258,6 @@ class LtiLcChannelDriver extends PendingClockedDriver<LtiLcChannelPacket> {
 
     Simulator.injectAction(() {
       lc.valid.put(0);
-      // TODO: credit? vc?
       lc.user?.put(0);
       lc.ctag.put(0);
     });
@@ -285,7 +284,6 @@ class LtiLcChannelDriver extends PendingClockedDriver<LtiLcChannelPacket> {
     await sys.clk.nextPosedge;
     Simulator.injectAction(() {
       lc.valid.put(1);
-      // TODO: credit? vc?
       lc.user?.put(packet.user?.user ?? 0);
       lc.ctag.put(packet.tag);
     });
@@ -366,5 +364,58 @@ class LtiLtChannelDriver extends PendingClockedDriver<LtiLtChannelPacket> {
       lt.valid.put(0);
       packet.complete();
     });
+  }
+}
+
+/// A driver for credit returns on any [LtiTransportInterface] interface.
+class LtiCreditDriver extends PendingClockedDriver<LtiCreditPacket> {
+  /// AXI5 System Interface.
+  final Axi5SystemInterface sys;
+
+  /// LTI Interface.
+  final LtiTransportInterface trans;
+
+  /// Creates a new [LtiCreditDriver].
+  LtiCreditDriver({
+    required Component parent,
+    required this.sys,
+    required this.trans,
+    required super.sequencer,
+    super.timeoutCycles = 500,
+    super.dropDelayCycles = 30,
+    String name = 'ltiCreditDriver',
+  }) : super(
+          name,
+          parent,
+          clk: sys.clk,
+        );
+
+  @override
+  Future<void> run(Phase phase) async {
+    unawaited(super.run(phase));
+
+    Simulator.injectAction(() {
+      trans.credit!.put(0);
+    });
+
+    // wait for reset to complete before driving anything
+    await sys.resetN.nextPosedge;
+
+    // push the credit value onto the interface for exactly 1 cycle
+    while (!Simulator.simulationHasEnded) {
+      if (pendingSeqItems.isNotEmpty) {
+        final crd = pendingSeqItems.removeFirst();
+        await sys.clk.nextPosedge;
+        Simulator.injectAction(() {
+          trans.credit!.put(crd.credit);
+        });
+        await sys.clk.nextPosedge;
+        Simulator.injectAction(() {
+          trans.credit!.put(0);
+        });
+      } else {
+        await sys.clk.nextPosedge;
+      }
+    }
   }
 }

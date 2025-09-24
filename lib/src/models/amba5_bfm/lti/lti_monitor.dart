@@ -77,6 +77,7 @@ class LtiLaChannelMonitor extends Monitor<LtiLaChannelPacket> {
           og: la.og?.value.toInt(),
           tlBlock: la.tlBlock?.value.toInt(),
           ident: la.ident?.value.toInt(),
+          vc: la.vc?.value.toInt() ?? 0,
         ));
       }
     });
@@ -139,6 +140,7 @@ class LtiLrChannelMonitor extends Monitor<LtiLrChannelPacket> {
           mpam: lr.mpam?.value.toInt(),
           ctag: lr.ctag.value.toInt(),
           size: lr.size.value.toInt(),
+          vc: lr.vc?.value.toInt() ?? 0,
         ));
       }
     });

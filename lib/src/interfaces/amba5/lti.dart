@@ -10,6 +10,43 @@
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
 
+/// Next level in the hierarchy to handle the flow control schemes.
+abstract class LtiTransportInterface extends Axi5BaseInterface {
+  /// Number of virtual channels.
+  final int vcCount;
+
+  /// Virtual channel identifier.
+  ///
+  /// Width is equal to log2(vcCount).
+  Logic? get vc => tryPort('${prefix}VC');
+
+  /// Credit return.
+  ///
+  /// Width is equal to [vcCount].
+  Logic? get credit => tryPort('${prefix}CREDIT');
+
+  /// Constructor.
+  LtiTransportInterface({
+    required super.prefix,
+    required super.main,
+    this.vcCount = 1,
+  }) {
+    setPorts([
+      if (vcCount > 0) Logic.port('${prefix}CREDIT', vcCount),
+    ], [
+      if (main) PairDirection.fromConsumer,
+      if (!main) PairDirection.fromProvider,
+    ]);
+
+    setPorts([
+      if (vcCount > 1) Logic.port('${prefix}VC', log2Ceil(vcCount)),
+    ], [
+      if (main) PairDirection.fromProvider,
+      if (!main) PairDirection.fromConsumer,
+    ]);
+  }
+}
+
 /// A config object for constructing an LTI LA channel.
 class LtiLaChannelConfig {
   /// The width of the user-defined signal in bits.
@@ -103,9 +140,8 @@ class LtiLaChannelConfig {
 
 /// Basis for all possible LA channels.
 ///
-/// TODO: numRp vs. VC?
 /// TODO: MMU signals don't have MMU prefix (except for valid...)
-class LtiLaChannelInterface extends Axi5TransportInterface
+class LtiLaChannelInterface extends LtiTransportInterface
     with
         Axi5UserSignals,
         Axi5IdSignals,
@@ -205,7 +241,7 @@ class LtiLaChannelInterface extends Axi5TransportInterface
   /// Constructor.
   LtiLaChannelInterface({
     required LtiLaChannelConfig config,
-    super.numRp = 0,
+    super.vcCount = 1,
     this.debugMixInEnable = false,
     this.idMixInEnable = false,
     this.userMixInEnable = false,
@@ -230,10 +266,9 @@ class LtiLaChannelInterface extends Axi5TransportInterface
         tlBlockWidth = config.tlBlockWidth,
         useIdent = config.useIdent,
         super(
-            prefix: 'LA',
-            main: true,
-            useCrediting: true,
-            sharedCredits: false) {
+          prefix: 'LA',
+          main: true,
+        ) {
     setPorts([
       Logic.port('${prefix}ADDR', addrWidth),
       Logic.port('${prefix}TRANS', 4),
@@ -281,7 +316,7 @@ class LtiLaChannelInterface extends Axi5TransportInterface
           tlBlockWidth: tlBlockWidth,
           useIdent: useIdent,
         ),
-        numRp: numRp,
+        vcCount: vcCount,
         userMixInEnable: userMixInEnable,
         idMixInEnable: idMixInEnable,
         debugMixInEnable: debugMixInEnable,
@@ -353,7 +388,7 @@ class LtiLrChannelConfig {
 /// Basis for all possible LR channels.
 ///
 /// TODO: numRp vs. VC?
-class LtiLrChannelInterface extends Axi5TransportInterface
+class LtiLrChannelInterface extends LtiTransportInterface
     with
         Axi5UserSignals,
         Axi5IdSignals,
@@ -442,7 +477,7 @@ class LtiLrChannelInterface extends Axi5TransportInterface
   /// Constructor.
   LtiLrChannelInterface({
     required LtiLrChannelConfig config,
-    super.numRp = 0,
+    super.vcCount = 1,
     this.debugMixInEnable = false,
     this.idMixInEnable = false,
     this.userMixInEnable = false,
@@ -462,10 +497,9 @@ class LtiLrChannelInterface extends Axi5TransportInterface
         mecIdWidth = config.mecIdWidth,
         ctagWidth = config.ctagWidth,
         super(
-            prefix: 'LR',
-            main: false,
-            useCrediting: true,
-            sharedCredits: false) {
+          prefix: 'LR',
+          main: false,
+        ) {
     setPorts([
       Logic.port('${prefix}ADDR', addrWidth),
       Logic.port('${prefix}CTAG', ctagWidth),
@@ -505,7 +539,7 @@ class LtiLrChannelInterface extends Axi5TransportInterface
           mpamWidth: mpamWidth,
           ctagWidth: ctagWidth,
         ),
-        numRp: numRp,
+        vcCount: vcCount,
         userMixInEnable: userMixInEnable,
         idMixInEnable: idMixInEnable,
         debugMixInEnable: debugMixInEnable,
@@ -534,8 +568,7 @@ class LtiLcChannelConfig {
 }
 
 /// Basis for all possible LC channels.
-class LtiLcChannelInterface extends Axi5TransportInterface
-    with Axi5UserSignals {
+class LtiLcChannelInterface extends LtiTransportInterface with Axi5UserSignals {
   /// Enable User signal mixin
   final bool userMixInEnable;
 
@@ -557,11 +590,10 @@ class LtiLcChannelInterface extends Axi5TransportInterface
   })  : userWidth = config.userWidth,
         tagWidth = config.tagWidth,
         super(
-            prefix: 'LC',
-            main: true,
-            useCrediting: true,
-            numRp: 0,
-            sharedCredits: false) {
+          prefix: 'LC',
+          main: true,
+          vcCount: 1,
+        ) {
     setPorts([
       Logic.port('${prefix}CTAG', tagWidth),
     ], [
@@ -605,8 +637,7 @@ class LtiLtChannelConfig {
 }
 
 /// Basis for all possible LT channels.
-class LtiLtChannelInterface extends Axi5TransportInterface
-    with Axi5UserSignals {
+class LtiLtChannelInterface extends LtiTransportInterface with Axi5UserSignals {
   /// Enable User signal mixin
   final bool userMixInEnable;
 
@@ -628,11 +659,10 @@ class LtiLtChannelInterface extends Axi5TransportInterface
   })  : userWidth = config.userWidth,
         tagWidth = config.tagWidth,
         super(
-            prefix: 'LT',
-            main: false,
-            useCrediting: true,
-            numRp: 0,
-            sharedCredits: false) {
+          prefix: 'LT',
+          main: false,
+          vcCount: 1,
+        ) {
     setPorts([
       Logic.port('${prefix}CTAG', tagWidth),
     ], [

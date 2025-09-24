@@ -84,6 +84,9 @@ class LtiLaChannelTracker extends Tracker<LtiLaChannelPacket> {
   /// attr
   static const attrField = 'attr';
 
+  /// vc
+  static const vcField = 'vc';
+
   /// Constructor.
   LtiLaChannelTracker({
     String name = 'LtiLaChannelTracker',
@@ -114,6 +117,7 @@ class LtiLaChannelTracker extends Tracker<LtiLaChannelPacket> {
     int ogVColumnWidth = 1,
     int transColumnWidth = 8,
     int attrColumnWidth = 8,
+    int vcColumnWidth = 4,
   }) : super(name, [
           TrackerField(timeField, columnWidth: timeColumnWidth),
           if (addrColumnWidth > 0)
@@ -163,6 +167,8 @@ class LtiLaChannelTracker extends Tracker<LtiLaChannelPacket> {
             TrackerField(transField, columnWidth: transColumnWidth),
           if (attrColumnWidth > 0)
             TrackerField(attrField, columnWidth: attrColumnWidth),
+          if (vcColumnWidth > 0)
+            TrackerField(vcField, columnWidth: vcColumnWidth),
         ]);
 }
 
@@ -222,6 +228,9 @@ class LtiLrChannelTracker extends Tracker<LtiLrChannelPacket> {
   /// size
   static const sizeField = 'size';
 
+  /// vc
+  static const vcField = 'vc';
+
   /// Constructor.
   LtiLrChannelTracker({
     String name = 'LtiLrChannelTracker',
@@ -246,6 +255,7 @@ class LtiLrChannelTracker extends Tracker<LtiLrChannelPacket> {
     int ctagColumnWidth = 8,
     int hwAttrColumnWidth = 8,
     int sizeColumnWidth = 8,
+    int vcColumnWidth = 4,
   }) : super(name, [
           TrackerField(timeField, columnWidth: timeColumnWidth),
           if (addrColumnWidth > 0)
@@ -282,6 +292,8 @@ class LtiLrChannelTracker extends Tracker<LtiLrChannelPacket> {
             TrackerField(hwAttrField, columnWidth: hwAttrColumnWidth),
           if (sizeColumnWidth > 0)
             TrackerField(sizeField, columnWidth: sizeColumnWidth),
+          if (vcColumnWidth > 0)
+            TrackerField(vcField, columnWidth: vcColumnWidth),
         ]);
 }
 

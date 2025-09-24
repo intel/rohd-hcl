@@ -50,6 +50,9 @@ class LtiLaChannelPacket extends SequenceItem implements Trackable {
   /// ident signals.
   final int? ident;
 
+  /// virtual channel.
+  final int vc;
+
   /// The Completer for tracking completion.
   final Completer<void> _completer = Completer<void>();
 
@@ -59,6 +62,7 @@ class LtiLaChannelPacket extends SequenceItem implements Trackable {
     this.trans = 0,
     this.attr = 0,
     this.ogV = false,
+    this.vc = 0,
     this.user,
     this.id,
     this.prot,
@@ -125,6 +129,8 @@ class LtiLaChannelPacket extends SequenceItem implements Trackable {
         return tlBlock?.toString() ?? '';
       case LtiLaChannelTracker.identField:
         return ident?.toString() ?? '';
+      case LtiLaChannelTracker.vcField:
+        return vc.toString();
       default:
         return '';
     }
@@ -144,6 +150,7 @@ class LtiLaChannelPacket extends SequenceItem implements Trackable {
         og: og,
         tlBlock: tlBlock,
         ident: ident,
+        vc: vc,
       );
 }
 
@@ -185,6 +192,9 @@ class LtiLrChannelPacket extends SequenceItem implements Trackable {
   /// size signals.
   final int size;
 
+  /// virtual channel.
+  final int vc;
+
   /// The Completer for tracking completion.
   final Completer<void> _completer = Completer<void>();
 
@@ -202,6 +212,7 @@ class LtiLrChannelPacket extends SequenceItem implements Trackable {
     this.mpam,
     this.ctag,
     this.size = 0,
+    this.vc = 0,
   });
 
   /// Returns a [Future] that completes when this packet is completed.
@@ -244,6 +255,8 @@ class LtiLrChannelPacket extends SequenceItem implements Trackable {
         return ctag?.toString() ?? '';
       case LtiLrChannelTracker.sizeField:
         return size.toString();
+      case LtiLrChannelTracker.vcField:
+        return vc.toString();
       default:
         return '';
     }
@@ -263,6 +276,7 @@ class LtiLrChannelPacket extends SequenceItem implements Trackable {
         mpam: mpam,
         ctag: ctag,
         size: size,
+        vc: vc,
       );
 }
 
@@ -349,5 +363,21 @@ class LtiLtChannelPacket extends SequenceItem implements Trackable {
   LtiLtChannelPacket clone() => LtiLtChannelPacket(
         tag: tag,
         user: user?.clone(),
+      );
+}
+
+/// Mechanism for BFM credit returns.
+class LtiCreditPacket extends SequenceItem {
+  /// Credit return value.
+  final int credit;
+
+  /// Constructor.
+  LtiCreditPacket({
+    required this.credit,
+  });
+
+  /// Creates a copy of this packet.
+  LtiCreditPacket clone() => LtiCreditPacket(
+        credit: credit,
       );
 }

@@ -62,7 +62,11 @@ class LtiMainLrChannelAgent extends Agent {
   /// LR interface.
   late final LtiLrChannelInterface lr;
 
-  // TODO: driver for crediting??
+  /// Driver.
+  late final LtiCreditDriver driver;
+
+  /// Sequencer.
+  late final Sequencer<LtiCreditPacket> sequencer;
 
   /// Monitor.
   late final LtiLrChannelMonitor monitor;
@@ -75,6 +79,16 @@ class LtiMainLrChannelAgent extends Agent {
     String name = 'ltiMainLrChannelAgent',
   }) : super(name, parent) {
     monitor = LtiLrChannelMonitor(sys: sys, lr: lr, parent: parent);
+
+    sequencer =
+        Sequencer<LtiCreditPacket>('ltiMainLrChannelAgentSequencer', this);
+
+    driver = LtiCreditDriver(
+      parent: this,
+      sys: sys,
+      trans: lr,
+      sequencer: sequencer,
+    );
   }
 }
 
@@ -130,7 +144,11 @@ class LtiMainLtChannelAgent extends Agent {
   /// LT interface.
   late final LtiLtChannelInterface lt;
 
-  // TODO: driver for crediting??
+  /// Driver.
+  late final LtiCreditDriver driver;
+
+  /// Sequencer.
+  late final Sequencer<LtiCreditPacket> sequencer;
 
   /// Monitor.
   late final LtiLtChannelMonitor monitor;
@@ -143,6 +161,16 @@ class LtiMainLtChannelAgent extends Agent {
     String name = 'ltiMainLtChannelAgent',
   }) : super(name, parent) {
     monitor = LtiLtChannelMonitor(sys: sys, lt: lt, parent: parent);
+
+    sequencer =
+        Sequencer<LtiCreditPacket>('ltiMainLtChannelAgentSequencer', this);
+
+    driver = LtiCreditDriver(
+      parent: this,
+      sys: sys,
+      trans: lt,
+      sequencer: sequencer,
+    );
   }
 }
 
@@ -221,7 +249,11 @@ class LtiSubordinateLaChannelAgent extends Agent {
   /// LA interface.
   late final LtiLaChannelInterface la;
 
-  // TODO: driver for crediting??
+  /// Driver.
+  late final LtiCreditDriver driver;
+
+  /// Sequencer.
+  late final Sequencer<LtiCreditPacket> sequencer;
 
   /// Monitor.
   late final LtiLaChannelMonitor monitor;
@@ -234,6 +266,16 @@ class LtiSubordinateLaChannelAgent extends Agent {
     String name = 'ltiSubordinateLaChannelAgent',
   }) : super(name, parent) {
     monitor = LtiLaChannelMonitor(sys: sys, la: la, parent: parent);
+
+    sequencer = Sequencer<LtiCreditPacket>(
+        'ltiSubordinateLaChannelAgentSequencer', this);
+
+    driver = LtiCreditDriver(
+      parent: this,
+      sys: sys,
+      trans: la,
+      sequencer: sequencer,
+    );
   }
 }
 
@@ -289,7 +331,11 @@ class LtiSubordinateLcChannelAgent extends Agent {
   /// LC interface.
   late final LtiLcChannelInterface lc;
 
-  // TODO: driver for crediting??
+  /// Driver.
+  late final LtiCreditDriver driver;
+
+  /// Sequencer.
+  late final Sequencer<LtiCreditPacket> sequencer;
 
   /// Monitor.
   late final LtiLcChannelMonitor monitor;
@@ -302,6 +348,16 @@ class LtiSubordinateLcChannelAgent extends Agent {
     String name = 'ltiSubordinateLcChannelAgent',
   }) : super(name, parent) {
     monitor = LtiLcChannelMonitor(sys: sys, lc: lc, parent: parent);
+
+    sequencer = Sequencer<LtiCreditPacket>(
+        'ltiSubordinateLcChannelAgentSequencer', this);
+
+    driver = LtiCreditDriver(
+      parent: this,
+      sys: sys,
+      trans: lc,
+      sequencer: sequencer,
+    );
   }
 }
 
