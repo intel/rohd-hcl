@@ -10,7 +10,6 @@ A [FixedPointValue](https://intel.github.io/rohd-hcl/rohd_hcl/FixedPointValue-cl
 
 A `FixedPointValuePopulator` is similar to a builder design pattern that helps populate the components of a `FixedPointValue` predictably across different special subtypes. The general pattern is to call the `populator` static function on a `FixedPointValue` (or special subtype), then subsequently call one of the population methods on the provided populator to receive a completed object.
 
-
 Included in the `FixedPointValuePopulator` is a `random()` floating-point value generator that can generate `FixedPointValue`s in a constrained range such as
 
 $$lowerBoundFXV < generatedFXV <= upperBoundFXV$$
