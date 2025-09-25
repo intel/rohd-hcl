@@ -65,8 +65,8 @@ abstract class Cache extends Module {
   /// The replacement policy to use for choosing which way to evict on a miss.
   @protected
   final ReplacementPolicy Function(Logic clk, Logic reset,
-          List<AccessInterface> hits, List<AccessInterface> misses, {int ways})
-      replacement;
+      List<AccessInterface> hits, List<AccessInterface> misses,
+      {int ways, String name}) replacement;
 
   /// Clock.
   Logic get clk => input('clk');
@@ -124,9 +124,13 @@ abstract class Cache extends Module {
   Logic getLine(Logic addr) => addr.slice(log2Ceil(lines) - 1, 0);
 }
 
-/// A simple multi-ported cache.
+/// A multi-ported cache.
 class MultiPortedCache extends Cache {
-  /// Constructs a simple cache with a single read and write port.
+  /// Constructs a [Cache] supporting multiple read and write ports.
+  ///
+  /// Defines a set-associativity of [ways] and a depth or number of [lines].
+  /// The total capacity of the cache is [ways]*[lines]. The [replacement]
+  /// policy is used to choose which way to evict on a write miss.
   MultiPortedCache(super.clk, super.reset, super.writes, super.reads,
       {super.ways, super.lines, super.replacement});
 
@@ -144,7 +148,7 @@ class MultiPortedCache extends Cache {
     final tagRFMatchRd = _genTagRFInterfaces(reads, tagWidth, lineAddrWidth);
     final tagRFAlloc = _genTagRFInterfaces(writes, tagWidth, lineAddrWidth);
 
-    // The Tag RegisterFile.
+    // The Tag `RegisterFile`.
     for (var way = 0; way < ways; way++) {
       RegisterFile(clk, reset, tagRFAlloc[way],
           tagRFMatchWr[way]..addAll(tagRFMatchRd[way]),
@@ -203,7 +207,7 @@ class MultiPortedCache extends Cache {
     ];
     final readHitWay = [
       for (var wrPortIdx = 0; wrPortIdx < numWrites; wrPortIdx++)
-        RecursivePriorityEncoder(readHitOneHot[wrPortIdx].swizzle())
+        RecursivePriorityEncoder(readHitOneHot[wrPortIdx].rswizzle())
             .out
             .slice(log2Ceil(ways) - 1, 0)
     ];
@@ -221,6 +225,7 @@ class MultiPortedCache extends Cache {
           reset,
           policyWrHitPorts[line]..addAll(policyRdHitPorts[line]),
           policyAllocPorts[line],
+          name: 'replacement_line$line',
           ways: ways);
     }
 
@@ -231,6 +236,7 @@ class MultiPortedCache extends Cache {
         for (var line = 0; line < lines; line++)
           If(
               wrPort.en &
+                  ~writeMiss[wrPortIdx] &
                   getLine(wrPort.addr).eq(Const(line, width: lineAddrWidth)),
               then: [
                 policyWrHitPorts[line][wrPortIdx].access < wrPort.en,
@@ -300,7 +306,7 @@ class MultiPortedCache extends Cache {
                     writeMiss[wrPortIdx] &
                     getLine(wrPort.addr).eq(Const(line, width: lineAddrWidth)) &
                     Const(way, width: log2Ceil(ways))
-                        .eq(policyWrHitPorts[line][wrPortIdx].way),
+                        .eq(policyAllocPorts[line][wrPortIdx].way),
                 then: [
                   tagRFAlloc[way][wrPortIdx].en < wrPort.en,
                   tagRFAlloc[way][wrPortIdx].addr <
@@ -332,6 +338,7 @@ class MultiPortedCache extends Cache {
             If(
                 wrPort.en &
                     writeMiss[wrPortIdx] &
+                    policyAllocPorts[line][wrPortIdx].access &
                     policyAllocPorts[line][wrPortIdx]
                         .way
                         .eq(Const(way, width: log2Ceil(ways))),
