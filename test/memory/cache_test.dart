@@ -23,7 +23,7 @@ void main() {
     final clk = SimpleClockGenerator(10).clk;
 
     final reset = Logic();
-    final wrPort = ValidDataPortInterface(8, 16);
+    final wrPort = DataPortInterface(8, 16);
     final rdPort = ValidDataPortInterface(8, 16);
 
     final cache =
@@ -37,8 +37,8 @@ void main() {
 
     final reset = Logic();
 
-    final wrPort = ValidDataPortInterface(8, 16);
-    final wrPort2 = ValidDataPortInterface(8, 16);
+    final wrPort = DataPortInterface(8, 16);
+    final wrPort2 = DataPortInterface(8, 16);
     final rdPort = ValidDataPortInterface(8, 16);
     final rdPort2 = ValidDataPortInterface(8, 16);
 
