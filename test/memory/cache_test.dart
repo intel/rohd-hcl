@@ -195,8 +195,6 @@ void main() {
           data++;
         }
       }
-      WaveDumper(cache, outputPath: 'cache_test.vcd');
-
       unawaited(Simulator.run());
       // reset flow
       wrPort.en.inject(0);
