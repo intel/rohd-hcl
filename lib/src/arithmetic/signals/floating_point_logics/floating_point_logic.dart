@@ -234,4 +234,69 @@ class FloatingPoint extends LogicStructure {
     return FloatingPoint._(
         signLogic, exponent, mantissa, explicitJBit, subNormalAsZero);
   }
+
+  /// Negate the [FloatingPoint].
+  FloatingPoint negate() => FloatingPoint._(
+        Logic()..gets(~sign),
+        Logic(width: exponent.width)..gets(exponent),
+        Logic(width: mantissa.width)..gets(mantissa),
+        explicitJBit,
+        subNormalAsZero,
+        name: name,
+      );
+
+  /// Negate the [FloatingPoint].
+  FloatingPoint operator -() => negate();
+
+  @override
+  Logic operator >(dynamic other) => gt(other);
+  @override
+  Logic operator >=(dynamic other) => gte(other);
+
+  /// Verify if comparable:  return `1` if comparable, throw exception
+  /// on mismatch.
+  Logic _verifyComparable(dynamic other) {
+    if (other is! FloatingPoint) {
+      throw RohdHclException('Input must be floating point signal.');
+    }
+    if (other.exponent.width != exponent.width ||
+        other.mantissa.width != mantissa.width ||
+        other.explicitJBit != explicitJBit) {
+      throw RohdHclException('FloatingPoint width or J-bit does not match');
+    }
+    return ~(isNaN | other.isNaN);
+  }
+
+  /// Equal
+  @override
+  Logic eq(dynamic other) =>
+      mux(_verifyComparable(other), super.eq(other), Const(0));
+
+  /// Not Equal
+  @override
+  Logic neq(dynamic other) => ~eq(other);
+
+  /// Less-than.
+  @override
+  Logic lt(dynamic other) {
+    final otherSign = (other as FloatingPoint).sign;
+    return mux(
+        _verifyComparable(other),
+        mux(sign, mux(otherSign, super.gt(other), Const(1)),
+            mux(otherSign, Const(0), super.lt(other))),
+        Const(0));
+  }
+
+  @override
+  Logic lte(dynamic other) => lt(other) | eq(other);
+
+  // For Greather-than operators, reverse the operands
+  /// Greater-than.
+  @override
+  Logic gt(dynamic other) =>
+      mux(_verifyComparable(other), ~lte(other), Const(0));
+
+  /// Greater-than-or-equal-to.
+  @override
+  Logic gte(dynamic other) => gt(other) | eq(other);
 }

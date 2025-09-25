@@ -406,6 +406,7 @@ void main() {
     final fp2 = FloatingPoint16Value.populator().ofSpacedBinaryString(s);
     expect(fp, equals(fp2));
   });
+
   test('FPV Value comparison', () {
     final fp = FloatingPointValue.populator(exponentWidth: 4, mantissaWidth: 4)
         .ofSpacedBinaryString('1 0101 0101');
@@ -433,6 +434,7 @@ void main() {
                 .ofSpacedBinaryString('0 0000 0000')),
         equals(0));
   });
+
   test('FPV: infinity/NaN conversion tests', () async {
     const exponentWidth = 4;
     const mantissaWidth = 4;
@@ -462,6 +464,7 @@ void main() {
             .isNaN,
         equals(true));
   });
+
   test('FPV: infinity/NaN unrounded conversion tests', () async {
     const exponentWidth = 4;
     const mantissaWidth = 4;
@@ -561,6 +564,136 @@ void main() {
     expect(fpv1.withinRounding(fpv3), true);
   });
 
+  group('FPV: constrained random generation', () {
+    const exponentWidth = 4;
+    const mantissaWidth = 4;
+    FloatingPointValuePopulator populator() => FloatingPointValue.populator(
+        exponentWidth: exponentWidth, mantissaWidth: mantissaWidth);
+
+    test('FPV: constrained random generation: tight range', () {
+      final lt = populator().ofBinaryStrings('0', '1100', '0001');
+      final gt = populator().ofBinaryStrings('0', '1011', '1111');
+      final expected = populator().ofBinaryStrings('0', '1100', '0000');
+      final fpv = populator().random(Random(), lt: lt, gt: gt);
+
+      expect(fpv, equals(expected));
+    });
+
+    test('FPV: constrained random generation: infinity', () {
+      final gt = populator().ofBinaryStrings('0', '1110', '1111');
+      final expected =
+          populator().ofConstant(FloatingPointConstants.positiveInfinity);
+      final fpv = populator().random(Random(), gt: gt);
+      expect(fpv, equals(expected));
+    });
+
+    test('FPV: constrained random generation: negative infinity', () {
+      final lt = populator().ofBinaryStrings('1', '1110', '1111');
+      final expected =
+          populator().ofConstant(FloatingPointConstants.negativeInfinity);
+      final fpv = populator().random(Random(), lt: lt);
+      expect(fpv, equals(expected));
+    });
+
+    test('FPV: random generation: normals', () {
+      for (var iter = 0; iter < 100; iter++) {
+        final fpv = populator().random(Random(), genSubNormal: false);
+        expect(fpv.isNormal(), isTrue);
+      }
+    });
+
+    test('FPV: random generation: subnormals', () {
+      for (var iter = 0; iter < 100; iter++) {
+        final fpv = populator().random(Random(), genNormal: false);
+        expect(fpv.isSubnormal(), isTrue);
+      }
+    });
+
+    test('FPV: constrained random testing key intervals', () {
+      final points = [
+        populator().ofConstant(FloatingPointConstants.negativeInfinity),
+        populator().ofConstant(FloatingPointConstants.one).negate(),
+        populator()
+            .ofConstant(FloatingPointConstants.smallestPositiveNormal)
+            .negate(),
+        populator()
+            .ofConstant(FloatingPointConstants.largestPositiveSubnormal)
+            .negate(),
+        populator().ofConstant(FloatingPointConstants.negativeZero),
+        populator().ofConstant(FloatingPointConstants.positiveZero),
+        populator().ofConstant(FloatingPointConstants.largestPositiveSubnormal),
+        populator().ofConstant(FloatingPointConstants.smallestPositiveNormal),
+        populator().ofConstant(FloatingPointConstants.one),
+        populator().ofConstant(FloatingPointConstants.positiveInfinity),
+      ];
+      final rv = Random(71);
+
+      for (var i = 0; i < points.length - 1; i++) {
+        for (var j = i + 1; j < points.length - 1; j++) {
+          final lb = points[i];
+          final ub = points[j];
+
+          if ((lb.isNormal() && ub.isNormal()) && (lb.sign == ub.sign)) {
+            final fpv = populator().random(rv, gt: lb, lt: ub);
+            expect(fpv.isNormal(), isTrue);
+            expect(fpv > lb, isTrue);
+            expect(fpv < ub, isTrue);
+            populator().random(rv,
+                gt: lb, lt: ub, genNormal: true, genSubNormal: false);
+            try {
+              populator().random(rv,
+                  gt: lb, lt: ub, genNormal: false, genSubNormal: true);
+              fail('should throw due to no subnormals');
+            } on Exception catch (e) {
+              expect(e, isA<RohdHclException>());
+            }
+          }
+          // Adjacent FPVs at indexes: (2,3), (4,5), (6,7)
+          if ((i == 2) & (j == 3) ||
+              (i == 4) & (j == 5) ||
+              (i == 6) & (j == 7)) {
+            try {
+              populator().random(rv, gt: lb, lt: ub);
+              fail('should throw due to too tight a range');
+            } on Exception catch (e) {
+              expect(e, isA<RohdHclException>());
+            }
+            if ((i != 4) & (j != 5)) {
+              // both are non-zero.
+              populator().random(rv, gte: lb, lt: ub);
+            }
+            populator().random(rv, gte: lb, lte: ub);
+          } else {
+            populator().random(rv, gt: lb, lt: ub);
+            populator().random(rv, gte: lb, lt: ub);
+            populator().random(rv, gt: lb, lte: ub);
+            populator().random(rv, gte: lb, lte: ub);
+            // Subnormal ranges: (2,7)
+            if (i >= 2 && j <= 6) {
+              populator().random(rv,
+                  gt: lb, lt: ub, genNormal: false, genSubNormal: true);
+              try {
+                populator().random(rv,
+                    gt: lb, lt: ub, genNormal: true, genSubNormal: false);
+                fail('should throw due to no normals');
+              } on Exception catch (e) {
+                expect(e, isA<RohdHclException>());
+              }
+              if (i > 2) {
+                populator().random(rv,
+                    gte: lb, lt: ub, genNormal: false, genSubNormal: true);
+              }
+              if (j < 6) {
+                populator().random(rv,
+                    gte: lb, lte: ub, genNormal: false, genSubNormal: true);
+              }
+            }
+          }
+        }
+      }
+    });
+  });
+
   group('FPV: j-bit conversion', () {
     const exponentWidth = 4;
     const mantissaWidth = 4;
@@ -582,18 +715,27 @@ void main() {
         final dbl = fp.toDouble();
         final fp2 = explicitPopulator()
             .ofDouble(dbl, roundingMode: FloatingPointRoundingMode.truncate);
-        expect(
-            explicitPopulator()
-                .ofFloatingPointValue(fp, canonicalizeExplicit: true),
-            equals(fp2));
+
+        final fpCanon = explicitPopulator()
+            .ofFloatingPointValue(fp, canonicalizeExplicit: true);
+        expect(fpCanon.isNaN, equals(fp2.isNaN));
+        if (!fpCanon.isNaN) {
+          expect(fpCanon, equals(fp2));
+        }
         final fpOrig = implicitPopulator()
             .ofDouble(dbl, roundingMode: FloatingPointRoundingMode.truncate);
-        expect(implicitPopulator().ofFloatingPointValue(fp), equals(fpOrig));
+        final computed = implicitPopulator().ofFloatingPointValue(fp);
+        expect(computed.isNaN, equals(fpOrig.isNaN));
+        if (!computed.isNaN) {
+          expect(computed, equals(fpOrig));
+        }
         final ifp = implicitPopulator().ofFloatingPointValue(fp);
-        expect(ifp, equals(fpOrig));
+        expect(ifp.isNaN, equals(fpOrig.isNaN));
+        if (!ifp.isNaN) {
+          expect(ifp, equals(fpOrig));
+        }
       }
     });
-
     // TODO(desmonddak):  is this exhaustive enough: should we do EFP to FP rt
     // as well as FP to EFP rt?
     test('FPV: explicit EFP-FP j-bit exhaustive round-trip', () {
@@ -616,13 +758,19 @@ void main() {
               final dbl = efp.toDouble();
               final efp2 = explicitPopulator().ofDouble(dbl,
                   roundingMode: FloatingPointRoundingMode.truncate);
-              expect(
-                  explicitPopulator()
-                      .ofFloatingPointValue(efp, canonicalizeExplicit: true),
-                  equals(efp2));
+              final efpCanon = explicitPopulator()
+                  .ofFloatingPointValue(efp, canonicalizeExplicit: true);
+              expect(efpCanon.isNaN, equals(efp2.isNaN));
+              if (!efpCanon.isNaN) {
+                expect(efpCanon, equals(efp2));
+              }
               final fp = implicitPopulator().ofDouble(dbl,
                   roundingMode: FloatingPointRoundingMode.truncate);
-              expect(implicitPopulator().ofFloatingPointValue(efp), equals(fp));
+              final efpNonCanon = implicitPopulator().ofFloatingPointValue(efp);
+              expect(efpNonCanon.isNaN, equals(fp.isNaN));
+              if (!efpNonCanon.isNaN) {
+                expect(efpNonCanon, equals(fp));
+              }
             }
             mantissa = mantissa + 1;
           }
@@ -630,5 +778,119 @@ void main() {
         }
       }
     });
+  });
+
+  test('FloatingPointValue negation', () async {
+    const exponentWidth = 4;
+    const mantissaWidth = 4;
+    final fp1 = FloatingPoint(
+        exponentWidth: exponentWidth, mantissaWidth: mantissaWidth);
+
+    final val1 = FloatingPointValue.populator(
+            exponentWidth: exponentWidth, mantissaWidth: mantissaWidth)
+        .ofDouble(-1.23);
+    fp1.put(val1);
+    final val2 = FloatingPointValue.populator(
+            exponentWidth: exponentWidth, mantissaWidth: mantissaWidth)
+        .ofDouble(1.23);
+    expect((-fp1).floatingPointValue, equals(val2));
+  });
+
+  /// Compare two FloatingPointValues differing in jbit
+  test('FloatingPointValue jbit comparison', () async {
+    const exponentWidth = 4;
+    const mantissaWidth = 4;
+
+    final val1 = FloatingPointValue.populator(
+            exponentWidth: exponentWidth,
+            mantissaWidth: mantissaWidth,
+            explicitJBit: true)
+        .ofDouble(1.23);
+    final val2 = FloatingPointValue.populator(
+            exponentWidth: exponentWidth, mantissaWidth: mantissaWidth - 1)
+        .ofDouble(1.23);
+    expect(val1 == val2, isTrue);
+    expect(val1 != val2, isFalse);
+    expect(val1 <= val2, isTrue);
+    expect(val1 >= val2, isTrue);
+    expect(val1 < val2, isFalse);
+    expect(val1 > val2, isFalse);
+    expect(val2 < val1, isFalse);
+    expect(val2 > val1, isFalse);
+  });
+
+  test('FloatingPointValue comparison operators', () async {
+    const exponentWidth = 4;
+    const mantissaWidth = 4;
+
+    final rv = Random(71);
+
+    for (var iter = 0; iter < 50; iter++) {
+      final val1 = FloatingPointValue.populator(
+              exponentWidth: exponentWidth, mantissaWidth: mantissaWidth)
+          .random(rv);
+      final val2 = FloatingPointValue.populator(
+              exponentWidth: exponentWidth, mantissaWidth: mantissaWidth)
+          .random(rv);
+
+      expect(val1 == val1, isTrue);
+      expect(val1 <= val1, isTrue);
+      expect(val1 >= val1, isTrue);
+      expect(val1 != val1, isFalse);
+      expect(val1 < val1, isFalse);
+      expect(val1 > val1, isFalse);
+
+      if (val1 < val2) {
+        expect(val1 < val2, isTrue);
+        expect(val1 <= val2, isTrue);
+        expect(val1 != val2, isTrue); // This will use Logic.neq()
+        expect(val1 == val2, isFalse);
+        expect(val1 > val2, isFalse);
+      } else if (val1 > val2) {
+        expect(val1 > val2, isTrue);
+        expect(val1 < val2, isFalse);
+        expect(val1 <= val2, isFalse);
+        expect(val1 != val2, isTrue); // This will use Logic.neq()
+      } else {
+        // rare that the two numbers would collide but just to be safe
+        expect(val1 == val2, isTrue);
+        expect(val1 != val2, isFalse);
+      }
+    }
+  });
+
+  test('FloatingPointValue corner case comparisons', () async {
+    const exponentWidth = 4;
+    const mantissaWidth = 4;
+    final nan = FloatingPointValue.populator(
+            exponentWidth: exponentWidth, mantissaWidth: mantissaWidth)
+        .nan;
+    final posInfinity = FloatingPointValue.populator(
+            exponentWidth: exponentWidth, mantissaWidth: mantissaWidth)
+        .ofConstant(FloatingPointConstants.positiveInfinity);
+    final negInfinity = FloatingPointValue.populator(
+            exponentWidth: exponentWidth, mantissaWidth: mantissaWidth)
+        .ofConstant(FloatingPointConstants.negativeInfinity);
+
+    expect(nan == nan, isFalse);
+    expect(nan < nan, isFalse);
+    expect(nan > nan, isFalse);
+
+    expect(posInfinity == nan, isFalse);
+    expect(posInfinity == posInfinity, isTrue);
+    expect(posInfinity >= posInfinity, isTrue);
+    expect(posInfinity <= posInfinity, isTrue);
+    expect(posInfinity < posInfinity, isFalse);
+    expect(posInfinity > posInfinity, isFalse);
+    expect(posInfinity == negInfinity, isFalse);
+    expect(posInfinity >= negInfinity, isTrue);
+    expect(negInfinity == negInfinity, isTrue);
+    expect(negInfinity < negInfinity, isFalse);
+    expect(negInfinity <= negInfinity, isTrue);
+    expect(negInfinity > negInfinity, isFalse);
+    expect(negInfinity >= negInfinity, isTrue);
+    expect((-negInfinity) == posInfinity, isTrue);
+    expect((-negInfinity) < posInfinity, isFalse);
+    expect((-negInfinity) > posInfinity, isFalse);
   });
 }

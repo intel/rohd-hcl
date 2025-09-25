@@ -9,6 +9,8 @@
 //  Max Korbel <max.korbel@intel.com>
 //  Desmond A Kirkpatrick <desmond.a.kirkpatrick@intel.com
 
+import 'dart:math';
+
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
 import 'package:test/test.dart';
@@ -109,5 +111,108 @@ void main() {
     await Simulator.run();
 
     expect(checkRan, isTrue);
+  });
+
+  test('FP Comparison', () {
+    final fp1 = FloatingPoint32();
+    final fp2 = FloatingPoint32();
+
+    final val1 = FloatingPoint32Value.populator().ofDouble(1.23);
+    final val2 = FloatingPoint32Value.populator().ofDouble(3.45);
+    final val3 = FloatingPoint32Value.populator().ofDouble(1.23);
+
+    fp1.put(val1);
+    fp2.put(val2);
+
+    expect(fp1.lt(fp2).value.toBool(), isTrue);
+    expect(fp1.lte(fp2).value.toBool(), isTrue);
+    expect(fp1.gt(fp2).value.toBool(), isFalse);
+    expect((fp1 > fp2).value.toBool(), isFalse);
+    expect(fp1.gte(fp2).value.toBool(), isFalse);
+    expect((fp1 >= fp2).value.toBool(), isFalse);
+    expect(fp1.eq(fp2).value.toBool(), isFalse);
+    expect(fp1.neq(fp2).value.toBool(), isTrue);
+
+    fp2.put(val3);
+
+    expect(fp1.lt(fp2).value.toBool(), isFalse);
+    expect(fp1.lte(fp2).value.toBool(), isTrue);
+    expect(fp1.gt(fp2).value.toBool(), isFalse);
+    expect((fp1 > fp2).value.toBool(), isFalse);
+    expect(fp1.gte(fp2).value.toBool(), isTrue);
+    expect((fp1 >= fp2).value.toBool(), isTrue);
+    expect(fp1.eq(fp2).value.toBool(), isTrue);
+    expect(fp1.neq(fp2).value.toBool(), isFalse);
+  });
+
+  test('FP Negate', () {
+    final fp1 = FloatingPoint32();
+    final fp2 = FloatingPoint32();
+
+    final val1 = FloatingPoint32Value.populator().ofDouble(1.23);
+    final val2 = FloatingPoint32Value.populator().ofDouble(-1.23);
+
+    fp1.put(val1);
+    fp2.put(val2);
+    expect(fp1.negate().eq(fp2).value.toBool(), isTrue);
+    expect((-fp1).eq(fp2).value.toBool(), isTrue);
+    expect(fp1.negate().neq(fp2).value.toBool(), isFalse);
+    expect((-fp1).neq(fp2).value.toBool(), isFalse);
+    final val3 = val1.negate();
+    fp2.put(val3);
+    expect(fp1.negate().eq(fp2).value.toBool(), isTrue);
+    expect((-fp1).eq(fp2).value.toBool(), isTrue);
+    expect(fp1.negate().neq(fp2).value.toBool(), isFalse);
+    expect((-fp1).neq(fp2).value.toBool(), isFalse);
+  });
+
+  test('FP Comparison Random', () {
+    const exponentWidth = 4;
+    const mantissaWidth = 3;
+    final rv = Random(57);
+
+    for (final explicitJBit in [false, true]) {
+      FloatingPoint fpConstructor() => FloatingPoint(
+          exponentWidth: exponentWidth,
+          mantissaWidth: mantissaWidth,
+          explicitJBit: explicitJBit);
+      final fp1 = fpConstructor();
+      final fp2 = fpConstructor();
+
+      FloatingPointValuePopulator fpvPopulator() => fp1.valuePopulator();
+      final compare = fp1.lte(fp2);
+      for (var iter = 0; iter < 4000; iter++) {
+        for (final doNormal in [false, true]) {
+          for (final doSubNormal in [false, true]) {
+            if (!doNormal && !doSubNormal) {
+              continue;
+            }
+            final separate = fpvPopulator()
+                .random(rv, genNormal: doNormal, genSubNormal: doSubNormal);
+            if (!doNormal) {
+              if (separate ==
+                      (fpvPopulator().ofConstant(
+                          FloatingPointConstants.smallestPositiveNormal)) ||
+                  (separate ==
+                      (fpvPopulator()
+                          .ofConstant(
+                              FloatingPointConstants.smallestPositiveNormal)
+                          .negate()))) {
+                continue;
+              }
+            }
+            fp1.put(separate);
+
+            final low = fpvPopulator().random(rv,
+                genNormal: doNormal, genSubNormal: doSubNormal, lte: separate);
+            final high = fpvPopulator().random(rv,
+                genNormal: doNormal, genSubNormal: doSubNormal, gte: separate);
+            fp1.put(low);
+            fp2.put(high);
+            expect(compare.value.toBool(), isTrue);
+          }
+        }
+      }
+    }
   });
 }

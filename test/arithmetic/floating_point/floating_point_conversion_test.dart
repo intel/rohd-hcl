@@ -17,12 +17,9 @@ void main() {
     const exponentWidth = 3;
     const mantissaWidth = 4;
 
-    final fv1 = FloatingPointValue.populator(
-            exponentWidth: exponentWidth, mantissaWidth: mantissaWidth)
-        .ofBinaryStrings('0', '010', '1111');
-
     final fp1 = FloatingPoint(
         exponentWidth: exponentWidth, mantissaWidth: mantissaWidth);
+    final fv1 = fp1.valuePopulator().ofBinaryStrings('0', '010', '1111');
 
     const destExponentWidth = 2;
     const destMantissaWidth = 4;
@@ -33,14 +30,10 @@ void main() {
     final convert = FloatingPointConverter(fp1, fp2);
     await convert.build();
 
-    final expected = FloatingPointValue.populator(
-            exponentWidth: destExponentWidth, mantissaWidth: destMantissaWidth)
-        .ofDoubleUnrounded(
-      fv1.toDouble(),
-    );
-    final expectedRound = FloatingPointValue.populator(
-            exponentWidth: destExponentWidth, mantissaWidth: destMantissaWidth)
-        .ofDouble(fv1.toDouble());
+    final expected = fp2.valuePopulator().ofDoubleUnrounded(
+          fv1.toDouble(),
+        );
+    final expectedRound = fp2.valuePopulator().ofDouble(fv1.toDouble());
 
     final computed = convert.destination.floatingPointValue;
     expect(computed, equals(fp2.floatingPointValue));
@@ -58,11 +51,9 @@ void main() {
     const exponentWidth = 3;
     const mantissaWidth = 4;
 
-    final fv1 = FloatingPointValue.populator(
-            exponentWidth: exponentWidth, mantissaWidth: mantissaWidth)
-        .ofBinaryStrings('0', '010', '1111');
     final fp1 = FloatingPoint(
         exponentWidth: exponentWidth, mantissaWidth: mantissaWidth);
+    final fv1 = fp1.valuePopulator().ofBinaryStrings('0', '010', '1111');
 
     const destExponentWidth = 4;
     const destMantissaWidth = 4;
@@ -72,9 +63,7 @@ void main() {
         exponentWidth: destExponentWidth, mantissaWidth: destMantissaWidth);
     final convert = FloatingPointConverter(fp1, fp2);
 
-    final expected = FloatingPointValue.populator(
-            exponentWidth: destExponentWidth, mantissaWidth: destMantissaWidth)
-        .ofDouble(fv1.toDouble());
+    final expected = fp2.valuePopulator().ofDouble(fv1.toDouble());
 
     final computed = convert.destination.floatingPointValue;
     expect(computed, equals(fp2.floatingPointValue));
@@ -108,16 +97,10 @@ void main() {
         for (final negate in [false, true]) {
           for (var e1 = normal; e1 < expLimit; e1++) {
             for (var m1 = 0; m1 < mantLimit; m1++) {
-              final fv1 = FloatingPointValue.populator(
-                      exponentWidth: exponentWidth,
-                      mantissaWidth: mantissaWidth)
-                  .ofInts(e1, m1, sign: negate);
+              final fv1 = fp1.valuePopulator().ofInts(e1, m1, sign: negate);
               fp1.put(fv1.value);
 
-              final expected = FloatingPointValue.populator(
-                      exponentWidth: destExponentWidth,
-                      mantissaWidth: destMantissaWidth)
-                  .ofDouble(fv1.toDouble());
+              final expected = fp2.valuePopulator().ofDouble(fv1.toDouble());
 
               final computed = convert.destination.floatingPointValue;
               expect(computed, equals(fp2.floatingPointValue));
@@ -159,16 +142,10 @@ void main() {
         for (final negate in [false, true]) {
           for (var e1 = normal; e1 < expLimit; e1++) {
             for (var m1 = 0; m1 < mantLimit; m1++) {
-              final fv1 = FloatingPointValue.populator(
-                      exponentWidth: exponentWidth,
-                      mantissaWidth: mantissaWidth)
-                  .ofInts(e1, m1, sign: negate);
+              final fv1 = fp1.valuePopulator().ofInts(e1, m1, sign: negate);
               fp1.put(fv1.value);
 
-              final expected = FloatingPointValue.populator(
-                      exponentWidth: destExponentWidth,
-                      mantissaWidth: destMantissaWidth)
-                  .ofDouble(fv1.toDouble());
+              final expected = fp2.valuePopulator().ofDouble(fv1.toDouble());
 
               final computed = convert.destination.floatingPointValue;
               expect(computed, equals(fp2.floatingPointValue));
@@ -196,14 +173,10 @@ void main() {
             final fp2 = FloatingPoint(exponentWidth: dEW, mantissaWidth: dMW);
             final convert = FloatingPointConverter(fp1, fp2);
             for (var iter = 0; iter < 20; iter++) {
-              final fv1 = FloatingPointValue.populator(
-                      exponentWidth: sEW, mantissaWidth: sMW)
-                  .random(rv);
+              final fv1 = fp1.valuePopulator().random(rv);
               fp1.put(fv1.value);
 
-              final expected = FloatingPointValue.populator(
-                      exponentWidth: dEW, mantissaWidth: dMW)
-                  .ofDouble(fv1.toDouble());
+              final expected = fp2.valuePopulator().ofDouble(fv1.toDouble());
 
               final computed = convert.destination.floatingPointValue;
 
@@ -233,14 +206,11 @@ void main() {
             for (final negate in [false, true]) {
               for (var e1 = 0; e1 < pow(2, sEW) - 1; e1++) {
                 for (var m1 = 0; m1 < pow(2, sMW); m1++) {
-                  final fv1 = FloatingPointValue.populator(
-                          exponentWidth: sEW, mantissaWidth: sMW)
-                      .ofInts(e1, m1, sign: negate);
+                  final fv1 = fp1.valuePopulator().ofInts(e1, m1, sign: negate);
                   fp1.put(fv1.value);
 
-                  final expected = FloatingPointValue.populator(
-                          exponentWidth: dEW, mantissaWidth: dMW)
-                      .ofDouble(fv1.toDouble());
+                  final expected =
+                      fp2.valuePopulator().ofDouble(fv1.toDouble());
 
                   final computed = convert.destination.floatingPointValue;
 
@@ -341,17 +311,12 @@ void main() {
       const mantissaWidth = 4;
       const delta = -1;
 
-      FloatingPointValue ofExplicitString(String s) =>
-          FloatingPointValue.populator(
-                  exponentWidth: exponentWidth,
-                  mantissaWidth: mantissaWidth,
-                  explicitJBit: true)
-              .ofSpacedBinaryString(s);
-
       final fpj = FloatingPoint(
           exponentWidth: exponentWidth,
           mantissaWidth: mantissaWidth,
           explicitJBit: true);
+      FloatingPointValue ofExplicitString(String s) =>
+          fpj.valuePopulator().ofSpacedBinaryString(s);
 
       final fvj = ofExplicitString('0 1011 0001'); //trueS = 3 ok
       if (fvj.isLegalValue()) {
@@ -360,10 +325,7 @@ void main() {
 
         fpj.put(fvj);
 
-        final expected = FloatingPointValue.populator(
-                exponentWidth: exponentWidth + delta,
-                mantissaWidth: mantissaWidth)
-            .ofDouble(fvj.toDouble());
+        final expected = fp.valuePopulator().ofDouble(fvj.toDouble());
 
         FloatingPointConverter(fpj, fp);
         final computed = fp.floatingPointValue;
@@ -396,28 +358,24 @@ expected:   $expected ${expected.toDouble()}
         for (final signVal in [false, true]) {
           for (var e = 0; e < pow(2.0, exponentWidth).toInt(); e++) {
             for (var m = 0; m < pow(2.0, mantissaWidth).toInt(); m++) {
-              final fpev = FloatingPointValue.populator(
-                      exponentWidth: exponentWidth,
-                      mantissaWidth: mantissaWidth,
-                      explicitJBit: true)
-                  .ofInts(e, m, sign: signVal);
+              final fpev = fpj.valuePopulator().ofInts(e, m, sign: signVal);
               if (fpev.isLegalValue()) {
                 fpj.put(fpev);
                 final computed = converter.destination.floatingPointValue;
                 final dbl = fpev.toDouble();
-                final expected = FloatingPointValue.populator(
-                        exponentWidth: exponentWidth + expDelta,
-                        mantissaWidth: mantissaWidth)
-                    .ofDouble(dbl,
-                        roundingMode: expDelta < 0
-                            ? FloatingPointRoundingMode.roundNearestEven
-                            : FloatingPointRoundingMode.truncate);
-                expect(computed, equals(expected), reason: '''
+                final expected = fp.valuePopulator().ofDouble(dbl,
+                    roundingMode: expDelta < 0
+                        ? FloatingPointRoundingMode.roundNearestEven
+                        : FloatingPointRoundingMode.truncate);
+                expect(computed.isNaN, equals(expected.isNaN));
+                if (!computed.isNaN) {
+                  expect(computed, equals(expected), reason: '''
 input:      $fpev  ${fpev.toDouble()}
 normalized: ${fpev.canonicalize()} ${fpev.canonicalize().toDouble()}
 computed:   $computed ${computed.toDouble()}
 expected:   $expected ${expected.toDouble()}
 ''');
+                }
               }
             }
           }
@@ -430,12 +388,10 @@ expected:   $expected ${expected.toDouble()}
       const mantissaWidth = 6;
       const delta = -2;
 
-      FloatingPointValue ofString(String s) => FloatingPointValue.populator(
-              exponentWidth: exponentWidth, mantissaWidth: mantissaWidth)
-          .ofSpacedBinaryString(s);
-
       final fpj = FloatingPoint(
           exponentWidth: exponentWidth, mantissaWidth: mantissaWidth);
+      FloatingPointValue ofString(String s) =>
+          fpj.valuePopulator().ofSpacedBinaryString(s);
 
       final fvj = ofString('0 0111 111111');
       final fp = FloatingPoint(
@@ -444,11 +400,7 @@ expected:   $expected ${expected.toDouble()}
           explicitJBit: true);
 
       fpj.put(fvj);
-      final expected = FloatingPointValue.populator(
-              exponentWidth: exponentWidth + delta,
-              mantissaWidth: mantissaWidth,
-              explicitJBit: true)
-          .ofDouble(fvj.toDouble());
+      final expected = fp.valuePopulator().ofDouble(fvj.toDouble());
 
       FloatingPointConverter(fpj, fp);
       final computed = fp.floatingPointValue;
@@ -477,28 +429,24 @@ expected:   $expected
         for (final signVal in [false, true]) {
           for (var e = 0; e < pow(2.0, exponentWidth).toInt(); e++) {
             for (var m = 0; m < pow(2.0, mantissaWidth).toInt(); m++) {
-              final fpev = FloatingPointValue.populator(
-                      exponentWidth: exponentWidth,
-                      mantissaWidth: mantissaWidth)
-                  .ofInts(e, m, sign: signVal);
+              final fpev = fp.valuePopulator().ofInts(e, m, sign: signVal);
               final nfpev = fpev;
               fp.put(nfpev);
               final computed = converter.destination.floatingPointValue;
               final dbl = fpev.toDouble();
-              final fpv = FloatingPointValue.populator(
-                      exponentWidth: exponentWidth + expDelta,
-                      mantissaWidth: mantissaWidth,
-                      explicitJBit: true)
-                  .ofDouble(dbl,
-                      roundingMode: expDelta < 0
-                          ? FloatingPointRoundingMode.roundNearestEven
-                          : FloatingPointRoundingMode.truncate);
-              expect(computed.canonicalize(), equals(fpv), reason: '''
+              final fpv = fpj.valuePopulator().ofDouble(dbl,
+                  roundingMode: expDelta < 0
+                      ? FloatingPointRoundingMode.roundNearestEven
+                      : FloatingPointRoundingMode.truncate);
+              expect(computed.isNaN, equals(fpv.isNaN));
+              if (!computed.isNaN) {
+                expect(computed.canonicalize(), equals(fpv), reason: '''
 input:      $fpev
 computed:   $computed
 normalized: ${computed.canonicalize()}
 expected:   $fpv
 ''');
+              }
             }
           }
         }
@@ -510,17 +458,12 @@ expected:   $fpv
       const mantissaWidth = 4;
       const delta = -2;
 
-      FloatingPointValue ofExplicitString(String s) =>
-          FloatingPointValue.populator(
-                  exponentWidth: exponentWidth,
-                  mantissaWidth: mantissaWidth,
-                  explicitJBit: true)
-              .ofSpacedBinaryString(s);
-
       final fpj = FloatingPoint(
           exponentWidth: exponentWidth,
           mantissaWidth: mantissaWidth,
           explicitJBit: true);
+      FloatingPointValue ofExplicitString(String s) =>
+          fpj.valuePopulator().ofSpacedBinaryString(s);
 
       final fvj = ofExplicitString('0 0000 0001');
       if (fvj.isLegalValue()) {
@@ -531,10 +474,7 @@ expected:   $fpv
 
         fpj.put(fvj);
         final dbl = fvj.toDouble();
-        final expectedPartial = FloatingPointValue.populator(
-            exponentWidth: exponentWidth + delta,
-            mantissaWidth: mantissaWidth,
-            explicitJBit: true);
+        final expectedPartial = fp.valuePopulator();
         final expected = expectedPartial.ofDouble(dbl);
 
         FloatingPointConverter(fpj, fp);
@@ -571,31 +511,24 @@ expected: $expected
           for (final signVal in [false, true]) {
             for (var e = 0; e < pow(2.0, exponentWidth).toInt(); e++) {
               for (var m = 0; m < pow(2.0, mantissaWidth).toInt(); m++) {
-                final fpev = FloatingPointValue.populator(
-                        exponentWidth: exponentWidth,
-                        mantissaWidth: mantissaWidth,
-                        explicitJBit: true)
-                    .ofInts(e, m, sign: signVal);
+                final fpev = fp.valuePopulator().ofInts(e, m, sign: signVal);
                 if (fpev.isLegalValue()) {
                   fp.put(fpev);
                   final computed = converter.destination.floatingPointValue;
                   final dbl = fpev.toDouble();
-                  // TODO(desmonddak): it would be nice to construct a new
-                  // populator from a FloatingPoint itself.
-                  final fpv = FloatingPointValue.populator(
-                          exponentWidth: exponentWidth + expDelta,
-                          mantissaWidth: mantissaWidth + mantDelta,
-                          explicitJBit: true)
-                      .ofDouble(dbl,
-                          roundingMode: expDelta < 0
-                              ? FloatingPointRoundingMode.roundNearestEven
-                              : FloatingPointRoundingMode.truncate);
-                  expect(computed.canonicalize(), equals(fpv), reason: '''
+                  final fpv = fpj.valuePopulator().ofDouble(dbl,
+                      roundingMode: expDelta < 0
+                          ? FloatingPointRoundingMode.roundNearestEven
+                          : FloatingPointRoundingMode.truncate);
+                  expect(computed.isNaN, equals(fpv.isNaN));
+                  if (!computed.isNaN) {
+                    expect(computed.canonicalize(), equals(fpv), reason: '''
 input:    $fpev
 normalized: ${fpev.canonicalize()}
 computed: $computed
 expected: $fpv
 ''');
+                  }
                 }
               }
             }
