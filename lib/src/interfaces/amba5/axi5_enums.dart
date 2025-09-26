@@ -201,3 +201,41 @@ enum Axi5RespField {
 
   const Axi5RespField(this.value);
 }
+
+/// Helper to enumerate the encodings of the AxMMUSECSID signal.
+enum Axi5MmuSecSidField {
+  /// Non-secure address space.
+  nonSecure(0x0),
+
+  /// Secure address space.
+  secure(0x1),
+
+  /// Realm address space.
+  realm(0x2);
+
+  /// Underlying value.
+  final int value;
+
+  const Axi5MmuSecSidField(this.value);
+}
+
+/// Helper to enumerate the encodings of the AxMMUFLOW signal.
+/// See A13.6.1-A13.6.4 for flow descriptions.
+enum Axi5MmuFlowField {
+  /// The SMMU Stall flow can be used.
+  stall(0x0),
+
+  /// The SMMU ATST flow must be used.
+  atst(0x1),
+
+  /// The SMMU NoStall flow must be used.
+  noStall(0x2),
+
+  /// The SMMU PRI flow can be used.
+  pri(0x3);
+
+  /// Underlying value.
+  final int value;
+
+  const Axi5MmuFlowField(this.value);
+}
