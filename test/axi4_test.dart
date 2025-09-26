@@ -11,64 +11,61 @@ import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
 import 'package:test/test.dart';
 
-import 'axi4_bfm_test.dart';
-
 class Axi4Subordinate extends Module {
-  Axi4Subordinate(Axi4SystemInterface sIntf, List<Axi4Channel> channels) {
+  Axi4Subordinate(Axi4SystemInterface sIntf, List<Axi4BaseCluster> lanes) {
     sIntf = Axi4SystemInterface()
-      ..connectIO(this, sIntf, inputTags: {Axi4Direction.misc});
+      ..pairConnectIO(this, sIntf, PairRole.consumer);
 
-    final channelsL = <Axi4Channel>[];
-    for (var i = 0; i < channels.length; i++) {
-      channelsL.add(Axi4Channel(
-          channelId: channels[i].channelId,
-          rIntf: channels[i].hasRead
-              ? (channels[i].rIntf!.clone()
-                ..connectIO(this, channels[i].rIntf!,
-                    inputTags: {Axi4Direction.fromMain},
-                    outputTags: {Axi4Direction.fromSubordinate}))
-              : null,
-          wIntf: channels[i].hasWrite
-              ? (channels[i].wIntf!.clone()
-                ..connectIO(this, channels[i].wIntf!,
-                    inputTags: {Axi4Direction.fromMain},
-                    outputTags: {Axi4Direction.fromSubordinate}))
-              : null));
+    final lanesL = <Axi4BaseCluster>[];
+    for (var i = 0; i < lanes.length; i++) {
+      if (lanes[i] is Axi4Cluster) {
+        lanesL.add((lanes[i] as Axi4Cluster).clone()
+          ..pairConnectIO(this, lanes[i], PairRole.consumer));
+      } else if (lanes[i] is Axi4LiteCluster) {
+        lanesL.add((lanes[i] as Axi4LiteCluster).clone()
+          ..pairConnectIO(this, lanes[i], PairRole.consumer));
+      } else if (lanes[i] is Ace4LiteCluster) {
+        lanesL.add((lanes[i] as Ace4LiteCluster).clone()
+          ..pairConnectIO(this, lanes[i], PairRole.consumer));
+      } else {
+        // lanesL.add((lanes[i] as Ace4Cluster).clone()
+        //   ..pairConnectIO(this, lanes[i], PairRole.consumer));
+      }
     }
   }
 }
 
 class Axi4Main extends Module {
-  Axi4Main(Axi4SystemInterface sIntf, List<Axi4Channel> channels) {
+  Axi4Main(Axi4SystemInterface sIntf, List<Axi4BaseCluster> lanes) {
     sIntf = Axi4SystemInterface()
-      ..connectIO(this, sIntf, inputTags: {Axi4Direction.misc});
+      ..pairConnectIO(this, sIntf, PairRole.consumer);
 
-    final channelsL = <Axi4Channel>[];
-    for (var i = 0; i < channels.length; i++) {
-      channelsL.add(Axi4Channel(
-          channelId: channels[i].channelId,
-          rIntf: channels[i].hasRead
-              ? (channels[i].rIntf!.clone()
-                ..connectIO(this, channels[i].rIntf!,
-                    inputTags: {Axi4Direction.fromSubordinate},
-                    outputTags: {Axi4Direction.fromMain}))
-              : null,
-          wIntf: channels[i].hasWrite
-              ? (channels[i].wIntf!.clone()
-                ..connectIO(this, channels[i].wIntf!,
-                    inputTags: {Axi4Direction.fromSubordinate},
-                    outputTags: {Axi4Direction.fromMain}))
-              : null));
+    final lanesL = <Axi4BaseCluster>[];
+    for (var i = 0; i < lanes.length; i++) {
+      if (lanes[i] is Axi4Cluster) {
+        lanesL.add((lanes[i] as Axi4Cluster).clone()
+          ..pairConnectIO(this, lanes[i], PairRole.provider));
+      } else if (lanes[i] is Axi4LiteCluster) {
+        lanesL.add((lanes[i] as Axi4LiteCluster).clone()
+          ..pairConnectIO(this, lanes[i], PairRole.provider));
+      } else if (lanes[i] is Ace4LiteCluster) {
+        lanesL.add((lanes[i] as Ace4LiteCluster).clone()
+          ..pairConnectIO(this, lanes[i], PairRole.provider));
+      } else {
+        // lanesL.add((lanes[i] as Ace4Cluster).clone()
+        //   ..pairConnectIO(this, lanes[i], PairRole.provider));
+      }
     }
   }
 }
 
 class Axi4Pair extends Module {
-  Axi4Pair(Logic clk, Logic reset,
-      {int numChannels = 1,
-      List<Axi4BfmTestChannelConfig> channelConfigs = const [
-        Axi4BfmTestChannelConfig.readWrite
-      ]}) {
+  Axi4Pair(
+    Logic clk,
+    Logic reset, {
+    int numLanes = 1,
+    Type axiType = Axi4Cluster,
+  }) {
     clk = addInput('clk', clk);
     reset = addInput('reset', reset);
 
@@ -76,20 +73,21 @@ class Axi4Pair extends Module {
     sIntf.clk <= clk;
     sIntf.resetN <= ~reset;
 
-    final channels = <Axi4Channel>[];
-    for (var i = 0; i < numChannels; i++) {
-      final hasRead = channelConfigs[i] == Axi4BfmTestChannelConfig.read ||
-          channelConfigs[i] == Axi4BfmTestChannelConfig.readWrite;
-      final hasWrite = channelConfigs[i] == Axi4BfmTestChannelConfig.write ||
-          channelConfigs[i] == Axi4BfmTestChannelConfig.readWrite;
-      channels.add(Axi4Channel(
-          channelId: i,
-          rIntf: hasRead ? Axi4ReadInterface() : null,
-          wIntf: hasWrite ? Axi4WriteInterface() : null));
+    final lanes = <Axi4BaseCluster>[];
+    for (var i = 0; i < numLanes; i++) {
+      if (axiType == Axi4Cluster) {
+        lanes.add(Axi4Cluster());
+      } else if (axiType == Axi4LiteCluster) {
+        lanes.add(Axi4LiteCluster());
+      } else if (axiType == Ace4LiteCluster) {
+        lanes.add(Ace4LiteCluster());
+      } else {
+        // lanes.add(Ace4Cluster());
+      }
     }
 
-    Axi4Main(sIntf, channels);
-    Axi4Subordinate(sIntf, channels);
+    Axi4Main(sIntf, lanes);
+    Axi4Subordinate(sIntf, lanes);
   }
 }
 
@@ -99,34 +97,13 @@ void main() {
     await axi4Pair.build();
   });
 
-  test('axi4 optional ports null', () async {
-    final rIntf = Axi4ReadInterface(
-        idWidth: 0,
-        lenWidth: 0,
-        aruserWidth: 0,
-        ruserWidth: 0,
-        useLast: false,
-        useLock: false);
-    expect(rIntf.arId, isNull);
-    expect(rIntf.arLen, isNull);
-    expect(rIntf.arLock, isNull);
-    expect(rIntf.arUser, isNull);
-    expect(rIntf.rId, isNull);
-    expect(rIntf.rLast, isNull);
-    expect(rIntf.rUser, isNull);
+  test('connect axi4-lite modules', () async {
+    final axi4Pair = Axi4Pair(Logic(), Logic(), axiType: Axi4LiteCluster);
+    await axi4Pair.build();
+  });
 
-    final wIntf = Axi4WriteInterface(
-        idWidth: 0,
-        lenWidth: 0,
-        awuserWidth: 0,
-        wuserWidth: 0,
-        buserWidth: 0,
-        useLock: false);
-    expect(wIntf.awId, isNull);
-    expect(wIntf.awLen, isNull);
-    expect(wIntf.awLock, isNull);
-    expect(wIntf.awUser, isNull);
-    expect(wIntf.wUser, isNull);
-    expect(wIntf.bUser, isNull);
+  test('connect ace4-lite modules', () async {
+    final axi4Pair = Axi4Pair(Logic(), Logic(), axiType: Ace4LiteCluster);
+    await axi4Pair.build();
   });
 }

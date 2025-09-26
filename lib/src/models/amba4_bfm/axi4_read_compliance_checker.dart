@@ -19,13 +19,17 @@ class Axi4ReadComplianceChecker extends Component {
   /// AXI4 System Interface.
   final Axi4SystemInterface sIntf;
 
-  /// AXI4 Read Interface.
-  final Axi4ReadInterface rIntf;
+  /// AXI4 Read Request Interface.
+  final Axi4BaseArChannelInterface reqIntf;
+
+  /// AXI4 Read Response Interface.
+  final Axi4BaseRChannelInterface respIntf;
 
   /// Creates a new compliance checker for AXI4.
   Axi4ReadComplianceChecker(
     this.sIntf,
-    this.rIntf, {
+    this.reqIntf,
+    this.respIntf, {
     required Component parent,
     String name = 'axi4ReadComplianceChecker',
   }) : super(name, parent);
@@ -44,34 +48,34 @@ class Axi4ReadComplianceChecker extends Component {
     //   if RID is present, every read response should match
     //   a pending request ARID
 
-    final rLastPresent = rIntf.rLast != null;
+    final rLastPresent = respIntf.last != null;
     final readReqMap = <int, List<List<int>>>{};
 
     sIntf.clk.posedge.listen((event) {
       // capture read requests for counting
-      if (rIntf.arValid.previousValue!.isValid &&
-          rIntf.arValid.previousValue!.toBool()) {
-        final id = rIntf.arId?.previousValue!.toInt() ?? 0;
-        final len = (rIntf.arLen?.previousValue!.toInt() ?? 0) + 1;
+      if (reqIntf.valid.previousValue!.isValid &&
+          reqIntf.valid.previousValue!.toBool()) {
+        final id = reqIntf.id?.previousValue!.toInt() ?? 0;
+        final len = (reqIntf.len?.previousValue!.toInt() ?? 0) + 1;
         if (!readReqMap.containsKey(id)) {
           readReqMap[id] = [];
         }
         readReqMap[id]!.add([len, 0]);
         if (Axi4SizeField.getImpliedSize(
-                Axi4SizeField.fromValue(rIntf.arSize!.value.toInt())) >
-            rIntf.dataWidth) {
-          logger.severe('The ARSIZE value of ${rIntf.arSize!.value.toInt()} '
+                Axi4SizeField.fromValue(reqIntf.size!.value.toInt())) >
+            respIntf.dataWidth) {
+          logger.severe('The ARSIZE value of ${reqIntf.size!.value.toInt()} '
               'must be less than or equal to '
-              '${Axi4SizeField.fromSize(rIntf.dataWidth).value} '
+              '${Axi4SizeField.fromSize(respIntf.dataWidth).value} '
               'corresponding to the interface '
-              'data width of ${rIntf.dataWidth}.');
+              'data width of ${respIntf.dataWidth}.');
         }
       }
 
       // track read response flits
-      if (rIntf.rValid.previousValue!.isValid &&
-          rIntf.rValid.previousValue!.toBool()) {
-        final id = rIntf.rId?.previousValue!.toInt() ?? 0;
+      if (respIntf.valid.previousValue!.isValid &&
+          respIntf.valid.previousValue!.toBool()) {
+        final id = respIntf.id?.previousValue!.toInt() ?? 0;
         if (!readReqMap.containsKey(id) || readReqMap[id]!.isEmpty) {
           logger.severe(
               'Cannot match a read response to any pending read request. '
@@ -89,13 +93,13 @@ class Axi4ReadComplianceChecker extends Component {
                 'request with ID $id ARLEN. Expected $len but got $currCount');
           } else if (currCount == len &&
               rLastPresent &&
-              !rIntf.rLast!.previousValue!.toBool()) {
+              !respIntf.last!.previousValue!.toBool()) {
             logger
                 .severe('Received the final flit in the read response data per '
                     'the request with ID $id ARLEN but RLAST is not asserted.');
           } else if (currCount == len &&
               rLastPresent &&
-              rIntf.rLast!.previousValue!.toBool()) {
+              respIntf.last!.previousValue!.toBool()) {
             readReqMap[id]!.removeAt(0);
           }
         }
