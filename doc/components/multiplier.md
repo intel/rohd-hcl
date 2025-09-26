@@ -167,7 +167,7 @@ Here is an example of using the `CompressionTreeMultiplyAccumulate` with all inp
 
 The `DotProduct` component is built from multiplier components but rather than instantiating full multipliers for each product and then adding those, it builds a large compression tree of all products and the uses `CompressionTree` to reduce to a pair of addends, and then does the final addition using a provided `adderGen` function (defaulting to `NativeAdder`).
 
-The parameters to the `DotProduct` are two `List<Logic>`s for the multiplicands and multipliers.  The current restriction is that these must all be the same width. The `radix` to encode the partial products is another argument (default = 4).  Finally, two paraameters are available to control whether the multiplicands and the multipliers are signed: these parameters can either be `bool` for static generation of signedness, or `Logic` for runtime control. The default, `null` results in an unsigned dot-product component.
+The parameters to the `DotProduct` are two `List<Logic>`s for the multiplicands and multipliers.  The current restriction is that these must all be the same width. The `radix` to encode the partial products is another argument (default = 4).  Finally, two parameters are available to control whether the multiplicands and the multipliers are signed: these parameters can either be `bool` for static generation of signedness, or `Logic` for runtime control. The default, `null` results in an unsigned dot-product component.
 
 Here is an example use of `DotProduct` for a simple depth-2 dot-product computation.
 
