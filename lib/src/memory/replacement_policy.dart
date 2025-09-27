@@ -13,13 +13,6 @@ import 'package:meta/meta.dart';
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
 
-// Problem:  both reads and writes can hit or miss.
-// Hit is a signal from they way-CAM.  So we are transforming a single interface
-// like the read into two interfaces, one for hits, one for misses.
-// But we need to keep the read and write hits separate, because they in one
-// case we specify the way with the hit. In the other case we are ASKING
-// for the way to evict.
-
 /// An interface to a replacement policy that tracks [way] accesses, either
 /// a hita hit on a [way] or
 /// responds to a miss by choosing the [way] to evict to make room for the new
@@ -148,9 +141,11 @@ class PseudoLRUReplacement extends ReplacementPolicy {
   /// Declare a miss and ask for the least-recently-used way.
   Logic allocPLRU(Logic v, {int base = 0, int sz = 0}) {
     final lsz = sz == 0 ? max(log2Ceil(v.width), 1) : sz;
+    Logic convertInt(int i) => Const(i, width: lsz);
+
     final mid = v.width ~/ 2;
     return v.width == 1
-        ? mux(v[0], Const(base, width: lsz), Const(base + 1, width: lsz))
+        ? mux(v[0], convertInt(base), convertInt(base + 1))
         : mux(
             v[mid],
             allocPLRU(
@@ -168,28 +163,38 @@ class PseudoLRUReplacement extends ReplacementPolicy {
   }
 
   /// Access a given way and mark the LRU path in the tree with 0s.
-  Logic hitPLRU(Logic v, Logic way, {int base = 0}) {
+  ///
+  // At an node, 0 means LRU is right.
+  /// - If we hit left, we set to 0 to indicate LRU is right.
+  /// - If we hit right, we set to 1, indicating LRU is left.
+  /// - Invalidate reverses these meanings as we are marking the way
+  /// as an invalid and therefore LRU.
+  Logic hitPLRU(Logic v, Logic way, {int base = 0, Logic? invalidate}) {
+    Logic convertInt(int i) => Const(i, width: way.width);
+    invalidate ??= Const(0);
+
     if (v.width == 1) {
-      return mux(way.eq(Const(base, width: way.width)), Const(0),
-          mux(way.eq(Const(base + 1, width: way.width)), Const(1), v[0]));
+      return mux(way.eq(convertInt(base)), invalidate,
+          mux(way.eq(convertInt(base + 1)), ~invalidate, v[0]));
     } else {
       final mid = v.width ~/ 2;
-      final lowSlice = v
-          .slice(mid - 1, 0)
-          .named('${v.name}_${mid + base - 1}_$base', naming: Naming.mergeable);
-      final hiSlice = v.getRange(mid + 1).named(
-          '${v.name}_${v.width - 1}_${mid + 1 + base}',
-          naming: Naming.mergeable);
-      final lower = hitPLRU(lowSlice, way, base: base);
-      final upper = hitPLRU(hiSlice, way, base: mid + base + 1);
+      final lower = hitPLRU(
+          v.slice(mid - 1, 0).named('${v.name}_${mid + base - 1}_$base',
+              naming: Naming.mergeable),
+          way,
+          base: base,
+          invalidate: invalidate);
+      final upper = hitPLRU(
+          v.getRange(mid + 1).named(
+              '${v.name}_${v.width - 1}_${mid + 1 + base}',
+              naming: Naming.mergeable),
+          way,
+          base: mid + base + 1,
+          invalidate: invalidate);
       final midVal = mux(
-          way.lt(Const(base, width: way.width)) |
-              way.gt(Const(base + v.width, width: way.width)),
+          way.lt(convertInt(base)) | way.gt(convertInt(base + v.width)),
           v[mid],
-          // 0 means LRU is right. So if we hit left, we set to 0,
-          // if we hit right, we set to 1, indicating LRU is left.
-          mux(way.lte(Const(mid + base, width: way.width)), Const(0),
-              Const(1)));
+          mux(way.lte(convertInt(mid + base)), invalidate, ~invalidate));
       return [lower, midVal, upper].rswizzle();
     }
   }
