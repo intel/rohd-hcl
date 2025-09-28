@@ -23,7 +23,7 @@ void main() {
     final clk = SimpleClockGenerator(10).clk;
 
     final reset = Logic();
-    final wrPort = DataPortInterface(8, 16);
+    final wrPort = ValidDataPortInterface(8, 16);
     final rdPort = ValidDataPortInterface(8, 16);
 
     final cache =
@@ -37,8 +37,8 @@ void main() {
 
     final reset = Logic();
 
-    final wrPort = DataPortInterface(8, 16);
-    final wrPort2 = DataPortInterface(8, 16);
+    final wrPort = ValidDataPortInterface(8, 16);
+    final wrPort2 = ValidDataPortInterface(8, 16);
     final rdPort = ValidDataPortInterface(8, 16);
     final rdPort2 = ValidDataPortInterface(8, 16);
 
@@ -47,6 +47,7 @@ void main() {
         ways: 4, lines: 51);
 
     await cache.build();
+    WaveDumper(cache, outputPath: 'cache_singleton.vcd');
     unawaited(Simulator.run());
 
     await clk.nextPosedge;
@@ -100,7 +101,7 @@ void main() {
       final clk = SimpleClockGenerator(10).clk;
       final reset = Logic();
 
-      final wrPort = DataPortInterface(dataWidth, addrWidth);
+      final wrPort = ValidDataPortInterface(dataWidth, addrWidth);
       final rdPort = ValidDataPortInterface(dataWidth, addrWidth);
 
       final cache = MultiPortedCache(clk, reset, [wrPort], [rdPort],
@@ -164,7 +165,7 @@ void main() {
       final clk = SimpleClockGenerator(10).clk;
 
       final reset = Logic();
-      final wrPort = DataPortInterface(dataWidth, addrWidth);
+      final wrPort = ValidDataPortInterface(dataWidth, addrWidth);
       final rdPort = ValidDataPortInterface(dataWidth, addrWidth);
 
       final cache = MultiPortedCache(clk, reset, [wrPort], [rdPort],
@@ -180,16 +181,9 @@ void main() {
       final testData = <(LogicValue, LogicValue)>[];
       var data = 0;
       for (var line = 0; line < lines; line++) {
-        if (line > 1) {
-          // continue;
-        }
         final lv = LogicValue.ofInt(line, lineAddrWith);
         for (var way = 0; way < ways; way++) {
           final tag = LogicValue.ofInt(way + 1, tagWidth);
-          if (tag == LogicValue.ofInt(0, tagWidth)) {
-            // tag of all 0s is reserved for invalid for now
-            continue;
-          }
           final addr = [tag, lv].swizzle();
           testData.add((addr, LogicValue.ofInt(data, dataWidth)));
           data++;
