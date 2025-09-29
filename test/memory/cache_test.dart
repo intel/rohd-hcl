@@ -47,16 +47,19 @@ void main() {
         ways: 4, lines: 51);
 
     await cache.build();
+    WaveDumper(cache, outputPath: 'cache_singleton.vcd');
     unawaited(Simulator.run());
 
     await clk.nextPosedge;
     await clk.nextPosedge;
     wrPort.en.inject(0);
+    wrPort.valid.inject(0);
     rdPort.en.inject(0);
     wrPort.addr.inject(0);
     wrPort.data.inject(0);
     rdPort.addr.inject(0);
     wrPort2.en.inject(0);
+    wrPort2.valid.inject(0);
     rdPort2.en.inject(0);
     wrPort2.addr.inject(0);
     wrPort2.data.inject(0);

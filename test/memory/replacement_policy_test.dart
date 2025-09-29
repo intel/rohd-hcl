@@ -27,13 +27,18 @@ void main() {
     final hit = AccessInterface(ways);
     final hit2 = AccessInterface(ways);
     final miss = AccessInterface(ways);
+    final invalidate = AccessInterface(ways);
 
-    final repl =
-        PseudoLRUReplacement(clk, reset, [hit, hit2], [miss], ways: ways);
+    final repl = PseudoLRUReplacement(
+        clk, reset, [hit, hit2], [miss], [invalidate],
+        ways: ways);
     await repl.build();
     unawaited(Simulator.run());
 
     // Reset flow
+
+    invalidate.access.inject(0);
+    invalidate.way.inject(0);
     reset.inject(0);
     hit.access.inject(0);
     hit.way.inject(0);

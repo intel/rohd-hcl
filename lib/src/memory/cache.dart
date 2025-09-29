@@ -64,9 +64,14 @@ abstract class Cache extends Module {
 
   /// The replacement policy to use for choosing which way to evict on a miss.
   @protected
-  final ReplacementPolicy Function(Logic clk, Logic reset,
-      List<AccessInterface> hits, List<AccessInterface> misses,
-      {int ways, String name}) replacement;
+  final ReplacementPolicy Function(
+      Logic clk,
+      Logic reset,
+      List<AccessInterface> hits,
+      List<AccessInterface> misses,
+      List<AccessInterface> invalidates,
+      {int ways,
+      String name}) replacement;
 
   /// Clock.
   Logic get clk => input('clk');
@@ -155,7 +160,7 @@ class MultiPortedCache extends Cache {
           numEntries: lines, name: 'valid_tag_rf_way$way');
     }
 
-    // setup the valid tag match write interfaces
+    // Setup the valid tag match write interfaces.
     for (var wrPortIdx = 0; wrPortIdx < numWrites; wrPortIdx++) {
       final wrPort = writes[wrPortIdx];
       for (var way = 0; way < ways; way++) {
@@ -221,12 +226,13 @@ class MultiPortedCache extends Cache {
             .slice(log2Ceil(ways) - 1, 0)
     ];
 
-    // Next, generate the replacment policy logic. Writes and reads both create
+    // Generate the replacment policy logic. Writes and reads both create
     // hits. A write miss causes an allocation followed by a hit.
 
     final policyWrHitPorts = _genReplacementAccesses(writes);
     final policyRdHitPorts = _genReplacementAccesses(reads);
     final policyAllocPorts = _genReplacementAccesses(writes);
+    final policyInvalPorts = _genReplacementAccesses(writes);
 
     for (var line = 0; line < lines; line++) {
       replacement(
@@ -234,11 +240,12 @@ class MultiPortedCache extends Cache {
           reset,
           policyWrHitPorts[line]..addAll(policyRdHitPorts[line]),
           policyAllocPorts[line],
+          policyInvalPorts[line],
           name: 'replacement_line$line',
           ways: ways);
     }
 
-    // Policy: Process write hits.
+    // Policy: Process write hits or invalidates.
     for (var wrPortIdx = 0; wrPortIdx < numWrites; wrPortIdx++) {
       final wrPort = writes[wrPortIdx];
       Combinational([
@@ -246,13 +253,17 @@ class MultiPortedCache extends Cache {
           If(
               wrPort.en &
                   ~writeValidPortMiss[wrPortIdx] &
+                  // Here we should split and check addr[-1] for write vs
+                  // invalidate - HACK
                   getLine(wrPort.addr).eq(Const(line, width: lineAddrWidth)),
               then: [
+                policyInvalPorts[line][wrPortIdx].access < Const(0),
                 policyWrHitPorts[line][wrPortIdx].access < wrPort.en,
                 policyWrHitPorts[line][wrPortIdx].way <
                     writePortValidWay[wrPortIdx],
               ],
               orElse: [
+                policyInvalPorts[line][wrPortIdx].access < Const(0),
                 policyWrHitPorts[line][wrPortIdx].access < Const(0),
                 policyWrHitPorts[line][wrPortIdx].way <
                     Const(0, width: log2Ceil(ways))
@@ -299,7 +310,7 @@ class MultiPortedCache extends Cache {
               ])
       ]);
     }
-
+    // Process allocates (misses)
     for (var wrPortIdx = 0; wrPortIdx < numWrites; wrPortIdx++) {
       final wrPort = writes[wrPortIdx];
       Combinational([

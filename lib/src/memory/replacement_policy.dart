@@ -66,6 +66,10 @@ abstract class ReplacementPolicy extends Module {
   @protected
   final List<AccessInterface> allocs = [];
 
+  /// Invalidate interfaces to communicate invalidates on ways.
+  @protected
+  final List<AccessInterface> invalidates = [];
+
   /// Clock.
   Logic get clk => input('clk');
 
@@ -79,7 +83,7 @@ abstract class ReplacementPolicy extends Module {
   /// evict. The [ways] parameter indicates the number of ways in the cache
   /// line.
   ReplacementPolicy(Logic clk, Logic reset, List<AccessInterface> hits,
-      List<AccessInterface> allocs,
+      List<AccessInterface> allocs, List<AccessInterface> invalidates,
       {this.ways = 2,
       super.name = 'replacement',
       super.reserveName,
@@ -117,6 +121,13 @@ abstract class ReplacementPolicy extends Module {
             outputTags: {DataPortGroup.data},
             uniquify: (original) => 'miss_${original}_$i'));
     }
+    for (var i = 0; i < invalidates.length; i++) {
+      this.invalidates.add(invalidates[i].clone()
+        ..connectIO(this, invalidates[i],
+            inputTags: {DataPortGroup.control},
+            outputTags: {DataPortGroup.data},
+            uniquify: (original) => 'invalidate_${original}_$i'));
+    }
 
     _buildLogic();
   }
@@ -127,7 +138,8 @@ abstract class ReplacementPolicy extends Module {
 /// A tree-based pseudo-LRU replacement policy.
 class PseudoLRUReplacement extends ReplacementPolicy {
   /// Constructs a pseudo Least-Recently-Used policy for a cache line.
-  PseudoLRUReplacement(super.clk, super.reset, super.hits, super.allocs,
+  PseudoLRUReplacement(
+      super.clk, super.reset, super.hits, super.allocs, super.invalidates,
       {super.ways,
       super.name = 'plru',
       super.reserveName,
@@ -212,16 +224,23 @@ class PseudoLRUReplacement extends ReplacementPolicy {
           orElse: [treePLRU < treePLRUIn])
     ]);
 
-    // Process access hits first.
+    // Process access invalidates, then hits, then allocs.
     var updateTreePLRU = treePLRU;
+    for (var i = 0; i < invalidates.length; i++) {
+      final invalidate = invalidates[i];
+      updateTreePLRU = mux(
+              invalidate.access,
+              hitPLRU(updateTreePLRU, invalidate.way,
+                  invalidate: invalidate.access),
+              updateTreePLRU)
+          .named('update_invalidate$i', naming: Naming.mergeable);
+    }
     for (var i = 0; i < hits.length; i++) {
       final hit = hits[i];
       updateTreePLRU =
           mux(hit.access, hitPLRU(updateTreePLRU, hit.way), updateTreePLRU)
               .named('update_hit$i', naming: Naming.mergeable);
     }
-
-    // Then process allocs (miss: evict an old way and return).
     for (var i = 0; i < allocs.length; i++) {
       final alloc = allocs[i];
       alloc.way <= allocPLRU(updateTreePLRU);
