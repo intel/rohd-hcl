@@ -91,7 +91,82 @@ void main() {
     await Simulator.endSimulation();
   });
 
-  group('Cache small tests', () {
+  test('Cache invalidate singleton test', () async {
+    final clk = SimpleClockGenerator(10).clk;
+
+    final reset = Logic();
+
+    final wrPort = ValidDataPortInterface(8, 16);
+    final wrPort2 = ValidDataPortInterface(8, 16);
+    final rdPort = ValidDataPortInterface(8, 16);
+    final rdPort2 = ValidDataPortInterface(8, 16);
+
+    final cache = MultiPortedCache(
+        clk, reset, [wrPort, wrPort2], [rdPort, rdPort2],
+        ways: 4, lines: 51);
+
+    await cache.build();
+    unawaited(Simulator.run());
+
+    await clk.nextPosedge;
+    await clk.nextPosedge;
+    wrPort.en.inject(0);
+    wrPort.valid.inject(0);
+    rdPort.en.inject(0);
+    wrPort.addr.inject(0);
+    wrPort.data.inject(0);
+    rdPort.addr.inject(0);
+    wrPort2.en.inject(0);
+    wrPort2.valid.inject(0);
+    rdPort2.en.inject(0);
+    wrPort2.addr.inject(0);
+    wrPort2.data.inject(0);
+    rdPort2.addr.inject(0);
+    reset.inject(1);
+    await clk.nextPosedge;
+    reset.inject(0);
+    await clk.nextPosedge;
+    await clk.nextPosedge;
+    // write 0x42 to address 1111
+    wrPort.en.inject(1);
+    wrPort.addr.inject(1111);
+    wrPort.data.inject(0x42);
+    wrPort.valid.inject(1);
+    await clk.nextPosedge;
+    wrPort.en.inject(0);
+    wrPort.valid.inject(0);
+    await clk.nextPosedge;
+    await clk.nextPosedge;
+    // read it back
+    rdPort.en.inject(1);
+    rdPort.addr.inject(1111);
+    await clk.nextPosedge;
+    expect(rdPort.data.value, LogicValue.ofInt(0x42, 8));
+    expect(rdPort.valid.value, LogicValue.one);
+    rdPort.en.inject(0);
+    await clk.nextPosedge;
+    wrPort.en.inject(1);
+    wrPort.addr.inject(1111);
+    wrPort.data.inject(0x42);
+    // Invalidate by writing with valid low.
+    wrPort.valid.inject(0);
+    await clk.nextPosedge;
+    wrPort.en.inject(0);
+    await clk.nextPosedge;
+    rdPort.en.inject(1);
+    rdPort.addr.inject(1111);
+    await clk.nextPosedge;
+    rdPort.en.inject(0);
+
+    expect(rdPort.data.value, LogicValue.ofInt(0, 8));
+    expect(rdPort.valid.value, LogicValue.zero);
+    await clk.nextPosedge;
+    await clk.nextPosedge;
+
+    await Simulator.endSimulation();
+  });
+
+  group('Cache narrow tests', () {
     const dataWidth = 4;
     const addrWidth = 7;
     const ways = 4;

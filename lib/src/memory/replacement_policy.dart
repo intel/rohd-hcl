@@ -124,8 +124,7 @@ abstract class ReplacementPolicy extends Module {
     for (var i = 0; i < invalidates.length; i++) {
       this.invalidates.add(invalidates[i].clone()
         ..connectIO(this, invalidates[i],
-            inputTags: {DataPortGroup.control},
-            outputTags: {DataPortGroup.data},
+            inputTags: {DataPortGroup.control, DataPortGroup.data},
             uniquify: (original) => 'invalidate_${original}_$i'));
     }
 
