@@ -47,6 +47,7 @@ void main() {
         ways: 4, lines: 51);
 
     await cache.build();
+    WaveDumper(cache, outputPath: 'cache.vcd');
     unawaited(Simulator.run());
 
     await clk.nextPosedge;
@@ -68,6 +69,14 @@ void main() {
     reset.inject(0);
     await clk.nextPosedge;
     await clk.nextPosedge;
+    // write 0x41 to address 1111
+    wrPort.en.inject(1);
+    wrPort.addr.inject(1111);
+    wrPort.data.inject(0x41);
+    wrPort.valid.inject(1);
+    await clk.nextPosedge;
+    wrPort.en.inject(0);
+    await clk.nextPosedge;
     // write 0x42 to address 1111
     wrPort.en.inject(1);
     wrPort.addr.inject(1111);
@@ -75,8 +84,6 @@ void main() {
     wrPort.valid.inject(1);
     await clk.nextPosedge;
     wrPort.en.inject(0);
-    await clk.nextPosedge;
-    await clk.nextPosedge;
     // read it back
     rdPort.en.inject(1);
     rdPort.addr.inject(1111);
@@ -87,6 +94,76 @@ void main() {
     await clk.nextPosedge;
     await clk.nextPosedge;
     await clk.nextPosedge;
+
+    await Simulator.endSimulation();
+  });
+
+  test('Cache pathology double-write, double-read same location', () async {
+    final clk = SimpleClockGenerator(10).clk;
+
+    final reset = Logic();
+
+    final wrPort = ValidDataPortInterface(8, 16);
+    final wrPort2 = ValidDataPortInterface(8, 16);
+    final rdPort = ValidDataPortInterface(8, 16);
+    final rdPort2 = ValidDataPortInterface(8, 16);
+
+    final cache = MultiPortedCache(
+        clk, reset, [wrPort, wrPort2], [rdPort, rdPort2],
+        ways: 4, lines: 51);
+
+    await cache.build();
+    WaveDumper(cache, outputPath: 'cache.vcd');
+    unawaited(Simulator.run());
+
+    await clk.nextPosedge;
+    await clk.nextPosedge;
+    wrPort.en.inject(0);
+    wrPort.valid.inject(0);
+    rdPort.en.inject(0);
+    wrPort.addr.inject(0);
+    wrPort.data.inject(0);
+    rdPort.addr.inject(0);
+    wrPort2.en.inject(0);
+    wrPort2.valid.inject(0);
+    rdPort2.en.inject(0);
+    wrPort2.addr.inject(0);
+    wrPort2.data.inject(0);
+    rdPort2.addr.inject(0);
+    reset.inject(1);
+    await clk.nextPosedge;
+    reset.inject(0);
+    await clk.nextPosedge;
+    await clk.nextPosedge;
+    // write 0x41 to address 1111
+    wrPort.en.inject(1);
+    wrPort.addr.inject(1111);
+    wrPort.data.inject(0x41);
+    wrPort.valid.inject(1);
+    await clk.nextPosedge;
+    wrPort.en.inject(0);
+    await clk.nextPosedge;
+    wrPort.en.inject(1);
+    wrPort.addr.inject(1111);
+    wrPort.data.inject(0x44);
+    wrPort.valid.inject(1);
+    wrPort2.en.inject(1);
+    wrPort2.addr.inject(1111);
+    wrPort2.data.inject(0x42);
+    wrPort2.valid.inject(1);
+    await clk.nextPosedge;
+    wrPort.en.inject(0);
+    wrPort2.en.inject(0);
+    // read it back
+    rdPort.en.inject(1);
+    rdPort.addr.inject(1111);
+    rdPort2.en.inject(1);
+    rdPort2.addr.inject(1111);
+    await clk.nextPosedge;
+    expect(rdPort.data.value, LogicValue.ofInt(0x42, 8));
+    expect(rdPort.valid.value, LogicValue.one);
+    expect(rdPort2.data.value, LogicValue.ofInt(0x42, 8));
+    expect(rdPort2.valid.value, LogicValue.one);
 
     await Simulator.endSimulation();
   });

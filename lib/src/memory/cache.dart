@@ -390,6 +390,7 @@ class MultiPortedCache extends Cache {
     for (var wrPortIdx = 0; wrPortIdx < numWrites; wrPortIdx++) {
       final wrPort = writes[wrPortIdx];
       for (var way = 0; way < ways; way++) {
+        final matchWay = Const(way, width: log2Ceil(ways));
         final wrRFport = writeDataPorts[way][wrPortIdx];
         Combinational([
           wrRFport.en < Const(0),
@@ -399,11 +400,12 @@ class MultiPortedCache extends Cache {
             If(
                 wrPort.en &
                     wrPort.valid &
-                    writeValidPortMiss[wrPortIdx] &
-                    policyAllocPorts[line][wrPortIdx].access &
-                    policyAllocPorts[line][wrPortIdx]
-                        .way
-                        .eq(Const(way, width: log2Ceil(ways))),
+                    (writeValidPortMiss[wrPortIdx] &
+                            policyAllocPorts[line][wrPortIdx].access &
+                            policyAllocPorts[line][wrPortIdx].way.eq(matchWay) |
+                        ~writeValidPortMiss[wrPortIdx] &
+                            policyWrHitPorts[line][wrPortIdx].access &
+                            writePortValidWay[wrPortIdx].eq(matchWay)),
                 then: [
                   wrRFport.addr < getLine(wrPort.addr),
                   wrRFport.data < wrPort.data,
