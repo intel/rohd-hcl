@@ -8,6 +8,7 @@
 // Author: Desmond Kirkpatrick <desmond.a.kirkpatrick@intel.com>
 
 import 'dart:async';
+import 'dart:io';
 
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
@@ -47,7 +48,6 @@ void main() {
         ways: 4, lines: 51);
 
     await cache.build();
-    WaveDumper(cache, outputPath: 'cache.vcd');
     unawaited(Simulator.run());
 
     await clk.nextPosedge;
@@ -262,6 +262,7 @@ void main() {
           ways: ways, lines: lines);
 
       await cache.build();
+      File('cache.sv').writeAsStringSync(cache.generateSynth());
       unawaited(Simulator.run());
 
       await clk.nextPosedge;
