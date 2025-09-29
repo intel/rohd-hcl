@@ -47,7 +47,6 @@ void main() {
         ways: 4, lines: 51);
 
     await cache.build();
-    WaveDumper(cache, outputPath: 'cache_singleton.vcd');
     unawaited(Simulator.run());
 
     await clk.nextPosedge;
@@ -73,6 +72,7 @@ void main() {
     wrPort.en.inject(1);
     wrPort.addr.inject(1111);
     wrPort.data.inject(0x42);
+    wrPort.valid.inject(1);
     await clk.nextPosedge;
     wrPort.en.inject(0);
     await clk.nextPosedge;
@@ -127,6 +127,7 @@ void main() {
       // write data to address addr
       const first = 0x20;
       wrPort.en.inject(1);
+      wrPort.valid.inject(1);
       wrPort.addr.inject(first);
       wrPort.data.inject(9);
       await clk.nextPosedge;
@@ -206,6 +207,7 @@ void main() {
       await clk.nextPosedge;
       // Fill each line of the cache.
       wrPort.en.inject(1);
+      wrPort.valid.inject(1);
       for (var i = 0; i < testData.length; i++) {
         final (addr, data) = testData[i];
         wrPort.addr.inject(addr);

@@ -253,14 +253,17 @@ class MultiPortedCache extends Cache {
           If(
               wrPort.en &
                   ~writeValidPortMiss[wrPortIdx] &
-                  // Here we should split and check addr[-1] for write vs
-                  // invalidate - HACK
                   getLine(wrPort.addr).eq(Const(line, width: lineAddrWidth)),
               then: [
-                policyInvalPorts[line][wrPortIdx].access < Const(0),
-                policyWrHitPorts[line][wrPortIdx].access < wrPort.en,
-                policyWrHitPorts[line][wrPortIdx].way <
-                    writePortValidWay[wrPortIdx],
+                If(wrPort.valid, then: [
+                  policyInvalPorts[line][wrPortIdx].access < Const(0),
+                  policyWrHitPorts[line][wrPortIdx].access < wrPort.en,
+                  policyWrHitPorts[line][wrPortIdx].way <
+                      writePortValidWay[wrPortIdx],
+                ], orElse: [
+                  policyInvalPorts[line][wrPortIdx].access < wrPort.en,
+                  policyWrHitPorts[line][wrPortIdx].access < Const(0),
+                ]),
               ],
               orElse: [
                 policyInvalPorts[line][wrPortIdx].access < Const(0),
@@ -300,6 +303,7 @@ class MultiPortedCache extends Cache {
         for (var line = 0; line < lines; line++)
           If(
               wrPort.en &
+                  wrPort.valid &
                   writeValidPortMiss[wrPortIdx] &
                   getLine(wrPort.addr).eq(Const(line, width: lineAddrWidth)),
               then: [
