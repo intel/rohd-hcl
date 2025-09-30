@@ -21,7 +21,7 @@ class ValidDataPortInterface extends DataPortInterface {
   Logic get valid => port('valid');
 
   /// Constructs a new interface of specified [dataWidth] and [addrWidth] for
-  /// interacting with a memory in either the read or write direction.
+  /// interacting with a `Cache` in either the read or write direction.
   ValidDataPortInterface(super.dataWidth, super.addrWidth) : super() {
     setPorts([
       Logic.port('valid'),
@@ -36,7 +36,7 @@ class ValidDataPortInterface extends DataPortInterface {
       ValidDataPortInterface(dataWidth, addrWidth);
 }
 
-/// A module [Cache] implementing a configurable set-associative cache. Two
+/// A module [Cache] implementing a configurable set-associative cache. Three
 /// primary operations:
 /// - Reading from a cache can result in a hit or miss. The only state change is
 ///   that on a hit, the [replacement] policy is updated.  This is similar to a
@@ -45,7 +45,7 @@ class ValidDataPortInterface extends DataPortInterface {
 ///   memory, potentially allocating a line in a new way if the data was not
 ///   present. Externally, this just looks like a memory write.
 /// - Writing to a cache without the valid bit set results in an invalidate of
-///   the line if it is present.
+///   the matching line if present.
 abstract class Cache extends Module {
   /// Number of ways in the cache line, also know as associativity.
   late final int ways;
@@ -148,53 +148,15 @@ class MultiPortedCache extends Cache {
     final lineAddrWidth = log2Ceil(lines);
     final tagWidth = reads[0].addrWidth - lineAddrWidth;
 
-    final validTagRFMatchWr =
-        _genValidTagRFInterfaces(writes, tagWidth, lineAddrWidth);
-    final validTagRFMatchRd =
-        _genValidTagRFInterfaces(reads, tagWidth, lineAddrWidth);
-    final validTagRFAlloc =
-        _genValidTagRFInterfaces(writes, tagWidth, lineAddrWidth);
-
-    // Name all the valid-tag RF ports.
-    for (var wrPortIdx = 0; wrPortIdx < numWrites; wrPortIdx++) {
-      for (var way = 0; way < ways; way++) {
-        validTagRFAlloc[way][wrPortIdx]
-            .en
-            .named('alloc_wr${wrPortIdx}_way${way}_en');
-        validTagRFAlloc[way][wrPortIdx]
-            .addr
-            .named('alloc_wr${wrPortIdx}_way${way}_addr');
-        validTagRFAlloc[way][wrPortIdx]
-            .data
-            .named('alloc_wr${wrPortIdx}_way${way}_data');
-      }
-    }
-    for (var rdPortIdx = 0; rdPortIdx < numWrites; rdPortIdx++) {
-      for (var way = 0; way < ways; way++) {
-        validTagRFMatchRd[way][rdPortIdx]
-            .en
-            .named('match_rd${rdPortIdx}_way${way}_en');
-        validTagRFMatchRd[way][rdPortIdx]
-            .addr
-            .named('match_rd${rdPortIdx}_way${way}_addr');
-        validTagRFMatchRd[way][rdPortIdx]
-            .data
-            .named('match_rd${rdPortIdx}_way${way}_data');
-      }
-    }
-    for (var wrPortIdx = 0; wrPortIdx < numWrites; wrPortIdx++) {
-      for (var way = 0; way < ways; way++) {
-        validTagRFMatchWr[way][wrPortIdx]
-            .en
-            .named('match_wr${wrPortIdx}_way${way}_en');
-        validTagRFMatchWr[way][wrPortIdx]
-            .addr
-            .named('match_wr${wrPortIdx}_way${way}_addr');
-        validTagRFMatchWr[way][wrPortIdx]
-            .data
-            .named('match_wr${wrPortIdx}_way${way}_data');
-      }
-    }
+    final validTagRFMatchWr = _genValidTagRFInterfaces(
+        writes, tagWidth, lineAddrWidth,
+        prefix: 'match_wr');
+    final validTagRFMatchRd = _genValidTagRFInterfaces(
+        reads, tagWidth, lineAddrWidth,
+        prefix: 'match_rd');
+    final validTagRFAlloc = _genValidTagRFInterfaces(
+        writes, tagWidth, lineAddrWidth,
+        prefix: 'alloc');
 
     // The Tag `RegisterFile`.
     for (var way = 0; way < ways; way++) {
@@ -278,56 +240,12 @@ class MultiPortedCache extends Cache {
     // Generate the replacment policy logic. Writes and reads both create
     // hits. A write miss causes an allocation followed by a hit.
 
-    final policyWrHitPorts = _genReplacementAccesses(writes);
-    final policyRdHitPorts = _genReplacementAccesses(reads);
-    final policyAllocPorts = _genReplacementAccesses(writes);
-    final policyInvalPorts = _genReplacementAccesses(writes);
-
-    // Name all the replacement policy ports.
-    for (var rdPortIdx = 0; rdPortIdx < numReads; rdPortIdx++) {
-      for (var line = 0; line < lines; line++) {
-        policyRdHitPorts[line][rdPortIdx]
-            .access
-            .named('rp_line${line}_rd${rdPortIdx}_access');
-        policyRdHitPorts[line][rdPortIdx]
-            .way
-            .named('rp_line${line}_rd${rdPortIdx}_way');
-      }
-    }
-    for (var wrPortIdx = 0; wrPortIdx < numWrites; wrPortIdx++) {
-      for (var line = 0; line < lines; line++) {
-        policyWrHitPorts[line][wrPortIdx]
-            .access
-            .named('rp_line${line}_wr${wrPortIdx}_access');
-        policyWrHitPorts[line][wrPortIdx]
-            .way
-            .named('rp_line${line}_wr${wrPortIdx}_way');
-        policyAllocPorts[line][wrPortIdx]
-            .access
-            .named('rp_line${line}_wr${wrPortIdx}_alloc_access');
-        policyAllocPorts[line][wrPortIdx]
-            .way
-            .named('rp_line${line}_wr${wrPortIdx}_alloc_way');
-      }
-    }
-    for (var wrPortIdx = 0; wrPortIdx < numWrites; wrPortIdx++) {
-      for (var line = 0; line < lines; line++) {
-        policyInvalPorts[line][wrPortIdx]
-            .access
-            .named('rp_line${line}_wr${wrPortIdx}_inval_access');
-        policyInvalPorts[line][wrPortIdx]
-            .way
-            .named('rp_line${line}_wr${wrPortIdx}_inval_way');
-      }
-    }
-    for (var wrPortIdx = 0; wrPortIdx < numWrites; wrPortIdx++) {
-      policyInvalPorts[0][wrPortIdx]
-          .access
-          .named('rp_line0_wr${wrPortIdx}_inval_access');
-      policyInvalPorts[0][wrPortIdx]
-          .way
-          .named('rp_line0_wr${wrPortIdx}_inval_way');
-    }
+    final policyWrHitPorts = _genReplacementAccesses(writes, prefix: 'rp_wr');
+    final policyRdHitPorts = _genReplacementAccesses(reads, prefix: 'rp_rd');
+    final policyAllocPorts =
+        _genReplacementAccesses(writes, prefix: 'rp_alloc');
+    final policyInvalPorts =
+        _genReplacementAccesses(writes, prefix: 'rp_inval');
 
     for (var line = 0; line < lines; line++) {
       replacement(
@@ -442,35 +360,10 @@ class MultiPortedCache extends Cache {
     // The Data `RegisterFile`.
     // Each way has its own RF, indexed by line address.
 
-    final writeDataPorts = _genDataInterfaces(writes, dataWidth, lineAddrWidth);
-    final readDataPorts = _genDataInterfaces(reads, dataWidth, lineAddrWidth);
-
-    for (var rdPortIdx = 0; rdPortIdx < numReads; rdPortIdx++) {
-      for (var way = 0; way < ways; way++) {
-        readDataPorts[way][rdPortIdx]
-            .en
-            .named('data_rd${rdPortIdx}_way${way}_en');
-        readDataPorts[way][rdPortIdx]
-            .addr
-            .named('data_rd${rdPortIdx}_way${way}_addr');
-        readDataPorts[way][rdPortIdx]
-            .data
-            .named('data_rd${rdPortIdx}_way${way}_data');
-      }
-    }
-    for (var wrPortIdx = 0; wrPortIdx < numWrites; wrPortIdx++) {
-      for (var way = 0; way < ways; way++) {
-        writeDataPorts[way][wrPortIdx]
-            .en
-            .named('data_wr${wrPortIdx}_way${way}_en');
-        writeDataPorts[way][wrPortIdx]
-            .addr
-            .named('data_wr${wrPortIdx}_way${way}_addr');
-        writeDataPorts[way][wrPortIdx]
-            .data
-            .named('data_wr${wrPortIdx}_way${way}_data');
-      }
-    }
+    final writeDataPorts =
+        _genDataInterfaces(writes, dataWidth, lineAddrWidth, prefix: 'data_wr');
+    final readDataPorts =
+        _genDataInterfaces(reads, dataWidth, lineAddrWidth, prefix: 'data_rd');
 
     for (var way = 0; way < ways; way++) {
       RegisterFile(clk, reset, writeDataPorts[way], readDataPorts[way],
@@ -531,32 +424,64 @@ class MultiPortedCache extends Cache {
   /// Generates a 2D list of [DataPortInterface]s for the vakud-tag RF.
   /// The dimensions are [ways][ports].
   List<List<DataPortInterface>> _genValidTagRFInterfaces(
-          List<ValidDataPortInterface> ports, int tagWidth, int addressWidth) =>
-      [
-        for (var way = 0; way < ways; way++)
-          [
-            for (var r = 0; r < ports.length; r++)
-              DataPortInterface(tagWidth + 1, addressWidth)
-          ]
-      ];
+      List<ValidDataPortInterface> ports, int tagWidth, int addressWidth,
+      {String prefix = 'tag'}) {
+    final dataPorts = [
+      for (var way = 0; way < ways; way++)
+        [
+          for (var r = 0; r < ports.length; r++)
+            DataPortInterface(tagWidth + 1, addressWidth)
+        ]
+    ];
+    for (var way = 0; way < ways; way++) {
+      for (var r = 0; r < ports.length; r++) {
+        dataPorts[way][r].en.named('${prefix}_port${r}_way${way}_en');
+        dataPorts[way][r].addr.named('${prefix}_port${r}_way${way}_addr');
+        dataPorts[way][r].data.named('${prefix}_port${r}_way${way}_data');
+      }
+    }
+    return dataPorts;
+  }
 
   /// Generates a 2D list of [DataPortInterface]s for the data RF.
   /// The dimensions are [ways][ports].
   List<List<DataPortInterface>> _genDataInterfaces(
-          List<DataPortInterface> ports, int dataWidth, int addressWidth) =>
-      [
-        for (var way = 0; way < ways; way++)
-          [
-            for (var r = 0; r < ports.length; r++)
-              DataPortInterface(dataWidth, addressWidth)
-          ]
-      ];
+      List<DataPortInterface> ports, int dataWidth, int addressWidth,
+      {String prefix = 'data'}) {
+    final dataPorts = [
+      for (var way = 0; way < ways; way++)
+        [
+          for (var r = 0; r < ports.length; r++)
+            DataPortInterface(dataWidth, addressWidth)
+        ]
+    ];
+    for (var way = 0; way < ways; way++) {
+      for (var r = 0; r < ports.length; r++) {
+        dataPorts[way][r].en.named('${prefix}_port${r}_way${way}_en');
+        dataPorts[way][r].addr.named('${prefix}_port${r}_way${way}_addr');
+        dataPorts[way][r].data.named('${prefix}_port${r}_way${way}_data');
+      }
+    }
+    return dataPorts;
+  }
 
   /// Generate a 2D list of [AccessInterface]s for the replacement policy.
   List<List<AccessInterface>> _genReplacementAccesses(
-          List<DataPortInterface> ports) =>
-      [
-        for (var line = 0; line < lines; line++)
-          [for (var i = 0; i < ports.length; i++) AccessInterface(ways)]
-      ];
+      List<DataPortInterface> ports,
+      {String prefix = 'replace'}) {
+    final dataPorts = [
+      for (var line = 0; line < lines; line++)
+        [for (var i = 0; i < ports.length; i++) AccessInterface(ways)]
+    ];
+
+    for (var line = 0; line < lines; line++) {
+      for (var r = 0; r < ports.length; r++) {
+        dataPorts[line][r]
+            .access
+            .named('${prefix}_line${line}_port${r}_access');
+        dataPorts[line][r].way.named('${prefix}_line${line}_port${r}_way');
+      }
+    }
+    return dataPorts;
+  }
 }
