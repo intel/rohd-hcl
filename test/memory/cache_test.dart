@@ -112,7 +112,6 @@ void main() {
         ways: 4, lines: 51);
 
     await cache.build();
-    WaveDumper(cache, outputPath: 'cache.vcd');
     unawaited(Simulator.run());
 
     await clk.nextPosedge;
