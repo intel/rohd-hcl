@@ -1,4 +1,4 @@
-// Copyright (C) 2024-2025 Intel Corporation
+// Copyright (C) 2025 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 //
 // cam.dart
@@ -117,9 +117,6 @@ class Cam extends Memory {
                 If(lookupPort.en, then: [lookupPort.hit < Const(1)])
               ],
             )
-        ], defaultItem: [
-          lookupPort.idx < Const(0, width: lookupPort.idWidth),
-          lookupPort.hit < Const(0)
         ]),
       ]);
     }

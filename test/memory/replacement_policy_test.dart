@@ -1,4 +1,4 @@
-// Copyright (C) 2024-2025 Intel Corporation
+// Copyright (C) 2025 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 //
 // replacement_test.dart
@@ -10,7 +10,7 @@
 import 'dart:async';
 
 import 'package:rohd/rohd.dart';
-import 'package:rohd_hcl/src/memory/replacement_policy.dart';
+import 'package:rohd_hcl/rohd_hcl.dart';
 import 'package:test/test.dart';
 
 void main() {

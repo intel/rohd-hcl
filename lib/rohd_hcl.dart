@@ -19,7 +19,6 @@ export 'src/interfaces/interfaces.dart';
 export 'src/memory/cam.dart';
 export 'src/memory/fifo.dart';
 export 'src/memory/memories.dart';
-export 'src/memory/replacement_policy.dart';
 export 'src/memory/resettable_entries.dart';
 export 'src/memory/shift_register.dart';
 export 'src/models/models.dart';
