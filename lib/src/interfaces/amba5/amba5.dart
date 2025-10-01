@@ -10,3 +10,4 @@ export 'axi5_mixins.dart';
 export 'axi5_s.dart';
 export 'axi5_system.dart';
 export 'lti.dart';
+export 'msi.dart';
