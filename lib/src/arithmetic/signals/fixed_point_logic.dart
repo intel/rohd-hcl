@@ -13,7 +13,7 @@ import 'package:rohd_hcl/rohd_hcl.dart';
 
 /// A representation of (un)signed fixed-point logic following
 /// Q notation (Qm.n format) as introduced by
-/// (Texas Instruments)(https://www.ti.com/lit/ug/spru565b/spru565b.pdf).
+/// Texas Instruments: (https://www.ti.com/lit/ug/spru565b/spru565b.pdf).
 class FixedPoint extends LogicStructure {
   /// The integer part of the fixed-point number.
   Logic integer;
