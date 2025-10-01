@@ -15,7 +15,6 @@ class Axi5MsiInterface extends Axi5StreamInterface {
   ///
   /// Default values in constructor are from official spec.
   Axi5MsiInterface({
-    super.useLast = false,
     super.useWakeup = false,
   }) : super(
             idWidth: 0,
@@ -23,10 +22,10 @@ class Axi5MsiInterface extends Axi5StreamInterface {
             userWidth: 0,
             destWidth: 0,
             useKeep: false,
-            useStrb: false);
+            useStrb: false,
+            useLast: false);
 
   /// Constructs a new [Axi5MsiInterface] with identical parameters.
   @override
-  Axi5MsiInterface clone() =>
-      Axi5MsiInterface(useLast: useLast, useWakeup: useWakeup);
+  Axi5MsiInterface clone() => Axi5MsiInterface(useWakeup: useWakeup);
 }
