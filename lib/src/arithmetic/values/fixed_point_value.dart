@@ -16,7 +16,7 @@ export 'fixed_point_populator.dart';
 
 /// An immutable representation of (un)signed fixed-point values following
 /// Q notation (Qm.n format) as introduced by
-/// (Texas Instruments)[https://www.ti.com/lit/ug/spru565b/spru565b.pdf].
+/// (Texas Instruments: (https://www.ti.com/lit/ug/spru565b/spru565b.pdf).
 @immutable
 class FixedPointValue implements Comparable<FixedPointValue> {
   /// The fixed point value bit storage in two's complement.

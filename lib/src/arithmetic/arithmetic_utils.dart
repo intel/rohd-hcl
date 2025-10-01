@@ -7,8 +7,6 @@
 // 2024 August 30
 // Author: Desmond A Kirkpatrick <desmond.a.kirkpatrick@intel.com
 
-// ignore_for_file: avoid_print
-
 import 'dart:math';
 
 import 'package:rohd/rohd.dart';
@@ -43,7 +41,6 @@ extension LogicList on List<Logic> {
     final maxHigh = max(alignHigh ?? length, length);
     final minHigh = min(alignHigh ?? length, length) - shift;
     final colWidth = BigInt.from(maxHigh).toString().length + extraSpace;
-    // ignore: cascade_invocations
     const hdrSep = '| ';
     const hdrSepStart = '| ';
     const hdrSepEnd = '|';

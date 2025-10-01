@@ -1,4 +1,4 @@
-// Copyright (C) 2024 Intel Corporation
+// Copyright (C) 2024-2025 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 //
 // serialization_test.dart
@@ -7,8 +7,6 @@
 // 2024 August 27
 // Author: desmond Kirkpatrick <desmond.a.kirkpatrick@intel.com>
 //
-// ignore_for_file: invalid_use_of_protected_member
-
 import 'dart:async';
 
 import 'package:rohd/rohd.dart';
