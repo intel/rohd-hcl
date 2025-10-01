@@ -37,8 +37,6 @@ void main() {
     await clk.nextPosedge;
     await clk.nextPosedge;
     wrPort.en.inject(0);
-    rdPort.en.inject(0);
-    rdPort2.en.inject(0);
     reset.inject(1);
     await clk.nextPosedge;
     reset.inject(0);
@@ -55,13 +53,9 @@ void main() {
     wrPort.en.inject(0);
     wrPort2.en.inject(0);
     await clk.nextPosedge;
-    rdPort.en.inject(1);
-    rdPort2.en.inject(1);
     rdPort.tag.inject(42);
     rdPort2.tag.inject(7);
     await clk.nextPosedge;
-    rdPort.en.inject(0);
-    rdPort2.en.inject(0);
     expect(rdPort.hit.value, LogicValue.one);
     expect(rdPort.idx.value.toInt(), 14);
     expect(rdPort2.hit.value, LogicValue.one);

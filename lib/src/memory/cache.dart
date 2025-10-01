@@ -169,8 +169,10 @@ class MultiPortedReadCache extends ReadCache {
     // The Tag `RegisterFile`.
     for (var way = 0; way < ways; way++) {
       // Combine the read and fill match ports for this way.
-      final validTagRFMatch = validTagRFMatchFl[way]
-        ..addAll(validTagRFMatchRd[way]);
+      final validTagRFMatch = [
+        ...validTagRFMatchFl[way],
+        ...validTagRFMatchRd[way]
+      ];
       RegisterFile(clk, reset, validTagRFAlloc[way], validTagRFMatch,
           numEntries: lines, name: 'valid_tag_rf_way$way');
     }
