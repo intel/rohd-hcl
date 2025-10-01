@@ -96,7 +96,7 @@ void main() {
     final clk = Logic();
     final reset = Logic();
     const ways = 8;
-    var bi = <int>[0, 1, 1, 0, 0, 1, 1];
+    final bi = <int>[0, 1, 1, 0, 0, 1, 1];
 
     final hits = List<AccessInterface>.generate(2, (i) => AccessInterface(ways),
         growable: false);
@@ -111,7 +111,7 @@ void main() {
         PseudoLRUReplacement(clk, reset, hits, allocs, invals, ways: ways);
 
     // This is an example of combinational method testing inside a module rather
-    // than having to setup  state and sequencing to test this functionality.
+    // than having to setup state and sequencing to test this functionality.
     test('PLRU write invalidate', () async {
       final bv = [for (var i = 0; i < 7; i++) Logic()];
       for (var i = 0; i < bv.length; i++) {
@@ -123,6 +123,20 @@ void main() {
         brv = plru.hitPLRU(brv, Const(a, width: 3), invalidate: Const(1));
         expect(a, plru.allocPLRU(brv).value.toInt());
       }
+    });
+
+    test('PLRU hit', () async {
+      final bv = [for (var i = 0; i < 7; i++) Logic()];
+      for (var i = 0; i < bv.length; i++) {
+        bv[i].put(bi[i]);
+      }
+
+      var brv = bv.rswizzle();
+
+      for (final a in [5, 1, 6, 2, 4, 0, 7, 3, 5, 1, 6, 2, 4, 0, 7, 3]) {
+        brv = plru.hitPLRU(brv, Const(a, width: 3));
+      }
+      expect(plru.allocPLRU(brv).value.toInt(), 5);
     });
   });
 }

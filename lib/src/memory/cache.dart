@@ -36,17 +36,22 @@ class ValidDataPortInterface extends DataPortInterface {
       ValidDataPortInterface(dataWidth, addrWidth);
 }
 
-/// A module [Cache] implementing a configurable set-associative cache. Three
-/// primary operations:
+/// A module [ReadCache] implementing a configurable set-associative cache for
+/// caching read operations.
+///
+/// Three primary operations:
 /// - Reading from a cache can result in a hit or miss. The only state change is
 ///   that on a hit, the [replacement] policy is updated.  This is similar to a
 ///   memory, except that a valid bit is returned with the read data.
-/// - Writing to a cache with a valid bit set results in a write into the cache
+/// - Filling to a cache with a valid bit set results in a fill into the cache
 ///   memory, potentially allocating a line in a new way if the data was not
-///   present. Externally, this just looks like a memory write.
-/// - Writing to a cache without the valid bit set results in an invalidate of
+///   present. Externally, this just looks like a memory fill.
+/// - Filling to a cache without the valid bit set results in an invalidate of
 ///   the matching line if present.
-abstract class Cache extends Module {
+///
+/// Note that filling does not result in writing of evicted data to backing
+/// store, it is simply evicted.
+abstract class ReadCache extends Module {
   /// Number of ways in the cache line, also know as associativity.
   late final int ways;
 
@@ -56,9 +61,9 @@ abstract class Cache extends Module {
   /// Width of the data stored.
   late final int dataWidth;
 
-  /// Write interfaces which supply address and data to be written.
+  /// Fill interfaces which supply address and data to be filled.
   @protected
-  final List<ValidDataPortInterface> writes = [];
+  final List<ValidDataPortInterface> fills = [];
 
   /// Read interfaces which return data and valid on a read.
   @protected
@@ -81,12 +86,12 @@ abstract class Cache extends Module {
   /// Reset.
   Logic get reset => input('reset');
 
-  /// Constructs a [Cache] supporting multiple read and write ports.
+  /// Constructs a [ReadCache] supporting multiple read and fill ports.
   ///
   /// Defines a set-associativity of [ways] and a depth or number of [lines].
   /// The total capacity of the cache is [ways]*[lines]. The [replacement]
-  /// policy is used to choose which way to evict on a write miss.
-  Cache(Logic clk, Logic reset, List<ValidDataPortInterface> writes,
+  /// policy is used to choose which way to evict on a fill miss.
+  ReadCache(Logic clk, Logic reset, List<ValidDataPortInterface> fills,
       List<ValidDataPortInterface> reads,
       {this.ways = 1,
       this.lines = 16,
@@ -95,29 +100,29 @@ abstract class Cache extends Module {
       super.reserveName,
       super.reserveDefinitionName,
       String? definitionName})
-      : dataWidth = (writes.isNotEmpty)
-            ? writes[0].dataWidth
+      : dataWidth = (fills.isNotEmpty)
+            ? fills[0].dataWidth
             : (reads.isNotEmpty)
                 ? reads[0].dataWidth
                 : 0,
         super(
             definitionName: definitionName ??
-                'Cache_WP${writes.length}'
+                'Cache_WP${fills.length}'
                     '_RP${reads.length}_W${ways}_L$lines') {
     addInput('clk', clk);
     addInput('reset', reset);
-    for (var i = 0; i < writes.length; i++) {
-      this.writes.add(writes[i].clone()
-        ..connectIO(this, writes[i],
+    for (var i = 0; i < fills.length; i++) {
+      this.fills.add(fills[i].clone()
+        ..connectIO(this, fills[i],
             inputTags: {DataPortGroup.control, DataPortGroup.data},
-            uniquify: (original) => 'cwr_${original}_$i'));
+            uniquify: (original) => 'cache_fill_${original}_$i'));
     }
     for (var i = 0; i < reads.length; i++) {
       this.reads.add(reads[i].clone()
         ..connectIO(this, reads[i],
             inputTags: {DataPortGroup.control},
             outputTags: {DataPortGroup.data},
-            uniquify: (original) => 'crd_${original}_$i'));
+            uniquify: (original) => 'cache_read_${original}_$i'));
     }
     _buildLogic();
   }
@@ -131,76 +136,79 @@ abstract class Cache extends Module {
   Logic getLine(Logic addr) => addr.slice(log2Ceil(lines) - 1, 0);
 }
 
-/// A multi-ported cache.
-class MultiPortedCache extends Cache {
-  /// Constructs a [Cache] supporting multiple read and write ports.
+/// A multi-ported read cache.
+class MultiPortedReadCache extends ReadCache {
+  /// Constructs a [ReadCache] supporting multiple read and fill ports.
   ///
   /// Defines a set-associativity of [ways] and a depth or number of [lines].
   /// The total capacity of the cache is [ways]*[lines]. The [replacement]
-  /// policy is used to choose which way to evict on a write miss.
-  MultiPortedCache(super.clk, super.reset, super.writes, super.reads,
+  /// policy is used to choose which way to evict on a fill miss.
+  ///
+  /// This cache is a read-cache. It does not track dirty data to implement
+  /// write-back. The write policy it would support is a write-around policy.
+  MultiPortedReadCache(super.clk, super.reset, super.fills, super.reads,
       {super.ways, super.lines, super.replacement});
 
   @override
   void _buildLogic() {
     final numReads = reads.length;
-    final numWrites = writes.length;
+    final numFills = fills.length;
     final lineAddrWidth = log2Ceil(lines);
     final tagWidth = reads[0].addrWidth - lineAddrWidth;
 
-    final validTagRFMatchWr = _genValidTagRFInterfaces(
-        writes, tagWidth, lineAddrWidth,
-        prefix: 'match_wr');
+    final validTagRFMatchFl = _genValidTagRFInterfaces(
+        fills, tagWidth, lineAddrWidth,
+        prefix: 'match_fl');
     final validTagRFMatchRd = _genValidTagRFInterfaces(
         reads, tagWidth, lineAddrWidth,
         prefix: 'match_rd');
     final validTagRFAlloc = _genValidTagRFInterfaces(
-        writes, tagWidth, lineAddrWidth,
+        fills, tagWidth, lineAddrWidth,
         prefix: 'alloc');
 
     // The Tag `RegisterFile`.
     for (var way = 0; way < ways; way++) {
-      // Combine the read and write match ports for this way.
-      final validTagRFMatch = validTagRFMatchWr[way]
+      // Combine the read and fill match ports for this way.
+      final validTagRFMatch = validTagRFMatchFl[way]
         ..addAll(validTagRFMatchRd[way]);
       RegisterFile(clk, reset, validTagRFAlloc[way], validTagRFMatch,
           numEntries: lines, name: 'valid_tag_rf_way$way');
     }
 
-    // Setup the valid tag match write interfaces.
-    for (var wrPortIdx = 0; wrPortIdx < numWrites; wrPortIdx++) {
-      final wrPort = writes[wrPortIdx];
+    // Setup the valid tag match fill interfaces.
+    for (var flPortIdx = 0; flPortIdx < numFills; flPortIdx++) {
+      final flPort = fills[flPortIdx];
       for (var way = 0; way < ways; way++) {
-        validTagRFMatchWr[way][wrPortIdx].addr <= getLine(wrPort.addr);
-        validTagRFMatchWr[way][wrPortIdx].en <= wrPort.en;
+        validTagRFMatchFl[way][flPortIdx].addr <= getLine(flPort.addr);
+        validTagRFMatchFl[way][flPortIdx].en <= flPort.en;
       }
     }
-    final writePortValidOneHot = [
-      for (var wrPortIdx = 0; wrPortIdx < numWrites; wrPortIdx++)
+    final fillPortValidOneHot = [
+      for (var flPortIdx = 0; flPortIdx < numFills; flPortIdx++)
         [
           for (var way = 0; way < ways; way++)
-            (validTagRFMatchWr[way][wrPortIdx].data[-1] &
-                    validTagRFMatchWr[way][wrPortIdx]
+            (validTagRFMatchFl[way][flPortIdx].data[-1] &
+                    validTagRFMatchFl[way][flPortIdx]
                         .data
                         .slice(tagWidth - 1, 0)
-                        .eq(getTag(writes[wrPortIdx].addr)))
-                .named('match_wr${wrPortIdx}_way$way')
+                        .eq(getTag(fills[flPortIdx].addr)))
+                .named('match_fl${flPortIdx}_way$way')
         ]
     ];
-    final writePortValidWay = [
-      for (var wrPortIdx = 0; wrPortIdx < numWrites; wrPortIdx++)
-        RecursivePriorityEncoder(writePortValidOneHot[wrPortIdx].rswizzle())
+    final fillPortValidWay = [
+      for (var fillPortIdx = 0; fillPortIdx < numFills; fillPortIdx++)
+        RecursivePriorityEncoder(fillPortValidOneHot[fillPortIdx].rswizzle())
             .out
             .slice(log2Ceil(ways) - 1, 0)
-            .named('write_port${wrPortIdx}_way')
+            .named('fill_port${fillPortIdx}_way')
     ];
-    final writeValidPortMiss = [
-      for (var wrPortIdx = 0; wrPortIdx < numWrites; wrPortIdx++)
+    final fillValidPortMiss = [
+      for (var fillPortIdx = 0; fillPortIdx < numFills; fillPortIdx++)
         (~[
           for (var way = 0; way < ways; way++)
-            writePortValidOneHot[wrPortIdx][way]
+            fillPortValidOneHot[fillPortIdx][way]
         ].swizzle().or())
-            .named('write_port${wrPortIdx}_miss')
+            .named('fill_port${fillPortIdx}_miss')
     ];
 
     // Setup the tag match read interfaces.
@@ -224,7 +232,7 @@ class MultiPortedCache extends Cache {
         ]
     ];
     final readValidPortMiss = [
-      for (var rdPortIdx = 0; rdPortIdx < numWrites; rdPortIdx++)
+      for (var rdPortIdx = 0; rdPortIdx < numFills; rdPortIdx++)
         (~[
           for (var way = 0; way < ways; way++)
             readPortValidOneHot[rdPortIdx][way]
@@ -232,28 +240,26 @@ class MultiPortedCache extends Cache {
             .named('read_port${rdPortIdx}_miss')
     ];
     final readValidPortWay = [
-      for (var rdPortIdx = 0; rdPortIdx < numWrites; rdPortIdx++)
+      for (var rdPortIdx = 0; rdPortIdx < numFills; rdPortIdx++)
         RecursivePriorityEncoder(readPortValidOneHot[rdPortIdx].rswizzle())
             .out
             .slice(log2Ceil(ways) - 1, 0)
             .named('read_port${rdPortIdx}_way')
     ];
 
-    // Generate the replacment policy logic. Writes and reads both create
-    // hits. A write miss causes an allocation followed by a hit.
+    // Generate the replacment policy logic. Fills and reads both create
+    // hits. A fill miss causes an allocation followed by a hit.
 
-    final policyWrHitPorts = _genReplacementAccesses(writes, prefix: 'rp_wr');
+    final policyFlHitPorts = _genReplacementAccesses(fills, prefix: 'rp_fl');
     final policyRdHitPorts = _genReplacementAccesses(reads, prefix: 'rp_rd');
-    final policyAllocPorts =
-        _genReplacementAccesses(writes, prefix: 'rp_alloc');
-    final policyInvalPorts =
-        _genReplacementAccesses(writes, prefix: 'rp_inval');
+    final policyAllocPorts = _genReplacementAccesses(fills, prefix: 'rp_alloc');
+    final policyInvalPorts = _genReplacementAccesses(fills, prefix: 'rp_inval');
 
     for (var line = 0; line < lines; line++) {
       replacement(
           clk,
           reset,
-          policyWrHitPorts[line]..addAll(policyRdHitPorts[line]),
+          policyFlHitPorts[line]..addAll(policyRdHitPorts[line]),
           policyAllocPorts[line],
           policyInvalPorts[line],
           name: 'rp_line$line',
@@ -271,82 +277,82 @@ class MultiPortedCache extends Cache {
         policyRdHitPorts[line][rdPortIdx].way <= readValidPortWay[rdPortIdx];
       }
     }
-    // Policy: Process write hits or invalidates.
-    for (var wrPortIdx = 0; wrPortIdx < numWrites; wrPortIdx++) {
-      final wrPort = writes[wrPortIdx];
+    // Policy: Process fill hits or invalidates.
+    for (var flPortIdx = 0; flPortIdx < numFills; flPortIdx++) {
+      final flPort = fills[flPortIdx];
       Combinational([
         for (var line = 0; line < lines; line++)
-          policyInvalPorts[line][wrPortIdx].access < Const(0),
+          policyInvalPorts[line][flPortIdx].access < Const(0),
         for (var line = 0; line < lines; line++)
-          policyWrHitPorts[line][wrPortIdx].access < Const(0),
-        If(wrPort.en, then: [
+          policyFlHitPorts[line][flPortIdx].access < Const(0),
+        If(flPort.en, then: [
           for (var line = 0; line < lines; line++)
-            If(getLine(wrPort.addr).eq(Const(line, width: lineAddrWidth)),
+            If(getLine(flPort.addr).eq(Const(line, width: lineAddrWidth)),
                 then: [
                   If.block([
-                    Iff(wrPort.valid & ~writeValidPortMiss[wrPortIdx], [
-                      policyWrHitPorts[line][wrPortIdx].access < wrPort.en,
-                      policyWrHitPorts[line][wrPortIdx].way <
-                          writePortValidWay[wrPortIdx],
+                    Iff(flPort.valid & ~fillValidPortMiss[flPortIdx], [
+                      policyFlHitPorts[line][flPortIdx].access < flPort.en,
+                      policyFlHitPorts[line][flPortIdx].way <
+                          fillPortValidWay[flPortIdx],
                     ]),
-                    ElseIf(~wrPort.valid, [
-                      policyInvalPorts[line][wrPortIdx].access < wrPort.en,
-                      policyInvalPorts[line][wrPortIdx].way <
-                          writePortValidWay[wrPortIdx],
+                    ElseIf(~flPort.valid, [
+                      policyInvalPorts[line][flPortIdx].access < flPort.en,
+                      policyInvalPorts[line][flPortIdx].way <
+                          fillPortValidWay[flPortIdx],
                     ]),
                   ])
                 ])
         ]),
       ]);
 
-      // Policy: Process write misses.
+      // Policy: Process fill misses.
       for (var line = 0; line < lines; line++) {
-        policyAllocPorts[line][wrPortIdx].access <=
-            wrPort.en &
-                wrPort.valid &
-                writeValidPortMiss[wrPortIdx] &
-                getLine(wrPort.addr).eq(Const(line, width: lineAddrWidth));
+        policyAllocPorts[line][flPortIdx].access <=
+            flPort.en &
+                flPort.valid &
+                fillValidPortMiss[flPortIdx] &
+                getLine(flPort.addr).eq(Const(line, width: lineAddrWidth));
       }
 
       // Process allocates (misses) and invalidates. TODO(desmonddak): transform
       // these to simple assignments and check for cleaner SV.
       Combinational([
         for (var way = 0; way < ways; way++)
-          validTagRFAlloc[way][wrPortIdx].en < Const(0),
+          validTagRFAlloc[way][flPortIdx].en < Const(0),
         for (var way = 0; way < ways; way++)
-          validTagRFAlloc[way][wrPortIdx].addr < Const(0, width: lineAddrWidth),
+          validTagRFAlloc[way][flPortIdx].addr < Const(0, width: lineAddrWidth),
         for (var way = 0; way < ways; way++)
-          validTagRFAlloc[way][wrPortIdx].data < Const(0, width: tagWidth + 1),
-        If(wrPort.en, then: [
+          validTagRFAlloc[way][flPortIdx].data < Const(0, width: tagWidth + 1),
+        If(flPort.en, then: [
           for (var line = 0; line < lines; line++)
-            If(getLine(wrPort.addr).eq(Const(line, width: lineAddrWidth)),
+            If(getLine(flPort.addr).eq(Const(line, width: lineAddrWidth)),
                 then: [
                   for (var way = 0; way < ways; way++)
                     If.block([
                       Iff(
-                          // Write with allocate.
-                          wrPort.valid &
-                              writeValidPortMiss[wrPortIdx] &
+                          // Fill with allocate.
+                          flPort.valid &
+                              fillValidPortMiss[flPortIdx] &
                               Const(way, width: log2Ceil(ways))
-                                  .eq(policyAllocPorts[line][wrPortIdx].way),
+                                  .eq(policyAllocPorts[line][flPortIdx].way),
                           [
-                            validTagRFAlloc[way][wrPortIdx].en < wrPort.en,
-                            validTagRFAlloc[way][wrPortIdx].addr <
+                            validTagRFAlloc[way][flPortIdx].en < flPort.en,
+                            validTagRFAlloc[way][flPortIdx].addr <
                                 Const(line, width: lineAddrWidth),
-                            validTagRFAlloc[way][wrPortIdx].data <
-                                [Const(1), getTag(wrPort.addr)].swizzle(),
+                            validTagRFAlloc[way][flPortIdx].data <
+                                [Const(1), getTag(flPort.addr)].swizzle(),
                           ]),
                       ElseIf(
-                          // Write with invalidate.
-                          ~wrPort.valid &
+                          // Fill with invalidate.
+                          ~flPort.valid &
                               Const(way, width: log2Ceil(ways))
-                                  .eq(policyInvalPorts[line][wrPortIdx].way),
+                                  .eq(policyInvalPorts[line][flPortIdx].way),
                           [
-                            validTagRFAlloc[way][wrPortIdx].en < wrPort.en,
-                            validTagRFAlloc[way][wrPortIdx].addr <
+                            validTagRFAlloc[way][flPortIdx].en < flPort.en,
+                            validTagRFAlloc[way][flPortIdx].addr <
                                 Const(line, width: lineAddrWidth),
-                            validTagRFAlloc[way][wrPortIdx].data <
-                                [Const(0), getTag(wrPort.addr)].swizzle(),
+                            validTagRFAlloc[way][flPortIdx].data <
+                                [Const(0), getTag(flPort.addr)].swizzle(),
                           ]),
                     ])
                 ])
@@ -356,38 +362,38 @@ class MultiPortedCache extends Cache {
     // The Data `RegisterFile`.
     // Each way has its own RF, indexed by line address.
 
-    final writeDataPorts =
-        _genDataInterfaces(writes, dataWidth, lineAddrWidth, prefix: 'data_wr');
+    final fillDataPorts =
+        _genDataInterfaces(fills, dataWidth, lineAddrWidth, prefix: 'data_fl');
     final readDataPorts =
         _genDataInterfaces(reads, dataWidth, lineAddrWidth, prefix: 'data_rd');
 
     for (var way = 0; way < ways; way++) {
-      RegisterFile(clk, reset, writeDataPorts[way], readDataPorts[way],
+      RegisterFile(clk, reset, fillDataPorts[way], readDataPorts[way],
           numEntries: lines, name: 'data_rf_way$way');
     }
 
-    for (var wrPortIdx = 0; wrPortIdx < numWrites; wrPortIdx++) {
-      final wrPort = writes[wrPortIdx];
+    for (var flPortIdx = 0; flPortIdx < numFills; flPortIdx++) {
+      final flPort = fills[flPortIdx];
       for (var way = 0; way < ways; way++) {
         final matchWay = Const(way, width: log2Ceil(ways));
-        final wrRFport = writeDataPorts[way][wrPortIdx];
+        final fillRFPort = fillDataPorts[way][flPortIdx];
         Combinational([
-          wrRFport.en < Const(0),
-          wrRFport.addr < Const(0, width: lineAddrWidth),
-          wrRFport.data < Const(0, width: dataWidth),
-          If(wrPort.en & wrPort.valid, then: [
+          fillRFPort.en < Const(0),
+          fillRFPort.addr < Const(0, width: lineAddrWidth),
+          fillRFPort.data < Const(0, width: dataWidth),
+          If(flPort.en & flPort.valid, then: [
             for (var line = 0; line < lines; line++)
               If(
-                  writeValidPortMiss[wrPortIdx] &
-                          policyAllocPorts[line][wrPortIdx].access &
-                          policyAllocPorts[line][wrPortIdx].way.eq(matchWay) |
-                      ~writeValidPortMiss[wrPortIdx] &
-                          policyWrHitPorts[line][wrPortIdx].access &
-                          writePortValidWay[wrPortIdx].eq(matchWay),
+                  fillValidPortMiss[flPortIdx] &
+                          policyAllocPorts[line][flPortIdx].access &
+                          policyAllocPorts[line][flPortIdx].way.eq(matchWay) |
+                      ~fillValidPortMiss[flPortIdx] &
+                          policyFlHitPorts[line][flPortIdx].access &
+                          fillPortValidWay[flPortIdx].eq(matchWay),
                   then: [
-                    wrRFport.addr < getLine(wrPort.addr),
-                    wrRFport.data < wrPort.data,
-                    wrRFport.en < wrPort.en,
+                    fillRFPort.addr < getLine(flPort.addr),
+                    fillRFPort.data < flPort.data,
+                    fillRFPort.en < flPort.en,
                   ])
           ])
         ]);
@@ -417,7 +423,7 @@ class MultiPortedCache extends Cache {
     }
   }
 
-  /// Generates a 2D list of [DataPortInterface]s for the vakud-tag RF.
+  /// Generates a 2D list of [DataPortInterface]s for the valid-tag RF.
   /// The dimensions are [ways][ports].
   List<List<DataPortInterface>> _genValidTagRFInterfaces(
       List<ValidDataPortInterface> ports, int tagWidth, int addressWidth,

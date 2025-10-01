@@ -8,6 +8,7 @@
 // Author: Desmond Kirkpatrick <desmond.a.kirkpatrick@intel.com>
 
 import 'dart:async';
+import 'dart:io';
 
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
@@ -23,13 +24,14 @@ void main() {
     final clk = SimpleClockGenerator(10).clk;
 
     final reset = Logic();
-    final wrPort = ValidDataPortInterface(8, 16);
+    final fillPort = ValidDataPortInterface(8, 16);
     final rdPort = ValidDataPortInterface(8, 16);
 
-    final cache =
-        MultiPortedCache(clk, reset, [wrPort], [rdPort], ways: 4, lines: 8);
+    final cache = MultiPortedReadCache(clk, reset, [fillPort], [rdPort],
+        ways: 4, lines: 8);
 
     await cache.build();
+    File('cache.v').writeAsStringSync(cache.generateSynth());
   });
 
   test('Cache smoke test', () async {
@@ -37,13 +39,13 @@ void main() {
 
     final reset = Logic();
 
-    final wrPort = ValidDataPortInterface(8, 16);
-    final wrPort2 = ValidDataPortInterface(8, 16);
+    final fillPort = ValidDataPortInterface(8, 16);
+    final fillPort2 = ValidDataPortInterface(8, 16);
     final rdPort = ValidDataPortInterface(8, 16);
     final rdPort2 = ValidDataPortInterface(8, 16);
 
-    final cache = MultiPortedCache(
-        clk, reset, [wrPort, wrPort2], [rdPort, rdPort2],
+    final cache = MultiPortedReadCache(
+        clk, reset, [fillPort, fillPort2], [rdPort, rdPort2],
         ways: 4, lines: 51);
 
     await cache.build();
@@ -51,17 +53,17 @@ void main() {
 
     await clk.waitCycles(2);
 
-    wrPort.en.inject(0);
-    wrPort.valid.inject(0);
+    fillPort.en.inject(0);
+    fillPort.valid.inject(0);
     rdPort.en.inject(0);
-    wrPort.addr.inject(0);
-    wrPort.data.inject(0);
+    fillPort.addr.inject(0);
+    fillPort.data.inject(0);
     rdPort.addr.inject(0);
-    wrPort2.en.inject(0);
-    wrPort2.valid.inject(0);
+    fillPort2.en.inject(0);
+    fillPort2.valid.inject(0);
     rdPort2.en.inject(0);
-    wrPort2.addr.inject(0);
-    wrPort2.data.inject(0);
+    fillPort2.addr.inject(0);
+    fillPort2.data.inject(0);
     rdPort2.addr.inject(0);
     reset.inject(1);
     await clk.nextPosedge;
@@ -69,20 +71,20 @@ void main() {
     await clk.waitCycles(2);
 
     // write 0x41 to address 1111
-    wrPort.en.inject(1);
-    wrPort.addr.inject(1111);
-    wrPort.data.inject(0x41);
-    wrPort.valid.inject(1);
+    fillPort.en.inject(1);
+    fillPort.addr.inject(1111);
+    fillPort.data.inject(0x41);
+    fillPort.valid.inject(1);
     await clk.nextPosedge;
-    wrPort.en.inject(0);
+    fillPort.en.inject(0);
     await clk.nextPosedge;
     // write 0x42 to address 1111
-    wrPort.en.inject(1);
-    wrPort.addr.inject(1111);
-    wrPort.data.inject(0x42);
-    wrPort.valid.inject(1);
+    fillPort.en.inject(1);
+    fillPort.addr.inject(1111);
+    fillPort.data.inject(0x42);
+    fillPort.valid.inject(1);
     await clk.nextPosedge;
-    wrPort.en.inject(0);
+    fillPort.en.inject(0);
     // read it back
     rdPort.en.inject(1);
     rdPort.addr.inject(1111);
@@ -100,13 +102,13 @@ void main() {
 
     final reset = Logic();
 
-    final wrPort = ValidDataPortInterface(8, 16);
-    final wrPort2 = ValidDataPortInterface(8, 16);
+    final fillPort = ValidDataPortInterface(8, 16);
+    final fillPort2 = ValidDataPortInterface(8, 16);
     final rdPort = ValidDataPortInterface(8, 16);
     final rdPort2 = ValidDataPortInterface(8, 16);
 
-    final cache = MultiPortedCache(
-        clk, reset, [wrPort, wrPort2], [rdPort, rdPort2],
+    final cache = MultiPortedReadCache(
+        clk, reset, [fillPort, fillPort2], [rdPort, rdPort2],
         ways: 4, lines: 51);
 
     await cache.build();
@@ -114,17 +116,17 @@ void main() {
 
     await clk.waitCycles(2);
 
-    wrPort.en.inject(0);
-    wrPort.valid.inject(0);
+    fillPort.en.inject(0);
+    fillPort.valid.inject(0);
     rdPort.en.inject(0);
-    wrPort.addr.inject(0);
-    wrPort.data.inject(0);
+    fillPort.addr.inject(0);
+    fillPort.data.inject(0);
     rdPort.addr.inject(0);
-    wrPort2.en.inject(0);
-    wrPort2.valid.inject(0);
+    fillPort2.en.inject(0);
+    fillPort2.valid.inject(0);
     rdPort2.en.inject(0);
-    wrPort2.addr.inject(0);
-    wrPort2.data.inject(0);
+    fillPort2.addr.inject(0);
+    fillPort2.data.inject(0);
     rdPort2.addr.inject(0);
     reset.inject(1);
     await clk.nextPosedge;
@@ -132,24 +134,24 @@ void main() {
     await clk.waitCycles(2);
 
     // write 0x41 to address 1111
-    wrPort.en.inject(1);
-    wrPort.addr.inject(1111);
-    wrPort.data.inject(0x41);
-    wrPort.valid.inject(1);
+    fillPort.en.inject(1);
+    fillPort.addr.inject(1111);
+    fillPort.data.inject(0x41);
+    fillPort.valid.inject(1);
     await clk.nextPosedge;
-    wrPort.en.inject(0);
+    fillPort.en.inject(0);
     await clk.nextPosedge;
-    wrPort.en.inject(1);
-    wrPort.addr.inject(1111);
-    wrPort.data.inject(0x44);
-    wrPort.valid.inject(1);
-    wrPort2.en.inject(1);
-    wrPort2.addr.inject(1111);
-    wrPort2.data.inject(0x42);
-    wrPort2.valid.inject(1);
+    fillPort.en.inject(1);
+    fillPort.addr.inject(1111);
+    fillPort.data.inject(0x44);
+    fillPort.valid.inject(1);
+    fillPort2.en.inject(1);
+    fillPort2.addr.inject(1111);
+    fillPort2.data.inject(0x42);
+    fillPort2.valid.inject(1);
     await clk.nextPosedge;
-    wrPort.en.inject(0);
-    wrPort2.en.inject(0);
+    fillPort.en.inject(0);
+    fillPort2.en.inject(0);
     // read it back
     rdPort.en.inject(1);
     rdPort.addr.inject(1111);
@@ -170,13 +172,13 @@ void main() {
 
     final reset = Logic();
 
-    final wrPort = ValidDataPortInterface(8, 16);
-    final wrPort2 = ValidDataPortInterface(8, 16);
+    final fillPort = ValidDataPortInterface(8, 16);
+    final fillPort2 = ValidDataPortInterface(8, 16);
     final rdPort = ValidDataPortInterface(8, 16);
     final rdPort2 = ValidDataPortInterface(8, 16);
 
-    final cache = MultiPortedCache(
-        clk, reset, [wrPort, wrPort2], [rdPort, rdPort2],
+    final cache = MultiPortedReadCache(
+        clk, reset, [fillPort, fillPort2], [rdPort, rdPort2],
         ways: 4, lines: 51);
 
     await cache.build();
@@ -184,17 +186,17 @@ void main() {
 
     await clk.waitCycles(2);
 
-    wrPort.en.inject(0);
-    wrPort.valid.inject(0);
+    fillPort.en.inject(0);
+    fillPort.valid.inject(0);
     rdPort.en.inject(0);
-    wrPort.addr.inject(0);
-    wrPort.data.inject(0);
+    fillPort.addr.inject(0);
+    fillPort.data.inject(0);
     rdPort.addr.inject(0);
-    wrPort2.en.inject(0);
-    wrPort2.valid.inject(0);
+    fillPort2.en.inject(0);
+    fillPort2.valid.inject(0);
     rdPort2.en.inject(0);
-    wrPort2.addr.inject(0);
-    wrPort2.data.inject(0);
+    fillPort2.addr.inject(0);
+    fillPort2.data.inject(0);
     rdPort2.addr.inject(0);
     reset.inject(1);
     await clk.nextPosedge;
@@ -202,13 +204,13 @@ void main() {
     await clk.waitCycles(2);
 
     // write 0x42 to address 1111
-    wrPort.en.inject(1);
-    wrPort.addr.inject(1111);
-    wrPort.data.inject(0x42);
-    wrPort.valid.inject(1);
+    fillPort.en.inject(1);
+    fillPort.addr.inject(1111);
+    fillPort.data.inject(0x42);
+    fillPort.valid.inject(1);
     await clk.nextPosedge;
-    wrPort.en.inject(0);
-    wrPort.valid.inject(0);
+    fillPort.en.inject(0);
+    fillPort.valid.inject(0);
     await clk.waitCycles(2);
 
     // read it back
@@ -219,13 +221,13 @@ void main() {
     expect(rdPort.valid.value, LogicValue.one);
     rdPort.en.inject(0);
     await clk.nextPosedge;
-    wrPort.en.inject(1);
-    wrPort.addr.inject(1111);
-    wrPort.data.inject(0x42);
+    fillPort.en.inject(1);
+    fillPort.addr.inject(1111);
+    fillPort.data.inject(0x42);
     // Invalidate by writing with valid low.
-    wrPort.valid.inject(0);
+    fillPort.valid.inject(0);
     await clk.nextPosedge;
-    wrPort.en.inject(0);
+    fillPort.en.inject(0);
     await clk.nextPosedge;
     rdPort.en.inject(1);
     rdPort.addr.inject(1111);
@@ -251,10 +253,10 @@ void main() {
       final clk = SimpleClockGenerator(10).clk;
       final reset = Logic();
 
-      final wrPort = ValidDataPortInterface(dataWidth, addrWidth);
+      final fillPort = ValidDataPortInterface(dataWidth, addrWidth);
       final rdPort = ValidDataPortInterface(dataWidth, addrWidth);
 
-      final cache = MultiPortedCache(clk, reset, [wrPort], [rdPort],
+      final cache = MultiPortedReadCache(clk, reset, [fillPort], [rdPort],
           ways: ways, lines: lines);
 
       await cache.build();
@@ -263,9 +265,9 @@ void main() {
       await clk.waitCycles(2);
       rdPort.en.inject(0);
       rdPort.addr.inject(0);
-      wrPort.en.inject(0);
-      wrPort.addr.inject(0);
-      wrPort.data.inject(0);
+      fillPort.en.inject(0);
+      fillPort.addr.inject(0);
+      fillPort.data.inject(0);
       reset.inject(1);
       await clk.nextPosedge;
       reset.inject(0);
@@ -273,20 +275,20 @@ void main() {
 
       // write data to address addr
       const first = 0x20;
-      wrPort.en.inject(1);
-      wrPort.valid.inject(1);
-      wrPort.addr.inject(first);
-      wrPort.data.inject(9);
+      fillPort.en.inject(1);
+      fillPort.valid.inject(1);
+      fillPort.addr.inject(first);
+      fillPort.data.inject(9);
       await clk.nextPosedge;
-      wrPort.en.inject(0);
+      fillPort.en.inject(0);
       await clk.waitCycles(3);
 
       const second = 0x40;
-      wrPort.addr.inject(second);
-      wrPort.data.inject(7);
-      wrPort.en.inject(1);
+      fillPort.addr.inject(second);
+      fillPort.data.inject(7);
+      fillPort.en.inject(1);
       await clk.nextPosedge;
-      wrPort.en.inject(0);
+      fillPort.en.inject(0);
       await clk.nextPosedge;
       // read it back
       rdPort.en.inject(1);
@@ -313,10 +315,10 @@ void main() {
       final clk = SimpleClockGenerator(10).clk;
 
       final reset = Logic();
-      final wrPort = ValidDataPortInterface(dataWidth, addrWidth);
+      final fillPort = ValidDataPortInterface(dataWidth, addrWidth);
       final rdPort = ValidDataPortInterface(dataWidth, addrWidth);
 
-      final cache = MultiPortedCache(clk, reset, [wrPort], [rdPort],
+      final cache = MultiPortedReadCache(clk, reset, [fillPort], [rdPort],
           ways: ways, lines: lines);
       await cache.build();
 
@@ -339,10 +341,10 @@ void main() {
       }
       unawaited(Simulator.run());
       // reset flow
-      wrPort.en.inject(0);
+      fillPort.en.inject(0);
       rdPort.en.inject(0);
-      wrPort.addr.inject(0);
-      wrPort.data.inject(0);
+      fillPort.addr.inject(0);
+      fillPort.data.inject(0);
       rdPort.addr.inject(0);
       reset.inject(1);
       await clk.nextPosedge;
@@ -351,15 +353,15 @@ void main() {
 
       await clk.nextPosedge;
       // Fill each line of the cache.
-      wrPort.en.inject(1);
-      wrPort.valid.inject(1);
+      fillPort.en.inject(1);
+      fillPort.valid.inject(1);
       for (var i = 0; i < testData.length; i++) {
         final (addr, data) = testData[i];
-        wrPort.addr.inject(addr);
-        wrPort.data.inject(data);
+        fillPort.addr.inject(addr);
+        fillPort.data.inject(data);
         await clk.nextPosedge;
       }
-      wrPort.en.inject(0);
+      fillPort.en.inject(0);
       await clk.nextPosedge;
       // Read them all back.
       await clk.nextPosedge;
