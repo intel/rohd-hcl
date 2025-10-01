@@ -7,6 +7,7 @@ analyzer:
     strict-inference: true
     strict-raw-types: true
   exclude:
+    - confapp/**
     - doc/tutorials/chapter_9/rohd_vf_example
     - rohd_devtools_extension
 
