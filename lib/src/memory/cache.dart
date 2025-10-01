@@ -160,8 +160,10 @@ class MultiPortedCache extends Cache {
 
     // The Tag `RegisterFile`.
     for (var way = 0; way < ways; way++) {
-      RegisterFile(clk, reset, validTagRFAlloc[way],
-          validTagRFMatchWr[way]..addAll(validTagRFMatchRd[way]),
+      // Combine the read and write match ports for this way.
+      final validTagRFMatch = validTagRFMatchWr[way]
+        ..addAll(validTagRFMatchRd[way]);
+      RegisterFile(clk, reset, validTagRFAlloc[way], validTagRFMatch,
           numEntries: lines, name: 'valid_tag_rf_way$way');
     }
 
@@ -258,6 +260,17 @@ class MultiPortedCache extends Cache {
           ways: ways);
     }
 
+    // Policy: Process read hits.
+    for (var rdPortIdx = 0; rdPortIdx < numReads; rdPortIdx++) {
+      final rdPort = reads[rdPortIdx];
+      for (var line = 0; line < lines; line++) {
+        policyRdHitPorts[line][rdPortIdx].access <=
+            rdPort.en &
+                ~readValidPortMiss[rdPortIdx] &
+                getLine(rdPort.addr).eq(Const(line, width: lineAddrWidth));
+        policyRdHitPorts[line][rdPortIdx].way <= readValidPortWay[rdPortIdx];
+      }
+    }
     // Policy: Process write hits or invalidates.
     for (var wrPortIdx = 0; wrPortIdx < numWrites; wrPortIdx++) {
       final wrPort = writes[wrPortIdx];
@@ -285,23 +298,8 @@ class MultiPortedCache extends Cache {
                 ])
         ]),
       ]);
-    }
 
-    // Policy: Process read hits.
-    for (var rdPortIdx = 0; rdPortIdx < numReads; rdPortIdx++) {
-      final rdPort = reads[rdPortIdx];
-      for (var line = 0; line < lines; line++) {
-        policyRdHitPorts[line][rdPortIdx].access <=
-            rdPort.en &
-                ~readValidPortMiss[rdPortIdx] &
-                getLine(rdPort.addr).eq(Const(line, width: lineAddrWidth));
-        policyRdHitPorts[line][rdPortIdx].way <= readValidPortWay[rdPortIdx];
-      }
-    }
-
-    // Policy: Process write misses.
-    for (var wrPortIdx = 0; wrPortIdx < numWrites; wrPortIdx++) {
-      final wrPort = writes[wrPortIdx];
+      // Policy: Process write misses.
       for (var line = 0; line < lines; line++) {
         policyAllocPorts[line][wrPortIdx].access <=
             wrPort.en &
@@ -309,11 +307,9 @@ class MultiPortedCache extends Cache {
                 writeValidPortMiss[wrPortIdx] &
                 getLine(wrPort.addr).eq(Const(line, width: lineAddrWidth));
       }
-    }
 
-    // Process allocates (misses) and invalidates.
-    for (var wrPortIdx = 0; wrPortIdx < numWrites; wrPortIdx++) {
-      final wrPort = writes[wrPortIdx];
+      // Process allocates (misses) and invalidates. TODO(desmonddak): transform
+      // these to simple assignments and check for cleaner SV.
       Combinational([
         for (var way = 0; way < ways; way++)
           validTagRFAlloc[way][wrPortIdx].en < Const(0),

@@ -11,6 +11,7 @@ import 'dart:async';
 
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
+import 'package:rohd_vf/rohd_vf.dart';
 import 'package:test/test.dart';
 
 void main() {
@@ -45,16 +46,16 @@ void main() {
     hit2.access.inject(0);
     miss.access.inject(0);
     miss.way.inject(0);
-    await clk.nextPosedge;
-    await clk.nextPosedge;
+    await clk.waitCycles(2);
+
     reset.inject(1);
     await clk.nextPosedge;
     reset.inject(0);
     // End reset flow.
 
     // Hit item should be LRU and not seen early in miss processing.
-    await clk.nextPosedge;
-    await clk.nextPosedge;
+    await clk.waitCycles(2);
+
     const id1 = 6;
     const id2 = 12;
     hit.access.inject(1);
@@ -89,5 +90,39 @@ void main() {
       expect(misses[i], i);
     }
     await Simulator.endSimulation();
+  });
+
+  group('Test PLRU instantiated in PseudoLRUReplacement', () {
+    final clk = Logic();
+    final reset = Logic();
+    const ways = 8;
+    var bi = <int>[0, 1, 1, 0, 0, 1, 1];
+
+    final hits = List<AccessInterface>.generate(2, (i) => AccessInterface(ways),
+        growable: false);
+    final allocs = List<AccessInterface>.generate(
+        1, (i) => AccessInterface(ways),
+        growable: false);
+    final invals = List<AccessInterface>.generate(
+        1, (i) => AccessInterface(ways),
+        growable: false);
+
+    final plru =
+        PseudoLRUReplacement(clk, reset, hits, allocs, invals, ways: ways);
+
+    // This is an example of combinational method testing inside a module rather
+    // than having to setup  state and sequencing to test this functionality.
+    test('PLRU write invalidate', () async {
+      final bv = [for (var i = 0; i < 7; i++) Logic()];
+      for (var i = 0; i < bv.length; i++) {
+        bv[i].put(bi[i]);
+      }
+      var brv = bv.rswizzle();
+
+      for (final a in [5, 1, 6, 2, 4, 0, 7]) {
+        brv = plru.hitPLRU(brv, Const(a, width: 3), invalidate: Const(1));
+        expect(a, plru.allocPLRU(brv).value.toInt());
+      }
+    });
   });
 }

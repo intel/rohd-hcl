@@ -102,11 +102,8 @@ class PseudoLRUReplacement extends ReplacementPolicy {
         Logic(name: 'plru_in', naming: Naming.mergeable, width: ways - 1);
     final treePLRU =
         Logic(name: 'plru', naming: Naming.mergeable, width: ways - 1);
-    Sequential(clk, [
-      If(reset,
-          then: [treePLRU < Const(0, width: ways - 1)],
-          orElse: [treePLRU < treePLRUIn])
-    ]);
+
+    treePLRU <= flop(clk, reset: reset, treePLRUIn);
 
     // Process access invalidates, then hits, then allocs.
     var updateTreePLRU = treePLRU;

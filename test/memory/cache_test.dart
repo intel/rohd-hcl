@@ -11,6 +11,7 @@ import 'dart:async';
 
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
+import 'package:rohd_vf/rohd_vf.dart';
 import 'package:test/test.dart';
 
 void main() {
@@ -48,8 +49,8 @@ void main() {
     await cache.build();
     unawaited(Simulator.run());
 
-    await clk.nextPosedge;
-    await clk.nextPosedge;
+    await clk.waitCycles(2);
+
     wrPort.en.inject(0);
     wrPort.valid.inject(0);
     rdPort.en.inject(0);
@@ -65,8 +66,8 @@ void main() {
     reset.inject(1);
     await clk.nextPosedge;
     reset.inject(0);
-    await clk.nextPosedge;
-    await clk.nextPosedge;
+    await clk.waitCycles(2);
+
     // write 0x41 to address 1111
     wrPort.en.inject(1);
     wrPort.addr.inject(1111);
@@ -89,9 +90,7 @@ void main() {
     expect(rdPort.data.value, LogicValue.ofInt(0x42, 8));
     expect(rdPort.valid.value, LogicValue.one);
     rdPort.en.inject(0);
-    await clk.nextPosedge;
-    await clk.nextPosedge;
-    await clk.nextPosedge;
+    await clk.waitCycles(2);
 
     await Simulator.endSimulation();
   });
@@ -113,8 +112,8 @@ void main() {
     await cache.build();
     unawaited(Simulator.run());
 
-    await clk.nextPosedge;
-    await clk.nextPosedge;
+    await clk.waitCycles(2);
+
     wrPort.en.inject(0);
     wrPort.valid.inject(0);
     rdPort.en.inject(0);
@@ -130,8 +129,8 @@ void main() {
     reset.inject(1);
     await clk.nextPosedge;
     reset.inject(0);
-    await clk.nextPosedge;
-    await clk.nextPosedge;
+    await clk.waitCycles(2);
+
     // write 0x41 to address 1111
     wrPort.en.inject(1);
     wrPort.addr.inject(1111);
@@ -161,6 +160,7 @@ void main() {
     expect(rdPort.valid.value, LogicValue.one);
     expect(rdPort2.data.value, LogicValue.ofInt(0x42, 8));
     expect(rdPort2.valid.value, LogicValue.one);
+    await clk.waitCycles(2);
 
     await Simulator.endSimulation();
   });
@@ -182,8 +182,8 @@ void main() {
     await cache.build();
     unawaited(Simulator.run());
 
-    await clk.nextPosedge;
-    await clk.nextPosedge;
+    await clk.waitCycles(2);
+
     wrPort.en.inject(0);
     wrPort.valid.inject(0);
     rdPort.en.inject(0);
@@ -199,8 +199,8 @@ void main() {
     reset.inject(1);
     await clk.nextPosedge;
     reset.inject(0);
-    await clk.nextPosedge;
-    await clk.nextPosedge;
+    await clk.waitCycles(2);
+
     // write 0x42 to address 1111
     wrPort.en.inject(1);
     wrPort.addr.inject(1111);
@@ -209,8 +209,8 @@ void main() {
     await clk.nextPosedge;
     wrPort.en.inject(0);
     wrPort.valid.inject(0);
-    await clk.nextPosedge;
-    await clk.nextPosedge;
+    await clk.waitCycles(2);
+
     // read it back
     rdPort.en.inject(1);
     rdPort.addr.inject(1111);
@@ -234,8 +234,7 @@ void main() {
 
     expect(rdPort.data.value, LogicValue.ofInt(0, 8));
     expect(rdPort.valid.value, LogicValue.zero);
-    await clk.nextPosedge;
-    await clk.nextPosedge;
+    await clk.waitCycles(2);
 
     await Simulator.endSimulation();
   });
@@ -261,8 +260,7 @@ void main() {
       await cache.build();
       unawaited(Simulator.run());
 
-      await clk.nextPosedge;
-      await clk.nextPosedge;
+      await clk.waitCycles(2);
       rdPort.en.inject(0);
       rdPort.addr.inject(0);
       wrPort.en.inject(0);
@@ -271,8 +269,8 @@ void main() {
       reset.inject(1);
       await clk.nextPosedge;
       reset.inject(0);
-      await clk.nextPosedge;
-      await clk.nextPosedge;
+      await clk.waitCycles(2);
+
       // write data to address addr
       const first = 0x20;
       wrPort.en.inject(1);
@@ -281,9 +279,8 @@ void main() {
       wrPort.data.inject(9);
       await clk.nextPosedge;
       wrPort.en.inject(0);
-      await clk.nextPosedge;
-      await clk.nextPosedge;
-      await clk.nextPosedge;
+      await clk.waitCycles(3);
+
       const second = 0x40;
       wrPort.addr.inject(second);
       wrPort.data.inject(7);
@@ -307,8 +304,7 @@ void main() {
       expect(rdPort.data.value.toInt(), 7);
       expect(rdPort.valid.value, LogicValue.one);
       rdPort.en.inject(0);
-      await clk.nextPosedge;
-      await clk.nextPosedge;
+      await clk.waitCycles(2);
 
       await Simulator.endSimulation();
     });
@@ -378,8 +374,7 @@ void main() {
             reason: 'should read $data for addr $addr');
       }
       rdPort.en.inject(0);
-      await clk.nextPosedge;
-      await clk.nextPosedge;
+      await clk.waitCycles(2);
 
       await Simulator.endSimulation();
     });
