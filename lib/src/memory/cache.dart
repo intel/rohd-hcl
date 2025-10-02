@@ -36,7 +36,7 @@ class ValidDataPortInterface extends DataPortInterface {
       ValidDataPortInterface(dataWidth, addrWidth);
 }
 
-/// A module [ReadCache] implementing a configurable set-associative cache for
+/// A module [Cache] implementing a configurable set-associative cache for
 /// caching read operations.
 ///
 /// Three primary operations:
@@ -51,7 +51,7 @@ class ValidDataPortInterface extends DataPortInterface {
 ///
 /// Note that filling does not result in writing of evicted data to backing
 /// store, it is simply evicted.
-abstract class ReadCache extends Module {
+abstract class Cache extends Module {
   /// Number of ways in the cache line, also know as associativity.
   late final int ways;
 
@@ -68,6 +68,11 @@ abstract class ReadCache extends Module {
   /// Read interfaces which return data and valid on a read.
   @protected
   final List<ValidDataPortInterface> reads = [];
+
+  /// Eviction interfaces which return the address and data being evicted.
+  // TODO(desmonddak): implement an interface without enable.
+  @protected
+  final List<ValidDataPortInterface> evictions = [];
 
   /// The replacement policy to use for choosing which way to evict on a miss.
   @protected
@@ -86,14 +91,15 @@ abstract class ReadCache extends Module {
   /// Reset.
   Logic get reset => input('reset');
 
-  /// Constructs a [ReadCache] supporting multiple read and fill ports.
+  /// Constructs a [Cache] supporting multiple read and fill ports.
   ///
   /// Defines a set-associativity of [ways] and a depth or number of [lines].
   /// The total capacity of the cache is [ways]*[lines]. The [replacement]
   /// policy is used to choose which way to evict on a fill miss.
-  ReadCache(Logic clk, Logic reset, List<ValidDataPortInterface> fills,
+  Cache(Logic clk, Logic reset, List<ValidDataPortInterface> fills,
       List<ValidDataPortInterface> reads,
-      {this.ways = 1,
+      {List<ValidDataPortInterface>? evictions,
+      this.ways = 1,
       this.lines = 16,
       this.replacement = PseudoLRUReplacement.new,
       super.name = 'Cache',
@@ -124,6 +130,18 @@ abstract class ReadCache extends Module {
             outputTags: {DataPortGroup.data},
             uniquify: (original) => 'cache_read_${original}_$i'));
     }
+    if (evictions != null) {
+      if (evictions.length != reads.length + fills.length) {
+        throw ArgumentError(
+            'Must provide exactly one eviction port per read or fill port.');
+      }
+      for (var i = 0; i < evictions.length; i++) {
+        this.evictions.add(evictions[i].clone()
+          ..connectIO(this, evictions[i],
+              outputTags: {DataPortGroup.control, DataPortGroup.data},
+              uniquify: (original) => 'cache_evict_${original}_$i'));
+      }
+    }
     _buildLogic();
   }
   @mustBeOverridden
@@ -137,8 +155,8 @@ abstract class ReadCache extends Module {
 }
 
 /// A multi-ported read cache.
-class MultiPortedReadCache extends ReadCache {
-  /// Constructs a [ReadCache] supporting multiple read and fill ports.
+class MultiPortedReadCache extends Cache {
+  /// Constructs a [Cache] supporting multiple read and fill ports.
   ///
   /// Defines a set-associativity of [ways] and a depth or number of [lines].
   /// The total capacity of the cache is [ways]*[lines]. The [replacement]
