@@ -34,7 +34,7 @@ abstract class PartialProductArray {
   /// Name used for [PartialProductArray] instances.
   final String name;
 
-  /// Construct a basic [List<List<Logic>] to hold an array of partial products
+  /// Construct a basic [List<List<Logic>>] to hold an array of partial products
   /// as well as a rowShift array to hold the row shifts.
   PartialProductArray({this.name = 'ppa'});
 
@@ -97,7 +97,7 @@ abstract class PartialProductArray {
     }
   }
 
-  /// Mux the `[Logic] at absolute position ([row], [col]) conditionally by
+  /// Mux the [Logic] at absolute position ([row], [col]) conditionally by
   /// [condition] to [val].
   void muxAbsolute(int row, int col, Logic condition, Logic val) {
     final product = partialProducts[row];

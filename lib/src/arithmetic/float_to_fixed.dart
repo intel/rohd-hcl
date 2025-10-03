@@ -14,10 +14,10 @@ import 'package:rohd_hcl/rohd_hcl.dart';
 
 /// [FloatToFixed] converts a floating point input to a signed
 /// fixed-point output following Q notation (Qm.n format) as introduced by
-/// (Texas Instruments)[https://www.ti.com/lit/ug/spru565b/spru565b.pdf].
+/// (Texas Instruments): (https://www.ti.com/lit/ug/spru565b/spru565b.pdf).
 /// Infinities and NaN's are not supported. Conversion is lossless.
 /// The output is in two's complement and in Qm.n format where:
-/// ```
+/// ```dart
 /// m = e_max - bias + 1
 /// n = mantissa + bias - 1
 /// ```
@@ -144,21 +144,21 @@ class FloatToFixed extends Module {
 
 /// [Float8ToFixed] converts an 8-bit floating point (FP8) input
 /// to a signed fixed-point output following Q notation (Qm.n) as introduced by
-/// (Texas Instruments)[https://www.ti.com/lit/ug/spru565b/spru565b.pdf].
+/// (Texas Instruments): (https://www.ti.com/lit/ug/spru565b/spru565b.pdf).
 /// FP8 input must follow E4M3 or E5M2 as described in
-/// (FP8 formats for deep learning)[https://arxiv.org/pdf/2209.05433].
+/// (FP8 formats for deep learning): (https://arxiv.org/pdf/2209.05433).
 /// This component offers re-using the same hardware for both FP8 formats.
 /// Infinities and NaN's are not supported.
 /// The output is of type [Logic] and in two's complement.
 /// It can be cast to a [FixedPoint] by the consumer based on the mode.
 /// if `mode` is `true`:
 ///   Input is treated as E4M3 and converted to Q9.9
-///   `fixed[17:9] contains integer part
-///   `fixed[8:0] contains fractional part
+///   - `fixed[17:9]` contains integer part
+///   - `fixed[8:0]` contains fractional part
 /// else:
 ///    Input is treated as E5M2 and converted to Q16.16
-///   `fixed[31:16] contains integer part
-///   `fixed[15:0] contains fractional part
+///   - `fixed[31:16]` contains integer part
+///   - `fixed[15:0]` contains fractional part
 class Float8ToFixed extends Module {
   /// Output port [fixed]
   Logic get fixed => output('fixed');

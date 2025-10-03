@@ -1,4 +1,4 @@
-// Copyright (C) 2023-2024 Intel Corporation
+// Copyright (C) 2023-2025 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 //
 // shift_register_test.dart
@@ -57,9 +57,7 @@ void main() {
     expect(sr.name, contains('fancy'));
     expect(sr.dataOut.name, contains('fancy'));
     expect(
-        // ignore: invalid_use_of_protected_member
-        sr.inputs.keys.where((element) => element.contains('fancy')).length,
-        1);
+        sr.inputs.keys.where((element) => element.contains('fancy')).length, 1);
   });
 
   test('depth 0 shift register is pass-through', () {
