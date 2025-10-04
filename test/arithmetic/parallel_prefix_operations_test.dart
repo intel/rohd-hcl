@@ -7,8 +7,6 @@
 // 2023 Sep 29
 // Author: Desmond Kirkpatrick <desmond.a.kirkpatrick@intel.com>
 
-// ignore_for_file: avoid_print
-
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/src/arithmetic/parallel_prefix_operations.dart';
 import 'package:test/test.dart';

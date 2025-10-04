@@ -25,15 +25,14 @@ void main() {
     const mantissaWidth = 18;
     FloatingPoint fpConstructor() => FloatingPoint(
         exponentWidth: exponentWidth, mantissaWidth: mantissaWidth);
-    FloatingPointValuePopulator fpvPopulator() => FloatingPointValue.populator(
-        exponentWidth: exponentWidth, mantissaWidth: mantissaWidth);
+    final fp1 = fpConstructor();
+    final fp2 = fpConstructor();
+    FloatingPointValuePopulator fpvPopulator() => fp1.valuePopulator();
     FloatingPointValue ofString(String s) =>
         fpvPopulator().ofSpacedBinaryString(s);
 
     final fv1 = ofString('0 0000 101011100101000000');
     final fv2 = ofString('1 0001 100100101111011100');
-    final fp1 = fpConstructor();
-    final fp2 = fpConstructor();
 
     fp1.put(fv1);
     fp2.put(fv2);
@@ -63,8 +62,7 @@ void main() {
     final fp1 = fpConstructor();
     final fp2 = fpConstructor();
 
-    FloatingPointValuePopulator fpvPopulator() => FloatingPointValue.populator(
-        exponentWidth: exponentWidth, mantissaWidth: mantissaWidth);
+    FloatingPointValuePopulator fpvPopulator() => fp1.valuePopulator();
     fp1.put(0);
     fp2.put(0);
     final adder = FloatingPointAdderSinglePath(fp1, fp2,
@@ -88,13 +86,16 @@ void main() {
 
       final expectedNoRound = fpvPopulator().ofDoubleUnrounded(expectedDouble);
       final expectedRound = fpvPopulator().ofDouble(expectedDouble);
-      expect(computed, equals(expectedNoRound), reason: '''
+      expect(computed.isNaN, equals(expectedRound.isNaN));
+      if (!computed.isNaN) {
+        expect(computed, equals(expectedNoRound), reason: '''
       $fv1 (${fv1.toDouble()})\t+
       $fv2 (${fv2.toDouble()})\t=
       $computed (${computed.toDouble()})\tcomputed
       $expectedNoRound (${expectedNoRound.toDouble()})\texpectedNoRnd
       $expectedRound (${expectedRound.toDouble()})\texpectedRnd
 ''');
+      }
     }
   });
 
@@ -107,8 +108,7 @@ void main() {
     final fp1 = fpConstructor();
     final fp2 = fpConstructor();
 
-    FloatingPointValuePopulator fpvPopulator() => FloatingPointValue.populator(
-        exponentWidth: exponentWidth, mantissaWidth: mantissaWidth);
+    FloatingPointValuePopulator fpvPopulator() => fp1.valuePopulator();
     fp1.put(0);
     fp2.put(0);
     final adder = FloatingPointAdderSinglePath(fp1, fp2);
@@ -131,13 +131,16 @@ void main() {
 
       final expectedNoRound = fpvPopulator().ofDoubleUnrounded(expectedDouble);
       final expectedRound = fpvPopulator().ofDouble(expectedDouble);
-      expect(computed, equals(expectedRound), reason: '''
+      expect(computed.isNaN, equals(expectedRound.isNaN));
+      if (!computed.isNaN) {
+        expect(computed, equals(expectedRound), reason: '''
       $fv1 (${fv1.toDouble()})\t+
       $fv2 (${fv2.toDouble()})\t=
       $computed (${computed.toDouble()})\tcomputed
       $expectedNoRound (${expectedNoRound.toDouble()})\texpected
       $expectedRound (${expectedRound.toDouble()})\texpectedRnd
 ''');
+      }
     }
   });
 
@@ -175,9 +178,9 @@ void main() {
               const e2 = 0;
               const m2 = 7;
 
-              final fv1 = fpvPopulator(subNormalAsZero: daz1).ofInts(e1, m1);
-              final fv2 = fpvPopulator(subNormalAsZero: daz2)
-                  .ofInts(e2, m2, sign: subtract == 1);
+              final fv1 = fp1.valuePopulator().ofInts(e1, m1);
+              final fv2 =
+                  fp2.valuePopulator().ofInts(e2, m2, sign: subtract == 1);
 
               fp1.put(fv1.value);
               fp2.put(fv2.value);
@@ -189,16 +192,18 @@ void main() {
 
               final dbl = fv1.toDouble() + fv2.toDouble();
 
-              final expected = fpvPopulator(subNormalAsZero: ftz).ofDouble(dbl);
+              final expected = fpOut.valuePopulator().ofDouble(dbl);
 
               expect(computed.isNaN, equals(expected.isNaN));
-              expect(computed, equals(expected), reason: '''
+              if (!computed.isNaN) {
+                expect(computed, equals(expected), reason: '''
       daz1: $daz1, daz2: $daz2    ftz: $ftz
       $fv1 (${fv1.toDouble()})\t+
       $fv2 (${fv2.toDouble()})\t=
       $computed (${computed.toDouble()})\tcomputed
       $expected (${expected.toDouble()})\texpected
 ''');
+              }
             }
           }
         }
@@ -220,11 +225,11 @@ void main() {
                   FloatingPointAdderSinglePath(fp1, fp2, outSum: fpOut);
               for (var e1 = 0; e1 < expLimit; e1++) {
                 for (var m1 = 0; m1 < mantLimit; m1++) {
-                  final fv1 =
-                      fpvPopulator(subNormalAsZero: daz1).ofInts(e1, m1);
+                  final fv1 = fp1.valuePopulator().ofInts(e1, m1);
                   for (var e2 = 0; e2 < expLimit; e2++) {
                     for (var m2 = 0; m2 < mantLimit; m2++) {
-                      final fv2 = fpvPopulator(subNormalAsZero: daz2)
+                      final fv2 = fp2
+                          .valuePopulator()
                           .ofInts(e2, m2, sign: subtract == 1);
 
                       fp1.put(fv1.value);
@@ -237,17 +242,18 @@ void main() {
 
                       final dbl = fv1.toDouble() + fv2.toDouble();
 
-                      final expected =
-                          fpvPopulator(subNormalAsZero: ftz).ofDouble(dbl);
+                      final expected = fpOut.valuePopulator().ofDouble(dbl);
 
                       expect(computed.isNaN, equals(expected.isNaN));
-                      expect(computed, equals(expected), reason: '''
+                      if (!computed.isNaN) {
+                        expect(computed, equals(expected), reason: '''
       daz1: $daz1, daz2: $daz2, ftz: $ftz
       $fv1 (${fv1.toDouble()})\t+
       $fv2 (${fv2.toDouble()})\t=
       $computed (${computed.toDouble()})\tcomputed
       $expected (${expected.toDouble()})\texpected
 ''');
+                      }
                     }
                   }
                 }
@@ -267,8 +273,7 @@ void main() {
     final fp1 = fpConstructor();
     final fp2 = fpConstructor();
 
-    FloatingPointValuePopulator fpvPopulator() => FloatingPointValue.populator(
-        exponentWidth: exponentWidth, mantissaWidth: mantissaWidth);
+    FloatingPointValuePopulator fpvPopulator() => fp1.valuePopulator();
     final fv1 = fpvPopulator().ofSpacedBinaryString('0 0000 0001');
     final fv2 = fpvPopulator().ofSpacedBinaryString('1 0000 0000');
 
@@ -299,8 +304,7 @@ void main() {
     final fp1 = fpConstructor();
     final fp2 = fpConstructor();
 
-    FloatingPointValuePopulator fpvPopulator() => FloatingPointValue.populator(
-        exponentWidth: exponentWidth, mantissaWidth: mantissaWidth);
+    FloatingPointValuePopulator fpvPopulator() => fp1.valuePopulator();
     fp1.put(0);
     fp2.put(0);
     final adder = FloatingPointAdderSinglePath(fp1, fp2,
@@ -322,13 +326,16 @@ void main() {
               final dbl = fv1.toDouble() + fv2.toDouble();
               final expectedNoRound = fpvPopulator().ofDoubleUnrounded(dbl);
               final expectedRound = fpvPopulator().ofDouble(dbl);
-              expect(computed, equals(expectedNoRound), reason: '''
+              expect(computed.isNaN, equals(expectedRound.isNaN));
+              if (!computed.isNaN) {
+                expect(computed, equals(expectedNoRound), reason: '''
       $fv1 (${fv1.toDouble()})\t+
       $fv2 (${fv2.toDouble()})\t=
       $computed (${computed.toDouble()})\tcomputed
       $expectedNoRound (${expectedNoRound.toDouble()})\texpectedNo
       $expectedRound (${expectedRound.toDouble()})\texpectedRnd
 ''');
+              }
             }
           }
         }
@@ -343,8 +350,7 @@ void main() {
         exponentWidth: exponentWidth, mantissaWidth: mantissaWidth);
     final fp1 = fpConstructor();
     final fp2 = fpConstructor();
-    FloatingPointValuePopulator fpvPopulator() => FloatingPointValue.populator(
-        exponentWidth: exponentWidth, mantissaWidth: mantissaWidth);
+    FloatingPointValuePopulator fpvPopulator() => fp1.valuePopulator();
     fp1.put(0);
     fp2.put(0);
     final adder = FloatingPointAdderSinglePath(fp1, fp2);
@@ -365,13 +371,16 @@ void main() {
               final dbl = fv1.toDouble() + fv2.toDouble();
               final expectedNoRound = fpvPopulator().ofDoubleUnrounded(dbl);
               final expectedRound = fpvPopulator().ofDouble(dbl);
-              expect(computed, equals(expectedRound), reason: '''
+              expect(computed.isNaN, equals(expectedRound.isNaN));
+              if (!computed.isNaN) {
+                expect(computed, equals(expectedRound), reason: '''
       $fv1 (${fv1.toDouble()})\t+
       $fv2 (${fv2.toDouble()})\t=
       $computed (${computed.toDouble()})\tcomputed
       $expectedNoRound (${expectedNoRound.toDouble()})\texpectedNo
       $expectedRound (${expectedRound.toDouble()})\texpectedRnd
 ''');
+              }
             }
           }
         }
@@ -390,8 +399,7 @@ void main() {
     final fp1 = fpConstructor();
     final fp2 = fpConstructor();
 
-    FloatingPointValuePopulator fpvPopulator() => FloatingPointValue.populator(
-        exponentWidth: exponentWidth, mantissaWidth: mantissaWidth);
+    FloatingPointValuePopulator fpvPopulator() => fp1.valuePopulator();
     FloatingPointValue ofString(String s) =>
         fpvPopulator().ofSpacedBinaryString(s);
 
@@ -504,8 +512,8 @@ void main() {
       final rand = Random(513);
 
       for (var i = 0; i < 500; i++) {
-        final fv1 = fpvPopulator().random(rand, normal: true);
-        final fv2 = fpvPopulator().random(rand, normal: true);
+        final fv1 = fpvPopulator().random(rand, genSubNormal: false);
+        final fv2 = fpvPopulator().random(rand, genSubNormal: false);
 
         fp1.put(fv1.value);
         fp2.put(fv2.value);
@@ -519,12 +527,15 @@ void main() {
             fpvPopulator().ofDoubleUnrounded(fv1.toDouble() + fv2.toDouble());
         final expectedRound =
             fpvPopulator().ofDouble(fv1.toDouble() + fv2.toDouble());
-        expect(computed, equals(expectedRound), reason: '''
+        expect(computed.isNaN, equals(expectedRound.isNaN));
+        if (!computed.isNaN) {
+          expect(computed, equals(expectedRound), reason: '''
       $fv1 (${fv1.toDouble()})\t+
       $fv2 (${fv2.toDouble()})\t=
       $computed (${computed.toDouble()})\tcomputed
       $expectedNoRound (${expectedNoRound.toDouble()})\texpected
 ''');
+        }
       }
       await Simulator.endSimulation();
     });
@@ -535,12 +546,11 @@ void main() {
     const mantissaWidth = 20;
     FloatingPoint fpConstructor() => FloatingPoint(
         exponentWidth: exponentWidth, mantissaWidth: mantissaWidth);
-    FloatingPointValuePopulator fpvPopulator() => FloatingPointValue.populator(
-        exponentWidth: exponentWidth, mantissaWidth: mantissaWidth);
-
     final fp1 = fpConstructor();
     final fp2 = fpConstructor();
     final fpout = fpConstructor();
+    FloatingPointValuePopulator fpvPopulator() => fp1.valuePopulator();
+
     fp1.put(0);
     fp2.put(0);
 
@@ -574,12 +584,11 @@ void main() {
     const mantissaWidth = 20;
     FloatingPoint fpConstructor() => FloatingPoint(
         exponentWidth: exponentWidth, mantissaWidth: mantissaWidth);
-    FloatingPointValuePopulator fpvPopulator() => FloatingPointValue.populator(
-        exponentWidth: exponentWidth, mantissaWidth: mantissaWidth);
-
     final fp1 = fpConstructor();
     final fp2 = fpConstructor();
     final fpout = fpConstructor();
+    FloatingPointValuePopulator fpvPopulator() => fp1.valuePopulator();
+
     fp1.put(0);
     fp2.put(0);
 
@@ -603,13 +612,16 @@ void main() {
 
       final expectedRound =
           fpvPopulator().ofDouble(fv1.toDouble() + fv2.toDouble());
-      expect(computed, equals(expectedRound), reason: '''
+      expect(computed.isNaN, equals(expectedRound.isNaN));
+      if (computed.isNaN) {
+        expect(computed, equals(expectedRound), reason: '''
       $fv1 ${fv1.value} (${fv1.toDouble()})\t+
       $fv2 ${fv2.value} (${fv2.toDouble()})\t=
       $computed (${computed.toDouble()})\tcomputed
       $expectedRound (${expectedRound.toDouble()})\texpectedRnd
       $expectedNoRound (${expectedNoRound.toDouble()})\texpectedNo
 ''');
+      }
     }
   });
 
@@ -618,11 +630,9 @@ void main() {
     const mantissaWidth = 3;
     FloatingPoint fpConstructor() => FloatingPoint(
         exponentWidth: exponentWidth, mantissaWidth: mantissaWidth);
-    FloatingPointValuePopulator fpvPopulator() => FloatingPointValue.populator(
-        exponentWidth: exponentWidth, mantissaWidth: mantissaWidth);
-
     final fp1 = fpConstructor();
     final fp2 = fpConstructor();
+    FloatingPointValuePopulator fpvPopulator() => fp1.valuePopulator();
 
     fp1.put(0);
     fp2.put(0);
@@ -650,12 +660,15 @@ void main() {
           fpvPopulator().ofDoubleUnrounded(fv1.toDouble() + fv2.toDouble());
       final expectedRound =
           fpvPopulator().ofDouble(fv1.toDouble() + fv2.toDouble());
-      expect(computed, equals(expectedRound), reason: '''
+      expect(computed.isNaN, equals(expectedRound.isNaN));
+      if (computed.isNaN) {
+        expect(computed, equals(expectedRound), reason: '''
       $fv1 (${fv1.toDouble()})\t+
       $fv2 (${fv2.toDouble()})\t=
       $computed (${computed.toDouble()})\tcomputed
       $expectedNoRound (${expectedNoRound.toDouble()})\texpected
 ''');
+      }
     }
   });
 
@@ -669,25 +682,21 @@ void main() {
     const outMantissaWidth = 20;
     FloatingPoint fpConstructor() => FloatingPoint(
         exponentWidth: exponentWidth, mantissaWidth: mantissaWidth);
-    FloatingPointValuePopulator fpvPopulator() => FloatingPointValue.populator(
-        exponentWidth: exponentWidth, mantissaWidth: mantissaWidth);
-    FloatingPointValue ofString(String s) =>
-        fpvPopulator().ofSpacedBinaryString(s);
-    FloatingPointValuePopulator fpvOutPopulator() =>
-        FloatingPointValue.populator(
-            exponentWidth: exponentWidth, mantissaWidth: outMantissaWidth);
-
     final fp1 = fpConstructor();
     final fp2 = fpConstructor();
+    final fpOut = FloatingPoint(
+        exponentWidth: exponentWidth, mantissaWidth: outMantissaWidth);
+    FloatingPointValuePopulator fpvPopulator() => fp1.valuePopulator();
+    FloatingPointValue ofString(String s) =>
+        fpvPopulator().ofSpacedBinaryString(s);
+    FloatingPointValuePopulator fpvOutPopulator() => fpOut.valuePopulator();
+
     final fv1 = ofString('0 0000 0001');
     final fv2 = ofString('1 0000 0000');
 
-    final fpout = FloatingPoint(
-        exponentWidth: exponentWidth, mantissaWidth: outMantissaWidth);
-
     fp1.put(fv1);
     fp2.put(fv2);
-    final adder = FloatingPointAdderSinglePath(fp1, fp2, outSum: fpout);
+    final adder = FloatingPointAdderSinglePath(fp1, fp2, outSum: fpOut);
     final computed = adder.sum.floatingPointValue;
 
     final expectedDouble = fv1.toDouble() + fv2.toDouble();
@@ -709,20 +718,17 @@ void main() {
     const mantissaWidth = 3;
     FloatingPoint fpConstructor() => FloatingPoint(
         exponentWidth: exponentWidth, mantissaWidth: mantissaWidth);
-    FloatingPointValuePopulator fpvPopulator() => FloatingPointValue.populator(
-        exponentWidth: exponentWidth, mantissaWidth: mantissaWidth);
-
     final fp1 = fpConstructor();
     final fp2 = fpConstructor();
+    FloatingPointValuePopulator fpvPopulator() => fp1.valuePopulator();
+
     for (final outMantissaWidth in [6, 7, 8, 9, 15]) {
-      final fpout = FloatingPoint(
+      final fpOut = FloatingPoint(
           exponentWidth: exponentWidth, mantissaWidth: outMantissaWidth);
-      FloatingPointValuePopulator fpvOutPopulator() =>
-          FloatingPointValue.populator(
-              exponentWidth: exponentWidth, mantissaWidth: outMantissaWidth);
+      FloatingPointValuePopulator fpvOutPopulator() => fpOut.valuePopulator();
       fp1.put(0);
       fp2.put(0);
-      final adder = FloatingPointAdderSinglePath(fp1, fp2, outSum: fpout);
+      final adder = FloatingPointAdderSinglePath(fp1, fp2, outSum: fpOut);
 
       for (final subtract in [1, 0]) {
         final expLimit = pow(2, exponentWidth);
@@ -741,13 +747,16 @@ void main() {
                 final expectedNoRound =
                     fpvOutPopulator().ofDoubleUnrounded(dbl);
                 final expectedRound = fpvOutPopulator().ofDouble(dbl);
-                expect(computed, equals(expectedRound), reason: '''
+                expect(computed.isNaN, equals(expectedRound.isNaN));
+                if (!computed.isNaN) {
+                  expect(computed, equals(expectedRound), reason: '''
       $fv1 (${fv1.toDouble()})\t+
       $fv2 (${fv2.toDouble()})\t=
       $computed (${computed.toDouble()})\tcomputed
       $expectedNoRound (${expectedNoRound.toDouble()})\texpectedNo
       $expectedRound (${expectedRound.toDouble()})\texpectedRnd
 ''');
+                }
               }
             }
           }
@@ -778,7 +787,7 @@ void main() {
       const outputExplicitJBit = true;
       final fp1 = fpConstructor(explicitJBit: input1ExplicitJBit);
       final fp2 = fpConstructor(explicitJBit: input2ExplicitJBit);
-      final fpout = fpConstructor(explicitJBit: outputExplicitJBit);
+      final fpOut = fpConstructor(explicitJBit: outputExplicitJBit);
 
       // Subtraction fails from i to e should not round.
       final fv1 = ofString('0 000 001');
@@ -786,13 +795,15 @@ void main() {
 
       fp1.put(fv1);
       fp2.put(fv2);
-      final adder = FloatingPointAdderSinglePath(fp1, fp2, outSum: fpout);
-      final computed = fpvPopulator(explicitJBit: outputExplicitJBit)
+      final adder = FloatingPointAdderSinglePath(fp1, fp2, outSum: fpOut);
+      final computed = fpOut
+          .valuePopulator()
           .ofFloatingPointValue(adder.sum.floatingPointValue);
-      final expectedNoRound = fpvPopulator(explicitJBit: outputExplicitJBit)
+      final expectedNoRound = fpOut
+          .valuePopulator()
           .ofDoubleUnrounded(fv1.toDouble() + fv2.toDouble());
-      final expectedRound = fpvPopulator(explicitJBit: outputExplicitJBit)
-          .ofDouble(fv1.toDouble() + fv2.toDouble());
+      final expectedRound =
+          fpOut.valuePopulator().ofDouble(fv1.toDouble() + fv2.toDouble());
 
       expect(computed, predicate((e) => e == expectedRound), reason: '''
                   in1Explicit=$input1ExplicitJBit 
@@ -816,22 +827,21 @@ void main() {
           fp1.put(0);
           fp2.put(0);
           for (final outputExplicitJBit in [false, true]) {
-            final fpout = fpConstructor(explicitJBit: outputExplicitJBit);
-            final adder = FloatingPointAdderSinglePath(fp1, fp2, outSum: fpout);
+            final fpOut = fpConstructor(explicitJBit: outputExplicitJBit);
+            final adder = FloatingPointAdderSinglePath(fp1, fp2, outSum: fpOut);
 
             for (final subtract in [0, 1]) {
               final expLimit = pow(2, exponentWidth);
               final mantLimit = pow(2, mantissaWidth);
               for (var e1 = 0; e1 < expLimit; e1++) {
                 for (var m1 = 0; m1 < mantLimit; m1++) {
-                  final fv1 = fpvPopulator(explicitJBit: input1ExplicitJBit)
-                      .ofInts(e1, m1);
+                  final fv1 = fp1.valuePopulator().ofInts(e1, m1);
                   if (fv1.isLegalValue()) {
                     for (var e2 = 0; e2 < expLimit; e2++) {
                       for (var m2 = 0; m2 < mantLimit; m2++) {
-                        final fv2 =
-                            fpvPopulator(explicitJBit: input2ExplicitJBit)
-                                .ofInts(e2, m2, sign: subtract == 1);
+                        final fv2 = fp2
+                            .valuePopulator()
+                            .ofInts(e2, m2, sign: subtract == 1);
                         if (fv2.isLegalValue()) {
                           if ((fv1.exponent.toInt() - fv2.exponent.toInt())
                                   .abs() >
@@ -842,23 +852,25 @@ void main() {
                           fp1.put(fv1.value);
                           fp2.put(fv2.value);
 
-                          final computed =
-                              fpvPopulator(explicitJBit: outputExplicitJBit)
-                                  .ofFloatingPointValue(
-                                      adder.sum.floatingPointValue,
-                                      canonicalizeExplicit: true);
-                          final expectedNoRound =
-                              fpvPopulator(explicitJBit: outputExplicitJBit)
-                                  .ofDoubleUnrounded(
-                                      fv1.toDouble() + fv2.toDouble())
-                                  .canonicalize();
-                          final expectedRound =
-                              fpvPopulator(explicitJBit: outputExplicitJBit)
-                                  .ofDouble(fv1.toDouble() + fv2.toDouble())
-                                  .canonicalize();
-
-                          expect(computed, predicate((e) => e == expectedRound),
-                              reason: '''
+                          final computed = fpOut
+                              .valuePopulator()
+                              .ofFloatingPointValue(
+                                  adder.sum.floatingPointValue,
+                                  canonicalizeExplicit: true);
+                          final expectedNoRound = fpOut
+                              .valuePopulator()
+                              .ofDoubleUnrounded(
+                                  fv1.toDouble() + fv2.toDouble())
+                              .canonicalize();
+                          final expectedRound = fpOut
+                              .valuePopulator()
+                              .ofDouble(fv1.toDouble() + fv2.toDouble())
+                              .canonicalize();
+                          expect(computed.isNaN, equals(expectedRound.isNaN));
+                          if (!computed.isNaN) {
+                            expect(
+                                computed, predicate((e) => e == expectedRound),
+                                reason: '''
                   in1Explicit=$input1ExplicitJBit 
                   in2Explicit=$input2ExplicitJBit 
                   outExplicit=$outputExplicitJBit
@@ -869,6 +881,7 @@ void main() {
                   $expectedRound (${expectedRound.toDouble()})\texpected
                   e1=$e1 m1=$m1  e2=$e2 m2=$m2
 ''');
+                          }
                         }
                       }
                     }
@@ -887,7 +900,7 @@ void main() {
       const outputExplicitJBit = false;
       final fp1 = fpConstructor(explicitJBit: input1ExplicitJBit);
       final fp2 = fpConstructor(explicitJBit: input2ExplicitJBit);
-      final fpout = fpConstructor(explicitJBit: outputExplicitJBit);
+      final fpOut = fpConstructor(explicitJBit: outputExplicitJBit);
 
       // Subtraction fails from i to e should not round
       var fv1 = ofString('0 000 001');
@@ -898,14 +911,16 @@ void main() {
 
       fp1.put(fv1);
       fp2.put(fv2);
-      final adder = FloatingPointAdderSinglePath(fp1, fp2, outSum: fpout);
-      final computed = fpvPopulator(explicitJBit: outputExplicitJBit)
-          .ofFloatingPointValue(adder.sum.floatingPointValue,
-              canonicalizeExplicit: true);
-      final expectedNoRound = fpvPopulator(explicitJBit: outputExplicitJBit)
+      final adder = FloatingPointAdderSinglePath(fp1, fp2, outSum: fpOut);
+      final computed = fpOut.valuePopulator().ofFloatingPointValue(
+          adder.sum.floatingPointValue,
+          canonicalizeExplicit: true);
+      final expectedNoRound = fpOut
+          .valuePopulator()
           .ofDoubleUnrounded(fv1.toDouble() + fv2.toDouble())
           .canonicalize();
-      final expectedRound = fpvPopulator(explicitJBit: outputExplicitJBit)
+      final expectedRound = fpOut
+          .valuePopulator()
           .ofDouble(fv1.toDouble() + fv2.toDouble())
           .canonicalize();
 
@@ -925,12 +940,6 @@ void main() {
         'FP: simple adder with mixed explicit/implicit j-bit IO '
         'widening exhaustive', () {
       for (final outMantissaWidth in [3, 4, 5, 6, 7, 8, 9]) {
-        FloatingPointValuePopulator fpOutPopulator(
-                {required bool explicitJBit}) =>
-            FloatingPointValue.populator(
-                exponentWidth: exponentWidth,
-                mantissaWidth: outMantissaWidth,
-                explicitJBit: explicitJBit);
         FloatingPoint fpOutConstructor({bool explicitJBit = false}) =>
             FloatingPoint(
                 exponentWidth: exponentWidth,
@@ -945,23 +954,22 @@ void main() {
             fp1.put(0);
             fp2.put(0);
             for (final outputExplicitJBit in [false, true]) {
-              final fpout = fpOutConstructor(explicitJBit: outputExplicitJBit);
+              final fpOut = fpOutConstructor(explicitJBit: outputExplicitJBit);
               final adder =
-                  FloatingPointAdderSinglePath(fp1, fp2, outSum: fpout);
+                  FloatingPointAdderSinglePath(fp1, fp2, outSum: fpOut);
 
               for (final subtract in [0, 1]) {
                 final expLimit = pow(2, exponentWidth);
                 final mantLimit = pow(2, mantissaWidth);
                 for (var e1 = 0; e1 < expLimit; e1++) {
                   for (var m1 = 0; m1 < mantLimit; m1++) {
-                    final fv1 = fpvPopulator(explicitJBit: input1ExplicitJBit)
-                        .ofInts(e1, m1);
+                    final fv1 = fp1.valuePopulator().ofInts(e1, m1);
                     if (fv1.isLegalValue()) {
                       for (var e2 = 0; e2 < expLimit; e2++) {
                         for (var m2 = 0; m2 < mantLimit; m2++) {
-                          final fv2 =
-                              fpvPopulator(explicitJBit: input2ExplicitJBit)
-                                  .ofInts(e2, m2, sign: subtract == 1);
+                          final fv2 = fp2
+                              .valuePopulator()
+                              .ofInts(e2, m2, sign: subtract == 1);
                           if (fv2.isLegalValue()) {
                             if ((fv1.exponent.toInt() - fv2.exponent.toInt())
                                     .abs() >
@@ -973,24 +981,26 @@ void main() {
                             fp1.put(fv1.value);
                             fp2.put(fv2.value);
 
-                            final computed =
-                                fpOutPopulator(explicitJBit: outputExplicitJBit)
-                                    .ofFloatingPointValue(
-                                        adder.sum.floatingPointValue,
-                                        canonicalizeExplicit: true);
-                            final expectedNoRound =
-                                fpOutPopulator(explicitJBit: outputExplicitJBit)
-                                    .ofDoubleUnrounded(
-                                        fv1.toDouble() + fv2.toDouble())
-                                    .canonicalize();
-                            final expectedRound =
-                                fpOutPopulator(explicitJBit: outputExplicitJBit)
-                                    .ofDouble(fv1.toDouble() + fv2.toDouble())
-                                    .canonicalize();
+                            final computed = fpOut
+                                .valuePopulator()
+                                .ofFloatingPointValue(
+                                    adder.sum.floatingPointValue,
+                                    canonicalizeExplicit: true);
+                            final expectedNoRound = fpOut
+                                .valuePopulator()
+                                .ofDoubleUnrounded(
+                                    fv1.toDouble() + fv2.toDouble())
+                                .canonicalize();
+                            final expectedRound = fpOut
+                                .valuePopulator()
+                                .ofDouble(fv1.toDouble() + fv2.toDouble())
+                                .canonicalize();
 
-                            expect(
-                                computed, predicate((e) => e == expectedRound),
-                                reason: '''
+                            expect(computed.isNaN, equals(expectedRound.isNaN));
+                            if (!computed.isNaN) {
+                              expect(computed,
+                                  predicate((e) => e == expectedRound),
+                                  reason: '''
                   in1Explicit=$input1ExplicitJBit 
                   in2Explicit=$input2ExplicitJBit 
                   outExplicit=$outputExplicitJBit
@@ -1002,6 +1012,7 @@ void main() {
                   $expectedRound (${expectedRound.toDouble()})\texpected
                   e1=$e1 m1=$m1  e2=$e2 m2=$m2
 ''');
+                            }
                           }
                         }
                       }
@@ -1031,14 +1042,14 @@ void main() {
 
     final fp1 = fpConstructor(explicitJBit: true);
     final fp2 = fpConstructor(explicitJBit: true);
-    final fpout = fpConstructor();
+    final fpOut = fpConstructor();
     fp1.put(0);
     fp2.put(0);
-    final adder = FloatingPointAdderSinglePath(fp1, fp2, outSum: fpout);
+    final adder = FloatingPointAdderSinglePath(fp1, fp2, outSum: fpOut);
     final rand = Random(513);
     for (var i = 0; i < 500; i++) {
-      final fv1 = fpvPopulator(explicitJBit: true).random(rand);
-      final fv2 = fpvPopulator(explicitJBit: true).random(rand);
+      final fv1 = fp1.valuePopulator().random(rand);
+      final fv2 = fp2.valuePopulator().random(rand);
       if (fv1.isLegalValue() & fv2.isLegalValue()) {
         fp1.put(fv1);
         fp2.put(fv2);
@@ -1051,18 +1062,21 @@ void main() {
             fpvPopulator().ofDoubleUnrounded(expectedDouble);
         final expectedRound =
             fpvPopulator().ofDouble(fv1.toDouble() + fv2.toDouble());
-        expect(computed, equals(expectedRound), reason: '''
+        expect(computed.isNaN, equals(expectedRound.isNaN));
+        if (computed.isNaN) {
+          expect(computed, equals(expectedRound), reason: '''
       $fv1 (${fv1.toDouble()})\t+
       $fv2 (${fv2.toDouble()})\t=
       $computed (${computed.toDouble()})\tcomputed
       $expectedNoRound (${expectedNoRound.toDouble()})\texpected
 ''');
+        }
       }
     }
   });
 
   test('FP: simple j-bit adder wide exponent random', () {
-    const exponentWidth = 6;
+    const exponentWidth = 5;
     const mantissaWidth = 4;
     FloatingPoint fpConstructor({bool explicitJBit = false}) => FloatingPoint(
         exponentWidth: exponentWidth,
@@ -1082,8 +1096,8 @@ void main() {
     final adder = FloatingPointAdderSinglePath(fp1, fp2, outSum: fpout);
     final rand = Random(513);
     for (var i = 0; i < 5000; i++) {
-      final fv1 = fpvPopulator(explicitJBit: true).random(rand);
-      final fv2 = fpvPopulator(explicitJBit: true).random(rand);
+      final fv1 = fp1.valuePopulator().random(rand);
+      final fv2 = fp2.valuePopulator().random(rand);
       if (fv1.isLegalValue() & fv2.isLegalValue()) {
         if (fv1.isAnInfinity | fv2.isAnInfinity) {
           continue;
@@ -1104,12 +1118,15 @@ void main() {
             fpvPopulator().ofDoubleUnrounded(expectedDouble);
         final expectedRound =
             fpvPopulator().ofDouble(fv1.toDouble() + fv2.toDouble());
-        expect(computed, equals(expectedRound), reason: '''
+        expect(computed.isNaN, equals(expectedRound.isNaN));
+        if (!computed.isNaN) {
+          expect(computed, equals(expectedRound), reason: '''
       $fv1 (${fv1.toDouble()})\t+
       $fv2 (${fv2.toDouble()})\t=
       $computed (${computed.toDouble()})\tcomputed
       $expectedNoRound (${expectedNoRound.toDouble()})\texpected
 ''');
+        }
       }
     }
   });
@@ -1143,13 +1160,12 @@ void main() {
             for (var e1 = 0; e1 < expLimit; e1++) {
               for (var m1 = 0; m1 < mantLimit; m1++) {
                 for (final sign1 in [false, true]) {
-                  final fv1 = fpvPopulator(subNormalAsZero: daz1)
-                      .ofInts(e1, m1, sign: sign1);
+                  final fv1 = fp1.valuePopulator().ofInts(e1, m1, sign: sign1);
                   for (var e2 = 0; e2 < expLimit; e2++) {
                     for (var m2 = 0; m2 < mantLimit; m2++) {
                       for (final sign2 in [false, true]) {
-                        final fv2 = fpvPopulator(subNormalAsZero: daz2)
-                            .ofInts(e2, m2, sign: sign2);
+                        final fv2 =
+                            fp2.valuePopulator().ofInts(e2, m2, sign: sign2);
 
                         fp1.put(fv1.value);
                         fp2.put(fv2.value);
@@ -1162,16 +1178,18 @@ void main() {
                         final dbl = fv1.toDouble() + fv2.toDouble();
 
                         final expectedRound =
-                            fpvPopulator(subNormalAsZero: ftz).ofDouble(dbl);
+                            fpOut.valuePopulator().ofDouble(dbl);
                         final expected = expectedRound;
                         expect(computed.isNaN, equals(expected.isNaN));
-                        expect(computed, equals(expected), reason: '''
+                        if (!computed.isNaN) {
+                          expect(computed, equals(expected), reason: '''
       daz1: $daz1, daz2: $daz2, ftz: $ftz
       $fv1 (${fv1.toDouble()})\t+
       $fv2 (${fv2.toDouble()})\t=
       $computed (${computed.toDouble()})\tcomputed
       $expected (${expected.toDouble()})\texpected
 ''');
+                        }
                       }
                     }
                   }

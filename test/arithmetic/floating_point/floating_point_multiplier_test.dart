@@ -35,26 +35,25 @@ void main() {
       final expLimit = pow(2, exponentWidth) - 1;
       for (var e1 = 0; e1 < expLimit; e1++) {
         for (var e2 = 0; e2 < expLimit; e2++) {
-          final fv1 = FloatingPointValue.populator(
-                  exponentWidth: exponentWidth, mantissaWidth: mantissaWidth)
-              .ofInts(e1, 0);
-          final fv2 = FloatingPointValue.populator(
-                  exponentWidth: exponentWidth, mantissaWidth: mantissaWidth)
-              .ofInts(e2, 0);
-          final expected = FloatingPointValue.populator(
-                  exponentWidth: exponentWidth, mantissaWidth: mantissaWidth)
+          final fv1 = fp1.valuePopulator().ofInts(e1, 0);
+          final fv2 = fp2.valuePopulator().ofInts(e2, 0);
+          final expected = fp1
+              .valuePopulator()
               .ofDoubleUnrounded(fv1.toDouble() * fv2.toDouble());
 
           fp1.put(fv1.value);
           fp2.put(fv2.value);
           final computed = multiply.product.floatingPointValue;
 
-          expect(computed, equals(expected), reason: '''
+          expect(computed.isNaN, equals(expected.isNaN));
+          if (!computed.isNaN) {
+            expect(computed, equals(expected), reason: '''
       $fv1 (${fv1.toDouble()})\t*
       $fv2 (${fv2.toDouble()})\t=
       $computed (${computed.toDouble()})\tcomputed
       $expected (${expected.toDouble()})\texpected
 ''');
+          }
         }
       }
     });
@@ -74,9 +73,8 @@ void main() {
           exponentWidth: exponentWidth, mantissaWidth: mantissaWidth);
       fp1.put(fv);
       fp2.put(fv);
-      FloatingPointValue ofString(String s) => FloatingPointValue.populator(
-              exponentWidth: exponentWidth, mantissaWidth: mantissaWidth)
-          .ofSpacedBinaryString(s);
+      FloatingPointValue ofString(String s) =>
+          fp1.valuePopulator().ofSpacedBinaryString(s);
       final testCases = [
         (ofString('0 0001 0000'), ofString('0 0000 0000')),
         (ofString('0 0111 0010'), ofString('0 1110 1111')),
@@ -110,21 +108,23 @@ void main() {
         final fv1 = test.$1;
         final fv2 = test.$2;
 
-        final expected = FloatingPointValue.populator(
-                exponentWidth: exponentWidth, mantissaWidth: mantissaWidth)
+        final expected = fp1
+            .valuePopulator()
             .ofDoubleUnrounded(fv1.toDouble() * fv2.toDouble());
 
         fp1.put(fv1.value);
         fp2.put(fv2.value);
         final multiply = FloatingPointMultiplierSimple(fp1, fp2);
         final computed = multiply.product.floatingPointValue;
-
-        expect(computed, equals(expected), reason: '''
+        expect(computed.isNaN, equals(expected.isNaN));
+        if (!computed.isNaN) {
+          expect(computed, equals(expected), reason: '''
       $fv1 (${fv1.toDouble()})\t*
       $fv2 (${fv2.toDouble()})\t=
       $computed (${computed.toDouble()})\tcomputed
       $expected (${expected.toDouble()})\texpected
 ''');
+        }
       }
     });
 
@@ -145,31 +145,28 @@ void main() {
       for (final subtract in [0, 1]) {
         for (var e1 = 0; e1 < expLimit; e1++) {
           for (var m1 = 0; m1 < mantLimit; m1++) {
-            final fv1 = FloatingPointValue.populator(
-                    exponentWidth: exponentWidth, mantissaWidth: mantissaWidth)
-                .ofInts(e1, m1);
+            final fv1 = fp1.valuePopulator().ofInts(e1, m1);
             for (var e2 = 0; e2 < expLimit; e2++) {
               for (var m2 = 0; m2 < mantLimit; m2++) {
-                final fv2 = FloatingPointValue.populator(
-                        exponentWidth: exponentWidth,
-                        mantissaWidth: mantissaWidth)
-                    .ofInts(e2, m2, sign: subtract == 1);
+                final fv2 =
+                    fp2.valuePopulator().ofInts(e2, m2, sign: subtract == 1);
 
-                final expected = FloatingPointValue.populator(
-                        exponentWidth: exponentWidth,
-                        mantissaWidth: mantissaWidth)
+                final expected = fp1
+                    .valuePopulator()
                     .ofDoubleUnrounded(fv1.toDouble() * fv2.toDouble());
 
                 fp1.put(fv1.value);
                 fp2.put(fv2.value);
                 final computed = multiply.product.floatingPointValue;
-
-                expect(computed, equals(expected), reason: '''
+                expect(computed.isNaN, equals(expected.isNaN));
+                if (!computed.isNaN) {
+                  expect(computed, equals(expected), reason: '''
       $fv1 (${fv1.toDouble()})\t*
       $fv2 (${fv2.toDouble()})\t=
       $computed (${computed.toDouble()})\tcomputed
       $expected (${expected.toDouble()})\texpected
 ''');
+                }
               }
             }
           }
@@ -192,26 +189,24 @@ void main() {
       final rand = Random(51);
       var cnt = 1000;
       while (cnt > 0) {
-        final fv1 = FloatingPointValue.populator(
-                exponentWidth: exponentWidth, mantissaWidth: mantissaWidth)
-            .random(rand);
-        final fv2 = FloatingPointValue.populator(
-                exponentWidth: exponentWidth, mantissaWidth: mantissaWidth)
-            .random(rand);
+        final fv1 = fp1.valuePopulator().random(rand);
+        final fv2 = fp2.valuePopulator().random(rand);
         fp1.put(fv1);
         fp2.put(fv2);
 
-        final expected = FloatingPointValue.populator(
-                exponentWidth: exponentWidth, mantissaWidth: mantissaWidth)
+        final expected = fp1
+            .valuePopulator()
             .ofDoubleUnrounded(fv1.toDouble() * fv2.toDouble());
         final computed = multiplier.product.floatingPointValue;
-
-        expect(computed, equals(expected), reason: '''
+        expect(computed.isNaN, equals(expected.isNaN));
+        if (!computed.isNaN) {
+          expect(computed, equals(expected), reason: '''
       $fv1 (${fv1.toDouble()})\t*
       $fv2 (${fv2.toDouble()})\t=
       $computed (${computed.toDouble()})\tcomputed
       $expected (${expected.toDouble()})\texpected
 ''');
+        }
         cnt--;
       }
     });
@@ -234,26 +229,24 @@ void main() {
 
       var cnt = 1000;
       while (cnt > 0) {
-        final fv1 = FloatingPointValue.populator(
-                exponentWidth: exponentWidth, mantissaWidth: mantissaWidth)
-            .random(rand);
-        final fv2 = FloatingPointValue.populator(
-                exponentWidth: exponentWidth, mantissaWidth: mantissaWidth)
-            .random(rand);
+        final fv1 = fp1.valuePopulator().random(rand);
+        final fv2 = fp2.valuePopulator().random(rand);
         fp1.put(fv1);
         fp2.put(fv2);
 
-        final expected = FloatingPointValue.populator(
-                exponentWidth: exponentWidth, mantissaWidth: mantissaWidth)
+        final expected = fp1
+            .valuePopulator()
             .ofDoubleUnrounded(fv1.toDouble() * fv2.toDouble());
         final computed = multiplier.product.floatingPointValue;
-
-        expect(computed, equals(expected), reason: '''
+        expect(computed.isNaN, equals(expected.isNaN));
+        if (!computed.isNaN) {
+          expect(computed, equals(expected), reason: '''
       $fv1 (${fv1.toDouble()})\t+
       $fv2 (${fv2.toDouble()})\t=
       $computed (${computed.toDouble()})\tcomputed
       $expected (${expected.toDouble()})\texpected
 ''');
+        }
         cnt--;
       }
     });
@@ -263,20 +256,14 @@ void main() {
       const mantissaWidth = 4;
       final fp1 = FloatingPoint(
           exponentWidth: exponentWidth, mantissaWidth: mantissaWidth);
-      final fv1 = FloatingPointValue.populator(
-              exponentWidth: exponentWidth, mantissaWidth: mantissaWidth)
-          .ofBinaryStrings('1', '1100', '0111');
+      final fv1 = fp1.valuePopulator().ofBinaryStrings('1', '1100', '0111');
 
       final fp2 = FloatingPoint(
           exponentWidth: exponentWidth, mantissaWidth: mantissaWidth);
-      final fv2 = FloatingPointValue.populator(
-              exponentWidth: exponentWidth, mantissaWidth: mantissaWidth)
-          .ofBinaryStrings('1', '1100', '0000');
+      final fv2 = fp2.valuePopulator().ofBinaryStrings('1', '1100', '0000');
 
       final doubleProduct = fv1.toDouble() * fv2.toDouble();
-      final expected = FloatingPointValue.populator(
-              exponentWidth: exponentWidth, mantissaWidth: mantissaWidth)
-          .ofDoubleUnrounded(doubleProduct);
+      final expected = fp1.valuePopulator().ofDoubleUnrounded(doubleProduct);
 
       fp1.put(fv1.value);
       fp2.put(fv2.value);
@@ -298,32 +285,25 @@ void main() {
       const mantissaWidth = 4;
       final fp1 = FloatingPoint(
           exponentWidth: exponentWidth, mantissaWidth: mantissaWidth);
-      final fv1 = FloatingPointValue.populator(
-              exponentWidth: exponentWidth, mantissaWidth: mantissaWidth)
-          .ofBinaryStrings('1', '1000', '0011');
+      final fv1 = fp1.valuePopulator().ofBinaryStrings('1', '1000', '0011');
 
       final fp2 = FloatingPoint(
           exponentWidth: exponentWidth, mantissaWidth: mantissaWidth);
-      final fv2 = FloatingPointValue.populator(
-              exponentWidth: exponentWidth, mantissaWidth: mantissaWidth)
-          .ofBinaryStrings('1', '0001', '0001');
+      final fv2 = fp2.valuePopulator().ofBinaryStrings('1', '0001', '0001');
 
       final doubleProduct = fv1.toDouble() * fv2.toDouble();
 
-      final fpout =
+      final fpOut =
           FloatingPoint(exponentWidth: 5, mantissaWidth: mantissaWidth * 5);
 
-      final expected = FloatingPointValue.populator(
-              exponentWidth: fpout.exponent.width,
-              mantissaWidth: fpout.mantissa.width)
-          .ofDoubleUnrounded(doubleProduct);
+      final expected = fpOut.valuePopulator().ofDoubleUnrounded(doubleProduct);
 
       fp1.put(fv1.value);
       fp2.put(fv2.value);
-      fpout.put(0);
+      fpOut.put(0);
 
       final multiply =
-          FloatingPointMultiplierSimple(fp1, fp2, outProduct: fpout);
+          FloatingPointMultiplierSimple(fp1, fp2, outProduct: fpOut);
       await multiply.build();
       final computed = multiply.product.floatingPointValue;
 
@@ -339,31 +319,26 @@ void main() {
       const mantissaWidth = 7;
       final fp1 = FloatingPoint(
           exponentWidth: exponentWidth, mantissaWidth: mantissaWidth);
-      final fv1 = FloatingPointValue.populator(
-              exponentWidth: exponentWidth, mantissaWidth: mantissaWidth)
-          .ofBinaryStrings('0', '00000110', '1010000');
+      final fv1 =
+          fp1.valuePopulator().ofBinaryStrings('0', '00000110', '1010000');
 
       final fp2 = FloatingPoint(
           exponentWidth: exponentWidth, mantissaWidth: mantissaWidth);
-      final fv2 = FloatingPointValue.populator(
-              exponentWidth: exponentWidth, mantissaWidth: mantissaWidth)
-          .ofBinaryStrings('1', '01100010', '1110000');
+      final fv2 =
+          fp2.valuePopulator().ofBinaryStrings('1', '01100010', '1110000');
 
       final doubleProduct = fv1.toDouble() * fv2.toDouble();
 
-      final fpout = FloatingPoint(exponentWidth: 8, mantissaWidth: 14);
+      final fpOut = FloatingPoint(exponentWidth: 8, mantissaWidth: 14);
 
-      final expected = FloatingPointValue.populator(
-              exponentWidth: fpout.exponent.width,
-              mantissaWidth: fpout.mantissa.width)
-          .ofDoubleUnrounded(doubleProduct);
+      final expected = fpOut.valuePopulator().ofDoubleUnrounded(doubleProduct);
 
       fp1.put(fv1.value);
       fp2.put(fv2.value);
-      fpout.put(0);
+      fpOut.put(0);
 
       final multiply =
-          FloatingPointMultiplierSimple(fp1, fp2, outProduct: fpout);
+          FloatingPointMultiplierSimple(fp1, fp2, outProduct: fpOut);
       await multiply.build();
       final computed = multiply.product.floatingPointValue;
 
@@ -389,9 +364,8 @@ void main() {
 
       expect(
           result.floatingPointValue,
-          FloatingPoint32Value.populator().ofDouble(
-              a.floatingPointValue.toDouble() *
-                  b.floatingPointValue.toDouble()));
+          out.valuePopulator().ofDouble(a.floatingPointValue.toDouble() *
+              b.floatingPointValue.toDouble()));
     });
 
     test('FP: simple multiplier wide random', () async {
@@ -407,36 +381,34 @@ void main() {
 
       const expOutWidth = 8;
       const mantOutWidth = 23;
-      final fpout = FloatingPoint(
+      final fpofpOutt = FloatingPoint(
           exponentWidth: expOutWidth, mantissaWidth: mantOutWidth);
       // ignore: cascade_invocations
-      fpout.put(0);
+      fpofpOutt.put(0);
       final multiplier =
-          FloatingPointMultiplierSimple(fp1, fp2, outProduct: fpout);
+          FloatingPointMultiplierSimple(fp1, fp2, outProduct: fpofpOutt);
 
       final rand = Random(51);
       var cnt = 100;
       while (cnt > 0) {
-        final fv1 = FloatingPointValue.populator(
-                exponentWidth: exponentWidth, mantissaWidth: mantissaWidth)
-            .random(rand);
-        final fv2 = FloatingPointValue.populator(
-                exponentWidth: exponentWidth, mantissaWidth: mantissaWidth)
-            .random(rand);
+        final fv1 = fp1.valuePopulator().random(rand);
+        final fv2 = fp2.valuePopulator().random(rand);
         fp1.put(fv1);
         fp2.put(fv2);
 
-        final expected = FloatingPointValue.populator(
-                exponentWidth: fpout.exponent.width,
-                mantissaWidth: fpout.mantissa.width)
+        final expected = fpofpOutt
+            .valuePopulator()
             .ofDoubleUnrounded(fv1.toDouble() * fv2.toDouble());
         final computed = multiplier.product.floatingPointValue;
-        expect(computed.withinRounding(expected), true, reason: '''
+        expect(computed.isNaN, equals(expected.isNaN));
+        if (!computed.isNaN) {
+          expect(computed.withinRounding(expected), true, reason: '''
       $fv1 (${fv1.toDouble()})\t*
       $fv2 (${fv2.toDouble()})\t=
       $computed (${computed.toDouble()})\tcomputed
       $expected (${expected.toDouble()})\texpected
 ''');
+        }
         cnt--;
       }
     });
@@ -454,37 +426,34 @@ void main() {
 
       for (var expOutWidth = 3; expOutWidth < 5; expOutWidth++) {
         for (var mantOutWidth = 3; mantOutWidth < 16; mantOutWidth += 4) {
-          final fpout = FloatingPoint(
+          final fpOut = FloatingPoint(
               exponentWidth: expOutWidth, mantissaWidth: mantOutWidth);
           // ignore: cascade_invocations
-          fpout.put(0);
+          fpOut.put(0);
           final multiplier =
-              FloatingPointMultiplierSimple(fp1, fp2, outProduct: fpout);
+              FloatingPointMultiplierSimple(fp1, fp2, outProduct: fpOut);
 
           final rand = Random(51);
           var cnt = 100;
           while (cnt > 0) {
-            final fv1 = FloatingPointValue.populator(
-                    exponentWidth: exponentWidth, mantissaWidth: mantissaWidth)
-                .random(rand);
-            final fv2 = FloatingPointValue.populator(
-                    exponentWidth: exponentWidth, mantissaWidth: mantissaWidth)
-                .random(rand);
+            final fv1 = fp1.valuePopulator().random(rand);
+            final fv2 = fp2.valuePopulator().random(rand);
             fp1.put(fv1);
             fp2.put(fv2);
 
-            final expected = FloatingPointValue.populator(
-                    exponentWidth: fpout.exponent.width,
-                    mantissaWidth: fpout.mantissa.width)
+            final expected = fpOut
+                .valuePopulator()
                 .ofDoubleUnrounded(fv1.toDouble() * fv2.toDouble());
             final computed = multiplier.product.floatingPointValue;
-
-            expect(computed, equals(expected), reason: '''
+            expect(computed.isNaN, equals(expected.isNaN));
+            if (!computed.isNaN) {
+              expect(computed, equals(expected), reason: '''
       $fv1 (${fv1.toDouble()})\t*
       $fv2 (${fv2.toDouble()})\t=
       $computed (${computed.toDouble()})\tcomputed
       $expected (${expected.toDouble()})\texpected
 ''');
+            }
             cnt--;
           }
         }
@@ -498,18 +467,14 @@ void main() {
       const mantissaWidth = 4;
       final fp1 = FloatingPoint(
           exponentWidth: exponentWidth, mantissaWidth: mantissaWidth);
-      final fv1 = FloatingPointValue.populator(
-              exponentWidth: exponentWidth, mantissaWidth: mantissaWidth)
-          .ofBinaryStrings('0', '0111', '0000');
+      final fv1 = fp1.valuePopulator().ofBinaryStrings('0', '0111', '0000');
 
       final fp2 = FloatingPoint(
           exponentWidth: exponentWidth, mantissaWidth: mantissaWidth);
-      final fv2 = FloatingPointValue.populator(
-              exponentWidth: exponentWidth, mantissaWidth: mantissaWidth)
-          .ofBinaryStrings('0', '1101', '0101');
+      final fv2 = fp2.valuePopulator().ofBinaryStrings('0', '1101', '0101');
 
-      final expected = FloatingPointValue.populator(
-              exponentWidth: exponentWidth, mantissaWidth: mantissaWidth)
+      final expected = fp1
+          .valuePopulator()
           .ofDoubleUnrounded(fv1.toDouble() * fv2.toDouble());
 
       fp1.put(fv1.value);
@@ -549,15 +514,18 @@ void main() {
             fp2.floatingPointValue.toDouble();
         final expectedNoRound =
             FloatingPoint32Value.populator().ofDoubleUnrounded(expectedDouble);
+        expect(computed.isNaN, equals(expectedNoRound.isNaN));
 
-        // If the error is due to a rounding error, then ignore
-        if (!computed.withinRounding(expectedNoRound)) {
-          expect(computed, equals(expectedNoRound), reason: '''
+        if (computed.isNaN) {
+          // If the error is due to a rounding error, then ignore
+          if (!computed.withinRounding(expectedNoRound)) {
+            expect(computed, equals(expectedNoRound), reason: '''
       $fv1 (${fv1.toDouble()})\t*
       $fv2 (${fv2.toDouble()})\t=
       $computed (${computed.toDouble()})\tcomputed
       $expectedNoRound (${expectedNoRound.toDouble()})\texpected
 ''');
+          }
         }
       }
     });
@@ -569,19 +537,14 @@ void main() {
     const mantissaWidth = 4;
     final fp1 = FloatingPoint(
         exponentWidth: exponentWidth, mantissaWidth: mantissaWidth);
-    final fv1 = FloatingPointValue.populator(
-            exponentWidth: exponentWidth, mantissaWidth: mantissaWidth)
-        .ofBinaryStrings('0', '0111', '0000');
+    final fv1 = fp1.valuePopulator().ofBinaryStrings('0', '0111', '0000');
 
     final fp2 = FloatingPoint(
         exponentWidth: exponentWidth, mantissaWidth: mantissaWidth);
-    final fv2 = FloatingPointValue.populator(
-            exponentWidth: exponentWidth, mantissaWidth: mantissaWidth)
-        .ofBinaryStrings('0', '1101', '0101');
+    final fv2 = fp2.valuePopulator().ofBinaryStrings('0', '1101', '0101');
 
-    final expected = FloatingPointValue.populator(
-            exponentWidth: exponentWidth, mantissaWidth: mantissaWidth)
-        .ofDoubleUnrounded(fv1.toDouble() * fv2.toDouble());
+    final expected =
+        fp1.valuePopulator().ofDoubleUnrounded(fv1.toDouble() * fv2.toDouble());
 
     fp1.put(fv1.value);
     fp2.put(fv2.value);

@@ -6,6 +6,33 @@ Fixed-point binary representation of numbers is useful several applications incl
 
 A [FixedPointValue](https://intel.github.io/rohd-hcl/rohd_hcl/FixedPointValue-class.html) represents a signed or unsigned fixed-point value following the Q notation (Qm.n format) as introduced by [Texas Instruments](https://www.ti.com/lit/ug/spru565b/spru565b.pdf). It comprises an optional sign, integer part and/or a fractional part. [FixedPointValue](https://intel.github.io/rohd-hcl/rohd_hcl/FixedPointValue-class.html)s can be constructed from individual fields or from a Dart [double](https://api.dart.dev/stable/3.6.0/dart-core/double-class.html), converted to Dart [double](https://api.dart.dev/stable/3.6.0/dart-core/double-class.html), can be compared and can be operated on (+, -, *, /). A `FixedPointValuePopulator` can be used to construct `FixedPointValue` using different kinds of converters.
 
+## FixedPointValue Populator
+
+A `FixedPointValuePopulator` is similar to a builder design pattern that helps populate the components of a `FixedPointValue` predictably across different special subtypes. The general pattern is to call the `populator` static function on a `FixedPointValue` (or special subtype), then subsequently call one of the population methods on the provided populator to receive a completed object.
+
+Included in the `FixedPointValuePopulator` is a `random()` floating-point value generator that can generate `FixedPointValue`s in a constrained range such as
+
+$$lowerBoundFXV < generatedFXV <= upperBoundFXV$$
+
+or
+
+$$lowerBoundFXV <= generatedFXV < upperBoundFXV$$
+
+or any other variants of $<$, $<=$, $>$, and $>=$. An example of its use is
+
+```dart
+const m = 4;
+const n = 4;
+FixedPointValuePopulator populator() => FixedPointValue.populator(signed: true,
+        integerWidth: m, fractionWidth: n);
+
+final lt = populator().ofDouble(0.0);
+final gt = populator().ofDouble(0.5);
+final fxv = populator().random(Random(), lt: lt, gt: gt);
+```
+
+This example produces random `FixedPointValue` `fxv`s in the range $0.0 < fxv.toDouble() < 0.5$.
+
 ## FixedPoint
 
 The [FixedPoint](https://intel.github.io/rohd-hcl/rohd_hcl/FixedPoint-class.html) type is an extension of [LogicStructure](https://intel.github.io/rohd/rohd/LogicStructure-class.html) with additional attributes (signed or unsigned, integer width and fraction width). This type is provided to simplify the design of fixed-point arithmetic blocks.  

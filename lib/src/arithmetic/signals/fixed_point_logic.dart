@@ -13,7 +13,7 @@ import 'package:rohd_hcl/rohd_hcl.dart';
 
 /// A representation of (un)signed fixed-point logic following
 /// Q notation (Qm.n format) as introduced by
-/// (Texas Instruments)[https://www.ti.com/lit/ug/spru565b/spru565b.pdf].
+/// Texas Instruments: (https://www.ti.com/lit/ug/spru565b/spru565b.pdf).
 class FixedPoint extends LogicStructure {
   /// The integer part of the fixed-point number.
   Logic integer;
@@ -113,44 +113,28 @@ class FixedPoint extends LogicStructure {
   @override
   Logic lt(dynamic other) {
     _verifyCompatible(other);
-    if (signed) {
-      return mux(this[-1], super.gt(other), super.lt(other));
-    } else {
-      return super.lt(other);
-    }
+    return mux(Const(signed) & this[-1], super.gt(other), super.lt(other));
   }
 
   /// Less-than-or-equal-to.
   @override
   Logic lte(dynamic other) {
     _verifyCompatible(other);
-    if (signed) {
-      return mux(this[-1], super.gte(other), super.lte(other));
-    } else {
-      return super.lte(other);
-    }
+    return mux(Const(signed) & this[-1], super.gte(other), super.lte(other));
   }
 
   /// Greater-than.
   @override
   Logic gt(dynamic other) {
     _verifyCompatible(other);
-    if (signed) {
-      return mux(this[-1], super.lt(other), super.gt(other));
-    } else {
-      return super.gt(other);
-    }
+    return mux(Const(signed) & this[-1], super.lt(other), super.gt(other));
   }
 
   /// Greater-than.
   @override
   Logic gte(dynamic other) {
     _verifyCompatible(other);
-    if (signed) {
-      return mux(this[-1], super.lte(other), super.gte(other));
-    } else {
-      return super.gte(other);
-    }
+    return mux(Const(signed) & this[-1], super.lte(other), super.gte(other));
   }
 
   /// Multiply
@@ -163,6 +147,18 @@ class FixedPoint extends LogicStructure {
         fractionWidth: 2 * fractionWidth);
   }
 
+  /// Negate the [FixedPoint].
+  FixedPoint operator -() => negate();
+
+  /// Negate the [FixedPoint].
+  FixedPoint negate() {
+    final val = ~this + 1;
+    return FixedPoint._(
+        Logic(width: integer.width)..gets(val.getRange(fractionWidth)),
+        Logic(width: fraction.width)..gets(val.slice(fractionWidth - 1, 0)),
+        signed);
+  }
+
   /// Greater-than.
   @override
   Logic operator >(dynamic other) => gt(other);
@@ -171,32 +167,39 @@ class FixedPoint extends LogicStructure {
   @override
   Logic operator >=(dynamic other) => gte(other);
 
-  /// multiply: TODO(desmonddak): this needs tests
+  // TODO(desmonddak): These operators below need tests.
+
+  /// Multiply operator.
   @override
   Logic operator *(dynamic other) => _multiply(other);
 
+  /// Equality operator.
   @override
   Logic eq(dynamic other) {
     _verifyCompatible(other);
     return super.eq(other);
   }
 
+  /// Inequality operator.
   @override
   Logic neq(dynamic other) {
     _verifyCompatible(other);
     return super.neq(other);
   }
 
+  /// Modulo operator. Currently unimplemented
   @override
   Logic operator %(dynamic other) {
     throw UnimplementedError('Operator not implemented.');
   }
 
+  /// Divide operator. Currently unimplemented.
   @override
   Logic operator /(dynamic other) {
     throw UnimplementedError('Operator not implemented.');
   }
 
+  /// Power operator, Currently unimplemented
   @override
   Logic pow(dynamic exponent) {
     throw UnimplementedError('Operator not implemented.');

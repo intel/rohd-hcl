@@ -80,27 +80,33 @@ void main() {
         fp1.put(fv1.value);
         fp2.put(fv2.value);
         final fpOut = adder.sum;
-        expect(fpOut.floatingPointValue, equals(partWay),
-            reason: '\t${fp1.floatingPointValue} '
-                '(${fp1.floatingPointValue.toDouble()})\n'
-                '\t${fp2.floatingPointValue} '
-                '(${fp2.floatingPointValue.toDouble()}) =\n'
-                '\t${fpOut.floatingPointValue} '
-                '(${fpOut.floatingPointValue.toDouble()}) actual\n'
-                '\t$partWay ($roundTrip) expected');
+        expect(fpOut.floatingPointValue.isNaN, equals(partWay.isNaN));
+        if (!fpOut.floatingPointValue.isNaN) {
+          expect(fpOut.floatingPointValue, equals(partWay),
+              reason: '\t${fp1.floatingPointValue} '
+                  '(${fp1.floatingPointValue.toDouble()})\n'
+                  '\t${fp2.floatingPointValue} '
+                  '(${fp2.floatingPointValue.toDouble()}) =\n'
+                  '\t${fpOut.floatingPointValue} '
+                  '(${fpOut.floatingPointValue.toDouble()}) actual\n'
+                  '\t$partWay ($roundTrip) expected');
+        }
 
         final partWayU = FloatingPointValue.populator(
                 exponentWidth: exponentWidth, mantissaWidth: mantissaWidth)
             .ofDoubleUnrounded(doubleProduct);
         final roundTripU = partWay.toDouble();
-        expect(fpOut.floatingPointValue, equals(partWayU),
-            reason: '\t${fp1.floatingPointValue} '
-                '(${fp1.floatingPointValue.toDouble()})\n'
-                '\t${fp2.floatingPointValue} '
-                '(${fp2.floatingPointValue.toDouble()}) =\n'
-                '\t${fpOut.floatingPointValue} '
-                '(${fpOut.floatingPointValue.toDouble()}) actual\n'
-                '\t$partWayU ($roundTripU) expected');
+        expect(fpOut.floatingPointValue.isNaN, equals(partWayU.isNaN));
+        if (!fpOut.floatingPointValue.isNaN) {
+          expect(fpOut.floatingPointValue, equals(partWayU),
+              reason: '\t${fp1.floatingPointValue} '
+                  '(${fp1.floatingPointValue.toDouble()})\n'
+                  '\t${fp2.floatingPointValue} '
+                  '(${fp2.floatingPointValue.toDouble()}) =\n'
+                  '\t${fpOut.floatingPointValue} '
+                  '(${fpOut.floatingPointValue.toDouble()}) actual\n'
+                  '\t$partWayU ($roundTripU) expected');
+        }
       }
     }
   });

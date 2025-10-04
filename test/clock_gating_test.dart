@@ -131,7 +131,6 @@ void main() {
     expect(sv, contains('anotherOverride'));
     expect(sv, contains('CUSTOM_CLOCK_GATE'));
 
-    // ignore: invalid_use_of_protected_member
     expect(counter.tryInput('anotherOverride'), isNotNull);
 
     Simulator.setMaxSimTime(500);

@@ -16,7 +16,7 @@ export 'fixed_point_populator.dart';
 
 /// An immutable representation of (un)signed fixed-point values following
 /// Q notation (Qm.n format) as introduced by
-/// (Texas Instruments)[https://www.ti.com/lit/ug/spru565b/spru565b.pdf].
+/// Texas Instruments: (https://www.ti.com/lit/ug/spru565b/spru565b.pdf).
 @immutable
 class FixedPointValue implements Comparable<FixedPointValue> {
   /// The fixed point value bit storage in two's complement.
@@ -40,7 +40,9 @@ class FixedPointValue implements Comparable<FixedPointValue> {
   /// Returns `true` if the number is negative.
   bool isNegative() => signed & (value[-1] == LogicValue.one);
 
-  /// Constructs [FixedPointValue] from sign, integer and fraction values.
+  /// Constructs [FixedPointValue] from [integer] and [fraction] values with a
+  /// [signed] option to interpret MSB of [integer] as sign bit with the
+  /// [integer] represented in twos-complement.
   factory FixedPointValue(
           {required LogicValue integer,
           required LogicValue fraction,
@@ -115,28 +117,54 @@ class FixedPointValue implements Comparable<FixedPointValue> {
   }
 
   /// Equal-to operation that returns a [LogicValue].
+  @Deprecated('This operator will be removed, please use == instead.')
   LogicValue eq(FixedPointValue other) =>
       compareTo(other) == 0 ? LogicValue.one : LogicValue.zero;
 
   /// Not equal-to operation that returns a [LogicValue].
+  @Deprecated('This operator will be removed, please use != instead.')
   LogicValue neq(FixedPointValue other) =>
       compareTo(other) != 0 ? LogicValue.one : LogicValue.zero;
 
   /// Less-than operation that returns a [LogicValue].
+  @Deprecated(
+      'This operator will be replaced with a boolean return in the future.'
+      ' Use .ltBool(other) for the time being.')
   LogicValue operator <(FixedPointValue other) =>
       compareTo(other) < 0 ? LogicValue.one : LogicValue.zero;
 
   /// Less-than operation that returns a [LogicValue].
+  @Deprecated(
+      'This operator will be replaced with a boolean return in the future. '
+      'Use .lteBool(other) for the time being.')
   LogicValue operator <=(FixedPointValue other) =>
       compareTo(other) <= 0 ? LogicValue.one : LogicValue.zero;
 
   /// Less-than operation that returns a [LogicValue].
+  @Deprecated(
+      'This operator will be replaced with a boolean return in the future.'
+      ' Use .gtBool(other) for the time being.')
   LogicValue operator >(FixedPointValue other) =>
       compareTo(other) > 0 ? LogicValue.one : LogicValue.zero;
 
   /// Less-than operation that returns a [LogicValue].
+  @Deprecated(
+      'This operator will be replaced with a boolean return in the future. '
+      'Use .gteBool(other) for the time being.')
   LogicValue operator >=(FixedPointValue other) =>
       compareTo(other) >= 0 ? LogicValue.one : LogicValue.zero;
+
+  /// Less-than operation that returns a [bool].
+  bool ltBool(FixedPointValue other) => compareTo(other) < 0;
+
+  /// Less-than-or-equal operation that returns a [bool].
+  bool lteBool(FixedPointValue other) => compareTo(other) <= 0;
+
+  /// Greater-than operation that returns a [bool].
+  bool gtBool(FixedPointValue other) => compareTo(other) > 0;
+
+  /// Greater-than-or-equal operation that returns a [bool].
+  bool gteBool(FixedPointValue other) => compareTo(other) >= 0;
 
   @override
   int get hashCode =>
@@ -177,6 +205,9 @@ class FixedPointValue implements Comparable<FixedPointValue> {
     final value = number.toDouble() / pow(2, fractionWidth).toDouble();
     return isNegative() ? -value : value;
   }
+
+  /// Negate operation for [FixedPointValue].
+  FixedPointValue negate() => clonePopulator().ofLogicValue((~value) + 1);
 
   /// Addition operation that returns a [FixedPointValue].
   /// The result is signed if one of the operands is signed.

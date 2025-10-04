@@ -1,6 +1,6 @@
 name: rohd_hcl
 description: "The ROHD Hardware Component Library (ROHD-HCL): a collection of reusable, configurable ROHD components."
-version: 0.2.0
+version: 0.2.1
 homepage: https://intel.github.io/rohd-website/
 repository: https://github.com/intel/rohd-hcl
 issue_tracker: https://github.com/intel/rohd-hcl/issues

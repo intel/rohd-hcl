@@ -161,14 +161,37 @@ class FloatingPointValue implements Comparable<FloatingPointValue> {
       throw Exception('Input must be of type FloatingPointValue ');
     }
     if ((exponent.width != other.exponent.width) |
-        (mantissa.width != other.mantissa.width)) {
+        (mantissa.width - (explicitJBit ? 1 : 0) !=
+            other.mantissa.width - (other.explicitJBit ? 1 : 0))) {
       throw Exception('FloatingPointValue widths must match for comparison');
     }
-    final signCompare = sign.compareTo(other.sign);
-    final expCompare = exponent.compareTo(other.exponent);
-    final mantCompare = mantissa.compareTo(other.mantissa);
-    if ((signCompare != 0) && !(exponent.isZero && mantissa.isZero)) {
-      return signCompare;
+
+    // IEEE 754: -0 an +0 are considered equal
+    if ((exponent.isZero && mantissa.isZero) &&
+        (other.exponent.isZero && other.mantissa.isZero)) {
+      return 0;
+    }
+    final signCompare = -sign.compareTo(other.sign);
+
+    final canonical = canonicalize();
+    final otherCanonical = other.canonicalize();
+
+    final canonicalMantissa = canonical.explicitJBit
+        ? canonical.mantissa.getRange(0, -1)
+        : canonical.mantissa;
+
+    final otherCanonicalMantissa = otherCanonical.explicitJBit
+        ? otherCanonical.mantissa.getRange(0, -1)
+        : otherCanonical.mantissa;
+
+    final expCompare = canonical.exponent.compareTo(otherCanonical.exponent);
+    final mantCompare = canonicalMantissa.compareTo(otherCanonicalMantissa);
+    if ((signCompare != 0) &&
+        !(exponent.isZero &&
+            mantissa.isZero &&
+            other.exponent.isZero &&
+            other.mantissa.isZero)) {
+      return signCompare; // IEEE 754: -0 and +0 are considered equal.
     }
     if (expCompare != 0) {
       return sign.isZero ? expCompare : -expCompare;
@@ -178,33 +201,29 @@ class FloatingPointValue implements Comparable<FloatingPointValue> {
     return 0;
   }
 
+  /// Equality operator for [FloatingPointValue].
   @override
   bool operator ==(Object other) {
     if (other is! FloatingPointValue) {
       return false;
     }
-    if ((exponent.width != other.exponent.width) |
-        (mantissa.width != other.mantissa.width)) {
+    if (isNaN | other.isNaN) {
       return false;
     }
-    if (isNaN != other.isNaN) {
-      return false;
-    }
-    if (isAnInfinity != other.isAnInfinity) {
-      return false;
-    }
-    if (isAnInfinity) {
-      return sign == other.sign;
-    }
-    // IEEE 754: -0 an +0 are considered equal
-    if ((exponent.isZero && mantissa.isZero) &&
-        (other.exponent.isZero && other.mantissa.isZero)) {
-      return true;
-    }
-    return (sign == other.sign) &
-        (exponent == other.exponent) &
-        (mantissa == other.mantissa);
+    return compareTo(other) == 0;
   }
+
+  /// Less-than operator for [FloatingPointValue].
+  bool operator <(FloatingPointValue other) => compareTo(other) < 0;
+
+  /// Less-than-or-equal operator for [FloatingPointValue].
+  bool operator <=(FloatingPointValue other) => compareTo(other) <= 0;
+
+  /// Greater-than operator for [FloatingPointValue].
+  bool operator >(FloatingPointValue other) => compareTo(other) > 0;
+
+  /// Greater-than-or-equal operator for [FloatingPointValue].
+  bool operator >=(FloatingPointValue other) => compareTo(other) >= 0;
 
   /// Test if exponent is all '1's.
   bool get isExponentAllOnes => exponent.and() == LogicValue.one;
@@ -427,6 +446,9 @@ class FloatingPointValue implements Comparable<FloatingPointValue> {
       sign: sign.isZero ? LogicValue.one : LogicValue.zero,
       exponent: exponent,
       mantissa: mantissa);
+
+  /// Negate the [FloatingPointValue].
+  FloatingPointValue operator -() => negate();
 
   /// Absolute value operation for [FloatingPointValue].
   FloatingPointValue abs() => clonePopulator()

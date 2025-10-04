@@ -240,7 +240,6 @@ class ParallelPrefixAdder extends Adder {
     final l = List<Logic>.generate(a.width - 1,
         (i) => [a[i + 1] & b[i + 1], a[i + 1] | b[i + 1]].swizzle());
     final cin = carryIn ?? Const(0);
-    // ignore: cascade_invocations
     l.insert(
         0,
         [(a[0] & b[0]) | (a[0] & cin) | (b[0] & cin), a[0] | b[0] | cin]

@@ -130,9 +130,7 @@ class MyCsrModule extends CsrTopConfig {
 
 // to test potentially issues with CsrTop port propagation
 class DummyCsrTopModule extends Module {
-  // ignore: unused_field
   late final Logic _clk;
-  // ignore: unused_field
   late final Logic _reset;
 
   // ignore: unused_field
