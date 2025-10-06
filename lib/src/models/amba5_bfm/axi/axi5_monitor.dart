@@ -43,77 +43,79 @@ class Axi5ArChannelMonitor extends Monitor<Axi5ArChannelPacket> {
           ar.ready!.previousValue!.toBool()) {
         add(Axi5ArChannelPacket(
           request: Axi5RequestSignalsStruct(
-            addr: ar.addr.value.toInt(),
-            len: ar.len?.value.toInt(),
-            size: ar.size?.value.toInt(),
-            burst: ar.burst?.value.toInt(),
-            qos: ar.qos?.value.toInt(),
+            addr: ar.addr.previousValue!.toInt(),
+            len: ar.len?.previousValue!.toInt(),
+            size: ar.size?.previousValue!.toInt(),
+            burst: ar.burst?.previousValue!.toInt(),
+            qos: ar.qos?.previousValue!.toInt(),
           ),
           prot: Axi5ProtSignalsStruct(
-            prot: ar.prot?.value.toInt(),
-            nse: ar.nse?.value.toBool(),
-            priv: ar.priv?.value.toBool(),
-            inst: ar.inst?.value.toBool(),
-            pas: ar.pas?.value.toInt(),
+            prot: ar.prot?.previousValue!.toInt(),
+            nse: ar.nse?.previousValue!.toBool(),
+            priv: ar.priv?.previousValue!.toBool(),
+            inst: ar.inst?.previousValue!.toBool(),
+            pas: ar.pas?.previousValue!.toInt(),
           ),
           memAttr: Axi5MemoryAttributeSignalsStruct(
-            cache: ar.cache?.value.toInt(),
-            region: ar.region?.value.toInt(),
-            mecId: ar.mecId?.value.toInt(),
+            cache: ar.cache?.previousValue!.toInt(),
+            region: ar.region?.previousValue!.toInt(),
+            mecId: ar.mecId?.previousValue!.toInt(),
           ),
           user: ar.user != null
-              ? Axi5UserSignalsStruct(user: ar.user?.value.toInt())
+              ? Axi5UserSignalsStruct(user: ar.user?.previousValue!.toInt())
               : null,
           id: ar.id != null
               ? Axi5IdSignalsStruct(
-                  id: ar.id?.value.toInt(), idUnq: ar.idUnq?.value.toBool())
+                  id: ar.id?.previousValue!.toInt(),
+                  idUnq: ar.idUnq?.previousValue!.toBool())
               : null,
           debug: Axi5DebugSignalsStruct(
-              trace: ar.trace?.value.toBool(), loop: ar.loop?.value.toInt()),
+              trace: ar.trace?.previousValue!.toBool(),
+              loop: ar.loop?.previousValue!.toInt()),
           mmu: ar.mmuValid != null
               ? Axi5MmuSignalsStruct(
-                  mmuValid: ar.mmuValid?.value.toBool(),
-                  mmuSecSid: ar.mmuSecSid?.value.toInt(),
-                  mmuSid: ar.mmuSid?.value.toInt(),
-                  mmuSsidV: ar.mmuSsidV?.value.toBool(),
-                  mmuSsid: ar.mmuSsid?.value.toInt(),
-                  mmuAtSt: ar.mmuAtSt?.value.toBool(),
-                  mmuFlow: ar.mmuFlow?.value.toInt(),
-                  mmuPasUnknown: ar.mmuPasUnknown?.value.toBool(),
-                  mmuPm: ar.mmuPm?.value.toBool(),
+                  mmuValid: ar.mmuValid?.previousValue!.toBool(),
+                  mmuSecSid: ar.mmuSecSid?.previousValue!.toInt(),
+                  mmuSid: ar.mmuSid?.previousValue!.toInt(),
+                  mmuSsidV: ar.mmuSsidV?.previousValue!.toBool(),
+                  mmuSsid: ar.mmuSsid?.previousValue!.toInt(),
+                  mmuAtSt: ar.mmuAtSt?.previousValue!.toBool(),
+                  mmuFlow: ar.mmuFlow?.previousValue!.toInt(),
+                  mmuPasUnknown: ar.mmuPasUnknown?.previousValue!.toBool(),
+                  mmuPm: ar.mmuPm?.previousValue!.toBool(),
                 )
               : null,
           qual: ar.nsaId != null
               ? Axi5QualifierSignalsStruct(
-                  nsaId: ar.nsaId?.value.toInt(),
-                  pbha: ar.pbha?.value.toInt(),
-                  subSysId: ar.subSysId?.value.toInt(),
-                  actV: ar.actV?.value.toBool(),
-                  act: ar.act?.value.toInt(),
+                  nsaId: ar.nsaId?.previousValue!.toInt(),
+                  pbha: ar.pbha?.previousValue!.toInt(),
+                  subSysId: ar.subSysId?.previousValue!.toInt(),
+                  actV: ar.actV?.previousValue!.toBool(),
+                  act: ar.act?.previousValue!.toInt(),
                 )
               : null,
           atomic: ar.lock != null
               ? Axi5AtomicSignalsStruct(
-                  lock: ar.lock?.value.toBool(),
-                  atOp: ar.atOp?.value.toInt(),
+                  lock: ar.lock?.previousValue!.toBool(),
+                  atOp: ar.atOp?.previousValue!.toInt(),
                 )
               : null,
           tag: ar.mpam != null
               ? Axi5MemPartTagSignalsStruct(
-                  mpam: ar.mpam?.value.toInt(),
-                  tagOp: ar.tagOp?.value.toInt(),
+                  mpam: ar.mpam?.previousValue!.toInt(),
+                  tagOp: ar.tagOp?.previousValue!.toInt(),
                 )
               : null,
           chunk: ar.chunkEn != null
               ? Axi5ChunkSignalsStruct(
-                  chunkEn: ar.chunkEn?.value.toBool(),
-                  chunkV: ar.chunkV?.value.toBool(),
-                  chunkNum: ar.chunkNum?.value.toInt(),
-                  chunkStrb: ar.chunkStrb?.value.toInt(),
+                  chunkEn: ar.chunkEn?.previousValue!.toBool(),
+                  chunkV: ar.chunkV?.previousValue!.toBool(),
+                  chunkNum: ar.chunkNum?.previousValue!.toInt(),
+                  chunkStrb: ar.chunkStrb?.previousValue!.toInt(),
                 )
               : null,
           opcode: ar.snoop != null
-              ? Axi5OpcodeSignalsStruct(snoop: ar.snoop?.value.toInt())
+              ? Axi5OpcodeSignalsStruct(snoop: ar.snoop?.previousValue!.toInt())
               : null,
         ));
       }
@@ -152,79 +154,81 @@ class Axi5AwChannelMonitor extends Monitor<Axi5AwChannelPacket> {
           aw.ready!.previousValue!.toBool()) {
         add(Axi5AwChannelPacket(
           request: Axi5RequestSignalsStruct(
-            addr: aw.addr.value.toInt(),
-            len: aw.len?.value.toInt(),
-            size: aw.size?.value.toInt(),
-            burst: aw.burst?.value.toInt(),
-            qos: aw.qos?.value.toInt(),
+            addr: aw.addr.previousValue!.toInt(),
+            len: aw.len?.previousValue!.toInt(),
+            size: aw.size?.previousValue!.toInt(),
+            burst: aw.burst?.previousValue!.toInt(),
+            qos: aw.qos?.previousValue!.toInt(),
           ),
           prot: Axi5ProtSignalsStruct(
-            prot: aw.prot?.value.toInt(),
-            nse: aw.nse?.value.toBool(),
-            priv: aw.priv?.value.toBool(),
-            inst: aw.inst?.value.toBool(),
-            pas: aw.pas?.value.toInt(),
+            prot: aw.prot?.previousValue!.toInt(),
+            nse: aw.nse?.previousValue!.toBool(),
+            priv: aw.priv?.previousValue!.toBool(),
+            inst: aw.inst?.previousValue!.toBool(),
+            pas: aw.pas?.previousValue!.toInt(),
           ),
           memAttr: Axi5MemoryAttributeSignalsStruct(
-            cache: aw.cache?.value.toInt(),
-            region: aw.region?.value.toInt(),
-            mecId: aw.mecId?.value.toInt(),
+            cache: aw.cache?.previousValue!.toInt(),
+            region: aw.region?.previousValue!.toInt(),
+            mecId: aw.mecId?.previousValue!.toInt(),
           ),
           user: aw.user != null
-              ? Axi5UserSignalsStruct(user: aw.user?.value.toInt())
+              ? Axi5UserSignalsStruct(user: aw.user?.previousValue!.toInt())
               : null,
           id: aw.id != null
               ? Axi5IdSignalsStruct(
-                  id: aw.id?.value.toInt(), idUnq: aw.idUnq?.value.toBool())
+                  id: aw.id?.previousValue!.toInt(),
+                  idUnq: aw.idUnq?.previousValue!.toBool())
               : null,
           debug: Axi5DebugSignalsStruct(
-              trace: aw.trace?.value.toBool(), loop: aw.loop?.value.toInt()),
+              trace: aw.trace?.previousValue!.toBool(),
+              loop: aw.loop?.previousValue!.toInt()),
           mmu: aw.mmuValid != null
               ? Axi5MmuSignalsStruct(
-                  mmuValid: aw.mmuValid?.value.toBool(),
-                  mmuSecSid: aw.mmuSecSid?.value.toInt(),
-                  mmuSid: aw.mmuSid?.value.toInt(),
-                  mmuSsidV: aw.mmuSsidV?.value.toBool(),
-                  mmuSsid: aw.mmuSsid?.value.toInt(),
-                  mmuAtSt: aw.mmuAtSt?.value.toBool(),
-                  mmuFlow: aw.mmuFlow?.value.toInt(),
-                  mmuPasUnknown: aw.mmuPasUnknown?.value.toBool(),
-                  mmuPm: aw.mmuPm?.value.toBool(),
+                  mmuValid: aw.mmuValid?.previousValue!.toBool(),
+                  mmuSecSid: aw.mmuSecSid?.previousValue!.toInt(),
+                  mmuSid: aw.mmuSid?.previousValue!.toInt(),
+                  mmuSsidV: aw.mmuSsidV?.previousValue!.toBool(),
+                  mmuSsid: aw.mmuSsid?.previousValue!.toInt(),
+                  mmuAtSt: aw.mmuAtSt?.previousValue!.toBool(),
+                  mmuFlow: aw.mmuFlow?.previousValue!.toInt(),
+                  mmuPasUnknown: aw.mmuPasUnknown?.previousValue!.toBool(),
+                  mmuPm: aw.mmuPm?.previousValue!.toBool(),
                 )
               : null,
           qual: aw.nsaId != null
               ? Axi5QualifierSignalsStruct(
-                  nsaId: aw.nsaId?.value.toInt(),
-                  pbha: aw.pbha?.value.toInt(),
-                  subSysId: aw.subSysId?.value.toInt(),
-                  actV: aw.actV?.value.toBool(),
-                  act: aw.act?.value.toInt(),
+                  nsaId: aw.nsaId?.previousValue!.toInt(),
+                  pbha: aw.pbha?.previousValue!.toInt(),
+                  subSysId: aw.subSysId?.previousValue!.toInt(),
+                  actV: aw.actV?.previousValue!.toBool(),
+                  act: aw.act?.previousValue!.toInt(),
                 )
               : null,
           atomic: aw.lock != null
               ? Axi5AtomicSignalsStruct(
-                  lock: aw.lock?.value.toBool(),
-                  atOp: aw.atOp?.value.toInt(),
+                  lock: aw.lock?.previousValue!.toBool(),
+                  atOp: aw.atOp?.previousValue!.toInt(),
                 )
               : null,
           tag: aw.mpam != null
               ? Axi5MemPartTagSignalsStruct(
-                  mpam: aw.mpam?.value.toInt(),
-                  tagOp: aw.tagOp?.value.toInt(),
+                  mpam: aw.mpam?.previousValue!.toInt(),
+                  tagOp: aw.tagOp?.previousValue!.toInt(),
                 )
               : null,
           stash: aw.domain != null
               ? Axi5StashSignalsStruct(
-                  domain: aw.domain?.value.toInt(),
-                  stashNid: aw.stashNid?.value.toInt(),
-                  stashNidEn: aw.stashNidEn?.value.toBool(),
-                  stashLPid: aw.stashLPid?.value.toInt(),
-                  stashLPidEn: aw.stashLPidEn?.value.toBool(),
-                  cmo: aw.cmo?.value.toInt(),
+                  domain: aw.domain?.previousValue!.toInt(),
+                  stashNid: aw.stashNid?.previousValue!.toInt(),
+                  stashNidEn: aw.stashNidEn?.previousValue!.toBool(),
+                  stashLPid: aw.stashLPid?.previousValue!.toInt(),
+                  stashLPidEn: aw.stashLPidEn?.previousValue!.toBool(),
+                  cmo: aw.cmo?.previousValue!.toInt(),
                 )
               : null,
           opcode: aw.snoop != null
-              ? Axi5OpcodeSignalsStruct(snoop: aw.snoop?.value.toInt())
+              ? Axi5OpcodeSignalsStruct(snoop: aw.snoop?.previousValue!.toInt())
               : null,
         ));
       }
@@ -278,8 +282,8 @@ class Axi5RChannelMonitor extends Monitor<Axi5RChannelPacket> {
 
         // capture if the last beat in the transfer
         final lastChk1 = r.last == null;
-        final lastChk2 =
-            !lastChk1 && (r.last!.value.isValid && r.last!.value.toBool());
+        final lastChk2 = !lastChk1 &&
+            (r.last!.previousValue!.isValid && r.last!.previousValue!.toBool());
         if (lastChk1 || lastChk2) {
           final dataPkts = <Axi5DataSignalsStruct>[];
           for (var i = 0; i < _dataBuffer.length; i++) {
@@ -294,33 +298,36 @@ class Axi5RChannelMonitor extends Monitor<Axi5RChannelPacket> {
             data: dataPkts,
             id: r.id != null
                 ? Axi5IdSignalsStruct(
-                    id: r.id?.value.toInt(), idUnq: r.idUnq?.value.toBool())
+                    id: r.id?.previousValue!.toInt(),
+                    idUnq: r.idUnq?.previousValue!.toBool())
                 : null,
             tag: r.tag != null
                 ? Axi5MemRespDataTagSignalsStruct(
-                    tag: r.tag?.value.toInt(),
-                    tagUpdate: r.tagUpdate?.value.toInt(),
-                    tagMatch: r.tagMatch?.value.toInt(),
-                    comp: r.comp?.value.toBool(),
-                    persist: r.persist?.value.toBool(),
+                    tag: r.tag?.previousValue!.toInt(),
+                    tagUpdate: r.tagUpdate?.previousValue!.toInt(),
+                    tagMatch: r.tagMatch?.previousValue!.toInt(),
+                    comp: r.comp?.previousValue!.toBool(),
+                    persist: r.persist?.previousValue!.toBool(),
                   )
                 : null,
             debug: Axi5DebugSignalsStruct(
-                trace: r.trace?.value.toBool(), loop: r.loop?.value.toInt()),
+                trace: r.trace?.previousValue!.toBool(),
+                loop: r.loop?.previousValue!.toInt()),
             response: r.resp != null || r.busy != null
                 ? Axi5ResponseSignalsStruct(
-                    resp: r.resp?.value.toInt(), busy: r.busy?.value.toBool())
+                    resp: r.resp?.previousValue!.toInt(),
+                    busy: r.busy?.previousValue!.toBool())
                 : null,
             chunk: r.chunkEn != null
                 ? Axi5ChunkSignalsStruct(
-                    chunkEn: r.chunkEn?.value.toBool(),
-                    chunkV: r.chunkV?.value.toBool(),
-                    chunkNum: r.chunkNum?.value.toInt(),
-                    chunkStrb: r.chunkStrb?.value.toInt(),
+                    chunkEn: r.chunkEn?.previousValue!.toBool(),
+                    chunkV: r.chunkV?.previousValue!.toBool(),
+                    chunkNum: r.chunkNum?.previousValue!.toInt(),
+                    chunkStrb: r.chunkStrb?.previousValue!.toInt(),
                   )
                 : null,
             user: r.user != null
-                ? Axi5UserSignalsStruct(user: r.user?.value.toInt())
+                ? Axi5UserSignalsStruct(user: r.user?.previousValue!.toInt())
                 : null,
           ));
           _dataBuffer.clear();
@@ -382,8 +389,8 @@ class Axi5WChannelMonitor extends Monitor<Axi5WChannelPacket> {
 
         // capture if the last beat in the transfer
         final lastChk1 = w.last == null;
-        final lastChk2 =
-            !lastChk1 && (w.last!.value.isValid && w.last!.value.toBool());
+        final lastChk2 = !lastChk1 &&
+            (w.last!.previousValue!.isValid && w.last!.previousValue!.toBool());
         if (lastChk1 || lastChk2) {
           final dataPkts = <Axi5DataSignalsStruct>[];
           for (var i = 0; i < _dataBuffer.length; i++) {
@@ -400,17 +407,18 @@ class Axi5WChannelMonitor extends Monitor<Axi5WChannelPacket> {
             data: dataPkts,
             tag: w.tag != null
                 ? Axi5MemRespDataTagSignalsStruct(
-                    tag: w.tag?.value.toInt(),
-                    tagUpdate: w.tagUpdate?.value.toInt(),
-                    tagMatch: w.tagMatch?.value.toInt(),
-                    comp: w.comp?.value.toBool(),
-                    persist: w.persist?.value.toBool(),
+                    tag: w.tag?.previousValue!.toInt(),
+                    tagUpdate: w.tagUpdate?.previousValue!.toInt(),
+                    tagMatch: w.tagMatch?.previousValue!.toInt(),
+                    comp: w.comp?.previousValue!.toBool(),
+                    persist: w.persist?.previousValue!.toBool(),
                   )
                 : null,
             debug: Axi5DebugSignalsStruct(
-                trace: w.trace?.value.toBool(), loop: w.loop?.value.toInt()),
+                trace: w.trace?.previousValue!.toBool(),
+                loop: w.loop?.previousValue!.toInt()),
             user: w.user != null
-                ? Axi5UserSignalsStruct(user: w.user?.value.toInt())
+                ? Axi5UserSignalsStruct(user: w.user?.previousValue!.toInt())
                 : null,
           ));
           _dataBuffer.clear();
@@ -454,23 +462,26 @@ class Axi5BChannelMonitor extends Monitor<Axi5BChannelPacket> {
         add(Axi5BChannelPacket(
           id: b.id != null
               ? Axi5IdSignalsStruct(
-                  id: b.id?.value.toInt(), idUnq: b.idUnq?.value.toBool())
+                  id: b.id?.previousValue!.toInt(),
+                  idUnq: b.idUnq?.previousValue!.toBool())
               : null,
           tag: b.tag != null
               ? Axi5MemRespDataTagSignalsStruct(
-                  tag: b.tag?.value.toInt(),
-                  tagUpdate: b.tagUpdate?.value.toInt(),
-                  tagMatch: b.tagMatch?.value.toInt(),
-                  comp: b.comp?.value.toBool(),
-                  persist: b.persist?.value.toBool(),
+                  tag: b.tag?.previousValue!.toInt(),
+                  tagUpdate: b.tagUpdate?.previousValue!.toInt(),
+                  tagMatch: b.tagMatch?.previousValue!.toInt(),
+                  comp: b.comp?.previousValue!.toBool(),
+                  persist: b.persist?.previousValue!.toBool(),
                 )
               : null,
           debug: Axi5DebugSignalsStruct(
-              trace: b.trace?.value.toBool(), loop: b.loop?.value.toInt()),
+              trace: b.trace?.previousValue!.toBool(),
+              loop: b.loop?.previousValue!.toInt()),
           response: Axi5ResponseSignalsStruct(
-              resp: b.resp?.value.toInt(), busy: b.busy?.value.toBool()),
+              resp: b.resp?.previousValue!.toInt(),
+              busy: b.busy?.previousValue!.toBool()),
           user: b.user != null
-              ? Axi5UserSignalsStruct(user: b.user?.value.toInt())
+              ? Axi5UserSignalsStruct(user: b.user?.previousValue!.toInt())
               : null,
         ));
       }
@@ -506,11 +517,11 @@ class Axi5AcChannelMonitor extends Monitor<Axi5AcChannelPacket> {
           ac.valid.previousValue!.toBool() &&
           ac.ready!.previousValue!.toBool()) {
         add(Axi5AcChannelPacket(
-          addr: ac.addr?.value.toInt() ?? 0,
-          vmidExt: ac.vmidExt?.value.toInt() ?? 0,
+          addr: ac.addr?.previousValue!.toInt() ?? 0,
+          vmidExt: ac.vmidExt?.previousValue!.toInt() ?? 0,
           debug: Axi5DebugSignalsStruct(
-            trace: ac.trace?.value.toBool(),
-            loop: ac.loop?.value.toInt(),
+            trace: ac.trace?.previousValue!.toBool(),
+            loop: ac.loop?.previousValue!.toInt(),
           ),
         ));
       }
@@ -547,8 +558,8 @@ class Axi5CrChannelMonitor extends Monitor<Axi5CrChannelPacket> {
           cr.ready!.previousValue!.toBool()) {
         add(Axi5CrChannelPacket(
           debug: Axi5DebugSignalsStruct(
-            trace: cr.trace?.value.toBool(),
-            loop: cr.loop?.value.toInt(),
+            trace: cr.trace?.previousValue!.toBool(),
+            loop: cr.loop?.previousValue!.toInt(),
           ),
         ));
       }

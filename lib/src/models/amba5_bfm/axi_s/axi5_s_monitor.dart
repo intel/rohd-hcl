@@ -40,14 +40,14 @@ class Axi5StreamMonitor extends Monitor<Axi5StreamPacket> {
           strm.ready!.previousValue!.toBool()) {
         add(
           Axi5StreamPacket(
-              data: strm.data?.value.toBigInt() ?? BigInt.from(0),
-              strb: strm.strb?.value.toInt(),
-              keep: strm.keep?.value.toInt(),
-              id: strm.id?.value.toInt(),
-              user: strm.user?.value.toInt(),
-              dest: strm.dest?.value.toInt(),
-              last: strm.last?.value.toBool(),
-              wakeup: strm.wakeup?.value.toBool()),
+              data: strm.data?.previousValue!.toBigInt() ?? BigInt.from(0),
+              strb: strm.strb?.previousValue!.toInt(),
+              keep: strm.keep?.previousValue!.toInt(),
+              id: strm.id?.previousValue!.toInt(),
+              user: strm.user?.previousValue!.toInt(),
+              dest: strm.dest?.previousValue!.toInt(),
+              last: strm.last?.previousValue!.toBool(),
+              wakeup: strm.wakeup?.previousValue!.toBool()),
         );
       }
     });
