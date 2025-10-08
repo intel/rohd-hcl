@@ -20,9 +20,14 @@ class ValidDataPortInterface extends DataPortInterface {
   /// The "valid" bit for a response when the data is valid.
   Logic get valid => port('valid');
 
+  /// The name of this interface, useful for disambiguating multiple interfaces.
+  late final String name;
+
   /// Constructs a new interface of specified [dataWidth] and [addrWidth] for
   /// interacting with a `Cache` in either the read or write direction.
-  ValidDataPortInterface(super.dataWidth, super.addrWidth) : super() {
+  ValidDataPortInterface(super.dataWidth, super.addrWidth, {String? name})
+      : super() {
+    this.name = name ?? 'valid_data_port_${dataWidth}w_${addrWidth}a';
     setPorts([
       Logic.port('valid'),
     ], [
@@ -131,7 +136,7 @@ abstract class Cache extends Module {
             uniquify: (original) => 'cache_read_${original}_$i'));
     }
     if (evictions != null) {
-      if (evictions.length != reads.length + fills.length) {
+      if (evictions.length != fills.length) {
         throw ArgumentError(
             'Must provide exactly one eviction port per read or fill port.');
       }
@@ -165,7 +170,7 @@ class MultiPortedReadCache extends Cache {
   /// This cache is a read-cache. It does not track dirty data to implement
   /// write-back. The write policy it would support is a write-around policy.
   MultiPortedReadCache(super.clk, super.reset, super.fills, super.reads,
-      {super.ways, super.lines, super.replacement});
+      {super.evictions, super.ways, super.lines, super.replacement});
 
   @override
   void _buildLogic() {
@@ -314,11 +319,16 @@ class MultiPortedReadCache extends Cache {
                       policyFlHitPorts[line][flPortIdx].access < flPort.en,
                       policyFlHitPorts[line][flPortIdx].way <
                           fillPortValidWay[flPortIdx],
+                      // use dataRF eviction ports that parallel flPorts.
+                      // Evict flPort.addr + dataRF[l][w][flPortIdx]
+                      //    if tagRF[l][w][flPortIdx].valid
                     ]),
                     ElseIf(~flPort.valid, [
                       policyInvalPorts[line][flPortIdx].access < flPort.en,
                       policyInvalPorts[line][flPortIdx].way <
                           fillPortValidWay[flPortIdx],
+                      // Evict flPort.addr + dataRF[l][w][flPortIdx]
+                      //    if tagRF[l][w][flPortIdx].valid
                     ]),
                   ])
                 ])
@@ -457,9 +467,10 @@ class MultiPortedReadCache extends Cache {
     ];
     for (var way = 0; way < ways; way++) {
       for (var r = 0; r < ports.length; r++) {
-        dataPorts[way][r].en.named('${prefix}_port${r}_way${way}_en');
-        dataPorts[way][r].addr.named('${prefix}_port${r}_way${way}_addr');
-        dataPorts[way][r].data.named('${prefix}_port${r}_way${way}_data');
+        final fullPrefix = '${prefix}_way${way}_port${r}_way${way}';
+        dataPorts[way][r].en.named('${fullPrefix}_en');
+        dataPorts[way][r].addr.named('${fullPrefix}_addr');
+        dataPorts[way][r].data.named('${fullPrefix}_data');
       }
     }
     return dataPorts;
