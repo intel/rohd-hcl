@@ -79,10 +79,16 @@ void main() {
       final clk = SimpleClockGenerator(10).clk;
       final reset = Logic();
 
-      final upstreamReqIntf = CacheRequestInterface(2, 8);
-      final upstreamRespIntf = CacheResponseInterface(2, 8, 16);
-      final downstreamReqIntf = CacheRequestInterface(2, 8);
-      final downstreamRespIntf = CacheResponseInterface(2, 8, 16);
+      const idWidth = 3;
+      const addrWidth = 8;
+      const dataWidth = 16;
+
+      final upstreamReqIntf = CacheRequestInterface(idWidth, addrWidth);
+      final upstreamRespIntf =
+          CacheResponseInterface(idWidth, addrWidth, dataWidth);
+      final downstreamReqIntf = CacheRequestInterface(idWidth, addrWidth);
+      final downstreamRespIntf =
+          CacheResponseInterface(idWidth, addrWidth, dataWidth);
 
       final cacheController = RefactoredSimpleCache(
         clk,
@@ -95,13 +101,14 @@ void main() {
       );
 
       await cacheController.build();
+      WaveDumper(cacheController, outputPath: 'refactored_cache.vcd');
 
       // Create test bench signals
-      final upstreamReqId = Logic(width: 2);
+      final upstreamReqId = Logic(width: 3);
       final upstreamReqAddr = Logic(width: 8);
       final upstreamReqValid = Logic();
       final upstreamRespReady = Logic();
-      final downstreamRespId = Logic(width: 2);
+      final downstreamRespId = Logic(width: 3);
       final downstreamRespAddr = Logic(width: 8);
       final downstreamRespData = Logic(width: 16);
       final downstreamRespValid = Logic();
@@ -137,14 +144,16 @@ void main() {
       unawaited(Simulator.run());
 
       // Reset
-      reset.put(1);
+      reset.inject(0);
       await clk.nextNegedge;
-      reset.put(0);
+      reset.inject(1);
+      await clk.nextNegedge;
+      reset.inject(0);
       await clk.nextNegedge;
 
       // Test basic request (should be cache miss initially)
-      upstreamReqId.put(1);
-      upstreamReqAddr.put(0x00); // Address that maps to cache line 0
+      upstreamReqId.put(4);
+      upstreamReqAddr.put(0x01); // Address that maps to cache line 0
       upstreamReqValid.put(1);
       upstreamRespReady.put(1);
       downstreamReqReady.put(1);
@@ -154,8 +163,8 @@ void main() {
 
       // Should forward to downstream (cache miss)
       expect(downstreamReqIntf.valid.value.toInt(), equals(1));
-      expect(downstreamReqIntf.id.value.toInt(), equals(1));
-      expect(downstreamReqIntf.addr.value.toInt(), equals(0x00));
+      expect(downstreamReqIntf.id.value.toInt(), equals(4));
+      expect(downstreamReqIntf.addr.value.toInt(), equals(0x01));
 
       // Oracle responds: data = address (as specified in the oracle pattern)
       downstreamRespId.put(downstreamReqIntf.id.value.toInt());
@@ -172,7 +181,7 @@ void main() {
       await clk.nextPosedge;
 
       upstreamReqId.put(2);
-      upstreamReqAddr.put(0x00); // Same address - should be cache hit
+      upstreamReqAddr.put(0x01); // Same address - should be cache hit
       upstreamReqValid.put(1);
 
       await clk.nextPosedge;
@@ -183,7 +192,7 @@ void main() {
         expect(downstreamReqIntf.valid.value.toInt(), equals(0));
         expect(upstreamRespIntf.valid.value.toInt(), equals(1));
         expect(upstreamRespIntf.data.value.toInt(),
-            equals(0x00)); // Cached oracle data (address)
+            equals(0x01)); // Cached oracle data (address)
       }
 
       await Simulator.endSimulation();

@@ -98,7 +98,6 @@ class RefactoredSimpleCache extends Module {
     // Get dimensions from interfaces
     final idWidth = upstreamReq.idWidth;
     final addrWidth = upstreamReq.addrWidth;
-    final cacheAddrWidth = log2Ceil(cacheLines);
 
     // Create FIFO for response buffering
     final fifoWriteData =
@@ -106,83 +105,34 @@ class RefactoredSimpleCache extends Module {
     final fifoWriteEnable = Logic(name: 'fifo_write_enable');
     final fifoReadEnable = Logic(name: 'fifo_read_enable');
 
-    responseFifo = Fifo(
-      clk,
-      reset,
-      writeEnable: fifoWriteEnable,
-      writeData: fifoWriteData,
-      readEnable: fifoReadEnable,
-      depth: 8,
-      name: 'response_fifo',
-    );
+    responseFifo = Fifo(clk, reset,
+        writeEnable: fifoWriteEnable,
+        writeData: fifoWriteData,
+        readEnable: fifoReadEnable,
+        depth: 8,
+        name: 'response_fifo');
 
-    // Create simple cache storage (like SimpleCache does)
-    final cacheData = List.generate(
-      cacheLines,
-      (i) => Logic(width: dataWidth, name: 'cache_data_$i'),
-    );
+    // Put our `MultiPortedReadCache` in parallel with this inline cache code.
+    final fill = ValidDataPortInterface(dataWidth, addrWidth);
+    final read = ValidDataPortInterface(dataWidth, addrWidth);
 
-    final cacheValid = List.generate(
-      cacheLines,
-      (i) => Logic(name: 'cache_valid_$i'),
-    );
+    MultiPortedReadCache(clk, reset, [fill], [read], lines: cacheLines);
 
-    // Initialize cache valid bits on reset and update on cache fill
-    Sequential(clk, [
-      If(reset, then: [
-        for (int i = 0; i < cacheLines; i++) ...[
-          cacheValid[i] < Const(0),
-          cacheData[i] < Const(0, width: dataWidth),
-        ],
-      ], orElse: [
-        // Update cache on downstream response
-        If(downstreamResp.valid, then: [
-          Case(downstreamResp.addr.slice(cacheAddrWidth - 1, 0), [
-            for (int i = 0; i < cacheLines; i++)
-              CaseItem(Const(i, width: cacheAddrWidth), [
-                cacheData[i] < downstreamResp.data,
-                cacheValid[i] < Const(1),
-              ]),
-          ]),
-        ]),
-      ]),
-    ]);
-
-    // Extract cache index from upstream address
-    final upstreamCacheIdx = upstreamReq.addr.slice(cacheAddrWidth - 1, 0);
-
-    // Simple cache hit logic - check if cache line is valid
-    final cacheHit = Logic(name: 'cache_hit');
-    final cacheHitData = Logic(width: dataWidth, name: 'cache_hit_data');
-
-    // Cache lookup using combinational logic
-    Combinational([
-      If(reset, then: [
-        // During reset, cache is always miss
-        cacheHit < Const(0),
-        cacheHitData < Const(0, width: dataWidth),
-      ], orElse: [
-        Case(upstreamCacheIdx, [
-          for (int i = 0; i < cacheLines; i++)
-            CaseItem(Const(i, width: cacheAddrWidth), [
-              cacheHit < cacheValid[i],
-              cacheHitData < cacheData[i],
-            ]),
-        ], defaultItem: [
-          cacheHit < Const(0),
-          cacheHitData < Const(0, width: dataWidth),
-        ]),
-      ]),
-    ]);
-
-    // Upstream request processing
-    final upstreamReqFire = upstreamReq.valid;
+// Hack: we do not support simultaneous read and write today due to a bug in the
+// cache.
+    // fill.valid <= downstreamResp.valid;
+    fill.valid <= downstreamResp.valid & ~upstreamReq.valid;
+    fill.addr <= downstreamResp.addr;
+    fill.en <= downstreamResp.valid;
+    fill.data <= downstreamResp.data;
+    read.addr <= upstreamReq.addr;
+    read.en <= upstreamReq.valid;
 
     // Always ready to accept requests (simplified)
     upstreamReq.ready <= Const(1);
 
     // Response logic
-    final responseFromCache = cacheHit & upstreamReqFire;
+    final responseFromCache = read.valid & upstreamReq.valid;
     final responseFromFifo = ~responseFifo.empty & upstreamResp.ready;
 
     // Connect upstream response
@@ -197,11 +147,11 @@ class RefactoredSimpleCache extends Module {
         mux(responseFromCache, upstreamReq.addr,
             responseFifo.readData.slice(addrWidth + dataWidth - 1, dataWidth));
     upstreamResp.data <=
-        mux(responseFromCache, cacheHitData,
+        mux(responseFromCache, read.data,
             responseFifo.readData.slice(dataWidth - 1, 0));
 
     // Forward cache misses to downstream
-    final cacheMiss = ~cacheHit & upstreamReqFire;
+    final cacheMiss = ~read.valid & upstreamReq.valid;
 
     // Ensure downstream request is always driven (avoid 'x' values)
     downstreamReq.valid <= mux(reset, Const(0), cacheMiss);
@@ -219,8 +169,5 @@ class RefactoredSimpleCache extends Module {
 
     // FIFO read control
     fifoReadEnable <= responseFromFifo;
-
-    // Connect cache fill interface to downstream responses
-    // The Cache component handles internal storage automatically
   }
 }

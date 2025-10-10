@@ -104,7 +104,7 @@ abstract class Cache extends Module {
   Cache(Logic clk, Logic reset, List<ValidDataPortInterface> fills,
       List<ValidDataPortInterface> reads,
       {List<ValidDataPortInterface>? evictions,
-      this.ways = 1,
+      this.ways = 2,
       this.lines = 16,
       this.replacement = PseudoLRUReplacement.new,
       super.name = 'Cache',
