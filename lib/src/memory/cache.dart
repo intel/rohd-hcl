@@ -467,7 +467,7 @@ class MultiPortedReadCache extends Cache {
     ];
     for (var way = 0; way < ways; way++) {
       for (var r = 0; r < ports.length; r++) {
-        final fullPrefix = '${prefix}_way${way}_port${r}_way${way}';
+        final fullPrefix = '${prefix}_way${way}_port${r}_way$way';
         dataPorts[way][r].en.named('${fullPrefix}_en');
         dataPorts[way][r].addr.named('${fullPrefix}_addr');
         dataPorts[way][r].data.named('${fullPrefix}_data');
