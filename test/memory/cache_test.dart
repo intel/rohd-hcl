@@ -254,19 +254,17 @@ void main() {
       final reset = Logic();
 
       final fillPort = ValidDataPortInterface(dataWidth, addrWidth);
-      final rdPort = ValidDataPortInterface(dataWidth, addrWidth);
+      final readPort = ValidDataPortInterface(dataWidth, addrWidth);
 
-      final cache =
-          MultiPortedReadCache(clk, reset, [fillPort], [rdPort], lines: lines);
+      final cache = MultiPortedReadCache(clk, reset, [fillPort], [readPort],
+          lines: lines);
 
       await cache.build();
-      // WaveDumper(cache, outputPath: 'cache_singleton.vcd');
-      // File('cache_singleton.v').writeAsStringSync(cache.generateSynth());
       unawaited(Simulator.run());
 
       await clk.waitCycles(2);
-      rdPort.en.inject(0);
-      rdPort.addr.inject(0);
+      readPort.en.inject(0);
+      readPort.addr.inject(0);
       fillPort.en.inject(0);
       fillPort.addr.inject(0);
       fillPort.data.inject(0);
@@ -276,19 +274,64 @@ void main() {
       await clk.waitCycles(2);
 
       const first = 0x20;
-      // Start a read on an address
-      rdPort.en.inject(1);
-      rdPort.addr.inject(first);
+      // Start a read on a `first` address.
+      readPort.en.inject(1);
+      readPort.addr.inject(first);
       await clk.waitCycles(3);
-      // rdPort.en.inject(0);
 
-      // write data to address addr
+      // Write data to `first` address.
       fillPort.en.inject(1);
       fillPort.valid.inject(1);
       fillPort.addr.inject(first);
       fillPort.data.inject(9);
       await clk.nextPosedge;
       fillPort.en.inject(0);
+      expect(readPort.data.value, equals(fillPort.data.value));
+      await clk.waitCycles(3);
+
+      await Simulator.endSimulation();
+    });
+
+    test('Cache singleton write until read matches', () async {
+      final clk = SimpleClockGenerator(10).clk;
+      final reset = Logic();
+
+      final fillPort = ValidDataPortInterface(dataWidth, addrWidth);
+      final readPort = ValidDataPortInterface(dataWidth, addrWidth);
+
+      final cache = MultiPortedReadCache(clk, reset, [fillPort], [readPort],
+          lines: lines);
+
+      await cache.build();
+      unawaited(Simulator.run());
+      WaveDumper(cache, outputPath: 'cache_write_read.vcd');
+
+      await clk.waitCycles(2);
+      readPort.en.inject(0);
+      readPort.addr.inject(0);
+      fillPort.en.inject(0);
+      fillPort.addr.inject(0);
+      fillPort.data.inject(0);
+      reset.inject(1);
+      await clk.nextPosedge;
+      reset.inject(0);
+      await clk.waitCycles(2);
+
+      const first = 0x20;
+      // Start a write on an `first` address.
+      fillPort.en.inject(1);
+      fillPort.valid.inject(1);
+      fillPort.addr.inject(first);
+      fillPort.data.inject(9);
+      await clk.waitCycles(3);
+
+      // read data at `first` address.
+      readPort.en.inject(1);
+      readPort.valid.inject(1);
+      readPort.addr.inject(first);
+      await clk.nextPosedge;
+      expect(readPort.data.value, equals(fillPort.data.value));
+      readPort.en.inject(0);
       await clk.waitCycles(3);
 
       await Simulator.endSimulation();
