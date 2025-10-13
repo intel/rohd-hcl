@@ -304,7 +304,6 @@ void main() {
 
       await cache.build();
       unawaited(Simulator.run());
-      WaveDumper(cache, outputPath: 'cache_write_read.vcd');
 
       await clk.waitCycles(2);
       readPort.en.inject(0);
