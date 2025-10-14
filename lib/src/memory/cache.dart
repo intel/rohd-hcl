@@ -430,13 +430,19 @@ class MultiPortedReadCache extends Cache {
       }
     }
 
+    // Write after read is:
+    //   - We first clear RF enable.
+    //   - RF.data is set by the storageBank in the RF on the clock edge.
+    //   - We read the RF data below after it is written
+    // Fix is to put the RF enable clear in the Else of the If below.
+
     for (var rdPortIdx = 0; rdPortIdx < numReads; rdPortIdx++) {
       final rdPort = reads[rdPortIdx];
       Combinational([
         rdPort.valid < Const(0),
         rdPort.data < Const(0, width: rdPort.dataWidth),
-        for (var way = 0; way < ways; way++)
-          readDataPorts[way][rdPortIdx].en < Const(0),
+        // for (var way = 0; way < ways; way++)
+        //   readDataPorts[way][rdPortIdx].en < Const(0),
         If(rdPort.en & ~readValidPortMiss[rdPortIdx], then: [
           for (var way = 0; way < ways; way++)
             If(
@@ -447,6 +453,9 @@ class MultiPortedReadCache extends Cache {
                   readDataPorts[way][rdPortIdx].addr < getLine(rdPort.addr),
                   rdPort.data < readDataPorts[way][rdPortIdx].data,
                   rdPort.valid < Const(1),
+                ],
+                orElse: [
+                  readDataPorts[way][rdPortIdx].en < Const(0)
                 ])
         ])
       ]);
