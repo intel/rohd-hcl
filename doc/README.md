@@ -133,6 +133,10 @@ Some in-development items will have opened issues, as well. Feel free to create 
 - Gaskets
   - [SPI](./components/spi_gaskets.md)
 
+## Adding a New Component
+
+Please refer to [Module](./Module.md) for the best practices for creating new components.
+
 ----------------
 
 Copyright (C) 2023-2025 Intel Corporation  
