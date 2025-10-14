@@ -1,0 +1,75 @@
+# How to Build a Great Component in ROHD
+
+The `Module` class is the base class used in ROHD to build components, and calling the constructor the `Module` instantiates the component and connects it to signals passed into the constructor.
+
+## Port Construction and Connection
+
+A `Module` constructor takes `Logic` arguments and parameters to generate a hardware component. The `Logic` arguments are actually the external signals being connected to by the `Module`, and so internal copies must be constructed and connected to these arguments by the constructor and only then can other logic signals be connected to these copies. If you do not do this, a trace error will occur, but that only happens when this module is instantiated in another -- it will not show up while testing which just instantiates the module in a test environment.   See [Modules](https://intel.github.io/rohd-website/docs/modules/) for more detail.
+
+A key pattern used in ROHD-HCL is to have the constructor take only input signals as arguments and generate the output signal widths based on these signals and other parameters.
+
+## Port Types
+
+Signals can take various forms in ROHD and it is important to consider what form you want for the API of the `Module` you are building. ROHD supports the basic `Logic` signal which has its width encode (therefore you should not be using width as a parameter to a `Module`). ROHD provides basic cloning and accessor helper functions like `addInput` and `input`.
+
+`LogicArray` is a uniform multi-dimensional array of leaf `Logic` signals. Using this for input/output will require special routines like `addInputArray` to connect external and internal signals. Examples of using `LogicArray` are in the `Serializer` and `Deserializer` components.
+
+`LogicStructure` is a hierarchical concatenation of named `Logic` fields, where the `FloatingPoint` arithmetic type is an example used in the  `FloatingPointMultiplierSimple` module. We can also pass in `LogicStructure` as a type for certain components so that the field structure is not lost on input and output. A good example of this is `Fifo`, which is templatized on `LogicType` to allow for us to generate a `Fifo` for a particular `LogicStructure` to use when pushing and popping the data in and out. Here, `addTypedInput` is a method used to help with creating the internal signals.
+
+`Interface` is similar to `LogicStructure` yet it provides an ability to define directionality to the internal fields, useful in connecting modules that share a common protocol such as the `ApbInterface`. See [Interfaces](https://intel.github.io/rohd-website/docs/interfaces). A few examples of key general interface types that you can inherit from are the `PairInterface` and the `DataPortInterface`.  the `Memory` module has a good example of how `DataPortInterface`s are cloned internally using the `connectIO` `Interface` method.
+
+## Logic Internals
+
+Signal logic is constructed in a ROHD component by assignment and simple logic operations like and (`&`) and or (`|`) as well as multiplexing (`mux`) and flopping (`flop`).  See [operations](https://intel.github.io/rohd-website/docs/logic-math-compare/) for more detail.
+
+ More complex logic can be constructed using [`Sequental`](https://intel.github.io/rohd-website/docs/sequentials/) and [`Combinational`](https://intel.github.io/rohd-website/docs/conditionals/) blocks similar to SystemVerilog `always` blocks.  There is also a [`FiniteStateMachine`](https://intel.github.io/rohd-website/docs/fsm/) construct for state machines and a [`Pipeline`](https://intel.github.io/rohd-website/docs/pipelines/) construct for assisting with pipelined logic.
+
+## Unit Testing
+
+ A good component has unit tests to validate the component and provide examples of use. We use the Dart testing framework which requires that tests are stored in the `test/` directory and are named ending in `_test.dart`. An example of unit tests for a component is shown below.  Note that grouping of tests can reuse a common component built for multiple tests.  Also note that each test with sequential logic will need a `SimpleClockGenerator`, a `Simulator.run()` and an `endSimulation`.
+
+ ```dart
+void main() {
+  tearDown(() async {
+    await Simulator.reset();
+  });
+
+  group('test narrow component', () {
+    final input = Logic(width: 5);
+    final component = MyComponent(input);
+    final output = component.out;
+
+    test('MyComponent smoke test', () async {
+      final clk = SimpleClockGenerator(10).clk;
+
+      unawaited(Simulator.run());
+        reset.inject(1);
+        await clk.waitCycles(3);
+        reset.inject(0);
+        await clk.waitCycles(1);
+        input.inject(1);
+        await clk.waitCycles(3);
+        expect(output.value, equals(Const(1, width: output.width)));
+
+      await Simulator.endSimulation();
+    });
+    
+    test('MyComponent second test', () async {
+      final clk = SimpleClockGenerator(10).clk;
+
+      unawaited(Simulator.run());
+        reset.inject(1);
+        await clk.waitCycles(3);
+        reset.inject(0);
+        await clk.waitCycles(1);
+        input.inject(6);
+        await clk.waitCycles(3);
+        expect(output.value, equals(Const(6, width: output.width)));
+
+      await Simulator.endSimulation();
+    });
+  });
+}
+```
+
+While creating unit tests, you can just run the tests for your component instead of running the entire suite of ROHD-HCL tests.
