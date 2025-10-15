@@ -11,6 +11,37 @@ import 'dart:async';
 import 'package:rohd_hcl/rohd_hcl.dart';
 import 'package:rohd_vf/rohd_vf.dart';
 
+/// Monitor for credits on any LTI channel.
+class LtiCreditMonitor extends Monitor<LtiCreditPacket> {
+  /// AXI5 System Interface.
+  final Axi5SystemInterface sys;
+
+  /// LTI Interface.
+  final LtiTransportInterface trans;
+
+  /// Creates a new [LtiCreditMonitor] on [trans].
+  LtiCreditMonitor({
+    required this.sys,
+    required this.trans,
+    required Component parent,
+    String name = 'ltiCreditMonitor',
+  }) : super(name, parent);
+
+  @override
+  Future<void> run(Phase phase) async {
+    unawaited(super.run(phase));
+
+    await sys.resetN.nextPosedge;
+
+    sys.clk.posedge.listen((event) {
+      if (trans.valid.previousValue!.isValid &&
+          trans.valid.previousValue!.toBool()) {
+        add(LtiCreditPacket(credit: trans.credit?.previousValue!.toInt() ?? 0));
+      }
+    });
+  }
+}
+
 /// Monitor for the LTI LA channel interface.
 class LtiLaChannelMonitor extends Monitor<LtiLaChannelPacket> {
   /// AXI5 System Interface.

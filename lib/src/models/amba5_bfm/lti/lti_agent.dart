@@ -24,6 +24,9 @@ class LtiMainLaChannelAgent extends Agent {
   /// Sequencer.
   late final Sequencer<LtiLaChannelPacket> sequencer;
 
+  /// Monitor.
+  late final LtiCreditMonitor monitor;
+
   /// The number of cycles before timing out if no transactions can be sent.
   final int timeoutCycles;
 
@@ -51,6 +54,8 @@ class LtiMainLaChannelAgent extends Agent {
       timeoutCycles: timeoutCycles,
       dropDelayCycles: dropDelayCycles,
     );
+
+    monitor = LtiCreditMonitor(sys: sys, trans: la, parent: this);
   }
 }
 
@@ -106,6 +111,9 @@ class LtiMainLcChannelAgent extends Agent {
   /// Sequencer.
   late final Sequencer<LtiLcChannelPacket> sequencer;
 
+  /// Monitor.
+  late final LtiCreditMonitor monitor;
+
   /// The number of cycles before timing out if no transactions can be sent.
   final int timeoutCycles;
 
@@ -133,6 +141,8 @@ class LtiMainLcChannelAgent extends Agent {
       timeoutCycles: timeoutCycles,
       dropDelayCycles: dropDelayCycles,
     );
+
+    monitor = LtiCreditMonitor(sys: sys, trans: lc, parent: this);
   }
 }
 
@@ -293,6 +303,9 @@ class LtiSubordinateLrChannelAgent extends Agent {
   /// Sequencer.
   late final Sequencer<LtiLrChannelPacket> sequencer;
 
+  /// Monitor.
+  late final LtiCreditMonitor monitor;
+
   /// The number of cycles before timing out if no transactions can be sent.
   final int timeoutCycles;
 
@@ -320,6 +333,8 @@ class LtiSubordinateLrChannelAgent extends Agent {
       timeoutCycles: timeoutCycles,
       dropDelayCycles: dropDelayCycles,
     );
+
+    monitor = LtiCreditMonitor(sys: sys, trans: lr, parent: this);
   }
 }
 
@@ -375,6 +390,9 @@ class LtiSubordinateLtChannelAgent extends Agent {
   /// Sequencer.
   late final Sequencer<LtiLtChannelPacket> sequencer;
 
+  /// Monitor.
+  late final LtiCreditMonitor monitor;
+
   /// The number of cycles before timing out if no transactions can be sent.
   final int timeoutCycles;
 
@@ -402,6 +420,8 @@ class LtiSubordinateLtChannelAgent extends Agent {
       timeoutCycles: timeoutCycles,
       dropDelayCycles: dropDelayCycles,
     );
+
+    monitor = LtiCreditMonitor(sys: sys, trans: lt, parent: this);
   }
 }
 

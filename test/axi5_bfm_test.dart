@@ -107,7 +107,7 @@ class SimpleAxi5MainBfm extends Agent {
             data: List.generate(
                 len + 1,
                 (idx) => Axi5DataSignalsStruct(
-                    data: Test.random!.nextInt(64),
+                    data: BigInt.from(Test.random!.nextInt(64)),
                     strb: Test.random!
                         .nextInt(pow(main.write.w.dataWidth ~/ 8, 2).toInt()),
                     last: idx == len)));
@@ -220,7 +220,7 @@ class SimpleAxi5SubordinateBfm extends Agent {
             storage.readData(LogicValue.ofInt(targ, storage.addrWidth));
         final strbData = _strobeData(
             orig,
-            LogicValue.ofInt(r.data[j].data, storage.dataWidth),
+            LogicValue.ofBigInt(r.data[j].data, storage.dataWidth),
             LogicValue.ofInt(
                 r.data[j].strb ??
                     LogicValue.filled(storage.dataWidth ~/ 8, LogicValue.one)
@@ -239,12 +239,12 @@ class SimpleAxi5SubordinateBfm extends Agent {
     // query the memory and respond with the data
     sub.read.reqAgent.monitor.stream.listen((r) async {
       logger.info('Received read request with ID ${r.id?.id ?? 0}');
-      final dataQueue = <int>[];
+      final dataQueue = <BigInt>[];
       for (var j = 0; j < (r.request.len ?? 0) + 1; j++) {
         final targ = r.request.addr + 4 * j;
         final data =
             storage.readData(LogicValue.ofInt(targ, storage.addrWidth));
-        dataQueue.add(data.toInt());
+        dataQueue.add(data.toBigInt());
       }
       final resp = Axi5RChannelPacket(
           data: List.generate(
@@ -289,8 +289,8 @@ class SimpleAxi5StreamMainBfm extends Agent {
       final beats = main.stream.useLast ? Test.random!.nextInt(4) : 1;
       for (var j = 0; j < beats; j++) {
         final nextStrm = Axi5StreamPacket(
-            data: Test.random!
-                .nextInt(pow(min(main.stream.dataWidth, 32), 2).toInt()),
+            data: BigInt.from(Test.random!
+                .nextInt(pow(min(main.stream.dataWidth, 32), 2).toInt())),
             last: j == beats - 1);
         logger.info('Sending stream beat with ID ${nextStrm.id ?? 0}');
         main.sequencer.add(nextStrm);
@@ -352,7 +352,7 @@ class SimpleAxi5StreamSubordinateBfm extends Agent {
         logger.info('Stream with ID ${r.id ?? 0} has completed - dropping.');
         for (var j = 0; j < _streams.length; j++) {
           logger.info('Stream beat $j data: '
-              '${_strobeData(LogicValue.filled(sub.stream.dataWidth, LogicValue.zero), LogicValue.ofInt(_streams[j].data, sub.stream.dataWidth), LogicValue.ofInt(_streams[j].strb ?? LogicValue.filled(sub.stream.strbWidth, LogicValue.one).toInt(), sub.stream.strbWidth))}.');
+              '${_strobeData(LogicValue.filled(sub.stream.dataWidth, LogicValue.zero), LogicValue.ofBigInt(_streams[j].data, sub.stream.dataWidth), LogicValue.ofInt(_streams[j].strb ?? LogicValue.filled(sub.stream.strbWidth, LogicValue.one).toInt(), sub.stream.strbWidth))}.');
         }
         _streams.clear();
       }
