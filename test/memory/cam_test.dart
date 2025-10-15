@@ -65,4 +65,72 @@ void main() {
 
     await Simulator.endSimulation();
   });
+
+  test('Cam with valid tracking', () async {
+    const numEntries = 4;
+    const tagWidth = 8;
+    
+    final clk = SimpleClockGenerator(10).clk;
+    final reset = Logic();
+
+    final wrPort = DataPortInterface(tagWidth, log2Ceil(numEntries));
+    final rdPort = TagInterface(log2Ceil(numEntries), tagWidth);
+
+    final cam = Cam(
+      clk,
+      reset,
+      [wrPort],
+      [rdPort],
+      numEntries: numEntries,
+      enableValidTracking: true,
+    );
+
+    await cam.build();
+    unawaited(Simulator.run());
+
+    // Reset
+    reset.inject(1);
+    wrPort.en.inject(0);
+    await clk.nextPosedge;
+    await clk.nextPosedge;
+    reset.inject(0);
+    await clk.nextPosedge;
+
+    // Initially empty
+    expect(cam.empty!.value.toBool(), isTrue, reason: 'Should be empty initially');
+    expect(cam.full!.value.toBool(), isFalse, reason: 'Should not be full initially');
+    expect(cam.validCount!.value.toInt(), equals(0), reason: 'Count should be 0');
+
+    // Write one entry
+    wrPort.en.inject(1);
+    wrPort.addr.inject(0);
+    wrPort.data.inject(0x42);
+    await clk.nextPosedge;
+
+    expect(cam.empty!.value.toBool(), isFalse, reason: 'Should not be empty after write');
+    expect(cam.full!.value.toBool(), isFalse, reason: 'Should not be full with 1 entry');
+    expect(cam.validCount!.value.toInt(), equals(1), reason: 'Count should be 1');
+
+    // Write three more entries to fill the CAM
+    for (var i = 1; i < numEntries; i++) {
+      wrPort.addr.inject(i);
+      wrPort.data.inject(0x50 + i);
+      await clk.nextPosedge;
+    }
+
+    expect(cam.empty!.value.toBool(), isFalse, reason: 'Should not be empty when full');
+    expect(cam.full!.value.toBool(), isTrue, reason: 'Should be full with all entries');
+    expect(cam.validCount!.value.toInt(), equals(numEntries), reason: 'Count should equal numEntries');
+
+    wrPort.en.inject(0);
+    await clk.nextPosedge;
+
+    // Verify lookups work
+    rdPort.tag.inject(0x42);
+    await clk.nextPosedge;
+    expect(rdPort.hit.value.toBool(), isTrue, reason: 'Should find tag 0x42');
+    expect(rdPort.idx.value.toInt(), equals(0), reason: 'Should be at index 0');
+
+    await Simulator.endSimulation();
+  });
 }
