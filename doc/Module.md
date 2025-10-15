@@ -16,7 +16,9 @@ Signals can take various forms in ROHD and it is important to consider what form
 
 `LogicStructure` is a hierarchical concatenation of named `Logic` fields, where the `FloatingPoint` arithmetic type is an example used in the  `FloatingPointMultiplierSimple` module. We can also pass in `LogicStructure` as a type for certain components so that the field structure is not lost on input and output. A good example of this is `Fifo`, which is templatized on `LogicType` to allow for us to generate a `Fifo` for a particular `LogicStructure` to use when pushing and popping the data in and out. Here, `addTypedInput` is a method used to help with creating the internal signals.
 
-`Interface` is similar to `LogicStructure` yet it provides an ability to define directionality to the internal fields, useful in connecting modules that share a common protocol such as the `ApbInterface`. See [Interfaces](https://intel.github.io/rohd-website/docs/interfaces). A few examples of key general interface types that you can inherit from are the `PairInterface` and the `DataPortInterface`.  the `Memory` module has a good example of how `DataPortInterface`s are cloned internally using the `connectIO` `Interface` method.
+`Interface` is similar to `LogicStructure` yet it provides an ability to define directionality to the internal fields, useful in connecting modules that share a common protocol such as the `ApbInterface`. See [Interfaces](https://intel.github.io/rohd-website/docs/interfaces). A few examples of key general interface types that you can inherit from are the `PairInterface` and the `DataPortInterface`.  the `Memory` module has a good example of how `DataPortInterface`s are cloned internally using its `connectIO` method.  
+
+An important kind of `Interface` is the `PairInterface` which is designed for bidirectional communication and provides a `pairConnectIO` method for connecting external and internal ports based on producer/consumer filtering.
 
 ## Logic Internals
 
