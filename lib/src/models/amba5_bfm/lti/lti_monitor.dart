@@ -34,8 +34,8 @@ class LtiCreditMonitor extends Monitor<LtiCreditPacket> {
     await sys.resetN.nextPosedge;
 
     sys.clk.posedge.listen((event) {
-      if (trans.valid.previousValue!.isValid &&
-          trans.valid.previousValue!.toBool()) {
+      if ((trans.credit?.previousValue!.isValid ?? false) &&
+          (trans.credit?.previousValue!.toInt() ?? 0) > 0) {
         add(LtiCreditPacket(credit: trans.credit?.previousValue!.toInt() ?? 0));
       }
     });
