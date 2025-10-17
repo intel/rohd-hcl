@@ -46,7 +46,19 @@ with:
 - `valid`: Indicates whether the data is valid.
 - Standard `en`, `addr`, and `data` signals from `DataPortInterface`.
 
-### Cache Usage Example
+## Multi-Ported Read Cache
+
+The `MultiPortedReadCache` is a configurable set-associative cache that supports multiple read and fill ports. It implements a read-cache (not tracking dirty data for write-back) and supports write-around policy.
+
+### Multi-Ported Cache Features
+
+- Configurable associativity (number of ways)
+- Configurable depth (number of lines)
+- Multiple read and fill ports
+- Pluggable replacement policies (default: Pseudo-LRU)
+- Optional eviction ports for cache line replacement
+
+### Usage Example
 
 ```dart
 // Create Cache interfaces.
@@ -83,6 +95,72 @@ Here the `AccessInterface` has the following ports:
 
 - `access`: Indicates whether the way is being accessed (like an enable).
 - `way`:  which way of the cache is being hit, missed, or invalidated.
+
+## Direct-Mapped Cache
+
+The `DirectMappedCache` is a simplified cache implementation where each memory address maps to exactly one cache line (1-way set-associative). This eliminates the need for replacement policies and way selection logic, making it more efficient but potentially having more conflict misses.
+
+### Direct-Mapped Cache Features
+
+- Single way (direct mapping)
+- Configurable number of lines
+- Simplified logic compared to multi-way caches
+- Higher potential for conflict misses
+- Multiple read and fill ports supported
+
+### Direct-Mapped Cache Usage Example
+
+```dart
+// Create interfaces for direct-mapped cache.
+final fillPort = ValidDataPortInterface(dataWidth: 32, addrWidth: 8);
+final readPort = ValidDataPortInterface(dataWidth: 32, addrWidth: 8);
+
+// Instantiate direct-mapped cache with 16 lines.
+final cache = DirectMappedCache(
+  clk, reset,
+  [fillPort],   // Fill ports.
+  [readPort],   // Read ports.
+  lines: 16,    // Number of cache lines.
+);
+```
+
+## Cached Request/Response
+
+The `CachedRequestResponse` module implements a cache with ready/valid request/response interfaces. It acts as a caching layer between upstream and downstream components, handling cache hits internally and forwarding misses to downstream.
+
+### Request/Response Cache Features
+
+- Ready/valid interfaces for requests and responses
+- Configurable cache implementation via `cacheBuilder` parameter
+- Internal FIFO for response queuing
+- ID-based request/response matching using CAM
+- Automatic cache line allocation on misses
+
+### Request/Response Cache Usage Example
+
+```dart
+// Create request/response cache with default DirectMappedCache.
+final cachedRR = CachedRequestResponse(
+  clk: clk,
+  reset: reset,
+  upstreamRequest: upstreamReqInterface,
+  upstreamResponse: upstreamRespInterface,
+  downstreamRequest: downstreamReqInterface,
+  downstreamResponse: downstreamRespInterface,
+  idWidth: 4,
+  addrWidth: 16,
+  dataWidth: 32,
+  cacheDepth: 64,
+);
+
+// Custom cache implementation example.
+final customCachedRR = CachedRequestResponse(
+  // ... interface connections ...
+  cacheBuilder: (clk, reset, fills, reads) =>
+    MultiPortedReadCache(clk, reset, fills, reads,
+      ways: 4, lines: 16, replacement: PseudoLRUReplacement.new),
+);
+```
 
 ## Content Addressable Memory (CAM)
 
