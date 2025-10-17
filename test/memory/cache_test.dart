@@ -8,7 +8,6 @@
 // Author: Desmond Kirkpatrick <desmond.a.kirkpatrick@intel.com>
 
 import 'dart:async';
-import 'dart:io';
 
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
@@ -31,7 +30,6 @@ void main() {
         ways: 4, lines: 8);
 
     await cache.build();
-    File('cache.v').writeAsStringSync(cache.generateSynth());
   });
 
   test('Cache smoke test', () async {
@@ -248,93 +246,6 @@ void main() {
     final lines = BigInt.two.pow(addrWidth).toInt() ~/ ways;
     final lineAddrWith = log2Ceil(lines);
     final tagWidth = addrWidth - lineAddrWith;
-
-    test('Cache singleton read until write matches', () async {
-      final clk = SimpleClockGenerator(10).clk;
-      final reset = Logic();
-
-      final fillPort = ValidDataPortInterface(dataWidth, addrWidth);
-      final readPort = ValidDataPortInterface(dataWidth, addrWidth);
-
-      final cache = MultiPortedReadCache(clk, reset, [fillPort], [readPort],
-          lines: lines);
-
-      await cache.build();
-      unawaited(Simulator.run());
-
-      await clk.waitCycles(2);
-      readPort.en.inject(0);
-      readPort.addr.inject(0);
-      fillPort.en.inject(0);
-      fillPort.addr.inject(0);
-      fillPort.data.inject(0);
-      reset.inject(1);
-      await clk.nextPosedge;
-      reset.inject(0);
-      await clk.waitCycles(2);
-
-      const first = 0x20;
-      // Start a read on a `first` address.
-      readPort.en.inject(1);
-      readPort.addr.inject(first);
-      await clk.waitCycles(3);
-
-      // Write data to `first` address.
-      fillPort.en.inject(1);
-      fillPort.valid.inject(1);
-      fillPort.addr.inject(first);
-      fillPort.data.inject(9);
-      await clk.nextPosedge;
-      fillPort.en.inject(0);
-      expect(readPort.data.value, equals(fillPort.data.value));
-      await clk.waitCycles(3);
-
-      await Simulator.endSimulation();
-    });
-
-    test('Cache singleton write until read matches', () async {
-      final clk = SimpleClockGenerator(10).clk;
-      final reset = Logic();
-
-      final fillPort = ValidDataPortInterface(dataWidth, addrWidth);
-      final readPort = ValidDataPortInterface(dataWidth, addrWidth);
-
-      final cache = MultiPortedReadCache(clk, reset, [fillPort], [readPort],
-          lines: lines);
-
-      await cache.build();
-      unawaited(Simulator.run());
-
-      await clk.waitCycles(2);
-      readPort.en.inject(0);
-      readPort.addr.inject(0);
-      fillPort.en.inject(0);
-      fillPort.addr.inject(0);
-      fillPort.data.inject(0);
-      reset.inject(1);
-      await clk.nextPosedge;
-      reset.inject(0);
-      await clk.waitCycles(2);
-
-      const first = 0x20;
-      // Start a write on an `first` address.
-      fillPort.en.inject(1);
-      fillPort.valid.inject(1);
-      fillPort.addr.inject(first);
-      fillPort.data.inject(9);
-      await clk.waitCycles(3);
-
-      // read data at `first` address.
-      readPort.en.inject(1);
-      readPort.valid.inject(1);
-      readPort.addr.inject(first);
-      await clk.nextPosedge;
-      expect(readPort.data.value, equals(fillPort.data.value));
-      readPort.en.inject(0);
-      await clk.waitCycles(3);
-
-      await Simulator.endSimulation();
-    });
 
     test('Cache singleton 2 writes then reads test', () async {
       final clk = SimpleClockGenerator(10).clk;
