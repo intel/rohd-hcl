@@ -106,7 +106,6 @@ void main() {
 
     test('multiple lookups with different invalidate behavior', () async {
       const tagWidth = 16;
-      const numEntries = 8;
       const idWidth = 3;
 
       final clk = SimpleClockGenerator(10).clk;
@@ -121,7 +120,6 @@ void main() {
         reset,
         [writePort],
         [lookupPort1, lookupPort2],
-        numEntries: numEntries,
       );
 
       await cam.build();
@@ -486,8 +484,8 @@ void main() {
 
         // Should hit when invalidate is asserted (original behavior restored)
         expect(lookupPort.hit.value.toBool(), isTrue,
-            reason:
-                'Cycle $i: Should hit when invalidate=1 for tag 0x${lookupTag.toRadixString(16)}');
+            reason: 'Cycle $i: Should hit when invalidate=1 for tag '
+                '0x${lookupTag.toRadixString(16)}');
         await clk.nextPosedge;
       }
 
@@ -499,8 +497,8 @@ void main() {
       await clk.nextPosedge;
       await clk.nextPosedge;
 
-      // After invalidating lower half (indices 0-3) and writing new entries
-      // to upper half (indices 4-7), we should have exactly the upper half valid
+      // After invalidating lower half (indices 0-3) and writing new entries to
+      // upper half (indices 4-7), we should have exactly the upper half valid.
       expect(cam.full!.value.toBool(), isFalse,
           reason: 'CAM should not be full - only upper half is valid');
       expect(cam.validCount!.value.toInt(), equals(numSimultaneousOps),

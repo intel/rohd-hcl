@@ -8,6 +8,7 @@
 // Author: Desmond Kirkpatrick <desmond.a.kirkpatrick@intel.com>
 
 export 'cache_base.dart';
-export 'cached_request_response.dart';
 export 'direct_mapped_cache.dart';
 export 'multi_ported_read_cache.dart';
+export 'pseudo_lru_replacement.dart';
+export 'replacement_policy.dart';

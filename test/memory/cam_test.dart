@@ -69,7 +69,7 @@ void main() {
   test('Cam with valid tracking', () async {
     const numEntries = 4;
     const tagWidth = 8;
-    
+
     final clk = SimpleClockGenerator(10).clk;
     final reset = Logic();
 
@@ -97,9 +97,12 @@ void main() {
     await clk.nextPosedge;
 
     // Initially empty
-    expect(cam.empty!.value.toBool(), isTrue, reason: 'Should be empty initially');
-    expect(cam.full!.value.toBool(), isFalse, reason: 'Should not be full initially');
-    expect(cam.validCount!.value.toInt(), equals(0), reason: 'Count should be 0');
+    expect(cam.empty!.value.toBool(), isTrue,
+        reason: 'Should be empty initially');
+    expect(cam.full!.value.toBool(), isFalse,
+        reason: 'Should not be full initially');
+    expect(cam.validCount!.value.toInt(), equals(0),
+        reason: 'Count should be 0');
 
     // Write one entry
     wrPort.en.inject(1);
@@ -107,9 +110,12 @@ void main() {
     wrPort.data.inject(0x42);
     await clk.nextPosedge;
 
-    expect(cam.empty!.value.toBool(), isFalse, reason: 'Should not be empty after write');
-    expect(cam.full!.value.toBool(), isFalse, reason: 'Should not be full with 1 entry');
-    expect(cam.validCount!.value.toInt(), equals(1), reason: 'Count should be 1');
+    expect(cam.empty!.value.toBool(), isFalse,
+        reason: 'Should not be empty after write');
+    expect(cam.full!.value.toBool(), isFalse,
+        reason: 'Should not be full with 1 entry');
+    expect(cam.validCount!.value.toInt(), equals(1),
+        reason: 'Count should be 1');
 
     // Write three more entries to fill the CAM
     for (var i = 1; i < numEntries; i++) {
@@ -118,9 +124,12 @@ void main() {
       await clk.nextPosedge;
     }
 
-    expect(cam.empty!.value.toBool(), isFalse, reason: 'Should not be empty when full');
-    expect(cam.full!.value.toBool(), isTrue, reason: 'Should be full with all entries');
-    expect(cam.validCount!.value.toInt(), equals(numEntries), reason: 'Count should equal numEntries');
+    expect(cam.empty!.value.toBool(), isFalse,
+        reason: 'Should not be empty when full');
+    expect(cam.full!.value.toBool(), isTrue,
+        reason: 'Should be full with all entries');
+    expect(cam.validCount!.value.toInt(), equals(numEntries),
+        reason: 'Count should equal numEntries');
 
     wrPort.en.inject(0);
     await clk.nextPosedge;

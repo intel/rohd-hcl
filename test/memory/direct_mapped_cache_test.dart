@@ -31,7 +31,6 @@ void main() {
         reset,
         [fillPort],
         [readPort],
-        lines: 16,
       );
 
       await cache.build();
@@ -93,7 +92,6 @@ void main() {
         reset,
         [fillPort],
         [readPort],
-        lines: 16,
       );
 
       await cache.build();
@@ -134,7 +132,8 @@ void main() {
         expect(readPort.valid.value.toBool(), true,
             reason: 'Address 0x${addresses[i].toRadixString(16)} should hit');
         expect(readPort.data.value.toInt(), dataValues[i],
-            reason: 'Data should match for address 0x${addresses[i].toRadixString(16)}');
+            reason: 'Data should match for address '
+                '0x${addresses[i].toRadixString(16)}');
       }
 
       readPort.en.inject(0);
@@ -155,7 +154,6 @@ void main() {
         reset,
         [fillPort],
         [readPort],
-        lines: 16, // 16 lines means 4-bit line index, 4-bit tag
       );
 
       await cache.build();
@@ -240,7 +238,6 @@ void main() {
         reset,
         [fillPort1, fillPort2],
         [readPort1, readPort2],
-        lines: 16,
       );
 
       await cache.build();
