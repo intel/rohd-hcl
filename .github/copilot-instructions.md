@@ -6,6 +6,8 @@ ROHD-HCL (ROHD Hardware Component Library) is a Dart-based hardware component li
 
 **Key Concept**: All components are `Module` subclasses that instantiate hardware during construction - no "elaboration" phase exists. Signals are `Logic` objects connected via `<=` assignment operator (not `=`).
 
+**Development Status**: This repository is actively developing new cache components and infrastructure. Recent additions include `DirectMappedCache` and `CachedRequestResponse` modules for request/response caching with ready/valid protocols.
+
 ## Architecture & Core Patterns
 
 ### Module Construction Pattern
@@ -375,6 +377,47 @@ RotateLeft(
 )
 ```
 
+### Cache Components Architecture
+
+ROHD-HCL includes a comprehensive cache subsystem with multiple implementations:
+
+#### Cache Types Available
+
+```dart
+// 1. Direct-mapped cache (simplest, 1-way associative)
+final cache1 = DirectMappedCache(clk, reset, fills, reads, lines: 16);
+
+// 2. Multi-ported set-associative cache (configurable ways/lines)
+final cache2 = MultiPortedReadCache(clk, reset, fills, reads, 
+  ways: 4, lines: 16, replacement: PseudoLRUReplacement.new);
+```
+
+#### CachedRequestResponse Pattern
+
+For protocol-level caching with ready/valid interfaces:
+
+```dart
+final cache = CachedRequestResponse(
+  clk: clk, reset: reset,
+  upstreamRequest: upstreamReq,     // Consumer role
+  upstreamResponse: upstreamResp,   // Provider role  
+  downstreamRequest: downstreamReq, // Provider role
+  downstreamResponse: downstreamResp, // Consumer role
+  idWidth: 4, addrWidth: 8, dataWidth: 32,
+  // Configurable cache backend
+  cacheBuilder: (clk, reset, fills, reads) => 
+    DirectMappedCache(clk, reset, fills, reads, lines: 16),
+);
+```
+
+**Key Cache Concepts**:
+- **Fill ports**: Write data into cache with address and valid bit
+- **Read ports**: Query cache by address, returns data + valid (hit/miss)
+- **ValidDataPortInterface**: Extends DataPortInterface with valid signal
+- **Replacement policies**: PseudoLRU, FIFO, etc. for way selection
+- **CAM usage**: Fully associative caches use CAM for parallel tag lookup
+- **Request tracking**: CachedRequestResponse uses CAM to track outstanding requests by ID
+
 ### Width Inference Pattern
 
 Prefer inferring output widths from inputs rather than requiring width parameters:
@@ -494,6 +537,12 @@ OldType get oldGetter => _internal;
    - Forgetting to clone interfaces before connecting: `Interface.clone(intf)..connectIO(...)`
    - Wrong `PairRole` in `pairConnectIO()`: provider drives data/valid, consumer drives ready
    - Missing port tags when cloning clock/reset: Use `inputTags` or `outputTags` parameter
+8. **Cache-specific pitfalls**:
+   - Using wrong cache builder signature: `(clk, reset, fills, reads) => Cache`
+   - Mismatching port counts: number of fill/read ports must match cache expectations
+   - Forgetting to set `valid` bit on fill operations: cache won't store invalid data
+   - Not handling cache miss flows: read valid=0 indicates miss, requires downstream fetch
+   - CAM entry conflicts: in CachedRequestResponse, ensure ID space doesn't exceed cache depth
 
 ## Related Resources
 

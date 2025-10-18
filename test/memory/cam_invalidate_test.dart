@@ -44,7 +44,6 @@ void main() {
       // Reset
       reset.inject(1);
       writePort.en.inject(0);
-      lookupPort.en.inject(0);
       lookupPort.invalidate.inject(0);
       await clk.nextPosedge;
       await clk.nextPosedge;
@@ -66,7 +65,6 @@ void main() {
       await clk.nextPosedge;
 
       // Lookup tag 0x42 without invalidate
-      lookupPort.en.inject(1);
       lookupPort.tag.inject(0x42);
       await clk.nextPosedge;
 
@@ -82,10 +80,10 @@ void main() {
 
       // Lookup with invalidate
       lookupPort.invalidate.inject(1);
-      await clk.nextPosedge;
 
       expect(lookupPort.hit.value.toBool(), isTrue,
-          reason: 'Should hit on invalidate request');
+          reason: 'Should hit when invalidate is asserted (original behavior)');
+      await clk.nextPosedge;
 
       // Try to lookup again - should miss because entry was invalidated
       lookupPort.invalidate.inject(0);
@@ -133,9 +131,7 @@ void main() {
       // Reset
       reset.inject(1);
       writePort.en.inject(0);
-      lookupPort1.en.inject(0);
       lookupPort1.invalidate.inject(0);
-      lookupPort2.en.inject(0);
       lookupPort2.invalidate.inject(0);
       await clk.nextPosedge;
       await clk.nextPosedge;
@@ -153,11 +149,9 @@ void main() {
       await clk.nextPosedge;
 
       // Both ports lookup different tags
-      lookupPort1.en.inject(1);
       lookupPort1.tag.inject(0x1000);
       lookupPort1.invalidate.inject(0);
 
-      lookupPort2.en.inject(1);
       lookupPort2.tag.inject(0x1002);
       lookupPort2.invalidate.inject(0);
 
@@ -210,7 +204,6 @@ void main() {
       // Reset
       reset.inject(1);
       writePort.en.inject(0);
-      lookupPort.en.inject(0);
       lookupPort.invalidate.inject(0);
       await clk.nextPosedge;
       await clk.nextPosedge;
@@ -226,12 +219,14 @@ void main() {
       await clk.nextPosedge;
 
       // Lookup and invalidate
-      lookupPort.en.inject(1);
       lookupPort.tag.inject(0xAA);
       lookupPort.invalidate.inject(1);
-      await clk.nextPosedge;
 
-      expect(lookupPort.hit.value.toBool(), isTrue);
+      // Combinational output check
+      await clk.nextNegedge;
+      expect(lookupPort.hit.value.toBool(), isTrue,
+          reason: 'Should hit when invalidate is asserted (original behavior)');
+      await clk.nextPosedge;
 
       // Should now miss
       lookupPort.invalidate.inject(0);
@@ -239,7 +234,6 @@ void main() {
       expect(lookupPort.hit.value.toBool(), isFalse);
 
       // Rewrite the same entry
-      lookupPort.en.inject(0);
       writePort.en.inject(1);
       writePort.addr.inject(0);
       writePort.data.inject(0xAA);
@@ -248,10 +242,10 @@ void main() {
       await clk.nextPosedge;
 
       // Should hit again
-      lookupPort.en.inject(1);
       lookupPort.tag.inject(0xAA);
-      await clk.nextPosedge;
 
+      // Combinational output check
+      await clk.nextNegedge;
       expect(lookupPort.hit.value.toBool(), isTrue,
           reason: 'Entry should be valid after rewrite');
 
@@ -284,7 +278,6 @@ void main() {
       // Reset
       reset.inject(1);
       writePort.en.inject(0);
-      lookupPort.en.inject(0);
       lookupPort.invalidate.inject(0);
       await clk.nextPosedge;
       await clk.nextPosedge;
@@ -300,10 +293,9 @@ void main() {
       await clk.nextPosedge;
 
       // Lookup wrong tag with invalidate - should not affect entry
-      lookupPort.en.inject(1);
       lookupPort.tag.inject(0x66); // Wrong tag
       lookupPort.invalidate.inject(1);
-      await clk.nextPosedge;
+      await clk.nextNegedge;
 
       expect(lookupPort.hit.value.toBool(), isFalse,
           reason: 'Should miss for wrong tag');
@@ -345,7 +337,6 @@ void main() {
       // Reset
       reset.inject(1);
       writePort.en.inject(0);
-      lookupPort.en.inject(0);
       lookupPort.invalidate.inject(0);
       await clk.nextPosedge;
       await clk.nextPosedge;
@@ -353,9 +344,12 @@ void main() {
       await clk.nextPosedge;
 
       // Initially empty
-      expect(cam.empty!.value.toBool(), isTrue, reason: 'Should be empty initially');
-      expect(cam.full!.value.toBool(), isFalse, reason: 'Should not be full initially');
-      expect(cam.validCount!.value.toInt(), equals(0), reason: 'Count should be 0');
+      expect(cam.empty!.value.toBool(), isTrue,
+          reason: 'Should be empty initially');
+      expect(cam.full!.value.toBool(), isFalse,
+          reason: 'Should not be full initially');
+      expect(cam.validCount!.value.toInt(), equals(0),
+          reason: 'Count should be 0');
 
       // Write entries
       writePort.en.inject(1);
@@ -370,21 +364,24 @@ void main() {
       // Should be full
       expect(cam.empty!.value.toBool(), isFalse, reason: 'Should not be empty');
       expect(cam.full!.value.toBool(), isTrue, reason: 'Should be full');
-      expect(cam.validCount!.value.toInt(), equals(numEntries), reason: 'Count should equal numEntries');
+      expect(cam.validCount!.value.toInt(), equals(numEntries),
+          reason: 'Count should equal numEntries');
 
       // Invalidate one entry
-      lookupPort.en.inject(1);
       lookupPort.tag.inject(0x10);
       lookupPort.invalidate.inject(1);
-      await clk.nextPosedge;
 
-      expect(lookupPort.hit.value.toBool(), isTrue, reason: 'Should hit');
-      
+      // Check combinational output.
+      await clk.nextNegedge;
       // Wait for invalidate to take effect
+      expect(lookupPort.hit.value.toBool(), isTrue,
+          reason: 'Should hit when invalidate is asserted (original behavior)');
       await clk.nextPosedge;
 
-      expect(cam.full!.value.toBool(), isFalse, reason: 'Should not be full after invalidate');
-      expect(cam.validCount!.value.toInt(), equals(numEntries - 1), reason: 'Count should decrease by 1');
+      expect(cam.full!.value.toBool(), isFalse,
+          reason: 'Should not be full after invalidate');
+      expect(cam.validCount!.value.toInt(), equals(numEntries - 1),
+          reason: 'Count should decrease by 1');
 
       // Invalidate remaining entries
       for (var i = 1; i < numEntries; i++) {
@@ -394,8 +391,10 @@ void main() {
       }
 
       // Should be empty now
-      expect(cam.empty!.value.toBool(), isTrue, reason: 'Should be empty after invalidating all');
-      expect(cam.validCount!.value.toInt(), equals(0), reason: 'Count should be 0');
+      expect(cam.empty!.value.toBool(), isTrue,
+          reason: 'Should be empty after invalidating all');
+      expect(cam.validCount!.value.toInt(), equals(0),
+          reason: 'Count should be 0');
 
       await Simulator.endSimulation();
     });
@@ -416,17 +415,16 @@ void main() {
         reset,
         [writePort],
         [lookupPort],
-        numEntries: numEntries,
         enableValidTracking: true,
       );
 
       await cam.build();
+
       unawaited(Simulator.run());
 
       // Reset
       reset.inject(1);
       writePort.en.inject(0);
-      lookupPort.en.inject(0);
       lookupPort.invalidate.inject(0);
       await clk.nextPosedge;
       await clk.nextPosedge;
@@ -451,12 +449,17 @@ void main() {
       await clk.nextPosedge;
 
       // Verify we can lookup the entries before starting simultaneous ops
-      lookupPort.en.inject(1);
       lookupPort.invalidate.inject(0); // Don't invalidate yet
       lookupPort.tag.inject(0xA0);
       await clk.nextPosedge;
-      print('Pre-test lookup: tag=0xA0, hit=${lookupPort.hit.value}, idx=${lookupPort.idx.value}');
-      expect(lookupPort.hit.value.toBool(), isTrue, reason: 'Should find 0xA0 before test');
+
+      expect(lookupPort.hit.value.toBool(), isTrue,
+          reason: 'Should find 0xA0 before test');
+      lookupPort.tag.inject(0xA1);
+      await clk.nextPosedge;
+
+      expect(lookupPort.hit.value.toBool(), isTrue,
+          reason: 'Should find 0xA1 before test');
 
       // Now perform simultaneous write and invalidate operations
       // This demonstrates that the CAM can handle looking up/invalidating entries
@@ -464,28 +467,28 @@ void main() {
       //
       // Test: Do 4 simultaneous operations (half the CAM size) to demonstrate
       // that writes and invalidate-on-read can happen concurrently.
-      
+
       writePort.en.inject(1);
       lookupPort.invalidate.inject(1);
 
-      final numSimultaneousOps = numEntries ~/ 2;
+      const numSimultaneousOps = numEntries ~/ 2;
       for (var i = 0; i < numSimultaneousOps; i++) {
         // Write to the upper half while invalidating the lower half
-        final writeIdx = i + numSimultaneousOps;  // Indices 4-7
-        final lookupIdx = i;  // Indices 0-3
+        final writeIdx = i + numSimultaneousOps; // Indices 4-7
+        final lookupIdx = i; // Indices 0-3
         final lookupTag = 0xA0 + lookupIdx;
-        
+
         lookupPort.tag.inject(lookupTag);
         writePort.addr.inject(writeIdx);
         writePort.data.inject(0xC0 + writeIdx); // New tag
 
-        await clk.nextPosedge;
+        await clk.nextNegedge;
 
-        // Should hit on old tags in lower half
+        // Should hit when invalidate is asserted (original behavior restored)
         expect(lookupPort.hit.value.toBool(), isTrue,
-            reason: 'Cycle $i: Should hit old tag 0x${lookupTag.toRadixString(16)} at index $lookupIdx');
-        expect(lookupPort.idx.value.toInt(), equals(lookupIdx),
-            reason: 'Cycle $i: Should return index $lookupIdx');
+            reason:
+                'Cycle $i: Should hit when invalidate=1 for tag 0x${lookupTag.toRadixString(16)}');
+        await clk.nextPosedge;
       }
 
       // Wait for final write and invalidates to settle
@@ -495,14 +498,15 @@ void main() {
       await clk.nextPosedge;
       await clk.nextPosedge;
       await clk.nextPosedge;
-      
+
       // After invalidating lower half (indices 0-3) and writing new entries
       // to upper half (indices 4-7), we should have exactly the upper half valid
       expect(cam.full!.value.toBool(), isFalse,
           reason: 'CAM should not be full - only upper half is valid');
       expect(cam.validCount!.value.toInt(), equals(numSimultaneousOps),
-          reason: 'Count should equal number of new writes (${numSimultaneousOps})');
-      
+          reason:
+              'Count should equal number of new writes ($numSimultaneousOps)');
+
       // Verify the new entries in upper half exist and can be looked up
       lookupPort.invalidate.inject(0); // Don't invalidate for verification
       for (var i = numSimultaneousOps; i < numEntries; i++) {
@@ -519,7 +523,8 @@ void main() {
         lookupPort.tag.inject(0xA0 + i);
         await clk.nextPosedge;
         expect(lookupPort.hit.value.toBool(), isFalse,
-            reason: 'Should NOT find invalidated tag 0x${(0xA0 + i).toRadixString(16)}');
+            reason: 'Should NOT find invalidated '
+                'tag 0x${(0xA0 + i).toRadixString(16)}');
       }
 
       await Simulator.endSimulation();

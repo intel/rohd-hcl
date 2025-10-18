@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: BSD-3-Clause
 
 export 'cache.dart';
+export 'cached_request_response.dart';
 export 'cam.dart';
 export 'csr/csrs.dart';
 export 'fifo.dart';

@@ -10,7 +10,6 @@
 
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
-import 'package:rohd_hcl/src/ready_valid_interface.dart';
 
 /// A [LogicStructure] representing a request with an ID and address.
 class RequestData extends LogicStructure {
@@ -77,7 +76,8 @@ class ResponseData extends LogicStructure {
 /// - Drains response FIFO to upstream response interface
 /// - Downstream has priority over upstream for response FIFO access
 ///
-/// The cache implementation can be customized using the [cacheBuilder] parameter.
+/// The cache implementation can be customized using the [cacheBuilder]
+/// parameter.
 ///
 /// Example with different cache types:
 /// ```dart
@@ -88,15 +88,8 @@ class ResponseData extends LogicStructure {
 ///   ...
 /// );
 ///
-/// // Fully associative cache
-/// final cached2 = CachedRequestResponse(
-///   cacheBuilder: (clk, reset, fills, reads) =>
-///     FullyAssociativeReadCache(clk, reset, fills, reads, numEntries: 16),
-///   ...
-/// );
-///
 /// // Multi-ported cache with custom configuration
-/// final cached3 = CachedRequestResponse(
+/// final cached2 = CachedRequestResponse(
 ///   cacheBuilder: (clk, reset, fills, reads) =>
 ///     MultiPortedReadCache(clk, reset, fills, reads,
 ///       ways: 4, lines: 16, replacement: PseudoLRUReplacement.new),
@@ -155,6 +148,9 @@ class CachedRequestResponse extends Module {
   /// The [cacheBuilder] parameter allows customization of the cache
   /// implementation. If not provided, defaults to a [DirectMappedCache]
   /// with the specified [cacheDepth].
+  ///
+  /// The [idWidth], [addrWidth], and [dataWidth] are inferred from the
+  /// provided interfaces unless explicitly specified.
   CachedRequestResponse({
     required Logic clk,
     required Logic reset,
@@ -162,9 +158,9 @@ class CachedRequestResponse extends Module {
     required ReadyValidInterface<ResponseData> upstreamResponse,
     required ReadyValidInterface<RequestData> downstreamRequest,
     required ReadyValidInterface<ResponseData> downstreamResponse,
-    required this.idWidth,
-    required this.addrWidth,
-    required this.dataWidth,
+    int? idWidth,
+    int? addrWidth,
+    int? dataWidth,
     this.cacheDepth = 16,
     this.cacheWays = 2,
     this.responseFifoDepth = 8,
@@ -175,13 +171,16 @@ class CachedRequestResponse extends Module {
       List<ValidDataPortInterface> reads,
     )? cacheBuilder,
     super.name = 'cached_request_response',
-  }) : cacheBuilder = cacheBuilder ??
+  })  : idWidth = idWidth ?? upstreamRequest.data.idWidth,
+        addrWidth = addrWidth ?? upstreamRequest.data.addrWidth,
+        dataWidth = dataWidth ?? upstreamResponse.data.dataWidth,
+        cacheBuilder = cacheBuilder ??
             ((clk, reset, fills, reads) => DirectMappedCache(
                   clk,
                   reset,
                   fills,
                   reads,
-                  lines: 16,
+                  lines: cacheDepth,
                 )) {
     // Add clock and reset
     clk = addInput('clk', clk);
@@ -189,25 +188,25 @@ class CachedRequestResponse extends Module {
 
     // Connect upstream request (consumer role - receives requests)
     this.upstreamRequest = ReadyValidInterface<RequestData>(
-      RequestData(idWidth: idWidth, addrWidth: addrWidth),
+      RequestData(idWidth: this.idWidth, addrWidth: this.addrWidth),
     )..pairConnectIO(this, upstreamRequest, PairRole.consumer,
         uniquify: (name) => 'upstream_req_$name');
 
     // Connect upstream response (provider role - sends responses)
     this.upstreamResponse = ReadyValidInterface<ResponseData>(
-      ResponseData(idWidth: idWidth, dataWidth: dataWidth),
+      ResponseData(idWidth: this.idWidth, dataWidth: this.dataWidth),
     )..pairConnectIO(this, upstreamResponse, PairRole.provider,
         uniquify: (name) => 'upstream_resp_$name');
 
     // Connect downstream request (provider role - sends requests)
     this.downstreamRequest = ReadyValidInterface<RequestData>(
-      RequestData(idWidth: idWidth, addrWidth: addrWidth),
+      RequestData(idWidth: this.idWidth, addrWidth: this.addrWidth),
     )..pairConnectIO(this, downstreamRequest, PairRole.provider,
         uniquify: (name) => 'downstream_req_$name');
 
     // Connect downstream response (consumer role - receives responses)
     this.downstreamResponse = ReadyValidInterface<ResponseData>(
-      ResponseData(idWidth: idWidth, dataWidth: dataWidth),
+      ResponseData(idWidth: this.idWidth, dataWidth: this.dataWidth),
     )..pairConnectIO(this, downstreamResponse, PairRole.consumer,
         uniquify: (name) => 'downstream_resp_$name');
 
@@ -220,8 +219,8 @@ class CachedRequestResponse extends Module {
     // Create response FIFO for queuing responses to upstream
     final responseFifoWriteEnable = Logic(name: 'response_fifo_write_enable');
     final responseFifoWriteData = ResponseData(
-      idWidth: idWidth,
-      dataWidth: dataWidth,
+      idWidth: this.idWidth,
+      dataWidth: this.dataWidth,
       name: 'response_fifo_write_data',
     );
     final responseFifoReadEnable = Logic(name: 'response_fifo_read_enable');

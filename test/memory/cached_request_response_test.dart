@@ -11,8 +11,6 @@ import 'dart:async';
 
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
-import 'package:rohd_hcl/src/cached_request_response.dart';
-import 'package:rohd_hcl/src/ready_valid_interface.dart';
 import 'package:test/test.dart';
 
 /// Helper to wait for multiple clock cycles
@@ -54,9 +52,6 @@ void main() {
         upstreamResponse: upstreamResp,
         downstreamRequest: downstreamReq,
         downstreamResponse: downstreamResp,
-        idWidth: 4,
-        addrWidth: 8,
-        dataWidth: 32,
         cacheDepth: 16,
         responseFifoDepth: 8,
       );
@@ -139,9 +134,6 @@ void main() {
         upstreamResponse: upstreamResp,
         downstreamRequest: downstreamReq,
         downstreamResponse: downstreamResp,
-        idWidth: 4,
-        addrWidth: 8,
-        dataWidth: 32,
         cacheDepth: 16,
         responseFifoDepth: 8,
       );
@@ -230,9 +222,6 @@ void main() {
         upstreamResponse: upstreamResp,
         downstreamRequest: downstreamReq,
         downstreamResponse: downstreamResp,
-        idWidth: 4,
-        addrWidth: 8,
-        dataWidth: 32,
         cacheDepth: 16,
         responseFifoDepth: 8,
       );
@@ -315,48 +304,6 @@ void main() {
   });
 
   group('CachedRequestResponse with custom cache', () {
-    test('can instantiate with FullyAssociativeReadCache', () async {
-      final clk = SimpleClockGenerator(10).clk;
-      final reset = Logic();
-
-      final upstreamReq = ReadyValidInterface<RequestData>(
-        RequestData(idWidth: 4, addrWidth: 8),
-      );
-      final upstreamResp = ReadyValidInterface<ResponseData>(
-        ResponseData(idWidth: 4, dataWidth: 32),
-      );
-      final downstreamReq = ReadyValidInterface<RequestData>(
-        RequestData(idWidth: 4, addrWidth: 8),
-      );
-      final downstreamResp = ReadyValidInterface<ResponseData>(
-        ResponseData(idWidth: 4, dataWidth: 32),
-      );
-
-      // Create cache with fully associative cache
-      final cache = CachedRequestResponse(
-        clk: clk,
-        reset: reset,
-        upstreamRequest: upstreamReq,
-        upstreamResponse: upstreamResp,
-        downstreamRequest: downstreamReq,
-        downstreamResponse: downstreamResp,
-        idWidth: 4,
-        addrWidth: 8,
-        dataWidth: 32,
-        cacheBuilder: (clk, reset, fills, reads) =>
-            FullyAssociativeReadCache(
-          clk,
-          reset,
-          fills,
-          reads,
-          numEntries: 8,
-        ),
-      );
-
-      await cache.build();
-      // Successfully built - demonstrates API works
-    });
-
     test('can instantiate with MultiPortedReadCache', () async {
       final clk = SimpleClockGenerator(10).clk;
       final reset = Logic();
@@ -382,9 +329,6 @@ void main() {
         upstreamResponse: upstreamResp,
         downstreamRequest: downstreamReq,
         downstreamResponse: downstreamResp,
-        idWidth: 4,
-        addrWidth: 8,
-        dataWidth: 32,
         cacheBuilder: (clk, reset, fills, reads) => MultiPortedReadCache(
           clk,
           reset,
@@ -424,9 +368,6 @@ void main() {
         upstreamResponse: upstreamResp,
         downstreamRequest: downstreamReq,
         downstreamResponse: downstreamResp,
-        idWidth: 4,
-        addrWidth: 8,
-        dataWidth: 32,
       );
 
       await cache.build();

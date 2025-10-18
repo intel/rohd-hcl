@@ -133,6 +133,11 @@ void main() {
 Prefer using `waitCycles` instead of `nextPosEdge` and use `inject` instead of
 `put` when working with sequential tests.
 
+When testing a combinational path, and you `inject` inputs after a positive
+clock edge, use `nextNegEdge` to look at the value mid-way through the clock
+cycle, because if you wait for the next positive edge, then you will miss this
+output as it will be whatever is triggered by the next clk edge.
+
 While creating unit tests, you can just run the tests for your component instead
 of running the entire suite of ROHD-HCL tests.  The entire regression suite
 takes quite a long time and is only necessary if you make changes to some core

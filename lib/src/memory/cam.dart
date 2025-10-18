@@ -21,9 +21,6 @@ class TagInterface extends Interface<DataPortGroup> {
   /// The width of addresses in the memory.
   final int idWidth;
 
-  /// Enable signal for the lookup.
-  Logic get en => port('en');
-
   /// The "tag" to match.
   Logic get tag => port('tag');
 
@@ -37,7 +34,6 @@ class TagInterface extends Interface<DataPortGroup> {
   /// querying a CAM.
   TagInterface(this.idWidth, this.tagWidth) {
     setPorts([
-      Logic.port('en'),
       Logic.port('tag', tagWidth),
     ], [
       DataPortGroup.control
@@ -81,8 +77,7 @@ class Cam extends Memory {
 
   /// The count of valid entries.
   /// Only available when [enableValidTracking] is true.
-  Logic? get validCount =>
-      enableValidTracking ? output('valid_count') : null;
+  Logic? get validCount => enableValidTracking ? output('valid_count') : null;
 
   /// Constructs a new [Cam] with write ports that use direct address writes
   /// and .read ports that use associative lookup.
@@ -139,8 +134,8 @@ class Cam extends Memory {
 
     // Create valid tracking if enabled
     if (enableValidTracking) {
-      _validBits = List<Logic>.generate(
-          numEntries, (i) => Logic(name: 'valid_$i'));
+      _validBits =
+          List<Logic>.generate(numEntries, (i) => Logic(name: 'valid_$i'));
 
       final countWidth = log2Ceil(numEntries + 1);
       addOutput('valid_count', width: countWidth);
@@ -180,8 +175,7 @@ class Cam extends Memory {
     Sequential(clk, [
       If(reset, then: [
         ..._storageBank.mapIndexed((i, e) => e < Const(0, width: dataWidth)),
-        if (enableValidTracking)
-          ..._validBits!.map((v) => v < Const(0)),
+        if (enableValidTracking) ..._validBits!.map((v) => v < Const(0)),
       ], orElse: [
         for (var entry = 0; entry < numEntries; entry++)
           ...wrPorts.map((wrPort) =>
@@ -251,8 +245,7 @@ class CamInvalidate extends Memory {
 
   /// The count of valid entries.
   /// Only available when [enableValidTracking] is true.
-  Logic? get validCount =>
-      enableValidTracking ? output('valid_count') : null;
+  Logic? get validCount => enableValidTracking ? output('valid_count') : null;
 
   /// Constructs a new [CamInvalidate] with write ports and lookup ports
   /// that support invalidate-on-read.
@@ -309,18 +302,17 @@ class CamInvalidate extends Memory {
     // Width is dataWidth + 1 to include the valid bit
     _storageBank = List<Logic>.generate(
         numEntries, (i) => Logic(name: 'tag_$i', width: dataWidth + 1));
-
-    // Create valid tracking outputs if enabled
     if (enableValidTracking) {
       final countWidth = log2Ceil(numEntries + 1);
       addOutput('valid_count', width: countWidth);
       addOutput('full');
       addOutput('empty');
 
+      // TODO(desmonddak): replace with an up/dn Counter when available.
       // Count valid entries by summing the MSB (valid bit)
-      // of each storage bank entry
+      // of each storage bank entry.
       final validBits = _storageBank
-          .map((tag) => tag[dataWidth]) // Extract MSB (valid bit)
+          .map((tag) => tag[dataWidth]) // Extract MSB (valid bit).
           .toList();
       final countSum = validBits
           .map((v) => v.zeroExtend(validCount!.width))
@@ -330,87 +322,77 @@ class CamInvalidate extends Memory {
       empty! <= validCount!.eq(0);
     }
 
-    // CAM lookup returns the index if valid and tag matches
-    // Prepend Const(1) to lookup tag so it only matches valid entries
+    // CAM lookup: check if tag matches and entry is valid.
+    // Use the same pattern as regular CAM but with valid bit.
     for (final lookupPort in lookupPorts) {
       final validTag = [Const(1), lookupPort.tag].swizzle();
-      
+
       Combinational([
-        If(lookupPort.en, then: [
-          Case(validTag, [
-            for (var i = 0; i < numEntries; i++)
-              CaseItem(
-                _storageBank[i],
-                [
-                  lookupPort.idx < Const(i, width: lookupPort.idWidth),
-                  lookupPort.hit < Const(1),
-                ],
-              )
-          ], defaultItem: [
-            lookupPort.idx < Const(0, width: lookupPort.idWidth),
-            lookupPort.hit < Const(0)
-          ]),
-        ], orElse: [
+        Case(validTag, [
+          for (var i = 0; i < numEntries; i++)
+            CaseItem(
+              _storageBank[i],
+              [
+                lookupPort.idx < Const(i, width: lookupPort.idWidth),
+                lookupPort.hit < Const(1),
+              ],
+            )
+        ], defaultItem: [
           lookupPort.idx < Const(0, width: lookupPort.idWidth),
           lookupPort.hit < Const(0)
         ]),
       ]);
     }
 
-    // Create registered versions of hit and idx for invalidate logic
-    final registeredHits = <Logic>[];
-    final registeredIdxs = <Logic>[];
-    final registeredInvalidates = <Logic>[];
+    // Compute next state for each storage entry combinationally.
+    final nextStorageBank = <Logic>[];
+    for (var entry = 0; entry < numEntries; entry++) {
+      final nextEntry = Logic(name: 'next_tag_$entry', width: dataWidth + 1);
+      nextStorageBank.add(nextEntry);
 
-    for (var i = 0; i < lookupPorts.length; i++) {
-      final regHit = Logic(name: 'reg_hit_$i');
-      final regIdx = Logic(name: 'reg_idx_$i', width: lookupPorts[i].idWidth);
-      final regInvalidate = Logic(name: 'reg_invalidate_$i');
+      final writeConditions = <Logic>[];
+      final writeDataOptions = <Logic>[];
+      for (final wrPort in wrPorts) {
+        writeConditions.add(wrPort.en & wrPort.addr.eq(entry));
+        writeDataOptions.add([Const(1), wrPort.data].swizzle());
+      }
+      final anyWrite = writeConditions.isNotEmpty
+          ? writeConditions.reduce((a, b) => a | b)
+          : Const(0);
+      final writeData = writeDataOptions.isNotEmpty
+          ? writeDataOptions.first
+          : Const(0, width: dataWidth + 1);
 
-      registeredHits.add(regHit);
-      registeredIdxs.add(regIdx);
-      registeredInvalidates.add(regInvalidate);
+      // Check for invalidation
+      final invalidateConditions = <Logic>[];
+      for (var i = 0; i < lookupPorts.length; i++) {
+        final validTag = [Const(1), lookupPorts[i].tag].swizzle();
+        final tagMatches = _storageBank[entry].eq(validTag);
+        final shouldInvalidate = lookupPorts[i].invalidate & tagMatches;
+        invalidateConditions.add(shouldInvalidate);
+      }
+      final anyInvalidate = invalidateConditions.isNotEmpty
+          ? invalidateConditions.reduce((a, b) => a | b)
+          : Const(0);
+
+      nextEntry <=
+          mux(
+              anyInvalidate,
+              // Invalidate: clear valid bit.
+              [Const(0), _storageBank[entry].slice(dataWidth - 1, 0)].swizzle(),
+              // Otherwise: write if enabled, else hold current value.
+              mux(anyWrite, writeData, _storageBank[entry]));
     }
 
-    // Sequential logic for storage with valid bit in MSB
     Sequential(clk, [
       If(reset, then: [
         // Clear all tags (including valid bit in MSB)
-        ..._storageBank.mapIndexed(
-            (i, e) => e < Const(0, width: dataWidth + 1)),
-        ...registeredHits.map((h) => h < Const(0)),
-        ...registeredIdxs.map((idx) => idx < Const(0, width: idx.width)),
-        ...registeredInvalidates.map((inv) => inv < Const(0)),
+        ..._storageBank
+            .mapIndexed((i, e) => e < Const(0, width: dataWidth + 1)),
       ], orElse: [
-        // Register hit, idx, and invalidate signals for next cycle
-        for (var i = 0; i < lookupPorts.length; i++) ...[
-          registeredHits[i] < lookupPorts[i].hit,
-          registeredIdxs[i] < lookupPorts[i].idx,
-          registeredInvalidates[i] < lookupPorts[i].invalidate,
-        ],
-        // Handle writes - prepend valid bit (1) to tag and store
+        // Transfer computed next state to storage
         for (var entry = 0; entry < numEntries; entry++)
-          ...wrPorts.map((wrPort) => If(
-                  wrPort.en & wrPort.addr.eq(entry),
-                  then: [
-                    _storageBank[entry] <
-                        [Const(1), wrPort.data].swizzle(), // Valid bit + tag
-                  ])),
-        // Handle invalidates - clear valid bit (set MSB to 0)
-        for (var entry = 0; entry < numEntries; entry++)
-          for (var i = 0; i < lookupPorts.length; i++)
-            If(
-                registeredInvalidates[i] &
-                    registeredHits[i] &
-                    registeredIdxs[i].eq(entry),
-                then: [
-                  // Clear valid bit by storing 0 + current tag value
-                  _storageBank[entry] <
-                      [
-                    Const(0),
-                    _storageBank[entry].slice(dataWidth - 1, 0)
-                  ].swizzle(),
-                ]),
+          _storageBank[entry] < nextStorageBank[entry],
       ]),
     ]);
   }
