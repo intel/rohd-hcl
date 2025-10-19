@@ -84,7 +84,8 @@ more detail.
  unit tests for a component is shown below.  Note that grouping of tests can
  reuse a common component built for multiple tests.  Also note that each test
  with sequential logic will need a `SimpleClockGenerator`, a `Simulator.run()`
- and an `endSimulation`.
+ and an `endSimulation`. Some helper methods (like `.waitCycles`) are available
+ in the rohd-fv package.
 
  ```dart
 void main() {
