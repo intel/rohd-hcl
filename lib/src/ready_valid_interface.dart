@@ -17,10 +17,10 @@ class ReadyValidInterface<LogicType extends Logic> extends PairInterface {
 
   /// Creates a [ReadyValidInterface] with the given [data].
   ReadyValidInterface(this.data)
-    : super(
-        portsFromProvider: [data, Logic.port('valid')],
-        portsFromConsumer: [Logic.port('ready')],
-      );
+      : super(
+          portsFromProvider: [data, Logic.port('valid')],
+          portsFromConsumer: [Logic.port('ready')],
+        );
 
   @override
   ReadyValidInterface<LogicType> clone() =>

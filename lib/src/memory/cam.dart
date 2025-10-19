@@ -93,7 +93,7 @@ class Cam extends Memory {
   ///   numEntries: 16,
   ///   enableValidTracking: true,
   /// );
-  /// // Use cam.full, cam.empty, and cam.validCount signals
+  /// // Use cam.full, cam.empty, and cam.validCount signals.
   /// ```
   Cam(Logic clk, Logic reset, List<DataPortInterface> writePorts,
       List<TagInterface> lookupPorts,

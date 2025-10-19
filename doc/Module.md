@@ -1,5 +1,8 @@
 # How to Build a Great Component in ROHD
 
+Since ROHD is an extension of the Dart programming language, please follow all
+Dart programming and documentation conventions.
+
 The `Module` class is the base class used in ROHD to build components, and
 calling the constructor the `Module` instantiates the component and connects it
 to signals passed into the constructor.
