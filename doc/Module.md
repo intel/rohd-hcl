@@ -53,6 +53,7 @@ examples of key general interface types that you can inherit from are the
 `PairInterface` and the `DataPortInterface`.  the `Memory` module has a good
 example of how `DataPortInterface`s are cloned internally using its `connectIO`
 method.  
+The `Fifo` has a good example of using an `Interface` to wrap a `LogicStructure`.
 
 An important kind of `Interface` is the `PairInterface` which is designed for
 bidirectional communication and provides a `pairConnectIO` method for connecting
