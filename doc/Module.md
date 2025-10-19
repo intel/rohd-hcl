@@ -55,6 +55,9 @@ example of how `DataPortInterface`s are cloned internally using its `connectIO`
 method.  
 The `Fifo` has a good example of using an `Interface` to wrap a `LogicStructure`.
 
+When wrapping `LogicStructure` with `Interface`, don't name the `LogicStructure`
+as `Interface` will need to uniquify (a known bug in `Interface`).
+
 An important kind of `Interface` is the `PairInterface` which is designed for
 bidirectional communication and provides a `pairConnectIO` method for connecting
 external and internal ports based on producer/consumer filtering.
