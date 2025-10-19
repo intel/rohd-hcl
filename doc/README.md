@@ -109,8 +109,9 @@ Some in-development items will have opened issues, as well. Feel free to create 
 - Memory
   - [Register File](./components/memory.md#register-files)
   - [Masking](./components/memory.md#masks)
-  - Replacement Policies
-    - LRU
+  - [Caches](./components/memory.md#caches)
+    - [Replacement Policies](./components/memory.md#replacement-policy)
+  - [Cams](./components/memory.md#basic-cam)
   - [Memory Model](./components/memory.md#memory-models)
   - [Control/Status Registers (CSRs)](./components/csr.md)
 - Standard interfaces

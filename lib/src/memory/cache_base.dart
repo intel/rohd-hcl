@@ -75,7 +75,6 @@ abstract class Cache extends Module {
   final List<ValidDataPortInterface> reads = [];
 
   /// Eviction interfaces which return the address and data being evicted.
-  // TODO(desmonddak): implement an interface without enable.
   @protected
   final List<ValidDataPortInterface> evictions = [];
 
@@ -149,7 +148,7 @@ abstract class Cache extends Module {
     }
     buildLogic();
   }
-  
+
   /// Builds the internal logic for the cache implementation.
   ///
   /// This method must be overridden by subclasses to implement the specific

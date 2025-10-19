@@ -79,6 +79,25 @@ final camInvalidate = CamInvalidate(
 
 ROHD-HCL provides cache implementations for different architectural needs, from simple direct-mapped caches to sophisticated multi-ported set-associative designs.  The base `Cache` interface provides a set of write ports, read ports, and invalidate ports.  The invalidate ports provide address and data for evicted cache elements. This capability is not yet implemented in the following `Cache` implementations.
 
+### Replacement Policy
+
+For supporting set-associative caching, the `Cache` interface provides a way to provide a replacement policy via a `Function` parameter:
+
+```dart
+  final ReplacementPolicy Function(
+      Logic clk,
+      Logic reset,
+      List<AccessInterface> hits,
+      List<AccessInterface> misses,
+      List<AccessInterface> invalidates,
+      {int ways,
+      String name}) replacement;
+```
+
+Here, the `AccessInterface` simply carries the `access` flag and the `way` that is being read or written.
+
+A pseudo-LRU `ReplacementPolicy` called `PseudoLRUReplacement` is provided as default for use in set-associative caches.
+
 ### DirectMappedCache
 
 The [`DirectMappedCache`] provides a direct-mapped cache with multiple read and fill ports.
