@@ -83,7 +83,7 @@ more detail.
  signals created by the ports or by subcomponents.  Use `.named` to create clean
  SystemVerilog names.
 
- ### Debug
+### Debug
 
  If you want to expose internal signals onto the interface of a `Module` for debug, a simple method is to declare them as a field in the class (Use @protected in case this is exposed so it doesn't become part of the API). This signal will be available in tests as module.field.
 
