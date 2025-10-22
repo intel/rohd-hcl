@@ -44,8 +44,7 @@ abstract class FloatingPointAdder<FpTypeIn extends FloatingPoint,
   late final FpTypeIn b;
 
   /// getter for the computed [FpTypeOut] output.
-  late final FpTypeOut sum = (internalSum.clone(name: 'int_sum') as FpTypeOut)
-    ..gets(output('sum'));
+  late final FpTypeOut sum;
 
   /// The conditional output [FloatingPoint] signal in which to store the
   /// result of the addition.
@@ -85,10 +84,8 @@ abstract class FloatingPointAdder<FpTypeIn extends FloatingPoint,
     this.clk = (clk != null) ? addInput('clk', clk) : null;
     this.reset = (reset != null) ? addInput('reset', reset) : null;
     this.enable = (enable != null) ? addInput('enable', enable) : null;
-    this.a = (a.clone(name: 'a') as FpTypeIn)
-      ..gets(addInput('a', a, width: a.width));
-    this.b = (b.clone(name: 'b') as FpTypeIn)
-      ..gets(addInput('b', b, width: b.width));
+    this.a = (a.clone(name: 'a') as FpTypeIn)..gets(addTypedInput('a', a));
+    this.b = (b.clone(name: 'b') as FpTypeIn)..gets(addTypedInput('b', b));
 
     internalSum =
         (outSum ?? (a.explicitJBit ? b : a)).clone(name: 'outSum') as FpTypeOut;
@@ -96,12 +93,14 @@ abstract class FloatingPointAdder<FpTypeIn extends FloatingPoint,
     exponentWidth = (outSum == null) ? a.exponent.width : outSum.exponent.width;
     mantissaWidth = (outSum == null) ? a.mantissa.width : outSum.mantissa.width;
 
-    addOutput('sum', width: internalSum.width);
+    // expose typed output and drive it from internalSum
+    sum = addTypedOutput(
+        'sum', internalSum.clone as FpTypeOut Function({String? name}));
+    sum <= internalSum;
 
     if (outSum != null) {
-      outSum <= output('sum');
+      outSum <= sum;
     }
-    output('sum') <= internalSum;
   }
 
   /// Pipelining helper that uses the context for signals clk/enable/reset

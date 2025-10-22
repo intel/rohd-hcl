@@ -27,7 +27,7 @@ void main() {
     final fillPort = ValidDataPortInterface(8, 16);
     final rdPort = ValidDataPortInterface(8, 16);
 
-    final cache = MultiPortedReadCache(clk, reset, [fillPort], [rdPort],
+    final cache = SetAssociativeCache(clk, reset, [fillPort], [rdPort],
         ways: 4, lines: 8);
 
     await cache.build();
@@ -44,7 +44,7 @@ void main() {
     final rdPort = ValidDataPortInterface(8, 16);
     final rdPort2 = ValidDataPortInterface(8, 16);
 
-    final cache = MultiPortedReadCache(
+    final cache = SetAssociativeCache(
         clk, reset, [fillPort, fillPort2], [rdPort, rdPort2],
         ways: 4, lines: 51);
 
@@ -107,7 +107,7 @@ void main() {
     final rdPort = ValidDataPortInterface(8, 16);
     final rdPort2 = ValidDataPortInterface(8, 16);
 
-    final cache = MultiPortedReadCache(
+    final cache = SetAssociativeCache(
         clk, reset, [fillPort, fillPort2], [rdPort, rdPort2],
         ways: 4, lines: 51);
 
@@ -177,7 +177,7 @@ void main() {
     final rdPort = ValidDataPortInterface(8, 16);
     final rdPort2 = ValidDataPortInterface(8, 16);
 
-    final cache = MultiPortedReadCache(
+    final cache = SetAssociativeCache(
         clk, reset, [fillPort, fillPort2], [rdPort, rdPort2],
         ways: 4, lines: 51);
 
@@ -256,7 +256,7 @@ void main() {
       final fillPort = ValidDataPortInterface(dataWidth, addrWidth);
       final rdPort = ValidDataPortInterface(dataWidth, addrWidth);
 
-      final cache = MultiPortedReadCache(clk, reset, [fillPort], [rdPort],
+      final cache = SetAssociativeCache(clk, reset, [fillPort], [rdPort],
           ways: ways, lines: lines);
 
       await cache.build();
@@ -318,7 +318,7 @@ void main() {
       final fillPort = ValidDataPortInterface(dataWidth, addrWidth);
       final rdPort = ValidDataPortInterface(dataWidth, addrWidth);
 
-      final cache = MultiPortedReadCache(clk, reset, [fillPort], [rdPort],
+      final cache = SetAssociativeCache(clk, reset, [fillPort], [rdPort],
           ways: ways, lines: lines);
       await cache.build();
 

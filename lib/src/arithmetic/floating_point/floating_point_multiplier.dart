@@ -44,9 +44,7 @@ abstract class FloatingPointMultiplier<FpTypeIn extends FloatingPoint,
   late final FpTypeIn b;
 
   /// The computed [FpTypeOut] product of [a] * [b].
-  late final FpTypeOut product = (internalProduct.clone(name: 'int_product')
-      as FpTypeOut)
-    ..gets(output('product'));
+  late final FpTypeOut product;
 
   /// The rounding mode to use for the multiplier.
   late final FloatingPointRoundingMode roundingMode;
@@ -93,21 +91,22 @@ abstract class FloatingPointMultiplier<FpTypeIn extends FloatingPoint,
         (outProduct == null) ? a.mantissa.width : outProduct.mantissa.width;
 
     internalProduct = (outProduct ?? a).clone(name: 'outSum') as FpTypeOut;
-    addOutput('product', width: exponentWidth + mantissaWidth + 1) <=
-        internalProduct;
+
+    // expose typed output and drive it from internalProduct
+    product = addTypedOutput(
+        'product', internalProduct.clone as FpTypeOut Function({String? name}));
+    product <= internalProduct;
 
     if (outProduct != null) {
-      outProduct <= output('product');
+      outProduct <= product;
     }
 
     this.clk = (clk != null) ? addInput('clk', clk) : clk;
     this.enable = (enable != null) ? addInput('enable', enable) : enable;
     this.reset = (reset != null) ? addInput('reset', reset) : reset;
 
-    this.a = (a.clone(name: 'a') as FpTypeIn)
-      ..gets(addInput('a', a, width: a.width));
-    this.b = (b.clone(name: 'b') as FpTypeIn)
-      ..gets(addInput('b', b, width: b.width));
+    this.a = (a.clone(name: 'a') as FpTypeIn)..gets(addTypedInput('a', a));
+    this.b = (b.clone(name: 'b') as FpTypeIn)..gets(addTypedInput('b', b));
   }
 
   /// Pipelining helper that uses the context for signals clk/enable/reset

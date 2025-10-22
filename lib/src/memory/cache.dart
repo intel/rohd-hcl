@@ -9,6 +9,7 @@
 
 export 'cache_base.dart';
 export 'direct_mapped_cache.dart';
-export 'multi_ported_read_cache.dart';
+export 'fully_associative_cache.dart';
 export 'pseudo_lru_replacement.dart';
 export 'replacement_policy.dart';
+export 'set_associative_cache.dart';

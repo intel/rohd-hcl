@@ -13,13 +13,16 @@ class ReadyValidInterface<LogicType extends Logic> extends PairInterface {
   Logic get valid => port('valid');
 
   /// Indicates that a transaction has been accepted (both valid and ready).
-  late final Logic accepted = (ready & valid).named('${data}_accepted');
+  /// Use the underlying data's name for a stable port name instead of
+  /// interpolating the object itself.
+  late final Logic accepted = (ready & valid).named('${data.name}_accepted');
 
   /// Creates a [ReadyValidInterface] with the given [data].
   ReadyValidInterface(this.data)
       : super(
           portsFromProvider: [data, Logic.port('valid')],
           portsFromConsumer: [Logic.port('ready')],
+          connectFieldsAsPorts: true,
         );
 
   @override

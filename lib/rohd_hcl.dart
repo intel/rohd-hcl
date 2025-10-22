@@ -1,9 +1,11 @@
 // Copyright (C) 2023-2025 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 
+export 'src/address_echo_channel.dart';
 export 'src/arbiters/arbiters.dart';
 export 'src/arithmetic/arithmetic.dart';
 export 'src/binary_gray.dart';
+export 'src/cached_request_response_channel.dart';
 export 'src/clock_gating.dart';
 export 'src/component_config/component_config.dart';
 export 'src/count.dart';
@@ -22,6 +24,8 @@ export 'src/priority_encoder.dart';
 export 'src/ready_valid_interface.dart';
 export 'src/reduction_tree.dart';
 export 'src/reduction_tree_generator.dart';
+export 'src/request_response_channel.dart';
+export 'src/request_response_structures.dart';
 export 'src/rotate.dart';
 export 'src/serialization/serialization.dart';
 export 'src/signed_shifter.dart';

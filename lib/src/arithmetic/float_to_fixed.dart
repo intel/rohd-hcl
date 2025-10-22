@@ -38,8 +38,8 @@ class FloatToFixed extends Module {
   late final FixedPoint _fixed =
       FixedPoint(integerWidth: integerWidth, fractionWidth: fractionWidth);
 
-  /// Output fixed point port
-  late final FixedPoint fixed = _fixed.clone()..gets(output('fixed'));
+  /// Output fixed point port (exposed as a typed output)
+  late final FixedPoint fixed;
 
   /// Build a [FloatingPoint] to [FixedPoint] converter.
   /// - if [integerWidth] and [fractionWidth] are supplied, an m.n fixed-point
@@ -61,7 +61,7 @@ class FloatToFixed extends Module {
             definitionName: definitionName ??
                 'FloatE${float.exponent.width}'
                     'M${float.mantissa.width}ToFixed') {
-    float = float.clone()..gets(addInput('float', float, width: float.width));
+    float = float.clone()..gets(addTypedInput('float', float));
 
     final bias = float.floatingPointValue.bias;
     // E4M3 expands the max exponent by 1.
@@ -138,7 +138,9 @@ class FloatToFixed extends Module {
         .named('number');
 
     _fixed <= mux(float.sign, ~number + 1, number).named('signedNumber');
-    addOutput('fixed', width: outputWidth) <= _fixed;
+    final typedFixedOut = addTypedOutput('fixed', _fixed.clone);
+    typedFixedOut <= _fixed;
+    fixed = typedFixedOut;
   }
 }
 
