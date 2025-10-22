@@ -22,7 +22,7 @@ class ReadyValidInterface<LogicType extends Logic> extends PairInterface {
       : super(
           portsFromProvider: [data, Logic.port('valid')],
           portsFromConsumer: [Logic.port('ready')],
-          // connectFieldsAsPorts: true,
+          connectFieldsAsPorts: true,
         );
 
   @override

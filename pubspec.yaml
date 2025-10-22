@@ -20,5 +20,7 @@ dev_dependencies:
   test: ^1.25.0
 
   
-
+dependency_overrides: 
+  rohd:
+    path: ../rohd
 
