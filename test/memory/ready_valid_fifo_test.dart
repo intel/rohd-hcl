@@ -146,10 +146,14 @@ void main() {
         final data = downstream.data.data.previousValue!.toInt();
         drainedOps.add(op);
         drainedData.add(data);
-        print('Drained element $i: op=$op, data=0x${data.toRadixString(16)}');
+        expect(op, equals(i + 1),
+            reason: 'Op should match expected value for element $i');
+        expect(data, equals(0x10 + i),
+            reason: 'Data should match expected value for element $i');
       }
 
-      // After draining first element, upstream.ready should go high (space available).
+      // After draining first element, upstream.ready should go high (space
+      // available).
       if (i == 0) {
         expect(upstream.ready.value.toInt(), equals(1),
             reason: 'After draining one element, upstream should be ready');
