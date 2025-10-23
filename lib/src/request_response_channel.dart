@@ -41,7 +41,7 @@ abstract class RequestResponseChannelBase extends Module {
   /// Creates a [RequestResponseChannelBase] with the given interfaces.
   ///
   /// The [clk] and [reset] signals are required for future subcomponents.
-  // / Subclasses should implement [buildLogic] to define their specific
+  /// Subclasses should implement [buildLogic] to define their specific
   //behavior.
   RequestResponseChannelBase({
     required Logic clk,
