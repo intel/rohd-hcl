@@ -117,7 +117,8 @@ void main() {
     for (var i = 0; i < fifoDepth; i++) {
       upstream.valid.inject(1);
       upstream.data.op.inject(i + 1); // Unique op: 1, 2, 3, 4
-      upstream.data.data.inject(0x10 + i); // Unique data: 0x10, 0x11, 0x12, 0x13
+      upstream.data.data
+          .inject(0x10 + i); // Unique data: 0x10, 0x11, 0x12, 0x13
       await clk.nextPosedge;
       // Don't pulse valid - let ready handle backpressure
     }
