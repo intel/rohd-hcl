@@ -113,17 +113,15 @@ void main() {
     reset.inject(0);
     await clk.nextPosedge;
 
-    // Fill the FIFO until it's full.
+    // Fill the FIFO continuously (no artificial valid pulsing)
     for (var i = 0; i < fifoDepth; i++) {
       upstream.valid.inject(1);
       upstream.data.op.inject(i + 1); // Unique op: 1, 2, 3, 4
-      upstream.data.data
-          .inject(0x10 + i); // Unique data: 0x10, 0x11, 0x12, 0x13
+      upstream.data.data.inject(0x10 + i); // Unique data: 0x10, 0x11, 0x12, 0x13
       await clk.nextPosedge;
-      // pulse valid for one cycle.
-      upstream.valid.inject(0);
-      await clk.nextPosedge;
+      // Don't pulse valid - let ready handle backpressure
     }
+    upstream.valid.inject(0);
 
     // After filling, upstream ready should be 0 (cannot accept more).
     expect(upstream.ready.value.toInt(), equals(0));
@@ -203,15 +201,14 @@ void main() {
     // Empty FIFO: downstream.valid should be 0.
     expect(downstream.valid.value.toInt(), equals(0));
 
-    // Push multiple items (0..2).
+    // Push multiple items with continuous streaming
     for (var i = 0; i < 3; i++) {
       upstream.valid.inject(1);
       upstream.data.op.inject(i + 1); // Unique op: 1, 2, 3
       upstream.data.data.inject(i + 10); // Unique data: 10, 11, 12
       await clk.nextPosedge;
-      upstream.valid.inject(0);
-      await clk.nextPosedge;
     }
+    upstream.valid.inject(0);
 
     // Now consume them and verify FIFO order (FIFO semantics) using handshakes.
     final collected = <int>[];
@@ -261,13 +258,11 @@ void main() {
     reset.inject(0);
     await clk.nextPosedge;
 
-    // Fill to depth.
+    // Fill to depth with continuous streaming
     for (var i = 0; i < fifoDepth; i++) {
       upstream.valid.inject(1);
       upstream.data.op.inject(i + 1); // Unique op: 1, 2, 3
       upstream.data.data.inject(0x20 + i); // Unique data: 0x20, 0x21, 0x22
-      await clk.nextPosedge;
-      upstream.valid.inject(0);
       await clk.nextPosedge;
     }
 
