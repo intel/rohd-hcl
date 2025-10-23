@@ -20,7 +20,8 @@ class SimpleOp extends LogicStructure {
 
   SimpleOp()
       : super([
-          Logic(name: 'op'),
+          Logic(
+              name: 'op', width: 4), // Make op field 4 bits to hold values 1-4
           Logic(name: 'data', width: 8),
         ], name: 'simple_op');
 
@@ -101,6 +102,7 @@ void main() {
         depth: fifoDepth);
 
     await fifoModule.build();
+    WaveDumper(fifoModule, outputPath: 'fifo_backpressure.vcd');
     unawaited(Simulator.run());
 
     // Reset
@@ -114,8 +116,9 @@ void main() {
     // Fill the FIFO until it's full.
     for (var i = 0; i < fifoDepth; i++) {
       upstream.valid.inject(1);
-      upstream.data.op.inject(0);
-      upstream.data.data.inject(i);
+      upstream.data.op.inject(i + 1); // Unique op: 1, 2, 3, 4
+      upstream.data.data
+          .inject(0x10 + i); // Unique data: 0x10, 0x11, 0x12, 0x13
       await clk.nextPosedge;
       // pulse valid for one cycle.
       upstream.valid.inject(0);
@@ -125,13 +128,45 @@ void main() {
     // After filling, upstream ready should be 0 (cannot accept more).
     expect(upstream.ready.value.toInt(), equals(0));
 
-    // Now make downstream ready and consume one element.
+    // Now make downstream ready and fully drain the FIFO.
     downstream.ready.inject(1);
-    await clk.nextPosedge;
 
-    //  After draining one element, upstream.ready should go high (space
-    // available).
-    expect(upstream.ready.value.toInt(), equals(1));
+    // Collect all drained data to verify FIFO ordering
+    final drainedOps = <int>[];
+    final drainedData = <int>[];
+
+    // Drain all 4 elements using proper ready-valid handshake timing
+    for (var i = 0; i < fifoDepth; i++) {
+      await clk.nextPosedge;
+
+      // Sample data using previousValue to get the value before clock edge
+      // This captures data that was valid during the handshake
+      if (downstream.valid.previousValue!.toBool() &&
+          downstream.ready.previousValue!.toBool()) {
+        final op = downstream.data.op.previousValue!.toInt();
+        final data = downstream.data.data.previousValue!.toInt();
+        drainedOps.add(op);
+        drainedData.add(data);
+        print('Drained element $i: op=$op, data=0x${data.toRadixString(16)}');
+      }
+
+      // After draining first element, upstream.ready should go high (space available).
+      if (i == 0) {
+        expect(upstream.ready.value.toInt(), equals(1),
+            reason: 'After draining one element, upstream should be ready');
+      }
+    }
+
+    // Verify all data was drained in correct FIFO order
+    expect(drainedOps, equals([1, 2, 3, 4]),
+        reason: 'Operations should be drained in FIFO order');
+    expect(drainedData, equals([0x10, 0x11, 0x12, 0x13]),
+        reason: 'Data should be drained in FIFO order');
+
+    // After fully draining, downstream should no longer have valid data
+    await clk.nextPosedge;
+    expect(downstream.valid.value.toInt(), equals(0),
+        reason: 'After full drain, downstream should not be valid');
 
     downstream.ready.inject(0);
     upstream.valid.inject(0);
@@ -171,8 +206,8 @@ void main() {
     // Push multiple items (0..2).
     for (var i = 0; i < 3; i++) {
       upstream.valid.inject(1);
-      upstream.data.op.inject(0);
-      upstream.data.data.inject(i + 10);
+      upstream.data.op.inject(i + 1); // Unique op: 1, 2, 3
+      upstream.data.data.inject(i + 10); // Unique data: 10, 11, 12
       await clk.nextPosedge;
       upstream.valid.inject(0);
       await clk.nextPosedge;
@@ -229,8 +264,8 @@ void main() {
     // Fill to depth.
     for (var i = 0; i < fifoDepth; i++) {
       upstream.valid.inject(1);
-      upstream.data.op.inject(1);
-      upstream.data.data.inject(i);
+      upstream.data.op.inject(i + 1); // Unique op: 1, 2, 3
+      upstream.data.data.inject(0x20 + i); // Unique data: 0x20, 0x21, 0x22
       await clk.nextPosedge;
       upstream.valid.inject(0);
       await clk.nextPosedge;

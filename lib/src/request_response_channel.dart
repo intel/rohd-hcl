@@ -183,23 +183,29 @@ class BufferedRequestResponseChannel extends RequestResponseChannelBase {
 
   @override
   void buildLogic() {
-    // Create intermediate signals for FIFO read enables
+    // Create intermediate signals for FIFO enables (matching ReadyValidFifo pattern)
+    final requestWriteEnable = Logic(name: 'requestWriteEnable');
     final requestReadEnable = Logic(name: 'requestReadEnable');
+    final responseWriteEnable = Logic(name: 'responseWriteEnable');
     final responseReadEnable = Logic(name: 'responseReadEnable');
 
     // Create request FIFO
     requestFifo = Fifo<RequestStructure>(
       clk,
       reset,
-      writeEnable: upstreamRequest.valid,
+      writeEnable: requestWriteEnable, // Use separate signal
       readEnable: requestReadEnable,
       writeData: upstreamRequest.data,
       depth: requestBufferDepth,
       name: 'request_fifo',
     );
 
-    // Connect request path through FIFO
-    requestReadEnable <= downstreamRequest.ready & downstreamRequest.valid;
+    // Connect request path through FIFO (matching ReadyValidFifo logic)
+    requestWriteEnable <=
+        upstreamRequest.valid & ~requestFifo.full; // Fixed: proper backpressure
+    requestReadEnable <=
+        downstreamRequest.ready &
+            ~requestFifo.empty; // Fixed: proper read enable
     upstreamRequest.ready <= ~requestFifo.full;
     downstreamRequest.data <= requestFifo.readData;
     downstreamRequest.valid <= ~requestFifo.empty;
@@ -208,15 +214,20 @@ class BufferedRequestResponseChannel extends RequestResponseChannelBase {
     responseFifo = Fifo<ResponseStructure>(
       clk,
       reset,
-      writeEnable: downstreamResponse.valid,
+      writeEnable: responseWriteEnable, // Use separate signal
       readEnable: responseReadEnable,
       writeData: downstreamResponse.data,
       depth: responseBufferDepth,
       name: 'response_fifo',
     );
 
-    // Connect response path through FIFO
-    responseReadEnable <= upstreamResponse.ready & upstreamResponse.valid;
+    // Connect response path through FIFO (matching ReadyValidFifo logic)
+    responseWriteEnable <=
+        downstreamResponse.valid &
+            ~responseFifo.full; // Fixed: proper backpressure
+    responseReadEnable <=
+        upstreamResponse.ready &
+            ~responseFifo.empty; // Fixed: proper read enable
     downstreamResponse.ready <= ~responseFifo.full;
     upstreamResponse.data <= responseFifo.readData;
     upstreamResponse.valid <= ~responseFifo.empty;
