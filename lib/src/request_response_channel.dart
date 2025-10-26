@@ -400,9 +400,11 @@ class CachedRequestResponseChannel extends RequestResponseChannelBase {
     // Backpressure and flow control
     // Cache hits need response FIFO space AND no competing downstream response
     // Cache misses need downstream ready AND CAM space (stored in CAM for later response)
+    // Exception: Allow cache miss even when CAM full if concurrent downstream response frees CAM entry
+    final camSpaceAvailable = ~camFull | (downstreamResponse.valid & camHit);
     canAcceptUpstreamReq <=
         (cacheHit & internalResponseIntf.ready & ~responseFromDownstream) |
-            (cacheMiss & downstreamRequest.ready & ~camFull);
+            (cacheMiss & downstreamRequest.ready & camSpaceAvailable);
     canForwardDownstream <= downstreamRequest.ready;
 
     // Upstream request handling
@@ -410,12 +412,17 @@ class CachedRequestResponseChannel extends RequestResponseChannelBase {
 
     // Forward miss requests downstream
     downstreamRequest.valid <=
-        upstreamRequest.valid & cacheMiss & canForwardDownstream & ~camFull;
+        upstreamRequest.valid &
+            cacheMiss &
+            canForwardDownstream &
+            camSpaceAvailable;
     downstreamRequest.data <= upstreamRequest.data;
 
     // CAM operations: store new entries and invalidate completed ones
-    final shouldStoreInCam =
-        upstreamRequest.valid & cacheMiss & canForwardDownstream & ~camFull;
+    final shouldStoreInCam = upstreamRequest.valid &
+        cacheMiss &
+        canForwardDownstream &
+        camSpaceAvailable;
     final shouldInvalidateCam = downstreamResponse.valid & camHit;
 
     // Use fill interface for both storage and invalidation
@@ -431,7 +438,8 @@ class CachedRequestResponseChannel extends RequestResponseChannelBase {
         mux(shouldInvalidateCam, camReadPort.data, upstreamRequest.data.addr);
 
     // Simple CAM occupancy tracking
-    final nextCamOccupancy = Logic(name: 'next_cam_occupancy', width: camOccupancyWidth);
+    final nextCamOccupancy =
+        Logic(name: 'next_cam_occupancy', width: camOccupancyWidth);
     Combinational([
       If.block([
         // Both store and invalidate: net zero change
@@ -440,19 +448,19 @@ class CachedRequestResponseChannel extends RequestResponseChannelBase {
         ]),
         // Only store: increment (with saturation)
         ElseIf(shouldStoreInCam & ~shouldInvalidateCam, [
-          nextCamOccupancy < mux(
-            camOccupancy.gte(Const(camWays, width: camOccupancyWidth)),
-            camOccupancy,
-            camOccupancy + Const(1, width: camOccupancyWidth)
-          ),
+          nextCamOccupancy <
+              mux(
+                  camOccupancy.gte(Const(camWays, width: camOccupancyWidth)),
+                  camOccupancy,
+                  camOccupancy + Const(1, width: camOccupancyWidth)),
         ]),
         // Only invalidate: decrement (with underflow protection)
         ElseIf(~shouldStoreInCam & shouldInvalidateCam, [
-          nextCamOccupancy < mux(
-            camOccupancy.eq(Const(0, width: camOccupancyWidth)),
-            camOccupancy,
-            camOccupancy - Const(1, width: camOccupancyWidth)
-          ),
+          nextCamOccupancy <
+              mux(
+                  camOccupancy.eq(Const(0, width: camOccupancyWidth)),
+                  camOccupancy,
+                  camOccupancy - Const(1, width: camOccupancyWidth)),
         ]),
         // Neither: no change
         Else([

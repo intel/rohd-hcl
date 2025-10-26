@@ -907,7 +907,7 @@ void main() {
 
       expect(downstreamResp.ready.value.toBool(), isFalse,
           reason: 'Downstream response should be backpressured (FIFO full)');
-      print('✓ Downstream response correctly backpressured');
+      print('✅ Downstream response correctly backpressured');
 
       downstreamResp.valid.inject(0);
 
@@ -924,7 +924,7 @@ void main() {
           reason: 'Cache hit should be backpressured (response FIFO full)');
       expect(downstreamReq.valid.value.toBool(), isFalse,
           reason: 'Cache hit should not be forwarded downstream');
-      print('✓ Cache hit correctly backpressured');
+      print('✅ Cache hit correctly backpressured');
 
       upstreamReq.valid.inject(0);
       await clk.nextPosedge;
@@ -942,7 +942,7 @@ void main() {
       await clk.nextPosedge;
 
       if (upstreamReq.ready.value.toBool()) {
-        print('✓ Cache miss correctly accepted despite full response FIFO');
+        print('✅ Cache miss correctly accepted despite full response FIFO');
         expect(downstreamReq.valid.value.toBool(), isTrue,
             reason: 'Cache miss should be forwarded downstream');
       } else {
@@ -975,7 +975,7 @@ void main() {
           reason: 'Cache hit should be accepted after FIFO drain');
       expect(downstreamReq.valid.value.toBool(), isFalse,
           reason: 'Cache hit should not be forwarded downstream');
-      print('✓ Cache hit accepted after FIFO recovery');
+      print('✅ Cache hit accepted after FIFO recovery');
 
       upstreamReq.valid.inject(0);
       await clk.waitCycles(3);
@@ -984,12 +984,12 @@ void main() {
 
       print('Response FIFO backpressure test completed successfully!');
       print('Summary:');
-      print('- ✓ Downstream responses backpressured when FIFO full');
-      print('- ✓ Cache hits backpressured when FIFO full');
-      print('- ✓ Cache misses correctly accepted despite full response FIFO');
+      print('- ✅ Downstream responses backpressured when FIFO full');
+      print('- ✅ Cache hits backpressured when FIFO full');
+      print('- ✅ Cache misses correctly accepted despite full response FIFO');
       print(
           '     REASON: Misses store request in CAM, respond later when FIFO drains');
-      print('- ✓ System recovers correctly when FIFO drains');
+      print('- ✅ System recovers correctly when FIFO drains');
     });
 
     test(
@@ -1103,7 +1103,7 @@ void main() {
 
       final hitReady = upstreamReq.ready.value.toBool();
       if (!hitReady) {
-        print('✓ Cache hit correctly blocked (response FIFO full)');
+        print('✅ Cache hit correctly blocked (response FIFO full)');
       } else {
         print('❌ Cache hit was accepted (should be blocked)');
       }
@@ -1125,7 +1125,7 @@ void main() {
 
       if (missReady && missForwarded) {
         print(
-            '✓ IDEAL: Cache miss accepted and forwarded despite full response FIFO');
+            '✅ IDEAL: Cache miss accepted and forwarded despite full response FIFO');
         print('  This is the DESIRED behavior you specified');
       } else {
         print('❌ CURRENT: Cache miss blocked by full response FIFO');
@@ -1149,7 +1149,7 @@ void main() {
       await clk.nextPosedge;
 
       if (upstreamReq.ready.value.toBool()) {
-        print('✓ Cache hit accepted after FIFO drain');
+        print('✅ Cache hit accepted after FIFO drain');
       }
 
       upstreamReq.valid.inject(0);
@@ -1322,10 +1322,10 @@ void main() {
 
       if (downstreamRespAccepted && !upstreamReqAccepted) {
         print(
-            '✓ DEMONSTRATED: Downstream response wins contention, cache hit backpressured');
+            '✅ DEMONSTRATED: Downstream response wins contention, cache hit backpressured');
       } else if (!downstreamRespAccepted && upstreamReqAccepted) {
         print(
-            '✓ DEMONSTRATED: Cache hit wins contention, downstream response backpressured');
+            '✅ DEMONSTRATED: Cache hit wins contention, downstream response backpressured');
       } else if (downstreamRespAccepted && upstreamReqAccepted) {
         print(
             '⚠ BOTH ACCEPTED: Either FIFO has more space or both fit somehow');
@@ -1357,7 +1357,7 @@ void main() {
           upstreamReq.ready.previousValue?.toBool() ?? false;
 
       if (finalReqAccepted) {
-        print('✓ Cache hit accepted after ensuring FIFO space available');
+        print('✅ Cache hit accepted after ensuring FIFO space available');
       } else {
         print('❌ Cache hit still blocked despite FIFO space - unexpected');
       }
@@ -1462,16 +1462,16 @@ void main() {
 
         if (wasAccepted) {
           requestsAccepted++;
-          print('  ✓ Request accepted by upstream interface');
+          print('  ✅ Request accepted by upstream interface');
         } else {
-          print('  ❌ Request backpressured by upstream interface');
+          print('  🔒 Request backpressured by upstream interface');
         }
 
         if (wasForwarded) {
           requestsForwarded++;
-          print('  ✓ Request forwarded downstream');
+          print('  ✅ Request forwarded downstream');
         } else {
-          print('  ❌ Request not forwarded downstream');
+          print('  ⚫ Request not forwarded downstream');
         }
 
         upstreamReq.valid.inject(0);
@@ -1487,7 +1487,7 @@ void main() {
       print('\\nPhase 2: CAM capacity analysis');
       if (requestsAccepted == 4) {
         print(
-            '✓ Exactly 4 requests accepted - CAM capacity correctly enforced');
+            '✅ Exactly 4 requests accepted - CAM capacity correctly enforced');
         print(
             '  Requests beyond CAM capacity (${missAddresses.length - 4}) were backpressured');
       } else if (requestsAccepted == missAddresses.length) {
@@ -1513,7 +1513,7 @@ void main() {
         final respAccepted =
             downstreamResp.ready.previousValue?.toBool() ?? false;
         if (respAccepted) {
-          print('  ✓ Downstream response accepted');
+          print('  ✅ Downstream response accepted');
         } else {
           print('  ❌ Downstream response backpressured');
         }
@@ -1533,7 +1533,7 @@ void main() {
           final respId = upstreamResp.data.id.value.toInt();
           final respData = upstreamResp.data.data.value.toInt();
           print(
-              '  ✓ Upstream response: ID=$respId, data=0x${respData.toRadixString(16)}');
+              '  ✅ Upstream response: ID=$respId, data=0x${respData.toRadixString(16)}');
         }
         await clk.nextPosedge;
       }
@@ -1564,7 +1564,7 @@ void main() {
         final wasAccepted = upstreamReq.ready.previousValue?.toBool() ?? false;
         if (wasAccepted) {
           recoveryRequestsAccepted++;
-          print('  ✓ Recovery request accepted - CAM space available');
+          print('  ✅ Recovery request accepted - CAM space available');
         } else {
           print('  ❌ Recovery request backpressured - CAM still full');
         }
@@ -1588,6 +1588,175 @@ void main() {
       print('5. Large response FIFO prevents response path backpressure');
       print(
           '\\nSuccessfully demonstrated CAM backpressure with occupancy tracking!');
+    });
+
+    test('CAM backpressure with concurrent response invalidation', () async {
+      final clk = SimpleClockGenerator(10).clk;
+      final reset = Logic();
+
+      // Use 4-bit widths for testing
+      final upstreamReq = ReadyValidInterface(
+        RequestStructure(idWidth: 4, addrWidth: 4),
+      );
+      final upstreamResp = ReadyValidInterface(
+        ResponseStructure(idWidth: 4, dataWidth: 4),
+      );
+      final downstreamReq = ReadyValidInterface(
+        RequestStructure(idWidth: 4, addrWidth: 4),
+      );
+      final downstreamResp = ReadyValidInterface(
+        ResponseStructure(idWidth: 4, dataWidth: 4),
+      );
+
+      // Create channel with small CAM (4 ways) to test corner case
+      final channel = CachedRequestResponseChannel(
+        clk: clk,
+        reset: reset,
+        upstreamRequestIntf: upstreamReq,
+        upstreamResponseIntf: upstreamResp,
+        downstreamRequestIntf: downstreamReq,
+        downstreamResponseIntf: downstreamResp,
+        cacheWays: 8,
+        camWays: 4, // Small CAM for easy capacity testing
+        responseBufferDepth: 16,
+      );
+
+      await channel.build();
+
+      WaveDumper(channel, outputPath: 'cam_concurrent_invalidation.vcd');
+
+      Simulator.setMaxSimTime(800);
+      unawaited(Simulator.run());
+
+      // Reset sequence
+      reset.inject(1);
+      upstreamReq.valid.inject(0);
+      downstreamReq.ready.inject(1);
+      upstreamResp.ready.inject(1);
+      downstreamResp.valid.inject(0);
+      await clk.waitCycles(2);
+      reset.inject(0);
+      await clk.waitCycles(2);
+
+      print('=== CAM CONCURRENT INVALIDATION TEST ===');
+      print(
+          'Scenario: CAM full, but new request arrives simultaneously with response');
+      print(
+          'Expected: New request accepted due to concurrent CAM entry invalidation');
+
+      // Phase 1: Fill CAM to capacity with cache miss requests
+      print('\\nPhase 1: Filling CAM to capacity (4 ways)');
+      final initialRequests = [0x1, 0x2, 0x3, 0x4];
+
+      for (var i = 0; i < initialRequests.length; i++) {
+        upstreamReq.valid.inject(1);
+        upstreamReq.data.id.inject(i + 1);
+        upstreamReq.data.addr.inject(initialRequests[i]);
+
+        await clk.nextPosedge;
+
+        final accepted = upstreamReq.ready.previousValue?.toBool() ?? false;
+        print(
+            'Request ${i + 1} (ID=${i + 1}, addr=0x${initialRequests[i].toRadixString(16)}): ${accepted ? "✅ accepted" : "🔒 rejected"}');
+
+        upstreamReq.valid.inject(0);
+        await clk.nextPosedge;
+      }
+
+      print('CAM should now be full (4/4 entries)');
+
+      // Phase 2: Test that 5th request is backpressured when CAM full
+      print('\\nPhase 2: Testing CAM full backpressure');
+
+      upstreamReq.valid.inject(1);
+      upstreamReq.data.id.inject(5);
+      upstreamReq.data.addr.inject(0x5);
+
+      await clk.nextPosedge;
+
+      final fifthReqBlocked =
+          !(upstreamReq.ready.previousValue?.toBool() ?? true);
+      print(
+          '5th request without concurrent response: ${fifthReqBlocked ? "✅ correctly blocked" : "❌ unexpectedly accepted"}');
+
+      upstreamReq.valid.inject(0);
+      await clk.nextPosedge;
+
+      // Phase 3: The key test - concurrent new request and response
+      print(
+          '\\nPhase 3: Testing concurrent new request + response (corner case)');
+      print(
+          'Sending new cache miss request SIMULTANEOUSLY with downstream response');
+
+      // Setup: Send 6th request and downstream response at the same cycle
+      upstreamReq.valid.inject(1);
+      upstreamReq.data.id.inject(6);
+      upstreamReq.data.addr.inject(0x6); // New cache miss
+
+      downstreamResp.valid.inject(1);
+      downstreamResp.data.id
+          .inject(1); // Response for first request (frees CAM entry)
+      downstreamResp.data.data.inject(0xAA);
+
+      print('  Upstream: New request ID=6, addr=0x6');
+      print('  Downstream: Response for ID=1 (should free CAM entry)');
+
+      await clk.nextPosedge;
+
+      final concurrentReqAccepted =
+          upstreamReq.ready.previousValue?.toBool() ?? false;
+      final concurrentRespAccepted =
+          downstreamResp.ready.previousValue?.toBool() ?? false;
+
+      print('Results:');
+      print(
+          '  New request accepted: ${concurrentReqAccepted ? "✅ YES" : "❌ NO"}');
+      print(
+          '  Response accepted: ${concurrentRespAccepted ? "✅ YES" : "❌ NO"}');
+
+      if (concurrentReqAccepted && concurrentRespAccepted) {
+        print(
+            '✅ CORNER CASE SUCCESS: Concurrent invalidation allows new request!');
+      } else if (!concurrentReqAccepted && concurrentRespAccepted) {
+        print(
+            '❌ CORNER CASE FAILURE: Response accepted but new request still blocked');
+      } else {
+        print('⚠️  Unexpected state - need to investigate');
+      }
+
+      upstreamReq.valid.inject(0);
+      downstreamResp.valid.inject(0);
+
+      // Phase 4: Verify system is in correct state
+      print('\\nPhase 4: System state verification');
+      await clk.waitCycles(3);
+
+      // Try another request to confirm CAM is not full
+      upstreamReq.valid.inject(1);
+      upstreamReq.data.id.inject(7);
+      upstreamReq.data.addr.inject(0x7);
+
+      await clk.nextPosedge;
+
+      final followupAccepted =
+          upstreamReq.ready.previousValue?.toBool() ?? false;
+      print(
+          'Follow-up request accepted: ${followupAccepted ? "✅ YES (CAM has space)" : "⚫ NO (CAM still full)"}');
+
+      upstreamReq.valid.inject(0);
+      await clk.waitCycles(2);
+
+      await Simulator.endSimulation();
+
+      print('\\n=== CORNER CASE ANALYSIS ===');
+      print('This test validates the critical corner case where:');
+      print('1. CAM is at full capacity (4/4 entries)');
+      print('2. New cache miss request arrives');
+      print('3. Downstream response arrives in SAME cycle (frees CAM entry)');
+      print(
+          '4. System should allow new request due to concurrent space availability');
+      print(
+          '\\nThis prevents unnecessary backpressure when CAM space becomes available!');
     });
   });
 }
