@@ -290,7 +290,7 @@ class FullyAssociativeCache extends Cache {
         final fillPort = fills[evictIdx]; // Corresponding fill port.
         final evictDataReadPort = evictDataRfReadPorts[evictIdx];
 
-        final evictTagReadBase = (numReads + numFills) * ways;
+        final evictTagReadBase = numReads * ways + numFills * ways;
         final evictTagReadPort = tagRfReadPorts[evictTagReadBase + evictIdx];
         evictTagReadPort.en <= fillPort.en;
         evictTagReadPort.addr <= policyAllocs[evictIdx].way;
