@@ -201,6 +201,9 @@ class LtiMainClusterAgent extends Agent {
   /// LT interface.
   late final LtiLtChannelInterface? lt;
 
+  /// Management interface.
+  late final LtiManagementInterface lm;
+
   /// LA channel agent.
   late final LtiMainLaChannelAgent reqAgent;
 
@@ -212,6 +215,9 @@ class LtiMainClusterAgent extends Agent {
 
   /// LT channel agent.
   late final LtiMainLtChannelAgent? tagAgent;
+
+  /// Management driver.
+  late final LtiManagementMainDriver manDriver;
 
   /// The number of cycles before timing out if no transactions can be sent.
   final int timeoutCycles;
@@ -226,6 +232,7 @@ class LtiMainClusterAgent extends Agent {
     required this.la,
     required this.lr,
     required this.lc,
+    required this.lm,
     required Component parent,
     this.lt,
     String name = 'ltiMainClusterAgent',
@@ -248,6 +255,7 @@ class LtiMainClusterAgent extends Agent {
     if (lt != null) {
       tagAgent = LtiMainLtChannelAgent(sys: sys, lt: lt!, parent: parent);
     }
+    manDriver = LtiManagementMainDriver(sys: sys, lm: lm, parent: parent);
   }
 }
 
@@ -442,6 +450,9 @@ class LtiSubordinateClusterAgent extends Agent {
   /// LT interface.
   late final LtiLtChannelInterface? lt;
 
+  /// Management interface.
+  late final LtiManagementInterface lm;
+
   /// LA channel agent.
   late final LtiSubordinateLaChannelAgent reqAgent;
 
@@ -453,6 +464,9 @@ class LtiSubordinateClusterAgent extends Agent {
 
   /// LT channel agent.
   late final LtiSubordinateLtChannelAgent? tagAgent;
+
+  /// Management driver.
+  late final LtiManagementSubDriver manDriver;
 
   /// The number of cycles before timing out if no transactions can be sent.
   final int timeoutCycles;
@@ -467,6 +481,7 @@ class LtiSubordinateClusterAgent extends Agent {
     required this.la,
     required this.lr,
     required this.lc,
+    required this.lm,
     required Component parent,
     this.lt,
     String name = 'ltiSubordinateClusterAgent',
@@ -497,5 +512,6 @@ class LtiSubordinateClusterAgent extends Agent {
           timeoutCycles: timeoutCycles,
           dropDelayCycles: dropDelayCycles);
     }
+    manDriver = LtiManagementSubDriver(sys: sys, lm: lm, parent: parent);
   }
 }

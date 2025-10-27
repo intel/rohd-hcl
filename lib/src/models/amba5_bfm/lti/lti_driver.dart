@@ -419,3 +419,123 @@ class LtiCreditDriver extends PendingClockedDriver<LtiCreditPacket> {
     }
   }
 }
+
+/// A driver for LTI Management signals.
+class LtiManagementMainDriver extends Component {
+  /// AXI5 System Interface.
+  final Axi5SystemInterface sys;
+
+  /// LTI Management Interface.
+  final LtiManagementInterface lm;
+
+  bool _openReq = false;
+  bool _active = false;
+
+  /// Creates a new [LtiManagementMainDriver].
+  LtiManagementMainDriver({
+    required Component parent,
+    required this.sys,
+    required this.lm,
+    String name = 'ltiManagementMainDriver',
+  }) : super(
+          name,
+          parent,
+        );
+
+  /// Toggle LMOPENREQ.
+  // ignore: use_setters_to_change_properties
+  void toggleOpenReq({required bool on}) => _openReq = on;
+
+  /// Toggle LMACTIVE.
+  // ignore: use_setters_to_change_properties
+  void toggleActive({required bool on}) => _active = on;
+
+  @override
+  Future<void> run(Phase phase) async {
+    unawaited(super.run(phase));
+
+    Simulator.injectAction(() {
+      lm.openReq.put(0);
+      lm.active.put(0);
+    });
+
+    // wait for reset to complete before driving anything
+    await sys.resetN.nextPosedge;
+
+    while (!Simulator.simulationHasEnded) {
+      if (_openReq) {
+        lm.openReq.put(1);
+      } else {
+        lm.openReq.put(0);
+      }
+
+      if (_active) {
+        lm.active.put(1);
+      } else {
+        lm.active.put(0);
+      }
+
+      await sys.clk.nextPosedge;
+    }
+  }
+}
+
+/// A driver for LTI Management signals.
+class LtiManagementSubDriver extends Component {
+  /// AXI5 System Interface.
+  final Axi5SystemInterface sys;
+
+  /// LTI Management Interface.
+  final LtiManagementInterface lm;
+
+  bool _openAck = false;
+  bool _askClose = false;
+
+  /// Creates a new [LtiManagementSubDriver].
+  LtiManagementSubDriver({
+    required Component parent,
+    required this.sys,
+    required this.lm,
+    String name = 'ltiManagementSubDriver',
+  }) : super(
+          name,
+          parent,
+        );
+
+  /// Toggle LMOPENACK.
+  // ignore: use_setters_to_change_properties
+  void toggleOpenAck({required bool on}) => _openAck = on;
+
+  /// Toggle LMASKCLOSE.
+  // ignore: use_setters_to_change_properties
+  void toggleAskClose({required bool on}) => _askClose = on;
+
+  @override
+  Future<void> run(Phase phase) async {
+    unawaited(super.run(phase));
+
+    Simulator.injectAction(() {
+      lm.openAck.put(0);
+      lm.askClose.put(0);
+    });
+
+    // wait for reset to complete before driving anything
+    await sys.resetN.nextPosedge;
+
+    while (!Simulator.simulationHasEnded) {
+      if (_openAck) {
+        lm.openAck.put(1);
+      } else {
+        lm.openAck.put(0);
+      }
+
+      if (_askClose) {
+        lm.askClose.put(1);
+      } else {
+        lm.askClose.put(0);
+      }
+
+      await sys.clk.nextPosedge;
+    }
+  }
+}

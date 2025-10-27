@@ -339,12 +339,6 @@ class LtiLrChannelConfig {
   /// The width of the address bus in bits.
   final int addrWidth;
 
-  /// Realm Management Extension support.
-  final bool rmeSupport;
-
-  /// Inst/priv support.
-  final bool instPrivPresent;
-
   /// The width of PAS signal in bits.
   final int pasWidth;
 
@@ -365,8 +359,6 @@ class LtiLrChannelConfig {
     this.userWidth = 0,
     this.idWidth = 0,
     this.addrWidth = 0,
-    this.rmeSupport = false,
-    this.instPrivPresent = false,
     this.pasWidth = 0,
     this.loopWidth = 0,
     this.mecIdWidth = 0,
@@ -379,8 +371,6 @@ class LtiLrChannelConfig {
         userWidth: userWidth,
         idWidth: idWidth,
         addrWidth: addrWidth,
-        rmeSupport: rmeSupport,
-        instPrivPresent: instPrivPresent,
         pasWidth: pasWidth,
         loopWidth: loopWidth,
         mecIdWidth: mecIdWidth,
@@ -490,8 +480,8 @@ class LtiLrChannelInterface extends LtiTransportInterface
         useIdUnq = false,
         addrWidth = config.addrWidth,
         protWidth = 0,
-        rmeSupport = config.rmeSupport,
-        instPrivPresent = config.instPrivPresent,
+        rmeSupport = false,
+        instPrivPresent = false,
         pasWidth = config.pasWidth,
         loopWidth = config.loopWidth,
         tracePresent = false,
@@ -536,8 +526,6 @@ class LtiLrChannelInterface extends LtiTransportInterface
           idWidth: idWidth,
           loopWidth: loopWidth,
           addrWidth: addrWidth,
-          rmeSupport: rmeSupport,
-          instPrivPresent: instPrivPresent,
           pasWidth: pasWidth,
           mecIdWidth: mecIdWidth,
           mpamWidth: mpamWidth,
@@ -702,17 +690,20 @@ class LtiManagementInterface extends PairInterface {
   /// Close request.
   Logic get askClose => port('LMASKCLOSE');
 
-  /// Construct a new instance of an Axi5 interface.
-  ///
-  /// TODO: directionality right??
+  /// Construct a new instance of an LTI Management interface.
   LtiManagementInterface() {
     setPorts([
       Logic.port('LMOPENREQ'),
-      Logic.port('LMOPENACK'),
       Logic.port('LMACTIVE'),
+    ], [
+      PairDirection.fromProvider,
+    ]);
+
+    setPorts([
+      Logic.port('LMOPENACK'),
       Logic.port('LMASKCLOSE'),
     ], [
-      PairDirection.sharedInputs,
+      PairDirection.fromConsumer,
     ]);
   }
 
@@ -735,11 +726,20 @@ class LtiCluster extends PairInterface {
   /// LT channel.
   late final LtiLtChannelInterface? lt;
 
+  /// LM channel.
+  late final LtiManagementInterface lm;
+
   /// Constructor.
-  LtiCluster({required this.la, required this.lr, required this.lc, this.lt}) {
+  LtiCluster(
+      {required this.la,
+      required this.lr,
+      required this.lc,
+      required this.lm,
+      this.lt}) {
     addSubInterface('LA', la);
     addSubInterface('LR', lr);
     addSubInterface('LC', lc);
+    addSubInterface('LM', lm);
     if (lt != null) {
       addSubInterface('LT', lt!);
     }
@@ -751,6 +751,7 @@ class LtiCluster extends PairInterface {
         la: la.clone(),
         lr: lr.clone(),
         lc: lc.clone(),
+        lm: lm.clone(),
         lt: lt?.clone(),
       );
 }

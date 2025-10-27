@@ -270,7 +270,8 @@ mixin Axi5ProtSignals on Axi5BaseInterface {
       if (instPrivPresent) Logic.port('${prefix}INST'),
       if (pasWidth > 0) Logic.port('${prefix}PAS', pasWidth),
     ], [
-      PairDirection.fromProvider,
+      if (main) PairDirection.fromProvider,
+      if (!main) PairDirection.fromConsumer,
     ]);
   }
 }
