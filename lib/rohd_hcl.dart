@@ -22,7 +22,6 @@ export 'src/priority_encoder.dart';
 export 'src/ready_valid_interface.dart';
 export 'src/reduction_tree.dart';
 export 'src/reduction_tree_generator.dart';
-export 'src/request_response_channel.dart';
 export 'src/rotate.dart';
 export 'src/serialization/serialization.dart';
 export 'src/signed_shifter.dart';

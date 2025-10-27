@@ -76,6 +76,92 @@ final cache = FullyAssociativeCache(
 );
 ```
 
+#### Read-with-Invalidate Feature
+
+The `FullyAssociativeCache` supports an advanced read-with-invalidate operation that allows atomic read and invalidation of cache entries. This feature is particularly useful for implementing request/response tracking systems where you need to read data and immediately mark the entry as invalid.
+
+The read-with-invalidate functionality is enabled automatically when using `ValidDataPortInterface` with the `readWithInvalidate` extension:
+
+```dart
+// Create read port with read-with-invalidate capability
+final readPort = ValidDataPortInterface(dataWidth: 32, addrWidth: 8)
+  ..readWithInvalidate = Logic(name: 'readWithInvalidate');
+
+final cache = FullyAssociativeCache(
+  clk, reset,
+  [fillPort],
+  [readPort],  // This port now supports read-with-invalidate
+  ways: 8,
+);
+
+// To perform a read-with-invalidate operation:
+// 1. Set the address and enable the read
+readPort.addr <= targetAddress;
+readPort.en <= Const(1);
+// 2. Assert readWithInvalidate to invalidate on hit
+readPort.readWithInvalidate <= shouldInvalidate;
+
+// The cache will:
+// - Return valid data if hit occurs (readPort.valid will be high)
+// - Automatically invalidate the entry on the next clock cycle if readWithInvalidate was asserted
+```
+
+**Key Properties of Read-with-Invalidate:**
+
+- **Atomic Operation**: The read and invalidate happen as a single atomic operation
+- **Conditional**: Invalidation only occurs on cache hits, not misses
+- **Pipelined**: The invalidation is registered and occurs on the clock cycle following the hit detection
+- **Compatible**: Works seamlessly with existing fill operations and replacement policies
+
+**Use Cases:**
+
+1. **Request Tracking**: Read request data and immediately mark as completed
+2. **Cache Coherency**: Implement invalidation protocols
+3. **Resource Management**: Atomically consume cached resources
+
+**Example: Request/Response Matching**
+
+```dart
+// CAM for tracking pending requests - stores request ID as tag, address as data
+final pendingRequests = FullyAssociativeCache(
+  clk, reset,
+  [fillPort],     // Add new pending requests
+  [lookupPort],   // Look up and remove completed requests
+  ways: 16,
+);
+
+// When a response arrives, look up the request and invalidate the entry
+lookupPort.addr <= responseId;        // Use response ID as lookup key
+lookupPort.en <= responseValid;       // Enable lookup when response is valid
+lookupPort.readWithInvalidate <= Const(1); // Always invalidate on hit
+
+// If hit occurs:
+// - lookupPort.valid will be high
+// - lookupPort.data contains the original request address
+// - Entry is automatically invalidated for future requests
+```
+
+#### Occupancy Tracking
+
+The `FullyAssociativeCache` can optionally provide occupancy tracking signals by setting `generateOccupancy: true`:
+
+```dart
+final cache = FullyAssociativeCache(
+  clk, reset,
+  [fillPort],
+  [readPort],
+  ways: 8,
+  generateOccupancy: true,  // Enable occupancy tracking
+);
+
+// Access occupancy signals
+final currentOccupancy = cache.occupancy!;  // Number of valid entries (0 to ways)
+final isFull = cache.full!;                 // High when all ways are occupied
+final isEmpty = cache.empty!;               // High when no entries are valid
+```
+
+This is particularly useful for flow control and backpressure management in systems that need to track cache utilization.
+
 ### Set Associative Cache
 
 The [`SetAssociativeCache`] provides a set-associative cache with multiple read and fill ports and a replacement policy parameter to specify what type of way replacement the cache should use.

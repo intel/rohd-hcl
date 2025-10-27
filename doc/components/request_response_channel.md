@@ -1,15 +1,18 @@
-# Request / Response Channel
+# Request/Response Channel Components
 
-This document describes the Request/Response channel components provided in
-`lib/src/request_response_channel.dart`.
-
-These components provide a standard ready/valid style pair of interfaces for
-forwarding request structures from an upstream requester to a downstream
-completer, and returning response structures back to the requester.
+The ROHD-HCL library provides a comprehensive set of request/response channel components for building robust communication protocols between modules. These components are located in `lib/src/memory/` and exported through the main memory package.
 
 ## Overview
 
-Three related types are provided:
+Request/response channels implement a protocol where:
+- **Upstream** interfaces connect to requesters (like processors or caches)
+- **Downstream** interfaces connect to responders (like memory controllers or peripherals)  
+- **Requests** flow from upstream to downstream with address and ID information
+- **Responses** flow from downstream to upstream with data and matching ID
+
+## Components
+
+Four related types are provided:
 
 - `RequestResponseChannelBase` (abstract): common base class that wires the
   upstream and downstream `ReadyValidInterface` pairs and exposes clock and
@@ -18,15 +21,14 @@ Three related types are provided:
   request and response signals (zero latency pass-through).
 - `BufferedRequestResponseChannel`: a variant that inserts FIFOs on both the
   request and response paths to decouple upstream and downstream timing.
+- `CachedRequestResponseChannel`: an advanced caching implementation with address-based caching and Content Addressable Memory (CAM) for tracking pending requests.
 
-Both concrete components expect the request and response interfaces to carry
-typed payloads. The repository defines `RequestStructure` and
-`ResponseStructure` types used by the interfaces; the channel preserves and
-forwards those data fields.
+All concrete components expect the request and response interfaces to carry
+typed payloads using `RequestStructure` and `ResponseStructure` types.
 
-## API summary
+## API Summary
 
-Source: `lib/src/request_response_channel.dart`
+Source: `lib/src/memory/` (multiple files)
 
 ### RequestResponseChannelBase
 
@@ -81,7 +83,7 @@ Additional constructor parameters (named):
 Behavior summary:
 
 - Requests: writes incoming `upstreamRequest.data` into an internal
-  `Fifo<RequestStructure>` when `upstreamRequest.valid` is asserted and FIFO is
+  `ReadyValidFifo<RequestStructure>` when `upstreamRequest.valid` is asserted and FIFO is
   not full. Downstream sees `requestFifo.readData` on `downstreamRequest.data`
   and `downstreamRequest.valid` is asserted while the FIFO is not empty.
 - Responses: symmetric behavior with an internal `responseFifo` buffering
@@ -89,18 +91,49 @@ Behavior summary:
 
 Protected members:
 
-- `requestFifo` — instance of `Fifo<RequestStructure>` used for request
+- `requestFifo` — instance of `ReadyValidFifo<RequestStructure>` used for request
   buffering.
-- `responseFifo` — instance of `Fifo<ResponseStructure>` used for response
+- `responseFifo` — instance of `ReadyValidFifo<ResponseStructure>` used for response
   buffering.
 
-## Usage examples
+### CachedRequestResponseChannel
+
+Advanced caching implementation with address-based caching and Content Addressable Memory (CAM) for tracking pending requests.
+
+Additional constructor parameters (named):
+
+- `Cache Function(...) cacheFactory` — function to create the address/data cache instance.
+- `ReplacementPolicy Function(...) camReplacementPolicy` — function to create the replacement policy for the CAM (default: PseudoLRU).
+- `int responseBufferDepth` — FIFO depth for responses (default 8).
+
+Behavior summary:
+
+- **Cache Hit**: Returns cached data immediately via response FIFO.
+- **Cache Miss**: Stores request in CAM, forwards request downstream.
+- **Downstream Response**: Updates cache and response FIFO with response data, invalidates CAM entry.
+
+Architecture:
+
+- **Address/Data Cache**: Stores responses for fast hit serving (configurable via `cacheFactory`).
+- **CAM (Content Addressable Memory)**: Tracks pending requests by ID using `FullyAssociativeCache`.
+- **Response FIFO**: Buffers responses back to upstream.
+- **Occupancy Tracking**: Prevents CAM overflow with automatic backpressure.
+
+Protected members:
+
+- `addressDataCache` — Cache instance for storing address/data pairs.
+- `pendingRequestsCam` — FullyAssociativeCache used as CAM for request tracking.
+- `responseFifo` — ReadyValidFifo for response buffering.
+- `cacheReadPort`, `cacheFillPort` — Cache interface ports.
+- `camReadPort`, `camFillPort` — CAM interface ports.
+
+## Usage Examples
 
 The following snippets show typical usage patterns. These assume you have
 already created `Logic` signals for `clk` and `reset`, and `ReadyValidInterface`
 instances for the upstream and downstream sides.
 
-1) Simple forwarding channel
+### 1) Simple forwarding channel
 
 ```dart
 final channel = RequestResponseChannel(
@@ -116,7 +149,7 @@ final channel = RequestResponseChannel(
 // additional buffering or transformation.
 ```
 
-1) Buffered channel with 8-deep FIFOs
+### 2) Buffered channel with 8-deep FIFOs
 
 ```dart
 final buffered = BufferedRequestResponseChannel(
@@ -134,20 +167,74 @@ final buffered = BufferedRequestResponseChannel(
 // transactions on both directions.
 ```
 
-## Notes and implementation details
+### 3) Cached channel with custom cache
+
+```dart
+// Cache factory function
+Cache cacheFactory(Logic clk, Logic reset, 
+                  List<ValidDataPortInterface> fills, 
+                  List<ValidDataPortInterface> reads) {
+  return FullyAssociativeCache(clk, reset, fills, reads, ways: 4);
+}
+
+final cached = CachedRequestResponseChannel(
+  clk: clk,
+  reset: reset,
+  upstreamRequestIntf: upstreamReqIntf,
+  upstreamResponseIntf: upstreamRspIntf,
+  downstreamRequestIntf: downstreamReqIntf,
+  downstreamResponseIntf: downstreamRspIntf,
+  cacheFactory: cacheFactory,
+  camReplacementPolicy: PseudoLRUReplacement.new,
+  responseBufferDepth: 16,
+);
+
+// Provides caching for repeated address accesses with configurable 
+// cache implementation and replacement policy.
+```
+
+## Performance Characteristics
+
+### CachedRequestResponseChannel
+
+- **Hit Latency**: 1-2 cycles (cache lookup + response FIFO)
+- **Miss Latency**: Full downstream latency + cache update
+- **Throughput**: Limited by cache hit rate and response FIFO depth
+- **Resource Usage**: Configurable cache ways and CAM depth
+
+### Optimization Guidelines
+
+- **Cache Ways**: More ways increase hit rate but consume more area
+- **Response Buffer**: Larger buffers improve throughput under variable latency
+- **Replacement Policy**: LRU provides good hit rates, Pseudo-LRU saves area
+
+## Implementation Details
 
 - The base class clones the provided `ReadyValidInterface` objects and
-  connects them to the module's IO using `pairConnectIO`. That means the
-  original interfaces passed in remain usable elsewhere (for example, when
-  wiring multiple components together) and the channel operates on its cloned
-  ports.
-- `BufferedRequestResponseChannel` exposes the internal FIFOs as protected
-  members which can be inspected or extended by subclasses if needed.
+  connects them to the module's IO using `pairConnectIO`. Original interfaces
+  remain usable elsewhere.
+- `BufferedRequestResponseChannel` exposes internal FIFOs as protected
+  members for extension by subclasses.
+- `CachedRequestResponseChannel` uses occupancy tracking to prevent CAM
+  overflow and handles concurrent hit/miss scenarios.
 - The generated `definitionName` encodes ID/address/data widths and buffer
-  sizes for convenience; a custom `definitionName` may be provided.
+  sizes for convenience; custom names may be provided.
+- SystemVerilog output optimized to minimize ugly underscore signal names.
 
-## See also
+## Testing and Verification
 
-- Source: `lib/src/request_response_channel.dart`
-- Ready/valid interface: look for `ReadyValidInterface` and the
-  `RequestStructure`/`ResponseStructure` definitions used in this package.
+Comprehensive test suites are provided covering:
+- Basic functionality (hits, misses, forwarding)
+- Backpressure scenarios (FIFO full, CAM full)
+- Resource limits and recovery
+- Concurrent operations and corner cases
+- Performance characterization
+
+See `test/request_response_channel_test.dart` for detailed examples.
+
+## See Also
+
+- Source: `lib/src/memory/` (request_response_channel*.dart)
+- Cache components: `FullyAssociativeCache`, `Cache`
+- Ready/valid interfaces: `ReadyValidInterface`, `ReadyValidFifo`
+- Request/Response structures: `RequestStructure`, `ResponseStructure`
