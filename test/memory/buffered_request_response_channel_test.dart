@@ -89,7 +89,7 @@ void main() {
       await channel.build();
 
       // Add WaveDumper at the beginning of simulation.
-      WaveDumper(channel, outputPath: 'rr_channel_backpressure.vcd');
+      // WaveDumper(channel, outputPath: 'rr_channel_backpressure.vcd');
 
       Simulator.setMaxSimTime(1000);
       unawaited(Simulator.run());
@@ -107,27 +107,28 @@ void main() {
       await clk.waitCycles(1);
 
       // Phase 1: Test FIFO filling and backpressure.
-      print('Phase 1: Testing FIFO capacity and backpressure');
+      // Phase 1: Testing FIFO capacity and backpressure
 
       // Send first request.
       upstreamReq.valid.inject(1);
       upstreamReq.data.id.inject(1);
       upstreamReq.data.addr.inject(0xA);
       await clk.nextPosedge;
-      print('After req1: ready=${upstreamReq.ready.value}');
+      expect(upstreamReq.ready.value.toBool(), isTrue,
+          reason: 'After req1: ready=${upstreamReq.ready.value}');
 
       // Send second request.
       upstreamReq.data.id.inject(2);
       upstreamReq.data.addr.inject(0xB);
       await clk.nextPosedge;
-      print('After req2: ready=${upstreamReq.ready.value}');
+      // After req2: ready should be false since FIFO becomes full
 
       // FIFO should now be full (depth=2).
       expect(upstreamReq.ready.value.toBool(), isFalse,
           reason: 'FIFO should be full after 2 requests');
 
       // Phase 2: Test draining behavior.
-      print('Phase 2: Testing FIFO draining');
+      // Phase 2: Testing FIFO draining
 
       // Stop sending new requests to focus on draining.
       upstreamReq.valid.inject(0);
@@ -140,24 +141,21 @@ void main() {
       expect(downstreamReq.valid.value.toBool(), isTrue,
           reason: 'Downstream should see valid data when draining');
       expect(upstreamReq.ready.value.toBool(), isTrue,
-          reason: 'Upstream should become ready when space available');
-
-      print('First item drained, ready=${upstreamReq.ready.value}');
+          reason: 'First item drained, ready=${upstreamReq.ready.value}');
 
       // Drain second item.
       await clk.nextPosedge;
-      print('Second item drained');
+      // Second item drained
 
       // FIFO should now be empty.
       await clk.nextPosedge;
       expect(downstreamReq.valid.value.toBool(), isFalse,
-          reason: 'Downstream should not be valid when FIFO empty');
-
-      print('FIFO drained successfully');
+          reason: 'FIFO drained successfully - downstream should not be '
+              'valid when FIFO empty');
 
       await Simulator.endSimulation();
 
-      print('Waveforms saved to rr_channel_backpressure.vcd');
+      // Waveforms saved to rr_channel_backpressure.vcd
     });
 
     test('RR channel: response path backpressure', () async {
@@ -191,7 +189,8 @@ void main() {
 
       await channel.build();
 
-      WaveDumper(channel, outputPath: 'rr_channel_response_backpressure.vcd');
+      // WaveDumper(channel, outputPath:
+      // 'rr_channel_response_backpressure.vcd');
 
       Simulator.setMaxSimTime(1000);
       unawaited(Simulator.run());
@@ -208,20 +207,21 @@ void main() {
       reset.inject(0);
       await clk.waitCycles(1);
 
-      print('Testing response path backpressure');
+      // Testing response path backpressure
 
       // Send responses from downstream back to upstream.
       downstreamResp.valid.inject(1);
       downstreamResp.data.id.inject(1);
       downstreamResp.data.data.inject(0xF1);
       await clk.nextPosedge;
-      print('After resp1: ready=${downstreamResp.ready.value}');
+      expect(downstreamResp.ready.value.toBool(), isTrue,
+          reason: 'After resp1: ready=${downstreamResp.ready.value}');
 
       // Send second response.
       downstreamResp.data.id.inject(2);
       downstreamResp.data.data.inject(0xF2);
       await clk.nextPosedge;
-      print('After resp2: ready=${downstreamResp.ready.value}');
+      // After resp2: ready should be false since response FIFO becomes full
 
       // Response FIFO should now be full (depth=2).
       expect(downstreamResp.ready.value.toBool(), isFalse,
@@ -235,13 +235,12 @@ void main() {
       expect(upstreamResp.valid.value.toBool(), isTrue,
           reason: 'Upstream should see valid response when draining');
       expect(downstreamResp.ready.value.toBool(), isTrue,
-          reason: 'Downstream should become ready when space available');
-
-      print('Response path backpressure test passed');
+          reason: 'Response path backpressure test passed - '
+              'downstream should become ready when space available');
 
       await Simulator.endSimulation();
 
-      print('Response waveforms saved to rr_channel_response_backpressure.vcd');
+      // Response waveforms saved to rr_channel_response_backpressure.vcd
     });
   });
 }

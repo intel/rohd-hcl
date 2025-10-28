@@ -16,8 +16,6 @@ Cache Function(Logic, Logic, List<ValidDataPortInterface>,
         );
 
 void main() async {
-  print('Generating SystemVerilog for CachedRequestResponseChannel...');
-
   final clk = SimpleClockGenerator(10).clk;
   final reset = Logic();
 
@@ -52,8 +50,4 @@ void main() async {
 
   Directory('generated').createSync(recursive: true);
   File('generated/CachedRequestResponseChannel.sv').writeAsStringSync(cachedSv);
-
-  print('SystemVerilog generation complete!');
-  print('Generated: generated/CachedRequestResponseChannel.sv');
-  print('This shows the complete cached channel with clean FIFO naming!');
 }

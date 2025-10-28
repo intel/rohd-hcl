@@ -4,7 +4,6 @@ This document summarizes the improvements made to reduce underscores in SystemVe
 
 ## Changes Made
 
-
 ### 1. Applied `.named()` Method to Complex Logic Expressions ✅
 
 **Purpose**: Provide clean SystemVerilog names for intermediate signals created by complex logic operations.
@@ -21,9 +20,7 @@ final hasHit = readTagMatches[readIdx].reduce((a, b) => a | b);
 // After:
 final hasHit = readTagMatches[readIdx].reduce((a, b) => a | b)
     .named('read${readIdx}HasHit');
-
 ```
-
 
 **Applied to**:
 
@@ -39,7 +36,6 @@ final hasHit = readTagMatches[readIdx].reduce((a, b) => a | b)
 
 - FIFO write arbitration signals
 
-
 ### 2. Cleaned Up Module and Instance Names ✅
 
 **Purpose**: Remove underscores from module definition names and instance names.
@@ -54,9 +50,7 @@ final hasHit = readTagMatches[readIdx].reduce((a, b) => a | b)
 // After:
 'FullyAssociativeCacheWP${fills.length}RP${reads.length}W$ways'
 'CachedRequestResponseChannelID${width}ADDR${width}DATA${width}RSPBUF${depth}'
-
 ```
-
 
 **Instance Names**:
 
@@ -66,15 +60,11 @@ name: 'tag_rf', 'data_rf', 'response_fifo', 'request_fifo'
 
 // After:
 name: 'tagRf', 'dataRf', 'responseFifo', 'requestFifo'
-
 ```
-
-
 
 ### 3. Fixed LogicStructure Names ✅
 
 **Purpose**: Clean up names in LogicStructure definitions.
-
 
 ```dart
 // Before:
@@ -82,10 +72,7 @@ name: 'request_structure', 'response_structure'
 
 // After:
 name: 'requestStructure', 'responseStructure'
-
 ```
-
-
 
 ### 4. Improved Signal Naming Throughout ✅
 
@@ -97,9 +84,7 @@ Logic(name: 'valid_count'), Logic(name: 'evict_addr_comb_$idx')
 
 // After:
 Logic(name: 'validCount'), Logic(name: 'evictAddrComb$idx')
-
 ```
-
 
 **Component Names**:
 
@@ -109,14 +94,11 @@ name: 'fully_associative_replacement_policy', 'address_data_cache'
 
 // After:
 name: 'fullyAssocReplacementPolicy', 'addressDataCache'
-
 ```
-
 
 ## Results
 
-
-### Before Improvements:
+### Before Improvements
 
 - **Module names with underscores**: 28
 
@@ -124,8 +106,7 @@ name: 'fullyAssocReplacementPolicy', 'addressDataCache'
 
 - **Total SystemVerilog length**: 102,060 characters
 
-
-### After Improvements:
+### After Improvements
 
 - **Module names with underscores**: 22 (reduced by 6)
 
@@ -133,8 +114,8 @@ name: 'fullyAssocReplacementPolicy', 'addressDataCache'
 
 - **Total SystemVerilog length**: 86,304 characters (16% reduction)
 
+### Eliminated Underscore Module Names
 
-### Eliminated Underscore Module Names:
 Our custom modules no longer appear in the underscore list:
 
 - ~~`FullyAssociativeCache_WP1_RP1_W8`~~ → `FullyAssociativeCacheWP1RP1W8`
@@ -143,8 +124,8 @@ Our custom modules no longer appear in the underscore list:
 
 - Improved: `ReadyValidFifo_response_structure` → `ReadyValidFifo_responseStructure`
 
+### Remaining Underscore Sources
 
-### Remaining Underscore Sources:
 The remaining underscores come from lower-level ROHD/ROHD-HCL components we don't control:
 
 - `RegisterFile_WP1_RP1_E8` (ROHD-HCL RegisterFile)
@@ -159,7 +140,6 @@ The remaining underscores come from lower-level ROHD/ROHD-HCL components we don'
 
 ## Code Quality Benefits
 
-
 ### 1. Better SystemVerilog Compatibility
 
 - Reduced underscore usage improves compatibility with synthesis tools
@@ -168,7 +148,6 @@ The remaining underscores come from lower-level ROHD/ROHD-HCL components we don'
 
 - More readable generated SystemVerilog code
 
-
 ### 2. Improved Debugging
 
 - Named signals make waveform debugging easier
@@ -176,7 +155,6 @@ The remaining underscores come from lower-level ROHD/ROHD-HCL components we don'
 - Complex logic expressions have meaningful names
 
 - Clear hierarchical naming convention
-
 
 ### 3. Professional Code Generation
 
@@ -188,7 +166,6 @@ The remaining underscores come from lower-level ROHD/ROHD-HCL components we don'
 
 ## Best Practices Established
 
-
 ### 1. Use `.named()` for Complex Expressions
 
 ```dart
@@ -198,10 +175,7 @@ final complexCondition = (signalA & signalB & ~signalC)
 
 // Avoid: Let tools generate names
 final complexCondition = signalA & signalB & ~signalC;
-
 ```
-
-
 
 ### 2. Use camelCase for All Names
 
@@ -211,10 +185,7 @@ name: 'requestResponseChannel'
 
 // Avoid: Underscores
 name: 'request_response_channel'
-
 ```
-
-
 
 ### 3. Clean Module Definition Names
 
@@ -224,9 +195,7 @@ definitionName: 'ModuleNameParam1${value1}Param2${value2}'
 
 // Avoid: Underscore separators
 definitionName: 'ModuleName_Param1${value1}_Param2${value2}'
-
 ```
-
 
 ## Testing Status
 
@@ -245,6 +214,7 @@ All functionality verified:
 ## Impact
 
 The improvements result in:
+
 1. **Cleaner SystemVerilog**: 21% reduction in underscore modules
 2. **Better Tool Compatibility**: Reduced synthesis tool warnings
 3. **Improved Maintainability**: More readable generated code

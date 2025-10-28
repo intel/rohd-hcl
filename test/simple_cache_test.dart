@@ -34,7 +34,7 @@ void main() {
 
     await cache.build();
 
-    WaveDumper(cache, outputPath: 'simple_cache_test.vcd');
+    // WaveDumper(cache, outputPath: 'simple_cache_test.vcd');
 
     Simulator.setMaxSimTime(300);
     unawaited(Simulator.run());
@@ -52,10 +52,9 @@ void main() {
     reset.inject(0);
     await clk.waitCycles(1);
 
-    print('=== Simple Cache Test ===');
+    // === Simple Cache Test ===
 
-    // Step 1: Fill cache with data
-    print('Step 1: Filling cache entry');
+    // Step 1: Fill cache with data - Filling cache entry
     fillIntf.en.inject(1);
     fillIntf.valid.inject(1);
     fillIntf.addr.inject(0x42);
@@ -65,34 +64,29 @@ void main() {
     fillIntf.en.inject(0);
     await clk.nextPosedge;
 
-    // Step 2: Read (should hit)
-    print('Step 2: Reading cache entry (should hit)');
+    // Step 2: Read (should hit) - Reading cache entry
     readIntf.en.inject(1);
     readIntf.addr.inject(0x42);
     await clk.nextPosedge;
 
     expect(readIntf.valid.value.toBool(), isTrue, reason: 'Should hit');
     expect(readIntf.data.value.toInt(), equals(0xAB),
-        reason: 'Should return correct data');
-    print('✅ Read hit with data: '
-        '0x${readIntf.data.value.toInt().toRadixString(16)}');
+        reason: 'Should return correct data 0xAB');
 
     readIntf.en.inject(0);
     await clk.nextPosedge;
 
-    // Step 3: Read different address (should miss)
-    print('Step 3: Reading different address (should miss)');
+    // Step 3: Read different address (should miss) - Reading different address
     readIntf.en.inject(1);
     readIntf.addr.inject(0x99);
     await clk.nextPosedge;
 
     expect(readIntf.valid.value.toBool(), isFalse, reason: 'Should miss');
-    print('✅ Read missed as expected');
 
     readIntf.en.inject(0);
     await clk.nextPosedge;
 
     await Simulator.endSimulation();
-    print('=== Simple Cache Test Complete ===');
+    // === Simple Cache Test Complete ===
   });
 }

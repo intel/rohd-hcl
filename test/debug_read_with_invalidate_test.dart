@@ -28,7 +28,7 @@ void main() {
 
     await cache.build();
 
-    WaveDumper(cache, outputPath: 'debug_read_with_invalidate.vcd');
+    // WaveDumper(cache, outputPath: 'debug_read_with_invalidate.vcd');
 
     Simulator.setMaxSimTime(300);
     unawaited(Simulator.run());
@@ -47,10 +47,10 @@ void main() {
     reset.inject(0);
     await clk.waitCycles(1);
 
-    print('=== Debug ReadWithInvalidate ===');
+    // === Debug ReadWithInvalidate ===
 
     // Fill
-    print('Filling cache: addr=0x42, data=0xAB');
+    // Filling cache: addr=0x42, data=0xAB
     fillIntf.en.inject(1);
     fillIntf.valid.inject(1);
     fillIntf.addr.inject(0x42);
@@ -59,53 +59,53 @@ void main() {
 
     fillIntf.en.inject(0);
     await clk.nextPosedge;
-    print('Fill complete');
+    // Fill complete
 
     // Normal read first
-    print('Normal read: addr=0x42');
+    // Normal read: addr=0x42
     readIntf.en.inject(1);
     readIntf.addr.inject(0x42);
     readIntf.readWithInvalidate.inject(0);
     await clk.nextPosedge;
 
-    print('Normal read result: valid=${readIntf.valid.value}, '
-        'data=0x${readIntf.data.value.toInt().toRadixString(16)}');
+    expect(readIntf.valid.value.toBool(), isTrue,
+        reason: 'Normal read should be valid');
+    expect(readIntf.data.value.toInt(), equals(0xAB),
+        reason: 'Normal read should return correct data');
 
     readIntf.en.inject(0);
     await clk.nextPosedge;
 
     // Now try readWithInvalidate
-    print('ReadWithInvalidate: addr=0x42');
+    // ReadWithInvalidate: addr=0x42
     readIntf.en.inject(1);
     readIntf.addr.inject(0x42);
     readIntf.readWithInvalidate.inject(1);
     await clk.nextPosedge;
 
-    print('ReadWithInvalidate result: valid=${readIntf.valid.value}, '
-        'data=0x${readIntf.data.value.toInt().toRadixString(16)}');
-
     // This should hit but also invalidate
     expect(readIntf.valid.value.toBool(), isTrue,
         reason: 'ReadWithInvalidate should hit');
+    expect(readIntf.data.value.toInt(), equals(0xAB),
+        reason: 'ReadWithInvalidate should return correct data');
 
     readIntf.en.inject(0);
     readIntf.readWithInvalidate.inject(0);
     await clk.nextPosedge;
 
     // Verify invalidation worked
-    print('Verification read after invalidation: addr=0x42');
+    // Verification read after invalidation: addr=0x42
     readIntf.en.inject(1);
     readIntf.addr.inject(0x42);
     await clk.nextPosedge;
 
-    print('Verification result: valid=${readIntf.valid.value}');
     expect(readIntf.valid.value.toBool(), isFalse,
-        reason: 'Should miss after invalidation');
+        reason: 'Should miss after invalidation - entry should be invalidated');
 
     readIntf.en.inject(0);
     await clk.nextPosedge;
 
     await Simulator.endSimulation();
-    print('=== Debug Complete ===');
+    // === Debug Complete ===
   });
 }

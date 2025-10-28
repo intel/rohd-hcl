@@ -27,7 +27,7 @@ void main() {
 
     await cache.build();
 
-    WaveDumper(cache, outputPath: 'debug_valid_bits.vcd');
+    // WaveDumper(cache, outputPath: 'debug_valid_bits.vcd');
 
     Simulator.setMaxSimTime(300);
     unawaited(Simulator.run());
@@ -42,11 +42,12 @@ void main() {
     reset.inject(0);
     await clk.waitCycles(1);
 
-    print('=== Debug Valid Bits ===');
-    print('Initial occupancy: ${cache.occupancy!.value.toInt()}');
+    // === Debug Valid Bits ===
+    expect(cache.occupancy!.value.toInt(), equals(0),
+        reason: 'Cache should start empty');
 
-    // Fill first entry (back to the problem addresses)
-    print('Fill first entry (0x100)...');
+    // Fill first entry (back to the problem addresses) - Fill first entry
+    // (0x100)
     fillIntf.en.inject(1);
     fillIntf.valid.inject(1);
     fillIntf.addr.inject(0x100);
@@ -56,20 +57,24 @@ void main() {
     fillIntf.en.inject(0);
     await clk.nextPosedge;
 
-    print('After first fill: occupancy=${cache.occupancy!.value.toInt()}');
+    expect(cache.occupancy!.value.toInt(), equals(1),
+        reason: 'Occupancy should be 1 after first fill');
 
     // Test read (ensure readWithInvalidate is 0)
     readIntf.en.inject(1);
     readIntf.addr.inject(0x100);
     readIntf.readWithInvalidate.inject(0);
     await clk.nextPosedge;
-    print('Read 0x100: valid=${readIntf.valid.value}, '
-        'data=0x${readIntf.data.value.toInt().toRadixString(16)}');
+
+    expect(readIntf.valid.value.toBool(), isTrue,
+        reason: '0x100 should be valid after fill');
+    expect(readIntf.data.value.toInt(), equals(0xAA),
+        reason: '0x100 should contain data 0xAA');
+
     readIntf.en.inject(0);
     await clk.nextPosedge;
 
-    // Fill second entry
-    print('Fill second entry (0x200)...');
+    // Fill second entry - Fill second entry (0x200)
     fillIntf.en.inject(1);
     fillIntf.valid.inject(1);
     fillIntf.addr.inject(0x200);
@@ -79,15 +84,20 @@ void main() {
     fillIntf.en.inject(0);
     await clk.nextPosedge;
 
-    print('After second fill: occupancy=${cache.occupancy!.value.toInt()}');
+    expect(cache.occupancy!.value.toInt(), equals(2),
+        reason: 'Occupancy should be 2 after second fill');
 
     // Test read second entry
     readIntf.en.inject(1);
     readIntf.addr.inject(0x200);
     readIntf.readWithInvalidate.inject(0);
     await clk.nextPosedge;
-    print('Read 0x200: valid=${readIntf.valid.value}, '
-        'data=0x${readIntf.data.value.toInt().toRadixString(16)}');
+
+    expect(readIntf.valid.value.toBool(), isTrue,
+        reason: '0x200 should be valid after fill');
+    expect(readIntf.data.value.toInt(), equals(0xBB),
+        reason: '0x200 should contain data 0xBB');
+
     readIntf.en.inject(0);
     await clk.nextPosedge;
 
@@ -96,8 +106,12 @@ void main() {
     readIntf.addr.inject(0x100);
     readIntf.readWithInvalidate.inject(0);
     await clk.nextPosedge;
-    print('Read 0x100 again: valid=${readIntf.valid.value}, '
-        'data=0x${readIntf.data.value.toInt().toRadixString(16)}');
+
+    expect(readIntf.valid.value.toBool(), isTrue,
+        reason: '0x100 should still be valid');
+    expect(readIntf.data.value.toInt(), equals(0xAA),
+        reason: '0x100 should still contain data 0xAA');
+
     readIntf.en.inject(0);
     await clk.nextPosedge;
 

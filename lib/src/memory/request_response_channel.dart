@@ -35,13 +35,13 @@ class RequestResponseChannel extends RequestResponseChannelBase {
   @override
   void buildLogic() {
     // Forward upstream request to downstream request.
-    downstreamRequest.data <= upstreamRequest.data;
-    downstreamRequest.valid <= upstreamRequest.valid;
-    upstreamRequest.ready <= downstreamRequest.ready;
+    downstreamReq.data <= upstreamReq.data;
+    downstreamReq.valid <= upstreamReq.valid;
+    upstreamReq.ready <= downstreamReq.ready;
 
     // Forward downstream response to upstream response.
-    upstreamResponse.data <= downstreamResponse.data;
-    upstreamResponse.valid <= downstreamResponse.valid;
-    downstreamResponse.ready <= upstreamResponse.ready;
+    upstreamResponse.data <= downstreamResp.data;
+    upstreamResponse.valid <= downstreamResp.valid;
+    downstreamResp.ready <= upstreamResponse.ready;
   }
 }

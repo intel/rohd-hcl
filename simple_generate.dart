@@ -4,7 +4,7 @@ import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
 
 void main() async {
-  print('Generating FIFO SystemVerilog with clean naming...');
+  // Generating FIFO SystemVerilog with clean naming
 
   final clk = SimpleClockGenerator(10).clk;
   final reset = Logic();
@@ -30,6 +30,6 @@ void main() async {
   Directory('generated').createSync(recursive: true);
   File('generated/CleanFifo.sv').writeAsStringSync(sv);
 
-  print('Generated SystemVerilog saved to generated/CleanFifo.sv');
-  print('This shows the clean FIFO pointer arithmetic naming!');
+  // Generated SystemVerilog saved to generated/CleanFifo.sv
+  // This shows the clean FIFO pointer arithmetic naming!
 }

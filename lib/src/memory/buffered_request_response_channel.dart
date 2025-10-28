@@ -54,8 +54,8 @@ class BufferedRequestResponseChannel extends RequestResponseChannelBase {
     requestFifo = ReadyValidFifo<RequestStructure>(
       clk: clk,
       reset: reset,
-      upstream: upstreamRequest,
-      downstream: downstreamRequest,
+      upstream: upstreamReq,
+      downstream: downstreamReq,
       depth: requestBufferDepth,
       name: 'requestFifo',
     );
@@ -64,7 +64,7 @@ class BufferedRequestResponseChannel extends RequestResponseChannelBase {
     responseFifo = ReadyValidFifo<ResponseStructure>(
       clk: clk,
       reset: reset,
-      upstream: downstreamResponse,
+      upstream: downstreamResp,
       downstream: upstreamResponse,
       depth: responseBufferDepth,
       name: 'responseFifo',

@@ -24,7 +24,7 @@ abstract class RequestResponseChannelBase extends Module {
 
   /// The upstream request interface (consumer role inside the module).
   @protected
-  late final ReadyValidInterface<RequestStructure> upstreamRequest;
+  late final ReadyValidInterface<RequestStructure> upstreamReq;
 
   /// The upstream response interface (provider role inside the module).
   @protected
@@ -32,11 +32,11 @@ abstract class RequestResponseChannelBase extends Module {
 
   /// The downstream request interface (provider role inside the module).
   @protected
-  late final ReadyValidInterface<RequestStructure> downstreamRequest;
+  late final ReadyValidInterface<RequestStructure> downstreamReq;
 
   /// The downstream response interface (consumer role inside the module).
   @protected
-  late final ReadyValidInterface<ResponseStructure> downstreamResponse;
+  late final ReadyValidInterface<ResponseStructure> downstreamResp;
 
   /// Creates a [RequestResponseChannelBase] with the specified interfaces.
   ///
@@ -65,7 +65,7 @@ abstract class RequestResponseChannelBase extends Module {
     this.reset = addInput('reset', reset);
 
     // Clone and connect upstream request interface (consumer role).
-    upstreamRequest = upstreamRequestIntf.clone()
+    upstreamReq = upstreamRequestIntf.clone()
       ..pairConnectIO(this, upstreamRequestIntf, PairRole.consumer,
           uniquify: (original) => 'upstream_req_$original');
 
@@ -75,12 +75,12 @@ abstract class RequestResponseChannelBase extends Module {
           uniquify: (original) => 'upstream_resp_$original');
 
     // Clone and connect downstream request interface (provider role).
-    downstreamRequest = downstreamRequestIntf.clone()
+    downstreamReq = downstreamRequestIntf.clone()
       ..pairConnectIO(this, downstreamRequestIntf, PairRole.provider,
           uniquify: (original) => 'downstream_req_$original');
 
     // Clone and connect downstream response interface (consumer role).
-    downstreamResponse = downstreamResponseIntf.clone()
+    downstreamResp = downstreamResponseIntf.clone()
       ..pairConnectIO(this, downstreamResponseIntf, PairRole.consumer,
           uniquify: (original) => 'downstream_resp_$original');
 

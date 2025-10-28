@@ -52,13 +52,14 @@ void main() {
       cycles++;
     }
 
-    print('=== Cache Occupancy Test with Proper 8-bit Addresses ===');
+    // === Cache Occupancy Test with Proper 8-bit Addresses ===
 
     if (!cache.occupancy!.value.isValid) {
-      print('Occupancy still not valid, but continuing test...');
+      // Occupancy still not valid, but continuing test
+      fail('Occupancy should be valid after stabilization period');
     } else {
-      print('Initial occupancy: ${cache.occupancy!.value.toInt()}');
-      expect(cache.occupancy!.value.toInt(), equals(0));
+      expect(cache.occupancy!.value.toInt(), equals(0),
+          reason: 'Initial occupancy should be 0');
     }
 
     // Test with different valid 8-bit addresses
@@ -70,9 +71,7 @@ void main() {
       final addr = testAddresses[i];
       final data = testData[i];
 
-      print('\nFilling address 0x${addr.toRadixString(16)} with '
-          '0x${data.toRadixString(16)}...');
-
+      // Filling address with data
       fillIntf.en.inject(1);
       fillIntf.valid.inject(1);
       fillIntf.addr.inject(addr);
@@ -84,7 +83,6 @@ void main() {
       // Check occupancy
       if (cache.occupancy!.value.isValid) {
         final occupancy = cache.occupancy!.value.toInt();
-        print('Occupancy after fill ${i + 1}: $occupancy');
         expect(occupancy, equals(i + 1),
             reason: 'Occupancy should be ${i + 1} after '
                 'filling ${i + 1} addresses');
@@ -96,17 +94,18 @@ void main() {
       await clk.nextPosedge;
       final hit = readIntf.valid.value.toInt();
       final readData = readIntf.data.value.toInt();
-      print('Read 0x${addr.toRadixString(16)}: hit=$hit, '
-          'data=0x${readData.toRadixString(16)}');
+
       expect(hit, equals(1),
           reason: 'Address 0x${addr.toRadixString(16)} should hit');
-      expect(readData, equals(data), reason: 'Should return correct data');
+      expect(readData, equals(data),
+          reason: 'Should return correct data 0x${data.toRadixString(16)}');
+
       readIntf.en.inject(0);
       await clk.nextPosedge;
     }
 
-    // Verify all addresses still work
-    print('\nVerifying all addresses still accessible:');
+    // Verify all addresses still work - Verifying all addresses still
+    // accessible
     for (var i = 0; i < testAddresses.length; i++) {
       final addr = testAddresses[i];
       final expectedData = testData[i];
@@ -119,12 +118,11 @@ void main() {
       readIntf.en.inject(0);
       await clk.nextPosedge;
 
-      print('  0x${addr.toRadixString(16)}: hit=$hit, '
-          'data=0x${readData.toRadixString(16)}');
       expect(hit, equals(1),
           reason: 'Address 0x${addr.toRadixString(16)} should still hit');
       expect(readData, equals(expectedData),
-          reason: 'Should return original data');
+          reason: 'Should return original data '
+              '0x${expectedData.toRadixString(16)}');
     }
 
     // Test that a different address misses
@@ -136,25 +134,21 @@ void main() {
     readIntf.en.inject(0);
     await clk.nextPosedge;
 
-    print('\nTesting miss for unused address '
-        '0x${missAddr.toRadixString(16)}: hit=$missHit');
-    expect(missHit, equals(0), reason: 'Unused address should miss');
+    expect(missHit, equals(0),
+        reason: 'Unused address 0x${missAddr.toRadixString(16)} should miss');
 
     // Final occupancy check
     if (cache.occupancy!.value.isValid) {
       final finalOccupancy = cache.occupancy!.value.toInt();
-      print('\nFinal occupancy: $finalOccupancy');
       expect(finalOccupancy, equals(4), reason: 'Should have 4 filled entries');
 
       final full = cache.full!.value.toInt();
       final empty = cache.empty!.value.toInt();
-      print('Full: $full, Empty: $empty');
       expect(full, equals(1), reason: 'Cache should be full');
       expect(empty, equals(0), reason: 'Cache should not be empty');
     }
 
-    print('\n✅ Cache occupancy tracking working correctly with '
-        'proper 8-bit addresses!');
+    // ✅ Cache occupancy tracking working correctly with proper 8-bit addresses!
     await Simulator.endSimulation();
   });
 }

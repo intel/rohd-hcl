@@ -45,9 +45,8 @@ void main() {
     await clk.nextPosedge;
     await clk.nextPosedge;
 
-    print('=== Tag Storage and Comparison Test ===');
-    print('Testing whether unique addresses 0x100 and 0x200 '
-        'are properly distinguished');
+    // === Tag Storage and Comparison Test === Testing whether unique addresses
+    // 0x100 and 0x200 are properly distinguished
 
     // Test with different address patterns to see if there's a pattern
     final testCases = [
@@ -62,7 +61,7 @@ void main() {
       final addr2 = testCase['addr2']! as int;
       final name = testCase['name']! as String;
 
-      print('\n--- Testing $name ---');
+      // --- Testing $name ---
 
       // Reset cache for each test
       reset.inject(1);
@@ -86,8 +85,11 @@ void main() {
       readIntf.en.inject(0);
       await clk.nextPosedge;
 
-      print('  Initial state - addr1: hit=$addr1InitialHit, '
-          'addr2: hit=$addr2InitialHit');
+      // Initial state verification
+      expect(addr1InitialHit, equals(0),
+          reason: '$name: addr1 should initially miss');
+      expect(addr2InitialHit, equals(0),
+          reason: '$name: addr2 should initially miss');
 
       // Step 2: Fill first address
       fillIntf.en.inject(1);
@@ -111,57 +113,61 @@ void main() {
       readIntf.addr.inject(addr2);
       await clk.nextPosedge;
       final addr2AfterFill = readIntf.valid.value.toInt();
-      final addr2DataIfHit = readIntf.data.value.toInt();
       readIntf.en.inject(0);
       await clk.nextPosedge;
 
-      print('  After filling addr1 with 0xAA:');
-      print('    addr1: hit=$addr1AfterFill, '
-          'data=0x${addr1Data.toRadixString(16)}');
-      print('    addr2: hit=$addr2AfterFill, '
-          'data=0x${addr2DataIfHit.toRadixString(16)}');
+      // After filling addr1 with 0xAA - verify results
+      expect(addr1AfterFill, equals(1),
+          reason: '$name: addr1 should hit after fill');
+      expect(addr1Data, equals(0xAA),
+          reason: '$name: addr1 should return 0xAA');
+      expect(addr2AfterFill, equals(0),
+          reason: '$name: addr2 should still miss after filling addr1');
 
-      // Analyze results
+      // Analyze results - addresses should be properly distinguished
       final correctBehavior = (addr1InitialHit == 0) &&
           (addr2InitialHit == 0) &&
           (addr1AfterFill == 1) &&
           (addr2AfterFill == 0) &&
           (addr1Data == 0xAA);
 
-      if (correctBehavior) {
-        print('  ✅ CORRECT: Addresses are properly distinguished');
-      } else {
-        print('  ❌ BUG: Addresses are not properly distinguished');
+      if (!correctBehavior) {
+        // Log details about the failure for debugging
+        final failureReasons = <String>[];
         if (addr1InitialHit != 0) {
-          print('    - addr1 should initially miss');
+          failureReasons.add('addr1 should initially miss');
         }
         if (addr2InitialHit != 0) {
-          print('    - addr2 should initially miss');
+          failureReasons.add('addr2 should initially miss');
         }
         if (addr1AfterFill != 1) {
-          print('    - addr1 should hit after fill');
+          failureReasons.add('addr1 should hit after fill');
         }
         if (addr2AfterFill != 0) {
-          print('    - addr2 should still miss after filling addr1');
+          failureReasons.add('addr2 should still miss after filling addr1');
         }
         if (addr1Data != 0xAA) {
-          print('    - addr1 should return 0xAA');
+          failureReasons.add('addr1 should return 0xAA');
         }
 
         // This is the key bug - if addr2 hits when it shouldn't
         if (addr2AfterFill == 1) {
-          print('  🔍 KEY BUG: addr2 incorrectly reports hit when only addr1 '
-              'was filled');
-          print(
-              '      This means tag comparison is broken - different addresses '
-              'match the same stored tag');
+          fail('$name: KEY BUG - addr2 incorrectly reports hit when only '
+              'addr1 was filled. '
+              'This means tag comparison is broken - different addresses '
+              'match the same stored tag. '
+              'Failures: ${failureReasons.join(", ")}');
+        } else {
+          fail('$name: BUG - Addresses are not properly distinguished. '
+              'Failures: ${failureReasons.join(", ")}');
         }
       }
+      // If correctBehavior is true, addresses are properly distinguished
 
       // For the first test case, also try the second fill to see the overwrite
       // behavior.
       if (name.contains('0x100')) {
-        print('\n  --- Testing second fill behavior ---');
+        // --- Testing second fill behavior ---
 
         // Fill second address
         fillIntf.en.inject(1);
@@ -189,23 +195,39 @@ void main() {
         readIntf.en.inject(0);
         await clk.nextPosedge;
 
-        print('  After filling addr2 with 0xBB:');
-        print('    addr1: hit=$addr1Final, '
-            'data=0x${addr1FinalData.toRadixString(16)}');
-        print('    addr2: hit=$addr2Final, '
-            'data=0x${addr2FinalData.toRadixString(16)}');
+        // Verify both addresses working correctly after second fill
+        expect(addr1Final, equals(1),
+            reason: '$name: addr1 should still hit after second fill');
+        expect(addr1FinalData, equals(0xAA),
+            reason: '$name: addr1 should still contain 0xAA');
+        expect(addr2Final, equals(1),
+            reason: '$name: addr2 should hit after fill');
+        expect(addr2FinalData, equals(0xBB),
+            reason: '$name: addr2 should contain 0xBB');
 
-        if (addr1Final == 1 &&
+        // Additional detailed failure analysis
+        if (!(addr1Final == 1 &&
             addr1FinalData == 0xAA &&
             addr2Final == 1 &&
-            addr2FinalData == 0xBB) {
-          print('  ✅ Both addresses working correctly');
-        } else {
-          print('  ❌ BUG: Second fill caused issues');
+            addr2FinalData == 0xBB)) {
+          final issues = <String>[];
           if (addr1FinalData != 0xAA) {
-            print('    - addr1 data was overwritten (should be 0xAA, got '
-                '0x${addr1FinalData.toRadixString(16)})');
+            issues.add('addr1 data was overwritten (should be 0xAA, '
+                'got 0x${addr1FinalData.toRadixString(16)})');
           }
+          if (addr2FinalData != 0xBB) {
+            issues.add('addr2 data incorrect (should be 0xBB, '
+                'got 0x${addr2FinalData.toRadixString(16)})');
+          }
+          if (addr1Final != 1) {
+            issues.add('addr1 should still hit');
+          }
+          if (addr2Final != 1) {
+            issues.add('addr2 should hit after fill');
+          }
+          // Note: This is a complex bug analysis, so using expect with detailed
+          // message
+          fail('$name: Second fill caused issues: ${issues.join(", ")}');
         }
       }
     }
@@ -216,15 +238,23 @@ void main() {
   test('verify address bit patterns are different', () {
     // Just verify that our test addresses are actually different at the bit
     // level.
-    print('\n=== Address Bit Pattern Analysis ===');
+    // === Address Bit Pattern Analysis ===
     final addresses = [0x100, 0x200, 0x010, 0x020, 0x001, 0x002, 0x080, 0x040];
 
-    for (var addr in addresses) {
-      final binary = addr.toRadixString(2).padLeft(8, '0');
-      print('0x${addr.toRadixString(16).padLeft(3, '0')} = $binary');
+    // Verify all addresses are unique
+    expect(addresses.toSet().length, equals(addresses.length),
+        reason: 'All test addresses should be unique');
+
+    // Verify each address has distinct bit patterns
+    for (var i = 0; i < addresses.length; i++) {
+      for (var j = i + 1; j < addresses.length; j++) {
+        expect(addresses[i], isNot(equals(addresses[j])),
+            reason: 'Address 0x${addresses[i].toRadixString(16)} should differ '
+                'from 0x${addresses[j].toRadixString(16)}');
+      }
     }
 
-    print('\nThese addresses should produce different tag comparisons if the '
-        'cache is working correctly.');
+    // These addresses should produce different tag comparisons if the
+    // cache is working correctly.
   });
 }

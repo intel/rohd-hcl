@@ -4,7 +4,6 @@ This document summarizes the improvements made to the ROHD-HCL caching component
 
 ## Changes Made
 
-
 ### 1. FullyAssociativeCache Code Quality Improvements ✅
 
 **Removed ternary operations with tryOutput method:**
@@ -30,7 +29,6 @@ This document summarizes the improvements made to the ROHD-HCL caching component
 - All public fields and methods now have comprehensive documentation
 
 - Enhanced existing class-level documentation
-
 
 ### 2. CachedRequestResponseChannel Function Parameter Refactor ✅
 
@@ -64,7 +62,6 @@ This document summarizes the improvements made to the ROHD-HCL caching component
 
 - Removed obsolete `camWays` parameters
 
-
 ### 3. Created CachedRequestResponseChannel Documentation ✅
 
 **Created comprehensive markdown documentation:**
@@ -93,7 +90,6 @@ This document summarizes the improvements made to the ROHD-HCL caching component
 
 - Design considerations for cache/CAM/buffer sizing
 
-
 ### 4. Updated FullyAssociativeCache Documentation ✅
 
 **Enhanced existing memory.md:**
@@ -120,7 +116,6 @@ This document summarizes the improvements made to the ROHD-HCL caching component
 
 ## Key Features Documented
 
-
 ### Read-with-Invalidate Operations
 
 - Atomic read and invalidation in single operation
@@ -131,7 +126,6 @@ This document summarizes the improvements made to the ROHD-HCL caching component
 
 - Use cases: request tracking, cache coherency, resource management
 
-
 ### Occupancy Tracking
 
 - Optional feature enabled with `generateOccupancy: true`
@@ -139,7 +133,6 @@ This document summarizes the improvements made to the ROHD-HCL caching component
 - Provides `occupancy`, `full`, and `empty` signals
 
 - Useful for flow control and backpressure management
-
 
 ### Function Parameters for Flexibility
 

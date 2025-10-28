@@ -36,7 +36,7 @@ void main() {
 
       await cache.build();
 
-      WaveDumper(cache, outputPath: 'read_with_invalidate_test.vcd');
+      // WaveDumper(cache, outputPath: 'read_with_invalidate_test.vcd');
 
       Simulator.setMaxSimTime(500);
       unawaited(Simulator.run());
@@ -55,10 +55,9 @@ void main() {
       reset.inject(0);
       await clk.waitCycles(1);
 
-      print('=== ReadWithInvalidate Test ===');
+      // === ReadWithInvalidate Test ===
 
-      // Step 1: Fill cache with data
-      print('Step 1: Filling cache entry');
+      // Step 1: Fill cache with data - Filling cache entry
       fillIntf.en.inject(1);
       fillIntf.valid.inject(1);
       fillIntf.addr.inject(0x42);
@@ -68,8 +67,7 @@ void main() {
       fillIntf.en.inject(0);
       await clk.nextPosedge;
 
-      // Step 2: Normal read (should hit)
-      print('Step 2: Normal read (should hit)');
+      // Step 2: Normal read (should hit) - Normal read
       readIntf.en.inject(1);
       readIntf.addr.inject(0x42);
       readIntf.readWithInvalidate.inject(0);
@@ -78,15 +76,13 @@ void main() {
       expect(readIntf.valid.value.toBool(), isTrue,
           reason: 'Should hit on normal read');
       expect(readIntf.data.value.toInt(), equals(0xAB),
-          reason: 'Should return correct data');
-      print('✅ Normal read hit with data: '
-          '0x${readIntf.data.value.toInt().toRadixString(16)}');
+          reason: 'Should return correct data 0xAB');
 
       readIntf.en.inject(0);
       await clk.nextPosedge;
 
-      // Step 3: Read with invalidate (should hit and invalidate)
-      print('Step 3: Read with invalidate (should hit and invalidate)');
+      // Step 3: Read with invalidate (should hit and invalidate) - Read with
+      // invalidate
       readIntf.en.inject(1);
       readIntf.addr.inject(0x42);
       readIntf.readWithInvalidate.inject(1);
@@ -95,29 +91,27 @@ void main() {
       expect(readIntf.valid.value.toBool(), isTrue,
           reason: 'Should hit on readWithInvalidate');
       expect(readIntf.data.value.toInt(), equals(0xAB),
-          reason: 'Should return correct data');
-      print('✅ ReadWithInvalidate hit with data: '
-          '0x${readIntf.data.value.toInt().toRadixString(16)}');
+          reason: 'Should return correct data 0xAB on readWithInvalidate');
 
       readIntf.en.inject(0);
       readIntf.readWithInvalidate.inject(0);
       await clk.nextPosedge;
 
-      // Step 4: Read again (should miss after invalidation)
-      print('Step 4: Reading again after invalidation (should miss)');
+      // Step 4: Reading again after invalidation (should miss) - Reading
+      // again after invalidation
       readIntf.en.inject(1);
       readIntf.addr.inject(0x42);
+      readIntf.readWithInvalidate.inject(0);
       await clk.nextPosedge;
 
       expect(readIntf.valid.value.toBool(), isFalse,
           reason: 'Should miss after invalidation');
-      print('✅ Read missed after invalidation as expected');
 
       readIntf.en.inject(0);
       await clk.nextPosedge;
 
       await Simulator.endSimulation();
-      print('=== ReadWithInvalidate Test Complete ===');
+      // === ReadWithInvalidate Test Complete ===
     });
 
     test('readWithInvalidate with multiple entries', () async {
@@ -137,7 +131,7 @@ void main() {
 
       await cache.build();
 
-      WaveDumper(cache, outputPath: 'read_with_invalidate_multi_test.vcd');
+      // WaveDumper(cache, outputPath: 'read_with_invalidate_multi_test.vcd');
 
       Simulator.setMaxSimTime(800);
       unawaited(Simulator.run());
@@ -156,15 +150,14 @@ void main() {
       reset.inject(0);
       await clk.waitCycles(1);
 
-      print('=== Multiple Entry ReadWithInvalidate Test ===');
+      // === Multiple Entry ReadWithInvalidate Test ===
 
       // Fill multiple entries
       final addresses = [0x10, 0x20, 0x30];
       final dataValues = [0xAA, 0xBB, 0xCC];
 
       for (var i = 0; i < addresses.length; i++) {
-        print('Filling address 0x${addresses[i].toRadixString(16)} with '
-            'data 0x${dataValues[i].toRadixString(16)}');
+        // Filling address with data
         fillIntf.en.inject(1);
         fillIntf.valid.inject(1);
         fillIntf.addr.inject(addresses[i]);
@@ -181,17 +174,16 @@ void main() {
         readIntf.addr.inject(addresses[i]);
         await clk.nextPosedge;
 
-        expect(readIntf.valid.value.toBool(), isTrue);
-        expect(readIntf.data.value.toInt(), equals(dataValues[i]));
-        print('✅ Entry $i: addr=0x${addresses[i].toRadixString(16)}, '
-            'data=0x${readIntf.data.value.toInt().toRadixString(16)}');
+        expect(readIntf.valid.value.toBool(), isTrue,
+            reason: 'Entry $i should be valid');
+        expect(readIntf.data.value.toInt(), equals(dataValues[i]),
+            reason: 'Entry $i should return correct data');
 
         readIntf.en.inject(0);
         await clk.nextPosedge;
       }
 
-      // Invalidate middle entry
-      print('Invalidating middle entry (0x20)');
+      // Invalidate middle entry - Invalidating middle entry (0x20)
       readIntf.en.inject(1);
       readIntf.addr.inject(0x20);
       readIntf.readWithInvalidate.inject(1);
@@ -217,21 +209,17 @@ void main() {
                 'should ${shouldHit ? "hit" : "miss"}');
 
         if (shouldHit) {
-          expect(readIntf.data.value.toInt(), equals(dataValues[i]));
-          print('✅ Entry $i still valid: '
-              'addr=0x${addresses[i].toRadixString(16)}, '
-              'data=0x${readIntf.data.value.toInt().toRadixString(16)}');
-        } else {
-          print('✅ Entry $i invalidated as expected: '
-              'addr=0x${addresses[i].toRadixString(16)}');
+          expect(readIntf.data.value.toInt(), equals(dataValues[i]),
+              reason: 'Entry $i should return correct data');
         }
+        // Entry verification completed via expects
 
         readIntf.en.inject(0);
         await clk.nextPosedge;
       }
 
       await Simulator.endSimulation();
-      print('=== Multiple Entry ReadWithInvalidate Test Complete ===');
+      // === Multiple Entry ReadWithInvalidate Test Complete ===
     });
 
     test('readWithInvalidate validation - should reject on fill ports', () {
@@ -246,9 +234,8 @@ void main() {
           [fillIntf], // This should throw
           [],
         );
-      }, throwsA(isA<ArgumentError>()));
-
-      print('✅ Correctly rejected readWithInvalidate on fill port');
+      }, throwsA(isA<ArgumentError>()),
+          reason: 'Should correctly reject readWithInvalidate on fill port');
     });
   });
 }

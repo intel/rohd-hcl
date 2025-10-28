@@ -36,7 +36,7 @@ void main() {
     await clk.nextPosedge;
     await clk.nextPosedge;
 
-    print('=== Debug Valid Bit Updates ===');
+    // === Debug Valid Bit Updates ===
 
     // Wait for occupancy to be valid
     var cycles = 0;
@@ -45,15 +45,13 @@ void main() {
       cycles++;
     }
 
-    if (!cache.occupancy!.value.isValid) {
-      print('ERROR: Occupancy never became valid after $cycles cycles');
-      return;
-    }
+    expect(cache.occupancy!.value.isValid, isTrue,
+        reason: 'Occupancy should become valid after $cycles cycles');
 
-    print('Initial occupancy: ${cache.occupancy!.value.toInt()}');
+    // Initial occupancy: ${cache.occupancy!.value.toInt()}
 
     // Fill first entry
-    print('\n1. Fill first entry (0x100)...');
+    // 1. Fill first entry (0x100)...
     fillIntf.en.inject(1);
     fillIntf.valid.inject(1);
     fillIntf.addr.inject(0x100);
@@ -63,19 +61,23 @@ void main() {
     fillIntf.en.inject(0);
     await clk.nextPosedge;
 
-    print('After first fill: occupancy=${cache.occupancy!.value.toInt()}');
+    // After first fill: occupancy=${cache.occupancy!.value.toInt()}
+    expect(cache.occupancy!.value.toInt(), equals(1),
+        reason: 'Should have 1 entry after first fill');
 
     // Verify read
     readIntf.en.inject(1);
     readIntf.addr.inject(0x100);
     await clk.nextPosedge;
-    print('Read 0x100: valid=${readIntf.valid.value}, '
-        'data=0x${readIntf.data.value.toInt().toRadixString(16)}');
+    expect(readIntf.valid.value.toBool(), isTrue,
+        reason: 'Read 0x100 should be valid');
+    expect(readIntf.data.value.toInt(), equals(0xAA),
+        reason: 'Read 0x100 should return correct data');
     readIntf.en.inject(0);
     await clk.nextPosedge;
 
     // Fill second entry - this should go to a different way
-    print('\n2. Fill second entry (0x200)...');
+    // 2. Fill second entry (0x200)...
     fillIntf.en.inject(1);
     fillIntf.valid.inject(1);
     fillIntf.addr.inject(0x200);
@@ -85,27 +87,32 @@ void main() {
     fillIntf.en.inject(0);
     await clk.nextPosedge;
 
-    print('After second fill: occupancy=${cache.occupancy!.value.toInt()}');
+    // After second fill: occupancy=${cache.occupancy!.value.toInt()}
+    expect(cache.occupancy!.value.toInt(), equals(2),
+        reason: 'Should have 2 entries after second fill');
 
     // Verify both reads work correctly
     readIntf.en.inject(1);
     readIntf.addr.inject(0x100);
     await clk.nextPosedge;
-    print('Read 0x100: valid=${readIntf.valid.value}, '
-        'data=0x${readIntf.data.value.toInt().toRadixString(16)}');
+    expect(readIntf.valid.value.toBool(), isTrue,
+        reason: 'Read 0x100 should still be valid after second fill');
+    expect(readIntf.data.value.toInt(), equals(0xAA),
+        reason: 'Read 0x100 should still return correct data');
     readIntf.en.inject(0);
     await clk.nextPosedge;
 
     readIntf.en.inject(1);
     readIntf.addr.inject(0x200);
     await clk.nextPosedge;
-    print('Read 0x200: valid=${readIntf.valid.value}, '
-        'data=0x${readIntf.data.value.toInt().toRadixString(16)}');
+    expect(readIntf.valid.value.toBool(), isTrue,
+        reason: 'Read 0x200 should be valid');
+    expect(readIntf.data.value.toInt(), equals(0xBB),
+        reason: 'Read 0x200 should return correct data');
     readIntf.en.inject(0);
     await clk.nextPosedge;
 
-    // Check final occupancy
-    print('\nFinal occupancy: ${cache.occupancy!.value.toInt()}');
+    // Check final occupancy - this is verified by the final expect at the end
 
     // The bug: If the second fill overwrote the first, we'll see:
     // - occupancy = 1 instead of 2

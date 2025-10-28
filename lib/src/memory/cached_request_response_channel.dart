@@ -29,7 +29,7 @@ class CachedRequestResponseChannel extends RequestResponseChannelBase {
   late final ReadyValidFifo<ResponseStructure> responseFifo;
 
   /// Internal response interface for connecting downstream responses to FIFO.
-  late final ReadyValidInterface<ResponseStructure> internalResponseIntf;
+  late final ReadyValidInterface<ResponseStructure> internalRespIntf;
 
   /// Port interface for reading from the address/data cache.
   late final ValidDataPortInterface cacheReadPort;
@@ -45,22 +45,20 @@ class CachedRequestResponseChannel extends RequestResponseChannelBase {
 
   /// Function to create the address/data cache instance.
   final Cache Function(
-    Logic clk,
-    Logic reset,
-    List<ValidDataPortInterface> fills,
-    List<ValidDataPortInterface> reads,
-  ) cacheFactory;
+      Logic clk,
+      Logic reset,
+      List<ValidDataPortInterface> fills,
+      List<ValidDataPortInterface> reads) cacheFactory;
 
   /// Function to create the replacement policy for the CAM.
   final ReplacementPolicy Function(
-    Logic clk,
-    Logic reset,
-    List<AccessInterface> hits,
-    List<AccessInterface> allocs,
-    List<AccessInterface> invalidates, {
-    int ways,
-    String name,
-  }) camReplacementPolicy;
+      Logic clk,
+      Logic reset,
+      List<AccessInterface> hits,
+      List<AccessInterface> allocs,
+      List<AccessInterface> invalidates,
+      {int ways,
+      String name}) camReplacementPolicy;
 
   /// The depth of the response buffer FIFO. Should be larger than [camWays]
   /// to ensure the CAM becomes the limiting factor for backpressure control.
@@ -107,8 +105,8 @@ class CachedRequestResponseChannel extends RequestResponseChannelBase {
 
   @override
   void buildLogic() {
-    final idWidth = upstreamRequest.data.id.width;
-    final addrWidth = upstreamRequest.data.addr.width;
+    final idWidth = upstreamReq.data.id.width;
+    final addrWidth = upstreamReq.data.addr.width;
     final dataWidth = upstreamResponse.data.data.width;
 
     // Create cache interfaces.
@@ -134,14 +132,14 @@ class CachedRequestResponseChannel extends RequestResponseChannelBase {
         name: 'pendingRequestsCam');
 
     // Create internal response interface for FIFO input.
-    internalResponseIntf = ReadyValidInterface(
+    internalRespIntf = ReadyValidInterface(
         ResponseStructure(idWidth: idWidth, dataWidth: dataWidth));
 
     // Create response FIFO.
     responseFifo = ReadyValidFifo<ResponseStructure>(
         clk: clk,
         reset: reset,
-        upstream: internalResponseIntf,
+        upstream: internalRespIntf,
         downstream: upstreamResponse,
         depth: responseBufferDepth,
         name: 'responseFifo');
@@ -152,145 +150,64 @@ class CachedRequestResponseChannel extends RequestResponseChannelBase {
 
   /// Builds the main cache logic for handling requests and responses.
   void _buildCacheLogic() {
-    // Create internal logic signals without .named() calls to avoid
-    // underscores.
     final cacheHit = Logic(name: 'cacheHit');
-    final cacheMiss = Logic(name: 'cacheMiss');
     final camHit = Logic(name: 'camHit');
-    final canAcceptUpstreamReq = Logic(name: 'canAcceptUpstreamReq');
-    final canForwardDownstream = Logic(name: 'canForwardDownstream');
-    final responseFromCache = Logic(name: 'responseFromCache');
-    final responseFromDownstream = Logic(name: 'responseFromDownstream');
 
-    // CAM occupancy signals from FullyAssociativeCache.
-    final camFull = pendingRequestsCam.full!;
-
-    // Cache lookup for incoming requests.
-    cacheReadPort.en <= upstreamRequest.valid;
-    cacheReadPort.addr <= upstreamRequest.data.addr;
-
-    // CAM lookup for downstream responses with automatic invalidation.
-    camReadPort.en <= downstreamResponse.valid;
-    camReadPort.addr <= downstreamResponse.data.id;
-    // Use readWithInvalidate to atomically read and invalidate CAM entries
-    // when processing downstream responses.
-    camReadPort.readWithInvalidate <= downstreamResponse.valid;
-
-    // Hit/miss determination (combinational logic).
+    cacheReadPort.en <= upstreamReq.valid;
+    cacheReadPort.addr <= upstreamReq.data.addr;
     cacheHit <= cacheReadPort.valid;
-    cacheMiss <= ~cacheReadPort.valid;
+
+    camReadPort.en <= downstreamResp.valid;
+    camReadPort.addr <= downstreamResp.data.id;
+    camReadPort.readWithInvalidate <= downstreamResp.valid;
     camHit <= camReadPort.valid;
 
-    // Response generation conditions.
-    responseFromCache <=
-        (upstreamRequest.valid & cacheHit).named('responseFromCacheCondition');
-    responseFromDownstream <=
-        (downstreamResponse.valid & camHit)
-            .named('responseFromDownstreamCondition');
+    final respFromCache = upstreamReq.valid & cacheHit;
+    final respFromDownstream = downstreamResp.valid & camHit;
 
-    // Backpressure and flow control. Cache hits need response FIFO space AND no
-    // competing downstream response. Cache misses need downstream ready AND CAM
-    // space (stored in CAM for later response). Exception: Allow cache miss
-    // even when CAM full if concurrent downstream response frees CAM entry.
-    final camSpaceAvailable = Logic(name: 'camSpaceAvailable');
-    camSpaceAvailable <=
-        (~camFull |
-                (downstreamResponse.valid & camHit)
-                    .named('camFreeingCondition'))
-            .named('camSpaceCondition');
+    final camSpaceAvailable = ~pendingRequestsCam.full! | respFromDownstream;
 
-    final canAcceptCacheHit = Logic(name: 'canAcceptCacheHit');
-    canAcceptCacheHit <=
-        (cacheHit & internalResponseIntf.ready & ~responseFromDownstream)
-            .named('cacheHitAcceptCondition');
+    upstreamReq.ready <=
+        (cacheHit & internalRespIntf.ready & ~respFromDownstream) |
+            (~cacheHit & downstreamReq.ready & camSpaceAvailable);
 
-    final canAcceptCacheMiss = Logic(name: 'canAcceptCacheMiss');
-    canAcceptCacheMiss <=
-        (cacheMiss & downstreamRequest.ready & camSpaceAvailable)
-            .named('cacheMissAcceptCondition');
+    final forwardMissDownstream =
+        upstreamReq.valid & ~cacheHit & downstreamReq.ready & camSpaceAvailable;
 
-    canAcceptUpstreamReq <=
-        (canAcceptCacheHit | canAcceptCacheMiss)
-            .named('upstreamAcceptCondition');
-    canForwardDownstream <= downstreamRequest.ready;
+    downstreamReq.valid <= forwardMissDownstream;
+    downstreamReq.data <= upstreamReq.data;
 
-    // Upstream request handling.
-    upstreamRequest.ready <= canAcceptUpstreamReq;
+    camFillPort.en <= forwardMissDownstream;
+    camFillPort.valid <= forwardMissDownstream;
+    camFillPort.addr <= upstreamReq.data.id;
+    camFillPort.data <= upstreamReq.data.addr;
 
-    // Forward miss requests downstream.
-    final downstreamRequestValidCondition =
-        Logic(name: 'downstreamRequestValidCondition');
-    downstreamRequestValidCondition <=
-        (upstreamRequest.valid &
-                cacheMiss &
-                canForwardDownstream &
-                camSpaceAvailable)
-            .named('downstreamValidCondition');
-    downstreamRequest.valid <= downstreamRequestValidCondition;
-    downstreamRequest.data <= upstreamRequest.data;
-
-    // CAM operations: store new entries only.
-    // Invalidations are handled automatically by readWithInvalidate.
-    final shouldStoreInCam = Logic(name: 'shouldStoreInCam');
-    shouldStoreInCam <=
-        (upstreamRequest.valid &
-                cacheMiss &
-                canForwardDownstream &
-                camSpaceAvailable)
-            .named('camStoreCondition');
-
-    // Use fill interface only for storing new entries.
-    camFillPort.en <= shouldStoreInCam;
-    camFillPort.valid <= shouldStoreInCam;
-    camFillPort.addr <= upstreamRequest.data.id;
-    camFillPort.data <= upstreamRequest.data.addr;
-
-    // CAM occupancy tracking is now handled automatically by
-    // FullyAssociativeCache.
-
-    // Update cache with downstream responses.
-    cacheFillPort.en <= responseFromDownstream;
-    cacheFillPort.valid <= responseFromDownstream;
+    cacheFillPort.en <= respFromDownstream;
+    cacheFillPort.valid <= respFromDownstream;
     cacheFillPort.addr <= camReadPort.data; // Address from CAM.
-    cacheFillPort.data <= downstreamResponse.data.data; // Response data.
+    cacheFillPort.data <= downstreamResp.data.data; // Response data.
 
-    // Response FIFO handling - arbitrate between cache hits and downstream
-    // responses. Priority: downstream responses (need to update cache) > cache
-    // hits.
-    final fifoWriteFromDownstream = responseFromDownstream;
-    final fifoWriteFromCache = Logic(name: 'fifoWriteFromCache');
-    fifoWriteFromCache <=
-        (responseFromCache & ~responseFromDownstream)
-            .named('fifoWriteCacheCondition');
+    internalRespIntf.valid <=
+        respFromDownstream | (respFromCache & ~respFromDownstream);
 
-    final internalResponseIntfValid = Logic(name: 'internalResponseIntfValid');
-    internalResponseIntfValid <=
-        (fifoWriteFromDownstream | fifoWriteFromCache)
-            .named('internalResponseValid');
-    internalResponseIntf.valid <= internalResponseIntfValid;
-
-    final responseId =
-        Logic(name: 'responseId', width: internalResponseIntf.data.id.width);
-    final responseData = Logic(
-        name: 'responseData', width: internalResponseIntf.data.data.width);
+    final responseId = Logic(width: internalRespIntf.data.id.width);
+    final responseData = Logic(width: internalRespIntf.data.data.width);
 
     Combinational([
       If.block([
-        Iff(fifoWriteFromDownstream, [
-          responseId < downstreamResponse.data.id,
-          responseData < downstreamResponse.data.data,
+        Iff(respFromDownstream, [
+          responseId < downstreamResp.data.id,
+          responseData < downstreamResp.data.data,
         ]),
-        ElseIf(fifoWriteFromCache, [
-          responseId < upstreamRequest.data.id,
+        Else([
+          responseId < upstreamReq.data.id, // Cache hit case
           responseData < cacheReadPort.data,
         ])
       ])
     ]);
 
-    internalResponseIntf.data.id <= responseId;
-    internalResponseIntf.data.data <= responseData;
-
-    // Downstream response ready - can accept when response FIFO has space.
-    downstreamResponse.ready <= internalResponseIntf.ready;
+    internalRespIntf.data.id <= responseId;
+    internalRespIntf.data.data <= responseData;
+    downstreamResp.ready <= internalRespIntf.ready;
   }
 }

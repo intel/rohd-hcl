@@ -38,21 +38,30 @@ void main() {
     await clk.nextPosedge;
     await clk.nextPosedge; // End reset flow
 
-    print('=== Replacement Policy Test ===');
+    // === Replacement Policy Test ===
 
     // Test multiple allocations in sequence - keep access high and read each
-    // cycle,
+    // cycle
     allocs[0].access.inject(1);
+    final allocatedWays = <int>[];
     for (var i = 0; i < 8; i++) {
       await clk.nextPosedge;
       if (allocs[0].way.value.isValid) {
         final way = allocs[0].way.value.toInt();
-        print('Allocation $i: way = $way');
+        allocatedWays.add(way);
+        expect(way, allOf(greaterThanOrEqualTo(0), lessThanOrEqualTo(3)),
+            reason: 'Allocation $i: way should be in valid range 0-3');
       } else {
-        print('Allocation $i: way = INVALID');
+        fail('Allocation $i: way should be valid');
       }
     }
     allocs[0].access.inject(0);
+
+    // Verify we got proper way allocation behavior
+    expect(allocatedWays.length, equals(8),
+        reason: 'Should have 8 allocations');
+    expect(allocatedWays.toSet().length, greaterThan(1),
+        reason: 'Should use multiple different ways over time');
 
     await Simulator.endSimulation();
   });

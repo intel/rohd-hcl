@@ -53,13 +53,13 @@ void main() {
       cycles++;
     }
 
-    print('=== ReadWithInvalidate Test with Proper 8-bit Addresses ===');
+    // === ReadWithInvalidate Test with Proper 8-bit Addresses ===
 
     // Fill two entries
     const addr1 = 0x10;
     const addr2 = 0x20;
 
-    print('Filling two entries...');
+    // Filling two entries
 
     // Fill first entry
     fillIntf.en.inject(1);
@@ -80,14 +80,13 @@ void main() {
     await clk.nextPosedge;
 
     if (cache.occupancy!.value.isValid) {
-      print('Occupancy after filling 2 entries: '
-          '${cache.occupancy!.value.toInt()}');
-      expect(cache.occupancy!.value.toInt(), equals(2));
+      expect(cache.occupancy!.value.toInt(), equals(2),
+          reason: 'Occupancy should be 2 after filling 2 entries');
     }
 
     // Test simultaneous fill + readWithInvalidate (the key test case)
-    print('\nTesting simultaneous fill + readWithInvalidate...');
-    print('This should fill addr2=0x30 while invalidating addr1=0x10');
+    // Testing simultaneous fill + readWithInvalidate
+    // This should fill addr2=0x30 while invalidating addr1=0x10
 
     // Simultaneous operations: fill new entry while invalidating existing entry
     fillIntf.en.inject(1);
@@ -110,7 +109,6 @@ void main() {
     // Check results
     if (cache.occupancy!.value.isValid) {
       final occupancy = cache.occupancy!.value.toInt();
-      print('Occupancy after simultaneous operation: $occupancy');
       // Should still be 2: added 0x30, but invalidated 0x10
       expect(occupancy, equals(2),
           reason: 'Occupancy should remain 2 (add one, invalidate one)');
@@ -124,8 +122,7 @@ void main() {
     readIntf.en.inject(0);
     await clk.nextPosedge;
 
-    print('Read invalidated address 0x10: hit=$addr1Hit (should be 0)');
-    expect(addr1Hit, equals(0), reason: 'Invalidated address should miss');
+    expect(addr1Hit, equals(0), reason: 'Invalidated address 0x10 should miss');
 
     // Verify addr2 (0x20) is still valid
     readIntf.en.inject(1);
@@ -136,10 +133,10 @@ void main() {
     readIntf.en.inject(0);
     await clk.nextPosedge;
 
-    print('Read untouched address 0x20: hit=$addr2Hit, '
-        'data=0x${addr2Data.toRadixString(16)}');
-    expect(addr2Hit, equals(1), reason: 'Untouched address should still hit');
-    expect(addr2Data, equals(0xBB), reason: 'Should return original data');
+    expect(addr2Hit, equals(1),
+        reason: 'Untouched address 0x20 '
+            'should still hit');
+    expect(addr2Data, equals(0xBB), reason: 'Should return original data 0xBB');
 
     // Verify new addr3 (0x30) is valid
     readIntf.en.inject(1);
@@ -150,13 +147,10 @@ void main() {
     readIntf.en.inject(0);
     await clk.nextPosedge;
 
-    print('Read new address 0x30: hit=$addr3Hit, '
-        'data=0x${addr3Data.toRadixString(16)}');
-    expect(addr3Hit, equals(1), reason: 'New address should hit');
-    expect(addr3Data, equals(0xCC), reason: 'Should return new data');
+    expect(addr3Hit, equals(1), reason: 'New address 0x30 should hit');
+    expect(addr3Data, equals(0xCC), reason: 'Should return new data 0xCC');
 
-    print('\n✅ ReadWithInvalidate working correctly with '
-        'simultaneous operations!');
+    // ✅ ReadWithInvalidate working correctly with simultaneous operations!
     await Simulator.endSimulation();
   });
 }

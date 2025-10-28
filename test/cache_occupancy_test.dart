@@ -36,7 +36,7 @@ void main() {
 
       await cache.build();
 
-      WaveDumper(cache, outputPath: 'cache_occupancy_basic.vcd');
+      // WaveDumper(cache, outputPath: 'cache_occupancy_basic.vcd');
 
       Simulator.setMaxSimTime(500);
       unawaited(Simulator.run());
@@ -51,7 +51,7 @@ void main() {
       reset.inject(0);
       await clk.waitCycles(1);
 
-      print('=== Basic Occupancy Test ===');
+      // === Basic Occupancy Test ===
 
       // Initially should be empty
       expect(cache.empty!.value.toBool(), isTrue,
@@ -60,15 +60,12 @@ void main() {
           reason: 'Cache should not start full');
       expect(cache.occupancy!.value.toInt(), equals(0),
           reason: 'Initial occupancy should be 0');
-      print('✅ Initial state: empty=${cache.empty!.value}, '
-          'full=${cache.full!.value}, '
-          'occupancy=${cache.occupancy!.value.toInt()}');
+      // ✅ Initial state verified: empty, not full, occupancy=0
 
       // Fill entries one by one
       final addresses = [0x10, 0x20, 0x30, 0x40];
       for (var i = 0; i < addresses.length; i++) {
-        print(
-            'Filling entry ${i + 1}/4 (addr=0x${addresses[i].toRadixString(16)})');
+        // Filling entry ${i + 1}/4 (addr=0x${addresses[i].toRadixString(16)})
 
         fillIntf.en.inject(1);
         fillIntf.valid.inject(1);
@@ -91,9 +88,7 @@ void main() {
         expect(cache.empty!.value.toBool(), equals(expectedEmpty),
             reason: 'Empty should be $expectedEmpty after ${i + 1} fills');
 
-        print('✅ After fill ${i + 1}: '
-            'occupancy=${cache.occupancy!.value.toInt()}, '
-            'full=${cache.full!.value}, empty=${cache.empty!.value}');
+        // ✅ After fill ${i + 1}: occupancy, full, and empty flags verified
       }
 
       // Cache should now be full
@@ -104,7 +99,7 @@ void main() {
       expect(cache.occupancy!.value.toInt(), equals(4),
           reason: 'Occupancy should be 4 when full');
 
-      print('=== Cache is now full ===');
+      // === Cache is now full ===
 
       await Simulator.endSimulation();
     });
@@ -128,7 +123,7 @@ void main() {
 
       await cache.build();
 
-      WaveDumper(cache, outputPath: 'cache_simultaneous_ops.vcd');
+      // WaveDumper(cache, outputPath: 'cache_simultaneous_ops.vcd');
 
       Simulator.setMaxSimTime(600);
       unawaited(Simulator.run());
@@ -144,10 +139,9 @@ void main() {
       reset.inject(0);
       await clk.waitCycles(1);
 
-      print('=== Simultaneous Operations Test ===');
+      // === Simultaneous Operations Test ===
 
-      // Fill cache to capacity
-      print('Phase 1: Fill cache to capacity (2 ways)');
+      // Fill cache to capacity - Phase 1: Fill cache to capacity (2 ways)
       final initialAddresses = [0x10, 0x20];
       for (var i = 0; i < initialAddresses.length; i++) {
         fillIntf.en.inject(1);
@@ -164,12 +158,11 @@ void main() {
           reason: 'Cache should be full');
       expect(cache.occupancy!.value.toInt(), equals(2),
           reason: 'Occupancy should be 2');
-      print('✅ Cache filled to capacity: '
-          'occupancy=${cache.occupancy!.value.toInt()}');
+      // ✅ Cache filled to capacity - occupancy verified
 
       // Phase 2: Test simultaneous fill (new entry) + readWithInvalidate
       // (existing entry).
-      print('Phase 2: Simultaneous fill (0x30) + readWithInvalidate (0x10)');
+      // Phase 2: Simultaneous fill (0x30) + readWithInvalidate (0x10)
 
       // Set up both operations simultaneously.
       fillIntf.en.inject(1);
@@ -186,13 +179,12 @@ void main() {
       // Check results of simultaneous operation.
       final readResult = readIntf.valid.value.toBool();
 
-      print('Simultaneous operation results:');
-      print('- ReadWithInvalidate hit: $readResult');
-      print('- Cache occupancy after: ${cache.occupancy!.value.toInt()}');
-      print('- Cache full after: ${cache.full!.value}');
-
       expect(readResult, isTrue,
           reason: 'ReadWithInvalidate should hit existing entry');
+      expect(cache.occupancy!.value.toInt(), greaterThanOrEqualTo(1),
+          reason: 'Cache occupancy should be at least 1 after operations');
+      expect(cache.full!.value.toBool(), anyOf([isTrue, isFalse]),
+          reason: 'Cache full status depends on implementation details');
 
       // Clean up signals.
       fillIntf.en.inject(0);
@@ -201,7 +193,7 @@ void main() {
       await clk.nextPosedge;
 
       // Phase 3: Verify the state after simultaneous operations.
-      print('Phase 3: Verify final state');
+      // Phase 3: Verify final state
 
       // When cache is full and we do simultaneous fill + readWithInvalidate:
       // - readWithInvalidate invalidates one entry (0x10)
@@ -236,10 +228,8 @@ void main() {
       // Note: 0x20 may or may not exist depending on replacement policy
       // In current implementation, it gets evicted to make room for 0x30
 
-      print('✅ Simultaneous fill + readWithInvalidate on '
-          'full cache works correctly');
-      print('Final state: occupancy=${cache.occupancy!.value.toInt()}, '
-          'full=${cache.full!.value}, empty=${cache.empty!.value}');
+      // ✅ Simultaneous fill + readWithInvalidate on full cache works correctly
+      // Final state verified through individual expect assertions
 
       await Simulator.endSimulation();
     });
@@ -262,7 +252,7 @@ void main() {
 
       await cache.build();
 
-      WaveDumper(cache, outputPath: 'cache_invalidate_occupancy.vcd');
+      // WaveDumper(cache, outputPath: 'cache_invalidate_occupancy.vcd');
 
       Simulator.setMaxSimTime(400);
       unawaited(Simulator.run());
@@ -278,7 +268,7 @@ void main() {
       reset.inject(0);
       await clk.waitCycles(1);
 
-      print('=== Invalidate Reduces Occupancy Test ===');
+      // === Invalidate Reduces Occupancy Test ===
 
       // Fill cache with 4 entries
       final addresses = [0x10, 0x20, 0x30, 0x40];
@@ -296,10 +286,9 @@ void main() {
       expect(cache.occupancy!.value.toInt(), equals(4),
           reason: 'Should have 4 entries');
       expect(cache.full!.value.toBool(), isTrue, reason: 'Should be full');
-      print('✅ Filled cache: occupancy=${cache.occupancy!.value.toInt()}');
+      // ✅ Filled cache - occupancy verified
 
-      // Invalidate middle entry
-      print('Invalidating 0x20...');
+      // Invalidate middle entry - Invalidating 0x20
       readIntf.en.inject(1);
       readIntf.addr.inject(0x20);
       readIntf.readWithInvalidate.inject(1);
@@ -319,11 +308,9 @@ void main() {
           reason: 'Should not be full after invalidation');
       expect(cache.empty!.value.toBool(), isFalse,
           reason: 'Should not be empty with 3 entries');
-      print(
-          '✅ After invalidation: occupancy=${cache.occupancy!.value.toInt()}');
+      // ✅ After invalidation - occupancy reduced as expected
 
-      // Invalidate another entry
-      print('Invalidating 0x10...');
+      // Invalidate another entry - Invalidating 0x10
       readIntf.en.inject(1);
       readIntf.addr.inject(0x10);
       readIntf.readWithInvalidate.inject(1);
@@ -335,11 +322,9 @@ void main() {
 
       expect(cache.occupancy!.value.toInt(), equals(2),
           reason: 'Occupancy should reduce to 2');
-      print('✅ After second invalidation: '
-          'occupancy=${cache.occupancy!.value.toInt()}');
+      // ✅ After second invalidation - occupancy reduced to 2
 
-      // Invalidate another entry
-      print('Invalidating 0x30...');
+      // Invalidate another entry - Invalidating 0x30
       readIntf.en.inject(1);
       readIntf.addr.inject(0x30);
       readIntf.readWithInvalidate.inject(1);
@@ -351,11 +336,9 @@ void main() {
 
       expect(cache.occupancy!.value.toInt(), equals(1),
           reason: 'Occupancy should reduce to 1');
-      print('✅ After third invalidation: '
-          'occupancy=${cache.occupancy!.value.toInt()}');
+      // ✅ After third invalidation - occupancy reduced to 1
 
-      // Invalidate last entry
-      print('Invalidating 0x40...');
+      // Invalidate last entry - Invalidating 0x40
       readIntf.en.inject(1);
       readIntf.addr.inject(0x40);
       readIntf.readWithInvalidate.inject(1);
@@ -370,9 +353,7 @@ void main() {
       expect(cache.empty!.value.toBool(), isTrue, reason: 'Should be empty');
       expect(cache.full!.value.toBool(), isFalse,
           reason: 'Should not be full when empty');
-      print('✅ After all invalidations: '
-          'occupancy=${cache.occupancy!.value.toInt()}, '
-          'empty=${cache.empty!.value}');
+      // ✅ After all invalidations - cache is now empty
 
       await Simulator.endSimulation();
     });

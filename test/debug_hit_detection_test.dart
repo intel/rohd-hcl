@@ -45,19 +45,20 @@ void main() {
     await clk.nextPosedge;
     await clk.nextPosedge;
 
-    print('=== Hit Detection Debug ===');
+    // === Hit Detection Debug ===
 
     // Test 1: Check if cache is initially empty
     readIntf.en.inject(1);
     readIntf.addr.inject(0x100);
     await clk.nextPosedge;
     final initialHit = readIntf.valid.value.toInt();
-    print('Initial read 0x100: hit=$initialHit (should be 0)');
+    expect(initialHit, equals(0),
+        reason: 'Initial read 0x100 should miss (cache empty)');
     readIntf.en.inject(0);
     await clk.nextPosedge;
 
     // Test 2: Fill first entry and verify hit
-    print('\nFilling 0x100 with 0xAA...');
+    // Filling 0x100 with 0xAA...
     fillIntf.en.inject(1);
     fillIntf.valid.inject(1);
     fillIntf.addr.inject(0x100);
@@ -72,8 +73,10 @@ void main() {
     await clk.nextPosedge;
     final afterFillHit = readIntf.valid.value.toInt();
     final afterFillData = readIntf.data.value.toInt();
-    print('After first fill, read 0x100: hit=$afterFillHit, '
-        'data=0x${afterFillData.toRadixString(16)}');
+    expect(afterFillHit, equals(1),
+        reason: 'After first fill, read 0x100 should hit');
+    expect(afterFillData, equals(0xAA),
+        reason: 'After first fill, read 0x100 should return correct data');
     readIntf.en.inject(0);
     await clk.nextPosedge;
 
@@ -82,12 +85,13 @@ void main() {
     readIntf.addr.inject(0x200);
     await clk.nextPosedge;
     final differentAddrHit = readIntf.valid.value.toInt();
-    print('Different address 0x200: hit=$differentAddrHit (should be 0)');
+    expect(differentAddrHit, equals(0),
+        reason: 'Different address 0x200 should miss');
     readIntf.en.inject(0);
     await clk.nextPosedge;
 
     // Test 5: Now fill the second entry - this is where the bug happens
-    print('\nFilling 0x200 with 0xBB...');
+    // Filling 0x200 with 0xBB...
     fillIntf.en.inject(1);
     fillIntf.valid.inject(1);
     fillIntf.addr.inject(0x200);
@@ -102,8 +106,11 @@ void main() {
     await clk.nextPosedge;
     final addr100Hit = readIntf.valid.value.toInt();
     final addr100Data = readIntf.data.value.toInt();
-    print('After second fill, read 0x100: hit=$addr100Hit, '
-        'data=0x${addr100Data.toRadixString(16)} (should be hit=1, data=0xAA)');
+    expect(addr100Hit, equals(1),
+        reason: 'After second fill, read 0x100 should still hit');
+    expect(addr100Data, equals(0xAA),
+        reason: 'After second fill, read 0x100 should still '
+            'return correct data');
     readIntf.en.inject(0);
     await clk.nextPosedge;
 
@@ -112,32 +119,15 @@ void main() {
     await clk.nextPosedge;
     final addr200Hit = readIntf.valid.value.toInt();
     final addr200Data = readIntf.data.value.toInt();
-    print('After second fill, read 0x200: hit=$addr200Hit, '
-        'data=0x${addr200Data.toRadixString(16)} (should be hit=1, data=0xBB)');
+    expect(addr200Hit, equals(1),
+        reason: 'After second fill, read 0x200 should hit');
+    expect(addr200Data, equals(0xBB),
+        reason: 'After second fill, read 0x200 should return correct data');
     readIntf.en.inject(0);
     await clk.nextPosedge;
 
-    // Analysis
-    if (addr100Hit == 1 &&
-        addr100Data == 0xAA &&
-        addr200Hit == 1 &&
-        addr200Data == 0xBB) {
-      print('\n✅ Both entries working correctly');
-    } else {
-      print('\n❌ Bug detected:');
-      if (addr100Hit == 0) {
-        print('  - Address 0x100 was invalidated');
-      }
-      if (addr100Data != 0xAA) {
-        print('  - Address 0x100 data was overwritten');
-      }
-      if (addr200Hit == 0) {
-        print('  - Address 0x200 did not get stored');
-      }
-      if (addr200Data != 0xBB) {
-        print('  - Address 0x200 has wrong data');
-      }
-    }
+    // Analysis - Both entries should be working correctly
+    // The individual expects above already validate the behavior
 
     await Simulator.endSimulation();
   });

@@ -46,10 +46,7 @@ void main() async {
     ResponseStructure(idWidth: 4, dataWidth: 4),
   );
 
-  print('Generating SystemVerilog for request/response channels...');
-
   // Generate RequestResponseChannel SystemVerilog.
-  print('- RequestResponseChannel');
   final basicChannel = RequestResponseChannel(
     clk: clk,
     reset: reset,
@@ -64,7 +61,6 @@ void main() async {
   File('generated/RequestResponseChannel.sv').writeAsStringSync(basicSv);
 
   // Generate BufferedRequestResponseChannel SystemVerilog.
-  print('- BufferedRequestResponseChannel');
   final bufferedChannel = BufferedRequestResponseChannel(
     clk: clk,
     reset: reset,
@@ -80,7 +76,6 @@ void main() async {
       .writeAsStringSync(bufferedSv);
 
   // Generate CachedRequestResponseChannel SystemVerilog.
-  print('- CachedRequestResponseChannel');
   final cachedChannel = CachedRequestResponseChannel(
     clk: clk,
     reset: reset,
@@ -95,9 +90,4 @@ void main() async {
   await cachedChannel.build();
   final cachedSv = cachedChannel.generateSynth();
   File('generated/CachedRequestResponseChannel.sv').writeAsStringSync(cachedSv);
-
-  print('SystemVerilog generation complete! Files saved to generated/');
-  print('- generated/RequestResponseChannel.sv');
-  print('- generated/BufferedRequestResponseChannel.sv');
-  print('- generated/CachedRequestResponseChannel.sv');
 }
