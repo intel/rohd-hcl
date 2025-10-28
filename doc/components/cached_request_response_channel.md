@@ -248,6 +248,7 @@ When testing `CachedRequestResponseChannel`:
 ## Examples Repository
 
 See the `example/` directory for complete working examples:
+
 - `cached_channel_basic.dart`: Basic usage example
 - `cached_channel_custom.dart`: Custom cache configuration
 - `cached_channel_performance.dart`: High-performance setup

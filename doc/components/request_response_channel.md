@@ -5,6 +5,7 @@ The ROHD-HCL library provides a comprehensive set of request/response channel co
 ## Overview
 
 Request/response channels implement a protocol where:
+
 - **Upstream** interfaces connect to requesters (like processors or caches)
 - **Downstream** interfaces connect to responders (like memory controllers or peripherals)  
 - **Requests** flow from upstream to downstream with address and ID information
@@ -195,7 +196,7 @@ final cached = CachedRequestResponseChannel(
 
 ## Performance Characteristics
 
-### CachedRequestResponseChannel
+### CachedRequestResponseChannel Again
 
 - **Hit Latency**: 1-2 cycles (cache lookup + response FIFO)
 - **Miss Latency**: Full downstream latency + cache update
@@ -224,6 +225,7 @@ final cached = CachedRequestResponseChannel(
 ## Testing and Verification
 
 Comprehensive test suites are provided covering:
+
 - Basic functionality (hits, misses, forwarding)
 - Backpressure scenarios (FIFO full, CAM full)
 - Resource limits and recovery

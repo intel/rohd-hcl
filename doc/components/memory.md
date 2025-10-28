@@ -119,7 +119,7 @@ readPort.readWithInvalidate <= shouldInvalidate;
 2. **Cache Coherency**: Implement invalidation protocols
 3. **Resource Management**: Atomically consume cached resources
 
-**Example: Request/Response Matching**
+## Example: Request/Response Matching
 
 ```dart
 // CAM for tracking pending requests - stores request ID as tag, address as data
@@ -141,7 +141,7 @@ lookupPort.readWithInvalidate <= Const(1); // Always invalidate on hit
 // - Entry is automatically invalidated for future requests
 ```
 
-#### Occupancy Tracking
+### Occupancy Tracking
 
 The `FullyAssociativeCache` can optionally provide occupancy tracking signals by setting `generateOccupancy: true`:
 
