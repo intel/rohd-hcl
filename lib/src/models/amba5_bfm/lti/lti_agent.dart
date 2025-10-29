@@ -254,6 +254,8 @@ class LtiMainClusterAgent extends Agent {
         dropDelayCycles: dropDelayCycles);
     if (lt != null) {
       tagAgent = LtiMainLtChannelAgent(sys: sys, lt: lt!, parent: parent);
+    } else {
+      tagAgent = null;
     }
     manDriver = LtiManagementMainDriver(sys: sys, lm: lm, parent: parent);
   }
@@ -511,6 +513,8 @@ class LtiSubordinateClusterAgent extends Agent {
           parent: parent,
           timeoutCycles: timeoutCycles,
           dropDelayCycles: dropDelayCycles);
+    } else {
+      tagAgent = null;
     }
     manDriver = LtiManagementSubDriver(sys: sys, lm: lm, parent: parent);
   }
