@@ -22,7 +22,6 @@ void main() {
       reset,
       [fillIntf],
       [readIntf],
-      ways: 4, // Explicitly specify 4 ways
       generateOccupancy: true,
     );
 
