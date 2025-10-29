@@ -1,8 +1,8 @@
 // Copyright (C) 2025 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 //
-// multi_ported_read_cache.dart
-// Multi-ported read cache implementation.
+// set_associative_cache.dart
+// Set-associative cache implementation.
 //
 // 2025 September 10
 // Author: Desmond Kirkpatrick <desmond.a.kirkpatrick@intel.com>
@@ -10,8 +10,8 @@
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
 
-/// A multi-ported read cache.
-class MultiPortedReadCache extends Cache {
+/// A set-associative cache supporting multiple read and fill ports.
+class SetAssociativeCache extends Cache {
   /// Constructs a [Cache] supporting multiple read and fill ports.
   ///
   /// Defines a set-associativity of [ways] and a depth or number of [lines].
@@ -20,7 +20,7 @@ class MultiPortedReadCache extends Cache {
   ///
   /// This cache is a read-cache. It does not track dirty data to implement
   /// write-back. The write policy it would support is a write-around policy.
-  MultiPortedReadCache(super.clk, super.reset, super.fills, super.reads,
+  SetAssociativeCache(super.clk, super.reset, super.fills, super.reads,
       {super.evictions, super.ways, super.lines, super.replacement});
 
   @override

@@ -1,13 +1,14 @@
 // Copyright (C) 2025 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 //
-// cache_test.dart
-// Cache tests.
+// set_associative_cache_test.dart
+// Set associative cache tests.
 //
 // 2025 September 10
 // Author: Desmond Kirkpatrick <desmond.a.kirkpatrick@intel.com>
 
 import 'dart:async';
+import 'dart:io';
 
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';

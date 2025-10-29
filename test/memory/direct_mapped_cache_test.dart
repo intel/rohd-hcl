@@ -5,7 +5,8 @@
 // Tests for the DirectMappedCache component.
 //
 // 2025 October 15
-// Author: Desmond Kirkpatrick <desmond.a.kirkpatrick@intel.com>
+// Authors: Desmond Kirkpatrick <desmond.a.kirkpatrick@intel.com>,
+//          GitHub Copilot <github-copilot@github.com>
 
 import 'dart:async';
 
@@ -26,7 +27,12 @@ void main() {
       final fillPort = ValidDataPortInterface(32, 8);
       final readPort = ValidDataPortInterface(32, 8);
 
-      final cache = DirectMappedCache(clk, reset, [fillPort], [readPort]);
+      final cache = DirectMappedCache(
+        clk,
+        reset,
+        [fillPort],
+        [readPort],
+      );
 
       await cache.build();
       unawaited(Simulator.run());
@@ -82,7 +88,12 @@ void main() {
       final fillPort = ValidDataPortInterface(32, 8);
       final readPort = ValidDataPortInterface(32, 8);
 
-      final cache = DirectMappedCache(clk, reset, [fillPort], [readPort]);
+      final cache = DirectMappedCache(
+        clk,
+        reset,
+        [fillPort],
+        [readPort],
+      );
 
       await cache.build();
       unawaited(Simulator.run());
@@ -139,7 +150,12 @@ void main() {
       final fillPort = ValidDataPortInterface(32, 8);
       final readPort = ValidDataPortInterface(32, 8);
 
-      final cache = DirectMappedCache(clk, reset, [fillPort], [readPort]);
+      final cache = DirectMappedCache(
+        clk,
+        reset,
+        [fillPort],
+        [readPort],
+      );
 
       await cache.build();
       unawaited(Simulator.run());
@@ -219,7 +235,11 @@ void main() {
       final readPort2 = ValidDataPortInterface(32, 8);
 
       final cache = DirectMappedCache(
-          clk, reset, [fillPort1, fillPort2], [readPort1, readPort2]);
+        clk,
+        reset,
+        [fillPort1, fillPort2],
+        [readPort1, readPort2],
+      );
 
       await cache.build();
       unawaited(Simulator.run());

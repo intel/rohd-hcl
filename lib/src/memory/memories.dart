@@ -8,6 +8,7 @@ export 'csr/csrs.dart';
 export 'fifo.dart';
 export 'memory.dart';
 export 'pseudo_lru_replacement.dart';
+export 'ready_valid_fifo.dart';
 export 'register_file.dart';
 export 'replacement_policy.dart';
 export 'resettable_entries.dart';

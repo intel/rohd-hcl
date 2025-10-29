@@ -27,7 +27,17 @@ class DirectMappedCache extends Cache {
     super.fills,
     super.reads, {
     super.lines = 16,
-  }) : super(ways: 1);
+    super.name = 'direct_mapped_cache',
+    super.reserveName,
+    super.reserveDefinitionName,
+    String? definitionName,
+  }) : super(
+            definitionName: definitionName ??
+                'DirectMappedCache'
+                    '_LINES$lines'
+                    '_DATA${reads[0].dataWidth}'
+                    '_ADDR${reads[0].addrWidth}',
+            ways: 1);
 
   @override
   void buildLogic() {
@@ -37,7 +47,7 @@ class DirectMappedCache extends Cache {
     final tagWidth = reads[0].addrWidth - lineAddrWidth;
 
     // Create register files for tags (with valid bit) and data
-    // Since we have 1 way, we only need single register files
+    // Since we have 1 way, we only need single register files.
     final tagRfWritePorts = [
       for (var i = 0; i < numFills; i++)
         DataPortInterface(tagWidth + 1, lineAddrWidth)
@@ -56,7 +66,7 @@ class DirectMappedCache extends Cache {
       name: 'tag_rf',
     );
 
-    // Data register file
+    // Data register file.
     final dataRfWritePorts = [
       for (var i = 0; i < numFills; i++)
         DataPortInterface(dataWidth, lineAddrWidth)
@@ -75,13 +85,13 @@ class DirectMappedCache extends Cache {
       name: 'data_rf',
     );
 
-    // Handle fill operations
+    // Handle fill operations.
     for (var fillIdx = 0; fillIdx < numFills; fillIdx++) {
       final fillPort = fills[fillIdx];
       final tagWrPort = tagRfWritePorts[fillIdx];
       final dataWrPort = dataRfWritePorts[fillIdx];
 
-      // Write to tag RF: store valid bit + tag
+      // Write to tag RF: store valid bit + tag.
       tagWrPort.en <= fillPort.en & fillPort.valid;
       tagWrPort.addr <= getLine(fillPort.addr);
       tagWrPort.data <= [Const(1), getTag(fillPort.addr)].swizzle();
@@ -91,34 +101,34 @@ class DirectMappedCache extends Cache {
       dataWrPort.addr <= getLine(fillPort.addr);
       dataWrPort.data <= fillPort.data;
 
-      // Read tag for fill port (to check if overwriting)
+      // Read tag for fill port (to check if overwriting)..
       final tagRdPort = tagRfReadPorts[numReads + fillIdx];
       tagRdPort.en <= fillPort.en;
       tagRdPort.addr <= getLine(fillPort.addr);
     }
 
-    // Handle read operations
+    // Handle read operations.
     for (var readIdx = 0; readIdx < numReads; readIdx++) {
       final readPort = reads[readIdx];
       final tagRdPort = tagRfReadPorts[readIdx];
       final dataRdPort = dataRfReadPorts[readIdx];
 
-      // Read tag
+      // Read tag.
       tagRdPort.en <= readPort.en;
       tagRdPort.addr <= getLine(readPort.addr);
 
-      // Read data
+      // Read data.
       dataRdPort.en <= readPort.en;
       dataRdPort.addr <= getLine(readPort.addr);
 
-      // Check for cache hit: valid bit is set AND tag matches
+      // Check for cache hit: valid bit is set AND tag matches.
       final validBit = tagRdPort.data[-1];
       final storedTag = tagRdPort.data.slice(tagWidth - 1, 0);
       final requestTag = getTag(readPort.addr);
 
       final hit = validBit & storedTag.eq(requestTag);
 
-      // Output data and valid signal
+      // Output data and valid signal.
       readPort.data <= dataRdPort.data;
       readPort.valid <= hit;
     }

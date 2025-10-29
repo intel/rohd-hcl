@@ -20,25 +20,54 @@ class ValidDataPortInterface extends DataPortInterface {
   /// The "valid" bit for a response when the data is valid.
   Logic get valid => port('valid');
 
+  /// The "readWithInvalidate" signal for read ports that invalidate on hit.
+  /// Only available if hasReadWithInvalidate is true.
+  Logic get readWithInvalidate {
+    if (!hasReadWithInvalidate) {
+      throw RohdHclException(
+          'readWithInvalidate signal not available on this interface');
+    }
+    return port('readWithInvalidate');
+  }
+
+  /// Whether this interface has readWithInvalidate capability.
+  final bool hasReadWithInvalidate;
+
   /// The name of this interface, useful for disambiguating multiple interfaces.
   late final String name;
 
   /// Constructs a new interface of specified [dataWidth] and [addrWidth] for
   /// interacting with a `Cache` in either the read or write direction.
-  ValidDataPortInterface(super.dataWidth, super.addrWidth, {String? name})
+  ///
+  /// Set [hasReadWithInvalidate] to true to add a readWithInvalidate signal
+  /// that invalidates cache entries on read hits. This should only be used
+  /// for read ports, not write/fill ports.
+  ValidDataPortInterface(super.dataWidth, super.addrWidth,
+      {String? name, this.hasReadWithInvalidate = false})
       : super() {
     this.name = name ?? 'valid_data_port_${dataWidth}w_${addrWidth}a';
+
+    // Add the valid port to the data group
     setPorts([
       Logic.port('valid'),
     ], [
       DataPortGroup.data
     ]);
+
+    // Add readWithInvalidate to the control group if needed
+    if (hasReadWithInvalidate) {
+      setPorts([
+        Logic.port('readWithInvalidate'),
+      ], [
+        DataPortGroup.control
+      ]);
+    }
   }
 
   /// Makes a copy of this [ValidDataPortInterface] with matching configuration.
   @override
-  ValidDataPortInterface clone() =>
-      ValidDataPortInterface(dataWidth, addrWidth);
+  ValidDataPortInterface clone() => ValidDataPortInterface(dataWidth, addrWidth,
+      hasReadWithInvalidate: hasReadWithInvalidate);
 }
 
 /// A module [Cache] implementing a configurable set-associative cache for
@@ -121,17 +150,27 @@ abstract class Cache extends Module {
                     '_RP${reads.length}_W${ways}_L$lines') {
     addInput('clk', clk);
     addInput('reset', reset);
+
+    // Validate that readWithInvalidate is not used on fill ports
     for (var i = 0; i < fills.length; i++) {
+      if (fills[i].hasReadWithInvalidate) {
+        throw ArgumentError(
+            'readWithInvalidate option is not supported on fill ports '
+            '(port $i)');
+      }
       this.fills.add(fills[i].clone()
         ..connectIO(this, fills[i],
             inputTags: {DataPortGroup.control, DataPortGroup.data},
             uniquify: (original) => 'cache_fill_${original}_$i'));
     }
+
     for (var i = 0; i < reads.length; i++) {
       this.reads.add(reads[i].clone()
         ..connectIO(this, reads[i],
-            inputTags: {DataPortGroup.control},
-            outputTags: {DataPortGroup.data},
+            inputTags: {
+              DataPortGroup.control
+            }, // Both en/addr and readWithInvalidate are control
+            outputTags: {DataPortGroup.data}, // valid and data are outputs
             uniquify: (original) => 'cache_read_${original}_$i'));
     }
     if (evictions != null) {
