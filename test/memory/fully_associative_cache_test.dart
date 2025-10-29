@@ -375,7 +375,7 @@ void main() {
           ways: ways, evictions: [evictPort]);
 
       await cache.build();
-      WaveDumper(cache, outputPath: 'eviction.vcd');
+      // WaveDumper(cache, outputPath: 'eviction.vcd');
       unawaited(Simulator.run());
 
       // Reset
@@ -559,7 +559,7 @@ void main() {
           evictions: [evictPort]);
 
       await cache.build();
-      WaveDumper(cache, outputPath: 'invalidate.vcd');
+      // WaveDumper(cache, outputPath: 'invalidate.vcd');
       unawaited(Simulator.run());
 
       // Reset

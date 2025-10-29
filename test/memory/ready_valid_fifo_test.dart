@@ -102,7 +102,7 @@ void main() {
         depth: fifoDepth);
 
     await fifoModule.build();
-    WaveDumper(fifoModule, outputPath: 'fifo_backpressure.vcd');
+    // WaveDumper(fifoModule, outputPath: 'fifo_backpressure.vcd');
     unawaited(Simulator.run());
 
     // Reset
