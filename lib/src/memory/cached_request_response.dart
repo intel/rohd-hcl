@@ -96,7 +96,7 @@ class ResponseData extends LogicStructure {
 ///   ...
 /// );
 /// ```
-/// ```
+
 class CachedRequestResponse extends Module {
   /// The width of request/response IDs.
   final int idWidth;

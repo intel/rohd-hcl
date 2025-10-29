@@ -36,7 +36,6 @@ The `Cache` is an abstract class that implements a configurable set-associative 
 2. **Filling**: Writes data into the cache, potentially allocating a new line if not present. Can also invalidate entries when valid bit is *not* set.
 3. **Eviction**: Optional eviction ports provide the address and data being evicted during cache line allocation.
 
-
 ### Cache Interface
 
 #### ValidDataPortInterface
