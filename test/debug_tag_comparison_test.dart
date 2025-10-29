@@ -50,10 +50,10 @@ void main() {
 
     // Test with different address patterns to see if there's a pattern
     final testCases = [
-      {'addr1': 0x100, 'addr2': 0x200, 'name': '0x100 vs 0x200'},
-      {'addr1': 0x010, 'addr2': 0x020, 'name': '0x010 vs 0x020'},
-      {'addr1': 0x001, 'addr2': 0x002, 'name': '0x001 vs 0x002'},
-      {'addr1': 0x080, 'addr2': 0x040, 'name': '0x080 vs 0x040'},
+      {'addr1': 0x10, 'addr2': 0x20, 'name': '0x10 vs 0x20'},
+      {'addr1': 0x30, 'addr2': 0x40, 'name': '0x30 vs 0x40'},
+      {'addr1': 0x01, 'addr2': 0x02, 'name': '0x01 vs 0x02'},
+      {'addr1': 0x80, 'addr2': 0x40, 'name': '0x80 vs 0x40'},
     ];
 
     for (final testCase in testCases) {
@@ -166,7 +166,7 @@ void main() {
 
       // For the first test case, also try the second fill to see the overwrite
       // behavior.
-      if (name.contains('0x100')) {
+      if (name.contains('0x10')) {
         // --- Testing second fill behavior ---
 
         // Fill second address
@@ -239,7 +239,7 @@ void main() {
     // Just verify that our test addresses are actually different at the bit
     // level.
     // === Address Bit Pattern Analysis ===
-    final addresses = [0x100, 0x200, 0x010, 0x020, 0x001, 0x002, 0x080, 0x040];
+    final addresses = [0x10, 0x20, 0x30, 0x40, 0x01, 0x02, 0x80, 0x60];
 
     // Verify all addresses are unique
     expect(addresses.toSet().length, equals(addresses.length),

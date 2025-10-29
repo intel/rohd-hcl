@@ -106,17 +106,23 @@ class FullyAssociativeCache extends Cache {
             (readIdx) => Logic(name: 'read${readIdx}ValidUpdateWay$way')));
 
     // Track which ways need valid bit updates from fills.
-    final fillValidBitUpdates =
-        List.generate(ways, (way) => Logic(name: 'fillValidUpdateWay$way'));
-    final fillValidBitNewValues =
-        List.generate(ways, (way) => Logic(name: 'fillValidNewValueWay$way'));
+    // Each fill port has its own set of update signals for each way.
+    final fillValidBitUpdates = List.generate(numFills,
+        (fillIdx) => List.generate(ways, 
+            (way) => Logic(name: 'fill${fillIdx}ValidUpdateWay$way')));
+    final fillValidBitNewValues = List.generate(numFills,
+        (fillIdx) => List.generate(ways, 
+            (way) => Logic(name: 'fill${fillIdx}ValidNewValueWay$way')));
 
     // Combine all valid bit update sources.
     final validBitUpdates = List.generate(ways, (way) {
       final readUpdates = readValidBitUpdates[way];
       final anyReadUpdate =
           readUpdates.isEmpty ? Const(0) : readUpdates.reduce((a, b) => a | b);
-      return anyReadUpdate | fillValidBitUpdates[way];
+      // Combine all fill port updates for this way
+      final fillUpdatesForWay = fillValidBitUpdates.map((fillUpdates) => fillUpdates[way]).toList();
+      final anyFillUpdate = fillUpdatesForWay.isEmpty ? Const(0) : fillUpdatesForWay.reduce((a, b) => a | b);
+      return anyReadUpdate | anyFillUpdate;
     });
 
     final validBitNewValues = List.generate(ways, (way) {
@@ -125,13 +131,23 @@ class FullyAssociativeCache extends Cache {
       final anyReadInvalidate = readInvalidates.isEmpty
           ? Const(0)
           : readInvalidates.reduce((a, b) => a | b);
-      final hasFillUpdate = fillValidBitUpdates[way];
+      
+      // Combine all fill port updates for this way
+      final fillUpdatesForWay = fillValidBitUpdates.map((fillUpdates) => fillUpdates[way]).toList();
+      final anyFillUpdate = fillUpdatesForWay.isEmpty ? Const(0) : fillUpdatesForWay.reduce((a, b) => a | b);
+      
+      // For new values, we need to pick the right one from the fill ports that are updating
+      // For now, assume only one fill port updates a way at a time (which should be the case)
+      Logic fillNewValue = validBits[way]; // Default to current value
+      for (var fillIdx = 0; fillIdx < numFills; fillIdx++) {
+        fillNewValue = mux(fillValidBitUpdates[fillIdx][way], fillValidBitNewValues[fillIdx][way], fillNewValue);
+      }
 
       // If read invalidates, set to 0. Else if fill updates, use fill value.
       // Else keep current (but this case shouldn't happen due to
       // validBitUpdates logic).
       return mux(anyReadInvalidate, Const(0),
-          mux(hasFillUpdate, fillValidBitNewValues[way], validBits[way]));
+          mux(anyFillUpdate, fillNewValue, validBits[way]));
     });
 
     // Register the valid bits with updates.
@@ -383,11 +399,11 @@ class FullyAssociativeCache extends Cache {
             .named('invalidFill${fillIdx}Way$way');
 
         Combinational([
-          fillValidBitUpdates[way] <
+          fillValidBitUpdates[fillIdx][way] <
               (validFillHit | validFillMiss | invalidFill)
                   .named('fillValidUpdate${fillIdx}Way$way'),
           // Set to 1 for valid fills, 0 for invalid.
-          fillValidBitNewValues[way] <
+          fillValidBitNewValues[fillIdx][way] <
               (validFillHit | validFillMiss)
                   .named('fillValidNewValue${fillIdx}Way$way'),
         ]);
@@ -448,8 +464,8 @@ class FullyAssociativeCache extends Cache {
         ]);
 
         Combinational([
-          evictPort.en < (invalEvictCond | allocEvictCond),
-          evictPort.valid < (invalEvictCond | allocEvictCond),
+          evictPort.en < (fillPort.en & (invalEvictCond | allocEvictCond)),
+          evictPort.valid < (fillPort.en & (invalEvictCond | allocEvictCond)),
           evictPort.addr < evictAddrComb,
           evictPort.data < evictDataReadPort.data,
         ]);

@@ -1678,7 +1678,8 @@ void main() {
         upstreamResponseIntf: upstreamResp,
         downstreamRequestIntf: downstreamReq,
         downstreamResponseIntf: downstreamResp,
-        cacheFactory: createCacheFactory(8),
+        cacheFactory: createCacheFactory(4),
+        camWays: 4,
       );
 
       await channel.build();

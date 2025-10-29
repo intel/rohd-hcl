@@ -22,6 +22,7 @@ void main() {
       reset,
       [fillIntf],
       [readIntf],
+      ways: 4, // Explicitly specify 4 ways
       generateOccupancy: true,
     );
 
@@ -46,11 +47,10 @@ void main() {
     expect(cache.occupancy!.value.toInt(), equals(0),
         reason: 'Cache should start empty');
 
-    // Fill first entry (back to the problem addresses) - Fill first entry
-    // (0x100)
+    // Fill first entry - use 8-bit address 0x10
     fillIntf.en.inject(1);
     fillIntf.valid.inject(1);
-    fillIntf.addr.inject(0x100);
+    fillIntf.addr.inject(0x10);
     fillIntf.data.inject(0xAA);
     await clk.nextPosedge;
 
@@ -62,22 +62,22 @@ void main() {
 
     // Test read (ensure readWithInvalidate is 0)
     readIntf.en.inject(1);
-    readIntf.addr.inject(0x100);
+    readIntf.addr.inject(0x10);
     readIntf.readWithInvalidate.inject(0);
     await clk.nextPosedge;
 
     expect(readIntf.valid.value.toBool(), isTrue,
-        reason: '0x100 should be valid after fill');
+        reason: '0x10 should be valid after fill');
     expect(readIntf.data.value.toInt(), equals(0xAA),
-        reason: '0x100 should contain data 0xAA');
+        reason: '0x10 should contain data 0xAA');
 
     readIntf.en.inject(0);
     await clk.nextPosedge;
 
-    // Fill second entry - Fill second entry (0x200)
+    // Fill second entry - use 8-bit address 0x20
     fillIntf.en.inject(1);
     fillIntf.valid.inject(1);
-    fillIntf.addr.inject(0x200);
+    fillIntf.addr.inject(0x20);
     fillIntf.data.inject(0xBB);
     await clk.nextPosedge;
 
@@ -89,28 +89,28 @@ void main() {
 
     // Test read second entry
     readIntf.en.inject(1);
-    readIntf.addr.inject(0x200);
+    readIntf.addr.inject(0x20);
     readIntf.readWithInvalidate.inject(0);
     await clk.nextPosedge;
 
     expect(readIntf.valid.value.toBool(), isTrue,
-        reason: '0x200 should be valid after fill');
+        reason: '0x20 should be valid after fill');
     expect(readIntf.data.value.toInt(), equals(0xBB),
-        reason: '0x200 should contain data 0xBB');
+        reason: '0x20 should contain data 0xBB');
 
     readIntf.en.inject(0);
     await clk.nextPosedge;
 
     // Test read first entry again
     readIntf.en.inject(1);
-    readIntf.addr.inject(0x100);
+    readIntf.addr.inject(0x10);
     readIntf.readWithInvalidate.inject(0);
     await clk.nextPosedge;
 
     expect(readIntf.valid.value.toBool(), isTrue,
-        reason: '0x100 should still be valid');
+        reason: '0x10 should still be valid');
     expect(readIntf.data.value.toInt(), equals(0xAA),
-        reason: '0x100 should still contain data 0xAA');
+        reason: '0x10 should still contain data 0xAA');
 
     readIntf.en.inject(0);
     await clk.nextPosedge;
