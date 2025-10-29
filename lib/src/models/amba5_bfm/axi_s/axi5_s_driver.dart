@@ -88,8 +88,8 @@ class Axi5StreamDriver extends PendingClockedDriver<Axi5StreamPacket> {
 
     // need to hold the request until receiver is ready
     await sys.clk.nextPosedge;
-    if (!stream.ready!.previousValue!.toBool()) {
-      await stream.ready!.nextPosedge;
+    while (!stream.ready!.previousValue!.toBool()) {
+      await sys.clk.nextPosedge;
     }
 
     // now we can release the request

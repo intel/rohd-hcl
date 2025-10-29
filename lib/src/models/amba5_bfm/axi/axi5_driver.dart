@@ -212,8 +212,8 @@ class Axi5ArChannelDriver extends PendingClockedDriver<Axi5ArChannelPacket> {
 
     // need to hold the request until receiver is ready
     await sys.clk.nextPosedge;
-    if (!ar.ready!.previousValue!.toBool()) {
-      await ar.ready!.nextPosedge;
+    while (!ar.ready!.previousValue!.toBool()) {
+      await sys.clk.nextPosedge;
     }
 
     // now we can release the request
@@ -372,8 +372,8 @@ class Axi5AwChannelDriver extends PendingClockedDriver<Axi5AwChannelPacket> {
 
     // need to hold the request until receiver is ready
     await sys.clk.nextPosedge;
-    if (!aw.ready!.previousValue!.toBool()) {
-      await aw.ready!.nextPosedge;
+    while (!aw.ready!.previousValue!.toBool()) {
+      await sys.clk.nextPosedge;
     }
 
     // now we can release the request
@@ -485,8 +485,8 @@ class Axi5RChannelDriver extends PendingClockedDriver<Axi5RChannelPacket> {
 
       // need to hold the request until receiver is ready
       await sys.clk.nextPosedge;
-      if (!r.ready!.previousValue!.toBool()) {
-        await r.ready!.nextPosedge;
+      while (!r.ready!.previousValue!.toBool()) {
+        await sys.clk.nextPosedge;
       }
     }
 
@@ -582,8 +582,8 @@ class Axi5WChannelDriver extends PendingClockedDriver<Axi5WChannelPacket> {
 
       // need to hold the request until receiver is ready
       await sys.clk.nextPosedge;
-      if (!w.ready!.previousValue!.toBool()) {
-        await w.ready!.nextPosedge;
+      while (!w.ready!.previousValue!.toBool()) {
+        await sys.clk.nextPosedge;
       }
     }
 
@@ -681,8 +681,8 @@ class Axi5BChannelDriver extends PendingClockedDriver<Axi5BChannelPacket> {
 
     // need to hold the response until receiver is ready
     await sys.clk.nextPosedge;
-    if (!b.ready!.previousValue!.toBool()) {
-      await b.ready!.nextPosedge;
+    while (!b.ready!.previousValue!.toBool()) {
+      await sys.clk.nextPosedge;
     }
 
     // now we can release the response
@@ -836,8 +836,8 @@ class Axi5CrChannelDriver extends PendingClockedDriver<Axi5CrChannelPacket> {
 
     // need to hold the request until receiver is ready
     await sys.clk.nextPosedge;
-    if (!cr.ready!.previousValue!.toBool()) {
-      await cr.ready!.nextPosedge;
+    while (!cr.ready!.previousValue!.toBool()) {
+      await sys.clk.nextPosedge;
     }
 
     // now we can release the request
