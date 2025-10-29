@@ -144,9 +144,10 @@ class FullyAssociativeCache extends Cache {
           ? Const(0)
           : fillUpdatesForWay.reduce((a, b) => a | b);
 
-      // For new values, we need to pick the right one from the fill ports that are updating
-      // For now, assume only one fill port updates a way at a time (which should be the case)
-      Logic fillNewValue = validBits[way]; // Default to current value
+      // For new values, we need to pick the right one from the fill ports that
+      // are updating For now, assume only one fill port updates a way at a time
+      // (which should be the case)
+      var fillNewValue = validBits[way]; // Default to current value
       for (var fillIdx = 0; fillIdx < numFills; fillIdx++) {
         fillNewValue = mux(fillValidBitUpdates[fillIdx][way],
             fillValidBitNewValues[fillIdx][way], fillNewValue);
