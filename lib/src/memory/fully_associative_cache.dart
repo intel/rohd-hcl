@@ -107,12 +107,14 @@ class FullyAssociativeCache extends Cache {
 
     // Track which ways need valid bit updates from fills.
     // Each fill port has its own set of update signals for each way.
-    final fillValidBitUpdates = List.generate(numFills,
-        (fillIdx) => List.generate(ways, 
-            (way) => Logic(name: 'fill${fillIdx}ValidUpdateWay$way')));
-    final fillValidBitNewValues = List.generate(numFills,
-        (fillIdx) => List.generate(ways, 
-            (way) => Logic(name: 'fill${fillIdx}ValidNewValueWay$way')));
+    final fillValidBitUpdates = List.generate(
+        numFills,
+        (fillIdx) => List.generate(
+            ways, (way) => Logic(name: 'fill${fillIdx}ValidUpdateWay$way')));
+    final fillValidBitNewValues = List.generate(
+        numFills,
+        (fillIdx) => List.generate(
+            ways, (way) => Logic(name: 'fill${fillIdx}ValidNewValueWay$way')));
 
     // Combine all valid bit update sources.
     final validBitUpdates = List.generate(ways, (way) {
@@ -120,8 +122,11 @@ class FullyAssociativeCache extends Cache {
       final anyReadUpdate =
           readUpdates.isEmpty ? Const(0) : readUpdates.reduce((a, b) => a | b);
       // Combine all fill port updates for this way
-      final fillUpdatesForWay = fillValidBitUpdates.map((fillUpdates) => fillUpdates[way]).toList();
-      final anyFillUpdate = fillUpdatesForWay.isEmpty ? Const(0) : fillUpdatesForWay.reduce((a, b) => a | b);
+      final fillUpdatesForWay =
+          fillValidBitUpdates.map((fillUpdates) => fillUpdates[way]).toList();
+      final anyFillUpdate = fillUpdatesForWay.isEmpty
+          ? Const(0)
+          : fillUpdatesForWay.reduce((a, b) => a | b);
       return anyReadUpdate | anyFillUpdate;
     });
 
@@ -131,16 +136,20 @@ class FullyAssociativeCache extends Cache {
       final anyReadInvalidate = readInvalidates.isEmpty
           ? Const(0)
           : readInvalidates.reduce((a, b) => a | b);
-      
+
       // Combine all fill port updates for this way
-      final fillUpdatesForWay = fillValidBitUpdates.map((fillUpdates) => fillUpdates[way]).toList();
-      final anyFillUpdate = fillUpdatesForWay.isEmpty ? Const(0) : fillUpdatesForWay.reduce((a, b) => a | b);
-      
+      final fillUpdatesForWay =
+          fillValidBitUpdates.map((fillUpdates) => fillUpdates[way]).toList();
+      final anyFillUpdate = fillUpdatesForWay.isEmpty
+          ? Const(0)
+          : fillUpdatesForWay.reduce((a, b) => a | b);
+
       // For new values, we need to pick the right one from the fill ports that are updating
       // For now, assume only one fill port updates a way at a time (which should be the case)
       Logic fillNewValue = validBits[way]; // Default to current value
       for (var fillIdx = 0; fillIdx < numFills; fillIdx++) {
-        fillNewValue = mux(fillValidBitUpdates[fillIdx][way], fillValidBitNewValues[fillIdx][way], fillNewValue);
+        fillNewValue = mux(fillValidBitUpdates[fillIdx][way],
+            fillValidBitNewValues[fillIdx][way], fillNewValue);
       }
 
       // If read invalidates, set to 0. Else if fill updates, use fill value.
