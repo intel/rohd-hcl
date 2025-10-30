@@ -19,33 +19,22 @@ abstract class ApbCompleter extends Module {
   /// APB interface.
   late final ApbInterface apb;
 
-  /// Some arbitrary downstream interface.
-  late final List<Interface<Enum>> downstream;
-
-  @protected
-
   /// FSM for completion states.
-  late final FiniteStateMachine<ApbCompleterState> fsm;
-
   @protected
+  late final FiniteStateMachine<ApbCompleterState> fsm;
 
   /// Indicator that data from APB can be consumed downstream.
   /// This can be used as an input for the consuming logic.
-  late final Logic downstreamDataReady;
-
   @protected
+  late final Logic downstreamValid;
 
   /// Indicator that data from downstream is consumable on APB
   /// This must be properly driven in any child class.
-  late final Logic upstreamDataReady;
+  @protected
+  late final Logic upstreamValid;
 
   /// Constructor.
-  ApbCompleter(
-      {required ApbInterface apb,
-      required List<Interface<Enum>> downstream,
-      super.name = 'apb_completer',
-      List<Iterable<Enum>?> downstreamInputTags = const [],
-      List<Iterable<Enum>?> downstreamOutputTags = const []}) {
+  ApbCompleter({required ApbInterface apb, super.name = 'apb_completer'}) {
     this.apb = apb.clone()
       ..connectIO(this, apb,
           inputTags: {
@@ -55,22 +44,9 @@ abstract class ApbCompleter extends Module {
           },
           outputTags: {ApbDirection.fromCompleter},
           uniquify: (orig) => '${name}_$orig');
-    for (var i = 0; i < downstream.length; i++) {
-      this.downstream.add(downstream[i].clone()
-        ..connectIO(
-          this,
-          downstream[i],
-          inputTags:
-              (i < downstreamInputTags.length ? downstreamInputTags[i] : null),
-          outputTags: (i < downstreamOutputTags.length
-              ? downstreamOutputTags[i]
-              : null),
-          uniquify: (original) => '${name}_orig',
-        ));
-    }
 
-    downstreamDataReady = Logic(name: 'downstreamDataReady');
-    upstreamDataReady = Logic(name: 'downstreamDataReady');
+    downstreamValid = Logic(name: 'downstreamDataReady');
+    upstreamValid = Logic(name: 'downstreamDataReady');
     fsm = FiniteStateMachine<ApbCompleterState>(
         this.apb.clk, ~this.apb.resetN, ApbCompleterState.idle, [
       // IDLE
@@ -81,7 +57,7 @@ abstract class ApbCompleter extends Module {
           this.apb.sel[0] & ~this.apb.enable: ApbCompleterState.selected,
         },
         actions: [
-          downstreamDataReady < 0,
+          downstreamValid < 0,
         ],
       ),
       // SELECTED move when we get an ENABLE if the transaction has latency,
@@ -90,11 +66,11 @@ abstract class ApbCompleter extends Module {
       State(
         ApbCompleterState.selected,
         events: {
-          this.apb.enable & ~upstreamDataReady: ApbCompleterState.access,
-          this.apb.enable & upstreamDataReady: ApbCompleterState.idle,
+          this.apb.enable & ~upstreamValid: ApbCompleterState.access,
+          this.apb.enable & upstreamValid: ApbCompleterState.idle,
         },
         actions: [
-          downstreamDataReady < this.apb.enable,
+          downstreamValid < this.apb.enable,
         ],
       ),
       // ACCESS
@@ -102,10 +78,10 @@ abstract class ApbCompleter extends Module {
       State(
         ApbCompleterState.access,
         events: {
-          upstreamDataReady: ApbCompleterState.idle,
+          upstreamValid: ApbCompleterState.idle,
         },
         actions: [
-          downstreamDataReady < 1,
+          downstreamValid < 1,
         ],
       ),
     ]);
@@ -125,7 +101,7 @@ abstract class ApbCompleter extends Module {
                     width: fsm.currentState.width)) |
                 fsm.currentState.eq(Const(ApbCompleterState.access.index,
                     width: fsm.currentState.width))) &
-            upstreamDataReady;
+            upstreamValid;
   }
 }
 
@@ -136,23 +112,36 @@ class ApbCsrCompleter extends ApbCompleter {
   /// data is complete.
   late final int apbClkLatency;
 
+  /// CSR frontdoor reads.
+  late final DataPortInterface rd;
+
+  /// CSR frontdoor writes.
+  late final DataPortInterface wr;
+
   /// Constructor.
   ApbCsrCompleter(
       {required super.apb,
       required DataPortInterface csrRd,
       required DataPortInterface csrWr,
       this.apbClkLatency = 0,
-      super.name})
-      : super(downstream: [
-          csrRd,
-          csrWr
-        ], downstreamInputTags: [
-          {DataPortGroup.control},
-          {DataPortGroup.control, DataPortGroup.data}
-        ], downstreamOutputTags: [
-          {DataPortGroup.data},
-          {}
-        ]);
+      super.name}) {
+    rd = csrRd.clone()
+      ..connectIO(
+        this,
+        csrRd,
+        inputTags: {DataPortGroup.control},
+        outputTags: {DataPortGroup.data},
+        uniquify: (original) => '${name}_$original',
+      );
+    wr = csrWr.clone()
+      ..connectIO(
+        this,
+        csrWr,
+        inputTags: {DataPortGroup.control, DataPortGroup.data},
+        outputTags: {},
+        uniquify: (original) => '${name}_$original',
+      );
+  }
 
   /// Calculates a strobed version of data.
   Logic _strobeData(Logic originalData, Logic newData, Logic strobe) =>
@@ -163,9 +152,6 @@ class ApbCsrCompleter extends ApbCompleter {
 
   @override
   void buildCustomLogic() {
-    final rd = downstream[0] as DataPortInterface;
-    final wr = downstream[1] as DataPortInterface;
-
     // we drop the following APB inputs on the floor
     // apb.aUser;
     // apb.nse;
@@ -174,10 +160,10 @@ class ApbCsrCompleter extends ApbCompleter {
 
     // drive downstream
     // reads must happen unconditionally for strobing
-    rd.en <= downstreamDataReady;
+    rd.en <= downstreamValid;
     rd.addr <= apb.addr;
 
-    wr.en <= downstreamDataReady & apb.write;
+    wr.en <= downstreamValid & apb.write;
     wr.addr <= apb.addr;
     wr.data <= _strobeData(rd.data, apb.wData, apb.strb);
 
@@ -191,11 +177,11 @@ class ApbCsrCompleter extends ApbCompleter {
 
     // zero latency operation
     if (apbClkLatency == 0) {
-      upstreamDataReady <= rd.en | wr.en;
+      upstreamValid <= rd.en | wr.en;
     }
     // non-zero latency operation
     else {
-      upstreamDataReady <=
+      upstreamValid <=
           ShiftRegister(rd.en | wr.en, clk: apb.clk, depth: apbClkLatency)
               .dataOut;
     }
