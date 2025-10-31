@@ -45,8 +45,8 @@ abstract class ApbCompleter extends Module {
           outputTags: {ApbDirection.fromCompleter},
           uniquify: (orig) => '${name}_$orig');
 
-    downstreamValid = Logic(name: 'downstreamDataReady');
-    upstreamValid = Logic(name: 'downstreamDataReady');
+    downstreamValid = Logic(name: 'downstreamValid');
+    upstreamValid = Logic(name: 'downstreamValid');
     fsm = FiniteStateMachine<ApbCompleterState>(
         this.apb.clk, ~this.apb.resetN, ApbCompleterState.idle, [
       // IDLE
@@ -87,7 +87,6 @@ abstract class ApbCompleter extends Module {
     ]);
 
     _build();
-    buildCustomLogic();
   }
 
   /// User hook to deal with downstream.
@@ -129,18 +128,20 @@ class ApbCsrCompleter extends ApbCompleter {
       ..connectIO(
         this,
         csrRd,
-        inputTags: {DataPortGroup.control},
-        outputTags: {DataPortGroup.data},
-        uniquify: (original) => '${name}_$original',
+        inputTags: {DataPortGroup.data},
+        outputTags: {DataPortGroup.control},
+        uniquify: (original) => '${name}_rd_$original',
       );
     wr = csrWr.clone()
       ..connectIO(
         this,
         csrWr,
-        inputTags: {DataPortGroup.control, DataPortGroup.data},
-        outputTags: {},
-        uniquify: (original) => '${name}_$original',
+        inputTags: {},
+        outputTags: {DataPortGroup.control, DataPortGroup.data},
+        uniquify: (original) => '${name}_wr_$original',
       );
+
+    buildCustomLogic();
   }
 
   /// Calculates a strobed version of data.
