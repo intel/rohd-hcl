@@ -153,9 +153,9 @@ class CachedRequestResponseChannel extends RequestResponseChannelBase {
     final cacheHit = Logic(name: 'cacheHit');
     final camHit = Logic(name: 'camHit');
 
-    cacheReadPort.en <= upstreamReq.valid;
+    cacheReadPort.en <= Const(1);
     cacheReadPort.addr <= upstreamReq.data.addr;
-    cacheHit <= cacheReadPort.valid;
+    cacheHit <= cacheReadPort.valid & upstreamReq.valid;
 
     camReadPort.en <= downstreamResp.valid;
     camReadPort.addr <= downstreamResp.data.id;
