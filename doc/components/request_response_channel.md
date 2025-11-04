@@ -4,12 +4,12 @@ The ROHD-HCL library provides a comprehensive set of request/response channel co
 
 ## Overview
 
-Request/response channels implement a protocol where:
+Request/response channels implement a channel with upstream request and response interfaces as well as downstream request and response interfaces.
 
-- **Upstream** interfaces connect to requesters (like processors or caches)
-- **Downstream** interfaces connect to responders (like memory controllers or peripherals)  
-- **Requests** flow from upstream to downstream with address and ID information
-- **Responses** flow from downstream to upstream with data and matching ID
+- Request interfaces are comprised of `id` and `address`.
+- Response interfaces are comprised of `id` and `data` corresponding to the `address`.
+
+These interfaces are `ReadyValidInterfaces` with `RequestStructure` and `ResponseStructure` data payloads.
 
 ## Components
 
@@ -23,43 +23,6 @@ Four related types are provided:
 - `BufferedRequestResponseChannel`: a variant that inserts FIFOs on both the
   request and response paths to decouple upstream and downstream timing.
 - `CachedRequestResponseChannel`: an advanced caching implementation with address-based caching and Content Addressable Memory (CAM) for tracking pending requests.
-
-All concrete components expect the request and response interfaces to carry
-typed payloads using `RequestStructure` and `ResponseStructure` types.
-
-## API Summary
-
-Source: `lib/src/memory/` (multiple files)
-
-### RequestResponseChannelBase
-
-Constructor parameters (named):
-
-- `Logic clk` — clock signal used by the component and any subcomponents.
-- `Logic reset` — reset signal used by the component and any subcomponents.
-- `ReadyValidInterface<RequestStructure> upstreamRequestIntf` — the
-  upstream request interface (consumer role inside the module).
-- `ReadyValidInterface<ResponseStructure> upstreamResponseIntf` — the
-  upstream response interface (provider role inside the module).
-- `ReadyValidInterface<RequestStructure> downstreamRequestIntf` — the
-  downstream request interface (provider role inside the module).
-- `ReadyValidInterface<ResponseStructure> downstreamResponseIntf` — the
-  downstream response interface (consumer role inside the module).
-- `String? definitionName` — optional override for the generated definition
-  name (defaults to a generated name that encodes widths and buffer sizes).
-
-Members exposed to subclasses:
-
-- `upstreamRequest` / `upstreamResponse` / `downstreamRequest` /
-  `downstreamResponse` — cloned `ReadyValidInterface` instances connected to
-  the module IO (use these inside `buildLogic`).
-- `clk`, `reset` — the clock and reset `Logic` signals (marked `@protected`).
-
-Subclass contract:
-
-- Subclasses must implement `void buildLogic()` which is called in the base
-  constructor after inputs/outputs are cloned and connected. Implementations
-  should use the cloned interfaces to define internal behavior.
 
 ### RequestResponseChannel
 

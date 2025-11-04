@@ -46,7 +46,9 @@ void main() {
 
       expect(response.id.width, equals(idWidth));
       expect(response.data.width, equals(dataWidth));
-      expect(response.width, equals(idWidth + dataWidth));
+      // +1 for nonCacheable bit which is always present.
+      expect(response.nonCacheable.width, equals(1));
+      expect(response.width, equals(idWidth + dataWidth + 1));
     });
 
     test('should clone correctly', () {
@@ -60,6 +62,7 @@ void main() {
       expect(cloned.id.width, equals(idWidth));
       expect(cloned.data.width, equals(dataWidth));
       expect(cloned.width, equals(original.width));
+      expect(cloned.nonCacheable.width, equals(1));
     });
   });
 }

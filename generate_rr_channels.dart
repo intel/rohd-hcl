@@ -48,8 +48,6 @@ void main() async {
 
   // Generate RequestResponseChannel SystemVerilog.
   final basicChannel = RequestResponseChannel(
-    clk: clk,
-    reset: reset,
     upstreamRequestIntf: upstreamReq,
     upstreamResponseIntf: upstreamResp,
     downstreamRequestIntf: downstreamReq,

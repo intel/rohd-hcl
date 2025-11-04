@@ -7,11 +7,21 @@
 // 2025 October 26
 // Author: GitHub Copilot <github-copilot@github.com>
 
+import 'package:meta/meta.dart';
+import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
 
 /// A buffered request/response channel that uses FIFOs to buffer both
 /// request and response paths.
 class BufferedRequestResponseChannel extends RequestResponseChannelBase {
+  /// Clock signal.
+  @protected
+  late final Logic clk;
+
+  /// Reset signal.
+  @protected
+  late final Logic reset;
+
   /// Internal request FIFO module.
   late final ReadyValidFifo<RequestStructure> requestFifo;
 
@@ -27,8 +37,8 @@ class BufferedRequestResponseChannel extends RequestResponseChannelBase {
   /// Creates a [BufferedRequestResponseChannel] with FIFOs for request and
   /// response buffering.
   BufferedRequestResponseChannel({
-    required super.clk,
-    required super.reset,
+    required Logic clk,
+    required Logic reset,
     required super.upstreamRequestIntf,
     required super.upstreamResponseIntf,
     required super.downstreamRequestIntf,
@@ -46,8 +56,13 @@ class BufferedRequestResponseChannel extends RequestResponseChannelBase {
                     '_ADDR${upstreamRequestIntf.data.addr.width}'
                     '_DATA${upstreamResponseIntf.data.data.width}'
                     '_REQBUF$requestBufferDepth'
-                    '_RSPBUF$responseBufferDepth');
-
+                    '_RSPBUF$responseBufferDepth') {
+    // Add clock and reset locally (base no longer manages them)
+    this.clk = addInput('clk', clk);
+    this.reset = addInput('reset', reset);
+    // Now that clk/reset exist, build logic.
+    buildLogic();
+  }
   @override
   void buildLogic() {
     // Create request FIFO between upstream and downstream request interfaces

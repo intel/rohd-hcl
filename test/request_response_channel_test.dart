@@ -31,62 +31,9 @@ void main() {
     await Simulator.reset();
   });
 
-  group('RequestStructure', () {
-    test('should create structure with correct fields', () {
-      const idWidth = 4;
-      const addrWidth = 32;
-
-      final request = RequestStructure(idWidth: idWidth, addrWidth: addrWidth);
-
-      expect(request.id.width, equals(idWidth));
-      expect(request.addr.width, equals(addrWidth));
-      expect(request.width, equals(idWidth + addrWidth));
-    });
-
-    test('should clone correctly', () {
-      const idWidth = 8;
-      const addrWidth = 64;
-
-      final original = RequestStructure(idWidth: idWidth, addrWidth: addrWidth);
-      final cloned = original.clone();
-
-      expect(cloned.id.width, equals(idWidth));
-      expect(cloned.addr.width, equals(addrWidth));
-      expect(cloned.width, equals(original.width));
-    });
-  });
-
-  group('ResponseStructure', () {
-    test('should create structure with correct fields', () {
-      const idWidth = 4;
-      const dataWidth = 32;
-
-      final response =
-          ResponseStructure(idWidth: idWidth, dataWidth: dataWidth);
-
-      expect(response.id.width, equals(idWidth));
-      expect(response.data.width, equals(dataWidth));
-      expect(response.width, equals(idWidth + dataWidth));
-    });
-
-    test('should clone correctly', () {
-      const idWidth = 8;
-      const dataWidth = 64;
-
-      final original =
-          ResponseStructure(idWidth: idWidth, dataWidth: dataWidth);
-      final cloned = original.clone();
-
-      expect(cloned.id.width, equals(idWidth));
-      expect(cloned.data.width, equals(dataWidth));
-      expect(cloned.width, equals(original.width));
-    });
-  });
-
   group('RequestResponseChannel', () {
     test('should build successfully', () async {
-      final clk = Logic();
-      final reset = Logic();
+      // No clk/reset needed for pure combinational pass-through channel.
 
       final upstreamReq = ReadyValidInterface(
         RequestStructure(idWidth: 4, addrWidth: 32),
@@ -100,10 +47,11 @@ void main() {
       final downstreamResp = ReadyValidInterface(
         ResponseStructure(idWidth: 4, dataWidth: 32),
       );
+      // Initialize nonCacheable bits to 0 to avoid X propagation.
+      upstreamResp.data.nonCacheable.inject(0);
+      downstreamResp.data.nonCacheable.inject(0);
 
       final channel = RequestResponseChannel(
-        clk: clk,
-        reset: reset,
         upstreamRequestIntf: upstreamReq,
         upstreamResponseIntf: upstreamResp,
         downstreamRequestIntf: downstreamReq,
@@ -117,8 +65,7 @@ void main() {
     });
 
     test('should have correct port structure', () async {
-      final clk = Logic();
-      final reset = Logic();
+      // No clk/reset needed for pure combinational pass-through channel.
 
       final upstreamReq = ReadyValidInterface(
         RequestStructure(idWidth: 4, addrWidth: 32),
@@ -132,10 +79,10 @@ void main() {
       final downstreamResp = ReadyValidInterface(
         ResponseStructure(idWidth: 4, dataWidth: 32),
       );
+      upstreamResp.data.nonCacheable.inject(0);
+      downstreamResp.data.nonCacheable.inject(0);
 
       final channel = RequestResponseChannel(
-        clk: clk,
-        reset: reset,
         upstreamRequestIntf: upstreamReq,
         upstreamResponseIntf: upstreamResp,
         downstreamRequestIntf: downstreamReq,
@@ -416,6 +363,8 @@ void main() {
       final downstreamResp = ReadyValidInterface(
         ResponseStructure(idWidth: 4, dataWidth: 4),
       );
+      upstreamResp.data.nonCacheable.inject(0);
+      downstreamResp.data.nonCacheable.inject(0);
 
       final channel = CachedRequestResponseChannel(
         clk: clk,
@@ -531,6 +480,8 @@ void main() {
       final downstreamResp = ReadyValidInterface(
         ResponseStructure(idWidth: 4, dataWidth: 4),
       );
+      upstreamResp.data.nonCacheable.inject(0);
+      downstreamResp.data.nonCacheable.inject(0);
 
       final channel = CachedRequestResponseChannel(
         clk: clk,
@@ -640,6 +591,8 @@ void main() {
       final downstreamResp = ReadyValidInterface(
         ResponseStructure(idWidth: 4, dataWidth: 4),
       );
+      upstreamResp.data.nonCacheable.inject(0);
+      downstreamResp.data.nonCacheable.inject(0);
 
       final channel = CachedRequestResponseChannel(
         clk: clk,
@@ -720,6 +673,8 @@ void main() {
       final downstreamResp = ReadyValidInterface(
         ResponseStructure(idWidth: 4, dataWidth: 4),
       );
+      upstreamResp.data.nonCacheable.inject(0);
+      downstreamResp.data.nonCacheable.inject(0);
 
       final channel = CachedRequestResponseChannel(
         clk: clk,
@@ -830,6 +785,8 @@ void main() {
       final downstreamResp = ReadyValidInterface(
         ResponseStructure(idWidth: 4, dataWidth: 4),
       );
+      upstreamResp.data.nonCacheable.inject(0);
+      downstreamResp.data.nonCacheable.inject(0);
 
       final channel = CachedRequestResponseChannel(
         clk: clk,
@@ -1020,6 +977,8 @@ void main() {
       final downstreamResp = ReadyValidInterface(
         ResponseStructure(idWidth: 4, dataWidth: 4),
       );
+      upstreamResp.data.nonCacheable.inject(0);
+      downstreamResp.data.nonCacheable.inject(0);
 
       final channel = CachedRequestResponseChannel(
         clk: clk,
@@ -1199,6 +1158,8 @@ void main() {
       final downstreamResp = ReadyValidInterface(
         ResponseStructure(idWidth: 4, dataWidth: 4),
       );
+      upstreamResp.data.nonCacheable.inject(0);
+      downstreamResp.data.nonCacheable.inject(0);
 
       final channel = CachedRequestResponseChannel(
         clk: clk,
@@ -1417,6 +1378,8 @@ void main() {
       final downstreamResp = ReadyValidInterface(
         ResponseStructure(idWidth: 4, dataWidth: 4),
       );
+      upstreamResp.data.nonCacheable.inject(0);
+      downstreamResp.data.nonCacheable.inject(0);
 
       // Create channel with small CAM (4 ways) but large response FIFO (32
       // deep) This isolates CAM capacity from response FIFO capacity

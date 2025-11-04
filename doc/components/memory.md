@@ -28,7 +28,7 @@ Please see [`Fifo`](./fifo.md)
 
 The `MemoryModel` has the same interface as a `Memory`, but is non-synthesizable and uses a software-based `SparseMemoryStorage` as a backing for data storage. This is a useful tool for testing systems that have relatively large memories.
 
-The `MemoryStorage` class also provides utilities for reading (`loadMemString`) and writing (`dumpMemString`) verilog-compliant memory files (e.g. for `readmemh`).
+The `MemoryStorage` class also provides utilities for reading (`loadMemString`) and writing (`dumpMemString`) Verilog-compliant memory files (e.g. for `readmemh`).
 
 ## Caches
 
@@ -36,7 +36,7 @@ ROHD-HCL provides cache implementations for different architectural needs, from 
 
 Fill and read ports are `ValidDataPortInterface`s, where a `valid` signal is used on the read side to indicate a `hit`, and it is used on the fill side (set to false) to invalidate a cache entry.
 
- The eviction ports provide address and data for evicted cache elements, where eviction happens on a fill that needs to find space in the cache (not on an invalidate) This capability is not yet implemented in all following `Cache` implementations.
+ The eviction ports provide address and data for evicted cache elements, where eviction happens on a fill that needs to find space in the cache (not on an invalidate).
 
 ### Replacement Policy
 
@@ -106,19 +106,6 @@ readPort.readWithInvalidate <= shouldInvalidate;
 // - Automatically invalidate the entry on the next clock cycle if readWithInvalidate was asserted
 ```
 
-**Key Properties of Read-with-Invalidate:**
-
-- **Atomic Operation**: The read and invalidate happen as a single atomic operation
-- **Conditional**: Invalidation only occurs on cache hits, not misses
-- **Pipelined**: The invalidation is registered and occurs on the clock cycle following the hit detection
-- **Compatible**: Works seamlessly with existing fill operations and replacement policies
-
-**Use Cases:**
-
-1. **Request Tracking**: Read request data and immediately mark as completed
-2. **Cache Coherency**: Implement invalidation protocols
-3. **Resource Management**: Atomically consume cached resources
-
 ## Example: Request/Response Matching
 
 ```dart
@@ -175,5 +162,3 @@ final cache = SetAssociativeCache(
   lines: 256,                 // 256 cache lines
 );
 ```
-
-The [`SetAssociativeCache`] implements DOES NOT support emitting eviction data on eviction ports yet.

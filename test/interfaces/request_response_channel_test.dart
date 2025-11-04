@@ -2,9 +2,9 @@
 // SPDX-License-Identifier: BSD-3-Clause
 //
 // request_response_channel_test.dart
-// Tests for the basic RequestResponseChannel component.
+// Basic (non-buffered, non-cached) Request/Response channel tests.
 //
-// 2025 October 26
+// 2025 October 24
 // Author: GitHub Copilot <github-copilot@github.com>
 
 import 'package:rohd/rohd.dart';
@@ -18,9 +18,6 @@ void main() {
 
   group('RequestResponseChannel', () {
     test('should build successfully', () async {
-      final clk = Logic();
-      final reset = Logic();
-
       final upstreamReq = ReadyValidInterface(
         RequestStructure(idWidth: 4, addrWidth: 32),
       );
@@ -33,10 +30,10 @@ void main() {
       final downstreamResp = ReadyValidInterface(
         ResponseStructure(idWidth: 4, dataWidth: 32),
       );
+      upstreamResp.data.nonCacheable.inject(0);
+      downstreamResp.data.nonCacheable.inject(0);
 
       final channel = RequestResponseChannel(
-        clk: clk,
-        reset: reset,
         upstreamRequestIntf: upstreamReq,
         upstreamResponseIntf: upstreamResp,
         downstreamRequestIntf: downstreamReq,
@@ -44,15 +41,10 @@ void main() {
       );
 
       await channel.build();
-
-      // Verify the module was built successfully.
       expect(channel.definitionName, contains('RequestResponseChannel'));
     });
 
     test('should have correct port structure', () async {
-      final clk = Logic();
-      final reset = Logic();
-
       final upstreamReq = ReadyValidInterface(
         RequestStructure(idWidth: 4, addrWidth: 32),
       );
@@ -65,10 +57,10 @@ void main() {
       final downstreamResp = ReadyValidInterface(
         ResponseStructure(idWidth: 4, dataWidth: 32),
       );
+      upstreamResp.data.nonCacheable.inject(0);
+      downstreamResp.data.nonCacheable.inject(0);
 
       final channel = RequestResponseChannel(
-        clk: clk,
-        reset: reset,
         upstreamRequestIntf: upstreamReq,
         upstreamResponseIntf: upstreamResp,
         downstreamRequestIntf: downstreamReq,
@@ -76,26 +68,14 @@ void main() {
       );
 
       await channel.build();
-
-      // Verify the module has expected inputs and outputs.
-      expect(channel.inputs.keys, contains('clk'));
-      expect(channel.inputs.keys, contains('reset'));
-
-      // Check that interfaces are properly connected by looking for their
-      // ports.
+      // Pass-through channel is combinational: should NOT expose clk/reset.
+      expect(channel.inputs.keys, isNot(contains('clk')));
+      expect(channel.inputs.keys, isNot(contains('reset')));
       final portNames = {...channel.inputs.keys, ...channel.outputs.keys};
-
-      // Should have upstream request ports (consumer role - inputs).
-      expect(portNames.any((name) => name.contains('upstream_req')), isTrue);
-
-      // Should have upstream response ports (provider role - outputs).
-      expect(portNames.any((name) => name.contains('upstream_resp')), isTrue);
-
-      // Should have downstream request ports (provider role - outputs).
-      expect(portNames.any((name) => name.contains('downstream_req')), isTrue);
-
-      // Should have downstream response ports (consumer role - inputs).
-      expect(portNames.any((name) => name.contains('downstream_resp')), isTrue);
+      expect(portNames.any((n) => n.contains('upstream_req')), isTrue);
+      expect(portNames.any((n) => n.contains('upstream_resp')), isTrue);
+      expect(portNames.any((n) => n.contains('downstream_req')), isTrue);
+      expect(portNames.any((n) => n.contains('downstream_resp')), isTrue);
     });
   });
 }
