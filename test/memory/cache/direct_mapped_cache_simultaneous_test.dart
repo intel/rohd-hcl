@@ -480,8 +480,8 @@ void main() {
 
         final doFill0 = cycle % 3 != 0;
         final doFill1 = cycle % 3 != 1;
-        final doRead0 = cycle >= 2 && cycle % 2 == 0;
-        final doRead1 = cycle >= 2 && cycle % 2 == 1;
+        final doRead0 = cycle >= 2 && cycle.isEven;
+        final doRead1 = cycle >= 2 && cycle.isOdd;
 
         // Perform operations
         if (doFill0) {
