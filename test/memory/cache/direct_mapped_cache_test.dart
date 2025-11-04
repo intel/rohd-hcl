@@ -26,7 +26,9 @@
 // Total: 4 (specific) + 9 (extensive) + 11 (simultaneous) + 10 (common) = 34
 // tests
 //
-// 2025 October 15 Author: GitHub Copilot
+// 2025 October 15
+// Authors: Desmond Kirkpatrick <desmond.a.kirkpatrick@intel.com>
+//          GitHub Copilot <github-copilot@github.com>
 
 import 'dart:async';
 

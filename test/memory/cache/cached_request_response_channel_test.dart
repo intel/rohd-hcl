@@ -5,7 +5,8 @@
 // Tests for the CachedRequestResponseChannel component.
 //
 // 2025 October 26
-// Author: GitHub Copilot <github-copilot@github.com>
+// Authors: Desmond Kirkpatrick <desmond.a.kirkpatrick@intel.com>
+//          GitHub Copilot <github-copilot@github.com>
 
 import 'dart:async';
 

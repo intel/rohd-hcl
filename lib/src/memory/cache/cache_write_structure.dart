@@ -5,7 +5,8 @@
 // Cache write structure for CachedRequestResponseChannel external writes.
 //
 // 2025 November 4
-// Author: GitHub Copilot <github-copilot@github.com>
+// Authors: Desmond Kirkpatrick <desmond.a.kirkpatrick@intel.com>
+//          GitHub Copilot <github-copilot@github.com>
 
 import 'package:rohd/rohd.dart';
 
