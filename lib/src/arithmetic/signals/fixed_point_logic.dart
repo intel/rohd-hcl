@@ -64,7 +64,10 @@ class FixedPoint extends LogicStructure {
   /// Clone for I/O ports.
   @override
   FixedPoint clone({String? name}) => FixedPoint(
-      signed: signed, integerWidth: integerWidth, fractionWidth: fractionWidth);
+      signed: signed,
+      integerWidth: integerWidth,
+      fractionWidth: fractionWidth,
+      name: name);
 
   /// Cast logic to fixed point
   FixedPoint.of(Logic signal,

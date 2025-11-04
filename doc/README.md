@@ -96,7 +96,7 @@ Some in-development items will have opened issues, as well. Feel free to create 
   - [Clock gating](./components/clock_gating.md)
   - [Toggle gating](./components/toggle_gate.md)
 - Data flow
-  - [Ready/Valid](./components/standard_interfaces.md#readyvalid)
+  - Ready/Valid
   - Connect/Disconnect
   - Widening
   - Narrowing
@@ -109,13 +109,9 @@ Some in-development items will have opened issues, as well. Feel free to create 
 - Memory
   - [Register File](./components/memory.md#register-files)
   - [Masking](./components/memory.md#masks)
-  - [Caching](./components/memory.md#cache)
-    - [Direct-Mapped Cache](./components/memory.md#direct-mapped-cache)
-    - Associative Caches
-      - [Set-Associative Cache](./components/memory.md#set-associative-cache)
-      - [Fully-Associative Cache](./components/memoryd#fully-associative-memory-cam)
-      - Replacement Policies
-        - [Pseudo-LRU Replacement](./components/memory.md#pseudo-lru-replacement-policy)
+  - [Caches](./components/memory.md#caches)
+    - [Replacement Policies](./components/memory.md#replacement-policy)
+  - [Cams](./components/memory.md#basic-cam)
   - [Memory Model](./components/memory.md#memory-models)
   - [Control/Status Registers (CSRs)](./components/csr.md)
 - Standard interfaces
@@ -132,11 +128,15 @@ Some in-development items will have opened issues, as well. Feel free to create 
   - HBM
 - Models
   - [APB](./components/apb_bfm.md)
-  - [Ready/Valid BFM++](./components/ready_valid_bfm.md)
+  - [Ready/Valid](./components/ready_valid_bfm.md)
   - [SPI](./components/spi_bfm.md)
   - CXL
 - Gaskets
   - [SPI](./components/spi_gaskets.md)
+
+## Adding a New Component
+
+Please refer to [Module](./Module.md) for the best practices for creating new components.
 
 ----------------
 

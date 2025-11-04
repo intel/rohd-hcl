@@ -23,7 +23,7 @@ abstract class FixedPointSqrtBase extends Module {
   late final FixedPoint a;
 
   /// getter for the computed output.
-  late final FixedPoint sqrt = a.clone(name: 'sqrt')..gets(output('sqrt'));
+  late final FixedPoint sqrt;
 
   /// Square root a fixed point number [a], returning result in [sqrt].
   FixedPointSqrtBase(FixedPoint a,
@@ -35,9 +35,9 @@ abstract class FixedPointSqrtBase extends Module {
         super(
             definitionName:
                 definitionName ?? 'FixedPointSquareRoot${a.width}') {
-    this.a = a.clone(name: 'a')..gets(addInput('a', a, width: a.width));
+    this.a = a.clone(name: 'a')..gets(addTypedInput('a', a));
 
-    addOutput('sqrt', width: width);
+    sqrt = addTypedOutput('sqrt', a.clone);
   }
 }
 

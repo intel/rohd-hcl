@@ -18,7 +18,9 @@ import 'package:rohd_hcl/rohd_hcl.dart';
 /// support infinity.
 class FixedToFloat extends Module {
   /// Output port [float]
-  late final FloatingPoint float = outFloat.clone()..gets(output('float'));
+  // Expose typed FloatingPoint output via addTypedOutput and wire internal
+  // converted float into it. This avoids relying on plain output('float').
+  late final FloatingPoint float;
 
   /// Internal representation of the output port.
   @protected
@@ -47,16 +49,19 @@ class FixedToFloat extends Module {
             definitionName: definitionName ??
                 'Fixed${fixed.width}ToFloat_E${outFloat.exponent.width}'
                     'M${outFloat.mantissa.width}') {
-    fixed = fixed.clone(name: 'fixed')
-      ..gets(addInput('fixed', fixed, width: fixed.width));
+    fixed = fixed.clone(name: 'fixed')..gets(addTypedInput('fixed', fixed));
 
     final fixedAsLogic = fixed.packed;
     final exponentWidth = outFloat.exponent.width;
     final mantissaWidth = outFloat.mantissa.width;
     _convertedFloat = FloatingPoint(
         exponentWidth: exponentWidth, mantissaWidth: mantissaWidth);
-    addOutput('float', width: outFloat.width) <= _convertedFloat;
-    outFloat <= output('float');
+    // Create a typed output and drive it from the internal converted float.
+    final typedFloatOut = addTypedOutput('float', _convertedFloat.clone);
+    typedFloatOut <= _convertedFloat;
+    // Also set the public `float` handle to the typed output instance so
+    // consumers that expect a FloatingPoint object can use `float` directly.
+    float = typedFloatOut;
 
     leadingDigitPredict = (leadingDigitPredict != null)
         ? addInput('leadingDigitPredict', leadingDigitPredict,

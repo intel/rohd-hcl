@@ -20,209 +20,145 @@ The `RegisterFile` can be initialized with data on reset using `resetValue` foll
 
 [RegisterFile Schematic](https://intel.github.io/rohd-hcl/RegisterFile.html)
 
+## First-In First-Out (FIFO) Buffers
+
+Please see [`Fifo`](./fifo.md)
+
 ## Memory Models
 
 The `MemoryModel` has the same interface as a `Memory`, but is non-synthesizable and uses a software-based `SparseMemoryStorage` as a backing for data storage. This is a useful tool for testing systems that have relatively large memories.
 
-The `MemoryStorage` class also provides utilities for reading (`loadMemString`) and writing (`dumpMemString`) verilog-compliant memory files (e.g. for `readmemh`).
+The `MemoryStorage` class also provides utilities for reading (`loadMemString`) and writing (`dumpMemString`) Verilog-compliant memory files (e.g. for `readmemh`).
 
-## Cache
+## Caches
 
-The `Cache` is an abstract class that implements a configurable set-associative cache for caching data. It provides a flexible framework for implementing caches with different replacement policies and associativities.
+ROHD-HCL provides cache implementations for different architectural needs, from simple direct-mapped caches to sophisticated multi-ported set-associative designs.  The base `Cache` interface provides a set of fill ports, read ports, and eviction ports.
 
-### Key Operations
+Fill and read ports are `ValidDataPortInterface`s, where a `valid` signal is used on the read side to indicate a `hit`, and it is used on the fill side (set to false) to invalidate a cache entry.
 
-1. **Reading**: Returns cached data with a valid bit indicating hit/miss status. Updates replacement policy on hits.
-2. **Filling**: Writes data into the cache, potentially allocating a new line if not present. Can also invalidate entries when valid bit is *not* set.
-3. **Eviction**: Optional eviction ports provide the address and data being evicted during cache line allocation.
-
-### Cache Interface
-
-#### ValidDataPortInterface
-
-`ValidDataPortInterface` is the standard interface for cache read, fill, and eviction ports. It extends `DataPortInterface` with additional cache-specific signals:
-
-- `valid`: Indicates whether the data output is valid (cache hit).
-- `en`: Enable signal for the port operation.
-- `addr`: Address for read/fill/eviction operations.
-- `data`: Data for read/fill/eviction operations.
-- `readWithInvalidate` (optional, read ports only): If present and asserted, a read operation will also invalidate the cache entry on a hit. This is useful for implementing read-and-invalidate semantics (e.g., for FIFO or single-use cache lines). This currently is only functional on the `FullyAssociativeCache` implementation.
-
-To enable the `readWithInvalidate` feature, construct the interface with `hasReadWithInvalidate: true`:
-
-```dart
-final readPort = ValidDataPortInterface(dataWidth: 32, addrWidth: 16, hasReadWithInvalidate: true);
-```
-
-For fill ports, `readWithInvalidate` is not supported and will throw an error if enabled.
-
-All cache modules (set-associative, direct-mapped, etc.) use `ValidDataPortInterface` for their external connections, ensuring a consistent and extensible interface for cache operations.
-
-## Set Associative Cache
-
-The `SetAssociativeCache` is a configurable set-associative cache that supports multiple read and fill ports. It implements a read-cache (not tracking dirty data for write-back) and supports write-around policy.
-
-### Set Associative Cache Features
-
-- Configurable associativity (number of ways)
-- Configurable depth (number of lines)
-- Multiple read and fill ports
-- Pluggable replacement policies (default: Pseudo-LRU)
-- Optional eviction ports for cache line replacement
-
-### Usage Example
-
-```dart
-// Create Cache interfaces.
-final fillPort = ValidDataPortInterface(dataWidth: 32, addrWidth: 16);
-final readPort = ValidDataPortInterface(dataWidth: 32, addrWidth: 16);
-
-// Instantiate cache with 4-way associativity, 64 lines.
-final cache = SetAssociativeCache(
-  clk, reset, 
-  [fillPort],   // Fill ports.
-  [readPort],   // Read ports.
-  ways: 4,
-  lines: 64,
-);
-```
+ The eviction ports provide address and data for evicted cache elements, where eviction happens on a fill that needs to find space in the cache (not on an invalidate).
 
 ### Replacement Policy
 
-A set-associative cache manages line replacement using a `ReplacementPolicy`.
-Currently available is a Pseudo-LRU replacement policy `PseudoLRUReplacement`, but other replacement policies can be passed in using a function parameter as follows:
+For supporting set-associative caching, the `Cache` interface provides a way to provide a replacement policy via a `Function` parameter:
 
 ```dart
- ReplacementPolicy Function(
+  final ReplacementPolicy Function(
       Logic clk,
       Logic reset,
       List<AccessInterface> hits,
       List<AccessInterface> misses,
       List<AccessInterface> invalidates,
       {int ways,
-      String name})
+      String name}) replacement;
 ```
 
-Here the `AccessInterface` has the following ports:
+Here, the `AccessInterface` simply carries the `access` flag and the `way` that is being read or written.
 
-- `access`: Indicates whether the way is being accessed (like an enable).
-- `way`: which way of the cache is being hit, missed, or invalidated.
+A pseudo-LRU `ReplacementPolicy` called `PseudoLRUReplacement` is provided as default for use in set-associative caches.
 
-#### Pseudo-LRU Replacement Policy
+### DirectMappedCache
 
-We provide an implementation of the Pseudo-LRU replacement policy to use
-in associative caches called `PseudoLRUReplacementPolicy`.
+The [`DirectMappedCache`] provides a direct-mapped cache with multiple read and fill ports.
 
-## Direct-Mapped Cache
+### Fully Associative Cache (e.g., Contents Addressable Memory (CAM))
 
-The `DirectMappedCache` is a simplified cache implementation where each memory address maps to exactly one cache line (1-way set-associative). This eliminates the need for replacement policies and way selection logic, making it more efficient but potentially having more conflict misses.
+ROHD-HCL provides fully-associative cache implementations that enable lookup by content rather than address. This is useful for building efficient caches, translation lookaside buffers (TLBs), and request tracking systems.
 
-### Direct-Mapped Cache Features
-
-- Single way (direct mapping)
-- Configurable number of lines
-- Simplified logic compared to multi-way caches
-- Higher potential for conflict misses
-- Multiple read and fill ports supported
-
-### Direct-Mapped Cache Usage Example
+The [`FullyAssociativeCache`] implements eviction if the eviction ports (parallel to the fill ports) are provided. Note that there is only 1 line in a fully-associative cache as every way stores a unique tag.
 
 ```dart
-// Create interfaces for direct-mapped cache.
-final fillPort = ValidDataPortInterface(dataWidth: 32, addrWidth: 8);
-final readPort = ValidDataPortInterface(dataWidth: 32, addrWidth: 8);
-
-// Instantiate direct-mapped cache with 16 lines.
-final cache = DirectMappedCache(
+final cache = FullyAssociativeCache(
   clk, reset,
-  [fillPort],   // Fill ports.
-  [readPort],   // Read ports.
-  lines: 16,    // Number of cache lines.
+  [fillPort1, fillPort2],     // Fill ports for cache line writes
+  [readPort1, readPort2],     // Read ports for cache lookups
+  ways: 4,                    // 4-way set associative
 );
 ```
 
-## Cached Request/Response
+#### Read-with-Invalidate Feature
 
-The `CachedRequestResponse` module implements a cache with ready/valid request/response interfaces. It acts as a caching layer between upstream and downstream components, handling cache hits internally and forwarding misses to downstream.
+The `FullyAssociativeCache` supports an advanced read-with-invalidate operation that allows atomic read and invalidation of cache entries. This feature is particularly useful for implementing request/response tracking systems where you need to read data and immediately mark the entry as invalid.
 
-### Request/Response Cache Features
-
-- Ready/valid interfaces for requests and responses
-- Configurable cache implementation via `cacheBuilder` parameter
-- Internal FIFO for response queuing
-- ID-based request/response matching using CAM
-- Automatic cache line allocation on misses
-
-### Request/Response Cache Usage Example
+The read-with-invalidate functionality is enabled automatically when using `ValidDataPortInterface` with the `readWithInvalidate` extension:
 
 ```dart
-// Create request/response cache with default DirectMappedCache.
-final cachedRR = CachedRequestResponse(
-  clk: clk,
-  reset: reset,
-  upstreamRequest: upstreamReqInterface,
-  upstreamResponse: upstreamRespInterface,
-  downstreamRequest: downstreamReqInterface,
-  downstreamResponse: downstreamRespInterface,
-  idWidth: 4,
-  addrWidth: 16,
-  dataWidth: 32,
-  cacheDepth: 64,
-);
+// Create read port with read-with-invalidate capability
+final readPort = ValidDataPortInterface(dataWidth: 32, addrWidth: 8)
+  ..readWithInvalidate = Logic(name: 'readWithInvalidate');
 
-// Custom cache implementation example.
-final customCachedRR = CachedRequestResponse(
-  // ... interface connections ...
-  cacheBuilder: (clk, reset, fills, reads) =>
-  SetAssociativeCache(clk, reset, fills, reads,
-      ways: 4, lines: 16, replacement: PseudoLRUReplacement.new),
-);
-```
-
-## Fully Associative Memory (CAM)
-
-The `Cam` implements a Content Addressable Memory that allows associative lookup operations. Unlike traditional memory that is accessed by address, a CAM is accessed by content - you provide a tag and get back the data associated with that tag.
-
-### CAM Interface
-
-The CAM uses `TagInterface` for lookups:
-
-- `tag`: Input tag to search for in the CAM.
-- `idx`: Output index where the tag was found.
-- `hit`: Output indicating whether the tag was found.
-- `en`: Enable signal for the lookup operation.
-
-Write operations use standard [DataPortInterface](https://intel.github.io/rohd-hcl/rohd_hcl/DataPortInterface-class.html) with direct address access.
-
-### CAM Usage Example
-
-```dart
-// Create CAM interfaces.
-final writePort = DataPortInterface(dataWidth: 32, addrWidth: 3);
-final readPort = TagInterface(idWidth: 3, tagWidth: 32);
-
-// Instantiate 8-entry CAM.
-final cam = FullyAssociativeMemory(
+final cache = FullyAssociativeCache(
   clk, reset,
-  [writePort],    // Write ports (direct address)
-  [readPort],     // Read ports (associative)
-  numEntries: 8,
+  [fillPort],
+  [readPort],  // This port now supports read-with-invalidate
+  ways: 8,
 );
 
-// Write data to specific address.
-writePort.en.inject(1);
-writePort.addr.inject(5);           // Write to entry 5.
-writePort.data.inject(0x42);        // Store this tag.
-await clk.waitCycles(1);
+// To perform a read-with-invalidate operation:
+// 1. Set the address and enable the read
+readPort.addr <= targetAddress;
+readPort.en <= Const(1);
+// 2. Assert readWithInvalidate to invalidate on hit
+readPort.readWithInvalidate <= shouldInvalidate;
 
-// Look up by tag.
-readPort.en.inject(1);
-readPort.tag.inject(0x42);  // Search for this value.
-// Results: readPort.hit will be 1, readPort.idx will be 5.
+// The cache will:
+// - Return valid data if hit occurs (readPort.valid will be high)
+// - Automatically invalidate the entry on the next clock cycle if readWithInvalidate was asserted
 ```
 
-### CAM Invalidate Feature
+## Example: Request/Response Matching
 
-The CAM supports an invalidate operation, allowing entries to be cleared or marked invalid. This is useful for removing stale or unused tags without resetting the entire memory. To invalidate an entry, write to the desired address with a special value or use a dedicated invalidate signal if available in your CAM configuration. After invalidation, lookups for the invalidated tag will not result in a hit.
+```dart
+// CAM for tracking pending requests - stores request ID as tag, address as data
+final pendingRequests = FullyAssociativeCache(
+  clk, reset,
+  [fillPort],     // Add new pending requests
+  [lookupPort],   // Look up and remove completed requests
+  ways: 16,
+);
 
-The CAM supports the `ValidDataPortInterface` `readWithInvalidate` feature which, when set, invalidates the cache entry upon read.
+// When a response arrives, look up the request and invalidate the entry
+lookupPort.addr <= responseId;        // Use response ID as lookup key
+lookupPort.en <= responseValid;       // Enable lookup when response is valid
+lookupPort.readWithInvalidate <= Const(1); // Always invalidate on hit
+
+// If hit occurs:
+// - lookupPort.valid will be high
+// - lookupPort.data contains the original request address
+// - Entry is automatically invalidated for future requests
+```
+
+### Occupancy Tracking
+
+The `FullyAssociativeCache` can optionally provide occupancy tracking signals by setting `generateOccupancy: true`:
+
+```dart
+final cache = FullyAssociativeCache(
+  clk, reset,
+  [fillPort],
+  [readPort],
+  ways: 8,
+  generateOccupancy: true,  // Enable occupancy tracking
+);
+
+// Access occupancy signals
+final currentOccupancy = cache.occupancy!;  // Number of valid entries (0 to ways)
+final isFull = cache.full!;                 // High when all ways are occupied
+final isEmpty = cache.empty!;               // High when no entries are valid
+```
+
+This is particularly useful for flow control and backpressure management in systems that need to track cache utilization.
+
+### Set Associative Cache
+
+The [`SetAssociativeCache`] provides a set-associative cache with multiple read and fill ports and a replacement policy parameter to specify what type of way replacement the cache should use.
+
+```dart
+final cache = SetAssociativeCache(
+  clk, reset,
+  [fillPort1, fillPort2],     // Fill ports for cache line writes
+  [readPort1, readPort2],     // Read ports for cache lookups
+  ways: 4,                    // 4-way set associative
+  lines: 256,                 // 256 cache lines
+);
+```

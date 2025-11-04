@@ -9,7 +9,3 @@ The [ABP Interface](https://developer.arm.com/documentation/ihi0024/latest/) is 
 ## SPI
 
 The Serial Peripheral Interface (SPI) is a common serial communicaton interface. ROHD HCL has a configurable version of the SPI interface called [`SpiInterface`](https://intel.github.io/rohd-hcl/rohd_hcl/SpiInterface-class.html).
-
-## Ready/Valid
-
-ROHD-HCL provides a set of ready/valid interfaces like `ReadyAndValidInterface` and `ReadyThenValid`. One can use the `ReadyValidInterface` which enforces can be used for any ready/valid protocol.
