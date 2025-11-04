@@ -5,14 +5,24 @@
 // Buffered request/response channel with FIFOs.
 //
 // 2025 October 26
-// Authors: Desmond Kirkpatrick <desmond.a.kirkpatrick@intel.com>,
+// Authors: Desmond Kirkpatrick <desmond.a.kirkpatrick@intel.com>
 //          GitHub Copilot <github-copilot@github.com>
 
+import 'package:meta/meta.dart';
+import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
 
 /// A buffered request/response channel that uses FIFOs to buffer both
 /// request and response paths.
 class BufferedRequestResponseChannel extends RequestResponseChannelBase {
+  /// Clock signal.
+  @protected
+  late final Logic clk;
+
+  /// Reset signal.
+  @protected
+  late final Logic reset;
+
   /// Internal request FIFO module.
   late final ReadyValidFifo<RequestStructure> requestFifo;
 
@@ -28,15 +38,15 @@ class BufferedRequestResponseChannel extends RequestResponseChannelBase {
   /// Creates a [BufferedRequestResponseChannel] with FIFOs for request and
   /// response buffering.
   BufferedRequestResponseChannel({
-    required super.clk,
-    required super.reset,
+    required Logic clk,
+    required Logic reset,
     required super.upstreamRequestIntf,
     required super.upstreamResponseIntf,
     required super.downstreamRequestIntf,
     required super.downstreamResponseIntf,
     this.requestBufferDepth = 4,
     this.responseBufferDepth = 4,
-    super.name = 'buffered_request_response_channel',
+    super.name = 'bufferedRequestResponseChannel',
     super.reserveName,
     super.reserveDefinitionName,
     String? definitionName,
@@ -47,28 +57,33 @@ class BufferedRequestResponseChannel extends RequestResponseChannelBase {
                     '_ADDR${upstreamRequestIntf.data.addr.width}'
                     '_DATA${upstreamResponseIntf.data.data.width}'
                     '_REQBUF$requestBufferDepth'
-                    '_RSPBUF$responseBufferDepth');
-
+                    '_RSPBUF$responseBufferDepth') {
+    // Add clock and reset locally (base no longer manages them)
+    this.clk = addInput('clk', clk);
+    this.reset = addInput('reset', reset);
+    // Now that clk/reset exist, build logic.
+    buildLogic();
+  }
   @override
   void buildLogic() {
-    // Create request FIFO between upstream and downstream request interfaces.
+    // Create request FIFO between upstream and downstream request interfaces
     requestFifo = ReadyValidFifo<RequestStructure>(
       clk: clk,
       reset: reset,
       upstream: upstreamReq,
       downstream: downstreamReq,
       depth: requestBufferDepth,
-      name: 'request_fifoi',
+      name: 'requestFifo',
     );
 
-    // Create response FIFO between downstream and upstream response interfaces.
+    // Create response FIFO between downstream and upstream response interfaces
     responseFifo = ReadyValidFifo<ResponseStructure>(
       clk: clk,
       reset: reset,
       upstream: downstreamResp,
       downstream: upstreamResponse,
       depth: responseBufferDepth,
-      name: 'response_fifo',
+      name: 'responseFifo',
     );
   }
 }

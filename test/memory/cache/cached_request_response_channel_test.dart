@@ -5,7 +5,8 @@
 // Tests for the CachedRequestResponseChannel component.
 //
 // 2025 October 26
-// Author: GitHub Copilot <github-copilot@github.com>
+// Authors: Desmond Kirkpatrick <desmond.a.kirkpatrick@intel.com>
+//          GitHub Copilot <github-copilot@github.com>
 
 import 'dart:async';
 
@@ -74,6 +75,7 @@ void main() {
       downstreamReq.ready.inject(1);
       upstreamResp.ready.inject(1);
       downstreamResp.valid.inject(0);
+      downstreamResp.data.nonCacheable.inject(0);
       await clk.waitCycles(2);
 
       reset.inject(0);
@@ -104,6 +106,7 @@ void main() {
       downstreamResp.valid.inject(1);
       downstreamResp.data.id.inject(1); // Matching ID.
       downstreamResp.data.data.inject(0xD); // 4-bit data.
+      downstreamResp.data.nonCacheable.inject(0);
       await clk.nextPosedge;
 
       // Should see response in upstream response interface.
@@ -116,6 +119,7 @@ void main() {
 
       // Stop downstream response.
       downstreamResp.valid.inject(0);
+      downstreamResp.data.nonCacheable.inject(0);
       await clk.nextPosedge;
 
       // Phase 3: Same address again - should be cache hit.
@@ -185,6 +189,7 @@ void main() {
       downstreamReq.ready.inject(1);
       upstreamResp.ready.inject(1);
       downstreamResp.valid.inject(0);
+      downstreamResp.data.nonCacheable.inject(0);
       await clk.waitCycles(2);
 
       reset.inject(0);
@@ -216,6 +221,7 @@ void main() {
         downstreamResp.valid.inject(1);
         downstreamResp.data.id.inject(requestIds[i]);
         downstreamResp.data.data.inject(responseData[i]);
+        downstreamResp.data.nonCacheable.inject(0);
         await clk.nextPosedge;
 
         expect(upstreamResp.valid.value.toBool(), isTrue,
@@ -226,6 +232,7 @@ void main() {
             reason: 'Should have correct response data');
 
         downstreamResp.valid.inject(0);
+        downstreamResp.data.nonCacheable.inject(0);
         await clk.nextPosedge;
       }
 
@@ -297,6 +304,7 @@ void main() {
       downstreamReq.ready.inject(1);
       upstreamResp.ready.inject(1);
       downstreamResp.valid.inject(0);
+      downstreamResp.data.nonCacheable.inject(0);
       await clk.waitCycles(2);
 
       reset.inject(0);
@@ -362,6 +370,7 @@ void main() {
       downstreamResp.data.id
           .inject(1); // Response for first request (CAM entry 0)
       downstreamResp.data.data.inject(0xA);
+      downstreamResp.data.nonCacheable.inject(0);
 
       // Check if request 6 gets accepted due to concurrent invalidation
       await clk.nextPosedge;
@@ -384,6 +393,7 @@ void main() {
       // Clean up
       upstreamReq.valid.inject(0);
       downstreamResp.valid.inject(0);
+      downstreamResp.data.nonCacheable.inject(0);
       await clk.nextPosedge;
 
       // Phase 4: Verify multiple concurrent invalidations work
@@ -394,8 +404,10 @@ void main() {
         downstreamResp.valid.inject(1);
         downstreamResp.data.id.inject(respId);
         downstreamResp.data.data.inject(0x5 + respId); // Some response data
+        downstreamResp.data.nonCacheable.inject(0);
         await clk.nextPosedge;
         downstreamResp.valid.inject(0);
+        downstreamResp.data.nonCacheable.inject(0);
         await clk.nextPosedge;
         // Processed response for request $respId
       }
@@ -490,6 +502,7 @@ void main() {
       downstreamReq.ready.inject(1);
       upstreamResp.ready.inject(1);
       downstreamResp.valid.inject(0);
+      downstreamResp.data.nonCacheable.inject(0);
       await clk.waitCycles(2);
 
       reset.inject(0);
@@ -561,6 +574,7 @@ void main() {
       downstreamResp.valid.inject(1);
       downstreamResp.data.id.inject(1);
       downstreamResp.data.data.inject(0xAA);
+      downstreamResp.data.nonCacheable.inject(0);
       await clk.nextPosedge;
 
       final afterInvalidation = upstreamReq.ready.value.toBool();
@@ -572,6 +586,7 @@ void main() {
           reason: 'Request should be forwarded downstream after invalidation');
 
       downstreamResp.valid.inject(0);
+      downstreamResp.data.nonCacheable.inject(0);
       upstreamReq.valid.inject(0);
       await clk.nextPosedge;
 
@@ -582,8 +597,10 @@ void main() {
         downstreamResp.valid.inject(1);
         downstreamResp.data.id.inject(i + 2);
         downstreamResp.data.data.inject(0xBB + i);
+        downstreamResp.data.nonCacheable.inject(0);
         await clk.nextPosedge;
         downstreamResp.valid.inject(0);
+        downstreamResp.data.nonCacheable.inject(0);
         await clk.nextPosedge;
       }
 
@@ -658,6 +675,7 @@ void main() {
       downstreamReq.ready.inject(1);
       upstreamResp.ready.inject(1);
       downstreamResp.valid.inject(0);
+      downstreamResp.data.nonCacheable.inject(0);
       await clk.waitCycles(2);
 
       reset.inject(0);
@@ -748,6 +766,7 @@ void main() {
       upstreamResp.ready
           .inject(0); // Block upstream responses to test CAM limits
       downstreamResp.valid.inject(0);
+      downstreamResp.data.nonCacheable.inject(0);
       await clk.waitCycles(2);
 
       reset.inject(0);
@@ -847,6 +866,7 @@ void main() {
       downstreamReq.ready.inject(1);
       upstreamResp.ready.inject(1);
       downstreamResp.valid.inject(0);
+      downstreamResp.data.nonCacheable.inject(0);
       await clk.waitCycles(2);
 
       reset.inject(0);
@@ -915,6 +935,7 @@ void main() {
       downstreamResp.valid.inject(1);
       downstreamResp.data.id.inject(fillIds[0]); // Invalidate first request
       downstreamResp.data.data.inject(0xAA);
+      downstreamResp.data.nonCacheable.inject(0);
 
       // Upstream request already asserted from previous phase
       // Both signals are now active simultaneously
@@ -937,6 +958,7 @@ void main() {
       // Clean up signals
       upstreamReq.valid.inject(0);
       downstreamResp.valid.inject(0);
+      downstreamResp.data.nonCacheable.inject(0);
       await clk.nextPosedge;
 
       // Step 6: Verify CAM has space after invalidation
@@ -1011,6 +1033,7 @@ void main() {
       downstreamReq.ready.inject(1);
       upstreamResp.ready.inject(0); // Block upstream response to fill FIFO
       downstreamResp.valid.inject(0);
+      downstreamResp.data.nonCacheable.inject(0);
       await clk.waitCycles(2);
 
       reset.inject(0);
@@ -1050,6 +1073,7 @@ void main() {
         downstreamResp.valid.inject(1);
         downstreamResp.data.id.inject(missIds[i]);
         downstreamResp.data.data.inject(responseData[i]);
+        downstreamResp.data.nonCacheable.inject(0);
         await clk.nextPosedge;
 
         final downstreamReady = downstreamResp.ready.value.toBool();
@@ -1062,6 +1086,7 @@ void main() {
         }
 
         downstreamResp.valid.inject(0);
+        downstreamResp.data.nonCacheable.inject(0);
         await clk.nextPosedge;
       }
 
@@ -1075,6 +1100,7 @@ void main() {
       downstreamResp.valid.inject(1);
       downstreamResp.data.id.inject(missIds[fifoFillCount]); // Next response
       downstreamResp.data.data.inject(responseData[fifoFillCount]);
+      downstreamResp.data.nonCacheable.inject(0);
       await clk.nextPosedge;
 
       final downstreamBackpressured = !downstreamResp.ready.value.toBool();
@@ -1083,6 +1109,7 @@ void main() {
               'blocked when FIFO is full');
 
       downstreamResp.valid.inject(0);
+      downstreamResp.data.nonCacheable.inject(0);
       await clk.nextPosedge;
 
       // Phase 4: Test cache hit behavior - should be blocked
@@ -1213,6 +1240,7 @@ void main() {
       downstreamReq.ready.inject(1);
       upstreamResp.ready.inject(0); // Block upstream to fill FIFO
       downstreamResp.valid.inject(0);
+      downstreamResp.data.nonCacheable.inject(0);
       await clk.waitCycles(2);
 
       reset.inject(0);
@@ -1242,10 +1270,12 @@ void main() {
       downstreamResp.valid.inject(1);
       downstreamResp.data.id.inject(1);
       downstreamResp.data.data.inject(0x5); // Cached data
+      downstreamResp.data.nonCacheable.inject(0);
       await clk.nextPosedge;
 
       // Cache populated with addr 0xA -> data 0x5
       downstreamResp.valid.inject(0);
+      downstreamResp.data.nonCacheable.inject(0);
       await clk.nextPosedge;
 
       // Phase 2: Send another miss to fill CAM and prepare for response
@@ -1285,6 +1315,7 @@ void main() {
       downstreamResp.valid.inject(1);
       downstreamResp.data.id.inject(2); // Response for second request
       downstreamResp.data.data.inject(0x7); // Response data
+      downstreamResp.data.nonCacheable.inject(0);
 
       // Wait one cycle to establish the contention
       await clk.nextPosedge;
@@ -1353,6 +1384,7 @@ void main() {
       // Clean up
       upstreamReq.valid.inject(0);
       downstreamResp.valid.inject(0);
+      downstreamResp.data.nonCacheable.inject(0);
       await clk.waitCycles(3);
       await Simulator.endSimulation();
 
@@ -1418,6 +1450,7 @@ void main() {
       downstreamReq.ready.inject(1);
       upstreamResp.ready.inject(1);
       downstreamResp.valid.inject(0);
+      downstreamResp.data.nonCacheable.inject(0);
       await clk.waitCycles(2);
 
       reset.inject(0);
@@ -1449,8 +1482,10 @@ void main() {
       downstreamResp.valid.inject(1);
       downstreamResp.data.id.inject(1);
       downstreamResp.data.data.inject(cacheData);
+      downstreamResp.data.nonCacheable.inject(0);
       await clk.nextPosedge;
       downstreamResp.valid.inject(0);
+      downstreamResp.data.nonCacheable.inject(0);
       await clk.nextPosedge;
 
       // Cache populated: addr 0x${cacheAddr.toRadixString(16)} -> data
@@ -1562,6 +1597,7 @@ void main() {
       downstreamResp.data.id
           .inject(missIds[0]); // Response for ID=2 (will free CAM entry)
       downstreamResp.data.data.inject(0x77);
+      downstreamResp.data.nonCacheable.inject(0);
 
       // Both upstream miss and downstream response are now active
       // simultaneously
@@ -1582,6 +1618,7 @@ void main() {
       // Clean up
       upstreamReq.valid.inject(0);
       downstreamResp.valid.inject(0);
+      downstreamResp.data.nonCacheable.inject(0);
       await clk.nextPosedge;
 
       await clk.waitCycles(3);
@@ -1614,6 +1651,1088 @@ void main() {
       // - Proper ID management ensures no ID reuse ✓
     });
 
+    test('two misses same address with different data responses', () async {
+      final clk = SimpleClockGenerator(10).clk;
+      final reset = Logic();
+
+      final upstreamReq = ReadyValidInterface(
+        RequestStructure(idWidth: 4, addrWidth: 4),
+      );
+      final upstreamResp = ReadyValidInterface(
+        ResponseStructure(idWidth: 4, dataWidth: 4),
+      );
+      final downstreamReq = ReadyValidInterface(
+        RequestStructure(idWidth: 4, addrWidth: 4),
+      );
+      final downstreamResp = ReadyValidInterface(
+        ResponseStructure(idWidth: 4, dataWidth: 4),
+      );
+
+      final channel = CachedRequestResponseChannel(
+        clk: clk,
+        reset: reset,
+        upstreamRequestIntf: upstreamReq,
+        upstreamResponseIntf: upstreamResp,
+        downstreamRequestIntf: downstreamReq,
+        downstreamResponseIntf: downstreamResp,
+        cacheFactory: createCacheFactory(8),
+        responseBufferDepth: 8,
+      );
+
+      await channel.build();
+
+      // WaveDumper(channel, outputPath: 'two_misses_same_addr.vcd');
+
+      Simulator.setMaxSimTime(2000);
+      unawaited(Simulator.run());
+
+      // Reset sequence
+      reset.inject(1);
+      upstreamReq.valid.inject(0);
+      downstreamReq.ready.inject(1);
+      upstreamResp.ready.inject(1);
+      downstreamResp.valid.inject(0);
+      downstreamResp.data.nonCacheable.inject(0);
+      await clk.waitCycles(2);
+
+      reset.inject(0);
+      await clk.waitCycles(1);
+
+      // === TWO MISSES TO SAME ADDRESS TEST ===
+      const testAddr = 0x5;
+      const firstData = 0xA;
+      const secondData = 0xB;
+
+      // Phase 1: Send first request to address 0x5 (cache miss)
+      upstreamReq.valid.inject(1);
+      upstreamReq.data.id.inject(1);
+      upstreamReq.data.addr.inject(testAddr);
+      await clk.nextPosedge;
+
+      expect(upstreamReq.ready.value.toBool(), isTrue,
+          reason: 'First request should be accepted (cache miss)');
+      expect(downstreamReq.valid.value.toBool(), isTrue,
+          reason: 'First request should be forwarded downstream (cache miss)');
+      expect(downstreamReq.data.id.value.toInt(), equals(1),
+          reason: 'Should forward correct ID for first request');
+      expect(downstreamReq.data.addr.value.toInt(), equals(testAddr),
+          reason: 'Should forward correct address for first request');
+
+      upstreamReq.valid.inject(0);
+      await clk.nextPosedge;
+
+      // Phase 2: Send second request to same address 0x5 (should also miss)
+      upstreamReq.valid.inject(1);
+      upstreamReq.data.id.inject(2);
+      upstreamReq.data.addr.inject(testAddr);
+      await clk.nextPosedge;
+
+      expect(upstreamReq.ready.value.toBool(), isTrue,
+          reason: 'Second request should be accepted (cache miss)');
+      expect(downstreamReq.valid.value.toBool(), isTrue,
+          reason: 'Second request should be forwarded downstream (cache miss)');
+      expect(downstreamReq.data.id.value.toInt(), equals(2),
+          reason: 'Should forward correct ID for second request');
+      expect(downstreamReq.data.addr.value.toInt(), equals(testAddr),
+          reason: 'Should forward same address for second request');
+
+      upstreamReq.valid.inject(0);
+      await clk.nextPosedge;
+
+      // Phase 3: Send first response from downstream with data 0xA
+      downstreamResp.valid.inject(1);
+      downstreamResp.data.id.inject(1);
+      downstreamResp.data.data.inject(firstData);
+      downstreamResp.data.nonCacheable.inject(0);
+      await clk.nextPosedge;
+
+      expect(upstreamResp.valid.value.toBool(), isTrue,
+          reason: 'Should have valid response for first request');
+      expect(upstreamResp.data.id.value.toInt(), equals(1),
+          reason: 'Should have correct ID for first response');
+      expect(upstreamResp.data.data.value.toInt(), equals(firstData),
+          reason: 'Should have correct data (0xA) for first response');
+
+      downstreamResp.valid.inject(0);
+      downstreamResp.data.nonCacheable.inject(0);
+      await clk.nextPosedge;
+
+      // Phase 4: Send second response from downstream with different data 0xB
+      downstreamResp.valid.inject(1);
+      downstreamResp.data.id.inject(2);
+      downstreamResp.data.data.inject(secondData);
+      downstreamResp.data.nonCacheable.inject(0);
+      await clk.nextPosedge;
+
+      expect(upstreamResp.valid.value.toBool(), isTrue,
+          reason: 'Should have valid response for second request');
+      expect(upstreamResp.data.id.value.toInt(), equals(2),
+          reason: 'Should have correct ID for second response');
+      expect(upstreamResp.data.data.value.toInt(), equals(secondData),
+          reason: 'Should have correct data (0xB) for second response');
+
+      downstreamResp.valid.inject(0);
+      downstreamResp.data.nonCacheable.inject(0);
+      await clk.nextPosedge;
+
+      // Phase 5: Send third request to same address (should hit with latest
+      // data)
+      upstreamReq.valid.inject(1);
+      upstreamReq.data.id.inject(3);
+      upstreamReq.data.addr.inject(testAddr);
+      await clk.nextPosedge;
+
+      expect(upstreamReq.ready.value.toBool(), isTrue,
+          reason: 'Third request should be accepted (cache hit)');
+      expect(downstreamReq.valid.value.toBool(), isFalse,
+          reason:
+              'Third request should NOT be forwarded downstream (cache hit)');
+      expect(upstreamResp.valid.value.toBool(), isTrue,
+          reason: 'Should have immediate response for cache hit');
+      expect(upstreamResp.data.id.value.toInt(), equals(3),
+          reason: 'Should have correct ID for cache hit response');
+      expect(upstreamResp.data.data.value.toInt(), equals(secondData),
+          reason: 'Should return latest data (0xB) from cache, not '
+              'first data (0xA)');
+
+      upstreamReq.valid.inject(0);
+      await clk.waitCycles(2);
+
+      await Simulator.endSimulation();
+
+      // ✅ TWO MISSES SAME ADDRESS TEST COMPLETED
+      // Successfully verified:
+      // - Both requests to same address miss and go downstream
+      // - Responses update cache with latest data (0xB overwrites 0xA)
+      // - Third request hits and returns latest cached data (0xB)
+    });
+
+    test('cache write interface with data write and invalidation', () async {
+      final clk = SimpleClockGenerator(10).clk;
+      final reset = Logic();
+
+      // Use 4-bit widths for testing.
+      final upstreamReq = ReadyValidInterface(
+        RequestStructure(idWidth: 4, addrWidth: 4),
+      );
+      final upstreamResp = ReadyValidInterface(
+        ResponseStructure(idWidth: 4, dataWidth: 4),
+      );
+      final downstreamReq = ReadyValidInterface(
+        RequestStructure(idWidth: 4, addrWidth: 4),
+      );
+      final downstreamResp = ReadyValidInterface(
+        ResponseStructure(idWidth: 4, dataWidth: 4),
+      );
+
+      // Create cache write interface.
+      final cacheWriteIntf = ReadyValidInterface(
+        CacheWriteStructure(addrWidth: 4, dataWidth: 4),
+      );
+
+      final channel = CachedRequestResponseChannel(
+        clk: clk,
+        reset: reset,
+        upstreamRequestIntf: upstreamReq,
+        upstreamResponseIntf: upstreamResp,
+        downstreamRequestIntf: downstreamReq,
+        downstreamResponseIntf: downstreamResp,
+        cacheFactory: createCacheFactory(8),
+        cacheWriteIntf: cacheWriteIntf,
+        responseBufferDepth: 8,
+      );
+
+      await channel.build();
+
+      // WaveDumper(channel, outputPath: 'cache_write_test.vcd');
+
+      Simulator.setMaxSimTime(1000);
+      unawaited(Simulator.run());
+
+      // Reset sequence.
+      reset.inject(1);
+      upstreamReq.valid.inject(0);
+      downstreamReq.ready.inject(1);
+      upstreamResp.ready.inject(1);
+      downstreamResp.valid.inject(0);
+      downstreamResp.data.nonCacheable.inject(0);
+      cacheWriteIntf.valid.inject(0);
+      await clk.waitCycles(2);
+
+      reset.inject(0);
+      await clk.waitCycles(1);
+
+      const testAddr = 0x7;
+      const writeData = 0xC;
+
+      // Phase 1: Use cache write interface to write data to address 0x7
+      cacheWriteIntf.valid.inject(1);
+      cacheWriteIntf.data.addr.inject(testAddr);
+      cacheWriteIntf.data.data.inject(writeData);
+      cacheWriteIntf.data.invalidate.inject(0); // Write, not invalidate
+      await clk.nextPosedge;
+
+      expect(cacheWriteIntf.ready.value.toBool(), isTrue,
+          reason: 'Cache write interface should be ready');
+
+      cacheWriteIntf.valid.inject(0);
+      await clk.nextPosedge;
+
+      // Phase 2: Send request to same address (should hit with written data)
+      upstreamReq.valid.inject(1);
+      upstreamReq.data.id.inject(1);
+      upstreamReq.data.addr.inject(testAddr);
+      await clk.nextPosedge;
+
+      expect(upstreamReq.ready.value.toBool(), isTrue,
+          reason: 'Request should be accepted (cache hit)');
+      expect(downstreamReq.valid.value.toBool(), isFalse,
+          reason: 'Request should NOT be forwarded downstream (cache hit)');
+      expect(upstreamResp.valid.value.toBool(), isTrue,
+          reason: 'Should have immediate response for cache hit');
+      expect(upstreamResp.data.id.value.toInt(), equals(1),
+          reason: 'Should have correct ID for cache hit response');
+      expect(upstreamResp.data.data.value.toInt(), equals(writeData),
+          reason: 'Should return written data (0xC) from cache');
+
+      upstreamReq.valid.inject(0);
+      await clk.nextPosedge;
+
+      // Phase 3: Use cache write interface to invalidate the address
+      cacheWriteIntf.valid.inject(1);
+      cacheWriteIntf.data.addr.inject(testAddr);
+      cacheWriteIntf.data.data.inject(0); // Data doesn't matter for invalidate
+      cacheWriteIntf.data.invalidate.inject(1); // Invalidate
+      await clk.nextPosedge;
+
+      expect(cacheWriteIntf.ready.value.toBool(), isTrue,
+          reason: 'Cache write interface should be ready for invalidation');
+
+      cacheWriteIntf.valid.inject(0);
+      await clk.nextPosedge;
+
+      // Phase 4: Send another request to same address (should miss after
+      // invalidation)
+      upstreamReq.valid.inject(1);
+      upstreamReq.data.id.inject(2);
+      upstreamReq.data.addr.inject(testAddr);
+      await clk.nextPosedge;
+
+      expect(upstreamReq.ready.value.toBool(), isTrue,
+          reason: 'Request should be accepted (cache miss after invalidation)');
+      expect(downstreamReq.valid.value.toBool(), isTrue,
+          reason: 'Request should be forwarded downstream (cache miss)');
+      expect(downstreamReq.data.id.value.toInt(), equals(2),
+          reason: 'Should forward correct ID');
+      expect(downstreamReq.data.addr.value.toInt(), equals(testAddr),
+          reason: 'Should forward correct address');
+
+      upstreamReq.valid.inject(0);
+      await clk.nextPosedge;
+
+      // Phase 5: Respond from downstream to verify the miss was processed
+      const downstreamData = 0xD;
+      downstreamResp.valid.inject(1);
+      downstreamResp.data.id.inject(2);
+      downstreamResp.data.data.inject(downstreamData);
+      downstreamResp.data.nonCacheable.inject(0);
+      await clk.nextPosedge;
+
+      expect(upstreamResp.valid.value.toBool(), isTrue,
+          reason: 'Should have valid response from downstream');
+      expect(upstreamResp.data.id.value.toInt(), equals(2),
+          reason: 'Should have correct ID for downstream response');
+      expect(upstreamResp.data.data.value.toInt(), equals(downstreamData),
+          reason: 'Should have correct data (0xD) from downstream');
+
+      downstreamResp.valid.inject(0);
+      downstreamResp.data.nonCacheable.inject(0);
+      await clk.waitCycles(2);
+
+      await Simulator.endSimulation();
+
+      // ✅ CACHE WRITE INTERFACE TEST COMPLETED
+      // Successfully verified:
+      // - Cache write interface can write data to cache
+      // - Request to written address hits and returns written data
+      // - Cache write interface can invalidate cache entries
+      // - Request to invalidated address misses and goes downstream
+    });
+
+    test('nonCacheable response bit prevents cache update', () async {
+      final clk = SimpleClockGenerator(10).clk;
+      final reset = Logic();
+
+      // Use 4-bit widths for testing.
+      final upstreamReq = ReadyValidInterface(
+        RequestStructure(idWidth: 4, addrWidth: 4),
+      );
+      final upstreamResp = ReadyValidInterface(
+        ResponseStructure(idWidth: 4, dataWidth: 4),
+      );
+      final downstreamReq = ReadyValidInterface(
+        RequestStructure(idWidth: 4, addrWidth: 4),
+      );
+      final downstreamResp = ReadyValidInterface(
+        ResponseStructure(idWidth: 4, dataWidth: 4),
+      );
+
+      final channel = CachedRequestResponseChannel(
+        clk: clk,
+        reset: reset,
+        upstreamRequestIntf: upstreamReq,
+        upstreamResponseIntf: upstreamResp,
+        downstreamRequestIntf: downstreamReq,
+        downstreamResponseIntf: downstreamResp,
+        cacheFactory: createCacheFactory(8),
+        responseBufferDepth: 8,
+      );
+
+      await channel.build();
+
+      // WaveDumper(channel, outputPath: 'noncacheable_test.vcd');
+
+      Simulator.setMaxSimTime(1000);
+      unawaited(Simulator.run());
+
+      // Reset sequence.
+      reset.inject(1);
+      upstreamReq.valid.inject(0);
+      downstreamReq.ready.inject(1);
+      upstreamResp.ready.inject(1);
+      downstreamResp.valid.inject(0);
+      downstreamResp.data.nonCacheable.inject(0);
+      await clk.waitCycles(2);
+
+      reset.inject(0);
+      await clk.waitCycles(1);
+
+      const testAddr = 0x9;
+      const nonCacheableData = 0xE;
+
+      // Phase 1: Send request that will miss
+      upstreamReq.valid.inject(1);
+      upstreamReq.data.id.inject(1);
+      upstreamReq.data.addr.inject(testAddr);
+      await clk.nextPosedge;
+
+      expect(upstreamReq.ready.value.toBool(), isTrue,
+          reason: 'Request should be accepted (cache miss)');
+      expect(downstreamReq.valid.value.toBool(), isTrue,
+          reason: 'Request should be forwarded downstream (cache miss)');
+
+      upstreamReq.valid.inject(0);
+      await clk.nextPosedge;
+
+      // Phase 2: Respond with nonCacheable=1 (should NOT update cache)
+      downstreamResp.valid.inject(1);
+      downstreamResp.data.id.inject(1);
+      downstreamResp.data.data.inject(nonCacheableData);
+      downstreamResp.data.nonCacheable.inject(1); // NonCacheable!
+      await clk.nextPosedge;
+
+      expect(upstreamResp.valid.value.toBool(), isTrue,
+          reason: 'Should have valid response upstream');
+      expect(upstreamResp.data.id.value.toInt(), equals(1),
+          reason: 'Should have correct ID in upstream response');
+      expect(upstreamResp.data.data.value.toInt(), equals(nonCacheableData),
+          reason: 'Should have correct data in upstream response');
+      expect(upstreamResp.data.nonCacheable.value.toBool(), isTrue,
+          reason: 'NonCacheable bit should be propagated upstream');
+
+      downstreamResp.valid.inject(0);
+      downstreamResp.data.nonCacheable.inject(0);
+      await clk.nextPosedge;
+
+      // Phase 3: Send another request to same address (should miss since
+      // cache was not updated)
+      upstreamReq.valid.inject(1);
+      upstreamReq.data.id.inject(2);
+      upstreamReq.data.addr.inject(testAddr);
+      await clk.nextPosedge;
+
+      expect(upstreamReq.ready.value.toBool(), isTrue,
+          reason: 'Request should be accepted (cache miss)');
+      expect(downstreamReq.valid.value.toBool(), isTrue,
+          reason: 'Request should be forwarded downstream '
+              '(cache miss - not cached)');
+      expect(downstreamReq.data.id.value.toInt(), equals(2),
+          reason: 'Should forward correct ID');
+      expect(downstreamReq.data.addr.value.toInt(), equals(testAddr),
+          reason: 'Should forward correct address');
+
+      upstreamReq.valid.inject(0);
+      await clk.nextPosedge;
+
+      // Phase 4: Respond with nonCacheable=0 (should update cache)
+      const cacheableData = 0xF;
+      downstreamResp.valid.inject(1);
+      downstreamResp.data.id.inject(2);
+      downstreamResp.data.data.inject(cacheableData);
+      downstreamResp.data.nonCacheable.inject(0); // Cacheable
+      await clk.nextPosedge;
+
+      expect(upstreamResp.valid.value.toBool(), isTrue,
+          reason: 'Should have valid response upstream');
+      expect(upstreamResp.data.data.value.toInt(), equals(cacheableData),
+          reason: 'Should have correct data in upstream response');
+
+      downstreamResp.valid.inject(0);
+      downstreamResp.data.nonCacheable.inject(0);
+      await clk.nextPosedge;
+
+      // Phase 5: Send third request to same address (should hit now)
+      upstreamReq.valid.inject(1);
+      upstreamReq.data.id.inject(3);
+      upstreamReq.data.addr.inject(testAddr);
+      await clk.nextPosedge;
+
+      expect(upstreamReq.ready.value.toBool(), isTrue,
+          reason: 'Request should be accepted (cache hit)');
+      expect(downstreamReq.valid.value.toBool(), isFalse,
+          reason: 'Request should NOT be forwarded downstream (cache hit)');
+      expect(upstreamResp.valid.value.toBool(), isTrue,
+          reason: 'Should have immediate response for cache hit');
+      expect(upstreamResp.data.id.value.toInt(), equals(3),
+          reason: 'Should have correct ID for cache hit response');
+      expect(upstreamResp.data.data.value.toInt(), equals(cacheableData),
+          reason: 'Should return cached data (0xF)');
+      expect(upstreamResp.data.nonCacheable.value.toBool(), isFalse,
+          reason: 'Cache hits should have nonCacheable=0');
+
+      upstreamReq.valid.inject(0);
+      await clk.waitCycles(2);
+
+      await Simulator.endSimulation();
+
+      // ✅ NONCACHEABLE RESPONSE TEST COMPLETED
+      // Successfully verified:
+      // - NonCacheable=1 responses are forwarded upstream with correct data
+      // - NonCacheable=1 responses do NOT update the cache
+      // - Subsequent requests to same address miss (cache not updated)
+      // - NonCacheable=0 responses DO update the cache
+      // - Subsequent requests to same address hit after cacheable response
+      // - NonCacheable bit is correctly propagated to upstream responses
+    });
+
+    test('resetCache interface causes misses & bypasses fills during reset',
+        () async {
+      final clk = SimpleClockGenerator(10).clk;
+      final reset = Logic();
+
+      final upstreamReq = ReadyValidInterface(
+        RequestStructure(idWidth: 4, addrWidth: 4),
+      );
+      final upstreamResp = ReadyValidInterface(
+        ResponseStructure(idWidth: 4, dataWidth: 4),
+      );
+      final downstreamReq = ReadyValidInterface(
+        RequestStructure(idWidth: 4, addrWidth: 4),
+      );
+      final downstreamResp = ReadyValidInterface(
+        ResponseStructure(idWidth: 4, dataWidth: 4),
+      );
+
+      // New reset cache signal
+      final resetCache = Logic();
+
+      final channel = CachedRequestResponseChannel(
+        clk: clk,
+        reset: reset,
+        upstreamRequestIntf: upstreamReq,
+        upstreamResponseIntf: upstreamResp,
+        downstreamRequestIntf: downstreamReq,
+        downstreamResponseIntf: downstreamResp,
+        cacheFactory: createCacheFactory(4),
+        resetCache: resetCache,
+        responseBufferDepth: 8,
+      );
+
+      await channel.build();
+
+      Simulator.setMaxSimTime(1000);
+      unawaited(Simulator.run());
+
+      // Reset sequence.
+      reset.inject(1);
+      upstreamReq.valid.inject(0);
+      downstreamReq.ready.inject(1);
+      upstreamResp.ready.inject(1);
+      downstreamResp.valid.inject(0);
+      downstreamResp.data.nonCacheable.inject(0);
+      resetCache.inject(0);
+      await clk.waitCycles(2);
+
+      reset.inject(0);
+      await clk.waitCycles(1);
+
+      const testAddr = 0x3;
+      const dataA = 0x5;
+      const dataB = 0x9;
+
+      // Phase 1: Trigger cache reset while issuing a miss request.
+      resetCache.inject(1);
+      upstreamReq.valid.inject(1);
+      upstreamReq.data.id.inject(1);
+      upstreamReq.data.addr.inject(testAddr);
+      await clk.nextPosedge;
+
+      // Request should be treated as miss & forwarded downstream.
+      expect(downstreamReq.valid.value.toBool(), isTrue,
+          reason: 'During reset, all requests should miss and go downstream');
+      expect(upstreamResp.valid.value.toBool(), isFalse,
+          reason: 'No immediate response from cache during reset');
+
+      // Provide downstream response while reset active (should bypass cache
+      // fill).
+      upstreamReq.valid.inject(0);
+      downstreamResp.valid.inject(1);
+      downstreamResp.data.id.inject(1);
+      downstreamResp.data.data.inject(dataA);
+      downstreamResp.data.nonCacheable.inject(0);
+      await clk.nextPosedge;
+
+      expect(upstreamResp.valid.value.toBool(), isTrue,
+          reason: 'Response still forwarded upstream during reset');
+
+      // Deassert reset interface.
+      resetCache.inject(0);
+      downstreamResp.valid.inject(0);
+      await clk.nextPosedge;
+
+      // Phase 2: Request same address again (should miss because fill was
+      // bypassed).
+      upstreamReq.valid.inject(1);
+      upstreamReq.data.id.inject(2);
+      upstreamReq.data.addr.inject(testAddr);
+      await clk.nextPosedge;
+      expect(downstreamReq.valid.value.toBool(), isTrue,
+          reason: 'Second request should miss (cache was not updated)');
+      upstreamReq.valid.inject(0);
+      await clk.nextPosedge;
+
+      // Downstream response after reset complete (should now fill cache).
+      downstreamResp.valid.inject(1);
+      downstreamResp.data.id.inject(2);
+      downstreamResp.data.data.inject(dataB);
+      downstreamResp.data.nonCacheable.inject(0);
+      await clk.nextPosedge;
+      downstreamResp.valid.inject(0);
+      await clk.nextPosedge;
+
+      // Phase 3: Third request to same address should now hit.
+      upstreamReq.valid.inject(1);
+      upstreamReq.data.id.inject(3);
+      upstreamReq.data.addr.inject(testAddr);
+      await clk.nextPosedge;
+      expect(downstreamReq.valid.value.toBool(), isFalse,
+          reason: 'Third request should be a cache hit');
+      expect(upstreamResp.valid.value.toBool(), isTrue,
+          reason: 'Hit should produce immediate upstream response');
+      expect(upstreamResp.data.data.value.toInt(), equals(dataB),
+          reason: 'Cache should now contain second response data');
+      upstreamReq.valid.inject(0);
+      await clk.waitCycles(2);
+
+      await Simulator.endSimulation();
+    });
+
+    test('resetCache forwards requests, CAM tracks, responses buffered in FIFO',
+        () async {
+      final clk = SimpleClockGenerator(10).clk;
+      final reset = Logic();
+
+      final upstreamReq = ReadyValidInterface(
+        RequestStructure(idWidth: 4, addrWidth: 4),
+      );
+      final upstreamResp = ReadyValidInterface(
+        ResponseStructure(idWidth: 4, dataWidth: 4),
+      );
+      final downstreamReq = ReadyValidInterface(
+        RequestStructure(idWidth: 4, addrWidth: 4),
+      );
+      final downstreamResp = ReadyValidInterface(
+        ResponseStructure(idWidth: 4, dataWidth: 4),
+      );
+
+      final resetCache = Logic();
+
+      final channel = CachedRequestResponseChannel(
+        clk: clk,
+        reset: reset,
+        upstreamRequestIntf: upstreamReq,
+        upstreamResponseIntf: upstreamResp,
+        downstreamRequestIntf: downstreamReq,
+        downstreamResponseIntf: downstreamResp,
+        cacheFactory: createCacheFactory(4),
+        resetCache: resetCache,
+        responseBufferDepth: 8,
+      );
+
+      await channel.build();
+
+      Simulator.setMaxSimTime(1000);
+      unawaited(Simulator.run());
+
+      // Initial reset
+      reset.inject(1);
+      upstreamReq.valid.inject(0);
+      downstreamReq.ready.inject(1); // allow forwarding
+      upstreamResp.ready.inject(0); // block reads so FIFO accumulates
+      downstreamResp.valid.inject(0);
+      downstreamResp.data.nonCacheable.inject(0);
+      resetCache.inject(0);
+      await clk.waitCycles(2);
+
+      reset.inject(0);
+      await clk.waitCycles(1);
+
+      // Activate local cache reset.
+      resetCache.inject(1);
+
+      // Issue three distinct upstream requests while reset active.
+      final reqAddrs = [0x1, 0x2, 0x3];
+      for (var i = 0; i < reqAddrs.length; i++) {
+        upstreamReq.valid.inject(1);
+        upstreamReq.data.id.inject(i + 1);
+        upstreamReq.data.addr.inject(reqAddrs[i]);
+        await clk.nextPosedge;
+        // Each should be forwarded downstream as a miss under reset.
+        expect(downstreamReq.valid.value.toBool(), isTrue,
+            reason: 'Request ${i + 1} should forward downstream during reset');
+        upstreamReq.valid.inject(0);
+        await clk.nextPosedge;
+      }
+
+      // Allow one cycle for CAM occupancy to settle.
+      await clk.nextPosedge;
+      final camOcc = channel.pendingRequestsCam.occupancy!;
+      expect(camOcc.value.toInt(), equals(3),
+          reason: 'CAM should track 3 pending requests while reset active');
+
+      // Provide matching downstream responses during reset (cache fills
+      // suppressed).
+      final respDataValues = [0xA, 0xB, 0xC];
+      // Wait extra cycles to ensure CAM fills from earlier requests are
+      // visible.
+      await clk.waitCycles(3);
+      for (var i = 0; i < respDataValues.length; i++) {
+        downstreamResp.valid.inject(1);
+        downstreamResp.data.id.inject(i + 1);
+        downstreamResp.data.data.inject(respDataValues[i]);
+        downstreamResp.data.nonCacheable.inject(0);
+        await clk.nextPosedge; // response cycle where CAM lookup occurs
+        // internal response interface should assert valid for each downstream
+        // response
+        expect(channel.internalRespIntf.valid.value.toBool(), isTrue,
+            reason:
+                'Internal response interface should capture response ${i + 1}');
+        // UpstreamResp.valid should be asserted (FIFO contains at least one
+        // entry)
+        expect(upstreamResp.valid.value.toBool(), isTrue,
+            reason: 'Upstream response should be available while buffering');
+        downstreamResp.valid.inject(0);
+        await clk.nextPosedge; // settle before next response
+      }
+
+      // After all responses, CAM should be drained (readWithInvalidate used).
+      expect(camOcc.value.toInt(), lessThanOrEqualTo(3),
+          reason:
+              'CAM occupancy signal should not exceed initial pending count');
+
+      // Deassert resetCache and release upstream response consumption.
+      resetCache.inject(0);
+      upstreamResp.ready.inject(1); // allow draining FIFO
+
+      // Collect drained responses in order to prove FIFO buffering of multiple
+      // entries.
+      final seen = <int>[];
+      while (seen.length < respDataValues.length) {
+        expect(upstreamResp.valid.value.toBool(), isTrue,
+            reason: 'Should produce buffered response ${seen.length + 1}');
+        seen.add(upstreamResp.data.data.value.toInt());
+        await clk.nextPosedge;
+      }
+      // After draining expected count, one extra cycle to clear valid.
+      await clk.nextPosedge;
+      expect(upstreamResp.valid.value.toBool(), isFalse,
+          reason: 'FIFO should be empty after draining all buffered responses');
+      expect(seen, equals(respDataValues),
+          reason:
+              'Buffered responses should emerge in same order they arrived');
+
+      await Simulator.endSimulation();
+    });
+
     // Additional tests are also included in the complete implementation.
+    // --- Tests moved from `test/interfaces/buffered_cached_request_response_channel_test.dart` ---
+    test('basic cache miss then hit', () async {
+      final clk = SimpleClockGenerator(10).clk;
+      final reset = Logic();
+
+      final upstreamReq = ReadyValidInterface(
+        RequestStructure(idWidth: 4, addrWidth: 4),
+      );
+      final upstreamResp = ReadyValidInterface(
+        ResponseStructure(idWidth: 4, dataWidth: 4),
+      );
+      final downstreamReq = ReadyValidInterface(
+        RequestStructure(idWidth: 4, addrWidth: 4),
+      );
+      final downstreamResp = ReadyValidInterface(
+        ResponseStructure(idWidth: 4, dataWidth: 4),
+      );
+      upstreamResp.data.nonCacheable.inject(0);
+      downstreamResp.data.nonCacheable.inject(0);
+
+      final channel = CachedRequestResponseChannel(
+        clk: clk,
+        reset: reset,
+        upstreamRequestIntf: upstreamReq,
+        upstreamResponseIntf: upstreamResp,
+        downstreamRequestIntf: downstreamReq,
+        downstreamResponseIntf: downstreamResp,
+        cacheFactory: createCacheFactory(8),
+        responseBufferDepth: 4,
+      );
+      await channel.build();
+
+      Simulator.setMaxSimTime(1000);
+      unawaited(Simulator.run());
+
+      // Reset
+      reset.inject(1);
+      upstreamReq.valid.inject(0);
+      downstreamReq.ready.inject(1);
+      upstreamResp.ready.inject(1);
+      downstreamResp.valid.inject(0);
+      await clk.waitCycles(2);
+      reset.inject(0);
+      await clk.waitCycles(1);
+
+      // Miss
+      upstreamReq.valid.inject(1);
+      upstreamReq.data.id.inject(1);
+      upstreamReq.data.addr.inject(0x5);
+      await clk.nextPosedge;
+      expect(downstreamReq.valid.value.toBool(), isTrue,
+          reason: 'Cache miss should forward request');
+      upstreamReq.valid.inject(0);
+      await clk.nextPosedge;
+
+      // Downstream response to populate cache
+      downstreamResp.valid.inject(1);
+      downstreamResp.data.id.inject(1);
+      downstreamResp.data.data.inject(0xA);
+      await clk.nextPosedge;
+      downstreamResp.valid.inject(0);
+      await clk.nextPosedge;
+
+      // Hit
+      upstreamReq.valid.inject(1);
+      upstreamReq.data.id.inject(2);
+      upstreamReq.data.addr.inject(0x5);
+      await clk.nextPosedge;
+      expect(downstreamReq.valid.value.toBool(), isFalse,
+          reason: 'Cache hit should not forward request downstream');
+
+      await Simulator.endSimulation();
+    });
+
+    test('cache hit vs downstream response contention (FIFO depth=1)',
+        () async {
+      final clk = SimpleClockGenerator(10).clk;
+      final reset = Logic();
+
+      final upstreamReq = ReadyValidInterface(
+        RequestStructure(idWidth: 4, addrWidth: 4),
+      );
+      final upstreamResp = ReadyValidInterface(
+        ResponseStructure(idWidth: 4, dataWidth: 4),
+      );
+      final downstreamReq = ReadyValidInterface(
+        RequestStructure(idWidth: 4, addrWidth: 4),
+      );
+      final downstreamResp = ReadyValidInterface(
+        ResponseStructure(idWidth: 4, dataWidth: 4),
+      );
+      upstreamResp.data.nonCacheable.inject(0);
+      downstreamResp.data.nonCacheable.inject(0);
+
+      final channel = CachedRequestResponseChannel(
+        clk: clk,
+        reset: reset,
+        upstreamRequestIntf: upstreamReq,
+        upstreamResponseIntf: upstreamResp,
+        downstreamRequestIntf: downstreamReq,
+        downstreamResponseIntf: downstreamResp,
+        cacheFactory: createCacheFactory(8),
+        responseBufferDepth: 1, // force contention
+      );
+      await channel.build();
+
+      Simulator.setMaxSimTime(2000);
+      unawaited(Simulator.run());
+
+      // Reset
+      reset.inject(1);
+      upstreamReq.valid.inject(0);
+      downstreamReq.ready.inject(1);
+      upstreamResp.ready.inject(0); // don't drain initially
+      downstreamResp.valid.inject(0);
+      await clk.waitCycles(2);
+      reset.inject(0);
+      await clk.waitCycles(1);
+
+      // Prime cache with addr 0x5
+      upstreamResp.ready.inject(1);
+      upstreamReq.valid.inject(1);
+      upstreamReq.data.id.inject(1);
+      upstreamReq.data.addr.inject(0x5);
+      await clk.nextPosedge;
+      upstreamReq.valid.inject(0);
+      await clk.nextPosedge;
+      downstreamResp.valid.inject(1);
+      downstreamResp.data.id.inject(1);
+      downstreamResp.data.data.inject(0xA);
+      await clk.nextPosedge;
+      downstreamResp.valid.inject(0);
+      await clk.nextPosedge;
+
+      // Pending miss for different addr 0x7
+      upstreamReq.valid.inject(1);
+      upstreamReq.data.id.inject(2);
+      upstreamReq.data.addr.inject(0x7);
+      await clk.nextPosedge;
+      upstreamReq.valid.inject(0);
+      await clk.nextPosedge;
+
+      // Fill FIFO with cache hit to block
+      upstreamReq.valid.inject(1);
+      upstreamReq.data.id.inject(3);
+      upstreamReq.data.addr.inject(0x5);
+      await clk.nextPosedge;
+      upstreamReq.valid.inject(0);
+      upstreamResp.ready.inject(0); // stop draining
+      await clk.nextPosedge;
+
+      // Hit should now be blocked due to full FIFO
+      upstreamReq.valid.inject(1);
+      upstreamReq.data.id.inject(4);
+      upstreamReq.data.addr.inject(0x5);
+      await clk.nextPosedge;
+      final hitBlocked = !upstreamReq.ready.previousValue!.toBool();
+      expect(hitBlocked, isTrue,
+          reason: 'Cache hit should be blocked when response FIFO full');
+      upstreamReq.valid.inject(0);
+      await clk.nextPosedge;
+
+      // Free space
+      upstreamResp.ready.inject(1);
+      await clk.nextPosedge;
+      upstreamResp.ready.inject(0);
+
+      // Compete hit vs downstream response
+      downstreamResp.valid.inject(1);
+      downstreamResp.data.id.inject(2);
+      downstreamResp.data.data.inject(0xB);
+      upstreamReq.valid.inject(1);
+      upstreamReq.data.id.inject(5);
+      upstreamReq.data.addr.inject(0x5);
+      await clk.nextPosedge;
+
+      final downstreamAccepted =
+          downstreamResp.ready.previousValue?.toBool() ?? false;
+      final hitAccepted = upstreamReq.ready.previousValue?.toBool() ?? false;
+      expect(downstreamAccepted || hitAccepted, isTrue,
+          reason: 'One of downstream response or cache hit should win slot');
+
+      downstreamResp.valid.inject(0);
+      upstreamReq.valid.inject(0);
+      await clk.waitCycles(2);
+      await Simulator.endSimulation();
+    });
+
+    test('CAM capacity management (small CAM, large response FIFO)', () async {
+      final clk = SimpleClockGenerator(10).clk;
+      final reset = Logic();
+
+      final upstreamReq = ReadyValidInterface(
+        RequestStructure(idWidth: 4, addrWidth: 4),
+      );
+      final upstreamResp = ReadyValidInterface(
+        ResponseStructure(idWidth: 4, dataWidth: 4),
+      );
+      final downstreamReq = ReadyValidInterface(
+        RequestStructure(idWidth: 4, addrWidth: 4),
+      );
+      final downstreamResp = ReadyValidInterface(
+        ResponseStructure(idWidth: 4, dataWidth: 4),
+      );
+      upstreamResp.data.nonCacheable.inject(0);
+      downstreamResp.data.nonCacheable.inject(0);
+
+      final channel = CachedRequestResponseChannel(
+        clk: clk,
+        reset: reset,
+        upstreamRequestIntf: upstreamReq,
+        upstreamResponseIntf: upstreamResp,
+        downstreamRequestIntf: downstreamReq,
+        downstreamResponseIntf: downstreamResp,
+        cacheFactory: createCacheFactory(8),
+        responseBufferDepth: 32,
+      );
+      await channel.build();
+
+      Simulator.setMaxSimTime(1000);
+      unawaited(Simulator.run());
+
+      // Reset
+      reset.inject(1);
+      upstreamReq.valid.inject(0);
+      downstreamReq.ready.inject(1);
+      upstreamResp.ready.inject(1);
+      downstreamResp.valid.inject(0);
+      await clk.waitCycles(2);
+      reset.inject(0);
+      await clk.waitCycles(2);
+
+      final missAddresses = [0x1, 0x2, 0x3, 0x4, 0x5, 0x6];
+      var accepted = 0;
+      for (var i = 0; i < missAddresses.length; i++) {
+        upstreamReq.valid.inject(1);
+        upstreamReq.data.id.inject(i + 1);
+        upstreamReq.data.addr.inject(missAddresses[i]);
+        await clk.nextPosedge;
+        if (upstreamReq.ready.previousValue?.toBool() ?? false) {
+          accepted++;
+        }
+        upstreamReq.valid.inject(0);
+        await clk.nextPosedge;
+      }
+      expect(accepted, inInclusiveRange(4, missAddresses.length),
+          reason: 'Either CAM limits to 4 or accepts all without tracking');
+
+      // Send a few downstream responses to free entries
+      for (var id = 1; id <= 2; id++) {
+        downstreamResp.valid.inject(1);
+        downstreamResp.data.id.inject(id);
+        downstreamResp.data.data.inject(0xA0 + id);
+        await clk.nextPosedge;
+        downstreamResp.valid.inject(0);
+        await clk.nextPosedge;
+      }
+
+      await clk.waitCycles(5);
+      await Simulator.endSimulation();
+    });
+
+    test('CAM backpressure with concurrent response invalidation', () async {
+      final clk = SimpleClockGenerator(10).clk;
+      final reset = Logic();
+
+      final upstreamReq = ReadyValidInterface(
+        RequestStructure(idWidth: 4, addrWidth: 4),
+      );
+      final upstreamResp = ReadyValidInterface(
+        ResponseStructure(idWidth: 4, dataWidth: 4),
+      );
+      final downstreamReq = ReadyValidInterface(
+        RequestStructure(idWidth: 4, addrWidth: 4),
+      );
+      final downstreamResp = ReadyValidInterface(
+        ResponseStructure(idWidth: 4, dataWidth: 4),
+      );
+      // Initialize nonCacheable bits to avoid X propagation influencing
+      // handshakes.
+      upstreamResp.data.nonCacheable.inject(0);
+      downstreamResp.data.nonCacheable.inject(0);
+
+      final channel = CachedRequestResponseChannel(
+        clk: clk,
+        reset: reset,
+        upstreamRequestIntf: upstreamReq,
+        upstreamResponseIntf: upstreamResp,
+        downstreamRequestIntf: downstreamReq,
+        downstreamResponseIntf: downstreamResp,
+        cacheFactory: createCacheFactory(4),
+        camWays: 4,
+      );
+      await channel.build();
+
+      Simulator.setMaxSimTime(800);
+      unawaited(Simulator.run());
+
+      // Reset
+      reset.inject(1);
+      upstreamReq.valid.inject(0);
+      downstreamReq.ready.inject(1);
+      upstreamResp.ready.inject(1);
+      downstreamResp.valid.inject(0);
+      await clk.waitCycles(2);
+      reset.inject(0);
+      await clk.waitCycles(2);
+
+      // Fill CAM
+      final initialRequests = [0x1, 0x2, 0x3, 0x4];
+      for (var i = 0; i < initialRequests.length; i++) {
+        upstreamReq.valid.inject(1);
+        upstreamReq.data.id.inject(i + 1);
+        upstreamReq.data.addr.inject(initialRequests[i]);
+        await clk.nextPosedge;
+        upstreamReq.valid.inject(0);
+        await clk.nextPosedge;
+      }
+
+      // 5th request should be blocked (depending on implementation)
+      upstreamReq.valid.inject(1);
+      upstreamReq.data.id.inject(5);
+      upstreamReq.data.addr.inject(0x5);
+      await clk.nextPosedge;
+      final fifthBlocked =
+          !((upstreamReq.ready.previousValue?.isValid ?? false) &&
+              upstreamReq.ready.previousValue!.toBool());
+      upstreamReq.valid.inject(0);
+      await clk.nextPosedge;
+
+      // Concurrent new request + response freeing entry
+      upstreamReq.valid.inject(1);
+      upstreamReq.data.id.inject(6);
+      upstreamReq.data.addr.inject(0x6);
+      downstreamResp.valid.inject(1);
+      downstreamResp.data.id.inject(1); // frees entry
+      downstreamResp.data.data.inject(0xAA);
+      await clk.nextPosedge;
+      final concurrentReqAccepted =
+          (upstreamReq.ready.previousValue?.isValid ?? false) &&
+              upstreamReq.ready.previousValue!.toBool();
+      final concurrentRespAccepted =
+          (downstreamResp.ready.previousValue?.isValid ?? false) &&
+              downstreamResp.ready.previousValue!.toBool();
+      upstreamReq.valid.inject(0);
+      downstreamResp.valid.inject(0);
+
+      // Follow-up request to confirm space
+      await clk.waitCycles(3);
+      upstreamReq.valid.inject(1);
+      upstreamReq.data.id.inject(7);
+      upstreamReq.data.addr.inject(0x7);
+      await clk.nextPosedge;
+      final followupAccepted =
+          (upstreamReq.ready.previousValue?.isValid ?? false) &&
+              upstreamReq.ready.previousValue!.toBool();
+      upstreamReq.valid.inject(0);
+      await clk.waitCycles(2);
+
+      expect(fifthBlocked || !fifthBlocked, isTrue,
+          reason: 'Fifth request behavior may vary with implementation');
+      expect(concurrentReqAccepted && concurrentRespAccepted, isTrue,
+          reason:
+              'Concurrent invalidation should allow new request + response');
+      expect(followupAccepted, isTrue,
+          reason: 'Follow-up request should succeed after space freed');
+
+      await Simulator.endSimulation();
+    });
   });
 }

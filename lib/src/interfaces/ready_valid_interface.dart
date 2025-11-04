@@ -1,13 +1,3 @@
-// Copyright (C) 2023-2024 Intel Corporation
-// SPDX-License-Identifier: BSD-3-Clause
-//
-// ready_valid_interface.dart
-// Ready/Valid Interface
-//
-// ignore: flutter_style_todos
-// TODO: Need Date
-// Author: Max Korbel <max.korbel@intel.com>
-
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
 
@@ -23,13 +13,16 @@ class ReadyValidInterface<LogicType extends Logic> extends PairInterface {
   Logic get valid => port('valid');
 
   /// Indicates that a transaction has been accepted (both valid and ready).
-  late final Logic accepted = (ready & valid).named('${data}_accepted');
+  /// Use the underlying data's name for a stable port name instead of
+  /// interpolating the object itself.
+  late final Logic accepted = (ready & valid).named('${data.name}_accepted');
 
   /// Creates a [ReadyValidInterface] with the given [data].
   ReadyValidInterface(this.data)
       : super(
           portsFromProvider: [data, Logic.port('valid')],
           portsFromConsumer: [Logic.port('ready')],
+          // connectFieldsAsPorts: true,
         );
 
   @override

@@ -5,7 +5,7 @@
 // Tests for the BufferedRequestResponseChannel component.
 //
 // 2025 October 26
-// Authors: Desmond Kirkpatrick <desmond.a.kirkpatrick@intel.com>,
+// Authors: Desmond Kirkpatrick <desmond.a.kirkpatrick@intel.com>
 //          GitHub Copilot <github-copilot@github.com>
 
 import 'dart:async';
