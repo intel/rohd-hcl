@@ -1614,6 +1614,157 @@ void main() {
       // - Proper ID management ensures no ID reuse ✓
     });
 
+    test('two misses same address with different data responses', () async {
+      final clk = SimpleClockGenerator(10).clk;
+      final reset = Logic();
+
+      final upstreamReq = ReadyValidInterface(
+        RequestStructure(idWidth: 4, addrWidth: 4),
+      );
+      final upstreamResp = ReadyValidInterface(
+        ResponseStructure(idWidth: 4, dataWidth: 4),
+      );
+      final downstreamReq = ReadyValidInterface(
+        RequestStructure(idWidth: 4, addrWidth: 4),
+      );
+      final downstreamResp = ReadyValidInterface(
+        ResponseStructure(idWidth: 4, dataWidth: 4),
+      );
+
+      final channel = CachedRequestResponseChannel(
+        clk: clk,
+        reset: reset,
+        upstreamRequestIntf: upstreamReq,
+        upstreamResponseIntf: upstreamResp,
+        downstreamRequestIntf: downstreamReq,
+        downstreamResponseIntf: downstreamResp,
+        cacheFactory: createCacheFactory(8),
+        responseBufferDepth: 8,
+      );
+
+      await channel.build();
+
+      // WaveDumper(channel, outputPath: 'two_misses_same_addr.vcd');
+
+      Simulator.setMaxSimTime(2000);
+      unawaited(Simulator.run());
+
+      // Reset sequence
+      reset.inject(1);
+      upstreamReq.valid.inject(0);
+      downstreamReq.ready.inject(1);
+      upstreamResp.ready.inject(1);
+      downstreamResp.valid.inject(0);
+      await clk.waitCycles(2);
+
+      reset.inject(0);
+      await clk.waitCycles(1);
+
+      // === TWO MISSES TO SAME ADDRESS TEST ===
+      const testAddr = 0x5;
+      const firstData = 0xA;
+      const secondData = 0xB;
+
+      // Phase 1: Send first request to address 0x5 (cache miss)
+      upstreamReq.valid.inject(1);
+      upstreamReq.data.id.inject(1);
+      upstreamReq.data.addr.inject(testAddr);
+      await clk.nextPosedge;
+
+      expect(upstreamReq.ready.value.toBool(), isTrue,
+          reason: 'First request should be accepted (cache miss)');
+      expect(downstreamReq.valid.value.toBool(), isTrue,
+          reason: 'First request should be forwarded downstream (cache miss)');
+      expect(downstreamReq.data.id.value.toInt(), equals(1),
+          reason: 'Should forward correct ID for first request');
+      expect(downstreamReq.data.addr.value.toInt(), equals(testAddr),
+          reason: 'Should forward correct address for first request');
+
+      upstreamReq.valid.inject(0);
+      await clk.nextPosedge;
+
+      // Phase 2: Send second request to same address 0x5 (should also miss)
+      upstreamReq.valid.inject(1);
+      upstreamReq.data.id.inject(2);
+      upstreamReq.data.addr.inject(testAddr);
+      await clk.nextPosedge;
+
+      expect(upstreamReq.ready.value.toBool(), isTrue,
+          reason: 'Second request should be accepted (cache miss)');
+      expect(downstreamReq.valid.value.toBool(), isTrue,
+          reason: 'Second request should be forwarded downstream (cache miss)');
+      expect(downstreamReq.data.id.value.toInt(), equals(2),
+          reason: 'Should forward correct ID for second request');
+      expect(downstreamReq.data.addr.value.toInt(), equals(testAddr),
+          reason: 'Should forward same address for second request');
+
+      upstreamReq.valid.inject(0);
+      await clk.nextPosedge;
+
+      // Phase 3: Send first response from downstream with data 0xA
+      downstreamResp.valid.inject(1);
+      downstreamResp.data.id.inject(1);
+      downstreamResp.data.data.inject(firstData);
+      await clk.nextPosedge;
+
+      expect(upstreamResp.valid.value.toBool(), isTrue,
+          reason: 'Should have valid response for first request');
+      expect(upstreamResp.data.id.value.toInt(), equals(1),
+          reason: 'Should have correct ID for first response');
+      expect(upstreamResp.data.data.value.toInt(), equals(firstData),
+          reason: 'Should have correct data (0xA) for first response');
+
+      downstreamResp.valid.inject(0);
+      await clk.nextPosedge;
+
+      // Phase 4: Send second response from downstream with different data 0xB
+      downstreamResp.valid.inject(1);
+      downstreamResp.data.id.inject(2);
+      downstreamResp.data.data.inject(secondData);
+      await clk.nextPosedge;
+
+      expect(upstreamResp.valid.value.toBool(), isTrue,
+          reason: 'Should have valid response for second request');
+      expect(upstreamResp.data.id.value.toInt(), equals(2),
+          reason: 'Should have correct ID for second response');
+      expect(upstreamResp.data.data.value.toInt(), equals(secondData),
+          reason: 'Should have correct data (0xB) for second response');
+
+      downstreamResp.valid.inject(0);
+      await clk.nextPosedge;
+
+      // Phase 5: Send third request to same address (should hit with latest
+      // data)
+      upstreamReq.valid.inject(1);
+      upstreamReq.data.id.inject(3);
+      upstreamReq.data.addr.inject(testAddr);
+      await clk.nextPosedge;
+
+      expect(upstreamReq.ready.value.toBool(), isTrue,
+          reason: 'Third request should be accepted (cache hit)');
+      expect(downstreamReq.valid.value.toBool(), isFalse,
+          reason:
+              'Third request should NOT be forwarded downstream (cache hit)');
+      expect(upstreamResp.valid.value.toBool(), isTrue,
+          reason: 'Should have immediate response for cache hit');
+      expect(upstreamResp.data.id.value.toInt(), equals(3),
+          reason: 'Should have correct ID for cache hit response');
+      expect(upstreamResp.data.data.value.toInt(), equals(secondData),
+          reason: 'Should return latest data (0xB) from cache, not '
+              'first data (0xA)');
+
+      upstreamReq.valid.inject(0);
+      await clk.waitCycles(2);
+
+      await Simulator.endSimulation();
+
+      // ✅ TWO MISSES SAME ADDRESS TEST COMPLETED
+      // Successfully verified:
+      // - Both requests to same address miss and go downstream
+      // - Responses update cache with latest data (0xB overwrites 0xA)
+      // - Third request hits and returns latest cached data (0xB)
+    });
+
     // Additional tests are also included in the complete implementation.
   });
 }
