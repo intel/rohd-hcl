@@ -45,7 +45,6 @@ void main() {
           ways: 4, lines: 8);
 
       await cache.build();
-      File('cache.v').writeAsStringSync(cache.generateSynth());
     });
 
     test('Cache smoke test', () async {

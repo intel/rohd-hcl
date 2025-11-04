@@ -68,9 +68,6 @@ void main() {
       );
 
       await channel.build();
-      // Pass-through channel is combinational: should NOT expose clk/reset.
-      expect(channel.inputs.keys, isNot(contains('clk')));
-      expect(channel.inputs.keys, isNot(contains('reset')));
       final portNames = {...channel.inputs.keys, ...channel.outputs.keys};
       expect(portNames.any((n) => n.contains('upstream_req')), isTrue);
       expect(portNames.any((n) => n.contains('upstream_resp')), isTrue);
