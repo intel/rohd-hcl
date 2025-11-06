@@ -8,7 +8,7 @@ Check out the [component list](./doc/README.md) to see what's already implemente
 
 ## Code of Conduct
 
-ROHD-HCL adopts the [Contributor Covenant](https://www.contributor-covenant.org/) v2.1 for the code of conduct. It can be accessed [here](CODE_OF_CONDUCT.md).
+ROHD-HCL adopts the [Contributor Covenant](https://www.contributor-covenant.org/) v2.1 for the code of conduct. It can be accessed [Code of Conduct](CODE_OF_CONDUCT.md).
 
 ## Getting Help
 

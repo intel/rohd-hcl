@@ -73,9 +73,12 @@ class FloatingPointConverter<FpTypeIn extends FloatingPoint,
     destExponentWidth = destination.exponent.width;
     destMantissaWidth = destination.mantissa.width;
     source = (source.clone(name: 'source') as FpTypeIn)
-      ..gets(addInput('source', source, width: source.width));
-    addOutput('destination', width: _destination.width) <= _destination;
-    destination <= output('destination');
+      ..gets(addTypedInput('source', source));
+
+    final destOut = addTypedOutput('destination',
+        _destination.clone as FpTypeOut Function({String? name}));
+    destOut <= _destination;
+    destination <= destOut;
 
     // maxExpWidth: mantissa +2:
     //     1 for the hidden jbit and 1 for going past with leadingOneDetect
