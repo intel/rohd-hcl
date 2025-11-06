@@ -5,8 +5,7 @@
 // Base class for request/response channel components.
 //
 // 2025 October 26
-// Authors: Desmond Kirkpatrick <desmond.a.kirkpatrick@intel.com>
-//          GitHub Copilot <github-copilot@github.com>
+// Author: Desmond Kirkpatrick <desmond.a.kirkpatrick@intel.com>
 
 import 'package:meta/meta.dart';
 import 'package:rohd/rohd.dart';

@@ -27,8 +27,7 @@
 // tests
 //
 // 2025 October 15
-// Authors: Desmond Kirkpatrick <desmond.a.kirkpatrick@intel.com>
-//          GitHub Copilot <github-copilot@github.com>
+// Author: Desmond Kirkpatrick <desmond.a.kirkpatrick@intel.com>
 
 import 'dart:async';
 

@@ -1,4 +1,13 @@
 import 'package:rohd/rohd.dart';
+// Copyright (C) 2025 Intel Corporation
+// SPDX-License-Identifier: BSD-3-Clause
+//
+// ready_valid_interface.dart
+// Ready/valid interface implementation.
+//
+// 2025 October 20
+// Author: Max Korbel <max.korbel@intel.com>
+
 import 'package:rohd_hcl/rohd_hcl.dart';
 
 /// A ready/valid interface with associated data of type [LogicType].
@@ -22,7 +31,6 @@ class ReadyValidInterface<LogicType extends Logic> extends PairInterface {
       : super(
           portsFromProvider: [data, Logic.port('valid')],
           portsFromConsumer: [Logic.port('ready')],
-          // connectFieldsAsPorts: true,
         );
 
   @override

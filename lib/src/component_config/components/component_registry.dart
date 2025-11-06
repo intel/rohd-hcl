@@ -36,5 +36,6 @@ List<Configurator> get componentRegistry => [
       LeadingDigitAnticipateConfigurator(),
       SerializationConfigurator(),
       FixedPointSqrtConfigurator(),
-      FloatingPointSqrtConfigurator()
+      FloatingPointSqrtConfigurator(),
+      CacheConfigurator(),
     ];

@@ -6,8 +6,7 @@
 // [LogicStructure]-derived type through an internal [Fifo] instance.
 //
 // 2025 October 21
-// Authors: Desmond Kirkpatrick <desmond.a.kirkpatrick@intel.com>
-//          GitHub Copilot <github-copilot@github.com>
+// Author: Desmond Kirkpatrick <desmond.a.kirkpatrick@intel.com>
 
 import 'package:meta/meta.dart';
 import 'package:rohd/rohd.dart';
