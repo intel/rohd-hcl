@@ -9,6 +9,7 @@
 
 import 'dart:async';
 
+import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
 import 'package:rohd_vf/rohd_vf.dart';
 
@@ -83,18 +84,20 @@ class LtiLaChannelPacket extends SequenceItem implements Trackable {
   @override
   String? trackerString(TrackerField field) {
     switch (field.title) {
+      case LtiLaChannelTracker.timeField:
+        return Simulator.time.toString();
       case LtiLaChannelTracker.addrField:
-        return addr.toString();
+        return addr.toRadixString(16);
       case LtiLaChannelTracker.transField:
-        return trans.toString();
+        return trans.toRadixString(16);
       case LtiLaChannelTracker.attrField:
-        return attr.toString();
+        return attr.toRadixString(16);
       case LtiLaChannelTracker.ogVField:
         return ogV.toString();
       case LtiLaChannelTracker.userField:
-        return user?.user?.toString() ?? '';
+        return user?.user?.toRadixString(16) ?? '';
       case LtiLaChannelTracker.idField:
-        return id?.id?.toString() ?? '';
+        return id?.id?.toRadixString(16) ?? '';
       case LtiLaChannelTracker.nseField:
         return prot?.nse?.toString() ?? '';
       case LtiLaChannelTracker.privField:
@@ -102,21 +105,21 @@ class LtiLaChannelPacket extends SequenceItem implements Trackable {
       case LtiLaChannelTracker.instField:
         return prot?.inst?.toString() ?? '';
       case LtiLaChannelTracker.pasField:
-        return prot?.pas?.toString() ?? '';
+        return prot?.pas?.toRadixString(16) ?? '';
       case LtiLaChannelTracker.mmuValidField:
         return mmu?.mmuValid?.toString() ?? '';
       case LtiLaChannelTracker.mmuSecSidField:
-        return mmu?.mmuSecSid?.toString() ?? '';
+        return mmu?.mmuSecSid?.toRadixString(16) ?? '';
       case LtiLaChannelTracker.mmuSidField:
-        return mmu?.mmuSid?.toString() ?? '';
+        return mmu?.mmuSid?.toRadixString(16) ?? '';
       case LtiLaChannelTracker.mmuSsidVField:
         return mmu?.mmuSsidV?.toString() ?? '';
       case LtiLaChannelTracker.mmuSsidField:
-        return mmu?.mmuSsid?.toString() ?? '';
+        return mmu?.mmuSsid?.toRadixString(16) ?? '';
       case LtiLaChannelTracker.mmuAtStField:
         return mmu?.mmuAtSt?.toString() ?? '';
       case LtiLaChannelTracker.mmuFlowField:
-        return mmu?.mmuFlow?.toString() ?? '';
+        return mmu?.mmuFlow?.toRadixString(16) ?? '';
       case LtiLaChannelTracker.mmuPasUnknownField:
         return mmu?.mmuPasUnknown?.toString() ?? '';
       case LtiLaChannelTracker.mmuPmField:
@@ -124,13 +127,13 @@ class LtiLaChannelPacket extends SequenceItem implements Trackable {
       case LtiLaChannelTracker.loopField:
         return debug?.loop?.toString() ?? '';
       case LtiLaChannelTracker.ogField:
-        return og?.toString() ?? '';
+        return og?.toRadixString(16) ?? '';
       case LtiLaChannelTracker.tlBlockField:
-        return tlBlock?.toString() ?? '';
+        return tlBlock?.toRadixString(16) ?? '';
       case LtiLaChannelTracker.identField:
-        return ident?.toString() ?? '';
+        return ident?.toRadixString(16) ?? '';
       case LtiLaChannelTracker.vcField:
-        return vc.toString();
+        return vc.toRadixString(16);
       default:
         return '';
     }
@@ -225,16 +228,18 @@ class LtiLrChannelPacket extends SequenceItem implements Trackable {
   @override
   String? trackerString(TrackerField field) {
     switch (field.title) {
+      case LtiLrChannelTracker.timeField:
+        return Simulator.time.toString();
       case LtiLrChannelTracker.addrField:
-        return addr.toString();
+        return addr.toRadixString(16);
       case LtiLrChannelTracker.hwAttrField:
-        return hwattr.toString();
+        return hwattr.toRadixString(16);
       case LtiLrChannelTracker.attrField:
-        return attr.toString();
+        return attr.toRadixString(16);
       case LtiLrChannelTracker.userField:
-        return user?.user?.toString() ?? '';
+        return user?.user?.toRadixString(16) ?? '';
       case LtiLrChannelTracker.idField:
-        return id?.id?.toString() ?? '';
+        return id?.id?.toRadixString(16) ?? '';
       case LtiLrChannelTracker.nseField:
         return prot?.nse?.toString() ?? '';
       case LtiLrChannelTracker.privField:
@@ -242,21 +247,21 @@ class LtiLrChannelPacket extends SequenceItem implements Trackable {
       case LtiLrChannelTracker.instField:
         return prot?.inst?.toString() ?? '';
       case LtiLrChannelTracker.pasField:
-        return prot?.pas?.toString() ?? '';
+        return prot?.pas?.toRadixString(16) ?? '';
       case LtiLrChannelTracker.loopField:
         return debug?.loop?.toString() ?? '';
       case LtiLrChannelTracker.respField:
-        return response?.resp?.toString() ?? '';
+        return response?.resp?.toRadixString(16) ?? '';
       case LtiLrChannelTracker.mecIdField:
-        return mecId?.toString() ?? '';
+        return mecId?.toRadixString(16) ?? '';
       case LtiLrChannelTracker.mpamField:
-        return mpam?.toString() ?? '';
+        return mpam?.toRadixString(16) ?? '';
       case LtiLrChannelTracker.ctagField:
-        return ctag?.toString() ?? '';
+        return ctag?.toRadixString(16) ?? '';
       case LtiLrChannelTracker.sizeField:
-        return size.toString();
+        return size.toRadixString(16);
       case LtiLrChannelTracker.vcField:
-        return vc.toString();
+        return vc.toRadixString(16);
       default:
         return '';
     }
@@ -307,10 +312,12 @@ class LtiLcChannelPacket extends SequenceItem implements Trackable {
   @override
   String? trackerString(TrackerField field) {
     switch (field.title) {
+      case LtiLcChannelTracker.timeField:
+        return Simulator.time.toString();
       case LtiLcChannelTracker.userField:
-        return user?.user?.toString() ?? '';
+        return user?.user?.toRadixString(16) ?? '';
       case LtiLcChannelTracker.tagField:
-        return tag.toString();
+        return tag.toRadixString(16);
       default:
         return '';
     }
@@ -350,10 +357,12 @@ class LtiLtChannelPacket extends SequenceItem implements Trackable {
   @override
   String? trackerString(TrackerField field) {
     switch (field.title) {
+      case LtiLtChannelTracker.timeField:
+        return Simulator.time.toString();
       case LtiLtChannelTracker.userField:
-        return user?.user?.toString() ?? '';
+        return user?.user?.toRadixString(16) ?? '';
       case LtiLtChannelTracker.tagField:
-        return tag.toString();
+        return tag.toRadixString(16);
       default:
         return '';
     }
