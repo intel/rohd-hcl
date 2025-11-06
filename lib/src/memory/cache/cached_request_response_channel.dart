@@ -244,7 +244,6 @@ class CachedRequestResponseChannel extends RequestResponseChannelBase {
 
     final forwardMissDownstream = upstreamReq.valid &
         (~cacheHit | resetCache) &
-        downstreamReq.ready &
         camSpaceAvailable &
         ~cacheWriteActive;
 
