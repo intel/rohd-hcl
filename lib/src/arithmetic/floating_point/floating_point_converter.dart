@@ -72,8 +72,7 @@ class FloatingPointConverter<FpTypeIn extends FloatingPoint,
     }
     destExponentWidth = destination.exponent.width;
     destMantissaWidth = destination.mantissa.width;
-    source = (source.clone(name: 'source') as FpTypeIn)
-      ..gets(addTypedInput('source', source));
+    source = addTypedInput('source', source);
 
     final destOut = addTypedOutput('destination',
         _destination.clone as FpTypeOut Function({String? name}));

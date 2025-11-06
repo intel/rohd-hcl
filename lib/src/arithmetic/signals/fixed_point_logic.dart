@@ -67,7 +67,7 @@ class FixedPoint extends LogicStructure {
       signed: signed,
       integerWidth: integerWidth,
       fractionWidth: fractionWidth,
-      name: name);
+      name: name ?? this.name);
 
   /// Cast logic to fixed point
   FixedPoint.of(Logic signal,

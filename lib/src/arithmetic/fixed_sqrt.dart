@@ -35,7 +35,7 @@ abstract class FixedPointSqrtBase extends Module {
         super(
             definitionName:
                 definitionName ?? 'FixedPointSquareRoot${a.width}') {
-    this.a = a.clone(name: 'a')..gets(addTypedInput('a', a));
+    this.a = addTypedInput('a', a);
 
     sqrt = addTypedOutput('sqrt', a.clone);
   }

@@ -69,7 +69,7 @@ abstract class FloatingPointSqrt<FpType extends FloatingPoint> extends Module {
     this.clk = (clk != null) ? addInput('clk', clk) : null;
     this.reset = (reset != null) ? addInput('reset', reset) : null;
     this.enable = (enable != null) ? addInput('enable', enable) : null;
-    this.a = (a.clone(name: 'a') as FpType)..gets(addTypedInput('a', a));
+    this.a = addTypedInput('a', a);
 
     sqrt = addTypedOutput('sqrt', a.clone as FpType Function({String? name}));
     addOutput('error');

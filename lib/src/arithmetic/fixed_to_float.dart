@@ -49,7 +49,7 @@ class FixedToFloat extends Module {
             definitionName: definitionName ??
                 'Fixed${fixed.width}ToFloat_E${outFloat.exponent.width}'
                     'M${outFloat.mantissa.width}') {
-    fixed = fixed.clone(name: 'fixed')..gets(addTypedInput('fixed', fixed));
+    fixed = addTypedInput('fixed', fixed);
 
     final fixedAsLogic = fixed.packed;
     final exponentWidth = outFloat.exponent.width;

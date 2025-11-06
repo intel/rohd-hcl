@@ -61,7 +61,7 @@ class FloatToFixed extends Module {
             definitionName: definitionName ??
                 'FloatE${float.exponent.width}'
                     'M${float.mantissa.width}ToFixed') {
-    float = float.clone()..gets(addTypedInput('float', float));
+    float = addTypedInput('float', float);
 
     final bias = float.floatingPointValue.bias;
     // E4M3 expands the max exponent by 1.

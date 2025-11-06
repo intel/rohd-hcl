@@ -84,8 +84,8 @@ abstract class FloatingPointAdder<FpTypeIn extends FloatingPoint,
     this.clk = (clk != null) ? addInput('clk', clk) : null;
     this.reset = (reset != null) ? addInput('reset', reset) : null;
     this.enable = (enable != null) ? addInput('enable', enable) : null;
-    this.a = (a.clone(name: 'a') as FpTypeIn)..gets(addTypedInput('a', a));
-    this.b = (b.clone(name: 'b') as FpTypeIn)..gets(addTypedInput('b', b));
+    this.a = addTypedInput('a', a);
+    this.b = addTypedInput('b', b);
 
     internalSum =
         (outSum ?? (a.explicitJBit ? b : a)).clone(name: 'outSum') as FpTypeOut;
