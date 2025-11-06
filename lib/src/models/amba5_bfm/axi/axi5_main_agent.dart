@@ -25,11 +25,11 @@ class Axi5MainArChannelAgent extends Agent {
   late final Sequencer<Axi5ArChannelPacket> sequencer;
 
   /// The number of cycles before timing out if no transactions can be sent.
-  final int timeoutCycles;
+  final int? timeoutCycles;
 
   /// The number of cycles before an objection will be dropped when there are
   /// no pending packets to send.
-  final int dropDelayCycles;
+  final int? dropDelayCycles;
 
   /// Constructs a new [Axi5MainArChannelAgent].
   Axi5MainArChannelAgent({
@@ -37,8 +37,8 @@ class Axi5MainArChannelAgent extends Agent {
     required this.ar,
     required Component parent,
     String name = 'axi5MainArChannelAgent',
-    this.timeoutCycles = 500,
-    this.dropDelayCycles = 30,
+    this.timeoutCycles,
+    this.dropDelayCycles,
   }) : super(name, parent) {
     sequencer =
         Sequencer<Axi5ArChannelPacket>('axi5MainArChannelAgentSequencer', this);
@@ -110,11 +110,11 @@ class Axi5MainAwChannelAgent extends Agent {
   late final Sequencer<Axi5AwChannelPacket> sequencer;
 
   /// The number of cycles before timing out if no transactions can be sent.
-  final int timeoutCycles;
+  final int? timeoutCycles;
 
   /// The number of cycles before an objection will be dropped when there are
   /// no pending packets to send.
-  final int dropDelayCycles;
+  final int? dropDelayCycles;
 
   /// Constructs a new [Axi5MainAwChannelAgent].
   Axi5MainAwChannelAgent({
@@ -122,8 +122,8 @@ class Axi5MainAwChannelAgent extends Agent {
     required this.aw,
     required Component parent,
     String name = 'axi5MainAwChannelAgent',
-    this.timeoutCycles = 500,
-    this.dropDelayCycles = 30,
+    this.timeoutCycles,
+    this.dropDelayCycles,
   }) : super(name, parent) {
     sequencer =
         Sequencer<Axi5AwChannelPacket>('axi5MainAwChannelAgentSequencer', this);
@@ -154,11 +154,11 @@ class Axi5MainWChannelAgent extends Agent {
   late final Sequencer<Axi5WChannelPacket> sequencer;
 
   /// The number of cycles before timing out if no transactions can be sent.
-  final int timeoutCycles;
+  final int? timeoutCycles;
 
   /// The number of cycles before an objection will be dropped when there are
   /// no pending packets to send.
-  final int dropDelayCycles;
+  final int? dropDelayCycles;
 
   /// Constructs a new [Axi5MainWChannelAgent].
   Axi5MainWChannelAgent({
@@ -166,8 +166,8 @@ class Axi5MainWChannelAgent extends Agent {
     required this.w,
     required Component parent,
     String name = 'axi5MainWChannelAgent',
-    this.timeoutCycles = 500,
-    this.dropDelayCycles = 30,
+    this.timeoutCycles,
+    this.dropDelayCycles,
   }) : super(name, parent) {
     sequencer =
         Sequencer<Axi5WChannelPacket>('axi5MainWChannelAgentSequencer', this);
@@ -280,11 +280,11 @@ class Axi5MainCrChannelAgent extends Agent {
   late final Sequencer<Axi5CrChannelPacket> sequencer;
 
   /// The number of cycles before timing out if no transactions can be sent.
-  final int timeoutCycles;
+  final int? timeoutCycles;
 
   /// The number of cycles before an objection will be dropped when there are
   /// no pending packets to send.
-  final int dropDelayCycles;
+  final int? dropDelayCycles;
 
   /// Constructs a new [Axi5MainCrChannelAgent].
   Axi5MainCrChannelAgent({
@@ -292,8 +292,8 @@ class Axi5MainCrChannelAgent extends Agent {
     required this.cr,
     required Component parent,
     String name = 'axi5MainCrChannelAgent',
-    this.timeoutCycles = 500,
-    this.dropDelayCycles = 30,
+    this.timeoutCycles,
+    this.dropDelayCycles,
   }) : super(name, parent) {
     sequencer =
         Sequencer<Axi5CrChannelPacket>('axi5MainCrChannelAgentSequencer', this);
@@ -327,11 +327,11 @@ class Axi5MainReadClusterAgent extends Agent {
   late final Axi5MainRChannelAgent dataAgent;
 
   /// The number of cycles before timing out if no transactions can be sent.
-  final int timeoutCycles;
+  final int? timeoutCycles;
 
   /// The number of cycles before an objection will be dropped when there are
   /// no pending packets to send.
-  final int dropDelayCycles;
+  final int? dropDelayCycles;
 
   /// the frequency with which the ready signal should be driven.
   final num readyFrequency;
@@ -346,8 +346,8 @@ class Axi5MainReadClusterAgent extends Agent {
     required this.r,
     required Component parent,
     String name = 'axi5MainReadClusterAgent',
-    this.timeoutCycles = 500,
-    this.dropDelayCycles = 30,
+    this.timeoutCycles,
+    this.dropDelayCycles,
     this.readyFrequency = 1.0,
     this.useCredit = false,
   }) : super(name, parent) {
@@ -390,11 +390,11 @@ class Axi5MainWriteClusterAgent extends Agent {
   late final Axi5MainBChannelAgent respAgent;
 
   /// The number of cycles before timing out if no transactions can be sent.
-  final int timeoutCycles;
+  final int? timeoutCycles;
 
   /// The number of cycles before an objection will be dropped when there are
   /// no pending packets to send.
-  final int dropDelayCycles;
+  final int? dropDelayCycles;
 
   /// the frequency with which the ready signal should be driven.
   final num readyFrequency;
@@ -410,8 +410,8 @@ class Axi5MainWriteClusterAgent extends Agent {
     required this.b,
     required Component parent,
     String name = 'axi5MainWriteClusterAgent',
-    this.timeoutCycles = 500,
-    this.dropDelayCycles = 30,
+    this.timeoutCycles,
+    this.dropDelayCycles,
     this.readyFrequency = 1.0,
     this.useCredit = false,
   }) : super(name, parent) {
@@ -454,11 +454,11 @@ class Axi5MainSnoopClusterAgent extends Agent {
   late final Axi5MainCrChannelAgent respAgent;
 
   /// The number of cycles before timing out if no transactions can be sent.
-  final int timeoutCycles;
+  final int? timeoutCycles;
 
   /// The number of cycles before an objection will be dropped when there are
   /// no pending packets to send.
-  final int dropDelayCycles;
+  final int? dropDelayCycles;
 
   /// the frequency with which the ready signal should be driven.
   final num readyFrequency;
@@ -473,8 +473,8 @@ class Axi5MainSnoopClusterAgent extends Agent {
     required this.cr,
     required Component parent,
     String name = 'axi5MainSnoopClusterAgent',
-    this.timeoutCycles = 500,
-    this.dropDelayCycles = 30,
+    this.timeoutCycles,
+    this.dropDelayCycles,
     this.readyFrequency = 1.0,
     this.useCredit = false,
   }) : super(name, parent) {
@@ -529,11 +529,11 @@ class Axi5MainClusterAgent extends Agent {
   late final Axi5MainSnoopClusterAgent? snoop;
 
   /// The number of cycles before timing out if no transactions can be sent.
-  final int timeoutCycles;
+  final int? timeoutCycles;
 
   /// The number of cycles before an objection will be dropped when there are
   /// no pending packets to send.
-  final int dropDelayCycles;
+  final int? dropDelayCycles;
 
   /// the frequency with which the ready signal should be driven.
   final num readyFrequency;
@@ -553,8 +553,8 @@ class Axi5MainClusterAgent extends Agent {
     this.ac,
     this.cr,
     String name = 'axi5MainClusterAgent',
-    this.timeoutCycles = 500,
-    this.dropDelayCycles = 30,
+    this.timeoutCycles,
+    this.dropDelayCycles,
     this.readyFrequency = 1.0,
     this.useCredit = false,
     bool useSnoop = false,

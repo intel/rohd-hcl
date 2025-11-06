@@ -25,11 +25,11 @@ class Axi5StreamMainAgent extends Agent {
   late final Sequencer<Axi5StreamPacket> sequencer;
 
   /// The number of cycles before timing out if no transactions can be sent.
-  final int timeoutCycles;
+  final int? timeoutCycles;
 
   /// The number of cycles before an objection will be dropped when there are
   /// no pending packets to send.
-  final int dropDelayCycles;
+  final int? dropDelayCycles;
 
   /// Constructs a new [Axi5StreamMainAgent].
   Axi5StreamMainAgent({
@@ -37,8 +37,8 @@ class Axi5StreamMainAgent extends Agent {
     required this.stream,
     required Component parent,
     String name = 'axi5StreamMainAgent',
-    this.timeoutCycles = 500,
-    this.dropDelayCycles = 30,
+    this.timeoutCycles,
+    this.dropDelayCycles,
   }) : super(name, parent) {
     sequencer = Sequencer<Axi5StreamPacket>('axi5StreamMainSequencer', this);
     driver = Axi5StreamDriver(

@@ -28,11 +28,11 @@ class LtiMainLaChannelAgent extends Agent {
   late final LtiCreditMonitor monitor;
 
   /// The number of cycles before timing out if no transactions can be sent.
-  final int timeoutCycles;
+  final int? timeoutCycles;
 
   /// The number of cycles before an objection will be dropped when there are
   /// no pending packets to send.
-  final int dropDelayCycles;
+  final int? dropDelayCycles;
 
   /// Constructs a new [LtiMainLaChannelAgent].
   LtiMainLaChannelAgent({
@@ -40,8 +40,8 @@ class LtiMainLaChannelAgent extends Agent {
     required this.la,
     required Component parent,
     String name = 'ltiMainLaChannelAgent',
-    this.timeoutCycles = 500,
-    this.dropDelayCycles = 30,
+    this.timeoutCycles,
+    this.dropDelayCycles,
   }) : super(name, parent) {
     sequencer =
         Sequencer<LtiLaChannelPacket>('ltiMainLaChannelAgentSequencer', this);
@@ -115,11 +115,11 @@ class LtiMainLcChannelAgent extends Agent {
   late final LtiCreditMonitor monitor;
 
   /// The number of cycles before timing out if no transactions can be sent.
-  final int timeoutCycles;
+  final int? timeoutCycles;
 
   /// The number of cycles before an objection will be dropped when there are
   /// no pending packets to send.
-  final int dropDelayCycles;
+  final int? dropDelayCycles;
 
   /// Constructs a new [LtiMainLcChannelAgent].
   LtiMainLcChannelAgent({
@@ -127,8 +127,8 @@ class LtiMainLcChannelAgent extends Agent {
     required this.lc,
     required Component parent,
     String name = 'ltiMainLcChannelAgent',
-    this.timeoutCycles = 500,
-    this.dropDelayCycles = 30,
+    this.timeoutCycles,
+    this.dropDelayCycles,
   }) : super(name, parent) {
     sequencer =
         Sequencer<LtiLcChannelPacket>('ltiMainLcChannelAgentSequencer', this);
@@ -220,11 +220,11 @@ class LtiMainClusterAgent extends Agent {
   late final LtiManagementMainDriver manDriver;
 
   /// The number of cycles before timing out if no transactions can be sent.
-  final int timeoutCycles;
+  final int? timeoutCycles;
 
   /// The number of cycles before an objection will be dropped when there are
   /// no pending packets to send.
-  final int dropDelayCycles;
+  final int? dropDelayCycles;
 
   /// Constructs a new [LtiMainClusterAgent].
   LtiMainClusterAgent({
@@ -236,8 +236,8 @@ class LtiMainClusterAgent extends Agent {
     required Component parent,
     this.lt,
     String name = 'ltiMainClusterAgent',
-    this.timeoutCycles = 500,
-    this.dropDelayCycles = 30,
+    this.timeoutCycles,
+    this.dropDelayCycles,
   }) : super(name, parent) {
     reqAgent = LtiMainLaChannelAgent(
         sys: sys,
@@ -317,11 +317,11 @@ class LtiSubordinateLrChannelAgent extends Agent {
   late final LtiCreditMonitor monitor;
 
   /// The number of cycles before timing out if no transactions can be sent.
-  final int timeoutCycles;
+  final int? timeoutCycles;
 
   /// The number of cycles before an objection will be dropped when there are
   /// no pending packets to send.
-  final int dropDelayCycles;
+  final int? dropDelayCycles;
 
   /// Constructs a new [LtiSubordinateLrChannelAgent].
   LtiSubordinateLrChannelAgent({
@@ -329,8 +329,8 @@ class LtiSubordinateLrChannelAgent extends Agent {
     required this.lr,
     required Component parent,
     String name = 'ltiSubordinateLrChannelAgent',
-    this.timeoutCycles = 500,
-    this.dropDelayCycles = 30,
+    this.timeoutCycles,
+    this.dropDelayCycles,
   }) : super(name, parent) {
     sequencer = Sequencer<LtiLrChannelPacket>(
         'ltiSubordinateLrChannelAgentSequencer', this);
@@ -404,11 +404,11 @@ class LtiSubordinateLtChannelAgent extends Agent {
   late final LtiCreditMonitor monitor;
 
   /// The number of cycles before timing out if no transactions can be sent.
-  final int timeoutCycles;
+  final int? timeoutCycles;
 
   /// The number of cycles before an objection will be dropped when there are
   /// no pending packets to send.
-  final int dropDelayCycles;
+  final int? dropDelayCycles;
 
   /// Constructs a new [LtiSubordinateLtChannelAgent].
   LtiSubordinateLtChannelAgent({
@@ -416,8 +416,8 @@ class LtiSubordinateLtChannelAgent extends Agent {
     required this.lt,
     required Component parent,
     String name = 'ltiSubordinateLtChannelAgent',
-    this.timeoutCycles = 500,
-    this.dropDelayCycles = 30,
+    this.timeoutCycles,
+    this.dropDelayCycles,
   }) : super(name, parent) {
     sequencer = Sequencer<LtiLtChannelPacket>(
         'ltiSubordinateLtChannelAgentSequencer', this);
@@ -471,11 +471,11 @@ class LtiSubordinateClusterAgent extends Agent {
   late final LtiManagementSubDriver manDriver;
 
   /// The number of cycles before timing out if no transactions can be sent.
-  final int timeoutCycles;
+  final int? timeoutCycles;
 
   /// The number of cycles before an objection will be dropped when there are
   /// no pending packets to send.
-  final int dropDelayCycles;
+  final int? dropDelayCycles;
 
   /// Constructs a new [LtiSubordinateClusterAgent].
   LtiSubordinateClusterAgent({
@@ -487,8 +487,8 @@ class LtiSubordinateClusterAgent extends Agent {
     required Component parent,
     this.lt,
     String name = 'ltiSubordinateClusterAgent',
-    this.timeoutCycles = 500,
-    this.dropDelayCycles = 30,
+    this.timeoutCycles,
+    this.dropDelayCycles,
   }) : super(name, parent) {
     reqAgent = LtiSubordinateLaChannelAgent(
       sys: sys,
