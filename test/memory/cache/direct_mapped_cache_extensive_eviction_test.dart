@@ -5,6 +5,7 @@
 // Extensive tests for DirectMappedCache eviction port functionality.
 //
 // 2025 November 3
+// Author: Desmond Kirkpatrick <desmond.a.kirkpatrick@intel.com>
 
 import 'dart:async';
 import 'package:rohd/rohd.dart';
@@ -12,39 +13,42 @@ import 'package:rohd_hcl/rohd_hcl.dart';
 import 'package:rohd_vf/rohd_vf.dart';
 import 'package:test/test.dart';
 
+import 'cache_test.dart';
+
 void main() {
   tearDown(() async {
     await Simulator.reset();
   });
+
+  Cache constructCache(Logic clk, Logic reset, CachePorts cp,
+          {int ways = 4, int lines = 16}) =>
+      DirectMappedCache(clk, reset, cp.fillPorts, cp.readPorts,
+          evictions: cp.evictionPorts.isNotEmpty ? cp.evictionPorts : null,
+          lines: lines);
+
+  Future<void> resetAll(Logic clk, Logic reset, CachePorts cp) async {
+    cp.reset();
+    reset.inject(1);
+    await clk.nextPosedge;
+    reset.inject(0);
+    await clk.waitCycles(2);
+  }
 
   group('DirectMappedCache extensive eviction tests', () {
     test('sequential evictions across all lines', () async {
       final clk = SimpleClockGenerator(10).clk;
       final reset = Logic();
 
-      final fillPort = ValidDataPortInterface(8, 8);
-      final readPort = ValidDataPortInterface(8, 8);
-      final evictionPort = ValidDataPortInterface(8, 8);
-
-      final cache = DirectMappedCache(clk, reset, [fillPort], [readPort],
-          evictions: [evictionPort], lines: 8);
-
+// HACK:  fails with more than 1 fill/read/eviction port
+      final cp = makeCachePorts(8, 8, numFills: 1, numEvictions: 1);
+      final cache = constructCache(clk, reset, cp, lines: 8);
       await cache.build();
       unawaited(Simulator.run());
 
-      // Reset
-      reset.inject(1);
-      fillPort.en.inject(0);
-      fillPort.valid.inject(0);
-      fillPort.addr.inject(0);
-      fillPort.data.inject(0);
-      readPort.en.inject(0);
-      readPort.addr.inject(0);
-      await clk.waitCycles(2);
+      await resetAll(clk, reset, cp);
 
-      reset.inject(0);
-      await clk.waitCycles(1);
-
+      final fillPort = cp.fillPorts[0];
+      final evictionPort = cp.evictionPorts[0];
       // Fill all 8 lines with initial data
       for (var line = 0; line < 8; line++) {
         fillPort.en.inject(1);
@@ -98,28 +102,17 @@ void main() {
       final clk = SimpleClockGenerator(10).clk;
       final reset = Logic();
 
-      final fillPort = ValidDataPortInterface(8, 8);
-      final readPort = ValidDataPortInterface(8, 8);
-      final evictionPort = ValidDataPortInterface(8, 8);
-
-      final cache = DirectMappedCache(clk, reset, [fillPort], [readPort],
-          evictions: [evictionPort], lines: 4);
-
+      final cp =
+          makeCachePorts(8, 8, numReads: 1, numFills: 1, numEvictions: 1);
+      final cache = constructCache(clk, reset, cp, lines: 4);
       await cache.build();
       unawaited(Simulator.run());
 
-      // Reset
-      reset.inject(1);
-      fillPort.en.inject(0);
-      fillPort.valid.inject(0);
-      fillPort.addr.inject(0);
-      fillPort.data.inject(0);
-      readPort.en.inject(0);
-      readPort.addr.inject(0);
-      await clk.waitCycles(2);
+      await resetAll(clk, reset, cp);
 
-      reset.inject(0);
-      await clk.waitCycles(1);
+      // // Reset
+      final fillPort = cp.fillPorts[0];
+      final evictionPort = cp.evictionPorts[0];
 
       // Repeatedly write to addresses that map to line 0
       // Addresses: 0x00, 0x04, 0x08, 0x0C all map to line 0 (line = addr & 0x3)
@@ -172,28 +165,18 @@ void main() {
       final clk = SimpleClockGenerator(10).clk;
       final reset = Logic();
 
-      final fillPort = ValidDataPortInterface(8, 8);
-      final readPort = ValidDataPortInterface(8, 8);
-      final evictionPort = ValidDataPortInterface(8, 8);
-
-      final cache = DirectMappedCache(clk, reset, [fillPort], [readPort],
-          evictions: [evictionPort], lines: 4);
-
+      final cp =
+          makeCachePorts(8, 8, numReads: 1, numFills: 1, numEvictions: 1);
+      final cache = constructCache(clk, reset, cp, lines: 4);
       await cache.build();
       unawaited(Simulator.run());
 
-      // Reset
-      reset.inject(1);
-      fillPort.en.inject(0);
-      fillPort.valid.inject(0);
-      fillPort.addr.inject(0);
-      fillPort.data.inject(0);
-      readPort.en.inject(0);
-      readPort.addr.inject(0);
-      await clk.waitCycles(2);
+      await resetAll(clk, reset, cp);
 
-      reset.inject(0);
       await clk.waitCycles(1);
+      final fillPort = cp.fillPorts[0];
+      final readPort = cp.readPorts[0];
+      final evictionPort = cp.evictionPorts[0];
 
       // Scenario: Fill -> Hit (update) -> Miss (evict) -> Hit (update)
 
@@ -294,28 +277,18 @@ void main() {
       final clk = SimpleClockGenerator(10).clk;
       final reset = Logic();
 
-      final fillPort = ValidDataPortInterface(8, 8);
-      final readPort = ValidDataPortInterface(8, 8);
-      final evictionPort = ValidDataPortInterface(8, 8);
-
-      final cache = DirectMappedCache(clk, reset, [fillPort], [readPort],
-          evictions: [evictionPort], lines: 4);
-
+      final cp =
+          makeCachePorts(8, 8, numReads: 1, numFills: 1, numEvictions: 1);
+      final cache = constructCache(clk, reset, cp, lines: 4);
       await cache.build();
       unawaited(Simulator.run());
 
-      // Reset
-      reset.inject(1);
-      fillPort.en.inject(0);
-      fillPort.valid.inject(0);
-      fillPort.addr.inject(0);
-      fillPort.data.inject(0);
-      readPort.en.inject(0);
-      readPort.addr.inject(0);
-      await clk.waitCycles(2);
+      await resetAll(clk, reset, cp);
 
-      reset.inject(0);
       await clk.waitCycles(1);
+      final fillPort = cp.fillPorts[0];
+      final readPort = cp.readPorts[0];
+      final evictionPort = cp.evictionPorts[0];
 
       // Fill multiple lines
       final addresses = [0x20, 0x31, 0x42, 0x53];
@@ -368,28 +341,18 @@ void main() {
       final clk = SimpleClockGenerator(10).clk;
       final reset = Logic();
 
-      final fillPort = ValidDataPortInterface(8, 8);
-      final readPort = ValidDataPortInterface(8, 8);
-      final evictionPort = ValidDataPortInterface(8, 8);
-
-      final cache = DirectMappedCache(clk, reset, [fillPort], [readPort],
-          evictions: [evictionPort], lines: 4);
-
+      final cp =
+          makeCachePorts(8, 8, numReads: 1, numFills: 1, numEvictions: 1);
+      final cache = constructCache(clk, reset, cp, lines: 4);
       await cache.build();
       unawaited(Simulator.run());
 
-      // Reset
-      reset.inject(1);
-      fillPort.en.inject(0);
-      fillPort.valid.inject(0);
-      fillPort.addr.inject(0);
-      fillPort.data.inject(0);
-      readPort.en.inject(0);
-      readPort.addr.inject(0);
-      await clk.waitCycles(2);
+      await resetAll(clk, reset, cp);
 
-      reset.inject(0);
       await clk.waitCycles(1);
+      final fillPort = cp.fillPorts[0];
+      final readPort = cp.readPorts[0];
+      final evictionPort = cp.evictionPorts[0];
 
       // Try to invalidate non-existent entry (should not evict)
       fillPort.en.inject(1);
@@ -444,35 +407,18 @@ void main() {
       final clk = SimpleClockGenerator(10).clk;
       final reset = Logic();
 
-      final fillPort0 = ValidDataPortInterface(8, 8);
-      final fillPort1 = ValidDataPortInterface(8, 8);
-      final readPort = ValidDataPortInterface(8, 8);
-      final evictionPort0 = ValidDataPortInterface(8, 8);
-      final evictionPort1 = ValidDataPortInterface(8, 8);
-
-      final cache = DirectMappedCache(
-          clk, reset, [fillPort0, fillPort1], [readPort],
-          evictions: [evictionPort0, evictionPort1], lines: 4);
-
+      final cp = makeCachePorts(8, 8, numReads: 1);
+      final cache = constructCache(clk, reset, cp, lines: 4);
       await cache.build();
       unawaited(Simulator.run());
 
-      // Reset
-      reset.inject(1);
-      fillPort0.en.inject(0);
-      fillPort0.valid.inject(0);
-      fillPort0.addr.inject(0);
-      fillPort0.data.inject(0);
-      fillPort1.en.inject(0);
-      fillPort1.valid.inject(0);
-      fillPort1.addr.inject(0);
-      fillPort1.data.inject(0);
-      readPort.en.inject(0);
-      readPort.addr.inject(0);
-      await clk.waitCycles(2);
+      await resetAll(clk, reset, cp);
 
-      reset.inject(0);
       await clk.waitCycles(1);
+      final fillPort0 = cp.fillPorts[0];
+      final fillPort1 = cp.fillPorts[1];
+      final evictionPort0 = cp.evictionPorts[0];
+      final evictionPort1 = cp.evictionPorts[1];
 
       // Fill using port 0
       fillPort0.en.inject(1);
@@ -537,29 +483,17 @@ void main() {
       final clk = SimpleClockGenerator(10).clk;
       final reset = Logic();
 
-      final fillPort = ValidDataPortInterface(8, 8);
-      final readPort = ValidDataPortInterface(8, 8);
-      final evictionPort = ValidDataPortInterface(8, 8);
-
-      // 8 lines means 3-bit line address, 5-bit tag
-      final cache = DirectMappedCache(clk, reset, [fillPort], [readPort],
-          evictions: [evictionPort], lines: 8);
-
+      final cp =
+          makeCachePorts(8, 8, numReads: 1, numFills: 1, numEvictions: 1);
+      final cache = constructCache(clk, reset, cp, lines: 4);
       await cache.build();
       unawaited(Simulator.run());
 
-      // Reset
-      reset.inject(1);
-      fillPort.en.inject(0);
-      fillPort.valid.inject(0);
-      fillPort.addr.inject(0);
-      fillPort.data.inject(0);
-      readPort.en.inject(0);
-      readPort.addr.inject(0);
-      await clk.waitCycles(2);
+      await resetAll(clk, reset, cp);
 
-      reset.inject(0);
       await clk.waitCycles(1);
+      final fillPort = cp.fillPorts[0];
+      final evictionPort = cp.evictionPorts[0];
 
       // Test various addresses to verify tag reconstruction
       final testCases = [
@@ -613,28 +547,18 @@ void main() {
       final clk = SimpleClockGenerator(10).clk;
       final reset = Logic();
 
-      final fillPort = ValidDataPortInterface(8, 8);
-      final readPort = ValidDataPortInterface(8, 8);
-      final evictionPort = ValidDataPortInterface(8, 8);
-
-      final cache = DirectMappedCache(clk, reset, [fillPort], [readPort],
-          evictions: [evictionPort], lines: 4);
-
+      final cp =
+          makeCachePorts(8, 8, numReads: 1, numFills: 1, numEvictions: 1);
+      final cache = constructCache(clk, reset, cp, lines: 4);
       await cache.build();
       unawaited(Simulator.run());
 
-      // Reset
-      reset.inject(1);
-      fillPort.en.inject(0);
-      fillPort.valid.inject(0);
-      fillPort.addr.inject(0);
-      fillPort.data.inject(0);
-      readPort.en.inject(0);
-      readPort.addr.inject(0);
-      await clk.waitCycles(2);
+      await resetAll(clk, reset, cp);
 
-      reset.inject(0);
       await clk.waitCycles(1);
+      final fillPort = cp.fillPorts[0];
+      final readPort = cp.readPorts[0];
+      final evictionPort = cp.evictionPorts[0];
 
       // Perform 20 operations alternating between fills, invalidations, and
       // conflicts.
@@ -686,28 +610,17 @@ void main() {
       final clk = SimpleClockGenerator(10).clk;
       final reset = Logic();
 
-      final fillPort = ValidDataPortInterface(8, 8);
-      final readPort = ValidDataPortInterface(8, 8);
-      final evictionPort = ValidDataPortInterface(8, 8);
-
-      final cache = DirectMappedCache(clk, reset, [fillPort], [readPort],
-          evictions: [evictionPort], lines: 4);
-
+      final cp =
+          makeCachePorts(8, 8, numReads: 1, numFills: 1, numEvictions: 1);
+      final cache = constructCache(clk, reset, cp, lines: 4);
       await cache.build();
       unawaited(Simulator.run());
 
-      // Reset
-      reset.inject(1);
-      fillPort.en.inject(0);
-      fillPort.valid.inject(0);
-      fillPort.addr.inject(0);
-      fillPort.data.inject(0);
-      readPort.en.inject(0);
-      readPort.addr.inject(0);
-      await clk.waitCycles(2);
+      await resetAll(clk, reset, cp);
 
-      reset.inject(0);
       await clk.waitCycles(1);
+      final fillPort = cp.fillPorts[0];
+      final evictionPort = cp.evictionPorts[0];
 
       // Fill entry
       fillPort.en.inject(1);

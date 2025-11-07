@@ -17,8 +17,8 @@
 //
 // Total: 4 (basic) + 2 (narrow) + 2 (eviction) + 10 (common) = 18 tests
 //
-// 2025 September 10 Author: Desmond Kirkpatrick
-// <desmond.a.kirkpatrick@intel.com>
+// 2025 September 10
+// Author: Desmond Kirkpatrick <desmond.a.kirkpatrick@intel.com>
 
 import 'dart:async';
 
@@ -27,60 +27,48 @@ import 'package:rohd_hcl/rohd_hcl.dart';
 import 'package:rohd_vf/rohd_vf.dart';
 import 'package:test/test.dart';
 
+import 'cache_test.dart';
+
 void main() {
   tearDown(() async {
     await Simulator.reset();
   });
 
+  Cache constructCache(Logic clk, Logic reset, CachePorts cp,
+          {int ways = 4, int lines = 16}) =>
+      SetAssociativeCache(clk, reset, cp.fillPorts, cp.readPorts,
+          evictions: cp.evictionPorts.isNotEmpty ? cp.evictionPorts : null,
+          ways: ways,
+          lines: lines);
+
+  Future<void> resetAll(Logic clk, Logic reset, CachePorts cp) async {
+    cp.reset();
+    reset.inject(1);
+    await clk.nextPosedge;
+    reset.inject(0);
+    await clk.waitCycles(2);
+  }
+
   group('SetAssociativeCache basic tests', () {
     test('instantiate cache', () async {
       final clk = SimpleClockGenerator(10).clk;
-
       final reset = Logic();
-      final fillPort = ValidDataPortInterface(8, 16);
-      final rdPort = ValidDataPortInterface(8, 16);
-
-      final cache = SetAssociativeCache(clk, reset, [fillPort], [rdPort],
-          ways: 4, lines: 8);
-
+      final cp = makeCachePorts(8, 16);
+      final cache = constructCache(clk, reset, cp, lines: 8);
       await cache.build();
     });
 
     test('Cache smoke test', () async {
       final clk = SimpleClockGenerator(10).clk;
-
       final reset = Logic();
-
-      final fillPort = ValidDataPortInterface(8, 16);
-      final fillPort2 = ValidDataPortInterface(8, 16);
-      final rdPort = ValidDataPortInterface(8, 16);
-      final rdPort2 = ValidDataPortInterface(8, 16);
-
-      final cache = SetAssociativeCache(
-          clk, reset, [fillPort, fillPort2], [rdPort, rdPort2],
-          ways: 4, lines: 51);
+      final cp = makeCachePorts(8, 16);
+      final cache = constructCache(clk, reset, cp, lines: 8);
+      final fillPort = cp.fillPorts[0];
+      final rdPort = cp.readPorts[0];
 
       await cache.build();
       unawaited(Simulator.run());
-
-      await clk.waitCycles(2);
-
-      fillPort.en.inject(0);
-      fillPort.valid.inject(0);
-      rdPort.en.inject(0);
-      fillPort.addr.inject(0);
-      fillPort.data.inject(0);
-      rdPort.addr.inject(0);
-      fillPort2.en.inject(0);
-      fillPort2.valid.inject(0);
-      rdPort2.en.inject(0);
-      fillPort2.addr.inject(0);
-      fillPort2.data.inject(0);
-      rdPort2.addr.inject(0);
-      reset.inject(1);
-      await clk.nextPosedge;
-      reset.inject(0);
-      await clk.waitCycles(2);
+      await resetAll(clk, reset, cp);
 
       // write 0x41 to address 1111
       fillPort.en.inject(1);
@@ -111,39 +99,18 @@ void main() {
 
     test('Cache pathology double-write, double-read same location', () async {
       final clk = SimpleClockGenerator(10).clk;
-
       final reset = Logic();
+      final cp = makeCachePorts(8, 16);
+      final cache = constructCache(clk, reset, cp);
 
-      final fillPort = ValidDataPortInterface(8, 16);
-      final fillPort2 = ValidDataPortInterface(8, 16);
-      final rdPort = ValidDataPortInterface(8, 16);
-      final rdPort2 = ValidDataPortInterface(8, 16);
-
-      final cache = SetAssociativeCache(
-          clk, reset, [fillPort, fillPort2], [rdPort, rdPort2],
-          ways: 4, lines: 51);
+      final fillPort = cp.fillPorts[0];
+      final fillPort2 = cp.fillPorts[1];
+      final rdPort = cp.readPorts[0];
+      final rdPort2 = cp.readPorts[1];
 
       await cache.build();
       unawaited(Simulator.run());
-
-      await clk.waitCycles(2);
-
-      fillPort.en.inject(0);
-      fillPort.valid.inject(0);
-      rdPort.en.inject(0);
-      fillPort.addr.inject(0);
-      fillPort.data.inject(0);
-      rdPort.addr.inject(0);
-      fillPort2.en.inject(0);
-      fillPort2.valid.inject(0);
-      rdPort2.en.inject(0);
-      fillPort2.addr.inject(0);
-      fillPort2.data.inject(0);
-      rdPort2.addr.inject(0);
-      reset.inject(1);
-      await clk.nextPosedge;
-      reset.inject(0);
-      await clk.waitCycles(2);
+      await resetAll(clk, reset, cp);
 
       // write 0x41 to address 1111
       fillPort.en.inject(1);
@@ -181,39 +148,16 @@ void main() {
 
     test('Cache invalidate singleton test', () async {
       final clk = SimpleClockGenerator(10).clk;
-
       final reset = Logic();
+      final cp = makeCachePorts(8, 16);
+      final cache = constructCache(clk, reset, cp);
 
-      final fillPort = ValidDataPortInterface(8, 16);
-      final fillPort2 = ValidDataPortInterface(8, 16);
-      final rdPort = ValidDataPortInterface(8, 16);
-      final rdPort2 = ValidDataPortInterface(8, 16);
-
-      final cache = SetAssociativeCache(
-          clk, reset, [fillPort, fillPort2], [rdPort, rdPort2],
-          ways: 4, lines: 51);
+      final fillPort = cp.fillPorts[0];
+      final rdPort = cp.readPorts[0];
 
       await cache.build();
       unawaited(Simulator.run());
-
-      await clk.waitCycles(2);
-
-      fillPort.en.inject(0);
-      fillPort.valid.inject(0);
-      rdPort.en.inject(0);
-      fillPort.addr.inject(0);
-      fillPort.data.inject(0);
-      rdPort.addr.inject(0);
-      fillPort2.en.inject(0);
-      fillPort2.valid.inject(0);
-      rdPort2.en.inject(0);
-      fillPort2.addr.inject(0);
-      fillPort2.data.inject(0);
-      rdPort2.addr.inject(0);
-      reset.inject(1);
-      await clk.nextPosedge;
-      reset.inject(0);
-      await clk.waitCycles(2);
+      await resetAll(clk, reset, cp);
 
       // write 0x42 to address 1111
       fillPort.en.inject(1);
@@ -256,7 +200,7 @@ void main() {
 
   group('Cache narrow tests', () {
     const dataWidth = 4;
-    const addrWidth = 7;
+    const addrWidth = 4;
     const ways = 4;
     final lines = BigInt.two.pow(addrWidth).toInt() ~/ ways;
     final lineAddrWith = log2Ceil(lines);
@@ -265,29 +209,19 @@ void main() {
     test('Cache singleton 2 writes then reads test', () async {
       final clk = SimpleClockGenerator(10).clk;
       final reset = Logic();
+      final cp = makeCachePorts(dataWidth, addrWidth);
+      final cache = constructCache(clk, reset, cp);
 
-      final fillPort = ValidDataPortInterface(dataWidth, addrWidth);
-      final rdPort = ValidDataPortInterface(dataWidth, addrWidth);
-
-      final cache = SetAssociativeCache(clk, reset, [fillPort], [rdPort],
-          ways: ways, lines: lines);
+      final fillPort = cp.fillPorts[0];
+      final rdPort = cp.readPorts[0];
 
       await cache.build();
       unawaited(Simulator.run());
 
-      await clk.waitCycles(2);
-      rdPort.en.inject(0);
-      rdPort.addr.inject(0);
-      fillPort.en.inject(0);
-      fillPort.addr.inject(0);
-      fillPort.data.inject(0);
-      reset.inject(1);
-      await clk.nextPosedge;
-      reset.inject(0);
-      await clk.waitCycles(2);
+      await resetAll(clk, reset, cp);
 
       // write data to address addr
-      const first = 0x20;
+      const first = 0x2;
       fillPort.en.inject(1);
       fillPort.valid.inject(1);
       fillPort.addr.inject(first);
@@ -296,7 +230,7 @@ void main() {
       fillPort.en.inject(0);
       await clk.waitCycles(3);
 
-      const second = 0x40;
+      const second = 0x4;
       fillPort.addr.inject(second);
       fillPort.data.inject(7);
       fillPort.en.inject(1);
@@ -326,15 +260,13 @@ void main() {
 
     test('Cache writes then reads test', () async {
       final clk = SimpleClockGenerator(10).clk;
-
       final reset = Logic();
-      final fillPort = ValidDataPortInterface(dataWidth, addrWidth);
-      final rdPort = ValidDataPortInterface(dataWidth, addrWidth);
-
-      final cache = SetAssociativeCache(clk, reset, [fillPort], [rdPort],
-          ways: ways, lines: lines);
+      final cp = makeCachePorts(dataWidth, addrWidth);
+      final cache = SetAssociativeCache(clk, reset, cp.fillPorts, cp.readPorts);
       await cache.build();
 
+      final fillPort = cp.fillPorts[0];
+      final rdPort = cp.readPorts[0];
       // #writes>#ways to the same line can result in eviction. So a test is to
       // write #ways writes to each line to fill it. Then perform reads to
       // verify all are there. This verifies we are not evicting anything less
@@ -352,17 +284,10 @@ void main() {
           data++;
         }
       }
+
       unawaited(Simulator.run());
-      // reset flow
-      fillPort.en.inject(0);
-      rdPort.en.inject(0);
-      fillPort.addr.inject(0);
-      fillPort.data.inject(0);
-      rdPort.addr.inject(0);
-      reset.inject(1);
-      await clk.nextPosedge;
-      reset.inject(0);
-      // end reset flow
+
+      await resetAll(clk, reset, cp);
 
       await clk.nextPosedge;
       // Fill each line of the cache.
@@ -396,36 +321,20 @@ void main() {
   });
 
   group('SetAssociativeCache eviction tests', () {
-    // Note: Common eviction tests are in cache_eviction_test.dart
-    // This file contains tests specific to SetAssociativeCache behavior
-
     test('eviction on way conflict', () async {
       final clk = SimpleClockGenerator(10).clk;
       final reset = Logic();
+      final cp = makeCachePorts(8, 8);
+      final cache = constructCache(clk, reset, cp, ways: 2, lines: 4);
 
-      final fillPort = ValidDataPortInterface(8, 8);
-      final readPort = ValidDataPortInterface(8, 8);
-      final evictionPort = ValidDataPortInterface(8, 8);
-
-      // 2 ways, 4 lines
-      final cache = SetAssociativeCache(clk, reset, [fillPort], [readPort],
-          evictions: [evictionPort], lines: 4);
+      final fillPort = cp.fillPorts[0];
+      final rdPort = cp.readPorts[0];
+      final evictionPort = cp.evictionPorts[0];
 
       await cache.build();
       unawaited(Simulator.run());
 
-      // Reset
-      reset.inject(1);
-      fillPort.en.inject(0);
-      fillPort.valid.inject(0);
-      fillPort.addr.inject(0);
-      fillPort.data.inject(0);
-      readPort.en.inject(0);
-      readPort.addr.inject(0);
-      await clk.waitCycles(2);
-
-      reset.inject(0);
-      await clk.waitCycles(1);
+      await resetAll(clk, reset, cp);
 
       // Track what we write: map[addr] = data
       final writtenData = <int, int>{};
@@ -487,12 +396,12 @@ void main() {
       await clk.waitCycles(1);
 
       // Verify evicted entry is gone
-      readPort.en.inject(1);
-      readPort.addr.inject(evictedAddr);
+      rdPort.en.inject(1);
+      rdPort.addr.inject(evictedAddr);
       await clk.nextPosedge;
-      expect(readPort.valid.value.toBool(), isFalse,
+      expect(rdPort.valid.value.toBool(), isFalse,
           reason: 'Evicted entry should not be present');
-      readPort.en.inject(0);
+      rdPort.en.inject(0);
 
       await Simulator.endSimulation();
     });
@@ -500,68 +409,53 @@ void main() {
     test('simultaneous evictions on multiple fill ports', () async {
       final clk = SimpleClockGenerator(10).clk;
       final reset = Logic();
+      final cp = makeCachePorts(8, 8);
+      final evictionPort0 = cp.evictionPorts[0];
+      final evictionPort1 = cp.evictionPorts[1];
 
-      final fillPort0 = ValidDataPortInterface(8, 8);
-      final fillPort1 = ValidDataPortInterface(8, 8);
-      final readPort = ValidDataPortInterface(8, 8);
-      final evictionPort0 = ValidDataPortInterface(8, 8);
-      final evictionPort1 = ValidDataPortInterface(8, 8);
+      final cache = constructCache(clk, reset, cp, ways: 2, lines: 2);
 
-      final cache = SetAssociativeCache(
-          clk, reset, [fillPort0, fillPort1], [readPort],
-          evictions: [evictionPort0, evictionPort1], lines: 2);
+      final fillPort = cp.fillPorts[0];
+      final fillPort2 = cp.fillPorts[1];
 
       await cache.build();
+      WaveDumper(cache, outputPath: 'cache_eviction_simul.vcd');
       unawaited(Simulator.run());
 
-      // Reset
-      reset.inject(1);
-      fillPort0.en.inject(0);
-      fillPort0.valid.inject(0);
-      fillPort0.addr.inject(0);
-      fillPort0.data.inject(0);
-      fillPort1.en.inject(0);
-      fillPort1.valid.inject(0);
-      fillPort1.addr.inject(0);
-      fillPort1.data.inject(0);
-      readPort.en.inject(0);
-      readPort.addr.inject(0);
-      await clk.waitCycles(2);
-
-      reset.inject(0);
-      await clk.waitCycles(1);
+      // Reset using a shared helper to clear ports and pulse reset.
+      await resetAll(clk, reset, cp);
 
       final writtenData = <int, int>{};
 
       // Fill all ways of line 0 using both ports
-      fillPort0.en.inject(1);
-      fillPort0.valid.inject(1);
-      fillPort0.addr.inject(0x00);
-      fillPort0.data.inject(0xA0);
+      fillPort.en.inject(1);
+      fillPort.valid.inject(1);
+      fillPort.addr.inject(0x00);
+      fillPort.data.inject(0xA0);
       writtenData[0x00] = 0xA0;
 
-      fillPort1.en.inject(1);
-      fillPort1.valid.inject(1);
-      fillPort1.addr.inject(0x02);
-      fillPort1.data.inject(0xA1);
+      fillPort2.en.inject(1);
+      fillPort2.valid.inject(1);
+      fillPort2.addr.inject(0x02);
+      fillPort2.data.inject(0xA1);
       writtenData[0x02] = 0xA1;
 
       await clk.nextPosedge;
-      fillPort0.en.inject(0);
-      fillPort1.en.inject(0);
+      fillPort.en.inject(0);
+      fillPort2.en.inject(0);
       await clk.waitCycles(1);
 
       // Now cause evictions on both ports simultaneously
-      fillPort0.en.inject(1);
-      fillPort0.valid.inject(1);
-      fillPort0.addr.inject(0x04); // Line 0
-      fillPort0.data.inject(0xB0);
+      fillPort.en.inject(1);
+      fillPort.valid.inject(1);
+      fillPort.addr.inject(0x04); // Line 0
+      fillPort.data.inject(0xB0);
       writtenData[0x04] = 0xB0;
 
-      fillPort1.en.inject(1);
-      fillPort1.valid.inject(1);
-      fillPort1.addr.inject(0x03); // Line 1
-      fillPort1.data.inject(0xB1);
+      fillPort2.en.inject(1);
+      fillPort2.valid.inject(1);
+      fillPort2.addr.inject(0x03); // Line 1
+      fillPort2.data.inject(0xB1);
       writtenData[0x03] = 0xB1;
 
       Simulator.registerAction(Simulator.time + 1, () {
@@ -584,8 +478,8 @@ void main() {
       });
 
       await clk.nextPosedge;
-      fillPort0.en.inject(0);
-      fillPort1.en.inject(0);
+      fillPort.en.inject(0);
+      fillPort2.en.inject(0);
 
       await Simulator.endSimulation();
     });

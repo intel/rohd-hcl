@@ -1,7 +1,6 @@
 // Copyright (C) 2025 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 //
-
 // cache_test.dart Common tests for all cache types (DirectMappedCache,
 // SetAssociativeCache, FullyAssociativeCache).
 //
@@ -15,12 +14,58 @@
 // Total: 15 test types × 3 cache types = 45 tests
 //
 // 2025 November 4
+// Author: Desmond Kirkpatrick <desmond.a.kirkpatrick@intel.com>
 
 import 'dart:async';
+import 'package:meta/meta.dart';
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
 import 'package:rohd_vf/rohd_vf.dart';
 import 'package:test/test.dart';
+
+/// Helper function to create a cache factory for testing.
+@visibleForTesting
+Cache Function(Logic, Logic, List<ValidDataPortInterface>,
+    List<ValidDataPortInterface>) createCacheFactory(
+        int ways) =>
+    (clk, reset, fills, reads) => FullyAssociativeCache(
+          clk,
+          reset,
+          fills,
+          reads,
+          ways: ways,
+        );
+
+class CachePorts {
+  final List<ValidDataPortInterface> fillPorts;
+  final List<ValidDataPortInterface> readPorts;
+  final List<ValidDataPortInterface> evictionPorts;
+
+  void reset() {
+    for (final p in [fillPorts, readPorts, evictionPorts]) {
+      for (final port in p) {
+        port.en.inject(0);
+        port.addr.inject(0);
+        port.data.inject(0);
+        port.valid.inject(0);
+      }
+    }
+  }
+
+  CachePorts(this.fillPorts, this.readPorts, this.evictionPorts);
+}
+
+@visibleForTesting
+CachePorts makeCachePorts(int datawidth, int addrWidth,
+    {int numFills = 2, int numReads = 2, int numEvictions = 2}) {
+  final fillPorts = List.generate(
+      numFills, (_) => ValidDataPortInterface(datawidth, addrWidth));
+  final readPorts = List.generate(
+      numReads, (_) => ValidDataPortInterface(datawidth, addrWidth));
+  final evictionPorts = List.generate(
+      numEvictions, (_) => ValidDataPortInterface(datawidth, addrWidth));
+  return CachePorts(fillPorts, readPorts, evictionPorts);
+}
 
 void main() {
   tearDown(() async {
