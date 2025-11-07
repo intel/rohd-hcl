@@ -71,7 +71,6 @@ class Axi5StreamDriver extends PendingClockedDriver<Axi5StreamPacket> {
   }
 
   Future<void> _driveStreamPacket(Axi5StreamPacket packet) async {
-    await sys.clk.nextPosedge;
     Simulator.injectAction(() async {
       stream.valid.put(1);
       stream.id?.put(packet.id ?? 0);

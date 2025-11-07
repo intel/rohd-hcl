@@ -87,7 +87,6 @@ class LtiLaChannelDriver extends PendingClockedDriver<LtiLaChannelPacket> {
   }
 
   Future<void> _driveRequestPacket(LtiLaChannelPacket packet) async {
-    await sys.clk.nextPosedge;
     Simulator.injectAction(() {
       la.valid.put(1);
       la.addr.put(packet.addr);
@@ -196,7 +195,6 @@ class LtiLrChannelDriver extends PendingClockedDriver<LtiLrChannelPacket> {
   }
 
   Future<void> _driveRequestPacket(LtiLrChannelPacket packet) async {
-    await sys.clk.nextPosedge;
     Simulator.injectAction(() {
       lr.valid.put(1);
       lr.addr.put(packet.addr);
@@ -281,7 +279,6 @@ class LtiLcChannelDriver extends PendingClockedDriver<LtiLcChannelPacket> {
   }
 
   Future<void> _driveRequestPacket(LtiLcChannelPacket packet) async {
-    await sys.clk.nextPosedge;
     Simulator.injectAction(() {
       lc.valid.put(1);
       lc.user?.put(packet.user?.user ?? 0);
@@ -350,7 +347,6 @@ class LtiLtChannelDriver extends PendingClockedDriver<LtiLtChannelPacket> {
   }
 
   Future<void> _driveRequestPacket(LtiLtChannelPacket packet) async {
-    await sys.clk.nextPosedge;
     Simulator.injectAction(() {
       lt.valid.put(1);
       lt.user?.put(packet.user?.user ?? 0);

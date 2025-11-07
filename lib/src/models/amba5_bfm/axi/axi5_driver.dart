@@ -162,7 +162,6 @@ class Axi5ArChannelDriver extends PendingClockedDriver<Axi5ArChannelPacket> {
   }
 
   Future<void> _driveRequestPacket(Axi5ArChannelPacket packet) async {
-    await sys.clk.nextPosedge;
     Simulator.injectAction(() {
       ar.valid.put(1);
       ar.addr.put(packet.request.addr);
@@ -320,7 +319,6 @@ class Axi5AwChannelDriver extends PendingClockedDriver<Axi5AwChannelPacket> {
   }
 
   Future<void> _driveRequestPacket(Axi5AwChannelPacket packet) async {
-    await sys.clk.nextPosedge;
     Simulator.injectAction(() {
       aw.valid.put(1);
       aw.addr.put(packet.request.addr);
@@ -458,7 +456,6 @@ class Axi5RChannelDriver extends PendingClockedDriver<Axi5RChannelPacket> {
   // TODO: handle credited!
 
   Future<void> _driveRequestPacket(Axi5RChannelPacket packet) async {
-    await sys.clk.nextPosedge;
     for (var i = 0; i < packet.data.length; i++) {
       Simulator.injectAction(() async {
         r.valid.put(1);
@@ -563,7 +560,6 @@ class Axi5WChannelDriver extends PendingClockedDriver<Axi5WChannelPacket> {
   // TODO: handle credited!
 
   Future<void> _driveRequestPacket(Axi5WChannelPacket packet) async {
-    await sys.clk.nextPosedge;
     for (var i = 0; i < packet.data.length; i++) {
       Simulator.injectAction(() {
         w.valid.put(1);
@@ -660,7 +656,6 @@ class Axi5BChannelDriver extends PendingClockedDriver<Axi5BChannelPacket> {
   }
 
   Future<void> _driveResponsePacket(Axi5BChannelPacket packet) async {
-    await sys.clk.nextPosedge;
     Simulator.injectAction(() {
       b.valid.put(1);
       b.id?.put(packet.id?.id ?? 0);
@@ -750,7 +745,6 @@ class Axi5AcChannelDriver extends PendingClockedDriver<Axi5AcChannelPacket> {
   }
 
   Future<void> _driveAcPacket(Axi5AcChannelPacket packet) async {
-    await sys.clk.nextPosedge;
     Simulator.injectAction(() {
       ac.valid.put(1);
       ac.addr?.put(packet.addr);
@@ -827,7 +821,6 @@ class Axi5CrChannelDriver extends PendingClockedDriver<Axi5CrChannelPacket> {
   }
 
   Future<void> _driveCrPacket(Axi5CrChannelPacket packet) async {
-    await sys.clk.nextPosedge;
     Simulator.injectAction(() {
       cr.valid.put(1);
       cr.trace?.put(packet.debug?.trace ?? 0);
