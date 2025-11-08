@@ -63,6 +63,7 @@ class LtiMainLaChannelAgent extends Agent {
       timeoutCycles: timeoutCycles,
       dropDelayCycles: dropDelayCycles,
       hasCredits: (vc) => _creditCounts[vc] > 0,
+      updateCredits: (vc) => _creditCounts[vc]--,
     );
 
     monitor = LtiCreditMonitor(sys: sys, trans: la, parent: this);
@@ -169,17 +170,16 @@ class LtiMainLcChannelAgent extends Agent {
       timeoutCycles: timeoutCycles,
       dropDelayCycles: dropDelayCycles,
       hasCredits: () => _creditCounts[0] > 0, // only 1 VC
+      updateCredits: () => _creditCounts[0]--,
     );
 
     monitor = LtiCreditMonitor(sys: sys, trans: lc, parent: this);
 
     // credit returns
     monitor.stream.listen((c) {
-      final lv = LogicValue.ofInt(c.credit, lc.vcCount);
-      for (var i = 0; i < lv.width; i++) {
-        if (lv[i].toBool()) {
-          _creditCounts[i]++;
-        }
+      // only 1 VC
+      if (c.credit > 0) {
+        _creditCounts[0]++;
       }
     });
   }
@@ -390,6 +390,7 @@ class LtiSubordinateLrChannelAgent extends Agent {
       timeoutCycles: timeoutCycles,
       dropDelayCycles: dropDelayCycles,
       hasCredits: (vc) => _creditCounts[vc] > 0,
+      updateCredits: (vc) => _creditCounts[vc]--,
     );
 
     monitor = LtiCreditMonitor(sys: sys, trans: lr, parent: this);
@@ -496,17 +497,16 @@ class LtiSubordinateLtChannelAgent extends Agent {
       timeoutCycles: timeoutCycles,
       dropDelayCycles: dropDelayCycles,
       hasCredits: () => _creditCounts[0] > 0, // only 1 VC
+      updateCredits: () => _creditCounts[0]--,
     );
 
     monitor = LtiCreditMonitor(sys: sys, trans: lt, parent: this);
 
     // credit returns
     monitor.stream.listen((c) {
-      final lv = LogicValue.ofInt(c.credit, lt.vcCount);
-      for (var i = 0; i < lv.width; i++) {
-        if (lv[i].toBool()) {
-          _creditCounts[i]++;
-        }
+      // only 1 VC
+      if (c.credit > 0) {
+        _creditCounts[0]++;
       }
     });
   }
