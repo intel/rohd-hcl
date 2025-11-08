@@ -21,6 +21,13 @@ class LtiLaChannelDriver extends PendingClockedDriver<LtiLaChannelPacket> {
   /// LTI LA Interface.
   final LtiLaChannelInterface la;
 
+  /// User hook to determine if credits are available
+  /// on a target virtual channel.
+  late final bool Function(int vc) hasCredits;
+
+  // By default, we always have a credit.
+  static bool _defaulthasCredits(int vc) => true;
+
   /// Creates a new [LtiLaChannelDriver].
   LtiLaChannelDriver({
     required Component parent,
@@ -30,6 +37,7 @@ class LtiLaChannelDriver extends PendingClockedDriver<LtiLaChannelPacket> {
     super.timeoutCycles = 500,
     super.dropDelayCycles = 30,
     String name = 'ltiLaChannelDriver',
+    this.hasCredits = _defaulthasCredits,
   }) : super(
           name,
           parent,
@@ -87,6 +95,11 @@ class LtiLaChannelDriver extends PendingClockedDriver<LtiLaChannelPacket> {
   }
 
   Future<void> _driveRequestPacket(LtiLaChannelPacket packet) async {
+    // wait until credits are available
+    while (!hasCredits(packet.vc)) {
+      await sys.clk.nextPosedge;
+    }
+
     Simulator.injectAction(() {
       la.valid.put(1);
       la.addr.put(packet.addr);
@@ -115,7 +128,6 @@ class LtiLaChannelDriver extends PendingClockedDriver<LtiLaChannelPacket> {
       la.vc?.put(packet.vc);
     });
 
-    // TODO: anything to wait on???
     await sys.clk.nextPosedge;
 
     // now we can release the request
@@ -135,6 +147,13 @@ class LtiLrChannelDriver extends PendingClockedDriver<LtiLrChannelPacket> {
   /// LTI LR Interface.
   final LtiLrChannelInterface lr;
 
+  /// User hook to determine if credits are available
+  /// on a target virtual channel.
+  late final bool Function(int vc) hasCredits;
+
+  // By default, we always have a credit.
+  static bool _defaulthasCredits(int vc) => true;
+
   /// Creates a new [LtiLrChannelDriver].
   LtiLrChannelDriver({
     required Component parent,
@@ -144,6 +163,7 @@ class LtiLrChannelDriver extends PendingClockedDriver<LtiLrChannelPacket> {
     super.timeoutCycles = 500,
     super.dropDelayCycles = 30,
     String name = 'ltiLrChannelDriver',
+    this.hasCredits = _defaulthasCredits,
   }) : super(
           name,
           parent,
@@ -195,6 +215,11 @@ class LtiLrChannelDriver extends PendingClockedDriver<LtiLrChannelPacket> {
   }
 
   Future<void> _driveRequestPacket(LtiLrChannelPacket packet) async {
+    // wait until credits are available
+    while (!hasCredits(packet.vc)) {
+      await sys.clk.nextPosedge;
+    }
+
     Simulator.injectAction(() {
       lr.valid.put(1);
       lr.addr.put(packet.addr);
@@ -217,7 +242,6 @@ class LtiLrChannelDriver extends PendingClockedDriver<LtiLrChannelPacket> {
       lr.vc?.put(packet.vc);
     });
 
-    // TODO: anything to wait on???
     await sys.clk.nextPosedge;
 
     Simulator.injectAction(() {
@@ -235,6 +259,13 @@ class LtiLcChannelDriver extends PendingClockedDriver<LtiLcChannelPacket> {
   /// LTI LC Interface.
   final LtiLcChannelInterface lc;
 
+  /// User hook to determine if credits are available
+  /// LC channel has only one implicit VC.
+  late final bool Function() hasCredits;
+
+  // By default, we always have a credit.
+  static bool _defaulthasCredits() => true;
+
   /// Creates a new [LtiLcChannelDriver].
   LtiLcChannelDriver({
     required Component parent,
@@ -244,6 +275,7 @@ class LtiLcChannelDriver extends PendingClockedDriver<LtiLcChannelPacket> {
     super.timeoutCycles = 500,
     super.dropDelayCycles = 30,
     String name = 'ltiLcChannelDriver',
+    this.hasCredits = _defaulthasCredits,
   }) : super(
           name,
           parent,
@@ -279,13 +311,17 @@ class LtiLcChannelDriver extends PendingClockedDriver<LtiLcChannelPacket> {
   }
 
   Future<void> _driveRequestPacket(LtiLcChannelPacket packet) async {
+    // wait until credits are available
+    while (!hasCredits()) {
+      await sys.clk.nextPosedge;
+    }
+
     Simulator.injectAction(() {
       lc.valid.put(1);
       lc.user?.put(packet.user?.user ?? 0);
       lc.ctag.put(packet.tag);
     });
 
-    // TODO: anything to wait on???
     await sys.clk.nextPosedge;
 
     Simulator.injectAction(() {
@@ -303,6 +339,13 @@ class LtiLtChannelDriver extends PendingClockedDriver<LtiLtChannelPacket> {
   /// LTI LT Interface.
   final LtiLtChannelInterface lt;
 
+  /// User hook to determine if credits are available
+  /// LT channel has only one implicit VC.
+  late final bool Function() hasCredits;
+
+  // By default, we always have a credit.
+  static bool _defaulthasCredits() => true;
+
   /// Creates a new [LtiLtChannelDriver].
   LtiLtChannelDriver({
     required Component parent,
@@ -312,6 +355,7 @@ class LtiLtChannelDriver extends PendingClockedDriver<LtiLtChannelPacket> {
     super.timeoutCycles = 500,
     super.dropDelayCycles = 30,
     String name = 'ltiLtChannelDriver',
+    this.hasCredits = _defaulthasCredits,
   }) : super(
           name,
           parent,
@@ -347,13 +391,17 @@ class LtiLtChannelDriver extends PendingClockedDriver<LtiLtChannelPacket> {
   }
 
   Future<void> _driveRequestPacket(LtiLtChannelPacket packet) async {
+    // wait until credits are available
+    while (!hasCredits()) {
+      await sys.clk.nextPosedge;
+    }
+
     Simulator.injectAction(() {
       lt.valid.put(1);
       lt.user?.put(packet.user?.user ?? 0);
       lt.ctag.put(packet.tag);
     });
 
-    // TODO: anything to wait on???
     await sys.clk.nextPosedge;
 
     Simulator.injectAction(() {

@@ -7,6 +7,7 @@
 // 2025 August
 // Author: Josh Kimmel <joshua1.kimmel@intel.com>
 
+import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
 import 'package:rohd_vf/rohd_vf.dart';
 
@@ -34,6 +35,9 @@ class LtiMainLaChannelAgent extends Agent {
   /// no pending packets to send.
   final int? dropDelayCycles;
 
+  // Internal mechanism to deal with crediting.
+  final List<int> _creditCounts = [];
+
   /// Constructs a new [LtiMainLaChannelAgent].
   LtiMainLaChannelAgent({
     required this.sys,
@@ -43,6 +47,11 @@ class LtiMainLaChannelAgent extends Agent {
     this.timeoutCycles,
     this.dropDelayCycles,
   }) : super(name, parent) {
+    // credit tracking per virtual channel
+    for (var i = 0; i < la.vcCount; i++) {
+      _creditCounts.add(0);
+    }
+
     sequencer =
         Sequencer<LtiLaChannelPacket>('ltiMainLaChannelAgentSequencer', this);
 
@@ -53,9 +62,20 @@ class LtiMainLaChannelAgent extends Agent {
       sequencer: sequencer,
       timeoutCycles: timeoutCycles,
       dropDelayCycles: dropDelayCycles,
+      hasCredits: (vc) => _creditCounts[vc] > 0,
     );
 
     monitor = LtiCreditMonitor(sys: sys, trans: la, parent: this);
+
+    // credit returns
+    monitor.stream.listen((c) {
+      final lv = LogicValue.ofInt(c.credit, la.vcCount);
+      for (var i = 0; i < lv.width; i++) {
+        if (lv[i].toBool()) {
+          _creditCounts[i]++;
+        }
+      }
+    });
   }
 }
 
@@ -121,6 +141,9 @@ class LtiMainLcChannelAgent extends Agent {
   /// no pending packets to send.
   final int? dropDelayCycles;
 
+  // Internal mechanism to deal with crediting.
+  final List<int> _creditCounts = [];
+
   /// Constructs a new [LtiMainLcChannelAgent].
   LtiMainLcChannelAgent({
     required this.sys,
@@ -130,6 +153,11 @@ class LtiMainLcChannelAgent extends Agent {
     this.timeoutCycles,
     this.dropDelayCycles,
   }) : super(name, parent) {
+    // credit tracking per virtual channel
+    for (var i = 0; i < lc.vcCount; i++) {
+      _creditCounts.add(0);
+    }
+
     sequencer =
         Sequencer<LtiLcChannelPacket>('ltiMainLcChannelAgentSequencer', this);
 
@@ -140,9 +168,20 @@ class LtiMainLcChannelAgent extends Agent {
       sequencer: sequencer,
       timeoutCycles: timeoutCycles,
       dropDelayCycles: dropDelayCycles,
+      hasCredits: () => _creditCounts[0] > 0, // only 1 VC
     );
 
     monitor = LtiCreditMonitor(sys: sys, trans: lc, parent: this);
+
+    // credit returns
+    monitor.stream.listen((c) {
+      final lv = LogicValue.ofInt(c.credit, lc.vcCount);
+      for (var i = 0; i < lv.width; i++) {
+        if (lv[i].toBool()) {
+          _creditCounts[i]++;
+        }
+      }
+    });
   }
 }
 
@@ -323,6 +362,9 @@ class LtiSubordinateLrChannelAgent extends Agent {
   /// no pending packets to send.
   final int? dropDelayCycles;
 
+  // Internal mechanism to deal with crediting.
+  final List<int> _creditCounts = [];
+
   /// Constructs a new [LtiSubordinateLrChannelAgent].
   LtiSubordinateLrChannelAgent({
     required this.sys,
@@ -332,6 +374,11 @@ class LtiSubordinateLrChannelAgent extends Agent {
     this.timeoutCycles,
     this.dropDelayCycles,
   }) : super(name, parent) {
+    // credit tracking per virtual channel
+    for (var i = 0; i < lr.vcCount; i++) {
+      _creditCounts.add(0);
+    }
+
     sequencer = Sequencer<LtiLrChannelPacket>(
         'ltiSubordinateLrChannelAgentSequencer', this);
 
@@ -342,9 +389,20 @@ class LtiSubordinateLrChannelAgent extends Agent {
       sequencer: sequencer,
       timeoutCycles: timeoutCycles,
       dropDelayCycles: dropDelayCycles,
+      hasCredits: (vc) => _creditCounts[vc] > 0,
     );
 
     monitor = LtiCreditMonitor(sys: sys, trans: lr, parent: this);
+
+    // credit returns
+    monitor.stream.listen((c) {
+      final lv = LogicValue.ofInt(c.credit, lr.vcCount);
+      for (var i = 0; i < lv.width; i++) {
+        if (lv[i].toBool()) {
+          _creditCounts[i]++;
+        }
+      }
+    });
   }
 }
 
@@ -410,6 +468,9 @@ class LtiSubordinateLtChannelAgent extends Agent {
   /// no pending packets to send.
   final int? dropDelayCycles;
 
+  // Internal mechanism to deal with crediting.
+  final List<int> _creditCounts = [];
+
   /// Constructs a new [LtiSubordinateLtChannelAgent].
   LtiSubordinateLtChannelAgent({
     required this.sys,
@@ -419,6 +480,11 @@ class LtiSubordinateLtChannelAgent extends Agent {
     this.timeoutCycles,
     this.dropDelayCycles,
   }) : super(name, parent) {
+    // credit tracking per virtual channel
+    for (var i = 0; i < lt.vcCount; i++) {
+      _creditCounts.add(0);
+    }
+
     sequencer = Sequencer<LtiLtChannelPacket>(
         'ltiSubordinateLtChannelAgentSequencer', this);
 
@@ -429,9 +495,20 @@ class LtiSubordinateLtChannelAgent extends Agent {
       sequencer: sequencer,
       timeoutCycles: timeoutCycles,
       dropDelayCycles: dropDelayCycles,
+      hasCredits: () => _creditCounts[0] > 0, // only 1 VC
     );
 
     monitor = LtiCreditMonitor(sys: sys, trans: lt, parent: this);
+
+    // credit returns
+    monitor.stream.listen((c) {
+      final lv = LogicValue.ofInt(c.credit, lt.vcCount);
+      for (var i = 0; i < lv.width; i++) {
+        if (lv[i].toBool()) {
+          _creditCounts[i]++;
+        }
+      }
+    });
   }
 }
 
