@@ -34,41 +34,26 @@ void main() {
     await Simulator.reset();
   });
 
-  Cache constructCache(Logic clk, Logic reset, CachePorts cp,
-          {int ways = 4, int lines = 16}) =>
-      SetAssociativeCache(clk, reset, cp.fillPorts, cp.readPorts,
-          evictions: cp.evictionPorts.isNotEmpty ? cp.evictionPorts : null,
-          ways: ways,
-          lines: lines);
-
-  Future<void> resetAll(Logic clk, Logic reset, CachePorts cp) async {
-    cp.reset();
-    reset.inject(1);
-    await clk.nextPosedge;
-    reset.inject(0);
-    await clk.waitCycles(2);
-  }
-
   group('SetAssociativeCache basic tests', () {
     test('instantiate cache', () async {
       final clk = SimpleClockGenerator(10).clk;
       final reset = Logic();
-      final cp = makeCachePorts(8, 16);
-      final cache = constructCache(clk, reset, cp, lines: 8);
+      final cp = CachePorts.fresh(8, 16);
+      final cache = cp.createCache(clk, reset, setAssociativeFactory(lines: 8));
       await cache.build();
     });
 
     test('Cache smoke test', () async {
       final clk = SimpleClockGenerator(10).clk;
       final reset = Logic();
-      final cp = makeCachePorts(8, 16);
-      final cache = constructCache(clk, reset, cp, lines: 8);
+      final cp = CachePorts.fresh(8, 16);
+      final cache = cp.createCache(clk, reset, setAssociativeFactory(lines: 8));
       final fillPort = cp.fillPorts[0];
       final rdPort = cp.readPorts[0];
 
       await cache.build();
       unawaited(Simulator.run());
-      await resetAll(clk, reset, cp);
+      await cp.resetCache(clk, reset);
 
       // write 0x41 to address 1111
       fillPort.en.inject(1);
@@ -100,8 +85,9 @@ void main() {
     test('Cache pathology double-write, double-read same location', () async {
       final clk = SimpleClockGenerator(10).clk;
       final reset = Logic();
-      final cp = makeCachePorts(8, 16);
-      final cache = constructCache(clk, reset, cp);
+      final cp = CachePorts.fresh(8, 16);
+      final cache =
+          cp.createCache(clk, reset, setAssociativeFactory(lines: 16));
 
       final fillPort = cp.fillPorts[0];
       final fillPort2 = cp.fillPorts[1];
@@ -110,7 +96,7 @@ void main() {
 
       await cache.build();
       unawaited(Simulator.run());
-      await resetAll(clk, reset, cp);
+      await cp.resetCache(clk, reset);
 
       // write 0x41 to address 1111
       fillPort.en.inject(1);
@@ -149,15 +135,16 @@ void main() {
     test('Cache invalidate singleton test', () async {
       final clk = SimpleClockGenerator(10).clk;
       final reset = Logic();
-      final cp = makeCachePorts(8, 16);
-      final cache = constructCache(clk, reset, cp);
+      final cp = CachePorts.fresh(8, 16);
+      final cache =
+          cp.createCache(clk, reset, setAssociativeFactory(lines: 16));
 
       final fillPort = cp.fillPorts[0];
       final rdPort = cp.readPorts[0];
 
       await cache.build();
       unawaited(Simulator.run());
-      await resetAll(clk, reset, cp);
+      await cp.resetCache(clk, reset);
 
       // write 0x42 to address 1111
       fillPort.en.inject(1);
@@ -209,8 +196,9 @@ void main() {
     test('Cache singleton 2 writes then reads test', () async {
       final clk = SimpleClockGenerator(10).clk;
       final reset = Logic();
-      final cp = makeCachePorts(dataWidth, addrWidth);
-      final cache = constructCache(clk, reset, cp);
+      final cp = CachePorts.fresh(dataWidth, addrWidth);
+      final cache =
+          cp.createCache(clk, reset, setAssociativeFactory(lines: 16));
 
       final fillPort = cp.fillPorts[0];
       final rdPort = cp.readPorts[0];
@@ -218,7 +206,7 @@ void main() {
       await cache.build();
       unawaited(Simulator.run());
 
-      await resetAll(clk, reset, cp);
+      await cp.resetCache(clk, reset);
 
       // write data to address addr
       const first = 0x2;
@@ -261,7 +249,7 @@ void main() {
     test('Cache writes then reads test', () async {
       final clk = SimpleClockGenerator(10).clk;
       final reset = Logic();
-      final cp = makeCachePorts(dataWidth, addrWidth);
+      final cp = CachePorts.fresh(dataWidth, addrWidth);
       final cache = SetAssociativeCache(clk, reset, cp.fillPorts, cp.readPorts);
       await cache.build();
 
@@ -287,7 +275,7 @@ void main() {
 
       unawaited(Simulator.run());
 
-      await resetAll(clk, reset, cp);
+      await cp.resetCache(clk, reset);
 
       await clk.nextPosedge;
       // Fill each line of the cache.
@@ -324,8 +312,9 @@ void main() {
     test('eviction on way conflict', () async {
       final clk = SimpleClockGenerator(10).clk;
       final reset = Logic();
-      final cp = makeCachePorts(8, 8);
-      final cache = constructCache(clk, reset, cp, ways: 2, lines: 4);
+      final cp = CachePorts.fresh(8, 8);
+      final cache =
+          cp.createCache(clk, reset, setAssociativeFactory(ways: 2, lines: 4));
 
       final fillPort = cp.fillPorts[0];
       final rdPort = cp.readPorts[0];
@@ -334,7 +323,7 @@ void main() {
       await cache.build();
       unawaited(Simulator.run());
 
-      await resetAll(clk, reset, cp);
+      await cp.resetCache(clk, reset);
 
       // Track what we write: map[addr] = data
       final writtenData = <int, int>{};
@@ -409,11 +398,11 @@ void main() {
     test('simultaneous evictions on multiple fill ports', () async {
       final clk = SimpleClockGenerator(10).clk;
       final reset = Logic();
-      final cp = makeCachePorts(8, 8);
+      final cp = CachePorts.fresh(8, 8);
       final evictionPort0 = cp.evictionPorts[0];
       final evictionPort1 = cp.evictionPorts[1];
 
-      final cache = constructCache(clk, reset, cp, ways: 2, lines: 2);
+      final cache = cp.createCache(clk, reset, setAssociativeFactory(ways: 2));
 
       final fillPort = cp.fillPorts[0];
       final fillPort2 = cp.fillPorts[1];
@@ -422,8 +411,8 @@ void main() {
       WaveDumper(cache, outputPath: 'cache_eviction_simul.vcd');
       unawaited(Simulator.run());
 
-      // Reset using a shared helper to clear ports and pulse reset.
-      await resetAll(clk, reset, cp);
+      // Reset using CachePorts instance helper to clear ports and pulse reset.
+      await cp.resetCache(clk, reset);
 
       final writtenData = <int, int>{};
 

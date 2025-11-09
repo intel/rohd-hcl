@@ -18,6 +18,33 @@ import 'cache_test.dart';
 import 'channel_test.dart';
 
 void main() {
+  /// Per-test DUT constructor.
+  CachedRequestResponseChannel constructChannel(
+    Logic clk,
+    Logic reset,
+    ChannelPorts cp, {
+    CacheFactory? cacheFactory,
+    int responseBufferDepth = 8,
+    int camWays = 8,
+    ReadyValidInterface<CacheWriteStructure>? cacheWriteIntf,
+    Logic? resetCache,
+  }) {
+    final factory = cacheFactory ?? fullyAssociativeFactory();
+    return CachedRequestResponseChannel(
+      clk: clk,
+      reset: reset,
+      upstreamRequestIntf: cp.upstreamReq,
+      upstreamResponseIntf: cp.upstreamResp,
+      downstreamRequestIntf: cp.downstreamReq,
+      downstreamResponseIntf: cp.downstreamResp,
+      cacheFactory: factory,
+      cacheWriteIntf: cacheWriteIntf,
+      resetCache: resetCache,
+      responseBufferDepth: responseBufferDepth,
+      camWays: camWays,
+    );
+  }
+
   tearDown(() async {
     await Simulator.reset();
   });
@@ -27,7 +54,7 @@ void main() {
       final clk = SimpleClockGenerator(10).clk;
       final reset = Logic();
 
-      final ifs = makeChannelPorts();
+      final ifs = ChannelPorts.fresh();
       final channel = constructChannel(clk, reset, ifs);
       await channel.build();
 
@@ -35,7 +62,7 @@ void main() {
       unawaited(Simulator.run());
 
       // Reset sequence.
-      await resetChannel(clk, reset, ifs);
+      await ifs.resetChannel(clk, reset);
 
       // Testing cache miss -> downstream -> cache hit sequence
 
@@ -105,7 +132,7 @@ void main() {
       final clk = SimpleClockGenerator(10).clk;
       final reset = Logic();
 
-      final ifs = makeChannelPorts();
+      final ifs = ChannelPorts.fresh();
       final channel = constructChannel(clk, reset, ifs);
       await channel.build();
 
@@ -113,7 +140,7 @@ void main() {
       unawaited(Simulator.run());
 
       // Reset sequence.
-      await resetChannel(clk, reset, ifs);
+      await ifs.resetChannel(clk, reset);
 
       // Testing multiple cache misses with unique IDs
 
@@ -185,15 +212,16 @@ void main() {
       final clk = SimpleClockGenerator(10).clk;
       final reset = Logic();
 
-      final ifs = makeChannelPorts();
-      final channel = constructChannel(clk, reset, ifs, cacheWays: 4);
+      final ifs = ChannelPorts.fresh();
+      final channel = constructChannel(clk, reset, ifs,
+          cacheFactory: fullyAssociativeFactory());
       await channel.build();
 
       Simulator.setMaxSimTime(1000);
       unawaited(Simulator.run());
 
       // Reset sequence
-      await resetChannel(clk, reset, ifs);
+      await ifs.resetChannel(clk, reset);
 
       // === CAM 4-DEEP CONCURRENT INVALIDATION TEST ===
       // Expected: New request accepted due to concurrent CAM entry
@@ -344,16 +372,17 @@ void main() {
       final clk = SimpleClockGenerator(10).clk;
       final reset = Logic();
 
-      final ifs = makeChannelPorts();
+      final ifs = ChannelPorts.fresh();
       final channel = constructChannel(clk, reset, ifs,
-          cacheWays: 2, responseBufferDepth: 2);
+          cacheFactory: fullyAssociativeFactory(ways: 2),
+          responseBufferDepth: 2);
       await channel.build();
 
       Simulator.setMaxSimTime(3000);
       unawaited(Simulator.run());
 
       // Reset sequence
-      await resetChannel(clk, reset, ifs);
+      await ifs.resetChannel(clk, reset);
 
       // === TRUE CAM LIMIT TESTING (2-way cache) ===
 
@@ -483,16 +512,18 @@ void main() {
       final clk = SimpleClockGenerator(10).clk;
       final reset = Logic();
 
-      final ifs = makeChannelPorts();
+      final ifs = ChannelPorts.fresh();
       final channel = constructChannel(clk, reset, ifs,
-          cacheWays: 4, responseBufferDepth: 4, camWays: 2);
+          cacheFactory: fullyAssociativeFactory(),
+          responseBufferDepth: 4,
+          camWays: 2);
       await channel.build();
 
       Simulator.setMaxSimTime(1000);
       unawaited(Simulator.run());
 
       // Reset sequence
-      await resetChannel(clk, reset, ifs);
+      await ifs.resetChannel(clk, reset);
 
       // === CONFIGURABLE CAM SIZE TEST (CAM ways = 2) ===
 
@@ -540,15 +571,16 @@ void main() {
       final clk = SimpleClockGenerator(10).clk;
       final reset = Logic();
 
-      final ifs = makeChannelPorts();
-      final channel = constructChannel(clk, reset, ifs, cacheWays: 4);
+      final ifs = ChannelPorts.fresh();
+      final channel = constructChannel(clk, reset, ifs,
+          cacheFactory: fullyAssociativeFactory());
       await channel.build();
 
       Simulator.setMaxSimTime(2000);
       unawaited(Simulator.run());
 
       // Reset sequence
-      await resetChannel(clk, reset, ifs, upstreamRespReadyValue: false);
+      await ifs.resetChannel(clk, reset, upstreamRespReadyValue: false);
 
       // === CAM-CONTROLLED BACKPRESSURE TEST ===
       // Configuration: CAM=8 ways, Response Buffer=16 depth
@@ -603,16 +635,16 @@ void main() {
       final clk = SimpleClockGenerator(10).clk;
       final reset = Logic();
 
-      final ifs = makeChannelPorts();
-      final channel =
-          constructChannel(clk, reset, ifs, cacheWays: 4, camWays: 4);
+      final ifs = ChannelPorts.fresh();
+      final channel = constructChannel(clk, reset, ifs,
+          cacheFactory: fullyAssociativeFactory(), camWays: 4);
       await channel.build();
 
       Simulator.setMaxSimTime(2000);
       unawaited(Simulator.run());
 
       // Reset sequence
-      await resetChannel(clk, reset, ifs);
+      await ifs.resetChannel(clk, reset);
 
       // === CAM FULL WITH SIMULTANEOUS INVALIDATE AND MISS TEST ===
       // Step 1: Fill CAM to capacity (4 ways)
@@ -733,7 +765,7 @@ void main() {
       final clk = SimpleClockGenerator(10).clk;
       final reset = Logic();
 
-      final ifs = makeChannelPorts();
+      final ifs = ChannelPorts.fresh();
       final channel = constructChannel(clk, reset, ifs, responseBufferDepth: 3);
       await channel.build();
 
@@ -741,7 +773,7 @@ void main() {
       unawaited(Simulator.run());
 
       // Reset sequence
-      await resetChannel(clk, reset, ifs, upstreamRespReadyValue: false);
+      await ifs.resetChannel(clk, reset, upstreamRespReadyValue: false);
 
       // === RESPONSE FIFO BACKPRESSURE TEST ===
       // Configuration: Response FIFO depth=3, CAM=8 ways
@@ -900,7 +932,7 @@ void main() {
       final clk = SimpleClockGenerator(10).clk;
       final reset = Logic();
 
-      final ifs = makeChannelPorts();
+      final ifs = ChannelPorts.fresh();
       final channel = constructChannel(clk, reset, ifs, responseBufferDepth: 2);
       await channel.build();
 
@@ -908,7 +940,7 @@ void main() {
       unawaited(Simulator.run());
 
       // Reset sequence
-      await resetChannel(clk, reset, ifs, upstreamRespReadyValue: false);
+      await ifs.resetChannel(clk, reset, upstreamRespReadyValue: false);
 
       // === RESPONSE FIFO ARBITRATION TEST ===
       // Configuration: Response FIFO depth=2, CAM=8 ways
@@ -1067,7 +1099,7 @@ void main() {
       final clk = SimpleClockGenerator(10).clk;
       final reset = Logic();
 
-      final ifs = makeChannelPorts();
+      final ifs = ChannelPorts.fresh();
       final channel = constructChannel(clk, reset, ifs,
           responseBufferDepth: 16, camWays: 4);
       await channel.build();
@@ -1076,7 +1108,7 @@ void main() {
       unawaited(Simulator.run());
 
       // Reset sequence
-      await resetChannel(clk, reset, ifs);
+      await ifs.resetChannel(clk, reset);
 
       // === CAM BACKPRESSURE TEST === Configuration: CAM=4 ways, Response
       // Buffer=16 depth Strategy: Complete one request first, then fill CAM to
@@ -1270,7 +1302,7 @@ void main() {
       final clk = SimpleClockGenerator(10).clk;
       final reset = Logic();
 
-      final ifs = makeChannelPorts();
+      final ifs = ChannelPorts.fresh();
       final channel = constructChannel(clk, reset, ifs);
       await channel.build();
 
@@ -1278,7 +1310,7 @@ void main() {
       unawaited(Simulator.run());
 
       // Reset sequence
-      await resetChannel(clk, reset, ifs);
+      await ifs.resetChannel(clk, reset);
 
       // === TWO MISSES TO SAME ADDRESS TEST ===
       const testAddr = 0x5;
@@ -1392,7 +1424,7 @@ void main() {
       final clk = SimpleClockGenerator(10).clk;
       final reset = Logic();
 
-      final ifs = makeChannelPorts();
+      final ifs = ChannelPorts.fresh();
       final channel =
           constructChannel(clk, reset, ifs, cacheWriteIntf: cacheWriteIntf);
 
@@ -1402,7 +1434,7 @@ void main() {
       unawaited(Simulator.run());
 
       // Reset sequence.
-      await resetChannel(clk, reset, ifs, cacheWriteIntf: cacheWriteIntf);
+      await ifs.resetChannel(clk, reset, cacheWriteIntf: cacheWriteIntf);
 
       const testAddr = 0x7;
       const writeData = 0xC;
@@ -1498,7 +1530,7 @@ void main() {
       final clk = SimpleClockGenerator(10).clk;
       final reset = Logic();
 
-      final ifs = makeChannelPorts();
+      final ifs = ChannelPorts.fresh();
       final channel = constructChannel(clk, reset, ifs);
       await channel.build();
 
@@ -1506,7 +1538,7 @@ void main() {
       unawaited(Simulator.run());
 
       // Reset sequence.
-      await resetChannel(clk, reset, ifs);
+      await ifs.resetChannel(clk, reset);
 
       const testAddr = 0x9;
       const nonCacheableData = 0xE;
@@ -1614,9 +1646,9 @@ void main() {
       final clk = SimpleClockGenerator(10).clk;
       final reset = Logic();
 
-      final ifs = makeChannelPorts();
+      final ifs = ChannelPorts.fresh();
       final channel = constructChannel(clk, reset, ifs,
-          cacheWays: 4, resetCache: resetCache);
+          cacheFactory: fullyAssociativeFactory(), resetCache: resetCache);
       await channel.build();
 
       Simulator.setMaxSimTime(1000);
@@ -1712,9 +1744,9 @@ void main() {
       final clk = SimpleClockGenerator(10).clk;
       final reset = Logic();
 
-      final ifs = makeChannelPorts();
+      final ifs = ChannelPorts.fresh();
       final channel = constructChannel(clk, reset, ifs,
-          cacheWays: 4, resetCache: resetCache);
+          cacheFactory: fullyAssociativeFactory(), resetCache: resetCache);
 
       await channel.build();
 
@@ -1815,7 +1847,7 @@ void main() {
       final clk = SimpleClockGenerator(10).clk;
       final reset = Logic();
 
-      final ifs = makeChannelPorts();
+      final ifs = ChannelPorts.fresh();
       final channel = constructChannel(clk, reset, ifs, responseBufferDepth: 4);
       await channel.build();
 
@@ -1827,7 +1859,7 @@ void main() {
       unawaited(Simulator.run());
 
       // Reset
-      await resetChannel(clk, reset, ifs);
+      await ifs.resetChannel(clk, reset);
 
       // Miss
       ifs.upstreamReq.valid.inject(1);
@@ -1863,7 +1895,7 @@ void main() {
       final clk = SimpleClockGenerator(10).clk;
       final reset = Logic();
 
-      final ifs = makeChannelPorts();
+      final ifs = ChannelPorts.fresh();
       final channel = constructChannel(clk, reset, ifs, responseBufferDepth: 1);
       await channel.build();
 
@@ -1875,7 +1907,7 @@ void main() {
       unawaited(Simulator.run());
 
       // Reset
-      await resetChannel(clk, reset, ifs, upstreamRespReadyValue: false);
+      await ifs.resetChannel(clk, reset, upstreamRespReadyValue: false);
 
       // Prime cache with addr 0x5
       ifs.upstreamResp.ready.inject(1);
@@ -1951,7 +1983,7 @@ void main() {
       final clk = SimpleClockGenerator(10).clk;
       final reset = Logic();
 
-      final ifs = makeChannelPorts();
+      final ifs = ChannelPorts.fresh();
       final channel =
           constructChannel(clk, reset, ifs, responseBufferDepth: 32);
 
@@ -1963,7 +1995,7 @@ void main() {
       unawaited(Simulator.run());
 
       // Reset
-      await resetChannel(clk, reset, ifs);
+      await ifs.resetChannel(clk, reset);
 
       final missAddresses = [0x1, 0x2, 0x3, 0x4, 0x5, 0x6];
       var accepted = 0;
@@ -1999,9 +2031,9 @@ void main() {
       final clk = SimpleClockGenerator(10).clk;
       final reset = Logic();
 
-      final ifs = makeChannelPorts();
-      final channel =
-          constructChannel(clk, reset, ifs, cacheWays: 4, camWays: 4);
+      final ifs = ChannelPorts.fresh();
+      final channel = constructChannel(clk, reset, ifs,
+          cacheFactory: fullyAssociativeFactory(), camWays: 4);
       await channel.build();
 
       Simulator.setMaxSimTime(800);
@@ -2010,7 +2042,7 @@ void main() {
       // Reset
       ifs.upstreamResp.data.nonCacheable.inject(0);
       ifs.downstreamResp.data.nonCacheable.inject(0);
-      await resetChannel(clk, reset, ifs);
+      await ifs.resetChannel(clk, reset);
 
       // Fill CAM
       final initialRequests = [0x1, 0x2, 0x3, 0x4];

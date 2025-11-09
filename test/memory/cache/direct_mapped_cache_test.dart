@@ -32,9 +32,10 @@
 import 'dart:async';
 
 import 'package:rohd/rohd.dart';
-import 'package:rohd_hcl/rohd_hcl.dart';
 import 'package:rohd_vf/rohd_vf.dart';
 import 'package:test/test.dart';
+
+import 'cache_test.dart';
 
 void main() {
   tearDown(() async {
@@ -48,34 +49,22 @@ void main() {
       final clk = SimpleClockGenerator(10).clk;
       final reset = Logic();
 
-      final fillPort = ValidDataPortInterface(32, 8);
-      final readPort = ValidDataPortInterface(32, 8);
-
-      final cache = DirectMappedCache(
-        clk,
-        reset,
-        [fillPort],
-        [readPort],
-      );
+      final cp =
+          CachePorts.fresh(32, 8, numFills: 1, numReads: 1, numEvictions: 0);
+      final cache = cp.createCache(clk, reset, directMappedFactory());
 
       await cache.build();
       unawaited(Simulator.run());
 
       // Reset
-      reset.inject(1);
-      fillPort.en.inject(0);
-      readPort.en.inject(0);
-
-      await clk.nextPosedge;
-      await clk.nextPosedge;
-      reset.inject(0);
-      await clk.nextPosedge;
+      await cp.resetCache(clk, reset);
 
       // Fill multiple addresses
       final addresses = [0x00, 0x01, 0x02, 0x03];
       final dataValues = [0x1111, 0x2222, 0x3333, 0x4444];
 
       for (var i = 0; i < addresses.length; i++) {
+        final fillPort = cp.fillPorts[0];
         fillPort.en.inject(1);
         fillPort.addr.inject(addresses[i]);
         fillPort.data.inject(dataValues[i]);
@@ -84,11 +73,12 @@ void main() {
         await clk.nextPosedge;
       }
 
-      fillPort.en.inject(0);
+      cp.fillPorts[0].en.inject(0);
       await clk.nextPosedge;
 
       // Read back all addresses
       for (var i = 0; i < addresses.length; i++) {
+        final readPort = cp.readPorts[0];
         readPort.en.inject(1);
         readPort.addr.inject(addresses[i]);
 
@@ -100,7 +90,7 @@ void main() {
                 '0x${addresses[i].toRadixString(16)}');
       }
 
-      readPort.en.inject(0);
+      cp.readPorts[0].en.inject(0);
       await clk.nextPosedge;
 
       await Simulator.endSimulation();
@@ -110,30 +100,20 @@ void main() {
       final clk = SimpleClockGenerator(10).clk;
       final reset = Logic();
 
-      final fillPort = ValidDataPortInterface(32, 8);
-      final readPort = ValidDataPortInterface(32, 8);
-
-      final cache = DirectMappedCache(
-        clk,
-        reset,
-        [fillPort],
-        [readPort],
-      );
+      final cp =
+          CachePorts.fresh(32, 8, numFills: 1, numReads: 1, numEvictions: 0);
+      final cache = cp.createCache(clk, reset, directMappedFactory());
 
       await cache.build();
       unawaited(Simulator.run());
 
       // Reset
-      reset.inject(1);
-      fillPort.en.inject(0);
-      readPort.en.inject(0);
-
-      await clk.nextPosedge;
-      await clk.nextPosedge;
-      reset.inject(0);
-      await clk.nextPosedge;
+      await cp.resetCache(clk, reset);
 
       // Fill address 0x10 (line 0, tag 1)
+      final fillPort = cp.fillPorts[0];
+      final readPort = cp.readPorts[0];
+
       fillPort.en.inject(1);
       fillPort.addr.inject(0x10);
       fillPort.data.inject(0xAAAA);
@@ -197,32 +177,22 @@ void main() {
     test('eviction on overwrite same line', () async {
       final clk = SimpleClockGenerator(10).clk;
       final reset = Logic();
-
-      final fillPort = ValidDataPortInterface(8, 8);
-      final readPort = ValidDataPortInterface(8, 8);
-      final evictionPort = ValidDataPortInterface(8, 8);
-
-      final cache = DirectMappedCache(clk, reset, [fillPort], [readPort],
-          evictions: [evictionPort], lines: 4);
+      final cp =
+          CachePorts.fresh(8, 8, numFills: 1, numReads: 1, numEvictions: 1);
+      final cache = cp.createCache(clk, reset, directMappedFactory());
 
       await cache.build();
       unawaited(Simulator.run());
 
       // Reset
-      reset.inject(1);
-      fillPort.en.inject(0);
-      fillPort.valid.inject(0);
-      fillPort.addr.inject(0);
-      fillPort.data.inject(0);
-      readPort.en.inject(0);
-      readPort.addr.inject(0);
-      await clk.waitCycles(2);
-
-      reset.inject(0);
-      await clk.waitCycles(1);
+      await cp.resetCache(clk, reset);
 
       // First fill: address 0x10 with data 0xAA
       // Line index = 0x10 & 0x3 = 0
+      final fillPort = cp.fillPorts[0];
+      final readPort = cp.readPorts[0];
+      final evictionPort = cp.evictionPorts[0];
+
       fillPort.en.inject(1);
       fillPort.valid.inject(1);
       fillPort.addr.inject(0x10);
@@ -300,34 +270,24 @@ void main() {
       final clk = SimpleClockGenerator(10).clk;
       final reset = Logic();
 
-      final fillPort = ValidDataPortInterface(8, 8);
-      final readPort = ValidDataPortInterface(8, 8);
-      final evictionPort = ValidDataPortInterface(8, 8);
-
-      final cache = DirectMappedCache(clk, reset, [fillPort], [readPort],
-          evictions: [evictionPort], lines: 4);
+      final cp =
+          CachePorts.fresh(8, 8, numFills: 1, numReads: 1, numEvictions: 1);
+      final cache = cp.createCache(clk, reset, directMappedFactory());
 
       await cache.build();
       unawaited(Simulator.run());
 
-      // Reset
-      reset.inject(1);
-      fillPort.en.inject(0);
-      fillPort.valid.inject(0);
-      fillPort.addr.inject(0);
-      fillPort.data.inject(0);
-      readPort.en.inject(0);
-      readPort.addr.inject(0);
-      await clk.waitCycles(2);
-
-      reset.inject(0);
-      await clk.waitCycles(1);
+      // Reset using centralized helper
+      await cp.resetCache(clk, reset);
 
       // Fill all 4 lines with different data
       final addresses = [0x00, 0x01, 0x02, 0x03];
       final dataValues = [0x11, 0x22, 0x33, 0x44];
 
       for (var i = 0; i < 4; i++) {
+        final fillPort = cp.fillPorts[0];
+        final evictionPort = cp.evictionPorts[0];
+
         fillPort.en.inject(1);
         fillPort.valid.inject(1);
         fillPort.addr.inject(addresses[i]);
@@ -346,6 +306,10 @@ void main() {
       }
 
       // Now cause a conflict: address 0x04 maps to same line as 0x00 (line 0)
+      final fillPort = cp.fillPorts[0];
+      final readPort = cp.readPorts[0];
+      final evictionPort = cp.evictionPorts[0];
+
       fillPort.en.inject(1);
       fillPort.valid.inject(1);
       fillPort.addr.inject(0x04);

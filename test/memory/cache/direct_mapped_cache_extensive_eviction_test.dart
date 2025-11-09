@@ -8,8 +8,8 @@
 // Author: Desmond Kirkpatrick <desmond.a.kirkpatrick@intel.com>
 
 import 'dart:async';
+
 import 'package:rohd/rohd.dart';
-import 'package:rohd_hcl/rohd_hcl.dart';
 import 'package:rohd_vf/rohd_vf.dart';
 import 'package:test/test.dart';
 
@@ -20,32 +20,20 @@ void main() {
     await Simulator.reset();
   });
 
-  Cache constructCache(Logic clk, Logic reset, CachePorts cp,
-          {int ways = 4, int lines = 16}) =>
-      DirectMappedCache(clk, reset, cp.fillPorts, cp.readPorts,
-          evictions: cp.evictionPorts.isNotEmpty ? cp.evictionPorts : null,
-          lines: lines);
-
-  Future<void> resetAll(Logic clk, Logic reset, CachePorts cp) async {
-    cp.reset();
-    reset.inject(1);
-    await clk.nextPosedge;
-    reset.inject(0);
-    await clk.waitCycles(2);
-  }
+  // Helper removed: use `cp.createCache(clk, reset, directMappedFactory(...))`
+  // directly at call sites.
 
   group('DirectMappedCache extensive eviction tests', () {
     test('sequential evictions across all lines', () async {
       final clk = SimpleClockGenerator(10).clk;
       final reset = Logic();
 
-// HACK:  fails with more than 1 fill/read/eviction port
-      final cp = makeCachePorts(8, 8, numFills: 1, numEvictions: 1);
-      final cache = constructCache(clk, reset, cp, lines: 8);
+      final cp = CachePorts.fresh(8, 8);
+      final cache = cp.createCache(clk, reset, directMappedFactory(lines: 8));
       await cache.build();
       unawaited(Simulator.run());
 
-      await resetAll(clk, reset, cp);
+      await cp.resetCache(clk, reset);
 
       final fillPort = cp.fillPorts[0];
       final evictionPort = cp.evictionPorts[0];
@@ -103,12 +91,12 @@ void main() {
       final reset = Logic();
 
       final cp =
-          makeCachePorts(8, 8, numReads: 1, numFills: 1, numEvictions: 1);
-      final cache = constructCache(clk, reset, cp, lines: 4);
+          CachePorts.fresh(8, 8, numReads: 1, numFills: 1, numEvictions: 1);
+      final cache = cp.createCache(clk, reset, directMappedFactory());
       await cache.build();
       unawaited(Simulator.run());
 
-      await resetAll(clk, reset, cp);
+      await cp.resetCache(clk, reset);
 
       // // Reset
       final fillPort = cp.fillPorts[0];
@@ -166,12 +154,12 @@ void main() {
       final reset = Logic();
 
       final cp =
-          makeCachePorts(8, 8, numReads: 1, numFills: 1, numEvictions: 1);
-      final cache = constructCache(clk, reset, cp, lines: 4);
+          CachePorts.fresh(8, 8, numReads: 1, numFills: 1, numEvictions: 1);
+      final cache = cp.createCache(clk, reset, directMappedFactory());
       await cache.build();
       unawaited(Simulator.run());
 
-      await resetAll(clk, reset, cp);
+      await cp.resetCache(clk, reset);
 
       await clk.waitCycles(1);
       final fillPort = cp.fillPorts[0];
@@ -278,12 +266,12 @@ void main() {
       final reset = Logic();
 
       final cp =
-          makeCachePorts(8, 8, numReads: 1, numFills: 1, numEvictions: 1);
-      final cache = constructCache(clk, reset, cp, lines: 4);
+          CachePorts.fresh(8, 8, numReads: 1, numFills: 1, numEvictions: 1);
+      final cache = cp.createCache(clk, reset, directMappedFactory());
       await cache.build();
       unawaited(Simulator.run());
 
-      await resetAll(clk, reset, cp);
+      await cp.resetCache(clk, reset);
 
       await clk.waitCycles(1);
       final fillPort = cp.fillPorts[0];
@@ -342,12 +330,12 @@ void main() {
       final reset = Logic();
 
       final cp =
-          makeCachePorts(8, 8, numReads: 1, numFills: 1, numEvictions: 1);
-      final cache = constructCache(clk, reset, cp, lines: 4);
+          CachePorts.fresh(8, 8, numReads: 1, numFills: 1, numEvictions: 1);
+      final cache = cp.createCache(clk, reset, directMappedFactory());
       await cache.build();
       unawaited(Simulator.run());
 
-      await resetAll(clk, reset, cp);
+      await cp.resetCache(clk, reset);
 
       await clk.waitCycles(1);
       final fillPort = cp.fillPorts[0];
@@ -407,12 +395,12 @@ void main() {
       final clk = SimpleClockGenerator(10).clk;
       final reset = Logic();
 
-      final cp = makeCachePorts(8, 8, numReads: 1);
-      final cache = constructCache(clk, reset, cp, lines: 4);
+      final cp = CachePorts.fresh(8, 8, numReads: 1);
+      final cache = cp.createCache(clk, reset, directMappedFactory());
       await cache.build();
       unawaited(Simulator.run());
 
-      await resetAll(clk, reset, cp);
+      await cp.resetCache(clk, reset);
 
       await clk.waitCycles(1);
       final fillPort0 = cp.fillPorts[0];
@@ -484,12 +472,12 @@ void main() {
       final reset = Logic();
 
       final cp =
-          makeCachePorts(8, 8, numReads: 1, numFills: 1, numEvictions: 1);
-      final cache = constructCache(clk, reset, cp, lines: 4);
+          CachePorts.fresh(8, 8, numReads: 1, numFills: 1, numEvictions: 1);
+      final cache = cp.createCache(clk, reset, directMappedFactory());
       await cache.build();
       unawaited(Simulator.run());
 
-      await resetAll(clk, reset, cp);
+      await cp.resetCache(clk, reset);
 
       await clk.waitCycles(1);
       final fillPort = cp.fillPorts[0];
@@ -548,12 +536,12 @@ void main() {
       final reset = Logic();
 
       final cp =
-          makeCachePorts(8, 8, numReads: 1, numFills: 1, numEvictions: 1);
-      final cache = constructCache(clk, reset, cp, lines: 4);
+          CachePorts.fresh(8, 8, numReads: 1, numFills: 1, numEvictions: 1);
+      final cache = cp.createCache(clk, reset, directMappedFactory());
       await cache.build();
       unawaited(Simulator.run());
 
-      await resetAll(clk, reset, cp);
+      await cp.resetCache(clk, reset);
 
       await clk.waitCycles(1);
       final fillPort = cp.fillPorts[0];
@@ -611,12 +599,12 @@ void main() {
       final reset = Logic();
 
       final cp =
-          makeCachePorts(8, 8, numReads: 1, numFills: 1, numEvictions: 1);
-      final cache = constructCache(clk, reset, cp, lines: 4);
+          CachePorts.fresh(8, 8, numReads: 1, numFills: 1, numEvictions: 1);
+      final cache = cp.createCache(clk, reset, directMappedFactory());
       await cache.build();
       unawaited(Simulator.run());
 
-      await resetAll(clk, reset, cp);
+      await cp.resetCache(clk, reset);
 
       await clk.waitCycles(1);
       final fillPort = cp.fillPorts[0];

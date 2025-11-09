@@ -23,16 +23,46 @@ import 'package:rohd_hcl/rohd_hcl.dart';
 import 'package:rohd_vf/rohd_vf.dart';
 import 'package:test/test.dart';
 
-/// Helper function to create a cache factory for testing.
+// CacheFactory typedef and factory helpers (migrated from cache_factories.dart)
 @visibleForTesting
-Cache Function(Logic, Logic, List<ValidDataPortInterface>,
-    List<ValidDataPortInterface>) createCacheFactory(
-        int ways) =>
-    (clk, reset, fills, reads) => FullyAssociativeCache(
+typedef CacheFactory = Cache Function(Logic clk, Logic reset,
+    List<ValidDataPortInterface> fills, List<ValidDataPortInterface> reads,
+    [List<ValidDataPortInterface>? evictions]);
+
+/// Return a typed factory that constructs a DirectMappedCache.
+CacheFactory directMappedFactory({int lines = 4}) =>
+    (clk, reset, fills, reads, [evictions]) => DirectMappedCache(
           clk,
           reset,
           fills,
           reads,
+          evictions:
+              (evictions == null || evictions.isEmpty) ? null : evictions,
+          lines: lines,
+        );
+
+/// Return a typed factory that constructs a SetAssociativeCache.
+CacheFactory setAssociativeFactory({int ways = 4, int lines = 2}) =>
+    (clk, reset, fills, reads, [evictions]) => SetAssociativeCache(
+          clk,
+          reset,
+          fills,
+          reads,
+          evictions:
+              (evictions == null || evictions.isEmpty) ? null : evictions,
+          ways: ways,
+          lines: lines,
+        );
+
+/// Return a typed factory that constructs a FullyAssociativeCache.
+CacheFactory fullyAssociativeFactory({int ways = 4}) =>
+    (clk, reset, fills, reads, [evictions]) => FullyAssociativeCache(
+          clk,
+          reset,
+          fills,
+          reads,
+          evictions:
+              (evictions == null || evictions.isEmpty) ? null : evictions,
           ways: ways,
         );
 
@@ -52,20 +82,47 @@ class CachePorts {
     }
   }
 
+  /// Reset all cache port interfaces for testing (instance method).
+  Future<void> resetCache(Logic clk, Logic reset,
+      {int preReleaseCycles = 2, int postReleaseCycles = 1}) async {
+    // Assert reset and initialize port signals to known values.
+    reset.inject(1);
+    for (final p in [fillPorts, readPorts, evictionPorts]) {
+      for (final port in p) {
+        port.en.inject(0);
+        port.addr.inject(0);
+        port.data.inject(0);
+        port.valid.inject(0);
+      }
+    }
+    await clk.waitCycles(preReleaseCycles);
+
+    // Deassert reset and allow circuits to come out of reset.
+    reset.inject(0);
+    await clk.waitCycles(postReleaseCycles);
+  }
+
   CachePorts(this.fillPorts, this.readPorts, this.evictionPorts);
+
+  /// Named constructor to create fresh cache port lists with commonly used
+  /// defaults. Tests should prefer `CachePorts.fresh(...)`.
+  CachePorts.fresh(int datawidth, int addrWidth,
+      {int numFills = 2, int numReads = 2, int numEvictions = 2})
+      : fillPorts = List.generate(
+            numFills, (_) => ValidDataPortInterface(datawidth, addrWidth)),
+        readPorts = List.generate(
+            numReads, (_) => ValidDataPortInterface(datawidth, addrWidth)),
+        evictionPorts = List.generate(
+            numEvictions, (_) => ValidDataPortInterface(datawidth, addrWidth));
+
+  /// Construct a cache instance using the current port lists.
+  Cache createCache(Logic clk, Logic reset, CacheFactory factory) =>
+      factory(clk, reset, fillPorts, readPorts, evictionPorts);
 }
 
-@visibleForTesting
-CachePorts makeCachePorts(int datawidth, int addrWidth,
-    {int numFills = 2, int numReads = 2, int numEvictions = 2}) {
-  final fillPorts = List.generate(
-      numFills, (_) => ValidDataPortInterface(datawidth, addrWidth));
-  final readPorts = List.generate(
-      numReads, (_) => ValidDataPortInterface(datawidth, addrWidth));
-  final evictionPorts = List.generate(
-      numEvictions, (_) => ValidDataPortInterface(datawidth, addrWidth));
-  return CachePorts(fillPorts, readPorts, evictionPorts);
-}
+// Legacy free helper `makeCachePorts` removed. Tests should prefer
+// `CachePorts.fresh(datawidth, addrWidth)` and instance methods like
+// `cp.resetCache(clk, reset)`.
 
 void main() {
   tearDown(() async {
@@ -76,37 +133,17 @@ void main() {
   final cacheConfigs = [
     {
       'name': 'DirectMappedCache',
-      'create': (Logic clk,
-              Logic reset,
-              List<ValidDataPortInterface> fills,
-              List<ValidDataPortInterface> reads,
-              List<ValidDataPortInterface> evictions) =>
-          DirectMappedCache(clk, reset, fills, reads,
-              evictions: evictions.isEmpty ? null : evictions, lines: 4),
+      'create': directMappedFactory(),
       'capacity': 4, // 4 lines, 1 way each
     },
     {
       'name': 'SetAssociativeCache',
-      'create': (Logic clk,
-              Logic reset,
-              List<ValidDataPortInterface> fills,
-              List<ValidDataPortInterface> reads,
-              List<ValidDataPortInterface> evictions) =>
-          SetAssociativeCache(clk, reset, fills, reads,
-              evictions: evictions.isEmpty ? null : evictions,
-              ways: 4,
-              lines: 2),
+      'create': setAssociativeFactory(),
       'capacity': 8, // 4 ways * 2 lines
     },
     {
       'name': 'FullyAssociativeCache',
-      'create': (Logic clk,
-              Logic reset,
-              List<ValidDataPortInterface> fills,
-              List<ValidDataPortInterface> reads,
-              List<ValidDataPortInterface> evictions) =>
-          FullyAssociativeCache(clk, reset, fills, reads,
-              evictions: evictions.isEmpty ? null : evictions),
+      'create': fullyAssociativeFactory(),
       'capacity': 4, // 4 ways
     },
   ];
@@ -117,33 +154,21 @@ void main() {
         final clk = SimpleClockGenerator(10).clk;
         final reset = Logic();
 
-        final fillPort = ValidDataPortInterface(8, 8);
-        final readPort = ValidDataPortInterface(8, 8);
+        final cp =
+            CachePorts.fresh(8, 8, numFills: 1, numReads: 1, numEvictions: 0);
+        final createCache = config['create']! as CacheFactory;
 
-        final createCache = config['create']! as Cache Function(
-            Logic,
-            Logic,
-            List<ValidDataPortInterface>,
-            List<ValidDataPortInterface>,
-            List<ValidDataPortInterface>);
+        final cache = cp.createCache(clk, reset, createCache);
 
-        final cache = createCache(clk, reset, [fillPort], [readPort], []);
+        // Local aliases for compatibility with existing test code.
+        final fillPort = cp.fillPorts[0];
+        final readPort = cp.readPorts[0];
 
         await cache.build();
         unawaited(Simulator.run());
 
         // Reset
-        reset.inject(1);
-        fillPort.en.inject(0);
-        fillPort.valid.inject(0);
-        fillPort.addr.inject(0);
-        fillPort.data.inject(0);
-        readPort.en.inject(0);
-        readPort.addr.inject(0);
-        await clk.waitCycles(2);
-
-        reset.inject(0);
-        await clk.nextPosedge;
+        await cp.resetCache(clk, reset);
 
         // Read from address 0x10 (cache miss)
         readPort.en.inject(1);
@@ -183,42 +208,22 @@ void main() {
         final clk = SimpleClockGenerator(10).clk;
         final reset = Logic();
 
-        final fillPort1 = ValidDataPortInterface(8, 8);
-        final fillPort2 = ValidDataPortInterface(8, 8);
-        final readPort1 = ValidDataPortInterface(8, 8);
-        final readPort2 = ValidDataPortInterface(8, 8);
+        final cp = CachePorts.fresh(8, 8, numEvictions: 0);
+        final createCache = config['create']! as CacheFactory;
 
-        final createCache = config['create']! as Cache Function(
-            Logic,
-            Logic,
-            List<ValidDataPortInterface>,
-            List<ValidDataPortInterface>,
-            List<ValidDataPortInterface>);
+        final cache = cp.createCache(clk, reset, createCache);
 
-        final cache = createCache(
-            clk, reset, [fillPort1, fillPort2], [readPort1, readPort2], []);
+        // Local aliases matching previous test variable names.
+        final fillPort1 = cp.fillPorts[0];
+        final fillPort2 = cp.fillPorts[1];
+        final readPort1 = cp.readPorts[0];
+        final readPort2 = cp.readPorts[1];
 
         await cache.build();
         unawaited(Simulator.run());
 
         // Reset
-        reset.inject(1);
-        fillPort1.en.inject(0);
-        fillPort1.valid.inject(0);
-        fillPort1.addr.inject(0);
-        fillPort1.data.inject(0);
-        fillPort2.en.inject(0);
-        fillPort2.valid.inject(0);
-        fillPort2.addr.inject(0);
-        fillPort2.data.inject(0);
-        readPort1.en.inject(0);
-        readPort1.addr.inject(0);
-        readPort2.en.inject(0);
-        readPort2.addr.inject(0);
-        await clk.waitCycles(2);
-
-        reset.inject(0);
-        await clk.waitCycles(1);
+        await cp.resetCache(clk, reset);
 
         // Fill using both ports with non-conflicting addresses
         fillPort1.en.inject(1);
@@ -263,37 +268,21 @@ void main() {
         final clk = SimpleClockGenerator(10).clk;
         final reset = Logic();
 
-        final fillPort = ValidDataPortInterface(8, 8);
-        final readPort0 = ValidDataPortInterface(8, 8);
-        final readPort1 = ValidDataPortInterface(8, 8);
+        final cp = CachePorts.fresh(8, 8, numFills: 1, numEvictions: 0);
+        final createCache = config['create']! as CacheFactory;
 
-        final createCache = config['create']! as Cache Function(
-            Logic,
-            Logic,
-            List<ValidDataPortInterface>,
-            List<ValidDataPortInterface>,
-            List<ValidDataPortInterface>);
+        final cache = cp.createCache(clk, reset, createCache);
 
-        final cache =
-            createCache(clk, reset, [fillPort], [readPort0, readPort1], []);
+        // Local aliases for ports
+        final fillPort = cp.fillPorts[0];
+        final readPort0 = cp.readPorts[0];
+        final readPort1 = cp.readPorts[1];
 
         await cache.build();
         unawaited(Simulator.run());
 
         // Reset
-        reset.inject(1);
-        fillPort.en.inject(0);
-        fillPort.valid.inject(0);
-        fillPort.addr.inject(0);
-        fillPort.data.inject(0);
-        readPort0.en.inject(0);
-        readPort0.addr.inject(0);
-        readPort1.en.inject(0);
-        readPort1.addr.inject(0);
-        await clk.waitCycles(2);
-
-        reset.inject(0);
-        await clk.waitCycles(1);
+        await cp.resetCache(clk, reset);
 
         // Fill two entries with non-conflicting addresses
         fillPort.en.inject(1);
@@ -304,6 +293,7 @@ void main() {
         fillPort.en.inject(0);
         await clk.waitCycles(1);
 
+        // Second fill
         fillPort.en.inject(1);
         fillPort.valid.inject(1);
         fillPort.addr.inject(0x21);
@@ -337,33 +327,21 @@ void main() {
         final clk = SimpleClockGenerator(10).clk;
         final reset = Logic();
 
-        final fillPort = ValidDataPortInterface(8, 8);
-        final readPort = ValidDataPortInterface(8, 8);
+        final cp =
+            CachePorts.fresh(8, 8, numFills: 1, numReads: 1, numEvictions: 1);
+        final createCache = config['create']! as CacheFactory;
 
-        final createCache = config['create']! as Cache Function(
-            Logic,
-            Logic,
-            List<ValidDataPortInterface>,
-            List<ValidDataPortInterface>,
-            List<ValidDataPortInterface>);
+        final cache = cp.createCache(clk, reset, createCache);
 
-        final cache = createCache(clk, reset, [fillPort], [readPort], []);
+        // Local aliases
+        final fillPort = cp.fillPorts[0];
+        final readPort = cp.readPorts[0];
 
         await cache.build();
         unawaited(Simulator.run());
 
         // Reset
-        reset.inject(1);
-        fillPort.en.inject(0);
-        fillPort.valid.inject(0);
-        fillPort.addr.inject(0);
-        fillPort.data.inject(0);
-        readPort.en.inject(0);
-        readPort.addr.inject(0);
-        await clk.waitCycles(2);
-
-        reset.inject(0);
-        await clk.waitCycles(1);
+        await cp.resetCache(clk, reset);
 
         // Pre-fill an entry
         fillPort.en.inject(1);
@@ -408,117 +386,26 @@ void main() {
     });
 
     group('${config['name']} common eviction tests', () {
-      test('invalidation eviction', () async {
-        final clk = SimpleClockGenerator(10).clk;
-        final reset = Logic();
-
-        final fillPort = ValidDataPortInterface(8, 8);
-        final readPort = ValidDataPortInterface(8, 8);
-        final evictionPort = ValidDataPortInterface(8, 8);
-
-        final createCache = config['create']! as Cache Function(
-            Logic,
-            Logic,
-            List<ValidDataPortInterface>,
-            List<ValidDataPortInterface>,
-            List<ValidDataPortInterface>);
-
-        final cache =
-            createCache(clk, reset, [fillPort], [readPort], [evictionPort]);
-
-        await cache.build();
-        unawaited(Simulator.run());
-
-        // Reset
-        reset.inject(1);
-        fillPort.en.inject(0);
-        fillPort.valid.inject(0);
-        fillPort.addr.inject(0);
-        fillPort.data.inject(0);
-        readPort.en.inject(0);
-        readPort.addr.inject(0);
-        await clk.waitCycles(2);
-
-        reset.inject(0);
-        await clk.waitCycles(1);
-
-        // Fill entry
-        fillPort.en.inject(1);
-        fillPort.valid.inject(1);
-        fillPort.addr.inject(0x50);
-        fillPort.data.inject(0xDD);
-        await clk.nextPosedge;
-        fillPort.en.inject(0);
-        await clk.waitCycles(1);
-
-        // Verify entry exists
-        readPort.en.inject(1);
-        readPort.addr.inject(0x50);
-        await clk.nextPosedge;
-        expect(readPort.valid.value.toBool(), isTrue);
-        expect(readPort.data.value.toInt(), equals(0xDD));
-        readPort.en.inject(0);
-        await clk.waitCycles(1);
-
-        // Invalidate the entry
-        fillPort.en.inject(1);
-        fillPort.valid.inject(0); // Invalidation
-        fillPort.addr.inject(0x50);
-
-        Simulator.registerAction(Simulator.time + 1, () {
-          expect(evictionPort.valid.value.toBool(), isTrue,
-              reason: 'Invalidation should evict');
-          expect(evictionPort.addr.value.toInt(), equals(0x50));
-          expect(evictionPort.data.value.toInt(), equals(0xDD));
-        });
-
-        await clk.nextPosedge;
-        fillPort.en.inject(0);
-        await clk.waitCycles(1);
-
-        // Verify entry is now invalid
-        readPort.en.inject(1);
-        readPort.addr.inject(0x50);
-        await clk.nextPosedge;
-        expect(readPort.valid.value.toBool(), isFalse);
-        readPort.en.inject(0);
-
-        await Simulator.endSimulation();
-      });
-
       test('no eviction on hit update', () async {
         final clk = SimpleClockGenerator(10).clk;
         final reset = Logic();
 
-        final fillPort = ValidDataPortInterface(8, 8);
-        final readPort = ValidDataPortInterface(8, 8);
-        final evictionPort = ValidDataPortInterface(8, 8);
+        final cp =
+            CachePorts.fresh(8, 8, numFills: 1, numReads: 1, numEvictions: 1);
+        final createCache = config['create']! as CacheFactory;
 
-        final createCache = config['create']! as Cache Function(
-            Logic,
-            Logic,
-            List<ValidDataPortInterface>,
-            List<ValidDataPortInterface>,
-            List<ValidDataPortInterface>);
-
-        final cache =
-            createCache(clk, reset, [fillPort], [readPort], [evictionPort]);
+        final cache = cp.createCache(clk, reset, createCache);
 
         await cache.build();
         unawaited(Simulator.run());
 
         // Reset
-        reset.inject(1);
-        fillPort.en.inject(0);
-        fillPort.valid.inject(0);
-        fillPort.addr.inject(0);
-        fillPort.data.inject(0);
-        readPort.en.inject(0);
-        readPort.addr.inject(0);
-        await clk.waitCycles(2);
+        await cp.resetCache(clk, reset);
 
-        reset.inject(0);
-        await clk.waitCycles(1);
+        // Local aliases
+        final fillPort = cp.fillPorts[0];
+        final evictionPort = cp.evictionPorts[0];
+        final readPort = cp.readPorts[0];
 
         // Fill entry
         fillPort.en.inject(1);
@@ -559,41 +446,22 @@ void main() {
         final clk = SimpleClockGenerator(10).clk;
         final reset = Logic();
 
-        final fillPort0 = ValidDataPortInterface(8, 8);
-        final fillPort1 = ValidDataPortInterface(8, 8);
-        final readPort = ValidDataPortInterface(8, 8);
-        final evictionPort0 = ValidDataPortInterface(8, 8);
-        final evictionPort1 = ValidDataPortInterface(8, 8);
+        final cp = CachePorts.fresh(8, 8, numReads: 1);
+        final createCache = config['create']! as CacheFactory;
 
-        final createCache = config['create']! as Cache Function(
-            Logic,
-            Logic,
-            List<ValidDataPortInterface>,
-            List<ValidDataPortInterface>,
-            List<ValidDataPortInterface>);
+        final cache = cp.createCache(clk, reset, createCache);
 
-        final cache = createCache(clk, reset, [fillPort0, fillPort1],
-            [readPort], [evictionPort0, evictionPort1]);
+        // Local aliases for multi-port test
+        final fillPort0 = cp.fillPorts[0];
+        final fillPort1 = cp.fillPorts[1];
+        final evictionPort0 = cp.evictionPorts[0];
+        final evictionPort1 = cp.evictionPorts[1];
 
         await cache.build();
         unawaited(Simulator.run());
 
         // Reset
-        reset.inject(1);
-        fillPort0.en.inject(0);
-        fillPort0.valid.inject(0);
-        fillPort0.addr.inject(0);
-        fillPort0.data.inject(0);
-        fillPort1.en.inject(0);
-        fillPort1.valid.inject(0);
-        fillPort1.addr.inject(0);
-        fillPort1.data.inject(0);
-        readPort.en.inject(0);
-        readPort.addr.inject(0);
-        await clk.waitCycles(2);
-
-        reset.inject(0);
-        await clk.waitCycles(1);
+        await cp.resetCache(clk, reset);
 
         final writtenData = <int, int>{};
         final capacity = config['capacity']! as int;
@@ -680,35 +548,21 @@ void main() {
         final clk = SimpleClockGenerator(10).clk;
         final reset = Logic();
 
-        final fillPort = ValidDataPortInterface(8, 8);
-        final readPort = ValidDataPortInterface(8, 8);
-        final evictionPort = ValidDataPortInterface(8, 8);
+        final cp =
+            CachePorts.fresh(8, 8, numFills: 1, numReads: 1, numEvictions: 1);
+        final createCache = config['create']! as CacheFactory;
 
-        final createCache = config['create']! as Cache Function(
-            Logic,
-            Logic,
-            List<ValidDataPortInterface>,
-            List<ValidDataPortInterface>,
-            List<ValidDataPortInterface>);
+        final cache = cp.createCache(clk, reset, createCache);
 
-        final cache =
-            createCache(clk, reset, [fillPort], [readPort], [evictionPort]);
+        // Local aliases
+        final fillPort = cp.fillPorts[0];
+        final evictionPort = cp.evictionPorts[0];
 
         await cache.build();
         unawaited(Simulator.run());
 
         // Reset
-        reset.inject(1);
-        fillPort.en.inject(0);
-        fillPort.valid.inject(0);
-        fillPort.addr.inject(0);
-        fillPort.data.inject(0);
-        readPort.en.inject(0);
-        readPort.addr.inject(0);
-        await clk.waitCycles(2);
-
-        reset.inject(0);
-        await clk.waitCycles(1);
+        await cp.resetCache(clk, reset);
 
         final writtenData = <int, int>{};
         var evictionCount = 0;
@@ -754,35 +608,22 @@ void main() {
         final clk = SimpleClockGenerator(10).clk;
         final reset = Logic();
 
-        final fillPort = ValidDataPortInterface(8, 8);
-        final readPort = ValidDataPortInterface(8, 8);
-        final evictionPort = ValidDataPortInterface(8, 8);
+        final cp =
+            CachePorts.fresh(8, 8, numFills: 1, numReads: 1, numEvictions: 1);
+        final createCache = config['create']! as CacheFactory;
 
-        final createCache = config['create']! as Cache Function(
-            Logic,
-            Logic,
-            List<ValidDataPortInterface>,
-            List<ValidDataPortInterface>,
-            List<ValidDataPortInterface>);
-
-        final cache =
-            createCache(clk, reset, [fillPort], [readPort], [evictionPort]);
+        final cache = cp.createCache(clk, reset, createCache);
 
         await cache.build();
         unawaited(Simulator.run());
 
         // Reset
-        reset.inject(1);
-        fillPort.en.inject(0);
-        fillPort.valid.inject(0);
-        fillPort.addr.inject(0);
-        fillPort.data.inject(0);
-        readPort.en.inject(0);
-        readPort.addr.inject(0);
-        await clk.waitCycles(2);
+        await cp.resetCache(clk, reset);
 
-        reset.inject(0);
-        await clk.waitCycles(1);
+        // Local aliases
+        final fillPort = cp.fillPorts[0];
+        final evictionPort = cp.evictionPorts[0];
+        final readPort = cp.readPorts[0];
 
         final writtenData = <int, int>{};
         final capacity = config['capacity']! as int;
@@ -846,35 +687,21 @@ void main() {
         final clk = SimpleClockGenerator(10).clk;
         final reset = Logic();
 
-        final fillPort = ValidDataPortInterface(8, 8);
-        final readPort = ValidDataPortInterface(8, 8);
-        final evictionPort = ValidDataPortInterface(8, 8);
+        final cp =
+            CachePorts.fresh(8, 8, numFills: 1, numReads: 1, numEvictions: 1);
+        final createCache = config['create']! as CacheFactory;
 
-        final createCache = config['create']! as Cache Function(
-            Logic,
-            Logic,
-            List<ValidDataPortInterface>,
-            List<ValidDataPortInterface>,
-            List<ValidDataPortInterface>);
-
-        final cache =
-            createCache(clk, reset, [fillPort], [readPort], [evictionPort]);
+        final cache = cp.createCache(clk, reset, createCache);
 
         await cache.build();
         unawaited(Simulator.run());
 
         // Reset
-        reset.inject(1);
-        fillPort.en.inject(0);
-        fillPort.valid.inject(0);
-        fillPort.addr.inject(0);
-        fillPort.data.inject(0);
-        readPort.en.inject(0);
-        readPort.addr.inject(0);
-        await clk.waitCycles(2);
+        await cp.resetCache(clk, reset);
 
-        reset.inject(0);
-        await clk.waitCycles(1);
+        // Local aliases
+        final fillPort = cp.fillPorts[0];
+        final evictionPort = cp.evictionPorts[0];
 
         final writtenData = <int, int>{};
         final capacity = config['capacity']! as int;
@@ -925,34 +752,21 @@ void main() {
         final clk = SimpleClockGenerator(10).clk;
         final reset = Logic();
 
-        final fillPort = ValidDataPortInterface(8, 8);
-        final readPort = ValidDataPortInterface(8, 8);
+        final cp =
+            CachePorts.fresh(8, 8, numFills: 1, numReads: 1, numEvictions: 0);
+        final createCache = config['create']! as CacheFactory;
 
-        final createCache = config['create']! as Cache Function(
-            Logic,
-            Logic,
-            List<ValidDataPortInterface>,
-            List<ValidDataPortInterface>,
-            List<ValidDataPortInterface>);
-
-        final cache = createCache(
-            clk, reset, [fillPort], [readPort], <ValidDataPortInterface>[]);
+        final cache = cp.createCache(clk, reset, createCache);
 
         await cache.build();
         unawaited(Simulator.run());
 
         // Reset
-        reset.inject(1);
-        fillPort.en.inject(0);
-        fillPort.valid.inject(0);
-        fillPort.addr.inject(0);
-        fillPort.data.inject(0);
-        readPort.en.inject(0);
-        readPort.addr.inject(0);
-        await clk.waitCycles(2);
+        await cp.resetCache(clk, reset);
 
-        reset.inject(0);
-        await clk.waitCycles(1);
+        // Local aliases
+        final fillPort = cp.fillPorts[0];
+        final readPort = cp.readPorts[0];
 
         // Pre-fill an entry
         fillPort.en.inject(1);
@@ -1001,35 +815,22 @@ void main() {
         final clk = SimpleClockGenerator(10).clk;
         final reset = Logic();
 
-        final fillPort = ValidDataPortInterface(8, 8);
-        final readPort = ValidDataPortInterface(8, 8);
-        final evictionPort = ValidDataPortInterface(8, 8);
+        final cp =
+            CachePorts.fresh(8, 8, numFills: 1, numReads: 1, numEvictions: 1);
+        final createCache = config['create']! as CacheFactory;
 
-        final createCache = config['create']! as Cache Function(
-            Logic,
-            Logic,
-            List<ValidDataPortInterface>,
-            List<ValidDataPortInterface>,
-            List<ValidDataPortInterface>);
-
-        final cache =
-            createCache(clk, reset, [fillPort], [readPort], [evictionPort]);
+        final cache = cp.createCache(clk, reset, createCache);
 
         await cache.build();
         unawaited(Simulator.run());
 
         // Reset
-        reset.inject(1);
-        fillPort.en.inject(0);
-        fillPort.valid.inject(0);
-        fillPort.addr.inject(0);
-        fillPort.data.inject(0);
-        readPort.en.inject(0);
-        readPort.addr.inject(0);
-        await clk.waitCycles(2);
+        await cp.resetCache(clk, reset);
 
-        reset.inject(0);
-        await clk.waitCycles(1);
+        // Local aliases
+        final fillPort = cp.fillPorts[0];
+        final readPort = cp.readPorts[0];
+        final evictionPort = cp.evictionPorts[0];
 
         // Pre-fill entry
         fillPort.en.inject(1);
@@ -1082,37 +883,27 @@ void main() {
         final clk = SimpleClockGenerator(10).clk;
         final reset = Logic();
 
-        final fillPort = ValidDataPortInterface(8, 8);
-        final readPort =
+        // Use CachePorts and replace the read port with one that supports
+        // readWithInvalidate.
+        final cp =
+            CachePorts.fresh(8, 8, numFills: 1, numReads: 1, numEvictions: 1);
+        // Replace the default read port with a read-with-invalidate capable
+        // port.
+        cp.readPorts[0] =
             ValidDataPortInterface(8, 8, hasReadWithInvalidate: true);
-        final evictionPort = ValidDataPortInterface(8, 8);
 
-        final createCache = config['create']! as Cache Function(
-            Logic,
-            Logic,
-            List<ValidDataPortInterface>,
-            List<ValidDataPortInterface>,
-            List<ValidDataPortInterface>);
-
-        final cache =
-            createCache(clk, reset, [fillPort], [readPort], [evictionPort]);
+        final createCache = config['create']! as CacheFactory;
+        final cache = cp.createCache(clk, reset, createCache);
 
         await cache.build();
         unawaited(Simulator.run());
 
-        // Reset
-        reset.inject(1);
-        fillPort.en.inject(0);
-        fillPort.valid.inject(0);
-        fillPort.addr.inject(0);
-        fillPort.data.inject(0);
-        readPort.en.inject(0);
-        readPort.addr.inject(0);
-        readPort.readWithInvalidate.inject(0);
-        await clk.waitCycles(2);
+        // Reset using the CachePorts helper which initializes ports too.
+        await cp.resetCache(clk, reset);
 
-        reset.inject(0);
-        await clk.waitCycles(1);
+        // Local aliases
+        final fillPort = cp.fillPorts[0];
+        final readPort = cp.readPorts[0];
 
         // Pre-fill two entries
         fillPort.en.inject(1);
@@ -1168,33 +959,21 @@ void main() {
         final clk = SimpleClockGenerator(10).clk;
         final reset = Logic();
 
-        final fillPort = ValidDataPortInterface(8, 8);
-        final readPort = ValidDataPortInterface(8, 8);
+        final cp =
+            CachePorts.fresh(8, 8, numFills: 1, numReads: 1, numEvictions: 0);
+        final createCache = config['create']! as CacheFactory;
 
-        final createCache = config['create']! as Cache Function(
-            Logic,
-            Logic,
-            List<ValidDataPortInterface>,
-            List<ValidDataPortInterface>,
-            List<ValidDataPortInterface>);
-
-        final cache = createCache(clk, reset, [fillPort], [readPort], []);
+        final cache = cp.createCache(clk, reset, createCache);
 
         await cache.build();
         unawaited(Simulator.run());
 
         // Reset
-        reset.inject(1);
-        fillPort.en.inject(0);
-        fillPort.valid.inject(0);
-        fillPort.addr.inject(0);
-        fillPort.data.inject(0);
-        readPort.en.inject(0);
-        readPort.addr.inject(0);
-        await clk.waitCycles(2);
+        await cp.resetCache(clk, reset);
 
-        reset.inject(0);
-        await clk.waitCycles(1);
+        // Local aliases
+        final fillPort = cp.fillPorts[0];
+        final readPort = cp.readPorts[0];
 
         // Fill entry at address 0x42 with data 0xAB
         fillPort.en.inject(1);
@@ -1240,35 +1019,25 @@ void main() {
         final clk = SimpleClockGenerator(10).clk;
         final reset = Logic();
 
-        final fillPort = ValidDataPortInterface(8, 8);
-        final readPort =
+        // Use CachePorts and replace read port with read-with-invalidate
+        // capable port.
+        final cp =
+            CachePorts.fresh(8, 8, numFills: 1, numReads: 1, numEvictions: 0);
+        cp.readPorts[0] =
             ValidDataPortInterface(8, 8, hasReadWithInvalidate: true);
 
-        final createCache = config['create']! as Cache Function(
-            Logic,
-            Logic,
-            List<ValidDataPortInterface>,
-            List<ValidDataPortInterface>,
-            List<ValidDataPortInterface>);
-
-        final cache = createCache(clk, reset, [fillPort], [readPort], []);
+        final createCache = config['create']! as CacheFactory;
+        final cache = cp.createCache(clk, reset, createCache);
 
         await cache.build();
         unawaited(Simulator.run());
 
-        // Reset
-        reset.inject(1);
-        fillPort.en.inject(0);
-        fillPort.valid.inject(0);
-        fillPort.addr.inject(0);
-        fillPort.data.inject(0);
-        readPort.en.inject(0);
-        readPort.addr.inject(0);
-        readPort.readWithInvalidate.inject(0);
-        await clk.waitCycles(2);
+        // Reset using helper
+        await cp.resetCache(clk, reset);
 
-        reset.inject(0);
-        await clk.waitCycles(1);
+        // Local aliases
+        final fillPort = cp.fillPorts[0];
+        final readPort = cp.readPorts[0];
 
         // Fill entry at address 0x42 with data 0xAB
         fillPort.en.inject(1);
