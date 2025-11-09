@@ -408,7 +408,6 @@ void main() {
       final fillPort2 = cp.fillPorts[1];
 
       await cache.build();
-      WaveDumper(cache, outputPath: 'cache_eviction_simul.vcd');
       unawaited(Simulator.run());
 
       // Reset using CachePorts instance helper to clear ports and pulse reset.
