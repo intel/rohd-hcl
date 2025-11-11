@@ -21,6 +21,14 @@ class Axi5StreamDriver extends PendingClockedDriver<Axi5StreamPacket> {
   /// AXI5 Stream Interface.
   final Axi5StreamInterface stream;
 
+  /// Capture link utilization/bandwidth over time
+  ///
+  /// Based on the % of cycles in which we want to send a transaction
+  /// and actually can (i.e., credits available).
+  num get linkUtilization => _linkValidAndReadyCount / _linkValidCount;
+  int _linkValidCount = 0;
+  int _linkValidAndReadyCount = 0;
+
   /// Creates a new [Axi5StreamDriver].
   Axi5StreamDriver({
     required Component parent,
@@ -71,6 +79,7 @@ class Axi5StreamDriver extends PendingClockedDriver<Axi5StreamPacket> {
   }
 
   Future<void> _driveStreamPacket(Axi5StreamPacket packet) async {
+    _linkValidCount++;
     Simulator.injectAction(() async {
       stream.valid.put(1);
       stream.id?.put(packet.id ?? 0);
@@ -88,8 +97,10 @@ class Axi5StreamDriver extends PendingClockedDriver<Axi5StreamPacket> {
     // need to hold the request until receiver is ready
     await sys.clk.nextPosedge;
     while (!stream.ready!.previousValue!.toBool()) {
+      _linkValidCount++;
       await sys.clk.nextPosedge;
     }
+    _linkValidAndReadyCount++;
 
     // now we can release the request
     // in the future, we may want to wait for the response to complete

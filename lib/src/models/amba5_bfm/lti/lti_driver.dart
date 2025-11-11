@@ -35,6 +35,14 @@ class LtiLaChannelDriver extends PendingClockedDriver<LtiLaChannelPacket> {
   // By default, we always have a credit.
   static void _defaultUpdateCredits(int vc) {}
 
+  /// Capture link utilization/bandwidth over time
+  ///
+  /// Based on the % of cycles in which we want to send a transaction
+  /// and actually can (i.e., credits available).
+  num get linkUtilization => _linkValidAndReadyCount / _linkValidCount;
+  int _linkValidCount = 0;
+  int _linkValidAndReadyCount = 0;
+
   /// Creates a new [LtiLaChannelDriver].
   LtiLaChannelDriver({
     required Component parent,
@@ -105,9 +113,12 @@ class LtiLaChannelDriver extends PendingClockedDriver<LtiLaChannelPacket> {
   Future<void> _driveRequestPacket(LtiLaChannelPacket packet) async {
     // wait until credits are available
     while (!hasCredits(packet.vc)) {
+      _linkValidCount++;
       await sys.clk.nextPosedge;
     }
 
+    _linkValidCount++;
+    _linkValidAndReadyCount++;
     Simulator.injectAction(() {
       la.valid.put(1);
       la.addr.put(packet.addr);
@@ -169,6 +180,14 @@ class LtiLrChannelDriver extends PendingClockedDriver<LtiLrChannelPacket> {
 
   // By default, we always have a credit.
   static void _defaultUpdateCredits(int vc) {}
+
+  /// Capture link utilization/bandwidth over time
+  ///
+  /// Based on the % of cycles in which we want to send a transaction
+  /// and actually can (i.e., credits available).
+  num get linkUtilization => _linkValidAndReadyCount / _linkValidCount;
+  int _linkValidCount = 0;
+  int _linkValidAndReadyCount = 0;
 
   /// Creates a new [LtiLrChannelDriver].
   LtiLrChannelDriver({
@@ -234,9 +253,12 @@ class LtiLrChannelDriver extends PendingClockedDriver<LtiLrChannelPacket> {
   Future<void> _driveRequestPacket(LtiLrChannelPacket packet) async {
     // wait until credits are available
     while (!hasCredits(packet.vc)) {
+      _linkValidCount++;
       await sys.clk.nextPosedge;
     }
 
+    _linkValidCount++;
+    _linkValidAndReadyCount++;
     Simulator.injectAction(() {
       lr.valid.put(1);
       lr.addr.put(packet.addr);
@@ -291,6 +313,14 @@ class LtiLcChannelDriver extends PendingClockedDriver<LtiLcChannelPacket> {
   // By default, we always have a credit.
   static void _defaultUpdateCredits() {}
 
+  /// Capture link utilization/bandwidth over time
+  ///
+  /// Based on the % of cycles in which we want to send a transaction
+  /// and actually can (i.e., credits available).
+  num get linkUtilization => _linkValidAndReadyCount / _linkValidCount;
+  int _linkValidCount = 0;
+  int _linkValidAndReadyCount = 0;
+
   /// Creates a new [LtiLcChannelDriver].
   LtiLcChannelDriver({
     required Component parent,
@@ -339,9 +369,12 @@ class LtiLcChannelDriver extends PendingClockedDriver<LtiLcChannelPacket> {
   Future<void> _driveRequestPacket(LtiLcChannelPacket packet) async {
     // wait until credits are available
     while (!hasCredits()) {
+      _linkValidCount++;
       await sys.clk.nextPosedge;
     }
 
+    _linkValidCount++;
+    _linkValidAndReadyCount++;
     Simulator.injectAction(() {
       lc.valid.put(1);
       lc.user?.put(packet.user?.user ?? 0);
@@ -379,6 +412,14 @@ class LtiLtChannelDriver extends PendingClockedDriver<LtiLtChannelPacket> {
 
   // By default, we always have a credit.
   static void _defaultUpdateCredits() {}
+
+  /// Capture link utilization/bandwidth over time
+  ///
+  /// Based on the % of cycles in which we want to send a transaction
+  /// and actually can (i.e., credits available).
+  num get linkUtilization => _linkValidAndReadyCount / _linkValidCount;
+  int _linkValidCount = 0;
+  int _linkValidAndReadyCount = 0;
 
   /// Creates a new [LtiLtChannelDriver].
   LtiLtChannelDriver({
@@ -428,9 +469,12 @@ class LtiLtChannelDriver extends PendingClockedDriver<LtiLtChannelPacket> {
   Future<void> _driveRequestPacket(LtiLtChannelPacket packet) async {
     // wait until credits are available
     while (!hasCredits()) {
+      _linkValidCount++;
       await sys.clk.nextPosedge;
     }
 
+    _linkValidCount++;
+    _linkValidAndReadyCount++;
     Simulator.injectAction(() {
       lt.valid.put(1);
       lt.user?.put(packet.user?.user ?? 0);

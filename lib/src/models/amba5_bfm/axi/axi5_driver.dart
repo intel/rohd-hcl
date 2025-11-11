@@ -79,6 +79,14 @@ class Axi5ArChannelDriver extends PendingClockedDriver<Axi5ArChannelPacket> {
   /// AXI5 AR Interface.
   final Axi5ArChannelInterface ar;
 
+  /// Capture link utilization/bandwidth over time
+  ///
+  /// Based on the % of cycles in which we want to send a transaction
+  /// and actually can (i.e., credits available).
+  num get linkUtilization => _linkValidAndReadyCount / _linkValidCount;
+  int _linkValidCount = 0;
+  int _linkValidAndReadyCount = 0;
+
   /// Creates a new [Axi5ArChannelDriver].
   Axi5ArChannelDriver({
     required Component parent,
@@ -162,6 +170,7 @@ class Axi5ArChannelDriver extends PendingClockedDriver<Axi5ArChannelPacket> {
   }
 
   Future<void> _driveRequestPacket(Axi5ArChannelPacket packet) async {
+    _linkValidCount++;
     Simulator.injectAction(() {
       ar.valid.put(1);
       ar.addr.put(packet.request.addr);
@@ -212,8 +221,10 @@ class Axi5ArChannelDriver extends PendingClockedDriver<Axi5ArChannelPacket> {
     // need to hold the request until receiver is ready
     await sys.clk.nextPosedge;
     while (!ar.ready!.previousValue!.toBool()) {
+      _linkValidCount++;
       await sys.clk.nextPosedge;
     }
+    _linkValidAndReadyCount++;
 
     // now we can release the request
     // in the future, we may want to wait for the response to complete
@@ -233,6 +244,14 @@ class Axi5AwChannelDriver extends PendingClockedDriver<Axi5AwChannelPacket> {
 
   /// AXI5 AW Interface.
   final Axi5AwChannelInterface aw;
+
+  /// Capture link utilization/bandwidth over time
+  ///
+  /// Based on the % of cycles in which we want to send a transaction
+  /// and actually can (i.e., credits available).
+  num get linkUtilization => _linkValidAndReadyCount / _linkValidCount;
+  int _linkValidCount = 0;
+  int _linkValidAndReadyCount = 0;
 
   /// Creates a new [Axi5AwChannelDriver].
   Axi5AwChannelDriver({
@@ -319,6 +338,7 @@ class Axi5AwChannelDriver extends PendingClockedDriver<Axi5AwChannelPacket> {
   }
 
   Future<void> _driveRequestPacket(Axi5AwChannelPacket packet) async {
+    _linkValidCount++;
     Simulator.injectAction(() {
       aw.valid.put(1);
       aw.addr.put(packet.request.addr);
@@ -371,8 +391,10 @@ class Axi5AwChannelDriver extends PendingClockedDriver<Axi5AwChannelPacket> {
     // need to hold the request until receiver is ready
     await sys.clk.nextPosedge;
     while (!aw.ready!.previousValue!.toBool()) {
+      _linkValidCount++;
       await sys.clk.nextPosedge;
     }
+    _linkValidAndReadyCount++;
 
     // now we can release the request
     // in the future, we may want to wait for the response to complete
@@ -392,6 +414,14 @@ class Axi5RChannelDriver extends PendingClockedDriver<Axi5RChannelPacket> {
 
   /// AXI5 R Interface.
   final Axi5RChannelInterface r;
+
+  /// Capture link utilization/bandwidth over time
+  ///
+  /// Based on the % of cycles in which we want to send a transaction
+  /// and actually can (i.e., credits available).
+  num get linkUtilization => _linkValidAndReadyCount / _linkValidCount;
+  int _linkValidCount = 0;
+  int _linkValidAndReadyCount = 0;
 
   /// Creates a new [Axi5RChannelDriver].
   Axi5RChannelDriver({
@@ -457,6 +487,7 @@ class Axi5RChannelDriver extends PendingClockedDriver<Axi5RChannelPacket> {
 
   Future<void> _driveRequestPacket(Axi5RChannelPacket packet) async {
     for (var i = 0; i < packet.data.length; i++) {
+      _linkValidCount++;
       Simulator.injectAction(() async {
         r.valid.put(1);
         r.data.put(packet.data[i].data);
@@ -483,8 +514,10 @@ class Axi5RChannelDriver extends PendingClockedDriver<Axi5RChannelPacket> {
       // need to hold the request until receiver is ready
       await sys.clk.nextPosedge;
       while (!r.ready!.previousValue!.toBool()) {
+        _linkValidCount++;
         await sys.clk.nextPosedge;
       }
+      _linkValidAndReadyCount++;
     }
 
     // now we can release the request
@@ -505,6 +538,14 @@ class Axi5WChannelDriver extends PendingClockedDriver<Axi5WChannelPacket> {
 
   /// AXI5 W Interface.
   final Axi5WChannelInterface w;
+
+  /// Capture link utilization/bandwidth over time
+  ///
+  /// Based on the % of cycles in which we want to send a transaction
+  /// and actually can (i.e., credits available).
+  num get linkUtilization => _linkValidAndReadyCount / _linkValidCount;
+  int _linkValidCount = 0;
+  int _linkValidAndReadyCount = 0;
 
   /// Creates a new [Axi5WChannelDriver].
   Axi5WChannelDriver({
@@ -561,6 +602,7 @@ class Axi5WChannelDriver extends PendingClockedDriver<Axi5WChannelPacket> {
 
   Future<void> _driveRequestPacket(Axi5WChannelPacket packet) async {
     for (var i = 0; i < packet.data.length; i++) {
+      _linkValidCount++;
       Simulator.injectAction(() {
         w.valid.put(1);
         w.data.put(packet.data[i].data);
@@ -579,8 +621,10 @@ class Axi5WChannelDriver extends PendingClockedDriver<Axi5WChannelPacket> {
       // need to hold the request until receiver is ready
       await sys.clk.nextPosedge;
       while (!w.ready!.previousValue!.toBool()) {
+        _linkValidCount++;
         await sys.clk.nextPosedge;
       }
+      _linkValidAndReadyCount++;
     }
 
     // now we can release the request
@@ -601,6 +645,14 @@ class Axi5BChannelDriver extends PendingClockedDriver<Axi5BChannelPacket> {
 
   /// AXI5 B Interface.
   final Axi5BChannelInterface b;
+
+  /// Capture link utilization/bandwidth over time
+  ///
+  /// Based on the % of cycles in which we want to send a transaction
+  /// and actually can (i.e., credits available).
+  num get linkUtilization => _linkValidAndReadyCount / _linkValidCount;
+  int _linkValidCount = 0;
+  int _linkValidAndReadyCount = 0;
 
   /// Creates a new [Axi5BChannelDriver].
   Axi5BChannelDriver({
@@ -656,6 +708,7 @@ class Axi5BChannelDriver extends PendingClockedDriver<Axi5BChannelPacket> {
   }
 
   Future<void> _driveResponsePacket(Axi5BChannelPacket packet) async {
+    _linkValidCount++;
     Simulator.injectAction(() {
       b.valid.put(1);
       b.id?.put(packet.id?.id ?? 0);
@@ -677,8 +730,10 @@ class Axi5BChannelDriver extends PendingClockedDriver<Axi5BChannelPacket> {
     // need to hold the response until receiver is ready
     await sys.clk.nextPosedge;
     while (!b.ready!.previousValue!.toBool()) {
+      _linkValidCount++;
       await sys.clk.nextPosedge;
     }
+    _linkValidAndReadyCount++;
 
     // now we can release the response
     // in the future, we may want to wait for the transaction to complete
@@ -698,6 +753,14 @@ class Axi5AcChannelDriver extends PendingClockedDriver<Axi5AcChannelPacket> {
 
   /// AXI5 AC Interface.
   final Axi5AcChannelInterface ac;
+
+  /// Capture link utilization/bandwidth over time
+  ///
+  /// Based on the % of cycles in which we want to send a transaction
+  /// and actually can (i.e., credits available).
+  num get linkUtilization => _linkValidAndReadyCount / _linkValidCount;
+  int _linkValidCount = 0;
+  int _linkValidAndReadyCount = 0;
 
   /// Creates a new [Axi5AcChannelDriver].
   Axi5AcChannelDriver({
@@ -745,6 +808,7 @@ class Axi5AcChannelDriver extends PendingClockedDriver<Axi5AcChannelPacket> {
   }
 
   Future<void> _driveAcPacket(Axi5AcChannelPacket packet) async {
+    _linkValidCount++;
     Simulator.injectAction(() {
       ac.valid.put(1);
       ac.addr?.put(packet.addr);
@@ -756,8 +820,10 @@ class Axi5AcChannelDriver extends PendingClockedDriver<Axi5AcChannelPacket> {
     // need to hold the request until receiver is ready
     await sys.clk.nextPosedge;
     if (!ac.ready!.previousValue!.toBool()) {
+      _linkValidCount++;
       await ac.ready!.nextPosedge;
     }
+    _linkValidAndReadyCount++;
 
     // now we can release the request
     Simulator.injectAction(() {
@@ -776,6 +842,14 @@ class Axi5CrChannelDriver extends PendingClockedDriver<Axi5CrChannelPacket> {
 
   /// AXI5 CR Interface.
   final Axi5CrChannelInterface cr;
+
+  /// Capture link utilization/bandwidth over time
+  ///
+  /// Based on the % of cycles in which we want to send a transaction
+  /// and actually can (i.e., credits available).
+  num get linkUtilization => _linkValidAndReadyCount / _linkValidCount;
+  int _linkValidCount = 0;
+  int _linkValidAndReadyCount = 0;
 
   /// Creates a new [Axi5CrChannelDriver].
   Axi5CrChannelDriver({
@@ -821,6 +895,7 @@ class Axi5CrChannelDriver extends PendingClockedDriver<Axi5CrChannelPacket> {
   }
 
   Future<void> _driveCrPacket(Axi5CrChannelPacket packet) async {
+    _linkValidCount++;
     Simulator.injectAction(() {
       cr.valid.put(1);
       cr.trace?.put(packet.debug?.trace ?? 0);
@@ -830,8 +905,10 @@ class Axi5CrChannelDriver extends PendingClockedDriver<Axi5CrChannelPacket> {
     // need to hold the request until receiver is ready
     await sys.clk.nextPosedge;
     while (!cr.ready!.previousValue!.toBool()) {
+      _linkValidCount++;
       await sys.clk.nextPosedge;
     }
+    _linkValidAndReadyCount++;
 
     // now we can release the request
     Simulator.injectAction(() {
