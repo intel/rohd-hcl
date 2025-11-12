@@ -29,6 +29,13 @@ class Axi5StreamDriver extends PendingClockedDriver<Axi5StreamPacket> {
   int _linkValidCount = 0;
   int _linkValidAndReadyCount = 0;
 
+  /// Should we capture link utilization.
+  ///
+  /// This is helpful to exclude certain time windows from the aggregate
+  /// calculation.
+  void toggleLinkUtilization({bool on = true}) => _linkUtilizationEnabled = on;
+  bool _linkUtilizationEnabled = false;
+
   /// Creates a new [Axi5StreamDriver].
   Axi5StreamDriver({
     required Component parent,
@@ -79,7 +86,9 @@ class Axi5StreamDriver extends PendingClockedDriver<Axi5StreamPacket> {
   }
 
   Future<void> _driveStreamPacket(Axi5StreamPacket packet) async {
-    _linkValidCount++;
+    if (_linkUtilizationEnabled) {
+      _linkValidCount++;
+    }
     Simulator.injectAction(() async {
       stream.valid.put(1);
       stream.id?.put(packet.id ?? 0);
@@ -97,10 +106,14 @@ class Axi5StreamDriver extends PendingClockedDriver<Axi5StreamPacket> {
     // need to hold the request until receiver is ready
     await sys.clk.nextPosedge;
     while (!stream.ready!.previousValue!.toBool()) {
-      _linkValidCount++;
+      if (_linkUtilizationEnabled) {
+        _linkValidCount++;
+      }
       await sys.clk.nextPosedge;
     }
-    _linkValidAndReadyCount++;
+    if (_linkUtilizationEnabled) {
+      _linkValidAndReadyCount++;
+    }
 
     // now we can release the request
     // in the future, we may want to wait for the response to complete

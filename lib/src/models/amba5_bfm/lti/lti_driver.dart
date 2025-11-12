@@ -43,6 +43,13 @@ class LtiLaChannelDriver extends PendingClockedDriver<LtiLaChannelPacket> {
   int _linkValidCount = 0;
   int _linkValidAndReadyCount = 0;
 
+  /// Should we capture link utilization.
+  ///
+  /// This is helpful to exclude certain time windows from the aggregate
+  /// calculation.
+  void toggleLinkUtilization({bool on = true}) => _linkUtilizationEnabled = on;
+  bool _linkUtilizationEnabled = false;
+
   /// Creates a new [LtiLaChannelDriver].
   LtiLaChannelDriver({
     required Component parent,
@@ -113,12 +120,16 @@ class LtiLaChannelDriver extends PendingClockedDriver<LtiLaChannelPacket> {
   Future<void> _driveRequestPacket(LtiLaChannelPacket packet) async {
     // wait until credits are available
     while (!hasCredits(packet.vc)) {
-      _linkValidCount++;
+      if (_linkUtilizationEnabled) {
+        _linkValidCount++;
+      }
       await sys.clk.nextPosedge;
     }
 
-    _linkValidCount++;
-    _linkValidAndReadyCount++;
+    if (_linkUtilizationEnabled) {
+      _linkValidCount++;
+      _linkValidAndReadyCount++;
+    }
     Simulator.injectAction(() {
       la.valid.put(1);
       la.addr.put(packet.addr);
@@ -189,6 +200,13 @@ class LtiLrChannelDriver extends PendingClockedDriver<LtiLrChannelPacket> {
   int _linkValidCount = 0;
   int _linkValidAndReadyCount = 0;
 
+  /// Should we capture link utilization.
+  ///
+  /// This is helpful to exclude certain time windows from the aggregate
+  /// calculation.
+  void toggleLinkUtilization({bool on = true}) => _linkUtilizationEnabled = on;
+  bool _linkUtilizationEnabled = false;
+
   /// Creates a new [LtiLrChannelDriver].
   LtiLrChannelDriver({
     required Component parent,
@@ -253,12 +271,16 @@ class LtiLrChannelDriver extends PendingClockedDriver<LtiLrChannelPacket> {
   Future<void> _driveRequestPacket(LtiLrChannelPacket packet) async {
     // wait until credits are available
     while (!hasCredits(packet.vc)) {
-      _linkValidCount++;
+      if (_linkUtilizationEnabled) {
+        _linkValidCount++;
+      }
       await sys.clk.nextPosedge;
     }
 
-    _linkValidCount++;
-    _linkValidAndReadyCount++;
+    if (_linkUtilizationEnabled) {
+      _linkValidCount++;
+      _linkValidAndReadyCount++;
+    }
     Simulator.injectAction(() {
       lr.valid.put(1);
       lr.addr.put(packet.addr);
@@ -321,6 +343,13 @@ class LtiLcChannelDriver extends PendingClockedDriver<LtiLcChannelPacket> {
   int _linkValidCount = 0;
   int _linkValidAndReadyCount = 0;
 
+  /// Should we capture link utilization.
+  ///
+  /// This is helpful to exclude certain time windows from the aggregate
+  /// calculation.
+  void toggleLinkUtilization({bool on = true}) => _linkUtilizationEnabled = on;
+  bool _linkUtilizationEnabled = false;
+
   /// Creates a new [LtiLcChannelDriver].
   LtiLcChannelDriver({
     required Component parent,
@@ -369,12 +398,16 @@ class LtiLcChannelDriver extends PendingClockedDriver<LtiLcChannelPacket> {
   Future<void> _driveRequestPacket(LtiLcChannelPacket packet) async {
     // wait until credits are available
     while (!hasCredits()) {
-      _linkValidCount++;
+      if (_linkUtilizationEnabled) {
+        _linkValidCount++;
+      }
       await sys.clk.nextPosedge;
     }
 
-    _linkValidCount++;
-    _linkValidAndReadyCount++;
+    if (_linkUtilizationEnabled) {
+      _linkValidCount++;
+      _linkValidAndReadyCount++;
+    }
     Simulator.injectAction(() {
       lc.valid.put(1);
       lc.user?.put(packet.user?.user ?? 0);
@@ -420,6 +453,13 @@ class LtiLtChannelDriver extends PendingClockedDriver<LtiLtChannelPacket> {
   num get linkUtilization => _linkValidAndReadyCount / _linkValidCount;
   int _linkValidCount = 0;
   int _linkValidAndReadyCount = 0;
+
+  /// Should we capture link utilization.
+  ///
+  /// This is helpful to exclude certain time windows from the aggregate
+  /// calculation.
+  void toggleLinkUtilization({bool on = true}) => _linkUtilizationEnabled = on;
+  bool _linkUtilizationEnabled = false;
 
   /// Creates a new [LtiLtChannelDriver].
   LtiLtChannelDriver({
@@ -469,12 +509,16 @@ class LtiLtChannelDriver extends PendingClockedDriver<LtiLtChannelPacket> {
   Future<void> _driveRequestPacket(LtiLtChannelPacket packet) async {
     // wait until credits are available
     while (!hasCredits()) {
-      _linkValidCount++;
+      if (_linkUtilizationEnabled) {
+        _linkValidCount++;
+      }
       await sys.clk.nextPosedge;
     }
 
-    _linkValidCount++;
-    _linkValidAndReadyCount++;
+    if (_linkUtilizationEnabled) {
+      _linkValidCount++;
+      _linkValidAndReadyCount++;
+    }
     Simulator.injectAction(() {
       lt.valid.put(1);
       lt.user?.put(packet.user?.user ?? 0);
