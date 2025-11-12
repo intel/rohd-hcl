@@ -92,7 +92,7 @@ class Axi5ArChannelDriver extends PendingClockedDriver<Axi5ArChannelPacket> {
   /// This is helpful to exclude certain time windows from the aggregate
   /// calculation.
   void toggleLinkUtilization({bool on = true}) => _linkUtilizationEnabled = on;
-  bool _linkUtilizationEnabled = false;
+  bool _linkUtilizationEnabled = true;
 
   /// Creates a new [Axi5ArChannelDriver].
   Axi5ArChannelDriver({
@@ -271,7 +271,7 @@ class Axi5AwChannelDriver extends PendingClockedDriver<Axi5AwChannelPacket> {
   /// This is helpful to exclude certain time windows from the aggregate
   /// calculation.
   void toggleLinkUtilization({bool on = true}) => _linkUtilizationEnabled = on;
-  bool _linkUtilizationEnabled = false;
+  bool _linkUtilizationEnabled = true;
 
   /// Creates a new [Axi5AwChannelDriver].
   Axi5AwChannelDriver({
@@ -454,7 +454,7 @@ class Axi5RChannelDriver extends PendingClockedDriver<Axi5RChannelPacket> {
   /// This is helpful to exclude certain time windows from the aggregate
   /// calculation.
   void toggleLinkUtilization({bool on = true}) => _linkUtilizationEnabled = on;
-  bool _linkUtilizationEnabled = false;
+  bool _linkUtilizationEnabled = true;
 
   /// Creates a new [Axi5RChannelDriver].
   Axi5RChannelDriver({
@@ -591,7 +591,7 @@ class Axi5WChannelDriver extends PendingClockedDriver<Axi5WChannelPacket> {
   /// This is helpful to exclude certain time windows from the aggregate
   /// calculation.
   void toggleLinkUtilization({bool on = true}) => _linkUtilizationEnabled = on;
-  bool _linkUtilizationEnabled = false;
+  bool _linkUtilizationEnabled = true;
 
   /// Creates a new [Axi5WChannelDriver].
   Axi5WChannelDriver({
@@ -711,7 +711,7 @@ class Axi5BChannelDriver extends PendingClockedDriver<Axi5BChannelPacket> {
   /// This is helpful to exclude certain time windows from the aggregate
   /// calculation.
   void toggleLinkUtilization({bool on = true}) => _linkUtilizationEnabled = on;
-  bool _linkUtilizationEnabled = false;
+  bool _linkUtilizationEnabled = true;
 
   /// Creates a new [Axi5BChannelDriver].
   Axi5BChannelDriver({
@@ -832,7 +832,7 @@ class Axi5AcChannelDriver extends PendingClockedDriver<Axi5AcChannelPacket> {
   /// This is helpful to exclude certain time windows from the aggregate
   /// calculation.
   void toggleLinkUtilization({bool on = true}) => _linkUtilizationEnabled = on;
-  bool _linkUtilizationEnabled = false;
+  bool _linkUtilizationEnabled = true;
 
   /// Creates a new [Axi5AcChannelDriver].
   Axi5AcChannelDriver({
@@ -934,7 +934,7 @@ class Axi5CrChannelDriver extends PendingClockedDriver<Axi5CrChannelPacket> {
   /// This is helpful to exclude certain time windows from the aggregate
   /// calculation.
   void toggleLinkUtilization({bool on = true}) => _linkUtilizationEnabled = on;
-  bool _linkUtilizationEnabled = false;
+  bool _linkUtilizationEnabled = true;
 
   /// Creates a new [Axi5CrChannelDriver].
   Axi5CrChannelDriver({

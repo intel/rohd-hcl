@@ -34,7 +34,7 @@ class Axi5StreamDriver extends PendingClockedDriver<Axi5StreamPacket> {
   /// This is helpful to exclude certain time windows from the aggregate
   /// calculation.
   void toggleLinkUtilization({bool on = true}) => _linkUtilizationEnabled = on;
-  bool _linkUtilizationEnabled = false;
+  bool _linkUtilizationEnabled = true;
 
   /// Creates a new [Axi5StreamDriver].
   Axi5StreamDriver({

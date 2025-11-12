@@ -48,7 +48,7 @@ class LtiLaChannelDriver extends PendingClockedDriver<LtiLaChannelPacket> {
   /// This is helpful to exclude certain time windows from the aggregate
   /// calculation.
   void toggleLinkUtilization({bool on = true}) => _linkUtilizationEnabled = on;
-  bool _linkUtilizationEnabled = false;
+  bool _linkUtilizationEnabled = true;
 
   /// Creates a new [LtiLaChannelDriver].
   LtiLaChannelDriver({
@@ -205,7 +205,7 @@ class LtiLrChannelDriver extends PendingClockedDriver<LtiLrChannelPacket> {
   /// This is helpful to exclude certain time windows from the aggregate
   /// calculation.
   void toggleLinkUtilization({bool on = true}) => _linkUtilizationEnabled = on;
-  bool _linkUtilizationEnabled = false;
+  bool _linkUtilizationEnabled = true;
 
   /// Creates a new [LtiLrChannelDriver].
   LtiLrChannelDriver({
@@ -348,7 +348,7 @@ class LtiLcChannelDriver extends PendingClockedDriver<LtiLcChannelPacket> {
   /// This is helpful to exclude certain time windows from the aggregate
   /// calculation.
   void toggleLinkUtilization({bool on = true}) => _linkUtilizationEnabled = on;
-  bool _linkUtilizationEnabled = false;
+  bool _linkUtilizationEnabled = true;
 
   /// Creates a new [LtiLcChannelDriver].
   LtiLcChannelDriver({
@@ -459,7 +459,7 @@ class LtiLtChannelDriver extends PendingClockedDriver<LtiLtChannelPacket> {
   /// This is helpful to exclude certain time windows from the aggregate
   /// calculation.
   void toggleLinkUtilization({bool on = true}) => _linkUtilizationEnabled = on;
-  bool _linkUtilizationEnabled = false;
+  bool _linkUtilizationEnabled = true;
 
   /// Creates a new [LtiLtChannelDriver].
   LtiLtChannelDriver({
