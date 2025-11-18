@@ -1,4 +1,6 @@
 // two translation interfaces + DTI interface
+import 'dart:math';
+
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
 
@@ -7,6 +9,8 @@ import 'package:rohd_hcl/rohd_hcl.dart';
 ///
 /// Namely, sending TRANS_REQ, INV_ACK, SYNC_ACK, CONDIS_REQ.
 /// and receiving TRANS_RESP{EX}, TRANS_FAULT, INV_REQ, SYNC_REQ, CONDIS_ACK.
+///
+/// TODO(kimmeljo): support a dynamic TDEST for sending...
 class DtiTbuMainController extends Module {
   /// Clock and reset.
   late final Axi5SystemInterface sys;
@@ -17,229 +21,281 @@ class DtiTbuMainController extends Module {
   /// Inbound DTI messages.
   late final Axi5StreamInterface fromSub;
 
-  /// Translation requests from IOTLB.
-  late final ReadyValidInterface<DtiTbuTransReq> transReqSend;
+  /// Translation requests.
+  late final ReadyValidInterface<DtiTbuTransReq>? transReqSend;
 
-  /// Interrupts mapped as Translation requests.
-  late final IrqRequestInterface fromMsi;
+  /// Invalidation ACKs.
+  late final ReadyValidInterface<DtiTbuInvAck>? invAckSend;
 
-  /// Invaliation ACK.
-  late final InvalidationAckInterface? invalAck;
+  /// Synchronization ACKs.
+  late final ReadyValidInterface<DtiTbuSyncAck>? syncAckSend;
 
-  /// Invaliation ACK (Intel forked).
-  late final InvalidationAckVtdInterface? invalAckVtd;
+  /// Connect/Disconnect requests.
+  late final ReadyValidInterface<DtiTbuCondisReq> condisReqSend;
 
-  /// Synchronization ACK.
-  late final SynchronizationAckInterface? syncAck;
+  // /// Translation responses.
+  // /// This covers both RESP and RESPEX
+  // late final ReadyValidInterface<DtiTbuTransResp>? transRespOut;
 
-  // outbound request FIFO
-  late final Logic _outgoingReqsWrEn;
-  late final Logic _outgoingReqsWrData;
-  late final Logic _outgoingReqsRdEn;
-  late final Fifo _outgoingReqs;
+  // /// Translation faults.
+  // late final ReadyValidInterface<DtiTbuTransFault>? transFaultOut;
 
-  // invalidation responses
-  // separate FIFO for QoS
-  late final Logic _invalWrEn;
-  late final Logic _invalWrData;
-  late final Logic _invalRdEn;
-  late final Fifo _inval;
+  // /// Invalidation requests.
+  // late final ReadyValidInterface<DtiTbuInvReq>? invReqOut;
 
-  /// Source ID is configurable at ATCB CSR level.
-  late final Logic atcbSrcId;
+  // /// Synchronization requests.
+  // late final ReadyValidInterface<DtiTbuSyncReq>? syncReqOut;
 
-  /// Destination ID is configurable at ATCB CSR level.
-  late final Logic atuDestId;
+  // /// Connect/Disconnects ACKs.
+  // late final ReadyValidInterface<DtiTbuCondisAck>? condisAckOut;
 
-  /// Number of translation tokens to request is
-  /// configurable at ATCB CSR level.
-  late final Logic tokTransReq;
+  /// Arbitration across different message classes for
+  /// sending messages out over AXI-S (toSub).
+  late final Arbiter? outboundArbiter;
 
-  /// Number of invalidation tokens to grant is
-  /// configurable at ATCB CSR level.
-  late final Logic tokInvGnt;
+  /// Depth of FIFO for pending TRANS_REQs to send.
+  late final int transReqSendFifoDepth;
 
-  /// Connection request ACK received
-  late final Logic connAck;
+  /// Depth of FIFO for pending INV_ACKs and SYNC_ACKs to send.
+  late final int invSyncAckSendFifoDepth;
 
-  /// Granted number of translation request tokens.
-  late final Logic transTokenGrant;
+  /// Depth of FIFO for pending CONDIS_REQs to send.
+  late final int condisReqSendFifoDepth;
 
-  late final FiniteStateMachine<DtiOutboundConnectionState> _connState;
+  /// Fixed source ID for this module.
+  ///
+  /// Placed into TID signal when sending.
+  /// Expected to be in TDEST signal when receiving.
+  late final Logic srcId;
 
-  // helper generate a connection request over DTI
-  // it is assumed that the configured token values
-  // don't exceed our FIFO depths
-  Logic _generateConnReq() => DtiTbuCondisReq('conReq')
-    ..msgType.gets(
-      Const(
-        DtiDownstreamMsgType.condisReq.value,
-        width: DtiTbuCondisReq.msgTypeWidth,
-      ),
-    )
-    ..state.gets(
-      Const(1, width: DtiTbuCondisReq.stateWidth),
-    ) // connection request
-    ..protocol.gets(Const(0, width: DtiTbuCondisReq.protocolWidth)) // must be 0
-    ..rsvd1.gets(Const(0, width: DtiTbuCondisReq.rsvd1Width))
-    ..impDef.gets(Const(0, width: DtiTbuCondisReq.impDefWidth))
-    ..version.gets(Const(4, width: DtiTbuCondisReq.versionWidth)) // v5
-    ..tokTransReq1.gets(
-      tokTransReq.getRange(0, DtiTbuCondisReq.tokTransReq1Width),
-    )
-    ..tokInvGnt.gets(tokInvGnt)
-    ..supReg.gets(
-      Const(0, width: DtiTbuCondisReq.supRegWidth),
-    ) // no register accesses
-    ..spd.gets(
-      Const(1, width: DtiTbuCondisReq.spdWidth),
-    ) // same power domain as ATU
-    ..stages.gets(
-      Const(1, width: DtiTbuCondisReq.stagesWidth),
-    ) // 1 = translations + GPC
-    ..tokTransReq2.gets(
-      tokTransReq.getRange(
-        DtiTbuCondisReq.tokTransReq1Width,
-        DtiTbuCondisReq.tokTransReqWidth,
-      ),
-    );
+  /// Fixed Destination ID for this module.
+  ///
+  /// Placed into TDEST signal when sending.
+  /// TODO(kimmeljo): allow dynamic TDEST per message?
+  late final Logic destId;
+
+  // outbound FIFOs
+  late final Fifo? _outTransReqs;
+  late final Fifo? _outInvSyncAcks;
+  late final Fifo? _outCondisReqs;
+
+  // track the number of outstanding translation requests
+  late final Logic _transTokensGranted;
+  late final Counter _transReqTokens;
+
+  // TODO(kimmeljo): still need to deal with the receiving side...
+
+  // manage the connection state
+  late final FiniteStateMachine<DtiConnectionState> _connState;
+  late final Logic _isConnected;
 
   /// Constructor.
   DtiTbuMainController({
     required Axi5SystemInterface sys,
-    required Axi5StreamInterface toAtu,
-    required TranslationRequestInterface fromCache,
-    required IrqRequestInterface fromMsi,
-    required Logic atcbSrcId,
-    required Logic atuDestId,
-    required Logic tokTransReq,
-    required Logic tokInvGnt,
-    required Logic connAck,
-    required Logic transTokenGrant,
-    InvalidationAckInterface? invalAck,
-    SynchronizationAckInterface? syncAck,
-    InvalidationAckVtdInterface? invalAckVtd,
-    super.name = 'dtiOutboundController',
-    this.requestFifoDepth = 8,
+    required Axi5StreamInterface toSub,
+    required Axi5StreamInterface fromSub,
+    required Logic srcId,
+    required Logic destId,
+    required ReadyValidInterface<DtiTbuCondisReq> condisReqSend,
+    ReadyValidInterface<DtiTbuTransReq>? transReqSend,
+    ReadyValidInterface<DtiTbuInvAck>? invAckSend,
+    ReadyValidInterface<DtiTbuSyncAck>? syncAckSend,
+    this.transReqSendFifoDepth = 1,
+    this.invSyncAckSendFifoDepth = 1,
+    this.condisReqSendFifoDepth = 1,
+    Arbiter? outboundArbiter,
+    super.name = 'dtiTbuMainController',
   }) {
     this.sys = addPairInterfacePorts(sys, PairRole.consumer);
-    this.toAtu = addPairInterfacePorts(
-      toAtu,
+    this.toSub = addPairInterfacePorts(
+      toSub,
       PairRole.provider,
-      uniquify: (original) => '${name}_toAtu_$original',
+      uniquify: (original) => '${name}_toSub_$original',
     );
-    this.fromCache = addPairInterfacePorts(
-      fromCache,
+    this.fromSub = addPairInterfacePorts(
+      fromSub,
       PairRole.consumer,
-      uniquify: (original) => '${name}_fromCache_$original',
+      uniquify: (original) => '${name}_fromSub_$original',
     );
-    this.fromMsi = addPairInterfacePorts(
-      fromMsi,
-      PairRole.consumer,
-      uniquify: (original) => '${name}_fromMsi_$original',
-    );
-    if (invalAck != null) {
-      this.invalAck = addPairInterfacePorts(
-        invalAck,
-        PairRole.consumer,
-        uniquify: (original) => '${name}_invalAck_$original',
-      );
+    if (transReqSend != null && transReqSendFifoDepth > 0) {
+      this.transReqSend = addPairInterfacePorts(transReqSend, PairRole.consumer,
+          uniquify: (original) => '${name}_transReqSend_$original');
     } else {
-      this.invalAck = null;
+      this.transReqSend = null;
     }
-    if (syncAck != null) {
-      this.syncAck = addPairInterfacePorts(
-        syncAck,
-        PairRole.consumer,
-        uniquify: (original) => '${name}_syncAck_$original',
-      );
+    if (invAckSend != null && invSyncAckSendFifoDepth > 0) {
+      this.invAckSend = addPairInterfacePorts(invAckSend, PairRole.consumer,
+          uniquify: (original) => '${name}_invAckSend_$original');
     } else {
-      this.syncAck = null;
+      this.invAckSend = null;
     }
-    if (invalAckVtd != null) {
-      this.invalAckVtd = addPairInterfacePorts(
-        invalAckVtd,
-        PairRole.consumer,
-        uniquify: (original) => '${name}_invalAck_$original',
-      );
+    if (syncAckSend != null && invSyncAckSendFifoDepth > 0) {
+      this.syncAckSend = addPairInterfacePorts(syncAckSend, PairRole.consumer,
+          uniquify: (original) => '${name}_syncAckSend_$original');
     } else {
-      this.invalAckVtd = null;
+      this.syncAckSend = null;
     }
-    this.atcbSrcId = addInput('atuSrcId', atcbSrcId, width: atcbSrcId.width);
-    this.atuDestId = addInput('atuDestId', atuDestId, width: atuDestId.width);
-    this.tokTransReq = addInput(
-      'tokTransReq',
-      tokTransReq,
-      width: tokTransReq.width,
-    );
-    this.tokInvGnt = addInput('tokInvGnt', tokInvGnt, width: tokInvGnt.width);
-    this.connAck = addInput('connAck', connAck, width: connAck.width);
-    this.transTokenGrant = addInput(
-      'transTokenGrant',
-      transTokenGrant,
-      width: transTokenGrant.width,
-    );
+    this.condisReqSend = addPairInterfacePorts(condisReqSend, PairRole.consumer,
+        uniquify: (original) => '${name}_condisReqSend_$original');
 
-    _outgoingReqsWrEn = Logic(name: 'outgoingReqsWrEn');
-    _outgoingReqsWrData = Logic(
-      name: 'outgoingReqsWrData',
-      width: toAtu.dataWidth,
-    );
-    _outgoingReqsRdEn = Logic(name: 'outgoingReqsRdEn');
-    _outgoingReqs = Fifo(
+    this.srcId = addInput('srcId', srcId, width: srcId.width);
+    this.destId = addInput('destId', destId, width: destId.width);
+
+    // capture the request lines into the arbiter
+    // dynamically based on which send queues are available
+    final arbiterReqs = <Logic>[];
+    var transReqArbIdx = 0;
+    var invSyncAckArbIdx = 0;
+    var condisReqArbIdx = 0;
+    if (this.transReqSend != null && transReqSendFifoDepth > 0) {
+      arbiterReqs.add(Logic(name: 'arbiter_req_transReq'));
+      transReqArbIdx = arbiterReqs.length - 1;
+    }
+    if ((this.invAckSend != null || this.syncAckSend != null) &&
+        invSyncAckSendFifoDepth > 0) {
+      arbiterReqs.add(Logic(name: 'arbiter_req_invSyncAck'));
+      invSyncAckArbIdx = arbiterReqs.length - 1;
+    }
+    arbiterReqs.add(Logic(name: 'arbiter_req_condisReq'));
+    condisReqArbIdx = arbiterReqs.length - 1;
+
+    if (outboundArbiter != null) {
+      this.outboundArbiter = outboundArbiter;
+    } else {
+      this.outboundArbiter = RoundRobinArbiter(arbiterReqs,
+          clk: this.sys.clk, reset: ~this.sys.resetN);
+    }
+
+    _isConnected = Logic(name: 'isConnected');
+
+    // FIFOs
+    if (this.transReqSend != null && transReqSendFifoDepth > 0) {
+      _outTransReqs = Fifo(
+        this.sys.clk,
+        ~this.sys.resetN,
+        writeEnable: this.transReqSend!.valid,
+        writeData: this.transReqSend!.data,
+        readEnable: this.outboundArbiter!.grants[transReqArbIdx] &
+            (toSub.valid & (toSub.ready ?? Const(1))),
+        depth: transReqSendFifoDepth,
+        generateOccupancy: true,
+        generateError: true,
+        name: 'outTransReqsFifo',
+      );
+      arbiterReqs[transReqArbIdx] <= ~_outTransReqs!.empty;
+
+      // must have translation tokens to spare
+      this.transReqSend!.ready <=
+          ~_outTransReqs!.full & _isConnected & _transReqTokens.count.neq(0);
+    } else {
+      _outTransReqs = null;
+      if (transReqSend != null) {
+        this.transReqSend!.ready <= Const(0);
+      }
+    }
+    if ((this.invAckSend != null || this.syncAckSend != null) &&
+        invSyncAckSendFifoDepth > 0) {
+      // if simultaneous inv + sync acks, inv ack gets priority
+      final invSyncFifoDataWidth =
+          max(DtiTbuInvAck.totalWidth, DtiTbuSyncAck.totalWidth);
+      _outInvSyncAcks = Fifo(
+        this.sys.clk,
+        ~this.sys.resetN,
+        writeEnable: (this.invAckSend?.valid ?? Const(0)) |
+            (this.syncAckSend?.valid ?? Const(0)),
+        writeData: mux(
+            this.invAckSend?.valid ?? Const(0),
+            this.invAckSend?.data.zeroExtend(invSyncFifoDataWidth) ??
+                Const(0, width: invSyncFifoDataWidth),
+            this.syncAckSend?.data.zeroExtend(invSyncFifoDataWidth) ??
+                Const(0, width: invSyncFifoDataWidth)),
+        readEnable: this.outboundArbiter!.grants[invSyncAckArbIdx] &
+            (toSub.valid & (toSub.ready ?? Const(1))),
+        depth: invSyncAckSendFifoDepth,
+        generateOccupancy: true,
+        generateError: true,
+        name: 'outInvSyncAckFifo',
+      );
+      arbiterReqs[invSyncAckArbIdx] <= ~_outInvSyncAcks!.empty;
+      this.invAckSend!.ready <= ~_outInvSyncAcks!.full & _isConnected;
+      this.syncAckSend!.ready <=
+          ~_outInvSyncAcks!.full &
+              _isConnected &
+              ~(this.invAckSend?.valid ?? Const(0));
+    } else {
+      _outInvSyncAcks = null;
+      if (invAckSend != null) {
+        this.invAckSend!.ready <= Const(0);
+      }
+      if (syncAckSend != null) {
+        this.syncAckSend!.ready <= Const(0);
+      }
+    }
+    _outCondisReqs = Fifo(
       this.sys.clk,
       ~this.sys.resetN,
-      writeEnable: _outgoingReqsWrEn,
-      writeData: _outgoingReqsWrData,
-      readEnable: _outgoingReqsRdEn,
-      depth: requestFifoDepth,
+      writeEnable: this.condisReqSend.valid,
+      writeData: this.condisReqSend.data,
+      readEnable: this.outboundArbiter!.grants[condisReqArbIdx] &
+          (toSub.valid & (toSub.ready ?? Const(1))),
+      depth: condisReqSendFifoDepth,
       generateOccupancy: true,
       generateError: true,
-      // generateBypass: false,
-      name: 'outgoingReqsFifo',
+      name: 'outCondisReqsFifo',
     );
+    arbiterReqs[condisReqArbIdx] <= ~_outCondisReqs!.empty;
+    this.condisReqSend.ready <= ~_outCondisReqs!.full;
 
-    _invalWrEn = Logic(name: 'invalWrEn');
-    _invalWrData = Logic(name: 'invalWrData', width: toAtu.dataWidth);
-    _invalRdEn = Logic(name: 'invalRdEn');
-    _inval = Fifo(
+    // connState + tokens
+    _transReqTokens =
+        TODO; // Counter.updn, disable when transReq goes out, enable when transResp/Fault comes back, seed back tokensGranted
+    _transTokensGranted = Logic(
+        name: 'transTokensGranted', width: DtiTbuCondisAck.tokTransGntWidth);
+
+    // Connection state machine
+    final connIn = condisReqSend.accepted & condisReqSend.data.state.eq(1);
+    final disconnIn = condisReqSend.accepted & condisReqSend.data.state.eq(1);
+    _connState = FiniteStateMachine<DtiConnectionState>(
       this.sys.clk,
       ~this.sys.resetN,
-      writeEnable: _invalWrEn,
-      writeData: _invalWrData,
-      readEnable: _invalRdEn,
-      depth: requestFifoDepth,
-      generateOccupancy: true,
-      generateError: true,
-      // generateBypass: false,
-      name: 'invalFifo',
-    );
-
-    _connState = FiniteStateMachine<DtiOutboundConnectionState>(
-      this.sys.clk,
-      ~this.sys.resetN,
-      DtiOutboundConnectionState.unconnected,
+      DtiConnectionState.unconnected,
       [
-        // UNCONNECTED
-        //  move to PENDING when the 1st request goes out on AXI-S
+        // UNCONNECTED: move to PENDINGCONN when the 1st condis connect request
+        //  goes out on AXI-S
         State(
-          DtiOutboundConnectionState.unconnected,
+          DtiConnectionState.unconnected,
           events: {
-            (this.toAtu.valid & (this.toAtu.ready ?? Const(1))):
-                DtiOutboundConnectionState.pending,
+            connIn: DtiConnectionState.pendingConn,
           },
           actions: [],
         ),
-        // PENDING
-        //  move to CONNECTED when we get the connection ACK from outside
+        // PENDINGCONN: move to CONNECTED when an ACK comes in that confirms
+        //  connenction move back to UNCONNECTED when an ACK comes in that
+        //  rejects connection
         State(
-          DtiOutboundConnectionState.pending,
-          events: {this.connAck: DtiOutboundConnectionState.connected},
+          DtiConnectionState.pendingConn,
+          events: {
+            TODO: DtiConnectionState.connected,
+            TODO: DtiConnectionState.unconnected
+          },
           actions: [],
         ),
-        // CONNECTED
-        //  never leave this state once in it for now...
-        State(DtiOutboundConnectionState.connected, events: {}, actions: []),
+        // CONNECTED:
+        //  move to PENDINGDISCON when we get a disconnect request in.
+        State(DtiConnectionState.connected,
+            events: {disconnIn: DtiConnectionState.pendingDisconn},
+            actions: []),
+        // PENDINGIDSCONN:
+        //  move to UNCONNECTED when an ACK comes in that confirms disconnenction
+        //  move back CONNECTED when an ACK comes in that rejects disconnection
+        State(
+          DtiConnectionState.pendingDisconn,
+          events: {
+            TODO: DtiConnectionState.connected,
+            TODO: DtiConnectionState.unconnected
+          },
+          actions: [],
+        ),
       ],
     );
 
@@ -247,21 +303,21 @@ class DtiTbuMainController extends Module {
   }
 
   void _build() {
-    final invalVtd = invalAckVtd != null;
+    // are we in a connected state
+    _isConnected <=
+        _connState.currentState
+            .eq(
+              Const(
+                DtiConnectionState.connected.index,
+                width: _connState.currentState.width,
+              ),
+            )
+            .named('isConnected');
 
-    final connReq = _generateConnReq().zeroExtend(toAtu.dataWidth);
-    final isConnected = _connState.currentState
-        .eq(
-          Const(
-            DtiOutboundConnectionState.connected.index,
-            width: _connState.currentState.width,
-          ),
-        )
-        .named('isConnected');
     final isUnconnected = _connState.currentState
         .eq(
           Const(
-            DtiOutboundConnectionState.unconnected.index,
+            DtiConnectionState.unconnected.index,
             width: _connState.currentState.width,
           ),
         )
@@ -344,8 +400,8 @@ class DtiTbuMainController extends Module {
     toAtu.valid <=
         (isUnconnected | ~(_outgoingReqs.empty & _inval.empty)) &
             (toAtu.ready ?? Const(1));
-    toAtu.id! <= atcbSrcId;
-    toAtu.dest! <= atuDestId;
+    toAtu.id! <= srcId;
+    toAtu.dest! <= destId;
     toAtu.data! <= trueOutData;
     toAtu.last! <= Const(1); // always 1 beat
     toAtu.keep! <= ~Const(0, width: toAtu.strbWidth); // keep everything

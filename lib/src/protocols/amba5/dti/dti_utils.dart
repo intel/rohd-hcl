@@ -4,7 +4,10 @@ enum DtiConnectionState {
   unconnected,
 
   /// Sent connection request, waiting for ack
-  pending,
+  pendingConn,
+
+  /// Sent disconnection request, waiting for ack
+  pendingDisconn,
 
   /// Connected to ATU
   connected,
