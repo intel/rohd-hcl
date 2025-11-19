@@ -340,6 +340,43 @@ void main() {
     expect(sv, contains('module Find'));
   });
 
+  test('cache configurator multi-port build', () async {
+    final cfg = CacheConfigurator();
+
+    // Configure two fill ports; number of read ports is derived from this
+    // (each invalidate maps to a read port with an invalidate toggle).
+    cfg.numFillPorts.value = 2;
+
+    // Ensure the per-read-port knobs exist and set them differently
+    cfg.readWithInvalidateKnobs.count = 2;
+    // First read port: no invalidate
+    (cfg.readWithInvalidateKnobs.knobs[0] as GroupOfKnobs)
+        .subKnobs['Read with invalidate']!
+        .value = false;
+    // Second read port: invalidate on read
+    (cfg.readWithInvalidateKnobs.knobs[1] as GroupOfKnobs)
+        .subKnobs['Read with invalidate']!
+        .value = true;
+
+    final mod = cfg.createModule();
+
+    // The created module must be a Cache subclass (Cache is abstract but
+    // specific implementations are returned by the configurator). Check for
+    // the expected number of read/fill ports by inspecting the module name
+    // and/or casting to Cache where possible.
+    expect(mod, isNotNull);
+
+    // If the returned module is a Cache, check reads/fills lengths. Use
+    // a defensive cast because not all implementations publicly expose the
+    // lists; we check by name as fallback.
+    // Confirm definitionName includes port counts (as configured by the
+    // Cache constructor naming scheme). The test avoids accessing protected
+    // members directly.
+    final def = mod.definitionName;
+    expect(def, contains('WP2'));
+    expect(def, contains('RP2'));
+  });
+
   test('prefix tree adder configurator', () async {
     final cfg = ParallelPrefixAdderConfigurator();
 

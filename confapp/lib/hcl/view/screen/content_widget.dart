@@ -35,7 +35,8 @@ class SVGenerator extends StatefulWidget {
   State createState() => _SVGeneratorState();
 }
 
-class _SVGeneratorState extends State<SVGenerator> {
+class _SVGeneratorState extends State<SVGenerator>
+    with SingleTickerProviderStateMixin {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   final ButtonStyle btnStyle =
       ElevatedButton.styleFrom(textStyle: const TextStyle(fontSize: 20));
@@ -148,7 +149,44 @@ class _SVGeneratorState extends State<SVGenerator> {
           ],
         ),
         for (final (index, subKnob) in knob.knobs.indexed)
-          _generateKnobControl('$index', subKnob),
+          // Animate size and add/remove transitions for each generated item.
+          // AnimatedSize handles height changes; AnimatedSwitcher provides
+          // a fade/size transition when items are added/removed.
+          AnimatedSize(
+            key: ValueKey('${knob.name}-$index-anim'),
+            duration: const Duration(milliseconds: 250),
+            curve: Curves.easeInOut,
+            child: AnimatedSwitcher(
+              duration: const Duration(milliseconds: 200),
+              transitionBuilder: (child, animation) => FadeTransition(
+                opacity: animation,
+                child: SizeTransition(
+                  sizeFactor: animation,
+                  axisAlignment: 0.0,
+                  child: child,
+                ),
+              ),
+              child: Container(
+                key: ValueKey('${knob.name}-$index'),
+                child: subKnob is GroupOfKnobs
+                    ? Column(children: [
+                        _containerOfKnobs(
+                            title: '${subKnob.name} $index',
+                            children: [
+                              for (final subKnobEntry
+                                  in subKnob.subKnobs.entries)
+                                _generateKnobControl(
+                                    subKnobEntry.key, subKnobEntry.value),
+                            ]),
+                        const SizedBox(height: 12),
+                      ])
+                    : Column(children: [
+                        _generateKnobControl('${knob.name} $index', subKnob),
+                        const SizedBox(height: 12),
+                      ]),
+              ),
+            ),
+          ),
       ]);
     } else if (knob is GroupOfKnobs) {
       selector = _containerOfKnobs(title: knob.name, children: [

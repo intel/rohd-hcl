@@ -1,6 +1,7 @@
 // Copyright (C) 2023-2025 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 
+export 'config_cache.dart';
 export 'config_carry_save_multiplier.dart';
 export 'config_compound_adder.dart';
 export 'config_ecc.dart';
