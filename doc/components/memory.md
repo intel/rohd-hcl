@@ -78,7 +78,7 @@ Cache ports are all `ValidDataPortInterface`s, where a `valid` signal is used on
 
 ### Fill + Eviction composite interface
 
-The fill side of `Cache` groups two `ValidDataPortInterface`s, one for filling together with an optional one for eviction forming `FillEvictInterface` type. If any `FillEvictInterface` provides an eviction interface, then all entries must provide an eviction (all-or-none). 
+The fill side of `Cache` groups two `ValidDataPortInterface`s, one for filling together with an optional one for eviction forming `FillEvictInterface` type. If any `FillEvictInterface` provides an eviction interface, then all entries must provide an eviction (all-or-none).
 
 Example (manual construction):
 
