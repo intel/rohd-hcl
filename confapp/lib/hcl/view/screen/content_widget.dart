@@ -123,7 +123,7 @@ class _SVGeneratorState extends State<SVGenerator>
             knob.value = value ?? knob.value;
           });
         },
-        value: knob.value,
+        initialValue: knob.value,
       );
     } else if (knob is ListOfKnobsKnob) {
       selector = _containerOfKnobs(title: knob.name, children: [

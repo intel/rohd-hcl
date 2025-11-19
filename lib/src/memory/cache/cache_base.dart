@@ -70,6 +70,50 @@ class ValidDataPortInterface extends DataPortInterface {
       hasReadWithInvalidate: hasReadWithInvalidate);
 }
 
+/// Composite interface grouping a fill port with an optional eviction
+/// sub-interface.
+///
+/// Each cache fill port provides the address/data/control signals used to
+/// insert or invalidate a cache entry. In some cache configurations an
+/// associated eviction port is produced when a fill displaces an existing
+/// entry; the eviction port provides the evicted entry's address and data so
+/// that external logic (for example, a backing store) can be updated.
+///
+/// The `FillEvictInterface` bundles these two related interfaces together so
+/// that a cache's constructor can accept a single `List<FillEvictInterface>`
+/// rather than parallel lists for fills and evictions. If any
+/// `FillEvictInterface` in the list provides an `eviction` sub-interface, the
+/// cache requires that every entry in the list provide an eviction (the
+/// all-or-none rule). This preserves the prior semantics where eviction ports
+/// were parallel to fill ports.
+class FillEvictInterface {
+  /// The fill port used to write (or invalidate) cache entries.
+  ///
+  /// This is a `ValidDataPortInterface` whose `valid` signal indicates whether
+  /// the write/invalidate should take place. For read-with-invalidate
+  /// semantics, use the `ValidDataPortInterface.readWithInvalidate` on the
+  /// cache's read ports; fill ports must NOT have `readWithInvalidate` set.
+  final ValidDataPortInterface fill;
+
+  /// Optional eviction port produced when a fill displaces an existing entry.
+  ///
+  /// When present, this `ValidDataPortInterface` will be driven as an output
+  /// from the cache to indicate the address and data of the evicted line.
+  /// Tests and higher-level integrations that do not care about evictions can
+  /// omit this by leaving it null.
+  final ValidDataPortInterface? eviction;
+
+  /// Construct a `FillEvictInterface` pairing [fill] with an optional
+  /// [eviction] sub-interface.
+  FillEvictInterface(this.fill, [this.eviction]);
+
+  /// Make a deep copy of this composite interface, cloning the contained
+  /// `ValidDataPortInterface`s. Useful when the cache clones and connects the
+  /// interfaces into its internal namespace.
+  FillEvictInterface clone() =>
+      FillEvictInterface(fill.clone(), eviction?.clone());
+}
+
 /// A module [Cache] implementing a configurable set-associative cache for
 /// caching read operations.
 ///
@@ -95,17 +139,17 @@ abstract class Cache extends Module {
   /// Width of the data stored.
   late final int dataWidth;
 
-  /// Fill interfaces which supply address and data to be filled.
+  /// Fill interfaces which supply address and data to be filled. Each entry
+  /// contains the fill port and an optional eviction sub-interface.
   @protected
-  final List<ValidDataPortInterface> fills = [];
+  final List<FillEvictInterface> fills = [];
 
   /// Read interfaces which return data and valid on a read.
   @protected
   final List<ValidDataPortInterface> reads = [];
 
-  /// Eviction interfaces which return the address and data being evicted.
-  @protected
-  final List<ValidDataPortInterface> evictions = [];
+  // Evictions are provided as optional sub-interfaces on elements of
+  // [fills] and so there is no separate parallel `evictions` list.
 
   /// The replacement policy to use for choosing which way to evict on a miss.
   @protected
@@ -118,6 +162,10 @@ abstract class Cache extends Module {
       {int ways,
       String name}) replacement;
 
+  /// Per-line replacement policy instances created by subclasses.
+  @protected
+  late final List<ReplacementPolicy> lineReplacementPolicy;
+
   /// Clock.
   Logic get clk => input('clk');
 
@@ -129,10 +177,9 @@ abstract class Cache extends Module {
   /// Defines a set-associativity of [ways] and a depth or number of [lines].
   /// The total capacity of the cache is [ways]*[lines]. The [replacement]
   /// policy is used to choose which way to evict on a fill miss.
-  Cache(Logic clk, Logic reset, List<ValidDataPortInterface> fills,
+  Cache(Logic clk, Logic reset, List<FillEvictInterface> fills,
       List<ValidDataPortInterface> reads,
-      {List<ValidDataPortInterface>? evictions,
-      this.ways = 2,
+      {this.ways = 2,
       this.lines = 16,
       this.replacement = PseudoLRUReplacement.new,
       super.name = 'Cache',
@@ -140,7 +187,7 @@ abstract class Cache extends Module {
       super.reserveDefinitionName,
       String? definitionName})
       : dataWidth = (fills.isNotEmpty)
-            ? fills[0].dataWidth
+            ? fills[0].fill.dataWidth
             : (reads.isNotEmpty)
                 ? reads[0].dataWidth
                 : 0,
@@ -151,17 +198,33 @@ abstract class Cache extends Module {
     addInput('clk', clk);
     addInput('reset', reset);
 
-    // Validate that readWithInvalidate is not used on fill ports
+    // Validate and connect fill/eviction composite interfaces. If any fill
+    // provides an eviction sub-interface, require that all fills provide an
+    // eviction to preserve previous parallel semantics.
+    final hasAnyEviction = fills.any((f) => f.eviction != null);
+    if (hasAnyEviction && fills.any((f) => f.eviction == null)) {
+      throw ArgumentError(
+          'If eviction ports are provided, they must be supplied for all '
+          'fill ports.');
+    }
+
     for (var i = 0; i < fills.length; i++) {
-      if (fills[i].hasReadWithInvalidate) {
+      final inFill = fills[i];
+      if (inFill.fill.hasReadWithInvalidate) {
         throw ArgumentError(
             'readWithInvalidate option is not supported on fill ports '
             '(port $i)');
       }
-      this.fills.add(fills[i].clone()
-        ..connectIO(this, fills[i],
-            inputTags: {DataPortGroup.control, DataPortGroup.data},
-            uniquify: (original) => 'cache_fill_${original}_$i'));
+      final cloned = inFill.clone();
+      cloned.fill.connectIO(this, inFill.fill,
+          inputTags: {DataPortGroup.control, DataPortGroup.data},
+          uniquify: (original) => 'cache_fill_${original}_$i');
+      if (cloned.eviction != null) {
+        cloned.eviction!.connectIO(this, inFill.eviction!,
+            outputTags: {DataPortGroup.control, DataPortGroup.data},
+            uniquify: (original) => 'cache_evict_${original}_$i');
+      }
+      this.fills.add(cloned);
     }
 
     for (var i = 0; i < reads.length; i++) {
@@ -172,18 +235,6 @@ abstract class Cache extends Module {
             }, // Both en/addr and readWithInvalidate are control
             outputTags: {DataPortGroup.data}, // valid and data are outputs
             uniquify: (original) => 'cache_read_${original}_$i'));
-    }
-    if (evictions != null) {
-      if (evictions.length != fills.length) {
-        throw ArgumentError(
-            'Must provide exactly one eviction port per read or fill port.');
-      }
-      for (var i = 0; i < evictions.length; i++) {
-        this.evictions.add(evictions[i].clone()
-          ..connectIO(this, evictions[i],
-              outputTags: {DataPortGroup.control, DataPortGroup.data},
-              uniquify: (original) => 'cache_evict_${original}_$i'));
-      }
     }
     buildLogic();
   }

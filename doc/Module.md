@@ -7,6 +7,10 @@ The `Module` class is the base class used in ROHD to build components, and
 calling the constructor the `Module` instantiates the component and connects it
 to signals passed into the constructor.
 
+Since ROHD is written in Dart, you should use the Dart best practices, such as
+camel-case variable naming, commenting patterns for all public APIs, and take
+advantage of dart format and dart analyze tools.
+
 ## Port Construction and Connection
 
 A `Module` constructor takes `Logic` arguments and parameters to generate a

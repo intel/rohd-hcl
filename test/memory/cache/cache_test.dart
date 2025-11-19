@@ -26,50 +26,64 @@ import 'package:test/test.dart';
 // CacheFactory typedef and factory helpers (migrated from cache_factories.dart)
 @visibleForTesting
 typedef CacheFactory = Cache Function(Logic clk, Logic reset,
-    List<ValidDataPortInterface> fills, List<ValidDataPortInterface> reads,
-    [List<ValidDataPortInterface>? evictions]);
+    List<FillEvictInterface> fills, List<ValidDataPortInterface> reads);
 
 /// Return a typed factory that constructs a DirectMappedCache.
 CacheFactory directMappedFactory({int lines = 4}) =>
-    (clk, reset, fills, reads, [evictions]) => DirectMappedCache(
+    (clk, reset, fills, reads) => DirectMappedCache(
           clk,
           reset,
           fills,
           reads,
-          evictions:
-              (evictions == null || evictions.isEmpty) ? null : evictions,
           lines: lines,
         );
 
 /// Return a typed factory that constructs a SetAssociativeCache.
 CacheFactory setAssociativeFactory({int ways = 4, int lines = 2}) =>
-    (clk, reset, fills, reads, [evictions]) => SetAssociativeCache(
+    (clk, reset, fills, reads) => SetAssociativeCache(
           clk,
           reset,
           fills,
           reads,
-          evictions:
-              (evictions == null || evictions.isEmpty) ? null : evictions,
           ways: ways,
           lines: lines,
         );
 
 /// Return a typed factory that constructs a FullyAssociativeCache.
-CacheFactory fullyAssociativeFactory({int ways = 4}) =>
-    (clk, reset, fills, reads, [evictions]) => FullyAssociativeCache(
+CacheFactory fullyAssociativeFactory({
+  int ways = 4,
+  bool generateOccupancy = false,
+  ReplacementPolicy Function(Logic clk, Logic reset, List<AccessInterface> hits,
+          List<AccessInterface> allocs, List<AccessInterface> invalidates,
+          {int ways, String name})?
+      replacementFactory,
+}) =>
+    (clk, reset, fills, reads) => FullyAssociativeCache(
           clk,
           reset,
           fills,
           reads,
-          evictions:
-              (evictions == null || evictions.isEmpty) ? null : evictions,
           ways: ways,
+          replacement: replacementFactory ?? PseudoLRUReplacement.new,
+          generateOccupancy: generateOccupancy,
         );
 
 class CachePorts {
   final List<ValidDataPortInterface> fillPorts;
   final List<ValidDataPortInterface> readPorts;
   final List<ValidDataPortInterface> evictionPorts;
+
+  /// Helper providing the composite list expected by the cache constructors.
+  List<FillEvictInterface> get compositeFills {
+    if (attachEvictionsToFills) {
+      return List.generate(
+          fillPorts.length,
+          (i) => FillEvictInterface(fillPorts[i],
+              (i < evictionPorts.length) ? evictionPorts[i] : null));
+    }
+    return List.generate(
+        fillPorts.length, (i) => FillEvictInterface(fillPorts[i]));
+  }
 
   void reset() {
     for (final p in [fillPorts, readPorts, evictionPorts]) {
@@ -102,12 +116,18 @@ class CachePorts {
     await clk.waitCycles(postReleaseCycles);
   }
 
-  CachePorts(this.fillPorts, this.readPorts, this.evictionPorts);
+  CachePorts(this.fillPorts, this.readPorts, this.evictionPorts,
+      {this.attachEvictionsToFills = false});
 
   /// Named constructor to create fresh cache port lists with commonly used
   /// defaults. Tests should prefer `CachePorts.fresh(...)`.
+  final bool attachEvictionsToFills;
+
   CachePorts.fresh(int datawidth, int addrWidth,
-      {int numFills = 2, int numReads = 2, int numEvictions = 2})
+      {int numFills = 2,
+      int numReads = 2,
+      int numEvictions = 2,
+      this.attachEvictionsToFills = false})
       : fillPorts = List.generate(
             numFills, (_) => ValidDataPortInterface(datawidth, addrWidth)),
         readPorts = List.generate(
@@ -117,7 +137,7 @@ class CachePorts {
 
   /// Construct a cache instance using the current port lists.
   Cache createCache(Logic clk, Logic reset, CacheFactory factory) =>
-      factory(clk, reset, fillPorts, readPorts, evictionPorts);
+      factory(clk, reset, compositeFills, readPorts);
 }
 
 // Legacy free helper `makeCachePorts` removed. Tests should prefer
@@ -327,8 +347,11 @@ void main() {
         final clk = SimpleClockGenerator(10).clk;
         final reset = Logic();
 
-        final cp =
-            CachePorts.fresh(8, 8, numFills: 1, numReads: 1, numEvictions: 1);
+        final cp = CachePorts.fresh(8, 8,
+            numFills: 1,
+            numReads: 1,
+            numEvictions: 1,
+            attachEvictionsToFills: true);
         final createCache = config['create']! as CacheFactory;
 
         final cache = cp.createCache(clk, reset, createCache);
@@ -390,8 +413,11 @@ void main() {
         final clk = SimpleClockGenerator(10).clk;
         final reset = Logic();
 
-        final cp =
-            CachePorts.fresh(8, 8, numFills: 1, numReads: 1, numEvictions: 1);
+        final cp = CachePorts.fresh(8, 8,
+            numFills: 1,
+            numReads: 1,
+            numEvictions: 1,
+            attachEvictionsToFills: true);
         final createCache = config['create']! as CacheFactory;
 
         final cache = cp.createCache(clk, reset, createCache);
@@ -446,7 +472,8 @@ void main() {
         final clk = SimpleClockGenerator(10).clk;
         final reset = Logic();
 
-        final cp = CachePorts.fresh(8, 8, numReads: 1);
+        final cp =
+            CachePorts.fresh(8, 8, numReads: 1, attachEvictionsToFills: true);
         final createCache = config['create']! as CacheFactory;
 
         final cache = cp.createCache(clk, reset, createCache);
@@ -548,8 +575,11 @@ void main() {
         final clk = SimpleClockGenerator(10).clk;
         final reset = Logic();
 
-        final cp =
-            CachePorts.fresh(8, 8, numFills: 1, numReads: 1, numEvictions: 1);
+        final cp = CachePorts.fresh(8, 8,
+            numFills: 1,
+            numReads: 1,
+            numEvictions: 1,
+            attachEvictionsToFills: true);
         final createCache = config['create']! as CacheFactory;
 
         final cache = cp.createCache(clk, reset, createCache);
@@ -608,8 +638,11 @@ void main() {
         final clk = SimpleClockGenerator(10).clk;
         final reset = Logic();
 
-        final cp =
-            CachePorts.fresh(8, 8, numFills: 1, numReads: 1, numEvictions: 1);
+        final cp = CachePorts.fresh(8, 8,
+            numFills: 1,
+            numReads: 1,
+            numEvictions: 1,
+            attachEvictionsToFills: true);
         final createCache = config['create']! as CacheFactory;
 
         final cache = cp.createCache(clk, reset, createCache);
@@ -687,8 +720,11 @@ void main() {
         final clk = SimpleClockGenerator(10).clk;
         final reset = Logic();
 
-        final cp =
-            CachePorts.fresh(8, 8, numFills: 1, numReads: 1, numEvictions: 1);
+        final cp = CachePorts.fresh(8, 8,
+            numFills: 1,
+            numReads: 1,
+            numEvictions: 1,
+            attachEvictionsToFills: true);
         final createCache = config['create']! as CacheFactory;
 
         final cache = cp.createCache(clk, reset, createCache);
@@ -815,8 +851,11 @@ void main() {
         final clk = SimpleClockGenerator(10).clk;
         final reset = Logic();
 
-        final cp =
-            CachePorts.fresh(8, 8, numFills: 1, numReads: 1, numEvictions: 1);
+        final cp = CachePorts.fresh(8, 8,
+            numFills: 1,
+            numReads: 1,
+            numEvictions: 1,
+            attachEvictionsToFills: true);
         final createCache = config['create']! as CacheFactory;
 
         final cache = cp.createCache(clk, reset, createCache);
@@ -885,8 +924,11 @@ void main() {
 
         // Use CachePorts and replace the read port with one that supports
         // readWithInvalidate.
-        final cp =
-            CachePorts.fresh(8, 8, numFills: 1, numReads: 1, numEvictions: 1);
+        final cp = CachePorts.fresh(8, 8,
+            numFills: 1,
+            numReads: 1,
+            numEvictions: 1,
+            attachEvictionsToFills: true);
         // Replace the default read port with a read-with-invalidate capable
         // port.
         cp.readPorts[0] =

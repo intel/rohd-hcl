@@ -19,14 +19,15 @@ import 'package:rohd_hcl/rohd_hcl.dart';
 /// tag, and all ways must be searched on each access.
 ///
 class FullyAssociativeCache extends Cache {
-  /// The width of the address tag. In a fully associative cache,
-  /// this is the full address width since there's no line indexing.
-  @protected
-  final int tagWidth;
-
   /// If `true`, then the [occupancy], [full], and [empty] outputs will be
   /// generated.
   final bool generateOccupancy;
+
+  /// Whether this cache supports simultaneous fill and read-with-invalidate
+  /// when the cache is full (requires bypass network).
+  /// Currently false - fills cannot complete when cache is full even if
+  /// an RWI is freeing a slot in the same cycle (invalidate is delayed).
+  final bool supportsFillReadWithInvalidateBypass = false;
 
   /// High if the entire cache is full and it cannot accept any more new
   /// entries. Only available if [generateOccupancy] is `true`.
@@ -40,14 +41,40 @@ class FullyAssociativeCache extends Cache {
   /// Only available if [generateOccupancy] is `true`.
   Logic? get occupancy => tryOutput('occupancy');
 
+  /// Returns whether this cache supports simultaneous fill and
+  /// read-with-invalidate bypass when the cache is full. When false, fills
+  /// cannot complete when the cache is full even if an RWI in the same cycle is
+  /// freeing up a slot.
+  bool get canBypassFillWithRWI => supportsFillReadWithInvalidateBypass;
+
+  /// The width of the tag. In a fully associative cache,
+  /// this is the full address width since there's no line indexing.
+  @protected
+  final int tagWidth;
+
+  /// The width needed to store the way.
+  @protected
+  final int wayAddrWidth;
+
+  /// The tag RegisterFile.
+  @protected
+  late final RegisterFile tagRf;
+
+  /// The data RegisterFile.
+  @protected
+  late final RegisterFile dataRf;
+
+  /// The replacement policy instance.
+  @protected
+  late final ReplacementPolicy replacementPolicy;
+
   /// Constructs a [FullyAssociativeCache] with the specified configuration.
   ///
   /// The [reads] ports are used for looking up a tag and retrieving a hit with
   /// data or a miss. The [fills] ports are for writing data into the cache,
   /// either as a hit and overwriting existing data, or a miss in which case
   /// overwriting a new way in the cache.  This could result in an eviction of
-  /// valid data, which would show up on a parallel [evictions] port (if
-  /// provided). The [replacement] policy determines which way to evict on a
+  /// valid data. The [replacement] policy determines which way to evict on a
   /// miss and defaults to [PseudoLRUReplacement].
   ///
   /// Note: In a fully associative cache, [lines] is effectively 1 since there's
@@ -58,7 +85,6 @@ class FullyAssociativeCache extends Cache {
     super.reset,
     super.fills,
     super.reads, {
-    super.evictions,
     super.ways = 4,
     super.replacement = PseudoLRUReplacement.new,
     this.generateOccupancy = false,
@@ -66,7 +92,9 @@ class FullyAssociativeCache extends Cache {
     super.reserveName,
     super.reserveDefinitionName,
     String? definitionName,
-  })  : tagWidth = reads.isNotEmpty ? reads[0].addrWidth : fills[0].addrWidth,
+  })  : tagWidth =
+            reads.isNotEmpty ? reads[0].addrWidth : fills[0].fill.addrWidth,
+        wayAddrWidth = log2Ceil(ways > 0 ? ways : 1),
         super(
           lines: 1, // Fully associative has no line indexing
           definitionName: definitionName ??
@@ -83,81 +111,76 @@ class FullyAssociativeCache extends Cache {
   void buildLogic() {
     final numReads = reads.length;
     final numFills = fills.length;
-    final wayAddrWidth = log2Ceil(ways > 0 ? ways : 1);
+
+    if (numReads == 0) {
+      throw RohdHclException(
+          'FullyAssociativeCache requires at least one read port');
+    }
+    if (numFills == 0) {
+      throw RohdHclException(
+          'FullyAssociativeCache requires at least one fill port');
+    }
 
     // Create register file for tags (without valid bit).
-    final tagRfWritePorts = List.generate(
-        numFills, (_) => DataPortInterface(tagWidth, wayAddrWidth));
-    final tagRfReadCount = (numReads + numFills) * ways + numFills;
-    final tagRfReadPorts = List.generate(
-        tagRfReadCount, (_) => DataPortInterface(tagWidth, wayAddrWidth));
-
-    RegisterFile(clk, reset, tagRfWritePorts, tagRfReadPorts,
-        numEntries: ways, name: 'tagRf');
+    tagRf = RegisterFile(
+        clk,
+        reset,
+        List.generate(
+            numFills, (_) => DataPortInterface(tagWidth, wayAddrWidth)),
+        [
+          // read and fill tag read ports: (numReads + numFills) * ways
+          ...List.generate((numReads + numFills) * ways,
+              (_) => DataPortInterface(tagWidth, wayAddrWidth)),
+          // evict tag read ports for each fill
+          ...List.generate(
+              numFills, (_) => DataPortInterface(tagWidth, wayAddrWidth)),
+        ],
+        numEntries: ways,
+        name: 'tagRf');
 
     // Create separate valid bit storage using Logic arrays since we need
     // to update valid bits without using register file write ports.
     final validBits = List.generate(ways, (way) => Logic(name: 'validWay$way'));
 
-    // Track which ways need valid bit updates from reads (readWithInvalidate).
     final readValidBitUpdates = List.generate(
         ways,
         (way) => List.generate(numReads,
             (readIdx) => Logic(name: 'read${readIdx}ValidUpdateWay$way')));
 
-    // Track which ways need valid bit updates from fills.
-    // Each fill port has its own set of update signals for each way.
     final fillValidBitUpdates = List.generate(
-        numFills,
-        (fillIdx) => List.generate(
-            ways, (way) => Logic(name: 'fill${fillIdx}ValidUpdateWay$way')));
+        ways,
+        (way) => List.generate(numFills,
+            (fillIdx) => Logic(name: 'fill${fillIdx}ValidUpdateWay$way')));
     final fillValidBitNewValues = List.generate(
-        numFills,
-        (fillIdx) => List.generate(
-            ways, (way) => Logic(name: 'fill${fillIdx}ValidNewValueWay$way')));
+        ways,
+        (way) => List.generate(numFills,
+            (fillIdx) => Logic(name: 'fill${fillIdx}ValidNewValueWay$way')));
 
     // Combine all valid bit update sources.
     final validBitUpdates = List.generate(ways, (way) {
       final readUpdates = readValidBitUpdates[way];
-      final anyReadUpdate =
-          readUpdates.isEmpty ? Const(0) : readUpdates.reduce((a, b) => a | b);
-      // Combine all fill port updates for this way
-      final fillUpdatesForWay =
-          fillValidBitUpdates.map((fillUpdates) => fillUpdates[way]).toList();
-      final anyFillUpdate = fillUpdatesForWay.isEmpty
-          ? Const(0)
-          : fillUpdatesForWay.reduce((a, b) => a | b);
+      final anyReadUpdate = readUpdates.rswizzle().or();
+      final anyFillUpdate = fillValidBitUpdates[way].rswizzle().or();
       return anyReadUpdate | anyFillUpdate;
     });
 
     final validBitNewValues = List.generate(ways, (way) {
-      // Priority: read invalidate > fill update > keep current value.
       final readInvalidates = readValidBitUpdates[way];
-      final anyReadInvalidate = readInvalidates.isEmpty
-          ? Const(0)
-          : readInvalidates.reduce((a, b) => a | b);
+      final anyReadInvalidate = readInvalidates.rswizzle().or();
 
-      // Combine all fill port updates for this way
-      final fillUpdatesForWay =
-          fillValidBitUpdates.map((fillUpdates) => fillUpdates[way]).toList();
-      final anyFillUpdate = fillUpdatesForWay.isEmpty
-          ? Const(0)
-          : fillUpdatesForWay.reduce((a, b) => a | b);
+      final anyFillUpdate = fillValidBitUpdates[way].rswizzle().or();
 
-      // For new values, we need to pick the right one from the fill ports that
-      // are updating For now, assume only one fill port updates a way at a time
-      // (which should be the case)
       var fillNewValue = validBits[way]; // Default to current value
       for (var fillIdx = 0; fillIdx < numFills; fillIdx++) {
-        fillNewValue = mux(fillValidBitUpdates[fillIdx][way],
-            fillValidBitNewValues[fillIdx][way], fillNewValue);
+        fillNewValue = mux(fillValidBitUpdates[way][fillIdx],
+            fillValidBitNewValues[way][fillIdx], fillNewValue);
       }
 
-      // If read invalidates, set to 0. Else if fill updates, use fill value.
-      // Else keep current (but this case shouldn't happen due to
-      // validBitUpdates logic).
-      return mux(anyReadInvalidate, Const(0),
-          mux(anyFillUpdate, fillNewValue, validBits[way]));
+      // Fills take precedence over read invalidates (prevents flopped RWI
+      // invalidates from overriding fills that allocate to recently-invalidated
+      // ways)
+      return mux(anyFillUpdate, fillNewValue,
+          mux(anyReadInvalidate, Const(0), validBits[way]));
     });
 
     // Register the valid bits with updates.
@@ -168,182 +191,162 @@ class FullyAssociativeCache extends Cache {
               reset: reset);
     }
 
-    final dataRfWritePorts = List.generate(
-        numFills, (_) => DataPortInterface(dataWidth, wayAddrWidth));
-    final dataRfReadPorts = List.generate(
-        numReads, (_) => DataPortInterface(dataWidth, wayAddrWidth));
-    final evictDataRfReadPorts = List.generate(
-        numFills, (_) => DataPortInterface(dataWidth, wayAddrWidth));
-
-    RegisterFile(clk, reset, dataRfWritePorts,
-        [...dataRfReadPorts, ...evictDataRfReadPorts],
-        numEntries: ways, name: 'dataRf');
-
-    // Create replacement policy instance. We need a single policy for the
-    // entire cache since there's only one 'line'.
-    final policyReadHits =
-        List.generate(numReads, (_) => AccessInterface(ways));
-    final policyFillHits =
-        List.generate(numFills, (_) => AccessInterface(ways));
-    final policyAllocs = List.generate(numFills, (_) => AccessInterface(ways));
-    final policyInvalidates =
-        List.generate(numFills, (_) => AccessInterface(ways));
-
-    replacement(clk, reset, [...policyReadHits, ...policyFillHits],
-        policyAllocs, policyInvalidates,
-        ways: ways, name: 'fullyAssocReplacementPolicy');
-
-    // Generate tag match logic for each way and each access port.
-    final readTagMatches = [
-      for (var readIdx = 0; readIdx < numReads; readIdx++)
+    dataRf = RegisterFile(
+        clk,
+        reset,
         List.generate(
-            ways, (way) => Logic(name: 'read${readIdx}Way${way}Match'))
-    ];
-    final fillTagMatches = [
-      for (var fillIdx = 0; fillIdx < numFills; fillIdx++)
-        List.generate(
-            ways, (way) => Logic(name: 'fill${fillIdx}Way${way}Match'))
-    ];
+            numFills, (_) => DataPortInterface(dataWidth, wayAddrWidth)),
+        [
+          ...List.generate(
+              numReads, (_) => DataPortInterface(dataWidth, wayAddrWidth)),
+          ...List.generate(
+              numFills, (_) => DataPortInterface(dataWidth, wayAddrWidth)),
+        ],
+        numEntries: ways,
+        name: 'dataRf');
 
-    // Read all tag entries to check for matches.
-    for (var way = 0; way < ways; way++) {
-      for (var readIdx = 0; readIdx < numReads; readIdx++) {
-        final tagRdPort = tagRfReadPorts[readIdx * ways + way];
+    replacementPolicy = replacement(
+        clk,
+        reset,
+        [
+          ...List.generate(numReads, (_) => AccessInterface(ways)),
+          ...List.generate(numFills, (_) => AccessInterface(ways)),
+        ],
+        List.generate(numFills, (_) => AccessInterface(ways)),
+        [
+          // Read-invalidate interfaces come first
+          ...List.generate(numReads, (_) => AccessInterface(ways)),
+          // Fill-invalidate interfaces come after
+          ...List.generate(numFills, (_) => AccessInterface(ways)),
+        ],
+        ways: ways,
+        name: 'fullyAssocReplacementPolicy');
+
+    void handleReadPort(int readIdx, List<Logic> validBits,
+        List<List<Logic>> readValidBitUpdates) {
+      final readPort = reads[readIdx];
+      final dataReadPort = dataRf.reads[readIdx];
+
+      final readTagMatchesForPort = List.generate(
+          ways, (way) => Logic(name: 'read${readIdx}Way${way}Match'));
+      for (var way = 0; way < ways; way++) {
+        final tagRdPort = tagRf.reads[readIdx * ways + way];
         tagRdPort.en <= reads[readIdx].en;
         tagRdPort.addr <= Const(way, width: wayAddrWidth);
 
-        // Check if tag matches and entry is valid using separate valid bit.
         final storedTag = tagRdPort.data;
         final requestTag = reads[readIdx].addr;
 
-        readTagMatches[readIdx][way] <=
-            validBits[way] & storedTag.eq(requestTag);
+        readTagMatchesForPort[way] <= validBits[way] & storedTag.eq(requestTag);
       }
 
-      // For fills (need to check for existing entries).
-      for (var fillIdx = 0; fillIdx < numFills; fillIdx++) {
-        final tagRdPort =
-            tagRfReadPorts[numReads * ways + fillIdx * ways + way];
-        tagRdPort.en <= fills[fillIdx].en;
-        tagRdPort.addr <= Const(way, width: wayAddrWidth);
+      final hasHit =
+          readTagMatchesForPort.rswizzle().or().named('read${readIdx}HasHit');
 
-        // Check if tag matches and entry is valid using separate valid bit.
-        final storedTag = tagRdPort.data;
-        final requestTag = fills[fillIdx].addr;
-
-        fillTagMatches[fillIdx][way] <=
-            validBits[way] & storedTag.eq(requestTag);
-      }
-    }
-
-    // Generate hit detection and way selection for reads.
-    for (var readIdx = 0; readIdx < numReads; readIdx++) {
-      final readPort = reads[readIdx];
-      final dataReadPort = dataRfReadPorts[readIdx];
-
-      // Determine if we have a hit and which way.
-      final hasHit = readTagMatches[readIdx]
-          .reduce((a, b) => a | b)
-          .named('read${readIdx}HasHit');
-
-      // Only compute way when we have a hit to avoid issues with all-zero
-      // input.
       final hitWay = Logic(name: 'read${readIdx}HitWay', width: wayAddrWidth);
       if (ways == 1) {
-        // For single way, the way is always 0.
         hitWay <= Const(0, width: wayAddrWidth);
       } else {
-        Combinational([
-          If(hasHit, then: [
-            hitWay <
-                RecursivePriorityEncoder(readTagMatches[readIdx].rswizzle())
+        hitWay <=
+            mux(
+                hasHit,
+                RecursivePriorityEncoder(readTagMatchesForPort.rswizzle())
                     .out
                     .slice(wayAddrWidth - 1, 0),
-          ], orElse: [
-            hitWay < Const(0, width: wayAddrWidth),
-          ])
-        ]);
+                Const(0, width: wayAddrWidth));
       }
 
-      // Read data from the hit way.
       dataReadPort.en <= readPort.en & hasHit;
       dataReadPort.addr <= hitWay;
 
-      // Output data and valid signal.
       readPort.data <= dataReadPort.data;
       readPort.valid <= hasHit;
 
-      // Handle readWithInvalidate functionality - register the invalidation for
-      // next cycle.
       if (readPort.hasReadWithInvalidate) {
         final shouldInvalidate =
             readPort.readWithInvalidate & hasHit & readPort.en;
 
-        // Register the invalidation to happen on the next cycle after hit
-        // detection.
         for (var way = 0; way < ways; way++) {
           final isHitWay = (ways == 1)
               ? Const(1)
               : hitWay.eq(Const(way, width: wayAddrWidth));
           final invalidateThisWay = shouldInvalidate & isHitWay;
 
-          // Register the invalidation for next clock cycle.
+          // Flop the valid bit update signal
           readValidBitUpdates[way][readIdx] <=
               flop(clk, invalidateThisWay, reset: reset);
         }
+
+        replacementPolicy.invalidates[readIdx].access <=
+            flop(clk, shouldInvalidate, reset: reset);
+        replacementPolicy.invalidates[readIdx].way <=
+            flop(clk, hitWay, reset: reset);
       } else {
-        // No readWithInvalidate, so no valid bit updates from this read port.
         for (var way = 0; way < ways; way++) {
           readValidBitUpdates[way][readIdx] <= Const(0);
         }
+
+        // No invalidation for this read port
+        replacementPolicy.invalidates[readIdx].access <= Const(0);
+        replacementPolicy.invalidates[readIdx].way <=
+            Const(0, width: wayAddrWidth);
       }
 
-      // Update replacement policy on hit.
-      policyReadHits[readIdx].access <= readPort.en & hasHit;
-      policyReadHits[readIdx].way <= hitWay;
+      replacementPolicy.hits[readIdx].access <= readPort.en & hasHit;
+      replacementPolicy.hits[readIdx].way <= hitWay;
     }
 
-    // Generate hit detection and way selection for fills
-    for (var fillIdx = 0; fillIdx < numFills; fillIdx++) {
-      final fillPort = fills[fillIdx];
-      final tagWritePort = tagRfWritePorts[fillIdx];
-      final dataWritePort = dataRfWritePorts[fillIdx];
-      final evictDataReadPort = evictDataRfReadPorts[fillIdx];
+    for (var readIdx = 0; readIdx < numReads; readIdx++) {
+      handleReadPort(readIdx, validBits, readValidBitUpdates);
+    }
 
-      // Determine if we have a hit and which way.
-      final hasHit = fillTagMatches[fillIdx]
-          .reduce((a, b) => a | b)
-          .named('fill${fillIdx}HasHit');
+    // single routine for handling fill ports (and contained eviction ports).
+    void handleFillPort(int fillIdx) {
+      final fillPort = fills[fillIdx].fill;
+      final tagWritePort = tagRf.writes[fillIdx];
+      final dataWritePort = dataRf.writes[fillIdx];
+      final evictDataReadPort = dataRf.reads[numReads + fillIdx];
+      final evictTagReadPort =
+          tagRf.reads[(numReads + numFills) * ways + fillIdx];
 
-      // Only compute way when we have a hit.
+      final fillTagMatchesForPort = List.generate(
+          ways, (way) => Logic(name: 'fill${fillIdx}Way${way}Match'));
+      for (var way = 0; way < ways; way++) {
+        final tagRdPort = tagRf.reads[numReads * ways + fillIdx * ways + way];
+        tagRdPort.en <= fills[fillIdx].fill.en;
+        tagRdPort.addr <= Const(way, width: wayAddrWidth);
+
+        final storedTag = tagRdPort.data;
+        final requestTag = fills[fillIdx].fill.addr;
+
+        fillTagMatchesForPort[way] <= validBits[way] & storedTag.eq(requestTag);
+      }
+
+      final hasHit =
+          fillTagMatchesForPort.rswizzle().or().named('fill${fillIdx}HasHit');
+
       final hitWay = Logic(name: 'fill${fillIdx}HitWay', width: wayAddrWidth);
       if (ways == 1) {
-        // For single way, the way is always 0.
         hitWay <= Const(0, width: wayAddrWidth);
       } else {
-        Combinational([
-          If(hasHit, then: [
-            hitWay <
-                RecursivePriorityEncoder(fillTagMatches[fillIdx].rswizzle())
+        hitWay <=
+            mux(
+                hasHit,
+                RecursivePriorityEncoder(fillTagMatchesForPort.rswizzle())
                     .out
                     .slice(wayAddrWidth - 1, 0),
-          ], orElse: [
-            hitWay < Const(0, width: wayAddrWidth),
-          ])
-        ]);
+                Const(0, width: wayAddrWidth));
       }
 
       evictDataReadPort.en <= fillPort.en;
+      evictTagReadPort.en <= fillPort.en;
       final evictDataAddr =
-          Logic(name: 'evictDataAddr$fillIdx', width: wayAddrWidth);
-      Combinational([
-        If(hasHit,
-            then: [evictDataAddr < hitWay],
-            orElse: [evictDataAddr < policyAllocs[fillIdx].way])
-      ]);
+          mux(hasHit, hitWay, replacementPolicy.allocs[fillIdx].way)
+              .named('evictDataAddr$fillIdx');
       evictDataReadPort.addr <= evictDataAddr;
+      evictTagReadPort.addr <= evictDataAddr;
+      final evictPort = fills[fillIdx].eviction;
 
-      // Handle fill operations.
       Combinational([
         tagWritePort.en < Const(0),
         tagWritePort.addr < Const(0, width: wayAddrWidth),
@@ -351,54 +354,48 @@ class FullyAssociativeCache extends Cache {
         dataWritePort.en < Const(0),
         dataWritePort.addr < Const(0, width: wayAddrWidth),
         dataWritePort.data < Const(0, width: dataWidth),
-        policyFillHits[fillIdx].access < Const(0),
-        policyFillHits[fillIdx].way < Const(0, width: wayAddrWidth),
-        policyAllocs[fillIdx].access < Const(0),
-        policyInvalidates[fillIdx].access < Const(0),
-        policyInvalidates[fillIdx].way < Const(0, width: wayAddrWidth),
+        replacementPolicy.hits[numReads + fillIdx].access < Const(0),
+        replacementPolicy.hits[numReads + fillIdx].way <
+            Const(0, width: wayAddrWidth),
+        replacementPolicy.allocs[fillIdx].access < Const(0),
+        replacementPolicy.invalidates[numReads + fillIdx].access < Const(0),
+        replacementPolicy.invalidates[numReads + fillIdx].way <
+            Const(0, width: wayAddrWidth),
         If(fillPort.en, then: [
           If.block([
-            // Case 1: Valid fill with hit (update existing entry).
             Iff(fillPort.valid & hasHit, [
               dataWritePort.en < Const(1),
               dataWritePort.addr < hitWay,
               dataWritePort.data < fillPort.data,
-
-              // Update replacement policy.
-              policyFillHits[fillIdx].access < Const(1),
-              policyFillHits[fillIdx].way < hitWay,
+              replacementPolicy.hits[numReads + fillIdx].access < Const(1),
+              replacementPolicy.hits[numReads + fillIdx].way < hitWay,
             ]),
-
-            // Case 2: Valid fill with miss (allocate new entry).
             ElseIf(fillPort.valid & ~hasHit, [
               tagWritePort.en < Const(1),
-              tagWritePort.addr < policyAllocs[fillIdx].way,
-              tagWritePort.data < fillPort.addr, // Just the tag, no valid bit
-
+              tagWritePort.addr < replacementPolicy.allocs[fillIdx].way,
+              tagWritePort.data < fillPort.addr,
               dataWritePort.en < Const(1),
-              dataWritePort.addr < policyAllocs[fillIdx].way,
+              dataWritePort.addr < replacementPolicy.allocs[fillIdx].way,
               dataWritePort.data < fillPort.data,
-
-              policyAllocs[fillIdx].access < Const(1),
+              replacementPolicy.allocs[fillIdx].access < Const(1),
             ]),
-
-            // Case 3: Invalid fill (invalidate existing entry if present).
             ElseIf(~fillPort.valid & hasHit, [
-              // Update replacement policy for invalidation
-              policyInvalidates[fillIdx].access < Const(1),
-              policyInvalidates[fillIdx].way < hitWay,
+              replacementPolicy.invalidates[numReads + fillIdx].access <
+                  Const(1),
+              replacementPolicy.invalidates[numReads + fillIdx].way < hitWay,
             ]),
           ])
         ])
       ]);
 
-      // Handle valid bit updates from fills
+      // Handle valid bit updates and eviction outputs for this fill index
       for (var way = 0; way < ways; way++) {
         final isHitWay =
             (ways == 1) ? Const(1) : hitWay.eq(Const(way, width: wayAddrWidth));
         final isAllocWay = (ways == 1)
             ? Const(1)
-            : policyAllocs[fillIdx].way.eq(Const(way, width: wayAddrWidth));
+            : replacementPolicy.allocs[fillIdx].way
+                .eq(Const(way, width: wayAddrWidth));
 
         final validFillHit = (fillPort.en & fillPort.valid & hasHit & isHitWay)
             .named('validFillHit${fillIdx}Way$way');
@@ -408,89 +405,59 @@ class FullyAssociativeCache extends Cache {
         final invalidFill = (fillPort.en & ~fillPort.valid & hasHit & isHitWay)
             .named('invalidFill${fillIdx}Way$way');
 
-        Combinational([
-          fillValidBitUpdates[fillIdx][way] <
-              (validFillHit | validFillMiss | invalidFill)
-                  .named('fillValidUpdate${fillIdx}Way$way'),
-          // Set to 1 for valid fills, 0 for invalid.
-          fillValidBitNewValues[fillIdx][way] <
-              (validFillHit | validFillMiss)
-                  .named('fillValidNewValue${fillIdx}Way$way'),
-        ]);
+        fillValidBitUpdates[way][fillIdx] <=
+            (validFillHit | validFillMiss | invalidFill)
+                .named('fillValidUpdate${fillIdx}Way$way');
+        fillValidBitNewValues[way][fillIdx] <=
+            (validFillHit | validFillMiss)
+                .named('fillValidNewValue${fillIdx}Way$way');
       }
-    }
 
-    // Handle evictions if eviction ports are provided.
-    if (evictions.isNotEmpty) {
-      for (var evictIdx = 0; evictIdx < evictions.length; evictIdx++) {
-        final evictPort = evictions[evictIdx];
-        final fillPort = fills[evictIdx]; // Corresponding fill port.
-        final evictDataReadPort = evictDataRfReadPorts[evictIdx];
+      // Drive eviction port outputs (if present) 1:1 with this fill port.
+      if (evictPort != null) {
+        final fillHasHit = fillTagMatchesForPort
+            .rswizzle()
+            .or()
+            .named('evict${fillIdx}FillHasHit');
 
-        final evictTagReadBase = numReads * ways + numFills * ways;
-        final evictTagReadPort = tagRfReadPorts[evictTagReadBase + evictIdx];
-        evictTagReadPort.en <= fillPort.en;
-        evictTagReadPort.addr <= policyAllocs[evictIdx].way;
-
-        final fillHasHit = fillTagMatches[evictIdx]
-            .reduce((a, b) => a | b)
-            .named('evict${evictIdx}FillHasHit');
-
-        // Check if the way being allocated has a valid entry (for eviction).
-        final allocWayIdx = policyAllocs[evictIdx].way;
-        final allocWayValid = Logic(name: 'allocWayValid$evictIdx');
-
-        // Generate multiplexer to select valid bit based on way index
-        if (ways == 1) {
-          allocWayValid <= validBits[0];
-        } else {
-          final validSelections = <Logic>[];
-          for (var way = 0; way < ways; way++) {
-            validSelections.add(
-                allocWayIdx.eq(Const(way, width: wayAddrWidth)) &
-                    validBits[way]);
-          }
-          allocWayValid <=
-              validSelections
-                  .reduce((a, b) => a | b)
-                  .named('allocWayValidReduction$evictIdx');
-        }
+        final allocWayIdx = replacementPolicy.allocs[fillIdx].way;
+        final allocWayValid = (ways == 1)
+            ? validBits[0]
+            : (List.generate(
+                    ways,
+                    (way) =>
+                        allocWayIdx.eq(Const(way, width: wayAddrWidth)) &
+                        validBits[way])
+                .rswizzle()
+                .or()
+                .named('allocWayValidReduction$fillIdx'));
 
         final allocEvictCond = (fillPort.valid & ~fillHasHit & allocWayValid)
-            .named('allocEvictCond$evictIdx');
+            .named('allocEvictCond$fillIdx');
         final invalEvictCond =
-            (~fillPort.valid & fillHasHit).named('invalEvictCond$evictIdx');
+            (~fillPort.valid & fillHasHit).named('invalEvictCond$fillIdx');
 
         final evictAddrComb =
-            Logic(name: 'evictAddrComb$evictIdx', width: fillPort.addrWidth);
-        Combinational([
-          If(invalEvictCond, then: [
-            evictAddrComb < fillPort.addr
-          ], orElse: [
-            evictAddrComb <
-                evictTagReadPort
-                    .data // No need to slice since valid bit is separate
-          ])
-        ]);
+            mux(invalEvictCond, fillPort.addr, evictTagReadPort.data)
+                .named('evictAddrComb$fillIdx');
 
-        Combinational([
-          evictPort.en < (fillPort.en & (invalEvictCond | allocEvictCond)),
-          evictPort.valid < (fillPort.en & (invalEvictCond | allocEvictCond)),
-          evictPort.addr < evictAddrComb,
-          evictPort.data < evictDataReadPort.data,
-        ]);
+        evictPort.en <= (fillPort.en & (invalEvictCond | allocEvictCond));
+        evictPort.valid <= (fillPort.en & (invalEvictCond | allocEvictCond));
+        evictPort.addr <= evictAddrComb;
+        evictPort.data <= evictDataReadPort.data;
       }
     }
 
-    // Generate occupancy tracking if requested
+    for (var fillIdx = 0; fillIdx < numFills; fillIdx++) {
+      handleFillPort(fillIdx);
+    }
+
+    // Generate occupancy tracking if requested.
     if (generateOccupancy) {
       final occupancyWidth =
           log2Ceil(ways + 1); // +1 to represent full occupancy
 
-      // Use Count component to count the number of valid bits directly.
-      // This provides immediate combinational response without delays.
       final validBitsBundle = validBits.rswizzle().named('validBitsBundle');
-
       final validCountModule = Count(validBitsBundle);
       final validCount = validCountModule.count;
 
@@ -499,7 +466,7 @@ class FullyAssociativeCache extends Cache {
       addOutput('full');
       addOutput('empty');
 
-      // Connect outputs with proper width extension
+      // Connect outputs with proper width extension.
       occupancy! <= validCount.zeroExtend(occupancyWidth);
       full! <= validCount.eq(Const(ways, width: validCount.width));
       empty! <= validCount.eq(Const(0, width: validCount.width));

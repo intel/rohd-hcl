@@ -7,6 +7,7 @@
 // 2025 September 10
 // Author: Desmond Kirkpatrick <desmond.a.kirkpatrick@intel.com>
 
+export 'available_invalidated_replacement.dart';
 export 'cache_base.dart';
 export 'cache_write_structure.dart';
 export 'cached_request_response_channel.dart';

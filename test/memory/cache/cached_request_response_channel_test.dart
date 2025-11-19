@@ -49,6 +49,34 @@ void main() {
     await Simulator.reset();
   });
 
+  Future<bool> waitForReadyHigh(Logic readySignal, Logic clk,
+      {int maxCycles = 32}) async {
+    for (var i = 0; i < maxCycles; i++) {
+      if (readySignal.value.toBool()) {
+        return true;
+      }
+      await clk.nextPosedge;
+    }
+    return readySignal.value.toBool();
+  }
+
+  Future<bool> waitForCamSpace(Logic? camFullSignal, Logic clk,
+      {int maxCycles = 32}) async {
+    if (camFullSignal == null) {
+      await clk.nextPosedge;
+      return true;
+    }
+
+    for (var i = 0; i < maxCycles; i++) {
+      if (!camFullSignal.value.toBool()) {
+        return true;
+      }
+      await clk.nextPosedge;
+    }
+
+    return !camFullSignal.value.toBool();
+  }
+
   group('CachedRequestResponseChannel', () {
     test('basic cache miss and hit', () async {
       final clk = SimpleClockGenerator(10).clk;
@@ -384,6 +412,9 @@ void main() {
       // Reset sequence
       await ifs.resetChannel(clk, reset);
 
+      final canBypassFillWithRWI =
+          channel.pendingRequestsCam.canBypassFillWithRWI;
+
       // === TRUE CAM LIMIT TESTING (2-way cache) ===
 
       // Phase 1: Send requests rapidly without waiting for responses
@@ -440,11 +471,16 @@ void main() {
       // Phase 3: Testing concurrent invalidation at true capacity limit...
       const pendingRequestId = 100;
 
-      // Keep a request pending (should be blocked)
       ifs.upstreamReq.valid.inject(1);
       ifs.upstreamReq.data.id.inject(pendingRequestId);
       ifs.upstreamReq.data.addr.inject(0xE);
       await clk.nextPosedge;
+
+      if (!canBypassFillWithRWI) {
+        expect(ifs.upstreamReq.ready.value.toBool(), isFalse,
+            reason: 'CAM full should block pending request');
+        ifs.upstreamReq.valid.inject(0);
+      }
 
       // Send response for first request to free up space
       ifs.downstreamResp.valid.inject(1);
@@ -453,17 +489,39 @@ void main() {
       ifs.downstreamResp.data.nonCacheable.inject(0);
       await clk.nextPosedge;
 
-      final afterInvalidation = ifs.upstreamReq.ready.value.toBool();
-      final forwarded = ifs.downstreamReq.valid.value.toBool();
-      // Concurrent invalidation results:
-      expect(afterInvalidation, isTrue,
-          reason: 'Pending request should be accepted after invalidation');
-      expect(forwarded, isTrue,
-          reason: 'Request should be forwarded downstream after invalidation');
+      if (canBypassFillWithRWI) {
+        final afterInvalidation = ifs.upstreamReq.ready.value.toBool();
+        final forwarded = ifs.downstreamReq.valid.value.toBool();
+        expect(afterInvalidation, isTrue,
+            reason: 'Pending request should be accepted after invalidation');
+        expect(forwarded, isTrue,
+            reason:
+                'Request should be forwarded downstream after invalidation');
+        ifs.upstreamReq.valid.inject(0);
+      } else {
+        expect(ifs.upstreamResp.valid.value.toBool(), isTrue,
+            reason: 'Invalidate response should complete');
+
+        ifs.downstreamResp.valid.inject(0);
+        ifs.downstreamResp.data.nonCacheable.inject(0);
+
+        final camFreed =
+            await waitForCamSpace(channel.pendingRequestsCam.full, clk);
+        expect(camFreed, isTrue,
+            reason: 'CAM should free entry after invalidation response');
+
+        ifs.upstreamReq.valid.inject(1);
+        final acceptedAfterWait =
+            await waitForReadyHigh(ifs.upstreamReq.ready, clk);
+        expect(acceptedAfterWait, isTrue,
+            reason: 'Pending request should succeed once space frees up');
+        expect(ifs.downstreamReq.valid.value.toBool(), isTrue,
+            reason: 'Request should forward downstream after acceptance');
+        ifs.upstreamReq.valid.inject(0);
+      }
 
       ifs.downstreamResp.valid.inject(0);
       ifs.downstreamResp.data.nonCacheable.inject(0);
-      ifs.upstreamReq.valid.inject(0);
       await clk.nextPosedge;
 
       // Phase 4: Verify recovery
@@ -639,6 +697,8 @@ void main() {
       final channel = constructChannel(clk, reset, ifs,
           cacheFactory: fullyAssociativeFactory(), camWays: 4);
       await channel.build();
+      final canBypassFillWithRWI =
+          channel.pendingRequestsCam.canBypassFillWithRWI;
 
       Simulator.setMaxSimTime(2000);
       unawaited(Simulator.run());
@@ -647,9 +707,7 @@ void main() {
       await ifs.resetChannel(clk, reset);
 
       // === CAM FULL WITH SIMULTANEOUS INVALIDATE AND MISS TEST ===
-      // Step 1: Fill CAM to capacity (4 ways)
-
-      // Phase 1: Fill CAM to capacity
+      // Phase 1: Fill CAM to capacity (4 ways)
       final fillIds = [1, 2, 3, 4];
       final fillAddrs = [0xA, 0xB, 0xC, 0xD];
       var acceptedFillRequests = 0;
@@ -664,7 +722,6 @@ void main() {
         if (accepted) {
           acceptedFillRequests++;
         } else {
-          // CAM reached capacity
           break;
         }
 
@@ -676,89 +733,101 @@ void main() {
           reason:
               'Should accept at least 2 requests before reaching CAM capacity');
 
-      // Step 2: Verify CAM is full
-
-      // Try one more request to confirm CAM full
+      // Phase 2: Probe another request to confirm CAM is saturated.
       ifs.upstreamReq.valid.inject(1);
       ifs.upstreamReq.data.id.inject(5);
       ifs.upstreamReq.data.addr.inject(0xE);
       await clk.nextPosedge;
-
+      expect(ifs.upstreamReq.ready.value.toBool(), isFalse,
+          reason: 'Extra request should be throttled once CAM is full');
       ifs.upstreamReq.valid.inject(0);
       await clk.nextPosedge;
 
-      // Step 3: Setup simultaneous operations
-      // - Upstream request (miss) will be pending
-      // - Downstream response (invalidate) will free CAM entry
-      // - Both signals asserted simultaneously on next clock edge
+      // The next behavior depends on whether the CAM can bypass a fill when
+      // an invalidate arrives concurrently.
+      if (!canBypassFillWithRWI) {
+        // Sequential fallback: drop the new miss while waiting for CAM space.
+        ifs.upstreamReq.valid.inject(1);
+        ifs.upstreamReq.data.id.inject(6);
+        ifs.upstreamReq.data.addr.inject(0xF);
+        await clk.nextPosedge;
+        expect(ifs.upstreamReq.ready.value.toBool(), isFalse,
+            reason: 'CAM full should backpressure new miss');
+        expect(ifs.downstreamReq.valid.value.toBool(), isFalse,
+            reason: 'Request should not forward downstream while blocked');
+        ifs.upstreamReq.valid.inject(0);
 
-      // Phase 2: Setup simultaneous scenario
-      // Keep new request pending
+        ifs.downstreamResp.valid.inject(1);
+        ifs.downstreamResp.data.id.inject(fillIds[0]);
+        ifs.downstreamResp.data.data.inject(0xAA);
+        ifs.downstreamResp.data.nonCacheable.inject(0);
+        await clk.nextPosedge;
+        expect(ifs.upstreamResp.valid.value.toBool(), isTrue,
+            reason: 'Invalidate response should still be delivered');
+
+        ifs.downstreamResp.valid.inject(0);
+        ifs.downstreamResp.data.nonCacheable.inject(0);
+
+        final camFreed =
+            await waitForCamSpace(channel.pendingRequestsCam.full, clk);
+        expect(camFreed, isTrue,
+            reason: 'CAM should free an entry after invalidate completes');
+
+        ifs.upstreamReq.valid.inject(1);
+        ifs.upstreamReq.data.id.inject(6);
+        ifs.upstreamReq.data.addr.inject(0xF);
+        final acceptedSequential =
+            await waitForReadyHigh(ifs.upstreamReq.ready, clk);
+        expect(acceptedSequential, isTrue,
+            reason: 'Request should succeed once CAM has space');
+        expect(ifs.downstreamReq.valid.value.toBool(), isTrue,
+            reason: 'Request should forward downstream after space frees');
+
+        ifs.upstreamReq.valid.inject(0);
+        await clk.waitCycles(3);
+        await Simulator.endSimulation();
+        return;
+      }
+
+      // Bypass capable CAM: keep new request asserted while invalidate enters.
       ifs.upstreamReq.valid.inject(1);
       ifs.upstreamReq.data.id.inject(6);
-      ifs.upstreamReq.data.addr.inject(0xF); // New cache miss
-
-      // Wait one cycle to establish pending state
+      ifs.upstreamReq.data.addr.inject(0xF);
       await clk.nextPosedge;
 
-      // Step 4: Execute simultaneous operations Asserting downstream response
-      // (invalidate ID=1) + upstream request (miss ID=6)
-
-      // Phase 3: SIMULTANEOUS operations
-      // Assert downstream response to invalidate CAM entry
       ifs.downstreamResp.valid.inject(1);
-      ifs.downstreamResp.data.id.inject(fillIds[0]); // Invalidate first request
+      ifs.downstreamResp.data.id.inject(fillIds[0]);
       ifs.downstreamResp.data.data.inject(0xAA);
       ifs.downstreamResp.data.nonCacheable.inject(0);
-
-      // Upstream request already asserted from previous phase
-      // Both signals are now active simultaneously
       await clk.nextPosedge;
 
-      // Check results of simultaneous operations
-      final afterSimultaneous = ifs.upstreamReq.ready.value.toBool();
-      final downstreamForwarded = ifs.downstreamReq.valid.value.toBool();
+      final bypassAccepted = ifs.upstreamReq.ready.value.toBool();
+      final bypassForwarded = ifs.downstreamReq.valid.value.toBool();
       final responseProcessed = ifs.upstreamResp.valid.value.toBool();
 
-      // Step 5: Results of simultaneous operations
-      expect(afterSimultaneous, isTrue,
-          reason: 'New request (ID=6) should be accepted due to '
-              'concurrent invalidation');
-      expect(downstreamForwarded, isTrue,
-          reason: 'New request should be forwarded downstream');
+      expect(bypassAccepted, isTrue,
+          reason: 'Bypass-capable CAM should accept miss during invalidate');
+      expect(bypassForwarded, isTrue,
+          reason: 'Request should forward downstream during bypass');
       expect(responseProcessed, isTrue,
-          reason: 'Response (ID=${fillIds[0]}) should be processed');
+          reason: 'Invalidate response should still reach upstream');
 
-      // Clean up signals
       ifs.upstreamReq.valid.inject(0);
       ifs.downstreamResp.valid.inject(0);
       ifs.downstreamResp.data.nonCacheable.inject(0);
       await clk.nextPosedge;
 
-      // Step 6: Verify CAM has space after invalidation
-
-      // Try another request to confirm CAM space is available
       ifs.upstreamReq.valid.inject(1);
       ifs.upstreamReq.data.id.inject(7);
       ifs.upstreamReq.data.addr.inject(0x1);
       await clk.nextPosedge;
 
-      final finalTestAccepted = ifs.upstreamReq.ready.value.toBool();
-      expect(finalTestAccepted, isTrue,
-          reason:
-              'Should have space available for new request after invalidation');
+      expect(ifs.upstreamReq.ready.value.toBool(), isTrue,
+          reason: 'CAM should have space for follow-up request');
 
       ifs.upstreamReq.valid.inject(0);
       await clk.waitCycles(3);
       await Simulator.endSimulation();
-
-      // Validate the critical concurrent behavior
-      expect(afterSimultaneous, isTrue,
-          reason: 'Simultaneous invalidate + miss should allow '
-              'new request acceptance');
-      expect(downstreamForwarded, isTrue,
-          reason: 'New request should be forwarded downstream when CAM space '
-              'becomes available');
     });
 
     test('backpressure response fifo', () async {
@@ -1103,6 +1172,8 @@ void main() {
       final channel = constructChannel(clk, reset, ifs,
           responseBufferDepth: 16, camWays: 4);
       await channel.build();
+      final canBypassFillWithRWI =
+          channel.pendingRequestsCam.canBypassFillWithRWI;
 
       Simulator.setMaxSimTime(2000);
       unawaited(Simulator.run());
@@ -1245,26 +1316,55 @@ void main() {
       expect(missBlockedBeforeResponse, isTrue,
           reason: 'Cache miss should be blocked before concurrent response');
 
+      var concurrentMissAccepted = false;
+      var concurrentMissForwarded = false;
+      var responseProcessed = false;
+
+      if (!canBypassFillWithRWI) {
+        ifs.upstreamReq.valid.inject(0);
+      }
+
       // Now simultaneously send a downstream response that will free a CAM
-      // entry while keeping the upstream miss request valid 3d. Concurrent
-      // downstream response + upstream miss...
+      // entry while keeping the upstream miss request valid.
       ifs.downstreamResp.valid.inject(1);
       ifs.downstreamResp.data.id
           .inject(missIds[0]); // Response for ID=2 (will free CAM entry)
       ifs.downstreamResp.data.data.inject(0x77);
       ifs.downstreamResp.data.nonCacheable.inject(0);
-
-      // Both upstream miss and downstream response are now active
-      // simultaneously
       await clk.nextPosedge;
 
-      final concurrentMissAccepted = ifs.upstreamReq.ready.value.toBool();
-      final concurrentMissForwarded = ifs.downstreamReq.valid.value.toBool();
-      final responseProcessed = ifs.upstreamResp.valid.value.toBool();
+      if (canBypassFillWithRWI) {
+        concurrentMissAccepted = ifs.upstreamReq.ready.value.toBool();
+        concurrentMissForwarded = ifs.downstreamReq.valid.value.toBool();
+        responseProcessed = ifs.upstreamResp.valid.value.toBool();
+      } else {
+        responseProcessed = ifs.upstreamResp.valid.value.toBool();
+        expect(responseProcessed, isTrue,
+            reason: 'Downstream response should still be processed');
+
+        ifs.downstreamResp.valid.inject(0);
+        ifs.downstreamResp.data.nonCacheable.inject(0);
+
+        final camFreed =
+            await waitForCamSpace(channel.pendingRequestsCam.full, clk);
+        expect(camFreed, isTrue,
+            reason: 'CAM should free space after the response');
+
+        ifs.upstreamReq.valid.inject(1);
+        ifs.upstreamReq.data.id.inject(12);
+        ifs.upstreamReq.data.addr.inject(0x9);
+        concurrentMissAccepted =
+            await waitForReadyHigh(ifs.upstreamReq.ready, clk);
+        expect(concurrentMissAccepted, isTrue,
+            reason: 'Cache miss should succeed once CAM frees space');
+        concurrentMissForwarded = ifs.downstreamReq.valid.value.toBool();
+        expect(concurrentMissForwarded, isTrue,
+            reason: 'Cache miss should forward downstream once accepted');
+      }
 
       expect(concurrentMissAccepted, isTrue,
-          reason: 'Cache miss should be accepted due to concurrent CAM entry '
-              'invalidation');
+          reason:
+              'Cache miss should be accepted due to CAM entry invalidation');
       expect(concurrentMissForwarded, isTrue,
           reason: 'Concurrent cache miss should be forwarded downstream');
       expect(responseProcessed, isTrue,
@@ -2035,16 +2135,16 @@ void main() {
       final channel = constructChannel(clk, reset, ifs,
           cacheFactory: fullyAssociativeFactory(), camWays: 4);
       await channel.build();
+      final canBypassFillWithRWI =
+          channel.pendingRequestsCam.canBypassFillWithRWI;
 
       Simulator.setMaxSimTime(800);
       unawaited(Simulator.run());
 
-      // Reset
       ifs.upstreamResp.data.nonCacheable.inject(0);
       ifs.downstreamResp.data.nonCacheable.inject(0);
       await ifs.resetChannel(clk, reset);
 
-      // Fill CAM
       final initialRequests = [0x1, 0x2, 0x3, 0x4];
       for (var i = 0; i < initialRequests.length; i++) {
         ifs.upstreamReq.valid.inject(1);
@@ -2055,55 +2155,74 @@ void main() {
         await clk.nextPosedge;
       }
 
-      // 5th request should be blocked (depending on implementation)
       ifs.upstreamReq.valid.inject(1);
       ifs.upstreamReq.data.id.inject(5);
       ifs.upstreamReq.data.addr.inject(0x5);
       await clk.nextPosedge;
-      final fifthBlocked =
-          !((ifs.upstreamReq.ready.previousValue?.isValid ?? false) &&
-              ifs.upstreamReq.ready.previousValue!.toBool());
+      final fifthBlocked = !ifs.upstreamReq.ready.value.toBool();
       ifs.upstreamReq.valid.inject(0);
       await clk.nextPosedge;
 
-      // Concurrent new request + response freeing entry
       ifs.upstreamReq.valid.inject(1);
       ifs.upstreamReq.data.id.inject(6);
       ifs.upstreamReq.data.addr.inject(0x6);
       ifs.downstreamResp.valid.inject(1);
-      ifs.downstreamResp.data.id.inject(1); // frees entry
+      ifs.downstreamResp.data.id.inject(1);
       ifs.downstreamResp.data.data.inject(0xAA);
       await clk.nextPosedge;
-      final concurrentReqAccepted =
-          (ifs.upstreamReq.ready.previousValue?.isValid ?? false) &&
-              ifs.upstreamReq.ready.previousValue!.toBool();
-      final concurrentRespAccepted =
-          (ifs.downstreamResp.ready.previousValue?.isValid ?? false) &&
-              ifs.downstreamResp.ready.previousValue!.toBool();
+
+      bool concurrentReqAccepted;
+      bool concurrentRespAccepted;
+      if (canBypassFillWithRWI) {
+        concurrentReqAccepted = ifs.upstreamReq.ready.value.toBool();
+        concurrentRespAccepted = ifs.downstreamResp.ready.value.toBool();
+        expect(concurrentReqAccepted && concurrentRespAccepted, isTrue,
+            reason: 'Bypass-capable CAM should accept request + response');
+      } else {
+        concurrentReqAccepted = false;
+        concurrentRespAccepted = ifs.downstreamResp.ready.value.toBool();
+        expect(concurrentRespAccepted, isTrue,
+            reason: 'Response should still complete without bypass');
+
+        ifs.upstreamReq.valid.inject(0);
+        ifs.downstreamResp.valid.inject(0);
+
+        final camFreed =
+            await waitForCamSpace(channel.pendingRequestsCam.full, clk);
+        expect(camFreed, isTrue,
+            reason: 'CAM should free entry after response');
+
+        ifs.upstreamReq.valid.inject(1);
+        ifs.upstreamReq.data.id.inject(6);
+        ifs.upstreamReq.data.addr.inject(0x6);
+        concurrentReqAccepted =
+            await waitForReadyHigh(ifs.upstreamReq.ready, clk);
+        expect(concurrentReqAccepted, isTrue,
+            reason: 'Request should succeed after waiting for space');
+      }
+
       ifs.upstreamReq.valid.inject(0);
       ifs.downstreamResp.valid.inject(0);
 
-      // Follow-up request to confirm space
       await clk.waitCycles(3);
       ifs.upstreamReq.valid.inject(1);
       ifs.upstreamReq.data.id.inject(7);
       ifs.upstreamReq.data.addr.inject(0x7);
-      await clk.nextPosedge;
       final followupAccepted =
-          (ifs.upstreamReq.ready.previousValue?.isValid ?? false) &&
-              ifs.upstreamReq.ready.previousValue!.toBool();
-      ifs.upstreamReq.valid.inject(0);
-      await clk.waitCycles(2);
-
-      expect(fifthBlocked || !fifthBlocked, isTrue,
-          reason: 'Fifth request behavior may vary with implementation');
-      expect(concurrentReqAccepted && concurrentRespAccepted, isTrue,
-          reason:
-              'Concurrent invalidation should allow new request + response');
+          await waitForReadyHigh(ifs.upstreamReq.ready, clk, maxCycles: 16);
       expect(followupAccepted, isTrue,
           reason: 'Follow-up request should succeed after space freed');
 
+      ifs.upstreamReq.valid.inject(0);
+      await clk.waitCycles(2);
       await Simulator.endSimulation();
+
+      expect(fifthBlocked, isTrue,
+          reason: 'Extra request should be blocked when CAM is saturated');
+      expect(concurrentRespAccepted, isTrue,
+          reason: 'Concurrent response must still be processed');
+      expect(concurrentReqAccepted, isTrue,
+          reason: 'New request should eventually succeed once space is free');
     });
   });
 }

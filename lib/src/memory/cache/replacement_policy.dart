@@ -52,75 +52,104 @@ class AccessInterface extends Interface<DataPortGroup> {
 /// set-associative cache upon a store miss. It tracks accesses to ways to
 /// implement policies like LRU for choosing the way to return on a miss.
 abstract class ReplacementPolicy extends Module {
-  /// Number of ways in the cache line.
-  late final int ways;
-
-  /// Access interfaces to communicate hits on ways.
-  @protected
-  final List<AccessInterface> hits = [];
-
-  /// Miss interfaces to communicate misses and retrieve ways to evict.
-  @protected
-  final List<AccessInterface> allocs = [];
-
-  /// Invalidate interfaces to communicate invalidates on ways.
-  @protected
-  final List<AccessInterface> invalidates = [];
-
   /// Clock.
   Logic get clk => input('clk');
 
   /// Reset.
   Logic get reset => input('reset');
 
+  /// Number of ways in the cache line.
+  int get ways => _ways;
+
+  late final int _ways;
+
+  /// Convenience getters to access the original external hits interfaces.
+  List<AccessInterface> get hits => _hits;
+
+  /// Convenience getters to access the original external allocs interfaces.
+  List<AccessInterface> get allocs => _allocs;
+
+  /// Convenience getters to access the original external invalidates
+  /// interfaces.
+  List<AccessInterface> get invalidates => _invalidates;
+
+  /// The original external interfaces provided by the caller.
+  /// These are the AccessInterface objects that callers should drive.
+  ///
+  /// These are cloned internally to create the [intHits], [intAllocs], and
+  /// [intInvalidates] lists.
+
+  /// The original external hit interfaces provided by the caller.
+  final List<AccessInterface> _hits;
+
+  /// The original external alloc interfaces provided by the caller.
+  final List<AccessInterface> _allocs;
+
+  /// The original external invalidate interfaces provided by the caller.
+  final List<AccessInterface> _invalidates;
+
+  /// Access interfaces to communicate hits on ways.
+  @protected
+  final List<AccessInterface> intHits = [];
+
+  /// Miss interfaces to communicate misses and retrieve ways to evict.
+  @protected
+  final List<AccessInterface> intAllocs = [];
+
+  /// Invalidate interfaces to communicate invalidates on ways.
+  @protected
+  final List<AccessInterface> intInvalidates = [];
+
   /// Constructs a [ReplacementPolicy] policy for a cache line.
   ///
-  /// The [hits] interfaces are used to mark ways that are recently accessed.
-  /// The [allocs] interfaces are used to signal a miss and retrieve a way to
-  /// evict. The [ways] parameter indicates the number of ways in the cache
-  /// line.
-  ReplacementPolicy(Logic clk, Logic reset, List<AccessInterface> hits,
-      List<AccessInterface> allocs, List<AccessInterface> invalidates,
-      {this.ways = 2,
+  /// The [_hits] interfaces are used to mark ways that are recently accessed.
+  /// The [_allocs] interfaces are used to signal a miss and retrieve a way to
+  /// evict and replace. The [_invalidates] interfaces are used to communicate
+  /// invalidates on ways. The [ways] parameter indicates the number of ways in
+  /// the cache line.
+  ReplacementPolicy(
+      Logic clk, Logic reset, this._hits, this._allocs, this._invalidates,
+      {int ways = 2,
       super.name = 'replacement',
       super.reserveName,
       super.reserveDefinitionName,
       String? definitionName})
       : super(
             definitionName: definitionName ??
-                'replacement_H${hits.length}_M${allocs.length}_WAYS=$ways') {
+                'replacement_H${_hits.length}_M${_allocs.length}_WAYS=$ways') {
+    _ways = ways;
     if (ways < 2 || (ways & (ways - 1)) != 0) {
       throw ArgumentError('ways must be a power of two and at least 2');
     }
-    if (hits.isEmpty) {
+    if (_hits.isEmpty) {
       throw ArgumentError('at least one access interface is required');
     }
-    if (allocs.isEmpty) {
+    if (_allocs.isEmpty) {
       throw ArgumentError('at least one miss interface is required');
     }
-    if (allocs.length > ways) {
-      throw ArgumentError('number of miss interfaces (${allocs.length}) '
+    if (_allocs.length > ways) {
+      throw ArgumentError('number of miss interfaces (${_allocs.length}) '
           'cannot exceed number of ways ($ways)');
     }
     addInput('clk', clk);
     addInput('reset', reset);
 
-    for (var i = 0; i < hits.length; i++) {
-      this.hits.add(hits[i].clone()
-        ..connectIO(this, hits[i],
+    for (var i = 0; i < _hits.length; i++) {
+      intHits.add(_hits[i].clone()
+        ..connectIO(this, _hits[i],
             inputTags: {DataPortGroup.control, DataPortGroup.data},
             uniquify: (original) => 'hit_${original}_$i'));
     }
-    for (var i = 0; i < allocs.length; i++) {
-      this.allocs.add(allocs[i].clone()
-        ..connectIO(this, allocs[i],
+    for (var i = 0; i < _allocs.length; i++) {
+      intAllocs.add(_allocs[i].clone()
+        ..connectIO(this, _allocs[i],
             inputTags: {DataPortGroup.control},
             outputTags: {DataPortGroup.data},
             uniquify: (original) => 'miss_${original}_$i'));
     }
-    for (var i = 0; i < invalidates.length; i++) {
-      this.invalidates.add(invalidates[i].clone()
-        ..connectIO(this, invalidates[i],
+    for (var i = 0; i < _invalidates.length; i++) {
+      intInvalidates.add(_invalidates[i].clone()
+        ..connectIO(this, _invalidates[i],
             inputTags: {DataPortGroup.control, DataPortGroup.data},
             uniquify: (original) => 'invalidate_${original}_$i'));
     }

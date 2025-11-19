@@ -113,7 +113,7 @@ void main() {
     // This is an example of combinational method testing inside a module rather
     // than having to setup state and sequencing to test this functionality.
     test('PLRU write invalidate', () async {
-      final bv = [for (var i = 0; i < 7; i++) Logic()];
+      final bv = List.generate(7, (_) => Logic());
       for (var i = 0; i < bv.length; i++) {
         bv[i].put(bi[i]);
       }
@@ -126,7 +126,7 @@ void main() {
     });
 
     test('PLRU hit', () async {
-      final bv = [for (var i = 0; i < 7; i++) Logic()];
+      final bv = List.generate(7, (_) => Logic());
       for (var i = 0; i < bv.length; i++) {
         bv[i].put(bi[i]);
       }

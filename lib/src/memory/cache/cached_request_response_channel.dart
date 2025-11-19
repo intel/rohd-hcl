@@ -70,10 +70,9 @@ class CachedRequestResponseChannel extends RequestResponseChannelBase {
   late final ValidDataPortInterface camFillPort;
 
   /// Function to create the address/data cache instance.
-  final Cache Function(
-      Logic clk,
-      Logic reset,
-      List<ValidDataPortInterface> fills,
+  /// Now expects a list of composite fill interfaces where each entry
+  /// contains the fill port and an optional eviction sub-interface.
+  final Cache Function(Logic clk, Logic reset, List<FillEvictInterface> fills,
       List<ValidDataPortInterface> reads) cacheFactory;
 
   /// Function to create the replacement policy for the CAM.
@@ -178,12 +177,14 @@ class CachedRequestResponseChannel extends RequestResponseChannelBase {
     final cacheLocalReset = reset | resetCache;
 
     // Create address/data cache using the factory function with local reset.
-    addressDataCache =
-        cacheFactory(clk, cacheLocalReset, [cacheFillPort], [cacheReadPort]);
+    // Wrap the single fill port into the composite FillEvictInterface.
+    addressDataCache = cacheFactory(clk, cacheLocalReset,
+        [FillEvictInterface(cacheFillPort)], [cacheReadPort]);
 
     // Create pending requests CAM - ID as tag, address as data.
+    // FullyAssociativeCache now expects composite fill interfaces as well.
     pendingRequestsCam = FullyAssociativeCache(
-        clk, reset, [camFillPort], [camReadPort],
+        clk, reset, [FillEvictInterface(camFillPort)], [camReadPort],
         ways: camWays,
         replacement: camReplacementPolicy,
         generateOccupancy: true,
@@ -228,8 +229,13 @@ class CachedRequestResponseChannel extends RequestResponseChannelBase {
     final cacheWriteActive = cacheWriteIntf.valid;
     final respFromDownstreamGated = respFromDownstream & ~cacheWriteActive;
 
-    final camSpaceAvailable =
-        ~pendingRequestsCam.full! | respFromDownstreamGated;
+    // Check if the CAM supports simultaneous fill and RWI when full.
+    // If not supported, only allow fills when CAM is not full.
+    final camCanBypass = pendingRequestsCam.canBypassFillWithRWI;
+
+    final camSpaceAvailable = camCanBypass
+        ? (~pendingRequestsCam.full! | respFromDownstreamGated)
+        : ~pendingRequestsCam.full!;
 
     upstreamReq.ready <=
         (cacheHit &

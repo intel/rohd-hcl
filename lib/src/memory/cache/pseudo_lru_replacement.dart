@@ -17,7 +17,7 @@ import 'package:rohd_hcl/rohd_hcl.dart';
 class PseudoLRUReplacement extends ReplacementPolicy {
   /// Constructs a pseudo Least-Recently-Used policy for a cache line.
   PseudoLRUReplacement(
-      super.clk, super.reset, super.hits, super.allocs, super.invalidates,
+      super.clk, super.reset, super._hits, super._allocs, super._invalidates,
       {super.ways,
       super.name = 'plru',
       super.reserveName,
@@ -26,7 +26,7 @@ class PseudoLRUReplacement extends ReplacementPolicy {
       : super(
             definitionName: definitionName ??
                 'psuedo_lru_replacement_'
-                    'H${hits.length}_A${allocs.length}_WAYS=$ways') {
+                    'H${_hits.length}_A${_allocs.length}_WAYS=$ways') {
     _buildLogic();
   }
 
@@ -107,8 +107,8 @@ class PseudoLRUReplacement extends ReplacementPolicy {
 
     // Process access invalidates, then hits, then allocs.
     var updateTreePLRU = treePLRU;
-    for (var i = 0; i < invalidates.length; i++) {
-      final invalidate = invalidates[i];
+    for (var i = 0; i < intInvalidates.length; i++) {
+      final invalidate = intInvalidates[i];
       updateTreePLRU = mux(
               invalidate.access,
               hitPLRU(updateTreePLRU, invalidate.way,
@@ -116,14 +116,14 @@ class PseudoLRUReplacement extends ReplacementPolicy {
               updateTreePLRU)
           .named('update_invalidate$i', naming: Naming.mergeable);
     }
-    for (var i = 0; i < hits.length; i++) {
-      final hit = hits[i];
+    for (var i = 0; i < intHits.length; i++) {
+      final hit = intHits[i];
       updateTreePLRU =
           mux(hit.access, hitPLRU(updateTreePLRU, hit.way), updateTreePLRU)
               .named('update_hit$i', naming: Naming.mergeable);
     }
-    for (var i = 0; i < allocs.length; i++) {
-      final alloc = allocs[i];
+    for (var i = 0; i < intAllocs.length; i++) {
+      final alloc = intAllocs[i];
       alloc.way <= allocPLRU(updateTreePLRU);
       updateTreePLRU =
           mux(alloc.access, hitPLRU(updateTreePLRU, alloc.way), updateTreePLRU)

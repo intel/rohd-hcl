@@ -130,6 +130,10 @@ class CacheConfigurator extends Configurator {
         fp,
         (i) => ValidDataPortInterface(dataWidth.value, addrWidth.value,
             name: 'fill_$i'));
+    // Compose FillEvictInterface instances (no eviction ports by default in
+    // configurator UI).
+    final compositeFills =
+        List.generate(fp, (i) => FillEvictInterface(fills[i]));
 
     final reads = List.generate(rp, (i) {
       final group = readWithInvalidateKnobs.knobs[i] as GroupOfKnobs;
@@ -148,20 +152,20 @@ class CacheConfigurator extends Configurator {
 
     switch (cacheType.value) {
       case CacheType.directMapped:
-        return DirectMappedCache(Logic(), Logic(), fills, reads,
+        return DirectMappedCache(Logic(), Logic(), compositeFills, reads,
             lines: lines.value);
       case CacheType.setAssociative:
         return SetAssociativeCache(
           Logic(),
           Logic(),
-          fills,
+          compositeFills,
           reads,
           ways: ways.value,
           lines: lines.value,
           replacement: replCtor,
         );
       case CacheType.fullyAssociative:
-        return FullyAssociativeCache(Logic(), Logic(), fills, reads,
+        return FullyAssociativeCache(Logic(), Logic(), compositeFills, reads,
             ways: ways.value,
             generateOccupancy: generateOccupancy.value,
             replacement: replCtor,
