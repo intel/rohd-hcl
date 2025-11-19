@@ -52,6 +52,10 @@ class DtiTbuMainController extends Module {
   /// Arbitration across different message classes for
   /// sending messages out over AXI-S (toSub).
   late final Arbiter? outboundArbiter;
+  final _arbiterReqs = <Logic>[];
+  late int _transReqArbIdx = 0;
+  late int _invSyncAckArbIdx = 0;
+  late int _condisReqArbIdx = 0;
 
   /// Depth of FIFO for pending TRANS_REQs to send.
   late final int transReqSendFifoDepth;
@@ -143,26 +147,25 @@ class DtiTbuMainController extends Module {
 
     // capture the request lines into the arbiter
     // dynamically based on which send queues are available
-    final arbiterReqs = <Logic>[];
     var transReqArbIdx = 0;
     var invSyncAckArbIdx = 0;
     var condisReqArbIdx = 0;
     if (this.transReqSend != null && transReqSendFifoDepth > 0) {
-      arbiterReqs.add(Logic(name: 'arbiter_req_transReq'));
-      transReqArbIdx = arbiterReqs.length - 1;
+      _arbiterReqs.add(Logic(name: 'arbiter_req_transReq'));
+      transReqArbIdx = _arbiterReqs.length - 1;
     }
     if ((this.invAckSend != null || this.syncAckSend != null) &&
         invSyncAckSendFifoDepth > 0) {
-      arbiterReqs.add(Logic(name: 'arbiter_req_invSyncAck'));
-      invSyncAckArbIdx = arbiterReqs.length - 1;
+      _arbiterReqs.add(Logic(name: 'arbiter_req_invSyncAck'));
+      invSyncAckArbIdx = _arbiterReqs.length - 1;
     }
-    arbiterReqs.add(Logic(name: 'arbiter_req_condisReq'));
-    condisReqArbIdx = arbiterReqs.length - 1;
+    _arbiterReqs.add(Logic(name: 'arbiter_req_condisReq'));
+    condisReqArbIdx = _arbiterReqs.length - 1;
 
     if (outboundArbiter != null) {
       this.outboundArbiter = outboundArbiter;
     } else {
-      this.outboundArbiter = RoundRobinArbiter(arbiterReqs,
+      this.outboundArbiter = RoundRobinArbiter(_arbiterReqs,
           clk: this.sys.clk, reset: ~this.sys.resetN);
     }
 
@@ -182,7 +185,7 @@ class DtiTbuMainController extends Module {
         generateError: true,
         name: 'outTransReqsFifo',
       );
-      arbiterReqs[transReqArbIdx] <= ~_outTransReqs!.empty;
+      _arbiterReqs[transReqArbIdx] <= ~_outTransReqs!.empty;
 
       // must have translation tokens to spare
       this.transReqSend!.ready <=
@@ -216,7 +219,7 @@ class DtiTbuMainController extends Module {
         generateError: true,
         name: 'outInvSyncAckFifo',
       );
-      arbiterReqs[invSyncAckArbIdx] <= ~_outInvSyncAcks!.empty;
+      _arbiterReqs[invSyncAckArbIdx] <= ~_outInvSyncAcks!.empty;
       this.invAckSend!.ready <= ~_outInvSyncAcks!.full & _isConnected;
       this.syncAckSend!.ready <=
           ~_outInvSyncAcks!.full &
@@ -243,7 +246,7 @@ class DtiTbuMainController extends Module {
       generateError: true,
       name: 'outCondisReqsFifo',
     );
-    arbiterReqs[condisReqArbIdx] <= ~_outCondisReqs!.empty;
+    _arbiterReqs[condisReqArbIdx] <= ~_outCondisReqs!.empty;
     this.condisReqSend.ready <= ~_outCondisReqs!.full;
 
     // connState + tokens
@@ -314,97 +317,148 @@ class DtiTbuMainController extends Module {
             )
             .named('isConnected');
 
-    final isUnconnected = _connState.currentState
-        .eq(
-          Const(
-            DtiConnectionState.unconnected.index,
-            width: _connState.currentState.width,
+    // grab the maximum outbound message size
+    final maxOutMsgSize = [
+      if (transReqSend != null) DtiTbuTransReq.totalWidth,
+      if (invAckSend != null) DtiTbuInvAck.totalWidth,
+      if (syncAckSend != null) DtiTbuSyncAck.totalWidth,
+      DtiTbuCondisReq.totalWidth
+    ].reduce(max);
+
+    // examine arbiter to understand what data queue we should pull from
+    // flop this moving forward
+    final dataToSendCases = <Logic, Logic>{};
+    if (transReqSend != null && transReqSendFifoDepth > 0) {
+      dataToSendCases[Const(toOneHot(_transReqArbIdx, _arbiterReqs.length))] =
+          _outTransReqs!.readData.zeroExtend(maxOutMsgSize);
+    }
+    if ((invAckSend != null || syncAckSend != null) &&
+        invSyncAckSendFifoDepth > 0) {
+      dataToSendCases[Const(toOneHot(_transReqArbIdx, _arbiterReqs.length))] =
+          _outInvSyncAcks!.readData.zeroExtend(maxOutMsgSize);
+    }
+    dataToSendCases[Const(toOneHot(_condisReqArbIdx, _arbiterReqs.length))] =
+        _outCondisReqs!.readData.zeroExtend(maxOutMsgSize);
+    final dataToSend = cases(
+        _arbiterReqs.swizzle(),
+        conditionalType: ConditionalType.unique,
+        dataToSendCases,
+        defaultValue: Const(0, width: maxOutMsgSize));
+
+    // (potentially) must break the message out over multiple beats
+    final dataEn = _arbiterReqs.swizzle().or();
+    if (maxOutMsgSize > toSub.dataWidth) {
+      // determine how many beats we need
+      // TODO(kimmeljo): dynamic based on message type??
+      final numBeats = (maxOutMsgSize / toSub.dataWidth).ceil();
+      final sendIdle = Logic(name: 'sendIdle');
+
+      // must count as we're sending the message across multiple beats
+      // but restart the count once we're done sending
+      final countEnable = toSub.valid & (toSub.ready ?? Const(1));
+      final acceptNextSend =
+          sendIdle | (countEnable & (toSub.last ?? Const(1)));
+      final beatCounter = Counter.simple(
+          clk: sys.clk,
+          reset: ~sys.resetN,
+          enable: countEnable,
+          restart: acceptNextSend,
+          width: numBeats.bitLength);
+
+      // capture the next message to send
+      final nextOutDataEn =
+          flop(sys.clk, dataEn, en: acceptNextSend, reset: ~sys.resetN)
+              .named('nextOutDataEn');
+      final nextOutData =
+          flop(sys.clk, dataToSend, en: acceptNextSend, reset: ~sys.resetN)
+              .named('nextOutData');
+
+      // FSM to track the sending progress
+      final sendState = FiniteStateMachine<DtiStreamBeatState>(
+        sys.clk,
+        ~sys.resetN,
+        DtiStreamBeatState.idle,
+        [
+          // IDLE: move to WORKING when something new to send comes in
+          State(
+            DtiStreamBeatState.idle,
+            events: {
+              nextOutDataEn: DtiStreamBeatState.working,
+            },
+            actions: [],
           ),
-        )
-        .named('isUnconnected');
-    final transCreditLimitReached = _outgoingReqs.occupancy!
-        .zeroExtend(transTokenGrant.width)
-        .gte(transTokenGrant)
-        .named('transCreditLimitReached');
+          // WORKING: move to IDLE when we are done sending.
+          // but only if there isn't another send immediately following
+          State(DtiStreamBeatState.working, events: {
+            acceptNextSend & dataEn: DtiStreamBeatState.idle,
+          }, actions: []),
+        ],
+      );
+      sendIdle <=
+          sendState.currentState.eq(DtiConnectionState.unconnected.index);
 
-    // round robin arbitration b/w translation requests and IRQs
-    // these can happen simultaneously
-    final transIrqArbiter = RoundRobinArbiter(
-      [fromCache.valid, fromMsi.valid],
-      clk: sys.clk,
-      reset: ~sys.resetN,
-      name: 'transIrqArbiter',
-    );
-    final gntCache = transIrqArbiter.grants[0];
-    final gntMsi = transIrqArbiter.grants[1];
+      // pick the appropriate slice of the message bits to send
+      // based on the current beat count
+      final nextDataToSendCases = <Logic, Logic>{};
+      for (var i = 0; i < numBeats; i++) {
+        final start = toSub.dataWidth * i;
+        final end = min(toSub.dataWidth * (i + 1), maxOutMsgSize);
+        nextDataToSendCases[Const(i, width: beatCounter.count.width)] =
+            nextOutData.getRange(start, end);
+      }
+      final slicedNextDataToSend = cases(
+          beatCounter.count,
+          conditionalType: ConditionalType.unique,
+          nextDataToSendCases,
+          defaultValue: Const(0, width: toSub.dataWidth));
 
-    // incoming translation/IRQ requests
-    // must simulatenously convert them into the appropriate DTI structures
-    _outgoingReqsWrEn <=
-        isConnected &
-            ~transCreditLimitReached &
-            ~_outgoingReqs.full &
-            (fromCache.valid | fromMsi.valid);
-    _outgoingReqsWrData <=
-        mux(
-          gntCache,
-          fromCache.data.payload.zeroExtend(_outgoingReqs.dataWidth),
-          fromMsi.data.payload.zeroExtend(_outgoingReqs.dataWidth),
-        );
-    _outgoingReqsRdEn <=
-        ~_outgoingReqs.empty & (toAtu.ready ?? Const(1)) & ~_invalRdEn;
-    fromCache.ready <=
-        isConnected &
-            ~transCreditLimitReached &
-            ~_outgoingReqs.full &
-            mux(fromMsi.valid, gntCache, Const(1));
-    fromMsi.ready <=
-        isConnected &
-            ~transCreditLimitReached &
-            ~_outgoingReqs.full &
-            mux(fromCache.valid, gntMsi, Const(1));
+      // drive the interface
+      toSub.valid <= nextOutDataEn & ~sendIdle;
+      toSub.data! <= slicedNextDataToSend;
+      if (toSub.useLast) {
+        toSub.last! <= beatCounter.count.eq(numBeats - 1);
+      }
+    }
+    // single beat will suffice to send the message
+    else {
+      final sendIdle = Logic(name: 'sendIdle');
+      final acceptNextSend = sendIdle | (toSub.ready ?? Const(1));
+      final nextOutDataEn =
+          flop(sys.clk, dataEn, en: acceptNextSend, reset: ~sys.resetN)
+              .named('nextOutDataEn');
+      final nextOutData =
+          flop(sys.clk, dataToSend, en: acceptNextSend, reset: ~sys.resetN)
+              .named('nextOutData');
+      sendIdle <= ~nextOutDataEn;
 
-    // incoming invalidation ack/sync
-    // no arbitration needed b/c these are guaranteed to be mutually exclusive
-    final invalEnSw =
-        invalVtd ? invalAckVtd!.valid : (invalAck!.valid | syncAck!.valid);
-    _invalWrEn <= isConnected & ~_inval.full & invalEnSw;
-
-    final invalDataSw = invalVtd
-        ? invalAckVtd!.data.payload.zeroExtend(_outgoingReqs.dataWidth)
-        : mux(
-            syncAck!.valid,
-            syncAck!.data.payload.zeroExtend(_outgoingReqs.dataWidth),
-            invalAck!.data.payload.zeroExtend(_outgoingReqs.dataWidth),
-          );
-    _invalWrData <= invalDataSw;
-
-    _invalRdEn <= ~_inval.empty & (toAtu.ready ?? Const(1));
-
-    if (invalVtd) {
-      invalAckVtd!.ready <= isConnected & ~_inval.full;
-    } else {
-      invalAck!.ready <= isConnected & ~_inval.full;
-      syncAck!.ready <= isConnected & ~_inval.full;
+      toSub.valid <= nextOutDataEn;
+      toSub.data! <= nextOutData;
+      if (toSub.useLast) {
+        toSub.last! <= Const(1);
+      }
     }
 
-    // invalidation/sync ACK always takes priority over translation/IRQ requests
-    final outData = mux(
-      ~_inval.empty,
-      _inval.readData.zeroExtend(toAtu.dataWidth),
-      _outgoingReqs.readData.zeroExtend(toAtu.dataWidth),
-    );
-    final trueOutData = mux(~isUnconnected, outData, connReq);
-
-    // drive DTI interface
-    toAtu.valid <=
-        (isUnconnected | ~(_outgoingReqs.empty & _inval.empty)) &
-            (toAtu.ready ?? Const(1));
-    toAtu.id! <= srcId;
-    toAtu.dest! <= destId;
-    toAtu.data! <= trueOutData;
-    toAtu.last! <= Const(1); // always 1 beat
-    toAtu.keep! <= ~Const(0, width: toAtu.strbWidth); // keep everything
-    toAtu.wakeup! <= Const(1); // always awake if there's power
+    // unconditionally driven signals on the outbound stream
+    // TODO(kimmeljo): any use for TSTRB or TKEEP??
+    // TODO(kimmeljo): provide a hook into TUSER??
+    // TODO(kimmeljo): provide a hook into TWAKEUP??
+    if (toSub.idWidth > 0) {
+      toSub.id! <= srcId;
+    }
+    if (toSub.destWidth > 0) {
+      toSub.dest! <= destId;
+    }
+    if (toSub.useKeep) {
+      toSub.keep! <= ~Const(0, width: toSub.strbWidth);
+    }
+    if (toSub.useStrb) {
+      toSub.strb! <= ~Const(0, width: toSub.strbWidth);
+    }
+    if (toSub.userWidth > 0) {
+      toSub.user! <= Const(0, width: toSub.strbWidth);
+    }
+    if (toSub.useWakeup) {
+      toSub.wakeup! <= Const(1);
+    }
   }
 }
