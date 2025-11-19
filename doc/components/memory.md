@@ -142,7 +142,9 @@ Here, the `AccessInterface` simply carries the `access` flag and the `way` that 
 
 A pseudo-LRU `ReplacementPolicy` called `PseudoLRUReplacement` is provided as default for use in set-associative caches.
 
-### DirectMappedCache
+Another `ReplacementPolicy` is `AvailableInvalidate` which only works if the cache is using invalidation and is never full.  This is useful with the `FullyAssociativeCache` with occupancy turned on so that the user can avoid filling when the cache is full and wait for an invalidate to free up space.  If the cache becomes full, `AvailableInvalidate` does not fall back on another replacement policy, it currently returns way 0 for every fill request while full.
+
+### Direct-Mapped Cache
 
 The [`DirectMappedCache`] provides a direct-mapped cache with multiple read and fill ports.
 
