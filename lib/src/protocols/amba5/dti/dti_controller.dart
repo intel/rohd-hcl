@@ -31,7 +31,7 @@ abstract class DtiController extends Module {
   final List<DtiTxMessageInterfaceConfig> sendCfgs;
 
   /// Configurations for receive messages.
-  final List<DtiTxMessageInterfaceConfig> rcvCfgs;
+  final List<DtiRxMessageInterfaceConfig> rcvCfgs;
 
   /// Fixed source ID for this module.
   ///
@@ -169,8 +169,8 @@ abstract class DtiController extends Module {
         toSub: this.toSub,
         msgToSendValid: _senderValid,
         msgToSend: _senderData,
-        srcId: srcId,
-        destId: destId);
+        srcId: this.srcId,
+        destId: this.destId);
 
     // reception over DTI
     _maxInMsgSize = this.rcvMsgs.isNotEmpty
@@ -178,10 +178,10 @@ abstract class DtiController extends Module {
         : 0;
     _receiverCanAccept = Logic(name: 'receiverCanAccept');
     _receiver = DtiInterfaceRx(
-        sys: sys,
-        fromSub: fromSub,
+        sys: this.sys,
+        fromSub: this.fromSub,
         canAcceptMsg: _receiverCanAccept,
-        srcId: srcId,
+        srcId: this.srcId,
         maxMsgRxSize: _maxInMsgSize);
 
     // capture the request lines into the arbiter

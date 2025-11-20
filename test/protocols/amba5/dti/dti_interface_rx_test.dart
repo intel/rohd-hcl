@@ -6,6 +6,10 @@ import 'package:rohd_hcl/rohd_hcl.dart';
 import 'package:rohd_vf/rohd_vf.dart';
 import 'package:test/test.dart';
 
+// TODO(kimmeljo):
+//  add backpressure testing
+//  add throughput testing
+
 void main() async {
   tearDown(() async {
     await Simulator.reset();
@@ -140,7 +144,7 @@ void main() async {
 
     await receiver.build();
 
-    WaveDumper(receiver);
+    // WaveDumper(receiver);
 
     Simulator.setMaxSimTime(10000);
     unawaited(Simulator.run());
