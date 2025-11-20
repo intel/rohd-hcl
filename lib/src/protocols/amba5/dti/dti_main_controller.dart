@@ -31,6 +31,9 @@ class DtiTbuMainController extends Module {
   /// Connect/Disconnect requests.
   late final ReadyValidInterface<DtiTbuCondisReq> condisReqSend;
 
+  /// Optional custom DTI messages to send.
+  final List<ReadyAndValidInterface<LogicStructure>> customSends = [];
+
   /// Translation responses.
   /// This covers both RESP and RESPEX
   late final ReadyValidInterface<DtiTbuTransRespEx>? transRespOut;
@@ -54,6 +57,7 @@ class DtiTbuMainController extends Module {
   late int _transReqArbIdx = 0;
   late int _invSyncAckArbIdx = 0;
   late int _condisReqArbIdx = 0;
+  final List<int> _customArbIdx = [];
 
   /// Depth of FIFO for pending TRANS_REQs to send.
   late final int transReqSendFifoDepth;
@@ -76,6 +80,9 @@ class DtiTbuMainController extends Module {
   /// Depth of FIFO for pending CONDIS_ACKs received.
   late final int condisAckOutFifoDepth;
 
+  /// Depths of FIFOs for custom messages to send.
+  final List<int> customSendFifoDepths;
+
   /// Fixed source ID for this module.
   ///
   /// Placed into TID signal when sending.
@@ -91,6 +98,7 @@ class DtiTbuMainController extends Module {
   late final Fifo? _outTransReqs;
   late final Fifo? _outInvSyncAcks;
   late final Fifo _outCondisReqs;
+  final List<Fifo> _outCustomMsgs = [];
 
   // inbound FIFOs
   late final Fifo? _inTransResps;
@@ -167,6 +175,7 @@ class DtiTbuMainController extends Module {
     ReadyValidInterface<DtiTbuInvReq>? invReqOut,
     ReadyValidInterface<DtiTbuSyncAck>? syncAckSend,
     ReadyValidInterface<DtiTbuSyncReq>? syncReqOut,
+    List<ReadyAndValidInterface<LogicStructure>> customSends = const [],
     this.transReqSendFifoDepth = 1,
     this.invSyncAckSendFifoDepth = 1,
     this.condisReqSendFifoDepth = 1,
@@ -174,6 +183,7 @@ class DtiTbuMainController extends Module {
     this.transFaultOutFifoDepth = 1,
     this.invSyncReqOutFifoDepth = 1,
     this.condisAckOutFifoDepth = 1,
+    this.customSendFifoDepths = const [],
     Arbiter? outboundArbiter,
     super.name = 'dtiTbuMainController',
   }) {
@@ -235,6 +245,13 @@ class DtiTbuMainController extends Module {
         uniquify: (original) => '${name}_condisReqSend_$original');
     this.condisAckOut = addPairInterfacePorts(condisAckOut, PairRole.provider,
         uniquify: (original) => '${name}_condisAckOut_$original');
+
+    // custom messages
+    for (var i = 0; i < customSends.length; i++) {
+      this.customSends.add(addPairInterfacePorts(
+          customSends[i], PairRole.consumer,
+          uniquify: (original) => '${name}_customSends${i}_$original'));
+    }
 
     this.srcId = addInput('srcId', srcId, width: srcId.width);
     this.destId = addInput('destId', destId, width: destId.width);
@@ -317,11 +334,15 @@ class DtiTbuMainController extends Module {
             .named('isConnected');
 
     // transmission over DTI
+    final customSendMax = this.customSends.isNotEmpty
+        ? this.customSends.map((e) => e.data.width).reduce(max)
+        : 0;
     _maxOutMsgSize = [
       if (transReqSend != null) DtiTbuTransReq.totalWidth,
       if (invAckSend != null) DtiTbuInvAck.totalWidth,
       if (syncAckSend != null) DtiTbuSyncAck.totalWidth,
-      DtiTbuCondisReq.totalWidth
+      DtiTbuCondisReq.totalWidth,
+      customSendMax,
     ].reduce(max);
     _senderValid = Logic(name: 'senderValid');
     _senderData = Logic(name: 'senderData', width: _maxOutMsgSize);
@@ -361,6 +382,10 @@ class DtiTbuMainController extends Module {
     }
     _arbiterReqs.add(Logic(name: 'arbiter_req_condisReq'));
     _condisReqArbIdx = _arbiterReqs.length - 1;
+    for (var i = 0; i < this.customSends.length; i++) {
+      _arbiterReqs.add(Logic(name: 'arbiter_req_custom$i'));
+      _customArbIdx.add(_arbiterReqs.length - 1);
+    }
 
     if (outboundArbiter != null) {
       this.outboundArbiter = outboundArbiter;
@@ -449,6 +474,20 @@ class DtiTbuMainController extends Module {
     );
     _arbiterReqs[_condisReqArbIdx] <= ~_outCondisReqs.empty;
     this.condisReqSend.ready <= ~_outCondisReqs.full;
+    for (var i = 0; i < this.customSends.length; i++) {
+      _outCustomMsgs.add(Fifo(
+        this.sys.clk,
+        ~this.sys.resetN,
+        writeEnable: this.customSends[i].valid,
+        writeData: this.customSends[i].data,
+        readEnable: this.outboundArbiter!.grants[_customArbIdx[i]] &
+            _sender.msgAccepted,
+        depth: customSendFifoDepths[i],
+        generateOccupancy: true,
+        generateError: true,
+        name: 'outCustomFifo$i',
+      ));
+    }
 
     if (acceptsTransResps) {
       _inTransRespsWrEn = Logic(name: 'inTransRespsWrEn');
@@ -536,6 +575,10 @@ class DtiTbuMainController extends Module {
     }
     dataToSendCases[Const(toOneHot(_condisReqArbIdx, _arbiterReqs.length))] =
         _outCondisReqs.readData.zeroExtend(_maxOutMsgSize);
+    for (var i = 0; i < customSends.length; i++) {
+      dataToSendCases[Const(toOneHot(_customArbIdx[i], _arbiterReqs.length))] =
+          _outCustomMsgs[i].readData.zeroExtend(_maxOutMsgSize);
+    }
     final dataToSend = cases(
         _arbiterReqs.swizzle(),
         conditionalType: ConditionalType.unique,
