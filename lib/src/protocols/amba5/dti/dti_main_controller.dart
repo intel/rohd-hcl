@@ -19,69 +19,23 @@ class DtiTbuMainController extends Module {
   /// Inbound DTI messages.
   late final Axi5StreamInterface fromSub;
 
-  /// Translation requests.
-  late final ReadyValidInterface<DtiTbuTransReq>? transReqSend;
+  /// DTI messages to send.
+  final List<ReadyAndValidInterface<LogicStructure>> sendMsgs = [];
 
-  /// Invalidation ACKs.
-  late final ReadyValidInterface<DtiTbuInvAck>? invAckSend;
-
-  /// Synchronization ACKs.
-  late final ReadyValidInterface<DtiTbuSyncAck>? syncAckSend;
-
-  /// Connect/Disconnect requests.
-  late final ReadyValidInterface<DtiTbuCondisReq> condisReqSend;
-
-  /// Optional custom DTI messages to send.
-  final List<ReadyAndValidInterface<LogicStructure>> customSends = [];
-
-  /// Translation responses.
-  /// This covers both RESP and RESPEX
-  late final ReadyValidInterface<DtiTbuTransRespEx>? transRespOut;
-
-  /// Translation faults.
-  late final ReadyValidInterface<DtiTbuTransFault>? transFaultOut;
-
-  /// Invalidation requests.
-  late final ReadyValidInterface<DtiTbuInvReq>? invReqOut;
-
-  /// Synchronization requests.
-  late final ReadyValidInterface<DtiTbuSyncReq>? syncReqOut;
-
-  /// Connect/Disconnects ACKs.
-  late final ReadyValidInterface<DtiTbuCondisAck> condisAckOut;
+  /// DTI messages to receive.
+  final List<ReadyAndValidInterface<LogicStructure>> rcvMsgs = [];
 
   /// Arbitration across different message classes for
   /// sending messages out over AXI-S (toSub).
   late final Arbiter? outboundArbiter;
   final _arbiterReqs = <Logic>[];
-  late int _transReqArbIdx = 0;
-  late int _invSyncAckArbIdx = 0;
-  late int _condisReqArbIdx = 0;
-  final List<int> _customArbIdx = [];
+  final List<int> _sendArbIdx = [];
 
-  /// Depth of FIFO for pending TRANS_REQs to send.
-  late final int transReqSendFifoDepth;
+  /// Configurations for send messages.
+  final List<DtiTxMessageInterfaceConfig> sendCfgs;
 
-  /// Depth of FIFO for TRANS_RESP(EX)s received.
-  late final int transRespOutFifoDepth;
-
-  /// Depth of FIFO for TRANS_FAULTs received.
-  late final int transFaultOutFifoDepth;
-
-  /// Depth of FIFO for pending INV_ACKs and SYNC_ACKs to send.
-  late final int invSyncAckSendFifoDepth;
-
-  /// Depth of FIFO for INV_REQs and SYNC_REQs received.
-  late final int invSyncReqOutFifoDepth;
-
-  /// Depth of FIFO for pending CONDIS_REQs to send.
-  late final int condisReqSendFifoDepth;
-
-  /// Depth of FIFO for pending CONDIS_ACKs received.
-  late final int condisAckOutFifoDepth;
-
-  /// Depths of FIFOs for custom messages to send.
-  final List<int> customSendFifoDepths;
+  /// Configurations for receive messages.
+  final List<DtiTxMessageInterfaceConfig> rcvCfgs;
 
   /// Fixed source ID for this module.
   ///
@@ -95,28 +49,13 @@ class DtiTbuMainController extends Module {
   late final Logic destId;
 
   // outbound FIFOs
-  late final Fifo? _outTransReqs;
-  late final Fifo? _outInvSyncAcks;
-  late final Fifo _outCondisReqs;
-  final List<Fifo> _outCustomMsgs = [];
+  final List<Fifo> _outMsgs = [];
 
   // inbound FIFOs
-  late final Fifo? _inTransResps;
-  late final Fifo? _inTransFaults;
-  late final Fifo? _inInvSyncReqs;
-  late final Fifo _inCondisAcks;
-  late final Logic? _inTransRespsWrEn;
-  late final Logic? _inTransRespsWrData;
-  late final Logic? _inTransRespsRdEn;
-  late final Logic? _inTransFaultsWrEn;
-  late final Logic? _inTransFaultsWrData;
-  late final Logic? _inTransFaultsRdEn;
-  late final Logic? _inInvSyncReqsWrEn;
-  late final Logic? _inInvSyncReqsWrData;
-  late final Logic? _inInvSyncReqsRdEn;
-  late final Logic _inCondisAcksWrEn;
-  late final Logic _inCondisAcksWrData;
-  late final Logic _inCondisAcksRdEn;
+  final List<Fifo> _inMsgs = [];
+  final List<Logic> _inMsgsWrEn = [];
+  final List<Logic> _inMsgsWrData = [];
+  final List<Logic> _inMsgsRdEn = [];
 
   // track the number of outstanding translation requests
   late final Logic _transTokensGranted;
@@ -137,28 +76,6 @@ class DtiTbuMainController extends Module {
   late final Logic _receiverCanAccept;
   late final DtiInterfaceRx _receiver;
 
-  /// Indicator if we are able to send translation requests.
-  bool get acceptsTransReqs =>
-      transReqSend != null && transReqSendFifoDepth > 0;
-
-  /// Indicator if we are able to send invalidation or synchronization ACKs.
-  bool get acceptsInvSyncAcks =>
-      (invAckSend != null || syncAckSend != null) &&
-      invSyncAckSendFifoDepth > 0;
-
-  /// Indicator if we are able to receive translation responses.
-  bool get acceptsTransResps =>
-      transRespOut != null && transRespOutFifoDepth > 0;
-
-  /// Indicator if we are able to receive translation faults.
-  bool get acceptsTransFaults =>
-      transFaultOut != null && transFaultOutFifoDepth > 0;
-
-  /// Indicator if we are able to receive
-  /// invalidation or synchronization requests.
-  bool get acceptsInvSyncReqs =>
-      (invReqOut != null || syncReqOut != null) && invSyncReqOutFifoDepth > 0;
-
   /// Constructor.
   DtiTbuMainController({
     required Axi5SystemInterface sys,
@@ -166,24 +83,10 @@ class DtiTbuMainController extends Module {
     required Axi5StreamInterface fromSub,
     required Logic srcId,
     required Logic destId,
-    required ReadyValidInterface<DtiTbuCondisReq> condisReqSend,
-    required ReadyValidInterface<DtiTbuCondisAck> condisAckOut,
-    ReadyValidInterface<DtiTbuTransReq>? transReqSend,
-    ReadyValidInterface<DtiTbuTransRespEx>? transRespOut,
-    ReadyValidInterface<DtiTbuTransFault>? transFaultOut,
-    ReadyValidInterface<DtiTbuInvAck>? invAckSend,
-    ReadyValidInterface<DtiTbuInvReq>? invReqOut,
-    ReadyValidInterface<DtiTbuSyncAck>? syncAckSend,
-    ReadyValidInterface<DtiTbuSyncReq>? syncReqOut,
-    List<ReadyAndValidInterface<LogicStructure>> customSends = const [],
-    this.transReqSendFifoDepth = 1,
-    this.invSyncAckSendFifoDepth = 1,
-    this.condisReqSendFifoDepth = 1,
-    this.transRespOutFifoDepth = 1,
-    this.transFaultOutFifoDepth = 1,
-    this.invSyncReqOutFifoDepth = 1,
-    this.condisAckOutFifoDepth = 1,
-    this.customSendFifoDepths = const [],
+    List<ReadyAndValidInterface<LogicStructure>> sendMsgs = const [],
+    List<ReadyAndValidInterface<LogicStructure>> rcvMsgs = const [],
+    this.sendCfgs = const [],
+    this.rcvCfgs = const [],
     Arbiter? outboundArbiter,
     super.name = 'dtiTbuMainController',
   }) {
@@ -198,88 +101,96 @@ class DtiTbuMainController extends Module {
       PairRole.consumer,
       uniquify: (original) => '${name}_fromSub_$original',
     );
-    if (transReqSend != null && transReqSendFifoDepth > 0) {
-      this.transReqSend = addPairInterfacePorts(transReqSend, PairRole.consumer,
-          uniquify: (original) => '${name}_transReqSend_$original');
-    } else {
-      this.transReqSend = null;
-    }
-    if (transRespOut != null && transRespOutFifoDepth > 0) {
-      this.transRespOut = addPairInterfacePorts(transRespOut, PairRole.consumer,
-          uniquify: (original) => '${name}_transRespOut_$original');
-    } else {
-      this.transRespOut = null;
-    }
-    if (transFaultOut != null && transFaultOutFifoDepth > 0) {
-      this.transFaultOut = addPairInterfacePorts(
-          transFaultOut, PairRole.consumer,
-          uniquify: (original) => '${name}_transFaultOut_$original');
-    } else {
-      this.transFaultOut = null;
-    }
-    if (invAckSend != null && invSyncAckSendFifoDepth > 0) {
-      this.invAckSend = addPairInterfacePorts(invAckSend, PairRole.consumer,
-          uniquify: (original) => '${name}_invAckSend_$original');
-    } else {
-      this.invAckSend = null;
-    }
-    if (invReqOut != null && invSyncReqOutFifoDepth > 0) {
-      this.invReqOut = addPairInterfacePorts(invReqOut, PairRole.consumer,
-          uniquify: (original) => '${name}_invReqOut_$original');
-    } else {
-      this.invReqOut = null;
-    }
-    if (syncAckSend != null && invSyncAckSendFifoDepth > 0) {
-      this.syncAckSend = addPairInterfacePorts(syncAckSend, PairRole.consumer,
-          uniquify: (original) => '${name}_syncAckSend_$original');
-    } else {
-      this.syncAckSend = null;
-    }
-    if (syncReqOut != null && invSyncReqOutFifoDepth > 0) {
-      this.syncReqOut = addPairInterfacePorts(syncReqOut, PairRole.consumer,
-          uniquify: (original) => '${name}_syncReqOut_$original');
-    } else {
-      this.syncReqOut = null;
-    }
-    this.condisReqSend = addPairInterfacePorts(condisReqSend, PairRole.consumer,
-        uniquify: (original) => '${name}_condisReqSend_$original');
-    this.condisAckOut = addPairInterfacePorts(condisAckOut, PairRole.provider,
-        uniquify: (original) => '${name}_condisAckOut_$original');
 
-    // custom messages
-    for (var i = 0; i < customSends.length; i++) {
-      this.customSends.add(addPairInterfacePorts(
-          customSends[i], PairRole.consumer,
-          uniquify: (original) => '${name}_customSends${i}_$original'));
+    // send messages
+    for (var i = 0; i < sendMsgs.length; i++) {
+      this.sendMsgs.add(addPairInterfacePorts(sendMsgs[i], PairRole.consumer,
+          uniquify: (original) => '${name}_sendMsgs${i}_$original'));
+    }
+
+    // receive messages
+    for (var i = 0; i < rcvMsgs.length; i++) {
+      this.rcvMsgs.add(addPairInterfacePorts(rcvMsgs[i], PairRole.provider,
+          uniquify: (original) => '${name}_rcvMsgs${i}_$original'));
     }
 
     this.srcId = addInput('srcId', srcId, width: srcId.width);
     this.destId = addInput('destId', destId, width: destId.width);
 
+    // we need to identify CONDIS_REQ and TRANS_REQ
+    // for certain DTI specific activities
+    var conReqIdx = -1;
+    var transReqIdx = -1;
+    for (var i = 0; i < sendMsgs.length; i++) {
+      if (sendMsgs[i].data is DtiTbuCondisReq) {
+        conReqIdx = i;
+      } else if (sendMsgs[i].data is DtiTbuTransReq) {
+        transReqIdx = i;
+      }
+    }
+    if (conReqIdx < 0) {
+      throw Exception(
+          'This module is missing a required DtiTbuCondisReq interface!');
+    }
+    final condisReqSend = this.sendMsgs[conReqIdx];
+    final condisReqData = DtiTbuCondisReq()..gets(condisReqSend.data);
+
+    var conAckIdx = -1;
+    var transRespIdx = -1;
+    var transFaultIdx = -1;
+    for (var i = 0; i < rcvMsgs.length; i++) {
+      if (rcvMsgs[i].data is DtiTbuCondisAck) {
+        conAckIdx = i;
+      } else if (sendMsgs[i].data is DtiTbuTransResp) {
+        transRespIdx = i;
+      } else if (sendMsgs[i].data is DtiTbuTransRespEx) {
+        transRespIdx = i;
+      } else if (sendMsgs[i].data is DtiTbuTransFault) {
+        transFaultIdx = i;
+      }
+    }
+    if (conAckIdx < 0) {
+      throw Exception(
+          'This module is missing a required DtiTbuCondisAck interface!');
+    }
+    final condisAckOut = this.rcvMsgs[conAckIdx];
+    final condisAckData = DtiTbuCondisAck()..gets(condisAckOut.data);
+
+    // on CondisAck, make sure to grab the granted # of tokens
+    Sequential(sys.clk, reset: ~sys.resetN, [
+      _transTokensGranted <
+          mux(condisAckOut.accepted & condisAckData.state.eq(1),
+              condisAckData.tokTransGnt, _transTokensGranted),
+    ]);
+
     // connState + tokens
     _transReqTokens = Counter.updn(
         clk: this.sys.clk,
         reset: ~this.sys.resetN,
-        enableInc: this.transReqSend?.accepted ??
-            Const(0), // sending a translation request
-        enableDec: (this.transRespOut?.accepted ?? Const(0)) |
-            (this.transFaultOut?.accepted ??
-                Const(0)), // receiving a translation resp/respex/fault
-        restart: this.condisAckOut.accepted &
-            this
-                .condisAckOut
-                .data
-                .state
-                .eq(1), // get a condisack for a connect request
+        enableInc: transReqIdx < 0
+            ? Const(0)
+            : this
+                .sendMsgs[transReqIdx]
+                .accepted, // sending a translation request
+        enableDec: (transRespIdx < 0
+                ? Const(0)
+                : this.rcvMsgs[transRespIdx].accepted) |
+            (transFaultIdx < 0
+                ? Const(0)
+                : this
+                    .rcvMsgs[transFaultIdx]
+                    .accepted), // receiving a translation resp/respex/fault
+        restart: condisAckOut.accepted &
+            condisAckData.state.eq(1), // get a condisack for a connect request
         width: DtiTbuCondisAck.tokTransGntWidth.bitLength);
     _transTokensGranted = Logic(
         name: 'transTokensGranted', width: DtiTbuCondisAck.tokTransGntWidth);
 
     // Connection state machine
-    final connIn = condisReqSend.accepted & condisReqSend.data.state.eq(1);
-    final disconnIn = condisReqSend.accepted & condisReqSend.data.state.eq(0);
-    final connOut = condisAckOut.accepted & condisAckOut.data.state.eq(1);
-    final disconnOut = condisAckOut.accepted & condisAckOut.data.state.eq(0);
+    final connIn = condisReqSend.accepted & condisReqData.state.eq(1);
+    final disconnIn = condisReqSend.accepted & condisReqData.state.eq(0);
+    final connOut = condisAckOut.accepted & condisAckData.state.eq(1);
+    final disconnOut = condisAckOut.accepted & condisAckData.state.eq(0);
     _connState = FiniteStateMachine<DtiConnectionState>(
       this.sys.clk,
       ~this.sys.resetN,
@@ -334,16 +245,9 @@ class DtiTbuMainController extends Module {
             .named('isConnected');
 
     // transmission over DTI
-    final customSendMax = this.customSends.isNotEmpty
-        ? this.customSends.map((e) => e.data.width).reduce(max)
+    _maxOutMsgSize = this.sendMsgs.isNotEmpty
+        ? this.sendMsgs.map((e) => e.data.width).reduce(max)
         : 0;
-    _maxOutMsgSize = [
-      if (transReqSend != null) DtiTbuTransReq.totalWidth,
-      if (invAckSend != null) DtiTbuInvAck.totalWidth,
-      if (syncAckSend != null) DtiTbuSyncAck.totalWidth,
-      DtiTbuCondisReq.totalWidth,
-      customSendMax,
-    ].reduce(max);
     _senderValid = Logic(name: 'senderValid');
     _senderData = Logic(name: 'senderData', width: _maxOutMsgSize);
     _sender = DtiInterfaceTx(
@@ -355,13 +259,9 @@ class DtiTbuMainController extends Module {
         destId: destId);
 
     // reception over DTI
-    _maxInMsgSize = [
-      if (transRespOut != null) DtiTbuTransRespEx.totalWidth,
-      if (transFaultOut != null) DtiTbuTransFault.totalWidth,
-      if (invReqOut != null) DtiTbuInvReq.totalWidth,
-      if (syncReqOut != null) DtiTbuSyncReq.totalWidth,
-      DtiTbuCondisAck.totalWidth
-    ].reduce(max);
+    _maxInMsgSize = this.rcvMsgs.isNotEmpty
+        ? this.rcvMsgs.map((e) => e.data.width).reduce(max)
+        : 0;
     _receiverCanAccept = Logic(name: 'receiverCanAccept');
     _receiver = DtiInterfaceRx(
         sys: sys,
@@ -372,19 +272,9 @@ class DtiTbuMainController extends Module {
 
     // capture the request lines into the arbiter
     // dynamically based on which send queues are available
-    if (acceptsTransReqs) {
-      _arbiterReqs.add(Logic(name: 'arbiter_req_transReq'));
-      _transReqArbIdx = _arbiterReqs.length - 1;
-    }
-    if (acceptsInvSyncAcks) {
-      _arbiterReqs.add(Logic(name: 'arbiter_req_invSyncAck'));
-      _invSyncAckArbIdx = _arbiterReqs.length - 1;
-    }
-    _arbiterReqs.add(Logic(name: 'arbiter_req_condisReq'));
-    _condisReqArbIdx = _arbiterReqs.length - 1;
-    for (var i = 0; i < this.customSends.length; i++) {
-      _arbiterReqs.add(Logic(name: 'arbiter_req_custom$i'));
-      _customArbIdx.add(_arbiterReqs.length - 1);
+    for (var i = 0; i < this.sendMsgs.length; i++) {
+      _arbiterReqs.add(Logic(name: 'arbiter_req_$i'));
+      _sendArbIdx.add(_arbiterReqs.length - 1);
     }
 
     if (outboundArbiter != null) {
@@ -397,165 +287,50 @@ class DtiTbuMainController extends Module {
     _isConnected = Logic(name: 'isConnected');
 
     // FIFOs
-    if (acceptsTransReqs) {
-      _outTransReqs = Fifo(
+    for (var i = 0; i < this.sendMsgs.length; i++) {
+      final outMsgFull = Logic(name: 'outMsgsFull$i');
+      _outMsgs.add(Fifo(
         this.sys.clk,
         ~this.sys.resetN,
-        writeEnable: this.transReqSend!.valid,
-        writeData: this.transReqSend!.data,
+        writeEnable: this.sendMsgs[i].valid & ~outMsgFull,
+        writeData: this.sendMsgs[i].data,
         readEnable:
-            this.outboundArbiter!.grants[_transReqArbIdx] & _sender.msgAccepted,
-        depth: transReqSendFifoDepth,
+            this.outboundArbiter!.grants[_sendArbIdx[i]] & _sender.msgAccepted,
+        depth: sendCfgs[i].fifoDepth,
         generateOccupancy: true,
         generateError: true,
-        name: 'outTransReqsFifo',
-      );
-      _arbiterReqs[_transReqArbIdx] <= ~_outTransReqs!.empty;
+        name: 'outMsgFifo$i',
+      ));
+      outMsgFull <= _outMsgs.last.full;
 
-      // must have translation tokens to spare
-      this.transReqSend!.ready <=
-          ~_outTransReqs!.full &
+      // ready if mapped queue is not full
+      // unless we're TRANS_REQ in which case
+      // also must have translation tokens to spare
+      this.sendMsgs[i].ready <=
+          ~_outMsgs.last.full &
               _isConnected &
-              _transReqTokens.count.lt(_transTokensGranted);
-    } else {
-      _outTransReqs = null;
-      if (transReqSend != null) {
-        this.transReqSend!.ready <= Const(0);
-      }
+              (i == transReqIdx
+                  ? _transReqTokens.count.lt(_transTokensGranted)
+                  : Const(1));
     }
-    if (acceptsInvSyncAcks) {
-      // if simultaneous inv + sync acks, inv ack gets priority
-      final invSyncFifoDataWidth =
-          max(DtiTbuInvAck.totalWidth, DtiTbuSyncAck.totalWidth);
-      _outInvSyncAcks = Fifo(
+
+    for (var i = 0; i < this.rcvMsgs.length; i++) {
+      _inMsgsWrEn.add(Logic(name: 'inMsgsWrEn$i'));
+      _inMsgsWrData.add(
+          Logic(name: 'inMsgsWrData$i', width: this.rcvMsgs[i].data.width));
+      _inMsgsRdEn.add(Logic(name: 'inMsgsRdEn$i'));
+      _inMsgs.add(Fifo(
         this.sys.clk,
         ~this.sys.resetN,
-        writeEnable: (this.invAckSend?.valid ?? Const(0)) |
-            (this.syncAckSend?.valid ?? Const(0)),
-        writeData: mux(
-            this.invAckSend?.valid ?? Const(0),
-            this.invAckSend?.data.zeroExtend(invSyncFifoDataWidth) ??
-                Const(0, width: invSyncFifoDataWidth),
-            this.syncAckSend?.data.zeroExtend(invSyncFifoDataWidth) ??
-                Const(0, width: invSyncFifoDataWidth)),
-        readEnable: this.outboundArbiter!.grants[_invSyncAckArbIdx] &
-            _sender.msgAccepted,
-        depth: invSyncAckSendFifoDepth,
+        writeEnable: _inMsgsWrEn.last,
+        writeData: _inMsgsWrData.last,
+        readEnable: _inMsgsRdEn.last,
+        depth: rcvCfgs[i].fifoDepth,
         generateOccupancy: true,
         generateError: true,
-        name: 'outInvSyncAckFifo',
-      );
-      _arbiterReqs[_invSyncAckArbIdx] <= ~_outInvSyncAcks!.empty;
-      this.invAckSend!.ready <= ~_outInvSyncAcks!.full & _isConnected;
-      this.syncAckSend!.ready <=
-          ~_outInvSyncAcks!.full &
-              _isConnected &
-              ~(this.invAckSend?.valid ?? Const(0));
-    } else {
-      _outInvSyncAcks = null;
-      if (invAckSend != null) {
-        this.invAckSend!.ready <= Const(0);
-      }
-      if (syncAckSend != null) {
-        this.syncAckSend!.ready <= Const(0);
-      }
-    }
-    _outCondisReqs = Fifo(
-      this.sys.clk,
-      ~this.sys.resetN,
-      writeEnable: this.condisReqSend.valid,
-      writeData: this.condisReqSend.data,
-      readEnable:
-          this.outboundArbiter!.grants[_condisReqArbIdx] & _sender.msgAccepted,
-      depth: condisReqSendFifoDepth,
-      generateOccupancy: true,
-      generateError: true,
-      name: 'outCondisReqsFifo',
-    );
-    _arbiterReqs[_condisReqArbIdx] <= ~_outCondisReqs.empty;
-    this.condisReqSend.ready <= ~_outCondisReqs.full;
-    for (var i = 0; i < this.customSends.length; i++) {
-      _outCustomMsgs.add(Fifo(
-        this.sys.clk,
-        ~this.sys.resetN,
-        writeEnable: this.customSends[i].valid,
-        writeData: this.customSends[i].data,
-        readEnable: this.outboundArbiter!.grants[_customArbIdx[i]] &
-            _sender.msgAccepted,
-        depth: customSendFifoDepths[i],
-        generateOccupancy: true,
-        generateError: true,
-        name: 'outCustomFifo$i',
+        name: 'inMsgsFifo$i',
       ));
     }
-
-    if (acceptsTransResps) {
-      _inTransRespsWrEn = Logic(name: 'inTransRespsWrEn');
-      _inTransRespsWrData = Logic(
-          name: 'inTransRespsWrData', width: DtiTbuTransRespEx.totalWidth);
-      _inTransRespsRdEn = Logic(name: 'inTransRespsRdEn');
-      _inTransResps = Fifo(
-        this.sys.clk,
-        ~this.sys.resetN,
-        writeEnable: _inTransRespsWrEn!,
-        writeData: _inTransRespsWrData!,
-        readEnable: _inTransRespsRdEn!,
-        depth: transRespOutFifoDepth,
-        generateOccupancy: true,
-        generateError: true,
-        name: 'inTransRespsFifo',
-      );
-    }
-    if (acceptsTransFaults) {
-      _inTransFaultsWrEn = Logic(name: 'inTransFaultssWrEn');
-      _inTransFaultsWrData = Logic(
-          name: 'inTransFaultsWrData', width: DtiTbuTransFault.totalWidth);
-      _inTransFaultsRdEn = Logic(name: 'inTransFaultsRdEn');
-      _inTransFaults = Fifo(
-        this.sys.clk,
-        ~this.sys.resetN,
-        writeEnable: _inTransFaultsWrEn!,
-        writeData: _inTransFaultsWrData!,
-        readEnable: _inTransFaultsRdEn!,
-        depth: transFaultOutFifoDepth,
-        generateOccupancy: true,
-        generateError: true,
-        name: 'inTransFaultFifo',
-      );
-    }
-    if (acceptsInvSyncReqs) {
-      _inInvSyncReqsWrEn = Logic(name: 'inInvSyncReqsWrEn');
-      _inInvSyncReqsWrData = Logic(
-          name: 'inInvSyncReqsWrData',
-          width: max(DtiTbuInvReq.totalWidth, DtiTbuSyncReq.totalWidth));
-      _inInvSyncReqsRdEn = Logic(name: 'inInvSyncReqsRdEn');
-      _inInvSyncReqs = Fifo(
-        this.sys.clk,
-        ~this.sys.resetN,
-        writeEnable: _inInvSyncReqsWrEn!,
-        writeData: _inInvSyncReqsWrData!,
-        readEnable: _inInvSyncReqsRdEn!,
-        depth: invSyncReqOutFifoDepth,
-        generateOccupancy: true,
-        generateError: true,
-        name: 'inInvSyncReqsFifo',
-      );
-    }
-    _inCondisAcksWrEn = Logic(name: 'inCondisAcksWrEn');
-    _inCondisAcksWrData =
-        Logic(name: 'inCondisAcksWrData', width: DtiTbuCondisAck.totalWidth);
-    _inCondisAcksRdEn = Logic(name: 'inCondisAcksRdEn');
-    _inCondisAcks = Fifo(
-      this.sys.clk,
-      ~this.sys.resetN,
-      writeEnable: _inCondisAcksWrEn,
-      writeData: _inCondisAcksWrData,
-      readEnable: _inCondisAcksRdEn,
-      depth: condisAckOutFifoDepth,
-      generateOccupancy: true,
-      generateError: true,
-      name: 'inCondisAcksFifo',
-    );
 
     _buildSend();
     _buildReceive();
@@ -565,19 +340,9 @@ class DtiTbuMainController extends Module {
     // examine arbiter to understand what data queue we should pull from
     // flop this moving forward
     final dataToSendCases = <Logic, Logic>{};
-    if (acceptsTransReqs) {
-      dataToSendCases[Const(toOneHot(_transReqArbIdx, _arbiterReqs.length))] =
-          _outTransReqs!.readData.zeroExtend(_maxOutMsgSize);
-    }
-    if (acceptsInvSyncAcks) {
-      dataToSendCases[Const(toOneHot(_transReqArbIdx, _arbiterReqs.length))] =
-          _outInvSyncAcks!.readData.zeroExtend(_maxOutMsgSize);
-    }
-    dataToSendCases[Const(toOneHot(_condisReqArbIdx, _arbiterReqs.length))] =
-        _outCondisReqs.readData.zeroExtend(_maxOutMsgSize);
-    for (var i = 0; i < customSends.length; i++) {
-      dataToSendCases[Const(toOneHot(_customArbIdx[i], _arbiterReqs.length))] =
-          _outCustomMsgs[i].readData.zeroExtend(_maxOutMsgSize);
+    for (var i = 0; i < sendMsgs.length; i++) {
+      dataToSendCases[Const(toOneHot(_sendArbIdx[i], _arbiterReqs.length))] =
+          _outMsgs[i].readData.zeroExtend(_maxOutMsgSize);
     }
     final dataToSend = cases(
         _arbiterReqs.swizzle(),
@@ -602,96 +367,27 @@ class DtiTbuMainController extends Module {
       nextMsgIn < mux(_receiver.msgValid, _receiver.msg, nextMsgIn)
     ]);
 
-    final msgTypeIn = nextMsgIn.getRange(0, DtiTbuTransResp.msgTypeWidth);
-
     // examine the raw message to determine
     // which message queue to put the message in
     // note that all messages have a message type of the same
     // width in the LSBs
     // use tops of the message queues to drive the outbound valids
-    if (acceptsTransReqs) {
-      _inTransRespsWrEn! <=
-          nextMsgInValid &
-              ~_inTransResps!.full &
-              (msgTypeIn.eq(DtiUpstreamMsgType.transResp.value) |
-                  msgTypeIn.eq(DtiUpstreamMsgType.transRespEx.value));
-      _inTransRespsWrData! <= (DtiTbuTransRespEx()..gets(nextMsgIn));
-      _inTransRespsRdEn! <= transRespOut!.accepted;
-      transRespOut!.valid <= ~_inTransResps!.empty;
-      transRespOut!.data <=
-          (DtiTbuTransRespEx()..gets(_inTransResps!.readData));
+    for (var i = 0; i < rcvMsgs.length; i++) {
+      _inMsgsWrEn[i] <=
+          nextMsgInValid & ~_inMsgs[i].full & rcvCfgs[i].mapToQueue!(nextMsgIn);
+      _inMsgsWrData[i] <= nextMsgIn.getRange(0, rcvMsgs[i].data.width);
+      _inMsgsRdEn[i] <= rcvMsgs[i].accepted;
+      rcvMsgs[i].valid <= ~_inMsgs[i].empty;
+      rcvMsgs[i].data <= _inMsgs[i].readData;
     }
-    if (acceptsTransFaults) {
-      _inTransFaultsWrEn! <=
-          nextMsgInValid &
-              ~_inTransFaults!.full &
-              msgTypeIn.eq(DtiUpstreamMsgType.transFault.value);
-      _inTransFaultsWrData! <= (DtiTbuTransFault()..gets(nextMsgIn));
-      _inTransFaultsRdEn! <= transFaultOut!.accepted;
-      transFaultOut!.valid <= ~_inTransFaults!.empty;
-      transFaultOut!.data <=
-          (DtiTbuTransFault()..gets(_inTransFaults!.readData));
-    }
-    if (acceptsInvSyncReqs) {
-      _inInvSyncReqsWrEn! <=
-          ~_inInvSyncReqs!.full &
-              nextMsgInValid &
-              (msgTypeIn.eq(DtiUpstreamMsgType.invReq.value) |
-                  msgTypeIn.eq(DtiUpstreamMsgType.syncReq.value));
-      _inInvSyncReqsWrData! <=
-          nextMsgIn.getRange(
-              0, max(DtiTbuInvReq.totalWidth, DtiTbuSyncReq.totalWidth));
-      _inInvSyncReqsRdEn! <=
-          (invReqOut?.accepted ?? Const(0)) |
-              (syncReqOut?.accepted ?? Const(0));
-      if (invReqOut != null) {
-        invReqOut!.valid <= ~_inInvSyncReqs!.empty;
-        invReqOut!.data <=
-            (DtiTbuInvReq()
-              ..gets(_inInvSyncReqs!.readData
-                  .getRange(0, DtiTbuInvReq.totalWidth)));
-      }
-      if (syncReqOut != null) {
-        syncReqOut!.valid <= ~_inInvSyncReqs!.empty;
-        syncReqOut!.data <=
-            (DtiTbuSyncReq()
-              ..gets(_inInvSyncReqs!.readData
-                  .getRange(0, DtiTbuSyncReq.totalWidth)));
-      }
-    }
-    _inCondisAcksWrEn <=
-        nextMsgInValid &
-            ~_inCondisAcks.full &
-            msgTypeIn.eq(DtiUpstreamMsgType.condisAck.value);
-    _inCondisAcksWrData <= (DtiTbuCondisAck()..gets(nextMsgIn));
-    _inCondisAcksRdEn <= condisAckOut.accepted;
-    condisAckOut.valid <= ~_inCondisAcks.empty;
-    condisAckOut.data <= (DtiTbuCondisAck()..gets(_inCondisAcks.readData));
 
     // use message queue fulls to drive the interface TREADY
     // if our current message waiting to queue is trying to
     // go into a queue that is full, we must block
-    final queueFull = [
-      if (acceptsTransReqs)
-        _inTransResps!.full &
-            (msgTypeIn.eq(DtiUpstreamMsgType.transResp.value) |
-                msgTypeIn.eq(DtiUpstreamMsgType.transRespEx.value)),
-      if (acceptsTransFaults)
-        _inTransFaults!.full &
-            msgTypeIn.eq(DtiUpstreamMsgType.transFault.value),
-      if (acceptsInvSyncReqs)
-        _inInvSyncReqs!.full &
-            (msgTypeIn.eq(DtiUpstreamMsgType.invReq.value) |
-                msgTypeIn.eq(DtiUpstreamMsgType.syncReq.value)),
-      _inCondisAcks.full & msgTypeIn.eq(DtiUpstreamMsgType.condisAck.value),
-    ].swizzle().or();
+    final queueFull = List.generate(rcvMsgs.length,
+            (i) => _inMsgs[i].full & rcvCfgs[i].mapToQueue!(nextMsgIn))
+        .swizzle()
+        .or();
     _receiverCanAccept <= ~queueFull;
-
-    // on CondisAck, make sure to grab the granted # of tokens
-    Sequential(sys.clk, reset: ~sys.resetN, [
-      _transTokensGranted <
-          mux(condisAckOut.accepted & condisAckOut.data.state.eq(1),
-              condisAckOut.data.tokTransGnt, _transTokensGranted),
-    ]);
   }
 }
