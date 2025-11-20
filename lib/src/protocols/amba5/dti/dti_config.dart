@@ -12,6 +12,11 @@ abstract class DtiMessageInterfaceConfig {
   /// This is only applicable to Tx messages (ignored for Rx).
   final bool isCredited;
 
+  /// The max # of credits for this message type.
+  ///
+  /// This is only applicable to Tx messages (ignored for Rx).
+  final int maxCreditCount;
+
   /// A mapping function based on raw bits to determine
   /// if this message maps to the given message type.
   ///
@@ -22,6 +27,7 @@ abstract class DtiMessageInterfaceConfig {
   DtiMessageInterfaceConfig({
     required this.fifoDepth,
     this.isCredited = false,
+    this.maxCreditCount = 0,
     this.mapToQueue,
   });
 }
@@ -31,7 +37,8 @@ class DtiTxMessageInterfaceConfig extends DtiMessageInterfaceConfig {
   /// Constructor.
   DtiTxMessageInterfaceConfig({
     required super.fifoDepth,
-    super.isCredited = false,
+    required super.isCredited,
+    required super.maxCreditCount,
   });
 }
 
