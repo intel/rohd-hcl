@@ -7,15 +7,21 @@ abstract class DtiMessageInterfaceConfig {
   /// This is required regardless of whether the message is Tx or Rx.
   final int fifoDepth;
 
+  /// Is this message type exempt from being blocked
+  /// by the connection state of the module.
+  ///
+  /// This is only applicable to Tx messages (ignored for Rx).
+  final bool connectedExempt;
+
   /// Is this message type credited at the protocol level.
   ///
   /// This is only applicable to Tx messages (ignored for Rx).
   final bool isCredited;
 
-  /// The max # of credits for this message type.
+  /// The implied max # of credits for this message type.
   ///
   /// This is only applicable to Tx messages (ignored for Rx).
-  final int maxCreditCount;
+  final int creditCountWidth;
 
   /// A mapping function based on raw bits to determine
   /// if this message maps to the given message type.
@@ -26,8 +32,9 @@ abstract class DtiMessageInterfaceConfig {
   /// Constructor.
   DtiMessageInterfaceConfig({
     required this.fifoDepth,
+    this.connectedExempt = false,
     this.isCredited = false,
-    this.maxCreditCount = 0,
+    this.creditCountWidth = 0,
     this.mapToQueue,
   });
 }
@@ -37,8 +44,9 @@ class DtiTxMessageInterfaceConfig extends DtiMessageInterfaceConfig {
   /// Constructor.
   DtiTxMessageInterfaceConfig({
     required super.fifoDepth,
-    required super.isCredited,
-    required super.maxCreditCount,
+    super.connectedExempt,
+    super.isCredited,
+    super.creditCountWidth = 0,
   });
 }
 

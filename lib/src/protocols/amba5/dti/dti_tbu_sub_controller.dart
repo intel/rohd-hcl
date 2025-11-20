@@ -24,6 +24,85 @@ class DtiTbuSubController extends DtiController {
     super.outboundArbiter,
     super.name = 'dtiTbuSubController',
   }) {
+    _buildSub();
+  }
+
+  /// Convenience constructor for a "standard" DTI sub
+  ///
+  /// All standard message types enabled appropriately.
+  DtiTbuSubController.standard({
+    required super.sys,
+    required super.toSub,
+    required super.fromSub,
+    required super.srcId,
+    required super.destId,
+    required ReadyAndValidInterface<DtiTbuTransReq> transReq,
+    required int transReqFifoDepth,
+    required ReadyAndValidInterface<DtiTbuInvAck> invAck,
+    required int invAckFifoDepth,
+    required ReadyAndValidInterface<DtiTbuSyncAck> syncAck,
+    required int syncAckFifoDepth,
+    required ReadyAndValidInterface<DtiTbuCondisReq> condisReq,
+    required int condisReqFifoDepth,
+    required ReadyAndValidInterface<DtiTbuTransRespEx> transResp,
+    required int transRespFifoDepth,
+    required ReadyAndValidInterface<DtiTbuTransFault> transFault,
+    required int transFaultFifoDepth,
+    required ReadyAndValidInterface<DtiTbuInvReq> invReq,
+    required int invReqFifoDepth,
+    required ReadyAndValidInterface<DtiTbuSyncReq> syncReq,
+    required int syncReqFifoDepth,
+    required ReadyAndValidInterface<DtiTbuCondisAck> condisAck,
+    required int condisAckFifoDepth,
+    super.outboundArbiter,
+    super.name = 'dtiTbuSubController',
+  }) : super(rcvMsgs: [
+          transReq,
+          invAck,
+          syncAck,
+          condisReq,
+        ], rcvCfgs: [
+          DtiRxMessageInterfaceConfig(
+              fifoDepth: transReqFifoDepth,
+              mapToQueue: (msg) => msg
+                  .getRange(0, DtiTbuTransReq.msgTypeWidth)
+                  .eq(DtiDownstreamMsgType.transReq.value)),
+          DtiRxMessageInterfaceConfig(
+              fifoDepth: invAckFifoDepth,
+              mapToQueue: (msg) => msg
+                  .getRange(0, DtiTbuInvAck.msgTypeWidth)
+                  .eq(DtiDownstreamMsgType.invAck.value)),
+          DtiRxMessageInterfaceConfig(
+              fifoDepth: syncAckFifoDepth,
+              mapToQueue: (msg) => msg
+                  .getRange(0, DtiTbuSyncAck.msgTypeWidth)
+                  .eq(DtiDownstreamMsgType.syncAck.value)),
+          DtiRxMessageInterfaceConfig(
+              fifoDepth: condisReqFifoDepth,
+              mapToQueue: (msg) => msg
+                  .getRange(0, DtiTbuCondisReq.msgTypeWidth)
+                  .eq(DtiDownstreamMsgType.condisReq.value)),
+        ], sendMsgs: [
+          transResp,
+          transFault,
+          invReq,
+          syncReq,
+          condisAck,
+        ], sendCfgs: [
+          DtiTxMessageInterfaceConfig(fifoDepth: transRespFifoDepth),
+          DtiTxMessageInterfaceConfig(fifoDepth: transFaultFifoDepth),
+          DtiTxMessageInterfaceConfig(
+              fifoDepth: invReqFifoDepth,
+              isCredited: true,
+              creditCountWidth: DtiTbuCondisReq.tokInvGntWidth),
+          DtiTxMessageInterfaceConfig(fifoDepth: syncReqFifoDepth),
+          DtiTxMessageInterfaceConfig(
+              fifoDepth: condisAckFifoDepth, connectedExempt: true),
+        ]) {
+    _buildSub();
+  }
+
+  void _buildSub() {
     // we need to identify CONDIS_ACK and INV_REQ
     // for certain DTI specific activities
     var conAckIdx = -1;
@@ -40,7 +119,8 @@ class DtiTbuSubController extends DtiController {
           'This module is missing a required DtiTbuCondisAck interface!');
     }
     final condisAckSend = sendMsgs[conAckIdx];
-    final condisAckData = DtiTbuCondisAck()..gets(condisAckSend.data);
+    final condisAckData = DtiTbuCondisAck(name: 'condisAckData')
+      ..gets(condisAckSend.data);
 
     var conReqIdx = -1;
     var invAckIdx = -1;
@@ -56,7 +136,8 @@ class DtiTbuSubController extends DtiController {
           'This module is missing a required DtiTbuCondisReq interface!');
     }
     final condisReqOut = rcvMsgs[conReqIdx];
-    final condisReqData = DtiTbuCondisReq()..gets(condisReqOut.data);
+    final condisReqData = DtiTbuCondisReq(name: 'condisReqData')
+      ..gets(condisReqOut.data);
 
     // on CondisReq, make sure to grab the granted # of tokens
     _invTokensGranted =
@@ -138,88 +219,4 @@ class DtiTbuSubController extends DtiController {
           ),
         );
   }
-
-  /// Convenience constructor for a "standard" DTI sub
-  ///
-  /// All standard message types enabled appropriately.
-  DtiTbuSubController.standard({
-    required super.sys,
-    required super.toSub,
-    required super.fromSub,
-    required super.srcId,
-    required super.destId,
-    required ReadyAndValidInterface<DtiTbuTransReq> transReq,
-    required int transReqFifoDepth,
-    required ReadyAndValidInterface<DtiTbuInvAck> invAck,
-    required int invAckFifoDepth,
-    required ReadyAndValidInterface<DtiTbuSyncAck> syncAck,
-    required int syncAckFifoDepth,
-    required ReadyAndValidInterface<DtiTbuCondisReq> condisReq,
-    required int condisReqFifoDepth,
-    required ReadyAndValidInterface<DtiTbuTransRespEx> transResp,
-    required int transRespFifoDepth,
-    required ReadyAndValidInterface<DtiTbuTransFault> transFault,
-    required int transFaultFifoDepth,
-    required ReadyAndValidInterface<DtiTbuInvReq> invReq,
-    required int invReqFifoDepth,
-    required ReadyAndValidInterface<DtiTbuSyncReq> syncReq,
-    required int syncReqFifoDepth,
-    required ReadyAndValidInterface<DtiTbuCondisAck> condisAck,
-    required int condisAckFifoDepth,
-    super.outboundArbiter,
-    super.name = 'dtiTbuSubController',
-  }) : super(rcvMsgs: [
-          transReq,
-          invAck,
-          syncAck,
-          condisReq,
-        ], rcvCfgs: [
-          DtiRxMessageInterfaceConfig(
-              fifoDepth: transReqFifoDepth,
-              mapToQueue: (msg) => msg
-                  .getRange(0, DtiTbuTransReq.msgTypeWidth)
-                  .eq(DtiDownstreamMsgType.transReq.value)),
-          DtiRxMessageInterfaceConfig(
-              fifoDepth: invAckFifoDepth,
-              mapToQueue: (msg) => msg
-                  .getRange(0, DtiTbuInvAck.msgTypeWidth)
-                  .eq(DtiDownstreamMsgType.invAck.value)),
-          DtiRxMessageInterfaceConfig(
-              fifoDepth: syncAckFifoDepth,
-              mapToQueue: (msg) => msg
-                  .getRange(0, DtiTbuSyncAck.msgTypeWidth)
-                  .eq(DtiDownstreamMsgType.syncAck.value)),
-          DtiRxMessageInterfaceConfig(
-              fifoDepth: condisReqFifoDepth,
-              mapToQueue: (msg) => msg
-                  .getRange(0, DtiTbuCondisReq.msgTypeWidth)
-                  .eq(DtiDownstreamMsgType.condisReq.value)),
-        ], sendMsgs: [
-          transResp,
-          transFault,
-          invReq,
-          syncReq,
-          condisAck,
-        ], sendCfgs: [
-          DtiTxMessageInterfaceConfig(
-              fifoDepth: transRespFifoDepth,
-              isCredited: false,
-              maxCreditCount: 0),
-          DtiTxMessageInterfaceConfig(
-              fifoDepth: transFaultFifoDepth,
-              isCredited: false,
-              maxCreditCount: 0),
-          DtiTxMessageInterfaceConfig(
-              fifoDepth: invReqFifoDepth,
-              isCredited: true,
-              maxCreditCount: DtiTbuCondisReq.tokInvGntWidth),
-          DtiTxMessageInterfaceConfig(
-              fifoDepth: syncReqFifoDepth,
-              isCredited: false,
-              maxCreditCount: 0),
-          DtiTxMessageInterfaceConfig(
-              fifoDepth: condisAckFifoDepth,
-              isCredited: false,
-              maxCreditCount: 0),
-        ]);
 }

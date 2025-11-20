@@ -42,6 +42,7 @@ class DtiInterfaceTx extends Module {
     required Logic msgToSend,
     required Logic srcId,
     required Logic destId,
+    super.name = 'dtiInterfaceTx',
   }) {
     this.sys = addPairInterfacePorts(sys, PairRole.consumer);
     this.toSub = addPairInterfacePorts(

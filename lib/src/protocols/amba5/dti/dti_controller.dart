@@ -215,7 +215,7 @@ abstract class DtiController extends Module {
               enableInc: incrCredits.last!,
               enableDec: decrCredits.last!,
               restart: restartCredits.last,
-              width: sendCfgs[i].maxCreditCount.bitLength)
+              width: sendCfgs[i].creditCountWidth)
           : null);
     }
 
@@ -238,12 +238,15 @@ abstract class DtiController extends Module {
       ));
       outMsgFull <= _outMsgs.last.full;
 
+      // request from the arbiter if we're not empty
+      _arbiterReqs[i] <= ~_outMsgs.last.empty;
+
       // ready if mapped queue is not full
-      // unless we're TRANS_REQ in which case
-      // also must have translation tokens to spare
+      // in addition, some message types should block if not connected
+      // in addition, some message types should block if lacking credits
       this.sendMsgs[i].ready <=
           ~_outMsgs.last.full &
-              isConnected &
+              (sendCfgs[i].connectedExempt ? Const(1) : isConnected) &
               (sendCfgs[i].isCredited ? hasCredits[i]! : Const(1));
     }
 

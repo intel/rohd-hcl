@@ -37,6 +37,7 @@ class DtiInterfaceRx extends Module {
     required Logic canAcceptMsg,
     required Logic srcId,
     required this.maxMsgRxSize,
+    super.name = 'dtiInterfaceRx',
   }) {
     this.sys = addPairInterfacePorts(sys, PairRole.consumer);
     this.fromSub = addPairInterfacePorts(
