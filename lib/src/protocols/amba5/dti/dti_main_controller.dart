@@ -118,6 +118,17 @@ class DtiTbuMainController extends Module {
   late final FiniteStateMachine<DtiConnectionState> _connState;
   late final Logic _isConnected;
 
+  // transmission over DTI
+  late final int _maxOutMsgSize;
+  late final Logic _senderValid;
+  late final Logic _senderData;
+  late final DtiInterfaceTx _sender;
+
+  // reception over DTI
+  late final int _maxInMsgSize;
+  late final Logic _receiverCanAccept;
+  late final DtiInterfaceRx _receiver;
+
   /// Indicator if we are able to send translation requests.
   bool get acceptsTransReqs =>
       transReqSend != null && transReqSendFifoDepth > 0;
@@ -295,6 +306,48 @@ class DtiTbuMainController extends Module {
         ),
       ],
     );
+    _isConnected <=
+        _connState.currentState
+            .eq(
+              Const(
+                DtiConnectionState.connected.index,
+                width: _connState.currentState.width,
+              ),
+            )
+            .named('isConnected');
+
+    // transmission over DTI
+    _maxOutMsgSize = [
+      if (transReqSend != null) DtiTbuTransReq.totalWidth,
+      if (invAckSend != null) DtiTbuInvAck.totalWidth,
+      if (syncAckSend != null) DtiTbuSyncAck.totalWidth,
+      DtiTbuCondisReq.totalWidth
+    ].reduce(max);
+    _senderValid = Logic(name: 'senderValid');
+    _senderData = Logic(name: 'senderData', width: _maxOutMsgSize);
+    _sender = DtiInterfaceTx(
+        sys: this.sys,
+        toSub: this.toSub,
+        msgToSendValid: _senderValid,
+        msgToSend: _senderData,
+        srcId: srcId,
+        destId: destId);
+
+    // reception over DTI
+    _maxInMsgSize = [
+      if (transRespOut != null) DtiTbuTransRespEx.totalWidth,
+      if (transFaultOut != null) DtiTbuTransFault.totalWidth,
+      if (invReqOut != null) DtiTbuInvReq.totalWidth,
+      if (syncReqOut != null) DtiTbuSyncReq.totalWidth,
+      DtiTbuCondisAck.totalWidth
+    ].reduce(max);
+    _receiverCanAccept = Logic(name: 'receiverCanAccept');
+    _receiver = DtiInterfaceRx(
+        sys: sys,
+        fromSub: fromSub,
+        canAcceptMsg: _receiverCanAccept,
+        srcId: srcId,
+        maxMsgRxSize: _maxInMsgSize);
 
     // capture the request lines into the arbiter
     // dynamically based on which send queues are available
@@ -325,8 +378,8 @@ class DtiTbuMainController extends Module {
         ~this.sys.resetN,
         writeEnable: this.transReqSend!.valid,
         writeData: this.transReqSend!.data,
-        readEnable: this.outboundArbiter!.grants[_transReqArbIdx] &
-            (toSub.valid & (toSub.ready ?? Const(1))),
+        readEnable:
+            this.outboundArbiter!.grants[_transReqArbIdx] & _sender.msgAccepted,
         depth: transReqSendFifoDepth,
         generateOccupancy: true,
         generateError: true,
@@ -361,7 +414,7 @@ class DtiTbuMainController extends Module {
             this.syncAckSend?.data.zeroExtend(invSyncFifoDataWidth) ??
                 Const(0, width: invSyncFifoDataWidth)),
         readEnable: this.outboundArbiter!.grants[_invSyncAckArbIdx] &
-            (toSub.valid & (toSub.ready ?? Const(1))),
+            _sender.msgAccepted,
         depth: invSyncAckSendFifoDepth,
         generateOccupancy: true,
         generateError: true,
@@ -387,8 +440,8 @@ class DtiTbuMainController extends Module {
       ~this.sys.resetN,
       writeEnable: this.condisReqSend.valid,
       writeData: this.condisReqSend.data,
-      readEnable: this.outboundArbiter!.grants[_condisReqArbIdx] &
-          (toSub.valid & (toSub.ready ?? Const(1))),
+      readEnable:
+          this.outboundArbiter!.grants[_condisReqArbIdx] & _sender.msgAccepted,
       depth: condisReqSendFifoDepth,
       generateOccupancy: true,
       generateError: true,
@@ -470,221 +523,41 @@ class DtiTbuMainController extends Module {
   }
 
   void _buildSend() {
-    // are we in a connected state
-    _isConnected <=
-        _connState.currentState
-            .eq(
-              Const(
-                DtiConnectionState.connected.index,
-                width: _connState.currentState.width,
-              ),
-            )
-            .named('isConnected');
-
-    // grab the maximum outbound message size
-    final maxOutMsgSize = [
-      if (transReqSend != null) DtiTbuTransReq.totalWidth,
-      if (invAckSend != null) DtiTbuInvAck.totalWidth,
-      if (syncAckSend != null) DtiTbuSyncAck.totalWidth,
-      DtiTbuCondisReq.totalWidth
-    ].reduce(max);
-
     // examine arbiter to understand what data queue we should pull from
     // flop this moving forward
     final dataToSendCases = <Logic, Logic>{};
     if (acceptsTransReqs) {
       dataToSendCases[Const(toOneHot(_transReqArbIdx, _arbiterReqs.length))] =
-          _outTransReqs!.readData.zeroExtend(maxOutMsgSize);
+          _outTransReqs!.readData.zeroExtend(_maxOutMsgSize);
     }
     if (acceptsInvSyncAcks) {
       dataToSendCases[Const(toOneHot(_transReqArbIdx, _arbiterReqs.length))] =
-          _outInvSyncAcks!.readData.zeroExtend(maxOutMsgSize);
+          _outInvSyncAcks!.readData.zeroExtend(_maxOutMsgSize);
     }
     dataToSendCases[Const(toOneHot(_condisReqArbIdx, _arbiterReqs.length))] =
-        _outCondisReqs.readData.zeroExtend(maxOutMsgSize);
+        _outCondisReqs.readData.zeroExtend(_maxOutMsgSize);
     final dataToSend = cases(
         _arbiterReqs.swizzle(),
         conditionalType: ConditionalType.unique,
         dataToSendCases,
-        defaultValue: Const(0, width: maxOutMsgSize));
+        defaultValue: Const(0, width: _maxOutMsgSize));
 
     // (potentially) must break the message out over multiple beats
     final dataEn = _arbiterReqs.swizzle().or();
-    if (maxOutMsgSize > toSub.dataWidth) {
-      // determine how many beats we need
-      // TODO(kimmeljo): dynamic based on message type??
-      final numBeats = (maxOutMsgSize / toSub.dataWidth).ceil();
-      final sendIdle = Logic(name: 'sendIdle');
-
-      // must count as we're sending the message across multiple beats
-      // but restart the count once we're done sending
-      final countEnable = toSub.valid & (toSub.ready ?? Const(1));
-      final acceptNextSend =
-          sendIdle | (countEnable & (toSub.last ?? Const(1)));
-      final beatCounter = Counter.simple(
-          clk: sys.clk,
-          reset: ~sys.resetN,
-          enable: countEnable,
-          restart: acceptNextSend,
-          width: numBeats.bitLength);
-
-      // capture the next message to send
-      final nextOutDataEn =
-          flop(sys.clk, dataEn, en: acceptNextSend, reset: ~sys.resetN)
-              .named('nextOutDataEn');
-      final nextOutData =
-          flop(sys.clk, dataToSend, en: acceptNextSend, reset: ~sys.resetN)
-              .named('nextOutData');
-
-      // FSM to track the sending progress
-      final sendState = FiniteStateMachine<DtiStreamBeatState>(
-        sys.clk,
-        ~sys.resetN,
-        DtiStreamBeatState.idle,
-        [
-          // IDLE: move to WORKING when something new to send comes in
-          State(
-            DtiStreamBeatState.idle,
-            events: {
-              nextOutDataEn: DtiStreamBeatState.working,
-            },
-            actions: [],
-          ),
-          // WORKING: move to IDLE when we are done sending.
-          // but only if there isn't another send immediately following
-          State(DtiStreamBeatState.working, events: {
-            acceptNextSend & dataEn: DtiStreamBeatState.idle,
-          }, actions: []),
-        ],
-      );
-      sendIdle <=
-          sendState.currentState.eq(DtiConnectionState.unconnected.index);
-
-      // pick the appropriate slice of the message bits to send
-      // based on the current beat count
-      final nextDataToSendCases = <Logic, Logic>{};
-      for (var i = 0; i < numBeats; i++) {
-        final start = toSub.dataWidth * i;
-        final end = min(toSub.dataWidth * (i + 1), maxOutMsgSize);
-        nextDataToSendCases[Const(i, width: beatCounter.count.width)] =
-            nextOutData.getRange(start, end);
-      }
-      final slicedNextDataToSend = cases(
-          beatCounter.count,
-          conditionalType: ConditionalType.unique,
-          nextDataToSendCases,
-          defaultValue: Const(0, width: toSub.dataWidth));
-
-      // drive the interface
-      toSub.valid <= nextOutDataEn & ~sendIdle;
-      toSub.data! <= slicedNextDataToSend;
-      if (toSub.useLast) {
-        toSub.last! <= beatCounter.count.eq(numBeats - 1);
-      }
-    }
-    // single beat will suffice to send the message
-    else {
-      final sendIdle = Logic(name: 'sendIdle');
-      final acceptNextSend = sendIdle | (toSub.ready ?? Const(1));
-      final nextOutDataEn =
-          flop(sys.clk, dataEn, en: acceptNextSend, reset: ~sys.resetN)
-              .named('nextOutDataEn');
-      final nextOutData =
-          flop(sys.clk, dataToSend, en: acceptNextSend, reset: ~sys.resetN)
-              .named('nextOutData');
-      sendIdle <= ~nextOutDataEn;
-
-      toSub.valid <= nextOutDataEn;
-      toSub.data! <= nextOutData;
-      if (toSub.useLast) {
-        toSub.last! <= Const(1);
-      }
-    }
-
-    // unconditionally driven signals on the outbound stream
-    // TODO(kimmeljo): any use for TSTRB or TKEEP??
-    // TODO(kimmeljo): provide a hook into TUSER??
-    // TODO(kimmeljo): provide a hook into TWAKEUP??
-    if (toSub.idWidth > 0) {
-      toSub.id! <= srcId;
-    }
-    if (toSub.destWidth > 0) {
-      toSub.dest! <= destId;
-    }
-    if (toSub.useKeep) {
-      toSub.keep! <= ~Const(0, width: toSub.strbWidth);
-    }
-    if (toSub.useStrb) {
-      toSub.strb! <= ~Const(0, width: toSub.strbWidth);
-    }
-    if (toSub.userWidth > 0) {
-      toSub.user! <= Const(0, width: toSub.strbWidth);
-    }
-    if (toSub.useWakeup) {
-      toSub.wakeup! <= Const(1);
-    }
+    _senderValid <= dataEn;
+    _senderData <= dataToSend;
   }
 
   void _buildReceive() {
-    // upper bound for the maximum number of beats we expect to receive
-    // in a single message
-    final maxInMsgSize = [
-      if (transRespOut != null) DtiTbuTransRespEx.totalWidth,
-      if (transFaultOut != null) DtiTbuTransFault.totalWidth,
-      if (invReqOut != null) DtiTbuInvReq.totalWidth,
-      if (syncReqOut != null) DtiTbuSyncReq.totalWidth,
-      DtiTbuCondisAck.totalWidth
-    ].reduce(max);
-    final numBeats = (maxInMsgSize / fromSub.dataWidth).ceil();
-
     // raw DTI message from the interface
     final nextMsgInValid = Logic(name: 'nextMsgInValid');
-    final nextMsgIn =
-        Logic(name: 'nextMsgIn', width: numBeats * fromSub.dataWidth);
+    final nextMsgIn = Logic(name: 'nextMsgIn', width: _receiver.msg.width);
 
-    // any message can be captured in a single beat
-    // simplify the HW
-    final inAccept = fromSub.valid & (fromSub.ready ?? Const(1));
-    final inLast = inAccept & (fromSub.last ?? Const(1));
-    if (numBeats == 1) {
-      // capture the full message
-      Sequential(sys.clk, reset: ~sys.resetN, [
-        nextMsgInValid < inLast,
-        nextMsgIn < mux(inLast, fromSub.data!, nextMsgIn)
-      ]);
-    }
-    // message might come in over multiple beats
-    else {
-      // count the number of beats in a given message
-      // restart whenever we see a TLAST
-      final beatCounter = Counter.simple(
-          clk: sys.clk,
-          reset: ~sys.resetN,
-          enable: inAccept,
-          restart: inLast,
-          width: numBeats.bitLength);
-
-      // capture the individual beats of the message
-      // and store them for assembly later
-      final msgFlits = <Logic>[];
-      for (var i = 0; i < numBeats - 1; i++) {
-        msgFlits.add(Logic(name: 'inBeats$i', width: fromSub.dataWidth));
-        Sequential(sys.clk, reset: ~sys.resetN, [
-          msgFlits[i] <
-              mux(inAccept & beatCounter.count.eq(i), fromSub.data!,
-                  msgFlits[i])
-        ]);
-      }
-
-      // capture the full message
-      Sequential(sys.clk, reset: ~sys.resetN, [
-        // the last flit comes straight from the interface
-        // for performance
-        nextMsgInValid < inLast,
-        nextMsgIn <
-            mux(inLast, [...msgFlits, fromSub.data!].rswizzle(), nextMsgIn)
-      ]);
-    }
+    // flop the next message received from the stream interface
+    Sequential(sys.clk, reset: ~sys.resetN, [
+      nextMsgInValid < _receiver.msgValid,
+      nextMsgIn < mux(_receiver.msgValid, _receiver.msg, nextMsgIn)
+    ]);
 
     final msgTypeIn = nextMsgIn.getRange(0, DtiTbuTransResp.msgTypeWidth);
 
@@ -769,9 +642,7 @@ class DtiTbuMainController extends Module {
                 msgTypeIn.eq(DtiUpstreamMsgType.syncReq.value)),
       _inCondisAcks.full & msgTypeIn.eq(DtiUpstreamMsgType.condisAck.value),
     ].swizzle().or();
-    if (fromSub.ready != null) {
-      fromSub.ready! <= ~queueFull;
-    }
+    _receiverCanAccept <= ~queueFull;
 
     // on CondisAck, make sure to grab the granted # of tokens
     Sequential(sys.clk, reset: ~sys.resetN, [

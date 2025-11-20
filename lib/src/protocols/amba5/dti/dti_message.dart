@@ -331,7 +331,7 @@ class DtiTbuTransReq extends LogicStructure {
         ]);
 
   /// Factory constructor.
-  factory DtiTbuTransReq(String name) => DtiTbuTransReq._(
+  factory DtiTbuTransReq({String? name}) => DtiTbuTransReq._(
         msgType: Logic(name: '${name}_msgType', width: msgTypeWidth),
         qos: Logic(name: '${name}_qos', width: qosWidth),
         translationId1: Logic(
@@ -1775,7 +1775,7 @@ class DtiTbuInvAck extends LogicStructure {
   }) : super([msgType, rsvd]);
 
   /// Factory constructor.
-  factory DtiTbuInvAck(String name) => DtiTbuInvAck._(
+  factory DtiTbuInvAck({String? name}) => DtiTbuInvAck._(
         msgType: Logic(name: '${name}_msgType', width: msgTypeWidth),
         rsvd: Logic(name: '${name}_rsvd', width: rsvdWidth),
         name: name,
@@ -1867,7 +1867,7 @@ class DtiTbuSyncAck extends LogicStructure {
   }) : super([msgType, rsvd]);
 
   /// Factory constructor.
-  factory DtiTbuSyncAck(String name) => DtiTbuSyncAck._(
+  factory DtiTbuSyncAck({String? name}) => DtiTbuSyncAck._(
         msgType: Logic(name: '${name}_msgType', width: msgTypeWidth),
         rsvd: Logic(name: '${name}_rsvd', width: rsvdWidth),
         name: name,
@@ -2012,7 +2012,7 @@ class DtiTbuCondisReq extends LogicStructure {
         ]);
 
   /// Factory constructor.
-  factory DtiTbuCondisReq(String name) => DtiTbuCondisReq._(
+  factory DtiTbuCondisReq({String? name}) => DtiTbuCondisReq._(
         msgType: Logic(name: '${name}_msgType', width: msgTypeWidth),
         state: Logic(name: '${name}_state', width: stateWidth),
         protocol: Logic(name: '${name}_protocol', width: protocolWidth),
