@@ -98,7 +98,7 @@ class DtiInterfaceTx extends Module {
           State(
             DtiStreamBeatState.idle,
             events: {
-              nextOutDataEn: DtiStreamBeatState.working,
+              msgToSendValid & acceptNextSend: DtiStreamBeatState.working,
             },
             actions: [],
           ),
@@ -119,7 +119,7 @@ class DtiInterfaceTx extends Module {
         final start = toSub.dataWidth * i;
         final end = min(toSub.dataWidth * (i + 1), msgToSend.width);
         nextDataToSendCases[Const(i, width: beatCounter.count.width)] =
-            nextOutData.getRange(start, end);
+            nextOutData.getRange(start, end).zeroExtend(toSub.dataWidth);
       }
       final slicedNextDataToSend = cases(
           beatCounter.count,
@@ -143,9 +143,9 @@ class DtiInterfaceTx extends Module {
       final nextOutDataEn =
           flop(sys.clk, msgToSendValid, en: acceptNextSend, reset: ~sys.resetN)
               .named('nextOutDataEn');
-      final nextOutData =
-          flop(sys.clk, msgToSend, en: acceptNextSend, reset: ~sys.resetN)
-              .named('nextOutData');
+      final nextOutData = flop(sys.clk, msgToSend.zeroExtend(toSub.dataWidth),
+              en: acceptNextSend, reset: ~sys.resetN)
+          .named('nextOutData');
       sendIdle <= ~nextOutDataEn;
 
       toSub.valid <= nextOutDataEn;
@@ -174,7 +174,7 @@ class DtiInterfaceTx extends Module {
       toSub.strb! <= ~Const(0, width: toSub.strbWidth);
     }
     if (toSub.userWidth > 0) {
-      toSub.user! <= Const(0, width: toSub.strbWidth);
+      toSub.user! <= Const(0, width: toSub.userWidth);
     }
     if (toSub.useWakeup) {
       toSub.wakeup! <= Const(1);
