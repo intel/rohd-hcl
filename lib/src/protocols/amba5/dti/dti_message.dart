@@ -1705,7 +1705,7 @@ class DtiTbuInvReq extends LogicStructure {
         ]);
 
   /// Factory constructor.
-  factory DtiTbuInvReq(String name) => DtiTbuInvReq._(
+  factory DtiTbuInvReq({String? name}) => DtiTbuInvReq._(
         msgType: Logic(name: '${name}_msgType', width: msgTypeWidth),
         operation1: Logic(name: '${name}_operation1', width: operation1Width),
         ssid: Logic(name: '${name}_ssid', width: ssidWidth),
@@ -1821,7 +1821,7 @@ class DtiTbuSyncReq extends LogicStructure {
   }) : super([msgType, rsvd]);
 
   /// Factory constructor.
-  factory DtiTbuSyncReq(String name) => DtiTbuSyncReq._(
+  factory DtiTbuSyncReq({String? name}) => DtiTbuSyncReq._(
         msgType: Logic(name: '${name}_msgType', width: msgTypeWidth),
         rsvd: Logic(name: '${name}_rsvd', width: rsvdWidth),
         name: name,
@@ -2171,7 +2171,7 @@ class DtiTbuCondisAck extends LogicStructure {
         ]);
 
   /// Factory constructor.
-  factory DtiTbuCondisAck(String name) => DtiTbuCondisAck._(
+  factory DtiTbuCondisAck({String? name}) => DtiTbuCondisAck._(
         msgType: Logic(name: '${name}_msgType', width: msgTypeWidth),
         state: Logic(name: '${name}_state', width: stateWidth),
         rsvd1: Logic(name: '${name}_rsvd1', width: rsvd1Width),
