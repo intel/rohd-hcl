@@ -7,7 +7,6 @@ import 'package:test/test.dart';
 
 // TODO(kimmeljo):
 //  add backpressure testing
-//  add throughput testing
 
 void main() async {
   tearDown(() async {

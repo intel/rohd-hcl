@@ -8,7 +8,6 @@ import 'package:test/test.dart';
 
 // TODO(kimmeljo):
 //  add backpressure testing
-//  add throughput testing
 
 void main() async {
   tearDown(() async {
@@ -187,6 +186,139 @@ void main() async {
     expect(respOut.translationId.value.toInt(), 0xfe);
 
     await clk.waitCycles(10);
+
+    await Simulator.endSimulation();
+    await Simulator.simulationEnded;
+  });
+
+  test('single beat - bandwidth', () async {
+    final clk = SimpleClockGenerator(10).clk;
+    final reset = Logic()..put(0);
+
+    final sys = Axi5SystemInterface();
+    sys.clk <= clk;
+    sys.resetN <= ~reset;
+
+    final stream =
+        Axi5StreamInterface(dataWidth: 256, destWidth: 4, useLast: true);
+    final canAcceptMsg = Logic()..put(1);
+    final srcId = Logic(width: stream.destWidth)..put(0xa);
+
+    stream.valid.put(0);
+    stream.id!.put(0);
+    stream.dest!.put(srcId.value);
+    stream.data!.put(0);
+    stream.last!.put(0);
+
+    final receiver = DtiInterfaceRx(
+        sys: sys,
+        stream: stream,
+        canAcceptMsg: canAcceptMsg,
+        srcId: srcId,
+        maxMsgRxSize: DtiTbuTransRespEx.totalWidth);
+
+    await receiver.build();
+
+    // WaveDumper(receiver);
+
+    Simulator.setMaxSimTime(10000);
+    unawaited(Simulator.run());
+
+    // reset flow
+    await clk.nextNegedge;
+    reset.inject(1);
+    await clk.waitCycles(5);
+    await clk.nextNegedge;
+    reset.inject(0);
+
+    // stream 100 messages on the interface
+    // should be accepting every cycle
+    await clk.nextPosedge;
+    for (var i = 0; i < 100; i++) {
+      expect(stream.ready!.value.toBool(), true);
+      final respIn = DtiTbuTransRespEx()
+        ..zeroInit()
+        ..translationId1.put(i);
+      stream.valid.inject(1);
+      stream.data!.inject(respIn.zeroExtend(stream.dataWidth).value);
+      stream.last!.inject(1);
+      await clk.nextPosedge;
+      expect(receiver.msgValid.value.toBool(), true);
+    }
+    stream.valid.put(0);
+
+    await clk.waitCycles(5);
+
+    await Simulator.endSimulation();
+    await Simulator.simulationEnded;
+  });
+
+  test('multi beat - bandwidth', () async {
+    final clk = SimpleClockGenerator(10).clk;
+    final reset = Logic()..put(0);
+
+    final sys = Axi5SystemInterface();
+    sys.clk <= clk;
+    sys.resetN <= ~reset;
+
+    // final stream =
+    final stream =
+        Axi5StreamInterface(dataWidth: 32, destWidth: 4, useLast: true);
+    final canAcceptMsg = Logic()..put(1);
+    final srcId = Logic(width: stream.destWidth)..put(0xa);
+
+    stream.valid.put(0);
+    stream.id!.put(0);
+    stream.dest!.put(srcId.value);
+    stream.data!.put(0);
+    stream.last!.put(0);
+
+    final receiver = DtiInterfaceRx(
+        sys: sys,
+        stream: stream,
+        canAcceptMsg: canAcceptMsg,
+        srcId: srcId,
+        maxMsgRxSize: DtiTbuTransRespEx.totalWidth);
+
+    await receiver.build();
+
+    // WaveDumper(receiver);
+
+    Simulator.setMaxSimTime(10000);
+    unawaited(Simulator.run());
+
+    // reset flow
+    await clk.nextNegedge;
+    reset.inject(1);
+    await clk.waitCycles(5);
+    await clk.nextNegedge;
+    reset.inject(0);
+
+    // stream 100 messages consecutively on the interface
+    // the interface should never backpressure
+    // and every [numBeats] cycles the receiver should report a message
+    final numBeats = (DtiTbuTransRespEx.totalWidth / stream.dataWidth).ceil();
+    final respIn = DtiTbuTransRespEx()..zeroInit();
+
+    await clk.nextPosedge;
+    for (var i = 0; i < 100; i++) {
+      expect(stream.ready!.value.toBool(), true);
+      final beat = i % numBeats;
+      stream.valid.inject(1);
+      respIn.translationId1.put(i ~/ numBeats);
+      stream.data!.inject(respIn
+          .getRange(beat * stream.dataWidth,
+              min((beat + 1) * stream.dataWidth, respIn.width))
+          .zeroExtend(stream.dataWidth)
+          .value);
+      stream.last!.inject(beat == numBeats - 1);
+      await clk.nextNegedge;
+      expect(receiver.msgValid.value.toBool(), beat == numBeats - 1);
+      await clk.nextPosedge;
+    }
+    stream.valid.inject(0);
+
+    await clk.waitCycles(5);
 
     await Simulator.endSimulation();
     await Simulator.simulationEnded;
