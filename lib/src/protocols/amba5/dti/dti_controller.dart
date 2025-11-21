@@ -230,7 +230,7 @@ abstract class DtiController extends Module {
         writeEnable: this.sendMsgs[i].valid & ~outMsgFull,
         writeData: this.sendMsgs[i].data,
         readEnable:
-            this.outboundArbiter!.grants[_sendArbIdx[i]] & _sender.msgAccepted,
+            this.outboundArbiter!.grants[_sendArbIdx[i]] & _sender.canAcceptMsg,
         depth: sendCfgs[i].fifoDepth,
         generateOccupancy: true,
         generateError: true,

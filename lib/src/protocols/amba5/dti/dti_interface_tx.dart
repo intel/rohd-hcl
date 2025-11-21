@@ -32,7 +32,7 @@ class DtiInterfaceTx extends Module {
   late final Logic destId;
 
   /// Backpressure indicator.
-  Logic get msgAccepted => output('msgAccepted');
+  Logic get canAcceptMsg => output('canAcceptMsg');
 
   /// Constructor.
   DtiInterfaceTx({
@@ -56,7 +56,7 @@ class DtiInterfaceTx extends Module {
     this.srcId = addInput('srcId', srcId, width: srcId.width);
     this.destId = addInput('destId', destId, width: destId.width);
 
-    addOutput('msgAccepted');
+    addOutput('canAcceptMsg');
 
     _build();
   }
@@ -106,12 +106,11 @@ class DtiInterfaceTx extends Module {
           // WORKING: move to IDLE when we are done sending.
           // but only if there isn't another send immediately following
           State(DtiStreamBeatState.working, events: {
-            acceptNextSend & msgToSendValid: DtiStreamBeatState.idle,
+            acceptNextSend & ~msgToSendValid: DtiStreamBeatState.idle,
           }, actions: []),
         ],
       );
-      sendIdle <=
-          sendState.currentState.eq(DtiConnectionState.unconnected.index);
+      sendIdle <= sendState.currentState.eq(DtiStreamBeatState.idle.index);
 
       // pick the appropriate slice of the message bits to send
       // based on the current beat count
@@ -135,7 +134,7 @@ class DtiInterfaceTx extends Module {
         stream.last! <= beatCounter.count.eq(numBeats - 1);
       }
 
-      msgAccepted <= acceptNextSend;
+      canAcceptMsg <= acceptNextSend;
     }
     // case (2): single beat will suffice to send the message
     else {
@@ -155,7 +154,7 @@ class DtiInterfaceTx extends Module {
         stream.last! <= Const(1);
       }
 
-      msgAccepted <= acceptNextSend;
+      canAcceptMsg <= acceptNextSend;
     }
 
     // unconditionally driven signals on the outbound stream

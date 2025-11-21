@@ -101,17 +101,17 @@ void main() async {
     reset.inject(0);
 
     // push a message in
-    expect(sender.msgAccepted.value.toBool(), true);
+    expect(sender.canAcceptMsg.value.toBool(), true);
     await clk.nextNegedge;
     msgToSendValid.inject(1);
     msgToSend.zeroInit();
     msgToSend.translationId1.inject(0xef);
-    expect(sender.msgAccepted.value.toBool(), true);
+    expect(sender.canAcceptMsg.value.toBool(), true);
 
     // should see it on the interface in the next cycle
     await clk.nextNegedge;
     msgToSendValid.inject(0);
-    expect(sender.msgAccepted.value.toBool(), true);
+    expect(sender.canAcceptMsg.value.toBool(), true);
     expect(stream.valid.value.toBool(), true);
     expect(stream.last!.value.toBool(), true);
     expect(stream.id!.value.toInt(), 0xa);
@@ -168,12 +168,12 @@ void main() async {
     reset.inject(0);
 
     // push a message in
-    expect(sender.msgAccepted.value.toBool(), true);
+    expect(sender.canAcceptMsg.value.toBool(), true);
     await clk.nextNegedge;
     msgToSendValid.inject(1);
     msgToSend.zeroInit();
     msgToSend.translationId1.inject(0xef);
-    expect(sender.msgAccepted.value.toBool(), true);
+    expect(sender.canAcceptMsg.value.toBool(), true);
 
     // as of the next cycle, we should start to see flits
     final numBeats = (DtiTbuTransReq.totalWidth / stream.dataWidth).ceil();
@@ -184,7 +184,7 @@ void main() async {
       expect(stream.valid.value.toBool(), true);
       flits.add(stream.data!.value);
       expect(stream.last!.value.toBool(), i == numBeats - 1);
-      expect(sender.msgAccepted.value.toBool(), i == numBeats - 1);
+      expect(sender.canAcceptMsg.value.toBool(), i == numBeats - 1);
       await clk.nextNegedge;
     }
 
@@ -194,6 +194,134 @@ void main() async {
     expect(reqOut.translationId.value.toInt(), 0xef);
 
     await clk.waitCycles(10);
+
+    await Simulator.endSimulation();
+    await Simulator.simulationEnded;
+  });
+
+  test('single beat - bandwidth', () async {
+    final clk = SimpleClockGenerator(10).clk;
+    final reset = Logic()..put(0);
+
+    final sys = Axi5SystemInterface();
+    sys.clk <= clk;
+    sys.resetN <= ~reset;
+
+    final stream =
+        Axi5StreamInterface(dataWidth: 256, destWidth: 4, useLast: true);
+    final msgToSendValid = Logic()..put(0);
+    final msgToSend = DtiTbuTransReq()..put(0);
+    final srcId = Logic(width: stream.idWidth)..put(0xa);
+    final destId = Logic(width: stream.destWidth)..put(0xb);
+    stream.ready!.put(1);
+
+    final sender = DtiInterfaceTx(
+      sys: sys,
+      stream: stream,
+      msgToSendValid: msgToSendValid,
+      msgToSend: msgToSend,
+      srcId: srcId,
+      destId: destId,
+    );
+
+    await sender.build();
+
+    // WaveDumper(sender);
+
+    Simulator.setMaxSimTime(10000);
+    unawaited(Simulator.run());
+
+    // reset flow
+    await clk.nextNegedge;
+    reset.inject(1);
+    await clk.waitCycles(5);
+    await clk.nextNegedge;
+    reset.inject(0);
+
+    // stream 100 consecutive transactions
+    // expect 1 message per cycle to be accepted
+    // i.e., the link is always busy
+    for (var i = 0; i < 100; i++) {
+      expect(sender.canAcceptMsg.value.toBool(), true);
+      await clk.nextNegedge;
+      msgToSendValid.inject(1);
+      msgToSend.zeroInit();
+      msgToSend.translationId1.put(i);
+    }
+    await clk.nextNegedge;
+    msgToSendValid.inject(0);
+
+    await clk.waitCycles(5);
+
+    await Simulator.endSimulation();
+    await Simulator.simulationEnded;
+  });
+
+  test('multi beat - bandwidth', () async {
+    final clk = SimpleClockGenerator(10).clk;
+    final reset = Logic()..put(0);
+
+    final sys = Axi5SystemInterface();
+    sys.clk <= clk;
+    sys.resetN <= ~reset;
+
+    final stream =
+        Axi5StreamInterface(dataWidth: 32, destWidth: 4, useLast: true);
+    final msgToSendValid = Logic()..put(0);
+    final msgToSend = DtiTbuTransReq()..put(0);
+    final srcId = Logic(width: stream.idWidth)..put(0xa);
+    final destId = Logic(width: stream.destWidth)..put(0xb);
+    stream.ready!.put(1);
+
+    final sender = DtiInterfaceTx(
+      sys: sys,
+      stream: stream,
+      msgToSendValid: msgToSendValid,
+      msgToSend: msgToSend,
+      srcId: srcId,
+      destId: destId,
+    );
+
+    await sender.build();
+
+    // WaveDumper(sender);
+
+    Simulator.setMaxSimTime(10000);
+    unawaited(Simulator.run());
+
+    // reset flow
+    await clk.nextNegedge;
+    reset.inject(1);
+    await clk.waitCycles(5);
+    await clk.nextNegedge;
+    reset.inject(0);
+
+    // stream 100 consecutive transactions
+    // expect 1 message per [numBeats] cycles to be accepted
+    // i.e., the link is always busy sending message flits
+    final numBeats = (DtiTbuTransReq.totalWidth / stream.dataWidth).ceil();
+    final cadence = numBeats - 1;
+
+    // start up
+    // need to wait 1 cycle extra for the 1st one
+    await clk.nextPosedge;
+    expect(sender.canAcceptMsg.value.toBool(), true);
+    msgToSendValid.inject(1);
+    msgToSend.zeroInit();
+    msgToSend.translationId1.put(0);
+    await clk.waitCycles(numBeats);
+    expect(sender.canAcceptMsg.value.toBool(), true);
+    msgToSend.translationId1.put(1);
+
+    for (var i = 0; i < 100; i++) {
+      await clk.waitCycles(cadence);
+      expect(sender.canAcceptMsg.value.toBool(), true);
+      msgToSend.translationId1.put(2 + i ~/ cadence);
+    }
+    await clk.nextPosedge;
+    msgToSendValid.inject(0);
+
+    await clk.waitCycles(5);
 
     await Simulator.endSimulation();
     await Simulator.simulationEnded;
