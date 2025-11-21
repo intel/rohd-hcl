@@ -16,15 +16,15 @@ void main() async {
 
   test('doa - simple', () async {
     final sys = Axi5SystemInterface();
-    final toSub = Axi5StreamInterface(dataWidth: 256, destWidth: 4);
+    final stream = Axi5StreamInterface(dataWidth: 256, destWidth: 4);
     final msgToSendValid = Logic();
     final msgToSend = DtiTbuTransReq();
-    final srcId = Logic(width: toSub.idWidth);
-    final destId = Logic(width: toSub.destWidth);
+    final srcId = Logic(width: stream.idWidth);
+    final destId = Logic(width: stream.destWidth);
 
     final sender = DtiInterfaceTx(
       sys: sys,
-      toSub: toSub,
+      stream: stream,
       msgToSendValid: msgToSendValid,
       msgToSend: msgToSend,
       srcId: srcId,
@@ -36,7 +36,7 @@ void main() async {
 
   test('doa - complex', () async {
     final sys = Axi5SystemInterface();
-    final toSub = Axi5StreamInterface(
+    final stream = Axi5StreamInterface(
         dataWidth: 32,
         destWidth: 4,
         useKeep: true,
@@ -46,12 +46,12 @@ void main() async {
         userWidth: 4);
     final msgToSendValid = Logic();
     final msgToSend = DtiTbuTransReq();
-    final srcId = Logic(width: toSub.idWidth);
-    final destId = Logic(width: toSub.destWidth);
+    final srcId = Logic(width: stream.idWidth);
+    final destId = Logic(width: stream.destWidth);
 
     final sender = DtiInterfaceTx(
       sys: sys,
-      toSub: toSub,
+      stream: stream,
       msgToSendValid: msgToSendValid,
       msgToSend: msgToSend,
       srcId: srcId,
@@ -69,17 +69,17 @@ void main() async {
     sys.clk <= clk;
     sys.resetN <= ~reset;
 
-    final toSub =
+    final stream =
         Axi5StreamInterface(dataWidth: 256, destWidth: 4, useLast: true);
     final msgToSendValid = Logic()..put(0);
     final msgToSend = DtiTbuTransReq()..put(0);
-    final srcId = Logic(width: toSub.idWidth)..put(0xa);
-    final destId = Logic(width: toSub.destWidth)..put(0xb);
-    toSub.ready!.put(1);
+    final srcId = Logic(width: stream.idWidth)..put(0xa);
+    final destId = Logic(width: stream.destWidth)..put(0xb);
+    stream.ready!.put(1);
 
     final sender = DtiInterfaceTx(
       sys: sys,
-      toSub: toSub,
+      stream: stream,
       msgToSendValid: msgToSendValid,
       msgToSend: msgToSend,
       srcId: srcId,
@@ -112,13 +112,13 @@ void main() async {
     await clk.nextNegedge;
     msgToSendValid.inject(0);
     expect(sender.msgAccepted.value.toBool(), true);
-    expect(toSub.valid.value.toBool(), true);
-    expect(toSub.last!.value.toBool(), true);
-    expect(toSub.id!.value.toInt(), 0xa);
-    expect(toSub.dest!.value.toInt(), 0xb);
+    expect(stream.valid.value.toBool(), true);
+    expect(stream.last!.value.toBool(), true);
+    expect(stream.id!.value.toInt(), 0xa);
+    expect(stream.dest!.value.toInt(), 0xb);
 
     final reqOut = DtiTbuTransReq()
-      ..gets(toSub.data!.getRange(0, DtiTbuTransReq.totalWidth));
+      ..gets(stream.data!.getRange(0, DtiTbuTransReq.totalWidth));
     expect(reqOut.msgType.value.toInt(), DtiDownstreamMsgType.transReq.value);
     expect(reqOut.translationId.value.toInt(), 0xef);
 
@@ -136,17 +136,17 @@ void main() async {
     sys.clk <= clk;
     sys.resetN <= ~reset;
 
-    final toSub =
+    final stream =
         Axi5StreamInterface(dataWidth: 32, destWidth: 4, useLast: true);
     final msgToSendValid = Logic()..put(0);
     final msgToSend = DtiTbuTransReq()..put(0);
-    final srcId = Logic(width: toSub.idWidth)..put(0xa);
-    final destId = Logic(width: toSub.destWidth)..put(0xb);
-    toSub.ready!.put(1);
+    final srcId = Logic(width: stream.idWidth)..put(0xa);
+    final destId = Logic(width: stream.destWidth)..put(0xb);
+    stream.ready!.put(1);
 
     final sender = DtiInterfaceTx(
       sys: sys,
-      toSub: toSub,
+      stream: stream,
       msgToSendValid: msgToSendValid,
       msgToSend: msgToSend,
       srcId: srcId,
@@ -176,14 +176,14 @@ void main() async {
     expect(sender.msgAccepted.value.toBool(), true);
 
     // as of the next cycle, we should start to see flits
-    final numBeats = (DtiTbuTransReq.totalWidth / toSub.dataWidth).ceil();
+    final numBeats = (DtiTbuTransReq.totalWidth / stream.dataWidth).ceil();
     await clk.nextNegedge;
     msgToSendValid.inject(0);
     final flits = <LogicValue>[];
     for (var i = 0; i < numBeats; i++) {
-      expect(toSub.valid.value.toBool(), true);
-      flits.add(toSub.data!.value);
-      expect(toSub.last!.value.toBool(), i == numBeats - 1);
+      expect(stream.valid.value.toBool(), true);
+      flits.add(stream.data!.value);
+      expect(stream.last!.value.toBool(), i == numBeats - 1);
       expect(sender.msgAccepted.value.toBool(), i == numBeats - 1);
       await clk.nextNegedge;
     }

@@ -12,10 +12,10 @@ void main() async {
 
   test('doa - tbu main', () async {
     final sys = Axi5SystemInterface();
-    final toSub = Axi5StreamInterface(dataWidth: 256, destWidth: 4);
-    final fromSub = Axi5StreamInterface(dataWidth: 256, destWidth: 4);
-    final srcId = Logic(width: toSub.idWidth);
-    final destId = Logic(width: toSub.destWidth);
+    final outStream = Axi5StreamInterface(dataWidth: 256, destWidth: 4);
+    final inStream = Axi5StreamInterface(dataWidth: 256, destWidth: 4);
+    final srcId = Logic(width: outStream.idWidth);
+    final destId = Logic(width: outStream.destWidth);
 
     final transReqD = DtiTbuTransReq();
     final transReq = ReadyAndValidInterface<DtiTbuTransReq>(transReqD);
@@ -39,8 +39,8 @@ void main() async {
 
     final main = DtiTbuMainController.standard(
         sys: sys,
-        toSub: toSub,
-        fromSub: fromSub,
+        outStream: outStream,
+        inStream: inStream,
         srcId: srcId,
         destId: destId,
         transReq: transReq,
@@ -67,10 +67,10 @@ void main() async {
 
   test('doa - tbu sub', () async {
     final sys = Axi5SystemInterface();
-    final toSub = Axi5StreamInterface(dataWidth: 256, destWidth: 4);
-    final fromSub = Axi5StreamInterface(dataWidth: 256, destWidth: 4);
-    final srcId = Logic(width: toSub.idWidth);
-    final destId = Logic(width: toSub.destWidth);
+    final outStream = Axi5StreamInterface(dataWidth: 256, destWidth: 4);
+    final inStream = Axi5StreamInterface(dataWidth: 256, destWidth: 4);
+    final srcId = Logic(width: outStream.idWidth);
+    final destId = Logic(width: outStream.destWidth);
 
     final transReqD = DtiTbuTransReq();
     final transReq = ReadyAndValidInterface<DtiTbuTransReq>(transReqD);
@@ -94,8 +94,8 @@ void main() async {
 
     final main = DtiTbuSubController.standard(
         sys: sys,
-        toSub: toSub,
-        fromSub: fromSub,
+        outStream: outStream,
+        inStream: inStream,
         srcId: srcId,
         destId: destId,
         transReq: transReq,
@@ -127,20 +127,20 @@ void main() async {
     sys.clk <= clk;
     sys.resetN <= ~reset;
 
-    final toSub =
+    final outStream =
         Axi5StreamInterface(dataWidth: 256, destWidth: 4, useLast: true);
-    toSub.ready!.put(1);
+    outStream.ready!.put(1);
 
-    final fromSub =
+    final inStream =
         Axi5StreamInterface(dataWidth: 256, destWidth: 4, useLast: true);
-    fromSub.valid.put(0);
-    fromSub.id!.put(0);
-    fromSub.data!.put(0);
-    fromSub.last!.put(0);
+    inStream.valid.put(0);
+    inStream.id!.put(0);
+    inStream.data!.put(0);
+    inStream.last!.put(0);
 
-    final srcId = Logic(width: toSub.idWidth)..put(0xa);
-    final destId = Logic(width: toSub.destWidth)..put(0xb);
-    fromSub.dest!.put(srcId.value);
+    final srcId = Logic(width: outStream.idWidth)..put(0xa);
+    final destId = Logic(width: outStream.destWidth)..put(0xb);
+    inStream.dest!.put(srcId.value);
 
     final transReqD = DtiTbuTransReq()..zeroInit();
     final transReq = ReadyAndValidInterface<DtiTbuTransReq>(transReqD);
@@ -180,8 +180,185 @@ void main() async {
 
     final main = DtiTbuMainController.standard(
         sys: sys,
-        toSub: toSub,
-        fromSub: fromSub,
+        outStream: outStream,
+        inStream: inStream,
+        srcId: srcId,
+        destId: destId,
+        transReq: transReq,
+        transReqFifoDepth: 8,
+        invAck: invAck,
+        invAckFifoDepth: 8,
+        syncAck: syncAck,
+        syncAckFifoDepth: 8,
+        condisReq: condisReq,
+        condisReqFifoDepth: 8,
+        transResp: transResp,
+        transRespFifoDepth: 8,
+        transFault: transFault,
+        transFaultFifoDepth: 8,
+        invReq: invReq,
+        invReqFifoDepth: 8,
+        syncReq: syncReq,
+        syncReqFifoDepth: 8,
+        condisAck: condisAck,
+        condisAckFifoDepth: 8);
+
+    await main.build();
+
+    // WaveDumper(main);
+
+    Simulator.setMaxSimTime(10000);
+    unawaited(Simulator.run());
+
+    // reset flow
+    await clk.nextNegedge;
+    reset.inject(1);
+    await clk.waitCycles(5);
+    await clk.nextNegedge;
+    reset.inject(0);
+
+    // send a CondisReq in
+    condisReqD.tokTransReq.put(0x5);
+    condisReqD.tokInvGnt.put(0x5);
+    condisReqD.state.put(0x1);
+    await clk.nextPosedge;
+    expect(transReq.ready.value.toBool(), false);
+    expect(invAck.ready.value.toBool(), false);
+    expect(syncAck.ready.value.toBool(), false);
+    expect(condisReq.ready.value.toBool(), true);
+    condisReq.valid.inject(1);
+
+    // wait for the CondisReq to go out on the interface
+    await clk.nextPosedge;
+    condisReq.valid.inject(0);
+    while (!outStream.valid.value.toBool()) {
+      await clk.nextNegedge;
+    }
+
+    // send a CondisAck back
+    await clk.nextPosedge;
+    inStream.valid.inject(1);
+    final tmp1 = DtiTbuCondisAck()
+      ..zeroInit()
+      ..tokTransGnt1.put(0x5)
+      ..state.put(1);
+    inStream.data!.inject(tmp1.value);
+    inStream.last!.inject(1);
+    await clk.nextPosedge;
+    inStream.valid.inject(0);
+    inStream.last!.inject(0);
+
+    // wait condisAck to be reported
+    while (!condisAck.valid.value.toBool()) {
+      await clk.nextNegedge;
+    }
+    expect(condisAck.data.tokTransGnt.value.toInt(), 0x5);
+    expect(condisAck.data.state.value.toInt(), 0x1);
+
+    // send a TransReq in
+    transReqD.translationId1.put(0xcc);
+    transReqD.addr.put(0xdeadbeef);
+    await clk.nextPosedge;
+    expect(transReq.ready.value.toBool(), true);
+    expect(invAck.ready.value.toBool(), true);
+    expect(syncAck.ready.value.toBool(), true);
+    transReq.valid.inject(1);
+
+    // wait for the TransReq to go out on the interface
+    await clk.nextPosedge;
+    transReq.valid.inject(0);
+    while (!outStream.valid.value.toBool()) {
+      await clk.nextNegedge;
+    }
+
+    // send a TransResp back
+    await clk.nextPosedge;
+    inStream.valid.inject(1);
+    final tmp2 = DtiTbuTransRespEx()
+      ..zeroInit()
+      ..translationId1.put(0xcc)
+      ..oa.put(0xbeefdead);
+    inStream.data!.inject(tmp2.value);
+    inStream.last!.inject(1);
+    await clk.nextPosedge;
+    inStream.valid.inject(0);
+    inStream.last!.inject(0);
+
+    // wait for transResp to be reported
+    while (!transResp.valid.value.toBool()) {
+      await clk.nextNegedge;
+    }
+    expect(transResp.data.translationId.value.toInt(), 0xcc);
+    expect(transResp.data.oa.value.toInt(), 0xbeefdead);
+
+    await clk.waitCycles(10);
+
+    await Simulator.endSimulation();
+    await Simulator.simulationEnded;
+  });
+
+  test('simple connect+trans - tbu sub', () async {
+    final clk = SimpleClockGenerator(10).clk;
+    final reset = Logic()..put(0);
+    final sys = Axi5SystemInterface();
+    sys.clk <= clk;
+    sys.resetN <= ~reset;
+
+    final outStream =
+        Axi5StreamInterface(dataWidth: 256, destWidth: 4, useLast: true);
+    outStream.ready!.put(1);
+
+    final inStream =
+        Axi5StreamInterface(dataWidth: 256, destWidth: 4, useLast: true);
+    inStream.valid.put(0);
+    inStream.id!.put(0);
+    inStream.data!.put(0);
+    inStream.last!.put(0);
+
+    final srcId = Logic(width: outStream.idWidth)..put(0xa);
+    final destId = Logic(width: outStream.destWidth)..put(0xb);
+    inStream.dest!.put(srcId.value);
+
+    final transReqD = DtiTbuTransReq();
+    final transReq = ReadyAndValidInterface<DtiTbuTransReq>(transReqD);
+    transReq.ready.put(1);
+
+    final invAckD = DtiTbuInvAck();
+    final invAck = ReadyAndValidInterface<DtiTbuInvAck>(invAckD);
+    invAck.ready.put(1);
+
+    final syncAckD = DtiTbuSyncAck();
+    final syncAck = ReadyAndValidInterface<DtiTbuSyncAck>(syncAckD);
+    syncAck.ready.put(1);
+
+    final condisReqD = DtiTbuCondisReq();
+    final condisReq = ReadyAndValidInterface<DtiTbuCondisReq>(condisReqD);
+    condisReq.ready.put(1);
+
+    final transRespD = DtiTbuTransRespEx()..zeroInit();
+    final transResp = ReadyAndValidInterface<DtiTbuTransRespEx>(transRespD);
+    transResp.valid.put(0);
+
+    final transFaultD = DtiTbuTransFault()..zeroInit();
+    final transFault = ReadyAndValidInterface<DtiTbuTransFault>(transFaultD);
+    transFault.valid.put(0);
+
+    final invReqD = DtiTbuInvReq()..zeroInit();
+    final invReq = ReadyAndValidInterface<DtiTbuInvReq>(invReqD);
+    invReq.valid.put(0);
+
+    final syncReqD = DtiTbuSyncReq()..zeroInit();
+    final syncReq = ReadyAndValidInterface<DtiTbuSyncReq>(syncReqD);
+    syncReq.valid.put(0);
+
+    final condisAckD = DtiTbuCondisAck()..zeroInit();
+    final condisAck = ReadyAndValidInterface<DtiTbuCondisAck>(condisAckD);
+    condisAck.valid.put(0);
+
+    final main = DtiTbuSubController.standard(
+        sys: sys,
+        outStream: outStream,
+        inStream: inStream,
         srcId: srcId,
         destId: destId,
         transReq: transReq,
@@ -217,79 +394,88 @@ void main() async {
     await clk.nextNegedge;
     reset.inject(0);
 
-    // send a CondisReq in
-    condisReqD.tokTransReq.put(0x5);
-    condisReqD.tokInvGnt.put(0x5);
-    condisReqD.state.put(0x1);
-    await clk.nextPosedge;
-    expect(transReq.ready.value.toBool(), false);
-    expect(invAck.ready.value.toBool(), false);
-    expect(syncAck.ready.value.toBool(), false);
-    expect(condisReq.ready.value.toBool(), true);
-    condisReq.valid.inject(1);
-
-    // wait for the CondisReq to go out on the interface
-    await clk.nextPosedge;
-    condisReq.valid.inject(0);
-    while (!toSub.valid.value.toBool()) {
-      await clk.nextNegedge;
-    }
-
-    // send a CondisAck back
-    await clk.nextPosedge;
-    fromSub.valid.inject(1);
-    final tmp1 = DtiTbuCondisAck()
+    // receive a connection request
+    expect(transResp.ready.value.toBool(), false);
+    expect(transFault.ready.value.toBool(), false);
+    expect(invReq.ready.value.toBool(), false);
+    expect(syncReq.ready.value.toBool(), false);
+    inStream.valid.inject(1);
+    final tmp1 = DtiTbuCondisReq()
       ..zeroInit()
-      ..tokTransGnt1.put(0x5)
+      ..tokTransReq1.put(0x5)
+      ..tokInvGnt.put(0x5)
       ..state.put(1);
-    fromSub.data!.inject(tmp1.value);
-    fromSub.last!.inject(1);
+    inStream.data!.inject(tmp1.value);
+    inStream.last!.inject(1);
     await clk.nextPosedge;
-    fromSub.valid.inject(0);
-    fromSub.last!.inject(0);
+    inStream.valid.inject(0);
+    inStream.last!.inject(0);
 
-    // wait condisAck to be reported
-    while (!condisAck.valid.value.toBool()) {
+    // wait condisReq to be reported
+    while (!condisReq.valid.value.toBool()) {
       await clk.nextNegedge;
     }
-    expect(condisAck.data.tokTransGnt.value.toInt(), 0x5);
-    expect(condisAck.data.state.value.toInt(), 0x1);
+    expect(condisReq.data.tokTransReq.value.toInt(), 0x5);
+    expect(condisReq.data.tokInvGnt.value.toInt(), 0x5);
+    expect(condisReq.data.state.value.toInt(), 0x1);
 
-    // send a TransReq in
-    transReqD.translationId1.put(0xcc);
-    transReqD.addr.put(0xdeadbeef);
+    // send the CondisAck
+    condisAckD.tokTransGnt1.put(0x5);
+    condisAckD.state.put(0x1);
     await clk.nextPosedge;
-    expect(transReq.ready.value.toBool(), true);
-    expect(invAck.ready.value.toBool(), true);
-    expect(syncAck.ready.value.toBool(), true);
-    transReq.valid.inject(1);
+    expect(condisAck.ready.value.toBool(), true);
+    condisAck.valid.inject(1);
 
-    // wait for the TransReq to go out on the interface
+    // wait for the CondisAck to go out on the interface
     await clk.nextPosedge;
-    transReq.valid.inject(0);
-    while (!toSub.valid.value.toBool()) {
+    condisAck.valid.inject(0);
+    while (!outStream.valid.value.toBool()) {
       await clk.nextNegedge;
     }
+    final out1 = DtiTbuCondisAck()
+      ..gets(outStream.data!.getRange(0, DtiTbuCondisAck.totalWidth));
+    expect(out1.tokTransGnt.value.toInt(), 0x5);
+    expect(out1.state.value.toInt(), 0x1);
 
-    // send a TransResp back
-    await clk.nextPosedge;
-    fromSub.valid.inject(1);
-    final tmp2 = DtiTbuTransRespEx()
+    // receive a translation request
+    expect(transResp.ready.value.toBool(), true);
+    expect(transFault.ready.value.toBool(), true);
+    expect(invReq.ready.value.toBool(), true);
+    expect(syncReq.ready.value.toBool(), true);
+    inStream.valid.inject(1);
+    final tmp2 = DtiTbuTransReq()
       ..zeroInit()
-      ..translationId1.put(0xcc)
-      ..oa.put(0xbeefdead);
-    fromSub.data!.inject(tmp2.value);
-    fromSub.last!.inject(1);
+      ..translationId1.put(0xdd)
+      ..addr.put(0xdeadbeef);
+    inStream.data!.inject(tmp2.value);
+    inStream.last!.inject(1);
     await clk.nextPosedge;
-    fromSub.valid.inject(0);
-    fromSub.last!.inject(0);
+    inStream.valid.inject(0);
+    inStream.last!.inject(0);
 
-    // wait for transResp to be reported
-    while (!transResp.valid.value.toBool()) {
+    // wait transReq to be reported
+    while (!transReq.valid.value.toBool()) {
       await clk.nextNegedge;
     }
-    expect(transResp.data.translationId.value.toInt(), 0xcc);
-    expect(transResp.data.oa.value.toInt(), 0xbeefdead);
+    expect(transReq.data.translationId.value.toInt(), 0xdd);
+    expect(transReq.data.addr.value.toInt(), 0xdeadbeef);
+
+    // send the TransResp
+    transRespD.translationId1.put(0xdd);
+    transRespD.oa.put(0xbeefdead);
+    await clk.nextPosedge;
+    transResp.valid.inject(1);
+
+    // wait for the TransResp to go out on the interface
+    await clk.nextPosedge;
+    transResp.valid.inject(0);
+    while (!outStream.valid.value.toBool()) {
+      await clk.nextNegedge;
+    }
+    final out2 = DtiTbuTransRespEx()
+      ..gets(outStream.data!.getRange(0, DtiTbuTransRespEx.totalWidth));
+    expect(out2.translationId.value.toInt(), 0xdd);
+    expect(out2.oa.value.toInt(), 0xbeefdead);
 
     await clk.waitCycles(10);
 

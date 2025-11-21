@@ -7,7 +7,7 @@ class DtiInterfaceRx extends Module {
   late final Axi5SystemInterface sys;
 
   /// Inbound DTI messages.
-  late final Axi5StreamInterface fromSub;
+  late final Axi5StreamInterface stream;
 
   /// The maximum size of any message we expect
   /// to receive over the AXI-S interface.
@@ -33,17 +33,17 @@ class DtiInterfaceRx extends Module {
   /// Constructor.
   DtiInterfaceRx({
     required Axi5SystemInterface sys,
-    required Axi5StreamInterface fromSub,
+    required Axi5StreamInterface stream,
     required Logic canAcceptMsg,
     required Logic srcId,
     required this.maxMsgRxSize,
     super.name = 'dtiInterfaceRx',
   }) {
     this.sys = addPairInterfacePorts(sys, PairRole.consumer);
-    this.fromSub = addPairInterfacePorts(
-      fromSub,
+    this.stream = addPairInterfacePorts(
+      stream,
       PairRole.consumer,
-      uniquify: (original) => '${name}_fromSub_$original',
+      uniquify: (original) => '${name}_stream_$original',
     );
     this.canAcceptMsg =
         addInput('canAcceptMsg', canAcceptMsg, width: canAcceptMsg.width);
@@ -57,18 +57,18 @@ class DtiInterfaceRx extends Module {
 
   void _build() {
     // max # of beats we could possibly expect for a single message
-    final numBeats = (maxMsgRxSize / fromSub.dataWidth).ceil();
+    final numBeats = (maxMsgRxSize / stream.dataWidth).ceil();
 
     // conditions under which we should capture/forward flits
-    final idHit = (fromSub.destWidth > 0 ? srcId.eq(fromSub.dest) : Const(1));
-    final inAccept = fromSub.valid & (fromSub.ready ?? Const(1)) & idHit;
-    final inLast = inAccept & idHit & (fromSub.last ?? Const(1));
+    final idHit = (stream.destWidth > 0 ? srcId.eq(stream.dest) : Const(1));
+    final inAccept = stream.valid & (stream.ready ?? Const(1)) & idHit;
+    final inLast = inAccept & idHit & (stream.last ?? Const(1));
 
     // case 1: every message can be captured in a single beat
     // simplify the HW
     if (numBeats == 1) {
       msgValid <= inLast;
-      msg <= fromSub.data!.getRange(0, maxMsgRxSize);
+      msg <= stream.data!.getRange(0, maxMsgRxSize);
     }
     // case 2: message might come in over multiple beats
     else {
@@ -85,23 +85,22 @@ class DtiInterfaceRx extends Module {
       // and store them for assembly later
       final msgFlits = <Logic>[];
       for (var i = 0; i < numBeats - 1; i++) {
-        msgFlits.add(Logic(name: 'inBeats$i', width: fromSub.dataWidth));
+        msgFlits.add(Logic(name: 'inBeats$i', width: stream.dataWidth));
         Sequential(sys.clk, reset: ~sys.resetN, [
           msgFlits[i] <
-              mux(inAccept & beatCounter.count.eq(i), fromSub.data!,
-                  msgFlits[i])
+              mux(inAccept & beatCounter.count.eq(i), stream.data!, msgFlits[i])
         ]);
       }
 
       // the last flit comes straight from the interface
       // for performance
       msgValid <= inLast;
-      msg <= [...msgFlits, fromSub.data!].rswizzle().getRange(0, maxMsgRxSize);
+      msg <= [...msgFlits, stream.data!].rswizzle().getRange(0, maxMsgRxSize);
     }
 
     // drive TREADY
-    if (fromSub.ready != null) {
-      fromSub.ready! <= canAcceptMsg;
+    if (stream.ready != null) {
+      stream.ready! <= canAcceptMsg;
     }
   }
 }

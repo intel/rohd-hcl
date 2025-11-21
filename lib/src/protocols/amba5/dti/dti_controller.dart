@@ -10,10 +10,10 @@ abstract class DtiController extends Module {
   late final Axi5SystemInterface sys;
 
   /// Outbound DTI messages.
-  late final Axi5StreamInterface toSub;
+  late final Axi5StreamInterface outStream;
 
   /// Inbound DTI messages.
-  late final Axi5StreamInterface fromSub;
+  late final Axi5StreamInterface inStream;
 
   /// DTI messages to send.
   final List<ReadyAndValidInterface<LogicStructure>> sendMsgs = [];
@@ -120,8 +120,8 @@ abstract class DtiController extends Module {
   /// Constructor.
   DtiController({
     required Axi5SystemInterface sys,
-    required Axi5StreamInterface toSub,
-    required Axi5StreamInterface fromSub,
+    required Axi5StreamInterface outStream,
+    required Axi5StreamInterface inStream,
     required Logic srcId,
     required Logic destId,
     List<ReadyAndValidInterface<LogicStructure>> sendMsgs = const [],
@@ -132,13 +132,13 @@ abstract class DtiController extends Module {
     super.name = 'dtiController',
   }) {
     this.sys = addPairInterfacePorts(sys, PairRole.consumer);
-    this.toSub = addPairInterfacePorts(
-      toSub,
+    this.outStream = addPairInterfacePorts(
+      outStream,
       PairRole.provider,
       uniquify: (original) => '${name}_toSub_$original',
     );
-    this.fromSub = addPairInterfacePorts(
-      fromSub,
+    this.inStream = addPairInterfacePorts(
+      inStream,
       PairRole.consumer,
       uniquify: (original) => '${name}_fromSub_$original',
     );
@@ -166,7 +166,7 @@ abstract class DtiController extends Module {
     _senderData = Logic(name: 'senderData', width: _maxOutMsgSize);
     _sender = DtiInterfaceTx(
         sys: this.sys,
-        toSub: this.toSub,
+        stream: this.outStream,
         msgToSendValid: _senderValid,
         msgToSend: _senderData,
         srcId: this.srcId,
@@ -179,7 +179,7 @@ abstract class DtiController extends Module {
     _receiverCanAccept = Logic(name: 'receiverCanAccept');
     _receiver = DtiInterfaceRx(
         sys: this.sys,
-        fromSub: this.fromSub,
+        stream: this.inStream,
         canAcceptMsg: _receiverCanAccept,
         srcId: this.srcId,
         maxMsgRxSize: _maxInMsgSize);
@@ -281,7 +281,7 @@ abstract class DtiController extends Module {
           _outMsgs[i].readData.zeroExtend(_maxOutMsgSize);
     }
     final dataToSend = cases(
-        _arbiterReqs.swizzle(),
+        _arbiterReqs.rswizzle(),
         conditionalType: ConditionalType.unique,
         dataToSendCases,
         defaultValue: Const(0, width: _maxOutMsgSize));

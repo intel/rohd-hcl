@@ -13,8 +13,8 @@ class DtiTbuMainController extends DtiController {
   /// Constructor.
   DtiTbuMainController({
     required super.sys,
-    required super.toSub,
-    required super.fromSub,
+    required super.outStream,
+    required super.inStream,
     required super.srcId,
     required super.destId,
     super.sendMsgs = const [],
@@ -32,8 +32,8 @@ class DtiTbuMainController extends DtiController {
   /// All standard message types enabled appropriately.
   DtiTbuMainController.standard({
     required super.sys,
-    required super.toSub,
-    required super.fromSub,
+    required super.outStream,
+    required super.inStream,
     required super.srcId,
     required super.destId,
     required ReadyAndValidInterface<DtiTbuTransReq> transReq,

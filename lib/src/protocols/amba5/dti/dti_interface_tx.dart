@@ -10,7 +10,7 @@ class DtiInterfaceTx extends Module {
   late final Axi5SystemInterface sys;
 
   /// Outbound DTI messages.
-  late final Axi5StreamInterface toSub;
+  late final Axi5StreamInterface stream;
 
   /// Is the provided [msgToSend] valid.
   ///
@@ -37,7 +37,7 @@ class DtiInterfaceTx extends Module {
   /// Constructor.
   DtiInterfaceTx({
     required Axi5SystemInterface sys,
-    required Axi5StreamInterface toSub,
+    required Axi5StreamInterface stream,
     required Logic msgToSendValid,
     required Logic msgToSend,
     required Logic srcId,
@@ -45,10 +45,10 @@ class DtiInterfaceTx extends Module {
     super.name = 'dtiInterfaceTx',
   }) {
     this.sys = addPairInterfacePorts(sys, PairRole.consumer);
-    this.toSub = addPairInterfacePorts(
-      toSub,
+    this.stream = addPairInterfacePorts(
+      stream,
       PairRole.provider,
-      uniquify: (original) => '${name}_toSub_$original',
+      uniquify: (original) => '${name}_stream_$original',
     );
     this.msgToSendValid =
         addInput('msgToSendValid', msgToSendValid, width: msgToSendValid.width);
@@ -64,16 +64,16 @@ class DtiInterfaceTx extends Module {
   void _build() {
     // case (1): must break the message up over multiple beats
     // TODO(kimmeljo): try to make this dynamic over time??
-    if (msgToSend.width > toSub.dataWidth) {
+    if (msgToSend.width > stream.dataWidth) {
       // determine how many beats we need
-      final numBeats = (msgToSend.width / toSub.dataWidth).ceil();
+      final numBeats = (msgToSend.width / stream.dataWidth).ceil();
       final sendIdle = Logic(name: 'sendIdle');
 
       // must count as we're sending the message across multiple beats
       // but restart the count once we're done sending
-      final countEnable = toSub.valid & (toSub.ready ?? Const(1));
+      final countEnable = stream.valid & (stream.ready ?? Const(1));
       final acceptNextSend =
-          sendIdle | (countEnable & (toSub.last ?? Const(1)));
+          sendIdle | (countEnable & (stream.last ?? Const(1)));
       final beatCounter = Counter.simple(
           clk: sys.clk,
           reset: ~sys.resetN,
@@ -117,22 +117,22 @@ class DtiInterfaceTx extends Module {
       // based on the current beat count
       final nextDataToSendCases = <Logic, Logic>{};
       for (var i = 0; i < numBeats; i++) {
-        final start = toSub.dataWidth * i;
-        final end = min(toSub.dataWidth * (i + 1), msgToSend.width);
+        final start = stream.dataWidth * i;
+        final end = min(stream.dataWidth * (i + 1), msgToSend.width);
         nextDataToSendCases[Const(i, width: beatCounter.count.width)] =
-            nextOutData.getRange(start, end).zeroExtend(toSub.dataWidth);
+            nextOutData.getRange(start, end).zeroExtend(stream.dataWidth);
       }
       final slicedNextDataToSend = cases(
           beatCounter.count,
           conditionalType: ConditionalType.unique,
           nextDataToSendCases,
-          defaultValue: Const(0, width: toSub.dataWidth));
+          defaultValue: Const(0, width: stream.dataWidth));
 
       // drive the interface
-      toSub.valid <= nextOutDataEn & ~sendIdle;
-      toSub.data! <= slicedNextDataToSend;
-      if (toSub.useLast) {
-        toSub.last! <= beatCounter.count.eq(numBeats - 1);
+      stream.valid <= nextOutDataEn & ~sendIdle;
+      stream.data! <= slicedNextDataToSend;
+      if (stream.useLast) {
+        stream.last! <= beatCounter.count.eq(numBeats - 1);
       }
 
       msgAccepted <= acceptNextSend;
@@ -140,19 +140,19 @@ class DtiInterfaceTx extends Module {
     // case (2): single beat will suffice to send the message
     else {
       final sendIdle = Logic(name: 'sendIdle');
-      final acceptNextSend = sendIdle | (toSub.ready ?? Const(1));
+      final acceptNextSend = sendIdle | (stream.ready ?? Const(1));
       final nextOutDataEn =
           flop(sys.clk, msgToSendValid, en: acceptNextSend, reset: ~sys.resetN)
               .named('nextOutDataEn');
-      final nextOutData = flop(sys.clk, msgToSend.zeroExtend(toSub.dataWidth),
+      final nextOutData = flop(sys.clk, msgToSend.zeroExtend(stream.dataWidth),
               en: acceptNextSend, reset: ~sys.resetN)
           .named('nextOutData');
       sendIdle <= ~nextOutDataEn;
 
-      toSub.valid <= nextOutDataEn;
-      toSub.data! <= nextOutData;
-      if (toSub.useLast) {
-        toSub.last! <= Const(1);
+      stream.valid <= nextOutDataEn;
+      stream.data! <= nextOutData;
+      if (stream.useLast) {
+        stream.last! <= Const(1);
       }
 
       msgAccepted <= acceptNextSend;
@@ -162,23 +162,23 @@ class DtiInterfaceTx extends Module {
     // TODO(kimmeljo): any use for TSTRB or TKEEP??
     // TODO(kimmeljo): provide a hook into TUSER??
     // TODO(kimmeljo): provide a hook into TWAKEUP??
-    if (toSub.idWidth > 0) {
-      toSub.id! <= srcId;
+    if (stream.idWidth > 0) {
+      stream.id! <= srcId;
     }
-    if (toSub.destWidth > 0) {
-      toSub.dest! <= destId;
+    if (stream.destWidth > 0) {
+      stream.dest! <= destId;
     }
-    if (toSub.useKeep) {
-      toSub.keep! <= ~Const(0, width: toSub.strbWidth);
+    if (stream.useKeep) {
+      stream.keep! <= ~Const(0, width: stream.strbWidth);
     }
-    if (toSub.useStrb) {
-      toSub.strb! <= ~Const(0, width: toSub.strbWidth);
+    if (stream.useStrb) {
+      stream.strb! <= ~Const(0, width: stream.strbWidth);
     }
-    if (toSub.userWidth > 0) {
-      toSub.user! <= Const(0, width: toSub.userWidth);
+    if (stream.userWidth > 0) {
+      stream.user! <= Const(0, width: stream.userWidth);
     }
-    if (toSub.useWakeup) {
-      toSub.wakeup! <= Const(1);
+    if (stream.useWakeup) {
+      stream.wakeup! <= Const(1);
     }
   }
 }

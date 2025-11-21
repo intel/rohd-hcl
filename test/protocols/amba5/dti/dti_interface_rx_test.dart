@@ -17,13 +17,13 @@ void main() async {
 
   test('doa - simple', () async {
     final sys = Axi5SystemInterface();
-    final fromSub = Axi5StreamInterface(dataWidth: 256, destWidth: 4);
-    final srcId = Logic(width: fromSub.destWidth);
+    final stream = Axi5StreamInterface(dataWidth: 256, destWidth: 4);
+    final srcId = Logic(width: stream.destWidth);
     final canAcceptMsg = Logic();
 
     final receiver = DtiInterfaceRx(
         sys: sys,
-        fromSub: fromSub,
+        stream: stream,
         canAcceptMsg: canAcceptMsg,
         srcId: srcId,
         maxMsgRxSize: DtiTbuTransRespEx.totalWidth);
@@ -33,13 +33,13 @@ void main() async {
 
   test('doa - complex', () async {
     final sys = Axi5SystemInterface();
-    final fromSub = Axi5StreamInterface(dataWidth: 32, destWidth: 4);
-    final srcId = Logic(width: fromSub.destWidth);
+    final stream = Axi5StreamInterface(dataWidth: 32, destWidth: 4);
+    final srcId = Logic(width: stream.destWidth);
     final canAcceptMsg = Logic();
 
     final receiver = DtiInterfaceRx(
         sys: sys,
-        fromSub: fromSub,
+        stream: stream,
         canAcceptMsg: canAcceptMsg,
         srcId: srcId,
         maxMsgRxSize: DtiTbuTransRespEx.totalWidth);
@@ -55,20 +55,20 @@ void main() async {
     sys.clk <= clk;
     sys.resetN <= ~reset;
 
-    final fromSub =
+    final stream =
         Axi5StreamInterface(dataWidth: 256, destWidth: 4, useLast: true);
     final canAcceptMsg = Logic()..put(1);
-    final srcId = Logic(width: fromSub.destWidth)..put(0xa);
+    final srcId = Logic(width: stream.destWidth)..put(0xa);
 
-    fromSub.valid.put(0);
-    fromSub.id!.put(0);
-    fromSub.dest!.put(srcId.value);
-    fromSub.data!.put(0);
-    fromSub.last!.put(0);
+    stream.valid.put(0);
+    stream.id!.put(0);
+    stream.dest!.put(srcId.value);
+    stream.data!.put(0);
+    stream.last!.put(0);
 
     final receiver = DtiInterfaceRx(
         sys: sys,
-        fromSub: fromSub,
+        stream: stream,
         canAcceptMsg: canAcceptMsg,
         srcId: srcId,
         maxMsgRxSize: DtiTbuTransRespEx.totalWidth);
@@ -89,14 +89,14 @@ void main() async {
 
     // send a message on the interface
     await clk.nextPosedge;
-    expect(fromSub.ready!.value.toBool(), true);
+    expect(stream.ready!.value.toBool(), true);
     expect(receiver.msgValid.value.toBool(), false);
     final respIn = DtiTbuTransRespEx()
       ..zeroInit()
       ..translationId1.put(0xfe);
-    fromSub.valid.inject(1);
-    fromSub.data!.inject(respIn.zeroExtend(fromSub.dataWidth).value);
-    fromSub.last!.inject(1);
+    stream.valid.inject(1);
+    stream.data!.inject(respIn.zeroExtend(stream.dataWidth).value);
+    stream.last!.inject(1);
 
     // should see the message out in the same cycle
     await clk.nextNegedge;
@@ -107,7 +107,7 @@ void main() async {
     expect(respOut.translationId.value.toInt(), 0xfe);
 
     await clk.nextPosedge;
-    fromSub.valid.put(0);
+    stream.valid.put(0);
 
     await clk.waitCycles(10);
 
@@ -123,21 +123,21 @@ void main() async {
     sys.clk <= clk;
     sys.resetN <= ~reset;
 
-    // final fromSub =
-    final fromSub =
+    // final stream =
+    final stream =
         Axi5StreamInterface(dataWidth: 32, destWidth: 4, useLast: true);
     final canAcceptMsg = Logic()..put(1);
-    final srcId = Logic(width: fromSub.destWidth)..put(0xa);
+    final srcId = Logic(width: stream.destWidth)..put(0xa);
 
-    fromSub.valid.put(0);
-    fromSub.id!.put(0);
-    fromSub.dest!.put(srcId.value);
-    fromSub.data!.put(0);
-    fromSub.last!.put(0);
+    stream.valid.put(0);
+    stream.id!.put(0);
+    stream.dest!.put(srcId.value);
+    stream.data!.put(0);
+    stream.last!.put(0);
 
     final receiver = DtiInterfaceRx(
         sys: sys,
-        fromSub: fromSub,
+        stream: stream,
         canAcceptMsg: canAcceptMsg,
         srcId: srcId,
         maxMsgRxSize: DtiTbuTransRespEx.totalWidth);
@@ -159,28 +159,28 @@ void main() async {
     // send a message on the interface
     // this occurs over multiple beats
     await clk.nextPosedge;
-    expect(fromSub.ready!.value.toBool(), true);
+    expect(stream.ready!.value.toBool(), true);
     expect(receiver.msgValid.value.toBool(), false);
     final respIn = DtiTbuTransRespEx()
       ..zeroInit()
       ..translationId1.put(0xfe);
-    final numBeats = (DtiTbuTransRespEx.totalWidth / fromSub.dataWidth).ceil();
+    final numBeats = (DtiTbuTransRespEx.totalWidth / stream.dataWidth).ceil();
 
     for (var i = 0; i < numBeats; i++) {
-      fromSub.valid.inject(1);
-      fromSub.data!.inject(respIn
-          .getRange(i * fromSub.dataWidth,
-              min((i + 1) * fromSub.dataWidth, respIn.width))
-          .zeroExtend(fromSub.dataWidth)
+      stream.valid.inject(1);
+      stream.data!.inject(respIn
+          .getRange(i * stream.dataWidth,
+              min((i + 1) * stream.dataWidth, respIn.width))
+          .zeroExtend(stream.dataWidth)
           .value);
-      fromSub.last!.inject(i == numBeats - 1);
+      stream.last!.inject(i == numBeats - 1);
       await clk.nextNegedge;
       expect(receiver.msgValid.value.toBool(), i == numBeats - 1);
       await clk.nextPosedge;
     }
 
     // can now check the message
-    fromSub.valid.inject(0);
+    stream.valid.inject(0);
     final respOut = DtiTbuTransRespEx()
       ..gets(receiver.msg.getRange(0, DtiTbuTransRespEx.totalWidth));
     expect(respOut.msgType.value.toInt(), DtiUpstreamMsgType.transRespEx.value);
