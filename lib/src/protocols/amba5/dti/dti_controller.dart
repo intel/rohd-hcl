@@ -128,7 +128,13 @@ abstract class DtiController extends Module {
     List<ReadyAndValidInterface<LogicStructure>> rcvMsgs = const [],
     this.sendCfgs = const [],
     this.rcvCfgs = const [],
-    Arbiter? outboundArbiter,
+    Arbiter Function(List<Logic> requests,
+            {required Logic clk,
+            required Logic reset,
+            bool reserveName,
+            bool reserveDefinitionName,
+            String? definitionName})
+        arbiterGen = RoundRobinArbiter.new,
     super.name = 'dtiController',
   }) {
     this.sys = addPairInterfacePorts(sys, PairRole.consumer);
@@ -191,12 +197,9 @@ abstract class DtiController extends Module {
       _sendArbIdx.add(_arbiterReqs.length - 1);
     }
 
-    if (outboundArbiter != null) {
-      this.outboundArbiter = outboundArbiter;
-    } else {
-      this.outboundArbiter = RoundRobinArbiter(_arbiterReqs,
-          clk: this.sys.clk, reset: ~this.sys.resetN);
-    }
+    // arbiter generation
+    outboundArbiter =
+        arbiterGen(_arbiterReqs, clk: this.sys.clk, reset: ~this.sys.resetN);
 
     // credit initializetion
     for (var i = 0; i < sendCfgs.length; i++) {

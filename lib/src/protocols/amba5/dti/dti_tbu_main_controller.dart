@@ -21,7 +21,7 @@ class DtiTbuMainController extends DtiController {
     super.rcvMsgs = const [],
     super.sendCfgs = const [],
     super.rcvCfgs = const [],
-    super.outboundArbiter,
+    super.arbiterGen,
     super.name = 'dtiTbuMainController',
   }) {
     _buildMain();
@@ -54,7 +54,7 @@ class DtiTbuMainController extends DtiController {
     required int syncReqFifoDepth,
     required ReadyAndValidInterface<DtiTbuCondisAck> condisAck,
     required int condisAckFifoDepth,
-    super.outboundArbiter,
+    super.arbiterGen,
     super.name = 'dtiTbuMainController',
   }) : super(sendMsgs: [
           transReq,
