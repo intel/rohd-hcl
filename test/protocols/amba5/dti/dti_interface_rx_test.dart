@@ -6,9 +6,6 @@ import 'package:rohd_hcl/rohd_hcl.dart';
 import 'package:rohd_vf/rohd_vf.dart';
 import 'package:test/test.dart';
 
-// TODO(kimmeljo):
-//  add backpressure testing
-
 void main() async {
   tearDown(() async {
     await Simulator.reset();
@@ -314,6 +311,167 @@ void main() async {
       stream.last!.inject(beat == numBeats - 1);
       await clk.nextNegedge;
       expect(receiver.msgValid.value.toBool(), beat == numBeats - 1);
+      await clk.nextPosedge;
+    }
+    stream.valid.inject(0);
+
+    await clk.waitCycles(5);
+
+    await Simulator.endSimulation();
+    await Simulator.simulationEnded;
+  });
+
+  test('single beat - backpressure', () async {
+    final clk = SimpleClockGenerator(10).clk;
+    final reset = Logic()..put(0);
+
+    final sys = Axi5SystemInterface();
+    sys.clk <= clk;
+    sys.resetN <= ~reset;
+
+    final stream =
+        Axi5StreamInterface(dataWidth: 256, destWidth: 4, useLast: true);
+    final canAcceptMsg = Logic()..put(0); // can't accept yet
+    final srcId = Logic(width: stream.destWidth)..put(0xa);
+
+    stream.valid.put(0);
+    stream.id!.put(0);
+    stream.dest!.put(srcId.value);
+    stream.data!.put(0);
+    stream.last!.put(0);
+
+    final receiver = DtiInterfaceRx(
+        sys: sys,
+        stream: stream,
+        canAcceptMsg: canAcceptMsg,
+        srcId: srcId,
+        maxMsgRxSize: DtiTbuTransRespEx.totalWidth);
+
+    await receiver.build();
+
+    // WaveDumper(receiver);
+
+    Simulator.setMaxSimTime(10000);
+    unawaited(Simulator.run());
+
+    // reset flow
+    await clk.nextNegedge;
+    reset.inject(1);
+    await clk.waitCycles(5);
+    await clk.nextNegedge;
+    reset.inject(0);
+
+    // try sending a message
+    await clk.nextPosedge;
+    final respIn = DtiTbuTransRespEx()
+      ..zeroInit()
+      ..translationId1.put(0xfe);
+    stream.valid.inject(1);
+    stream.data!.inject(respIn.zeroExtend(stream.dataWidth).value);
+    stream.last!.inject(1);
+
+    // but should be reported as not being ready
+    for (var i = 0; i < 10; i++) {
+      await clk.nextNegedge;
+      expect(stream.ready!.value.toBool(), false);
+      expect(receiver.msgValid.value.toBool(), false);
+    }
+
+    // only when ready does the output show up
+    await clk.nextPosedge;
+    canAcceptMsg.inject(1);
+
+    await clk.nextNegedge;
+    expect(stream.ready!.value.toBool(), true);
+    expect(receiver.msgValid.value.toBool(), true);
+
+    await clk.nextPosedge;
+    stream.valid.inject(0);
+
+    await clk.waitCycles(5);
+
+    await Simulator.endSimulation();
+    await Simulator.simulationEnded;
+  });
+
+  test('multi beat - backpressure', () async {
+    final clk = SimpleClockGenerator(10).clk;
+    final reset = Logic()..put(0);
+
+    final sys = Axi5SystemInterface();
+    sys.clk <= clk;
+    sys.resetN <= ~reset;
+
+    // final stream =
+    final stream =
+        Axi5StreamInterface(dataWidth: 32, destWidth: 4, useLast: true);
+    final canAcceptMsg = Logic()..put(1);
+    final srcId = Logic(width: stream.destWidth)..put(0xa);
+
+    stream.valid.put(0);
+    stream.id!.put(0);
+    stream.dest!.put(srcId.value);
+    stream.data!.put(0);
+    stream.last!.put(0);
+
+    final receiver = DtiInterfaceRx(
+        sys: sys,
+        stream: stream,
+        canAcceptMsg: canAcceptMsg,
+        srcId: srcId,
+        maxMsgRxSize: DtiTbuTransRespEx.totalWidth);
+
+    await receiver.build();
+
+    // WaveDumper(receiver);
+
+    Simulator.setMaxSimTime(10000);
+    unawaited(Simulator.run());
+
+    // reset flow
+    await clk.nextNegedge;
+    reset.inject(1);
+    await clk.waitCycles(5);
+    await clk.nextNegedge;
+    reset.inject(0);
+
+    final numBeats = (DtiTbuTransRespEx.totalWidth / stream.dataWidth).ceil();
+    final respIn = DtiTbuTransRespEx()
+      ..zeroInit()
+      ..translationId1.put(0xfe);
+
+    // start sending a message
+    await clk.nextPosedge;
+    stream.valid.inject(1);
+    stream.data!.inject(respIn.getRange(0, stream.dataWidth).value);
+    stream.last!.inject(0);
+
+    // after the first beat, indicate that we can't accept for some time
+    await clk.nextPosedge;
+    canAcceptMsg.inject(0);
+    stream.data!
+        .inject(respIn.getRange(stream.dataWidth, 2 * stream.dataWidth).value);
+
+    // should be reported as not being ready
+    for (var i = 0; i < 10; i++) {
+      await clk.nextNegedge;
+      expect(stream.ready!.value.toBool(), false);
+      expect(receiver.msgValid.value.toBool(), false);
+    }
+
+    // now ready to accept again
+    await clk.nextPosedge;
+    canAcceptMsg.inject(1);
+
+    for (var i = 1; i < numBeats; i++) {
+      stream.data!.inject(respIn
+          .getRange(i * stream.dataWidth,
+              min((i + 1) * stream.dataWidth, respIn.width))
+          .zeroExtend(stream.dataWidth)
+          .value);
+      stream.last!.inject(i == numBeats - 1);
+      await clk.nextNegedge;
+      expect(receiver.msgValid.value.toBool(), i == numBeats - 1);
       await clk.nextPosedge;
     }
     stream.valid.inject(0);
