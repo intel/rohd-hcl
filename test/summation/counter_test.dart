@@ -190,6 +190,69 @@ void main() {
     await Simulator.endSimulation();
   });
 
+  test('simple up/down counter', () async {
+    final clk = SimpleClockGenerator(10).clk;
+    final reset = Logic();
+    final inc = Logic()..put(0);
+    final dec = Logic()..put(0);
+    final counter = Counter.updn(
+        clk: clk, reset: reset, enableInc: inc, enableDec: dec, maxValue: 5);
+
+    await counter.build();
+
+    Simulator.setMaxSimTime(1000);
+    unawaited(Simulator.run());
+
+    // little reset routine
+    reset.inject(0);
+    await clk.nextNegedge;
+    reset.inject(1);
+    await clk.nextNegedge;
+    await clk.nextNegedge;
+    reset.inject(0);
+
+    expect(counter.overflowed.value.toBool(), false);
+    expect(counter.underflowed.value.toBool(), false);
+    expect(counter.equalsMax.value.toBool(), false);
+    expect(counter.equalsMin.value.toBool(), true);
+
+    // increment by 3
+    await clk.nextNegedge;
+    inc.inject(1);
+    await clk.waitCycles(3);
+    await clk.nextNegedge;
+    inc.inject(0);
+    expect(counter.count.value.toInt(), 3);
+
+    await clk.waitCycles(5);
+
+    // decrement by 2
+    await clk.nextNegedge;
+    dec.inject(1);
+    await clk.waitCycles(2);
+    await clk.nextNegedge;
+    dec.inject(0);
+    expect(counter.count.value.toInt(), 1);
+
+    await clk.waitCycles(5);
+
+    // increment + decrement
+    await clk.nextNegedge;
+    inc.inject(1);
+    dec.inject(1);
+    await clk.nextNegedge;
+    inc.inject(0);
+    dec.inject(0);
+    expect(counter.count.value.toInt(), 1);
+
+    await clk.nextNegedge;
+    await clk.nextNegedge;
+    await clk.nextNegedge;
+    await clk.nextNegedge;
+
+    await Simulator.endSimulation();
+  });
+
   test('reset and restart counter', () async {
     final clk = SimpleClockGenerator(10).clk;
     final reset = Logic();
