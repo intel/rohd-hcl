@@ -175,6 +175,7 @@ class Axi5ReadCluster extends PairInterface {
   }
 
   /// Copy constructor.
+  @override
   Axi5ReadCluster clone() => Axi5ReadCluster(
         ar: ar.clone(),
         r: r.clone(),
@@ -200,6 +201,7 @@ class Axi5WriteCluster extends PairInterface {
   }
 
   /// Copy constructor.
+  @override
   Axi5WriteCluster clone() => Axi5WriteCluster(
         aw: aw.clone(),
         w: w.clone(),
@@ -222,6 +224,7 @@ class Axi5SnoopCluster extends PairInterface {
   }
 
   /// Copy constructor.
+  @override
   Axi5SnoopCluster clone() => Axi5SnoopCluster(
         ac: ac.clone(),
         cr: cr.clone(),
@@ -247,6 +250,7 @@ class Axi5Cluster extends PairInterface {
   }
 
   /// Copy constructor.
+  @override
   Axi5Cluster clone() => Axi5Cluster(
         write: write.clone(),
         read: read.clone(),

@@ -30,6 +30,7 @@ class Axi4LiteArChannelInterface extends Axi4BaseArChannelInterface {
         );
 
   /// Copy constructor.
+  @override
   Axi4LiteArChannelInterface clone() =>
       Axi4LiteArChannelInterface(addrWidth: addrWidth);
 }
@@ -55,6 +56,7 @@ class Axi4LiteAwChannelInterface extends Axi4BaseAwChannelInterface {
         );
 
   /// Copy constructor.
+  @override
   Axi4LiteAwChannelInterface clone() =>
       Axi4LiteAwChannelInterface(addrWidth: addrWidth);
 }
@@ -74,6 +76,7 @@ class Axi4LiteRChannelInterface extends Axi4BaseRChannelInterface {
         );
 
   /// Copy constructor.
+  @override
   Axi4LiteRChannelInterface clone() =>
       Axi4LiteRChannelInterface(dataWidth: dataWidth, useLast: useLast);
 }
@@ -92,6 +95,7 @@ class Axi4LiteWChannelInterface extends Axi4BaseWChannelInterface {
         );
 
   /// Copy constructor.
+  @override
   Axi4LiteWChannelInterface clone() =>
       Axi4LiteWChannelInterface(dataWidth: dataWidth, useLast: useLast);
 }
@@ -109,6 +113,7 @@ class Axi4LiteBChannelInterface extends Axi4BaseBChannelInterface {
         );
 
   /// Copy constructor.
+  @override
   Axi4LiteBChannelInterface clone() => Axi4LiteBChannelInterface();
 }
 
@@ -125,6 +130,7 @@ class Axi4LiteReadCluster extends Axi4BaseReadCluster {
                 dataWidth: dataWidth, useLast: useLast));
 
   /// Copy constructor.
+  @override
   Axi4LiteReadCluster clone() => Axi4LiteReadCluster(
         addrWidth: arIntf.addrWidth,
         useLast: rIntf.useLast,
@@ -148,6 +154,7 @@ class Axi4LiteWriteCluster extends Axi4BaseWriteCluster {
             bIntf: Axi4LiteBChannelInterface());
 
   /// Copy constructor.
+  @override
   Axi4LiteWriteCluster clone() => Axi4LiteWriteCluster(
         addrWidth: awIntf.addrWidth,
         useLast: wIntf.useLast,
@@ -169,6 +176,7 @@ class Axi4LiteCluster extends Axi4BaseCluster {
                 addrWidth: addrWidth, dataWidth: dataWidth, useLast: useLast));
 
   /// Copy constructor.
+  @override
   Axi4LiteCluster clone() => Axi4LiteCluster(
         addrWidth: read.arIntf.addrWidth,
         useLast: read.rIntf.useLast,

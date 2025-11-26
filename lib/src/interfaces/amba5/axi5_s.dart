@@ -10,7 +10,7 @@
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
 
-// TODO: parity signals
+// TODO(kimmeljo): parity signals
 
 /// A standard AXI5 stream interface.
 class Axi5StreamInterface extends Axi5TransportInterface {

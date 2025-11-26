@@ -34,6 +34,7 @@ class Axi5SystemInterface extends PairInterface {
   }
 
   /// Constructs a new [Axi5SystemInterface] with identical parameters.
+  @override
   Axi5SystemInterface clone() => Axi5SystemInterface();
 }
 
@@ -81,6 +82,7 @@ class Axi5CreditControlInterface extends PairInterface {
   }
 
   /// Constructs a new [Axi5CreditControlInterface] with identical parameters.
+  @override
   Axi5CreditControlInterface clone() =>
       Axi5CreditControlInterface(useSnoop: useSnoop);
 }
@@ -111,6 +113,7 @@ class Axi5WakeupInterface extends PairInterface {
   }
 
   /// Constructs a new [Axi5WakeupInterface] with identical parameters.
+  @override
   Axi5WakeupInterface clone() => Axi5WakeupInterface(useSnoop: useSnoop);
 }
 
@@ -133,6 +136,7 @@ class Axi5QosAcceptInterface extends PairInterface {
   }
 
   /// Constructs a new [Axi5QosAcceptInterface] with identical parameters.
+  @override
   Axi5QosAcceptInterface clone() => Axi5QosAcceptInterface();
 }
 
@@ -159,6 +163,7 @@ class Axi5CohConnInterface extends PairInterface {
   }
 
   /// Constructs a new [Axi5CohConnInterface] with identical parameters.
+  @override
   Axi5CohConnInterface clone() => Axi5CohConnInterface();
 }
 
@@ -197,5 +202,6 @@ class Axi5BroadcastInterface extends PairInterface {
   }
 
   /// Constructs a new [Axi5BroadcastInterface] with identical parameters.
+  @override
   Axi5BroadcastInterface clone() => Axi5BroadcastInterface();
 }

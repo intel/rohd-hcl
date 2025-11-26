@@ -925,7 +925,8 @@ abstract class Axi5BaseWChannelConfig {
   /// The width of the transaction data bus in bits.
   final int dataWidth;
 
-  /// Controls the presence of last which is an optional port for multi burst transactions.
+  /// Controls the presence of last which is an optional port for multi burst
+  /// transactions.
   final bool useLast;
 
   /// The width of the tag data signal in bits.
@@ -1055,6 +1056,7 @@ class Axi5WChannelInterface extends Axi5TransportInterface
   }
 
   /// Copy Constructor.
+  @override
   Axi5WChannelInterface clone() => Axi5WChannelInterface(
         config: Axi5WChannelConfig(
             userWidth: userWidth,
@@ -1122,7 +1124,8 @@ abstract class Axi5BaseRChannelConfig {
   /// The width of the chunk strobe signal in bits.
   final int chunkStrbWidth;
 
-  /// Controls the presence of last which is an optional port for multi burst transactions.
+  /// Controls the presence of last which is an optional port for multi burst
+  /// transactions.
   final bool useLast;
 
   /// The width of the write strobe signal in bits.
@@ -1287,6 +1290,7 @@ class Axi5RChannelInterface extends Axi5TransportInterface
   }
 
   /// Copy Constructor.
+  @override
   Axi5RChannelInterface clone() => Axi5RChannelInterface(
       config: Axi5RChannelConfig(
           userWidth: userWidth,
@@ -1459,6 +1463,7 @@ class Axi5BChannelInterface extends Axi5TransportInterface
   }
 
   /// Copy Constructor.
+  @override
   Axi5BChannelInterface clone() => Axi5BChannelInterface(
       config: Axi5BChannelConfig(
           userWidth: userWidth,
@@ -1532,6 +1537,7 @@ class Axi5AcChannelInterface extends Axi5TransportInterface
   }
 
   /// Copy Constructor.
+  @override
   Axi5AcChannelInterface clone() => Axi5AcChannelInterface(
       debugMixInEnable: debugMixInEnable,
       tracePresent: tracePresent,
@@ -1568,6 +1574,7 @@ class Axi5CrChannelInterface extends Axi5TransportInterface
   }
 
   /// Copy Constructor.
+  @override
   Axi5CrChannelInterface clone() => Axi5CrChannelInterface(
       debugMixInEnable: debugMixInEnable, tracePresent: tracePresent);
 }

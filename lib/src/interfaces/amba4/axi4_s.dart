@@ -70,6 +70,7 @@ class Axi4StreamInterface extends Axi4ChannelInterface {
   }
 
   /// Constructs a new [Axi4StreamInterface] with identical parameters.
+  @override
   Axi4StreamInterface clone() => Axi4StreamInterface(
       idWidth: idWidth,
       dataWidth: dataWidth,
