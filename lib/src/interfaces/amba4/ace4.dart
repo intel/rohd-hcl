@@ -39,6 +39,7 @@ class Ace4ArChannelInterface extends Axi4BaseArChannelInterface
   }
 
   /// Copy constructor.
+  @override
   Ace4ArChannelInterface clone() => Ace4ArChannelInterface(
       idWidth: idWidth,
       addrWidth: addrWidth,
@@ -78,6 +79,7 @@ class Ace4AwChannelInterface extends Axi4BaseAwChannelInterface
   }
 
   /// Copy constructor.
+  @override
   Ace4AwChannelInterface clone() => Ace4AwChannelInterface(
       idWidth: idWidth,
       addrWidth: addrWidth,
@@ -122,6 +124,7 @@ class Ace4AcChannelInterface extends Axi4RequestChannelInterface
   }
 
   /// Copy constructor.
+  @override
   Ace4AcChannelInterface clone() => Ace4AcChannelInterface(
       idWidth: idWidth,
       addrWidth: addrWidth,
@@ -147,6 +150,7 @@ class Ace4RChannelInterface extends Axi4BaseRChannelInterface {
         );
 
   /// Copy constructor.
+  @override
   Ace4RChannelInterface clone() => Ace4RChannelInterface(
       idWidth: idWidth,
       userWidth: userWidth,
@@ -169,6 +173,7 @@ class Ace4WChannelInterface extends Axi4BaseWChannelInterface {
   });
 
   /// Copy constructor.
+  @override
   Ace4WChannelInterface clone() => Ace4WChannelInterface(
       idWidth: idWidth,
       userWidth: userWidth,
@@ -192,6 +197,7 @@ class Ace4CdChannelInterface extends Axi4DataChannelInterface {
         );
 
   /// Copy constructor.
+  @override
   Ace4CdChannelInterface clone() => Ace4CdChannelInterface(
       idWidth: idWidth, dataWidth: dataWidth, userWidth: userWidth);
 }
@@ -211,6 +217,7 @@ class Ace4BChannelInterface extends Axi4BaseBChannelInterface {
         );
 
   /// Copy constructor.
+  @override
   Ace4BChannelInterface clone() =>
       Ace4BChannelInterface(idWidth: idWidth, userWidth: userWidth);
 }
@@ -244,6 +251,7 @@ class Ace4CrChannelInterface extends Axi4ResponseChannelInterface {
   }
 
   /// Copy constructor.
+  @override
   Ace4CrChannelInterface clone() => Ace4CrChannelInterface(
       idWidth: idWidth, respWidth: respWidth, userWidth: userWidth);
 }
@@ -277,6 +285,7 @@ class Ace4ReadCluster extends Axi4BaseReadCluster {
                 useLast: useLast));
 
   /// Copy constructor.
+  @override
   Ace4ReadCluster clone() => Ace4ReadCluster(
         idWidth: arIntf.idWidth,
         addrWidth: arIntf.addrWidth,
@@ -321,6 +330,7 @@ class Ace4WriteCluster extends Axi4BaseWriteCluster {
                 Ace4BChannelInterface(idWidth: idWidth, userWidth: userWidth));
 
   /// Copy constructor.
+  @override
   Ace4WriteCluster clone() => Ace4WriteCluster(
         idWidth: awIntf.idWidth,
         addrWidth: awIntf.addrWidth,
@@ -355,9 +365,9 @@ class Ace4SnoopCluster extends PairInterface {
     bool useBar = true,
   }) {
     acIntf = Ace4AcChannelInterface(
-        idWidth: idWidth, // TODO: split??
+        idWidth: idWidth, // TODO(kimmeljo): split??
         addrWidth: addrWidth,
-        userWidth: userWidth, // TODO: split??
+        userWidth: userWidth, // TODO(kimmeljo): split??
         domainWidth: domainWidth,
         useBar: useBar);
     cdIntf = Ace4CdChannelInterface(
@@ -370,6 +380,7 @@ class Ace4SnoopCluster extends PairInterface {
   }
 
   /// Copy constructor.
+  @override
   Ace4SnoopCluster clone() => Ace4SnoopCluster(
         idWidth: acIntf.idWidth,
         addrWidth: acIntf.addrWidth,
@@ -387,7 +398,7 @@ class Ace4Cluster extends Axi4BaseCluster {
 
   /// Constructor.
   ///
-  /// TODO: split params??
+  // TODO(kimmeljo): split params??
   Ace4Cluster({
     int idWidth = 4,
     int addrWidth = 32,
@@ -430,6 +441,7 @@ class Ace4Cluster extends Axi4BaseCluster {
   }
 
   /// Copy constructor.
+  @override
   Ace4Cluster clone() => Ace4Cluster(
       idWidth: read.arIntf.idWidth,
       addrWidth: read.arIntf.addrWidth,

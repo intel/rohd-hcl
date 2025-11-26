@@ -10,7 +10,7 @@
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/src/exceptions.dart';
 
-/// A grouping of signals on the [Axi4ReadInterface] and [Axi4WriteInterface]
+/// A grouping of signals on the AXI
 /// interfaces based on direction.
 enum Axi4Direction {
   /// Miscellaneous system-level signals, common inputs to both sides.
@@ -48,6 +48,7 @@ class Axi4SystemInterface extends PairInterface {
   }
 
   /// Constructs a new [Axi4SystemInterface] with identical parameters.
+  @override
   Axi4SystemInterface clone() => Axi4SystemInterface();
 }
 
@@ -289,6 +290,7 @@ class Axi4ArChannelInterface extends Axi4BaseArChannelInterface {
         );
 
   /// Copy constructor.
+  @override
   Axi4ArChannelInterface clone() => Axi4ArChannelInterface(
         idWidth: idWidth,
         addrWidth: addrWidth,
@@ -317,6 +319,7 @@ class Axi4AwChannelInterface extends Axi4BaseAwChannelInterface {
         );
 
   /// Copy constructor.
+  @override
   Axi4AwChannelInterface clone() => Axi4AwChannelInterface(
         idWidth: idWidth,
         addrWidth: addrWidth,
@@ -440,6 +443,7 @@ class Axi4RChannelInterface extends Axi4BaseRChannelInterface {
         );
 
   /// Copy constructor.
+  @override
   Axi4RChannelInterface clone() => Axi4RChannelInterface(
         idWidth: idWidth,
         userWidth: userWidth,
@@ -459,6 +463,7 @@ class Axi4WChannelInterface extends Axi4BaseWChannelInterface {
   });
 
   /// Copy constructor.
+  @override
   Axi4WChannelInterface clone() => Axi4WChannelInterface(
         idWidth: idWidth,
         userWidth: userWidth,
@@ -513,6 +518,7 @@ class Axi4BChannelInterface extends Axi4BaseBChannelInterface {
         );
 
   /// Copy constructor.
+  @override
   Axi4BChannelInterface clone() => Axi4BChannelInterface(
         idWidth: idWidth,
         userWidth: userWidth,
@@ -582,10 +588,10 @@ abstract class Axi4BaseCluster extends PairInterface {
 class Axi4ReadCluster extends Axi4BaseReadCluster {
   /// Constructor.
   Axi4ReadCluster({
-    int idWidth = 4, // TODO: split??
+    int idWidth = 4, // TODO(kimmeljo): split??
     int addrWidth = 32,
     int lenWidth = 8,
-    int userWidth = 32, // TODO: split??
+    int userWidth = 32, // TODO(kimmeljo): split??
     bool useLock = false,
     int dataWidth = 64,
     bool useLast = true,
@@ -603,6 +609,7 @@ class Axi4ReadCluster extends Axi4BaseReadCluster {
                 useLast: useLast));
 
   /// Copy constructor.
+  @override
   Axi4ReadCluster clone() => Axi4ReadCluster(
         idWidth: arIntf.idWidth,
         addrWidth: arIntf.addrWidth,
@@ -618,10 +625,10 @@ class Axi4ReadCluster extends Axi4BaseReadCluster {
 class Axi4WriteCluster extends Axi4BaseWriteCluster {
   /// Constructor.
   Axi4WriteCluster({
-    int idWidth = 4, // TODO: split??
+    int idWidth = 4, // TODO(kimmeljo): split??
     int addrWidth = 32,
     int lenWidth = 8,
-    int userWidth = 32, // TODO: split??
+    int userWidth = 32, // TODO(kimmeljo): split??
     bool useLock = false,
     int dataWidth = 64,
     bool useLast = true,
@@ -641,6 +648,7 @@ class Axi4WriteCluster extends Axi4BaseWriteCluster {
                 Axi4BChannelInterface(idWidth: idWidth, userWidth: userWidth));
 
   /// Copy constructor.
+  @override
   Axi4WriteCluster clone() => Axi4WriteCluster(
         idWidth: awIntf.idWidth,
         addrWidth: awIntf.addrWidth,
@@ -656,7 +664,7 @@ class Axi4WriteCluster extends Axi4BaseWriteCluster {
 class Axi4Cluster extends Axi4BaseCluster {
   /// Constructor.
   ///
-  /// TODO: split params??
+  // TODO(kimmeljo): split params??
   Axi4Cluster({
     int idWidth = 4,
     int addrWidth = 32,
@@ -684,6 +692,7 @@ class Axi4Cluster extends Axi4BaseCluster {
                 useLast: useLast));
 
   /// Copy constructor.
+  @override
   Axi4Cluster clone() => Axi4Cluster(
         idWidth: read.arIntf.idWidth,
         addrWidth: read.arIntf.addrWidth,

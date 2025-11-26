@@ -11,7 +11,7 @@ import 'package:meta/meta.dart';
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
 
-// TODO: parity check signals...
+// TODO(kimmeljo): parity check signals...
 
 /// Mixin for request signaling on AXI-5.
 mixin Axi5RequestSignals on Axi5BaseInterface {

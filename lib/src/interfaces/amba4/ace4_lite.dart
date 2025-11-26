@@ -72,6 +72,7 @@ class Ace4LiteArChannelInterface extends Axi4BaseArChannelInterface
   }
 
   /// Copy constructor.
+  @override
   Ace4LiteArChannelInterface clone() => Ace4LiteArChannelInterface(
       idWidth: idWidth,
       addrWidth: addrWidth,
@@ -111,6 +112,7 @@ class Ace4LiteAwChannelInterface extends Axi4BaseAwChannelInterface
   }
 
   /// Copy constructor.
+  @override
   Ace4LiteAwChannelInterface clone() => Ace4LiteAwChannelInterface(
       idWidth: idWidth,
       addrWidth: addrWidth,
@@ -138,6 +140,7 @@ class Ace4LiteRChannelInterface extends Axi4BaseRChannelInterface {
         );
 
   /// Copy constructor.
+  @override
   Ace4LiteRChannelInterface clone() => Ace4LiteRChannelInterface(
       idWidth: idWidth,
       userWidth: userWidth,
@@ -160,6 +163,7 @@ class Ace4LiteWChannelInterface extends Axi4BaseWChannelInterface {
   });
 
   /// Copy constructor.
+  @override
   Ace4LiteWChannelInterface clone() => Ace4LiteWChannelInterface(
       idWidth: idWidth,
       userWidth: userWidth,
@@ -182,6 +186,7 @@ class Ace4LiteBChannelInterface extends Axi4BaseBChannelInterface {
         );
 
   /// Copy constructor.
+  @override
   Ace4LiteBChannelInterface clone() =>
       Ace4LiteBChannelInterface(idWidth: idWidth, userWidth: userWidth);
 }
@@ -215,6 +220,7 @@ class Ace4LiteReadCluster extends Axi4BaseReadCluster {
                 useLast: useLast));
 
   /// Copy constructor.
+  @override
   Ace4LiteReadCluster clone() => Ace4LiteReadCluster(
         idWidth: arIntf.idWidth,
         addrWidth: arIntf.addrWidth,
@@ -259,6 +265,7 @@ class Ace4LiteWriteCluster extends Axi4BaseWriteCluster {
                 idWidth: idWidth, userWidth: userWidth));
 
   /// Copy constructor.
+  @override
   Ace4LiteWriteCluster clone() => Ace4LiteWriteCluster(
         idWidth: awIntf.idWidth,
         addrWidth: awIntf.addrWidth,
@@ -308,6 +315,7 @@ class Ace4LiteCluster extends Axi4BaseCluster {
                 useBar: useBar));
 
   /// Copy constructor.
+  @override
   Ace4LiteCluster clone() => Ace4LiteCluster(
         idWidth: read.arIntf.idWidth,
         addrWidth: read.arIntf.addrWidth,

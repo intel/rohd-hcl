@@ -414,6 +414,7 @@ class Ace5LiteReadCluster extends PairInterface {
   }
 
   /// Copy constructor.
+  @override
   Ace5LiteReadCluster clone() => Ace5LiteReadCluster(
         ar: ar.clone(),
         r: r.clone(),
@@ -439,6 +440,7 @@ class Ace5LiteWriteCluster extends PairInterface {
   }
 
   /// Copy constructor.
+  @override
   Ace5LiteWriteCluster clone() => Ace5LiteWriteCluster(
         aw: aw.clone(),
         w: w.clone(),
@@ -461,6 +463,7 @@ class Ace5LiteCluster extends PairInterface {
   }
 
   /// Copy constructor.
+  @override
   Ace5LiteCluster clone() => Ace5LiteCluster(
         write: write.clone(),
         read: read.clone(),
