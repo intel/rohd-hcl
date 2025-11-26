@@ -1,4 +1,12 @@
-# APB BFM
+# APB
+
+## APB Completer HW
+
+The `ApbCompleter` is an abstract implementation of an arbitrary completer module. The main reason it is abstract is that the "other" side of the module (i.e., not the APB interface) can be arbitrary. But there is certain functionality and timing that is universal across all implementations of a completer and hence lives in the base class.
+
+In addition, there is one concrete implementation called `ApbCsrCompleter`. This serves as a good example of how to implement the abstract `ApbCompleter`. It is meant to interface with a `CsrTop` or `CsrBlock` on the other side for reading/writing CSRs over APB.
+
+## APB BFM
 
 The APB BFM is a collection of [ROHD-VF](https://github.com/intel/rohd-vf) components and objects that are helpful for validating hardware that contains an APB interface.  It includes all the basic APB interface features for sending and responding to reads and writes, including with strobes and errors.
 
@@ -10,7 +18,7 @@ Finally, a `ApbComplianceChecker` monitors an `ApbInterface` for a subset of the
 
 The unit tests in `apb_bfm_test.dart`, which have a completer and requester communicating with each other, are a good example for setting up the APB BFM.
 
-## Unsupported features
+### Unsupported features
 
 The following features are not supported by or have no utilities within the BFM:
 
