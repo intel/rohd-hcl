@@ -7,6 +7,10 @@
 // 2023 May 19
 // Author: Max Korbel <max.korbel@intel.com>
 
+import 'dart:async';
+import 'dart:convert';
+import 'dart:io';
+
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
 import 'package:rohd_vf/rohd_vf.dart';
@@ -49,28 +53,38 @@ class ApbPair extends Module {
   }
 }
 
-void main() {
-  test('connect apb modules', () async {
-    final abpPair = ApbPair(Logic(), Logic());
-    await abpPair.build();
-  });
+class ApbCsrCompleterHwTest extends Test {
+  late final ApbInterface intf;
+  late final ApbRequesterAgent requester;
+  late final DataPortInterface csrRd;
+  late final DataPortInterface csrWr;
+  late final ApbCompleter completer;
+  late final CsrBlock csrs;
 
-  test('abp optional ports null', () async {
-    final apb = ApbInterface();
-    expect(apb.aUser, isNull);
-    expect(apb.bUser, isNull);
-    expect(apb.rUser, isNull);
-    expect(apb.wUser, isNull);
-    expect(apb.slvErr, isNull);
-  });
+  final int dataWidth = 32;
+  final int addrWidth = 32;
 
-  test('apb csr completer', () async {
-    const dataWidth = 32;
-    const addrWidth = 32;
-    final apbCsr = ApbInterface();
-    final apbCsrRd = DataPortInterface(dataWidth, addrWidth);
-    final apbCsrWr = DataPortInterface(dataWidth, addrWidth);
-    final csrs = CsrBlock(
+  late final int numTransfers;
+
+  final int interTxnDelay;
+
+  String get outFolder => 'tmp_test/apbhw/$name/';
+
+  ApbCsrCompleterHwTest(
+    super.name, {
+    this.interTxnDelay = 0,
+    int apbClkLatency = 0,
+  }) : super(randomSeed: 123) {
+    intf = ApbInterface(includeSlvErr: true);
+
+    intf.clk <= SimpleClockGenerator(10).clk;
+
+    csrRd = DataPortInterface(dataWidth, addrWidth);
+    csrWr = DataPortInterface(dataWidth, addrWidth);
+
+    requester = ApbRequesterAgent(intf: intf, parent: this);
+
+    csrs = CsrBlock(
       config: CsrBlockConfig(name: 'test', baseAddr: 0x0, registers: [
         CsrInstanceConfig(
           arch: CsrConfig(
@@ -95,57 +109,149 @@ void main() {
           resetValue: 0xb,
         ),
       ]),
-      clk: apbCsr.clk,
-      reset: ~apbCsr.resetN,
-      frontWrite: apbCsrWr,
-      frontRead: apbCsrRd,
+      clk: intf.clk,
+      reset: ~intf.resetN,
+      frontWrite: csrWr,
+      frontRead: csrRd,
     );
-    final completer = ApbCsrCompleter(
-      apb: apbCsr,
-      csrRd: apbCsrRd,
-      csrWr: apbCsrWr,
-      name: 'apb_csr_completer',
+
+    completer = ApbCsrCompleter(
+        apb: intf,
+        csrRd: csrRd,
+        csrWr: csrWr,
+        name: 'apb_csr_completer',
+        apbClkLatency: apbClkLatency);
+
+    final monitor = ApbMonitor(intf: intf, parent: this);
+
+    Directory(outFolder).createSync(recursive: true);
+
+    final tracker = ApbTracker(
+      intf: intf,
+      dumpTable: false,
+      outputFolder: outFolder,
     );
-    final apbBfm = ApbRequesterAgent(intf: apbCsr, parent: Test.instance!);
-    apbCsr.clk <= SimpleClockGenerator(10).clk;
-    apbCsr.resetN.put(1);
 
-    await csrs.build();
-    await completer.build();
+    numTransfers = csrs.config.registers.length;
 
-    // reset flow
-    await apbCsr.clk.waitCycles(2);
-    apbCsr.resetN.inject(0);
-    await apbCsr.clk.waitCycles(3);
-    apbCsr.resetN.inject(1);
-    await apbCsr.clk.waitCycles(2);
+    ApbComplianceChecker(intf, parent: this);
 
-    // write a register
-    apbBfm.sequencer.add(
-      ApbWritePacket(
-        addr: LogicValue.ofInt(
-          csrs.config.baseAddr,
-          apbCsr.addrWidth,
-        ),
-        data: LogicValue.ofInt(0x5, apbCsr.dataWidth),
-      ),
-    );
-    await apbCsr.clk.waitCycles(10);
+    Simulator.registerEndOfSimulationAction(() async {
+      await tracker.terminate();
 
-    // read the register back
-    apbBfm.sequencer.add(ApbReadPacket(
-      addr: LogicValue.ofInt(
-        csrs.config.baseAddr,
-        apbCsr.addrWidth,
-      ),
-    ));
+      final jsonStr =
+          File('$outFolder/apbTracker.tracker.json').readAsStringSync();
+      final jsonContents = json.decode(jsonStr);
+      // ignore: avoid_dynamic_calls
+      expect(jsonContents['records'].length, 2 * numTransfers);
 
-    while (!apbCsr.ready.previousValue!.toBool()) {
-      await apbCsr.clk.nextNegedge;
+      Directory(outFolder).deleteSync(recursive: true);
+    });
+
+    monitor.stream.listen(tracker.record);
+  }
+
+  int numTransfersCompleted = 0;
+
+  @override
+  Future<void> run(Phase phase) async {
+    unawaited(super.run(phase));
+
+    final obj = phase.raiseObjection('apbHwTestObj');
+
+    await _resetFlow();
+
+    final randomData = List.generate(
+        numTransfers,
+        (index) =>
+            LogicValue.ofInt(Test.random!.nextInt(1 << dataWidth), dataWidth));
+
+    // normal writes
+    for (var i = 0; i < numTransfers; i++) {
+      final addr = i * 4;
+      final wrPkt = ApbWritePacket(
+          addr: LogicValue.ofInt(addr, addrWidth), data: randomData[i]);
+
+      requester.sequencer.add(wrPkt);
+
+      unawaited(wrPkt.completed.then((value) {
+        numTransfersCompleted++;
+      }));
+
+      await intf.clk.waitCycles(interTxnDelay);
     }
-    expect(apbCsr.rData.value.toInt(), 0x5);
 
-    await apbCsr.clk.waitCycles(10);
-    await Simulator.endSimulation();
+    // normal reads that check data
+    for (var i = 0; i < numTransfers; i++) {
+      final addr = i * 4;
+      final rdPkt = ApbReadPacket(addr: LogicValue.ofInt(addr, addrWidth));
+      requester.sequencer.add(rdPkt);
+
+      unawaited(rdPkt.completed.then((value) {
+        expect(
+          rdPkt.returnedData,
+          randomData[i],
+        );
+
+        numTransfersCompleted++;
+      }));
+
+      await intf.clk.waitCycles(interTxnDelay);
+    }
+
+    obj.drop();
+  }
+
+  Future<void> _resetFlow() async {
+    intf.resetN.inject(1);
+    await intf.clk.waitCycles(2);
+    intf.resetN.inject(0);
+    await intf.clk.waitCycles(3);
+    intf.resetN.inject(1);
+  }
+
+  @override
+  void check() {
+    expect(numTransfersCompleted, numTransfers * 2);
+  }
+}
+
+void main() {
+  tearDown(() async {
+    await Simulator.reset();
+  });
+
+  Future<void> runTest(ApbCsrCompleterHwTest apbTest,
+      {bool dumpWaves = false}) async {
+    Simulator.setMaxSimTime(3000);
+
+    await apbTest.completer.build();
+    if (dumpWaves) {
+      WaveDumper(apbTest.completer);
+    }
+
+    await apbTest.start();
+  }
+
+  test('connect apb modules', () async {
+    final abpPair = ApbPair(Logic(), Logic());
+    await abpPair.build();
+  });
+
+  test('abp optional ports null', () async {
+    final apb = ApbInterface();
+    expect(apb.aUser, isNull);
+    expect(apb.bUser, isNull);
+    expect(apb.rUser, isNull);
+    expect(apb.wUser, isNull);
+    expect(apb.slvErr, isNull);
+  });
+
+  test('apb csr completer - zero latency', () async {
+    await runTest(ApbCsrCompleterHwTest('test'));
+  });
+
+  test('apb csr completer - non zero latency', () async {
+    await runTest(ApbCsrCompleterHwTest('test', apbClkLatency: 1));
   });
 }
