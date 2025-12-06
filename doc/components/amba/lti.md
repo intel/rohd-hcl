@@ -4,7 +4,7 @@ ROHD-HCL contains a bunch of collateral for LTI. The collateral includes interfa
 
 For cross-referencing against the official LTI specification:
 
-- Any LTI collateral should be aligned with LTI specification `D`.
+- Any LTI collateral should be aligned with [LTI specification `D`](https://developer.arm.com/documentation/ihi0089/latest).
 
 ## Interfaces
 

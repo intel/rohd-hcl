@@ -10,19 +10,6 @@
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/src/exceptions.dart';
 
-/// A grouping of signals on the AXI
-/// interfaces based on direction.
-enum Axi4Direction {
-  /// Miscellaneous system-level signals, common inputs to both sides.
-  misc,
-
-  /// Signals driven by the main.
-  fromMain,
-
-  /// Signals driven by the subordinate.
-  fromSubordinate
-}
-
 /// AXI4 clock and reset.
 class Axi4SystemInterface extends PairInterface {
   /// Clock for the interface.
