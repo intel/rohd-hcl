@@ -34,7 +34,7 @@ One additional nice feature of the `Counter` is that it supports a `restart` in 
 
 The `Counter` also has a `Counter.simple` constructor which is intended for very basic scenarios like "count up by 1 each cycle".
 
-The `Counter` also has a `Counter.updn` constructor which is intended for increment/decrement use cases like crediting.
+The `Counter` also has a `Counter.upDown` constructor which is intended for increment/decrement use cases like crediting.
 
 ```dart
 // A counter which increments by 1 each cycle up to 5, then rolls over.

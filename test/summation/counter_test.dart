@@ -1,4 +1,4 @@
-// Copyright (C) 2024 Intel Corporation
+// Copyright (C) 2024-2025 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 //
 // counter_test.dart
@@ -195,7 +195,7 @@ void main() {
     final reset = Logic();
     final inc = Logic()..put(0);
     final dec = Logic()..put(0);
-    final counter = Counter.updn(
+    final counter = Counter.upDown(
         clk: clk, reset: reset, enableInc: inc, enableDec: dec, maxValue: 5);
 
     await counter.build();
