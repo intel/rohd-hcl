@@ -1,5 +1,7 @@
 # APB
 
+All collateral herein is meant to be aligned with [APB specification `E`](https://developer.arm.com/documentation/ihi0024/latest/).
+
 ## APB Completer HW
 
 The `ApbCompleter` is an abstract implementation of an arbitrary completer module. The main reason it is abstract is that the "other" side of the module (i.e., not the APB interface) can be arbitrary. But there is certain functionality and timing that is universal across all implementations of a completer and hence lives in the base class.
