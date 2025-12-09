@@ -92,10 +92,26 @@ class DtiInterfaceRx extends Module {
         ]);
       }
 
+      // must select the correct arrangement of flits
+      final priorFlitsCases = <Logic, Logic>{};
+      for (var i = 0; i < numBeats; i++) {
+        priorFlitsCases[Const(i, width: beatCounter.count.width)] = [
+          ...msgFlits.sublist(0, i),
+          stream.data!,
+          ...msgFlits.sublist(i),
+        ].rswizzle();
+      }
+      final priorFlits = cases(
+        beatCounter.count,
+        conditionalType: ConditionalType.unique,
+        priorFlitsCases,
+        defaultValue: Const(0, width: numBeats * stream.dataWidth),
+      );
+
       // the last flit comes straight from the interface
       // for performance
       msgValid <= inLast;
-      msg <= [...msgFlits, stream.data!].rswizzle().getRange(0, maxMsgRxSize);
+      msg <= priorFlits.getRange(0, maxMsgRxSize);
     }
 
     // drive TREADY
