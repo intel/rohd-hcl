@@ -17,7 +17,7 @@ void main() async {
     final srcId = Logic(width: stream.destWidth);
     final canAcceptMsg = Logic();
 
-    final receiver = DtiInterfaceRx(
+    final receiver = AxiStreamInterfaceRx(
         sys: sys,
         stream: stream,
         canAcceptMsg: canAcceptMsg,
@@ -29,11 +29,18 @@ void main() async {
 
   test('doa - complex', () async {
     final sys = Axi5SystemInterface();
-    final stream = Axi5StreamInterface(dataWidth: 32, destWidth: 4);
+    final stream = Axi5StreamInterface(
+        dataWidth: 32,
+        destWidth: 4,
+        useKeep: true,
+        useLast: true,
+        useWakeup: true,
+        useStrb: true,
+        userWidth: 4);
     final srcId = Logic(width: stream.destWidth);
     final canAcceptMsg = Logic();
 
-    final receiver = DtiInterfaceRx(
+    final receiver = AxiStreamInterfaceRx(
         sys: sys,
         stream: stream,
         canAcceptMsg: canAcceptMsg,
@@ -62,7 +69,7 @@ void main() async {
     stream.data!.put(0);
     stream.last!.put(0);
 
-    final receiver = DtiInterfaceRx(
+    final receiver = AxiStreamInterfaceRx(
         sys: sys,
         stream: stream,
         canAcceptMsg: canAcceptMsg,
@@ -131,7 +138,7 @@ void main() async {
     stream.data!.put(0);
     stream.last!.put(0);
 
-    final receiver = DtiInterfaceRx(
+    final receiver = AxiStreamInterfaceRx(
         sys: sys,
         stream: stream,
         canAcceptMsg: canAcceptMsg,
@@ -212,7 +219,7 @@ void main() async {
     stream.data!.put(0);
     stream.last!.put(0);
 
-    final receiver = DtiInterfaceRx(
+    final receiver = AxiStreamInterfaceRx(
         sys: sys,
         stream: stream,
         canAcceptMsg: canAcceptMsg,
@@ -293,7 +300,7 @@ void main() async {
     stream.data!.put(0);
     stream.last!.put(0);
 
-    final receiver = DtiInterfaceRx(
+    final receiver = AxiStreamInterfaceRx(
         sys: sys,
         stream: stream,
         canAcceptMsg: canAcceptMsg,
@@ -356,7 +363,7 @@ void main() async {
     stream.data!.put(0);
     stream.last!.put(0);
 
-    final receiver = DtiInterfaceRx(
+    final receiver = AxiStreamInterfaceRx(
         sys: sys,
         stream: stream,
         canAcceptMsg: canAcceptMsg,
@@ -426,7 +433,7 @@ void main() async {
     stream.data!.put(0);
     stream.last!.put(0);
 
-    final receiver = DtiInterfaceRx(
+    final receiver = AxiStreamInterfaceRx(
         sys: sys,
         stream: stream,
         canAcceptMsg: canAcceptMsg,
@@ -500,7 +507,7 @@ void main() async {
     stream.data!.put(0);
     stream.last!.put(0);
 
-    final receiver = DtiInterfaceRx(
+    final receiver = AxiStreamInterfaceRx(
         sys: sys,
         stream: stream,
         canAcceptMsg: canAcceptMsg,

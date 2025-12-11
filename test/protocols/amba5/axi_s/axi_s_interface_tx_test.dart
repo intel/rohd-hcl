@@ -18,13 +18,13 @@ void main() async {
     final srcId = Logic(width: stream.idWidth);
     final destId = Logic(width: stream.destWidth);
 
-    final sender = DtiInterfaceTx(
+    final sender = AxiStreamInterfaceTx(
       sys: sys,
       stream: stream,
       msgToSendValid: msgToSendValid,
       msgToSend: msgToSend,
       srcId: srcId,
-      destId: destId,
+      msgDestId: destId,
     );
 
     await sender.build();
@@ -44,14 +44,22 @@ void main() async {
     final msgToSend = DtiTbuTransReq();
     final srcId = Logic(width: stream.idWidth);
     final destId = Logic(width: stream.destWidth);
+    final user = Logic(width: stream.userWidth);
+    final strb = Logic(width: (DtiTbuTransReq.totalWidth / 8).ceil());
+    final keep = Logic(width: (DtiTbuTransReq.totalWidth / 8).ceil());
+    final wakeup = Logic();
 
-    final sender = DtiInterfaceTx(
+    final sender = AxiStreamInterfaceTx(
       sys: sys,
       stream: stream,
       msgToSendValid: msgToSendValid,
       msgToSend: msgToSend,
       srcId: srcId,
-      destId: destId,
+      msgDestId: destId,
+      msgUser: user,
+      msgStrb: strb,
+      msgKeep: keep,
+      wakeup: wakeup,
     );
 
     await sender.build();
@@ -73,13 +81,13 @@ void main() async {
     final destId = Logic(width: stream.destWidth)..put(0xb);
     stream.ready!.put(1);
 
-    final sender = DtiInterfaceTx(
+    final sender = AxiStreamInterfaceTx(
       sys: sys,
       stream: stream,
       msgToSendValid: msgToSendValid,
       msgToSend: msgToSend,
       srcId: srcId,
-      destId: destId,
+      msgDestId: destId,
     );
 
     await sender.build();
@@ -140,13 +148,13 @@ void main() async {
     final destId = Logic(width: stream.destWidth)..put(0xb);
     stream.ready!.put(1);
 
-    final sender = DtiInterfaceTx(
+    final sender = AxiStreamInterfaceTx(
       sys: sys,
       stream: stream,
       msgToSendValid: msgToSendValid,
       msgToSend: msgToSend,
       srcId: srcId,
-      destId: destId,
+      msgDestId: destId,
     );
 
     await sender.build();
@@ -211,13 +219,13 @@ void main() async {
     final destId = Logic(width: stream.destWidth)..put(0xb);
     stream.ready!.put(1);
 
-    final sender = DtiInterfaceTx(
+    final sender = AxiStreamInterfaceTx(
       sys: sys,
       stream: stream,
       msgToSendValid: msgToSendValid,
       msgToSend: msgToSend,
       srcId: srcId,
-      destId: destId,
+      msgDestId: destId,
     );
 
     await sender.build();
@@ -269,13 +277,13 @@ void main() async {
     final destId = Logic(width: stream.destWidth)..put(0xb);
     stream.ready!.put(1);
 
-    final sender = DtiInterfaceTx(
+    final sender = AxiStreamInterfaceTx(
       sys: sys,
       stream: stream,
       msgToSendValid: msgToSendValid,
       msgToSend: msgToSend,
       srcId: srcId,
-      destId: destId,
+      msgDestId: destId,
     );
 
     await sender.build();
@@ -339,13 +347,13 @@ void main() async {
     final destId = Logic(width: stream.destWidth)..put(0xb);
     stream.ready!.put(0); // not ready
 
-    final sender = DtiInterfaceTx(
+    final sender = AxiStreamInterfaceTx(
       sys: sys,
       stream: stream,
       msgToSendValid: msgToSendValid,
       msgToSend: msgToSend,
       srcId: srcId,
-      destId: destId,
+      msgDestId: destId,
     );
 
     await sender.build();
@@ -420,13 +428,13 @@ void main() async {
     final destId = Logic(width: stream.destWidth)..put(0xb);
     stream.ready!.put(1);
 
-    final sender = DtiInterfaceTx(
+    final sender = AxiStreamInterfaceTx(
       sys: sys,
       stream: stream,
       msgToSendValid: msgToSendValid,
       msgToSend: msgToSend,
       srcId: srcId,
-      destId: destId,
+      msgDestId: destId,
     );
 
     await sender.build();

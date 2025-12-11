@@ -57,12 +57,12 @@ abstract class DtiController extends Module {
   late final int _maxOutMsgSize;
   late final Logic _senderValid;
   late final Logic _senderData;
-  late final DtiInterfaceTx _sender;
+  late final AxiStreamInterfaceTx _sender;
 
   // reception over DTI
   late final int _maxInMsgSize;
   late final Logic _receiverCanAccept;
-  late final DtiInterfaceRx _receiver;
+  late final AxiStreamInterfaceRx _receiver;
 
   /// Logic to determine if a given Tx message
   /// currently has credits to accept new outbound messages.
@@ -170,20 +170,26 @@ abstract class DtiController extends Module {
         : 0;
     _senderValid = Logic(name: 'senderValid');
     _senderData = Logic(name: 'senderData', width: _maxOutMsgSize);
-    _sender = DtiInterfaceTx(
+
+    // NOTE: default behavior for TSTRB and TKEEP works
+    // TODO(kimmeljo): need proper hooks for TWAKEUP, TDEST, TUSER...
+    _sender = AxiStreamInterfaceTx(
         sys: this.sys,
         stream: this.outStream,
         msgToSendValid: _senderValid,
         msgToSend: _senderData,
         srcId: this.srcId,
-        destId: this.destId);
+        msgDestId: this.destId);
 
     // reception over DTI
     _maxInMsgSize = this.rcvMsgs.isNotEmpty
         ? this.rcvMsgs.map((e) => e.data.width).reduce(max)
         : 0;
     _receiverCanAccept = Logic(name: 'receiverCanAccept');
-    _receiver = DtiInterfaceRx(
+
+    // NOTE: currently we ignore TSTRB and TKEEP (i.e., assume they are good)
+    // TODO(kimmeljo): pass along TID and TUSER??
+    _receiver = AxiStreamInterfaceRx(
         sys: this.sys,
         stream: this.inStream,
         canAcceptMsg: _receiverCanAccept,
