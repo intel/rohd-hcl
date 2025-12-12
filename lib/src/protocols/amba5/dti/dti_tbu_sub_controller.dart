@@ -15,8 +15,8 @@ class DtiTbuSubController extends DtiController {
     required super.sys,
     required super.outStream,
     required super.inStream,
-    required super.srcId,
-    required super.destId,
+    super.srcId,
+    super.wakeupTx,
     super.sendMsgs = const [],
     super.rcvMsgs = const [],
     super.sendCfgs = const [],
@@ -34,26 +34,26 @@ class DtiTbuSubController extends DtiController {
     required super.sys,
     required super.outStream,
     required super.inStream,
-    required super.srcId,
-    required super.destId,
-    required ReadyAndValidInterface<DtiTbuTransReq> transReq,
+    required ReadyAndValidInterface<DtiMessage> transReq,
     required int transReqFifoDepth,
-    required ReadyAndValidInterface<DtiTbuInvAck> invAck,
+    required ReadyAndValidInterface<DtiMessage> invAck,
     required int invAckFifoDepth,
-    required ReadyAndValidInterface<DtiTbuSyncAck> syncAck,
+    required ReadyAndValidInterface<DtiMessage> syncAck,
     required int syncAckFifoDepth,
-    required ReadyAndValidInterface<DtiTbuCondisReq> condisReq,
+    required ReadyAndValidInterface<DtiMessage> condisReq,
     required int condisReqFifoDepth,
-    required ReadyAndValidInterface<DtiTbuTransRespEx> transResp,
+    required ReadyAndValidInterface<DtiMessage> transResp,
     required int transRespFifoDepth,
-    required ReadyAndValidInterface<DtiTbuTransFault> transFault,
+    required ReadyAndValidInterface<DtiMessage> transFault,
     required int transFaultFifoDepth,
-    required ReadyAndValidInterface<DtiTbuInvReq> invReq,
+    required ReadyAndValidInterface<DtiMessage> invReq,
     required int invReqFifoDepth,
-    required ReadyAndValidInterface<DtiTbuSyncReq> syncReq,
+    required ReadyAndValidInterface<DtiMessage> syncReq,
     required int syncReqFifoDepth,
-    required ReadyAndValidInterface<DtiTbuCondisAck> condisAck,
+    required ReadyAndValidInterface<DtiMessage> condisAck,
     required int condisAckFifoDepth,
+    super.srcId,
+    super.wakeupTx,
     super.arbiterGen,
     super.name = 'dtiTbuSubController',
   }) : super(rcvMsgs: [
@@ -108,9 +108,9 @@ class DtiTbuSubController extends DtiController {
     var conAckIdx = -1;
     var invReqIdx = -1;
     for (var i = 0; i < sendMsgs.length; i++) {
-      if (sendMsgs[i].data is DtiTbuCondisAck) {
+      if (sendMsgs[i].data.msg is DtiTbuCondisAck) {
         conAckIdx = i;
-      } else if (sendMsgs[i].data is DtiTbuInvReq) {
+      } else if (sendMsgs[i].data.msg is DtiTbuInvReq) {
         invReqIdx = i;
       }
     }
@@ -120,14 +120,14 @@ class DtiTbuSubController extends DtiController {
     }
     final condisAckSend = sendMsgs[conAckIdx];
     final condisAckData = DtiTbuCondisAck(name: 'condisAckData')
-      ..gets(condisAckSend.data);
+      ..gets(condisAckSend.data.msg);
 
     var conReqIdx = -1;
     var invAckIdx = -1;
     for (var i = 0; i < rcvMsgs.length; i++) {
-      if (rcvMsgs[i].data is DtiTbuCondisReq) {
+      if (rcvMsgs[i].data.msg is DtiTbuCondisReq) {
         conReqIdx = i;
-      } else if (rcvMsgs[i].data is DtiTbuInvAck) {
+      } else if (rcvMsgs[i].data.msg is DtiTbuInvAck) {
         invAckIdx = i;
       }
     }
@@ -137,7 +137,7 @@ class DtiTbuSubController extends DtiController {
     }
     final condisReqOut = rcvMsgs[conReqIdx];
     final condisReqData = DtiTbuCondisReq(name: 'condisReqData')
-      ..gets(condisReqOut.data);
+      ..gets(condisReqOut.data.msg);
 
     // on CondisReq, make sure to grab the granted # of tokens
     _invTokensGranted =

@@ -15,34 +15,52 @@ void main() async {
     final outStream = Axi5StreamInterface(dataWidth: 256, destWidth: 4);
     final inStream = Axi5StreamInterface(dataWidth: 256, destWidth: 4);
     final srcId = Logic(width: outStream.idWidth);
-    final destId = Logic(width: outStream.destWidth);
+    final wakeup = Logic();
 
     final transReqD = DtiTbuTransReq();
-    final transReq = ReadyAndValidInterface<DtiTbuTransReq>(transReqD);
+    final transReqDa =
+        DtiMessage(msg: transReqD, streamId: Logic(width: outStream.destWidth));
+    final transReq = ReadyAndValidInterface<DtiMessage>(transReqDa);
     final invAckD = DtiTbuInvAck();
-    final invAck = ReadyAndValidInterface<DtiTbuInvAck>(invAckD);
+    final invAckDa =
+        DtiMessage(msg: invAckD, streamId: Logic(width: outStream.destWidth));
+    final invAck = ReadyAndValidInterface<DtiMessage>(invAckDa);
     final syncAckD = DtiTbuSyncAck();
-    final syncAck = ReadyAndValidInterface<DtiTbuSyncAck>(syncAckD);
+    final syncAckDa =
+        DtiMessage(msg: syncAckD, streamId: Logic(width: outStream.destWidth));
+    final syncAck = ReadyAndValidInterface<DtiMessage>(syncAckDa);
     final condisReqD = DtiTbuCondisReq();
-    final condisReq = ReadyAndValidInterface<DtiTbuCondisReq>(condisReqD);
+    final condisReqDa = DtiMessage(
+        msg: condisReqD, streamId: Logic(width: outStream.destWidth));
+    final condisReq = ReadyAndValidInterface<DtiMessage>(condisReqDa);
 
     final transRespD = DtiTbuTransRespEx();
-    final transResp = ReadyAndValidInterface<DtiTbuTransRespEx>(transRespD);
+    final transRespDa = DtiMessage(
+        msg: transRespD, streamId: Logic(width: outStream.destWidth));
+    final transResp = ReadyAndValidInterface<DtiMessage>(transRespDa);
     final transFaultD = DtiTbuTransFault();
-    final transFault = ReadyAndValidInterface<DtiTbuTransFault>(transFaultD);
+    final transFaultDa = DtiMessage(
+        msg: transFaultD, streamId: Logic(width: outStream.destWidth));
+    final transFault = ReadyAndValidInterface<DtiMessage>(transFaultDa);
     final invReqD = DtiTbuInvReq();
-    final invReq = ReadyAndValidInterface<DtiTbuInvReq>(invReqD);
+    final invReqDa =
+        DtiMessage(msg: invReqD, streamId: Logic(width: outStream.destWidth));
+    final invReq = ReadyAndValidInterface<DtiMessage>(invReqDa);
     final syncReqD = DtiTbuSyncReq();
-    final syncReq = ReadyAndValidInterface<DtiTbuSyncReq>(syncReqD);
+    final syncReqDa =
+        DtiMessage(msg: syncReqD, streamId: Logic(width: outStream.destWidth));
+    final syncReq = ReadyAndValidInterface<DtiMessage>(syncReqDa);
     final condisAckD = DtiTbuCondisAck();
-    final condisAck = ReadyAndValidInterface<DtiTbuCondisAck>(condisAckD);
+    final condisAckDa = DtiMessage(
+        msg: condisAckD, streamId: Logic(width: outStream.destWidth));
+    final condisAck = ReadyAndValidInterface<DtiMessage>(condisAckDa);
 
     final main = DtiTbuMainController.standard(
         sys: sys,
         outStream: outStream,
         inStream: inStream,
         srcId: srcId,
-        destId: destId,
+        wakeupTx: wakeup,
         transReq: transReq,
         transReqFifoDepth: 8,
         invAck: invAck,
@@ -70,34 +88,52 @@ void main() async {
     final outStream = Axi5StreamInterface(dataWidth: 256, destWidth: 4);
     final inStream = Axi5StreamInterface(dataWidth: 256, destWidth: 4);
     final srcId = Logic(width: outStream.idWidth);
-    final destId = Logic(width: outStream.destWidth);
+    final wakeup = Logic();
 
     final transReqD = DtiTbuTransReq();
-    final transReq = ReadyAndValidInterface<DtiTbuTransReq>(transReqD);
+    final transReqDa =
+        DtiMessage(msg: transReqD, streamId: Logic(width: outStream.destWidth));
+    final transReq = ReadyAndValidInterface<DtiMessage>(transReqDa);
     final invAckD = DtiTbuInvAck();
-    final invAck = ReadyAndValidInterface<DtiTbuInvAck>(invAckD);
+    final invAckDa =
+        DtiMessage(msg: invAckD, streamId: Logic(width: outStream.destWidth));
+    final invAck = ReadyAndValidInterface<DtiMessage>(invAckDa);
     final syncAckD = DtiTbuSyncAck();
-    final syncAck = ReadyAndValidInterface<DtiTbuSyncAck>(syncAckD);
+    final syncAckDa =
+        DtiMessage(msg: syncAckD, streamId: Logic(width: outStream.destWidth));
+    final syncAck = ReadyAndValidInterface<DtiMessage>(syncAckDa);
     final condisReqD = DtiTbuCondisReq();
-    final condisReq = ReadyAndValidInterface<DtiTbuCondisReq>(condisReqD);
+    final condisReqDa = DtiMessage(
+        msg: condisReqD, streamId: Logic(width: outStream.destWidth));
+    final condisReq = ReadyAndValidInterface<DtiMessage>(condisReqDa);
 
     final transRespD = DtiTbuTransRespEx();
-    final transResp = ReadyAndValidInterface<DtiTbuTransRespEx>(transRespD);
+    final transRespDa = DtiMessage(
+        msg: transRespD, streamId: Logic(width: outStream.destWidth));
+    final transResp = ReadyAndValidInterface<DtiMessage>(transRespDa);
     final transFaultD = DtiTbuTransFault();
-    final transFault = ReadyAndValidInterface<DtiTbuTransFault>(transFaultD);
+    final transFaultDa = DtiMessage(
+        msg: transFaultD, streamId: Logic(width: outStream.destWidth));
+    final transFault = ReadyAndValidInterface<DtiMessage>(transFaultDa);
     final invReqD = DtiTbuInvReq();
-    final invReq = ReadyAndValidInterface<DtiTbuInvReq>(invReqD);
+    final invReqDa =
+        DtiMessage(msg: invReqD, streamId: Logic(width: outStream.destWidth));
+    final invReq = ReadyAndValidInterface<DtiMessage>(invReqDa);
     final syncReqD = DtiTbuSyncReq();
-    final syncReq = ReadyAndValidInterface<DtiTbuSyncReq>(syncReqD);
+    final syncReqDa =
+        DtiMessage(msg: syncReqD, streamId: Logic(width: outStream.destWidth));
+    final syncReq = ReadyAndValidInterface<DtiMessage>(syncReqDa);
     final condisAckD = DtiTbuCondisAck();
-    final condisAck = ReadyAndValidInterface<DtiTbuCondisAck>(condisAckD);
+    final condisAckDa = DtiMessage(
+        msg: condisAckD, streamId: Logic(width: outStream.destWidth));
+    final condisAck = ReadyAndValidInterface<DtiMessage>(condisAckDa);
 
     final main = DtiTbuSubController.standard(
         sys: sys,
         outStream: outStream,
         inStream: inStream,
         srcId: srcId,
-        destId: destId,
+        wakeupTx: wakeup,
         transReq: transReq,
         transReqFifoDepth: 8,
         invAck: invAck,
@@ -139,43 +175,61 @@ void main() async {
     inStream.last!.put(0);
 
     final srcId = Logic(width: outStream.idWidth)..put(0xa);
-    final destId = Logic(width: outStream.destWidth)..put(0xb);
+    final wakeup = Logic()..put(1);
     inStream.dest!.put(srcId.value);
 
     final transReqD = DtiTbuTransReq()..zeroInit();
-    final transReq = ReadyAndValidInterface<DtiTbuTransReq>(transReqD);
+    final transReqDa = DtiMessage(
+        msg: transReqD, streamId: Logic(width: outStream.destWidth)..put(0x0));
+    final transReq = ReadyAndValidInterface<DtiMessage>(transReqDa);
     transReq.valid.put(0);
 
     final invAckD = DtiTbuInvAck()..zeroInit();
-    final invAck = ReadyAndValidInterface<DtiTbuInvAck>(invAckD);
+    final invAckDa = DtiMessage(
+        msg: invAckD, streamId: Logic(width: outStream.destWidth)..put(0x1));
+    final invAck = ReadyAndValidInterface<DtiMessage>(invAckDa);
     invAck.valid.put(0);
 
     final syncAckD = DtiTbuSyncAck()..zeroInit();
-    final syncAck = ReadyAndValidInterface<DtiTbuSyncAck>(syncAckD);
+    final syncAckDa = DtiMessage(
+        msg: syncAckD, streamId: Logic(width: outStream.destWidth)..put(0x2));
+    final syncAck = ReadyAndValidInterface<DtiMessage>(syncAckDa);
     syncAck.valid.put(0);
 
     final condisReqD = DtiTbuCondisReq()..zeroInit();
-    final condisReq = ReadyAndValidInterface<DtiTbuCondisReq>(condisReqD);
+    final condisReqDa = DtiMessage(
+        msg: condisReqD, streamId: Logic(width: outStream.destWidth)..put(0x3));
+    final condisReq = ReadyAndValidInterface<DtiMessage>(condisReqDa);
     condisReq.valid.put(0);
 
     final transRespD = DtiTbuTransRespEx();
-    final transResp = ReadyAndValidInterface<DtiTbuTransRespEx>(transRespD);
+    final transRespDa =
+        DtiMessage(msg: transRespD, streamId: Logic(width: inStream.idWidth));
+    final transResp = ReadyAndValidInterface<DtiMessage>(transRespDa);
     transResp.ready.put(1);
 
     final transFaultD = DtiTbuTransFault();
-    final transFault = ReadyAndValidInterface<DtiTbuTransFault>(transFaultD);
+    final transFaultDa =
+        DtiMessage(msg: transFaultD, streamId: Logic(width: inStream.idWidth));
+    final transFault = ReadyAndValidInterface<DtiMessage>(transFaultDa);
     transFault.ready.put(1);
 
     final invReqD = DtiTbuInvReq();
-    final invReq = ReadyAndValidInterface<DtiTbuInvReq>(invReqD);
+    final invReqDa =
+        DtiMessage(msg: invReqD, streamId: Logic(width: inStream.idWidth));
+    final invReq = ReadyAndValidInterface<DtiMessage>(invReqDa);
     invReq.ready.put(1);
 
     final syncReqD = DtiTbuSyncReq();
-    final syncReq = ReadyAndValidInterface<DtiTbuSyncReq>(syncReqD);
+    final syncReqDa =
+        DtiMessage(msg: syncReqD, streamId: Logic(width: inStream.idWidth));
+    final syncReq = ReadyAndValidInterface<DtiMessage>(syncReqDa);
     syncReq.ready.put(1);
 
     final condisAckD = DtiTbuCondisAck();
-    final condisAck = ReadyAndValidInterface<DtiTbuCondisAck>(condisAckD);
+    final condisAckDa =
+        DtiMessage(msg: condisAckD, streamId: Logic(width: inStream.idWidth));
+    final condisAck = ReadyAndValidInterface<DtiMessage>(condisAckDa);
     condisAck.ready.put(1);
 
     final main = DtiTbuMainController.standard(
@@ -183,7 +237,7 @@ void main() async {
         outStream: outStream,
         inStream: inStream,
         srcId: srcId,
-        destId: destId,
+        wakeupTx: wakeup,
         transReq: transReq,
         transReqFifoDepth: 8,
         invAck: invAck,
@@ -252,8 +306,9 @@ void main() async {
     while (!condisAck.valid.value.toBool()) {
       await clk.nextNegedge;
     }
-    expect(condisAck.data.tokTransGnt.value.toInt(), 0x5);
-    expect(condisAck.data.state.value.toInt(), 0x1);
+    final condisAckCheck = DtiTbuCondisAck()..gets(condisAck.data.msg);
+    expect(condisAckCheck.tokTransGnt.value.toInt(), 0x5);
+    expect(condisAckCheck.state.value.toInt(), 0x1);
 
     // send a TransReq in
     transReqD.translationId1.put(0xcc);
@@ -288,8 +343,9 @@ void main() async {
     while (!transResp.valid.value.toBool()) {
       await clk.nextNegedge;
     }
-    expect(transResp.data.translationId.value.toInt(), 0xcc);
-    expect(transResp.data.oa.value.toInt(), 0xbeefdead);
+    final transRespCheck = DtiTbuTransRespEx()..gets(transResp.data.msg);
+    expect(transRespCheck.translationId.value.toInt(), 0xcc);
+    expect(transRespCheck.oa.value.toInt(), 0xbeefdead);
 
     await clk.waitCycles(10);
 
@@ -316,43 +372,61 @@ void main() async {
     inStream.last!.put(0);
 
     final srcId = Logic(width: outStream.idWidth)..put(0xa);
-    final destId = Logic(width: outStream.destWidth)..put(0xb);
+    final wakeup = Logic()..put(1);
     inStream.dest!.put(srcId.value);
 
     final transReqD = DtiTbuTransReq();
-    final transReq = ReadyAndValidInterface<DtiTbuTransReq>(transReqD);
+    final transReqDa =
+        DtiMessage(msg: transReqD, streamId: Logic(width: outStream.destWidth));
+    final transReq = ReadyAndValidInterface<DtiMessage>(transReqDa);
     transReq.ready.put(1);
 
     final invAckD = DtiTbuInvAck();
-    final invAck = ReadyAndValidInterface<DtiTbuInvAck>(invAckD);
+    final invAckDa =
+        DtiMessage(msg: invAckD, streamId: Logic(width: outStream.destWidth));
+    final invAck = ReadyAndValidInterface<DtiMessage>(invAckDa);
     invAck.ready.put(1);
 
     final syncAckD = DtiTbuSyncAck();
-    final syncAck = ReadyAndValidInterface<DtiTbuSyncAck>(syncAckD);
+    final syncAckDa =
+        DtiMessage(msg: syncAckD, streamId: Logic(width: outStream.destWidth));
+    final syncAck = ReadyAndValidInterface<DtiMessage>(syncAckDa);
     syncAck.ready.put(1);
 
     final condisReqD = DtiTbuCondisReq();
-    final condisReq = ReadyAndValidInterface<DtiTbuCondisReq>(condisReqD);
+    final condisReqDa = DtiMessage(
+        msg: condisReqD, streamId: Logic(width: outStream.destWidth));
+    final condisReq = ReadyAndValidInterface<DtiMessage>(condisReqDa);
     condisReq.ready.put(1);
 
     final transRespD = DtiTbuTransRespEx()..zeroInit();
-    final transResp = ReadyAndValidInterface<DtiTbuTransRespEx>(transRespD);
+    final transRespDa = DtiMessage(
+        msg: transRespD, streamId: Logic(width: inStream.idWidth)..put(0x0));
+    final transResp = ReadyAndValidInterface<DtiMessage>(transRespDa);
     transResp.valid.put(0);
 
     final transFaultD = DtiTbuTransFault()..zeroInit();
-    final transFault = ReadyAndValidInterface<DtiTbuTransFault>(transFaultD);
+    final transFaultDa = DtiMessage(
+        msg: transFaultD, streamId: Logic(width: inStream.idWidth)..put(0x1));
+    final transFault = ReadyAndValidInterface<DtiMessage>(transFaultDa);
     transFault.valid.put(0);
 
     final invReqD = DtiTbuInvReq()..zeroInit();
-    final invReq = ReadyAndValidInterface<DtiTbuInvReq>(invReqD);
+    final invReqDa = DtiMessage(
+        msg: invReqD, streamId: Logic(width: inStream.idWidth)..put(0x2));
+    final invReq = ReadyAndValidInterface<DtiMessage>(invReqDa);
     invReq.valid.put(0);
 
     final syncReqD = DtiTbuSyncReq()..zeroInit();
-    final syncReq = ReadyAndValidInterface<DtiTbuSyncReq>(syncReqD);
+    final syncReqDa = DtiMessage(
+        msg: syncReqD, streamId: Logic(width: inStream.idWidth)..put(0x3));
+    final syncReq = ReadyAndValidInterface<DtiMessage>(syncReqDa);
     syncReq.valid.put(0);
 
     final condisAckD = DtiTbuCondisAck()..zeroInit();
-    final condisAck = ReadyAndValidInterface<DtiTbuCondisAck>(condisAckD);
+    final condisAckDa = DtiMessage(
+        msg: condisAckD, streamId: Logic(width: inStream.idWidth)..put(0x4));
+    final condisAck = ReadyAndValidInterface<DtiMessage>(condisAckDa);
     condisAck.valid.put(0);
 
     final main = DtiTbuSubController.standard(
@@ -360,7 +434,7 @@ void main() async {
         outStream: outStream,
         inStream: inStream,
         srcId: srcId,
-        destId: destId,
+        wakeupTx: wakeup,
         transReq: transReq,
         transReqFifoDepth: 8,
         invAck: invAck,
@@ -415,9 +489,10 @@ void main() async {
     while (!condisReq.valid.value.toBool()) {
       await clk.nextNegedge;
     }
-    expect(condisReq.data.tokTransReq.value.toInt(), 0x5);
-    expect(condisReq.data.tokInvGnt.value.toInt(), 0x5);
-    expect(condisReq.data.state.value.toInt(), 0x1);
+    final condisReqCheck = DtiTbuCondisReq()..gets(condisReq.data.msg);
+    expect(condisReqCheck.tokTransReq.value.toInt(), 0x5);
+    expect(condisReqCheck.tokInvGnt.value.toInt(), 0x5);
+    expect(condisReqCheck.state.value.toInt(), 0x1);
 
     // send the CondisAck
     condisAckD.tokTransGnt1.put(0x5);
@@ -457,8 +532,9 @@ void main() async {
     while (!transReq.valid.value.toBool()) {
       await clk.nextNegedge;
     }
-    expect(transReq.data.translationId.value.toInt(), 0xdd);
-    expect(transReq.data.addr.value.toInt(), 0xdeadbeef);
+    final transReqCheck = DtiTbuTransReq()..gets(transReq.data.msg);
+    expect(transReqCheck.translationId.value.toInt(), 0xdd);
+    expect(transReqCheck.addr.value.toInt(), 0xdeadbeef);
 
     // send the TransResp
     transRespD.translationId1.put(0xdd);

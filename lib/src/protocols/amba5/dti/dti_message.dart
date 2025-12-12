@@ -2218,3 +2218,41 @@ class DtiTbuCondisAck extends LogicStructure {
     rsvd2.put(0);
   }
 }
+
+/// Template class to wrap an arbitrary DTI message with AXI-S metadata.
+///
+/// Note that streamId might go into TDEST (tx) or come from TID (rx)
+/// depending on the directionality of the message. User would go into
+/// or come from TUSER. Other AXI-S signals for DTI or otherwise can be
+/// handled independently.
+class DtiMessage extends LogicStructure {
+  /// Underlying DTI message
+  final LogicStructure msg;
+
+  /// TDEST or TID on AXI-S
+  final Logic? streamId;
+
+  /// USER on AXI-S
+  final Logic? streamUser;
+
+  /// Constructor.
+  DtiMessage({
+    required this.msg,
+    this.streamId,
+    this.streamUser,
+    super.name = 'dtiMessage',
+  }) : super([
+          msg,
+          if (streamId != null) streamId,
+          if (streamUser != null) streamUser,
+        ]);
+
+  /// Copy constructor.
+  @override
+  DtiMessage clone({String? name}) => DtiMessage(
+        msg: msg.clone(),
+        streamId: streamId?.clone(),
+        streamUser: streamUser?.clone(),
+        name: name ?? this.name,
+      );
+}

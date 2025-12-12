@@ -16,10 +16,10 @@ abstract class DtiController extends Module {
   late final Axi5StreamInterface inStream;
 
   /// DTI messages to send.
-  final List<ReadyAndValidInterface<LogicStructure>> sendMsgs = [];
+  final List<ReadyAndValidInterface<DtiMessage>> sendMsgs = [];
 
   /// DTI messages to receive.
-  final List<ReadyAndValidInterface<LogicStructure>> rcvMsgs = [];
+  final List<ReadyAndValidInterface<DtiMessage>> rcvMsgs = [];
 
   /// Arbitration across different message classes for
   /// sending messages out over AXI-S (toSub).
@@ -37,26 +37,28 @@ abstract class DtiController extends Module {
   ///
   /// Placed into TID signal when sending.
   /// Expected to be in TDEST signal when receiving.
-  late final Logic srcId;
+  late final Logic? srcId;
 
-  /// Fixed Destination ID for this module.
+  /// Fixed wakeup indicator for the TX side of the controller.
   ///
-  /// Placed into TDEST signal when sending.
-  late final Logic destId;
+  /// Placed into TWAKEUP.
+  late final Logic? wakeupTx;
 
   // outbound FIFOs
-  final List<Fifo> _outMsgs = [];
+  final List<Fifo<DtiMessage>> _outMsgs = [];
 
   // inbound FIFOs
-  final List<Fifo> _inMsgs = [];
+  final List<Fifo<DtiMessage>> _inMsgs = [];
   final List<Logic> _inMsgsWrEn = [];
-  final List<Logic> _inMsgsWrData = [];
+  final List<DtiMessage> _inMsgsWrData = [];
   final List<Logic> _inMsgsRdEn = [];
 
   // transmission over DTI
   late final int _maxOutMsgSize;
   late final Logic _senderValid;
   late final Logic _senderData;
+  late final Logic? _senderDest;
+  late final Logic? _senderUser;
   late final AxiStreamInterfaceTx _sender;
 
   // reception over DTI
@@ -122,12 +124,12 @@ abstract class DtiController extends Module {
     required Axi5SystemInterface sys,
     required Axi5StreamInterface outStream,
     required Axi5StreamInterface inStream,
-    required Logic srcId,
-    required Logic destId,
-    List<ReadyAndValidInterface<LogicStructure>> sendMsgs = const [],
-    List<ReadyAndValidInterface<LogicStructure>> rcvMsgs = const [],
+    List<ReadyAndValidInterface<DtiMessage>> sendMsgs = const [],
+    List<ReadyAndValidInterface<DtiMessage>> rcvMsgs = const [],
     this.sendCfgs = const [],
     this.rcvCfgs = const [],
+    Logic? srcId,
+    Logic? wakeupTx,
     Arbiter Function(List<Logic> requests,
             {required Logic clk,
             required Logic reset,
@@ -161,25 +163,44 @@ abstract class DtiController extends Module {
           uniquify: (original) => '${name}_rcvMsgs${i}_$original'));
     }
 
-    this.srcId = addInput('srcId', srcId, width: srcId.width);
-    this.destId = addInput('destId', destId, width: destId.width);
+    if (srcId != null) {
+      this.srcId = addInput('srcId', srcId, width: srcId.width);
+    } else {
+      this.srcId = null;
+    }
+    if (wakeupTx != null) {
+      this.wakeupTx = addInput('wakeupTx', wakeupTx);
+    } else {
+      this.wakeupTx = null;
+    }
 
     // transmission over DTI
     _maxOutMsgSize = this.sendMsgs.isNotEmpty
-        ? this.sendMsgs.map((e) => e.data.width).reduce(max)
+        ? this.sendMsgs.map((e) => e.data.msg.width).reduce(max)
         : 0;
     _senderValid = Logic(name: 'senderValid');
     _senderData = Logic(name: 'senderData', width: _maxOutMsgSize);
+    if (outStream.destWidth > 0) {
+      _senderDest = Logic(name: 'senderDest', width: outStream.destWidth);
+    } else {
+      _senderDest = null;
+    }
+    if (outStream.userWidth > 0) {
+      _senderUser = Logic(name: 'senderUser', width: outStream.userWidth);
+    } else {
+      _senderUser = null;
+    }
 
     // NOTE: default behavior for TSTRB and TKEEP works
-    // TODO(kimmeljo): need proper hooks for TWAKEUP, TDEST, TUSER...
     _sender = AxiStreamInterfaceTx(
         sys: this.sys,
         stream: this.outStream,
         msgToSendValid: _senderValid,
         msgToSend: _senderData,
         srcId: this.srcId,
-        msgDestId: this.destId);
+        msgDestId: _senderDest,
+        msgUser: _senderUser,
+        wakeup: this.wakeupTx);
 
     // reception over DTI
     _maxInMsgSize = this.rcvMsgs.isNotEmpty
@@ -233,13 +254,13 @@ abstract class DtiController extends Module {
     // FIFOs
     for (var i = 0; i < this.sendMsgs.length; i++) {
       final outMsgFull = Logic(name: 'outMsgsFull$i');
-      _outMsgs.add(Fifo(
+      _outMsgs.add(Fifo<DtiMessage>(
         this.sys.clk,
         ~this.sys.resetN,
         writeEnable: this.sendMsgs[i].valid & ~outMsgFull,
         writeData: this.sendMsgs[i].data,
         readEnable:
-            this.outboundArbiter!.grants[_sendArbIdx[i]] & _sender.canAcceptMsg,
+            outboundArbiter!.grants[_sendArbIdx[i]] & _sender.canAcceptMsg,
         depth: sendCfgs[i].fifoDepth,
         generateOccupancy: true,
         generateError: true,
@@ -261,10 +282,9 @@ abstract class DtiController extends Module {
 
     for (var i = 0; i < this.rcvMsgs.length; i++) {
       _inMsgsWrEn.add(Logic(name: 'inMsgsWrEn$i'));
-      _inMsgsWrData.add(
-          Logic(name: 'inMsgsWrData$i', width: this.rcvMsgs[i].data.width));
+      _inMsgsWrData.add(this.rcvMsgs[i].data.clone(name: 'inMsgsWrData$i'));
       _inMsgsRdEn.add(Logic(name: 'inMsgsRdEn$i'));
-      _inMsgs.add(Fifo(
+      _inMsgs.add(Fifo<DtiMessage>(
         this.sys.clk,
         ~this.sys.resetN,
         writeEnable: _inMsgsWrEn.last,
@@ -287,7 +307,7 @@ abstract class DtiController extends Module {
     final dataToSendCases = <Logic, Logic>{};
     for (var i = 0; i < sendMsgs.length; i++) {
       dataToSendCases[Const(toOneHot(_sendArbIdx[i], _arbiterReqs.length))] =
-          _outMsgs[i].readData.zeroExtend(_maxOutMsgSize);
+          _outMsgs[i].readData.msg.zeroExtend(_maxOutMsgSize);
     }
     final dataToSend = cases(
         _arbiterReqs.rswizzle(),
@@ -299,6 +319,36 @@ abstract class DtiController extends Module {
     final dataEn = _arbiterReqs.swizzle().or();
     _senderValid <= dataEn;
     _senderData <= dataToSend;
+
+    if (outStream.destWidth > 0) {
+      final destToSendCases = <Logic, Logic>{};
+      for (var i = 0; i < sendMsgs.length; i++) {
+        destToSendCases[Const(toOneHot(_sendArbIdx[i], _arbiterReqs.length))] =
+            _outMsgs[i].readData.streamId ??
+                Const(0, width: outStream.destWidth);
+      }
+      final destToSend = cases(
+          _arbiterReqs.rswizzle(),
+          conditionalType: ConditionalType.unique,
+          destToSendCases,
+          defaultValue: Const(0, width: outStream.destWidth));
+      _senderDest?.gets(destToSend);
+    }
+
+    if (outStream.userWidth > 0) {
+      final userToSendCases = <Logic, Logic>{};
+      for (var i = 0; i < sendMsgs.length; i++) {
+        userToSendCases[Const(toOneHot(_sendArbIdx[i], _arbiterReqs.length))] =
+            _outMsgs[i].readData.streamUser ??
+                Const(0, width: outStream.userWidth);
+      }
+      final userToSend = cases(
+          _arbiterReqs.rswizzle(),
+          conditionalType: ConditionalType.unique,
+          userToSendCases,
+          defaultValue: Const(0, width: outStream.userWidth));
+      _senderUser?.gets(userToSend);
+    }
   }
 
   void _buildReceive() {
@@ -312,6 +362,30 @@ abstract class DtiController extends Module {
       nextMsgIn < mux(_receiver.msgValid, _receiver.msg, nextMsgIn)
     ]);
 
+    Logic? nextMsgSrc;
+    if (inStream.idWidth > 0) {
+      nextMsgSrc = Logic(name: 'nextMsgSrc', width: inStream.idWidth);
+      Sequential(sys.clk, reset: ~sys.resetN, [
+        nextMsgSrc <
+            mux(
+                _receiver.msgValid,
+                _receiver.msgSrc ?? Const(0, width: inStream.idWidth),
+                nextMsgSrc)
+      ]);
+    }
+
+    Logic? nextMsgUser;
+    if (inStream.userWidth > 0) {
+      nextMsgUser = Logic(name: 'nextMsgUser', width: inStream.idWidth);
+      Sequential(sys.clk, reset: ~sys.resetN, [
+        nextMsgUser <
+            mux(
+                _receiver.msgValid,
+                _receiver.msgUser ?? Const(0, width: inStream.userWidth),
+                nextMsgUser)
+      ]);
+    }
+
     // examine the raw message to determine
     // which message queue to put the message in
     // note that all messages have a message type of the same
@@ -320,7 +394,11 @@ abstract class DtiController extends Module {
     for (var i = 0; i < rcvMsgs.length; i++) {
       _inMsgsWrEn[i] <=
           nextMsgInValid & ~_inMsgs[i].full & rcvCfgs[i].mapToQueue!(nextMsgIn);
-      _inMsgsWrData[i] <= nextMsgIn.getRange(0, rcvMsgs[i].data.width);
+      _inMsgsWrData[i] <=
+          (rcvMsgs[i].data.clone()
+            ..msg.gets(nextMsgIn.getRange(0, rcvMsgs[i].data.msg.width))
+            ..streamId?.gets(nextMsgSrc!)
+            ..streamUser?.gets(nextMsgUser!));
       _inMsgsRdEn[i] <= rcvMsgs[i].accepted;
       rcvMsgs[i].valid <= ~_inMsgs[i].empty;
       rcvMsgs[i].data <= _inMsgs[i].readData;

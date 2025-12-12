@@ -22,7 +22,7 @@ class AxiStreamInterfaceRx extends Module {
   ///
   /// Received in TDEST signal.
   /// Drop if doesn't match.
-  late final Logic srcId;
+  late final Logic? srcId;
 
   /// New message received indicator.
   Logic get msgValid => output('msgValid');
@@ -47,8 +47,8 @@ class AxiStreamInterfaceRx extends Module {
     required Axi5SystemInterface sys,
     required Axi5StreamInterface stream,
     required Logic canAcceptMsg,
-    required Logic srcId,
     required this.maxMsgRxSize,
+    Logic? srcId,
     super.name = 'axiStreamInterfaceRx',
   }) {
     this.sys = addPairInterfacePorts(sys, PairRole.consumer);
@@ -59,7 +59,11 @@ class AxiStreamInterfaceRx extends Module {
     );
     this.canAcceptMsg =
         addInput('canAcceptMsg', canAcceptMsg, width: canAcceptMsg.width);
-    this.srcId = addInput('srcId', srcId, width: srcId.width);
+    if (srcId != null) {
+      this.srcId = addInput('srcId', srcId, width: srcId.width);
+    } else {
+      this.srcId = null;
+    }
 
     addOutput('msgValid');
     addOutput('msg', width: maxMsgRxSize);
@@ -84,7 +88,9 @@ class AxiStreamInterfaceRx extends Module {
     final numBeats = (maxMsgRxSize / stream.dataWidth).ceil();
 
     // conditions under which we should capture/forward flits
-    final idHit = (stream.destWidth > 0 ? srcId.eq(stream.dest) : Const(1));
+    final idHit = (stream.destWidth > 0
+        ? (srcId?.eq(stream.dest) ?? Const(1))
+        : Const(1));
     final inAccept = stream.valid & (stream.ready ?? Const(1)) & idHit;
     final inLast = inAccept & idHit & (stream.last ?? Const(1));
 
