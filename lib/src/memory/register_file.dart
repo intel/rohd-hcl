@@ -47,6 +47,11 @@ class RegisterFile extends Memory with ResettableEntries {
   /// A testbench hook to access data at a given address.
   LogicValue? getData(LogicValue addr) => _storageBank[addr.toInt()].value;
 
+  /// A testbench hook to write data at a given address.
+  void setData(LogicValue addr, LogicValue value) {
+    _storageBank[addr.toInt()].put(value);
+  }
+
   /// Flop-based storage of all memory.
   late final List<Logic> _storageBank;
 
