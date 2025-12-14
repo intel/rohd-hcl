@@ -69,11 +69,14 @@ class MemoryModel extends Memory {
         if (!wrPort.en.previousValue!.isValid && !storage.isEmpty) {
           // storage doesnt have access to `en`, so check ourselves
           storage.invalidWrite();
+          wrPort.valid.inject(0);
           return;
         }
 
         if (wrPort.en.previousValue == LogicValue.one) {
           final addrValue = wrPort.addr.previousValue!;
+
+          wrPort.valid.inject(1);
 
           if (wrPort is MaskedDataPortInterface) {
             storage.writeData(
@@ -102,6 +105,7 @@ class MemoryModel extends Memory {
               !rdPort.addr.previousValue!.isValid) {
             unawaited(_updateRead(
                 rdPort, LogicValue.filled(rdPort.dataWidth, LogicValue.x)));
+            rdPort.valid.inject(0);
           } else {
             unawaited(_updateRead(
                 rdPort, storage.readData(rdPort.addr.previousValue!)));
@@ -129,8 +133,10 @@ class MemoryModel extends Memory {
         !rdPort.en.value.toBool() ||
         !rdPort.addr.value.isValid) {
       rdPort.data.put(LogicValue.x, fill: true);
+      rdPort.valid.put(0);
     } else {
       rdPort.data.put(storage.readData(rdPort.addr.value));
+      rdPort.valid.put(1);
     }
   }
 
@@ -140,5 +146,6 @@ class MemoryModel extends Memory {
       await clk.waitCycles(readLatency - 1);
     }
     rdPort.data.inject(data);
+    rdPort.valid.inject(1);
   }
 }
