@@ -28,19 +28,27 @@ class RegisterFile extends Memory with ResettableEntries {
   /// `readPorts`.
   ///
   /// The [resetValue] follows the semantics of [ResettableEntries].
-  RegisterFile(super.clk, super.reset, super.writePorts, super.readPorts,
-      {this.numEntries = 8,
-      super.name = 'rf',
-      super.reserveName,
-      super.reserveDefinitionName,
-      String? definitionName,
-      dynamic resetValue})
-      : super(
-            definitionName: definitionName ??
-                'RegisterFile_WP${writePorts.length}'
-                    '_RP${readPorts.length}_E$numEntries') {
-    _resetValues = makeResetValues(resetValue,
-        numEntries: numEntries, entryWidth: dataWidth);
+  RegisterFile(
+    super.clk,
+    super.reset,
+    super.writePorts,
+    super.readPorts, {
+    this.numEntries = 8,
+    super.name = 'rf',
+    super.reserveName,
+    super.reserveDefinitionName,
+    String? definitionName,
+    dynamic resetValue,
+  }) : super(
+          definitionName: definitionName ??
+              'RegisterFile_WP${writePorts.length}'
+                  '_RP${readPorts.length}_E$numEntries',
+        ) {
+    _resetValues = makeResetValues(
+      resetValue,
+      numEntries: numEntries,
+      entryWidth: dataWidth,
+    );
     _buildLogic();
   }
 
@@ -58,44 +66,69 @@ class RegisterFile extends Memory with ResettableEntries {
   void _buildLogic() {
     // create local storage bank
     _storageBank = List<Logic>.generate(
-        numEntries, (i) => Logic(name: 'storageBank_$i', width: dataWidth));
+      numEntries,
+      (i) => Logic(name: 'storageBank_$i', width: dataWidth),
+    );
 
     Sequential(clk, [
-      If(reset, then: [
-        ..._storageBank.mapIndexed((i, e) => e < _resetValues[i])
-      ], orElse: [
-        for (var entry = 0; entry < numEntries; entry++)
-          ...wrPorts.map((wrPort) =>
-              // set storage bank if write enable and pointer matches
-              If(wrPort.en & wrPort.addr.eq(entry), then: [
-                _storageBank[entry] <
-                    (wrPort is MaskedDataPortInterface
-                        ? [
-                            for (var index = 0; index < dataWidth ~/ 8; index++)
-                              mux(
+      If(
+        reset,
+        then: [..._storageBank.mapIndexed((i, e) => e < _resetValues[i])],
+        orElse: [
+          for (var entry = 0; entry < numEntries; entry++)
+            ...wrPorts.map(
+              (wrPort) =>
+                  // set storage bank if write enable and pointer matches
+                  If(
+                wrPort.en & wrPort.addr.eq(entry),
+                then: [
+                  wrPort.valid < 1,
+                  _storageBank[entry] <
+                      (wrPort is MaskedDataPortInterface
+                          ? [
+                              for (var index = 0;
+                                  index < dataWidth ~/ 8;
+                                  index++)
+                                mux(
                                   wrPort.mask[index],
-                                  wrPort.data
-                                      .getRange(index * 8, (index + 1) * 8),
-                                  _storageBank[entry]
-                                      .getRange(index * 8, (index + 1) * 8))
-                          ].rswizzle()
-                        : wrPort.data),
-              ])),
-      ]),
+                                  wrPort.data.getRange(
+                                    index * 8,
+                                    (index + 1) * 8,
+                                  ),
+                                  _storageBank[entry].getRange(
+                                    index * 8,
+                                    (index + 1) * 8,
+                                  ),
+                                ),
+                            ].rswizzle()
+                          : wrPort.data),
+                ],
+              ),
+            ),
+        ],
+      ),
     ]);
 
     Combinational([
-      ...rdPorts.map((rdPort) => If(~rdPort.en, then: [
-            rdPort.data < Const(0, width: dataWidth)
-          ], orElse: [
-            Case(rdPort.addr, [
-              for (var entry = 0; entry < numEntries; entry++)
-                CaseItem(Const(LogicValue.ofInt(entry, addrWidth)),
-                    [rdPort.data < _storageBank[entry]])
-            ], defaultItem: [
-              rdPort.data < Const(0, width: dataWidth)
-            ])
-          ]))
+      ...rdPorts.map(
+        (rdPort) => If(
+          ~rdPort.en,
+          then: [rdPort.data < Const(0, width: dataWidth)],
+          orElse: [
+            Case(
+              rdPort.addr,
+              [
+                for (var entry = 0; entry < numEntries; entry++)
+                  CaseItem(Const(LogicValue.ofInt(entry, addrWidth)), [
+                    rdPort.data < _storageBank[entry],
+                    rdPort.valid < 1,
+                  ]),
+              ],
+              defaultItem: [rdPort.data < Const(0, width: dataWidth)],
+            ),
+          ],
+        ),
+      ),
     ]);
   }
 

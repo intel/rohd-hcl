@@ -257,6 +257,7 @@ class CsrBlock extends CsrContainer {
 
       // individual CSR read logic
       final rdData = Logic(name: 'internalRdData', width: frontRead!.dataWidth);
+      final rdValid = Logic(name: 'internalRdValid');
       final rdCases = <CaseItem>[];
       for (final csr in csrs) {
         if (csr.isFrontdoorReadable) {
@@ -281,12 +282,14 @@ class CsrBlock extends CsrContainer {
                             .getRange(frontRead!.dataWidth * j,
                                 frontRead!.dataWidth * j + rngEnd)
                             .zeroExtend(frontRead!.dataWidth),
+                    rdValid < Const(1),
                   ]));
             }
           } else {
             // normal capture of the register data
             rdCases.add(CaseItem(Const(csr.addr, width: addrWidth), [
               rdData < csr.zeroExtend(frontRead!.dataWidth),
+              rdValid < Const(1),
             ]));
           }
         }
@@ -299,9 +302,11 @@ class CsrBlock extends CsrContainer {
             rdCases,
             defaultItem: [
               rdData < Const(0, width: frontRead!.dataWidth),
+              rdValid < Const(1),
             ]),
       ]);
       frontRead!.data <= rdData;
+      frontRead!.valid <= rdValid;
     }
 
     // driving of backdoor read outputs
