@@ -93,6 +93,7 @@ void main() {
         await clk.nextNegedge;
         wrPorts[0].en.put(0);
         expect(wrPorts[0].valid.value.toBool(), isTrue);
+        expect(wrPorts[0].done.value.toBool(), isTrue);
         await clk.nextNegedge;
 
         // read it back out on a different port
@@ -101,6 +102,7 @@ void main() {
         await clk.waitCycles(mem.readLatency);
         await clk.nextPosedge;
         expect(rdPorts[2].valid.value.toBool(), isTrue);
+        expect(rdPorts[2].done.value.toBool(), isTrue);
         expect(rdPorts[2].data.value.toInt(), 0xdeadbeef);
 
         await clk.nextNegedge;
@@ -150,6 +152,7 @@ void main() {
         await clk.nextNegedge;
         wrPorts[0].en.put(0);
         expect(wrPorts[0].valid.value.toBool(), isTrue);
+        expect(wrPorts[0].done.value.toBool(), isTrue);
         await clk.nextNegedge;
 
         // read it back out
@@ -159,6 +162,7 @@ void main() {
         await clk.nextPosedge;
         expect(rdPorts[0].data.value.toInt(), 0xff00ff00);
         expect(rdPorts[0].valid.value.toBool(), isTrue);
+        expect(rdPorts[0].done.value.toBool(), isTrue);
 
         await clk.nextNegedge;
         rdPorts[0].en.put(0);
@@ -196,6 +200,7 @@ void main() {
             value <= flop(clk, reset: reset, newWrPort.port(key));
           });
           newWrPort.valid <= oldWrPort.valid;
+          newWrPort.done <= oldWrPort.done;
           return newWrPort;
         }).toList();
 
@@ -206,6 +211,7 @@ void main() {
           });
           newRdPort.data <= oldRdPort.data;
           newRdPort.valid <= oldRdPort.valid;
+          newRdPort.done <= oldRdPort.done;
           return newRdPort;
         }).toList();
 
@@ -240,6 +246,7 @@ void main() {
           await clk.nextNegedge;
           expect(rdPorts[0].data.value.toInt(), 0xff00ff00);
           expect(rdPorts[0].valid.value.toBool(), isTrue);
+          expect(rdPorts[0].done.value.toBool(), isTrue);
         }));
 
         await clk.nextPosedge;
@@ -252,6 +259,7 @@ void main() {
           await clk.nextNegedge;
           expect(rdPorts[0].data.value.toInt(), 0x00550055);
           expect(rdPorts[0].valid.value.toBool(), isTrue);
+          expect(rdPorts[0].done.value.toBool(), isTrue);
         }));
 
         await clk.nextPosedge;

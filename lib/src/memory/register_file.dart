@@ -68,7 +68,11 @@ class RegisterFile extends Memory with ResettableEntries {
     Sequential(clk, [
       If(
         reset,
-        then: [..._storageBank.mapIndexed((i, e) => e < _resetValues[i])],
+        then: [
+          ...wrPorts.map((wrPort) => wrPort.valid < 0),
+          ...wrPorts.map((wrPort) => wrPort.done < 0),
+          ..._storageBank.mapIndexed((i, e) => e < _resetValues[i]),
+        ],
         orElse: [
           for (var entry = 0; entry < numEntries; entry++)
             ...wrPorts.map(
@@ -78,6 +82,7 @@ class RegisterFile extends Memory with ResettableEntries {
                 wrPort.en & wrPort.addr.eq(entry),
                 then: [
                   wrPort.valid < 1,
+                  wrPort.done < 1,
                   _storageBank[entry] <
                       (wrPort is MaskedDataPortInterface
                           ? [
@@ -108,7 +113,11 @@ class RegisterFile extends Memory with ResettableEntries {
       ...rdPorts.map(
         (rdPort) => If(
           ~rdPort.en,
-          then: [rdPort.data < Const(0, width: dataWidth)],
+          then: [
+            rdPort.data < Const(0, width: dataWidth),
+            rdPort.valid < 0,
+            rdPort.done < 0,
+          ],
           orElse: [
             Case(
               rdPort.addr,
@@ -117,9 +126,14 @@ class RegisterFile extends Memory with ResettableEntries {
                   CaseItem(Const(LogicValue.ofInt(entry, addrWidth)), [
                     rdPort.data < _storageBank[entry],
                     rdPort.valid < 1,
+                    rdPort.done < 1,
                   ]),
               ],
-              defaultItem: [rdPort.data < Const(0, width: dataWidth)],
+              defaultItem: [
+                rdPort.data < Const(0, width: dataWidth),
+                rdPort.valid < 0,
+                rdPort.done < 1
+              ],
             ),
           ],
         ),

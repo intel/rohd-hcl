@@ -70,13 +70,12 @@ class MemoryModel extends Memory {
           // storage doesnt have access to `en`, so check ourselves
           storage.invalidWrite();
           wrPort.valid.inject(0);
+          wrPort.done.inject(1);
           return;
         }
 
-        if (wrPort.en.previousValue == LogicValue.one) {
+        if (wrPort.en.value == LogicValue.one) {
           final addrValue = wrPort.addr.previousValue!;
-
-          wrPort.valid.inject(1);
 
           if (wrPort is MaskedDataPortInterface) {
             storage.writeData(
@@ -94,6 +93,12 @@ class MemoryModel extends Memory {
           } else {
             storage.writeData(addrValue, wrPort.data.previousValue!);
           }
+
+          wrPort.valid.inject(1);
+          wrPort.done.inject(1);
+        } else {
+          wrPort.valid.inject(0);
+          wrPort.done.inject(0);
         }
       }
 
@@ -138,6 +143,7 @@ class MemoryModel extends Memory {
       rdPort.data.put(storage.readData(rdPort.addr.value));
       rdPort.valid.put(1);
     }
+    rdPort.done.put(1);
   }
 
   /// Updates read data for [rdPort] after [readLatency] time.
@@ -147,5 +153,6 @@ class MemoryModel extends Memory {
     }
     rdPort.data.inject(data);
     rdPort.valid.inject(1);
+    rdPort.done.put(1);
   }
 }
