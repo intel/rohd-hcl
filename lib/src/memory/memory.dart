@@ -65,8 +65,11 @@ class DataPortInterface extends Interface<DataPortGroup> {
   /// The data sent or received with the associated request.
   Logic get data => port('data');
 
-  /// Whether the data was successfully sent or received
+  /// Whether the data was successfully read or written, has the same latency as data.
   Logic get valid => port('valid');
+
+  /// Whether the data has finished being read or written, has the same latency as data.
+  Logic get done => port('done');
 
   /// Constructs a new interface of specified [dataWidth] and [addrWidth] for
   /// interacting with a memory in either the read or write direction.
@@ -86,6 +89,7 @@ class DataPortInterface extends Interface<DataPortGroup> {
 
     setPorts([
       Logic.port('valid'),
+      Logic.port('done'),
     ], [
       DataPortGroup.integrity
     ]);
