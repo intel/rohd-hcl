@@ -85,15 +85,13 @@ abstract class Axi4ChannelInterface extends PairInterface {
       if (userWidth > 0) Logic.port('${prefix}USER', userWidth),
       Logic.port('${prefix}VALID'),
     ], [
-      if (main) PairDirection.fromProvider,
-      if (!main) PairDirection.fromConsumer,
+      if (main) PairDirection.fromProvider else PairDirection.fromConsumer,
     ]);
 
     setPorts([
       Logic.port('${prefix}READY'),
     ], [
-      if (main) PairDirection.fromConsumer,
-      if (!main) PairDirection.fromProvider,
+      if (main) PairDirection.fromConsumer else PairDirection.fromProvider,
     ]);
   }
 }
@@ -350,8 +348,7 @@ abstract class Axi4DataChannelInterface extends Axi4ChannelInterface {
       Logic.port('${prefix}DATA', dataWidth),
       if (useLast) Logic.port('${prefix}LAST'),
     ], [
-      if (main) PairDirection.fromProvider,
-      if (!main) PairDirection.fromConsumer,
+      if (main) PairDirection.fromProvider else PairDirection.fromConsumer,
     ]);
   }
 
