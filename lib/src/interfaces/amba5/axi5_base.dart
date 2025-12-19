@@ -31,8 +31,7 @@ abstract class Axi5BaseInterface extends PairInterface {
     setPorts([
       Logic.port('${prefix}VALID'),
     ], [
-      if (main) PairDirection.fromProvider,
-      if (!main) PairDirection.fromConsumer,
+      if (main) PairDirection.fromProvider else PairDirection.fromConsumer,
     ]);
   }
 }
@@ -88,11 +87,10 @@ abstract class Axi5TransportInterface extends Axi5BaseInterface {
   }) {
     setPorts([
       if (!useCrediting) Logic.port('${prefix}READY'),
-      if (useCrediting) Logic.port('${prefix}CRDT'),
+      if (useCrediting && numRp > 0) Logic.port('${prefix}CRDT', numRp),
       if (useCrediting && sharedCredits) Logic.port('${prefix}CRDTSH')
     ], [
-      if (main) PairDirection.fromConsumer,
-      if (!main) PairDirection.fromProvider,
+      if (main) PairDirection.fromConsumer else PairDirection.fromProvider,
     ]);
 
     setPorts([
@@ -100,8 +98,7 @@ abstract class Axi5TransportInterface extends Axi5BaseInterface {
       if (useCrediting && numRp > 0) Logic.port('${prefix}RP', log2Ceil(numRp)),
       if (useCrediting && sharedCredits) Logic.port('${prefix}SHAREDCRD')
     ], [
-      if (main) PairDirection.fromProvider,
-      if (!main) PairDirection.fromConsumer,
+      if (main) PairDirection.fromProvider else PairDirection.fromConsumer,
     ]);
   }
 }

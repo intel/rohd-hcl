@@ -1335,6 +1335,7 @@ void main() {
 
   test('evil write compliance', () async {
     Simulator.setMaxSimTime(10000);
+    Logger.root.level = Level.OFF;
     try {
       await Axi4WriteComplianceEvilTest('evilWriteCompliance').start();
     } on Exception catch (e) {
@@ -1344,6 +1345,7 @@ void main() {
 
   test('evil read compliance', () async {
     Simulator.setMaxSimTime(30000);
+    Logger.root.level = Level.OFF;
     try {
       await Axi4ReadComplianceEvilTest('evilReadCompliance').start();
     } on Exception catch (e) {

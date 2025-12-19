@@ -4,9 +4,9 @@ ROHD-HCL contains a bunch of collateral in the AXI family (including AXI-Lite, A
 
 For cross-referencing against the official AXI specifications:
 
-- Any collateral associated with the `v4` generation should be aligned with AXI specification `H.c`. The `v4` generation is now frozen hence this will not change.
-- Any collateral associated with the `v5` generation should currently be aligned with AXI specification `L`. The `v5` generation is still alive and hence the associated specification version is subject to change in the future.
-- Any AXI-S collateral across all generations should be aligned with AXI-S specification `B`.
+- Any collateral associated with the `v4` generation should be aligned with [AXI specification `H.c`](https://developer.arm.com/documentation/ihi0022/hc/?lang=en). The `v4` generation is now frozen hence this will not change.
+- Any collateral associated with the `v5` generation should currently be aligned with [AXI specification `L`](https://developer.arm.com/documentation/ihi0022/latest). The `v5` generation is still alive and hence the associated specification version is subject to change in the future.
+- Any AXI-S collateral across all generations should be aligned with [AXI-S specification `B`](https://developer.arm.com/documentation/ihi0051/latest/).
 
 ## Interfaces
 

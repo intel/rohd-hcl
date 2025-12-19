@@ -642,7 +642,7 @@ void main() {
 
   setUp(() async {
     // Set the logger level
-    Logger.root.level = Level.INFO;
+    Logger.root.level = Level.WARNING;
   });
 
   Future<void> runTest(Axi5BfmTest axi5BfmTest,

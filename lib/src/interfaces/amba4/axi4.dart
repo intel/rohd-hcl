@@ -10,19 +10,6 @@
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/src/exceptions.dart';
 
-/// A grouping of signals on the AXI
-/// interfaces based on direction.
-enum Axi4Direction {
-  /// Miscellaneous system-level signals, common inputs to both sides.
-  misc,
-
-  /// Signals driven by the main.
-  fromMain,
-
-  /// Signals driven by the subordinate.
-  fromSubordinate
-}
-
 /// AXI4 clock and reset.
 class Axi4SystemInterface extends PairInterface {
   /// Clock for the interface.
@@ -98,15 +85,13 @@ abstract class Axi4ChannelInterface extends PairInterface {
       if (userWidth > 0) Logic.port('${prefix}USER', userWidth),
       Logic.port('${prefix}VALID'),
     ], [
-      if (main) PairDirection.fromProvider,
-      if (!main) PairDirection.fromConsumer,
+      if (main) PairDirection.fromProvider else PairDirection.fromConsumer,
     ]);
 
     setPorts([
       Logic.port('${prefix}READY'),
     ], [
-      if (main) PairDirection.fromConsumer,
-      if (!main) PairDirection.fromProvider,
+      if (main) PairDirection.fromConsumer else PairDirection.fromProvider,
     ]);
   }
 }
@@ -363,8 +348,7 @@ abstract class Axi4DataChannelInterface extends Axi4ChannelInterface {
       Logic.port('${prefix}DATA', dataWidth),
       if (useLast) Logic.port('${prefix}LAST'),
     ], [
-      if (main) PairDirection.fromProvider,
-      if (!main) PairDirection.fromConsumer,
+      if (main) PairDirection.fromProvider else PairDirection.fromConsumer,
     ]);
   }
 
