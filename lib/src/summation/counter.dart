@@ -1,4 +1,4 @@
-// Copyright (C) 2024 Intel Corporation
+// Copyright (C) 2024-2025 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 //
 // counter.dart
@@ -150,6 +150,45 @@ class Counter extends SummationBase {
               hasEnable: enable != null,
               increments: increments)
             ..enable?.gets(enable!),
+        ],
+            clk: clk,
+            reset: reset,
+            resetValue: resetValue,
+            asyncReset: asyncReset,
+            restart: restart,
+            maxValue: maxValue,
+            minValue: minValue,
+            width: width,
+            saturates: saturates,
+            name: name);
+
+  /// A simplified constructor for [Counter] that accepts a single fixed amount
+  /// to count [by] along with much of the
+  /// other available configuration in the default [Counter] constructor.
+  /// And allows for both incrementing and decrementing the count.
+  Counter.upDown({
+    required Logic clk,
+    required Logic reset,
+    required Logic enableInc,
+    required Logic enableDec,
+    int by = 1,
+    int minValue = 0,
+    int? maxValue,
+    int? width,
+    Logic? restart,
+    bool saturates = false,
+    bool asyncReset = false,
+    int resetValue = 0,
+    String name = 'counter',
+  }) : this([
+          SumInterface(
+            width: width,
+            fixedAmount: by,
+            hasEnable: true,
+          )..enable!.gets(enableInc),
+          SumInterface(
+              width: width, fixedAmount: by, hasEnable: true, increments: false)
+            ..enable!.gets(enableDec),
         ],
             clk: clk,
             reset: reset,
