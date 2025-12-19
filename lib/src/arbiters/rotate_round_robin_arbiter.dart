@@ -17,6 +17,7 @@ class RotateRoundRobinArbiter extends StatefulArbiter
   RotateRoundRobinArbiter(super.requests,
       {required super.clk,
       required super.reset,
+      super.name = 'rotate_round_robin_arbiter',
       super.reserveName,
       super.reserveDefinitionName,
       String? definitionName})

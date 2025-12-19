@@ -114,7 +114,8 @@ Some in-development items will have opened issues, as well. Feel free to create 
   - [Memory Model](./components/memory.md#memory-models)
   - [Control/Status Registers (CSRs)](./components/csr.md)
 - Standard interfaces
-  - AXI
+  - [AXI](./components/amba/axi.md)
+  - [LTI](./components/amba/lti.md)
   - [APB](./components/standard_interfaces.md#apb)
   - AHB
   - SFI
@@ -126,7 +127,9 @@ Some in-development items will have opened issues, as well. Feel free to create 
   - DDR
   - HBM
 - Models
-  - [APB](./components/apb_bfm.md)
+  - [AXI](./components/amba/axi.md)
+  - [LTI](./components/amba/lti.md)
+  - [APB](./components/amba/apb_bfm.md)
   - [Ready/Valid](./components/ready_valid_bfm.md)
   - [SPI](./components/spi_bfm.md)
   - CXL

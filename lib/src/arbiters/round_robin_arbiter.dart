@@ -1,4 +1,4 @@
-// Copyright (C) 2023-2024 Intel Corporation
+// Copyright (C) 2023-2025 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 //
 // round_robin_arbiter.dart
@@ -16,12 +16,14 @@ abstract class RoundRobinArbiter extends StatefulArbiter {
   factory RoundRobinArbiter(List<Logic> requests,
           {required Logic clk,
           required Logic reset,
+          String name = 'round_robin_arbiter',
           bool reserveName = false,
           bool reserveDefinitionName = false,
           String? definitionName}) =>
       MaskRoundRobinArbiter(requests,
           clk: clk,
           reset: reset,
+          name: name,
           reserveName: reserveName,
           reserveDefinitionName: reserveDefinitionName,
           definitionName: definitionName);
