@@ -65,6 +65,8 @@
 <li><span class="parameter" id="-param-qos"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.6/rohd/LogicValue-class.html">LogicValue</a>?</span> <span class="parameter-name">qos</span>, </span></li>
 <li><span class="parameter" id="-param-region"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.6/rohd/LogicValue-class.html">LogicValue</a>?</span> <span class="parameter-name">region</span>, </span></li>
 <li><span class="parameter" id="-param-user"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.6/rohd/LogicValue-class.html">LogicValue</a>?</span> <span class="parameter-name">user</span>, </span></li>
+<li><span class="parameter" id="-param-domain"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.6/rohd/LogicValue-class.html">LogicValue</a>?</span> <span class="parameter-name">domain</span>, </span></li>
+<li><span class="parameter" id="-param-bar"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.6/rohd/LogicValue-class.html">LogicValue</a>?</span> <span class="parameter-name">bar</span>, </span></li>
 </ol>})
     </section>
     
@@ -76,7 +78,8 @@
     
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
-  <pre class="language-dart"><code class="language-dart">Axi4RequestPacket(
+  <pre class="language-dart"><code class="language-dart">&#47;&#47; TODO(kimmeljo): how to capture the type (AR vs. AW)??
+Axi4RequestPacket(
     {required this.addr,
     required this.prot,
     this.id,
@@ -87,7 +90,9 @@
     this.cache,
     this.qos,
     this.region,
-    this.user});</code></pre>
+    this.user,
+    this.domain,
+    this.bar});</code></pre>
 </section>
 
 

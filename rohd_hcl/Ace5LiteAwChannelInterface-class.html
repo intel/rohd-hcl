@@ -1,0 +1,1795 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="API docs for the Ace5LiteAwChannelInterface class from the rohd_hcl library, for the Dart programming language.">
+  <title>Ace5LiteAwChannelInterface class - rohd_hcl library - Dart API</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../static-assets/github.css?v1">
+  <link rel="stylesheet" href="../static-assets/styles.css?v1">
+  <link rel="icon" href="../static-assets/favicon.png?v1">
+  
+</head>
+
+<body data-base-href="../" data-using-base-href="false" class="light-theme">
+<div id="overlay-under-drawer"></div>
+<header id="title">
+  <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="../index.html">rohd_hcl</a></li>
+    <li><a href="../rohd_hcl/">rohd_hcl.dart</a></li>
+    <li class="self-crumb">Ace5LiteAwChannelInterface class</li>
+  </ol>
+  <div class="self-name">Ace5LiteAwChannelInterface</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+  <button class="toggle" id="theme-button" title="Toggle between light and dark mode" aria-label="Light and dark mode toggle">
+    <span id="dark-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      dark_mode
+    </span>
+    <span id="light-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      light_mode
+    </span>
+  </button>
+</header>
+<main>
+<div
+    id="dartdoc-main-content"
+    class="main-content"
+    data-above-sidebar="rohd_hcl&#47;rohd_hcl-library-sidebar.html"
+    data-below-sidebar="rohd_hcl&#47;Ace5LiteAwChannelInterface-class-sidebar.html">
+    <div>
+<h1><span class="kind-class">Ace5LiteAwChannelInterface</span> class 
+ 
+</h1></div>
+
+    
+<section class="desc markdown">
+  <p>ACE-5 Lite AW channel.</p>
+</section>
+
+
+    <section>
+      <dl class="dl-horizontal">
+        
+  <dt>Inheritance</dt>
+  <dd>
+    <ul class="gt-separated dark clazz-relationships">
+      <li><a href="https://api.dart.dev/stable/3.10.6/dart-core/Object-class.html">Object</a></li>
+        <li><a href="https://pub.dev/documentation/rohd/0.6.6/rohd/Interface-class.html">Interface</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://pub.dev/documentation/rohd/0.6.6/rohd/PairDirection.html">PairDirection</a></span>&gt;</span></li>
+        <li><a href="https://pub.dev/documentation/rohd/0.6.6/rohd/PairInterface-class.html">PairInterface</a></li>
+        <li><a href="../rohd_hcl/Axi5BaseInterface-class.html">Axi5BaseInterface</a></li>
+        <li><a href="../rohd_hcl/Axi5TransportInterface-class.html">Axi5TransportInterface</a></li>
+        <li><a href="../rohd_hcl/Axi5AwChannelInterface-class.html">Axi5AwChannelInterface</a></li>
+      <li>Ace5LiteAwChannelInterface</li>
+    </ul>
+  </dd>
+
+        
+        
+
+
+        
+        
+
+
+      </dl>
+    </section>
+
+    
+  <section class="summary offset-anchor" id="constructors">
+    <h2>Constructors</h2>
+    <dl class="constructor-summary-list">
+        <dt id="Ace5LiteAwChannelInterface.new" class="callable">
+          <span class="name"><a href="../rohd_hcl/Ace5LiteAwChannelInterface/Ace5LiteAwChannelInterface.html">Ace5LiteAwChannelInterface</a></span><span class="signature">({<span class="parameter" id="-param-config"><span>required</span> <span class="type-annotation"><a href="../rohd_hcl/Axi5BaseAwChannelConfig-class.html">Axi5BaseAwChannelConfig</a></span> <span class="parameter-name">config</span>, </span><span class="parameter" id="-param-userMixInEnable"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.10.6/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">userMixInEnable</span> = <span class="default-value">false</span>, </span><span class="parameter" id="-param-idMixInEnable"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.10.6/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">idMixInEnable</span> = <span class="default-value">false</span>, </span><span class="parameter" id="-param-debugMixInEnable"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.10.6/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">debugMixInEnable</span> = <span class="default-value">false</span>, </span><span class="parameter" id="-param-atomicMixInEnable"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.10.6/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">atomicMixInEnable</span> = <span class="default-value">false</span>, </span><span class="parameter" id="-param-mmuMixInEnable"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.10.6/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">mmuMixInEnable</span> = <span class="default-value">false</span>, </span><span class="parameter" id="-param-stashMixInEnable"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.10.6/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">stashMixInEnable</span> = <span class="default-value">false</span>, </span><span class="parameter" id="-param-qualMixInEnable"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.10.6/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">qualMixInEnable</span> = <span class="default-value">false</span>, </span><span class="parameter" id="-param-tagMixInEnable"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.10.6/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">tagMixInEnable</span> = <span class="default-value">false</span>, </span><span class="parameter" id="-param-opcodeMixInEnable"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.10.6/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">opcodeMixInEnable</span> = <span class="default-value">false</span></span>})</span>
+        </dt>
+        <dd>
+          Constructor.
+        </dd>
+    </dl>
+  </section>
+    
+  <section
+      class="summary offset-anchor inherited"
+      id="instance-properties">
+    <h2>Properties</h2>
+    <dl class="properties">
+        <dt id="act" class="property inherited">
+  <span class="name"><a href="../rohd_hcl/Axi5QualifierSignals/act.html">act</a></span>
+  <span class="signature">&#8594; <a href="https://pub.dev/documentation/rohd/0.6.6/rohd/Logic-class.html">Logic</a>?</span>
+  
+
+</dt>
+<dd class="inherited">
+  Arm Compression Technology.
+  <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="actV" class="property inherited">
+  <span class="name"><a href="../rohd_hcl/Axi5QualifierSignals/actV.html">actV</a></span>
+  <span class="signature">&#8594; <a href="https://pub.dev/documentation/rohd/0.6.6/rohd/Logic-class.html">Logic</a>?</span>
+  
+
+</dt>
+<dd class="inherited">
+  Arm Compression Technology valid.
+  <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="actWidth" class="property inherited">
+  <span class="name"><a href="../rohd_hcl/Axi5AwChannelInterface/actWidth.html">actWidth</a></span>
+  <span class="signature">&#8594; <a href="https://api.dart.dev/stable/3.10.6/dart-core/int-class.html">int</a></span>
+  
+
+</dt>
+<dd class="inherited">
+  ACT width.
+  <div class="features"><span class="feature">final</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="addr" class="property inherited">
+  <span class="name"><a href="../rohd_hcl/Axi5RequestSignals/addr.html">addr</a></span>
+  <span class="signature">&#8594; <a href="https://pub.dev/documentation/rohd/0.6.6/rohd/Logic-class.html">Logic</a></span>
+  
+
+</dt>
+<dd class="inherited">
+  The address of the first transfer in a transaction.
+  <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="addrWidth" class="property inherited">
+  <span class="name"><a href="../rohd_hcl/Axi5AwChannelInterface/addrWidth.html">addrWidth</a></span>
+  <span class="signature">&#8594; <a href="https://api.dart.dev/stable/3.10.6/dart-core/int-class.html">int</a></span>
+  
+
+</dt>
+<dd class="inherited">
+  Width of the address bus.
+  <div class="features"><span class="feature">final</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="atomicMixInEnable" class="property inherited">
+  <span class="name"><a href="../rohd_hcl/Axi5AwChannelInterface/atomicMixInEnable.html">atomicMixInEnable</a></span>
+  <span class="signature">&#8594; <a href="https://api.dart.dev/stable/3.10.6/dart-core/bool-class.html">bool</a></span>
+  
+
+</dt>
+<dd class="inherited">
+  Enable Atomic signal mixin
+  <div class="features"><span class="feature">final</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="atOp" class="property inherited">
+  <span class="name"><a href="../rohd_hcl/Axi5AtomicSignals/atOp.html">atOp</a></span>
+  <span class="signature">&#8594; <a href="https://pub.dev/documentation/rohd/0.6.6/rohd/Logic-class.html">Logic</a>?</span>
+  
+
+</dt>
+<dd class="inherited">
+  Atomic operation type for a transaction.
+  <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="atOpWidth" class="property inherited">
+  <span class="name"><a href="../rohd_hcl/Axi5AwChannelInterface/atOpWidth.html">atOpWidth</a></span>
+  <span class="signature">&#8594; <a href="https://api.dart.dev/stable/3.10.6/dart-core/int-class.html">int</a></span>
+  
+
+</dt>
+<dd class="inherited">
+  Width of the ATOP signal.
+  <div class="features"><span class="feature">final</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="burst" class="property inherited">
+  <span class="name"><a href="../rohd_hcl/Axi5RequestSignals/burst.html">burst</a></span>
+  <span class="signature">&#8594; <a href="https://pub.dev/documentation/rohd/0.6.6/rohd/Logic-class.html">Logic</a>?</span>
+  
+
+</dt>
+<dd class="inherited">
+  Burst type, indicates how address changes between
+each transfer in a transaction.
+  <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="burstWidth" class="property inherited">
+  <span class="name"><a href="../rohd_hcl/Axi5AwChannelInterface/burstWidth.html">burstWidth</a></span>
+  <span class="signature">&#8594; <a href="https://api.dart.dev/stable/3.10.6/dart-core/int-class.html">int</a></span>
+  
+
+</dt>
+<dd class="inherited">
+  Width of the BURST signal.
+  <div class="features"><span class="feature">final</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="cache" class="property inherited">
+  <span class="name"><a href="../rohd_hcl/Axi5MemoryAttributeSignals/cache.html">cache</a></span>
+  <span class="signature">&#8594; <a href="https://pub.dev/documentation/rohd/0.6.6/rohd/Logic-class.html">Logic</a>?</span>
+  
+
+</dt>
+<dd class="inherited">
+  Indicates how a transaction is required to progress through a system.
+  <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="cacheWidth" class="property inherited">
+  <span class="name"><a href="../rohd_hcl/Axi5AwChannelInterface/cacheWidth.html">cacheWidth</a></span>
+  <span class="signature">&#8594; <a href="https://api.dart.dev/stable/3.10.6/dart-core/int-class.html">int</a></span>
+  
+
+</dt>
+<dd class="inherited">
+  Width of the CACHE signal.
+  <div class="features"><span class="feature">final</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="cmo" class="property inherited">
+  <span class="name"><a href="../rohd_hcl/Axi5StashSignals/cmo.html">cmo</a></span>
+  <span class="signature">&#8594; <a href="https://pub.dev/documentation/rohd/0.6.6/rohd/Logic-class.html">Logic</a>?</span>
+  
+
+</dt>
+<dd class="inherited">
+  Cache maintenance operation.
+  <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="cmoWidth" class="property inherited">
+  <span class="name"><a href="../rohd_hcl/Axi5AwChannelInterface/cmoWidth.html">cmoWidth</a></span>
+  <span class="signature">&#8594; <a href="https://api.dart.dev/stable/3.10.6/dart-core/int-class.html">int</a></span>
+  
+
+</dt>
+<dd class="inherited">
+  Width of the CMO signal.
+  <div class="features"><span class="feature">final</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="crdt" class="property inherited">
+  <span class="name"><a href="../rohd_hcl/Axi5TransportInterface/crdt.html">crdt</a></span>
+  <span class="signature">&#8594; <a href="https://pub.dev/documentation/rohd/0.6.6/rohd/Logic-class.html">Logic</a>?</span>
+  
+
+</dt>
+<dd class="inherited">
+  Give one credit on the given resource plane.
+  <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="crdtSh" class="property inherited">
+  <span class="name"><a href="../rohd_hcl/Axi5TransportInterface/crdtSh.html">crdtSh</a></span>
+  <span class="signature">&#8594; <a href="https://pub.dev/documentation/rohd/0.6.6/rohd/Logic-class.html">Logic</a>?</span>
+  
+
+</dt>
+<dd class="inherited">
+  Give one shared credit.
+  <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="debugMixInEnable" class="property inherited">
+  <span class="name"><a href="../rohd_hcl/Axi5AwChannelInterface/debugMixInEnable.html">debugMixInEnable</a></span>
+  <span class="signature">&#8594; <a href="https://api.dart.dev/stable/3.10.6/dart-core/bool-class.html">bool</a></span>
+  
+
+</dt>
+<dd class="inherited">
+  Enable Debug signal mixin
+  <div class="features"><span class="feature">final</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="domain" class="property inherited">
+  <span class="name"><a href="../rohd_hcl/Axi5StashSignals/domain.html">domain</a></span>
+  <span class="signature">&#8594; <a href="https://pub.dev/documentation/rohd/0.6.6/rohd/Logic-class.html">Logic</a>?</span>
+  
+
+</dt>
+<dd class="inherited">
+  Domain for requests.
+  <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="domainWidth" class="property inherited">
+  <span class="name"><a href="../rohd_hcl/Axi5AwChannelInterface/domainWidth.html">domainWidth</a></span>
+  <span class="signature">&#8594; <a href="https://api.dart.dev/stable/3.10.6/dart-core/int-class.html">int</a></span>
+  
+
+</dt>
+<dd class="inherited">
+  Width of the DOMAIN signal.
+  <div class="features"><span class="feature">final</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="hashCode" class="property inherited">
+  <span class="name"><a href="https://api.dart.dev/stable/3.10.6/dart-core/Object/hashCode.html">hashCode</a></span>
+  <span class="signature">&#8594; <a href="https://api.dart.dev/stable/3.10.6/dart-core/int-class.html">int</a></span>
+  
+
+</dt>
+<dd class="inherited">
+  The hash code for this object.
+  <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="id" class="property inherited">
+  <span class="name"><a href="../rohd_hcl/Axi5IdSignals/id.html">id</a></span>
+  <span class="signature">&#8594; <a href="https://pub.dev/documentation/rohd/0.6.6/rohd/Logic-class.html">Logic</a>?</span>
+  
+
+</dt>
+<dd class="inherited">
+  Identification tag for transaction.
+  <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="idMixInEnable" class="property inherited">
+  <span class="name"><a href="../rohd_hcl/Axi5AwChannelInterface/idMixInEnable.html">idMixInEnable</a></span>
+  <span class="signature">&#8594; <a href="https://api.dart.dev/stable/3.10.6/dart-core/bool-class.html">bool</a></span>
+  
+
+</dt>
+<dd class="inherited">
+  Enable ID signal mixin
+  <div class="features"><span class="feature">final</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="idUnq" class="property inherited">
+  <span class="name"><a href="../rohd_hcl/Axi5IdSignals/idUnq.html">idUnq</a></span>
+  <span class="signature">&#8594; <a href="https://pub.dev/documentation/rohd/0.6.6/rohd/Logic-class.html">Logic</a>?</span>
+  
+
+</dt>
+<dd class="inherited">
+  Coherency barrier.
+  <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="idWidth" class="property inherited">
+  <span class="name"><a href="../rohd_hcl/Axi5AwChannelInterface/idWidth.html">idWidth</a></span>
+  <span class="signature">&#8594; <a href="https://api.dart.dev/stable/3.10.6/dart-core/int-class.html">int</a></span>
+  
+
+</dt>
+<dd class="inherited">
+  Width of the ID signal.
+  <div class="features"><span class="feature">final</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="inst" class="property inherited">
+  <span class="name"><a href="../rohd_hcl/Axi5ProtSignals/inst.html">inst</a></span>
+  <span class="signature">&#8594; <a href="https://pub.dev/documentation/rohd/0.6.6/rohd/Logic-class.html">Logic</a>?</span>
+  
+
+</dt>
+<dd class="inherited">
+  Instruction versus data access.
+  <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="instPrivPresent" class="property inherited">
+  <span class="name"><a href="../rohd_hcl/Axi5AwChannelInterface/instPrivPresent.html">instPrivPresent</a></span>
+  <span class="signature">&#8594; <a href="https://api.dart.dev/stable/3.10.6/dart-core/bool-class.html">bool</a></span>
+  
+
+</dt>
+<dd class="inherited">
+  Inst/priv support.
+  <div class="features"><span class="feature">final</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="len" class="property inherited">
+  <span class="name"><a href="../rohd_hcl/Axi5RequestSignals/len.html">len</a></span>
+  <span class="signature">&#8594; <a href="https://pub.dev/documentation/rohd/0.6.6/rohd/Logic-class.html">Logic</a>?</span>
+  
+
+</dt>
+<dd class="inherited">
+  Length, the exact number of data transfers in a transaction.
+  <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="lenWidth" class="property inherited">
+  <span class="name"><a href="../rohd_hcl/Axi5AwChannelInterface/lenWidth.html">lenWidth</a></span>
+  <span class="signature">&#8594; <a href="https://api.dart.dev/stable/3.10.6/dart-core/int-class.html">int</a></span>
+  
+
+</dt>
+<dd class="inherited">
+  Width of LEN signal.
+  <div class="features"><span class="feature">final</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="lock" class="property inherited">
+  <span class="name"><a href="../rohd_hcl/Axi5AtomicSignals/lock.html">lock</a></span>
+  <span class="signature">&#8594; <a href="https://pub.dev/documentation/rohd/0.6.6/rohd/Logic-class.html">Logic</a>?</span>
+  
+
+</dt>
+<dd class="inherited">
+  Provides information about atomic characteristics of a transaction.
+  <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="loop" class="property inherited">
+  <span class="name"><a href="../rohd_hcl/Axi5DebugSignals/loop.html">loop</a></span>
+  <span class="signature">&#8594; <a href="https://pub.dev/documentation/rohd/0.6.6/rohd/Logic-class.html">Logic</a>?</span>
+  
+
+</dt>
+<dd class="inherited">
+  Loopback signal.
+  <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="loopWidth" class="property inherited">
+  <span class="name"><a href="../rohd_hcl/Axi5AwChannelInterface/loopWidth.html">loopWidth</a></span>
+  <span class="signature">&#8594; <a href="https://api.dart.dev/stable/3.10.6/dart-core/int-class.html">int</a></span>
+  
+
+</dt>
+<dd class="inherited">
+  Loopback signal width.
+  <div class="features"><span class="feature">final</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="main" class="property inherited">
+  <span class="name"><a href="../rohd_hcl/Axi5BaseInterface/main.html">main</a></span>
+  <span class="signature">&#8594; <a href="https://api.dart.dev/stable/3.10.6/dart-core/bool-class.html">bool</a></span>
+  
+
+</dt>
+<dd class="inherited">
+  Helper to control which direction the signals should be coming from.
+  <div class="features"><span class="feature">final</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="mecId" class="property inherited">
+  <span class="name"><a href="../rohd_hcl/Axi5MemoryAttributeSignals/mecId.html">mecId</a></span>
+  <span class="signature">&#8594; <a href="https://pub.dev/documentation/rohd/0.6.6/rohd/Logic-class.html">Logic</a>?</span>
+  
+
+</dt>
+<dd class="inherited">
+  Memory encryption ID of transaction.
+  <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="mecIdWidth" class="property inherited">
+  <span class="name"><a href="../rohd_hcl/Axi5AwChannelInterface/mecIdWidth.html">mecIdWidth</a></span>
+  <span class="signature">&#8594; <a href="https://api.dart.dev/stable/3.10.6/dart-core/int-class.html">int</a></span>
+  
+
+</dt>
+<dd class="inherited">
+  Width of MECID field.
+  <div class="features"><span class="feature">final</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="mmuAtSt" class="property inherited">
+  <span class="name"><a href="../rohd_hcl/Axi5MmuSignals/mmuAtSt.html">mmuAtSt</a></span>
+  <span class="signature">&#8594; <a href="https://pub.dev/documentation/rohd/0.6.6/rohd/Logic-class.html">Logic</a>?</span>
+  
+
+</dt>
+<dd class="inherited">
+  Address translated indicator.
+  <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="mmuFlow" class="property inherited">
+  <span class="name"><a href="../rohd_hcl/Axi5MmuSignals/mmuFlow.html">mmuFlow</a></span>
+  <span class="signature">&#8594; <a href="https://pub.dev/documentation/rohd/0.6.6/rohd/Logic-class.html">Logic</a>?</span>
+  
+
+</dt>
+<dd class="inherited">
+  SMMU flow type.
+  <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="mmuMixInEnable" class="property inherited">
+  <span class="name"><a href="../rohd_hcl/Axi5AwChannelInterface/mmuMixInEnable.html">mmuMixInEnable</a></span>
+  <span class="signature">&#8594; <a href="https://api.dart.dev/stable/3.10.6/dart-core/bool-class.html">bool</a></span>
+  
+
+</dt>
+<dd class="inherited">
+  Enable MMU signal mixin
+  <div class="features"><span class="feature">final</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="mmuPasUnknown" class="property inherited">
+  <span class="name"><a href="../rohd_hcl/Axi5MmuSignals/mmuPasUnknown.html">mmuPasUnknown</a></span>
+  <span class="signature">&#8594; <a href="https://pub.dev/documentation/rohd/0.6.6/rohd/Logic-class.html">Logic</a>?</span>
+  
+
+</dt>
+<dd class="inherited">
+  Physical address space unknown.
+  <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="mmuPm" class="property inherited">
+  <span class="name"><a href="../rohd_hcl/Axi5MmuSignals/mmuPm.html">mmuPm</a></span>
+  <span class="signature">&#8594; <a href="https://pub.dev/documentation/rohd/0.6.6/rohd/Logic-class.html">Logic</a>?</span>
+  
+
+</dt>
+<dd class="inherited">
+  Protected mode indicator.
+  <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="mmuSecSid" class="property inherited">
+  <span class="name"><a href="../rohd_hcl/Axi5MmuSignals/mmuSecSid.html">mmuSecSid</a></span>
+  <span class="signature">&#8594; <a href="https://pub.dev/documentation/rohd/0.6.6/rohd/Logic-class.html">Logic</a>?</span>
+  
+
+</dt>
+<dd class="inherited">
+  Secure stream ID.
+  <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="mmuSid" class="property inherited">
+  <span class="name"><a href="../rohd_hcl/Axi5MmuSignals/mmuSid.html">mmuSid</a></span>
+  <span class="signature">&#8594; <a href="https://pub.dev/documentation/rohd/0.6.6/rohd/Logic-class.html">Logic</a>?</span>
+  
+
+</dt>
+<dd class="inherited">
+  Stream ID.
+  <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="mmuSsid" class="property inherited">
+  <span class="name"><a href="../rohd_hcl/Axi5MmuSignals/mmuSsid.html">mmuSsid</a></span>
+  <span class="signature">&#8594; <a href="https://pub.dev/documentation/rohd/0.6.6/rohd/Logic-class.html">Logic</a>?</span>
+  
+
+</dt>
+<dd class="inherited">
+  Substream ID.
+  <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="mmuSsidV" class="property inherited">
+  <span class="name"><a href="../rohd_hcl/Axi5MmuSignals/mmuSsidV.html">mmuSsidV</a></span>
+  <span class="signature">&#8594; <a href="https://pub.dev/documentation/rohd/0.6.6/rohd/Logic-class.html">Logic</a>?</span>
+  
+
+</dt>
+<dd class="inherited">
+  Substream ID valid.
+  <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="mmuValid" class="property inherited">
+  <span class="name"><a href="../rohd_hcl/Axi5MmuSignals/mmuValid.html">mmuValid</a></span>
+  <span class="signature">&#8594; <a href="https://pub.dev/documentation/rohd/0.6.6/rohd/Logic-class.html">Logic</a>?</span>
+  
+
+</dt>
+<dd class="inherited">
+  MMU signal qualifier.
+  <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="modify" class="property inherited">
+  <span class="name"><a href="https://pub.dev/documentation/rohd/0.6.6/rohd/PairInterface/modify.html">modify</a></span>
+  <span class="signature">&#8596; <a href="https://api.dart.dev/stable/3.10.6/dart-core/String-class.html">String</a> Function<span class="signature">(<span class="parameter" id="param-original"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.10.6/dart-core/String-class.html">String</a></span> <span class="parameter-name">original</span></span>)</span>?</span>
+  
+
+</dt>
+<dd class="inherited">
+  A function that can be used to modify all port names in a certain way.
+  <div class="features"><span class="feature">getter/setter pair</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="mpam" class="property inherited">
+  <span class="name"><a href="../rohd_hcl/Axi5MemPartTagSignals/mpam.html">mpam</a></span>
+  <span class="signature">&#8594; <a href="https://pub.dev/documentation/rohd/0.6.6/rohd/Logic-class.html">Logic</a>?</span>
+  
+
+</dt>
+<dd class="inherited">
+  Memory system resource partioning and monitoring.
+  <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="mpamWidth" class="property inherited">
+  <span class="name"><a href="../rohd_hcl/Axi5AwChannelInterface/mpamWidth.html">mpamWidth</a></span>
+  <span class="signature">&#8594; <a href="https://api.dart.dev/stable/3.10.6/dart-core/int-class.html">int</a></span>
+  
+
+</dt>
+<dd class="inherited">
+  Width of MPAM signal.
+  <div class="features"><span class="feature">final</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="nsaId" class="property inherited">
+  <span class="name"><a href="../rohd_hcl/Axi5QualifierSignals/nsaId.html">nsaId</a></span>
+  <span class="signature">&#8594; <a href="https://pub.dev/documentation/rohd/0.6.6/rohd/Logic-class.html">Logic</a>?</span>
+  
+
+</dt>
+<dd class="inherited">
+  Non-secure access ID.
+  <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="nse" class="property inherited">
+  <span class="name"><a href="../rohd_hcl/Axi5ProtSignals/nse.html">nse</a></span>
+  <span class="signature">&#8594; <a href="https://pub.dev/documentation/rohd/0.6.6/rohd/Logic-class.html">Logic</a>?</span>
+  
+
+</dt>
+<dd class="inherited">
+  Non-Secure Extension.
+  <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="numRp" class="property inherited">
+  <span class="name"><a href="../rohd_hcl/Axi5TransportInterface/numRp.html">numRp</a></span>
+  <span class="signature">&#8594; <a href="https://api.dart.dev/stable/3.10.6/dart-core/int-class.html">int</a></span>
+  
+
+</dt>
+<dd class="inherited">
+  Number of resource planes.
+  <div class="features"><span class="feature">final</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="opcodeMixInEnable" class="property inherited">
+  <span class="name"><a href="../rohd_hcl/Axi5AwChannelInterface/opcodeMixInEnable.html">opcodeMixInEnable</a></span>
+  <span class="signature">&#8594; <a href="https://api.dart.dev/stable/3.10.6/dart-core/bool-class.html">bool</a></span>
+  
+
+</dt>
+<dd class="inherited">
+  Enable Opcode signal mixin
+  <div class="features"><span class="feature">final</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="pas" class="property inherited">
+  <span class="name"><a href="../rohd_hcl/Axi5ProtSignals/pas.html">pas</a></span>
+  <span class="signature">&#8594; <a href="https://pub.dev/documentation/rohd/0.6.6/rohd/Logic-class.html">Logic</a>?</span>
+  
+
+</dt>
+<dd class="inherited">
+  Physical address space of transaction.
+  <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="pasWidth" class="property inherited">
+  <span class="name"><a href="../rohd_hcl/Axi5AwChannelInterface/pasWidth.html">pasWidth</a></span>
+  <span class="signature">&#8594; <a href="https://api.dart.dev/stable/3.10.6/dart-core/int-class.html">int</a></span>
+  
+
+</dt>
+<dd class="inherited">
+  Width of PAS field.
+  <div class="features"><span class="feature">final</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="pbha" class="property inherited">
+  <span class="name"><a href="../rohd_hcl/Axi5QualifierSignals/pbha.html">pbha</a></span>
+  <span class="signature">&#8594; <a href="https://pub.dev/documentation/rohd/0.6.6/rohd/Logic-class.html">Logic</a>?</span>
+  
+
+</dt>
+<dd class="inherited">
+  Page based HW attributes.
+  <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="pending" class="property inherited">
+  <span class="name"><a href="../rohd_hcl/Axi5TransportInterface/pending.html">pending</a></span>
+  <span class="signature">&#8594; <a href="https://pub.dev/documentation/rohd/0.6.6/rohd/Logic-class.html">Logic</a>?</span>
+  
+
+</dt>
+<dd class="inherited">
+  Transfer might occur in the following cycle.
+  <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="ports" class="property inherited">
+  <span class="name"><a href="https://pub.dev/documentation/rohd/0.6.6/rohd/Interface/ports.html">ports</a></span>
+  <span class="signature">&#8594; <a href="https://api.dart.dev/stable/3.10.6/dart-core/Map-class.html">Map</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.dart.dev/stable/3.10.6/dart-core/String-class.html">String</a></span>, <span class="type-parameter"><a href="https://pub.dev/documentation/rohd/0.6.6/rohd/Logic-class.html">Logic</a></span>&gt;</span></span>
+  
+
+</dt>
+<dd class="inherited">
+  Maps from the <a href="https://pub.dev/documentation/rohd/0.6.6/rohd/Interface-class.html">Interface</a>'s defined port name to an instance
+of a <a href="https://pub.dev/documentation/rohd/0.6.6/rohd/Logic-class.html">Logic</a>.
+  <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="prefix" class="property inherited">
+  <span class="name"><a href="../rohd_hcl/Axi5BaseInterface/prefix.html">prefix</a></span>
+  <span class="signature">&#8594; <a href="https://api.dart.dev/stable/3.10.6/dart-core/String-class.html">String</a></span>
+  
+
+</dt>
+<dd class="inherited">
+  Prefix string for port declarations
+  <div class="features"><span class="feature">final</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="priv" class="property inherited">
+  <span class="name"><a href="../rohd_hcl/Axi5ProtSignals/priv.html">priv</a></span>
+  <span class="signature">&#8594; <a href="https://pub.dev/documentation/rohd/0.6.6/rohd/Logic-class.html">Logic</a>?</span>
+  
+
+</dt>
+<dd class="inherited">
+  Privileged versus unprivileged access.
+  <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="prot" class="property inherited">
+  <span class="name"><a href="../rohd_hcl/Axi5ProtSignals/prot.html">prot</a></span>
+  <span class="signature">&#8594; <a href="https://pub.dev/documentation/rohd/0.6.6/rohd/Logic-class.html">Logic</a>?</span>
+  
+
+</dt>
+<dd class="inherited">
+  Protection attributes of a transaction.
+  <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="protWidth" class="property inherited">
+  <span class="name"><a href="../rohd_hcl/Axi5AwChannelInterface/protWidth.html">protWidth</a></span>
+  <span class="signature">&#8594; <a href="https://api.dart.dev/stable/3.10.6/dart-core/int-class.html">int</a></span>
+  
+
+</dt>
+<dd class="inherited">
+  Width of the prot field is fixed for Axi5.
+  <div class="features"><span class="feature">final</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="qos" class="property inherited">
+  <span class="name"><a href="../rohd_hcl/Axi5RequestSignals/qos.html">qos</a></span>
+  <span class="signature">&#8594; <a href="https://pub.dev/documentation/rohd/0.6.6/rohd/Logic-class.html">Logic</a>?</span>
+  
+
+</dt>
+<dd class="inherited">
+  Quality of service identifier for a transaction.
+  <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="qosWidth" class="property inherited">
+  <span class="name"><a href="../rohd_hcl/Axi5AwChannelInterface/qosWidth.html">qosWidth</a></span>
+  <span class="signature">&#8594; <a href="https://api.dart.dev/stable/3.10.6/dart-core/int-class.html">int</a></span>
+  
+
+</dt>
+<dd class="inherited">
+  Width of the QOS signal.
+  <div class="features"><span class="feature">final</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="qualMixInEnable" class="property inherited">
+  <span class="name"><a href="../rohd_hcl/Axi5AwChannelInterface/qualMixInEnable.html">qualMixInEnable</a></span>
+  <span class="signature">&#8594; <a href="https://api.dart.dev/stable/3.10.6/dart-core/bool-class.html">bool</a></span>
+  
+
+</dt>
+<dd class="inherited">
+  Enable Qualifier signal mixin
+  <div class="features"><span class="feature">final</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="ready" class="property inherited">
+  <span class="name"><a href="../rohd_hcl/Axi5TransportInterface/ready.html">ready</a></span>
+  <span class="signature">&#8594; <a href="https://pub.dev/documentation/rohd/0.6.6/rohd/Logic-class.html">Logic</a>?</span>
+  
+
+</dt>
+<dd class="inherited">
+  Transfer is ready.
+  <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="region" class="property inherited">
+  <span class="name"><a href="../rohd_hcl/Axi5MemoryAttributeSignals/region.html">region</a></span>
+  <span class="signature">&#8594; <a href="https://pub.dev/documentation/rohd/0.6.6/rohd/Logic-class.html">Logic</a>?</span>
+  
+
+</dt>
+<dd class="inherited">
+  Region indicator for a transaction.
+  <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="regionWidth" class="property inherited">
+  <span class="name"><a href="../rohd_hcl/Axi5AwChannelInterface/regionWidth.html">regionWidth</a></span>
+  <span class="signature">&#8594; <a href="https://api.dart.dev/stable/3.10.6/dart-core/int-class.html">int</a></span>
+  
+
+</dt>
+<dd class="inherited">
+  Width of the REGION signal.
+  <div class="features"><span class="feature">final</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="rmeSupport" class="property inherited">
+  <span class="name"><a href="../rohd_hcl/Axi5AwChannelInterface/rmeSupport.html">rmeSupport</a></span>
+  <span class="signature">&#8594; <a href="https://api.dart.dev/stable/3.10.6/dart-core/bool-class.html">bool</a></span>
+  
+
+</dt>
+<dd class="inherited">
+  Realm Management Extension support.
+  <div class="features"><span class="feature">final</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="rp" class="property inherited">
+  <span class="name"><a href="../rohd_hcl/Axi5TransportInterface/rp.html">rp</a></span>
+  <span class="signature">&#8594; <a href="https://pub.dev/documentation/rohd/0.6.6/rohd/Logic-class.html">Logic</a>?</span>
+  
+
+</dt>
+<dd class="inherited">
+  Indicator of resource plane.
+  <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="runtimeType" class="property inherited">
+  <span class="name"><a href="https://api.dart.dev/stable/3.10.6/dart-core/Object/runtimeType.html">runtimeType</a></span>
+  <span class="signature">&#8594; <a href="https://api.dart.dev/stable/3.10.6/dart-core/Type-class.html">Type</a></span>
+  
+
+</dt>
+<dd class="inherited">
+  A representation of the runtime type of the object.
+  <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="secSidWidth" class="property inherited">
+  <span class="name"><a href="../rohd_hcl/Axi5AwChannelInterface/secSidWidth.html">secSidWidth</a></span>
+  <span class="signature">&#8594; <a href="https://api.dart.dev/stable/3.10.6/dart-core/int-class.html">int</a></span>
+  
+
+</dt>
+<dd class="inherited">
+  Secure stream ID width.
+  <div class="features"><span class="feature">final</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="sharedCrd" class="property inherited">
+  <span class="name"><a href="../rohd_hcl/Axi5TransportInterface/sharedCrd.html">sharedCrd</a></span>
+  <span class="signature">&#8594; <a href="https://pub.dev/documentation/rohd/0.6.6/rohd/Logic-class.html">Logic</a>?</span>
+  
+
+</dt>
+<dd class="inherited">
+  Transfer using a shared credit.
+  <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="sharedCredits" class="property inherited">
+  <span class="name"><a href="../rohd_hcl/Axi5TransportInterface/sharedCredits.html">sharedCredits</a></span>
+  <span class="signature">&#8594; <a href="https://api.dart.dev/stable/3.10.6/dart-core/bool-class.html">bool</a></span>
+  
+
+</dt>
+<dd class="inherited">
+  Include shared crediting.
+  <div class="features"><span class="feature">final</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="sidWidth" class="property inherited">
+  <span class="name"><a href="../rohd_hcl/Axi5AwChannelInterface/sidWidth.html">sidWidth</a></span>
+  <span class="signature">&#8594; <a href="https://api.dart.dev/stable/3.10.6/dart-core/int-class.html">int</a></span>
+  
+
+</dt>
+<dd class="inherited">
+  Stream ID width.
+  <div class="features"><span class="feature">final</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="size" class="property inherited">
+  <span class="name"><a href="../rohd_hcl/Axi5RequestSignals/size.html">size</a></span>
+  <span class="signature">&#8594; <a href="https://pub.dev/documentation/rohd/0.6.6/rohd/Logic-class.html">Logic</a>?</span>
+  
+
+</dt>
+<dd class="inherited">
+  Size, the number of bytes in each data transfer in a transaction.
+  <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="sizeWidth" class="property inherited">
+  <span class="name"><a href="../rohd_hcl/Axi5AwChannelInterface/sizeWidth.html">sizeWidth</a></span>
+  <span class="signature">&#8594; <a href="https://api.dart.dev/stable/3.10.6/dart-core/int-class.html">int</a></span>
+  
+
+</dt>
+<dd class="inherited">
+  Width of the SIZE signal.
+  <div class="features"><span class="feature">final</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="snoop" class="property inherited">
+  <span class="name"><a href="../rohd_hcl/Axi5OpcodeSignals/snoop.html">snoop</a></span>
+  <span class="signature">&#8594; <a href="https://pub.dev/documentation/rohd/0.6.6/rohd/Logic-class.html">Logic</a>?</span>
+  
+
+</dt>
+<dd class="inherited">
+  Opcode for snoop requests.
+  <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="snpWidth" class="property inherited">
+  <span class="name"><a href="../rohd_hcl/Axi5AwChannelInterface/snpWidth.html">snpWidth</a></span>
+  <span class="signature">&#8594; <a href="https://api.dart.dev/stable/3.10.6/dart-core/int-class.html">int</a></span>
+  
+
+</dt>
+<dd class="inherited">
+  Width of the SNOOP signal.
+  <div class="features"><span class="feature">final</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="ssidWidth" class="property inherited">
+  <span class="name"><a href="../rohd_hcl/Axi5AwChannelInterface/ssidWidth.html">ssidWidth</a></span>
+  <span class="signature">&#8594; <a href="https://api.dart.dev/stable/3.10.6/dart-core/int-class.html">int</a></span>
+  
+
+</dt>
+<dd class="inherited">
+  Substream ID width.
+  <div class="features"><span class="feature">final</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="stashLPid" class="property inherited">
+  <span class="name"><a href="../rohd_hcl/Axi5StashSignals/stashLPid.html">stashLPid</a></span>
+  <span class="signature">&#8594; <a href="https://pub.dev/documentation/rohd/0.6.6/rohd/Logic-class.html">Logic</a>?</span>
+  
+
+</dt>
+<dd class="inherited">
+  Stash Logical Processor ID.
+  <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="stashLPidEn" class="property inherited">
+  <span class="name"><a href="../rohd_hcl/Axi5StashSignals/stashLPidEn.html">stashLPidEn</a></span>
+  <span class="signature">&#8594; <a href="https://pub.dev/documentation/rohd/0.6.6/rohd/Logic-class.html">Logic</a>?</span>
+  
+
+</dt>
+<dd class="inherited">
+  Stash Logical Processor ID enable.
+  <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="stashLPidPresent" class="property inherited">
+  <span class="name"><a href="../rohd_hcl/Axi5AwChannelInterface/stashLPidPresent.html">stashLPidPresent</a></span>
+  <span class="signature">&#8594; <a href="https://api.dart.dev/stable/3.10.6/dart-core/bool-class.html">bool</a></span>
+  
+
+</dt>
+<dd class="inherited">
+  Stash Logical PID present.
+  <div class="features"><span class="feature">final</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="stashMixInEnable" class="property inherited">
+  <span class="name"><a href="../rohd_hcl/Axi5AwChannelInterface/stashMixInEnable.html">stashMixInEnable</a></span>
+  <span class="signature">&#8594; <a href="https://api.dart.dev/stable/3.10.6/dart-core/bool-class.html">bool</a></span>
+  
+
+</dt>
+<dd class="inherited">
+  Enable Stash signal mixin
+  <div class="features"><span class="feature">final</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="stashNid" class="property inherited">
+  <span class="name"><a href="../rohd_hcl/Axi5StashSignals/stashNid.html">stashNid</a></span>
+  <span class="signature">&#8594; <a href="https://pub.dev/documentation/rohd/0.6.6/rohd/Logic-class.html">Logic</a>?</span>
+  
+
+</dt>
+<dd class="inherited">
+  Stash Node ID.
+  <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="stashNidEn" class="property inherited">
+  <span class="name"><a href="../rohd_hcl/Axi5StashSignals/stashNidEn.html">stashNidEn</a></span>
+  <span class="signature">&#8594; <a href="https://pub.dev/documentation/rohd/0.6.6/rohd/Logic-class.html">Logic</a>?</span>
+  
+
+</dt>
+<dd class="inherited">
+  Stash Node ID enable.
+  <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="stashNidPresent" class="property inherited">
+  <span class="name"><a href="../rohd_hcl/Axi5AwChannelInterface/stashNidPresent.html">stashNidPresent</a></span>
+  <span class="signature">&#8594; <a href="https://api.dart.dev/stable/3.10.6/dart-core/bool-class.html">bool</a></span>
+  
+
+</dt>
+<dd class="inherited">
+  Stash NID present.
+  <div class="features"><span class="feature">final</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="subInterfaces" class="property inherited">
+  <span class="name"><a href="https://pub.dev/documentation/rohd/0.6.6/rohd/PairInterface/subInterfaces.html">subInterfaces</a></span>
+  <span class="signature">&#8594; <a href="https://api.dart.dev/stable/3.10.6/dart-core/Map-class.html">Map</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.dart.dev/stable/3.10.6/dart-core/String-class.html">String</a></span>, <span class="type-parameter"><a href="https://pub.dev/documentation/rohd/0.6.6/rohd/PairInterface-class.html">PairInterface</a></span>&gt;</span></span>
+  
+
+</dt>
+<dd class="inherited">
+  A mapping from sub-interface names to instances of sub-interfaces.
+  <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="subSysId" class="property inherited">
+  <span class="name"><a href="../rohd_hcl/Axi5QualifierSignals/subSysId.html">subSysId</a></span>
+  <span class="signature">&#8594; <a href="https://pub.dev/documentation/rohd/0.6.6/rohd/Logic-class.html">Logic</a>?</span>
+  
+
+</dt>
+<dd class="inherited">
+  Subsystem ID.
+  <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="subSysIdWidth" class="property inherited">
+  <span class="name"><a href="../rohd_hcl/Axi5AwChannelInterface/subSysIdWidth.html">subSysIdWidth</a></span>
+  <span class="signature">&#8594; <a href="https://api.dart.dev/stable/3.10.6/dart-core/int-class.html">int</a></span>
+  
+
+</dt>
+<dd class="inherited">
+  Subsystem ID width.
+  <div class="features"><span class="feature">final</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="supportGdi" class="property inherited">
+  <span class="name"><a href="../rohd_hcl/Axi5AwChannelInterface/supportGdi.html">supportGdi</a></span>
+  <span class="signature">&#8594; <a href="https://api.dart.dev/stable/3.10.6/dart-core/bool-class.html">bool</a></span>
+  
+
+</dt>
+<dd class="inherited">
+  GDI support.
+  <div class="features"><span class="feature">final</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="supportRmeAndPasMmu" class="property inherited">
+  <span class="name"><a href="../rohd_hcl/Axi5AwChannelInterface/supportRmeAndPasMmu.html">supportRmeAndPasMmu</a></span>
+  <span class="signature">&#8594; <a href="https://api.dart.dev/stable/3.10.6/dart-core/bool-class.html">bool</a></span>
+  
+
+</dt>
+<dd class="inherited">
+  RME and PAS support.
+  <div class="features"><span class="feature">final</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="tagMixInEnable" class="property inherited">
+  <span class="name"><a href="../rohd_hcl/Axi5AwChannelInterface/tagMixInEnable.html">tagMixInEnable</a></span>
+  <span class="signature">&#8594; <a href="https://api.dart.dev/stable/3.10.6/dart-core/bool-class.html">bool</a></span>
+  
+
+</dt>
+<dd class="inherited">
+  Enable Tag signal mixin
+  <div class="features"><span class="feature">final</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="tagOp" class="property inherited">
+  <span class="name"><a href="../rohd_hcl/Axi5MemPartTagSignals/tagOp.html">tagOp</a></span>
+  <span class="signature">&#8594; <a href="https://pub.dev/documentation/rohd/0.6.6/rohd/Logic-class.html">Logic</a>?</span>
+  
+
+</dt>
+<dd class="inherited">
+  Tag operation.
+  <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="trace" class="property inherited">
+  <span class="name"><a href="../rohd_hcl/Axi5DebugSignals/trace.html">trace</a></span>
+  <span class="signature">&#8594; <a href="https://pub.dev/documentation/rohd/0.6.6/rohd/Logic-class.html">Logic</a>?</span>
+  
+
+</dt>
+<dd class="inherited">
+  Trace signal.
+  <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="tracePresent" class="property inherited">
+  <span class="name"><a href="../rohd_hcl/Axi5AwChannelInterface/tracePresent.html">tracePresent</a></span>
+  <span class="signature">&#8594; <a href="https://api.dart.dev/stable/3.10.6/dart-core/bool-class.html">bool</a></span>
+  
+
+</dt>
+<dd class="inherited">
+  Trace present.
+  <div class="features"><span class="feature">final</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="untranslatedTransVersion" class="property inherited">
+  <span class="name"><a href="../rohd_hcl/Axi5AwChannelInterface/untranslatedTransVersion.html">untranslatedTransVersion</a></span>
+  <span class="signature">&#8594; <a href="https://api.dart.dev/stable/3.10.6/dart-core/int-class.html">int</a></span>
+  
+
+</dt>
+<dd class="inherited">
+  Version of the untranslated transactions spec (1-4).
+  <div class="features"><span class="feature">final</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="useCrediting" class="property inherited">
+  <span class="name"><a href="../rohd_hcl/Axi5TransportInterface/useCrediting.html">useCrediting</a></span>
+  <span class="signature">&#8594; <a href="https://api.dart.dev/stable/3.10.6/dart-core/bool-class.html">bool</a></span>
+  
+
+</dt>
+<dd class="inherited">
+  Should we use crediting.
+  <div class="features"><span class="feature">final</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="useFlow" class="property inherited">
+  <span class="name"><a href="../rohd_hcl/Axi5AwChannelInterface/useFlow.html">useFlow</a></span>
+  <span class="signature">&#8594; <a href="https://api.dart.dev/stable/3.10.6/dart-core/bool-class.html">bool</a></span>
+  
+
+</dt>
+<dd class="inherited">
+  Flow support.
+  <div class="features"><span class="feature">final</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="useIdUnq" class="property inherited">
+  <span class="name"><a href="../rohd_hcl/Axi5AwChannelInterface/useIdUnq.html">useIdUnq</a></span>
+  <span class="signature">&#8594; <a href="https://api.dart.dev/stable/3.10.6/dart-core/bool-class.html">bool</a></span>
+  
+
+</dt>
+<dd class="inherited">
+  Should the IDUNQ field be present.
+  <div class="features"><span class="feature">final</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="useLock" class="property inherited">
+  <span class="name"><a href="../rohd_hcl/Axi5AwChannelInterface/useLock.html">useLock</a></span>
+  <span class="signature">&#8594; <a href="https://api.dart.dev/stable/3.10.6/dart-core/bool-class.html">bool</a></span>
+  
+
+</dt>
+<dd class="inherited">
+  Controls the presence of LOCK signal.
+  <div class="features"><span class="feature">final</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="useNsaId" class="property inherited">
+  <span class="name"><a href="../rohd_hcl/Axi5AwChannelInterface/useNsaId.html">useNsaId</a></span>
+  <span class="signature">&#8594; <a href="https://api.dart.dev/stable/3.10.6/dart-core/bool-class.html">bool</a></span>
+  
+
+</dt>
+<dd class="inherited">
+  Control for using NSAID.
+  <div class="features"><span class="feature">final</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="usePbha" class="property inherited">
+  <span class="name"><a href="../rohd_hcl/Axi5AwChannelInterface/usePbha.html">usePbha</a></span>
+  <span class="signature">&#8594; <a href="https://api.dart.dev/stable/3.10.6/dart-core/bool-class.html">bool</a></span>
+  
+
+</dt>
+<dd class="inherited">
+  Control for using PBHA.
+  <div class="features"><span class="feature">final</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="user" class="property inherited">
+  <span class="name"><a href="../rohd_hcl/Axi5UserSignals/user.html">user</a></span>
+  <span class="signature">&#8594; <a href="https://pub.dev/documentation/rohd/0.6.6/rohd/Logic-class.html">Logic</a>?</span>
+  
+
+</dt>
+<dd class="inherited">
+  User extension.
+  <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="userMixInEnable" class="property inherited">
+  <span class="name"><a href="../rohd_hcl/Axi5AwChannelInterface/userMixInEnable.html">userMixInEnable</a></span>
+  <span class="signature">&#8594; <a href="https://api.dart.dev/stable/3.10.6/dart-core/bool-class.html">bool</a></span>
+  
+
+</dt>
+<dd class="inherited">
+  Enable User signal mixin
+  <div class="features"><span class="feature">final</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="userWidth" class="property inherited">
+  <span class="name"><a href="../rohd_hcl/Axi5AwChannelInterface/userWidth.html">userWidth</a></span>
+  <span class="signature">&#8594; <a href="https://api.dart.dev/stable/3.10.6/dart-core/int-class.html">int</a></span>
+  
+
+</dt>
+<dd class="inherited">
+  Width of the USER signal.
+  <div class="features"><span class="feature">final</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="useTagging" class="property inherited">
+  <span class="name"><a href="../rohd_hcl/Axi5AwChannelInterface/useTagging.html">useTagging</a></span>
+  <span class="signature">&#8594; <a href="https://api.dart.dev/stable/3.10.6/dart-core/bool-class.html">bool</a></span>
+  
+
+</dt>
+<dd class="inherited">
+  Support tagging feature.
+  <div class="features"><span class="feature">final</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="valid" class="property inherited">
+  <span class="name"><a href="../rohd_hcl/Axi5BaseInterface/valid.html">valid</a></span>
+  <span class="signature">&#8594; <a href="https://pub.dev/documentation/rohd/0.6.6/rohd/Logic-class.html">Logic</a></span>
+  
+
+</dt>
+<dd class="inherited">
+  The transaction is valid.
+  <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
+
+</dd>
+
+    </dl>
+  </section>
+
+    
+  <section
+      class="summary offset-anchor"
+      id="instance-methods">
+    <h2>Methods</h2>
+    <dl class="callables">
+        <dt id="addSubInterface" class="callable inherited">
+  <span class="name"><a href="https://pub.dev/documentation/rohd/0.6.6/rohd/PairInterface/addSubInterface.html">addSubInterface</a></span><span class="signature">&lt;<wbr><span class="type-parameter">PairInterfaceType extends <a href="https://pub.dev/documentation/rohd/0.6.6/rohd/PairInterface-class.html">PairInterface</a></span>&gt;</span><span class="signature">(<wbr><span class="parameter" id="addSubInterface-param-name"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.10.6/dart-core/String-class.html">String</a></span> <span class="parameter-name">name</span>, </span><span class="parameter" id="addSubInterface-param-subInterface"><span class="type-annotation">PairInterfaceType</span> <span class="parameter-name">subInterface</span>, {</span><span class="parameter" id="addSubInterface-param-reverse"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.10.6/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">reverse</span> = <span class="default-value">false</span></span>})
+    <span class="returntype parameter">&#8594; PairInterfaceType</span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Registers a new <code>subInterface</code> on this <a href="https://pub.dev/documentation/rohd/0.6.6/rohd/PairInterface-class.html">PairInterface</a>, enabling a simple
+way to build hierarchical interface definitions.
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="clone" class="callable">
+  <span class="name"><a href="../rohd_hcl/Ace5LiteAwChannelInterface/clone.html">clone</a></span><span class="signature">(<wbr>)
+    <span class="returntype parameter">&#8594; <a href="../rohd_hcl/Ace5LiteAwChannelInterface-class.html">Ace5LiteAwChannelInterface</a></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Copy Constructor.
+  <div class="features"><span class="feature">override</span></div>
+
+</dd>
+
+        <dt id="conditionalDriveOther" class="callable inherited">
+  <span class="name"><a href="https://pub.dev/documentation/rohd/0.6.6/rohd/Interface/conditionalDriveOther.html">conditionalDriveOther</a></span><span class="signature">(<wbr><span class="parameter" id="conditionalDriveOther-param-other"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.6/rohd/Interface-class.html">Interface</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://pub.dev/documentation/rohd/0.6.6/rohd/PairDirection.html">PairDirection</a></span>&gt;</span></span> <span class="parameter-name">other</span>, </span><span class="parameter" id="conditionalDriveOther-param-tags"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.10.6/dart-core/Iterable-class.html">Iterable</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://pub.dev/documentation/rohd/0.6.6/rohd/PairDirection.html">PairDirection</a></span>&gt;</span></span> <span class="parameter-name">tags</span></span>)
+    <span class="returntype parameter">&#8594; <a href="https://pub.dev/documentation/rohd/0.6.6/rohd/Conditional-class.html">Conditional</a></span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Makes <code>this</code> conditionally drive interface signals tagged with <code>tags</code> on
+<code>other</code>.
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="conditionalReceiveOther" class="callable inherited">
+  <span class="name"><a href="https://pub.dev/documentation/rohd/0.6.6/rohd/Interface/conditionalReceiveOther.html">conditionalReceiveOther</a></span><span class="signature">(<wbr><span class="parameter" id="conditionalReceiveOther-param-other"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.6/rohd/Interface-class.html">Interface</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://pub.dev/documentation/rohd/0.6.6/rohd/PairDirection.html">PairDirection</a></span>&gt;</span></span> <span class="parameter-name">other</span>, </span><span class="parameter" id="conditionalReceiveOther-param-tags"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.10.6/dart-core/Iterable-class.html">Iterable</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://pub.dev/documentation/rohd/0.6.6/rohd/PairDirection.html">PairDirection</a></span>&gt;</span></span> <span class="parameter-name">tags</span></span>)
+    <span class="returntype parameter">&#8594; <a href="https://pub.dev/documentation/rohd/0.6.6/rohd/Conditional-class.html">Conditional</a></span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Makes <code>this</code> signals tagged with <code>tags</code> be driven conditionally by
+<code>other</code>.
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="connectIO" class="callable inherited">
+  <span class="name"><a href="https://pub.dev/documentation/rohd/0.6.6/rohd/PairInterface/connectIO.html">connectIO</a></span><span class="signature">(<wbr><span class="parameter" id="connectIO-param-module"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.6/rohd/Module-class.html">Module</a></span> <span class="parameter-name">module</span>, </span><span class="parameter" id="connectIO-param-srcInterface"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.6/rohd/Interface-class.html">Interface</a></span> <span class="parameter-name">srcInterface</span>, {</span><span class="parameter" id="connectIO-param-inputTags"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.10.6/dart-core/Iterable-class.html">Iterable</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://pub.dev/documentation/rohd/0.6.6/rohd/PairDirection.html">PairDirection</a></span>&gt;</span>?</span> <span class="parameter-name">inputTags</span>, </span><span class="parameter" id="connectIO-param-outputTags"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.10.6/dart-core/Iterable-class.html">Iterable</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://pub.dev/documentation/rohd/0.6.6/rohd/PairDirection.html">PairDirection</a></span>&gt;</span>?</span> <span class="parameter-name">outputTags</span>, </span><span class="parameter" id="connectIO-param-inOutTags"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.10.6/dart-core/Iterable-class.html">Iterable</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://pub.dev/documentation/rohd/0.6.6/rohd/PairDirection.html">PairDirection</a></span>&gt;</span>?</span> <span class="parameter-name">inOutTags</span>, </span><span class="parameter" id="connectIO-param-uniquify"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.10.6/dart-core/String-class.html">String</a></span> <span class="parameter-name">uniquify</span>(<span class="parameter" id="param-original"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.10.6/dart-core/String-class.html">String</a></span> <span class="parameter-name">original</span></span>)?</span>})
+    <span class="returntype parameter">&#8594; void</span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Calls <a href="https://pub.dev/documentation/rohd/0.6.6/rohd/Interface/connectIO.html">Interface.connectIO</a> for ports of this interface as well as
+hierarchically for all <a href="https://pub.dev/documentation/rohd/0.6.6/rohd/PairInterface/subInterfaces.html">subInterfaces</a>.
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="driveOther" class="callable inherited">
+  <span class="name"><a href="https://pub.dev/documentation/rohd/0.6.6/rohd/Interface/driveOther.html">driveOther</a></span><span class="signature">(<wbr><span class="parameter" id="driveOther-param-other"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.6/rohd/Interface-class.html">Interface</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://pub.dev/documentation/rohd/0.6.6/rohd/PairDirection.html">PairDirection</a></span>&gt;</span></span> <span class="parameter-name">other</span>, </span><span class="parameter" id="driveOther-param-tags"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.10.6/dart-core/Iterable-class.html">Iterable</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://pub.dev/documentation/rohd/0.6.6/rohd/PairDirection.html">PairDirection</a></span>&gt;</span></span> <span class="parameter-name">tags</span></span>)
+    <span class="returntype parameter">&#8594; void</span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Makes <code>this</code> drive interface signals tagged with <code>tags</code> on <code>other</code>.
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="getPorts" class="callable inherited">
+  <span class="name"><a href="https://pub.dev/documentation/rohd/0.6.6/rohd/Interface/getPorts.html">getPorts</a></span><span class="signature">(<wbr>[<span class="parameter" id="getPorts-param-tags"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.10.6/dart-core/Iterable-class.html">Iterable</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://pub.dev/documentation/rohd/0.6.6/rohd/PairDirection.html">PairDirection</a></span>&gt;</span>?</span> <span class="parameter-name">tags</span></span>])
+    <span class="returntype parameter">&#8594; <a href="https://api.dart.dev/stable/3.10.6/dart-core/Map-class.html">Map</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.dart.dev/stable/3.10.6/dart-core/String-class.html">String</a></span>, <span class="type-parameter"><a href="https://pub.dev/documentation/rohd/0.6.6/rohd/Logic-class.html">Logic</a></span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Returns all interface ports associated with the provided <code>tags</code> as a
+<a href="https://api.dart.dev/stable/3.10.6/dart-core/Map-class.html">Map</a> from the port name to the <a href="https://pub.dev/documentation/rohd/0.6.6/rohd/Logic-class.html">Logic</a> port.
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="makeAtomicPorts" class="callable inherited">
+  <span class="name"><a href="../rohd_hcl/Axi5AtomicSignals/makeAtomicPorts.html">makeAtomicPorts</a></span><span class="signature">(<wbr>)
+    <span class="returntype parameter">&#8594; void</span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Helper to instantiate ACE specific request ports.
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="makeDebugPorts" class="callable inherited">
+  <span class="name"><a href="../rohd_hcl/Axi5DebugSignals/makeDebugPorts.html">makeDebugPorts</a></span><span class="signature">(<wbr>)
+    <span class="returntype parameter">&#8594; void</span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Helper to instantiate ACE specific request ports.
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="makeIdPorts" class="callable inherited">
+  <span class="name"><a href="../rohd_hcl/Axi5IdSignals/makeIdPorts.html">makeIdPorts</a></span><span class="signature">(<wbr>)
+    <span class="returntype parameter">&#8594; void</span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Helper to instantiate ACE specific request ports.
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="makeMemoryAttributePorts" class="callable inherited">
+  <span class="name"><a href="../rohd_hcl/Axi5MemoryAttributeSignals/makeMemoryAttributePorts.html">makeMemoryAttributePorts</a></span><span class="signature">(<wbr>)
+    <span class="returntype parameter">&#8594; void</span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Helper to instantiate ACE specific request ports.
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="makeMemPartTagPorts" class="callable inherited">
+  <span class="name"><a href="../rohd_hcl/Axi5MemPartTagSignals/makeMemPartTagPorts.html">makeMemPartTagPorts</a></span><span class="signature">(<wbr>)
+    <span class="returntype parameter">&#8594; void</span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Helper to instantiate ACE specific request ports.
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="makeMmuPorts" class="callable inherited">
+  <span class="name"><a href="../rohd_hcl/Axi5MmuSignals/makeMmuPorts.html">makeMmuPorts</a></span><span class="signature">(<wbr>)
+    <span class="returntype parameter">&#8594; void</span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Helper to instantiate ACE specific request ports.
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="makeOpcodePorts" class="callable inherited">
+  <span class="name"><a href="../rohd_hcl/Axi5OpcodeSignals/makeOpcodePorts.html">makeOpcodePorts</a></span><span class="signature">(<wbr>)
+    <span class="returntype parameter">&#8594; void</span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Helper to instantiate ACE specific request ports.
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="makeProtPorts" class="callable inherited">
+  <span class="name"><a href="../rohd_hcl/Axi5ProtSignals/makeProtPorts.html">makeProtPorts</a></span><span class="signature">(<wbr>)
+    <span class="returntype parameter">&#8594; void</span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Helper to instantiate ACE specific request ports.
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="makeQualifierPorts" class="callable inherited">
+  <span class="name"><a href="../rohd_hcl/Axi5QualifierSignals/makeQualifierPorts.html">makeQualifierPorts</a></span><span class="signature">(<wbr>)
+    <span class="returntype parameter">&#8594; void</span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Helper to instantiate ACE specific request ports.
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="makeRequestPorts" class="callable inherited">
+  <span class="name"><a href="../rohd_hcl/Axi5RequestSignals/makeRequestPorts.html">makeRequestPorts</a></span><span class="signature">(<wbr>)
+    <span class="returntype parameter">&#8594; void</span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Helper to instantiate ACE specific request ports.
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="makeStashPorts" class="callable inherited">
+  <span class="name"><a href="../rohd_hcl/Axi5StashSignals/makeStashPorts.html">makeStashPorts</a></span><span class="signature">(<wbr>)
+    <span class="returntype parameter">&#8594; void</span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Helper to instantiate ACE specific request ports.
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="makeUserPorts" class="callable inherited">
+  <span class="name"><a href="../rohd_hcl/Axi5UserSignals/makeUserPorts.html">makeUserPorts</a></span><span class="signature">(<wbr>)
+    <span class="returntype parameter">&#8594; void</span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Helper to instantiate ACE specific request ports.
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="noSuchMethod" class="callable inherited">
+  <span class="name"><a href="https://api.dart.dev/stable/3.10.6/dart-core/Object/noSuchMethod.html">noSuchMethod</a></span><span class="signature">(<wbr><span class="parameter" id="noSuchMethod-param-invocation"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.10.6/dart-core/Invocation-class.html">Invocation</a></span> <span class="parameter-name">invocation</span></span>)
+    <span class="returntype parameter">&#8594; dynamic</span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Invoked when a nonexistent method or property is accessed.
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="pairConnectIO" class="callable inherited">
+  <span class="name"><a href="https://pub.dev/documentation/rohd/0.6.6/rohd/PairInterface/pairConnectIO.html">pairConnectIO</a></span><span class="signature">(<wbr><span class="parameter" id="pairConnectIO-param-module"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.6/rohd/Module-class.html">Module</a></span> <span class="parameter-name">module</span>, </span><span class="parameter" id="pairConnectIO-param-srcInterface"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.6/rohd/Interface-class.html">Interface</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://pub.dev/documentation/rohd/0.6.6/rohd/PairDirection.html">PairDirection</a></span>&gt;</span></span> <span class="parameter-name">srcInterface</span>, </span><span class="parameter" id="pairConnectIO-param-role"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.6/rohd/PairRole.html">PairRole</a></span> <span class="parameter-name">role</span>, {</span><span class="parameter" id="pairConnectIO-param-uniquify"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.10.6/dart-core/String-class.html">String</a></span> <span class="parameter-name">uniquify</span>(<span class="parameter" id="param-original"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.10.6/dart-core/String-class.html">String</a></span> <span class="parameter-name">original</span></span>)?</span>})
+    <span class="returntype parameter">&#8594; void</span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  A simplified version of <a href="https://pub.dev/documentation/rohd/0.6.6/rohd/PairInterface/connectIO.html">connectIO</a> for <a href="https://pub.dev/documentation/rohd/0.6.6/rohd/PairInterface-class.html">PairInterface</a>s where by only
+specifying the <code>role</code>, the input and output tags can be inferred.
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="port" class="callable inherited">
+  <span class="name"><a href="https://pub.dev/documentation/rohd/0.6.6/rohd/Interface/port.html">port</a></span><span class="signature">(<wbr><span class="parameter" id="port-param-name"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.10.6/dart-core/String-class.html">String</a></span> <span class="parameter-name">name</span></span>)
+    <span class="returntype parameter">&#8594; <a href="https://pub.dev/documentation/rohd/0.6.6/rohd/Logic-class.html">Logic</a></span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Accesses a port named <code>name</code>.
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="receiveOther" class="callable inherited">
+  <span class="name"><a href="https://pub.dev/documentation/rohd/0.6.6/rohd/Interface/receiveOther.html">receiveOther</a></span><span class="signature">(<wbr><span class="parameter" id="receiveOther-param-other"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.6/rohd/Interface-class.html">Interface</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://pub.dev/documentation/rohd/0.6.6/rohd/PairDirection.html">PairDirection</a></span>&gt;</span></span> <span class="parameter-name">other</span>, </span><span class="parameter" id="receiveOther-param-tags"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.10.6/dart-core/Iterable-class.html">Iterable</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://pub.dev/documentation/rohd/0.6.6/rohd/PairDirection.html">PairDirection</a></span>&gt;</span></span> <span class="parameter-name">tags</span></span>)
+    <span class="returntype parameter">&#8594; void</span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Makes <code>this</code> signals tagged with <code>tags</code> be driven by <code>other</code>.
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="setPorts" class="callable inherited">
+  <span class="name"><a href="https://pub.dev/documentation/rohd/0.6.6/rohd/Interface/setPorts.html">setPorts</a></span><span class="signature">(<wbr><span class="parameter" id="setPorts-param-ports"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.10.6/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://pub.dev/documentation/rohd/0.6.6/rohd/Logic-class.html">Logic</a></span>&gt;</span></span> <span class="parameter-name">ports</span>, [</span><span class="parameter" id="setPorts-param-tags"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.10.6/dart-core/Iterable-class.html">Iterable</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://pub.dev/documentation/rohd/0.6.6/rohd/PairDirection.html">PairDirection</a></span>&gt;</span>?</span> <span class="parameter-name">tags</span></span>])
+    <span class="returntype parameter">&#8594; void</span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Adds a collection of ports to this <a href="https://pub.dev/documentation/rohd/0.6.6/rohd/Interface-class.html">Interface</a>, each associated with all
+of <code>tags</code>.
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="toString" class="callable inherited">
+  <span class="name"><a href="https://api.dart.dev/stable/3.10.6/dart-core/Object/toString.html">toString</a></span><span class="signature">(<wbr>)
+    <span class="returntype parameter">&#8594; <a href="https://api.dart.dev/stable/3.10.6/dart-core/String-class.html">String</a></span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  A string representation of this object.
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="tryPort" class="callable inherited">
+  <span class="name"><a href="https://pub.dev/documentation/rohd/0.6.6/rohd/Interface/tryPort.html">tryPort</a></span><span class="signature">(<wbr><span class="parameter" id="tryPort-param-name"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.10.6/dart-core/String-class.html">String</a></span> <span class="parameter-name">name</span></span>)
+    <span class="returntype parameter">&#8594; <a href="https://pub.dev/documentation/rohd/0.6.6/rohd/Logic-class.html">Logic</a>?</span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Provides the <a href="https://pub.dev/documentation/rohd/0.6.6/rohd/Interface/port.html">port</a> named <code>name</code> if it exists, otherwise <code>null</code>.
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+    </dl>
+  </section>
+    
+  <section
+      class="summary offset-anchor inherited"
+      id="operators">
+    <h2>Operators</h2>
+    <dl class="callables">
+        <dt id="operator ==" class="callable inherited">
+  <span class="name"><a href="https://api.dart.dev/stable/3.10.6/dart-core/Object/operator_equals.html">operator ==</a></span><span class="signature">(<wbr><span class="parameter" id="==-param-other"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.10.6/dart-core/Object-class.html">Object</a></span> <span class="parameter-name">other</span></span>)
+    <span class="returntype parameter">&#8594; <a href="https://api.dart.dev/stable/3.10.6/dart-core/bool-class.html">bool</a></span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  The equality operator.
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+    </dl>
+  </section>
+    
+    
+    
+
+  </div> <!-- /.main-content -->
+  <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+    <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
+<header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+    <li><a href="../index.html">rohd_hcl</a></li>
+    <li><a href="../rohd_hcl/">rohd_hcl</a></li>
+    <li class="self-crumb">Ace5LiteAwChannelInterface class</li>
+</ol>
+
+    <h5>rohd_hcl library</h5>
+    <div id="dartdoc-sidebar-left-content"></div>
+  </div>
+  <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+  </div><!--/.sidebar-offcanvas-->
+</main>
+<footer>
+  <span class="no-break">
+    rohd_hcl
+      0.2.1
+  </span>
+  
+</footer>
+
+
+<script src="../static-assets/highlight.pack.js?v1"></script>
+<script src="../static-assets/docs.dart.js"></script>
+
+</body>
+</html>
+

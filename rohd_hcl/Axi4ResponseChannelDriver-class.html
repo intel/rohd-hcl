@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="API docs for the Axi4ResponseChannelDriver class from the rohd_hcl library, for the Dart programming language.">
+  <title>Axi4ResponseChannelDriver class - rohd_hcl library - Dart API</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../static-assets/github.css?v1">
+  <link rel="stylesheet" href="../static-assets/styles.css?v1">
+  <link rel="icon" href="../static-assets/favicon.png?v1">
+  
+</head>
+
+<body data-base-href="../" data-using-base-href="false" class="light-theme">
+<div id="overlay-under-drawer"></div>
+<header id="title">
+  <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="../index.html">rohd_hcl</a></li>
+    <li><a href="../rohd_hcl/">rohd_hcl.dart</a></li>
+    <li class="self-crumb">Axi4ResponseChannelDriver class</li>
+  </ol>
+  <div class="self-name">Axi4ResponseChannelDriver</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+  <button class="toggle" id="theme-button" title="Toggle between light and dark mode" aria-label="Light and dark mode toggle">
+    <span id="dark-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      dark_mode
+    </span>
+    <span id="light-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      light_mode
+    </span>
+  </button>
+</header>
+<main>
+<div
+    id="dartdoc-main-content"
+    class="main-content"
+    data-above-sidebar="rohd_hcl&#47;rohd_hcl-library-sidebar.html"
+    data-below-sidebar="rohd_hcl&#47;Axi4ResponseChannelDriver-class-sidebar.html">
+    <div>
+<h1><span class="kind-class">Axi4ResponseChannelDriver</span> class 
+ 
+</h1></div>
+
+    
+<section class="desc markdown">
+  <p>A driver for the <a href="../rohd_hcl/Axi4BaseBChannelInterface-class.html">Axi4BaseBChannelInterface</a> interface.</p>
+<p>Driving from the perspective of the Main agent.</p>
+</section>
+
+
+    <section>
+      <dl class="dl-horizontal">
+        
+  <dt>Inheritance</dt>
+  <dd>
+    <ul class="gt-separated dark clazz-relationships">
+      <li><a href="https://api.dart.dev/stable/3.10.6/dart-core/Object-class.html">Object</a></li>
+        <li><a href="https://pub.dev/documentation/rohd_vf/0.6.0/rohd_vf/ROHDVFObject-class.html">ROHDVFObject</a></li>
+        <li><a href="https://pub.dev/documentation/rohd_vf/0.6.0/rohd_vf/Component-class.html">Component</a></li>
+        <li><a href="https://pub.dev/documentation/rohd_vf/0.6.0/rohd_vf/Driver-class.html">Driver</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../rohd_hcl/Axi4ResponsePacket-class.html">Axi4ResponsePacket</a></span>&gt;</span></li>
+        <li><a href="https://pub.dev/documentation/rohd_vf/0.6.0/rohd_vf/PendingDriver-class.html">PendingDriver</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../rohd_hcl/Axi4ResponsePacket-class.html">Axi4ResponsePacket</a></span>&gt;</span></li>
+        <li><a href="https://pub.dev/documentation/rohd_vf/0.6.0/rohd_vf/PendingClockedDriver-class.html">PendingClockedDriver</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../rohd_hcl/Axi4ResponsePacket-class.html">Axi4ResponsePacket</a></span>&gt;</span></li>
+      <li>Axi4ResponseChannelDriver</li>
+    </ul>
+  </dd>
+
+        
+        
+
+
+        
+        
+
+
+      </dl>
+    </section>
+
+    
+  <section class="summary offset-anchor" id="constructors">
+    <h2>Constructors</h2>
+    <dl class="constructor-summary-list">
+        <dt id="Axi4ResponseChannelDriver.new" class="callable">
+          <span class="name"><a href="../rohd_hcl/Axi4ResponseChannelDriver/Axi4ResponseChannelDriver.html">Axi4ResponseChannelDriver</a></span><span class="signature">({<span class="parameter" id="-param-parent"><span>required</span> <span class="type-annotation"><a href="https://pub.dev/documentation/rohd_vf/0.6.0/rohd_vf/Component-class.html">Component</a></span> <span class="parameter-name">parent</span>, </span><span class="parameter" id="-param-sIntf"><span>required</span> <span class="type-annotation"><a href="../rohd_hcl/Axi4SystemInterface-class.html">Axi4SystemInterface</a></span> <span class="parameter-name">sIntf</span>, </span><span class="parameter" id="-param-rIntf"><span>required</span> <span class="type-annotation"><a href="../rohd_hcl/Axi4BaseBChannelInterface-class.html">Axi4BaseBChannelInterface</a></span> <span class="parameter-name">rIntf</span>, </span><span class="parameter" id="-param-sequencer"><span>required</span> <span class="type-annotation"><a href="https://pub.dev/documentation/rohd_vf/0.6.0/rohd_vf/Sequencer-class.html">Sequencer</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../rohd_hcl/Axi4ResponsePacket-class.html">Axi4ResponsePacket</a></span>&gt;</span></span> <span class="parameter-name">sequencer</span>, </span><span class="parameter" id="-param-timeoutCycles"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.10.6/dart-core/int-class.html">int</a>?</span> <span class="parameter-name">timeoutCycles</span> = <span class="default-value">500</span>, </span><span class="parameter" id="-param-dropDelayCycles"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.10.6/dart-core/int-class.html">int</a>?</span> <span class="parameter-name">dropDelayCycles</span> = <span class="default-value">30</span>, </span><span class="parameter" id="-param-name"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.10.6/dart-core/String-class.html">String</a></span> <span class="parameter-name">name</span> = <span class="default-value">&#39;axi4ResponseChannelInterface&#39;</span></span>})</span>
+        </dt>
+        <dd>
+          Creates a new <a href="../rohd_hcl/Axi4RequestChannelDriver-class.html">Axi4RequestChannelDriver</a>.
+        </dd>
+    </dl>
+  </section>
+    
+  <section
+      class="summary offset-anchor"
+      id="instance-properties">
+    <h2>Properties</h2>
+    <dl class="properties">
+        <dt id="clk" class="property inherited">
+  <span class="name"><a href="https://pub.dev/documentation/rohd_vf/0.6.0/rohd_vf/PendingClockedDriver/clk.html">clk</a></span>
+  <span class="signature">&#8594; <a href="https://pub.dev/documentation/rohd/0.6.6/rohd/Logic-class.html">Logic</a></span>
+  
+
+</dt>
+<dd class="inherited">
+  The clock for this driver.
+  <div class="features"><span class="feature">final</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="components" class="property inherited">
+  <span class="name"><a href="https://pub.dev/documentation/rohd_vf/0.6.0/rohd_vf/Component/components.html">components</a></span>
+  <span class="signature">&#8594; <a href="https://api.dart.dev/stable/3.10.6/collection/UnmodifiableListView-class.html">UnmodifiableListView</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://pub.dev/documentation/rohd_vf/0.6.0/rohd_vf/Component-class.html">Component</a></span>&gt;</span></span>
+  
+
+</dt>
+<dd class="inherited">
+  A <a href="https://api.dart.dev/stable/3.10.6/dart-core/List-class.html">List</a> of all children <a href="https://pub.dev/documentation/rohd_vf/0.6.0/rohd_vf/Component-class.html">Component</a>s.
+  <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="dropDelay" class="property inherited">
+  <span class="name"><a href="https://pub.dev/documentation/rohd_vf/0.6.0/rohd_vf/PendingDriver/dropDelay.html">dropDelay</a></span>
+  <span class="signature">&#8594; <a href="https://api.dart.dev/stable/3.10.6/dart-core/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter">void</span>&gt;</span> Function<span class="signature">()</span>?</span>
+  
+
+</dt>
+<dd class="inherited">
+  A function called each time an objection would drop due to an empty
+<a href="https://pub.dev/documentation/rohd_vf/0.6.0/rohd_vf/PendingDriver/pendingSeqItems.html">pendingSeqItems</a>, but the objection will only be dropped if there is no
+further activity before it completes.
+  <div class="features"><span class="feature">final</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="dropDelayCycles" class="property inherited">
+  <span class="name"><a href="https://pub.dev/documentation/rohd_vf/0.6.0/rohd_vf/PendingClockedDriver/dropDelayCycles.html">dropDelayCycles</a></span>
+  <span class="signature">&#8594; <a href="https://api.dart.dev/stable/3.10.6/dart-core/int-class.html">int</a>?</span>
+  
+
+</dt>
+<dd class="inherited">
+  Number of cycles to hold an objection even when no items are pending.
+  <div class="features"><span class="feature">final</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="enableEndOfTestEmptyCheck" class="property inherited">
+  <span class="name"><a href="https://pub.dev/documentation/rohd_vf/0.6.0/rohd_vf/PendingDriver/enableEndOfTestEmptyCheck.html">enableEndOfTestEmptyCheck</a></span>
+  <span class="signature">&#8594; <a href="https://api.dart.dev/stable/3.10.6/dart-core/bool-class.html">bool</a></span>
+  
+
+</dt>
+<dd class="inherited">
+  If <code>true</code>, will <a href="https://pub.dev/documentation/rohd_vf/0.6.0/rohd_vf/PendingDriver/check.html">check</a> at the end of the test that there are no pending
+items remaining to be driven.
+  <div class="features"><span class="feature">final</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="hashCode" class="property inherited">
+  <span class="name"><a href="https://api.dart.dev/stable/3.10.6/dart-core/Object/hashCode.html">hashCode</a></span>
+  <span class="signature">&#8594; <a href="https://api.dart.dev/stable/3.10.6/dart-core/int-class.html">int</a></span>
+  
+
+</dt>
+<dd class="inherited">
+  The hash code for this object.
+  <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="logger" class="property inherited">
+  <span class="name"><a href="https://pub.dev/documentation/rohd_vf/0.6.0/rohd_vf/ROHDVFObject/logger.html">logger</a></span>
+  <span class="signature">&#8594; <a href="https://pub.dev/documentation/logging/1.3.0/logging/Logger-class.html">Logger</a></span>
+  
+
+</dt>
+<dd class="inherited">
+  A <a href="https://pub.dev/documentation/logging/1.3.0/logging/Logger-class.html">Logger</a> for messages related to the test or testbench.
+  <div class="features"><span class="feature">late</span><span class="feature">final</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="name" class="property inherited">
+  <span class="name"><a href="https://pub.dev/documentation/rohd_vf/0.6.0/rohd_vf/Component/name.html">name</a></span>
+  <span class="signature">&#8594; <a href="https://api.dart.dev/stable/3.10.6/dart-core/String-class.html">String</a></span>
+  
+
+</dt>
+<dd class="inherited">
+  A name for this instance of the <a href="https://pub.dev/documentation/rohd_vf/0.6.0/rohd_vf/Component-class.html">Component</a>.
+  <div class="features"><span class="feature">final</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="parent" class="property inherited">
+  <span class="name"><a href="https://pub.dev/documentation/rohd_vf/0.6.0/rohd_vf/Component/parent.html">parent</a></span>
+  <span class="signature">&#8594; <a href="https://pub.dev/documentation/rohd_vf/0.6.0/rohd_vf/Component-class.html">Component</a>?</span>
+  
+
+</dt>
+<dd class="inherited">
+  The <a href="https://pub.dev/documentation/rohd_vf/0.6.0/rohd_vf/Component-class.html">Component</a> which constructed and contains this <a href="https://pub.dev/documentation/rohd_vf/0.6.0/rohd_vf/Component-class.html">Component</a>.
+  <div class="features"><span class="feature">final</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="pendingSeqItems" class="property inherited">
+  <span class="name"><a href="https://pub.dev/documentation/rohd_vf/0.6.0/rohd_vf/PendingDriver/pendingSeqItems.html">pendingSeqItems</a></span>
+  <span class="signature">&#8596; <a href="https://api.dart.dev/stable/3.10.6/dart-collection/Queue-class.html">Queue</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../rohd_hcl/Axi4ResponsePacket-class.html">Axi4ResponsePacket</a></span>&gt;</span></span>
+  
+
+</dt>
+<dd class="inherited">
+  A <a href="https://api.dart.dev/stable/3.10.6/dart-collection/Queue-class.html">Queue</a> of items that have been received from the sequencer and are
+waiting to be driven.  After an item has been driven, it should be
+removed.
+  <div class="features"><span class="feature">late</span><span class="feature">final</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="rIntf" class="property">
+  <span class="name"><a href="../rohd_hcl/Axi4ResponseChannelDriver/rIntf.html">rIntf</a></span>
+  <span class="signature">&#8594; <a href="../rohd_hcl/Axi4BaseBChannelInterface-class.html">Axi4BaseBChannelInterface</a></span>
+  
+
+</dt>
+<dd>
+  AXI4 B Interface.
+  <div class="features"><span class="feature">final</span></div>
+
+</dd>
+
+        <dt id="runtimeType" class="property inherited">
+  <span class="name"><a href="https://api.dart.dev/stable/3.10.6/dart-core/Object/runtimeType.html">runtimeType</a></span>
+  <span class="signature">&#8594; <a href="https://api.dart.dev/stable/3.10.6/dart-core/Type-class.html">Type</a></span>
+  
+
+</dt>
+<dd class="inherited">
+  A representation of the runtime type of the object.
+  <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="sequencer" class="property inherited">
+  <span class="name"><a href="https://pub.dev/documentation/rohd_vf/0.6.0/rohd_vf/Driver/sequencer.html">sequencer</a></span>
+  <span class="signature">&#8594; <a href="https://pub.dev/documentation/rohd_vf/0.6.0/rohd_vf/Sequencer-class.html">Sequencer</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../rohd_hcl/Axi4ResponsePacket-class.html">Axi4ResponsePacket</a></span>&gt;</span></span>
+  
+
+</dt>
+<dd class="inherited">
+  The sequencer from which this <a href="https://pub.dev/documentation/rohd_vf/0.6.0/rohd_vf/Driver-class.html">Driver</a> acquires new items to drive.
+  <div class="features"><span class="feature">final</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="sIntf" class="property">
+  <span class="name"><a href="../rohd_hcl/Axi4ResponseChannelDriver/sIntf.html">sIntf</a></span>
+  <span class="signature">&#8594; <a href="../rohd_hcl/Axi4SystemInterface-class.html">Axi4SystemInterface</a></span>
+  
+
+</dt>
+<dd>
+  AXI4 System Interface.
+  <div class="features"><span class="feature">final</span></div>
+
+</dd>
+
+        <dt id="timeout" class="property inherited">
+  <span class="name"><a href="https://pub.dev/documentation/rohd_vf/0.6.0/rohd_vf/PendingDriver/timeout.html">timeout</a></span>
+  <span class="signature">&#8594; <a href="https://api.dart.dev/stable/3.10.6/dart-core/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter">void</span>&gt;</span> Function<span class="signature">()</span>?</span>
+  
+
+</dt>
+<dd class="inherited">
+  A function called each time there is something added or removed from the
+<a href="https://pub.dev/documentation/rohd_vf/0.6.0/rohd_vf/PendingDriver/pendingSeqItems.html">pendingSeqItems</a>, and if it completes before an objection is dropped or
+some further activity occurs, an error is flagged.
+  <div class="features"><span class="feature">final</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="timeoutCycles" class="property inherited">
+  <span class="name"><a href="https://pub.dev/documentation/rohd_vf/0.6.0/rohd_vf/PendingClockedDriver/timeoutCycles.html">timeoutCycles</a></span>
+  <span class="signature">&#8594; <a href="https://api.dart.dev/stable/3.10.6/dart-core/int-class.html">int</a>?</span>
+  
+
+</dt>
+<dd class="inherited">
+  Number of cycles before triggering a timeout error.
+  <div class="features"><span class="feature">final</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="waitEdge" class="property inherited">
+  <span class="name"><a href="https://pub.dev/documentation/rohd_vf/0.6.0/rohd_vf/PendingClockedDriver/waitEdge.html">waitEdge</a></span>
+  <span class="signature">&#8594; <a href="https://pub.dev/documentation/rohd_vf/0.6.0/rohd_vf/Edge.html">Edge</a></span>
+  
+
+</dt>
+<dd class="inherited">
+  The <a href="https://pub.dev/documentation/rohd_vf/0.6.0/rohd_vf/Edge.html">Edge</a> to wait on when counting cycles for <a href="https://pub.dev/documentation/rohd_vf/0.6.0/rohd_vf/PendingClockedDriver/timeoutCycles.html">timeoutCycles</a> and
+<a href="https://pub.dev/documentation/rohd_vf/0.6.0/rohd_vf/PendingClockedDriver/dropDelayCycles.html">dropDelayCycles</a>.
+  <div class="features"><span class="feature">final</span><span class="feature">inherited</span></div>
+
+</dd>
+
+    </dl>
+  </section>
+
+    
+  <section
+      class="summary offset-anchor"
+      id="instance-methods">
+    <h2>Methods</h2>
+    <dl class="callables">
+        <dt id="build" class="callable inherited">
+  <span class="name"><a href="https://pub.dev/documentation/rohd_vf/0.6.0/rohd_vf/Component/build.html">build</a></span><span class="signature">(<wbr>)
+    <span class="returntype parameter">&#8594; void</span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Performs additional build-related activities required before <a href="https://pub.dev/documentation/rohd_vf/0.6.0/rohd_vf/Component/run.html">run</a>.
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="check" class="callable inherited">
+  <span class="name"><a href="https://pub.dev/documentation/rohd_vf/0.6.0/rohd_vf/PendingDriver/check.html">check</a></span><span class="signature">(<wbr>)
+    <span class="returntype parameter">&#8594; void</span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Performs additional checks at the end of the simulation.
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="fullName" class="callable inherited">
+  <span class="name"><a href="https://pub.dev/documentation/rohd_vf/0.6.0/rohd_vf/Component/fullName.html">fullName</a></span><span class="signature">(<wbr>)
+    <span class="returntype parameter">&#8594; <a href="https://api.dart.dev/stable/3.10.6/dart-core/String-class.html">String</a></span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  A descriptive name including the full hierarchical path of
+this <a href="https://pub.dev/documentation/rohd_vf/0.6.0/rohd_vf/Component-class.html">Component</a>.
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="hierarchy" class="callable inherited">
+  <span class="name"><a href="https://pub.dev/documentation/rohd_vf/0.6.0/rohd_vf/Component/hierarchy.html">hierarchy</a></span><span class="signature">(<wbr>)
+    <span class="returntype parameter">&#8594; <a href="https://api.dart.dev/stable/3.10.6/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://pub.dev/documentation/rohd_vf/0.6.0/rohd_vf/Component-class.html">Component</a></span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Returns a <a href="https://api.dart.dev/stable/3.10.6/dart-core/List-class.html">List</a> of <a href="https://pub.dev/documentation/rohd_vf/0.6.0/rohd_vf/Component-class.html">Component</a>s representing the full hierarchy
+of this <a href="https://pub.dev/documentation/rohd_vf/0.6.0/rohd_vf/Component-class.html">Component</a>, with the top-most parent at index 0 and this
+as the last element of the <a href="https://api.dart.dev/stable/3.10.6/dart-core/List-class.html">List</a>.
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="noSuchMethod" class="callable inherited">
+  <span class="name"><a href="https://api.dart.dev/stable/3.10.6/dart-core/Object/noSuchMethod.html">noSuchMethod</a></span><span class="signature">(<wbr><span class="parameter" id="noSuchMethod-param-invocation"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.10.6/dart-core/Invocation-class.html">Invocation</a></span> <span class="parameter-name">invocation</span></span>)
+    <span class="returntype parameter">&#8594; dynamic</span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Invoked when a nonexistent method or property is accessed.
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="run" class="callable">
+  <span class="name"><a href="../rohd_hcl/Axi4ResponseChannelDriver/run.html">run</a></span><span class="signature">(<wbr><span class="parameter" id="run-param-phase"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd_vf/0.6.0/rohd_vf/Phase-class.html">Phase</a></span> <span class="parameter-name">phase</span></span>)
+    <span class="returntype parameter">&#8594; <a href="https://api.dart.dev/stable/3.10.6/dart-core/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter">void</span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Executes this <a href="https://pub.dev/documentation/rohd_vf/0.6.0/rohd_vf/Component-class.html">Component</a>'s activities related to running the test.
+  <div class="features"><span class="feature">override</span></div>
+
+</dd>
+
+        <dt id="toString" class="callable inherited">
+  <span class="name"><a href="https://api.dart.dev/stable/3.10.6/dart-core/Object/toString.html">toString</a></span><span class="signature">(<wbr>)
+    <span class="returntype parameter">&#8594; <a href="https://api.dart.dev/stable/3.10.6/dart-core/String-class.html">String</a></span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  A string representation of this object.
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+    </dl>
+  </section>
+    
+  <section
+      class="summary offset-anchor inherited"
+      id="operators">
+    <h2>Operators</h2>
+    <dl class="callables">
+        <dt id="operator ==" class="callable inherited">
+  <span class="name"><a href="https://api.dart.dev/stable/3.10.6/dart-core/Object/operator_equals.html">operator ==</a></span><span class="signature">(<wbr><span class="parameter" id="==-param-other"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.10.6/dart-core/Object-class.html">Object</a></span> <span class="parameter-name">other</span></span>)
+    <span class="returntype parameter">&#8594; <a href="https://api.dart.dev/stable/3.10.6/dart-core/bool-class.html">bool</a></span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  The equality operator.
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+    </dl>
+  </section>
+    
+    
+    
+
+  </div> <!-- /.main-content -->
+  <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+    <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
+<header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+    <li><a href="../index.html">rohd_hcl</a></li>
+    <li><a href="../rohd_hcl/">rohd_hcl</a></li>
+    <li class="self-crumb">Axi4ResponseChannelDriver class</li>
+</ol>
+
+    <h5>rohd_hcl library</h5>
+    <div id="dartdoc-sidebar-left-content"></div>
+  </div>
+  <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+  </div><!--/.sidebar-offcanvas-->
+</main>
+<footer>
+  <span class="no-break">
+    rohd_hcl
+      0.2.1
+  </span>
+  
+</footer>
+
+
+<script src="../static-assets/highlight.pack.js?v1"></script>
+<script src="../static-assets/docs.dart.js"></script>
+
+</body>
+</html>
+

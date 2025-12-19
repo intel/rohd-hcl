@@ -88,7 +88,7 @@
     <h2>Constructors</h2>
     <dl class="constructor-summary-list">
         <dt id="Axi4ReadComplianceChecker.new" class="callable">
-          <span class="name"><a href="../rohd_hcl/Axi4ReadComplianceChecker/Axi4ReadComplianceChecker.html">Axi4ReadComplianceChecker</a></span><span class="signature">(<span class="parameter" id="-param-sIntf"><span class="type-annotation"><a href="../rohd_hcl/Axi4SystemInterface-class.html">Axi4SystemInterface</a></span> <span class="parameter-name">sIntf</span>, </span><span class="parameter" id="-param-rIntf"><span class="type-annotation"><a href="../rohd_hcl/Axi4ReadInterface-class.html">Axi4ReadInterface</a></span> <span class="parameter-name">rIntf</span>, {</span><span class="parameter" id="-param-parent"><span>required</span> <span class="type-annotation"><a href="https://pub.dev/documentation/rohd_vf/0.6.0/rohd_vf/Component-class.html">Component</a></span> <span class="parameter-name">parent</span>, </span><span class="parameter" id="-param-name"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.10.6/dart-core/String-class.html">String</a></span> <span class="parameter-name">name</span> = <span class="default-value">&#39;axi4ReadComplianceChecker&#39;</span></span>})</span>
+          <span class="name"><a href="../rohd_hcl/Axi4ReadComplianceChecker/Axi4ReadComplianceChecker.html">Axi4ReadComplianceChecker</a></span><span class="signature">(<span class="parameter" id="-param-sIntf"><span class="type-annotation"><a href="../rohd_hcl/Axi4SystemInterface-class.html">Axi4SystemInterface</a></span> <span class="parameter-name">sIntf</span>, </span><span class="parameter" id="-param-reqIntf"><span class="type-annotation"><a href="../rohd_hcl/Axi4BaseArChannelInterface-class.html">Axi4BaseArChannelInterface</a></span> <span class="parameter-name">reqIntf</span>, </span><span class="parameter" id="-param-respIntf"><span class="type-annotation"><a href="../rohd_hcl/Axi4BaseRChannelInterface-class.html">Axi4BaseRChannelInterface</a></span> <span class="parameter-name">respIntf</span>, {</span><span class="parameter" id="-param-parent"><span>required</span> <span class="type-annotation"><a href="https://pub.dev/documentation/rohd_vf/0.6.0/rohd_vf/Component-class.html">Component</a></span> <span class="parameter-name">parent</span>, </span><span class="parameter" id="-param-name"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.10.6/dart-core/String-class.html">String</a></span> <span class="parameter-name">name</span> = <span class="default-value">&#39;axi4ReadComplianceChecker&#39;</span></span>})</span>
         </dt>
         <dd>
           Creates a new compliance checker for AXI4.
@@ -161,14 +161,26 @@
 
 </dd>
 
-        <dt id="rIntf" class="property">
-  <span class="name"><a href="../rohd_hcl/Axi4ReadComplianceChecker/rIntf.html">rIntf</a></span>
-  <span class="signature">&#8594; <a href="../rohd_hcl/Axi4ReadInterface-class.html">Axi4ReadInterface</a></span>
+        <dt id="reqIntf" class="property">
+  <span class="name"><a href="../rohd_hcl/Axi4ReadComplianceChecker/reqIntf.html">reqIntf</a></span>
+  <span class="signature">&#8594; <a href="../rohd_hcl/Axi4BaseArChannelInterface-class.html">Axi4BaseArChannelInterface</a></span>
   
 
 </dt>
 <dd>
-  AXI4 Read Interface.
+  AXI4 Read Request Interface.
+  <div class="features"><span class="feature">final</span></div>
+
+</dd>
+
+        <dt id="respIntf" class="property">
+  <span class="name"><a href="../rohd_hcl/Axi4ReadComplianceChecker/respIntf.html">respIntf</a></span>
+  <span class="signature">&#8594; <a href="../rohd_hcl/Axi4BaseRChannelInterface-class.html">Axi4BaseRChannelInterface</a></span>
+  
+
+</dt>
+<dd>
+  AXI4 Read Response Interface.
   <div class="features"><span class="feature">final</span></div>
 
 </dd>

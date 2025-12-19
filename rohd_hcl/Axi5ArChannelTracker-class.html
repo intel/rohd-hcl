@@ -1,0 +1,721 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="API docs for the Axi5ArChannelTracker class from the rohd_hcl library, for the Dart programming language.">
+  <title>Axi5ArChannelTracker class - rohd_hcl library - Dart API</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../static-assets/github.css?v1">
+  <link rel="stylesheet" href="../static-assets/styles.css?v1">
+  <link rel="icon" href="../static-assets/favicon.png?v1">
+  
+</head>
+
+<body data-base-href="../" data-using-base-href="false" class="light-theme">
+<div id="overlay-under-drawer"></div>
+<header id="title">
+  <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="../index.html">rohd_hcl</a></li>
+    <li><a href="../rohd_hcl/">rohd_hcl.dart</a></li>
+    <li class="self-crumb">Axi5ArChannelTracker class</li>
+  </ol>
+  <div class="self-name">Axi5ArChannelTracker</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+  <button class="toggle" id="theme-button" title="Toggle between light and dark mode" aria-label="Light and dark mode toggle">
+    <span id="dark-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      dark_mode
+    </span>
+    <span id="light-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      light_mode
+    </span>
+  </button>
+</header>
+<main>
+<div
+    id="dartdoc-main-content"
+    class="main-content"
+    data-above-sidebar="rohd_hcl&#47;rohd_hcl-library-sidebar.html"
+    data-below-sidebar="rohd_hcl&#47;Axi5ArChannelTracker-class-sidebar.html">
+    <div>
+<h1><span class="kind-class">Axi5ArChannelTracker</span> class 
+ 
+</h1></div>
+
+    
+<section class="desc markdown">
+  <p>A tracker for the AXI5 AR channel.</p>
+</section>
+
+
+    <section>
+      <dl class="dl-horizontal">
+        
+  <dt>Inheritance</dt>
+  <dd>
+    <ul class="gt-separated dark clazz-relationships">
+      <li><a href="https://api.dart.dev/stable/3.10.6/dart-core/Object-class.html">Object</a></li>
+        <li><a href="https://pub.dev/documentation/rohd_vf/0.6.0/rohd_vf/Tracker-class.html">Tracker</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../rohd_hcl/Axi5ArChannelPacket-class.html">Axi5ArChannelPacket</a></span>&gt;</span></li>
+      <li>Axi5ArChannelTracker</li>
+    </ul>
+  </dd>
+
+        
+        
+
+
+        
+        
+
+
+      </dl>
+    </section>
+
+    
+  <section class="summary offset-anchor" id="constructors">
+    <h2>Constructors</h2>
+    <dl class="constructor-summary-list">
+        <dt id="Axi5ArChannelTracker.new" class="callable">
+          <span class="name"><a href="../rohd_hcl/Axi5ArChannelTracker/Axi5ArChannelTracker.html">Axi5ArChannelTracker</a></span><span class="signature">({<span class="parameter" id="-param-name"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.10.6/dart-core/String-class.html">String</a></span> <span class="parameter-name">name</span> = <span class="default-value">&#39;Axi5ArChannelTracker&#39;</span>, </span><span class="parameter" id="-param-dumpJson"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.10.6/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">dumpJson</span> = <span class="default-value">true</span>, </span><span class="parameter" id="-param-dumpTable"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.10.6/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">dumpTable</span> = <span class="default-value">true</span>, </span><span class="parameter" id="-param-outputFolder"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.10.6/dart-core/String-class.html">String</a>?</span> <span class="parameter-name">outputFolder</span>, </span><span class="parameter" id="-param-timeColumnWidth"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.10.6/dart-core/int-class.html">int</a></span> <span class="parameter-name">timeColumnWidth</span> = <span class="default-value">12</span>, </span><span class="parameter" id="-param-idColumnWidth"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.10.6/dart-core/int-class.html">int</a></span> <span class="parameter-name">idColumnWidth</span> = <span class="default-value">0</span>, </span><span class="parameter" id="-param-idUnqColumnWidth"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.10.6/dart-core/int-class.html">int</a></span> <span class="parameter-name">idUnqColumnWidth</span> = <span class="default-value">0</span>, </span><span class="parameter" id="-param-addrColumnWidth"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.10.6/dart-core/int-class.html">int</a></span> <span class="parameter-name">addrColumnWidth</span> = <span class="default-value">12</span>, </span><span class="parameter" id="-param-lenColumnWidth"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.10.6/dart-core/int-class.html">int</a></span> <span class="parameter-name">lenColumnWidth</span> = <span class="default-value">12</span>, </span><span class="parameter" id="-param-sizeColumnWidth"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.10.6/dart-core/int-class.html">int</a></span> <span class="parameter-name">sizeColumnWidth</span> = <span class="default-value">0</span>, </span><span class="parameter" id="-param-burstColumnWidth"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.10.6/dart-core/int-class.html">int</a></span> <span class="parameter-name">burstColumnWidth</span> = <span class="default-value">0</span>, </span><span class="parameter" id="-param-protColumnWidth"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.10.6/dart-core/int-class.html">int</a></span> <span class="parameter-name">protColumnWidth</span> = <span class="default-value">4</span>, </span><span class="parameter" id="-param-nseColumnWidth"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.10.6/dart-core/int-class.html">int</a></span> <span class="parameter-name">nseColumnWidth</span> = <span class="default-value">0</span>, </span><span class="parameter" id="-param-privColumnWidth"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.10.6/dart-core/int-class.html">int</a></span> <span class="parameter-name">privColumnWidth</span> = <span class="default-value">0</span>, </span><span class="parameter" id="-param-instColumnWidth"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.10.6/dart-core/int-class.html">int</a></span> <span class="parameter-name">instColumnWidth</span> = <span class="default-value">0</span>, </span><span class="parameter" id="-param-pasColumnWidth"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.10.6/dart-core/int-class.html">int</a></span> <span class="parameter-name">pasColumnWidth</span> = <span class="default-value">0</span>, </span><span class="parameter" id="-param-cacheColumnWidth"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.10.6/dart-core/int-class.html">int</a></span> <span class="parameter-name">cacheColumnWidth</span> = <span class="default-value">0</span>, </span><span class="parameter" id="-param-regionColumnWidth"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.10.6/dart-core/int-class.html">int</a></span> <span class="parameter-name">regionColumnWidth</span> = <span class="default-value">0</span>, </span><span class="parameter" id="-param-mecIdColumnWidth"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.10.6/dart-core/int-class.html">int</a></span> <span class="parameter-name">mecIdColumnWidth</span> = <span class="default-value">0</span>, </span><span class="parameter" id="-param-qosColumnWidth"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.10.6/dart-core/int-class.html">int</a></span> <span class="parameter-name">qosColumnWidth</span> = <span class="default-value">0</span>, </span><span class="parameter" id="-param-userColumnWidth"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.10.6/dart-core/int-class.html">int</a></span> <span class="parameter-name">userColumnWidth</span> = <span class="default-value">0</span>, </span><span class="parameter" id="-param-domainColumnWidth"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.10.6/dart-core/int-class.html">int</a></span> <span class="parameter-name">domainColumnWidth</span> = <span class="default-value">0</span>, </span><span class="parameter" id="-param-opcodeColumnWidth"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.10.6/dart-core/int-class.html">int</a></span> <span class="parameter-name">opcodeColumnWidth</span> = <span class="default-value">0</span>, </span><span class="parameter" id="-param-atomicColumnWidth"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.10.6/dart-core/int-class.html">int</a></span> <span class="parameter-name">atomicColumnWidth</span> = <span class="default-value">0</span>, </span><span class="parameter" id="-param-tagColumnWidth"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.10.6/dart-core/int-class.html">int</a></span> <span class="parameter-name">tagColumnWidth</span> = <span class="default-value">0</span>, </span><span class="parameter" id="-param-tagUpdateColumnWidth"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.10.6/dart-core/int-class.html">int</a></span> <span class="parameter-name">tagUpdateColumnWidth</span> = <span class="default-value">0</span>, </span><span class="parameter" id="-param-tagMatchColumnWidth"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.10.6/dart-core/int-class.html">int</a></span> <span class="parameter-name">tagMatchColumnWidth</span> = <span class="default-value">0</span>, </span><span class="parameter" id="-param-compColumnWidth"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.10.6/dart-core/int-class.html">int</a></span> <span class="parameter-name">compColumnWidth</span> = <span class="default-value">0</span>, </span><span class="parameter" id="-param-persistColumnWidth"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.10.6/dart-core/int-class.html">int</a></span> <span class="parameter-name">persistColumnWidth</span> = <span class="default-value">0</span>, </span><span class="parameter" id="-param-traceColumnWidth"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.10.6/dart-core/int-class.html">int</a></span> <span class="parameter-name">traceColumnWidth</span> = <span class="default-value">0</span>, </span><span class="parameter" id="-param-loopColumnWidth"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.10.6/dart-core/int-class.html">int</a></span> <span class="parameter-name">loopColumnWidth</span> = <span class="default-value">0</span>, </span><span class="parameter" id="-param-mmuValidColumnWidth"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.10.6/dart-core/int-class.html">int</a></span> <span class="parameter-name">mmuValidColumnWidth</span> = <span class="default-value">0</span>, </span><span class="parameter" id="-param-qualColumnWidth"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.10.6/dart-core/int-class.html">int</a></span> <span class="parameter-name">qualColumnWidth</span> = <span class="default-value">0</span>, </span><span class="parameter" id="-param-chunkEnColumnWidth"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.10.6/dart-core/int-class.html">int</a></span> <span class="parameter-name">chunkEnColumnWidth</span> = <span class="default-value">0</span>, </span><span class="parameter" id="-param-chunkVColumnWidth"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.10.6/dart-core/int-class.html">int</a></span> <span class="parameter-name">chunkVColumnWidth</span> = <span class="default-value">0</span>, </span><span class="parameter" id="-param-chunkNumColumnWidth"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.10.6/dart-core/int-class.html">int</a></span> <span class="parameter-name">chunkNumColumnWidth</span> = <span class="default-value">0</span>, </span><span class="parameter" id="-param-chunkStrbColumnWidth"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.10.6/dart-core/int-class.html">int</a></span> <span class="parameter-name">chunkStrbColumnWidth</span> = <span class="default-value">0</span></span>})</span>
+        </dt>
+        <dd>
+          Constructor.
+        </dd>
+    </dl>
+  </section>
+    
+  <section
+      class="summary offset-anchor inherited"
+      id="instance-properties">
+    <h2>Properties</h2>
+    <dl class="properties">
+        <dt id="dumpJson" class="property inherited">
+  <span class="name"><a href="https://pub.dev/documentation/rohd_vf/0.6.0/rohd_vf/Tracker/dumpJson.html">dumpJson</a></span>
+  <span class="signature">&#8594; <a href="https://api.dart.dev/stable/3.10.6/dart-core/bool-class.html">bool</a></span>
+  
+
+</dt>
+<dd class="inherited">
+  If true, will dump a JSON file log to <a href="https://pub.dev/documentation/rohd_vf/0.6.0/rohd_vf/Tracker/jsonFileName.html">jsonFileName</a>.
+  <div class="features"><span class="feature">final</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="dumpTable" class="property inherited">
+  <span class="name"><a href="https://pub.dev/documentation/rohd_vf/0.6.0/rohd_vf/Tracker/dumpTable.html">dumpTable</a></span>
+  <span class="signature">&#8594; <a href="https://api.dart.dev/stable/3.10.6/dart-core/bool-class.html">bool</a></span>
+  
+
+</dt>
+<dd class="inherited">
+  If true, will dump an ASCII table log to <a href="https://pub.dev/documentation/rohd_vf/0.6.0/rohd_vf/Tracker/tableFileName.html">tableFileName</a>.
+  <div class="features"><span class="feature">final</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="hashCode" class="property inherited">
+  <span class="name"><a href="https://api.dart.dev/stable/3.10.6/dart-core/Object/hashCode.html">hashCode</a></span>
+  <span class="signature">&#8594; <a href="https://api.dart.dev/stable/3.10.6/dart-core/int-class.html">int</a></span>
+  
+
+</dt>
+<dd class="inherited">
+  The hash code for this object.
+  <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="jsonFileName" class="property inherited">
+  <span class="name"><a href="https://pub.dev/documentation/rohd_vf/0.6.0/rohd_vf/Tracker/jsonFileName.html">jsonFileName</a></span>
+  <span class="signature">&#8594; <a href="https://api.dart.dev/stable/3.10.6/dart-core/String-class.html">String</a></span>
+  
+
+</dt>
+<dd class="inherited">
+  The path to the generated JSON log file, if enabled by <a href="https://pub.dev/documentation/rohd_vf/0.6.0/rohd_vf/Tracker/dumpJson.html">dumpJson</a>.
+  <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="name" class="property inherited">
+  <span class="name"><a href="https://pub.dev/documentation/rohd_vf/0.6.0/rohd_vf/Tracker/name.html">name</a></span>
+  <span class="signature">&#8594; <a href="https://api.dart.dev/stable/3.10.6/dart-core/String-class.html">String</a></span>
+  
+
+</dt>
+<dd class="inherited">
+  The name of this <a href="https://pub.dev/documentation/rohd_vf/0.6.0/rohd_vf/Tracker-class.html">Tracker</a>, used for naming output files.
+  <div class="features"><span class="feature">final</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="outputFolder" class="property inherited">
+  <span class="name"><a href="https://pub.dev/documentation/rohd_vf/0.6.0/rohd_vf/Tracker/outputFolder.html">outputFolder</a></span>
+  <span class="signature">&#8594; <a href="https://api.dart.dev/stable/3.10.6/dart-core/String-class.html">String</a>?</span>
+  
+
+</dt>
+<dd class="inherited">
+  An optional output directory for the logs.
+  <div class="features"><span class="feature">final</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="runtimeType" class="property inherited">
+  <span class="name"><a href="https://api.dart.dev/stable/3.10.6/dart-core/Object/runtimeType.html">runtimeType</a></span>
+  <span class="signature">&#8594; <a href="https://api.dart.dev/stable/3.10.6/dart-core/Type-class.html">Type</a></span>
+  
+
+</dt>
+<dd class="inherited">
+  A representation of the runtime type of the object.
+  <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="tableFileName" class="property inherited">
+  <span class="name"><a href="https://pub.dev/documentation/rohd_vf/0.6.0/rohd_vf/Tracker/tableFileName.html">tableFileName</a></span>
+  <span class="signature">&#8594; <a href="https://api.dart.dev/stable/3.10.6/dart-core/String-class.html">String</a></span>
+  
+
+</dt>
+<dd class="inherited">
+  The path to the generated ASCII table log file, if enabled by <a href="https://pub.dev/documentation/rohd_vf/0.6.0/rohd_vf/Tracker/dumpTable.html">dumpTable</a>.
+  <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
+
+</dd>
+
+    </dl>
+  </section>
+
+    
+  <section
+      class="summary offset-anchor inherited"
+      id="instance-methods">
+    <h2>Methods</h2>
+    <dl class="callables">
+        <dt id="noSuchMethod" class="callable inherited">
+  <span class="name"><a href="https://api.dart.dev/stable/3.10.6/dart-core/Object/noSuchMethod.html">noSuchMethod</a></span><span class="signature">(<wbr><span class="parameter" id="noSuchMethod-param-invocation"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.10.6/dart-core/Invocation-class.html">Invocation</a></span> <span class="parameter-name">invocation</span></span>)
+    <span class="returntype parameter">&#8594; dynamic</span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Invoked when a nonexistent method or property is accessed.
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="record" class="callable inherited">
+  <span class="name"><a href="https://pub.dev/documentation/rohd_vf/0.6.0/rohd_vf/Tracker/record.html">record</a></span><span class="signature">(<wbr><span class="parameter" id="record-param-trackable"><span class="type-annotation"><a href="../rohd_hcl/Axi5ArChannelPacket-class.html">Axi5ArChannelPacket</a></span> <span class="parameter-name">trackable</span>, {</span><span class="parameter" id="record-param-defaults"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.10.6/dart-core/Map-class.html">Map</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.dart.dev/stable/3.10.6/dart-core/String-class.html">String</a></span>, <span class="type-parameter"><a href="https://api.dart.dev/stable/3.10.6/dart-core/String-class.html">String</a>?</span>&gt;</span></span> <span class="parameter-name">defaults</span> = <span class="default-value">const {}</span></span>})
+    <span class="returntype parameter">&#8594; void</span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Records <code>trackable</code> into all enabled logs.
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="terminate" class="callable inherited">
+  <span class="name"><a href="https://pub.dev/documentation/rohd_vf/0.6.0/rohd_vf/Tracker/terminate.html">terminate</a></span><span class="signature">(<wbr>)
+    <span class="returntype parameter">&#8594; <a href="https://api.dart.dev/stable/3.10.6/dart-core/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter">void</span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Cleans up and finalizes all logs.
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="toString" class="callable inherited">
+  <span class="name"><a href="https://api.dart.dev/stable/3.10.6/dart-core/Object/toString.html">toString</a></span><span class="signature">(<wbr>)
+    <span class="returntype parameter">&#8594; <a href="https://api.dart.dev/stable/3.10.6/dart-core/String-class.html">String</a></span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  A string representation of this object.
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+    </dl>
+  </section>
+    
+  <section
+      class="summary offset-anchor inherited"
+      id="operators">
+    <h2>Operators</h2>
+    <dl class="callables">
+        <dt id="operator ==" class="callable inherited">
+  <span class="name"><a href="https://api.dart.dev/stable/3.10.6/dart-core/Object/operator_equals.html">operator ==</a></span><span class="signature">(<wbr><span class="parameter" id="==-param-other"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.10.6/dart-core/Object-class.html">Object</a></span> <span class="parameter-name">other</span></span>)
+    <span class="returntype parameter">&#8594; <a href="https://api.dart.dev/stable/3.10.6/dart-core/bool-class.html">bool</a></span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  The equality operator.
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+    </dl>
+  </section>
+    
+    
+    
+
+  <section class="summary offset-anchor" id="constants">
+    <h2>Constants</h2>
+    <dl class="properties">
+        <dt id="addrField" class="constant">
+    <span class="name "><a href="../rohd_hcl/Axi5ArChannelTracker/addrField-constant.html">addrField</a></span>
+  <span class="signature">&#8594; const <a href="https://api.dart.dev/stable/3.10.6/dart-core/String-class.html">String</a></span>
+  
+
+</dt>
+<dd>
+  addrField
+  
+
+</dd>
+
+        <dt id="atomicField" class="constant">
+    <span class="name "><a href="../rohd_hcl/Axi5ArChannelTracker/atomicField-constant.html">atomicField</a></span>
+  <span class="signature">&#8594; const <a href="https://api.dart.dev/stable/3.10.6/dart-core/String-class.html">String</a></span>
+  
+
+</dt>
+<dd>
+  atomicField
+  
+
+</dd>
+
+        <dt id="burstField" class="constant">
+    <span class="name "><a href="../rohd_hcl/Axi5ArChannelTracker/burstField-constant.html">burstField</a></span>
+  <span class="signature">&#8594; const <a href="https://api.dart.dev/stable/3.10.6/dart-core/String-class.html">String</a></span>
+  
+
+</dt>
+<dd>
+  burstField
+  
+
+</dd>
+
+        <dt id="cacheField" class="constant">
+    <span class="name "><a href="../rohd_hcl/Axi5ArChannelTracker/cacheField-constant.html">cacheField</a></span>
+  <span class="signature">&#8594; const <a href="https://api.dart.dev/stable/3.10.6/dart-core/String-class.html">String</a></span>
+  
+
+</dt>
+<dd>
+  cacheField
+  
+
+</dd>
+
+        <dt id="chunkEnField" class="constant">
+    <span class="name "><a href="../rohd_hcl/Axi5ArChannelTracker/chunkEnField-constant.html">chunkEnField</a></span>
+  <span class="signature">&#8594; const <a href="https://api.dart.dev/stable/3.10.6/dart-core/String-class.html">String</a></span>
+  
+
+</dt>
+<dd>
+  chunkEnField
+  
+
+</dd>
+
+        <dt id="chunkNumField" class="constant">
+    <span class="name "><a href="../rohd_hcl/Axi5ArChannelTracker/chunkNumField-constant.html">chunkNumField</a></span>
+  <span class="signature">&#8594; const <a href="https://api.dart.dev/stable/3.10.6/dart-core/String-class.html">String</a></span>
+  
+
+</dt>
+<dd>
+  chunkNumField
+  
+
+</dd>
+
+        <dt id="chunkStrbField" class="constant">
+    <span class="name "><a href="../rohd_hcl/Axi5ArChannelTracker/chunkStrbField-constant.html">chunkStrbField</a></span>
+  <span class="signature">&#8594; const <a href="https://api.dart.dev/stable/3.10.6/dart-core/String-class.html">String</a></span>
+  
+
+</dt>
+<dd>
+  chunkStrbField
+  
+
+</dd>
+
+        <dt id="chunkVField" class="constant">
+    <span class="name "><a href="../rohd_hcl/Axi5ArChannelTracker/chunkVField-constant.html">chunkVField</a></span>
+  <span class="signature">&#8594; const <a href="https://api.dart.dev/stable/3.10.6/dart-core/String-class.html">String</a></span>
+  
+
+</dt>
+<dd>
+  chunkVField
+  
+
+</dd>
+
+        <dt id="compField" class="constant">
+    <span class="name "><a href="../rohd_hcl/Axi5ArChannelTracker/compField-constant.html">compField</a></span>
+  <span class="signature">&#8594; const <a href="https://api.dart.dev/stable/3.10.6/dart-core/String-class.html">String</a></span>
+  
+
+</dt>
+<dd>
+  compField
+  
+
+</dd>
+
+        <dt id="domainField" class="constant">
+    <span class="name "><a href="../rohd_hcl/Axi5ArChannelTracker/domainField-constant.html">domainField</a></span>
+  <span class="signature">&#8594; const <a href="https://api.dart.dev/stable/3.10.6/dart-core/String-class.html">String</a></span>
+  
+
+</dt>
+<dd>
+  domainField
+  
+
+</dd>
+
+        <dt id="idField" class="constant">
+    <span class="name "><a href="../rohd_hcl/Axi5ArChannelTracker/idField-constant.html">idField</a></span>
+  <span class="signature">&#8594; const <a href="https://api.dart.dev/stable/3.10.6/dart-core/String-class.html">String</a></span>
+  
+
+</dt>
+<dd>
+  idField
+  
+
+</dd>
+
+        <dt id="idUnqField" class="constant">
+    <span class="name "><a href="../rohd_hcl/Axi5ArChannelTracker/idUnqField-constant.html">idUnqField</a></span>
+  <span class="signature">&#8594; const <a href="https://api.dart.dev/stable/3.10.6/dart-core/String-class.html">String</a></span>
+  
+
+</dt>
+<dd>
+  idUnqField
+  
+
+</dd>
+
+        <dt id="instField" class="constant">
+    <span class="name "><a href="../rohd_hcl/Axi5ArChannelTracker/instField-constant.html">instField</a></span>
+  <span class="signature">&#8594; const <a href="https://api.dart.dev/stable/3.10.6/dart-core/String-class.html">String</a></span>
+  
+
+</dt>
+<dd>
+  instField
+  
+
+</dd>
+
+        <dt id="lenField" class="constant">
+    <span class="name "><a href="../rohd_hcl/Axi5ArChannelTracker/lenField-constant.html">lenField</a></span>
+  <span class="signature">&#8594; const <a href="https://api.dart.dev/stable/3.10.6/dart-core/String-class.html">String</a></span>
+  
+
+</dt>
+<dd>
+  lenField
+  
+
+</dd>
+
+        <dt id="loopField" class="constant">
+    <span class="name "><a href="../rohd_hcl/Axi5ArChannelTracker/loopField-constant.html">loopField</a></span>
+  <span class="signature">&#8594; const <a href="https://api.dart.dev/stable/3.10.6/dart-core/String-class.html">String</a></span>
+  
+
+</dt>
+<dd>
+  loopField
+  
+
+</dd>
+
+        <dt id="mecIdField" class="constant">
+    <span class="name "><a href="../rohd_hcl/Axi5ArChannelTracker/mecIdField-constant.html">mecIdField</a></span>
+  <span class="signature">&#8594; const <a href="https://api.dart.dev/stable/3.10.6/dart-core/String-class.html">String</a></span>
+  
+
+</dt>
+<dd>
+  mecIdField
+  
+
+</dd>
+
+        <dt id="mmuValidField" class="constant">
+    <span class="name "><a href="../rohd_hcl/Axi5ArChannelTracker/mmuValidField-constant.html">mmuValidField</a></span>
+  <span class="signature">&#8594; const <a href="https://api.dart.dev/stable/3.10.6/dart-core/String-class.html">String</a></span>
+  
+
+</dt>
+<dd>
+  mmuValidField
+  
+
+</dd>
+
+        <dt id="nseField" class="constant">
+    <span class="name "><a href="../rohd_hcl/Axi5ArChannelTracker/nseField-constant.html">nseField</a></span>
+  <span class="signature">&#8594; const <a href="https://api.dart.dev/stable/3.10.6/dart-core/String-class.html">String</a></span>
+  
+
+</dt>
+<dd>
+  nseField
+  
+
+</dd>
+
+        <dt id="opcodeField" class="constant">
+    <span class="name "><a href="../rohd_hcl/Axi5ArChannelTracker/opcodeField-constant.html">opcodeField</a></span>
+  <span class="signature">&#8594; const <a href="https://api.dart.dev/stable/3.10.6/dart-core/String-class.html">String</a></span>
+  
+
+</dt>
+<dd>
+  opcodeField
+  
+
+</dd>
+
+        <dt id="pasField" class="constant">
+    <span class="name "><a href="../rohd_hcl/Axi5ArChannelTracker/pasField-constant.html">pasField</a></span>
+  <span class="signature">&#8594; const <a href="https://api.dart.dev/stable/3.10.6/dart-core/String-class.html">String</a></span>
+  
+
+</dt>
+<dd>
+  pasField
+  
+
+</dd>
+
+        <dt id="persistField" class="constant">
+    <span class="name "><a href="../rohd_hcl/Axi5ArChannelTracker/persistField-constant.html">persistField</a></span>
+  <span class="signature">&#8594; const <a href="https://api.dart.dev/stable/3.10.6/dart-core/String-class.html">String</a></span>
+  
+
+</dt>
+<dd>
+  persistField
+  
+
+</dd>
+
+        <dt id="privField" class="constant">
+    <span class="name "><a href="../rohd_hcl/Axi5ArChannelTracker/privField-constant.html">privField</a></span>
+  <span class="signature">&#8594; const <a href="https://api.dart.dev/stable/3.10.6/dart-core/String-class.html">String</a></span>
+  
+
+</dt>
+<dd>
+  privField
+  
+
+</dd>
+
+        <dt id="protField" class="constant">
+    <span class="name "><a href="../rohd_hcl/Axi5ArChannelTracker/protField-constant.html">protField</a></span>
+  <span class="signature">&#8594; const <a href="https://api.dart.dev/stable/3.10.6/dart-core/String-class.html">String</a></span>
+  
+
+</dt>
+<dd>
+  protField
+  
+
+</dd>
+
+        <dt id="qosField" class="constant">
+    <span class="name "><a href="../rohd_hcl/Axi5ArChannelTracker/qosField-constant.html">qosField</a></span>
+  <span class="signature">&#8594; const <a href="https://api.dart.dev/stable/3.10.6/dart-core/String-class.html">String</a></span>
+  
+
+</dt>
+<dd>
+  qosField
+  
+
+</dd>
+
+        <dt id="qualField" class="constant">
+    <span class="name "><a href="../rohd_hcl/Axi5ArChannelTracker/qualField-constant.html">qualField</a></span>
+  <span class="signature">&#8594; const <a href="https://api.dart.dev/stable/3.10.6/dart-core/String-class.html">String</a></span>
+  
+
+</dt>
+<dd>
+  qualField
+  
+
+</dd>
+
+        <dt id="regionField" class="constant">
+    <span class="name "><a href="../rohd_hcl/Axi5ArChannelTracker/regionField-constant.html">regionField</a></span>
+  <span class="signature">&#8594; const <a href="https://api.dart.dev/stable/3.10.6/dart-core/String-class.html">String</a></span>
+  
+
+</dt>
+<dd>
+  regionField
+  
+
+</dd>
+
+        <dt id="sizeField" class="constant">
+    <span class="name "><a href="../rohd_hcl/Axi5ArChannelTracker/sizeField-constant.html">sizeField</a></span>
+  <span class="signature">&#8594; const <a href="https://api.dart.dev/stable/3.10.6/dart-core/String-class.html">String</a></span>
+  
+
+</dt>
+<dd>
+  sizeField
+  
+
+</dd>
+
+        <dt id="tagField" class="constant">
+    <span class="name "><a href="../rohd_hcl/Axi5ArChannelTracker/tagField-constant.html">tagField</a></span>
+  <span class="signature">&#8594; const <a href="https://api.dart.dev/stable/3.10.6/dart-core/String-class.html">String</a></span>
+  
+
+</dt>
+<dd>
+  tagField
+  
+
+</dd>
+
+        <dt id="tagMatchField" class="constant">
+    <span class="name "><a href="../rohd_hcl/Axi5ArChannelTracker/tagMatchField-constant.html">tagMatchField</a></span>
+  <span class="signature">&#8594; const <a href="https://api.dart.dev/stable/3.10.6/dart-core/String-class.html">String</a></span>
+  
+
+</dt>
+<dd>
+  tagMatchField
+  
+
+</dd>
+
+        <dt id="tagUpdateField" class="constant">
+    <span class="name "><a href="../rohd_hcl/Axi5ArChannelTracker/tagUpdateField-constant.html">tagUpdateField</a></span>
+  <span class="signature">&#8594; const <a href="https://api.dart.dev/stable/3.10.6/dart-core/String-class.html">String</a></span>
+  
+
+</dt>
+<dd>
+  tagUpdateField
+  
+
+</dd>
+
+        <dt id="timeField" class="constant">
+    <span class="name "><a href="../rohd_hcl/Axi5ArChannelTracker/timeField-constant.html">timeField</a></span>
+  <span class="signature">&#8594; const <a href="https://api.dart.dev/stable/3.10.6/dart-core/String-class.html">String</a></span>
+  
+
+</dt>
+<dd>
+  time
+  
+
+</dd>
+
+        <dt id="traceField" class="constant">
+    <span class="name "><a href="../rohd_hcl/Axi5ArChannelTracker/traceField-constant.html">traceField</a></span>
+  <span class="signature">&#8594; const <a href="https://api.dart.dev/stable/3.10.6/dart-core/String-class.html">String</a></span>
+  
+
+</dt>
+<dd>
+  traceField
+  
+
+</dd>
+
+        <dt id="userField" class="constant">
+    <span class="name "><a href="../rohd_hcl/Axi5ArChannelTracker/userField-constant.html">userField</a></span>
+  <span class="signature">&#8594; const <a href="https://api.dart.dev/stable/3.10.6/dart-core/String-class.html">String</a></span>
+  
+
+</dt>
+<dd>
+  userField
+  
+
+</dd>
+
+    </dl>
+  </section>
+  </div> <!-- /.main-content -->
+  <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+    <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
+<header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+    <li><a href="../index.html">rohd_hcl</a></li>
+    <li><a href="../rohd_hcl/">rohd_hcl</a></li>
+    <li class="self-crumb">Axi5ArChannelTracker class</li>
+</ol>
+
+    <h5>rohd_hcl library</h5>
+    <div id="dartdoc-sidebar-left-content"></div>
+  </div>
+  <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+  </div><!--/.sidebar-offcanvas-->
+</main>
+<footer>
+  <span class="no-break">
+    rohd_hcl
+      0.2.1
+  </span>
+  
+</footer>
+
+
+<script src="../static-assets/highlight.pack.js?v1"></script>
+<script src="../static-assets/docs.dart.js"></script>
+
+</body>
+</html>
+

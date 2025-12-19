@@ -1,0 +1,665 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="API docs for the Axi5BaseAwChannelConfig class from the rohd_hcl library, for the Dart programming language.">
+  <title>Axi5BaseAwChannelConfig class - rohd_hcl library - Dart API</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../static-assets/github.css?v1">
+  <link rel="stylesheet" href="../static-assets/styles.css?v1">
+  <link rel="icon" href="../static-assets/favicon.png?v1">
+  
+</head>
+
+<body data-base-href="../" data-using-base-href="false" class="light-theme">
+<div id="overlay-under-drawer"></div>
+<header id="title">
+  <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="../index.html">rohd_hcl</a></li>
+    <li><a href="../rohd_hcl/">rohd_hcl.dart</a></li>
+    <li class="self-crumb">Axi5BaseAwChannelConfig class</li>
+  </ol>
+  <div class="self-name">Axi5BaseAwChannelConfig</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+  <button class="toggle" id="theme-button" title="Toggle between light and dark mode" aria-label="Light and dark mode toggle">
+    <span id="dark-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      dark_mode
+    </span>
+    <span id="light-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      light_mode
+    </span>
+  </button>
+</header>
+<main>
+<div
+    id="dartdoc-main-content"
+    class="main-content"
+    data-above-sidebar="rohd_hcl&#47;rohd_hcl-library-sidebar.html"
+    data-below-sidebar="rohd_hcl&#47;Axi5BaseAwChannelConfig-class-sidebar.html">
+    <div>
+<h1><span class="kind-class">Axi5BaseAwChannelConfig</span> class 
+    <a href="https://dart.dev/language/class-modifiers#abstract" class="feature feature-abstract" title="This type can not be directly constructed.">abstract</a>
+ 
+</h1></div>
+
+    
+<section class="desc markdown">
+  <p>A config object for constructing an AXI5 AW channel.</p>
+</section>
+
+
+    <section>
+      <dl class="dl-horizontal">
+        
+
+        
+        
+
+          <dt>Implementers</dt>
+          <dd><ul class="comma-separated clazz-relationships">
+              <li><a href="../rohd_hcl/Ace5LiteAwChannelConfig-class.html">Ace5LiteAwChannelConfig</a></li>
+              <li><a href="../rohd_hcl/Axi5AwChannelConfig-class.html">Axi5AwChannelConfig</a></li>
+              <li><a href="../rohd_hcl/Axi5LiteAwChannelConfig-class.html">Axi5LiteAwChannelConfig</a></li>
+          </ul></dd>
+
+        
+        
+
+
+      </dl>
+    </section>
+
+    
+  <section class="summary offset-anchor" id="constructors">
+    <h2>Constructors</h2>
+    <dl class="constructor-summary-list">
+        <dt id="Axi5BaseAwChannelConfig.new" class="callable">
+          <span class="name"><a href="../rohd_hcl/Axi5BaseAwChannelConfig/Axi5BaseAwChannelConfig.html">Axi5BaseAwChannelConfig</a></span><span class="signature">({<span class="parameter" id="-param-userWidth"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.10.6/dart-core/int-class.html">int</a></span> <span class="parameter-name">userWidth</span> = <span class="default-value">0</span>, </span><span class="parameter" id="-param-idWidth"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.10.6/dart-core/int-class.html">int</a></span> <span class="parameter-name">idWidth</span> = <span class="default-value">0</span>, </span><span class="parameter" id="-param-useIdUnq"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.10.6/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">useIdUnq</span> = <span class="default-value">false</span>, </span><span class="parameter" id="-param-addrWidth"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.10.6/dart-core/int-class.html">int</a></span> <span class="parameter-name">addrWidth</span> = <span class="default-value">0</span>, </span><span class="parameter" id="-param-lenWidth"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.10.6/dart-core/int-class.html">int</a></span> <span class="parameter-name">lenWidth</span> = <span class="default-value">0</span>, </span><span class="parameter" id="-param-useLock"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.10.6/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">useLock</span> = <span class="default-value">false</span>, </span><span class="parameter" id="-param-sizeWidth"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.10.6/dart-core/int-class.html">int</a></span> <span class="parameter-name">sizeWidth</span> = <span class="default-value">0</span>, </span><span class="parameter" id="-param-burstWidth"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.10.6/dart-core/int-class.html">int</a></span> <span class="parameter-name">burstWidth</span> = <span class="default-value">0</span>, </span><span class="parameter" id="-param-cacheWidth"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.10.6/dart-core/int-class.html">int</a></span> <span class="parameter-name">cacheWidth</span> = <span class="default-value">0</span>, </span><span class="parameter" id="-param-protWidth"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.10.6/dart-core/int-class.html">int</a></span> <span class="parameter-name">protWidth</span> = <span class="default-value">0</span>, </span><span class="parameter" id="-param-qosWidth"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.10.6/dart-core/int-class.html">int</a></span> <span class="parameter-name">qosWidth</span> = <span class="default-value">0</span>, </span><span class="parameter" id="-param-regionWidth"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.10.6/dart-core/int-class.html">int</a></span> <span class="parameter-name">regionWidth</span> = <span class="default-value">0</span>, </span><span class="parameter" id="-param-rmeSupport"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.10.6/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">rmeSupport</span> = <span class="default-value">false</span>, </span><span class="parameter" id="-param-instPrivPresent"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.10.6/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">instPrivPresent</span> = <span class="default-value">false</span>, </span><span class="parameter" id="-param-pasWidth"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.10.6/dart-core/int-class.html">int</a></span> <span class="parameter-name">pasWidth</span> = <span class="default-value">0</span>, </span><span class="parameter" id="-param-mecIdWidth"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.10.6/dart-core/int-class.html">int</a></span> <span class="parameter-name">mecIdWidth</span> = <span class="default-value">0</span>, </span><span class="parameter" id="-param-atOpWidth"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.10.6/dart-core/int-class.html">int</a></span> <span class="parameter-name">atOpWidth</span> = <span class="default-value">0</span>, </span><span class="parameter" id="-param-snpWidth"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.10.6/dart-core/int-class.html">int</a></span> <span class="parameter-name">snpWidth</span> = <span class="default-value">0</span>, </span><span class="parameter" id="-param-tracePresent"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.10.6/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">tracePresent</span> = <span class="default-value">false</span>, </span><span class="parameter" id="-param-loopWidth"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.10.6/dart-core/int-class.html">int</a></span> <span class="parameter-name">loopWidth</span> = <span class="default-value">0</span>, </span><span class="parameter" id="-param-mpamWidth"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.10.6/dart-core/int-class.html">int</a></span> <span class="parameter-name">mpamWidth</span> = <span class="default-value">0</span>, </span><span class="parameter" id="-param-useTagging"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.10.6/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">useTagging</span> = <span class="default-value">false</span>, </span><span class="parameter" id="-param-secSidWidth"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.10.6/dart-core/int-class.html">int</a></span> <span class="parameter-name">secSidWidth</span> = <span class="default-value">0</span>, </span><span class="parameter" id="-param-sidWidth"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.10.6/dart-core/int-class.html">int</a></span> <span class="parameter-name">sidWidth</span> = <span class="default-value">0</span>, </span><span class="parameter" id="-param-ssidWidth"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.10.6/dart-core/int-class.html">int</a></span> <span class="parameter-name">ssidWidth</span> = <span class="default-value">0</span>, </span><span class="parameter" id="-param-useNsaId"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.10.6/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">useNsaId</span> = <span class="default-value">false</span>, </span><span class="parameter" id="-param-usePbha"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.10.6/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">usePbha</span> = <span class="default-value">false</span>, </span><span class="parameter" id="-param-actWidth"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.10.6/dart-core/int-class.html">int</a></span> <span class="parameter-name">actWidth</span> = <span class="default-value">0</span>, </span><span class="parameter" id="-param-subSysIdWidth"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.10.6/dart-core/int-class.html">int</a></span> <span class="parameter-name">subSysIdWidth</span> = <span class="default-value">0</span>, </span><span class="parameter" id="-param-domainWidth"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.10.6/dart-core/int-class.html">int</a></span> <span class="parameter-name">domainWidth</span> = <span class="default-value">0</span>, </span><span class="parameter" id="-param-stashNidPresent"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.10.6/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">stashNidPresent</span> = <span class="default-value">false</span>, </span><span class="parameter" id="-param-stashLPidPresent"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.10.6/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">stashLPidPresent</span> = <span class="default-value">false</span>, </span><span class="parameter" id="-param-cmoWidth"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.10.6/dart-core/int-class.html">int</a></span> <span class="parameter-name">cmoWidth</span> = <span class="default-value">0</span>, </span><span class="parameter" id="-param-useFlow"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.10.6/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">useFlow</span> = <span class="default-value">false</span>, </span><span class="parameter" id="-param-supportRmeAndPasMmu"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.10.6/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">supportRmeAndPasMmu</span> = <span class="default-value">false</span>, </span><span class="parameter" id="-param-supportGdi"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.10.6/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">supportGdi</span> = <span class="default-value">false</span>, </span><span class="parameter" id="-param-untranslatedTransVersion"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.10.6/dart-core/int-class.html">int</a></span> <span class="parameter-name">untranslatedTransVersion</span> = <span class="default-value">4</span></span>})</span>
+        </dt>
+        <dd>
+          Constructor.
+        </dd>
+    </dl>
+  </section>
+    
+  <section
+      class="summary offset-anchor"
+      id="instance-properties">
+    <h2>Properties</h2>
+    <dl class="properties">
+        <dt id="actWidth" class="property">
+  <span class="name"><a href="../rohd_hcl/Axi5BaseAwChannelConfig/actWidth.html">actWidth</a></span>
+  <span class="signature">&#8594; <a href="https://api.dart.dev/stable/3.10.6/dart-core/int-class.html">int</a></span>
+  
+
+</dt>
+<dd>
+  ACT width.
+  <div class="features"><span class="feature">final</span></div>
+
+</dd>
+
+        <dt id="addrWidth" class="property">
+  <span class="name"><a href="../rohd_hcl/Axi5BaseAwChannelConfig/addrWidth.html">addrWidth</a></span>
+  <span class="signature">&#8594; <a href="https://api.dart.dev/stable/3.10.6/dart-core/int-class.html">int</a></span>
+  
+
+</dt>
+<dd>
+  The width of the address bus in bits.
+  <div class="features"><span class="feature">final</span></div>
+
+</dd>
+
+        <dt id="atOpWidth" class="property">
+  <span class="name"><a href="../rohd_hcl/Axi5BaseAwChannelConfig/atOpWidth.html">atOpWidth</a></span>
+  <span class="signature">&#8594; <a href="https://api.dart.dev/stable/3.10.6/dart-core/int-class.html">int</a></span>
+  
+
+</dt>
+<dd>
+  The width of the ATOP signal in bits.
+  <div class="features"><span class="feature">final</span></div>
+
+</dd>
+
+        <dt id="burstWidth" class="property">
+  <span class="name"><a href="../rohd_hcl/Axi5BaseAwChannelConfig/burstWidth.html">burstWidth</a></span>
+  <span class="signature">&#8594; <a href="https://api.dart.dev/stable/3.10.6/dart-core/int-class.html">int</a></span>
+  
+
+</dt>
+<dd>
+  The width of the BURST signal in bits.
+  <div class="features"><span class="feature">final</span></div>
+
+</dd>
+
+        <dt id="cacheWidth" class="property">
+  <span class="name"><a href="../rohd_hcl/Axi5BaseAwChannelConfig/cacheWidth.html">cacheWidth</a></span>
+  <span class="signature">&#8594; <a href="https://api.dart.dev/stable/3.10.6/dart-core/int-class.html">int</a></span>
+  
+
+</dt>
+<dd>
+  The width of the CACHE signal in bits.
+  <div class="features"><span class="feature">final</span></div>
+
+</dd>
+
+        <dt id="cmoWidth" class="property">
+  <span class="name"><a href="../rohd_hcl/Axi5BaseAwChannelConfig/cmoWidth.html">cmoWidth</a></span>
+  <span class="signature">&#8594; <a href="https://api.dart.dev/stable/3.10.6/dart-core/int-class.html">int</a></span>
+  
+
+</dt>
+<dd>
+  Width of the CMO signal.
+  <div class="features"><span class="feature">final</span></div>
+
+</dd>
+
+        <dt id="domainWidth" class="property">
+  <span class="name"><a href="../rohd_hcl/Axi5BaseAwChannelConfig/domainWidth.html">domainWidth</a></span>
+  <span class="signature">&#8594; <a href="https://api.dart.dev/stable/3.10.6/dart-core/int-class.html">int</a></span>
+  
+
+</dt>
+<dd>
+  Width of the DOMAIN signal.
+  <div class="features"><span class="feature">final</span></div>
+
+</dd>
+
+        <dt id="hashCode" class="property inherited">
+  <span class="name"><a href="https://api.dart.dev/stable/3.10.6/dart-core/Object/hashCode.html">hashCode</a></span>
+  <span class="signature">&#8594; <a href="https://api.dart.dev/stable/3.10.6/dart-core/int-class.html">int</a></span>
+  
+
+</dt>
+<dd class="inherited">
+  The hash code for this object.
+  <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="idWidth" class="property">
+  <span class="name"><a href="../rohd_hcl/Axi5BaseAwChannelConfig/idWidth.html">idWidth</a></span>
+  <span class="signature">&#8594; <a href="https://api.dart.dev/stable/3.10.6/dart-core/int-class.html">int</a></span>
+  
+
+</dt>
+<dd>
+  The width of the ID signal in bits.
+  <div class="features"><span class="feature">final</span></div>
+
+</dd>
+
+        <dt id="instPrivPresent" class="property">
+  <span class="name"><a href="../rohd_hcl/Axi5BaseAwChannelConfig/instPrivPresent.html">instPrivPresent</a></span>
+  <span class="signature">&#8594; <a href="https://api.dart.dev/stable/3.10.6/dart-core/bool-class.html">bool</a></span>
+  
+
+</dt>
+<dd>
+  Inst/priv support.
+  <div class="features"><span class="feature">final</span></div>
+
+</dd>
+
+        <dt id="lenWidth" class="property">
+  <span class="name"><a href="../rohd_hcl/Axi5BaseAwChannelConfig/lenWidth.html">lenWidth</a></span>
+  <span class="signature">&#8594; <a href="https://api.dart.dev/stable/3.10.6/dart-core/int-class.html">int</a></span>
+  
+
+</dt>
+<dd>
+  The width of the LEN signal in bits.
+  <div class="features"><span class="feature">final</span></div>
+
+</dd>
+
+        <dt id="loopWidth" class="property">
+  <span class="name"><a href="../rohd_hcl/Axi5BaseAwChannelConfig/loopWidth.html">loopWidth</a></span>
+  <span class="signature">&#8594; <a href="https://api.dart.dev/stable/3.10.6/dart-core/int-class.html">int</a></span>
+  
+
+</dt>
+<dd>
+  Loopback signal width.
+  <div class="features"><span class="feature">final</span></div>
+
+</dd>
+
+        <dt id="mecIdWidth" class="property">
+  <span class="name"><a href="../rohd_hcl/Axi5BaseAwChannelConfig/mecIdWidth.html">mecIdWidth</a></span>
+  <span class="signature">&#8594; <a href="https://api.dart.dev/stable/3.10.6/dart-core/int-class.html">int</a></span>
+  
+
+</dt>
+<dd>
+  The width of MECID signal in bits.
+  <div class="features"><span class="feature">final</span></div>
+
+</dd>
+
+        <dt id="mpamWidth" class="property">
+  <span class="name"><a href="../rohd_hcl/Axi5BaseAwChannelConfig/mpamWidth.html">mpamWidth</a></span>
+  <span class="signature">&#8594; <a href="https://api.dart.dev/stable/3.10.6/dart-core/int-class.html">int</a></span>
+  
+
+</dt>
+<dd>
+  Width of MPAM signal.
+  <div class="features"><span class="feature">final</span></div>
+
+</dd>
+
+        <dt id="pasWidth" class="property">
+  <span class="name"><a href="../rohd_hcl/Axi5BaseAwChannelConfig/pasWidth.html">pasWidth</a></span>
+  <span class="signature">&#8594; <a href="https://api.dart.dev/stable/3.10.6/dart-core/int-class.html">int</a></span>
+  
+
+</dt>
+<dd>
+  The width of PAS signal in bits.
+  <div class="features"><span class="feature">final</span></div>
+
+</dd>
+
+        <dt id="protWidth" class="property">
+  <span class="name"><a href="../rohd_hcl/Axi5BaseAwChannelConfig/protWidth.html">protWidth</a></span>
+  <span class="signature">&#8594; <a href="https://api.dart.dev/stable/3.10.6/dart-core/int-class.html">int</a></span>
+  
+
+</dt>
+<dd>
+  The width of the PROT signal in bits.
+  <div class="features"><span class="feature">final</span></div>
+
+</dd>
+
+        <dt id="qosWidth" class="property">
+  <span class="name"><a href="../rohd_hcl/Axi5BaseAwChannelConfig/qosWidth.html">qosWidth</a></span>
+  <span class="signature">&#8594; <a href="https://api.dart.dev/stable/3.10.6/dart-core/int-class.html">int</a></span>
+  
+
+</dt>
+<dd>
+  The width of the QOS signal in bits.
+  <div class="features"><span class="feature">final</span></div>
+
+</dd>
+
+        <dt id="regionWidth" class="property">
+  <span class="name"><a href="../rohd_hcl/Axi5BaseAwChannelConfig/regionWidth.html">regionWidth</a></span>
+  <span class="signature">&#8594; <a href="https://api.dart.dev/stable/3.10.6/dart-core/int-class.html">int</a></span>
+  
+
+</dt>
+<dd>
+  The width of the REGION signal in bits.
+  <div class="features"><span class="feature">final</span></div>
+
+</dd>
+
+        <dt id="rmeSupport" class="property">
+  <span class="name"><a href="../rohd_hcl/Axi5BaseAwChannelConfig/rmeSupport.html">rmeSupport</a></span>
+  <span class="signature">&#8594; <a href="https://api.dart.dev/stable/3.10.6/dart-core/bool-class.html">bool</a></span>
+  
+
+</dt>
+<dd>
+  Realm Management Extension support.
+  <div class="features"><span class="feature">final</span></div>
+
+</dd>
+
+        <dt id="runtimeType" class="property inherited">
+  <span class="name"><a href="https://api.dart.dev/stable/3.10.6/dart-core/Object/runtimeType.html">runtimeType</a></span>
+  <span class="signature">&#8594; <a href="https://api.dart.dev/stable/3.10.6/dart-core/Type-class.html">Type</a></span>
+  
+
+</dt>
+<dd class="inherited">
+  A representation of the runtime type of the object.
+  <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="secSidWidth" class="property">
+  <span class="name"><a href="../rohd_hcl/Axi5BaseAwChannelConfig/secSidWidth.html">secSidWidth</a></span>
+  <span class="signature">&#8594; <a href="https://api.dart.dev/stable/3.10.6/dart-core/int-class.html">int</a></span>
+  
+
+</dt>
+<dd>
+  Secure stream ID width.
+  <div class="features"><span class="feature">final</span></div>
+
+</dd>
+
+        <dt id="sidWidth" class="property">
+  <span class="name"><a href="../rohd_hcl/Axi5BaseAwChannelConfig/sidWidth.html">sidWidth</a></span>
+  <span class="signature">&#8594; <a href="https://api.dart.dev/stable/3.10.6/dart-core/int-class.html">int</a></span>
+  
+
+</dt>
+<dd>
+  Stream ID width.
+  <div class="features"><span class="feature">final</span></div>
+
+</dd>
+
+        <dt id="sizeWidth" class="property">
+  <span class="name"><a href="../rohd_hcl/Axi5BaseAwChannelConfig/sizeWidth.html">sizeWidth</a></span>
+  <span class="signature">&#8594; <a href="https://api.dart.dev/stable/3.10.6/dart-core/int-class.html">int</a></span>
+  
+
+</dt>
+<dd>
+  The width of the SIZE signal in bits.
+  <div class="features"><span class="feature">final</span></div>
+
+</dd>
+
+        <dt id="snpWidth" class="property">
+  <span class="name"><a href="../rohd_hcl/Axi5BaseAwChannelConfig/snpWidth.html">snpWidth</a></span>
+  <span class="signature">&#8594; <a href="https://api.dart.dev/stable/3.10.6/dart-core/int-class.html">int</a></span>
+  
+
+</dt>
+<dd>
+  The width of the SNOOP signal in bits.
+  <div class="features"><span class="feature">final</span></div>
+
+</dd>
+
+        <dt id="ssidWidth" class="property">
+  <span class="name"><a href="../rohd_hcl/Axi5BaseAwChannelConfig/ssidWidth.html">ssidWidth</a></span>
+  <span class="signature">&#8594; <a href="https://api.dart.dev/stable/3.10.6/dart-core/int-class.html">int</a></span>
+  
+
+</dt>
+<dd>
+  Substream ID width.
+  <div class="features"><span class="feature">final</span></div>
+
+</dd>
+
+        <dt id="stashLPidPresent" class="property">
+  <span class="name"><a href="../rohd_hcl/Axi5BaseAwChannelConfig/stashLPidPresent.html">stashLPidPresent</a></span>
+  <span class="signature">&#8594; <a href="https://api.dart.dev/stable/3.10.6/dart-core/bool-class.html">bool</a></span>
+  
+
+</dt>
+<dd>
+  Stash Logical PID present.
+  <div class="features"><span class="feature">final</span></div>
+
+</dd>
+
+        <dt id="stashNidPresent" class="property">
+  <span class="name"><a href="../rohd_hcl/Axi5BaseAwChannelConfig/stashNidPresent.html">stashNidPresent</a></span>
+  <span class="signature">&#8594; <a href="https://api.dart.dev/stable/3.10.6/dart-core/bool-class.html">bool</a></span>
+  
+
+</dt>
+<dd>
+  Stash NID present.
+  <div class="features"><span class="feature">final</span></div>
+
+</dd>
+
+        <dt id="subSysIdWidth" class="property">
+  <span class="name"><a href="../rohd_hcl/Axi5BaseAwChannelConfig/subSysIdWidth.html">subSysIdWidth</a></span>
+  <span class="signature">&#8594; <a href="https://api.dart.dev/stable/3.10.6/dart-core/int-class.html">int</a></span>
+  
+
+</dt>
+<dd>
+  Subsystem ID width.
+  <div class="features"><span class="feature">final</span></div>
+
+</dd>
+
+        <dt id="supportGdi" class="property">
+  <span class="name"><a href="../rohd_hcl/Axi5BaseAwChannelConfig/supportGdi.html">supportGdi</a></span>
+  <span class="signature">&#8594; <a href="https://api.dart.dev/stable/3.10.6/dart-core/bool-class.html">bool</a></span>
+  
+
+</dt>
+<dd>
+  GDI support.
+  <div class="features"><span class="feature">final</span></div>
+
+</dd>
+
+        <dt id="supportRmeAndPasMmu" class="property">
+  <span class="name"><a href="../rohd_hcl/Axi5BaseAwChannelConfig/supportRmeAndPasMmu.html">supportRmeAndPasMmu</a></span>
+  <span class="signature">&#8594; <a href="https://api.dart.dev/stable/3.10.6/dart-core/bool-class.html">bool</a></span>
+  
+
+</dt>
+<dd>
+  RME and PAS support.
+  <div class="features"><span class="feature">final</span></div>
+
+</dd>
+
+        <dt id="tracePresent" class="property">
+  <span class="name"><a href="../rohd_hcl/Axi5BaseAwChannelConfig/tracePresent.html">tracePresent</a></span>
+  <span class="signature">&#8594; <a href="https://api.dart.dev/stable/3.10.6/dart-core/bool-class.html">bool</a></span>
+  
+
+</dt>
+<dd>
+  Trace present.
+  <div class="features"><span class="feature">final</span></div>
+
+</dd>
+
+        <dt id="untranslatedTransVersion" class="property">
+  <span class="name"><a href="../rohd_hcl/Axi5BaseAwChannelConfig/untranslatedTransVersion.html">untranslatedTransVersion</a></span>
+  <span class="signature">&#8594; <a href="https://api.dart.dev/stable/3.10.6/dart-core/int-class.html">int</a></span>
+  
+
+</dt>
+<dd>
+  Untranslated transactions version.
+  <div class="features"><span class="feature">final</span></div>
+
+</dd>
+
+        <dt id="useFlow" class="property">
+  <span class="name"><a href="../rohd_hcl/Axi5BaseAwChannelConfig/useFlow.html">useFlow</a></span>
+  <span class="signature">&#8594; <a href="https://api.dart.dev/stable/3.10.6/dart-core/bool-class.html">bool</a></span>
+  
+
+</dt>
+<dd>
+  Flow support.
+  <div class="features"><span class="feature">final</span></div>
+
+</dd>
+
+        <dt id="useIdUnq" class="property">
+  <span class="name"><a href="../rohd_hcl/Axi5BaseAwChannelConfig/useIdUnq.html">useIdUnq</a></span>
+  <span class="signature">&#8594; <a href="https://api.dart.dev/stable/3.10.6/dart-core/bool-class.html">bool</a></span>
+  
+
+</dt>
+<dd>
+  Indicates whether the unique ID feature is used.
+  <div class="features"><span class="feature">final</span></div>
+
+</dd>
+
+        <dt id="useLock" class="property">
+  <span class="name"><a href="../rohd_hcl/Axi5BaseAwChannelConfig/useLock.html">useLock</a></span>
+  <span class="signature">&#8594; <a href="https://api.dart.dev/stable/3.10.6/dart-core/bool-class.html">bool</a></span>
+  
+
+</dt>
+<dd>
+  Controls the presence of lock which is an optional port.
+  <div class="features"><span class="feature">final</span></div>
+
+</dd>
+
+        <dt id="useNsaId" class="property">
+  <span class="name"><a href="../rohd_hcl/Axi5BaseAwChannelConfig/useNsaId.html">useNsaId</a></span>
+  <span class="signature">&#8594; <a href="https://api.dart.dev/stable/3.10.6/dart-core/bool-class.html">bool</a></span>
+  
+
+</dt>
+<dd>
+  Control for using NSAID.
+  <div class="features"><span class="feature">final</span></div>
+
+</dd>
+
+        <dt id="usePbha" class="property">
+  <span class="name"><a href="../rohd_hcl/Axi5BaseAwChannelConfig/usePbha.html">usePbha</a></span>
+  <span class="signature">&#8594; <a href="https://api.dart.dev/stable/3.10.6/dart-core/bool-class.html">bool</a></span>
+  
+
+</dt>
+<dd>
+  Control for using PBHA.
+  <div class="features"><span class="feature">final</span></div>
+
+</dd>
+
+        <dt id="userWidth" class="property">
+  <span class="name"><a href="../rohd_hcl/Axi5BaseAwChannelConfig/userWidth.html">userWidth</a></span>
+  <span class="signature">&#8594; <a href="https://api.dart.dev/stable/3.10.6/dart-core/int-class.html">int</a></span>
+  
+
+</dt>
+<dd>
+  The width of the user-defined signal in bits.
+  <div class="features"><span class="feature">final</span></div>
+
+</dd>
+
+        <dt id="useTagging" class="property">
+  <span class="name"><a href="../rohd_hcl/Axi5BaseAwChannelConfig/useTagging.html">useTagging</a></span>
+  <span class="signature">&#8594; <a href="https://api.dart.dev/stable/3.10.6/dart-core/bool-class.html">bool</a></span>
+  
+
+</dt>
+<dd>
+  Support tagging feature.
+  <div class="features"><span class="feature">final</span></div>
+
+</dd>
+
+    </dl>
+  </section>
+
+    
+  <section
+      class="summary offset-anchor inherited"
+      id="instance-methods">
+    <h2>Methods</h2>
+    <dl class="callables">
+        <dt id="noSuchMethod" class="callable inherited">
+  <span class="name"><a href="https://api.dart.dev/stable/3.10.6/dart-core/Object/noSuchMethod.html">noSuchMethod</a></span><span class="signature">(<wbr><span class="parameter" id="noSuchMethod-param-invocation"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.10.6/dart-core/Invocation-class.html">Invocation</a></span> <span class="parameter-name">invocation</span></span>)
+    <span class="returntype parameter">&#8594; dynamic</span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Invoked when a nonexistent method or property is accessed.
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="toString" class="callable inherited">
+  <span class="name"><a href="https://api.dart.dev/stable/3.10.6/dart-core/Object/toString.html">toString</a></span><span class="signature">(<wbr>)
+    <span class="returntype parameter">&#8594; <a href="https://api.dart.dev/stable/3.10.6/dart-core/String-class.html">String</a></span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  A string representation of this object.
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+    </dl>
+  </section>
+    
+  <section
+      class="summary offset-anchor inherited"
+      id="operators">
+    <h2>Operators</h2>
+    <dl class="callables">
+        <dt id="operator ==" class="callable inherited">
+  <span class="name"><a href="https://api.dart.dev/stable/3.10.6/dart-core/Object/operator_equals.html">operator ==</a></span><span class="signature">(<wbr><span class="parameter" id="==-param-other"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.10.6/dart-core/Object-class.html">Object</a></span> <span class="parameter-name">other</span></span>)
+    <span class="returntype parameter">&#8594; <a href="https://api.dart.dev/stable/3.10.6/dart-core/bool-class.html">bool</a></span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  The equality operator.
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+    </dl>
+  </section>
+    
+    
+    
+
+  </div> <!-- /.main-content -->
+  <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+    <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
+<header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+    <li><a href="../index.html">rohd_hcl</a></li>
+    <li><a href="../rohd_hcl/">rohd_hcl</a></li>
+    <li class="self-crumb">Axi5BaseAwChannelConfig class</li>
+</ol>
+
+    <h5>rohd_hcl library</h5>
+    <div id="dartdoc-sidebar-left-content"></div>
+  </div>
+  <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+  </div><!--/.sidebar-offcanvas-->
+</main>
+<footer>
+  <span class="no-break">
+    rohd_hcl
+      0.2.1
+  </span>
+  
+</footer>
+
+
+<script src="../static-assets/highlight.pack.js?v1"></script>
+<script src="../static-assets/docs.dart.js"></script>
+
+</body>
+</html>
+
