@@ -42,7 +42,6 @@ void main() {
       try {
         RegisterFile(Logic(), Logic(), [], []);
         fail('Should have failed');
-        // ignore: avoid_catching_errors
       } on RohdHclException catch (_) {}
     });
   });

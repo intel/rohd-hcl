@@ -26,8 +26,7 @@ void main() {
     final fp1 = fpConstructor();
     final fp2 = fpConstructor();
 
-    FloatingPointValuePopulator fpvPopulator() => FloatingPointValue.populator(
-        exponentWidth: exponentWidth, mantissaWidth: mantissaWidth);
+    FloatingPointValuePopulator fpvPopulator() => fp1.valuePopulator();
     test('FP: dual-path adder N path singleton', () async {
       final fv1 = fpvPopulator().ofInts(0, 0, sign: true);
       final fv2 = fpvPopulator().ofInts(0, 1, sign: true);
@@ -96,8 +95,7 @@ void main() {
     final fp1 = fpConstructor();
     final fp2 = fpConstructor();
 
-    FloatingPointValuePopulator fpvPopulator() => FloatingPointValue.populator(
-        exponentWidth: exponentWidth, mantissaWidth: mantissaWidth);
+    FloatingPointValuePopulator fpvPopulator() => fp1.valuePopulator();
     test('FP: dual-path adder singleton R path', () async {
       final clk = SimpleClockGenerator(10).clk;
 
@@ -143,12 +141,15 @@ void main() {
                     fp2.put(fv2);
                     final expected = fv1 + fv2;
                     final computed = adder.sum.floatingPointValue;
-                    expect(computed, equals(expected), reason: '''
+                    expect(computed.isNaN, equals(expected.isNaN));
+                    if (!computed.isNaN) {
+                      expect(computed, equals(expected), reason: '''
       $fv1 (${fv1.toDouble()})\t+
       $fv2 (${fv2.toDouble()})\t=
       $computed (${computed.toDouble()})\tcomputed
       $expected (${expected.toDouble()})\texpected
 ''');
+                    }
                   }
                 }
               }
@@ -181,12 +182,15 @@ void main() {
           fp1.put(0);
           fp2.put(0);
           final computed = adder.sum.floatingPointValue;
-          expect(computed, equals(expected), reason: '''
+          expect(computed.isNaN, equals(expected.isNaN));
+          if (!computed.isNaN) {
+            expect(computed, equals(expected), reason: '''
       $fv1 (${fv1.toDouble()})\t+
       $fv2 (${fv2.toDouble()})\t=
       $computed (${computed.toDouble()})\tcomputed
       $expected (${expected.toDouble()})\texpected
 ''');
+          }
         }
       }
       await Simulator.endSimulation();
@@ -204,8 +208,7 @@ void main() {
     final fp1 = fpConstructor();
     final fp2 = fpConstructor();
 
-    FloatingPointValuePopulator fpvPopulator() => FloatingPointValue.populator(
-        exponentWidth: exponentWidth, mantissaWidth: mantissaWidth);
+    FloatingPointValuePopulator fpvPopulator() => fp1.valuePopulator();
 
     test('FP: dual-path adder singleton merged path', () async {
       fp1.put(0);
@@ -294,13 +297,15 @@ void main() {
                             (fv1.sign.toInt() != fv2.sign.toInt()))
                         ? fpvPopulator().ofDoubleUnrounded(dbl)
                         : fv1 + fv2;
-
-                expect(computed, equals(expected), reason: '''
+                expect(computed.isNaN, equals(expected.isNaN));
+                if (!computed.isNaN) {
+                  expect(computed, equals(expected), reason: '''
       $fv1 (${fv1.toDouble()})\t+
       $fv2 (${fv2.toDouble()})\t=
       $computed (${computed.toDouble()})\tcomputed
       $expected (${expected.toDouble()})\texpected
 ''');
+                }
               }
             }
           }
@@ -370,13 +375,15 @@ void main() {
                         ? expectedNoRound
                         : expectedRound;
                 expect(computed.isNaN, equals(expected.isNaN));
-                expect(computed, equals(expected), reason: '''
+                if (!computed.isNaN) {
+                  expect(computed, equals(expected), reason: '''
       daz1: $daz1, daz2: $daz2    ftz: $ftz
       $fv1 (${fv1.toDouble()})\t+
       $fv2 (${fv2.toDouble()})\t=
       $computed (${computed.toDouble()})\tcomputed
       $expected (${expected.toDouble()})\texpected
 ''');
+                }
               }
             }
           }
@@ -429,13 +436,15 @@ void main() {
                                 ? expectedNoRound
                                 : expectedRound;
                         expect(computed.isNaN, equals(expected.isNaN));
-                        expect(computed, equals(expected), reason: '''
+                        if (!computed.isNaN) {
+                          expect(computed, equals(expected), reason: '''
       daz1: $daz1, daz2: $daz2, ftz: $ftz
       $fv1 (${fv1.toDouble()})\t+
       $fv2 (${fv2.toDouble()})\t=
       $computed (${computed.toDouble()})\tcomputed
       $expected (${expected.toDouble()})\texpected
 ''');
+                        }
                       }
                     }
                   }
@@ -454,10 +463,9 @@ void main() {
 
     FloatingPoint fpConstructor() => FloatingPoint(
         exponentWidth: exponentWidth, mantissaWidth: mantissaWidth);
-    FloatingPointValuePopulator fpvPopulator() => FloatingPointValue.populator(
-        exponentWidth: exponentWidth, mantissaWidth: mantissaWidth);
     final fp1 = fpConstructor();
     final fp2 = fpConstructor();
+    FloatingPointValuePopulator fpvPopulator() => fp1.valuePopulator();
     fp1.put(0);
     fp2.put(0);
     final adder = FloatingPointAdderDualPath(fp1, fp2);
@@ -472,12 +480,14 @@ void main() {
       final expected = fv1 + fv2;
       final computed = adder.sum.floatingPointValue;
       expect(computed.isNaN, equals(expected.isNaN));
-      expect(computed, equals(expected), reason: '''
+      if (!computed.isNaN) {
+        expect(computed, equals(expected), reason: '''
       $fv1 (${fv1.toDouble()})\t+
       $fv2 (${fv2.toDouble()})\t=
       $computed (${computed.toDouble()})\tcomputed
       $expected (${expected.toDouble()})\texpected
 ''');
+      }
       cnt--;
     }
   });
@@ -485,10 +495,9 @@ void main() {
   test('FP: dual-path with prefix adder pipelined', () async {
     const eWidth = 3;
     const mWidth = 5;
-    FloatingPointValuePopulator fpvPopulator() => FloatingPointValue.populator(
-        exponentWidth: eWidth, mantissaWidth: mWidth);
     final fa = FloatingPoint(exponentWidth: eWidth, mantissaWidth: mWidth);
     final fb = FloatingPoint(exponentWidth: eWidth, mantissaWidth: mWidth);
+    FloatingPointValuePopulator fpvPopulator() => fa.valuePopulator();
     final clk = SimpleClockGenerator(10).clk;
     fa.put(0);
     fb.put(0);

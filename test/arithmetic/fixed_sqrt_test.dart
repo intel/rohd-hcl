@@ -43,19 +43,11 @@ void main() {
       ];
 
       for (final test in testCases) {
-        fixed.put(FixedPointValue.populator(
-                integerWidth: fixed.integerWidth,
-                fractionWidth: fixed.fractionWidth,
-                signed: fixed.signed)
-            .ofDouble(test));
+        fixed.put(fixed.valuePopulator().ofDouble(test));
 
         final fpvResult = dut.sqrt.fixedPointValue;
 
-        final fpvExpected = FixedPointValue.populator(
-                integerWidth: fixed.integerWidth,
-                fractionWidth: fixed.fractionWidth,
-                signed: fixed.signed)
-            .ofDouble(sqrt(test));
+        final fpvExpected = fixed.valuePopulator().ofDouble(sqrt(test));
         expect(fpvResult, fpvExpected);
       }
     }

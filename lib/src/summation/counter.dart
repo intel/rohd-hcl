@@ -1,4 +1,4 @@
-// Copyright (C) 2024 Intel Corporation
+// Copyright (C) 2024-2025 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 //
 // counter.dart
@@ -166,7 +166,7 @@ class Counter extends SummationBase {
   /// to count [by] along with much of the
   /// other available configuration in the default [Counter] constructor.
   /// And allows for both incrementing and decrementing the count.
-  Counter.updn({
+  Counter.upDown({
     required Logic clk,
     required Logic reset,
     required Logic enableInc,
@@ -185,10 +185,10 @@ class Counter extends SummationBase {
             width: width,
             fixedAmount: by,
             hasEnable: true,
-          )..enable?.gets(enableInc),
+          )..enable!.gets(enableInc),
           SumInterface(
               width: width, fixedAmount: by, hasEnable: true, increments: false)
-            ..enable?.gets(enableDec),
+            ..enable!.gets(enableDec),
         ],
             clk: clk,
             reset: reset,

@@ -29,6 +29,7 @@ abstract class StatefulArbiter extends Arbiter {
   StatefulArbiter(super.requests,
       {required Logic clk,
       required Logic reset,
+      super.name = 'stateful_arbiter',
       super.reserveName,
       super.reserveDefinitionName,
       String? definitionName})

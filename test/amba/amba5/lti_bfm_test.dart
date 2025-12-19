@@ -342,7 +342,7 @@ void main() {
 
   setUp(() async {
     // Set the logger level
-    Logger.root.level = Level.INFO;
+    Logger.root.level = Level.WARNING;
   });
 
   Future<void> runTest(LtiBfmTest ltiBfmTest, {bool dumpWaves = false}) async {

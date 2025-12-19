@@ -19,7 +19,7 @@ void main() {
       // Compute the binary value for a 1hot at position 'pos'
       for (var pos = 0; pos < 1000; pos++) {
         final w = log2Ceil(pos + 1);
-        final val = BigInt.from(2).pow(pos);
+        final val = BigInt.two.pow(pos);
 
         expect(BinaryToOneHot(Const(pos, width: w)).encoded.value,
             equals(LogicValue.ofBigInt(val, pow(2, w).toInt())));
@@ -67,7 +67,7 @@ void main() {
       test('simple_decode ${ohToBType.name}', () async {
         // Compute the first 1 in a binary value
         for (var pos = 0; pos < ohToBType.max; pos++) {
-          final val = BigInt.from(2).pow(pos);
+          final val = BigInt.two.pow(pos);
           final computed =
               ohToBType.constructor(Const(val, width: pos + 1)).binary;
           final expected = LogicValue.ofInt(pos, computed.width);

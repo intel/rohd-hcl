@@ -34,15 +34,13 @@ abstract class LtiTransportInterface extends Axi5BaseInterface {
     setPorts([
       if (vcCount > 0) Logic.port('${prefix}CREDIT', vcCount),
     ], [
-      if (main) PairDirection.fromConsumer,
-      if (!main) PairDirection.fromProvider,
+      if (main) PairDirection.fromConsumer else PairDirection.fromProvider,
     ]);
 
     setPorts([
       if (vcCount > 1) Logic.port('${prefix}VC', log2Ceil(vcCount)),
     ], [
-      if (main) PairDirection.fromProvider,
-      if (!main) PairDirection.fromConsumer,
+      if (main) PairDirection.fromProvider else PairDirection.fromConsumer,
     ]);
   }
 }

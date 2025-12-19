@@ -22,3 +22,4 @@ export 'sign_magnitude_adder.dart';
 export 'signals/signals.dart';
 export 'values/fixed_point_value.dart';
 export 'values/floating_point_values/floating_point_values.dart';
+export 'values/sign_magnitude_value.dart';

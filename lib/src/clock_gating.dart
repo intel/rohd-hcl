@@ -86,7 +86,7 @@ class ClockGateControlInterface extends PairInterface {
   /// from [otherInterface].
   ///
   /// If a [gatedClockGenerator] is provided, then it will override the
-  /// [gatedClockGenerator] function from [`otherInterface`].
+  /// [gatedClockGenerator] function from [otherInterface].
   @Deprecated('Use Instance-based `clone()` instead.')
   ClockGateControlInterface.clone(
     ClockGateControlInterface super.otherInterface, {

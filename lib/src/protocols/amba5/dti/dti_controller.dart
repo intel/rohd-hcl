@@ -239,7 +239,7 @@ abstract class DtiController extends Module {
       restartCredits
           .add(sendCfgs[i].isCredited ? Logic(name: 'restartCredits$i') : null);
       creditCnts.add(sendCfgs[i].isCredited
-          ? Counter.updn(
+          ? Counter.upDown(
               clk: this.sys.clk,
               reset: ~this.sys.resetN,
               enableInc: incrCredits.last!,

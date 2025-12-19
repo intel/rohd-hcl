@@ -78,8 +78,8 @@ class FixedPointValuePopulator<FxvType extends FixedPointValue> {
         ? 1 + integerWidth + fractionWidth
         : integerWidth + fractionWidth;
     if (val.isFinite) {
-      final bigIntegerValue = BigInt.from(val * pow(2, fractionWidth));
-      final negBigIntegerValue = BigInt.from(-val * pow(2, fractionWidth));
+      final bigIntegerValue = BigInt.from(val * pow(2.0, fractionWidth));
+      final negBigIntegerValue = BigInt.from(-val * pow(2.0, fractionWidth));
       final l = (val < 0.0)
           ? max(bigIntegerValue.bitLength, negBigIntegerValue.bitLength)
           : bigIntegerValue.bitLength;
@@ -144,5 +144,112 @@ class FixedPointValuePopulator<FxvType extends FixedPointValue> {
     final newFraction =
         fxv.fraction.reversed.zeroExtend(fractionWidth).reversed;
     return populate(integer: newInteger, fraction: newFraction);
+  }
+
+  void _checkMatching(String name, FxvType? fxv) {
+    if (fxv != null) {
+      if (fxv.integerWidth != integerWidth) {
+        throw RohdHclException(
+            'FixedPointValuePopulator.random: $name integerWidth mismatch: '
+            '${fxv.integerWidth} vs $integerWidth');
+      }
+      if (fxv.fractionWidth != fractionWidth) {
+        throw RohdHclException(
+            'FixedPointValuePopulator.random: $name fractionWidth mismatch: '
+            '${fxv.fractionWidth} vs $fractionWidth');
+      }
+      if (fxv.signed != signed) {
+        throw RohdHclException(
+            'FixedPointValuePopulator.random: $name signed mismatch: '
+            '${fxv.signed} vs $signed');
+      }
+    }
+  }
+
+  /// Generate a random [FixedPointValue], using random seed [rv].
+  ///
+  /// This generates a valid [FixedPointValue] anywhere in the range specified.
+  /// The range is interpreted as follows:
+  /// - [gt], [lt]: generate a value in the range `([gt], [lt])`
+  /// - [gte], [lt]: generate a value in the range `[[gte], [lt])`
+  /// - [gt], [lte]: generate a value in the range `([gt], [lte]]`
+  /// - [gte], [lte]: generate a value in the range `[[gte], [lte]]`
+  /// - [gt]: generate a value in the range `([gt], ∞)`
+  /// - [gte]: generate a value in the range `[[gte], ∞)`
+  /// - [lt]: generate a value in the range `(-∞, [lt])`
+  /// - [lte]: generate a value in the range `(-∞, [lte]]`
+  /// - none: generate a value in the range `(-∞, ∞)`
+  FxvType random(Random rv,
+      {bool subNormal = false, // if true generate only subnormal numbers
+      bool genNormal = true,
+      bool genSubNormal = true,
+      FxvType? gt,
+      FxvType? lt,
+      FxvType? gte,
+      FxvType? lte}) {
+    _checkMatching('gt', gt);
+    _checkMatching('lt', lt);
+    _checkMatching('gte', gte);
+    _checkMatching('lte', lte);
+
+    if (gt != null) {
+      if (lt != null) {
+        if (gt.compareTo(lt) >= 0) {
+          throw RohdHclException(
+              'FloatingPointValuePopulator.random: cannot have $gt >= '
+              '$lt');
+        }
+      } else if (lte != null) {
+        if (gt.compareTo(lte) > 0) {
+          throw RohdHclException(
+              'FloatingPointValuePopulator.random: cannot have $gt > '
+              '$lte');
+        }
+      }
+    } else if (gte != null) {
+      if (lt != null) {
+        if (gte.compareTo(lt) >= 0) {
+          throw RohdHclException(
+              'FloatingPointValuePopulator.random: cannot have $gte >= '
+              '$lt');
+        }
+      } else if (lte != null) {
+        if (gte.compareTo(lte) > 0) {
+          throw RohdHclException(
+              'FloatingPointValuePopulator.random: cannot have $gte > '
+              '$lte');
+        }
+      }
+    }
+
+    final gtSign =
+        signed ? (gt ?? gte)?.value[-1] ?? LogicValue.one : LogicValue.zero;
+    final ltSign =
+        signed ? (lt ?? lte)?.value[-1] ?? LogicValue.zero : LogicValue.zero;
+
+    final gtMagnitude = gt?.value.abs();
+    final gteMagnitude = gte?.value.abs();
+    final ltMagnitude = lt?.value.abs();
+    final lteMagnitude = lte?.value.abs();
+
+    final tgt = (gtMagnitude == null)
+        ? null
+        : SignMagnitudeValue(sign: gtSign, magnitude: gtMagnitude);
+    final tgte = (gteMagnitude == null)
+        ? null
+        : SignMagnitudeValue(sign: gtSign, magnitude: gteMagnitude);
+    final tlt = (ltMagnitude == null)
+        ? null
+        : SignMagnitudeValue(sign: ltSign, magnitude: ltMagnitude);
+    final tlte = (lteMagnitude == null)
+        ? null
+        : SignMagnitudeValue(sign: ltSign, magnitude: lteMagnitude);
+
+    final smv =
+        SignMagnitudeValue.populator(width: integerWidth + fractionWidth)
+            .random(rv, gt: tgt, gte: tgte, lt: tlt, lte: tlte);
+    final newValue =
+        signed ? [smv.sign, smv.magnitude].swizzle() : smv.magnitude;
+    return ofLogicValue(newValue);
   }
 }

@@ -1,4 +1,4 @@
-// Copyright (C) 2024 Intel Corporation
+// Copyright (C) 2024-2025 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 //
 // divider_test.dart
@@ -6,8 +6,6 @@
 //
 // 2024 August
 // Author: Josh Kimmel <joshua1.kimmel@intel.com>
-
-// ignore_for_file: avoid_types_on_closure_parameters
 
 import 'dart:async';
 import 'dart:collection';

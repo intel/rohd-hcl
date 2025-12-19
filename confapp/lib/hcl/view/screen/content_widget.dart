@@ -1,4 +1,4 @@
-// Copyright (C) 2023-2024 Intel Corporation
+// Copyright (C) 2023-2025 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 //
 // content_widget.dart
@@ -9,7 +9,7 @@
 import 'dart:convert';
 
 // need this for creating a download link
-// ignore: avoid_web_libraries_in_flutter
+// ignore: avoid_web_libraries_in_flutter, deprecated_member_use
 import 'dart:html';
 import 'dart:ui_web' as ui_web;
 

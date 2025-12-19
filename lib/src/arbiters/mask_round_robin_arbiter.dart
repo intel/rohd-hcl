@@ -36,6 +36,7 @@ class MaskRoundRobinArbiter extends StatefulArbiter
   MaskRoundRobinArbiter(super.requests,
       {required super.clk,
       required super.reset,
+      super.name = 'mask_round_robin_arbiter',
       super.reserveName,
       super.reserveDefinitionName,
       String? definitionName})

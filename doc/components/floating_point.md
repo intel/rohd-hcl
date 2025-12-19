@@ -81,6 +81,30 @@ FloatingPointValue.populator(exponentWidth: 5, mantissaWidth: 6)
     .ofDouble(1.23);
 ```
 
+Included in the `FloatingPointValuePopulator` is a `random()` floating-point value generator that can generate `FloatingPointValue`s in a constrained range such as
+
+$$lowerBoundFPV < generatedFPV <= upperBoundFPV$$
+
+or
+
+$$lowerBoundFPV <= generatedFPV < upperBoundFPV$$
+
+or any other variants of $<$, $<=$, $>$, and $>=$, as well as limiting the `FloatingPointValue` generation to normals or subnormals. An example of its use is
+
+```dart
+const exponentWidth = 4;
+const mantissaWidth = 4;
+FloatingPointValuePopulator populator() => FloatingPointValue.populator(
+        exponentWidth: exponentWidth, mantissaWidth: mantissaWidth);
+
+final lt = populator().ofBinaryStrings('0', '1100', '0001');
+final gt = populator().ofBinaryStrings('0', '1011', '1111');
+final expected = populator().ofBinaryStrings('0', '1100', '0000');
+final fpv = populator().random(Random(), lt: lt, gt: gt);
+```
+
+This example produces the single available `FloatingPointValue` available in the range denoted by `expected`.
+
 `FloatingPointValue` types also have a `clonePopulator` function which creates a new `FloatingPointValuePopulator` with the same characteristics (e.g. mantissa and exponent widths) to construct a similar `FloatingPointValue` as the original.
 
 ## FloatingPoint

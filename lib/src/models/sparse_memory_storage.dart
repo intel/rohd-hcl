@@ -83,7 +83,7 @@ abstract class MemoryStorage {
   /// separator between data.  Block comments (`/* */`) are not supported.
   ///
   /// Example input format:
-  /// ```
+  /// ```text
   /// @80000000
   /// B3 02 00 00 33 05 00 00 B3 05 00 00 13 05 F5 1F
   /// 6F 00 40 00 93 02 10 00 17 03 00 00 13 03 83 02
@@ -112,7 +112,6 @@ abstract class MemoryStorage {
 
     void addChunk([String? chunk]) {
       if (chunk != null) {
-        // ignore: parameter_assignments
         chunk = chunk.trim();
 
         chunks.add(chunk);
@@ -243,7 +242,7 @@ abstract class MemoryStorage {
   /// Reads a verilog-compliant hex file and preloads memory with it.
   ///
   /// Example input format:
-  /// ```
+  /// ```text
   /// @80000000
   /// B3 02 00 00 33 05 00 00 B3 05 00 00 13 05 F5 1F
   /// 6F 00 40 00 93 02 10 00 17 03 00 00 13 03 83 02
