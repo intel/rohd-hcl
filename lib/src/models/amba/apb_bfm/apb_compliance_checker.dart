@@ -45,7 +45,7 @@ class ApbComplianceChecker extends Component {
     LogicValue? lastAuser;
     LogicValue? lastWuser;
 
-    intf.clk.posedge.listen((event) {
+    intf.clk.negedge.listen((event) {
       final currSels = intf.sel.map((e) => e.value).toList();
 
       if (currSels.map((e) => e.isValid).reduce((a, b) => a | b)) {
