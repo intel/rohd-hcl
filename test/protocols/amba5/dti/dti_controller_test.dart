@@ -456,7 +456,7 @@ void main() async {
 
     await main.build();
 
-    WaveDumper(main);
+    // WaveDumper(main);
 
     Simulator.setMaxSimTime(10000);
     unawaited(Simulator.run());
