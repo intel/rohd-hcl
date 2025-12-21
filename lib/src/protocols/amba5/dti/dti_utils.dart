@@ -1,3 +1,12 @@
+// Copyright (C) 2025 Intel Corporation
+// SPDX-License-Identifier: BSD-3-Clause
+//
+// dti_utils.dart
+// Utility functionality for DTI HW and messages.
+//
+// 2025 December
+// Author: Josh Kimmel <joshua1.kimmel@intel.com>
+
 import 'package:rohd/rohd.dart';
 
 /// Capture the connection state.

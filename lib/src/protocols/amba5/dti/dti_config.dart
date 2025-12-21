@@ -1,3 +1,12 @@
+// Copyright (C) 2025 Intel Corporation
+// SPDX-License-Identifier: BSD-3-Clause
+//
+// dti_config.dart
+// Configuration objects for DTI HW.
+//
+// 2025 December
+// Author: Josh Kimmel <joshua1.kimmel@intel.com>
+
 import 'package:rohd/rohd.dart';
 
 /// Config object for DTI message interfaces.

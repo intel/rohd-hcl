@@ -1,3 +1,12 @@
+// Copyright (C) 2025 Intel Corporation
+// SPDX-License-Identifier: BSD-3-Clause
+//
+// axi_s_interface_tx.dart
+// HW to send arbitrary messages over AXI-S.
+//
+// 2025 December
+// Author: Josh Kimmel <joshua1.kimmel@intel.com>
+
 import 'dart:math';
 
 import 'package:rohd/rohd.dart';

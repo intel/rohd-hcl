@@ -1,3 +1,14 @@
+// Copyright (C) 2025 Intel Corporation
+// SPDX-License-Identifier: BSD-3-Clause
+//
+// dti_message.dart
+// Spec-compliant message definitions for DTI.
+//
+// 2025 December
+// Author: Josh Kimmel <joshua1.kimmel@intel.com>
+
+// ignore_for_file: avoid_redundant_argument_values
+
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
 
@@ -272,8 +283,46 @@ class DtiTbuTransReq extends LogicStructure {
   /// pas
   Logic get pas => [pas2, pas1].swizzle();
 
-  /// Base constructor.
-  DtiTbuTransReq._({
+  /// Default constructor.
+  DtiTbuTransReq({String? name})
+      : this.withLogics(
+          msgType: Logic(name: '${name}_msgType', width: msgTypeWidth),
+          qos: Logic(name: '${name}_qos', width: qosWidth),
+          translationId1: Logic(
+            name: '${name}_translationId1',
+            width: translationId1Width,
+          ),
+          protocol: Logic(name: '${name}_protocol', width: protocolWidth),
+          priv: Logic(name: '${name}_priv', width: privWidth),
+          inst: Logic(name: '${name}_inst', width: instWidth),
+          perm1: Logic(name: '${name}_perm1', width: perm1Width),
+          secSid1: Logic(name: '${name}_secSid1', width: secSid1Width),
+          ssv: Logic(name: '${name}_ssv', width: ssvWidth),
+          flow1: Logic(name: '${name}_flow1', width: flow1Width),
+          perm2: Logic(name: '${name}_perm2', width: perm2Width),
+          pas1: Logic(name: '${name}_pas1', width: pas1Width),
+          secSid2: Logic(name: '${name}_secSid2', width: secSid2Width),
+          ident: Logic(name: '${name}_ident', width: identWidth),
+          translationId2: Logic(
+            name: '${name}_translationId2',
+            width: translationId2Width,
+          ),
+          sid: Logic(name: '${name}_sid', width: sidWidth),
+          pasunknown: Logic(name: '${name}_pasunknown', width: pasunknownWidth),
+          pas2: Logic(name: '${name}_pas2', width: pas2Width),
+          reqex: Logic(name: '${name}_reqex', width: reqexWidth),
+          rsvd: Logic(name: '${name}_rsvd', width: rsvdWidth),
+          mmuv: Logic(name: '${name}_mmuv', width: mmuvWidth),
+          pm: Logic(name: '${name}_pm', width: pmWidth),
+          flow2: Logic(name: '${name}_flow2', width: flow2Width),
+          impDef: Logic(name: '${name}_impDef', width: impDefWidth),
+          ssid: Logic(name: '${name}_ssid', width: ssidWidth),
+          addr: Logic(name: '${name}_addr', width: addrWidth),
+          name: name,
+        );
+
+  /// Constructor with pre-existing Logic objects.
+  DtiTbuTransReq.withLogics({
     required this.msgType,
     required this.qos,
     required this.translationId1,
@@ -330,46 +379,9 @@ class DtiTbuTransReq extends LogicStructure {
           addr,
         ]);
 
-  /// Factory constructor.
-  factory DtiTbuTransReq({String? name}) => DtiTbuTransReq._(
-        msgType: Logic(name: '${name}_msgType', width: msgTypeWidth),
-        qos: Logic(name: '${name}_qos', width: qosWidth),
-        translationId1: Logic(
-          name: '${name}_translationId1',
-          width: translationId1Width,
-        ),
-        protocol: Logic(name: '${name}_protocol', width: protocolWidth),
-        priv: Logic(name: '${name}_priv', width: privWidth),
-        inst: Logic(name: '${name}_inst', width: instWidth),
-        perm1: Logic(name: '${name}_perm1', width: perm1Width),
-        secSid1: Logic(name: '${name}_secSid1', width: secSid1Width),
-        ssv: Logic(name: '${name}_ssv', width: ssvWidth),
-        flow1: Logic(name: '${name}_flow1', width: flow1Width),
-        perm2: Logic(name: '${name}_perm2', width: perm2Width),
-        pas1: Logic(name: '${name}_pas1', width: pas1Width),
-        secSid2: Logic(name: '${name}_secSid2', width: secSid2Width),
-        ident: Logic(name: '${name}_ident', width: identWidth),
-        translationId2: Logic(
-          name: '${name}_translationId2',
-          width: translationId2Width,
-        ),
-        sid: Logic(name: '${name}_sid', width: sidWidth),
-        pasunknown: Logic(name: '${name}_pasunknown', width: pasunknownWidth),
-        pas2: Logic(name: '${name}_pas2', width: pas2Width),
-        reqex: Logic(name: '${name}_reqex', width: reqexWidth),
-        rsvd: Logic(name: '${name}_rsvd', width: rsvdWidth),
-        mmuv: Logic(name: '${name}_mmuv', width: mmuvWidth),
-        pm: Logic(name: '${name}_pm', width: pmWidth),
-        flow2: Logic(name: '${name}_flow2', width: flow2Width),
-        impDef: Logic(name: '${name}_impDef', width: impDefWidth),
-        ssid: Logic(name: '${name}_ssid', width: ssidWidth),
-        addr: Logic(name: '${name}_addr', width: addrWidth),
-        name: name,
-      );
-
   /// Copy constructor.
   @override
-  DtiTbuTransReq clone({String? name}) => DtiTbuTransReq._(
+  DtiTbuTransReq clone({String? name}) => DtiTbuTransReq.withLogics(
         msgType: msgType.clone(),
         qos: qos.clone(),
         translationId1: translationId1.clone(),
@@ -433,8 +445,6 @@ class DtiTbuTransReq extends LogicStructure {
     ssid.put(packet.mmu?.mmuSsid ?? 0);
     addr.put(packet.request.addr);
   }
-
-  // TODO(kimmeljo): these fromAxi do not properly handle priv, inst, etc. and need to be remapped (hardware too!)
 
   /// Generator from an ArChannel packet.
   void fromAxiArPacket({
@@ -541,6 +551,9 @@ class DtiTbuTransReq extends LogicStructure {
   }
 }
 
+/// Base class for Translation response messages.
+///
+/// Covers both successful translations and translation faults.
 abstract class DtiTbuTransRespBase extends LogicStructure {
   /// Width of msgType field
   static const int msgTypeWidth = 4;
@@ -753,9 +766,11 @@ class DtiTbuTransResp extends DtiTbuTransRespBase {
       impDefWidth;
 
   /// msgType
+  @override
   final Logic msgType;
 
   /// translationId1
+  @override
   final Logic translationId1;
 
   /// cont
@@ -834,6 +849,7 @@ class DtiTbuTransResp extends DtiTbuTransRespBase {
   final Logic combAlloc;
 
   /// translationId2
+  @override
   final Logic translationId2;
 
   /// transRng
@@ -886,6 +902,7 @@ class DtiTbuTransResp extends DtiTbuTransRespBase {
   Logic get ncAlloc => cont[3];
 
   /// full translation ID
+  @override
   Logic get translationId => [translationId2, translationId1].swizzle();
 
   /// full pas
@@ -1171,8 +1188,137 @@ class DtiTbuTransRespEx extends DtiTbuTransResp {
   /// rsvd
   final Logic rsvd;
 
-  /// Base constructor.
-  DtiTbuTransRespEx._({
+  /// Default constructor.
+  DtiTbuTransRespEx([
+    String name = 'trans_resp_ex',
+  ]) : this.withLogics(
+          msgType: Logic(
+            name: '${name}_msgType',
+            width: DtiTbuTransResp.msgTypeWidth,
+          ),
+          translationId1: Logic(
+            name: '${name}_translationId1',
+            width: DtiTbuTransResp.translationId1Width,
+          ),
+          cont: Logic(name: '${name}_cont', width: DtiTbuTransResp.contWidth),
+          doNotCache: Logic(
+            name: '${name}_doNotCache',
+            width: DtiTbuTransResp.doNotCacheWidth,
+          ),
+          bypass:
+              Logic(name: '${name}_bypass', width: DtiTbuTransResp.bypassWidth),
+          strwOrBpType: Logic(
+            name: '${name}_strwOrBpType',
+            width: DtiTbuTransResp.strwOrBpTypeWidth,
+          ),
+          dre: Logic(name: '${name}_dre', width: DtiTbuTransResp.dreWidth),
+          dcp: Logic(name: '${name}_dcp', width: DtiTbuTransResp.dcpWidth),
+          privCfg: Logic(
+            name: '${name}_privCfg',
+            width: DtiTbuTransResp.privCfgWidth,
+          ),
+          instCfg: Logic(
+            name: '${name}_instCfg',
+            width: DtiTbuTransResp.instCfgWidth,
+          ),
+          aset: Logic(name: '${name}_aset', width: DtiTbuTransResp.asetWidth),
+          combMt:
+              Logic(name: '${name}_combMt', width: DtiTbuTransResp.combMtWidth),
+          allocCfg: Logic(
+            name: '${name}_allocCfg',
+            width: DtiTbuTransResp.allocCfgWidth,
+          ),
+          vmid: Logic(name: '${name}_vmid', width: DtiTbuTransResp.vmidWidth),
+          asidOrAttrOvrd: Logic(
+            name: '${name}_asidOrAttrOvrd',
+            width: DtiTbuTransResp.asidOrAttrOvrdWidth,
+          ),
+          allowUr: Logic(
+            name: '${name}_allowUr',
+            width: DtiTbuTransResp.allowUrWidth,
+          ),
+          allowUw: Logic(
+            name: '${name}_allowUw',
+            width: DtiTbuTransResp.allowUwWidth,
+          ),
+          allowUx: Logic(
+            name: '${name}_allowUx',
+            width: DtiTbuTransResp.allowUxWidth,
+          ),
+          allowPr: Logic(
+            name: '${name}_allowPr',
+            width: DtiTbuTransResp.allowPrWidth,
+          ),
+          allowPw: Logic(
+            name: '${name}_allowPw',
+            width: DtiTbuTransResp.allowPwWidth,
+          ),
+          allowPxOrNsx: Logic(
+            name: '${name}_allowPxOrNsx',
+            width: DtiTbuTransResp.allowPxOrNsxWidth,
+          ),
+          pas1: Logic(name: '${name}_pas1', width: DtiTbuTransResp.pas1Width),
+          tbi: Logic(name: '${name}_tbi', width: DtiTbuTransResp.tbiWidth),
+          global:
+              Logic(name: '${name}_global', width: DtiTbuTransResp.globalWidth),
+          mpamns:
+              Logic(name: '${name}_mpamns', width: DtiTbuTransResp.mpamnsWidth),
+          combSh:
+              Logic(name: '${name}_combSh', width: DtiTbuTransResp.combShWidth),
+          combAlloc: Logic(
+            name: '${name}_combAlloc',
+            width: DtiTbuTransResp.combAllocWidth,
+          ),
+          translationId2: Logic(
+            name: '${name}_translationId2',
+            width: DtiTbuTransResp.translationId2Width,
+          ),
+          transRng: Logic(
+            name: '${name}_transRng',
+            width: DtiTbuTransResp.transRngWidth,
+          ),
+          invalRng: Logic(
+            name: '${name}_invalRng',
+            width: DtiTbuTransResp.invalRngWidth,
+          ),
+          pas2: Logic(name: '${name}_pas2', width: DtiTbuTransResp.pas2Width),
+          mpamNse: Logic(
+            name: '${name}_mpamNse',
+            width: DtiTbuTransResp.mpamNseWidth,
+          ),
+          pas3: Logic(name: '${name}_pas3', width: DtiTbuTransResp.pas3Width),
+          partId1: Logic(
+            name: '${name}_partId1',
+            width: DtiTbuTransResp.partId1Width,
+          ),
+          hwAttr:
+              Logic(name: '${name}_hwAttr', width: DtiTbuTransResp.hwAttrWidth),
+          attr: Logic(name: '${name}_attr', width: DtiTbuTransResp.attrWidth),
+          sh: Logic(name: '${name}_sh', width: DtiTbuTransResp.shWidth),
+          pmg: Logic(name: '${name}_pmg', width: DtiTbuTransResp.pmgWidth),
+          partId2: Logic(
+            name: '${name}_partId2',
+            width: DtiTbuTransResp.partId2Width,
+          ),
+          oa: Logic(name: '${name}_addr', width: DtiTbuTransResp.addrWidth),
+          partId3: Logic(
+            name: '${name}_partId3',
+            width: DtiTbuTransResp.partId3Width,
+          ),
+          partId4: Logic(
+            name: '${name}_partId4',
+            width: DtiTbuTransResp.partId4Width,
+          ),
+          impDef:
+              Logic(name: '${name}_impDef', width: DtiTbuTransResp.impDefWidth),
+          mecId: Logic(name: '${name}_mecId', width: mecIdWidth),
+          partId5: Logic(name: '${name}_partId5', width: partId5Width),
+          rsvd: Logic(name: '${name}_rsvd', width: rsvdWidth),
+          name: name,
+        );
+
+  /// Constructor with pre-existing Logic objects.
+  DtiTbuTransRespEx.withLogics({
     required super.msgType,
     required super.translationId1,
     required super.cont,
@@ -1222,139 +1368,9 @@ class DtiTbuTransRespEx extends DtiTbuTransResp {
     super.name = 'dtiTbuTransRespEx',
   }) : super(extended: [mecId, partId5, rsvd]);
 
-  /// Factory constructor.
-  factory DtiTbuTransRespEx([
-    String name = 'trans_resp_ex',
-  ]) =>
-      DtiTbuTransRespEx._(
-        msgType: Logic(
-          name: '${name}_msgType',
-          width: DtiTbuTransResp.msgTypeWidth,
-        ),
-        translationId1: Logic(
-          name: '${name}_translationId1',
-          width: DtiTbuTransResp.translationId1Width,
-        ),
-        cont: Logic(name: '${name}_cont', width: DtiTbuTransResp.contWidth),
-        doNotCache: Logic(
-          name: '${name}_doNotCache',
-          width: DtiTbuTransResp.doNotCacheWidth,
-        ),
-        bypass:
-            Logic(name: '${name}_bypass', width: DtiTbuTransResp.bypassWidth),
-        strwOrBpType: Logic(
-          name: '${name}_strwOrBpType',
-          width: DtiTbuTransResp.strwOrBpTypeWidth,
-        ),
-        dre: Logic(name: '${name}_dre', width: DtiTbuTransResp.dreWidth),
-        dcp: Logic(name: '${name}_dcp', width: DtiTbuTransResp.dcpWidth),
-        privCfg: Logic(
-          name: '${name}_privCfg',
-          width: DtiTbuTransResp.privCfgWidth,
-        ),
-        instCfg: Logic(
-          name: '${name}_instCfg',
-          width: DtiTbuTransResp.instCfgWidth,
-        ),
-        aset: Logic(name: '${name}_aset', width: DtiTbuTransResp.asetWidth),
-        combMt:
-            Logic(name: '${name}_combMt', width: DtiTbuTransResp.combMtWidth),
-        allocCfg: Logic(
-          name: '${name}_allocCfg',
-          width: DtiTbuTransResp.allocCfgWidth,
-        ),
-        vmid: Logic(name: '${name}_vmid', width: DtiTbuTransResp.vmidWidth),
-        asidOrAttrOvrd: Logic(
-          name: '${name}_asidOrAttrOvrd',
-          width: DtiTbuTransResp.asidOrAttrOvrdWidth,
-        ),
-        allowUr: Logic(
-          name: '${name}_allowUr',
-          width: DtiTbuTransResp.allowUrWidth,
-        ),
-        allowUw: Logic(
-          name: '${name}_allowUw',
-          width: DtiTbuTransResp.allowUwWidth,
-        ),
-        allowUx: Logic(
-          name: '${name}_allowUx',
-          width: DtiTbuTransResp.allowUxWidth,
-        ),
-        allowPr: Logic(
-          name: '${name}_allowPr',
-          width: DtiTbuTransResp.allowPrWidth,
-        ),
-        allowPw: Logic(
-          name: '${name}_allowPw',
-          width: DtiTbuTransResp.allowPwWidth,
-        ),
-        allowPxOrNsx: Logic(
-          name: '${name}_allowPxOrNsx',
-          width: DtiTbuTransResp.allowPxOrNsxWidth,
-        ),
-        pas1: Logic(name: '${name}_pas1', width: DtiTbuTransResp.pas1Width),
-        tbi: Logic(name: '${name}_tbi', width: DtiTbuTransResp.tbiWidth),
-        global:
-            Logic(name: '${name}_global', width: DtiTbuTransResp.globalWidth),
-        mpamns:
-            Logic(name: '${name}_mpamns', width: DtiTbuTransResp.mpamnsWidth),
-        combSh:
-            Logic(name: '${name}_combSh', width: DtiTbuTransResp.combShWidth),
-        combAlloc: Logic(
-          name: '${name}_combAlloc',
-          width: DtiTbuTransResp.combAllocWidth,
-        ),
-        translationId2: Logic(
-          name: '${name}_translationId2',
-          width: DtiTbuTransResp.translationId2Width,
-        ),
-        transRng: Logic(
-          name: '${name}_transRng',
-          width: DtiTbuTransResp.transRngWidth,
-        ),
-        invalRng: Logic(
-          name: '${name}_invalRng',
-          width: DtiTbuTransResp.invalRngWidth,
-        ),
-        pas2: Logic(name: '${name}_pas2', width: DtiTbuTransResp.pas2Width),
-        mpamNse: Logic(
-          name: '${name}_mpamNse',
-          width: DtiTbuTransResp.mpamNseWidth,
-        ),
-        pas3: Logic(name: '${name}_pas3', width: DtiTbuTransResp.pas3Width),
-        partId1: Logic(
-          name: '${name}_partId1',
-          width: DtiTbuTransResp.partId1Width,
-        ),
-        hwAttr:
-            Logic(name: '${name}_hwAttr', width: DtiTbuTransResp.hwAttrWidth),
-        attr: Logic(name: '${name}_attr', width: DtiTbuTransResp.attrWidth),
-        sh: Logic(name: '${name}_sh', width: DtiTbuTransResp.shWidth),
-        pmg: Logic(name: '${name}_pmg', width: DtiTbuTransResp.pmgWidth),
-        partId2: Logic(
-          name: '${name}_partId2',
-          width: DtiTbuTransResp.partId2Width,
-        ),
-        oa: Logic(name: '${name}_addr', width: DtiTbuTransResp.addrWidth),
-        partId3: Logic(
-          name: '${name}_partId3',
-          width: DtiTbuTransResp.partId3Width,
-        ),
-        partId4: Logic(
-          name: '${name}_partId4',
-          width: DtiTbuTransResp.partId4Width,
-        ),
-        impDef:
-            Logic(name: '${name}_impDef', width: DtiTbuTransResp.impDefWidth),
-        mecId: Logic(name: '${name}_mecId', width: mecIdWidth),
-        partId5: Logic(name: '${name}_partId5', width: partId5Width),
-        rsvd: Logic(name: '${name}_rsvd', width: rsvdWidth),
-        name: name,
-      );
-
   /// Copy constructor.
   @override
-  DtiTbuTransRespEx clone({String? name}) => DtiTbuTransRespEx._(
+  DtiTbuTransRespEx clone({String? name}) => DtiTbuTransRespEx.withLogics(
         msgType: msgType.clone(),
         translationId1: translationId1.clone(),
         cont: cont.clone(),
@@ -1492,9 +1508,11 @@ class DtiTbuTransFault extends DtiTbuTransRespBase {
       rsvdWidth;
 
   /// msgType
+  @override
   final Logic msgType;
 
   /// translationId1
+  @override
   final Logic translationId1;
 
   /// doNotCache
@@ -1510,13 +1528,34 @@ class DtiTbuTransFault extends DtiTbuTransRespBase {
   final Logic rsvd;
 
   /// translationId2
+  @override
   final Logic translationId2;
 
   /// full translation ID
+  @override
   Logic get translationId => [translationId2, translationId1].swizzle();
 
-  /// Base constructor.
-  DtiTbuTransFault._({
+  /// Default constructor.
+  DtiTbuTransFault([String name = 'trans_fault'])
+      : this.withLogics(
+          msgType: Logic(name: '${name}_msgType', width: msgTypeWidth),
+          translationId1: Logic(
+            name: '${name}_translationId1',
+            width: translationId1Width,
+          ),
+          doNotCache: Logic(name: '${name}_doNotCache', width: doNotCacheWidth),
+          cont: Logic(name: '${name}_cont', width: contWidth),
+          faultType: Logic(name: '${name}_faultType', width: faultTypeWidth),
+          rsvd: Logic(name: '${name}_rsvd', width: rsvdWidth),
+          translationId2: Logic(
+            name: '${name}_translationId2',
+            width: translationId2Width,
+          ),
+          name: name,
+        );
+
+  /// Constructor with pre-existing Logic objects.
+  DtiTbuTransFault.withLogics({
     required this.msgType,
     required this.translationId1,
     required this.doNotCache,
@@ -1535,27 +1574,9 @@ class DtiTbuTransFault extends DtiTbuTransRespBase {
           translationId2,
         ]);
 
-  /// Factory constructor.
-  factory DtiTbuTransFault([String name = 'trans_fault']) => DtiTbuTransFault._(
-        msgType: Logic(name: '${name}_msgType', width: msgTypeWidth),
-        translationId1: Logic(
-          name: '${name}_translationId1',
-          width: translationId1Width,
-        ),
-        doNotCache: Logic(name: '${name}_doNotCache', width: doNotCacheWidth),
-        cont: Logic(name: '${name}_cont', width: contWidth),
-        faultType: Logic(name: '${name}_faultType', width: faultTypeWidth),
-        rsvd: Logic(name: '${name}_rsvd', width: rsvdWidth),
-        translationId2: Logic(
-          name: '${name}_translationId2',
-          width: translationId2Width,
-        ),
-        name: name,
-      );
-
   /// Copy constructor.
   @override
-  DtiTbuTransFault clone({String? name}) => DtiTbuTransFault._(
+  DtiTbuTransFault clone({String? name}) => DtiTbuTransFault.withLogics(
         msgType: msgType.clone(),
         translationId1: translationId1.clone(),
         doNotCache: doNotCache.clone(),
@@ -1678,8 +1699,24 @@ class DtiTbuInvReq extends LogicStructure {
   /// Full operation.
   Logic get operation => [operation2, operation1].swizzle();
 
-  /// Base constructor.
-  DtiTbuInvReq._({
+  /// Default constructor.
+  DtiTbuInvReq({String? name})
+      : this.withLogics(
+          msgType: Logic(name: '${name}_msgType', width: msgTypeWidth),
+          operation1: Logic(name: '${name}_operation1', width: operation1Width),
+          ssid: Logic(name: '${name}_ssid', width: ssidWidth),
+          sid: Logic(name: '${name}_sid', width: sidWidth),
+          range: Logic(name: '${name}_range', width: rangeWidth),
+          incAset1: Logic(name: '${name}_incAset1', width: incAset1Width),
+          operation2: Logic(name: '${name}_operation2', width: operation2Width),
+          scale1: Logic(name: '${name}_scale1', width: scale1Width),
+          rsvd: Logic(name: '${name}_rsvd', width: rsvdWidth),
+          address: Logic(name: '${name}_address', width: addressWidth),
+          name: name,
+        );
+
+  /// Constructor with pre-existing Logic objects.
+  DtiTbuInvReq.withLogics({
     required this.msgType,
     required this.operation1,
     required this.ssid,
@@ -1704,24 +1741,9 @@ class DtiTbuInvReq extends LogicStructure {
           address,
         ]);
 
-  /// Factory constructor.
-  factory DtiTbuInvReq({String? name}) => DtiTbuInvReq._(
-        msgType: Logic(name: '${name}_msgType', width: msgTypeWidth),
-        operation1: Logic(name: '${name}_operation1', width: operation1Width),
-        ssid: Logic(name: '${name}_ssid', width: ssidWidth),
-        sid: Logic(name: '${name}_sid', width: sidWidth),
-        range: Logic(name: '${name}_range', width: rangeWidth),
-        incAset1: Logic(name: '${name}_incAset1', width: incAset1Width),
-        operation2: Logic(name: '${name}_operation2', width: operation2Width),
-        scale1: Logic(name: '${name}_scale1', width: scale1Width),
-        rsvd: Logic(name: '${name}_rsvd', width: rsvdWidth),
-        address: Logic(name: '${name}_address', width: addressWidth),
-        name: name,
-      );
-
   /// Copy constructor.
   @override
-  DtiTbuInvReq clone({String? name}) => DtiTbuInvReq._(
+  DtiTbuInvReq clone({String? name}) => DtiTbuInvReq.withLogics(
         msgType: msgType.clone(),
         operation1: operation1.clone(),
         ssid: ssid.clone(),
@@ -1767,23 +1789,24 @@ class DtiTbuInvAck extends LogicStructure {
   /// rsvd
   final Logic rsvd;
 
-  /// Base constructor.
-  DtiTbuInvAck._({
+  /// Default constructor.
+  DtiTbuInvAck({String? name})
+      : this.withLogics(
+          msgType: Logic(name: '${name}_msgType', width: msgTypeWidth),
+          rsvd: Logic(name: '${name}_rsvd', width: rsvdWidth),
+          name: name,
+        );
+
+  /// Constructor with pre-existing Logic objects.
+  DtiTbuInvAck.withLogics({
     required this.msgType,
     required this.rsvd,
     super.name = 'dtiTbuInvAck',
   }) : super([msgType, rsvd]);
 
-  /// Factory constructor.
-  factory DtiTbuInvAck({String? name}) => DtiTbuInvAck._(
-        msgType: Logic(name: '${name}_msgType', width: msgTypeWidth),
-        rsvd: Logic(name: '${name}_rsvd', width: rsvdWidth),
-        name: name,
-      );
-
   /// Copy constructor.
   @override
-  DtiTbuInvAck clone({String? name}) => DtiTbuInvAck._(
+  DtiTbuInvAck clone({String? name}) => DtiTbuInvAck.withLogics(
         msgType: msgType.clone(),
         rsvd: rsvd.clone(),
         name: name ?? this.name,
@@ -1813,23 +1836,24 @@ class DtiTbuSyncReq extends LogicStructure {
   /// rsvd
   final Logic rsvd;
 
-  /// Base constructor.
-  DtiTbuSyncReq._({
+  /// Default constructor.
+  DtiTbuSyncReq({String? name})
+      : this.withLogics(
+          msgType: Logic(name: '${name}_msgType', width: msgTypeWidth),
+          rsvd: Logic(name: '${name}_rsvd', width: rsvdWidth),
+          name: name,
+        );
+
+  /// Constructor with pre-existing Logic objects.
+  DtiTbuSyncReq.withLogics({
     required this.msgType,
     required this.rsvd,
     super.name = 'dtiTbuSyncReq',
   }) : super([msgType, rsvd]);
 
-  /// Factory constructor.
-  factory DtiTbuSyncReq({String? name}) => DtiTbuSyncReq._(
-        msgType: Logic(name: '${name}_msgType', width: msgTypeWidth),
-        rsvd: Logic(name: '${name}_rsvd', width: rsvdWidth),
-        name: name,
-      );
-
   /// Copy constructor.
   @override
-  DtiTbuSyncReq clone({String? name}) => DtiTbuSyncReq._(
+  DtiTbuSyncReq clone({String? name}) => DtiTbuSyncReq.withLogics(
         msgType: msgType.clone(),
         rsvd: rsvd.clone(),
         name: name ?? this.name,
@@ -1859,23 +1883,24 @@ class DtiTbuSyncAck extends LogicStructure {
   /// rsvd
   final Logic rsvd;
 
-  /// Base constructor.
-  DtiTbuSyncAck._({
+  /// Default constructor.
+  DtiTbuSyncAck({String? name})
+      : this.withLogics(
+          msgType: Logic(name: '${name}_msgType', width: msgTypeWidth),
+          rsvd: Logic(name: '${name}_rsvd', width: rsvdWidth),
+          name: name,
+        );
+
+  /// Constructor with pre-existing Logic objects.
+  DtiTbuSyncAck.withLogics({
     required this.msgType,
     required this.rsvd,
     super.name = 'dtiTbuSyncAck',
   }) : super([msgType, rsvd]);
 
-  /// Factory constructor.
-  factory DtiTbuSyncAck({String? name}) => DtiTbuSyncAck._(
-        msgType: Logic(name: '${name}_msgType', width: msgTypeWidth),
-        rsvd: Logic(name: '${name}_rsvd', width: rsvdWidth),
-        name: name,
-      );
-
   /// Copy constructor.
   @override
-  DtiTbuSyncAck clone({String? name}) => DtiTbuSyncAck._(
+  DtiTbuSyncAck clone({String? name}) => DtiTbuSyncAck.withLogics(
         msgType: msgType.clone(),
         rsvd: rsvd.clone(),
         name: name ?? this.name,
@@ -1981,8 +2006,28 @@ class DtiTbuCondisReq extends LogicStructure {
   /// Full tokTransReq
   Logic get tokTransReq => [tokTransReq2, tokTransReq1].swizzle();
 
-  /// Base constructor.
-  DtiTbuCondisReq._({
+  /// Default constructor.
+  DtiTbuCondisReq({String? name})
+      : this.withLogics(
+          msgType: Logic(name: '${name}_msgType', width: msgTypeWidth),
+          state: Logic(name: '${name}_state', width: stateWidth),
+          protocol: Logic(name: '${name}_protocol', width: protocolWidth),
+          rsvd1: Logic(name: '${name}_rsvd1', width: rsvd1Width),
+          impDef: Logic(name: '${name}_impDef', width: impDefWidth),
+          version: Logic(name: '${name}_version', width: versionWidth),
+          tokTransReq1:
+              Logic(name: '${name}_tokTransReq1', width: tokTransReq1Width),
+          tokInvGnt: Logic(name: '${name}_tokInvGnt', width: tokInvGntWidth),
+          supReg: Logic(name: '${name}_supReg', width: supRegWidth),
+          spd: Logic(name: '${name}_spd', width: spdWidth),
+          stages: Logic(name: '${name}_stages', width: stagesWidth),
+          tokTransReq2:
+              Logic(name: '${name}_tokTransReq2', width: tokTransReq2Width),
+          name: name,
+        );
+
+  /// Constructor with pre-existing Logic objects.
+  DtiTbuCondisReq.withLogics({
     required this.msgType,
     required this.state,
     required this.protocol,
@@ -2011,28 +2056,9 @@ class DtiTbuCondisReq extends LogicStructure {
           tokTransReq2,
         ]);
 
-  /// Factory constructor.
-  factory DtiTbuCondisReq({String? name}) => DtiTbuCondisReq._(
-        msgType: Logic(name: '${name}_msgType', width: msgTypeWidth),
-        state: Logic(name: '${name}_state', width: stateWidth),
-        protocol: Logic(name: '${name}_protocol', width: protocolWidth),
-        rsvd1: Logic(name: '${name}_rsvd1', width: rsvd1Width),
-        impDef: Logic(name: '${name}_impDef', width: impDefWidth),
-        version: Logic(name: '${name}_version', width: versionWidth),
-        tokTransReq1:
-            Logic(name: '${name}_tokTransReq1', width: tokTransReq1Width),
-        tokInvGnt: Logic(name: '${name}_tokInvGnt', width: tokInvGntWidth),
-        supReg: Logic(name: '${name}_supReg', width: supRegWidth),
-        spd: Logic(name: '${name}_spd', width: spdWidth),
-        stages: Logic(name: '${name}_stages', width: stagesWidth),
-        tokTransReq2:
-            Logic(name: '${name}_tokTransReq2', width: tokTransReq2Width),
-        name: name,
-      );
-
   /// Copy constructor.
   @override
-  DtiTbuCondisReq clone({String? name}) => DtiTbuCondisReq._(
+  DtiTbuCondisReq clone({String? name}) => DtiTbuCondisReq.withLogics(
         msgType: msgType.clone(),
         state: state.clone(),
         protocol: protocol.clone(),
@@ -2144,8 +2170,27 @@ class DtiTbuCondisAck extends LogicStructure {
   /// Full tokTransGnt
   Logic get tokTransGnt => [tokTransGnt2, tokTransGnt1].swizzle();
 
-  /// Base constructor.
-  DtiTbuCondisAck._({
+  /// Default constructor.
+  DtiTbuCondisAck({String? name})
+      : this.withLogics(
+          msgType: Logic(name: '${name}_msgType', width: msgTypeWidth),
+          state: Logic(name: '${name}_state', width: stateWidth),
+          rsvd1: Logic(name: '${name}_rsvd1', width: rsvd1Width),
+          impDef: Logic(name: '${name}_impDef', width: impDefWidth),
+          version: Logic(name: '${name}_version', width: versionWidth),
+          tokTransGnt1:
+              Logic(name: '${name}_tokTransGnt1', width: tokTransGnt1Width),
+          noCacheInit:
+              Logic(name: '${name}_noCacheInit', width: noCacheInitWidth),
+          oas: Logic(name: '${name}_oas', width: oasWidth),
+          tokTransGnt2:
+              Logic(name: '${name}_tokTransGnt2', width: tokTransGnt2Width),
+          rsvd2: Logic(name: '${name}_rsvd2', width: rsvd2Width),
+          name: name,
+        );
+
+  /// Constructor with pre-existing Logic objects.
+  DtiTbuCondisAck.withLogics({
     required this.msgType,
     required this.state,
     required this.rsvd1,
@@ -2170,27 +2215,9 @@ class DtiTbuCondisAck extends LogicStructure {
           rsvd2,
         ]);
 
-  /// Factory constructor.
-  factory DtiTbuCondisAck({String? name}) => DtiTbuCondisAck._(
-        msgType: Logic(name: '${name}_msgType', width: msgTypeWidth),
-        state: Logic(name: '${name}_state', width: stateWidth),
-        rsvd1: Logic(name: '${name}_rsvd1', width: rsvd1Width),
-        impDef: Logic(name: '${name}_impDef', width: impDefWidth),
-        version: Logic(name: '${name}_version', width: versionWidth),
-        tokTransGnt1:
-            Logic(name: '${name}_tokTransGnt1', width: tokTransGnt1Width),
-        noCacheInit:
-            Logic(name: '${name}_noCacheInit', width: noCacheInitWidth),
-        oas: Logic(name: '${name}_oas', width: oasWidth),
-        tokTransGnt2:
-            Logic(name: '${name}_tokTransGnt2', width: tokTransGnt2Width),
-        rsvd2: Logic(name: '${name}_rsvd2', width: rsvd2Width),
-        name: name,
-      );
-
   /// Copy constructor.
   @override
-  DtiTbuCondisAck clone({String? name}) => DtiTbuCondisAck._(
+  DtiTbuCondisAck clone({String? name}) => DtiTbuCondisAck.withLogics(
         msgType: msgType.clone(),
         state: state.clone(),
         rsvd1: rsvd1.clone(),

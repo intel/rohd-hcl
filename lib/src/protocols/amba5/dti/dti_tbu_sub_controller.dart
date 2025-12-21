@@ -1,3 +1,12 @@
+// Copyright (C) 2025 Intel Corporation
+// SPDX-License-Identifier: BSD-3-Clause
+//
+// dti_tbu_sub_controller.dart
+// Implementation of DTI Controller for a TBU in the Subordinate direction.
+//
+// 2025 December
+// Author: Josh Kimmel <joshua1.kimmel@intel.com>
+
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
 
@@ -199,8 +208,8 @@ class DtiTbuSubController extends DtiController {
             events: {disconnIn: DtiConnectionState.pendingDisconn},
             actions: []),
         // PENDINGIDSCONN:
-        //  move to UNCONNECTED when an ACK comes in that confirms disconnenction
-        //  move back CONNECTED when an ACK comes in that rejects disconnection
+        //  move to UNCONNECTED when ACK comes in that confirms disconnenction
+        //  move back CONNECTED when ACK comes in that rejects disconnection
         State(
           DtiConnectionState.pendingDisconn,
           events: {
