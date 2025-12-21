@@ -61,6 +61,14 @@ class DtiTbuSubController extends DtiController {
     required int syncReqFifoDepth,
     required ReadyAndValidInterface<DtiMessage> condisAck,
     required int condisAckFifoDepth,
+    ReadyAndValidInterface<DtiMessage>? regWack,
+    int? regWackFifoDepth,
+    ReadyAndValidInterface<DtiMessage>? regRdata,
+    int? regRdataFifoDepth,
+    ReadyAndValidInterface<DtiMessage>? regWr,
+    int? regWrFifoDepth,
+    ReadyAndValidInterface<DtiMessage>? regRd,
+    int? regRdFifoDepth,
     super.srcId,
     super.wakeupTx,
     super.arbiterGen,
@@ -70,6 +78,8 @@ class DtiTbuSubController extends DtiController {
           invAck,
           syncAck,
           condisReq,
+          if (regWack != null) regWack,
+          if (regRdata != null) regRdata,
         ], rcvCfgs: [
           DtiRxMessageInterfaceConfig(
               fifoDepth: transReqFifoDepth,
@@ -91,12 +101,28 @@ class DtiTbuSubController extends DtiController {
               mapToQueue: (msg) => msg
                   .getRange(0, DtiTbuCondisReq.msgTypeWidth)
                   .eq(DtiDownstreamMsgType.condisReq.value)),
+          if (regWack != null)
+            DtiRxMessageInterfaceConfig(
+              fifoDepth: regWackFifoDepth!,
+              mapToQueue: (msg) => msg
+                  .getRange(0, DtiTbuRegWack.msgTypeWidth)
+                  .eq(DtiDownstreamMsgType.regWAck.value),
+            ),
+          if (regRdata != null)
+            DtiRxMessageInterfaceConfig(
+              fifoDepth: regRdataFifoDepth!,
+              mapToQueue: (msg) => msg
+                  .getRange(0, DtiTbuRegRdata.msgTypeWidth)
+                  .eq(DtiDownstreamMsgType.regRData.value),
+            ),
         ], sendMsgs: [
           transResp,
           transFault,
           invReq,
           syncReq,
           condisAck,
+          if (regWr != null) regWr,
+          if (regRd != null) regRd,
         ], sendCfgs: [
           DtiTxMessageInterfaceConfig(fifoDepth: transRespFifoDepth),
           DtiTxMessageInterfaceConfig(fifoDepth: transFaultFifoDepth),
@@ -107,6 +133,10 @@ class DtiTbuSubController extends DtiController {
           DtiTxMessageInterfaceConfig(fifoDepth: syncReqFifoDepth),
           DtiTxMessageInterfaceConfig(
               fifoDepth: condisAckFifoDepth, connectedExempt: true),
+          if (regWr != null)
+            DtiTxMessageInterfaceConfig(fifoDepth: regWrFifoDepth!),
+          if (regRd != null)
+            DtiTxMessageInterfaceConfig(fifoDepth: regRdFifoDepth!),
         ]) {
     _buildSub();
   }

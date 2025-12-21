@@ -61,6 +61,14 @@ class DtiTbuMainController extends DtiController {
     required int syncReqFifoDepth,
     required ReadyAndValidInterface<DtiMessage> condisAck,
     required int condisAckFifoDepth,
+    ReadyAndValidInterface<DtiMessage>? regWack,
+    int? regWackFifoDepth,
+    ReadyAndValidInterface<DtiMessage>? regRdata,
+    int? regRdataFifoDepth,
+    ReadyAndValidInterface<DtiMessage>? regWr,
+    int? regWrFifoDepth,
+    ReadyAndValidInterface<DtiMessage>? regRd,
+    int? regRdFifoDepth,
     super.srcId,
     super.wakeupTx,
     super.arbiterGen,
@@ -70,6 +78,8 @@ class DtiTbuMainController extends DtiController {
           invAck,
           syncAck,
           condisReq,
+          if (regWack != null) regWack,
+          if (regRdata != null) regRdata,
         ], sendCfgs: [
           DtiTxMessageInterfaceConfig(
               fifoDepth: transReqFifoDepth,
@@ -81,12 +91,18 @@ class DtiTbuMainController extends DtiController {
           ),
           DtiTxMessageInterfaceConfig(
               fifoDepth: condisReqFifoDepth, connectedExempt: true),
+          if (regWack != null)
+            DtiTxMessageInterfaceConfig(fifoDepth: regWackFifoDepth!),
+          if (regRdata != null)
+            DtiTxMessageInterfaceConfig(fifoDepth: regRdataFifoDepth!),
         ], rcvMsgs: [
           transResp,
           transFault,
           invReq,
           syncReq,
           condisAck,
+          if (regWr != null) regWr,
+          if (regRd != null) regRd,
         ], rcvCfgs: [
           DtiRxMessageInterfaceConfig(
             fifoDepth: transRespFifoDepth,
@@ -122,6 +138,20 @@ class DtiTbuMainController extends DtiController {
                 .getRange(0, DtiTbuCondisAck.msgTypeWidth)
                 .eq(DtiUpstreamMsgType.condisAck.value),
           ),
+          if (regWr != null)
+            DtiRxMessageInterfaceConfig(
+              fifoDepth: regWrFifoDepth!,
+              mapToQueue: (msg) => msg
+                  .getRange(0, DtiTbuRegWrite.msgTypeWidth)
+                  .eq(DtiUpstreamMsgType.regWr.value),
+            ),
+          if (regRd != null)
+            DtiRxMessageInterfaceConfig(
+              fifoDepth: regRdFifoDepth!,
+              mapToQueue: (msg) => msg
+                  .getRange(0, DtiTbuRegRead.msgTypeWidth)
+                  .eq(DtiUpstreamMsgType.regRd.value),
+            ),
         ]) {
     _buildMain();
   }

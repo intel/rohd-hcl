@@ -2246,6 +2246,296 @@ class DtiTbuCondisAck extends LogicStructure {
   }
 }
 
+/// Register write.
+class DtiTbuRegWrite extends LogicStructure {
+  /// Width of msgType field
+  static const int msgTypeWidth = 4;
+
+  /// Width of rsvd1 field
+  static const int rsvd1Width = 2;
+
+  /// Width of addr field
+  static const int addrWidth = 17;
+
+  /// Width of pas field
+  static const int pasWidth = 2;
+
+  /// Width of rsvd2 field
+  static const int rsvd2Width = 7;
+
+  /// Width of data field
+  static const int dataWidth = 32;
+
+  /// Total width of DtiTbuRegWrite
+  static const int totalWidth =
+      msgTypeWidth + rsvd1Width + addrWidth + pasWidth + rsvd2Width + dataWidth;
+
+  /// msgType
+  final Logic msgType;
+
+  /// rsvd1
+  final Logic rsvd1;
+
+  /// addr
+  final Logic addr;
+
+  /// pas
+  final Logic pas;
+
+  /// rsvd2
+  final Logic rsvd2;
+
+  /// data
+  final Logic data;
+
+  /// Default constructor.
+  DtiTbuRegWrite({String? name})
+      : this.withLogics(
+          msgType: Logic(name: '${name}_msgType', width: msgTypeWidth),
+          rsvd1: Logic(name: '${name}_rsvd1', width: rsvd1Width),
+          addr: Logic(name: '${name}_addr', width: addrWidth),
+          pas: Logic(name: '${name}_pas', width: pasWidth),
+          rsvd2: Logic(name: '${name}_rsvd2', width: rsvd2Width),
+          data: Logic(name: '${name}_data', width: dataWidth),
+          name: name,
+        );
+
+  /// Constructor with pre-existing Logic objects.
+  DtiTbuRegWrite.withLogics({
+    required this.msgType,
+    required this.rsvd1,
+    required this.addr,
+    required this.pas,
+    required this.rsvd2,
+    required this.data,
+    super.name = 'dtiTbuRegWrite',
+  }) : super([
+          msgType,
+          rsvd1,
+          addr,
+          pas,
+          rsvd2,
+          data,
+        ]);
+
+  /// Copy constructor.
+  @override
+  DtiTbuRegWrite clone({String? name}) => DtiTbuRegWrite.withLogics(
+        msgType: msgType.clone(),
+        rsvd1: rsvd1.clone(),
+        addr: addr.clone(),
+        pas: pas.clone(),
+        rsvd2: rsvd2.clone(),
+        data: data.clone(),
+        name: name ?? this.name,
+      );
+
+  /// Helper for zero initialization
+  void zeroInit() {
+    msgType.put(DtiUpstreamMsgType.regWr.value);
+    rsvd1.put(0);
+    addr.put(0);
+    pas.put(0);
+    rsvd2.put(0);
+    data.put(0);
+  }
+}
+
+/// Register read.
+class DtiTbuRegRead extends LogicStructure {
+  /// Width of msgType field
+  static const int msgTypeWidth = 4;
+
+  /// Width of rsvd1 field
+  static const int rsvd1Width = 2;
+
+  /// Width of addr field
+  static const int addrWidth = 17;
+
+  /// Width of pas field
+  static const int pasWidth = 2;
+
+  /// Width of rsvd2 field
+  static const int rsvd2Width = 7;
+
+  /// Total width of DtiTbuRegRead
+  static const int totalWidth =
+      msgTypeWidth + rsvd1Width + addrWidth + pasWidth + rsvd2Width;
+
+  /// msgType
+  final Logic msgType;
+
+  /// rsvd1
+  final Logic rsvd1;
+
+  /// addr
+  final Logic addr;
+
+  /// pas
+  final Logic pas;
+
+  /// rsvd2
+  final Logic rsvd2;
+
+  /// Default constructor.
+  DtiTbuRegRead({String? name})
+      : this.withLogics(
+          msgType: Logic(name: '${name}_msgType', width: msgTypeWidth),
+          rsvd1: Logic(name: '${name}_rsvd1', width: rsvd1Width),
+          addr: Logic(name: '${name}_addr', width: addrWidth),
+          pas: Logic(name: '${name}_pas', width: pasWidth),
+          rsvd2: Logic(name: '${name}_rsvd2', width: rsvd2Width),
+          name: name,
+        );
+
+  /// Constructor with pre-existing Logic objects.
+  DtiTbuRegRead.withLogics({
+    required this.msgType,
+    required this.rsvd1,
+    required this.addr,
+    required this.pas,
+    required this.rsvd2,
+    super.name = 'dtiTbuRegRead',
+  }) : super([
+          msgType,
+          rsvd1,
+          addr,
+          pas,
+          rsvd2,
+        ]);
+
+  /// Copy constructor.
+  @override
+  DtiTbuRegRead clone({String? name}) => DtiTbuRegRead.withLogics(
+        msgType: msgType.clone(),
+        rsvd1: rsvd1.clone(),
+        addr: addr.clone(),
+        pas: pas.clone(),
+        rsvd2: rsvd2.clone(),
+        name: name ?? this.name,
+      );
+
+  /// Helper for zero initialization
+  void zeroInit() {
+    msgType.put(DtiUpstreamMsgType.regRd.value);
+    rsvd1.put(0);
+    addr.put(0);
+    pas.put(0);
+    rsvd2.put(0);
+  }
+}
+
+/// Register write acknowledgment (response).
+class DtiTbuRegWack extends LogicStructure {
+  /// Width of msgType field
+  static const int msgTypeWidth = 4;
+
+  /// Width of rsvd field
+  static const int rsvdWidth = 4;
+
+  /// Total width of DtiTbuRegWack
+  static const int totalWidth = msgTypeWidth + rsvdWidth;
+
+  /// msgType
+  final Logic msgType;
+
+  /// rsvd
+  final Logic rsvd;
+
+  /// Default constructor.
+  DtiTbuRegWack({String? name})
+      : this.withLogics(
+          msgType: Logic(name: '${name}_msgType', width: msgTypeWidth),
+          rsvd: Logic(name: '${name}_rsvd', width: rsvdWidth),
+          name: name,
+        );
+
+  /// Constructor with pre-existing Logic objects.
+  DtiTbuRegWack.withLogics({
+    required this.msgType,
+    required this.rsvd,
+    super.name = 'dtiTbuRegWack',
+  }) : super([
+          msgType,
+          rsvd,
+        ]);
+
+  /// Copy constructor.
+  @override
+  DtiTbuRegWack clone({String? name}) => DtiTbuRegWack.withLogics(
+        msgType: msgType.clone(),
+        rsvd: rsvd.clone(),
+        name: name ?? this.name,
+      );
+
+  /// Helper for zero initialization
+  void zeroInit() {
+    msgType.put(DtiDownstreamMsgType.regWAck.value);
+    rsvd.put(0);
+  }
+}
+
+/// Register read data (response).
+class DtiTbuRegRdata extends LogicStructure {
+  /// Width of msgType field
+  static const int msgTypeWidth = 4;
+
+  /// Width of rsvd field
+  static const int rsvdWidth = 28;
+
+  /// Width of data field
+  static const int dataWidth = 32;
+
+  /// Total width of DtiTbuRegRdata
+  static const int totalWidth = msgTypeWidth + rsvdWidth + dataWidth;
+
+  /// msgType
+  final Logic msgType;
+
+  /// rsvd
+  final Logic rsvd;
+
+  /// data
+  final Logic data;
+
+  /// Default constructor.
+  DtiTbuRegRdata({String? name})
+      : this.withLogics(
+          msgType: Logic(name: '${name}_msgType', width: msgTypeWidth),
+          rsvd: Logic(name: '${name}_rsvd', width: rsvdWidth),
+          data: Logic(name: '${name}_data', width: dataWidth),
+          name: name,
+        );
+
+  /// Constructor with pre-existing Logic objects.
+  DtiTbuRegRdata.withLogics({
+    required this.msgType,
+    required this.rsvd,
+    required this.data,
+    super.name = 'dtiTbuRegRdata',
+  }) : super([
+          msgType,
+          rsvd,
+          data,
+        ]);
+
+  /// Copy constructor.
+  @override
+  DtiTbuRegRdata clone({String? name}) => DtiTbuRegRdata.withLogics(
+        msgType: msgType.clone(),
+        rsvd: rsvd.clone(),
+        data: data.clone(),
+        name: name ?? this.name,
+      );
+
+  /// Helper for zero initialization
+  void zeroInit() {
+    msgType.put(DtiDownstreamMsgType.regRData.value);
+    rsvd.put(0);
+    data.put(0);
+  }
+}
+
 /// Template class to wrap an arbitrary DTI message with AXI-S metadata.
 ///
 /// Note that streamId might go into TDEST (tx) or come from TID (rx)
