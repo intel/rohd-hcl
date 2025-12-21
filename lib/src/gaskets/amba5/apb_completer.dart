@@ -1,3 +1,12 @@
+// Copyright (C) 2025 Intel Corporation
+// SPDX-License-Identifier: BSD-3-Clause
+//
+// apb_completer.dart
+// Base implementation for APB completer HW and associated variants.
+//
+// 2025 December
+// Author: Josh Kimmel <joshua1.kimmel@intel.com>
+
 import 'package:meta/meta.dart';
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
