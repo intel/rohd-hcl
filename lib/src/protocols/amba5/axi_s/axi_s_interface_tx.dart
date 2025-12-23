@@ -90,23 +90,35 @@ class AxiStreamInterfaceTx extends Module {
     // global drivers
     if (stream.idWidth > 0 && srcId != null) {
       this.srcId = addInput('srcId', srcId, width: srcId.width);
+    } else {
+      this.srcId = null;
     }
     if (stream.useWakeup && wakeup != null) {
       this.wakeup = addInput('wakeup', wakeup);
+    } else {
+      this.wakeup = null;
     }
 
     // per message drivers
     if (stream.destWidth > 0 && msgDestId != null) {
       this.msgDestId = addInput('destId', msgDestId, width: msgDestId.width);
+    } else {
+      this.msgDestId = null;
     }
     if (stream.userWidth > 0 && msgUser != null) {
       this.msgUser = addInput('user', msgUser, width: msgUser.width);
+    } else {
+      this.msgUser = null;
     }
     if (stream.useStrb && msgStrb != null) {
       this.msgStrb = addInput('strb', msgStrb, width: msgStrb.width);
+    } else {
+      this.msgStrb = null;
     }
     if (stream.useKeep && msgKeep != null) {
       this.msgKeep = addInput('keep', msgKeep, width: msgKeep.width);
+    } else {
+      this.msgKeep = null;
     }
 
     addOutput('canAcceptMsg');
