@@ -1189,9 +1189,8 @@ class DtiTbuTransRespEx extends DtiTbuTransResp {
   final Logic rsvd;
 
   /// Default constructor.
-  DtiTbuTransRespEx([
-    String name = 'trans_resp_ex',
-  ]) : this.withLogics(
+  DtiTbuTransRespEx({String name = 'trans_resp_ex'})
+      : this.withLogics(
           msgType: Logic(
             name: '${name}_msgType',
             width: DtiTbuTransResp.msgTypeWidth,
@@ -1536,7 +1535,7 @@ class DtiTbuTransFault extends DtiTbuTransRespBase {
   Logic get translationId => [translationId2, translationId1].swizzle();
 
   /// Default constructor.
-  DtiTbuTransFault([String name = 'trans_fault'])
+  DtiTbuTransFault({String name = 'trans_fault'})
       : this.withLogics(
           msgType: Logic(name: '${name}_msgType', width: msgTypeWidth),
           translationId1: Logic(
