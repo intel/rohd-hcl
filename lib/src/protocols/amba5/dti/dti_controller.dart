@@ -364,10 +364,12 @@ abstract class DtiController extends Module {
     final nextMsgInValid = Logic(name: 'nextMsgInValid');
     final nextMsgIn = Logic(name: 'nextMsgIn', width: _receiver.msg.width);
 
+    final nextGate = _receiver.msgValid & _receiverCanAccept;
+
     // flop the next message received from the stream interface
     Sequential(sys.clk, reset: ~sys.resetN, [
-      nextMsgInValid < _receiver.msgValid,
-      nextMsgIn < mux(_receiver.msgValid, _receiver.msg, nextMsgIn)
+      nextMsgInValid < mux(nextGate, _receiver.msgValid, nextMsgInValid),
+      nextMsgIn < mux(nextGate, _receiver.msg, nextMsgIn)
     ]);
 
     Logic? nextMsgSrc;
@@ -375,9 +377,7 @@ abstract class DtiController extends Module {
       nextMsgSrc = Logic(name: 'nextMsgSrc', width: inStream.idWidth);
       Sequential(sys.clk, reset: ~sys.resetN, [
         nextMsgSrc <
-            mux(
-                _receiver.msgValid,
-                _receiver.msgSrc ?? Const(0, width: inStream.idWidth),
+            mux(nextGate, _receiver.msgSrc ?? Const(0, width: inStream.idWidth),
                 nextMsgSrc)
       ]);
     }
@@ -388,7 +388,7 @@ abstract class DtiController extends Module {
       Sequential(sys.clk, reset: ~sys.resetN, [
         nextMsgUser <
             mux(
-                _receiver.msgValid,
+                nextGate,
                 _receiver.msgUser ?? Const(0, width: inStream.userWidth),
                 nextMsgUser)
       ]);
