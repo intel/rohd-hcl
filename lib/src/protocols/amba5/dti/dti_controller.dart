@@ -263,11 +263,10 @@ abstract class DtiController extends Module {
 
     // FIFOs
     for (var i = 0; i < this.sendMsgs.length; i++) {
-      final outMsgFull = Logic(name: 'outMsgsFull$i');
       _outMsgs.add(Fifo<DtiMessage>(
         this.sys.clk,
         ~this.sys.resetN,
-        writeEnable: this.sendMsgs[i].valid & ~outMsgFull,
+        writeEnable: this.sendMsgs[i].accepted,
         writeData: this.sendMsgs[i].data,
         readEnable:
             outboundArbiter!.grants[_sendArbIdx[i]] & _sender.canAcceptMsg,
@@ -276,7 +275,6 @@ abstract class DtiController extends Module {
         generateError: true,
         name: 'outMsgFifo$i',
       ));
-      outMsgFull <= _outMsgs.last.full;
 
       // request from the arbiter if we're not empty
       _arbiterReqs[i] <= ~_outMsgs.last.empty;
