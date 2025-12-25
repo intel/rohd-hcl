@@ -203,6 +203,8 @@ class CsrTop extends CsrContainer {
 
         _fdWrites[i].addr <= shiftedFrontWrAddr;
         _fdWrites[i].data <= frontWrite!.data;
+        frontWrite!.done <= _fdWrites[i].done;
+        frontWrite!.valid <= _fdWrites[i].valid;
       }
     }
 
@@ -227,12 +229,16 @@ class CsrTop extends CsrContainer {
 
       // capture frontdoor read output
       final rdData = Logic(name: 'internalRdData', width: frontRead!.dataWidth);
+      final rdValid = Logic(name: 'internalRdValid');
+      final rdDone = Logic(name: 'internalRdDone');
       final rdCases = _blocks
           .asMap()
           .entries
           .map((block) =>
               CaseItem(Const(block.value.baseAddr, width: addrWidth), [
                 rdData < _fdReads[block.key].data,
+                rdValid < Const(1),
+                rdDone < Const(1),
               ]))
           .toList();
       Combinational([
@@ -242,9 +248,13 @@ class CsrTop extends CsrContainer {
             rdCases,
             defaultItem: [
               rdData < Const(0, width: frontRead!.dataWidth),
+              rdValid < Const(0),
+              rdDone < Const(1),
             ]),
       ]);
       frontRead!.data <= rdData;
+      frontRead!.valid <= rdValid;
+      frontRead!.done <= rdDone;
     }
 
     for (var i = 0; i < _blocks.length; i++) {

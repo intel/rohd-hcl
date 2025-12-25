@@ -69,10 +69,12 @@ class MemoryModel extends Memory {
         if (!wrPort.en.previousValue!.isValid && !storage.isEmpty) {
           // storage doesnt have access to `en`, so check ourselves
           storage.invalidWrite();
+          wrPort.valid.inject(0);
+          wrPort.done.inject(1);
           return;
         }
 
-        if (wrPort.en.previousValue == LogicValue.one) {
+        if (wrPort.en.value == LogicValue.one) {
           final addrValue = wrPort.addr.previousValue!;
 
           if (wrPort is MaskedDataPortInterface) {
@@ -91,6 +93,12 @@ class MemoryModel extends Memory {
           } else {
             storage.writeData(addrValue, wrPort.data.previousValue!);
           }
+
+          wrPort.valid.inject(1);
+          wrPort.done.inject(1);
+        } else {
+          wrPort.valid.inject(0);
+          wrPort.done.inject(0);
         }
       }
 
@@ -102,6 +110,7 @@ class MemoryModel extends Memory {
               !rdPort.addr.previousValue!.isValid) {
             unawaited(_updateRead(
                 rdPort, LogicValue.filled(rdPort.dataWidth, LogicValue.x)));
+            rdPort.valid.inject(0);
           } else {
             unawaited(_updateRead(
                 rdPort, storage.readData(rdPort.addr.previousValue!)));
@@ -129,9 +138,12 @@ class MemoryModel extends Memory {
         !rdPort.en.value.toBool() ||
         !rdPort.addr.value.isValid) {
       rdPort.data.put(LogicValue.x, fill: true);
+      rdPort.valid.put(0);
     } else {
       rdPort.data.put(storage.readData(rdPort.addr.value));
+      rdPort.valid.put(1);
     }
+    rdPort.done.put(1);
   }
 
   /// Updates read data for [rdPort] after [readLatency] time.
@@ -140,5 +152,7 @@ class MemoryModel extends Memory {
       await clk.waitCycles(readLatency - 1);
     }
     rdPort.data.inject(data);
+    rdPort.valid.inject(1);
+    rdPort.done.put(1);
   }
 }
