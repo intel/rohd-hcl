@@ -54,9 +54,14 @@
 
     <section class="multi-line-signature">
       
-<span class="returntype"><a href="https://pub.dev/documentation/rohd/0.6.6/rohd/Conditional-class.html">Conditional</a></span>
-<span class="name ">conditionalReceiveOther</span>(<wbr><ol class="parameter-list single-line"> <li><span class="parameter" id="conditionalReceiveOther-param-other"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.6/rohd/Interface-class.html">Interface</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://pub.dev/documentation/rohd/0.6.6/rohd/PairDirection.html">PairDirection</a></span>&gt;</span></span> <span class="parameter-name">other</span>, </span></li>
-<li><span class="parameter" id="conditionalReceiveOther-param-tags"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.10.6/dart-core/Iterable-class.html">Iterable</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://pub.dev/documentation/rohd/0.6.6/rohd/PairDirection.html">PairDirection</a></span>&gt;</span></span> <span class="parameter-name">tags</span></span></li>
+  <div>
+    <ol class="annotation-list">
+        <li>@<a href="https://api.dart.dev/stable/3.10.7/dart-core/override-constant.html">override</a></li>
+    </ol>
+  </div>
+<span class="returntype"><a href="https://pub.dev/documentation/rohd/0.6.7/rohd/Conditional-class.html">Conditional</a></span>
+<span class="name ">conditionalReceiveOther</span>(<wbr><ol class="parameter-list single-line"> <li><span class="parameter" id="conditionalReceiveOther-param-other"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.7/rohd/Interface-class.html">Interface</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://pub.dev/documentation/rohd/0.6.7/rohd/PairDirection.html">PairDirection</a></span>&gt;</span></span> <span class="parameter-name">other</span>, </span></li>
+<li><span class="parameter" id="conditionalReceiveOther-param-tags"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.10.7/dart-core/Iterable-class.html">Iterable</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://pub.dev/documentation/rohd/0.6.7/rohd/PairDirection.html">PairDirection</a></span>&gt;</span></span> <span class="parameter-name">tags</span></span></li>
 </ol>)
 
       <div class="features"><span class="feature">inherited</span></div>
@@ -66,19 +71,43 @@
 <section class="desc markdown">
   <p>Makes <code>this</code> signals tagged with <code>tags</code> be driven conditionally by
 <code>other</code>.</p>
+<p>In addition to the base <a href="https://pub.dev/documentation/rohd/0.6.7/rohd/Interface/conditionalReceiveOther.html">Interface.conditionalReceiveOther</a> functionality,
+this also handles conditional receiving of signals from all
+<a href="https://pub.dev/documentation/rohd/0.6.7/rohd/PairInterface/subInterfaces.html">subInterfaces</a> hierarchically when <code>other</code> is a <a href="https://pub.dev/documentation/rohd/0.6.7/rohd/PairInterface-class.html">PairInterface</a>. Returns
+a <a href="https://pub.dev/documentation/rohd/0.6.7/rohd/ConditionalGroup-class.html">ConditionalGroup</a> that combines all conditionals from the main
+interface and sub-interfaces, considering <code>reverse</code>.</p>
 </section>
 
 
     
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
-  <pre class="language-dart"><code class="language-dart">Conditional conditionalReceiveOther(
-        Interface&lt;TagType&gt; other, Iterable&lt;TagType&gt; tags) =&gt;
-    ConditionalGroup(getPorts(tags)
-        .map((portName, thisPort) =&gt;
-            MapEntry(portName, thisPort &lt; other.port(portName)))
-        .values
-        .toList(growable: false));</code></pre>
+  <pre class="language-dart"><code class="language-dart">@override
+Conditional conditionalReceiveOther(
+    Interface&lt;PairDirection&gt; other, Iterable&lt;PairDirection&gt; tags) {
+  final conditionals = &lt;Conditional&gt;[
+    super.conditionalReceiveOther(other, tags)
+  ];
+
+  if (other is PairInterface) {
+    subInterfaces.forEach((subIntfName, subInterface) {
+      if (!other.subInterfaces.containsKey(subIntfName)) {
+        throw InterfaceTypeException(
+            other, &#39;missing a sub-interface named $subIntfName&#39;);
+      }
+
+      if (_subInterfaces[subIntfName]!.reverse) {
+        conditionals.add(subInterface.conditionalDriveOther(
+            other.subInterfaces[subIntfName]!, tags));
+      } else {
+        conditionals.add(subInterface.conditionalReceiveOther(
+            other.subInterfaces[subIntfName]!, tags));
+      }
+    });
+  }
+
+  return ConditionalGroup(conditionals);
+}</code></pre>
 </section>
 
 
