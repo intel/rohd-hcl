@@ -184,7 +184,7 @@ void main() {
     Simulator.setMaxSimTime(3000);
 
     if (dumpWaves) {
-      final mod = ApbCompleterTest(apbBfmTest.intf);
+      final mod = ApbCompleterTestModule(apbBfmTest.intf);
       await mod.build();
       WaveDumper(mod);
     }

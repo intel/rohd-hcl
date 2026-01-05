@@ -45,73 +45,75 @@ class ApbComplianceChecker extends Component {
     LogicValue? lastAuser;
     LogicValue? lastWuser;
 
-    intf.clk.negedge.listen((event) {
-      final currSels = intf.sel.map((e) => e.value).toList();
+    intf.clk.posedge.listen((event) {
+      final currSels = intf.sel.map((e) => e.previousValue!).toList();
 
       if (currSels.map((e) => e.isValid).reduce((a, b) => a | b)) {
         // if any select is high
 
         // valid checks
-        if (!intf.write.value.isValid) {
+        if (!intf.write.previousValue!.isValid) {
           logger.severe('Write must be valid during select.');
         }
-        if (!intf.addr.value.isValid) {
+        if (!intf.addr.previousValue!.isValid) {
           logger.severe('Addr must be valid during select.');
         }
-        if (!intf.wData.value.isValid) {
+        if (!intf.wData.previousValue!.isValid) {
           logger.severe('WData must be valid during select.');
         }
-        if (!intf.strb.value.isValid) {
+        if (!intf.strb.previousValue!.isValid) {
           logger.severe('Strobe must be valid during select.');
         }
-        if (!intf.enable.value.isValid) {
+        if (!intf.enable.previousValue!.isValid) {
           logger.severe('Enable must be valid during select.');
         }
 
         // stability checks
-        if (intf.enable.value.isValid && intf.enable.value.toBool()) {
-          if (lastWrite != null && lastWrite != intf.write.value) {
+        if (intf.enable.previousValue!.isValid &&
+            intf.enable.previousValue!.toBool()) {
+          if (lastWrite != null && lastWrite != intf.write.previousValue!) {
             logger.severe('Write must be stable until ready.');
           }
-          if (lastAddr != null && lastAddr != intf.addr.value) {
+          if (lastAddr != null && lastAddr != intf.addr.previousValue!) {
             logger.severe('Addr must be stable until ready.');
           }
           if (lastSel != null) {
             for (var i = 0; i < intf.numSelects; i++) {
-              if (intf.sel[i].value != lastSel![i]) {
+              if (intf.sel[i].previousValue! != lastSel![i]) {
                 logger.severe('Sel must be stable until ready.');
               }
             }
           }
-          if (lastWriteData != null && lastWriteData != intf.wData.value) {
+          if (lastWriteData != null &&
+              lastWriteData != intf.wData.previousValue!) {
             logger.severe('Write data must be stable until ready.');
           }
-          if (lastStrb != null && lastStrb != intf.strb.value) {
+          if (lastStrb != null && lastStrb != intf.strb.previousValue!) {
             logger.severe('Strobe must be stable until ready.');
           }
-          if (lastProt != null && lastProt != intf.prot.value) {
+          if (lastProt != null && lastProt != intf.prot.previousValue!) {
             logger.severe('Prot must be stable until ready.');
           }
-          if (lastAuser != null && lastAuser != intf.aUser?.value) {
+          if (lastAuser != null && lastAuser != intf.aUser?.previousValue!) {
             logger.severe('AUser must be stable until ready.');
           }
-          if (lastWuser != null && lastWuser != intf.wUser?.value) {
+          if (lastWuser != null && lastWuser != intf.wUser?.previousValue!) {
             logger.severe('WUser must be stable until ready.');
           }
 
           // collect "last" items for next check
-          lastWrite = intf.write.value;
-          lastAddr = intf.addr.value;
+          lastWrite = intf.write.previousValue!;
+          lastAddr = intf.addr.previousValue!;
           lastSel = currSels;
-          lastWriteData = intf.wData.value;
-          lastStrb = intf.strb.value;
-          lastProt = intf.prot.value;
-          lastAuser = intf.aUser?.value;
-          lastWuser = intf.wUser?.value;
+          lastWriteData = intf.wData.previousValue!;
+          lastStrb = intf.strb.previousValue!;
+          lastProt = intf.prot.previousValue!;
+          lastAuser = intf.aUser?.previousValue!;
+          lastWuser = intf.wUser?.previousValue!;
         }
       }
 
-      if (intf.ready.value.toBool()) {
+      if (intf.ready.previousValue!.toBool()) {
         lastWrite = null;
         lastAddr = null;
         lastSel = null;
@@ -122,25 +124,25 @@ class ApbComplianceChecker extends Component {
         lastWuser = null;
       }
 
-      if (intf.write.value.isValid &&
-          !intf.write.value.toBool() &&
-          intf.enable.value.isValid &&
-          intf.enable.value.toBool() &&
-          intf.strb.value.isValid &&
-          intf.strb.value.toInt() > 0) {
+      if (intf.write.previousValue!.isValid &&
+          !intf.write.previousValue!.toBool() &&
+          intf.enable.previousValue!.isValid &&
+          intf.enable.previousValue!.toBool() &&
+          intf.strb.previousValue!.isValid &&
+          intf.strb.previousValue!.toInt() > 0) {
         // strobe must not be "active" during read xfer (all low during read)
         logger.severe('Strobe must not be active during read transfer.');
       }
 
-      if (intf.enable.value.isValid &&
-          intf.enable.value.toBool() &&
-          intf.ready.value.isValid &&
-          intf.ready.value.toBool()) {
+      if (intf.enable.previousValue!.isValid &&
+          intf.enable.previousValue!.toBool() &&
+          intf.ready.previousValue!.isValid &&
+          intf.ready.previousValue!.toBool()) {
         if (accessLastCycle) {
           logger.severe('Cannot have back-to-back accesses.');
         }
 
-        if (intf.includeSlvErr && !intf.slvErr!.value.isValid) {
+        if (intf.includeSlvErr && !intf.slvErr!.previousValue!.isValid) {
           logger.severe('SlvErr must be valid during transfer.');
         }
 

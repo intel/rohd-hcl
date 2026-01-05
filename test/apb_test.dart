@@ -16,8 +16,8 @@ import 'package:rohd_hcl/rohd_hcl.dart';
 import 'package:rohd_vf/rohd_vf.dart';
 import 'package:test/test.dart';
 
-class ApbCompleterTest extends Module {
-  ApbCompleterTest(ApbInterface intf) {
+class ApbCompleterTestModule extends Module {
+  ApbCompleterTestModule(ApbInterface intf) {
     intf = intf.clone()
       ..connectIO(this, intf,
           inputTags: {ApbDirection.misc, ApbDirection.fromRequester},
@@ -48,7 +48,7 @@ class ApbPair extends Module {
     apb.clk <= clk;
     apb.resetN <= ~reset;
 
-    ApbCompleterTest(apb);
+    ApbCompleterTestModule(apb);
     ApbRequesterTest(apb);
   }
 }
@@ -120,7 +120,7 @@ class ApbCsrCompleterHwTest extends Test {
         csrRd: csrRd,
         csrWr: csrWr,
         name: 'apb_csr_completer',
-        apbClkLatency: apbClkLatency);
+        responseLatency: apbClkLatency);
 
     final monitor = ApbMonitor(intf: intf, parent: this);
 
