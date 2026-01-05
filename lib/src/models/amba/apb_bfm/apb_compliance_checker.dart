@@ -102,14 +102,14 @@ class ApbComplianceChecker extends Component {
           }
 
           // collect "last" items for next check
-          lastWrite = intf.write.previousValue!;
-          lastAddr = intf.addr.previousValue!;
+          lastWrite = intf.write.previousValue;
+          lastAddr = intf.addr.previousValue;
           lastSel = currSels;
-          lastWriteData = intf.wData.previousValue!;
-          lastStrb = intf.strb.previousValue!;
-          lastProt = intf.prot.previousValue!;
-          lastAuser = intf.aUser?.previousValue!;
-          lastWuser = intf.wUser?.previousValue!;
+          lastWriteData = intf.wData.previousValue;
+          lastStrb = intf.strb.previousValue;
+          lastProt = intf.prot.previousValue;
+          lastAuser = intf.aUser?.previousValue;
+          lastWuser = intf.wUser?.previousValue;
         }
       }
 
