@@ -404,7 +404,7 @@ void main() async {
     expect(reqOut.translationId.value.toInt(), 0xef);
 
     await clk.nextPosedge;
-    sender.msgToSendValid.inject(0);
+    msgToSendValid.inject(0);
 
     await clk.waitCycles(10);
 

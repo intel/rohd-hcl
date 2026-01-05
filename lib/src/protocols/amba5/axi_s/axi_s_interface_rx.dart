@@ -14,9 +14,11 @@ import 'package:rohd_hcl/rohd_hcl.dart';
 /// A generic module to receive messages over AXI-S.
 class AxiStreamInterfaceRx extends Module {
   /// Clock and reset.
+  @protected
   late final Axi5SystemInterface sys;
 
   /// Inbound messages.
+  @protected
   late final Axi5StreamInterface stream;
 
   /// The maximum size of any message we expect
