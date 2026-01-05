@@ -9,6 +9,7 @@
 
 import 'dart:math';
 
+import 'package:meta/meta.dart';
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
 
@@ -23,41 +24,49 @@ class AxiStreamInterfaceTx extends Module {
   /// Is the provided [msgToSend] valid.
   ///
   /// Only drive on the interface if so.
+  @protected
   late final Logic msgToSendValid;
 
   /// Message to transmit on the interface.
+  @protected
   late final Logic msgToSend;
 
   /// AXI-S Destination ID for this message.
   ///
   /// Placed into TDEST signal when sending.
+  @protected
   late final Logic? msgDestId;
 
   /// AXI-S User field for this message.
   ///
   /// Placed into TUSER signal when sending.
+  @protected
   late final Logic? msgUser;
 
   /// AXI-S strobe field for this message.
   ///
   /// Placed into TSTRB signal when sending.
+  @protected
   late final Logic? msgStrb;
 
   /// AXI-S keep field for this message.
   ///
   /// Placed into TKEEP signal when sending.
+  @protected
   late final Logic? msgKeep;
 
   /// Fixed source ID for this module.
   ///
   /// Placed into TID signal when sending.
   /// Expected to be in TDEST signal when receiving.
+  @protected
   late final Logic? srcId;
 
   /// Fixed wakeup for this module.
   ///
   /// Placed into TWAKEUP signal when sending.
   /// Power management functionality.
+  @protected
   late final Logic? wakeup;
 
   /// Backpressure indicator.

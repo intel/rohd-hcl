@@ -7,6 +7,7 @@
 // 2025 December
 // Author: Josh Kimmel <joshua1.kimmel@intel.com>
 
+import 'package:meta/meta.dart';
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
 
@@ -25,12 +26,14 @@ class AxiStreamInterfaceRx extends Module {
   /// Can we accept a new message.
   ///
   /// This effectively drives TREADY.
+  @protected
   late final Logic canAcceptMsg;
 
   /// Fixed source ID for this module.
   ///
   /// Received in TDEST signal.
   /// Drop if doesn't match.
+  @protected
   late final Logic? srcId;
 
   /// New message received indicator.
