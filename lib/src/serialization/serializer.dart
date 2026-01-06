@@ -33,10 +33,14 @@ class Serializer extends Module {
   /// [Serializer] is configured to latch the input data and hold it until
   /// [done] is asserted after the full [LogicArray] [deserialized] is
   /// transferred. This will delay the serialized output by one cycle.
+  ///
+  /// If [endCount] is connected, it is used as a potential early indicator for
+  /// completion of the serialization.
   Serializer(LogicArray deserialized,
       {required Logic clk,
       required Logic reset,
       Logic? enable,
+      Logic? endCount,
       bool flopInput = false,
       super.name = 'serializer',
       super.reserveName,
@@ -50,6 +54,10 @@ class Serializer extends Module {
     reset = addInput('reset', reset);
     if (enable != null) {
       enable = addInput('enable', enable);
+    }
+    if (endCount != null) {
+      endCount = addInput('endCount', endCount,
+          width: deserialized.dimensions[0].bitLength);
     }
     deserialized = addInputArray('deserialized', deserialized,
         dimensions: deserialized.dimensions,
@@ -68,11 +76,19 @@ class Serializer extends Module {
       addOutput('serialized', width: deserialized.elementWidth);
     }
 
+    Logic? earlyEnd;
     final cnt = Counter.simple(
         clk: clk,
         reset: reset,
         enable: enable,
-        maxValue: deserialized.elements.length - 1);
+        maxValue: deserialized.elements.length - 1,
+        restart: earlyEnd);
+
+    if (endCount != null) {
+      earlyEnd = Logic(name: 'earlyEnd')..gets(cnt.count.eq(endCount));
+    } else {
+      earlyEnd = null;
+    }
 
     final latchTheInput =
         ((enable ?? Const(1)) & ~cnt.count.or()).named('latchTheInput');
@@ -96,7 +112,11 @@ class Serializer extends Module {
     serialized <= dataOutput.elements.selectIndex(count);
     done <=
         (flopInput
-            ? flop(clk, reset: reset, en: enable, cnt.equalsMax)
-            : cnt.equalsMax);
+            ? flop(
+                clk,
+                reset: reset,
+                en: enable,
+                cnt.equalsMax | (earlyEnd ?? Const(0)))
+            : cnt.equalsMax | (earlyEnd ?? Const(0)));
   }
 }

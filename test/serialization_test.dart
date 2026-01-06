@@ -182,6 +182,40 @@ void main() {
     await Simulator.endSimulation();
   });
 
+  // This test exercises early termination of the serialization.
+  test('serializer endCount', () async {
+    const len = 10;
+    const width = 8;
+    const cutoff = 5;
+    final dataIn = LogicArray([len], width);
+    final clk = SimpleClockGenerator(10).clk;
+    final endCount = Logic(width: len.bitLength);
+    final reset = Logic();
+    final mod = Serializer(dataIn, clk: clk, reset: reset, endCount: endCount);
+
+    for (var i = 0; i < len; i++) {
+      dataIn.elements[i].put(i);
+    }
+
+    await mod.build();
+    unawaited(Simulator.run());
+
+    await clk.nextPosedge;
+    reset.inject(1);
+    await clk.nextPosedge;
+    reset.inject(0);
+    endCount.inject(cutoff - 1);
+
+    for (var i = 0; i < cutoff; i++) {
+      await clk.nextNegedge;
+      expect(mod.done.value.toBool(), i == cutoff - 1);
+      expect(mod.serialized.value.toInt(), i);
+      await clk.nextPosedge;
+    }
+
+    await Simulator.endSimulation();
+  });
+
   // This test does a careful check of the data transfer sequence to make sure
   // data transfer is in expected order by sequencing in first a set of 1s and
   // then a set of zeros and checking all transfers.
