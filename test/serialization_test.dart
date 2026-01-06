@@ -312,6 +312,50 @@ void main() {
     await Simulator.endSimulation();
   });
 
+  // This test uses last to do an early completion of the deserialization.
+  test('deserializer last', () async {
+    const len = 6;
+    const cutoff = 3;
+    const width = 4;
+    final dataIn = Logic(width: width);
+    final clk = SimpleClockGenerator(10).clk;
+    final last = Logic();
+    final reset = Logic();
+    final mod = Deserializer(dataIn, len, clk: clk, reset: reset, last: last);
+    await mod.build();
+    unawaited(Simulator.run());
+
+    last.inject(0);
+    reset.inject(0);
+    await clk.nextPosedge;
+    reset.inject(1);
+
+    await clk.nextPosedge;
+    reset.inject(0);
+
+    final cutoffStr = StringBuffer();
+    for (var i = 0; i < cutoff; i++) {
+      dataIn.inject(i + 1);
+      cutoffStr.write('${i + 1}');
+      last.inject(i == cutoff - 1);
+      await clk.nextNegedge;
+      expect(mod.done.value.toBool(), false);
+      await clk.nextPosedge;
+    }
+
+    expect(mod.done.value.toBool(), true);
+    expect(mod.count.value.toInt(), 1);
+    expect(
+        mod.deserialized.value,
+        LogicValue.ofRadixString("${4 * cutoff}'h"
+                "${cutoffStr.toString().split('').reversed.join()}")
+            .zeroExtend(mod.deserialized.width));
+
+    await clk.nextPosedge;
+    await clk.nextPosedge;
+    await Simulator.endSimulation();
+  });
+
   // This test ensures that the clock cycles and counts of the serializer
   // line up when doing back-to-back transfers.
   test('serializer timing', () async {
