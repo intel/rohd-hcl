@@ -56,7 +56,7 @@
       
   <div>
     <ol class="annotation-list">
-        <li>@<a href="https://pub.dev/documentation/meta/1.17.0/meta/protected-constant.html">protected</a></li>
+        <li>@<a href="https://pub.dev/documentation/meta/1.18.0/meta/protected-constant.html">protected</a></li>
     </ol>
   </div>
 <span class="returntype">void</span>
@@ -79,7 +79,7 @@ void makeQualifierPorts() {
   setPorts([
     if (useNsaId) Logic.port(&#39;${prefix}NSAID&#39;, 4),
     if (usePbha) Logic.port(&#39;${prefix}PBHA&#39;, 4),
-    if (subSysIdWidth &gt; 0) Logic.port(&#39;${prefix}SUBSYSID&#39;),
+    if (subSysIdWidth &gt; 0) Logic.port(&#39;${prefix}SUBSYSID&#39;, subSysIdWidth),
     if (actWidth &gt; 0) Logic.port(&#39;${prefix}ACTV&#39;),
     if (actWidth &gt; 0) Logic.port(&#39;${prefix}ACT&#39;, actWidth),
   ], [

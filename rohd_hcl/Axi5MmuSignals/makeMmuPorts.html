@@ -56,7 +56,7 @@
       
   <div>
     <ol class="annotation-list">
-        <li>@<a href="https://pub.dev/documentation/meta/1.17.0/meta/protected-constant.html">protected</a></li>
+        <li>@<a href="https://pub.dev/documentation/meta/1.18.0/meta/protected-constant.html">protected</a></li>
     </ol>
   </div>
 <span class="returntype">void</span>
@@ -79,9 +79,9 @@ void makeMmuPorts() {
   setPorts([
     if (untranslatedTransVersion &gt;= 3) Logic.port(&#39;${prefix}MMUVALID&#39;),
     if (secSidWidth &gt; 0) Logic.port(&#39;${prefix}MMUSECSID&#39;, secSidWidth),
-    if (sidWidth &gt; 0) Logic.port(&#39;${prefix}MMUSID&#39;),
+    if (sidWidth &gt; 0) Logic.port(&#39;${prefix}MMUSID&#39;, sidWidth),
     if (ssidWidth &gt; 0) Logic.port(&#39;${prefix}MMUSSIDV&#39;),
-    if (ssidWidth &gt; 0) Logic.port(&#39;${prefix}MMUSSID&#39;),
+    if (ssidWidth &gt; 0) Logic.port(&#39;${prefix}MMUSSID&#39;, ssidWidth),
     if (untranslatedTransVersion == 1 &amp;&amp; useFlow)
       Logic.port(&#39;${prefix}MMUATST&#39;),
     if (untranslatedTransVersion &gt; 1 &amp;&amp; useFlow)

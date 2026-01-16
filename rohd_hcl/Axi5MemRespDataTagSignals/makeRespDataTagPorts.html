@@ -56,7 +56,7 @@
       
   <div>
     <ol class="annotation-list">
-        <li>@<a href="https://pub.dev/documentation/meta/1.17.0/meta/protected-constant.html">protected</a></li>
+        <li>@<a href="https://pub.dev/documentation/meta/1.18.0/meta/protected-constant.html">protected</a></li>
     </ol>
   </div>
 <span class="returntype">void</span>
@@ -76,11 +76,6 @@
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">@protected
 void makeRespDataTagPorts() {
-  setPorts([
-    Logic.port(&#39;${prefix}TAG&#39;, (tagDataWidth &#47; 128).ceil() * 4),
-  ], [
-    PairDirection.fromConsumer,
-  ]);
   if (main) {
     setPorts([
       if (useTag) Logic.port(&#39;${prefix}TAG&#39;, (tagDataWidth &#47; 128).ceil() * 4),
