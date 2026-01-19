@@ -7,17 +7,15 @@
 // 2026 January 13
 // Author: Maifee Ul Asad <maifeeulasad@gmail.com>
 
-import 'dart:math';
-
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
 
 /// An asynchronous FIFO for safely passing data between two clock domains.
 ///
-/// The [AsyncFifo] implements a dual-clock FIFO that allows data to be written
-/// in one clock domain and read in another, completely independent clock domain.
-/// This is essential for designs that need to transfer data between different
-/// clock frequencies or phases.
+/// The [AsyncFifo] implements a dual-clock FIFO that allows data to be
+/// written in one clock domain and read in another, completely independent
+/// clock domain. This is essential for designs that need to transfer data
+/// between different clock frequencies or phases.
 ///
 /// **Key Features:**
 /// - Independent write and read clock domains
@@ -63,7 +61,7 @@ class AsyncFifo extends Module {
 
   /// Read data output.
   ///
-  /// This is the data that will be read when [readEnable] is asserted.
+  /// This is the data that will be read when read enable is asserted.
   /// The data is valid when [empty] is low.
   Logic get readData => output('readData');
 
@@ -134,8 +132,7 @@ class AsyncFifo extends Module {
     }
 
     if (depth & (depth - 1) != 0) {
-      throw RohdHclException(
-          'Depth must be a power of 2, but got $depth.'
+      throw RohdHclException('Depth must be a power of 2, but got $depth.'
           ' Use depths like 2, 4, 8, 16, 32, etc.');
     }
 
@@ -169,10 +166,8 @@ class AsyncFifo extends Module {
     final rdAddrGrayNext = Logic(name: 'rdAddrGrayNext', width: _addrWidth + 1);
 
     // Synchronized pointers
-    final wrAddrGraySync =
-        Logic(name: 'wrAddrGraySync', width: _addrWidth + 1);
-    final rdAddrGraySync =
-        Logic(name: 'rdAddrGraySync', width: _addrWidth + 1);
+    final wrAddrGraySync = Logic(name: 'wrAddrGraySync', width: _addrWidth + 1);
+    final rdAddrGraySync = Logic(name: 'rdAddrGraySync', width: _addrWidth + 1);
 
     // Binary to Gray converters for pointers
     // Note: We use (_addrWidth + 1) bits to distinguish full from empty
@@ -244,16 +239,19 @@ class AsyncFifo extends Module {
     // Full when MSB differs (indicating wrap) but rest matches
     // For Gray code: check if top 2 bits are inverted and remaining bits match
     final fullCondition = Logic(name: 'fullCondition');
-    
+
     if (_addrWidth == 0) {
       // Special case for depth=2 (single address bit)
-      fullCondition <= wrAddrGray[1].eq(~rdAddrGraySync[1]) &
-          wrAddrGray[0].eq(rdAddrGraySync[0]);
+      fullCondition <=
+          wrAddrGray[1].eq(~rdAddrGraySync[1]) &
+              wrAddrGray[0].eq(rdAddrGraySync[0]);
     } else {
-      fullCondition <= wrAddrGray[_addrWidth].eq(~rdAddrGraySync[_addrWidth]) &
-          wrAddrGray[_addrWidth - 1].eq(~rdAddrGraySync[_addrWidth - 1]) &
-          wrAddrGray.slice(_addrWidth - 2, 0).eq(
-              rdAddrGraySync.slice(_addrWidth - 2, 0));
+      fullCondition <=
+          wrAddrGray[_addrWidth].eq(~rdAddrGraySync[_addrWidth]) &
+              wrAddrGray[_addrWidth - 1].eq(~rdAddrGraySync[_addrWidth - 1]) &
+              wrAddrGray
+                  .slice(_addrWidth - 2, 0)
+                  .eq(rdAddrGraySync.slice(_addrWidth - 2, 0));
     }
 
     full <= fullCondition;
@@ -261,7 +259,7 @@ class AsyncFifo extends Module {
     // Create memory storage using RegisterFile (dual-port RAM)
     final wrPort = DataPortInterface(dataWidth, _addrWidth);
     final rdPort = DataPortInterface(dataWidth, _addrWidth);
-    
+
     RegisterFile(
       _writeClk,
       _writeReset,

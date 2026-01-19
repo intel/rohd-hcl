@@ -13,7 +13,6 @@ import 'dart:async';
 
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
-import 'package:rohd_vf/rohd_vf.dart';
 
 /// A simple producer module that writes data into an async FIFO.
 class Producer extends Module {
@@ -177,10 +176,11 @@ Future<void> main({bool noPrint = false}) async {
         final wData = writeData.value.toInt();
         if (wData != lastWriteData) {
           print(
-              '${Simulator.time.toString().padLeft(4)} | '
-              'W:0x${wData.toRadixString(16).padLeft(2, '0')} |      | '
-              '${asyncFifo.full.value.toBool() ? 'FULL' : '    '} | '
-              '${asyncFifo.empty.value.toBool() ? 'EMPTY' : '     '}',);
+            '${Simulator.time.toString().padLeft(4)} | '
+            'W:0x${wData.toRadixString(16).padLeft(2, '0')} |      | '
+            '${asyncFifo.full.value.toBool() ? 'FULL' : '    '} | '
+            '${asyncFifo.empty.value.toBool() ? 'EMPTY' : '     '}',
+          );
           lastWriteData = wData;
         }
       }
@@ -191,10 +191,11 @@ Future<void> main({bool noPrint = false}) async {
         final rData = asyncFifo.readData.value.toInt();
         if (rData != lastReadData) {
           print(
-              '${Simulator.time.toString().padLeft(4)} |      | '
-              'R:0x${rData.toRadixString(16).padLeft(2, '0')} | '
-              '${asyncFifo.full.value.toBool() ? 'FULL' : '    '} | '
-              '${asyncFifo.empty.value.toBool() ? 'EMPTY' : '     '}',);
+            '${Simulator.time.toString().padLeft(4)} |      | '
+            'R:0x${rData.toRadixString(16).padLeft(2, '0')} | '
+            '${asyncFifo.full.value.toBool() ? 'FULL' : '    '} | '
+            '${asyncFifo.empty.value.toBool() ? 'EMPTY' : '     '}',
+          );
           lastReadData = rData;
         }
       }

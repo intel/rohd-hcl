@@ -11,15 +11,12 @@ import 'dart:async';
 
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
-import 'package:rohd_vf/rohd_vf.dart';
 import 'package:test/test.dart';
 
 void main() {
   tearDown(() async {
     await Simulator.reset();
   });
-
-
 
   test('async_fifo basic write and read same clock frequency', () async {
     final writeClk = SimpleClockGenerator(10).clk;
@@ -128,7 +125,7 @@ void main() {
   test('async_fifo different clock frequencies', () async {
     // Use same clock first to simplify
     final writeClk = SimpleClockGenerator(10).clk;
-    final readClk = SimpleClockGenerator(10).clk; 
+    final readClk = SimpleClockGenerator(10).clk;
     final writeReset = Logic();
     final readReset = Logic();
     final writeEnable = Logic();
@@ -355,7 +352,6 @@ void main() {
       clk,
       dataIn: dataIn,
       reset: reset,
-      stages: 2,
     );
 
     await sync.build();

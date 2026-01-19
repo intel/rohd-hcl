@@ -1,6 +1,6 @@
 # Asynchronous FIFO
 
-ROHD-HCL provides an asynchronous FIFO for safely passing data between two independent clock domains. 
+ROHD-HCL provides an asynchronous FIFO for safely passing data between two independent clock domains.
 
 ## Overview
 
@@ -46,6 +46,7 @@ final asyncFifo = AsyncFifo(
 ### Write Domain
 
 In the write clock domain:
+
 - Assert `writeEnable` to write `writeData` into the FIFO
 - Monitor `full` flag - do not write when full
 - Data is written on the rising edge of `writeClk`
@@ -53,6 +54,7 @@ In the write clock domain:
 ### Read Domain
 
 In the read clock domain:
+
 - Monitor `empty` flag - do not read when empty
 - Current data available on `readData` output (combinational read)
 - Assert `readEnable` to advance to next entry
@@ -103,6 +105,7 @@ final sync = Synchronizer(
 ## Example: Producer-Consumer System
 
 See the complete example in [async_fifo_example.dart](../../example/async_fifo_example.dart) which demonstrates:
+
 - Two independent clock domains (fast write, slow read)
 - Continuous data streaming
 - Full/empty flag handling
@@ -123,14 +126,14 @@ See the complete example in [async_fifo_example.dart](../../example/async_fifo_e
 
 ## Design Trade-offs
 
-| Aspect | Synchronous FIFO | Asynchronous FIFO |
-|--------|------------------|-------------------|
-| Clock Domains | Single | Independent (2 clocks) |
-| Depth Constraint | Any value | Must be power of 2 |
-| Synchronization | None needed | Gray code + synchronizers |
-| Area | Smaller | Larger (synchronizers) |
-| Latency | Lower | Higher (sync overhead) |
-| Use Case | Same clock domain | Clock domain crossing |
+| Aspect           | Synchronous FIFO  | Asynchronous FIFO         |
+| ---------------- | ----------------- | ------------------------- |
+| Clock Domains    | Single            | Independent (2 clocks)    |
+| Depth Constraint | Any value         | Must be power of 2        |
+| Synchronization  | None needed       | Gray code + synchronizers |
+| Area             | Smaller           | Larger (synchronizers)    |
+| Latency          | Lower             | Higher (sync overhead)    |
+| Use Case         | Same clock domain | Clock domain crossing     |
 
 ## Common Use Cases
 

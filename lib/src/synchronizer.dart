@@ -65,7 +65,7 @@ class Synchronizer extends ShiftRegister {
           depth: stages,
           reset: reset,
           resetValue: resetValue,
-          dataName: 'syncData',
+          dataName: name,
           definitionName: 'Synchronizer_S${stages}_W${dataIn.width}',
         ) {
     if (stages < 2) {
