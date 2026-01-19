@@ -158,12 +158,6 @@ class AsyncFifo extends Module {
 
   /// Builds all the logic for the async FIFO.
   void _buildLogic() {
-    // Create memory storage (dual-port RAM)
-    final memory = List.generate(
-      depth,
-      (i) => Logic(name: 'mem_$i', width: dataWidth),
-    );
-
     // Write domain signals
     final wrAddr = Logic(name: 'wrAddr', width: _addrWidth);
     final wrAddrGray = Logic(name: 'wrAddrGray', width: _addrWidth + 1);
@@ -264,38 +258,27 @@ class AsyncFifo extends Module {
 
     full <= fullCondition;
 
-    // Memory write logic (write clock domain)
-    for (var i = 0; i < depth; i++) {
-      Sequential(_writeClk, [
-        If(
-          _writeEnable &
-              ~full &
-              wrAddr.eq(Const(i, width: _addrWidth)),
-          then: [
-            memory[i] < _writeData,
-          ],
-        ),
-      ]);
-    }
+    // Create memory storage using RegisterFile (dual-port RAM)
+    final wrPort = DataPortInterface(dataWidth, _addrWidth);
+    final rdPort = DataPortInterface(dataWidth, _addrWidth);
+    
+    RegisterFile(
+      _writeClk,
+      _writeReset,
+      [wrPort],
+      [rdPort],
+      numEntries: depth,
+      name: 'asyncFifoMem',
+    );
 
-    // Memory read logic (combinational)
-    final readDataMux = <CaseItem>[];
-    for (var i = 0; i < depth; i++) {
-      readDataMux.add(
-        CaseItem(
-          Const(i, width: _addrWidth),
-          [readData < memory[i]],
-        ),
-      );
-    }
+    // Write port connections (write domain)
+    wrPort.en <= _writeEnable & ~full;
+    wrPort.addr <= wrAddr;
+    wrPort.data <= _writeData;
 
-    Combinational([
-      Case(
-        rdAddr,
-        readDataMux,
-        conditionalType: ConditionalType.unique,
-        defaultItem: [readData < Const(0, width: dataWidth)],
-      ),
-    ]);
+    // Read port connections (combinational, 0-latency)
+    rdPort.en <= Const(1); // Always enable for async read
+    rdPort.addr <= rdAddr;
+    readData <= rdPort.data;
   }
 }
