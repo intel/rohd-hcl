@@ -20,17 +20,21 @@ import 'package:rohd_hcl/rohd_hcl.dart';
 /// may capture a metastable value, but subsequent stages allow time for the
 /// signal to settle before being used in the destination clock domain.
 ///
+/// **Implementation Note**: This extends [ShiftRegister] with CDC-specific
+/// constraints: minimum 2 stages, no enable signal, no async reset, and
+/// intermediate stages are hidden to prevent misuse.
+///
 /// **WARNING**: This synchronizer is only suitable for control signals, not
 /// data buses. For data transfer between clock domains, use an async FIFO.
-class Synchronizer extends Module {
+class Synchronizer extends ShiftRegister {
   /// The synchronized output signal in the destination clock domain.
-  Logic get syncData => output('syncData');
+  Logic get syncData => dataOut;
 
   /// The number of synchronization stages (flip-flops).
   ///
   /// Minimum is 2. Higher values provide more metastability protection but
   /// increase latency.
-  final int stages;
+  int get numStages => depth;
 
   /// Constructs a [Synchronizer] with the specified parameters.
   ///
@@ -53,46 +57,28 @@ class Synchronizer extends Module {
     required Logic dataIn,
     Logic? reset,
     dynamic resetValue = 0,
-    this.stages = 2,
-    super.name = 'synchronizer',
-  }) : super(definitionName: 'Synchronizer_S${stages}_W${dataIn.width}') {
+    int stages = 2,
+    String name = 'synchronizer',
+  }) : super(
+          dataIn,
+          clk: clk,
+          depth: stages,
+          reset: reset,
+          resetValue: resetValue,
+          dataName: 'syncData',
+          definitionName: 'Synchronizer_S${stages}_W${dataIn.width}',
+        ) {
     if (stages < 2) {
       throw RohdHclException('Synchronizer must have at least 2 stages.');
     }
-
-    clk = addInput('clk', clk);
-    dataIn = addInput('dataIn', dataIn, width: dataIn.width);
-    if (reset != null) {
-      reset = addInput('reset', reset);
-    }
-
-    addOutput('syncData', width: dataIn.width);
-
-    // Create the chain of synchronization flip-flops
-    final syncStages = <Logic>[];
-    for (var i = 0; i < stages; i++) {
-      syncStages.add(Logic(name: 'syncStage$i', width: dataIn.width));
-    }
-
-    // Connect the stages
-    final resetValues = <Logic, dynamic>{};
-    for (var i = 0; i < stages; i++) {
-      resetValues[syncStages[i]] = resetValue;
-    }
-
-    Sequential(
-      clk,
-      reset: reset,
-      resetValues: resetValues,
-      [
-        // First stage samples the input
-        syncStages[0] < dataIn,
-        // Subsequent stages form the synchronization chain
-        for (var i = 1; i < stages; i++) syncStages[i] < syncStages[i - 1],
-      ],
-    );
-
-    // Output is the last stage
-    syncData <= syncStages.last;
   }
+
+  /// Hides intermediate stages to prevent CDC violations.
+  ///
+  /// Accessing intermediate stages of a synchronizer can lead to metastability
+  /// issues. Use [syncData] to access the properly synchronized output.
+  @override
+  List<Logic> get stages => throw RohdHclException(
+      'Cannot access intermediate stages of Synchronizer - CDC hazard! '
+      'Use syncData for the synchronized output.');
 }
