@@ -68,7 +68,15 @@ class MemoryModel extends Memory {
       for (final wrPort in wrPorts) {
         if (!wrPort.en.previousValue!.isValid && !storage.isEmpty) {
           // storage doesnt have access to `en`, so check ourselves
-          storage.invalidWrite();
+          if (wrPort.addr.previousValue!.isValid) {
+            // we only need to clear that address
+            storage.setData(
+                wrPort.addr.previousValue!, LogicValue.ofInt(0, dataWidth));
+            storage.onInvalidWrite();
+          } else {
+            storage.invalidWrite();
+          }
+
           return;
         }
 

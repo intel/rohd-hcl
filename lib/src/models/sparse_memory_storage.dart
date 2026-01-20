@@ -10,6 +10,7 @@ import 'package:collection/collection.dart';
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/src/exceptions.dart';
 import 'package:rohd_hcl/src/utils.dart';
+import 'package:rohd_vf/rohd_vf.dart';
 
 /// A storage for memory models.
 abstract class MemoryStorage {
@@ -28,8 +29,13 @@ abstract class MemoryStorage {
 
   /// Default behavior for [onInvalidWrite].
   static void _defaultOnInvalidWrite() {
-    // ignore: avoid_print
-    print('WARNING: Memory was cleared by invalid write!');
+    if (Test.instance != null) {
+      Test.instance?.logger
+          .warning('WARNING: Memory was cleared by invalid write!');
+    } else {
+      // ignore: avoid_print
+      print('WARNING: Memory was cleared by invalid write!');
+    }
   }
 
   /// A function called if a read is made to an address that has no data.
