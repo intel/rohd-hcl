@@ -35,31 +35,38 @@ class FloatingPoint extends LogicStructure {
 
   /// [FloatingPoint] constructor for a variable size binary
   /// floating point number.
-  FloatingPoint(
-      {required int exponentWidth,
-      required int mantissaWidth,
-      bool explicitJBit = false,
-      bool subNormalAsZero = false,
-      String? name})
-      : this._(
-            Logic(name: 'sign', naming: Naming.mergeable),
-            Logic(
-                width: exponentWidth,
-                name: 'exponent',
-                naming: Naming.mergeable),
-            Logic(
-                width: mantissaWidth,
-                name: 'mantissa',
-                naming: Naming.mergeable),
-            explicitJBit,
-            subNormalAsZero,
-            name: name);
+  FloatingPoint({
+    required int exponentWidth,
+    required int mantissaWidth,
+    bool explicitJBit = false,
+    bool subNormalAsZero = false,
+    String? name,
+  }) : this._(
+          Logic(name: 'sign', naming: Naming.mergeable),
+          Logic(
+            width: exponentWidth,
+            name: 'exponent',
+            naming: Naming.mergeable,
+          ),
+          Logic(
+            width: mantissaWidth,
+            name: 'mantissa',
+            naming: Naming.mergeable,
+          ),
+          explicitJBit,
+          subNormalAsZero,
+          name: name,
+        );
 
   /// [FloatingPoint] internal constructor.
-  FloatingPoint._(this.sign, this.exponent, this.mantissa, this.explicitJBit,
-      this.subNormalAsZero,
-      {super.name})
-      : super([mantissa, exponent, sign]);
+  FloatingPoint._(
+    this.sign,
+    this.exponent,
+    this.mantissa,
+    this.explicitJBit,
+    this.subNormalAsZero, {
+    super.name,
+  }) : super([mantissa, exponent, sign]);
 
   @mustBeOverridden
   @override
@@ -75,10 +82,11 @@ class FloatingPoint extends LogicStructure {
   /// [FloatingPoint] type.
   @mustBeOverridden
   FloatingPointValuePopulator valuePopulator() => FloatingPointValue.populator(
-      exponentWidth: exponent.width,
-      mantissaWidth: mantissa.width,
-      explicitJBit: explicitJBit,
-      subNormalAsZero: subNormalAsZero);
+        exponentWidth: exponent.width,
+        mantissaWidth: mantissa.width,
+        explicitJBit: explicitJBit,
+        subNormalAsZero: subNormalAsZero,
+      );
 
   /// Return `true` if the J-bit is explicitly represented in the mantissa.
   final bool explicitJBit;
@@ -91,14 +99,18 @@ class FloatingPoint extends LogicStructure {
   FloatingPoint resolveSubNormalAsZero() {
     if (subNormalAsZero) {
       return clone()
-        ..gets(mux(
+        ..gets(
+          mux(
             isNormal,
             this,
             FloatingPoint.zero(
-                exponentWidth: exponent.width,
-                mantissaWidth: mantissa.width,
-                explicitJBit: explicitJBit,
-                subNormalAsZero: subNormalAsZero)));
+              exponentWidth: exponent.width,
+              mantissaWidth: mantissa.width,
+              explicitJBit: explicitJBit,
+              subNormalAsZero: subNormalAsZero,
+            ),
+          ),
+        );
     } else {
       return this;
     }
@@ -122,10 +134,7 @@ class FloatingPoint extends LogicStructure {
   /// by having its exponent field set to the NaN value (typically all
   /// ones) and a non-zero mantissa.
   late final isNaN = exponent.eq(valuePopulator().nan.exponent) &
-      mantissa.or().named(
-            _nameJoin('isNaN', name),
-            naming: Naming.mergeable,
-          );
+      mantissa.or().named(_nameJoin('isNaN', name), naming: Naming.mergeable);
 
   /// Return a [Logic] `1` if this [FloatingPoint] is an infinity
   /// by having its exponent field set to the NaN value (typically all
@@ -150,29 +159,38 @@ class FloatingPoint extends LogicStructure {
       .named(_nameJoin('isAZero', name), naming: Naming.mergeable);
 
   /// Return the zero exponent representation for this type of [FloatingPoint].
-  late final zeroExponent = Const(LogicValue.zero, width: exponent.width)
-      .named(_nameJoin('zeroExponent', name), naming: Naming.mergeable);
+  late final zeroExponent = Const(
+    LogicValue.zero,
+    width: exponent.width,
+  ).named(_nameJoin('zeroExponent', name), naming: Naming.mergeable);
 
   /// Return the one exponent representation for this type of [FloatingPoint].
-  late final oneExponent = Const(LogicValue.one, width: exponent.width)
-      .named(_nameJoin('oneExponent', name), naming: Naming.mergeable);
+  late final oneExponent = Const(
+    LogicValue.one,
+    width: exponent.width,
+  ).named(_nameJoin('oneExponent', name), naming: Naming.mergeable);
 
   /// Return the exponent [Logic] representing the [bias] of this
   /// [FloatingPoint] signal, the offset of the exponent, also representing the
   /// zero exponent `2^0 = 1`.
-  late final bias = Const((1 << exponent.width - 1) - 1, width: exponent.width)
-      .named(_nameJoin('bias', name), naming: Naming.mergeable);
+  late final bias = Const(
+    (1 << exponent.width - 1) - 1,
+    width: exponent.width,
+  ).named(_nameJoin('bias', name), naming: Naming.mergeable);
 
   /// Construct a [FloatingPoint] that represents infinity for this FP type.
   FloatingPoint inf({Logic? sign, bool negative = false}) => FloatingPoint.inf(
-      exponentWidth: exponent.width,
-      mantissaWidth: mantissa.width,
-      sign: sign,
-      negative: negative);
+        exponentWidth: exponent.width,
+        mantissaWidth: mantissa.width,
+        sign: sign,
+        negative: negative,
+      );
 
   /// Construct a [FloatingPoint] that represents NaN for this FP type.
   late final nan = FloatingPoint.nan(
-      exponentWidth: exponent.width, mantissaWidth: mantissa.width);
+    exponentWidth: exponent.width,
+    mantissaWidth: mantissa.width,
+  );
 
   @override
   void put(dynamic val, {bool fill = false}) {
@@ -186,7 +204,8 @@ class FloatingPoint extends LogicStructure {
       }
       if (val.subNormalAsZero != subNormalAsZero) {
         throw RohdHclException(
-            'FloatingPoint subnormal as zero does not match');
+          'FloatingPoint subnormal as zero does not match',
+        );
       }
       put(val.value);
     } else {
@@ -194,45 +213,71 @@ class FloatingPoint extends LogicStructure {
     }
   }
 
+  FloatingPoint negated() => FloatingPoint._(
+        ~sign,
+        exponent.clone()..gets(exponent),
+        mantissa.clone()..gets(mantissa),
+        explicitJBit,
+        subNormalAsZero,
+      );
+
   /// Construct a [FloatingPoint] that represents infinity.
-  factory FloatingPoint.inf(
-      {required int exponentWidth,
-      required int mantissaWidth,
-      Logic? sign,
-      bool negative = false,
-      bool explicitJBit = false,
-      bool subNormalAsZero = false}) {
+  factory FloatingPoint.inf({
+    required int exponentWidth,
+    required int mantissaWidth,
+    Logic? sign,
+    bool negative = false,
+    bool explicitJBit = false,
+    bool subNormalAsZero = false,
+  }) {
     final signLogic = Logic()..gets(sign ?? Const(negative));
     final exponent = Const(1, width: exponentWidth, fill: true);
     final mantissa = Const(0, width: mantissaWidth, fill: true);
     return FloatingPoint._(
-        signLogic, exponent, mantissa, explicitJBit, subNormalAsZero);
+      signLogic,
+      exponent,
+      mantissa,
+      explicitJBit,
+      subNormalAsZero,
+    );
   }
 
   /// Construct a [FloatingPoint] that represents NaN.
-  factory FloatingPoint.nan(
-      {required int exponentWidth,
-      required int mantissaWidth,
-      bool explicitJBit = false,
-      bool subNormalAsZero = false}) {
+  factory FloatingPoint.nan({
+    required int exponentWidth,
+    required int mantissaWidth,
+    bool explicitJBit = false,
+    bool subNormalAsZero = false,
+  }) {
     final signLogic = Const(0);
     final exponent = Const(1, width: exponentWidth, fill: true);
     final mantissa = Const(1, width: mantissaWidth);
     return FloatingPoint._(
-        signLogic, exponent, mantissa, explicitJBit, subNormalAsZero);
+      signLogic,
+      exponent,
+      mantissa,
+      explicitJBit,
+      subNormalAsZero,
+    );
   }
 
   /// Construct a [FloatingPoint] that represents zero.
-  factory FloatingPoint.zero(
-      {required int exponentWidth,
-      required int mantissaWidth,
-      bool explicitJBit = false,
-      bool subNormalAsZero = false}) {
+  factory FloatingPoint.zero({
+    required int exponentWidth,
+    required int mantissaWidth,
+    bool explicitJBit = false,
+    bool subNormalAsZero = false,
+  }) {
     final signLogic = Const(0);
     final exponent = Const(0, width: exponentWidth, fill: true);
     final mantissa = Const(0, width: mantissaWidth);
     return FloatingPoint._(
-        signLogic, exponent, mantissa, explicitJBit, subNormalAsZero);
+      signLogic,
+      exponent,
+      mantissa,
+      explicitJBit,
+      subNormalAsZero,
+    );
   }
 
   /// Negate the [FloatingPoint].
