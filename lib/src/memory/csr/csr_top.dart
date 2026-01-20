@@ -18,10 +18,6 @@ import 'package:rohd_hcl/src/memory/csr/csr_container.dart';
 /// MSBs of the incoming address and registers within the given block
 /// are addressable using the remaining LSBs of the incoming address.
 class CsrTop extends CsrContainer {
-  /// What increment value to use when deriving logical addresses
-  /// for registers that are wider than the frontdoor data width.
-  final int logicalRegisterIncrement;
-
   /// Configuration for the CSR Top module.
   @override
   CsrTopConfig get config => super.config as CsrTopConfig;
@@ -91,7 +87,7 @@ class CsrTop extends CsrContainer {
       required super.frontWrite,
       required super.frontRead,
       super.allowLargerRegisters,
-      this.logicalRegisterIncrement = 1,
+      super.logicalRegisterIncrement,
       super.reserveName,
       super.reserveDefinitionName,
       String? definitionName})
@@ -125,7 +121,8 @@ class CsrTop extends CsrContainer {
           reset: reset,
           frontWrite: blockFdWrite,
           frontRead: blockFdRead,
-          allowLargerRegisters: allowLargerRegisters));
+          allowLargerRegisters: allowLargerRegisters,
+          logicalRegisterIncrement: logicalRegisterIncrement));
     }
 
     for (var i = 0; i < blocks.length; i++) {
