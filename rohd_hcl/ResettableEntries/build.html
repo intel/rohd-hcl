@@ -67,23 +67,23 @@
     </section>
     
 <section class="desc markdown">
-  <p>Builds the <a href="https://pub.dev/documentation/rohd/0.6.7/rohd/Module-class.html">Module</a> and all <a href="https://pub.dev/documentation/rohd/0.6.7/rohd/Module/subModules.html">subModules</a> within it.</p>
-<p>It is recommended not to override <a href="https://pub.dev/documentation/rohd/0.6.7/rohd/Module/build.html">build</a> nor put logic in <a href="https://pub.dev/documentation/rohd/0.6.7/rohd/Module/build.html">build</a>
+  <p>Builds the <a href="https://pub.dev/documentation/rohd/0.6.8/rohd/Module-class.html">Module</a> and all <a href="https://pub.dev/documentation/rohd/0.6.8/rohd/Module/subModules.html">subModules</a> within it.</p>
+<p>It is recommended not to override <a href="https://pub.dev/documentation/rohd/0.6.8/rohd/Module/build.html">build</a> nor put logic in <a href="https://pub.dev/documentation/rohd/0.6.8/rohd/Module/build.html">build</a>
 unless you have good reason to do so.  Aim to build up relevant logic in
 the constructor.</p>
-<p>All logic within this <a href="https://pub.dev/documentation/rohd/0.6.7/rohd/Module-class.html">Module</a> <em>must</em> be defined <em>before</em> the call to
+<p>All logic within this <a href="https://pub.dev/documentation/rohd/0.6.8/rohd/Module-class.html">Module</a> <em>must</em> be defined <em>before</em> the call to
 <code>super.build()</code>.  When overriding this method, you should call
 <code>super.build()</code> as the last thing that you do, and you must always call
 it.</p>
-<p>This method traverses connectivity inwards from this <a href="https://pub.dev/documentation/rohd/0.6.7/rohd/Module-class.html">Module</a>'s <a href="https://pub.dev/documentation/rohd/0.6.7/rohd/Module/inputs.html">inputs</a>
-and <a href="https://pub.dev/documentation/rohd/0.6.7/rohd/Module/outputs.html">outputs</a> to determine which <a href="https://pub.dev/documentation/rohd/0.6.7/rohd/Module-class.html">Module</a>s are contained within it.
+<p>This method traverses connectivity inwards from this <a href="https://pub.dev/documentation/rohd/0.6.8/rohd/Module-class.html">Module</a>'s <a href="https://pub.dev/documentation/rohd/0.6.8/rohd/Module/inputs.html">inputs</a>
+and <a href="https://pub.dev/documentation/rohd/0.6.8/rohd/Module/outputs.html">outputs</a> to determine which <a href="https://pub.dev/documentation/rohd/0.6.8/rohd/Module-class.html">Module</a>s are contained within it.
 During this process, it will set a variety of additional information
 within the hierarchy.</p>
 <p>This function can be used to consume real wallclock time for things like
 starting up interactions with independent processes (e.g. cosimulation).</p>
-<p>This function should only be called one time per <a href="https://pub.dev/documentation/rohd/0.6.7/rohd/Module-class.html">Module</a>.</p>
-<p>The hierarchy is built "bottom-up", so leaf-level <a href="https://pub.dev/documentation/rohd/0.6.7/rohd/Module-class.html">Module</a>s are built
-before the <a href="https://pub.dev/documentation/rohd/0.6.7/rohd/Module-class.html">Module</a>s which contain them.</p>
+<p>This function should only be called one time per <a href="https://pub.dev/documentation/rohd/0.6.8/rohd/Module-class.html">Module</a>.</p>
+<p>The hierarchy is built "bottom-up", so leaf-level <a href="https://pub.dev/documentation/rohd/0.6.8/rohd/Module-class.html">Module</a>s are built
+before the <a href="https://pub.dev/documentation/rohd/0.6.8/rohd/Module-class.html">Module</a>s which contain them.</p>
 </section>
 
 

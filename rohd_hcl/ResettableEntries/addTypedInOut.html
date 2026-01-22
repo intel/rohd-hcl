@@ -64,21 +64,21 @@
     </section>
     
 <section class="desc markdown">
-  <p>Registers a signal as an <a href="https://pub.dev/documentation/rohd/0.6.7/rohd/Module/inOut.html">inOut</a> to this <a href="https://pub.dev/documentation/rohd/0.6.7/rohd/Module-class.html">Module</a> and returns an <a href="https://pub.dev/documentation/rohd/0.6.7/rohd/Module/inOut.html">inOut</a>
-port that can be consumed inside this <a href="https://pub.dev/documentation/rohd/0.6.7/rohd/Module-class.html">Module</a>. The type of the port will
-be <code>LogicType</code> and constructed via <a href="https://pub.dev/documentation/rohd/0.6.7/rohd/Logic/clone.html">Logic.clone</a>, so it is required that
+  <p>Registers a signal as an <a href="https://pub.dev/documentation/rohd/0.6.8/rohd/Module/inOut.html">inOut</a> to this <a href="https://pub.dev/documentation/rohd/0.6.8/rohd/Module-class.html">Module</a> and returns an <a href="https://pub.dev/documentation/rohd/0.6.8/rohd/Module/inOut.html">inOut</a>
+port that can be consumed inside this <a href="https://pub.dev/documentation/rohd/0.6.8/rohd/Module-class.html">Module</a>. The type of the port will
+be <code>LogicType</code> and constructed via <a href="https://pub.dev/documentation/rohd/0.6.8/rohd/Logic/clone.html">Logic.clone</a>, so it is required that
 the <code>source</code> implements clone functionality that matches the type and
-properly updates the <a href="https://pub.dev/documentation/rohd/0.6.7/rohd/Logic/name.html">Logic.name</a> as well.</p>
-<p>This is a good way to construct <a href="https://pub.dev/documentation/rohd/0.6.7/rohd/Module/inOut.html">inOut</a>s that have matching widths or
-dimensions to their <code>source</code> signal, or to make a <a href="https://pub.dev/documentation/rohd/0.6.7/rohd/LogicStructure-class.html">LogicStructure</a> an
-<a href="https://pub.dev/documentation/rohd/0.6.7/rohd/Module/inOut.html">inOut</a>. You can use this on a <a href="https://pub.dev/documentation/rohd/0.6.7/rohd/Logic-class.html">Logic</a>, <a href="https://pub.dev/documentation/rohd/0.6.7/rohd/LogicArray-class.html">LogicArray</a>, or <a href="https://pub.dev/documentation/rohd/0.6.7/rohd/LogicStructure-class.html">LogicStructure</a>.</p>
-<p>The <code>source</code> must be or exclusively contain <a href="https://pub.dev/documentation/rohd/0.6.7/rohd/LogicNet-class.html">LogicNet</a>s. If <code>source</code> is a
-<a href="https://pub.dev/documentation/rohd/0.6.7/rohd/Const-class.html">Const</a> (or is a <a href="https://pub.dev/documentation/rohd/0.6.7/rohd/LogicStructure-class.html">LogicStructure</a> that includes a <a href="https://pub.dev/documentation/rohd/0.6.7/rohd/Const-class.html">Const</a>), the
-<code>LogicType</code> must be set to <a href="https://pub.dev/documentation/rohd/0.6.7/rohd/Logic-class.html">Logic</a>, since <a href="https://pub.dev/documentation/rohd/0.6.7/rohd/Const-class.html">Const</a>s cannot be driven and
+properly updates the <a href="https://pub.dev/documentation/rohd/0.6.8/rohd/Logic/name.html">Logic.name</a> as well.</p>
+<p>This is a good way to construct <a href="https://pub.dev/documentation/rohd/0.6.8/rohd/Module/inOut.html">inOut</a>s that have matching widths or
+dimensions to their <code>source</code> signal, or to make a <a href="https://pub.dev/documentation/rohd/0.6.8/rohd/LogicStructure-class.html">LogicStructure</a> an
+<a href="https://pub.dev/documentation/rohd/0.6.8/rohd/Module/inOut.html">inOut</a>. You can use this on a <a href="https://pub.dev/documentation/rohd/0.6.8/rohd/Logic-class.html">Logic</a>, <a href="https://pub.dev/documentation/rohd/0.6.8/rohd/LogicArray-class.html">LogicArray</a>, or <a href="https://pub.dev/documentation/rohd/0.6.8/rohd/LogicStructure-class.html">LogicStructure</a>.</p>
+<p>The <code>source</code> must be or exclusively contain <a href="https://pub.dev/documentation/rohd/0.6.8/rohd/LogicNet-class.html">LogicNet</a>s. If <code>source</code> is a
+<a href="https://pub.dev/documentation/rohd/0.6.8/rohd/Const-class.html">Const</a> (or is a <a href="https://pub.dev/documentation/rohd/0.6.8/rohd/LogicStructure-class.html">LogicStructure</a> that includes a <a href="https://pub.dev/documentation/rohd/0.6.8/rohd/Const-class.html">Const</a>), the
+<code>LogicType</code> must be set to <a href="https://pub.dev/documentation/rohd/0.6.8/rohd/Logic-class.html">Logic</a>, since <a href="https://pub.dev/documentation/rohd/0.6.8/rohd/Const-class.html">Const</a>s cannot be driven and
 are not suitable as ports.</p>
-<p>The return value is the same as what is returned by <a href="https://pub.dev/documentation/rohd/0.6.7/rohd/Module/inOut.html">inOut</a> and should
-only be used within this <a href="https://pub.dev/documentation/rohd/0.6.7/rohd/Module-class.html">Module</a>. The provided <code>source</code> is accessible via
-<a href="https://pub.dev/documentation/rohd/0.6.7/rohd/Module/inOutSource.html">inOutSource</a>.</p>
+<p>The return value is the same as what is returned by <a href="https://pub.dev/documentation/rohd/0.6.8/rohd/Module/inOut.html">inOut</a> and should
+only be used within this <a href="https://pub.dev/documentation/rohd/0.6.8/rohd/Module-class.html">Module</a>. The provided <code>source</code> is accessible via
+<a href="https://pub.dev/documentation/rohd/0.6.8/rohd/Module/inOutSource.html">inOutSource</a>.</p>
 </section>
 
 

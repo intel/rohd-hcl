@@ -432,6 +432,14 @@
   An abstract description of an arbiter module.
 </dd>
 
+          <dt id="AsyncFifo">
+  <span class="name "><a href="../rohd_hcl/AsyncFifo-class.html">AsyncFifo</a></span> 
+
+</dt>
+<dd>
+  An asynchronous FIFO for safely passing data between two clock domains.
+</dd>
+
           <dt id="Axi4ArChannelInterface">
   <span class="name "><a href="../rohd_hcl/Axi4ArChannelInterface-class.html">Axi4ArChannelInterface</a></span> 
 
@@ -2019,7 +2027,7 @@ statically enable or disable features in a component.
 
 </dt>
 <dd>
-  An <a href="https://pub.dev/documentation/rohd/0.6.7/rohd/Interface-class.html">Interface</a> for controlling <a href="../rohd_hcl/ClockGate-class.html">ClockGate</a>s.
+  An <a href="https://pub.dev/documentation/rohd/0.6.8/rohd/Interface-class.html">Interface</a> for controlling <a href="../rohd_hcl/ClockGate-class.html">ClockGate</a>s.
 </dd>
 
           <dt id="ColumnCompressor">
@@ -2123,7 +2131,7 @@ statically enable or disable features in a component.
 
 </dt>
 <dd>
-  An object that enables a consisten API for configuring a <a href="https://pub.dev/documentation/rohd/0.6.7/rohd/Module-class.html">Module</a> and
+  An object that enables a consisten API for configuring a <a href="https://pub.dev/documentation/rohd/0.6.8/rohd/Module-class.html">Module</a> and
 performing common tasks with it.
 </dd>
 
@@ -2157,7 +2165,7 @@ configuration for widths, saturation behavior, and restarting.
 
 </dt>
 <dd>
-  <a href="https://pub.dev/documentation/rohd/0.6.7/rohd/Logic-class.html">Logic</a> representation of a Control and Status Register (CSR).
+  <a href="https://pub.dev/documentation/rohd/0.6.8/rohd/Logic-class.html">Logic</a> representation of a Control and Status Register (CSR).
 </dd>
 
           <dt id="CsrBackdoorInterface">
@@ -2173,7 +2181,7 @@ configuration for widths, saturation behavior, and restarting.
 
 </dt>
 <dd>
-  <a href="https://pub.dev/documentation/rohd/0.6.7/rohd/Logic-class.html">Logic</a> representation of a block of registers.
+  <a href="https://pub.dev/documentation/rohd/0.6.8/rohd/Logic-class.html">Logic</a> representation of a block of registers.
 </dd>
 
           <dt id="CsrBlockConfig">
@@ -2308,7 +2316,7 @@ correcting data at the receiving end.
 </dd>
 
           <dt id="Fifo">
-  <span class="name "><a href="../rohd_hcl/Fifo-class.html">Fifo</a><span class="signature">&lt;<wbr><span class="type-parameter">LogicType extends <a href="https://pub.dev/documentation/rohd/0.6.7/rohd/Logic-class.html">Logic</a></span>&gt;</span></span> 
+  <span class="name "><a href="../rohd_hcl/Fifo-class.html">Fifo</a><span class="signature">&lt;<wbr><span class="type-parameter">LogicType extends <a href="https://pub.dev/documentation/rohd/0.6.8/rohd/Logic-class.html">Logic</a></span>&gt;</span></span> 
 
 </dt>
 <dd>
@@ -2450,7 +2458,7 @@ FP8 input must follow E4M3 or E5M2 as described in
 (FP8 formats for deep learning): (<a href="https://arxiv.org/pdf/2209.05433">https://arxiv.org/pdf/2209.05433</a>).
 This component offers re-using the same hardware for both FP8 formats.
 Infinities and NaN's are not supported.
-The output is of type <a href="https://pub.dev/documentation/rohd/0.6.7/rohd/Logic-class.html">Logic</a> and in two's complement.
+The output is of type <a href="https://pub.dev/documentation/rohd/0.6.8/rohd/Logic-class.html">Logic</a> and in two's complement.
 It can be cast to a <a href="../rohd_hcl/FixedPoint-class.html">FixedPoint</a> by the consumer based on the mode.
 if <code>mode</code> is <code>true</code>:
   Input is treated as E4M3 and converted to Q9.9
@@ -3424,10 +3432,10 @@ ones-complement values, producing a magnitude and sign.
 </dt>
 <dd>
   <a href="../rohd_hcl/ParallelPrefix-class.html">ParallelPrefix</a> is the core parallel prefix tree structure node
-The output is a <a href="https://api.dart.dev/stable/3.10.7/dart-core/List-class.html">List</a> of multi-bit <a href="https://pub.dev/documentation/rohd/0.6.7/rohd/Logic-class.html">Logic</a> vectors (typically 2-bit) that
+The output is a <a href="https://api.dart.dev/stable/3.10.7/dart-core/List-class.html">List</a> of multi-bit <a href="https://pub.dev/documentation/rohd/0.6.8/rohd/Logic-class.html">Logic</a> vectors (typically 2-bit) that
 represent things like carry-save or generate-propagate signaling in adder
 networks.  Each node in a parallel prefix tree transforms a row of inputs
-to an equal length row of outputs of these multi-bit <a href="https://pub.dev/documentation/rohd/0.6.7/rohd/Logic-class.html">Logic</a> values.
+to an equal length row of outputs of these multi-bit <a href="https://pub.dev/documentation/rohd/0.6.8/rohd/Logic-class.html">Logic</a> values.
 </dd>
 
           <dt id="ParallelPrefixAdder">
@@ -3535,7 +3543,7 @@ for manipulation by <a href="../rohd_hcl/PartialProductGeneratorBase-class.html"
 </dt>
 <dd>
   A <a href="../rohd_hcl/PartialProductGeneratorBase-class.html">PartialProductGeneratorBase</a> class that generates a set of partial
- products. Essentially a set of shifted rows of <a href="https://pub.dev/documentation/rohd/0.6.7/rohd/Logic-class.html">Logic</a> addends generated by
+ products. Essentially a set of shifted rows of <a href="https://pub.dev/documentation/rohd/0.6.8/rohd/Logic-class.html">Logic</a> addends generated by
  Booth recoding and manipulated by sign extension, before being compressed.
 </dd>
 
@@ -3786,7 +3794,7 @@ adder sequentially adds corresponding bits of two binary numbers.
 
 </dt>
 <dd>
-  Rotates a <a href="https://pub.dev/documentation/rohd/0.6.7/rohd/Logic-class.html">Logic</a> to the left.
+  Rotates a <a href="https://pub.dev/documentation/rohd/0.6.8/rohd/Logic-class.html">Logic</a> to the left.
 </dd>
 
           <dt id="RotateLeftFixed">
@@ -3802,7 +3810,7 @@ adder sequentially adds corresponding bits of two binary numbers.
 
 </dt>
 <dd>
-  Rotates a <a href="https://pub.dev/documentation/rohd/0.6.7/rohd/Logic-class.html">Logic</a> to the right.
+  Rotates a <a href="https://pub.dev/documentation/rohd/0.6.8/rohd/Logic-class.html">Logic</a> to the right.
 </dd>
 
           <dt id="RotateRightFixed">
@@ -3884,7 +3892,7 @@ reset.
 
 </dt>
 <dd>
-  Store a Signbit as <a href="https://pub.dev/documentation/rohd/0.6.7/rohd/Logic-class.html">Logic</a>
+  Store a Signbit as <a href="https://pub.dev/documentation/rohd/0.6.8/rohd/Logic-class.html">Logic</a>
 </dd>
 
           <dt id="SignedShifter">
@@ -4118,7 +4126,7 @@ widths and saturation behavior.
 
 </dt>
 <dd>
-  A <a href="https://pub.dev/documentation/rohd/0.6.7/rohd/PairInterface-class.html">PairInterface</a> representing an amount and behavior for inclusion in a
+  A <a href="https://pub.dev/documentation/rohd/0.6.8/rohd/PairInterface-class.html">PairInterface</a> representing an amount and behavior for inclusion in a
 sum or count.
 </dd>
 
@@ -4136,6 +4144,14 @@ sum or count.
 </dt>
 <dd>
   A configurator for a module like <code>SummationBase</code>.
+</dd>
+
+          <dt id="Synchronizer">
+  <span class="name "><a href="../rohd_hcl/Synchronizer-class.html">Synchronizer</a></span> 
+
+</dt>
+<dd>
+  A multi-flop synchronizer for safely crossing clock domains.
 </dd>
 
           <dt id="TextConfigKnob">
@@ -4547,7 +4563,7 @@ reset capabilities.
       <dl>
           <dt id="LogicList">
   <span class="name "><a href="../rohd_hcl/LogicList.html">LogicList</a></span>
-  on <a href="https://api.dart.dev/stable/3.10.7/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://pub.dev/documentation/rohd/0.6.7/rohd/Logic-class.html">Logic</a></span>&gt;</span>
+  on <a href="https://api.dart.dev/stable/3.10.7/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://pub.dev/documentation/rohd/0.6.8/rohd/Logic-class.html">Logic</a></span>&gt;</span>
   
 
 </dt>
@@ -4557,7 +4573,7 @@ reset capabilities.
 
           <dt id="LogicValueBitString">
   <span class="name "><a href="../rohd_hcl/LogicValueBitString.html">LogicValueBitString</a></span>
-  on <a href="https://pub.dev/documentation/rohd/0.6.7/rohd/LogicValue-class.html">LogicValue</a>
+  on <a href="https://pub.dev/documentation/rohd/0.6.8/rohd/LogicValue-class.html">LogicValue</a>
   
 
 </dt>
@@ -4567,7 +4583,7 @@ reset capabilities.
 
           <dt id="LogicValueMajority">
   <span class="name "><a href="../rohd_hcl/LogicValueMajority.html">LogicValueMajority</a></span>
-  on <a href="https://pub.dev/documentation/rohd/0.6.7/rohd/LogicValue-class.html">LogicValue</a>
+  on <a href="https://pub.dev/documentation/rohd/0.6.8/rohd/LogicValue-class.html">LogicValue</a>
   
 
 </dt>
@@ -4577,22 +4593,22 @@ reset capabilities.
 
           <dt id="RotateLogic">
   <span class="name "><a href="../rohd_hcl/RotateLogic.html">RotateLogic</a></span>
-  on <a href="https://pub.dev/documentation/rohd/0.6.7/rohd/Logic-class.html">Logic</a>
+  on <a href="https://pub.dev/documentation/rohd/0.6.8/rohd/Logic-class.html">Logic</a>
   
 
 </dt>
 <dd>
-  Adds rotation functions to <a href="https://pub.dev/documentation/rohd/0.6.7/rohd/Logic-class.html">Logic</a>.
+  Adds rotation functions to <a href="https://pub.dev/documentation/rohd/0.6.8/rohd/Logic-class.html">Logic</a>.
 </dd>
 
           <dt id="RotateLogicValue">
   <span class="name "><a href="../rohd_hcl/RotateLogicValue.html">RotateLogicValue</a></span>
-  on <a href="https://pub.dev/documentation/rohd/0.6.7/rohd/LogicValue-class.html">LogicValue</a>
+  on <a href="https://pub.dev/documentation/rohd/0.6.8/rohd/LogicValue-class.html">LogicValue</a>
   
 
 </dt>
 <dd>
-  Adds rotation functions to <a href="https://pub.dev/documentation/rohd/0.6.7/rohd/LogicValue-class.html">LogicValue</a>.
+  Adds rotation functions to <a href="https://pub.dev/documentation/rohd/0.6.8/rohd/LogicValue-class.html">LogicValue</a>.
 </dd>
 
           <dt id="SignedBigInt">
@@ -4614,8 +4630,8 @@ reset capabilities.
       <h2>Functions</h2>
       <dl class="callables">
           <dt id="condFlop" class="callable">
-  <span class="name"><a href="../rohd_hcl/condFlop.html">condFlop</a></span><span class="signature">(<wbr><span class="parameter" id="condFlop-param-clk"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.7/rohd/Logic-class.html">Logic</a>?</span> <span class="parameter-name">clk</span>, </span><span class="parameter" id="condFlop-param-d"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.7/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">d</span>, {</span><span class="parameter" id="condFlop-param-en"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.7/rohd/Logic-class.html">Logic</a>?</span> <span class="parameter-name">en</span>, </span><span class="parameter" id="condFlop-param-reset"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.7/rohd/Logic-class.html">Logic</a>?</span> <span class="parameter-name">reset</span>, </span><span class="parameter" id="condFlop-param-resetValue"><span class="type-annotation">dynamic</span> <span class="parameter-name">resetValue</span>, </span><span class="parameter" id="condFlop-param-asyncReset"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.10.7/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">asyncReset</span> = <span class="default-value">false</span></span>})
-    <span class="returntype parameter">&#8594; <a href="https://pub.dev/documentation/rohd/0.6.7/rohd/Logic-class.html">Logic</a></span>
+  <span class="name"><a href="../rohd_hcl/condFlop.html">condFlop</a></span><span class="signature">(<wbr><span class="parameter" id="condFlop-param-clk"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.8/rohd/Logic-class.html">Logic</a>?</span> <span class="parameter-name">clk</span>, </span><span class="parameter" id="condFlop-param-d"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.8/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">d</span>, {</span><span class="parameter" id="condFlop-param-en"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.8/rohd/Logic-class.html">Logic</a>?</span> <span class="parameter-name">en</span>, </span><span class="parameter" id="condFlop-param-reset"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.8/rohd/Logic-class.html">Logic</a>?</span> <span class="parameter-name">reset</span>, </span><span class="parameter" id="condFlop-param-resetValue"><span class="type-annotation">dynamic</span> <span class="parameter-name">resetValue</span>, </span><span class="parameter" id="condFlop-param-asyncReset"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.10.7/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">asyncReset</span> = <span class="default-value">false</span></span>})
+    <span class="returntype parameter">&#8594; <a href="https://pub.dev/documentation/rohd/0.6.8/rohd/Logic-class.html">Logic</a></span>
   </span>
   
 
@@ -4679,14 +4695,14 @@ reset capabilities.
 </dd>
 
           <dt id="swap" class="callable">
-  <span class="name"><a href="../rohd_hcl/swap.html">swap</a></span><span class="signature">&lt;<wbr><span class="type-parameter">LogicType extends <a href="https://pub.dev/documentation/rohd/0.6.7/rohd/Logic-class.html">Logic</a></span>&gt;</span><span class="signature">(<wbr><span class="parameter" id="swap-param-doSwap"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.7/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">doSwap</span>, </span><span class="parameter" id="swap-param-toSwap"><span class="type-annotation">(<span class="field"><span class="type-annotation">LogicType</span>, </span><span class="field"><span class="type-annotation">LogicType</span></span>)</span> <span class="parameter-name">toSwap</span></span>)
+  <span class="name"><a href="../rohd_hcl/swap.html">swap</a></span><span class="signature">&lt;<wbr><span class="type-parameter">LogicType extends <a href="https://pub.dev/documentation/rohd/0.6.8/rohd/Logic-class.html">Logic</a></span>&gt;</span><span class="signature">(<wbr><span class="parameter" id="swap-param-doSwap"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.8/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">doSwap</span>, </span><span class="parameter" id="swap-param-toSwap"><span class="type-annotation">(<span class="field"><span class="type-annotation">LogicType</span>, </span><span class="field"><span class="type-annotation">LogicType</span></span>)</span> <span class="parameter-name">toSwap</span></span>)
     <span class="returntype parameter">&#8594; (<span class="field"><span class="type-annotation">LogicType</span>, </span><span class="field"><span class="type-annotation">LogicType</span></span>)</span>
   </span>
   
 
 </dt>
 <dd>
-  Swap two <a href="https://pub.dev/documentation/rohd/0.6.7/rohd/Logic-class.html">Logic</a> structures based on a conditional <code>doSwap</code>.
+  Swap two <a href="https://pub.dev/documentation/rohd/0.6.8/rohd/Logic-class.html">Logic</a> structures based on a conditional <code>doSwap</code>.
   
 
 </dd>
@@ -4715,7 +4731,7 @@ reset capabilities.
           
   <dt id="PPGFunction" class="callable">
     <span class="name"><a href="../rohd_hcl/PPGFunction.html">PPGFunction</a></span><span class="signature">
-      <span class="returntype parameter">= <a href="../rohd_hcl/PartialProductGeneratorBase-class.html">PartialProductGeneratorBase</a> Function<span class="signature">(<span class="parameter" id="param-a"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.7/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">a</span>, </span><span class="parameter" id="param-b"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.7/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">b</span>, </span><span class="parameter" id="param-radixEncoder"><span class="type-annotation"><a href="../rohd_hcl/RadixEncoder-class.html">RadixEncoder</a></span> <span class="parameter-name">radixEncoder</span>, {</span><span class="parameter" id="param-selectSignedMultiplicand"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.7/rohd/Logic-class.html">Logic</a>?</span> <span class="parameter-name">selectSignedMultiplicand</span>, </span><span class="parameter" id="param-selectSignedMultiplier"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.7/rohd/Logic-class.html">Logic</a>?</span> <span class="parameter-name">selectSignedMultiplier</span>, </span><span class="parameter" id="param-signedMultiplicand"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.10.7/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">signedMultiplicand</span>, </span><span class="parameter" id="param-signedMultiplier"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.10.7/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">signedMultiplier</span></span>})</span></span>
+      <span class="returntype parameter">= <a href="../rohd_hcl/PartialProductGeneratorBase-class.html">PartialProductGeneratorBase</a> Function<span class="signature">(<span class="parameter" id="param-a"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.8/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">a</span>, </span><span class="parameter" id="param-b"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.8/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">b</span>, </span><span class="parameter" id="param-radixEncoder"><span class="type-annotation"><a href="../rohd_hcl/RadixEncoder-class.html">RadixEncoder</a></span> <span class="parameter-name">radixEncoder</span>, {</span><span class="parameter" id="param-selectSignedMultiplicand"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.8/rohd/Logic-class.html">Logic</a>?</span> <span class="parameter-name">selectSignedMultiplicand</span>, </span><span class="parameter" id="param-selectSignedMultiplier"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.8/rohd/Logic-class.html">Logic</a>?</span> <span class="parameter-name">selectSignedMultiplier</span>, </span><span class="parameter" id="param-signedMultiplicand"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.10.7/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">signedMultiplicand</span>, </span><span class="parameter" id="param-signedMultiplier"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.10.7/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">signedMultiplier</span></span>})</span></span>
     </span>
     
 

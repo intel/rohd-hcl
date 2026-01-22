@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="API docs for the AsyncFifo.new constructor from Class AsyncFifo from the rohd_hcl library, for the Dart programming language.">
+  <title>AsyncFifo.new constructor - AsyncFifo - rohd_hcl library - Dart API</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../../static-assets/github.css?v1">
+  <link rel="stylesheet" href="../../static-assets/styles.css?v1">
+  <link rel="icon" href="../../static-assets/favicon.png?v1">
+  
+</head>
+
+<body data-base-href="../../" data-using-base-href="false" class="light-theme">
+<div id="overlay-under-drawer"></div>
+<header id="title">
+  <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="../../index.html">rohd_hcl</a></li>
+    <li><a href="../../rohd_hcl/">rohd_hcl.dart</a></li>
+    <li><a href="../../rohd_hcl/AsyncFifo-class.html">AsyncFifo</a></li>
+    <li class="self-crumb">AsyncFifo.new constructor</li>
+  </ol>
+  <div class="self-name">AsyncFifo.new</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+  <button class="toggle" id="theme-button" title="Toggle between light and dark mode" aria-label="Light and dark mode toggle">
+    <span id="dark-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      dark_mode
+    </span>
+    <span id="light-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      light_mode
+    </span>
+  </button>
+</header>
+<main>
+  <div
+      id="dartdoc-main-content"
+      class="main-content"
+      data-above-sidebar="rohd_hcl&#47;AsyncFifo-class-sidebar.html"
+      data-below-sidebar="">
+      <div>
+<h1><span class="kind-constructor">AsyncFifo</span> constructor 
+</h1></div>
+
+    <section class="multi-line-signature">
+      
+      <span class="name ">AsyncFifo</span>(<wbr>{<ol class="parameter-list"> <li><span class="parameter" id="-param-writeClk"><span>required</span> <span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.8/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">writeClk</span>, </span></li>
+<li><span class="parameter" id="-param-readClk"><span>required</span> <span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.8/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">readClk</span>, </span></li>
+<li><span class="parameter" id="-param-writeReset"><span>required</span> <span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.8/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">writeReset</span>, </span></li>
+<li><span class="parameter" id="-param-readReset"><span>required</span> <span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.8/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">readReset</span>, </span></li>
+<li><span class="parameter" id="-param-writeEnable"><span>required</span> <span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.8/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">writeEnable</span>, </span></li>
+<li><span class="parameter" id="-param-writeData"><span>required</span> <span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.8/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">writeData</span>, </span></li>
+<li><span class="parameter" id="-param-readEnable"><span>required</span> <span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.8/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">readEnable</span>, </span></li>
+<li><span class="parameter" id="-param-depth"><span>required</span> <span class="type-annotation"><a href="https://api.dart.dev/stable/3.10.7/dart-core/int-class.html">int</a></span> <span class="parameter-name">depth</span>, </span></li>
+<li><span class="parameter" id="-param-syncStages"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.10.7/dart-core/int-class.html">int</a></span> <span class="parameter-name">syncStages</span> = <span class="default-value">2</span>, </span></li>
+<li><span class="parameter" id="-param-name"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.10.7/dart-core/String-class.html">String</a></span> <span class="parameter-name">name</span> = <span class="default-value">&#39;async_fifo&#39;</span>, </span></li>
+</ol>})
+    </section>
+    
+<section class="desc markdown">
+  <p>Constructs an <a href="../../rohd_hcl/AsyncFifo-class.html">AsyncFifo</a> with the specified parameters.</p>
+<ul>
+<li><code>writeClk</code>: Clock for the write domain.</li>
+<li><code>readClk</code>: Clock for the read domain.</li>
+<li><code>writeReset</code>: Reset signal for the write domain.</li>
+<li><code>readReset</code>: Reset signal for the read domain.</li>
+<li><code>writeEnable</code>: Write enable signal (active high).</li>
+<li><code>writeData</code>: Data to write into the FIFO.</li>
+<li><code>readEnable</code>: Read enable signal (active high).</li>
+<li><code>depth</code>: Number of entries in the FIFO (must be power of 2).</li>
+<li><code>syncStages</code>: Number of synchronizer stages (default: 2).</li>
+</ul>
+</section>
+
+
+    
+<section class="summary source-code" id="source">
+  <h2><span>Implementation</span></h2>
+  <pre class="language-dart"><code class="language-dart">AsyncFifo({
+  required Logic writeClk,
+  required Logic readClk,
+  required Logic writeReset,
+  required Logic readReset,
+  required Logic writeEnable,
+  required Logic writeData,
+  required Logic readEnable,
+  required this.depth,
+  this.syncStages = 2,
+  super.name = &#39;async_fifo&#39;,
+})  : dataWidth = writeData.width,
+      _addrWidth = log2Ceil(depth),
+      super(definitionName: &#39;AsyncFifo_D${depth}_W${writeData.width}&#39;) {
+  if (depth &lt;= 0) {
+    throw RohdHclException(&#39;Depth must be at least 1.&#39;);
+  }
+
+  if (depth &amp; (depth - 1) != 0) {
+    throw RohdHclException(&#39;Depth must be a power of 2, but got $depth.&#39;
+        &#39; Use depths like 2, 4, 8, 16, 32, etc.&#39;);
+  }
+
+  &#47;&#47; Add inputs
+  addInput(&#39;writeClk&#39;, writeClk);
+  addInput(&#39;readClk&#39;, readClk);
+  addInput(&#39;writeReset&#39;, writeReset);
+  addInput(&#39;readReset&#39;, readReset);
+  addInput(&#39;writeEnable&#39;, writeEnable);
+  addInput(&#39;writeData&#39;, writeData, width: dataWidth);
+  addInput(&#39;readEnable&#39;, readEnable);
+
+  &#47;&#47; Add outputs
+  addOutput(&#39;readData&#39;, width: dataWidth);
+  addOutput(&#39;full&#39;);
+  addOutput(&#39;empty&#39;);
+
+  _buildLogic();
+}</code></pre>
+</section>
+
+
+  </div> <!-- /.main-content -->
+  <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+    <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
+<header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+    <li><a href="../../index.html">rohd_hcl</a></li>
+    <li><a href="../../rohd_hcl/">rohd_hcl</a></li>
+    <li><a href="../../rohd_hcl/AsyncFifo-class.html">AsyncFifo</a></li>
+    <li class="self-crumb">AsyncFifo.new constructor</li>
+</ol>
+
+    <h5>AsyncFifo class</h5>
+    <div id="dartdoc-sidebar-left-content"></div>
+  </div><!--/.sidebar-offcanvas-left-->
+  <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+  </div><!--/.sidebar-offcanvas-->
+</main>
+<footer>
+  <span class="no-break">
+    rohd_hcl
+      0.2.1
+  </span>
+  
+</footer>
+
+
+<script src="../../static-assets/highlight.pack.js?v1"></script>
+<script src="../../static-assets/docs.dart.js"></script>
+
+</body>
+</html>
+

@@ -65,18 +65,18 @@
     </section>
     
 <section class="desc markdown">
-  <p>Registers an <a href="https://pub.dev/documentation/rohd/0.6.7/rohd/Module/output.html">output</a> to this <a href="https://pub.dev/documentation/rohd/0.6.7/rohd/Module-class.html">Module</a> and returns an <a href="https://pub.dev/documentation/rohd/0.6.7/rohd/Module/output.html">output</a> port that
-can be driven by this <a href="https://pub.dev/documentation/rohd/0.6.7/rohd/Module-class.html">Module</a> or consumed outside of it. The type of the
+  <p>Registers an <a href="https://pub.dev/documentation/rohd/0.6.8/rohd/Module/output.html">output</a> to this <a href="https://pub.dev/documentation/rohd/0.6.8/rohd/Module-class.html">Module</a> and returns an <a href="https://pub.dev/documentation/rohd/0.6.8/rohd/Module/output.html">output</a> port that
+can be driven by this <a href="https://pub.dev/documentation/rohd/0.6.8/rohd/Module-class.html">Module</a> or consumed outside of it. The type of the
 port will be <code>LogicType</code> and constructed via <code>logicGenerator</code>, which must
 properly update the <code>name</code> of the generated <code>LogicType</code> as well.</p>
-<p>This is a good way to construct <a href="https://pub.dev/documentation/rohd/0.6.7/rohd/Module/output.html">output</a>s that have matching widths or
-dimensions to another signal, or to make a <a href="https://pub.dev/documentation/rohd/0.6.7/rohd/LogicStructure-class.html">LogicStructure</a> an <a href="https://pub.dev/documentation/rohd/0.6.7/rohd/Module/output.html">output</a>.
-You can use this on a <a href="https://pub.dev/documentation/rohd/0.6.7/rohd/Logic-class.html">Logic</a>, <a href="https://pub.dev/documentation/rohd/0.6.7/rohd/LogicArray-class.html">LogicArray</a>, or <a href="https://pub.dev/documentation/rohd/0.6.7/rohd/LogicStructure-class.html">LogicStructure</a>.</p>
+<p>This is a good way to construct <a href="https://pub.dev/documentation/rohd/0.6.8/rohd/Module/output.html">output</a>s that have matching widths or
+dimensions to another signal, or to make a <a href="https://pub.dev/documentation/rohd/0.6.8/rohd/LogicStructure-class.html">LogicStructure</a> an <a href="https://pub.dev/documentation/rohd/0.6.8/rohd/Module/output.html">output</a>.
+You can use this on a <a href="https://pub.dev/documentation/rohd/0.6.8/rohd/Logic-class.html">Logic</a>, <a href="https://pub.dev/documentation/rohd/0.6.8/rohd/LogicArray-class.html">LogicArray</a>, or <a href="https://pub.dev/documentation/rohd/0.6.8/rohd/LogicStructure-class.html">LogicStructure</a>.</p>
 <p>The <code>logicGenerator</code> cannot create ports that are or contain any
-<a href="https://pub.dev/documentation/rohd/0.6.7/rohd/LogicNet-class.html">LogicNet</a>s in them. If a <a href="https://pub.dev/documentation/rohd/0.6.7/rohd/Const-class.html">Const</a> is generated (or included in a
-<a href="https://pub.dev/documentation/rohd/0.6.7/rohd/LogicStructure-class.html">LogicStructure</a>), the <code>LogicType</code> must be set to <a href="https://pub.dev/documentation/rohd/0.6.7/rohd/Logic-class.html">Logic</a>, since <a href="https://pub.dev/documentation/rohd/0.6.7/rohd/Const-class.html">Const</a>s
+<a href="https://pub.dev/documentation/rohd/0.6.8/rohd/LogicNet-class.html">LogicNet</a>s in them. If a <a href="https://pub.dev/documentation/rohd/0.6.8/rohd/Const-class.html">Const</a> is generated (or included in a
+<a href="https://pub.dev/documentation/rohd/0.6.8/rohd/LogicStructure-class.html">LogicStructure</a>), the <code>LogicType</code> must be set to <a href="https://pub.dev/documentation/rohd/0.6.8/rohd/Logic-class.html">Logic</a>, since <a href="https://pub.dev/documentation/rohd/0.6.8/rohd/Const-class.html">Const</a>s
 cannot be driven and are not suitable as ports.</p>
-<p>The return value is the same as what is returned by <a href="https://pub.dev/documentation/rohd/0.6.7/rohd/Module/output.html">output</a>.</p>
+<p>The return value is the same as what is returned by <a href="https://pub.dev/documentation/rohd/0.6.8/rohd/Module/output.html">output</a>.</p>
 </section>
 
 

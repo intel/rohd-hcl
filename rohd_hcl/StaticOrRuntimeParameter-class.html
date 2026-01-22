@@ -84,7 +84,7 @@ for both static or runtime configurations of a component feature.</p>
     <h2>Constructors</h2>
     <dl class="constructor-summary-list">
         <dt id="StaticOrRuntimeParameter.new" class="callable">
-          <span class="name"><a href="../rohd_hcl/StaticOrRuntimeParameter/StaticOrRuntimeParameter.html">StaticOrRuntimeParameter</a></span><span class="signature">({<span class="parameter" id="-param-name"><span>required</span> <span class="type-annotation"><a href="https://api.dart.dev/stable/3.10.7/dart-core/String-class.html">String</a></span> <span class="parameter-name">name</span>, </span><span class="parameter" id="-param-runtimeConfig"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.7/rohd/Logic-class.html">Logic</a>?</span> <span class="parameter-name">runtimeConfig</span>, </span><span class="parameter" id="-param-staticConfig"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.10.7/dart-core/bool-class.html">bool</a>?</span> <span class="parameter-name">staticConfig</span> = <span class="default-value">false</span></span>})</span>
+          <span class="name"><a href="../rohd_hcl/StaticOrRuntimeParameter/StaticOrRuntimeParameter.html">StaticOrRuntimeParameter</a></span><span class="signature">({<span class="parameter" id="-param-name"><span>required</span> <span class="type-annotation"><a href="https://api.dart.dev/stable/3.10.7/dart-core/String-class.html">String</a></span> <span class="parameter-name">name</span>, </span><span class="parameter" id="-param-runtimeConfig"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.8/rohd/Logic-class.html">Logic</a>?</span> <span class="parameter-name">runtimeConfig</span>, </span><span class="parameter" id="-param-staticConfig"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.10.7/dart-core/bool-class.html">bool</a>?</span> <span class="parameter-name">staticConfig</span> = <span class="default-value">false</span></span>})</span>
         </dt>
         <dd>
           Creates a new <a href="../rohd_hcl/StaticOrRuntimeParameter-class.html">StaticOrRuntimeParameter</a> instance. Note that
@@ -134,7 +134,7 @@ a module input.
 
         <dt id="runtimeConfig" class="property">
   <span class="name"><a href="../rohd_hcl/StaticOrRuntimeParameter/runtimeConfig.html">runtimeConfig</a></span>
-  <span class="signature">&#8594; <a href="https://pub.dev/documentation/rohd/0.6.7/rohd/Logic-class.html">Logic</a>?</span>
+  <span class="signature">&#8594; <a href="https://pub.dev/documentation/rohd/0.6.8/rohd/Logic-class.html">Logic</a>?</span>
   
 
 </dt>
@@ -192,28 +192,28 @@ feature is statically configured or not.
     <h2>Methods</h2>
     <dl class="callables">
         <dt id="getLogic" class="callable">
-  <span class="name"><a href="../rohd_hcl/StaticOrRuntimeParameter/getLogic.html">getLogic</a></span><span class="signature">(<wbr><span class="parameter" id="getLogic-param-module"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.7/rohd/Module-class.html">Module</a></span> <span class="parameter-name">module</span></span>)
-    <span class="returntype parameter">&#8594; <a href="https://pub.dev/documentation/rohd/0.6.7/rohd/Logic-class.html">Logic</a></span>
+  <span class="name"><a href="../rohd_hcl/StaticOrRuntimeParameter/getLogic.html">getLogic</a></span><span class="signature">(<wbr><span class="parameter" id="getLogic-param-module"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.8/rohd/Module-class.html">Module</a></span> <span class="parameter-name">module</span></span>)
+    <span class="returntype parameter">&#8594; <a href="https://pub.dev/documentation/rohd/0.6.8/rohd/Logic-class.html">Logic</a></span>
   </span>
   
 
 </dt>
 <dd>
-  Return the internal <a href="https://pub.dev/documentation/rohd/0.6.7/rohd/Logic-class.html">Logic</a> signal that represents the configuration,
+  Return the internal <a href="https://pub.dev/documentation/rohd/0.6.8/rohd/Logic-class.html">Logic</a> signal that represents the configuration,
 either static or runtime.
   
 
 </dd>
 
         <dt id="getRuntimeInput" class="callable">
-  <span class="name"><a href="../rohd_hcl/StaticOrRuntimeParameter/getRuntimeInput.html">getRuntimeInput</a></span><span class="signature">(<wbr><span class="parameter" id="getRuntimeInput-param-module"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.7/rohd/Module-class.html">Module</a></span> <span class="parameter-name">module</span></span>)
-    <span class="returntype parameter">&#8594; <a href="https://pub.dev/documentation/rohd/0.6.7/rohd/Logic-class.html">Logic</a>?</span>
+  <span class="name"><a href="../rohd_hcl/StaticOrRuntimeParameter/getRuntimeInput.html">getRuntimeInput</a></span><span class="signature">(<wbr><span class="parameter" id="getRuntimeInput-param-module"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.8/rohd/Module-class.html">Module</a></span> <span class="parameter-name">module</span></span>)
+    <span class="returntype parameter">&#8594; <a href="https://pub.dev/documentation/rohd/0.6.8/rohd/Logic-class.html">Logic</a>?</span>
   </span>
   
 
 </dt>
 <dd>
-  Construct and return a <a href="https://pub.dev/documentation/rohd/0.6.7/rohd/Logic-class.html">Logic</a>? that is a <code>true</code> input to the <code>module</code>
+  Construct and return a <a href="https://pub.dev/documentation/rohd/0.6.8/rohd/Logic-class.html">Logic</a>? that is a <code>true</code> input to the <code>module</code>
 if this is a runtime configuration signal.
   
 
@@ -246,14 +246,14 @@ if this is a runtime configuration signal.
 </dd>
 
         <dt id="tryRuntimeInput" class="callable">
-  <span class="name"><a href="../rohd_hcl/StaticOrRuntimeParameter/tryRuntimeInput.html">tryRuntimeInput</a></span><span class="signature">(<wbr><span class="parameter" id="tryRuntimeInput-param-module"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.7/rohd/Module-class.html">Module</a></span> <span class="parameter-name">module</span></span>)
-    <span class="returntype parameter">&#8594; <a href="https://pub.dev/documentation/rohd/0.6.7/rohd/Logic-class.html">Logic</a>?</span>
+  <span class="name"><a href="../rohd_hcl/StaticOrRuntimeParameter/tryRuntimeInput.html">tryRuntimeInput</a></span><span class="signature">(<wbr><span class="parameter" id="tryRuntimeInput-param-module"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.8/rohd/Module-class.html">Module</a></span> <span class="parameter-name">module</span></span>)
+    <span class="returntype parameter">&#8594; <a href="https://pub.dev/documentation/rohd/0.6.8/rohd/Logic-class.html">Logic</a>?</span>
   </span>
   
 
 </dt>
 <dd>
-  Returns a <a href="https://pub.dev/documentation/rohd/0.6.7/rohd/Logic-class.html">Logic</a>? that represents the module internalruntime input.
+  Returns a <a href="https://pub.dev/documentation/rohd/0.6.8/rohd/Logic-class.html">Logic</a>? that represents the module internalruntime input.
   
 
 </dd>
