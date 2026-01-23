@@ -32,10 +32,14 @@ class Deserializer extends Module {
   /// Updates one element per clock while [enable] (if connected) is high,
   /// emitting [done] when completing the filling of wide output [LogicArray]
   /// [deserialized].
+  ///
+  /// If [last] is connected, it is used as a potential early indicator for
+  /// completion of the deserialization.
   Deserializer(Logic serialized, this.length,
       {required Logic clk,
       required Logic reset,
       Logic? enable,
+      Logic? last,
       super.name = 'deserializer',
       super.reserveName,
       super.reserveDefinitionName,
@@ -48,15 +52,26 @@ class Deserializer extends Module {
     if (enable != null) {
       enable = addInput('enable', enable);
     }
+    Logic? floppedLast;
+    if (last != null) {
+      last = addInput('last', last);
+      floppedLast = Logic(name: 'floppedLast')
+        ..gets(flop(clk, reset: reset, en: (enable ?? Const(1)), last));
+    }
     serialized = (serialized is LogicArray)
         ? addInputArray('serialized', serialized,
             dimensions: serialized.dimensions,
             elementWidth: serialized.elementWidth)
         : addInput('serialized', serialized, width: serialized.width);
     final cnt = Counter.simple(
-        clk: clk, reset: reset, enable: enable, maxValue: length - 1);
+        clk: clk,
+        reset: reset,
+        enable: enable,
+        maxValue: length - 1,
+        restart: (last ?? Const(0)) & (enable ?? Const(1)));
     addOutput('count', width: cnt.width) <= cnt.count;
-    addOutput('done') <= cnt.overflowed;
+    addOutput('done') <=
+        cnt.overflowed | ((floppedLast ?? Const(0)) & (enable ?? Const(1)));
     addOutputArray('deserialized',
             dimensions: (serialized is LogicArray)
                 ? ([length, ...serialized.dimensions])
