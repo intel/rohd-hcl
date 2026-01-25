@@ -421,6 +421,8 @@ void main() {
     rIntf.en.inject(0);
     expect(
         rIntf.data.value, LogicValue.ofInt(csr2.resetValue, rIntf.dataWidth));
+    expect(rIntf.done.value, LogicValue.ofInt(1, 1));
+    expect(rIntf.valid.value, LogicValue.ofInt(1, 1));
     await clk.waitCycles(10);
 
     // perform a write to a particular register in a particular block
@@ -431,11 +433,15 @@ void main() {
     wIntf.data.inject(0xbeefdead);
     await clk.nextNegedge;
     wIntf.en.inject(0);
+    expect(wIntf.done.value, LogicValue.ofInt(1, 1));
+    expect(wIntf.valid.value, LogicValue.ofInt(1, 1));
     rIntf.en.inject(1);
     rIntf.addr.inject(addr2.value);
     await clk.nextNegedge;
     rIntf.en.inject(0);
     expect(rIntf.data.value, LogicValue.ofInt(0xef00f3, rIntf.dataWidth));
+    expect(rIntf.done.value, LogicValue.ofInt(1, 1));
+    expect(rIntf.valid.value, LogicValue.ofInt(1, 1));
     await clk.waitCycles(10);
 
     // perform a read to an invalid block
@@ -445,6 +451,8 @@ void main() {
     await clk.nextNegedge;
     rIntf.en.inject(0);
     expect(rIntf.data.value, LogicValue.ofInt(0, rIntf.dataWidth));
+    expect(rIntf.done.value, LogicValue.ofInt(1, 1));
+    expect(rIntf.valid.value, LogicValue.ofInt(0, 1));
     await clk.waitCycles(10);
 
     // grab backdoor interfaces

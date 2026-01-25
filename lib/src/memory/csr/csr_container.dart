@@ -81,7 +81,7 @@ abstract class CsrContainer extends Module {
         : (frontWrite.clone()
           ..connectIO(this, frontWrite,
               inputTags: {DataPortGroup.control, DataPortGroup.data},
-              outputTags: {},
+              outputTags: {DataPortGroup.integrity},
               uniquify: (original) => 'frontWrite_$original'));
 
     this.frontRead = frontRead == null
@@ -89,7 +89,7 @@ abstract class CsrContainer extends Module {
         : (frontRead.clone()
           ..connectIO(this, frontRead,
               inputTags: {DataPortGroup.control},
-              outputTags: {DataPortGroup.data},
+              outputTags: {DataPortGroup.data, DataPortGroup.integrity},
               uniquify: (original) => 'frontRead_$original'));
 
     _validate();
