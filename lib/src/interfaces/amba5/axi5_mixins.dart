@@ -405,11 +405,6 @@ mixin Axi5MemRespDataTagSignals on Axi5BaseInterface {
   /// Helper to instantiate ACE specific request ports.
   @protected
   void makeRespDataTagPorts() {
-    setPorts([
-      Logic.port('${prefix}TAG', (tagDataWidth / 128).ceil() * 4),
-    ], [
-      PairDirection.fromConsumer,
-    ]);
     if (main) {
       setPorts([
         if (useTag) Logic.port('${prefix}TAG', (tagDataWidth / 128).ceil() * 4),
@@ -535,9 +530,9 @@ mixin Axi5MmuSignals on Axi5BaseInterface {
     setPorts([
       if (untranslatedTransVersion >= 3) Logic.port('${prefix}MMUVALID'),
       if (secSidWidth > 0) Logic.port('${prefix}MMUSECSID', secSidWidth),
-      if (sidWidth > 0) Logic.port('${prefix}MMUSID'),
+      if (sidWidth > 0) Logic.port('${prefix}MMUSID', sidWidth),
       if (ssidWidth > 0) Logic.port('${prefix}MMUSSIDV'),
-      if (ssidWidth > 0) Logic.port('${prefix}MMUSSID'),
+      if (ssidWidth > 0) Logic.port('${prefix}MMUSSID', ssidWidth),
       if (untranslatedTransVersion == 1 && useFlow)
         Logic.port('${prefix}MMUATST'),
       if (untranslatedTransVersion > 1 && useFlow)
@@ -597,7 +592,7 @@ mixin Axi5QualifierSignals on Axi5BaseInterface {
     setPorts([
       if (useNsaId) Logic.port('${prefix}NSAID', 4),
       if (usePbha) Logic.port('${prefix}PBHA', 4),
-      if (subSysIdWidth > 0) Logic.port('${prefix}SUBSYSID'),
+      if (subSysIdWidth > 0) Logic.port('${prefix}SUBSYSID', subSysIdWidth),
       if (actWidth > 0) Logic.port('${prefix}ACTV'),
       if (actWidth > 0) Logic.port('${prefix}ACT', actWidth),
     ], [
