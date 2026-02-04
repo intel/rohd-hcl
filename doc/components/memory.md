@@ -4,11 +4,11 @@ ROHD-HCL provides a generic `abstract` [`Memory`](https://intel.github.io/rohd-h
 
 ## Masks
 
-A sub-class of `DataPortInterface` is the[`MaskedDataPortInterface`](https://intel.github.io/rohd-hcl/rohd_hcl/MaskedDataPortInterface-class.html), which adds `mask` to the `data` group of signals.  The `mask` signal is a byte-enable signal, where each bit of `mask` controls one byte of `data`.
+A subclass of `DataPortInterface` is the[`MaskedDataPortInterface`](https://intel.github.io/rohd-hcl/rohd_hcl/MaskedDataPortInterface-class.html), which adds `mask` to the `data` group of signals.  The `mask` signal is a byte-enable signal, where each bit of `mask` controls one byte of `data`.
 
 ## Register Files
 
-A sub-class of `Memory` is the [`RegisterFile`](https://intel.github.io/rohd-hcl/rohd_hcl/RegisterFile-class.html), which inherits the same flexible interface from `Memory`.  It has a configurable number of entries via `numEntries`.
+A subclass of `Memory` is the [`RegisterFile`](https://intel.github.io/rohd-hcl/rohd_hcl/RegisterFile-class.html), which inherits the same flexible interface from `Memory`.  It has a configurable number of entries via `numEntries`.
 
 The `RegisterFile` accepts masks on writes, but not on reads.
 
@@ -20,8 +20,50 @@ The `RegisterFile` can be initialized with data on reset using `resetValue` foll
 
 [RegisterFile Schematic](https://intel.github.io/rohd-hcl/RegisterFile.html)
 
+## First-In First-Out (FIFO) Buffers
+
+Please see [`Fifo`](./fifo.md)
+
 ## Memory Models
 
 The `MemoryModel` has the same interface as a `Memory`, but is non-synthesizable and uses a software-based `SparseMemoryStorage` as a backing for data storage. This is a useful tool for testing systems that have relatively large memories.
 
-The `MemoryStorage` class also provides utilities for reading (`loadMemString`) and writing (`dumpMemString`) verilog-compliant memory files (e.g. for `readmemh`).
+The `MemoryStorage` class also provides utilities for reading (`loadMemString`) and writing (`dumpMemString`) Verilog-compliant memory files (e.g. for `readmemh`).
+
+## Cam
+
+A content-addressable memory or `Cam` is provided which allows for associative lookup of an index to help with building specialized forms of caches where the data is stored in a separate register file. In this case the `tag` is matched during a read and the position in memory is returned. For the fill ports, the user can simply write a new tag at a given index location. This means the `Cam` is a fine-grained component for use in building associative look of positions of objects in another memory.
+
+Another form of `Cam` or `CamInvalidate` provides a read interface with a read-with-invalidate feature if the invalidate port is set on the interface.
+
+An example use is:
+
+```dart
+const tagWidth = 8;
+      const numEntries = 4;
+      const idWidth = 2;
+
+      final clk = SimpleClockGenerator(10).clk;
+      final reset = Logic();
+
+      final writePort = DataPortInterface(tagWidth, idWidth);
+      final lookupPort = TagInvalidateInterface(idWidth, tagWidth);
+
+      final cam = CamInvalidate(
+        clk,
+        reset,
+        [writePort],
+        [lookupPort],
+        numEntries: numEntries,
+      );
+      // Write tag 0x99 to entry 1
+      writePort.addr.inject(1);
+      writePort.data.inject(0x99);
+      await clk.nextPosedge;
+
+      // Lookup tag 0x42 without invalidate
+      lookupPort.tag.inject(0x99);
+      await clk.nextPosedge;
+      expect(lookupPort.idx.value.toInt(), equals(1),
+          reason: 'Should return index 0');
+```

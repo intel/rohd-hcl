@@ -481,7 +481,7 @@ void main() {
     final sign = logicZ[logicZ.width - 1];
     // for unsigned versus signed testing
     // final sign = signed ? logicZ[logicZ.width - 1] : Const(0);
-    final l = [for (var i = 0; i < logicZ.width; i++) logicZ[i]];
+    final l = List.generate(logicZ.width, (i) => logicZ[i]);
     while (l.length < lastLength) {
       l.add(sign);
     }
@@ -528,7 +528,7 @@ void main() {
     final sign = logicZ[logicZ.width - 1];
     // for unsigned versus signed testing
     // final sign = signed ? logicZ[logicZ.width - 1] : Const(0);
-    final l = [for (var i = 0; i < logicZ.width; i++) logicZ[i]];
+    final l = List.generate(logicZ.width, (i) => logicZ[i]);
     while (l.length < lastLength) {
       l.add(sign);
     }

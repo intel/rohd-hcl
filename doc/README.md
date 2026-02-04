@@ -109,8 +109,7 @@ Some in-development items will have opened issues, as well. Feel free to create 
 - Memory
   - [Register File](./components/memory.md#register-files)
   - [Masking](./components/memory.md#masks)
-  - Replacement Policies
-    - LRU
+  - [Cams](./components/memory.md#basic-cam)
   - [Memory Model](./components/memory.md#memory-models)
   - [Control/Status Registers (CSRs)](./components/csr.md)
 - Standard interfaces
@@ -136,6 +135,9 @@ Some in-development items will have opened issues, as well. Feel free to create 
 - Gaskets
   - [SPI](./components/spi_gaskets.md)
 
+## Adding a New Component
+
+Please refer to [Component](./Component.md.md) for the best practices for creating new components.
 
 ----------------
 
