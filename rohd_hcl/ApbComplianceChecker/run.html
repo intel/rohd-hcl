@@ -56,10 +56,10 @@
       
   <div>
     <ol class="annotation-list">
-        <li>@<a href="https://api.dart.dev/stable/3.10.7/dart-core/override-constant.html">override</a></li>
+        <li>@<a href="https://api.dart.dev/stable/3.10.9/dart-core/override-constant.html">override</a></li>
     </ol>
   </div>
-<span class="returntype"><a href="https://api.dart.dev/stable/3.10.7/dart-core/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter">void</span>&gt;</span></span>
+<span class="returntype"><a href="https://api.dart.dev/stable/3.10.9/dart-core/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter">void</span>&gt;</span></span>
 <span class="name ">run</span>(<wbr><ol class="parameter-list single-line"> <li><span class="parameter" id="run-param-phase"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd_vf/0.6.0/rohd_vf/Phase-class.html">Phase</a></span> <span class="parameter-name">phase</span></span></li>
 </ol>)
 
@@ -102,72 +102,74 @@ Future&lt;void&gt; run(Phase phase) async {
   LogicValue? lastWuser;
 
   intf.clk.posedge.listen((event) {
-    final currSels = intf.sel.map((e) =&gt; e.value).toList();
+    final currSels = intf.sel.map((e) =&gt; e.previousValue!).toList();
 
     if (currSels.map((e) =&gt; e.isValid).reduce((a, b) =&gt; a | b)) {
       &#47;&#47; if any select is high
 
       &#47;&#47; valid checks
-      if (!intf.write.value.isValid) {
+      if (!intf.write.previousValue!.isValid) {
         logger.severe(&#39;Write must be valid during select.&#39;);
       }
-      if (!intf.addr.value.isValid) {
+      if (!intf.addr.previousValue!.isValid) {
         logger.severe(&#39;Addr must be valid during select.&#39;);
       }
-      if (!intf.wData.value.isValid) {
+      if (!intf.wData.previousValue!.isValid) {
         logger.severe(&#39;WData must be valid during select.&#39;);
       }
-      if (!intf.strb.value.isValid) {
+      if (!intf.strb.previousValue!.isValid) {
         logger.severe(&#39;Strobe must be valid during select.&#39;);
       }
-      if (!intf.enable.value.isValid) {
+      if (!intf.enable.previousValue!.isValid) {
         logger.severe(&#39;Enable must be valid during select.&#39;);
       }
 
       &#47;&#47; stability checks
-      if (intf.enable.value.isValid &amp;&amp; intf.enable.value.toBool()) {
-        if (lastWrite != null &amp;&amp; lastWrite != intf.write.value) {
+      if (intf.enable.previousValue!.isValid &amp;&amp;
+          intf.enable.previousValue!.toBool()) {
+        if (lastWrite != null &amp;&amp; lastWrite != intf.write.previousValue!) {
           logger.severe(&#39;Write must be stable until ready.&#39;);
         }
-        if (lastAddr != null &amp;&amp; lastAddr != intf.addr.value) {
+        if (lastAddr != null &amp;&amp; lastAddr != intf.addr.previousValue!) {
           logger.severe(&#39;Addr must be stable until ready.&#39;);
         }
         if (lastSel != null) {
           for (var i = 0; i &lt; intf.numSelects; i++) {
-            if (intf.sel[i].value != lastSel![i]) {
+            if (intf.sel[i].previousValue! != lastSel![i]) {
               logger.severe(&#39;Sel must be stable until ready.&#39;);
             }
           }
         }
-        if (lastWriteData != null &amp;&amp; lastWriteData != intf.wData.value) {
+        if (lastWriteData != null &amp;&amp;
+            lastWriteData != intf.wData.previousValue!) {
           logger.severe(&#39;Write data must be stable until ready.&#39;);
         }
-        if (lastStrb != null &amp;&amp; lastStrb != intf.strb.value) {
+        if (lastStrb != null &amp;&amp; lastStrb != intf.strb.previousValue!) {
           logger.severe(&#39;Strobe must be stable until ready.&#39;);
         }
-        if (lastProt != null &amp;&amp; lastProt != intf.prot.value) {
+        if (lastProt != null &amp;&amp; lastProt != intf.prot.previousValue!) {
           logger.severe(&#39;Prot must be stable until ready.&#39;);
         }
-        if (lastAuser != null &amp;&amp; lastAuser != intf.aUser?.value) {
+        if (lastAuser != null &amp;&amp; lastAuser != intf.aUser?.previousValue!) {
           logger.severe(&#39;AUser must be stable until ready.&#39;);
         }
-        if (lastWuser != null &amp;&amp; lastWuser != intf.wUser?.value) {
+        if (lastWuser != null &amp;&amp; lastWuser != intf.wUser?.previousValue!) {
           logger.severe(&#39;WUser must be stable until ready.&#39;);
         }
 
         &#47;&#47; collect &quot;last&quot; items for next check
-        lastWrite = intf.write.value;
-        lastAddr = intf.addr.value;
+        lastWrite = intf.write.previousValue;
+        lastAddr = intf.addr.previousValue;
         lastSel = currSels;
-        lastWriteData = intf.wData.value;
-        lastStrb = intf.strb.value;
-        lastProt = intf.prot.value;
-        lastAuser = intf.aUser?.value;
-        lastWuser = intf.wUser?.value;
+        lastWriteData = intf.wData.previousValue;
+        lastStrb = intf.strb.previousValue;
+        lastProt = intf.prot.previousValue;
+        lastAuser = intf.aUser?.previousValue;
+        lastWuser = intf.wUser?.previousValue;
       }
     }
 
-    if (intf.ready.value.toBool()) {
+    if (intf.ready.previousValue!.toBool()) {
       lastWrite = null;
       lastAddr = null;
       lastSel = null;
@@ -178,25 +180,25 @@ Future&lt;void&gt; run(Phase phase) async {
       lastWuser = null;
     }
 
-    if (intf.write.value.isValid &amp;&amp;
-        !intf.write.value.toBool() &amp;&amp;
-        intf.enable.value.isValid &amp;&amp;
-        intf.enable.value.toBool() &amp;&amp;
-        intf.strb.value.isValid &amp;&amp;
-        intf.strb.value.toInt() &gt; 0) {
+    if (intf.write.previousValue!.isValid &amp;&amp;
+        !intf.write.previousValue!.toBool() &amp;&amp;
+        intf.enable.previousValue!.isValid &amp;&amp;
+        intf.enable.previousValue!.toBool() &amp;&amp;
+        intf.strb.previousValue!.isValid &amp;&amp;
+        intf.strb.previousValue!.toInt() &gt; 0) {
       &#47;&#47; strobe must not be &quot;active&quot; during read xfer (all low during read)
       logger.severe(&#39;Strobe must not be active during read transfer.&#39;);
     }
 
-    if (intf.enable.value.isValid &amp;&amp;
-        intf.enable.value.toBool() &amp;&amp;
-        intf.ready.value.isValid &amp;&amp;
-        intf.ready.value.toBool()) {
+    if (intf.enable.previousValue!.isValid &amp;&amp;
+        intf.enable.previousValue!.toBool() &amp;&amp;
+        intf.ready.previousValue!.isValid &amp;&amp;
+        intf.ready.previousValue!.toBool()) {
       if (accessLastCycle) {
         logger.severe(&#39;Cannot have back-to-back accesses.&#39;);
       }
 
-      if (intf.includeSlvErr &amp;&amp; !intf.slvErr!.value.isValid) {
+      if (intf.includeSlvErr &amp;&amp; !intf.slvErr!.previousValue!.isValid) {
         logger.severe(&#39;SlvErr must be valid during transfer.&#39;);
       }
 
