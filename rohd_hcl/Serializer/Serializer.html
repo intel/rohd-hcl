@@ -58,6 +58,7 @@
 <li><span class="parameter" id="-param-clk"><span>required</span> <span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.8/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">clk</span>, </span></li>
 <li><span class="parameter" id="-param-reset"><span>required</span> <span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.8/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">reset</span>, </span></li>
 <li><span class="parameter" id="-param-enable"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.8/rohd/Logic-class.html">Logic</a>?</span> <span class="parameter-name">enable</span>, </span></li>
+<li><span class="parameter" id="-param-endCount"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.8/rohd/Logic-class.html">Logic</a>?</span> <span class="parameter-name">endCount</span>, </span></li>
 <li><span class="parameter" id="-param-flopInput"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.10.9/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">flopInput</span> = <span class="default-value">false</span>, </span></li>
 <li><span class="parameter" id="-param-name"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.10.9/dart-core/String-class.html">String</a></span> <span class="parameter-name">name</span> = <span class="default-value">&#39;serializer&#39;</span>, </span></li>
 <li><span class="parameter" id="-param-reserveName"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.10.9/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">reserveName</span> = <span class="default-value">false</span>, </span></li>
@@ -74,6 +75,8 @@ is high (if connected). If <code>flopInput</code> is <code>true</code>, the
 <a href="../../rohd_hcl/Serializer-class.html">Serializer</a> is configured to latch the input data and hold it until
 <a href="../../rohd_hcl/Serializer/done.html">done</a> is asserted after the full <a href="https://pub.dev/documentation/rohd/0.6.8/rohd/LogicArray-class.html">LogicArray</a> <code>deserialized</code> is
 transferred. This will delay the serialized output by one cycle.</p>
+<p>If <code>endCount</code> is connected, it is used as a potential early indicator for
+completion of the serialization.</p>
 </section>
 
 
@@ -84,6 +87,7 @@ transferred. This will delay the serialized output by one cycle.</p>
     {required Logic clk,
     required Logic reset,
     Logic? enable,
+    Logic? endCount,
     bool flopInput = false,
     super.name = &#39;serializer&#39;,
     super.reserveName,
@@ -97,6 +101,10 @@ transferred. This will delay the serialized output by one cycle.</p>
   reset = addInput(&#39;reset&#39;, reset);
   if (enable != null) {
     enable = addInput(&#39;enable&#39;, enable);
+  }
+  if (endCount != null) {
+    endCount = addInput(&#39;endCount&#39;, endCount,
+        width: deserialized.dimensions[0].bitLength);
   }
   deserialized = addInputArray(&#39;deserialized&#39;, deserialized,
       dimensions: deserialized.dimensions,
@@ -115,11 +123,19 @@ transferred. This will delay the serialized output by one cycle.</p>
     addOutput(&#39;serialized&#39;, width: deserialized.elementWidth);
   }
 
+  Logic? earlyEnd;
   final cnt = Counter.simple(
       clk: clk,
       reset: reset,
       enable: enable,
-      maxValue: deserialized.elements.length - 1);
+      maxValue: deserialized.elements.length - 1,
+      restart: earlyEnd);
+
+  if (endCount != null) {
+    earlyEnd = Logic(name: &#39;earlyEnd&#39;)..gets(cnt.count.eq(endCount));
+  } else {
+    earlyEnd = null;
+  }
 
   final latchTheInput =
       ((enable ?? Const(1)) &amp; ~cnt.count.or()).named(&#39;latchTheInput&#39;);
@@ -143,8 +159,12 @@ transferred. This will delay the serialized output by one cycle.</p>
   serialized &lt;= dataOutput.elements.selectIndex(count);
   done &lt;=
       (flopInput
-          ? flop(clk, reset: reset, en: enable, cnt.equalsMax)
-          : cnt.equalsMax);
+          ? flop(
+              clk,
+              reset: reset,
+              en: enable,
+              cnt.equalsMax | (earlyEnd ?? Const(0)))
+          : cnt.equalsMax | (earlyEnd ?? Const(0)));
 }</code></pre>
 </section>
 
