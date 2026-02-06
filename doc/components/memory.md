@@ -34,39 +34,68 @@ The `MemoryStorage` class also provides utilities for reading (`loadMemString`) 
 
 A content-addressable memory or `Cam` is provided which allows for associative lookup using a `tag` that produces an index to help with building specialized forms of caches where the actual data is stored in a separate register file. The index is to be separately used as a linear address in another component (like a `RegisterFile`) to find the associated data.  In this case the `tag` is matched during a read and the position in memory is returned, which is the index. For the fill ports, the user can simply write a new tag at a given index location. This means the `Cam` is a fine-grained component for use in building associative look of positions of objects in another memory.
 
-Note that because we are using a standard `DataPortInterface` for the write ports, the `dataPort.addr` is really the index position and the `dataPort.data` is the tag we are storing to populate the associative array.  Then upon lookup, we have a `TagInterface` which is more natural:  `lookupPort.tag` is the query and `lookup.idx` is the resulting index to be used to lookup data in a separate component. `lookupPort.hit` tells us that our query was found.
+Both write and lookup ports use the `TagInterface`, which provides a consistent interface for CAM operations:
 
-Another form of `Cam` or `CamInvalidate` provides a read interface with a read-with-invalidate feature if the invalidate port is set on the interface.
+- For **writes**: `en` enables the write, `idx` specifies the destination address, `tag` is the data to write, and `hit` sets/clears the valid bit for the entry (hit=1 marks entry valid, hit=0 marks entry invalid).
+- For **lookups**: `tag` is the query, `idx` returns the matching index, and `hit` indicates whether a valid match was found. Only entries with their valid bit set will match.
+
+Each CAM entry has a valid bit that must be set for the entry to participate in lookups. This allows distinguishing between "entry contains tag 0x00" and "entry is empty/invalid".
+
+### Read-with-Invalidate Pattern
+
+A read-with-invalidate operation can be implemented by using a dedicated write port wired to the lookup port's outputs:
+
+- Wire `invalidatePort.idx <= lookupPort.idx` to target the found entry
+- Wire `invalidatePort.tag <= lookupPort.tag` to match the lookup
+- Set `invalidatePort.hit = 0` (always invalidate, never validate)
+- Set `invalidatePort.en = lookupPort.hit` (only invalidate if found)
+
+This pattern allows atomic "find and remove" operations where the lookup returns the matching index while simultaneously invalidating that entry.
 
 An example use is:
 
 ```dart
-const tagWidth = 8;
+      const tagWidth = 8;
       const numEntries = 4;
       const idWidth = 2;
 
       final clk = SimpleClockGenerator(10).clk;
       final reset = Logic();
 
-      final writePort = DataPortInterface(tagWidth, idWidth);
-      final lookupPort = TagInvalidateInterface(idWidth, tagWidth);
+      final writePort = TagInterface(idWidth, tagWidth);
+      final invalidatePort = TagInterface(idWidth, tagWidth);
+      final lookupPort = TagInterface(idWidth, tagWidth);
 
-      final cam = CamInvalidate(
+      final cam = Cam(
         clk,
         reset,
-        [writePort],
+        [writePort, invalidatePort],
         [lookupPort],
         numEntries: numEntries,
       );
-      // Write tag 0x99 to index position 1
-      writePort.addr.inject(1);
-      writePort.data.inject(0x99);
+
+      // Wire invalidatePort to use lookupPort's combinational output
+      invalidatePort.idx <= lookupPort.idx;
+      invalidatePort.tag <= lookupPort.tag;
+      invalidatePort.hit.inject(0);  // Always clear valid bit
+
+      // Write tag 0x99 to index position 1 (hit=1 marks it valid)
+      writePort.en.inject(1);
+      writePort.hit.inject(1);
+      writePort.idx.inject(1);
+      writePort.tag.inject(0x99);
       await clk.nextPosedge;
 
       // Lookup tag 0x99 without invalidate
       lookupPort.tag.inject(0x99);
+      invalidatePort.en.inject(0);
       await clk.nextPosedge;
       // We found our matching tag at index 1 where we stored it!
       expect(lookupPort.idx.value.toInt(), equals(1),
-          reason: 'Should return index 0');
+          reason: 'Should return index 1');
+
+      // Lookup and invalidate: enable invalidatePort when hit
+      invalidatePort.en.inject(1);  // Invalidate on hit
+      await clk.nextPosedge;
+      // Entry is now invalidated - subsequent lookup will miss
 ```
