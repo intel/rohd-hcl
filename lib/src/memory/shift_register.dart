@@ -28,8 +28,8 @@ class ShiftRegister extends Module with ResettableEntries {
   /// the input data after passing through `n + 1` flops.
   ///
   /// The length is equal to [depth]. The last entry is the same as [dataOut].
-  late final List<Logic> stages = UnmodifiableListView(
-      [for (var i = 0; i < depth; i++) output(_stageName(i))]);
+  late final List<Logic> stages =
+      UnmodifiableListView(List.generate(depth, (i) => output(_stageName(i))));
 
   /// The name of the signal (and output pin) for the [i]th stage.
   String _stageName(int i) => '${dataName}_stage_$i';

@@ -103,23 +103,24 @@ class Csr extends LogicStructure {
     required this.config,
     required this.rsvdIndices,
     required List<Logic> fields,
-  }) : super(fields, name: config.name);
+    String? logicName,
+  }) : super(fields, name: logicName ?? config.name);
 
+  // Historically the CSR disallowed renaming because the architectural
+  // name is tied to its configuration. However, interface cloning and
+  // IO uniquification can pass a `name` to clone; to support that
+  // workflow we ignore the requested `name` here and preserve the
+  // CSR's configured name while still cloning the underlying elements.
   /// Creates a clone of this CSR.
   ///
   /// The CSR is not allowed to be renamed, so [name] must be null.
   @override
-  Csr clone({String? name}) {
-    if (name != null) {
-      throw RohdHclException('Cannot rename a CSR');
-    }
-
-    return Csr._(
-      config: config,
-      rsvdIndices: rsvdIndices,
-      fields: elements.map((e) => e.clone()).toList(),
-    );
-  }
+  Csr clone({String? name}) => Csr._(
+        config: config,
+        rsvdIndices: rsvdIndices,
+        fields: elements.map((e) => e.clone()).toList(),
+        logicName: name,
+      );
 
   /// Accessor to the bits of a particular field
   /// within the CSR by name [name].
