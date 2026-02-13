@@ -17,7 +17,10 @@ enum DataPortGroup {
   control,
 
   /// For data signals to/from memory.
-  data
+  data,
+
+  /// For data signal validity.
+  integrity,
 }
 
 /// A [DataPortInterface] that supports byte-enabled strobing.
@@ -62,6 +65,12 @@ class DataPortInterface extends Interface<DataPortGroup> {
   /// The data sent or received with the associated request.
   Logic get data => port('data');
 
+  /// Whether the data was successfully read or written, has the same latency as data.
+  Logic get valid => port('valid');
+
+  /// Whether the data has finished being read or written, has the same latency as data.
+  Logic get done => port('done');
+
   /// Constructs a new interface of specified [dataWidth] and [addrWidth] for
   /// interacting with a memory in either the read or write direction.
   DataPortInterface(this.dataWidth, this.addrWidth) {
@@ -76,6 +85,13 @@ class DataPortInterface extends Interface<DataPortGroup> {
       Logic.port('data', dataWidth),
     ], [
       DataPortGroup.data
+    ]);
+
+    setPorts([
+      Logic.port('valid'),
+      Logic.port('done'),
+    ], [
+      DataPortGroup.integrity
     ]);
   }
 
@@ -168,14 +184,14 @@ abstract class Memory extends Module {
       rdPorts.add(readPorts[i].clone()
         ..connectIO(this, readPorts[i],
             inputTags: {DataPortGroup.control},
-            outputTags: {DataPortGroup.data},
+            outputTags: {DataPortGroup.data, DataPortGroup.integrity},
             uniquify: (original) => 'rd_${original}_$i'));
     }
     for (var i = 0; i < numWrites; i++) {
       wrPorts.add(writePorts[i].clone()
         ..connectIO(this, writePorts[i],
             inputTags: {DataPortGroup.control, DataPortGroup.data},
-            outputTags: {},
+            outputTags: {DataPortGroup.integrity},
             uniquify: (original) => 'wr_${original}_$i'));
     }
   }

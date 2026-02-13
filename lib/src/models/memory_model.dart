@@ -69,6 +69,8 @@ class MemoryModel extends Memory {
         if (!wrPort.en.previousValue!.isValid && !storage.isEmpty) {
           // storage doesnt have access to `en`, so check ourselves
           storage.invalidWrite();
+          wrPort.valid.put(0);
+          wrPort.done.put(1);
           return;
         }
 
@@ -91,6 +93,12 @@ class MemoryModel extends Memory {
           } else {
             storage.writeData(addrValue, wrPort.data.previousValue!);
           }
+
+          wrPort.valid.put(1);
+          wrPort.done.put(1);
+        } else {
+          wrPort.valid.put(0);
+          wrPort.done.put(0);
         }
       }
 
@@ -102,6 +110,8 @@ class MemoryModel extends Memory {
               !rdPort.addr.previousValue!.isValid) {
             unawaited(_updateRead(
                 rdPort, LogicValue.filled(rdPort.dataWidth, LogicValue.x)));
+            rdPort.valid.put(0);
+            rdPort.done.put(0);
           } else {
             unawaited(_updateRead(
                 rdPort, storage.readData(rdPort.addr.previousValue!)));
@@ -129,9 +139,12 @@ class MemoryModel extends Memory {
         !rdPort.en.value.toBool() ||
         !rdPort.addr.value.isValid) {
       rdPort.data.put(LogicValue.x, fill: true);
+      rdPort.valid.put(0);
     } else {
       rdPort.data.put(storage.readData(rdPort.addr.value));
+      rdPort.valid.put(1);
     }
+    rdPort.done.put(1);
   }
 
   /// Updates read data for [rdPort] after [readLatency] time.
@@ -139,6 +152,8 @@ class MemoryModel extends Memory {
     if (readLatency > 1) {
       await clk.waitCycles(readLatency - 1);
     }
-    rdPort.data.inject(data);
+    rdPort.data.put(data);
+    rdPort.valid.put(1);
+    rdPort.done.put(1);
   }
 }
