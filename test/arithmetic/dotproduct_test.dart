@@ -63,8 +63,8 @@ void main() {
   test('dotproduct signed-variants exhaustive', () async {
     const widths = [3, 3];
     final depth = widths.length;
-    final candValues = [for (var i = 0; i < depth; i++) BigInt.zero];
-    final multValues = [for (var i = 0; i < depth; i++) BigInt.zero];
+    final candValues = List.generate(depth, (_) => BigInt.zero);
+    final multValues = List.generate(depth, (_) => BigInt.zero);
     final multiplicands = [
       for (var i = 0; i < depth; i++) Logic(width: widths[i])..put(0)
     ];

@@ -276,8 +276,8 @@ class Fifo<LogicType extends Logic> extends Module {
   /// Optionally, the increment can be conditional on [condition].
   Logic _incrWithWrap(Logic original, [Logic? condition]) {
     final maxValue = depth - 1;
-    final wrapped = mux(
-        original.eq(maxValue), Const(0, width: original.width), original + 1);
+    final wrapped = mux(original.eq(maxValue), Const(0, width: original.width),
+        (original + 1).named('${original.name}Increment'));
     return condition != null ? mux(condition, wrapped, original) : wrapped;
   }
 }
