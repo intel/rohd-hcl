@@ -137,7 +137,6 @@ abstract class SummationBase extends Module {
     } else {
       // if it's a LogicValue, then don't assume the width is necessary
       if (value is LogicValue) {
-        // ignore: parameter_assignments
         value = value.toBigInt();
       }
 
