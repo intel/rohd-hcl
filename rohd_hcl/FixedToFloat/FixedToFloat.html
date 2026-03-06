@@ -56,12 +56,12 @@
       
       <span class="name ">FixedToFloat</span>(<wbr><ol class="parameter-list"> <li><span class="parameter" id="-param-fixed"><span class="type-annotation"><a href="../../rohd_hcl/FixedPoint-class.html">FixedPoint</a></span> <span class="parameter-name">fixed</span>, </span></li>
 <li><span class="parameter" id="-param-outFloat"><span class="type-annotation"><a href="../../rohd_hcl/FloatingPoint-class.html">FloatingPoint</a></span> <span class="parameter-name">outFloat</span>, {</span></li>
-<li><span class="parameter" id="-param-signed"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.10.9/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">signed</span> = <span class="default-value">true</span>, </span></li>
+<li><span class="parameter" id="-param-signed"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.11.1/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">signed</span> = <span class="default-value">true</span>, </span></li>
 <li><span class="parameter" id="-param-leadingDigitPredict"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.8/rohd/Logic-class.html">Logic</a>?</span> <span class="parameter-name">leadingDigitPredict</span>, </span></li>
-<li><span class="parameter" id="-param-name"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.10.9/dart-core/String-class.html">String</a></span> <span class="parameter-name">name</span> = <span class="default-value">&#39;FixedToFloat&#39;</span>, </span></li>
-<li><span class="parameter" id="-param-reserveName"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.10.9/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">reserveName</span> = <span class="default-value">false</span>, </span></li>
-<li><span class="parameter" id="-param-reserveDefinitionName"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.10.9/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">reserveDefinitionName</span> = <span class="default-value">false</span>, </span></li>
-<li><span class="parameter" id="-param-definitionName"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.10.9/dart-core/String-class.html">String</a>?</span> <span class="parameter-name">definitionName</span>, </span></li>
+<li><span class="parameter" id="-param-name"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.11.1/dart-core/String-class.html">String</a></span> <span class="parameter-name">name</span> = <span class="default-value">&#39;FixedToFloat&#39;</span>, </span></li>
+<li><span class="parameter" id="-param-reserveName"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.11.1/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">reserveName</span> = <span class="default-value">false</span>, </span></li>
+<li><span class="parameter" id="-param-reserveDefinitionName"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.11.1/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">reserveDefinitionName</span> = <span class="default-value">false</span>, </span></li>
+<li><span class="parameter" id="-param-definitionName"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.11.1/dart-core/String-class.html">String</a>?</span> <span class="parameter-name">definitionName</span>, </span></li>
 </ol>})
     </section>
     
@@ -92,16 +92,19 @@ fixed-point value input to this converter.</p>
           definitionName: definitionName ??
               &#39;Fixed${fixed.width}ToFloat_E${outFloat.exponent.width}&#39;
                   &#39;M${outFloat.mantissa.width}&#39;) {
-  fixed = fixed.clone(name: &#39;fixed&#39;)
-    ..gets(addInput(&#39;fixed&#39;, fixed, width: fixed.width));
+  fixed = addTypedInput(&#39;fixed&#39;, fixed);
 
   final fixedAsLogic = fixed.packed;
   final exponentWidth = outFloat.exponent.width;
   final mantissaWidth = outFloat.mantissa.width;
   _convertedFloat = FloatingPoint(
       exponentWidth: exponentWidth, mantissaWidth: mantissaWidth);
-  addOutput(&#39;float&#39;, width: outFloat.width) &lt;= _convertedFloat;
-  outFloat &lt;= output(&#39;float&#39;);
+  &#47;&#47; Create a typed output and drive it from the internal converted float.
+  final typedFloatOut = addTypedOutput(&#39;float&#39;, _convertedFloat.clone);
+  typedFloatOut &lt;= _convertedFloat;
+  &#47;&#47; Also set the public `float` handle to the typed output instance so
+  &#47;&#47; consumers that expect a FloatingPoint object can use `float` directly.
+  float = typedFloatOut;
 
   leadingDigitPredict = (leadingDigitPredict != null)
       ? addInput(&#39;leadingDigitPredict&#39;, leadingDigitPredict,

@@ -68,7 +68,9 @@
       
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
-  <pre class="language-dart"><code class="language-dart">late final FloatingPoint float = outFloat.clone()..gets(output(&#39;float&#39;));</code></pre>
+  <pre class="language-dart"><code class="language-dart">&#47;&#47; Expose typed FloatingPoint output via addTypedOutput and wire internal
+&#47;&#47; converted float into it. This avoids relying on plain output(&#39;float&#39;).
+late final FloatingPoint float;</code></pre>
 </section>
 
 

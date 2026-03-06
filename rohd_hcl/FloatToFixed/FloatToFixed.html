@@ -55,13 +55,13 @@
     <section class="multi-line-signature">
       
       <span class="name ">FloatToFixed</span>(<wbr><ol class="parameter-list"> <li><span class="parameter" id="-param-float"><span class="type-annotation"><a href="../../rohd_hcl/FloatingPoint-class.html">FloatingPoint</a></span> <span class="parameter-name">float</span>, {</span></li>
-<li><span class="parameter" id="-param-name"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.10.9/dart-core/String-class.html">String</a></span> <span class="parameter-name">name</span> = <span class="default-value">&#39;FloatToFixed&#39;</span>, </span></li>
-<li><span class="parameter" id="-param-integerWidth"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.10.9/dart-core/int-class.html">int</a>?</span> <span class="parameter-name">integerWidth</span>, </span></li>
-<li><span class="parameter" id="-param-fractionWidth"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.10.9/dart-core/int-class.html">int</a>?</span> <span class="parameter-name">fractionWidth</span>, </span></li>
-<li><span class="parameter" id="-param-checkOverflow"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.10.9/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">checkOverflow</span> = <span class="default-value">false</span>, </span></li>
-<li><span class="parameter" id="-param-reserveName"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.10.9/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">reserveName</span> = <span class="default-value">false</span>, </span></li>
-<li><span class="parameter" id="-param-reserveDefinitionName"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.10.9/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">reserveDefinitionName</span> = <span class="default-value">false</span>, </span></li>
-<li><span class="parameter" id="-param-definitionName"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.10.9/dart-core/String-class.html">String</a>?</span> <span class="parameter-name">definitionName</span>, </span></li>
+<li><span class="parameter" id="-param-name"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.11.1/dart-core/String-class.html">String</a></span> <span class="parameter-name">name</span> = <span class="default-value">&#39;FloatToFixed&#39;</span>, </span></li>
+<li><span class="parameter" id="-param-integerWidth"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.11.1/dart-core/int-class.html">int</a>?</span> <span class="parameter-name">integerWidth</span>, </span></li>
+<li><span class="parameter" id="-param-fractionWidth"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.11.1/dart-core/int-class.html">int</a>?</span> <span class="parameter-name">fractionWidth</span>, </span></li>
+<li><span class="parameter" id="-param-checkOverflow"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.11.1/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">checkOverflow</span> = <span class="default-value">false</span>, </span></li>
+<li><span class="parameter" id="-param-reserveName"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.11.1/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">reserveName</span> = <span class="default-value">false</span>, </span></li>
+<li><span class="parameter" id="-param-reserveDefinitionName"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.11.1/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">reserveDefinitionName</span> = <span class="default-value">false</span>, </span></li>
+<li><span class="parameter" id="-param-definitionName"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.11.1/dart-core/String-class.html">String</a>?</span> <span class="parameter-name">definitionName</span>, </span></li>
 </ol>})
     </section>
     
@@ -94,7 +94,7 @@ produced that returns <code>true</code> when overflow occurs.</li>
           definitionName: definitionName ??
               &#39;FloatE${float.exponent.width}&#39;
                   &#39;M${float.mantissa.width}ToFixed&#39;) {
-  float = float.clone()..gets(addInput(&#39;float&#39;, float, width: float.width));
+  float = addTypedInput(&#39;float&#39;, float);
 
   final bias = float.floatingPointValue.bias;
   &#47;&#47; E4M3 expands the max exponent by 1.
@@ -171,7 +171,9 @@ produced that returns <code>true</code> when overflow occurs.</li>
       .named(&#39;number&#39;);
 
   _fixed &lt;= mux(float.sign, ~number + 1, number).named(&#39;signedNumber&#39;);
-  addOutput(&#39;fixed&#39;, width: outputWidth) &lt;= _fixed;
+  final typedFixedOut = addTypedOutput(&#39;fixed&#39;, _fixed.clone);
+  typedFixedOut &lt;= _fixed;
+  fixed = typedFixedOut;
 }</code></pre>
 </section>
 
