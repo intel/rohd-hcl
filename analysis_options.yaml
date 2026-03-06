@@ -128,7 +128,7 @@ linter:
     - overridden_fields
     - package_names
     - package_prefixed_library_names
-    - parameter_assignments
+    # - parameter_assignments # common pattern in ROHD modules
     - prefer_adjacent_string_concatenation
     - prefer_asserts_in_initializer_lists
     - prefer_asserts_with_message

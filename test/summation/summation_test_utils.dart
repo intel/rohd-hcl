@@ -51,7 +51,6 @@ int goldenSum(
 
   maxVal ??= (1 << width) - 1;
   if (maxVal > (1 << width) - 1) {
-    // ignore: parameter_assignments
     maxVal = (1 << width) - 1;
   }
   minVal ??= 0;
