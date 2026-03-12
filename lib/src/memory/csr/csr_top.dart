@@ -108,14 +108,15 @@ class CsrTop extends CsrContainer {
       DataPortInterface? blockFdWrite;
       DataPortInterface? blockFdRead;
 
+      final blockOffsetW = config.blockOffsetWidthForBlock(block);
+
       if (frontWritePresent) {
-        blockFdWrite =
-            DataPortInterface(frontWrite!.dataWidth, blockOffsetWidth);
+        blockFdWrite = DataPortInterface(frontWrite!.dataWidth, blockOffsetW);
         _fdWrites.add(blockFdWrite);
       }
 
       if (frontReadPresent) {
-        blockFdRead = DataPortInterface(frontRead!.dataWidth, blockOffsetWidth);
+        blockFdRead = DataPortInterface(frontRead!.dataWidth, blockOffsetW);
         _fdReads.add(blockFdRead);
       }
 
@@ -168,34 +169,41 @@ class CsrTop extends CsrContainer {
     // address width must be at least wide enough
     // to address all registers in all blocks
 
+    // compute the maximum effective block offset width across all blocks
+    final maxBlockOffsetWidth = config.blocks
+        .map(config.blockOffsetWidthForBlock)
+        .fold(0, (a, b) => a > b ? a : b);
+
     if (frontReadPresent) {
-      if (frontRead!.addrWidth < blockOffsetWidth) {
+      if (frontRead!.addrWidth < maxBlockOffsetWidth) {
         throw CsrValidationException(
             'Frontdoor read interface address width must be '
-            'at least $blockOffsetWidth.');
+            'at least $maxBlockOffsetWidth.');
       }
     }
 
     if (frontWritePresent) {
-      if (frontWrite!.addrWidth < blockOffsetWidth) {
+      if (frontWrite!.addrWidth < maxBlockOffsetWidth) {
         throw CsrValidationException(
             'Frontdoor write interface address width must be '
-            'at least $blockOffsetWidth.');
+            'at least $maxBlockOffsetWidth.');
       }
     }
   }
 
   void _buildLogic() {
     if (frontWritePresent) {
-      // mask out LSBs to perform a match on block
-      final maskedFrontWrAddr = frontWrite!.addr &
-          ~Const((1 << blockOffsetWidth) - 1, width: addrWidth);
-
-      // shift out MSBs to pass the appropriate address into the blocks
-      final shiftedFrontWrAddr = frontWrite!.addr.getRange(0, blockOffsetWidth);
-
-      // drive frontdoor write and read inputs
+      // drive frontdoor write inputs per block using each block's own mask
       for (var i = 0; i < _blocks.length; i++) {
+        final offsetWidth = config.blockOffsetWidthForBlock(config.blocks[i]);
+
+        // mask out LSBs to perform a match on block
+        final maskedFrontWrAddr =
+            frontWrite!.addr & ~Const((1 << offsetWidth) - 1, width: addrWidth);
+
+        // extract the in-block register address
+        final shiftedFrontWrAddr = frontWrite!.addr.getRange(0, offsetWidth);
+
         _fdWrites[i].en <=
             frontWrite!.en &
                 maskedFrontWrAddr
@@ -207,42 +215,31 @@ class CsrTop extends CsrContainer {
     }
 
     if (frontReadPresent) {
-      // mask out LSBs to perform a match on block
-      final maskedFrontRdAddr = (frontRead!.addr &
-              ~Const((1 << blockOffsetWidth) - 1, width: addrWidth))
-          .named('maskFrontRdAddr');
+      // per-block address match signals
+      final blockReadMatches = List.generate(_blocks.length, (i) {
+        final offsetWidth = config.blockOffsetWidthForBlock(config.blocks[i]);
+        return (frontRead!.addr &
+                ~Const((1 << offsetWidth) - 1, width: addrWidth))
+            .named('maskedFrontRdAddr_$i')
+            .eq(Const(_blocks[i].baseAddr, width: addrWidth));
+      });
 
-      // shift out MSBs to pass the appropriate address into the blocks
-      final shiftedFrontRdAddr = frontRead!.addr.getRange(0, blockOffsetWidth);
-
-      // drive frontdoor write and read inputs
+      // drive frontdoor read enable and address per block
       for (var i = 0; i < _blocks.length; i++) {
-        _fdReads[i].en <=
-            frontRead!.en &
-                maskedFrontRdAddr
-                    .eq(Const(_blocks[i].baseAddr, width: addrWidth));
-
-        _fdReads[i].addr <= shiftedFrontRdAddr;
+        final offsetWidth = config.blockOffsetWidthForBlock(config.blocks[i]);
+        _fdReads[i].en <= frontRead!.en & blockReadMatches[i];
+        _fdReads[i].addr <= frontRead!.addr.getRange(0, offsetWidth);
       }
 
-      // capture frontdoor read output
+      // capture frontdoor read output via Iff/ElseIf/Else on per-block matches
       final rdData = Logic(name: 'internalRdData', width: frontRead!.dataWidth);
-      final rdCases = _blocks
-          .asMap()
-          .entries
-          .map((block) =>
-              CaseItem(Const(block.value.baseAddr, width: addrWidth), [
-                rdData < _fdReads[block.key].data,
-              ]))
-          .toList();
       Combinational([
-        Case(
-            maskedFrontRdAddr,
-            conditionalType: ConditionalType.unique,
-            rdCases,
-            defaultItem: [
-              rdData < Const(0, width: frontRead!.dataWidth),
-            ]),
+        If.block([
+          Iff(blockReadMatches[0], [rdData < _fdReads[0].data]),
+          for (var i = 1; i < _blocks.length; i++)
+            ElseIf(blockReadMatches[i], [rdData < _fdReads[i].data]),
+          Else([rdData < Const(0, width: frontRead!.dataWidth)]),
+        ]),
       ]);
       frontRead!.data <= rdData;
     }

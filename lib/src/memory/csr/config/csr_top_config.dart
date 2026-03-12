@@ -18,10 +18,12 @@ import 'package:rohd_hcl/src/memory/csr/config/csr_container_config.dart';
 /// any conditional blocks should take place.
 @immutable
 class CsrTopConfig extends CsrContainerConfig {
-  /// Address bits dedicated to the individual registers.
+  /// Default number of address bits dedicated to registers within each block.
   ///
   /// This is effectively the number of LSBs in an incoming address
-  /// to ignore when assessing the address of a block.
+  /// to ignore when assessing the address of a block. Individual blocks may
+  /// override this value via [CsrBlockConfig.blockOffsetWidth] to support
+  /// heterogeneous block sizes.
   final int blockOffsetWidth;
 
   /// Blocks in this module.
@@ -35,6 +37,14 @@ class CsrTopConfig extends CsrContainerConfig {
   }) : blocks = List.unmodifiable(blocks) {
     _validate();
   }
+
+  /// Returns the effective block offset width for [block].
+  ///
+  /// If the block has its own [CsrBlockConfig.blockOffsetWidth] set, that
+  /// value is returned; otherwise the top-level [blockOffsetWidth] default
+  /// is used.
+  int blockOffsetWidthForBlock(CsrBlockConfig block) =>
+      block.blockOffsetWidth ?? blockOffsetWidth;
 
   /// Accessor to the config of a particular register block
   /// within the module by name [name].
@@ -63,13 +73,21 @@ class CsrTopConfig extends CsrContainerConfig {
     // no two blocks with the same name
     // no two blocks with the same base address
     // no two blocks with base addresses that are too close together
-    // also compute the max min address bits across the blocks
+    // also check that each block's effective offset width is large enough
     final issues = <String>[];
-    var maxMinAddrBits = 0;
     for (var i = 0; i < blocks.length; i++) {
-      final currMaxMin = blocks[i].minAddrBits();
-      if (currMaxMin > maxMinAddrBits) {
-        maxMinAddrBits = currMaxMin;
+      final effectiveWidthI = blockOffsetWidthForBlock(blocks[i]);
+
+      // verify that the effective offset width can address all registers
+      // in this block (only needs to be checked here for blocks that use the
+      // top-level default; blocks with their own override are validated in
+      // CsrBlockConfig directly)
+      if (blocks[i].blockOffsetWidth == null &&
+          effectiveWidthI < blocks[i].minAddrBits()) {
+        issues.add(
+            'Block offset width $effectiveWidthI is too small to address all '
+            'registers in block ${blocks[i].name}. The minimum offset width '
+            'for this block is ${blocks[i].minAddrBits()}.');
       }
 
       for (var j = i + 1; j < blocks.length; j++) {
@@ -80,24 +98,25 @@ class CsrTopConfig extends CsrContainerConfig {
         if (blocks[i].baseAddr == blocks[j].baseAddr) {
           issues.add(
               'Register block ${blocks[i].name} has a duplicate base address.');
-        } else if ((blocks[i].baseAddr - blocks[j].baseAddr).abs().bitLength <
-            blockOffsetWidth) {
-          issues.add(
-              'Register blocks ${blocks[i].name} and ${blocks[j].name} are '
-              'too close together per the block offset width.');
+        } else {
+          // two blocks must be spaced far enough apart that neither block's
+          // address range overlaps the other; use the larger of the two
+          // effective offset widths as the required minimum separation
+          final effectiveWidthJ = blockOffsetWidthForBlock(blocks[j]);
+          final minSeparation = effectiveWidthI > effectiveWidthJ
+              ? effectiveWidthI
+              : effectiveWidthJ;
+          if ((blocks[i].baseAddr - blocks[j].baseAddr).abs().bitLength <
+              minSeparation) {
+            issues.add(
+                'Register blocks ${blocks[i].name} and ${blocks[j].name} are '
+                'too close together per their block offset widths.');
+          }
         }
       }
     }
     if (issues.isNotEmpty) {
       throw CsrValidationException(issues.join('\n'));
-    }
-
-    // is the block offset width big enough to address
-    // every register in every block
-    if (blockOffsetWidth < maxMinAddrBits) {
-      throw CsrValidationException(
-          'Block offset width is too small to address all register in all '
-          'blocks in the module. The minimum offset width is $maxMinAddrBits.');
     }
   }
 

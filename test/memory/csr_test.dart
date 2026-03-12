@@ -128,6 +128,54 @@ class MyCsrModule extends CsrTopConfig {
         ]);
 }
 
+/// A CSR module with heterogeneous block offset widths for testing.
+///
+/// - block_large: uses the default [blockOffsetWidth] of 8.
+/// - block_small: overrides to a smaller [blockOffsetWidth] of 4.
+class MyHeterogeneousCsrModule extends CsrTopConfig {
+  MyHeterogeneousCsrModule()
+      : super(
+          name: 'myHeterogeneousCsrModule',
+          blockOffsetWidth: 8, // default for blocks without their own override
+          blocks: [
+            // block_large uses the default blockOffsetWidth = 8
+            MyRegisterBlock(
+              baseAddr: 0x000,
+              name: 'block_large',
+              csrWidth: 32,
+              numNoFieldCsrs: 2,
+            ),
+            // block_small overrides to a smaller blockOffsetWidth = 4
+            CsrBlockConfig(
+              name: 'block_small',
+              baseAddr: 0x100,
+              blockOffsetWidth: 4,
+              registers: [
+                CsrInstanceConfig(
+                  arch: CsrConfig(
+                    access: CsrAccess.readWrite,
+                    name: 'sReg0',
+                    fields: const [],
+                  ),
+                  addr: 0x0,
+                  width: 32,
+                ),
+                CsrInstanceConfig(
+                  arch: CsrConfig(
+                    access: CsrAccess.readOnly,
+                    name: 'sReg1',
+                    fields: const [],
+                  ),
+                  addr: 0x1,
+                  width: 32,
+                  resetValue: 0xABCD1234,
+                ),
+              ],
+            ),
+          ],
+        );
+}
+
 // to test potentially issues with CsrTop port propagation
 class DummyCsrTopModule extends Module {
   late final Logic _clk;
@@ -474,6 +522,132 @@ void main() {
     await mod.build();
   });
 
+  test('CSR top with heterogeneous block offset widths', () async {
+    const csrWidth = 32;
+
+    final csrTopCfg = MyHeterogeneousCsrModule();
+
+    final clk = SimpleClockGenerator(10).clk;
+    final reset = Logic()..inject(0);
+    final wIntf = DataPortInterface(csrWidth, 32);
+    final rIntf = DataPortInterface(csrWidth, 32);
+    final csrTop = CsrTop(
+        config: csrTopCfg,
+        clk: clk,
+        reset: reset,
+        frontWrite: wIntf,
+        frontRead: rIntf,
+        allowLargerRegisters: true);
+
+    wIntf.en.inject(0);
+    wIntf.addr.inject(0);
+    wIntf.data.inject(0);
+    rIntf.en.inject(0);
+    rIntf.addr.inject(0);
+
+    await csrTop.build();
+
+    for (var i = 0; i < csrTop.backdoorInterfaces.length; i++) {
+      for (var j = 0; j < csrTop.backdoorInterfaces[i].length; j++) {
+        if (csrTop.backdoorInterfaces[i][j].hasWrite) {
+          csrTop.backdoorInterfaces[i][j].wrEn!.put(0);
+          csrTop.backdoorInterfaces[i][j].wrData!.put(0);
+        }
+      }
+    }
+
+    Simulator.setMaxSimTime(10000);
+    unawaited(Simulator.run());
+
+    final blockLarge = csrTop.getBlockByName('block_large');
+    final blockSmall = csrTop.getBlockByName('block_small');
+    final largeCsr1 = blockLarge.getRegisterByName('csr1');
+    final smallSReg0 = blockSmall.getRegisterByName('sReg0');
+    final smallSReg1 = blockSmall.getRegisterByName('sReg1');
+
+    // check that block offset widths are as configured
+    expect(csrTopCfg.blockOffsetWidthForBlock(blockLarge), 8);
+    expect(csrTopCfg.blockOffsetWidthForBlock(blockSmall), 4);
+
+    // perform a reset
+    reset.inject(1);
+    await clk.waitCycles(10);
+    reset.inject(0);
+    await clk.waitCycles(10);
+
+    // read small block's read-only register (has reset value 0xABCD1234)
+    final addrSmall1 = blockSmall.baseAddr + smallSReg1.addr;
+    await clk.nextNegedge;
+    rIntf.en.inject(1);
+    rIntf.addr.inject(addrSmall1);
+    await clk.nextNegedge;
+    rIntf.en.inject(0);
+    expect(rIntf.data.value,
+        LogicValue.ofInt(smallSReg1.resetValue, rIntf.dataWidth));
+    await clk.waitCycles(10);
+
+    // attempt a write to small block's read-only register (sReg1) and verify
+    // it has no effect
+    await clk.nextNegedge;
+    wIntf.en.inject(1);
+    wIntf.addr.inject(addrSmall1);
+    wIntf.data.inject(0xDEADBEEF);
+    await clk.nextNegedge;
+    wIntf.en.inject(0);
+    rIntf.en.inject(1);
+    rIntf.addr.inject(addrSmall1);
+    await clk.nextNegedge;
+    rIntf.en.inject(0);
+    // read-only, so value should remain the reset value
+    expect(rIntf.data.value,
+        LogicValue.ofInt(smallSReg1.resetValue, rIntf.dataWidth));
+    await clk.waitCycles(10);
+
+    // write to small block's read-write register (sReg0) and verify
+    final addrSmall0 = blockSmall.baseAddr + smallSReg0.addr;
+    await clk.nextNegedge;
+    wIntf.en.inject(1);
+    wIntf.addr.inject(addrSmall0);
+    wIntf.data.inject(0x12345678);
+    await clk.nextNegedge;
+    wIntf.en.inject(0);
+    rIntf.en.inject(1);
+    rIntf.addr.inject(addrSmall0);
+    await clk.nextNegedge;
+    rIntf.en.inject(0);
+    expect(rIntf.data.value, LogicValue.ofInt(0x12345678, rIntf.dataWidth));
+    await clk.waitCycles(10);
+
+    // write to large block's csr1 and verify: fields restrict the written value
+    final addrLarge1 = blockLarge.baseAddr + largeCsr1.addr;
+    await clk.nextNegedge;
+    wIntf.en.inject(1);
+    wIntf.addr.inject(addrLarge1);
+    wIntf.data.inject(0xbeefdead);
+    await clk.nextNegedge;
+    wIntf.en.inject(0);
+    rIntf.en.inject(1);
+    rIntf.addr.inject(addrLarge1);
+    await clk.nextNegedge;
+    rIntf.en.inject(0);
+    // same field-masked result as in the uniform test
+    expect(rIntf.data.value, LogicValue.ofInt(0xef00f3, rIntf.dataWidth));
+    await clk.waitCycles(10);
+
+    // confirm small block sReg0 still holds its written value
+    // (write to large block must not corrupt small block)
+    await clk.nextNegedge;
+    rIntf.en.inject(1);
+    rIntf.addr.inject(addrSmall0);
+    await clk.nextNegedge;
+    rIntf.en.inject(0);
+    expect(rIntf.data.value, LogicValue.ofInt(0x12345678, rIntf.dataWidth));
+    await clk.waitCycles(10);
+
+    await Simulator.endSimulation();
+    await Simulator.simulationEnded;
+  });
+
   group('omitted front-door interfaces', () {
     test('no front write', () {
       CsrTop(
@@ -656,6 +830,59 @@ void main() {
                     width: 4)
               ])
             ]),
+        throwsA(isA<CsrValidationException>()));
+
+    // illegal block-level blockOffsetWidth override: too small for its registers
+    expect(
+        () => CsrBlockConfig(
+              name: 'block',
+              baseAddr: 0x0,
+              blockOffsetWidth: 2, // too small: reg at addr=0x4 needs 3 bits
+              registers: [
+                CsrInstanceConfig(
+                    arch: CsrConfig(
+                        access: CsrAccess.readWrite,
+                        name: 'reg',
+                        fields: const []),
+                    addr: 0x4,
+                    width: 4)
+              ],
+            ),
+        throwsA(isA<CsrValidationException>()));
+
+    // illegal top - blocks too close considering larger per-block offset override
+    expect(
+        () => CsrTopConfig(
+              name: 'top',
+              blockOffsetWidth: 4, // default
+              blocks: [
+                CsrBlockConfig(
+                    name: 'block0',
+                    baseAddr: 0x0,
+                    blockOffsetWidth: 8, // override: needs 256-address space
+                    registers: [
+                      CsrInstanceConfig(
+                          arch: CsrConfig(
+                              access: CsrAccess.readWrite,
+                              name: 'reg',
+                              fields: const []),
+                          addr: 0x0,
+                          width: 4)
+                    ]),
+                CsrBlockConfig(
+                    name: 'block1',
+                    baseAddr: 0x10, // only 16 away from block0 - too close
+                    registers: [
+                      CsrInstanceConfig(
+                          arch: CsrConfig(
+                              access: CsrAccess.readWrite,
+                              name: 'reg',
+                              fields: const []),
+                          addr: 0x0,
+                          width: 4)
+                    ]),
+              ],
+            ),
         throwsA(isA<CsrValidationException>()));
   });
 }
