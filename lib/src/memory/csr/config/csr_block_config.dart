@@ -26,11 +26,21 @@ class CsrBlockConfig extends CsrContainerConfig {
   /// Registers in this block.
   final List<CsrInstanceConfig> registers;
 
+  /// Optional override for the number of address bits dedicated to registers
+  /// within this block.
+  ///
+  /// When set, this value takes precedence over the uniform
+  /// [CsrTopConfig.blockOffsetWidth] for this specific block, enabling
+  /// heterogeneous block sizes within the same top-level module. When `null`
+  /// (the default), the top-level [CsrTopConfig.blockOffsetWidth] is used.
+  final int? blockOffsetWidth;
+
   /// Construct a new block configuration.
   CsrBlockConfig({
     required super.name,
     required this.baseAddr,
     required List<CsrInstanceConfig> registers,
+    this.blockOffsetWidth,
   }) : registers = List.unmodifiable(registers) {
     // validate the block
     _validate();
@@ -74,6 +84,13 @@ class CsrBlockConfig extends CsrContainerConfig {
     if (issues.isNotEmpty) {
       throw CsrValidationException(issues.join('\n'));
     }
+
+    // if a blockOffsetWidth override is provided, validate it is large enough
+    if (blockOffsetWidth != null && blockOffsetWidth! < minAddrBits()) {
+      throw CsrValidationException(
+          'Block $name has a blockOffsetWidth of $blockOffsetWidth which is '
+          'too small to address all registers. The minimum is ${minAddrBits()}.');
+    }
   }
 
   /// Method to determine the minimum number of address bits
@@ -109,6 +126,7 @@ class CsrBlockConfig extends CsrContainerConfig {
         name: name,
         baseAddr: baseAddr,
         registers: registers,
+        blockOffsetWidth: blockOffsetWidth,
       );
 
   @override
@@ -120,6 +138,7 @@ class CsrBlockConfig extends CsrContainerConfig {
     return other is CsrBlockConfig &&
         super == other &&
         other.baseAddr == baseAddr &&
+        other.blockOffsetWidth == blockOffsetWidth &&
         const ListEquality<CsrInstanceConfig>()
             .equals(other.registers, registers);
   }
@@ -128,5 +147,6 @@ class CsrBlockConfig extends CsrContainerConfig {
   int get hashCode =>
       super.hashCode ^
       baseAddr.hashCode ^
+      blockOffsetWidth.hashCode ^
       const ListEquality<CsrInstanceConfig>().hash(registers);
 }
