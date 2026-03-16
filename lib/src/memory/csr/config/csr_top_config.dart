@@ -99,15 +99,20 @@ class CsrTopConfig extends CsrContainerConfig {
           issues.add(
               'Register block ${blocks[i].name} has a duplicate base address.');
         } else {
-          // two blocks must be spaced far enough apart that neither block's
-          // address range overlaps the other; use the larger of the two
-          // effective offset widths as the required minimum separation
+          // the block whose base address comes first in the address space
+          // must not bleed into the block that comes second, based on
+          // the first block's effective offset width (i.e., size)
           final effectiveWidthJ = blockOffsetWidthForBlock(blocks[j]);
-          final minSeparation = effectiveWidthI > effectiveWidthJ
-              ? effectiveWidthI
-              : effectiveWidthJ;
-          if ((blocks[i].baseAddr - blocks[j].baseAddr).abs().bitLength <
-              minSeparation) {
+          final int separation;
+          final int firstBlockWidth;
+          if (blocks[i].baseAddr < blocks[j].baseAddr) {
+            separation = blocks[j].baseAddr - blocks[i].baseAddr;
+            firstBlockWidth = effectiveWidthI;
+          } else {
+            separation = blocks[i].baseAddr - blocks[j].baseAddr;
+            firstBlockWidth = effectiveWidthJ;
+          }
+          if (separation.bitLength <= firstBlockWidth) {
             issues.add(
                 'Register blocks ${blocks[i].name} and ${blocks[j].name} are '
                 'too close together per their block offset widths.');
