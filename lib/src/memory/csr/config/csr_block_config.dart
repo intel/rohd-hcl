@@ -26,21 +26,21 @@ class CsrBlockConfig extends CsrContainerConfig {
   /// Registers in this block.
   final List<CsrInstanceConfig> registers;
 
-  /// Optional override for the number of address bits dedicated to registers
-  /// within this block.
+  /// Optional override for the number of addresses in this block's
+  /// address space.
   ///
   /// When set, this value takes precedence over the uniform
-  /// [CsrTopConfig.blockOffsetWidth] for this specific block, enabling
+  /// [CsrTopConfig.blockSize] for this specific block, enabling
   /// heterogeneous block sizes within the same top-level module. When `null`
-  /// (the default), the top-level [CsrTopConfig.blockOffsetWidth] is used.
-  final int? blockOffsetWidth;
+  /// (the default), the top-level [CsrTopConfig.blockSize] is used.
+  final int? blockSize;
 
   /// Construct a new block configuration.
   CsrBlockConfig({
     required super.name,
     required this.baseAddr,
     required List<CsrInstanceConfig> registers,
-    this.blockOffsetWidth,
+    this.blockSize,
   }) : registers = List.unmodifiable(registers) {
     // validate the block
     _validate();
@@ -85,27 +85,32 @@ class CsrBlockConfig extends CsrContainerConfig {
       throw CsrValidationException(issues.join('\n'));
     }
 
-    // if a blockOffsetWidth override is provided, validate it is large enough
-    if (blockOffsetWidth != null && blockOffsetWidth! < minAddrBits()) {
+    // if a blockSize override is provided, validate it is large enough
+    if (blockSize != null && blockSize! < minBlockSize()) {
       throw CsrValidationException(
-          'Block $name has a blockOffsetWidth of $blockOffsetWidth which is '
-          'too small to address all registers. The minimum is ${minAddrBits()}.');
+          'Block $name has a blockSize of $blockSize which is '
+          'too small to address all registers. '
+          'The minimum block size is ${minBlockSize()}.');
     }
   }
 
-  /// Method to determine the minimum number of address bits
-  /// needed to address all registers in the block. This is
-  /// based on the maximum register address offset.
-  @override
-  int minAddrBits() {
+  /// Returns the minimum block size (number of addresses) needed to
+  /// cover all registers in this block.
+  int minBlockSize() {
     var maxAddr = 0;
     for (final reg in registers) {
       if (reg.addr > maxAddr) {
         maxAddr = reg.addr;
       }
     }
-    return maxAddr.bitLength;
+    return maxAddr + 1;
   }
+
+  /// Method to determine the minimum number of address bits
+  /// needed to address all registers in the block. This is
+  /// based on the maximum register address offset.
+  @override
+  int minAddrBits() => (minBlockSize() - 1).bitLength;
 
   /// Method to determine the maximum register size.
   /// This is important for interface data width validation.
@@ -126,7 +131,7 @@ class CsrBlockConfig extends CsrContainerConfig {
         name: name,
         baseAddr: baseAddr,
         registers: registers,
-        blockOffsetWidth: blockOffsetWidth,
+        blockSize: blockSize,
       );
 
   @override
@@ -138,7 +143,7 @@ class CsrBlockConfig extends CsrContainerConfig {
     return other is CsrBlockConfig &&
         super == other &&
         other.baseAddr == baseAddr &&
-        other.blockOffsetWidth == blockOffsetWidth &&
+        other.blockSize == blockSize &&
         const ListEquality<CsrInstanceConfig>()
             .equals(other.registers, registers);
   }
@@ -147,6 +152,6 @@ class CsrBlockConfig extends CsrContainerConfig {
   int get hashCode =>
       super.hashCode ^
       baseAddr.hashCode ^
-      blockOffsetWidth.hashCode ^
+      blockSize.hashCode ^
       const ListEquality<CsrInstanceConfig>().hash(registers);
 }

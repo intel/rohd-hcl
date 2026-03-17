@@ -42,8 +42,8 @@ class CsrTop extends CsrContainer {
   final List<List<CsrBackdoorInterface>> _backdoorInterfaces = [];
   final List<Map<int, int>> _backdoorIndexMaps = [];
 
-  /// Getter for the block offset width.
-  int get blockOffsetWidth => config.blockOffsetWidth;
+  /// Getter for the block size.
+  int get blockSize => config.blockSize;
 
   /// Getter for the block configurations of the CSR.
   List<CsrBlockConfig> get blocks => config.blocks;
@@ -99,7 +99,7 @@ class CsrTop extends CsrContainer {
             definitionName: definitionName ??
                 'CsrTop_A${config.minAddrBits()}_'
                     'W${config.maxRegWidth()}_'
-                    'BO${config.blockOffsetWidth}_'
+                    'BS${config.blockSize}_'
                     'LR${allowLargerRegisters}_'
                     'RI$logicalRegisterIncrement') {
     _validate();

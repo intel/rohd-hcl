@@ -116,7 +116,7 @@ class MyCsrModule extends CsrTopConfig {
   MyCsrModule({
     this.numBlocks = 1,
     super.name = 'myCsrModule',
-    super.blockOffsetWidth = 8,
+    super.blockSize = 256,
   }) : super(blocks: [
           // example of dynamic block instantiation
           for (var i = 0; i < numBlocks; i++)
@@ -128,28 +128,28 @@ class MyCsrModule extends CsrTopConfig {
         ]);
 }
 
-/// A CSR module with heterogeneous block offset widths for testing.
+/// A CSR module with heterogeneous block sizes for testing.
 ///
-/// - block_large: uses the default [blockOffsetWidth] of 8.
-/// - block_small: overrides to a smaller [blockOffsetWidth] of 4.
+/// - block_large: uses the default [blockSize] of 256.
+/// - block_small: overrides to a smaller [blockSize] of 16.
 class MyHeterogeneousCsrModule extends CsrTopConfig {
   MyHeterogeneousCsrModule()
       : super(
           name: 'myHeterogeneousCsrModule',
-          blockOffsetWidth: 8, // default for blocks without their own override
+          blockSize: 256, // default for blocks without their own override
           blocks: [
-            // block_large uses the default blockOffsetWidth = 8
+            // block_large uses the default blockSize = 256
             MyRegisterBlock(
               baseAddr: 0x000,
               name: 'block_large',
               csrWidth: 32,
               numNoFieldCsrs: 2,
             ),
-            // block_small overrides to a smaller blockOffsetWidth = 4
+            // block_small overrides to a smaller blockSize = 16
             CsrBlockConfig(
               name: 'block_small',
               baseAddr: 0x100,
-              blockOffsetWidth: 4,
+              blockSize: 16,
               registers: [
                 CsrInstanceConfig(
                   arch: CsrConfig(
@@ -565,9 +565,9 @@ void main() {
     final smallSReg0 = blockSmall.getRegisterByName('sReg0');
     final smallSReg1 = blockSmall.getRegisterByName('sReg1');
 
-    // check that block offset widths are as configured
-    expect(csrTopCfg.blockOffsetWidthForBlock(blockLarge), 8);
-    expect(csrTopCfg.blockOffsetWidthForBlock(blockSmall), 4);
+    // check that block sizes are as configured
+    expect(csrTopCfg.blockSizeForBlock(blockLarge), 256);
+    expect(csrTopCfg.blockSizeForBlock(blockSmall), 16);
 
     // perform a reset
     reset.inject(1);
@@ -804,13 +804,12 @@ void main() {
         throwsA(isA<CsrValidationException>()));
 
     // illegal top - empty
-    expect(
-        () => CsrTopConfig(name: 'top', blockOffsetWidth: 8, blocks: const []),
+    expect(() => CsrTopConfig(name: 'top', blockSize: 256, blocks: const []),
         throwsA(isA<CsrValidationException>()));
 
     // illegal top - duplication and closeness
     expect(
-        () => CsrTopConfig(name: 'top', blockOffsetWidth: 8, blocks: [
+        () => CsrTopConfig(name: 'top', blockSize: 256, blocks: [
               CsrBlockConfig(name: 'block', baseAddr: 0x0, registers: const []),
               CsrBlockConfig(name: 'block', baseAddr: 0x1, registers: const []),
               CsrBlockConfig(name: 'block1', baseAddr: 0x1, registers: const [])
@@ -819,7 +818,7 @@ void main() {
 
     // illegal top - bad block offset width
     expect(
-        () => CsrTopConfig(name: 'top', blockOffsetWidth: 1, blocks: [
+        () => CsrTopConfig(name: 'top', blockSize: 2, blocks: [
               CsrBlockConfig(name: 'block', baseAddr: 0x0, registers: [
                 CsrInstanceConfig(
                     arch: CsrConfig(
@@ -832,12 +831,12 @@ void main() {
             ]),
         throwsA(isA<CsrValidationException>()));
 
-    // illegal block-level blockOffsetWidth override: too small for its registers
+    // illegal block-level blockSize override: too small for its registers
     expect(
         () => CsrBlockConfig(
               name: 'block',
               baseAddr: 0x0,
-              blockOffsetWidth: 2, // too small: reg at addr=0x4 needs 3 bits
+              blockSize: 4, // too small: reg at addr=0x4 needs size >= 5
               registers: [
                 CsrInstanceConfig(
                     arch: CsrConfig(
@@ -854,12 +853,12 @@ void main() {
     expect(
         () => CsrTopConfig(
               name: 'top',
-              blockOffsetWidth: 4, // default
+              blockSize: 16, // default
               blocks: [
                 CsrBlockConfig(
                     name: 'block0',
                     baseAddr: 0x0,
-                    blockOffsetWidth: 8, // override: needs 256-address space
+                    blockSize: 256, // override: needs 256-address space
                     registers: [
                       CsrInstanceConfig(
                           arch: CsrConfig(
