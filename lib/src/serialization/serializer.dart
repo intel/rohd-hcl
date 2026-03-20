@@ -6,10 +6,10 @@
 //
 // 2024 August 27
 // Author: desmond Kirkpatrick <desmond.a.kirkpatrick@intel.com>
+import 'dart:math' show max;
 
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
-import 'dart:math' show max;
 
 /// Serializes wide aggregated data onto a narrower serialization stream.
 class Serializer extends Module {
