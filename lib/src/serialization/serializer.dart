@@ -9,6 +9,7 @@
 
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
+import 'dart:math' show max;
 
 /// Serializes wide aggregated data onto a narrower serialization stream.
 class Serializer extends Module {
@@ -63,7 +64,7 @@ class Serializer extends Module {
         dimensions: deserialized.dimensions,
         elementWidth: deserialized.elementWidth);
 
-    addOutput('count', width: log2Ceil(deserialized.dimensions[0]));
+    addOutput('count', width: max(1, log2Ceil(deserialized.dimensions[0])));
     addOutput('done');
 
     final reducedDimensions = List<int>.from(deserialized.dimensions)
