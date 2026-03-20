@@ -510,4 +510,37 @@ void main() {
     await clk.nextPosedge;
     await Simulator.endSimulation();
   });
+
+  // Regression test: a 1-element array previously produced a 0-wide count
+  // output (log2Ceil(1)==0), causing a build failure. Verify it builds and
+  // outputs the single element with done asserted on the first cycle.
+  test('serializer single element array', () async {
+    const width = 8;
+    final dataIn = LogicArray([1], width);
+    final clk = SimpleClockGenerator(10).clk;
+    final reset = Logic();
+
+    final mod = Serializer(dataIn, clk: clk, reset: reset);
+
+    dataIn.elements[0].put(42);
+
+    await mod.build();
+
+    // count must be at least 1 bit wide
+    expect(mod.count.width, greaterThanOrEqualTo(1));
+
+    unawaited(Simulator.run());
+
+    reset.inject(1);
+    await clk.nextPosedge;
+    reset.inject(0);
+    await clk.nextPosedge;
+
+    // With only 1 element, done and the correct value should appear immediately
+    await clk.nextNegedge;
+    expect(mod.serialized.value.toInt(), equals(42));
+    expect(mod.done.value.toBool(), isTrue);
+
+    await Simulator.endSimulation();
+  });
 }

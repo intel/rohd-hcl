@@ -1,4 +1,4 @@
-// Copyright (C) 2024-2025 Intel Corporation
+// Copyright (C) 2024-2026 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 //
 // serializer.dart
@@ -6,6 +6,7 @@
 //
 // 2024 August 27
 // Author: desmond Kirkpatrick <desmond.a.kirkpatrick@intel.com>
+import 'dart:math' show max;
 
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
@@ -63,7 +64,7 @@ class Serializer extends Module {
         dimensions: deserialized.dimensions,
         elementWidth: deserialized.elementWidth);
 
-    addOutput('count', width: log2Ceil(deserialized.dimensions[0]));
+    addOutput('count', width: max(1, log2Ceil(deserialized.dimensions[0])));
     addOutput('done');
 
     final reducedDimensions = List<int>.from(deserialized.dimensions)
