@@ -459,14 +459,23 @@ class Axi4SubordinateMemoryAgent extends Agent {
     // TODO(kimmeljo): what about interleaving data on the same lane but w/ different IDs...
 
     // NOTE: we are dropping wUser on the floor for now...
-    final dataPacket =
-        Axi4DataPacket(data: wIntf.data.value, strb: wIntf.strb.value);
-    _writeDataQueue[mapIdx].add(dataPacket);
-    logger.info('Captured write data on channel $index.');
-    if (wIntf.last!.value.toBool()) {
-      logger.info('Finished capturing write data on channel $index.');
-      _writeReadyToOccur[mapIdx] = true;
+    // The W-channel monitor fires once per burst with all beats aggregated in
+    // packet.data via rswizzle(); clear any stale entry then unpack each beat.
+    _writeDataQueue[mapIdx].clear();
+    final dw = wIntf.dataWidth;
+    final sw = wIntf.strbWidth;
+    final numBeats = packet.data.width ~/ dw;
+    for (var i = 0; i < numBeats; i++) {
+      final beatData = packet.data.getRange(i * dw, (i + 1) * dw);
+      final beatStrb = packet.strb != null
+          ? packet.strb!.getRange(i * sw, (i + 1) * sw)
+          : LogicValue.filled(sw, LogicValue.one);
+      _writeDataQueue[mapIdx]
+          .add(Axi4DataPacket(data: beatData, strb: beatStrb));
     }
+    logger.info('Captured write data on channel $index.');
+    logger.info('Finished capturing write data on channel $index.');
+    _writeReadyToOccur[mapIdx] = true;
   }
 
   void _respondWrite({int index = 0}) {
@@ -607,6 +616,7 @@ class Axi4SubordinateMemoryAgent extends Agent {
 
       // pop this write response off the queue
       _writeMetadataQueue[mapIdx].removeAt(0);
+      _writeDataQueue[mapIdx].clear();
       _writeReadyToOccur[mapIdx] = false;
 
       logger.info('Sent write response on channel $index.');
