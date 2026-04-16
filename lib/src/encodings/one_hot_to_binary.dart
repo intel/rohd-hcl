@@ -7,7 +7,6 @@
 // 2023 February 24
 // Author: Desmond Kirkpatrick
 
-import 'dart:math';
 
 import 'package:meta/meta.dart';
 import 'package:rohd/rohd.dart';
@@ -63,7 +62,7 @@ abstract class OneHotToBinary extends Module {
             definitionName:
                 definitionName ?? 'OneHotToBinary_W${onehot.width}') {
     onehot = addInput('onehot', onehot, width: onehot.width);
-    addOutput('binary', width: max(log2Ceil(onehot.width), 1));
+    addOutput('binary', width: widthFor(onehot.width));
 
     if (generateError) {
       addOutput('error');

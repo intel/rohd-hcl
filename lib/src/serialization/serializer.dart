@@ -6,7 +6,6 @@
 //
 // 2024 August 27
 // Author: desmond Kirkpatrick <desmond.a.kirkpatrick@intel.com>
-import 'dart:math' show max;
 
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
@@ -64,7 +63,7 @@ class Serializer extends Module {
         dimensions: deserialized.dimensions,
         elementWidth: deserialized.elementWidth);
 
-    addOutput('count', width: max(1, log2Ceil(deserialized.dimensions[0])));
+    addOutput('count', width: widthFor(deserialized.dimensions[0]));
     addOutput('done');
 
     final reducedDimensions = List<int>.from(deserialized.dimensions)

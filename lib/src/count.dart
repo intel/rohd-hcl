@@ -7,7 +7,6 @@
 // 2023 July 11
 // Author: Rahul Gautham Putcha <rahul.gautham.putcha@intel.com>
 
-import 'dart:math';
 
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/src/utils.dart';
@@ -37,7 +36,7 @@ class Count extends Module {
       String? definitionName})
       : super(definitionName: definitionName ?? 'Count_W${bus.width}') {
     bus = addInput('bus', bus, width: bus.width);
-    Logic count = Const(0, width: max(1, log2Ceil(bus.width + 1)));
+    Logic count = Const(0, width: widthFor(bus.width + 1));
     for (var i = 0; i < bus.width; i++) {
       count = (count + (countOne ? bus[i] : ~bus[i]).zeroExtend(count.width))
           .named('count_$i');
