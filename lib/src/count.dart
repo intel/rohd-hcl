@@ -7,7 +7,6 @@
 // 2023 July 11
 // Author: Rahul Gautham Putcha <rahul.gautham.putcha@intel.com>
 
-
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/src/utils.dart';
 
