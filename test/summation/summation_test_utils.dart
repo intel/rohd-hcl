@@ -41,12 +41,7 @@ int goldenSum(
   int initialValue = 0,
   bool debug = false,
 }) {
-  void log(String message) {
-    if (debug) {
-      // ignore: avoid_print
-      print(message);
-    }
-  }
+  void log(String message) {}
 
   log('width: $width');
 
@@ -56,7 +51,6 @@ int goldenSum(
 
   maxVal ??= (1 << width) - 1;
   if (maxVal > (1 << width) - 1) {
-    // ignore: parameter_assignments
     maxVal = (1 << width) - 1;
   }
   minVal ??= 0;

@@ -9,23 +9,24 @@
 # 2023 February 5
 # Author: Chykon
 
+# Testing new script suggest by AI:  Desmond Kirkpatrick <desmond.a.kirkpatrick@intel.com>
+
 set -euo pipefail
 
-# Add Dart repository key.
+sudo apt-get update
+sudo apt-get install -y ca-certificates curl gnupg
 
-declare -r input_pubkey_file='tool/gh_codespaces/pubkeys/dart.pub'
-declare -r output_pubkey_file='/usr/share/keyrings/dart.gpg'
+# Keyring location (modern Debian/Ubuntu practice)
+sudo install -d -m 0755 /etc/apt/keyrings
 
-sudo gpg --output ${output_pubkey_file} --dearmor ${input_pubkey_file}
+# Dart repo signing key (fixes NO_PUBKEY FD533C07C264648F)
+curl -fsSL https://dl-ssl.google.com/linux/linux_signing_key.pub \
+  | sudo gpg --dearmor -o /etc/apt/keyrings/dart.gpg
+sudo chmod a+r /etc/apt/keyrings/dart.gpg
 
-# Add Dart repository.
-
-declare -r dart_repository_url='https://storage.googleapis.com/download.dartlang.org/linux/debian'
-declare -r dart_repository_file='/etc/apt/sources.list.d/dart.list'
-
-echo "deb [signed-by=${output_pubkey_file}] ${dart_repository_url} stable main" | sudo tee ${dart_repository_file}
-
-# Install Dart.
+# Repo entry using signed-by
+echo "deb [signed-by=/etc/apt/keyrings/dart.gpg] https://storage.googleapis.com/download.dartlang.org/linux/debian stable main" \
+  | sudo tee /etc/apt/sources.list.d/dart_stable.list > /dev/null
 
 sudo apt-get update
-sudo apt-get install dart
+sudo apt-get install -y dart

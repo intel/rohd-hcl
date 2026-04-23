@@ -56,10 +56,10 @@ abstract class FloatingPointUtilities {
 /// A module that swaps two floating point values.
 abstract class FloatingPointSwap<FpType extends FloatingPoint> extends Module {
   /// The first output floating point values after the swap.
-  FpType get outA => (a.clone(name: 'outA') as FpType)..gets(output('outA'));
+  late final FpType outA;
 
   /// The second output floating point values after the swap.
-  FpType get outB => (b.clone(name: 'outB') as FpType)..gets(output('outB'));
+  late final FpType outB;
 
   /// The first output metadata value after the swap.
   Logic? get outMetaA => tryOutput('outMetaA');
@@ -116,13 +116,12 @@ abstract class FloatingPointSwap<FpType extends FloatingPoint> extends Module {
       addOutput('outMetaA', width: metaA.width);
       addOutput('outMetaB', width: metaB.width);
     }
-    this.a = (a.clone(name: 'a') as FpType)
-      ..gets(addInput('a', a, width: a.width));
-    this.b = (b.clone(name: 'b') as FpType)
-      ..gets(addInput('b', b, width: b.width));
 
-    addOutput('outA', width: a.width);
-    addOutput('outB', width: b.width);
+    this.a = (a.clone(name: 'a') as FpType)..gets(addTypedInput('a', a));
+    this.b = (b.clone(name: 'b') as FpType)..gets(addTypedInput('b', b));
+
+    outA = addTypedOutput('outA', a.clone as FpType Function({String? name}));
+    outB = addTypedOutput('outB', b.clone as FpType Function({String? name}));
   }
 }
 
@@ -150,8 +149,8 @@ class FloatingPointConditionalSwap<FpType extends FloatingPoint>
     this.doSwap = addInput('swap', doSwap);
 
     final (swapA, swapB) = swap(this.doSwap, (super.a, super.b));
-    output('outA') <= swapA;
-    output('outB') <= swapB;
+    outA <= swapA;
+    outB <= swapB;
     if ((metaA != null) & (metaB != null)) {
       final (swapMetaA, swapMetaB) =
           swap(this.doSwap, (super.metaA!, super.metaB!));
@@ -178,8 +177,8 @@ class FloatingPointSort<FpType extends FloatingPoint>
             definitionName: definitionName ?? 'FloatingPointSort_W${a.width}') {
     final (sorted: (larger, smaller), didSwap: doSwap) =
         FloatingPointUtilities.sort((super.a, super.b));
-    output('outA') <= larger;
-    output('outB') <= smaller;
+    outA <= larger;
+    outB <= smaller;
     if ((metaA != null) & (metaB != null)) {
       final (swapMetaA, swapMetaB) = swap(doSwap, (super.metaA!, super.metaB!));
       output('outMetaA') <= swapMetaA;
@@ -209,8 +208,8 @@ class FloatingPointSortByExp<FpType extends FloatingPoint>
     final (sorted: (larger, smaller), didSwap: doSwap) =
         FloatingPointUtilities.sortByExp((super.a, super.b));
 
-    output('outA') <= larger;
-    output('outB') <= smaller;
+    outA <= larger;
+    outB <= smaller;
     if ((metaA != null) & (metaB != null)) {
       final (swapMetaA, swapMetaB) = swap(doSwap, (super.metaA!, super.metaB!));
       output('outMetaA') <= swapMetaA;
