@@ -1,4 +1,4 @@
-// Copyright (C) 2024-2025 Intel Corporation
+// Copyright (C) 2024-2026 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 //
 // serializer.dart
@@ -63,7 +63,7 @@ class Serializer extends Module {
         dimensions: deserialized.dimensions,
         elementWidth: deserialized.elementWidth);
 
-    addOutput('count', width: log2Ceil(deserialized.dimensions[0]));
+    addOutput('count', width: widthFor(deserialized.dimensions[0]));
     addOutput('done');
 
     final reducedDimensions = List<int>.from(deserialized.dimensions)

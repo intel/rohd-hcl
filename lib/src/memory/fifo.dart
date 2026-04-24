@@ -7,8 +7,6 @@
 // 2023 March 13
 // Author: Max Korbel <max.korbel@intel.com>
 
-import 'dart:math';
-
 import 'package:collection/collection.dart';
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
@@ -100,7 +98,7 @@ class Fifo<LogicType extends Logic> extends Module {
       String? definitionName,
       List<dynamic>? initialValues})
       : dataWidth = writeData.width,
-        _addrWidth = max(1, log2Ceil(depth)),
+        _addrWidth = widthFor(depth),
         super(
             definitionName:
                 definitionName ?? 'Fifo_D${depth}_W${writeData.width}') {
