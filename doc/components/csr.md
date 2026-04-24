@@ -206,7 +206,7 @@ A CSR top is a `Module` that wraps a collection of `CsrBlock` objects, making th
 The `CsrTopConfig` defines the contents of the top module. As such, it is constructed by passing a list of `CsrBlockConfig`s which defines the blocks contained within the top module. In addition to the register block configurations, the top configuration offers the following functionality:
 
 - A name for the module (called `name`).
-- An offset width that is used to slice the main address signal to address registers within a given block (called `blockOffsetWidth`).
+- A block size that defines how many addresses of space live in each block (called `blockSize`).
 - Methods to retrieve a given register block's configuration by name or base address (`getBlockByName` and `getBlockByAddr`).
 - Validation to check for configuration correctness and consistency.
 - A method `minAddrBits()` that returns the minimum number of address bits required to uniquely address every register instance in every block. The return value is based on both the largest block `baseAddr` and its largest `minAddrBits`.
@@ -220,7 +220,7 @@ The following checks are run:
 - No two register blocks in the module have the same `name`.
 - No two register blocks in the module have the same `baseAddr`.
 - No two register blocks in the module have `baseAddr`s that are too close together such there would be an address collision. This is based on the `minAddrBits` of each block to determine how much room that block needs before the next `baseAddr`.
-- The `blockOffsetWidth` must be wide enough to cover the largest `minAddrBits` across all blocks.
+- The `blockSize` must be large enough to cover the largest register address in each block.
 
 ### Frontdoor CSR Access - Top
 
@@ -228,7 +228,7 @@ Similar to `CsrBlock`, the `CsrTop` module provides frontdoor read/write access 
 
 To access a particular register in a particular block, drive the address of the appropriate `DataPortInterface` to the block's `baseAddr` + the register's `addr`.
 
-In the hardware's construction, each `CsrBlock`'s `DataPortInterface` is driven by the `CsrTop`'s associated `DataPortInterface`. For the address signal, the LSBs of the `CsrTop`'s `DataPortInterface` are used per the value of `blockOffsetWidth`. All other signals are direct pass-throughs.
+In the hardware's construction, each `CsrBlock`'s `DataPortInterface` is driven by the `CsrTop`'s associated `DataPortInterface`. For the address signal, the LSBs of the `CsrTop`'s `DataPortInterface` are used per the offset width derived from `blockSize`. All other signals are direct pass-throughs.
 
 If an access drives an address that doesn't map to any block, writes are NOPs and reads return 0x0.
 
