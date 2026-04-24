@@ -142,7 +142,6 @@ class MyHeterogeneousCsrModule extends CsrTopConfig {
             MyRegisterBlock(
               baseAddr: 0x000,
               name: 'block_large',
-              csrWidth: 32,
               numNoFieldCsrs: 2,
             ),
             // block_small overrides to a smaller blockSize = 16
@@ -849,7 +848,8 @@ void main() {
             ),
         throwsA(isA<CsrValidationException>()));
 
-    // illegal top - blocks too close considering larger per-block offset override
+    // illegal top - blocks too close considering larger per-block offset
+    // override.
     expect(
         () => CsrTopConfig(
               name: 'top',
