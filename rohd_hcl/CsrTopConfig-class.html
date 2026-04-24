@@ -73,7 +73,7 @@ any conditional blocks should take place.</p>
   <dt>Annotations</dt>
   <dd>
     <ul class="annotation-list clazz-relationships">
-        <li>@<a href="https://pub.dev/documentation/meta/1.18.1/meta/immutable-constant.html">immutable</a></li>
+        <li>@<a href="https://pub.dev/documentation/meta/1.18.2/meta/immutable-constant.html">immutable</a></li>
     </ul>
   </dd>
 
@@ -86,7 +86,7 @@ any conditional blocks should take place.</p>
     <h2>Constructors</h2>
     <dl class="constructor-summary-list">
         <dt id="CsrTopConfig.new" class="callable">
-          <span class="name"><a href="../rohd_hcl/CsrTopConfig/CsrTopConfig.html">CsrTopConfig</a></span><span class="signature">({<span class="parameter" id="-param-name"><span>required</span> <span class="type-annotation"><a href="https://api.dart.dev/stable/3.11.1/dart-core/String-class.html">String</a></span> <span class="parameter-name">name</span>, </span><span class="parameter" id="-param-blockOffsetWidth"><span>required</span> <span class="type-annotation"><a href="https://api.dart.dev/stable/3.11.1/dart-core/int-class.html">int</a></span> <span class="parameter-name">blockOffsetWidth</span>, </span><span class="parameter" id="-param-blocks"><span>required</span> <span class="type-annotation"><a href="https://api.dart.dev/stable/3.11.1/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../rohd_hcl/CsrBlockConfig-class.html">CsrBlockConfig</a></span>&gt;</span></span> <span class="parameter-name">blocks</span></span>})</span>
+          <span class="name"><a href="../rohd_hcl/CsrTopConfig/CsrTopConfig.html">CsrTopConfig</a></span><span class="signature">({<span class="parameter" id="-param-name"><span>required</span> <span class="type-annotation"><a href="https://api.dart.dev/stable/3.11.5/dart-core/String-class.html">String</a></span> <span class="parameter-name">name</span>, </span><span class="parameter" id="-param-blockSize"><span>required</span> <span class="type-annotation"><a href="https://api.dart.dev/stable/3.11.5/dart-core/int-class.html">int</a></span> <span class="parameter-name">blockSize</span>, </span><span class="parameter" id="-param-blocks"><span>required</span> <span class="type-annotation"><a href="https://api.dart.dev/stable/3.11.5/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../rohd_hcl/CsrBlockConfig-class.html">CsrBlockConfig</a></span>&gt;</span></span> <span class="parameter-name">blocks</span></span>})</span>
         </dt>
         <dd>
           Construct a new top level configuration.
@@ -99,21 +99,9 @@ any conditional blocks should take place.</p>
       id="instance-properties">
     <h2>Properties</h2>
     <dl class="properties">
-        <dt id="blockOffsetWidth" class="property">
-  <span class="name"><a href="../rohd_hcl/CsrTopConfig/blockOffsetWidth.html">blockOffsetWidth</a></span>
-  <span class="signature">&#8594; <a href="https://api.dart.dev/stable/3.11.1/dart-core/int-class.html">int</a></span>
-  
-
-</dt>
-<dd>
-  Address bits dedicated to the individual registers.
-  <div class="features"><span class="feature">final</span></div>
-
-</dd>
-
         <dt id="blocks" class="property">
   <span class="name"><a href="../rohd_hcl/CsrTopConfig/blocks.html">blocks</a></span>
-  <span class="signature">&#8594; <a href="https://api.dart.dev/stable/3.11.1/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../rohd_hcl/CsrBlockConfig-class.html">CsrBlockConfig</a></span>&gt;</span></span>
+  <span class="signature">&#8594; <a href="https://api.dart.dev/stable/3.11.5/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../rohd_hcl/CsrBlockConfig-class.html">CsrBlockConfig</a></span>&gt;</span></span>
   
 
 </dt>
@@ -123,9 +111,21 @@ any conditional blocks should take place.</p>
 
 </dd>
 
+        <dt id="blockSize" class="property">
+  <span class="name"><a href="../rohd_hcl/CsrTopConfig/blockSize.html">blockSize</a></span>
+  <span class="signature">&#8594; <a href="https://api.dart.dev/stable/3.11.5/dart-core/int-class.html">int</a></span>
+  
+
+</dt>
+<dd>
+  Default number of addresses in each block's address space.
+  <div class="features"><span class="feature">final</span></div>
+
+</dd>
+
         <dt id="hashCode" class="property">
   <span class="name"><a href="../rohd_hcl/CsrTopConfig/hashCode.html">hashCode</a></span>
-  <span class="signature">&#8594; <a href="https://api.dart.dev/stable/3.11.1/dart-core/int-class.html">int</a></span>
+  <span class="signature">&#8594; <a href="https://api.dart.dev/stable/3.11.5/dart-core/int-class.html">int</a></span>
   
 
 </dt>
@@ -137,7 +137,7 @@ any conditional blocks should take place.</p>
 
         <dt id="name" class="property inherited">
   <span class="name"><a href="../rohd_hcl/CsrTopConfig/name.html">name</a></span>
-  <span class="signature">&#8594; <a href="https://api.dart.dev/stable/3.11.1/dart-core/String-class.html">String</a></span>
+  <span class="signature">&#8594; <a href="https://api.dart.dev/stable/3.11.5/dart-core/String-class.html">String</a></span>
   
 
 </dt>
@@ -148,8 +148,8 @@ any conditional blocks should take place.</p>
 </dd>
 
         <dt id="runtimeType" class="property inherited">
-  <span class="name"><a href="https://api.dart.dev/stable/3.11.1/dart-core/Object/runtimeType.html">runtimeType</a></span>
-  <span class="signature">&#8594; <a href="https://api.dart.dev/stable/3.11.1/dart-core/Type-class.html">Type</a></span>
+  <span class="name"><a href="https://api.dart.dev/stable/3.11.5/dart-core/Object/runtimeType.html">runtimeType</a></span>
+  <span class="signature">&#8594; <a href="https://api.dart.dev/stable/3.11.5/dart-core/Type-class.html">Type</a></span>
   
 
 </dt>
@@ -168,8 +168,35 @@ any conditional blocks should take place.</p>
       id="instance-methods">
     <h2>Methods</h2>
     <dl class="callables">
+        <dt id="blockOffsetWidthForBlock" class="callable">
+  <span class="name"><a href="../rohd_hcl/CsrTopConfig/blockOffsetWidthForBlock.html">blockOffsetWidthForBlock</a></span><span class="signature">(<wbr><span class="parameter" id="blockOffsetWidthForBlock-param-block"><span class="type-annotation"><a href="../rohd_hcl/CsrBlockConfig-class.html">CsrBlockConfig</a></span> <span class="parameter-name">block</span></span>)
+    <span class="returntype parameter">&#8594; <a href="https://api.dart.dev/stable/3.11.5/dart-core/int-class.html">int</a></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Returns the number of address offset bits needed to index within
+<code>block</code>, derived from the effective block size.
+  
+
+</dd>
+
+        <dt id="blockSizeForBlock" class="callable">
+  <span class="name"><a href="../rohd_hcl/CsrTopConfig/blockSizeForBlock.html">blockSizeForBlock</a></span><span class="signature">(<wbr><span class="parameter" id="blockSizeForBlock-param-block"><span class="type-annotation"><a href="../rohd_hcl/CsrBlockConfig-class.html">CsrBlockConfig</a></span> <span class="parameter-name">block</span></span>)
+    <span class="returntype parameter">&#8594; <a href="https://api.dart.dev/stable/3.11.5/dart-core/int-class.html">int</a></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Returns the effective block size for <code>block</code>.
+  
+
+</dd>
+
         <dt id="clone" class="callable">
-  <span class="name"><a href="../rohd_hcl/CsrTopConfig/clone.html">clone</a></span><span class="signature">(<wbr>{<span class="parameter" id="clone-param-name"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.11.1/dart-core/String-class.html">String</a>?</span> <span class="parameter-name">name</span>, </span><span class="parameter" id="clone-param-blockOffsetWidth"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.11.1/dart-core/int-class.html">int</a>?</span> <span class="parameter-name">blockOffsetWidth</span>, </span><span class="parameter" id="clone-param-blocks"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.11.1/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../rohd_hcl/CsrBlockConfig-class.html">CsrBlockConfig</a></span>&gt;</span>?</span> <span class="parameter-name">blocks</span></span>})
+  <span class="name"><a href="../rohd_hcl/CsrTopConfig/clone.html">clone</a></span><span class="signature">(<wbr>{<span class="parameter" id="clone-param-name"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.11.5/dart-core/String-class.html">String</a>?</span> <span class="parameter-name">name</span>, </span><span class="parameter" id="clone-param-blockSize"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.11.5/dart-core/int-class.html">int</a>?</span> <span class="parameter-name">blockSize</span>, </span><span class="parameter" id="clone-param-blocks"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.11.5/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../rohd_hcl/CsrBlockConfig-class.html">CsrBlockConfig</a></span>&gt;</span>?</span> <span class="parameter-name">blocks</span></span>})
     <span class="returntype parameter">&#8594; <a href="../rohd_hcl/CsrTopConfig-class.html">CsrTopConfig</a></span>
   </span>
   
@@ -182,7 +209,7 @@ any conditional blocks should take place.</p>
 </dd>
 
         <dt id="getBlockByAddr" class="callable">
-  <span class="name"><a href="../rohd_hcl/CsrTopConfig/getBlockByAddr.html">getBlockByAddr</a></span><span class="signature">(<wbr><span class="parameter" id="getBlockByAddr-param-addr"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.11.1/dart-core/int-class.html">int</a></span> <span class="parameter-name">addr</span></span>)
+  <span class="name"><a href="../rohd_hcl/CsrTopConfig/getBlockByAddr.html">getBlockByAddr</a></span><span class="signature">(<wbr><span class="parameter" id="getBlockByAddr-param-addr"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.11.5/dart-core/int-class.html">int</a></span> <span class="parameter-name">addr</span></span>)
     <span class="returntype parameter">&#8594; <a href="../rohd_hcl/CsrBlockConfig-class.html">CsrBlockConfig</a></span>
   </span>
   
@@ -196,7 +223,7 @@ within the module by relative address <code>addr</code>.
 </dd>
 
         <dt id="getBlockByName" class="callable">
-  <span class="name"><a href="../rohd_hcl/CsrTopConfig/getBlockByName.html">getBlockByName</a></span><span class="signature">(<wbr><span class="parameter" id="getBlockByName-param-name"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.11.1/dart-core/String-class.html">String</a></span> <span class="parameter-name">name</span></span>)
+  <span class="name"><a href="../rohd_hcl/CsrTopConfig/getBlockByName.html">getBlockByName</a></span><span class="signature">(<wbr><span class="parameter" id="getBlockByName-param-name"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.11.5/dart-core/String-class.html">String</a></span> <span class="parameter-name">name</span></span>)
     <span class="returntype parameter">&#8594; <a href="../rohd_hcl/CsrBlockConfig-class.html">CsrBlockConfig</a></span>
   </span>
   
@@ -211,7 +238,7 @@ within the module by name <code>name</code>.
 
         <dt id="maxRegWidth" class="callable">
   <span class="name"><a href="../rohd_hcl/CsrTopConfig/maxRegWidth.html">maxRegWidth</a></span><span class="signature">(<wbr>)
-    <span class="returntype parameter">&#8594; <a href="https://api.dart.dev/stable/3.11.1/dart-core/int-class.html">int</a></span>
+    <span class="returntype parameter">&#8594; <a href="https://api.dart.dev/stable/3.11.5/dart-core/int-class.html">int</a></span>
   </span>
   
 
@@ -225,7 +252,7 @@ This is important for interface data width validation.
 
         <dt id="minAddrBits" class="callable">
   <span class="name"><a href="../rohd_hcl/CsrTopConfig/minAddrBits.html">minAddrBits</a></span><span class="signature">(<wbr>)
-    <span class="returntype parameter">&#8594; <a href="https://api.dart.dev/stable/3.11.1/dart-core/int-class.html">int</a></span>
+    <span class="returntype parameter">&#8594; <a href="https://api.dart.dev/stable/3.11.5/dart-core/int-class.html">int</a></span>
   </span>
   
 
@@ -234,14 +261,14 @@ This is important for interface data width validation.
   Method to determine the minimum number of address bits
 needed to address all registers across all blocks. This is
 based on the maximum block base address. Note that we independently
-validate the block offset width relative to the base addresses
+validate the block size relative to the base addresses
 so we can trust the simpler analysis here.
   
 
 </dd>
 
         <dt id="noSuchMethod" class="callable inherited">
-  <span class="name"><a href="https://api.dart.dev/stable/3.11.1/dart-core/Object/noSuchMethod.html">noSuchMethod</a></span><span class="signature">(<wbr><span class="parameter" id="noSuchMethod-param-invocation"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.11.1/dart-core/Invocation-class.html">Invocation</a></span> <span class="parameter-name">invocation</span></span>)
+  <span class="name"><a href="https://api.dart.dev/stable/3.11.5/dart-core/Object/noSuchMethod.html">noSuchMethod</a></span><span class="signature">(<wbr><span class="parameter" id="noSuchMethod-param-invocation"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.11.5/dart-core/Invocation-class.html">Invocation</a></span> <span class="parameter-name">invocation</span></span>)
     <span class="returntype parameter">&#8594; dynamic</span>
   </span>
   
@@ -254,8 +281,8 @@ so we can trust the simpler analysis here.
 </dd>
 
         <dt id="toString" class="callable inherited">
-  <span class="name"><a href="https://api.dart.dev/stable/3.11.1/dart-core/Object/toString.html">toString</a></span><span class="signature">(<wbr>)
-    <span class="returntype parameter">&#8594; <a href="https://api.dart.dev/stable/3.11.1/dart-core/String-class.html">String</a></span>
+  <span class="name"><a href="https://api.dart.dev/stable/3.11.5/dart-core/Object/toString.html">toString</a></span><span class="signature">(<wbr>)
+    <span class="returntype parameter">&#8594; <a href="https://api.dart.dev/stable/3.11.5/dart-core/String-class.html">String</a></span>
   </span>
   
 
@@ -275,8 +302,8 @@ so we can trust the simpler analysis here.
     <h2>Operators</h2>
     <dl class="callables">
         <dt id="operator ==" class="callable">
-  <span class="name"><a href="../rohd_hcl/CsrTopConfig/operator_equals.html">operator ==</a></span><span class="signature">(<wbr><span class="parameter" id="==-param-other"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.11.1/dart-core/Object-class.html">Object</a></span> <span class="parameter-name">other</span></span>)
-    <span class="returntype parameter">&#8594; <a href="https://api.dart.dev/stable/3.11.1/dart-core/bool-class.html">bool</a></span>
+  <span class="name"><a href="../rohd_hcl/CsrTopConfig/operator_equals.html">operator ==</a></span><span class="signature">(<wbr><span class="parameter" id="==-param-other"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.11.5/dart-core/Object-class.html">Object</a></span> <span class="parameter-name">other</span></span>)
+    <span class="returntype parameter">&#8594; <a href="https://api.dart.dev/stable/3.11.5/dart-core/bool-class.html">bool</a></span>
   </span>
   
 

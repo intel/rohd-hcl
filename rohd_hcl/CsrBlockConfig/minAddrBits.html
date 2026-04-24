@@ -56,10 +56,10 @@
       
   <div>
     <ol class="annotation-list">
-        <li>@<a href="https://api.dart.dev/stable/3.11.1/dart-core/override-constant.html">override</a></li>
+        <li>@<a href="https://api.dart.dev/stable/3.11.5/dart-core/override-constant.html">override</a></li>
     </ol>
   </div>
-<span class="returntype"><a href="https://api.dart.dev/stable/3.11.1/dart-core/int-class.html">int</a></span>
+<span class="returntype"><a href="https://api.dart.dev/stable/3.11.5/dart-core/int-class.html">int</a></span>
 <span class="name ">minAddrBits</span>(<wbr>)
 
       
@@ -77,15 +77,7 @@ based on the maximum register address offset.</p>
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">@override
-int minAddrBits() {
-  var maxAddr = 0;
-  for (final reg in registers) {
-    if (reg.addr &gt; maxAddr) {
-      maxAddr = reg.addr;
-    }
-  }
-  return maxAddr.bitLength;
-}</code></pre>
+int minAddrBits() =&gt; (minBlockSize() - 1).bitLength;</code></pre>
 </section>
 
 

@@ -54,9 +54,10 @@
 
     <section class="multi-line-signature">
       
-      <span class="name ">CsrBlockConfig</span>(<wbr>{<ol class="parameter-list"> <li><span class="parameter" id="-param-name"><span>required</span> <span class="type-annotation"><a href="https://api.dart.dev/stable/3.11.1/dart-core/String-class.html">String</a></span> <span class="parameter-name">name</span>, </span></li>
-<li><span class="parameter" id="-param-baseAddr"><span>required</span> <span class="type-annotation"><a href="https://api.dart.dev/stable/3.11.1/dart-core/int-class.html">int</a></span> <span class="parameter-name">baseAddr</span>, </span></li>
-<li><span class="parameter" id="-param-registers"><span>required</span> <span class="type-annotation"><a href="https://api.dart.dev/stable/3.11.1/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../../rohd_hcl/CsrInstanceConfig-class.html">CsrInstanceConfig</a></span>&gt;</span></span> <span class="parameter-name">registers</span>, </span></li>
+      <span class="name ">CsrBlockConfig</span>(<wbr>{<ol class="parameter-list"> <li><span class="parameter" id="-param-name"><span>required</span> <span class="type-annotation"><a href="https://api.dart.dev/stable/3.11.5/dart-core/String-class.html">String</a></span> <span class="parameter-name">name</span>, </span></li>
+<li><span class="parameter" id="-param-baseAddr"><span>required</span> <span class="type-annotation"><a href="https://api.dart.dev/stable/3.11.5/dart-core/int-class.html">int</a></span> <span class="parameter-name">baseAddr</span>, </span></li>
+<li><span class="parameter" id="-param-registers"><span>required</span> <span class="type-annotation"><a href="https://api.dart.dev/stable/3.11.5/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../../rohd_hcl/CsrInstanceConfig-class.html">CsrInstanceConfig</a></span>&gt;</span></span> <span class="parameter-name">registers</span>, </span></li>
+<li><span class="parameter" id="-param-blockSize"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.11.5/dart-core/int-class.html">int</a>?</span> <span class="parameter-name">blockSize</span>, </span></li>
 </ol>})
     </section>
     
@@ -72,6 +73,7 @@
   required super.name,
   required this.baseAddr,
   required List&lt;CsrInstanceConfig&gt; registers,
+  this.blockSize,
 }) : registers = List.unmodifiable(registers) {
   &#47;&#47; validate the block
   _validate();
