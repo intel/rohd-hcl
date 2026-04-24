@@ -283,8 +283,8 @@ class MultiCycleDivider extends Module {
           MultiCycleDividerStates.accumulate,
           events: {
             // done when remainder is zero or divisor exceeds what's left
-            ~lastDifference.or() |
-                (bBuf > aBuf): MultiCycleDividerStates.convert,
+            ~lastDifference.or() | (bBuf > aBuf):
+                MultiCycleDividerStates.convert,
             // otherwise keep processing more bits
             Const(1): MultiCycleDividerStates.process,
           },
@@ -314,8 +314,8 @@ class MultiCycleDivider extends Module {
     );
 
     // Helper to build a state-equality Logic for use in Sequential blocks.
-    Logic inState(MultiCycleDividerStates s) => fsm.currentState.eq(
-        Const(fsm.getStateIndex(s)!, width: fsm.currentState.width));
+    Logic inState(MultiCycleDividerStates s) => fsm.currentState
+        .eq(Const(fsm.getStateIndex(s)!, width: fsm.currentState.width));
 
     // ready/busy signals are based on internal state
     intf.validOut <= inState(MultiCycleDividerStates.done);
@@ -418,8 +418,7 @@ class MultiCycleDivider extends Module {
           [
             If(~tmpDifference[-1], then: [
               lastSuccess <
-                  (Const(1, width: dataWidth + 1) <<
-                      currIndex), // capture 2^i
+                  (Const(1, width: dataWidth + 1) << currIndex), // capture 2^i
               lastDifference < tmpDifference
             ], orElse: [
               // failure so maintain
@@ -466,7 +465,7 @@ class MultiCycleDivider extends Module {
     // Registers.
     final aBuf = Logic(name: 'aBuf', width: dataWidth + 1); // |dividend|
     final bBuf = Logic(name: 'bBuf', width: dataWidth + 1); // |divisor|
-    final signOut = Logic(name: 'signOut');                  // output sign
+    final signOut = Logic(name: 'signOut'); // output sign
     final outBuffer =
         Logic(name: 'outBuffer', width: dataWidth + 1); // quotient
     final partialRem = Logic(name: 'partialRem', width: dataWidth + 1);
@@ -581,8 +580,7 @@ class MultiCycleDivider extends Module {
           // Accept quotient bit; update partial remainder.
           partialRem < mux(quotBit, trialDiff, shiftedRem),
           // Shift quotient accumulator left and insert new bit at LSB.
-          outBuffer <
-              ((outBuffer << 1) | quotBit.zeroExtend(dataWidth + 1)),
+          outBuffer < ((outBuffer << 1) | quotBit.zeroExtend(dataWidth + 1)),
           // Count down toward 0.
           bitIdx < (bitIdx - Const(1, width: widthFor(dataWidth))),
         ]),

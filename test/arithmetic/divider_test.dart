@@ -265,9 +265,8 @@ class MultiCycleDividerScoreboard extends Component {
 
         final tCurrResult =
             inSign ? _twosComp(_currResult, intf.quotient.width) : _currResult;
-        final tCurrRemain = inSign
-            ? _twosComp(_currRemain, intf.remainder.width)
-            : _currRemain;
+        final tCurrRemain =
+            inSign ? _twosComp(_currRemain, intf.remainder.width) : _currRemain;
 
         final overflow = inSign &&
             in1 ==
@@ -334,8 +333,7 @@ class MultiCycleDividerEnv extends Env {
   late final MultiCycleDividerScoreboard scoreboard;
 
   MultiCycleDividerEnv(this.intf, Component parent,
-      {this.computeRemainder = true,
-      String name = 'MultiCycleDividerEnv'})
+      {this.computeRemainder = true, String name = 'MultiCycleDividerEnv'})
       : super(name, parent) {
     agent = MultiCycleDividerAgent(intf, this);
     scoreboard = MultiCycleDividerScoreboard(
