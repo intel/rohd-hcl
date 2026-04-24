@@ -215,7 +215,7 @@ class MultiCycleDividerScoreboard extends Component {
   final Stream<MultiCycleDividerOutputSeqItem> outStream;
   final MultiCycleDividerInterface intf;
 
-  /// When [false], only the quotient is verified and remainder is expected
+  /// When `false`, only the quotient is verified and remainder is expected
   /// to always be 0.
   final bool computeRemainder;
 
@@ -286,9 +286,9 @@ class MultiCycleDividerScoreboard extends Component {
           check2 = tCurrRemain == 0;
         } else {
           check1 = (in1 ~/ in2) == tCurrResult;
-          check2 = computeRemainder
-              ? (in1 - (in2 * tCurrResult)) == tCurrRemain
-              : true; // remainder not computed; skip check
+          // remainder not computed in quotient-only mode; skip check
+          check2 =
+              !computeRemainder || (in1 - (in2 * tCurrResult)) == tCurrRemain;
         }
 
         if (check1 && check2) {
@@ -757,8 +757,8 @@ void main() {
     await dut.build();
 
     int? latency;
-    int startCycle = 0;
-    int cycleCount = 0;
+    var startCycle = 0;
+    var cycleCount = 0;
 
     intf.clk.posedge.listen((_) => cycleCount++);
 

@@ -127,8 +127,8 @@ class MultiCycleDivider extends Module {
   /// the number of bits required to store that number.
   late final int logDataWidth;
 
-  /// When [true] (default), the [remainder] output is computed using the full
-  /// O(n²) greedy algorithm. When [false], [remainder] is always 0 and the
+  /// When `true` (default), the [remainder] output is computed using the full
+  /// O(n²) greedy algorithm. When `false`, [remainder] is always 0 and the
   /// divider uses an O(n) binary long-division algorithm instead.
   final bool computeRemainder;
 
@@ -315,7 +315,7 @@ class MultiCycleDivider extends Module {
 
     // Helper to build a state-equality Logic for use in Sequential blocks.
     Logic inState(MultiCycleDividerStates s) => fsm.currentState
-        .eq(Const(fsm.getStateIndex(s)!, width: fsm.currentState.width));
+        .eq(Const(fsm.getStateIndex(s), width: fsm.currentState.width));
 
     // ready/busy signals are based on internal state
     intf.validOut <= inState(MultiCycleDividerStates.done);
@@ -539,7 +539,7 @@ class MultiCycleDivider extends Module {
     );
 
     Logic inState(MultiCycleDividerStates s) => fsm.currentState
-        .eq(Const(fsm.getStateIndex(s)!, width: fsm.currentState.width));
+        .eq(Const(fsm.getStateIndex(s), width: fsm.currentState.width));
 
     intf.validOut <= inState(MultiCycleDividerStates.done);
     intf.readyIn <= inState(MultiCycleDividerStates.ready);
