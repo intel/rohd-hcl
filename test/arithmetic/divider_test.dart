@@ -720,7 +720,7 @@ class TopTBOnesComp {
 // ---------------------------------------------------------------------------
 
 /// Input monitor that decodes pin values using [_from1sComp] instead of
-/// [twosComp], so signed dividends/divisors are captured correctly.
+/// [_twosComp], so signed dividends/divisors are captured correctly.
 class OnesComplementInputMonitor
     extends Monitor<MultiCycleDividerInputSeqItem> {
   final MultiCycleDividerInterface intf;
@@ -1042,7 +1042,7 @@ class OnesCompVolumeSequence extends Sequence {
     final maxU = (1 << dataWidth) - 2; // exclude all-ones (-0)
 
     for (var i = 0; i < numReps; i++) {
-      if (i % 2 == 0) {
+      if (i.isEven) {
         seq.add(MultiCycleDividerInputSeqItem(
             mDividend: rng.nextInt(maxU + 1),
             mDivisor: rng.nextInt(maxU + 1),
@@ -1124,7 +1124,7 @@ void main() {
   for (final computeRemainder in [true, false]) {
     final label = computeRemainder ? 'with remainder' : 'quotient-only';
 
-    group('2\'s C. Divider Tests ($label)', () {
+    group("2's C. Divider Tests ($label)", () {
       test('VF tests', () async {
         // Set the logger level
         Logger.root.level = Level.SEVERE;
@@ -1175,7 +1175,7 @@ void main() {
       });
     });
 
-    group('2\'s C. Divider Corner Cases ${TopTBNarrow.width}-bit ($label)', () {
+    group("2's C. Divider Corner Cases ${TopTBNarrow.width}-bit ($label)", () {
       test('targeted structural corners', () async {
         Logger.root.level = Level.SEVERE;
 
@@ -1199,11 +1199,11 @@ void main() {
   for (final computeRemainder in [true, false]) {
     final label = computeRemainder ? 'with remainder' : 'quotient-only';
 
-    group('1\'s C. Divider Tests ($label)', () {
+    group("1's C. Divider Tests ($label)", () {
       test('VF tests', () async {
         Logger.root.level = Level.SEVERE;
 
-        final intf = MultiCycleDividerInterface(dataWidth: TopTB.width);
+        final intf = MultiCycleDividerInterface();
         final tb = TopTBOnesComp(intf, computeRemainder: computeRemainder);
         await tb.divider.build();
 
@@ -1246,7 +1246,7 @@ void main() {
       });
     });
 
-    group('1\'s C. Divider Corner Cases ${TopTBOnesComp.width}-bit ($label)',
+    group("1's C. Divider Corner Cases ${TopTBOnesComp.width}-bit ($label)",
         () {
       test('targeted structural corners', () async {
         Logger.root.level = Level.SEVERE;
