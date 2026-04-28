@@ -184,9 +184,8 @@ class OnesComplementDivider extends Module {
         State<MultiCycleDividerStates>(
           MultiCycleDividerStates.process,
           events: {
-            ~tmpShift.or() |
-                tmpDifference[-1] |
-                ~tmpDifference.or(): MultiCycleDividerStates.accumulate,
+            ~tmpShift.or() | tmpDifference[-1] | ~tmpDifference.or():
+                MultiCycleDividerStates.accumulate,
           },
           actions: [
             tmpShift < (bBuf << currIndex),
@@ -242,11 +241,11 @@ class OnesComplementDivider extends Module {
         ElseIf(inState(MultiCycleDividerStates.ready) & intf.validIn, [
           // Negate by ~x only (no carry chain).
           aBuf <
-              mux(extDividendIn[dataWidth - 1] & intf.isSigned,
-                  ~extDividendIn, extDividendIn),
+              mux(extDividendIn[dataWidth - 1] & intf.isSigned, ~extDividendIn,
+                  extDividendIn),
           bBuf <
-              mux(extDivisorIn[dataWidth - 1] & intf.isSigned,
-                  ~extDivisorIn, extDivisorIn),
+              mux(extDivisorIn[dataWidth - 1] & intf.isSigned, ~extDivisorIn,
+                  extDivisorIn),
           signOut <
               (intf.dividend[dataWidth - 1] ^ intf.divisor[dataWidth - 1]) &
                   intf.isSigned,
@@ -292,8 +291,8 @@ class OnesComplementDivider extends Module {
         ElseIf(inState(MultiCycleDividerStates.ready) & intf.validIn, [
           lastSuccess < 0,
           lastDifference <
-              mux(extDividendIn[dataWidth - 1] & intf.isSigned,
-                  ~extDividendIn, extDividendIn),
+              mux(extDividendIn[dataWidth - 1] & intf.isSigned, ~extDividendIn,
+                  extDividendIn),
         ]),
         ElseIf(inState(MultiCycleDividerStates.process), [
           If(~tmpDifference[-1], then: [
@@ -419,11 +418,11 @@ class OnesComplementDivider extends Module {
         ElseIf(inState(MultiCycleDividerStates.ready) & intf.validIn, [
           // Negate by ~x only (no carry chain).
           aBuf <
-              mux(extDividendIn[dataWidth - 1] & intf.isSigned,
-                  ~extDividendIn, extDividendIn),
+              mux(extDividendIn[dataWidth - 1] & intf.isSigned, ~extDividendIn,
+                  extDividendIn),
           bBuf <
-              mux(extDivisorIn[dataWidth - 1] & intf.isSigned,
-                  ~extDivisorIn, extDivisorIn),
+              mux(extDivisorIn[dataWidth - 1] & intf.isSigned, ~extDivisorIn,
+                  extDivisorIn),
           signOut <
               (intf.dividend[dataWidth - 1] ^ intf.divisor[dataWidth - 1]) &
                   intf.isSigned,

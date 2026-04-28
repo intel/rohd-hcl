@@ -248,8 +248,7 @@ class MultiCycleDivider extends Module {
           MultiCycleDividerStates.ready,
           events: {
             // divide-by-zero: jump straight to done
-            intf.validIn & ~intf.divisor.or():
-                MultiCycleDividerStates.done,
+            intf.validIn & ~intf.divisor.or(): MultiCycleDividerStates.done,
             // normal: start processing
             intf.validIn: MultiCycleDividerStates.process,
           },
@@ -408,10 +407,8 @@ class MultiCycleDivider extends Module {
         ElseIf(inState(MultiCycleDividerStates.ready) & intf.validIn, [
           lastSuccess < 0,
           lastDifference <
-              mux(
-                  extDividendIn[dataWidth - 1] & intf.isSigned,
-                  ~extDividendIn + 1,
-                  extDividendIn), // start by matching aBuf
+              mux(extDividendIn[dataWidth - 1] & intf.isSigned,
+                  ~extDividendIn + 1, extDividendIn), // start by matching aBuf
         ]),
         ElseIf(
           inState(MultiCycleDividerStates.process),
@@ -500,8 +497,7 @@ class MultiCycleDivider extends Module {
         State<MultiCycleDividerStates>(
           MultiCycleDividerStates.ready,
           events: {
-            intf.validIn & ~intf.divisor.or():
-                MultiCycleDividerStates.done,
+            intf.validIn & ~intf.divisor.or(): MultiCycleDividerStates.done,
             intf.validIn: MultiCycleDividerStates.process,
           },
           actions: [],
