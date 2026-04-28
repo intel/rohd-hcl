@@ -1,106 +1,43 @@
 // Copyright (C) 2024-2025 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 //
-// divider.dart
-// Implementation of Integer Divider Module.
+// ones_complement_divider.dart
+// Integer Divider using one's complement signed arithmetic.
 //
-// 2024 August
-// Author: Josh Kimmel <joshua1.kimmel@intel.com>
+// 2025 April
+// Author: Jose Rojas Chaves <jose.rojas.chaves@intel.com>
 
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
 
-/// States for the [MultiCycleDivider] FSM.
-enum MultiCycleDividerStates {
-  /// Ready for a new division.
-  ready,
-
-  /// Processing a current step in the algorithm.
-  process,
-
-  /// Accumulating the result of a current step in the algorithm.
-  accumulate,
-
-  /// Converting the final result of the algorithm.
-  convert,
-
-  /// Division complete.
-  done,
-}
-
-/// Internal interface to the Divider.
-class MultiCycleDividerInterface extends PairInterface {
-  /// Clock for sequential logic.
-  Logic get clk => port('clk');
-
-  /// Reset for sequential logic (active high).
-  Logic get reset => port('reset');
-
-  /// Dividend (numerator) for the division operation.
-  Logic get dividend => port('dividend');
-
-  /// Divisor (denominator) for the division operation.
-  Logic get divisor => port('divisor');
-
-  /// Are the division operands signed.
-  Logic get isSigned => port('isSigned');
-
-  /// The integrating environment is ready to accept the output of the module.
-  Logic get readyOut => port('readyOut');
-
-  /// Request for a new division operation to be performed.
-  Logic get validIn => port('validIn');
-
-  /// Quotient (result) for the division operation.
-  Logic get quotient => port('quotient');
-
-  /// Remainder (modulus) for the division operation.
-  Logic get remainder => port('remainder');
-
-  /// A Division by zero occurred.
-  Logic get divZero => port('divZero');
-
-  /// The result of the current division operation is ready.
-  Logic get validOut => port('validOut');
-
-  /// The module is ready to accept new inputs.
-  Logic get readyIn => port('readyIn');
-
-  /// The width of the data operands and result.
-  final int dataWidth;
-
-  /// A constructor for the divider interface.
-  MultiCycleDividerInterface({this.dataWidth = 32})
-      : super(portsFromProvider: [
-          Logic.port('clk'),
-          Logic.port('reset'),
-          Logic.port('dividend', dataWidth),
-          Logic.port('divisor', dataWidth),
-          Logic.port('isSigned'),
-          Logic.port('validIn'),
-          Logic.port('readyOut'),
-        ], portsFromConsumer: [
-          Logic.port('quotient', dataWidth),
-          Logic.port('remainder', dataWidth),
-          Logic.port('divZero'),
-          Logic.port('validOut'),
-          Logic.port('readyIn'),
-        ]);
-
-  /// A match constructor for the divider interface.
-  @Deprecated('Use clone() instead.')
-  MultiCycleDividerInterface.match(MultiCycleDividerInterface other)
-      : this(dataWidth: other.dataWidth);
-
-  /// Clones this [MultiCycleDividerInterface].
-  @override
-  MultiCycleDividerInterface clone() =>
-      MultiCycleDividerInterface(dataWidth: dataWidth);
-}
-
-/// The Divider module definition.
-class MultiCycleDivider extends Module {
-  /// The Divider's interface declaration.
+/// A multi-cycle integer divider that uses **one's complement** signed
+/// arithmetic.
+///
+/// This is an independent sibling of [MultiCycleDivider] intended for
+/// performance and area comparison.  Both classes share the same
+/// [MultiCycleDividerInterface] and [MultiCycleDividerStates] FSM states,
+/// but differ in their sign-arithmetic primitives and sign-correction
+/// circuit:
+///
+/// | Primitive | 2's complement ([MultiCycleDivider]) | 1's complement |
+/// |-----------|--------------------------------------|----------------|
+/// | Negate    | `~x + 1` (carry chain)  | `~x` (bitwise only)        |
+/// | Zero test | all-zeros               | all-zeros OR all-ones      |
+/// | Overflow  | MIN_INT ÷ −1 overflows  | symmetric range, never     |
+///
+/// The critical-path benefit is in the **convert** FSM state: sign-correcting
+/// the quotient/remainder requires only a bitwise invert (`~x`) rather than a
+/// full carry-propagate add (`~x + 1`), removing an adder from the cycle.
+///
+/// ### One's complement conventions
+///
+/// * Positive zero: `000…0`.  Negative zero: `111…1`.
+/// * The range is symmetric: `[-(2^(n-1)-1), +(2^(n-1)-1)]`; there is no
+///   MIN_INT overflow case.
+/// * A divisor of `111…1` (negative zero) triggers [divZero] when
+///   `isSigned` is asserted.
+class OnesComplementDivider extends Module {
+  /// The divider interface (shared with [MultiCycleDivider]).
   late final MultiCycleDividerInterface intf;
 
   /// Get interface's validOut signal value.
@@ -121,8 +58,7 @@ class MultiCycleDivider extends Module {
   /// The width of the data operands and result.
   late final int dataWidth;
 
-  /// The log of the data width representing
-  /// the number of bits required to store that number.
+  /// The log of the data width (bits needed to represent [dataWidth]).
   late final int logDataWidth;
 
   /// When `true` (default), the [remainder] output is computed using the full
@@ -130,18 +66,18 @@ class MultiCycleDivider extends Module {
   /// divider uses an O(n) binary long-division algorithm instead.
   final bool computeRemainder;
 
-  /// The Divider module's constructor
-  MultiCycleDivider(MultiCycleDividerInterface interface,
+  /// Creates a one's complement multi-cycle divider.
+  OnesComplementDivider(MultiCycleDividerInterface interface,
       {this.computeRemainder = true,
-      super.name = 'multi_cycle_divider',
+      super.name = 'ones_complement_divider',
       super.reserveName,
       super.reserveDefinitionName,
       String? definitionName})
       : dataWidth = interface.dataWidth,
         logDataWidth = log2Ceil(interface.dataWidth),
         super(
-            definitionName:
-                definitionName ?? 'MultiCycleDivider_W${interface.dataWidth}') {
+            definitionName: definitionName ??
+                'OnesComplementDivider_W${interface.dataWidth}') {
     intf = interface.clone()
       ..pairConnectIO(
         this,
@@ -149,13 +85,11 @@ class MultiCycleDivider extends Module {
         PairRole.consumer,
         uniquify: (original) => '${super.name}_$original',
       );
-
     _build();
   }
 
-  /// Factory method to create a [MultiCycleDivider]
-  /// from explicit [Logic] signals instead of an interface.
-  factory MultiCycleDivider.ofLogics({
+  /// Factory constructor matching [MultiCycleDivider.ofLogics].
+  factory OnesComplementDivider.ofLogics({
     required Logic clk,
     required Logic reset,
     required Logic validIn,
@@ -179,15 +113,14 @@ class MultiCycleDivider extends Module {
     intf.divisor <= divisor;
     intf.isSigned <= isSigned;
     intf.readyOut <= readyOut;
-    return MultiCycleDivider(intf,
+    return OnesComplementDivider(intf,
         computeRemainder: computeRemainder,
         reserveName: reserveName,
         reserveDefinitionName: reserveDefinitionName,
         definitionName:
-            definitionName ?? 'MultiCycleDivider_W${intf.dataWidth}');
+            definitionName ?? 'OnesComplementDivider_W${intf.dataWidth}');
   }
 
-  /// Routes to the appropriate build method based on [computeRemainder].
   void _build() {
     if (computeRemainder) {
       _buildWithRemainder();
@@ -196,49 +129,45 @@ class MultiCycleDivider extends Module {
     }
   }
 
-  /// Full O(n²) greedy algorithm that computes both quotient and remainder.
+  // ---------------------------------------------------------------------------
+  // Signed-arithmetic helpers (1's complement)
+  //
+  //   negate(x)       = ~x
+  //   isZero(divisor) = ~d.or() | (d.and() & isSigned)
+  // ---------------------------------------------------------------------------
+
+  /// Detects a zero divisor: positive zero (all-zeros) OR negative zero
+  /// (all-ones, only when [MultiCycleDividerInterface.isSigned] is asserted).
+  Logic _isZero(Logic rawDivisor) =>
+      ~rawDivisor.or() | (rawDivisor.and() & intf.isSigned);
+
+  // ---------------------------------------------------------------------------
+  // O(n²) greedy algorithm — computes quotient AND remainder
+  // ---------------------------------------------------------------------------
+
   void _buildWithRemainder() {
-    // To capture current inputs
-    // as this operation takes multiple cycles.
     final aBuf = Logic(name: 'aBuf', width: dataWidth + 1);
     final rBuf = Logic(name: 'rBuf', width: dataWidth + 1);
     final bBuf = Logic(name: 'bBuf', width: dataWidth + 1);
     final signOut = Logic(name: 'signOut');
     final signNum = Logic(name: 'signNum');
 
-    // internal buffers for computation
-    // accumulator that contains dividend
     final outBuffer = Logic(name: 'outBuffer', width: dataWidth + 1);
-    // capture last successful power of 2
     final lastSuccess = Logic(name: 'lastSuccess', width: dataWidth + 1);
-    // combinational logic signal to compute current (a-b*2^i)
     final tmpDifference = Logic(name: 'tmpDifference', width: dataWidth + 1);
-    // store last diff
     final lastDifference = Logic(name: 'lastDifference', width: dataWidth + 1);
-    // combinational logic signal to check for overflow when shifting
     final tmpShift = Logic(name: 'tmpShift', width: dataWidth + 1);
-
-    // current value of i to try
-    // need log(dataWidth)+1 bits so currIndex can reach dataWidth,
-    // allowing bBuf<<currIndex to overflow to zero (loop-exit condition).
+    // logDataWidth+1 bits so currIndex can reach dataWidth, allowing
+    // bBuf<<currIndex to overflow to zero (loop-exit condition).
     final currIndex = Logic(name: 'currIndex', width: logDataWidth + 1);
 
-    intf.quotient <=
-        outBuffer.getRange(
-            0, dataWidth); // result is ultimately stored in out_buffer
-    intf.divZero <= ~bBuf.or(); // divide-by-0 if b==0 (NOR)
-    intf.remainder <=
-        rBuf.getRange(0, dataWidth); // synonymous with the remainder
+    intf.quotient <= outBuffer.getRange(0, dataWidth);
+    // After negating −0 (0xFF) via ~: ~0xFF = 0x00, so all-zeros check holds.
+    intf.divZero <= ~bBuf.or();
+    intf.remainder <= rBuf.getRange(0, dataWidth);
 
-    // special case: 2's complement MIN_INT ÷ −1 overflow detection.
-    final specialCase = bBuf[dataWidth - 1] &
-        ~bBuf.getRange(0, dataWidth - 2).or() &
-        (signOut ^ signNum);
-
-    // Build the FSM using ROHD's FiniteStateMachine.
-    // setupActions provide combinational defaults before state-specific logic.
-    // Each state's actions run before its events are evaluated, so tmpShift
-    // and tmpDifference computed in process actions are visible to its events.
+    // One's complement has a symmetric range — MIN_INT ÷ −1 never overflows,
+    // so the process state needs no special-case overflow guard.
     final fsm = FiniteStateMachine<MultiCycleDividerStates>(
       intf.clk,
       intf.reset,
@@ -247,10 +176,7 @@ class MultiCycleDivider extends Module {
         State<MultiCycleDividerStates>(
           MultiCycleDividerStates.ready,
           events: {
-            // divide-by-zero: jump straight to done
-            intf.validIn & ~intf.divisor.or():
-                MultiCycleDividerStates.done,
-            // normal: start processing
+            intf.validIn & _isZero(intf.divisor): MultiCycleDividerStates.done,
             intf.validIn: MultiCycleDividerStates.process,
           },
           actions: [],
@@ -258,37 +184,23 @@ class MultiCycleDivider extends Module {
         State<MultiCycleDividerStates>(
           MultiCycleDividerStates.process,
           events: {
-            // go to accumulate when:
-            //   - special case (b is most-negative), or
-            //   - shift would be zero, or
-            //   - difference went negative or exactly zero
-            specialCase |
-                ~tmpShift.or() |
+            ~tmpShift.or() |
                 tmpDifference[-1] |
                 ~tmpDifference.or(): MultiCycleDividerStates.accumulate,
           },
           actions: [
-            // compute shift; for special case set difference to -1,
-            // otherwise compute (a - b*2^i)
             tmpShift < (bBuf << currIndex),
-            If(
-              specialCase,
-              then: [tmpDifference < ~Const(0, width: dataWidth + 1)],
-              orElse: [tmpDifference < (aBuf - tmpShift)],
-            ),
+            tmpDifference < (aBuf - tmpShift),
           ],
         ),
         State<MultiCycleDividerStates>(
           MultiCycleDividerStates.accumulate,
           events: {
-            // done when remainder is zero or divisor exceeds what's left
             ~lastDifference.or() | (bBuf > aBuf):
                 MultiCycleDividerStates.convert,
-            // otherwise keep processing more bits
             Const(1): MultiCycleDividerStates.process,
           },
           actions: [
-            // expose lastDifference through tmpDifference for consistency
             tmpDifference < lastDifference,
           ],
         ),
@@ -299,38 +211,28 @@ class MultiCycleDivider extends Module {
         ),
         State<MultiCycleDividerStates>(
           MultiCycleDividerStates.done,
-          events: {
-            // return to ready once the consumer has accepted the result
-            intf.readyOut: MultiCycleDividerStates.ready,
-          },
+          events: {intf.readyOut: MultiCycleDividerStates.ready},
           actions: [],
         ),
       ],
-      setupActions: [
-        tmpShift < 0,
-        tmpDifference < 0,
-      ],
+      setupActions: [tmpShift < 0, tmpDifference < 0],
     );
 
-    // Helper to build a state-equality Logic for use in Sequential blocks.
     Logic inState(MultiCycleDividerStates s) => fsm.currentState
         .eq(Const(fsm.getStateIndex(s), width: fsm.currentState.width));
 
-    // ready/busy signals are based on internal state
     intf.validOut <= inState(MultiCycleDividerStates.done);
     intf.readyIn <= inState(MultiCycleDividerStates.ready);
 
-    // capture input arguments a, b into internal buffers
-    // so the consumer doesn't have to continually assert them
     final extDividendIn = Logic(name: 'extDividendIn', width: dataWidth + 1)
       ..gets(mux(intf.isSigned, intf.dividend.signExtend(dataWidth + 1),
           intf.dividend.zeroExtend(dataWidth + 1)));
     final extDivisorIn = Logic(name: 'extDivisorIn', width: dataWidth + 1)
       ..gets(mux(intf.isSigned, intf.divisor.signExtend(dataWidth + 1),
           intf.divisor.zeroExtend(dataWidth + 1)));
+
     Sequential(intf.clk, [
       If.block([
-        // only when READY and new inputs are available
         Iff(intf.reset, [
           aBuf < 0,
           bBuf < 0,
@@ -338,28 +240,25 @@ class MultiCycleDivider extends Module {
           signNum < 0,
         ]),
         ElseIf(inState(MultiCycleDividerStates.ready) & intf.validIn, [
-          // conditionally convert negative inputs to positive
-          // and compute the output sign
+          // Negate by ~x only (no carry chain).
           aBuf <
               mux(extDividendIn[dataWidth - 1] & intf.isSigned,
-                  ~extDividendIn + 1, extDividendIn),
+                  ~extDividendIn, extDividendIn),
           bBuf <
               mux(extDivisorIn[dataWidth - 1] & intf.isSigned,
-                  ~extDivisorIn + 1, extDivisorIn),
+                  ~extDivisorIn, extDivisorIn),
           signOut <
               (intf.dividend[dataWidth - 1] ^ intf.divisor[dataWidth - 1]) &
                   intf.isSigned,
           signNum < intf.dividend[dataWidth - 1] & intf.isSigned,
         ]),
         ElseIf(inState(MultiCycleDividerStates.accumulate), [
-          // reduce a_buf by the portion we've covered, retain others
           aBuf < lastDifference,
           bBuf < bBuf,
           signOut < signOut,
           signNum < signNum,
         ]),
         Else([
-          // retain all values
           aBuf < aBuf,
           bBuf < bBuf,
           signOut < signOut,
@@ -368,127 +267,88 @@ class MultiCycleDivider extends Module {
       ])
     ]);
 
-    // handle updates of remainder buffer
-    final aBufConv = mux(signNum, ~aBuf + 1, aBuf);
+    // Remainder sign correction: ~aBuf (no carry).
+    final aBufConv = mux(signNum, ~aBuf, aBuf);
     Sequential(intf.clk, [
       If.block([
         Iff(intf.reset, [rBuf < Const(0, width: dataWidth + 1)]),
-        ElseIf(
-          inState(MultiCycleDividerStates.convert),
-          [rBuf < aBufConv], // adjust positive remainder for signs
-        ),
-        Else(
-          [rBuf < rBuf], // retain
-        )
+        ElseIf(inState(MultiCycleDividerStates.convert), [rBuf < aBufConv]),
+        Else([rBuf < rBuf]),
       ])
     ]);
 
-    // handle updates of curr_index
     Sequential(intf.clk, [
       If.block([
         Iff(intf.reset, [currIndex < Const(0, width: logDataWidth + 1)]),
-        ElseIf(
-          inState(MultiCycleDividerStates.process),
-          [currIndex < (currIndex + Const(1, width: logDataWidth + 1))],
-          // increment current index each PROCESS cycle
-        ),
-        Else(
-          [currIndex < Const(0, width: logDataWidth + 1)], // reset curr_index
-        )
+        ElseIf(inState(MultiCycleDividerStates.process),
+            [currIndex < (currIndex + Const(1, width: logDataWidth + 1))]),
+        Else([currIndex < Const(0, width: logDataWidth + 1)]),
       ])
     ]);
 
-    // handle update of lastSuccess and lastDifference
     Sequential(intf.clk, [
       If.block([
-        Iff(intf.reset, [
-          lastSuccess < 0,
-          lastDifference < 0,
-        ]),
+        Iff(intf.reset, [lastSuccess < 0, lastDifference < 0]),
         ElseIf(inState(MultiCycleDividerStates.ready) & intf.validIn, [
           lastSuccess < 0,
           lastDifference <
-              mux(
-                  extDividendIn[dataWidth - 1] & intf.isSigned,
-                  ~extDividendIn + 1,
-                  extDividendIn), // start by matching aBuf
+              mux(extDividendIn[dataWidth - 1] & intf.isSigned,
+                  ~extDividendIn, extDividendIn),
         ]),
-        ElseIf(
-          inState(MultiCycleDividerStates.process),
-          // didn't exceed a_buf, so count as success
-          [
-            If(~tmpDifference[-1], then: [
-              lastSuccess <
-                  (Const(1, width: dataWidth + 1) << currIndex), // capture 2^i
-              lastDifference < tmpDifference
-            ], orElse: [
-              // failure so maintain
-              lastSuccess < lastSuccess,
-              lastDifference < lastDifference
-            ]),
-          ],
-        ),
-        Else(
-          [
-            // not needed so reset
-            lastSuccess < 0,
+        ElseIf(inState(MultiCycleDividerStates.process), [
+          If(~tmpDifference[-1], then: [
+            lastSuccess < (Const(1, width: dataWidth + 1) << currIndex),
+            lastDifference < tmpDifference,
+          ], orElse: [
+            lastSuccess < lastSuccess,
             lastDifference < lastDifference,
-          ],
-        )
+          ]),
+        ]),
+        Else([lastSuccess < 0, lastDifference < lastDifference]),
       ])
     ]);
 
-    // handle update of buffer
     Sequential(intf.clk, [
       If.block([
-        Iff(intf.reset, [outBuffer < 0]), // reset buffer
+        Iff(intf.reset, [outBuffer < 0]),
         ElseIf(inState(MultiCycleDividerStates.done), [
           outBuffer <
               mux(intf.readyOut, Const(0, width: dataWidth + 1), outBuffer),
-        ]), // reset buffer if consumed result
+        ]),
         ElseIf(inState(MultiCycleDividerStates.convert), [
-          outBuffer < mux(signOut, ~outBuffer + 1, outBuffer),
-        ]), // conditionally convert the result to the correct sign
-        ElseIf(inState(MultiCycleDividerStates.accumulate), [
-          outBuffer < (outBuffer + lastSuccess)
-        ]), // accumulate last_success into buffer
-        Else([outBuffer < outBuffer]), // maintain buffer
+          // Sign correction: ~outBuffer (no carry chain).
+          outBuffer < mux(signOut, ~outBuffer, outBuffer),
+        ]),
+        ElseIf(inState(MultiCycleDividerStates.accumulate),
+            [outBuffer < (outBuffer + lastSuccess)]),
+        Else([outBuffer < outBuffer]),
       ])
     ]);
   }
 
-  /// O(n) binary long division — one quotient bit per clock cycle.
-  ///
-  /// Processes the dividend MSB-first, shifting a partial remainder left and
-  /// trial-subtracting the divisor each cycle. The [remainder] output is
-  /// always 0 in this mode.
-  void _buildQuotientOnly() {
-    // Registers.
-    final aBuf = Logic(name: 'aBuf', width: dataWidth + 1); // |dividend|
-    final bBuf = Logic(name: 'bBuf', width: dataWidth + 1); // |divisor|
-    final signOut = Logic(name: 'signOut'); // output sign
-    final outBuffer =
-        Logic(name: 'outBuffer', width: dataWidth + 1); // quotient
-    final partialRem = Logic(name: 'partialRem', width: dataWidth + 1);
+  // ---------------------------------------------------------------------------
+  // O(n) binary long-division — quotient only, remainder always 0
+  // ---------------------------------------------------------------------------
 
-    // bitIdx counts DOWN from dataWidth-1 to 0; one bit of dividend per cycle.
+  void _buildQuotientOnly() {
+    final aBuf = Logic(name: 'aBuf', width: dataWidth + 1);
+    final bBuf = Logic(name: 'bBuf', width: dataWidth + 1);
+    final signOut = Logic(name: 'signOut');
+    final outBuffer = Logic(name: 'outBuffer', width: dataWidth + 1);
+    final partialRem = Logic(name: 'partialRem', width: dataWidth + 1);
     final bitIdx = Logic(name: 'bitIdx', width: widthFor(dataWidth));
 
-    // Combinational intermediates (reset to 0 by setupActions).
     final shiftedRem = Logic(name: 'shiftedRem', width: dataWidth + 1);
     final trialDiff = Logic(name: 'trialDiff', width: dataWidth + 1);
     final quotBit = Logic(name: 'quotBit');
 
-    // Outputs.
     intf.quotient <= outBuffer.getRange(0, dataWidth);
     intf.divZero <= ~bBuf.or();
-    intf.remainder <= Const(0, width: dataWidth); // not computed in this mode
+    intf.remainder <= Const(0, width: dataWidth);
 
-    // Select aBuf[bitIdx]: the dividend bit for this cycle (MSB-first).
     final dividendBitList = List<Logic>.generate(dataWidth, (i) => aBuf[i]);
     final currentDividendBit =
         bitIdx.selectFrom(dividendBitList).named('currentDividendBit');
-
     final bitIdxInit =
         Const(dataWidth - 1, width: widthFor(dataWidth)).named('bitIdxInit');
 
@@ -500,8 +360,7 @@ class MultiCycleDivider extends Module {
         State<MultiCycleDividerStates>(
           MultiCycleDividerStates.ready,
           events: {
-            intf.validIn & ~intf.divisor.or():
-                MultiCycleDividerStates.done,
+            intf.validIn & _isZero(intf.divisor): MultiCycleDividerStates.done,
             intf.validIn: MultiCycleDividerStates.process,
           },
           actions: [],
@@ -509,18 +368,14 @@ class MultiCycleDivider extends Module {
         State<MultiCycleDividerStates>(
           MultiCycleDividerStates.process,
           events: {
-            // Last bit: bitIdx is at 0 this cycle → go to sign-convert.
             bitIdx.eq(Const(0, width: widthFor(dataWidth))):
                 MultiCycleDividerStates.convert,
           },
           actions: [
-            // Shift partial remainder left and bring in the next dividend bit.
             shiftedRem <
                 ((partialRem << 1) |
                     currentDividendBit.zeroExtend(dataWidth + 1)),
-            // Trial subtraction: shiftedRem - bBuf.
             trialDiff < (shiftedRem - bBuf),
-            // Quotient bit = 1 when shiftedRem >= bBuf (MSB of diff = 0).
             quotBit < ~trialDiff[-1],
           ],
         ),
@@ -531,9 +386,7 @@ class MultiCycleDivider extends Module {
         ),
         State<MultiCycleDividerStates>(
           MultiCycleDividerStates.done,
-          events: {
-            intf.readyOut: MultiCycleDividerStates.ready,
-          },
+          events: {intf.readyOut: MultiCycleDividerStates.ready},
           actions: [],
         ),
       ],
@@ -564,13 +417,13 @@ class MultiCycleDivider extends Module {
           bitIdx < bitIdxInit,
         ]),
         ElseIf(inState(MultiCycleDividerStates.ready) & intf.validIn, [
-          // Convert negative inputs to positive and compute the output sign.
+          // Negate by ~x only (no carry chain).
           aBuf <
               mux(extDividendIn[dataWidth - 1] & intf.isSigned,
-                  ~extDividendIn + 1, extDividendIn),
+                  ~extDividendIn, extDividendIn),
           bBuf <
               mux(extDivisorIn[dataWidth - 1] & intf.isSigned,
-                  ~extDivisorIn + 1, extDivisorIn),
+                  ~extDivisorIn, extDivisorIn),
           signOut <
               (intf.dividend[dataWidth - 1] ^ intf.divisor[dataWidth - 1]) &
                   intf.isSigned,
@@ -579,20 +432,16 @@ class MultiCycleDivider extends Module {
           bitIdx < bitIdxInit,
         ]),
         ElseIf(inState(MultiCycleDividerStates.process), [
-          // Accept quotient bit; update partial remainder.
           partialRem < mux(quotBit, trialDiff, shiftedRem),
-          // Shift quotient accumulator left and insert new bit at LSB.
           outBuffer < ((outBuffer << 1) | quotBit.zeroExtend(dataWidth + 1)),
-          // Count down toward 0.
           bitIdx < (bitIdx - Const(1, width: widthFor(dataWidth))),
         ]),
         ElseIf(inState(MultiCycleDividerStates.convert), [
-          // Apply sign correction to quotient.
-          outBuffer < mux(signOut, ~outBuffer + 1, outBuffer),
+          // Sign correction: ~outBuffer (no carry chain).
+          outBuffer < mux(signOut, ~outBuffer, outBuffer),
           bitIdx < bitIdx,
         ]),
         ElseIf(inState(MultiCycleDividerStates.done), [
-          // Clear quotient once the consumer accepts the result.
           outBuffer <
               mux(intf.readyOut, Const(0, width: dataWidth + 1), outBuffer),
         ]),
@@ -608,3 +457,5 @@ class MultiCycleDivider extends Module {
     ]);
   }
 }
+
+// =============================================================================

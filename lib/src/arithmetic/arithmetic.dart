@@ -16,6 +16,7 @@ export 'multiplier.dart';
 export 'multiplier_components/mulitiplier_components.dart';
 export 'multiply_accumulate.dart';
 export 'ones_complement_adder.dart';
+export 'ones_complement_divider.dart';
 export 'parallel_prefix_operations.dart';
 export 'ripple_carry_adder.dart';
 export 'sign_magnitude_adder.dart';
