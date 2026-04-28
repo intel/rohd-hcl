@@ -7,29 +7,25 @@
 // 2024 August
 // Author: Josh Kimmel <joshua1.kimmel@intel.com>
 
-import 'package:meta/meta.dart';
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
 
-/// State object for Divider processing.
-class _MultiCycleDividerState {
-  /// Width of state in bits.
-  static int width = 3;
-
+/// States for the [MultiCycleDivider] FSM.
+enum MultiCycleDividerStates {
   /// Ready for a new division.
-  static Const ready = Const(0, width: width);
+  ready,
 
   /// Processing a current step in the algorithm.
-  static Const process = Const(1, width: width);
+  process,
 
   /// Accumulating the result of a current step in the algorithm.
-  static Const accumulate = Const(2, width: width);
+  accumulate,
 
   /// Converting the final result of the algorithm.
-  static Const convert = Const(3, width: width);
+  convert,
 
   /// Division complete.
-  static Const done = Const(4, width: width);
+  done,
 }
 
 /// Internal interface to the Divider.
@@ -105,7 +101,6 @@ class MultiCycleDividerInterface extends PairInterface {
 /// The Divider module definition.
 class MultiCycleDivider extends Module {
   /// The Divider's interface declaration.
-  @protected
   late final MultiCycleDividerInterface intf;
 
   /// Get interface's validOut signal value.
@@ -130,9 +125,15 @@ class MultiCycleDivider extends Module {
   /// the number of bits required to store that number.
   late final int logDataWidth;
 
+  /// When `true` (default), the [remainder] output is computed using the full
+  /// O(n²) greedy algorithm. When `false`, [remainder] is always 0 and the
+  /// divider uses an O(n) binary long-division algorithm instead.
+  final bool computeRemainder;
+
   /// The Divider module's constructor
   MultiCycleDivider(MultiCycleDividerInterface interface,
-      {super.name = 'multi_cycle_divider',
+      {this.computeRemainder = true,
+      super.name = 'multi_cycle_divider',
       super.reserveName,
       super.reserveDefinitionName,
       String? definitionName})
@@ -162,6 +163,7 @@ class MultiCycleDivider extends Module {
     required Logic divisor,
     required Logic isSigned,
     required Logic readyOut,
+    bool computeRemainder = true,
     bool reserveName = false,
     bool reserveDefinitionName = false,
     String? definitionName,
@@ -178,13 +180,24 @@ class MultiCycleDivider extends Module {
     intf.isSigned <= isSigned;
     intf.readyOut <= readyOut;
     return MultiCycleDivider(intf,
+        computeRemainder: computeRemainder,
         reserveName: reserveName,
         reserveDefinitionName: reserveDefinitionName,
         definitionName:
             definitionName ?? 'MultiCycleDivider_W${intf.dataWidth}');
   }
 
+  /// Routes to the appropriate build method based on [computeRemainder].
   void _build() {
+    if (computeRemainder) {
+      _buildWithRemainder();
+    } else {
+      _buildQuotientOnly();
+    }
+  }
+
+  /// Full O(n²) greedy algorithm that computes both quotient and remainder.
+  void _buildWithRemainder() {
     // To capture current inputs
     // as this operation takes multiple cycles.
     final aBuf = Logic(name: 'aBuf', width: dataWidth + 1);
@@ -192,13 +205,6 @@ class MultiCycleDivider extends Module {
     final bBuf = Logic(name: 'bBuf', width: dataWidth + 1);
     final signOut = Logic(name: 'signOut');
     final signNum = Logic(name: 'signNum');
-
-    // to manage FSM
-    // # of states is fixed
-    final currentState =
-        Logic(name: 'currentState', width: _MultiCycleDividerState.width);
-    final nextState =
-        Logic(name: 'nextState', width: _MultiCycleDividerState.width);
 
     // internal buffers for computation
     // accumulator that contains dividend
@@ -213,8 +219,9 @@ class MultiCycleDivider extends Module {
     final tmpShift = Logic(name: 'tmpShift', width: dataWidth + 1);
 
     // current value of i to try
-    // need log(dataWidth) bits
-    final currIndex = Logic(name: 'currIndex', width: logDataWidth);
+    // need log(dataWidth)+1 bits so currIndex can reach dataWidth,
+    // allowing bBuf<<currIndex to overflow to zero (loop-exit condition).
+    final currIndex = Logic(name: 'currIndex', width: logDataWidth + 1);
 
     intf.quotient <=
         outBuffer.getRange(
@@ -223,77 +230,94 @@ class MultiCycleDivider extends Module {
     intf.remainder <=
         rBuf.getRange(0, dataWidth); // synonymous with the remainder
 
+    // special case: 2's complement MIN_INT ÷ −1 overflow detection.
+    final specialCase = bBuf[dataWidth - 1] &
+        ~bBuf.getRange(0, dataWidth - 2).or() &
+        (signOut ^ signNum);
+
+    // Build the FSM using ROHD's FiniteStateMachine.
+    // setupActions provide combinational defaults before state-specific logic.
+    // Each state's actions run before its events are evaluated, so tmpShift
+    // and tmpDifference computed in process actions are visible to its events.
+    final fsm = FiniteStateMachine<MultiCycleDividerStates>(
+      intf.clk,
+      intf.reset,
+      MultiCycleDividerStates.ready,
+      [
+        State<MultiCycleDividerStates>(
+          MultiCycleDividerStates.ready,
+          events: {
+            // divide-by-zero: jump straight to done
+            intf.validIn & ~intf.divisor.or(): MultiCycleDividerStates.done,
+            // normal: start processing
+            intf.validIn: MultiCycleDividerStates.process,
+          },
+          actions: [],
+        ),
+        State<MultiCycleDividerStates>(
+          MultiCycleDividerStates.process,
+          events: {
+            // go to accumulate when:
+            //   - special case (b is most-negative), or
+            //   - shift would be zero, or
+            //   - difference went negative or exactly zero
+            specialCase |
+                ~tmpShift.or() |
+                tmpDifference[-1] |
+                ~tmpDifference.or(): MultiCycleDividerStates.accumulate,
+          },
+          actions: [
+            // compute shift; for special case set difference to -1,
+            // otherwise compute (a - b*2^i)
+            tmpShift < (bBuf << currIndex),
+            If(
+              specialCase,
+              then: [tmpDifference < ~Const(0, width: dataWidth + 1)],
+              orElse: [tmpDifference < (aBuf - tmpShift)],
+            ),
+          ],
+        ),
+        State<MultiCycleDividerStates>(
+          MultiCycleDividerStates.accumulate,
+          events: {
+            // done when remainder is zero or divisor exceeds what's left
+            ~lastDifference.or() | (bBuf > aBuf):
+                MultiCycleDividerStates.convert,
+            // otherwise keep processing more bits
+            Const(1): MultiCycleDividerStates.process,
+          },
+          actions: [
+            // expose lastDifference through tmpDifference for consistency
+            tmpDifference < lastDifference,
+          ],
+        ),
+        State<MultiCycleDividerStates>(
+          MultiCycleDividerStates.convert,
+          events: {Const(1): MultiCycleDividerStates.done},
+          actions: [],
+        ),
+        State<MultiCycleDividerStates>(
+          MultiCycleDividerStates.done,
+          events: {
+            // return to ready once the consumer has accepted the result
+            intf.readyOut: MultiCycleDividerStates.ready,
+          },
+          actions: [],
+        ),
+      ],
+      setupActions: [
+        tmpShift < 0,
+        tmpDifference < 0,
+      ],
+    );
+
+    // Helper to build a state-equality Logic for use in Sequential blocks.
+    Logic inState(MultiCycleDividerStates s) => fsm.currentState
+        .eq(Const(fsm.getStateIndex(s), width: fsm.currentState.width));
+
     // ready/busy signals are based on internal state
-    intf.validOut <= currentState.eq(_MultiCycleDividerState.done);
-    intf.readyIn <= currentState.eq(_MultiCycleDividerState.ready);
-
-    // update current_state with next_state once per cycle
-    Sequential(intf.clk, [
-      If(intf.reset,
-          then: [currentState < _MultiCycleDividerState.ready],
-          orElse: [currentState < nextState])
-    ]);
-
-    // combinational logic to compute next_state
-    // and intermediate variables that are necessary
-    Combinational([
-      tmpShift < 0,
-      tmpDifference < 0,
-      nextState < _MultiCycleDividerState.ready,
-      Case(currentState, [
-        CaseItem(_MultiCycleDividerState.done, [
-          // can move to ready as long as outside indicates consumption
-          nextState <
-              mux(intf.readyOut, _MultiCycleDividerState.ready,
-                  _MultiCycleDividerState.done)
-        ]),
-        CaseItem(_MultiCycleDividerState.convert,
-            [nextState < _MultiCycleDividerState.done]),
-        CaseItem(_MultiCycleDividerState.accumulate, [
-          tmpDifference < lastDifference,
-          If.block([
-            Iff(~tmpDifference.or() | (bBuf > aBuf), [
-              // we're done (ready to convert) as difference == 0
-              // or we've exceeded the numerator
-              nextState < _MultiCycleDividerState.convert
-            ]),
-            // more processing to do
-            Else([nextState < _MultiCycleDividerState.process])
-          ])
-        ]),
-        CaseItem(_MultiCycleDividerState.process, [
-          tmpShift < (bBuf << currIndex),
-          If(
-              // special case: b is most negative #
-              // XOR of signOut and signNum is high iff
-              // signed AND denominator is negative
-              bBuf[dataWidth - 1] &
-                  ~bBuf.getRange(0, dataWidth - 2).or() &
-                  (signOut ^ signNum),
-              then: [
-                tmpDifference < ~Const(0, width: dataWidth + 1), // -1
-                nextState < _MultiCycleDividerState.accumulate
-              ],
-              orElse: [
-                tmpDifference < (aBuf - tmpShift),
-                // move to accumulate if tmpDifference <= 0
-                If(~tmpShift.or() | tmpDifference[-1] | ~tmpDifference.or(),
-                    then: [nextState < _MultiCycleDividerState.accumulate],
-                    orElse: [nextState < _MultiCycleDividerState.process])
-              ])
-        ]),
-        CaseItem(_MultiCycleDividerState.ready, [
-          If(intf.validIn, then: [
-            nextState <
-                mux(~intf.divisor.or(), _MultiCycleDividerState.done,
-                    _MultiCycleDividerState.process)
-            // move straight to DONE if divide-by-0
-          ], orElse: [
-            nextState < _MultiCycleDividerState.ready
-          ])
-        ])
-      ])
-    ]);
+    intf.validOut <= inState(MultiCycleDividerStates.done);
+    intf.readyIn <= inState(MultiCycleDividerStates.ready);
 
     // capture input arguments a, b into internal buffers
     // so the consumer doesn't have to continually assert them
@@ -312,7 +336,7 @@ class MultiCycleDivider extends Module {
           signOut < 0,
           signNum < 0,
         ]),
-        ElseIf(currentState.eq(_MultiCycleDividerState.ready) & intf.validIn, [
+        ElseIf(inState(MultiCycleDividerStates.ready) & intf.validIn, [
           // conditionally convert negative inputs to positive
           // and compute the output sign
           aBuf <
@@ -326,7 +350,7 @@ class MultiCycleDivider extends Module {
                   intf.isSigned,
           signNum < intf.dividend[dataWidth - 1] & intf.isSigned,
         ]),
-        ElseIf(currentState.eq(_MultiCycleDividerState.accumulate), [
+        ElseIf(inState(MultiCycleDividerStates.accumulate), [
           // reduce a_buf by the portion we've covered, retain others
           aBuf < lastDifference,
           bBuf < bBuf,
@@ -349,9 +373,8 @@ class MultiCycleDivider extends Module {
       If.block([
         Iff(intf.reset, [rBuf < Const(0, width: dataWidth + 1)]),
         ElseIf(
-          currentState.eq(_MultiCycleDividerState
-              .convert), // adjust positive remainder for signs
-          [rBuf < aBufConv],
+          inState(MultiCycleDividerStates.convert),
+          [rBuf < aBufConv], // adjust positive remainder for signs
         ),
         Else(
           [rBuf < rBuf], // retain
@@ -362,14 +385,14 @@ class MultiCycleDivider extends Module {
     // handle updates of curr_index
     Sequential(intf.clk, [
       If.block([
-        Iff(intf.reset, [currIndex < Const(0, width: logDataWidth)]),
+        Iff(intf.reset, [currIndex < Const(0, width: logDataWidth + 1)]),
         ElseIf(
-          currentState.eq(_MultiCycleDividerState
-              .process), // increment current index each PROCESS cycle
-          [currIndex < (currIndex + Const(1, width: logDataWidth))],
+          inState(MultiCycleDividerStates.process),
+          [currIndex < (currIndex + Const(1, width: logDataWidth + 1))],
+          // increment current index each PROCESS cycle
         ),
         Else(
-          [currIndex < Const(0, width: logDataWidth)], // reset curr_index
+          [currIndex < Const(0, width: logDataWidth + 1)], // reset curr_index
         )
       ])
     ]);
@@ -381,27 +404,27 @@ class MultiCycleDivider extends Module {
           lastSuccess < 0,
           lastDifference < 0,
         ]),
-        ElseIf(currentState.eq(_MultiCycleDividerState.ready) & intf.validIn, [
+        ElseIf(inState(MultiCycleDividerStates.ready) & intf.validIn, [
           lastSuccess < 0,
           lastDifference <
               mux(extDividendIn[dataWidth - 1] & intf.isSigned,
                   ~extDividendIn + 1, extDividendIn), // start by matching aBuf
         ]),
         ElseIf(
-            currentState.eq(_MultiCycleDividerState
-                .process), // didn't exceed a_buf, so count as success
-            [
-              If(~tmpDifference[-1], then: [
-                lastSuccess <
-                    (Const(1, width: dataWidth + 1) <<
-                        currIndex), // capture 2^i
-                lastDifference < tmpDifference
-              ], orElse: [
-                // failure so maintain
-                lastSuccess < lastSuccess,
-                lastDifference < lastDifference
-              ]),
+          inState(MultiCycleDividerStates.process),
+          // didn't exceed a_buf, so count as success
+          [
+            If(~tmpDifference[-1], then: [
+              lastSuccess <
+                  (Const(1, width: dataWidth + 1) << currIndex), // capture 2^i
+              lastDifference < tmpDifference
+            ], orElse: [
+              // failure so maintain
+              lastSuccess < lastSuccess,
+              lastDifference < lastDifference
             ]),
+          ],
+        ),
         Else(
           [
             // not needed so reset
@@ -416,17 +439,167 @@ class MultiCycleDivider extends Module {
     Sequential(intf.clk, [
       If.block([
         Iff(intf.reset, [outBuffer < 0]), // reset buffer
-        ElseIf(currentState.eq(_MultiCycleDividerState.done), [
+        ElseIf(inState(MultiCycleDividerStates.done), [
           outBuffer <
               mux(intf.readyOut, Const(0, width: dataWidth + 1), outBuffer),
         ]), // reset buffer if consumed result
-        ElseIf(currentState.eq(_MultiCycleDividerState.convert), [
+        ElseIf(inState(MultiCycleDividerStates.convert), [
           outBuffer < mux(signOut, ~outBuffer + 1, outBuffer),
         ]), // conditionally convert the result to the correct sign
-        ElseIf(currentState.eq(_MultiCycleDividerState.accumulate), [
+        ElseIf(inState(MultiCycleDividerStates.accumulate), [
           outBuffer < (outBuffer + lastSuccess)
         ]), // accumulate last_success into buffer
         Else([outBuffer < outBuffer]), // maintain buffer
+      ])
+    ]);
+  }
+
+  /// O(n) binary long division — one quotient bit per clock cycle.
+  ///
+  /// Processes the dividend MSB-first, shifting a partial remainder left and
+  /// trial-subtracting the divisor each cycle. The [remainder] output is
+  /// always 0 in this mode.
+  void _buildQuotientOnly() {
+    // Registers.
+    final aBuf = Logic(name: 'aBuf', width: dataWidth + 1); // |dividend|
+    final bBuf = Logic(name: 'bBuf', width: dataWidth + 1); // |divisor|
+    final signOut = Logic(name: 'signOut'); // output sign
+    final outBuffer =
+        Logic(name: 'outBuffer', width: dataWidth + 1); // quotient
+    final partialRem = Logic(name: 'partialRem', width: dataWidth + 1);
+
+    // bitIdx counts DOWN from dataWidth-1 to 0; one bit of dividend per cycle.
+    final bitIdx = Logic(name: 'bitIdx', width: widthFor(dataWidth));
+
+    // Combinational intermediates (reset to 0 by setupActions).
+    final shiftedRem = Logic(name: 'shiftedRem', width: dataWidth + 1);
+    final trialDiff = Logic(name: 'trialDiff', width: dataWidth + 1);
+    final quotBit = Logic(name: 'quotBit');
+
+    // Outputs.
+    intf.quotient <= outBuffer.getRange(0, dataWidth);
+    intf.divZero <= ~bBuf.or();
+    intf.remainder <= Const(0, width: dataWidth); // not computed in this mode
+
+    // Select aBuf[bitIdx]: the dividend bit for this cycle (MSB-first).
+    final dividendBitList = List<Logic>.generate(dataWidth, (i) => aBuf[i]);
+    final currentDividendBit =
+        bitIdx.selectFrom(dividendBitList).named('currentDividendBit');
+
+    final bitIdxInit =
+        Const(dataWidth - 1, width: widthFor(dataWidth)).named('bitIdxInit');
+
+    final fsm = FiniteStateMachine<MultiCycleDividerStates>(
+      intf.clk,
+      intf.reset,
+      MultiCycleDividerStates.ready,
+      [
+        State<MultiCycleDividerStates>(
+          MultiCycleDividerStates.ready,
+          events: {
+            intf.validIn & ~intf.divisor.or(): MultiCycleDividerStates.done,
+            intf.validIn: MultiCycleDividerStates.process,
+          },
+          actions: [],
+        ),
+        State<MultiCycleDividerStates>(
+          MultiCycleDividerStates.process,
+          events: {
+            // Last bit: bitIdx is at 0 this cycle → go to sign-convert.
+            bitIdx.eq(Const(0, width: widthFor(dataWidth))):
+                MultiCycleDividerStates.convert,
+          },
+          actions: [
+            // Shift partial remainder left and bring in the next dividend bit.
+            shiftedRem <
+                ((partialRem << 1) |
+                    currentDividendBit.zeroExtend(dataWidth + 1)),
+            // Trial subtraction: shiftedRem - bBuf.
+            trialDiff < (shiftedRem - bBuf),
+            // Quotient bit = 1 when shiftedRem >= bBuf (MSB of diff = 0).
+            quotBit < ~trialDiff[-1],
+          ],
+        ),
+        State<MultiCycleDividerStates>(
+          MultiCycleDividerStates.convert,
+          events: {Const(1): MultiCycleDividerStates.done},
+          actions: [],
+        ),
+        State<MultiCycleDividerStates>(
+          MultiCycleDividerStates.done,
+          events: {
+            intf.readyOut: MultiCycleDividerStates.ready,
+          },
+          actions: [],
+        ),
+      ],
+      setupActions: [shiftedRem < 0, trialDiff < 0, quotBit < 0],
+    );
+
+    Logic inState(MultiCycleDividerStates s) => fsm.currentState
+        .eq(Const(fsm.getStateIndex(s), width: fsm.currentState.width));
+
+    intf.validOut <= inState(MultiCycleDividerStates.done);
+    intf.readyIn <= inState(MultiCycleDividerStates.ready);
+
+    final extDividendIn = Logic(name: 'extDividendIn', width: dataWidth + 1)
+      ..gets(mux(intf.isSigned, intf.dividend.signExtend(dataWidth + 1),
+          intf.dividend.zeroExtend(dataWidth + 1)));
+    final extDivisorIn = Logic(name: 'extDivisorIn', width: dataWidth + 1)
+      ..gets(mux(intf.isSigned, intf.divisor.signExtend(dataWidth + 1),
+          intf.divisor.zeroExtend(dataWidth + 1)));
+
+    Sequential(intf.clk, [
+      If.block([
+        Iff(intf.reset, [
+          aBuf < 0,
+          bBuf < 0,
+          signOut < 0,
+          outBuffer < 0,
+          partialRem < 0,
+          bitIdx < bitIdxInit,
+        ]),
+        ElseIf(inState(MultiCycleDividerStates.ready) & intf.validIn, [
+          // Convert negative inputs to positive and compute the output sign.
+          aBuf <
+              mux(extDividendIn[dataWidth - 1] & intf.isSigned,
+                  ~extDividendIn + 1, extDividendIn),
+          bBuf <
+              mux(extDivisorIn[dataWidth - 1] & intf.isSigned,
+                  ~extDivisorIn + 1, extDivisorIn),
+          signOut <
+              (intf.dividend[dataWidth - 1] ^ intf.divisor[dataWidth - 1]) &
+                  intf.isSigned,
+          outBuffer < 0,
+          partialRem < 0,
+          bitIdx < bitIdxInit,
+        ]),
+        ElseIf(inState(MultiCycleDividerStates.process), [
+          // Accept quotient bit; update partial remainder.
+          partialRem < mux(quotBit, trialDiff, shiftedRem),
+          // Shift quotient accumulator left and insert new bit at LSB.
+          outBuffer < ((outBuffer << 1) | quotBit.zeroExtend(dataWidth + 1)),
+          // Count down toward 0.
+          bitIdx < (bitIdx - Const(1, width: widthFor(dataWidth))),
+        ]),
+        ElseIf(inState(MultiCycleDividerStates.convert), [
+          // Apply sign correction to quotient.
+          outBuffer < mux(signOut, ~outBuffer + 1, outBuffer),
+          bitIdx < bitIdx,
+        ]),
+        ElseIf(inState(MultiCycleDividerStates.done), [
+          // Clear quotient once the consumer accepts the result.
+          outBuffer <
+              mux(intf.readyOut, Const(0, width: dataWidth + 1), outBuffer),
+        ]),
+        Else([
+          aBuf < aBuf,
+          bBuf < bBuf,
+          signOut < signOut,
+          outBuffer < outBuffer,
+          partialRem < partialRem,
+          bitIdx < bitIdx,
+        ]),
       ])
     ]);
   }
