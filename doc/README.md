@@ -30,7 +30,8 @@ Some in-development items will have opened issues, as well. Feel free to create 
     - [Leading Digit Anticipate](./components/leading_digit_anticipate.md)
 - Count
   - [Count bit occurrence](./components/count.md)
-  - Count pattern occurrence
+  - [Count pattern occurrence](./components/count_pattern.md)
+
 - Detection
   - [Edge detection](./components/edge_detector.md)
 - Sort
