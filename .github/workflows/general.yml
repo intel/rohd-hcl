@@ -36,6 +36,11 @@ jobs:
       - name: Checkout submodules
         run: git submodule update --init --recursive
 
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+
       - name: Setup Dart
         uses: dart-lang/setup-dart@v1
 
@@ -117,6 +122,11 @@ jobs:
         uses: actions/checkout@v3
         with:
           submodules: recursive
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
 
       - name: Setup Dart
         uses: dart-lang/setup-dart@v1
