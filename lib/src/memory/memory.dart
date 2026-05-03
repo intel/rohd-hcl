@@ -208,14 +208,14 @@ abstract class Memory extends Module {
       rdPorts.add(readPorts[i].clone()
         ..connectIO(this, readPorts[i],
             inputTags: {DataPortGroup.control},
-            outputTags: {DataPortGroup.data},
+            outputTags: {DataPortGroup.data, DataPortGroup.validation},
             uniquify: (original) => 'rd_${original}_$i'));
     }
     for (var i = 0; i < numWrites; i++) {
       wrPorts.add(writePorts[i].clone()
         ..connectIO(this, writePorts[i],
             inputTags: {DataPortGroup.control, DataPortGroup.data},
-            outputTags: {},
+            outputTags: {DataPortGroup.validation},
             uniquify: (original) => 'wr_${original}_$i'));
     }
   }

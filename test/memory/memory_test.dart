@@ -345,4 +345,100 @@ void main() {
   test('non-byte-aligned data widths are legal without masks', () {
     DataPortInterface(1, 1);
   });
+
+  group('AssertiveDataPortInterface', () {
+    const dataWidth = 32;
+    const addrWidth = 5;
+
+    for (final readLatency in [0, 1, 2]) {
+      test(
+          'memory model write and read assert ready/valid (latency '
+          '$readLatency)', () async {
+        final clk = SimpleClockGenerator(10).clk;
+        final reset = Logic();
+
+        final wrPort = AssertiveDataPortInterface(dataWidth, addrWidth)
+          ..en.put(0);
+        final rdPort = AssertiveDataPortInterface(dataWidth, addrWidth)
+          ..en.put(0);
+
+        final mem = MemoryModel(clk, reset, [wrPort], [rdPort],
+            readLatency: readLatency);
+
+        await mem.build();
+
+        unawaited(Simulator.run());
+
+        await clk.nextNegedge;
+        reset.inject(1);
+        await clk.nextNegedge;
+        await clk.nextNegedge;
+        reset.inject(0);
+        await clk.nextNegedge;
+        await clk.nextNegedge;
+
+        // perform a write
+        wrPort.en.put(1);
+        wrPort.addr.put(3);
+        wrPort.data.put(0xdeadbeef);
+
+        await clk.nextPosedge;
+        // after the posedge, write completes; ready/valid should be asserted
+        await clk.nextNegedge;
+        expect(wrPort.ready.value.toInt(), 1,
+            reason: 'wrPort.ready should be high after a write');
+        expect(wrPort.valid.value.toInt(), 1,
+            reason: 'wrPort.valid should be high after a successful write');
+
+        wrPort.en.put(0);
+        await clk.nextPosedge;
+        await clk.nextNegedge;
+        expect(wrPort.valid.value.toInt(), 0,
+            reason: 'wrPort.valid should be low when write is not enabled');
+
+        // perform a read
+        rdPort.en.put(1);
+        rdPort.addr.put(3);
+
+        if (mem.readLatency == 0) {
+          // combinational: data is available immediately
+          expect(rdPort.data.value.toInt(), 0xdeadbeef);
+          expect(rdPort.ready.value.toInt(), 1,
+              reason: 'rdPort.ready should be high when data is available');
+          expect(rdPort.valid.value.toInt(), 1,
+              reason: 'rdPort.valid should be high when data is available');
+        } else {
+          // walk one cycle at a time; valid must stay low while the
+          // transaction is in flight, then assert when data is ready.
+          for (var i = 0; i < mem.readLatency; i++) {
+            await clk.nextNegedge;
+            if (i < mem.readLatency - 1) {
+              expect(rdPort.valid.value.toInt(), 0,
+                  reason: 'rdPort.valid should be low during latency wait '
+                      '(latency $readLatency, cycle $i)');
+              expect(rdPort.ready.value.toInt(), 0,
+                  reason: 'rdPort.ready should be low during latency wait '
+                      '(latency $readLatency, cycle $i)');
+            } else {
+              expect(rdPort.data.value.toInt(), 0xdeadbeef);
+              expect(rdPort.ready.value.toInt(), 1,
+                  reason: 'rdPort.ready should be high when data is available');
+              expect(rdPort.valid.value.toInt(), 1,
+                  reason: 'rdPort.valid should be high when data is available');
+            }
+          }
+        }
+
+        // disable the read port, valid should drop low
+        rdPort.en.put(0);
+        for (var i = 0; i < mem.readLatency; i++) {
+          await clk.nextNegedge;
+        }
+        expect(rdPort.valid.value.toInt(), 0,
+            reason: 'rdPort.valid should be low when read is not enabled');
+
+        await Simulator.endSimulation();
+      });
+    }
+  });
 }
