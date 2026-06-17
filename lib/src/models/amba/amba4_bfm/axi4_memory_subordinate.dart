@@ -473,8 +473,8 @@ class Axi4SubordinateMemoryAgent extends Agent {
       _writeDataQueue[mapIdx]
           .add(Axi4DataPacket(data: beatData, strb: beatStrb));
     }
-    logger.info('Captured write data on channel $index.');
-    logger.info('Finished capturing write data on channel $index.');
+    logger.info('Captured write data on channel $index.')
+      ..info('Finished capturing write data on channel $index.');
     _writeReadyToOccur[mapIdx] = true;
   }
 
