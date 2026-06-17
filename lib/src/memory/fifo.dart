@@ -363,7 +363,8 @@ class FifoChecker extends Component {
       }
 
       if (fifo.generateError && enableErrorCheck) {
-        if (fifo.error!.previousValue!.toBool()) {
+        if (fifo.error!.previousValue!.isValid &&
+            fifo.error!.previousValue!.toBool()) {
           logger.severe('Fifo $fifo error signal was asserted.');
         }
       }
