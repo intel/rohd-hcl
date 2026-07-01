@@ -152,6 +152,67 @@ void main() {
       expect(memStr, expected);
     });
 
+    group('non-word-aligned section address', () {
+      // Regression tests for the fix that pre-fills lower byte positions when
+      // a hex section starts at a non-word-aligned address.
+
+      test('lower bytes are zero-padded when no prior data exists', () {
+        // @1 means byte 1 of the first 32-bit word (address 0x00).
+        // Bytes below the start offset should be filled with 0x00.
+        const hex = '''
+@1
+AA BB CC
+''';
+        final storage = SparseMemoryStorage(addrWidth: 32, dataWidth: 32)
+          ..loadMemString(hex);
+
+        // Word at 0x00: byte0=0x00 (padding), byte1=0xAA, byte2=0xBB,
+        // byte3=0xCC → little-endian word = 0xCCBBAA00
+        expect(
+          storage.getData(LogicValue.ofInt(0x00, 32))!.toInt(),
+          equals(0xCCBBAA00),
+        );
+      });
+
+      test('lower bytes are preserved when prior section already wrote them',
+          () {
+        // First section writes 0x11 0x22 0x33 0x44 starting at byte 0.
+        // Second section starts at byte 1 of the same word; byte 0 (0x11)
+        // must be preserved rather than zeroed out.
+        const hex = '''
+@0
+11 22 33 44
+@1
+AA BB CC
+''';
+        final storage = SparseMemoryStorage(addrWidth: 32, dataWidth: 32)
+          ..loadMemString(hex);
+
+        // Word at 0x00: byte0=0x11 (preserved), byte1=0xAA, byte2=0xBB,
+        // byte3=0xCC → little-endian word = 0xCCBBAA11
+        expect(
+          storage.getData(LogicValue.ofInt(0x00, 32))!.toInt(),
+          equals(0xCCBBAA11),
+        );
+      });
+
+      test('offset of 3 bytes with no prior data is zero-padded correctly', () {
+        // @3 means byte 3 of the first word; bytes 0-2 should be zero-padded.
+        const hex = '''
+@3
+AA
+''';
+        final storage = SparseMemoryStorage(addrWidth: 32, dataWidth: 32)
+          ..loadMemString(hex);
+
+        // Word at 0x00: bytes 0-2 = 0x00, byte3 = 0xAA → 0xAA000000
+        expect(
+          storage.getData(LogicValue.ofInt(0x00, 32))!.toInt(),
+          equals(0xAA000000),
+        );
+      });
+    });
+
     test('comments and whitespace and out of order work properly', () {
       const data = '''
 
