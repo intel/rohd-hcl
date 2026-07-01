@@ -129,7 +129,8 @@
     }
 
     if (fifo.generateError &amp;&amp; enableErrorCheck) {
-      if (fifo.error!.previousValue!.toBool()) {
+      if (fifo.error!.previousValue!.isValid &amp;&amp;
+          fifo.error!.previousValue!.toBool()) {
         logger.severe(&#39;Fifo $fifo error signal was asserted.&#39;);
       }
     }
