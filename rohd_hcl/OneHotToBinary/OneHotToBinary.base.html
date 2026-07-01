@@ -56,15 +56,15 @@
       
   <div>
     <ol class="annotation-list">
-        <li>@<a href="https://pub.dev/documentation/meta/1.18.2/meta/protected-constant.html">protected</a></li>
+        <li>@<a href="https://pub.dev/documentation/meta/1.18.3/meta/protected-constant.html">protected</a></li>
     </ol>
   </div>
       <span class="name ">OneHotToBinary.base</span>(<wbr><ol class="parameter-list"> <li><span class="parameter" id="base-param-onehot"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.9/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">onehot</span>, {</span></li>
-<li><span class="parameter" id="base-param-generateError"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.11.5/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">generateError</span> = <span class="default-value">false</span>, </span></li>
-<li><span class="parameter" id="base-param-name"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.11.5/dart-core/String-class.html">String</a></span> <span class="parameter-name">name</span> = <span class="default-value">&#39;one_hot_to_binary&#39;</span>, </span></li>
-<li><span class="parameter" id="base-param-reserveName"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.11.5/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">reserveName</span> = <span class="default-value">false</span>, </span></li>
-<li><span class="parameter" id="base-param-reserveDefinitionName"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.11.5/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">reserveDefinitionName</span> = <span class="default-value">false</span>, </span></li>
-<li><span class="parameter" id="base-param-definitionName"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.11.5/dart-core/String-class.html">String</a>?</span> <span class="parameter-name">definitionName</span>, </span></li>
+<li><span class="parameter" id="base-param-generateError"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.12.2/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">generateError</span> = <span class="default-value">false</span>, </span></li>
+<li><span class="parameter" id="base-param-name"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.12.2/dart-core/String-class.html">String</a></span> <span class="parameter-name">name</span> = <span class="default-value">&#39;one_hot_to_binary&#39;</span>, </span></li>
+<li><span class="parameter" id="base-param-reserveName"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.12.2/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">reserveName</span> = <span class="default-value">false</span>, </span></li>
+<li><span class="parameter" id="base-param-reserveDefinitionName"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.12.2/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">reserveDefinitionName</span> = <span class="default-value">false</span>, </span></li>
+<li><span class="parameter" id="base-param-definitionName"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.12.2/dart-core/String-class.html">String</a>?</span> <span class="parameter-name">definitionName</span>, </span></li>
 </ol>})
     </section>
     
@@ -88,7 +88,7 @@ OneHotToBinary.base(Logic onehot,
           definitionName:
               definitionName ?? &#39;OneHotToBinary_W${onehot.width}&#39;) {
   onehot = addInput(&#39;onehot&#39;, onehot, width: onehot.width);
-  addOutput(&#39;binary&#39;, width: max(log2Ceil(onehot.width), 1));
+  addOutput(&#39;binary&#39;, width: widthFor(onehot.width));
 
   if (generateError) {
     addOutput(&#39;error&#39;);

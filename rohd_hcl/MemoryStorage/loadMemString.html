@@ -55,9 +55,9 @@
     <section class="multi-line-signature">
       
 <span class="returntype">void</span>
-<span class="name ">loadMemString</span>(<wbr><ol class="parameter-list"> <li><span class="parameter" id="loadMemString-param-memContents"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.11.5/dart-core/String-class.html">String</a></span> <span class="parameter-name">memContents</span>, {</span></li>
-<li><span class="parameter" id="loadMemString-param-radix"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.11.5/dart-core/int-class.html">int</a></span> <span class="parameter-name">radix</span> = <span class="default-value">16</span>, </span></li>
-<li><span class="parameter" id="loadMemString-param-bitsPerAddress"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.11.5/dart-core/int-class.html">int</a></span> <span class="parameter-name">bitsPerAddress</span> = <span class="default-value">8</span>, </span></li>
+<span class="name ">loadMemString</span>(<wbr><ol class="parameter-list"> <li><span class="parameter" id="loadMemString-param-memContents"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.12.2/dart-core/String-class.html">String</a></span> <span class="parameter-name">memContents</span>, {</span></li>
+<li><span class="parameter" id="loadMemString-param-radix"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.12.2/dart-core/int-class.html">int</a></span> <span class="parameter-name">radix</span> = <span class="default-value">16</span>, </span></li>
+<li><span class="parameter" id="loadMemString-param-bitsPerAddress"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.12.2/dart-core/int-class.html">int</a></span> <span class="parameter-name">bitsPerAddress</span> = <span class="default-value">8</span>, </span></li>
 </ol>})
 
       
@@ -172,18 +172,24 @@ B3 02 00 00 33 05 00 00 B3 05 00 00 13 05 F5 1F
       final lineAddr = int.parse(line.substring(1), radix: 16);
       final lineAddrLv =
           LogicValue.ofInt(lineAddr - lineAddr % addrIncrPerLine, addrWidth);
-      if (getData(lineAddrLv) != null) {
-        &#47;&#47; must reconstruct the bytes array ending at the provided address
-        final endOff = lineAddr % addrIncrPerLine;
-        final origData = getData(lineAddrLv);
-        chunks.clear();
 
-        if (endOff != 0) {
-          chunks.add(origData!
-              .getRange(0, endOff * bitsPerAddress)
-              .toInt()
-              .toRadixString(radix));
-        }
+      &#47;&#47; if the address is not word-aligned, pre-fill the lower byte
+      &#47;&#47; positions so that new data lands at the correct byte offset within
+      &#47;&#47; the word.  When the word already has data (e.g. written by the
+      &#47;&#47; previous section), preserve those lower bytes; otherwise use zeros.
+      final endOff = lineAddr % addrIncrPerLine;
+      if (endOff != 0) {
+        final lowerBytesCharsCount = endOff * bitsPerAddress ~&#47; bitsPerChar;
+        final origData = getData(lineAddrLv);
+        final lowerStr = origData != null
+            ? origData
+                .getRange(0, endOff * bitsPerAddress)
+                .toInt()
+                .toRadixString(radix)
+                .padLeft(lowerBytesCharsCount, &#39;0&#39;)
+            : &#39;0&#39; * lowerBytesCharsCount;
+        chunks.add(lowerStr);
+        chunksLength += lowerStr.length;
       }
 
       address = lineAddrLv.toInt();
